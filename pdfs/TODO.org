@@ -1,0 +1,9 @@
+* Papers
+Fontaine pas de var ab
+Raynaud (p,p,p)
+Tate p-divisible groups (check that if I'm isogenous to something with 
+  good reudction then i have good reduction)
+Feng "https://math.berkeley.edu/~fengt/stanford_course.html"
+Serre Duke
+
+
