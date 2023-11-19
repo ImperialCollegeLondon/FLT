@@ -1,0 +1,27 @@
+\chapter{Applications of Jensen's inequality}
+
+In this chapter, $h$ denotes the function $h(x) := x \log \frac{1}{x}$ for $x \in [0,1]$.
+
+\begin{lemma}[Concavity]\label{concave}
+  \lean{h-concave}
+  $h$ is strictly concave on $[0,1]$. NOTE: right now only concavity is established.
+\end{lemma}
+
+\begin{proof} Check that $h'$ is strictly monotone decreasing.
+\end{proof}
+
+\begin{lemma}[Jensen]\label{jensen}
+  \lean{h-jensen} \leanok
+  If $S$ is a finite set, and $\sum_{s \in S} w_s = 1$ for some non-negative $w_s$, and $p_s \in [0,1]$ for all $s \in S$, then
+  $$ \sum_{s \in S} w_s h(p_s) \leq h(\sum_{s \in S} w_s p_s).$$
+\end{lemma}
+
+\begin{proof} \uses{h-concave}\leanok Apply Jensen and Lemma \ref{concave}.
+\end{proof}
+
+\begin{lemma}[Converse Jensen]\label{converse-jensen}
+If equality holds in the above lemma, then $p_s = \sum_{s \in S} w_s h(p_s)$ whenever $w_s \neq 0$.
+\end{lemma}
+
+\begin{proof} \uses{h-concave} Need some converse form of Jensen, not sure if it is already in Mathlib.
+\end{proof}
