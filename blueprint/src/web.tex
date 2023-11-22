@@ -1,0 +1,27 @@
+% This file makes the web version of the blueprint
+
+\documentclass{report}
+
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\DeclareGraphicsExtensions{.svg,.png,.jpg}
+\usepackage[capitalize]{cleveref}
+\usepackage[showmore, dep_graph, project=../../]{blueprint}
+
+\usepackage{tikz-cd}
+\usepackage{tikz}
+
+\input{macro/common}
+\input{macro/web}
+
+\github{https://github.com/ImperialCollegeLondon/FLT/}
+%\dochome{https://teorth.github.io/PFR/docs}
+
+\title{A Lean formalisation of Fermat's Last Theorem}
+\author{Kevin Buzzard, Richard Taylor}
+
+\begin{document}
+\maketitle
+\input{content}
+\end{document}

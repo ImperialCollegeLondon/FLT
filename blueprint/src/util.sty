@@ -1,0 +1,220 @@
+\ProvidesPackage{util}
+
+%%%%%%%%%%%%%%%%%%%%%
+
+% A very opinionated utility package providing a ton of environments and packages for LaTeX files.
+
+%%%%%%%%%%%%%%%%%%%%%
+
+\newif\if@compilingfullbook
+\DeclareOption{book}{\@compilingfullbooktrue}
+
+\ProcessOptions\relax
+
+\usepackage[UKenglish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper]{geometry} % , margin=20mm
+\usepackage{textcomp} % makes the "not defining \perthousand"/"\micro" errors go away by including this first
+%\newcommand\hmmax{0}
+%\newcommand\bmmax{0}
+\usepackage{mathpazo}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{physics}
+\usepackage{bm}
+\usepackage{tgpagella}
+\DeclareDocumentCommand\mathbf{m}{\bm{\mathrm{#1}}} % make bold work for greek symbols
+\DeclareDocumentCommand\vnabla{}{\nabla} % use non-bold nabla for \grad, \curl etc.
+% Enabled to unify laplacian symbol between vector and scalar forms
+\DeclareDocumentCommand\dotproduct{}{\cdot} % use non-bold dot for scalar product to unify notation
+\DeclareDocumentCommand\crossproduct{}{\times} % use non-bold dot for scalar product to unify notation
+\usepackage{gensymb}
+\usepackage[shortlabels]{enumitem}
+\setlist[enumerate,1]{label={(\roman*)}}
+\setlist[enumerate,2]{label={(\alph*)}}
+\usepackage{mathtools}
+\mathtoolsset{mathic}
+\usepackage{centernot}
+\usepackage{relsize}
+\usepackage{mathrsfs}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{array}
+\usepackage{multirow}
+% todo: remove \noindent and such now that parskip is enabled
+\usepackage[parfill]{parskip}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+\usepgfplotslibrary{external}
+
+\usepackage{etoolbox}
+\usepackage{tikz-cd}
+\usetikzlibrary{external}
+\usetikzlibrary{cd}
+
+\usepackage{minitoc}
+\usepackage{faktor} % TODO: convert group quotients to this style
+\usepackage{scalerel}
+\usepackage{microtype}
+\usepackage[breakable]{tcolorbox}
+
+\usepackage[pdfa]{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linktoc=all,
+	linkcolor=green!40!black,
+}
+
+\numberwithin{equation}{section} % make equations be numbered 1.1 not 1
+
+\newcommand{\tableofcontentsnewpage}{\tableofcontents\newpage}
+
+% increase spacing between toc number and title
+\makeatletter
+\renewcommand{\l@subsection}{\@dottedtocline{2}{1.8em}{3.2em}}
+\makeatother
+
+% create the theorem environments
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+
+\newtheorem*{claim}{Claim}
+\newtheorem*{theorem}{Theorem}
+\newtheorem*{proposition}{Proposition}
+\newtheorem*{lemma}{Lemma}
+\newtheorem*{corollary}{Corollary}
+\newtheorem*{example}{Example} % todo: convert `as an example...' to the example environment
+\newtheorem*{param}{Model parameters}
+\newtheorem*{ih}{Inductive hypothesis}
+
+\theoremstyle{remark}
+\newtheorem*{note}{Note}
+\newtheorem*{remark}{Remark}
+
+\definecolor{lemma_col}{RGB}{170, 217, 255}
+\definecolor{thm_col}{RGB}{255, 196, 215}
+\definecolor{def_col}{RGB}{120, 232, 190}
+\definecolor{param_col}{RGB}{206, 120, 232}
+\definecolor{ih_col}{RGB}{232, 191, 120}
+
+% we don't have `frame hidden` since we can't use `skins` from tcolorbox withou compile errors
+\tcolorboxenvironment{definition}{colback=def_col!30,colframe=white,breakable,arc=0mm}
+\tcolorboxenvironment{claim}{colback=lemma_col!30,colframe=white,breakable,arc=0mm}
+\tcolorboxenvironment{proposition}{colback=lemma_col!30,colframe=white,breakable,arc=0mm}
+\tcolorboxenvironment{lemma}{colback=lemma_col!30,colframe=white,breakable,arc=0mm}
+\tcolorboxenvironment{corollary}{colback=lemma_col!30,colframe=white,breakable,arc=0mm}
+%\tcolorboxenvironment{example}{colback=green!10,colframe=white,breakable,arc=0mm}
+\tcolorboxenvironment{theorem}{colback=thm_col!30,colframe=white,breakable,arc=0mm}
+\tcolorboxenvironment{param}{colback=param_col!30,colframe=white,breakable,arc=0mm}
+\tcolorboxenvironment{ih}{colback=ih_col!30,colframe=white,breakable,arc=0mm}
+
+\newcommand{\ddempty}{\mathrm{d}}
+\newcommand{\dn}[2]{\mathrm{d}^#1#2}
+\newcommand{\st}{\text{ s.t.
+	}}
+\newcommand{\contradiction}{\(\#\)}
+\newcommand{\genset}[1]{\left\langle{} #1 \right\rangle}
+\newcommand{\ngenset}[1]{\left\langle\!\left\langle{} #1 \right\rangle\!\right\rangle}
+\newcommand{\midd}{\,\middle|\,}
+\newcommand{\nhat}{\vu{n}}
+\newcommand{\rdot}{\dot{\vb{r}}}
+\newcommand{\rddot}{\ddot{\vb{r}}}
+\newcommand{\transpose}{\intercal}
+\newcommand{\acts}{\curvearrowright}
+\newcommand{\adjugate}[1]{\widetilde{#1}}
+\newcommand{\mathhuge}[1]{\mathlarger{\mathlarger{\mathlarger{#1}}}}
+\newcommand{\stcomp}[1]{{#1}^c} % consider \complement?
+% Personally I think this looks better, and it's what Wikipedia uses
+\newcommand{\prob}[1]{\mathbb{P}\left({#1}\right)}
+\newcommand{\psub}[2]{\mathbb{P}_{#1}\left({#2}\right)}
+\newcommand{\psubx}[1]{\psub{x}{#1}}
+\newcommand{\expect}[1]{\mathbb{E}\left[{#1}\right]}
+\newcommand{\esub}[2]{\mathbb{E}_{#1}\left[{#2}\right]}
+\newcommand{\esubx}[1]{\esub{x}{#1}}
+\newcommand{\Var}[1]{\Varop\left({#1}\right)}
+\newcommand{\Varsub}[2]{\Varop_{#1}\left({#2}\right)}
+\newcommand{\Cov}[1]{\Covop\left({#1}\right)}
+\newcommand{\Corr}[1]{\Corrop\left({#1}\right)}
+\newcommand{\convdist}{\xrightarrow{d}}
+\newcommand{\convprob}{\xrightarrow{\mathbb{P}}}
+\newcommand{\wildcard}{{}\cdot{}}
+\newcommand{\inner}[1]{\left\langle{#1}\right\rangle}
+\newcommand{\Markov}[1]{\Markovop\left({#1}\right)}
+\newcommand{\sstar}{{\star\star}}
+\newcommand{\connect}{\mathbin{\#}}
+\newcommand{\Mob}{\text{M\"ob}}
+\newcommand{\Chat}{\widehat{\mathbb C}}
+\newcommand{\bound}{\ooalign{\hidewidth$\partial$\hidewidth\cr/}}
+\newcommand{\hhat}[1]{\hat{\hat{#1}}}
+\DeclareMathOperator*{\bigconnect}{\scalerel*{\#}{\textstyle\sum}}
+
+\DeclareMathOperator{\vecspan}{span}
+\DeclareMathOperator{\HCF}{HCF}
+\DeclareMathOperator{\LCM}{LCM}
+\DeclareMathOperator{\ord}{ord}
+\DeclareMathOperator{\Sym}{Sym}
+\DeclareMathOperator{\nullity}{null}
+\DeclareMathOperator{\Orb}{Orb}
+\DeclareMathOperator{\Stab}{Stab}
+\DeclareMathOperator{\ccl}{ccl}
+\DeclareMathOperator{\Varop}{Var}
+\DeclareMathOperator{\Covop}{Cov}
+\DeclareMathOperator{\Corrop}{Corr}
+\DeclareMathOperator{\Markovop}{Markov}
+\DeclareMathOperator{\adj}{adj}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\diam}{diam}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\Log}{Log}
+\DeclareMathOperator{\Iff}{\mathrm{I}}
+\DeclareMathOperator{\IIff}{\mathrm{I\!I}}
+\DeclareMathOperator{\artanh}{artanh}
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\graft}{graft}
+\DeclareMathOperator{\Gal}{Gal}
+\DeclareMathOperator{\Instr}{Instr}
+\DeclareMathOperator*{\esssup}{ess\ sup}
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\fchar}{char}
+\DeclareMathOperator{\code}{code}
+\DeclareMathOperator{\coker}{coker}
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\DeclarePairedDelimiter\Brackets{[\![}{]\!]}
+
+% for arrows in the middle of the line
+\usetikzlibrary{decorations.markings}
+\tikzset{->-/.style={decoration={
+		markings,
+		mark=at position #1 with {\arrow{>}}},postaction={decorate}}}
+\usetikzlibrary{automata}
+\usetikzlibrary{positioning}
+
+\ifdefined\hideproofs
+\usepackage{environ}
+\usepackage{calc}
+\usepackage{pgf}
+\newlength{\parline}
+\newlength{\paroutindent}
+\newlength{\lineheight}
+\setlength{\lineheight}{\heightof{abcdefghijklmnoprstuvwxyz}}
+\NewEnviron{killproof}{%
+\setlength{\paroutindent}{\expandafter\parindent}%
+\setlength{\parline}{\heightof{\noindent\begin{minipage}{\linewidth}%
+			\setlength{\parindent}{\paroutindent}%
+			\BODY%
+		\end{minipage}}}%
+\pgfmathparse{int(round(\parline / (0.9*\lineheight)))}%
+\textit{Proof hidden (approx.\ \pgfmathresult{} lines).\\}
+}
+\let\proof\killproof
+\let\endproof\endkillproof
+\fi
