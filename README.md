@@ -8,4 +8,4 @@ The project is currently being led by Kevin Buzzard. It is funded by [grant EP/Y
 
 General information ("What is this all about?", "Why are you doing it?", "What is Fermat's Last Theorem/Lean" etc) is [here](GENERAL.md).
 
-More technical information about the mathematics involved is coming soon. 
+More technical information about the mathematics involved is coming when I find out how to make blueprint software work. **TODO**
