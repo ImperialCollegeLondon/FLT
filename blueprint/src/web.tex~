@@ -15,11 +15,12 @@
 \input{macro/common}
 \input{macro/web}
 
-\github{https://github.com/ImperialCollegeLondon/FLT/}
-\dochome{https://ImperialCollegeLondon.github.io/FLT/docs}
+%\home{https://github.com/teorth/PFR/}
+\github{https://github.com/teorth/PFR/}
+\dochome{https://teorth.github.io/PFR/docs}
 
-\title{A Lean formalisation of Fermat's Last Theorem}
-\author{Kevin Buzzard, Richard Taylor}
+\title{PFR}
+\author{}
 
 \begin{document}
 \maketitle
