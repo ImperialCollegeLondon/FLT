@@ -3,3 +3,4 @@
 /lake-packages/*
 .lake/*
 .DS_Store
+blueprint/print/print.log
