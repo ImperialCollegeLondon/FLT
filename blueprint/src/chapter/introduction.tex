@@ -1,7 +1,23 @@
 \chapter{An overview of the proof.}
 
-Fermat's Last Theorem is the statement that if $x,y,z,n$ are positive integers with $n\geq 3$, then $x^n+y^n\not=z^n$.
+Fermat's Last Theorem is the following statement:
 
-Here is a high-level technical overview of the proof which we shall formalise.
+\begin{theorem}[Fermat's Last Theorem]\lean{FLT} 
+If $a,b,c,n$ are positive integers with $n\geq 3$, then $a^n+b^n\not=c^n$.
+\end{theorem}
 
+It is thus a statement about a family of \emph{Diophantine equations} ($a^3+b^3=c^3, a^4+b^4=c^4,\ldots$). Diophantus was a Greek mathematician who lived around 1800 years ago, and he would have been able to understand the statement of the theorem (he knew about positive integers, addition and multiplication).
 
+Explaining a proof of Fermat's Last Theorem to Lean is a bit like explaining the proof to Diophantus itself; for example, one starts by observing that before we go any further it's convenient to first invent/discover zero and negative numbers, and one can point explicitly at places in Lean's source code \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Prelude.lean#L1049}{here} and \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Data/Int/Basic.lean#L45}{here} where these things happen.
+
+The proof is by contradiction, so let's start by assuming the existence of a solution to $a^n+b^n=c^n$ in positive integers. The next step is to invent/discover the theory of unique factorization of positive integers into primes, which enables us to do two things: firstly we may assume that $a,b,c$ are pairwise coprime (divide through by a common factor), and secondly we can assume that either $n=3$ or $n=4$ (which can be dealt with separately, see for example **TODO** \href{docs#fermatLastTheoremFour}{here}), or that $n\geq 5$ is a prime number, and in particular that $n$ is odd.
+
+Because $n$ is odd and we have invented/discovered negative integers, we can permute the factors and change some signs to put us into a situation where $a$ has remainder 3 when divided by 4, and $b$ is even. We then consider the \emph{Frey curve} $Y^2=X(X-a^n)(X+b^n)$.
+
+This equation defines a so-called \emph{elliptic curve} over the rationals, so the next thing we have to do is to develop a theory of elliptic curves, to for example the level of Silverman's two volumes on the subject. Specific results which we need to continue the argument are explained in the **TODO** projects.
+
+The Frey curve curve can be checked to be semistable. A deep theorem of Mazur shows that the associated Galois representation on the $n$-torsion (a 2-dimensional representation of the absolute Galois group of the rationals) cannot be reducible. However another deep theorem, first proved by Wiles, shows that that the $n$-torsion cannot be irreducible either.
+
+There are obviously many more details which need to be explained here; however we have already covered plenty of mathematics which is not yet formalised in Lean. In particular, reducing the proof of Fermat's Last Theorem to Mazur's theorem and Wiles' theorem needs the theory of the Tate curve, the existence of the Weil pairing on the n-torsion of an elliptic curve, the Riemann--Roch theorem and so on. 
+
+**TODO** github ref for FLT4, ask about FLT3. Cite elliptic curves in mathlib. Check Silverman construction of Weil pairing 
