@@ -2,8 +2,6 @@ on:
   push:
     branches:
       - main
-      # TODO remove it when it's merged into main
-      - blueprint
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
