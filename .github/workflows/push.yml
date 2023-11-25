@@ -47,7 +47,12 @@ jobs:
       - name: Cache mathlib docs
         uses: actions/cache@v3
         with:
-          path: .lake/build/doc/Mathlib
+          path: |
+            .lake/build/doc/Init
+            .lake/build/doc/Lake
+            .lake/build/doc/Lean
+            .lake/build/doc/Std
+            .lake/build/doc/Mathlib
           key: DocGen4-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             DocGen4-
@@ -97,3 +102,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+
+      - name: Make sure the cache works
+        run: |
+          mv docs/docs .lake/build/doc
