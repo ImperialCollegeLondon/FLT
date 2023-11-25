@@ -2,3 +2,4 @@
 /lakefile.olean
 /lake-packages/*
 .lake/*
+.DS_Store

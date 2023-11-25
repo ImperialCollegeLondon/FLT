@@ -1,4 +1,4 @@
-import Mathlib
+import Mathlib.Data.PNat.Basic
 
 theorem PNat.pow_add_pow_ne_pow
     (x y z : ℕ+)
