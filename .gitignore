@@ -4,3 +4,6 @@
 .lake/*
 .DS_Store
 blueprint/print/print.log
+blueprint/web/
+blueprint/print/
+blueprint/src/*.paux
