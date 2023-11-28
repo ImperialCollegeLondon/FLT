@@ -2,8 +2,6 @@ on:
   push:
     branches:
       - main
-      # TODO remove it when it's merged into main
-      - blueprint
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -66,20 +64,36 @@ jobs:
           python-version: '3.9'
           cache: 'pip' # caching pip dependencies
 
-      - name: Install blueprint apt dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y graphviz libgraphviz-dev pdf2svg dvisvgm texlive-full
+      - name: Install blueprint apt deps with cache
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          # texlive-binaries is for kpsewhich, which is a dependency of plastex/blueprint
+          packages: graphviz libgraphviz-dev pdf2svg dvisvgm texlive-binaries
+          version: 1.0
 
       - name: Install blueprint dependencies
         run: |
-          cd blueprint && pip install -r requirements.txt
+          pip install -r blueprint/requirements.txt
 
-      - name: Build blueprint and copy to `docs/blueprint`
+      - name: Build blueprint PDF
+        uses: xu-cheng/texlive-action@v2
+        with:
+          scheme: full
+          run: |
+            apk update
+            apk add --update make py3-pip git
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            git config --global --add safe.directory `pwd`
+            python3 -m pip install --upgrade pip requests wheel
+            python3 -m pip install invoke
+            inv bp
+
+      - name: Build blueprint website and copy blueprint to `docs/blueprint`
         run: |
-          inv all
+          inv web
+          inv copy
 
-      - name: Copy documentation to `docs/docs`
+      - name: Copy Lean documentation to `docs/docs`
         run: |
           mv .lake/build/doc docs/docs
 

@@ -46,15 +46,33 @@ def web(ctx):
     os.chdir(cwd)
 
 @task
-def serve(ctx, random_port=False):
+def serve(ctx, port=8080, random_port=False):
+    """
+    Serve the blueprint website assuming the blueprint website is already built
+    """
+
+    class MyTCPServer(socketserver.TCPServer):
+        def server_bind(self):
+            import socket
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.socket.bind(self.server_address)
+
     cwd = os.getcwd()
     os.chdir(BP_DIR/'web')
-    Handler = http.server.SimpleHTTPRequestHandler
+
     if random_port:
         port = random.randint(8000, 8100)
-        print("Serving on port " + str(port))
-    else:
-        port = 8000
-    httpd = socketserver.TCPServer(("", port), Handler)
-    httpd.serve_forever()
+
+    Handler = http.server.SimpleHTTPRequestHandler
+    httpd = MyTCPServer(('', port), Handler)
+
+    try:
+        (ip, port) = httpd.server_address
+        ip = ip or 'localhost'
+        print(f'Serving http://{ip}:{port}/ ...')
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
+
     os.chdir(cwd)
