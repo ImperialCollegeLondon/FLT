@@ -1,6 +1,6 @@
 # Fermat's Last Theorem
 
-[![Website](https://img.shields.io/badge/Website-ready-green)](https://ImperialCollegeLondon.github.io/FLT/) [![Documentation](https://img.shields.io/badge/Documentation-passing-green)](https://ImperialCollegeLondon.github.io/FLT/docs/) [![Blueprint](https://img.shields.io/badge/Blueprint-WIP-blue)](https://ImperialCollegeLondon.github.io/FLT/blueprint/)  [![Paper](https://img.shields.io/badge/Paper-WIP-blue)](https://ImperialCollegeLondon.github.io/FLT/blueprint.pdf)
+[![Website](https://img.shields.io/badge/Website-ready-green)](https://ImperialCollegeLondon.github.io/FLT/) [![Documentation](https://img.shields.io/badge/Documentation-passing-green)](https://ImperialCollegeLondon.github.io/FLT/docs/) [![Blueprint](https://img.shields.io/badge/Blueprint-WIP-blue)](https://ImperialCollegeLondon.github.io/FLT/blueprint/)  [![Paper](https://img.shields.io/badge/Paper-WIP-blue)](https://ImperialCollegeLondon.github.io/FLT/blueprint.pdf) [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/ImperialCollegeLondon/FLT)
 
 An ongoing multi-author open source project to formalise a proof of Fermat's Last Theorem in the Lean theorem prover. 
 
