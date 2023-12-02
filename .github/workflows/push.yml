@@ -65,34 +65,20 @@ jobs:
           python-version: '3.9'
           cache: 'pip' # caching pip dependencies
 
-      - name: Install blueprint apt deps with cache
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          # texlive-binaries is for kpsewhich, which is a dependency of plastex/blueprint
-          packages: graphviz libgraphviz-dev pdf2svg dvisvgm texlive-binaries
-          version: 1.0
-
-      - name: Install blueprint dependencies
-        run: |
-          pip install -r blueprint/requirements.txt
-
-      - name: Build blueprint PDF
+      - name: Build blueprint
         uses: xu-cheng/texlive-action@v2
         with:
           scheme: full
           run: |
             apk update
-            apk add --update make py3-pip git
+            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
             python3 -m pip install --upgrade pip requests wheel
+            python3 -m pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install -r requirements.txt
             python3 -m pip install invoke
-            inv bp
-
-      - name: Build blueprint website and copy blueprint to `docs/blueprint`
-        run: |
-          inv web
-          inv copy
+            inv all
 
       - name: Copy Lean documentation to `docs/docs`
         run: |
