@@ -51,9 +51,10 @@ jobs:
             .lake/build/doc/Lean
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
-          key: DocGen4-${{ hashFiles('lake-manifest.json') }}
+            .lake/build/doc/declarations
+          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
-            DocGen4-
+            MathlibDoc-
 
       - name: Build documentation
         run: ~/.elan/bin/lake -Kenv=dev build FLT:docs
