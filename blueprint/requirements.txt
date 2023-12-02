@@ -1,4 +1,5 @@
-invoke==1.7.1
+# https://github.com/pyinvoke/invoke/issues/891
+invoke==2.2.0
 plasTeX @ git+https://github.com/plastex/plastex.git
 leanblueprint @ git+https://github.com/utensil/leanblueprint.git@lean4-only-dev
 watchfiles==0.16.1
