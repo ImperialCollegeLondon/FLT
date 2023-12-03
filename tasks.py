@@ -9,15 +9,11 @@ from blueprint.tasks import web, bp, print_bp, serve
 ROOT = Path(__file__).parent
 BP_DIR = ROOT/'blueprint'
 
-@task
-def copy(ctx):
+@task(bp, web)
+def all(ctx):
     shutil.rmtree(ROOT/'docs'/'blueprint', ignore_errors=True)
     shutil.copytree(ROOT/'blueprint'/'web', ROOT/'docs'/'blueprint')
     shutil.copy2(ROOT/'blueprint'/'print'/'print.pdf', ROOT/'docs'/'blueprint.pdf')
-
-@task(bp, web, copy)
-def all(ctx):
-    pass
 
 @task(web)
 def html(ctx):
