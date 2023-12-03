@@ -1,25 +1,50 @@
-\chapter{An overview of the proof.}
+\chapter{An overview of the proof of Fermat's Last Theorem.}
 
-Fermat's Last Theorem is the following statement:
+Fermat's Last Theorem is the statement that if $a,b,c,n$ are positive integers with $n\geq 3$, then $a^n+b^n\not=c^n$. It is thus a statement about a family of \emph{Diophantine equations} ($a^3+b^3=c^3, a^4+b^4=c^4,\ldots$). Diophantus was a Greek mathematician who lived around 1800 years ago, and he would have been able to understand the statement of the theorem (he knew about positive integers, addition and multiplication).
 
-\begin{theorem}[Fermat's Last Theorem]\label{FLT}\tangled
-If $a,b,c,n$ are positive integers with $n\geq 3$, then $a^n+b^n\not=c^n$.
-\end{theorem}
+Explaining a proof of Fermat's Last Theorem to Lean is in some sense like explaining the proof to Diophantus; for example, the proof starts by observing that before we go any further it's convenient to first invent/discover zero and negative numbers, and one can point explicitly at places in Lean's source code \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Prelude.lean#L1049}{here} and \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Data/Int/Basic.lean#L45}{here} where these things happen. However we will adopt a more efficient approach: we will assume all of the theorems both in Lean and in its mathematics library {\tt mathlib}, and proceed from there. 
 
-It is thus a statement about a family of \emph{Diophantine equations} ($a^3+b^3=c^3, a^4+b^4=c^4,\ldots$). Diophantus was a Greek mathematician who lived around 1800 years ago, and he would have been able to understand the statement of the theorem (he knew about positive integers, addition and multiplication).
+The proof is by contradiction. We start by making some standard reductions. For convenience we say that a \emph{Frey package} is a triple $(a,b,c)$ of nonzero pairwise coprime integers with $a\equiv3\pmod4$ and $b\equiv0\pmod2$, and an odd prime $p$, such that $a^p+b^p=c^p$.
 
-Explaining a proof of Fermat's Last Theorem to Lean is a bit like explaining the proof to Diophantus itself; for example, one starts by observing that before we go any further it's convenient to first invent/discover zero and negative numbers, and one can point explicitly at places in Lean's source code \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Prelude.lean#L1049}{here} and \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Data/Int/Basic.lean#L45}{here} where these things happen.
+\begin{lemma}\label{WLOG_n_prime}\lean{???FLT.reduction_to_prime}
+  If Fermat's Last Theorem is false, then there exists a Frey package.
+\end{lemma}
+\begin{proof}
+  Assume that $x,y,z,n$ are positive integers with $n\geq3$ and $x^n+y^n=z^n$. It is easy to check that $n$ is either a multiple of~4 or a multiple of an odd prime. Furthermore, if $n=rs$ is a factorization of $n$ then $(x^r)^s+(y^r)^s=(z^r)^s$, meaning that we may assume that either $n=4$ or that $n=p$ is an odd prime. An old result of Fermat himself (proved as {\tt fermatLastTheoremFour} in {\tt mathlib}) says that $x^4+y^4=z^4$ has no positive integer solutions, meaning that we can assume that $n=p$ is an odd prime.
 
-The proof is by contradiction, so let's start by assuming the existence of a solution to $a^n+b^n=c^n$ in positive integers. The next step is to invent/discover the theory of unique factorization of positive integers into primes, which enables us to do two things: firstly we may assume that $a,b,c$ are pairwise coprime (divide through by a common factor), and secondly we can assume that either $n=3$ or $n=4$ (which are dealt separately, see \href{https://github.com/leanprover-community/flt-regular/blob/1eac0e08635793fd9f373ee789620ca7266bc6b8/FltRegular/FltThree/FltThree.lean#L718-L728}{here} and \href{docs#fermatLastTheoremFour}{here}), or that $n\geq 5$ is a prime number, and in particular that $n$ is odd.
+  If the greatest common divisor of $x,y,z$ is $d$ then $x^p+y^p=z^p$ implies $(x/d)^p+(y/d)^p=(z/d)^p$, meaning that we can assume that no prime divides all of $x,y,z$. In fact if some prime divides two of the integers $x,y,z$ then by $x^p+y^p=z^p$ and unique factorization it must divide all three of them; thus we may even assume that $x,y,z$ are pairwise coprime. In particular we may assume that they are not all even, and now reducing modulo~2 shows that precisely one of them must be even. In fact we may assume that $y$ is the even number: if $x$ is even then we can switch $x$ and $y$, and if $z$ is even then we can replace $z$ by $-y$ and $y$ by $-z$ (using that $p$ is odd).
 
-Using that $(-1)^n=-1$ we can change signs and re-arrange variables to ensure that $a$ has remainder 3 when divided by 4, and $b$ is even. We then consider the \emph{Frey curve} $Y^2=X(X-a^n)(X+b^n)$, an example of an \emph{elliptic curve}.
+  Now $x$ is odd, so it is either 1 or~3 mod~4. If $x$ is 3 mod~4 then we set $a=x$, $b=y$ and $c=z$; if however $x$ is 1 mod~4 we set $a=-x$, $b=-y$ and $c=-z$. In either case we are done.
+\end{proof}
 
-The next step in the proof is to develop much of the basic theory of elliptic curves, for example much of the material in Silverman's two volumes needs to be covered. Mathlib already has some nontrivial material (associativity of the group law, for example!) but much remains to be done.
+\begin{lemma}\label{WLOG_p_at_least_5}\lean{???fermatLastTheoremThree} If $(a,b,c,p)$ is a Frey package then $p\not=3$.
+\end{lemma}
+\begin{proof} This an old result due essentially to Euler, which has already been formalised in Lean (although at the time of writing the result is not in mathlib).
+\end{proof}
 
-Assuming we are now experts in elliptic curves and their torsion subgroups, the argument finishes as follows. The Frey curve curve can be checked to be semistable. A deep theorem of Mazur shows that the associated Galois representation on the $n$-torsion (a 2-dimensional representation of the absolute Galois group of the rationals) cannot be reducible. However another deep theorem, first proved by Wiles, shows that that the $n$-torsion cannot be irreducible either.
+To continue, we need some of the theory of elliptic curves. So let $f(X)$ denote any monic cubic polynomial with rational coefficients and whose three complex roots are distinct, and let us consider the equation $E:Y^2=f(X)$, which defines a curve in the $(X,Y)$ plane. This curve (or strictly speaking its projectivisation) is a so-called elliptic curve. A good place to start learning about the general theory of elliptic curves is Wikipedia {\bf TODO: is it?}. 
 
-It thus remains to formalise parts of Silverman's books on elliptic curves, the proof of Mazur's Theorem or the proof of some kind of R=T theorem.
+If $K$ is now any field of characteristic 0, then we write $E(K)$ to be the set of solutions to $Y^2=f(X)$ with $X,Y\in K$, together with an additional ``point at infinity''. It is an extraordinary fact that $E(K)$ naturally has the structure of an abelian group, and we shall use $+$ to denote the group law. This group structure has the property that three distinct points $P,Q,R$ in the $(X,Y)$ plane sum to zero if and only if they are collinear, and the point at infinity is the identity of the group.
 
-There are obviously many more details which need to be explained here; however we have already covered plenty of mathematics which is not yet formalised in Lean. In particular, reducing the proof of Fermat's Last Theorem to Mazur's theorem and Wiles' theorem needs the theory of the Tate curve, the existence of the Weil pairing on the n-torsion of an elliptic curve, the Riemann--Roch theorem and so on. 
+If $K$ and $L$ are two fields of characteristic zero and $f:K\to L$ is a field homomorphism, the map from $E(K)$ to $E(L)$ induced by $f$ is an additive group homomorphism. 
 
-**TODO** github ref for FLT4, ask about FLT3. Cite elliptic curves in mathlib. Check Silverman construction of Weil pairing 
+We will now define the key \emph{Galois representation} associated to a Frey package. If $A$ is any additive abelian group, then the subgroup $A[p]$ of elements $g$ such that $pg=0$ is naturally a vector space over the field $\Z/p\Z$. Given a Frey package $(a,b,c,p)$ we may consider the corresponding \emph{Frey curve}, considered by Frey and, before him, Hellgouarch. This is the elliptic curve $E$ defined by the equation $Y^2=X(X-a^p)(X+b^p)$; the roots of the cubic are distinct because $a,b,c$ are nonzero. Now let $\Qbar$ denote an algebraic closure of the rationals (for example, the algebraic numbers in $\bbC$) and let $G=\GQ$ denote the group of field isomorphisms $\Qbar\to\Qbar$. By the remarks above, each element $g\in G$ induces a group homomorphism $E(\Qbar)\to E(\Qbar)$, which is easily checked to be an isomorphism because its inverse is the map induced by $g^{-1}$. The group $G$ thus acts on $E(\Qbar)$, and hence on $V:=E(\Qbar)[p]$, the $p$-torsion in $E(\Qbar)$ (that is, the elements $e\in E(\Qbar)$ such that $p\times e=0$, where $p\times e$ is defined to be $e+e+\cdots+e$). The abelian group $V$ is naturally a vector space over the field $\Z/p\Z$, so we may consider this action of $\GQ$ on $V$ as being a \emph{representation} of $\GQ$.
+
+Recall that a representation of a group $G$ on a vector space $W$ is said to be \emph{irreducible} if there are precisely two $G$-stable subspaces of $W$, namely $0$ and $W$. The representation is said to be \emph{reducible} otherwise.
+
+Now say Fermat's Last Theorem is false. Take a Frey package $(a,b,c,p)$ and consider the corresponding mod $p$ representation of $\GQ$ coming from the $p$-torsion in the Frey curve as described above. Let's call this representation $\rho$. Is this representation reducible or irreducible?
+
+\begin{theorem}[Mazur]\label{mazur_frey}\lean{???} $\rho$ cannot be reducible.\end{theorem}
+\begin{proof} This follows from a profound result of Mazur from 1979 {\bf todo reference}, which boils down to the fact that the torsion subgroup of an elliptic curve over $\Q$ can have size at most~16. In fact some work still needs to be done to deduce the theorem from Mazur's result. We omit the argument for now -- it is explained in Proposition~6 of~\cite{serreconj}.
+\end{proof}
+
+\begin{theorem}[Wiles,Taylor--Wiles]\label{wiles_frey}\lean{???} $\rho$ cannot be irreducible either.\end{theorem}
+\begin{proof} This is the main content of Wiles' magnum opus. We omit the argument for now, although later on in this project we will have a lot to say about it.
+  \end{proof}
+
+These two theorems together give the contraction required. We deduce
+
+\begin{corollary}\label{FLT}\lean{???} Fermat's Last Theorem is true.\end{corollary}
+\begin{proof}\end{proof}
+
+In the remainder of this project we shall be filling in many of the details of these arguments.
