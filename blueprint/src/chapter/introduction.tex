@@ -7,9 +7,9 @@ Explaining a proof of Fermat's Last Theorem to Lean is in some sense like explai
 The proof is by contradiction. We start by making some standard reductions. For convenience we say that a \emph{Frey package} is a triple $(a,b,c)$ of nonzero pairwise coprime integers with $a\equiv3\pmod4$ and $b\equiv0\pmod2$, and an odd prime $p$, such that $a^p+b^p=c^p$.
 
 \begin{lemma}\label{WLOG_n_prime}\lean{???FLT.reduction_to_prime}
-  If Fermat's Last Theorem is false, then there exists a Frey package.
+  If there is no Frey package, then Fermat's Last Theorem follows.
 \end{lemma}
-\begin{proof}
+\begin{proof} We prove the contrapositive.
   Assume that $x,y,z,n$ are positive integers with $n\geq3$ and $x^n+y^n=z^n$. It is easy to check that $n$ is either a multiple of~4 or a multiple of an odd prime. Furthermore, if $n=rs$ is a factorization of $n$ then $(x^r)^s+(y^r)^s=(z^r)^s$, meaning that we may assume that either $n=4$ or that $n=p$ is an odd prime. An old result of Fermat himself (proved as {\tt fermatLastTheoremFour} in {\tt mathlib}) says that $x^4+y^4=z^4$ has no positive integer solutions, meaning that we can assume that $n=p$ is an odd prime.
 
   If the greatest common divisor of $x,y,z$ is $d$ then $x^p+y^p=z^p$ implies $(x/d)^p+(y/d)^p=(z/d)^p$, meaning that we can assume that no prime divides all of $x,y,z$. In fact if some prime divides two of the integers $x,y,z$ then by $x^p+y^p=z^p$ and unique factorization it must divide all three of them; thus we may even assume that $x,y,z$ are pairwise coprime. In particular we may assume that they are not all even, and now reducing modulo~2 shows that precisely one of them must be even. In fact we may assume that $y$ is the even number: if $x$ is even then we can switch $x$ and $y$, and if $z$ is even then we can replace $z$ by $-y$ and $y$ by $-z$ (using that $p$ is odd).
