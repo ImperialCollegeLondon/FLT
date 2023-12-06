@@ -6,5 +6,3 @@
 blueprint/print/print.log
 blueprint/web/
 blueprint/print/
-blueprint/src/*.aux
-blueprint/src/print.aux
