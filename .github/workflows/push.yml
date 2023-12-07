@@ -51,9 +51,10 @@ jobs:
             .lake/build/doc/Lean
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
-          key: DocGen4-${{ hashFiles('lake-manifest.json') }}
+            .lake/build/doc/declarations
+          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
-            DocGen4-
+            MathlibDoc-
 
       - name: Build documentation
         run: ~/.elan/bin/lake -Kenv=dev build FLT:docs
@@ -64,20 +65,22 @@ jobs:
           python-version: '3.9'
           cache: 'pip' # caching pip dependencies
 
-      - name: Install blueprint apt dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y graphviz libgraphviz-dev pdf2svg dvisvgm texlive-full
+      - name: Build blueprint
+        uses: xu-cheng/texlive-action@v2
+        with:
+          scheme: full
+          run: |
+            apk update
+            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            git config --global --add safe.directory `pwd`
+            python3 -m pip install --upgrade pip requests wheel
+            python3 -m pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install -r blueprint/requirements.txt
+            python3 -m pip install invoke
+            inv all
 
-      - name: Install blueprint dependencies
-        run: |
-          cd blueprint && pip install -r requirements.txt
-
-      - name: Build blueprint and copy to `docs/blueprint`
-        run: |
-          inv all
-
-      - name: Copy documentation to `docs/docs`
+      - name: Copy Lean documentation to `docs/docs`
         run: |
           mv .lake/build/doc docs/docs
 
