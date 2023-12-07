@@ -1,7 +1,6 @@
 import Mathlib.Data.PNat.Basic
 import Mathlib.NumberTheory.FLT.Four
 import Mathlib
-set_option autoImplicit false
 
 /-!
 This file proves many of the key results which reduce Fermat's Last Theorem
@@ -9,19 +8,30 @@ to Mazur's theorem and the Wiles-Taylor-Wiles theorem.
 
 # Main definitions
 
-* `Frey_package` : A Frey Package is the data of nonzero coprime integers
+* `FreyPackage` : A Frey Package is the data of nonzero coprime integers
 $(a,b,c)$ and a prime $p \geq 5$ such that $a^p+b^p=c^p$ and furthermore
 such that $a$ is 3 mod 4 and $b$ is 0 mod 2.
 
+The motivation behind this definition is that then all the results in Section 4.1
+of Serre's paper [Serre] apply to the elliptic curve curve $Y^2=X(X-a^p)(X+b^p).$
+
 # Main theorems
 
-* A counterexample to `FermatLastTheorem` gives a Frey Package
-* `FLT.Frey_package.false`: There is no Frey Package
+* `FLT.FreyPackage.of_not_FermatLastTheorem` : A counterexample
+     to `FermatLastTheorem` gives a Frey Package.
+* `FLT.FreyPackage.false`: There is no Frey Package.
 
-These
+The first of these theorems is not too hard; the second is the main content
+of the proof of Fermat's Last Theorem.
 -/
 
-/-- Fermat's Last Theorem as stated in mathlib (a statement about naturals)
+/-!
+
+We start by reducing the version of Fermat's Last Theorem for positive naturals to
+Lean's version `FermatLastTheorem` of the theorem.
+-/
+
+/-- Fermat's Last Theorem as stated in mathlib (a statement `FermatLastTheorem` about naturals)
 implies Fermat's Last Theorem stated in terms of positive integers. -/
 theorem PNat.pow_add_pow_ne_pow_of_FermatLastTheorem :
     FermatLastTheorem → ∀ (a b c : ℕ+) (n : ℕ) (_ : n > 2),
@@ -30,17 +40,47 @@ theorem PNat.pow_add_pow_ne_pow_of_FermatLastTheorem :
   specialize h₁ n h₂ a b c (by simp) (by simp) (by simp)
   assumption_mod_cast
 
+/-- Fermat's Last Theorem is true when n = 3. -/
+lemma fermatLastTheoremThree : FermatLastTheoremFor 3 := sorry
+-- This is proved in the FLT-regular project: see
+-- https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698
+-- The way to turn this node green is to port that work to mathlib so we can use it here.
+
 namespace FLT
 
-/-!
 
+/-- If Fermat's Last Theorem is false, there's a nontrivial solution to a^p+b^p=c^p with p>=5 prime. -/
+lemma p_ge_5_counterexample_of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) :
+    ∃ (a b c : ℤ) (_ : a ≠ 0) (_ : b ≠ 0) (_ : c ≠ 0) (p : ℕ) (_ : p.Prime) (_ : 5 ≤ p),
+    a^p + b^p = c^p := by
+  apply (mt FermatLastTheorem.of_odd_primes) at h
+  push_neg at h
+  rcases h with ⟨p, hpprime, hpodd, (h : ¬ ∀ _, _)⟩
+  push_neg at h
+  rcases h with ⟨a, b, c, ha, hb, hc, h⟩
+  have hp3 : p ≠ 3 := by
+    rintro rfl
+    revert h
+    apply fermatLastTheoremThree <;> assumption
+  refine ⟨a, b, c, by exact_mod_cast ha, by exact_mod_cast hb, by exact_mod_cast hc, p, hpprime, ?_, by exact_mod_cast h⟩
+  -- now just need to prove that if p is an odd prime and p ≠ 3 then p ≥ 5
+  by_contra hp5
+  push_neg at hp5
+  interval_cases p
+  · exact Nat.not_prime_zero hpprime
+  · exact Nat.not_prime_one hpprime
+  · simp only [Nat.odd_iff_not_even, even_two, not_true_eq_false] at hpodd
+  · norm_num at hp3
+  · norm_num at hpprime
+
+/--
 A *Frey Package* is a 4-tuple (a,b,c,p) of integers
 satisfying some axioms (including $a^p+b^p=c^p$).
 The axioms imply that all of
 the all the results in section 4.1 of Serre's paper [serre]
 apply to the curve $Y^2=X(X-a^p)(X+b^p).$
 -/
-structure Frey_package where
+structure FreyPackage where
   a : ℤ
   b : ℤ
   c : ℤ
@@ -54,14 +94,15 @@ structure Frey_package where
   ha4 : (a : ZMod 4) = 3
   hb2 : (b : ZMod 2) = 0
 
-namespace Frey_package
+namespace FreyPackage
 
 namespace of_not_FermatLastTheorem
 
 /-- This function will only be applied when the input integers $a$, $b$, $c$
 are all nonzero, pairwise coprime, and satisfy $a^p+b^p=c^p$ with $p$ odd.
 Under these hypotheses, it produces a possibly different Fermat counterexample
-of the same form but which furthermore has $a\cong 3$ mod 4 and $b$ even. -/
+of the same form but which furthermore has $a\cong 3$ mod 4 and $b$ even. It does this
+by possibly permuting a,b,c and changing signs. -/
 def aux₁ (a₁ b₁ c₁ : ℤ) :
     ℤ × ℤ × ℤ :=
   match (b₁ : ZMod 2) with
@@ -99,14 +140,18 @@ variable {a₁ : ℤ} (b₁ c₁ : ℤ)
 --     · simp [hc]
 --     · simp [Int.mul_ediv_cancel_left _ hc]
 
+-- couldn't get `fin_cases` to wotk with a general term
 lemma ZMod4cases (q : ZMod 4) : q = 0 ∨ q = 1 ∨ q = 2 ∨ q = 3 := by
     fin_cases q <;> tauto
 
+-- more of these lemmas should be proved, to shorten the proof of aux₁.ha4
 lemma aux {b} (hd : gcd a b = 1) (h1 : 2 ∣ a) (h2 : 2 ∣ b) : False := by
   have := dvd_gcd h1 h2
   rw [hd] at this
   norm_num at this
 
+-- this is pretty long. I should pull out more lemmas like the above,
+-- e.g. proofs of things like "if x is odd and x mod 4 isn't 3 then it's 1"
 lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4) = 3 := by
   simp only [aux₁]
   split
@@ -202,13 +247,14 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
 
 end of_not_FermatLastTheorem
 
--- these sorries are quite long and tedious to fill in. See for example the
+-- these sorries below are quite long and tedious to fill in. See for example the
 -- proof of `ha4` above.
-/-- Given a counterexample to Fermat's Last Theorem with p ≥ 5, we can make
+
+/-- Given a counterexample to Fermat's Last Theorem with a,b,c coprime and p ≥ 5, we can make
 a Frey package. -/
-def of_not_FermatLastTheorem_coprime {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
-  (hab : gcd a b = 1) (p : ℕ) (hpprime : p.Prime) -- actually only need p odd here
-  (hp : 5 ≤ p) (h : a^p + b^p = c^p) : Frey_package where
+def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
+  (hab : gcd a b = 1) (p : ℕ) (hpprime : p.Prime)
+  (hp : 5 ≤ p) (h : a^p + b^p = c^p) : FreyPackage where
     a := (of_not_FermatLastTheorem.aux₁ a b c).1
     b := (of_not_FermatLastTheorem.aux₁ a b c).2.1
     c := (of_not_FermatLastTheorem.aux₁ a b c).2.2
@@ -222,7 +268,7 @@ def of_not_FermatLastTheorem_coprime {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0)
     ha4 := of_not_FermatLastTheorem.aux₁.ha4 b c hab
     hb2 := sorry
 
-lemma aux₃ {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c ^ p) :
+lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c ^ p) :
     gcd a b = gcd a c := by
   have foo : gcd a b ∣ gcd a c := by
     apply dvd_gcd (gcd_dvd_left a b)
@@ -248,16 +294,16 @@ lemma aux₃ {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c ^ p) :
   exact congr_arg ((↑) : ℕ → ℤ) <| Nat.dvd_antisymm foo bar
   done
 
-/-- Given a counterexample to Fermat's Last Theorem with p ≥ 5-/
-def of_not_FermatLastTheorem {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
-    {p : ℕ} (hpprime : p.Prime) (hp : 5 ≤ p) (h : a^p + b^p = c^p) : Frey_package :=
+/-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5, there exists a Frey package. -/
+def of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
+    {p : ℕ} (hpprime : p.Prime) (hp : 5 ≤ p) (h : a^p + b^p = c^p) : FreyPackage :=
   let d := gcd a b
   have hd : d ≠ 0 := by aesop
-  of_not_FermatLastTheorem_coprime
+  of_not_FermatLastTheorem_coprime_p_ge_5
     (show a / d ≠ 0 by exact left_div_gcd_ne_zero ha)
     (show b / d ≠ 0 by exact right_div_gcd_ne_zero hb)
     (show c / gcd a b ≠ 0 by
-      rw [aux₃ _ h]
+      rw [gcdab_eq_gcdac _ h]
       · exact right_div_gcd_ne_zero hc
       · linarith)
     (by
@@ -266,30 +312,34 @@ def of_not_FermatLastTheorem {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c
       apply Int.gcd_pos_of_ne_zero_left _ ha)
     p hpprime hp <| by
   obtain ⟨a₁, (ha : a = d * a₁)⟩ := gcd_dvd_left a b
-  rw [aux₃ (by linarith) h]
+  rw [gcdab_eq_gcdac (by linarith) h]
   nth_rewrite 1 [ha]
   rw [Int.mul_ediv_cancel_left _ hd]
   obtain ⟨b₁, (hb : b = d * b₁)⟩ := gcd_dvd_right a b
   rw [hb]
   rw [Int.mul_ediv_cancel_left _ hd]
   obtain ⟨c₁, hc⟩ : gcd a c ∣ c := gcd_dvd_right a c
-  rw [← aux₃ (by linarith) h] at hc
+  rw [← gcdab_eq_gcdac (by linarith) h] at hc
   nth_rewrite 1 [hc]
-  rw [aux₃ (by linarith) h]
-  rw [Int.mul_ediv_cancel_left _ (by rwa [←aux₃ (by linarith) h])]
+  rw [gcdab_eq_gcdac (by linarith) h]
+  rw [Int.mul_ediv_cancel_left _ (by rwa [← gcdab_eq_gcdac (by linarith) h])]
   change c = d * c₁ at hc
   rw [ha, hb, hc, mul_pow, mul_pow, mul_pow] at h
   have help : d ^ p ≠ 0 := pow_ne_zero _ hd
   rw [← mul_add] at h
   exact (Int.mul_eq_mul_left_iff help).mp h
 
-lemma hgcdac (P : Frey_package) : gcd P.a P.c = 1 := by
-  sorry -- see below
+/-- If Fermat's Last Theorem is false, there exists a Frey package. -/
+lemma of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) : Nonempty (FreyPackage) :=
+  let ⟨a, b, c, ha, hb, hc, p, hpprime, hp, h⟩ := p_ge_5_counterexample_of_not_FermatLastTheorem h
+  ⟨of_not_FermatLastTheorem_p_ge_5 ha hb hc hpprime hp h⟩
+
+end FreyPackage
 
 /-- The elliptic curve associated to a Frey package. The conditions imposed
 upon a Frey package guarantee that the running hypotheses in
 Section 4.1 of [Serre] all hold. -/
-def FreyCurve (P : Frey_package) : EllipticCurve ℚ := {
+def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
     a₁ := 1
     a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
     a₃ := 0
@@ -301,50 +351,62 @@ def FreyCurve (P : Frey_package) : EllipticCurve ℚ := {
     coe_Δ' := sorry -- check that the discriminant is correctly computed.
   }
 
+namespace FreyCurve
+
+abbrev Qbar := AlgebraicClosure ℚ
+
+open WeierstrassCurve
+
+def p_torsion (P : FreyPackage) : Type := sorry -- (FreyCurve P)⟮Qbar⟯[p]
+
+variable (P : FreyPackage)
+
+instance : AddCommGroup (FreyCurve.p_torsion P) := sorry
+instance : Module (ZMod P.p) (FreyCurve.p_torsion P) := sorry
+
+def mod_p_Galois_representation (P : FreyPackage) :
+    Representation (ZMod P.p) (Qbar ≃ₗ[ℚ] Qbar) (FreyCurve.p_torsion P) := sorry
+
+/-!
+
+What can we say about this representation? It follows from a profound theorem
+of Mazur (and much other work) that this representation must be irreducible.
+
+-/
+
+theorem Mazur_Frey (P : FreyPackage) :
+    IsSimpleModule (ZMod P.p) (mod_p_Galois_representation P).asModule := sorry
+
+/-!
+
+But it follows from a profound theorem of Ribet, and fact (proved by Wiles) that the Frey Curve
+is modular, that the representation cannot be irreducible.
+
+-/
+
+theorem Wiles_Frey (P : FreyPackage) :
+    ¬ IsSimpleModule (ZMod P.p) (mod_p_Galois_representation P).asModule := sorry
+
+end FreyCurve
+
+/-!
+
+It follows that there is no Frey package.
+
+-/
+
 /-- There is no Frey package. This profound result is proved using
 work of Mazur and Wiles/Ribet to rule out all possibilities for the
 $p$-torsion in the corresponding Frey curve. -/
-theorem false (P : Frey_package) : False := by
-  /- Let E be the global minimal model of the corresponding
-    Frey curve. -/
-  let E : EllipticCurve ℚ := FreyCurve P
-  let K : Type := AlgebraicClosure ℚ
-  let V : Type := sorry -- E[p]
-  let i : AddCommGroup V := sorry
-  let i : Module (ZMod P.p) V := sorry
-  let ρ : Representation (ZMod P.p) (K ≃ₗ[ℚ] K) V := sorry -- action of G on E[p]
-  sorry -- case split on whether ρ is reducible or not.
-  -- Then Mazur's theorem shows reducible case is impossible (this is where we use p>=5)
-  -- and Ribet's theorem plus modularity shows irreducible case is impossible
-  -- We shall give a different proof of this.
-end Frey_package
+theorem FreyPackage.false (P : FreyPackage) : False := by
+  apply FreyCurve.Wiles_Frey P
+  exact FreyCurve.Mazur_Frey P
 
-theorem FermatLastTheorem.of_prime_ge_5 (p : ℕ) (hp₁ : p.Prime) (hp₂ : p ≥ 5) :
-    FermatLastTheoremFor p := by
-  -- rewrite as a statement about integers
-  rw [fermatLastTheoremFor_iff_int]
-  -- Now assume a counterexample
-  intros a b c ha hb hc h
-  -- Now we have to make a Frey package.
-  -- Step 1: divide a,b,c by their highest common factor.
-  -- Step 2: if b isn't even then swap it with a or -c
-  -- Step 3: Now a must be odd; if it's 1 mod 4 then change the signs of a,b,c.
-  -- Now make the Frey package and then use `Frey_package.false`
-  sorry
 
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
-  apply FermatLastTheorem.of_odd_primes
-  intros p hp₁ hp₂
-  by_cases h : p = 3
-  · cases h
-    -- ⊢ FermatLastTheoremFor 3
-    sorry
-  · apply FermatLastTheorem.of_prime_ge_5 p hp₁
-    by_contra h2
-    push_neg at h2
-    interval_cases p
-    · aesop
-    · aesop
-    · aesop
-    · aesop
-    · simp [parity_simps] at hp₂
+  -- assume FLT is false
+  by_contra h
+  -- get the Frey package
+  obtain ⟨P⟩ := FreyPackage.of_not_FermatLastTheorem h
+  -- But there is no Frey package
+  exact P.false
