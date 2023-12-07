@@ -95,11 +95,11 @@ project in itself).
 \end{proof}
 
 \begin{corollary} There is no Frey package.\end{corollary}\label{no_Frey_package}\lean{FLT.Frey_package.false}
-\begin{proof}\tangled Follows immediately from the previous two theorems.
+\begin{proof}\tangled Follows immediately from the previous two theorems.\end{proof}
 
 These two theorems together give the contraction required. We deduce
 
 \begin{corollary}\label{FLT}\lean{Wiles_Taylor_Wiles}\uses{no_Frey_package} Fermat's Last Theorem is true.\end{corollary}
 \begin{proof}
-Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~ref{FreyPackage_of_FLT}, and the corresponding Galois representation $\rho$ on the $p$-torsion of the Frey curve is neither reducible nor irreducible, a contradiction.
+Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~\ref{FreyPackage_of_FLT}, and the corresponding Galois representation $\rho$ on the $p$-torsion of the Frey curve is neither reducible nor irreducible, a contradiction.
 \end{proof}
