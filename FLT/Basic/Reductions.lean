@@ -1,6 +1,11 @@
 import Mathlib.Data.PNat.Basic
 import Mathlib.NumberTheory.FLT.Four
-import Mathlib
+import Mathlib.Tactic
+import Mathlib.AlgebraicGeometry.EllipticCurve.Point
+import Mathlib.RepresentationTheory.Basic
+import Mathlib.RingTheory.SimpleModule
+
+
 
 /-!
 This file proves many of the key results which reduce Fermat's Last Theorem
