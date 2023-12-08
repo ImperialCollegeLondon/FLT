@@ -48,7 +48,11 @@ lemma fermatLastTheoremThree : FermatLastTheoremFor 3 := sorry
 
 namespace FLT
 
+/-!
 
+We continue with the reduction of Fermat's Last Theorem.
+
+-/
 /-- If Fermat's Last Theorem is false, there's a nontrivial solution to a^p+b^p=c^p with p>=5 prime. -/
 lemma p_ge_5_counterexample_of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) :
     ∃ (a b c : ℤ) (_ : a ≠ 0) (_ : b ≠ 0) (_ : c ≠ 0) (p : ℕ) (_ : p.Prime) (_ : 5 ≤ p),
@@ -357,7 +361,7 @@ abbrev Qbar := AlgebraicClosure ℚ
 
 open WeierstrassCurve
 
-def p_torsion (P : FreyPackage) : Type := sorry -- (FreyCurve P)⟮Qbar⟯[p]
+abbrev p_torsion (P : FreyPackage) : Type := sorry -- (FreyCurve P)⟮Qbar⟯[p]
 
 variable (P : FreyPackage)
 
