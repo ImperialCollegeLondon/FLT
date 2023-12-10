@@ -350,11 +350,13 @@ upon a Frey package guarantee that the running hypotheses in
 Section 4.1 of [Serre] all hold. -/
 def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
     a₁ := 1
+    -- a₂ is (or should be) an integer because of the congruences assumed e.g. P.ha4
     a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
     a₃ := 0
-    a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16
+    a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this should also be an integer
     a₆ := 0
-    Δ' := ⟨- (P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8, -- or whatever it comes out to be with Lean's conventions
+    Δ' := ⟨- (P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8,
+    -- or whatever it comes out to be with Lean's conventions
       sorry, -- whatever 1 / the right answer is,
       sorry, sorry⟩ -- unwise to embark on these until `coe_Δ'` is proved
     coe_Δ' := sorry -- check that the discriminant is correctly computed.
