@@ -65,14 +65,10 @@ In the next section we explain which elliptic curve we will use.
 
 \section{The Frey curve}
 
-\begin{stealthdefinition}[Frey]
-  Given a Frey package $(a,b,c,p)$, the corresponding \emph{Frey curve} (considered by Frey and, before him, Hellegouarch) is the elliptic curve $E$ defined by the equation $Y^2=X(X-a^p)(X+b^p)$\end{stealthdefinition}
+\begin{definition}[Frey]\label{Frey_curve}\lean{FLT.FreyCurve}
+  Given a Frey package $(a,b,c,p)$, the corresponding \emph{Frey curve} (considered by Frey and, before him, Hellegouarch) is the elliptic curve $E$ defined by the equation $Y^2=X(X-a^p)(X+b^p)$\end{definition}
 
-\begin{theorem}\label{Frey_curve}\lean{FLT.FreyCurve}
-  The Frey curve is an elliptic curve over $\Q$.
-\end{theorem}
-\begin{proof}\uses{Frey_package} Indeed, the roots of the cubic $X(X-a^p)(X+b^p)$ are distinct because $a,b,c$ are nonzero and $a^p+b^p=c^p$.
-\end{proof}
+Note that  the roots of the cubic $X(X-a^p)(X+b^p)$ are distinct because $a,b,c$ are nonzero and $a^p+b^p=c^p$.
 
 \begin{definition}[mod $p$ Galois representation attached to a Frey package]\label{Frey_mod_p_Galois_representation}\lean{FLT.FreyCurve.mod_p_Galois_representation}\uses{Frey_curve} Given a Frey package $(a,b,c,p)$ with corresponding Frey curve $E$, the mod $p$ Galois representation associated to this package is the representation of $\GQ$ on $E(\Qbar)[p].$\end{definition}
 
