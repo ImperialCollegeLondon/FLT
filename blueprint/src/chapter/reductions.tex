@@ -1,0 +1,98 @@
+\chapter{First reductions of the problem.}
+
+\section{Overview}
+The proof of Fermat's Last Theorem is by contradiction. We assume that we have a counterexample $a^n+b^n=c^n$, and manipulate it until it satsfies the axioms of a ``Frey package''. From the Frey package we build a Frey curve -- an elliptic curve defined over the rationals. We then look at a certain representation of a Galois group coming from this elliptic curve, and finally using two very deep and independent theorems (one due to Mazur, the other due to Wiles) we show that this representation cannot be irreducible or reducible, a contradiction.
+
+\section{Reduction to \texorpdfstring{$n\geq5$}{ngeq5} and prime}
+
+\begin{lemma}\label{WLOG_n_prime}\lean{FermatLastTheorem.of_odd_primes}\leanok
+  If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$
+  with $p$ an odd prime.
+\end{lemma}
+\begin{proof}\leanok
+  Say $a^n + b^n = c^n$ is a counterexample to Fermat's Last Theorem. Every positive integer is either
+  a power of 2 or has an odd prime factor. If $n=kp$ has an odd prime factor $p$ then
+  $(a^k)^p+(b^k)^p=(c^k)^p$ is the counterexample we seek. It remains to deal with the case where
+  $n$ is a power of 2, so let's assume this. We have $3\leq n$ by assumption, so
+  $n=4k$ must be a multiple of~4, and thus $(a^k)^4=(b^k)^4=(c^k)^4$, giving us a counterexample
+  to Fermat's Last Theorem for $n=4$. However an old result of Fermat himself (proved as {\tt fermatLastTheoremFour} in {\tt mathlib}) says that $x^4+y^4=z^4$ has no nontrivial solutions.
+\end{proof}
+
+Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not in mathlib.
+
+\begin{lemma}\label{p_not_three}\lean{fermatLastTheoremThree}\leanok
+  There are no nontrivial solutions in integers to $a^3+b^3=c^3$.
+\end{lemma}
+\begin{proof}
+  The proof has been formalised in Lean in the FLT-regular project \href{https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698}{\color{blue}\underline{here}}. To get this node green, the proof (or another proof) needs to be upstreamed to mathlib.
+\end{proof}
+
+\begin{corollary}\label{WLOG_p_ge_5}\uses{p_not_three, WLOG_n_prime}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
+\end{corollary}
+\begin{proof}\leanok Follows from the previous two lemmas.\end{proof}
+
+\section{Frey packages}
+
+For convenience we make the following definition.
+
+\begin{definition}\label{Frey_package}\lean{FreyPackage}\leanok A \emph{Frey package} is a triple $(a,b,c)$ of nonzero pairwise coprime integers with $a\equiv3\pmod4$ and $b\equiv0\pmod2$, and a prime $p\geq5$, such that $a^p+b^p=c^p$.\end{definition}
+
+Our next reduction is as follows:
+
+\begin{lemma}\label{Frey_package_of_FLT_counterex}\lean{FLT.FreyPackage.of_not_FermatLastTheorem}\uses{Frey_package, WLOG_p_ge_5}\leanok
+  If Fermat's Last Theorem is false, then there exists a Frey package.
+\end{lemma}
+\begin{proof} By Corollary \ref{WLOG_p_ge_5} we may assume that there is a counterexample $x^p+y^p=z^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
+  
+  If the greatest common divisor of $x,y,z$ is $d$ then $x^p+y^p=z^p$ implies $(x/d)^p+(y/d)^p=(z/d)^p$. Dividing through, we can thus assume that no prime divides all of $x,y,z$. Under this assumption we must have that $x,y,z$ are pairwise coprime, as if some prime divides two of the integers $x,y,z$ then by $x^p+y^p=z^p$ and unique factorization it must divide all three of them. In particular we may assume that not all of $x,y,z$ are even, and now reducing modulo~2 shows that precisely one of them must be even. 
+  
+  Next we show that we can find a counterexample with $y$ even. Indeed, if $x$ is even then we can switch $x$ and $y$, and if $z$ is even then we can replace $z$ by $-y$ and $y$ by $-z$ (using that $p$ is odd).
+
+  The last thing to ensure is that $x$ is 3 mod~4. We know that $x$ is odd, so it is either 1 or~3 mod~4. If $x$ is 3 mod~4 then we are home; if however $x$ is 1 mod~4 we replace $x,y,z$ by their negatives and this is the Frey package we seek.
+\end{proof}
+
+\section{Galois representations and elliptic curves}
+
+To continue, we need some of the theory of elliptic curves over $\Q$. So let $f(X)$ denote any monic cubic polynomial with rational coefficients and whose three complex roots are distinct, and let us consider the equation $E:Y^2=f(X)$, which defines a curve in the $(X,Y)$ plane. This curve (or strictly speaking its projectivisation) is a so-called elliptic curve (or an elliptic curve over $\Q$ if we want to keep track of the field where the coefficients of $f(X)$ lie). 
+
+If $E:Y^2=f(X)$ is as above, and if $K$ is any field of characteristic 0, then we write $E(K)$ for the set of solutions to $Y^2=f(X)$ with $X,Y\in K$, together with an additional ``point at infinity''. It is an extraordinary fact, and not at all obvious, that $E(K)$ naturally has the structure of an abelian group, and we shall use $+$ to denote the group law. This group structure has the property that three distinct points $P,Q,R\in E(K)$ in the $(X,Y)$ plane sum to zero if and only if they are collinear, and the point at infinity is the identity of the group.
+
+The group structure behaves well under change of field: If $K$ and $L$ are two fields of characteristic zero and $f:K\to L$ is a field homomorphism, the map from $E(K)$ to $E(L)$ induced by $f$ is an additive group homomorphism. This construction is functorial (it sends the identity to the identity, and compositions to compositions). Thus if $f$ is an isomorphism, then the induced map $E(K)\to E(L)$ is also an isomorphism, with the inverse morphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This construction thus gives us an action of the multiplicative group $\Aut(K)$ of automorphisms of the field $K$ on the additive abelian group $E(K)$. In particular, if $\Qbar$ denotes an algebraic closure of the rationals (for example, the algebraic numbers in $\bbC$) and if $\GQ$ denotes the group of field isomorphisms $\Qbar\to\Qbar$, then for any elliptic curve $E$ over $\Q$ we have an action of $\GQ$ on the additive abelian group $E(\Qbar)$.
+
+If $A$ is any additive abelian group, and if $p$ is a prime number, then the subgroup $A[p]$ of elements $a$ such that $pa=0$ is naturally a vector space over the field $\Z/p\Z$. If a group is acting on $A$ via additive group isomorphisms, then there will be an induced action of the group on $A[p]$, which thus inherits the stucture of a mod $p$ representation of $G$. Applying this to the above situation,
+if $E$ is an elliptic curve over $\Q$ then $\GQ$ acts on $E(\Qbar)[p]$ and this is the \emph{mod $p$ Galois representation} attached to
+the curve $E$.
+
+\begin{definition}[Frey]\label{Frey_curve}\lean{FLT.FreyCurve}\uses{Frey_package} Given a Frey package $(a,b,c,p)$, the corresponding \emph{Frey curve} (considered by Frey and, before him, Hellgouarch) is the elliptic curve $E$ defined by the equation $Y^2=X(X-a^p)(X+b^p)$\end{definition}
+
+Note that the roots of the cubic $X(X-a^p)(X+b^p)$ are distinct because $a,b,c$ are nonzero, and thus the Frey curve is an
+elliptic curve over $\Q$.
+
+\begin{definition}[mod $p$ Galois representation attached to a Frey package]\label{Frey_mod_p_Galois_representation}\lean{FLT.FreyCurve.mod_p_Galois_representation}\uses{Frey_curve} Given a Frey package $(a,b,c,p)$ with corresponding Frey curve $E$, the mod $p$ Galois representation associated to this package is the representation of $\GQ$ on $E(\Qbar)[p].$\end{definition}
+
+Recall that a representation of a group $G$ on a vector space $W$ is said to be \emph{irreducible} if there are precisely two $G$-stable subspaces of $W$, namely $0$ and $W$. The representation is said to be \emph{reducible} otherwise.
+
+Now say Fermat's Last Theorem is false, and hence by Lemma~\ref{Frey_package_of_FLT_counterex} a Frey package $(a,b,c,p)$ exists.  Consider the mod $p$ representation of $\GQ$ coming from the $p$-torsion in the Frey curve $Y^2=X(x-a^p)(X+b^p)$
+associated to the package. Let's call this representation $\rho$. Is it reducible or irreducible?
+
+\begin{theorem}[Mazur]\label{Mazur_on_Frey_curve}\lean{FLT.FreyCurve.Mazur_Frey}\uses{Frey_mod_p_Galois_representation}\leanok $\rho$ cannot be reducible.\end{theorem}
+\begin{proof}\tangled This follows from a profound result of Mazur \cite{mazur} from 1979, which boils down to the fact that the torsion subgroup of an elliptic curve over $\Q$ can have size at most~16. In fact some work still needs to be done to deduce the theorem from Mazur's result. We omit the argument for now -- it is explained in Proposition~6 of~\cite{serreconj}. The reduction to Mazur's theorem
+needs the theory of the Tate curve (concrete p-adic uniformisation of elliptic curves) and also some of the theory of finite flat group schemes (or the theory of the canonical subgroup), so in particular even the reduction to Mazur's theorem is a lot of hard work.
+Mazur's theorem itself is of course way more difficult, and right now nobody is working on a formalisation (it would be a substantial
+project in itself).
+\end{proof}
+{\bf TODO two rferences above}
+
+\begin{theorem}[Wiles,Taylor--Wiles]\label{Wiles_on_Frey_curve}\lean{FLT.FreyCurve.Wiles_Frey}\uses{Frey_mod_p_Galois_representation}\leanok $\rho$ cannot be irreducible either.\end{theorem}
+\begin{proof}\tangled This is the main content of Wiles' magnum opus. We omit the argument for now, although later on in this project we will have a lot to say about a proof of this.
+\end{proof}
+
+\begin{corollary}\label{no_Frey_package}\lean{FLT.Frey_package.false}\uses{Mazur_on_Frey_curve, Wiles_on_Frey_curve}\leanok There is no Frey package.\end{corollary}
+\begin{proof}\leanok Follows immediately from the previous two theorems.\end{proof}
+
+These two theorems together give the contraction required. We deduce
+
+\begin{corollary}\label{FLT}\lean{Wiles_Taylor_Wiles}\uses{no_Frey_package, Frey_package_of_FLT_counterex}\leanok Fermat's Last Theorem is true.\end{corollary}
+\begin{proof}\leanok
+Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~\ref{FreyPackage_of_FLT}, and the corresponding Galois representation $\rho$ on the $p$-torsion of the Frey curve is neither reducible nor irreducible, a contradiction.
+\end{proof}
