@@ -88,16 +88,16 @@ Now say Fermat's Last Theorem is false, and hence by Lemma~\ref{Frey_package_of_
 \begin{proof}\tangled This follows from a profound result of Mazur \cite{mazur} from 1979, which boils down to the fact that the torsion subgroup of an elliptic curve over $\Q$ can have size at most~16. In fact a fair amount of work needs to be done to deduce the theorem from Mazur's result. We omit the reduction for now -- it is explained in Proposition~6 of~\cite{serreconj}. In brief, it uses the theory of the Tate curve (concrete p-adic uniformisation of elliptic curves) and also some of the theory of finite flat group schemes (or the theory of the canonical subgroup). Mazur's theorem itself is of course way more difficult, and right now nobody is working on a formalisation as far as I know (it would be a substantial project in itself).
 \end{proof}
 
-\begin{theorem}[Wiles,Taylor--Wiles]\label{Wiles_on_Frey_curve}\lean{FLT.FreyCurve.Wiles_Frey}\leanok\tangled $\rho$ cannot be irreducible either.\end{theorem}
-\begin{proof}\uses{Frey_mod_p_Galois_representation} This is the main content of Wiles' magnum opus. We omit the argument for now, although later on in this project we will have a lot to say about a proof of this.
+\begin{theorem}[Wiles,Taylor--Wiles]\label{Wiles_on_Frey_curve}\lean{FLT.FreyCurve.Wiles_Frey}\leanok $\rho$ cannot be irreducible either.\end{theorem}
+\begin{proof}\uses{Frey_mod_p_Galois_representation}\tangled This is the main content of Wiles' magnum opus. We omit the argument for now, although later on in this project we will have a lot to say about a proof of this.
 \end{proof}
 
 \begin{corollary}\label{no_Frey_package}\lean{FLT.Frey_package.false}\uses{Mazur_on_Frey_curve, Wiles_on_Frey_curve}\leanok There is no Frey package.\end{corollary}
-\begin{proof}\leanok Follows immediately from the previous two theorems.\end{proof}
+\begin{proof}\leanok Follows immediately from the previous two theorems~\ref{Mazur_on_Frey_curve} and~\ref{Wiles_on_Frey_curve}.\end{proof}
 
-These two theorems together give the contraction required. We deduce
+We deduce
 
 \begin{corollary}\label{FLT}\lean{Wiles_Taylor_Wiles}\uses{no_Frey_package, Frey_package_of_FLT_counterex}\leanok Fermat's Last Theorem is true.\end{corollary}
 \begin{proof}\leanok
-Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~\ref{Frey_package_of_FLT_counterex}, and the corresponding Galois representation $\rho$ on the $p$-torsion of the Frey curve is neither reducible nor irreducible, a contradiction.
+Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~\ref{Frey_package_of_FLT_counterex}, contradicting Corollary~\ref{no_Frey_package}.
 \end{proof}
