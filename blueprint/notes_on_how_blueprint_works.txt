@@ -1,0 +1,25 @@
+LaTeX
+
+** Options after "\begin{lemma} or \begin{definition}"
+[thing which appears in brackets in LaTeX file]
+\label{concave} means "call it concave on the graph"
+\lean{Real.StrictConcaveOn_negIdMulLog} -- link to docs in graph
+\leanok means statement is done in Lean (green border)
+\uses{label} : draws a dotted arrow
+\tangled means red
+
+** Options after "\begin{proof}"
+\leanok means proof is done in Lean (green filling)
+\uses{label} : draws a non-dotted arrow
+no \lean or \tangled here
+
+
+Legend:
+
+Red border: the statement of this result needs to be broken down into smaller formalizable pieces; all prerequisites are done
+Red background: the proof of this result needs to be broken down into smaller formalizable pieces; all prerequisites are done
+
+Paper home page
+
+https://ImperialCollegeLondon.github.io/FLT/
+
