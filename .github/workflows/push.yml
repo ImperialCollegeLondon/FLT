@@ -68,8 +68,9 @@ jobs:
       - name: Build blueprint
         uses: xu-cheng/texlive-action@v2
         with:
-          scheme: full
+          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
+            export PIP_BREAK_SYSTEM_PACKAGES=1
             apk update
             apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE

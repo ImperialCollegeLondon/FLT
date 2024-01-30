@@ -20,9 +20,8 @@ def weakLeanArgs : Array String :=
     #["-DwarningAsError=true"]
   else
     #[]
-    
+
 package FLT where
-  moreServerArgs := moreServerArgs
 
 require mathlib from git "https://github.com/leanprover-community/mathlib4.git"
 
@@ -33,5 +32,8 @@ require «doc-gen4» from git
 
 @[default_target]
 lean_lib FLT where
-  moreLeanArgs := moreLeanArgs
-  weakLeanArgs := weakLeanArgs
+  globs := #[
+    .andSubmodules `FLT
+    ]
+--  moreLeanArgs := moreLeanArgs
+--  weakLeanArgs := weakLeanArgs
