@@ -1,7 +1,7 @@
 import Mathlib.Data.PNat.Basic
 import Mathlib.NumberTheory.FLT.Four
-import Mathlib.Tactic.NormNum.Prime
-import Mathlib.AlgebraicGeometry.EllipticCurve.Point
+import Mathlib.Tactic
+import Mathlib.AlgebraicGeometry.EllipticCurve.Affine
 import Mathlib.RepresentationTheory.Basic
 import Mathlib.RingTheory.SimpleModule
 
