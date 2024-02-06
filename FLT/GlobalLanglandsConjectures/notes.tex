@@ -1,0 +1,68 @@
+\documentclass{amsart}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+% Print Lean code nicely
+\usepackage[utf8x]{inputenc}
+\usepackage{amssymb, upgreek}
+
+\usepackage{color}
+\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
+\definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
+\definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green
+\definecolor{errorcolor}{rgb}{1, 0, 0}           % bright red
+\definecolor{stringcolor}{rgb}{0.5, 0.3, 0.2}    % brown
+
+\usepackage{listings}
+\def\lstlanguagefiles{lstlean.tex}
+\lstset{language=lean}
+% Examples of use
+%
+% inline: ...write \lstinline{x : X} rather than...
+%
+% Code block
+%
+% \begin{lstlisting}
+% variables (X Y Z : Type)
+%   (f : X → Y) (g : Y → Z)
+% 
+% open function
+% 
+% definition P :=
+%   injective f ∧ injective g →
+%   injective (g ∘ f)
+% \end{lstlisting}
+
+% End of Lean hackery
+
+
+
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\begin{document}
+
+\title{Notes on the global Langlands conjectures}
+\author{Kevin Buzzard}
+\email{k.buzzard@imperial.ac.uk}
+\address{Department of Mathematics, Imperial College London}
+\begin{abstract}
+  Notes on what the statement of the global Langlands conjectures looks like.
+\end{abstract}
+
+\section{Intimidating introduction}
+
+The Langlands Philosophy is a big web of conjectures and ideas and currently a very active area of research. At its vaguest, it says that a theory called the theory of automorphic representations can be completely explained via representations of something called the ``global Langlands group''. Unfortunately actually giving a \emph{definition} of the global Langlands group is a major open problem in the area. As you can imagine, such a conjecture is difficult to work with -- for example it is essentially impossible to disprove the conjecture, and it can also be difficult to find in the literature a concrete list of properties which this group is supposed to have; it is almost a ``conjectural conjecture''.
+
+I was quite annoyed by this fact about 15 years ago, and with professor Gee we attempted to write down a concrete statement where everything was actually well-defined. Instead of using the global Langlands group we used a Galois group which had a rigorous and unambiguous definition. Instead of complex representations we used $p$-adic representations -- our vector spaces were defined over the algebraic closure of the $p$-adic numbers (which is still an algebraically closed field of characteristic zero, so all the usual 3rd year rep theory theorems apply to it). But most importantly, instead of trying to explain all automorphic representations, we only attempted to explain a subset of them, namely the so-called ``$L$-algebraic'' representations. To explain what we did in completely low-level terms, our conjecture looks like this.
+
+We start off with a number field $K$ (e.g. the rational numbers) and a so-called ``connected reductive group $G$ over $K$'' (e.g. the group $GL_n$). Attached to $K$ is a gigantic ring $\mathbb{A}_K$ called the \emph{adeles} of $K$ with a topology, and an \emph{automorphic representation} of $G$ is a (typically infinite-dimensional) representation of $G(\mathbb{A}_K)$ satisfying some properties. Note that of course we don't teach much about infinite-dimensional representations of groups in the Imperial undergraduate degree -- but this doesn't matter, because the plan is not to prove theorems about these groups, but just write down definitions.
+
+The conjecture that Gee and I make is that associated to an $L$-algebraic automorphic representation $\pi$ of $G$ over $K$ (that's just one more condition on the representation) there should be a family of $p$-adic Galois representations $\rho$ taking values in the $L$-group of $G$. Example: the $L$-group of $GL_n$ is just $GL_n$ again, so this is just a fancy way of talking about $n$-dimensional representations of a certain Galois group. Furthermore, if $\rho$ is the Galois representation attached to $\pi$ then $\rho$ and $\pi$ should be ``compatible'' in the sense that if you're given $\pi$ then you can work out some stuff (e.g. some numbers, or homomorphisms, or matrices, or whatever) and given $\rho$ you can work out some stuff, and if $\pi$ and $\rho$ match up then all these numbers/matrices/whatever attached to $\pi$ and $\rho$ should match up too.
+
+My paper with Gee is \href{https://arxiv.org/abs/1009.0785}{here} and it is completely intimidating for an undergraduate or MSc student.
+
+The purpose of this document is to massively un-intimidate all of the nonsense above, until it becomes stuff which an undergraduate can reasonably work on.
+\end{document}
+
