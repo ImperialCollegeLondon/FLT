@@ -64,5 +64,94 @@ The conjecture that Gee and I make is that associated to an $L$-algebraic automo
 My paper with Gee is \href{https://arxiv.org/abs/1009.0785}{here} and it is completely intimidating for an undergraduate or MSc student.
 
 The purpose of this document is to massively un-intimidate all of the nonsense above, until it becomes stuff which an undergraduate can reasonably work on.
+
+\section{Connected reductive groups}
+
+It's not necessary to understand connected reductive groups over number fields, because we could just stick to the case of $\GL_n$ over $\Q$. But here is an explanation of the general case. In fact there is no point sticking to number fields here, the theory of connected reductive groups works over any field (and in fact over any ring, but let's stick to fields).
+
+Let $K$ be a field (if you like you can stick to $K=\Q$, it's already interesting and deep). The first thing you need to know about connected reductive groups over $K$ is that they're not actually groups. They are ``affine group varieties'', so it's really an abuse of notation to call them groups. If you're doing the algebraic geometry course here then you'll know what an affine variety is by now, but if you don't then here's the main thing you need to know: whatever an affine variety is, it is completely determined by its \emph{coordinate ring}, which is a finitely-generated $K$-algebra (i.e., a commutative ring which is isomorphic to a quotient $K[X_1,X_2,\ldots,X_n]/I$ of a polynomial ring by an ideal). But the funky thing about the dictionary between affine varieties and finitely generated $K$-algebras is that if $X$ and $Y$ are affine varieties over $K$ and their corresponding coordinate rings are $A$ and $B$, then to give a map of affine varieties from $X$ to $Y$ is the same thing as giving a $K$-algebra homomorphism from $B$ to $A$, and not from $A$ to $B$; the arrows all go the wrong way around.
+
+So a ``connected reductive group'' should really be called a ``connected reductive group variety''. Let's now forget about connected and reductive, and let's talk about group varieties.
+
+This phenomenon that maps go the other way when you translate between the language of varieties and the language of $K$-algebras has quite a weird consequence. We know that an affine variety $X$ is basically the same thing as a quotient $A$ of a multivariable polynomial ring over a field. But if we want to give the variety a group structure then this involves giving a multiplication map $X\times X\to X$, and identity element of $X$, and an inverse map $X\to X$, and when we translate this back down into ring theory we get a bunch of maps all going the wrong way. For example the ``multiplication map'' isn't a map from $A\times A$ to $A$, it's a map A\to A\otimes_KA$, the tensor product of $A$ with itself. And the identity is a $K$-algebra map $A\to K$. And then the group axioms are totally weird statements about these maps, which look like the usual group axioms but backwards. Whatever is going on?
+
+What is going on is that making the affine variety $X$ into a group is the same thing as making the commutative ring $A$ into something called a \emph{commutative Hopf algebra}. You can read about Hopf algebras \href{https://en.wikipedia.org/wiki/Hopf_algebra}{on Wikipedia}. But let's not jump the gun. Let's first talk about monoid varieties.
+
+\subsection{Project: Monoid varieties and commutative bialgebras}
+
+A monoid is a slighly simpler thing than a group. It has multiplication and identity, but it might not have inverses. It satisfies $a\times(b\times c)=(a\times b)\times c$ and $1\times a=a\times 1=a$, but it doesn't satisfy the inverse axioms because they don't make sense. The naturals, integers, rationals, reals and complexes are all monoids under multiplication; they all have a 0 and 0 doesn't have an inverse, but this doesn't matter because monoids don't need inverses. A group is a monoid with some extra stuff (inverses), so a group variety is a monoid variety with extra stuff, so let's first discuss how to formalise monoid varieties. And this is easier than you think because the hard work (the definition) has already been done.
+
+A \emph{commutative bialgebra} over a field $K$ is a commutative $K$-algebra $A$ (i.e. a commutative ring $A$ equipped with a ring homomorphism from $K$ to $A$) equipped with two $K$-algebra maps called comultiplication $A\to A \otimes_KA$ and counit $A\to K$, satisfying some axioms. You can read these axioms on the \href{https://en.wikipedia.org/wiki/Bialgebra}{Wikipedia page for bialgebras}. The idea now is that if $L$ is any field containing $K$, then the set of $K$-algebra maps from $A$ to $L$ naturally becomes a monoid, and putting this monoid structure on this set is a nice challenge.
+
+The mathematics looks like this: fix a field $L$ containing $K$ and let $G$ (it's not a group, it's a monoid, but let's call it $G$ anyway) be the set of $K$-algebra maps from $A$ to $L$. The identity element of $G$ is obtained by taking the counit map $A\to K$ and composing with the map $K\to L$. The multiplication map is defined in the following way: if $\phi$ and $\psi$ are two $K$-algebra maps $A\to L$ then their product is the $K$-algebra map from $A$ to $L$ defined by first applying the comultiplication (to get to $A\otimes_K A$) and then applying $\phi\otimes\psi$ (to get to $L\otimes_K L$) and then applying multiplication on $L$ (to get to $L$). The monoid axioms can be deduced from the axioms of a bialgebra, which are essentially exactly the monoid axioms but with all the arrows written the wrong way around.
+
+Putting this monoid structure on these maps would be a very nice project.
+
+\subsection{Project: Hopf algebras}
+
+To get from a monoid variety to a group variety we have to add inverses. The ``coinverse'' map on the bialgebra side of things turns a bialgebra into a Hopf algebra. One nice reference for Hopf algebras is chapter III of Christian Kassel's 'Quantum Groups'. Take a look at Prop III.3.1, Def III.3.2, and Theorem III.3.4, and you should be able to deduce the following three things about Hopf algebras:
+
+\begin{enumerate}
+\item The coinverse map $S$ on a bialgebra is unique, if it exists.
+\item In a Hopf algebra we have $S(ab)=S(b)S(a)$.
+\item If $A$ is a commutative Hopf algebra then $S$ is a bijection.
+\end{enumerate}
+
+This project is just straight algebra and can be done independently of the monoid exercise in the previous subsection.
+
+\subsection{Project: Group varieties and Hopf algebras}
+
+If $A$ is a commutative Hopf algebra then the coinverse map, or antipode map or whatever you want to call it, translates into the inverse map on the $K$-algebra maps $A\to L$ which we put a monoid structure on; this beefs the monoid structure up into a group structure.
+
+The low-level way of doing this would be putting a group structure on the $K$-algebra maps $A\to L$ for all fields $L$ containing $K$. One would then notice that we never assumed that $K$ and $L$ were fields and everything works for $K$ and $L$ commutative rings and $L$ just assumed to be a $K$-algebra. Finally one can go full abstract, and show that Hopf algebras over $K$ are antiequivalent to the category of group objects in the category of affine schemes over $K$. This sounds very fancy but it's just lots of buzzwords saying obvious things.
+
+\section{Compatible systems of Galois representations}
+
+Given an $L$-algebraic automorphic representation for a connected reductive group $G$ over a number field $K$, the Langlands Philosophy conjectures the existence of a compatible family of $p$-adic Galois representations taking values in the $L$-group of $G$. What does all this gobble-de-gook mean?
+
+\subsection{Project: families of $\ell$-adic Galois representations}
+
+Let's let $K$ be any field, but instead of working with a general $G$ let's specialise to the case where $G=\GL_n$. A \emph{family of $\ell$-adic Galois representations} is the following thing. First, we are given is a number field $E$ (that is, a subfield of $\C$ which is finite-dimensional over $\Q$, or more abstractly any field $E$ containing a copy of $\Q$ such that $E$ is finite-dimensional over $\Q$. And second, for every prime number $\ell$ and for every field homomorphism $\lambda:E\to\overline{\Q}_\ell$ (the algebraic closure of the $\ell$-adic numbers), we are given a continuous group homomorphism $\Gal(\overline{K}/K)\to\GL_n(\overline{\Q}_\ell)$. Here $\overline{K}$ denotes an algebraic closure of $K$ (mathlib has algebraic closures), and $\Gal(\overline{K}/K)$ is the group of isomorphisms $\overline{K}\cong\overline{K}$ which restrict to the identity function on $K$. This group has a topology, and the topology is already in mathlib.
+
+Mathlib also has the $\ell$-adic numbers $\Q_\ell$, and the concept of algebraic closure as I mentioned already. So whilst a lot of this stuff above looks daunting, it's already there and it's just a case of writing everything down in the right order. The only issue will be putting a topology on $\GL_n(\overline{\Q}_\ell)$. The way to do it is probably to put a distance function on $\overline{\Q}_\ell$ (not hard; I can explain how, there's an explicit formula), and then to \emph{assume} that this distance function is a metric (this is much harder, so just sorry it: I have a post-doc working on this proof) and then the induced topology on $\overline{\Q}_\ell$ gives rise to a topology on $\GL_n(\overline{\Q}_\ell)$ (not hard). 
+
+The weird thing about this definition is that these representations are all completely unrelated to each other as $\ell$ varies. The concept we're really interested in is \emph{compatible} families of $\ell$-adic Galois representations, and before we can define these, we need to talk about Frobenius elements.
+
+\subsection{Project: Frobenius elements}
+
+A \emph{valuation} (sometimes called a \emph{nonarchimedean norm}) on a field $F$ is a function $v$ from $F$ to $\R_{\geq0}$ satisfying four axioms: (1) $v(0)=0$; (2) $v(1)=1$; (3) $v(ab)=v(a)v(b)$; (4) $v(a+b)\leq \max\{v(a),v(b)\}$. Valuations are in mathlib. Two valuations $v_1$ and $v_2$ are \emph{equivalent} if there's some real number $0<\rho$ such that $v_1(f)=v_2(f)^\rho$ for all $f\in F$; we usually think of equivalent valuations as being ``equal'' but as you might guess, Lean is a bit fussy about this.
+
+An example is the $p$-adic norm on $\Q$; $v(p)=p^{-1}$, $v(q)=1$ for all primes $q\not=p$, and now axiom (3) tells you $v(x)$ for any positive rational; we set $v(0)=0$ and $v(-x)=v(x)$ and this defines the valuation uniquely.
+
+Given a valuation on a field, one can make the valuation ring $R=\{f\in F\,|\,v(f)\leq 1\}$ which has a maximal ideal $m=\{f\in F\,|\,v(f)<1\}$, and the quotient is a field called the residue field of $v$.
+
+I claim that given a prime number $p$, there exists an extension of the $p$-adic norm on $\Q$ to a valuation $w$ on $\overline{Q}$; the proof is probably a standard application of Zorn's lemma although I haven't thought it through. Furthermore I claim that there is an isomorphism $F_p:\overline{Q}\cong\overline{Q}$ called the \emph{Frobenius element} which satisfies firstly that $w(F_p(x))=w(x)$ for all $x\in\overline{Q}$, and secondly that the induced ring homomorphism from the residue field of $w$ to itself is the map sending $t$ to $t^p$. This proof can be sorried. The element $F_p$ is not at all unique; it depends on $w$ and even then there is lots of ambiguity in the choice. We won't worry about this, all we want is a definition of $F_p$ and the fact that it raises things to the $p$th power on the residue field.
+
+\subsection{Project: Frobenius elements for number fields}
+
+If $K$ is a general number field, then for $P$ a maximal ideal of the integers~$\mathcal{O}$ of $K$ there is a story exactly like the above; there is a $P$-adic valuation on $K$, there is an extension to $\overline{K}$, and there's a Frobenius element $F_P$ in $\Gal(\overline{K}/K)$ which induces the map $t\mapsto t^q$ where $q$ is the size of the residue field~$\mathcal{O}/P$. Again, you don't have to prove anything here, the important thing is getting the statements down correctly, so we have access to Frobenius elements.
+
+\subsection{Compatible families of Galois representations}
+
+I defined a family of representations of $\Gal(\overline{K}/K)$ above. Let's stick to $K=\Q$ at first. The family is \emph{compatible} if there is a finite set of prime numbers $S$ and, for each prime $p$ \emph{not} in $S$ a monic degree $n$ polynomial $H_p\in E[X]$ with the following property: for every prime $\ell\not=p$ and every $\lambda : E\to\overline{\Q}_\ell$, the associated member $\rho_\lambda$ of the family has the property that the characteristic polynomial of $\rho_{\lambda}(F_p)$ is $H_p$. In words, we're saying that the $\rho_\lambda$ all have the same characteristic polynomials on these random Frobenius elements. You might want to deduce from this that all the $\rho_\lambda$ are isomorphic, but this is not in general the case; they're all continuous with respect to completely different and inompatible topologies, so they can't be.
+
+All this definition works pretty much verbatim if you change $\Q$ to a general number field $K$; then $S$ becomes a finite set of prime ideals of the integers of $K$.
+
+\subsection{Unramified Galois representations}
+
+TODO
+
+\section{Automorphic representations}
+
+The Langlands philosophy says that one should be able to associate a compatible family of $\ell$-adic Galois representations to an \emph{automorphic representation} so another key definition will be to define these.
+
+There are two cases: an easy case, where the real Lie group $G(\R)$ is compact; then no analysis is needed. And then the general case. TODO
+\end{document}
+
+
+
+
+
+
 \end{document}
 
