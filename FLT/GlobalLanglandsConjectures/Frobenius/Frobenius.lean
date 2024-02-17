@@ -109,37 +109,58 @@ variable (K : Type*) [Field K] (L : Type*) [Field L]
   [FiniteDimensional K L]
   (A : Type*) (B : Type*) [CommRing A] [CommRing B]
   [IsDomain A] [IsDomain B]
-  [IsDedekindDomain A] [IsDedekindDomain B]
   [Algebra A K] [Algebra B L]
   [IsFractionRing A K]  [IsFractionRing B L]
-  [IsScalarTower B B L] [IsScalarTower B L L]
--- let 'Q' be a nonzero prime ideal of 'B',
--- and 'P' a nonzero prime ideal of 'A'
-  (Q : IsDedekindDomain.HeightOneSpectrum B)
-  (P : IsDedekindDomain.HeightOneSpectrum A)
--- NOTE : we may need to specify 'Q' "lies over" 'P'.
+  [IsIntegralClosure A ℤ K] [IsIntegralClosure B ℤ L]
+  (A := 𝓞 K) (B := 𝓞 L)
 
+#check ringOfIntegers
 
-/- example (K : Type*) [Field K] (L : Type*) [Field L]
-  [Algebra K L] [FiniteDimensional K L]
-  (A : Type*) (B : Type*) [CommRing A] [CommRing B]
-  [IsDomain A] [IsDomain B]
-  [Algebra A K] [Algebra B L]
-  [IsFractionRing A K]  [IsFractionRing B L] :
+lemma ringOfIntegersAlgebra [Algebra K L] : Algebra (A) (B) := by
+  have h : Algebra (𝓞 K) (𝓞 L) := by exact inst_ringOfIntegersAlgebra K L
   sorry
--/
 
+-- the following 'abbrev' was written by Amelia
+-- we redefine 'Ideal B' to be "'Ideal B', keeping in mind 'A' exists'
+-- this is so that we can unify the 'A K L B setup' used in 'galRectrictHom'
+-- with the MulAction of 'L ≃ₐ[K] L' on the ideals of 'B'
+-- note : 'Algebra A B' is given by the above lemma (may be unnecessary)
+
+@[nolint unusedArguments] abbrev Ideal' (A K L B : Type*) [CommRing A]
+  [CommRing B] [Algebra A B] [Field K] [Field L]
+  [Algebra A K] [IsFractionRing A K] [Algebra B L]
+  [Algebra K L] [Algebra A L] [IsScalarTower A B L]
+  [IsScalarTower A K L] [IsIntegralClosure B A L]
+  [FiniteDimensional K L] := Ideal B
+
+lemma galEquiv.togalHom (σ : L ≃ₐ[K] L) : L →ₐ[K] L := by
+  apply AlgEquiv.toAlgHom
+  exact σ
+
+example (σ : (L →ₐ[K] L)) [h : (L →ₐ[K] L) ≃* (B →ₐ[A] B)] : (B →ₐ[A] B) := by
+  apply?
+
+lemma Ideal_algebraMap_galRestrictHom_apply (A K L B : Type*) [CommRing A]
+  [CommRing B] [Algebra A B] [Field K] [Field L]
+  [Algebra A K] [IsFractionRing A K] [Algebra B L]
+  [Algebra K L] [Algebra A L] [IsScalarTower A B L]
+  [IsScalarTower A K L] [IsIntegralClosure B A L]
+  [FiniteDimensional K L] (σ : L ≃ₐ[K] L) :
+  ((galRestrict A K L B σ : B →ₐ[A] B) : (B →ₐ[A] B)) := by apply?
+
+
+
+
+#check coe_galRestrict_apply
+#check galRestrict
 #check galRestrictHom
-lemma galRestrictHom_ring_of_integers :
-  (L →ₐ[K] L) ≃* (B →ₐ[B] B) := by
-  refine galRestrictHom B K L B
+#check algebraMap_galRestrict_apply
 
+#check AlgHom.toRingHom
 #check Algebra.toRingHom
 #check RingHom.toAlgebra
 #check Algebra.id (𝓞 K)
--- from NumberField.Basic -- defines 'Algebra (𝓞 K) (𝓞 K)'
---" instance Algebra.id(R : Type u) [CommSemiring R] :
--- Algebra R R"
+
 
 -- We define the sub-'B'-algebra of 'L' corresponding to the
 --valuation subring of 'L' associated to 'Q'
