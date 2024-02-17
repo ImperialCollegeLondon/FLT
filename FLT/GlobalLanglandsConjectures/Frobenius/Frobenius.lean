@@ -17,6 +17,11 @@ import Mathlib.FieldTheory.NormalClosure
 import Mathlib.FieldTheory.PrimitiveElement
 import Mathlib.GroupTheory.GroupAction.FixingSubgroup
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
+import Mathlib.FieldTheory.PolynomialGaloisGroup
+import Mathlib.RingTheory.IntegralRestrict
+import Mathlib.NumberTheory.NumberField.Basic
+
+
 
 /-!
 
@@ -107,11 +112,34 @@ variable (K : Type*) [Field K] (L : Type*) [Field L]
   [IsDedekindDomain A] [IsDedekindDomain B]
   [Algebra A K] [Algebra B L]
   [IsFractionRing A K]  [IsFractionRing B L]
+  [IsScalarTower B B L] [IsScalarTower B L L]
 -- let 'Q' be a nonzero prime ideal of 'B',
 -- and 'P' a nonzero prime ideal of 'A'
   (Q : IsDedekindDomain.HeightOneSpectrum B)
   (P : IsDedekindDomain.HeightOneSpectrum A)
 -- NOTE : we may need to specify 'Q' "lies over" 'P'.
+
+
+/- example (K : Type*) [Field K] (L : Type*) [Field L]
+  [Algebra K L] [FiniteDimensional K L]
+  (A : Type*) (B : Type*) [CommRing A] [CommRing B]
+  [IsDomain A] [IsDomain B]
+  [Algebra A K] [Algebra B L]
+  [IsFractionRing A K]  [IsFractionRing B L] :
+  sorry
+-/
+
+#check galRestrictHom
+lemma galRestrictHom_ring_of_integers :
+  (L →ₐ[K] L) ≃* (B →ₐ[B] B) := by
+  refine galRestrictHom B K L B
+
+#check Algebra.toRingHom
+#check RingHom.toAlgebra
+#check Algebra.id (𝓞 K)
+-- from NumberField.Basic -- defines 'Algebra (𝓞 K) (𝓞 K)'
+--" instance Algebra.id(R : Type u) [CommSemiring R] :
+-- Algebra R R"
 
 -- We define the sub-'B'-algebra of 'L' corresponding to the
 --valuation subring of 'L' associated to 'Q'
@@ -178,13 +206,7 @@ theorem ex_FrobElt
 -- rangeRestrict
 -- RingHom.range, def ofLeftInverse
 -- algebraMap : "Embedding R →+* A given by Algebra structure."
-
-#check equivMapofInjective
-
-instance GaltoRingHom : RingHom B B := by
- have hI :
-
---#lint
+-- #lint
 
 /-
 instance GalAction : MulAction (L ≃ₐ[K] L) (Ideal B) where
@@ -195,7 +217,6 @@ instance GalAction : MulAction (L ≃ₐ[K] L) (Ideal B) where
 -- ∃ function which turns algebra equiv (to alg hom) to ring hom,
 -- and then one to restrict
 -- ∃ g : L → L, g (P) = P' :=
-
 -/
 
 end FiniteFrobeniusDef
