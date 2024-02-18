@@ -181,13 +181,22 @@ def decompositionSubgroupisPrime [Group  (L ≃ₐ[K] L)] {_ : Type*}
   [IsScalarTower A K L] [IsIntegralClosure B A L]
   [FiniteDimensional K L]
   [galActionisPrime : MulAction (L ≃ₐ[K] L) ((Ideal' A K L B))]
-  (P : (Ideal' A K L B)) :
-  Subgroup (L ≃ₐ[K] L) := galActionisPrime.stabilizer (P : Ideal' A K L B)
+  (Q : (Ideal' A K L B)) :
+  Subgroup (L ≃ₐ[K] L) := galActionisPrime.stabilizer (Q : Ideal' A K L B)
 
 #check decompositionSubgroupisPrime
 
 -- def MulAction.stabilizer(G : Type u_1) {α : Type u_2} [Group G]
 -- [MulAction G α] (a : α) : Subgroup G
+
+-- we will eventually show that the order 'q' of 'Frob [K , L]' is
+-- the number of elements in the residue field 'A  ⧸ P',
+-- where 'P ⊂ A' is a prime ideal lying under the prime ideal 'Q ⊂ B'
+variable (P : Ideal A) [P.IsMaximal] [Fintype (A ⧸ P)]
+
+def q := Fintype.card (A ⧸ P)
+
+
 
 #check MulEquiv.toMulHom
 #check Polynomial.Gal.galActionAux
