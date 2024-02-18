@@ -20,6 +20,9 @@ import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.FieldTheory.PolynomialGaloisGroup
 import Mathlib.RingTheory.IntegralRestrict
 import Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.Data.Quot
+import Mathlib.Data.Polynomial.Eval
+import Mathlib.Data.Polynomial.RingDivision
 
 
 
@@ -192,11 +195,34 @@ def decompositionSubgroupisPrime [Group  (L ≃ₐ[K] L)] {_ : Type*}
 -- we will eventually show that the order 'q' of 'Frob [K , L]' is
 -- the number of elements in the residue field 'A  ⧸ P',
 -- where 'P ⊂ A' is a prime ideal lying under the prime ideal 'Q ⊂ B'
+
+noncomputable def residueField (P : Ideal A) [P.IsMaximal] : Field (A ⧸ P) :=
+ Ideal.Quotient.field P
+
 variable (P : Ideal A) [P.IsMaximal] [Fintype (A ⧸ P)]
+  (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
 
 def q := Fintype.card (A ⧸ P)
 
+-- for 'α : B', we want to define a polynomial 'F(X) : ℤ[X]' which is
+-- the product over elements 'τ : L ≃ₐ[K] L' of the
+-- linear factors '(X - τα)'
+-- and such that '(Ideal.Quotient.mk Q) F(α) = 0',
+-- where '(Ideal.Quotient.mk Q) := (B ⧸ Q)'
+-- IsRoot p x implies x is a root of p. The evaluation of p at x is zero
+-- see: "Polynomial.prod_multiset_X_sub_C_of_monic_of_roots_card_eq":
+-- "A monic polynomial `p` that has as many roots as its degree
+-- can be written `p = ∏(X - a)`, for `a` in `p.roots`"
+--
 
+noncomputable def F (α : B) (τ : L ≃ₐ[K] L) :
+  Polynomial B := (F.roots.map fun α => X - C τα).prod
+-- we need to specify 'α' to be a generator of (B ⧸ Q)^×, though
+
+--  "⟦" a "⟧" => Quot.mk _ a
+-- theorem Ideal.Quotient.eq_zero_iff_mem{R : Type u}
+--  [CommRing R] {a : R} {I : Ideal R} :
+-- (Ideal.Quotient.mk I) a = 0 ↔ a ∈ I
 
 #check MulEquiv.toMulHom
 #check Polynomial.Gal.galActionAux
