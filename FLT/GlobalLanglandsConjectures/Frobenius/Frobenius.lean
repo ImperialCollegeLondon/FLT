@@ -150,6 +150,8 @@ instance galtoMulHom (e: (L →ₐ[K] L) ≃* (B →ₐ[A] B)): ((L →ₐ[K] L)
 
 -- now, need '(B →ₐ[A] B)' from the RHS of 'galtoMulHom'
 
+
+
 instance galtoRingHom : (B →ₐ[A] B) where
   toFun := sorry
   map_one' := sorry
@@ -158,9 +160,34 @@ instance galtoRingHom : (B →ₐ[A] B) where
   map_add' := sorry
   commutes' := sorry
 
-lemma galtoRingHom' (σ  : L ≃ₐ[K] L) : ∃ σ', (σ' : (B →ₐ[A] B)) := by
-  apply galRestrictHom A K L B σ
-  apply MulEquiv.toMulHom
+-- we define the action of Gal(L/K) on the prime ideals of B ⊂ L
+-- the prime 'Ideal B' has been re-written as
+-- "'Ideal B' , remembering that 'A' exists'
+-- in order to synthesize the instance of 'MulAction' on 'Ideal B' with
+-- the 'A K L B' setup
+instance galActionisPrime: MulAction (L ≃ₐ[K] L) (Ideal' A K L B) where
+  smul := sorry
+  one_smul := sorry
+  mul_smul := sorry
+
+-- we define the decomposition group of '(Ideal' A K L B)' over 'K'
+-- to be the stabilizer of the MulAction 'galActionisPrime'
+
+def decompositionSubgroupisPrime [Group  (L ≃ₐ[K] L)] {_ : Type*}
+  (A K L B : Type*) [CommRing A]
+  [CommRing B] [Algebra A B] [Field K] [Field L]
+  [Algebra A K] [IsFractionRing A K] [Algebra B L]
+  [Algebra K L] [Algebra A L] [IsScalarTower A B L]
+  [IsScalarTower A K L] [IsIntegralClosure B A L]
+  [FiniteDimensional K L]
+  [galActionisPrime : MulAction (L ≃ₐ[K] L) ((Ideal' A K L B))]
+  (P : (Ideal' A K L B)) :
+  Subgroup (L ≃ₐ[K] L) := galActionisPrime.stabilizer (P : Ideal' A K L B)
+
+#check decompositionSubgroupisPrime
+
+-- def MulAction.stabilizer(G : Type u_1) {α : Type u_2} [Group G]
+-- [MulAction G α] (a : α) : Subgroup G
 
 #check MulEquiv.toMulHom
 #check Polynomial.Gal.galActionAux
@@ -182,25 +209,11 @@ lemma galtoRingHom' (σ  : L ≃ₐ[K] L) : ∃ σ', (σ' : (B →ₐ[A] B)) := 
 
 
 
-
--- the decomposition group of 'A' over 'K':
--- def decompositionSubgroup  (A : ValuationSubring L) :
--- Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) A
 -- I was instructed to define the action of the Galois group
 -- in terms of an isomorphism from L to itself
 -- #check Frob[K, L]
 
 
-
-
--- modify 'def decompositionSubgroup', so that it does not use 'ValuationSubring L':
--- use 'MulAction.stabilizer', "The stabilizer of an element under an action,
---  i.e. what sends the element to itself".
-
-
-
-variable {L} in
--- need '(L ≃ₐ[K] L)' "acts transitively on the set of all prime ideals 'Q' of '𝓞' lying above 'P'"
 
 
 
