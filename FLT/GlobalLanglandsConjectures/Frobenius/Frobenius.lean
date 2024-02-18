@@ -137,20 +137,37 @@ lemma galEquiv.togalHom (σ : L ≃ₐ[K] L) : L →ₐ[K] L := by
   apply AlgEquiv.toAlgHom
   exact σ
 
-example (σ : (L →ₐ[K] L)) [h : (L →ₐ[K] L) ≃* (B →ₐ[A] B)] : (B →ₐ[A] B) := by
-  apply?
-
-lemma Ideal_algebraMap_galRestrictHom_apply (A K L B : Type*) [CommRing A]
+variable (A K L B : Type*) [CommRing A]
   [CommRing B] [Algebra A B] [Field K] [Field L]
   [Algebra A K] [IsFractionRing A K] [Algebra B L]
   [Algebra K L] [Algebra A L] [IsScalarTower A B L]
   [IsScalarTower A K L] [IsIntegralClosure B A L]
-  [FiniteDimensional K L] (σ : L ≃ₐ[K] L) :
-  ((galRestrict A K L B σ : B →ₐ[A] B) : (B →ₐ[A] B)) := by apply?
+  [FiniteDimensional K L]
 
+instance galtoMulHom (e: (L →ₐ[K] L) ≃* (B →ₐ[A] B)): ((L →ₐ[K] L) →ₙ* (B →ₐ[A] B)) := by
+  apply MulEquiv.toMulHom
+  exact e
 
+-- now, need '(B →ₐ[A] B)' from the RHS of 'galtoMulHom'
 
+instance galtoRingHom : (B →ₐ[A] B) where
+  toFun := sorry
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
+  commutes' := sorry
 
+lemma galtoRingHom' (σ  : L ≃ₐ[K] L) : ∃ σ', (σ' : (B →ₐ[A] B)) := by
+  apply galRestrictHom A K L B σ
+  apply MulEquiv.toMulHom
+
+#check MulEquiv.toMulHom
+#check Polynomial.Gal.galActionAux
+#check Ideal.map_isPrime_of_equiv
+#check Polynomial.rootSet_maps_to'
+#check IsScalarTower.toAlgHom
+#check Set.MapsTo.restrict
 #check coe_galRestrict_apply
 #check galRestrict
 #check galRestrictHom
@@ -162,35 +179,13 @@ lemma Ideal_algebraMap_galRestrictHom_apply (A K L B : Type*) [CommRing A]
 #check Algebra.id (𝓞 K)
 
 
--- We define the sub-'B'-algebra of 'L' corresponding to the
---valuation subring of 'L' associated to 'Q'
--- See "Mathlib.RingTheory.DedekindDomain.Ideal"
-/- The following doesn't work, because I changed the type of brackets
-and the order of variables -- they have to be identical to what Kevin sent.
-I also need to open the namespace in the code he sent.
-noncomputable abbrev ValuationSubring.asSubalgebra : Subalgebra B L :=
-  Localization.subalgebra.ofField L (Ideal.primeCompl Q.asIdeal) (by
-    intro x hx
-    apply mem_nonZeroDivisors_of_ne_zero
-    rintro rfl
-    apply hx
-    simp only [SetLike.mem_coe, Submodule.zero_mem]
-  )
-
-
-noncomputable def valuationSubring : ValuationSubring L :=
-  haveI := IsLocalization.AtPrime.discreteValuationRing_of_dedekind_domain
-    B Q.ne_bot (ValuationSubring.asSubalgebra L B)
-  Valuation.valuationSubring (ValuationRing.valuation (ValuationSubring.asSubalgebra L Q) L)
-
--/
 
 
 
 
 -- the decomposition group of 'A' over 'K':
-def decompositionSubgroup  (A : ValuationSubring L) :
-  Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) A
+-- def decompositionSubgroup  (A : ValuationSubring L) :
+-- Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) A
 -- I was instructed to define the action of the Galois group
 -- in terms of an isomorphism from L to itself
 -- #check Frob[K, L]
