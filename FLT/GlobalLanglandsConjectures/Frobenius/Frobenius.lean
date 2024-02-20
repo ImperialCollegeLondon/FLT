@@ -106,22 +106,18 @@ of '(L ≃ₐ[K] L)' on 'Q.valuationSubring L' :
 
 -/
 
-variable (K : Type*) [Field K] (L : Type*) [Field L]
-  [Algebra K L] [hG: IsGalois K L]
-  [nfK : NumberField K] [nfL : NumberField L]
-  [FiniteDimensional K L]
-  (A : Type*) (B : Type*) [CommRing A] [CommRing B]
-  [IsDomain A] [IsDomain B]
-  [Algebra A K] [Algebra B L]
-  [IsFractionRing A K]  [IsFractionRing B L]
-  [IsIntegralClosure A ℤ K] [IsIntegralClosure B ℤ L]
-  (A := 𝓞 K) (B := 𝓞 L)
+-- variable (A K L B : Type*) [Field K] (L : Type*) [Field L]
+--   [Algebra K L] [hG: IsGalois K L]
+--   [nfK : NumberField K] [nfL : NumberField L]
+--   [FiniteDimensional K L]
+--   [CommRing A] [CommRing B]
+--   [IsDomain A] [IsDomain B]
+--   [Algebra A K] [Algebra B L] [Algebra A L]
+--   [IsFractionRing A K]  [IsFractionRing B L]
+--   [IsIntegralClosure A ℤ K] [IsIntegralClosure B ℤ L]
+--   (A := 𝓞 K) (B := 𝓞 L)
 
 #check ringOfIntegers
-
-lemma ringOfIntegersAlgebra [Algebra K L] : Algebra (A) (B) := by
-  have h : Algebra (𝓞 K) (𝓞 L) := by exact inst_ringOfIntegersAlgebra K L
-  sorry
 
 -- the following 'abbrev' was written by Amelia
 -- we redefine 'Ideal B' to be "'Ideal B', keeping in mind 'A' exists'
@@ -136,26 +132,29 @@ lemma ringOfIntegersAlgebra [Algebra K L] : Algebra (A) (B) := by
   [IsScalarTower A K L] [IsIntegralClosure B A L]
   [FiniteDimensional K L] := Ideal B
 
-lemma galEquiv.togalHom (σ : L ≃ₐ[K] L) : L →ₐ[K] L := by
-  apply AlgEquiv.toAlgHom
-  exact σ
-
-variable (A K L B : Type*) [CommRing A]
-  [CommRing B] [Algebra A B] [Field K] [Field L]
-  [Algebra A K] [IsFractionRing A K] [Algebra B L]
-  [Algebra K L] [Algebra A L] [IsScalarTower A B L]
-  [IsScalarTower A K L] [IsIntegralClosure B A L]
+variable (A K B L : Type*)
+  [CommRing A] [CommRing B] [Algebra A B]
+  [Field K] [Field L] [Algebra K L]
+  [IsDomain A] [IsDomain B]
+  [Algebra A K] [Algebra B L] [Algebra A L]
+  [IsScalarTower A B L] [IsScalarTower A K L]
+  [IsFractionRing A K] [IsFractionRing B L]
+  [IsIntegralClosure B A L] [IsIntegralClosure A ℤ K] [IsIntegralClosure B ℤ L]
   [FiniteDimensional K L]
 
-instance galtoMulHom (e: (L →ₐ[K] L) ≃* (B →ₐ[A] B)): ((L →ₐ[K] L) →ₙ* (B →ₐ[A] B)) := by
+-- def galEquiv.toGalHom (σ : L ≃ₐ[K] L) : L →ₐ[K] L := AlgEquiv.toAlgHom σ
+
+-- lemma ringOfIntegersAlgebra : Algebra A B := by
+--   have h : Algebra (𝓞 K) (𝓞 L) := by exact inst_ringOfIntegersAlgebra K L
+--   sorry
+
+lemma galToMulHom (e: (L →ₐ[K] L) ≃* (B →ₐ[A] B)) : ((L →ₐ[K] L) →ₙ* (B →ₐ[A] B)) := by
   apply MulEquiv.toMulHom
   exact e
 
--- now, need '(B →ₐ[A] B)' from the RHS of 'galtoMulHom'
+-- now, need '(B →ₐ[A] B)' from the RHS of 'galToMulHom'
 
-
-
-instance galtoRingHom : (B →ₐ[A] B) where
+def galToRingHom (σ : L →ₐ[K] L) : B →ₐ[A] B where
   toFun := sorry
   map_one' := sorry
   map_mul' := sorry
@@ -168,24 +167,23 @@ instance galtoRingHom : (B →ₐ[A] B) where
 -- "'Ideal B' , remembering that 'A' exists'
 -- in order to synthesize the instance of 'MulAction' on 'Ideal B' with
 -- the 'A K L B' setup
-instance galActionisPrime: MulAction (L ≃ₐ[K] L) (Ideal' A K L B) where
-  smul := sorry
-  one_smul := sorry
+instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L B) where
+  smul {g : L ≃ₐ[K] L} {P : Ideal B} := Ideal.map (galToRingHom A K B L g.toAlgHom) P
+  one_smul {P : Ideal B} := by
+    simp_rw [HSMul.hSMul]
+    sorry
   mul_smul := sorry
 
 -- we define the decomposition group of '(Ideal' A K L B)' over 'K'
 -- to be the stabilizer of the MulAction 'galActionisPrime'
 
-def decompositionSubgroupisPrime [Group  (L ≃ₐ[K] L)] {_ : Type*}
-  (A K L B : Type*) [CommRing A]
-  [CommRing B] [Algebra A B] [Field K] [Field L]
-  [Algebra A K] [IsFractionRing A K] [Algebra B L]
-  [Algebra K L] [Algebra A L] [IsScalarTower A B L]
-  [IsScalarTower A K L] [IsIntegralClosure B A L]
-  [FiniteDimensional K L]
-  [galActionisPrime : MulAction (L ≃ₐ[K] L) ((Ideal' A K L B))]
-  (Q : (Ideal' A K L B)) :
-  Subgroup (L ≃ₐ[K] L) := galActionisPrime.stabilizer (Q : Ideal' A K L B)
+
+-- Bendit: I think these are not needed
+--[Group (L ≃ₐ[K] L)] {_ : Type*}
+--[galActionisPrime : MulAction (L ≃ₐ[K] L) ((Ideal' A K L B))]
+
+def decompositionSubgroupisPrime (P : Ideal' A K L B) :
+  Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) P
 
 #check decompositionSubgroupisPrime
 
@@ -196,13 +194,26 @@ def decompositionSubgroupisPrime [Group  (L ≃ₐ[K] L)] {_ : Type*}
 -- the number of elements in the residue field 'A  ⧸ P',
 -- where 'P ⊂ A' is a prime ideal lying under the prime ideal 'Q ⊂ B'
 
-noncomputable def residueField (P : Ideal A) [P.IsMaximal] : Field (A ⧸ P) :=
+noncomputable def residueField (A : Type*) [CommRing A] (P : Ideal A) [P.IsMaximal] : Field (A ⧸ P) :=
  Ideal.Quotient.field P
 
 variable (P : Ideal A) [P.IsMaximal] [Fintype (A ⧸ P)]
   (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
+  [Algebra (A ⧸ P) (B ⧸ Q)]
 
-def q := Fintype.card (A ⧸ P)
+local notation "k" => A ⧸ P
+local notation "l" => B ⧸ Q
+-- def q := Fintype.card (A ⧸ P)
+
+-- the map `D(Q) → Gal(l/k)` via `σ ↦ (x + Q ↦ σ(x) + Q)`
+def residueGalMap : (σ : decompositionSubgroupisPrime A K B L Q) → l ≃ₐ[k] l := by
+  intro σ
+  sorry
+
+theorem residueGalMap_surj : Function.Surjective (residueGalMap A K B L P Q):= by
+  sorry
+
+
 
 -- for 'α : B', we want to define a polynomial 'F(X) : ℤ[X]' which is
 -- the product over elements 'τ : L ≃ₐ[K] L' of the
@@ -272,15 +283,5 @@ theorem ex_FrobElt
 -- algebraMap : "Embedding R →+* A given by Algebra structure."
 -- #lint
 
-/-
-instance GalAction : MulAction (L ≃ₐ[K] L) (Ideal B) where
-  smul {g : L ≃ₐ[K] L} {P : Ideal B} := by
-    refine Ideal.map (RingHom.restrict g.toAlgHom.toRingHom B B ?_) P
-  one_smul := sorry
-  mul_smul := sorry
--- ∃ function which turns algebra equiv (to alg hom) to ring hom,
--- and then one to restrict
--- ∃ g : L → L, g (P) = P' :=
--/
 
 end FiniteFrobeniusDef
