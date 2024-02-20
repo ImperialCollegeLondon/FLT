@@ -26,6 +26,7 @@ import Mathlib.Data.Polynomial.RingDivision
 
 
 
+
 /-!
 
 ## References
@@ -117,7 +118,7 @@ variable (K : Type*) [Field K] (L : Type*) [Field L]
   [IsIntegralClosure A ℤ K] [IsIntegralClosure B ℤ L]
   (A := 𝓞 K) (B := 𝓞 L)
 
-#check ringOfIntegers
+
 
 lemma ringOfIntegersAlgebra [Algebra K L] : Algebra (A) (B) := by
   have h : Algebra (𝓞 K) (𝓞 L) := by exact inst_ringOfIntegersAlgebra K L
@@ -147,21 +148,34 @@ variable (A K L B : Type*) [CommRing A]
   [IsScalarTower A K L] [IsIntegralClosure B A L]
   [FiniteDimensional K L]
 
+
 instance galtoMulHom (e: (L →ₐ[K] L) ≃* (B →ₐ[A] B)): ((L →ₐ[K] L) →ₙ* (B →ₐ[A] B)) := by
   apply MulEquiv.toMulHom
   exact e
 
+
+
 -- now, need '(B →ₐ[A] B)' from the RHS of 'galtoMulHom'
+-- need: theorem MulHom.restrict_apply{M : Type u_1} {σ : Type u_4}
+-- [Mul M] {N : Type u_5} [Mul N] [SetLike σ M] [MulMemClass σ M] (f : M →ₙ* N) {S : σ}
+-- (x : ↥S) : (MulHom.restrict f S) x = f ↑x
+-- Check : IntegralRestrict, PolynomialGaloisGroup
+
+variable {K L}
+-- instance galtoRingHom (g : L ≃ₐ[K] L) (x : B) :  B →ₐ[A] B :=
+-- (galRestrict A K L B g : B →ₐ[A] B)
 
 
-
-instance galtoRingHom : (B →ₐ[A] B) where
+-- B →+* B
+#check B →+* B
+instance galtoRingHom' : (B →ₐ[A] B) where
   toFun := sorry
   map_one' := sorry
   map_mul' := sorry
   map_zero' := sorry
   map_add' := sorry
   commutes' := sorry
+
 
 -- we define the action of Gal(L/K) on the prime ideals of B ⊂ L
 -- the prime 'Ideal B' has been re-written as
@@ -215,9 +229,40 @@ def q := Fintype.card (A ⧸ P)
 -- can be written `p = ∏(X - a)`, for `a` in `p.roots`"
 --
 
-noncomputable def F (α : B) (τ : L ≃ₐ[K] L) :
-  Polynomial B := (F.roots.map fun α => X - C τα).prod
+-- noncomputable def F (α : B) (τ : L ≃ₐ[K] L) :
+--  Polynomial B := (F.roots.map fun α => X - C τα).prod
 -- we need to specify 'α' to be a generator of (B ⧸ Q)^×, though
+
+-- maybe define an instance of a polynomial F where
+-- ∀ τ : L≃ₐ[K] L, τ(α) is a root of F
+--AND, ∀ roots r of F, r = τ(α), for some τ : L≃ₐ[K] L
+
+-- instance rootF (F: Polynomial L) : roots F := _
+
+-- below, modelled on "Polynomial.prod_multiset_X_sub_C_of_monic_of_roots_card_eq":
+noncomputable def F.roots (F : Polynomial L) (hF : Polynomial.Monic F)
+(hroots : Multiset.card (Polynomial.roots F) = Polynomial.natDegree F) : Multiset L :=
+ sorry
+
+def F (R : Type*) [Field R] : Polynomial R where
+  toFinsupp := {
+    support := {
+      val := sorry
+      nodup := sorry
+    }
+    toFun := fun
+      | .zero => sorry
+      | .succ n => sorry
+    mem_support_toFun := fun
+      | .zero => {
+        mp := sorry
+        mpr := sorry
+      }
+      | .succ n => {
+        mp := sorry
+        mpr := sorry
+      }
+  }
 
 --  "⟦" a "⟧" => Quot.mk _ a
 -- theorem Ideal.Quotient.eq_zero_iff_mem{R : Type u}
