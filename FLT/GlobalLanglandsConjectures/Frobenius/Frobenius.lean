@@ -183,7 +183,7 @@ noncomputable instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L 
 def decompositionSubgroupIdeal' (Q : Ideal' A K L B) :
   Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) Q
 
-#check decompositionSubgroupIdeal' -- this may have to be redefined
+#check decompositionSubgroupIdeal'
 
 -- we will eventually show that the order 'q' of 'Frob [K , L]' is
 -- the number of elements in the residue field 'A  ⧸ P',
@@ -209,10 +209,12 @@ local notation "q" => Fintype.card (A ⧸ P)
 
 #check q
 
+#check decompositionSubgroupIdeal' A K L B Q
 
-theorem generator (τ : L ≃ₐ[K] L)  : ∃ ρ : B,
-  (ρ ∈ τ • Q) := by
-  sorry
+theorem generator (τ : L ≃ₐ[K] L)
+  (h : τ ∉ (decompositionSubgroupIdeal' A K L B Q)) : ∃ ρ : B,
+  (ρ ∈ τ • Q) := by sorry
+
 -- need generates '(B ⧸ Q)ˣ';
 -- could not apply :  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers ρ),
 -- because this is for a group 'B'
