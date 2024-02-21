@@ -210,12 +210,20 @@ local notation "q" => Fintype.card (A ⧸ P)
 #check q
 
 
-theorem generator (τ : decompositionSubgroupIdeal' A K L B Q) : ∃ ρ : B,
+theorem generator (τ : L ≃ₐ[K] L)  : ∃ ρ : B,
   (ρ ∈ τ • Q) := by
   sorry
 -- need generates '(B ⧸ Q)ˣ';
 -- could not apply :  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers ρ),
 -- because this is for a group 'B'
+
+
+/- instance subgroup_units_cyclic{R : Type u_1} [CommRing R] [IsDomain R]
+(S : Subgroup Rˣ) [Finite ↥S] :
+IsCyclic ↥S
+A finite subgroup of the units of an integral domain is cyclic.
+-/
+
 
 /-
 instance NumberField.Units.instFGUnitsSubtypeMemSubalgebraIntToCommSemiringInstCommRingIntToSemiringToCommSemiringToCommRingToEuclideanDomainAlgebraIntToRingToDivisionRingInstMembershipInstSetLikeSubalgebraRingOfIntegersToMonoidToMonoidToMonoidWithZeroToSemiringToDivisionSemiringToSemifieldToSubmonoidToNonAssocSemiringToSubsemiringInstMonoid(K : Type u_1) [Field K] [NumberField K] :
@@ -267,12 +275,12 @@ for 'so (F(α ^ q) - F(α) ^ q) ∈ Q':
 theorem FiniteField.expand_card {K : Type u_1} [Field K] [Fintype K]
 (f : Polynomial K) : (Polynomial.expand K (Fintype.card K)) f = f ^ Fintype.card K
 
-would need 'K' here to be (L ⧸ B); then would need the reduction
-(FModQ : Polynomial (L ⧸ B)
+would need 'K' here to be (B ⧸ Q); then would need the reduction
+(FModQ : Polynomial (B ⧸ Q)
 
 -/
 
-
+instance FModQ (_: (B ⧸ Q)) : Polynomial (B ⧸ Q) := sorry
 
 lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((galBmap A K L B σ) α) ∈ Q := by
   sorry
