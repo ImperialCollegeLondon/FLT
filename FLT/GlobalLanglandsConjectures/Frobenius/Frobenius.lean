@@ -23,7 +23,7 @@ import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.Data.Quot
 import Mathlib.Data.Polynomial.Eval
 import Mathlib.Data.Polynomial.RingDivision
-
+import Mathlib.GroupTheory.SpecificGroups.Cyclic
 
 
 
@@ -180,10 +180,10 @@ noncomputable instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L 
 -- we define the decomposition group of '(Ideal' A K L B)' over 'K'
 -- to be the stabilizer of the MulAction 'galActionisPrime'
 
-def decompositionSubgroupIdeal' (P : Ideal' A K L B) :
-  Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) P
+def decompositionSubgroupIdeal' (Q : Ideal' A K L B) :
+  Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) Q
 
-#check decompositionSubgroupIdeal'
+#check decompositionSubgroupIdeal' -- this may have to be redefined
 
 -- we will eventually show that the order 'q' of 'Frob [K , L]' is
 -- the number of elements in the residue field 'A  ⧸ P',
@@ -208,6 +208,21 @@ local notation "l" => B ⧸ Q
 local notation "q" => Fintype.card (A ⧸ P)
 
 #check q
+
+
+theorem generator (τ : decompositionSubgroupIdeal' A K L B Q) : ∃ ρ : B,
+  (ρ ∈ τ • Q) := by
+  sorry
+-- need generates '(B ⧸ Q)ˣ';
+-- could not apply :  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers ρ),
+-- because this is for a group 'B'
+
+/-
+instance NumberField.Units.instFGUnitsSubtypeMemSubalgebraIntToCommSemiringInstCommRingIntToSemiringToCommSemiringToCommRingToEuclideanDomainAlgebraIntToRingToDivisionRingInstMembershipInstSetLikeSubalgebraRingOfIntegersToMonoidToMonoidToMonoidWithZeroToSemiringToDivisionSemiringToSemifieldToSubmonoidToNonAssocSemiringToSubsemiringInstMonoid(K : Type u_1) [Field K] [NumberField K] :
+Monoid.FG (↥(NumberField.ringOfIntegers K))ˣ
+-/
+
+-- instance Ideal.Factors.finiteDimensional_quotient
 
 -- set_option autoImplicit false
 -- the map `D(Q) → Gal(l/k)` via `σ ↦ (x + Q ↦ σ(x) + Q)`
@@ -236,8 +251,7 @@ variable (α R : Type*) [Semiring R] [Fintype α] (a : R) (f : α → R)
 noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
   (Polynomial.X - Polynomial.C ((AlgEquiv.symm (galRestrict A K L B τ))  α))
 
--- theorem generator : ∃ α : B,
--- instance Ideal.Factors.finiteDimensional_quotient
+
 
 --  "⟦" a "⟧" => Quot.mk _ a
 -- theorem Ideal.Quotient.eq_zero_iff_mem{R : Type u}
@@ -246,6 +260,19 @@ noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
 
 lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
   sorry
+
+
+/-
+for 'so (F(α ^ q) - F(α) ^ q) ∈ Q':
+theorem FiniteField.expand_card {K : Type u_1} [Field K] [Fintype K]
+(f : Polynomial K) : (Polynomial.expand K (Fintype.card K)) f = f ^ Fintype.card K
+
+would need 'K' here to be (L ⧸ B); then would need the reduction
+(FModQ : Polynomial (L ⧸ B)
+
+-/
+
+
 
 lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((galBmap A K L B σ) α) ∈ Q := by
   sorry
