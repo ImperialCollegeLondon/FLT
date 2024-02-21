@@ -75,7 +75,7 @@ local notation "Frob["K "," L "]" => FrobeniusElt K L
 -- from E to itself
 -- example : Type := F ≃ₐ[E] F"
 
-open NumberField
+open NumberField BigOperators
 open scoped Pointwise
 
 /-!
@@ -133,7 +133,7 @@ of '(L ≃ₐ[K] L)' on 'Q.valuationSubring L' :
   [IsScalarTower A K L] [IsIntegralClosure B A L]
   [FiniteDimensional K L] := Ideal B
 
-variable (A K B L : Type*)
+variable (A K L B : Type*)
   [CommRing A] [CommRing B] [Algebra A B]
   [Field K] [Field L] [Algebra K L]
   [IsDomain A] [IsDomain B]
@@ -195,10 +195,10 @@ instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L B) where
 --[Group (L ≃ₐ[K] L)] {_ : Type*}
 --[galActionisPrime : MulAction (L ≃ₐ[K] L) ((Ideal' A K L B))]
 
-def decompositionSubgroupisPrime (P : Ideal' A K L B) :
+def decompositionSubgroupIdeal' (P : Ideal' A K L B) :
   Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) P
 
-#check decompositionSubgroupisPrime
+#check decompositionSubgroupIdeal'
 
 -- def MulAction.stabilizer(G : Type u_1) {α : Type u_2} [Group G]
 -- [MulAction G α] (a : α) : Subgroup G
@@ -239,8 +239,8 @@ local notation "l" => B ⧸ Q
 -- can be written `p = ∏(X - a)`, for `a` in `p.roots`"
 --
 
--- noncomputable def F (α : B) (τ : L ≃ₐ[K] L) :
---  Polynomial B := (F.roots.map fun α => X - C τα).prod
+noncomputable def F (α : B) :
+  Polynomial B := ∏ τ : L ≃ₐ[K] L, (Polynomial.X - Polynomial.C ((galToRingHom A K L B τ) α))
 -- we need to specify 'α' to be a generator of (B ⧸ Q)^×, though
 
 -- maybe define an instance of a polynomial F where
@@ -279,43 +279,34 @@ def F (R : Type*) [Field R] : Polynomial R where
 --  [CommRing R] {a : R} {I : Ideal R} :
 -- (Ideal.Quotient.mk I) a = 0 ↔ a ∈ I
 
-#check MulEquiv.toMulHom
-#check Polynomial.Gal.galActionAux
-#check Ideal.map_isPrime_of_equiv
-#check Polynomial.rootSet_maps_to'
-#check IsScalarTower.toAlgHom
-#check Set.MapsTo.restrict
-#check coe_galRestrict_apply
-#check galRestrict
-#check galRestrictHom
-#check algebraMap_galRestrict_apply
+lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
+  sorry
 
-#check AlgHom.toRingHom
-#check Algebra.toRingHom
-#check RingHom.toAlgebra
-#check Algebra.id (𝓞 K)
+lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((galToRingHom A K L B σ) α) ∈ Q := by
+  sorry
 
+theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, (galToRingHom A K L B σ) α - α ^ q ∈ Q  := by
+  sorry
 
+-- #check MulEquiv.toMulHom
+-- #check Polynomial.Gal.galActionAux
+-- #check Ideal.map_isPrime_of_equiv
+-- #check Polynomial.rootSet_maps_to'
+-- #check IsScalarTower.toAlgHom
+-- #check Set.MapsTo.restrict
+-- #check coe_galRestrict_apply
+-- #check galRestrict
+-- #check galRestrictHom
+-- #check algebraMap_galRestrict_apply
 
-
+-- #check AlgHom.toRingHom
+-- #check Algebra.toRingHom
+-- #check RingHom.toAlgebra
+-- #check Algebra.id (𝓞 K)
 
 -- I was instructed to define the action of the Galois group
 -- in terms of an isomorphism from L to itself
 -- #check Frob[K, L]
-
-
-
-
-
-
--- the following proof from p. 141 Milne ANT
-theorem ex_FrobElt
-  (Q : Ideal (𝓞 L)) (hQ: Ideal.IsPrime Q) : true := by
-  sorry
-
-#check Ideal.map
-
-
 
 -- we define the action of the Galois group on the prime ideals of
 -- the ring of integers 'R' of 'L'
