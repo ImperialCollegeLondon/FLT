@@ -45,7 +45,7 @@ section References
 -- [Commelin et. al., "Mathlib.FieldTheory.Finite.GaloisField"]
 #check isGalois_iff -- 'is Galois' iff 'normal'∧'separable'
 #check IsAlgClosure.isGalois
--- IsDedekindDomain.HeightOneSpectrum.valuation_def
+
 
 end References
 
@@ -133,27 +133,38 @@ of '(L ≃ₐ[K] L)' on 'Q.valuationSubring L' :
   [IsScalarTower A K L] [IsIntegralClosure B A L]
   [FiniteDimensional K L] := Ideal B
 
-variable (A K L B : Type*)
+variable [Field K] [Field L]
+  (A K L B : Type*)
   [CommRing A] [CommRing B] [Algebra A B]
-  [Field K] [Field L] [Algebra K L]
-  [IsDomain A] [IsDomain B]
-  [Algebra A K] [Algebra B L] [Algebra A L]
-  [IsScalarTower A B L] [IsScalarTower A K L]
-  [IsFractionRing A K] [IsFractionRing B L]
-  [IsIntegralClosure B A L] [IsIntegralClosure A ℤ K] [IsIntegralClosure B ℤ L]
+  [Field K] [Field L] [Algebra A K]
+  [IsFractionRing A K] [Algebra B L]
+  [Algebra K L] [Algebra A L]
+  [IsScalarTower A B L]
+  [IsScalarTower A K L]
+  [IsIntegralClosure B A L]
   [FiniteDimensional K L]
+  [IsFractionRing B L]
 
--- def galEquiv.toGalHom (σ : L ≃ₐ[K] L) : L →ₐ[K] L := AlgEquiv.toAlgHom σ
+-- lemma galToMulHom (e: (L →ₐ[K] L) ≃* (B →ₐ[A] B)) : ((L →ₐ[K] L) →ₙ* (B →ₐ[A] B)) := by
+-- apply MulEquiv.toMulHom
+-- exact e
 
--- lemma ringOfIntegersAlgebra : Algebra A B := by
---   have h : Algebra (𝓞 K) (𝓞 L) := by exact inst_ringOfIntegersAlgebra K L
---   sorry
+def galEquiv.toGalHom (σ : L ≃ₐ[K] L) : L →ₐ[K] L := AlgEquiv.toAlgHom σ
 
-lemma galToMulHom (e: (L →ₐ[K] L) ≃* (B →ₐ[A] B)) : ((L →ₐ[K] L) →ₙ* (B →ₐ[A] B)) := by
-  apply MulEquiv.toMulHom
-  exact e
+variable {K L}
+noncomputable def  galtoRingHom (σ : L →ₐ[K] L) : B →ₐ[A] B :=
+  (galRestrictHom A K L B σ)
 
+noncomputable def  galtoRingHom' (σ : L ≃ₐ[K] L) : B →ₐ[A] B :=
+  (galRestrictHom A K L B σ)
 
+noncomputable def galtoRing (σ : L ≃ₐ[K] L) : B →ₐ[A] B :=
+  (galRestrict A K L B σ : B →ₐ[A] B)
+
+lemma coe_galRestrict_apply_COPY (σ : L ≃ₐ[K] L) :
+    (galRestrict A K L B σ : B →ₐ[A] B) = galRestrictHom A K L B σ := rfl
+
+#check B →ₐ[A] B
 
 -- now, need '(B →ₐ[A] B)' from the RHS of 'galToMulHom'
 -- need: theorem MulHom.restrict_apply{M : Type u_1} {σ : Type u_4}
@@ -161,20 +172,8 @@ lemma galToMulHom (e: (L →ₐ[K] L) ≃* (B →ₐ[A] B)) : ((L →ₐ[K] L) �
 -- (x : ↥S) : (MulHom.restrict f S) x = f ↑x
 -- Check : IntegralRestrict, PolynomialGaloisGroup
 
-variable {K L}
--- instance galtoRingHom (g : L ≃ₐ[K] L) (x : B) :  B →ₐ[A] B :=
--- (galRestrict A K L B g : B →ₐ[A] B)
-
-
 -- B →+* B
 #check B →+* B
-instance galtoRingHom' : (B →ₐ[A] B) where
-  toFun := sorry
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
-  commutes' := sorry
 
 
 -- we define the action of Gal(L/K) on the prime ideals of B ⊂ L
@@ -182,9 +181,40 @@ instance galtoRingHom' : (B →ₐ[A] B) where
 -- "'Ideal B' , remembering that 'A' exists'
 -- in order to synthesize the instance of 'MulAction' on 'Ideal B' with
 -- the 'A K L B' setup
+--galtoRing Q
+
+
+/- def Simps.symm_apply (e : A₁ ≃ₐ[R] A₂) : A₂ → A₁ :=
+  e.symm
+  -/
+
+example (e : B ≃ₐ[A] B) : B → B := by
+  apply AlgEquiv.Simps.symm_apply at e
+  exact e
+
+lemma galBmap (σ : L ≃ₐ[K] L)  : B → B := by
+  have i : B ≃ₐ[A] B := galRestrict A K L B σ
+  apply AlgEquiv.Simps.symm_apply at i
+  exact i
+
+
+-- want to apply above lemma to get 'smul' below
+
+-- instance gapBmap_instance (σ : L ≃ₐ[K] L) (galRestrict :  B ≃ₐ[A] B) :  B → B :=
+
+
+instance smul (σ : L ≃ₐ[K] L) (Q : Ideal' A K L B) :
+  SMul (L ≃ₐ[K] L) (Ideal' A K L B) where
+  smul σ := sorry -- (AlgEquiv.Simps.symm_apply (galRestrict A K L B σ))
+
+#check galRestrict A K L B
+#check AlgEquiv.Simps.symm_apply
+
+#check Ideal.comap
+
 instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L B) where
-  smul := sorry
-  one_smul :=sorry
+  smul σ := sorry
+  one_smul := sorry
   mul_smul := sorry
 
 -- we define the decomposition group of '(Ideal' A K L B)' over 'K'
@@ -214,9 +244,17 @@ variable (P : Ideal A) [P.IsMaximal] [Fintype (A ⧸ P)]
   (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
   [Algebra (A ⧸ P) (B ⧸ Q)]
 
+def q := Fintype.card (A ⧸ P)
+
+-- "By the Chinese remainder theorem, there exists an element
+-- 'α' of 'B' such that 'α' generates the group '(B ⧸ Q)ˣ'
+-- and lies in 'τQ' for all 'τ ¬∈ decompositionSubgroupIdeal'' "
+
+
+
 local notation "k" => A ⧸ P
 local notation "l" => B ⧸ Q
--- def q := Fintype.card (A ⧸ P)
+
 
 -- the map `D(Q) → Gal(l/k)` via `σ ↦ (x + Q ↦ σ(x) + Q)`
 -- def residueGalMap : (σ : decompositionSubgroupisPrime A K B L Q) → l ≃ₐ[k] l := by
@@ -233,60 +271,36 @@ local notation "l" => B ⧸ Q
 -- linear factors '(X - τα)'
 -- and such that '(Ideal.Quotient.mk Q) F(α) = 0',
 -- where '(Ideal.Quotient.mk Q) := (B ⧸ Q)'
--- IsRoot p x implies x is a root of p. The evaluation of p at x is zero
--- see: "Polynomial.prod_multiset_X_sub_C_of_monic_of_roots_card_eq":
--- "A monic polynomial `p` that has as many roots as its degree
--- can be written `p = ∏(X - a)`, for `a` in `p.roots`"
---
 
-noncomputable def F (α : B) :
-  Polynomial B := ∏ τ : L ≃ₐ[K] L, (Polynomial.X - Polynomial.C ((galToRingHom A K L B τ) α))
+/-
+open Polynomial BigOperators
+variable (α R : Type*) [Semiring R] [Fintype α] (a : R) (f : α → R)
+#check X - C a
+#check ∏ i, (X - C (f i))
+-/
+
+-- noncomputable def F (α : B) :
+-- Polynomial B := ∏ τ : L ≃ₐ[K] L, (Polynomial.X - Polynomial.C ((galToRingHom A K L B τ) α))
 -- we need to specify 'α' to be a generator of (B ⧸ Q)^×, though
 
 -- maybe define an instance of a polynomial F where
 -- ∀ τ : L≃ₐ[K] L, τ(α) is a root of F
 --AND, ∀ roots r of F, r = τ(α), for some τ : L≃ₐ[K] L
 
--- instance rootF (F: Polynomial L) : roots F := _
-
--- below, modelled on "Polynomial.prod_multiset_X_sub_C_of_monic_of_roots_card_eq":
-noncomputable def F.roots (F : Polynomial L) (hF : Polynomial.Monic F)
-(hroots : Multiset.card (Polynomial.roots F) = Polynomial.natDegree F) : Multiset L :=
- sorry
-
-def F (R : Type*) [Field R] : Polynomial R where
-  toFinsupp := {
-    support := {
-      val := sorry
-      nodup := sorry
-    }
-    toFun := fun
-      | .zero => sorry
-      | .succ n => sorry
-    mem_support_toFun := fun
-      | .zero => {
-        mp := sorry
-        mpr := sorry
-      }
-      | .succ n => {
-        mp := sorry
-        mpr := sorry
-      }
-  }
 
 --  "⟦" a "⟧" => Quot.mk _ a
 -- theorem Ideal.Quotient.eq_zero_iff_mem{R : Type u}
 --  [CommRing R] {a : R} {I : Ideal R} :
 -- (Ideal.Quotient.mk I) a = 0 ↔ a ∈ I
 
-lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
-  sorry
+--lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
+--sorry
 
-lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((galToRingHom A K L B σ) α) ∈ Q := by
-  sorry
+--lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((galToRingHom A K L B σ) α) ∈ Q := by
+--sorry
 
-theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, (galToRingHom A K L B σ) α - α ^ q ∈ Q  := by
-  sorry
+--theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, (galToRingHom A K L B σ) α - α ^ q ∈ Q  := by
+--sorry
 
 -- #check MulEquiv.toMulHom
 -- #check Polynomial.Gal.galActionAux
