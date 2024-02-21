@@ -201,11 +201,13 @@ variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
 -- 'α' of 'B' such that 'α' generates the group '(B ⧸ Q)ˣ'
 -- and lies in 'τQ' for all 'τ ¬∈ decompositionSubgroupIdeal'' "
 
-#check q
+
 
 local notation "k" => A ⧸ P
 local notation "l" => B ⧸ Q
 local notation "q" => Fintype.card (A ⧸ P)
+
+#check q
 
 -- set_option autoImplicit false
 -- the map `D(Q) → Gal(l/k)` via `σ ↦ (x + Q ↦ σ(x) + Q)`
