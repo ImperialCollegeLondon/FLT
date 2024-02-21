@@ -143,10 +143,6 @@ variable [Field K] [Field L]
   [FiniteDimensional K L]
   [IsFractionRing B L]
 
-
-variable {K L}
-
-
 -- we define the action of Gal(L/K) on the prime ideals of B ⊂ L
 -- the prime 'Ideal B' has been re-written as
 -- "'Ideal B' , remembering that 'A' exists'
@@ -194,25 +190,24 @@ def decompositionSubgroupIdeal' (P : Ideal' A K L B) :
 -- where 'P ⊂ A' is a prime ideal lying under the prime ideal 'Q ⊂ B'
 
 noncomputable def residueField (A : Type*) [CommRing A] (P : Ideal A) [P.IsMaximal] :
-  Field (A ⧸ P) :=
+ Field (A ⧸ P) :=
  Ideal.Quotient.field P
 
-variable (P : Ideal A) [P.IsMaximal] [Fintype (A ⧸ P)]
+variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
   (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
   [Algebra (A ⧸ P) (B ⧸ Q)]
-
-def q := Fintype.card (A ⧸ P)
 
 -- "By the Chinese remainder theorem, there exists an element
 -- 'α' of 'B' such that 'α' generates the group '(B ⧸ Q)ˣ'
 -- and lies in 'τQ' for all 'τ ¬∈ decompositionSubgroupIdeal'' "
 
-
+#check q
 
 local notation "k" => A ⧸ P
 local notation "l" => B ⧸ Q
+local notation "q" => Fintype.card (A ⧸ P)
 
-set_option autoImplicit false
+-- set_option autoImplicit false
 -- the map `D(Q) → Gal(l/k)` via `σ ↦ (x + Q ↦ σ(x) + Q)`
 --def residueGalMap : (σ : decompositionSubgroupisPrime A K B L Q) → l ≃ₐ[k] l := by
 --intro σ
@@ -239,21 +234,22 @@ variable (α R : Type*) [Semiring R] [Fintype α] (a : R) (f : α → R)
 noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
   (Polynomial.X - Polynomial.C ((AlgEquiv.symm (galRestrict A K L B τ))  α))
 
-
+-- theorem generator : ∃ α : B,
+-- instance Ideal.Factors.finiteDimensional_quotient
 
 --  "⟦" a "⟧" => Quot.mk _ a
 -- theorem Ideal.Quotient.eq_zero_iff_mem{R : Type u}
 --  [CommRing R] {a : R} {I : Ideal R} :
 -- (Ideal.Quotient.mk I) a = 0 ↔ a ∈ I
 
--- lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
--- sorry
+lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
+  sorry
 
---lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((galToRingHom A K L B σ) α) ∈ Q := by
---sorry
+lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((galBmap A K L B σ) α) ∈ Q := by
+  sorry
 
---theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, (galToRingHom A K L B σ) α - α ^ q ∈ Q  := by
---sorry
+theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, (galBmap A K L B σ) α - α ^ q ∈ Q  := by
+  sorry
 
 -- #check MulEquiv.toMulHom
 -- #check Polynomial.Gal.galActionAux
