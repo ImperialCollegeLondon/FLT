@@ -238,7 +238,7 @@ variable (α R : Type*) [Semiring R] [Fintype α] (a : R) (f : α → R)
 
 noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
   (Polynomial.X - Polynomial.C ((AlgEquiv.symm (galRestrict A K L B τ))  α))
--- Jou : I corrected the ringHom
+
 
 
 --  "⟦" a "⟧" => Quot.mk _ a
