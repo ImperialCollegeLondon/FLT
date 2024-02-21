@@ -118,8 +118,6 @@ of '(L ≃ₐ[K] L)' on 'Q.valuationSubring L' :
 --   [IsIntegralClosure A ℤ K] [IsIntegralClosure B ℤ L]
 --   (A := 𝓞 K) (B := 𝓞 L)
 
-#check ringOfIntegers
-
 -- the following 'abbrev' was written by Amelia
 -- we redefine 'Ideal B' to be "'Ideal B', keeping in mind 'A' exists'
 -- this is so that we can unify the 'A K L B setup' used in 'galRectrictHom'
@@ -145,35 +143,8 @@ variable [Field K] [Field L]
   [FiniteDimensional K L]
   [IsFractionRing B L]
 
--- lemma galToMulHom (e: (L →ₐ[K] L) ≃* (B →ₐ[A] B)) : ((L →ₐ[K] L) →ₙ* (B →ₐ[A] B)) := by
--- apply MulEquiv.toMulHom
--- exact e
-
-def galEquiv.toGalHom (σ : L ≃ₐ[K] L) : L →ₐ[K] L := AlgEquiv.toAlgHom σ
 
 variable {K L}
-noncomputable def  galtoRingHom (σ : L →ₐ[K] L) : B →ₐ[A] B :=
-  (galRestrictHom A K L B σ)
-
-noncomputable def  galtoRingHom' (σ : L ≃ₐ[K] L) : B →ₐ[A] B :=
-  (galRestrictHom A K L B σ)
-
-noncomputable def galtoRing (σ : L ≃ₐ[K] L) : B →ₐ[A] B :=
-  (galRestrict A K L B σ : B →ₐ[A] B)
-
-lemma coe_galRestrict_apply_COPY (σ : L ≃ₐ[K] L) :
-    (galRestrict A K L B σ : B →ₐ[A] B) = galRestrictHom A K L B σ := rfl
-
-#check B →ₐ[A] B
-
--- now, need '(B →ₐ[A] B)' from the RHS of 'galToMulHom'
--- need: theorem MulHom.restrict_apply{M : Type u_1} {σ : Type u_4}
--- [Mul M] {N : Type u_5} [Mul N] [SetLike σ M] [MulMemClass σ M] (f : M →ₙ* N) {S : σ}
--- (x : ↥S) : (MulHom.restrict f S) x = f ↑x
--- Check : IntegralRestrict, PolynomialGaloisGroup
-
--- B →+* B
-#check B →+* B
 
 
 -- we define the action of Gal(L/K) on the prime ideals of B ⊂ L
@@ -181,12 +152,6 @@ lemma coe_galRestrict_apply_COPY (σ : L ≃ₐ[K] L) :
 -- "'Ideal B' , remembering that 'A' exists'
 -- in order to synthesize the instance of 'MulAction' on 'Ideal B' with
 -- the 'A K L B' setup
---galtoRing Q
-
-
-/- def Simps.symm_apply (e : A₁ ≃ₐ[R] A₂) : A₂ → A₁ :=
-  e.symm
-  -/
 
 example (e : B ≃ₐ[A] B) : B → B := by
   apply AlgEquiv.Simps.symm_apply at e
@@ -197,47 +162,39 @@ lemma galBmap (σ : L ≃ₐ[K] L)  : B → B := by
   apply AlgEquiv.Simps.symm_apply at i
   exact i
 
-
--- want to apply above lemma to get 'smul' below
-
--- instance gapBmap_instance (σ : L ≃ₐ[K] L) (galRestrict :  B ≃ₐ[A] B) :  B → B :=
-
-
-instance smul (σ : L ≃ₐ[K] L) (Q : Ideal' A K L B) :
-  SMul (L ≃ₐ[K] L) (Ideal' A K L B) where
-  smul σ := sorry -- (AlgEquiv.Simps.symm_apply (galRestrict A K L B σ))
-
-#check galRestrict A K L B
-#check AlgEquiv.Simps.symm_apply
-
-#check Ideal.comap
-
-instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L B) where
-  smul σ := sorry
-  one_smul := sorry
-  mul_smul := sorry
+-- we define the action of the Galois group on the prime ideals of
+-- the ring of integers 'R' of 'L'
+-- Amelia helped to define smul, below
+noncomputable instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L B) where
+  smul σ I := Ideal.comap (AlgEquiv.symm (galRestrict A K L B σ)) I
+  one_smul _ := by
+    -- 'show' unfolds goal into something definitionally equal
+    show Ideal.comap _ _ = _
+    simp
+    -- had to use 'convert' instead of 'rw', because 'AlgEquiv.symm (galRestrict A K L B σ) 1'
+    -- is not syntactically equal to 'id'
+    convert Ideal.comap_id _
+  mul_smul _ _ := by
+     intro h
+     show Ideal.comap _ _ = _
+     simp
+     exact rfl
+    -- 'exact rfl' worked, because the two sides of the goal were ?definitionally equal
 
 -- we define the decomposition group of '(Ideal' A K L B)' over 'K'
 -- to be the stabilizer of the MulAction 'galActionisPrime'
-
-
--- Bendit: I think these are not needed
---[Group (L ≃ₐ[K] L)] {_ : Type*}
---[galActionisPrime : MulAction (L ≃ₐ[K] L) ((Ideal' A K L B))]
 
 def decompositionSubgroupIdeal' (P : Ideal' A K L B) :
   Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) P
 
 #check decompositionSubgroupIdeal'
 
--- def MulAction.stabilizer(G : Type u_1) {α : Type u_2} [Group G]
--- [MulAction G α] (a : α) : Subgroup G
-
 -- we will eventually show that the order 'q' of 'Frob [K , L]' is
 -- the number of elements in the residue field 'A  ⧸ P',
 -- where 'P ⊂ A' is a prime ideal lying under the prime ideal 'Q ⊂ B'
 
-noncomputable def residueField (A : Type*) [CommRing A] (P : Ideal A) [P.IsMaximal] : Field (A ⧸ P) :=
+noncomputable def residueField (A : Type*) [CommRing A] (P : Ideal A) [P.IsMaximal] :
+  Field (A ⧸ P) :=
  Ideal.Quotient.field P
 
 variable (P : Ideal A) [P.IsMaximal] [Fintype (A ⧸ P)]
@@ -255,14 +212,14 @@ def q := Fintype.card (A ⧸ P)
 local notation "k" => A ⧸ P
 local notation "l" => B ⧸ Q
 
-
+set_option autoImplicit false
 -- the map `D(Q) → Gal(l/k)` via `σ ↦ (x + Q ↦ σ(x) + Q)`
--- def residueGalMap : (σ : decompositionSubgroupisPrime A K B L Q) → l ≃ₐ[k] l := by
--- intro σ
--- sorry
+--def residueGalMap : (σ : decompositionSubgroupisPrime A K B L Q) → l ≃ₐ[k] l := by
+--intro σ
+--sorry
 
--- theorem residueGalMap_surj : Function.Surjective (residueGalMap A K B L P Q):= by
--- sorry
+--theorem residueGalMap_surj : Function.Surjective (residueGalMap A K B L P Q):= by
+--sorry
 
 
 
@@ -279,13 +236,9 @@ variable (α R : Type*) [Semiring R] [Fintype α] (a : R) (f : α → R)
 #check ∏ i, (X - C (f i))
 -/
 
--- noncomputable def F (α : B) :
--- Polynomial B := ∏ τ : L ≃ₐ[K] L, (Polynomial.X - Polynomial.C ((galToRingHom A K L B τ) α))
--- we need to specify 'α' to be a generator of (B ⧸ Q)^×, though
-
--- maybe define an instance of a polynomial F where
--- ∀ τ : L≃ₐ[K] L, τ(α) is a root of F
---AND, ∀ roots r of F, r = τ(α), for some τ : L≃ₐ[K] L
+noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
+  (Polynomial.X - Polynomial.C ((AlgEquiv.symm (galRestrict A K L B τ))  α))
+-- Jou : I corrected the ringHom
 
 
 --  "⟦" a "⟧" => Quot.mk _ a
@@ -293,8 +246,8 @@ variable (α R : Type*) [Semiring R] [Fintype α] (a : R) (f : α → R)
 --  [CommRing R] {a : R} {I : Ideal R} :
 -- (Ideal.Quotient.mk I) a = 0 ↔ a ∈ I
 
---lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
---sorry
+-- lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
+-- sorry
 
 --lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((galToRingHom A K L B σ) α) ∈ Q := by
 --sorry
@@ -322,14 +275,8 @@ variable (α R : Type*) [Semiring R] [Fintype α] (a : R) (f : α → R)
 -- in terms of an isomorphism from L to itself
 -- #check Frob[K, L]
 
--- we define the action of the Galois group on the prime ideals of
--- the ring of integers 'R' of 'L'
--- def RestrictRingOfIntegers
--- topEquiv
--- equivMapofInjective -- "A subring is isomorphic to its image under an injective function"
--- rangeRestrict
--- RingHom.range, def ofLeftInverse
--- algebraMap : "Embedding R →+* A given by Algebra structure."
+
+
 -- #lint
 
 
