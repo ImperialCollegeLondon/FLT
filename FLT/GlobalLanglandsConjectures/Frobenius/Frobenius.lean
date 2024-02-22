@@ -218,6 +218,12 @@ local notation "q" => Fintype.card (A ⧸ P)
 
 #check decompositionSubgroupIdeal' A K L B Q
 
+theorem residuefieldUnitsIsCyclic [Field (B ⧸ Q)] [Fintype (B ⧸ Q)] :
+  IsCyclic (B ⧸ Q)ˣ := by
+  convert instIsCyclicUnitsToMonoidToMonoidWithZeroToSemiringToCommSemiringInstGroup
+  · exact IsDomain.mk
+  · exact instFiniteUnits
+
 theorem generator (τ : L ≃ₐ[K] L)
   (h : τ ∉ (decompositionSubgroupIdeal' A K L B Q)) : ∃ ρ : B,
   (ρ ∈ τ • Q) := by sorry
@@ -226,11 +232,7 @@ theorem generator (τ : L ≃ₐ[K] L)
 -- could not apply :  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers ρ),
 -- because this is for a group 'B'
 
-theorem residuefieldUnitsIsCyclic [Field (B ⧸ Q)] [Fintype (B ⧸ Q)] :
-  IsCyclic (B ⧸ Q)ˣ := by
-  convert instIsCyclicUnitsToMonoidToMonoidWithZeroToSemiringToCommSemiringInstGroup
-  · exact IsDomain.mk
-  · exact instFiniteUnits
+
 
 
 
