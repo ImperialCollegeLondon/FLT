@@ -135,6 +135,7 @@ of '(L ≃ₐ[K] L)' on 'Q.valuationSubring L' :
 variable [Field K] [Field L]
   (A K L B : Type*)
   [CommRing A] [CommRing B] [Algebra A B]
+  [IsDomain A] [IsDomain B]
   [Field K] [Field L] [Algebra A K]
   [IsFractionRing A K] [Algebra B L]
   [Algebra K L] [Algebra A L]
@@ -287,7 +288,7 @@ variable (α R : Type*) [Semiring R] [Fintype α] (a : R) (f : α → R)
 -/
 
 noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
-  (Polynomial.X - Polynomial.C ((AlgEquiv.symm (galRestrict A K L B τ))  α))
+  (Polynomial.X - Polynomial.C ((AlgEquiv.symm (galRestrict A K L B τ)) α))
 
 
 
@@ -297,9 +298,12 @@ noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
 -- (Ideal.Quotient.mk I) a = 0 ↔ a ∈ I
 
 lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
-  sorry
-
-
+  rw [F, Polynomial.eval_prod, Finset.prod_eq_zero_iff]
+  use 1
+  constructor
+  · exact Finset.mem_univ _
+  · rw [map_one, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C]
+    exact sub_self α
 /-
 for 'so (F(α ^ q) - F(α) ^ q) ∈ Q':
 theorem FiniteField.expand_card {K : Type u_1} [Field K] [Fintype K]
@@ -310,10 +314,18 @@ would need 'K' here to be (B ⧸ Q); then would need the reduction
 
 -/
 
-instance FModQ (_: (B ⧸ Q)) : Polynomial (B ⧸ Q) := sorry
+noncomputable def FModQ (α : (B ⧸ Q)) : Polynomial (B ⧸ Q) :=
+  (F A K L B (α.out')).map (Ideal.Quotient.mk Q)
 
-lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((galBmap A K L B σ) α) ∈ Q := by
+lemma qth_power_is_conjugate [Field (B ⧸ Q)] (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((AlgEquiv.symm (galRestrict A K L B τ)) α) ∈ Q := by
+  have h : (F A K L B α).eval (α ^ q) ∈ Q := by
+    rw [← Ideal.Quotient.eq_zero_iff_mem]
+    sorry
+
+  simp_rw [F, Polynomial.eval_prod, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C] at h
   sorry
+  --rw [Ideal.prod_le_prime] at h
+  -- can't find a theorem that says (∏ x : finset, x) ∈ prime iff exists x ∈ prime
 
 theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, (galBmap A K L B σ) α - α ^ q ∈ Q  := by
   sorry
