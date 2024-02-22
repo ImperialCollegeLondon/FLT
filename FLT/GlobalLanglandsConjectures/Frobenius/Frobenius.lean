@@ -185,6 +185,8 @@ noncomputable instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L 
 def decompositionSubgroupIdeal' (Q : Ideal' A K L B) :
   Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) Q
 
+
+
 #check decompositionSubgroupIdeal'
 
 -- we will eventually show that the order 'q' of 'Frob [K , L]' is
@@ -357,15 +359,31 @@ lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((AlgEq
   apply Ideal.finset_prod_mem at h
   simp_all only [Subtype.exists, Finset.mem_univ, exists_const]
 
-theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
+#check inv_smul_eq_iff
+
+example (a b x : ℕ) : (x ^ a) ^ b = (x ^ b) ^ a := by exact Nat.pow_right_comm x a b
+
+theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (AlgEquiv.symm (galRestrict A K L B σ)) α ∈ Q  := by
   have h := generator A K L B Q
-  rcases h with ⟨α , hα⟩
+  rcases h with ⟨α ,  ⟨hu , hα⟩⟩
   have hq := qth_power_is_conjugate A K L B Q α
   rcases hq with ⟨σ , hσ⟩
   have hd : σ ∈ decompositionSubgroupIdeal' A K L B Q := by
-    rw[decompositionSubgroupIdeal', MulAction.mem_stabilizer_iff, ← inv_smul_eq_iff.symm]
-
+    rw[decompositionSubgroupIdeal', ← Subgroup.inv_mem_iff]
     by_contra hc
+    apply hα.2 at hc
+    sorry
+  refine ⟨⟨σ , hd⟩, ?_⟩
+  intro γ
+  have : ∃ i : ℕ,  γ - α ^ i ∈ Q := sorry
+  rcases this with ⟨i, hγ⟩
+  have h' : (AlgEquiv.symm (galRestrict A K L B σ)) (γ - α ^ i) ∈ Q := sorry
+  rw[← Ideal.Quotient.eq_zero_iff_mem, map_sub] at h' hγ hσ ⊢
+  rw [map_sub] at h'
+  rw [sub_eq_zero] at h' hγ hσ ⊢
+  simp only [map_pow]
+  rw[h', hγ, AlgEquiv.map_pow, RingHom.map_pow, RingHom.map_pow, pow_right_comm, ← RingHom.map_pow , hσ]
+
 
 
 -- #check MulEquiv.toMulHom
