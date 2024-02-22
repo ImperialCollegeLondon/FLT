@@ -242,7 +242,20 @@ theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   [Fintype (B ⧸ Q)] :
   ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
   (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit)∧
-  (∀  τ : L ≃ₐ[K] L, (τ ∉ (decompositionSubgroupIdeal' A K L B Q)) →  ρ ∈ (τ • Q)) := by sorry
+  (∀  τ : L ≃ₐ[K] L, (τ ∉ (decompositionSubgroupIdeal' A K L B Q)) →  ρ ∈ (τ • Q)) := by
+  constructor
+  · constructor
+    · constructor
+      · have i : IsCyclic (B ⧸ Q)ˣ := by exact residuefieldUnitsIsCyclic B Q
+        apply IsCyclic.exists_monoid_generator at i
+        rcases i with ⟨g, hg⟩
+        intro x
+        sorry
+      · sorry
+    · sorry
+  · sorry
+
+-- for CRT, maybe use : theorem IsDedekindDomain.exists_representative_mod_finset
 
 -- need to prove x ∈ Subgroup.zpowers h.unit
 -- b/c we know B ⧸ Q is a field
@@ -345,7 +358,15 @@ lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((AlgEq
   simp_all only [Subtype.exists, Finset.mem_univ, exists_const]
 
 theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
-  sorry
+  have h := generator A K L B Q
+  rcases h with ⟨α , hα⟩
+  have hq := qth_power_is_conjugate A K L B Q α
+  rcases hq with ⟨σ , hσ⟩
+  have hd : σ ∈ decompositionSubgroupIdeal' A K L B Q := by
+    rw[decompositionSubgroupIdeal', MulAction.mem_stabilizer_iff, ← inv_smul_eq_iff.symm]
+
+    by_contra hc
+
 
 -- #check MulEquiv.toMulHom
 -- #check Polynomial.Gal.galActionAux
