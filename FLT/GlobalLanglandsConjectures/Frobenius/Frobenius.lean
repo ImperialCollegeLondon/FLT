@@ -39,61 +39,27 @@ See [Karatarakis2022, Mathlib/RingTheory/Valuation/RamificationGroup.lean]
 
 section References
 
-#check FiniteField.pow_card
-#check FiniteField.frobenius_pow
--- def GaloisField(p : ℕ) [Fact (Nat.Prime p)] (n : ℕ) : Type
--- "A finite field with p ^ n elements"
--- [Commelin et. al., "Mathlib.FieldTheory.Finite.GaloisField"]
-#check isGalois_iff -- 'is Galois' iff 'normal'∧'separable'
-#check IsAlgClosure.isGalois
-
-
 end References
 
 section FiniteFrobeniusDef
 
 -- translating p. 140 of Milne ANT + Prof. Buzzard's diagram (Feb. 8)
--- set-up from "Mathlib.FieldTheory.Galois"
 
-/- def FrobeniusElt  (K : Type*) [Field K] (L : Type*) [Field L]
-  [Algebra K L] [hG: IsGalois K L]
-  (B : ValuationSubring L) (A : ValuationSubring K): true := sorry
+/-
 local notation "Frob["K "," L "]" => FrobeniusElt K L
 -/
 
 
 
 -- Jujian Zhang helped with notation and writing 'theorem ex_FrobElt'
--- cut: ' '
--- need integer rings 'A' of 'K', 'B' of 'L', resp.
--- need non-zero prime ideal 'Q' of 'B' over non-zero prime 'P' of 'A'
--- '[hQe: Ideal.ramificationIdx f P Q] = 1
--- i.e., 'Q' is unramified in 'L/K'; see "Mathlib.NumberTheory.RamificationInertia"
 -- JZ: example of how to access a hypothesis in 'variables' or Mathlib:
 -- "let i : FiniteDimensional L K := inferInstance"
--- from Sheet5 in 'galoisTheory' section of class notes:
--- " The Galois group Gal(F/E) doesn't have special notation, it's just the F-algebra isomorphisms
--- from E to itself
--- example : Type := F ≃ₐ[E] F"
+
 
 open NumberField BigOperators
 open scoped Pointwise
 
 /-!
-If 'L' is a number field, and 'B' is the ring of integers of 'L',
-then 'B' is a Dedekind domain, and 'L' is the field of
-fractions of 'L' (Milne, ANT, p. 28).
-
-From "Mathlib.RingTheory.DedekindDomain.Ideal,"
-if 'B' is a Dedekind domain, then,
-'HeightOneSpectrum B' is the type of nonzero prime ideals
-of 'B'. So, "let 'Q' be a nonzero prime ideal of 'B'"
-translates as '(Q : HeightOneSpectrum B)'.
-
-If 'B' is a Dedekind domain, 'L' its field of fractions,
-and '(Q : HeightOneSpectrum B)', then
-'Q.valuationSubring L' is the valuation subring
-of 'L' associated with 'Q' (See "ValuationSubring.asSubalgebra").
 
 For 'L | K' an extension of fields, with automorphism group
 '(L ≃ₐ[K] L)' and 'Q.valuationSubring L' as above,
@@ -104,20 +70,8 @@ of '(L ≃ₐ[K] L)' on 'Q.valuationSubring L' :
 (See "Mathlib.RingTheory.Valuation.RamificationGroup".)
 
 
-
-
 -/
 
--- variable (A K L B : Type*) [Field K] (L : Type*) [Field L]
---   [Algebra K L] [hG: IsGalois K L]
---   [nfK : NumberField K] [nfL : NumberField L]
---   [FiniteDimensional K L]
---   [CommRing A] [CommRing B]
---   [IsDomain A] [IsDomain B]
---   [Algebra A K] [Algebra B L] [Algebra A L]
---   [IsFractionRing A K]  [IsFractionRing B L]
---   [IsIntegralClosure A ℤ K] [IsIntegralClosure B ℤ L]
---   (A := 𝓞 K) (B := 𝓞 L)
 
 -- the following 'abbrev' was written by Amelia
 -- we redefine 'Ideal B' to be "'Ideal B', keeping in mind 'A' exists'
@@ -185,24 +139,6 @@ noncomputable instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L 
 def decompositionSubgroupIdeal' (Q : Ideal' A K L B) :
   Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) Q
 
-
-
-#check decompositionSubgroupIdeal'
-
--- we will eventually show that the order 'q' of 'Frob [K , L]' is
--- the number of elements in the residue field 'A  ⧸ P',
--- where 'P ⊂ A' is a prime ideal lying under the prime ideal 'Q ⊂ B'
-
-/-
-noncomputable def residueFieldA (A : Type*) [CommRing A] (P : Ideal A) [P.IsMaximal] :
- Field (A ⧸ P) :=
- Ideal.Quotient.field P
-
-noncomputable def residueFieldB (B : Type*) [CommRing B] (Q : Ideal B) [Q.IsMaximal] :
- Field (B ⧸ Q) :=
- Ideal.Quotient.field Q
--/
-
 variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
   (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
   [Algebra (A ⧸ P) (B ⧸ Q)]
@@ -211,24 +147,10 @@ variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
 -- 'α' of 'B' such that 'α' generates the group '(B ⧸ Q)ˣ'
 -- and lies in 'τQ' for all 'τ ¬∈ decompositionSubgroupIdeal'' "
 
-
-
 local notation "k" => A ⧸ P
 local notation "l" => B ⧸ Q
 local notation "q" => Fintype.card (B ⧸ Q)
 
-#check q
-
-#check decompositionSubgroupIdeal' A K L B Q
-
-#check isCyclic_of_subgroup_isDomain
-#check Ideal.Quotient.field
-#check Subgroup.inclusion
-#check isCyclic_of_subgroup_isDomain
-#check Function.Injective
-
-#check MonoidHom.toHomUnits
-#check  Units.ext_iff
 
 instance residuefieldUnitsIsCyclic (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   [Fintype (B ⧸ Q)] : IsCyclic (B ⧸ Q)ˣ :=
@@ -238,7 +160,6 @@ instance residuefieldUnitsIsCyclic (Q : Ideal B) [hB : Ideal.IsMaximal Q]
     intros a b
     apply Units.ext_iff.2
 
-#check Ideal.Quotient.mk
 
 theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   [Fintype (B ⧸ Q)] :
@@ -267,21 +188,6 @@ theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
 -- state ρ : B,
 -- then, use ρ as an element of the quotient (map to quotient)
 -- is not 0; or is a generator of (B ⧸ Q)ˣ
-/-
-class IsCyclic (α : Type u) [Group α] : Prop where
-  exists_generator : ∃ g : α, ∀ x, x ∈ zpowers g
--/
-
-
--- set_option autoImplicit false
--- the map `D(Q) → Gal(l/k)` via `σ ↦ (x + Q ↦ σ(x) + Q)`
---def residueGalMap : (σ : decompositionSubgroupisPrime A K B L Q) → l ≃ₐ[k] l := by
---intro σ
---sorry
-
---theorem residueGalMap_surj : Function.Surjective (residueGalMap A K B L P Q):= by
---sorry
-
 
 
 -- for 'α : B', we want to define a polynomial 'F(X) : ℤ[X]' which is
@@ -290,22 +196,11 @@ class IsCyclic (α : Type u) [Group α] : Prop where
 -- and such that '(Ideal.Quotient.mk Q) F(α) = 0',
 -- where '(Ideal.Quotient.mk Q) := (B ⧸ Q)'
 
-/-
-open Polynomial BigOperators
-variable (α R : Type*) [Semiring R] [Fintype α] (a : R) (f : α → R)
-#check X - C a
-#check ∏ i, (X - C (f i))
--/
+
 
 noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
   (Polynomial.X - Polynomial.C ((AlgEquiv.symm (galRestrict A K L B τ)) α))
 
-
-
---  "⟦" a "⟧" => Quot.mk _ a
--- theorem Ideal.Quotient.eq_zero_iff_mem{R : Type u}
---  [CommRing R] {a : R} {I : Ideal R} :
--- (Ideal.Quotient.mk I) a = 0 ↔ a ∈ I
 
 lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
   rw [F, Polynomial.eval_prod, Finset.prod_eq_zero_iff]
@@ -330,9 +225,11 @@ noncomputable def FModQ (α : B) : Polynomial (B ⧸ Q) :=
 lemma FModQ_def (α : B) : FModQ A K L B Q α = Polynomial.map (Ideal.Quotient.mk Q) (F A K L B α) := by rfl
 
 -- quotientEquivQuotientMvPolynomial
+
 lemma FModQ_root (α : B) : (FModQ A K L B Q α).eval ((Ideal.Quotient.mk Q) α) = 0 := by
   rw [FModQ_def, Polynomial.eval_map]
   sorry
+-- ? Polynomial.EisensteinCriterionAux.eval_zero_mem_ideal_of_eq_mul_X_pow
 
 lemma Ideal.finset_prod_mem {α R : Type*} [CommRing R] {P : Ideal R} [P.IsPrime] {ι : Finset α} {f : α → R} (h : ∏ x in ι, f x ∈ P): ∃ x : ι, f x ∈ P := by
   classical
@@ -358,8 +255,6 @@ lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((AlgEq
   simp_rw [F, Polynomial.eval_prod, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C] at h
   apply Ideal.finset_prod_mem at h
   simp_all only [Subtype.exists, Finset.mem_univ, exists_const]
-
-#check inv_smul_eq_iff
 
 example (a b x : ℕ) : (x ^ a) ^ b = (x ^ b) ^ a := by exact Nat.pow_right_comm x a b
 
