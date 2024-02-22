@@ -224,10 +224,28 @@ theorem residuefieldUnitsIsCyclic [Field (B ⧸ Q)] [Fintype (B ⧸ Q)] :
   · exact IsDomain.mk
   · exact instFiniteUnits
 
-theorem generator (τ : L ≃ₐ[K] L)
-  (h : τ ∉ (decompositionSubgroupIdeal' A K L B Q)) : ∃ ρ : B,
-  (ρ ∈ τ • Q) := by sorry
+/-
+(α : Type u) [Group α] :
+exists_generator : ∃ (g : α), ∀ (x : α), x ∈ Subgroup.zpowers g
+-/
 
+theorem generator [Field (B ⧸ Q)] [Fintype (B ⧸ Q)]
+  (τ : L ≃ₐ[K] L) (h : τ ∉ (decompositionSubgroupIdeal' A K L B Q))
+  [Group (B ⧸ Q)ˣ] : ∃ (ρ : (B ⧸ Q)ˣ),
+  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers ρ) := by sorry
+
+theorem generator2 [Field (B ⧸ Q)] [Fintype (B ⧸ Q)]
+  (τ : L ≃ₐ[K] L) (h : τ ∉ (decompositionSubgroupIdeal' A K L B Q))
+  [Group (B ⧸ Q)ˣ] : ∃ (ρ : B), ρ ∈ (τ • Q) := by sorry
+
+-- I can state one half of the goal with 'ρ : (B ⧸ Q)ˣ'
+-- and the other half with 'ρ : B'
+-- these should be united
+
+/-
+class IsCyclic (α : Type u) [Group α] : Prop where
+  exists_generator : ∃ g : α, ∀ x, x ∈ zpowers g
+-/
 -- need generates '(B ⧸ Q)ˣ';
 -- could not apply :  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers ρ),
 -- because this is for a group 'B'
