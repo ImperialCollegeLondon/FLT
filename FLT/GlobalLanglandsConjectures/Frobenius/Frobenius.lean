@@ -25,6 +25,7 @@ import Mathlib.Data.Polynomial.Eval
 import Mathlib.Data.Polynomial.RingDivision
 import Mathlib.GroupTheory.SpecificGroups.Cyclic
 import Mathlib.NumberTheory.RamificationInertia
+import Mathlib.Order.WellFoundedSet
 
 
 
@@ -98,6 +99,7 @@ variable [Field K] [Field L]
   [IsIntegralClosure B A L]
   [FiniteDimensional K L]
   [IsFractionRing B L]
+  [IsDedekindDomain A] [IsDedekindDomain B]
 
 -- we define the action of Gal(L/K) on the prime ideals of B ⊂ L
 -- the prime 'Ideal B' has been re-written as
@@ -160,6 +162,20 @@ instance residuefieldUnitsIsCyclic (Q : Ideal B) [hB : Ideal.IsMaximal Q]
     intros a b
     apply Units.ext_iff.2
 
+#check ite
+
+#check IsDedekindDomain.exists_representative_mod_finset
+
+
+
+lemma CRT_generator {R : Type*} [CommRing R] [IsDomain R]
+  [IsDedekindDomain R]  {s : Finset ℕ} (I : ℕ  → Ideal R)
+  [hn : Nonempty s]
+  (hp: ∀ i ∈ s, Prime (I i)) (hc : ∀ i ∈ s, ∀ j ∈ s, i ≠ j → I i ≠ I j) :
+  ∃ y,
+  if ∀ i ∈ s, j ≤ i  then (Ideal.Quotient.mk (I j)) y = 1
+  else Ideal.Quotient.mk (I (j)) y = 0 := by
+  sorry
 
 theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   [Fintype (B ⧸ Q)] :
