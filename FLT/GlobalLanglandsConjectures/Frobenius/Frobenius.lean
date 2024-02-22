@@ -385,30 +385,4 @@ theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B,
   rw[h', hγ, AlgEquiv.map_pow, RingHom.map_pow, RingHom.map_pow, pow_right_comm, ← RingHom.map_pow , hσ]
 
 
-
--- #check MulEquiv.toMulHom
--- #check Polynomial.Gal.galActionAux
--- #check Ideal.map_isPrime_of_equiv
--- #check Polynomial.rootSet_maps_to'
--- #check IsScalarTower.toAlgHom
--- #check Set.MapsTo.restrict
--- #check coe_galRestrict_apply
--- #check galRestrict
--- #check galRestrictHom
--- #check algebraMap_galRestrict_apply
-
--- #check AlgHom.toRingHom
--- #check Algebra.toRingHom
--- #check RingHom.toAlgebra
--- #check Algebra.id (𝓞 K)
-
--- I was instructed to define the action of the Galois group
--- in terms of an isomorphism from L to itself
--- #check Frob[K, L]
-
-
-
--- #lint
-
-
 end FiniteFrobeniusDef
