@@ -219,25 +219,45 @@ local notation "q" => Fintype.card (A ⧸ P)
 
 #check decompositionSubgroupIdeal' A K L B Q
 
-theorem residuefieldUnitsIsCyclic [Field (B ⧸ Q)] [Fintype (B ⧸ Q)] :
-  IsCyclic (B ⧸ Q)ˣ := by
-  convert instIsCyclicUnitsToMonoidToMonoidWithZeroToSemiringToCommSemiringInstGroup
-  · exact IsDomain.mk
-  · exact instFiniteUnits
+#check isCyclic_of_subgroup_isDomain
 
-/-
-(α : Type u) [Group α] :
-exists_generator : ∃ (g : α), ∀ (x : α), x ∈ Subgroup.zpowers g
--/
+-- we need this: theorem isCyclic_of_subgroup_isDomain
+-- {R : Type u_1} {G : Type u_2} [CommRing R] [IsDomain R] [Group G]
+-- [Finite G] (f : G →* R) (hf : Function.Injective ↑f) :
+-- IsCyclic G
+#check Ideal.Quotient.field
+variable (Q : Ideal B) [hB : Ideal.IsMaximal Q]
+#check Subgroup.inclusion
+#check isCyclic_of_subgroup_isDomain
+#check Function.Injective
 
-theorem generator [Field (B ⧸ Q)] [Fintype (B ⧸ Q)]
-  (τ : L ≃ₐ[K] L) (h : τ ∉ (decompositionSubgroupIdeal' A K L B Q))
-  [Group (B ⧸ Q)ˣ] : ∃ (ρ : (B ⧸ Q)ˣ),
-  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers ρ) := by sorry
+#check MonoidHom.toHomUnits
+#check  Units.ext_iff
 
-theorem generator2 [Field (B ⧸ Q)] [Fintype (B ⧸ Q)]
-  (τ : L ≃ₐ[K] L) (h : τ ∉ (decompositionSubgroupIdeal' A K L B Q))
-  [Group (B ⧸ Q)ˣ] : ∃ (ρ : B), ρ ∈ (τ • Q) := by sorry
+instance residuefieldUnitsIsCyclic (Q : Ideal B) [hB : Ideal.IsMaximal Q]
+  [Fintype (B ⧸ Q)] : IsCyclic (B ⧸ Q)ˣ :=
+  isCyclic_of_subgroup_isDomain (Units.coeHom _) <| by
+    unfold Function.Injective
+    simp_all
+    intros a b
+    apply Units.ext_iff.2
+
+#check Ideal.Quotient.mk
+
+theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
+  [Fintype (B ⧸ Q)]
+  (τ : L ≃ₐ[K] L) (h : τ ∉ (decompositionSubgroupIdeal' A K L B Q)):
+  ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
+  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit)∧
+  (ρ ∈ (τ • Q))  := by sorry
+-- need to prove x ∈ Subgroup.zpowers h.unit
+-- b/c we know B ⧸ Q is a field
+-- prove ρ non-zero
+
+-- Amelia: these two statements should be unified;
+-- state ρ : B,
+-- then, use ρ as an element of the quotient (map to quotient)
+-- is not 0; or is a generator of (B ⧸ Q)ˣ
 
 -- I can state one half of the goal with 'ρ : (B ⧸ Q)ˣ'
 -- and the other half with 'ρ : B'
