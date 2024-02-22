@@ -213,7 +213,7 @@ variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
 
 local notation "k" => A ⧸ P
 local notation "l" => B ⧸ Q
-local notation "q" => Fintype.card (A ⧸ P)
+local notation "q" => Fintype.card (B ⧸ Q)
 
 #check q
 
@@ -226,7 +226,6 @@ local notation "q" => Fintype.card (A ⧸ P)
 -- [Finite G] (f : G →* R) (hf : Function.Injective ↑f) :
 -- IsCyclic G
 #check Ideal.Quotient.field
-variable (Q : Ideal B) [hB : Ideal.IsMaximal Q]
 #check Subgroup.inclusion
 #check isCyclic_of_subgroup_isDomain
 #check Function.Injective
@@ -334,20 +333,42 @@ would need 'K' here to be (B ⧸ Q); then would need the reduction
 
 -/
 
-noncomputable def FModQ (α : (B ⧸ Q)) : Polynomial (B ⧸ Q) :=
-  (F A K L B (α.out')).map (Ideal.Quotient.mk Q)
+noncomputable def FModQ (α : B) : Polynomial (B ⧸ Q) :=
+  (F A K L B α).map (Ideal.Quotient.mk Q)
 
-lemma qth_power_is_conjugate [Field (B ⧸ Q)] (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((AlgEquiv.symm (galRestrict A K L B τ)) α) ∈ Q := by
-  have h : (F A K L B α).eval (α ^ q) ∈ Q := by
-    rw [← Ideal.Quotient.eq_zero_iff_mem]
-    sorry
+lemma FModQ_def (α : B) : FModQ A K L B Q α = Polynomial.map (Ideal.Quotient.mk Q) (F A K L B α) := by rfl
 
-  simp_rw [F, Polynomial.eval_prod, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C] at h
+-- quotientEquivQuotientMvPolynomial
+lemma FModQ_root (α : B) : (FModQ A K L B Q α).eval ((Ideal.Quotient.mk Q) α) = 0 := by
+  rw [FModQ_def, Polynomial.eval_map]
   sorry
-  --rw [Ideal.prod_le_prime] at h
-  -- can't find a theorem that says (∏ x : finset, x) ∈ prime iff exists x ∈ prime
 
-theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, (galBmap A K L B σ) α - α ^ q ∈ Q  := by
+lemma Ideal.finset_prod_mem {α R : Type*} [CommRing R] {P : Ideal R} [P.IsPrime] {ι : Finset α} {f : α → R} (h : ∏ x in ι, f x ∈ P): ∃ x : ι, f x ∈ P := by
+  classical
+  induction' ι using Finset.induction_on with a _ ha hi
+  · exfalso
+    rw [Finset.prod_empty, ← Ideal.eq_top_iff_one] at h
+    exact IsPrime.ne_top' h
+  · rw [Finset.prod_insert ha] at h
+    apply IsPrime.mem_or_mem' at h
+    cases' h with hl hr
+    · exact ⟨⟨a, Finset.mem_insert_self _ _⟩, hl⟩
+    · apply hi at hr
+      rcases hr with ⟨⟨x, hx⟩, hfx⟩
+      exact ⟨⟨x, Finset.mem_insert_of_mem hx⟩, hfx⟩
+
+attribute [instance] Ideal.Quotient.field
+
+lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((AlgEquiv.symm (galRestrict A K L B σ)) α) ∈ Q := by
+  have h : (F A K L B α).eval (α ^ q) ∈ Q := by
+    rw [← Ideal.Quotient.eq_zero_iff_mem, ← Polynomial.eval₂_hom, ← Polynomial.eval_map, ← FModQ_def, RingHom.map_pow, ← Polynomial.expand_eval, FiniteField.expand_card, Polynomial.eval_pow]
+    simp only [ne_eq, Fintype.card_ne_zero, not_false_eq_true, pow_eq_zero_iff]
+    exact FModQ_root A K L B Q α
+  simp_rw [F, Polynomial.eval_prod, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C] at h
+  apply Ideal.finset_prod_mem at h
+  simp_all only [Subtype.exists, Finset.mem_univ, exists_const]
+
+theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
   sorry
 
 -- #check MulEquiv.toMulHom
