@@ -220,11 +220,6 @@ local notation "q" => Fintype.card (B ⧸ Q)
 #check decompositionSubgroupIdeal' A K L B Q
 
 #check isCyclic_of_subgroup_isDomain
-
--- we need this: theorem isCyclic_of_subgroup_isDomain
--- {R : Type u_1} {G : Type u_2} [CommRing R] [IsDomain R] [Group G]
--- [Finite G] (f : G →* R) (hf : Function.Injective ↑f) :
--- IsCyclic G
 #check Ideal.Quotient.field
 #check Subgroup.inclusion
 #check isCyclic_of_subgroup_isDomain
@@ -244,11 +239,11 @@ instance residuefieldUnitsIsCyclic (Q : Ideal B) [hB : Ideal.IsMaximal Q]
 #check Ideal.Quotient.mk
 
 theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
-  [Fintype (B ⧸ Q)]
-  (τ : L ≃ₐ[K] L) (h : τ ∉ (decompositionSubgroupIdeal' A K L B Q)):
+  [Fintype (B ⧸ Q)] :
   ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
   (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit)∧
-  (ρ ∈ (τ • Q))  := by sorry
+  (∀  τ : L ≃ₐ[K] L, (τ ∉ (decompositionSubgroupIdeal' A K L B Q)) →  ρ ∈ (τ • Q)) := by sorry
+
 -- need to prove x ∈ Subgroup.zpowers h.unit
 -- b/c we know B ⧸ Q is a field
 -- prove ρ non-zero
@@ -257,30 +252,11 @@ theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
 -- state ρ : B,
 -- then, use ρ as an element of the quotient (map to quotient)
 -- is not 0; or is a generator of (B ⧸ Q)ˣ
-
--- I can state one half of the goal with 'ρ : (B ⧸ Q)ˣ'
--- and the other half with 'ρ : B'
--- these should be united
-
 /-
 class IsCyclic (α : Type u) [Group α] : Prop where
   exists_generator : ∃ g : α, ∀ x, x ∈ zpowers g
 -/
--- need generates '(B ⧸ Q)ˣ';
--- could not apply :  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers ρ),
--- because this is for a group 'B'
 
-
-
-
-
-
-/-
-instance NumberField.Units.instFGUnitsSubtypeMemSubalgebraIntToCommSemiringInstCommRingIntToSemiringToCommSemiringToCommRingToEuclideanDomainAlgebraIntToRingToDivisionRingInstMembershipInstSetLikeSubalgebraRingOfIntegersToMonoidToMonoidToMonoidWithZeroToSemiringToDivisionSemiringToSemifieldToSubmonoidToNonAssocSemiringToSubsemiringInstMonoid(K : Type u_1) [Field K] [NumberField K] :
-Monoid.FG (↥(NumberField.ringOfIntegers K))ˣ
--/
-
--- instance Ideal.Factors.finiteDimensional_quotient
 
 -- set_option autoImplicit false
 -- the map `D(Q) → Gal(l/k)` via `σ ↦ (x + Q ↦ σ(x) + Q)`
