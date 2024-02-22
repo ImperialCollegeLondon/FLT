@@ -24,6 +24,7 @@ import Mathlib.Data.Quot
 import Mathlib.Data.Polynomial.Eval
 import Mathlib.Data.Polynomial.RingDivision
 import Mathlib.GroupTheory.SpecificGroups.Cyclic
+import Mathlib.NumberTheory.RamificationInertia
 
 
 
@@ -189,9 +190,15 @@ def decompositionSubgroupIdeal' (Q : Ideal' A K L B) :
 -- the number of elements in the residue field 'A  ⧸ P',
 -- where 'P ⊂ A' is a prime ideal lying under the prime ideal 'Q ⊂ B'
 
-noncomputable def residueField (A : Type*) [CommRing A] (P : Ideal A) [P.IsMaximal] :
+/-
+noncomputable def residueFieldA (A : Type*) [CommRing A] (P : Ideal A) [P.IsMaximal] :
  Field (A ⧸ P) :=
  Ideal.Quotient.field P
+
+noncomputable def residueFieldB (B : Type*) [CommRing B] (Q : Ideal B) [Q.IsMaximal] :
+ Field (B ⧸ Q) :=
+ Ideal.Quotient.field Q
+-/
 
 variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
   (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
@@ -219,12 +226,13 @@ theorem generator (τ : L ≃ₐ[K] L)
 -- could not apply :  (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers ρ),
 -- because this is for a group 'B'
 
+theorem residuefieldUnitsIsCyclic [Field (B ⧸ Q)] [Fintype (B ⧸ Q)] :
+  IsCyclic (B ⧸ Q)ˣ := by
+  convert instIsCyclicUnitsToMonoidToMonoidWithZeroToSemiringToCommSemiringInstGroup
+  · exact IsDomain.mk
+  · exact instFiniteUnits
 
-/- instance subgroup_units_cyclic{R : Type u_1} [CommRing R] [IsDomain R]
-(S : Subgroup Rˣ) [Finite ↥S] :
-IsCyclic ↥S
-A finite subgroup of the units of an integral domain is cyclic.
--/
+
 
 
 /-
