@@ -107,20 +107,18 @@ variable [Field K] [Field L]
 -- in order to synthesize the instance of 'MulAction' on 'Ideal B' with
 -- the 'A K L B' setup
 
-example (e : B ≃ₐ[A] B) : B → B := by
-  apply AlgEquiv.Simps.symm_apply at e
-  exact e
+noncomputable def galBmap (σ : L ≃ₐ[K] L) : B ≃ₐ[A] B := AlgEquiv.symm (galRestrict A K L B σ)
 
-lemma galBmap (σ : L ≃ₐ[K] L)  : B → B := by
-  have i : B ≃ₐ[A] B := galRestrict A K L B σ
-  apply AlgEquiv.Simps.symm_apply at i
-  exact i
+@[simp]
+lemma galBmap_def (σ : L ≃ₐ[K] L) : galBmap A K L B σ = AlgEquiv.symm (galRestrict A K L B σ) := rfl
+
+lemma galBmap_inv (σ : L ≃ₐ[K] L) : galBmap A K L B σ⁻¹ = (galBmap A K L B σ)⁻¹ := by rfl
 
 -- we define the action of the Galois group on the prime ideals of
 -- the ring of integers 'R' of 'L'
 -- Amelia helped to define smul, below
 noncomputable instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L B) where
-  smul σ I := Ideal.comap (AlgEquiv.symm (galRestrict A K L B σ)) I
+  smul σ I := Ideal.comap (galBmap A K L B σ) I
   one_smul _ := by
     -- 'show' unfolds goal into something definitionally equal
     show Ideal.comap _ _ = _
@@ -134,6 +132,14 @@ noncomputable instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L 
      simp
      exact rfl
     -- 'exact rfl' worked, because the two sides of the goal were ?definitionally equal
+
+lemma galActionIdeal'.mem_iff {α : B} {I : Ideal' A K L B} {σ : L ≃ₐ[K] L} : α ∈ σ • I ↔ ∃ x : I, α = (galBmap A K L B σ) x := by
+  sorry
+
+lemma galActionIdeal'.apply_fun {α : B} {I : Ideal' A K L B} (σ : L ≃ₐ[K] L) : α ∈ I → (galBmap A K L B σ) α ∈ σ • I := by
+  intro hα
+  rw [mem_iff]
+  refine ⟨⟨α, hα⟩, rfl⟩
 
 -- we define the decomposition group of '(Ideal' A K L B)' over 'K'
 -- to be the stabilizer of the MulAction 'galActionisPrime'
@@ -149,8 +155,6 @@ variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
 -- 'α' of 'B' such that 'α' generates the group '(B ⧸ Q)ˣ'
 -- and lies in 'τQ' for all 'τ ¬∈ decompositionSubgroupIdeal'' "
 
-local notation "k" => A ⧸ P
-local notation "l" => B ⧸ Q
 local notation "q" => Fintype.card (B ⧸ Q)
 
 
@@ -161,12 +165,6 @@ instance residuefieldUnitsIsCyclic (Q : Ideal B) [hB : Ideal.IsMaximal Q]
     simp_all
     intros a b
     apply Units.ext_iff.2
-
-#check ite
-
-#check IsDedekindDomain.exists_representative_mod_finset
-
-
 
 lemma CRT_generator {R : Type*} [CommRing R] [IsDomain R]
   [IsDedekindDomain R]  {s : Finset ℕ} (I : ℕ  → Ideal R)
@@ -215,7 +213,7 @@ theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
 
 
 noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
-  (Polynomial.X - Polynomial.C ((AlgEquiv.symm (galRestrict A K L B τ)) α))
+  (Polynomial.X - Polynomial.C ((galBmap A K L B τ) α))
 
 
 lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
@@ -223,7 +221,7 @@ lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
   use 1
   constructor
   · exact Finset.mem_univ _
-  · rw [map_one, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C]
+  · rw [galBmap_def, map_one, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C]
     exact sub_self α
 /-
 for 'so (F(α ^ q) - F(α) ^ q) ∈ Q':
@@ -238,14 +236,14 @@ would need 'K' here to be (B ⧸ Q); then would need the reduction
 noncomputable def FModQ (α : B) : Polynomial (B ⧸ Q) :=
   (F A K L B α).map (Ideal.Quotient.mk Q)
 
-lemma FModQ_def (α : B) : FModQ A K L B Q α = Polynomial.map (Ideal.Quotient.mk Q) (F A K L B α) := by rfl
+@[simp]
+lemma FModQ_def (α : B) : FModQ A K L B Q α = Polynomial.map (Ideal.Quotient.mk Q) (F A K L B α) := rfl
 
 -- quotientEquivQuotientMvPolynomial
 
 lemma FModQ_root (α : B) : (FModQ A K L B Q α).eval ((Ideal.Quotient.mk Q) α) = 0 := by
-  rw [FModQ_def, Polynomial.eval_map]
-  sorry
--- ? Polynomial.EisensteinCriterionAux.eval_zero_mem_ideal_of_eq_mul_X_pow
+  rw [FModQ_def, Polynomial.eval_map, Polynomial.eval₂_hom, F_root]
+  exact rfl
 
 lemma Ideal.finset_prod_mem {α R : Type*} [CommRing R] {P : Ideal R} [P.IsPrime] {ι : Finset α} {f : α → R} (h : ∏ x in ι, f x ∈ P): ∃ x : ι, f x ∈ P := by
   classical
@@ -263,7 +261,7 @@ lemma Ideal.finset_prod_mem {α R : Type*} [CommRing R] {P : Ideal R} [P.IsPrime
 
 attribute [instance] Ideal.Quotient.field
 
-lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((AlgEquiv.symm (galRestrict A K L B σ)) α) ∈ Q := by
+lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galBmap A K L B σ) α ∈ Q := by
   have h : (F A K L B α).eval (α ^ q) ∈ Q := by
     rw [← Ideal.Quotient.eq_zero_iff_mem, ← Polynomial.eval₂_hom, ← Polynomial.eval_map, ← FModQ_def, RingHom.map_pow, ← Polynomial.expand_eval, FiniteField.expand_card, Polynomial.eval_pow]
     simp only [ne_eq, Fintype.card_ne_zero, not_false_eq_true, pow_eq_zero_iff]
@@ -272,28 +270,43 @@ lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - ((AlgEq
   apply Ideal.finset_prod_mem at h
   simp_all only [Subtype.exists, Finset.mem_univ, exists_const]
 
-example (a b x : ℕ) : (x ^ a) ^ b = (x ^ b) ^ a := by exact Nat.pow_right_comm x a b
-
-theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (AlgEquiv.symm (galRestrict A K L B σ)) α ∈ Q  := by
-  have h := generator A K L B Q
-  rcases h with ⟨α ,  ⟨hu , hα⟩⟩
-  have hq := qth_power_is_conjugate A K L B Q α
-  rcases hq with ⟨σ , hσ⟩
+theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
+  rcases (generator A K L B Q) with ⟨α, ⟨hu, hα⟩⟩
+  rcases (qth_power_is_conjugate A K L B Q α) with ⟨σ, hσ⟩
   have hd : σ ∈ decompositionSubgroupIdeal' A K L B Q := by
-    rw[decompositionSubgroupIdeal', ← Subgroup.inv_mem_iff]
+    rw [decompositionSubgroupIdeal', ← Subgroup.inv_mem_iff]
     by_contra hc
     apply hα.2 at hc
-    sorry
+    rcases ((galActionIdeal'.mem_iff A K L B).mp hc) with ⟨x, hx⟩
+    apply_fun (galBmap A K L B σ) at hx
+    rw [galBmap_inv] at hx
+    change (galBmap A K L B σ) α = (galBmap A K L B σ).toFun ((galBmap A K L B σ).invFun x) at hx
+    rw [(galBmap A K L B σ).right_inv] at hx
+    rw [hx] at hσ
+    apply Ideal.add_mem _ (Submodule.coe_mem x) at hσ
+    rw [add_sub_cancel'_right, ← Ideal.Quotient.eq_zero_iff_mem, map_pow] at hσ
+    apply (IsUnit.pow q) at hu
+    rw [hσ] at hu
+    exact not_isUnit_zero hu
   refine ⟨⟨σ , hd⟩, ?_⟩
   intro γ
-  have : ∃ i : ℕ,  γ - α ^ i ∈ Q := sorry
-  rcases this with ⟨i, hγ⟩
-  have h' : (AlgEquiv.symm (galRestrict A K L B σ)) (γ - α ^ i) ∈ Q := sorry
-  rw[← Ideal.Quotient.eq_zero_iff_mem, map_sub] at h' hγ hσ ⊢
-  rw [map_sub] at h'
-  rw [sub_eq_zero] at h' hγ hσ ⊢
-  simp only [map_pow]
-  rw[h', hγ, AlgEquiv.map_pow, RingHom.map_pow, RingHom.map_pow, pow_right_comm, ← RingHom.map_pow , hσ]
-
+  cases' eq_zero_or_neZero (Ideal.Quotient.mk Q γ) with h0 hn0
+  · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, map_pow, h0]
+    apply Ideal.Quotient.eq_zero_iff_mem.mp at h0
+    apply (galActionIdeal'.apply_fun A K L B σ) at h0
+    rw [hd, ← Ideal.Quotient.eq_zero_iff_mem] at h0
+    rw [h0, zero_pow Fintype.card_ne_zero, sub_zero]
+  · have hpow : ∃ i : ℕ,  γ - α ^ i ∈ Q := by
+      sorry
+      -- specialize hα.1 (Ideal.Quotient.mk Q γ)
+      -- doesn't work yet; need a "specialize with holes"
+    rcases hpow with ⟨i, hγ⟩
+    have h' : (galBmap A K L B σ) (γ - α ^ i) ∈ Q := by
+      convert (galActionIdeal'.apply_fun A K L B σ) hγ using 1
+      rw [hd]
+    rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub] at h' hγ hσ ⊢
+    rw [map_sub] at h'
+    rw [sub_eq_zero] at h' hγ hσ ⊢
+    rw [map_pow, h', hγ, map_pow, map_pow, map_pow, pow_right_comm, ← map_pow, hσ]
 
 end FiniteFrobeniusDef
