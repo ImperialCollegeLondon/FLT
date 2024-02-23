@@ -135,6 +135,8 @@ variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
   (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
   [Algebra (A ⧸ P) (B ⧸ Q)]
 
+attribute [instance] Ideal.Quotient.field
+
 -- "By the Chinese remainder theorem, there exists an element
 -- 'α' of 'B' such that 'α' generates the group '(B ⧸ Q)ˣ'
 -- and lies in 'τQ' for all 'τ ¬∈ decompositionSubgroupIdeal'' "
@@ -175,6 +177,17 @@ theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
     sorry
   · sorry
   · sorry
+
+lemma generator_pow {γ ρ : B} [hn0 : NeZero ((Ideal.Quotient.mk Q) γ)] (h : IsUnit (Ideal.Quotient.mk Q ρ)) (hx : ∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit) : ∃ i : ℕ, γ - ρ ^ i ∈ Q := by
+  have huγ : IsUnit (Ideal.Quotient.mk Q γ) := isUnit_iff_ne_zero.mpr (neZero_iff.1 hn0)
+  have hγpow : huγ.unit ∈ Subgroup.zpowers (h.unit) := hx _
+  have h : ∃ i, (Ideal.Quotient.mk Q γ) = (Ideal.Quotient.mk Q ρ) ^ i := by
+    rw [Subgroup.mem_zpowers_iff] at hγpow
+    rcases hγpow with ⟨i, hi⟩
+    sorry
+  convert h
+  rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, sub_eq_zero]
+  rfl
 
 -- for CRT, maybe use : theorem IsDedekindDomain.exists_representative_mod_finset
 
@@ -232,8 +245,6 @@ lemma Ideal.finset_prod_mem {α R : Type*} [CommRing R] {P : Ideal R} [P.IsPrime
       rcases hr with ⟨⟨x, hx⟩, hfx⟩
       exact ⟨⟨x, Finset.mem_insert_of_mem hx⟩, hfx⟩
 
-attribute [instance] Ideal.Quotient.field
-
 lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galBmap A K L B σ) α ∈ Q := by
   have h : (F A K L B α).eval (α ^ q) ∈ Q := by
     rw [← Ideal.Quotient.eq_zero_iff_mem, ← Polynomial.eval₂_hom, ← Polynomial.eval_map, ← FModQ_def, RingHom.map_pow, ← Polynomial.expand_eval, FiniteField.expand_card, Polynomial.eval_pow]
@@ -269,10 +280,7 @@ theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B,
     apply (galActionIdeal'.apply_fun A K L B σ) at h0
     rw [hd, ← Ideal.Quotient.eq_zero_iff_mem] at h0
     rw [h0, zero_pow Fintype.card_ne_zero, sub_zero]
-  · have hpow : ∃ i : ℕ,  γ - α ^ i ∈ Q := by
-      sorry
-      -- specialize hα.1 (Ideal.Quotient.mk Q γ)
-      -- doesn't work yet; need a "specialize with holes"
+  · have hpow : ∃ i : ℕ,  γ - α ^ i ∈ Q := generator_pow B Q hu hα.1
     rcases hpow with ⟨i, hγ⟩
     have h' : (galBmap A K L B σ) (γ - α ^ i) ∈ Q := by
       convert (galActionIdeal'.apply_fun A K L B σ) hγ using 1
@@ -295,45 +303,45 @@ example {R : Type*} [CommRing R] [IsDomain R] (I : Ideal R) [Ideal.IsMaximal I]
 example {S : Type*} (a : S)   {s : Finset S} [hn : Nonempty s] :
   (a ∉ s) → ((a ∈ s) → False) := by exact fun a_1 a => a_1 a
 
-theorem ex_FrobEltworking : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
-  rcases (generator A K L B Q) with ⟨α, ⟨hu, hα⟩⟩
-  rcases (qth_power_is_conjugate A K L B Q α) with ⟨σ, hσ⟩
-  have hd : σ ∈ decompositionSubgroupIdeal' A K L B Q := by
-    rw [decompositionSubgroupIdeal', ← Subgroup.inv_mem_iff]
-    by_contra hc
-    apply hα.2 at hc
-    rcases ((galActionIdeal'.mem_iff A K L B).mp hc) with ⟨x, hx⟩
-    apply_fun (galBmap A K L B σ) at hx
-    rw [galBmap_inv] at hx
-    change (galBmap A K L B σ) α = (galBmap A K L B σ).toFun ((galBmap A K L B σ).invFun x) at hx
-    rw [(galBmap A K L B σ).right_inv] at hx
-    rw [hx] at hσ
-    apply Ideal.add_mem _ (Submodule.coe_mem x) at hσ
-    rw [add_sub_cancel'_right, ← Ideal.Quotient.eq_zero_iff_mem, map_pow] at hσ
-    apply (IsUnit.pow q) at hu
-    rw [hσ] at hu
-    exact not_isUnit_zero hu
-  refine ⟨⟨σ , hd⟩, ?_⟩
-  intro γ
-  cases' eq_zero_or_neZero (Ideal.Quotient.mk Q γ) with h0 hn0
-  · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, map_pow, h0]
-    apply Ideal.Quotient.eq_zero_iff_mem.mp at h0
-    apply (galActionIdeal'.apply_fun A K L B σ) at h0
-    rw [hd, ← Ideal.Quotient.eq_zero_iff_mem] at h0
-    rw [h0, zero_pow Fintype.card_ne_zero, sub_zero]
-  · have hpow : ∃ i : ℕ,  γ - α ^ i ∈ Q := by
-      have huγ : IsUnit (Ideal.Quotient.mk Q γ) := by
-        by_contra hcγ
-        change IsUnit (Ideal.Quotient.mk Q γ) → False at hcγ
-        apply neZero_iff.1 at hn0
-        simp_all
-        sorry
-      have hγpow : huγ.unit ∈ Subgroup.zpowers (hu.unit) := by sorry
-      constructor
-      · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub]
-        · sorry
-        · sorry
-    sorry
+-- theorem ex_FrobEltworking : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
+--   rcases (generator A K L B Q) with ⟨α, ⟨hu, hα⟩⟩
+--   rcases (qth_power_is_conjugate A K L B Q α) with ⟨σ, hσ⟩
+--   have hd : σ ∈ decompositionSubgroupIdeal' A K L B Q := by
+--     rw [decompositionSubgroupIdeal', ← Subgroup.inv_mem_iff]
+--     by_contra hc
+--     apply hα.2 at hc
+--     rcases ((galActionIdeal'.mem_iff A K L B).mp hc) with ⟨x, hx⟩
+--     apply_fun (galBmap A K L B σ) at hx
+--     rw [galBmap_inv] at hx
+--     change (galBmap A K L B σ) α = (galBmap A K L B σ).toFun ((galBmap A K L B σ).invFun x) at hx
+--     rw [(galBmap A K L B σ).right_inv] at hx
+--     rw [hx] at hσ
+--     apply Ideal.add_mem _ (Submodule.coe_mem x) at hσ
+--     rw [add_sub_cancel'_right, ← Ideal.Quotient.eq_zero_iff_mem, map_pow] at hσ
+--     apply (IsUnit.pow q) at hu
+--     rw [hσ] at hu
+--     exact not_isUnit_zero hu
+--   refine ⟨⟨σ , hd⟩, ?_⟩
+--   intro γ
+--   cases' eq_zero_or_neZero (Ideal.Quotient.mk Q γ) with h0 hn0
+--   · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, map_pow, h0]
+--     apply Ideal.Quotient.eq_zero_iff_mem.mp at h0
+--     apply (galActionIdeal'.apply_fun A K L B σ) at h0
+--     rw [hd, ← Ideal.Quotient.eq_zero_iff_mem] at h0
+--     rw [h0, zero_pow Fintype.card_ne_zero, sub_zero]
+--   · have hpow : ∃ i : ℕ,  γ - α ^ i ∈ Q := by
+--       have huγ : IsUnit (Ideal.Quotient.mk Q γ) := by
+--         by_contra hcγ
+--         change IsUnit (Ideal.Quotient.mk Q γ) → False at hcγ
+--         apply neZero_iff.1 at hn0
+--         simp_all
+--         sorry
+--       have hγpow : huγ.unit ∈ Subgroup.zpowers (hu.unit) := by sorry
+--       constructor
+--       · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub]
+--         · sorry
+--         · sorry
+--     sorry
 
 /- by_contra hc
       rw[Membership.mem] at hc
