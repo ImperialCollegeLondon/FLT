@@ -285,7 +285,6 @@ theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B,
 
 -- local notation "Frob["K "," L "]" => FrobeniusElt K L
 
-#check Ideal.Quotient.eq_zero_iff_mem
 
 example {R : Type*} [CommRing R] [IsDomain R] (I : Ideal R) [Ideal.IsMaximal I]
   (a b : R) : (a - b ∈ I) → (Ideal.Quotient.mk I (a - b)) = 0 := by
@@ -295,8 +294,6 @@ example {R : Type*} [CommRing R] [IsDomain R] (I : Ideal R) [Ideal.IsMaximal I]
 
 example {S : Type*} (a : S)   {s : Finset S} [hn : Nonempty s] :
   (a ∉ s) → ((a ∈ s) → False) := by exact fun a_1 a => a_1 a
-
-#check ⊥
 
 theorem ex_FrobEltworking : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
   rcases (generator A K L B Q) with ⟨α, ⟨hu, hα⟩⟩
@@ -328,7 +325,6 @@ theorem ex_FrobEltworking : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ 
       by_contra hc
       rw[Membership.mem] at hc
       change (∃ i, ( γ - α ^ i ∈  Q)) → False at hc
-      apply hc
       have huγ : IsUnit (Ideal.Quotient.mk Q γ) := by
         by_contra hcγ
         change IsUnit (Ideal.Quotient.mk Q γ) → False at hcγ
@@ -346,7 +342,7 @@ theorem ex_FrobEltworking : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ 
  -- specialize hα.1 (Ideal.Quotient.mk Q γ)
       -- doesn't work yet; need a "specialize with holes"
 #check Subgroup.zpowers
-#check HPow
+
 /-
 #check neZero_iff
 #check NeZero
