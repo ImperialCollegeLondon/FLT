@@ -26,6 +26,7 @@ import Mathlib.Data.Polynomial.RingDivision
 import Mathlib.GroupTheory.SpecificGroups.Cyclic
 import Mathlib.NumberTheory.RamificationInertia
 import Mathlib.Order.WellFoundedSet
+import Mathlib.Tactic.PushNeg
 
 
 
@@ -46,10 +47,6 @@ section FiniteFrobeniusDef
 
 -- translating p. 140 of Milne ANT + Prof. Buzzard's diagram (Feb. 8)
 
-/-
-local notation "Frob["K "," L "]" => FrobeniusElt K L
--/
-
 
 
 -- Jujian Zhang helped with notation and writing 'theorem ex_FrobElt'
@@ -59,19 +56,6 @@ local notation "Frob["K "," L "]" => FrobeniusElt K L
 
 open NumberField BigOperators
 open scoped Pointwise
-
-/-!
-
-For 'L | K' an extension of fields, with automorphism group
-'(L ≃ₐ[K] L)' and 'Q.valuationSubring L' as above,
-the decomposition group of 'Q.valuationSubring L'
-over 'K' is defined as the stabilizer of the multiplicative action
-of '(L ≃ₐ[K] L)' on 'Q.valuationSubring L' :
-'MulAction.stabilizer (L ≃ₐ[K] L) 'Q.valuationSubring L'.
-(See "Mathlib.RingTheory.Valuation.RamificationGroup".)
-
-
--/
 
 
 -- the following 'abbrev' was written by Amelia
@@ -223,23 +207,12 @@ lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
   · exact Finset.mem_univ _
   · rw [galBmap_def, map_one, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C]
     exact sub_self α
-/-
-for 'so (F(α ^ q) - F(α) ^ q) ∈ Q':
-theorem FiniteField.expand_card {K : Type u_1} [Field K] [Fintype K]
-(f : Polynomial K) : (Polynomial.expand K (Fintype.card K)) f = f ^ Fintype.card K
-
-would need 'K' here to be (B ⧸ Q); then would need the reduction
-(FModQ : Polynomial (B ⧸ Q)
-
--/
 
 noncomputable def FModQ (α : B) : Polynomial (B ⧸ Q) :=
   (F A K L B α).map (Ideal.Quotient.mk Q)
 
 @[simp]
 lemma FModQ_def (α : B) : FModQ A K L B Q α = Polynomial.map (Ideal.Quotient.mk Q) (F A K L B α) := rfl
-
--- quotientEquivQuotientMvPolynomial
 
 lemma FModQ_root (α : B) : (FModQ A K L B Q α).eval ((Ideal.Quotient.mk Q) α) = 0 := by
   rw [FModQ_def, Polynomial.eval_map, Polynomial.eval₂_hom, F_root]
@@ -309,4 +282,73 @@ theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B,
     rw [sub_eq_zero] at h' hγ hσ ⊢
     rw [map_pow, h', hγ, map_pow, map_pow, map_pow, pow_right_comm, ← map_pow, hσ]
 
+
+-- local notation "Frob["K "," L "]" => FrobeniusElt K L
+
+#check Ideal.Quotient.eq_zero_iff_mem
+
+example {R : Type*} [CommRing R] [IsDomain R] (I : Ideal R) [Ideal.IsMaximal I]
+  (a b : R) : (a - b ∈ I) → (Ideal.Quotient.mk I (a - b)) = 0 := by
+   intro h
+   apply Ideal.Quotient.eq_zero_iff_mem.2 at h
+   exact h
+
+example {S : Type*} (a : S)   {s : Finset S} [hn : Nonempty s] :
+  (a ∉ s) → ((a ∈ s) → False) := by exact fun a_1 a => a_1 a
+
+#check ⊥
+
+theorem ex_FrobEltworking : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
+  rcases (generator A K L B Q) with ⟨α, ⟨hu, hα⟩⟩
+  rcases (qth_power_is_conjugate A K L B Q α) with ⟨σ, hσ⟩
+  have hd : σ ∈ decompositionSubgroupIdeal' A K L B Q := by
+    rw [decompositionSubgroupIdeal', ← Subgroup.inv_mem_iff]
+    by_contra hc
+    apply hα.2 at hc
+    rcases ((galActionIdeal'.mem_iff A K L B).mp hc) with ⟨x, hx⟩
+    apply_fun (galBmap A K L B σ) at hx
+    rw [galBmap_inv] at hx
+    change (galBmap A K L B σ) α = (galBmap A K L B σ).toFun ((galBmap A K L B σ).invFun x) at hx
+    rw [(galBmap A K L B σ).right_inv] at hx
+    rw [hx] at hσ
+    apply Ideal.add_mem _ (Submodule.coe_mem x) at hσ
+    rw [add_sub_cancel'_right, ← Ideal.Quotient.eq_zero_iff_mem, map_pow] at hσ
+    apply (IsUnit.pow q) at hu
+    rw [hσ] at hu
+    exact not_isUnit_zero hu
+  refine ⟨⟨σ , hd⟩, ?_⟩
+  intro γ
+  cases' eq_zero_or_neZero (Ideal.Quotient.mk Q γ) with h0 hn0
+  · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, map_pow, h0]
+    apply Ideal.Quotient.eq_zero_iff_mem.mp at h0
+    apply (galActionIdeal'.apply_fun A K L B σ) at h0
+    rw [hd, ← Ideal.Quotient.eq_zero_iff_mem] at h0
+    rw [h0, zero_pow Fintype.card_ne_zero, sub_zero]
+  · have hpow : ∃ i : ℕ,  γ - α ^ i ∈ Q := by
+      by_contra hc
+      rw[Membership.mem] at hc
+      change (∃ i, ( γ - α ^ i ∈  Q)) → False at hc
+      apply hc
+      have huγ : IsUnit (Ideal.Quotient.mk Q γ) := by
+        by_contra hcγ
+        change IsUnit (Ideal.Quotient.mk Q γ) → False at hcγ
+        apply neZero_iff.1 at hn0
+        simp_all
+        sorry
+      have hγpow : huγ.unit ∈ Subgroup.zpowers (hu.unit) := by sorry
+      sorry
+    sorry
+
+-- theorem ENNReal.pow_ne_zero {a : ENNReal} : a ≠ 0 → ∀ (n : ℕ), a ^ n ≠ 0
+-- application type mismatch hα.left ((Ideal.Quotient.mk Q) γ)
+-- argument (Ideal.Quotient.mk Q) γ has type B ⧸ Q : Type u_4
+-- but is expected to have type (B ⧸ Q)ˣ : Type u_4
+ -- specialize hα.1 (Ideal.Quotient.mk Q γ)
+      -- doesn't work yet; need a "specialize with holes"
+#check Subgroup.zpowers
+#check HPow
+/-
+#check neZero_iff
+#check NeZero
+-/
 end FiniteFrobeniusDef
