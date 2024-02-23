@@ -159,21 +159,21 @@ lemma CRT_generator {R : Type*} [CommRing R] [IsDomain R]
   else Ideal.Quotient.mk (I (j)) y = 0 := by
   sorry
 
+
 theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   [Fintype (B ⧸ Q)] :
   ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
   (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit)∧
   (∀  τ : L ≃ₐ[K] L, (τ ∉ (decompositionSubgroupIdeal' A K L B Q)) →  ρ ∈ (τ • Q)) := by
-  constructor
-  · constructor
-    · constructor
-      · have i : IsCyclic (B ⧸ Q)ˣ := by exact residuefieldUnitsIsCyclic B Q
-        apply IsCyclic.exists_monoid_generator at i
-        rcases i with ⟨g, hg⟩
-        intro x
-        sorry
-      · sorry
-    · sorry
+  have i : IsCyclic (B ⧸ Q)ˣ := by exact residuefieldUnitsIsCyclic B Q
+  apply IsCyclic.exists_monoid_generator at i
+  rcases i with ⟨α, hα⟩
+  refine ⟨?_, ?_, ?_⟩
+  · let α' := (Units.coeHom (B ⧸ Q)) α
+    have hαeq : α = α' := by exact rfl
+    have hrep : ∃ y : B, (Ideal.Quotient.mk Q) y = α' := by sorry
+    sorry
+  · sorry
   · sorry
 
 -- for CRT, maybe use : theorem IsDedekindDomain.exists_representative_mod_finset
@@ -322,9 +322,6 @@ theorem ex_FrobEltworking : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ 
     rw [hd, ← Ideal.Quotient.eq_zero_iff_mem] at h0
     rw [h0, zero_pow Fintype.card_ne_zero, sub_zero]
   · have hpow : ∃ i : ℕ,  γ - α ^ i ∈ Q := by
-      by_contra hc
-      rw[Membership.mem] at hc
-      change (∃ i, ( γ - α ^ i ∈  Q)) → False at hc
       have huγ : IsUnit (Ideal.Quotient.mk Q γ) := by
         by_contra hcγ
         change IsUnit (Ideal.Quotient.mk Q γ) → False at hcγ
@@ -332,9 +329,16 @@ theorem ex_FrobEltworking : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ 
         simp_all
         sorry
       have hγpow : huγ.unit ∈ Subgroup.zpowers (hu.unit) := by sorry
-      sorry
+      constructor
+      · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub]
+        · sorry
+        · sorry
     sorry
 
+/- by_contra hc
+      rw[Membership.mem] at hc
+      change (∃ i, ( γ - α ^ i ∈  Q)) → False at hc
+      -/
 -- theorem ENNReal.pow_ne_zero {a : ENNReal} : a ≠ 0 → ∀ (n : ℕ), a ^ n ≠ 0
 -- application type mismatch hα.left ((Ideal.Quotient.mk Q) γ)
 -- argument (Ideal.Quotient.mk Q) γ has type B ⧸ Q : Type u_4
