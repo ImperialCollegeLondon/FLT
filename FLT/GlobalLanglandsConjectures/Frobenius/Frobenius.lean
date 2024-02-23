@@ -139,7 +139,7 @@ variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
 -- 'α' of 'B' such that 'α' generates the group '(B ⧸ Q)ˣ'
 -- and lies in 'τQ' for all 'τ ¬∈ decompositionSubgroupIdeal'' "
 
-local notation "q" => Fintype.card (B ⧸ Q)
+local notation "q" => Fintype.card (A ⧸ P)
 
 
 instance residuefieldUnitsIsCyclic (Q : Ideal B) [hB : Ideal.IsMaximal Q]
