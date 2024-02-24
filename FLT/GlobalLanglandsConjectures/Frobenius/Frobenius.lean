@@ -131,9 +131,12 @@ lemma galActionIdeal'.apply_fun {α : B} {I : Ideal' A K L B} (σ : L ≃ₐ[K] 
 def decompositionSubgroupIdeal' (Q : Ideal' A K L B) :
   Subgroup (L ≃ₐ[K] L) := MulAction.stabilizer (L ≃ₐ[K] L) Q
 
+
+
 variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
   (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
   [Algebra (A ⧸ P) (B ⧸ Q)]
+
 
 attribute [instance] Ideal.Quotient.field
 
@@ -152,6 +155,7 @@ instance residuefieldUnitsIsCyclic (Q : Ideal B) [hB : Ideal.IsMaximal Q]
     intros a b
     apply Units.ext_iff.2
 
+-- this lemma, 'CRT_generator' may not be necessary
 lemma CRT_generator {R : Type*} [CommRing R] [IsDomain R]
   [IsDedekindDomain R]  {s : Finset ℕ} (I : ℕ  → Ideal R)
   [hn : Nonempty s]
@@ -161,22 +165,49 @@ lemma CRT_generator {R : Type*} [CommRing R] [IsDomain R]
   else Ideal.Quotient.mk (I (j)) y = 0 := by
   sorry
 
-
 theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   [Fintype (B ⧸ Q)] :
   ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
   (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit)∧
-  (∀  τ : L ≃ₐ[K] L, (τ ∉ (decompositionSubgroupIdeal' A K L B Q)) →  ρ ∈ (τ • Q)) := by
+  (∀  τ : L ≃ₐ[K] L, (τ ∉ decompositionSubgroupIdeal' A K L B Q) →  ρ ∈ (τ • Q)) := by
   have i : IsCyclic (B ⧸ Q)ˣ := by exact residuefieldUnitsIsCyclic B Q
   apply IsCyclic.exists_monoid_generator at i
-  rcases i with ⟨α, hα⟩
-  refine ⟨?_, ?_, ?_⟩
-  · let α' := (Units.coeHom (B ⧸ Q)) α
-    have hαeq : α = α' := by exact rfl
-    have hrep : ∃ y : B, (Ideal.Quotient.mk Q) y = α' := by sorry
-    sorry
-  · sorry
-  · sorry
+  -- since (B ⧸ Q)ˣ is cyclic, there exists a generator 'g' for '(B ⧸ Q)ˣ'
+  rcases i with ⟨g, hg⟩
+  -- let 'ρ : B' such that '(Ideal.Quotient.mk Q ρ) ≔ (Units.coeHom (B ⧸ Q)) g'
+  -- (this gives us
+  -- then (Ideal.Quotient.mk Q ρ) is a unit,
+  -- so, we got both
+  -- '**∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit**' and
+  -- 'h : **IsUnit (Ideal.Quotient.mk Q ρ)**'.
+  -- Now, we want to show that '(Ideal.Quotient.mk τ • Q ρ) = 0', ∀ τ ∈ D(Q)'
+  -- (I) 'τ ∈ D(Q)' → 'τ(Q) ≠ Q'
+  -- (II) but 'Q' prime → 'τ(Q)' is also a prime ideal, call it **'Qⱼ'**
+  -- (III) if 'Q, Qⱼ' are prime, 'Q ≠ Qⱼ', then 'Q, Qⱼ' are coprime
+  -- now, we invoke **CRT** (see Marcus, p. 180-181)
+  -- (IV)  'Q, Qⱼ ⊂ B' coprime implies 'Q ∩ Qⱼ = (0)', hence
+  -- 'B ≅ B ⧸ Q ∩ Qⱼ ≅ B ⧸ Q × B ⧸ Qⱼ'
+  -- (V) if 'b : B', s.t. '(Ideal.Quotient.mk Q b) = b₁', '(Ideal.Quotient.mk Qⱼ b) = b₂',
+  -- then, '∃ a₁ ∈ Q, a₂ ∈ Qⱼ' s.t. 'a₁ + a₂ = 1'
+  -- then 'b = a₂b₁ + a₁b₂'.
+  -- [in particular, 'a₁ ≠ 0', since 'B ⧸ Qⱼ ≠ (0)', otherwise 'B ≅ B ⧸ Q',
+  -- but we assumed 'Q' is a non-zero prime ideal.]
+  -- (VI) So, '∀ b : B, b = a₂b₁ + a₁b₂', ' 0 ≠ a₁ ∈ Q, a₂ ∈ Qⱼ'.
+  -- in particular, if 'r : B' is such that (Ideal.Quotient.mk Q r) ∈ (B ⧸ Q)ˣ,
+  -- i.e., 'IsUnit(Ideal.Quotient.mk Q r)',
+  -- then, 'r = a₂r₁ + a₁r₂' with **'r₂ = 0'**
+  -- this is because:
+  -- (VII) considering the embedding of (B ⧸ Q)ˣ in (B ⧸ Q) and thence in
+  -- the direct product (B ⧸ Q) × (B ⧸ Qⱼ),
+  -- (B ⧸ Q)ˣ ≅ { (r₁, r₂) ∈ (B ⧸ Q) × (B ⧸ Qⱼ) | r₁ ≠ 0, r₂ = 0}.
+  -- since r : (B ⧸ Q)ˣ was arbitrary, r = a₂r₁ + a₁r₂' with r₂ = 0
+  -- by 'IsUnit (Ideal.Quotient.mk Q ρ)',
+  -- IsUnit (Ideal.Quotient.mk Q∩Qⱼ ρ) ∈ { (r₁, r₂) ∈ (B ⧸ Q) × (B ⧸ Qⱼ) | r₁ ≠ 0, r₂ = 0}
+  -- thus, (Ideal.Quotient.mk Q∩Qⱼ ρ) = ((Ideal.Quotient.mk Q ρ), (Ideal.Quotient.mk Qⱼ ρ))
+  -- =  ((Ideal.Quotient.mk Q ρ), 0),
+  -- so, **(Ideal.Quotient.mk Qⱼ ρ) = 0**
+
+  sorry
 
 lemma generator_pow {γ ρ : B} [hn0 : NeZero ((Ideal.Quotient.mk Q) γ)] (h : IsUnit (Ideal.Quotient.mk Q ρ)) (hx : ∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit) : ∃ i : ℕ, γ - ρ ^ i ∈ Q := by
   have huγ : IsUnit (Ideal.Quotient.mk Q γ) := isUnit_iff_ne_zero.mpr (neZero_iff.1 hn0)
@@ -303,57 +334,11 @@ example {R : Type*} [CommRing R] [IsDomain R] (I : Ideal R) [Ideal.IsMaximal I]
 example {S : Type*} (a : S)   {s : Finset S} [hn : Nonempty s] :
   (a ∉ s) → ((a ∈ s) → False) := by exact fun a_1 a => a_1 a
 
--- theorem ex_FrobEltworking : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
---   rcases (generator A K L B Q) with ⟨α, ⟨hu, hα⟩⟩
---   rcases (qth_power_is_conjugate A K L B Q α) with ⟨σ, hσ⟩
---   have hd : σ ∈ decompositionSubgroupIdeal' A K L B Q := by
---     rw [decompositionSubgroupIdeal', ← Subgroup.inv_mem_iff]
---     by_contra hc
---     apply hα.2 at hc
---     rcases ((galActionIdeal'.mem_iff A K L B).mp hc) with ⟨x, hx⟩
---     apply_fun (galBmap A K L B σ) at hx
---     rw [galBmap_inv] at hx
---     change (galBmap A K L B σ) α = (galBmap A K L B σ).toFun ((galBmap A K L B σ).invFun x) at hx
---     rw [(galBmap A K L B σ).right_inv] at hx
---     rw [hx] at hσ
---     apply Ideal.add_mem _ (Submodule.coe_mem x) at hσ
---     rw [add_sub_cancel'_right, ← Ideal.Quotient.eq_zero_iff_mem, map_pow] at hσ
---     apply (IsUnit.pow q) at hu
---     rw [hσ] at hu
---     exact not_isUnit_zero hu
---   refine ⟨⟨σ , hd⟩, ?_⟩
---   intro γ
---   cases' eq_zero_or_neZero (Ideal.Quotient.mk Q γ) with h0 hn0
---   · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, map_pow, h0]
---     apply Ideal.Quotient.eq_zero_iff_mem.mp at h0
---     apply (galActionIdeal'.apply_fun A K L B σ) at h0
---     rw [hd, ← Ideal.Quotient.eq_zero_iff_mem] at h0
---     rw [h0, zero_pow Fintype.card_ne_zero, sub_zero]
---   · have hpow : ∃ i : ℕ,  γ - α ^ i ∈ Q := by
---       have huγ : IsUnit (Ideal.Quotient.mk Q γ) := by
---         by_contra hcγ
---         change IsUnit (Ideal.Quotient.mk Q γ) → False at hcγ
---         apply neZero_iff.1 at hn0
---         simp_all
---         sorry
---       have hγpow : huγ.unit ∈ Subgroup.zpowers (hu.unit) := by sorry
---       constructor
---       · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub]
---         · sorry
---         · sorry
---     sorry
-
-/- by_contra hc
-      rw[Membership.mem] at hc
-      change (∃ i, ( γ - α ^ i ∈  Q)) → False at hc
-      -/
--- theorem ENNReal.pow_ne_zero {a : ENNReal} : a ≠ 0 → ∀ (n : ℕ), a ^ n ≠ 0
 -- application type mismatch hα.left ((Ideal.Quotient.mk Q) γ)
 -- argument (Ideal.Quotient.mk Q) γ has type B ⧸ Q : Type u_4
 -- but is expected to have type (B ⧸ Q)ˣ : Type u_4
  -- specialize hα.1 (Ideal.Quotient.mk Q γ)
       -- doesn't work yet; need a "specialize with holes"
-#check Subgroup.zpowers
 
 /-
 #check neZero_iff
