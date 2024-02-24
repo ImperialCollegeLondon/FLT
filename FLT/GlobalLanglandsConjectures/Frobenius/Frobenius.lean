@@ -175,7 +175,6 @@ theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   -- since (B ⧸ Q)ˣ is cyclic, there exists a generator 'g' for '(B ⧸ Q)ˣ'
   rcases i with ⟨g, hg⟩
   -- let 'ρ : B' such that '(Ideal.Quotient.mk Q ρ) ≔ (Units.coeHom (B ⧸ Q)) g'
-  -- (this gives us
   -- then (Ideal.Quotient.mk Q ρ) is a unit,
   -- so, we got both
   -- '**∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit**' and
