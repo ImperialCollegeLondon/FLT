@@ -189,7 +189,7 @@ theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   -- 'B ≅ B ⧸ Q ∩ Qⱼ ≅ B ⧸ Q × B ⧸ Qⱼ'
   -- (V) if 'b : B', s.t. '(Ideal.Quotient.mk Q b) = b₁', '(Ideal.Quotient.mk Qⱼ b) = b₂',
   -- then, '∃ a₁ ∈ Q, a₂ ∈ Qⱼ' s.t. 'a₁ + a₂ = 1'
-  -- then 'b = a₂b₁ + a₁b₂'.
+  -- and 'b = a₂b₁ + a₁b₂'.
   -- [in particular, 'a₁ ≠ 0', since 'B ⧸ Qⱼ ≠ (0)', otherwise 'B ≅ B ⧸ Q',
   -- but we assumed 'Q' is a non-zero prime ideal.]
   -- (VI) So, '∀ b : B, b = a₂b₁ + a₁b₂', ' 0 ≠ a₁ ∈ Q, a₂ ∈ Qⱼ'.
