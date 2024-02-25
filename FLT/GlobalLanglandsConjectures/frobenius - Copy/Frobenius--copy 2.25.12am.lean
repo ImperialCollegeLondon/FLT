@@ -170,7 +170,73 @@ theorem generator (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
   (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit)∧
   (∀  τ : L ≃ₐ[K] L, (τ ∉ decompositionSubgroupIdeal' A K L B Q) →  ρ ∈ (τ • Q)) := by
- sorry
+  have i : IsCyclic (B ⧸ Q)ˣ := by exact residuefieldUnitsIsCyclic B Q
+  apply IsCyclic.exists_monoid_generator at i
+  -- since (B ⧸ Q)ˣ is cyclic, there exists a generator 'g' for '(B ⧸ Q)ˣ'
+  rcases i with ⟨g, hg⟩
+  -- let 'r : B' such that '(Ideal.Quotient.mk Q r) ≔  g'
+  have hr : ∃ r : B,  ((Ideal.Quotient.mk Q) r) =  g := by
+    exact Quot.exists_rep ((Units.coeHom (B ⧸ Q)) g)
+  rcases hr with ⟨r, hr⟩
+  -- then (Ideal.Quotient.mk Q r) is a unit,
+  have hru : IsUnit ((Ideal.Quotient.mk Q) r) := by exact Exists.intro g (id hr.symm)
+  have hrgen : ∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers hru.unit := by
+    intro x
+    specialize hg x
+    simp_all
+    exact mem_powers_iff_mem_zpowers.mp hg
+  -- so, we got both
+  -- '**∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit**' and
+  -- 'h : **IsUnit (Ideal.Quotient.mk Q ρ)**'.
+  -- Now, we want to show that '(Ideal.Quotient.mk τ • Q ρ) = 0', ∀ τ ∈ D(Q)'
+  -- (I) 'τ ∈ D(Q)' → 'τ(Q) ≠ Q'
+  have hσ  : (∀  σ : L ≃ₐ[K] L, ((σ ∉ decompositionSubgroupIdeal' A K L B Q) →
+     σ • Q ≠ Q )):= by exact fun σ a => a
+  -- (II) but 'Q' prime → 'σ(Q)' is also a prime ideal, call it **'Qⱼ'**
+  -- we want to specialize hσ, but can't yet--why?
+  have hQprime : (∀  τ : L ≃ₐ[K] L, Prime (τ • Q)) := by sorry
+    -- this is by definition of the MulAction
+  -- (III) if 'Q, Qⱼ' are prime, 'Q ≠ Qⱼ', then 'Q, Qⱼ' are coprime
+  have hcoprime : ∀  σ : L ≃ₐ[K] L,
+    ((σ ∉ decompositionSubgroupIdeal' A K L B Q) → (IsCoprime Q (σ • Q))) := by
+    intro τ
+    sorry
+  -- now, we invoke **CRT** (see Marcus, p. 180-181)
+  -- (IV)  'Q, Qⱼ ⊂ B' coprime implies 'Q ∩ Qⱼ = (0)', hence
+  -- 'B ≅ B ⧸ Q ∩ Qⱼ ≅ B ⧸ Q × B ⧸ Qⱼ'
+  -- (V) if 'b : B', s.t. '(Ideal.Quotient.mk Q b) = b₁', '(Ideal.Quotient.mk Qⱼ b) = b₂',
+  -- then, '∃ a₁ ∈ Q, a₂ ∈ Qⱼ' s.t. 'a₁ + a₂ = 1'
+  have hxy : ∀ I : Ideal B, ∀ J : Ideal B, ((IsCoprime I J) →
+    (∃ i ∈  I, ∃ j ∈ J, i + j = 1)) := by
+    intros I J
+    exact IsCoprime.exists
+   -- and 'b = a₂b₁ + a₁b₂'.
+  have hblc : ∀ b : B, ∀ J : Ideal B, (IsCoprime Q J) →
+    (∃ b₁ : B,  ∃ b₂ : B, ∃ a₁ ∈  Q, ∃ a₂ ∈ J,
+    (b₁ = ((Ideal.Quotient.mk Q) b))∧
+    (b₂ = ((Ideal.Quotient.mk J) b))∧(a₁ + a₂ = 1)∧
+    (b = a₂ * b₁ + a₁ * b₂)) := by sorry
+  -- [in particular, 'a₁ ≠ 0', since 'B ⧸ Qⱼ ≠ (0)', otherwise 'B ≅ B ⧸ Q',
+  -- but we assumed 'Q' is a non-zero prime ideal.]
+  -- (VI) So, '∀ b : B, b = a₂b₁ + a₁b₂', ' 0 ≠ a₁ ∈ Q, a₂ ∈ Qⱼ'.
+  -- in particular, if 'r : B' is such that (Ideal.Quotient.mk Q r) ∈ (B ⧸ Q)ˣ,
+  -- i.e., 'IsUnit(Ideal.Quotient.mk Q r)',
+  -- then, 'r = a₂r₁ + a₁r₂' with **'r₂ = 0'**
+  -- this is because:
+  -- (VII) considering the embedding of (B ⧸ Q)ˣ in (B ⧸ Q) and thence in
+  -- the direct product (B ⧸ Q) × (B ⧸ Qⱼ),
+  -- (B ⧸ Q)ˣ ≅ { (r₁, r₂) ∈ (B ⧸ Q) × (B ⧸ Qⱼ) | r₁ ≠ 0, r₂ = 0}.
+  -- since r : (B ⧸ Q)ˣ was arbitrary, r = a₂r₁ + a₁r₂' with r₂ = 0
+  -- by 'IsUnit (Ideal.Quotient.mk Q ρ)',
+  -- IsUnit (Ideal.Quotient.mk Q∩Qⱼ ρ) ∈ { (r₁, r₂) ∈ (B ⧸ Q) × (B ⧸ Qⱼ) | r₁ ≠ 0, r₂ = 0}
+  -- thus, (Ideal.Quotient.mk Q∩Qⱼ ρ) = ((Ideal.Quotient.mk Q ρ), (Ideal.Quotient.mk Qⱼ ρ))
+  -- =  ((Ideal.Quotient.mk Q ρ), 0),
+  -- so, **(Ideal.Quotient.mk Qⱼ ρ) = 0**
+  -- use ρ = r
+
+  sorry
+-- may need : theorem isCoprime_zero_right {R : Type u} [CommSemiring R] {x : R} :
+-- IsCoprime x 0 ↔ IsUnit x
 
 lemma generator_pow {γ ρ : B} [hn0 : NeZero ((Ideal.Quotient.mk Q) γ)] (h : IsUnit (Ideal.Quotient.mk Q ρ)) (hx : ∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit) : ∃ i : ℕ, γ - ρ ^ i ∈ Q := by
   have huγ : IsUnit (Ideal.Quotient.mk Q γ) := isUnit_iff_ne_zero.mpr (neZero_iff.1 hn0)
