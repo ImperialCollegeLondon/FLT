@@ -133,7 +133,7 @@ def decompositionSubgroupIdeal' (Q : Ideal' A K L B) :
 
 
 
-variable {P : Ideal A} [P.IsMaximal] [Fintype (A ⧸ P)]
+variable (P : Ideal A) [P.IsMaximal] [Fintype (A ⧸ P)]
   (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
   [Algebra (A ⧸ P) (B ⧸ Q)]
 
@@ -239,9 +239,25 @@ lemma Ideal.finset_prod_mem {α R : Type*} [CommRing R] {P : Ideal R} [P.IsPrime
       rcases hr with ⟨⟨x, hx⟩, hfx⟩
       exact ⟨⟨x, Finset.mem_insert_of_mem hx⟩, hfx⟩
 
+#check FiniteField.expand_card
+
 lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galBmap A K L B σ) α ∈ Q := by
+  --rcases CharP.exists (B ⧸ Q) with ⟨p, hp⟩
+  have hF : Polynomial.expand (B ⧸ Q) q (FModQ A K L B Q α) = (FModQ A K L B Q α) ^ q := by
+    -- rcases FiniteField.card (B ⧸ Q) p with ⟨⟨n, _⟩, ⟨hp, _⟩⟩
+    -- have : Fact p.Prime := ⟨hp⟩
+    -- rw [← Polynomial.expand_char p _]
+    sorry
+    -- Sketch:
+    -- |A/P| = p^m = q, m<=n,
+    -- then define Frob: x ↦ x^(p^m), i.e. (frobenius (B/Q) p ^ m)
+    -- 1. show Frob ∈ (B/Q) ≃ₐ[A/P] (B/Q)
+    -- 2. show Frob|_(A/P) = id
+    -- 3. mimic FiniteField.expand_card proof (use Polynomial.map_expand_pow_char : map (frobenius (B/Q) p^m) (expand (B/Q) (p^m) FModQ) = FModQ^p^m)
+
+
   have h : (F A K L B α).eval (α ^ q) ∈ Q := by
-    rw [← Ideal.Quotient.eq_zero_iff_mem, ← Polynomial.eval₂_hom, ← Polynomial.eval_map, ← FModQ_def, RingHom.map_pow, ← Polynomial.expand_eval, FiniteField.expand_card, Polynomial.eval_pow]
+    rw [← Ideal.Quotient.eq_zero_iff_mem, ← Polynomial.eval₂_hom, ← Polynomial.eval_map, ← FModQ_def, RingHom.map_pow, ← Polynomial.expand_eval, hF, Polynomial.eval_pow]
     simp only [ne_eq, Fintype.card_ne_zero, not_false_eq_true, pow_eq_zero_iff]
     exact FModQ_root A K L B Q α
   simp_rw [F, Polynomial.eval_prod, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C] at h
@@ -250,7 +266,7 @@ lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galBma
 
 theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
   rcases (generator A K L B Q) with ⟨α, ⟨hu, hα⟩⟩
-  rcases (qth_power_is_conjugate A K L B Q α) with ⟨σ, hσ⟩
+  rcases (qth_power_is_conjugate A K L B P Q α) with ⟨σ, hσ⟩
   have hd : σ ∈ decompositionSubgroupIdeal' A K L B Q := by
     rw [decompositionSubgroupIdeal', ← Subgroup.inv_mem_iff]
     by_contra hc
@@ -284,27 +300,6 @@ theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B,
     rw [sub_eq_zero] at h' hγ hσ ⊢
     rw [map_pow, h', hγ, map_pow, map_pow, map_pow, pow_right_comm, ← map_pow, hσ]
 
-
 -- local notation "Frob["K "," L "]" => FrobeniusElt K L
 
-
-example {R : Type*} [CommRing R] [IsDomain R] (I : Ideal R) [Ideal.IsMaximal I]
-  (a b : R) : (a - b ∈ I) → (Ideal.Quotient.mk I (a - b)) = 0 := by
-   intro h
-   apply Ideal.Quotient.eq_zero_iff_mem.2 at h
-   exact h
-
-example {S : Type*} (a : S)   {s : Finset S} [hn : Nonempty s] :
-  (a ∉ s) → ((a ∈ s) → False) := by exact fun a_1 a => a_1 a
-
--- application type mismatch hα.left ((Ideal.Quotient.mk Q) γ)
--- argument (Ideal.Quotient.mk Q) γ has type B ⧸ Q : Type u_4
--- but is expected to have type (B ⧸ Q)ˣ : Type u_4
- -- specialize hα.1 (Ideal.Quotient.mk Q γ)
-      -- doesn't work yet; need a "specialize with holes"
-
-/-
-#check neZero_iff
-#check NeZero
--/
 end FiniteFrobeniusDef
