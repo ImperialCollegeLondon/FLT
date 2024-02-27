@@ -240,13 +240,20 @@ lemma Ideal.finset_prod_mem {α R : Type*} [CommRing R] {P : Ideal R} [P.IsPrime
       exact ⟨⟨x, Finset.mem_insert_of_mem hx⟩, hfx⟩
 
 #check FiniteField.expand_card
+#check algebraMap
 
 lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galBmap A K L B σ) α ∈ Q := by
-  --rcases CharP.exists (B ⧸ Q) with ⟨p, hp⟩
+  rcases CharP.exists (A ⧸ P) with ⟨p, hpA⟩
+  have hpB := (Algebra.charP_iff (A ⧸ P) (B ⧸ Q) p).mp hpA
   have hF : Polynomial.expand (B ⧸ Q) q (FModQ A K L B Q α) = (FModQ A K L B Q α) ^ q := by
-    -- rcases FiniteField.card (B ⧸ Q) p with ⟨⟨n, _⟩, ⟨hp, _⟩⟩
-    -- have : Fact p.Prime := ⟨hp⟩
-    -- rw [← Polynomial.expand_char p _]
+    rcases FiniteField.card (A ⧸ P) p with ⟨⟨n, _⟩, ⟨hp, hq⟩⟩
+    have : Fact p.Prime := ⟨hp⟩
+    let Frob := frobenius (B ⧸ Q) p ^ n
+    have hres : ∀ a : A ⧸ P, Frob (algebraMap _ _ a) = algebraMap _ _ a := by
+      sorry
+    --have := Polynomial.map_expand_pow_char p (FModQ A K L B Q α) n
+    dsimp at hq
+    rw [hq, ← Polynomial.map_expand_pow_char p]
     sorry
     -- Sketch:
     -- |A/P| = p^m = q, m<=n,
