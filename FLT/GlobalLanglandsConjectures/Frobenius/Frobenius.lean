@@ -135,8 +135,7 @@ def decompositionSubgroupIdeal' (Q : Ideal' A K L B) :
 
 variable (P : Ideal A) [P.IsMaximal] [Fintype (A ⧸ P)]
   (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
-  [Algebra (A ⧸ P) (B ⧸ Q)]
-
+  [Algebra (A ⧸ P) (B ⧸ Q)] [IsScalarTower A (A ⧸ P) (B ⧸ Q)]
 
 attribute [instance] Ideal.Quotient.field
 
@@ -146,6 +145,8 @@ attribute [instance] Ideal.Quotient.field
 
 local notation "q" => Fintype.card (A ⧸ P)
 
+lemma Q_over_P : Ideal.comap (algebraMap A B) Q = P := by
+  exact Ideal.comap_eq_of_scalar_tower_quotient (algebraMap (A ⧸ P) (B ⧸ Q)).injective
 
 instance residuefieldUnitsIsCyclic (Q : Ideal B) [hB : Ideal.IsMaximal Q]
   [Fintype (B ⧸ Q)] : IsCyclic (B ⧸ Q)ˣ :=
@@ -215,6 +216,9 @@ lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
   · rw [galBmap_def, map_one, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C]
     exact sub_self α
 
+lemma F_coeff_in_A (α : B) : ∀ n : ℕ, ∃ a : A, Polynomial.coeff (F A K L B α) n = algebraMap _ _ a := by
+  sorry
+
 noncomputable def FModQ (α : B) : Polynomial (B ⧸ Q) :=
   (F A K L B α).map (Ideal.Quotient.mk Q)
 
@@ -239,8 +243,7 @@ lemma Ideal.finset_prod_mem {α R : Type*} [CommRing R] {P : Ideal R} [P.IsPrime
       rcases hr with ⟨⟨x, hx⟩, hfx⟩
       exact ⟨⟨x, Finset.mem_insert_of_mem hx⟩, hfx⟩
 
-#check FiniteField.expand_card
-#check algebraMap
+open Classical
 
 lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galBmap A K L B σ) α ∈ Q := by
   rcases CharP.exists (A ⧸ P) with ⟨p, hpA⟩
@@ -248,21 +251,19 @@ lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galBma
   have hF : Polynomial.expand (B ⧸ Q) q (FModQ A K L B Q α) = (FModQ A K L B Q α) ^ q := by
     rcases FiniteField.card (A ⧸ P) p with ⟨⟨n, _⟩, ⟨hp, hq⟩⟩
     have : Fact p.Prime := ⟨hp⟩
-    let Frob := frobenius (B ⧸ Q) p ^ n
-    have hres : ∀ a : A ⧸ P, Frob (algebraMap _ _ a) = algebraMap _ _ a := by
-      sorry
-    --have := Polynomial.map_expand_pow_char p (FModQ A K L B Q α) n
     dsimp at hq
-    rw [hq, ← Polynomial.map_expand_pow_char p]
-    sorry
-    -- Sketch:
-    -- |A/P| = p^m = q, m<=n,
-    -- then define Frob: x ↦ x^(p^m), i.e. (frobenius (B/Q) p ^ m)
-    -- 1. show Frob ∈ (B/Q) ≃ₐ[A/P] (B/Q)
-    -- 2. show Frob|_(A/P) = id
-    -- 3. mimic FiniteField.expand_card proof (use Polynomial.map_expand_pow_char : map (frobenius (B/Q) p^m) (expand (B/Q) (p^m) FModQ) = FModQ^p^m)
-
-
+    have hres (a : A) : (frobenius (B ⧸ Q) p ^ n) (algebraMap _ _ a) = algebraMap _ _ a := by
+      rw [RingHom.coe_pow, iterate_frobenius]
+      change (Ideal.Quotient.mk Q) (algebraMap A B a ^ p ^ n) = (Ideal.Quotient.mk Q) (algebraMap A B a)
+      rw [← sub_eq_zero, ← map_sub, Ideal.Quotient.eq_zero_iff_mem, ← map_pow, ← map_sub, ← Ideal.mem_comap, Q_over_P A B P Q, ← Ideal.Quotient.eq_zero_iff_mem, map_sub, map_pow, sub_eq_zero, ← hq, FiniteField.pow_card]
+    rw [hq, ← Polynomial.map_expand_pow_char p, FModQ_def, ← Polynomial.map_expand]
+    ext i
+    rw [Polynomial.coeff_map, Polynomial.coeff_map, Polynomial.coeff_map, Polynomial.coeff_expand Fin.size_pos', apply_ite (Ideal.Quotient.mk Q), apply_ite (frobenius (B ⧸ Q) p ^ n)]
+    congr 1
+    · rcases F_coeff_in_A A K L B α (i / p ^ n) with ⟨a, ha⟩
+      rw [ha]
+      exact (hres a).symm
+    · repeat rw [map_zero]
   have h : (F A K L B α).eval (α ^ q) ∈ Q := by
     rw [← Ideal.Quotient.eq_zero_iff_mem, ← Polynomial.eval₂_hom, ← Polynomial.eval_map, ← FModQ_def, RingHom.map_pow, ← Polynomial.expand_eval, hF, Polynomial.eval_pow]
     simp only [ne_eq, Fintype.card_ne_zero, not_false_eq_true, pow_eq_zero_iff]
