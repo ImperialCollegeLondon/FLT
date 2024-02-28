@@ -91,18 +91,13 @@ variable [Field K] [Field L]
 -- in order to synthesize the instance of 'MulAction' on 'Ideal B' with
 -- the 'A K L B' setup
 
-noncomputable def galBmap (σ : L ≃ₐ[K] L) : B ≃ₐ[A] B := AlgEquiv.symm (galRestrict A K L B σ)
-
-@[simp]
-lemma galBmap_def (σ : L ≃ₐ[K] L) : galBmap A K L B σ = AlgEquiv.symm (galRestrict A K L B σ) := rfl
-
-lemma galBmap_inv (σ : L ≃ₐ[K] L) : galBmap A K L B σ⁻¹ = (galBmap A K L B σ)⁻¹ := by rfl
+lemma galRestrict_inv : galRestrict A K L B σ⁻¹ = (galRestrict A K L B σ)⁻¹ := rfl
 
 -- we define the action of the Galois group on the prime ideals of
 -- the ring of integers 'R' of 'L'
 -- Amelia helped to define smul, below
 noncomputable instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L B) where
-  smul σ I := Ideal.comap (galBmap A K L B σ) I
+  smul σ I := Ideal.comap (AlgEquiv.symm (galRestrict A K L B σ)) I
   one_smul _ := by
     -- 'show' unfolds goal into something definitionally equal
     show Ideal.comap _ _ = _
@@ -117,10 +112,18 @@ noncomputable instance galActionIdeal': MulAction (L ≃ₐ[K] L) (Ideal' A K L 
      exact rfl
     -- 'exact rfl' worked, because the two sides of the goal were ?definitionally equal
 
-lemma galActionIdeal'.mem_iff {α : B} {I : Ideal' A K L B} {σ : L ≃ₐ[K] L} : α ∈ σ • I ↔ ∃ x : I, α = (galBmap A K L B σ) x := by
-  sorry
+lemma galActionIdeal'.smul_def {I : Ideal' A K L B} {σ : L ≃ₐ[K] L} : σ • I = Ideal.comap (AlgEquiv.symm (galRestrict A K L B σ)) I := rfl
 
-lemma galActionIdeal'.apply_fun {α : B} {I : Ideal' A K L B} (σ : L ≃ₐ[K] L) : α ∈ I → (galBmap A K L B σ) α ∈ σ • I := by
+lemma galActionIdeal'.mem_iff {α : B} {I : Ideal' A K L B} {σ : L ≃ₐ[K] L} : α ∈ σ • I ↔ ∃ x : I, α = (galRestrict A K L B σ) x := by
+  rw [galActionIdeal'.smul_def, Ideal.mem_comap]
+  constructor <;> intro h
+  · refine ⟨⟨AlgEquiv.symm ((galRestrict A K L B) σ) α, h⟩, ?_⟩
+    simp only [AlgEquiv.apply_symm_apply]
+  · rcases h with ⟨x, hx⟩
+    rw [hx, AlgEquiv.symm_apply_apply]
+    exact SetLike.coe_mem x
+
+lemma galActionIdeal'.apply_fun {α : B} {I : Ideal' A K L B} (σ : L ≃ₐ[K] L) : α ∈ I → (galRestrict A K L B σ) α ∈ σ • I := by
   intro hα
   rw [mem_iff]
   refine ⟨⟨α, hα⟩, rfl⟩
@@ -205,7 +208,7 @@ lemma generator_pow {γ ρ : B} [hn0 : NeZero ((Ideal.Quotient.mk Q) γ)] (h : I
 
 
 noncomputable def F (α : B) : Polynomial B := ∏ τ : L ≃ₐ[K] L,
-  (Polynomial.X - Polynomial.C ((galBmap A K L B τ) α))
+  (Polynomial.X - Polynomial.C ((galRestrict A K L B τ) α))
 
 
 lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
@@ -213,7 +216,7 @@ lemma F_root (α : B) : (F A K L B α).eval α = 0 := by
   use 1
   constructor
   · exact Finset.mem_univ _
-  · rw [galBmap_def, map_one, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C]
+  · rw [map_one, Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C]
     exact sub_self α
 
 lemma F_coeff_in_A (α : B) : ∀ n : ℕ, ∃ a : A, Polynomial.coeff (F A K L B α) n = algebraMap _ _ a := by
@@ -243,9 +246,7 @@ lemma Ideal.finset_prod_mem {α R : Type*} [CommRing R] {P : Ideal R} [P.IsPrime
       rcases hr with ⟨⟨x, hx⟩, hfx⟩
       exact ⟨⟨x, Finset.mem_insert_of_mem hx⟩, hfx⟩
 
-open Classical
-
-lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galBmap A K L B σ) α ∈ Q := by
+theorem qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galRestrict A K L B σ) α ∈ Q := by
   rcases CharP.exists (A ⧸ P) with ⟨p, hpA⟩
   have hpB := (Algebra.charP_iff (A ⧸ P) (B ⧸ Q) p).mp hpA
   have hF : Polynomial.expand (B ⧸ Q) q (FModQ A K L B Q α) = (FModQ A K L B Q α) ^ q := by
@@ -272,7 +273,7 @@ lemma qth_power_is_conjugate (α : B) : ∃ σ : L ≃ₐ[K] L, α ^ q - (galBma
   apply Ideal.finset_prod_mem at h
   simp_all only [Subtype.exists, Finset.mem_univ, exists_const]
 
-theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galBmap A K L B σ) α ∈ Q  := by
+theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B, α ^ q - (galRestrict A K L B σ) α ∈ Q  := by
   rcases (generator A K L B Q) with ⟨α, ⟨hu, hα⟩⟩
   rcases (qth_power_is_conjugate A K L B P Q α) with ⟨σ, hσ⟩
   have hd : σ ∈ decompositionSubgroupIdeal' A K L B Q := by
@@ -280,10 +281,10 @@ theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B,
     by_contra hc
     apply hα.2 at hc
     rcases ((galActionIdeal'.mem_iff A K L B).mp hc) with ⟨x, hx⟩
-    apply_fun (galBmap A K L B σ) at hx
-    rw [galBmap_inv] at hx
-    change (galBmap A K L B σ) α = (galBmap A K L B σ).toFun ((galBmap A K L B σ).invFun x) at hx
-    rw [(galBmap A K L B σ).right_inv] at hx
+    apply_fun (galRestrict A K L B σ) at hx
+    rw [galRestrict_inv] at hx
+    change (galRestrict A K L B σ) α = (galRestrict A K L B σ).toFun ((galRestrict A K L B σ).invFun x) at hx
+    rw [(galRestrict A K L B σ).right_inv] at hx
     rw [hx] at hσ
     apply Ideal.add_mem _ (Submodule.coe_mem x) at hσ
     rw [add_sub_cancel'_right, ← Ideal.Quotient.eq_zero_iff_mem, map_pow] at hσ
@@ -300,7 +301,7 @@ theorem ex_FrobElt : ∃ σ : decompositionSubgroupIdeal' A K L B Q, ∀ α : B,
     rw [h0, zero_pow Fintype.card_ne_zero, sub_zero]
   · have hpow : ∃ i : ℕ,  γ - α ^ i ∈ Q := generator_pow B Q hu hα.1
     rcases hpow with ⟨i, hγ⟩
-    have h' : (galBmap A K L B σ) (γ - α ^ i) ∈ Q := by
+    have h' : (galRestrict A K L B σ) (γ - α ^ i) ∈ Q := by
       convert (galActionIdeal'.apply_fun A K L B σ) hγ using 1
       rw [hd]
     rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub] at h' hγ hσ ⊢
