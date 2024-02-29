@@ -1,33 +1,5 @@
 import Mathlib.Tactic
-import Mathlib.RingTheory.DedekindDomain.Ideal
-import Mathlib.RingTheory.Valuation.ValuationSubring
-import Mathlib.RingTheory.DedekindDomain.Dvr
-import Mathlib.RingTheory.Ideal.LocalRing
-import Mathlib.FieldTheory.Separable
-import Mathlib.RingTheory.IntegralDomain
-import Mathlib.Algebra.CharP.Reduced
-import Mathlib.Tactic.ApplyFun
-import Mathlib.Algebra.CharP.Algebra
-import Mathlib.Data.ZMod.Algebra
-import Mathlib.FieldTheory.Finite.Basic
-import Mathlib.FieldTheory.Galois
-import Mathlib.FieldTheory.SplittingField.IsSplittingField
-import Mathlib.FieldTheory.Fixed
-import Mathlib.FieldTheory.NormalClosure
-import Mathlib.FieldTheory.PrimitiveElement
-import Mathlib.GroupTheory.GroupAction.FixingSubgroup
-import Mathlib.RingTheory.DedekindDomain.AdicValuation
-import Mathlib.FieldTheory.PolynomialGaloisGroup
 import Mathlib.RingTheory.IntegralRestrict
-import Mathlib.NumberTheory.NumberField.Basic
-import Mathlib.Data.Quot
-import Mathlib.Data.Polynomial.Eval
-import Mathlib.Data.Polynomial.RingDivision
-import Mathlib.GroupTheory.SpecificGroups.Cyclic
-import Mathlib.NumberTheory.RamificationInertia
-import Mathlib.Order.WellFoundedSet
-import Mathlib.Tactic.PushNeg
-import Mathlib.RingTheory.Ideal.Operations
 
 
 /-!
@@ -39,20 +11,9 @@ See [Karatarakis2022, Mathlib/RingTheory/Valuation/RamificationGroup.lean]
 
 -/
 
-section References
-
-end References
-
 section FiniteFrobeniusDef
 
 -- translating p. 140 of Milne ANT + Prof. Buzzard's diagram (Feb. 8)
-
-
-
--- Jujian Zhang helped with notation and writing 'theorem ex_FrobElt'
--- JZ: example of how to access a hypothesis in 'variables' or Mathlib:
--- "let i : FiniteDimensional L K := inferInstance"
-
 
 open NumberField BigOperators
 open scoped Pointwise
@@ -182,7 +143,17 @@ lemma generator_pow {γ ρ : B} [hn0 : NeZero ((Ideal.Quotient.mk Q) γ)] (h : I
   have h : ∃ i, (Ideal.Quotient.mk Q γ) = (Ideal.Quotient.mk Q ρ) ^ i := by
     rw [Subgroup.mem_zpowers_iff] at hγpow
     rcases hγpow with ⟨i, hi⟩
-    sorry
+    apply_fun (Units.coeHom _) at hi
+    simp only [map_zpow, Units.coeHom_apply, IsUnit.unit_spec] at hi
+    have hρn0 : (Ideal.Quotient.mk Q) ρ ≠ 0 := IsUnit.ne_zero h
+    use (i % (Fintype.card (B ⧸ Q) - 1 : Nat)).toNat
+    rw [← hi, ← zpow_ofNat, Int.toNat_of_nonneg]
+    · rw [Int.emod_def, zpow_sub₀ hρn0 , eq_div_iff (zpow_ne_zero _ hρn0), mul_right_eq_self₀, zpow_mul]
+      left
+      rw [zpow_coe_nat, FiniteField.pow_card_sub_one_eq_one _ hρn0, one_zpow]
+    · apply Int.emod_nonneg
+      rw [ne_eq, Nat.cast_eq_zero, tsub_eq_zero_iff_le, not_le]
+      exact Fintype.one_lt_card
   convert h
   rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, sub_eq_zero]
   rfl
