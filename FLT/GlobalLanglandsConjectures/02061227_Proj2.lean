@@ -734,6 +734,8 @@ open TensorProduct in
 /- This is the coassoc axiom for Bialgebra(I probably should put a Coalgebra instance
   first because the proof of this is really complicated...) Jujiang helped a lot with
   this proof :)) -/
+
+set_option tactic.skipAssignedInstances false
 lemma tensor_coassoc : ↑(TensorProduct.assoc R (A1 ⊗[R] A2) (A1 ⊗[R] A2) (A1 ⊗[R] A2)) ∘ₗ
     LinearMap.rTensor (A1 ⊗[R] A2) (tcomul R A1 A2) ∘ₗ (tcomul R A1 A2) =
     LinearMap.lTensor (A1 ⊗[R] A2) (tcomul R A1 A2) ∘ₗ (tcomul R A1 A2) := by
@@ -760,38 +762,63 @@ lemma tensor_coassoc : ↑(TensorProduct.assoc R (A1 ⊗[R] A2) (A1 ⊗[R] A2) (
   · ext x y
     obtain ⟨I1, x1, x2, hx⟩ := comul_repr R A1 x
     obtain ⟨I2, y1, y2, hy⟩ := comul_repr R A2 y
-    simp only [AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
-      LinearMap.coe_restrictScalars, map_tmul, LinearMap.coe_comp, LinearEquiv.coe_coe, comp_apply,
-      hx, map_sum, LinearMap.rTensor_tmul, hy, tmul_sum, sum_tmul, AlgHom.toNonUnitalAlgHom_eq_coe,
+    simp (config :=
+      { zetaDelta := true, zeta := false }) only [TensorProduct.AlgebraTensorModule.curry_apply,
+      TensorProduct.curry_apply, LinearMap.coe_restrictScalars, TensorProduct.map_tmul,
+      LinearMap.coe_comp, LinearEquiv.coe_coe, comp_apply, hx, map_sum, LinearMap.rTensor_tmul, hy,
+      TensorProduct.tmul_sum, TensorProduct.sum_tmul, AlgHom.toNonUnitalAlgHom_eq_coe,
       NonUnitalAlgHom.toDistribMulActionHom_eq_coe, DistribMulActionHom.coe_toLinearMap,
       NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe,
-      Bialgebra.comulAlgHom_apply, Bialg_tensorequiv, assoc_symm_tmul, assoc_tmul,
-      LinearMap.lTensor_tmul, comm_tmul]
+      Bialgebra.comulAlgHom_apply]
+    -- [TensorProduct.curry_apply,
+    --   LinearMap.coe_restrictScalars, map_tmul, LinearMap.coe_comp, LinearEquiv.coe_coe, comp_apply,
+    --   hx, map_sum, LinearMap.rTensor_tmul, hy, tmul_sum, sum_tmul, AlgHom.toNonUnitalAlgHom_eq_coe,
+    --   NonUnitalAlgHom.toDistribMulActionHom_eq_coe, DistribMulActionHom.coe_toLinearMap,
+    --   NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe,
+    --   Bialgebra.comulAlgHom_apply, Bialg_tensorequiv, assoc_symm_tmul, assoc_tmul,
+    --   LinearMap.lTensor_tmul, comm_tmul]
     refine Finset.sum_congr rfl fun i1 hi1 ↦ Finset.sum_congr rfl fun i2 hi2 ↦ ?_
     obtain ⟨I, x11, x12, hx1⟩ := comul_repr R A1 (x1 i2)
     obtain ⟨J, y11, y12, hy1⟩ := comul_repr R A2 (y1 i1)
-    simp only [hx1, sum_tmul, map_sum, assoc_tmul, hy1, tmul_sum, assoc_symm_tmul,
-      LinearMap.rTensor_tmul, LinearMap.coe_comp, LinearEquiv.coe_coe, comp_apply,
-      LinearMap.lTensor_tmul, comm_tmul, reorder6_tmul]
+    simp only [hx1, TensorProduct.sum_tmul, map_sum, TensorProduct.assoc_tmul, hy1,
+      TensorProduct.tmul_sum, Bialg_tensorequiv, LinearMap.coe_comp, LinearEquiv.coe_coe,
+      comp_apply, TensorProduct.assoc_symm_tmul, LinearMap.rTensor_tmul, LinearMap.lTensor_tmul,
+      TensorProduct.comm_tmul, AlgHom.toNonUnitalAlgHom_eq_coe,
+      NonUnitalAlgHom.toDistribMulActionHom_eq_coe, TensorProduct.map_tmul,
+      DistribMulActionHom.coe_toLinearMap, NonUnitalAlgHom.coe_to_distribMulActionHom,
+      NonUnitalAlgHom.coe_coe, Bialgebra.comulAlgHom_apply, reorder6_tmul,
+      NonUnitalAlgHom.toDistribMulActionHom_eq_coe, TensorProduct.map_tmul,
+      DistribMulActionHom.coe_toLinearMap, NonUnitalAlgHom.coe_to_distribMulActionHom,
+      NonUnitalAlgHom.coe_coe, Bialgebra.comulAlgHom_apply, reorder6_tmul]
 
   have eq2 : RREQ = (reorder6 R A1 A2).toLinearMap ∘ₗ RR
   -- Proving right hand side equality
   · ext x y
     obtain ⟨I1, x1, x2, hx⟩ := comul_repr R A1 x
     obtain ⟨I2, y1, y2, hy⟩ := comul_repr R A2 y
-    simp only [AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
-      LinearMap.coe_restrictScalars, map_tmul, LinearMap.coe_comp, LinearEquiv.coe_coe, comp_apply,
-      hx, map_sum, LinearMap.rTensor_tmul, hy, tmul_sum, sum_tmul, AlgHom.toNonUnitalAlgHom_eq_coe,
-      NonUnitalAlgHom.toDistribMulActionHom_eq_coe, DistribMulActionHom.coe_toLinearMap,
-      NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe,
-      Bialgebra.comulAlgHom_apply, Bialg_tensorequiv, assoc_symm_tmul, assoc_tmul,
-      LinearMap.lTensor_tmul, comm_tmul]
+    simp (config :=
+      { zetaDelta := true, zeta := false }) only [TensorProduct.AlgebraTensorModule.curry_apply,
+      TensorProduct.curry_apply, LinearMap.coe_restrictScalars, TensorProduct.map_tmul,
+      LinearMap.coe_comp, comp_apply, hx, map_sum, LinearMap.lTensor_tmul, hy,
+      TensorProduct.tmul_sum, TensorProduct.sum_tmul, LinearEquiv.coe_coe, Bialg_tensorequiv,
+      AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
+      DistribMulActionHom.coe_toLinearMap, NonUnitalAlgHom.coe_to_distribMulActionHom,
+      NonUnitalAlgHom.coe_coe, Bialgebra.comulAlgHom_apply, TensorProduct.assoc_symm_tmul,
+      LinearMap.rTensor_tmul, TensorProduct.assoc_tmul, TensorProduct.comm_tmul]
+    -- [AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
+    --   LinearMap.coe_restrictScalars, map_tmul, LinearMap.coe_comp, LinearEquiv.coe_coe, comp_apply,
+    --   hx, map_sum, LinearMap.rTensor_tmul, hy, tmul_sum, sum_tmul, AlgHom.toNonUnitalAlgHom_eq_coe,
+    --   NonUnitalAlgHom.toDistribMulActionHom_eq_coe, DistribMulActionHom.coe_toLinearMap,
+    --   NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe,
+    --   Bialgebra.comulAlgHom_apply, Bialg_tensorequiv, assoc_symm_tmul, assoc_tmul,
+    --   LinearMap.lTensor_tmul, comm_tmul]
     refine Finset.sum_congr rfl fun i1 hi1 ↦ Finset.sum_congr rfl fun i2 hi2 ↦ ?_
     obtain ⟨I, x11, x12, hx1⟩ := comul_repr R A1 (x2 i2)
     obtain ⟨J, y11, y12, hy1⟩ := comul_repr R A2 (y2 i1)
-    simp only [hx1, sum_tmul, map_sum, assoc_tmul, hy1, tmul_sum, assoc_symm_tmul,
+    simp only [hx1, TensorProduct.sum_tmul, map_sum, TensorProduct.assoc_tmul, hy1, 
+      TensorProduct.tmul_sum, TensorProduct.assoc_symm_tmul,
       LinearMap.rTensor_tmul, LinearMap.coe_comp, LinearEquiv.coe_coe, comp_apply,
-      LinearMap.lTensor_tmul, comm_tmul, reorder6_tmul]
+      LinearMap.lTensor_tmul, TensorProduct.comm_tmul, reorder6_tmul]
 
   rw [← eq1, ← eq2, EQ]
 
