@@ -307,7 +307,7 @@ lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c
 def of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
     {p : ℕ} (hpprime : p.Prime) (hp : 5 ≤ p) (h : a^p + b^p = c^p) : FreyPackage :=
   let d := gcd a b
-  have hd : d ≠ 0 := by aesop
+  have hd : d ≠ 0 := gcd_ne_zero_of_right hb
   of_not_FermatLastTheorem_coprime_p_ge_5
     (show a / d ≠ 0 by exact left_div_gcd_ne_zero ha)
     (show b / d ≠ 0 by exact right_div_gcd_ne_zero hb)
@@ -317,7 +317,7 @@ def of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) 
       · linarith)
     (by
       simp [gcd]
-      rw [Int.gcd_div_gcd_div_gcd]
+      apply Int.gcd_div_gcd_div_gcd
       apply Int.gcd_pos_of_ne_zero_left _ ha)
     p hpprime hp <| by
   obtain ⟨a₁, (ha : a = d * a₁)⟩ := gcd_dvd_left a b
