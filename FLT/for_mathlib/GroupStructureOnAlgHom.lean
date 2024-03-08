@@ -1,10 +1,14 @@
-import Mathlib.Tactic
+-- import Mathlib.Tactic
 import Mathlib.RingTheory.TensorProduct
+import FLT.for_mathlib.Coalgebra.Sweedler
 import Mathlib.RingTheory.HopfAlgebra
-open Function
-open scoped TensorProduct
-set_option maxHeartbeats 5000000
-set_option linter.unusedVariables false
+
+-- open Function
+-- open scoped TensorProduct
+
+-- set_option maxHeartbeats 5000000
+-- set_option linter.unusedVariables false
+
 /-!
 # Algebra and Linear Homomorphisms of Bialgebras, Coalgebras and Algebras
 The first part of this files provides proofs of all the Algebra homomorphism from a
@@ -61,9 +65,156 @@ anti_unique.
 * Dr.Adrian de Jesus Celestino Rodriguez "Cumulants in Non-commutative Probability via Hopf
   Algebras", 2022
 -/
-variable (R : Type)[CommRing R]
-variable (A : Type)[Ring A][Bialgebra R A]
-variable (L : Type)[CommRing L][Algebra R L]
+
+open TensorProduct BigOperators LinearMap
+
+section Coalgebra
+
+/--
+A linear point is a linear map from `A` to `L` where `A` is an `R`-colagebra and `L` an `R`-algebra.
+We introduce this abbreviation is to prevent instance clashing when we put a monnoid structure on
+these linear points with convolution product.
+-/
+abbrev LinearPoint (R A L : Type*) [CommSemiring R] [AddCommMonoid A] [Module R A] [Coalgebra R A] [AddCommMonoid L] [Module R L] :=
+  A →ₗ[R] L
+
+namespace LinearPoint
+
+variable {R A L : Type*} [CommSemiring R] [AddCommMonoid A] [Module R A] [Coalgebra R A] [Semiring L] [Algebra R L]
+
+variable  (φ ψ χ : LinearPoint R A L)
+
+/--
+`A -comul-> A ⊗ A -φ ⊗ ψ-> L ⊗ L -mul> L` is convolution product of `φ` and `ψ`.
+If `comul x = ∑ aᵢ ⊗ bᵢ`, then `(φ ⋆ ψ)(x) = ∑ φ(aᵢ) × ψ(bᵢ)`, hence the name convolution.
+-/
+noncomputable def mul : LinearPoint R A L :=
+  LinearMap.mul' _ _ ∘ₗ TensorProduct.map φ ψ ∘ₗ Coalgebra.comul
+
+lemma mul_repr {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
+    (repr : ∑ i in ℐ, Δ₁ i ⊗ₜ Δ₂ i = Coalgebra.comul (R := R) a) :
+    φ.mul ψ a = ∑ i in ℐ, φ (Δ₁ i) * ψ (Δ₂ i) := by
+  -- delta mul
+  simp only [mul, comp_apply, ← repr, map_sum, map_tmul, mul'_apply]
+
+/--
+`A -counit-> R -algebraMap-> L` is the unit with respect to convolution product.
+-/
+def one : LinearPoint R A L :=
+  Algebra.linearMap R L ∘ₗ Coalgebra.counit
+
+instance : One (LinearPoint R A L) where
+  one := one
+
+noncomputable instance : Mul (LinearPoint R A L) where
+  mul := mul
+
+lemma mul_assoc' : φ * ψ * χ = φ * (ψ * χ) := by
+  ext x
+  simp [ comp_apply, Coalgebra.comul_repr, map_sum, rTensor_tmul, tmul_sum, map_tmul,
+  sum_tmul, lTensor_tmul, mul', lift.tmul, LinearMap.mul_apply, ← Coalgebra.coassoc,
+  mul_assoc,
+  show (φ * ψ) * χ =
+    LinearMap.mul' _ _ ∘ₗ (LinearMap.mul' _ _).rTensor _ ∘ₗ (map (map _ _) _) ∘ₗ
+    Coalgebra.comul.rTensor _ ∘ₗ Coalgebra.comul by
+    simp only [← comp_assoc, map_comp_rTensor, rTensor_comp_map]; rfl,
+  show φ * (ψ * χ) =
+    LinearMap.mul' _ _ ∘ₗ (LinearMap.mul' _ _).lTensor _ ∘ₗ
+      (map _ (map _ _)) ∘ₗ Coalgebra.comul.lTensor _ ∘ₗ Coalgebra.comul by
+    simp only [← comp_assoc, map_comp_lTensor, lTensor_comp_map]; rfl]
+
+lemma mul_one' : φ * 1 = φ := show mul φ one = φ by
+  ext
+  simp [show φ.mul one =
+    LinearMap.mul' _ _ ∘ₗ φ.rTensor _ ∘ₗ (Algebra.linearMap _ _).lTensor _ ∘ₗ
+      Coalgebra.counit.lTensor _ ∘ₗ Coalgebra.comul by
+    delta one mul
+    simp [← comp_assoc, ← map_comp, comp_id, id_comp]]
+
+lemma one_mul' : 1 * φ = φ := show mul one φ = φ by
+  ext
+  simp [show one.mul φ =
+    LinearMap.mul' _ _ ∘ₗ φ.lTensor _ ∘ₗ (Algebra.linearMap _ _).rTensor _ ∘ₗ
+      Coalgebra.counit.rTensor _ ∘ₗ Coalgebra.comul by
+    delta one mul
+    simp [← comp_assoc, ← map_comp, comp_id, id_comp]]
+
+noncomputable instance : Monoid (LinearPoint R A L) where
+  mul_assoc := mul_assoc'
+  one_mul := one_mul'
+  mul_one := mul_one'
+
+attribute [deprecated] mul_assoc' mul_one' one_mul'
+
+end LinearPoint
+
+end Coalgebra
+
+section Bialgebra
+
+/--
+An algebra homomorphism point is an algebra homorphism from `A` to `L` where `A` is an `R`-biagebra and `L` an `R`-algebra.
+We introduce this abbreviation is to prevent instance clashing when we put a monnoid structure on
+these algebra homomorphism points with convolution product.
+-/
+abbrev AlgHomPoint (R A L : Type*) [CommSemiring R] [Semiring A] [Bialgebra R A] [CommSemiring L] [Algebra R L] :=
+  A →ₐ[R] L
+
+namespace AlgHomPoint
+
+variable  {R A L : Type*} [CommSemiring R] [Semiring A] [Bialgebra R A] [CommSemiring L] [Algebra R L]
+
+variable  (φ ψ χ : AlgHomPoint R A L)
+
+/--
+An algebra homomorphism is also a linear map
+-/
+abbrev toLinearPoint : LinearPoint R A L := φ.toLinearMap
+
+/--
+`A -comul-> A ⊗ A -φ ⊗ ψ-> L ⊗ L -mul> L` is convolution product of `φ` and `ψ`.
+If `comul x = ∑ aᵢ ⊗ bᵢ`, then `(φ ⋆ ψ)(x) = ∑ φ(aᵢ) × ψ(bᵢ)`, hence the name convolution.
+-/
+noncomputable def mul : AlgHomPoint R A L :=
+  Algebra.TensorProduct.lmul' R (S := L) |>.comp <|
+    Algebra.TensorProduct.map φ ψ |>.comp <| Bialgebra.comulAlgHom R A
+/--
+`A -counit-> R -algebraMap-> L` is the unit with respect to convolution product.
+-/
+noncomputable def one : AlgHomPoint R A L :=
+  Algebra.ofId R L |>.comp <| Bialgebra.counitAlgHom R A
+
+noncomputable instance : One (AlgHomPoint R A L) where
+  one := one
+
+noncomputable instance : Mul (AlgHomPoint R A L) where
+  mul := mul
+
+lemma mul_assoc' : φ * ψ * χ = φ * (ψ * χ) := by
+  ext
+  exact congr($(mul_assoc φ.toLinearPoint ψ.toLinearPoint χ.toLinearPoint) _)
+
+lemma mul_one' : φ * 1 = φ := by
+  ext; exact congr($(mul_one φ.toLinearPoint) _)
+
+lemma one_mul' : 1 * φ = φ := show mul one φ = φ by
+  ext; exact congr($(one_mul φ.toLinearPoint) _)
+
+noncomputable instance : Monoid (AlgHomPoint R A L) where
+  mul_assoc := mul_assoc'
+  one_mul := one_mul'
+  mul_one := mul_one'
+
+attribute [deprecated] mul_assoc' mul_one' one_mul'
+
+end AlgHomPoint
+
+end Bialgebra
+
+#exit
+variable (R : Type) [CommRing R]
+variable (A : Type) [Ring A][Bialgebra R A]
+variable (L : Type) [CommRing L][Algebra R L]
 
 variable {ψ φ ρ : A →ₐ[R] L}
 -- Goal of the First Part is to Prove Points R A L is a monoid
@@ -815,7 +966,7 @@ lemma tensor_coassoc : ↑(TensorProduct.assoc R (A1 ⊗[R] A2) (A1 ⊗[R] A2) (
     refine Finset.sum_congr rfl fun i1 hi1 ↦ Finset.sum_congr rfl fun i2 hi2 ↦ ?_
     obtain ⟨I, x11, x12, hx1⟩ := comul_repr R A1 (x2 i2)
     obtain ⟨J, y11, y12, hy1⟩ := comul_repr R A2 (y2 i1)
-    simp only [hx1, TensorProduct.sum_tmul, map_sum, TensorProduct.assoc_tmul, hy1, 
+    simp only [hx1, TensorProduct.sum_tmul, map_sum, TensorProduct.assoc_tmul, hy1,
       TensorProduct.tmul_sum, TensorProduct.assoc_symm_tmul,
       LinearMap.rTensor_tmul, LinearMap.coe_comp, LinearEquiv.coe_coe, comp_apply,
       LinearMap.lTensor_tmul, TensorProduct.comm_tmul, reorder6_tmul]
