@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2024 Yunzhou Xie. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
+-/
+
 import Mathlib.RingTheory.Coalgebra
 
 set_option autoImplicit false

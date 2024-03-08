@@ -1,3 +1,10 @@
+/-
+Copyright (c) 2024 Yunzhou Xie. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
+-/
+
+
 -- import Mathlib.Tactic
 import Mathlib.RingTheory.TensorProduct
 import FLT.for_mathlib.Coalgebra.Sweedler
@@ -75,12 +82,15 @@ A linear point is a linear map from `A` to `L` where `A` is an `R`-colagebra and
 We introduce this abbreviation is to prevent instance clashing when we put a monnoid structure on
 these linear points with convolution product.
 -/
-abbrev LinearPoint (R A L : Type*) [CommSemiring R] [AddCommMonoid A] [Module R A] [Coalgebra R A] [AddCommMonoid L] [Module R L] :=
+abbrev LinearPoint (R A L : Type*)
+    [CommSemiring R] [AddCommMonoid A] [Module R A] [Coalgebra R A]
+    [AddCommMonoid L] [Module R L] :=
   A →ₗ[R] L
 
 namespace LinearPoint
 
-variable {R A L : Type*} [CommSemiring R] [AddCommMonoid A] [Module R A] [Coalgebra R A] [Semiring L] [Algebra R L]
+variable {R A L : Type*} [CommSemiring R] [AddCommMonoid A] [Module R A] [Coalgebra R A]
+variable [Semiring L] [Algebra R L]
 
 variable  (φ ψ χ : LinearPoint R A L)
 
@@ -153,16 +163,18 @@ end Coalgebra
 section Bialgebra
 
 /--
-An algebra homomorphism point is an algebra homorphism from `A` to `L` where `A` is an `R`-biagebra and `L` an `R`-algebra.
-We introduce this abbreviation is to prevent instance clashing when we put a monnoid structure on
-these algebra homomorphism points with convolution product.
+An algebra homomorphism point is an algebra homorphism from `A` to `L` where `A` is an `R`-biagebra
+and `L` an `R`-algebra. We introduce this abbreviation is to prevent instance clashing when we put a
+monnoid structure on these algebra homomorphism points with convolution product.
 -/
-abbrev AlgHomPoint (R A L : Type*) [CommSemiring R] [Semiring A] [Bialgebra R A] [CommSemiring L] [Algebra R L] :=
+abbrev AlgHomPoint (R A L : Type*) [CommSemiring R] [Semiring A] [Bialgebra R A]
+    [CommSemiring L] [Algebra R L] :=
   A →ₐ[R] L
 
 namespace AlgHomPoint
 
-variable  {R A L : Type*} [CommSemiring R] [Semiring A] [Bialgebra R A] [CommSemiring L] [Algebra R L]
+variable  {R A L : Type*} [CommSemiring R] [Semiring A] [Bialgebra R A]
+variable [CommSemiring L] [Algebra R L]
 
 variable  (φ ψ χ : AlgHomPoint R A L)
 
@@ -210,6 +222,10 @@ attribute [deprecated] mul_assoc' mul_one' one_mul'
 end AlgHomPoint
 
 end Bialgebra
+
+section HopfAlgebra
+
+end HopfAlgebra
 
 #exit
 variable (R : Type) [CommRing R]
