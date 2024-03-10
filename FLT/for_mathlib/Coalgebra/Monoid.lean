@@ -203,4 +203,16 @@ lemma mul_repr {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
 
 attribute [deprecated] mul_assoc' mul_one' one_mul'
 
+section commutative_bialgebra
+
+variable {A' : Type*} [CommSemiring A'] [Bialgebra R A']
+
+lemma comp_one {A' : Type*} [CommSemiring A'] [Bialgebra R A']
+    (f : AlgHomPoint R A' L) :
+    f.comp (1 : AlgHomPoint R A' A') = 1 := by
+  ext
+  simp [one_def, Algebra.ofId_apply, Algebra.algebraMap_eq_smul_one, f.map_smul, f.map_one]
+
+end commutative_bialgebra
+
 end AlgHomPoint

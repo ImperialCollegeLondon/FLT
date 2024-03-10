@@ -148,25 +148,16 @@ noncomputable instance instGroup : Group (AlgHomPoint R A L) where
 end AlgHomPoint
 
 lemma antipodeAlgHom_inv : antipodeAlgHom⁻¹ = AlgHom.id R A :=
-  inv_eq_iff_mul_eq_one.mpr <| AlgHom.ext fun x ↦ congr($(antipode_mul_id) x)
+  inv_eq_iff_mul_eq_one.mpr <| mul_eq_one_iff_eq_inv.mpr rfl
 
 lemma antipodeAlgHom_mul_id : antipodeAlgHom * AlgHom.id R A = 1 :=
   AlgHom.ext fun _ ↦ congr($(antipode_mul_id) _)
 
-
 lemma id_mul_antipodeAlgHom : AlgHom.id R A * antipodeAlgHom = 1 :=
   AlgHom.ext fun _ ↦ congr($(id_mul_antipode) _)
 
-lemma antipodeAlgHom_square : antipodeAlgHom.comp antipodeAlgHom = AlgHom.id R A := by
-  suffices antipodeAlgHom * (antipodeAlgHom.comp antipodeAlgHom) = (1 : AlgHomPoint R A A) by
-    conv_rhs at this => rw [← antipodeAlgHom_mul_id]
-    simpa only [mul_right_inj] using this
-  ext a
-  simp_rw [AlgHomPoint.mul_repr (repr := Coalgebra.comul_repr a),
-    AlgHom.coe_comp, Function.comp_apply, ← antipodeAlgHom.map_mul, ← map_sum,
-    antipodeAlgHom_apply, antipode_repr_eq_smul' (repr := Coalgebra.comul_repr a), map_smul,
-    antipode_one, Algebra.smul_def, mul_one]
-  rfl
+lemma antipodeAlgHom_square : antipodeAlgHom.comp antipodeAlgHom = AlgHom.id R A :=
+  antipodeAlgHom_inv
 
 /--
 Then antipode map is an algebra equivalence.
