@@ -1,7 +1,26 @@
+/-
+Copyright (c) 2024 Yunzhou Xie. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
+-/
+
 import Mathlib.RingTheory.HopfAlgebra
 import FLT.for_mathlib.Coalgebra.Monoid
 import FLT.for_mathlib.Coalgebra.TensorProduct
 
+/-!
+# Basic properties of Hopf algebra
+
+For an `R`-hopf algebra `A`, we prove in this file the following basic properties:
+- the antipodal map is anticommutative;
+- the antipodal map is unique linear map whose convolution inverse is the identity `𝟙 A`.
+  (Note that, confusingly, the indeity linear map `x ↦ x` is not acutally the unit in the monoid
+  structure of linear maps. See `for_mathlib/Coalgebra/Monoid.lean`)
+if we further assume `A` is commutative then
+- the `R`-algebra homorphisms from `A` to `L` has a group structure where multiplication is
+  convolution, and inverse of `f `is `f ∘ antipode`
+- in particular, `antipode ∘ antipode = 1`
+-/
 
 open TensorProduct BigOperators
 

@@ -4,67 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 -/
 
-
--- import Mathlib.Tactic
 import Mathlib.RingTheory.TensorProduct
 import FLT.for_mathlib.Coalgebra.Sweedler
 import Mathlib.RingTheory.HopfAlgebra
 
--- open Function
--- open scoped TensorProduct
-
--- set_option maxHeartbeats 5000000
--- set_option linter.unusedVariables false
-
 /-!
-# Algebra and Linear Homomorphisms of Bialgebras, Coalgebras and Algebras
-The first part of this files provides proofs of all the Algebra homomorphism from a
-R-Bialgebra A to a Commutative R-Algebra L (defined as Points R A L) forms a monoid with the binary
-operation "*" defined by convolution product and "one" defined by the composition of unit of L and
-counit of A ((Algebra.ofId R L).comp (Bialgebra.counitAlgHom R A)), while the second part proves
-that all the linear homomorphisms from a R-Coalgebra C to a R-Algebra B also forms a monoid by
-the linear convolution product and the identity "linone" defined by (one _ _ _).toLinearMap.
+# Monoid structure on linear maps and algebra homomorphism
 
-# Proof of  TensorProduct of two R-Bialgebras (A1 and A2) are R-Bialgebras
-The third part of this file is a preparation of the proof of the Antipode of a Hopf R-Algebra is
-indeed an antihomomorphism (namely S(ab) = S(b)*S(a)), to do that we defined α β: H ⊗[R] H →ₗ H
-to be α : (a ⊗ b) ↦ S(ab) and β : (a ⊗ b) ↦ S(b)*S(a). But for that to work we need the fact that
-H ⊗ H is a Bialgebra and we genralized it to the Bialgebra case (In fact, C ⊗ C is a Coalgebra
-for C being R-Coalgebra but we kind of include that in our proof of Bialgebra).
+Let `A` be an `R`-coalgebra and `L` and `R`-algebra, then the set of `R`-linear maps `Hom(A, L)`
+can be endowed a monoid structure where
+- unit is defined as `A -counit-> R -algebraMap-> L`
+- multiplication is defined as `A -comul-> A ⊗ A -f ⊗ g-> L ⊗ L -multiplication-> L` for any linear
+  maps `f` and `g`.
 
-# Proof of all Algebra Homomorphism from a Commutative Hopf Algebra to a R-Algebra forms a Group
-The fourth part of the part proves that (Points R H L) is a group that inherits multiplication
-and identity elements from the monoid structure proved in Part I with inverse given by f⁻¹ =
-(S ∘ f). And to do that we need antipode is an antihomomorphism (hence under the condition of
-commutativity, we have that the antipode is an Algebra Homomorphism), and we did that by showing
-α * m = linone and m * β = linone where m is the multiplication of H. Therefore α = α * linone
-= α * (m * β) = (α * m) * β = linone * β = β showing that the anipode S is indeed an
-antihomomorphism in H, then everythings follows (proving the group axioms, etc.)
+Since `comul x = ∑ x ⊗ y` implies `(f * g) x = ∑ f(x) g(y)`, this multiplication is often called
+convolution.
 
-# Finishing the TO-DO list in Hopf Algebra Files
-At the end of this file (some are proved within the previous parts), we proved that S² = id and S
-is a Bijection when H is Commutative (the case where H is Co-Commutative is unproved yet) and the
-proof of the uniqueness of antipode is in the proof of LinPoints forms a monoid named as
-anti_unique.
-
-## Main declarations
-- `Points.Points R A L` is all the R-Algebra Homomorphisms A →ₐ[R] L
-- `Points.Pointmul_assoc` is the associativity of R-Algebra Homomorphisms in `Points R A L` under
-  convolution product "*".
-- `HopfPoints.LinPoints R C B` is all the R-Linear Maps C →ₗ[R] B where C is R-Coalgbra
-  and B is R-Algebra
-- `HopfPoints.mul_id_val`: id_H * S = linone under linear convolution product
-- `HopfPoints.id_mul_val`: S * id_H = linone under linear convolution product
-- `HopfPoints.UniquenessAnti` : Any T : H →ₗ H, if T * id_H = id_H * T = linone, then
-  T = antipode (uniqueness of antipode).
-- `HopfPoints.comul_repr` is the seedler notation for comultiplication for R-Coalgebras, that is
-  ∀ x ∈ C, comul x can be expressed as ∑ i in I, x1 i ⊗ x2 i
-- `HopfPoints.αmul_eqone`: α * m = linone
-- `HopfPoints.mulβ_eqone`: m * β = linone
-- `HopfPoints.antihom` : S(ab) = S(b) * S(a)
-- `HopfPoints.antipodemul` : Under a Commutative Hopf Algebra H, S(ab) = S(a) * S(b)
-- `HopfPoints.S2isid` : S² = id_H
-- `HopfPoints.bijectiveAntipode` : S is bijection.
+If furter `A` is an `R`-bialgebra, then the set of `R`-agelrab homomorphism `Hom(A, L)` can also
+be endowed with a monoid structure where multiplication is convolution and unit is the same in the
+linear case.
 
 ## References
 * <https://en.wikipedia.org/wiki/Hopf_algebra>
