@@ -117,6 +117,9 @@ lemma antipode_anticommute (a b : A) :
       antipode_repr_eq_smul' (repr := Coalgebra.comul_repr a), ← mul_smul, mul_comm]
     simp [Algebra.smul_def]
 
+lemma antipode_algebraMap (r : R) : antipode (R := R) (algebraMap R A r) = algebraMap R A r := by
+  rw [Algebra.algebraMap_eq_smul_one, LinearMap.map_smul, antipode_one]
+
 end noncommutative
 
 section commutative
