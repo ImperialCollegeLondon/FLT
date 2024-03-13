@@ -6,7 +6,21 @@ Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 
 import Mathlib.RingTheory.Bialgebra
 
-set_option autoImplicit false
+/-!
+
+# "Sweedler notation"
+
+Sweedler notation seems to be the practice of writing `comul x` (for `x` in a
+coalgebra) as `∑ᵢ x₁ᵢ ⊗ x₂ᵢ` and then dropping the sum and instead writing
+`x⁽¹⁾ ⊗ x⁽²⁾`. The axioms of a coalgebra/bialgebra/Hopf algebra can be
+rewritten using Sweedler notation and look a little less cluttered this way.
+Something which surprised me (KB): sometimes `ext` is not enough and one really
+has to decompose elements in this way; so we take the time to write a small API for
+this idea, although we do not attempt to remove the `∑` symbol. The finite
+index set that `i` runs through is, somewhat arbitrarily, defined to be
+a subset of `A ⊗ A` with `A` the coalgebra in question.
+
+-/
 
 open BigOperators TensorProduct
 
@@ -51,12 +65,12 @@ lemma comul_repr (a : A) :
 
 lemma sum_counit_tmul (a : A) {ι : Type*} (s : Finset ι) (x y : ι → A)
     (repr : comul a = ∑ i in s, x i ⊗ₜ[R] y i) :
-    ∑ i in s, counit (R := R) (x i) ⊗ₜ y i = 1  ⊗ₜ[R] a := by
+    ∑ i in s, counit (R := R) (x i) ⊗ₜ y i = 1 ⊗ₜ[R] a := by
   simpa [repr, map_sum] using congr($(rTensor_counit_comp_comul (R := R) (A := A)) a)
 
 lemma sum_tmul_counit (a : A) {ι : Type*} (s : Finset ι) (x y : ι → A)
     (repr : comul a = ∑ i in s, x i ⊗ₜ[R] y i) :
-    ∑ i in s, (x i) ⊗ₜ counit (R := R) (y i) = a  ⊗ₜ[R] 1 := by
+    ∑ i in s, (x i) ⊗ₜ counit (R := R) (y i) = a ⊗ₜ[R] 1 := by
   simpa [repr, map_sum] using congr($(lTensor_counit_comp_comul (R := R) (A := A)) a)
 
 end Coalgebra
