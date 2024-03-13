@@ -17,7 +17,7 @@ variable [AddCommMonoid A] [Module R A] [Coalgebra R A]
 
 lemma exists_repr (x : A) :
     ∃ (I : Finset (A ⊗[R] A)) (x1 : A ⊗[R] A → A) (x2 : A ⊗[R] A → A),
-  Coalgebra.comul (R := R) x = ∑ i in I, x1 i ⊗ₜ[R] x2 i := by
+    Coalgebra.comul x = ∑ i in I, x1 i ⊗ₜ[R] x2 i := by
   classical
   have mem1 : comul x ∈ (⊤ : Submodule R (A ⊗[R] A)) := ⟨⟩
   rw [← TensorProduct.span_tmul_eq_top, mem_span_set] at mem1
@@ -34,7 +34,6 @@ lemma exists_repr (x : A) :
     fun i ↦ if h : i ∈ r.support then a' h else 0, eq1 ▸ ?_⟩
   conv_rhs => rw [← Finset.sum_attach]
   exact Finset.sum_congr rfl fun _ _ ↦ (by aesop)
-
 
 /-- an arbitrarily chosen indexing set for comul(a) = ∑ a₁ ⊗ a₂. -/
 noncomputable def ℐ (a : A) : Finset (A ⊗[R] A) := exists_repr a |>.choose
@@ -54,7 +53,6 @@ lemma sum_counit_tmul (a : A) {ι : Type*} (s : Finset ι) (x y : ι → A)
     (repr : comul a = ∑ i in s, x i ⊗ₜ[R] y i) :
     ∑ i in s, counit (R := R) (x i) ⊗ₜ y i = 1  ⊗ₜ[R] a := by
   simpa [repr, map_sum] using congr($(rTensor_counit_comp_comul (R := R) (A := A)) a)
-
 
 lemma sum_tmul_counit (a : A) {ι : Type*} (s : Finset ι) (x y : ι → A)
     (repr : comul a = ∑ i in s, x i ⊗ₜ[R] y i) :
