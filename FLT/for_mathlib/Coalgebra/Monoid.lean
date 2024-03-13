@@ -11,18 +11,18 @@ import Mathlib.RingTheory.HopfAlgebra
 /-!
 # Monoid structure on linear maps and algebra homomorphism
 
-Let `A` be an `R`-coalgebra and `L` and `R`-algebra, then the set of `R`-linear maps `Hom(A, L)`
-can be endowed a monoid structure where
-- unit is defined as `A -counit-> R -algebraMap-> L`
-- multiplication is defined as `A -comul-> A ⊗ A -f ⊗ g-> L ⊗ L -multiplication-> L` for any linear
-  maps `f` and `g`.
+Let `A` be an `R`-coalgebra and `L` an `R`-algebra. Then the set of `R`-linear maps `A →ₗ[R] L`
+from `A` to `L` can be endowed a monoid structure where:
 
-Since `comul x = ∑ x ⊗ y` implies `(f * g) x = ∑ f(x) g(y)`, this multiplication is often called
+* the identity is defined as `A --counit--> R --algebraMap--> L`
+* multiplication `f * g` is defined as `A --comul--> A ⊗ A --f ⊗ g--> L ⊗ L --multiplication--> L`
+  for R-linear maps `f` and `g`.
+
+Since `comul x = ∑ yᵢ ⊗ zᵢ` implies `(f * g) x = ∑ f(yᵢ) g(zᵢ)`, this multiplication is often called
 convolution.
 
-If furter `A` is an `R`-bialgebra, then the set of `R`-agelrab homomorphism `Hom(A, L)` can also
-be endowed with a monoid structure where multiplication is convolution and unit is the same in the
-linear case.
+If furthermore `A` is an `R`-bialgebra, then the subset of `R`-algebra morphisms `A →ₐ[R] L` from
+`A` to `L` is closed under the multiplication and is hence a submonoid.
 
 ## References
 * <https://en.wikipedia.org/wiki/Hopf_algebra>
@@ -35,13 +35,12 @@ open TensorProduct BigOperators LinearMap
 
 section Coalgebra
 
+-- Note that using an `abbrev` here creates a diamond in the case `A = L`, when there
+-- is already a multiplication on `A →ₗ[R] A`
+-- a multiplication, defined by composition.
 /--
-A linear point is a linear map from `A` to `L` where `A` is an `R`-colagebra and `L` an `R`-algebra.
-We introduce this abbreviation is to prevent instance clashing when we put a monnoid structure on
-these linear points with convolution product.
-
-The confusion arise when we consider automorphism, for example `A →ₗ[R] A` already has a `mul` by
-composition.
+Let `A` be an `R`-coalgebra and `L` an `R`-algebra. An `L`-linear point of `A`
+is an `R`-linear map from `A` to `L`.
 -/
 abbrev LinearPoint (R A L : Type*)
     [CommSemiring R] [AddCommMonoid A] [Module R A]
@@ -52,12 +51,6 @@ namespace LinearPoint
 
 variable {R A L : Type*} [CommSemiring R] [AddCommMonoid A] [Module R A] [Coalgebra R A]
 variable [Semiring L] [Algebra R L]
-
-instance : FunLike (LinearPoint R A L) A L :=
-  inferInstanceAs <| FunLike (A →ₗ[R] L) A L
-
-instance : LinearMapClass (LinearPoint R A L) R A L :=
-  inferInstanceAs <| LinearMapClass (A →ₗ[R] L) R A L
 
 variable  (φ ψ χ : LinearPoint R A L)
 
@@ -74,7 +67,7 @@ lemma mul_repr' {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
   simp only [mul, comp_apply, repr, map_sum, map_tmul, mul'_apply]
 
 /--
-`A -counit-> R -algebraMap-> L` is the unit with respect to convolution product.
+`A --counit--> R --algebraMap--> L` is the unit with respect to convolution product.
 -/
 def one : LinearPoint R A L :=
   Algebra.linearMap R L ∘ₗ Coalgebra.counit
