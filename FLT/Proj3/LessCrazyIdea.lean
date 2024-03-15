@@ -5,12 +5,15 @@ import Mathlib.CategoryTheory.Yoneda
 open CategoryTheory Opposite BigOperators
 
 open scoped MonoidalCategory
+open scoped TensorProduct
 
 universe v
 
 variable (k : Type v) [CommRing k]
 
 variable {k}
+
+set_option linter.unusedVariables false
 
 @[simps]
 def mul (F G : CommAlgebraCat k ⥤ Type v) :
@@ -87,31 +90,69 @@ noncomputable def coyonedaMulCoyoneda (A B : CommAlgebraCat k) :
     mul (coyoneda.obj <| op A) (coyoneda.obj <| op B) ≅
     (coyoneda.obj <| op <| A ⊗ B) where
   hom :=
-  { app := fun X f ↦ Algebra.TensorProduct.lift f.1 f.2 fun a b ↦ show _ = _ by rw [mul_comm]
-    naturality := fun X Y f ↦ by
-      ext ⟨x, y⟩
-      simp only [coyoneda_obj_obj, unop_op, mul_obj, types_comp_apply, mul_map, coyoneda_obj_map]
-      apply Algebra.TensorProduct.ext
-      · ext a
-        simp only [Algebra.TensorProduct.lift_comp_includeLeft, AlgHom.coe_comp, Function.comp_apply,
-          Algebra.TensorProduct.includeLeft_apply]
-        change f _ = f _
-        simp only [RingHom.coe_coe]
-        erw [Algebra.TensorProduct.lift_tmul, map_one, mul_one]
-      · ext b
-        simp only [Algebra.TensorProduct.lift_comp_includeRight, AlgHom.coe_comp,
-          AlgHom.coe_restrictScalars', Function.comp_apply,
-          Algebra.TensorProduct.includeRight_apply]
-        change f _ = f _
-        simp only [RingHom.coe_coe]
-        erw [Algebra.TensorProduct.lift_tmul, map_one, one_mul] }
+  { 
+  app := fun X f ↦ Algebra.TensorProduct.lift f.1 f.2 fun a b ↦ show _ = _ by rw [mul_comm]
+  naturality := by
+    intro X Y f 
+    ext ⟨(x1 : A →ₐ[k] X), (x2 : B →ₐ[k] X)⟩
+    simp only [coyoneda_obj_obj, unop_op, mul_obj, types_comp_apply, mul_map, coyoneda_obj_map]
+    apply Algebra.TensorProduct.ext
+    · ext a 
+      simp only [Algebra.TensorProduct.lift_comp_includeLeft, AlgHom.coe_comp, Function.comp_apply,
+        Algebra.TensorProduct.includeLeft_apply]
+      show f _ = f _
+      simp only [RingHom.coe_coe]
+      erw [Algebra.TensorProduct.lift_tmul, map_one, mul_one]
+    · ext b
+      simp only [Algebra.TensorProduct.lift_comp_includeRight, AlgHom.coe_comp,
+        AlgHom.coe_restrictScalars', Function.comp_apply,
+        Algebra.TensorProduct.includeRight_apply]
+      change f _ = f _
+      simp only [RingHom.coe_coe]        
+      erw [Algebra.TensorProduct.lift_tmul, map_one, one_mul]
+  }
+
   inv :=
-  { app := fun X f ↦
-      ⟨Algebra.TensorProduct.liftEquiv.symm f |>.1.1,
-        Algebra.TensorProduct.liftEquiv.symm f |>.1.2⟩
-    naturality := sorry }
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  { 
+  app := fun X f ↦
+    ⟨Algebra.TensorProduct.liftEquiv.symm f |>.1.1,
+      Algebra.TensorProduct.liftEquiv.symm f |>.1.2⟩
+  naturality := by
+    intro X Y f
+    change _ →ₐ[k] _ at f
+    ext (T : _ →ₐ[k] _)
+    simp only [unop_op] at T
+    simp only [mul_obj, coyoneda_obj_obj, unop_op, Algebra.TensorProduct.liftEquiv_symm_apply_coe,
+      types_comp_apply, coyoneda_obj_map, mul_map, Prod.mk.injEq]
+    constructor <;> rfl 
+  }
+
+  hom_inv_id := by 
+    dsimp only [mul_obj, coyoneda_obj_obj, unop_op, id_eq, eq_mpr_eq_cast, types_comp_apply,
+      mul_map, coyoneda_obj_map, AlgHom.coe_comp, Function.comp_apply,
+      Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.lift_tmul, RingHom.coe_coe,
+      cast_eq, AlgHom.coe_restrictScalars', Algebra.TensorProduct.includeRight_apply,
+      Algebra.TensorProduct.liftEquiv_symm_apply_coe]
+    ext X ⟨(f1 : A →ₐ[k] _), (f2 : B →ₐ[k] _)⟩
+    simp only [mul_obj, coyoneda_obj_obj, unop_op, FunctorToTypes.comp,
+      Algebra.TensorProduct.lift_comp_includeLeft, Algebra.TensorProduct.lift_comp_includeRight,
+      NatTrans.id_app, types_id_apply]
+
+  inv_hom_id := by
+    dsimp only [coyoneda_obj_obj, unop_op, Algebra.TensorProduct.liftEquiv_symm_apply_coe, mul_obj,
+      types_comp_apply, coyoneda_obj_map, mul_map, id_eq, eq_mpr_eq_cast, AlgHom.coe_comp,
+      Function.comp_apply, Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.lift_tmul,
+      RingHom.coe_coe, cast_eq, AlgHom.coe_restrictScalars',
+      Algebra.TensorProduct.includeRight_apply]
+    ext X (f : A ⊗[k] B →ₐ[k] X)
+    simp only [coyoneda_obj_obj, unop_op, FunctorToTypes.comp, NatTrans.id_app, types_id_apply]
+    apply Algebra.TensorProduct.ext
+    · ext a
+      simp only [Algebra.TensorProduct.lift_comp_includeLeft, AlgHom.coe_comp, Function.comp_apply,
+        Algebra.TensorProduct.includeLeft_apply]
+    · ext b 
+      simp only [Algebra.TensorProduct.lift_comp_includeRight, AlgHom.coe_comp,
+        AlgHom.coe_restrictScalars', Function.comp_apply, Algebra.TensorProduct.includeRight_apply]
 
 class AffineMonoid (F : CommAlgebraCat k ⥤ Type v) [F.Corepresentable] where
   m : mul F F ⟶ F
@@ -169,7 +210,6 @@ class IsBialgebraWithChosenComulAndCounit
   mul_compr₂_comul :
     (LinearMap.mul k A).compr₂ comul =
     (LinearMap.mul k (A ⊗[k] A)).compl₁₂ comul comul
-
 variable {A : Type v} [CommRing A] [Algebra k A]
 open TensorProduct in
 variable (comul : A →ₐ[k] A ⊗[k] A)
@@ -191,6 +231,33 @@ noncomputable def counitToUnit :
     intro X Y f
     ext
     rfl
+
+lemma crazy_comul_repr (comul : A →ₐ[k] A ⊗[k] A) (x : A): ∃ (ι : Type v) (s : Finset ι) (a b : ι → A),
+  comul x = ∑ i in s, a i ⊗ₜ[k] b i := by
+    classical
+    use A ⊗[k] A
+    set aa := comul x 
+    have mem : aa ∈ (⊤ : Submodule k (A ⊗[k] A)) := ⟨⟩ 
+    rw [← TensorProduct.span_tmul_eq_top, mem_span_set] at mem
+    obtain ⟨r, hr, (eq1 : ∑ i in r.support, (_ • _) = _)⟩ := mem 
+    choose a a' haa' using hr
+    replace eq1 := calc _
+      aa = ∑ i in r.support, r i • i := eq1.symm
+      _ = ∑ i in r.support.attach, (r i : k) • (i : (A ⊗[k] A))
+        := Finset.sum_attach _ _ |>.symm
+      _ = ∑ i in r.support.attach, (r i • a i.2 ⊗ₜ[k] a' i.2) := by
+        apply Finset.sum_congr rfl          
+        intro i hi
+        rw [haa' i.2]
+      _ = ∑ i in r.support.attach, ((r i • a i.2) ⊗ₜ[k] a' i.2) := by
+        apply Finset.sum_congr rfl
+        intro i hi
+        rw [TensorProduct.smul_tmul']
+    use r.support
+    use fun i => if h : i ∈ r.support then r i • a h else 0
+    use fun i => if h : i ∈ r.support then a' h else 0
+    rw [eq1] ; conv_rhs => rw [← Finset.sum_attach]
+    refine Finset.sum_congr rfl fun _ _ ↦ (by split_ifs with h <;> aesop)
 
 namespace auxilary_lemmas_for_affine_monoid_implies_bialgebra.coassoc
 
@@ -221,14 +288,31 @@ lemma aux02 :
     simp only [CommAlgebraCat.coe_of, unop_op, AlgEquiv.toAlgHom_eq_coe,
       Algebra.TensorProduct.map_tmul, map_one, AlgHom.coe_coe]
     obtain ⟨ι, s, a, b, eq0⟩ : ∃ (ι : Type v) (s : Finset ι) (a b : ι → A),
-      comul x = ∑ i in s, a i ⊗ₜ[k] b i := sorry
+      comul x = ∑ i in s, a i ⊗ₜ[k] b i := crazy_comul_repr comul x
     erw [eq0]
     simp only [CommAlgebraCat.coe_of, map_sum, unop_op, TensorProduct.sum_tmul]
     refine Finset.sum_congr rfl fun x _ ↦ ?_
     erw [Algebra.TensorProduct.lift_tmul, Algebra.TensorProduct.lift_tmul,
       Algebra.TensorProduct.lift_tmul]
     simp only [CommAlgebraCat.coe_of, unop_op, map_one, mul_one]
-  · sorry
+
+  · simp only [CommAlgebraCat.coe_of, comp_apply, Algebra.TensorProduct.liftEquiv,
+      Equiv.coe_fn_symm_mk]
+    erw [AlgHom.comp_apply, Algebra.TensorProduct.includeRight_apply]
+    simp only [CommAlgebraCat.coe_of, AlgHom.coe_restrictScalars']
+    erw [AlgHom.comp_apply, AlgHom.comp_apply]
+    change _ = Algebra.TensorProduct.lift f _ _ 
+      ((Algebra.TensorProduct.assoc k A A A).toAlgHom.comp (Algebra.TensorProduct.map _ _) _)
+    simp only [unop_op, CommAlgebraCat.coe_of, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_comp,
+      AlgHom.coe_coe, Function.comp_apply, Algebra.TensorProduct.map_tmul, map_one]
+    change _ = Algebra.TensorProduct.lift f _ _ 
+      ((Algebra.TensorProduct.assoc k A A A) (1 ⊗ₜ[k] (AlgHom.id k A) x))
+    simp only [unop_op, CommAlgebraCat.coe_of, AlgHom.coe_id, id_eq]
+    rw [show (1 : A ⊗[k] A) = (1 : A) ⊗ₜ[k] (1 : A) by rfl]
+    simp only [unop_op, CommAlgebraCat.coe_of, Algebra.TensorProduct.assoc_tmul] 
+    erw [Algebra.TensorProduct.lift_tmul, Algebra.TensorProduct.lift_tmul] 
+    simp only [unop_op, CommAlgebraCat.coe_of, map_one, one_mul] ; rfl
+
 
 lemma aux01  :
     mulMap (𝟙 (coyoneda.obj (op (CommAlgebraCat.of k A)))) (comulToMul comul) =
