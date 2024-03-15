@@ -88,7 +88,23 @@ noncomputable def coyonedaMulCoyoneda (A B : CommAlgebraCat k) :
     (coyoneda.obj <| op <| A ⊗ B) where
   hom :=
   { app := fun X f ↦ Algebra.TensorProduct.lift f.1 f.2 fun a b ↦ show _ = _ by rw [mul_comm]
-    naturality := sorry }
+    naturality := fun X Y f ↦ by
+      ext ⟨x, y⟩
+      simp only [coyoneda_obj_obj, unop_op, mul_obj, types_comp_apply, mul_map, coyoneda_obj_map]
+      apply Algebra.TensorProduct.ext
+      · ext a
+        simp only [Algebra.TensorProduct.lift_comp_includeLeft, AlgHom.coe_comp, Function.comp_apply,
+          Algebra.TensorProduct.includeLeft_apply]
+        change f _ = f _
+        simp only [RingHom.coe_coe]
+        erw [Algebra.TensorProduct.lift_tmul, map_one, mul_one]
+      · ext b
+        simp only [Algebra.TensorProduct.lift_comp_includeRight, AlgHom.coe_comp,
+          AlgHom.coe_restrictScalars', Function.comp_apply,
+          Algebra.TensorProduct.includeRight_apply]
+        change f _ = f _
+        simp only [RingHom.coe_coe]
+        erw [Algebra.TensorProduct.lift_tmul, map_one, one_mul] }
   inv :=
   { app := fun X f ↦
       ⟨Algebra.TensorProduct.liftEquiv.symm f |>.1.1,
