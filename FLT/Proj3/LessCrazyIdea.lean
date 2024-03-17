@@ -288,8 +288,14 @@ theorem five_point_one  :
         coyoneda.map (op (CommAlgebraCat.of k A ◁ CommAlgebraCat.ofHom comul)) =
         coyoneda.map (op
           (CommAlgebraCat.ofHom comul ▷ CommAlgebraCat.of k A ≫
-            (α_ (CommAlgebraCat.of k A) (CommAlgebraCat.of k A) (CommAlgebraCat.of k A)).hom)) :=
-        sorry -- this is the middle part of `mul_assoc`, other terms are all isomorphisms
+            (α_ (CommAlgebraCat.of k A) (CommAlgebraCat.of k A) (CommAlgebraCat.of k A)).hom)) := by
+        simp only [← Category.assoc, CategoryTheory.Iso.cancel_iso_inv_right] at mul_assoc
+        haveI : IsIso (mulMap (𝟙 (coyoneda.obj (op (CommAlgebraCat.of k A))))
+                (coyonedaMulCoyoneda (CommAlgebraCat.of k A) (CommAlgebraCat.of k A)).hom) := sorry
+        rw [← IsIso.inv_comp_eq] at mul_assoc
+        simp only [IsIso.inv_comp, IsIso.Iso.inv_hom, unop_op, CommAlgebraCat.coe_of,
+          Category.assoc, IsIso.inv_hom_id_assoc, Iso.inv_hom_id_assoc] at mul_assoc
+        exact mul_assoc
       apply Coyoneda.coyoneda_faithful.map_injective at eq0
       apply_fun unop at eq0
       simp only [unop_op] at eq0
