@@ -1,7 +1,19 @@
+/-
+Copyright (c) 2024 Jujian Zhang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jujian Zhang, Yunzhou Xie
+-/
+
 import FLT.Proj3.CommAlgebraCat.Monoidal
 import FLT.for_mathlib.HopfAlgebra.Basic
 import Mathlib.CategoryTheory.Yoneda
 import FLT.Proj3.HopfMon
+
+/-!
+# The internal group object in the corepresentable functor from commutaive algebra
+
+we prove that it is antiquivalent to hopf algebra.
+-/
 
 open CategoryTheory Opposite BigOperators
 
@@ -15,14 +27,16 @@ local notation "⋆" => (coyoneda.obj <| op (CommAlgebraCat.of k k))
 section setup
 
 variable {k}
-
-
+/--The binary product of two functors -/
 @[simps]
 def mul (F G : CommAlgebraCat k ⥤ Type v) :
     CommAlgebraCat k ⥤ Type v where
   obj A := (F.obj A) × (G.obj A)
   map f x := ⟨F.map f x.1, G.map f x.2⟩
 
+/--
+Taking binary product of two functors is functorial.
+-/
 @[simps]
 def mulMap {a a' b b' : CommAlgebraCat k ⥤ Type v}
     (f : a ⟶ a') (g : b ⟶ b') :
@@ -47,16 +61,25 @@ lemma mulMap_comp {a a' a'' b b' b'' : CommAlgebraCat k ⥤ Type v}
     mulMap (f ≫ f') (g ≫ g') =
     mulMap f g ≫ mulMap f' g' := sorry
 
+/--
+The product of three functors is associative up to isomorphism.
+-/
 @[simps]
 def mulAssoc (a b c : CommAlgebraCat k ⥤ Type v) :
     mul a (mul b c) ≅ mul (mul a b) c where
   hom := { app := fun x z ↦ ⟨⟨z.1, z.2.1⟩, z.2.2⟩ }
   inv := { app := fun x z ↦ ⟨z.1.1, ⟨z.1.2, z.2⟩⟩ }
 
+/--
+shorthand for `mul F F`.
+-/
 @[simp]
 def square (F : CommAlgebraCat k ⥤ Type v) : CommAlgebraCat k ⥤ Type v :=
   mul F F
 
+/--
+`Hom(k, -)` has the role of the unit up to isomorphism.
+-/
 @[simps]
 def mulStar (a : CommAlgebraCat k ⥤ Type v) : mul a ⋆ ≅ a where
   hom := { app := fun x z ↦ z.1 }
@@ -76,6 +99,9 @@ def mulStar (a : CommAlgebraCat k ⥤ Type v) : mul a ⋆ ≅ a where
     simp
   inv_hom_id := by ext; simp
 
+/--
+`Hom(k, -)` has the role of the unit up to isomorphism.
+-/
 @[simps]
 def starMul (a) : mul ⋆ a ≅ a where
   hom := { app := fun x z ↦ z.2 }
@@ -95,7 +121,12 @@ def starMul (a) : mul ⋆ a ≅ a where
     simp
   inv_hom_id := by ext; simp
 
--- The formatting is not ideal
+-- FIXME: **The formatting is not ideal**
+/--
+```
+Hom(A, -) × Hom(B, -) ≅ Hom(A ⊗ B, -)
+```
+-/
 @[simps]
 noncomputable def coyonedaMulCoyoneda (A B : CommAlgebraCat k) :
     mul (coyoneda.obj <| op A) (coyoneda.obj <| op B) ≅
@@ -167,16 +198,15 @@ noncomputable def coyonedaMulCoyoneda (A B : CommAlgebraCat k) :
 
 end setup
 
+/--
+An affine monoid functor is an internal monoid object in the category of corepresentable functors.
+-/
 structure AffineMonoid extends CommAlgebraCat k ⥤ Type v where
+  /--the underlying functor is corepresentable-/
   corep : toFunctor.Corepresentable
-  /--
-  F × (F × F) -mul-> F × F -mul-> F
-    |                             |
-  mulAssoc                       𝟙 F
-    v                             v
-  (F × F) × F -mul> F × F -mul-> F
-  -/
+  /--the multiplication map-/
   m : mul toFunctor toFunctor ⟶ toFunctor
+  /--the unit map-/
   e : ⋆ ⟶ toFunctor
   mul_assoc' : mulMap (𝟙 toFunctor) m ≫ m =
     (mulAssoc toFunctor toFunctor toFunctor).hom ≫ mulMap m (𝟙 toFunctor) ≫ m
@@ -185,12 +215,13 @@ structure AffineMonoid extends CommAlgebraCat k ⥤ Type v where
 
 attribute [instance] AffineMonoid.corep
 
-
+/--
+An affine group functor is the internal group object in the category of corepresentable functors.
+-/
 structure AffineGroup extends AffineMonoid k where
+  /--the inverse map-/
   i : toFunctor ⟶ toFunctor
-  /--
-  **Check if this correct**
-  -/
+  /-**Check if this correct**-/
   mul_inv :
   ({
     app := fun _ x ↦ (i.app _ x, x)
@@ -206,7 +237,9 @@ namespace AffineMonoid
 
 variable {k}
 
+/--morphism between two affine monoid functors-/
 structure Hom (F G : AffineMonoid k) where
+  /-- the underlying natural transformation-/
   hom : F.toFunctor ⟶ G.toFunctor
   one : F.e ≫ hom = G.e := by aesop_cat
   mul : F.m ≫ hom = mulMap hom hom ≫ G.m := by aesop_cat
@@ -227,7 +260,9 @@ namespace AffineGroup
 
 variable {k}
 
+/--Morphisms between two affine group functors. -/
 structure Hom (F G : AffineGroup k) where
+  /-- the underlying natural transformation. -/
   hom : F.toFunctor ⟶ G.toFunctor
   one : F.e ≫ hom = G.e := by aesop_cat
   mul : F.m ≫ hom = mulMap hom hom ≫ G.m := by aesop_cat
@@ -245,22 +280,18 @@ instance : Category <| AffineGroup k where
 end AffineGroup
 
 variable {k} in
+/--A proposition stating that a corepresentable functor is an affine monoid with specified
+multiplication and unit. -/
 structure IsAffineMonoidWithChosenMulAndUnit
     (F : CommAlgebraCat k ⥤ Type v) [F.Corepresentable]
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) : Prop :=
-  /--
-  F × (F × F) -mul-> F × F -mul-> F
-    |                             |
-  mulAssoc                       𝟙 F
-    v                             v
-  (F × F) × F -mul> F × F -mul-> F
-  -/
   mul_assoc' : mulMap (𝟙 F) m ≫ m = (mulAssoc F F F).hom ≫ mulMap m (𝟙 F) ≫ m
   mul_one : mulMap (𝟙 F) e ≫ m = (mulStar F).hom
   one_mul : mulMap e (𝟙 F) ≫ m = (starMul F).hom
 
-
 variable {k} in
+/--A proposition stating that a corepresentable functor is an affine group with specified
+multiplication, unit and inverse -/
 structure IsAffineGroupWithChosenMulAndUnitAndInverse
     (F : CommAlgebraCat k ⥤ Type v) [F.Corepresentable]
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) (i : F ⟶ F)
@@ -278,7 +309,9 @@ structure IsAffineGroupWithChosenMulAndUnitAndInverse
 
 variable {k} in
 open TensorProduct in
-class IsBialgebraWithChosenComulAndCounit
+/-- A proposition stating that an algebra has a bialgebra structure with specified
+  comultiplication and counit. -/
+structure IsBialgebraWithChosenComulAndCounit
     (A : Type v) [CommRing A] [Algebra k A]
     (comul : A →ₐ[k] A ⊗[k] A) (counit : A →ₐ[k] k) : Prop :=
   coassoc :
@@ -298,6 +331,8 @@ class IsBialgebraWithChosenComulAndCounit
     (LinearMap.mul k (A ⊗[k] A)).compl₁₂ comul comul
 
 variable {k} in
+/-- A proposition stating that an algebra has a Hopf algebra structure with specified
+  comultiplication, counit and antipode map. -/
 structure IsHopfAlgebraWithChosenComulAndCounitAndAntipode
     (A : Type v) [CommRing A] [Algebra k A]
     (comul : A →ₐ[k] A ⊗[k] A) (counit : A →ₐ[k] k)
@@ -320,17 +355,21 @@ variable (counit : A →ₐ[k] k)
 variable (antipode : A →ₐ[k] A)
 
 open TensorProduct in
+/--Any potential comultiplication can be reinterpreted as a multiplication in the functor
+language.-/
 @[simp]
 noncomputable def comulToMul (comul : A →ₐ[k] A ⊗[k] A) :
     square (coyoneda.obj <| op <| CommAlgebraCat.of k A) ⟶
     coyoneda.obj <| op <| CommAlgebraCat.of k A :=
   (coyonedaMulCoyoneda (.of k A) (.of k A)).hom ≫ coyoneda.map (CommAlgebraCat.ofHom comul).op
 
+/--Any potential counit can be reinterpreted as a unit map in the functor language.-/
 @[simp]
 noncomputable def counitToUnit :
     ⋆ ⟶ coyoneda.obj <| op <| CommAlgebraCat.of k A :=
   coyoneda.map <| op <| counit
 
+/--Any potential antipodal map can be reinterpreted as an inverse map in the functor language.-/
 @[simp]
 noncomputable def antipodeToInverse :
     (coyoneda.obj <| op <| CommAlgebraCat.of k A) ⟶
@@ -343,15 +382,19 @@ variable (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F)
 variable (i : F ⟶ F)
 
 -- **I think this is how it works but I am not sure**
+/-- Any potential multiplication can be reinterpreted as a comultiplication in the algebra
+language. -/
 noncomputable def mToComul : F.coreprX →ₐ[k] F.coreprX ⊗[k] F.coreprX :=
   (coyonedaMulCoyoneda _ _).inv ≫ mulMap F.coreprW.hom F.coreprW.hom ≫ m ≫ F.coreprW.inv |>.app
     (F.coreprX ⊗ F.coreprX) (𝟙 _)
 
 -- **I think this is how it works but I am not sure**
+/-- Any potential unit can be reinterpreted as a counit in the algebra language. -/
 noncomputable def eToCounit : F.coreprX →ₐ[k] k :=
   e ≫ F.coreprW.inv |>.app (CommAlgebraCat.of k k) (𝟙 _)
 
 -- **I think this is how it works but I am not sure**
+/-- Any potential inverse can be reinterpreted as an antipodal map in the algebra language. -/
 noncomputable def iToAntipode : F.coreprX →ₐ[k] F.coreprX :=
   F.coreprW.hom ≫ i ≫ F.coreprW.inv |>.app (F.coreprX) (𝟙 _)
 end setup
@@ -395,7 +438,10 @@ theorem
     IsHopfAlgebraWithChosenComulAndCounitAndAntipode
       F.coreprX (mToComul m) (eToCounit e) (iToAntipode i) := sorry
 
-def affineGroupAntiEquivCommAlgCat :
+/--
+The antiequivalence from affine group functor to category of hopf algebra.
+-/
+noncomputable def affineGroupAntiEquivCommAlgCat :
     (AffineGroup k)ᵒᵖ ≌ HopfAlgCat.{v} k where
   functor :=
     { obj := fun F ↦
@@ -421,7 +467,24 @@ def affineGroupAntiEquivCommAlgCat :
       map := sorry
       map_id := sorry
       map_comp := sorry }
-  inverse := sorry
+  inverse :=
+  { obj := fun H ↦
+    { unop :=
+      let i := isAffineGroupWithChosenMulAndUnitAndInverse_iff_isBialgebraWithChosenComulAndCounitAndAntipode
+        (Bialgebra.comulAlgHom k H) (Bialgebra.counitAlgHom k H) sorry |>.mpr sorry
+      { toFunctor := coyoneda.obj (op <| CommAlgebraCat.of k H)
+        corep := inferInstance
+        m := (comulToMul <| Bialgebra.comulAlgHom _ _)
+        e := (counitToUnit <| Bialgebra.counitAlgHom _ _)
+        mul_assoc' := sorry
+        mul_one' := sorry
+        one_mul' := sorry
+        i := (antipodeToInverse <| sorry)
+        mul_inv := sorry
+        inv_mul := sorry } }
+    map := sorry
+    map_id := sorry
+    map_comp := sorry }
   unitIso := sorry
   counitIso := sorry
   functor_unitIso_comp := sorry
