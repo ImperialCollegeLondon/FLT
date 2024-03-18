@@ -51,9 +51,9 @@ instance : MonoidalCategoryStruct (CommAlgebraCat.{u} R) where
   whiskerRight {X₁ X₂} (f : X₁ ⟶ X₂) Y := tensorHom f (𝟙 Y)
   tensorHom := tensorHom
   tensorUnit := of R R
-  associator X Y Z := (Algebra.TensorProduct.assoc R X Y Z).toAlgebraIso
-  leftUnitor X := (Algebra.TensorProduct.lid R X).toAlgebraIso
-  rightUnitor X := (Algebra.TensorProduct.rid R R X).toAlgebraIso
+  associator X Y Z := (Algebra.TensorProduct.assoc R X Y Z).toCommAlgebraIso
+  leftUnitor X := (Algebra.TensorProduct.lid R X).toCommAlgebraIso
+  rightUnitor X := (Algebra.TensorProduct.rid R R X).toCommAlgebraIso
 
 theorem forget₂_map_associator_hom (X Y Z : CommAlgebraCat.{u} R) :
     (forget₂ (CommAlgebraCat R) (ModuleCat R)).map (α_ X Y Z).hom =

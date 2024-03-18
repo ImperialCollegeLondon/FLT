@@ -118,7 +118,6 @@ instance : Inhabited (CommAlgebraCat R) :=
 @[simp]
 theorem coe_of (X : Type u) [CommRing X] [Algebra R X] : (of R X : Type u) = X :=
   rfl
-#align Algebra.coe_of CommAlgebraCat.coe_of
 
 variable {R}
 
@@ -128,7 +127,6 @@ algebra. -/
 def ofSelfIso (M : CommAlgebraCat.{v} R) : CommAlgebraCat.of R M ≅ M where
   hom := 𝟙 M
   inv := 𝟙 M
-#align Algebra.of_self_iso CommAlgebraCat.ofSelfIso
 
 variable {M N U : ModuleCat.{v} R}
 
@@ -197,19 +195,18 @@ variable {X₁ X₂ : Type u}
 
 /-- Build an isomorphism in the category `CommAlgebraCat R` from a `AlgEquiv` between `Algebra`s. -/
 @[simps]
-def AlgEquiv.toAlgebraIso {g₁ : CommRing X₁} {g₂ : CommRing X₂} {m₁ : Algebra R X₁} {m₂ : Algebra R X₂}
+def AlgEquiv.toCommAlgebraIso {g₁ : CommRing X₁} {g₂ : CommRing X₂} {m₁ : Algebra R X₁} {m₂ : Algebra R X₂}
     (e : X₁ ≃ₐ[R] X₂) : CommAlgebraCat.of R X₁ ≅ CommAlgebraCat.of R X₂ where
   hom := (e : X₁ →ₐ[R] X₂)
   inv := (e.symm : X₂ →ₐ[R] X₁)
   hom_inv_id := by ext x; exact e.left_inv x
   inv_hom_id := by ext x; exact e.right_inv x
-#align alg_equiv.to_Algebra_iso AlgEquiv.toAlgebraIso
 
 namespace CategoryTheory.Iso
 
 /-- Build a `AlgEquiv` from an isomorphism in the category `CommAlgebraCat R`. -/
 @[simps]
-def toAlgEquiv {X Y : CommAlgebraCat R} (i : X ≅ Y) : X ≃ₐ[R] Y where
+def CommAlgebraCatIsoToAlgEquiv {X Y : CommAlgebraCat R} (i : X ≅ Y) : X ≃ₐ[R] Y where
   toFun := i.hom
   invFun := i.inv
   left_inv x := by
@@ -227,18 +224,16 @@ def toAlgEquiv {X Y : CommAlgebraCat R} (i : X ≅ Y) : X ≃ₐ[R] Y where
   map_add' := by aesop
   map_mul' := by aesop
   commutes' := i.hom.commutes -- Porting note: was `by tidy`
-#align category_theory.iso.to_alg_equiv CategoryTheory.Iso.toAlgEquiv
 
 end CategoryTheory.Iso
 
 /-- Algebra equivalences between `Algebra`s are the same as (isomorphic to) isomorphisms in
 `CommAlgebraCat`. -/
 @[simps]
-def algEquivIsoAlgebraIso {X Y : Type u} [CommRing X] [CommRing Y] [Algebra R X] [Algebra R Y] :
+def algEquivIsoCommAlgebraIso {X Y : Type u} [CommRing X] [CommRing Y] [Algebra R X] [Algebra R Y] :
     (X ≃ₐ[R] Y) ≅ CommAlgebraCat.of R X ≅ CommAlgebraCat.of R Y where
-  hom e := e.toAlgebraIso
-  inv i := i.toAlgEquiv
-#align alg_equiv_iso_Algebra_iso algEquivIsoAlgebraIso
+  hom e := e.toCommAlgebraIso
+  inv i := i.CommAlgebraCatIsoToAlgEquiv
 
 -- Porting note: changed to `CoeOut`
 instance (X : Type u) [CommRing X] [Algebra R X] : CoeOut (Subalgebra R X) (CommAlgebraCat R) :=
@@ -248,5 +243,5 @@ instance CommAlgebraCat.forget_reflects_isos : ReflectsIsomorphisms (forget (Com
   reflects {X Y} f _ := by
     let i := asIso ((forget (CommAlgebraCat.{u} R)).map f)
     let e : X ≃ₐ[R] Y := { f, i.toEquiv with }
-    exact ⟨(IsIso.of_iso e.toAlgebraIso).1⟩
+    exact ⟨(IsIso.of_iso e.toCommAlgebraIso).1⟩
 #align Algebra.forget_reflects_isos CommAlgebraCat.forget_reflects_isos

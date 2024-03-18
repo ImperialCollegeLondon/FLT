@@ -2,32 +2,16 @@ import FLT.for_mathlib.Coalgebra.Monoid
 import FLT.for_mathlib.Coalgebra.Sweedler
 import FLT.for_mathlib.Coalgebra.TensorProduct
 import FLT.for_mathlib.HopfAlgebra.Basic
-import Mathlib.AlgebraicGeometry.AffineScheme
-import Mathlib.CategoryTheory.Monoidal.Mon_
 import Mathlib.Algebra.Category.AlgebraCat.Monoidal
-import Mathlib.CategoryTheory.Comma.Over
-import Mathlib.Algebra.Category.AlgebraCat.Basic
-import Mathlib.RingTheory.TensorProduct
-variable (R :Type)[CommRing R]
 
-open CategoryTheory AlgebraicGeometry Opposite
+variable (R : Type*)[CommRing R]
+
+open CategoryTheory Opposite
 open BigOperators
-
--- local notation "AScheme/" R => Over (AffineScheme.Spec.obj (op <| CommRingCat.of R))
-
--- noncomputable instance : MonoidalCategory (AScheme/R) where
---   tensorObj := sorry
---   whiskerLeft := sorry
---   whiskerRight := sorry
---   tensorUnit := sorry
---   associator := sorry
---   leftUnitor := sorry
---   rightUnitor := sorry
-
 
 section Coalgebra
 
-variable (A B : Type) [AddCommMonoid A] [Module R A] [Coalgebra R A] [AddCommMonoid B]
+variable (A B : Type*) [AddCommMonoid A] [Module R A] [Coalgebra R A] [AddCommMonoid B]
   [Module R B] [Coalgebra R B]
 
 structure CoalgHom extends A →ₗ[R] B where
@@ -53,7 +37,7 @@ end Coalgebra
 section Bialgebra
 
 
-variable (A B C : Type) [Ring A] [Ring B] [Ring C] [Bialgebra R A] [Bialgebra R B] [Bialgebra R C]
+variable (A B C : Type*) [Ring A] [Ring B] [Ring C] [Bialgebra R A] [Bialgebra R B] [Bialgebra R C]
 
 
 structure BialgHom extends A →co[R] B, A →ₐ[R] B
@@ -133,7 +117,7 @@ lemma id_comp (f : A →bi[R] B) : (id R (A:=B)).comp f = f := rfl
 end BialgHom
 
 
-structure BialgEquiv (R : Type) (A : Type) (B : Type) [CommRing R] [Ring A] [Ring B]
+structure BialgEquiv (R A B : Type*) [CommRing R] [Ring A] [Ring B]
   [Bialgebra R A] [Bialgebra R B] extends A →bi[R] B, A ≃ₐ[R] B
 
 notation:50 A " ≃bi[" R "] " A' => BialgEquiv R A A'
@@ -249,20 +233,19 @@ end Bialgebra
 
 section Hopf
 
-variable (H : Type)[CommRing H][HopfAlgebra R H]
-variable (H1 H2 : Type)[CommRing H1][CommRing H2][HopfAlgebra R H1][HopfAlgebra R H2]
+variable (H : Type*)[CommRing H][HopfAlgebra R H]
+variable (H1 H2 : Type*)[CommRing H1][CommRing H2][HopfAlgebra R H1][HopfAlgebra R H2]
 
 noncomputable section HopfEquivScheme
 
-open AlgebraicGeometry Opposite
+open Opposite
 open CategoryTheory
 open scoped TensorProduct
 open HopfAlgebra
 open Coalgebra
-def spec := AffineScheme.Spec.obj (op (CommRingCat.of R))
 
 structure HopfAlgCat where
-  carrier : Type
+  carrier : Type*
   [isCommRing : CommRing carrier]
   [isHopfAlgebra : HopfAlgebra R carrier]
 
@@ -270,7 +253,7 @@ attribute [instance]  HopfAlgCat.isHopfAlgebra HopfAlgCat.isCommRing
 
 namespace HopfAlgCat
 
-instance : CoeSort (HopfAlgCat R) Type := ⟨HopfAlgCat.carrier⟩
+instance : CoeSort (HopfAlgCat R) Type* := ⟨HopfAlgCat.carrier⟩
 
 attribute [coe] HopfAlgCat.carrier
 
@@ -292,7 +275,7 @@ lemma antipode_decomp' (I1: Finset (H1 ⊗[R] H1)) (h11 h12 : H1 ⊗[R] H1 → H
 
 instance : AddMonoidHomClass ((H1 ⊗[R] H2) ⊗[R] H1 ⊗[R] H2 →ₗ[R] (H1 ⊗[R] H2) ⊗[R] H1 ⊗[R] H2)
   ((H1 ⊗[R] H2) ⊗[R] H1 ⊗[R] H2) ((H1 ⊗[R] H2) ⊗[R] H1 ⊗[R] H2) where
-      map_add := by simp only [map_add, forall_const]
+      map_add f := f.map_add
       map_zero := fun f ↦ LinearMap.map_zero f
 
 open TensorProduct BigOperators
