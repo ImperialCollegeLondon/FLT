@@ -275,6 +275,19 @@ lemma aux02 :
             CommAlgebraCat.of k A ⟶ CommAlgebraCat.of k A ⊗ CommAlgebraCat.of k A) ▷ _) ≫
         (α_ _ _ _).hom)) ≫
     coyoneda.map (op <| CommAlgebraCat.ofHom comul) := by
+  ext B ⟨f, g, h⟩
+  change A →ₐ[k] B at f g h 
+  simp only [coyoneda_obj_obj, unop_op, comulToMul, square, mul_obj, FunctorToTypes.comp,
+    mulAssoc_hom_app, mulMap_app, coyonedaMulCoyoneda_hom_app, CommAlgebraCat.coe_of,
+    coyoneda_map_app, Quiver.Hom.unop_op, NatTrans.id_app, types_id_apply]
+  
+  ext (x : A)
+  simp only [CommAlgebraCat.coe_of, comp_apply]
+  change _ = (Algebra.TensorProduct.lift f (Algebra.TensorProduct.lift g h 
+    (by intro x y ; rw [commute_iff_eq, mul_comm])) (by intro x y; rw [commute_iff_eq, mul_comm]) ).comp 
+    ((Algebra.TensorProduct.assoc k A A A).toAlgHom.comp
+      ((Algebra.TensorProduct.map comul (AlgHom.id k A)).comp comul )) x
+  
   sorry
   -- ext B ⟨f, ⟨g1, g2⟩⟩
   -- simp only [mul_obj, coyoneda_obj_obj, unop_op, comulToMul, square, FunctorToTypes.comp,
@@ -408,13 +421,103 @@ theorem five_point_one  :
         AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe] at eq0 ⊢
       ext a b
       simp
-  · rintro ⟨coassoc, _, _, _, _⟩
+
+  · rintro ⟨coassoc, rTensor_counit_comp_comul, 
+      lTensor_counit_comp_comul, mul_compr₂_counit, mul_compr₂_comul⟩
+    let ba : Bialgebra k A :={
+      comul := comul
+      counit := counit
+      coassoc := by 
+        apply_fun AlgHom.toLinearMap at coassoc
+        simp only [AlgEquiv.toAlgHom_eq_coe, AlgHom.comp_toLinearMap,
+          AlgEquiv.toAlgHom_toLinearMap] at coassoc
+        exact coassoc
+      rTensor_counit_comp_comul := rTensor_counit_comp_comul
+      lTensor_counit_comp_comul := lTensor_counit_comp_comul
+      counit_one := counit.map_one
+      mul_compr₂_counit := mul_compr₂_counit
+      comul_one := comul.map_one
+      mul_compr₂_comul := mul_compr₂_comul
+    }
     fconstructor
+
     · rw [aux01, aux02, ← IsIso.inv_comp_eq]
       simp only [unop_op, CommAlgebraCat.coe_of, IsIso.inv_hom_id_assoc, Iso.cancel_iso_hom_left,
         ← coyoneda.map_comp]
       congr 1
       apply_fun unop using unop_injective
       exact coassoc.symm
-    · sorry
-    · sorry
+
+    · ext B ⟨f, g⟩
+      change AlgHomPoint k A B at f ; change AlgHomPoint k k B at g
+      simp only [coyoneda_obj_obj, unop_op, counitToUnit, CommAlgebraCat.coe_of, comulToMul, square,
+        FunctorToTypes.comp, mulMap_app, NatTrans.id_app, types_id_apply,
+        coyonedaMulCoyoneda_hom_app, coyoneda_map_app, Quiver.Hom.unop_op, mulStar_hom_app]
+      symm 
+      change _ = (Algebra.TensorProduct.lift f (g.comp counit) _).comp comul
+      ext (x : A)
+      obtain ⟨I1, r, x1, x2, eq⟩ := crazy_comul_repr comul x
+      simp only [AlgHom.coe_comp, Function.comp_apply, eq, map_sum, Algebra.TensorProduct.lift_tmul]
+      have eq0 (y : A) : g (counit y) = counit y • g 1 := by
+        rw [← mul_one (counit y), ← smul_eq_mul, map_smul] 
+        simp only [_root_.map_one, smul_eq_mul, mul_one]
+      simp_rw [eq0 _] ; rw [map_one g, ← map_one f]
+      simp_rw [← map_smul f] ; simp_rw [← f.map_mul, ← map_sum, mul_smul_one]
+      have : ∑ x in r, counit (x2 x) • x1 x = AlgHomPoint.mul (AlgHom.id k A) 1 x := by
+        symm ; unfold AlgHomPoint.mul
+        have codef : Coalgebra.comul (R := k) (A := A) = comul := rfl
+        simp only [AlgHom.coe_comp, Function.comp_apply, Bialgebra.comulAlgHom_apply, codef,
+          AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
+          DistribMulActionHom.coe_toLinearMap, NonUnitalAlgHom.coe_to_distribMulActionHom,
+          NonUnitalAlgHom.coe_coe, eq, map_sum, Algebra.TensorProduct.map_tmul, AlgHom.coe_id,
+          id_eq, Algebra.TensorProduct.lmul'_apply_tmul] ; rw [AlgHomPoint.one_def]
+        simp only [AlgHom.coe_comp, Function.comp_apply, Bialgebra.counitAlgHom_apply]
+        calc _
+          ∑ x in r, x1 x * (Algebra.ofId k A) (Coalgebra.counit (x2 x)) = 
+            ∑ x in r, x1 x * (Algebra.ofId k A) (Coalgebra.counit (x2 x) * 1) := by simp
+          _ = ∑ x in r, x1 x * (Algebra.ofId k A) (Coalgebra.counit (x2 x) • 1) := by 
+            simp_rw [← smul_eq_mul k] ; rfl 
+          _ = ∑ x in r, x1 x * (Coalgebra.counit (x2 x) • 1) := by 
+            simp_rw [map_smul] ; rw [map_one (Algebra.ofId k A)]
+          _ = ∑ x in r, counit (x2 x) • x1 x := by 
+            simp_rw [mul_smul_one] ; rfl  
+      rw [this]
+      change f x = f (((AlgHom.id k A) * 1) x)
+      rw [mul_one] ; rfl
+  
+    · ext B ⟨f, g⟩
+      change AlgHomPoint k k B at f ; change AlgHomPoint k A B at g
+      simp only [coyoneda_obj_obj, unop_op, counitToUnit, comulToMul, square, FunctorToTypes.comp,
+        mulMap_app, coyoneda_map_app, NatTrans.id_app, types_id_apply, coyonedaMulCoyoneda_hom_app,
+        CommAlgebraCat.coe_of, Quiver.Hom.unop_op, starMul_hom_app] ; symm
+      change _ = (Algebra.TensorProduct.lift (f.comp counit) g _).comp comul 
+      ext (x : A)
+      obtain ⟨I1, r, x1, x2, eq⟩ := crazy_comul_repr comul x
+      simp only [AlgHom.coe_comp, Function.comp_apply, eq, map_sum, Algebra.TensorProduct.lift_tmul]
+      have eq0 (y : A) : f (counit y) = counit y • f 1 := by
+        rw [← mul_one (counit y), ← smul_eq_mul, map_smul] 
+        simp only [_root_.map_one, smul_eq_mul, mul_one]
+      simp_rw [eq0 _] ; rw [map_one f, ← map_one g]
+      simp_rw [← map_smul g] ; simp_rw [← g.map_mul, ← map_sum, smul_one_mul]
+      have : ∑ x in r, counit (x1 x) • x2 x = AlgHomPoint.mul 1 (AlgHom.id k A) x := by
+        symm ; unfold AlgHomPoint.mul
+        have codef : Coalgebra.comul (R := k) (A := A) = comul := rfl
+        simp only [AlgHom.coe_comp, Function.comp_apply, Bialgebra.comulAlgHom_apply, codef,
+          AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
+          DistribMulActionHom.coe_toLinearMap, NonUnitalAlgHom.coe_to_distribMulActionHom,
+          NonUnitalAlgHom.coe_coe, eq, map_sum, Algebra.TensorProduct.map_tmul, AlgHom.coe_id,
+          id_eq, Algebra.TensorProduct.lmul'_apply_tmul] ; rw [AlgHomPoint.one_def]
+        simp only [AlgHom.coe_comp, Function.comp_apply, Bialgebra.counitAlgHom_apply]
+        calc _
+          ∑ x in r, (Algebra.ofId k A) (Coalgebra.counit (x1 x)) * x2 x = 
+            ∑ x in r, (Algebra.ofId k A) (Coalgebra.counit (x1 x) * 1) * x2 x := by simp
+          _ = ∑ x in r, (Algebra.ofId k A) (Coalgebra.counit (x1 x) • 1) * x2 x := by 
+            simp_rw [← smul_eq_mul k] ; rfl 
+          _ = ∑ x in r, (Coalgebra.counit (x1 x) • 1) * x2 x := by 
+            simp_rw [map_smul] ; rw [map_one (Algebra.ofId k A)]
+          _ = ∑ x in r, counit (x1 x) • x2 x := by 
+            simp_rw [smul_one_mul] ; rfl
+      rw [this] ; change g x = g ((1 * (AlgHom.id k A)) x)
+      rw [one_mul] ; rfl
+        
+
