@@ -25,7 +25,7 @@ Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not
   There are no nontrivial solutions in integers to $a^3+b^3=c^3$.
 \end{lemma}
 \begin{proof}
-  The proof has been formalised in Lean in the FLT-regular project \href{https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698}{\color{blue}\underline{here}}. To get this node green, the proof (or another proof) needs to be upstreamed to mathlib.
+  The proof has been formalised in Lean in the FLT-regular project \href{https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698}{\underline{here}}. To get this node green, the proof (or another proof) needs to be upstreamed to mathlib.
 \end{proof}
 
 \begin{corollary}\label{WLOG_p_ge_5}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
@@ -86,7 +86,7 @@ Now say Fermat's Last Theorem is false, and hence by Lemma~\ref{Frey_package_of_
 \end{proof}
 
 \begin{theorem}[Wiles,Taylor--Wiles]\label{Wiles_on_Frey_curve}\lean{FLT.FreyCurve.Wiles_Frey}\leanok $\rho$ cannot be irreducible either.\end{theorem}
-\begin{proof}\uses{Frey_mod_p_Galois_representation}\tangled This is the main content of Wiles' magnum opus. We omit the argument for now, although later on in this project we will have a lot to say about a proof of this.
+\begin{proof}\uses{Frey_mod_p_Galois_representation, frey_curve_hardly_ramified}\tangled This is the main content of Wiles' magnum opus. We omit the argument for now, although later on in this project we will have a lot to say about a proof of this.
 \end{proof}
 
 \begin{corollary}\label{no_Frey_package}\lean{FLT.Frey_package.false}\uses{Mazur_on_Frey_curve, Wiles_on_Frey_curve}\leanok There is no Frey package.\end{corollary}
