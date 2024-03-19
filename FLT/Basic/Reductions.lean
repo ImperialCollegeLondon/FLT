@@ -267,12 +267,33 @@ def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b
     a := (of_not_FermatLastTheorem.aux₁ a b c).1
     b := (of_not_FermatLastTheorem.aux₁ a b c).2.1
     c := (of_not_FermatLastTheorem.aux₁ a b c).2.2
-    ha0 := sorry
-    hb0 := sorry
+    ha0 := by
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split
+      · exact ha
+      · rwa [← Int.neg_ne_zero] at ha
+      · exact hb
+      · rwa [← Int.neg_ne_zero] at hb
+      · exact ha
+      · rwa [← Int.neg_ne_zero] at ha
+    hb0 := sorry -- etc etc
     hc0 := sorry
     p := p
     hp5 := hp
-    hFLT := sorry
+    hFLT := by
+      have negonepow : (-1 : ℤ) ^ p = -1 := by
+        rw [neg_one_pow_eq_pow_mod_two]
+        sorry
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split
+      · exact h
+      · linear_combination (-1)^p * h
+      · linear_combination h
+      · linear_combination (-1)^p * h
+      · rw [neg_pow c, neg_pow b]
+        simp
+        sorry
+      · sorry
     hgcdab := sorry
     ha4 := of_not_FermatLastTheorem.aux₁.ha4 b c hab
     hb2 := sorry
