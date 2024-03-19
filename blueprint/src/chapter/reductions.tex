@@ -5,7 +5,7 @@ The proof of Fermat's Last Theorem is by contradiction. We assume that we have a
 
 \section{Reduction to \texorpdfstring{$n\geq5$}{ngeq5} and prime}
 
-\begin{lemma}\label{WLOG_n_prime}\lean{FermatLastTheorem.of_odd_primes}\leanok
+\begin{lemma}\label{WLOG_n_prime}\lean{FLT.FermatLastTheorem.of_odd_primes}\leanok
   If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$
   with $p$ an odd prime.
 \end{lemma}
@@ -20,7 +20,8 @@ The proof of Fermat's Last Theorem is by contradiction. We assume that we have a
 
 Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not in mathlib.
 
-\begin{lemma}\label{p_not_three}\lean{fermatLastTheoremThree}\leanok
+\begin{lemma}\label{p_not_three}\lean{FLT.fermatLastTheoremThree}\leanok
+\discussion{16}
   There are no nontrivial solutions in integers to $a^3+b^3=c^3$.
 \end{lemma}
 \begin{proof}
@@ -35,7 +36,7 @@ Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not
 
 For convenience we make the following definition.
 
-\begin{definition}\label{Frey_package}\lean{FreyPackage}\leanok A \emph{Frey package} is a triple $(a,b,c)$ of nonzero pairwise coprime integers with $a\equiv3\pmod4$ and $b\equiv0\pmod2$, and a prime $p\geq5$, such that $a^p+b^p=c^p$.\end{definition}
+\begin{definition}\label{Frey_package}\lean{FLT.FreyPackage}\leanok A \emph{Frey package} is a triple $(a,b,c)$ of nonzero pairwise coprime integers with $a\equiv3\pmod4$ and $b\equiv0\pmod2$, and a prime $p\geq5$, such that $a^p+b^p=c^p$.\end{definition}
 
 Our next reduction is as follows:
 
