@@ -55,6 +55,7 @@ instance mulMap.isIso {a a' b b' : CommAlgebraCat k ⥤ Type v}
     (f : a ⟶ a') (g : b ⟶ b') [IsIso f] [IsIso g] :
     IsIso (mulMap f g) := sorry
 
+@[reassoc]
 lemma mulMap_comp {a a' a'' b b' b'' : CommAlgebraCat k ⥤ Type v}
     (f : a ⟶ a') (f' : a' ⟶ a'')
     (g : b ⟶ b') (g' : b' ⟶ b'') :
@@ -283,11 +284,48 @@ variable {k} in
 /--A proposition stating that a corepresentable functor is an affine monoid with specified
 multiplication and unit. -/
 structure IsAffineMonoidWithChosenMulAndUnit
-    (F : CommAlgebraCat k ⥤ Type v) [F.Corepresentable]
+    (F : CommAlgebraCat k ⥤ Type v)
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) : Prop :=
+  corep : F.Corepresentable
   mul_assoc' : mulMap (𝟙 F) m ≫ m = (mulAssoc F F F).hom ≫ mulMap m (𝟙 F) ≫ m
   mul_one : mulMap (𝟙 F) e ≫ m = (mulStar F).hom
   one_mul : mulMap e (𝟙 F) ≫ m = (starMul F).hom
+
+attribute [reassoc] IsAffineMonoidWithChosenMulAndUnit.mul_assoc'
+  IsAffineMonoidWithChosenMulAndUnit.mul_one
+  IsAffineMonoidWithChosenMulAndUnit.one_mul
+namespace IsAffineMonoidWithChosenMulAndUnit
+
+variable (F : CommAlgebraCat k ⥤ Type v)
+variable (m : mul F F ⟶ F) (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F)
+variable (G : CommAlgebraCat k ⥤ Type v) (ε : G ≅ F)
+
+lemma of_iso (h : IsAffineMonoidWithChosenMulAndUnit F m e) :
+    IsAffineMonoidWithChosenMulAndUnit
+      G
+      (mulMap ε.hom ε.hom ≫ m ≫ ε.inv)
+      (e ≫ ε.inv) where
+  corep := @corepresentable_of_nat_iso (i := ε.symm) h.corep
+  mul_assoc' := by
+    have eq0 : (mulAssoc G G G).hom =
+      mulMap ε.hom (mulMap ε.hom ε.hom) ≫ (mulAssoc F F F).hom ≫
+      mulMap (mulMap ε.inv ε.inv) ε.inv := by aesop_cat
+    have eq1 : mulMap ε.hom (mulMap ε.hom ε.hom ≫ m) =
+      mulMap ε.hom (mulMap ε.hom ε.hom) ≫ mulMap (𝟙 F) m := by aesop_cat
+    rw [eq0, ← mulMap_comp_assoc, Category.id_comp, Category.assoc, Category.assoc,
+      Iso.inv_hom_id, Category.comp_id, eq1, Category.assoc, h.mul_assoc'_assoc]
+    aesop_cat
+  mul_one := sorry
+  one_mul := sorry
+
+lemma iff_iso :
+    IsAffineMonoidWithChosenMulAndUnit F m e ↔
+    IsAffineMonoidWithChosenMulAndUnit
+      G
+      (mulMap ε.hom ε.hom ≫ m ≫ ε.inv)
+      (e ≫ ε.inv) := sorry
+
+end IsAffineMonoidWithChosenMulAndUnit
 
 variable {k} in
 /--A proposition stating that a corepresentable functor is an affine group with specified
@@ -414,7 +452,12 @@ theorem isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCoun
     {F : CommAlgebraCat k ⥤ Type v} [F.Corepresentable]
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) :
     IsAffineMonoidWithChosenMulAndUnit F m e ↔
-    IsBialgebraWithChosenComulAndCounit F.coreprX (mToComul m) (eToCounit e) := sorry
+    IsBialgebraWithChosenComulAndCounit F.coreprX (mToComul m) (eToCounit e) := by
+  rw [← isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCounit,
+    IsAffineMonoidWithChosenMulAndUnit.iff_iso k F m e
+      (coyoneda.obj (op (CommAlgebraCat.of k F.coreprX))) F.coreprW]
+
+  sorry
 
 variable {k} in
 theorem
@@ -427,7 +470,11 @@ theorem
       (comulToMul comul)
       (counitToUnit counit)
       (antipodeToInverse antipode) ↔
-    IsBialgebraWithChosenComulAndCounit A comul counit := sorry
+    IsBialgebraWithChosenComulAndCounit A comul counit := by
+  fconstructor
+  ·
+    sorry
+  · sorry
 
 variable {k} in
 theorem
@@ -442,7 +489,7 @@ theorem
 The antiequivalence from affine group functor to category of hopf algebra.
 -/
 noncomputable def affineGroupAntiEquivCommAlgCat :
-    (AffineGroup k)ᵒᵖ ≌ HopfAlgCat.{v} k where
+    (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
   functor :=
     { obj := fun F ↦
         { carrier := F.unop.coreprX
