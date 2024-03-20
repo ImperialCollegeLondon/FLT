@@ -34,6 +34,7 @@ of the proof of Fermat's Last Theorem.
 
 We start by reducing the version of Fermat's Last Theorem for positive naturals to
 Lean's version `FermatLastTheorem` of the theorem.
+
 -/
 
 /-- Fermat's Last Theorem as stated in mathlib (a statement `FermatLastTheorem` about naturals)
@@ -269,7 +270,7 @@ def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b
     c := (of_not_FermatLastTheorem.aux₁ a b c).2.2
     ha0 := by
       unfold of_not_FermatLastTheorem.aux₁
-      split <;> split <;> try split
+      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
       · exact ha
       · rwa [← Int.neg_ne_zero] at ha
       · exact hb
@@ -283,17 +284,20 @@ def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b
     hFLT := by
       have negonepow : (-1 : ℤ) ^ p = -1 := by
         rw [neg_one_pow_eq_pow_mod_two]
-        sorry
+        have := Fact.mk hpprime
+        rw [Nat.Prime.mod_two_eq_one_iff_ne_two.2]
+        · simp
+        · linarith
       unfold of_not_FermatLastTheorem.aux₁
       split <;> split <;> try split
       · exact h
       · linear_combination (-1)^p * h
       · linear_combination h
       · linear_combination (-1)^p * h
-      · rw [neg_pow c, neg_pow b]
-        simp
-        sorry
-      · sorry
+      · rw [neg_pow c, neg_pow b, negonepow]
+        linear_combination h
+      · rw [neg_pow a, negonepow]
+        linear_combination -h
     hgcdab := sorry
     ha4 := of_not_FermatLastTheorem.aux₁.ha4 b c hab
     hb2 := sorry
@@ -389,12 +393,14 @@ abbrev Qbar := AlgebraicClosure ℚ
 
 open WeierstrassCurve
 
-abbrev p_torsion (P : FreyPackage) : Type := sorry -- (FreyCurve P)⟮Qbar⟯[p]
+-- this is wrong, it's the full group of points, not the p-torsion
+abbrev p_torsion (P : FreyPackage) : Type := ((FreyCurve P).toWeierstrassCurve ⟮Qbar⟯) -- need p-torsion
 
 variable (P : FreyPackage)
 
 instance : AddCommGroup (FreyCurve.p_torsion P) := sorry
-instance : Module (ZMod P.p) (FreyCurve.p_torsion P) := sorry
+instance : Module (ZMod P.p) (FreyCurve.p_torsion P) := sorry -- definition above needs to be
+  -- fixed before this can be done
 
 def mod_p_Galois_representation (P : FreyPackage) :
     Representation (ZMod P.p) (Qbar ≃ₗ[ℚ] Qbar) (FreyCurve.p_torsion P) := sorry
@@ -434,7 +440,7 @@ theorem FreyPackage.false (P : FreyPackage) : False := by
   apply FreyCurve.Wiles_Frey P
   exact FreyCurve.Mazur_Frey P
 
-
+-- Fermat's Last Theorem is true
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
   -- assume FLT is false
   by_contra h
