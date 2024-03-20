@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 -/
 
-import Mathlib.RingTheory.TensorProduct
+import Mathlib.RingTheory.TensorProduct.Basic
 import Mathlib.RingTheory.Bialgebra
 import FLT.for_mathlib.Coalgebra.Sweedler
 
