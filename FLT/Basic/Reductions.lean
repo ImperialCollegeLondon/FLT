@@ -8,8 +8,11 @@ import Mathlib.RingTheory.SimpleModule
 
 
 /-!
-This file proves many of the key results which reduce Fermat's Last Theorem
-to Mazur's theorem and the Wiles-Taylor-Wiles theorem.
+
+# Preliminary reductions of FLT
+
+This file proves some of the key results which reduce Fermat's Last Theorem
+to Mazur's theorem and the Wiles/Taylor--Wiles theorem.
 
 # Main definitions
 
@@ -18,7 +21,7 @@ $(a,b,c)$ and a prime $p \geq 5$ such that $a^p+b^p=c^p$ and furthermore
 such that $a$ is 3 mod 4 and $b$ is 0 mod 2.
 
 The motivation behind this definition is that then all the results in Section 4.1
-of Serre's paper [Serre] apply to the elliptic curve curve $Y^2=X(X-a^p)(X+b^p).$
+of Serre's paper [Serre] apply to the elliptic curve $Y^2=X(X-a^p)(X+b^p).$
 
 # Main theorems
 
@@ -54,11 +57,12 @@ lemma fermatLastTheoremThree : FermatLastTheoremFor 3 := sorry
 
 namespace FLT
 
-/-!
+/-
 
 We continue with the reduction of Fermat's Last Theorem.
 
 -/
+
 /-- If Fermat's Last Theorem is false, there's a nontrivial solution to a^p+b^p=c^p with p>=5 prime. -/
 lemma p_ge_5_counterexample_of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) :
     ∃ (a b c : ℤ) (_ : a ≠ 0) (_ : b ≠ 0) (_ : c ≠ 0) (p : ℕ) (_ : p.Prime) (_ : 5 ≤ p),
