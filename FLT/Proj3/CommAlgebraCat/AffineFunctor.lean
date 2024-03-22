@@ -497,11 +497,11 @@ structure IsAffineGroupWithChosenMulAndUnitAndInverse
   inv_mul :
     ({ app := fun _ x ↦ (x, i.app _ x)
        naturality := by
-          intro X Y (f : X →ₐ[k] Y) 
+          intro X Y (f : X →ₐ[k] Y)
           ext x
           simp only [mul_obj, types_comp_apply, mul_map, Prod.mk.injEq, true_and]
-          have := i.naturality f 
-          change (i.app Y).comp _ = (F.map f).comp _ at this 
+          have := i.naturality f
+          change (i.app Y).comp _ = (F.map f).comp _ at this
           exact congr_fun this x
       } ≫ m : F ⟶ F) =
     corep.coreprW.inv ≫ coyoneda.map (op <| Algebra.ofId _ _) ≫ e
@@ -627,7 +627,7 @@ noncomputable def eToCounit : hF.coreprX →ₐ[k] k :=
 noncomputable def iToAntipode : hF.coreprX →ₐ[k] hF.coreprX :=
     coyonedaCorrespondence F F hF hF i
 
-lemma comulToMul_mToComul [h0 : F.Corepresentable] :
+lemma comulToMul_mToComul :
     comulToMul (mToComul hF m) =
     mulMap hF.coreprW.hom hF.coreprW.hom ≫ m ≫ hF.coreprW.inv := by
   rw [comulToMul_eq, mToComul]
@@ -651,17 +651,17 @@ lemma comulToMul_mToComul [h0 : F.Corepresentable] :
     ext g' A ⟨x, y⟩
     simp only [coyoneda_obj_obj, unop_op, Equiv.trans_apply,
       Equiv.coe_fn_mk, FunctorToTypes.comp, mulMap_app]
-    change hF.coreprW.inv.app _ _ ≫ _ = _ 
-    set f := _; set g := _ 
-    change hF.coreprW.inv.app _ f ≫ g = _ 
-    simp only [unop_op] 
-    have eq0 := congr_fun (hF.coreprW.inv.naturality g) f 
+    change hF.coreprW.inv.app _ _ ≫ _ = _
+    set f := _; set g := _
+    change hF.coreprW.inv.app _ f ≫ g = _
+    simp only [unop_op]
+    have eq0 := congr_fun (hF.coreprW.inv.naturality g) f
     simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map] at eq0
     rw [← eq0]
-    congr! 
+    congr!
     have eq1 := congr_fun (@NatTrans.naturality (self := g') (hF.coreprX ⊗ hF.coreprX) A
       (Algebra.TensorProduct.lift x y (by intros; show _ * _ = _ * _; rw [mul_comm]))) <|
-      (coyonedaMulCoyoneda' F F hF hF).inv.app (hF.coreprX ⊗ hF.coreprX) 
+      (coyonedaMulCoyoneda' F F hF hF).inv.app (hF.coreprX ⊗ hF.coreprX)
         (𝟙 _)
     simp only [mul_obj, types_comp_apply, mul_map] at eq1
     dsimp [g, f]
@@ -672,23 +672,23 @@ lemma comulToMul_mToComul [h0 : F.Corepresentable] :
       mulMap_app, Prod.mk.injEq]
     constructor
     · have := hF.coreprW.hom.naturality
-      have := congr_fun (@this (hF.coreprX ⊗ hF.coreprX) A 
+      have := congr_fun (@this (hF.coreprX ⊗ hF.coreprX) A
         (Algebra.TensorProduct.lift x y (by intros; show _ * _ = _ * _; rw [mul_comm])))
-        (Algebra.TensorProduct.includeLeft) 
+        (Algebra.TensorProduct.includeLeft)
       simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map] at this
       erw [← this]
       congr!
       change AlgHom.comp _ _ = _
       exact Algebra.TensorProduct.lift_comp_includeLeft x y _
-    · have := hF.coreprW.hom.naturality 
-      have := congr_fun (@this (hF.coreprX ⊗ hF.coreprX) A 
+    · have := hF.coreprW.hom.naturality
+      have := congr_fun (@this (hF.coreprX ⊗ hF.coreprX) A
         (Algebra.TensorProduct.lift x y (by intros; show _ * _ = _ * _; rw [mul_comm])))
-        (Algebra.TensorProduct.includeRight) 
+        (Algebra.TensorProduct.includeRight)
       simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map] at this
       erw [← this]
       congr!
       change AlgHom.comp _ _ = _
-      exact Algebra.TensorProduct.lift_comp_includeRight x y 
+      exact Algebra.TensorProduct.lift_comp_includeRight x y
         (by intro (x1 : hF.coreprX) (x2 : hF.coreprX) ; rw [commute_iff_eq, mul_comm])
 
   simp [eq0]
@@ -837,17 +837,17 @@ def AffMon_to_Bialg {A : Type v} [CommRing A] [Algebra k A]
       (comulToMul comul)
       (counitToUnit counit)) : IsBialgebraWithChosenComulAndCounit (k := k) A comul counit where
 
-    coassoc := by 
-      obtain ⟨corep, mul_assoc, mul_one, one_mul⟩ := h 
-      rw [auxlemma.aux01, auxlemma.aux02, ← IsIso.inv_comp_eq] at mul_assoc 
+    coassoc := by
+      obtain ⟨corep, mul_assoc, mul_one, one_mul⟩ := h
+      rw [auxlemma.aux01, auxlemma.aux02, ← IsIso.inv_comp_eq] at mul_assoc
       simp only [unop_op, CommAlgebraCat.coe_of, IsIso.inv_hom_id_assoc, Iso.cancel_iso_hom_left,
-        ← coyoneda.map_comp] at mul_assoc 
-      apply Coyoneda.coyoneda_faithful.map_injective at mul_assoc 
-      apply_fun unop at mul_assoc 
-      symm at mul_assoc 
+        ← coyoneda.map_comp] at mul_assoc
+      apply Coyoneda.coyoneda_faithful.map_injective at mul_assoc
+      apply_fun unop at mul_assoc
+      symm at mul_assoc
       exact mul_assoc
 
-    rTensor_counit_comp_comul := by 
+    rTensor_counit_comp_comul := by
       have eq0 : mulMap (counitToUnit counit) (𝟙 (coyoneda.obj (op (CommAlgebraCat.of k A)))) ≫
           comulToMul comul = (coyonedaMulCoyoneda _ _).hom ≫ coyoneda.map (op <|
           (Algebra.TensorProduct.map counit (AlgHom.id k A)).comp comul) := by
@@ -875,7 +875,7 @@ def AffMon_to_Bialg {A : Type v} [CommRing A] [Algebra k A]
         change _ = (Algebra.TensorProduct.lift f g _).comp Algebra.TensorProduct.includeRight
         ext x
         simp only [AlgHom.coe_comp, Function.comp_apply, Algebra.TensorProduct.includeRight_apply,
-          Algebra.TensorProduct.lift_tmul, map_one, one_mul] 
+          Algebra.TensorProduct.lift_tmul, map_one, one_mul]
 
       obtain ⟨corep, mul_assoc, mul_one, one_mul⟩ := h
       rw [eq0, eq1, ← IsIso.inv_comp_eq] at one_mul
@@ -884,8 +884,8 @@ def AffMon_to_Bialg {A : Type v} [CommRing A] [Algebra k A]
       apply Coyoneda.coyoneda_faithful.map_injective at one_mul
       apply_fun unop at one_mul
       exact congr($(one_mul).toLinearMap)
-  
-    lTensor_counit_comp_comul := by 
+
+    lTensor_counit_comp_comul := by
       have eq0 : mulMap (𝟙 (coyoneda.obj (op (CommAlgebraCat.of k A)))) (counitToUnit counit) ≫
           comulToMul comul = (coyonedaMulCoyoneda _ _).hom ≫ coyoneda.map (op <|
           (Algebra.TensorProduct.map (AlgHom.id k A) counit).comp comul) := by
@@ -922,15 +922,15 @@ def AffMon_to_Bialg {A : Type v} [CommRing A] [Algebra k A]
       apply_fun AlgHom.toLinearMap at mul_one
       exact mul_one
 
-    mul_compr₂_counit := by 
+    mul_compr₂_counit := by
       ext x y ; simp
 
     mul_compr₂_comul := by
       ext x y ; simp
 
-def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k] A ⊗[k] A) 
+def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k] A ⊗[k] A)
     (counit : A →ₐ[k] k)
-    (h : IsBialgebraWithChosenComulAndCounit (k := k) A comul counit) : 
+    (h : IsBialgebraWithChosenComulAndCounit (k := k) A comul counit) :
     IsAffineMonoidWithChosenMulAndUnit
     (coyoneda.obj <| op <| CommAlgebraCat.of k A)
     (comulToMul comul)
@@ -955,7 +955,7 @@ def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k]
     exact coassoc.symm
 
   mul_one := by
-    obtain ⟨coassoc, rTensor_counit_comp_comul, 
+    obtain ⟨coassoc, rTensor_counit_comp_comul,
       lTensor_counit_comp_comul, mul_compr₂_counit, mul_compr₂_comul⟩ := h
     let ba : Bialgebra k A :={
       comul := comul
@@ -971,7 +971,7 @@ def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k]
       mul_compr₂_counit := mul_compr₂_counit
       comul_one := comul.map_one
       mul_compr₂_comul := mul_compr₂_comul
-    } 
+    }
     ext B ⟨f, g⟩
     change AlgHomPoint k A B at f ; change AlgHomPoint k k B at g
     simp only [coyoneda_obj_obj, unop_op, counitToUnit, CommAlgebraCat.coe_of, comulToMul, square,
@@ -1009,8 +1009,8 @@ def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k]
     change f x = f (((AlgHom.id k A) * 1) x)
     rw [mul_one] ; rfl
 
-  one_mul := by 
-    obtain ⟨coassoc, rTensor_counit_comp_comul, 
+  one_mul := by
+    obtain ⟨coassoc, rTensor_counit_comp_comul,
       lTensor_counit_comp_comul, mul_compr₂_counit, mul_compr₂_comul⟩ := h
     let ba : Bialgebra k A :={
       comul := comul
@@ -1026,7 +1026,7 @@ def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k]
       mul_compr₂_counit := mul_compr₂_counit
       comul_one := comul.map_one
       mul_compr₂_comul := mul_compr₂_comul
-    } 
+    }
     ext B ⟨f, g⟩
     change AlgHomPoint k k B at f ; change AlgHomPoint k A B at g
     simp only [coyoneda_obj_obj, unop_op, counitToUnit, comulToMul, square, FunctorToTypes.comp,
@@ -1062,16 +1062,15 @@ def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k]
     rw [this] ; change g x = g ((1 * (AlgHom.id k A)) x)
     rw [one_mul] ; rfl
 
-
-
 variable {k} in
 def chosen_AffMon_to_Bialg {F : CommAlgebraCat k ⥤ Type v} (hF : CorepresentableFunctor F)
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) (h : IsAffineMonoidWithChosenMulAndUnit F m e) :
-    IsBialgebraWithChosenComulAndCounit hF.coreprX (mToComul _) (eToCounit _) := by
-  rw [Bialg_to_AffMon,
-    IsAffineMonoidWithChosenMulAndUnit.iff_iso k F m e
-      (coyoneda.obj (op (CommAlgebraCat.of k F.coreprX))) F.coreprW]
-    
+    IsBialgebraWithChosenComulAndCounit hF.coreprX (mToComul hF m) (eToCounit hF e) :=
+  AffMon_to_Bialg (mToComul hF m) (eToCounit hF e) <| by
+    convert h.of_iso _ hF.coreprW
+    · rw [comulToMul_mToComul]
+    · rw [counitToUnit_eToCounit]
+
 -- theorem isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCounit'
 --     {F : CommAlgebraCat k ⥤ Type v} [F.Corepresentable]
 --     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) :
