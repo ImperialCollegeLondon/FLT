@@ -379,6 +379,22 @@ instance : Category <| AffineGroup k where
     one := by rw [α.one_assoc, β.one]
     mul := by rw [α.mul_assoc, β.mul, mulMap_comp, Category.assoc] }
 
+instance (F : AffineGroup k) (A : CommAlgebraCat k): 
+  Group (F.obj A) where
+    mul := F.m.app A
+    mul_assoc := sorry
+    one := sorry
+    one_mul := sorry
+    mul_one := sorry
+    inv := sorry
+    mul_left_inv := sorry
+
+
+instance (F G : AffineGroup k) (A : Type v) [CommRing A] 
+  [Algebra k A] (n : F ⟶ G): 
+    GroupHom (n.hom.app (.of k A)) := by
+    sorry
+
 end AffineGroup
 
 variable {k} in
@@ -1343,6 +1359,7 @@ noncomputable instance (F : AffineGroup k) : HopfAlgebra k (F.corep.coreprX) :=
     mul_antipode_rTensor_comul := i.2
     mul_antipode_lTensor_comul := i.3 }
 
+
 /--
 The antiequivalence from affine group functor to category of hopf algebra.
 -/
@@ -1356,13 +1373,29 @@ noncomputable def affineGroupAntiToHopfAlgCat :
       map_smul' := fun r  x =>
         (coyonedaCorrespondence G.unop.toFunctor F.unop.toFunctor G.unop.corep F.unop.corep
           n.unop.hom).map_smul r x
-      comul_comp' := sorry
+      comul_comp' := by
+        ext x
+        simp only [coyonedaCorrespondence_apply, unop_op, AlgHom.toRingHom_eq_coe,
+          RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
+          MonoidHom.coe_coe, RingHom.coe_coe, LinearMap.coe_comp, Function.comp_apply,
+          LinearMap.coe_mk, AddHom.coe_mk]
+        dsimp only [coyonedaCorrespondence_apply, unop_op, AlgHom.toRingHom_eq_coe,
+          RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
+          MonoidHom.coe_coe, RingHom.coe_coe, id_eq, AddHom.toFun_eq_coe, RingHom.id_apply] 
+        set f := (F.unop.corep.coreprW.inv.app G.unop.corep.coreprX
+                (n.unop.hom.app G.unop.corep.coreprX
+                (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))) 
+        change (TensorProduct.map f.toLinearMap f.toLinearMap) _ = Coalgebra.comul _ 
+        change F.unop.corep.coreprX →ₐ[k] G.unop.corep.coreprX at f 
+        
+        sorry
       comul_counit' := sorry
     } : F.unop.corep.coreprX →bi[k] G.unop.corep.coreprX)
 
   map_id := sorry
   map_comp := sorry
 
+#exit
 noncomputable def HopfAlgebraCatToAffineGroup :
     HopfAlgCat k ⥤ (AffineGroup k)ᵒᵖ  where
   obj A := op
