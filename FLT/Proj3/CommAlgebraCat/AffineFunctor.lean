@@ -9,6 +9,7 @@ import FLT.for_mathlib.HopfAlgebra.Basic
 import Mathlib.CategoryTheory.Yoneda
 import FLT.Proj3.HopfMon
 
+
 /-!
 # The internal group object in the corepresentable functor from commutaive algebra
 
@@ -1320,17 +1321,17 @@ theorem
   · symm ; rw [counitToUnit_eToCounit]
   · symm ; rw [antipodeToInverse_iToAntipode]
 
-noncomputable instance (F : (AffineGroup k)ᵒᵖ) : HopfAlgebra k (F.unop.corep.coreprX) :=
+noncomputable instance (F : AffineGroup k) : HopfAlgebra k (F.corep.coreprX) :=
   let i :=
   isAffineGroup_iff_isHopfAlgebra'
-    F.unop.corep F.unop.m F.unop.e F.unop.i |>.mp
-    { mul_assoc' := F.unop.mul_assoc'
-      mul_one := F.unop.mul_one'
-      one_mul := F.unop.one_mul'
-      mul_inv := F.unop.mul_inv
-      inv_mul := F.unop.inv_mul }
-  { comul := mToComul F.unop.corep F.unop.m
-    counit := eToCounit F.unop.corep F.unop.e
+    F.corep F.m F.e F.i |>.mp
+    { mul_assoc' := F.mul_assoc'
+      mul_one := F.mul_one'
+      one_mul := F.one_mul'
+      mul_inv := F.mul_inv
+      inv_mul := F.inv_mul }
+  { comul := mToComul F.corep F.m
+    counit := eToCounit F.corep F.e
     coassoc := by ext x; exact congr($i.coassoc x)
     rTensor_counit_comp_comul := i.1.2
     lTensor_counit_comp_comul := i.1.3
@@ -1338,14 +1339,14 @@ noncomputable instance (F : (AffineGroup k)ᵒᵖ) : HopfAlgebra k (F.unop.corep
     mul_compr₂_counit := i.1.4
     comul_one := AlgHom.map_one _
     mul_compr₂_comul := i.1.5
-    antipode := iToAntipode F.unop.corep F.unop.i
+    antipode := iToAntipode F.corep F.i
     mul_antipode_rTensor_comul := i.2
     mul_antipode_lTensor_comul := i.3 }
 
 /--
 The antiequivalence from affine group functor to category of hopf algebra.
 -/
-noncomputable def affineGroupAntiToCommAlgCat :
+noncomputable def affineGroupAntiToHopfAlgCat :
     (AffineGroup k)ᵒᵖ ⥤ HopfAlgCat k where
   obj F :=
   { carrier := F.unop.corep.coreprX }
@@ -1362,50 +1363,33 @@ noncomputable def affineGroupAntiToCommAlgCat :
   map_id := sorry
   map_comp := sorry
 
+noncomputable def HopfAlgebraCatToAffineGroup :
+    HopfAlgCat k ⥤ (AffineGroup k)ᵒᵖ  where
+  obj A := op
+    { toFunctor := coyoneda.obj (op <| .of k A)
+      corep :=
+      { coreprX := .of k A
+        coreprW := Iso.refl _ }
+      m := comulToMul (Bialgebra.comulAlgHom k A)
+      e := counitToUnit (Bialgebra.counitAlgHom k A)
+      mul_assoc' := sorry
+      mul_one' := sorry
+      one_mul' := sorry
+      i := antipodeToInverse HopfAlgebra.antipodeAlgHom
+      mul_inv := sorry
+      inv_mul := sorry }
+  map {X Y} f := op <|
+    { hom :=
+      { app := fun A g ↦ AlgHom.comp g f.toAlgHom }
+      one := sorry
+      mul := sorry }
+  map_id := sorry
+  map_comp := sorry
 
 
-  -- functor :=
-  --   { obj := fun F ↦
-  --       { carrier := F.unop.coreprX
-  --         isCommRing := inferInstance
-  --         isHopfAlgebra :=
-  --           let i := isAffineGroupWithChosenMulAndUnitAndInverse_iff_isBialgebraWithChosenComulAndCounitAndAntipode'
-  --             F.unop.m F.unop.e F.unop.i |>.mp
-  --               ⟨⟨inferInstance, F.unop.mul_assoc', F.unop.mul_one', F.unop.one_mul'⟩,
-  --                 F.unop.mul_inv, F.unop.inv_mul⟩
-  --           { comul := mToComul F.unop.m
-  --             counit := eToCounit F.unop.e
-  --             coassoc := by ext x; exact congr($(i.1.coassoc) x)
-  --             rTensor_counit_comp_comul := i.1.2
-  --             lTensor_counit_comp_comul := i.1.3
-  --             counit_one := (eToCounit F.unop.e).map_one
-  --             mul_compr₂_counit := i.1.4
-  --             comul_one := (mToComul F.unop.m).map_one
-  --             mul_compr₂_comul := i.1.5
-  --             antipode := iToAntipode F.unop.i
-  --             mul_antipode_rTensor_comul := i.2
-  --             mul_antipode_lTensor_comul := i.mul_antipode_lTensor_comul } }
-  --     map := sorry
-  --     map_id := sorry
-  --     map_comp := sorry }
-  -- inverse :=
-  -- { obj := fun H ↦
-  --   { unop :=
-  --     let i := isAffineGroupWithChosenMulAndUnitAndInverse_iff_isHopfAlgebraWithChosenComulAndCounitAndAntipode
-  --       (Bialgebra.comulAlgHom k H) (Bialgebra.counitAlgHom k H) antipode |>.mpr sorry
-  --     { toFunctor := coyoneda.obj (op <| CommAlgebraCat.of k H)
-  --       corep := inferInstance
-  --       m := (comulToMul <| Bialgebra.comulAlgHom _ _)
-  --       e := (counitToUnit <| Bialgebra.counitAlgHom _ _)
-  --       mul_assoc' := sorry
-  --       mul_one' := sorry
-  --       one_mul' := sorry
-  --       i := (antipodeToInverse <| sorry)
-  --       mul_inv := sorry
-  --       inv_mul := sorry } }
-  --   map := sorry
-  --   map_id := sorry
-  --   map_comp := sorry }
-  -- unitIso := sorry
-  -- counitIso := sorry
-  -- functor_unitIso_comp := sorry
+noncomputable def antiequiv : (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
+  functor := affineGroupAntiToHopfAlgCat k
+  inverse := HopfAlgebraCatToAffineGroup k
+  unitIso := sorry
+  counitIso := sorry
+  functor_unitIso_comp := sorry
