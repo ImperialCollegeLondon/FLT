@@ -1,8 +1,28 @@
-\chapter{The Frey Curve}
+\chapter{Elliptic curves, and the Frey Curve}
 
 \section{Overview}
 
-In the last chapter we explained how, given a counterexample to Fermat's Last Theorem we could construct a Frey curve, which is an elliptic curve with some interesting properties. Let $\rho:\GQ\to\GL_2(\Z/p\Z)$ be the representation on the $p$-torsion of this curve. In this chapter we discuss some basic properties of this representation, used both by Mazur to prove that $\rho$ cannot be reducible and by Wiles to prove that it can't be irreducible.
+In the last chapter we explained how, given a counterexample to Fermat's Last Theorem we could construct a Frey curve, which is an elliptic curve with some interesting properties. In this chapter we give an overview of parts of the theory of the arithmetic of elliptic curves. The two main results of this chapter are firstly that the $p$-torsion $\rho$ in the Frey curve is ``hardly ramified'', and secondly that Mazur's result on the possible torsion of elliptic curves implies that $\rho$ must be irreducible. 
+
+\section{The arithmetic of elliptic curves}
+
+We give an overview of the results we need, citing the literature for proofs. Everything here is standard, and most
+of it dates back to the 1970s or before.
+
+\begin{theorem}\label{Elliptic_curve_p_torsion_2d} Let $n$ be a positive integer, let $K$ be a separably closed
+  field with $n$ nonzero in $K$, and let $E$ be an elliptic curve over $K$. Then the $n$-torsion $E(K)[n]$ 
+  in the $K$-points of $E$ is a finite group isomorphic to $(\Z/n\Z)^2$.
+\end{theorem}
+\begin{proof}
+  There are several proofs in the textbooks. The proof we shall formalise is forthcoming work of David Angdinata; it follows the approach with division polynomials, and it will be part of his PhD thesis.
+\end{proof}
+
+
+
+
+
+
+Let $\rho:\GQ\to\GL_2(\Z/p\Z)$ be the representation on the $p$-torsion of this curve. In this chapter we discuss some basic properties of this representation, used both by Mazur to prove that $\rho$ cannot be reducible and by Wiles to prove that it can't be irreducible.
 
 \section{Hardly ramified representations}
 
@@ -39,11 +59,6 @@ The second reason is the theorem which we want to discuss in this section:
 
 The theorem will follow from the results below. The first three are valid for all elliptic curves, the rest are specific to Frey curves.
 
-\begin{theorem}\label{Elliptic_curve_p_torsion_2d} If $E$ is an elliptic curve over an algebraically closed field $K$ of characteristic $0$, then $E(K)[p]$ has size $p^2$.
-\end{theorem}
-\begin{proof}
-  There are several proofs in the textbooks. The Lean code is forthcoming work of David Angdinata; it follows the approach with division polynomials, and it will be part of his PhD thesis.
-\end{proof}
 
 \begin{theorem}\label{Elliptic_curve_det_p_torsion}\uses{Elliptic_curve_p_torsion_2d} If $E$ is an elliptic curve over a field $K$ of characteristic zero, and $p$ is a prime, then the determinant of the 2-dimensional Galois representation $E[p]$ is the mod $p$ cyclotomic character.
 \end{theorem}
