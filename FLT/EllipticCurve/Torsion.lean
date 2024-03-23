@@ -36,15 +36,20 @@ def ZMod.module (A : Type*) [AddCommGroup A] (n : ℕ) (hn : ∀ a : A, n • a 
 -- not sure if this instance will cause more trouble than it's worth
 instance (n : ℕ) : Module (ZMod n) (E.n_torsion n) := sorry -- shouldn't be too hard
 
--- The next two theorems need e.g. a theory of division polynomials. They are ongoing work of David Angdinata
+-- This theorem needs e.g. a theory of division polynomials. It's ongoing work of David Angdinata.
+-- Please do not work on it without talking to KB and David first.
 theorem EllipticCurve.n_torsion_finite {n : ℕ} (hn : 0 < n) : Finite (E.n_torsion n) := sorry
 
+-- This theorem needs e.g. a theory of division polynomials. It's ongoing work of David Angdinata.
+-- Please do not work on it without talking to KB and David first.
 theorem EllipticCurve.n_torsion_card [IsSepClosed K] {n : ℕ} (hn : (n : K) ≠ 0) :
     Nat.card (E.n_torsion n) = n^2 := sorry
 
 -- I only need this if n is prime but there's no harm thinking about it in general I guess.
+-- It follows from the previous theorem using pure group theory (possibly including the
+-- structure theorem for finite abelian groups)
 theorem EllipticCurve.n_torsion_dimension [IsSepClosed K] {n : ℕ} (hn : (n : K) ≠ 0) :
-    FiniteDimensional.finrank (ZMod n) (E.n_torsion n) = 2 := sorry
+    ∃ φ : E.n_torsion n ≃+ (ZMod n) × (ZMod n), True := sorry
 
 -- We need this -- ask David?
 example (L M : Type u) [Field L] [Field M] [Algebra K L] [Algebra K M] (f : L →ₐ[K] M) :
