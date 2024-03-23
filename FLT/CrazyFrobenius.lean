@@ -280,9 +280,9 @@ theorem exists_generator  : ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
   induction' g using Quotient.inductionOn' with g
   obtain ⟨ρ , hρ⟩ := crt_representative A K L B Q Q_ne_bot g
   use ρ
-  have eq1 : (Quotient.mk'' ρ : B ⧸ Q) = Quotient.mk'' g
-  · specialize hρ (Quotient.mk'' 1)
-    rw[if_pos rfl] at hρ
+  have eq1 : (Quotient.mk'' ρ : B ⧸ Q) = Quotient.mk'' g := by
+    specialize hρ (Quotient.mk'' 1)
+    rw [if_pos rfl] at hρ
     delta f at hρ
     rw [Quotient.liftOn'_mk'', one_smul] at hρ
     simp only [Submodule.Quotient.mk''_eq_mk, Ideal.Quotient.mk_eq_mk]
@@ -299,9 +299,8 @@ theorem exists_generator  : ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
   · intro τ hτ
     specialize hρ (Quotient.mk'' τ)
     have neq1 :
-      (Quotient.mk'' τ : (L ≃ₐ[K] L) ⧸ decomposition_subgroup_Ideal' Q) ≠
-      Quotient.mk'' 1
-    · contrapose! hτ
+      (Quotient.mk'' τ : (L ≃ₐ[K] L) ⧸ decomposition_subgroup_Ideal' Q) ≠ Quotient.mk'' 1 := by
+      contrapose! hτ
       simpa only [Quotient.eq'', QuotientGroup.leftRel_apply, mul_one, inv_mem_iff] using hτ
     rw[if_neg neq1] at hρ
     delta f at hρ
@@ -404,14 +403,14 @@ lemma F_invariant_under_finite_aut (σ :  L ≃ₐ[K] L)  :
     simpa [i] using h
   have i_surj : ∀ σ ∈ Finset.univ, ∃ (τ : L ≃ₐ[K] L) (hτ : τ ∈ Finset.univ), i τ hτ = σ := by
     intro τ'
-    simp only [Finset.mem_univ, exists_true_left, forall_true_left]
+    simp only [Finset.mem_univ, exists_true_left, forall_true_left, i]
     use (σ⁻¹ * τ')
     group
   have h : ∀ (τ : L ≃ₐ[K] L) (hτ : τ ∈ Finset.univ),
       (X - C (galRestrict A K L B σ (galRestrict A K L B τ β))) =
       (X - C (galRestrict A K L B (i τ hτ) β)) := by
     intros τ hτ
-    simp only [map_mul, sub_right_inj, C_inj]
+    simp only [map_mul, sub_right_inj, C_inj, i]
     rw [ AlgEquiv.aut_mul]
     rfl
   apply Finset.prod_bij i hi i_inj i_surj h
@@ -467,10 +466,10 @@ theorem coeff_lives_in_A (n : ℕ) : ∃ a : A, algebraMap B L (coeff F n) = (al
   have eq0 : algebraMap A L = (algebraMap K L).comp (algebraMap A K) := by
     ext
     exact (IsScalarTower.algebraMap_apply A K L _)
-  have h2 : IsIntegral A k
-  · refine ⟨p, p_monic, ?_⟩
+  have h2 : IsIntegral A k := by
+    refine ⟨p, p_monic, ?_⟩
     rw [hk, eq0] at hp
-    rw[←  Polynomial.hom_eval₂] at hp
+    rw [←  Polynomial.hom_eval₂] at hp
     apply (map_eq_zero_iff _ _).1 hp
     exact NoZeroSMulDivisors.algebraMap_injective K L
   cases' h1.1 h2 with a' ha'
@@ -623,10 +622,8 @@ lemma q_is_p'_pow_n : p' ^ n = q :=
 
 lemma p_is_p' : p = p' := by
   -- `q = 0` in `A⧸ P` and `p | q` since `CharP p` then since `q = p'^n` then `p' = p`
-  have eq0 : (q : A⧸ P) = 0
-  · exact CharP.cast_card_eq_zero (A ⧸ P)
-  have h1 : p ∣ q
-  · exact charP_iff (A ⧸ P) p |>.1 (p_is_char P) q |>.1 eq0
+  have eq0 : (q : A⧸ P) = 0 := CharP.cast_card_eq_zero (A ⧸ P)
+  have h1 : p ∣ q := charP_iff (A ⧸ P) p |>.1 (p_is_char P) q |>.1 eq0
   have eq1 : p' ^ n = q := q_is_p'_pow_n P
   rw [← eq1] at h1
   refine Nat.dvd_prime (p'_is_prime P) |>.1
@@ -809,19 +806,10 @@ lemma is_zero_pow_gen_mod_Q (h : β ∈ (Frob⁻¹ • Q)) :
 theorem Frob_is_in_decompositionSubgroup :
     Frob ∈ decomposition_subgroup_Ideal' Q := by
   by_contra con
-  apply gen_zero_mod_inv_aut at con
-  apply is_zero_pow_gen_mod_Q at con
-  have inQ : β ∈ Q := by
-    apply Ideal.IsPrime.mem_of_pow_mem at con
-    · exact con
-    · infer_instance
-  have unit : IsUnit (Ideal.Quotient.mk Q β) := by
-    apply generator_isUnit
-  apply Ideal.Quotient.eq_zero_iff_mem.2 at inQ
-  apply IsUnit.ne_zero at unit
-  change ((Ideal.Quotient.mk Q) β = 0) → False at unit
-  apply unit at inQ
-  exact inQ
+  apply IsUnit.ne_zero <| generator_isUnit Q_ne_bot
+  exact Ideal.Quotient.eq_zero_iff_mem.2 <|
+    Ideal.IsPrime.mem_of_pow_mem (hI := inferInstance)
+      (H := is_zero_pow_gen_mod_Q (h := gen_zero_mod_inv_aut (h1 := con)))
 
 /- ## Now, for `γ : B` we have two cases: `γ ∉ Q` and `γ ∈ Q`. -/
 
@@ -839,11 +827,9 @@ lemma C {γ : B} (h : γ ∉ Q) : ∃ (ν : B) (_ : ν ∈ Q),  ∃ (i : ℕ),
   simp [Units.ext_iff] at hi
   have hn : ν ∈ Q := by
     simp [ν]
-    rw[← Ideal.Quotient.mk_eq_mk_iff_sub_mem]
-    simp only [map_pow, hi]
-  use hn
-  use i
-  simp only [add_sub_cancel'_right]
+    rw [← Ideal.Quotient.mk_eq_mk_iff_sub_mem]
+    simp only [map_pow, hi, Units.val_mk0, g]
+  exact ⟨hn, i, by aesop⟩
 
 lemma D {γ : B} (h : γ ∉ Q) :  ∃ (i : ℕ), γ - (β ^ i) ∈ Q := by
    let g :=  Units.mk0 (((Ideal.Quotient.mk Q γ))) <| by
@@ -854,8 +840,8 @@ lemma D {γ : B} (h : γ ∉ Q) :  ∃ (i : ℕ), γ - (β ^ i) ∈ Q := by
    rcases generator_mem_submonoid_powers Q_ne_bot g with ⟨i, hi⟩
    use i
    rw[← Ideal.Quotient.mk_eq_mk_iff_sub_mem]
-   simp [Units.ext_iff] at hi
-   simp only [map_pow, hi]
+   simp only [Units.ext_iff, Units.val_pow_eq_pow_val, IsUnit.unit_spec, Units.val_mk0, g] at hi
+   simp only [map_pow, hi, g]
 
 /--`i' : ℕ` such that, for `(γ : B) (h : γ ∉ Q)`, `γ - (β ^ i) ∈ Q`. -/
 noncomputable def i' {γ : B} (h : γ ∉ Q) : ℕ :=
