@@ -29,6 +29,10 @@ abbrev EllipticCurve.n_torsion (n : ℕ) : Type u := Submodule.torsionBy ℤ (E.
 --variable (n : ℕ) in
 --#synth AddCommGroup (E.n_torsion n)
 
+def ZMod.module (A : Type*) [AddCommGroup A] (n : ℕ) (hn : ∀ a : A, n • a = 0) :
+    Module (ZMod n) A :=
+  sorry
+
 -- not sure if this instance will cause more trouble than it's worth
 instance (n : ℕ) : Module (ZMod n) (E.n_torsion n) := sorry -- shouldn't be too hard
 

@@ -392,32 +392,35 @@ def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
 end FreyPackage
 
 
-abbrev Qbar := AlgebraicClosure ℚ
 
-open WeierstrassCurve
 
 
 /-!
 
-What can we say about this representation? It follows from a profound theorem
-of Mazur (and much other work) that this representation must be irreducible.
+Given an elliptic curve over `ℚ`, the p-torsion points defined over an algebraic
+closure of `ℚ` are a 2-dimensional Galois reprentation. What can we say about the Galois
+representation attached to the p-torsion of the Frey curve attached to a Frey package?
+
+It follows (after a little work!) from a profound theorem of Mazur that this representation
+must be irreducible.
 
 -/
 
+abbrev Qbar := AlgebraicClosure ℚ
+
+open WeierstrassCurve
 theorem Mazur_Frey (P : FreyPackage) :
-    IsSimpleModule (ZMod P.p)
-    (EllipticCurve.mod_p_Galois_representation P.FreyCurve P.p Qbar).asModule := sorry
+    IsSimpleModule (ZMod P.p) (P.FreyCurve.mod_p_Galois_representation P.p Qbar).asModule := sorry
 
 /-!
 
-But it follows from a profound theorem of Ribet, and the fact (proved by Wiles) that the Frey Curve
-is modular, that the representation cannot be irreducible.
+But it follows from a profound theorem of Ribet, and the even more profound theorem
+(proved by Wiles) that the Frey Curve is modular, that the representation cannot be irreducible.
 
 -/
 
 theorem Wiles_Frey (P : FreyPackage) :
-    ¬ IsSimpleModule (ZMod P.p)
-        (EllipticCurve.mod_p_Galois_representation P.FreyCurve P.p Qbar).asModule := sorry
+    ¬ IsSimpleModule (ZMod P.p) (P.FreyCurve.mod_p_Galois_representation P.p Qbar).asModule := sorry
 
 /-!
 
