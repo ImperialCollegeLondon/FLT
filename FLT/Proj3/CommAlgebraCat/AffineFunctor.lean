@@ -715,6 +715,16 @@ lemma counitToUnit_eToCounit :
     exact this.symm
   simp only [eq0, Equiv.coe_fn_mk]
 
+lemma antipodeToInverse_iToAntipode :
+    antipodeToInverse (iToAntipode hF i) = hF.coreprW.hom ≫ i ≫ hF.coreprW.inv := by
+  simp only [antipodeToInverse, unop_op]
+  apply_fun coyonedaCorrespondence (coyoneda.obj (op hF.coreprX)) (coyoneda.obj (op hF.coreprX))
+    ⟨hF.coreprX, Iso.refl _⟩ ⟨hF.coreprX, Iso.refl _⟩
+  simp only [coyonedaCorrespondence_apply, Iso.refl_inv, Iso.refl_hom, unop_op, NatTrans.id_app,
+    coyoneda_obj_obj, types_id_apply, coyoneda_map_app, FunctorToTypes.comp]
+  erw [Category.comp_id]
+  rfl
+
 lemma crazy_comul_repr (comul : A →ₐ[k] A ⊗[k] A) (x : A): ∃ (ι : Type v) (s : Finset ι) (a b : ι → A),
   comul x = ∑ i in s, a i ⊗ₜ[k] b i := by
     classical
@@ -1308,7 +1318,7 @@ theorem
     rfl
   · symm ; rw [comulToMul_mToComul]
   · symm ; rw [counitToUnit_eToCounit]
-  · sorry
+  · symm ; rw [antipodeToInverse_iToAntipode]
 
 noncomputable instance (F : (AffineGroup k)ᵒᵖ) : HopfAlgebra k (F.unop.corep.coreprX) :=
   let i :=
