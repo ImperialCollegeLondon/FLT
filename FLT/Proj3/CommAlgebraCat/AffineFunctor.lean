@@ -1503,31 +1503,58 @@ noncomputable def affineGroupAntiToHopfAlgCat :
     rfl
   map_comp := sorry
 
-#exit
+example : true := rfl
+
+variable {k} in
+@[simps! m e i obj]
+noncomputable def HopfAlgCat.asAffineGroup (H : HopfAlgCat k) : AffineGroup k :=
+let i := isAffineGroup_iff_isHopfAlgebra
+  (Bialgebra.comulAlgHom k H) (Bialgebra.counitAlgHom k H)
+  HopfAlgebra.antipodeAlgHom |>.mp
+  { coassoc := by ext x; exact congr($(Coalgebra.coassoc) x)
+    rTensor_counit_comp_comul := Coalgebra.rTensor_counit_comp_comul
+    lTensor_counit_comp_comul := Coalgebra.lTensor_counit_comp_comul
+    mul_compr₂_counit := Bialgebra.mul_compr₂_counit
+    mul_compr₂_comul := Bialgebra.mul_compr₂_comul
+    mul_antipode_rTensor_comul := HopfAlgebra.mul_antipode_rTensor_comul
+    mul_antipode_lTensor_comul := HopfAlgebra.mul_antipode_lTensor_comul }
+{ toFunctor := coyoneda.obj (op <| .of k H)
+  corep := ⟨_, Iso.refl _⟩
+  m := comulToMul (Bialgebra.comulAlgHom k H)
+  e := counitToUnit (Bialgebra.counitAlgHom k H)
+  mul_assoc' := i.mul_assoc'
+  mul_one' := i.mul_one
+  one_mul' := i.one_mul
+  i := antipodeToInverse HopfAlgebra.antipodeAlgHom
+  mul_inv := i.mul_inv
+  inv_mul := i.inv_mul }
+
+variable {k} in
+def HopfAlgCat.homToAffineGroupHom {H₁ H₂ : HopfAlgCat k} (f : H₁ ⟶ H₂) :
+    H₂.asAffineGroup ⟶ H₁.asAffineGroup where
+  hom :=
+  { app := fun A g ↦ AlgHom.comp g f.toAlgHom }
+  one := by
+    rw [asAffineGroup_e, asAffineGroup_e]
+    change coyoneda.map _ ≫ coyoneda.map (op _) = _
+    rw [← coyoneda.map_comp]
+    change coyoneda.map (op (_ ≫ _)) = _
+    congr!
+    simp only [unop_op, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+    change AlgHom.comp (Bialgebra.counitAlgHom k _) f.toAlgHom = _
+    ext x
+    exact congr($f.comul_counit' x)
+  mul := by
+    sorry
+
 noncomputable def HopfAlgebraCatToAffineGroup :
     HopfAlgCat k ⥤ (AffineGroup k)ᵒᵖ  where
-  obj A := op
-    { toFunctor := coyoneda.obj (op <| .of k A)
-      corep :=
-      { coreprX := .of k A
-        coreprW := Iso.refl _ }
-      m := comulToMul (Bialgebra.comulAlgHom k A)
-      e := counitToUnit (Bialgebra.counitAlgHom k A)
-      mul_assoc' := sorry
-      mul_one' := sorry
-      one_mul' := sorry
-      i := antipodeToInverse HopfAlgebra.antipodeAlgHom
-      mul_inv := sorry
-      inv_mul := sorry }
-  map {X Y} f := op <|
-    { hom :=
-      { app := fun A g ↦ AlgHom.comp g f.toAlgHom }
-      one := sorry
-      mul := sorry }
+  obj H := op <| H.asAffineGroup
+  map {X Y} f := op <| HopfAlgCat.homToAffineGroupHom f
   map_id := sorry
   map_comp := sorry
 
-
+#exit
 noncomputable def antiequiv : (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
   functor := affineGroupAntiToHopfAlgCat k
   inverse := HopfAlgebraCatToAffineGroup k
