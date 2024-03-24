@@ -1677,6 +1677,34 @@ noncomputable def antiequiv.unitIso.functor :
 
 example : true := rfl
 
+@[simps]
+noncomputable def antiequiv.unitIso.inv :
+    affineGroupAntiToHopfAlgCat k ⋙ HopfAlgebraCatToAffineGroup k ⟶ 𝟭 (AffineGroup k)ᵒᵖ where
+  app F :=
+  { unop :=
+    { hom :=
+      { app := fun A x ↦
+          coyonedaCorrespondence (coyoneda.obj (op A)) F.unop.toFunctor
+            ⟨_, Iso.refl _⟩ F.unop.corep ⟨fun B f ↦ F.unop.map f x, by aesop_cat⟩
+        naturality := by
+          intros A B f
+          simp only [Functor.id_obj, Functor.comp_obj, affineGroupAntiToHopfAlgCat_obj,
+            HopfAlgebraCatToAffineGroup_obj, unop_op, HopfAlgCat.asAffineGroup_obj,
+            coyoneda_obj_obj]
+          ext x z
+          simp only [coyonedaCorrespondence, Iso.refl_hom, unop_op, NatTrans.id_app,
+            coyoneda_obj_obj, types_id_apply, Iso.refl_inv, Category.id_comp, Equiv.coe_fn_mk,
+            FunctorToTypes.map_id_apply, types_comp_apply, HopfAlgCat.asAffineGroup, comulToMul,
+            square, counitToUnit, antipodeToInverse, coyoneda_obj_map, comp_apply]
+          have := congr_fun (F.unop.corep.coreprW.inv.naturality f) x
+          dsimp at this
+          rw [this]
+          rfl }
+      one := sorry
+      mul := sorry } }
+  naturality := sorry
+
+@[simps]
 noncomputable def counitIso.functor :
     HopfAlgebraCatToAffineGroup k ⋙ affineGroupAntiToHopfAlgCat k ⟶ 𝟭 (HopfAlgCat k) where
   app H :=
@@ -1703,19 +1731,83 @@ noncomputable def counitIso.functor :
     refine DFunLike.ext (F := BialgHom _ _ _) _ _ fun z ↦ ?_
     rfl
 
+@[simps]
+noncomputable def counitIso.inv :
+    𝟭 (HopfAlgCat k) ⟶ HopfAlgebraCatToAffineGroup k ⋙ affineGroupAntiToHopfAlgCat k where
+  app H :=
+  { toFun := _root_.id
+    map_add' := by intros; rfl
+    map_smul' := by intros; rfl
+    comul_comp' := by
+      simp only [Functor.id_obj, Functor.comp_obj]
+      change TensorProduct.map LinearMap.id LinearMap.id ∘ₗ _ = _ ∘ₗ LinearMap.id
+      simp only [Functor.comp_obj, TensorProduct.map_id, LinearMap.id_comp, LinearMap.comp_id]
+      suffices
+        mToComul (F := coyoneda.obj (op <| .of k H)) ⟨_, Iso.refl _⟩
+          (comulToMul (Bialgebra.comulAlgHom k H)) =
+        Bialgebra.comulAlgHom k H by
+        ext x; exact congr($this.symm x)
+      rw [mToComul_comulToMul]
+    counit_comp' := sorry
+    map_one' := rfl
+    map_mul' := by intros; rfl
+    map_zero' := rfl
+    commutes' := by intros; rfl }
+  naturality H₁ H₂ x := by
+    simp only [Functor.comp_obj, Functor.id_obj, Functor.comp_map, Functor.id_map]
+    refine DFunLike.ext (F := BialgHom _ _ _) _ _ fun z ↦ ?_
+    rfl
+
 noncomputable def antiequiv : (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
   functor := affineGroupAntiToHopfAlgCat k
   inverse := HopfAlgebraCatToAffineGroup k
   unitIso :=
   { hom := antiequiv.unitIso.functor k
-    inv := sorry
-    hom_inv_id := sorry
-    inv_hom_id := sorry }
+    inv := antiequiv.unitIso.inv k
+    hom_inv_id := by
+      ext F
+      dsimp only [Functor.id_obj, NatTrans.comp_app, Functor.comp_obj,
+        affineGroupAntiToHopfAlgCat_obj, HopfAlgebraCatToAffineGroup_obj,
+        antiequiv.unitIso.functor_app, unop_op, HopfAlgCat.asAffineGroup_obj,
+        antiequiv.unitIso.inv_app, coyoneda_obj_obj, NatTrans.id_app]
+      apply_fun unop using unop_injective
+      refine AffineGroup.Hom.ext _ _ ?_
+      refine NatTrans.ext _ _ (funext fun A ↦ funext fun x ↦ ?_)
+      change _ = x
+      erw [NatTrans.comp_app]
+      simp only [unop_op, HopfAlgCat.asAffineGroup_obj, types_comp_apply]
+
+      change (coyonedaCorrespondence (coyoneda.obj (op A)) F.unop.toFunctor
+        _ _ |>.symm _ |>.app _ _) = _
+      simp only [coyonedaCorrespondence, Iso.refl_hom, unop_op, NatTrans.id_app, coyoneda_obj_obj,
+        types_id_apply, Iso.refl_inv, Category.id_comp, Equiv.coe_fn_mk,
+        FunctorToTypes.map_id_apply, Equiv.coe_fn_symm_mk, FunctorToTypes.comp, coyoneda_map_app,
+        Category.comp_id]
+      change F.unop.corep.coreprW.hom.app A (F.unop.corep.coreprW.inv.app A x) = x
+      simp only [FunctorToTypes.inv_hom_id_app_apply]
+    inv_hom_id := by
+      ext F
+      dsimp only [Functor.id_obj, NatTrans.comp_app, Functor.comp_obj,
+        affineGroupAntiToHopfAlgCat_obj, HopfAlgebraCatToAffineGroup_obj,
+        antiequiv.unitIso.functor_app, unop_op, HopfAlgCat.asAffineGroup_obj,
+        antiequiv.unitIso.inv_app, coyoneda_obj_obj, NatTrans.id_app]
+      apply_fun unop using unop_injective
+      refine AffineGroup.Hom.ext _ _ ?_
+      refine NatTrans.ext _ _ (funext fun A ↦ funext fun x ↦ ?_)
+      change _ = x
+      erw [NatTrans.comp_app]
+      simp only [unop_op, HopfAlgCat.asAffineGroup_obj, types_comp_apply]
+      simp only [coyonedaCorrespondence, Iso.refl_hom, unop_op, NatTrans.id_app, coyoneda_obj_obj,
+        types_id_apply, Iso.refl_inv, Category.id_comp, Equiv.coe_fn_mk,
+        FunctorToTypes.map_id_apply, Equiv.coe_fn_symm_mk, FunctorToTypes.comp, coyoneda_map_app,
+        Category.comp_id]
+      change F.unop.corep.coreprW.inv.app A (F.unop.corep.coreprW.hom.app A x) = x
+      simp only [coyoneda_obj_obj, unop_op, FunctorToTypes.hom_inv_id_app_apply] }
   counitIso :=
   { hom := counitIso.functor k
-    inv := sorry
-    hom_inv_id := sorry
-    inv_hom_id := sorry }
+    inv := counitIso.inv k
+    hom_inv_id := rfl
+    inv_hom_id := rfl }
   functor_unitIso_comp H := by
     refine DFunLike.ext (F := BialgHom _ _ _) _ _ fun z ↦ ?_
     change _ = z
