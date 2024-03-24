@@ -4,7 +4,7 @@ import Mathlib.Tactic
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine
 import Mathlib.RepresentationTheory.Basic
 import Mathlib.RingTheory.SimpleModule
-import FLT.EllipticCurve.GaloisRepresentation
+import FLT.EllipticCurve.Torsion
 
 
 /-!
@@ -372,8 +372,6 @@ lemma of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) : Nonempty (FreyPackag
   let ⟨a, b, c, ha, hb, hc, p, hpprime, hp, h⟩ := p_ge_5_counterexample_of_not_FermatLastTheorem h
   ⟨of_not_FermatLastTheorem_p_ge_5 ha hb hc hpprime hp h⟩
 
-end FreyPackage
-
 /-- The elliptic curve associated to a Frey package. The conditions imposed
 upon a Frey package guarantee that the running hypotheses in
 Section 4.1 of [Serre] all hold. -/
@@ -391,45 +389,38 @@ def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
     coe_Δ' := sorry -- check that the discriminant is correctly computed.
   }
 
-namespace FreyCurve
+end FreyPackage
+
+
+
+
+
+/-!
+
+Given an elliptic curve over `ℚ`, the p-torsion points defined over an algebraic
+closure of `ℚ` are a 2-dimensional Galois reprentation. What can we say about the Galois
+representation attached to the p-torsion of the Frey curve attached to a Frey package?
+
+It follows (after a little work!) from a profound theorem of Mazur that this representation
+must be irreducible.
+
+-/
 
 abbrev Qbar := AlgebraicClosure ℚ
 
 open WeierstrassCurve
-
--- this is wrong, it's the full group of points, not the p-torsion
-abbrev p_torsion (P : FreyPackage) : Type := ((FreyCurve P).toWeierstrassCurve ⟮Qbar⟯) -- need p-torsion
-
-variable (P : FreyPackage)
-
-instance : AddCommGroup (FreyCurve.p_torsion P) := sorry
-instance : Module (ZMod P.p) (FreyCurve.p_torsion P) := sorry -- definition above needs to be
-  -- fixed before this can be done
-
-def mod_p_Galois_representation (P : FreyPackage) :
-    Representation (ZMod P.p) (Qbar ≃ₗ[ℚ] Qbar) (FreyCurve.p_torsion P) := sorry
-
-/-!
-
-What can we say about this representation? It follows from a profound theorem
-of Mazur (and much other work) that this representation must be irreducible.
-
--/
-
 theorem Mazur_Frey (P : FreyPackage) :
-    IsSimpleModule (ZMod P.p) (mod_p_Galois_representation P).asModule := sorry
+    IsSimpleModule (ZMod P.p) (P.FreyCurve.mod_p_Galois_representation P.p Qbar).asModule := sorry
 
 /-!
 
-But it follows from a profound theorem of Ribet, and fact (proved by Wiles) that the Frey Curve
-is modular, that the representation cannot be irreducible.
+But it follows from a profound theorem of Ribet, and the even more profound theorem
+(proved by Wiles) that the Frey Curve is modular, that the representation cannot be irreducible.
 
 -/
 
 theorem Wiles_Frey (P : FreyPackage) :
-    ¬ IsSimpleModule (ZMod P.p) (mod_p_Galois_representation P).asModule := sorry
-
-end FreyCurve
+    ¬ IsSimpleModule (ZMod P.p) (P.FreyCurve.mod_p_Galois_representation P.p Qbar).asModule := sorry
 
 /-!
 
@@ -441,8 +432,8 @@ It follows that there is no Frey package.
 work of Mazur and Wiles/Ribet to rule out all possibilities for the
 $p$-torsion in the corresponding Frey curve. -/
 theorem FreyPackage.false (P : FreyPackage) : False := by
-  apply FreyCurve.Wiles_Frey P
-  exact FreyCurve.Mazur_Frey P
+  apply Wiles_Frey P
+  exact Mazur_Frey P
 
 -- Fermat's Last Theorem is true
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
