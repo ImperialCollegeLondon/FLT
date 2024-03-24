@@ -7,7 +7,7 @@ Authors: Jujian Zhang, Yunzhou Xie
 import FLT.Proj3.CommAlgebraCat.Monoidal
 import FLT.for_mathlib.HopfAlgebra.Basic
 import Mathlib.CategoryTheory.Yoneda
-import FLT.Proj3.HopfAlgCat.HopfCat
+import FLT.Proj3.HopfMon
 -- import FLT.Proj3.HopfAlgCat.BialgHom
 
 
@@ -1369,9 +1369,7 @@ noncomputable instance (F : AffineGroup k) : HopfAlgebra k (F.corep.coreprX) :=
     mul_antipode_lTensor_comul := i.3 }
 
 
-/--
-The antiequivalence from affine group functor to category of hopf algebra.
--/
+set_option maxHeartbeats 500000 in
 noncomputable def affineGroupAntiToHopfAlgCat :
     (AffineGroup k)ᵒᵖ ⥤ HopfAlgCat k where
   obj F :=
@@ -1500,19 +1498,23 @@ noncomputable def affineGroupAntiToHopfAlgCat :
         let f : F.unop.corep.coreprX ⟶ G.unop.corep.coreprX :=
           F.unop.corep.coreprW.inv.app G.unop.corep.coreprX
             (n.unop.hom.app G.unop.corep.coreprX
-               (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))
+              (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))
         change 
-            Coalgebra.counit ∘ₗ f.toLinearMap = _ 
+          Coalgebra.counit ∘ₗ f.toLinearMap = _ 
         suffices AlgHom.comp (eToCounit _ G.unop.e) _ = 
-            eToCounit _ F.unop.e from congr($(this).toLinearMap)
+          eToCounit _ F.unop.e from congr($(this).toLinearMap)
         apply_fun equiv at this
         dsimp [equiv] at this 
         convert this.symm 
         · erw [coyonedaCorrespondence_comp]
           swap
-          · sorry
-          · sorry
+          · refine ⟨(.of k k), (Iso.refl _)⟩ 
+          · change _ = AlgHom.comp _ _
+            congr!
+            
+            sorry
         · sorry
+
     } : F.unop.corep.coreprX →bi[k] G.unop.corep.coreprX)
 
   map_id F := by
@@ -1522,13 +1524,14 @@ noncomputable def affineGroupAntiToHopfAlgCat :
     let f : AlgHom _ _ _ := F.unop.corep.coreprW.inv.app F.unop.corep.coreprX
         ((AffineGroup.Hom.hom (𝟙 F.unop)).app F.unop.corep.coreprX
           (F.unop.corep.coreprW.hom.app F.unop.corep.coreprX (𝟙 F.unop.corep.coreprX)))
-    refine DFunLike.ext (F := BialgHom.BialgHom k _ _) _ _ fun x ↦ ?_
+    refine DFunLike.ext (F := BialgHom k _ _) _ _ fun x ↦ ?_
     change f x = x
     simp only [unop_op, show (AffineGroup.Hom.hom (𝟙 F.unop)) = NatTrans.id _ from rfl,
       NatTrans.id_app', types_id_apply, FunctorToTypes.hom_inv_id_app_apply, f]
     rfl
   map_comp := sorry
 
+#exit
 example : true := rfl
 
 variable {k} in
@@ -1569,7 +1572,7 @@ def HopfAlgCat.homToAffineGroupHom {H₁ H₂ : HopfAlgCat k} (f : H₁ ⟶ H₂
     simp only [unop_op, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
     change AlgHom.comp (Bialgebra.counitAlgHom k _) f.toAlgHom = _
     ext x
-    exact congr($f.counit_comp' x)
+    exact congr($f.comul_counit' x)
   mul := by
     sorry
 
@@ -1578,11 +1581,13 @@ noncomputable def HopfAlgebraCatToAffineGroup :
   obj H := op <| H.asAffineGroup
   map {X Y} f := op <| HopfAlgCat.homToAffineGroupHom f
   map_id := by
-    intro X
-    rfl
+    intro x
+    simp_all only [unop_op]
+    apply refl
   map_comp := by
-    intro X Y Z f g
-    rfl
+    intro x y z f g
+    simp_all only [unop_op]
+    apply refl
 
 noncomputable def antiequiv.unitIso.functor :
     𝟭 (AffineGroup k)ᵒᵖ ⟶ affineGroupAntiToHopfAlgCat k ⋙ HopfAlgebraCatToAffineGroup k where
