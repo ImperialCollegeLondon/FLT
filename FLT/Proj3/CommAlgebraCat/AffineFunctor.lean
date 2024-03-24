@@ -1489,7 +1489,30 @@ noncomputable def affineGroupAntiToHopfAlgCat :
           swap
           · exact G.unop.corep
           congr!
-      counit_comp' := sorry
+      comul_counit' := by 
+        simp only [coyonedaCorrespondence_apply, unop_op, AlgHom.toRingHom_eq_coe,
+          RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
+          MonoidHom.coe_coe, RingHom.coe_coe]
+        have := n.unop.2
+        let equiv : _ ≃ AlgHom k F.unop.corep.coreprX k := 
+          coyonedaCorrespondence (coyoneda.obj (op (.of k k))) F.unop.toFunctor
+          ⟨(.of k k), (Iso.refl _)⟩ F.unop.corep
+        let f : F.unop.corep.coreprX ⟶ G.unop.corep.coreprX :=
+          F.unop.corep.coreprW.inv.app G.unop.corep.coreprX
+            (n.unop.hom.app G.unop.corep.coreprX
+               (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))
+        change 
+            Coalgebra.counit ∘ₗ f.toLinearMap = _ 
+        suffices AlgHom.comp (eToCounit _ G.unop.e) _ = 
+            eToCounit _ F.unop.e from congr($(this).toLinearMap)
+        apply_fun equiv at this
+        dsimp [equiv] at this 
+        convert this.symm 
+        · erw [coyonedaCorrespondence_comp]
+          swap
+          · sorry
+          · sorry
+        · sorry
     } : F.unop.corep.coreprX →bi[k] G.unop.corep.coreprX)
 
   map_id F := by
@@ -1555,13 +1578,11 @@ noncomputable def HopfAlgebraCatToAffineGroup :
   obj H := op <| H.asAffineGroup
   map {X Y} f := op <| HopfAlgCat.homToAffineGroupHom f
   map_id := by
-    intro x
-    simp_all only [unop_op]
-    apply refl
+    intro X
+    rfl
   map_comp := by
-    intro x y z f g
-    simp_all only [unop_op]
-    apply refl
+    intro X Y Z f g
+    rfl
 
 noncomputable def antiequiv.unitIso.functor :
     𝟭 (AffineGroup k)ᵒᵖ ⟶ affineGroupAntiToHopfAlgCat k ⋙ HopfAlgebraCatToAffineGroup k where
