@@ -9,10 +9,10 @@ import Mathlib.Algebra.Category.AlgebraCat.Basic
 import Mathlib.RingTheory.TensorProduct
 import Mathlib.Algebra.Algebra.Basic
 import Mathlib.LinearAlgebra.TensorProduct
-import FLT.Proj3.CoalgHom
-import FLT.Proj3.BialgHom
-import FLT.Proj3.CoalgEquiv
-import FLT.Proj3.BialgEquiv
+import FLT.Proj3.HopfAlgCat.CoalgHom
+import FLT.Proj3.HopfAlgCat.BialgHom
+import FLT.Proj3.HopfAlgCat.CoalgEquiv
+import FLT.Proj3.HopfAlgCat.BialgEquiv
 universe u
 variable (R :Type u)[CommRing R]
 

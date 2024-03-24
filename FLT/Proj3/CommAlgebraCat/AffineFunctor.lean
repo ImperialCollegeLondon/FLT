@@ -6,9 +6,8 @@ Authors: Jujian Zhang, Yunzhou Xie
 
 import FLT.Proj3.CommAlgebraCat.Monoidal
 import FLT.for_mathlib.HopfAlgebra.Basic
+import FLT.Proj3.HopfAlgCat.HopfCat
 import Mathlib.CategoryTheory.Yoneda
-import FLT.Proj3.HopfMon
-
 
 /-!
 # The internal group object in the corepresentable functor from commutaive algebra
@@ -705,6 +704,34 @@ lemma comulToMul_mToComul:
 
   simp [eq0]
 
+lemma mToComul_comulToMul (comul : A →ₐ[k] A ⊗[k] A) :
+    mToComul (F := coyoneda.obj (op <| .of k A)) ⟨_, Iso.refl _⟩ (comulToMul comul) =
+    comul := by
+  simp only [CommAlgebraCat.coe_of, comulToMul, square, mToComul, coyonedaCorrespondence,
+    Iso.refl_inv, Iso.symm_hom, unop_op, NatTrans.id_app, coyoneda_obj_obj, types_id_apply,
+    Iso.symm_inv, Iso.refl_hom, Category.comp_id, Equiv.coe_fn_mk, FunctorToTypes.comp,
+    coyonedaMulCoyoneda_hom_app, coyoneda_map_app, Quiver.Hom.unop_op]
+  set f := _
+  change CommAlgebraCat.ofHom comul ≫ f = _
+  suffices eq0 : f = 𝟙 _ by
+    simp only [eq0, Category.comp_id]; rfl
+  simp only [CommAlgebraCat.coe_of, f]
+  refine Algebra.TensorProduct.ext ?_ ?_
+  · ext (x : A)
+    simp only [CommAlgebraCat.coe_of, coyonedaMulCoyoneda', Iso.refl_inv, Iso.refl_hom,
+      Iso.trans_inv, FunctorToTypes.comp, coyonedaMulCoyoneda_inv_app, coyoneda_obj_obj, unop_op,
+      Algebra.TensorProduct.liftEquiv, Equiv.coe_fn_symm_mk, mulMap_app, NatTrans.id_app,
+      types_id_apply, Algebra.TensorProduct.lift_comp_includeLeft, AlgHom.coe_comp,
+      Function.comp_apply, Algebra.TensorProduct.includeLeft_apply]
+    rfl
+  · ext (x : A)
+    simp only [CommAlgebraCat.coe_of, coyonedaMulCoyoneda', Iso.refl_inv, Iso.refl_hom,
+      Iso.trans_inv, FunctorToTypes.comp, coyonedaMulCoyoneda_inv_app, coyoneda_obj_obj, unop_op,
+      Algebra.TensorProduct.liftEquiv, Equiv.coe_fn_symm_mk, mulMap_app, NatTrans.id_app,
+      types_id_apply, Algebra.TensorProduct.lift_comp_includeRight, AlgHom.coe_comp,
+      AlgHom.coe_restrictScalars', Function.comp_apply, Algebra.TensorProduct.includeRight_apply]
+    rfl
+
 lemma counitToUnit_eToCounit :
     counitToUnit (eToCounit hF e) = e ≫ hF.coreprW.inv := by
   rw [counitTounit_eq, eToCounit]
@@ -1367,10 +1394,13 @@ noncomputable instance (F : AffineGroup k) : HopfAlgebra k (F.corep.coreprX) :=
     mul_antipode_rTensor_comul := i.2
     mul_antipode_lTensor_comul := i.3 }
 
+open BialgHom
 
+set_option maxHeartbeats 500000 in
 /--
 The antiequivalence from affine group functor to category of hopf algebra.
 -/
+@[simps! obj map]
 noncomputable def affineGroupAntiToHopfAlgCat :
     (AffineGroup k)ᵒᵖ ⥤ HopfAlgCat k where
   obj F :=
@@ -1489,7 +1519,7 @@ noncomputable def affineGroupAntiToHopfAlgCat :
         --   swap
         --   · exact G.unop.corep
         --   congr!
-      comul_counit' := sorry
+      counit_comp' := sorry
     } : F.unop.corep.coreprX →bi[k] G.unop.corep.coreprX)
 
   map_id F := by
@@ -1532,7 +1562,7 @@ noncomputable def affineGroupAntiToHopfAlgCat :
 example : true := rfl
 
 variable {k} in
-@[simps! m e i obj]
+@[simps! m e i obj corep]
 noncomputable def HopfAlgCat.asAffineGroup (H : HopfAlgCat k) : AffineGroup k :=
 let i := isAffineGroup_iff_isHopfAlgebra
   (Bialgebra.comulAlgHom k H) (Bialgebra.counitAlgHom k H)
@@ -1569,10 +1599,11 @@ def HopfAlgCat.homToAffineGroupHom {H₁ H₂ : HopfAlgCat k} (f : H₁ ⟶ H₂
     simp only [unop_op, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
     change AlgHom.comp (Bialgebra.counitAlgHom k _) f.toAlgHom = _
     ext x
-    exact congr($f.comul_counit' x)
+    exact congr($f.counit_comp' x)
   mul := by
     sorry
 
+@[simps obj map]
 noncomputable def HopfAlgebraCatToAffineGroup :
     HopfAlgCat k ⥤ (AffineGroup k)ᵒᵖ  where
   obj H := op <| H.asAffineGroup
@@ -1580,6 +1611,7 @@ noncomputable def HopfAlgebraCatToAffineGroup :
   map_id := sorry
   map_comp := sorry
 
+@[simps]
 noncomputable def antiequiv.unitIso.functor :
     𝟭 (AffineGroup k)ᵒᵖ ⟶ affineGroupAntiToHopfAlgCat k ⋙ HopfAlgebraCatToAffineGroup k where
   app F :=
@@ -1643,6 +1675,34 @@ noncomputable def antiequiv.unitIso.functor :
     convert this.symm using 2
     simp only [FunctorToTypes.inv_hom_id_app_apply]
 
+example : true := rfl
+
+noncomputable def counitIso.functor :
+    HopfAlgebraCatToAffineGroup k ⋙ affineGroupAntiToHopfAlgCat k ⟶ 𝟭 (HopfAlgCat k) where
+  app H :=
+  { toFun := _root_.id
+    map_add' := by intros; rfl
+    map_smul' := by intros; rfl
+    comul_comp' := by
+      simp only [Functor.id_obj, Functor.comp_obj]
+      change TensorProduct.map LinearMap.id LinearMap.id ∘ₗ _ = _ ∘ₗ LinearMap.id
+      simp only [Functor.comp_obj, TensorProduct.map_id, LinearMap.id_comp, LinearMap.comp_id]
+      suffices
+        mToComul (F := coyoneda.obj (op <| .of k H)) ⟨_, Iso.refl _⟩
+          (comulToMul (Bialgebra.comulAlgHom k H)) =
+        Bialgebra.comulAlgHom k H by
+        ext x; exact congr($this x)
+      rw [mToComul_comulToMul]
+    counit_comp' := sorry
+    map_one' := rfl
+    map_mul' := by intros; rfl
+    map_zero' := rfl
+    commutes' := by intros; rfl }
+  naturality H₁ H₂ x := by
+    simp only [Functor.comp_obj, Functor.id_obj, Functor.comp_map, Functor.id_map]
+    refine DFunLike.ext (F := BialgHom _ _ _) _ _ fun z ↦ ?_
+    rfl
+
 noncomputable def antiequiv : (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
   functor := affineGroupAntiToHopfAlgCat k
   inverse := HopfAlgebraCatToAffineGroup k
@@ -1651,5 +1711,33 @@ noncomputable def antiequiv : (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
     inv := sorry
     hom_inv_id := sorry
     inv_hom_id := sorry }
-  counitIso := sorry
-  functor_unitIso_comp := sorry
+  counitIso :=
+  { hom := counitIso.functor k
+    inv := sorry
+    hom_inv_id := sorry
+    inv_hom_id := sorry }
+  functor_unitIso_comp H := by
+    refine DFunLike.ext (F := BialgHom _ _ _) _ _ fun z ↦ ?_
+    change _ = z
+    dsimp only [Functor.id_obj, affineGroupAntiToHopfAlgCat_obj, Functor.comp_obj,
+      HopfAlgebraCatToAffineGroup_obj, unop_op, antiequiv.unitIso.functor_app,
+      HopfAlgCat.asAffineGroup_obj, affineGroupAntiToHopfAlgCat_map, counitIso.functor]
+    change BialgHom.comp _ _ z = _
+    set f := _; set g := _
+    change BialgHom.comp f g z = z
+    change f (g z) = z
+    have eq0 : g z = z := by
+      dsimp only [HopfAlgCat.asAffineGroup_corep, CommAlgebraCat.coe_of, Functor.id_obj,
+        affineGroupAntiToHopfAlgCat_obj, Iso.refl_hom, NatTrans.id_app, coyoneda_obj_obj, unop_op,
+        types_id_apply, g]
+      set h : AlgHom _ _ _ := H.unop.corep.coreprW.inv.app
+        (HopfAlgCat.asAffineGroup (HopfAlgCat.mk ↑H.unop.corep.coreprX)).corep.coreprX
+        (coyonedaCorrespondence _ _ _ _ |>.symm _ |>.app _ _)
+      change h z = _
+      simp only [HopfAlgCat.asAffineGroup_corep, CommAlgebraCat.coe_of, unop_op,
+        coyonedaCorrespondence, Iso.refl_hom, NatTrans.id_app, coyoneda_obj_obj, types_id_apply,
+        Iso.refl_inv, Category.id_comp, Equiv.coe_fn_symm_mk, FunctorToTypes.comp, coyoneda_map_app,
+        Category.comp_id, FunctorToTypes.hom_inv_id_app_apply, h]
+      rfl
+    rw [eq0]
+    rfl

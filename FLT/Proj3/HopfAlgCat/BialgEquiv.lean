@@ -4,9 +4,9 @@ import Mathlib.Algebra.Algebra.Basic
 import Mathlib.Algebra.Algebra.Equiv
 import FLT.for_mathlib.Coalgebra.Sweedler
 import FLT.for_mathlib.Coalgebra.TensorProduct
-import FLT.Proj3.CoalgHom
-import FLT.Proj3.BialgHom
-import FLT.Proj3.CoalgEquiv
+import FLT.Proj3.HopfAlgCat.CoalgHom
+import FLT.Proj3.HopfAlgCat.BialgHom
+import FLT.Proj3.HopfAlgCat.CoalgEquiv
 
 open TensorProduct BigOperators
 universe u

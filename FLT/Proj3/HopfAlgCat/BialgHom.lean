@@ -4,7 +4,7 @@ import Mathlib.RingTheory.Bialgebra
 -- import Mathlib.RingTheory.Coalgebra
 import FLT.for_mathlib.Coalgebra.Sweedler
 import FLT.for_mathlib.Coalgebra.TensorProduct
-import FLT.Proj3.CoalgHom
+import FLT.Proj3.HopfAlgCat.CoalgHom
 
 open TensorProduct BigOperators
 universe u
