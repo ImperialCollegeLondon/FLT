@@ -1489,15 +1489,18 @@ noncomputable def affineGroupAntiToHopfAlgCat :
       comul_counit' := sorry
     } : F.unop.corep.coreprX →bi[k] G.unop.corep.coreprX)
 
-  map_id X := by
-    -- dsimp only [coyonedaCorrespondence_apply, unop_op, AlgHom.toRingHom_eq_coe,
-    --   RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe, MonoidHom.coe_coe,
-    --   RingHom.coe_coe, coyoneda_obj_obj, AlgHom.toNonUnitalAlgHom_eq_coe,
-    --   NonUnitalAlgHom.toDistribMulActionHom_eq_coe, AlgHom.comp_toLinearMap, id_eq, unop_id]
-    -- let f :=  (X.unop.corep.coreprW.inv.app X.unop.corep.coreprX
-    --             ((𝟙 X.unop).hom.app X.unop.corep.coreprX
-    --             (X.unop.corep.coreprW.hom.app X.unop.corep.coreprX (𝟙 X.unop.corep.coreprX))))
-    sorry
+  map_id F := by
+    simp only [coyonedaCorrespondence_apply, unop_op, AlgHom.toRingHom_eq_coe,
+      RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe, MonoidHom.coe_coe,
+      RingHom.coe_coe, unop_id]
+    let f : AlgHom _ _ _ := F.unop.corep.coreprW.inv.app F.unop.corep.coreprX
+        ((AffineGroup.Hom.hom (𝟙 F.unop)).app F.unop.corep.coreprX
+          (F.unop.corep.coreprW.hom.app F.unop.corep.coreprX (𝟙 F.unop.corep.coreprX)))
+    refine DFunLike.ext (F := BialgHom k _ _) _ _ fun x ↦ ?_
+    change f x = x
+    simp only [unop_op, show (AffineGroup.Hom.hom (𝟙 F.unop)) = NatTrans.id _ from rfl,
+      NatTrans.id_app', types_id_apply, FunctorToTypes.hom_inv_id_app_apply, f]
+    rfl
   map_comp := sorry
 
 #exit
