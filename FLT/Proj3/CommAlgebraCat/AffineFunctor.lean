@@ -285,6 +285,27 @@ noncomputable def coyonedaCorrespondence
       Category.comp_id]
     rfl
 
+@[reassoc]
+lemma coyonedaCorrespondence_comp
+    (F G H : CommAlgebraCat k ⥤ Type v)
+    (hF : CorepresentableFunctor F)
+    (hG : CorepresentableFunctor G)
+    (hH : CorepresentableFunctor H)
+    (f : F ⟶ G) (g : G ⟶ H) :
+    coyonedaCorrespondence F H hF hH (f ≫ g) =
+    coyonedaCorrespondence G H hG hH g ≫ coyonedaCorrespondence F G hF hG f := by
+  simp only [coyonedaCorrespondence_apply, unop_op, FunctorToTypes.comp]
+  change (hF.coreprW.hom ≫ ((f ≫ g) ≫ hH.coreprW.inv)).app _ _ = _
+  change _ = ((hG.coreprW.hom ≫ g) ≫ hH.coreprW.inv).app hG.coreprX _ ≫ _
+  have := ((hG.coreprW.hom ≫ g) ≫ hH.coreprW.inv).naturality
+    (((hF.coreprW.hom ≫ f) ≫ hG.coreprW.inv).app hF.coreprX (𝟙 hF.coreprX))
+  dsimp only [unop_op, coyoneda_obj_obj, FunctorToTypes.comp, NatTrans.comp_app] at this
+  have := congr_fun this (𝟙 _)
+  dsimp only [types_comp_apply, coyoneda_obj_map, unop_op] at this
+  erw [← this]
+  simp only [unop_op, Category.assoc, FunctorToTypes.comp, Category.id_comp,
+    FunctorToTypes.inv_hom_id_app_apply]
+
 end setup
 
 /--
@@ -1366,36 +1387,116 @@ noncomputable def affineGroupAntiToHopfAlgCat :
             coyonedaMulCoyoneda' _ _ ⟨G.unop.corep.coreprX, G.unop.corep.coreprW⟩
               ⟨G.unop.corep.coreprX, G.unop.corep.coreprW⟩ |>.symm⟩
             F.unop.corep
-        let f := F.unop.corep.coreprW.inv.app G.unop.corep.coreprX
-                    (n.unop.hom.app G.unop.corep.coreprX
-                      (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX
-                        (𝟙 G.unop.corep.coreprX)))
+        let f : F.unop.corep.coreprX ⟶ G.unop.corep.coreprX :=
+          F.unop.corep.coreprW.inv.app G.unop.corep.coreprX
+            (n.unop.hom.app G.unop.corep.coreprX
+              (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX
+                (𝟙 G.unop.corep.coreprX)))
         change
           TensorProduct.map f.toLinearMap f.toLinearMap ∘ₗ
             (Bialgebra.comulAlgHom k F.unop.corep.coreprX).toLinearMap =
           Bialgebra.comulAlgHom k G.unop.corep.coreprX ∘ₗ f.toLinearMap
         suffices AlgHom.comp (Algebra.TensorProduct.map f f)
           (mToComul _ F.unop.m) = (mToComul _ G.unop.m).comp f from congr($(this).toLinearMap)
-        apply_fun equiv.symm 
-        dsimp only [equiv, coyonedaCorrespondence]
-        simp only [Iso.symm_hom, unop_op, Iso.symm_inv, Equiv.coe_fn_symm_mk,
-          Iso.cancel_iso_hom_right_assoc, Iso.cancel_iso_hom_left]
-        erw [coyoneda.map_comp]
-        -- change coyoneda.map ((CommAlgebraCat.ofHom (mToComul F.unop.corep F.unop.m)) ≫ 
-        --   (CommAlgebraCat.ofHom (Algebra.TensorProduct.map f f))) = _
-        -- change coyoneda.map (_ ≫ _) = _
-        sorry
+        have := n.unop.3
+        apply_fun equiv at this
+        dsimp [equiv] at this
+        convert this.symm
+        · erw [coyonedaCorrespondence_comp]
+          swap
+          · refine ⟨F.unop.corep.coreprX ⊗ F.unop.corep.coreprX,
+              coyonedaMulCoyoneda' _ _ _ _ |>.symm⟩
+          change _ = AlgHom.comp _ _
+          congr! 1
+          simp only [coyonedaMulCoyoneda', Iso.trans_symm, Iso.symm_mk, coyonedaCorrespondence,
+            Iso.trans_inv, Iso.symm_inv, Iso.trans_hom, Iso.symm_hom, unop_op, FunctorToTypes.comp,
+            coyonedaMulCoyoneda_inv_app, coyoneda_obj_obj,
+            Algebra.TensorProduct.liftEquiv_symm_apply_coe, mulMap_app, coyonedaMulCoyoneda_hom_app,
+            Category.assoc, Equiv.coe_fn_mk]
+          erw [AlgHom.id_comp, AlgHom.id_comp]
+          set gL := _; set gR := _;
+          change _ = Algebra.TensorProduct.lift gL gR _
+
+          have eqL : gL = AlgHom.comp (Algebra.TensorProduct.includeLeft) f := by
+            change gL = f ≫ (CommAlgebraCat.ofHom <| Algebra.TensorProduct.includeLeft
+              (R := k) (A := G.unop.corep.coreprX) (S := k) (B := G.unop.corep.coreprX))
+            simp only [gL, f]
+
+            have := F.unop.corep.coreprW.inv.naturality
+              (CommAlgebraCat.ofHom <| Algebra.TensorProduct.includeLeft
+                (R := k) (A := G.unop.corep.coreprX) (S := k) (B := G.unop.corep.coreprX))
+            simp only [coyoneda_obj_obj, unop_op] at this
+            have this := congr_fun this
+              (n.unop.hom.app G.unop.corep.coreprX
+                (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))
+            simp only [types_comp_apply, coyoneda_obj_map, unop_op] at this
+            convert this using 2
+            have := n.unop.hom.naturality
+              (CommAlgebraCat.ofHom <| Algebra.TensorProduct.includeLeft
+                (R := k) (A := G.unop.corep.coreprX) (S := k) (B := G.unop.corep.coreprX))
+            have this := congr_fun this
+              ((G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))
+            simp only [types_comp_apply, coyoneda_obj_map, unop_op] at this
+            convert this using 2
+            have := G.unop.corep.coreprW.hom.naturality
+              (CommAlgebraCat.ofHom <| Algebra.TensorProduct.includeLeft
+                (R := k) (A := G.unop.corep.coreprX) (S := k) (B := G.unop.corep.coreprX))
+            have this := congr_fun this (𝟙 _)
+            simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map,
+              Category.id_comp] at this
+            exact this
+
+          have eqR : gR = AlgHom.comp (Algebra.TensorProduct.includeRight) f := by
+            change gR = f ≫ (CommAlgebraCat.ofHom <| Algebra.TensorProduct.includeRight
+                (R := k) (A := G.unop.corep.coreprX) (B := G.unop.corep.coreprX))
+            simp only [gR, f]
+
+            have := F.unop.corep.coreprW.inv.naturality
+              (CommAlgebraCat.ofHom <| Algebra.TensorProduct.includeRight
+                (R := k) (A := G.unop.corep.coreprX) (B := G.unop.corep.coreprX))
+            simp only [coyoneda_obj_obj, unop_op] at this
+            have this := congr_fun this
+              (n.unop.hom.app G.unop.corep.coreprX
+                (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))
+            simp only [types_comp_apply, coyoneda_obj_map, unop_op] at this
+            convert this using 2
+            have := n.unop.hom.naturality
+              (CommAlgebraCat.ofHom <| Algebra.TensorProduct.includeRight
+                (R := k) (A := G.unop.corep.coreprX) (B := G.unop.corep.coreprX))
+            have this := congr_fun this
+              ((G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))
+            simp only [types_comp_apply, coyoneda_obj_map, unop_op] at this
+            convert this using 2
+            have := G.unop.corep.coreprW.hom.naturality
+              (CommAlgebraCat.ofHom <| Algebra.TensorProduct.includeRight
+                (R := k) (A := G.unop.corep.coreprX) (B := G.unop.corep.coreprX))
+            have this := congr_fun this (𝟙 _)
+            simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map,
+              Category.id_comp] at this
+            exact this
+          simp_rw [eqL, eqR]
+          ext x
+          · simp only [Algebra.TensorProduct.map_comp_includeLeft, AlgHom.coe_comp,
+            Function.comp_apply, Algebra.TensorProduct.includeLeft_apply,
+            Algebra.TensorProduct.lift_comp_includeLeft]
+          · simp only [Algebra.TensorProduct.map_restrictScalars_comp_includeRight,
+            AlgHom.coe_comp, Function.comp_apply, Algebra.TensorProduct.includeRight_apply,
+            Algebra.TensorProduct.lift_comp_includeRight]
+        · erw [coyonedaCorrespondence_comp]
+          swap
+          · exact G.unop.corep
+          congr!
       comul_counit' := sorry
     } : F.unop.corep.coreprX →bi[k] G.unop.corep.coreprX)
 
-  map_id X := by 
-    dsimp only [coyonedaCorrespondence_apply, unop_op, AlgHom.toRingHom_eq_coe,
-      RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe, MonoidHom.coe_coe,
-      RingHom.coe_coe, coyoneda_obj_obj, AlgHom.toNonUnitalAlgHom_eq_coe,
-      NonUnitalAlgHom.toDistribMulActionHom_eq_coe, AlgHom.comp_toLinearMap, id_eq, unop_id]
-    let f :=  (X.unop.corep.coreprW.inv.app X.unop.corep.coreprX
-                ((𝟙 X.unop).hom.app X.unop.corep.coreprX
-                (X.unop.corep.coreprW.hom.app X.unop.corep.coreprX (𝟙 X.unop.corep.coreprX))))
+  map_id X := by
+    -- dsimp only [coyonedaCorrespondence_apply, unop_op, AlgHom.toRingHom_eq_coe,
+    --   RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe, MonoidHom.coe_coe,
+    --   RingHom.coe_coe, coyoneda_obj_obj, AlgHom.toNonUnitalAlgHom_eq_coe,
+    --   NonUnitalAlgHom.toDistribMulActionHom_eq_coe, AlgHom.comp_toLinearMap, id_eq, unop_id]
+    -- let f :=  (X.unop.corep.coreprW.inv.app X.unop.corep.coreprX
+    --             ((𝟙 X.unop).hom.app X.unop.corep.coreprX
+    --             (X.unop.corep.coreprW.hom.app X.unop.corep.coreprX (𝟙 X.unop.corep.coreprX))))
     sorry
   map_comp := sorry
 
