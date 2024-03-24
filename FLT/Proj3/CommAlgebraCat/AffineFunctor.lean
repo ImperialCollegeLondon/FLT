@@ -361,6 +361,7 @@ namespace AffineMonoid
 variable {k}
 
 /--morphism between two affine monoid functors-/
+@[ext]
 structure Hom (F G : AffineMonoid k) where
   /-- the underlying natural transformation-/
   hom : F.toFunctor ⟶ G.toFunctor
@@ -384,6 +385,7 @@ namespace AffineGroup
 variable {k}
 
 /--Morphisms between two affine group functors. -/
+@[ext]
 structure Hom (F G : AffineGroup k) where
   /-- the underlying natural transformation. -/
   hom : F.toFunctor ⟶ G.toFunctor
@@ -1554,10 +1556,76 @@ noncomputable def HopfAlgebraCatToAffineGroup :
   map_id := sorry
   map_comp := sorry
 
-#exit
+noncomputable def antiequiv.unitIso.functor :
+    𝟭 (AffineGroup k)ᵒᵖ ⟶ affineGroupAntiToHopfAlgCat k ⋙ HopfAlgebraCatToAffineGroup k where
+  app F :=
+  { unop :=
+    { hom :=
+      { app := fun A f ↦ coyonedaCorrespondence (coyoneda.obj (op <| .of k A))
+          F.unop.toFunctor ⟨_, Iso.refl _⟩ F.unop.corep |>.symm f |>.app _ (𝟙 _)
+        naturality := by
+          intro A B x
+          simp only [Functor.comp_obj, Functor.id_obj, unop_op]
+          ext a
+          simp only [HopfAlgebraCatToAffineGroup, HopfAlgCat.asAffineGroup, comulToMul, square,
+            counitToUnit, unop_op, antipodeToInverse, affineGroupAntiToHopfAlgCat,
+            coyonedaCorrespondence, Equiv.coe_fn_mk, AlgHom.toRingHom_eq_coe,
+            RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
+            MonoidHom.coe_coe, RingHom.coe_coe, coyoneda_obj_obj, Iso.refl_hom, NatTrans.id_app,
+            types_id_apply, Iso.refl_inv, Category.id_comp, Equiv.coe_fn_symm_mk,
+            FunctorToTypes.comp, coyoneda_map_app, Category.comp_id, types_comp_apply,
+            coyoneda_obj_map]
+          exact congr_fun (F.unop.corep.coreprW.hom.naturality x) a }
+      one := sorry
+      mul := sorry } }
+  naturality F G n := by
+    rcases F with ⟨F⟩
+    rcases G with ⟨G⟩
+    rcases n with ⟨(n : G ⟶ F)⟩
+    simp only [Functor.id_obj, affineGroupAntiToHopfAlgCat, coyonedaCorrespondence_apply, unop_op,
+      AlgHom.toRingHom_eq_coe, RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe,
+      MonoidHom.toOneHom_coe, MonoidHom.coe_coe, RingHom.coe_coe, HopfAlgebraCatToAffineGroup,
+      HopfAlgCat.homToAffineGroupHom, HopfAlgCat.asAffineGroup_obj, CommAlgebraCat.coe_of,
+      Functor.comp_obj, Functor.id_map, Functor.comp_map]
+    apply_fun unop using unop_injective
+    refine AffineGroup.Hom.ext _ _ ?_
+    change (_ ≫ n.hom) = _
+    ext A (x : AlgHom k G.corep.coreprX A)
+    simp only [unop_op, Functor.comp_obj, Functor.id_obj, FunctorToTypes.comp]
+    change n.hom.app A ((coyonedaCorrespondence _ _ _ _).symm _ |>.app _ _) = _
+    conv_rhs => erw [NatTrans.comp_app]
+    simp only [HopfAlgCat.asAffineGroup_obj, unop_op, Functor.comp_obj, Functor.id_obj,
+      types_comp_apply]
+    change _ = ((coyonedaCorrespondence _ _ _ _).symm _).app A _
+    change _ = ((coyonedaCorrespondence _ _ _ _).symm (AlgHom.comp _ _)).app A _
+    change _ = ((coyonedaCorrespondence _ _ _ _).symm (AlgHom.comp _
+      (F.corep.coreprW.inv.app G.corep.coreprX
+        ((AffineGroup.Hom.hom n).app _ _)))).app A _
+    simp only [coyonedaCorrespondence, Iso.refl_hom, unop_op, NatTrans.id_app, coyoneda_obj_obj,
+      types_id_apply, Iso.refl_inv, Category.id_comp, Equiv.coe_fn_symm_mk, FunctorToTypes.comp,
+      coyoneda_map_app, Category.comp_id, CommAlgebraCat.coe_of]
+    change (AffineGroup.Hom.hom n).app A (G.corep.coreprW.hom.app A x) = _
+    have := congr_fun (G.corep.coreprW.hom ≫ AffineGroup.Hom.hom n |>.naturality x) (𝟙 _)
+    simp only [coyoneda_obj_obj, unop_op, NatTrans.comp_app, types_comp_apply, coyoneda_obj_map,
+      Category.id_comp] at this
+    rw [this]
+    set f := _
+    change _ = F.corep.coreprW.hom.app A (op f).unop
+    change _ = F.corep.coreprW.hom.app A f
+    have := congr_fun (F.corep.coreprW.hom.naturality x)
+      (F.corep.coreprW.inv.app G.corep.coreprX
+        (n.hom.app G.corep.coreprX (G.corep.coreprW.hom.app G.corep.coreprX (𝟙 G.corep.coreprX))))
+    dsimp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map] at this
+    convert this.symm using 2
+    simp only [FunctorToTypes.inv_hom_id_app_apply]
+
 noncomputable def antiequiv : (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
   functor := affineGroupAntiToHopfAlgCat k
   inverse := HopfAlgebraCatToAffineGroup k
-  unitIso := sorry
+  unitIso :=
+  { hom := antiequiv.unitIso.functor k
+    inv := sorry
+    hom_inv_id := sorry
+    inv_hom_id := sorry }
   counitIso := sorry
   functor_unitIso_comp := sorry
