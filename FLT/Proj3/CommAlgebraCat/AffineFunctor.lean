@@ -7,7 +7,8 @@ Authors: Jujian Zhang, Yunzhou Xie
 import FLT.Proj3.CommAlgebraCat.Monoidal
 import FLT.for_mathlib.HopfAlgebra.Basic
 import Mathlib.CategoryTheory.Yoneda
-import FLT.Proj3.HopfMon
+import FLT.Proj3.HopfAlgCat.HopfCat
+-- import FLT.Proj3.HopfAlgCat.BialgHom
 
 
 /-!
@@ -1488,7 +1489,7 @@ noncomputable def affineGroupAntiToHopfAlgCat :
           swap
           · exact G.unop.corep
           congr!
-      comul_counit' := sorry
+      counit_comp' := sorry
     } : F.unop.corep.coreprX →bi[k] G.unop.corep.coreprX)
 
   map_id F := by
@@ -1498,7 +1499,7 @@ noncomputable def affineGroupAntiToHopfAlgCat :
     let f : AlgHom _ _ _ := F.unop.corep.coreprW.inv.app F.unop.corep.coreprX
         ((AffineGroup.Hom.hom (𝟙 F.unop)).app F.unop.corep.coreprX
           (F.unop.corep.coreprW.hom.app F.unop.corep.coreprX (𝟙 F.unop.corep.coreprX)))
-    refine DFunLike.ext (F := BialgHom k _ _) _ _ fun x ↦ ?_
+    refine DFunLike.ext (F := BialgHom.BialgHom k _ _) _ _ fun x ↦ ?_
     change f x = x
     simp only [unop_op, show (AffineGroup.Hom.hom (𝟙 F.unop)) = NatTrans.id _ from rfl,
       NatTrans.id_app', types_id_apply, FunctorToTypes.hom_inv_id_app_apply, f]
@@ -1545,7 +1546,7 @@ def HopfAlgCat.homToAffineGroupHom {H₁ H₂ : HopfAlgCat k} (f : H₁ ⟶ H₂
     simp only [unop_op, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
     change AlgHom.comp (Bialgebra.counitAlgHom k _) f.toAlgHom = _
     ext x
-    exact congr($f.comul_counit' x)
+    exact congr($f.counit_comp' x)
   mul := by
     sorry
 
@@ -1553,8 +1554,14 @@ noncomputable def HopfAlgebraCatToAffineGroup :
     HopfAlgCat k ⥤ (AffineGroup k)ᵒᵖ  where
   obj H := op <| H.asAffineGroup
   map {X Y} f := op <| HopfAlgCat.homToAffineGroupHom f
-  map_id := sorry
-  map_comp := sorry
+  map_id := by
+    intro x
+    simp_all only [unop_op]
+    apply refl
+  map_comp := by
+    intro x y z f g
+    simp_all only [unop_op]
+    apply refl
 
 noncomputable def antiequiv.unitIso.functor :
     𝟭 (AffineGroup k)ᵒᵖ ⟶ affineGroupAntiToHopfAlgCat k ⋙ HopfAlgebraCatToAffineGroup k where
