@@ -1707,7 +1707,22 @@ noncomputable def antiequiv.unitIso.inv :
           dsimp at this
           rw [this]
           rfl }
-      one := sorry
+      one := by
+        simp only [Functor.comp_obj, affineGroupAntiToHopfAlgCat_obj,
+          HopfAlgebraCatToAffineGroup_obj, unop_op, Functor.id_obj, coyonedaCorrespondence,
+          Iso.refl_hom, NatTrans.id_app, coyoneda_obj_obj, types_id_apply, Iso.refl_inv,
+          Category.id_comp, Equiv.coe_fn_mk, FunctorToTypes.map_id_apply,
+          HopfAlgCat.asAffineGroup_e]
+        ext A f
+        simp only [HopfAlgCat.asAffineGroup_obj, Functor.id_obj, Functor.comp_obj,
+          affineGroupAntiToHopfAlgCat_obj, HopfAlgebraCatToAffineGroup_obj, unop_op,
+          FunctorToTypes.comp, coyoneda_map_app]
+        change (F.unop.e ≫ F.unop.corep.coreprW.inv).app A f = _
+        have := congr_fun ((F.unop.e ≫ F.unop.corep.coreprW.inv).naturality f) (𝟙 _)
+        simp only [coyoneda_obj_obj, unop_op, NatTrans.comp_app, types_comp_apply, coyoneda_obj_map,
+          Category.id_comp] at this
+        erw [this]
+        rfl
       mul := sorry } }
   naturality := sorry
 
