@@ -174,14 +174,14 @@ local fields is the \emph{uniformisation theorem}, originally due to Tate.
   and with perfect residue field, and if $E$ has multiplicative reduction, then there's
   an unramified character $\chi$ of $\Gal(K^{\sep}/K)$ whose square is 1, such that for
   all positive integers $n$ with $n\not=0$ in $K$, the 
-  $n$-torsion $E(K^{\sep})[n]$ is an extension of $\chi$ by $\eps\chi$, where $\eps$ is the
+  $n$-torsion $E(K^{\sep})[n]$ is an extension of $\chi$ by $\epsilon\chi$, where $\epsilon$ is the
   cyclotomic character.
 \end{corollary}
 \begin{proof} After a quadratic twist we may assume that $E$ has split multiplicative reduction.
   The result then follows from the uniformisation theorem and an explicit computation.
   Note that even if we do not prove surjectivity of Tate's uniformisation, we still know
   that it's surjective on the $n$-torsion, because all $n^2$ point in the $n$-torsion of $E$
-  are accounted for by the $n$-torsion in $K^{\sep}^\times/q^{\mathbb{Z}}$.
+  are accounted for by the $n$-torsion in $(K^{\sep})^\times/q^{\mathbb{Z}}$.
 \end{proof}
 
 \section{Hardly ramified representations}
@@ -208,7 +208,7 @@ associated to a Frey package $(a,b,c,\ell)$ is hardly ramified. The rest of this
 devoted to a proof of this. The proof is standard; for another reference, see Theorem~2.15
 of~\cite{ddt}.
 
-\section{The $\ell$-torsion in the Frey curve is hardly ramified.}
+\section{The l-torsion in the Frey curve is hardly ramified.}
 
 Let $(a,b,c,\ell)$ be a Frey package, with associated Frey curve $E$ and mod $\ell$ Galois
  representation $\rho=E[\ell]$. We now work through a proof that $\rho$ is hardly ramified.
@@ -216,7 +216,8 @@ Let $(a,b,c,\ell)$ be a Frey package, with associated Frey curve $E$ and mod $\e
  \begin{theorem}\label{Frey_curve_good} If $p\not=\ell$ is a prime not dividing $abc$ then
   $\rho$ is unramified at~$p$.
  \end{theorem}
- \begin{proof} Indeed, $E$ has good reduction at $p$, and hence $\rho$ is unramified at $p$ by~ref{good_reduction_implies_unramified}. 
+ \begin{proof} Indeed, $E$ has good reduction at $p$, and hence $\rho$ is unramified at $p$ 
+  by~\ref{good_reduction_implies_unramified}. 
  \end{proof}
 
 If however $p$ divides $abc$ then $E$ has multiplicative 
@@ -265,8 +266,12 @@ following weaker result.
 \begin{theorem}\label{Frey_curve_mod_ell_rep_at_ell} Let $\rho$ be the $\ell$-torsion in the
   Frey curve associated to a Frey package $(a,b,c,\ell)$. Then the restriction of $\rho$ to $\GQl$ comes from a finite flat group scheme.
 \end{theorem}
-\begin{proof} The Frey curve either has good reduction at $\ell$ (case 1 of FLT) or multiplicative reduction at $\ell$ (case 2 of FLT). In the first case the $\ell$-torsion is finite and flat
-  at $\ell$ by theorem~ref{good_reduction_implies_flat}. In the second case the theory of the Tate curve shows that the $\ell$-torsion is (up to quadratic twist) an \emph{unramified} extension of the trivial character by the cyclotomic character, and furthermore that the extension is controlled
+\begin{proof} The Frey curve either has good reduction at $\ell$ (case 1 of FLT) or multiplicative 
+  reduction at $\ell$ (case 2 of FLT). In the first case the $\ell$-torsion is finite and flat
+  at $\ell$ by theorem~\ref{good_reduction_implies_flat}. In the second case the theory of the Tate
+   curve shows that the $\ell$-torsion is (up to quadratic twist) an \emph{unramified} extension of
+    the trivial character by the cyclotomic character, and furthermore that the extension is 
+    controlled
   by the $\ell$th power of an $\ell$-adic unit. This extension is known to be finite and flat;
   see for example Proposition~8.2 of~\cite{edix}.
 \end{proof}
@@ -284,7 +289,7 @@ We have now proved the first main result of this chapter.
   theorem~\ref{frey_curve_at_2}, and the fourth is theorem~\ref{Frey_curve_mod_ell_rep_at_ell}.
 \end{proof}
 
-\section{The $\ell$-torsion in the Frey curve is irreducible.}
+\section{The l-torsion in the Frey curve is irreducible.}
 
 We finish this chapter by showing that Mazur's theorem implies that the $\ell$-torsion in the Frey
  curve is irreducible.
