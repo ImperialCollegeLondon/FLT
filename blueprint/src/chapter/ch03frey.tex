@@ -9,18 +9,158 @@ In the last chapter we explained how, given a counterexample to Fermat's Last Th
 We give an overview of the results we need, citing the literature for proofs. Everything here is standard, and most
 of it dates back to the 1970s or before.
 
-\begin{theorem}\label{Elliptic_curve_p_torsion_2d} Let $n$ be a positive integer, let $K$ be a separably closed
+\begin{theorem}\label{Elliptic_curve_p_torsion_size}\lean{EllipticCurve.n_torsion_card}\tangled\discussion{12345}
+  Let $n$ be a positive integer, let $K$ be a separably closed
   field with $n$ nonzero in $K$, and let $E$ be an elliptic curve over $K$. Then the $n$-torsion $E(K)[n]$ 
-  in the $K$-points of $E$ is a finite group isomorphic to $(\Z/n\Z)^2$.
+  in the $K$-points of $E$ is a finite group of size $n^2$.
 \end{theorem}
 \begin{proof}
   There are several proofs in the textbooks. The proof we shall formalise is forthcoming work of David Angdinata; it follows the approach with division polynomials, and it will be part of his PhD thesis.
 \end{proof}
 
+This theorem actually tells us the structure of the $n$-torsion, because of the following
+purely group-theoretic result:
+\begin{lemma}\label{group_theory_lemma}
+  If $n$ is a positive integer and $A$ is a finite
+  abelian group of size $n^2$ and if for all $d\mid n$, the $d$-torsion in $A$ has size $d^2$, 
+  then $A\cong (\Z/n\Z)^2$. 
+\end{lemma}
+\begin{proof}
+  One proof (which doesn't sound like much fun to formalise) writes $A$ as $\prod_{i=1}^t(\Z/a_i\Z)$
+  with $a_i\mid a_{i+1}$, uses $d=a_1$ to deduce $t=2$ and then uses $d=a_2$ to deduce $a_1=a_2$.
+\end{proof}
 
+\begin{corollary}\label{Elliptic_curve_p_torsion_2d}\lean{EllipticCurve.n_torsion_dimension}
+  Let $n$ be a positive integer, let $K$ be a separably closed
+  field with $n$ nonzero in $K$, and let $E$ be an elliptic curve over $K$. Then the $n$-torsion $E(K)[n]$ 
+  in the $K$-points of $E$ is a finite group isomorphic to $(\Z/n\Z)^2$.
+\end{theorem}
+\begin{proof}
+  This follows from the previous group-theoretic lemma~\ref{group_theory_lemma} and
+  theorem~\ref{Elliptic_curve_p_torsion_size}.
+\end{proof}
 
+If $K$ is now any field, and $E/K$ is an elliptic curve, then for $L$ and $M$ two fields
+which are $K$-algebras, and for $\phi:L\to M$ a $K$-algebra morphism, there is
+an induced $\Z/n\Z$-module morphism $E(L)[n]\to E(M)[n]$, which is functorial (that is,
+the identity map $L\to L$ induces the identity map on $E(L)[n]$, and composing $K$-algebra
+morphisms and then applying the construction is the same as applying the construction
+and then composing). From this it is a purely formal fact that for $L/K$ a Galois extension,
+$\Gal(L/K)$ acts naturally on $E(L)[n]$. If $K=\Q$, $L=\overline{\Q}$, $n>0$ and $E$ is an elliptic
+curve over $\Q$, this gives us a \emph{Galois representation} $\Gal(\Qbar/\Q)\to\GL_2(\Z/n\Z)$
+coming from the $n$-torsion of $E(\Qbar)$.
 
+A fundamental fact about this Galois representation is that its determinant is the
+cyclotomic character.
 
+\begin{theorem}\label{Elliptic_curve_det_p_torsion}\uses{Elliptic_curve_p_torsion_2d} If $E$ is an 
+  elliptic curve over a field $K$, and $n>0$ is a positive integer which is nonzero in $K$, then the 
+  determinant of the 2-dimensional representation of $\Gal(K^\sep/K)$ on $E[n]$ is the 
+  mod $n$ cyclotomic character.
+\end{theorem}
+\begin{proof}
+  This presumably should be done via the Weil pairing. I have not yet put any thought into a feasible way to go about this.
+\end{proof}
+
+\section{Good reduction}
+
+If $E$ is now an elliptic curve over the field of fractions $K$ of a DVR $R$ with maximal ideal 
+$\m$, then we say $E$ has \emph{good reduction} if $E$ has a model with coefficients in $R$ and
+the reduction mod $\m$ is still non-singular. If $E$ is an elliptic curve over a number field $N$
+then one says that $E$ has good reduction at a finite place $P$ of $N$ if the base extension of $E$
+to the completion $N_P$ of $N$ at $P$ has good reduction.
+
+\begin{example} If $E$ is the Frey curve $Y^2=X(X-a^p)(X+b^p)$ and $q$ is a prime
+  not dividing $abc$ (and in particular $q>2$), then the reduction mod $q$ of this 
+  equation is still a smooth
+  plane cubic, because the three roots $0$, $a^p$ and $-b^p$ are distinct modulo $q$
+  (note that the difference between $a^p$ and $-b^p$ is $c^p$). Hence the Frey curve
+  has good reduction at $q$.
+\end{example}
+
+If $E$ is an elliptic curve over a number field $N$ and if $\rho$ is the representation
+of $\Gal(\overline{N}/N)$ on the $n$-torsion of $E$ then the image of $\rho$ is finite,
+so by the fundamental theorem of Galois theory the representation factors through an
+injection $\Gal(L/N)\to\GL_2(\Z/n\Z)$ where $L/N$ is a finite Galois extension of
+number fields. One says that $\rho$ is \emph{unramified} at a finite place $P$ of $N$
+if $L/N$ is unramified at $P$.
+
+At some point we will need a theory of finite flat group schemes over an affine base. Here
+is a working definition.
+
+\begin{definition}\label{finite_flat_group_scheme} If $R$ is a commutative ring, then
+  a \emph{finite flat group scheme} over $R$ is the spectrum of a commutative Hopf algebra $H/R$ 
+  which is finite and flat as an $R$-module.
+\end{definition}
+
+Some facts we will need are:
+
+\begin{theorem}\label{good_reduction_implies_unramified} If $E$ is an ellipitic curve over a number 
+  field $N$ and $E$ has good reduction at a finite place $P$ of $N$, and if furthermore 
+  $n\not\in P$, then the Galois representation on the $n$-torsion of $E$ is unramified.
+\end{theorem}
+\begin{proof}
+  One approach to this would be by developing the theory of finite flat group schemes
+  and considering the $n$-torsion on a good integral model for $E$. I have not really thought
+  through whether this is the best approach. 
+\end{proof}
+
+\begin{theorem}\label{good_reduction_implies_flat} If $E$ is an ellipitic curve over a number field 
+  $N$ and $E$ has good reduction at a finite place $P$ of $N$ containing the prime number $p$, 
+  then the Galois representation on the $p$-torsion of $E$ comes from a finite flat group scheme 
+  over the integers of the completion $N_P$.
+\end{theorem}
+\begin{proof}
+  Indeed, the kernel of the $p$-torsion on a good integral model is finite and flat.
+  Checking this claim will involve a fair amount of work.
+\end{proof}
+
+\section{Multiplicative reduction}
+
+If $E$ is an elliptic curve over the field of fractions $K$ of a DVR $R$ with maximal ideal $\m$,
+then we say that $E$ has multiplicative reduction if there is an integral model of $E$
+which reduces mod $R/\m$ to a plane cubic with only one singularity, which is an ordinary double point.
+We say that the reduction is \emph{split} if the two tangent lines at the ordinary double point
+are both defined over $R/\m$, and \emph{non-split} otherwise.
+
+\begin{example} If $E$ is the Frey curve $Y^2=X(X-a^p)(X+b^p)$ and $q$ is an odd prime
+  which does divide $abc$ then the reduction mod $q$ of this equation is smooth
+  away from the point $(x,0)$ where $x$ is the double root of the cubic mod $q$,
+  and has an ordinary double point at $(x,0)$. Hence the Frey curve has
+  multiplicative reduction at $q$.
+\end{example}
+
+\begin{example} If $E$ is the Frey curve $Y^2=X(X-a^p)(X+b^p)$ associated to a Frey package
+  then $E$ has multiplicative reduction at 2. For the change of variables $X=4X'$ and $Y=8Y'+4X'$
+  changes the equation to $64Y'^2+64X'Y'=64X'^3+16X'^2(b^p-a^p-1)-4X'a^pb^p$ and, because $p\geq5$,
+  $b$ is even and $a=3$ mod 4 the 64s cancel, given an equation which reduces mod 2 to
+  $Y'^2+X'Y'=X'^3+cX'^2$ for some $c\in\{0,1\}$, a cubic which is smooth away from an ordinary 
+  double point at $(0,0)$. Hence the Frey curve has multiplicative reduction at~2. Note
+  that $c=0$ iff $E$ has split multiplicative reduction (which happens iff $a^p=7$ mod $8$).
+\end{example}
+
+In particular, the Frey curve is \emph{semistable} -- it has good or multiplicative
+reduction at all primes.
+
+The main thing we need about elliptic curves with multiplicative reduction over $p$-adic fields
+is the uniformisation theorem, originally due to Tate. 
+
+\begin{theorem}\label{Tate_curve_uniformisation} If $E$ is an elliptic curve over a field
+  complete with respect to a nontrivial nonarchimedean (real-valued) norm $K$ amd if $E$ has split
+  multiplicative reduction, then there is a Galois-equivariant injection
+  $\overline{K}^\times/q^{\mathbb{Z}}\to E(\overline{K})$.
+\end{theorem}
+\begin{proof}
+  See~\cite{silverman2}, Theorems V.3.1, Remark V.3.1.2 (we don't need surjectivity),
+  and Theorem V.5.3.
+\end{proof}
+
+\begin{corollary}\label{multiplicative_reduction_torsion} If $E$ is an elliptic curve
+  over a field $K$ complete with respet to a nontrivial nonarchimedean (real-valued) norm
+  and with perfect residue field, and if $E$ has multiplicative reduction, then the $n$-torsion
+  $E(K^\sep)[n]$ 
+
+******************************THE BELOW IS UNSORTED IDEAS****
 
 Let $\rho:\GQ\to\GL_2(\Z/p\Z)$ be the representation on the $p$-torsion of this curve. In this chapter we discuss some basic properties of this representation, used both by Mazur to prove that $\rho$ cannot be reducible and by Wiles to prove that it can't be irreducible.
 
@@ -60,11 +200,7 @@ The second reason is the theorem which we want to discuss in this section:
 The theorem will follow from the results below. The first three are valid for all elliptic curves, the rest are specific to Frey curves.
 
 
-\begin{theorem}\label{Elliptic_curve_det_p_torsion}\uses{Elliptic_curve_p_torsion_2d} If $E$ is an elliptic curve over a field $K$ of characteristic zero, and $p$ is a prime, then the determinant of the 2-dimensional Galois representation $E[p]$ is the mod $p$ cyclotomic character.
-\end{theorem}
-\begin{proof}
-  This presumably should be done via the Weil pairing. I have not yet put any thought into a feasible way to go about this.
-\end{proof}
+
 
 \begin{theorem}\label{Elliptic_curve_quotient_by_finite_subgroup} If $E$ is an elliptic curve over a field $K$ of characteristic zero, and $p$ is a prime, and if $C\subseteq E[p]$ is a Galois-stable
   subgroup of order $p$, then there's an elliptic curve ``''$E/C$'' over $K$ and an isogeny of elliptic curves $E\to E/C$ with kernel precisely $K$.
@@ -93,10 +229,7 @@ Let us now study the Galois representation on the $p$-torsion of a Frey curve.
 
 For primes dividing $abc$ we will need a theory of the Tate curve.
 
-\begin{definition}\label{Tate_curve_uniformisation} We will need the Tate uniformisation of an elliptic curve with
-  multiplicative reduction. A good reference for this is Silverman's second book on elliptic curves. {\bf TODO
-  } concrete reference, get biblio working.
-\end{definition}
+
 
 For primes $\ell\not\in\{2,p\}$ which do divide $abc$, the Frey curve has bad (multiplicative) reduction at $\ell$. However the miracle is that the $p$-torsion of the Frey curve does is unramified anyway.
 
@@ -114,9 +247,6 @@ For primes $\ell\not\in\{2,p\}$ which do divide $abc$, the Frey curve has bad (m
   Again this follows from the theory of Tate uniformisation, and the fact that the Frey curve has multiplicative reduction at 2.
 \end{proof}
 
-\begin{definition}\label{finite_flat_group_scheme} We will need a definition of finite flat group schemes over a base ring. I propose using Hopf algebras.
-\end{definition}
-  
 \begin{theorem}\label{Frey_curve_mod_p_rep_at_p} Let $\rho$ be the $p$-torsion in a $p$-Frey curve. Then the restriction of $\rho$ to $\GQp$ comes from a finite flat group scheme.
 \end{theorem}
 \begin{proof} The Frey curve either has good reduction at $p$ (case 1 of FLT) or multiplicative reduction at $p$ (case 2 of FLT). In the first case the $p$-torsion is unramified at $p$ by general theory, and in the second case the theory of the Tate curve shows that the $p$-torsion is (up to quadratic twist) an \emph{unramified} extension of the trivial character by the cyclotomic character.
