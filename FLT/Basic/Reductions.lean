@@ -4,7 +4,7 @@ import Mathlib.Tactic
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine
 import Mathlib.RepresentationTheory.Basic
 import Mathlib.RingTheory.SimpleModule
-
+import FLT.EllipticCurve.GaloisRepresentation
 
 
 /-!
