@@ -1640,7 +1640,58 @@ noncomputable def antiequiv.unitIso.functor :
             coyoneda_obj_map]
           exact congr_fun (F.unop.corep.coreprW.hom.naturality x) a }
       one := sorry
-      mul := sorry } }
+      mul := by
+        simp only [Functor.comp_obj, affineGroupAntiToHopfAlgCat_obj,
+          HopfAlgebraCatToAffineGroup_obj, unop_op, Functor.id_obj, HopfAlgCat.asAffineGroup_m,
+          coyonedaMulCoyoneda, mul_obj, coyoneda_obj_obj, CommAlgebraCat.coe_of, Prod.mk.eta,
+          HopfAlgCat.asAffineGroup_obj, coyonedaCorrespondence, Iso.refl_hom, NatTrans.id_app,
+          types_id_apply, Iso.refl_inv, Category.id_comp, Equiv.coe_fn_symm_mk, FunctorToTypes.comp,
+          coyoneda_map_app, Category.comp_id, Category.assoc, mulMap]
+        ext A ⟨f, g⟩
+        simp only [CommAlgebraCat.coe_of, Functor.comp_obj, affineGroupAntiToHopfAlgCat_obj,
+          HopfAlgebraCatToAffineGroup_obj, unop_op, Functor.id_obj, HopfAlgCat.asAffineGroup_obj,
+          FunctorToTypes.comp, coyoneda_map_app, Quiver.Hom.unop_op]
+        change F.unop.corep.coreprW.hom.app A (CommAlgebraCat.ofHom (mToComul _ _) ≫ _) =
+          F.unop.m.app A ⟨F.unop.corep.coreprW.hom.app A f, F.unop.corep.coreprW.hom.app A g⟩
+        simp only [unop_op, CommAlgebraCat.ofHom, mToComul, coyonedaMulCoyoneda', Iso.trans_symm,
+          Iso.symm_mk, coyonedaCorrespondence, Iso.trans_hom, Iso.symm_hom, FunctorToTypes.comp,
+          coyonedaMulCoyoneda_inv_app, coyoneda_obj_obj,
+          Algebra.TensorProduct.liftEquiv_symm_apply_coe, mulMap_app, Iso.trans_inv, Iso.symm_inv,
+          Category.assoc, Equiv.coe_fn_mk, CommAlgebraCat.coe_of]
+        set a := _
+        set b := _
+        set h := _
+        change F.unop.corep.coreprW.hom.app A
+          ((F.unop.m ≫ F.unop.corep.coreprW.inv).app
+            (MonoidalCategory.tensorObj F.unop.corep.coreprX F.unop.corep.coreprX)
+              ⟨a, b⟩ ≫ h) = _
+        have eq0 := congr_fun ((F.unop.m ≫ F.unop.corep.coreprW.inv).naturality h) (a, b)
+        simp only [coyoneda_obj_obj, unop_op, mul_obj, NatTrans.comp_app, types_comp_apply, mul_map,
+          coyoneda_obj_map] at eq0
+        erw [← eq0]
+        simp only [FunctorToTypes.inv_hom_id_app_apply]
+        congr! 2
+        · simp only [a]
+          have := congr_fun (F.unop.corep.coreprW.hom.naturality h)
+            (AlgHom.comp (𝟙 (MonoidalCategory.tensorObj F.unop.corep.coreprX F.unop.corep.coreprX))
+              Algebra.TensorProduct.includeLeft)
+          simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map] at this
+          rw [← this]
+          simp only [CommAlgebraCat.coe_of, h]
+          erw [AlgHom.id_comp]
+          congr! 1
+          exact Algebra.TensorProduct.lift_comp_includeLeft _ _ _
+        · simp only [b]
+          have := congr_fun (F.unop.corep.coreprW.hom.naturality h)
+            (AlgHom.comp (𝟙 (MonoidalCategory.tensorObj F.unop.corep.coreprX F.unop.corep.coreprX))
+              Algebra.TensorProduct.includeRight)
+          simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map] at this
+          erw [← this]
+          simp only [CommAlgebraCat.coe_of, h]
+          erw [AlgHom.id_comp]
+          congr! 1
+          exact Algebra.TensorProduct.lift_comp_includeRight _ _
+            (by intros; show _ * _ = _ * _; rw [mul_comm]) } }
   naturality F G n := by
     rcases F with ⟨F⟩
     rcases G with ⟨G⟩
@@ -1887,7 +1938,6 @@ noncomputable def counitIso.inv :
     refine DFunLike.ext (F := BialgHom _ _ _) _ _ fun z ↦ ?_
     rfl
 
--- set_option maxHeartbeats 500000 in
 noncomputable def antiequiv : (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
   functor := affineGroupAntiToHopfAlgCat k
   inverse := HopfAlgebraCatToAffineGroup k
