@@ -1684,6 +1684,7 @@ noncomputable def antiequiv.unitIso.functor :
 
 example : true := rfl
 
+set_option maxHeartbeats 10000000 in
 @[simps]
 noncomputable def antiequiv.unitIso.inv :
     affineGroupAntiToHopfAlgCat k ⋙ HopfAlgebraCatToAffineGroup k ⟶ 𝟭 (AffineGroup k)ᵒᵖ where
@@ -1802,11 +1803,6 @@ noncomputable def antiequiv.unitIso.inv :
     apply_fun unop using unop_injective
     refine AffineGroup.Hom.ext _ _ ?_
     ext A x
-    simp only [unop_op, HopfAlgCat.asAffineGroup_obj, Functor.id_obj, Functor.comp_obj,
-      affineGroupAntiToHopfAlgCat_obj, HopfAlgebraCatToAffineGroup_obj]
-    erw [NatTrans.comp_app, NatTrans.comp_app]
-    simp only [unop_op, HopfAlgCat.asAffineGroup_obj, Functor.id_obj, Functor.comp_obj,
-      affineGroupAntiToHopfAlgCat_obj, HopfAlgebraCatToAffineGroup_obj, types_comp_apply]
     change
       ((F.unop.corep.coreprW.inv.app G.unop.corep.coreprX
         (n.unop.hom.app G.unop.corep.coreprX
@@ -1891,6 +1887,7 @@ noncomputable def counitIso.inv :
     refine DFunLike.ext (F := BialgHom _ _ _) _ _ fun z ↦ ?_
     rfl
 
+-- set_option maxHeartbeats 500000 in
 noncomputable def antiequiv : (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
   functor := affineGroupAntiToHopfAlgCat k
   inverse := HopfAlgebraCatToAffineGroup k
