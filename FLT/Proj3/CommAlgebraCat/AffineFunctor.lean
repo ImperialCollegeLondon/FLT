@@ -1723,8 +1723,103 @@ noncomputable def antiequiv.unitIso.inv :
           Category.id_comp] at this
         erw [this]
         rfl
-      mul := sorry } }
-  naturality := sorry
+      mul := by
+        simp only [Functor.id_obj, Functor.comp_obj, affineGroupAntiToHopfAlgCat_obj,
+          HopfAlgebraCatToAffineGroup_obj, unop_op, coyonedaCorrespondence, Iso.refl_hom,
+          NatTrans.id_app, coyoneda_obj_obj, types_id_apply, Iso.refl_inv, Category.id_comp,
+          Equiv.coe_fn_mk, FunctorToTypes.map_id_apply, mulMap, mul_obj,
+          HopfAlgCat.asAffineGroup_obj, HopfAlgCat.asAffineGroup_m, coyonedaMulCoyoneda,
+          CommAlgebraCat.coe_of, Prod.mk.eta]
+        ext A ⟨f, g⟩
+        simp only [HopfAlgCat.asAffineGroup_obj, Functor.id_obj, Functor.comp_obj,
+          affineGroupAntiToHopfAlgCat_obj, HopfAlgebraCatToAffineGroup_obj, unop_op,
+          FunctorToTypes.comp, CommAlgebraCat.coe_of, coyoneda_map_app, Quiver.Hom.unop_op]
+        change _ = CommAlgebraCat.ofHom (mToComul _ _) ≫ _
+        simp only [CommAlgebraCat.ofHom, mToComul, coyonedaMulCoyoneda', Iso.trans_symm,
+          Iso.symm_mk, coyonedaCorrespondence, Iso.trans_hom, Iso.symm_hom, unop_op,
+          FunctorToTypes.comp, coyonedaMulCoyoneda_inv_app, coyoneda_obj_obj,
+          Algebra.TensorProduct.liftEquiv_symm_apply_coe, mulMap_app, Iso.trans_inv, Iso.symm_inv,
+          Category.assoc, Equiv.coe_fn_mk, CommAlgebraCat.coe_of]
+        change (F.unop.m ≫ F.unop.corep.coreprW.inv).app A ⟨f, g⟩ = _
+        change _ =
+          (F.unop.m ≫ F.unop.corep.coreprW.inv).app (F.unop.corep.coreprX ⊗ F.unop.corep.coreprX)
+            _ ≫ _
+        have eq0 := congr_fun (F.unop.corep.coreprW.hom.naturality
+          ((AlgHom.comp (𝟙 (MonoidalCategory.tensorObj F.unop.corep.coreprX F.unop.corep.coreprX))
+            Algebra.TensorProduct.includeLeft))) (𝟙 _)
+        simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map,
+          Category.id_comp] at eq0
+        rw [eq0]
+        have eq0 := congr_fun (F.unop.corep.coreprW.hom.naturality
+          (AlgHom.comp (AlgHom.restrictScalars k
+            (𝟙 (MonoidalCategory.tensorObj F.unop.corep.coreprX F.unop.corep.coreprX)))
+              Algebra.TensorProduct.includeRight)) (𝟙 _)
+        simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map,
+          Category.id_comp] at eq0
+        rw [eq0]
+        set h := _
+        change _ = _ ≫ h
+        set a := _; set b := _
+        change _ = (F.unop.m ≫ F.unop.corep.coreprW.inv).app
+          (F.unop.corep.coreprX ⊗ F.unop.corep.coreprX) ⟨a, b⟩ ≫ h
+        have := congr_fun ((F.unop.m ≫ F.unop.corep.coreprW.inv).naturality h) ⟨a, b⟩
+        simp only [coyoneda_obj_obj, unop_op, mul_obj, NatTrans.comp_app, types_comp_apply, mul_map,
+          coyoneda_obj_map] at this
+        erw [← this]
+        change _ = (F.unop.m ≫ F.unop.corep.coreprW.inv).app A _
+        congr! 2
+        · simp only [CommAlgebraCat.coe_of, h, a]
+          change f = (F.unop.map _ ≫ F.unop.map _)
+            (F.unop.corep.coreprW.hom.app F.unop.corep.coreprX (𝟙 F.unop.corep.coreprX))
+          rw [← F.unop.map_comp]
+          change f = F.unop.map (AlgHom.comp _ _) _
+          erw [AlgHom.id_comp, Algebra.TensorProduct.lift_comp_includeLeft]
+          have := congr_fun (F.unop.corep.coreprW.hom.naturality (F.unop.corep.coreprW.inv.app A f))
+            (𝟙 F.unop.corep.coreprX)
+          dsimp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map] at this
+          rw [← this]
+          simp only [Category.id_comp, FunctorToTypes.inv_hom_id_app_apply]
+        · simp only [CommAlgebraCat.coe_of, h, b]
+          change g = (F.unop.map _ ≫ F.unop.map _)
+            (F.unop.corep.coreprW.hom.app F.unop.corep.coreprX (𝟙 F.unop.corep.coreprX))
+          rw [← F.unop.map_comp]
+          change g = F.unop.map (AlgHom.comp _ _) _
+          erw [AlgHom.id_comp, Algebra.TensorProduct.lift_comp_includeRight]
+          swap
+          · intros; change _ * _ = _ * _; rw [mul_comm]
+          have := congr_fun (F.unop.corep.coreprW.hom.naturality (F.unop.corep.coreprW.inv.app A g))
+            (𝟙 F.unop.corep.coreprX)
+          dsimp only [unop_op, coyoneda_obj_obj, types_comp_apply, coyoneda_obj_map] at this
+          rw [← this]
+          simp only [Category.id_comp, FunctorToTypes.inv_hom_id_app_apply] } }
+  naturality F G n := by
+    simp only [Functor.comp_obj, affineGroupAntiToHopfAlgCat_obj, HopfAlgebraCatToAffineGroup_obj,
+      Functor.id_obj, Functor.comp_map, affineGroupAntiToHopfAlgCat_map,
+      HopfAlgebraCatToAffineGroup_map, unop_op, HopfAlgCat.homToAffineGroupHom,
+      HopfAlgCat.asAffineGroup_obj, CommAlgebraCat.coe_of, coyonedaCorrespondence, Iso.refl_hom,
+      NatTrans.id_app, coyoneda_obj_obj, types_id_apply, Iso.refl_inv, Category.id_comp,
+      Equiv.coe_fn_mk, FunctorToTypes.map_id_apply, Functor.id_map]
+    apply_fun unop using unop_injective
+    refine AffineGroup.Hom.ext _ _ ?_
+    ext A x
+    simp only [unop_op, HopfAlgCat.asAffineGroup_obj, Functor.id_obj, Functor.comp_obj,
+      affineGroupAntiToHopfAlgCat_obj, HopfAlgebraCatToAffineGroup_obj]
+    erw [NatTrans.comp_app, NatTrans.comp_app]
+    simp only [unop_op, HopfAlgCat.asAffineGroup_obj, Functor.id_obj, Functor.comp_obj,
+      affineGroupAntiToHopfAlgCat_obj, HopfAlgebraCatToAffineGroup_obj, types_comp_apply]
+    change
+      ((F.unop.corep.coreprW.inv.app G.unop.corep.coreprX
+        (n.unop.hom.app G.unop.corep.coreprX
+          (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))) ≫
+      (G.unop.corep.coreprW.inv.app A x) ) =
+      F.unop.corep.coreprW.inv.app A (n.unop.hom.app A x)
+    change ((G.unop.corep.coreprW.hom ≫ n.unop.hom ≫ F.unop.corep.coreprW.inv).app
+      G.unop.corep.coreprX _) ≫ _ = _
+    have := congr_fun ((G.unop.corep.coreprW.hom ≫ n.unop.hom ≫ F.unop.corep.coreprW.inv).naturality
+      (G.unop.corep.coreprW.inv.app A x)) (𝟙 _)
+    simp only [coyoneda_obj_obj, unop_op, NatTrans.comp_app, types_comp_apply, coyoneda_obj_map,
+      Category.id_comp, FunctorToTypes.inv_hom_id_app_apply] at this
+    exact this.symm
 
 @[simps]
 noncomputable def counitIso.functor :
