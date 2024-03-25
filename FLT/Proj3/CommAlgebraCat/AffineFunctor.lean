@@ -1608,16 +1608,36 @@ def HopfAlgCat.homToAffineGroupHom {H₁ H₂ : HopfAlgCat k} (f : H₁ ⟶ H₂
     ext x
     exact congr($f.counit_comp' x)
   mul := by
-    sorry
+    simp only [asAffineGroup_m, coyonedaMulCoyoneda, mul_obj, coyoneda_obj_obj, unop_op,
+      CommAlgebraCat.coe_of, Prod.mk.eta, asAffineGroup_obj, Category.assoc]
+    ext A ⟨gL, gR⟩
+    simp only [asAffineGroup_obj, CommAlgebraCat.coe_of, FunctorToTypes.comp, coyoneda_map_app,
+      unop_op, Quiver.Hom.unop_op, mulMap_app]
+    refine AlgHom.ext fun x ↦ ?_
+    simp only [CommAlgebraCat.ofHom, CommAlgebraCat.coe_of, AlgHom.coe_comp, AlgHom.coe_mk,
+      AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk,
+      Function.comp_apply]
+    change AlgHom.comp _ _ _ = AlgHom.comp _ _ _
+    simp only [CommAlgebraCat.coe_of, AlgHom.coe_comp, Function.comp_apply]
+    have eq0 : (Bialgebra.comulAlgHom k H₂) (f.toLinearMap x) =
+      Algebra.TensorProduct.map f.toAlgHom f.toAlgHom (Bialgebra.comulAlgHom k H₁ x) :=
+      congr($f.comul_comp'.symm x)
+    erw [eq0]
+    obtain ⟨ι, s, a, b, eq0⟩ := crazy_comul_repr (Bialgebra.comulAlgHom k H₁) x
+    erw [eq0]
+    simp only [CommAlgebraCat.coe_of, map_sum, Algebra.TensorProduct.map_tmul, AlgHom.coe_mk,
+      AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
+    rfl
 
 @[simps obj map]
 noncomputable def HopfAlgebraCatToAffineGroup :
     HopfAlgCat k ⥤ (AffineGroup k)ᵒᵖ  where
   obj H := op <| H.asAffineGroup
-  map {X Y} f := op <| HopfAlgCat.homToAffineGroupHom f
-  map_id := sorry
-  map_comp := sorry
+  map f := op <| HopfAlgCat.homToAffineGroupHom f
+  map_id _ := rfl
+  map_comp _ _ := rfl
 
+set_option maxHeartbeats 10000000 in
 @[simps]
 noncomputable def antiequiv.unitIso.functor :
     𝟭 (AffineGroup k)ᵒᵖ ⟶ affineGroupAntiToHopfAlgCat k ⋙ HopfAlgebraCatToAffineGroup k where
@@ -1639,7 +1659,28 @@ noncomputable def antiequiv.unitIso.functor :
             FunctorToTypes.comp, coyoneda_map_app, Category.comp_id, types_comp_apply,
             coyoneda_obj_map]
           exact congr_fun (F.unop.corep.coreprW.hom.naturality x) a }
-      one := sorry
+      one := by
+        simp only [Functor.id_obj, Functor.comp_obj, affineGroupAntiToHopfAlgCat_obj,
+          HopfAlgebraCatToAffineGroup_obj, unop_op, HopfAlgCat.asAffineGroup_e,
+          HopfAlgCat.asAffineGroup_obj, coyonedaCorrespondence, Iso.refl_hom, NatTrans.id_app,
+          coyoneda_obj_obj, types_id_apply, Iso.refl_inv, Category.id_comp, Equiv.coe_fn_symm_mk,
+          FunctorToTypes.comp, coyoneda_map_app, Category.comp_id]
+        ext A f
+        simp only [Functor.comp_obj, affineGroupAntiToHopfAlgCat_obj,
+          HopfAlgebraCatToAffineGroup_obj, unop_op, Functor.id_obj, FunctorToTypes.comp,
+          coyoneda_map_app]
+        change F.unop.corep.coreprW.hom.app A (eToCounit _ _ ≫ f) = _
+        simp only [unop_op, eToCounit, coyonedaCorrespondence, Iso.refl_hom, NatTrans.id_app,
+          coyoneda_obj_obj, types_id_apply, Iso.refl_inv, Category.id_comp, Equiv.coe_fn_mk]
+        have := congr_fun (F.unop.corep.coreprW.inv.naturality f)
+          (F.unop.e.app (CommAlgebraCat.of k k) (𝟙 (CommAlgebraCat.of k k)))
+        simp only [coyoneda_obj_obj, unop_op, types_comp_apply, coyoneda_obj_map] at this
+        rw [← this]
+        simp only [FunctorToTypes.inv_hom_id_app_apply]
+        have := congr_fun (F.unop.e.naturality f) (𝟙 _)
+        simp only [unop_op, coyoneda_obj_obj, types_comp_apply, coyoneda_obj_map,
+          Category.id_comp] at this
+        exact this.symm
       mul := by
         simp only [Functor.comp_obj, affineGroupAntiToHopfAlgCat_obj,
           HopfAlgebraCatToAffineGroup_obj, unop_op, Functor.id_obj, HopfAlgCat.asAffineGroup_m,
