@@ -23,6 +23,9 @@ group, we can make a hopf algebra out of it and vice versa.
 
 Third part : This whole part is the proof of the main goal, the 
 anti-equivalence of the two categories, which is mostly done by Jujian.
+
+Reference : https://www.jmilne.org/math/CourseNotes/AGS.pdf
+    Introduction to Affine Group Scheme --by William C WaterHouse
 -/
 
 open CategoryTheory Opposite BigOperators
@@ -32,6 +35,9 @@ open scoped TensorProduct
 
 variable (k : Type v) [CommRing k]
 
+/- 
+We followed Milne's notation of "*" in this file
+-/
 local notation "⋆" => (coyoneda.obj <| op (CommAlgebraCat.of k k))
 
 variable {k} in
@@ -40,6 +46,9 @@ structure CorepresentableFunctor (F : CommAlgebraCat k ⥤ Type v) :=
 coreprX : CommAlgebraCat k
 coreprW : coyoneda.obj (op coreprX) ≅ F
 
+/-
+This part is basically copied from mathlib
+-/
 @[simps]
 def CorepresentableFunctor.of_nat_iso {F G : CommAlgebraCat k ⥤ Type v} (ε : F ≅ G)
     (h : CorepresentableFunctor F) :
@@ -75,6 +84,9 @@ def mulMap {a a' b b' : CommAlgebraCat k ⥤ Type v}
       congr_fun (g.naturality m) d, types_comp_apply]
     tauto
 
+/-
+Multiplication of two isomorphism maps is still an isomorphism
+-/
 instance mulMap.isIso {a a' b b' : CommAlgebraCat k ⥤ Type v}
     (f : a ⟶ a') (g : b ⟶ b') [IsIso f] [IsIso g] :
     IsIso (mulMap f g) where
@@ -102,6 +114,10 @@ instance mulMap.isIso {a a' b b' : CommAlgebraCat k ⥤ Type v}
         change  (inv g ≫ g).app X Y2 = _
         simp only [IsIso.inv_hom_id, NatTrans.id_app, types_id_apply]
 
+/-
+Multiplication of compostions of maps is equal to composition of 
+multiplication of maps.
+-/
 @[reassoc]
 lemma mulMap_comp {a a' a'' b b' b'' : CommAlgebraCat k ⥤ Type v}
     (f : a ⟶ a') (f' : a' ⟶ a'')
@@ -133,6 +149,7 @@ def square (F : CommAlgebraCat k ⥤ Type v) : CommAlgebraCat k ⥤ Type v :=
 
 /--
 `Hom(k, -)` has the role of the unit up to isomorphism.
+This is just some weird version of mul_one
 -/
 @[simps]
 def mulStar (a : CommAlgebraCat k ⥤ Type v) : mul a ⋆ ≅ a where
@@ -155,6 +172,7 @@ def mulStar (a : CommAlgebraCat k ⥤ Type v) : mul a ⋆ ≅ a where
 
 /--
 `Hom(k, -)` has the role of the unit up to isomorphism.
+Again, a weird version of one_mul
 -/
 @[simps]
 def starMul (a) : mul ⋆ a ≅ a where
@@ -175,11 +193,13 @@ def starMul (a) : mul ⋆ a ≅ a where
     simp
   inv_hom_id := by ext; simp
 
--- FIXME: **The formatting is not ideal**
+
 /--
 ```
 Hom(A, -) × Hom(B, -) ≅ Hom(A ⊗ B, -)
 ```
+The product of Hom functors in monoidal category is the Hom functor of 
+tensor product of the represented objects.
 -/
 @[simps]
 noncomputable def coyonedaMulCoyoneda (A B : CommAlgebraCat k) :
@@ -258,6 +278,11 @@ noncomputable def coyonedaMulCoyoneda'
   { hom := mulMap hF.coreprW.inv hG.coreprW.inv
     inv := mulMap hF.coreprW.hom hG.coreprW.hom } ≪≫ coyonedaMulCoyoneda _ _
 
+/-
+From the perspective of k-Algebra, this is simply saying:
+any homomorphism from Hom(A, -) to Hom(B, -) is the same as an algebra
+homomorphism from B to A.
+-/
 @[simps]
 noncomputable def coyonedaCorrespondence
     (F G : CommAlgebraCat k ⥤ Type v)
@@ -294,6 +319,9 @@ noncomputable def coyonedaCorrespondence
       Category.comp_id]
     rfl
 
+/-
+This correspondence perserves composition of functors.
+-/
 @[reassoc]
 lemma coyonedaCorrespondence_comp
     (F G H : CommAlgebraCat k ⥤ Type v)
@@ -318,7 +346,9 @@ lemma coyonedaCorrespondence_comp
 end setup
 
 /--
-An affine monoid functor is an internal monoid object in the category of corepresentable functors.
+An affine monoid functor is an internal monoid object in the category of corepresentable functors
+which means for any Affine Monoid (M, m, e), any k-algebra A, (M(A), m(A), e(A)) forms an 
+actual monoid.
 -/
 structure AffineMonoid extends CommAlgebraCat k ⥤ Type v where
   /--the underlying functor is corepresentable-/
@@ -334,12 +364,14 @@ structure AffineMonoid extends CommAlgebraCat k ⥤ Type v where
 attribute [instance] AffineMonoid.corep
 
 /--
-An affine group functor is the internal group object in the category of corepresentable functors.
+An affine group functor is the internal group object in the category of corepresentable functors, 
+same as the previous one, let (G, m, e) be affine group, then (G(A), m(A), e(A)) is a 
+group where A is any k-algebra.
 -/
 structure AffineGroup extends AffineMonoid k where
   /--the inverse map-/
   i : toFunctor ⟶ toFunctor
-  /-**Check if this correct**-/
+  /- group axioms -/
   mul_inv :
     ({
       app := fun _ x ↦ (i.app _ x, x)
@@ -379,6 +411,7 @@ structure Hom (F G : AffineMonoid k) where
 
 attribute [reassoc, simp] Hom.one Hom.mul
 
+/- Affine Monoids forms a category -/
 instance : Category <| AffineMonoid k where
   Hom := Hom
   id F := { hom := 𝟙 _ }
@@ -403,6 +436,7 @@ structure Hom (F G : AffineGroup k) where
 
 attribute [reassoc, simp] Hom.one Hom.mul
 
+/- Affine Groups forms a category -/
 instance : Category <| AffineGroup k where
   Hom := Hom
   id F := { hom := 𝟙 _ }
@@ -413,7 +447,9 @@ instance : Category <| AffineGroup k where
 
 
 end AffineGroup
+/- End of Part I -/
 
+/- Part II -/
 variable {k} in
 /--A proposition stating that a corepresentable functor is an affine monoid with specified
 multiplication and unit. -/
@@ -433,6 +469,9 @@ variable (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
 variable (m : mul F F ⟶ F) (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F)
 variable (G : CommAlgebraCat k ⥤ Type v) (ε : G ≅ F)
 
+/-
+If F is an affine monoid and F isomorphic to G, then G is affine monoid.
+-/
 lemma of_iso (h : IsAffineMonoidWithChosenMulAndUnit F hF m e) :
     IsAffineMonoidWithChosenMulAndUnit
       G
@@ -474,6 +513,7 @@ lemma of_iso (h : IsAffineMonoidWithChosenMulAndUnit F hF m e) :
     simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id,
       ← mulMap_comp_assoc, Category.id_comp]
 
+/- The othere direction works as well -/
 lemma from_iso
     (h : IsAffineMonoidWithChosenMulAndUnit G
       (hF.of_nat_iso k ε.symm)
@@ -484,6 +524,10 @@ lemma from_iso
     (e ≫ ε.inv) F ε.symm h
   convert this <;> aesop
 
+/-
+In conclusion, if F isomorphic to G, then F is affine monoid if and only if 
+G is affine monoid
+-/
 lemma iff_iso :
     IsAffineMonoidWithChosenMulAndUnit F hF m e ↔
     IsAffineMonoidWithChosenMulAndUnit
