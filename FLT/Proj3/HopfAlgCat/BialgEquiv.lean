@@ -12,14 +12,15 @@ open TensorProduct BigOperators
 universe u
 variable {R :Type u}[CommRing R]
 
-structure BialgEquiv (R : Type u) (A : Type u) (B : Type u) [CommRing R] [Ring A] [Ring B] [Algebra R A] [Algebra R B]
-  [Coalgebra R A] [Coalgebra R B] [Bialgebra R A] [Bialgebra R B] extends A ≃co[R] B, A ≃ₐ[R] B where
+structure BialgEquiv (R : Type u) (A : Type u) (B : Type u)
+  [CommRing R] [Ring A] [Ring B]
+  [Bialgebra R A] [Bialgebra R B] extends A ≃co[R] B, A ≃ₐ[R] B where
 
 notation:50 A " ≃bi[" R "] " A' => BialgEquiv R A A'
 
 namespace BialgEquiv
-variable (A : Type u) (B : Type u) (C : Type u) [CommRing R] [Ring A] [Ring B] [Ring C]
-  [Algebra R A] [Algebra R B] [Algebra R C] [Coalgebra R A] [Coalgebra R B] [Coalgebra R C]
+variable (A : Type u) (B : Type u) (C : Type u)
+  [CommRing R] [Ring A] [Ring B] [Ring C]
   [Bialgebra R A] [Bialgebra R B] [Bialgebra R C]
 
 instance : EquivLike (A ≃bi[R] B) A B where
@@ -80,6 +81,27 @@ def trans (e₁ : A ≃bi[R] B) (e₂ : B ≃bi[R] C) : A ≃bi[R] C :=
 
 
 def toBiAlgHom (e : A ≃bi[R] B) : A →bi[R] B := e.toBialgHom
-def toBialgEquiv (e : A ≃bi[R] B) : B ≃bi[R] A := by exact symm A B e
+def toBialgEquiv (e : A ≃bi[R] B) : B ≃bi[R] A := symm A B e
+
+
+open Coalgebra in
+noncomputable def Bialgebra.TensorProduct.comm : A ⊗[R] B ≃bi[R] B ⊗[R] A where
+  __ := Algebra.TensorProduct.comm R A B
+  __ := _root_.TensorProduct.comm R A B
+  comul_comp' := by
+    ext x y
+    simp only [AlgEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe,
+      TensorProduct.AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
+      LinearMap.coe_restrictScalars, LinearMap.coe_comp, Function.comp_apply, LinearMap.coe_mk,
+      AddHom.coe_mk, Algebra.TensorProduct.comm_tmul]
+    obtain ⟨Ix, x1, x2, hx⟩ := Coalgebra.exists_repr (R := R) x
+    obtain ⟨Iy, y1, y2, hy⟩ := Coalgebra.exists_repr (R := R) y
+    have comul_xy' : comul (x ⊗ₜ y) = ∑ i in Ix, ∑ j in Iy, (x1 i ⊗ₜ y1 j) ⊗ₜ[R] (x2 i ⊗ₜ y2 j) :=
+      TensorProduct.comul_apply_repr (a := x) (b := y) (repr_a := hx) (repr_b := hy)
+    have comul_yx' : comul (y ⊗ₜ x) = ∑ j in Iy, ∑ i in Ix, (y1 j ⊗ₜ x1 i) ⊗ₜ[R] (y2 j ⊗ₜ x2 i) :=
+      TensorProduct.comul_apply_repr (a := y) (b := x) (repr_a := hy) (repr_b := hx)
+    -- rw [← Finset.sum_product'] at comul_yx'
+    simpa only [comul_xy', map_sum, map_tmul, LinearMap.coe_mk, AddHom.coe_mk,
+      Algebra.TensorProduct.comm_tmul, comul_yx'] using Finset.sum_comm
 
 end BialgEquiv

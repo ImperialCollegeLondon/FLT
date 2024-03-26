@@ -24,7 +24,7 @@ variable (R A B : Type*) [CommSemiring R] [AddCommMonoid A] [Module R A] [Coalge
 variable [AddCommMonoid B] [Module R B] [Coalgebra R B]
 
 set_option maxHeartbeats 500000 in
-noncomputable instance : Coalgebra R (A ⊗[R] B) :=
+noncomputable instance tensorProduct : Coalgebra R (A ⊗[R] B) :=
 let e : (A ⊗[R] B) ⊗[R] (A ⊗[R] B) ⊗[R] A ⊗[R] B ≃ₗ[R] (A ⊗[R] A ⊗[R] A) ⊗[R] B ⊗[R] B ⊗[R] B :=
   congr (.refl R _) (tensorTensorTensorComm R _ _ _ _) ≪≫ₗ tensorTensorTensorComm R _ _ _ _
 { comul := tensorTensorTensorComm R A A B B ∘ₗ map comul comul
@@ -96,7 +96,7 @@ variable (R A B : Type*) [CommSemiring R]
 variable [Semiring A] [Bialgebra R A]
 variable [Semiring B] [Bialgebra R B]
 
-noncomputable instance : Bialgebra R (A ⊗[R] B) where
+noncomputable instance tensorProduct : Bialgebra R (A ⊗[R] B) where
   counit_one := by simp [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, Coalgebra.TensorProduct.counit_def]
   mul_compr₂_counit := by
     ext
