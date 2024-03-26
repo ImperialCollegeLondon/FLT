@@ -787,6 +787,7 @@ lemma mToComul_comulToMul (comul : A →ₐ[k] A ⊗[k] A) :
       AlgHom.coe_restrictScalars', Function.comp_apply, Algebra.TensorProduct.includeRight_apply]
     rfl
 
+/- Similarly, this is saying counitToUnit(eToCounit e) is e -/
 lemma counitToUnit_eToCounit :
     counitToUnit (eToCounit hF e) = e ≫ hF.coreprW.inv := by
   rw [counitTounit_eq, eToCounit]
@@ -822,6 +823,7 @@ lemma counitToUnit_eToCounit :
     exact this.symm
   simp only [eq0, Equiv.coe_fn_mk]
 
+/- Algebra version of the previous lemma -/
 lemma eToCounit_counitToUnit (counit : A →ₐ[k] k) :
     eToCounit (F := coyoneda.obj (op <| .of k A)) ⟨_, Iso.refl _⟩ (counitToUnit counit) =
     counit := by
@@ -830,6 +832,7 @@ lemma eToCounit_counitToUnit (counit : A →ₐ[k] k) :
     Category.id_comp, Equiv.coe_fn_mk, coyoneda_map_app]
   rfl
 
+/- i -> antipode -> inverse is just i in a differenct way -/
 lemma antipodeToInverse_iToAntipode :
     antipodeToInverse (iToAntipode hF i) = hF.coreprW.hom ≫ i ≫ hF.coreprW.inv := by
   simp only [antipodeToInverse, unop_op]
@@ -840,6 +843,11 @@ lemma antipodeToInverse_iToAntipode :
   erw [Category.comp_id]
   rfl
 
+/- 
+This is actually something new I've realized when doing this project that we don't actually need
+A to be a Coalgebra to have the summation expression, any algebra(or even linear?) homomorphism
+form A -> A \ox[k] A will do.
+-/
 lemma crazy_comul_repr (comul : A →ₐ[k] A ⊗[k] A) (x : A): ∃ (ι : Type v) (s : Finset ι) (a b : ι → A),
   comul x = ∑ i in s, a i ⊗ₜ[k] b i := by
     classical
@@ -869,6 +877,7 @@ lemma crazy_comul_repr (comul : A →ₐ[k] A ⊗[k] A) (x : A): ∃ (ι : Type 
 
 namespace auxlemma
 
+/- Auxilary lemmas for the proof of coassoc -/
 lemma aux02 :
     (mulAssoc (coyoneda.obj (op (CommAlgebraCat.of k A))) (coyoneda.obj (op (CommAlgebraCat.of k A)))
         (coyoneda.obj (op (CommAlgebraCat.of k A)))).hom ≫
@@ -942,6 +951,8 @@ end setup
 
 variable {k} in
 
+/- For every affine monoid there is a bialgebra structure on its represented
+  item A -/
 def AffMon_to_Bialg {A : Type v} [CommRing A] [Algebra k A]
     (comul : A →ₐ[k] A ⊗[k] A) (counit : A →ₐ[k] k)
     (h : IsAffineMonoidWithChosenMulAndUnit
