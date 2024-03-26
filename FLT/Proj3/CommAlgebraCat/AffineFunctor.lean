@@ -11,6 +11,18 @@ import Mathlib.CategoryTheory.Yoneda
 
 /-!
 # Anti-Equivalence of category of affine groups and category of Hopf-algebra
+The proof here is split into three parts:
+First part : This is where most of the setup is done, including the redefinition
+of corepresentable functor(the version in mathlib does not know *** so we made
+our own), definition of affine monoids, affine groups and the proof that affine
+groups indeed forms a category.
+
+Second part : This is the part where we showed given any k-Bialgebra we can 
+make an affine monoid out of it and vice versa. Also for any given affine
+group, we can make a hopf algebra out of it and vice versa.
+
+Third part : This whole part is the proof of the main goal, the 
+anti-equivalence of the two categories, which is mostly done by Jujian.
 -/
 
 open CategoryTheory Opposite BigOperators
