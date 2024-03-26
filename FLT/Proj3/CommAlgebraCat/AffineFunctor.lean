@@ -10,9 +10,7 @@ import FLT.Proj3.HopfAlgCat.HopfCat
 import Mathlib.CategoryTheory.Yoneda
 
 /-!
-# The internal group object in the corepresentable functor from commutaive algebra
-
-we prove that it is antiquivalent to hopf algebra.
+# Anti-Equivalence of category of affine groups and category of Hopf-algebra
 -/
 
 open CategoryTheory Opposite BigOperators
