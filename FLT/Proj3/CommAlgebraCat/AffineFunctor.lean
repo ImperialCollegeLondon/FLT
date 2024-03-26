@@ -1053,6 +1053,7 @@ def AffMon_to_Bialg {A : Type v} [CommRing A] [Algebra k A]
     mul_compr₂_comul := by
       ext x y ; simp
 
+/- Conversely any bialgebra A, Hom(A, -) is a Affine Monoid -/
 def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k] A ⊗[k] A)
     (counit : A →ₐ[k] k)
     (h : IsBialgebraWithChosenComulAndCounit (k := k) A comul counit) :
@@ -1191,6 +1192,7 @@ theorem isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCoun
     (counitToUnit counit) :=
 ⟨Bialg_to_AffMon k comul counit, AffMon_to_Bialg comul counit⟩
 
+/- This is the functor version of the previous statement -/
 theorem isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCounit'
     {F : CommAlgebraCat k ⥤ Type v} (hF : CorepresentableFunctor F)
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) :
@@ -1206,6 +1208,7 @@ theorem isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCoun
   · symm; rw [comulToMul_mToComul]
   · symm; rw [counitToUnit_eToCounit]
 
+/- Given any Affine Group Hom(A, -), A is a k-Hopf Algebra-/
 variable {k} in
 def AffGrp_to_HopfAlg
     {A : Type v} [CommRing A] [Algebra k A]
@@ -1275,6 +1278,7 @@ def AffGrp_to_HopfAlg
       map_sum, LinearMap.lTensor_tmul, AlgHom.toLinearMap_apply, LinearMap.mul'_apply,
       Algebra.linearMap_apply]
 
+/- Conversely, for any hopf algebra A, Hom(A, -) is a hopf algebra -/
 def HopfAlg_to_AffGrp {A : Type v} [CommRing A] [Algebra k A]
     (comul : A →ₐ[k] A ⊗[k] A) (counit : A →ₐ[k] k)
     (antipode : A →ₐ[k] A)
@@ -1373,6 +1377,9 @@ theorem isAffineGroup_iff_isHopfAlgebra
 variable (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
 variable (m : mul F F ⟶ F) (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F)
 variable (G : CommAlgebraCat k ⥤ Type v) (ε : G ≅ F)
+
+/- this part should actually be in the previous section as this is part of the peparation 
+    of the functor version of hopf algebra iff affine group -/
 
 lemma hopf_of_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
   (m : mul F F ⟶ F) (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F) (i : F ⟶ F)
