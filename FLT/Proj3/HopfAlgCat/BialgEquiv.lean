@@ -4,7 +4,6 @@ import Mathlib.Algebra.Algebra.Basic
 import Mathlib.Algebra.Algebra.Equiv
 import FLT.for_mathlib.Coalgebra.Sweedler
 import FLT.for_mathlib.Coalgebra.TensorProduct
-import FLT.Proj3.HopfAlgCat.CoalgHom
 import FLT.Proj3.HopfAlgCat.BialgHom
 import FLT.Proj3.HopfAlgCat.CoalgEquiv
 
@@ -83,9 +82,16 @@ def trans (e₁ : A ≃bi[R] B) (e₂ : B ≃bi[R] C) : A ≃bi[R] C :=
 def toBiAlgHom (e : A ≃bi[R] B) : A →bi[R] B := e.toBialgHom
 def toBialgEquiv (e : A ≃bi[R] B) : B ≃bi[R] A := symm A B e
 
+end BialgEquiv
+
+namespace Bialgebra.TensorProduct
+
+variable (A : Type u) (B : Type u) (C : Type u)
+  [CommRing R] [Ring A] [Ring B] [Ring C]
+  [Bialgebra R A] [Bialgebra R B] [Bialgebra R C]
 
 open Coalgebra in
-noncomputable def Bialgebra.TensorProduct.comm : A ⊗[R] B ≃bi[R] B ⊗[R] A where
+noncomputable def comm : A ⊗[R] B ≃bi[R] B ⊗[R] A where
   __ := Algebra.TensorProduct.comm R A B
   __ := _root_.TensorProduct.comm R A B
   comul_comp' := by
@@ -100,8 +106,16 @@ noncomputable def Bialgebra.TensorProduct.comm : A ⊗[R] B ≃bi[R] B ⊗[R] A 
       TensorProduct.comul_apply_repr (a := x) (b := y) (repr_a := hx) (repr_b := hy)
     have comul_yx' : comul (y ⊗ₜ x) = ∑ j in Iy, ∑ i in Ix, (y1 j ⊗ₜ x1 i) ⊗ₜ[R] (y2 j ⊗ₜ x2 i) :=
       TensorProduct.comul_apply_repr (a := y) (b := x) (repr_a := hy) (repr_b := hx)
-    -- rw [← Finset.sum_product'] at comul_yx'
     simpa only [comul_xy', map_sum, map_tmul, LinearMap.coe_mk, AddHom.coe_mk,
       Algebra.TensorProduct.comm_tmul, comul_yx'] using Finset.sum_comm
-
-end BialgEquiv
+  counit_comp' := by
+    ext x y
+    simp only [AlgEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe,
+      TensorProduct.AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
+      LinearMap.coe_restrictScalars, LinearMap.coe_comp, LinearMap.coe_mk, AddHom.coe_mk,
+      Function.comp_apply, Algebra.TensorProduct.comm_tmul]
+    rw[Coalgebra.TensorProduct.counit_def, Coalgebra.TensorProduct.counit_def]
+    simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply, TensorProduct.map_tmul,
+      TensorProduct.lid_tmul, smul_eq_mul]
+    rw [mul_comm]
+end Bialgebra.TensorProduct
