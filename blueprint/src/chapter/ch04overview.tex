@@ -1,0 +1,50 @@
+\chapter{An overview of the proof}\label{ch_overview}
+
+So far we have seen that, modulo Mazur's theorem, Fermat's Last Theorem can be reduced
+to the statement that there is no prime $\ell\geq 5$ and hardly-ramified
+irreducible 2-dimensional Galois representation $\rho:\GQ\to\GL_2(\Z/\ell\Z)$.
+
+In this short chapter we explain our strategy for proving this. This chapter is written
+for experts who want an overview of the route we're taking.
+
+We will only speak about modularity for 2-dimensional representations of the
+absolute Galois group of a totally real field $F$ of even degree over $\Q$, and
+what we mean by the term is "coming from an automorphic representation of the
+units of the totally definite quaternion algebra over $F$ ramified at no finite places".
+
+Assume we have a hardly-ramified representation~$\rho$ as above. Let $K$
+be the number field corresponding to the kernel of~$\rho$. Our first claim
+is that there is some totally real field $F$ of even degree, Galois over $\Q$,
+unramified at $\ell$, and disjoint from $K$, such that $\rho|G_F$ is modular. 
+The proof of this is very long, and uses a host of machinery. For example:
+\begin{itemize}
+    \item Moret--Bailly's result~\cite{moret-bailly} on points on curves with prescribed 
+    local behaviour;
+    \item several nontrivial results in global class field theory;
+    \item the Jacquet--Langlands correspondence;
+    \item A modularity lifting theorem.
+\end{itemize}
+
+Everything here is from the 20th century and standard, other than the modularity
+lifting theorem, which is explained in \href{https://math.berkeley.edu/~fengt/249A_2018.pdf}
+{Taylor's 2018 Stanford course}. The strategy is to use Moret--Bailly to find an auxiliary 
+elliptic curve over $F$ whose mod $\ell$ Galois representation is $\rho$ and whose
+mod $p$ Galois representation is induced from a character. By converse theorems (for example)
+the mod $p$ Galois representation is associated to an automorphic representation of
+$\GL_2/F$ and hence by Jacquet--Langlands it is modular. Now we use the
+modularity lifting theorem to deduce the modularity of the curve and hence
+the modularity of the $\ell$-torsion. 
+
+We now use Khare--Wintenberger to lift $\rho$ to a potentially modular $\ell$-adic
+Galois representation of conductor 2, and put it into an $\ell$-adic famiily using
+the Brauer's theorem trick in \cite{blggt}. Finally we look at the 3-adic specialisation
+of this family. Reducing mod 3 we get a representation which must be reducible because
+of the techniques introduced in Fontaine's paper on abelian varieties over $\Z$ (an irreducible
+representation would cut out a number field whose discriminant violates the Odlyzko bounds).
+One can now go on to deduce that the 3-adic representation must be reducible, which
+contradicts the irreducibility of $\rho$.
+
+As this document grows, we will be able to add links to a more detailed discussion of
+what is going on here.
+
+
