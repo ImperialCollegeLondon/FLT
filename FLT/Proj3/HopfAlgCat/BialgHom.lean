@@ -1,7 +1,6 @@
 import Mathlib.RingTheory.TensorProduct
 import Mathlib.Algebra.Algebra.Basic
 import Mathlib.RingTheory.Bialgebra
--- import Mathlib.RingTheory.Coalgebra
 import FLT.for_mathlib.Coalgebra.Sweedler
 import FLT.for_mathlib.Coalgebra.TensorProduct
 import FLT.Proj3.HopfAlgCat.CoalgHom
@@ -14,7 +13,6 @@ section Bialgebra
 
 
 namespace BialgHom
--- variable {A B C: Type u} [Ring A] [Ring B] [Ring C] [Bialgebra R A] [Bialgebra R B] [Bialgebra R C]
 
 structure BialgHom (R : Type u) (A : Type u) (B : Type u) [CommRing R] [Ring A] [Ring B] [Module R A] [Module R B]
 [Algebra R A] [Algebra R B] [Coalgebra R A] [Coalgebra R B] [Bialgebra R A] [Bialgebra R B] extends A →co[R] B, A →ₐ[R] B where
