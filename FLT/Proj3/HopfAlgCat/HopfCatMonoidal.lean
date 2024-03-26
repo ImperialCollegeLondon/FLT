@@ -6,11 +6,13 @@ import FLT.for_mathlib.Coalgebra.TensorProduct
 import Mathlib.AlgebraicGeometry.AffineScheme
 import Mathlib.CategoryTheory.Comma.Over
 import Mathlib.Algebra.Category.AlgebraCat.Monoidal
+import Mathlib.Algebra.Category.AlgebraCat.Symmetric
 import Mathlib.RingTheory.TensorProduct
 import Mathlib.Algebra.Algebra.Basic
 import Mathlib.LinearAlgebra.TensorProduct
 import Mathlib.CategoryTheory.Monoidal.Category
-import FLT.Proj3.HopfAlgCat.CoalgHom
+import Mathlib.CategoryTheory.Monoidal.Braided.Basic
+import Mathlib.Tactic
 import FLT.Proj3.HopfAlgCat.BialgHom
 import FLT.Proj3.HopfAlgCat.CoalgEquiv
 import FLT.Proj3.HopfAlgCat.BialgEquiv
@@ -80,6 +82,7 @@ noncomputable abbrev tensorHom {W X Y Z : HopfAlgCat R} (f : W ⟶ X) (g : Y ⟶
 
 open BigOperators
 -- To prove that the comul is preserved under associativity condition.
+set_option maxHeartbeats 1000000 in
 lemma comul_comp_assoc :
   TensorProduct.map (TensorProduct.assoc R A B C) (TensorProduct.assoc R A B C) ∘ₗ comul =
   comul (R := R) (A := A ⊗[R] B ⊗[R] C) ∘ₗ
@@ -123,7 +126,7 @@ lemma counit_comp_assoc :
   rw [Mathlib.Tactic.RingNF.mul_assoc_rev]
 
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 5000000 in
 -- For associator, we use the "comul_comp_assoc" and "counit_comp_assoc" that already proved
 noncomputable def assoc : (A ⊗[R] B) ⊗[R] C ≃bi[R] A ⊗[R] B ⊗[R] C where
   __ := Algebra.TensorProduct.assoc R A B C
@@ -135,6 +138,7 @@ noncomputable def assoc : (A ⊗[R] B) ⊗[R] C ≃bi[R] A ⊗[R] B ⊗[R] C whe
 open BigOperators
 
 -- For left unitor
+set_option maxHeartbeats 1000000 in
 noncomputable def lid : R ⊗[R] A ≃bi[R] A :=
 {
     Algebra.TensorProduct.lid R A with
@@ -158,12 +162,16 @@ noncomputable def lid : R ⊗[R] A ≃bi[R] A :=
 }
 
 -- For right unitor
+set_option maxHeartbeats 1000000 in
 noncomputable def rid: A ⊗[R] R ≃bi[R] A :=
 {
     Algebra.TensorProduct.rid R R A with
   comul_comp' := by
     ext x
-    simp
+    simp only [AlgEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe,
+      TensorProduct.AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
+      LinearMap.coe_restrictScalars, LinearMap.coe_comp, Function.comp_apply, LinearMap.coe_mk,
+      AddHom.coe_mk, Algebra.TensorProduct.rid_tmul, one_smul]
     obtain ⟨I1, x1, x2, hx⟩ := Coalgebra.exists_repr (R := R) x
     have repr_b : comul (1 : R) = ∑ i in {1}, (1 : R) ⊗ₜ[R] (1 : R) := rfl
     rw [TensorProduct.comul_apply_repr (a := x) (b := 1) (repr_a := hx) (repr_b := repr_b)]
@@ -191,7 +199,7 @@ noncomputable instance : MonoidalCategoryStruct (HopfAlgCat R) where
 open BialgHom
 -- Basicly extend from algebracat to hopfalgcat
 -- Use Monoidal structure that mentioned above to finish each proof
-noncomputable instance : MonoidalCategory (HopfAlgCat R) where
+noncomputable instance instMonoidal: MonoidalCategory (HopfAlgCat R) where
   tensorHom_def {X₁ X₂ Y₁ Y₂} (f : _ →bi[R] _) (g : _ →bi[R] _) := by
     have := @MonoidalCategory.tensorHom_def (AlgebraCat R) _ _
       (.of R X₁) (.of R X₂) (.of R Y₁) (.of R Y₂)
@@ -255,3 +263,72 @@ noncomputable instance : MonoidalCategory (HopfAlgCat R) where
     change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
     refine DFunLike.ext _ _ fun x ↦ ?_
     exact congr($this x)
+
+-- We then realize that there are some "standard way" to prove the monoidal category, by
+-- inducing from AlgebraCat using "Monoidal.induced"
+instance hasForgetToAlgCat: HasForget₂ (HopfAlgCat R) (AlgebraCat R) where
+  forget₂ := { obj := fun M => AlgebraCat.of R M, map := fun f => AlgebraCat.ofHom f}
+
+@[simp]
+lemma forget₂_alg_obj (X : HopfAlgCat.{u} R) :
+    (forget₂ (HopfAlgCat.{u} R) (AlgebraCat.{u} R)).obj X = AlgebraCat.of R X :=
+  rfl
+
+@[simp]
+lemma forget₂_alg_map {X Y : HopfAlgCat.{u} R} (f : X ⟶ Y) :
+    (forget₂ (HopfAlgCat.{u} R) (AlgebraCat.{u} R)).map f = AlgebraCat.ofHom f :=
+  rfl
+
+theorem forget₂_map_associator_hom (X Y Z : HopfAlgCat.{u} R) :
+    (forget₂ (HopfAlgCat R) (AlgebraCat R)).map (MonoidalCategoryStruct.associator X Y Z).hom =
+      (MonoidalCategoryStruct.associator
+        (forget₂ _ (AlgebraCat R) |>.obj X)
+        (forget₂ _ (AlgebraCat R) |>.obj Y)
+        (forget₂ _ (AlgebraCat R) |>.obj Z)).hom := by
+  rfl
+
+set_option maxHeartbeats 1000000 in
+noncomputable instance lalala: MonoidalCategory (HopfAlgCat.{u} R) :=
+  Monoidal.induced
+    (forget₂ (HopfAlgCat R) (AlgebraCat R))
+    { μIso := fun X Y => Iso.refl _
+      εIso := Iso.refl _
+      associator_eq := fun X Y Z => by
+        dsimp only [forget₂_alg_obj, forget₂_map_associator_hom]
+        simp only [eqToIso_refl, Iso.refl_trans, Iso.refl_symm, Iso.trans_hom, tensorIso_hom,
+          Iso.refl_hom, MonoidalCategory.tensor_id]
+        erw [Category.id_comp, Category.comp_id, MonoidalCategory.tensor_id, Category.id_comp]
+
+      leftUnitor_eq := fun X => by
+        dsimp only [forget₂_alg_obj, forget₂_alg_map, Iso.refl_symm, Iso.trans_hom,
+          Iso.refl_hom, tensorIso_hom]
+        erw [Category.id_comp, MonoidalCategory.tensor_id, Category.id_comp]
+        rfl
+
+      rightUnitor_eq := fun X => by
+        dsimp
+        erw [Category.id_comp, MonoidalCategory.tensor_id, Category.id_comp]
+        rfl
+    }
+
+noncomputable def toAlgCatMonoidalFunctor : MonoidalFunctor (HopfAlgCat.{u} R) (AlgebraCat.{u} R) := by
+  unfold lalala
+  exact Monoidal.fromInduced (forget₂ (HopfAlgCat R) (AlgebraCat R)) _
+
+instance : Faithful (toAlgCatMonoidalFunctor R).toFunctor :=
+  forget₂_faithful _ _
+
+noncomputable instance : BraidedCategory (HopfAlgCat.{u} R) :=
+  braidedCategoryOfFaithful (toAlgCatMonoidalFunctor R)
+    (fun X Y => (toHopfAlgebraIso R (Bialgebra.TensorProduct.comm X Y)))
+    (by aesop_cat)
+
+@[simps toMonoidalFunctor]
+noncomputable def toAlgCatBraidedFunctor : BraidedFunctor (HopfAlgCat.{u} R) (AlgebraCat.{u} R) where
+  toMonoidalFunctor := toAlgCatMonoidalFunctor R
+
+instance : Faithful (toAlgCatBraidedFunctor R).toFunctor :=
+  forget₂_faithful _ _
+
+noncomputable instance instSymmetricCategory : SymmetricCategory (HopfAlgCat.{u} R) :=
+  symmetricCategoryOfFaithful (toAlgCatBraidedFunctor R)
