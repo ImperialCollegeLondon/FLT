@@ -673,7 +673,6 @@ variable (m : mul F F ⟶ F)
 variable (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F)
 variable (i : F ⟶ F)
 
--- **I think this is how it works but I am not sure**
 /-- Any potential multiplication can be reinterpreted as a comultiplication in the algebra
 language.-/
 noncomputable def mToComul : hF.coreprX →ₐ[k] hF.coreprX ⊗[k] hF.coreprX :=
@@ -682,16 +681,18 @@ noncomputable def mToComul : hF.coreprX →ₐ[k] hF.coreprX ⊗[k] hF.coreprX :
     { coreprX := hF.coreprX ⊗ hF.coreprX
       coreprW := coyonedaMulCoyoneda' F F hF hF |>.symm } hF m
 
--- **I think this is how it works but I am not sure**
 /-- Any potential unit can be reinterpreted as a counit in the algebra language. -/
 noncomputable def eToCounit : hF.coreprX →ₐ[k] k :=
   coyonedaCorrespondence (coyoneda.obj (op (.of k k))) F ⟨_, Iso.refl _⟩ hF e
 
--- **I think this is how it works but I am not sure**
 /-- Any potential inverse can be reinterpreted as an antipodal map in the algebra language. -/
 noncomputable def iToAntipode : hF.coreprX →ₐ[k] hF.coreprX :=
     coyonedaCorrespondence F F hF hF i
 
+/- 
+This is kind of saying comulToMul.comp mToComul is id but in a weird way since we are 
+not under a strict monoidal category.
+-/
 lemma comulToMul_mToComul:
     comulToMul (mToComul hF m) =
     mulMap hF.coreprW.hom hF.coreprW.hom ≫ m ≫ hF.coreprW.inv := by
@@ -1581,6 +1582,7 @@ noncomputable def affineGroupAntiToHopfAlgCat :
           · exact G.unop.corep
           congr!
       counit_comp' := by 
+      
         simp only [coyonedaCorrespondence_apply, unop_op, AlgHom.toRingHom_eq_coe,
           RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
           MonoidHom.coe_coe, RingHom.coe_coe]
@@ -1608,23 +1610,15 @@ noncomputable def affineGroupAntiToHopfAlgCat :
             Category.id_comp, Equiv.coe_fn_mk]
           rw [show (𝟙 (CommAlgebraCat.of k k)) = (AlgHom.id k k) by rfl]
           simp only [AlgHom.id_comp]
-          -- have eq0 := F.unop.corep.coreprW.inv.naturality
-          --   (CommAlgebraCat.ofHom (Algebra.ofId k F.unop.corep.coreprX))
-          -- simp only [coyoneda_obj_obj, unop_op] at eq0
-          -- have this := congr_fun eq0
-          --   (F.unop.e.app (CommAlgebraCat.of k k) (AlgHom.id k k))
-          -- simp only [types_comp_apply, coyoneda_obj_map, unop_op] at this
-          -- -- convert this
           simp only [eToCounit, coyonedaCorrespondence, Iso.refl_hom, unop_op,
             NatTrans.id_app, coyoneda_obj_obj,
             types_id_apply, Iso.refl_inv, Category.id_comp, Equiv.coe_fn_mk, f]
-          -- rw [← n.unop.2]
-          -- rw [CategoryTheory.NatTrans.comp_app]
-          -- change _ = F.unop.corep.coreprW.inv.app (CommAlgebraCat.of k k)
-          --   (n.unop.hom.app (CommAlgebraCat.of k k) 
-          --   (G.unop.e.app (CommAlgebraCat.of k k) (𝟙 (CommAlgebraCat.of k k))))
+          rw [← n.unop.2]
+          rw [CategoryTheory.NatTrans.comp_app]
+          change _ = F.unop.corep.coreprW.inv.app (CommAlgebraCat.of k k)
+            (n.unop.hom.app (CommAlgebraCat.of k k) 
+            (G.unop.e.app (CommAlgebraCat.of k k) (𝟙 (CommAlgebraCat.of k k))))
           change (F.unop.corep.coreprW.inv.app _ _) ≫ _ = _
-          simp only [unop_op]
           have eq0 := F.unop.corep.coreprW.inv.naturality
             (G.unop.corep.coreprW.inv.app (CommAlgebraCat.of k k)
             (G.unop.e.app (CommAlgebraCat.of k k) (𝟙 (CommAlgebraCat.of k k))))
@@ -1633,15 +1627,31 @@ noncomputable def affineGroupAntiToHopfAlgCat :
             (n.unop.hom.app G.unop.corep.coreprX
             (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))
           simp only [types_comp_apply, coyoneda_obj_map, unop_op] at this
-          convert this using 2
+          simp only [unop_op]
+          convert this.symm using 1
+          have eqeq1 := n.unop.hom.naturality 
+            (G.unop.corep.coreprW.inv.app (CommAlgebraCat.of k k)
+            (G.unop.e.app (CommAlgebraCat.of k k) (𝟙 (CommAlgebraCat.of k k))))
+          simp only [coyoneda_obj_obj, unop_op] at eqeq1
+          have this2 := congr_fun eqeq1
+            (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX))
+          simp only [types_comp_apply] at this2
+          rw [← this2]
+          have eqfinal :
+            (G.unop.map (G.unop.corep.coreprW.inv.app (CommAlgebraCat.of k k)
+              (G.unop.e.app (CommAlgebraCat.of k k) (𝟙 (CommAlgebraCat.of k k))))
+              (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX))) = 
+                (G.unop.e.app (CommAlgebraCat.of k k) (𝟙 (CommAlgebraCat.of k k))) := sorry
+          rw [eqfinal]
+          -- have eqfinal := G.unop.corep.coreprW.inv.naturality
+          --   (𝟙 (CommAlgebraCat.of k k))
+          -- simp only [coyoneda_obj_obj, unop_op] at eqfinal
+          -- have this3 := congr_fun eqfinal
+          --   (G.unop.e.app (CommAlgebraCat.of k k) (𝟙 (CommAlgebraCat.of k k)))
+          -- simp only [types_comp_apply, FunctorToTypes.hom_inv_id_app_apply, coyoneda_obj_map,
+          --   unop_op, Category.id_comp] at this3
+          -- rw [this3]
           
-          --   (n.unop.hom.app G.unop.corep.coreprX
-          --   (G.unop.corep.coreprW.hom.app G.unop.corep.coreprX (𝟙 G.unop.corep.coreprX)))
-          -- simp only [types_comp_apply, coyoneda_obj_map, unop_op] at this
-          -- simp only [unop_op]
-          -- convert this
-
-          sorry
         · exact n.unop.2.symm
     } : F.unop.corep.coreprX →bi[k] G.unop.corep.coreprX)
 
