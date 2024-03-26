@@ -1477,7 +1477,7 @@ noncomputable instance (F : AffineGroup k) : HopfAlgebra k (F.corep.coreprX) :=
 
 open BialgHom
 
-set_option maxHeartbeats 500000 in
+set_option maxHeartbeats 1000000 in
 /--
 The antiequivalence from affine group functor to category of hopf algebra.
 -/
