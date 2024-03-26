@@ -38,7 +38,7 @@ purely group-theoretic result:
 \end{corollary}
 \begin{proof}
   This follows from the previous group-theoretic lemma~\ref{group_theory_lemma} and
-  theorem~\ref{Elliptic_curve_p_torsion_size}.
+  theorem~\ref{Elliptic_curve_n_torsion_size}.
 \end{proof}
 
 If $K$ is now any field, and $E/K$ is an elliptic curve, then for $L$ a field which is
@@ -348,12 +348,28 @@ can be done in several ways. We suggest one method here.
   subgroup of order $p$, then there's an elliptic curve ``''$E/C$'' over $K$ and an isogeny of elliptic curves $E\to E/C$ with kernel precisely $C$.
 \end{theorem}
 \begin{proof}
-  Brian Conrad suggested the following approach, applicable as well for abelian schemes $A\to S$ over a base.  Let $G$ be a finite locally free $S$-subgroup of $A$, say $G$ with constant rank $n > 0$ by working locally on the base, so $G$ is contained in $A[n]$.  Then $n: A \to A$ is the fppf quotient of the source by $A[n]$, so it expresses $A$ as an $A[n]$-torsor over itself.  The problem of building $A/G$ as an abelian scheme is then seen to be the “same” as that of constructing the quotient of this $A[n]$-torsor by the G-action.
+  Brian Conrad suggested the following approach, applicable as well for abelian schemes $A\to S$ 
+  over a base.  Let $G$ be a finite locally free $S$-subgroup of $A$, say $G$ with constant 
+  rank $n > 0$ by working locally on the base, so $G$ is contained in $A[n]$.  Then 
+  $n: A \to A$ is the fppf quotient of the source by $A[n]$, so it expresses $A$ as an 
+  $A[n]$-torsor over itself.  The problem of building $A/G$ as an abelian scheme is then 
+  seen to be the “same” as that of constructing the quotient of this $A[n]$-torsor by the G-action.
 
-  In other words, the problem them becomes one having nothing specific to do with abelian schemes, at the cost of working over a base (such as the original target $A$) even when $S$ was the spectrum of a field in the application. The question is now: for a finite locally free commutative $S$-group $H$ and a closed locally free $S$-subgroup $G$, build a reasonable quotient $H/G$. One approach is to look at the Cartier dual $H^\vee\to G^\vee$, show that it's faithfully flat, and then deduce that the Cartier dual of the kernel of this map does the job. Note that one input for this proof is the claim that inclusions of Hopf algebras over fields are flat, proved nicely in Waterhouse’s book.
+  In other words, the problem them becomes one having nothing specific to do with abelian schemes, 
+  at the cost of working over a base (such as the original target $A$) even when $S$ was the 
+  spectrum of a field in the application. The question is now: for a finite locally free 
+  commutative $S$-group $H$ and a closed locally free $S$-subgroup $G$, build a reasonable quotient 
+  $H/G$. One approach is to look at the Cartier dual $H^\vee\to G^\vee$, show that it's faithfully 
+  flat, and then deduce that the Cartier dual of the kernel of this map does the job. Note that 
+  one input for this proof is the claim that inclusions of Hopf algebras over fields are flat, 
+  proved nicely in Waterhouse’s book.
 \end{proof}
 
-There is surely a more low-level approach to this.
+There is surely a more low-level approach to this. Note also that this approach will not
+give us a plane cubic, but rather a smooth proper group scheme so we would need Riemann-Roch
+to turn it into a plane cubic, although it's unlikely that one will be able to prove Mazur's
+theorem without developing all of this machinery and much more, so my instinct is to leave
+this for now.
 
 %\begin{theorem}\label{i_am_not_going_to_give_any_uses} A hardly ramified mod $p$ Galois representation $\rho:\GQ\to\GL_2(\Z/p\Z)$ is \emph{potentially automorphic}, becoming automorphic over a (possibly non-solvable) totally real Galois extension $F/\Q$ which is disjoint from the subfield cut out by the kernel of $\rho$.
 %\end{theorem}
@@ -368,11 +384,3 @@ There is surely a more low-level approach to this.
 %  3) We now use a modularity lifting theorem (due to Wiles/Taylor/Khare-Wintenberger/Skinner-Wiles/who?) to deduce that $A$ is modular. We immediately deduce that $A[p]$ is modular as required.
 %\end{proof}
 
-% \begin{theorem}\label{Elliptic_curve_quotient_by_finite_subgroup} If $E$ is an elliptic curve over a field $K$ of characteristic zero, and $p$ is a prime, and if $C\subseteq E[p]$ is a Galois-stable
-%   subgroup of order $p$, then there's an elliptic curve ``''$E/C$'' over $K$ and an isogeny of elliptic curves $E\to E/C$ with kernel precisely $K$.
-% \end{theorem}
-% \begin{proof}
-%   Brian Conrad suggested the following approach, applicable as well for abelian schemes $A\to S$ over a base.  Let $G$ be a finite locally free $S$-subgroup of $A$, say $G$ with constant rank $n > 0$ by working locally on the base, so $G$ is contained in $A[n]$.  Then $n: A \to A$ is the fppf quotient of the source by $A[n]$, so it expresses $A$ as an $A[n]$-torsor over itself.  The problem of building $A/G$ as an abelian scheme is then seen to be the “same” as that of constructing the quotient of this $A[n]$-torsor by the G-action.
-
-%   In other words, the problem them becomes one having nothing specific to do with abelian schemes, at the cost of working over a base (such as the original target $A$) even when $S$ was the spectrum of a field in the application. The question is now: for a finite locally free commutative $S$-group $H$ and a closed locally free $S$-subgroup $G$, build a reasonable quotient $H/G$. One approach is to look at the Cartier dual $H^\vee\to G^\vee$, show that it's faithfully flat, and then deduce that the Cartier dual of the kernel of this map does the job. Note that one input for this proof is the claim that inclusions of Hopf algebras over fields are flat, proved nicely in Waterhouse’s book.
-% \end{proof}
