@@ -28,8 +28,8 @@ set_option synthInstance.maxHeartbeats 50000
 universe u
 variable (R : Type u) [CommRing R]
 variable (H1 H2 : Type u)[CommRing H1][CommRing H2][HopfAlgebra R H1][HopfAlgebra R H2]
-variable (A B C D: Type u) [CommRing A] [CommRing B] [CommRing C] [CommRing D] [HopfAlgebra R A]
-    [HopfAlgebra R B] [HopfAlgebra R C] [HopfAlgebra R D]
+variable (A B C D: Type u) [CommRing A] [CommRing B] [CommRing C] [CommRing D]
+[HopfAlgebra R A] [HopfAlgebra R B] [HopfAlgebra R C] [HopfAlgebra R D]
 
 -- This file we are going to prove the monoidal structure on the category of Hopf algebras
 -- The first is to define tensor object.
@@ -89,8 +89,8 @@ lemma comul_comp_assoc :
   (TensorProduct.assoc R A B C).toLinearMap := by
     ext x y z
     simp only [TensorProduct.AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
-      LinearMap.coe_restrictScalars, LinearMap.coe_comp, Function.comp_apply, LinearEquiv.coe_coe,
-      TensorProduct.assoc_tmul]
+      LinearMap.coe_restrictScalars, LinearMap.coe_comp, Function.comp_apply,
+      LinearEquiv.coe_coe, TensorProduct.assoc_tmul]
     obtain ⟨Ix, x1, x2, hx⟩ := Coalgebra.exists_repr (R := R) x
     obtain ⟨Iy, y1, y2, hy⟩ := Coalgebra.exists_repr (R := R) y
     obtain ⟨Iz, z1, z2, hz⟩ := Coalgebra.exists_repr (R := R) z
@@ -120,7 +120,8 @@ lemma counit_comp_assoc :
   simp only [TensorProduct.AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
     LinearMap.coe_restrictScalars, LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply,
     TensorProduct.assoc_tmul]
-  rw[Coalgebra.TensorProduct.counit_def, Coalgebra.TensorProduct.counit_def, Coalgebra.TensorProduct.counit_def, Coalgebra.TensorProduct.counit_def]
+  rw[Coalgebra.TensorProduct.counit_def, Coalgebra.TensorProduct.counit_def,
+    Coalgebra.TensorProduct.counit_def, Coalgebra.TensorProduct.counit_def]
   simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply, TensorProduct.map_tmul,
     TensorProduct.lid_tmul, smul_eq_mul]
   rw [Mathlib.Tactic.RingNF.mul_assoc_rev]
@@ -146,13 +147,13 @@ noncomputable def lid : R ⊗[R] A ≃bi[R] A :=
     ext x
     simp only [AlgEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe,
       TensorProduct.AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
-      LinearMap.coe_restrictScalars, LinearMap.coe_comp, Function.comp_apply, LinearMap.coe_mk,
-      AddHom.coe_mk, Algebra.TensorProduct.lid_tmul, one_smul]
+      LinearMap.coe_restrictScalars, LinearMap.coe_comp, Function.comp_apply,
+      LinearMap.coe_mk, AddHom.coe_mk, Algebra.TensorProduct.lid_tmul, one_smul]
     obtain ⟨I1, x1, x2, hx⟩ := Coalgebra.exists_repr (R := R) x
     have repr_a : comul (1 : R) = ∑ i in {1}, (1 : R) ⊗ₜ[R] (1 : R) := rfl
     rw [TensorProduct.comul_apply_repr (a := 1) (b := x) (repr_a := repr_a) (repr_b := hx)]
-    simp only [Finset.sum_const, Finset.card_singleton, one_smul, map_sum, TensorProduct.map_tmul,
-      LinearMap.coe_mk, AddHom.coe_mk, Algebra.TensorProduct.lid_tmul]
+    simp only [Finset.sum_const, Finset.card_singleton, one_smul, map_sum,
+    TensorProduct.map_tmul, LinearMap.coe_mk, AddHom.coe_mk, Algebra.TensorProduct.lid_tmul]
     exact hx.symm
   counit_comp' := by
     ext x
@@ -170,13 +171,13 @@ noncomputable def rid: A ⊗[R] R ≃bi[R] A :=
     ext x
     simp only [AlgEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe,
       TensorProduct.AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
-      LinearMap.coe_restrictScalars, LinearMap.coe_comp, Function.comp_apply, LinearMap.coe_mk,
-      AddHom.coe_mk, Algebra.TensorProduct.rid_tmul, one_smul]
+      LinearMap.coe_restrictScalars, LinearMap.coe_comp, Function.comp_apply,
+      LinearMap.coe_mk, AddHom.coe_mk, Algebra.TensorProduct.rid_tmul, one_smul]
     obtain ⟨I1, x1, x2, hx⟩ := Coalgebra.exists_repr (R := R) x
     have repr_b : comul (1 : R) = ∑ i in {1}, (1 : R) ⊗ₜ[R] (1 : R) := rfl
     rw [TensorProduct.comul_apply_repr (a := x) (b := 1) (repr_a := hx) (repr_b := repr_b)]
-    simp only [Finset.sum_const, Finset.card_singleton, one_smul, map_sum, TensorProduct.map_tmul,
-      LinearMap.coe_mk, AddHom.coe_mk, Algebra.TensorProduct.rid_tmul]
+    simp only [Finset.sum_const, Finset.card_singleton, one_smul, map_sum,
+    TensorProduct.map_tmul, LinearMap.coe_mk, AddHom.coe_mk, Algebra.TensorProduct.rid_tmul]
     exact hx.symm
   counit_comp' := by
     ext x
@@ -266,6 +267,7 @@ noncomputable instance instMonoidal: MonoidalCategory (HopfAlgCat R) where
 
 -- We then realize that there are some "standard way" to prove the monoidal category, by
 -- inducing from AlgebraCat using "Monoidal.induced"
+-- This defines the forgetful functor from HopfAlgCat to AlgebraCat.
 instance hasForgetToAlgCat: HasForget₂ (HopfAlgCat R) (AlgebraCat R) where
   forget₂ := { obj := fun M => AlgebraCat.of R M, map := fun f => AlgebraCat.ofHom f}
 
@@ -287,8 +289,9 @@ theorem forget₂_map_associator_hom (X Y Z : HopfAlgCat.{u} R) :
         (forget₂ _ (AlgebraCat R) |>.obj Z)).hom := by
   rfl
 
+-- refer AlgebraCat
 set_option maxHeartbeats 1000000 in
-noncomputable instance lalala: MonoidalCategory (HopfAlgCat.{u} R) :=
+noncomputable instance instMono: MonoidalCategory (HopfAlgCat.{u} R) :=
   Monoidal.induced
     (forget₂ (HopfAlgCat R) (AlgebraCat R))
     { μIso := fun X Y => Iso.refl _
@@ -306,29 +309,36 @@ noncomputable instance lalala: MonoidalCategory (HopfAlgCat.{u} R) :=
         rfl
 
       rightUnitor_eq := fun X => by
-        dsimp
+        dsimp only [forget₂_alg_obj, forget₂_alg_map, Iso.refl_symm,
+          Iso.trans_hom, Iso.refl_hom, tensorIso_hom]
         erw [Category.id_comp, MonoidalCategory.tensor_id, Category.id_comp]
         rfl
     }
 
+-- define the monoidal functor from HopfAlgCat to AlgebraCat
 noncomputable def toAlgCatMonoidalFunctor : MonoidalFunctor (HopfAlgCat.{u} R) (AlgebraCat.{u} R) := by
-  unfold lalala
+  unfold instMono
   exact Monoidal.fromInduced (forget₂ (HopfAlgCat R) (AlgebraCat R)) _
 
+-- Prove that it is faithful
 instance : Faithful (toAlgCatMonoidalFunctor R).toFunctor :=
   forget₂_faithful _ _
 
+-- Define the braided category of HopfAlgCat
 noncomputable instance : BraidedCategory (HopfAlgCat.{u} R) :=
   braidedCategoryOfFaithful (toAlgCatMonoidalFunctor R)
     (fun X Y => (toHopfAlgebraIso R (Bialgebra.TensorProduct.comm X Y)))
     (by aesop_cat)
 
+-- Define the BraidedFunctor from HopfAlgCat to AlgebraCat
 @[simps toMonoidalFunctor]
 noncomputable def toAlgCatBraidedFunctor : BraidedFunctor (HopfAlgCat.{u} R) (AlgebraCat.{u} R) where
   toMonoidalFunctor := toAlgCatMonoidalFunctor R
 
+-- Prove that it is faithful
 instance : Faithful (toAlgCatBraidedFunctor R).toFunctor :=
   forget₂_faithful _ _
 
+-- Define the symmetric category of HopfAlgCat
 noncomputable instance instSymmetricCategory : SymmetricCategory (HopfAlgCat.{u} R) :=
   symmetricCategoryOfFaithful (toAlgCatBraidedFunctor R)
