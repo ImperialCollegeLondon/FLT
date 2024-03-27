@@ -627,10 +627,7 @@ noncomputable def comulToMul (comul : A →ₐ[k] A ⊗[k] A) :
     coyoneda.obj <| op <| CommAlgebraCat.of k A :=
   (coyonedaMulCoyoneda (.of k A) (.of k A)).hom ≫ coyoneda.map (CommAlgebraCat.ofHom comul).op
 
-/-
-coyonedaCorrespondence (coyoneda.obj (op <| CommAlgebraCat.of k A))
-    (coyoneda.obj (op <| CommAlgebraCat.of k A)) _ _ (Iso.refl _) (Iso.refl _) |>.symm
--/
+
 lemma comulToMul_eq (comul : A →ₐ[k] A ⊗[k] A)  :
   comulToMul comul =
   (coyonedaCorrespondence
@@ -1180,6 +1177,7 @@ def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k]
     rw [this] ; change g x = g ((1 * (AlgHom.id k A)) x)
     rw [one_mul] ; rfl
 
+/- conclusion of the previous two lemmas -/
 theorem isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCounit
     {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k] A ⊗[k] A)
     (counit : A →ₐ[k] k) :
@@ -1415,6 +1413,7 @@ lemma hopf_of_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor
     simp only [FunctorToTypes.comp, unop_op, coyoneda_map_app] at this
     rw [this]
 
+/- If G is isomorphic to F, then G is affine group if and only if F is affine group -/
 lemma hopf_iff_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
     (m : mul F F ⟶ F) (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F) (i : F ⟶ F)
     (G : CommAlgebraCat k ⥤ Type v) (ε : G ≅ F):
@@ -1435,6 +1434,7 @@ lemma hopf_iff_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFuncto
     convert h
     ext <;> simp
 
+/- Functor version of the previous if and only if theorem -/
 variable {k} in
 theorem
   isAffineGroup_iff_isHopfAlgebra'
@@ -1453,6 +1453,7 @@ theorem
   · symm ; rw [counitToUnit_eToCounit]
   · symm ; rw [antipodeToInverse_iToAntipode]
 
+/- Final verification that the algebra represented by F is indeed Hopf Algebra -/
 noncomputable instance (F : AffineGroup k) : HopfAlgebra k (F.corep.coreprX) :=
   let i :=
   isAffineGroup_iff_isHopfAlgebra'
@@ -2083,6 +2084,7 @@ noncomputable def counitIso.inv :
     refine DFunLike.ext (F := BialgHom _ _ _) _ _ fun z ↦ ?_
     rfl
 
+/- The final big theorem!! -/
 noncomputable def antiequiv : (AffineGroup k)ᵒᵖ ≌ HopfAlgCat k where
   functor := affineGroupAntiToHopfAlgCat k
   inverse := HopfAlgebraCatToAffineGroup k
