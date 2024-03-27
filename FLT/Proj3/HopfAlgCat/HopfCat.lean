@@ -45,16 +45,20 @@ attribute [coe] HopfAlgCat.carrier
 --The antipode of a tensor product of Hopf algebras is the tensor product of the antipodes
 abbrev ten_anti := TensorProduct.map (antipode (R := R) (A := H1)) (antipode (R := R) (A := H2))
 
---Here we define the expansion of comul in H1 in sweedler notation as the sum of pure tensor products of
---two elements in H1, where each of them got from mapping H1 ⊗[R] H1 elements to H1.
---That is, comul h1 = ∑ h11 i ⊗ₜ h12 i, i ∈ H1 ⊗[R] H1, h11 h12 : H1 ⊗[R] H1 → H1
---With this, we can use the property "S ⋆ id = id ⋆ S = η ∘ₗ ε", to get the decomposition given below
---S ⋆ id (h1) = m ∘ₗ (antipode ⊗[R] id) ∘ₗ Δ (h1)  = m ∘ₗ (antipode ⊗[R] id) ∘ₗ ∑ h11 i ⊗ₜ h12 i
---= ∑ m ∘ₗ (antipode (h11 i) ⊗ₜ h12 i) = ∑ antipode (h11 i) * h12 i = η ∘ₗ ε (h1) = h1
+-- Here we define the expansion of comul in H1 in sweedler notation as the sum of pure
+-- tensor products of two elements in H1, where each of them got from mapping H1 ⊗[R] H1
+-- elements to H1.
+-- That is, comul h1 = ∑ h11 i ⊗ₜ h12 i, i ∈ H1 ⊗[R] H1, h11 h12 : H1 ⊗[R] H1 → H1
+-- With this, we can use the property "S ⋆ id = id ⋆ S = η ∘ₗ ε", to get the decomposition
+-- given below
+-- S ⋆ id (h1) = m ∘ₗ (antipode ⊗[R] id) ∘ₗ Δ (h1)
+-- = m ∘ₗ (antipode ⊗[R] id) ∘ₗ ∑ h11 i ⊗ₜ h12 i
+-- = ∑ m ∘ₗ (antipode (h11 i) ⊗ₜ h12 i) = ∑ antipode (h11 i) * h12 i = η ∘ₗ ε (h1) = h1
 lemma antipode_decomp (I1: Finset (H1 ⊗[R] H1)) (h11 h12 : H1 ⊗[R] H1 → H1) (h1 : H1)
   (h01: Coalgebra.comul h1 = ∑ i in I1, h11 i ⊗ₜ[R] h12 i) :
   ∑ a in I1, antipode (R := R) (h11 a) * h12 a =  (1 : LinearPoint R H1 H1) h1 := by
-  symm ; rw [← antipode_mul_id (R:= R) (A:= H1), LinearPoint.mul_repr antipode LinearMap.id h1 I1 _ _ h01]
+  symm
+  rw [← antipode_mul_id (R:= R) (A:= H1), LinearPoint.mul_repr antipode LinearMap.id h1 I1 _ _ h01]
   simp only [LinearMap.comp_apply, h01, map_sum, TensorProduct.map_tmul, LinearMap.id_coe,
     id_eq, LinearMap.mul'_apply]
 
@@ -62,7 +66,8 @@ lemma antipode_decomp (I1: Finset (H1 ⊗[R] H1)) (h11 h12 : H1 ⊗[R] H1 → H1
 lemma antipode_decomp' (I1: Finset (H1 ⊗[R] H1)) (h11 h12 : H1 ⊗[R] H1 → H1) (h1 : H1)
   (h01: Coalgebra.comul h1 = ∑ i in I1, h11 i ⊗ₜ[R] h12 i) :
   ∑ a in I1, h11 a * antipode (R := R) (h12 a) = (1 : LinearPoint R H1 H1) h1 := by
-  symm ; rw [← id_mul_antipode (R:= R) (A:= H1), LinearPoint.mul_repr LinearMap.id antipode h1 I1 _ _ h01]
+  symm
+  rw [← id_mul_antipode (R:= R) (A:= H1), LinearPoint.mul_repr LinearMap.id antipode h1 I1 _ _ h01]
   simp only [LinearMap.comp_apply, h01, map_sum, TensorProduct.map_tmul, LinearMap.id_coe,
     id_eq, LinearMap.mul'_apply]
 
@@ -90,12 +95,13 @@ lemma anti_rTensor : LinearMap.mul' R (H1 ⊗[R] H2) ∘ₗ
     Algebra.TensorProduct.tmul_mul_tmul] ; rw [Finset.sum_comm]
   simp_rw [← TensorProduct.sum_tmul] ; rw [antipode_decomp R H1 I1 h11 h12 h1 h01]
   simp_rw [← TensorProduct.tmul_sum] ; rw [antipode_decomp R H2 I2 h21 h22 h2 h02]
-  simp only [TensorProduct.counit_def, AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
-    DistribMulActionHom.coe_toLinearMap, NonUnitalAlgHom.coe_to_distribMulActionHom,
-    NonUnitalAlgHom.coe_coe, AlgHom.coe_comp, Function.comp_apply, Algebra.TensorProduct.map_tmul,
-    Bialgebra.counitAlgHom_apply, Algebra.TensorProduct.lmul'_apply_tmul, _root_.map_mul]
-  simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply, TensorProduct.map_tmul, TensorProduct.lid_tmul,
-    smul_eq_mul]
+  simp only [TensorProduct.counit_def, AlgHom.toNonUnitalAlgHom_eq_coe,
+    NonUnitalAlgHom.toDistribMulActionHom_eq_coe, DistribMulActionHom.coe_toLinearMap,
+    NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe, AlgHom.coe_comp,
+    Function.comp_apply, Algebra.TensorProduct.map_tmul, Bialgebra.counitAlgHom_apply,
+    Algebra.TensorProduct.lmul'_apply_tmul, _root_.map_mul]
+  simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply,
+    TensorProduct.map_tmul, TensorProduct.lid_tmul, smul_eq_mul]
   rw [← mul_one (Coalgebra.counit h2), mul_comm,
     ← smul_eq_mul (a := Coalgebra.counit h2) (a' := 1), ← Algebra.ofId_apply,
     Algebra.smul_mul_assoc, AlgHom.map_smul (Algebra.ofId R H1), one_mul, TensorProduct.smul_tmul,
@@ -118,12 +124,13 @@ lemma anti_lTensor : LinearMap.mul' R (H1 ⊗[R] H2) ∘ₗ
     Algebra.TensorProduct.tmul_mul_tmul] ; rw [Finset.sum_comm]
   simp_rw [← TensorProduct.sum_tmul] ; rw [antipode_decomp' R H1 I1 h11 h12 h1 h01]
   simp_rw [← TensorProduct.tmul_sum] ; rw [antipode_decomp' R H2 I2 h21 h22 h2 h02]
-  simp only [TensorProduct.counit_def, AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
-    DistribMulActionHom.coe_toLinearMap, NonUnitalAlgHom.coe_to_distribMulActionHom,
-    NonUnitalAlgHom.coe_coe, AlgHom.coe_comp, Function.comp_apply, Algebra.TensorProduct.map_tmul,
-    Bialgebra.counitAlgHom_apply, Algebra.TensorProduct.lmul'_apply_tmul, _root_.map_mul]
-  simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply, TensorProduct.map_tmul, TensorProduct.lid_tmul,
-    smul_eq_mul]
+  simp only [TensorProduct.counit_def, AlgHom.toNonUnitalAlgHom_eq_coe,
+    NonUnitalAlgHom.toDistribMulActionHom_eq_coe, DistribMulActionHom.coe_toLinearMap,
+    NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe, AlgHom.coe_comp,
+    Function.comp_apply, Algebra.TensorProduct.map_tmul, Bialgebra.counitAlgHom_apply,
+    Algebra.TensorProduct.lmul'_apply_tmul, _root_.map_mul]
+  simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply,
+    TensorProduct.map_tmul, TensorProduct.lid_tmul, smul_eq_mul]
   rw [← mul_one (Coalgebra.counit h2), mul_comm,
     ← smul_eq_mul (a := Coalgebra.counit h2) (a' := 1), ← Algebra.ofId_apply,
     Algebra.smul_mul_assoc, AlgHom.map_smul (Algebra.ofId R H1), one_mul, TensorProduct.smul_tmul,
