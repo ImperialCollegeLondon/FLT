@@ -186,7 +186,7 @@ noncomputable def rid: A ⊗[R] R ≃bi[R] A :=
   map_smul' := by simp
 }
 
--- Monoidal Structure of HopfAlgCat
+-- -- Monoidal Structure of HopfAlgCat
 noncomputable instance : MonoidalCategoryStruct (HopfAlgCat R) where
   tensorObj := tensorObj R
   whiskerLeft X _ _ f :=  tensorHom R (𝟙 X) f
@@ -196,74 +196,6 @@ noncomputable instance : MonoidalCategoryStruct (HopfAlgCat R) where
   associator X Y Z := toHopfAlgebraIso R (assoc R X Y Z)
   leftUnitor X := toHopfAlgebraIso R (lid R X)
   rightUnitor X := toHopfAlgebraIso R (rid R X)
-
-open BialgHom
--- Basicly extend from algebracat to hopfalgcat
--- Use Monoidal structure that mentioned above to finish each proof
-noncomputable instance instMonoidal: MonoidalCategory (HopfAlgCat R) where
-  tensorHom_def {X₁ X₂ Y₁ Y₂} (f : _ →bi[R] _) (g : _ →bi[R] _) := by
-    have := @MonoidalCategory.tensorHom_def (AlgebraCat R) _ _
-      (.of R X₁) (.of R X₂) (.of R Y₁) (.of R Y₂)
-      (AlgebraCat.ofHom <| BialgHom.toAlgHom f)
-      (AlgebraCat.ofHom <| BialgHom.toAlgHom g)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
-  tensor_id {X₁ X₂}:= by
-    have := @MonoidalCategory.tensor_id (AlgebraCat R) _ _ (.of R X₁) (.of R X₂)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
-  tensor_comp {X₁ X₂ Y₁ Y₂ Z₁ Z₂} (f₁ : _ →bi[R] _) (f₂ : _ →bi[R] _) (g₁ : _ →bi[R] _)
-    (g₂ : _ →bi[R] _) := by
-    have := @MonoidalCategory.tensor_comp (AlgebraCat R) _ _ (.of R X₁) (.of R X₂)
-      (.of R Y₁) (.of R Y₂) (.of R Z₁) (.of R Z₂)
-      (AlgebraCat.ofHom <| BialgHom.toAlgHom f₁) (AlgebraCat.ofHom <| BialgHom.toAlgHom f₂)
-      (AlgebraCat.ofHom <| BialgHom.toAlgHom g₁) (AlgebraCat.ofHom <| BialgHom.toAlgHom g₂)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
-  whiskerLeft_id {X Y} := by
-    have := @MonoidalCategory.whiskerLeft_id (AlgebraCat R) _ _ (.of R X) (.of R Y)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
-  id_whiskerRight {X Y}:= by
-    have := @MonoidalCategory.id_whiskerRight (AlgebraCat R) _ _ (.of R X) (.of R Y)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
-  associator_naturality {X₁ X₂ X₃ Y₁ Y₂ Y₃} (f₁ : _ →bi[R] _) (f₂ : _ →bi[R] _)
-    (f₃ : _ →bi[R] _) := by
-    have := @MonoidalCategory.associator_naturality (AlgebraCat R) _ _ (.of R X₁) (.of R X₂)
-      (.of R X₃) (.of R Y₁) (.of R Y₂) (.of R Y₃)
-      (AlgebraCat.ofHom <| BialgHom.toAlgHom f₁) (AlgebraCat.ofHom <| BialgHom.toAlgHom f₂)
-      (AlgebraCat.ofHom <| BialgHom.toAlgHom f₃)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
-  leftUnitor_naturality {X Y} (f : _ →bi[R] _) := by
-    have := @MonoidalCategory.leftUnitor_naturality (AlgebraCat R) _ _ (.of R X) (.of R Y)
-      (AlgebraCat.ofHom <| BialgHom.toAlgHom f)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
-  rightUnitor_naturality {X Y} (f : _ →bi[R] _) := by
-    have := @MonoidalCategory.rightUnitor_naturality (AlgebraCat R) _ _ (.of R X) (.of R Y)
-      (AlgebraCat.ofHom <| BialgHom.toAlgHom f)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
-  pentagon {W X Y Z} := by
-    have := @MonoidalCategory.pentagon (AlgebraCat R) _ _ (.of R W) (.of R X) (.of R Y) (.of R Z)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
-  triangle {X Y} := by
-    have := @MonoidalCategory.triangle (AlgebraCat R) _ _ (.of R X) (.of R Y)
-    change (_ : _ →bi[R] _) = (_ : _ →bi[R] _)
-    refine DFunLike.ext _ _ fun x ↦ ?_
-    exact congr($this x)
 
 -- We then realize that there are some "standard way" to prove the monoidal category, by
 -- inducing from AlgebraCat using "Monoidal.induced"
