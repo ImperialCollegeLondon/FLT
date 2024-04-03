@@ -394,10 +394,10 @@ structure AffineGroup extends AffineMonoid k where
   i : toFunctor ⟶ toFunctor
   /- group axioms -/
   mul_inv :
-    (includeLeftMul _ i ≫ m : toFunctor ⟶ toFunctor) =
+    includeLeftMul _ i ≫ m =
     corep.coreprW.inv ≫ coyoneda.map (op <| Algebra.ofId _ _) ≫ e
   inv_mul :
-    (includeRightMul _ i ≫ m : toFunctor ⟶ toFunctor) =
+    includeRightMul _ i ≫ m =
     corep.coreprW.inv ≫ coyoneda.map (op <| Algebra.ofId _ _) ≫ e
 
 namespace AffineMonoid
