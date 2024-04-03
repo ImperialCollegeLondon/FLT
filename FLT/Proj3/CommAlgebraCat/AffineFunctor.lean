@@ -171,6 +171,27 @@ def mulStar (a : CommAlgebraCat k ⥤ Type v) : mul a ⋆ ≅ a where
   inv_hom_id := by ext; simp
 
 /--
+the natural transformation `a ⟶ a × a` defined by `(f, id)`
+-/
+def includeLeftMul (a : CommAlgebraCat k ⥤ Type v) (f : a ⟶ a) : a ⟶ mul a a where
+  app X x := (f.app X x, x)
+  naturality := by
+    intro X Y (g: X →ₐ[k] Y)
+    ext x
+    simpa using congr_fun (f.naturality g) x
+
+/--
+the natural transformation `a ⟶ a × a` defined by `(id, f)`
+-/
+def includeRightMul (a : CommAlgebraCat k ⥤ Type v) (f : a ⟶ a) : a ⟶ mul a a where
+  app X x := (x, f.app X x)
+  naturality := by
+    intro X Y (g: X →ₐ[k] Y)
+    ext x
+    simpa using congr_fun (f.naturality g) x
+
+
+/--
 `Hom(k, -)` has the role of the unit up to isomorphism.
 Again, a weird version of one_mul
 -/
@@ -373,28 +394,10 @@ structure AffineGroup extends AffineMonoid k where
   i : toFunctor ⟶ toFunctor
   /- group axioms -/
   mul_inv :
-    ({
-      app := fun _ x ↦ (i.app _ x, x)
-      naturality := by
-        intro X Y (f: X →ₐ[k] Y)
-        ext x
-        simp only [mul_obj, types_comp_apply, mul_map, Prod.mk.injEq, and_true]
-        have := i.naturality f
-        change (i.app Y).comp _ = (toFunctor.map f).comp _ at this
-        exact congr_fun this x
-    } ≫ m : toFunctor ⟶ toFunctor) =
+    (includeLeftMul _ i ≫ m : toFunctor ⟶ toFunctor) =
     corep.coreprW.inv ≫ coyoneda.map (op <| Algebra.ofId _ _) ≫ e
   inv_mul :
-    ({
-        app := fun _ x ↦ (x, i.app _ x)
-        naturality := by
-          intro X Y (f: X →ₐ[k] Y)
-          ext x
-          simp only [mul_obj, types_comp_apply, mul_map, Prod.mk.injEq, true_and]
-          have := i.naturality f
-          change (i.app Y).comp _ = (toFunctor.map f).comp _ at this
-          exact congr_fun this x
-      } ≫ m : toFunctor ⟶ toFunctor) =
+    (includeRightMul _ i ≫ m : toFunctor ⟶ toFunctor) =
     corep.coreprW.inv ≫ coyoneda.map (op <| Algebra.ofId _ _) ≫ e
 
 namespace AffineMonoid
