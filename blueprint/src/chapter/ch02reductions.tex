@@ -52,7 +52,7 @@ Our next reduction is as follows:
   The last thing to ensure is that $a$ is 3 mod~4. Because $b$ is even, we know that $a$ is odd, so it is either~1 or~3 mod~4. If $a$ is 3 mod~4 then we are home; if however $a$ is 1 mod~4 we replace $a,b,c$ by their negatives and this is the Frey package we seek.
 \end{proof}
 
-\section{Galois representations and elliptic curves}
+\section{Galois representations and elliptic curves}\label{twopointfour}
 
 To continue, we need some of the theory of elliptic curves over $\Q$. So let $f(X)$ denote any monic cubic polynomial with rational coefficients and whose three complex roots are distinct, and let us consider the equation $E:Y^2=f(X)$, which defines a curve in the $(X,Y)$ plane. This curve (or strictly speaking its projectivisation) is a so-called elliptic curve (or an elliptic curve over $\Q$ if we want to keep track of the field where the coefficients of $f(X)$ lie). 
 
@@ -60,7 +60,7 @@ If $E:Y^2=f(X)$ is as above, and if $K$ is any field of characteristic 0, then w
 
 The group structure behaves well under change of field: If $K$ and $L$ are two fields of characteristic zero and $f:K\to L$ is a field homomorphism, the map from $E(K)$ to $E(L)$ induced by $f$ is an additive group homomorphism. This construction is functorial (it sends the identity to the identity, and compositions to compositions). Thus if $f$ is an isomorphism of fields, the induced map $E(K)\to E(L)$ is an isomorphism of groups, with the inverse isomorphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This construction thus gives us an action of the multiplicative group $\Aut(K)$ of automorphisms of the field $K$ on the additive abelian group $E(K)$. In particular, if $\Qbar$ denotes an algebraic closure of the rationals (for example, the algebraic numbers in $\bbC$) and if $\GQ$ denotes the group of field isomorphisms $\Qbar\to\Qbar$, then for any elliptic curve $E$ over $\Q$ we have an action of $\GQ$ on the additive abelian group $E(\Qbar)$.
 
-We need a variant of this construction where we only consider the $p$-torsion of the curve. Recall that if $A$ is any additive abelian group, and if $p$ is a prime number, then the subgroup $A[p]$ of elements $a$ such that $pa=0$ is naturally a vector space over the field $\Z/p\Z$. If a group~$G$ is acting on $A$ via additive group isomorphisms, then there will be an induced action of~$G$ on $A[p]$, which thus inherits the stucture of a mod $p$ representation of $G$. Applying this to the above situation, we deduce that if $E$ is an elliptic curve over $\Q$ then $\GQ$ acts on $E(\Qbar)[p]$ and this is the \emph{mod $p$ Galois representation} attached to the curve $E$.
+We need a variant of this construction where we only consider the $n$-torsion of the curve, for $n$ a positive integer. Recall that if $A$ is any additive abelian group, and if $n$ is a positive integer, then we can consider the subgroup $A[n]$ of elements $a$ such that $na=0$. If a group~$G$ acts on $A$ via additive group isomorphisms, then there will be an induced action of~$G$ on $A[n]$. If furthermore $n=p$ is prime, then $A[p]$ is naturally a vector space over the field $\Z/p\Z$, and thus it inherits the stucture of a mod $p$ representation of $G$. Applying this to the above situation, we deduce that if $E$ is an elliptic curve over $\Q$ then $\GQ$ acts on $E(\Qbar)[p]$ and this is the \emph{mod $p$ Galois representation} attached to the curve $E$.
 
 In the next section we apply this theory to an elliptic curve coming from a counterexample to Fermat's Last theorem.
 

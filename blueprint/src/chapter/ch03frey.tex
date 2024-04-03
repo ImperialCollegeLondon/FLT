@@ -2,7 +2,7 @@
 
 \section{Overview}
 
-In the last chapter we explained how, given a counterexample to Fermat's Last Theorem we could construct a Frey curve, which is an elliptic curve with some interesting properties. In this chapter we start with an overview of parts of the theory of the arithmetic of elliptic curves. Following
+In the last chapter we explained how, given a counterexample to Fermat's Last Theorem we could construct a Frey package and thus a Frey curve, which is an elliptic curve with some interesting properties. In this chapter we start with an overview of parts of the theory of the arithmetic of elliptic curves. Following
 this we prove the two main results of this chapter: firstly that the $p$-torsion $\rho$ in the Frey curve is ``hardly ramified'', and secondly that Mazur's result on the possible torsion of elliptic curves implies that $\rho$ must be irreducible.
 
 \section{The arithmetic of elliptic curves}
@@ -16,7 +16,7 @@ We give an overview of the results we need, citing the literature for proofs. Ev
   in the $K$-points of $E$ is a finite group of size $n^2$.
 \end{theorem}
 \begin{proof}
-  There are several proofs in the textbooks. The proof we shall formalise is forthcoming work of David Angdinata; it follows the approach with division polynomials, and it will be part of his PhD thesis.
+  There are several proofs in the textbooks {\bf TODO precise reference}. We shall prove this result using the theory of division polynomials; the formalisation is ongoing work of David Angdinata, and it will be part of his PhD thesis.
 \end{proof}
 
 This theorem actually tells us the structure of the $n$-torsion, because of the following
@@ -27,8 +27,8 @@ purely group-theoretic result:
   then $A\cong (\Z/n\Z)^2$. 
 \end{lemma}
 \begin{proof}
-  One proof would be to write $A$ as $\prod_{i=1}^t(\Z/a_i\Z)$
-  with $a_i\mid a_{i+1}$, uses $d=a_1$ to deduce $t=2$ and then uses $d=a_2$ to deduce $a_1=a_2$.
+  The result is obvious if $n=1$, so we may assume $n.1$. One proof would be to write $A$ as $\prod_{i=1}^t(\Z/a_i\Z)$
+  with $a_i\mid a_{i+1}$ (this is possible by the structure theorem of finite abelian groups), and then to apply our hypothesis firstly with $d=a_1$ to deduce $t=2$ and then with $d=a_2$ to deduce $a_1=a_2$.
 \end{proof}
 
 \begin{corollary}\label{Elliptic_curve_n_torsion_2d}\lean{EllipticCurve.n_torsion_dimension}
@@ -41,26 +41,13 @@ purely group-theoretic result:
   theorem~\ref{Elliptic_curve_n_torsion_size}.
 \end{proof}
 
-If $K$ is now any field, and $E/K$ is an elliptic curve, then for $L$ a field which is
-also a $K$-algebra, we write $E(L)$ for the group of $L$-points of $E$. If $M$ is also
-a field and a $K$-algebra, and $\phi:L\to M$ is a $K$-algebra morphism, then there is
-an induced group homomorphism $E(L)\to E(M)$ which is functorial (that is,
-the identity map $L\to L$ induces the identity map on $E(L)$, and composing $K$-algebra
-morphisms and then applying the construction is the same as applying the construction
-and then composing). The same holds true for the $n$-torsion: $\phi : L\to M$ induces
-a functorial $\Z/n\Z$-module morphism $E(L)[n]\to E(M)[n]$.
-
-From this, it is a purely formal fact that for $L/K$ a Galois extension,
-$\Gal(L/K)$ acts naturally on $E(L)[n]$. If $K=\Q$, $L=\overline{\Q}$, $n>0$ and $E$ is an elliptic
-curve over $\Q$, this gives us a \emph{Galois representation} $\Gal(\Qbar/\Q)\to\GL_2(\Z/n\Z)$
-coming from the $n$-torsion of $E(\Qbar)$.
+We saw in section~\ref{twopointfour} that if if $E$ is an elliptic curve over a field $K$,
+then $\GK$ acts naturally on the abelian group $E(\Kbar)[n]$. If furthermore $n\not=0$ in $K$ then from the above corollary, we now know that this abelian group is free of rank 2 over $\Z/n\Z$. If we choose a basis (this is traditionally done in the literature, although we do not ever seem to actually use such a choice), then $E(\Kbar)[n]$ gives us a \emph{Galois representation} $\Gal(\Kbar/K)\to\GL_2(\Z/n\Z)$.
 
 A fundamental fact about this Galois representation is that its determinant is the
 cyclotomic character.
 
-\begin{theorem}\label{Elliptic_curve_det_p_torsion}\uses{Elliptic_curve_p_torsion_2d} If $E$ is an 
-  elliptic curve over a field $K$, and $n>0$ is a positive integer which is nonzero in $K$, then the 
-  determinant of the 2-dimensional representation of $\Gal(K^{\sep}/K)$ on $E[n]$ is the 
+\begin{theorem}\label{Elliptic_curve_det_n_torsion}\uses{Elliptic_curve_n_torsion_2d} If $E$ is an elliptic curve over a field $K$, and $n>0$ is a positive integer which is nonzero in $K$, then the determinant of the 2-dimensional representation of $\Gal(K^{\sep}/K)$ on $E[n]$ is the 
   mod $n$ cyclotomic character.
 \end{theorem}
 \begin{proof}
@@ -71,17 +58,19 @@ cyclotomic character.
 
 We give a brief overview of the theory of good and multiplicative reduction of elliptic curves.
 For more details one can consult the standard sources such as~\cite{silverman}. **TODO** more
-precise ref.
+precise ref. We stick with the low-level approach, thinking of elliptic curves as plane cubics; whilst we cannot do this forever, it will suffice for these initial results.
 
-Let $E$ be an elliptic curve over the field of fractions $K$ of a DVR 
+\begin{definition}\label{good_reduction} Let $E$ be an elliptic curve over the field of fractions $K$ of a DVR
 $R$ with maximal ideal $\m$. We say $E$ has \emph{good reduction} if $E$ has a model with 
 coefficients in $R$ and the reduction mod $\m$ is still non-singular. If $E$ is an elliptic curve 
-over a number field $N$ then one says that $E$ has good reduction at a finite place $P$ of $N$ if 
+over a number field $N$ and $P$ is a finite place of $N$, then one says that $E$ has \emph{good reduction at $P$} if 
 the base extension of $E$ to the completion $N_P$ of $N$ at $P$ has good reduction.
+
+\begin{remark} From this point on, our Frey curves and Frey packages will use notation $(a,b,c,\ell)$, with $\ell\geq 5$ a prime number. This frees up $p$ for use as another prime.
 
 \begin{example} If $E$ is the Frey curve $Y^2=X(X-a^\ell)(X+b^\ell)$ associated to a
   Frey package $(a,b,c,\ell)$, and if $p$ is a prime
-  not dividing $abc$ (and in particular $p>2$), then the reduction mod $p$ of this 
+  not dividing $abc$ (and in particular if $p>2$), then the reduction mod $p$ of this 
   equation is still a smooth
   plane cubic, because the three roots $0$, $a^\ell$ and $-b^\ell$ are distinct modulo $p$
   (note that the difference between $a^\ell$ and $-b^\ell$ is $c^\ell$). Hence the Frey curve
@@ -89,20 +78,21 @@ the base extension of $E$ to the completion $N_P$ of $N$ at $P$ has good reducti
 \end{example}
 
 If $E$ is an elliptic curve over a number field $N$ and if $\rho$ is the representation
-of $\Gal(\overline{N}/N)$ on the $n$-torsion of $E$ then the image of $\rho$ is finite,
-so by the fundamental theorem of Galois theory the representation factors through an
+of $\Gal(\overline{N}/N)$ on the $n$-torsion of $E$ then $\rho$ is continuous and its image is finite,
+so by the fundamental theorem of (infinite) Galois theory the representation factors through an
 injection $\Gal(L/N)\to\GL_2(\Z/n\Z)$ where $L/N$ is a finite Galois extension of
 number fields. One says that $\rho$ is \emph{unramified} at a finite place $P$ of $N$
 if the extension $L/N$ is unramified at $P$ (or in other words, if the factorization
 of $P$ in the integers of $L$ is squarefree).
 
 At some point we will need a theory of finite flat group schemes over an affine base. Here
-is a working definition.
+is a working definition. {\bf TODO should be locally free not flat}
 
 \begin{definition}\label{finite_flat_group_scheme} If $R$ is a commutative ring, then
   a \emph{finite flat group scheme} over $R$ is the spectrum of a commutative Hopf algebra $H/R$ 
   which is finite and flat as an $R$-module.
 \end{definition}
+
 
 Some facts we will need are:
 
@@ -137,9 +127,9 @@ are both defined over $R/\m$, and \emph{non-split} otherwise.
 \begin{example} If $E$ is the Frey curve $Y^2=X(X-a^\ell)(X+b^\ell)$ associated to a Frey
   package $(a,b,c,\ell)$, and if $p$ is an odd prime
   which divides $abc$, then the reduction mod $p$ of this equation is smooth
-  away from the point $(x,0)$ where $x$ is the double root of the cubic mod $q$,
+  away from the point $(x,0)$ where $x$ is the double root of the cubic mod $p$,
   and has an ordinary double point at $(x,0)$. Hence the Frey curve has
-  multiplicative reduction at $q$.
+  multiplicative reduction at $p$.
 \end{example}
 
 \begin{example} If $E$ is the Frey curve $Y^2=X(X-a^\ell)(X+b^\ell)$ associated to a Frey package
