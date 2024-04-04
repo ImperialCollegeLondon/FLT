@@ -42,7 +42,7 @@ purely group-theoretic result:
 \end{proof}
 
 We saw in section~\ref{twopointfour} that if if $E$ is an elliptic curve over a field $K$,
-then $\GK$ acts naturally on the abelian group $E(\Kbar)[n]$. If furthermore $n\not=0$ in $K$ then from the above corollary, we now know that this abelian group is free of rank 2 over $\Z/n\Z$. If we choose a basis (this is traditionally done in the literature, although we do not ever seem to actually use such a choice), then $E(\Kbar)[n]$ gives us a \emph{Galois representation} $\Gal(\Kbar/K)\to\GL_2(\Z/n\Z)$.
+then $\GK$ acts naturally on the abelian group $E(K^{\sep})[n]$. If furthermore $n\not=0$ in $K$ then from the above corollary, we now know that this abelian group is free of rank 2 over $\Z/n\Z$. If we choose a basis (this is traditionally done in the literature, although we do not ever seem to actually use such a choice), then $E(K^{\sep})[n]$ gives us a \emph{Galois representation} $\GK\to\GL_2(\Z/n\Z)$.
 
 A fundamental fact about this Galois representation is that its determinant is the
 cyclotomic character.
@@ -57,7 +57,7 @@ cyclotomic character.
 \section{Good reduction}
 
 We give a brief overview of the theory of good and multiplicative reduction of elliptic curves.
-For more details one can consult the standard sources such as~\cite{silverman}. **TODO** more
+For more details one can consult the standard sources such as~\cite{silverman1}. **TODO** more
 precise ref. We stick with the low-level approach, thinking of elliptic curves as plane cubics; whilst we cannot do this forever, it will suffice for these initial results.
 
 \begin{definition}\label{good_reduction} Let $E$ be an elliptic curve over the field of fractions $K$ of a DVR
@@ -65,8 +65,10 @@ $R$ with maximal ideal $\m$. We say $E$ has \emph{good reduction} if $E$ has a m
 coefficients in $R$ and the reduction mod $\m$ is still non-singular. If $E$ is an elliptic curve 
 over a number field $N$ and $P$ is a finite place of $N$, then one says that $E$ has \emph{good reduction at $P$} if 
 the base extension of $E$ to the completion $N_P$ of $N$ at $P$ has good reduction.
+\end{definition}
 
 \begin{remark} From this point on, our Frey curves and Frey packages will use notation $(a,b,c,\ell)$, with $\ell\geq 5$ a prime number. This frees up $p$ for use as another prime.
+\end{remark}
 
 \begin{example} If $E$ is the Frey curve $Y^2=X(X-a^\ell)(X+b^\ell)$ associated to a
   Frey package $(a,b,c,\ell)$, and if $p$ is a prime
@@ -274,7 +276,7 @@ We have now proved the first main result of this chapter.
 \end{theorem}
 \begin{proof}
   This follows from the results above. The fact that $\ell\geq 5$ follows from the definition of
-  a Frey package. The first condition is theorem~\ref{Elliptic_curve_det_p_torsion},
+  a Frey package. The first condition is theorem~\ref{Elliptic_curve_det_n_torsion},
   and the second is theorem~\ref{frey_curve_unramified}. The third condition is
   theorem~\ref{frey_curve_at_2}, and the fourth is theorem~\ref{Frey_curve_mod_ell_rep_at_ell}.
 \end{proof}
