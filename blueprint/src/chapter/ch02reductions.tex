@@ -73,7 +73,7 @@ Note that the roots of the cubic $X(X-a^p)(X+b^p)$ are distinct because $a,b,c$ 
 
 \begin{definition}[mod $p$ Galois representation attached to a Frey package]\label{Frey_mod_p_Galois_representation}\lean{FLT.FreyCurve.mod_p_Galois_representation}\uses{Frey_curve} Given a Frey package $(a,b,c,p)$ with corresponding Frey curve $E$, the mod $p$ Galois representation associated to this package is the representation of $\GQ$ on $E(\Qbar)[p].$\end{definition}
 
-Frey's observation is that this mod $p$ Galois representation has some very surprising properties. We will come back to this in the next chapter.
+Frey's observation is that this mod $p$ Galois representation has some very surprising properties. We will make this remark more explicit in the next chapter. Here we shall show how these properties can be used to finish the job.
 
 \section{Reduction to two big theorems.}
   
@@ -99,4 +99,4 @@ We deduce
 Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~\ref{Frey_package_of_FLT_counterex}, contradicting Corollary~\ref{no_Frey_package}.
 \end{proof}
 
-The structure of the rest of this document is as follows. In Chapter 3 we develop some of the basic theory of elliptic curves and the Galois representations attached to their $p$-torsion subgroups. We then apply this theory to the Frey curve, deducing in particular how Mazur's result on torsion subgroups of elliptic curves implies Theorem~\ref{Mazur_on_Frey_curve}, the assertion that $\rho$ cannot be reducible. In Chapter~\ref{ch_overview} we give a high-level overview of our strategy to prove that $\rho$ cannot be irreducible, which diverges from the original approach taken by Wiles; one key difference is that we work with the $p$-torsion directly rather than switching to the 3-torsion. Here we flag some more results from the 1980s and before which are necessary ingredients in our proof. We then begin the journey towards the proof of the modularity lifting theorem which provides the key ingredient in our approach.
+The structure of the rest of this document is as follows. In Chapter 3 we develop some of the basic theory of elliptic curves and the Galois representations attached to their $p$-torsion subgroups. We then apply this theory to the Frey curve, deducing in particular how Mazur's result on torsion subgroups of elliptic curves implies Theorem~\ref{Mazur_on_Frey_curve}, the assertion that $\rho$ cannot be reducible. In Chapter~\ref{ch_overview} we give a high-level overview of our strategy to prove that $\rho$ cannot be irreducible, which diverges from the original approach taken by Wiles; one key difference is that we work with the $p$-torsion directly rather than switching to the 3-torsion. In this chapter we also state several more results from the 1980s and before which are necessary ingredients in our proof. We then begin the journey towards the proof of the modularity lifting theorem which provides the key ingredient in our approach.
