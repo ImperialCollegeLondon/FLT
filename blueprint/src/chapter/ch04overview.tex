@@ -1,11 +1,13 @@
 \chapter{An overview of the proof}\label{ch_overview}
 
-So far we have seen that, modulo Mazur's theorem, Fermat's Last Theorem can be reduced
+So far we have seen that, modulo Mazur's theorem (and various other things which will still take some work to formalise but which are much easier), Fermat's Last Theorem can be reduced
 to the statement that there is no prime $\ell\geq 5$ and hardly-ramified
 irreducible 2-dimensional Galois representation $\rho:\GQ\to\GL_2(\Z/\ell\Z)$.
 
-In this short chapter we explain our strategy for proving this. This short chapter is written
-for experts who want an overview of the route we're taking.
+In this chapter we give an overview of our strategy for proving this, and collect
+various results which we will need along the way. Note that we no longer need to assume that $\rho$ comes from the $\ell$-torsion in an elliptic curve.
+
+\section{Potential modularity.}
 
 We will only speak about modularity for 2-dimensional representations of the
 absolute Galois group of a totally real field $F$ of even degree over $\Q$, and
@@ -24,18 +26,26 @@ The proof of this is very long, and uses a host of machinery. For example:
     local behaviour;
     \item several nontrivial results in global class field theory;
     \item the Jacquet--Langlands correspondence;
+    \item The assertion that irreducible 2-dimensional mod $p$ representations induced from a character are modular (this follows from converse theorems);
     \item A modularity lifting theorem.
 \end{itemize}
 
-Everything here is from the 20th century and standard, other than the modularity
-lifting theorem, which is explained in \href{https://math.berkeley.edu/~fengt/249A_2018.pdf}
-{Taylor's 2018 Stanford course}. The strategy is to use Moret--Bailly to find an auxiliary 
-elliptic curve over $F$ whose mod $\ell$ Galois representation is $\rho$ and whose
+Everything here is from the 20th century, and most of it is from the 1980s or before.
+The exception is the modularity lifting theorem, which we state explicitly here.
+
+**TODO** state modularity lifting theorem.
+
+I am not entirely sure where to find a proof of this in the literature, although it has certainly been known to the experts for some time. Theorem 3.3 of~\cite{taylor-mero-cont} comes close, although it assumes that $\ell$ is totally split in $F$ rather than just unramified. Another near-reference is Theorem~5.2 of~\cite{toby-modularity}, although this assumes
+the slightly stronger assumption that the image of $\rho$ contains $\SL_2(\Z/p\Z)$ (however it is well-known to the experts that this can be weakened to give the result we need). One reference for the proof is \href{https://math.berkeley.edu/~fengt/249A_2018.pdf}{Richard Taylor's 2018 Stanford course}. 
+
+Given the modularity lifting theorem, the strategy to show potential modularity of $\rho$ is to use Moret--Bailly to find an appropriate totally real field $F$, an auxilary prime $p$, and an auxiliary elliptic curve over $F$ whose mod $\ell$ Galois representation is $\rho$ and whose
 mod $p$ Galois representation is induced from a character. By converse theorems (for example)
 the mod $p$ Galois representation is associated to an automorphic representation of
 $\GL_2/F$ and hence by Jacquet--Langlands it is modular. Now we use the
-modularity lifting theorem to deduce the modularity of the curve and hence
+modularity lifting theorem to deduce the modularity of the curve over $F$ and hence
 the modularity of the $\ell$-torsion. 
+
+\section{Compatible families, and reduction at 3}
 
 We now use Khare--Wintenberger to lift $\rho$ to a potentially modular $\ell$-adic
 Galois representation of conductor 2, and put it into an $\ell$-adic famiily using
@@ -46,7 +56,11 @@ representation would cut out a number field whose discriminant violates the Odly
 One can now go on to deduce that the 3-adic representation must be reducible, which
 contradicts the irreducibility of $\rho$.
 
-As this document grows, we will be able to add links to a more detailed discussion of
-what is going on here.
+As this document grows, we will add a far more detailed discussion of
+what is going on here. 
+
+
+
+
 
 
