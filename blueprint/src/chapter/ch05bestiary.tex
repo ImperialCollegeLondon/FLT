@@ -1,41 +1,49 @@
 \chapter{A collection of results which are needed in the proof.}
 
-In this (temporary) chapter we list a whole host of definitions and theorems known to humanity by the end of the 1980s and which we shall need. These definitions and theorems will find their way into more relevant sections of the blueprint once I have written more details.
+In this (temporary) chapter we list a whole host of definitions and theorems  which were known to humanity by the end of the 1980s and which we shall need. These definitions and theorems will find their way into more relevant sections of the blueprint once I have written more details. Note that some of these things are straightforward; others are multi-year research projects. The purpose of this chapter right now is to give the community some kind of idea of the task we face.
 
-\section{Affine varieties}
+\section{Structures on the points of an affine variety.}
 
 All rings and algebras in this section are commutative with a 1, and all morphisms send 1 to 1.
 
-An affine algebraic variety~$X$ over a field $K$ can be implemented as a finite type $K$-algebra $A=\mathcal{O}_X(X)$ (perhaps with some additional hypotheses such as reducedness; we only care about the smooth case anyway). If $R$ is any $K$-algebra then one can talk about the $R$-points $X(R)$ of $X$, meaning the $K$-algebra homomorphisms from $A$ to $R$.
+Let $X=\Spec(A)$ be an affine scheme of finite type over a field $K$. For example $X$ could be an affine algebraic variety; in fact we shall only be interested in smooth affine varieties in the applications, but the initial definition and theorem are fine for all finite type schemes.
 
-\begin{definition}\label{topology_on_affine_variety_points} Let $X$ be an affine algebraic variety, smooth and of finite type over a field $K$. If $R$ is a $K$-algebra which is also a topological ring, then the $R$-points $X(R)$ admit a natural topology; it can be defined by embedding $X$ into a large affine space $\A^N$ and then letting $X(R)\subseteq\A^N(R)=R^N$ inherit the subspace topology.
+If $R$ is any $K$-algebra then one can talk about the $R$-points $X(R)$ of $X$, which in this case
+naturally bijects with the $K$-algebra homomorphisms from $A$ to $R$.
+
+\begin{definition}\label{topology_on_affine_variety_points} If $X$ is an affine scheme of finite
+    type over $K$, and if $R$ is a $K$-algebra which is also a topological ring, then we define a topology on the $R$-points $X(R)$ of $K$ by embedding the $K$-algebra homomorphisms from $A$ to $R$ into the set-theoretic maps from $A$ to $R$ with its product topology, and giving it the subspace topology.
 \end{definition}
 
-\begin{theorem}\label{topology_on_affine_variety_well_defined} This topology is independent of the choice of embedding.
+\begin{theorem}\label{topology_on_affine_variety_computation}
+    If $X$ is as above and $X\to\mathbb{A}^n_K$ is a closed immersion, then the induced map from $X(R)$ with its topology as above to $R^n$ is an embedding (that is, a homeomorphism onto its image).
 \end{theorem}
-\begin{proof} ``Standard''.
+\begin{proof} See \href{https://math.stanford.edu/~conrad/papers/adelictop.pdf}{Conrad's notes}.
+\end{proof}
+
+We now specialise to the smooth case. I want to make the following conjectural ``definition'':
     
-    %%Say $X=\Spec(A)$. A closed immersion of $X$ into a large affine space is equivalent to a $K$-algebra surjection $\phi$ from a polynomial ring $K[X_1,\ldots,X_N]$ onto $A$. Such a choice makes $X(R)$ into a subset of $R^N$ and we can give it the subspace topology. We now need to compare this topology with one coming from a different surjection $\psi: K[Y_1,\ldots,Y_M]\to A$. The two surjections can be combined to give a surjection $\rho:K[X_1,\ldots,X_N,Y_1,\ldots,Y_M]\to A$ and, by symmetry, it suffices to show that the topologies induced by $\phi$ and $\rho$ are equal. 
-
-    %%X(R) \sub A x B and \sub A. Set X, top spaces A, B, injections X->A and X->B, injection into A x B. Two injections into R^N related by a linear thing?
-
-\end{proof}
-
-\begin{definition}\label{manifold_on_algebraic_variety_points} Let $K$ be a field equipped with an isomorphism to the reals, complexes, or a finite extension of the $p$-adic numbers. Let $X$ be a smooth affine algebraic variety over $K$. Then the points $X(K)$ inherit the structure of a manifold over $K$; as in the topological case it can be defined by embedding $G$ into $K^N$ and pulling back the structure.
+\begin{definition}\label{manifold_on_algebraic_variety_points} Let $K$ be a field equipped with an isomorphism to the reals, complexes, or a finite extension of the $p$-adic numbers. Let $X$ be a smooth affine algebraic variety over $K$. Then the points $X(K)$ naturally inherit the structure of a manifold over $K$.
 \end{definition}
 
-\begin{theorem}\label{manifold_on_algebraic_variety_well_defined} This manifold structure is independent of the choice of embedding.
+\begin{remark} Probably this is fine for a broader class of fields $K$. 
+\end{remark}
+
+\begin{conjecture}\label{manifold_on_algebraic_variety_computation} 
+    If $X$ is as in the previous definition and $X\to\mathbb{A}^n_K$ is a closed immersion, then the induced map from $X(K)$ with its manifold structure to $K^n$ is an embedding. 
 \end{theorem}
-\begin{proof} ``Obvious'' (how could it be any other way, right?)
-\end{proof}
+
+\begin{corollary}\label{lie_group_from_algebraic_group}
+    If $G$ is an affine algebraic group of finite type over $K=\R$ or $\C$ then $G(K)$ is naturally a real or complex Lie group.
+\begin{remark}
+
+    The corollary, for sure, is true! And it's all we need. I have not yet made any serious effort to find a reference.
 
 \section{Algebraic groups.}
 
-The concept of an affine algebraic group over a field $K$ can be implemented in Lean as a commutative Hopf algebra over $K$, as a group object in the category of affine schemes over $K$, or as a representable group functor on the category of affine schemes over $K$. {\bf TODO figure out what Edison et al did}. If $H$ is a commutative Hopf algebra over $K$ and $R$ is any $K$-algebra (for example $R=K$, a key special case) then a group of undergraduates {\bf TODO names} at Imperial College have given the $K$-algebra maps from $H$ to $R$ the structure of a group. If $G=\Spec(H)$ then this group is typically written $G(R)$. 
+The concept of an affine algebraic group over a field $K$ can be implemented in Lean as a commutative Hopf algebra over $K$, as a group object in the category of affine schemes over $K$, as a representable group functor on the category of affine schemes over $K$, or as a representable group functor on the category of schemes over $K$ which is represented by an affine scheme. All of these are the same to mathematicians
+but different to Lean and some thought should go into which definition we use.
 
-
-
-\begin{definition} If $G$ is an affine algebraic group over a field isomorphic to the reals or complexes, 
 \begin{definition}\label{connected_reductive_group} An affine algebraic group over a field of characteristic zero is said to be \emph{connected} if it is connected as a scheme, and \emph{reductive} if it admits a finite-dimensional semisimple representation with finite kernel.
 \end{definition}
 
@@ -44,9 +52,20 @@ The concept of an affine algebraic group over a field $K$ can be implemented in 
 
 \section{Automorphic forms and representations}
 
-Let $G$ be a connected reductive group over a number field $N$.
+Let $G$ be a connected reductive group over a number field $N$. Let $\A_N^f:= N\otimes_{\Z}\widehat{Z}$
+denote the finite adeles of $N$ and let $N_\infty := N\otimes_\Q\R$ denote the product of the completions of $N$ at the infinite places, so $\A_N:=\A_N^f\times N_\infty$ is the ring of adeles of $N$. We note
+that $G(\A_N^f)$ is a (locally profinite) topological space and $G(N_\infty)$ is a real Lie group;
+their product is $G(\A_N)$.
 
-\begin{definition} An \emph{automorphic form} 
+We are at some points vague in the below definition, whose details are complex. For FLT
+we only need the definition for $G$ being either an abelian algebraic group, or an inner
+form of $GL(2)$. Furthermore, we seem to need to fix a choice of maximal compact subgroup
+$U_\infty$ of $G(N_\infty)$.
+
+\begin{definition} An \emph{automorphic form} is a function $\phi:G(\A_N)\to\C$ satisfying the following conditions:
+    \begin{itemize}
+        \item $\phi$ is left-invariant under $G(N)$;
+
 
 **TODO** write this properly.
 
