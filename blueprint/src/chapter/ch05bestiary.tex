@@ -1,5 +1,53 @@
 \chapter{A collection of results which are needed in the proof.}
 
+In this (temporary) chapter we list a whole host of definitions and theorems known to humanity by the end of the 1980s and which we shall need. These definitions and theorems will find their way into more relevant sections of the blueprint once I have written more details.
+
+\section{Affine varieties}
+
+All rings and algebras in this section are commutative with a 1, and all morphisms send 1 to 1.
+
+An affine algebraic variety~$X$ over a field $K$ can be implemented as a finite type $K$-algebra $A=\mathcal{O}_X(X)$ (perhaps with some additional hypotheses such as reducedness; we only care about the smooth case anyway). If $R$ is any $K$-algebra then one can talk about the $R$-points $X(R)$ of $X$, meaning the $K$-algebra homomorphisms from $A$ to $R$.
+
+\begin{definition}\label{topology_on_affine_variety_points} Let $X$ be an affine algebraic variety, smooth and of finite type over a field $K$. If $R$ is a $K$-algebra which is also a topological ring, then the $R$-points $X(R)$ admit a natural topology; it can be defined by embedding $X$ into a large affine space $\A^N$ and then letting $X(R)\subseteq\A^N(R)=R^N$ inherit the subspace topology.
+\end{definition}
+
+\begin{theorem}\label{topology_on_affine_variety_well_defined} This topology is independent of the choice of embedding.
+\end{theorem}
+\begin{proof} ``Standard''.
+    
+    %%Say $X=\Spec(A)$. A closed immersion of $X$ into a large affine space is equivalent to a $K$-algebra surjection $\phi$ from a polynomial ring $K[X_1,\ldots,X_N]$ onto $A$. Such a choice makes $X(R)$ into a subset of $R^N$ and we can give it the subspace topology. We now need to compare this topology with one coming from a different surjection $\psi: K[Y_1,\ldots,Y_M]\to A$. The two surjections can be combined to give a surjection $\rho:K[X_1,\ldots,X_N,Y_1,\ldots,Y_M]\to A$ and, by symmetry, it suffices to show that the topologies induced by $\phi$ and $\rho$ are equal. 
+
+    %%X(R) \sub A x B and \sub A. Set X, top spaces A, B, injections X->A and X->B, injection into A x B. Two injections into R^N related by a linear thing?
+
+\end{proof}
+
+\begin{definition}\label{manifold_on_algebraic_variety_points} Let $K$ be a field equipped with an isomorphism to the reals, complexes, or a finite extension of the $p$-adic numbers. Let $X$ be a smooth affine algebraic variety over $K$. Then the points $X(K)$ inherit the structure of a manifold over $K$; as in the topological case it can be defined by embedding $G$ into $K^N$ and pulling back the structure.
+\end{definition}
+
+\begin{theorem}\label{manifold_on_algebraic_variety_well_defined} This manifold structure is independent of the choice of embedding.
+\end{theorem}
+\begin{proof} ``Obvious'' (how could it be any other way, right?)
+\end{proof}
+
+\section{Algebraic groups.}
+
+The concept of an affine algebraic group over a field $K$ can be implemented in Lean as a commutative Hopf algebra over $K$, as a group object in the category of affine schemes over $K$, or as a representable group functor on the category of affine schemes over $K$. {\bf TODO figure out what Edison et al did}. If $H$ is a commutative Hopf algebra over $K$ and $R$ is any $K$-algebra (for example $R=K$, a key special case) then a group of undergraduates {\bf TODO names} at Imperial College have given the $K$-algebra maps from $H$ to $R$ the structure of a group. If $G=\Spec(H)$ then this group is typically written $G(R)$. 
+
+
+
+\begin{definition} If $G$ is an affine algebraic group over a field isomorphic to the reals or complexes, 
+\begin{definition}\label{connected_reductive_group} An affine algebraic group over a field of characteristic zero is said to be \emph{connected} if it is connected as a scheme, and \emph{reductive} if it admits a finite-dimensional semisimple representation with finite kernel.
+\end{definition}
+
+\begin{remark} I have omitted characteristic $p$ (and in particular function fields over finite fields) only because I am less confident of the theory myself; probably these should not be omitted in the final formalised definition.
+\end{remark}
+
+\section{Automorphic forms and representations}
+
+Let $G$ be a connected reductive group over a number field $N$.
+
+\begin{definition} An \emph{automorphic form} 
+
 **TODO** write this properly.
 
 Mention Mazur's theorem.
