@@ -71,11 +71,15 @@ denote the finite adeles of $N$ and let $N_\infty := N\otimes_{\Q}\R$ denote the
 \begin{proof} This is the main theorem of global class field theory; see for example~\cite{cf} (**TODO** more precise ref).
 \end{proof}
 
+We need the following consequence:
 
-Existence of solvable extension avoiding a global extension and with prescribed local behaviour
+\begin{theorem} Let $S$ be a finite set of places of a number field $K$ . For each $v \in S$
+let $L_v/K_v$ be a finite Galois extension. Then there is a finite solvable Galois extension
+$L/K$ such that if $w$ is a place of $L$ dividing $v \in S$, then $L_w/K_v$ is isomorphic to $L_v/K_v$ as $K_v$-algebra. Moreover, if $K^{\avoid} /K$ is
+any finite extension then we can choose $L$ to be linearly disjoint from $K^{\avoid}$.
+\end{theorem}
 
-Poitou-Tate
-
+We also need Poitou-Tate duality, but this is a bit fiddly to state.{\bf TODO}
 
 \section{Structures on the points of an affine variety.}
 
@@ -215,17 +219,34 @@ The big theorem, which again we are far from even \emph{stating} right now, is
 
 \section{Algebraic geometry}
 
-We need 
+We recall Mazur's theorem, which every proof of FLT needs:
 
-We 
+\begin{theorem} If $E/\Q$ is an elliptic curve then the size of the torsion subgroup of $E(\Q)$ is at most~16.
+\end{theorem}
 
-Mention Mazur's theorem.
+The proof of this is 100 pages of a subtle analysis of the bad reduction of modular curves and the consquences of this on their Jacobians.
 
+Talking of modular curves, we also need the existence of Shimura curves and surfaces over totally real fields~$F$ (of degree greater than~2, so always compact). The curves are "modeles \'etranges" in the sense of Deligne, so we also need moduli spaces of unitary Shimura varieties over CM extensions. We need to decompose the first and second etale cohomology groups of these varieties into Galois representations, by understanding them
+in terms of automorphic representations.
 
-Shimura curves and Shimura surfaces, plus a description of their etale cohomology in terms of automorphic representations.
+We also need Moret-Bailly's theorem from~\cite{moret-bailly}:
 
-Classification of finite subgroups of $\PGL_2(\overline{\F}_p)$
+\begin{theorem} Let $K^{\avoid}/K$ be a Galois extension of number fields. Suppose also
+that $S$ is a finite set of places of $K$. For $v\in S$ let $L_v/K_v$ be a finite Galois extension.
+Suppose also that $T /K$ is a smooth, geometrically connected curve and that for each
+$v\in S$ we are given a nonempty, $\Gal(L_v/K_v)$-invariant, open subset $\Omega_v\subseteq (L_v)$.
+Then there is a finite Galois extension $L/K$ and a point $P ∈ T (L)$ such that
+\begin{itemize}
+\item $L/K$ is Galois and linearly disjoint from $K^{\avoid}$ over $K$;
+\item if $v\in S$ and $w$ is a prime of $L$ above $v$ then $L_w /K_v$ is isomorphic to $L_v/K_v$;
+\item and $P \in\Omega_v\subseteq T (L_v) \cong (L_w)$ via one such $K_v$-algebra morphism
+(this makes sense as $\Omega_v$ is $\Gal(L_v/K v)$-invariant).
+\end{itemize}
+\end{theorem}
 
-Moret-Bailly
+\begin{definition} We need the definition of (the canonical model over $F$ of) the Shimura curve attached to an inner form of $\GL_2$ with precisely one split infinite place, and the same for the Shimura surface associated to an inner form split at two infinite places (and ramified elsewhere, so it's compact).
+\end{definition}
 
+\section{Algebra}
 
+We need the classification of finite subgroups of $\PGL_2(\overline{\F}_p)$. The answer is that they are all cyclic, dihedral, $A_4$, $S_4$, $A_5$, or isomorphic to $\PSL_2(k)$ or $\PGL_2(k)$ for some finite field of characteristic~$p$.
