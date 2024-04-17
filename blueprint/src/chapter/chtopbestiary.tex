@@ -48,7 +48,9 @@ Continuous group cohomology $H^i(G_K,M)$ in this setting can be defined using co
 \end{proof}
 
 \begin{theorem} ("Euler-Poincar\'e characteristic) If $h^i(M)$ denotes the order of $H^i(G_K,M)$ then $h^0(M)-h^1(M)+h^2(M)=0$.
-If $\mu_\infty$ denotes the Galois module of all roots of unity in our fixed $\overline{K}$, then one can define the dual Galois module $M'$ as $\Hom(M,\mu)$ with its obvious Galois action.
+\end{theorem}
+
+    If $\mu_\infty$ denotes the Galois module of all roots of unity in our fixed $\overline{K}$, then one can define the dual Galois module $M'$ as $\Hom(M,\mu)$ with its obvious Galois action.
 
 If $0\leq i\leq 2$ then the cup product gives us a map $H^i(K,M)\times H^{2-i}(K,M')\to H^2(K,\mu_\infty)$.
 
@@ -62,7 +64,7 @@ This is Theorem II.5.2 in~\cite{serre-galcoh}.
 
 We now move onto the global case. If $N$ is a number field, that is, a finite extension of $\Q$,
 then let $\A_N^f:= N\otimes_{\Z}\widehat{Z}$
-denote the finite adeles of $N$ and let $N_\infty := N\otimes_\Q\R$ denote the product of the completions of $N$ at the infinite places, so $\A_N:=\A_N^f\times N_\infty$ is the ring of adeles of $N$.
+denote the finite adeles of $N$ and let $N_\infty := N\otimes_{\Q}\R$ denote the product of the completions of $N$ at the infinite places, so $\A_N:=\A_N^f\times N_\infty$ is the ring of adeles of $N$.
 
 \begin{theorem} If $N$ is a finite extension of $\Q$ then there are two ``canonical'' isomorphisms between the profinite abelian groups $\pi_0(\A_N^\times/N^\times)$ and $\GN^{\ab}$; one sends local uniformisers to arithemtic Frobenii and the other to geometric Frobenii; each of the global isomorphisms is compatible with the local isomorphisms above.
 \end{theorem}
@@ -102,16 +104,18 @@ We now specialise to the smooth case. I want to make the following conjectural `
 \begin{remark} Probably this is fine for a broader class of fields $K$. 
 \end{remark}
 
-\begin{conjecture}\label{manifold_on_algebraic_variety_computation} 
+\begin{theorem}\label{manifold_on_algebraic_variety_computation} 
     If $X$ is as in the previous definition and $X\to\mathbb{A}^n_K$ is a closed immersion, then the induced map from $X(K)$ with its manifold structure to $K^n$ is an embedding of manifolds. 
 \end{theorem}
-
+\begin{proof} I'm assuming this is standard, if true. 
+\end{proof}
 \begin{corollary}\label{lie_group_from_algebraic_group}
     If $G$ is an affine algebraic group of finite type over $K=\R$ or $\C$ then $G(K)$ is naturally a real or complex Lie group.
+\end{corollary}
 \begin{remark}
 
     The corollary, for sure, is true! And it's all we need. I have not yet made any serious effort to find a reference for the definition or independence, although there seem to be some ideas \href{https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/top.20space.20.2F.20manifold.20structure.20on.20points.20of.20alg.20varieties/near/431812525}{here}.
-
+\end{remark}
 \section{Algebraic groups.}
 
 The concept of an affine algebraic group over a field $K$ can be implemented in Lean as a commutative Hopf algebra over $K$, as a group object in the category of affine schemes over $K$, as a representable group functor on the category of affine schemes over $K$, or as a representable group functor on the category of schemes over $K$ which is represented by an affine scheme. All of these are the same to mathematicians but different to Lean and some thought should go into which of these should be the actual definition, and which should be proved to be the same thing as the definition.
@@ -161,7 +165,7 @@ We can now give the definition of an automorphic form. For FLT we only need the 
 
 Automorphic forms form a typically infinite-dimensional vector space. 
 
-\begin{definition} An automorphic form is \emph{cuspidal} (or ``a cusp form'') if it furthermore satisfies $\int_{U(N)\U(\A_N)}\phi(ux)du=0$, where $P$ runs through all the proper parabolic subgroups of $G$ defined over $N$ and $U$ is the unipotent radical of $P$, and the integral is with respect to the measure coming from Haar measure.
+\begin{definition} An automorphic form is \emph{cuspidal} (or ``a cusp form'') if it furthermore satisfies $\int_{U(N)\backslash U(\A_N)}\phi(ux)du=0$, where $P$ runs through all the proper parabolic subgroups of $G$ defined over $N$ and $U$ is the unipotent radical of $P$, and the integral is with respect to the measure coming from Haar measure.
 \end{definition}
 
 The cuspidal automorphic forms form a complex subspace of the space of automorphic forms.
@@ -188,31 +192,39 @@ Admissibility is a finiteness condition on an irreducible representation of $(G(
 \begin{proof} See Flath's article in~\cite{corvallis1}.
 \end{proof}
 
-As mentioned above, we only need all of this for abelian algebraic groups and for inner forms of $GL_2$ over totally real fields, where everything can be made more concrete (and in particular where I can write down concrete definitions, although this still needs to be done).
+As mentioned above, we only need all of this for abelian algebraic groups and for inner forms of $\GL_2$ over totally real fields, where everything can be made more concrete (and in particular where I can write down concrete definitions, although this still needs to be done). In particular, we don't strictly speaking need all of the above, we could just cheat and deal with $\GL_2(\R)$ and $\H^\times$ separately.
 
-\definition{}
+The theorems I need are: Jacquet-Langlands for inner forms of $\GL_2$ over totally real fields, 
+and multiplicity 1 for these inner forms. We also need cyclic base change plus classification of image, all for totally definite quaternion algebras, and we need
+automorphic induction from $\GL_1(K)$ to $\GL_2(F)$ when $K/F$ is a degree 2 totally imaginary extension. There seems to be little point formalising the statements of the theorems if we cannot yet even formalise the definition of an automorphic representation properly.
 
-**TODO** write this properly.
+\section{Galois representations}
+
+Ivan Farabella has formalised the definition of a compatible family of Galois
+representations, modulo the existence of Frobenius elements, which has been
+established by Jou Glasheen. 
+
+\begin{definition}\leanok Let $N$ be a number field. A \emph{compatible family of $d$-dimensional Galois representations over $N$} is a finite set of finite places $S$ of $N$,
+a number field $E$, a monic degree $d$ polynomial $F_{\p}(X)\in E[X]$ for each finite place $\p$ of $K$ not in $S$ and, for each prime number $\ell$ and field embedding $\phi : E\to\Qlbar$ (or essentially equivalently for each finite place of $E$), a continuous homomorphism $\rho:\GK\to\GL_2(\Qlbar)$ unramified outside $S$ and the primes of $K$ above $\ell$, such that $\rho(\Frob_\p)$ has characteristic polynomial $P_\pi(X)$ if $\pi$ lies above a prime number $p\not=\ell$ with $p\not\in S$.
+\end{definition}
+
+The big theorem, which again we are far from even \emph{stating} right now, is
+
+\begin{theorem} Given an automorphic representation $\pi$ for an inner form of $\GL_2$ over a totally real field and with reflex field~$E$, such that $\pi$ is weight 2 discrete series at every infinite place, there exists a compatible family of 2-dimensional Galois representations associated to $\pi$, with $S$ being the places at which $\pi$ is ramified, and $F_{\p}(X)$ being the monic polynomial with roots the two Satake parameters for $\pi$ at $\p$.
+\end{theorem}
+
+\section{Algebraic geometry}
+
+We need 
+
+We 
 
 Mention Mazur's theorem.
 
-Then: 
-
-JL, 
-
-mult 1, 
-
-cyclic base change
-
-automorphic induction from GL_1(quad extn) to GL_2
-
-Galois rep associated to an auto rep, 
-
-Definition of an automorphic representation for the units of a quaternion algebra over a totally real field (including situations where the algebra is split at one or two infinite places).
 
 Shimura curves and Shimura surfaces, plus a description of their etale cohomology in terms of automorphic representations.
 
-Classification of finite subgroups of PGL_2(F_p-bar)
+Classification of finite subgroups of $\PGL_2(\overline{\F}_p)$
 
 Moret-Bailly
 

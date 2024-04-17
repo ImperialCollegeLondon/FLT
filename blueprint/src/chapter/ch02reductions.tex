@@ -23,7 +23,7 @@ The proof of Fermat's Last Theorem is by contradiction. We assume that we have a
 
 Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not in mathlib.
 
-\begin{lemma}\label{p_not_three}\lean{fermatLastTheoremThree}\leanok
+\begin{lemma}\label{fermatLastTheoremThree}\lean{fermatLastTheoremThree}\leanok
 \discussion{16}
   There are no solutions in positive integers to $a^3+b^3=c^3$.
 \end{lemma}
@@ -31,22 +31,22 @@ Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not
   The proof has been formalised in Lean in the FLT-regular project \href{https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698}{\underline{here}}. To get this node green, the proof (or another proof) needs to be upstreamed to mathlib.
 \end{proof}
 
-\begin{corollary}\label{WLOG_p_ge_5}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
+\begin{corollary}\label{p_ge_5_counterexample_of_not_FermatLastTheorem}\lean{p_ge_5_counterexample_of_not_FermatLastTheorem}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
 \end{corollary}
-\begin{proof}\uses{p_not_three, FermatLastTheorem.of_odd_primes}\leanok Follows from the previous two lemmas.\end{proof}
+\begin{proof}\uses{fermatLastTheoremThree, FermatLastTheorem.of_odd_primes}\leanok Follows from the previous two lemmas.\end{proof}
 
 \section{Frey packages}
 
 For convenience we make the following definition.
 
-\begin{definition}\label{Frey_package}\lean{FLT.FreyPackage}\leanok A \emph{Frey package} $(a,b,c,p)$ is three nonzero pairwise coprime integers $a$, $b$, $c$, with $a\equiv3\pmod4$ and $b\equiv0\pmod2$, and a prime $p\geq5$, such that $a^p+b^p=c^p$.\end{definition}
+\begin{definition}\label{FLT.Frey_package}\lean{FLT.FreyPackage}\leanok A \emph{Frey package} $(a,b,c,p)$ is three pairwise-coprime nonzero integers $a$, $b$, $c$, with $a\equiv3\pmod4$ and $b\equiv0\pmod2$, and a prime $p\geq5$, such that $a^p+b^p=c^p$.\end{definition}
 
 Our next reduction is as follows:
 
-\begin{lemma}\label{Frey_package_of_FLT_counterex}\lean{FLT.FreyPackage.of_not_FermatLastTheorem}\leanok
+\begin{lemma}\label{FLT.FreyPackage.of_not_FermatLastTheorem}\lean{FLT.FreyPackage.of_not_FermatLastTheorem}\leanok\discussion{19}
   If Fermat's Last Theorem is false, then there exists a Frey package.
 \end{lemma}
-\begin{proof}\uses{Frey_package, WLOG_p_ge_5} By Corollary \ref{WLOG_p_ge_5} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
+\begin{proof}\uses{Frey_package, p_ge_5_counterexample_of_not_FermatLastTheorem} By Corollary \ref{p_ge_5_counterexample_of_not_FermatLastTheorem} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
   
   If the greatest common divisor of $a,b,c$ is $d$ then $a^p+b^p=c^p$ implies $(a/d)^p+(b/d)^p=(c/d)^p$. Dividing through, we can thus assume that no prime divides all of $a,b,c$. Under this assumption we must have that $a,b,c$ are pairwise coprime, as if some prime divides two of the integers $a,b,c$ then by $a^p+b^p=c^p$ and unique factorization it must divide all three of them. In particular we may assume that not all of $a,b,c$ are even, and now reducing modulo~2 shows that precisely one of them must be even. 
   
