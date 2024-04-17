@@ -5,11 +5,14 @@ The proof of Fermat's Last Theorem is by contradiction. We assume that we have a
 
 \section{Reduction to \texorpdfstring{$n\geq5$}{ngeq5} and prime}
 
-\begin{lemma}\label{WLOG_n_prime}\lean{FermatLastTheorem.of_odd_primes}\leanok
+\begin{lemma}\label{FermatLastTheorem.of_odd_primes}\lean{FermatLastTheorem.of_odd_primes}\leanok
   If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$
   with $p$ an odd prime.
 \end{lemma}
 \begin{proof}\leanok
+  Note: this proof is \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/FLT/Four.html#FermatLastTheorem.of_odd_primes}{in mathlib already};
+  we run through it for completeness' sake.
+
   Say $a^n + b^n = c^n$ is a counterexample to Fermat's Last Theorem. Every positive integer is either
   a power of 2 or has an odd prime factor. If $n=kp$ has an odd prime factor $p$ then
   $(a^k)^p+(b^k)^p=(c^k)^p$ is the counterexample we seek. It remains to deal with the case where
@@ -30,7 +33,7 @@ Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not
 
 \begin{corollary}\label{WLOG_p_ge_5}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
 \end{corollary}
-\begin{proof}\uses{p_not_three, WLOG_n_prime}\leanok Follows from the previous two lemmas.\end{proof}
+\begin{proof}\uses{p_not_three, FermatLastTheorem.of_odd_primes}\leanok Follows from the previous two lemmas.\end{proof}
 
 \section{Frey packages}
 
