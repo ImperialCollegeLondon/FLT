@@ -89,8 +89,8 @@ lemma p_ge_5_counterexample_of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) 
 
 /--
 A *Frey Package* is a 4-tuple (a,b,c,p) of integers
-satisfying some axioms (including $a^p+b^p=c^p$).
-The axioms imply that all of
+satisfying $a^p+b^p=c^p$ and some other inequalities
+and congruences. These facts guarantee that all of
 the all the results in section 4.1 of Serre's paper [serre]
 apply to the curve $Y^2=X(X-a^p)(X+b^p).$
 -/
@@ -262,7 +262,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
 end of_not_FermatLastTheorem
 
 -- these sorries below are quite long and tedious to fill in. See for example the
--- proof of `ha4` above.
+-- proof of `ha4` above. There is presumably a better way to do this
 
 /-- Given a counterexample to Fermat's Last Theorem with a,b,c coprime and p ≥ 5, we can make
 a Frey package. -/
