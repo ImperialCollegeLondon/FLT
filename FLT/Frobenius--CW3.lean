@@ -228,7 +228,7 @@ instance MapPrimestoPrimes (σ : L ≃ₐ[K] L) (Q : Ideal' A K L B) [Ideal.IsPr
 end CRTRepresentative.auxiliary
 
 -- The following lemma supplies another hypothesis of the CRT.
-lemma CoprimeIdealsNonEqualPrime (I J : Ideal' A K L B) [Imax : Ideal.IsMaximal I]
+lemma coprime_ideals_non_equal_prime (I J : Ideal' A K L B) [Imax : Ideal.IsMaximal I]
     [Jmax : Ideal.IsMaximal J] (h : I ≠ J) : IsCoprime I J := by
   rwa [Ideal.isCoprime_iff_sup_eq, Ideal.IsMaximal.coprime_of_ne Imax Jmax]
 
@@ -969,7 +969,7 @@ where `q` is the number of elements in the residue field `(A ⧸ P)`,
 theorem exists_frobenius :
     ∃ σ : L ≃ₐ[K] L,
       (σ ∈ decomposition_subgroup_Ideal' Q ) ∧
-      (∀ γ : B, ((γ ^ q) - (galRestrict A K L B Frob) γ) ∈ Q) :=
+      (∀ γ : B, ((γ ^ q) - (galRestrict A K L B σ) γ) ∈ Q) :=
   ⟨Frob, Frob_is_in_decompositionSubgroup P Q_ne_bot, fun γ => for_all_gamma P Q_ne_bot γ⟩
 
 end FiniteFrobeniusDef
