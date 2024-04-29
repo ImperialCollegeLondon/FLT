@@ -57,7 +57,7 @@ precise ref. We stick with the low-level approach, thinking of elliptic curves a
 
 \begin{definition}\label{good_reduction} Let $E$ be an elliptic curve over the field of fractions $K$ of a valuation ring $R$ with maximal ideal $\m$. We say $E$ has \emph{good reduction over $R$} if $E$ has a model with 
 coefficients in $R$ and the reduction mod $\m$ is still non-singular. If $E$ is an elliptic curve 
-over a number field $N$ and $P$ is a maximal ideal of its integer ring $\O_N$, then one says that $E$ has \emph{good reduction at $P$} if $E$ has good reduction over the $\O_{N,P}$, the localisation of $\O_N$ at $P$.
+over a number field $N$ and $P$ is a maximal ideal of its integer ring $\calO_N$, then one says that $E$ has \emph{good reduction at $P$} if $E$ has good reduction over the $\calO_{N,P}$, the localisation of $\calO_N$ at $P$.
 \end{definition}
 
 \begin{remark} From this point on, our Frey curves and Frey packages will use notation $(a,b,c,\ell)$, with $\ell\geq 5$ a prime number, rather than $p$. This frees up $p$ for use as another prime.
@@ -76,9 +76,9 @@ If $E$ is an elliptic curve over a number field $N$ and if $\rho$ is the represe
 of $\Gal(\overline{N}/N)$ on the $n$-torsion of $E$ then $\rho$ is continuous and its image is finite,
 so by the fundamental theorem of (infinite) Galois theory the representation factors through an
 injection $\Gal(L/N)\to\GL_2(\Z/n\Z)$ where $L/N$ is a finite Galois extension of
-number fields. One says that $\rho$ is \emph{unramified} at a maximal ideal $P$ of $\O_N$
+number fields. One says that $\rho$ is \emph{unramified} at a maximal ideal $P$ of $\calO_N$
 if the extension $L/N$ is unramified at $P$ (or in other words, if the factorization
-of $P\O_L$ into prime ideals is squarefree).
+of $P\calO_L$ into prime ideals is squarefree).
 
 At some point we will need a theory of finite flat group schemes over an affine base. Here
 is a working definition. {\bf TODO should be locally free not flat}
@@ -92,19 +92,19 @@ is a working definition. {\bf TODO should be locally free not flat}
 Some facts we will need are:
 
 \begin{theorem}\label{good_reduction_implies_unramified} If $E$ is an elliptic curve over a number 
-  field $N$ and $E$ has good reduction at a maximal ideal $P$ of $\O_N$, and if furthermore 
+  field $N$ and $E$ has good reduction at a maximal ideal $P$ of $\calO_N$, and if furthermore 
   $n\not\in P$, then the Galois representation on the $n$-torsion of $E$ is unramified.
 \end{theorem}
 \begin{proof}
-  One approach would be by showing that the $n$-torsion in the integral model of $E$ over $\O_{N,P}$
+  One approach would be by showing that the $n$-torsion in the integral model of $E$ over $\calO_{N,P}$
   is an etale finite flat group scheme. There might be simpler approaches however.
   *TODO* see what Silverman does?
 \end{proof}
 
 \begin{theorem}\label{good_reduction_implies_flat} If $E$ is an elliptic curve over a number field 
-  $N$ and $E$ has good reduction at a maximal ideal $P$ of $\O_N$ containing the prime number $p$, 
+  $N$ and $E$ has good reduction at a maximal ideal $P$ of $\calO_N$ containing the prime number $p$, 
   then the Galois representation on the $p$-torsion of $E$ comes from a finite flat group scheme 
-  over the localisation $\O_{N,P}$.
+  over the localisation $\calO_{N,P}$.
 \end{theorem}
 \begin{proof}
   Indeed, the kernel of the $p$-torsion on a good integral model is finite and flat.
