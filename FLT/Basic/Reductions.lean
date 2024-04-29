@@ -175,7 +175,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
       exact a3mod4
     · rename_i _ a1mod4
       have foo : 2 ∣ b₁ := by
-        exact (ZMod.int_cast_zmod_eq_zero_iff_dvd b₁ 2).mp b_even
+        exact (ZMod.intCast_zmod_eq_zero_iff_dvd b₁ 2).mp b_even
       have bar : ¬ 2 ∣ a₁ := by
         intro h
         apply aux _ h foo
@@ -183,7 +183,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
         simp_all only [ne_eq, Fin.zero_eta, gcd_eq_zero_iff, false_and, not_false_eq_true]
       -- want to do fin_cases on (-a₁ : ZMod 4)
       rcases ZMod4cases (-a₁ : ℤ) with (h | h | h | h)
-      · rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at h
+      · rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h
         simp only [Nat.cast_ofNat, dvd_neg] at h
         exfalso
         apply bar
@@ -198,7 +198,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
         apply bar
         simp only [Int.cast_neg, ← add_eq_zero_iff_neg_eq] at h
         have foo : ((a₁ + 2 : ℤ) : ZMod 4) = 0 := by assumption_mod_cast
-        rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at foo
+        rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at foo
         rw [← dvd_add_left (c := 2) (by norm_num)]
         refine dvd_trans ?_ foo
         norm_num
@@ -211,11 +211,11 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
       · rename_i _ b1mod4
         -- now need to check a
         rcases ZMod4cases b₁ with (h | h | h | h)
-        · rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at h
+        · rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h
           simp only [Nat.cast_ofNat, dvd_neg] at h
           exfalso
           apply hb1
-          simp only [Fin.zero_eta, ZMod.int_cast_zmod_eq_zero_iff_dvd]
+          simp only [Fin.zero_eta, ZMod.intCast_zmod_eq_zero_iff_dvd]
           refine dvd_trans ?_ h
           norm_num
         · simp [h]
@@ -224,8 +224,8 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
           have foo : ((b₁ - 2 : ℤ) : ZMod 4) = 0 := by assumption_mod_cast
           exfalso
           apply hb1
-          rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at foo
-          apply (ZMod.int_cast_zmod_eq_zero_iff_dvd _ 2).2
+          rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at foo
+          apply (ZMod.intCast_zmod_eq_zero_iff_dvd _ 2).2
           rw [← dvd_sub_left (c := 2) (by norm_num)]
           refine dvd_trans ?_ foo
           norm_num
@@ -239,7 +239,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
         · exfalso
           apply a_odd
           change _ = 0
-          rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at h ⊢
+          rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h ⊢
           refine dvd_trans ?_ h
           norm_num
         · simp [h]
@@ -247,11 +247,11 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
         · exfalso
           apply a_odd
           change _ = 0
-          rw [ZMod.int_cast_zmod_eq_zero_iff_dvd]
+          rw [ZMod.intCast_zmod_eq_zero_iff_dvd]
           rw [← dvd_sub_left (c := 2) (by norm_num)]
           rw [← sub_eq_zero] at h
           have foo : ((a₁ - 2 : ℤ) : ZMod 4) = 0 := by assumption_mod_cast
-          rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at foo
+          rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at foo
           refine dvd_trans ?_ foo
           norm_num
         · exfalso
@@ -310,21 +310,21 @@ lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c
     gcd a b = gcd a c := by
   have foo : gcd a b ∣ gcd a c := by
     apply dvd_gcd (gcd_dvd_left a b)
-    rw [← Int.pow_dvd_pow_iff hp, ← h]
+    rw [← Int.pow_dvd_pow_iff hp.ne', ← h]
     apply dvd_add
-    · rw [Int.pow_dvd_pow_iff hp]
+    · rw [Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_left a b
-    · rw [Int.pow_dvd_pow_iff hp]
+    · rw [Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_right a b
   have bar : gcd a c ∣ gcd a b := by
     apply dvd_gcd (gcd_dvd_left a c)
     have h2 : b ^ p = c ^ p - a ^ p := eq_sub_of_add_eq' h
-    rw [← Int.pow_dvd_pow_iff hp, h2]
+    rw [← Int.pow_dvd_pow_iff hp.ne', h2]
     apply dvd_add
-    · rw [Int.pow_dvd_pow_iff hp]
+    · rw [Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_right a c
     · rw [dvd_neg]
-      rw [Int.pow_dvd_pow_iff hp]
+      rw [Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_left a c
   change _ ∣ (Int.gcd a c : ℤ) at foo
   apply Int.ofNat_dvd.1 at bar
