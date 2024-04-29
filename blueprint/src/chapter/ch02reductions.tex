@@ -46,7 +46,7 @@ Our next reduction is as follows:
 \begin{lemma}\label{FLT.FreyPackage.of_not_FermatLastTheorem}\lean{FLT.FreyPackage.of_not_FermatLastTheorem}\leanok\discussion{19}
   If Fermat's Last Theorem is false, then there exists a Frey package.
 \end{lemma}
-\begin{proof}\uses{Frey_package, p_ge_5_counterexample_of_not_FermatLastTheorem} By Corollary \ref{p_ge_5_counterexample_of_not_FermatLastTheorem} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
+\begin{proof}\uses{FLT.Frey_package, p_ge_5_counterexample_of_not_FermatLastTheorem} By Corollary \ref{p_ge_5_counterexample_of_not_FermatLastTheorem} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
   
   If the greatest common divisor of $a,b,c$ is $d$ then $a^p+b^p=c^p$ implies $(a/d)^p+(b/d)^p=(c/d)^p$. Dividing through, we can thus assume that no prime divides all of $a,b,c$. Under this assumption we must have that $a,b,c$ are pairwise coprime, as if some prime divides two of the integers $a,b,c$ then by $a^p+b^p=c^p$ and unique factorization it must divide all three of them. In particular we may assume that not all of $a,b,c$ are even, and now reducing modulo~2 shows that precisely one of them must be even. 
   
