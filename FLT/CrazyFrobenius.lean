@@ -1,7 +1,7 @@
 import Mathlib.RingTheory.DedekindDomain.Ideal
 import Mathlib.RingTheory.IntegralRestrict
 import Mathlib.RingTheory.Ideal.QuotientOperations
-import Mathlib.Data.Polynomial.Expand
+import Mathlib.Algebra.Polynomial.Expand
 import Mathlib.FieldTheory.Finite.Basic
 import Mathlib.FieldTheory.Cardinality
 
