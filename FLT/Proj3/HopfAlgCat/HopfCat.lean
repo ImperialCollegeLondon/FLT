@@ -16,7 +16,6 @@ noncomputable section
 open scoped TensorProduct
 open HopfAlgebra
 open Coalgebra
--- def spec := AffineScheme.Spec.obj (op (CommRingCat.of R))
 
 structure HopfAlgCat where
   carrier : (Type u)
