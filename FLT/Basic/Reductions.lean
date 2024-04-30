@@ -374,7 +374,9 @@ lemma of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) : Nonempty (FreyPackag
 
 /-- The elliptic curve associated to a Frey package. The conditions imposed
 upon a Frey package guarantee that the running hypotheses in
-Section 4.1 of [Serre] all hold. -/
+Section 4.1 of [Serre] all hold. We put the curve into the form where the
+equation is semistable at 2, rather than the usual `Y^2=X(X-a^p)(X+b^p)` form.
+The change of variables is `X=4x` and `Y=8y+4x`, and then divide through by 64. -/
 def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
     a₁ := 1
     -- a₂ is (or should be) an integer because of the congruences assumed e.g. P.ha4
