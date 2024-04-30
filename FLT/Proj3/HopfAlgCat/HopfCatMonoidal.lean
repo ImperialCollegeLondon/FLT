@@ -1,4 +1,5 @@
 import Mathlib.CategoryTheory.Monoidal.Braided.Basic
+import Mathlib.Algebra.Category.AlgebraCat.Symmetric
 import FLT.Proj3.HopfAlgCat.HopfCat
 
 open Opposite
@@ -27,7 +28,7 @@ theorem ext {f g : H1 →bi[R] H2} (h : ∀ a, f a = g a) : f = g :=
 
 -- We prove that HopfAlgCat is a ConcreteCategory, with a forgetful functor sending a morphism
 -- to its underlying function. This forgetful functor is faithful.
-instance: ConcreteCategory (HopfAlgCat R) where
+instance : ConcreteCategory (HopfAlgCat R) where
   forget :=
     { obj := fun M => M
       map := fun f => f.toFun}
@@ -236,7 +237,7 @@ noncomputable def toAlgCatMonoidalFunctor : MonoidalFunctor (HopfAlgCat.{u} R) (
   exact Monoidal.fromInduced (forget₂ (HopfAlgCat R) (AlgebraCat R)) _
 
 -- Prove that it is faithful
-instance : Faithful (toAlgCatMonoidalFunctor R).toFunctor :=
+instance : (toAlgCatMonoidalFunctor R).toFunctor.Faithful :=
   forget₂_faithful _ _
 
 -- Define the braided category of HopfAlgCat
@@ -251,7 +252,7 @@ noncomputable def toAlgCatBraidedFunctor : BraidedFunctor (HopfAlgCat.{u} R) (Al
   toMonoidalFunctor := toAlgCatMonoidalFunctor R
 
 -- Prove that it is faithful
-instance : Faithful (toAlgCatBraidedFunctor R).toFunctor :=
+instance : (toAlgCatBraidedFunctor R).toFunctor.Faithful :=
   forget₂_faithful _ _
 
 -- Define the symmetric category of HopfAlgCat
