@@ -412,7 +412,7 @@ abbrev Qbar := AlgebraicClosure ℚ
 
 open WeierstrassCurve
 theorem Mazur_Frey (P : FreyPackage) :
-    IsSimpleModule (ZMod P.p) (P.FreyCurve.mod_p_Galois_representation P.p Qbar).asModule := sorry
+    IsSimpleModule (ZMod P.p) (P.FreyCurve.torsionGaloisRepresentation P.p Qbar).asModule := sorry
 
 /-!
 
@@ -422,7 +422,7 @@ But it follows from a profound theorem of Ribet, and the even more profound theo
 -/
 
 theorem Wiles_Frey (P : FreyPackage) :
-    ¬ IsSimpleModule (ZMod P.p) (P.FreyCurve.mod_p_Galois_representation P.p Qbar).asModule := sorry
+    ¬ IsSimpleModule (ZMod P.p) (P.FreyCurve.torsionGaloisRepresentation P.p Qbar).asModule := sorry
 
 /-!
 
