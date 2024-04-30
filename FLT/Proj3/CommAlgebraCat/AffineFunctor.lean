@@ -42,7 +42,7 @@ local notation "⋆" => (coyoneda.obj <| op (CommAlgebraCat.of k k))
 
 variable {k} in
 @[ext]
-structure CorepresentableFunctor (F : CommAlgebraCat k ⥤ Type v) :=
+structure CorepresentedFunctor (F : CommAlgebraCat k ⥤ Type v) :=
 coreprX : CommAlgebraCat k
 coreprW : coyoneda.obj (op coreprX) ≅ F
 
@@ -50,9 +50,9 @@ coreprW : coyoneda.obj (op coreprX) ≅ F
 This part is basically copied from mathlib
 -/
 @[simps]
-def CorepresentableFunctor.of_nat_iso {F G : CommAlgebraCat k ⥤ Type v} (ε : F ≅ G)
-    (h : CorepresentableFunctor F) :
-    CorepresentableFunctor G where
+def CorepresentedFunctor.of_nat_iso {F G : CommAlgebraCat k ⥤ Type v} (ε : F ≅ G)
+    (h : CorepresentedFunctor F) :
+    CorepresentedFunctor G where
   coreprX := h.coreprX
   coreprW := h.coreprW ≪≫ ε
 
@@ -294,7 +294,7 @@ noncomputable def coyonedaMulCoyoneda (A B : CommAlgebraCat k) :
 
 noncomputable def coyonedaMulCoyoneda'
     (F G : CommAlgebraCat k ⥤ Type v)
-    (hF : CorepresentableFunctor F) (hG : CorepresentableFunctor G) :
+    (hF : CorepresentedFunctor F) (hG : CorepresentedFunctor G) :
     mul F G ≅ coyoneda.obj (op <| hF.coreprX ⊗ hG.coreprX) :=
   { hom := mulMap hF.coreprW.inv hG.coreprW.inv
     inv := mulMap hF.coreprW.hom hG.coreprW.hom } ≪≫ coyonedaMulCoyoneda _ _
@@ -307,8 +307,8 @@ homomorphism from B to A.
 @[simps]
 noncomputable def coyonedaCorrespondence
     (F G : CommAlgebraCat k ⥤ Type v)
-    (hF : CorepresentableFunctor F)
-    (hG : CorepresentableFunctor G) :
+    (hF : CorepresentedFunctor F)
+    (hG : CorepresentedFunctor G) :
     (F ⟶ G) ≃ (hG.coreprX ⟶ hF.coreprX) where
   toFun n := hG.coreprW.inv.app _ <| n.app hF.coreprX (hF.coreprW.hom.app hF.coreprX (𝟙 _))
   invFun f :=
@@ -346,9 +346,9 @@ This correspondence perserves composition of functors.
 @[reassoc]
 lemma coyonedaCorrespondence_comp
     (F G H : CommAlgebraCat k ⥤ Type v)
-    (hF : CorepresentableFunctor F)
-    (hG : CorepresentableFunctor G)
-    (hH : CorepresentableFunctor H)
+    (hF : CorepresentedFunctor F)
+    (hG : CorepresentedFunctor G)
+    (hH : CorepresentedFunctor H)
     (f : F ⟶ G) (g : G ⟶ H) :
     coyonedaCorrespondence F H hF hH (f ≫ g) =
     coyonedaCorrespondence G H hG hH g ≫ coyonedaCorrespondence F G hF hG f := by
@@ -373,7 +373,7 @@ actual monoid.
 -/
 structure AffineMonoid extends CommAlgebraCat k ⥤ Type v where
   /--the underlying functor is corepresentable-/
-  corep : CorepresentableFunctor toFunctor  /--the multiplication map-/
+  corep : CorepresentedFunctor toFunctor  /--the multiplication map-/
   m : mul toFunctor toFunctor ⟶ toFunctor
   /--the unit map-/
   e : ⋆ ⟶ toFunctor
@@ -457,7 +457,7 @@ variable {k} in
 /--A proposition stating that a corepresentable functor is an affine monoid with specified
 multiplication and unit. -/
 structure IsAffineMonoidWithChosenMulAndUnit
-    (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
+    (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentedFunctor F)
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) : Prop :=
   mul_assoc' : mulMap (𝟙 F) m ≫ m = (mulAssoc F F F).hom ≫ mulMap m (𝟙 F) ≫ m
   mul_one : mulMap (𝟙 F) e ≫ m = (mulStar F).hom
@@ -468,7 +468,7 @@ attribute [reassoc] IsAffineMonoidWithChosenMulAndUnit.mul_assoc'
   IsAffineMonoidWithChosenMulAndUnit.one_mul
 namespace IsAffineMonoidWithChosenMulAndUnit
 
-variable (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
+variable (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentedFunctor F)
 variable (m : mul F F ⟶ F) (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F)
 variable (G : CommAlgebraCat k ⥤ Type v) (ε : G ≅ F)
 
@@ -547,7 +547,7 @@ variable {k} in
 /--A proposition stating that a corepresentable functor is an affine group with specified
 multiplication, unit and inverse -/
 structure IsAffineGroupWithChosenMulAndUnitAndInverse
-    (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
+    (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentedFunctor F)
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) (i : F ⟶ F)
     extends IsAffineMonoidWithChosenMulAndUnit F hF m e : Prop :=
   mul_inv :
@@ -668,7 +668,7 @@ noncomputable def antipodeToInverse :
     (coyoneda.obj <| op <| CommAlgebraCat.of k A) :=
   coyoneda.map (op antipode)
 
-variable {F : CommAlgebraCat k ⥤ Type v} (hF : CorepresentableFunctor F)
+variable {F : CommAlgebraCat k ⥤ Type v} (hF : CorepresentedFunctor F)
 variable (m : mul F F ⟶ F)
 variable (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F)
 variable (i : F ⟶ F)
@@ -1048,10 +1048,10 @@ def AffMon_to_Bialg {A : Type v} [CommRing A] [Algebra k A]
       exact mul_one
 
     mul_compr₂_counit := by
-      ext x y ; simp
+      ext; exact counit.map_mul _ _
 
     mul_compr₂_comul := by
-      ext x y ; simp
+      ext; exact comul.map_mul _ _
 
 /- Conversely any bialgebra A, Hom(A, -) is a Affine Monoid -/
 def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k] A ⊗[k] A)
@@ -1107,7 +1107,7 @@ def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k]
     simp_rw [← map_smul f] ; simp_rw [← f.map_mul, ← map_sum, mul_smul_one]
     have : ∑ x in r, counit (x2 x) • x1 x = AlgHomPoint.mul (AlgHom.id k A) 1 x := by
       symm ; unfold AlgHomPoint.mul
-      have codef : Coalgebra.comul (R := k) (A := A) = comul := rfl
+      have codef (x) : Coalgebra.comul (R := k) (A := A) x = comul x := rfl
       simp only [AlgHom.coe_comp, Function.comp_apply, Bialgebra.comulAlgHom_apply, codef,
           AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
           DistribMulActionHom.coe_toLinearMap, NonUnitalAlgHom.coe_to_distribMulActionHom,
@@ -1161,13 +1161,12 @@ def Bialg_to_AffMon {A : Type v} [CommRing A] [Algebra k A] (comul : A →ₐ[k]
     simp_rw [← map_smul g] ; simp_rw [← g.map_mul, ← map_sum, smul_one_mul]
     have : ∑ x in r, counit (x1 x) • x2 x = AlgHomPoint.mul 1 (AlgHom.id k A) x := by
       symm ; unfold AlgHomPoint.mul
-      have codef : Coalgebra.comul (R := k) (A := A) = comul := rfl
+      have codef (x) : Coalgebra.comul (R := k) (A := A) x = comul x := rfl
       simp only [AlgHom.coe_comp, Function.comp_apply, Bialgebra.comulAlgHom_apply, codef,
           AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
           DistribMulActionHom.coe_toLinearMap, NonUnitalAlgHom.coe_to_distribMulActionHom,
           NonUnitalAlgHom.coe_coe, eq, map_sum, Algebra.TensorProduct.map_tmul, AlgHom.coe_id,
           id_eq, Algebra.TensorProduct.lmul'_apply_tmul] ; rw [AlgHomPoint.one_def]
-      simp only [AlgHom.coe_comp, Function.comp_apply, Bialgebra.counitAlgHom_apply]
       calc _
           ∑ x in r, (Algebra.ofId k A) (Coalgebra.counit (x1 x)) * x2 x =
             ∑ x in r, (Algebra.ofId k A) (Coalgebra.counit (x1 x) * 1) * x2 x := by simp
@@ -1195,7 +1194,7 @@ theorem isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCoun
 
 /- This is the functor version of the previous statement -/
 theorem isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCounit'
-    {F : CommAlgebraCat k ⥤ Type v} (hF : CorepresentableFunctor F)
+    {F : CommAlgebraCat k ⥤ Type v} (hF : CorepresentedFunctor F)
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) :
     IsAffineMonoidWithChosenMulAndUnit F hF m e ↔
     IsBialgebraWithChosenComulAndCounit hF.coreprX (mToComul hF m) (eToCounit hF e) := by
@@ -1203,8 +1202,8 @@ theorem isAffineMonoidWithChosenMulAndUnit_iff_isBialgebraWithChosenComulAndCoun
     IsAffineMonoidWithChosenMulAndUnit.iff_iso k F hF m e
       (coyoneda.obj (op (CommAlgebraCat.of k hF.coreprX))) hF.coreprW]
   congr!
-  · simp only [CorepresentableFunctor.of_nat_iso_coreprX,
-    CorepresentableFunctor.of_nat_iso_coreprW, Iso.self_symm_id]
+  · simp only [CorepresentedFunctor.of_nat_iso_coreprX,
+    CorepresentedFunctor.of_nat_iso_coreprW, Iso.self_symm_id]
     rfl
   · symm; rw [comulToMul_mToComul]
   · symm; rw [counitToUnit_eToCounit]
@@ -1251,15 +1250,15 @@ def AffGrp_to_HopfAlg
     ext x
     obtain ⟨I1, r, x1, x2, eq⟩ := crazy_comul_repr comul x
     rw [DFunLike.ext_iff] at eq0 ; specialize eq0 x
+
     simp only [AlgHom.id_comp, AlgHom.coe_comp, Function.comp_apply, eq, map_sum,
       Algebra.TensorProduct.lift_tmul, AlgHom.coe_id, id_eq, CommAlgebraCat.coe_of, Iso.refl_inv,
       NatTrans.id_app, coyoneda_obj_obj, unop_op, types_id_apply] at eq0
+
     simp only [AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
-      LinearMap.coe_comp, DistribMulActionHom.coe_toLinearMap,
-      NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe, Function.comp_apply, eq,
-      map_sum, LinearMap.rTensor_tmul, AlgHom.toLinearMap_apply, LinearMap.mul'_apply,
-      Algebra.linearMap_apply]
-    exact eq0
+      LinearMap.coe_comp, Function.comp_apply, AlgHom.toLinearMap_apply, Algebra.linearMap_apply]
+    erw [eq]
+    simpa using eq0
   · have eq0 := congr_fun (NatTrans.congr_app inv_mul (.of k A))
       (AlgHom.id k A)
     simp only [coyoneda_obj_obj, unop_op, antipodeToInverse, coyoneda_map_app, comulToMul, square,
@@ -1273,11 +1272,11 @@ def AffGrp_to_HopfAlg
     rw [DFunLike.ext_iff] at eq0 ; specialize eq0 x
     simp only [AlgHom.id_comp, AlgHom.coe_comp, Function.comp_apply, eq, map_sum,
       Algebra.TensorProduct.lift_tmul, AlgHom.coe_id, id_eq] at eq0
-    simpa only [AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
-      LinearMap.coe_comp, DistribMulActionHom.coe_toLinearMap,
-      NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe, Function.comp_apply, eq,
-      map_sum, LinearMap.lTensor_tmul, AlgHom.toLinearMap_apply, LinearMap.mul'_apply,
-      Algebra.linearMap_apply]
+
+    simp only [AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
+      LinearMap.coe_comp, Function.comp_apply, AlgHom.toLinearMap_apply, Algebra.linearMap_apply]
+    erw [eq]
+    simpa using eq0
 
 /- Conversely, for any hopf algebra A, Hom(A, -) is a hopf algebra -/
 def HopfAlg_to_AffGrp {A : Type v} [CommRing A] [Algebra k A]
@@ -1328,13 +1327,12 @@ def HopfAlg_to_AffGrp {A : Type v} [CommRing A] [Algebra k A]
     simp_rw [← f.map_mul, ← map_sum]
     rw [DFunLike.ext_iff] at mul_antipode_rTensor_comul ; specialize mul_antipode_rTensor_comul x
     simp only [AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
-      LinearMap.coe_comp, DistribMulActionHom.coe_toLinearMap,
-      NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe, Function.comp_apply, eq,
-      map_sum, LinearMap.lTensor_tmul, AlgHom.toLinearMap_apply, LinearMap.mul'_apply,
+      LinearMap.coe_comp, Function.comp_apply, AlgHom.toLinearMap_apply,
       Algebra.linearMap_apply] at mul_antipode_rTensor_comul
-    change _ = (Algebra.ofId k A) (counit x) at mul_antipode_rTensor_comul
-    apply_fun f at mul_antipode_rTensor_comul
-    exact mul_antipode_rTensor_comul
+    erw [eq] at mul_antipode_rTensor_comul
+    simp only [map_sum, LinearMap.rTensor_tmul, AlgHom.toLinearMap_apply,
+      LinearMap.mul'_apply] at mul_antipode_rTensor_comul
+    exact congr(f $mul_antipode_rTensor_comul)
 
   · dsimp only [coyoneda_obj_obj, unop_op, antipodeToInverse, coyoneda_map_app, mul_obj,
     types_comp_apply, coyoneda_obj_map, mul_map, id_eq, eq_mpr_eq_cast, comulToMul, square,
@@ -1351,13 +1349,12 @@ def HopfAlg_to_AffGrp {A : Type v} [CommRing A] [Algebra k A]
     simp_rw [← f.map_mul, ← map_sum]
     rw [DFunLike.ext_iff] at mul_antipode_lTensor_comul ; specialize mul_antipode_lTensor_comul x
     simp only [AlgHom.toNonUnitalAlgHom_eq_coe, NonUnitalAlgHom.toDistribMulActionHom_eq_coe,
-      LinearMap.coe_comp, DistribMulActionHom.coe_toLinearMap,
-      NonUnitalAlgHom.coe_to_distribMulActionHom, NonUnitalAlgHom.coe_coe, Function.comp_apply, eq,
-      map_sum, LinearMap.lTensor_tmul, AlgHom.toLinearMap_apply, LinearMap.mul'_apply,
+      LinearMap.coe_comp, Function.comp_apply, AlgHom.toLinearMap_apply,
       Algebra.linearMap_apply] at mul_antipode_lTensor_comul
-    change _ = (Algebra.ofId k A) (counit x) at mul_antipode_lTensor_comul
-    apply_fun f at mul_antipode_lTensor_comul
-    exact mul_antipode_lTensor_comul
+    erw [eq] at mul_antipode_lTensor_comul
+    simp only [map_sum, LinearMap.lTensor_tmul, AlgHom.toLinearMap_apply,
+      LinearMap.mul'_apply] at mul_antipode_lTensor_comul
+    exact congr(f $mul_antipode_lTensor_comul)
 
 
 variable {k} in
@@ -1375,14 +1372,14 @@ theorem isAffineGroup_iff_isHopfAlgebra
       (antipodeToInverse antipode) :=
   ⟨HopfAlg_to_AffGrp k comul counit antipode, AffGrp_to_HopfAlg comul counit antipode⟩
 
-variable (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
+variable (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentedFunctor F)
 variable (m : mul F F ⟶ F) (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F)
 variable (G : CommAlgebraCat k ⥤ Type v) (ε : G ≅ F)
 
 /- this part should actually be in the previous section as this is part of the peparation
     of the functor version of hopf algebra iff affine group -/
 
-lemma hopf_of_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
+lemma hopf_of_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentedFunctor F)
   (m : mul F F ⟶ F) (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F) (i : F ⟶ F)
   (G : CommAlgebraCat k ⥤ Type v) (ε : G ≅ F)
   (h : IsAffineGroupWithChosenMulAndUnitAndInverse F hF m e i) :
@@ -1395,8 +1392,8 @@ lemma hopf_of_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor
   fconstructor
   · rw [← IsAffineMonoidWithChosenMulAndUnit.iff_iso k F hF m e G ε]
     exact h.1
-  · simp only [FunctorToTypes.comp, CorepresentableFunctor.of_nat_iso_coreprX,
-      CorepresentableFunctor.of_nat_iso_coreprW, Iso.trans_inv, Iso.symm_inv, unop_op,
+  · simp only [FunctorToTypes.comp, CorepresentedFunctor.of_nat_iso_coreprX,
+      CorepresentedFunctor.of_nat_iso_coreprW, Iso.trans_inv, Iso.symm_inv, unop_op,
       Category.assoc]
     rw [← Iso.inv_comp_eq]
     ext B f
@@ -1406,8 +1403,8 @@ lemma hopf_of_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor
     simp only [FunctorToTypes.comp, unop_op, coyoneda_map_app] at this
     rw [this]
 
-  · simp only [FunctorToTypes.comp, CorepresentableFunctor.of_nat_iso_coreprX,
-    CorepresentableFunctor.of_nat_iso_coreprW, Iso.trans_inv, Iso.symm_inv, unop_op, Category.assoc]
+  · simp only [FunctorToTypes.comp, CorepresentedFunctor.of_nat_iso_coreprX,
+    CorepresentedFunctor.of_nat_iso_coreprW, Iso.trans_inv, Iso.symm_inv, unop_op, Category.assoc]
     rw [← Iso.inv_comp_eq]
     ext B f
     simp only [FunctorToTypes.comp, FunctorToTypes.inv_hom_id_app_apply, mulMap_app,
@@ -1417,7 +1414,7 @@ lemma hopf_of_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor
     rw [this]
 
 /- If G is isomorphic to F, then G is affine group if and only if F is affine group -/
-lemma hopf_iff_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFunctor F)
+lemma hopf_iff_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentedFunctor F)
     (m : mul F F ⟶ F) (e : (coyoneda.obj <| op (CommAlgebraCat.of k k)) ⟶ F) (i : F ⟶ F)
     (G : CommAlgebraCat k ⥤ Type v) (ε : G ≅ F):
     IsAffineGroupWithChosenMulAndUnitAndInverse F hF m e i ↔
@@ -1441,7 +1438,7 @@ lemma hopf_iff_iso (F : CommAlgebraCat k ⥤ Type v) (hF : CorepresentableFuncto
 variable {k} in
 theorem
   isAffineGroup_iff_isHopfAlgebra'
-    {F : CommAlgebraCat k ⥤ Type v} (hF : CorepresentableFunctor F)
+    {F : CommAlgebraCat k ⥤ Type v} (hF : CorepresentedFunctor F)
     (m : mul F F ⟶ F) (e : ⋆ ⟶ F) (i : F ⟶ F) :
     IsAffineGroupWithChosenMulAndUnitAndInverse F hF m e i ↔
     IsHopfAlgebraWithChosenComulAndCounitAndAntipode
@@ -1449,8 +1446,8 @@ theorem
   rw [isAffineGroup_iff_isHopfAlgebra, hopf_iff_iso k F hF m e i
     (coyoneda.obj (op (CommAlgebraCat.of k hF.coreprX))) hF.coreprW]
   congr!
-  · simp only [CorepresentableFunctor.of_nat_iso_coreprX,
-    CorepresentableFunctor.of_nat_iso_coreprW, Iso.self_symm_id]
+  · simp only [CorepresentedFunctor.of_nat_iso_coreprX,
+    CorepresentedFunctor.of_nat_iso_coreprW, Iso.self_symm_id]
     rfl
   · symm ; rw [comulToMul_mToComul]
   · symm ; rw [counitToUnit_eToCounit]

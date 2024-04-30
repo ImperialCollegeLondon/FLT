@@ -3,16 +3,16 @@ import FLT.for_mathlib.Coalgebra.TensorProduct
 import FLT.for_mathlib.HopfAlgebra.Basic
 import FLT.Proj3.HopfAlgCat.CoalgEquiv
 import FLT.Proj3.HopfAlgCat.BialgEquiv
+import Mathlib.CategoryTheory.Category.Basic
+
 universe u
 variable (R :Type u)[CommRing R]
 
-open CategoryTheory AlgebraicGeometry Opposite
+open CategoryTheory Opposite
 open BigOperators
 
-noncomputable section HopfEquivScheme
+noncomputable section
 
-open AlgebraicGeometry Opposite
-open CategoryTheory
 open scoped TensorProduct
 open HopfAlgebra
 open Coalgebra
