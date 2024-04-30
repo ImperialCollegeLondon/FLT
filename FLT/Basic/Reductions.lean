@@ -264,48 +264,6 @@ end of_not_FermatLastTheorem
 -- these sorries below are quite long and tedious to fill in. See for example the
 -- proof of `ha4` above. There is presumably a better way to do this
 
-/-- Given a counterexample to Fermat's Last Theorem with a,b,c coprime and p ≥ 5, we can make
-a Frey package. -/
-def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
-  (hab : gcd a b = 1) (p : ℕ) (hpprime : p.Prime)
-  (hp : 5 ≤ p) (h : a^p + b^p = c^p) : FreyPackage where
-    a := (of_not_FermatLastTheorem.aux₁ a b c).1
-    b := (of_not_FermatLastTheorem.aux₁ a b c).2.1
-    c := (of_not_FermatLastTheorem.aux₁ a b c).2.2
-    ha0 := by
-      unfold of_not_FermatLastTheorem.aux₁
-      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
-      · exact ha
-      · rwa [← Int.neg_ne_zero] at ha
-      · exact hb
-      · rwa [← Int.neg_ne_zero] at hb
-      · exact ha
-      · rwa [← Int.neg_ne_zero] at ha
-    hb0 := sorry -- etc etc
-    hc0 := sorry
-    p := p
-    hp5 := hp
-    hFLT := by
-      have negonepow : (-1 : ℤ) ^ p = -1 := by
-        rw [neg_one_pow_eq_pow_mod_two]
-        have := Fact.mk hpprime
-        rw [Nat.Prime.mod_two_eq_one_iff_ne_two.2]
-        · simp
-        · linarith
-      unfold of_not_FermatLastTheorem.aux₁
-      split <;> split <;> try split
-      · exact h
-      · linear_combination (-1)^p * h
-      · linear_combination h
-      · linear_combination (-1)^p * h
-      · rw [neg_pow c, neg_pow b, negonepow]
-        linear_combination h
-      · rw [neg_pow a, negonepow]
-        linear_combination -h
-    hgcdab := sorry
-    ha4 := of_not_FermatLastTheorem.aux₁.ha4 b c hab
-    hb2 := sorry
-
 lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c ^ p) :
     gcd a b = gcd a c := by
   have foo : gcd a b ∣ gcd a c := by
@@ -331,6 +289,81 @@ lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c
   apply Int.ofNat_dvd.1 at foo
   exact congr_arg ((↑) : ℕ → ℤ) <| Nat.dvd_antisymm foo bar
   done
+
+/-- Given a counterexample to Fermat's Last Theorem with a,b,c coprime and p ≥ 5, we can make
+a Frey package. -/
+def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
+  (hab : gcd a b = 1) (p : ℕ) (hpprime : p.Prime)
+  (hp : 5 ≤ p) (h : a^p + b^p = c^p) : FreyPackage where
+    a := (of_not_FermatLastTheorem.aux₁ a b c).1
+    b := (of_not_FermatLastTheorem.aux₁ a b c).2.1
+    c := (of_not_FermatLastTheorem.aux₁ a b c).2.2
+    ha0 := by
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
+      · exact ha
+      · rwa [← Int.neg_ne_zero] at ha
+      · exact hb
+      · rwa [← Int.neg_ne_zero] at hb
+      · exact ha
+      · rwa [← Int.neg_ne_zero] at ha
+    hb0 := by
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
+      · exact hb
+      · rwa [← Int.neg_ne_zero] at hb
+      · exact ha
+      · rwa [← Int.neg_ne_zero] at ha
+      · rwa [← Int.neg_ne_zero] at hc
+      · exact hc
+    hc0 := by
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
+      · exact hc
+      · rwa [← Int.neg_ne_zero] at hc
+      · exact hc
+      · rwa [← Int.neg_ne_zero] at hc
+      · rwa [← Int.neg_ne_zero] at hb
+      · exact hb
+    p := p
+    hp5 := hp
+    hFLT := by
+      have negonepow : (-1 : ℤ) ^ p = -1 := by
+        rw [neg_one_pow_eq_pow_mod_two]
+        have := Fact.mk hpprime
+        rw [Nat.Prime.mod_two_eq_one_iff_ne_two.2]
+        · simp
+        · linarith
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split
+      · exact h
+      · linear_combination (-1)^p * h
+      · linear_combination h
+      · linear_combination (-1)^p * h
+      · rw [neg_pow c, neg_pow b, negonepow]
+        linear_combination h
+      · rw [neg_pow a, negonepow]
+        linear_combination -h
+    hgcdab := by
+      unfold of_not_FermatLastTheorem.aux₁
+      have hp' : 0 < p := by omega
+      have := gcdab_eq_gcdac hp' h
+      simp_rw [← Int.coe_gcd, Nat.cast_inj] at this
+      simp_rw [← Int.coe_gcd] at hab
+      split <;> split <;> (try split) <;>
+        simp [← Int.coe_gcd, hab, Int.gcd_comm, gcdab_eq_gcdac hp' h, ← this]
+    ha4 := of_not_FermatLastTheorem.aux₁.ha4 b c hab
+    hb2 := by
+      unfold of_not_FermatLastTheorem.aux₁
+      have hp' : p ≠ 0 := by omega
+      split <;> split <;> try split
+      all_goals simp [*]
+      all_goals
+        rw [ZMod.intCast_zmod_eq_zero_iff_dvd, Nat.cast_ofNat, ← even_iff_two_dvd,
+          ← Int.even_pow' hp', ← h]
+        apply Odd.add_odd <;>
+          rwa [Int.odd_pow' hp', Int.odd_iff_not_even, even_iff_two_dvd,
+            ← Nat.cast_ofNat, ← ZMod.intCast_zmod_eq_zero_iff_dvd]
 
 /-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5, there exists a Frey package. -/
 def of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
