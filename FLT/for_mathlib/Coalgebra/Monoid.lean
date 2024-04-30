@@ -131,9 +131,9 @@ end Coalgebra
 section Bialgebra
 
 /--
-An algebra homomorphism point is an algebra homorphism from `A` to `L` where `A` is an `R`-biagebra
+An algebra homomorphism point is an algebra homomorphism from `A` to `L` where `A` is an `R`-biagebra
 and `L` an `R`-algebra. We introduce this abbreviation is to prevent instance clashing when we put a
-monnoid structure on these algebra homomorphism points with convolution product.
+monoid structure on these algebra homomorphism points with convolution product.
 
 This confusion happens when `A` and `L` are the same where default multiplication is composition.
 -/
