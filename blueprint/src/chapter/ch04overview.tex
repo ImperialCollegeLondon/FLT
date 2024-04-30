@@ -63,8 +63,9 @@ absolutely irreducible when restricted to $F(\zeta_\ell)$, and $S$-good. One can
 that the functor representing $S$-good lifts of $\rhobar$ is representable.
 
 \begin{theorem}\label{modularity_lifting_theorem}
-        If $\rhobar$ is modular of level $\Gamma_1(S)$ then any $S$-good $\ell$-adic lift
-        $\rho:G_F\to\GL_2(\calO)$ is also modular of level $\Gamma_1(S)$.
+        If $\rhobar$ is modular of level $\Gamma_1(S)$ and $\rho:G_F\to\GL_2(\calO)$ is
+        an $S$-good lift of $\rhobar$ to $\calO$, the integers of a finite extension of $\Q_\ell$,
+        then $\rho$ is also modular of level $\Gamma_1(S)$.
 \end{theorem}
 
 Right now we are very far from even stating this theorem in Lean. 
@@ -100,7 +101,7 @@ representation would cut out a number field whose discriminant violates the Odly
 One can now go on to deduce that the 3-adic representation must be reducible, which
 contradicts the irreducibility of $\rho$.
 
-We apologise for the sketchiness of what is here, however at the time of writing it is so far from what we are even able to \emph{state} in Lean that there seems to be little point in fleshing out the argument further. As this document grows, we will add a far more detailed discussion of what is going on here. 
+We apologise for the sketchiness of what is here, however at the time of writing it is so far from what we are even able to \emph{state} in Lean that there seems to be little point right now in fleshing out the argument further. As this document grows, we will add a far more detailed discussion of what is going on here. Note in particular that stating the modularity lifting theorem in Lean is the first target.
 
 
 
