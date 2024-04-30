@@ -46,7 +46,7 @@ Our next reduction is as follows:
 \begin{lemma}\label{FLT.FreyPackage.of_not_FermatLastTheorem}\lean{FLT.FreyPackage.of_not_FermatLastTheorem}\leanok\discussion{19}
   If Fermat's Last Theorem is false, then there exists a Frey package.
 \end{lemma}
-\begin{proof}\uses{FLT.FreyPackage, FLT.p_ge_5_counterexample_of_not_FermatLastTheorem} By Corollary \ref{p_ge_5_counterexample_of_not_FermatLastTheorem} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
+\begin{proof}\uses{FLT.FreyPackage, FLT.p_ge_5_counterexample_of_not_FermatLastTheorem} By Corollary \ref{FLT.p_ge_5_counterexample_of_not_FermatLastTheorem} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
   
   If the greatest common divisor of $a,b,c$ is $d$ then $a^p+b^p=c^p$ implies $(a/d)^p+(b/d)^p=(c/d)^p$. Dividing through, we can thus assume that no prime divides all of $a,b,c$. Under this assumption we must have that $a,b,c$ are pairwise coprime, as if some prime divides two of the integers $a,b,c$ then by $a^p+b^p=c^p$ and unique factorization it must divide all three of them. In particular we may assume that not all of $a,b,c$ are even, and now reducing modulo~2 shows that precisely one of them must be even. 
   
@@ -122,21 +122,21 @@ Recall that a representation of a group $G$ on a vector space $W$ is said to be 
 Now say Fermat's Last Theorem is false, and hence by Lemma~\ref{FLT.FreyPackage.of_not_FermatLastTheorem} a Frey package $(a,b,c,p)$ exists.  Consider the mod $p$ representation of $\GQ$ coming from the $p$-torsion in the Frey curve $Y^2=X(x-a^p)(X+b^p)$ associated to the package. Let's call this representation $\rho$. Is it reducible or irreducible?
 
 \begin{theorem}[Mazur]\label{FLT.FreyCurve.Mazur_Frey}\lean{FLT.FreyCurve.Mazur_Frey}\uses{FLT.FreyCurve.mod_p_Galois_representation}\leanok $\rho$ cannot be reducible.\end{theorem}
-\begin{proof}\tangled This follows from a profound result of Mazur \cite{mazur-torsion} from 1979, namely the fact that the torsion subgroup of an elliptic curve over $\Q$ can have size at most~16. In fact a fair amount of work still needs to be done to deduce the theorem from Mazur's result. We will have more to say about this result later.
+\begin{proof}\uses{Frey_curve_irreducible}\tangled This follows from a profound result of Mazur \cite{mazur-torsion} from 1979, namely the fact that the torsion subgroup of an elliptic curve over $\Q$ can have size at most~16. In fact a fair amount of work still needs to be done to deduce the theorem from Mazur's result. We will have more to say about this result later.
 \end{proof}
 
-\begin{theorem}[Wiles,Taylor--Wiles, Ribet,\ldots]\label{FLT.FreyCurve.Wiles_Frey}\lean{FLT.FreyCurve.Wiles_Frey}\uses{FLT.FreyCurve.mod_p_Galois_representation}\leanok $\rho$ cannot be irreducible either.\end{theorem}
-\begin{proof}\uses{Frey_mod_p_Galois_representation}\tangled This is the main content of Wiles' magnum opus. We omit the argument for now, although later on in this project we will have a lot to say about a proof of this.
+\begin{theorem}[Wiles,Taylor--Wiles, Ribet,\ldots]\label{FLT.FreyCurve.Wiles_Frey}\lean{FLT.FreyCurve.Wiles_Frey}\uses{FLT.FreyCurve.mod_p_Galois_representation, modularity_lifting_theorem}\leanok $\rho$ cannot be irreducible either.\end{theorem}
+\begin{proof}\uses{Frey_mod_p_Galois_representation, frey_curve_hardly_ramified}\tangled This is the main content of Wiles' magnum opus. We omit the argument for now, although later on in this project we will have a lot to say about a proof of this.
 \end{proof}
 
 \begin{corollary}\label{FLT.Frey_package.false}\lean{FLT.Frey_package.false}\uses{FLT.FreyCurve.Mazur_Frey, FLT.FreyCurve.Wiles_Frey}\leanok There is no Frey package.\end{corollary}
-\begin{proof}\leanok Follows immediately from the previous two theorems~\ref{Mazur_on_Frey_curve} and~\ref{Wiles_on_Frey_curve}.\end{proof}
+\begin{proof}\leanok Follows immediately from the previous two theorems~\ref{FLT.FreyCurve.Mazur_Frey} and~\ref{FLT.FreyCurve.Wiles_Frey}.\end{proof}
 
 We deduce
 
 \begin{corollary}\label{FLT}\lean{Wiles_Taylor_Wiles}\uses{FLT.Frey_package.false, FLT.FreyPackage.of_not_FermatLastTheorem}\leanok Fermat's Last Theorem is true.\end{corollary}
 \begin{proof}\leanok
-Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~\ref{Frey_package_of_FLT_counterex}, contradicting Corollary~\ref{no_Frey_package}.
+Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~\ref{FLT.FreyPackage.of_not_FermatLastTheorem}, contradicting Corollary~\ref{FLT.Frey_package.false}.
 \end{proof}
 
-The structure of the rest of this document is as follows. In Chapter 3 we develop some of the basic theory of elliptic curves and the Galois representations attached to their $p$-torsion subgroups. We then apply this theory to the Frey curve, deducing in particular how Mazur's result on torsion subgroups of elliptic curves implies Theorem~\ref{Mazur_on_Frey_curve}, the assertion that $\rho$ cannot be reducible. In Chapter~\ref{ch_overview} we give a high-level overview of our strategy to prove that $\rho$ cannot be irreducible, which diverges from the original approach taken by Wiles; one key difference is that we work with the $p$-torsion directly rather than switching to the 3-torsion. We also give a precise statement of the modularity lifting theorem which we will use. Finally, in Chapter~\ref{ch_bestiary} we give a collection of theorem statements which we shall need in order to push our strategy through. All of these results were known in the 1980s or before. This chapter is incoherent in the sense that it is just a big list of apparently unrelated results. As our exposition of the proof expands, the results of this chapter will slowly move to more appropriate places. The chapter is merely there to give some kind of idea of the magnitude of the project.
+The structure of the rest of this (highly incomplete, for now) document is as follows. In Chapter 3 we develop some of the basic theory of elliptic curves and the Galois representations attached to their $p$-torsion subgroups. We then apply this theory to the Frey curve, deducing in particular how Mazur's result on torsion subgroups of elliptic curves implies Theorem~\ref{FLT.FreyCurve.Mazur_Frey}, the assertion that $\rho$ cannot be reducible. In Chapter~\ref{ch_overview} we give a high-level overview of our strategy to prove that $\rho$ cannot be irreducible, which diverges from the original approach taken by Wiles; one key difference is that we work with the $p$-torsion directly rather than switching to the 3-torsion. We also give a precise statement of the modularity lifting theorem which we will use. Finally, in Chapter~\ref{ch_bestiary} we give a collection of theorem statements which we shall need in order to push our strategy through. All of these results were known in the 1980s or before. This chapter is incoherent in the sense that it is just a big list of apparently unrelated results. As our exposition of the proof expands, the results of this chapter will slowly move to more appropriate places. The chapter is merely there to give some kind of idea of the magnitude of the project.
