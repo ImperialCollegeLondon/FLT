@@ -1,85 +1,85 @@
 \chapter{Appendix: A collection of results which are needed in the proof.}\label{ch_bestiary}
 
-In this (temporary, unorganised) appendix we list a whole host of definitions and theorems which were known to humanity by the end of the 1980s and which we shall need. These definitions and theorems will find their way into more relevant sections of the blueprint once I have written more details. Note that some of these things are straightforward; others are probably multi-year research projects. The purpose of this chapter right now is simply to give the community (and possibly AIs) some kind of idea of the task we face.
+In this (temporary, unorganised) appendix we list a whole host of definitions and theorems which were known to humanity by the end of the 1980s and which we shall need. These definitions and theorems will find their way into more relevant sections of the blueprint once I have written more details. Note that some of these things are straightforward; others are probably multi-year research projects. The purpose of this chapter right now is simply to give the community (and possibly AIs) some kind of idea of the task we face. Note also that many of the \emph{definitions} here are yet to be formalised in Lean, and this needs to be done before we can start talking about formalising theorems.
 
 \section{Results from class field theory}
 
-We start with the local case. In fact we restrict to the $p$-adic case, but only for simplicity of exposition because it's all we'll need (and, to be frank, because the writer isn't 100 percent of what is true in the function field case).
+We start with the local case. In fact we restrict to the $p$-adic case, but only for simplicity of exposition because it's all we'll need (and, to be frank, because I'm not 100 percent of what is true in the function field case).
 
-Let $K$ be a finite extension of $\Q_p$. We write $\widehat{Z}$ for the profinite completion of $\Z$; it is isomorphic to $\prod_p\Z_p$ where $\Z_p$ is the $p$-adic integers.
+Let $K$ be a finite extension of $\Q_p$. We write $\widehat{\Z}$ for the profinite completion of $\Z$; it is isomorphic to $\prod_p\Z_p$ where $\Z_p$ is the $p$-adic integers and the product is over all primes.
 
-\begin{theorem}\label{maximal_unramified_extension_of_p-adic_field} The maximal unramified extension $K^{un}$ in a given algebraic closure of $K$
-    is Galois over $K$ with Galois group ``canonically'' isomorphic to $\widehat{Z}$ in two ways; one of these two canonical isomorphisms identifies $1\in\widehat{Z}$ with an arithmetic Frobenius (the endomorphism inducing $x\mapsto x^q$ on the residue field of $K^{un}$, where $q$ is the size of the residue field of $K$). The other identifies 1 with geometric Frobenius (defined to be the inverse of arithematic Frobenius).
+\begin{theorem}\label{maximal_unramified_extension_of_p-adic_field}\notready The maximal unramified extension $K^{un}$ in a given algebraic closure of $K$
+    is Galois over $K$ with Galois group ``canonically'' isomorphic to $\widehat{\Z}$ in two ways; one of these two isomorphisms identifies $1\in\widehat{\Z}$ with an arithmetic Frobenius (the endomorphism inducing $x\mapsto x^q$ on the residue field of $K^{un}$, where $q$ is the size of the residue field of $K$). The other identifies 1 with geometric Frobenius (defined to be the inverse of arithematic Frobenius).
 \end{theorem}
 
 It is impossible to say which of the two canonical isomorphisms is ``the most canonical''; people working in different areas make different choices in order to locally minimise the number of minus signs in their results.
 
-As a result, the absolute Galois group of $K$ surjects onto $\widehat{\Z}$; its kernel is said to be the \emph{inertia group} of this Galois group. Now pull back this surjection along the continuous map from $\Z$ (with its discrete topology) to $\widehat{Z}$, in the category of topological groups. We end up with a group containing the inertia group as an open normal subgroup, and with quotient isomorphic to the integers.
+As a result, the absolute Galois group of $K$ surjects onto $\widehat{\Z}$; its kernel is said to be the \emph{inertia subgroup} of this Galois group. Now pull back this surjection along the continuous map from $\Z$ (with its discrete topology) to $\widehat{\Z}$, in the category of topological groups. We end up with a group containing the inertia group as an open normal subgroup, and with quotient isomorphic to the integers.
 
-\begin{definition}\label{local_Weil_group} This topological group is called the \emph{Weil group} of $K$.
+\begin{definition}\label{local_Weil_group}\uses{maximal_unramified_extension_of_p-adic_field}\notready This topological group is called the \emph{Weil group} of $K$.
 \end{definition}
 
 The following theorem is nontrivial.
 
-\begin{theorem} If $K$ is a finite extension of $\Q_p$ then there are two ``canonical'' isomorphisms of topological abelian groups, between $K^\times$ the abelianisation of the Weil group of $K$.
+\begin{theorem}\label{local_class_field_theory}\uses{local_Weil_group}\notready If $K$ is a finite extension of $\Q_p$ then there are two ``canonical'' isomorphisms of topological abelian groups, between $K^\times$ and the abelianisation of the Weil group of $K$.
 \end{theorem}
 \begin{proof} This is the main theorem of local class field theory; see for example the relevant articles in~\cite{cf} or many other places.
 \end{proof}
 
-Note that Mar\'ia In\'es de Frutos Fern\'andez and Filippo Nuccio are working on a formalisation of the proof of this using Lubin-Tate formal groups.
+Note that Mar\'ia In\'es de Frutos Fern\'andez and Filippo Nuccio are working on a formalisation of the proof of this using Lubin--Tate formal groups.
 
 Now let $M$ be a finite abelian group equipped with a continuous action of $G_K$, the Galois group $\GK$ where we fix an algebraic closure $\Kbar$ of $K$. Note that if one doesn't want to choose an algebraic closure of $K$ one can instead think of $M$ as being an etale sheaf of abelian groups on $\Spec(K)$.
 
 Continuous group cohomology $H^i(G_K,M)$ in this setting can be defined using continuous cocycles and continuous coboundaries, or just as a colimit of usual group cohomology over the finite quotients of this absolute Galois group (or as etale cohomology, if you prefer). Here are some of the facts we will need about cohomology in this situation. A nice summary is that cohomology of a local Galois group behaves like the cohomology of a compact connected 2-manifold. All the theorems below will need extensive planning.
 
-\begin{theorem} ("the dimension is 2"). $H^i(G_K,M)=0$ if $i>2$.
-\end{theorem}
+\begin{theorem} ["the dimension is 2"]\label{local_galois_coh_dim_two}\notready $H^i(G_K,M)=0$ if $i>2$.
+\end{theorem}\
 \begin{proof} This is included in Lemma 2 of section 5.2 of \cite{serre-galcoh}.
 \end{proof}
 
-\begin{theorem} ("top degree"). $H^2(G_K,\mu_n)$ is ``canonically'' isomorphic to $\Z/n\Z$.
+\begin{theorem} ["top degree"]\label{local_galois_coh_top_degree}\notready $H^2(G_K,\mu_n)$ is ``canonically'' isomorphic to $\Z/n\Z$.
 \end{theorem}
 \begin{proof} This is also included in Lemma 2 of section 5.2 of \cite{serre-galcoh} (Serre just writes that the groups are equal; he clearly is not a Lean user. I can see no explanation in his book of this use of the equality symbol. When the statement of this ``theorem'' is formalised in Lean it may well actually be a definition, giving the map).
 \end{proof}
 
-\begin{theorem} ("Poincar\'e duality") If $\mu=\bigcup_{n\geq1}\mu_n$ and $M':=\Hom(M,\mu)$ is the dual of $M$ then for $0\leq i\leq 2$ the cup product pairing $H^i(G_K,M)\times H^{2-i}(G_K,M')\to H^2(G_K,\mu)=\Q/\Z$ is perfect.
+\begin{theorem} ["Poincar\'e duality"]\label{local_galois_coh_poincare}\notready If $\mu=\bigcup_{n\geq1}\mu_n$ and $M':=\Hom(M,\mu)$ is the dual of $M$ then for $0\leq i\leq 2$ the cup product pairing $H^i(G_K,M)\times H^{2-i}(G_K,M')\to H^2(G_K,\mu)=\Q/\Z$ is perfect.
 \end{theorem}
-\begin{proof} This is Theorem 2 in section 5.2 in \cite{serre-galcoh}. Note again the dubious (as far as Lean is concerned) use of the equality symbol.
+\begin{proof}\notready This is Theorem 2 in section 5.2 in \cite{serre-galcoh}. Note again the dubious (as far as Lean is concerned) use of the equality symbol.
 \end{proof}
 
-\begin{theorem} ("Euler-Poincar\'e characteristic) If $h^i(M)$ denotes the order of $H^i(G_K,M)$ then $h^0(M)-h^1(M)+h^2(M)=0$.
+\begin{theorem} ["Euler-Poincar\'e characteristic]\label{local_galois_coh_euler_poincare}\notready If $h^i(M)$ denotes the order of $H^i(G_K,M)$ then $h^0(M)-h^1(M)+h^2(M)=0$.
 \end{theorem}
 
     If $\mu_\infty$ denotes the Galois module of all roots of unity in our fixed $\overline{K}$, then one can define the dual Galois module $M'$ as $\Hom(M,\mu)$ with its obvious Galois action.
 
 If $0\leq i\leq 2$ then the cup product gives us a map $H^i(K,M)\times H^{2-i}(K,M')\to H^2(K,\mu_\infty)$.
 
-\begin{theorem}[Local Tate duality]
-    (i) There is a ``canonical'' isomorphism $H^2(K,mu_\infty)=\Q/\Z$;
+\begin{theorem}[Local Tate duality]\label{local_galois_coh_tate_duality}\notready
+    (i) There is a ``canonical'' isomorphism $H^2(K,\mu_\infty)=\Q/\Z$;
     (ii) The pairing above is perfect.
 \end{theorem}
-\begin{proof}
+\begin{proof}\notready
 This is Theorem II.5.2 in~\cite{serre-galcoh}.
 \end{proof}
 
 We now move onto the global case. If $N$ is a number field, that is, a finite extension of $\Q$,
-then let $\A_N^f:= N\otimes_{\Z}\widehat{Z}$
+then let $\A_N^f:= N\otimes_{\Z}\widehat{\Z}$
 denote the finite adeles of $N$ and let $N_\infty := N\otimes_{\Q}\R$ denote the product of the completions of $N$ at the infinite places, so $\A_N:=\A_N^f\times N_\infty$ is the ring of adeles of $N$.
 
-\begin{theorem} If $N$ is a finite extension of $\Q$ then there are two ``canonical'' isomorphisms between the profinite abelian groups $\pi_0(\A_N^\times/N^\times)$ and $\GN^{\ab}$; one sends local uniformisers to arithemtic Frobenii and the other to geometric Frobenii; each of the global isomorphisms is compatible with the local isomorphisms above.
+\begin{theorem}\label{global_class_field_theory}\uses{local_class_field_theory}\notready If $N$ is a finite extension of $\Q$ then there are two ``canonical'' isomorphisms of topological groups between the profinite abelian groups $\pi_0(\A_N^\times/N^\times)$ and $\GN^{\ab}$; one sends local uniformisers to arithemtic Frobenii and the other to geometric Frobenii; each of the global isomorphisms is compatible with the local isomorphisms above.
 \end{theorem}
-\begin{proof} This is the main theorem of global class field theory; see for example~\cite{cf} (**TODO** more precise ref).
+\begin{proof}\notready This is the main theorem of global class field theory; see for example Tate's article in~\cite{cf}.
 \end{proof}
 
 We need the following consequence:
 
-\begin{theorem} Let $S$ be a finite set of places of a number field $K$ . For each $v \in S$
+\begin{theorem}\label{Skinner_Wiles_CFT_trick}\uses{global_class_field_theory}\notready Let $S$ be a finite set of places of a number field $K$ . For each $v \in S$
 let $L_v/K_v$ be a finite Galois extension. Then there is a finite solvable Galois extension
 $L/K$ such that if $w$ is a place of $L$ dividing $v \in S$, then $L_w/K_v$ is isomorphic to $L_v/K_v$ as $K_v$-algebra. Moreover, if $K^{\avoid} /K$ is
 any finite extension then we can choose $L$ to be linearly disjoint from $K^{\avoid}$.
 \end{theorem}
 
-We also need Poitou-Tate duality, but this is a bit fiddly to state.{\bf TODO}
+We also need Poitou-Tate duality; I'll refrain from writing it down for now, because we don't even have Galois cohomology in Lean yet (although we are very close to it).
 
 \section{Structures on the points of an affine variety.}
 
