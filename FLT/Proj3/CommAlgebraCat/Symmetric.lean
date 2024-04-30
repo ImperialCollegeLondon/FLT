@@ -35,7 +35,7 @@ variable (R) in
 def toModuleCatBraidedFunctor : BraidedFunctor (CommAlgebraCat.{u} R) (ModuleCat.{u} R) where
   toMonoidalFunctor := toModuleCatMonoidalFunctor R
 
-instance : Faithful (toModuleCatBraidedFunctor R).toFunctor :=
+instance : (toModuleCatBraidedFunctor R).toFunctor.Faithful :=
   forget₂_faithful _ _
 
 instance instSymmetricCategory : SymmetricCategory (CommAlgebraCat.{u} R) :=

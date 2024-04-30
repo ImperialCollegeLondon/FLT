@@ -1,6 +1,4 @@
-import Mathlib.RingTheory.TensorProduct
 import Mathlib.Algebra.Algebra.Basic
-import Mathlib.RingTheory.Bialgebra
 import FLT.for_mathlib.Coalgebra.Sweedler
 import FLT.for_mathlib.Coalgebra.TensorProduct
 import FLT.Proj3.HopfAlgCat.CoalgHom

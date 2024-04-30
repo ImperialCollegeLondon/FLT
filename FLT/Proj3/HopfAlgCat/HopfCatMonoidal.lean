@@ -1,21 +1,4 @@
-import FLT.for_mathlib.Coalgebra.Monoid
-import FLT.for_mathlib.Coalgebra.Sweedler
-import FLT.for_mathlib.Coalgebra.TensorProduct
-import FLT.for_mathlib.HopfAlgebra.Basic
-import FLT.for_mathlib.Coalgebra.TensorProduct
-import Mathlib.AlgebraicGeometry.AffineScheme
-import Mathlib.CategoryTheory.Comma.Over
-import Mathlib.Algebra.Category.AlgebraCat.Monoidal
-import Mathlib.Algebra.Category.AlgebraCat.Symmetric
-import Mathlib.RingTheory.TensorProduct
-import Mathlib.Algebra.Algebra.Basic
-import Mathlib.LinearAlgebra.TensorProduct
-import Mathlib.CategoryTheory.Monoidal.Category
 import Mathlib.CategoryTheory.Monoidal.Braided.Basic
-import Mathlib.Tactic
-import FLT.Proj3.HopfAlgCat.BialgHom
-import FLT.Proj3.HopfAlgCat.CoalgEquiv
-import FLT.Proj3.HopfAlgCat.BialgEquiv
 import FLT.Proj3.HopfAlgCat.HopfCat
 
 open Opposite

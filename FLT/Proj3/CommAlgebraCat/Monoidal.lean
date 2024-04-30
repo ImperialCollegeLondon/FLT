@@ -6,7 +6,7 @@ Authors: Eric Wieser
 import Mathlib.CategoryTheory.Monoidal.Transport
 import FLT.Proj3.CommAlgebraCat.Basic
 import Mathlib.Algebra.Category.ModuleCat.Monoidal.Basic
-import Mathlib.RingTheory.TensorProduct
+import Mathlib.RingTheory.TensorProduct.Basic
 
 /-!
 # The monoidal category structure on R-algebras
@@ -100,7 +100,8 @@ def toModuleCatMonoidalFunctor : MonoidalFunctor (CommAlgebraCat.{u} R) (ModuleC
   unfold instMonoidalCategory
   exact Monoidal.fromInduced (forget₂ (CommAlgebraCat R) (ModuleCat R)) _
 
-instance : Faithful (toModuleCatMonoidalFunctor R).toFunctor :=
+instance inst_toModuleCatMonoidalFunctor_faithful :
+    (toModuleCatMonoidalFunctor R).toFunctor.Faithful :=
   forget₂_faithful _ _
 
 end

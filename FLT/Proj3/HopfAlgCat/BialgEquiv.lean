@@ -1,9 +1,3 @@
-import Mathlib.RingTheory.TensorProduct
-import Mathlib.RingTheory.Coalgebra
-import Mathlib.Algebra.Algebra.Basic
-import Mathlib.Algebra.Algebra.Equiv
-import FLT.for_mathlib.Coalgebra.Sweedler
-import FLT.for_mathlib.Coalgebra.TensorProduct
 import FLT.Proj3.HopfAlgCat.BialgHom
 import FLT.Proj3.HopfAlgCat.CoalgEquiv
 

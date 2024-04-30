@@ -1,15 +1,6 @@
-import FLT.for_mathlib.Coalgebra.Monoid
 import FLT.for_mathlib.Coalgebra.Sweedler
 import FLT.for_mathlib.Coalgebra.TensorProduct
 import FLT.for_mathlib.HopfAlgebra.Basic
-import FLT.for_mathlib.Coalgebra.TensorProduct
-import Mathlib.AlgebraicGeometry.AffineScheme
-import Mathlib.CategoryTheory.Comma.Over
-import Mathlib.Algebra.Category.AlgebraCat.Basic
-import Mathlib.RingTheory.TensorProduct
-import Mathlib.Algebra.Algebra.Basic
-import Mathlib.LinearAlgebra.TensorProduct
-import FLT.Proj3.HopfAlgCat.BialgHom
 import FLT.Proj3.HopfAlgCat.CoalgEquiv
 import FLT.Proj3.HopfAlgCat.BialgEquiv
 universe u
