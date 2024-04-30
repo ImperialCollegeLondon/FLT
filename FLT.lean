@@ -1,7 +1,10 @@
 import FLT.Basic.Reductions
+import FLT.EllipticCurve.Torsion
 import FLT.for_mathlib.Coalgebra.Monoid
-import FLT.TateCurve.TateCurve
 import FLT.for_mathlib.Coalgebra.Sweedler
-import FLT.Basic.HardlyRamified
 import FLT.for_mathlib.Coalgebra.TensorProduct
 import FLT.for_mathlib.HopfAlgebra.Basic
+import FLT.GaloisRepresentation.HardlyRamified
+import FLT.GroupScheme.FiniteFlat
+import FLT.Hard.Results
+import FLT.TateCurve.TateCurve
