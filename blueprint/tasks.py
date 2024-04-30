@@ -21,6 +21,7 @@ def bp(ctx):
     os.chdir(BP_DIR)
     run('mkdir -p print && cd src && xelatex -output-directory=../print print.tex')
     run('cd src && xelatex -output-directory=../print print.tex')
+    run('cp print/print.bbl src/web.bbl')
     os.chdir(cwd)
 
 @task

@@ -1,0 +1,252 @@
+\chapter{Appendix: A collection of results which are needed in the proof.}
+
+In this (temporary, unorganised) appendix we list a whole host of definitions and theorems  which were known to humanity by the end of the 1980s and which we shall need. These definitions and theorems will find their way into more relevant sections of the blueprint once I have written more details. Note that some of these things are straightforward; others are probably multi-year research projects. The purpose of this chapter right now is simply to give the community (and possibly AIs) some kind of idea of the task we face.
+
+\section{Results from class field theory}
+
+We start with the local case. In fact we restrict to the $p$-adic case, but only for simplicity of exposition because it's all we'll need (and, to be frank, because the writer isn't 100 percent of what is true in the function field case).
+
+Let $K$ be a finite extension of $\Q_p$. We write $\widehat{Z}$ for the profinite completion of $\Z$; it is isomorphic to $\prod_p\Z_p$ where $\Z_p$ is the $p$-adic integers.
+
+\begin{theorem}\label{maximal_unramified_extension_of_p-adic_field} The maximal unramified extension $K^{un}$ in a given algebraic closure of $K$
+    is Galois over $K$ with Galois group ``canonically'' isomorphic to $\widehat{Z}$ in two ways; one of these two canonical isomorphisms identifies $1\in\widehat{Z}$ with an arithmetic Frobenius (the endomorphism inducing $x\mapsto x^q$ on the residue field of $K^{un}$, where $q$ is the size of the residue field of $K$). The other identifies 1 with geometric Frobenius (defined to be the inverse of arithematic Frobenius).
+\end{theorem}
+
+It is impossible to say which of the two canonical isomorphisms is ``the most canonical''; people working in different areas make different choices in order to locally minimise the number of minus signs in their results.
+
+As a result, the absolute Galois group of $K$ surjects onto $\widehat{\Z}$; its kernel is said to be the \emph{inertia group} of this Galois group. Now pull back this surjection along the continuous map from $\Z$ (with its discrete topology) to $\widehat{Z}$, in the category of topological groups. We end up with a group containing the inertia group as an open normal subgroup, and with quotient isomorphic to the integers.
+
+\begin{definition}\label{local_Weil_group} This topological group is called the \emph{Weil group} of $K$.
+\end{definition}
+
+The following theorem is nontrivial.
+
+\begin{theorem} If $K$ is a finite extension of $\Q_p$ then there are two ``canonical'' isomorphisms of topological abelian groups, between $K^\times$ the abelianisation of the Weil group of $K$.
+\end{theorem}
+\begin{proof} This is the main theorem of local class field theory; see for example the relevant articles in~\cite{cf} or many other places.
+\end{proof}
+
+Note that Mar\'ia In\'es de Frutos Fern\'andez and Filippo Nuccio are working on a formalisation of the proof of this using Lubin-Tate formal groups.
+
+Now let $M$ be a finite abelian group equipped with a continuous action of $G_K$, the Galois group $\GK$ where we fix an algebraic closure $\Kbar$ of $K$. Note that if one doesn't want to choose an algebraic closure of $K$ one can instead think of $M$ as being an etale sheaf of abelian groups on $\Spec(K)$.
+
+Continuous group cohomology $H^i(G_K,M)$ in this setting can be defined using continuous cocycles and continuous coboundaries, or just as a colimit of usual group cohomology over the finite quotients of this absolute Galois group (or as etale cohomology, if you prefer). Here are some of the facts we will need about cohomology in this situation. A nice summary is that cohomology of a local Galois group behaves like the cohomology of a compact connected 2-manifold. All the theorems below will need extensive planning.
+
+\begin{theorem} ("the dimension is 2"). $H^i(G_K,M)=0$ if $i>2$.
+\end{theorem}
+\begin{proof} This is included in Lemma 2 of section 5.2 of \cite{serre-galcoh}.
+\end{proof}
+
+\begin{theorem} ("top degree"). $H^2(G_K,\mu_n)$ is ``canonically'' isomorphic to $\Z/n\Z$.
+\end{theorem}
+\begin{proof} This is also included in Lemma 2 of section 5.2 of \cite{serre-galcoh} (Serre just writes that the groups are equal; he clearly is not a Lean user. I can see no explanation in his book of this use of the equality symbol. When the statement of this ``theorem'' is formalised in Lean it may well actually be a definition, giving the map).
+\end{proof}
+
+\begin{theorem} ("Poincar\'e duality") If $\mu=\bigcup_{n\geq1}\mu_n$ and $M':=\Hom(M,\mu)$ is the dual of $M$ then for $0\leq i\leq 2$ the cup product pairing $H^i(G_K,M)\times H^{2-i}(G_K,M')\to H^2(G_K,\mu)=\Q/\Z$ is perfect.
+\end{theorem}
+\begin{proof} This is Theorem 2 in section 5.2 in \cite{serre-galcoh}. Note again the dubious (as far as Lean is concerned) use of the equality symbol.
+\end{proof}
+
+\begin{theorem} ("Euler-Poincar\'e characteristic) If $h^i(M)$ denotes the order of $H^i(G_K,M)$ then $h^0(M)-h^1(M)+h^2(M)=0$.
+\end{theorem}
+
+    If $\mu_\infty$ denotes the Galois module of all roots of unity in our fixed $\overline{K}$, then one can define the dual Galois module $M'$ as $\Hom(M,\mu)$ with its obvious Galois action.
+
+If $0\leq i\leq 2$ then the cup product gives us a map $H^i(K,M)\times H^{2-i}(K,M')\to H^2(K,\mu_\infty)$.
+
+\begin{theorem}[Local Tate duality]
+    (i) There is a ``canonical'' isomorphism $H^2(K,mu_\infty)=\Q/\Z$;
+    (ii) The pairing above is perfect.
+\end{theorem}
+\begin{proof}
+This is Theorem II.5.2 in~\cite{serre-galcoh}.
+\end{proof}
+
+We now move onto the global case. If $N$ is a number field, that is, a finite extension of $\Q$,
+then let $\A_N^f:= N\otimes_{\Z}\widehat{Z}$
+denote the finite adeles of $N$ and let $N_\infty := N\otimes_{\Q}\R$ denote the product of the completions of $N$ at the infinite places, so $\A_N:=\A_N^f\times N_\infty$ is the ring of adeles of $N$.
+
+\begin{theorem} If $N$ is a finite extension of $\Q$ then there are two ``canonical'' isomorphisms between the profinite abelian groups $\pi_0(\A_N^\times/N^\times)$ and $\GN^{\ab}$; one sends local uniformisers to arithemtic Frobenii and the other to geometric Frobenii; each of the global isomorphisms is compatible with the local isomorphisms above.
+\end{theorem}
+\begin{proof} This is the main theorem of global class field theory; see for example~\cite{cf} (**TODO** more precise ref).
+\end{proof}
+
+We need the following consequence:
+
+\begin{theorem} Let $S$ be a finite set of places of a number field $K$ . For each $v \in S$
+let $L_v/K_v$ be a finite Galois extension. Then there is a finite solvable Galois extension
+$L/K$ such that if $w$ is a place of $L$ dividing $v \in S$, then $L_w/K_v$ is isomorphic to $L_v/K_v$ as $K_v$-algebra. Moreover, if $K^{\avoid} /K$ is
+any finite extension then we can choose $L$ to be linearly disjoint from $K^{\avoid}$.
+\end{theorem}
+
+We also need Poitou-Tate duality, but this is a bit fiddly to state.{\bf TODO}
+
+\section{Structures on the points of an affine variety.}
+
+All rings and algebras in this section are commutative with a 1, and all morphisms send 1 to 1.
+
+Let $X=\Spec(A)$ be an affine scheme of finite type over a field $K$. For example $X$ could be an affine algebraic variety; in fact we shall only be interested in smooth affine varieties in the applications, but the initial definition and theorem are fine for all finite type schemes.
+
+If $R$ is any $K$-algebra then one can talk about the $R$-points $X(R)$ of $X$, which in this case
+naturally bijects with the $K$-algebra homomorphisms from $A$ to $R$.
+
+\begin{definition}\label{topology_on_affine_variety_points} If $X$ is an affine scheme of finite
+    type over $K$, and if $R$ is a $K$-algebra which is also a topological ring, then we define a topology on the $R$-points $X(R)$ of $K$ by embedding the $K$-algebra homomorphisms from $A$ to $R$ into the set-theoretic maps from $A$ to $R$ with its product topology, and giving it the subspace topology.
+\end{definition}
+
+\begin{theorem}\label{topology_on_affine_variety_computation}
+    If $X$ is as above and $X\to\mathbb{A}^n_K$ is a closed immersion, then the induced map from $X(R)$ with its topology as above to $R^n$ is an embedding of topological spaces (that is, a homeomorphism onto its image).
+\end{theorem}
+\begin{proof} See \href{https://math.stanford.edu/~conrad/papers/adelictop.pdf}{Conrad's notes}.
+\end{proof}
+
+We now specialise to the smooth case. I want to make the following conjectural ``definition'':
+    
+\begin{definition}\label{manifold_on_algebraic_variety_points} Let $K$ be a field equipped with an isomorphism to the reals, complexes, or a finite extension of the $p$-adic numbers. Let $X$ be a smooth affine algebraic variety over $K$. Then the points $X(K)$ naturally inherit the structure of a manifold over $K$.
+\end{definition}
+
+\begin{remark} Probably this is fine for a broader class of fields $K$. 
+\end{remark}
+
+\begin{theorem}\label{manifold_on_algebraic_variety_computation} 
+    If $X$ is as in the previous definition and $X\to\mathbb{A}^n_K$ is a closed immersion, then the induced map from $X(K)$ with its manifold structure to $K^n$ is an embedding of manifolds. 
+\end{theorem}
+\begin{proof} I'm assuming this is standard, if true. 
+\end{proof}
+\begin{corollary}\label{lie_group_from_algebraic_group}
+    If $G$ is an affine algebraic group of finite type over $K=\R$ or $\C$ then $G(K)$ is naturally a real or complex Lie group.
+\end{corollary}
+\begin{remark}
+
+    The corollary, for sure, is true! And it's all we need. I have not yet made any serious effort to find a reference for the definition or independence, although there seem to be some ideas \href{https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/top.20space.20.2F.20manifold.20structure.20on.20points.20of.20alg.20varieties/near/431812525}{here}.
+\end{remark}
+\section{Algebraic groups.}
+
+The concept of an affine algebraic group over a field $K$ can be implemented in Lean as a commutative Hopf algebra over $K$, as a group object in the category of affine schemes over $K$, as a representable group functor on the category of affine schemes over $K$, or as a representable group functor on the category of schemes over $K$ which is represented by an affine scheme. All of these are the same to mathematicians but different to Lean and some thought should go into which of these should be the actual definition, and which should be proved to be the same thing as the definition.
+
+\begin{definition}\label{connected_reductive_group} An affine algebraic group over a field of characteristic zero is said to be \emph{connected} if it is connected as a scheme, and \emph{reductive} if it admits a finite-dimensional semisimple representation with finite kernel.
+\end{definition}
+
+\begin{remark} I have omitted characteristic $p$ (and in particular function fields over finite fields) only because I am less confident of the theory myself; probably these should not be omitted in the final formalised definition.
+\end{remark}
+
+\section{Automorphic forms and representations}
+
+This section needs a lot of work; I am just attempting to write down some approximation to the (well-known) definitions but in great generality (far greater than we need). Some definitions below are short on details; indeed there may even be errors or imprecisions right now (because we are working in more generality than I am used to). It will be a very interesting project to get these details down. One reference (which leaves a lot of exercises) is Borel-Casselman in \cite{corvallis1}. Even \emph{stating} these definitions will be a big challenge in Lean; indeed one of the motivations of the project is that it forces us to write down all the below properly.
+
+Let $G$ be a connected reductive group over a number field $N$.  We note
+that $G(\A_N^f)$ is a (locally profinite) topological space and $G(N_\infty)$ is a real Lie group;
+their product is $G(\A_N)$. If $g\in G(\A_N)$, write $g_f\in G(\A_N^f)$ for the finite part and $g_\infty\in G(N_\infty)$ for its infinite part.
+
+For some reason, in the literature people seem to fix a choice of maximal compact subgroup $U_\infty$ of $G(N_\infty)$. I believe that all such subgroups are conjugate, and probably this gives some route between the different definitions coming from the different choices.
+
+Example: if $G=\GL_2$ and $N=\Q$ then $N_\infty=\R$ and $G(N_\infty)$ is just $\GL_2(\R)$ with its usual Lie group structure and we can take $U_\infty$ to be $O_2(\R)$; $G(\A_N^f)$ is the restricted product of $\GL_2(\Q_p)$ over $\GL_2(\Z_p)$, for all primes $p$.
+
+By assumption, $G(N_\infty)$ admits a finite-dimensional (algebraic) representation $\rho$ with finite kernel. Consider $\rho$ as taking values in $GL_N(\C)=\Aut_\C(V)$. Fix a hermitian sesquilinear form on $V$ which 
+is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by $$||g||_\rho=(\tr \rho(g)^*\rho(g))^{1/2}$$, where the asterisk denote adjoint with respect to the sesquilinear form. According to the article by Borel--Jacquet in \cite{corvallis1} (p189), if $\rho'$ is another such choice then there exists a positive real $C$ and a positive integer $n$ such that $||g||_{\rho'}\leq C||g||_\rho^n$ for all $g\in G(N_\infty)$.
+
+\begin{definition} A function $f : G(N_\infty)\to\C$ is \emph{slowly-increasing} if there exists some $C>0$
+    and $n\geq1$ such that $|f(x)\leq C||x||_\rho^n$.
+\end{definition}
+
+\begin{theorem} This is independent of the choice of $\rho$ as above
+\end{theorem}
+\begin{proof} Follows from the above.
+\end{proof}
+
+We can now give the definition of an automorphic form. For FLT we only need the definition for $G$ being either an abelian algebraic group, or an inner form of $GL(2)$, but we have chosen to work in full generality here. 
+
+\begin{definition} An \emph{automorphic form} is a function $\phi:G(\A_N)\to\C$ satisfying the following conditions:
+    \begin{itemize}
+        \item $\phi$ is locally constant on $G(\A_N^f)$ and $C^\infty$ on $G(N_\infty)$. In other words, for every $g_\infty$, $\phi(-,g_\infty)$ is locally constant, and for every $g_f$, $\phi(g_f,-)$ is smooth.
+        \item $\phi$ is left-invariant under $G(N)$;
+        \item $\phi$ is right-$U_\infty$-finite (that is, the space spanned by $x\mapsto \phi(xu)$ as $u$ varies over $U_\infty$ is finite-dimensional);
+        \item $\phi$ is right $K_f$-finite, where $K_f$ is one (or equivalentally all) compact open subgroups of $G(\A_N^f)$;
+        \item $\phi$ is $\mathcal{z}$-finite, where $\mathcal{z}$ is the centre of the universal enveloping algebra of the Lie algebra of $G(N_\infty)$, acting via differential operators. Equivalently $\phi$ is annihiliated by a finite index ideal of this centre, so morally $\phi$ satisfies lots of differential equations of a certain type;
+        \item For all $g_f$, the function $g_\infty\mapsto \phi(g_f g\infty)$ is slowly-increasing in the sense above.
+    \end{itemize}
+\end{definition}
+
+Automorphic forms form a typically infinite-dimensional vector space. 
+
+\begin{definition} An automorphic form is \emph{cuspidal} (or ``a cusp form'') if it furthermore satisfies $\int_{U(N)\backslash U(\A_N)}\phi(ux)du=0$, where $P$ runs through all the proper parabolic subgroups of $G$ defined over $N$ and $U$ is the unipotent radical of $P$, and the integral is with respect to the measure coming from Haar measure.
+\end{definition}
+
+The cuspidal automorphic forms form a complex subspace of the space of automorphic forms.
+
+\begin{definition} The group $G(\A_N)$ acts on itself on the right, and this induces a left action of its
+    subgroup $G(\A_N^f)\times U_\infty$ on the spaces of automorphic forms and cusp forms. The Lie algebra $\mathfrak{g}$ of $G(N_\infty)$ also acts, via differential operators. Furthermore the actions of $\mathfrak{g}$ and $U_\infty$ are compatible in the sense that the differential of the $U_\infty$ action is the action of its Lie algebra considered as a subalgebra of $\mathfrak{g}$. We say that the spaces are $(G(\A_N^f)\times U_\infty,\mathfrak{g})$-modules.
+\end{definition}
+
+\begin{theorem} The cusp forms decompose as a (typically infinite) direct sum of irreducible $(G(\A_N^f)\times U_\infty,\mathfrak{g})$-modules.
+\end{theorem}
+\begin{definition} A cuspidal automorphic representation is an irreducible $(G(\A_N^f)\times U_\infty,\mathfrak{g})$-module isomorphic to an irreducible summand of the space of cusp forms.
+\end{definition}
+
+For non-cuspidal representations, they do not decompose as a direct sum; there is a continuous spectrum which decomposes as a direct integral. We may not ever need these. As a result the definition of an automorphic representation has to be slightly modified in the non-cuspidal case.
+
+\begin{definition} An automorphic representation is an irreducible $(G(\A_N^f)\times U_\infty,\mathfrak{g})$-module isomorphic to an irreducible subquotient of the space of automorphic forms.
+\end{definition}
+
+Admissibility is a finiteness condition on an irreducible representation of $(G(\A_N^f)\times U_\infty,\mathfrak{g})$; automorphic representations are admissible, and this seems to boil down to theorems of Godement and Harish-Chandra in the general case. 
+
+
+\begin{theorem} An irreducible admissible $(G(\A_N^f)\times U_\infty,\mathfrak{g})$-module is a restricted tensor product of irreducible representations $\pi_v$ of $G(N_v)$ as $v$ runs through the finite places of $N$, tensored with a tensor product of irreducible $(\mathfrak{g}_v,U_{\infty,v})$-modules as $v$ runs through the infinite places of $N$. The representations $\pi_v$ are unramified for all but finitely many $v$.
+\end{theorem}
+\begin{proof} See Flath's article in~\cite{corvallis2}.
+\end{proof}
+
+As mentioned above, we only need all of this for abelian algebraic groups and for inner forms of $\GL_2$ over totally real fields, where everything can be made more concrete (and in particular where I can write down concrete definitions, although this still needs to be done). In particular, we don't strictly speaking need all of the above, we could just cheat and deal with $\GL_2(\R)$ and $\bbH^\times$ separately.
+
+The theorems I need are: Jacquet-Langlands for inner forms of $\GL_2$ over totally real fields, 
+and multiplicity 1 for these inner forms. We also need cyclic base change plus classification of image, all for totally definite quaternion algebras, and we need
+automorphic induction from $\GL_1(K)$ to $\GL_2(F)$ when $K/F$ is a degree 2 totally imaginary extension. There seems to be little point formalising the statements of the theorems if we cannot yet even formalise the definition of an automorphic representation properly.
+
+\section{Galois representations}
+
+Ivan Farabella has formalised the definition of a compatible family of Galois
+representations, modulo the existence of Frobenius elements, which has been
+established by Jou Glasheen. 
+
+\begin{definition}\leanok Let $N$ be a number field. A \emph{compatible family of $d$-dimensional Galois representations over $N$} is a finite set of finite places $S$ of $N$,
+a number field $E$, a monic degree $d$ polynomial $F_{\p}(X)\in E[X]$ for each finite place $\p$ of $K$ not in $S$ and, for each prime number $\ell$ and field embedding $\phi : E\to\Qlbar$ (or essentially equivalently for each finite place of $E$), a continuous homomorphism $\rho:\GK\to\GL_2(\Qlbar)$ unramified outside $S$ and the primes of $K$ above $\ell$, such that $\rho(\Frob_\p)$ has characteristic polynomial $P_\pi(X)$ if $\pi$ lies above a prime number $p\not=\ell$ with $p\not\in S$.
+\end{definition}
+
+The big theorem, which again we are far from even \emph{stating} right now, is
+
+\begin{theorem} Given an automorphic representation $\pi$ for an inner form of $\GL_2$ over a totally real field and with reflex field~$E$, such that $\pi$ is weight 2 discrete series at every infinite place, there exists a compatible family of 2-dimensional Galois representations associated to $\pi$, with $S$ being the places at which $\pi$ is ramified, and $F_{\p}(X)$ being the monic polynomial with roots the two Satake parameters for $\pi$ at $\p$.
+\end{theorem}
+
+\section{Algebraic geometry}
+
+We recall Mazur's theorem, which every proof of FLT needs:
+
+\begin{theorem} If $E/\Q$ is an elliptic curve then the size of the torsion subgroup of $E(\Q)$ is at most~16.
+\end{theorem}
+
+The proof of this is 100 pages of a subtle analysis of the bad reduction of modular curves and the consquences of this on their Jacobians.
+
+Talking of modular curves, we also need the existence of Shimura curves and surfaces over totally real fields~$F$ (of degree greater than~2, so always compact). The curves are "modeles \'etranges" in the sense of Deligne, so we also need moduli spaces of unitary Shimura varieties over CM extensions. We need to decompose the first and second etale cohomology groups of these varieties into Galois representations, by understanding them
+in terms of automorphic representations.
+
+We also need Moret-Bailly's theorem from~\cite{moret-bailly}:
+
+\begin{theorem} Let $K^{\avoid}/K$ be a Galois extension of number fields. Suppose also
+that $S$ is a finite set of places of $K$. For $v\in S$ let $L_v/K_v$ be a finite Galois extension.
+Suppose also that $T /K$ is a smooth, geometrically connected curve and that for each
+$v\in S$ we are given a nonempty, $\Gal(L_v/K_v)$-invariant, open subset $\Omega_v\subseteq (L_v)$.
+Then there is a finite Galois extension $L/K$ and a point $P ∈ T (L)$ such that
+\begin{itemize}
+\item $L/K$ is Galois and linearly disjoint from $K^{\avoid}$ over $K$;
+\item if $v\in S$ and $w$ is a prime of $L$ above $v$ then $L_w /K_v$ is isomorphic to $L_v/K_v$;
+\item and $P \in\Omega_v\subseteq T (L_v) \cong (L_w)$ via one such $K_v$-algebra morphism
+(this makes sense as $\Omega_v$ is $\Gal(L_v/K v)$-invariant).
+\end{itemize}
+\end{theorem}
+
+\begin{definition} We need the definition of (the canonical model over $F$ of) the Shimura curve attached to an inner form of $\GL_2$ with precisely one split infinite place, and the same for the Shimura surface associated to an inner form split at two infinite places (and ramified elsewhere, so it's compact).
+\end{definition}
+
+\section{Algebra}
+
+We need the classification of finite subgroups of $\PGL_2(\overline{\F}_p)$. The answer is that they are all cyclic, dihedral, $A_4$, $S_4$, $A_5$, or isomorphic to $\PSL_2(k)$ or $\PGL_2(k)$ for some finite field of characteristic~$p$.

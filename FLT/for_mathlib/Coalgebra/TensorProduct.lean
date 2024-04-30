@@ -4,15 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 -/
 
-import Mathlib.RingTheory.TensorProduct
+import Mathlib.RingTheory.TensorProduct.Basic
 import Mathlib.RingTheory.Bialgebra
 import FLT.for_mathlib.Coalgebra.Sweedler
 
 /-!
+
 # Tensor Product of Coalgebras
 
-Suppose `A, B` are `R`-coalgebras, then `A ⊗ B` has a natural `R`-coalgebra strucutre
-induced by those of `A` and `B`.
+Suppose `A, B` are `R`-coalgebras. Then `A ⊗[R] B` has a natural `R`-coalgebra structure.
+
+If furthermore `A` and `B` are `R`-bialgebras, then `A ⊗[R] B` has a natural
+`R`-bialgebra structure.
 
 -/
 

@@ -4,25 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 -/
 
-import Mathlib.RingTheory.TensorProduct
+import Mathlib.RingTheory.TensorProduct.Basic
 import FLT.for_mathlib.Coalgebra.Sweedler
 import Mathlib.RingTheory.HopfAlgebra
 
 /-!
 # Monoid structure on linear maps and algebra homomorphism
 
-Let `A` be an `R`-coalgebra and `L` and `R`-algebra, then the set of `R`-linear maps `Hom(A, L)`
-can be endowed a monoid structure where
-- unit is defined as `A -counit-> R -algebraMap-> L`
-- multiplication is defined as `A -comul-> A ⊗ A -f ⊗ g-> L ⊗ L -multiplication-> L` for any linear
-  maps `f` and `g`.
+Let `A` be an `R`-coalgebra and `L` an `R`-algebra. Then the set of `R`-linear maps `A →ₗ[R] L`
+from `A` to `L` can be endowed a monoid structure where:
 
-Since `comul x = ∑ x ⊗ y` implies `(f * g) x = ∑ f(x) g(y)`, this multiplication is often called
+* the identity is defined as `A --counit--> R --algebraMap--> L`
+* multiplication `f * g` is defined as `A --comul--> A ⊗ A --f ⊗ g--> L ⊗ L --multiplication--> L`
+  for R-linear maps `f` and `g`.
+
+Since `comul x = ∑ yᵢ ⊗ zᵢ` implies `(f * g) x = ∑ f(yᵢ) g(zᵢ)`, this multiplication is often called
 convolution.
 
-If furter `A` is an `R`-bialgebra, then the set of `R`-agelrab homomorphism `Hom(A, L)` can also
-be endowed with a monoid structure where multiplication is convolution and unit is the same in the
-linear case.
+If furthermore `A` is an `R`-bialgebra, then the subset of `R`-algebra morphisms `A →ₐ[R] L` from
+`A` to `L` is closed under the multiplication and is hence a submonoid.
 
 ## References
 * <https://en.wikipedia.org/wiki/Hopf_algebra>
@@ -35,13 +35,12 @@ open TensorProduct BigOperators LinearMap
 
 section Coalgebra
 
-/--
-A linear point is a linear map from `A` to `L` where `A` is an `R`-colagebra and `L` an `R`-algebra.
-We introduce this abbreviation is to prevent instance clashing when we put a monnoid structure on
-these linear points with convolution product.
+-- Note that using an `abbrev` here creates a diamond in the case `A = L`, when there
+-- is already a multiplication on `A →ₗ[R] A`, defined by composition.
 
-The confusion arise when we consider automorphism, for example `A →ₗ[R] A` already has a `mul` by
-composition.
+/--
+Let `A` be an `R`-coalgebra and `L` an `R`-algebra. An `L`-linear point of `A`
+is an `R`-linear map from `A` to `L`.
 -/
 abbrev LinearPoint (R A L : Type*)
     [CommSemiring R] [AddCommMonoid A] [Module R A]
@@ -53,12 +52,6 @@ namespace LinearPoint
 variable {R A L : Type*} [CommSemiring R] [AddCommMonoid A] [Module R A] [Coalgebra R A]
 variable [Semiring L] [Algebra R L]
 
-instance : FunLike (LinearPoint R A L) A L :=
-  inferInstanceAs <| FunLike (A →ₗ[R] L) A L
-
-instance : LinearMapClass (LinearPoint R A L) R A L :=
-  inferInstanceAs <| LinearMapClass (A →ₗ[R] L) R A L
-
 variable  (φ ψ χ : LinearPoint R A L)
 
 /--
@@ -68,13 +61,39 @@ If `comul x = ∑ aᵢ ⊗ bᵢ`, then `(φ ⋆ ψ)(x) = ∑ φ(aᵢ) × ψ(bᵢ
 noncomputable def mul : LinearPoint R A L :=
   LinearMap.mul' _ _ ∘ₗ TensorProduct.map φ ψ ∘ₗ Coalgebra.comul
 
+noncomputable instance : Mul (LinearPoint R A L) where
+  mul := mul
+
+lemma mul_def (φ ψ : LinearPoint R A L) :
+    φ * ψ = LinearMap.mul' _ _ ∘ₗ TensorProduct.map φ ψ ∘ₗ Coalgebra.comul := rfl
+
 lemma mul_repr' {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
     (repr : Coalgebra.comul (R := R) a = ∑ i in ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
     φ.mul ψ a = ∑ i in ℐ, φ (Δ₁ i) * ψ (Δ₂ i) := by
   simp only [mul, comp_apply, repr, map_sum, map_tmul, mul'_apply]
 
+lemma mul_repr {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
+    (repr : Coalgebra.comul (R := R) a = ∑ i in ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
+    (φ * ψ) a = ∑ i in ℐ, φ (Δ₁ i) * ψ (Δ₂ i) :=
+  mul_repr' _ _ a ℐ Δ₁ Δ₂ repr
+
+lemma mul_assoc' : φ * ψ * χ = φ * (ψ * χ) := LinearMap.ext fun x ↦ by
+  rw [show (φ * ψ) * χ =
+        LinearMap.mul' _ _ ∘ₗ
+          (LinearMap.mul' _ _).rTensor _ ∘ₗ
+            (map (map _ _) _) ∘ₗ Coalgebra.comul.rTensor _ ∘ₗ Coalgebra.comul
+      by simp only [← comp_assoc, map_comp_rTensor, rTensor_comp_map]; rfl]
+  rw [show φ * (ψ * χ) =
+        LinearMap.mul' _ _ ∘ₗ
+          (LinearMap.mul' _ _).lTensor _ ∘ₗ
+            (map _ (map _ _)) ∘ₗ Coalgebra.comul.lTensor _ ∘ₗ Coalgebra.comul
+      by simp only [← comp_assoc, map_comp_lTensor, lTensor_comp_map]; rfl]
+  simp only [mul', comp_apply, Coalgebra.comul_repr, map_sum, rTensor_tmul, sum_tmul, map_tmul,
+    lift.tmul, mul_apply', mul_assoc, ← Coalgebra.coassoc, LinearEquiv.coe_coe, assoc_tmul,
+    lTensor_tmul]
+
 /--
-`A -counit-> R -algebraMap-> L` is the unit with respect to convolution product.
+`A --counit--> R --algebraMap--> L` is the unit with respect to convolution product.
 -/
 def one : LinearPoint R A L :=
   Algebra.linearMap R L ∘ₗ Coalgebra.counit
@@ -83,31 +102,6 @@ instance : One (LinearPoint R A L) where
   one := one
 
 lemma one_def : (1 : LinearPoint R A L) = Algebra.linearMap R L ∘ₗ Coalgebra.counit := rfl
-
-noncomputable instance : Mul (LinearPoint R A L) where
-  mul := mul
-
-lemma mul_repr {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
-    (repr : Coalgebra.comul (R := R) a = ∑ i in ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
-    (φ * ψ) a = ∑ i in ℐ, φ (Δ₁ i) * ψ (Δ₂ i) :=
-  mul_repr' _ _ a ℐ Δ₁ Δ₂ repr
-
-lemma mul_assoc' : φ * ψ * χ = φ * (ψ * χ) := LinearMap.ext fun x ↦ by
-  simp only [show
-      (φ * ψ) * χ =
-        LinearMap.mul' _ _ ∘ₗ
-          (LinearMap.mul' _ _).rTensor _ ∘ₗ
-            (map (map _ _) _) ∘ₗ Coalgebra.comul.rTensor _ ∘ₗ Coalgebra.comul
-      by simp only [← comp_assoc, map_comp_rTensor, rTensor_comp_map]; rfl,
-    mul', comp_apply, Coalgebra.comul_repr, map_sum, rTensor_tmul, sum_tmul, map_tmul, lift.tmul,
-    mul_apply', mul_assoc,
-    show
-      φ * (ψ * χ) =
-        LinearMap.mul' _ _ ∘ₗ
-          (LinearMap.mul' _ _).lTensor _ ∘ₗ
-            (map _ (map _ _)) ∘ₗ Coalgebra.comul.lTensor _ ∘ₗ Coalgebra.comul
-      by simp only [← comp_assoc, map_comp_lTensor, lTensor_comp_map]; rfl,
-    ← Coalgebra.coassoc, LinearEquiv.coe_coe, assoc_tmul, lTensor_tmul]
 
 lemma mul_one' : φ * 1 = φ := show mul φ one = φ from LinearMap.ext fun _ ↦ by
   simp [show φ.mul one =
@@ -166,6 +160,23 @@ If `comul x = ∑ aᵢ ⊗ bᵢ`, then `(φ ⋆ ψ)(x) = ∑ φ(aᵢ) × ψ(bᵢ
 noncomputable def mul : AlgHomPoint R A L :=
   Algebra.TensorProduct.lmul' R (S := L) |>.comp <|
     Algebra.TensorProduct.map φ ψ |>.comp <| Bialgebra.comulAlgHom R A
+
+noncomputable instance : Mul (AlgHomPoint R A L) where
+  mul := mul
+
+lemma mul_def (φ ψ : AlgHomPoint R A L) :
+    φ * ψ = (Algebra.TensorProduct.lmul' R (S := L) |>.comp <|
+      Algebra.TensorProduct.map φ ψ |>.comp <| Bialgebra.comulAlgHom R A) := rfl
+
+lemma mul_repr {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
+    (repr : Coalgebra.comul (R := R) a = ∑ i in ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
+    (φ * ψ) a = ∑ i in ℐ, φ (Δ₁ i) * ψ (Δ₂ i) :=
+  LinearPoint.mul_repr _ _ a ℐ Δ₁ Δ₂ repr
+
+lemma mul_assoc' : φ * ψ * χ = φ * (ψ * χ) := by
+  ext
+  exact congr($(mul_assoc φ.toLinearPoint ψ.toLinearPoint χ.toLinearPoint) _)
+
 /--
 `A -counit-> R -algebraMap-> L` is the unit with respect to convolution product.
 -/
@@ -178,13 +189,6 @@ noncomputable instance : One (AlgHomPoint R A L) where
 lemma one_def : (1 : AlgHomPoint R A L) = (Algebra.ofId R L).comp (Bialgebra.counitAlgHom R A) :=
   rfl
 
-noncomputable instance : Mul (AlgHomPoint R A L) where
-  mul := mul
-
-lemma mul_assoc' : φ * ψ * χ = φ * (ψ * χ) := by
-  ext
-  exact congr($(mul_assoc φ.toLinearPoint ψ.toLinearPoint χ.toLinearPoint) _)
-
 lemma mul_one' : φ * 1 = φ := by
   ext; exact congr($(mul_one φ.toLinearPoint) _)
 
@@ -195,11 +199,6 @@ noncomputable instance instMonoid : Monoid (AlgHomPoint R A L) where
   mul_assoc := mul_assoc'
   one_mul := one_mul'
   mul_one := mul_one'
-
-lemma mul_repr {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
-    (repr : Coalgebra.comul (R := R) a = ∑ i in ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
-    (φ * ψ) a = ∑ i in ℐ, φ (Δ₁ i) * ψ (Δ₂ i) :=
-  LinearPoint.mul_repr _ _ a ℐ Δ₁ Δ₂ repr
 
 attribute [deprecated] mul_assoc' mul_one' one_mul'
 

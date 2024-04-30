@@ -1,0 +1,142 @@
+\chapter{First reductions of the problem.}
+
+\section{Overview}
+The proof of Fermat's Last Theorem is by contradiction. We assume that we have a counterexample $a^n+b^n=c^n$, and manipulate it until it satsfies the axioms of a ``Frey package''. From the Frey package we build a Frey curve -- an elliptic curve defined over the rationals. We then look at a certain representation of a Galois group coming from this elliptic curve, and finally using two very deep and independent theorems (one due to Mazur, the other due to Wiles) we show that this representation is neither reducible or irreducible, a contradiction.
+
+\section{Reduction to \texorpdfstring{$n\geq5$}{ngeq5} and prime}
+
+\begin{lemma}\label{FermatLastTheorem.of_odd_primes}\lean{FermatLastTheorem.of_odd_primes}\leanok
+  If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$
+  with $p$ an odd prime.
+\end{lemma}
+\begin{proof}\leanok
+  Note: this proof is \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/FLT/Four.html#FermatLastTheorem.of_odd_primes}{in mathlib already};
+  we run through it for completeness' sake.
+
+  Say $a^n + b^n = c^n$ is a counterexample to Fermat's Last Theorem. Every positive integer is either
+  a power of 2 or has an odd prime factor. If $n=kp$ has an odd prime factor $p$ then
+  $(a^k)^p+(b^k)^p=(c^k)^p$ is the counterexample we seek. It remains to deal with the case where
+  $n$ is a power of 2, so let's assume this. We have $3\leq n$ by assumption, so
+  $n=4k$ must be a multiple of~4, and thus $(a^k)^4=(b^k)^4=(c^k)^4$, giving us a counterexample
+  to Fermat's Last Theorem for $n=4$. However an old result of Fermat himself (proved as \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/FLT/Four.html#fermatLastTheoremFour}{\tt fermatLastTheoremFour} in {\tt mathlib}) says that $x^4+y^4=z^4$ has no nontrivial solutions.
+\end{proof}
+
+Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not in mathlib.
+
+\begin{lemma}\label{fermatLastTheoremThree}\lean{fermatLastTheoremThree}\leanok
+\discussion{16}
+  There are no solutions in positive integers to $a^3+b^3=c^3$.
+\end{lemma}
+\begin{proof}
+  The proof has been formalised in Lean in the FLT-regular project \href{https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698}{\underline{here}}. To get this node green, the proof (or another proof) needs to be upstreamed to mathlib. This is currently work in progress by a team from the Lean For the Curious Mathematician conference held in Luminy in March 2024.
+\end{proof}
+
+\begin{corollary}\label{FLT.p_ge_5_counterexample_of_not_FermatLastTheorem}\lean{FLT.p_ge_5_counterexample_of_not_FermatLastTheorem}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
+\end{corollary}
+\begin{proof}\uses{fermatLastTheoremThree, FermatLastTheorem.of_odd_primes}\leanok Follows from the previous two lemmas.\end{proof}
+
+\section{Frey packages}
+
+For convenience we make the following definition.
+
+\begin{definition}\label{FLT.FreyPackage}\lean{FLT.FreyPackage}\leanok A \emph{Frey package} $(a,b,c,p)$ is three pairwise-coprime nonzero integers $a$, $b$, $c$, with $a\equiv3\pmod4$ and $b\equiv0\pmod2$, and a prime $p\geq5$, such that $a^p+b^p=c^p$.\end{definition}
+
+Our next reduction is as follows:
+
+\begin{lemma}\label{FLT.FreyPackage.of_not_FermatLastTheorem}\lean{FLT.FreyPackage.of_not_FermatLastTheorem}\leanok\discussion{19}
+  If Fermat's Last Theorem is false, then there exists a Frey package.
+\end{lemma}
+\begin{proof}\uses{FLT.FreyPackage, FLT.p_ge_5_counterexample_of_not_FermatLastTheorem} By Corollary \ref{p_ge_5_counterexample_of_not_FermatLastTheorem} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
+  
+  If the greatest common divisor of $a,b,c$ is $d$ then $a^p+b^p=c^p$ implies $(a/d)^p+(b/d)^p=(c/d)^p$. Dividing through, we can thus assume that no prime divides all of $a,b,c$. Under this assumption we must have that $a,b,c$ are pairwise coprime, as if some prime divides two of the integers $a,b,c$ then by $a^p+b^p=c^p$ and unique factorization it must divide all three of them. In particular we may assume that not all of $a,b,c$ are even, and now reducing modulo~2 shows that precisely one of them must be even. 
+  
+  Next we show that we can find a counterexample with $b$ even. If $a$ is the even one then we can just switch $a$ and $b$. If $c$ is the even one then we can replace $c$ by $-b$ and $b$ by $-c$ (using that $p$ is odd).
+
+  The last thing to ensure is that $a$ is 3 mod~4. Because $b$ is even, we know that $a$ is odd, so it is either~1 or~3 mod~4. If $a$ is 3 mod~4 then we are home; if however $a$ is 1 mod~4 we replace $a,b,c$ by their negatives and this is the Frey package we seek.
+\end{proof}
+
+\section{Galois representations and elliptic curves}\label{twopointfour}
+
+To continue, we need some of the theory of elliptic curves over $\Q$. So let $f(X)$ denote any monic cubic polynomial with rational coefficients and whose three complex roots are distinct, and let us consider the equation $E:Y^2=f(X)$, which defines a curve in the $(X,Y)$ plane. This curve (or strictly speaking its projectivisation) is a so-called elliptic curve (or an elliptic curve over $\Q$ if we want to keep track of the field where the coefficients of $f(X)$ lie). More generally if $k$ is any field then there is a concept of an elliptic curve over $k$, again defined by a (slightly more general) plane cubic curve $F(X,Y)=0$.
+
+If $E$ is an elliptic curve over a field $k$, and if $K$ is any field which is a $k$-algebra, then we write $E(K)$ for the set of solutions to $y^2=f(x)$ with $x,y\in K$, together with an additional ``point at infinity''. It is an extraordinary fact, and not at all obvious, that $E(K)$ naturally has the structure of an additive abelian group, with the point at infinity being the zero element (the identity). Fortunately this fact is already in {\tt mathlib}. We shall use $+$ to denote the group law. This group structure has the property that three distinct points $P,Q,R\in K^2$ which are in $E(K)$ will sum to zero if and only if they are collinear.
+
+The group structure behaves well under change of field.
+
+\begin{lemma}\label{EllipticCurve.Points.map}\lean{EllipticCurve.Points.map}\leanok If $E$ is an elliptic curve over a field $k$, and if $K$ and $L$ are two fields which are $k$-algebras, and if $f:K\to L$ is a $k$-algebra homomorphism, the map from $E(K)$ to $E(L)$ induced by $f$ is an additive group homomorphism. 
+\end{lemma}
+\begin{proof} The equations defining the group law are ratios of polynomials with coefficients in $k$, and such things behave well under $k$-algebra homomorphisms.
+\end{proof}
+
+This construction is functorial (it sends the identity to the identity, and compositions to compositions).
+
+\begin{lemma}\label{EllipticCurve.Points.map_id}\lean{EllipticCurve.Points.map_id}\uses{EllipticCurve.Points.map}
+  The group homomorphism $E(K)\to E(K)$ induced by the identity map $K\to K$ is the
+  identity group homomorphism.
+\end{lemma}
+\begin{proof} An easy calculation.
+\end{proof}
+
+\begin{lemma}\label{EllipticCurve.Points.map_comp}\lean{EllipticCurve.Points.map_comp}\uses{EllipticCurve.Points.map}
+  If $K\to L\to M$ are $k$-algebra homomorphisms then the group homomorphism $E(K)\to E(M)$
+  induced by the map $K\to M$ is the composite of the map $E(K)\to E(L)$ induced by $K\to L$
+  and the map $E(L)\to E(M)$ induced by the map $L\to M$.
+\end{lemma}
+\begin{proof} Another easy calculation.
+\end{proof}
+
+ Thus if $f K\to L$ is an isomorphism of fields, the induced map $E(K)\to E(L)$ is an isomorphism of groups, with the inverse isomorphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This construction thus gives us an action of the multiplicative group $\Aut_k(K)$ of automorphisms of the field $K$ on the additive abelian group $E(K)$. 
+ 
+\begin{definition}\label{EllipticCurve.galoisRepresentation}\lean{EllipticCurve.GaloisRepresentation}\uses{EllipticCurve.Points.map_id,EllipticCurve.Points.map_comp}
+  If $E$ is an elliptic curve over a field $k$ and $K$ is a field and a $k$-algebra,
+  then the group of $k$-automorphisms of $K$ acts on the additive abelian group $E(K)$.
+\end{definition}
+ In particular, if $\Qbar$ denotes an algebraic closure of the rationals (for example, the algebraic numbers in $\bbC$) and if $\GQ$ denotes the group of field isomorphisms $\Qbar\to\Qbar$, then for any elliptic curve $E$ over $\Q$ we have an action of $\GQ$ on the additive abelian group $E(\Qbar)$.
+
+We need a variant of this construction where we only consider the $n$-torsion of the curve, for $n$ a positive integer. Recall that if $A$ is any additive abelian group, and if $n$ is a positive integer, then we can consider the subgroup $A[n]$ of elements $a$ such that $na=0$. If a group~$G$ acts on $A$ via additive group isomorphisms, then there will be an induced action of~$G$ on $A[n]$. 
+
+\begin{definition}\label{EllipticCurve.torsionGaloisRepresentation}\lean{EllipticCurve.GaloisRepresentation}\uses{EllipticCurve.galoisRepresentation}
+  If $E$ is an elliptic curve over a field $k$ and $K$ is a field and a $k$-algebra,
+  and if $n$ is a natural number, hen the group of $k$-automorphisms of $K$ acts on the additive abelian group $E(K)[n]$ of $n$-torsion points on the curve.
+\end{definition}
+
+If furthermore $n=p$ is prime, then $A[p]$ is naturally a vector space over the field $\Z/p\Z$, and thus it inherits the stucture of a mod $p$ representation of $G$. Applying this to the above situation, we deduce that if $E$ is an elliptic curve over $\Q$ then $\GQ$ acts on $E(\Qbar)[p]$ and this is the \emph{mod $p$ Galois representation} attached to the curve $E$.
+
+In the next section we apply this theory to an elliptic curve coming from a counterexample to Fermat's Last theorem.
+
+\section{The Frey curve}
+
+\begin{definition}[Frey]\label{FLT.FreyCurve}\lean{FLT.FreyCurve}\uses{FLT.FreyPackage}\discussion{21}
+  Given a Frey package $(a,b,c,p)$, the corresponding \emph{Frey curve} (considered by Frey and, before him, Hellegouarch) is the elliptic curve $E$ defined by the equation $Y^2=X(X-a^p)(X+b^p).$\end{definition}
+
+Note that the roots of the cubic $X(X-a^p)(X+b^p)$ are distinct because $a,b,c$ are nonzero and $a^p+b^p=c^p$.
+
+\begin{definition}[mod $p$ Galois representation attached to a Frey package]\label{FLT.FreyCurve.mod_p_Galois_representation}\lean{FLT.FreyCurve.mod_p_Galois_representation}\uses{FLT.FreyCurve,EllipticCurve.torsionGaloisRepresentation} Given a Frey package $(a,b,c,p)$ with corresponding Frey curve $E$, the mod $p$ Galois representation associated to this package is the representation of $\GQ$ on $E(\Qbar)[p].$\end{definition}
+
+Frey's observation is that this mod $p$ Galois representation has some very surprising properties. We will make this remark more explicit in the next chapter. Here we shall show how these properties can be used to finish the job.
+
+\section{Reduction to two big theorems.}
+  
+Recall that a representation of a group $G$ on a vector space $W$ is said to be \emph{irreducible} if there are precisely two $G$-stable subspaces of $W$, namely $0$ and $W$. The representation is said to be \emph{reducible} otherwise.
+
+Now say Fermat's Last Theorem is false, and hence by Lemma~\ref{FLT.FreyPackage.of_not_FermatLastTheorem} a Frey package $(a,b,c,p)$ exists.  Consider the mod $p$ representation of $\GQ$ coming from the $p$-torsion in the Frey curve $Y^2=X(x-a^p)(X+b^p)$ associated to the package. Let's call this representation $\rho$. Is it reducible or irreducible?
+
+\begin{theorem}[Mazur]\label{FLT.FreyCurve.Mazur_Frey}\lean{FLT.FreyCurve.Mazur_Frey}\uses{FLT.FreyCurve.mod_p_Galois_representation}\leanok $\rho$ cannot be reducible.\end{theorem}
+\begin{proof}\tangled This follows from a profound result of Mazur \cite{mazur-torsion} from 1979, namely the fact that the torsion subgroup of an elliptic curve over $\Q$ can have size at most~16. In fact a fair amount of work still needs to be done to deduce the theorem from Mazur's result. We will have more to say about this result later.
+\end{proof}
+
+\begin{theorem}[Wiles,Taylor--Wiles, Ribet,\ldots]\label{FLT.FreyCurve.Wiles_Frey}\lean{FLT.FreyCurve.Wiles_Frey}\uses{FLT.FreyCurve.mod_p_Galois_representation}\leanok $\rho$ cannot be irreducible either.\end{theorem}
+\begin{proof}\uses{Frey_mod_p_Galois_representation}\tangled This is the main content of Wiles' magnum opus. We omit the argument for now, although later on in this project we will have a lot to say about a proof of this.
+\end{proof}
+
+\begin{corollary}\label{FLT.Frey_package.false}\lean{FLT.Frey_package.false}\uses{FLT.FreyCurve.Mazur_Frey, FLT.FreyCurve.Wiles_Frey}\leanok There is no Frey package.\end{corollary}
+\begin{proof}\leanok Follows immediately from the previous two theorems~\ref{Mazur_on_Frey_curve} and~\ref{Wiles_on_Frey_curve}.\end{proof}
+
+We deduce
+
+\begin{corollary}\label{FLT}\lean{Wiles_Taylor_Wiles}\uses{FLT.Frey_package.false, FLT.FreyPackage.of_not_FermatLastTheorem}\leanok Fermat's Last Theorem is true.\end{corollary}
+\begin{proof}\leanok
+Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~\ref{Frey_package_of_FLT_counterex}, contradicting Corollary~\ref{no_Frey_package}.
+\end{proof}
+
+The structure of the rest of this document is as follows. In Chapter 3 we develop some of the basic theory of elliptic curves and the Galois representations attached to their $p$-torsion subgroups. We then apply this theory to the Frey curve, deducing in particular how Mazur's result on torsion subgroups of elliptic curves implies Theorem~\ref{Mazur_on_Frey_curve}, the assertion that $\rho$ cannot be reducible. In Chapter~\ref{ch_overview} we give a high-level overview of our strategy to prove that $\rho$ cannot be irreducible, which diverges from the original approach taken by Wiles; one key difference is that we work with the $p$-torsion directly rather than switching to the 3-torsion. We also give a precise statement of the modularity lifting theorem which we will use. Finally, in Chapter~\ref{ch_bestiary} we give a collection of theorem statements which we shall need in order to push our strategy through. All of these results were known in the 1980s or before. This chapter is incoherent in the sense that it is just a big list of apparently unrelated results. As our exposition of the proof expands, the results of this chapter will slowly move to more appropriate places. The chapter is merely there to give some kind of idea of the magnitude of the project.

@@ -4,12 +4,15 @@ import Mathlib.Tactic
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine
 import Mathlib.RepresentationTheory.Basic
 import Mathlib.RingTheory.SimpleModule
-
+import FLT.EllipticCurve.Torsion
 
 
 /-!
-This file proves many of the key results which reduce Fermat's Last Theorem
-to Mazur's theorem and the Wiles-Taylor-Wiles theorem.
+
+# Preliminary reductions of FLT
+
+This file proves some of the key results which reduce Fermat's Last Theorem
+to Mazur's theorem and the Wiles/Taylor--Wiles theorem.
 
 # Main definitions
 
@@ -18,7 +21,7 @@ $(a,b,c)$ and a prime $p \geq 5$ such that $a^p+b^p=c^p$ and furthermore
 such that $a$ is 3 mod 4 and $b$ is 0 mod 2.
 
 The motivation behind this definition is that then all the results in Section 4.1
-of Serre's paper [Serre] apply to the elliptic curve curve $Y^2=X(X-a^p)(X+b^p).$
+of Serre's paper [Serre] apply to the elliptic curve $Y^2=X(X-a^p)(X+b^p).$
 
 # Main theorems
 
@@ -34,6 +37,7 @@ of the proof of Fermat's Last Theorem.
 
 We start by reducing the version of Fermat's Last Theorem for positive naturals to
 Lean's version `FermatLastTheorem` of the theorem.
+
 -/
 
 /-- Fermat's Last Theorem as stated in mathlib (a statement `FermatLastTheorem` about naturals)
@@ -53,11 +57,12 @@ lemma fermatLastTheoremThree : FermatLastTheoremFor 3 := sorry
 
 namespace FLT
 
-/-!
+/-
 
 We continue with the reduction of Fermat's Last Theorem.
 
 -/
+
 /-- If Fermat's Last Theorem is false, there's a nontrivial solution to a^p+b^p=c^p with p>=5 prime. -/
 lemma p_ge_5_counterexample_of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) :
     ∃ (a b c : ℤ) (_ : a ≠ 0) (_ : b ≠ 0) (_ : c ≠ 0) (p : ℕ) (_ : p.Prime) (_ : 5 ≤ p),
@@ -84,8 +89,8 @@ lemma p_ge_5_counterexample_of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) 
 
 /--
 A *Frey Package* is a 4-tuple (a,b,c,p) of integers
-satisfying some axioms (including $a^p+b^p=c^p$).
-The axioms imply that all of
+satisfying $a^p+b^p=c^p$ and some other inequalities
+and congruences. These facts guarantee that all of
 the all the results in section 4.1 of Serre's paper [serre]
 apply to the curve $Y^2=X(X-a^p)(X+b^p).$
 -/
@@ -170,7 +175,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
       exact a3mod4
     · rename_i _ a1mod4
       have foo : 2 ∣ b₁ := by
-        exact (ZMod.int_cast_zmod_eq_zero_iff_dvd b₁ 2).mp b_even
+        exact (ZMod.intCast_zmod_eq_zero_iff_dvd b₁ 2).mp b_even
       have bar : ¬ 2 ∣ a₁ := by
         intro h
         apply aux _ h foo
@@ -178,7 +183,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
         simp_all only [ne_eq, Fin.zero_eta, gcd_eq_zero_iff, false_and, not_false_eq_true]
       -- want to do fin_cases on (-a₁ : ZMod 4)
       rcases ZMod4cases (-a₁ : ℤ) with (h | h | h | h)
-      · rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at h
+      · rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h
         simp only [Nat.cast_ofNat, dvd_neg] at h
         exfalso
         apply bar
@@ -193,7 +198,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
         apply bar
         simp only [Int.cast_neg, ← add_eq_zero_iff_neg_eq] at h
         have foo : ((a₁ + 2 : ℤ) : ZMod 4) = 0 := by assumption_mod_cast
-        rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at foo
+        rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at foo
         rw [← dvd_add_left (c := 2) (by norm_num)]
         refine dvd_trans ?_ foo
         norm_num
@@ -206,11 +211,11 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
       · rename_i _ b1mod4
         -- now need to check a
         rcases ZMod4cases b₁ with (h | h | h | h)
-        · rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at h
+        · rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h
           simp only [Nat.cast_ofNat, dvd_neg] at h
           exfalso
           apply hb1
-          simp only [Fin.zero_eta, ZMod.int_cast_zmod_eq_zero_iff_dvd]
+          simp only [Fin.zero_eta, ZMod.intCast_zmod_eq_zero_iff_dvd]
           refine dvd_trans ?_ h
           norm_num
         · simp [h]
@@ -219,8 +224,8 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
           have foo : ((b₁ - 2 : ℤ) : ZMod 4) = 0 := by assumption_mod_cast
           exfalso
           apply hb1
-          rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at foo
-          apply (ZMod.int_cast_zmod_eq_zero_iff_dvd _ 2).2
+          rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at foo
+          apply (ZMod.intCast_zmod_eq_zero_iff_dvd _ 2).2
           rw [← dvd_sub_left (c := 2) (by norm_num)]
           refine dvd_trans ?_ foo
           norm_num
@@ -234,7 +239,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
         · exfalso
           apply a_odd
           change _ = 0
-          rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at h ⊢
+          rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h ⊢
           refine dvd_trans ?_ h
           norm_num
         · simp [h]
@@ -242,11 +247,11 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
         · exfalso
           apply a_odd
           change _ = 0
-          rw [ZMod.int_cast_zmod_eq_zero_iff_dvd]
+          rw [ZMod.intCast_zmod_eq_zero_iff_dvd]
           rw [← dvd_sub_left (c := 2) (by norm_num)]
           rw [← sub_eq_zero] at h
           have foo : ((a₁ - 2 : ℤ) : ZMod 4) = 0 := by assumption_mod_cast
-          rw [ZMod.int_cast_zmod_eq_zero_iff_dvd] at foo
+          rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at foo
           refine dvd_trans ?_ foo
           norm_num
         · exfalso
@@ -257,7 +262,7 @@ lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4
 end of_not_FermatLastTheorem
 
 -- these sorries below are quite long and tedious to fill in. See for example the
--- proof of `ha4` above.
+-- proof of `ha4` above. There is presumably a better way to do this
 
 /-- Given a counterexample to Fermat's Last Theorem with a,b,c coprime and p ≥ 5, we can make
 a Frey package. -/
@@ -267,12 +272,36 @@ def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b
     a := (of_not_FermatLastTheorem.aux₁ a b c).1
     b := (of_not_FermatLastTheorem.aux₁ a b c).2.1
     c := (of_not_FermatLastTheorem.aux₁ a b c).2.2
-    ha0 := sorry
-    hb0 := sorry
+    ha0 := by
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
+      · exact ha
+      · rwa [← Int.neg_ne_zero] at ha
+      · exact hb
+      · rwa [← Int.neg_ne_zero] at hb
+      · exact ha
+      · rwa [← Int.neg_ne_zero] at ha
+    hb0 := sorry -- etc etc
     hc0 := sorry
     p := p
     hp5 := hp
-    hFLT := sorry
+    hFLT := by
+      have negonepow : (-1 : ℤ) ^ p = -1 := by
+        rw [neg_one_pow_eq_pow_mod_two]
+        have := Fact.mk hpprime
+        rw [Nat.Prime.mod_two_eq_one_iff_ne_two.2]
+        · simp
+        · linarith
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split
+      · exact h
+      · linear_combination (-1)^p * h
+      · linear_combination h
+      · linear_combination (-1)^p * h
+      · rw [neg_pow c, neg_pow b, negonepow]
+        linear_combination h
+      · rw [neg_pow a, negonepow]
+        linear_combination -h
     hgcdab := sorry
     ha4 := of_not_FermatLastTheorem.aux₁.ha4 b c hab
     hb2 := sorry
@@ -281,21 +310,21 @@ lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c
     gcd a b = gcd a c := by
   have foo : gcd a b ∣ gcd a c := by
     apply dvd_gcd (gcd_dvd_left a b)
-    rw [← Int.pow_dvd_pow_iff hp, ← h]
+    rw [← Int.pow_dvd_pow_iff hp.ne', ← h]
     apply dvd_add
-    · rw [Int.pow_dvd_pow_iff hp]
+    · rw [Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_left a b
-    · rw [Int.pow_dvd_pow_iff hp]
+    · rw [Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_right a b
   have bar : gcd a c ∣ gcd a b := by
     apply dvd_gcd (gcd_dvd_left a c)
     have h2 : b ^ p = c ^ p - a ^ p := eq_sub_of_add_eq' h
-    rw [← Int.pow_dvd_pow_iff hp, h2]
+    rw [← Int.pow_dvd_pow_iff hp.ne', h2]
     apply dvd_add
-    · rw [Int.pow_dvd_pow_iff hp]
+    · rw [Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_right a c
     · rw [dvd_neg]
-      rw [Int.pow_dvd_pow_iff hp]
+      rw [Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_left a c
   change _ ∣ (Int.gcd a c : ℤ) at foo
   apply Int.ofNat_dvd.1 at bar
@@ -343,11 +372,11 @@ lemma of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) : Nonempty (FreyPackag
   let ⟨a, b, c, ha, hb, hc, p, hpprime, hp, h⟩ := p_ge_5_counterexample_of_not_FermatLastTheorem h
   ⟨of_not_FermatLastTheorem_p_ge_5 ha hb hc hpprime hp h⟩
 
-end FreyPackage
-
 /-- The elliptic curve associated to a Frey package. The conditions imposed
 upon a Frey package guarantee that the running hypotheses in
-Section 4.1 of [Serre] all hold. -/
+Section 4.1 of [Serre] all hold. We put the curve into the form where the
+equation is semistable at 2, rather than the usual `Y^2=X(X-a^p)(X+b^p)` form.
+The change of variables is `X=4x` and `Y=8y+4x`, and then divide through by 64. -/
 def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
     a₁ := 1
     -- a₂ is (or should be) an integer because of the congruences assumed e.g. P.ha4
@@ -362,43 +391,38 @@ def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
     coe_Δ' := sorry -- check that the discriminant is correctly computed.
   }
 
-namespace FreyCurve
+end FreyPackage
+
+
+
+
+
+/-!
+
+Given an elliptic curve over `ℚ`, the p-torsion points defined over an algebraic
+closure of `ℚ` are a 2-dimensional Galois reprentation. What can we say about the Galois
+representation attached to the p-torsion of the Frey curve attached to a Frey package?
+
+It follows (after a little work!) from a profound theorem of Mazur that this representation
+must be irreducible.
+
+-/
 
 abbrev Qbar := AlgebraicClosure ℚ
 
 open WeierstrassCurve
-
-abbrev p_torsion (P : FreyPackage) : Type := sorry -- (FreyCurve P)⟮Qbar⟯[p]
-
-variable (P : FreyPackage)
-
-instance : AddCommGroup (FreyCurve.p_torsion P) := sorry
-instance : Module (ZMod P.p) (FreyCurve.p_torsion P) := sorry
-
-def mod_p_Galois_representation (P : FreyPackage) :
-    Representation (ZMod P.p) (Qbar ≃ₗ[ℚ] Qbar) (FreyCurve.p_torsion P) := sorry
-
-/-!
-
-What can we say about this representation? It follows from a profound theorem
-of Mazur (and much other work) that this representation must be irreducible.
-
--/
-
 theorem Mazur_Frey (P : FreyPackage) :
-    IsSimpleModule (ZMod P.p) (mod_p_Galois_representation P).asModule := sorry
+    IsSimpleModule (ZMod P.p) (P.FreyCurve.mod_p_Galois_representation P.p Qbar).asModule := sorry
 
 /-!
 
-But it follows from a profound theorem of Ribet, and fact (proved by Wiles) that the Frey Curve
-is modular, that the representation cannot be irreducible.
+But it follows from a profound theorem of Ribet, and the even more profound theorem
+(proved by Wiles) that the Frey Curve is modular, that the representation cannot be irreducible.
 
 -/
 
 theorem Wiles_Frey (P : FreyPackage) :
-    ¬ IsSimpleModule (ZMod P.p) (mod_p_Galois_representation P).asModule := sorry
-
-end FreyCurve
+    ¬ IsSimpleModule (ZMod P.p) (P.FreyCurve.mod_p_Galois_representation P.p Qbar).asModule := sorry
 
 /-!
 
@@ -410,10 +434,10 @@ It follows that there is no Frey package.
 work of Mazur and Wiles/Ribet to rule out all possibilities for the
 $p$-torsion in the corresponding Frey curve. -/
 theorem FreyPackage.false (P : FreyPackage) : False := by
-  apply FreyCurve.Wiles_Frey P
-  exact FreyCurve.Mazur_Frey P
+  apply Wiles_Frey P
+  exact Mazur_Frey P
 
-
+-- Fermat's Last Theorem is true
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
   -- assume FLT is false
   by_contra h
