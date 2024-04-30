@@ -146,14 +146,14 @@ is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by 
     and $n\geq1$ such that $|f(x)\leq C||x||_\rho^n$.
 \end{definition}
 
-\begin{theorem} This is independent of the choice of $\rho$ as above
+\begin{theorem}\label{slowly_increasing_well_defined}\uses{slowly_increasing}\notready This is independent of the choice of $\rho$ as above
 \end{theorem}
 \begin{proof} Follows from the above.
 \end{proof}
 
 We can now give the definition of an automorphic form. For FLT we only need the definition for $G$ being either an abelian algebraic group, or an inner form of $GL(2)$, but we have chosen to work in full generality here. 
 
-\begin{definition}\label{automorphic_form}\uses{slowly_increasing,connected_reductive_group, lie_group_from_algebraic_group, topology_on_affine_variety_computation}\notready An \emph{automorphic form} is a function $\phi:G(\A_N)\to\C$ satisfying the following conditions:
+\begin{definition}\label{automorphic_form}\uses{slowly_increasing_well_defined,connected_reductive_group, lie_group_from_algebraic_group, topology_on_affine_variety_computation}\notready An \emph{automorphic form} is a function $\phi:G(\A_N)\to\C$ satisfying the following conditions:
     \begin{itemize}
         \item $\phi$ is locally constant on $G(\A_N^f)$ and $C^\infty$ on $G(N_\infty)$. In other words, for every $g_\infty$, $\phi(-,g_\infty)$ is locally constant, and for every $g_f$, $\phi(g_f,-)$ is smooth.
         \item $\phi$ is left-invariant under $G(N)$;
@@ -211,7 +211,7 @@ a number field $E$, a monic degree $d$ polynomial $F_{\p}(X)\in E[X]$ for each f
 
 The big theorem, which again we are far from even \emph{stating} right now, is
 
-\begin{theorem}\label{Galois_representation_from_automorphic_representation_on_GL_2_form}\uses{automorphic_representation,Shimura_varieties}\notready Given an automorphic representation $\pi$ for an inner form of $\GL_2$ over a totally real field and with reflex field~$E$, such that $\pi$ is weight 2 discrete series at every infinite place, there exists a compatible family of 2-dimensional Galois representations associated to $\pi$, with $S$ being the places at which $\pi$ is ramified, and $F_{\p}(X)$ being the monic polynomial with roots the two Satake parameters for $\pi$ at $\p$.
+\begin{theorem}\label{Galois_representation_from_automorphic_representation_on_GL_2_form}\uses{automorphic_representation,Shimura_varieties,compatible_family}\notready Given an automorphic representation $\pi$ for an inner form of $\GL_2$ over a totally real field and with reflex field~$E$, such that $\pi$ is weight 2 discrete series at every infinite place, there exists a compatible family of 2-dimensional Galois representations associated to $\pi$, with $S$ being the places at which $\pi$ is ramified, and $F_{\p}(X)$ being the monic polynomial with roots the two Satake parameters for $\pi$ at $\p$.
 \end{theorem}
 
 \section{Algebraic geometry}

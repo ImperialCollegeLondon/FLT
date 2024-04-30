@@ -89,7 +89,7 @@ is a working definition.
 
 Some facts we will need are:
 
-\begin{theorem}\label{good_reduction_implies_unramified} If $E$ is an elliptic curve over a number 
+\begin{theorem}\label{good_reduction_implies_unramified}\notready If $E$ is an elliptic curve over a number 
   field $N$ and $E$ has good reduction at a maximal ideal $P$ of $\calO_N$, and if furthermore 
   $n\not\in P$, then the Galois representation on the $n$-torsion of $E$ is unramified.
 \end{theorem}
@@ -98,7 +98,7 @@ Some facts we will need are:
   is an etale finite flat group scheme. There might be simpler approaches however. It's worth looking to see what Silverman does.
 \end{proof}
 
-\begin{theorem}\label{good_reduction_implies_flat}\uses{finite_flat_group_scheme} If $E$ is an elliptic curve over a number field 
+\begin{theorem}\label{good_reduction_implies_flat}\uses{finite_flat_group_scheme}\notready If $E$ is an elliptic curve over a number field 
   $N$ and $E$ has good reduction at a maximal ideal $P$ of $\calO_N$ containing the prime number $p$, 
   then the Galois representation on the $p$-torsion of $E$ comes from a finite flat group scheme 
   over the localisation $\calO_{N,P}$.
@@ -151,7 +151,7 @@ In particular, the Frey curve associated to a Frey package is \emph{semistable} 
 The main thing we need about elliptic curves with multiplicative reduction over nonarchimedean
 local fields is the \emph{uniformisation theorem}, originally due to Tate. 
 
-\begin{theorem}\label{Tate_curve_uniformisation}\uses{EllipticCurve.MultiplicativeReduction} If $E$ is an elliptic curve over a field
+\begin{theorem}\label{Tate_curve_uniformisation}\uses{EllipticCurve.MultiplicativeReduction}\notready If $E$ is an elliptic curve over a field
   complete with respect to a nontrivial nonarchimedean (real-valued) norm $K$ and if $E$ has split
   multiplicative reduction, then there is a Galois-equivariant injection
   $(K^{\sep})^\times/q^{\mathbb{Z}}\to E(K^{\sep})$, where $q\in K^\times$ satisfies
@@ -181,7 +181,7 @@ local fields is the \emph{uniformisation theorem}, originally due to Tate.
 
 We make the following definition; this is not in the literature but it is a useful concept for us.
 
-\begin{definition}\label{hardly_ramified} Let $\ell\geq5$ be a prime and let $V$ be a
+\begin{definition}\label{hardly_ramified}\notready Let $\ell\geq5$ be a prime and let $V$ be a
   2-dimensional vector space over $\Z/\ell\Z$. A representation 
   $\rho: \GQ\to \GL(V)$ is said to be \emph{hardly ramified} if it satisfies the following four axioms:
   \begin{enumerate}
@@ -205,7 +205,7 @@ for another reference, see Theorem~2.15 of~\cite{ddt}.
 Let $(a,b,c,\ell)$ be a Frey package, with associated Frey curve $E$ and mod $\ell$ Galois
  representation $\rho=E[\ell]$. We now work through a proof that $\rho$ is hardly ramified.
 
- \begin{theorem}\label{Frey_curve_good} If $p\not=\ell$ is a prime not dividing $abc$ then
+ \begin{theorem}\label{Frey_curve_good}\notready If $p\not=\ell$ is a prime not dividing $abc$ then
   $\rho$ is unramified at~$p$.
  \end{theorem}
  \begin{proof}\uses{Frey_curve_good_reduction,good_reduction_implies_unramified} Indeed, $E$ has good reduction at $p$, and hence $\rho$ is unramified at $p$ 
@@ -226,7 +226,7 @@ reduction at $p$, and we can use the theory of the Tate curve to analyse $\rho$ 
 \begin{proof}\uses{Frey_curve_j} Indeed $p$ does not divide $2^8$ as $p>2$, and (using the notation of the previous theorem) $p$ does not divide $C^2-AB$ either, because it divides precisely one of $A$, $B$ and $C$. Hence $v_p(j)=-2v_p(a^\ell b^\ell c^\ell)=-2\ell v_p(abc)$ is a multiple of $\ell$.
 \end{proof}
 
-\begin{corollary}\label{Frey_curve_unram} If $(a,b,c,\ell)$ is a Frey package, if $2<p\mid abc$
+\begin{corollary}\label{Frey_curve_unram}\notready If $(a,b,c,\ell)$ is a Frey package, if $2<p\mid abc$
   is a prime with $p\not=\ell$, then the $\ell$-torsion in the Frey curve is unramified
   at $p$.
 \end{corollary}
@@ -242,7 +242,7 @@ reduction at $p$, and we can use the theory of the Tate curve to analyse $\rho$ 
   extension of $\Q_p$).
 \end{proof}
 
-\begin{corollary}\label{frey_curve_unramified} If $(a,b,c,\ell)$ is a Frey package, then the $\ell$-torsion in the Frey curve is unramified at all primes $p\not=2,\ell$.
+\begin{corollary}\label{frey_curve_unramified}\notready If $(a,b,c,\ell)$ is a Frey package, then the $\ell$-torsion in the Frey curve is unramified at all primes $p\not=2,\ell$.
 \end{corollary}
 \begin{proof}\uses{Frey_curve_good, Frey_curve_unram} Follows from~\ref{Frey_curve_good} and~\ref{Frey_curve_unram}.
 \end{proof}
@@ -251,7 +251,7 @@ This analysis needs to be slightly modified if $p=2$, because the $j$-invariant 
 the Frey curve may not have 2-adic valuation a multiple of $\ell$. We obtain the
 following weaker result.
 
-\begin{corollary}\label{frey_curve_at_2} If $(a,b,c,\ell)$ is a Frey package, then the 
+\begin{corollary}\label{frey_curve_at_2}\notready If $(a,b,c,\ell)$ is a Frey package, then the 
   semisimplification of the restriction of the $\ell$-torsion $\rho$ in the associated Frey curve 
   to $\Gal(\Qbar_2/\Q_2)$ is unramified.
 \end{corollary}
@@ -261,7 +261,7 @@ following weaker result.
   unramified characters and is hence unramified.
 \end{proof}
 
-\begin{theorem}\label{Frey_curve_mod_ell_rep_at_ell}\uses{finite_flat_group_scheme} Let $\rho$ be the $\ell$-torsion in the
+\begin{theorem}\label{Frey_curve_mod_ell_rep_at_ell}\uses{finite_flat_group_scheme}\notready Let $\rho$ be the $\ell$-torsion in the
   Frey curve associated to a Frey package $(a,b,c,\ell)$. Then the restriction of $\rho$ to $\GQl$ comes from a finite flat group scheme.
 \end{theorem}
 \begin{proof}\uses{good_reduction_implies_flat, multiplicative_reduction_torsion} The Frey curve either has good reduction at $\ell$ (case 1 of FLT) or multiplicative 
@@ -277,7 +277,7 @@ following weaker result.
 
 We have now proved the first main result of this chapter.
 
-\begin{theorem}\label{frey_curve_hardly_ramified}\uses{EllipticCurve.torsionGaloisRepresentation} Let $\rho$ be the Galois representation on the 
+\begin{theorem}\label{frey_curve_hardly_ramified}\uses{EllipticCurve.torsionGaloisRepresentation, hardly_ramified}\notready Let $\rho$ be the Galois representation on the 
   $\ell$-torsion of the Frey curve coming from a Frey package $(a,b,c,\ell)$. Then $\rho$ is hardly 
   ramified.
 \end{theorem}
@@ -310,7 +310,7 @@ Let $(a,b,c,\ell)$ be a Frey package, with associated Frey curve $E$ and mod $\e
 
  The next two results are Lemme 6 on p307 of~\cite{serrepropgal}.
 
-\begin{theorem}\label{Frey_characters_are_unramified} With notation as above, the characters
+\begin{theorem}\label{Frey_characters_are_unramified}\notready With notation as above, the characters
   $\alpha$ and $\beta$ are unramified at $p$ for all primes $p\not=\ell$.
 \end{theorem}
 \begin{proof}\uses{frey_curve_unramified, frey_curve_at_2} We have seen in theorem~\ref{frey_curve_unramified} that $\rho$ is unramified at all 
@@ -323,7 +323,7 @@ Let $(a,b,c,\ell)$ be a Frey package, with associated Frey curve $E$ and mod $\e
 \begin{remark} Does this innocuous-looking proof above use some form of the Brauer-Nesbitt theorem?
 \end{remark}
 
-\begin{theorem}\label{Frey_characters_at_ell} One of $\alpha$ and $\beta$ is unramified at $\ell$.
+\begin{theorem}\label{Frey_characters_at_ell}\notready One of $\alpha$ and $\beta$ is unramified at $\ell$.
 \end{theorem}
 \begin{proof}\uses{multiplicative_reduction_torsion, Frey_curve_mod_ell_rep_at_ell}
 In the multiplicative case this follows immediately from the theory of the Tate curve.
@@ -343,7 +343,7 @@ is trivial.
 \end{proof}
 
 To summarise, we have shown the following.
-\begin{theorem}\label{Frey_curve_reducible_structure} If $\rho$ is reducible, then either $\rho$
+\begin{theorem}\label{Frey_curve_reducible_structure}\notready If $\rho$ is reducible, then either $\rho$
   has a trivial 1-dimensional submodule or a trivial 1-dimensional quotient (here ``trivial'' means
   that the Galois group $\GQ$ acts trivially).
 \end{theorem}
@@ -410,6 +410,6 @@ theorem without developing all of this machinery and much more.
 
 \begin{theorem}\label{Frey_curve_irreducible} The $\ell$-torsion in the Frey curve associated to a Frey package $(a,b,c,\ell)$ is irreducible.
 \end{theorem}
-\begin{proof}\uses{Frey_curve_reducible_structure, Frey_curve_no_trivial_submodule, Frey_curve_no_trivial_quotient} Follows from theorem~\ref{Frey_curve_reducible_structure}, corollary~\ref{Frey_curve_no_trivial_submodule}
+\begin{proof}\uses{Frey_curve_reducible_structure, Frey_curve_no_trivial_submodule, Frey_curve_no_trivial_quotient,EllipticCurve.n_torsion_dimension} Follows from theorem~\ref{Frey_curve_reducible_structure}, corollary~\ref{Frey_curve_no_trivial_submodule}
   and corollary~\ref{Frey_curve_no_trivial_quotient}.
 \end{proof}
