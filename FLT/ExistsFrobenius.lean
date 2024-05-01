@@ -81,8 +81,6 @@ In this file, I use the following notation corresponding to an 'AKLB setup':
 
 This file was written in Prof. Buzzard's 'FLT' repository.
 
-**Coursework 3 begins at line 332**
-
 ## References
 
 See [Milne (2020)] foonote '2' on p. 141 (p. 143 in PDF)
@@ -321,8 +319,6 @@ theorem exists_generator  : ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
     rwa [Quotient.liftOn'_mk''] at hρ
 
 end CRTRepresentative
-
--- ## End of CW2; beginning of CW3
 
 section GalActionIdeal'Supplementary
 
