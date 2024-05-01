@@ -87,7 +87,7 @@ theorem locallyFreeOfFiniteRank_iff : List.TFAE [
       LocallyFreeOfFiniteRank R M,
       /- $M$ is finitely generated and stalkwise free, and the rank of $M_{\mathfrak{p}}$ over
         $R_{\mathfrak{p}}$ is Zariski-locally constant.-/
-      ∀ p : PrimeSpectrum R, ∃ n : ℕ, ∃ᶠ q in 𝓝 p, Nonempty (Basis (Fin n) R M)] := by
+      ∀ p : PrimeSpectrum R, ∃ n : ℕ, ∀ᶠ q in 𝓝 p, Nonempty (Basis (Fin n) R M)] := by
   sorry
 
 end LocallyFree
