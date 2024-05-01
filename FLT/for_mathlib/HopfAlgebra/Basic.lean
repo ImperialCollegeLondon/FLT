@@ -14,10 +14,10 @@ import FLT.for_mathlib.Coalgebra.TensorProduct
 For an `R`-hopf algebra `A`, we prove in this file the following basic properties:
 - the antipodal map is anticommutative;
 - the antipodal map is unique linear map whose convolution inverse is the identity `𝟙 A`.
-  (Note that, confusingly, the indeity linear map `x ↦ x` is not acutally the unit in the monoid
+  (Note that, confusingly, the identity linear map `x ↦ x` is not actually the unit in the monoid
   structure of linear maps. See `for_mathlib/Coalgebra/Monoid.lean`)
 if we further assume `A` is commutative then
-- the `R`-algebra homorphisms from `A` to `L` has a group structure where multiplication is
+- the `R`-algebra homomorphisms from `A` to `L` has a group structure where multiplication is
   convolution, and inverse of `f `is `f ∘ antipode`
 - in particular, `antipode ∘ antipode = 1`
 -/
