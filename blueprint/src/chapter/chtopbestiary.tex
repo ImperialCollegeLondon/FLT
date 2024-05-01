@@ -47,7 +47,7 @@ Continuous group cohomology $H^i(G_K,M)$ in this setting can be defined using co
 \begin{proof}\notready This is Theorem 2 in section 5.2 in \cite{serre-galcoh}. Note again the dubious (as far as Lean is concerned) use of the equality symbol.
 \end{proof}
 
-\begin{theorem} ["Euler-Poincar\'e characteristic]\label{local_galois_coh_euler_poincare}\notready If $h^i(M)$ denotes the order of $H^i(G_K,M)$ then $h^0(M)-h^1(M)+h^2(M)=0$.
+\begin{theorem} ["Euler-Poincar\'e characteristic"]\label{local_galois_coh_euler_poincare}\notready If $h^i(M)$ denotes the order of $H^i(G_K,M)$ then $h^0(M)-h^1(M)+h^2(M)=0$.
 \end{theorem}
 
     If $\mu_\infty$ denotes the Galois module of all roots of unity in our fixed $\overline{K}$, then one can define the dual Galois module $M'$ as $\Hom(M,\mu)$ with its obvious Galois action.
@@ -140,13 +140,13 @@ For some reason, in the literature people seem to fix a choice of maximal compac
 Example: if $G=\GL_2$ and $N=\Q$ then $N_\infty=\R$ and $G(N_\infty)$ is just $\GL_2(\R)$ with its usual Lie group structure and we can take $U_\infty$ to be $O_2(\R)$; $G(\A_N^f)$ is the restricted product of $\GL_2(\Q_p)$ over $\GL_2(\Z_p)$, for all primes $p$.
 
 By assumption, $G(N_\infty)$ admits a finite-dimensional (algebraic) representation $\rho$ with finite kernel. Consider $\rho$ as taking values in $GL_N(\C)=\Aut_\C(V)$. Fix a hermitian sesquilinear form on $V$ which 
-is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by $$||g||_\rho=(\tr \rho(g)^*\rho(g))^{1/2}$$, where the asterisk denote adjoint with respect to the sesquilinear form. According to the article by Borel--Jacquet in \cite{corvallis1} (p189), if $\rho'$ is another such choice then there exists a positive real $C$ and a positive integer $n$ such that $||g||_{\rho'}\leq C||g||_\rho^n$ for all $g\in G(N_\infty)$.
+is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by $$||g||_\rho=(\tr \rho(g)^*\rho(g))^{1/2},$$ where the asterisk denotes adjoint with respect to the sesquilinear form. According to the article by Borel--Jacquet in \cite{corvallis1} (p189), if $\rho'$ is another such choice then there exists a positive real $C$ and a positive integer $n$ such that $||g||_{\rho'}\leq C||g||_\rho^n$ for all $g\in G(N_\infty)$.
 
 \begin{definition}\label{slowly_increasing}\notready A function $f : G(N_\infty)\to\C$ is \emph{slowly-increasing} if there exists some $C>0$
     and $n\geq1$ such that $|f(x)\leq C||x||_\rho^n$.
 \end{definition}
 
-\begin{theorem}\label{slowly_increasing_well_defined}\uses{slowly_increasing}\notready This is independent of the choice of $\rho$ as above
+\begin{theorem}\label{slowly_increasing_well_defined}\uses{slowly_increasing}\notready This is independent of the choice of $\rho$ as above.
 \end{theorem}
 \begin{proof} Follows from the above.
 \end{proof}
