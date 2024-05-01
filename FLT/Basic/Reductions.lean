@@ -384,12 +384,17 @@ def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
     a₃ := 0
     a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this should also be an integer
     a₆ := 0
-    Δ' := ⟨- (P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8,
-    -- or whatever it comes out to be with Lean's conventions
-      sorry, -- whatever 1 / the right answer is,
-      sorry, sorry⟩ -- unwise to embark on these until `coe_Δ'` is proved
-    coe_Δ' := sorry -- check that the discriminant is correctly computed.
-  }
+    Δ' := Units.mk0 ((P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8) <| by
+      field_simp
+      norm_cast
+      simp_rw [← mul_pow]
+      refine pow_ne_zero 2 <| pow_ne_zero P.p <| (mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0)
+    coe_Δ' := by
+      simp only [Units.val_mk0]
+      rw [← Int.cast_pow P.c, ← P.hFLT]
+      field_simp [EllipticCurve.Δ', WeierstrassCurve.Δ, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
+        WeierstrassCurve.b₆, WeierstrassCurve.b₈]
+      ring }
 
 end FreyPackage
 
