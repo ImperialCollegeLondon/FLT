@@ -372,6 +372,7 @@ lemma of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) : Nonempty (FreyPackag
   let ⟨a, b, c, ha, hb, hc, p, hpprime, hp, h⟩ := p_ge_5_counterexample_of_not_FermatLastTheorem h
   ⟨of_not_FermatLastTheorem_p_ge_5 ha hb hc hpprime hp h⟩
 
+open WeierstrassCurve in
 /-- The elliptic curve associated to a Frey package. The conditions imposed
 upon a Frey package guarantee that the running hypotheses in
 Section 4.1 of [Serre] all hold. We put the curve into the form where the
@@ -384,11 +385,12 @@ def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
     a₃ := 0
     a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this should also be an integer
     a₆ := 0
-    Δ' := ⟨- (P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8,
-    -- or whatever it comes out to be with Lean's conventions
-      sorry, -- whatever 1 / the right answer is,
-      sorry, sorry⟩ -- unwise to embark on these until `coe_Δ'` is proved
-    coe_Δ' := sorry -- check that the discriminant is correctly computed.
+    Δ' := Units.mk0 ((P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8 : ℚ)
+      (by have := P.ha0; have := P.hb0; have := P.hc0; positivity)
+    coe_Δ' := by
+      dsimp only [Units.val_mk0, Δ, b₂, b₄, b₆, b₈]
+      rw [← (show P.a ^ P.p + P.b ^ P.p = (P.c ^ P.p : ℚ) by exact_mod_cast P.hFLT)]
+      ring
   }
 
 end FreyPackage
