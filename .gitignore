@@ -15,4 +15,5 @@ blueprint/lean_decls
 *.log
 *.out
 *.pdf
-
+# Python virtual environment 
+/.venv
