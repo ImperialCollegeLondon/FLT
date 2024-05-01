@@ -88,8 +88,8 @@ This construction is functorial (it sends the identity to the identity, and comp
 \begin{proof} Another easy calculation.
 \end{proof}
 
- Thus if $f:K\to L$ is an isomorphism of fields, the induced map $E(K)\to E(L)$ is an isomorphism of groups, with the inverse isomorphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This construction thus gives us an action of the multiplicative group $\Aut_k(K)$ of automorphisms of the field $K$ on the additive abelian group $E(K)$.
-
+ Thus if $f:K\to L$ is an isomorphism of fields, the induced map $E(K)\to E(L)$ is an isomorphism of groups, with the inverse isomorphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This construction thus gives us an action of the multiplicative group $\Aut_k(K)$ of automorphisms of the field $K$ on the additive abelian group $E(K)$. 
+ 
 \begin{definition}\label{EllipticCurve.galoisRepresentation}\lean{EllipticCurve.galoisRepresentation}\uses{EllipticCurve.Points.map_id,EllipticCurve.Points.map_comp}
   If $E$ is an elliptic curve over a field $k$ and $K$ is a field and a $k$-algebra,
   then the group of $k$-automorphisms of $K$ acts on the additive abelian group $E(K)$.
@@ -100,7 +100,7 @@ We need a variant of this construction where we only consider the $n$-torsion of
 
 \begin{definition}\label{EllipticCurve.torsionGaloisRepresentation}\lean{EllipticCurve.torsionGaloisRepresentation}\uses{EllipticCurve.galoisRepresentation}
   If $E$ is an elliptic curve over a field $k$ and $K$ is a field and a $k$-algebra,
-  and if $n$ is a natural number, hen the group of $k$-automorphisms of $K$ acts on the additive abelian group $E(K)[n]$ of $n$-torsion points on the curve.
+  and if $n$ is a natural number, then the group of $k$-automorphisms of $K$ acts on the additive abelian group $E(K)[n]$ of $n$-torsion points on the curve.
 \end{definition}
 
 If furthermore $n=p$ is prime, then $A[p]$ is naturally a vector space over the field $\Z/p\Z$, and thus it inherits the structure of a mod $p$ representation of $G$. Applying this to the above situation, we deduce that if $E$ is an elliptic curve over $\Q$ then $\GQ$ acts on $E(\Qbar)[p]$ and this is the \emph{mod $p$ Galois representation} attached to the curve $E$.
