@@ -396,6 +396,18 @@ def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
         WeierstrassCurve.b₆, WeierstrassCurve.b₈]
       ring }
 
+lemma FreyCurve.j (P : FreyPackage) :
+    P.FreyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p)/(P.a*P.b*P.c)^(2*P.p) := by
+  sorry
+
+/-- The q-adic valuation of the j-invariant of the Frey curve is a multiple of p if 2 < q is
+a prime of bad reduction. -/
+lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hpPrime : q.Prime)
+    (hpbad : (q : ℤ) ∣ P.a * P.b * P.c) (hpodd : 2 < q) :
+    (P.p : ℤ) ∣ padicValRat q P.FreyCurve.j := by
+  sorry
+
+
 end FreyPackage
 
 
