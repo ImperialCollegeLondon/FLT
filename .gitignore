@@ -21,5 +21,3 @@ blueprint/lean_decls
 *.fls
 *.fdb_latexmk
 *.synctex.gz
-# Python virtual environment 
-/.venv
