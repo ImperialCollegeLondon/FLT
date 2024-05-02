@@ -437,10 +437,28 @@ lemma FreyCurve.j (P : FreyPackage) :
 
 /-- The q-adic valuation of the j-invariant of the Frey curve is a multiple of p if 2 < q is
 a prime of bad reduction. -/
-lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hpPrime : q.Prime)
-    (hpbad : (q : ℤ) ∣ P.a * P.b * P.c) (hpodd : 2 < q) :
+lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : q.Prime)
+    (hqbad : (q : ℤ) ∣ P.a * P.b * P.c) (hqodd : 2 < q) :
     (P.p : ℤ) ∣ padicValRat q P.FreyCurve.j := by
-  sorry
+  have := Fact.mk hqPrime
+  rw [FreyCurve.j]
+  rw [padicValRat.div]
+  rw [padicValRat.mul]
+  rw [padicValRat.pow]
+  rw [← Nat.cast_two]
+  rw [← padicValRat_of_nat]
+  rw [padicValNat_primes hqodd.ne']
+  simp only [Nat.cast_zero, mul_zero, zero_add]
+  have : ¬ (q : ℤ) ∣ (P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 := sorry
+  norm_cast
+  rw [padicValRat.of_int, padicValInt.eq_zero_of_not_dvd this]
+  simp only [Nat.cast_zero, zero_sub]
+  rw [Int.cast_pow]
+  rw [padicValRat.pow]
+  rw [dvd_neg, Nat.cast_mul]
+  apply dvd_mul_of_dvd_left
+  apply dvd_mul_left
+  all_goals sorry
 
 
 end FreyPackage
