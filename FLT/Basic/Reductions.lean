@@ -396,9 +396,44 @@ def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
         WeierstrassCurve.b₆, WeierstrassCurve.b₈]
       ring }
 
+lemma FreyCurve.b₂ (P : FreyPackage) :
+    P.FreyCurve.b₂ = P.b ^ P.p - P.a ^ P.p := by
+  simp [FreyCurve, WeierstrassCurve.b₂]
+  field_simp
+  norm_cast
+  ring
+
+lemma FreyCurve.b₄ (P : FreyPackage) :
+    P.FreyCurve.b₄ = - (P.a * P.b) ^ P.p / 8 := by
+  simp [FreyCurve, WeierstrassCurve.b₄]
+  field_simp
+  norm_cast
+  ring
+
+lemma FreyCurve.c₄ (P : FreyPackage) :
+    P.FreyCurve.c₄ = (P.a ^ P.p) ^ 2 + P.a ^ P.p * P.b ^ P.p + (P.b ^ P.p) ^ 2 := by
+  simp [FreyCurve.b₂, FreyCurve.b₄, WeierstrassCurve.c₄]
+  field_simp
+  norm_cast
+  ring
+
+lemma FreyCurve.c₄' (P : FreyPackage) :
+    P.FreyCurve.c₄ = P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p := by
+  rw [FreyCurve.c₄]
+  norm_cast
+  rw [pow_mul', ← hFLT]
+  ring
+
+lemma FreyCurve.Δ'inv (P : FreyPackage) :
+    (↑(P.FreyCurve.Δ'⁻¹) : ℚ) = 2 ^ 8 / (P.a*P.b*P.c)^(2*P.p) := by
+  simp [FreyCurve]
+  congr 1
+  norm_cast
+  ring
+
 lemma FreyCurve.j (P : FreyPackage) :
-    P.FreyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p)/(P.a*P.b*P.c)^(2*P.p) := by
-  sorry
+    P.FreyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 /(P.a*P.b*P.c)^(2*P.p) := by
+  rw [mul_div_right_comm, EllipticCurve.j, FreyCurve.Δ'inv, FreyCurve.c₄']
 
 /-- The q-adic valuation of the j-invariant of the Frey curve is a multiple of p if 2 < q is
 a prime of bad reduction. -/
