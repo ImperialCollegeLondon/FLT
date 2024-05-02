@@ -110,6 +110,43 @@ structure FreyPackage where
 
 namespace FreyPackage
 
+lemma hppos (P : FreyPackage) : 0 < P.p := lt_of_lt_of_le (by omega) P.hp5
+lemma hp0 (P : FreyPackage) : P.p ≠ 0 := P.hppos.ne'
+
+lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c ^ p) :
+    gcd a b = gcd a c := by
+  have foo : gcd a b ∣ gcd a c := by
+    apply dvd_gcd (gcd_dvd_left a b)
+    rw [← Int.pow_dvd_pow_iff hp.ne', ← h]
+    apply dvd_add
+    · rw [Int.pow_dvd_pow_iff hp.ne']
+      exact gcd_dvd_left a b
+    · rw [Int.pow_dvd_pow_iff hp.ne']
+      exact gcd_dvd_right a b
+  have bar : gcd a c ∣ gcd a b := by
+    apply dvd_gcd (gcd_dvd_left a c)
+    have h2 : b ^ p = c ^ p - a ^ p := eq_sub_of_add_eq' h
+    rw [← Int.pow_dvd_pow_iff hp.ne', h2]
+    apply dvd_add
+    · rw [Int.pow_dvd_pow_iff hp.ne']
+      exact gcd_dvd_right a c
+    · rw [dvd_neg]
+      rw [Int.pow_dvd_pow_iff hp.ne']
+      exact gcd_dvd_left a c
+  change _ ∣ (Int.gcd a c : ℤ) at foo
+  apply Int.ofNat_dvd.1 at bar
+  apply Int.ofNat_dvd.1 at foo
+  exact congr_arg ((↑) : ℕ → ℤ) <| Nat.dvd_antisymm foo bar
+  done
+
+lemma hgcdac (P : FreyPackage) : gcd P.a P.c = 1 := by
+  rw [← gcdab_eq_gcdac P.hppos P.hFLT, P.hgcdab]
+
+lemma hgcdbc (P : FreyPackage) : gcd P.b P.c = 1 :=  by
+  rw [← gcdab_eq_gcdac P.hppos, gcd_comm, P.hgcdab]
+  rw [add_comm]
+  exact P.hFLT
+
 namespace of_not_FermatLastTheorem
 
 /-- This function will only be applied when the input integers $a$, $b$, $c$
@@ -306,31 +343,6 @@ def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b
     ha4 := of_not_FermatLastTheorem.aux₁.ha4 b c hab
     hb2 := sorry
 
-lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c ^ p) :
-    gcd a b = gcd a c := by
-  have foo : gcd a b ∣ gcd a c := by
-    apply dvd_gcd (gcd_dvd_left a b)
-    rw [← Int.pow_dvd_pow_iff hp.ne', ← h]
-    apply dvd_add
-    · rw [Int.pow_dvd_pow_iff hp.ne']
-      exact gcd_dvd_left a b
-    · rw [Int.pow_dvd_pow_iff hp.ne']
-      exact gcd_dvd_right a b
-  have bar : gcd a c ∣ gcd a b := by
-    apply dvd_gcd (gcd_dvd_left a c)
-    have h2 : b ^ p = c ^ p - a ^ p := eq_sub_of_add_eq' h
-    rw [← Int.pow_dvd_pow_iff hp.ne', h2]
-    apply dvd_add
-    · rw [Int.pow_dvd_pow_iff hp.ne']
-      exact gcd_dvd_right a c
-    · rw [dvd_neg]
-      rw [Int.pow_dvd_pow_iff hp.ne']
-      exact gcd_dvd_left a c
-  change _ ∣ (Int.gcd a c : ℤ) at foo
-  apply Int.ofNat_dvd.1 at bar
-  apply Int.ofNat_dvd.1 at foo
-  exact congr_arg ((↑) : ℕ → ℤ) <| Nat.dvd_antisymm foo bar
-  done
 
 /-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5, there exists a Frey package. -/
 def of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
@@ -454,20 +466,35 @@ lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : 
     (hqbad : (q : ℤ) ∣ P.a * P.b * P.c) (hqodd : 2 < q) :
     (P.p : ℤ) ∣ padicValRat q P.FreyCurve.j := by
   have := Fact.mk hqPrime
+  have hqPrime' := Nat.prime_iff_prime_int.mp hqPrime
   have h₀ : ((P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p) ^ 3 : ℚ) ≠ 0 := by
     norm_cast
     rw [pow_mul', ← P.hFLT, mul_pow]
     exact pow_ne_zero _ <| ne_of_gt <| j_pos_aux _ _ (pow_ne_zero _ P.hb0)
   have h₁ : P.a * P.b * P.c ≠ 0 := mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0
-  rw [FreyCurve.j]
-  rw [padicValRat.div (mul_ne_zero (by norm_num) h₀) (pow_ne_zero _ (mod_cast h₁))]
-  rw [padicValRat.mul (by norm_num) h₀]
-  rw [padicValRat.pow two_ne_zero]
-  rw [← Nat.cast_two]
-  rw [← padicValRat_of_nat]
-  rw [padicValNat_primes hqodd.ne']
-  simp only [Nat.cast_zero, mul_zero, zero_add]
-  have : ¬ (q : ℤ) ∣ (P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 := sorry
+  rw [FreyCurve.j, padicValRat.div (mul_ne_zero (by norm_num) h₀) (pow_ne_zero _ (mod_cast h₁)),
+    padicValRat.mul (by norm_num) h₀, padicValRat.pow two_ne_zero, ← Nat.cast_two,
+    ← padicValRat_of_nat, padicValNat_primes hqodd.ne', Nat.cast_zero, mul_zero, zero_add]
+  have : ¬ (q : ℤ) ∣ (P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 := by
+    rw [hqPrime'.dvd_pow_iff_dvd three_ne_zero]
+    have hq' : Xor' ((q : ℤ) ∣ P.a * P.b) ((q : ℤ) ∣ P.c) := by
+      rw [xor_iff_not_iff, iff_iff_and_or_not_and_not]
+      rintro (⟨hab, hc⟩ | ⟨hab, hc⟩)
+      · rw [hqPrime'.dvd_mul] at hab
+        apply hqPrime'.not_dvd_one
+        cases hab with
+        | inl ha => rw [← P.hgcdac]; exact dvd_gcd ha hc
+        | inr hb => rw [← P.hgcdbc]; exact dvd_gcd hb hc
+      · rw [hqPrime'.dvd_mul] at hqbad
+        exact hqbad.rec hab hc
+    have h2p0 := mul_ne_zero two_ne_zero P.hp0
+    cases hq' with
+    | inl h =>
+      rw [dvd_sub_left (dvd_pow h.1 P.hp0), hqPrime'.dvd_pow_iff_dvd h2p0]
+      exact h.2
+    | inr h =>
+      rw [dvd_sub_right (dvd_pow h.1 h2p0), hqPrime'.dvd_pow_iff_dvd P.hp0]
+      exact h.2
   norm_cast
   rw [padicValRat.of_int, padicValInt.eq_zero_of_not_dvd this, Nat.cast_zero, zero_sub,
     Int.cast_pow, padicValRat.pow (mod_cast h₁), dvd_neg, Nat.cast_mul]
