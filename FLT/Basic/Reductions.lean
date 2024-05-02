@@ -452,7 +452,7 @@ end FreyPackage
 /-!
 
 Given an elliptic curve over `ℚ`, the p-torsion points defined over an algebraic
-closure of `ℚ` are a 2-dimensional Galois reprentation. What can we say about the Galois
+closure of `ℚ` are a 2-dimensional Galois representation. What can we say about the Galois
 representation attached to the p-torsion of the Frey curve attached to a Frey package?
 
 It follows (after a little work!) from a profound theorem of Mazur that this representation
