@@ -417,6 +417,13 @@ lemma FreyCurve.c₄ (P : FreyPackage) :
   norm_cast
   ring
 
+lemma FreyCurve.c₄' (P : FreyPackage) :
+    P.FreyCurve.c₄ = P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p := by
+  rw [FreyCurve.c₄]
+  norm_cast
+  rw [pow_mul', ← hFLT]
+  ring
+
 lemma FreyCurve.Δ'inv (P : FreyPackage) :
     (↑(P.FreyCurve.Δ'⁻¹) : ℚ) = 2 ^ 8 / (P.a*P.b*P.c)^(2*P.p) := by
   simp [FreyCurve]
@@ -426,14 +433,7 @@ lemma FreyCurve.Δ'inv (P : FreyPackage) :
 
 lemma FreyCurve.j (P : FreyPackage) :
     P.FreyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 /(P.a*P.b*P.c)^(2*P.p) := by
-  rw [mul_div_right_comm]
-  rw [EllipticCurve.j]
-  rw [FreyCurve.Δ'inv]
-  congr 2
-  rw [FreyCurve.c₄]
-  norm_cast
-  rw [pow_mul', ← hFLT]
-  ring
+  rw [mul_div_right_comm, EllipticCurve.j, FreyCurve.Δ'inv, FreyCurve.c₄']
 
 /-- The q-adic valuation of the j-invariant of the Frey curve is a multiple of p if 2 < q is
 a prime of bad reduction. -/
