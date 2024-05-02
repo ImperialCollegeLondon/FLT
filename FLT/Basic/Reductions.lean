@@ -435,31 +435,43 @@ lemma FreyCurve.j (P : FreyPackage) :
     P.FreyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 /(P.a*P.b*P.c)^(2*P.p) := by
   rw [mul_div_right_comm, EllipticCurve.j, FreyCurve.Δ'inv, FreyCurve.c₄']
 
+private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := by
+  cases le_or_lt 0 (a * b) with
+  | inl h =>
+    calc
+      0 < a * a + a * b + b * b := ?_
+      _ = _ := by ring
+    apply add_pos_of_nonneg_of_pos
+    apply add_nonneg (mul_self_nonneg _) h
+    apply mul_self_pos.mpr hb
+  | inr h =>
+    rw [sub_pos]
+    apply h.trans_le (sq_nonneg _)
+
 /-- The q-adic valuation of the j-invariant of the Frey curve is a multiple of p if 2 < q is
 a prime of bad reduction. -/
 lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : q.Prime)
     (hqbad : (q : ℤ) ∣ P.a * P.b * P.c) (hqodd : 2 < q) :
     (P.p : ℤ) ∣ padicValRat q P.FreyCurve.j := by
   have := Fact.mk hqPrime
+  have h₀ : ((P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p) ^ 3 : ℚ) ≠ 0 := by
+    norm_cast
+    rw [pow_mul', ← P.hFLT, mul_pow]
+    exact pow_ne_zero _ <| ne_of_gt <| j_pos_aux _ _ (pow_ne_zero _ P.hb0)
+  have h₁ : P.a * P.b * P.c ≠ 0 := mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0
   rw [FreyCurve.j]
-  rw [padicValRat.div]
-  rw [padicValRat.mul]
-  rw [padicValRat.pow]
+  rw [padicValRat.div (mul_ne_zero (by norm_num) h₀) (pow_ne_zero _ (mod_cast h₁))]
+  rw [padicValRat.mul (by norm_num) h₀]
+  rw [padicValRat.pow two_ne_zero]
   rw [← Nat.cast_two]
   rw [← padicValRat_of_nat]
   rw [padicValNat_primes hqodd.ne']
   simp only [Nat.cast_zero, mul_zero, zero_add]
   have : ¬ (q : ℤ) ∣ (P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 := sorry
   norm_cast
-  rw [padicValRat.of_int, padicValInt.eq_zero_of_not_dvd this]
-  simp only [Nat.cast_zero, zero_sub]
-  rw [Int.cast_pow]
-  rw [padicValRat.pow]
-  rw [dvd_neg, Nat.cast_mul]
-  apply dvd_mul_of_dvd_left
-  apply dvd_mul_left
-  all_goals sorry
-
+  rw [padicValRat.of_int, padicValInt.eq_zero_of_not_dvd this, Nat.cast_zero, zero_sub,
+    Int.cast_pow, padicValRat.pow (mod_cast h₁), dvd_neg, Nat.cast_mul]
+  exact dvd_mul_of_dvd_left (dvd_mul_left _ _) _
 
 end FreyPackage
 
