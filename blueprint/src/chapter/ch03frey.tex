@@ -218,29 +218,35 @@ reduction at $p$, and we can use the theory of the Tate curve to analyse $\rho$ 
 \begin{theorem}\label{Frey_curve_j}\lean{FLT.FreyPackage.FreyCurve.j}\leanok\uses{FLT.FreyCurve} If $(a,b,c,\ell)$ is a Frey package then the $j$-invariant of the corresponding Frey curve is $2^8(C^2-AB)^3/A^2B^2C^2$, where $A=a^\ell$, $B=b^\ell$ and $C=c^\ell$.
 \end{theorem}
 \begin{proof}
+  \leanok
   Apply the explicit formula (presumably already in mathlib)
 \end{proof}
 
 \begin{corollary}
   \label{FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime}
   \lean{FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime} 
-  \uses{Frey_curve_j}
+  \uses{Frey_curve_j}\leanok
   If $(a,b,c,\ell)$ is a Frey package and the $j$-invariant of the corresponding Frey curve is $j$, and if $2<p\mid abc$, then the $p$-adic valuation $v_p(j)$ of $j$ is a multiple of $\ell$.
 \end{corollary}
-\begin{proof}\uses{Frey_curve_j} Indeed $p$ does not divide $2^8$ as $p>2$, and (using the notation of the previous theorem) $p$ does not divide $C^2-AB$ either, because it divides precisely one of $A$, $B$ and $C$. Hence $v_p(j)=-2v_p(a^\ell b^\ell c^\ell)=-2\ell v_p(abc)$ is a multiple of $\ell$.
+\begin{proof}
+  \uses{Frey_curve_j}\leanok
+  Indeed $p$ does not divide $2^8$ as $p>2$, and (using the notation of the previous theorem) $p$ does not divide $C^2-AB$ either, because it divides precisely one of $A$, $B$ and $C$. Hence $v_p(j)=-2v_p(a^\ell b^\ell c^\ell)=-2\ell v_p(abc)$ is a multiple of $\ell$.
 \end{proof}
 
 \begin{corollary}\label{Frey_curve_unram}\notready If $(a,b,c,\ell)$ is a Frey package, if $2<p\mid abc$
   is a prime with $p\not=\ell$, then the $\ell$-torsion in the Frey curve is unramified
   at $p$.
 \end{corollary}
-\begin{proof}\uses{multiplicative_reduction_torsion} After an unramified quadratic twist we may assume the curve is split at $p$.
+\begin{proof}
+  \uses{multiplicative_reduction_torsion, FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime}
+  After an unramified quadratic twist we may assume the curve is split at $p$.
   The theory of the Tate curve tells us that the extension of $\Q_p$ cut out by the $\ell$-torsion
   of the Frey curve is $\Q_p(\mu_\ell,\sqrt[\ell]{q})$, with $\mu_\ell$ the set of $\ell$th roots
   of unity in $\Qpbar$. Because $\ell\not=p$ the extension
   $\Q_p(\mu_\ell)$ is unramified at $p$. And because $p\not=2$ divides $abc$, 
-  theorem~\ref{Frey_curve_j} shows us that the $j$-invariant of the Frey curve has $p$-adic
-  valuation a power of $\ell$. Thus the extension can be written $\Q_p(\mu_\ell,\sqrt[\ell]{u})$,
+  theorem~\ref{FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime} shows us that the $j$-invariant
+  of the Frey curve has $p$-adic valuation a multiple of $\ell$.
+  Thus the extension can be written $\Q_p(\mu_\ell,\sqrt[\ell]{u})$,
   where $u\in\Q_p^\times$ is a unit. The extension is hence unramified (because, for example,
   Hensel's Lemma shows that the $\ell$th root of $u$ is in the maximal unramified
   extension of $\Q_p$).
