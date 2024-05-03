@@ -13,24 +13,24 @@ Before we talk about quaternion algebras, let's talk about central simple algebr
 \section{Central simple algebras}
 
 Convention: in this section, fields are commutative, but algebras over a field may not be. An example
-of what we are considering below would be Hamilton's quaternions $\R\oplus\R i\oplus\R j\iplus\R k$ as an algebra over $\R$.
+of what we are considering below would be Hamilton's quaternions $\R\oplus\R i\oplus\R j\oplus\R k$ as an algebra over $\R$.
 
 
 \begin{definition}
     \label{IsCentralSimple}
     \lean{IsCentralSimple}
-    \leanOK
+    \leanok
 A \emph{central simple algebra} over a field $K$ is a $K$-algebra $D$ such that $K$ is the centre of $D$
 and that $D$ has no nontrivial two-sided ideals.
 \end{definition}
 
-Equivalently, every surjective ring homomorphism $D\surj A$ to any non-commutative ring~$A$
+Equivalently, every surjective ring homomorphism $D\\twoheadrightarrow A$ to any non-commutative ring~$A$
 is either an isomorphism, or the zero map to the zero ring. Note that this latter condition has nothing
 to do with~$K$.
 
 \begin{lemma}
-    \label{MatrixRing.IsCentralSimple}
-    \lean{MatrixRing.IsCentralSimple}
+    \label{MatrixRing.isCentralSimple}
+    \lean{MatrixRing.isCentralSimple}
     \uses{IsCentralSimple}
     If $n\geq1$ then the $n\times n$ matrices $M_n(K)$ are a central simple alegbra over~$K$.
 \end{lemma}
@@ -42,7 +42,7 @@ They are clearly an algebra over $K$, with $K$ embedded via scalar matrices as u
 (the injectivity of the map from~$K$ comes from nonemptiness of the finite index type). 
 The centre clearly contains $K$; to show that it
 equals~$K$, we argue as follows. Let $e(i,j)$ be the matrix with a 1 in the $i$th row and $j$th
-column, and zeros everywhere else. An element $Z=(Z_{s,t}_{s,t}$ of the centre commutes with 
+column, and zeros everywhere else. An element $Z=(Z_{s,t})_{s,t}$ of the centre commutes with 
 all matrices $e(i,j)$ for $i\not=j$ and these equations immediately imply that $Z_{i,j}=0$ if $i\not=j$
 and that $Z_{i,i}=Z_{j,j}$.
 

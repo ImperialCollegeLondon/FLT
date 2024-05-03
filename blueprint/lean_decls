@@ -18,3 +18,5 @@ group_theory_lemma
 EllipticCurve.n_torsion_dimension
 FLT.FreyPackage.FreyCurve.j
 FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime
+IsCentralSimple
+MatrixRing.isCentralSimple
