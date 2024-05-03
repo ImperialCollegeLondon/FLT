@@ -45,6 +45,10 @@ theorem EllipticCurve.n_torsion_finite {n : ℕ} (hn : 0 < n) : Finite (E.n_tors
 theorem EllipticCurve.n_torsion_card [IsSepClosed k] {n : ℕ} (hn : (n : k) ≠ 0) :
     Nat.card (E.n_torsion n) = n^2 := sorry
 
+theorem group_theory_lemma {A : Type*} [AddCommGroup A] {n : ℕ} (hn : 0 < n) (r : ℕ)
+    (h : ∀ d : ℕ, d ∣ n → Nat.card (Submodule.torsionBy ℤ A d) = d ^ r) :
+    ∃ φ :(Submodule.torsionBy ℤ A n) ≃+ Fin d → (ZMod n), True := sorry
+
 -- I only need this if n is prime but there's no harm thinking about it in general I guess.
 -- It follows from the previous theorem using pure group theory (possibly including the
 -- structure theorem for finite abelian groups)

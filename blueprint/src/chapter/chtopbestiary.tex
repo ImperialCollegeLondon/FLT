@@ -47,7 +47,7 @@ Continuous group cohomology $H^i(G_K,M)$ in this setting can be defined using co
 \begin{proof}\notready This is Theorem 2 in section 5.2 in \cite{serre-galcoh}. Note again the dubious (as far as Lean is concerned) use of the equality symbol.
 \end{proof}
 
-\begin{theorem} ["Euler-Poincar\'e characteristic]\label{local_galois_coh_euler_poincare}\notready If $h^i(M)$ denotes the order of $H^i(G_K,M)$ then $h^0(M)-h^1(M)+h^2(M)=0$.
+\begin{theorem} ["Euler-Poincar\'e characteristic"]\label{local_galois_coh_euler_poincare}\notready If $h^i(M)$ denotes the order of $H^i(G_K,M)$ then $h^0(M)-h^1(M)+h^2(M)=0$.
 \end{theorem}
 
     If $\mu_\infty$ denotes the Galois module of all roots of unity in our fixed $\overline{K}$, then one can define the dual Galois module $M'$ as $\Hom(M,\mu)$ with its obvious Galois action.
@@ -66,7 +66,7 @@ We now move onto the global case. If $N$ is a number field, that is, a finite ex
 then let $\A_N^f:= N\otimes_{\Z}\widehat{\Z}$
 denote the finite adeles of $N$ and let $N_\infty := N\otimes_{\Q}\R$ denote the product of the completions of $N$ at the infinite places, so $\A_N:=\A_N^f\times N_\infty$ is the ring of adeles of $N$.
 
-\begin{theorem}\label{global_class_field_theory}\uses{local_class_field_theory}\notready If $N$ is a finite extension of $\Q$ then there are two ``canonical'' isomorphisms of topological groups between the profinite abelian groups $\pi_0(\A_N^\times/N^\times)$ and $\GN^{\ab}$; one sends local uniformisers to arithemtic Frobenii and the other to geometric Frobenii; each of the global isomorphisms is compatible with the local isomorphisms above.
+\begin{theorem}\label{global_class_field_theory}\uses{local_class_field_theory}\notready If $N$ is a finite extension of $\Q$ then there are two ``canonical'' isomorphisms of topological groups between the profinite abelian groups $\pi_0(\A_N^\times/N^\times)$ and $\GN^{\ab}$; one sends local uniformisers to arithmetic Frobenii and the other to geometric Frobenii; each of the global isomorphisms is compatible with the local isomorphisms above.
 \end{theorem}
 \begin{proof}\notready This is the main theorem of global class field theory; see for example Tate's article in~\cite{cf}.
 \end{proof}
@@ -140,13 +140,13 @@ For some reason, in the literature people seem to fix a choice of maximal compac
 Example: if $G=\GL_2$ and $N=\Q$ then $N_\infty=\R$ and $G(N_\infty)$ is just $\GL_2(\R)$ with its usual Lie group structure and we can take $U_\infty$ to be $O_2(\R)$; $G(\A_N^f)$ is the restricted product of $\GL_2(\Q_p)$ over $\GL_2(\Z_p)$, for all primes $p$.
 
 By assumption, $G(N_\infty)$ admits a finite-dimensional (algebraic) representation $\rho$ with finite kernel. Consider $\rho$ as taking values in $GL_N(\C)=\Aut_\C(V)$. Fix a hermitian sesquilinear form on $V$ which 
-is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by $$||g||_\rho=(\tr \rho(g)^*\rho(g))^{1/2}$$, where the asterisk denote adjoint with respect to the sesquilinear form. According to the article by Borel--Jacquet in \cite{corvallis1} (p189), if $\rho'$ is another such choice then there exists a positive real $C$ and a positive integer $n$ such that $||g||_{\rho'}\leq C||g||_\rho^n$ for all $g\in G(N_\infty)$.
+is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by $$||g||_\rho=(\tr \rho(g)^*\rho(g))^{1/2},$$ where the asterisk denotes adjoint with respect to the sesquilinear form. According to the article by Borel--Jacquet in \cite{corvallis1} (p189), if $\rho'$ is another such choice then there exists a positive real $C$ and a positive integer $n$ such that $||g||_{\rho'}\leq C||g||_\rho^n$ for all $g\in G(N_\infty)$.
 
 \begin{definition}\label{slowly_increasing}\notready A function $f : G(N_\infty)\to\C$ is \emph{slowly-increasing} if there exists some $C>0$
     and $n\geq1$ such that $|f(x)\leq C||x||_\rho^n$.
 \end{definition}
 
-\begin{theorem}\label{slowly_increasing_well_defined}\uses{slowly_increasing}\notready This is independent of the choice of $\rho$ as above
+\begin{theorem}\label{slowly_increasing_well_defined}\uses{slowly_increasing}\notready This is independent of the choice of $\rho$ as above.
 \end{theorem}
 \begin{proof} Follows from the above.
 \end{proof}
@@ -158,7 +158,7 @@ We can now give the definition of an automorphic form. For FLT we only need the 
         \item $\phi$ is locally constant on $G(\A_N^f)$ and $C^\infty$ on $G(N_\infty)$. In other words, for every $g_\infty$, $\phi(-,g_\infty)$ is locally constant, and for every $g_f$, $\phi(g_f,-)$ is smooth.
         \item $\phi$ is left-invariant under $G(N)$;
         \item $\phi$ is right-$U_\infty$-finite (that is, the space spanned by $x\mapsto \phi(xu)$ as $u$ varies over $U_\infty$ is finite-dimensional);
-        \item $\phi$ is right $K_f$-finite, where $K_f$ is one (or equivalentally all) compact open subgroups of $G(\A_N^f)$;
+        \item $\phi$ is right $K_f$-finite, where $K_f$ is one (or equivalently all) compact open subgroups of $G(\A_N^f)$;
         \item $\phi$ is $\mathcal{z}$-finite, where $\mathcal{z}$ is the centre of the universal enveloping algebra of the Lie algebra of $G(N_\infty)$, acting via differential operators. Equivalently $\phi$ is annihiliated by a finite index ideal of this centre, so morally $\phi$ satisfies lots of differential equations of a certain type;
         \item For all $g_f$, the function $g_\infty\mapsto \phi(g_f g\infty)$ is slowly-increasing in the sense above.
     \end{itemize}
@@ -217,7 +217,7 @@ The big theorem, which again we are far from even \emph{stating} right now, is
 \section{Algebraic geometry}
 
 We have already mentioned Mazur's Theorem on torsion subgroups of elliptic curves (theorem~\cite{mazur}).
-The proof of this is 100 pages of a subtle analysis of the bad reduction of modular curves and the consquences of this on their Jacobians.
+The proof of this is 100 pages of a subtle analysis of the bad reduction of modular curves and the consequences of this on their Jacobians.
 
 Talking of modular curves, we also need the existence of Shimura curves and surfaces over totally real fields~$F$ (of degree greater than~2, so always compact). The curves are "modeles \'etranges" in the sense of Deligne, so we also need moduli spaces of unitary Shimura varieties over CM extensions. We need to decompose the first and second etale cohomology groups of these varieties into Galois representations, by understanding them
 in terms of automorphic representations.
