@@ -2,23 +2,23 @@
 
 \section{Introduction}
 
-Before we launch into the general theory of quaternionic modular forms, I thought it
-would be interesting to do a concrete worked example of the space of weight 2 level 2
+Before we launch into the general theory of quaternionic modular forms and their
+profound relationship with arithmetic, I thought it would be interesting to do a 
+concrete worked example in Lean of the space of weight 2 level 2
 modular forms for the units in everybody's favourite quaternion algebra over $\Q$, namely
-$\Q\oplus\Q i\oplus\Q j\oplus\Q k$ with $i^2=j^2=k^2=ijk=-1$. The calculation will
+$\Q\oplus\Q i\oplus\Q j\oplus\Q k$ with $i^2=j^2=k^2=ijk=-1$ as usual. The calculation will
 boil down to the fact that every prime (and hence every natural) is the sum of four
 natural squares.
 
 Parts of the FLT blueprint can serve as an introduction to some of the mathematics used in the proof of
 Fermat's Last Theorem. The original proof of Wiles used modular forms, but we also need a
 variant of modular forms which we'll call quaternionic modular forms. A quaternionic modular
-form, in the cases of interest to us, is just a function from a certain double coset space
-to the complex numbers. The fact that the double coset space is finite corresponds to the statement
-that the corresponding space of quaternionic modular forms is finite.
+form, in the cases of interest to us, is just a function from a certain finite double coset space to the complex numbers. Proving that the double coset space is the same thing as
+proving that that the corresponding space of quaternionic modular forms is finite-dimensional.
 
 Note that mathlib has modular forms, but it doesn't have enough complex analysis to deduce
 that the space of modular forms of a given weight and level is finite-dimensional. If this
-chapter, which contains a worked exercise computing a space of modular forms, is completed
+chapter, which contains a worked exercise computing a space of quaternionic modular forms, is completed
 before mathlib gets the necessary complex analysis, then the first nonzero space of modular forms
 to be proved finite-dimensional in Lean will be a space of quaternionic modular forms.
 
@@ -35,30 +35,49 @@ The general rule is that if $D\mid N$ then $z_D$ can be read off from $z_N$ (jus
 and take the remainder).
 
 An element of the ring $\Zhat$ is a collection $z_1$, $z_2$, $z_3$, \ldots with $z_N\in\Z/N\Z$
-and such that the colletion is compatible, in the sense that if $D\mid N$ then $z_N$ reduces mod~$D$
+and such that the collection is compatible, in the sense that if $D\mid N$ then $z_N$ reduces mod~$D$
 to $z_D$.
 
-Examples of course are given by integers, where we define $z_N$ to be $z$ mod $N$ for all $N$.
-But there are many other examples; for example an infinite sum of factorials 
-$0!+1!+2!+3!+4!+5!+\cdots$ gives us an element of $\Zhat$, because if you want to know what
-this sum is modulo $N$ to just wait until it gets up to $N!$ because all terms from then on
-are multiples of~$N$ and hence can be ignored mod~$N$; the point is that this sum is finite
-mod~$N$ for any~$N$, and it's easily checked that the resulting colletion of numbers mod~$N$
-are compatible.
+Examples of course are given by integers, where we define $z_N$ to be $z$ mod $N$ for all $N$. This gives us
+a natural injection from $\Z$ to $\Zhat$. But $\Zhat$
+is much much larger than $\Z$; it has the same cardinality as the reals in fact. In fact, is not difficult to write down explicit examples of elements of $\Zhat$ which aren't in $\Z$.
 
-It is easily checked that pointwise addition/negation/zero/one/multiplication make this
-collection into a commutative ring. 
+\begin{example} The infinite sum $0!+1!+2!+3!+4!+5!+\cdots$ is in fact a finite sum modulo $N$ for every positive integer $N$, because all terms after the $N$th are multiples of $N$.
+    Let $e_N$ be the value of this finite sum modulo $N$. Then the collection $(e_N)_N$ is an element of $\Zhat$ which is not in $\Z$. 
+\end{example}
+The proof that the $e_N$ are compatible is some not-too-bad-looking arithmetic and finite sum manipulation. I am not sure I
+know how to prove it's not in $\Z$ but it looks doable.
 
-People who have seen some more advanced algebra might want to think of $\Zhat$ as
-the profinite completion of $\Z$, that is, the projective limit of the finite quotients
-$\Z/N\Z$ of $\Z$. It may or may not help to know that $\Zhat=\prod_p\Z_p$, the product over all
-primes~$p$ of the $p$-adic integers.
+It is easily checked that pointwise addition/negation/zero/one/multiplication makes 
+$\Zhat$ into a commutative ring. 
 
-We are going to "complete" various objects by tensoring them over $\Z$ with $\Zhat$.
+\section{More advanced remarks on $\Zhat$ versus $\Q$}
 
-\section{Warm-up: the additive structure of the completion of $\Q$}
+This section can be skipped on first reading.
 
-We now consider $\Qhat:=\Q\otimes_{\Z}\Zhat$. This is some sort of a ``completion'' of $\Q$.
+People who have seen some more advanced algebra might recognise this construction of $\Zhat$
+as being the profinite completion of the additive abelian group $\Z$, so it is a fundamental
+object of mathematics in some sense. But usually after $\Z$ we go to $\Q$, a multiplicative
+localisation, and only complete after that; $\Z$ is not dense in $\R$ or in the closed unit disc in $\R$. However $\Q$ is dense in both. Yet $\Z$ is dense both in the $p$-adic integers $\Z_p$ and in the profinite completion $\Zhat$ of $\Z$; the nonarchimedean theory of completion works at integral level. 
+
+Even though $\Q$ is a divisible abelian group and hence its profinite completion vanishes,
+we can still attempt to "locally profinitely complete it" by defining $\Qhat:=\Q\otimes_{\Z}\Zhat$. This object is knows as the \emph{finite adeles} of $\Q$. More generally if $F$ is
+any number field then $F\otimes_{\Z}\Zhat$ is the ring of finite adeles of $F$. To get to
+the full ring of adeles of a number field~$F$ you need to take the product with the
+ring of infinite adeles of $F$, which is $F\otimes_{\Q}\R$: some kind of universal
+archimedean completion of $F$.
+
+Now let's attempt to profinitely complete $\Q$, by defining $\Qhat:=\Q\otimes_{\Z}\Zhat$.
+We're going to start by trying to make sense of this ring. First we will understand
+its additive structure. Then we'll understand the multiplicative structure of its units.
+
+This is a bit more
+
+\section{Warm-up: the additive structure of the completion of $\Qhat$}
+
+We now consider $\Qhat:=\Q\otimes_{\Z}\Zhat$. This is some sort of a ``completion'' of $\Q$; it is also known as
+the finite adele ring of $\Q$. It has two obvious
+subrings
 A reminder: a general element of $A\otimes B$ is not of the form $a\otimes b$, but
 is more generally a finite sum of such elements. However we don't have any such
 problems with $\Q\otimes_{\Z}\Zhat$, as the below lemma shows.
@@ -79,10 +98,21 @@ and $z\in\Zhat$.
 Be careful though: just because every element of $\Qhat$ can be written as $q\otimes z$, this
 reprsentation may not be unique. For example $2\otimes 1=1\otimes 2$.
 
-The question we address in this section is how to uderstand $\Q\otimes_{\Z}\Zhat$ as an additive
-abelian group, and in particular in terms of its two obvious subgroups $\Q\otimes_{\Z}1=\Q\otimes_{\Z}\Z$,
-isomorphic to $\Q$, and $1\otimes\Zhat=\Z\otimes_{\Z}\Zhat$, isomorphic to $\Zhat$. I claim that these two
-subgroups generate $\Q\otimes_{\Z}\Zhat$, and their intersection is just the copy $\Z\otimes_{\Z}\Z$ of $\Z$ in $\Zhat$.
+The question we address in this section is how to understand $\Qhat$ as an additive
+abelian group, and in particular in terms of its two obvious subgroups $\Q$ and $\Zhat$. More precisely we are talking about the subgroups \Q\otimes_{\Z}1=\Q\otimes_{\Z}\Z$,
+isomorphic to $\Q$, and $1\otimes\Zhat=\Z\otimes_{\Z}\Zhat$, isomorphic to $\Zhat$. 
+
+Let us first understand the intersection of these two additive subgroups. Let's start with their infimum.
+Note that all tensors throughout this section are over $\Z$
+and so we'll drop the subscript ${\Z}$ from the notation.
+
+\begin{lemma}\label{Qhat.intersection} The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
+\end{lemma}
+All tensors 
+One could rewrite this question as asking for the intersection of $\Q\otimes
+
+I claim that these two
+subgroups $\Q$ and $\Zhat$generate $\Q\otimes_{\Z}\Zhat$, and their intersection is just the copy $\Z\otimes_{\Z}\Z$ of $\Z$ in $\Zhat$.
 To prove this we need to understand what the multiples of~$N$ are in $\Zhat$.
 
 \begin{lemma}{ZHat.multiples} The multiples of~$N$ in $\Zhat$ are precisely the compatible collections $(z_i)_i$ with
