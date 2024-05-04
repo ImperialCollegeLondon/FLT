@@ -1,0 +1,94 @@
+\chapter{An example of an automorphic form}
+
+\section{Introduction}
+Parts of this document can serve as an introduction to some of the mathematics used in the proof of
+Fermat's Last Theorem. The original proof of Wiles used modular forms, but we also need a
+variant of modular forms which we'll call quaternionic modular forms. A quaternionic modular
+form, in the cases of interest to us, is just a function from a certain double coset space
+to the complex numbers. The fact that the double coset space is finite corresponds to the statement
+that the corresponding space of quaternionic modular forms is finite.
+
+Note that mathlib has modular forms, but it doesn't have enough complex analysis to deduce
+that the space of modular forms of a given weight and level is finite-dimensional. If this
+chapter, which contains a worked exercise computing a space of modular forms, is completed
+before mathlib gets the necessary complex analysis, then the first nonzero space of modular forms
+to be proved finite-dimensional in Lean will be a space of quaternionic modular forms.
+
+
+\section{$\Zhat$}
+
+We need something called $\Zhat$, the profinite completion of $\Z$. First a low-level explanation
+of this object. Given an integer $z$, we can reduce it mod $N$ for every positive natural
+number and get elements $z_N=\overline{z}\in\Z/N\Z$. What can we say 
+about the relationship between the elements $z_N\in\Z/N\Z$? These elements cannot just be
+arbitrary: for example we can't have $z_{10}=6$ and $z_2=1$, because $z_{10}=6$ tells us that
+$z$ ends in a 6 when written in base 10, and in particular it's even, so $z_2$ must be~0.
+The general rule is that if $D\mid N$ then $z_D$ can be read off from $z_N$ (just divide it by~$D$
+and take the remainder).
+
+An element of the ring $\Zhat$ is a collection $z_1$, $z_2$, $z_3$, \ldots with $z_N\in\Z/N\Z$
+and such that the colletion is compatible, in the sense that if $D\mid N$ then $z_N$ reduces mod~$D$
+to $z_D$.
+
+Examples of course are given by integers, where we define $z_N$ to be $z$ mod $N$ for all $N$.
+But there are many other examples; for example an infinite sum of factorials 
+$0!+1!+2!+3!+4!+5!+\cdots$ gives us an element of $\Zhat$, because if you want to know what
+this sum is modulo $N$ to just wait until it gets up to $N!$ because all terms from then on
+are multiples of~$N$ and hence can be ignored mod~$N$; the point is that this sum is finite
+mod~$N$ for any~$N$, and it's easily checked that the resulting colletion of numbers mod~$N$
+are compatible.
+
+It is easily checked that pointwise addition/negation/zero/one/multiplication make this
+collection into a commutative ring. 
+
+People who have seen some more advanced algebra might want to think of $\Zhat$ as
+the profinite completion of $\Z$, that is, the projective limit of the finite quotients
+$\Z/N\Z$ of $\Z$. It may or may not help to know that $\Zhat=\prod_p\Z_p$, the product over all
+primes~$p$ of the $p$-adic integers.
+
+We are going to "complete" various objects by tensoring them over $\Z$ with $\Zhat$.
+
+\section{Warm-up: the additive structure of the completion of $\Q$}
+
+We now consider $\Qhat:=\Q\otimes_{\Z}\Zhat$. This is some sort of a ``completion'' of $\Q$.
+A reminder: a general element of $A\otimes B$ is not of the form $a\otimes b$, but
+is more generally a finite sum of such elements. However we don't have any such
+problems with $\Q\otimes_{\Z}\Zhat$, as the below lemma shows.
+
+\begin{lemma}\label{Qhat.canonicalForm} Every element of $\Qhat:=\Q\otimes_{\Z}\Zhat$
+can be written as $q\otimes z$ with $q\in\Q$ and $z\in\Zhat$.
+\end{lemma}
+\begin{proof} Take general element $\sum_i q_i\otimes z_i\in\Qhat$. Now choose a large 
+    positive integer $N$, the lowest
+common multiple of all the denominators showing up in the $q_i$, and then rewrite
+the general element as $\sum_i \frac{n_i}{N}\otimes z_i$ with $n_i\in\Z$. Now recall that a fundemantal
+equality in the tensor product $A\otimes_\ZB$ is that $na\otimes b=a\otimes nb$ for $n\in\Z$.
+Applying this rule, we see that our general element is $\sum_i \frac{1}{N}\otimes n_i z_i$
+and hence equal to $\frac{1}{N}\otimes(\sum_i n_i z_i)$ and thus of the form $q\otimes z$ with $q\in\Q$
+and $z\in\Zhat$.
+\end{proof}
+
+Be careful though: just because every element of $\Qhat$ can be written as $q\otimes z$, this
+reprsentation may not be unique. For example $2\otimes 1=1\otimes 2$.
+
+The question we address in this section is how to uderstand $\Q\otimes_{\Z}\Zhat$ as an additive
+abelian group, and in particular in terms of its two obvious subgroups $\Q\otimes_{\Z}1=\Q\otimes_{\Z}\Z$,
+isomorphic to $\Q$, and $1\otimes\Zhat=\Z\otimes_{\Z}\Zhat$, isomorphic to $\Zhat$. I claim that these two
+subgroups generate $\Q\otimes_\Z$, and their intersection is just the copy $\Z\otimes_{\Z}\Z$ of $\Z$ in $\Zhat$.
+To prove this we need to understand what the multiples of~$N$ are in $\Zhat$.
+
+\begin{lemma}{ZHat.multiples} The multiples of~$N$ in $\Zhat$ are precisely the compatible collections $(z_i)_i$ with
+$z_N=0$.
+\end{lemma}
+\begin{proof}
+    Clearly $z_N=0$ is a necessary condition to be a multiple of~$N$. To see it is sufficient, take a general $(z_i)$
+    which is a multiple of~$N$, note that $z_N=0$, and now define a new element $(y_j)_j$ of $\Zhat$
+    by $y_j=z_{Nj}/N$. Just to clarify what this means: $z_{Nj}\in\Z/Nj\Z$ maps to $z_N=0$ in $\Z/N\Z$,
+    so is in the subgroup $N\Z/Nj\Z$ of $\Z/Nj\Z$, which is isomorphic (via "division by $N$") to the
+    ring $\Z/j\Z$; this is how we construct $y_j$. It is easily checked that the $y_j$ are compatible
+    and that $Ny=z$.
+\end{proof}
+
+
+
+\end{proof}
