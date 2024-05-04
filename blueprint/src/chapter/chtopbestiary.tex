@@ -114,7 +114,7 @@ We now specialise to the smooth case. I want to make the following conjectural `
 \begin{proof} I'm assuming this is standard, if true. 
 \end{proof}
 \begin{corollary}\label{lie_group_from_algebraic_group}\uses{manifold_on_algebraic_variety_computation}\notready
-    If $G$ is an affine algebraic group of finite type over $K=\R$ or $\C$ then $G(K)$ is naturally a real or complex Lie group.
+    If $G$ is an affine algebraic group of finite type over $K=\R$ or $\bbC$ then $G(K)$ is naturally a real or complex Lie group.
 \end{corollary}
 \begin{remark}
 
@@ -139,10 +139,10 @@ For some reason, in the literature people seem to fix a choice of maximal compac
 
 Example: if $G=\GL_2$ and $N=\Q$ then $N_\infty=\R$ and $G(N_\infty)$ is just $\GL_2(\R)$ with its usual Lie group structure and we can take $U_\infty$ to be $O_2(\R)$; $G(\A_N^f)$ is the restricted product of $\GL_2(\Q_p)$ over $\GL_2(\Z_p)$, for all primes $p$.
 
-By assumption, $G(N_\infty)$ admits a finite-dimensional (algebraic) representation $\rho$ with finite kernel. Consider $\rho$ as taking values in $GL_N(\C)=\Aut_\C(V)$. Fix a hermitian sesquilinear form on $V$ which 
+By assumption, $G(N_\infty)$ admits a finite-dimensional (algebraic) representation $\rho$ with finite kernel. Consider $\rho$ as taking values in $GL_N(\bbC)=\Aut_{\bbC}(V)$. Fix a hermitian sesquilinear form on $V$ which 
 is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by $$||g||_\rho=(\tr \rho(g)^*\rho(g))^{1/2},$$ where the asterisk denotes adjoint with respect to the sesquilinear form. According to the article by Borel--Jacquet in \cite{corvallis1} (p189), if $\rho'$ is another such choice then there exists a positive real $C$ and a positive integer $n$ such that $||g||_{\rho'}\leq C||g||_\rho^n$ for all $g\in G(N_\infty)$.
 
-\begin{definition}\label{slowly_increasing}\notready A function $f : G(N_\infty)\to\C$ is \emph{slowly-increasing} if there exists some $C>0$
+\begin{definition}\label{slowly_increasing}\notready A function $f : G(N_\infty)\to\bbC$ is \emph{slowly-increasing} if there exists some $C>0$
     and $n\geq1$ such that $|f(x)\leq C||x||_\rho^n$.
 \end{definition}
 
@@ -153,7 +153,7 @@ is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by 
 
 We can now give the definition of an automorphic form. For FLT we only need the definition for $G$ being either an abelian algebraic group, or an inner form of $GL(2)$, but we have chosen to work in full generality here. 
 
-\begin{definition}\label{automorphic_form}\uses{slowly_increasing_well_defined,connected_reductive_group, lie_group_from_algebraic_group, topology_on_affine_variety_computation}\notready An \emph{automorphic form} is a function $\phi:G(\A_N)\to\C$ satisfying the following conditions:
+\begin{definition}\label{automorphic_form}\uses{slowly_increasing_well_defined,connected_reductive_group, lie_group_from_algebraic_group, topology_on_affine_variety_computation}\notready An \emph{automorphic form} is a function $\phi:G(\A_N)\to\bbC$ satisfying the following conditions:
     \begin{itemize}
         \item $\phi$ is locally constant on $G(\A_N^f)$ and $C^\infty$ on $G(N_\infty)$. In other words, for every $g_\infty$, $\phi(-,g_\infty)$ is locally constant, and for every $g_f$, $\phi(g_f,-)$ is smooth.
         \item $\phi$ is left-invariant under $G(N)$;
