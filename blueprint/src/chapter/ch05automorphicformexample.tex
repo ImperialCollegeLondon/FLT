@@ -3,21 +3,34 @@
 \section{Introduction}
 
 The key ingredient in Wiles' proof of Fermat's Last Theorem is a \emph{modularity lifting theorem},
-sometimes called an $R=T$ theorem. In the version of the proof which we shall formalise,
-the modular forms in question are not classical forms, but so-called quaternionic modular forms.
-In the theory of quaternionic modular forms, the group $\GL_2(\R)$ is replaced by a group coming 
-from the units of a quaternion algebra over a number field.
+sometimes called an $R=T$ theorem. For Wiles, the $R$ came from elliptic curves, the $T$ came from 
+classical modular forms, and the fact that they're equal is basically the Shimura--Taniyama--Weil 
+conjecture, now known as the Breuil--Conrad--Diamond--Taylor modularity theorem: any elliptic
+curve over the rationals is modular.
 
-One of the main goals of this project at the time of writing this sentence, is formalising
+At the heart of the proof we shall formalise is also an $R=T$ theorem, however the $T$ which we
+shall use will be associated not to classical modular forms, but to spaces of more general
+automorphic forms called quaternionic modular forms. Those of you who know something about
+classical modular forms might well know that the groups $\SL_2(\R)$ and $\SL_2(\Z)$ are
+intimately involved; these are the norm 1 units in the matrix rings $M_2(\R)$ and $M_2(\Z)$. 
+In the theory of quaternionic modular forms, the analogous groups are the norm 1 units
+in rings such as Hamilton's quaternions $\R\oplus\R i\oplus\R j\oplus\R k$, and subrings
+such as $\Z\oplus\Z i\oplus\Z j\oplus\Z k$.
+
+One of the main goals of the FLT project at the time of writing this sentence, is formalising
 the \emph{statement} of the modularity lifting theorem which we shall use. So we are going
 to need to develop the theory of quaternionic modular forms, which is rather different
 to the theory of classical modular forms (for example, in the cases we need, the definition 
-is completely algebraic; there are no holomorphic functions in sight).
+is completely algebraic; there are no holomorphic functions in sight, and the analogue
+of the upper half plane in the quaternionic theory is a finite set of points).
 
-We could just launch into the general theory. But when I was a PhD student, I learnt about
+We could just launch into the general theory over totally real fields, which will be the generality
+which we'll need. But when I was a PhD student, I learnt about
 these objects by playing with explicit examples. So, whilst not logically necessary for the proof,
 I thought it would be fun, and perhaps also instructional, to compute a concrete example of a space 
-of quaternionic modular forms. Let's begin by discussing the quaternion algebra we shall use.
+of quaternionic modular forms. The process of constructing the example might even inform what kind
+of machinery we should be developing in general. Let's begin by discussing the quaternion algebra 
+we shall use.
 
 \section{A quaternion algebra}
 
