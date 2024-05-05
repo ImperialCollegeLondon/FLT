@@ -1,17 +1,11 @@
-import FLT.AutomorphicRepresentation.GeneralDefinition
-import FLT.AutomorphicRepresentation.QuaternionAlgebras
 import FLT.Basic.Reductions
-import FLT.EllipticCurve.Mazur
 import FLT.EllipticCurve.Torsion
-import FLT.EllipticCurve.UniversalCurve
 import FLT.for_mathlib.Coalgebra.Monoid
 import FLT.for_mathlib.Coalgebra.Sweedler
 import FLT.for_mathlib.Coalgebra.TensorProduct
 import FLT.for_mathlib.HopfAlgebra.Basic
 import FLT.for_mathlib.IsCentralSimple
 import FLT.GaloisRepresentation.HardlyRamified
-import FLT.GroupScheme.ConnectedReductive
 import FLT.GroupScheme.FiniteFlat
 import FLT.Hard.Results
-import FLT.NumberField.TotallyReal
 import FLT.TateCurve.TateCurve
