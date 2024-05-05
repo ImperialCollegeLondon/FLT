@@ -1,3 +1,4 @@
+import FLT.FLT_files -- **FIXME** need this hack to make check_decls work in leanblueprint
 import FLT.Basic.Reductions
 
 /-!
