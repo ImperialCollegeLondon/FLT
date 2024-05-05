@@ -21,11 +21,32 @@ abbrev ZHat : Type :=
 
 -- #synth CommRing ZHat -- works fine
 
+namespace ZHat
+
 instance : DFunLike ZHat ℕ+ (fun (N : ℕ+) ↦ ZMod N) where
   coe z := z.1
   coe_injective' M N := by simp_all
 
-namespace ZHat
+@[simp] lemma zero_val : (0 : ZHat) n = 0 := rfl
+@[simp] lemma one_val : (1 : ZHat) n = 1 := rfl
+
+instance commRing : CommRing ZHat := inferInstance
+
+--wooah, `import Mathlib` breaks this. TODO test this again after bump to Lean v4.8
+lemma zeroNeOne : (0 : ZHat) ≠ 1 := by
+  intro h
+  have h2 : (0 : ZHat) 2 = (1 : ZHat) 2 := by simp [h]
+  rw [zero_val, one_val] at h2
+  revert h2 ; decide
+
+instance nontrivial : Nontrivial ZHat := ⟨0, 1, zeroNeOne⟩
+
+instance charZero : CharZero ZHat := ⟨ fun a b h ↦ by
+  sorry
+  ⟩
+--lemma NonAssocSemiring.Nontrivial_iff (R : Type) [NonAssocSemiring R] :
+--    Nontrivial R ↔ (0 : R) ≠ 1 :=
+--  ⟨fun _ ↦ zero_ne_one' R, fun a ↦ ⟨0, 1, a⟩⟩
 
 open BigOperators Nat Finset in
 /-- A nonarchimedean analogue $0! + 1! + 2! + \cdots$ of $e=1/0! + 1/1! + 1/2! + \cdots$. -/
@@ -34,6 +55,9 @@ def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i in range (n : ℕ), i !, by
   dsimp only
   sorry
 ⟩
+
+open BigOperators Nat Finset in
+lemma e_def (n : ℕ+) : e n = ∑ i in range (n : ℕ), (i ! : ZMod n) := rfl
 
 /-- Nonarchimedean $e$ is not an integer. -/
 lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := sorry
@@ -54,19 +78,21 @@ open scoped TensorProduct in
 completion of `ℤ`. -/
 abbrev QHat := ℚ ⊗[ℤ] ZHat
 
+noncomputable example : QHat := (22 / 7) ⊗ₜ ZHat.e
+
 namespace QHat
 
 lemma canonicalForm : ∀ z : QHat, ∃ q : ℚ, ∃ z' : ZHat, z = q ⊗ₜ z' := sorry
 
-/-
 open scoped TensorProduct in
-example (R A B : Type) [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra R B] :
- A →+* A ⊗[R] B := by exact? -- fails
--/
+noncomputable example (R A B : Type) [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra R B] :
+ A →+* A ⊗[R] B := by exact Algebra.TensorProduct.includeLeftRingHom -- fails
 
--- lemma injective_Rat : Function.Injective (fun q : ℚ ↦ q ⊗ₜ 1) := sorry
+lemma injective_rat :
+    Function.Injective (Algebra.TensorProduct.includeLeft : ℚ →ₐ[ℤ] QHat) := sorry
 
--- lemma injective_ZHat : Function.Injective (fun z : ZHat ↦ 1 ⊗ₜ z) := sorry
+lemma injective_zHat :
+    Function.Injective (Algebra.TensorProduct.includeRight : ZHat →ₐ[ℤ] QHat) := sorry
 
 -- Now need to gives names to these subrings and go from there.
 

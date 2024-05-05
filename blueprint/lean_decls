@@ -19,9 +19,17 @@ EllipticCurve.n_torsion_dimension
 FLT.FreyPackage.FreyCurve.j
 FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime
 ZHat
+ZHat.commRing
 ZHat.e
+ZHat.e_def
 ZHat.e_not_in_Int
+ZHat.nontrivial
+ZHat.charZero
 ZHat.torsionfree
 ZHat.multiples
+QHat
+QHat.canonicalForm
+QHat.injective_rat
+QHat.injective_zHat
 IsCentralSimple
 MatrixRing.isCentralSimple

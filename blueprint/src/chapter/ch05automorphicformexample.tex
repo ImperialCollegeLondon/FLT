@@ -80,12 +80,21 @@ The general rule: if $D\mid N$ then $z_D$ must be equal to image of $z_N$ under 
 ring homomorphism from $\Z/N\Z$ to $\Z/D\Z$. We say that a collection of elements 
 $z_N\in\Z/N\Z$ is \emph{compatible} if it satisfies this rule.
 
-\begin{definition}\label{ZHat}\lean{ZHat} The profinite completion $\Zhat$ of $\Z$ is the set of 
-    all compatible collections $(z_N)_N$ of elements of $\Z/N\Z$.
+\begin{definition}\label{ZHat}\lean{ZHat}\leanok The profinite completion $\Zhat$ of $\Z$ is the set of 
+    all compatible collections $c=(c_N)_N$ of elements of $\Z/N\Z$ indexed by $\N^+:=\{1,2,3,\ldots\}$.
+    Such a collection is said to be \emph{compatible} if for all positive integers
+    $D\mid N$, we have $c_N$ mod $D$ equals $c_D$.
 \end{definition}
 
-To get this node green, we need to fill in the (hopefully straightforward) proofs showing that the 
-compatibility condition cuts out a subring of $\prod_{N\geq1}(\Z/N\Z).$
+\begin{lemma}
+    \label{ZHat.commRing}
+    \lean{ZHat.commRing} 
+    \uses{ZHat}
+    \leanok
+    $\Zhat$ is a subring of $\prod_{N\geq1}(Z/N\Z)$ and in particular a ring.
+\end{lemma}
+\begin{proof} Follow your nose.
+\end{proof}
 
 Examples of elements of $\Zhat$ are are given by integers, where we define $z_N$ to be $z$ 
 mod $N$ for all $N$. This gives us a natural injection from $\Z$ to $\Zhat$. But $\Zhat$
@@ -95,7 +104,7 @@ Let's write down an explicit example of an element of $\Zhat$ which isn't obviou
 \begin{definition}
     \label{ZHat.e}
     \lean{ZHat.e}
-    \uses{ZHat}
+    \uses{ZHat.commRing}
     % blue node
     The infinite sum $0!+1!+2!+3!+4!+5!+\cdots$ looks 
     like it makes no sense at all; it is the sum of an infinite series of larger and larger
@@ -104,18 +113,28 @@ Let's write down an explicit example of an element of $\Zhat$ which isn't obviou
     all the terms from $N!$ onwards are multiples of $N$ and thus are zero in $\Z/N\Z$.
     Thus it makes sense to define $e_N$ to be the value of the finite sum modulo $N$.
     Explicitly, $e_N=0!+1!+\cdots+(N-1)!$ modulo $N$.  
-    We claim that the collection $(e_N)_N$ is an element of $\Zhat$; the proof just involves
-    manipulation of finite sums. 
 \end{definition}
+
+\begin{lemma}
+    \label{ZHat.e_def}
+    \lean{ZHat.e_def}
+    \uses{ZHat.e}
+    \leanok
+    The collection $(e_N)_N$ is an element of $\Zhat$.
+\end{lemma}
+\begin{proof}
+    Note that the proof of this lemma in Lean has no direct sorry, but uses earlier sorried lemmas.
+    This boils down to checking that $D!+(D+1)!+\cdots+(N-1)!$ is a multiple of~$D$.
+\end{proof}
 
 \begin{lemma}
     \label{ZHat.e_not_in_Int}
     \lean{ZHat.e_not_in_Int}
     \uses{ZHat.e}
-    \notready % I don't know a proof!
+    \leanok
     The element $(e_N)_N$ of $\Zhat$ is not in $\Z$.
 \end{lemma}
-\begin{proof}
+\begin{proof}\notready
     I don't have a proof of this but it doesn't look too bad; maybe I'm wrong
     and it's hard? We will not need it later on.
 \end{proof}
@@ -123,9 +142,35 @@ Let's write down an explicit example of an element of $\Zhat$ which isn't obviou
 Let's prove some basic facts about $\Zhat$.
 
 \begin{lemma}
+    \label{ZHat.nontrivial}
+    \lean{ZHat.nontrivial}
+    \uses{ZHat.commRing}
+    \leanok
+    $0\not=1$ in $\Zhat$.
+\end{lemma}
+\begin{proof}
+    \leanok 
+    Recall that you can evaluate an element of $\Zhat$ at a positive integer.
+    Evaluating $0$ at 2 gives $0$, and evaluating $1$ at $2$ gives $1$, and these
+    are distinct elements of $\Z/2\Z$, so $0\not=1$ in $\Zhat$.
+\end{proof}
+
+\begin{lemma}
+    \label{ZHat.charZero}
+    \lean{ZHat.charZero}
+    \leanok
+    The map from the naturals into $\Zhat$ sending $n$ to $n$ is injective.
+\end{lemma}
+
+\begin{proof}
+    Generalise the above idea. Feel free to write up a LaTeX proof and PR it.
+\end{proof}
+
+\begin{lemma}
     \label{ZHat.torsionfree}
     \lean{ZHat.torsionfree}
-    \uses{ZHat}
+    \uses{ZHat.commRing}
+    \leanok
     If $0<N$ is an integer then multiplication by $N$ is injective on $\Zhat$.
 \end{lemma}
 \begin{proof}
@@ -142,6 +187,8 @@ Later on will need to understand what the multiples of~$N$ are in $\Zhat$.
 \begin{lemma}
     \label{ZHat.multiples}
     \lean{ZHat.multiples} 
+    \uses{ZHat.commRing}
+    \leanok
     The multiples of~$N$ in $\Zhat$ are precisely the compatible collections $(z_i)_i\in\Zhat$ 
     with $z_N=0$.
 \end{lemma}
@@ -177,44 +224,92 @@ in this way, so this is what we shall do here.
 
 \section{$\Qhat$ and tensor products.}
 
-We define the commutative ring $\Qhat$ via a tensor product construction; we use this as an
-excuse to run through the basic theory of tensor products.
+The definition of $\Qhat$ is easy if you know about tensor products
+of additive abelian groups.
 
-We define $\Qhat$ to be $\Q\otimes\Zhat$, the tensor product of $\Q$
-and $\Zhat$. We could more accurately write $\Qhat=\Q\otimes_{\Z}\Zhat$, but all tensor products
-in this chapter are taken over the ring $\Z$, so we omit the subscript.
+\begin{definition}
+    \label{QHat}
+    \lean{QHat}
+    \uses{ZHat}
+    \leanok
+    % blue node
+    The profinite completion $\Qhat$ of $\Q$ is the tensor product $\Q\otimes_{\Z}\Zhat$,
+    or $\Qhat=\Q\otimes\Zhat$ for short.
+\end{definition}
+
+\section{A crash course in tensor products}
+
+We've defined $\Qhat$ to be $\Q\otimes\Zhat$. Whatever does this mean? Well just to orient yourself,
+if $A$ and $B$ are additive abelian groups, then $A\otimes B$ is also an abelian group. 
+And if $A$ and $B$ are commutative rings (as they are in our case), then $A\otimes B$ is also
+a commutative ring. 
+
+Even if $A$ and $B$ are completely concrete commutative rings, their tensor product $A\otimes B$
+might be incomprehensible. For example $\bbC\otimes\bbC$ is completely incomprehensible (note that we are
+tensoring over the integers). It is not like the product of groups or the disjoint union of
+two sets, where you have a completely explicit unambiguous formula for each element. 
+
+In this sense, the theory of tensor products is a bit like the theory of continuous functions. 
+Humanity started off studying concrete polynomial equations such as $x^2+y^2$ and then moved on to 
+concrete analytic  functions such as $\log(x)$ and $\sin(x)$, but eventually the abstract concept 
+of a continuous function from the reals to the reals was born. There is no ``formula'' for a general 
+continuous function, and continuous functions such as $e^{-1/x^2}$ or $|x|$ have no power series.
+Even if there \emph{were} a formula for a specific continuous function of interest, it is not clear 
+in general how to make sense of the claim that it's the ``best'' formula. In other words, there is 
+no "canonical form" for a general continuous function, and yet we prove things about them anyway. 
+We shall adopt the same attitude for elements of $A\otimes B$.
 
 The first thing to know about the tensor product $A\otimes B$ of two abelian groups $A$ and $B$
-is that given elements $a\in A$ and $b\in B$ we can form the element $a\otimes_t b\in A\otimes B$. 
-Elements of this form are called \emph{pure tensors}. In the literature this element is often 
-written $a\otimes b$, but we shall follow {\tt mathlib}'s convention in using $A \otimes B$ 
-for sets/types and $a \otimes_t b$ for elements/terms. Addition of pure tensors obeys 
-the ``distributivity'' rules $a\otimes_t b_1+a\otimes_t b_2=a\otimes_t(b_1+b_2)$
-and $a_1\otimes_t b+a_2\otimes_t b=(a_1+a_2)\otimes_t b$, but there is no rule which simplifies
-a general sum $a\otimes_t b + c\otimes_t d$ into a pure tensor. Indeed, in general it is not the 
-case that every element of a tensor product $A\otimes B$ is of the form $a\otimes_t b$; there can be
+is a ``constructor'' for the type. In other words, how can we make elements of this type?
+Well, given elements $a\in A$ and $b\in B$, we can form the element $a\otimes_t b\in A\otimes B$. 
+
+\begin{example} Recall that the sum of all the factorials is an element $e\in\Zhat$, and $22/7$ is certainly
+a rational number, so we can make the element $\frac{22}{7}\otimes_te\in\Qhat$.
+\end{example}
+
+This example is in the Lean code.
+
+Elements of the form $a\otimes_t b\in A\otimes B$ are known as \emph{pure tensors}. In the 
+literature, pure tensors
+are often written $a\otimes b$, but we shall follow {\tt mathlib}'s convention in reserving
+the $\otimes$ symbol for \emph{groups} like $A \otimes B$, and adorning it with a $t$ when
+using it on \emph{elements} of the groups (or, as Lean calls them, \emph{terms}, which explains
+the notation).
+
+Addition of pure tensors obeys the ``distributivity'' rules 
+$a\otimes_t b_1+a\otimes_t b_2=a\otimes_t(b_1+b_2)$ and 
+$a_1\otimes_t b+a_2\otimes_t b=(a_1+a_2)\otimes_t b$, but there is no rule which simplifies
+a general sum $a\otimes_t b + c\otimes_t d$ into a pure tensor. Indeed, in general it is \emph{not}
+the case that every element of a tensor product $A\otimes B$ is of the form $a\otimes_t b$; there can be
 tensors which aren't pure. However every element of $A\otimes B$ is a finite sum of pure tensors, 
 with the result that one can attempt to define additive maps from $A\otimes B$ by saying what they 
 do on pure tensors, and then extending linearly.
 
 Another thing worth understanding is that just like how rational numbers can be written as 
-quotients of integers in several  ways (for example $1/2=2/4=3/6=\cdots$), a general pure tensor 
+quotients of integers in several ways (for example $1/2=2/4=3/6=\cdots$), a general pure tensor 
 in $A\otimes B$ can be represented as $a\otimes_t b$ in many ways. For example, in $\Qhat$
 we have $1\otimes_t 2=2\otimes_t 1$. A general rule for equality of pure tensors is that if 
 $a\in A$ and $b\in B$ and $z\in\Z$, then $za\otimes_tb=a\otimes_tzb$; integers can move over the 
-tensor symbol. 
+tensor symbol. But equality is hard: in general there may not be an algorithm to decide
+whether two pure tensors $a\otimes_t b$ and $c\otimes_t d$ are equal in $A\otimes B$.
 
-As a consequence of all of this, whilst it is easy to write down a general ``formula''
-$\sum_ia_i\otimes_t b_i$ for an element of $A\otimes B$, it is not so easy to write down a 
-``canonical form'' for such an element; there are typically many ways to express an element
-of $A\otimes B$ as a finite sum of pure tensors, no one ``better'' than the others. This gives
-the whole theory a slightly mystical status, because we are dealing with objects which
-we cannot ``write down in a unique way''. However this does not stop us doing mathematics
-with such objects!
+\begin{remark} A summary of the situation: if $A$ and $B$ are abelian groups, then every element
+    of $A\otimes B$ can be written in the form $\sum_{i=1}^Na_i\otimes_tb_i$. It's just that this
+    representation is highly nonunique, and furthermore given explicit elements $a_1,a_2\in A$
+    and $b_1,b_2\in B$ it might be a hard problem to figure out if 
+    $a_1\otimes_t b_1=a_2\otimes_t b_2$. 
+    
+    For example, it turns out that $(\Z/2\Z)\otimes(\Z/3\Z)=0$
+    and so in this tensor product all the $a\otimes_t b$ are equal to each other and to $0\otimes 0$.
+\end{remark}
 
-One nice property of $\Qhat$ is that every tensor \emph{is} pure; let's prove this now.
+Having said all of that, one nice property of $\Qhat$ is that every tensor \emph{is} pure; 
+let's prove this now.
 
-\begin{lemma}\label{Qhat.canonicalForm} Every element of $\Qhat:=\Q\otimes_{\Z}\Zhat$
+\begin{lemma}
+    \label{QHat.canonicalForm}
+    \lean{QHat.canonicalForm}
+    \uses{QHat,ZHat.commRing} Every element of $\Qhat:=\Q\otimes\Zhat$
 can be written as $q\otimes_t z$ with $q\in\Q$ and $z\in\Zhat$.
 \end{lemma}
 \begin{proof} A proof I would write on the board would look like the following. Take a general 
@@ -238,7 +333,7 @@ representation may not be unique. For example $2\otimes 1=1\otimes 2$.
     element of $\Qhat$; it is of the form $\frac{1}{D}\otimes_t z$ where $D$ is as small as
     possible; I claim that a pure tensor of this form is in lowest terms when $z\in\Zhat$ 
     satifies $z_D\in(\Z/D\Z)^\times$. We do not seem to need this fact in this chapter, but it
-    would still be interesting to formalise.
+    would still be interesting to formalise. Feel free to add the example to the repo!
 \end{remark}
 
 If $A$ and $B$ are additive abelian groups then $A\otimes B$ is also an additive abelian group.
@@ -249,16 +344,31 @@ There are ring homomorphisms $A\to A\otimes B$ and $B\to A\otimes B$ sending $a$
 and $b$ to $1\otimes_t b$. In general such maps are not injective, but in the case of
 $\Qhat=\Q\otimes\Zhat$ both maps from $\Q$ and $\Zhat$ are inclusions.
 
-\begin{lemma}\label{Qhat.injective_Rat}\notready The ring homomorphism $\Q\to\Qhat$ sending $q$ to $q\otimes_t 1$
+\begin{lemma}
+    \label{QHat.injective_rat}
+    \lean{QHat.injective_rat}
+    \uses{QHat,ZHat.commRing}
+    \leanok
+    The ring homomorphism $\Q\to\Qhat$ sending $q$ to $q\otimes_t 1$
     is injective.
 \end{lemma}
-\begin{proof} Will be something to do with torsionfreeness.
+\begin{proof} Any ring homomorphism from a field to a nontrivial ring
+    is injective, so it suffices to show that $\Qhat$ is nontrivial. Now
+    we already proved that $\Zhat$ had characteristic zero, and I suspect that this helps,
+    but I do not immediately see how to prove this cleanly.
 \end{proof}
 
-\begin{lemma}\label{Qhat.injective_ZHat}\notready The ring homomorphism $\Zhat\to\Qhat$ sending 
+\begin{lemma}
+    \label{QHat.injective_zHat}
+    \lean{QHat.injective_zHat}
+    \uses{QHat, ZHat.torsionfree}
+    \leanok
+    The ring homomorphism $\Zhat\to\Qhat$ sending 
     $z$ to $1\otimes_t z$ is injective.
 \end{lemma}
-\begin{proof} Will be something to do with torsionfreeness.
+\begin{proof} 
+    The argument should go like this: if $1\otimes_t z\_1=1\otimes_t z_2$ then for some
+    positive natural (denominator) we have $Nz_1=Nz_2$ and we're now done by torsionfreeness.
 \end{proof}
 
 We can thus identify $\Q=\Q\otimes\Z$ and $\Zhat=\Z\otimes\Zhat$ with subrings of $\Qhat=\Q\otimes\Zhat$.
@@ -275,13 +385,20 @@ The two results we prove in this section are that $\Q\cap\Zhat=\Z$ and that $\Q+
 Using lattice-theoretic notation we could write these results as $\Q\sqcap\Zhat=\Z$ and
 $\Q\sqcup\Zhat=\Qhat$.
 
-\begin{lemma}\label{Qhat.rat_meet_zHat} The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
+\begin{lemma}
+    \label{Qhat.rat_meet_zHat} 
+    \uses{QHat,ZHat.commRing}
+    \notready The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
 \end{lemma}
 \begin{proof}
     Shouldn't be hard.
 \end{proof}
 
-\begin{lemma}\label{Qhat.rat_join_zHat} The sum of $\Q$ and $\Zhat$ in $\Qhat$ is $\Qhat$.
+\begin{lemma}
+    \label{QHat.rat_join_zHat}
+    \uses{QHat,ZHat.commRing}
+    \notready 
+    The sum of $\Q$ and $\Zhat$ in $\Qhat$ is $\Qhat$.
     More precisely, every elemenet of $\Qhat$ can be written as $q+z$ with $q\in\Q$ and $z\in\Zhat$, 
     or more precisely as $q\otimes_t 1+1\otimes_t z$.
 \end{lemma}
