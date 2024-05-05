@@ -20,11 +20,11 @@ FLT.FreyPackage.FreyCurve.j
 FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime
 ZHat
 ZHat.commRing
+ZHat.nontrivial
+ZHat.charZero
 ZHat.e
 ZHat.e_def
 ZHat.e_not_in_Int
-ZHat.nontrivial
-ZHat.charZero
 ZHat.torsionfree
 ZHat.multiples
 QHat

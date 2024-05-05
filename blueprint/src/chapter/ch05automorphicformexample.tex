@@ -358,10 +358,11 @@ $\Qhat=\Q\otimes\Zhat$ both maps from $\Q$ and $\Zhat$ are inclusions.
     The ring homomorphism $\Q\to\Qhat$ sending $q$ to $q\otimes_t 1$
     is injective.
 \end{lemma}
-\begin{proof} Any ring homomorphism from a field to a nontrivial ring
-    is injective, so it suffices to show that $\Qhat$ is nontrivial. Now
-    we already proved that $\Zhat$ had characteristic zero, and I suspect that this helps,
-    but I do not immediately see how to prove this cleanly.
+\begin{proof} We have seen that the map from $\Z$ to $\Zhat$ is
+    injective. Now $\Q$ is a flat $\Z$-module, because it's
+    torsion-free, so tensoring up we deduce that the map
+    from $\Q=\Q\otimes\Z$ to $\Qhat=\Q\otimes\Zhat$ is also injective.
+    There is no doubt a more elementary proof of this fact.
 \end{proof}
 
 \begin{lemma}
@@ -373,8 +374,9 @@ $\Qhat=\Q\otimes\Zhat$ both maps from $\Q$ and $\Zhat$ are inclusions.
     $z$ to $1\otimes_t z$ is injective.
 \end{lemma}
 \begin{proof} 
-    The argument should go like this: if $1\otimes_t z\_1=1\otimes_t z_2$ then for some
-    positive natural (denominator) we have $Nz_1=Nz_2$ and we're now done by torsionfreeness.
+    The map from $\Z$ to $\Q$ is injective, and we have seen
+    tha $\Zhat$ is a torsion-free and thus flat $\Z$$-module,
+    so the map from $\Zhat$ to $\Qhat$ is also injective.
 \end{proof}
 
 We can thus identify $\Q=\Q\otimes\Z$ and $\Zhat=\Z\otimes\Zhat$ with subrings of $\Qhat=\Q\otimes\Zhat$.
