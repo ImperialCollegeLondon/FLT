@@ -1,4 +1,5 @@
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Tactic.Peel
 /-
 
 # Example of a space of automorphic forms
@@ -12,11 +13,23 @@ abbrev ZHat : Type :=
 ({
   carrier := { f : Π M : ℕ+, ZMod M | ∀ (D N : ℕ+) (h : (D : ℕ) ∣ N),
     ZMod.castHom h (ZMod D) (f N) = f D },
-  zero_mem' := sorry
-  neg_mem' := sorry
-  add_mem' := sorry
-  one_mem' := sorry
-  mul_mem' := sorry
+  zero_mem' := by simp
+  neg_mem' := fun {x} hx => by
+    simp only [ZMod.castHom_apply, Set.mem_setOf_eq, Pi.neg_apply] at *
+    peel hx with D N hD hx
+    rw [ZMod.cast_neg hD, hx]
+  add_mem' := fun {a b} ha hb => by
+    simp only [ZMod.castHom_apply, Set.mem_setOf_eq, Pi.add_apply] at *
+    intro D N hD
+    rw [ZMod.cast_add hD, ha _ _ hD, hb _ _ hD]
+  one_mem' := by
+    simp only [ZMod.castHom_apply, Set.mem_setOf_eq, Pi.one_apply]
+    intro D N hD
+    rw [ZMod.cast_one hD]
+  mul_mem' := fun {a b} ha hb => by
+    simp only [ZMod.castHom_apply, Set.mem_setOf_eq, Pi.mul_apply] at *
+    intro D N hD
+    rw [ZMod.cast_mul hD, ha _ _ hD, hb _ _ hD]
 } : Subring (Π n : ℕ+, ZMod n))
 
 -- #synth CommRing ZHat -- works fine
