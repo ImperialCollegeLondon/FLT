@@ -97,8 +97,37 @@ $z_N\in\Z/N\Z$ is \emph{compatible} if it satisfies this rule.
 \end{proof}
 
 Examples of elements of $\Zhat$ are are given by integers, where we define $z_N$ to be $z$ 
-mod $N$ for all $N$. This gives us a natural injection from $\Z$ to $\Zhat$. But $\Zhat$
-is much much larger than $\Z$; it has the same cardinality as the reals in fact. 
+mod $N$ for all $N$. This gives us a natural map from $\Z$ to $\Zhat$. In particular we
+can talk about $0\in\Zhat$ and $1\in\Zhat$. 
+
+\begin{lemma}
+    \label{ZHat.nontrivial}
+    \lean{ZHat.nontrivial}
+    \uses{ZHat.commRing}
+    \leanok
+    $0\not=1$ in $\Zhat$.
+\end{lemma}
+\begin{proof}
+    \leanok 
+    Recall that you can evaluate an element of $\Zhat$ at a positive integer.
+    Evaluating $0$ at 2 gives $0$, and evaluating $1$ at $2$ gives $1$, and these
+    are distinct elements of $\Z/2\Z$, so $0\not=1$ in $\Zhat$.
+\end{proof}
+
+\begin{lemma}
+    \label{ZHat.charZero}
+    \lean{ZHat.charZero}
+    \leanok
+    The map from the naturals into $\Zhat$ sending $n$ to $n$ is injective.
+\end{lemma}
+\begin{proof}
+    Generalise the above idea. Feel free to write up a LaTeX proof and PR it.
+\end{proof}
+
+Note that it follows easily that that the map from the integers to $\Zhat$ is injective.
+
+But $\Zhat$
+is \emph{much} larger than $\Z$; it has the same cardinality as the reals in fact. 
 Let's write down an explicit example of an element of $\Zhat$ which isn't obviously in $\Z$.
 
 \begin{definition}
@@ -140,31 +169,6 @@ Let's write down an explicit example of an element of $\Zhat$ which isn't obviou
 \end{proof}
 
 Let's prove some basic facts about $\Zhat$.
-
-\begin{lemma}
-    \label{ZHat.nontrivial}
-    \lean{ZHat.nontrivial}
-    \uses{ZHat.commRing}
-    \leanok
-    $0\not=1$ in $\Zhat$.
-\end{lemma}
-\begin{proof}
-    \leanok 
-    Recall that you can evaluate an element of $\Zhat$ at a positive integer.
-    Evaluating $0$ at 2 gives $0$, and evaluating $1$ at $2$ gives $1$, and these
-    are distinct elements of $\Z/2\Z$, so $0\not=1$ in $\Zhat$.
-\end{proof}
-
-\begin{lemma}
-    \label{ZHat.charZero}
-    \lean{ZHat.charZero}
-    \leanok
-    The map from the naturals into $\Zhat$ sending $n$ to $n$ is injective.
-\end{lemma}
-
-\begin{proof}
-    Generalise the above idea. Feel free to write up a LaTeX proof and PR it.
-\end{proof}
 
 \begin{lemma}
     \label{ZHat.torsionfree}
