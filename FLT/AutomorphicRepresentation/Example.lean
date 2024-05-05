@@ -1,4 +1,5 @@
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Data.Complex.Basic -- debugging
 /-
 
 # Example of a space of automorphic forms
@@ -8,7 +9,7 @@ import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 /-- We define the profinite completion of ℤ explicitly as compatible elements of ℤ/Nℤ for
 all positive integers `N`. We declare it as a subring of `∏_{N ≥ 1} (ℤ/Nℤ)`, and then promote it
 to a type. -/
-abbrev ZHat : Type :=
+def ZHat : Type :=
 ({
   carrier := { f : Π M : ℕ+, ZMod M | ∀ (D N : ℕ+) (h : (D : ℕ) ∣ N),
     ZMod.castHom h (ZMod D) (f N) = f D },
@@ -18,8 +19,7 @@ abbrev ZHat : Type :=
   one_mem' := sorry
   mul_mem' := sorry
 } : Subring (Π n : ℕ+, ZMod n))
-
--- #synth CommRing ZHat -- works fine
+deriving CommRing
 
 namespace ZHat
 
@@ -88,26 +88,29 @@ open scoped TensorProduct in
 noncomputable example (R A B : Type) [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra R B] :
  A →+* A ⊗[R] B := by exact Algebra.TensorProduct.includeLeftRingHom -- fails
 
+noncomputable abbrev i₁ : ℚ →ₐ[ℤ] QHat := Algebra.TensorProduct.includeLeft
 lemma injective_rat :
-    Function.Injective (Algebra.TensorProduct.includeLeft : ℚ →ₐ[ℤ] QHat) := sorry
+    Function.Injective i₁ := sorry -- flatness
 
+noncomputable abbrev i₂ : ZHat →ₐ[ℤ] QHat := Algebra.TensorProduct.includeRight
 lemma injective_zHat :
-    Function.Injective (Algebra.TensorProduct.includeRight : ZHat →ₐ[ℤ] QHat) := sorry
+    Function.Injective i₂ := sorry -- flatness
 
--- Now need to gives names to these subrings and go from there.
+section additive_structure_of_QHat
 
---\begin{lemma}\label{Qhat.rat_meet_zHat} The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
---\end{lemma}
---\begin{proof}
---    Shouldn't be hard.
---\end{proof}
+noncomputable abbrev ratsub : AddSubgroup QHat :=
+    (i₁ : ℚ →+ QHat).range
 
---\begin{lemma}\label{Qhat.rat_join_zHat} The sum of $\Q$ and $\Zhat$ in $\Qhat$ is $\Qhat$.
---    More precisely, every elemenet of $\Qhat$ can be written as $q+z$ with $q\in\Q$ and $z\in\Zhat$,
---    or more precisely as $$q\otimes_t 1+1\otimes_t z$.
---\end{lemma}
---\begin{proof}
---    Shouldn't be hard.
---\end{proof}
+noncomputable abbrev zHatsub : AddSubgroup QHat :=
+    (i₂ : ZHat →+ QHat).range
+
+noncomputable abbrev zsub : AddSubgroup QHat :=
+  (Int.castRingHom QHat : ℤ →+ QHat).range
+
+lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := sorry
+
+lemma rat_join_zHat : ratsub ⊔ Zhatsub = ⊤ := sorry
+
+end additive_structure_of_QHat
 
 end QHat
