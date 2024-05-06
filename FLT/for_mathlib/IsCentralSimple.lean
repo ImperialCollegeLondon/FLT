@@ -30,27 +30,25 @@ structure IsCentralSimple
 
 variable (K : Type u) [Field K]
 
+open Matrix in
 theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty : Nonempty ι) [DecidableEq ι] :
     IsCentralSimple K (Matrix ι ι K) where
   is_central d hd := by
-    -- TODO: does this already exist somewhere?
-    let e (i j) := Matrix.of <| fun i' j' : ι => if i = i' ∧ j = j' then (1 : K) else 0
-
     rw [Subring.mem_center_iff] at hd
     obtain ⟨k⟩ := hnonempty
     use d k k
     ext i j
-    simp_rw [Matrix.algebraMap_matrix_apply, Algebra.id.map_eq_id, RingHom.id_apply]
+    simp_rw [algebraMap_matrix_apply, Algebra.id.map_eq_id, RingHom.id_apply]
     split_ifs with h
     · subst h
-      specialize hd (e k i)
-      rw [← Matrix.ext_iff] at hd
+      specialize hd (stdBasisMatrix k i (1 : K))
+      rw [← ext_iff] at hd
       specialize hd k i
-      simpa [e, Matrix.mul_apply] using hd
-    · specialize hd (e j i)
-      rw [← Matrix.ext_iff] at hd
+      simpa using hd
+    · specialize hd (stdBasisMatrix j i (1 : K))
+      rw [← ext_iff] at hd
       specialize hd j j
-      simpa [e, h, Matrix.mul_apply] using hd
+      simpa [Ne.symm h] using hd
   is_simple := sorry
 
 namespace IsCentralSimple
