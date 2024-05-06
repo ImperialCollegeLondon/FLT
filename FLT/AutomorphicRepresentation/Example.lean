@@ -9,8 +9,7 @@ import Mathlib.Data.Complex.Basic -- debugging
 /-- We define the profinite completion of ℤ explicitly as compatible elements of ℤ/Nℤ for
 all positive integers `N`. We declare it as a subring of `∏_{N ≥ 1} (ℤ/Nℤ)`, and then promote it
 to a type. -/
-def ZHat : Type :=
-({
+def ZHat : Type := {
   carrier := { f : Π M : ℕ+, ZMod M | ∀ (D N : ℕ+) (h : (D : ℕ) ∣ N),
     ZMod.castHom h (ZMod D) (f N) = f D },
   zero_mem' := sorry
@@ -18,7 +17,7 @@ def ZHat : Type :=
   add_mem' := sorry
   one_mem' := sorry
   mul_mem' := sorry
-} : Subring (Π n : ℕ+, ZMod n))
+  : Subring (Π n : ℕ+, ZMod n)}
 deriving CommRing
 
 namespace ZHat
