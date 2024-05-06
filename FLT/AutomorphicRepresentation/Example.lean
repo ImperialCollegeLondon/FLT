@@ -46,8 +46,8 @@ lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y := by
   ext n
   apply h
 
-@[simp] lemma zero_val : (0 : ZHat) n = 0 := rfl
-@[simp] lemma one_val : (1 : ZHat) n = 1 := rfl
+@[simp] lemma zero_val (n : ℕ+) : (0 : ZHat) n = 0 := rfl
+@[simp] lemma one_val (n : ℕ+) : (1 : ZHat) n = 1 := rfl
 
 instance commRing : CommRing ZHat := inferInstance
 
@@ -154,7 +154,7 @@ noncomputable abbrev zsub : AddSubgroup QHat :=
 
 lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := sorry
 
-lemma rat_join_zHat : ratsub ⊔ Zhatsub = ⊤ := sorry
+lemma rat_join_zHat : ratsub ⊔ zHatsub = ⊤ := sorry
 
 end additive_structure_of_QHat
 
