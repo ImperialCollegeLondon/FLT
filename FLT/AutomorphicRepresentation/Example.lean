@@ -88,9 +88,9 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
         -- `y` is compatible
     }
     refine ⟨y, ?_⟩
-    ext j
-    have hh := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
-    rw [← hh]
+    --ext j
+    --have hh := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
+    --rw [← hh]
     sorry -- This should be easy once `y` is defined.
 
 end ZHat
