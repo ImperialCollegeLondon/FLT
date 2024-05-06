@@ -124,17 +124,16 @@ variable [Semiring B] [Bialgebra R B]
 -- added when lakefile format changed?!
 set_option synthInstance.maxHeartbeats 40000 in
 noncomputable instance : Bialgebra R (A ⊗[R] B) where
-  counit_one := by simp [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, TensorProduct.counit_tmul]
+  counit_one := by simp [Algebra.TensorProduct.one_def, TensorProduct.counit_tmul]
   mul_compr₂_counit := by
     ext
-    simp only [Coalgebra.TensorProduct.counit_def, AlgebraTensorModule.curry_apply, curry_apply,
+    simp only [TensorProduct.counit_tmul, AlgebraTensorModule.curry_apply, curry_apply,
       LinearMap.coe_restrictScalars, LinearMap.compr₂_apply, LinearMap.mul_apply',
       Algebra.TensorProduct.tmul_mul_tmul, LinearMap.coe_comp, LinearEquiv.coe_coe,
       Function.comp_apply, map_tmul, counit_mul, lid_tmul, smul_eq_mul, LinearMap.compl₁₂_apply]
     ring
   comul_one := by
-    rw [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, Coalgebra.TensorProduct.comul_def,
-      LinearMap.comp_apply, map_tmul, comul_one, comul_one]
+    rw [Algebra.TensorProduct.one_def, TensorProduct.comul_tmul, comul_one, comul_one]
     rfl
   mul_compr₂_comul := by
     let e : (A →ₗ[R] A ⊗[R] A) ⊗[R] (B →ₗ[R] B ⊗[R] B) →ₗ[R]
