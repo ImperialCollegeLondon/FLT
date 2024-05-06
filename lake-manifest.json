@@ -67,7 +67,7 @@
   {"url": "https://github.com/PatrickMassot/checkdecls.git",
    "type": "git",
    "subDir": null,
-   "rev": "2ee81a0269048010900117b675876a1d8db5883c",
+   "rev": "a216896749fcb030091156552be5bcddc50eb7cb",
    "name": "checkdecls",
    "manifestFile": "lake-manifest.json",
    "inputRev": null,
