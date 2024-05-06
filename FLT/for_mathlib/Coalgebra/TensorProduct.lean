@@ -29,6 +29,31 @@ variable [CommSemiring R] [AddCommMonoid A] [Module R A] [AddCommMonoid B] [Modu
 
 open Coalgebra Bialgebra
 
+section CoalgebraStruct
+variable [CoalgebraStruct R A] [CoalgebraStruct R B]
+
+instance : CoalgebraStruct R (A ⊗[R] B) where
+  comul := tensorTensorTensorComm R A A B B ∘ₗ map comul comul
+  counit := TensorProduct.lid R R ∘ₗ map counit counit
+
+lemma comul_def :
+    Coalgebra.comul (R := R) (A := A ⊗[R] B) =
+    tensorTensorTensorComm R A A B B ∘ₗ map comul comul :=
+  rfl
+
+@[simp] lemma comul_tmul (a : A) (b : B) :
+    comul (R := R) (a ⊗ₜ[R] b) =
+      tensorTensorTensorComm _ _ _ _ _ (comul (R := R) a ⊗ₜ[R] comul (R := R) b) := rfl
+
+lemma counit_def :
+    Coalgebra.counit (R := R) (A := A ⊗[R] B) = TensorProduct.lid R R ∘ₗ map counit counit :=
+  rfl
+
+@[simp] lemma counit_tmul (a : A) (b : B) :
+    counit (R := R) (a ⊗ₜ[R] b) = counit a * counit b := rfl
+
+end CoalgebraStruct
+
 section Coalgebra
 
 variable [Coalgebra R A] [Coalgebra R B]
@@ -37,10 +62,8 @@ private def tensorComm6 :
     (A ⊗[R] B) ⊗[R] (A ⊗[R] B) ⊗[R] A ⊗[R] B ≃ₗ[R] (A ⊗[R] A ⊗[R] A) ⊗[R] B ⊗[R] B ⊗[R] B :=
   congr (.refl R _) (tensorTensorTensorComm R _ _ _ _) ≪≫ₗ tensorTensorTensorComm R _ _ _ _
 
-set_option maxHeartbeats 500000 in
-instance : Coalgebra R (A ⊗[R] B) :=
-{ comul := tensorTensorTensorComm R A A B B ∘ₗ map comul comul
-  counit := TensorProduct.lid R R ∘ₗ map counit counit
+count_heartbeats in
+instance : Coalgebra R (A ⊗[R] B) where
   coassoc := by
     convert congr_arg (tensorComm6 R A B).symm.toLinearMap.comp
       congr(TensorProduct.map $(coassoc (R := R) (A := A)) $(coassoc (R := R) (A := B))) <;>
@@ -68,14 +91,6 @@ instance : Coalgebra R (A ⊗[R] B) :=
     simp [comul_repr, tmul_sum, sum_tmul, map_sum, Finset.smul_sum, smul_tmul', smul_tmul,
       mul_comm] }
 
-lemma comul_def :
-    Coalgebra.comul (R := R) (A := A ⊗[R] B) =
-    tensorTensorTensorComm R A A B B ∘ₗ map comul comul :=
-  rfl
-
-lemma counit_def :
-    Coalgebra.counit (R := R) (A := A ⊗[R] B) = TensorProduct.lid R R ∘ₗ map counit counit :=
-  rfl
 
 variable {R A B}
 
