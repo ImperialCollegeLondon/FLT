@@ -38,6 +38,14 @@ instance : DFunLike ZHat ℕ+ (fun (N : ℕ+) ↦ ZMod N) where
   coe z := z.1
   coe_injective' M N := by simp_all
 
+@[ext]
+lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y := by
+  cases x
+  cases y
+  congr
+  ext n
+  apply h
+
 @[simp] lemma zero_val : (0 : ZHat) n = 0 := rfl
 @[simp] lemma one_val : (1 : ZHat) n = 1 := rfl
 
@@ -100,9 +108,9 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
         -- `y` is compatible
     }
     refine ⟨y, ?_⟩
-    --ext j
-    --have hh := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
-    --rw [← hh]
+    ext j
+    have hh := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
+    -- rw [← hh]
     sorry -- This should be easy once `y` is defined.
 
 end ZHat
