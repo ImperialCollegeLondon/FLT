@@ -83,23 +83,6 @@ namespace QHat
 
 lemma canonicalForm : ∀ z : QHat, ∃ N : ℕ+, ∃ z' : ZHat, z = (1 / N : ℚ) ⊗ₜ z' := sorry
 
-/-
-\begin{definition}
-    \label{QHat.IsCoprime}
-    \lean{QHat.IsCoprime}
-    If $N\in\N^+$ and $z\in\Zhat$ then we say that $N$ and $z$ are \emph{coprime} if
-    $z_N\in(\Z/N\Z)^\times$. We write $z/N$ as notation
-    for the element $\frac{1}{N}\otimes_tz$.
-\end{definition}
-
-\begin{lemma}
-    \label{QHat.lowestTerms}
-    \lean{QHat.lowestTerms}
-    Every element of $\Qhat$ can be uniquely written as $z/N$ with $z\in\Zhat$, $N\in\N^+$,
-    and with $N$ and $z$ coprime.
-\end{lemma}
--/
-
 def IsCoprime (N : ℕ+) (z : ZHat) : Prop := IsUnit (z N)
 
 lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗ₜ z) ∧
