@@ -3,9 +3,9 @@ open Lake DSL
 
 def moreServerArgs := #[
   "-Dpp.unicode.fun=true", -- pretty-prints `fun a ↦ b`
-  "-Dpp.proofs.withType=false",
-  "-DautoImplicit=false",
-  "-DrelaxedAutoImplicit=false"
+  "-Dpp.proofs.withType=false", -- no idea what this does
+  "-DautoImplicit=false", -- attempt to switch off auto-implicit
+  "-DrelaxedAutoImplicit=false" -- attempt to switch off relaxed auto-implicit
 ]
 
 -- These settings only apply during `lake build`, but not in VSCode editor.

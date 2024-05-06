@@ -34,6 +34,4 @@ No! This project will start everywhere at once. We're going to build from both e
 
 ## Which proof will you formalise?
 
-It will not be the original Wiles/Taylor-Wiles proof, but rather a "newer" proof which takes into account more recent developments due to Khare-Wintenberger, Kisin and many other people. However at its heart the proof we are formalising still uses the same theme -- the revolutionary idea (conjectured by Mazur and Tilouine and proved in many crucial cases by Wiles) that a deformation ring R is isomorphic to a Hecke algebra T. More details of the actual modularity lifting theorem which we will formalise will come later.
-
-The route we are taking was essentially completely designed by Richard Taylor and when I have more time I will explain it in more detail.
+It will not be the original Wiles/Taylor-Wiles proof, but rather a "newer" proof which takes into account more recent developments due to Khare-Wintenberger, Kisin and many other people. However at its heart the proof we are formalising still uses the same theme -- the revolutionary idea (conjectured by Mazur and Tilouine and proved in many crucial cases by Wiles) that a deformation ring R is isomorphic to a Hecke algebra T. More details of the actual modularity lifting theorem which we will formalise, and more generally of the proof we're following, are in the project blueprint. The route we are taking was essentially completely designed by Richard Taylor after discussions with Kevin Buzzard.

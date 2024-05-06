@@ -37,10 +37,10 @@ jobs:
         run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
 
       - name: Get cache
-        run: ~/.elan/bin/lake -Kenv=dev exe cache get || true
+        run: ~/.elan/bin/lake exe cache get || true
 
       - name: Build project
-        run: ~/.elan/bin/lake -Kenv=dev build FLT
+        run: ~/.elan/bin/lake build FLT
 
       - name: Cache mathlib docs
         uses: actions/cache@v3
@@ -52,33 +52,43 @@ jobs:
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
+            !.lake/build/doc/declarations/declaration-data-FLT*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             MathlibDoc-
 
       - name: Build documentation
-        run: ~/.elan/bin/lake -Kenv=dev build FLT:docs
+        run: ~/.elan/bin/lake -R -Kenv=dev build FLT:docs
 
       - name: Build blueprint
         uses: xu-cheng/texlive-action@v2
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
-            export PIP_BREAK_SYSTEM_PACKAGES=1
             apk update
             apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
             git config --global --add safe.directory `pwd`
-            python3 -m pip install --upgrade pip requests wheel
-            python3 -m pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-            pip install -r blueprint/requirements.txt
-            python3 -m pip install invoke
-            inv all
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            mkdir -p docs
+            cp blueprint/print/print.pdf docs/blueprint.pdf
+            leanblueprint web
+            cp -r blueprint/web docs/blueprint
 
-      - name: Copy Lean documentation to `docs/docs`
+      - name: Check declarations
         run: |
-          mv .lake/build/doc docs/docs
+            ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
+      - name: Move documentation to `docs/docs`
+        run: |
+          sudo chown -R runner docs
+          cp -r .lake/build/doc docs/docs
+      
       - name: Bundle dependencies
         uses: ruby/setup-ruby@v1
         with:
@@ -89,6 +99,11 @@ jobs:
       - name: Bundle website
         working-directory: docs
         run: JEKYLL_ENV=production bundle exec jekyll build
+
+      - name: Upload docs & blueprint artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs/
 
       - name: Upload docs & blueprint artifact
         uses: actions/upload-pages-artifact@v1
