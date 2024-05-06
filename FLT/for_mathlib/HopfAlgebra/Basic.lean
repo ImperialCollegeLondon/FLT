@@ -162,7 +162,7 @@ lemma antipodeAlgHom_square : antipodeAlgHom.comp antipodeAlgHom = AlgHom.id R A
 /--
 Then antipode map is an algebra equivalence.
 -/
-lemma antipodeAlgEquiv : A ≃ₐ[R] A :=
+def antipodeAlgEquiv : A ≃ₐ[R] A :=
   AlgEquiv.ofAlgHom antipodeAlgHom antipodeAlgHom antipodeAlgHom_square antipodeAlgHom_square
 
 end commutative

@@ -62,7 +62,6 @@ private def tensorComm6 :
     (A ⊗[R] B) ⊗[R] (A ⊗[R] B) ⊗[R] A ⊗[R] B ≃ₗ[R] (A ⊗[R] A ⊗[R] A) ⊗[R] B ⊗[R] B ⊗[R] B :=
   congr (.refl R _) (tensorTensorTensorComm R _ _ _ _) ≪≫ₗ tensorTensorTensorComm R _ _ _ _
 
-count_heartbeats in
 instance : Coalgebra R (A ⊗[R] B) where
   coassoc := by
     convert congr_arg (tensorComm6 R A B).symm.toLinearMap.comp
@@ -123,9 +122,9 @@ variable (R A B : Type*) [CommSemiring R]
 variable [Semiring A] [Bialgebra R A]
 variable [Semiring B] [Bialgebra R B]
 
-instance : Bialgebra R (A ⊗[R] B) where
-  counit_one := by simp [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, TensorProduct.counit_def]
-  mul_compr₂_counit := by
+set_option synthInstance.maxHeartbeats 40000 in
+noncomputable instance : Bialgebra R (A ⊗[R] B) where
+  counit_one := by simp [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, Coalgebra.TensorProduct.counit_def]
     ext
     simp only [TensorProduct.counit_def, AlgebraTensorModule.curry_apply, curry_apply,
       LinearMap.coe_restrictScalars, LinearMap.compr₂_apply, LinearMap.mul_apply',
