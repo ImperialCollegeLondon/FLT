@@ -99,6 +99,7 @@ variable (R A B : Type*) [CommSemiring R]
 variable [Semiring A] [Bialgebra R A]
 variable [Semiring B] [Bialgebra R B]
 
+-- added when lakefile format changed?!
 set_option synthInstance.maxHeartbeats 40000 in
 noncomputable instance : Bialgebra R (A ⊗[R] B) where
   counit_one := by simp [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, Coalgebra.TensorProduct.counit_def]
