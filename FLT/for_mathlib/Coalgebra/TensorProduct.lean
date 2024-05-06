@@ -65,7 +65,7 @@ private def tensorComm6 :
 instance : Coalgebra R (A ⊗[R] B) where
   coassoc := by
     convert congr_arg (tensorComm6 R A B).symm.toLinearMap.comp
-      congr(TensorProduct.map $(coassoc (R := R) (A := A)) $(coassoc (R := R) (A := B))) <;>
+      congr(TensorProduct.map $(coassoc (R := R) (A := A)) $(coassoc (R := R) (A := B))) using 1 <;>
     ext <;>
     simpa [comul_repr, tmul_sum, sum_tmul, map_sum] using
       Finset.sum_congr rfl fun _ _ ↦ Finset.sum_comm
@@ -75,7 +75,7 @@ instance : Coalgebra R (A ⊗[R] B) where
         congr(TensorProduct.map
           $(rTensor_counit_comp_comul (R := R) (A := A))
           $(rTensor_counit_comp_comul (R := R) (A := B)))
-    convert EQ <;>
+    convert EQ using 1 <;>
     ext <;>
     simp [comul_repr, tmul_sum, sum_tmul, map_sum, tmul_smul, Finset.smul_sum, smul_tmul', mul_comm]
   lTensor_counit_comp_comul := by
@@ -85,11 +85,10 @@ instance : Coalgebra R (A ⊗[R] B) where
         congr(TensorProduct.map
           $(lTensor_counit_comp_comul (R := R) (A := A))
           $(lTensor_counit_comp_comul (R := R) (A := B)))
-    convert EQ <;>
+    convert EQ using 1 <;>
     ext <;>
     simp [comul_repr, tmul_sum, sum_tmul, map_sum, Finset.smul_sum, smul_tmul', smul_tmul,
-      mul_comm] }
-
+      mul_comm]
 
 variable {R A B}
 
@@ -116,23 +115,25 @@ lemma comul_apply_repr'' (a : A) (b : B) {ιA ιB : Type*}
 
 end Coalgebra
 
-section Bialgebra
+namespace Bialgebra
 
 variable (R A B : Type*) [CommSemiring R]
 variable [Semiring A] [Bialgebra R A]
 variable [Semiring B] [Bialgebra R B]
 
+-- added when lakefile format changed?!
 set_option synthInstance.maxHeartbeats 40000 in
 noncomputable instance : Bialgebra R (A ⊗[R] B) where
-  counit_one := by simp [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, Coalgebra.TensorProduct.counit_def]
+  counit_one := by simp [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, TensorProduct.counit_tmul]
+  mul_compr₂_counit := by
     ext
-    simp only [TensorProduct.counit_def, AlgebraTensorModule.curry_apply, curry_apply,
+    simp only [Coalgebra.TensorProduct.counit_def, AlgebraTensorModule.curry_apply, curry_apply,
       LinearMap.coe_restrictScalars, LinearMap.compr₂_apply, LinearMap.mul_apply',
       Algebra.TensorProduct.tmul_mul_tmul, LinearMap.coe_comp, LinearEquiv.coe_coe,
       Function.comp_apply, map_tmul, counit_mul, lid_tmul, smul_eq_mul, LinearMap.compl₁₂_apply]
     ring
   comul_one := by
-    rw [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, TensorProduct.comul_def,
+    rw [show (1 : A ⊗[R] B) = 1 ⊗ₜ 1 from rfl, Coalgebra.TensorProduct.comul_def,
       LinearMap.comp_apply, map_tmul, comul_one, comul_one]
     rfl
   mul_compr₂_comul := by
