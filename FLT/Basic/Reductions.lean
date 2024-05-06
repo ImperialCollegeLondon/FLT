@@ -57,35 +57,24 @@ lemma fermatLastTheoremThree : FermatLastTheoremFor 3 := sorry
 
 namespace FLT
 
+/-- If Fermat's Last Theorem is true for primes `p ≥ 5`, then FLT is true. -/
+lemma of_p_ge_5 (H : ∀ p ≥ 5, p.Prime → FermatLastTheoremFor p) : FermatLastTheorem := by
+  apply FermatLastTheorem.of_odd_primes
+  intro p pp p_odd
+  if hp5 : 5 ≤ p then
+    exact H _ hp5 pp
+  else
+    have hp2 := pp.two_le
+    interval_cases p
+    · contradiction
+    · exact fermatLastTheoremThree
+    · contradiction
+
 /-
 
 We continue with the reduction of Fermat's Last Theorem.
 
 -/
-
-/-- If Fermat's Last Theorem is false, there's a nontrivial solution to a^p+b^p=c^p with p>=5 prime. -/
-lemma p_ge_5_counterexample_of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) :
-    ∃ (a b c : ℤ) (_ : a ≠ 0) (_ : b ≠ 0) (_ : c ≠ 0) (p : ℕ) (_ : p.Prime) (_ : 5 ≤ p),
-    a^p + b^p = c^p := by
-  apply (mt FermatLastTheorem.of_odd_primes) at h
-  push_neg at h
-  rcases h with ⟨p, hpprime, hpodd, (h : ¬ ∀ _, _)⟩
-  push_neg at h
-  rcases h with ⟨a, b, c, ha, hb, hc, h⟩
-  have hp3 : p ≠ 3 := by
-    rintro rfl
-    revert h
-    apply fermatLastTheoremThree <;> assumption
-  refine ⟨a, b, c, by exact_mod_cast ha, by exact_mod_cast hb, by exact_mod_cast hc, p, hpprime, ?_, by exact_mod_cast h⟩
-  -- now just need to prove that if p is an odd prime and p ≠ 3 then p ≥ 5
-  by_contra hp5
-  push_neg at hp5
-  interval_cases p
-  · exact Nat.not_prime_zero hpprime
-  · exact Nat.not_prime_one hpprime
-  · simp only [Nat.odd_iff_not_even, even_two, not_true_eq_false] at hpodd
-  · norm_num at hp3
-  · norm_num at hpprime
 
 /--
 A *Frey Package* is a 4-tuple (a,b,c,p) of integers
@@ -102,6 +91,7 @@ structure FreyPackage where
   hb0 : b ≠ 0
   hc0 : c ≠ 0
   p : ℕ
+  pp : Nat.Prime p
   hp5 : 5 ≤ p
   hFLT : a ^ p + b ^ p = c ^ p
   hgcdab : gcd a b = 1 -- same as saying a,b,c pairwise coprime
@@ -147,34 +137,6 @@ lemma hgcdbc (P : FreyPackage) : gcd P.b P.c = 1 :=  by
   rw [add_comm]
   exact P.hFLT
 
-namespace of_not_FermatLastTheorem
-
-/-- This function will only be applied when the input integers $a$, $b$, $c$
-are all nonzero, pairwise coprime, and satisfy $a^p+b^p=c^p$ with $p$ odd.
-Under these hypotheses, it produces a possibly different Fermat counterexample
-of the same form but which furthermore has $a\cong 3$ mod 4 and $b$ even. It does this
-by possibly permuting a,b,c and changing signs. -/
-def aux₁ (a₁ b₁ c₁ : ℤ) :
-    ℤ × ℤ × ℤ :=
-  match (b₁ : ZMod 2) with
-  | 0 => -- b is even
-    match (a₁ : ZMod 4) with
-    | 3 => (a₁, b₁, c₁) -- answer if b is even and a is 3 mod 4
-    | _ => (-a₁, -b₁, -c₁) -- answer if b is even and a is 1 mod 4
-  | _ => -- b is odd
-    match (a₁ : ZMod 2) with
-    | 0 => -- b is odd and a is even
-      match (b₁ : ZMod 4) with
-      | 3 => (b₁, a₁, c₁) -- answer if b is 3 mod 4 and a is even
-      | _ => (-b₁,-a₁,-c₁) -- answer if b is 1 mod 4 and a is even
-    | _ => -- b and a are both odd
-      match (a₁ : ZMod 4) with
-      | 3 => (a₁, -c₁, -b₁) -- answer if a is 3 mod 4 and b is odd
-      | _ => (-a₁, c₁, b₁) -- answer if a is 1 mod 4 and b is odd
-
-variable {a : ℤ} (b c : ℤ)
-variable {a₁ : ℤ} (b₁ c₁ : ℤ)
-
 -- for mathlib? I thought I needed it but I got around it
 -- lemma Int.dvd_div_iff {a b c : ℤ} (hbc : c ∣ b) : a ∣ b / c ↔ c * a ∣ b := by
 --   constructor
@@ -191,230 +153,61 @@ variable {a₁ : ℤ} (b₁ c₁ : ℤ)
 --     · simp [hc]
 --     · simp [Int.mul_ediv_cancel_left _ hc]
 
--- couldn't get `fin_cases` to wotk with a general term
-lemma ZMod4cases (q : ZMod 4) : q = 0 ∨ q = 1 ∨ q = 2 ∨ q = 3 := by
-    fin_cases q <;> tauto
-
--- more of these lemmas should be proved, to shorten the proof of aux₁.ha4
-lemma aux {b} (hd : gcd a b = 1) (h1 : 2 ∣ a) (h2 : 2 ∣ b) : False := by
-  have := dvd_gcd h1 h2
-  rw [hd] at this
-  norm_num at this
-
--- this is pretty long. I should pull out more lemmas like the above,
--- e.g. proofs of things like "if x is odd and x mod 4 isn't 3 then it's 1"
-lemma aux₁.ha4 (hab : gcd a₁ b₁ = 1) : ((aux₁ a₁ b₁ c₁).1 : ZMod 4) = 3 := by
-  simp only [aux₁]
-  split
-  · rename_i _ b_even
-    split
-    · rename_i _ a3mod4
-      exact a3mod4
-    · rename_i _ a1mod4
-      have foo : 2 ∣ b₁ := by
-        exact (ZMod.intCast_zmod_eq_zero_iff_dvd b₁ 2).mp b_even
-      have bar : ¬ 2 ∣ a₁ := by
-        intro h
-        apply aux _ h foo
-        rename_i x x_1
-        simp_all only [ne_eq, Fin.zero_eta, gcd_eq_zero_iff, false_and, not_false_eq_true]
-      -- want to do fin_cases on (-a₁ : ZMod 4)
-      rcases ZMod4cases (-a₁ : ℤ) with (h | h | h | h)
-      · rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h
-        simp only [Nat.cast_ofNat, dvd_neg] at h
-        exfalso
-        apply bar
-        refine dvd_trans ?_ h
-        norm_num
-      · exfalso
-        apply a1mod4
-        simp only [Int.cast_neg, neg_eq_iff_eq_neg] at h
-        rw [h]
-        decide
-      · exfalso
-        apply bar
-        simp only [Int.cast_neg, ← add_eq_zero_iff_neg_eq] at h
-        have foo : ((a₁ + 2 : ℤ) : ZMod 4) = 0 := by assumption_mod_cast
-        rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at foo
-        rw [← dvd_add_left (c := 2) (by norm_num)]
-        refine dvd_trans ?_ foo
-        norm_num
-      · exact h
-  · rename_i hb1
-    split
-    · split
-      · rename_i _ b3mod4
-        exact b3mod4
-      · rename_i _ b1mod4
-        -- now need to check a
-        rcases ZMod4cases b₁ with (h | h | h | h)
-        · rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h
-          simp only [Nat.cast_ofNat, dvd_neg] at h
-          exfalso
-          apply hb1
-          simp only [Fin.zero_eta, ZMod.intCast_zmod_eq_zero_iff_dvd]
-          refine dvd_trans ?_ h
-          norm_num
-        · simp [h]
-          decide
-        · rw [← sub_eq_zero] at h
-          have foo : ((b₁ - 2 : ℤ) : ZMod 4) = 0 := by assumption_mod_cast
-          exfalso
-          apply hb1
-          rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at foo
-          apply (ZMod.intCast_zmod_eq_zero_iff_dvd _ 2).2
-          rw [← dvd_sub_left (c := 2) (by norm_num)]
-          refine dvd_trans ?_ foo
-          norm_num
-        · contradiction
-    · rename_i _ a_odd
-      split
-      · rename_i _ a3mod4
-        exact a3mod4
-      · rename_i _ a1mod4
-        rcases ZMod4cases a₁ with (h | h | h | h)
-        · exfalso
-          apply a_odd
-          change _ = 0
-          rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h ⊢
-          refine dvd_trans ?_ h
-          norm_num
-        · simp [h]
-          decide
-        · exfalso
-          apply a_odd
-          change _ = 0
-          rw [ZMod.intCast_zmod_eq_zero_iff_dvd]
-          rw [← dvd_sub_left (c := 2) (by norm_num)]
-          rw [← sub_eq_zero] at h
-          have foo : ((a₁ - 2 : ℤ) : ZMod 4) = 0 := by assumption_mod_cast
-          rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at foo
-          refine dvd_trans ?_ foo
-          norm_num
-        · exfalso
-          apply a1mod4
-          exact h
-  done
-
-end of_not_FermatLastTheorem
-
--- these sorries below are quite long and tedious to fill in. See for example the
--- proof of `ha4` above. There is presumably a better way to do this
-
-/-- Given a counterexample to Fermat's Last Theorem with a,b,c coprime and p ≥ 5, we can make
-a Frey package. -/
-def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
-  (hab : gcd a b = 1) (p : ℕ) (hpprime : p.Prime)
-  (hp : 5 ≤ p) (h : a^p + b^p = c^p) : FreyPackage where
-    a := (of_not_FermatLastTheorem.aux₁ a b c).1
-    b := (of_not_FermatLastTheorem.aux₁ a b c).2.1
-    c := (of_not_FermatLastTheorem.aux₁ a b c).2.2
-    ha0 := by
-      unfold of_not_FermatLastTheorem.aux₁
-      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
-      · exact ha
-      · rwa [← Int.neg_ne_zero] at ha
-      · exact hb
-      · rwa [← Int.neg_ne_zero] at hb
-      · exact ha
-      · rwa [← Int.neg_ne_zero] at ha
-    hb0 := by
-      unfold of_not_FermatLastTheorem.aux₁
-      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
-      · exact hb
-      · rwa [← Int.neg_ne_zero] at hb
-      · exact ha
-      · rwa [← Int.neg_ne_zero] at ha
-      · rwa [← Int.neg_ne_zero] at hc
-      · exact hc
-    hc0 := by
-      unfold of_not_FermatLastTheorem.aux₁
-      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
-      · exact hc
-      · rwa [← Int.neg_ne_zero] at hc
-      · exact hc
-      · rwa [← Int.neg_ne_zero] at hc
-      · rwa [← Int.neg_ne_zero] at hb
-      · exact hb
-    p := p
-    hp5 := hp
-    hFLT := by
-      have negonepow : (-1 : ℤ) ^ p = -1 := by
-        rw [neg_one_pow_eq_pow_mod_two]
-        have := Fact.mk hpprime
-        rw [Nat.Prime.mod_two_eq_one_iff_ne_two.2]
-        · simp
-        · linarith
-      unfold of_not_FermatLastTheorem.aux₁
-      split <;> split <;> try split
-      · exact h
-      · linear_combination (-1)^p * h
-      · linear_combination h
-      · linear_combination (-1)^p * h
-      · rw [neg_pow c, neg_pow b, negonepow]
-        linear_combination h
-      · rw [neg_pow a, negonepow]
-        linear_combination -h
-    hgcdab := by
-      unfold of_not_FermatLastTheorem.aux₁
-      have hp' : 0 < p := by omega
-      have := gcdab_eq_gcdac hp' h
-      simp_rw [← Int.coe_gcd, Nat.cast_inj] at this
-      simp_rw [← Int.coe_gcd] at hab
-      split <;> split <;> (try split) <;>
-        simp [← Int.coe_gcd, hab, Int.gcd_comm, gcdab_eq_gcdac hp' h, ← this]
-    ha4 := of_not_FermatLastTheorem.aux₁.ha4 b c hab
-    hb2 := by
-      unfold of_not_FermatLastTheorem.aux₁
-      have hp' : p ≠ 0 := by omega
-      split <;> split <;> try split
-      all_goals simp [*]
-      all_goals
-        rw [ZMod.intCast_zmod_eq_zero_iff_dvd, Nat.cast_ofNat, ← even_iff_two_dvd,
-          ← Int.even_pow' hp', ← h]
-        apply Odd.add_odd <;>
-          rwa [Int.odd_pow' hp', Int.odd_iff_not_even, even_iff_two_dvd,
-            ← Nat.cast_ofNat, ← ZMod.intCast_zmod_eq_zero_iff_dvd]
-
 /-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5, there exists a Frey package. -/
-def of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
-    {p : ℕ} (hpprime : p.Prime) (hp : 5 ≤ p) (h : a^p + b^p = c^p) : FreyPackage :=
-  let d := gcd a b
-  have hd : d ≠ 0 := gcd_ne_zero_of_right hb
-  of_not_FermatLastTheorem_coprime_p_ge_5
-    (show a / d ≠ 0 by exact left_div_gcd_ne_zero ha)
-    (show b / d ≠ 0 by exact right_div_gcd_ne_zero hb)
-    (show c / gcd a b ≠ 0 by
-      rw [gcdab_eq_gcdac _ h]
-      · exact right_div_gcd_ne_zero hc
-      · linarith)
-    (by
-      simp [gcd]
-      apply Int.gcd_div_gcd_div_gcd
-      apply Int.gcd_pos_of_ne_zero_left _ ha)
-    p hpprime hp <| by
-  obtain ⟨a₁, (ha : a = d * a₁)⟩ := gcd_dvd_left a b
-  rw [gcdab_eq_gcdac (by linarith) h]
-  nth_rewrite 1 [ha]
-  rw [Int.mul_ediv_cancel_left _ hd]
-  obtain ⟨b₁, (hb : b = d * b₁)⟩ := gcd_dvd_right a b
-  rw [hb]
-  rw [Int.mul_ediv_cancel_left _ hd]
-  obtain ⟨c₁, hc⟩ : gcd a c ∣ c := gcd_dvd_right a c
-  rw [← gcdab_eq_gcdac (by linarith) h] at hc
-  nth_rewrite 1 [hc]
-  rw [gcdab_eq_gcdac (by linarith) h]
-  rw [Int.mul_ediv_cancel_left _ (by rwa [← gcdab_eq_gcdac (by linarith) h])]
-  change c = d * c₁ at hc
-  rw [ha, hb, hc, mul_pow, mul_pow, mul_pow] at h
-  have help : d ^ p ≠ 0 := pow_ne_zero _ hd
-  rw [← mul_add] at h
-  exact (Int.mul_eq_mul_left_iff help).mp h
-
-/-- If Fermat's Last Theorem is false, there exists a Frey package. -/
-lemma of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) : Nonempty (FreyPackage) :=
-  let ⟨a, b, c, ha, hb, hc, p, hpprime, hp, h⟩ := p_ge_5_counterexample_of_not_FermatLastTheorem h
-  ⟨of_not_FermatLastTheorem_p_ge_5 ha hb hc hpprime hp h⟩
+lemma of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
+    {p : ℕ} (pp : p.Prime) (hp5 : 5 ≤ p) (H : a^p + b^p = c^p) : Nonempty FreyPackage := by
+  have p_odd := pp.odd_of_ne_two (by omega)
+  -- First, show that we can make a,b coprime by dividing through by gcd a b
+  have ⟨a, b, c, a0, b0, c0, ab, H⟩ :
+      ∃ (a b c : ℤ), a ≠ 0 ∧ b ≠ 0 ∧ c ≠ 0 ∧ Int.gcd a b = 1 ∧ a^p + b^p = c^p := by
+    obtain ⟨d, a', b', d0, cop, a_eq, b_eq⟩ :=
+      Int.exists_gcd_one' (Int.gcd_pos_of_ne_zero_left b ha)
+    simp only [a_eq, mul_pow, b_eq] at H
+    rw [← add_mul, mul_comm] at H
+    obtain ⟨c', rfl⟩ := (Int.pow_dvd_pow_iff pp.ne_zero).1 ⟨_, H.symm⟩
+    rw [mul_pow] at H
+    have a0' := left_ne_zero_of_mul (a_eq ▸ ha)
+    have b0' := left_ne_zero_of_mul (b_eq ▸ hb)
+    have c0' := right_ne_zero_of_mul hc
+    exact ⟨a', b', c', a0', b0', c0', cop, mul_left_cancel₀ (pow_ne_zero _ (mod_cast d0.ne')) H⟩
+  -- Then show that WLOG we can take b to be even,
+  -- because at least one of a,b,c is even and we can permute if needed
+  have ⟨a, b, c, a0, b0, c0, ab, eb, H⟩ :
+      ∃ (a b c : ℤ), a ≠ 0 ∧ b ≠ 0 ∧ c ≠ 0 ∧ Int.gcd a b = 1 ∧ Even b ∧ a^p + b^p = c^p := by
+    if eb : Even b then
+      exact ⟨a, b, c, a0, b0, c0, ab, eb, H⟩
+    else if ea : Even a then
+      exact ⟨b, a, c, b0, a0, c0, Int.gcd_comm a b ▸ ab, ea, by rwa [add_comm]⟩
+    else
+      refine ⟨a, -c, -b, a0, neg_ne_zero.2 c0, neg_ne_zero.2 b0, ?_, even_neg.2 ?_, ?_⟩
+      · refine Int.gcd_neg.trans (.trans (.symm ?_) ab)
+        exact Nat.cast_inj.1 (gcdab_eq_gcdac pp.pos H)
+      · refine ((Int.even_pow (n := p)).1 (H.symm ▸ Int.even_add.2 (iff_of_false ?_ ?_))).1
+        · exact fun h => ea (Int.even_pow.1 h).1
+        · exact fun h => eb (Int.even_pow.1 h).1
+      · simp [p_odd.neg_pow, ← H]
+  -- We can ensure additionally that a ≡ 3 [ZMOD 4] by negating everything if necessary
+  have ⟨a, b, c, ha0, hb0, hc0, ab, ha3, eb, hFLT⟩ :
+      ∃ (a b c : ℤ), a ≠ 0 ∧ b ≠ 0 ∧ c ≠ 0 ∧ Int.gcd a b = 1 ∧
+        a ≡ 3 [ZMOD 4] ∧ Even b ∧ a^p + b^p = c^p := by
+    -- Since b is even, a cannot also be even
+    have a_odd' : ∀ {i}, a ≡ i [ZMOD 4] → ¬2 ∣ i := fun ai ei => by
+      have ea := (dvd_sub_right ei).1 (.trans (by decide) (Int.modEq_iff_dvd.1 ai))
+      simpa (config := {decide := true}) [gcd, ab] using dvd_gcd ea (even_iff_two_dvd.1 eb)
+    mod_cases a_mod : a % 4
+    · cases a_odd' a_mod (by decide)
+    · exact ⟨-a, -b, -c, neg_ne_zero.2 a0, neg_ne_zero.2 b0, neg_ne_zero.2 c0,
+        by rwa [Int.neg_gcd, Int.gcd_neg], a_mod.neg, eb.neg,
+        by simp [p_odd.neg_pow, ← H, add_comm]⟩
+    · cases a_odd' a_mod (by decide)
+    · exact ⟨a, b, c, a0, b0, c0, ab, a_mod, eb, H⟩
+  -- Build the Frey package from the assumptions
+  exact ⟨{
+    a, b, c, ha0, hb0, hc0, p, pp, hp5, hFLT
+    hgcdab := by simp [gcd, ab]
+    ha4 := (ZMod.intCast_eq_intCast_iff ..).2 ha3
+    hb2 := (ZMod.intCast_zmod_eq_zero_iff_dvd ..).2 (even_iff_two_dvd.1 eb)
+  }⟩
 
 /-- The elliptic curve associated to a Frey package. The conditions imposed
 upon a Frey package guarantee that the running hypotheses in
@@ -580,9 +373,8 @@ theorem FreyPackage.false (P : FreyPackage) : False := by
 
 -- Fermat's Last Theorem is true
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
-  -- assume FLT is false
-  by_contra h
-  -- get the Frey package
-  obtain ⟨P⟩ := FreyPackage.of_not_FermatLastTheorem h
-  -- But there is no Frey package
-  exact P.false
+  apply of_p_ge_5
+  intro p hp5 pp a b c ha hb _ h
+  refine Nonempty.elim ?_ FreyPackage.false
+  apply FreyPackage.of_not_FermatLastTheorem_p_ge_5 (a := a) (b := b) (c := c)
+    <;> assumption_mod_cast

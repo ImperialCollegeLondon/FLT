@@ -28,13 +28,13 @@ Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not
   There are no solutions in positive integers to $a^3+b^3=c^3$.
 \end{lemma}
 \begin{proof}
-  A proof has been formalised in Lean in the FLT-regular project \href{https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698}{\underline{here}}. 
-  Another proof has been formalised in Lean in the FLT3 project \href{https://github.com/riccardobrasca/flt3}{\underline{here}} by a team from the Lean For the Curious Mathematician conference held in Luminy in March 2024 
-  (its dependency graph can be visualised \href{https://pitmonticone.github.io/FLT3/blueprint/dep_graph_document.html}{\underline{here}}). 
+  A proof has been formalised in Lean in the FLT-regular project \href{https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698}{\underline{here}}.
+  Another proof has been formalised in Lean in the FLT3 project \href{https://github.com/riccardobrasca/flt3}{\underline{here}} by a team from the Lean For the Curious Mathematician conference held in Luminy in March 2024
+  (its dependency graph can be visualised \href{https://pitmonticone.github.io/FLT3/blueprint/dep_graph_document.html}{\underline{here}}).
   To get this node green, this latter proof needs to be upstreamed to mathlib. This is currently work in progress by the same team.
 \end{proof}
 
-\begin{corollary}\label{FLT.p_ge_5_counterexample_of_not_FermatLastTheorem}\lean{FLT.p_ge_5_counterexample_of_not_FermatLastTheorem}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
+\begin{corollary}\label{FLT.of_p_ge_5}\lean{FLT.of_p_ge_5}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
 \end{corollary}
 \begin{proof}\uses{fermatLastTheoremThree, FermatLastTheorem.of_odd_primes}\leanok Follows from the previous two lemmas.\end{proof}
 
@@ -46,10 +46,11 @@ For convenience we make the following definition.
 
 Our next reduction is as follows:
 
-\begin{lemma}\label{FLT.FreyPackage.of_not_FermatLastTheorem}\lean{FLT.FreyPackage.of_not_FermatLastTheorem}\leanok\discussion{19}
+\begin{lemma}\label{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}\lean{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}\leanok\discussion{19}
   If Fermat's Last Theorem is false, then there exists a Frey package.
 \end{lemma}
-\begin{proof}\uses{FLT.FreyPackage, FLT.p_ge_5_counterexample_of_not_FermatLastTheorem} By Corollary \ref{FLT.p_ge_5_counterexample_of_not_FermatLastTheorem} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
+\begin{proof}\uses{FLT.FreyPackage, FreyPackage.of_not_FermatLastTheorem_p_ge_5}
+  By Corollary \ref{FLT.of_p_ge_5} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
 
   If the greatest common divisor of $a,b,c$ is $d$ then $a^p+b^p=c^p$ implies $(a/d)^p+(b/d)^p=(c/d)^p$. Dividing through, we can thus assume that no prime divides all of $a,b,c$. Under this assumption we must have that $a,b,c$ are pairwise coprime, as if some prime divides two of the integers $a,b,c$ then by $a^p+b^p=c^p$ and unique factorization it must divide all three of them. In particular we may assume that not all of $a,b,c$ are even, and now reducing modulo~2 shows that precisely one of them must be even.
 
@@ -88,8 +89,8 @@ This construction is functorial (it sends the identity to the identity, and comp
 \begin{proof} Another easy calculation.
 \end{proof}
 
- Thus if $f:K\to L$ is an isomorphism of fields, the induced map $E(K)\to E(L)$ is an isomorphism of groups, with the inverse isomorphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This construction thus gives us an action of the multiplicative group $\Aut_k(K)$ of automorphisms of the field $K$ on the additive abelian group $E(K)$. 
- 
+ Thus if $f:K\to L$ is an isomorphism of fields, the induced map $E(K)\to E(L)$ is an isomorphism of groups, with the inverse isomorphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This construction thus gives us an action of the multiplicative group $\Aut_k(K)$ of automorphisms of the field $K$ on the additive abelian group $E(K)$.
+
 \begin{definition}\label{EllipticCurve.galoisRepresentation}\lean{EllipticCurve.galoisRepresentation}\uses{EllipticCurve.Points.map_id,EllipticCurve.Points.map_comp}
   If $E$ is an elliptic curve over a field $k$ and $K$ is a field and a $k$-algebra,
   then the group of $k$-automorphisms of $K$ acts on the additive abelian group $E(K)$.
