@@ -46,8 +46,14 @@ lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y := by
   ext n
   apply h
 
+lemma ext_iff (x y : ZHat) : (∀ n : ℕ+, x n = y n) ↔ x = y :=
+  ⟨ext x y, fun h n => by exact congrFun (congrArg DFunLike.coe h) n⟩
+
 @[simp] lemma zero_val (n : ℕ+) : (0 : ZHat) n = 0 := rfl
 @[simp] lemma one_val (n : ℕ+) : (1 : ZHat) n = 1 := rfl
+@[simp] lemma ofNat_val (m : ℕ) [m.AtLeastTwo] (n : ℕ+) :
+  (OfNat.ofNat m : ZHat) n = (OfNat.ofNat m : ZMod n) := rfl
+@[simp] lemma natCast_val (m : ℕ) (n : ℕ+) : (m : ZHat) n = (m : ZMod n) := rfl
 
 instance commRing : CommRing ZHat := inferInstance
 
@@ -61,7 +67,12 @@ lemma zeroNeOne : (0 : ZHat) ≠ 1 := by
 instance nontrivial : Nontrivial ZHat := ⟨0, 1, zeroNeOne⟩
 
 instance charZero : CharZero ZHat := ⟨ fun a b h ↦ by
-  sorry
+  rw [← ext_iff] at h
+  specialize h ⟨_, (max a b).succ_pos⟩
+  apply_fun ZMod.val at h
+  rwa [natCast_val, ZMod.val_cast_of_lt, natCast_val, ZMod.val_cast_of_lt] at h
+  · simp [Nat.succ_eq_add_one, Nat.lt_add_one_iff]
+  · simp [Nat.succ_eq_add_one, Nat.lt_add_one_iff]
   ⟩
 --lemma NonAssocSemiring.Nontrivial_iff (R : Type) [NonAssocSemiring R] :
 --    Nontrivial R ↔ (0 : R) ≠ 1 :=
