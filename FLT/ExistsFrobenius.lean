@@ -88,7 +88,7 @@ This file was written in Prof. Buzzard's 'FLT' repository.
 
 ## References
 
-See [Milne (2020)] foonote '2' on p. 141 (p. 143 in PDF)
+See [Milne (2020)] footnote '2' on p. 141 (p. 143 in PDF)
   for the proof on which this file is based.
 
 See [Yang & Lutz (2023)], for the definitions of 'AKLB setup' and `galRestrict`.
