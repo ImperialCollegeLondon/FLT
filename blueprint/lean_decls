@@ -29,6 +29,8 @@ ZHat.torsionfree
 ZHat.multiples
 QHat
 QHat.canonicalForm
+QHat.IsCoprime
+QHat.lowestTerms
 QHat.injective_rat
 QHat.injective_zHat
 IsCentralSimple

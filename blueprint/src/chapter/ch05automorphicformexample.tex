@@ -341,7 +341,7 @@ $\frac{1}{N}\otimes_t z$ as $z/N$ does tempt us into the following definition.
     \label{QHat.IsCoprime}
     \lean{QHat.IsCoprime}
     \uses{ZHat.commRing}
-    \leanOK
+    \leanok
     If $N\in\N^+$ and $z\in\Zhat$ then we say that $N$ and $z$ are \emph{coprime} if
     $z_N\in(\Z/N\Z)^\times$. We write $z/N$ as notation
     for the element $\frac{1}{N}\otimes_tz$.
@@ -351,6 +351,7 @@ $\frac{1}{N}\otimes_t z$ as $z/N$ does tempt us into the following definition.
     \label{QHat.lowestTerms}
     \lean{QHat.lowestTerms}
     \uses{QHat.IsCoprime}
+    \leanok
     Every element of $\Qhat$ can be uniquely written as $z/N$ with $z\in\Zhat$, $N\in\N^+$,
     and with $N$ and $z$ coprime.
 \end{lemma}
@@ -365,7 +366,7 @@ $\frac{1}{N}\otimes_t z$ as $z/N$ does tempt us into the following definition.
     
     Uniquemess: if $z/N=w/M$, we deduce $1\otimes_t Mz=1\otimes_t Nw$,
     and by injectivity of $\Zhat\to\Qhat$ we deduce that $Mz=Nw=y$.
-    In particular, if $L=\lcm(M,N)$ then $y_L$ is a multiple of both $M$ and $N$ and is
+    In particular, if $L$ is the lowest common multiple of $M$ and $N$ then $y_L$ is a multiple of both $M$ and $N$ and is
     hence zero, so $y=Lx$ is a multiple of~$L$ by~\ref{ZHat.multiples}, and we deduce
     from torsionfreeness that $z=(L/M)x$ and $w=(L/N)x$. If some prime divided $L/M$
     then it would have to divide~$N$ which means that $z$ is not in lowest terms;
