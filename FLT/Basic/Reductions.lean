@@ -318,8 +318,24 @@ def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b
       · rwa [← Int.neg_ne_zero] at hb
       · exact ha
       · rwa [← Int.neg_ne_zero] at ha
-    hb0 := sorry -- etc etc
-    hc0 := sorry
+    hb0 := by
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
+      · exact hb
+      · rwa [← Int.neg_ne_zero] at hb
+      · exact ha
+      · rwa [← Int.neg_ne_zero] at ha
+      · rwa [← Int.neg_ne_zero] at hc
+      · exact hc
+    hc0 := by
+      unfold of_not_FermatLastTheorem.aux₁
+      split <;> split <;> try split -- how come `split` doesn't do this all in one go?
+      · exact hc
+      · rwa [← Int.neg_ne_zero] at hc
+      · exact hc
+      · rwa [← Int.neg_ne_zero] at hc
+      · rwa [← Int.neg_ne_zero] at hb
+      · exact hb
     p := p
     hp5 := hp
     hFLT := by
@@ -339,10 +355,26 @@ def of_not_FermatLastTheorem_coprime_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b
         linear_combination h
       · rw [neg_pow a, negonepow]
         linear_combination -h
-    hgcdab := sorry
+    hgcdab := by
+      unfold of_not_FermatLastTheorem.aux₁
+      have hp' : 0 < p := by omega
+      have := gcdab_eq_gcdac hp' h
+      simp_rw [← Int.coe_gcd, Nat.cast_inj] at this
+      simp_rw [← Int.coe_gcd] at hab
+      split <;> split <;> (try split) <;>
+        simp [← Int.coe_gcd, hab, Int.gcd_comm, gcdab_eq_gcdac hp' h, ← this]
     ha4 := of_not_FermatLastTheorem.aux₁.ha4 b c hab
-    hb2 := sorry
-
+    hb2 := by
+      unfold of_not_FermatLastTheorem.aux₁
+      have hp' : p ≠ 0 := by omega
+      split <;> split <;> try split
+      all_goals simp [*]
+      all_goals
+        rw [ZMod.intCast_zmod_eq_zero_iff_dvd, Nat.cast_ofNat, ← even_iff_two_dvd,
+          ← Int.even_pow' hp', ← h]
+        apply Odd.add_odd <;>
+          rwa [Int.odd_pow' hp', Int.odd_iff_not_even, even_iff_two_dvd,
+            ← Nat.cast_ofNat, ← ZMod.intCast_zmod_eq_zero_iff_dvd]
 
 /-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5, there exists a Frey package. -/
 def of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
