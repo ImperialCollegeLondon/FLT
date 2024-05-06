@@ -33,5 +33,9 @@ QHat.IsCoprime
 QHat.lowestTerms
 QHat.injective_rat
 QHat.injective_zHat
+QHat.rat_meet_zHat
+QHat.rat_join_zHat
+QHat.unitsrat_meet_unitszHat
+QHat.unitsrat_join_unitszHat
 IsCentralSimple
 MatrixRing.isCentralSimple

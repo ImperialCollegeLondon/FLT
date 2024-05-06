@@ -427,7 +427,9 @@ these results as $\Q\sqcap\Zhat=\Z$ and$\Q\sqcup\Zhat=\Qhat$.
 
 \begin{lemma}
     \label{Qhat.rat_meet_zHat} 
+    \lean{QHat.rat_meet_zHat}
     \uses{QHat,ZHat.commRing}
+    \leanok
     The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
 \end{lemma}
 \begin{proof}
@@ -440,7 +442,9 @@ these results as $\Q\sqcap\Zhat=\Z$ and$\Q\sqcup\Zhat=\Qhat$.
 
 \begin{lemma}
     \label{QHat.rat_join_zHat}
+    \lean{QHat.rat_join_zHat}
     \uses{QHat,ZHat.commRing}
+    \leanok
     The sum of $\Q$ and $\Zhat$ in $\Qhat$ is $\Qhat$.
     More precisely, every elemnet of $\Qhat$ can be written as $q+z$ with $q\in\Q$ and $z\in\Zhat$, 
     or more precisely as $q\otimes_t 1+1\otimes_t z$.
@@ -449,6 +453,52 @@ these results as $\Q\sqcap\Zhat=\Z$ and$\Q\sqcup\Zhat=\Qhat$.
     Write $x\in\Qhat$ as $x=z/N$ in lowest terms. Lift $z_N$ to an integer $t$ and observe
     that $(z-t)_N=0$, hence $z-t=Ny$ for some $y\in\Zhat$. Now $x=t/n+y\in\Q+\Zhat$.
 \end{proof}
+
+\section{Multiplicative structure of the units of $\Qhat$.}
+
+We now forget the additive structure on the commutative ring $\Qhat$ and consider
+the muliplicative structure of its group of units $\Qhat^\times$ (which I couldn't
+get into the section title). We have the obvious
+subgroups $\Q^\times$, $\Z^\times$ and $\Zhat^\times$.
+
+\begin{lemma}
+    \label{Qhat.unitsrat_meet_unitszHat} 
+    \lean{QHat.unitsrat_meet_unitszHat}
+    \uses{QHat,ZHat.commRing}
+    \leanok
+    The intersection of $\Q^\times$ and $\Zhat^\times$ in $\Qhat^\times$ is $\Z^\times$.
+\end{lemma}
+\begin{proof}
+    \uses{QHat.lowestTerms}
+    Clearly the intersection is contained within $\Q\cap\Zhat=\Z$. If $n\in\Z$ is in $\Zhat^\times$
+    then $n\not=0$ and its inverse $1/n=\pm1/|n|$ is in lowest terms but also in $\Zhat$,
+    and hence $|n|=1$ by uniqueness of lowest term representation.
+\end{proof}
+
+\begin{lemma}
+    \label{QHat.unitsrat_join_unitszHat}
+    \lean{QHat.unitsrat_join_unitszHat}
+    \uses{QHat,ZHat.commRing}
+    \leanok
+    The product of $\Q^\times$ and $\Zhat^\times$ in $\Qhat^\times$ is all of $\Qhat^\times$.
+    More precisely, every element of $\Qhat^\times$ can be written as $qz$ with $q\in\Q^\times$
+    and $z\in\Zhat^\times$. 
+\end{lemma}
+Note that by the previous lemma, this representation will be unique up to sign.
+\begin{proof}
+    \uses{QHat.lowestTerms}
+  We already know that a general element of $\Qhat^\times$ can be written as $x/N$ with $N$
+  positive, so this reduces us to proving that a general element $x\in\Zhat$ which is invertible
+  in $\Qhat^\times$ can be written as $qz$ with $q\in\Q^\times$ and $z\in\Zhat^\times$.
+
+  We know $1/x$ can be written in lowest terms as $y/M$, and multiplying up we deduce
+  that $xy=M$. This means that $x_My_M=0\in\Z/M\Z$ and hence it is possible to write
+  $M=AB$ with $A\in\N^+$ the gcd of $x_M$ and $M$ and similarly for $B$. Thus $x_A=0$
+  and $y_B=0$, meaning that $x$ can be divided by~$A$ and $y$ can by~$B$ leaving us with
+  units.
+\end{proof}
+
+
 
 
 
