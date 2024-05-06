@@ -68,7 +68,30 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := sorry
 lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := sorry
 
 -- LaTeX proof in the notes.
-lemma multiples (N : ℕ+) (z : ZHat) : N * z = 0 ↔ z N = 0 := sorry
+lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 := by
+  constructor
+  · intro ⟨y, hy⟩
+    rw [← hy]
+    change N * (y N) = 0
+    simp [ZMod.natCast_self]
+  · intro h
+    let y : ZHat := {
+      val := fun j ↦ (by
+        let yj_preimage := z (N * j)
+        have hh := z.2 N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
+        have : z.val N = 0 := h
+        rw [this] at hh
+        -- use `hh` to conclude that `yj_preimage/N` makes sense as an element of `ZMod j`.
+        -- This is the `y j` we want.
+        sorry)
+      property := sorry
+        -- `y` is compatible
+    }
+    refine ⟨y, ?_⟩
+    ext j
+    have hh := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
+    rw [← hh]
+    sorry -- This should be easy once `y` is defined.
 
 end ZHat
 
