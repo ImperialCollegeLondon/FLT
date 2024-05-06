@@ -158,4 +158,21 @@ lemma rat_join_zHat : ratsub ⊔ Zhatsub = ⊤ := sorry
 
 end additive_structure_of_QHat
 
+section multiplicative_structure_of_QHat
+
+noncomputable abbrev unitsratsub : Subgroup QHatˣ :=
+  (Units.map (i₁ : ℚ →* QHat)).range
+
+noncomputable abbrev unitszHatsub : Subgroup QHatˣ :=
+  (Units.map (i₂ : ZHat →* QHat)).range
+
+noncomputable abbrev unitszsub : Subgroup QHatˣ :=
+  (Units.map (Int.castRingHom QHat : ℤ →* QHat)).range
+
+lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := sorry
+
+-- this needs that ℤ is a PID.
+lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := sorry
+
+end multiplicative_structure_of_QHat
 end QHat
