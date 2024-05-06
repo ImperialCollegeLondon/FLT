@@ -317,6 +317,7 @@ let's prove this now.
     \lean{QHat.canonicalForm}
     \uses{QHat,ZHat.commRing} Every element of $\Qhat:=\Q\otimes\Zhat$
 can be written as $q\otimes_t z$ with $q\in\Q$ and $z\in\Zhat$.
+Furthermore one can even assume that $q=\frac{1}{N}$ for some positive integer $N$.
 \end{lemma}
 \begin{proof} A proof I would write on the board would look like the following. Take a general 
     element of $\Qhat$; we know it can be expressed as a finite sum
@@ -333,14 +334,44 @@ can be written as $q\otimes_t z$ with $q\in\Q$ and $z\in\Zhat$.
 \end{proof}
 
 Be careful though: just because every element of $\Qhat$ can be written as $q\otimes z$, this
-representation may not be unique. For example $2\otimes 1=1\otimes 2$.
+representation may not be unique. For example $2\otimes 1=1\otimes 2$. However, writing 
+$\frac{1}{N}\otimes_t z$ as $z/N$ does tempt us into the following definition.
 
-\begin{remark} There does seem to be a unique ``lowest terms'' simple tensor representative of an 
-    element of $\Qhat$; it is of the form $\frac{1}{D}\otimes_t z$ where $D$ is as small as
-    possible; I claim that a pure tensor of this form is in lowest terms when $z\in\Zhat$ 
-    satifies $z_D\in(\Z/D\Z)^\times$. We do not seem to need this fact in this chapter, but it
-    would still be interesting to formalise. Feel free to add the example to the repo!
-\end{remark}
+\begin{definition}
+    \label{QHat.IsCoprime}
+    \lean{QHat.IsCoprime}
+    \uses{ZHat.commRing}
+    \leanOK
+    If $N\in\N^+$ and $z\in\Zhat$ then we say that $N$ and $z$ are \emph{coprime} if
+    $z_N\in(\Z/N\Z)^\times$. We write $z/N$ as notation
+    for the element $\frac{1}{N}\otimes_tz$.
+\end{definition}
+
+\begin{lemma}
+    \label{QHat.lowestTerms}
+    \lean{QHat.lowestTerms}
+    \uses{QHat.IsCoprime}
+    Every element of $\Qhat$ can be uniquely written as $z/N$ with $z\in\Zhat$, $N\in\N^+$,
+    and with $N$ and $z$ coprime.
+\end{lemma}
+\begin{proof}
+    Existence: by the previous lemma, an arbirary element can be written as $z/N$; let $D$
+    be the greatest common divisor of $N$ and $z_N$ (lifted to a natural). If $D=1$ 
+    then the fraction is by definition in lowest terms. However if $1<D\mid N$ then $z_D$
+    is the reduction of $z_N$ and is hence 0. By lemma~\ref{ZHat.multiples} we deduce that $z=Dy$
+    is a multiple of~$D$, and hence $z/N=\frac{1}{N}\otimes_tDy=\frac{1}{E}\otimes y$, where
+    $E=N/D$. Now if a natural divided both $y_E$ and $E$ then this natural would divide both $z_N/D$
+    and $N/D$, contradicting the fact that $D$ is the greatest common divisors.
+    
+    Uniquemess: if $z/N=w/M$, we deduce $1\otimes_t Mz=1\otimes_t Nw$,
+    and by injectivity of $\Zhat\to\Qhat$ we deduce that $Mz=Nw=y$.
+    In particular, if $L=\lcm(M,N)$ then $y_L$ is a multiple of both $M$ and $N$ and is
+    hence zero, so $y=Lx$ is a multiple of~$L$ by~\ref{ZHat.multiples}, and we deduce
+    from torsionfreeness that $z=(L/M)x$ and $w=(L/N)x$. If some prime divided $L/M$
+    then it would have to divide~$N$ which means that $z$ is not in lowest terms;
+    similarly if some prime divided $L/N$ then $w/M$ would not be in lowest terms.
+    We deduce that $L=M=N$ and hence $z=w$ by torsionfreeness.
+\end{proof}
 
 If $A$ and $B$ are additive abelian groups then $A\otimes B$ is also an additive abelian group.
 However if $A$ and $B$ are commutative rings, then $A\otimes B$ also inherits the structure
@@ -399,6 +430,8 @@ these results as $\Q\sqcap\Zhat=\Z$ and$\Q\sqcup\Zhat=\Qhat$.
     \notready The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
 \end{lemma}
 \begin{proof}
+    Clearly $\Z\subseteq\Q\cap\Zhat$. Now suppose that $q\otimes_t z\in\Q\cap\Zhat$.
+    Then $q\in\Q$ and $z\in\Zhat$, so $q\in\Z$ and $z\in\Z$. Thus $q\otimes_t z\in\Z$.
     Shouldn't be hard.
 \end{proof}
 

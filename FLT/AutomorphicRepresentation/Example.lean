@@ -82,11 +82,31 @@ noncomputable example : QHat := (22 / 7) ⊗ₜ ZHat.e
 
 namespace QHat
 
-lemma canonicalForm : ∀ z : QHat, ∃ q : ℚ, ∃ z' : ZHat, z = q ⊗ₜ z' := sorry
+lemma canonicalForm : ∀ z : QHat, ∃ N : ℕ+, ∃ z' : ZHat, z = (1 / N : ℚ) ⊗ₜ z' := sorry
 
-open scoped TensorProduct in
-noncomputable example (R A B : Type) [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra R B] :
- A →+* A ⊗[R] B := by exact Algebra.TensorProduct.includeLeftRingHom -- fails
+/-
+\begin{definition}
+    \label{QHat.IsCoprime}
+    \lean{QHat.IsCoprime}
+    If $N\in\N^+$ and $z\in\Zhat$ then we say that $N$ and $z$ are \emph{coprime} if
+    $z_N\in(\Z/N\Z)^\times$. We write $z/N$ as notation
+    for the element $\frac{1}{N}\otimes_tz$.
+\end{definition}
+
+\begin{lemma}
+    \label{QHat.lowestTerms}
+    \lean{QHat.lowestTerms}
+    Every element of $\Qhat$ can be uniquely written as $z/N$ with $z\in\Zhat$, $N\in\N^+$,
+    and with $N$ and $z$ coprime.
+\end{lemma}
+-/
+
+def IsCoprime (N : ℕ+) (z : ZHat) : Prop := IsUnit (z N)
+
+lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗ₜ z) ∧
+    (∀ N₁ N₂ z₁ z₂,
+    IsCoprime N₁ z₁ ∧ IsCoprime N₂ z₂ ∧ (1 / N₁ : ℚ) ⊗ₜ z₁ = (1 / N₂ : ℚ) ⊗ₜ[ℤ] z₂ →
+      N₁ = N₂ ∧ z₁ = z₂) := sorry
 
 noncomputable abbrev i₁ : ℚ →ₐ[ℤ] QHat := Algebra.TensorProduct.includeLeft
 lemma injective_rat :
