@@ -35,20 +35,9 @@ theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty :
     IsCentralSimple K (Matrix ι ι K) where
   is_central d hd := by
     rw [Subring.mem_center_iff] at hd
-    obtain ⟨k⟩ := hnonempty
-    use d k k
-    ext i j
-    simp_rw [algebraMap_matrix_apply, Algebra.id.map_eq_id, RingHom.id_apply]
-    split_ifs with h
-    · subst h
-      specialize hd (stdBasisMatrix k i (1 : K))
-      rw [← ext_iff] at hd
-      specialize hd k i
-      simpa using hd
-    · specialize hd (stdBasisMatrix j i (1 : K))
-      rw [← ext_iff] at hd
-      specialize hd j j
-      simpa [Ne.symm h] using hd
+    convert mem_range_scalar_of_commute_stdBasisMatrix (M := d) fun i j hij => hd _
+    simp_rw [Set.mem_range, eq_comm]
+    rfl
   is_simple := sorry
 
 namespace IsCentralSimple
