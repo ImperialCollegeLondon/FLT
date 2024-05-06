@@ -82,7 +82,7 @@ $z_N\in\Z/N\Z$ is \emph{compatible} if it satisfies this rule.
 
 \begin{definition}\label{ZHat}\lean{ZHat}\leanok The profinite completion $\Zhat$ of $\Z$ is the set of 
     all compatible collections $c=(c_N)_N$ of elements of $\Z/N\Z$ indexed by $\N^+:=\{1,2,3,\ldots\}$.
-    Such a collection is said to be \emph{compatible} if for all positive integers
+    A collection is said to be \emph{compatible} if for all positive integers
     $D\mid N$, we have $c_N$ mod $D$ equals $c_D$.
 \end{definition}
 
@@ -91,14 +91,43 @@ $z_N\in\Z/N\Z$ is \emph{compatible} if it satisfies this rule.
     \lean{ZHat.commRing} 
     \uses{ZHat}
     \leanok
-    $\Zhat$ is a subring of $\prod_{N\geq1}(Z/N\Z)$ and in particular a ring.
+    $\Zhat$ is a subring of $\prod_{N\geq1}(Z/N\Z)$ and in particular is a ring.
 \end{lemma}
 \begin{proof} \leanok Follow your nose.
 \end{proof}
 
 Examples of elements of $\Zhat$ are are given by integers, where we define $z_N$ to be $z$ 
-mod $N$ for all $N$. This gives us a natural injection from $\Z$ to $\Zhat$. But $\Zhat$
-is much much larger than $\Z$; it has the same cardinality as the reals in fact. 
+mod $N$ for all $N$. This gives us a natural map from $\Z$ to $\Zhat$. In particular we
+can talk about $0\in\Zhat$ and $1\in\Zhat$. 
+
+\begin{lemma}
+    \label{ZHat.nontrivial}
+    \lean{ZHat.nontrivial}
+    \uses{ZHat.commRing}
+    \leanok
+    $0\not=1$ in $\Zhat$.
+\end{lemma}
+\begin{proof}
+    \leanok 
+    Recall that you can evaluate an element of $\Zhat$ at a positive integer.
+    Evaluating $0$ at 2 gives $0$, and evaluating $1$ at $2$ gives $1$, and these
+    are distinct elements of $\Z/2\Z$, so $0\not=1$ in $\Zhat$.
+\end{proof}
+
+\begin{lemma}
+    \label{ZHat.charZero}
+    \lean{ZHat.charZero}
+    \leanok
+    The map from the naturals into $\Zhat$ sending $n$ to $n$ is injective.
+\end{lemma}
+\begin{proof}
+    Generalise the above idea. Feel free to write up a LaTeX proof and PR it.
+\end{proof}
+
+Note that it follows easily that that the map from the integers to $\Zhat$ is injective.
+
+But $\Zhat$
+is \emph{much} larger than $\Z$; it has the same cardinality as the reals in fact. 
 Let's write down an explicit example of an element of $\Zhat$ which isn't obviously in $\Z$.
 
 \begin{definition}
@@ -139,32 +168,7 @@ Let's write down an explicit example of an element of $\Zhat$ which isn't obviou
     and it's hard? We will not need it later on.
 \end{proof}
 
-Let's prove some basic facts about $\Zhat$.
-
-\begin{lemma}
-    \label{ZHat.nontrivial}
-    \lean{ZHat.nontrivial}
-    \uses{ZHat.commRing}
-    \leanok
-    $0\not=1$ in $\Zhat$.
-\end{lemma}
-\begin{proof}
-    \leanok 
-    Recall that you can evaluate an element of $\Zhat$ at a positive integer.
-    Evaluating $0$ at 2 gives $0$, and evaluating $1$ at $2$ gives $1$, and these
-    are distinct elements of $\Z/2\Z$, so $0\not=1$ in $\Zhat$.
-\end{proof}
-
-\begin{lemma}
-    \label{ZHat.charZero}
-    \lean{ZHat.charZero}
-    \leanok
-    The map from the naturals into $\Zhat$ sending $n$ to $n$ is injective.
-\end{lemma}
-
-\begin{proof}
-    Generalise the above idea. Feel free to write up a LaTeX proof and PR it.
-\end{proof}
+Let's prove some more basic facts about $\Zhat$.
 
 \begin{lemma}
     \label{ZHat.torsionfree}
@@ -182,7 +186,8 @@ Let's prove some basic facts about $\Zhat$.
     mod~$j$ reduction of $z_{Nj}$ and hence is zero.
 \end{proof}
 
-Later on will need to understand what the multiples of~$N$ are in $\Zhat$.
+We will also need to understand exactly which elements of $\Zhat$
+are multiples of~$N$.
 
 \begin{lemma}
     \label{ZHat.multiples}
@@ -194,11 +199,11 @@ Later on will need to understand what the multiples of~$N$ are in $\Zhat$.
 \end{lemma}
 \begin{proof}
     Clearly $z_N=0$ is a necessary condition to be a multiple of~$N$. To see it is sufficient, 
-    take a general $(z_i)\in\Zhat$ which is a multiple of~$N$, note that $z_N=0$, 
+    take a general $(z_i)\in\Zhat$ such that $z_N=0$, 
     and now define a new element $(y_j)_j$ of $\Zhat$
-    by $y_j=z_{Nj}/N$. Just to clarify what this means: $z_{Nj}\in\Z/Nj\Z$ maps to $z_N=0$ in $\Z/N\Z$
-    by the compatibility assumption, so it is in the subgroup $N\Z/Nj\Z$ of $\Z/Nj\Z$, 
-    which is isomorphic (via "division by $N$") to the ring $\Z/j\Z$; this is how we construct 
+    by $y_j=z_{Nj}/N$. Just to clarify what this means: $z_{Nj}\in\Z/Nj\Z$ reduces mod~$N$ 
+    to $z_N=0$ by the compatibility assumption, so it is in the subgroup $N\Z/Nj\Z$ of $\Z/Nj\Z$, 
+    which is isomorphic (via "division by $N$") to the group $\Z/j\Z$; this is how we construct 
     $y_j$. It is easily checked that the $y_j$ are compatible and that $Ny=z$.
 \end{proof}
 
@@ -250,8 +255,8 @@ tensoring over the integers). It is not like the product of groups or the disjoi
 two sets, where you have a completely explicit unambiguous formula for each element. 
 
 In this sense, the theory of tensor products is a bit like the theory of continuous functions. 
-Humanity started off studying concrete polynomial equations such as $x^2+y^2$ and then moved on to 
-concrete analytic  functions such as $\log(x)$ and $\sin(x)$, but eventually the abstract concept 
+Humanity started off studying concrete polynomial equations such as $x^2+1$ and then moved on to 
+concrete analytic functions such as $\log(x)$ and $\sin(x)$, but eventually the abstract concept 
 of a continuous function from the reals to the reals was born. There is no ``formula'' for a general 
 continuous function, and continuous functions such as $e^{-1/x^2}$ or $|x|$ have no power series.
 Even if there \emph{were} a formula for a specific continuous function of interest, it is not clear 
@@ -260,8 +265,9 @@ no "canonical form" for a general continuous function, and yet we prove things a
 We shall adopt the same attitude for elements of $A\otimes B$.
 
 The first thing to know about the tensor product $A\otimes B$ of two abelian groups $A$ and $B$
-is a ``constructor'' for the type. In other words, how can we make elements of this type?
-Well, given elements $a\in A$ and $b\in B$, we can form the element $a\otimes_t b\in A\otimes B$. 
+is a ``constructor'' for the type. In other words, how can we make elements $A\otimes B$?
+Well, it turns out that given elements $a\in A$ and $b\in B$, we can form the element 
+$a\otimes_t b\in A\otimes B$. 
 
 \begin{example} Recall that the sum of all the factorials is an element $e\in\Zhat$, and $22/7$ is certainly
 a rational number, so we can make the element $\frac{22}{7}\otimes_te\in\Qhat$.
@@ -311,6 +317,7 @@ let's prove this now.
     \lean{QHat.canonicalForm}
     \uses{QHat,ZHat.commRing} Every element of $\Qhat:=\Q\otimes\Zhat$
 can be written as $q\otimes_t z$ with $q\in\Q$ and $z\in\Zhat$.
+Furthermore one can even assume that $q=\frac{1}{N}$ for some positive integer $N$.
 \end{lemma}
 \begin{proof} A proof I would write on the board would look like the following. Take a general 
     element of $\Qhat$; we know it can be expressed as a finite sum
@@ -327,14 +334,45 @@ can be written as $q\otimes_t z$ with $q\in\Q$ and $z\in\Zhat$.
 \end{proof}
 
 Be careful though: just because every element of $\Qhat$ can be written as $q\otimes z$, this
-representation may not be unique. For example $2\otimes 1=1\otimes 2$.
+representation may not be unique. For example $2\otimes 1=1\otimes 2$. However, writing 
+$\frac{1}{N}\otimes_t z$ as $z/N$ does tempt us into the following definition.
 
-\begin{remark} There does seem to be a unique ``lowest terms'' simple tensor representative of an 
-    element of $\Qhat$; it is of the form $\frac{1}{D}\otimes_t z$ where $D$ is as small as
-    possible; I claim that a pure tensor of this form is in lowest terms when $z\in\Zhat$ 
-    satifies $z_D\in(\Z/D\Z)^\times$. We do not seem to need this fact in this chapter, but it
-    would still be interesting to formalise. Feel free to add the example to the repo!
-\end{remark}
+\begin{definition}
+    \label{QHat.IsCoprime}
+    \lean{QHat.IsCoprime}
+    \uses{ZHat.commRing}
+    \leanok
+    If $N\in\N^+$ and $z\in\Zhat$ then we say that $N$ and $z$ are \emph{coprime} if
+    $z_N\in(\Z/N\Z)^\times$. We write $z/N$ as notation
+    for the element $\frac{1}{N}\otimes_tz$.
+\end{definition}
+
+\begin{lemma}
+    \label{QHat.lowestTerms}
+    \lean{QHat.lowestTerms}
+    \uses{QHat.IsCoprime}
+    \leanok
+    Every element of $\Qhat$ can be uniquely written as $z/N$ with $z\in\Zhat$, $N\in\N^+$,
+    and with $N$ and $z$ coprime.
+\end{lemma}
+\begin{proof}
+    Existence: by the previous lemma, an arbirary element can be written as $z/N$; let $D$
+    be the greatest common divisor of $N$ and $z_N$ (lifted to a natural). If $D=1$ 
+    then the fraction is by definition in lowest terms. However if $1<D\mid N$ then $z_D$
+    is the reduction of $z_N$ and is hence 0. By lemma~\ref{ZHat.multiples} we deduce that $z=Dy$
+    is a multiple of~$D$, and hence $z/N=\frac{1}{N}\otimes_tDy=\frac{1}{E}\otimes y$, where
+    $E=N/D$. Now if a natural divided both $y_E$ and $E$ then this natural would divide both $z_N/D$
+    and $N/D$, contradicting the fact that $D$ is the greatest common divisors.
+    
+    Uniquemess: if $z/N=w/M$, we deduce $1\otimes_t Mz=1\otimes_t Nw$,
+    and by injectivity of $\Zhat\to\Qhat$ we deduce that $Mz=Nw=y$.
+    In particular, if $L$ is the lowest common multiple of $M$ and $N$ then $y_L$ is a multiple of both $M$ and $N$ and is
+    hence zero, so $y=Lx$ is a multiple of~$L$ by~\ref{ZHat.multiples}, and we deduce
+    from torsionfreeness that $z=(L/M)x$ and $w=(L/N)x$. If some prime divided $L/M$
+    then it would have to divide~$N$ which means that $z$ is not in lowest terms;
+    similarly if some prime divided $L/N$ then $w/M$ would not be in lowest terms.
+    We deduce that $L=M=N$ and hence $z=w$ by torsionfreeness.
+\end{proof}
 
 If $A$ and $B$ are additive abelian groups then $A\otimes B$ is also an additive abelian group.
 However if $A$ and $B$ are commutative rings, then $A\otimes B$ also inherits the structure
@@ -352,10 +390,11 @@ $\Qhat=\Q\otimes\Zhat$ both maps from $\Q$ and $\Zhat$ are inclusions.
     The ring homomorphism $\Q\to\Qhat$ sending $q$ to $q\otimes_t 1$
     is injective.
 \end{lemma}
-\begin{proof} Any ring homomorphism from a field to a nontrivial ring
-    is injective, so it suffices to show that $\Qhat$ is nontrivial. Now
-    we already proved that $\Zhat$ had characteristic zero, and I suspect that this helps,
-    but I do not immediately see how to prove this cleanly.
+\begin{proof} We have seen that the map from $\Z$ to $\Zhat$ is
+    injective. Now $\Q$ is a flat $\Z$-module, because it's
+    torsion-free, so tensoring up we deduce that the map
+    from $\Q=\Q\otimes\Z$ to $\Qhat=\Q\otimes\Zhat$ is also injective.
+    There is no doubt a more elementary proof of this fact.
 \end{proof}
 
 \begin{lemma}
@@ -367,8 +406,9 @@ $\Qhat=\Q\otimes\Zhat$ both maps from $\Q$ and $\Zhat$ are inclusions.
     $z$ to $1\otimes_t z$ is injective.
 \end{lemma}
 \begin{proof} 
-    The argument should go like this: if $1\otimes_t z\_1=1\otimes_t z_2$ then for some
-    positive natural (denominator) we have $Nz_1=Nz_2$ and we're now done by torsionfreeness.
+    The map from $\Z$ to $\Q$ is injective, and we have seen
+    tha $\Zhat$ is a torsion-free and thus flat $\Z$-module,
+    so the map from $\Zhat$ to $\Qhat$ is also injective.
 \end{proof}
 
 We can thus identify $\Q=\Q\otimes\Z$ and $\Zhat=\Z\otimes\Zhat$ with subrings of $\Qhat=\Q\otimes\Zhat$.
@@ -381,29 +421,33 @@ for all $a\in\Z$.
 Here we forget the ring structure on everything, and analyse $\Qhat$ as an additive
 abelian group, and in particular how the subgroups $\Z$, $\Q$ and $\Zhat$ sit within it.
 
-The two results we prove in this section are that $\Q\cap\Zhat=\Z$ and that $\Q+\Zhat=\Qhat$.
-Using lattice-theoretic notation we could write these results as $\Q\sqcap\Zhat=\Z$ and
-$\Q\sqcup\Zhat=\Qhat$.
+The two results we prove in this section are that $\Q\cap\Zhat=\Z$ and
+that $\Q+\Zhat=\Qhat$. Using lattice-theoretic notation we could write
+these results as $\Q\sqcap\Zhat=\Z$ and$\Q\sqcup\Zhat=\Qhat$.
 
 \begin{lemma}
     \label{Qhat.rat_meet_zHat} 
     \uses{QHat,ZHat.commRing}
-    \notready The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
+    The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
 \end{lemma}
 \begin{proof}
-    Shouldn't be hard.
+    Clearly $\Z\subseteq\Q\cap\Zhat$. Now suppose that $x\in\Q\cap\Zhat$.
+    Because $x$ is rational we can write it as $\frac{A}{B}\otimes_t1$ for some
+    fraction $A/B$ in lowest terms, and hence $x=A/B$ where now we regard $A\in\Zhat$
+    and note that $A/B$ is still in lowest terms. However $x\in\Zhat$ implies that 
+    $x=x/1$ is in lowest terms, so we deduce that $B=1$ and thus $x=A\in\Z$.
 \end{proof}
 
 \begin{lemma}
     \label{QHat.rat_join_zHat}
     \uses{QHat,ZHat.commRing}
-    \notready 
     The sum of $\Q$ and $\Zhat$ in $\Qhat$ is $\Qhat$.
-    More precisely, every elemenet of $\Qhat$ can be written as $q+z$ with $q\in\Q$ and $z\in\Zhat$, 
+    More precisely, every elemnet of $\Qhat$ can be written as $q+z$ with $q\in\Q$ and $z\in\Zhat$, 
     or more precisely as $q\otimes_t 1+1\otimes_t z$.
 \end{lemma}
 \begin{proof}
-    Shouldn't be hard.
+    Write $x\in\Qhat$ as $x=z/N$ in lowest terms. Lift $z_N$ to an integer $t$ and observe
+    that $(z-t)_N=0$, hence $z-t=Ny$ for some $y\in\Zhat$. Now $x=t/n+y\in\Q+\Zhat$.
 \end{proof}
 
 

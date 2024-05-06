@@ -9,8 +9,7 @@ import Mathlib.Tactic.Peel
 /-- We define the profinite completion of ℤ explicitly as compatible elements of ℤ/Nℤ for
 all positive integers `N`. We declare it as a subring of `∏_{N ≥ 1} (ℤ/Nℤ)`, and then promote it
 to a type. -/
-abbrev ZHat : Type :=
-({
+def ZHat : Type := {
   carrier := { f : Π M : ℕ+, ZMod M | ∀ (D N : ℕ+) (h : (D : ℕ) ∣ N),
     ZMod.castHom h (ZMod D) (f N) = f D },
   zero_mem' := by simp
@@ -30,9 +29,8 @@ abbrev ZHat : Type :=
     simp only [ZMod.castHom_apply, Set.mem_setOf_eq, Pi.mul_apply] at *
     intro D N hD
     rw [ZMod.cast_mul hD, ha _ _ hD, hb _ _ hD]
-} : Subring (Π n : ℕ+, ZMod n))
-
--- #synth CommRing ZHat -- works fine
+  : Subring (Π n : ℕ+, ZMod n)}
+deriving CommRing
 
 namespace ZHat
 
@@ -82,7 +80,30 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := sorry
 lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := sorry
 
 -- LaTeX proof in the notes.
-lemma multiples (N : ℕ+) (z : ZHat) : N * z = 0 ↔ z N = 0 := sorry
+lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 := by
+  constructor
+  · intro ⟨y, hy⟩
+    rw [← hy]
+    change N * (y N) = 0
+    simp [ZMod.natCast_self]
+  · intro h
+    let y : ZHat := {
+      val := fun j ↦ (by
+        let yj_preimage := z (N * j)
+        have hh := z.2 N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
+        have : z.val N = 0 := h
+        rw [this] at hh
+        -- use `hh` to conclude that `yj_preimage/N` makes sense as an element of `ZMod j`.
+        -- This is the `y j` we want.
+        sorry)
+      property := sorry
+        -- `y` is compatible
+    }
+    refine ⟨y, ?_⟩
+    --ext j
+    --have hh := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
+    --rw [← hh]
+    sorry -- This should be easy once `y` is defined.
 
 end ZHat
 
@@ -95,32 +116,38 @@ noncomputable example : QHat := (22 / 7) ⊗ₜ ZHat.e
 
 namespace QHat
 
-lemma canonicalForm : ∀ z : QHat, ∃ q : ℚ, ∃ z' : ZHat, z = q ⊗ₜ z' := sorry
+lemma canonicalForm : ∀ z : QHat, ∃ N : ℕ+, ∃ z' : ZHat, z = (1 / N : ℚ) ⊗ₜ z' := sorry
 
-open scoped TensorProduct in
-noncomputable example (R A B : Type) [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra R B] :
- A →+* A ⊗[R] B := by exact Algebra.TensorProduct.includeLeftRingHom -- fails
+def IsCoprime (N : ℕ+) (z : ZHat) : Prop := IsUnit (z N)
 
+lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗ₜ z) ∧
+    (∀ N₁ N₂ z₁ z₂,
+    IsCoprime N₁ z₁ ∧ IsCoprime N₂ z₂ ∧ (1 / N₁ : ℚ) ⊗ₜ z₁ = (1 / N₂ : ℚ) ⊗ₜ[ℤ] z₂ →
+      N₁ = N₂ ∧ z₁ = z₂) := sorry
+
+noncomputable abbrev i₁ : ℚ →ₐ[ℤ] QHat := Algebra.TensorProduct.includeLeft
 lemma injective_rat :
-    Function.Injective (Algebra.TensorProduct.includeLeft : ℚ →ₐ[ℤ] QHat) := sorry
+    Function.Injective i₁ := sorry -- flatness
 
+noncomputable abbrev i₂ : ZHat →ₐ[ℤ] QHat := Algebra.TensorProduct.includeRight
 lemma injective_zHat :
-    Function.Injective (Algebra.TensorProduct.includeRight : ZHat →ₐ[ℤ] QHat) := sorry
+    Function.Injective i₂ := sorry -- flatness
 
--- Now need to gives names to these subrings and go from there.
+section additive_structure_of_QHat
 
---\begin{lemma}\label{Qhat.rat_meet_zHat} The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
---\end{lemma}
---\begin{proof}
---    Shouldn't be hard.
---\end{proof}
+noncomputable abbrev ratsub : AddSubgroup QHat :=
+    (i₁ : ℚ →+ QHat).range
 
---\begin{lemma}\label{Qhat.rat_join_zHat} The sum of $\Q$ and $\Zhat$ in $\Qhat$ is $\Qhat$.
---    More precisely, every elemenet of $\Qhat$ can be written as $q+z$ with $q\in\Q$ and $z\in\Zhat$,
---    or more precisely as $$q\otimes_t 1+1\otimes_t z$.
---\end{lemma}
---\begin{proof}
---    Shouldn't be hard.
---\end{proof}
+noncomputable abbrev zHatsub : AddSubgroup QHat :=
+    (i₂ : ZHat →+ QHat).range
+
+noncomputable abbrev zsub : AddSubgroup QHat :=
+  (Int.castRingHom QHat : ℤ →+ QHat).range
+
+lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := sorry
+
+lemma rat_join_zHat : ratsub ⊔ Zhatsub = ⊤ := sorry
+
+end additive_structure_of_QHat
 
 end QHat
