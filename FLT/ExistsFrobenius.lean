@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2024 Jou Glasheen. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jou Glasheen
+-/
 import Mathlib.RingTheory.DedekindDomain.Ideal
 import Mathlib.RingTheory.IntegralRestrict
 import Mathlib.RingTheory.Ideal.QuotientOperations
@@ -533,6 +538,7 @@ theorem gal_smul_F_eq_self  (σ :  L ≃ₐ[K] L) :
   rw [gal_smul_F_eq, F_invariant_under_finite_aut]
   rfl
 
+set_option autoImplicit true
 theorem gal_smul_coeff_eq (n : ℕ) (h : ∀ σ : L ≃ₐ[K] L, galRestrict A K L B σ • F = F) :
     galRestrict A K L B σ • (coeff F n) = coeff F n := by
   simp only [AlgEquiv.smul_def]
@@ -886,6 +892,7 @@ lemma eq_pow_gen_apply {γ : B} (h: γ ∉ Q) : (galRestrict A K L B Frob) γ -
   rw [mem_decomposition_iff] at this
   apply (this _).1 h1
 
+set_option autoImplicit true
 /-- `Frob • (α ^ i)  ≡ α ^ (i * q) mod Q` -/
 lemma pow_pow_gen_eq_pow_gen_apply : ((α ^ ((i h) * q)) -
     galRestrict A K L B Frob (α ^ (i h))) ∈ Q := by
