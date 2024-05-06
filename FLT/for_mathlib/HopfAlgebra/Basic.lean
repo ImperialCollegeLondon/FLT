@@ -96,8 +96,8 @@ lemma antipode_anticommute (a b : A) :
         TensorProduct.comul_apply_repr'' (repr_a := Coalgebra.comul_repr (R := R) a)
           (repr_b := Coalgebra.comul_repr (R := R) b)),
       LinearMap.coe_comp, Function.comp_apply, LinearMap.mul'_apply, LinearPoint.one_def,
-      TensorProduct.counit_def, LinearEquiv.coe_coe, map_tmul, lid_tmul, smul_eq_mul,
-      Algebra.linearMap_apply, α, ← Bialgebra.counit_mul, TensorProduct.comul_def]
+      TensorProduct.counit_tmul, LinearEquiv.coe_coe, map_tmul, smul_eq_mul,
+      Algebra.linearMap_apply, α, ← Bialgebra.counit_mul, TensorProduct.comul_tmul]
     apply antipode_repr
     simpa only [Bialgebra.comul_mul, Coalgebra.comul_repr (a := a), Coalgebra.comul_repr (a := b),
       Finset.mul_sum, Finset.sum_mul, Algebra.TensorProduct.tmul_mul_tmul, Finset.sum_product] using
@@ -112,7 +112,7 @@ lemma antipode_anticommute (a b : A) :
       map_tmul, show ∀ a b c d : A, a * b * (c * d) = a * (b * c) * d by intros; group,
       Finset.sum_product, ← Finset.sum_mul, ← Finset.mul_sum,
       antipode_repr_eq_smul' (repr := Coalgebra.comul_repr b), LinearPoint.one_def,
-      TensorProduct.counit_def, lid_tmul, smul_eq_mul, Algebra.linearMap_apply,
+      TensorProduct.counit_tmul, smul_eq_mul, Algebra.linearMap_apply,
       _root_.map_mul, β, Algebra.mul_smul_comm, mul_one, Algebra.smul_mul_assoc, ← Finset.smul_sum,
       antipode_repr_eq_smul' (repr := Coalgebra.comul_repr a), ← mul_smul, mul_comm]
     simp [Algebra.smul_def]
