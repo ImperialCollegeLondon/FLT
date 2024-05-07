@@ -38,6 +38,12 @@ instance : DFunLike ZHat ℕ+ (fun (N : ℕ+) ↦ ZMod N) where
   coe z := z.1
   coe_injective' M N := by simp_all
 
+-- Try to avoid introducing `z.1` and `z.2`.
+-- @[simp]
+-- lemma val_apply (z : ZHat) (n : ℕ+) : z.1 n = z n := rfl
+
+lemma prop (z : ZHat) (D N : ℕ+) (h : (D : ℕ) ∣ N) : ZMod.castHom h (ZMod D) (z N) = z D := z.2 ..
+
 @[ext]
 lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y := by
   cases x
@@ -89,16 +95,12 @@ lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := so
 
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
     N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
-  have hhj := z.2 N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
-  have : z.val N = 0 := hz
-  rw [this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hhj
-  rw [← Nat.cast_mul, mul_comm, Nat.div_mul_cancel]
-  · have hhj' := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
-    change _ = z.val j
-    rw [← hhj']
-    erw [ZMod.castHom_apply, ZMod.cast_eq_val]
-    rfl
-  · exact hhj
+  have hhj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
+  rw [hz, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hhj
+  rw [← Nat.cast_mul, mul_comm, Nat.div_mul_cancel hhj]
+  have hhj' := z.prop j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
+  rw [← hhj']
+  rw [ZMod.castHom_apply, ZMod.cast_eq_val]
 
 -- LaTeX proof in the notes.
 lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 := by
@@ -112,18 +114,14 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
       val := fun j ↦ (z (N * j)).val / (N : ℕ)
       property := by
         intro j k hjk
-        have hj := z.2 N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
-        have hk := z.2 N (N * k) (by simp only [PNat.mul_coe, dvd_mul_right])
-        have : z.val N = 0 := h
-        rw [this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hj
-        rw [this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hk
-        have hNjk := z.2 (N * j) (N * k) (mul_dvd_mul (dvd_refl _) hjk)
-        change ZMod.castHom _ _ (z (N * k)) = z (N * j) at hNjk
+        have hj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
+        have hk := z.prop N (N * k) (by simp only [PNat.mul_coe, dvd_mul_right])
+        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hj
+        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hk
+        have hNjk := z.prop (N * j) (N * k) (mul_dvd_mul (dvd_refl _) hjk)
         rw [ZMod.castHom_apply, ZMod.cast_eq_val] at hNjk
         simp only [PNat.mul_coe, map_natCast, ZMod.natCast_val, ZMod.eq_iff_modEq_nat]
         apply Nat.ModEq.mul_right_cancel' (c := N) (by simp)
-        change (N : ℕ) ∣ ZMod.val (z (N * j)) at hj
-        change (N : ℕ) ∣ ZMod.val (z (N * k)) at hk
         rw [Nat.div_mul_cancel hj, Nat.div_mul_cancel hk,
           mul_comm (j : ℕ) (N : ℕ), ← ZMod.eq_iff_modEq_nat, hNjk]
         simp
