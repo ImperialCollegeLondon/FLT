@@ -25,8 +25,8 @@ of Serre's paper [Serre] apply to the elliptic curve $Y^2=X(X-a^p)(X+b^p).$
 
 # Main theorems
 
-* `FLT.FreyPackage.of_not_FermatLastTheorem` : A counterexample
-     to `FermatLastTheorem` gives a Frey Package.
+* `FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5` : A counterexample
+     to `FermatLastTheorem` with $p \geq 5$ gives a Frey Package.
 * `FLT.FreyPackage.false`: There is no Frey Package.
 
 The first of these theorems is not too hard; the second is the main content
