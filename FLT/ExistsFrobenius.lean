@@ -121,17 +121,18 @@ variable (A K L B : Type*) [CommRing A] [CommRing B]
   [IsDedekindDomain A] [IsDedekindDomain B]
 
 /-- re-definition of `Ideal B` in terms of 'AKLB setup'. -/
-@[nolint unusedArguments] abbrev Ideal' (A K L B : Type*) [CommRing A]
-  [CommRing B] [Algebra A B] [Field K] [Field L]
-  [Algebra A K] [IsFractionRing A K] [Algebra B L]
-  [Algebra K L] [Algebra A L] [IsScalarTower A B L]
-  [IsScalarTower A K L] [IsIntegralClosure B A L]
-  [FiniteDimensional K L] := Ideal B
+@[nolint unusedArguments] abbrev Ideal' (A K L B : Type*)
+  [CommRing B] [SMul A B]
+  [SMul A K] [SMul B L]
+  [SMul K L] [SMul A L] [IsScalarTower A B L]
+  [IsScalarTower A K L]
+   := Ideal B
 -- we used the command `@[nolint unusedArguments]`, to indicate to lint that
 -- all variables listed between `Ideal'` and `Ideal B`
 -- are comprised in the abbreviation; so, `Ideal'` carries with it an
 -- instance of `A`.
 
+example (a b c : ℤ) : (a + b) + c = a + (b + c) := by exact Int.add_assoc a b c
 
 -- Amelia helped me to define smul, below
 /-- Action of the Galois group `L ≃ₐ[K] L` on the prime ideals `(Ideal' A K L B)`;
