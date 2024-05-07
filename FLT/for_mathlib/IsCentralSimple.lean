@@ -30,8 +30,15 @@ structure IsCentralSimple
 
 variable (K : Type u) [Field K]
 
+open Matrix in
 theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty : Nonempty ι) [DecidableEq ι] :
-    IsCentralSimple K (Matrix ι ι K) := sorry
+    IsCentralSimple K (Matrix ι ι K) where
+  is_central d hd := by
+    rw [Subring.mem_center_iff] at hd
+    convert mem_range_scalar_of_commute_stdBasisMatrix (M := d) fun i j hij => hd _
+    simp_rw [Set.mem_range, eq_comm, algebraMap_eq_diagonal, Pi.algebraMap_def,
+      Algebra.id.map_eq_self, scalar_apply]
+  is_simple := sorry
 
 namespace IsCentralSimple
 
