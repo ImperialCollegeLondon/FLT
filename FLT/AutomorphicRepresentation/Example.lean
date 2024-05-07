@@ -87,6 +87,19 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := sorry
 -- ZHat is torsion-free. LaTeX proof in the notes.
 lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := sorry
 
+lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
+    ((z (N * j)).val / (N : ℕ) : ZMod j) * N = z j := by
+  have hhj := z.2 N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
+  have : z.val N = 0 := hz
+  rw [this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hhj
+  rw [← Nat.cast_mul, Nat.div_mul_cancel]
+  · have hhj' := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
+    change _ = z.val j
+    rw [← hhj']
+    erw [ZMod.castHom_apply, ZMod.cast_eq_val]
+    rfl
+  · exact hhj
+
 -- LaTeX proof in the notes.
 lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 := by
   constructor
@@ -96,22 +109,32 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
     simp [ZMod.natCast_self]
   · intro h
     let y : ZHat := {
-      val := fun j ↦ (by
-        let yj_preimage := z (N * j)
-        have hh := z.2 N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
+      val := fun j ↦ (z (N * j)).val / (N : ℕ)
+      property := by
+        intro j k hjk
+        have hj := z.2 N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
+        have hk := z.2 N (N * k) (by simp only [PNat.mul_coe, dvd_mul_right])
         have : z.val N = 0 := h
-        rw [this] at hh
-        -- use `hh` to conclude that `yj_preimage/N` makes sense as an element of `ZMod j`.
-        -- This is the `y j` we want.
-        sorry)
-      property := sorry
-        -- `y` is compatible
+        rw [this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hj
+        rw [this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hk
+        have hNjk := z.2 (N * j) (N * k) (mul_dvd_mul (dvd_refl _) hjk)
+        change ZMod.castHom _ _ (z (N * k)) = z (N * j) at hNjk
+        rw [ZMod.castHom_apply, ZMod.cast_eq_val] at hNjk
+        simp only [PNat.mul_coe, map_natCast, ZMod.natCast_val, ZMod.eq_iff_modEq_nat]
+        apply Nat.ModEq.mul_right_cancel' (c := N) (by simp)
+        change (N : ℕ) ∣ ZMod.val (z (N * j)) at hj
+        change (N : ℕ) ∣ ZMod.val (z (N * k)) at hk
+        rw [Nat.div_mul_cancel hj, Nat.div_mul_cancel hk,
+          mul_comm (j : ℕ) (N : ℕ), ← ZMod.eq_iff_modEq_nat, hNjk]
+        simp
     }
     refine ⟨y, ?_⟩
     ext j
-    have hh := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
-    -- rw [← hh]
-    sorry -- This should be easy once `y` is defined.
+    rw [← y_mul_N_eq_z N z h j]
+    simp only [ZMod.castHom_apply, PNat.mul_coe, y, y]
+    rw [mul_comm]
+    rfl
+
 
 end ZHat
 
