@@ -88,11 +88,11 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := sorry
 lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := sorry
 
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
-    ((z (N * j)).val / (N : ℕ) : ZMod j) * N = z j := by
+    N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
   have hhj := z.2 N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
   have : z.val N = 0 := hz
   rw [this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hhj
-  rw [← Nat.cast_mul, Nat.div_mul_cancel]
+  rw [← Nat.cast_mul, mul_comm, Nat.div_mul_cancel]
   · have hhj' := z.2 j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
     change _ = z.val j
     rw [← hhj']
@@ -130,10 +130,7 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
     }
     refine ⟨y, ?_⟩
     ext j
-    rw [← y_mul_N_eq_z N z h j]
-    simp only [ZMod.castHom_apply, PNat.mul_coe, y, y]
-    rw [mul_comm]
-    rfl
+    exact y_mul_N_eq_z N z h j
 
 
 end ZHat
