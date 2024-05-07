@@ -72,7 +72,11 @@ open BigOperators Nat Finset in
 def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i in range (n : ℕ), i !, by
   intros D N hDN
   dsimp only
-  sorry
+  obtain ⟨k, hk⟩ := exists_add_of_le <| le_of_dvd N.pos hDN
+  simp_rw [map_sum, map_natCast, hk, sum_range_add, add_right_eq_self]
+  refine sum_eq_zero (fun i _ => ?_)
+  rw [ZMod.natCast_zmod_eq_zero_iff_dvd]
+  exact Nat.dvd_factorial D.pos le_self_add
 ⟩
 
 open BigOperators Nat Finset in
