@@ -6,7 +6,7 @@
 #   ./scripts/mk_all.sh data/real
 #   ./scripts/mk_all.sh ../archive
 #
-# Makes an FLT.lean file importing all files inside FLT/ .
+# Makes an FLT_files.lean file importing all files inside FLT/ .
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"/../FLT
 if [[ $# = 1 ]]; then
@@ -20,6 +20,7 @@ fi
 # replace all `/` with `».«`
 # replace the `.lean` suffix with `»`
 # prepend `import «`
-find "$dir" -name \*.lean -not -name FLT.lean \
+# Does the above really describe what's going on below??
+find "$dir" -name \*.lean -not -name FLT_files.lean \
   | sed 's,^\./,,;s,^\.\./[^/]*,,;s,/,.,g;s,\.lean$,,;s,^,import FLT.,' \
-  | sort >"$dir"/../FLT.lean
+  | sort >"$dir"/../FLT_files.lean
