@@ -1,8 +1,8 @@
 FermatLastTheorem.of_odd_primes
 fermatLastTheoremThree
-FLT.p_ge_5_counterexample_of_not_FermatLastTheorem
+FLT.of_p_ge_5
 FLT.FreyPackage
-FLT.FreyPackage.of_not_FermatLastTheorem
+FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5
 EllipticCurve.Points.map
 EllipticCurve.Points.map_id
 EllipticCurve.Points.map_comp
