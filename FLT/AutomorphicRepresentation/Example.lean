@@ -105,8 +105,29 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := sorry
 -- I believe that in general `e` is conjectured to be transcendental, i.e. satisfies no
 -- nontrivial polynomial with coefficients in `ℤ`.
 
+lemma torsionfree_aux (a b : ℕ) [NeZero b] (h : a ∣ b) (x : ZMod b) (hx : a ∣ x.val) :
+    ZMod.castHom h (ZMod a) x = 0 := by
+  rw [ZMod.castHom_apply, ZMod.cast_eq_val]
+  obtain ⟨y, hy⟩ := hx
+  rw [hy]
+  simp
+
 -- ZHat is torsion-free. LaTeX proof in the notes.
-lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := sorry
+lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
+  rw [← AddMonoidHom.coe_mulLeft, injective_iff_map_eq_zero]
+  intro a ha
+  rw [AddMonoidHom.coe_mulLeft] at ha
+  rw [← ext_iff]
+  intro j
+  rw [zero_val, ← a.prop j (N * j) (by simp)]
+  apply torsionfree_aux
+  apply Nat.dvd_of_mul_dvd_mul_left N.pos
+  rw [← PNat.mul_coe]
+  apply Nat.dvd_of_mod_eq_zero
+  have : N * a (N * j) = 0 := by
+    have : ((N : ZHat) * a) (N * j) = 0 := by simp [ha]
+    exact this -- missing lemma
+  simpa only [ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod, ZMod.val_zero] using congrArg ZMod.val this
 
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
     N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
