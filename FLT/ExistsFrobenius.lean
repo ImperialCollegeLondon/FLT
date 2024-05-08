@@ -132,8 +132,6 @@ variable (A K L B : Type*) [CommRing A] [CommRing B]
 -- are comprised in the abbreviation; so, `Ideal'` carries with it an
 -- instance of `A`.
 
-example (a b c : ℤ) : (a + b) + c = a + (b + c) := by exact Int.add_assoc a b c
-
 -- Amelia helped me to define smul, below
 /-- Action of the Galois group `L ≃ₐ[K] L` on the prime ideals `(Ideal' A K L B)`;
 where `(Ideal' A K L B)` denotes `Ideal B` re-defined with respect to the
