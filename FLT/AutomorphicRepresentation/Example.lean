@@ -140,11 +140,11 @@ noncomputable example : QHat := (22 / 7) ⊗ₜ ZHat.e
 namespace QHat
 
 lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) ⊗ₜ z' := by
-  let motive : QHat → Prop := fun zz ↦ ∃ (N : ℕ+) (z' : ZHat), zz = (1 / N : ℚ) ⊗ₜ z'
-  apply TensorProduct.induction_on (motive := motive)
-  · refine ⟨1, 0, ?_⟩
+  induction z using TensorProduct.induction_on with
+  | zero =>
+    refine ⟨1, 0, ?_⟩
     simp
-  · intro q z
+  | tmul q z =>
     refine ⟨⟨q.den, q.den_pos ⟩, q.num * z, ?_⟩
     simp only [← zsmul_eq_mul, TensorProduct.tmul_smul]
     simp only [PNat.mk_coe, zsmul_eq_mul]
@@ -153,7 +153,9 @@ lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) �
         one_div, ne_eq, Nat.cast_eq_zero, Rat.den_ne_zero, not_false_eq_true,
         mul_inv_cancel, mul_one]
     · simp
-  · rintro _ _ ⟨N₁, z₁, rfl⟩ ⟨N₂, z₂, rfl⟩
+  | add x y hx hy =>
+    obtain ⟨N₁, z₁, rfl⟩ := hx
+    obtain ⟨N₂, z₂, rfl⟩ := hy
     refine ⟨N₁ * N₂, (N₁ : ℤ) * z₂ + (N₂ : ℤ) * z₁, ?_⟩
     simp only [TensorProduct.tmul_add, ← zsmul_eq_mul,
       TensorProduct.tmul_smul, TensorProduct.smul_tmul']
