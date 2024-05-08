@@ -1,94 +1,504 @@
 \chapter{An example of an automorphic form}
 
 \section{Introduction}
-Parts of this document can serve as an introduction to some of the mathematics used in the proof of
-Fermat's Last Theorem. The original proof of Wiles used modular forms, but we also need a
-variant of modular forms which we'll call quaternionic modular forms. A quaternionic modular
-form, in the cases of interest to us, is just a function from a certain double coset space
-to the complex numbers. The fact that the double coset space is finite corresponds to the statement
-that the corresponding space of quaternionic modular forms is finite.
+
+The key ingredient in Wiles' proof of Fermat's Last Theorem is a \emph{modularity lifting theorem},
+sometimes called an $R=T$ theorem. For Wiles, the $R$ came from elliptic curves, the $T$ came from 
+classical modular forms, and the fact that they're equal is basically the Shimura--Taniyama--Weil 
+conjecture, now known as the Breuil--Conrad--Diamond--Taylor modularity theorem: any elliptic
+curve over the rationals is modular.
+
+At the heart of the proof we shall formalise is also an $R=T$ theorem, however the $T$ which we
+shall use will be associated not to classical modular forms, but to spaces of more general
+automorphic forms called quaternionic modular forms. Those of you who know something about
+classical modular forms might well know that the groups $\SL_2(\R)$ and $\SL_2(\Z)$ are
+intimately involved; these are the norm 1 units in the matrix rings $M_2(\R)$ and $M_2(\Z)$. 
+In the theory of quaternionic modular forms, the analogous groups are the norm 1 units
+in rings such as Hamilton's quaternions $\R\oplus\R i\oplus\R j\oplus\R k$, and subrings
+such as $\Z\oplus\Z i\oplus\Z j\oplus\Z k$.
+
+One of the main goals of the FLT project at the time of writing this sentence, is formalising
+the \emph{statement} of the modularity lifting theorem which we shall use. So we are going
+to need to develop the theory of quaternionic modular forms, which is rather different
+to the theory of classical modular forms (for example, in the cases we need, the definition 
+is completely algebraic; there are no holomorphic functions in sight, and the analogue
+of the upper half plane in the quaternionic theory is a finite set of points).
+
+We could just launch into the general theory over totally real fields, which will be the generality
+which we'll need. But when I was a PhD student, I learnt about
+these objects by playing with explicit examples. So, whilst not logically necessary for the proof,
+I thought it would be fun, and perhaps also instructional, to compute a concrete example of a space 
+of quaternionic modular forms. The process of constructing the example might even inform what kind
+of machinery we should be developing in general. Let's begin by discussing the quaternion algebra 
+we shall use.
+
+\section{A quaternion algebra}
+
+Let's define $D$ to be the quaternion algebra $\Q\oplus\Q i\oplus\Q j\oplus\Q k$. As a vector
+space, $D$ is 4-dimensional over $\Q$ with $[1,i,j,k]$ giving a basis. It has a (non-commutative)ring structure,
+with multiplication satisfying the usual quaternion algebra relations $i^2=j^2=k^2=ijk=-1$. 
+You can think of~$D$ as an analogue of $2\times 2$ 
+matrices with rational coefficients, hence its units $D^\times$ are an analogue of the
+group $\GL_2(\Q)$.
+
+We will also need an analogue of the group $\GL_2(\Z)$, which will come from an integral structure
+on~$D$. We choose the most obvious one, namely the subring $\calO:=\Z\oplus\Z i\oplus\Z j\oplus\Z k$.
+This is not a "maximal order" -- one can also throw in $(1+i+j+k)/2$ and get a bigger lattice, 
+but we don't need to do that in this example.
+
+In this chapter, we are going to compute a complex vector space which could be called something
+like the ``weight 2 level 2 modular forms for $D^\times$''. The main result will be that this
+space is 1-dimensional, and this claim will
+boil down to the fact that every prime (and hence every natural) is the sum of four
+natural squares.
 
 Note that mathlib has modular forms, but it doesn't have enough complex analysis to deduce
-that the space of modular forms of a given weight and level is finite-dimensional. If this
-chapter, which contains a worked exercise computing a space of modular forms, is completed
+that the space of modular forms of a given weight and level is finite-dimensional. If all
+the `sorry`s in this chapter are completed
 before mathlib gets the necessary complex analysis, then the first nonzero space of modular forms
 to be proved finite-dimensional in Lean will be a space of quaternionic modular forms.
 
-
 \section{$\Zhat$}
 
-We need something called $\Zhat$, the profinite completion of $\Z$. First a low-level explanation
-of this object. Given an integer $z$, we can reduce it mod $N$ for every positive natural
-number and get elements $z_N=\overline{z}\in\Z/N\Z$. What can we say 
-about the relationship between the elements $z_N\in\Z/N\Z$? These elements cannot just be
-arbitrary: for example we can't have $z_{10}=6$ and $z_2=1$, because $z_{10}=6$ tells us that
+Classically automorphic forms were defined as functions on symmetric spaces (like the upper half
+plane) which transformed well under the action of certain discrete groups (for example $\SL_2(\Z)$).
+However such definitions became combinatorially problematic when generalised to number fields 
+with nontrivial class group, because the classical theory needed a \emph{number} $p$ to define
+the Hecke operator $T_p$, and in the case where $p$ was a non-principal prime ideal in a number
+field, there was no appropriate number. One fix is to take disjoint unions of symmetric spaces
+indexed by the ideal class group of the field in question, but it is easier to work adelically,
+which is morally what we shall do. However we are able to avoid introducing the adeles
+explicitly; we can work instead with the conceptually simpler object $\Zhat$, 
+the profinite completion of $\Z$. So what is $\Zhat$? We offer a low-level definition of this object. 
+
+Given an integer $z$, we can reduce it mod $N$ for every positive natural
+number and get elements $z_N=\overline{z}\in\Z/N\Z$. These elements are not completely arbitrary
+though -- they must satisfy some compatibility conditions. For example there can be no
+positive integer $z$ such that $z_{10}=6$ and $z_2=1$, because $z_{10}=6$ tells us that
 $z$ ends in a 6 when written in base 10, and in particular it's even, so $z_2$ must be~0.
-The general rule is that if $D\mid N$ then $z_D$ can be read off from $z_N$ (just divide it by~$D$
-and take the remainder).
+The general rule: if $D\mid N$ then $z_D$ must be equal to image of $z_N$ under the natural 
+ring homomorphism from $\Z/N\Z$ to $\Z/D\Z$. We say that a collection of elements 
+$z_N\in\Z/N\Z$ is \emph{compatible} if it satisfies this rule.
 
-An element of the ring $\Zhat$ is a collection $z_1$, $z_2$, $z_3$, \ldots with $z_N\in\Z/N\Z$
-and such that the colletion is compatible, in the sense that if $D\mid N$ then $z_N$ reduces mod~$D$
-to $z_D$.
+\begin{definition}\label{ZHat}\lean{ZHat}\leanok The profinite completion $\Zhat$ of $\Z$ is the set of 
+    all compatible collections $c=(c_N)_N$ of elements of $\Z/N\Z$ indexed by $\N^+:=\{1,2,3,\ldots\}$.
+    A collection is said to be \emph{compatible} if for all positive integers
+    $D\mid N$, we have $c_N$ mod $D$ equals $c_D$.
+\end{definition}
 
-Examples of course are given by integers, where we define $z_N$ to be $z$ mod $N$ for all $N$.
-But there are many other examples; for example an infinite sum of factorials 
-$0!+1!+2!+3!+4!+5!+\cdots$ gives us an element of $\Zhat$, because if you want to know what
-this sum is modulo $N$ to just wait until it gets up to $N!$ because all terms from then on
-are multiples of~$N$ and hence can be ignored mod~$N$; the point is that this sum is finite
-mod~$N$ for any~$N$, and it's easily checked that the resulting colletion of numbers mod~$N$
-are compatible.
-
-It is easily checked that pointwise addition/negation/zero/one/multiplication make this
-collection into a commutative ring. 
-
-People who have seen some more advanced algebra might want to think of $\Zhat$ as
-the profinite completion of $\Z$, that is, the projective limit of the finite quotients
-$\Z/N\Z$ of $\Z$. It may or may not help to know that $\Zhat=\prod_p\Z_p$, the product over all
-primes~$p$ of the $p$-adic integers.
-
-We are going to "complete" various objects by tensoring them over $\Z$ with $\Zhat$.
-
-\section{Warm-up: the additive structure of the completion of $\Q$}
-
-We now consider $\Qhat:=\Q\otimes_{\Z}\Zhat$. This is some sort of a ``completion'' of $\Q$.
-A reminder: a general element of $A\otimes B$ is not of the form $a\otimes b$, but
-is more generally a finite sum of such elements. However we don't have any such
-problems with $\Q\otimes_{\Z}\Zhat$, as the below lemma shows.
-
-\begin{lemma}\label{Qhat.canonicalForm} Every element of $\Qhat:=\Q\otimes_{\Z}\Zhat$
-can be written as $q\otimes z$ with $q\in\Q$ and $z\in\Zhat$.
+\begin{lemma}
+    \label{ZHat.commRing}
+    \lean{ZHat.commRing} 
+    \uses{ZHat}
+    \leanok
+    $\Zhat$ is a subring of $\prod_{N\geq1}(Z/N\Z)$ and in particular is a ring.
 \end{lemma}
-\begin{proof} Take general element $\sum_i q_i\otimes z_i\in\Qhat$. Now choose a large 
-    positive integer $N$, the lowest
-common multiple of all the denominators showing up in the $q_i$, and then rewrite
-the general element as $\sum_i \frac{n_i}{N}\otimes z_i$ with $n_i\in\Z$. Now recall that a fundemantal
-equality in the tensor product $A\otimes_\ZB$ is that $na\otimes b=a\otimes nb$ for $n\in\Z$.
-Applying this rule, we see that our general element is $\sum_i \frac{1}{N}\otimes n_i z_i$
-and hence equal to $\frac{1}{N}\otimes(\sum_i n_i z_i)$ and thus of the form $q\otimes z$ with $q\in\Q$
-and $z\in\Zhat$.
+\begin{proof} \leanok Follow your nose.
+\end{proof}
+
+Examples of elements of $\Zhat$ are are given by integers, where we define $z_N$ to be $z$ 
+mod $N$ for all $N$. This gives us a natural map from $\Z$ to $\Zhat$. In particular we
+can talk about $0\in\Zhat$ and $1\in\Zhat$. 
+
+\begin{lemma}
+    \label{ZHat.nontrivial}
+    \lean{ZHat.nontrivial}
+    \uses{ZHat.commRing}
+    \leanok
+    $0\not=1$ in $\Zhat$.
+\end{lemma}
+\begin{proof}
+    \leanok 
+    Recall that you can evaluate an element of $\Zhat$ at a positive integer.
+    Evaluating $0$ at 2 gives $0$, and evaluating $1$ at $2$ gives $1$, and these
+    are distinct elements of $\Z/2\Z$, so $0\not=1$ in $\Zhat$.
+\end{proof}
+
+\begin{lemma}
+    \label{ZHat.charZero}
+    \lean{ZHat.charZero}
+    \leanok
+    The map from the naturals into $\Zhat$ sending $n$ to $n$ is injective.
+\end{lemma}
+\begin{proof}
+    Generalise the above idea. Feel free to write up a LaTeX proof and PR it.
+\end{proof}
+
+Note that it follows easily that that the map from the integers to $\Zhat$ is injective.
+
+But $\Zhat$
+is \emph{much} larger than $\Z$; it has the same cardinality as the reals in fact. 
+Let's write down an explicit example of an element of $\Zhat$ which isn't obviously in $\Z$.
+
+\begin{definition}
+    \label{ZHat.e}
+    \lean{ZHat.e}
+    \uses{ZHat.commRing}
+    \leanok
+    The infinite sum $0!+1!+2!+3!+4!+5!+\cdots$ looks 
+    like it makes no sense at all; it is the sum of an infinite series of larger and larger
+    positive numbers. 
+    However, the sum is \emph{finite} modulo $N$ for every positive integer $N$, because 
+    all the terms from $N!$ onwards are multiples of $N$ and thus are zero in $\Z/N\Z$.
+    Thus it makes sense to define $e_N$ to be the value of the finite sum modulo $N$.
+    Explicitly, $e_N=0!+1!+\cdots+(N-1)!$ modulo $N$.  
+\end{definition}
+
+\begin{lemma}
+    \label{ZHat.e_def}
+    \lean{ZHat.e_def}
+    \uses{ZHat.e}
+    \leanok
+    The collection $(e_N)_N$ is an element of $\Zhat$.
+\end{lemma}
+\begin{proof}
+    Note that the proof of this lemma in Lean has no direct sorry, but uses earlier sorried lemmas.
+    This boils down to checking that $D!+(D+1)!+\cdots+(N-1)!$ is a multiple of~$D$.
+\end{proof}
+
+\begin{lemma}
+    \label{ZHat.e_not_in_Int}
+    \lean{ZHat.e_not_in_Int}
+    \uses{ZHat.e}
+    \leanok
+    The element $(e_N)_N$ of $\Zhat$ is not in $\Z$.
+\end{lemma}
+\begin{proof}\notready
+    I don't have a proof of this but it doesn't look too bad; maybe I'm wrong
+    and it's hard? We will not need it later on.
+\end{proof}
+
+Let's prove some more basic facts about $\Zhat$.
+
+\begin{lemma}
+    \label{ZHat.torsionfree}
+    \lean{ZHat.torsionfree}
+    \uses{ZHat.commRing}
+    \leanok
+    If $0<N$ is an integer then multiplication by $N$ is injective on $\Zhat$.
+\end{lemma}
+\begin{proof}
+    Suppose that $(z_i)_i\in\Zhat$ and $Nz=0$. This means that $Nz_i=0\in\Z/i\Z$ for all $i$.
+    Let us fix an arbitrary positive integer~$j$; we need to prove that $z_j=0\in\Z/j\Z$.
+    Consider the element $z_{Nj}\in\Z/Nj\Z$. By assumption, we have $Nz_{Nj}=0$, meaning that
+    if we lift $z_{Nj}$ to an integer, we have $Nj\mid Nz_{Nj}$, and thus $j\mid z_{Nj}$.
+    Thus by the compatibility assumption on the $z_i$ we have that $z_j\in\Z/j\Z$ is the
+    mod~$j$ reduction of $z_{Nj}$ and hence is zero.
+\end{proof}
+
+We will also need to understand exactly which elements of $\Zhat$
+are multiples of~$N$.
+
+\begin{lemma}
+    \label{ZHat.multiples}
+    \lean{ZHat.multiples} 
+    \uses{ZHat.commRing}
+    \leanok
+    The multiples of~$N$ in $\Zhat$ are precisely the compatible collections $(z_i)_i\in\Zhat$ 
+    with $z_N=0$.
+\end{lemma}
+\begin{proof}
+    Clearly $z_N=0$ is a necessary condition to be a multiple of~$N$. To see it is sufficient, 
+    take a general $(z_i)\in\Zhat$ such that $z_N=0$, 
+    and now define a new element $(y_j)_j$ of $\Zhat$
+    by $y_j=z_{Nj}/N$. Just to clarify what this means: $z_{Nj}\in\Z/Nj\Z$ reduces mod~$N$ 
+    to $z_N=0$ by the compatibility assumption, so it is in the subgroup $N\Z/Nj\Z$ of $\Z/Nj\Z$, 
+    which is isomorphic (via "division by $N$") to the group $\Z/j\Z$; this is how we construct 
+    $y_j$. It is easily checked that the $y_j$ are compatible and that $Ny=z$.
+\end{proof}
+
+\section{More advanced remarks on $\Zhat$ versus $\Q$}
+
+This section can be skipped on first reading.
+
+People who have seen some more advanced algebra might recognise this construction of $\Zhat$
+as being the profinite completion of the additive abelian group $\Z$, so it is a fundamental
+object of mathematics in some sense. But usually, when building mathematics, after $\Z$ we 
+go to $\Q$, a multiplicative localisation of $\Z$, and only complete after that (to get $\R$).
+The process of ``completing before localising'' gives us a far more arithmetic completion
+of $\Z$.
+
+Even though $\Q$ is a divisible abelian group and hence its profinite completion vanishes,
+we can still attempt to "locally profinitely complete it" by defining $\Qhat:=\Q\otimes_{\Z}\Zhat$. 
+This object is more commonly known as the \emph{finite adeles} of $\Q$. More generally if $F$ is
+any number field then $F\otimes_{\Z}\Zhat$ is the ring of finite adeles of $F$. To get to
+the full ring of adeles of a number field~$F$ you need to take the product with the
+ring of infinite adeles of $F$, which is $F\otimes_{\Q}\R$: some kind of universal
+archimedean completion of $F$. I don't know a reference which develops the theory of adeles
+in this way, so this is what we shall do here.
+
+\section{$\Qhat$ and tensor products.}
+
+The definition of $\Qhat$ is easy if you know about tensor products
+of additive abelian groups.
+
+\begin{definition}
+    \label{QHat}
+    \lean{QHat}
+    \uses{ZHat}
+    \leanok
+    % blue node
+    The profinite completion $\Qhat$ of $\Q$ is the tensor product $\Q\otimes_{\Z}\Zhat$,
+    or $\Qhat=\Q\otimes\Zhat$ for short.
+\end{definition}
+
+\section{A crash course in tensor products}
+
+We've defined $\Qhat$ to be $\Q\otimes\Zhat$. Whatever does this mean? Well just to orient yourself,
+if $A$ and $B$ are additive abelian groups, then $A\otimes B$ is also an abelian group. 
+And if $A$ and $B$ are commutative rings (as they are in our case), then $A\otimes B$ is also
+a commutative ring. 
+
+Even if $A$ and $B$ are completely concrete commutative rings, their tensor product $A\otimes B$
+might be incomprehensible. For example $\bbC\otimes\bbC$ is completely incomprehensible (note that we are
+tensoring over the integers). It is not like the product of groups or the disjoint union of
+two sets, where you have a completely explicit unambiguous formula for each element. 
+
+In this sense, the theory of tensor products is a bit like the theory of continuous functions. 
+Humanity started off studying concrete polynomial equations such as $x^2+1$ and then moved on to 
+concrete analytic functions such as $\log(x)$ and $\sin(x)$, but eventually the abstract concept 
+of a continuous function from the reals to the reals was born. There is no ``formula'' for a general 
+continuous function, and continuous functions such as $e^{-1/x^2}$ or $|x|$ have no power series.
+Even if there \emph{were} a formula for a specific continuous function of interest, it is not clear 
+in general how to make sense of the claim that it's the ``best'' formula. In other words, there is 
+no "canonical form" for a general continuous function, and yet we prove things about them anyway. 
+We shall adopt the same attitude for elements of $A\otimes B$.
+
+The first thing to know about the tensor product $A\otimes B$ of two abelian groups $A$ and $B$
+is a ``constructor'' for the type. In other words, how can we make elements $A\otimes B$?
+Well, it turns out that given elements $a\in A$ and $b\in B$, we can form the element 
+$a\otimes_t b\in A\otimes B$. 
+
+\begin{example} Recall that the sum of all the factorials is an element $e\in\Zhat$, and $22/7$ is certainly
+a rational number, so we can make the element $\frac{22}{7}\otimes_te\in\Qhat$.
+\end{example}
+
+This example is in the Lean code.
+
+Elements of the form $a\otimes_t b\in A\otimes B$ are known as \emph{pure tensors}. In the 
+literature, pure tensors
+are often written $a\otimes b$, but we shall follow {\tt mathlib}'s convention in reserving
+the $\otimes$ symbol for \emph{groups} like $A \otimes B$, and adorning it with a $t$ when
+using it on \emph{elements} of the groups (or, as Lean calls them, \emph{terms}, which explains
+the notation).
+
+Addition of pure tensors obeys the ``distributivity'' rules 
+$a\otimes_t b_1+a\otimes_t b_2=a\otimes_t(b_1+b_2)$ and 
+$a_1\otimes_t b+a_2\otimes_t b=(a_1+a_2)\otimes_t b$, but there is no rule which simplifies
+a general sum $a\otimes_t b + c\otimes_t d$ into a pure tensor. Indeed, in general it is \emph{not}
+the case that every element of a tensor product $A\otimes B$ is of the form $a\otimes_t b$; there can be
+tensors which aren't pure. However every element of $A\otimes B$ is a finite sum of pure tensors, 
+with the result that one can attempt to define additive maps from $A\otimes B$ by saying what they 
+do on pure tensors, and then extending linearly.
+
+Another thing worth understanding is that just like how rational numbers can be written as 
+quotients of integers in several ways (for example $1/2=2/4=3/6=\cdots$), a general pure tensor 
+in $A\otimes B$ can be represented as $a\otimes_t b$ in many ways. For example, in $\Qhat$
+we have $1\otimes_t 2=2\otimes_t 1$. A general rule for equality of pure tensors is that if 
+$a\in A$ and $b\in B$ and $z\in\Z$, then $za\otimes_tb=a\otimes_tzb$; integers can move over the 
+tensor symbol. But equality is hard: in general there may not be an algorithm to decide
+whether two pure tensors $a\otimes_t b$ and $c\otimes_t d$ are equal in $A\otimes B$.
+
+\begin{remark} A summary of the situation: if $A$ and $B$ are abelian groups, then every element
+    of $A\otimes B$ can be written in the form $\sum_{i=1}^Na_i\otimes_tb_i$. It's just that this
+    representation is highly nonunique, and furthermore given explicit elements $a_1,a_2\in A$
+    and $b_1,b_2\in B$ it might be a hard problem to figure out if 
+    $a_1\otimes_t b_1=a_2\otimes_t b_2$. 
+    
+    For example, it turns out that $(\Z/2\Z)\otimes(\Z/3\Z)=0$
+    and so in this tensor product all the $a\otimes_t b$ are equal to each other and to $0\otimes 0$.
+\end{remark}
+
+Having said all of that, one nice property of $\Qhat$ is that every tensor \emph{is} pure; 
+let's prove this now.
+
+\begin{lemma}
+    \label{QHat.canonicalForm}
+    \lean{QHat.canonicalForm}
+    \uses{QHat,ZHat.commRing} Every element of $\Qhat:=\Q\otimes\Zhat$
+can be written as $q\otimes_t z$ with $q\in\Q$ and $z\in\Zhat$.
+Furthermore one can even assume that $q=\frac{1}{N}$ for some positive integer $N$.
+\end{lemma}
+\begin{proof} A proof I would write on the board would look like the following. Take a general 
+    element of $\Qhat$; we know it can be expressed as a finite sum
+    $\sum_i q_i\otimes_t z_i$ with $q_i\in\Q$ and $z_i\in\Zhat$. Now choose a large 
+    positive integer $N$, the lowest common multiple of all the denominators showing up in the
+    $q_i$, and then rewrite $\sum_i q_i\otimes_t z_i$ as $\sum_i \frac{n_i}{N}\otimes z_i$ with 
+    $n_i\in\Z$. Now using the fundamental fact that $na\otimes_t b=a\otimes_t nb$ for $n\in\Z$,
+    we can rewrite the sum as $\sum_i \frac{1}{N}\otimes_t n_i z_i$
+    which is equal to the pure tensor $\frac{1}{N}\otimes(\sum_i n_i z_i)$.
+
+    In Lean I would prove this using {\tt TensorProduct.induction\_on}, which quickly
+    reduces us to the claim that the sum of two pure tensors is pure, which we can prove
+    using the above technique whilst avoiding the general theory of finite sums. 
 \end{proof}
 
 Be careful though: just because every element of $\Qhat$ can be written as $q\otimes z$, this
-reprsentation may not be unique. For example $2\otimes 1=1\otimes 2$.
+representation may not be unique. For example $2\otimes 1=1\otimes 2$. However, writing 
+$\frac{1}{N}\otimes_t z$ as $z/N$ does tempt us into the following definition.
 
-The question we address in this section is how to uderstand $\Q\otimes_{\Z}\Zhat$ as an additive
-abelian group, and in particular in terms of its two obvious subgroups $\Q\otimes_{\Z}1=\Q\otimes_{\Z}\Z$,
-isomorphic to $\Q$, and $1\otimes\Zhat=\Z\otimes_{\Z}\Zhat$, isomorphic to $\Zhat$. I claim that these two
-subgroups generate $\Q\otimes_\Z$, and their intersection is just the copy $\Z\otimes_{\Z}\Z$ of $\Z$ in $\Zhat$.
-To prove this we need to understand what the multiples of~$N$ are in $\Zhat$.
+\begin{definition}
+    \label{QHat.IsCoprime}
+    \lean{QHat.IsCoprime}
+    \uses{ZHat.commRing}
+    \leanok
+    If $N\in\N^+$ and $z\in\Zhat$ then we say that $N$ and $z$ are \emph{coprime} if
+    $z_N\in(\Z/N\Z)^\times$. We write $z/N$ as notation
+    for the element $\frac{1}{N}\otimes_tz$.
+\end{definition}
 
-\begin{lemma}{ZHat.multiples} The multiples of~$N$ in $\Zhat$ are precisely the compatible collections $(z_i)_i$ with
-$z_N=0$.
+\begin{lemma}
+    \label{QHat.lowestTerms}
+    \lean{QHat.lowestTerms}
+    \uses{QHat.IsCoprime}
+    \leanok
+    Every element of $\Qhat$ can be uniquely written as $z/N$ with $z\in\Zhat$, $N\in\N^+$,
+    and with $N$ and $z$ coprime.
 \end{lemma}
 \begin{proof}
-    Clearly $z_N=0$ is a necessary condition to be a multiple of~$N$. To see it is sufficient, take a general $(z_i)$
-    which is a multiple of~$N$, note that $z_N=0$, and now define a new element $(y_j)_j$ of $\Zhat$
-    by $y_j=z_{Nj}/N$. Just to clarify what this means: $z_{Nj}\in\Z/Nj\Z$ maps to $z_N=0$ in $\Z/N\Z$,
-    so is in the subgroup $N\Z/Nj\Z$ of $\Z/Nj\Z$, which is isomorphic (via "division by $N$") to the
-    ring $\Z/j\Z$; this is how we construct $y_j$. It is easily checked that the $y_j$ are compatible
-    and that $Ny=z$.
+    Existence: by the previous lemma, an arbitrary element can be written as $z/N$; let $D$
+    be the greatest common divisor of $N$ and $z_N$ (lifted to a natural). If $D=1$ 
+    then the fraction is by definition in lowest terms. However if $1<D\mid N$ then $z_D$
+    is the reduction of $z_N$ and is hence 0. By lemma~\ref{ZHat.multiples} we deduce that $z=Dy$
+    is a multiple of~$D$, and hence $z/N=\frac{1}{N}\otimes_tDy=\frac{1}{E}\otimes y$, where
+    $E=N/D$. Now if a natural divided both $y_E$ and $E$ then this natural would divide both $z_N/D$
+    and $N/D$, contradicting the fact that $D$ is the greatest common divisors.
+    
+    Uniqueness: if $z/N=w/M$, we deduce $1\otimes_t Mz=1\otimes_t Nw$,
+    and by injectivity of $\Zhat\to\Qhat$ we deduce that $Mz=Nw=y$.
+    In particular, if $L$ is the lowest common multiple of $M$ and $N$ then $y_L$ is a multiple of both $M$ and $N$ and is
+    hence zero, so $y=Lx$ is a multiple of~$L$ by~\ref{ZHat.multiples}, and we deduce
+    from torsionfreeness that $z=(L/M)x$ and $w=(L/N)x$. If some prime divided $L/M$
+    then it would have to divide~$N$ which means that $z$ is not in lowest terms;
+    similarly if some prime divided $L/N$ then $w/M$ would not be in lowest terms.
+    We deduce that $L=M=N$ and hence $z=w$ by torsionfreeness.
+\end{proof}
+
+If $A$ and $B$ are additive abelian groups then $A\otimes B$ is also an additive abelian group.
+However if $A$ and $B$ are commutative rings, then $A\otimes B$ also inherits the structure
+of a commutative ring, with $0=0\otimes_t 0$ and $1=1\otimes_t 1$. Pure tensors multiply in the 
+obvious way: the product of $a_1\otimes_t b_1$ and $a_2\otimes_t b_2$ is $a_1a_2\otimes_t b_1b_2.$
+There are ring homomorphisms $A\to A\otimes B$ and $B\to A\otimes B$ sending $a$ to $a\otimes_t 1$
+and $b$ to $1\otimes_t b$. In general such maps are not injective, but in the case of
+$\Qhat=\Q\otimes\Zhat$ both maps from $\Q$ and $\Zhat$ are inclusions.
+
+\begin{lemma}
+    \label{QHat.injective_rat}
+    \lean{QHat.injective_rat}
+    \uses{QHat,ZHat.commRing}
+    \leanok
+    The ring homomorphism $\Q\to\Qhat$ sending $q$ to $q\otimes_t 1$
+    is injective.
+\end{lemma}
+\begin{proof} We have seen that the map from $\Z$ to $\Zhat$ is
+    injective. Now $\Q$ is a flat $\Z$-module, because it's
+    torsion-free, so tensoring up we deduce that the map
+    from $\Q=\Q\otimes\Z$ to $\Qhat=\Q\otimes\Zhat$ is also injective.
+    There is no doubt a more elementary proof of this fact.
+\end{proof}
+
+\begin{lemma}
+    \label{QHat.injective_zHat}
+    \lean{QHat.injective_zHat}
+    \uses{QHat, ZHat.torsionfree}
+    \leanok
+    The ring homomorphism $\Zhat\to\Qhat$ sending 
+    $z$ to $1\otimes_t z$ is injective.
+\end{lemma}
+\begin{proof} 
+    The map from $\Z$ to $\Q$ is injective, and we have seen
+    that $\Zhat$ is a torsion-free and thus flat $\Z$-module,
+    so the map from $\Zhat$ to $\Qhat$ is also injective.
+\end{proof}
+
+We can thus identify $\Q=\Q\otimes\Z$ and $\Zhat=\Z\otimes\Zhat$ with subrings of $\Qhat=\Q\otimes\Zhat$.
+Note that, being commutative rings, $\Q$ and $\Zhat$ both contain a copy of $\Z$ as a subring, and
+the corresponding copies of $\Z$ in $\Qhat$ are equal; this is because $1\otimes a=a\otimes 1$
+for all $a\in\Z$.
+
+\section{Additive structure of $\Qhat$.}
+
+Here we forget the ring structure on everything, and analyse $\Qhat$ as an additive
+abelian group, and in particular how the subgroups $\Z$, $\Q$ and $\Zhat$ sit within it.
+
+The two results we prove in this section are that $\Q\cap\Zhat=\Z$ and
+that $\Q+\Zhat=\Qhat$. Using lattice-theoretic notation we could write
+these results as $\Q\sqcap\Zhat=\Z$ and $\Q\sqcup\Zhat=\Qhat$.
+
+\begin{lemma}
+    \label{Qhat.rat_meet_zHat} 
+    \lean{QHat.rat_meet_zHat}
+    \uses{QHat,ZHat.commRing}
+    \leanok
+    The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
+\end{lemma}
+\begin{proof}
+    Clearly $\Z\subseteq\Q\cap\Zhat$. Now suppose that $x\in\Q\cap\Zhat$.
+    Because $x$ is rational we can write it as $\frac{A}{B}\otimes_t1$ for some
+    fraction $A/B$ in lowest terms, and hence $x=A/B$ where now we regard $A\in\Zhat$
+    and note that $A/B$ is still in lowest terms. However $x\in\Zhat$ implies that 
+    $x=x/1$ is in lowest terms, so we deduce that $B=1$ and thus $x=A\in\Z$.
+\end{proof}
+
+\begin{lemma}
+    \label{QHat.rat_join_zHat}
+    \lean{QHat.rat_join_zHat}
+    \uses{QHat,ZHat.commRing}
+    \leanok
+    The sum of $\Q$ and $\Zhat$ in $\Qhat$ is $\Qhat$.
+    More precisely, every element of $\Qhat$ can be written as $q+z$ with $q\in\Q$ and $z\in\Zhat$, 
+    or more precisely as $q\otimes_t 1+1\otimes_t z$.
+\end{lemma}
+\begin{proof}
+    Write $x\in\Qhat$ as $x=z/N$ in lowest terms. Lift $z_N$ to an integer $t$ and observe
+    that $(z-t)_N=0$, hence $z-t=Ny$ for some $y\in\Zhat$. Now $x=t/N+y\in\Q+\Zhat$.
+\end{proof}
+
+\section{Multiplicative structure of the units of $\Qhat$.}
+
+We now forget the additive structure on the commutative ring $\Qhat$ and consider
+the multiplicative structure of its group of units $\Qhat^\times$ (which I couldn't
+get into the section title). We have the obvious
+subgroups $\Q^\times$, $\Z^\times$ and $\Zhat^\times$.
+
+\begin{lemma}
+    \label{Qhat.unitsrat_meet_unitszHat} 
+    \lean{QHat.unitsrat_meet_unitszHat}
+    \uses{QHat,ZHat.commRing}
+    \leanok
+    The intersection of $\Q^\times$ and $\Zhat^\times$ in $\Qhat^\times$ is $\Z^\times$.
+\end{lemma}
+\begin{proof}
+    \uses{QHat.lowestTerms}
+    Clearly the intersection is contained within $\Q\cap\Zhat=\Z$. If $n\in\Z$ is in $\Zhat^\times$
+    then $n\not=0$ and its inverse $1/n=\pm1/|n|$ is in lowest terms but also in $\Zhat$,
+    and hence $|n|=1$ by uniqueness of lowest term representation.
+\end{proof}
+
+\begin{lemma}
+    \label{QHat.unitsrat_join_unitszHat}
+    \lean{QHat.unitsrat_join_unitszHat}
+    \uses{QHat,ZHat.commRing}
+    \leanok
+    The product of $\Q^\times$ and $\Zhat^\times$ in $\Qhat^\times$ is all of $\Qhat^\times$.
+    More precisely, every element of $\Qhat^\times$ can be written as $qz$ with $q\in\Q^\times$
+    and $z\in\Zhat^\times$. 
+\end{lemma}
+Note that by the previous lemma, this representation will be unique up to sign.
+\begin{proof}
+    \uses{QHat.lowestTerms}
+  We already know that a general element of $\Qhat^\times$ can be written as $x/N$ with $N$
+  positive, so this reduces us to proving that a general element $x\in\Zhat$ which is invertible
+  in $\Qhat^\times$ can be written as $qz$ with $q\in\Q^\times$ and $z\in\Zhat^\times$.
+
+  We know $1/x$ can be written in lowest terms as $y/M$, and multiplying up we deduce
+  that $xy=M$. This means that $x_My_M=0\in\Z/M\Z$ and hence it is possible to write
+  $M=AB$ with $A\in\N^+$ the gcd of $x_M$ and $M$ and similarly for $B$. Thus $x_A=0$
+  and $y_B=0$, meaning that $x$ can be divided by~$A$ and $y$ can by~$B$ leaving us with
+  units.
 \end{proof}
 
 
 
-\end{proof}
+
+
