@@ -178,7 +178,31 @@ noncomputable example : QHat := (22 / 7) ⊗ₜ ZHat.e
 
 namespace QHat
 
-lemma canonicalForm : ∀ z : QHat, ∃ N : ℕ+, ∃ z' : ZHat, z = (1 / N : ℚ) ⊗ₜ z' := sorry
+lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) ⊗ₜ z' := by
+  induction z using TensorProduct.induction_on with
+  | zero =>
+    refine ⟨1, 0, ?_⟩
+    simp
+  | tmul q z =>
+    refine ⟨⟨q.den, q.den_pos ⟩, q.num * z, ?_⟩
+    simp only [← zsmul_eq_mul, TensorProduct.tmul_smul]
+    simp only [PNat.mk_coe, zsmul_eq_mul]
+    congr
+    · simp only [← q.mul_den_eq_num, LinearMap.mul_apply', mul_assoc,
+        one_div, ne_eq, Nat.cast_eq_zero, Rat.den_ne_zero, not_false_eq_true,
+        mul_inv_cancel, mul_one]
+    · simp
+  | add x y hx hy =>
+    obtain ⟨N₁, z₁, rfl⟩ := hx
+    obtain ⟨N₂, z₂, rfl⟩ := hy
+    refine ⟨N₁ * N₂, (N₁ : ℤ) * z₂ + (N₂ : ℤ) * z₁, ?_⟩
+    simp only [TensorProduct.tmul_add, ← zsmul_eq_mul,
+      TensorProduct.tmul_smul, TensorProduct.smul_tmul']
+    simp only [one_div, PNat.mul_coe, Nat.cast_mul, mul_inv_rev, zsmul_eq_mul, Int.cast_natCast,
+      ne_eq, Nat.cast_eq_zero, PNat.ne_zero, not_false_eq_true, mul_inv_cancel_left₀]
+    rw [add_comm]
+    congr
+    simp [mul_comm]
 
 def IsCoprime (N : ℕ+) (z : ZHat) : Prop := IsUnit (z N)
 
