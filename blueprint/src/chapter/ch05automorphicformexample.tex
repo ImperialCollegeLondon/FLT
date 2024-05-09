@@ -503,8 +503,18 @@ Note that by the previous lemma, this representation will be unique up to sign.
   in $\Qhat^\times$ can be written as $qz$ with $q\in\Q^\times$ and $z\in\Zhat^\times$.
 
   We know $1/x$ can be written in lowest terms as $y/M$, and multiplying up we deduce
-  that $xy=M$. This means that $x_My_M=0\in\Z/M\Z$ and hence it is possible to write
-  $M=AB$ with $A\in\N^+$ the gcd of $x_M$ and $M$ and similarly for $B$. Thus $x_A=0$
-  and $y_B=0$, meaning that $x$ can be divided by~$A$ and $y$ can by~$B$ leaving us with
-  units.
+  that $xy=M$, and hence $x$ divides a positive integer. If $i:\Z\to\Zhat$ denotes
+  the inclusion, then we've just seen that the preimage of the principal
+  ideal $(x)$, namely, $J:=i^{-1}(x\Zhat)$ is nonzero, as it contains $M$.
+  Let $g\in J$ be the smallest positive integer; it's well-known that $J=(g)$.
+
+  I claim that it suffices to show that $x\Zhat=g\Zhat$. Because knowing $g=yx$ and
+  $x=gz$ for some $y,z\in\Zhat$ tells us that $g(1-yz)=0$, and we know that multiplication by $g$ is injective,
+  hence $yz=1$, so $z$ is a unit and we have written $x=gz$ with $g\in\Q^\times$ and $z\in\Zhat^\times$.
+
+  It remains to prove the claim. By definition $g\in J\subseteq x\Zhat$ so this is one
+  inclusion. For the other, it suffices to prove that $x_g=0$. However if $0<x_g<g$
+  lifts $x_g$ to the naturals then I claim that $x_g\in J$, for $x_g-x$ is a multiple
+  of~$g$ and hence of~$x$, and this contradicts minimality of~$g$. I am missing a
+  trick here I think?
 \end{proof}
