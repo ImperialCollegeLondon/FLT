@@ -60,6 +60,7 @@ lemma ext_iff (x y : ZHat) : (∀ n : ℕ+, x n = y n) ↔ x = y :=
 @[simp] lemma ofNat_val (m : ℕ) [m.AtLeastTwo] (n : ℕ+) :
   (OfNat.ofNat m : ZHat) n = (OfNat.ofNat m : ZMod n) := rfl
 @[simp] lemma natCast_val (m : ℕ) (n : ℕ+) : (m : ZHat) n = (m : ZMod n) := rfl
+@[simp] lemma intCast_val (m : ℤ) (n : ℕ+) : (m : ZHat) n = (m : ZMod n) := rfl
 
 instance commRing : CommRing ZHat := inferInstance
 
@@ -112,6 +113,17 @@ lemma _root_.Nat.sum_factorial_lt_factorial_succ {j : ℕ} (hj : 1 < j) :
   rw [factorial_zero]
   simp [hj]
 
+lemma _root_.Nat.sum_factorial_lt_two_mul_factorial {j : ℕ} (hj : 3 ≤ j) :
+    ∑ i ∈ range (j + 1), i ! < 2 * j ! := by
+  induction j, hj using Nat.le_induction with
+  | base => simp [sum_range_succ, factorial_succ]
+  | succ j hj ih =>
+    rw [two_mul] at ih ⊢
+    rw [sum_range_succ]
+    gcongr
+    apply sum_factorial_lt_factorial_succ
+    omega
+
 lemma e_factorial_succ (j : ℕ) :
     e ⟨(j + 1)!, by positivity⟩ = ∑ i ∈ range (j + 1), i ! := by
   simp_rw [e_def, PNat.mk_coe, cast_sum]
@@ -139,8 +151,40 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := by
       _ = _ := by simp [ha, N, mod_eq_of_lt (hj.trans h₀)]
       _ < _ := hj
       _ = _ := by simp only [PNat.mk_coe, e_factorial_succ, ZMod.val_natCast, mod_eq_of_lt h₀, N]
-  · sorry
-
+  · obtain ⟨j, honelt, hj⟩ : ∃ j, 1 < j ∧ (a + 1) + ∑ i ∈ range (j + 1), i ! < (j + 1)! := by
+      refine ⟨a + 3, ?_, ?_⟩
+      · omega
+      calc
+        _ < (a + 1) * 1 + 2 * (a + 3)! := ?_
+        _ ≤ (a + 1) * (a + 3)! + 2 * (a + 3)! + 0 := ?_
+        _ < (a + 1) * (a + 3)! + 2 * (a + 3)! + (a + 3)! := ?_
+        _ = (a + 4)! := ?_
+      · rw [mul_one]
+        have : 3 ≤ a + 3 := by omega
+        have := sum_factorial_lt_two_mul_factorial this
+        gcongr
+      · rw [add_zero]
+        have : 1 ≤ (a + 3)! := Nat.one_le_of_lt (factorial_pos _)
+        gcongr
+      · gcongr
+        exact factorial_pos _
+      · rw [factorial_succ (a + 3)]
+        ring
+    let N : ℕ+ := ⟨(j + 1)!, by positivity⟩
+    apply lt_irrefl (e N).val
+    calc
+      _ < N - (a + 1) := ?_
+      _ = (e N).val := ?_
+    · dsimp [N]
+      apply lt_sub_of_add_lt
+      rwa [add_comm, e_factorial_succ, ZMod.val_natCast,
+        mod_eq_of_lt (sum_factorial_lt_factorial_succ honelt)]
+    · have : a + 1 < N := lt_of_le_of_lt (Nat.le_add_right _ _) hj
+      rw [ha, intCast_val, Int.cast_negSucc, ZMod.neg_val, ZMod.val_natCast, if_neg,
+        mod_eq_of_lt this]
+      rw [ZMod.natCast_zmod_eq_zero_iff_dvd]
+      contrapose! this
+      apply le_of_dvd (zero_lt_succ a) this
 -- This isn't necessary but isn't too hard to prove.
 
 lemma torsionfree_aux (a b : ℕ) [NeZero b] (h : a ∣ b) (x : ZMod b) (hx : a ∣ x.val) :
