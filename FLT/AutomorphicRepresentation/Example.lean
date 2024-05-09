@@ -96,11 +96,51 @@ def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i in range (n : ℕ), i !, by
   exact Nat.dvd_factorial D.pos le_self_add
 ⟩
 
-open BigOperators Nat Finset in
+open BigOperators Nat Finset
+
 lemma e_def (n : ℕ+) : e n = ∑ i in range (n : ℕ), (i ! : ZMod n) := rfl
 
+lemma _root_.Nat.sum_factorial_lt_factorial_succ {j : ℕ} (hj : 1 < j) :
+    ∑ i ∈ range (j + 1), i ! < (j + 1) ! := by
+  calc
+    ∑ i ∈ range (j + 1), i ! < ∑ _i ∈ range (j + 1), j ! := ?_
+    _ = (j + 1) * (j !) := by rw [sum_const, card_range, smul_eq_mul]
+    _ = (j + 1)! := Nat.factorial_succ _
+  apply sum_lt_sum
+  apply (fun i hi => factorial_le <| by simpa only [mem_range, lt_succ] using hi)
+  use 0
+  rw [factorial_zero]
+  simp [hj]
+
+lemma e_factorial_succ (j : ℕ) :
+    e ⟨(j + 1)!, by positivity⟩ = ∑ i ∈ range (j + 1), i ! := by
+  simp_rw [e_def, PNat.mk_coe, cast_sum]
+  obtain ⟨k, hk⟩ := exists_add_of_le <| self_le_factorial (j + 1)
+  rw [hk, sum_range_add, add_right_eq_self]
+  refine sum_eq_zero (fun i _ => ?_)
+  rw [ZMod.natCast_zmod_eq_zero_iff_dvd, ← hk]
+  exact factorial_dvd_factorial (Nat.le_add_right _ _)
+
 /-- Nonarchimedean $e$ is not an integer. -/
-lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := sorry
+lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := by
+  rintro (a|a) ha
+  · obtain ⟨j, honelt, hj⟩ : ∃ j : ℕ, 1 < j ∧ a < ∑ i ∈ range (j + 1), i ! := by
+      refine ⟨a + 2, ?_, ?_⟩
+      · simp only [lt_add_iff_pos_left, add_pos_iff, zero_lt_one, or_true]
+      rw [sum_range_add]
+      apply lt_add_of_nonneg_of_lt
+      · positivity
+      rw [range_one, sum_singleton, add_zero]
+      exact (Nat.lt_add_of_pos_right two_pos).trans_le (self_le_factorial _)
+    let N : ℕ+ := ⟨(j + 1)!, by positivity⟩
+    apply lt_irrefl (e N).val
+    have h₀ : ∑ i ∈ range (j + 1), i ! < (j + 1) ! := sum_factorial_lt_factorial_succ honelt
+    calc
+      _ = _ := by simp [ha, N, mod_eq_of_lt (hj.trans h₀)]
+      _ < _ := hj
+      _ = _ := by simp only [PNat.mk_coe, e_factorial_succ, ZMod.val_natCast, mod_eq_of_lt h₀, N]
+  · sorry
+
 -- This isn't necessary but isn't too hard to prove.
 
 lemma torsionfree_aux (a b : ℕ) [NeZero b] (h : a ∣ b) (x : ZMod b) (hx : a ∣ x.val) :
