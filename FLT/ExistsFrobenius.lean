@@ -122,7 +122,7 @@ variable (A K L B : Type*) [CommRing A] [CommRing B]
 
 /-- re-definition of `Ideal B` in terms of 'AKLB setup'. -/
 @[nolint unusedArguments] abbrev Ideal' (A K L B : Type*)
-  [CommRing B] [SMul A B]
+  [Semiring B] [SMul A B]
   [SMul A K] [SMul B L]
   [SMul K L] [SMul A L] [IsScalarTower A B L]
   [IsScalarTower A K L]
@@ -142,9 +142,7 @@ noncomputable instance gal_action_Ideal': MulAction (L ≃ₐ[K] L) (Ideal' A K 
     -- `show` unfolds goal into something definitionally equal
     show Ideal.comap _ _ = _
     simp only [map_one]
-    -- had to use `convert` instead of `rw`, because `AlgEquiv.symm (galRestrict A K L B 1) `
-    -- is not syntactically equal to `id`
-    convert Ideal.comap_id _
+    exact Ideal.comap_id _
   mul_smul _ _ := by
      intro h
      show Ideal.comap _ _ = _
@@ -157,7 +155,6 @@ noncomputable instance gal_action_Ideal': MulAction (L ≃ₐ[K] L) (Ideal' A K 
 -- it is placed here by convention, as a property of `gal_action_Ideal`.
 -- Jujian helped me to write this lemma.
 @[simp] lemma gal_action_Ideal'.smul_bot (σ : (L ≃ₐ[K] L)) : σ • (⊥ : Ideal' A K L B) = ⊥ := by
-  change Ideal.comap (AlgEquiv.symm (galRestrict A K L B σ)) ⊥ = ⊥
   apply Ideal.comap_bot_of_injective
   exact AlgEquiv.injective (AlgEquiv.symm ((galRestrict A K L B) σ))
 
@@ -174,7 +171,9 @@ def decomposition_subgroup_Ideal' (Q : Ideal' A K L B) :
 -- `(B ⧸ Q)` as finite fields.
 variable (P : Ideal A) [Ideal.IsMaximal P] [Fintype (A ⧸ P)] (P_ne_bot : P ≠ ⊥)
   (Q : Ideal' A K L B) [Ideal.IsMaximal Q] [Fintype (B ⧸ Q)] (Q_ne_bot : Q ≠ (⊥ : Ideal B))
-  [Algebra (A ⧸ P) (B ⧸ Q)] [IsScalarTower A (A ⧸ P) (B ⧸ Q)] -- last variable suggested by Amelia
+  -- This next line was suggested by Amelia Livingston; mathematically it is
+  -- equivalent to `P ⊆ A ∩ Q` but it's written purely within the typeclass system.
+  [Algebra (A ⧸ P) (B ⧸ Q)] [IsScalarTower A (A ⧸ P) (B ⧸ Q)]
 
 /-- `Fintype.card (A ⧸ P)` -/
 local notation "q" => Fintype.card (A ⧸ P)
@@ -186,11 +185,7 @@ local notation "q" => Fintype.card (A ⧸ P)
 -- We will use the existence of such a `g` to prove the theorem `exists_generator`.
 variable {A K L B} in
 instance residue_field_units_is_cyclic : IsCyclic (B ⧸ Q)ˣ :=
-  isCyclic_of_subgroup_isDomain (Units.coeHom _) <| by
-    unfold Function.Injective
-    simp_all only [ne_eq, Units.coeHom_apply]
-    intros a b
-    apply Units.ext_iff.2
+  isCyclic_of_subgroup_isDomain (Units.coeHom _) <| fun _ _ ↦ Units.eq_iff.mp
 
 /-- The Orbit-Stabilizer Theorem for the orbit of the non-zero prime ideal `Q` of `B`
 under the action of the Galois group `L ≃ₐ[K] L`. -/
@@ -201,21 +196,23 @@ noncomputable def galOrbitStabilizer : (MulAction.orbit  (L ≃ₐ[K] L) Q) ≃
 namespace CRTRepresentative.auxiliary
 
 variable {A K L B} in
--- Amelia helped me to write the following definition.
-/-- Function assigning a representative non-zero prime of type `(Ideal' A K L B)`
-to an element in the orbit of `Q` under the action of the Galois group `L ≃ₐ[K] L`.
-We will consider the orbit to be a `Fintype`, as used in the statement of
-the Chinese Remainder Theorem. -/
+/-- Given an ideal `Q`, we have a map `g ↦ g • Q` from `Gal(L/K)` to `Ideal' B`,
+which is constant on right cosets of the decomposition group of `Q` over `K`.
+Hence it descends to a map from the space space of cosets to `Ideal' B`;
+this descent will be injective and will have image the orbit of `Q`. -/
 noncomputable def f :
     ((L ≃ₐ[K] L) ⧸ ( decomposition_subgroup_Ideal' Q)) →
     (Ideal' A K L B) :=
   fun x => Quotient.liftOn' x (fun g => g • Q) <| by
     intros σ τ h
-    refine eq_inv_smul_iff.mp ?_
     rw [QuotientGroup.leftRel_apply] at h
-    simp_all only [ne_eq]
-    symm
-    rwa [← mul_smul]
+    -- h : σ⁻¹ * τ ∈ decomposition_subgroup_Ideal' Q
+    apply MulAction.mem_stabilizer_iff.1 at h
+    -- h : (σ⁻¹ * τ) • Q = Q
+    dsimp only
+    -- ⊢ σ • Q = τ • Q
+    rwa [← eq_inv_smul_iff, eq_comm, smul_smul] -- manipulate
+    -- the goal until it becomes `h`, then `rwa` finishes it.
 
 -- In order to use the orbit `Fintype ((L ≃ₐ[K] L) ⧸ decomposition_subgroup_Ideal Q)`
 -- as the Fintype demanded by the CRT, we had to tell Lean that the orbit is indeed a Fintype
@@ -252,35 +249,31 @@ lemma crt_representative (b : B) : ∃ (y : B),
   have := IsDedekindDomain.exists_forall_sub_mem_ideal (s := Finset.univ) (f Q) (fun _ ↦ 1)
     (fun i _ ↦ by
       induction' i using Quotient.inductionOn'  with i
-      delta f
-      simp only [Quotient.liftOn'_mk'']
+      -- ⊢ Prime (f Q (Quotient.mk'' i))
+      change Prime (i • Q)
       apply Ideal.prime_of_isPrime (h := MapPrimestoPrimes A K L B i Q)
       contrapose! Q_ne_bot
-      suffices h2 : i⁻¹  • i • Q = ⊥ by
-        simpa [← mul_smul] using h2
-      rw [Q_ne_bot]
-      simp only [gal_action_Ideal'.smul_bot]
-      ) (fun i _ j _ hij ↦ by
-        induction' i using Quotient.inductionOn'  with i
-        induction' j using Quotient.inductionOn'  with j
-        delta f
-        simp only [Quotient.liftOn'_mk'']
-        contrapose! hij
-        simp only [Quotient.eq'']
-        rw [QuotientGroup.leftRel_eq]
-        simp only
-        symm at hij
-        rw [←inv_smul_eq_iff, smul_smul] at hij
-        convert hij)
+      -- goal: (Q_ne_bot : i • Q = ⊥) → Q = ⊥
+      apply_fun (i⁻¹ • .) at Q_ne_bot -- that's the hint it needs
+      simpa using Q_ne_bot
+    )
+    (fun i _ j _ hij ↦ by
+      induction' i using Quotient.inductionOn'  with i
+      induction' j using Quotient.inductionOn'  with j
+      change i • Q ≠ j • Q -- goal is this *by definition*
+      contrapose! hij
+      simp only [Quotient.eq'']
+      rw [QuotientGroup.leftRel_eq]
+      simp only
+      symm at hij
+      rw [←inv_smul_eq_iff, smul_smul] at hij
+      exact hij
+    )
     (fun i ↦ if i = ⟨Quotient.mk'' 1, Finset.mem_univ _⟩ then b else 0)
   choose y hy using this
-  simp only [Finset.mem_univ, Subtype.mk.injEq, pow_one, forall_true_left] at hy
   use y
-  intro i
-  specialize hy i
-  split_ifs with H
-  · rwa [if_pos H] at hy
-  · rwa [if_neg H, sub_zero] at hy
+  peel hy with hy
+  split_ifs <;> simp_all
 
 variable {A K L B Q} in
 /--"By the Chinese remainder theorem, there exists an element `ρ` of `B` such that
