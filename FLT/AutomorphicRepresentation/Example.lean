@@ -101,9 +101,7 @@ lemma e_def (n : ℕ+) : e n = ∑ i in range (n : ℕ), (i ! : ZMod n) := rfl
 
 /-- Nonarchimedean $e$ is not an integer. -/
 lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := sorry
--- This isn't necessary but looks true. I assume it's known?
--- I believe that in general `e` is conjectured to be transcendental, i.e. satisfies no
--- nontrivial polynomial with coefficients in `ℤ`.
+-- This isn't necessary but isn't too hard to prove.
 
 lemma torsionfree_aux (a b : ℕ) [NeZero b] (h : a ∣ b) (x : ZMod b) (hx : a ∣ x.val) :
     ZMod.castHom h (ZMod a) x = 0 := by

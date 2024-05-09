@@ -153,7 +153,7 @@ Let's write down an explicit example of an element of $\Zhat$ which isn't obviou
     The collection $(e_N)_N$ is an element of $\Zhat$.
 \end{lemma}
 \begin{proof}
-    Note that the proof of this lemma in Lean has no direct sorry, but uses earlier sorried lemmas.
+    \leanok
     This boils down to checking that $D!+(D+1)!+\cdots+(N-1)!$ is a multiple of~$D$.
 \end{proof}
 
@@ -164,9 +164,17 @@ Let's write down an explicit example of an element of $\Zhat$ which isn't obviou
     \leanok
     The element $(e_N)_N$ of $\Zhat$ is not in $\Z$.
 \end{lemma}
-\begin{proof}\notready
-    I don't have a proof of this but it doesn't look too bad; maybe I'm wrong
-    and it's hard? We will not need it later on.
+\begin{proof}
+    First imagine that $e=n$ with $n\in\Z$ and $0\leq n$. First choose $j$
+    such that $0!+1!+2!+\cdots+j!>n$ and check also that the sum is less
+    than $(j+1)!$. Now set $N=(j+1)!$ and let's compare $e_N$
+    and $n_N=n$. The trick is that $e_N must be $0!+1!+\cdots+j!$ mod $N$,
+    because all the terms beyond this are multiples not just of $(j+1)$ but
+    of $(j+1)!=N$. Thus mod $N$ we have $0\leq c<e_N<N$ so they cannot be equal.
+
+    Now we deal with $n=-t<0$; choose $j$ large such that
+    $(j+1)!-(0!+1!+\cdots+j!)>t$ (possible because the sum is at most $2\times j!$)
+    and then set $N=(j+1)!$ and we have $0 < e_N<N-t<N$ so we cannot have $e_N=-t$ in $\Z/N\Z$.
 \end{proof}
 
 Let's prove some more basic facts about $\Zhat$.
