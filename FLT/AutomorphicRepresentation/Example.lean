@@ -493,19 +493,19 @@ open scoped TensorProduct
 
 noncomputable def HurwitzHat : Type := 𝓞 ⊗[ℤ] ZHat
 
-notation "𝓞^" => HurwitzHat
+scoped notation "𝓞^" => HurwitzHat
 
 noncomputable instance : Ring 𝓞^ := Algebra.TensorProduct.instRing
 
 noncomputable def HurwitzRat : Type := ℚ ⊗[ℤ] 𝓞
 
-notation "D" => HurwitzRat
+scoped notation "D" => HurwitzRat
 
 noncomputable instance : Ring D := Algebra.TensorProduct.instRing
 
 noncomputable def HurwitzRatHat : Type := D ⊗[ℤ] ZHat
 
-notation "D^" => HurwitzRatHat
+scoped notation "D^" => HurwitzRatHat
 
 noncomputable instance : Ring D^ := Algebra.TensorProduct.instRing
 
