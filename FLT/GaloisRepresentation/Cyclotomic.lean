@@ -14,8 +14,15 @@ lemma IsAlgClosed.card_rootsOfUnity (N : ℕ+) : Fintype.card (rootsOfUnity N L)
 @[norm_cast]
 lemma PNat.coe_dvd_iff (A B : ℕ+) : (A : ℕ) ∣ B ↔ A ∣ B := by exact Iff.symm dvd_iff
 
-lemma foo {a b c : ℕ} {G : Type} [Group G] {t : G} (h : t ^ a = 1) (h2 : b ≡ c [MOD a]) :
-  t ^ b = t ^ c := by sorry
+lemma rootsOfUnity.pow_eq_pow {a b c : ℕ} {G : Type} [Group G] {t : G} (h : t ^ a = 1)
+    (h2 : b ≡ c [MOD a]) : t ^ b = t ^ c := by
+  rw [pow_eq_pow_mod b h, pow_eq_pow_mod c h]
+  exact congr_arg _ h2
+
+lemma PNat.castHom_val_modEq {D : ℕ} {N : ℕ+} (h : D ∣ N) (e : ZMod N) :
+    (ZMod.castHom h _ e : ZMod D).val ≡ e.val [MOD D] := by
+  rw [ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.val_natCast]
+  exact Nat.mod_modEq e.val D
 
 /-- The cyclotomic character-/
 noncomputable def CyclotomicCharacter_aux : (L ≃+* L) →* ZHat where
@@ -23,24 +30,14 @@ noncomputable def CyclotomicCharacter_aux : (L ≃+* L) →* ZHat where
     intros D M h
     apply ModularCyclotomicCharacter.unique
     intros t htD
-    have hcoe := h
     norm_cast at h
-    -- have foo : t ∈ rootsOfUnity M L := rootsOfUnity_le_of_dvd h htD
     rw [ModularCyclotomicCharacter.spec L (IsAlgClosed.card_rootsOfUnity L M) g <|
           rootsOfUnity_le_of_dvd h htD]
-    -- Now we just have one fixed element `(x : (ZMod ↑M)ˣ)` and a `D`'th root of unity `t`
-    -- and the claim is that t^x.val = t^(cast x to Z/DZ).val
     norm_cast
-    change t ^ _ = 1 at htD
-    apply foo htD
+    apply rootsOfUnity.pow_eq_pow htD
     dsimp only
-    generalize (ModularCyclotomicCharacter L (IsAlgClosed.card_rootsOfUnity L M) g : ZMod M) = e
-    /-
-    hcoe : ↑D ∣ ↑M
-    e : ZMod ↑M
-    ⊢ (↑D).ModEq e.val e.cast.val
-    -/
-    sorry⟩
+    symm
+    apply PNat.castHom_val_modEq⟩
   map_one' := by ext; simp only [map_one]; rfl
   map_mul' _ _ := by ext; simp only [map_mul]; rfl
 
