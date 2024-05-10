@@ -63,7 +63,6 @@ lemma ext_iff (x y : ZHat) : (∀ n : ℕ+, x n = y n) ↔ x = y :=
 
 instance commRing : CommRing ZHat := inferInstance
 
---wooah, `import Mathlib` breaks this. TODO test this again after bump to Lean v4.8
 lemma zeroNeOne : (0 : ZHat) ≠ 1 := by
   intro h
   have h2 : (0 : ZHat) 2 = (1 : ZHat) 2 := by simp [h]
@@ -164,6 +163,14 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
     ext j
     exact y_mul_N_eq_z N z h j
 
+-- `ZHat` has division by positive naturals, with remainder a smaller natural.
+-- In other words, the naturals are dense in `ZHat`.
+lemma nat_dense (N : ℕ+) (z : ZHat) : ∃ (q : ZHat) (r : ℕ), z = N * q + r ∧ r < N := by
+  let r : ℕ := (z N : ZMod N).val
+  have h : (z - r) N = 0 := by change z N - r = 0; simp [r]
+  rw [← multiples] at h
+  obtain ⟨q, hq⟩ := h
+  exact ⟨q, r, by linear_combination -hq, ZMod.val_lt (z N)⟩
 
 end ZHat
 
