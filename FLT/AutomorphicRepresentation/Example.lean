@@ -338,16 +338,27 @@ instance : AddCommGroup 𝓞 where
 -- multiplication
 
 /-- Multiplication `z*w` of two Hurwitz numbers -/
-def mul (z w : 𝓞) : 𝓞 :=
-  ⟨z.re * w.re + sorry, sorry, sorry, sorry⟩
+def mul (z w : 𝓞) : 𝓞 where
+  re := z.re * w.re - z.im_o * w.im_o - z.im_i * w.im_o - z.im_i * w.im_i + z.im_i * w.im_oi - z.im_oi * w.im_oi
+  im_o := z.im_o * w.re + z.re * w.im_o - z.im_o * w.im_o - z.im_oi * w.im_o - z.im_oi * w.im_i + z.im_i * w.im_oi
+  im_i := z.im_i * w.re - z.im_i * w.im_o + z.im_oi * w.im_o + z.re * w.im_i - z.im_o * w.im_oi - z.im_i * w.im_oi
+  im_oi := z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i + z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi
 
 /-- Notation `*` for multiplication -/
 instance : Mul 𝓞 := ⟨mul⟩
 
 -- how `mul` reacts with `re` and `im`
-@[simp] lemma mul_re (z w : 𝓞) : re (z * w) = re z * re w + sorry := rfl
+@[simp] lemma mul_re (z w : 𝓞) :
+    re (z * w) = z.re * w.re - z.im_o * w.im_o - z.im_i * w.im_o - z.im_i * w.im_i + z.im_i * w.im_oi - z.im_oi * w.im_oi := rfl
 
--- @[simp] lemma mul_im_0 (z w : 𝓞) : sorry := rfl etc etc
+@[simp] lemma mul_im_o (z w : 𝓞) :
+    im_o (z * w) = z.im_o * w.re + z.re * w.im_o - z.im_o * w.im_o - z.im_oi * w.im_o - z.im_oi * w.im_i + z.im_i * w.im_oi := rfl
+
+@[simp] lemma mul_im_i (z w : 𝓞) :
+    im_i (z * w) = z.im_i * w.re - z.im_i * w.im_o + z.im_oi * w.im_o + z.re * w.im_i - z.im_o * w.im_oi - z.im_i * w.im_oi := rfl
+
+@[simp] lemma mul_im_oi (z w : 𝓞) :
+    im_oi (z * w) = z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i + z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi := rfl
 
 instance ring : Ring 𝓞 := { (inferInstance : AddCommGroup 𝓞) with
   left_distrib := sorry
