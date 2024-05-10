@@ -42,21 +42,26 @@ matrices with rational coefficients, hence its units $D^\times$ are an analogue 
 group $\GL_2(\Q)$.
 
 We will also need an analogue of the group $\GL_2(\Z)$, which will come from an integral structure
-on~$D$. We choose the most obvious one, namely the subring $\calO:=\Z\oplus\Z i\oplus\Z j\oplus\Z k$.
-This is not a "maximal order" -- one can also throw in $(1+i+j+k)/2$ and get a bigger lattice,
-but we don't need to do that in this example.
+on~$D$. We choose the Hurwitz order, namely the subring $\calO:=\Z\oplus\Z i\oplus\Z j\oplus\Z \omega$,
+where $\omega=\frac{-1+(i+j+k)}{2}$, a cube root of unity, as $(i+j+k)^2=-3$. The simplest way
+to understand $\calO$ is that it's quaternions $a+bi+cj+dk$ where either $a,b,c,d$ are all integers
+or are all in $\frac{1}{2}+\Z$.
+
+Note that $\calO$ is a maximal order and a Euclidean domain, which is why we prefer it over the
+more obvious sublattice $\Z\oplus\Z i\oplus\Z j\oplus\Z k.$
 
 In this chapter, we are going to compute a complex vector space which could be called something
 like the ``weight 2 level 2 modular forms for $D^\times$''. The main result will be that this
-space is 1-dimensional, and this claim will
-boil down to the fact that every prime (and hence every natural) is the sum of four
-natural squares.
+space is 1-dimensional.
 
 Note that mathlib has modular forms, but it doesn't have enough complex analysis to deduce
 that the space of modular forms of a given weight and level is finite-dimensional. If all
 the `sorry`s in this chapter are completed
 before mathlib gets the necessary complex analysis, then the first nonzero space of modular forms
 to be proved finite-dimensional in Lean will be a space of quaternionic modular forms.
+
+We will use a modern "adelic" definition of our modular forms, so the first thing we need
+to do is to talk about profinite completions.
 
 \section{\texorpdfstring{$\Zhat$}{Zhat}}
 
@@ -166,16 +171,17 @@ Let's write down an explicit example of an element of $\Zhat$ which isn't obviou
 \end{lemma}
 \begin{proof}
     \leanok
-    First imagine that $e=n$ with $n\in\Z$ and $0\leq n$. First choose $j$
+    First imagine that $e=n$ with $n\in\Z$ and $0\leq n$. In this case, choose $j$
     such that $0!+1!+2!+\cdots+j!>n$ and check also that the sum is less
     than $(j+1)!$. Now set $N=(j+1)!$ and let's compare $e_N$
     and $n_N=n$. The trick is that $e_N$ must be $0!+1!+\cdots+j!$ mod $N$,
     because all the terms beyond this are multiples not just of $(j+1)$ but
-    of $(j+1)!=N$. Thus mod $N$ we have $0\leq n<e_N<N$ so they cannot be equal.
+    of $(j+1)!=N$. Thus mod $N$ we have $0\leq n<e_N<N$ so $n\not=e$.
 
     Now we deal with $n=-t<0$; choose $j$ large such that
     $(j+1)!-(0!+1!+\cdots+j!)>t$ (possible because the sum is at most $2\times j!$)
-    and then set $N=(j+1)!$ and we have $0 < e_N<N-t<N$ so we cannot have $e_N=-t$ in $\Z/N\Z$.
+    and then set $N=(j+1)!$ and we have $0 < e_N<N-t<N$ so we cannot have $e_N=-t$ in $\Z/N\Z$,
+    so again $e\not=n$.
 \end{proof}
 
 Let's prove some more basic facts about $\Zhat$.
@@ -516,6 +522,229 @@ Note that by the previous lemma, this representation will be unique up to sign.
   It remains to prove the claim. By definition $g\in J\subseteq x\Zhat$ so this is one
   inclusion. For the other, it suffices to prove that $x_g=0$. However if $0<x_g<g$
   lifts $x_g$ to the naturals then I claim that $x_g\in J$, for $x_g-x$ is a multiple
-  of~$g$ and hence of~$x$, and this contradicts minimality of~$g$. I am missing a
-  trick here I think?
+  of~$g$ and hence of~$x$, and this contradicts minimality of~$g$.
+\end{proof}
+
+We are nearly ready to embark upon the multiplicative adelic theory for quaternion algebras.
+However before we do this, we need to develop the theory of the Hurwitz quaternions a bit
+more formally.
+
+\section{The Hurwitz quaternions}
+
+\begin{definition}
+    \label{Hurwitz}
+    \lean{Hurwitz}
+    \leanok
+        The Hurwitz quaternions are the set $\calO := \Z\oplus\Z \omega\oplus\Z i\oplus
+    \Z i\omega$ (as an abstract abelian group or as a subgroup of the usual quaternions).
+    Here $\omega=\frac{-1+(i+j+k)}{2}$ and note that $(i+j+k)^2=-3$.
+    We have $\overline{\omega}=\omega^2=-(\omega+1)$. A general quaternion
+    $a+bi+cj+dk$ is a Hurwitz quaternion if either $a,b,c,d\in\Z$
+    or $a,b,c,d\in\Z+\frac{1}{2}$.
+\end{definition}
+
+\begin{lemma}
+    \label{Hurwitz.ring}
+    \lean{Hurwitz.ring}
+    \uses{Hurwitz}
+    \leanok
+    The Hurwitz quaternions form a ring.
+\end{lemma}
+\begin{proof} Follow your nose.
+\end{proof}
+
+
+This ring is isomorphic to $\Z^4$ as an additive group, and
+$\calO\otimes_{\Z}\R=\R\oplus \R i\oplus \R j\oplus\R \omega$
+is the usual Hamilton quaternions.
+
+\begin{definition}
+    \label{Hurwitz.conj}
+    \lean{Hurwitz.conj}
+    There's a conjugation map from the Hurwitz quaternions to themselves, sending
+    integers to themselves and purely imaginary elements like $2\omega+1$ to minus themselves.
+\end{definition}
+
+\begin{definition}
+    \label{Hurwitz.norm}
+    \lean{Hurwitz.norm}
+    The Hurwitz quaternions come equipped with an integer-valued norm, which is
+    $a^2+b^2+c^2+d^2$ on $a+bi+cj+dk$ but needs to be modified a bit to deal with $\omega$.
+\end{definition}
+
+\begin{lemma}
+    \label{Hurwitz.norm_eq_mul_conj}
+    \lean{Hurwitz.norm_eq_mul_conj}
+    \leanok
+    We have $N(x)=x\overline{x}$.
+\end{lemma}
+\begin{proof} Easy calculation.
+\end{proof}
+
+\begin{lemma}
+    \label{Hurwitz.norm_zero}
+    \lean{Hurwitz.norm_zero}
+    \uses{Hurwitz.norm}
+    \leanok
+    The norm of $0$ is $0$.
+\end{lemma}
+\begin{proof} A calculation.
+\end{proof}
+
+\begin{lemma}
+    \label{Hurwitz.norm_one}
+    \lean{Hurwitz.norm_one}
+    \uses{Hurwitz.norm}
+    \leanok
+    The norm of $1$ is $1$.
+\end{lemma}
+\begin{proof} A calculation.
+\end{proof}
+
+\begin{lemma}
+    \label{Hurwitz.norm_mul}
+    \lean{Hurwitz.norm_mul}
+    \uses{Hurwitz.norm}
+    \leanok
+    The norm of a product is the product of the norms.
+\end{lemma}
+\begin{proof} A calculation.
+\end{proof}
+
+\begin{lemma}
+    \label{Hurwitz.norm_nonneg}
+    \lean{Hurwitz.norm_nonneg}
+    \uses{Hurwitz.norm}
+    \leanok
+    The norm of an element is nonnegative.
+\end{lemma}
+\begin{proof} It's a sum of rational squares.
+\end{proof}
+
+\begin{lemma}
+    \label{Hurwitz.norm_eq_zero}
+    \lean{Hurwitz.norm_eq_zero}
+    \uses{Hurwitz.norm}
+    \leanok
+    The norm of an element is zero if and only if the element is zero.
+\end{lemma}
+\begin{proof} It's a sum of rational squares.
+\end{proof}
+
+\begin{lemma}
+    \label{Hurwitz.quot_rem}
+    \lean{Hurwitz.quot_rem}
+    \uses{Hurwitz.norm}
+    \leanok
+    Given two Hurwitz quaternions $a$ and $b$ with $b$ nonzero, there exists
+    $q$ and $r$ such that $a=qb+r$ and $N(r)<N(b)$.
+\end{lemma}
+\begin{proof}
+  Let $q$ be the nearest Hurwitz quaternion to $a/b$; one can check that $N(a/b-q)<1$ and now
+  everything follows.
+\end{proof}
+
+\begin{corollary}
+    \label{Hurwitz.left_ideal_princ}
+    \lean{Hurwitz.left_ideal_princ}
+    \uses{Hurwitz.norm}
+    \leanok
+    All left ideals of $\calO$ are principal.
+\end{corollary}
+\begin{proof}
+     Choose a nonzero element of smallest norm.
+\end{proof}
+
+\begin{remark}
+    All right ideals are principal too, because there's
+    another version of Euclid saying $a=bq+r$.
+\end{remark}
+
+\section{Profinite completion of the Hurwitz quaternions}
+
+We define $\calOhat$ to be $\calO\otimes\Zhat$, so it's elements $a+bi+cj+d\omega$
+with $a,b,c,d\in\Zhat$. The basic thing we need is this:
+
+\begin{theorem} If $N$ is a positive natural then the obvious map
+    $\calO\to\calOhat/N\calOhat$ is surjective.
+\end{theorem}
+\begin{proof}
+      This is just four copies of the surjection $\Z\to\Zhat/N\Zhat$.
+      Note that this latter map is surjective because $\Z\to\Z/N\Z$ is surjective,
+      hence given $z\in\Zhat$ you can subtract an integer $w$ such
+      that $(z-w)_N=0$, so $z-w$ is a multiple of~$N$.
+\end{proof}
+
+We define $D:=\Q\otimes\calO=\Q\oplus\Q i\oplus\Q j\oplus\Q\omega=\Q\oplus\Q i\oplus\Q j\oplus\Q k$.
+Finally, we define $\widehat{D}:=D\otimes\Zhat$. Just as with $\Qhat$ we have
+
+\begin{lemma}
+    \label{Hurwitz.canonicalForm}
+    \lean{Hurwitz.canonicalForm}
+    \uses{QHat, ZHat, Hurwitz}
+    \leanok
+    Every element of $\widehat{D}$ can be written as $z/N$ with $z\in\calOhat$ and $N\in\N^+$.
+\end{lemma}
+\begin{proof}
+    Same as the proof for $\Qhat$.
+\end{proof}
+
+It is not hard to check that $\widehat{D}$ contains $\widehat{\calO}$
+and $D$ as subrings, and that as additive abelian groups we have
+$\widehat{\calO}\cap D=\calO$ and $\widehat{\calO}+D=\widehat{D}$.
+This is because $\calO$ is just four copies of $\Z$ and we've proved
+the analogous result for $\Z$.
+
+However the multiplicative structure is more interesting, especially
+as $D$ is not commutative. For a general quaternion algebra it is \emph{not}
+true that $(\widehat{D})^\times=D^\times(\widehat{\calO})^\times$, because
+there are "class group obstructions". The double coset space is some
+kind of non-commutative analogue of a class group. However for our
+particular choice of $D$ and $\calO$ the result is true.
+
+\begin{theorem}
+    \label{Hurwitz.completed_units}
+    \lean{Hurwitz.completed_units}
+    \uses{Hurwitz.canonicalForm}
+    \leanok
+    The group of units of $\widehat{D}$ is $D^\times\calOhat^\times$.
+    More precisely, every element of $\widehat{D}^\times$ can be written as a product $\delta u$
+    with $\delta\in D^\times$ and $u\in\calOhat^\times$.
+\end{theorem}
+\begin{proof}
+    Given an element $x$ of $\widehat{D}^\times$, we can use lemma~\ref{Hurwitz.canonicalForm}
+    to write it as $z/N$ with $N$ a positive integer
+    and $z\in\widehat{\calO}$. Note that $N$ is central and in $D^\times$. Similarly, we can
+    write $x^{-1}$ as $y/M$ with $M$ a positive integer and $y\in\widehat{\calO}$. Then
+    $1=xx^{-1}=zy/NM$ and so $zy=NM=MN$, and $1=x^{-1}x=yz/MN$ so $yz=MN$ too. In particular $y$
+    both left and right divides a positive integer.
+
+    Now consider the left ideal $\widehat{\calO}y$ generated by $y$. We've just seen that
+    this ideal has nontrivial intersection with $\calO$, because it contains $MN>0$. Hence
+    its intersection with $\calO$ is a nonzero left ideal of $\calO$, which is
+    hence principal by corollary~\ref{Hurwitz.left_ideal_princ}. Write it as $\calO\alpha$
+    with $0\not=\alpha\in\calO$.
+
+    It suffices to show that $\calOhat\alpha=\calOhat y$. For this would imply that
+    $u\alpha=y$ and $vy=\alpha$ for some $u,v\in\calOhat$ and thus $(vu-1)\alpha=0$
+    and $(uv-1)y=0$, and both $\alpha$ and $y$ are left divisors of positive integers
+    (the norm of $\alpha$, and $MN$ respectively), so now using the fact that $\calOhat$
+    is $\Z$-torsion-free (is the tensor product of torsion-free abelian groups torsion-free? That
+    would be a cheap way of doing it. Otherwise use $\calO=\Z^4$) we deduce that $u$ and $v$
+    are units, and thus $x^{-1}=\frac{1}{M}u\alpha$ so $x=(M\alpha^{-1})v\in D^\times\calOhat^\times$.
+
+    What remains is this. We have $y\in\calOhat$ which left and right divides some positive integer.
+    We've defined $0\not=\alpha\in\calO$ such that $\calO\alpha$ is the pullback of the
+    abelian group $\calOhat y$ along the map $\calO\to\calOhat$. We need to show that when we push
+    this ideal $\calO\alpha$ forwards to $\calOhat$ we get $\calOhat y$ again. The fact that
+    $\calOhat\alpha\subseteq\calOhat y$ is easy, because $\alpha\in\calOhat y$ by definition.
+    So it remains to show that $y\in\calOhat\alpha$.
+
+    Let's define $T$ to be a positive integer which is both a left and right multiple of
+    both $y$ and $\alpha$ (for example $T=MN\alpha\overline{\alpha}$ will do). Now note that we
+    have an isomorphism $\calO/T\calO=\calOhat/T\calOhat$, so we can choose
+    some $\beta\in\calO$ such that $\beta-y\in T\calOhat$ is a multiple of $T$. Next note that
+    $\beta\in y+\calOhat T\subset \calOhat y$ is in $\calOhat y\cap\calO=\calO\alpha$, meaning
+    $\beta=\gamma\alpha$ for some $\gamma\in\calO$.
+    Hence $y\in\beta+\calOhat T\subseteq\calOhat\alpha$.
 \end{proof}

@@ -335,4 +335,178 @@ lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := sorr
 lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := sorry
 
 end multiplicative_structure_of_QHat
+
 end QHat
+
+structure Hurwitz : Type where
+  re : ℤ -- 1
+  im_o : ℤ -- ω
+  im_i : ℤ -- i
+  im_oi : ℤ -- ωi -- note iω + ωi + 1 + i = 0
+
+notation "𝓞" => Hurwitz -- 𝓞 = \MCO
+namespace Hurwitz
+
+lemma ext (z w : 𝓞) (h_re : z.re = w.re) (h_im_o : z.im_o = w.im_o)
+    (h_im_i : z.im_i = w.im_i) (h_im_oi : z.im_oi = w.im_oi) : z = w :=
+  by cases z; cases w; congr;
+
+/-! ## zero (0) -/
+
+/-- The Hurwitz number 0 -/
+def zero : 𝓞 := ⟨0, 0, 0, 0⟩
+
+/-- notation `0` for `zero` -/
+instance : Zero 𝓞 := ⟨zero⟩
+
+@[simp] lemma zero_re : re (0 : 𝓞) = 0 := rfl
+@[simp] lemma zero_im_o : im_o (0 : 𝓞) = 0 := rfl
+@[simp] lemma zero_im_i : im_i (0 : 𝓞) = 0 := rfl
+@[simp] lemma zero_im_oi : im_oi (0 : 𝓞) = 0 := rfl
+
+/-! ## one (1) -/
+
+def one : 𝓞 := ⟨1, 0, 0, 0⟩
+
+/-- Notation `1` for `one` -/
+instance : One 𝓞 := ⟨one⟩
+
+@[simp] lemma one_re : re (1 : 𝓞) = 1 := rfl
+@[simp] lemma one_im_o : im_o (1 : 𝓞) = 0 := rfl
+@[simp] lemma one_im_i : im_i (1 : 𝓞) = 0 := rfl
+@[simp] lemma one_im_oi : im_oi (1 : 𝓞) = 0 := rfl
+
+/-! ## Neg (-) -/
+
+-- negation
+
+/-- The negation `-z` of a Hurwitz number -/
+def neg (z : 𝓞) : 𝓞 := ⟨-re z, -im_o z, -im_i z, -im_oi z⟩
+
+/-- Notation `-` for negation -/
+instance : Neg 𝓞 := ⟨neg⟩
+
+-- how neg interacts with re and im_*
+@[simp] lemma neg_re (z : 𝓞) : re (-z) = -re z  := rfl
+@[simp] lemma neg_im_o (z : 𝓞) : im_o (-z) = -im_o z  := rfl
+@[simp] lemma neg_im_i (z : 𝓞) : im_i (-z) = -im_i z  := rfl
+@[simp] lemma neg_im_oi (z : 𝓞) : im_oi (-z) = -im_oi z  := rfl
+
+/-! ## add (+) -/
+
+-- Now let's define addition
+
+/-- addition `z+w` of complex numbers -/
+def add (z w : 𝓞) : 𝓞 := ⟨z.re + w.re, z.im_o + w.im_o, z.im_i + w.im_i, z.im_oi + w.im_oi⟩
+
+/-- Notation `+` for addition -/
+instance : Add 𝓞 := ⟨add⟩
+
+-- basic properties
+@[simp] lemma add_re (z w : 𝓞) : re (z + w) = re z  + re w  := rfl
+@[simp] lemma add_im_o (z w : 𝓞) : im_o (z + w) = im_o z  + im_o w  := rfl
+@[simp] lemma add_im_i (z w : 𝓞) : im_i (z + w) = im_i z  + im_i w  := rfl
+@[simp] lemma add_im_oi (z w : 𝓞) : im_oi (z + w) = im_oi z  + im_oi w  := rfl
+
+instance : AddCommGroup 𝓞 where
+  add_assoc := by intros; apply ext <;> simp [add_assoc]
+  zero_add := by intros; apply ext <;> simp
+  add_zero := by intros; apply ext <;> simp
+  nsmul := nsmulRec
+  zsmul := zsmulRec
+  add_left_neg := by intros; apply ext <;> simp
+  add_comm := by intros; apply ext <;> simp [add_comm]
+
+/-! ## mul (*) -/
+
+-- multiplication
+
+/-- Multiplication `z*w` of two Hurwitz numbers -/
+def mul (z w : 𝓞) : 𝓞 :=
+  ⟨z.re * w.re + sorry, sorry, sorry, sorry⟩
+
+/-- Notation `*` for multiplication -/
+instance : Mul 𝓞 := ⟨mul⟩
+
+-- how `mul` reacts with `re` and `im`
+@[simp] lemma mul_re (z w : 𝓞) : re (z * w) = re z * re w + sorry := rfl
+
+-- @[simp] lemma mul_im_0 (z w : 𝓞) : sorry := rfl etc etc
+
+instance ring : Ring 𝓞 := { (inferInstance : AddCommGroup 𝓞) with
+  left_distrib := sorry
+  right_distrib := sorry
+  zero_mul := sorry
+  mul_zero := sorry
+  mul_assoc := sorry
+  one_mul := sorry
+  mul_one := sorry
+}
+
+/-- Conjugate; sends $a+bi+cj+dk$ to $a-bi-cj-dk$. -/
+def conj : 𝓞 →ₐ[ℤ] 𝓞 where
+  toFun z := ⟨z.re -z.im_o, -z.im_o, -z.im_i, -z.im_oi⟩ -- not right but something like this
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
+  commutes' := sorry
+
+def norm : 𝓞 → ℤ
+| mk a b c d => sorry -- not a*a + b*b + c*c + d*d because of ω
+
+lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * conj z := sorry
+
+lemma norm_zero : norm 0 = 0 := sorry
+
+lemma norm_one : norm 1 = 1 := sorry
+
+lemma norm_mul (x y : 𝓞) : norm (x * y) = norm x * norm y := sorry
+
+lemma norm_nonneg (x : 𝓞) : 0 ≤ norm x := sorry
+
+lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := sorry
+
+lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ norm r < norm b := sorry
+
+lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.span 𝓞 {a} := sorry
+
+open scoped TensorProduct
+
+noncomputable def HurwitzHat : Type := 𝓞 ⊗[ℤ] ZHat
+
+notation "𝓞^" => HurwitzHat
+
+noncomputable instance : Ring 𝓞^ := Algebra.TensorProduct.instRing
+
+noncomputable def HurwitzRat : Type := ℚ ⊗[ℤ] 𝓞
+
+notation "D" => HurwitzRat
+
+noncomputable instance : Ring D := Algebra.TensorProduct.instRing
+
+noncomputable def HurwitzRatHat : Type := D ⊗[ℤ] ZHat
+
+notation "D^" => HurwitzRatHat
+
+noncomputable instance : Ring D^ := Algebra.TensorProduct.instRing
+
+noncomputable abbrev j₁ : D →ₐ[ℤ] D^ := Algebra.TensorProduct.includeLeft -- (Algebra.TensorProduct.assoc ℤ ℚ 𝓞 ZHat).symm.trans Algebra.TensorProduct.includeLeft
+
+lemma injective_hRat :
+    Function.Injective j₁ := sorry -- flatness
+
+noncomputable abbrev j₂ : 𝓞^ →ₐ[ℤ] D^ :=
+  ((Algebra.TensorProduct.assoc ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗ 𝓞^ ≃ₐ[ℤ] D ⊗ ZHat).toAlgHom.comp
+  (Algebra.TensorProduct.includeRight : 𝓞^ →ₐ[ℤ] ℚ ⊗ 𝓞^)
+
+lemma injective_zHat :
+    Function.Injective j₂ := sorry -- flatness
+
+-- should I rearrange tensors? Not sure if D^ should be (ℚ ⊗ 𝓞) ⊗ ℤhat or ℚ ⊗ (𝓞 ⊗ Zhat)
+lemma canonicalForm (z : D^) : ∃ (N : ℕ+) (z' : 𝓞^), z = j₁ ((N⁻¹ : ℚ) ⊗ₜ 1 : D) * j₂ z' := by
+  sorry
+
+lemma completed_units (z : D^ˣ) : ∃ (u : Dˣ) (v : 𝓞^ˣ), (z : D^) = j₁ u * j₂ v := sorry
+
+end Hurwitz
