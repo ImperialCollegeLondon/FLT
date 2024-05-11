@@ -102,8 +102,11 @@ See [Karatarakis (2022)], for the definition of 'decomposition subgroup' in term
 
 ## Acknowledgements
 
-I would like to thank Prof. Buzzard's PhD students, Amelia and Jujian,
-for helping me to understand the math proof and to formalize it.
+The theorems in this file began life as Jou Glasheen's
+2023 Formalising Mathematics student project. Kevin thanks
+Jou for taking his class and for writing such a great project.
+Jou would particularly like to thank two of Kevin's PhD students, Amelia and Jujian,
+for "helping me to understand the math proof and to formalize it."
 
 -/
 
