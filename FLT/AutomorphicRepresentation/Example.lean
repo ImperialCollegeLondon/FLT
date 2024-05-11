@@ -1,5 +1,6 @@
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Tactic.Peel
+import Mathlib.Analysis.Quaternion
 /-
 
 # Example of a space of automorphic forms
@@ -354,6 +355,13 @@ structure Hurwitz : Type where
 notation "𝓞" => Hurwitz -- 𝓞 = \MCO
 namespace Hurwitz
 
+open Quaternion in
+noncomputable def toQuaternion (z : 𝓞) : ℍ where
+  re := z.re - 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
+  imI := z.im_i + 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
+  imJ := 2⁻¹ * z.im_o + 2⁻¹ * z.im_oi
+  imK := 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
+
 lemma ext (z w : 𝓞) (h_re : z.re = w.re) (h_im_o : z.im_o = w.im_o)
     (h_im_i : z.im_i = w.im_i) (h_im_oi : z.im_oi = w.im_oi) : z = w :=
   by cases z; cases w; congr;
@@ -371,6 +379,9 @@ instance : Zero 𝓞 := ⟨zero⟩
 @[simp] lemma zero_im_i : im_i (0 : 𝓞) = 0 := rfl
 @[simp] lemma zero_im_oi : im_oi (0 : 𝓞) = 0 := rfl
 
+lemma toQuaternion_zero : toQuaternion 0 = 0 := by
+  ext <;> simp [toQuaternion]
+
 /-! ## one (1) -/
 
 def one : 𝓞 := ⟨1, 0, 0, 0⟩
@@ -382,6 +393,9 @@ instance : One 𝓞 := ⟨one⟩
 @[simp] lemma one_im_o : im_o (1 : 𝓞) = 0 := rfl
 @[simp] lemma one_im_i : im_i (1 : 𝓞) = 0 := rfl
 @[simp] lemma one_im_oi : im_oi (1 : 𝓞) = 0 := rfl
+
+lemma toQuaternion_one : toQuaternion 1 = 1 := by
+  ext <;> simp [toQuaternion]
 
 /-! ## Neg (-) -/
 
@@ -399,6 +413,10 @@ instance : Neg 𝓞 := ⟨neg⟩
 @[simp] lemma neg_im_i (z : 𝓞) : im_i (-z) = -im_i z  := rfl
 @[simp] lemma neg_im_oi (z : 𝓞) : im_oi (-z) = -im_oi z  := rfl
 
+lemma toQuaternion_neg (z : 𝓞) :
+    toQuaternion (-z) = - toQuaternion z := by
+  ext <;> simp [toQuaternion] <;> ring
+
 /-! ## add (+) -/
 
 -- Now let's define addition
@@ -414,6 +432,10 @@ instance : Add 𝓞 := ⟨add⟩
 @[simp] lemma add_im_o (z w : 𝓞) : im_o (z + w) = im_o z  + im_o w  := rfl
 @[simp] lemma add_im_i (z w : 𝓞) : im_i (z + w) = im_i z  + im_i w  := rfl
 @[simp] lemma add_im_oi (z w : 𝓞) : im_oi (z + w) = im_oi z  + im_oi w  := rfl
+
+lemma toQuaternion_add (z w : 𝓞) :
+    toQuaternion (z + w) = toQuaternion z + toQuaternion w := by
+  ext <;> simp [toQuaternion] <;> ring
 
 instance : AddCommGroup 𝓞 where
   add_assoc := by intros; apply ext <;> simp [add_assoc]
@@ -450,6 +472,10 @@ instance : Mul 𝓞 := ⟨mul⟩
 
 @[simp] lemma mul_im_oi (z w : 𝓞) :
     im_oi (z * w) = z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i + z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi := rfl
+
+lemma toQuaternion_mul (z w : 𝓞) :
+    toQuaternion (z * w) = toQuaternion z * toQuaternion w := by
+  ext <;> simp [toQuaternion] <;> ring
 
 instance ring : Ring 𝓞 := { (inferInstance : AddCommGroup 𝓞) with
   left_distrib := sorry
