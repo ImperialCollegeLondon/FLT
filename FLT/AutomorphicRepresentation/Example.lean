@@ -346,6 +346,7 @@ end multiplicative_structure_of_QHat
 
 end QHat
 
+@[ext]
 structure Hurwitz : Type where
   re : ℤ -- 1
   im_o : ℤ -- ω
@@ -361,10 +362,6 @@ noncomputable def toQuaternion (z : 𝓞) : ℍ where
   imI := z.im_i + 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
   imJ := 2⁻¹ * z.im_o + 2⁻¹ * z.im_oi
   imK := 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
-
-lemma ext (z w : 𝓞) (h_re : z.re = w.re) (h_im_o : z.im_o = w.im_o)
-    (h_im_i : z.im_i = w.im_i) (h_im_oi : z.im_oi = w.im_oi) : z = w :=
-  by cases z; cases w; congr;
 
 /-! ## zero (0) -/
 
@@ -438,13 +435,13 @@ lemma toQuaternion_add (z w : 𝓞) :
   ext <;> simp [toQuaternion] <;> ring
 
 instance : AddCommGroup 𝓞 where
-  add_assoc := by intros; apply ext <;> simp [add_assoc]
-  zero_add := by intros; apply ext <;> simp
-  add_zero := by intros; apply ext <;> simp
+  add_assoc := by intros; ext <;> simp [add_assoc]
+  zero_add := by intros; ext <;> simp
+  add_zero := by intros; ext <;> simp
   nsmul := nsmulRec
   zsmul := zsmulRec
-  add_left_neg := by intros; apply ext <;> simp
-  add_comm := by intros; apply ext <;> simp [add_comm]
+  add_left_neg := by intros; ext <;> simp
+  add_comm := by intros; ext <;> simp [add_comm]
 
 /-! ## mul (*) -/
 
@@ -476,6 +473,11 @@ instance : Mul 𝓞 := ⟨mul⟩
 lemma toQuaternion_mul (z w : 𝓞) :
     toQuaternion (z * w) = toQuaternion z * toQuaternion w := by
   ext <;> simp [toQuaternion] <;> ring
+
+lemma o_mul_i :
+    { re := 0, im_o := 1, im_i := 0, im_oi := 0 } * { re := 0, im_o := 0, im_i := 1, im_oi := 0 }
+      = ({ re := 0, im_o := 0, im_i := 0, im_oi := 1 } : 𝓞) := by
+  ext <;> simp
 
 instance ring : Ring 𝓞 := { (inferInstance : AddCommGroup 𝓞) with
   left_distrib := sorry
