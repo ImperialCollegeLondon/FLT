@@ -370,15 +370,15 @@ noncomputable def fromQuaternion (z : ℍ) : 𝓞 where
   im_i := Int.floor <| z.imI - z.imK
   im_oi := Int.floor <| z.imJ - z.imK
 
-lemma fromQuaternion_toQuaternion (z : 𝓞) : fromQuaternion (toQuaternion z) = z := by
+lemma leftInverse_fromQuaternion_toQuaternion :
+    Function.LeftInverse fromQuaternion toQuaternion := by
+  intro z
   simp only [fromQuaternion, toQuaternion, sub_add_add_cancel, sub_add_cancel, Int.floor_intCast,
     add_add_sub_cancel, ← two_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
     mul_inv_cancel_left₀, sub_sub_sub_cancel_right, add_sub_cancel_right, add_sub_sub_cancel]
 
-lemma toQuaternion_injective : Function.Injective toQuaternion := by
-  intro x y hxy
-  apply_fun fromQuaternion at hxy
-  rwa [fromQuaternion_toQuaternion, fromQuaternion_toQuaternion] at hxy
+lemma toQuaternion_injective : Function.Injective toQuaternion :=
+  leftInverse_fromQuaternion_toQuaternion.injective
 
 /-! ## zero (0) -/
 
