@@ -363,8 +363,22 @@ noncomputable def toQuaternion (z : 𝓞) : ℍ where
   imJ := 2⁻¹ * z.im_o + 2⁻¹ * z.im_oi
   imK := 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
 
+open Quaternion in
+noncomputable def fromQuaternion (z : ℍ) : 𝓞 where
+  re := Int.floor <| z.re + z.imJ
+  im_o := Int.floor <| z.imJ + z.imK
+  im_i := Int.floor <| z.imI - z.imK
+  im_oi := Int.floor <| z.imJ - z.imK
+
 lemma toQuaternion_injective : Function.Injective toQuaternion := by
-  sorry
+  intro x y hxy
+  apply_fun fromQuaternion at hxy
+  simp only [fromQuaternion, toQuaternion, sub_add_add_cancel, sub_add_cancel, Int.floor_intCast,
+    add_add_sub_cancel, ← two_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+    mul_inv_cancel_left₀, sub_sub_sub_cancel_right, add_sub_cancel_right, add_sub_sub_cancel,
+    mk.injEq] at hxy
+  obtain ⟨_, _, _, _⟩ := hxy
+  ext <;> assumption
 
 /-! ## zero (0) -/
 
