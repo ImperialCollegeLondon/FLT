@@ -4,9 +4,9 @@ I think that a nice and accessible goal (which will maybe take a month or two) w
 
 \section{Automorphic forms and analysis}
 
-Modular forms were historically the first nontrivial examples of automorphic forms, but by the 1950s or so it was realised that they were special cases of a very general notion of an automorphic form, as were Dirichlet characters! Modular forms are holomorphic automorphic forms for the group $\GL_2/\Q$, and Dirichlet characters are automorphic forms for the group $\GL_1/\Q$. It's possible to make sense of the notion of an automorphic form for the group $G/k$. Here $k$ is a ``global field'' -- that is, a field which is either a finite extension of $\Q$ (a number field) or a finite extension of $(\Z/p\Z)(T)$ (a function field), and $G$ is a connected reductive group variety over $k$. 
+Modular forms were historically the first nontrivial examples of automorphic forms, but by the 1950s or so it was realised that they were special cases of a very general notion of an automorphic form, as were Dirichlet characters! Modular forms are holomorphic automorphic forms for the group $\GL_2/\Q$, and Dirichlet characters are automorphic forms for the group $\GL_1/\Q$. It's possible to make sense of the notion of an automorphic form for the group $G/k$. Here $k$ is a ``global field'' -- that is, a field which is either a finite extension of $\Q$ (a number field) or a finite extension of $(\Z/p\Z)(T)$ (a function field), and $G$ is a connected reductive group variety over $k$.
 
-The reason that the definition of a modular form involves some analysis (they are holomorphic functions) is that if you quotient out the group $\GL_2(\R)$ by its centre and the maximal compact subgroup $O_2(\R)$, you get something which can be naturally identified with the upper half plane, a symmetric space with lots of interesting differential operators associated to it (for example a Casimir operator). However if you do the same thing with $\GL_1(\R)$ then you get a one point set, which is why a Dirichlet character is just a combinatorial object; it's a group homomorphism $(\Z/N\Z)^\times\to\bbC^\times$ where $N$ is some positive integer. It turns out that there are many other connected reductive groups where the associated symmetric space is 0-dimensional, and in these cases the definition of an automorphic form is again combinatorial. An example would be the group variety associated to the units of a totally definite quaternion algebra over a totally real field. In this case, the analogue of $\GL_2(\R)$ would be the units $\bbH^\times$ in the Hamilton quaternions, a maximal compact subgroup would be the quaternions of norm 1 (homeomorphic to the 3-sphere $S^3$) and quotienting out $\bbH^\times$ by its centre $\R^\times$ and $S^3$ again just gives you 1 point. 
+The reason that the definition of a modular form involves some analysis (they are holomorphic functions) is that if you quotient out the group $\GL_2(\R)$ by its centre and the maximal compact subgroup $O_2(\R)$, you get something which can be naturally identified with the upper half plane, a symmetric space with lots of interesting differential operators associated to it (for example a Casimir operator). However if you do the same thing with $\GL_1(\R)$ then you get a one point set, which is why a Dirichlet character is just a combinatorial object; it's a group homomorphism $(\Z/N\Z)^\times\to\bbC^\times$ where $N$ is some positive integer. It turns out that there are many other connected reductive groups where the associated symmetric space is 0-dimensional, and in these cases the definition of an automorphic form is again combinatorial. An example would be the group variety associated to the units of a totally definite quaternion algebra over a totally real field. In this case, the analogue of $\GL_2(\R)$ would be the units $\bbH^\times$ in the Hamilton quaternions, a maximal compact subgroup would be the quaternions of norm 1 (homeomorphic to the 3-sphere $S^3$) and quotienting out $\bbH^\times$ by its centre $\R^\times$ and $S^3$ again just gives you 1 point.
 
 Before we talk about quaternion algebras, let's talk about central simple algebras.
 
@@ -32,31 +32,33 @@ to do with~$K$.
     \label{MatrixRing.isCentralSimple}
     \lean{MatrixRing.isCentralSimple}
     \uses{IsCentralSimple}
+    \leanok
     \discussion{47}
     If $n\geq1$ then the $n\times n$ matrices $M_n(K)$ are a central simple algebra over~$K$.
 \end{lemma}
 \begin{proof}
-We prove more generally that matrices with coefficients in~$K$ and indexed by an arbitrary nonempty 
+We prove more generally that matrices with coefficients in~$K$ and indexed by an arbitrary nonempty
 finite type are a central simple algebra over~$K$.
 
 They are clearly an algebra over $K$, with $K$ embedded via scalar matrices as usual
-(the injectivity of the map from~$K$ comes from nonemptiness of the finite index type). 
+(the injectivity of the map from~$K$ comes from nonemptiness of the finite index type).
 The centre clearly contains $K$; to show that it
 equals~$K$, we argue as follows. Let $e(i,j)$ be the matrix with a 1 in the $i$th row and $j$th
-column, and zeros everywhere else. An element $Z=(Z_{s,t})_{s,t}$ of the centre commutes with 
+column, and zeros everywhere else. An element $Z=(Z_{s,t})_{s,t}$ of the centre commutes with
 all matrices $e(i,j)$ for $i\not=j$ and these equations immediately imply that $Z_{i,j}=0$ if $i\not=j$
 and that $Z_{i,i}=Z_{j,j}$.
 
 It suffices to prove that any nonzero two-sided ideal~$I$ is all of $M_n(K)$. So say $0\not=M\in I$
-and let's fix $(i,j)$ such that $M_{i,j}\not=0$. If now $N$ is any matrix, one easily checks
-that $N=M_{i,j}^{-1}\sum_{k,l}e(k,i)\times M\times e(j,l)\in I$.
+and let's fix $(i,j)$ such that $M_{i,j}\not=0$. One easily checks that
+$M_{i,j} \mathrm{id} = \sum_{k}e(k,i)\times M\times e(j,k)\in I$ (where $\mathrm{id} \in M_n(K)$
+is the identity matrix). Therefore, $\mathrm{id} \in I$, so $I = M_n(K)$.
 
 The definition also requires that the ring be non-zero, but this follows from the index type being nonempty.
 \end{proof}
 
 \begin{lemma}
     \label{IsCentralSimple.baseChange} % no Lean yet because Lean didn't seem to know L \otimes_K D was a ring
-    If $D$ is a central simple algebra over~$K$ and $L/K$ is a field extension, then $L\otimes_KD$ 
+    If $D$ is a central simple algebra over~$K$ and $L/K$ is a field extension, then $L\otimes_KD$
     is a central simple algebra over~$L$.
 \end{lemma}
 \begin{proof}
@@ -74,6 +76,5 @@ Next: define trace and norm.
 %  Any such quaternion algebra has a basis $1,i,j,k$ with $i^2=a$, $j^2=b$ and $ij=-ji=k$.
 %\end{lemma}
 %\begin{proof}
-%  Choose $d\in D\backslash K$. Then 
+%  Choose $d\in D\backslash K$. Then
 %\end{proof}
-
