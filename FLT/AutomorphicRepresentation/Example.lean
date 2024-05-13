@@ -614,18 +614,40 @@ noncomputable instance ring : Ring 𝓞 :=
     toQuaternion_intCast
 
 /-- Conjugate; sends $a+bi+cj+dk$ to $a-bi-cj-dk$. -/
-def conj : 𝓞 →ₐ[ℤ] 𝓞 where
-  toFun z := ⟨z.re -z.im_o, -z.im_o, -z.im_i, -z.im_oi⟩ -- not right but something like this
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
-  commutes' := sorry
+instance : StarRing 𝓞 where
+  star z := ⟨z.re - z.im_o - z.im_oi, -z.im_o, -z.im_i, -z.im_oi⟩
+  star_involutive x := by ext <;> simp only <;> ring
+  star_mul x y := by ext <;> simp <;> ring
+  star_add x y := by ext <;> simp <;> ring
+
+@[simp] lemma star_re (z : 𝓞) : (star z).re = z.re - z.im_o - z.im_oi := rfl
+@[simp] lemma star_im_o (z : 𝓞) : (star z).im_o = -z.im_o := rfl
+@[simp] lemma star_im_i (z : 𝓞) : (star z).im_i = -z.im_i := rfl
+@[simp] lemma star_im_oi (z : 𝓞) : (star z).im_oi = -z.im_oi := rfl
+
+lemma star_eq (z : 𝓞) : star z = (fromQuaternion ∘ star ∘ toQuaternion) z := by
+  ext <;>
+  simp only [star_re, star_im_o, star_im_i, star_im_oi,Function.comp_apply, fromQuaternion,
+    toQuaternion, Quaternion.star_re, Quaternion.star_imJ, neg_add_rev, Quaternion.star_imK,
+    neg_sub, Quaternion.star_imI, sub_sub_sub_cancel_left, sub_add_cancel_right] <;>
+  symm <;>
+  convert Int.floor_intCast _ <;>
+  field_simp <;>
+  norm_cast <;>
+  ring
+
+lemma toQuaternion_star (z : 𝓞) : toQuaternion (star z) = star (toQuaternion z) := by
+  ext <;>
+  simp only [star_re, star_im_o, star_im_i, star_im_oi, toQuaternion,
+    Quaternion.star_re, Quaternion.star_imI, Quaternion.star_imJ, Quaternion.star_imK] <;>
+  field_simp <;>
+  norm_cast <;>
+  ring
 
 def norm : 𝓞 → ℤ
 | mk a b c d => sorry -- not a*a + b*b + c*c + d*d because of ω
 
-lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * conj z := sorry
+lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := sorry
 
 lemma norm_zero : norm 0 = 0 := sorry
 
