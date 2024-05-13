@@ -625,17 +625,6 @@ instance : StarRing 𝓞 where
 @[simp] lemma star_im_i (z : 𝓞) : (star z).im_i = -z.im_i := rfl
 @[simp] lemma star_im_oi (z : 𝓞) : (star z).im_oi = -z.im_oi := rfl
 
-lemma star_eq (z : 𝓞) : star z = (fromQuaternion ∘ star ∘ toQuaternion) z := by
-  ext <;>
-  simp only [star_re, star_im_o, star_im_i, star_im_oi,Function.comp_apply, fromQuaternion,
-    toQuaternion, Quaternion.star_re, Quaternion.star_imJ, neg_add_rev, Quaternion.star_imK,
-    neg_sub, Quaternion.star_imI, sub_sub_sub_cancel_left, sub_add_cancel_right] <;>
-  symm <;>
-  convert Int.floor_intCast _ <;>
-  field_simp <;>
-  norm_cast <;>
-  ring
-
 lemma toQuaternion_star (z : 𝓞) : toQuaternion (star z) = star (toQuaternion z) := by
   ext <;>
   simp only [star_re, star_im_o, star_im_i, star_im_oi, toQuaternion,
@@ -643,6 +632,10 @@ lemma toQuaternion_star (z : 𝓞) : toQuaternion (star z) = star (toQuaternion 
   field_simp <;>
   norm_cast <;>
   ring
+
+lemma star_eq (z : 𝓞) : star z = (fromQuaternion ∘ star ∘ toQuaternion) z := by
+  simp only [Function.comp_apply, ← toQuaternion_star]
+  rw [leftInverse_fromQuaternion_toQuaternion]
 
 def norm : 𝓞 → ℤ
 | mk a b c d => sorry -- not a*a + b*b + c*c + d*d because of ω
