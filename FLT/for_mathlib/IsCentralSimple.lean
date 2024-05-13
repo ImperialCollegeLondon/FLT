@@ -60,6 +60,7 @@ theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty :
     use ⊥, ⊤
     apply_fun (· 0 1)
     convert false_ne_true
+    -- Change after https://github.com/leanprover-community/mathlib4/pull/12860
     exact iff_false_iff.mpr zero_ne_one
   is_simple.eq_bot_or_eq_top := by
     intro r
@@ -79,8 +80,7 @@ theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty :
       obtain ⟨x, hx⟩ := h
       have x_ne_zero : x ≠ 0 := by
         rintro rfl
-        rw [eq_true (r.refl 0)] at hx
-        simp at hx
+        simp [eq_true (r.refl 0)] at hx
       have r_zero_x : r 0 x := by tauto
       have : ∃ i j, x i j ≠ 0 := by simpa using x_ne_zero ∘ Matrix.ext
       obtain ⟨i, j, hij⟩ := this
@@ -99,8 +99,7 @@ theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty :
       have forall_r_zero a : r 0 a := by simpa using r.mul r_zero_one (r.refl a)
       have forall_forall_r a b : r a b := by simpa using r.add (forall_r_zero (b - a)) (r.refl a)
       apply RingCon.ext
-      simp [forall_forall_r]
-      trivial
+      simp [forall_forall_r, Prop.top_eq_true]
 
 namespace IsCentralSimple
 

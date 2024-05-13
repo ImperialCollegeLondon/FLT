@@ -20,7 +20,7 @@ of what we are considering below would be Hamilton's quaternions $\R\oplus\R i\o
     \label{IsCentralSimple}
     \lean{IsCentralSimple}
     \leanok
-A \emph{central simple algebra} over a field $K$ is a $K$-algebra $D$ such that $K$ is the centre of $D$
+A \emph{central simple algebra} over a field $K$ is a nonzero $K$-algebra $D$ such that $K$ is the centre of $D$
 and that $D$ has no nontrivial two-sided ideals.
 \end{definition}
 
@@ -32,11 +32,10 @@ to do with~$K$.
     \label{MatrixRing.isCentralSimple}
     \lean{MatrixRing.isCentralSimple}
     \uses{IsCentralSimple}
-    \leanok
     \discussion{47}
     If $n\geq1$ then the $n\times n$ matrices $M_n(K)$ are a central simple algebra over~$K$.
 \end{lemma}
-\begin{proof}
+\begin{proof}\leanok
 We prove more generally that matrices with coefficients in~$K$ and indexed by an arbitrary nonempty
 finite type are a central simple algebra over~$K$.
 
