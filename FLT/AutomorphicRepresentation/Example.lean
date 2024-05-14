@@ -613,6 +613,41 @@ noncomputable instance ring : Ring 𝓞 :=
     toQuaternion_natCast
     toQuaternion_intCast
 
+@[simp] lemma natCast_re (n : ℕ) : (n : 𝓞).re = n := by
+  induction n with
+  | zero => simp
+  | succ n ih => simpa
+@[simp] lemma natCast_im_o (n : ℕ) : (n : 𝓞).im_o = 0 := by
+  induction n with
+  | zero => simp
+  | succ n ih => simpa
+@[simp] lemma natCast_im_i (n : ℕ) : (n : 𝓞).im_i = 0 := by
+  induction n with
+  | zero => simp
+  | succ n ih => simpa
+@[simp] lemma natCast_im_oi (n : ℕ) : (n : 𝓞).im_oi = 0 := by
+  induction n with
+  | zero => simp
+  | succ n ih => simpa
+
+@[simp] lemma intCast_re (n : ℤ) : (n : 𝓞).re = n := by
+  cases n with
+  | ofNat _ => simp
+  | negSucc _ => simp [← Int.neg_ofNat_succ]
+@[simp] lemma intCast_im_o (n : ℤ) : (n : 𝓞).im_o = 0 := by
+  cases n with
+  | ofNat _ => simp
+  | negSucc _ => simp [← Int.neg_ofNat_succ]
+@[simp] lemma intCast_im_i (n : ℤ) : (n : 𝓞).im_i = 0 := by
+  cases n with
+  | ofNat _ => simp
+  | negSucc _ => simp [← Int.neg_ofNat_succ]
+@[simp] lemma intCast_im_oi (n : ℤ) : (n : 𝓞).im_oi = 0 := by
+  cases n with
+  | ofNat _ => simp
+  | negSucc _ => simp [← Int.neg_ofNat_succ]
+
+
 /-- Conjugate; sends $a+bi+cj+dk$ to $a-bi-cj-dk$. -/
 instance : StarRing 𝓞 where
   star z := ⟨z.re - z.im_o - z.im_oi, -z.im_o, -z.im_i, -z.im_oi⟩
@@ -637,20 +672,64 @@ lemma star_eq (z : 𝓞) : star z = (fromQuaternion ∘ star ∘ toQuaternion) z
   simp only [Function.comp_apply, ← toQuaternion_star]
   rw [leftInverse_fromQuaternion_toQuaternion]
 
-def norm : 𝓞 → ℤ
-| mk a b c d => sorry -- not a*a + b*b + c*c + d*d because of ω
+instance : CharZero 𝓞 where
+  cast_injective x y hxy := by simpa [Hurwitz.ext_iff] using hxy
 
-lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := sorry
+def norm (z : 𝓞) : ℤ :=
+  z.re * z.re + z.im_o * z.im_o + z.im_i * z.im_i + z.im_oi * z.im_oi
+  - z.re * (z.im_o + z.im_oi) + z.im_i * (z.im_o - z.im_oi)
 
-lemma norm_zero : norm 0 = 0 := sorry
+lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := by
+  ext <;> simp [norm, ← Int.cast_add, -Int.cast_add] <;> ring
 
-lemma norm_one : norm 1 = 1 := sorry
+lemma coe_norm (z : 𝓞) :
+    (norm z : ℝ) =
+      (z.re - 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi) ^ 2 +
+      (z.im_i + 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi) ^ 2 +
+      (2⁻¹ * z.im_o + 2⁻¹ * z.im_oi) ^ 2 +
+      (2⁻¹ * z.im_o - 2⁻¹ * z.im_oi) ^ 2 := by
+  rw [norm]
+  field_simp
+  norm_cast
+  ring
 
-lemma norm_mul (x y : 𝓞) : norm (x * y) = norm x * norm y := sorry
+lemma norm_zero : norm 0 = 0 := by simp [norm]
 
-lemma norm_nonneg (x : 𝓞) : 0 ≤ norm x := sorry
+lemma norm_one : norm 1 = 1 := by simp [norm]
 
-lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := sorry
+lemma norm_mul (x y : 𝓞) : norm (x * y) = norm x * norm y := by
+  rw [← Int.cast_inj (α := 𝓞)]
+  simp_rw [norm_eq_mul_conj, star_mul]
+  rw [mul_assoc, ← mul_assoc y, ← norm_eq_mul_conj]
+  rw [Int.cast_comm, ← mul_assoc, ← norm_eq_mul_conj, Int.cast_mul]
+
+lemma norm_nonneg (x : 𝓞) : 0 ≤ norm x := by
+  rw [← Int.cast_nonneg (α := ℝ), coe_norm]
+  positivity
+
+lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := by
+  constructor
+  swap
+  · rintro rfl; exact norm_zero
+  intro h
+  rw [← Int.cast_eq_zero (α := ℝ), coe_norm] at h
+  field_simp at h
+  norm_cast at h
+  have h4 := eq_zero_of_add_nonpos_right (by positivity) (by positivity) h.le
+  rw [sq_eq_zero_iff, sub_eq_zero] at h4
+  have h1 := eq_zero_of_add_nonpos_left (by positivity) (by positivity) h.le
+  have h3 := eq_zero_of_add_nonpos_right (by positivity) (by positivity) h1.le
+  rw [h4] at h3
+  simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, pow_eq_zero_iff, add_self_eq_zero] at h3
+  rw [h3] at h4
+  simp only [h4, sub_zero, h3, add_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow]
+    at h1
+  have h2 := eq_zero_of_add_nonpos_right (by positivity) (by positivity) h1.le
+  simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, pow_eq_zero_iff, mul_eq_zero,
+    or_false] at h2
+  simp only [h2, zero_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero,
+    pow_eq_zero_iff, mul_eq_zero, or_false] at h1
+  ext <;> assumption
 
 lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ norm r < norm b := sorry
 
