@@ -363,6 +363,23 @@ noncomputable def toQuaternion (z : 𝓞) : ℍ where
   imJ := 2⁻¹ * z.im_o + 2⁻¹ * z.im_oi
   imK := 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
 
+open Quaternion in
+noncomputable def fromQuaternion (z : ℍ) : 𝓞 where
+  re := Int.floor <| z.re + z.imJ
+  im_o := Int.floor <| z.imJ + z.imK
+  im_i := Int.floor <| z.imI - z.imK
+  im_oi := Int.floor <| z.imJ - z.imK
+
+lemma leftInverse_fromQuaternion_toQuaternion :
+    Function.LeftInverse fromQuaternion toQuaternion := by
+  intro z
+  simp only [fromQuaternion, toQuaternion, sub_add_add_cancel, sub_add_cancel, Int.floor_intCast,
+    add_add_sub_cancel, ← two_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+    mul_inv_cancel_left₀, sub_sub_sub_cancel_right, add_sub_cancel_right, add_sub_sub_cancel]
+
+lemma toQuaternion_injective : Function.Injective toQuaternion :=
+  leftInverse_fromQuaternion_toQuaternion.injective
+
 /-! ## zero (0) -/
 
 /-- The Hurwitz number 0 -/
@@ -434,14 +451,72 @@ lemma toQuaternion_add (z w : 𝓞) :
     toQuaternion (z + w) = toQuaternion z + toQuaternion w := by
   ext <;> simp [toQuaternion] <;> ring
 
-instance : AddCommGroup 𝓞 where
-  add_assoc := by intros; ext <;> simp [add_assoc]
-  zero_add := by intros; ext <;> simp
-  add_zero := by intros; ext <;> simp
-  nsmul := nsmulRec
-  zsmul := zsmulRec
-  add_left_neg := by intros; ext <;> simp
-  add_comm := by intros; ext <;> simp [add_comm]
+/-- Notation `+` for addition -/
+instance : Sub 𝓞 := ⟨fun a b => a + -b⟩
+
+lemma toQuaternion_sub (z w : 𝓞) :
+    toQuaternion (z - w) = toQuaternion z - toQuaternion w := by
+  convert toQuaternion_add z (-w) using 1
+  rw [sub_eq_add_neg, toQuaternion_neg]
+
+
+-- instance : AddCommGroup 𝓞 where
+--   add_assoc := by intros; ext <;> simp [add_assoc]
+--   zero_add := by intros; ext <;> simp
+--   add_zero := by intros; ext <;> simp
+--   nsmul := nsmulRec
+--   zsmul := zsmulRec
+--   add_left_neg := by intros; ext <;> simp
+--   add_comm := by intros; ext <;> simp [add_comm]
+
+instance : SMul ℕ 𝓞 where
+  smul := nsmulRec
+
+lemma preserves_nsmulRec {M N : Type*} [Zero M] [Add M] [AddMonoid N]
+    (f : M → N) (zero : f 0 = 0) (add : ∀ x y, f (x + y) = f x + f y) (n : ℕ) (x : M) :
+    f (nsmulRec n x) = n • f x := by
+  induction n with
+  | zero => rw [nsmulRec, zero, zero_smul]
+  | succ n ih => rw [nsmulRec, add, add_nsmul, one_nsmul, ih]
+
+lemma toQuaternion_nsmul (z : 𝓞) (n : ℕ) :
+    toQuaternion (n • z) = n • toQuaternion z :=
+  preserves_nsmulRec _ toQuaternion_zero toQuaternion_add _ _
+
+instance : SMul ℤ 𝓞 where
+  smul := zsmulRec
+
+lemma preserves_zsmul {G H : Type*} [Zero G] [Add G] [Neg G] [SMul ℕ G] [SubNegMonoid H]
+    (f : G → H) (nsmul : ∀ (g : G) (n : ℕ), f (n • g) = n • f g)
+    (neg : ∀ x, f (-x) = - f x)
+    (z : ℤ) (g : G) :
+    f (zsmulRec (· • ·) z g) = z • f g := by
+  induction z with
+  | ofNat n =>
+    rw [zsmulRec]
+    dsimp only
+    rw [nsmul, Int.ofNat_eq_coe, natCast_zsmul]
+  | negSucc n =>
+    rw [zsmulRec]
+    dsimp only
+    rw [neg, nsmul, negSucc_zsmul]
+
+lemma toQuaternion_zsmul (z : 𝓞) (n : ℤ) :
+    toQuaternion (n • z) = n • toQuaternion z :=
+  preserves_zsmul _
+    toQuaternion_nsmul
+    toQuaternion_neg
+    n z
+
+-- noncomputable instance : AddCommGroup 𝓞 :=
+--   toQuaternion_injective.addCommGroup
+--     _
+--     toQuaternion_zero
+--     toQuaternion_add
+--     toQuaternion_neg
+--     toQuaternion_sub
+--     toQuaternion_nsmul
+--     toQuaternion_zsmul
 
 /-! ## mul (*) -/
 
@@ -479,15 +554,64 @@ lemma o_mul_i :
       = ({ re := 0, im_o := 0, im_i := 0, im_oi := 1 } : 𝓞) := by
   ext <;> simp
 
-instance ring : Ring 𝓞 := { (inferInstance : AddCommGroup 𝓞) with
-  left_distrib := sorry
-  right_distrib := sorry
-  zero_mul := sorry
-  mul_zero := sorry
-  mul_assoc := sorry
-  one_mul := sorry
-  mul_one := sorry
-}
+instance : Pow 𝓞 ℕ := ⟨fun z n => npowRec n z⟩
+
+lemma preserves_npowRec {M N : Type*} [One M] [Mul M] [Monoid N]
+    (f : M → N) (one : f 1 = 1) (mul : ∀ x y : M, f (x * y) = f x * f y) (z : M) (n : ℕ) :
+    f (npowRec n z) = (f z) ^ n := by
+  induction n with
+  | zero => rw [npowRec, one, pow_zero]
+  | succ n ih => rw [npowRec, pow_succ, mul, ih]
+
+lemma toQuaternion_npow (z : 𝓞) (n : ℕ) : toQuaternion (z ^ n) = (toQuaternion z) ^ n :=
+  preserves_npowRec toQuaternion toQuaternion_one toQuaternion_mul z n
+
+instance : NatCast 𝓞 := ⟨Nat.unaryCast⟩
+
+lemma preserves_unaryCast {R S : Type*} [One R] [Zero R] [Add R] [AddMonoidWithOne S]
+    (f : R → S) (zero : f 0 = 0) (one : f 1 = 1) (add : ∀ x y, f (x + y) = f x + f y)
+    (n : ℕ) :
+    f (Nat.unaryCast n) = n := by
+  induction n with
+  | zero => rw [Nat.unaryCast, zero, Nat.cast_zero]
+  | succ n ih => rw [Nat.unaryCast, add, one, Nat.cast_add, Nat.cast_one, ih]
+
+lemma toQuaternion_natCast (n : ℕ) : toQuaternion n = n :=
+  preserves_unaryCast _ toQuaternion_zero toQuaternion_one toQuaternion_add n
+
+instance : IntCast 𝓞 := ⟨Int.castDef⟩
+
+lemma Int.castDef_ofNat {R : Type*} [One R] [Zero R] [Add R] [NatCast R] [Neg R] (n : ℕ) :
+    (Int.castDef (Int.ofNat n) : R) = n := rfl
+
+lemma Int.castDef_negSucc {R : Type*} [One R] [Zero R] [Add R] [NatCast R] [Neg R] (n : ℕ) :
+    (Int.castDef (Int.negSucc n) : R) = -(n + 1 : ℕ) := rfl
+
+lemma preserves_castDef
+    {R S : Type*} [One R] [Zero R] [Add R] [NatCast R] [Neg R] [AddGroupWithOne S]
+    (f : R → S) (natCast : ∀ n : ℕ, f n = n) (neg : ∀ x, f (-x) = - f x) (n : ℤ) :
+    f (Int.castDef n) = n := by
+  cases n with
+  | ofNat n => rw [Int.castDef_ofNat, natCast, Int.ofNat_eq_coe, Int.cast_natCast]
+  | negSucc _ => rw [Int.castDef_negSucc, neg, natCast, Int.cast_negSucc]
+
+lemma toQuaternion_intCast (n : ℤ) : toQuaternion n = n :=
+  preserves_castDef _ toQuaternion_natCast toQuaternion_neg n
+
+noncomputable instance ring : Ring 𝓞 :=
+  toQuaternion_injective.ring
+    _
+    toQuaternion_zero
+    toQuaternion_one
+    toQuaternion_add
+    toQuaternion_mul
+    toQuaternion_neg
+    toQuaternion_sub
+    (fun _ _ => toQuaternion_nsmul _ _) -- TODO for Yaël: these are inconsistent with addCommGroup
+    (fun _ _ => toQuaternion_zsmul _ _) -- TODO for Yaël: these are inconsistent with addCommGroup
+    toQuaternion_npow
+    toQuaternion_natCast
+    toQuaternion_intCast
 
 /-- Conjugate; sends $a+bi+cj+dk$ to $a-bi-cj-dk$. -/
 def conj : 𝓞 →ₐ[ℤ] 𝓞 where
