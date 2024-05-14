@@ -560,10 +560,12 @@ $\calO\otimes_{\Z}\R=\R\oplus \R i\oplus \R j\oplus\R \omega$
 is the usual Hamilton quaternions.
 
 \begin{definition}
-    \label{Hurwitz.conj}
-    \lean{Hurwitz.conj}
-    There's a conjugation map from the Hurwitz quaternions to themselves, sending
+    \label{Hurwitz.starRing}
+    \lean{Hurwitz.starRing}
+    There's a conjugation map (which we'll call "star") from the Hurwitz quaternions to themselves, sending
     integers to themselves and purely imaginary elements like $2\omega+1$ to minus themselves.
+    It satisfies $(x^*)^*=x$, $(xy)^*=y^*x^*$ and $(x+y)^*=x^*+y^*$. In particular, the Hurwitz
+    quaternions are a "star ring" in the sense of mathlib.
 \end{definition}
 
 \begin{definition}

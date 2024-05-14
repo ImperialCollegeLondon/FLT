@@ -649,7 +649,7 @@ noncomputable instance ring : Ring 𝓞 :=
 
 
 /-- Conjugate; sends $a+bi+cj+dk$ to $a-bi-cj-dk$. -/
-instance : StarRing 𝓞 where
+instance starRing : StarRing 𝓞 where
   star z := ⟨z.re - z.im_o - z.im_oi, -z.im_o, -z.im_i, -z.im_oi⟩
   star_involutive x := by ext <;> simp only <;> ring
   star_mul x y := by ext <;> simp <;> ring

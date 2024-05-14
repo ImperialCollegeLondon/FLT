@@ -39,7 +39,7 @@ QHat.unitsrat_meet_unitszHat
 QHat.unitsrat_join_unitszHat
 Hurwitz
 Hurwitz.ring
-Hurwitz.conj
+Hurwitz.starRing
 Hurwitz.norm
 Hurwitz.norm_eq_mul_conj
 Hurwitz.norm_zero
