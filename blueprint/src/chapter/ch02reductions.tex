@@ -47,10 +47,12 @@ For convenience we make the following definition.
 Our next reduction is as follows:
 
 \begin{lemma}\label{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}\lean{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}\leanok\discussion{19}
-  If Fermat's Last Theorem is false, then there exists a Frey package.
+  If Fermat's Last Theorem is false for $p \ge 5$ and prime, then there exists a Frey package.
 \end{lemma}
-\begin{proof}\uses{FLT.FreyPackage, FreyPackage.of_not_FermatLastTheorem_p_ge_5}
-  By Corollary \ref{FLT.of_p_ge_5} we may assume that there is a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime; we now build a Frey package from this data.
+\begin{proof}
+  \uses{FLT.FreyPackage}
+  \leanok
+  Suppose we have a counterexample $a^p+b^p=c^p$ for the given $p$; we now build a Frey package from this data.
 
   If the greatest common divisor of $a,b,c$ is $d$ then $a^p+b^p=c^p$ implies $(a/d)^p+(b/d)^p=(c/d)^p$. Dividing through, we can thus assume that no prime divides all of $a,b,c$. Under this assumption we must have that $a,b,c$ are pairwise coprime, as if some prime divides two of the integers $a,b,c$ then by $a^p+b^p=c^p$ and unique factorization it must divide all three of them. In particular we may assume that not all of $a,b,c$ are even, and now reducing modulo~2 shows that precisely one of them must be even.
 
@@ -136,9 +138,19 @@ Now say Fermat's Last Theorem is false, and hence by Lemma~\ref{FLT.FreyPackage.
 
 We deduce
 
-\begin{corollary}\label{FLT}\lean{FLT.Wiles_Taylor_Wiles}\uses{FLT.of_p_ge_5, FLT.FreyPackage.false, FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}\leanok Fermat's Last Theorem is true.\end{corollary}
-\begin{proof}\leanok
-Indeed, if Fermat's Last Theorem is false then there is a Frey package $(a,b,c,p)$ by~\ref{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}, contradicting Corollary~\ref{FLT.FreyPackage.false}.
+\begin{corollary}
+  \label{FLT}
+  \lean{FLT.Wiles_Taylor_Wiles}
+  \leanok
+  Fermat's Last Theorem is true.
+\end{corollary}
+\begin{proof}
+  \uses{FLT.of_p_ge_5, FLT.FreyPackage.false, FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}
+  \leanok
+  Assume there is a there is a counterexample $a^n+b^n=c^n$.
+  By Corollary \ref{FLT.of_p_ge_5} we may assume that there is also a counterexample $a^p+b^p=c^p$ with $p\geq 5$ and prime.
+  Then there is a Frey package $(a,b,c,p)$ by~\ref{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5},
+  contradicting Corollary~\ref{FLT.FreyPackage.false}.
 \end{proof}
 
 The structure of the rest of this (highly incomplete, for now) document is as follows. In Chapter 3 we develop some of the basic theory of elliptic curves and the Galois representations attached to their $p$-torsion subgroups. We then apply this theory to the Frey curve, deducing in particular how Mazur's result on torsion subgroups of elliptic curves implies Theorem~\ref{FLT.Mazur_Frey}, the assertion that $\rho$ cannot be reducible. In Chapter~\ref{ch_overview} we give a high-level overview of our strategy to prove that $\rho$ cannot be irreducible, which diverges from the original approach taken by Wiles; one key difference is that we work with the $p$-torsion directly rather than switching to the 3-torsion. We also give a precise statement of the modularity lifting theorem which we will use. Finally, in Chapter~\ref{ch_bestiary} we give a collection of theorem statements which we shall need in order to push our strategy through. All of these results were known in the 1980s or before. This chapter is incoherent in the sense that it is just a big list of apparently unrelated results. As our exposition of the proof expands, the results of this chapter will slowly move to more appropriate places. The chapter is merely there to give some kind of idea of the magnitude of the project.
