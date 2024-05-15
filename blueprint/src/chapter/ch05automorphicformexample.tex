@@ -551,7 +551,9 @@ more formally.
     \leanok
     The Hurwitz quaternions form a ring.
 \end{lemma}
-\begin{proof} Follow your nose.
+\begin{proof}
+    \leanok
+    Follow your nose.
 \end{proof}
 
 
@@ -562,6 +564,8 @@ is the usual Hamilton quaternions.
 \begin{definition}
     \label{Hurwitz.starRing}
     \lean{Hurwitz.starRing}
+    \uses{Hurwitz.ring}
+    \leanok
     There's a conjugation map (which we'll call "star") from the Hurwitz quaternions to themselves, sending
     integers to themselves and purely imaginary elements like $2\omega+1$ to minus themselves.
     It satisfies $(x^*)^*=x$, $(xy)^*=y^*x^*$ and $(x+y)^*=x^*+y^*$. In particular, the Hurwitz
@@ -571,6 +575,8 @@ is the usual Hamilton quaternions.
 \begin{definition}
     \label{Hurwitz.norm}
     \lean{Hurwitz.norm}
+    \uses{Hurwitz}
+    \leanok
     The Hurwitz quaternions come equipped with an integer-valued norm, which is
     $a^2+b^2+c^2+d^2$ on $a+bi+cj+dk$ but needs to be modified a bit to deal with $\omega$.
 \end{definition}
@@ -581,7 +587,10 @@ is the usual Hamilton quaternions.
     \leanok
     We have $N(x)=x\overline{x}$.
 \end{lemma}
-\begin{proof} Easy calculation.
+\begin{proof}
+    \uses{Hurwitz.norm, Hurwitz.starRing}
+    \leanok
+    Easy calculation.
 \end{proof}
 
 \begin{lemma}
@@ -591,7 +600,9 @@ is the usual Hamilton quaternions.
     \leanok
     The norm of $0$ is $0$.
 \end{lemma}
-\begin{proof} A calculation.
+\begin{proof}
+    \leanok
+    A calculation.
 \end{proof}
 
 \begin{lemma}
@@ -601,7 +612,9 @@ is the usual Hamilton quaternions.
     \leanok
     The norm of $1$ is $1$.
 \end{lemma}
-\begin{proof} A calculation.
+\begin{proof}
+    \leanok
+    A calculation.
 \end{proof}
 
 \begin{lemma}
@@ -611,7 +624,9 @@ is the usual Hamilton quaternions.
     \leanok
     The norm of a product is the product of the norms.
 \end{lemma}
-\begin{proof} A calculation.
+\begin{proof}
+    \leanok
+    A calculation.
 \end{proof}
 
 \begin{lemma}
@@ -621,7 +636,9 @@ is the usual Hamilton quaternions.
     \leanok
     The norm of an element is nonnegative.
 \end{lemma}
-\begin{proof} It's a sum of rational squares.
+\begin{proof}
+    \leanok
+    It's a sum of rational squares.
 \end{proof}
 
 \begin{lemma}
@@ -631,7 +648,9 @@ is the usual Hamilton quaternions.
     \leanok
     The norm of an element is zero if and only if the element is zero.
 \end{lemma}
-\begin{proof} It's a sum of rational squares.
+\begin{proof}
+    \leanok
+    It's a sum of rational squares.
 \end{proof}
 
 \begin{lemma}
@@ -668,14 +687,16 @@ is the usual Hamilton quaternions.
 We define $\calOhat$ to be $\calO\otimes\Zhat$, so it's elements $a+bi+cj+d\omega$
 with $a,b,c,d\in\Zhat$. The basic thing we need is this:
 
-\begin{theorem} If $N$ is a positive natural then the obvious map
-    $\calO\to\calOhat/N\calOhat$ is surjective.
+\begin{theorem}
+    \label{Hurwitz.surjective_pnat_quotient}
+    \uses{Hurwitz}
+    If $N$ is a positive natural then the obvious map $\calO\to\calOhat/N\calOhat$ is surjective.
 \end{theorem}
 \begin{proof}
-      This is just four copies of the surjection $\Z\to\Zhat/N\Zhat$.
-      Note that this latter map is surjective because $\Z\to\Z/N\Z$ is surjective,
-      hence given $z\in\Zhat$ you can subtract an integer $w$ such
-      that $(z-w)_N=0$, so $z-w$ is a multiple of~$N$.
+    This is just four copies of the surjection $\Z\to\Zhat/N\Zhat$.
+    Note that this latter map is surjective because $\Z\to\Z/N\Z$ is surjective,
+    hence given $z\in\Zhat$ you can subtract an integer $w$ such
+    that $(z-w)_N=0$, so $z-w$ is a multiple of~$N$.
 \end{proof}
 
 We define $D:=\Q\otimes\calO=\Q\oplus\Q i\oplus\Q j\oplus\Q\omega=\Q\oplus\Q i\oplus\Q j\oplus\Q k$.
