@@ -1,5 +1,6 @@
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Tactic.Peel
+import Mathlib.Analysis.Quaternion
 /-
 
 # Example of a space of automorphic forms
@@ -345,6 +346,7 @@ end multiplicative_structure_of_QHat
 
 end QHat
 
+@[ext]
 structure Hurwitz : Type where
   re : ℤ -- 1
   im_o : ℤ -- ω
@@ -354,9 +356,29 @@ structure Hurwitz : Type where
 notation "𝓞" => Hurwitz -- 𝓞 = \MCO
 namespace Hurwitz
 
-lemma ext (z w : 𝓞) (h_re : z.re = w.re) (h_im_o : z.im_o = w.im_o)
-    (h_im_i : z.im_i = w.im_i) (h_im_oi : z.im_oi = w.im_oi) : z = w :=
-  by cases z; cases w; congr;
+open Quaternion in
+noncomputable def toQuaternion (z : 𝓞) : ℍ where
+  re := z.re - 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
+  imI := z.im_i + 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
+  imJ := 2⁻¹ * z.im_o + 2⁻¹ * z.im_oi
+  imK := 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
+
+open Quaternion in
+noncomputable def fromQuaternion (z : ℍ) : 𝓞 where
+  re := Int.floor <| z.re + z.imJ
+  im_o := Int.floor <| z.imJ + z.imK
+  im_i := Int.floor <| z.imI - z.imK
+  im_oi := Int.floor <| z.imJ - z.imK
+
+lemma leftInverse_fromQuaternion_toQuaternion :
+    Function.LeftInverse fromQuaternion toQuaternion := by
+  intro z
+  simp only [fromQuaternion, toQuaternion, sub_add_add_cancel, sub_add_cancel, Int.floor_intCast,
+    add_add_sub_cancel, ← two_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+    mul_inv_cancel_left₀, sub_sub_sub_cancel_right, add_sub_cancel_right, add_sub_sub_cancel]
+
+lemma toQuaternion_injective : Function.Injective toQuaternion :=
+  leftInverse_fromQuaternion_toQuaternion.injective
 
 /-! ## zero (0) -/
 
@@ -371,6 +393,9 @@ instance : Zero 𝓞 := ⟨zero⟩
 @[simp] lemma zero_im_i : im_i (0 : 𝓞) = 0 := rfl
 @[simp] lemma zero_im_oi : im_oi (0 : 𝓞) = 0 := rfl
 
+lemma toQuaternion_zero : toQuaternion 0 = 0 := by
+  ext <;> simp [toQuaternion]
+
 /-! ## one (1) -/
 
 def one : 𝓞 := ⟨1, 0, 0, 0⟩
@@ -382,6 +407,9 @@ instance : One 𝓞 := ⟨one⟩
 @[simp] lemma one_im_o : im_o (1 : 𝓞) = 0 := rfl
 @[simp] lemma one_im_i : im_i (1 : 𝓞) = 0 := rfl
 @[simp] lemma one_im_oi : im_oi (1 : 𝓞) = 0 := rfl
+
+lemma toQuaternion_one : toQuaternion 1 = 1 := by
+  ext <;> simp [toQuaternion]
 
 /-! ## Neg (-) -/
 
@@ -399,6 +427,10 @@ instance : Neg 𝓞 := ⟨neg⟩
 @[simp] lemma neg_im_i (z : 𝓞) : im_i (-z) = -im_i z  := rfl
 @[simp] lemma neg_im_oi (z : 𝓞) : im_oi (-z) = -im_oi z  := rfl
 
+lemma toQuaternion_neg (z : 𝓞) :
+    toQuaternion (-z) = - toQuaternion z := by
+  ext <;> simp [toQuaternion] <;> ring
+
 /-! ## add (+) -/
 
 -- Now let's define addition
@@ -415,14 +447,76 @@ instance : Add 𝓞 := ⟨add⟩
 @[simp] lemma add_im_i (z w : 𝓞) : im_i (z + w) = im_i z  + im_i w  := rfl
 @[simp] lemma add_im_oi (z w : 𝓞) : im_oi (z + w) = im_oi z  + im_oi w  := rfl
 
-instance : AddCommGroup 𝓞 where
-  add_assoc := by intros; apply ext <;> simp [add_assoc]
-  zero_add := by intros; apply ext <;> simp
-  add_zero := by intros; apply ext <;> simp
-  nsmul := nsmulRec
-  zsmul := zsmulRec
-  add_left_neg := by intros; apply ext <;> simp
-  add_comm := by intros; apply ext <;> simp [add_comm]
+lemma toQuaternion_add (z w : 𝓞) :
+    toQuaternion (z + w) = toQuaternion z + toQuaternion w := by
+  ext <;> simp [toQuaternion] <;> ring
+
+/-- Notation `+` for addition -/
+instance : Sub 𝓞 := ⟨fun a b => a + -b⟩
+
+lemma toQuaternion_sub (z w : 𝓞) :
+    toQuaternion (z - w) = toQuaternion z - toQuaternion w := by
+  convert toQuaternion_add z (-w) using 1
+  rw [sub_eq_add_neg, toQuaternion_neg]
+
+
+-- instance : AddCommGroup 𝓞 where
+--   add_assoc := by intros; ext <;> simp [add_assoc]
+--   zero_add := by intros; ext <;> simp
+--   add_zero := by intros; ext <;> simp
+--   nsmul := nsmulRec
+--   zsmul := zsmulRec
+--   add_left_neg := by intros; ext <;> simp
+--   add_comm := by intros; ext <;> simp [add_comm]
+
+instance : SMul ℕ 𝓞 where
+  smul := nsmulRec
+
+lemma preserves_nsmulRec {M N : Type*} [Zero M] [Add M] [AddMonoid N]
+    (f : M → N) (zero : f 0 = 0) (add : ∀ x y, f (x + y) = f x + f y) (n : ℕ) (x : M) :
+    f (nsmulRec n x) = n • f x := by
+  induction n with
+  | zero => rw [nsmulRec, zero, zero_smul]
+  | succ n ih => rw [nsmulRec, add, add_nsmul, one_nsmul, ih]
+
+lemma toQuaternion_nsmul (z : 𝓞) (n : ℕ) :
+    toQuaternion (n • z) = n • toQuaternion z :=
+  preserves_nsmulRec _ toQuaternion_zero toQuaternion_add _ _
+
+instance : SMul ℤ 𝓞 where
+  smul := zsmulRec
+
+lemma preserves_zsmul {G H : Type*} [Zero G] [Add G] [Neg G] [SMul ℕ G] [SubNegMonoid H]
+    (f : G → H) (nsmul : ∀ (g : G) (n : ℕ), f (n • g) = n • f g)
+    (neg : ∀ x, f (-x) = - f x)
+    (z : ℤ) (g : G) :
+    f (zsmulRec (· • ·) z g) = z • f g := by
+  induction z with
+  | ofNat n =>
+    rw [zsmulRec]
+    dsimp only
+    rw [nsmul, Int.ofNat_eq_coe, natCast_zsmul]
+  | negSucc n =>
+    rw [zsmulRec]
+    dsimp only
+    rw [neg, nsmul, negSucc_zsmul]
+
+lemma toQuaternion_zsmul (z : 𝓞) (n : ℤ) :
+    toQuaternion (n • z) = n • toQuaternion z :=
+  preserves_zsmul _
+    toQuaternion_nsmul
+    toQuaternion_neg
+    n z
+
+-- noncomputable instance : AddCommGroup 𝓞 :=
+--   toQuaternion_injective.addCommGroup
+--     _
+--     toQuaternion_zero
+--     toQuaternion_add
+--     toQuaternion_neg
+--     toQuaternion_sub
+--     toQuaternion_nsmul
+--     toQuaternion_zsmul
 
 /-! ## mul (*) -/
 
@@ -451,39 +545,191 @@ instance : Mul 𝓞 := ⟨mul⟩
 @[simp] lemma mul_im_oi (z w : 𝓞) :
     im_oi (z * w) = z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i + z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi := rfl
 
-instance ring : Ring 𝓞 := { (inferInstance : AddCommGroup 𝓞) with
-  left_distrib := sorry
-  right_distrib := sorry
-  zero_mul := sorry
-  mul_zero := sorry
-  mul_assoc := sorry
-  one_mul := sorry
-  mul_one := sorry
-}
+lemma toQuaternion_mul (z w : 𝓞) :
+    toQuaternion (z * w) = toQuaternion z * toQuaternion w := by
+  ext <;> simp [toQuaternion] <;> ring
+
+lemma o_mul_i :
+    { re := 0, im_o := 1, im_i := 0, im_oi := 0 } * { re := 0, im_o := 0, im_i := 1, im_oi := 0 }
+      = ({ re := 0, im_o := 0, im_i := 0, im_oi := 1 } : 𝓞) := by
+  ext <;> simp
+
+instance : Pow 𝓞 ℕ := ⟨fun z n => npowRec n z⟩
+
+lemma preserves_npowRec {M N : Type*} [One M] [Mul M] [Monoid N]
+    (f : M → N) (one : f 1 = 1) (mul : ∀ x y : M, f (x * y) = f x * f y) (z : M) (n : ℕ) :
+    f (npowRec n z) = (f z) ^ n := by
+  induction n with
+  | zero => rw [npowRec, one, pow_zero]
+  | succ n ih => rw [npowRec, pow_succ, mul, ih]
+
+lemma toQuaternion_npow (z : 𝓞) (n : ℕ) : toQuaternion (z ^ n) = (toQuaternion z) ^ n :=
+  preserves_npowRec toQuaternion toQuaternion_one toQuaternion_mul z n
+
+instance : NatCast 𝓞 := ⟨Nat.unaryCast⟩
+
+lemma preserves_unaryCast {R S : Type*} [One R] [Zero R] [Add R] [AddMonoidWithOne S]
+    (f : R → S) (zero : f 0 = 0) (one : f 1 = 1) (add : ∀ x y, f (x + y) = f x + f y)
+    (n : ℕ) :
+    f (Nat.unaryCast n) = n := by
+  induction n with
+  | zero => rw [Nat.unaryCast, zero, Nat.cast_zero]
+  | succ n ih => rw [Nat.unaryCast, add, one, Nat.cast_add, Nat.cast_one, ih]
+
+lemma toQuaternion_natCast (n : ℕ) : toQuaternion n = n :=
+  preserves_unaryCast _ toQuaternion_zero toQuaternion_one toQuaternion_add n
+
+instance : IntCast 𝓞 := ⟨Int.castDef⟩
+
+lemma Int.castDef_ofNat {R : Type*} [One R] [Zero R] [Add R] [NatCast R] [Neg R] (n : ℕ) :
+    (Int.castDef (Int.ofNat n) : R) = n := rfl
+
+lemma Int.castDef_negSucc {R : Type*} [One R] [Zero R] [Add R] [NatCast R] [Neg R] (n : ℕ) :
+    (Int.castDef (Int.negSucc n) : R) = -(n + 1 : ℕ) := rfl
+
+lemma preserves_castDef
+    {R S : Type*} [One R] [Zero R] [Add R] [NatCast R] [Neg R] [AddGroupWithOne S]
+    (f : R → S) (natCast : ∀ n : ℕ, f n = n) (neg : ∀ x, f (-x) = - f x) (n : ℤ) :
+    f (Int.castDef n) = n := by
+  cases n with
+  | ofNat n => rw [Int.castDef_ofNat, natCast, Int.ofNat_eq_coe, Int.cast_natCast]
+  | negSucc _ => rw [Int.castDef_negSucc, neg, natCast, Int.cast_negSucc]
+
+lemma toQuaternion_intCast (n : ℤ) : toQuaternion n = n :=
+  preserves_castDef _ toQuaternion_natCast toQuaternion_neg n
+
+noncomputable instance ring : Ring 𝓞 :=
+  toQuaternion_injective.ring
+    _
+    toQuaternion_zero
+    toQuaternion_one
+    toQuaternion_add
+    toQuaternion_mul
+    toQuaternion_neg
+    toQuaternion_sub
+    (fun _ _ => toQuaternion_nsmul _ _) -- TODO for Yaël: these are inconsistent with addCommGroup
+    (fun _ _ => toQuaternion_zsmul _ _) -- TODO for Yaël: these are inconsistent with addCommGroup
+    toQuaternion_npow
+    toQuaternion_natCast
+    toQuaternion_intCast
+
+@[simp] lemma natCast_re (n : ℕ) : (n : 𝓞).re = n := by
+  induction n with
+  | zero => simp
+  | succ n ih => simpa
+@[simp] lemma natCast_im_o (n : ℕ) : (n : 𝓞).im_o = 0 := by
+  induction n with
+  | zero => simp
+  | succ n ih => simpa
+@[simp] lemma natCast_im_i (n : ℕ) : (n : 𝓞).im_i = 0 := by
+  induction n with
+  | zero => simp
+  | succ n ih => simpa
+@[simp] lemma natCast_im_oi (n : ℕ) : (n : 𝓞).im_oi = 0 := by
+  induction n with
+  | zero => simp
+  | succ n ih => simpa
+
+@[simp] lemma intCast_re (n : ℤ) : (n : 𝓞).re = n := by
+  cases n with
+  | ofNat _ => simp
+  | negSucc _ => simp [← Int.neg_ofNat_succ]
+@[simp] lemma intCast_im_o (n : ℤ) : (n : 𝓞).im_o = 0 := by
+  cases n with
+  | ofNat _ => simp
+  | negSucc _ => simp [← Int.neg_ofNat_succ]
+@[simp] lemma intCast_im_i (n : ℤ) : (n : 𝓞).im_i = 0 := by
+  cases n with
+  | ofNat _ => simp
+  | negSucc _ => simp [← Int.neg_ofNat_succ]
+@[simp] lemma intCast_im_oi (n : ℤ) : (n : 𝓞).im_oi = 0 := by
+  cases n with
+  | ofNat _ => simp
+  | negSucc _ => simp [← Int.neg_ofNat_succ]
+
 
 /-- Conjugate; sends $a+bi+cj+dk$ to $a-bi-cj-dk$. -/
-def conj : 𝓞 →ₐ[ℤ] 𝓞 where
-  toFun z := ⟨z.re -z.im_o, -z.im_o, -z.im_i, -z.im_oi⟩ -- not right but something like this
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
-  commutes' := sorry
+instance starRing : StarRing 𝓞 where
+  star z := ⟨z.re - z.im_o - z.im_oi, -z.im_o, -z.im_i, -z.im_oi⟩
+  star_involutive x := by ext <;> simp only <;> ring
+  star_mul x y := by ext <;> simp <;> ring
+  star_add x y := by ext <;> simp <;> ring
 
-def norm : 𝓞 → ℤ
-| mk a b c d => sorry -- not a*a + b*b + c*c + d*d because of ω
+@[simp] lemma star_re (z : 𝓞) : (star z).re = z.re - z.im_o - z.im_oi := rfl
+@[simp] lemma star_im_o (z : 𝓞) : (star z).im_o = -z.im_o := rfl
+@[simp] lemma star_im_i (z : 𝓞) : (star z).im_i = -z.im_i := rfl
+@[simp] lemma star_im_oi (z : 𝓞) : (star z).im_oi = -z.im_oi := rfl
 
-lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * conj z := sorry
+lemma toQuaternion_star (z : 𝓞) : toQuaternion (star z) = star (toQuaternion z) := by
+  ext <;>
+  simp only [star_re, star_im_o, star_im_i, star_im_oi, toQuaternion,
+    Quaternion.star_re, Quaternion.star_imI, Quaternion.star_imJ, Quaternion.star_imK] <;>
+  field_simp <;>
+  norm_cast <;>
+  ring
 
-lemma norm_zero : norm 0 = 0 := sorry
+lemma star_eq (z : 𝓞) : star z = (fromQuaternion ∘ star ∘ toQuaternion) z := by
+  simp only [Function.comp_apply, ← toQuaternion_star]
+  rw [leftInverse_fromQuaternion_toQuaternion]
 
-lemma norm_one : norm 1 = 1 := sorry
+instance : CharZero 𝓞 where
+  cast_injective x y hxy := by simpa [Hurwitz.ext_iff] using hxy
 
-lemma norm_mul (x y : 𝓞) : norm (x * y) = norm x * norm y := sorry
+def norm (z : 𝓞) : ℤ :=
+  z.re * z.re + z.im_o * z.im_o + z.im_i * z.im_i + z.im_oi * z.im_oi
+  - z.re * (z.im_o + z.im_oi) + z.im_i * (z.im_o - z.im_oi)
 
-lemma norm_nonneg (x : 𝓞) : 0 ≤ norm x := sorry
+lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := by
+  ext <;> simp [norm, ← Int.cast_add, -Int.cast_add] <;> ring
 
-lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := sorry
+lemma coe_norm (z : 𝓞) :
+    (norm z : ℝ) =
+      (z.re - 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi) ^ 2 +
+      (z.im_i + 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi) ^ 2 +
+      (2⁻¹ * z.im_o + 2⁻¹ * z.im_oi) ^ 2 +
+      (2⁻¹ * z.im_o - 2⁻¹ * z.im_oi) ^ 2 := by
+  rw [norm]
+  field_simp
+  norm_cast
+  ring
+
+lemma norm_zero : norm 0 = 0 := by simp [norm]
+
+lemma norm_one : norm 1 = 1 := by simp [norm]
+
+lemma norm_mul (x y : 𝓞) : norm (x * y) = norm x * norm y := by
+  rw [← Int.cast_inj (α := 𝓞)]
+  simp_rw [norm_eq_mul_conj, star_mul]
+  rw [mul_assoc, ← mul_assoc y, ← norm_eq_mul_conj]
+  rw [Int.cast_comm, ← mul_assoc, ← norm_eq_mul_conj, Int.cast_mul]
+
+lemma norm_nonneg (x : 𝓞) : 0 ≤ norm x := by
+  rw [← Int.cast_nonneg (α := ℝ), coe_norm]
+  positivity
+
+lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := by
+  constructor
+  swap
+  · rintro rfl; exact norm_zero
+  intro h
+  rw [← Int.cast_eq_zero (α := ℝ), coe_norm] at h
+  field_simp at h
+  norm_cast at h
+  have h4 := eq_zero_of_add_nonpos_right (by positivity) (by positivity) h.le
+  rw [sq_eq_zero_iff, sub_eq_zero] at h4
+  have h1 := eq_zero_of_add_nonpos_left (by positivity) (by positivity) h.le
+  have h3 := eq_zero_of_add_nonpos_right (by positivity) (by positivity) h1.le
+  rw [h4] at h3
+  simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, pow_eq_zero_iff, add_self_eq_zero] at h3
+  rw [h3] at h4
+  simp only [h4, sub_zero, h3, add_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow]
+    at h1
+  have h2 := eq_zero_of_add_nonpos_right (by positivity) (by positivity) h1.le
+  simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, pow_eq_zero_iff, mul_eq_zero,
+    or_false] at h2
+  simp only [h2, zero_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero,
+    pow_eq_zero_iff, mul_eq_zero, or_false] at h1
+  ext <;> assumption
 
 lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ norm r < norm b := sorry
 
