@@ -20,10 +20,10 @@ forms we shall need for FLT.
 Assume we have a hardly-ramified representation~$\rho$ as above. Let $K$
 be the number field corresponding to the kernel of~$\rho$. Our first claim
 is that there is some totally real field $F$ of even degree, Galois over $\Q$,
-unramified at $\ell$, and disjoint from $K$, such that $\rho|G_F$ is modular. 
+unramified at $\ell$, and disjoint from $K$, such that $\rho|G_F$ is modular.
 The proof of this is very long, and uses a host of machinery. For example:
 \begin{itemize}
-    \item Moret--Bailly's result~\cite{moret-bailly} on points on curves with prescribed 
+    \item Moret--Bailly's result~\cite{moret-bailly} on points on curves with prescribed
     local behaviour;
     \item several nontrivial results in global class field theory;
     \item the Jacquet--Langlands correspondence;
@@ -41,7 +41,7 @@ is unramified, and that~$S$ is a finite set of finite places of~$F$ not dividing
 $G_F$ for the absolute Galois group of~$F$.
 
 If $v\in S$ then let $F_v$ denote the completion of~$F$ at~$v$, fix an inclusion $\overline{F}\to\overline{F_v}$,
-let $\calO_v$ denote the integers of $F_v$ and $k(v)$ the residue field. Let $I_v\subset G_F$ denote the inertia 
+let $\calO_v$ denote the integers of $F_v$ and $k(v)$ the residue field. Let $I_v\subset G_F$ denote the inertia
 subgroup at~$v$. Local class field theory (or a more elementary approach) gives a map $I_v\to\calO_{F_v}^\times$
 and hence a map $I_v\to k(v)^\times$. Let $J_v$ denote the kernel of this map.
 
@@ -62,16 +62,23 @@ Say $k$ is a finite extension of $\Z/\ell\Z$ and $\rhobar:G_F\to\GL_2(k)$ is con
 absolutely irreducible when restricted to $F(\zeta_\ell)$, and $S$-good. One can check
 that the functor representing $S$-good lifts of $\rhobar$ is representable.
 
-\begin{theorem}\label{modularity_lifting_theorem}\uses{Skinner_Wiles_CFT_trick,local_galois_coh_dim_two,local_galois_coh_top_degree,local_galois_coh_poincare,local_galois_coh_euler_poincare,local_galois_coh_tate_duality,automorphic_representation_local_decomposition,cuspidal_automorphic_representation,Galois_representation_from_automorphic_representation_on_GL_2_form, moret-bailly}\notready
+\begin{theorem}
+    \label{modularity_lifting_theorem}
+    \uses{Skinner_Wiles_CFT_trick,local_galois_coh_dim_two,local_galois_coh_top_degree,
+      local_galois_coh_poincare,local_galois_coh_euler_poincare,local_galois_coh_tate_duality,
+      automorphic_representation_local_decomposition,cuspidal_automorphic_representation,
+      Galois_representation_from_automorphic_representation_on_GL_2_form, moret-bailly,
+      local_galois_coh_finite}
+      \notready
         If $\rhobar$ is modular of level $\Gamma_1(S)$ and $\rho:G_F\to\GL_2(\calO)$ is
         an $S$-good lift of $\rhobar$ to $\calO$, the integers of a finite extension of $\Q_\ell$,
         then $\rho$ is also modular of level $\Gamma_1(S)$.
 \end{theorem}
 
-Right now we are very far from even stating this theorem in Lean. 
+Right now we are very far from even stating this theorem in Lean.
 
 I am not entirely sure where to find a proof of this in the literature, although it has certainly been known to the experts for some time. Theorem 3.3 of~\cite{taylor-mero-cont} comes close, although it assumes that $\ell$ is totally split in $F$ rather than just unramified. Another near-reference is Theorem~5.2 of~\cite{toby-modularity}, although this assumes
-the slightly stronger assumption that the image of $\rho$ contains $\SL_2(\Z/p\Z)$ (however it is well-known to the experts that this can be weakened to give the result we need). One reference for the proof is \href{https://math.berkeley.edu/~fengt/249A_2018.pdf}{Richard Taylor's 2018 Stanford course}. 
+the slightly stronger assumption that the image of $\rho$ contains $\SL_2(\Z/p\Z)$ (however it is well-known to the experts that this can be weakened to give the result we need). One reference for the proof is \href{https://math.berkeley.edu/~fengt/249A_2018.pdf}{Richard Taylor's 2018 Stanford course}.
 
 \begin{proof} (Sketch)
 
@@ -87,7 +94,7 @@ mod $p$ Galois representation is induced from a character. By converse theorems 
 the mod $p$ Galois representation is associated to an automorphic representation of
 $\GL_2/F$ and hence by Jacquet--Langlands it is modular. Now we use the
 modularity lifting theorem to deduce the modularity of the curve over $F$ and hence
-the modularity of the $\ell$-torsion. 
+the modularity of the $\ell$-torsion.
 
 \section{Compatible families, and reduction at 3}
 
@@ -102,9 +109,3 @@ One can now go on to deduce that the 3-adic representation must be reducible, wh
 contradicts the irreducibility of $\rho$.
 
 We apologise for the sketchiness of what is here, however at the time of writing it is so far from what we are even able to \emph{state} in Lean that there seems to be little point right now in fleshing out the argument further. As this document grows, we will add a far more detailed discussion of what is going on here. Note in particular that stating the modularity lifting theorem in Lean is the first target.
-
-
-
-
-
-

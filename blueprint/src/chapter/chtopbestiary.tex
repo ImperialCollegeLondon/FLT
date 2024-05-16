@@ -16,7 +16,7 @@ It is impossible to say which of the two canonical isomorphisms is ``the most ca
 
 As a result, the absolute Galois group of $K$ surjects onto $\widehat{\Z}$; its kernel is said to be the \emph{inertia subgroup} of this Galois group. Now pull back this surjection along the continuous map from $\Z$ (with its discrete topology) to $\widehat{\Z}$, in the category of topological groups. We end up with a group containing the inertia group as an open normal subgroup, and with quotient isomorphic to the integers.
 
-\begin{definition}\label{local_Weil_group}\uses{maximal_unramified_extension_of_p-adic_field}\notready This topological group is called the \emph{Weil group} of $K$.
+\begin{definition}\label{local_Weil_group}\uses{maximal_unramified_extension_of_p-adic_field}\notready The topological group described above is called the \emph{Weil group} of $K$.
 \end{definition}
 
 The following theorem is nontrivial.
@@ -28,16 +28,32 @@ The following theorem is nontrivial.
 
 Note that Mar\'ia In\'es de Frutos Fern\'andez and Filippo Nuccio are working on a formalisation of the proof of this using Lubin--Tate formal groups.
 
-Now let $M$ be a finite abelian group equipped with a continuous action of $G_K$, the Galois group $\GK$ where we fix an algebraic closure $\Kbar$ of $K$. Note that if one doesn't want to choose an algebraic closure of $K$ one can instead think of $M$ as being an etale sheaf of abelian groups on $\Spec(K)$.
+Now let $M$ be an abelian group (with the discrete topology) equipped with a continuous
+action of $G_K$, the Galois group $\GK$ where we fix an algebraic closure $\Kbar$ of $K$. Note that
+if one doesn't want to choose an algebraic closure of $K$ one can instead think of $M$ as being an
+etale sheaf of abelian groups on $\Spec(K)$.
 
 Continuous group cohomology $H^i(G_K,M)$ in this setting can be defined using continuous cocycles and continuous coboundaries, or just as a colimit of usual group cohomology over the finite quotients of this absolute Galois group (or as etale cohomology, if you prefer). Here are some of the facts we will need about cohomology in this situation. A nice summary is that cohomology of a local Galois group behaves like the cohomology of a compact connected 2-manifold. All the theorems below will need extensive planning.
 
-\begin{theorem} ["the dimension is 2"]\label{local_galois_coh_dim_two}\notready $H^i(G_K,M)=0$ if $i>2$.
-\end{theorem}\
-\begin{proof} This is included in Lemma 2 of section 5.2 of \cite{serre-galcoh}.
+\begin{theorem}
+    \label{local_galois_coh_finite}
+    \notready
+    If $M$ is finite then the cohomology groups $H^i(G_K,M)$ all finite.
+\end{theorem}
+\begin{proof}
+    This is Proposition~14 in section~5.2 of~\cite{serre-galcoh}.
 \end{proof}
 
-\begin{theorem} ["top degree"]\label{local_galois_coh_top_degree}\notready $H^2(G_K,\mu_n)$ is ``canonically'' isomorphic to $\Z/n\Z$.
+\begin{theorem} ["the dimension is 2"]\label{local_galois_coh_dim_two}\notready
+  If $M$ is torsion then $H^i(G_K,M)=0$ if $i>2$.
+\end{theorem}
+\begin{proof} This follows from Proposition~15 in~section 5.3 of~\cite{serre-galcoh}.
+\end{proof}
+
+\begin{theorem} ["top degree"]
+    \label{local_galois_coh_top_degree}
+    \notready
+    $H^2(G_K,\mu_n)$ is ``canonically'' isomorphic to $\Z/n\Z$.
 \end{theorem}
 \begin{proof} This is also included in Lemma 2 of section 5.2 of \cite{serre-galcoh} (Serre just writes that the groups are equal; he clearly is not a Lean user. I can see no explanation in his book of this use of the equality symbol. When the statement of this ``theorem'' is formalised in Lean it may well actually be a definition, giving the map).
 \end{proof}
@@ -101,17 +117,17 @@ naturally bijects with the $K$-algebra homomorphisms from $A$ to $R$.
 \end{proof}
 
 We now specialise to the smooth case. I want to make the following conjectural ``definition'':
-    
+
 \begin{definition}\label{manifold_on_algebraic_variety_points}\notready Let $K$ be a field equipped with an isomorphism to the reals, complexes, or a finite extension of the $p$-adic numbers. Let $X$ be a smooth affine algebraic variety over $K$. Then the points $X(K)$ naturally inherit the structure of a manifold over $K$.
 \end{definition}
 
-\begin{remark} Probably this is fine for a broader class of fields $K$. 
+\begin{remark} Probably this is fine for a broader class of fields $K$.
 \end{remark}
 
 \begin{theorem}\label{manifold_on_algebraic_variety_computation}\uses{manifold_on_algebraic_variety_points}\notready
-    If $X$ is as in the previous definition and $X\to\mathbb{A}^n_K$ is a closed immersion, then the induced map from $X(K)$ with its manifold structure to $K^n$ is an embedding of manifolds. 
+    If $X$ is as in the previous definition and $X\to\mathbb{A}^n_K$ is a closed immersion, then the induced map from $X(K)$ with its manifold structure to $K^n$ is an embedding of manifolds.
 \end{theorem}
-\begin{proof} I'm assuming this is standard, if true. 
+\begin{proof} I'm assuming this is standard, if true.
 \end{proof}
 \begin{corollary}\label{lie_group_from_algebraic_group}\uses{manifold_on_algebraic_variety_computation}\notready
     If $G$ is an affine algebraic group of finite type over $K=\R$ or $\bbC$ then $G(K)$ is naturally a real or complex Lie group.
@@ -139,7 +155,7 @@ For some reason, in the literature people seem to fix a choice of maximal compac
 
 Example: if $G=\GL_2$ and $N=\Q$ then $N_\infty=\R$ and $G(N_\infty)$ is just $\GL_2(\R)$ with its usual Lie group structure and we can take $U_\infty$ to be $O_2(\R)$; $G(\A_N^f)$ is the restricted product of $\GL_2(\Q_p)$ over $\GL_2(\Z_p)$, for all primes $p$.
 
-By assumption, $G(N_\infty)$ admits a finite-dimensional (algebraic) representation $\rho$ with finite kernel. Consider $\rho$ as taking values in $GL_N(\bbC)=\Aut_{\bbC}(V)$. Fix a hermitian sesquilinear form on $V$ which 
+By assumption, $G(N_\infty)$ admits a finite-dimensional (algebraic) representation $\rho$ with finite kernel. Consider $\rho$ as taking values in $GL_N(\bbC)=\Aut_{\bbC}(V)$. Fix a hermitian sesquilinear form on $V$ which
 is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by $$||g||_\rho=(\tr \rho(g)^*\rho(g))^{1/2},$$ where the asterisk denotes adjoint with respect to the sesquilinear form. According to the article by Borel--Jacquet in \cite{corvallis1} (p189), if $\rho'$ is another such choice then there exists a positive real $C$ and a positive integer $n$ such that $||g||_{\rho'}\leq C||g||_\rho^n$ for all $g\in G(N_\infty)$.
 
 \begin{definition}\label{slowly_increasing}\notready A function $f : G(N_\infty)\to\bbC$ is \emph{slowly-increasing} if there exists some $C>0$
@@ -151,7 +167,7 @@ is $U_\infty$ invariant, and now define a norm $||g||_\rho$ on $G(N_\infty)$ by 
 \begin{proof} Follows from the above.
 \end{proof}
 
-We can now give the definition of an automorphic form. For FLT we only need the definition for $G$ being either an abelian algebraic group, or an inner form of $GL(2)$, but we have chosen to work in full generality here. 
+We can now give the definition of an automorphic form. For FLT we only need the definition for $G$ being either an abelian algebraic group, or an inner form of $GL(2)$, but we have chosen to work in full generality here.
 
 \begin{definition}\label{automorphic_form}\uses{slowly_increasing_well_defined,connected_reductive_group, lie_group_from_algebraic_group, topology_on_affine_variety_computation}\notready An \emph{automorphic form} is a function $\phi:G(\A_N)\to\bbC$ satisfying the following conditions:
     \begin{itemize}
@@ -164,7 +180,7 @@ We can now give the definition of an automorphic form. For FLT we only need the 
     \end{itemize}
 \end{definition}
 
-Automorphic forms form a typically infinite-dimensional vector space. 
+Automorphic forms form a typically infinite-dimensional vector space.
 
 \begin{definition}\label{cuspidal_automorphic_form}\uses{automorphic_form}\notready An automorphic form is \emph{cuspidal} (or ``a cusp form'') if it furthermore satisfies $\int_{U(N)\backslash U(\A_N)}\phi(ux)du=0$, where $P$ runs through all the proper parabolic subgroups of $G$ defined over $N$ and $U$ is the unipotent radical of $P$, and the integral is with respect to the measure coming from Haar measure.
 \end{definition}
@@ -185,7 +201,7 @@ For non-cuspidal representations, they do not decompose as a direct sum; there i
 \begin{definition}\label{automorphic_representation}\uses{automorphic_form_actions}\notready An automorphic representation is an irreducible $(G(\A_N^f)\times U_\infty,\mathfrak{g})$-module isomorphic to an irreducible subquotient of the space of automorphic forms.
 \end{definition}
 
-Admissibility is a finiteness condition on an irreducible representation of $(G(\A_N^f)\times U_\infty,\mathfrak{g})$; automorphic representations are admissible, and this seems to boil down to theorems of Godement and Harish-Chandra in the general case. 
+Admissibility is a finiteness condition on an irreducible representation of $(G(\A_N^f)\times U_\infty,\mathfrak{g})$; automorphic representations are admissible, and this seems to boil down to theorems of Godement and Harish-Chandra in the general case.
 
 
 \begin{theorem}\label{automorphic_representation_local_decomposition}\uses{automorphic_representation}\notready An irreducible admissible $(G(\A_N^f)\times U_\infty,\mathfrak{g})$-module is a restricted tensor product of irreducible representations $\pi_v$ of $G(N_v)$ as $v$ runs through the finite places of $N$, tensored with a tensor product of irreducible $(\mathfrak{g}_v,U_{\infty,v})$-modules as $v$ runs through the infinite places of $N$. The representations $\pi_v$ are unramified for all but finitely many $v$.
@@ -195,7 +211,7 @@ Admissibility is a finiteness condition on an irreducible representation of $(G(
 
 As mentioned above, we only need all of this for abelian algebraic groups and for inner forms of $\GL_2$ over totally real fields, where everything can be made more concrete (and in particular where I can write down concrete definitions, although this still needs to be done). In particular, we don't strictly speaking need all of the above, we could just cheat and deal with $\GL_2(\R)$ and $\bbH^\times$ separately.
 
-The theorems I need are: Jacquet-Langlands for inner forms of $\GL_2$ over totally real fields, 
+The theorems I need are: Jacquet-Langlands for inner forms of $\GL_2$ over totally real fields,
 and multiplicity 1 for these inner forms. We also need cyclic base change plus classification of image, all for totally definite quaternion algebras, and we need
 automorphic induction from $\GL_1(K)$ to $\GL_2(F)$ when $K/F$ is a degree 2 totally imaginary extension. There seems to be little point formalising the statements of the theorems if we cannot yet even formalise the definition of an automorphic representation properly.
 
@@ -203,7 +219,7 @@ automorphic induction from $\GL_1(K)$ to $\GL_2(F)$ when $K/F$ is a degree 2 tot
 
 Ivan Farabella has formalised the definition of a compatible family of Galois
 representations, modulo the existence of Frobenius elements, which has been
-established by Jou Glasheen. 
+established by Jou Glasheen.
 
 \begin{definition}\label{compatible_family}\discussion{23} Let $N$ be a number field. A \emph{compatible family of $d$-dimensional Galois representations over $N$} is a finite set of finite places $S$ of $N$,
 a number field $E$, a monic degree $d$ polynomial $F_{\p}(X)\in E[X]$ for each finite place $\p$ of $K$ not in $S$ and, for each prime number $\ell$ and field embedding $\phi : E\to\Qlbar$ (or essentially equivalently for each finite place of $E$), a continuous homomorphism $\rho:\GK\to\GL_2(\Qlbar)$ unramified outside $S$ and the primes of $K$ above $\ell$, such that $\rho(\Frob_\p)$ has characteristic polynomial $P_\pi(X)$ if $\pi$ lies above a prime number $p\not=\ell$ with $p\not\in S$.
@@ -219,12 +235,12 @@ The big theorem, which again we are far from even \emph{stating} right now, is
 We have already mentioned Mazur's Theorem on torsion subgroups of elliptic curves (theorem~\ref{mazur}).
 The proof of this is the main theorem of~\cite{mazur-torsion}, 150 pages of subtle arithmetic
 geometry involving the bad reduction of modular curves, exotic cohomology theories (etale and more),
-and the consequences of this for the Neron models of their Jacobians. After a beautiful 
-introductory chapter containing a history and examples, the convention is established that 
-throughout the paper, $N$ will denote a prime number which is at least 5. And then the first 
-sentence of chapter 1 of the paper proper is ``Consider quasi-finite separated commutative group 
-schemes of finite presentation over the base $S:=\Spec{\Z}$ which are finite flat group schemes 
-over $S':=\Spec(Z[1/N]).$''. At the time of writing (May 2024), Lean's algebraic geometry cannot 
+and the consequences of this for the Neron models of their Jacobians. After a beautiful
+introductory chapter containing a history and examples, the convention is established that
+throughout the paper, $N$ will denote a prime number which is at least 5. And then the first
+sentence of chapter 1 of the paper proper is ``Consider quasi-finite separated commutative group
+schemes of finite presentation over the base $S:=\Spec{\Z}$ which are finite flat group schemes
+over $S':=\Spec(Z[1/N]).$''. At the time of writing (May 2024), Lean's algebraic geometry cannot
 get us through \emph{the first sentence of Mazur's proof}, which occupies pages 43 to 172 of
 the paper (not including the appendix or references, that's just the proof). Anyone interested
 in formalising Mazur's paper should make a formalisation of its first sentence their first
