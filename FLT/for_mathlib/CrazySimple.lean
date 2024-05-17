@@ -25,48 +25,12 @@ Let M ∈ J , then e1jMej1 = mije11 ∈ J so that mij ∈ I and hence J ⊆ Mn(I
 
 open BigOperators
 
-variable {A}
-
-abbrev RingCon.asTwoSidedIdeal (rel : RingCon A) : Set A :=
-{y | rel y 0}
-
-lemma RingCon.asTwoSidedIdeal_zero_mem (rel : RingCon A) : 0 ∈ rel.asTwoSidedIdeal := rel.refl 0
-
-lemma RingCon.asTwoSidedIdeal_add (rel : RingCon A) (x y : A) (hx : x ∈ rel.asTwoSidedIdeal) (hy : y ∈ rel.asTwoSidedIdeal) :
-    x + y ∈ rel.asTwoSidedIdeal := by simpa using rel.add hx hy
-
-lemma RingCon.asTwoSidedIdeal_right_absorb (rel : RingCon A) (x y : A) (hx : x ∈ rel.asTwoSidedIdeal) :
-    x * y ∈ rel.asTwoSidedIdeal := show rel (x * y) 0 by simpa using rel.mul hx (rel.refl y)
-
-lemma RingCon.asTwoSidedIdeal_left_absorb (rel : RingCon A) (x y : A) (hy : y ∈ rel.asTwoSidedIdeal) :
-    x * y ∈ rel.asTwoSidedIdeal := show rel (x * y) 0 by simpa using rel.mul (rel.refl x) hy
-
-lemma RingCon.asTwoSidedIdeal_neg (rel : RingCon A) (x) (hx : x ∈ rel.asTwoSidedIdeal) : -x ∈ rel.asTwoSidedIdeal := by
-    simpa using rel.toAddCon.neg hx
-
-
-@[ext high]
-lemma RingCon.ext_asTwoSidedIdeal {rel1 rel2 : RingCon A}
-    (eq : rel1.asTwoSidedIdeal = rel2.asTwoSidedIdeal) :
-    rel1 = rel2 := by
-  refine RingCon.ext fun a b ↦ ?_
-  constructor
-  · intro h
-    have mem : a - b ∈ rel1.asTwoSidedIdeal := by
-      change rel1 (a - b) 0
-      convert rel1.add h (rel1.refl (-b)) using 1 <;> abel
-    rw [eq] at mem
-    change rel2 (a - b) 0 at mem
-    convert rel2.add mem (rel2.refl b) <;> abel
-
-
 section two_two_one
 
 variable (n : ℕ) (hn : 0 < n)
 
 local notation "M[" n "," R "]" => Matrix (Fin n) (Fin n) R
 
-variable (A) in
 @[simps]
 def RingCon.fromIdeal
     (carrier : Set A)
@@ -100,7 +64,7 @@ def RingCon.mapMatrix (I : RingCon A) : RingCon M[n, A] where
     symm := fun h i j ↦ I.symm (h i j)
     trans := fun h1 h2 i j ↦ I.trans (h1 i j) (h2 i j) }
   mul' h h' := fun i j ↦ by
-    simpa only [Matrix.mul_apply] using I.toAddCon.sum _ _ _ fun k _ ↦ I.mul (h _ _) (h' _ _)
+    simpa only [Matrix.mul_apply] using I.sum fun k _ ↦ I.mul (h _ _) (h' _ _)
   add' {X X' Y Y'} h h' := fun i j ↦ by
     simpa only [Matrix.add_apply] using I.add (h _ _) (h' _ _)
 
@@ -108,27 +72,26 @@ lemma Matrix.ringCon_eq_ring_ringCon
     -- J is a two side ideal of Mₙ(R)
     (J : RingCon (M[n, A])) :
     ∃ (I : RingCon A), J = I.mapMatrix n := by
-  -- have := (fun x => x ⟨0, by omega⟩ ⟨0, by omega⟩) '' J.asTwoSidedIdeal
   let I : RingCon A := RingCon.fromIdeal A
-    ((fun (x : M[n, A]) => x ⟨0, by omega⟩ ⟨0, by omega⟩) '' J.asTwoSidedIdeal)
-    ⟨0, J.asTwoSidedIdeal_zero_mem, rfl⟩
+    ((fun (x : M[n, A]) => x ⟨0, by omega⟩ ⟨0, by omega⟩) '' J)
+    ⟨0, J.zero_mem, rfl⟩
     (by
       rintro _ _ ⟨x, hx, rfl⟩ ⟨y, hy, rfl⟩
-      exact ⟨x + y, J.asTwoSidedIdeal_add _ _ hx hy, rfl⟩)
+      exact ⟨x + y, J.add_mem hx hy, rfl⟩)
     (by
       rintro _ ⟨x, hx, rfl⟩
-      exact ⟨-x, J.asTwoSidedIdeal_neg _ hx, rfl⟩)
+      exact ⟨-x, J.neg_mem hx, rfl⟩)
     (by
       rintro x _ ⟨y, hy, rfl⟩
-      exact ⟨Matrix.diagonal (fun _ ↦ x) * y, J.asTwoSidedIdeal_left_absorb _ _ hy, by simp⟩)
+      exact ⟨Matrix.diagonal (fun _ ↦ x) * y, J.mul_mem_left _ _ hy, by simp⟩)
     (by
       rintro _ y ⟨x, hx, rfl⟩
-      exact ⟨x * Matrix.diagonal (fun _ ↦ y), J.asTwoSidedIdeal_right_absorb _ _ hx, by simp⟩)
+      exact ⟨x * Matrix.diagonal (fun _ ↦ y), J.mul_mem_right _ _ hx, by simp⟩)
   use I
-  ext x
+  refine SetLike.ext fun x ↦ ?_
   constructor
   · intro hx i j
-    change (x i j) ∈ I.asTwoSidedIdeal
+    change (x i j) ∈ I
     sorry
   · sorry
 

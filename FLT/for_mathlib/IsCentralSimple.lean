@@ -5,7 +5,7 @@ Authors: Kevin Buzzard
 -/
 
 import Mathlib.Algebra.Quaternion -- probably get away with less
-
+import FLT.for_mathlib.Con
 
 /-!
 # Characteristic predicate for central simple algebras
@@ -32,21 +32,6 @@ structure IsCentralSimple
   is_simple : IsSimpleOrder (RingCon D)
 
 variable (K : Type u) [Field K]
-
-theorem RingCon.sum {R : Type u} [AddCommMonoid R] [Mul R] {ι : Type v} {s : Finset ι} {a b : ι → R}
-    {r : RingCon R} (h : ∀ i ∈ s, r (a i) (b i)) : r (∑ i in s, a i) (∑ i in s, b i) := by
-  induction s using Finset.induction_on with
-  | empty =>
-    simp only [Finset.sum_empty]
-    exact r.refl 0
-  | insert hj ih =>
-    next h' j s' =>
-      simp_rw [Finset.sum_insert hj]
-      apply RingCon.add
-      · exact h j (Finset.mem_insert_self j s')
-      · apply ih
-        intro i hi
-        exact h i (Finset.mem_insert_of_mem hi)
 
 open Matrix in
 theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty : Nonempty ι) [DecidableEq ι] :
