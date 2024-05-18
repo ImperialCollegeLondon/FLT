@@ -6,7 +6,7 @@ import Mathlib.Tactic
 variable {M : Type*} [AddCommMonoid M] (r : AddCon M) {ι : Type*} (s : Finset ι)
 variable {R : Type*} [Ring R] (t : RingCon R)
 
-open BigOperators
+open BigOperators MulOpposite
 
 namespace AddCon
 
@@ -49,6 +49,48 @@ instance : SetLike (RingCon R) R where
       rw [← h] at H'
       convert t₁.add H' (t₁.refl b) using 1 <;> abel
 
+/--
+An alternative constructor for `RingCon`, making it obvious that we are view it as a
+two-sided-ideal.
+-/
+@[simps]
+def fromIdeal
+    (carrier : Set R)
+    (zero : 0 ∈ carrier)
+    (add : ∀ a b, a ∈ carrier → b ∈ carrier → a + b ∈ carrier)
+    (neg : ∀ a, a ∈ carrier → -a ∈ carrier)
+    (left_absorb : ∀ a b, b ∈ carrier → a * b ∈ carrier)
+    (right_absorb : ∀ a b, a ∈ carrier → a * b ∈ carrier) : RingCon R where
+  r a b := a - b ∈ carrier
+  iseqv :=
+  { refl := fun a ↦ by simpa
+    symm := fun {x y} h ↦ by
+      simpa only [show y - x = -(x - y) by abel] using neg _ h
+    trans := fun {a b c } h1 h2 ↦ by
+      simpa only [show a - c = (a - b) + (b - c) by abel] using add _ _ h1 h2 }
+  mul' {a b c d} h1 h2 := show _ - _ ∈ _ by
+    change a * c - b * d ∈ carrier
+    rw [show a * c - b * d = (a - b) * c + b * (c - d) by
+      rw [sub_mul, mul_sub]; aesop]
+    exact add _ _ (right_absorb _ _ h1) (left_absorb _ _ h2)
+  add' {a b c d} h1 h2 := by
+    change (a + c) - (b + d) ∈ carrier
+    rw [show (a + c) - (b + d) = (a - b) + (c - d) by abel]
+    exact add _ _ h1 h2
+
+@[simp] lemma mem_fromIdeal
+    (carrier : Set R)
+    (zero : 0 ∈ carrier)
+    (add : ∀ a b, a ∈ carrier → b ∈ carrier → a + b ∈ carrier)
+    (neg : ∀ a, a ∈ carrier → -a ∈ carrier)
+    (left_absorb : ∀ a b, b ∈ carrier → a * b ∈ carrier)
+    (right_absorb : ∀ a b, a ∈ carrier → a * b ∈ carrier)
+    (x) :
+    x ∈ fromIdeal carrier zero add neg left_absorb right_absorb ↔ x ∈ carrier := by
+  simp only [fromIdeal]
+  change _ ∈ carrier ↔ _
+  rw [sub_zero]
+
 variable (I : RingCon R)
 
 lemma zero_mem : 0 ∈ I := I.refl 0
@@ -67,6 +109,9 @@ lemma mul_mem_left (x y) (hy : y ∈ I) : x * y ∈ I := by
 
 lemma mul_mem_right (x y) (hx : x ∈ I) : x * y ∈ I := by
   simpa using I.mul hx (I.refl y)
+
+lemma sum_mem (f : ι → R) (h : ∀ i ∈ s, f i ∈ I) : ∑ i in s, f i ∈ I := by
+  simpa using I.sum h
 
 instance : AddCommGroup I where
   add x y := ⟨x.1 + y.1, I.add_mem x.2 y.2⟩
@@ -121,6 +166,80 @@ instance : Module R I where
     ext; show (x + y) • z.1 = x • z.1 + y • z.1; simp [add_mul]
   zero_smul x := by
     ext; show 0 * x.1 = 0; simp
+
+/--
+For any `RingCon R`, when we view it as an ideal, `subtype` is the injective linear map.
+-/
+@[simps]
+def subtype : I →ₗ[R] R where
+  toFun x := x.1
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
+/--
+For any `RingCon R`, when we view it as an ideal in `Rᵒᵖ`, `subtype` is the injective linear map.
+-/
+@[simps]
+def subtypeMop : I →ₗ[R] Rᵐᵒᵖ where
+  toFun x := MulOpposite.op x.1
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
+/--
+Any two-sided-ideal in `A` corresponds to a two-sided-ideal in `Aᵒᵖ`.
+-/
+@[simps]
+def toMop (rel : RingCon R) : (RingCon Rᵐᵒᵖ) :=
+{ r := fun a b ↦ rel b.unop a.unop
+  iseqv :=
+  { refl := fun a ↦ rel.refl a.unop
+    symm := rel.symm
+    trans := fun h1 h2 ↦ rel.trans h2 h1 }
+  mul' := fun h1 h2 ↦ rel.mul h2 h1
+  add' := rel.add }
+
+/--
+Any two-sided-ideal in `Aᵒᵖ` corresponds to a two-sided-ideal in `A`.
+-/
+@[simps]
+def fromMop (rel : RingCon Rᵐᵒᵖ) : (RingCon R) :=
+{ r := fun a b ↦ rel (op b) (op a)
+  iseqv :=
+  { refl := fun a ↦ rel.refl (op a)
+    symm := rel.symm
+    trans := fun h1 h2 ↦ rel.trans h2 h1 }
+  mul' := fun h1 h2 ↦ rel.mul h2 h1
+  add' := rel.add }
+
+/--
+Two-sided-ideals of `A` and that of `Aᵒᵖ` corresponds bijectively to each other.
+-/
+@[simps]
+def toMopOrderIso : (RingCon R) ≃o (RingCon Rᵐᵒᵖ) where
+  toFun := toMop
+  invFun := fromMop
+  left_inv := unop_op
+  right_inv := unop_op
+  map_rel_iff' {a b} := by
+    constructor <;>
+    · intro h _ _ H
+      exact h H
+
+variable {R' : Type*} [Ring R']
+
+/--
+Pulling back a RingCon across a ring hom.
+-/
+@[simps!]
+def comap {F : Type*} [FunLike F R R'] [RingHomClass F R R'] (J : RingCon R') (f : F) :
+    RingCon R where
+  __ := J.toCon.comap f (map_mul f)
+  __ := J.toAddCon.comap f (map_add f)
+
+@[simp] lemma mem_comap {F : Type*} [FunLike F R R'] [RingHomClass F R R'] (J : RingCon R') (f : F) (x) :
+    x ∈ J.comap f ↔ f x ∈ J := by
+  change J (f x) (f 0) ↔ J (f x) 0
+  simp
 
 instance : Module Rᵐᵒᵖ I where
   smul r x := ⟨x.1 * r.unop, I.mul_mem_right _ _ x.2⟩

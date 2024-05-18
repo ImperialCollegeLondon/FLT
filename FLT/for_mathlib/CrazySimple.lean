@@ -1,6 +1,7 @@
 import Mathlib.RingTheory.Ideal.Basic
 import Mathlib.RingTheory.SimpleModule
 import FLT.for_mathlib.Con
+import Mathlib.Algebra.Quaternion
 
 variable (K : Type*) [Field K]
 variable (A : Type*) [Ring A]
@@ -21,7 +22,7 @@ J is an ideal of Mn(R). Let eij be the matrix with 0 in every entry apart from t
 Let M ∈ J , then e1jMej1 = mije11 ∈ J so that mij ∈ I and hence J ⊆ Mn(I). On the other hand, let N = (nij) ∈ Mn(I), and take M = (mij) ∈ J such that m11 = nij. Then nijeij = m11eij = ei1Me1j = m11eij ∈ J. Therefore, as J is closed under addition, and ij were arbitrary it follows that N ∈ J . Therefore, Mn(I) ⊆ I which means that Mn(I) = J .
 -/
 
-open BigOperators
+open BigOperators Matrix Quaternion
 
 section two_two_one
 
@@ -29,31 +30,10 @@ variable (n : ℕ) (hn : 0 < n)
 
 local notation "M[" n "," R "]" => Matrix (Fin n) (Fin n) R
 
-@[simps]
-def RingCon.fromIdeal
-    (carrier : Set A)
-    (zero : 0 ∈ carrier)
-    (add : ∀ a b, a ∈ carrier → b ∈ carrier → a + b ∈ carrier)
-    (neg : ∀ a, a ∈ carrier → -a ∈ carrier)
-    (left_absorb : ∀ a b, b ∈ carrier → a * b ∈ carrier)
-    (right_absorb : ∀ a b, a ∈ carrier → a * b ∈ carrier) : RingCon A where
-  r a b := a - b ∈ carrier
-  iseqv :=
-  { refl := fun a ↦ by simpa
-    symm := fun {x y} h ↦ by
-      simpa only [show y - x = -(x - y) by abel] using neg _ h
-    trans := fun {a b c } h1 h2 ↦ by
-      simpa only [show a - c = (a - b) + (b - c) by abel] using add _ _ h1 h2 }
-  mul' {a b c d} h1 h2 := show _ - _ ∈ _ by
-    change a * c - b * d ∈ carrier
-    rw [show a * c - b * d = (a - b) * c + b * (c - d) by
-      rw [sub_mul, mul_sub]; aesop]
-    exact add _ _ (right_absorb _ _ h1) (left_absorb _ _ h2)
-  add' {a b c d} h1 h2 := by
-    change (a + c) - (b + d) ∈ carrier
-    rw [show (a + c) - (b + d) = (a - b) + (c - d) by abel]
-    exact add _ _ h1 h2
-
+/--
+If `I` is a two-sided-ideal of `A`, then `Mₙ(I) := {(xᵢⱼ) | ∀ i j, xᵢⱼ ∈ I}` is a two-sided-ideal of
+`Mₙ(A)`.
+-/
 @[simps]
 def RingCon.mapMatrix (I : RingCon A) : RingCon M[n, A] where
   r X Y := ∀ i j, I (X i j) (Y i j)
@@ -66,16 +46,22 @@ def RingCon.mapMatrix (I : RingCon A) : RingCon M[n, A] where
   add' {X X' Y Y'} h h' := fun i j ↦ by
     simpa only [Matrix.add_apply] using I.add (h _ _) (h' _ _)
 
-lemma Matrix.ringCon_eq_ring_ringCon
-    -- J is a two side ideal of Mₙ(R)
-    (J : RingCon (M[n, A])) :
-    ∃ (I : RingCon A), J = I.mapMatrix n := by
-  let I : RingCon A := RingCon.fromIdeal A
+@[simp] lemma RingCon.mem_mapMatrix (I : RingCon A) (x) : x ∈ I.mapMatrix n ↔ ∀ i j, x i j ∈ I :=
+  Iff.rfl
+
+/--
+The two-sided-ideals of `A` corresponds bijectively to that of `Mₙ(A)`.
+Given an ideal `I ≤ A`, we send it to `Mₙ(I)`.
+Given an ideal `J ≤ Mₙ(A)`, we send it to `{x₀₀ | x ∈ J}`.
+-/
+@[simps]
+def RingCon.equivRingConMatrix : RingCon A ≃ RingCon M[n, A] where
+  toFun I := I.mapMatrix n
+  invFun J := RingCon.fromIdeal
     ((fun (x : M[n, A]) => x ⟨0, by omega⟩ ⟨0, by omega⟩) '' J)
     ⟨0, J.zero_mem, rfl⟩
     (by
-      rintro _ _ ⟨x, hx, rfl⟩ ⟨y, hy, rfl⟩
-      exact ⟨x + y, J.add_mem hx hy, rfl⟩)
+      rintro _ _ ⟨x, hx, rfl⟩ ⟨y, hy, rfl⟩; exact ⟨x + y, J.add_mem hx hy, rfl⟩)
     (by
       rintro _ ⟨x, hx, rfl⟩
       exact ⟨-x, J.neg_mem hx, rfl⟩)
@@ -85,57 +71,61 @@ lemma Matrix.ringCon_eq_ring_ringCon
     (by
       rintro _ y ⟨x, hx, rfl⟩
       exact ⟨x * Matrix.diagonal (fun _ ↦ y), J.mul_mem_right _ _ hx, by simp⟩)
-  use I
-  refine SetLike.ext fun x ↦ ?_
-  constructor
-  · intro hx i j
-    change (x i j) ∈ I
-    sorry
-  · sorry
-
+  right_inv J := SetLike.ext fun x ↦ by
+    simp only [mem_fromIdeal, Set.mem_image, SetLike.mem_coe, mem_mapMatrix]
+    constructor
+    · intro h
+      choose y hy1 hy2 using h
+      rw [matrix_eq_sum_std_basis x]
+      refine J.sum_mem _ fun i _ ↦ J.sum_mem _ fun j _ ↦ ?_
+      suffices
+          stdBasisMatrix i j (x i j) =
+          stdBasisMatrix i ⟨0, hn⟩ 1 * y i j * stdBasisMatrix ⟨0, hn⟩ j 1 by
+        rw [this]
+        refine J.mul_mem_right _ _ (J.mul_mem_left _ _ <| hy1 _ _)
+      ext a b
+      by_cases hab : a = i ∧ b = j
+      · rcases hab with ⟨ha, hb⟩
+        subst ha hb
+        simp only [stdBasisMatrix, and_self, ↓reduceIte, StdBasisMatrix.mul_right_apply_same,
+          StdBasisMatrix.mul_left_apply_same, one_mul, mul_one]
+        exact (hy2 a b).symm
+      · conv_lhs =>
+          dsimp [stdBasisMatrix]
+          rw [if_neg (by tauto)]
+        rw [not_and_or] at hab
+        rcases hab with ha | hb
+        · rw [mul_assoc, Matrix.StdBasisMatrix.mul_left_apply_of_ne (h := ha)]
+        · rw [Matrix.StdBasisMatrix.mul_right_apply_of_ne (hbj := hb)]
+    · intro hx i j
+      refine ⟨stdBasisMatrix ⟨0, by omega⟩ i 1 * x * stdBasisMatrix j ⟨0, by omega⟩ 1,
+        J.mul_mem_right _ _ (J.mul_mem_left _ _ hx), ?_⟩
+      rw [Matrix.StdBasisMatrix.mul_right_apply_same, Matrix.StdBasisMatrix.mul_left_apply_same,
+        mul_one, one_mul]
+  left_inv I := SetLike.ext fun x ↦ by
+    simp only [mem_fromIdeal, Set.mem_image, SetLike.mem_coe, mem_mapMatrix]
+    constructor
+    · intro h
+      choose y hy1 hy2 using h
+      exact hy2 ▸ hy1 _ _
+    · intro h
+      exact ⟨of fun _ _ => x, by simp [h], rfl⟩
 
 end two_two_one
 
-open MulOpposite
+section simple_ring
 
+open MulOpposite
 
 variable [IsSimpleOrder (RingCon A)] [Algebra K A] (h : FiniteDimensional K A)
 
 
-@[simps]
-def toMop (rel : RingCon A) : (RingCon Aᵐᵒᵖ) :=
-{ r := fun a b ↦ rel b.unop a.unop
-  iseqv :=
-  { refl := fun a ↦ rel.refl a.unop
-    symm := rel.symm
-    trans := fun h1 h2 ↦ rel.trans h2 h1 }
-  mul' := fun h1 h2 ↦ rel.mul h2 h1
-  add' := rel.add }
-
-@[simps]
-def fromMop (rel : RingCon Aᵐᵒᵖ) : (RingCon A) :=
-{ r := fun a b ↦ rel (op b) (op a)
-  iseqv :=
-  { refl := fun a ↦ rel.refl (op a)
-    symm := rel.symm
-    trans := fun h1 h2 ↦ rel.trans h2 h1 }
-  mul' := fun h1 h2 ↦ rel.mul h2 h1
-  add' := rel.add }
-
-@[simps]
-def toMopOrderIso : (RingCon A) ≃o (RingCon Aᵐᵒᵖ) where
-  toFun := toMop A
-  invFun := fromMop A
-  left_inv := unop_op
-  right_inv := unop_op
-  map_rel_iff' {a b} := by
-    constructor <;>
-    · intro h _ _ H
-      exact h H
-
 instance op_simple : IsSimpleOrder (RingCon (Aᵐᵒᵖ)) :=
   (toMopOrderIso A).symm.isSimpleOrder
 
+/--
+The canonical map from `Aᵒᵖ` to `Hom(A, A)`
+-/
 @[simps]
 def mopToEnd : Aᵐᵒᵖ →+* Module.End A A where
   toFun a :=
@@ -148,6 +138,9 @@ def mopToEnd : Aᵐᵒᵖ →+* Module.End A A where
   map_mul' := by aesop
 
 
+/--
+the map `Aᵒᵖ → Hom(A, A)` is bijective
+-/
 noncomputable def mopEquivEnd : Aᵐᵒᵖ ≃+* Module.End A A := by
   refine RingEquiv.ofBijective (mopToEnd A) ⟨?_, ?_⟩
   · rw [RingHom.injective_iff_ker_eq_bot]
@@ -168,19 +161,63 @@ noncomputable def mopEquivEnd : Aᵐᵒᵖ ≃+* Module.End A A := by
     use (op (φ 1))
     ext ; simp
 
-def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) (h : DivisionRing D) :
+-- This proof **does not** work! Lack of commutativity makes `(xy)ᵀ ≠ yᵀxᵀ` see the example below.
+/--
+For a division ring `D`, `Mₙ(D) ≅ Mₙ(D)ᵒᵖ`.
+-/
+def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [h : DivisionRing D] :
     Matrix (Fin n) (Fin n) D ≃+* (Matrix (Fin n) (Fin n) D)ᵐᵒᵖ where
       toFun := fun a ↦ op a.transpose
-      invFun := fun a ↦ a.unop.transpose  
+      invFun := fun a ↦ a.unop.transpose
       left_inv x := by simp only [unop_op, Matrix.transpose_transpose]
       right_inv x := by simp only [Matrix.transpose_transpose, op_unop]
-      map_mul' x y := by 
-        simp;
-        have hxy : (x * y).transpose = y.transpose * x.transpose := sorry;
-        rw [hxy]; simp
+      map_mul' x y := by
+        apply_fun unop using unop_injective
+        simp only [unop_op, unop_mul]
+        ext i j
+        rw [Matrix.transpose_apply, Matrix.mul_apply, Matrix.mul_apply]
+        refine Finset.sum_congr rfl fun k _ ↦ ?_
+        rw [Matrix.transpose_apply, Matrix.transpose_apply]
+        sorry
       map_add' x y := by simp
 
+open scoped Matrix
+open Quaternion
+example :
+    (Matrix.of ![![⟨1, 0, 0, 0⟩, ⟨0, 0, 0, 1⟩]] :
+      Matrix (Fin 1) (Fin 2) ℍ[ℚ])ᵀ *
+    (Matrix.of ![![⟨0, 0, 1, 0⟩], ![⟨0, 1, 0, 0⟩]] :
+      Matrix (Fin 2) (Fin 1) ℍ[ℚ])ᵀ ≠
+    (Matrix.of ![![⟨0, 0, 1, 0⟩], ![⟨0, 1, 0, 0⟩]] *
+     Matrix.of ![![⟨1, 0, 0, 0⟩, ⟨0, 0, 0, 1⟩]])ᵀ := by
+  have eq1 :
+      (Matrix.of ![![⟨1, 0, 0, 0⟩, ⟨0, 0, 0, 1⟩]] : Matrix (Fin 1) (Fin 2) ℍ[ℚ])ᵀ =
+      Matrix.of ![![⟨1, 0, 0, 0⟩], ![⟨0, 0, 0, 1⟩]] := by
+    ext i j <;>
+    fin_cases i <;>
+    fin_cases j <;>
+    simp
+  rw [eq1]
+  have eq2 :
+      (Matrix.of ![![⟨0, 0, 1, 0⟩], ![⟨0, 1, 0, 0⟩]] : Matrix (Fin 2) (Fin 1) ℍ[ℚ])ᵀ =
+      Matrix.of ![![⟨0, 0, 1, 0⟩, ⟨0, 1, 0, 0⟩]] := by
+    ext i j <;>
+    fin_cases i <;>
+    fin_cases j <;>
+    simp
+  rw [eq2]
+
+  intro rid
+  have := (Quaternion.ext_iff |>.mp <| Matrix.ext_iff.mpr rid 1 1).2.2.1
+  simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.isValue, Matrix.cons_mul, Matrix.vecMul_cons,
+    Matrix.head_cons, Matrix.smul_cons, smul_eq_mul, Matrix.smul_empty, Matrix.tail_cons,
+    Matrix.empty_vecMul, add_zero, Matrix.empty_mul, Equiv.symm_apply_apply, Matrix.of_apply,
+    Matrix.cons_val', Matrix.cons_val_one, Matrix.empty_val', Matrix.cons_val_fin_one,
+    Matrix.head_fin_const, mul_imJ, mul_zero, sub_self, mul_one, zero_add, Matrix.transpose_apply,
+    zero_sub, eq_neg_self_iff, one_ne_zero] at this
 
 theorem Wedderburn_Artin : ∃(n : ℕ) (S : Type) (h : DivisionRing S),
   Nonempty (A ≃+* (Matrix (Fin n) (Fin n) (S))) := by
   sorry
+
+end simple_ring
