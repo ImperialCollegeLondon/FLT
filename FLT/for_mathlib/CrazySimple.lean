@@ -1,8 +1,6 @@
-import Mathlib.Algebra.Quaternion
+import Mathlib.RingTheory.Ideal.Basic
 import Mathlib.RingTheory.SimpleModule
 import FLT.for_mathlib.Con
-import Mathlib.Data.Matrix.Basic
-import Mathlib.Tactic
 
 variable (K : Type*) [Field K]
 variable (A : Type*) [Ring A]
@@ -150,12 +148,38 @@ def mopToEnd : Aᵐᵒᵖ →+* Module.End A A where
   map_mul' := by aesop
 
 
-noncomputable def mopEquivEnd : Aᵐᵒᵖ ≃+* Module.End A A :=
-  RingEquiv.ofBijective (mopToEnd A) ⟨sorry, sorry⟩
+noncomputable def mopEquivEnd : Aᵐᵒᵖ ≃+* Module.End A A := by
+  refine RingEquiv.ofBijective (mopToEnd A) ⟨?_, ?_⟩
+  · rw [RingHom.injective_iff_ker_eq_bot]
+    ext α
+    constructor
+    · intro ha
+      change ((mopToEnd A) α) = 0 at ha
+      rw [DFunLike.ext_iff] at ha
+      specialize ha 1
+      simp at ha
+      exact ha
+
+    · intro ha
+      change α = 0 at ha
+      ext ; simp [ha]
+
+  · intro φ
+    use (op (φ 1))
+    ext ; simp
 
 def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) (h : DivisionRing D) :
-    Matrix (Fin n) (Fin n) D ≃+* (Matrix (Fin n) (Fin n) D)ᵐᵒᵖ :=
-  sorry
+    Matrix (Fin n) (Fin n) D ≃+* (Matrix (Fin n) (Fin n) D)ᵐᵒᵖ where
+      toFun := fun a ↦ op a.transpose
+      invFun := fun a ↦ a.unop.transpose  
+      left_inv x := by simp only [unop_op, Matrix.transpose_transpose]
+      right_inv x := by simp only [Matrix.transpose_transpose, op_unop]
+      map_mul' x y := by 
+        simp;
+        have hxy : (x * y).transpose = y.transpose * x.transpose := sorry;
+        rw [hxy]; simp
+      map_add' x y := by simp
+
 
 theorem Wedderburn_Artin : ∃(n : ℕ) (S : Type) (h : DivisionRing S),
   Nonempty (A ≃+* (Matrix (Fin n) (Fin n) (S))) := by
