@@ -1,7 +1,7 @@
 import Mathlib.RingTheory.Congruence
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.LinearAlgebra.Basic
-import Mathlib.Tactic.Abel
+import Mathlib.Tactic
 
 variable {M : Type*} [AddCommMonoid M] (r : AddCon M) {ι : Type*} (s : Finset ι)
 variable {R : Type*} [Ring R] (t : RingCon R)
@@ -126,10 +126,14 @@ instance : Module Rᵐᵒᵖ I where
   smul r x := ⟨x.1 * r.unop, I.mul_mem_right _ _ x.2⟩
   one_smul x := by ext; show x.1 * 1 = x.1; simp
   mul_smul x y z := by
-    ext; show z.1 * (y.unop * x.unop) = (z.1 * y.unop) * x.unop; simp [mul_assoc]
-  smul_zero x := by sorry
-  smul_add x y z := by sorry
-  add_smul x y z := by sorry
-  zero_smul x := by sorry
+    ext; show z.1 * (y.unop * x.unop) = (z.1 * y.unop) * x.unop; simp only [mul_assoc]
+  smul_zero x := by
+    ext ; show 0 * _ = 0; simp only [zero_mul]
+  smul_add x y z := by
+    ext ; show (y.1 + z.1) * _ = (y * _) + (z * _); simp only [right_distrib]
+  add_smul x y z := by
+    ext; show _ * (_ + _) = _ * _ + _ * _; simp only [left_distrib]
+  zero_smul x := by
+    ext ; show _ * 0 = 0; simp only [mul_zero]
 
 end RingCon
