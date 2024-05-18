@@ -121,7 +121,7 @@ variable [IsSimpleOrder (RingCon A)] [Algebra K A] (h : FiniteDimensional K A)
 
 
 instance op_simple : IsSimpleOrder (RingCon (Aᵐᵒᵖ)) :=
-  (toMopOrderIso A).symm.isSimpleOrder
+  RingCon.toMopOrderIso.symm.isSimpleOrder
 
 /--
 The canonical map from `Aᵒᵖ` to `Hom(A, A)`
