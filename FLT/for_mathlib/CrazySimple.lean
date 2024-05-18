@@ -228,6 +228,10 @@ example :
     Matrix.head_fin_const, mul_imJ, mul_zero, sub_self, mul_one, zero_add, Matrix.transpose_apply,
     zero_sub, eq_neg_self_iff, one_ne_zero] at this
 
+lemma simple_ring_simple_matrix (R : Type*) [Ring R] [IsSimpleOrder (RingCon R)] :
+    IsSimpleOrder (RingCon (Matrix (Fin 1) (Fin 1) R)) := by
+  sorry
+
 theorem Wedderburn_Artin : ∃(n : ℕ) (S : Type) (h : DivisionRing S),
   Nonempty (A ≃+* (Matrix (Fin n) (Fin n) (S))) := by
   sorry
