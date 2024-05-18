@@ -24,18 +24,18 @@ Let M ∈ J , then e1jMej1 = mije11 ∈ J so that mij ∈ I and hence J ⊆ Mn(I
 
 open BigOperators Matrix Quaternion
 
+local notation "M[" ι "," R "]" => Matrix ι ι R
+
 section two_two_one
 
-variable (n : ℕ) (hn : 0 < n)
-
-local notation "M[" n "," R "]" => Matrix (Fin n) (Fin n) R
+variable (ι : Type*) [Fintype ι] [h : Nonempty ι] [DecidableEq ι]
 
 /--
 If `I` is a two-sided-ideal of `A`, then `Mₙ(I) := {(xᵢⱼ) | ∀ i j, xᵢⱼ ∈ I}` is a two-sided-ideal of
 `Mₙ(A)`.
 -/
 @[simps]
-def RingCon.mapMatrix (I : RingCon A) : RingCon M[n, A] where
+def RingCon.mapMatrix (I : RingCon A) : RingCon M[ι, A] where
   r X Y := ∀ i j, I (X i j) (Y i j)
   iseqv :=
   { refl := fun X i j ↦ I.refl (X i j)
@@ -46,7 +46,7 @@ def RingCon.mapMatrix (I : RingCon A) : RingCon M[n, A] where
   add' {X X' Y Y'} h h' := fun i j ↦ by
     simpa only [Matrix.add_apply] using I.add (h _ _) (h' _ _)
 
-@[simp] lemma RingCon.mem_mapMatrix (I : RingCon A) (x) : x ∈ I.mapMatrix n ↔ ∀ i j, x i j ∈ I :=
+@[simp] lemma RingCon.mem_mapMatrix (I : RingCon A) (x) : x ∈ I.mapMatrix ι ↔ ∀ i j, x i j ∈ I :=
   Iff.rfl
 
 /--
@@ -55,10 +55,10 @@ Given an ideal `I ≤ A`, we send it to `Mₙ(I)`.
 Given an ideal `J ≤ Mₙ(A)`, we send it to `{x₀₀ | x ∈ J}`.
 -/
 @[simps]
-def RingCon.equivRingConMatrix : RingCon A ≃ RingCon M[n, A] where
-  toFun I := I.mapMatrix n
+def RingCon.equivRingConMatrix (oo : ι) : RingCon A ≃ RingCon M[ι, A] where
+  toFun I := I.mapMatrix ι
   invFun J := RingCon.fromIdeal
-    ((fun (x : M[n, A]) => x ⟨0, by omega⟩ ⟨0, by omega⟩) '' J)
+    ((fun (x : M[ι, A]) => x oo oo) '' J)
     ⟨0, J.zero_mem, rfl⟩
     (by
       rintro _ _ ⟨x, hx, rfl⟩ ⟨y, hy, rfl⟩; exact ⟨x + y, J.add_mem hx hy, rfl⟩)
@@ -80,7 +80,7 @@ def RingCon.equivRingConMatrix : RingCon A ≃ RingCon M[n, A] where
       refine J.sum_mem _ fun i _ ↦ J.sum_mem _ fun j _ ↦ ?_
       suffices
           stdBasisMatrix i j (x i j) =
-          stdBasisMatrix i ⟨0, hn⟩ 1 * y i j * stdBasisMatrix ⟨0, hn⟩ j 1 by
+          stdBasisMatrix i oo 1 * y i j * stdBasisMatrix oo j 1 by
         rw [this]
         refine J.mul_mem_right _ _ (J.mul_mem_left _ _ <| hy1 _ _)
       ext a b
@@ -98,7 +98,7 @@ def RingCon.equivRingConMatrix : RingCon A ≃ RingCon M[n, A] where
         · rw [mul_assoc, Matrix.StdBasisMatrix.mul_left_apply_of_ne (h := ha)]
         · rw [Matrix.StdBasisMatrix.mul_right_apply_of_ne (hbj := hb)]
     · intro hx i j
-      refine ⟨stdBasisMatrix ⟨0, by omega⟩ i 1 * x * stdBasisMatrix j ⟨0, by omega⟩ 1,
+      refine ⟨stdBasisMatrix oo i 1 * x * stdBasisMatrix j oo 1,
         J.mul_mem_right _ _ (J.mul_mem_left _ _ hx), ?_⟩
       rw [Matrix.StdBasisMatrix.mul_right_apply_same, Matrix.StdBasisMatrix.mul_left_apply_same,
         mul_one, one_mul]
@@ -110,6 +110,25 @@ def RingCon.equivRingConMatrix : RingCon A ≃ RingCon M[n, A] where
       exact hy2 ▸ hy1 _ _
     · intro h
       exact ⟨of fun _ _ => x, by simp [h], rfl⟩
+
+/--
+The two-sided-ideals of `A` corresponds bijectively to that of `Mₙ(A)`.
+Given an ideal `I ≤ A`, we send it to `Mₙ(I)`.
+Given an ideal `J ≤ Mₙ(A)`, we send it to `{x₀₀ | x ∈ J}`.
+-/
+@[simps!]
+def RingCon.equivRingConMatrix' (oo : ι) : RingCon A ≃o RingCon M[ι, A] where
+__ := RingCon.equivRingConMatrix A _ oo
+map_rel_iff' {I J} := by
+  simp only [equivRingConMatrix_apply, RingCon.le_iff]
+  constructor
+  · intro h x hx
+    specialize @h (of fun _ _ => x) (by simpa)
+    simpa using h
+  · intro h X hX i j
+    exact h <| hX i j
+
+
 
 end two_two_one
 

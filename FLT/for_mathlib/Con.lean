@@ -255,4 +255,13 @@ instance : Module Rᵐᵒᵖ I where
   zero_smul x := by
     ext ; show _ * 0 = 0; simp only [mul_zero]
 
+lemma le_iff (I J : RingCon R) : I ≤ J ↔ (I : Set R) ⊆ (J : Set R) := by
+  constructor
+  · intro h x hx
+    exact h hx
+  · intro h x y hxy
+    have h' : J _ _ := h <| sub_self y ▸ I.sub hxy (I.refl y)
+    convert J.add h' (J.refl y) <;>
+    abel
+
 end RingCon

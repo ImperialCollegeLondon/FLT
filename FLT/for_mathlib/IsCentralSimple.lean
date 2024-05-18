@@ -6,6 +6,7 @@ Authors: Kevin Buzzard
 
 import Mathlib.Algebra.Quaternion -- probably get away with less
 import FLT.for_mathlib.Con
+import FLT.for_mathlib.CrazySimple
 
 /-!
 # Characteristic predicate for central simple algebras
@@ -33,58 +34,33 @@ structure IsCentralSimple
 
 variable (K : Type u) [Field K]
 
+instance : IsSimpleOrder (RingCon K) where
+  exists_pair_ne := ⟨⊥, ⊤, by
+    apply_fun (· 0 1)
+    convert false_ne_true
+    -- Change after https://github.com/leanprover-community/mathlib4/pull/12860
+    exact iff_false_iff.mpr zero_ne_one⟩
+  eq_bot_or_eq_top r := by
+    obtain h | h := _root_.forall_or_exists_not (fun x ↦ x ∈ r ↔ x = 0)
+    · left
+      exact SetLike.ext fun x ↦ (h x).trans (by rfl)
+    · right
+      obtain ⟨x, hx⟩ := h
+      refine SetLike.ext fun y ↦ ⟨fun _ ↦ trivial, fun _ ↦ ?_⟩
+      have hx' : x ≠ 0 := by rintro rfl; simp [r.zero_mem] at hx
+      rw [show y = y * x * x⁻¹ by field_simp]
+      refine r.mul_mem_right _ _ <| r.mul_mem_left _ _ (by tauto)
+
+
 open Matrix in
 theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty : Nonempty ι) [DecidableEq ι] :
     IsCentralSimple K (Matrix ι ι K) where
   is_central d hd := by
     rw [Subring.mem_center_iff] at hd
-    convert mem_range_scalar_of_commute_stdBasisMatrix (M := d) fun i j hij => hd _
+    convert mem_range_scalar_of_commute_stdBasisMatrix (M := d) fun i j _ => hd _
     simp_rw [Set.mem_range, eq_comm, algebraMap_eq_diagonal, Pi.algebraMap_def,
       Algebra.id.map_eq_self, scalar_apply]
-  is_simple.exists_pair_ne := by
-    use ⊥, ⊤
-    apply_fun (· 0 1)
-    convert false_ne_true
-    -- Change after https://github.com/leanprover-community/mathlib4/pull/12860
-    exact iff_false_iff.mpr zero_ne_one
-  is_simple.eq_bot_or_eq_top := by
-    intro r
-    obtain h | h := _root_.forall_or_exists_not (fun x ↦ r 0 x ↔ x = 0)
-    · left
-      apply RingCon.ext
-      intro x y
-      have : r x y ↔ r 0 (y - x) := by
-        constructor
-        · convert RingCon.add r (r.refl (-x)) using 1
-          rw [neg_add_self, sub_eq_add_neg, add_comm]
-        · convert RingCon.add r (r.refl x) using 1
-          rw [add_sub_cancel, add_zero]
-      rw [this, h, sub_eq_zero, eq_comm]
-      rfl
-    · right
-      obtain ⟨x, hx⟩ := h
-      have x_ne_zero : x ≠ 0 := by
-        rintro rfl
-        simp [eq_true (r.refl 0)] at hx
-      have r_zero_x : r 0 x := by tauto
-      have : ∃ i j, x i j ≠ 0 := by simpa using x_ne_zero ∘ Matrix.ext
-      obtain ⟨i, j, hij⟩ := this
-      have (k : ι) (_ : k ∈ Finset.univ) :
-          r 0 ((stdBasisMatrix k i 1) * x * (stdBasisMatrix j k 1)) := by
-        simpa using
-          r.mul (r.mul (r.refl (stdBasisMatrix k i 1)) r_zero_x) (r.refl (stdBasisMatrix j k 1))
-      have r_zero_sum := RingCon.sum this
-      have sum_eq_scalar :
-          ∑ k, (stdBasisMatrix k i 1) * x * (stdBasisMatrix j k 1) = scalar ι (x i j) := by
-        ext i' j'
-        simp [diagonal, sum_apply, mul_apply, stdBasisMatrix, ite_and, eq_comm]
-      have r_zero_one : r 0 1 := by
-        simpa [hij, Finset.sum_const_zero, sum_eq_scalar] using
-          r.mul r_zero_sum (r.refl (scalar ι (x i j)⁻¹))
-      have forall_r_zero a : r 0 a := by simpa using r.mul r_zero_one (r.refl a)
-      have forall_forall_r a b : r a b := by simpa using r.add (forall_r_zero (b - a)) (r.refl a)
-      apply RingCon.ext
-      simp [forall_forall_r, Prop.top_eq_true]
+  is_simple := RingCon.equivRingConMatrix' _ ι hnonempty.some |>.symm.isSimpleOrder
 
 namespace IsCentralSimple
 
