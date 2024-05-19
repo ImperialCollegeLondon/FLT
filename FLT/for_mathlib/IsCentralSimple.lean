@@ -34,24 +34,6 @@ structure IsCentralSimple
 
 variable (K : Type u) [Field K]
 
-instance : IsSimpleOrder (RingCon K) where
-  exists_pair_ne := ⟨⊥, ⊤, by
-    apply_fun (· 0 1)
-    convert false_ne_true
-    -- Change after https://github.com/leanprover-community/mathlib4/pull/12860
-    exact iff_false_iff.mpr zero_ne_one⟩
-  eq_bot_or_eq_top r := by
-    obtain h | h := _root_.forall_or_exists_not (fun x ↦ x ∈ r ↔ x = 0)
-    · left
-      exact SetLike.ext fun x ↦ (h x).trans (by rfl)
-    · right
-      obtain ⟨x, hx⟩ := h
-      refine SetLike.ext fun y ↦ ⟨fun _ ↦ trivial, fun _ ↦ ?_⟩
-      have hx' : x ≠ 0 := by rintro rfl; simp [r.zero_mem] at hx
-      rw [show y = y * x * x⁻¹ by field_simp]
-      refine r.mul_mem_right _ _ <| r.mul_mem_left _ _ (by tauto)
-
-
 open Matrix in
 theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty : Nonempty ι) [DecidableEq ι] :
     IsCentralSimple K (Matrix ι ι K) where
