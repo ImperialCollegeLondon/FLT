@@ -1,5 +1,6 @@
 import Mathlib.RingTheory.Ideal.Basic
 import Mathlib.RingTheory.SimpleModule
+import Mathlib.RingTheory.Artinian
 import FLT.for_mathlib.Con
 import Mathlib.Algebra.Quaternion
 
@@ -200,22 +201,10 @@ noncomputable def mopEquivEnd : Aᵐᵒᵖ ≃+* Module.End A A := by
     use (op (φ 1))
     ext ; simp
 
--- This proof **does not** work! Lack of commutativity makes `(xy)ᵀ ≠ yᵀxᵀ` see the example below.
 /--
-For a division ring `D`, `Mₙ(D) ≅ Mₙ(D)ᵒᵖ`.
+For any ring `D`, `Mₙ(D) ≅ Mₙ(D)ᵒᵖ`.
 -/
-
-/-
-def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [h : DivisionRing D] :
-    Matrix (Fin n) (Fin n) Dᵐᵒᵖ ≃+* (Matrix (Fin n) (Fin n) D)ᵐᵒᵖ where
-  toFun a := _
-  invFun a := _
-  left_inv a := _
-  right_inv a := _
-  map_mul' x y := _
-  map_add' x y := _
--/
-def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [h : DivisionRing D] :
+def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [Ring D] :
     Matrix (Fin n) (Fin n) Dᵐᵒᵖ ≃+* (Matrix (Fin n) (Fin n) D)ᵐᵒᵖ where
   toFun := fun M => MulOpposite.op (M.transpose.map (fun d => MulOpposite.unop d))
   invFun := fun M => (MulOpposite.unop M).transpose.map (fun d => MulOpposite.op d)
@@ -224,47 +213,48 @@ def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [h : DivisionRing D] :
   map_mul' := by simp; intros x y; rw[← op_mul]; rw [← Pi.mul_apply]; rw [transpose_map]; sorry
   map_add' x y := by aesop
 
-open scoped Matrix
-open Quaternion
-example :
-    (Matrix.of ![![⟨1, 0, 0, 0⟩, ⟨0, 0, 0, 1⟩]] :
-      Matrix (Fin 1) (Fin 2) ℍ[ℚ])ᵀ *
-    (Matrix.of ![![⟨0, 0, 1, 0⟩], ![⟨0, 1, 0, 0⟩]] :
-      Matrix (Fin 2) (Fin 1) ℍ[ℚ])ᵀ ≠
-    (Matrix.of ![![⟨0, 0, 1, 0⟩], ![⟨0, 1, 0, 0⟩]] *
-     Matrix.of ![![⟨1, 0, 0, 0⟩, ⟨0, 0, 0, 1⟩]])ᵀ := by
-  have eq1 :
-      (Matrix.of ![![⟨1, 0, 0, 0⟩, ⟨0, 0, 0, 1⟩]] : Matrix (Fin 1) (Fin 2) ℍ[ℚ])ᵀ =
-      Matrix.of ![![⟨1, 0, 0, 0⟩], ![⟨0, 0, 0, 1⟩]] := by
-    ext i j <;>
-    fin_cases i <;>
-    fin_cases j <;>
-    simp
-  rw [eq1]
-  have eq2 :
-      (Matrix.of ![![⟨0, 0, 1, 0⟩], ![⟨0, 1, 0, 0⟩]] : Matrix (Fin 2) (Fin 1) ℍ[ℚ])ᵀ =
-      Matrix.of ![![⟨0, 0, 1, 0⟩, ⟨0, 1, 0, 0⟩]] := by
-    ext i j <;>
-    fin_cases i <;>
-    fin_cases j <;>
-    simp
-  rw [eq2]
+instance matrix_simple_ring (ι : Type*) [ne : Nonempty ι] [Fintype ι] [DecidableEq ι]
+    (R : Type*) [Ring R] [IsSimpleOrder (RingCon R)] :
+    IsSimpleOrder (RingCon M[ι, R]) :=
+  RingCon.equivRingConMatrix' _ ι (ne.some) |>.symm.isSimpleOrder
 
-  intro rid
-  have := (Quaternion.ext_iff |>.mp <| Matrix.ext_iff.mpr rid 1 1).2.2.1
-  simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.isValue, Matrix.cons_mul, Matrix.vecMul_cons,
-    Matrix.head_cons, Matrix.smul_cons, smul_eq_mul, Matrix.smul_empty, Matrix.tail_cons,
-    Matrix.empty_vecMul, add_zero, Matrix.empty_mul, Equiv.symm_apply_apply, Matrix.of_apply,
-    Matrix.cons_val', Matrix.cons_val_one, Matrix.empty_val', Matrix.cons_val_fin_one,
-    Matrix.head_fin_const, mul_imJ, mul_zero, sub_self, mul_one, zero_add, Matrix.transpose_apply,
-    zero_sub, eq_neg_self_iff, one_ne_zero] at this
+-- Do we need this?
+-- lemma simple_ring_simple_matrix (R : Type*) [Ring R] [IsSimpleOrder (RingCon R)] :
+--     IsSimpleOrder (RingCon M[Fin 1, R]) := inferInstance
 
-lemma simple_ring_simple_matrix (R : Type*) [Ring R] [IsSimpleOrder (RingCon R)] :
-    IsSimpleOrder (RingCon (Matrix (Fin 1) (Fin 1) R)) := by
-  sorry
-
-theorem Wedderburn_Artin : ∃(n : ℕ) (S : Type) (h : DivisionRing S),
-  Nonempty (A ≃+* (Matrix (Fin n) (Fin n) (S))) := by
-  sorry
+universe u
+theorem Wedderburn_Artin (A : Type u) [Ring A]  [IsArtinianRing A] [Nontrivial A] :
+    ∃ (n : ℕ) (S : Type u) (h : DivisionRing S),
+    Nonempty (A ≃+* (M[Fin n, S])) := by
+  classical
+  -- let `I` be a minimal left ideal
+  obtain ⟨(I : Ideal A), (I_nontrivial : I ≠ ⊥), (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I)⟩ :=
+      IsArtinian.set_has_minimal (R := A) (M := A) {I | I ≠ ⊥}
+    ⟨⊤, show ⊤ ≠ ⊥ by aesop⟩
+  haveI : Nontrivial I := by
+    obtain ⟨y, hy⟩ := Submodule.nonzero_mem_of_bot_lt (bot_lt_iff_ne_bot.mpr I_nontrivial)
+    exact ⟨0, y, hy.symm⟩
+  haveI : IsSimpleModule A I := ⟨fun J ↦ by
+    rw [or_iff_not_imp_left]
+    intro hJ
+    specialize I_minimal (J.map I.subtype : Ideal A) (by
+      contrapose! hJ
+      apply_fun Submodule.comap (f := I.subtype) at hJ
+      rw [Submodule.comap_map_eq_of_injective (hf := Submodule.injective_subtype _)] at hJ
+      rw [hJ, Submodule.comap_bot]
+      rw [LinearMap.ker_eq_bot]
+      exact Submodule.injective_subtype _)
+    apply_fun Submodule.map (f := I.subtype) using Submodule.map_injective_of_injective
+      (hf := Submodule.injective_subtype I)
+    simp only [Submodule.map_top, Submodule.range_subtype]
+    contrapose! I_minimal
+    refine lt_of_le_of_ne (fun x hx ↦ ?_) I_minimal
+    simp only [Submodule.mem_map, Submodule.coeSubtype, Subtype.exists, exists_and_right,
+      exists_eq_right] at hx
+    exact hx.1⟩
+  refine ⟨?_, Module.End A I, Module.End.divisionRing, ?_⟩
+  · -- minimum of number of generators
+    sorry
+  · sorry
 
 end simple_ring

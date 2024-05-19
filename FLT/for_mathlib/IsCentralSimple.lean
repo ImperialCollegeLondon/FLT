@@ -42,7 +42,7 @@ theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty :
     convert mem_range_scalar_of_commute_stdBasisMatrix (M := d) fun i j _ => hd _
     simp_rw [Set.mem_range, eq_comm, algebraMap_eq_diagonal, Pi.algebraMap_def,
       Algebra.id.map_eq_self, scalar_apply]
-  is_simple := RingCon.equivRingConMatrix' _ ι hnonempty.some |>.symm.isSimpleOrder
+  is_simple := inferInstance
 
 namespace IsCentralSimple
 
