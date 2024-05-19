@@ -223,7 +223,9 @@ instance matrix_simple_ring (ι : Type*) [ne : Nonempty ι] [Fintype ι] [Decida
 --     IsSimpleOrder (RingCon M[Fin 1, R]) := inferInstance
 
 universe u
-theorem Wedderburn_Artin (A : Type u) [Ring A]  [IsArtinianRing A] [Nontrivial A] :
+
+theorem Wedderburn_Artin
+    (A : Type u) [Ring A] [IsArtinianRing A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)] :
     ∃ (n : ℕ) (S : Type u) (h : DivisionRing S),
     Nonempty (A ≃+* (M[Fin n, S])) := by
   classical
@@ -252,6 +254,18 @@ theorem Wedderburn_Artin (A : Type u) [Ring A]  [IsArtinianRing A] [Nontrivial A
     simp only [Submodule.mem_map, Submodule.coeSubtype, Subtype.exists, exists_and_right,
       exists_eq_right] at hx
     exact hx.1⟩
+
+  letI I' : RingCon A := ringConGen (fun a b ↦ a - b ∈ I)
+  have I'_is_everything : I' = ⊤ := simple.2 I' |>.resolve_left (fun r ↦ by
+    obtain ⟨y, hy⟩ := Submodule.nonzero_mem_of_bot_lt (bot_lt_iff_ne_bot.mpr I_nontrivial)
+    have hy' : y.1 ∈ I' := by
+      change I' y 0
+      exact .of _ _ <| by simp [y.2]
+    rw [r] at hy'
+    change _ = _ at hy'
+    aesop)
+  have one_mem_I' : 1 ∈ I' := by rw [I'_is_everything]; trivial
+
   refine ⟨?_, Module.End A I, Module.End.divisionRing, ?_⟩
   · -- minimum of number of generators
     sorry
