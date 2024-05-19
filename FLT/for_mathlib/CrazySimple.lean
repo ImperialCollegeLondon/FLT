@@ -184,7 +184,8 @@ noncomputable def mopEquivEnd : Aᵐᵒᵖ ≃+* Module.End A A := by
 /--
 For a division ring `D`, `Mₙ(D) ≅ Mₙ(D)ᵒᵖ`.
 -/
-/--
+
+/-
 def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [h : DivisionRing D] :
     Matrix (Fin n) (Fin n) Dᵐᵒᵖ ≃+* (Matrix (Fin n) (Fin n) D)ᵐᵒᵖ where
   toFun a := _
