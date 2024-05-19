@@ -184,6 +184,7 @@ noncomputable def mopEquivEnd : Aᵐᵒᵖ ≃+* Module.End A A := by
 /--
 For a division ring `D`, `Mₙ(D) ≅ Mₙ(D)ᵒᵖ`.
 -/
+/--
 def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [h : DivisionRing D] :
     Matrix (Fin n) (Fin n) Dᵐᵒᵖ ≃+* (Matrix (Fin n) (Fin n) D)ᵐᵒᵖ where
   toFun a := _
@@ -192,6 +193,15 @@ def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [h : DivisionRing D] :
   right_inv a := _
   map_mul' x y := _
   map_add' x y := _
+-/
+def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [h : DivisionRing D] :
+    Matrix (Fin n) (Fin n) Dᵐᵒᵖ ≃+* (Matrix (Fin n) (Fin n) D)ᵐᵒᵖ where
+  toFun := fun M => MulOpposite.op (M.transpose.map (fun d => MulOpposite.unop d))
+  invFun := fun M => (MulOpposite.unop M).transpose.map (fun d => MulOpposite.op d)
+  left_inv a := by aesop
+  right_inv a := by aesop
+  map_mul' := by simp; intros x y; rw[← op_mul]; rw [← Pi.mul_apply]; rw [transpose_map]; sorry
+  map_add' x y := by aesop
 
 open scoped Matrix
 open Quaternion
