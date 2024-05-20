@@ -255,7 +255,7 @@ theorem Wedderburn_Artin
       exists_eq_right] at hx
     exact hx.1⟩
 
-  letI I' : RingCon A := ringConGen (fun a b ↦ a - b ∈ I)
+  letI I' : RingCon A := RingCon.span I
   have I'_is_everything : I' = ⊤ := simple.2 I' |>.resolve_left (fun r ↦ by
     obtain ⟨y, hy⟩ := Submodule.nonzero_mem_of_bot_lt (bot_lt_iff_ne_bot.mpr I_nontrivial)
     have hy' : y.1 ∈ I' := by
@@ -266,9 +266,50 @@ theorem Wedderburn_Artin
     aesop)
   have one_mem_I' : 1 ∈ I' := by rw [I'_is_everything]; trivial
 
-  refine ⟨?_, Module.End A I, Module.End.divisionRing, ?_⟩
-  · -- minimum of number of generators
-    sorry
-  · sorry
+  have aux : ∃ (n : ℕ) (x : Fin n → A) (i : Fin n → I), ∑ j : Fin n, i j * x j = 1 := by
+    rw [RingCon.mem_span_ideal_iff_exists_fin] at one_mem_I'
+    obtain ⟨n, finn, x, y, hy⟩ := one_mem_I'
+    exact ⟨Fintype.card n, x ∘ (Fintype.equivFin _).symm, y ∘ (Fintype.equivFin _).symm, hy ▸
+      Fintype.sum_bijective (Fintype.equivFin _).symm (Equiv.bijective _) _ _ fun k ↦ rfl⟩
+
+  letI n := Nat.find aux
+  obtain ⟨x, i, one_eq⟩ : ∃ (x : Fin n → A) (i : Fin n → I), ∑ j : Fin n, i j * x j = 1 :=
+    Nat.find_spec aux
+  if n_eq : n = 0
+  then
+  let e : Fin n ≃ Fin 0 := Fin.castIso n_eq
+  have one_eq := calc 1
+    _ = _ := one_eq.symm
+    _ = ∑ j : Fin 0, i (e.symm j) * x (e.symm j) :=
+        Fintype.sum_bijective e (Equiv.bijective _) _ _ (fun _ ↦ rfl)
+    _ = 0 := by simp
+  simp at one_eq
+  else
+
+  have ne_zero : ∀ j, x j ≠ 0 ∧ i j ≠ 0 := by
+    by_contra! H
+    obtain ⟨j, hj⟩ := H
+    refine Nat.find_min aux (m := n - 1) (show n - 1 < n by omega) ?_ -- delete `j`-th
+
+    let e : Fin n ≃ Option (Fin (n - 1)) :=
+      (Fin.castIso <| by omega).toEquiv.trans (finSuccEquiv' (j.cast <| by omega))
+    have one_eq := calc 1
+      _ = _ := one_eq.symm
+      _ = ∑ j : Option (Fin (n - 1)), i (e.symm j) * x (e.symm j) :=
+          Fintype.sum_bijective e (Equiv.bijective _) _ _ (fun _ ↦ rfl)
+
+    simp only [Equiv.symm_trans_apply, OrderIso.toEquiv_symm, Fin.symm_castIso,
+      RelIso.coe_fn_toEquiv, Fin.castIso_apply, Fintype.sum_option, finSuccEquiv'_symm_none,
+      Fin.cast_trans, Fin.cast_eq_self, finSuccEquiv'_symm_some, e] at one_eq
+    if xj_eq : x j = 0
+    then
+    rw [xj_eq, mul_zero, zero_add] at one_eq
+    exact ⟨_, _, one_eq.symm⟩
+    else
+    rw [hj xj_eq, Submodule.coe_zero, zero_mul, zero_add] at one_eq
+    exact ⟨_, _, one_eq.symm⟩
+
+  refine ⟨n, Module.End A I, Module.End.divisionRing, ?_⟩
+  sorry
 
 end simple_ring

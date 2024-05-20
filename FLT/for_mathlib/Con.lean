@@ -264,4 +264,65 @@ lemma le_iff (I J : RingCon R) : I ≤ J ↔ (I : Set R) ⊆ (J : Set R) := by
     convert J.add h' (J.refl y) <;>
     abel
 
+lemma lt_iff (I J : RingCon R) : I < J ↔ (I : Set R) ⊂ (J : Set R) := by
+  rw [lt_iff_le_and_ne, Set.ssubset_iff_subset_ne, le_iff]
+  simp
+
+def span (s : Set R) : RingCon R :=
+ringConGen (fun a b ↦ a - b ∈ s)
+
+def span' (s : Set R) : RingCon R := fromIdeal
+  {x | ∃ (ι : Type) (fin : Fintype ι) (xL : ι → R) (xR : ι → R) (y : ι → s),
+    x = ∑ i : ι, xL i * y i * xR i}
+  ⟨Empty, Fintype.instEmpty, Empty.elim, Empty.elim, Empty.elim, by simp⟩
+  (by
+    rintro _ _ ⟨na, fina, xLa, xRa, ya, rfl⟩ ⟨nb, finb, xLb, xRb, yb, rfl⟩
+    refine ⟨na ⊕ nb, inferInstance, Sum.elim xLa xLb, Sum.elim xRa xRb, Sum.elim ya yb, by simp⟩)
+  (by
+    rintro _ ⟨n, finn, xL, xR, y, rfl⟩
+    exact ⟨n, finn, -xL, xR, y, by simp⟩)
+  (by
+    rintro a _ ⟨n, finn, xL, xR, y, rfl⟩
+    exact ⟨n, finn, a • xL, xR, y, by simp [Finset.mul_sum, mul_assoc]⟩)
+  (by
+    rintro _ b ⟨n, finn, xL, xR, y, rfl⟩
+    exact ⟨n, finn, xL, fun x ↦ xR x * b, y, by simp [Finset.sum_mul, mul_assoc]⟩)
+
+lemma mem_span'_iff_exists_fin (s : Set R) (x : R) :
+    x ∈ span' s ↔
+    ∃ (ι : Type) (fin : Fintype ι) (xL : ι → R) (xR : ι → R) (y : ι → s),
+    x = ∑ i : ι, xL i * (y i : R) * xR i := by
+  simp [span']
+
+lemma mem_span_iff_exists_fin (s : Set R) (x : R) :
+    x ∈ span s ↔
+    ∃ (ι : Type) (fin : Fintype ι) (xL : ι → R) (xR : ι → R) (y : ι → s),
+    x = ∑ i : ι, xL i * (y i : R) * xR i := by
+  suffices eq1 : span s = span' s by
+    rw [eq1]
+    simp only [span', mem_fromIdeal, Set.mem_setOf_eq]
+  rw [span, ringConGen_eq]
+  refine sInf_eq_of_forall_ge_of_forall_gt_exists_lt ?_ ?_
+  · rintro I (hI : ∀ a b, _ → _)
+    rw [le_iff]
+    intro x h
+    rw [SetLike.mem_coe, mem_span'_iff_exists_fin] at h
+    obtain ⟨n, finn, xL, xR, y, rfl⟩ := h
+    exact I.sum_mem _ fun i _ ↦ I.mul_mem_right _ _ (I.mul_mem_left _ _ <| hI (y i) 0 (by simp))
+  · rintro I hI
+    exact ⟨span' s, fun a b H ↦ ⟨PUnit, inferInstance, fun _ ↦ 1, fun _ ↦ 1,
+      fun _ ↦ ⟨a - b, by simp [H]⟩, by simp⟩, hI⟩
+
+lemma mem_span_ideal_iff_exists_fin (s : Ideal R) (x : R) :
+    x ∈ span s ↔
+    ∃ (ι : Type) (fin : Fintype ι) (xR : ι → R) (y : ι → s),
+    x = ∑ i : ι, (y i : R) * xR i := by
+  rw [mem_span_iff_exists_fin]
+  fconstructor
+  · rintro ⟨n, fin, xL, xR, y, rfl⟩
+    exact ⟨n, fin, xR, fun i ↦ ⟨xL i * y i, s.mul_mem_left _ (y i).2⟩, by simp⟩
+  · rintro ⟨n, fin, xR, y, rfl⟩
+    exact ⟨n, fin, 1, xR, y, by simp⟩
+
+
 end RingCon
