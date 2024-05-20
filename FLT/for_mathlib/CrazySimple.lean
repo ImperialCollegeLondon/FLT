@@ -286,6 +286,7 @@ theorem Wedderburn_Artin
   simp at one_eq
   else
 
+  save
   have ne_zero : ∀ j, x j ≠ 0 ∧ i j ≠ 0 := by
     by_contra! H
     obtain ⟨j, hj⟩ := H
@@ -296,7 +297,7 @@ theorem Wedderburn_Artin
     have one_eq := calc 1
       _ = _ := one_eq.symm
       _ = ∑ j : Option (Fin (n - 1)), i (e.symm j) * x (e.symm j) :=
-          Fintype.sum_bijective e (Equiv.bijective _) _ _ (fun _ ↦ rfl)
+          Fintype.sum_bijective e (Equiv.bijective _) _ _ (fun _ ↦ by simp)
 
     simp only [Equiv.symm_trans_apply, OrderIso.toEquiv_symm, Fin.symm_castIso,
       RelIso.coe_fn_toEquiv, Fin.castIso_apply, Fintype.sum_option, finSuccEquiv'_symm_none,
@@ -309,7 +310,17 @@ theorem Wedderburn_Artin
     rw [hj xj_eq, Submodule.coe_zero, zero_mul, zero_add] at one_eq
     exact ⟨_, _, one_eq.symm⟩
 
-  refine ⟨n, Module.End A I, Module.End.divisionRing, ?_⟩
+
+  let g : (Fin n → I) →ₗ[A] A := {
+    toFun := fun v ↦ ∑ j : Fin n, v j * x j
+    map_add' := by
+      intro v1 v2
+      simp [add_mul, Finset.sum_add_distrib]
+    map_smul' := by
+      intro a v
+      simp [Finset.mul_sum, mul_assoc]
+  }
+  refine ⟨n, Module.End A I, Module.End.divisionRing, ⟨?_⟩⟩
   sorry
 
 end simple_ring
