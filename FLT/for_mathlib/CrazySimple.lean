@@ -3,8 +3,8 @@ import Mathlib.RingTheory.SimpleModule
 import Mathlib.RingTheory.Artinian
 import FLT.for_mathlib.Con
 import Mathlib.Algebra.Quaternion
-import Mathlib.Logic.Equiv.TransferInstance
 import Mathlib.Algebra.Ring.Equiv
+import Mathlib.LinearAlgebra.Matrix.IsDiag
 
 variable (K : Type*) [Field K]
 variable (A : Type*) [Ring A]
@@ -609,29 +609,91 @@ variable (K : Type*) [Field K]
 variable {A: Type*} [Ring A] [Algebra k A]
 
 
-lemma simple_eq_central_simple_prev (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B] 
+lemma simple_eq_central_simple_prev (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
     (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K):
-    ∃(n : ℕ)(S : Type*)(h : DivisionRing S) (h1: Module K S), 
+    ∃(n : ℕ)(S : Type*)(h : DivisionRing S) (h1: Module K S),
     Nonempty (B ≃+* (M[Fin n, S])) := sorry
 
 
-theorem simple_eq_central_simple (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B] 
+theorem simple_eq_central_simple (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
     (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
     (n : ℕ)(S : Type*)(h : DivisionRing S)[Module K S](Wdb: B ≃+* (M[Fin n, S])):
     Nonempty (Subring.center S ≃+* K) ∧ FiniteDimensional K S := sorry
 
-def matrix_ring_center (n : ℕ) : Subring.center (M[Fin n, K]) ≃+* K where
-  toFun A := sorry
-            --(Matrix.trace (R := K) A)/n the idea is use 1/n * trace of the matrix 
-            --since the matrix is all of the form λI 
-  invFun a := sorry -- Matrix.diagonal (d : n → a) idea is to create aI 
-  left_inv := _
-  right_inv := _
-  map_mul' := _
-  map_add' := _
+lemma Matrix.mem_center_iff (R : Type*) [CommRing R] (n : ℕ) (M) :
+    M ∈ Subring.center M[Fin n, R] ↔ ∃ α : R, M = α • 1 := by
+  constructor
+  · if h : n = 0 then
+    subst h
+    intro _
+    exact ⟨0, Subsingleton.elim _ _⟩
+    else
+
+    intro h
+    rw [Subring.mem_center_iff] at h
+    have diag : Matrix.IsDiag M := by
+      intro i j hij
+      specialize h (stdBasisMatrix i i 1)
+      rw [← Matrix.ext_iff] at h
+      specialize h i j
+      simpa only [StdBasisMatrix.mul_left_apply_same, one_mul,
+        StdBasisMatrix.mul_right_apply_of_ne (hbj := hij.symm)] using h
+    have (i j : Fin n) : M i i = M j j := by
+      specialize h (stdBasisMatrix i j 1)
+      rw [← Matrix.ext_iff] at h
+      specialize h i j
+      simpa [Eq.comm] using h
+
+    refine ⟨M ⟨0, by omega⟩ ⟨0, by omega⟩, ?_⟩
+    ext i j
+    if heq : i = j
+    then
+      subst heq
+      rw [this i ⟨0, by omega⟩]
+      simp
+    else
+      rw [diag heq]
+      simp only [smul_apply, smul_eq_mul]
+      rw [Matrix.one_apply_ne, mul_zero]
+      exact heq
+  · rintro ⟨α, rfl⟩
+    rw [Subring.mem_center_iff]
+    aesop
+
+def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) : Subring.center (M[Fin n, K]) ≃+* K where
+  toFun A := A.1 ⟨0, by omega⟩ ⟨0, by omega⟩
+  invFun a := ⟨Matrix.diagonal (Function.const _ a), by
+    rw [Subring.mem_center_iff]; intro A; ext i j; simp [mul_comm]⟩
+  left_inv := by
+    if hn : n = 0
+    then
+      intro _
+      subst hn
+      exact Subsingleton.elim _ _
+    else
+      rintro ⟨A, hA⟩
+      rw [Matrix.mem_center_iff] at hA
+      obtain ⟨α, rfl⟩ := hA
+      simp only [trace_smul, trace_one, Fintype.card_fin, smul_eq_mul, Subtype.mk.injEq]
+      ext
+      delta diagonal
+      aesop
+  right_inv := by intro; simp
+  map_mul' := by
+    rintro ⟨A, hA⟩ ⟨B, hB⟩
+    rw [Matrix.mem_center_iff] at hA hB
+    obtain ⟨a, rfl⟩ := hA
+    obtain ⟨b, rfl⟩ := hB
+    simp [mul_comm]
+  map_add' := by
+    rintro ⟨A, hA⟩ ⟨B, hB⟩
+    rw [Matrix.mem_center_iff] at hA hB
+    obtain ⟨a, rfl⟩ := hA
+    obtain ⟨b, rfl⟩ := hB
+    simp
 
 theorem simple_eq_matrix_algclo (h : IsSimpleOrder (RingCon A)) :
-    ∃ (n : ℕ), Nonempty (A ≃+* M[Fin n, k]) := by 
+    ∃ (n : ℕ), Nonempty (A ≃+* M[Fin n, k]) := by
   sorry
 
 end central_simple
