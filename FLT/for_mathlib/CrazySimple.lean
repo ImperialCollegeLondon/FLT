@@ -600,4 +600,28 @@ theorem Wedderburn_Artin
     RingEquiv.op endEquiv |>.trans <| RingEquiv.op (endPowEquivMatrix A I n) |>.trans <|
     (maxtrixEquivMatrixMop _ _).symm⟩⟩
 
+
 end simple_ring
+
+section central_simple
+variable (k : Type*) [Field k] [h : IsAlgClosed k]
+variable (K : Type*) [Field K]
+variable {A: Type*} [Ring A] [Algebra k A]
+
+
+lemma simple_eq_central_simple_prev (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B] 
+    (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K):
+    ∃(n : ℕ)(S : Type*)(h : DivisionRing S) (h1: Module K S), 
+    Nonempty (B ≃+* (M[Fin n, S])) := sorry
+
+
+theorem simple_eq_central_simple (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B] 
+    (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
+    (n : ℕ)(S : Type*)(h : DivisionRing S)[Module K S](Wdb: B ≃+* (M[Fin n, S])):
+    Nonempty (Subring.center S ≃+* K) ∧ FiniteDimensional K S := sorry
+
+
+theorem simple_eq_matrix_algclo (h : IsSimpleOrder (RingCon A)) :
+    ∃ (n : ℕ), Nonempty (A ≃+* M[Fin n, k]) := by 
+  sorry
+end central_simple
