@@ -244,7 +244,7 @@ noncomputable def equivEndMop : A ≃+* (Module.End A A)ᵐᵒᵖ := by
 /--
 For any ring `D`, `Mₙ(D) ≅ Mₙ(D)ᵒᵖ`.
 -/
-def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [Ring D] [h : DivisionRing D] :
+def maxtrixEquivMatrixMop (n : ℕ) (D : Type*) [Ring D] :
     Matrix (Fin n) (Fin n) Dᵐᵒᵖ ≃+* (Matrix (Fin n) (Fin n) D)ᵐᵒᵖ where
   toFun := fun M => MulOpposite.op (M.transpose.map (fun d => MulOpposite.unop d))
   invFun := fun M => (MulOpposite.unop M).transpose.map (fun d => MulOpposite.op d)
@@ -307,11 +307,13 @@ lemma minimal_ideal_isSimpleModule {A : Type u} [Ring A]
     exists_eq_right] at hx
   exact hx.1
 
+-- BUG in unusedArgument linter?
+@[nolint unusedArguments]
 lemma Wedderburn_Artin.aux.one_eq
-    {A : Type u} [Ring A] [IsArtinianRing A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) :
     ∃ (n : ℕ) (x : Fin n → A) (i : Fin n → I), ∑ j : Fin n, i j * x j = 1 := by
-  haveI : IsSimpleModule A I := minimal_ideal_isSimpleModule I I_nontrivial I_minimal
+  letI : IsSimpleModule A I := minimal_ideal_isSimpleModule I I_nontrivial I_minimal
 
   letI I' : RingCon A := RingCon.span I
   have I'_is_everything : I' = ⊤ := simple.2 I' |>.resolve_left (fun r ↦ by
@@ -330,20 +332,20 @@ lemma Wedderburn_Artin.aux.one_eq
     Fintype.sum_bijective (Fintype.equivFin _).symm (Equiv.bijective _) _ _ fun k ↦ rfl⟩
 
 private noncomputable abbrev Wedderburn_Artin.aux.n
-    {A : Type u} [Ring A] [IsArtinianRing A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) : ℕ := by
   classical
   exact Nat.find <| Wedderburn_Artin.aux.one_eq I I_nontrivial I_minimal
 
 private noncomputable abbrev Wedderburn_Artin.aux.x
-    {A : Type u} [Ring A] [IsArtinianRing A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) :
     Fin (Wedderburn_Artin.aux.n I I_nontrivial I_minimal) → A  := by
   classical
   exact (Nat.find_spec <| Wedderburn_Artin.aux.one_eq I I_nontrivial I_minimal).choose
 
 private noncomputable abbrev Wedderburn_Artin.aux.i
-    {A : Type u} [Ring A] [IsArtinianRing A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) :
     Fin (Wedderburn_Artin.aux.n I I_nontrivial I_minimal) → I := by
   classical
@@ -351,7 +353,7 @@ private noncomputable abbrev Wedderburn_Artin.aux.i
 
 open Wedderburn_Artin.aux in
 private noncomputable abbrev Wedderburn_Artin.aux.nxi_spec
-    {A : Type u} [Ring A] [IsArtinianRing A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) :
     ∑ j : Fin (n I I_nontrivial I_minimal),
       (i I I_nontrivial I_minimal j) * (x I I_nontrivial I_minimal j) = 1 := by
@@ -360,7 +362,7 @@ private noncomputable abbrev Wedderburn_Artin.aux.nxi_spec
     I_minimal).choose_spec.choose_spec
 
 private lemma Wedderburn_Artin.aux.n_ne_zero
-    {A : Type u} [Ring A] [IsArtinianRing A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) :
     Wedderburn_Artin.aux.n I I_nontrivial I_minimal ≠ 0 := by
   by_contra hn
@@ -381,7 +383,7 @@ private lemma Wedderburn_Artin.aux.n_ne_zero
 
 open Wedderburn_Artin.aux in
 private noncomputable abbrev Wedderburn_Artin.aux.nxi_ne_zero
-    {A : Type u} [Ring A] [IsArtinianRing A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) :
     ∀ j, x I I_nontrivial I_minimal j ≠ 0 ∧ i I I_nontrivial I_minimal j ≠ 0 := by
   classical
@@ -415,7 +417,7 @@ private noncomputable abbrev Wedderburn_Artin.aux.nxi_ne_zero
   exact ⟨_, _, one_eq.symm⟩
 
 private lemma Wedderburn_Artin.aux.equivIdeal
-    {A : Type u} [Ring A] [IsArtinianRing A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) :
     ∃ (n : ℕ), Nonempty ((Fin n → I) ≃ₗ[A] A) := by
   classical
@@ -484,56 +486,16 @@ private lemma Wedderburn_Artin.aux.equivIdeal
       (show n - 1 < n by omega) ⟨_, _, one_eq'.symm⟩
   exact ⟨n, ⟨LinearEquiv.ofBijective g ⟨g_inj, g_surj⟩⟩⟩
 
-def Equiv.ringOfAddCommGroup (A B : Type*) [ag : AddCommGroup A] [Ring B]
-    (e : A ≃+ B) : Ring A where
-  one := e.symm 1
-  mul a b := e.symm (e a * e b)
-  one_mul := e.toEquiv.ring.one_mul
-  mul_one := e.toEquiv.ring.mul_one
-  zsmul := ag.zsmul
-  zsmul_zero' := ag.zsmul_zero'
-  zsmul_succ' := ag.zsmul_succ'
-  zsmul_neg' := ag.zsmul_neg'
-  add_left_neg := ag.add_left_neg
-  mul_assoc := e.toEquiv.ring.mul_assoc
-  left_distrib := by
-    intros x y z
-    change e.symm (_) = e.symm _ + e.symm _
-    simp [mul_add]
-  right_distrib := by
-    intros x y z
-    change e.symm (_) = e.symm _ + e.symm _
-    simp [add_mul]
-  zero_mul := by
-    intro a
-    change e.symm _ = _
-    simp
-  mul_zero := by
-    intro a
-    change e.symm _ = _
-    simp
-  natCast := fun n ↦ e.symm n
-  natCast_zero := by simp
-  natCast_succ := by
-    simp only [Nat.cast_add, Nat.cast_one, map_add, add_right_inj, forall_const]
-    rfl
-  intCast := fun n ↦ e.symm n
-  intCast_ofNat := by
-    intro n
-    simp only [Int.cast_natCast]
-    rfl
-  intCast_negSucc := by
-    intro n
-    change e.symm _ = - e.symm _
-    rw [← map_neg]
-    congr!
-    simp only [Int.cast_negSucc, Nat.cast_add, Nat.cast_one, neg_add_rev]
-  sub_eq_add_neg := ag.sub_eq_add_neg
+set_option maxHeartbeats 800000 in
+/--
+For `A`-module `M`,
+`Hom(Mⁿ, Mⁿ) ≅ Mₙ(Hom(M, M))`
 
+-/
 def endPowEquivMatrix
-    {A : Type u} [Ring A]
-    (I : Ideal A) (n : ℕ):
-    Module.End A (Fin n → I) ≃+* M[Fin n, Module.End A I] where
+    (A : Type u) [Ring A]
+    (M : Type*) [AddCommGroup M] [Module A M] (n : ℕ):
+    Module.End A (Fin n → M) ≃+* M[Fin n, Module.End A M] where
   toFun := fun f ↦ Matrix.of fun i j ↦
   { toFun := fun x ↦ f (Function.update 0 j x) i
     map_add' := fun x y ↦ by
@@ -542,8 +504,7 @@ def endPowEquivMatrix
       rw [← f.map_add]
       congr!
       ext
-      simp only [Function.update, eq_rec_constant, Pi.zero_apply, dite_eq_ite, Pi.add_apply,
-        AddSubmonoid.coe_add, Submodule.coe_toAddSubmonoid]
+      simp only [Function.update, eq_rec_constant, Pi.zero_apply, dite_eq_ite, Pi.add_apply]
       aesop
     map_smul' := fun x y ↦ by
       dsimp
@@ -591,8 +552,8 @@ def endPowEquivMatrix
     simp only [Function.update, eq_rec_constant, Pi.zero_apply, dite_eq_ite, Finset.sum_apply,
       Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte, of_apply, LinearMap.coe_mk, AddHom.coe_mk,
       AddSubmonoid.coe_finset_sum, Submodule.coe_toAddSubmonoid]
-    rw [show ∑ k : Fin n, ((M i k) (if k = j then x else 0) : A) =
-      ∑ k : Fin n, if k = j then (M i k x : A) else 0
+    rw [show ∑ k : Fin n, ((M i k) (if k = j then x else 0)) =
+      ∑ k : Fin n, if k = j then (M i k x) else 0
       from Finset.sum_congr rfl fun k _ ↦ by split_ifs <;> aesop]
     simp
   map_mul' := by
@@ -624,17 +585,6 @@ theorem Wedderburn_Artin
   haveI : IsSimpleModule A I := minimal_ideal_isSimpleModule I I_nontrivial I_minimal
 
   obtain ⟨n, ⟨e⟩⟩ := Wedderburn_Artin.aux.equivIdeal I I_nontrivial I_minimal
-
-  letI : AddCommGroup (Fin n → I) := inferInstance
-  letI : MulOneClass (Fin n → I) := Equiv.mulOneClass e.toEquiv
-  letI : Ring (Fin n → I) := Equiv.ringOfAddCommGroup _ _ e.toAddEquiv
-  let ringIsoIdeal : (Fin n → I) ≃+* A :=
-  { e with
-    map_mul' := by
-      intros x y
-      simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearEquiv.coe_coe]
-      change (e (e.symm (e _ * e _))) = _ * _
-      simp }
 
   let endEquiv : Module.End A A ≃+* Module.End A (Fin n → I) :=
   { toFun := fun f ↦ e.symm ∘ₗ f ∘ₗ e
