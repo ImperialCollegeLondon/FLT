@@ -620,8 +620,18 @@ theorem simple_eq_central_simple (B : Type*) [Ring B] [Algebra K B] [FiniteDimen
     (n : ℕ)(S : Type*)(h : DivisionRing S)[Module K S](Wdb: B ≃+* (M[Fin n, S])):
     Nonempty (Subring.center S ≃+* K) ∧ FiniteDimensional K S := sorry
 
+def matrix_ring_center (n : ℕ) : Subring.center (M[Fin n, K]) ≃+* K where
+  toFun A := sorry
+            --(Matrix.trace (R := K) A)/n the idea is use 1/n * trace of the matrix 
+            --since the matrix is all of the form λI 
+  invFun a := sorry -- Matrix.diagonal (d : n → a) idea is to create aI 
+  left_inv := _
+  right_inv := _
+  map_mul' := _
+  map_add' := _
 
 theorem simple_eq_matrix_algclo (h : IsSimpleOrder (RingCon A)) :
     ∃ (n : ℕ), Nonempty (A ≃+* M[Fin n, k]) := by 
   sorry
+
 end central_simple
