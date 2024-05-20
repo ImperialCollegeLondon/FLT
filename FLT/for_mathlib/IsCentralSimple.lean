@@ -63,6 +63,32 @@ variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
 open scoped TensorProduct
 
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
+lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) :=
+{
+  is_central:= by
+    intro z hz
+    rw [Subring.mem_center_iff] at hz
+    -- TensorProduct.induction_on z _ _ _
+    induction' z using TensorProduct.induction_on
+    · use 0; simp_all only [mul_zero, zero_mul, implies_true, map_zero]
+    · rename_i x y;
+      have h_center : ∀ y' : D, y * y' = y' * y := by
+        intros y'
+        specialize hz (x⁻¹ ⊗ₜ[K] y')
+        simp only [Algebra.TensorProduct.tmul_mul_tmul] at hz
+        field_simp at hz
+        sorry
+    · rename_i x y hx hy
+      have hzx: ∀ (g : L ⊗[K] D), g * x = x * g := by sorry
+      have hzy: ∀ (g : L ⊗[K] D), g * y = y * g := by sorry
+      obtain ⟨kx, hx'⟩  := hx hzx
+      obtain ⟨ky, hy'⟩  := hy hzy
+      use kx + ky
+      rw[hx', hy']
+      simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply,
+        map_add]
+  is_simple := by sorry
+}
 
 end IsCentralSimple
 
