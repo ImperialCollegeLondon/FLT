@@ -61,7 +61,8 @@ variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
 -/
 
 open scoped TensorProduct
-
+instance : Algebra K (Subring.center A):= by sorry
+example (A: Type u)[Ring A][Algebra K A](B: Type u)[Ring B][Algebra K B]: Subring.center (A ⊗[K] B) = (Subring.center A) ⊗[K] (Subring.center B):= by sorry
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
 lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) :=
 {
