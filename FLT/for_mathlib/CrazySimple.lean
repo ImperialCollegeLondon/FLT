@@ -613,7 +613,7 @@ variable (B : Type u) [Ring B] [Algebra K B] [FiniteDimensional K B]
 
 instance: IsArtinianRing K := inferInstance
 
-instance Art (K : Type*) [Field K] (B : AlgebraCat K) [FiniteDimensional K B]:
+instance (K : Type*) [Field K] (B : AlgebraCat K) [FiniteDimensional K B]:
     IsArtinianRing B := by
   rw [IsArtinianRing, ← monotone_stabilizes_iff_artinian]
   let n := FiniteDimensional.finrank K B
