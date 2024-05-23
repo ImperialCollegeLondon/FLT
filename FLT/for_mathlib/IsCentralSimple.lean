@@ -69,16 +69,19 @@ lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗
   is_central:= by
     intro z hz
     rw [Subring.mem_center_iff] at hz
-    -- TensorProduct.induction_on z _ _ _
     induction' z using TensorProduct.induction_on
     · use 0; simp_all only [mul_zero, zero_mul, implies_true, map_zero]
-    · rename_i x y;
-      have h_center : ∀ y' : D, y * y' = y' * y := by
-        intros y'
-        specialize hz (x⁻¹ ⊗ₜ[K] y')
-        simp only [Algebra.TensorProduct.tmul_mul_tmul] at hz
-        field_simp at hz
-        sorry
+    · rename_i l d;
+      have hcentral := h.is_central d
+      rw [Subring.mem_center_iff] at hcentral
+      have hd : ∀ (g : D), g * d = d * g:= by sorry
+      have hdd := hcentral hd
+      obtain ⟨dk, hdk⟩ := hdd
+      simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
+      use (dk • l)
+      rw [TensorProduct.smul_tmul, Algebra.smul_def]
+      simp only [mul_one]
+      exact congrArg (TensorProduct.tmul K l) hdk
     · rename_i x y hx hy
       have hzx: ∀ (g : L ⊗[K] D), g * x = x * g := by sorry
       have hzy: ∀ (g : L ⊗[K] D), g * y = y * g := by sorry
