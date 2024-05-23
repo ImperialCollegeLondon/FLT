@@ -5,6 +5,7 @@ import FLT.for_mathlib.Con
 import Mathlib.Algebra.Quaternion
 import Mathlib.Algebra.Ring.Equiv
 import Mathlib.LinearAlgebra.Matrix.IsDiag
+import Mathlib.Algebra.Category.AlgebraCat.Basic
 
 variable (K : Type*) [Field K]
 variable (A : Type*) [Ring A]
@@ -603,22 +604,63 @@ theorem Wedderburn_Artin
 
 end simple_ring
 
+universe u v w
 section central_simple
 variable (k : Type*) [Field k] [h : IsAlgClosed k]
 variable (K : Type*) [Field K]
 variable {A: Type*} [Ring A] [Algebra k A]
+variable (B : Type u) [Ring B] [Algebra K B] [FiniteDimensional K B]
+
+instance: IsArtinianRing K := inferInstance
+
+instance Art (K : Type*) [Field K] (B : AlgebraCat K) [FiniteDimensional K B]:
+    IsArtinianRing B := by
+  rw [IsArtinianRing, ← monotone_stabilizes_iff_artinian]
+  let n := FiniteDimensional.finrank K B
+  intro ⟨f, hf⟩
+  unfold Monotone at hf
+  simp only [OrderHom.coe_mk]
+  use n ; intro m hmn
+  have lecon := hf hmn
+  rw [← LE.le.le_iff_eq]
+  · exact lecon
+  · by_contra hf0
+    -- rw [← lt_iff_not_le (y := f m) (x := f n)] at hf0
+    sorry
+
+  --exact FiniteDimensional.finite_basis_extends_to_basis
 
 
-lemma simple_eq_central_simple_prev (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
-    (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K):
-    ∃(n : ℕ)(S : Type*)(h : DivisionRing S) (h1: Module K S),
-    Nonempty (B ≃+* (M[Fin n, S])) := sorry
+lemma simple_eq_central_simple_prev (B :AlgebraCat K) [FiniteDimensional K B]
+    (hsim : IsSimpleOrder (RingCon B)) (hnon : Nontrivial B) (hctr : Subring.center B ≃+* K):
+    ∃(n : ℕ)(S : Type u)(h : DivisionRing S) (h1: Module K S),
+    Nonempty (B ≃+* (M[Fin n, S])) := by
+  --have hB : IsArtinianRing B := Art K B
+  obtain ⟨n, S, hS, Iso⟩ := Wedderburn_Artin B
+  use n ; --in here we have mysterious type mismatch that I don't know how to solve just yet
+  -- use S ; use hS
+  have h1 : Module K S := sorry
+  -- use h1 ; exact Iso
 
-
-theorem simple_eq_central_simple (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
+def center_to_K (B : AlgebraCat K) [FiniteDimensional K B] (hB : Nontrivial B)
     (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
     (n : ℕ)(S : Type*)(h : DivisionRing S)[Module K S](Wdb: B ≃+* (M[Fin n, S])):
-    Nonempty (Subring.center S ≃+* K) ∧ FiniteDimensional K S := sorry
+  Subring.center S →+* K where
+    toFun := _
+    map_one' := _
+    map_mul' := _
+    map_zero' := _
+    map_add' := _
+
+theorem simple_eq_central_simple (B : AlgebraCat K) [FiniteDimensional K B] (hB : Nontrivial B)
+    (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
+    (n : ℕ)(S : Type*)(h : DivisionRing S)[Module K S](Wdb: B ≃+* (M[Fin n, S])):
+    Nonempty (Subring.center S ≃+* K) ∧ FiniteDimensional K S := by
+  constructor
+  ·
+    sorry
+  · sorry
+
 
 lemma Matrix.mem_center_iff (R : Type*) [CommRing R] (n : ℕ) (M) :
     M ∈ Subring.center M[Fin n, R] ↔ ∃ α : R, M = α • 1 := by
