@@ -78,7 +78,17 @@ lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗
       have hcentral := h.is_central d
       rw [Subring.mem_center_iff] at hz
 
-      have hd : d ∈ Subring.center D:= by sorry
+      have hd : d ∈ Subring.center D:= by
+        rw [Subring.mem_center_iff]
+        intro d0
+        specialize hz (l⁻¹ ⊗ₜ[K] d0)
+        rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul] at hz
+        rw [inv_mul_eq_div, ← Field.div_eq_mul_inv] at hz
+        have hid: l/l = (1:L):= by sorry
+        rw[hid] at hz
+        rw [← MonCat.one_of] at hz
+        sorry
+
       have hdd := hcentral hd
       obtain ⟨dk, hdk⟩ := hdd
       simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
