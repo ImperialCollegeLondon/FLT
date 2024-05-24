@@ -59,7 +59,6 @@ variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
     Will maybe write more on Saturday.
 \end{proof}
 -/
-instance: Algebra K K := inferInstance
 -- lemma Iscentral_def (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D):
   -- K = Subring.center D := by sorry
 open scoped TensorProduct
@@ -70,33 +69,34 @@ lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗
 {
   is_central:= by
     intro z hz
-    -- rw [Subring.mem_center_iff] at hz
-    induction' z using TensorProduct.induction_on
-    · use 0; simp_all only [mul_zero, zero_mul, implies_true, map_zero]
-    · rename_i l d
-      -- obtain ⟨g, hg⟩ := hz
-      have hcentral := h.is_central d
-      rw [Subring.mem_center_iff] at hz
+    induction z using TensorProduct.induction_on with
+    | zero => exact ⟨0, by simp_all⟩
+    | tmul l d =>
+      if l_ne_zero : l = 0
+      then
+        subst l_ne_zero
+        exact ⟨0, by simp⟩
+      else
 
-      have hd : d ∈ Subring.center D:= by
-        rw [Subring.mem_center_iff]
-        intro d0
-        specialize hz (l⁻¹ ⊗ₜ[K] d0)
-        rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul] at hz
-        rw [inv_mul_eq_div, ← Field.div_eq_mul_inv] at hz
-        have hid: l/l = (1:L):= by sorry
-        rw[hid] at hz
-        rw [← MonCat.one_of] at hz
-        sorry
+        have hcentral := h.is_central d
+        rw [Subring.mem_center_iff] at hz
 
-      have hdd := hcentral hd
-      obtain ⟨dk, hdk⟩ := hdd
-      simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
-      use (dk • l)
-      rw [TensorProduct.smul_tmul, Algebra.smul_def]
-      simp only [mul_one]
-      exact congrArg (TensorProduct.tmul K l) hdk
-    · rename_i x y hx hy
+        have hd : d ∈ Subring.center D := by
+          rw [Subring.mem_center_iff]
+          intro d0
+          specialize hz (l⁻¹ ⊗ₜ[K] d0)
+          rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
+            inv_mul_cancel l_ne_zero, mul_inv_cancel l_ne_zero] at hz
+          sorry
+
+        have hdd := hcentral hd
+        obtain ⟨dk, hdk⟩ := hdd
+        simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
+        use (dk • l)
+        rw [TensorProduct.smul_tmul, Algebra.smul_def]
+        simp only [mul_one]
+        exact congrArg (TensorProduct.tmul K l) hdk
+    | add x y hx hy =>
       have hzx: x ∈ Subring.center (L ⊗[K] D) := by sorry
       have hzy: y ∈ Subring.center (L ⊗[K] D) := by sorry
       obtain ⟨kx, hx'⟩  := hx hzx
