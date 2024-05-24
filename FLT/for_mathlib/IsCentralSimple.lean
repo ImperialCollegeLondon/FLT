@@ -96,6 +96,18 @@ lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗
           specialize hz (l⁻¹ ⊗ₜ[K] d0)
           rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
             inv_mul_cancel l_ne_zero, mul_inv_cancel l_ne_zero] at hz
+          have key : ∀ (x y : D), (1 : L) ⊗ₜ[K] (x * y) = (1 : L) ⊗ₜ[K] (y * x) → x * y = y * x:= by
+            intro x y hxy
+            have hzz: (1 : L) ⊗ₜ[K] (x * y - y * x) = 0 := by
+              rw [@TensorProduct.tmul_sub]
+              exact sub_eq_zero_of_eq hxy
+            -- rw [← TensorProduct.tmul_zero D l] at hzz
+            have hzzz: (1 : L) ⊗ₜ[K] (x * y - y * x) = 0 → (x * y - y * x) = 0 := by sorry
+            have auxx: x * y - y * x = 0 := by
+              exact hzzz hzz
+            rw [@sub_eq_zero] at auxx
+            exact auxx
+          simp_all
           have aux (x y : D) (h : (1 : L) ⊗ₜ[K] x = (1 : L) ⊗ₜ[K] y) :
               (1 : K) ⊗ₜ[K] x = (1 : K) ⊗ₜ[K] y := by
             let g : K ⊗[K] D →ₗ[K] L ⊗[K] D :=
