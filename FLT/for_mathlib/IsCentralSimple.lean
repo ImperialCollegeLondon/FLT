@@ -62,8 +62,17 @@ variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
 -- lemma Iscentral_def (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D):
   -- K = Subring.center D := by sorry
 open scoped TensorProduct
--- instance : Algebra K (Subring.center A):= by sorry
--- example (A: Type u)[Ring A][Algebra K A](B: Type u)[Ring B][Algebra K B]: Subring.center (A ⊗[K] B) = (Subring.center A) ⊗[K] (Subring.center B):= by sorry
+
+-- Lemma c (i); section 12.4
+lemma centralizer_tensorProduct_tensorProduct_base
+    (A : Type*) [Ring A] [Algebra K A]
+    (B : Type*) [Ring B] [Algebra K B] :
+    Set.centralizer (M := A ⊗[K] B)
+      (Algebra.TensorProduct.map (.id K A) (Algebra.ofId K B)).range =
+      Algebra.adjoin K { x | ∃ (a : A) (b : B), a ∈ Subring.center A ∧ x = a ⊗ₜ[K] b} :=
+  sorry
+
+-- the following proof may not work?
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
 lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) :=
 {
@@ -87,6 +96,21 @@ lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗
           specialize hz (l⁻¹ ⊗ₜ[K] d0)
           rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
             inv_mul_cancel l_ne_zero, mul_inv_cancel l_ne_zero] at hz
+          have aux (x y : D) (h : (1 : L) ⊗ₜ[K] x = (1 : L) ⊗ₜ[K] y) :
+              (1 : K) ⊗ₜ[K] x = (1 : K) ⊗ₜ[K] y := by
+            let g : K ⊗[K] D →ₗ[K] L ⊗[K] D :=
+              TensorProduct.map (Algebra.ofId K L).toLinearMap LinearMap.id
+            have hg : Function.Injective g := by
+              rw [← LinearMap.ker_eq_bot, eq_bot_iff]
+              intro x (h : g x = 0)
+              induction x using TensorProduct.induction_on with
+              | zero => simp
+              | tmul k d =>
+                simp only [TensorProduct.map_tmul, AlgHom.toLinearMap_apply, LinearMap.id_coe,
+                  id_eq, g] at h
+                sorry
+              | add x y hx hy => sorry
+            apply_fun g
           sorry
 
         have hdd := hcentral hd
