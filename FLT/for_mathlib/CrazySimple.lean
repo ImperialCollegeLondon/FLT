@@ -734,6 +734,16 @@ def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) (R : Type*) [Ring R]:
     obtain ⟨b, rfl⟩ := hB
     simp only [AddMemClass.mk_add_mk, add_apply, smul_apply, one_apply_eq]
 
+theorem ringequiv_perserve_center (R1 R2 : Type*) [Ring R1] [Ring R2] (h : R1 ≃+* R2) :
+    ∀ x ∈ Subring.center R1, h.toRingHom x ∈ Subring.center R2 := by 
+  intro x hx
+  rw [Subring.mem_center_iff] 
+  intro y ; rw [Subring.mem_center_iff] at hx
+  --simp only [RingEquiv.toRingHom_eq_coe, RingHom.coe_coe]
+  have y_eq : y = h.toRingHom (h.symm.toRingHom y) := by simp
+  rw [y_eq, ← h.toRingHom.map_mul, ← h.toRingHom.map_mul] ; 
+  simp only [RingEquiv.toRingHom_eq_coe, RingHom.coe_coe, RingEquiv.apply_symm_apply,
+     _root_.map_mul]
 
 theorem simple_eq_central_simple (B : AlgebraCat K) [FiniteDimensional K B] (hB : Nontrivial B)
     (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
@@ -742,12 +752,19 @@ theorem simple_eq_central_simple (B : AlgebraCat K) [FiniteDimensional K B] (hB 
   constructor
   · have center_equiv : Subring.center B ≃+* Subring.center (M[Fin n, S]) := {
     toFun := fun a ↦ Wdb.toRingHom.restrict (Subring.center B) 
-      (Subring.center (M[Fin n, S])) (by sorry) a
-    invFun := _
-    left_inv := _
-    right_inv := _
-    map_mul' := _
-    map_add' := _
+      (Subring.center (M[Fin n, S])) (ringequiv_perserve_center B (M[Fin n, S]) Wdb) a 
+
+    invFun := fun A ↦ Wdb.symm.toRingHom.restrict (Subring.center (M[Fin n, S]))
+      (Subring.center B) (ringequiv_perserve_center (M[Fin n, S]) B Wdb.symm) A
+    left_inv := by 
+      simp only [RingEquiv.toRingHom_eq_coe]
+      rw [Function.LeftInverse]; intro x; aesop
+    right_inv := by 
+      simp only [RingEquiv.toRingHom_eq_coe]
+      rw [Function.RightInverse]; intro x; aesop
+    map_mul' := by simp only [RingEquiv.toRingHom_eq_coe, Subring.center_toSubsemiring,
+      Subsemiring.center_toSubmonoid, _root_.map_mul, implies_true]
+    map_add' := by simp only [RingEquiv.toRingHom_eq_coe, map_add, implies_true]
   }
     have equiv : Subring.center (M[Fin n, S]) ≃+* K := by 
       exact RingEquiv.symm (RingEquiv.trans hctr.symm center_equiv)
@@ -767,5 +784,7 @@ theorem simple_eq_central_simple (B : AlgebraCat K) [FiniteDimensional K B] (hB 
 theorem simple_eq_matrix_algclo (h : IsSimpleOrder (RingCon A)) :
     ∃ (n : ℕ), Nonempty (A ≃+* M[Fin n, k]) := by
   sorry
+
+
 
 end central_simple
