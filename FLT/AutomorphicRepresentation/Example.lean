@@ -1,6 +1,7 @@
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Tactic.Peel
 import Mathlib.Analysis.Quaternion
+import Mathlib.RingTheory.Flat.Basic
 /-
 
 # Example of a space of automorphic forms
@@ -211,6 +212,8 @@ lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
     exact this -- missing lemma
   simpa only [ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod, ZMod.val_zero] using congrArg ZMod.val this
 
+instance ZHat_flat : Module.Flat ℤ ZHat := sorry --by torsion-freeness
+
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
     N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
   have hhj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
@@ -301,13 +304,27 @@ lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗
     IsCoprime N₁ z₁ ∧ IsCoprime N₂ z₂ ∧ (1 / N₁ : ℚ) ⊗ₜ z₁ = (1 / N₂ : ℚ) ⊗ₜ[ℤ] z₂ →
       N₁ = N₂ ∧ z₁ = z₂) := sorry
 
-noncomputable abbrev i₁ : ℚ →ₐ[ℤ] QHat := Algebra.TensorProduct.includeLeft
-lemma injective_rat :
-    Function.Injective i₁ := sorry -- flatness
-
 noncomputable abbrev i₂ : ZHat →ₐ[ℤ] QHat := Algebra.TensorProduct.includeRight
 lemma injective_zHat :
-    Function.Injective i₂ := sorry -- flatness
+    Function.Injective i₂ := by
+      intro a b h
+      have h₁ := LinearMap.rTensor_tmul ZHat (f := Algebra.linearMap ℤ ℚ) a 1
+      have h₂ := LinearMap.rTensor_tmul ZHat (f := Algebra.linearMap ℤ ℚ) b 1
+      simp only [Algebra.linearMap_apply, map_one] at h₁ h₂
+      dsimp at h
+      rw [← h₁, ← h₂] at h
+      replace h := Module.Flat.rTensor_preserves_injective_linearMap
+        (M := ZHat) (Algebra.linearMap ℤ ℚ) (fun _ _ ↦ by simp) h
+      simp at h
+      have := congrArg (TensorProduct.lid ℤ ZHat) h
+      simpa using this
+
+instance nontrivial_QHat : Nontrivial QHat where
+  exists_pair_ne := ⟨1 ⊗ₜ 0, 1 ⊗ₜ 1, injective_zHat.ne ZHat.zeroNeOne⟩
+
+noncomputable abbrev i₁ : ℚ →ₐ[ℤ] QHat := Algebra.TensorProduct.includeLeft
+lemma injective_rat :
+    Function.Injective i₁ := RingHom.injective i₁.toRingHom
 
 section additive_structure_of_QHat
 
