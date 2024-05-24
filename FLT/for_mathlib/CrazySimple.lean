@@ -641,16 +641,16 @@ lemma simple_eq_central_simple_prev (B :AlgebraCat K) [FiniteDimensional K B]
   -- use S ; use hS
   have h1 : Module K S := sorry
   -- use h1 ; exact Iso
-
+  sorry
 def center_to_K (B : AlgebraCat K) [FiniteDimensional K B] (hB : Nontrivial B)
     (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
     (n : ℕ)(S : Type*)(h : DivisionRing S)[Module K S](Wdb: B ≃+* (M[Fin n, S])):
   Subring.center S →+* K where
-    toFun := _
-    map_one' := _
-    map_mul' := _
-    map_zero' := _
-    map_add' := _
+    toFun := sorry
+    map_one' := sorry
+    map_mul' := sorry
+    map_zero' := sorry
+    map_add' := sorry
 
 theorem simple_eq_central_simple (B : AlgebraCat K) [FiniteDimensional K B] (hB : Nontrivial B)
     (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
