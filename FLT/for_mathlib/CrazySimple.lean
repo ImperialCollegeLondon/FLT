@@ -617,11 +617,9 @@ instance (K : Type*) [Field K] (B : AlgebraCat K) [FiniteDimensional K B]:
     IsArtinianRing B := by
   rw [IsArtinianRing, ← monotone_stabilizes_iff_artinian]
   let n := FiniteDimensional.finrank K B
-  intro ⟨f, hf⟩
-  unfold Monotone at hf
+  intro ⟨f, hf⟩; unfold Monotone at hf
   simp only [OrderHom.coe_mk]
-  use n ; intro m hmn
-  have lecon := hf hmn
+  use n ; intro m hmn; have lecon := hf hmn
   rw [← LE.le.le_iff_eq]
   · exact lecon
   · by_contra hf0
@@ -642,35 +640,16 @@ lemma simple_eq_central_simple_prev (B :AlgebraCat K) [FiniteDimensional K B]
   have h1 : Module K S := sorry
   -- use h1 ; exact Iso
   sorry
-def center_to_K (B : AlgebraCat K) [FiniteDimensional K B] (hB : Nontrivial B)
-    (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
-    (n : ℕ)(S : Type*)(h : DivisionRing S)[Module K S](Wdb: B ≃+* (M[Fin n, S])):
-  Subring.center S →+* K where
-    toFun := sorry
-    map_one' := sorry
-    map_mul' := sorry
-    map_zero' := sorry
-    map_add' := sorry
-
-theorem simple_eq_central_simple (B : AlgebraCat K) [FiniteDimensional K B] (hB : Nontrivial B)
-    (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
-    (n : ℕ)(S : Type*)(h : DivisionRing S)[Module K S](Wdb: B ≃+* (M[Fin n, S])):
-    Nonempty (Subring.center S ≃+* K) ∧ FiniteDimensional K S := by
-  constructor
-  ·
-    sorry
-  · sorry
 
 
-lemma Matrix.mem_center_iff (R : Type*) [CommRing R] (n : ℕ) (M) :
-    M ∈ Subring.center M[Fin n, R] ↔ ∃ α : R, M = α • 1 := by
+lemma Matrix.mem_center_iff (R : Type*) [Ring R] (n : ℕ) (M) :
+    M ∈ Subring.center M[Fin n, R] ↔ ∃ α : (Subring.center R), M = α • 1 := by
   constructor
   · if h : n = 0 then
     subst h
     intro _
     exact ⟨0, Subsingleton.elim _ _⟩
     else
-
     intro h
     rw [Subring.mem_center_iff] at h
     have diag : Matrix.IsDiag M := by
@@ -685,54 +664,105 @@ lemma Matrix.mem_center_iff (R : Type*) [CommRing R] (n : ℕ) (M) :
       rw [← Matrix.ext_iff] at h
       specialize h i j
       simpa [Eq.comm] using h
+    have scalar: ∃ (b : R), M = b • 1 := by 
+      refine ⟨M ⟨0, by omega⟩ ⟨0, by omega⟩, ?_⟩
+      ext i j
+      if heq : i = j
+      then
+        subst heq
+        rw [this i ⟨0, by omega⟩]
+        simp
+      else
+        rw [diag heq]
+        simp only [smul_apply, smul_eq_mul]
+        rw [Matrix.one_apply_ne, mul_zero]
+        exact heq
+    obtain ⟨b, hb⟩ := scalar
+    suffices b ∈ Subring.center R by aesop
+    simp only [Subring.mem_center_iff]
+    intro g
+    specialize h (Matrix.diagonal (fun _ => g))
+    rw [← Matrix.ext_iff] at h
+    specialize h ⟨0, by omega⟩ ⟨0, by omega⟩
+    rw [hb] at h
+    simp_all only [hb, diagonal_mul, smul_apply, one_apply_eq, smul_eq_mul,
+      mul_one, mul_diagonal, isDiag_smul_one, implies_true]
 
-    refine ⟨M ⟨0, by omega⟩ ⟨0, by omega⟩, ?_⟩
-    ext i j
-    if heq : i = j
-    then
-      subst heq
-      rw [this i ⟨0, by omega⟩]
-      simp
-    else
-      rw [diag heq]
-      simp only [smul_apply, smul_eq_mul]
-      rw [Matrix.one_apply_ne, mul_zero]
-      exact heq
-  · rintro ⟨α, rfl⟩
+  · rintro ⟨α, ha⟩
     rw [Subring.mem_center_iff]
-    aesop
+    intro g ; aesop
 
-def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) : Subring.center (M[Fin n, K]) ≃+* K where
-  toFun A := A.1 ⟨0, by omega⟩ ⟨0, by omega⟩
-  invFun a := ⟨Matrix.diagonal (Function.const _ a), by
+
+def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) (R : Type*) [Ring R]: 
+    Subring.center (M[Fin n, R]) ≃+* (Subring.center R) where
+  toFun A := ⟨(A.1 ⟨0, by omega⟩ ⟨0, by omega⟩), by 
+    have hA : A.1 ∈ Subring.center (M[Fin n, R]) := A.2
+    obtain ⟨a, ha⟩ := (Matrix.mem_center_iff R n A.1).1 hA
+    rw [← Matrix.ext_iff] at ha
+    specialize ha ⟨0, by omega⟩ ⟨0, by omega⟩
+    aesop⟩ 
+  invFun a := ⟨a • 1, by
     rw [Subring.mem_center_iff]; intro A; ext i j; simp [mul_comm]⟩
   left_inv := by
     if hn : n = 0
-    then
-      intro _
-      subst hn
-      exact Subsingleton.elim _ _
+      then
+        intro hh 
+        subst hn
+        exact Subsingleton.elim _ _
     else
       rintro ⟨A, hA⟩
       rw [Matrix.mem_center_iff] at hA
       obtain ⟨α, rfl⟩ := hA
-      simp only [trace_smul, trace_one, Fintype.card_fin, smul_eq_mul, Subtype.mk.injEq]
+      simp only [trace_smul, trace_one, Fintype.card_fin, 
+        smul_eq_mul, Subtype.mk.injEq]
       ext
-      delta diagonal
-      aesop
-  right_inv := by intro; simp
-  map_mul' := by
+      simp only [smul_apply, one_apply_eq, Submonoid.mk_smul, 
+        smul_eq_mul, smul_one_mul]
+  right_inv := by 
+    intro ; simp only [smul_apply, one_apply_eq]; aesop
+  map_mul' := by 
     rintro ⟨A, hA⟩ ⟨B, hB⟩
     rw [Matrix.mem_center_iff] at hA hB
     obtain ⟨a, rfl⟩ := hA
     obtain ⟨b, rfl⟩ := hB
-    simp [mul_comm]
-  map_add' := by
+    simp only [Subring.center_toSubsemiring, Subsemiring.center_toSubmonoid,
+      Submonoid.mk_mul_mk, mul_smul_one, smul_apply, one_apply_eq]
+  map_add' := by 
     rintro ⟨A, hA⟩ ⟨B, hB⟩
     rw [Matrix.mem_center_iff] at hA hB
     obtain ⟨a, rfl⟩ := hA
     obtain ⟨b, rfl⟩ := hB
-    simp
+    simp only [AddMemClass.mk_add_mk, add_apply, smul_apply, one_apply_eq]
+
+
+theorem simple_eq_central_simple (B : AlgebraCat K) [FiniteDimensional K B] (hB : Nontrivial B)
+    (hsim : IsSimpleOrder (RingCon B)) (hctr : Subring.center B ≃+* K)
+    (n : ℕ)(S : Type*)(hn : 0 < n)(h : DivisionRing S)[Module K S](Wdb: B ≃+* (M[Fin n, S])):
+    Nonempty (Subring.center S ≃+* K) ∧ FiniteDimensional K S := by
+  constructor
+  · have center_equiv : Subring.center B ≃+* Subring.center (M[Fin n, S]) := {
+    toFun := fun a ↦ Wdb.toRingHom.restrict (Subring.center B) 
+      (Subring.center (M[Fin n, S])) (by sorry) a
+    invFun := _
+    left_inv := _
+    right_inv := _
+    map_mul' := _
+    map_add' := _
+  }
+    have equiv : Subring.center (M[Fin n, S]) ≃+* K := by 
+      exact RingEquiv.symm (RingEquiv.trans hctr.symm center_equiv)
+    have equiv' : Subring.center S ≃+* K := by
+      exact RingEquiv.trans (Matrix.centerEquivBase n hn S).symm equiv
+    rw [← exists_true_iff_nonempty]
+    use equiv'
+
+  · rw [FiniteDimensional]
+    obtain ⟨(I : Ideal B), (I_nontrivial : I ≠ ⊥), (I_minimal : ∀ J : Ideal B, J ≠ ⊥ → ¬ J < I)⟩ :=
+      IsArtinian.set_has_minimal (R := B) (M := B) {I | I ≠ ⊥}
+      ⟨⊤, show ⊤ ≠ ⊥ by aesop⟩
+    haveI : IsSimpleModule B I := minimal_ideal_isSimpleModule I I_nontrivial I_minimal
+
+    sorry
 
 theorem simple_eq_matrix_algclo (h : IsSimpleOrder (RingCon A)) :
     ∃ (n : ℕ), Nonempty (A ≃+* M[Fin n, k]) := by
