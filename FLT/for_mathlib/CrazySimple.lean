@@ -664,7 +664,7 @@ lemma Matrix.mem_center_iff (R : Type*) [Ring R] (n : ℕ) (M) :
       rw [← Matrix.ext_iff] at h
       specialize h i j
       simpa [Eq.comm] using h
-    have scalar: ∃ (b : R), M = b • 1 := by 
+    have scalar: ∃ (b : R), M = b • 1 := by
       refine ⟨M ⟨0, by omega⟩ ⟨0, by omega⟩, ?_⟩
       ext i j
       if heq : i = j
@@ -693,41 +693,41 @@ lemma Matrix.mem_center_iff (R : Type*) [Ring R] (n : ℕ) (M) :
     intro g ; aesop
 
 
-def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) (R : Type*) [Ring R]: 
+def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) (R : Type*) [Ring R]:
     Subring.center (M[Fin n, R]) ≃+* (Subring.center R) where
-  toFun A := ⟨(A.1 ⟨0, by omega⟩ ⟨0, by omega⟩), by 
+  toFun A := ⟨(A.1 ⟨0, by omega⟩ ⟨0, by omega⟩), by
     have hA : A.1 ∈ Subring.center (M[Fin n, R]) := A.2
     obtain ⟨a, ha⟩ := (Matrix.mem_center_iff R n A.1).1 hA
     rw [← Matrix.ext_iff] at ha
     specialize ha ⟨0, by omega⟩ ⟨0, by omega⟩
-    aesop⟩ 
+    aesop⟩
   invFun a := ⟨a • 1, by
     rw [Subring.mem_center_iff]; intro A; ext i j; simp [mul_comm]⟩
   left_inv := by
     if hn : n = 0
       then
-        intro hh 
+        intro hh
         subst hn
         exact Subsingleton.elim _ _
     else
       rintro ⟨A, hA⟩
       rw [Matrix.mem_center_iff] at hA
       obtain ⟨α, rfl⟩ := hA
-      simp only [trace_smul, trace_one, Fintype.card_fin, 
+      simp only [trace_smul, trace_one, Fintype.card_fin,
         smul_eq_mul, Subtype.mk.injEq]
       ext
-      simp only [smul_apply, one_apply_eq, Submonoid.mk_smul, 
+      simp only [smul_apply, one_apply_eq, Submonoid.mk_smul,
         smul_eq_mul, smul_one_mul]
-  right_inv := by 
+  right_inv := by
     intro ; simp only [smul_apply, one_apply_eq]; aesop
-  map_mul' := by 
+  map_mul' := by
     rintro ⟨A, hA⟩ ⟨B, hB⟩
     rw [Matrix.mem_center_iff] at hA hB
     obtain ⟨a, rfl⟩ := hA
     obtain ⟨b, rfl⟩ := hB
     simp only [Subring.center_toSubsemiring, Subsemiring.center_toSubmonoid,
       Submonoid.mk_mul_mk, mul_smul_one, smul_apply, one_apply_eq]
-  map_add' := by 
+  map_add' := by
     rintro ⟨A, hA⟩ ⟨B, hB⟩
     rw [Matrix.mem_center_iff] at hA hB
     obtain ⟨a, rfl⟩ := hA
@@ -735,14 +735,14 @@ def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) (R : Type*) [Ring R]:
     simp only [AddMemClass.mk_add_mk, add_apply, smul_apply, one_apply_eq]
 
 theorem ringequiv_perserve_center (R1 R2 : Type*) [Ring R1] [Ring R2] (h : R1 ≃+* R2) :
-    ∀ x ∈ Subring.center R1, h.toRingHom x ∈ Subring.center R2 := by 
+    ∀ x ∈ Subring.center R1, h.toRingHom x ∈ Subring.center R2 := by
   intro x hx
-  rw [Subring.mem_center_iff] 
+  rw [Subring.mem_center_iff]
   intro y ; rw [Subring.mem_center_iff] at hx
   --simp only [RingEquiv.toRingHom_eq_coe, RingHom.coe_coe]
   have y_eq : y = h.toRingHom (h.symm.toRingHom y) := by simp
-  rw [y_eq, ← h.toRingHom.map_mul, ← h.toRingHom.map_mul] ; 
-  simp only [RingEquiv.toRingHom_eq_coe, RingHom.coe_coe, RingEquiv.apply_symm_apply,
+  rw [y_eq, ← h.toRingHom.map_mul, ← h.toRingHom.map_mul] ;
+  simp_all only [RingEquiv.toRingHom_eq_coe, RingHom.coe_coe, RingEquiv.apply_symm_apply,
      _root_.map_mul]
 
 theorem simple_eq_central_simple (B : AlgebraCat K) [FiniteDimensional K B] (hB : Nontrivial B)
@@ -751,22 +751,22 @@ theorem simple_eq_central_simple (B : AlgebraCat K) [FiniteDimensional K B] (hB 
     Nonempty (Subring.center S ≃+* K) ∧ FiniteDimensional K S := by
   constructor
   · have center_equiv : Subring.center B ≃+* Subring.center (M[Fin n, S]) := {
-    toFun := fun a ↦ Wdb.toRingHom.restrict (Subring.center B) 
-      (Subring.center (M[Fin n, S])) (ringequiv_perserve_center B (M[Fin n, S]) Wdb) a 
+    toFun := fun a ↦ Wdb.toRingHom.restrict (Subring.center B)
+      (Subring.center (M[Fin n, S])) (ringequiv_perserve_center B (M[Fin n, S]) Wdb) a
 
     invFun := fun A ↦ Wdb.symm.toRingHom.restrict (Subring.center (M[Fin n, S]))
       (Subring.center B) (ringequiv_perserve_center (M[Fin n, S]) B Wdb.symm) A
-    left_inv := by 
+    left_inv := by
       simp only [RingEquiv.toRingHom_eq_coe]
       rw [Function.LeftInverse]; intro x; aesop
-    right_inv := by 
+    right_inv := by
       simp only [RingEquiv.toRingHom_eq_coe]
       rw [Function.RightInverse]; intro x; aesop
     map_mul' := by simp only [RingEquiv.toRingHom_eq_coe, Subring.center_toSubsemiring,
       Subsemiring.center_toSubmonoid, _root_.map_mul, implies_true]
     map_add' := by simp only [RingEquiv.toRingHom_eq_coe, map_add, implies_true]
   }
-    have equiv : Subring.center (M[Fin n, S]) ≃+* K := by 
+    have equiv : Subring.center (M[Fin n, S]) ≃+* K := by
       exact RingEquiv.symm (RingEquiv.trans hctr.symm center_equiv)
     have equiv' : Subring.center S ≃+* K := by
       exact RingEquiv.trans (Matrix.centerEquivBase n hn S).symm equiv
