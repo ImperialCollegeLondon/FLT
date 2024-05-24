@@ -59,22 +59,26 @@ variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
     Will maybe write more on Saturday.
 \end{proof}
 -/
-
+instance: Algebra K K := inferInstance
+-- lemma Iscentral_def (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D):
+  -- K = Subring.center D := by sorry
 open scoped TensorProduct
-instance : Algebra K (Subring.center A):= by sorry
-example (A: Type u)[Ring A][Algebra K A](B: Type u)[Ring B][Algebra K B]: Subring.center (A ⊗[K] B) = (Subring.center A) ⊗[K] (Subring.center B):= by sorry
+-- instance : Algebra K (Subring.center A):= by sorry
+-- example (A: Type u)[Ring A][Algebra K A](B: Type u)[Ring B][Algebra K B]: Subring.center (A ⊗[K] B) = (Subring.center A) ⊗[K] (Subring.center B):= by sorry
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
 lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) :=
 {
   is_central:= by
     intro z hz
-    rw [Subring.mem_center_iff] at hz
+    -- rw [Subring.mem_center_iff] at hz
     induction' z using TensorProduct.induction_on
     · use 0; simp_all only [mul_zero, zero_mul, implies_true, map_zero]
-    · rename_i l d;
+    · rename_i l d
+      -- obtain ⟨g, hg⟩ := hz
       have hcentral := h.is_central d
-      rw [Subring.mem_center_iff] at hcentral
-      have hd : ∀ (g : D), g * d = d * g:= by sorry
+      rw [Subring.mem_center_iff] at hz
+
+      have hd : d ∈ Subring.center D:= by sorry
       have hdd := hcentral hd
       obtain ⟨dk, hdk⟩ := hdd
       simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
@@ -83,8 +87,8 @@ lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗
       simp only [mul_one]
       exact congrArg (TensorProduct.tmul K l) hdk
     · rename_i x y hx hy
-      have hzx: ∀ (g : L ⊗[K] D), g * x = x * g := by sorry
-      have hzy: ∀ (g : L ⊗[K] D), g * y = y * g := by sorry
+      have hzx: x ∈ Subring.center (L ⊗[K] D) := by sorry
+      have hzy: y ∈ Subring.center (L ⊗[K] D) := by sorry
       obtain ⟨kx, hx'⟩  := hx hzx
       obtain ⟨ky, hy'⟩  := hy hzy
       use kx + ky
