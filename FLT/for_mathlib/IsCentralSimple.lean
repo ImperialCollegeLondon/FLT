@@ -64,85 +64,102 @@ variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
 open scoped TensorProduct
 
 -- Lemma c (i); section 12.4
+-- lemma centralizer_tensorProduct_tensorProduct_base
+--     (A : Type*) [Ring A] [Algebra K A]
+--     (B : Type*) [Ring B] [Algebra K B] :
+--     Set.centralizer (M := A ⊗[K] B)
+--       (Algebra.TensorProduct.map (.id K A) (Algebra.ofId K B)).range =
+--       Algebra.adjoin K { x | ∃ (a : A) (b : B), a ∈ Subring.center A ∧ x = a ⊗ₜ[K] b} :=
+--   sorry
+
+instance(B : Type*) [Ring B] [Algebra K B]: Module K (Subring.center B) where
+  smul k := fun x => ⟨k • x.1, by 
+    rw [Subring.mem_center_iff]; intro g; rw [mul_smul_comm];
+    simp only [Algebra.smul_mul_assoc]; rw [Subring.mem_center_iff.1 x.2]⟩ 
+  one_smul b := by sorry
+  mul_smul x y b := sorry
+  smul_zero a := sorry
+  smul_add a b1 b2 := sorry
+  add_smul x y b := sorry
+  zero_smul b := sorry
+
 lemma centralizer_tensorProduct_tensorProduct_base
-    (A : Type*) [Ring A] [Algebra K A]
-    (B : Type*) [Ring B] [Algebra K B] :
-    Set.centralizer (M := A ⊗[K] B)
-      (Algebra.TensorProduct.map (.id K A) (Algebra.ofId K B)).range =
-      Algebra.adjoin K { x | ∃ (a : A) (b : B), a ∈ Subring.center A ∧ x = a ⊗ₜ[K] b} :=
-  sorry
+      (C : Type*) [Ring C] [Algebra K C]
+      (B : Type*) [Ring B] [Algebra K B] :
+      Subring.centralizer (R := B ⊗[K] C) 
+        (Algebra.TensorProduct.rid K K B).symm.toFun.range = (Subring.center B) ⊗[K] C := sorry
 
 -- the following proof may not work?
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
-lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) :=
-{
-  is_central:= by
-    intro z hz
-    induction z using TensorProduct.induction_on with
-    | zero => exact ⟨0, by simp_all⟩
-    | tmul l d =>
-      if l_ne_zero : l = 0
-      then
-        subst l_ne_zero
-        exact ⟨0, by simp⟩
-      else
+-- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) :=
+-- {
+--   is_central:= by
+--     intro z hz
+--     induction z using TensorProduct.induction_on with
+--     | zero => exact ⟨0, by simp_all⟩
+--     | tmul l d =>
+--       if l_ne_zero : l = 0
+--       then
+--         subst l_ne_zero
+--         exact ⟨0, by simp⟩
+--       else
 
-        have hcentral := h.is_central d
-        rw [Subring.mem_center_iff] at hz
+--         have hcentral := h.is_central d
+--         rw [Subring.mem_center_iff] at hz
 
-        have hd : d ∈ Subring.center D := by
-          rw [Subring.mem_center_iff]
-          intro d0
-          specialize hz (l⁻¹ ⊗ₜ[K] d0)
-          rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
-            inv_mul_cancel l_ne_zero, mul_inv_cancel l_ne_zero] at hz
-          have key : ∀ (x y : D), (1 : L) ⊗ₜ[K] (x * y) = (1 : L) ⊗ₜ[K] (y * x) → x * y = y * x:= by
-            intro x y hxy
-            have hzz: (1 : L) ⊗ₜ[K] (x * y - y * x) = 0 := by
-              rw [@TensorProduct.tmul_sub]
-              exact sub_eq_zero_of_eq hxy
-            -- rw [← TensorProduct.tmul_zero D l] at hzz
-            have hzzz: (1 : L) ⊗ₜ[K] (x * y - y * x) = 0 → (x * y - y * x) = 0 := by sorry
-            have auxx: x * y - y * x = 0 := by
-              exact hzzz hzz
-            rw [@sub_eq_zero] at auxx
-            exact auxx
-          simp_all
-          have aux (x y : D) (h : (1 : L) ⊗ₜ[K] x = (1 : L) ⊗ₜ[K] y) :
-              (1 : K) ⊗ₜ[K] x = (1 : K) ⊗ₜ[K] y := by
-            let g : K ⊗[K] D →ₗ[K] L ⊗[K] D :=
-              TensorProduct.map (Algebra.ofId K L).toLinearMap LinearMap.id
-            have hg : Function.Injective g := by
-              rw [← LinearMap.ker_eq_bot, eq_bot_iff]
-              intro x (h : g x = 0)
-              induction x using TensorProduct.induction_on with
-              | zero => simp
-              | tmul k d =>
-                simp only [TensorProduct.map_tmul, AlgHom.toLinearMap_apply, LinearMap.id_coe,
-                  id_eq, g] at h
-                sorry
-              | add x y hx hy => sorry
-            apply_fun g
-          sorry
+--         have hd : d ∈ Subring.center D := by
+--           rw [Subring.mem_center_iff]
+--           intro d0
+--           specialize hz (l⁻¹ ⊗ₜ[K] d0)
+--           rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
+--             inv_mul_cancel l_ne_zero, mul_inv_cancel l_ne_zero] at hz
+--           have key : ∀ (x y : D), (1 : L) ⊗ₜ[K] (x * y) = (1 : L) ⊗ₜ[K] (y * x) → x * y = y * x:= by
+--             intro x y hxy
+--             have hzz: (1 : L) ⊗ₜ[K] (x * y - y * x) = 0 := by
+--               rw [@TensorProduct.tmul_sub]
+--               exact sub_eq_zero_of_eq hxy
+--             -- rw [← TensorProduct.tmul_zero D l] at hzz
+--             have hzzz: (1 : L) ⊗ₜ[K] (x * y - y * x) = 0 → (x * y - y * x) = 0 := by sorry
+--             have auxx: x * y - y * x = 0 := by
+--               exact hzzz hzz
+--             rw [@sub_eq_zero] at auxx
+--             exact auxx
+--           simp_all
+--           have aux (x y : D) (h : (1 : L) ⊗ₜ[K] x = (1 : L) ⊗ₜ[K] y) :
+--               (1 : K) ⊗ₜ[K] x = (1 : K) ⊗ₜ[K] y := by
+--             let g : K ⊗[K] D →ₗ[K] L ⊗[K] D :=
+--               TensorProduct.map (Algebra.ofId K L).toLinearMap LinearMap.id
+--             have hg : Function.Injective g := by
+--               rw [← LinearMap.ker_eq_bot, eq_bot_iff]
+--               intro x (h : g x = 0)
+--               induction x using TensorProduct.induction_on with
+--               | zero => simp
+--               | tmul k d =>
+--                 simp only [TensorProduct.map_tmul, AlgHom.toLinearMap_apply, LinearMap.id_coe,
+--                   id_eq, g] at h
+--                 sorry
+--               | add x y hx hy => sorry
+--             apply_fun g
+--           sorry
 
-        have hdd := hcentral hd
-        obtain ⟨dk, hdk⟩ := hdd
-        simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
-        use (dk • l)
-        rw [TensorProduct.smul_tmul, Algebra.smul_def]
-        simp only [mul_one]
-        exact congrArg (TensorProduct.tmul K l) hdk
-    | add x y hx hy =>
-      have hzx: x ∈ Subring.center (L ⊗[K] D) := by sorry
-      have hzy: y ∈ Subring.center (L ⊗[K] D) := by sorry
-      obtain ⟨kx, hx'⟩  := hx hzx
-      obtain ⟨ky, hy'⟩  := hy hzy
-      use kx + ky
-      rw[hx', hy']
-      simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply,
-        map_add]
-  is_simple := by sorry
-}
+--         have hdd := hcentral hd
+--         obtain ⟨dk, hdk⟩ := hdd
+--         simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
+--         use (dk • l)
+--         rw [TensorProduct.smul_tmul, Algebra.smul_def]
+--         simp only [mul_one]
+--         exact congrArg (TensorProduct.tmul K l) hdk
+--     | add x y hx hy =>
+--       have hzx: x ∈ Subring.center (L ⊗[K] D) := by sorry
+--       have hzy: y ∈ Subring.center (L ⊗[K] D) := by sorry
+--       obtain ⟨kx, hx'⟩  := hx hzx
+--       obtain ⟨ky, hy'⟩  := hy hzy
+--       use kx + ky
+--       rw[hx', hy']
+--       simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply,
+--         map_add]
+--   is_simple := by sorry
+-- }
 
 end IsCentralSimple
 
