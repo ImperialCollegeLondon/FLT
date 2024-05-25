@@ -71,7 +71,67 @@ lemma centralizer_tensorProduct_eq_center_tensorProduct_base
       (B : Type*) [Ring B] [Algebra K B] :
       Subalgebra.centralizer K
         (Algebra.TensorProduct.map (AlgHom.id K B) (Algebra.ofId K C)).range =
-        (Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K C)).range := sorry
+        (Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K C)).range := by
+    ext w; constructor
+    · intro hw
+      rw [Subalgebra.mem_centralizer_iff] at hw
+      let ℬ := Basis.ofVectorSpace K B
+      let 𝒞 := Basis.ofVectorSpace K C
+      let 𝒯 := Basis.tensorProduct ℬ 𝒞
+      have aux (i) (j) : 𝒯.repr w (i, j) • ℬ i ∈ Subalgebra.center K B := by
+        rw [Subalgebra.mem_center_iff]
+        have aux1 (x : B) :
+            ∑ ij ∈ (𝒯.repr w).support, (x * (𝒯.repr w ij • ℬ ij.1)) ⊗ₜ[K] 𝒞 ij.2 =
+            ∑ ij ∈ (𝒯.repr w).support, ((𝒯.repr w ij • ℬ ij.1) * x) ⊗ₜ[K] 𝒞 ij.2 := by
+          specialize hw (x ⊗ₜ[K] 1) ⟨x ⊗ₜ[K] (1 : K), by simp⟩
+          rw [← 𝒯.total_repr w] at hw
+          convert hw
+          · change _ = _ * ∑ ij ∈ (𝒯.repr w).support, _
+            rw [Finset.mul_sum]
+            refine Finset.sum_congr rfl ?_
+            rintro ⟨i, j⟩ hij
+            simp only [Algebra.mul_smul_comm, Basis.tensorProduct_apply, LinearMap.coe_smulRight,
+              LinearMap.id_coe, id_eq, Algebra.TensorProduct.tmul_mul_tmul, one_mul, 𝒯]
+            rfl
+          · change _ = (∑ ij ∈ (𝒯.repr w).support, _) * _
+            rw [Finset.sum_mul]
+            refine Finset.sum_congr rfl ?_
+            rintro ⟨i, j⟩ hij
+            simp only [Algebra.smul_mul_assoc, Basis.tensorProduct_apply, LinearMap.coe_smulRight,
+              LinearMap.id_coe, id_eq, Algebra.TensorProduct.tmul_mul_tmul, mul_one, 𝒯]
+            rfl
+
+        simp_rw [Algebra.mul_smul_comm, Algebra.smul_mul_assoc] at aux1
+
+        sorry
+      rw [← 𝒯.total_repr w]
+      refine Subalgebra.sum_mem _ ?_
+      rintro ⟨i, j⟩ hij
+      simp only [LinearMap.coe_smulRight, LinearMap.id_coe, id_eq, AlgHom.mem_range]
+      refine ⟨⟨𝒯.repr w (i, j) • ℬ i, aux i j⟩ ⊗ₜ[K] 𝒞 j, ?_⟩
+      simp [𝒯, TensorProduct.smul_tmul]
+    · rintro ⟨w, rfl⟩
+      rw [Subalgebra.mem_centralizer_iff]
+      rintro _ ⟨x, rfl⟩
+      induction w using TensorProduct.induction_on with
+      | zero => simp
+      | tmul b c =>
+        simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
+          Subalgebra.coe_val, AlgHom.coe_id, id_eq]
+        induction x using TensorProduct.induction_on with
+        | zero => simp
+        | tmul x0 x1 =>
+          simp only [Algebra.TensorProduct.map_tmul, AlgHom.coe_id, id_eq,
+            Algebra.TensorProduct.tmul_mul_tmul]
+          rcases b with ⟨b, hb⟩
+          congr 1
+          · rw [Subalgebra.mem_center_iff] at hb
+            exact hb _
+          · exact Algebra.commutes _ _
+        | add x x' hx hx' =>
+          rw [map_add, add_mul, hx, hx', mul_add]
+      | add y z hy hz =>
+        rw [map_add, mul_add, hy, hz, add_mul]
 
 -- the following proof may not work?
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
