@@ -59,35 +59,19 @@ variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
     Will maybe write more on Saturday.
 \end{proof}
 -/
--- lemma Iscentral_def (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D):
-  -- K = Subring.center D := by sorry
 open scoped TensorProduct
 
--- Lemma c (i); section 12.4
--- lemma centralizer_tensorProduct_tensorProduct_base
---     (A : Type*) [Ring A] [Algebra K A]
---     (B : Type*) [Ring B] [Algebra K B] :
---     Set.centralizer (M := A ⊗[K] B)
---       (Algebra.TensorProduct.map (.id K A) (Algebra.ofId K B)).range =
---       Algebra.adjoin K { x | ∃ (a : A) (b : B), a ∈ Subring.center A ∧ x = a ⊗ₜ[K] b} :=
---   sorry
+instance (B : Type*) [Ring B] [Algebra K B]: Algebra K (Subring.center B) :=
+  RingHom.toAlgebra <| (algebraMap K B).codRestrict _ <| fun x => by
+    rw [Subring.mem_center_iff]
+    exact fun y => Algebra.commutes x y |>.symm
 
-instance(B : Type*) [Ring B] [Algebra K B]: Module K (Subring.center B) where
-  smul k := fun x => ⟨k • x.1, by 
-    rw [Subring.mem_center_iff]; intro g; rw [mul_smul_comm];
-    simp only [Algebra.smul_mul_assoc]; rw [Subring.mem_center_iff.1 x.2]⟩ 
-  one_smul b := by sorry
-  mul_smul x y b := sorry
-  smul_zero a := sorry
-  smul_add a b1 b2 := sorry
-  add_smul x y b := sorry
-  zero_smul b := sorry
-
-lemma centralizer_tensorProduct_tensorProduct_base
+lemma centralizer_tensorProduct_eq_center_tensorProduct_base
       (C : Type*) [Ring C] [Algebra K C]
       (B : Type*) [Ring B] [Algebra K B] :
-      Subring.centralizer (R := B ⊗[K] C) 
-        (Algebra.TensorProduct.rid K K B).symm.toFun.range = (Subring.center B) ⊗[K] C := sorry
+      Subalgebra.centralizer K
+        (Algebra.TensorProduct.map (AlgHom.id K B) (Algebra.ofId K C)).range =
+        (Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K C)).range := sorry
 
 -- the following proof may not work?
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
