@@ -61,77 +61,309 @@ variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
 -/
 open scoped TensorProduct
 
+section should_be_elsewhere
+
 instance (B : Type*) [Ring B] [Algebra K B]: Algebra K (Subring.center B) :=
   RingHom.toAlgebra <| (algebraMap K B).codRestrict _ <| fun x => by
     rw [Subring.mem_center_iff]
     exact fun y => Algebra.commutes x y |>.symm
 
-lemma centralizer_tensorProduct_eq_center_tensorProduct_base
-      (C : Type*) [Ring C] [Algebra K C]
-      (B : Type*) [Ring B] [Algebra K B] :
-      Subalgebra.centralizer K
-        (Algebra.TensorProduct.map (AlgHom.id K B) (Algebra.ofId K C)).range =
-        (Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K C)).range := by
-    ext w; constructor
-    · intro hw
-      rw [Subalgebra.mem_centralizer_iff] at hw
-      let ℬ := Basis.ofVectorSpace K B
-      let 𝒞 := Basis.ofVectorSpace K C
-      let 𝒯 := Basis.tensorProduct ℬ 𝒞
-      have aux (i) (j) : 𝒯.repr w (i, j) • ℬ i ∈ Subalgebra.center K B := by
-        rw [Subalgebra.mem_center_iff]
-        have aux1 (x : B) :
-            ∑ ij ∈ (𝒯.repr w).support, (x * (𝒯.repr w ij • ℬ ij.1)) ⊗ₜ[K] 𝒞 ij.2 =
-            ∑ ij ∈ (𝒯.repr w).support, ((𝒯.repr w ij • ℬ ij.1) * x) ⊗ₜ[K] 𝒞 ij.2 := by
-          specialize hw (x ⊗ₜ[K] 1) ⟨x ⊗ₜ[K] (1 : K), by simp⟩
-          rw [← 𝒯.total_repr w] at hw
-          convert hw
-          · change _ = _ * ∑ ij ∈ (𝒯.repr w).support, _
-            rw [Finset.mul_sum]
-            refine Finset.sum_congr rfl ?_
-            rintro ⟨i, j⟩ hij
-            simp only [Algebra.mul_smul_comm, Basis.tensorProduct_apply, LinearMap.coe_smulRight,
-              LinearMap.id_coe, id_eq, Algebra.TensorProduct.tmul_mul_tmul, one_mul, 𝒯]
-            rfl
-          · change _ = (∑ ij ∈ (𝒯.repr w).support, _) * _
-            rw [Finset.sum_mul]
-            refine Finset.sum_congr rfl ?_
-            rintro ⟨i, j⟩ hij
-            simp only [Algebra.smul_mul_assoc, Basis.tensorProduct_apply, LinearMap.coe_smulRight,
-              LinearMap.id_coe, id_eq, Algebra.TensorProduct.tmul_mul_tmul, mul_one, 𝒯]
-            rfl
+lemma TensorProduct.eq_repr_basis_right
+    (B : Type*) [Ring B] [Algebra K B]
+    (C : Type*) [Ring C] [Algebra K C]
+    {ιC : Type*} (𝒞 : Basis ιC K C)
+    (x : B ⊗[K] C) :
+    ∃ (b : ιC → B) (s : Finset ιC), ∑ i ∈ s, b i ⊗ₜ[K] 𝒞 i = x := by
+  let ℬ := Basis.ofVectorSpace K B
+  let 𝒯 := Basis.tensorProduct ℬ 𝒞
+  have eq1 := calc x
+      _ = ∑ ij ∈ (𝒯.repr x).support, (𝒯.repr x) ij • 𝒯 ij := 𝒯.total_repr x |>.symm
+      _ = ∑ ij ∈ (𝒯.repr x).support, (𝒯.repr x) (ij.1, ij.2) • 𝒯 (ij.1, ij.2) :=
+          Finset.sum_congr rfl <| by simp
+      _ = ∑ i ∈ (𝒯.repr x).support.image Prod.fst, ∑ j ∈ (𝒯.repr x).support.image Prod.snd,
+            𝒯.repr x (i, j) • 𝒯 (i, j) := by
+          rw [← Finset.sum_product']
+          apply Finset.sum_subset
+          · rintro ⟨i, j⟩ hij
+            simp only [Finsupp.mem_support_iff, ne_eq, Finset.mem_product, Finset.mem_image,
+              Prod.exists, exists_and_right, exists_eq_right, Subtype.exists, 𝒯] at hij ⊢
+            exact ⟨⟨j, hij⟩, ⟨i.1, ⟨i.2, hij⟩⟩⟩
+          · rintro ⟨i, j⟩ hij1 hij2
+            simp only [Finset.mem_product, Finset.mem_image, Finsupp.mem_support_iff, ne_eq,
+              Prod.exists, exists_and_right, exists_eq_right, Subtype.exists, Decidable.not_not,
+              Basis.tensorProduct_apply, smul_eq_zero, 𝒯] at hij1 hij2 ⊢
+            rw [hij2]
+            tauto
+      _ = ∑ j ∈ (𝒯.repr x).support.image Prod.snd, ∑ i ∈ (𝒯.repr x).support.image Prod.fst,
+            𝒯.repr x (i, j) • 𝒯 (i, j) := Finset.sum_comm
+      _ = ∑ j ∈ (𝒯.repr x).support.image Prod.snd, ∑ i ∈ (𝒯.repr x).support.image Prod.fst,
+            𝒯.repr x (i, j) • (ℬ i ⊗ₜ[K] 𝒞 j) := by
+          refine Finset.sum_congr rfl fun _ _ => ?_
+          simp only [𝒯, Basis.tensorProduct_apply]
+      _ =  ∑ j ∈ (𝒯.repr x).support.image Prod.snd, ∑ i ∈ (𝒯.repr x).support.image Prod.fst,
+            (𝒯.repr x (i, j) • ℬ i) ⊗ₜ[K] 𝒞 j := by
+          refine Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => ?_
+          rw [TensorProduct.smul_tmul']
+      _ =  ∑ j ∈ (𝒯.repr x).support.image Prod.snd, (∑ i ∈ (𝒯.repr x).support.image Prod.fst,
+            (𝒯.repr x (i, j) • ℬ i)) ⊗ₜ[K] 𝒞 j := by
+          refine Finset.sum_congr rfl fun _ _ => ?_
+          rw [TensorProduct.sum_tmul]
+  exact ⟨_, _, eq1.symm⟩
 
-        simp_rw [Algebra.mul_smul_comm, Algebra.smul_mul_assoc] at aux1
 
-        sorry
-      rw [← 𝒯.total_repr w]
-      refine Subalgebra.sum_mem _ ?_
-      rintro ⟨i, j⟩ hij
-      simp only [LinearMap.coe_smulRight, LinearMap.id_coe, id_eq, AlgHom.mem_range]
-      refine ⟨⟨𝒯.repr w (i, j) • ℬ i, aux i j⟩ ⊗ₜ[K] 𝒞 j, ?_⟩
-      simp [𝒯, TensorProduct.smul_tmul]
-    · rintro ⟨w, rfl⟩
-      rw [Subalgebra.mem_centralizer_iff]
-      rintro _ ⟨x, rfl⟩
-      induction w using TensorProduct.induction_on with
+lemma TensorProduct.sum_tmul_basis_right_eq_zero
+    (B : Type*) [Ring B] [Algebra K B]
+    (C : Type*) [Ring C] [Algebra K C]
+    {ιC : Type*} (𝒞 : Basis ιC K C)
+    (s : Finset ιC) (b : ιC → B)
+    (h : ∑ i ∈ s, b i ⊗ₜ[K] 𝒞 i = 0) :
+    ∀ i ∈ s, b i = 0 := by
+  let ℬ := Basis.ofVectorSpace K B
+  let 𝒯 := Basis.tensorProduct ℬ 𝒞
+  let I := s.biUnion fun i => (ℬ.repr (b i)).support
+  have eq1 := calc (0 : B ⊗[K] C)
+      _ = ∑ i ∈ s, b i ⊗ₜ[K] 𝒞 i := h.symm
+      _ = ∑ i ∈ s, (∑ k ∈ (ℬ.repr (b i)).support, (ℬ.repr (b i)) k • ℬ k) ⊗ₜ[K] 𝒞 i := by
+          refine Finset.sum_congr rfl fun z _ => ?_
+          congr
+          exact ℬ.total_repr (b z) |>.symm
+      _ = ∑ i ∈ s, ∑ k ∈ (ℬ.repr (b i)).support, (ℬ.repr (b i)) k • (ℬ k ⊗ₜ[K] 𝒞 i) := by
+          refine Finset.sum_congr rfl fun z _ => ?_
+          rw [TensorProduct.sum_tmul]
+          refine Finset.sum_congr rfl fun _ _ => ?_
+          rw [TensorProduct.smul_tmul']
+      _ = ∑ i ∈ s, ∑ k ∈ I, (ℬ.repr (b i)) k • (ℬ k ⊗ₜ[K] 𝒞 i) := by
+          refine Finset.sum_congr rfl fun j h => ?_
+          apply Finset.sum_subset
+          · intro i hi
+            simp only [Finsupp.mem_support_iff, ne_eq, Finset.mem_biUnion, I] at hi ⊢
+            exact ⟨_, h, hi⟩
+          · intro i hi1 hi2
+            simp only [Finsupp.mem_support_iff, ne_eq, Decidable.not_not, smul_eq_zero]
+              at hi1 hi2 ⊢
+            tauto
+      _ = ∑ k ∈ I, ∑ i ∈ s, (ℬ.repr (b i)) k • (ℬ k ⊗ₜ[K] 𝒞 i) := Finset.sum_comm
+      _ = ∑ ij ∈ I ×ˢ s, (ℬ.repr (b ij.2)) ij.1 • (ℬ ij.1 ⊗ₜ[K] 𝒞 ij.2) := by
+          rw [Finset.sum_product]
+      _ = ∑ ij ∈ I ×ˢ s, (ℬ.repr (b ij.2)) ij.1 • 𝒯 ij := by
+          refine Finset.sum_congr rfl fun ij _ => ?_
+          rw [Basis.tensorProduct_apply]
+  have LI := 𝒯.linearIndependent
+  rw [linearIndependent_iff'] at LI
+  specialize LI (I ×ˢ s) _ eq1.symm
+  intro i hi
+  rw [← ℬ.total_repr (b i)]
+  change ∑ _ ∈ _, _ = 0
+  simp only [LinearMap.coe_smulRight, LinearMap.id_coe, id_eq]
+  refine Finset.sum_eq_zero fun j hj => ?_
+  specialize LI ⟨j, i⟩ (by
+    simp only [Finset.mem_product, Finset.mem_biUnion, Finsupp.mem_support_iff, ne_eq, I] at hj ⊢
+    refine ⟨⟨_, hi, hj⟩, hi⟩)
+  simp [LI]
+
+lemma Subalgebra.centralizer_sup (K B : Type*) [CommRing K] [Ring B] [Algebra K B]
+    (S T : Subalgebra K B) :
+    Subalgebra.centralizer K ((S ⊔ T : Subalgebra K B) : Set B) =
+    Subalgebra.centralizer K S ⊓ Subalgebra.centralizer K T := by
+  ext x
+  simp only [Subalgebra.mem_centralizer_iff, SetLike.mem_coe, Algebra.mem_inf]
+  constructor
+  · intro h
+    exact ⟨fun g hg => h g <| (le_sup_left : S ≤ S ⊔ T) hg,
+      fun g hg => h g <| (le_sup_right : T ≤ S ⊔ T) hg⟩
+  · rintro ⟨h1, h2⟩ g hg
+    change g ∈ Algebra.adjoin _ _ at hg
+    refine Algebra.adjoin_induction hg ?_ ?_ ?_ ?_
+    · rintro y (hy | hy)
+      · exact h1 y hy
+      · exact h2 y hy
+    · intro k
+      exact Algebra.commutes k x
+    · intro y1 y2 hy1 hy2
+      simp [add_mul, hy1, hy2, mul_add]
+    · intro y1 y2 hy1 hy2
+      rw [mul_assoc, hy2, ← mul_assoc, hy1, mul_assoc]
+
+lemma TensorProduct.left_tensor_base_sup_base_tensor_right
+    (K B C : Type*) [CommRing K] [Ring B] [Algebra K B] [Ring C] [Algebra K C] :
+    (Algebra.TensorProduct.map (AlgHom.id K B) (Algebra.ofId K C)).range ⊔
+    (Algebra.TensorProduct.map (Algebra.ofId K B) (AlgHom.id K C)).range = ⊤ := by
+  rw [eq_top_iff]
+  rintro x -
+  induction x using TensorProduct.induction_on with
+  | zero => exact Subalgebra.zero_mem _
+  | tmul b c =>
+    rw [show b ⊗ₜ[K] c = b ⊗ₜ[K] 1 * 1 ⊗ₜ[K] c by simp]
+    exact Algebra.mul_mem_sup ⟨b ⊗ₜ 1, by simp⟩ ⟨1 ⊗ₜ c, by simp⟩
+  | add x y hx hy =>
+    exact Subalgebra.add_mem _ hx hy
+
+
+end should_be_elsewhere
+
+lemma centralizer_tensorProduct_eq_center_tensorProduct_right
+    (B : Type*) [Ring B] [Algebra K B]
+    (C : Type*) [Ring C] [Algebra K C] :
+    Subalgebra.centralizer K
+      (Algebra.TensorProduct.map (AlgHom.id K B) (Algebra.ofId K C)).range =
+      (Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K C)).range := by
+  ext w; constructor
+  · intro hw
+    rw [Subalgebra.mem_centralizer_iff] at hw
+    let 𝒞 := Basis.ofVectorSpace K C
+    obtain ⟨b, S, rfl⟩ := TensorProduct.eq_repr_basis_right K B C 𝒞 w
+
+    have aux (i) (hi : i ∈ S) : b i ∈ Subalgebra.center K B := by
+      rw [Subalgebra.mem_center_iff]
+      intro x
+      specialize hw (x ⊗ₜ[K] 1) (by
+        simp only [AlgHom.coe_range, Set.mem_range]
+        exact ⟨x ⊗ₜ[K] 1, by simp⟩)
+      simp only [Finset.mul_sum, Algebra.TensorProduct.tmul_mul_tmul, one_mul, Finset.sum_mul,
+        mul_one] at hw
+      rw [← sub_eq_zero, ← Finset.sum_sub_distrib] at hw
+      simp_rw [← TensorProduct.sub_tmul] at hw
+      simpa [sub_eq_zero] using TensorProduct.sum_tmul_basis_right_eq_zero K B C 𝒞 S _ hw i hi
+    exact Subalgebra.sum_mem _ fun j hj => ⟨⟨b j, aux _ hj⟩ ⊗ₜ[K] 𝒞 j, by simp⟩
+  · rintro ⟨w, rfl⟩
+    rw [Subalgebra.mem_centralizer_iff]
+    rintro _ ⟨x, rfl⟩
+    induction w using TensorProduct.induction_on with
+    | zero => simp
+    | tmul b c =>
+      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
+        Subalgebra.coe_val, AlgHom.coe_id, id_eq]
+      induction x using TensorProduct.induction_on with
       | zero => simp
-      | tmul b c =>
-        simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
-          Subalgebra.coe_val, AlgHom.coe_id, id_eq]
-        induction x using TensorProduct.induction_on with
-        | zero => simp
-        | tmul x0 x1 =>
-          simp only [Algebra.TensorProduct.map_tmul, AlgHom.coe_id, id_eq,
-            Algebra.TensorProduct.tmul_mul_tmul]
-          rcases b with ⟨b, hb⟩
-          congr 1
-          · rw [Subalgebra.mem_center_iff] at hb
-            exact hb _
-          · exact Algebra.commutes _ _
-        | add x x' hx hx' =>
-          rw [map_add, add_mul, hx, hx', mul_add]
-      | add y z hy hz =>
-        rw [map_add, mul_add, hy, hz, add_mul]
+      | tmul x0 x1 =>
+        simp only [Algebra.TensorProduct.map_tmul, AlgHom.coe_id, id_eq,
+          Algebra.TensorProduct.tmul_mul_tmul]
+        rcases b with ⟨b, hb⟩
+        congr 1
+        · rw [Subalgebra.mem_center_iff] at hb
+          exact hb _
+        · exact Algebra.commutes _ _
+      | add x x' hx hx' =>
+        rw [map_add, add_mul, hx, hx', mul_add]
+    | add y z hy hz =>
+      rw [map_add, mul_add, hy, hz, add_mul]
+
+lemma centralizer_tensorProduct_eq_left_tensorProduct_center
+    (B : Type*) [Ring B] [Algebra K B]
+    (C : Type*) [Ring C] [Algebra K C] :
+    Subalgebra.centralizer K
+      (Algebra.TensorProduct.map (Algebra.ofId K B) (AlgHom.id K C)).range =
+      (Algebra.TensorProduct.map (AlgHom.id K B) (Subalgebra.center K C).val).range := by
+  have H1 := centralizer_tensorProduct_eq_center_tensorProduct_right K C B
+  ext z
+  have h1 :
+      z ∈ Subalgebra.centralizer K
+        (Algebra.TensorProduct.map (Algebra.ofId K B) (AlgHom.id K C)).range  ↔
+      (Algebra.TensorProduct.comm K B C z) ∈ Subalgebra.centralizer K
+        (Algebra.TensorProduct.map (AlgHom.id K C) (Algebra.ofId K B)).range := by
+    rw [Subalgebra.mem_centralizer_iff, Subalgebra.mem_centralizer_iff]
+    constructor
+    · rintro h _ ⟨x, rfl⟩
+      specialize h (Algebra.TensorProduct.comm K C B
+        (Algebra.TensorProduct.map (AlgHom.id K C) (Algebra.ofId K B) x))
+        (by
+          simp only [AlgHom.coe_range, Set.mem_range]
+          refine ⟨Algebra.TensorProduct.comm K C K x, ?_⟩
+          change (AlgHom.comp (Algebra.TensorProduct.map (Algebra.ofId K B) (AlgHom.id K C))
+            (Algebra.TensorProduct.comm K C K)) x =
+            (AlgHom.comp (Algebra.TensorProduct.comm K C B)
+              (Algebra.TensorProduct.map (AlgHom.id K C) (Algebra.ofId K B))) x
+          refine DFunLike.congr_fun ?_ x
+          ext
+          simp)
+
+      apply_fun Algebra.TensorProduct.comm K C B
+      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, map_mul]
+      convert h  <;>
+      rw [← Algebra.TensorProduct.comm_symm] <;>
+      simp only [AlgEquiv.symm_apply_apply]
+    · rintro h _ ⟨x, rfl⟩
+      specialize h (Algebra.TensorProduct.comm K B C
+        (Algebra.TensorProduct.map (Algebra.ofId K B) (AlgHom.id K C) x))
+        (by
+          simp only [AlgHom.coe_range, Set.mem_range]
+          refine ⟨Algebra.TensorProduct.comm K K C x, ?_⟩
+          change (AlgHom.comp (Algebra.TensorProduct.map (AlgHom.id K C) (Algebra.ofId K B))
+            (Algebra.TensorProduct.comm K K C)) x =
+            (AlgHom.comp (Algebra.TensorProduct.comm K B C)
+              (Algebra.TensorProduct.map (Algebra.ofId K B) (AlgHom.id K C))) x
+          refine DFunLike.congr_fun ?_ x
+          ext
+          simp)
+      apply_fun Algebra.TensorProduct.comm K B C
+      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, map_mul]
+      convert h
+  rw [h1, H1]
+  simp only [AlgHom.mem_range]
+  constructor
+  · rintro ⟨x, hx⟩
+    apply_fun (Algebra.TensorProduct.comm K B C).symm at hx
+    simp only [AlgEquiv.symm_apply_apply] at hx
+    refine ⟨(Algebra.TensorProduct.comm K B _).symm x, Eq.trans ?_ hx⟩
+    simp only [Algebra.TensorProduct.comm_symm]
+    change (AlgHom.comp (Algebra.TensorProduct.map (AlgHom.id K B) (Subalgebra.center K C).val)
+      (Algebra.TensorProduct.comm K (Subalgebra.center K C) B)) x =
+      (AlgHom.comp (Algebra.TensorProduct.comm K C B)
+      (Algebra.TensorProduct.map (Subalgebra.center K C).val (AlgHom.id K B))) x
+    refine DFunLike.congr_fun ?_ x
+    ext x
+    simp only [AlgHom.coe_comp, AlgHom.coe_coe, Function.comp_apply,
+      Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.comm_tmul,
+      Algebra.TensorProduct.map_tmul, map_one, Subalgebra.coe_val]
+    rfl
+  · rintro ⟨x, hx⟩
+    refine ⟨Algebra.TensorProduct.comm _ _ _ x, ?_⟩
+    apply_fun (Algebra.TensorProduct.comm K B C).symm
+    simp only [AlgEquiv.symm_apply_apply]
+    rw [← hx]
+    change AlgHom.comp (Algebra.TensorProduct.comm K B C).symm
+      (AlgHom.comp (Algebra.TensorProduct.map (Subalgebra.center K C).val (AlgHom.id K B))
+        (Algebra.TensorProduct.comm K B ↥(Subalgebra.center K C))) x =
+      (Algebra.TensorProduct.map (AlgHom.id K B) (Subalgebra.center K C).val) x
+    refine DFunLike.congr_fun ?_ x
+    ext x
+    simp only [AlgHom.coe_comp, AlgHom.coe_coe, Function.comp_apply,
+      Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.comm_tmul,
+      Algebra.TensorProduct.map_tmul, map_one, AlgHom.coe_id, id_eq,
+      Algebra.TensorProduct.comm_symm_tmul, Algebra.TensorProduct.map_comp_includeLeft,
+      AlgHom.comp_id]
+    rfl
+
+#check Algebra.TensorProduct.productMap_range
+lemma center_tensorProduct
+    (B : Type*) [Ring B] [Algebra K B]
+    (C : Type*) [Ring C] [Algebra K C] :
+    Subalgebra.center K (B ⊗[K] C) =
+      (Algebra.TensorProduct.map (Subalgebra.center K B).val
+        (Subalgebra.center K C).val).range := by
+
+  rw [show Subalgebra.center K (B ⊗[K] C) = Subalgebra.centralizer K (⊤ : Subalgebra K (B ⊗[K] C))
+    by simp, ← TensorProduct.left_tensor_base_sup_base_tensor_right K B C,
+    Subalgebra.centralizer_sup, centralizer_tensorProduct_eq_center_tensorProduct_right,
+    centralizer_tensorProduct_eq_left_tensorProduct_center]
+
+  refine le_antisymm ?_ ?_
+  · -- if z ∈ Z(B) ⊗ C and z ∈ B ⊗ Z(C) then z ∈ Z(B) ⊗ Z(C)
+    sorry
+
+  · rintro z ⟨x, rfl⟩
+    refine ⟨⟨Algebra.TensorProduct.map (AlgHom.id K _) (Subalgebra.val _) x, ?_⟩,
+      ⟨Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K _) x, ?_⟩⟩
+    · change AlgHom.comp (Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K C))
+        ((Algebra.TensorProduct.map (AlgHom.id K ↥(Subalgebra.center K B))
+          (Subalgebra.center K C).val)) x = _
+      rw [← Algebra.TensorProduct.map_comp]
+      rfl
+    · change AlgHom.comp (Algebra.TensorProduct.map (AlgHom.id K B) (Subalgebra.center K C).val)
+        ((Algebra.TensorProduct.map (Subalgebra.center K B).val
+          (AlgHom.id K ↥(Subalgebra.center K C)))) x = _
+      rw [← Algebra.TensorProduct.map_comp]
+      rfl
 
 -- the following proof may not work?
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
