@@ -33,6 +33,7 @@ to do with~$K$.
     \lean{MatrixRing.isCentralSimple}
     \uses{IsCentralSimple}
     \discussion{47}
+    \leanok
     If $n\geq1$ then the $n\times n$ matrices $M_n(K)$ are a central simple algebra over~$K$.
 \end{lemma}
 \begin{proof}\leanok
@@ -57,6 +58,7 @@ The definition also requires that the ring be non-zero, but this follows from th
 
 \begin{lemma}
     \label{IsCentralSimple.baseChange} % no Lean yet because Lean didn't seem to know L \otimes_K D was a ring
+    \uses{IsCentralSimple}
     If $D$ is a central simple algebra over~$K$ and $L/K$ is a field extension, then $L\otimes_KD$
     is a central simple algebra over~$L$.
 \end{lemma}
