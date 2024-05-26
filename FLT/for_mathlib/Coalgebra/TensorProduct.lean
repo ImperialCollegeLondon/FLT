@@ -5,7 +5,7 @@ Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 -/
 
 import Mathlib.RingTheory.TensorProduct.Basic
-import Mathlib.RingTheory.Bialgebra
+import Mathlib.RingTheory.Bialgebra.Basic
 import FLT.for_mathlib.Coalgebra.Sweedler
 
 /-!
