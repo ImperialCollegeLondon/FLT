@@ -198,6 +198,42 @@ lemma TensorProduct.left_tensor_base_sup_base_tensor_right
   | add x y hx hy =>
     exact Subalgebra.add_mem _ hx hy
 
+lemma TensorProduct.submodule_tensor_inf_tensor_submodule
+    (K B C : Type*) [Field K] [AddCommGroup B] [Module K B] [AddCommGroup C] [Module K C]
+    (b : Submodule K B) (c : Submodule K C) :
+    -- (b ⊗ C) ⊓ (B ⊗ c)
+    LinearMap.range (TensorProduct.map b.subtype .id) ⊓
+    LinearMap.range (TensorProduct.map .id c.subtype) =
+    -- (b ⊗ c)
+    LinearMap.range (TensorProduct.map b.subtype c.subtype) := by
+
+  refine le_antisymm ?_ ?_
+  · -- hard direction
+    -- rw [TensorProduct.map_range_eq_span_tmul, TensorProduct.map_range_eq_span_tmul,
+    --   TensorProduct.map_range_eq_span_tmul]
+    intro z ⟨⟨x, hx⟩, ⟨y, hy⟩⟩
+    let fb : b ⊗[K] C →ₗ[K] B ⊗[K] C := TensorProduct.map b.subtype LinearMap.id -- this is injective
+    let fc : B ⊗[K] c →ₗ[K] B ⊗[K] C := TensorProduct.map LinearMap.id c.subtype -- this is injective
+    obtain ⟨gb, hgb⟩ := LinearMap.exists_leftInverse_of_injective fb sorry
+    obtain ⟨gc, hgc⟩ := LinearMap.exists_leftInverse_of_injective fc sorry
+
+    have eq1 : x = gb (fb x) := DFunLike.congr_fun hgb x |>.symm
+
+    have eq2 : fb x = fc y := by
+      apply_fun gb at hx
+      sorry
+    sorry
+  · rintro _ ⟨x, rfl⟩
+    refine ⟨⟨TensorProduct.map LinearMap.id c.subtype x, ?_⟩,
+      ⟨TensorProduct.map b.subtype LinearMap.id x, ?_⟩⟩
+    · change (TensorProduct.map b.subtype LinearMap.id ∘ₗ
+        TensorProduct.map LinearMap.id c.subtype) x = _
+      rw [← TensorProduct.map_comp]
+      rfl
+    · change (TensorProduct.map LinearMap.id c.subtype ∘ₗ
+        TensorProduct.map b.subtype LinearMap.id) x = _
+      rw [← TensorProduct.map_comp]
+      rfl
 
 end should_be_elsewhere
 
@@ -334,7 +370,6 @@ lemma centralizer_tensorProduct_eq_left_tensorProduct_center
       AlgHom.comp_id]
     rfl
 
-#check Algebra.TensorProduct.productMap_range
 lemma center_tensorProduct
     (B : Type*) [Ring B] [Algebra K B]
     (C : Type*) [Ring C] [Algebra K C] :
@@ -346,24 +381,48 @@ lemma center_tensorProduct
     by simp, ← TensorProduct.left_tensor_base_sup_base_tensor_right K B C,
     Subalgebra.centralizer_sup, centralizer_tensorProduct_eq_center_tensorProduct_right,
     centralizer_tensorProduct_eq_left_tensorProduct_center]
+  suffices eq :
+    Subalgebra.toSubmodule (Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K C)).range ⊓
+    Subalgebra.toSubmodule (Algebra.TensorProduct.map (AlgHom.id K B) (Subalgebra.center K C).val).range =
+    Subalgebra.toSubmodule (Algebra.TensorProduct.map (Subalgebra.center K B).val (Subalgebra.center K C).val).range by
+    apply_fun Subalgebra.toSubmodule using Subalgebra.toSubmodule_injective
+    rw [← eq]
+    ext x
+    simp only [Algebra.inf_toSubmodule, Submodule.mem_inf, Subalgebra.mem_toSubmodule,
+      AlgHom.mem_range]
 
-  refine le_antisymm ?_ ?_
-  · -- if z ∈ Z(B) ⊗ C and z ∈ B ⊗ Z(C) then z ∈ Z(B) ⊗ Z(C)
-    sorry
+  have eq1:
+      Subalgebra.toSubmodule (Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K C)).range =
+      LinearMap.range (TensorProduct.map (Subalgebra.center K B).val.toLinearMap (LinearMap.id)) := by
+    rfl
+  rw [eq1]
 
-  · rintro z ⟨x, rfl⟩
-    refine ⟨⟨Algebra.TensorProduct.map (AlgHom.id K _) (Subalgebra.val _) x, ?_⟩,
-      ⟨Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K _) x, ?_⟩⟩
-    · change AlgHom.comp (Algebra.TensorProduct.map (Subalgebra.center K B).val (AlgHom.id K C))
-        ((Algebra.TensorProduct.map (AlgHom.id K ↥(Subalgebra.center K B))
-          (Subalgebra.center K C).val)) x = _
-      rw [← Algebra.TensorProduct.map_comp]
-      rfl
-    · change AlgHom.comp (Algebra.TensorProduct.map (AlgHom.id K B) (Subalgebra.center K C).val)
-        ((Algebra.TensorProduct.map (Subalgebra.center K B).val
-          (AlgHom.id K ↥(Subalgebra.center K C)))) x = _
-      rw [← Algebra.TensorProduct.map_comp]
-      rfl
+  have eq2 :
+      Subalgebra.toSubmodule (Algebra.TensorProduct.map (AlgHom.id K B) (Subalgebra.center K C).val).range =
+      LinearMap.range (TensorProduct.map (LinearMap.id) (Subalgebra.center K C).val.toLinearMap) := by
+    rfl
+  rw [eq2]
+
+  have eq3 :
+      Subalgebra.toSubmodule (Algebra.TensorProduct.map (Subalgebra.center K B).val (Subalgebra.center K C).val).range =
+      LinearMap.range (TensorProduct.map (Subalgebra.center K B).val.toLinearMap
+        (Subalgebra.center K C).val.toLinearMap) := by
+    rfl
+  rw [eq3]
+
+  have := TensorProduct.submodule_tensor_inf_tensor_submodule K B C
+    (Subalgebra.toSubmodule <| .center K B)
+    (Subalgebra.toSubmodule <| .center K C)
+
+  have eq4 : (Subalgebra.toSubmodule (Subalgebra.center K B)).subtype =
+    (Subalgebra.center K B).val.toLinearMap := by rfl
+  rw [eq4] at this
+
+  have eq5 : (Subalgebra.toSubmodule (Subalgebra.center K C)).subtype =
+    (Subalgebra.center K C).val.toLinearMap := by rfl
+  rw [eq5] at this
+
+  rw [this]
 
 -- the following proof may not work?
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
