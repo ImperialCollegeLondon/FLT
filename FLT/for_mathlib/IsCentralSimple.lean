@@ -7,6 +7,8 @@ Authors: Kevin Buzzard
 import Mathlib.Algebra.Quaternion -- probably get away with less
 import FLT.for_mathlib.Con
 import FLT.for_mathlib.CrazySimple
+import Mathlib.RingTheory.Flat.Basic
+import Mathlib.LinearAlgebra.TensorProduct.RightExactness
 
 /-!
 # Characteristic predicate for central simple algebras
@@ -198,31 +200,74 @@ lemma TensorProduct.left_tensor_base_sup_base_tensor_right
   | add x y hx hy =>
     exact Subalgebra.add_mem _ hx hy
 
-lemma TensorProduct.submodule_tensor_inf_tensor_submodule
-    (K B C : Type*) [Field K] [AddCommGroup B] [Module K B] [AddCommGroup C] [Module K C]
+-- We need to restrict the universe, because we used properties of flatness.
+lemma TensorProduct.submodule_tensor_inf_tensor_submodule [Small.{v, u} K]
+    (B C : Type v) [AddCommGroup B] [Module K B] [AddCommGroup C] [Module K C]
     (b : Submodule K B) (c : Submodule K C) :
-    -- (b ⊗ C) ⊓ (B ⊗ c)
     LinearMap.range (TensorProduct.map b.subtype .id) ⊓
     LinearMap.range (TensorProduct.map .id c.subtype) =
-    -- (b ⊗ c)
     LinearMap.range (TensorProduct.map b.subtype c.subtype) := by
 
   refine le_antisymm ?_ ?_
-  · -- hard direction
-    -- rw [TensorProduct.map_range_eq_span_tmul, TensorProduct.map_range_eq_span_tmul,
-    --   TensorProduct.map_range_eq_span_tmul]
-    intro z ⟨⟨x, hx⟩, ⟨y, hy⟩⟩
-    let fb : b ⊗[K] C →ₗ[K] B ⊗[K] C := TensorProduct.map b.subtype LinearMap.id -- this is injective
-    let fc : B ⊗[K] c →ₗ[K] B ⊗[K] C := TensorProduct.map LinearMap.id c.subtype -- this is injective
-    obtain ⟨gb, hgb⟩ := LinearMap.exists_leftInverse_of_injective fb sorry
-    obtain ⟨gc, hgc⟩ := LinearMap.exists_leftInverse_of_injective fc sorry
+  · letI : Module.Flat K (B ⧸ b) := Module.Flat.of_free _ _
 
-    have eq1 : x = gb (fb x) := DFunLike.congr_fun hgb x |>.symm
+    let u : b ⊗[K] c →ₗ[K] B ⊗[K] c := TensorProduct.map b.subtype LinearMap.id
+    let v : B ⊗[K] c →ₗ[K] (B ⧸ b) ⊗[K] c :=
+      TensorProduct.map (Submodule.mkQ _) LinearMap.id
+    have exactuv : Function.Exact u v := by
+      apply rTensor_exact
+      rw [Function.LinearMap.exact_iff]
+      simp only [Submodule.ker_mkQ, Submodule.range_subtype]
+      exact Submodule.mkQ_surjective _
 
-    have eq2 : fb x = fc y := by
-      apply_fun gb at hx
-      sorry
-    sorry
+    let u' : b ⊗[K] C →ₗ[K] B ⊗[K] C := TensorProduct.map b.subtype LinearMap.id
+    let v' : B ⊗[K] C →ₗ[K] (B ⧸ b) ⊗[K] C := TensorProduct.map (Submodule.mkQ _) LinearMap.id
+    have exactu'v' : Function.Exact u' v' := by
+      apply rTensor_exact
+      rw [Function.LinearMap.exact_iff]
+      simp only [Submodule.ker_mkQ, Submodule.range_subtype]
+      exact Submodule.mkQ_surjective _
+
+    let α : b ⊗[K] c →ₗ[K] b ⊗[K] C := TensorProduct.map LinearMap.id c.subtype
+    let β : B ⊗[K] c →ₗ[K] B ⊗[K] C := TensorProduct.map LinearMap.id c.subtype
+    let γ : (B ⧸ b) ⊗[K] c →ₗ[K] (B ⧸ b) ⊗[K] C := TensorProduct.map LinearMap.id c.subtype
+
+    have γ_inj : Function.Injective γ :=
+      Module.Flat.iff_lTensor_preserves_injective_linearMap K (B ⧸ b) |>.1 inferInstance
+        c.subtype c.injective_subtype
+
+    rintro z (hz : z ∈ LinearMap.range u' ⊓ LinearMap.range β)
+    obtain ⟨z, rfl⟩ := hz.2
+    have comm0 : v' ∘ₗ β = γ ∘ₗ v := by
+      ext
+      simp [v', β, γ, v]
+    have hz1 : v' (β z) = γ (v z) := congr($comm0 z)
+    have hz2 : v' (β z) = 0 := by
+      rw [← LinearMap.mem_ker]
+      rw [Function.LinearMap.exact_iff] at exactu'v'
+      rw [exactu'v']
+      exact hz.1
+    rw [hz2] at hz1
+    have hz3 : v z ∈ LinearMap.ker γ := by rw [LinearMap.mem_ker]; exact hz1.symm
+    replace hz3 : v z = 0 := by
+      rw [← LinearMap.ker_eq_bot] at γ_inj; rw [γ_inj] at hz3; exact hz3
+    replace hz3 : z ∈ LinearMap.ker v := hz3
+    replace hz3 : z ∈ LinearMap.range u := by
+      rw [Function.LinearMap.exact_iff] at exactuv
+      rwa [← exactuv]
+    obtain ⟨z, rfl⟩ := hz3
+    change (β ∘ₗ u) z ∈ _
+
+    have comm1 : β ∘ₗ u = u' ∘ₗ α := by
+      ext
+      simp [β, u, u', α]
+
+    rw [comm1, LinearMap.comp_apply]
+    refine ⟨z, ?_⟩
+    simp only [u', α]
+    change _ = (TensorProduct.map b.subtype .id ∘ₗ TensorProduct.map .id c.subtype) z
+    rw [← TensorProduct.map_comp, LinearMap.comp_id, LinearMap.id_comp]
+
   · rintro _ ⟨x, rfl⟩
     refine ⟨⟨TensorProduct.map LinearMap.id c.subtype x, ?_⟩,
       ⟨TensorProduct.map b.subtype LinearMap.id x, ?_⟩⟩
@@ -370,13 +415,12 @@ lemma centralizer_tensorProduct_eq_left_tensorProduct_center
       AlgHom.comp_id]
     rfl
 
-lemma center_tensorProduct
-    (B : Type*) [Ring B] [Algebra K B]
-    (C : Type*) [Ring C] [Algebra K C] :
+-- We need to restrict the universe, because we used properties of flatness.
+lemma center_tensorProduct [Small.{v, u} K]
+    (B C : Type v) [Ring B] [Algebra K B] [Ring C] [Algebra K C] :
     Subalgebra.center K (B ⊗[K] C) =
       (Algebra.TensorProduct.map (Subalgebra.center K B).val
         (Subalgebra.center K C).val).range := by
-
   rw [show Subalgebra.center K (B ⊗[K] C) = Subalgebra.centralizer K (⊤ : Subalgebra K (B ⊗[K] C))
     by simp, ← TensorProduct.left_tensor_base_sup_base_tensor_right K B C,
     Subalgebra.centralizer_sup, centralizer_tensorProduct_eq_center_tensorProduct_right,
@@ -421,80 +465,44 @@ lemma center_tensorProduct
   have eq5 : (Subalgebra.toSubmodule (Subalgebra.center K C)).subtype =
     (Subalgebra.center K C).val.toLinearMap := by rfl
   rw [eq5] at this
-
   rw [this]
 
--- the following proof may not work?
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
--- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) :=
--- {
---   is_central:= by
---     intro z hz
---     induction z using TensorProduct.induction_on with
---     | zero => exact ⟨0, by simp_all⟩
---     | tmul l d =>
---       if l_ne_zero : l = 0
---       then
---         subst l_ne_zero
---         exact ⟨0, by simp⟩
---       else
+-- We can't have `L` to have different universe level of `D` in this proof, again due that we used
+-- `flatness`
+lemma baseChange [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] :
+    IsCentralSimple L (L ⊗[K] D) where
 
---         have hcentral := h.is_central d
---         rw [Subring.mem_center_iff] at hz
+  is_central:= by
+    intro z hz
+    replace hz : z ∈ Subalgebra.center K (L ⊗[K] D) := by
+      rw [Subalgebra.mem_center_iff]
+      intro x
+      rw [Subring.mem_center_iff] at hz
+      exact hz x
 
---         have hd : d ∈ Subring.center D := by
---           rw [Subring.mem_center_iff]
---           intro d0
---           specialize hz (l⁻¹ ⊗ₜ[K] d0)
---           rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
---             inv_mul_cancel l_ne_zero, mul_inv_cancel l_ne_zero] at hz
---           have key : ∀ (x y : D), (1 : L) ⊗ₜ[K] (x * y) = (1 : L) ⊗ₜ[K] (y * x) → x * y = y * x:= by
---             intro x y hxy
---             have hzz: (1 : L) ⊗ₜ[K] (x * y - y * x) = 0 := by
---               rw [@TensorProduct.tmul_sub]
---               exact sub_eq_zero_of_eq hxy
---             -- rw [← TensorProduct.tmul_zero D l] at hzz
---             have hzzz: (1 : L) ⊗ₜ[K] (x * y - y * x) = 0 → (x * y - y * x) = 0 := by sorry
---             have auxx: x * y - y * x = 0 := by
---               exact hzzz hzz
---             rw [@sub_eq_zero] at auxx
---             exact auxx
---           simp_all
---           have aux (x y : D) (h : (1 : L) ⊗ₜ[K] x = (1 : L) ⊗ₜ[K] y) :
---               (1 : K) ⊗ₜ[K] x = (1 : K) ⊗ₜ[K] y := by
---             let g : K ⊗[K] D →ₗ[K] L ⊗[K] D :=
---               TensorProduct.map (Algebra.ofId K L).toLinearMap LinearMap.id
---             have hg : Function.Injective g := by
---               rw [← LinearMap.ker_eq_bot, eq_bot_iff]
---               intro x (h : g x = 0)
---               induction x using TensorProduct.induction_on with
---               | zero => simp
---               | tmul k d =>
---                 simp only [TensorProduct.map_tmul, AlgHom.toLinearMap_apply, LinearMap.id_coe,
---                   id_eq, g] at h
---                 sorry
---               | add x y hx hy => sorry
---             apply_fun g
---           sorry
-
---         have hdd := hcentral hd
---         obtain ⟨dk, hdk⟩ := hdd
---         simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
---         use (dk • l)
---         rw [TensorProduct.smul_tmul, Algebra.smul_def]
---         simp only [mul_one]
---         exact congrArg (TensorProduct.tmul K l) hdk
---     | add x y hx hy =>
---       have hzx: x ∈ Subring.center (L ⊗[K] D) := by sorry
---       have hzy: y ∈ Subring.center (L ⊗[K] D) := by sorry
---       obtain ⟨kx, hx'⟩  := hx hzx
---       obtain ⟨ky, hy'⟩  := hy hzy
---       use kx + ky
---       rw[hx', hy']
---       simp only [Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply,
---         map_add]
---   is_simple := by sorry
--- }
+    rw [center_tensorProduct K L] at hz
+    obtain ⟨x, rfl⟩ := hz
+    induction x using TensorProduct.induction_on with
+    | zero => exact ⟨0, by simp⟩
+    | tmul l d =>
+      obtain ⟨k, hk⟩ := h.is_central (d := d.1)
+        (Subring.mem_center_iff.2 <| fun x ↦ Subalgebra.mem_center_iff.mp d.2 x)
+      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
+        Subalgebra.coe_val, Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id,
+        RingHom.id_apply]
+      simp_rw [hk]
+      refine ⟨k • l, ?_⟩
+      rw [TensorProduct.smul_tmul, Algebra.algebraMap_eq_smul_one]
+    | add x y hx hy =>
+      obtain ⟨kx, hkx⟩ := hx
+      obtain ⟨ky, hky⟩ := hy
+      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.algebraMap_apply,
+        Algebra.id.map_eq_id, RingHom.id_apply] at hkx hky
+      refine ⟨kx + ky, ?_⟩
+      simp only [AlgHom.toRingHom_eq_coe, map_add, RingHom.coe_coe, hkx, hky,
+        Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
+  is_simple := by sorry
 
 end IsCentralSimple
 
