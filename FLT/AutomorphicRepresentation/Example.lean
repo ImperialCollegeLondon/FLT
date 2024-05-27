@@ -764,8 +764,8 @@ lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.s
     simp only [ne_eq, mem_lowerBounds, Set.mem_range]
     rintro _ ⟨_, rfl⟩
     exact norm_nonneg _
-  obtain ⟨a, ha⟩ := exists_eq_ciInf_of_not_isPredLimit (f := fun i : S ↦ norm i)
-    hbdd (Order.not_isPredLimit)
+  obtain ⟨a, ha⟩ : ∃ a : S, norm a = ⨅ i : S, norm i :=
+    exists_eq_ciInf_of_not_isPredLimit hbdd (Order.not_isPredLimit)
   use a
   apply le_antisymm
   · intro i hi
