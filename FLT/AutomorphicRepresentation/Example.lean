@@ -413,6 +413,13 @@ instance : Zero 𝓞 := ⟨zero⟩
 lemma toQuaternion_zero : toQuaternion 0 = 0 := by
   ext <;> simp [toQuaternion]
 
+@[simp]
+lemma toQuaternion_eq_zero_iff {z} : toQuaternion z = 0 ↔ z = 0 :=
+  toQuaternion_injective.eq_iff' toQuaternion_zero
+
+lemma toQuaternion_ne_zero_iff {z} : toQuaternion z ≠ 0 ↔ z ≠ 0 :=
+  toQuaternion_injective.ne_iff' toQuaternion_zero
+
 /-! ## one (1) -/
 
 def one : 𝓞 := ⟨1, 0, 0, 0⟩
