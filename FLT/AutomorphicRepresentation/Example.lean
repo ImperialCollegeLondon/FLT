@@ -771,7 +771,7 @@ lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ n
   let b' := toQuaternion b
   have hb' : b' ≠ 0 := toQuaternion_ne_zero_iff.mpr hb
   let q' := a' / b'
-  obtain ⟨q : 𝓞, hq : dist q' (toQuaternion q) < 1⟩ : ∃ _, _ := sorry
+  obtain ⟨q : 𝓞, hq : dist q' (toQuaternion q) < 1⟩ : ∃ _, _ := exists_near q'
   refine ⟨q, a - q * b, (add_sub_cancel _ _).symm, ?_⟩
   rw [← Int.cast_lt (α := ℝ), ← normSq_toQuaternion, ← normSq_toQuaternion]
   rw [normSq_eq_norm_mul_self, normSq_eq_norm_mul_self]
