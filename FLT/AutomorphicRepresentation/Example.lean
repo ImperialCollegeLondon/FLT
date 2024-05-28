@@ -790,7 +790,40 @@ lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ n
   · rw [← norm_pos_iff] at hb'
     exact mul_lt_of_lt_one_left hb' hq
 
-lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.span 𝓞 {a} := sorry
+lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.span 𝓞 {a} := by
+  by_cases h_bot : I = ⊥
+  · use 0
+    rw [Eq.comm]
+    simp only [h_bot, Submodule.span_singleton_eq_bot]
+  let S := {a : 𝓞 // a ∈ I ∧ a ≠ 0}
+  have : Nonempty S := by
+    simp [S, ne_eq, norm_eq_zero]
+    exact Submodule.exists_mem_ne_zero_of_ne_bot h_bot
+  have hbdd : BddBelow <| Set.range (fun i : S ↦ norm i) := by
+    use 0
+    simp only [ne_eq, mem_lowerBounds, Set.mem_range]
+    rintro _ ⟨_, rfl⟩
+    exact norm_nonneg _
+  obtain ⟨a, ha⟩ : ∃ a : S, norm a = ⨅ i : S, norm i :=
+    exists_eq_ciInf_of_not_isPredLimit hbdd (Order.not_isPredLimit)
+  use a
+  apply le_antisymm
+  · intro i hi
+    rw [Submodule.mem_span_singleton]
+    simp only [ne_eq]
+    obtain ⟨q, r, hqr⟩ := quot_rem i a a.2.2
+    rw [ha] at hqr
+    have hrI : r ∈ I := by
+      rw [show r = i - q • a by apply eq_sub_of_add_eq; rw [add_comm]; exact hqr.1.symm ]
+      apply I.sub_mem hi (I.smul_mem _ a.2.1)
+    have hr : r = 0 := by
+      by_contra hr
+      lift r to S using ⟨hrI, hr⟩
+      apply (ciInf_le hbdd r).not_lt hqr.2
+    rw [hr, add_zero] at hqr
+    refine ⟨q, hqr.1.symm⟩
+  · rw [Submodule.span_singleton_le_iff_mem]
+    exact a.2.1
 
 open scoped TensorProduct
 
