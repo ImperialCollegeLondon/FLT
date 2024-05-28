@@ -636,8 +636,7 @@ is the usual Hamilton quaternions.
     \leanok
     The norm of an element is nonnegative.
 \end{lemma}
-\begin{proof}
-    \leanok
+\begin{proof} \leanok
     It's a sum of rational squares.
 \end{proof}
 
@@ -651,19 +650,33 @@ is the usual Hamilton quaternions.
 \begin{proof}
     \leanok
     It's a sum of rational squares.
+
+\begin{lemma}
+    \label{Hurwitz.exists_near}
+    \lean{Hurwitz.exists_near}
+    \uses{Hurwitz.norm}
+    Given a ``usual'' quaternion $z=x+yi+zj+wk$ with $x,y,z,w\in\R$,
+    there exists a Hurwitz quaternion $q$ such that $N(z-q)<1$.
+\end{lemma}
+\begin{proof}
+  If $[r]$ denotes the nearest integer to the real number $r$, then $|r-[r]|\leq \frac{1}{2}$.
+  Hence if $q=[x]+[y]i+[z]j+[w]k$ then $N(z-q)=|x-[x]|^2+\cdots
+  \leq \frac{1}{4}+\frac{1}{4}+\frac{1}{4}+\frac{1}{4}\leq 1$, with strict inequality unless
+  $|x-[x]|=|y-[y]|=|z-[z]|=|w-[w]|=\frac{1}{2}$, in which case $z\in\mathcal{O}$ because $z-\omega$
+  has integer coordinates.
 \end{proof}
 
 \begin{lemma}
     \label{Hurwitz.quot_rem}
     \lean{Hurwitz.quot_rem}
-    \uses{Hurwitz.norm}
+    \uses{Hurwitz.norm, Hurwitz.exists_near}
     \leanok
     Given two Hurwitz quaternions $a$ and $b$ with $b$ nonzero, there exists
     $q$ and $r$ such that $a=qb+r$ and $N(r)<N(b)$.
 \end{lemma}
 \begin{proof}
-  Let $q$ be the nearest Hurwitz quaternion to $a/b$; one can check that $N(a/b-q)<1$ and now
-  everything follows.
+  Let $q$ be the Hurwitz quaternion obtained by applying Lemma~\cite{Hurwitz.exists_near}
+  to $a/b := ab^{-1}$; then $N(a/b-q)<1$ and now everything follows after multiplying up.
 \end{proof}
 
 \begin{corollary}

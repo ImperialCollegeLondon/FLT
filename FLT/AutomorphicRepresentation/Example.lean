@@ -748,7 +748,40 @@ lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := by
     pow_eq_zero_iff, mul_eq_zero, or_false] at h1
   ext <;> assumption
 
-lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ norm r < norm b := sorry
+open Quaternion in
+lemma normSq_toQuaternion (z : 𝓞) : normSq (toQuaternion z) = norm z := by
+  apply coe_injective
+  rw [← self_mul_star, ← toQuaternion_star, ← toQuaternion_mul, ← norm_eq_mul_conj,
+    toQuaternion_intCast, coe_intCast]
+
+open Quaternion in
+lemma exists_near (z : ℍ) : ∃ q : 𝓞, dist z (toQuaternion q) < 1 := by
+  sorry
+
+open Quaternion in
+lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ norm r < norm b := by
+  let a' := toQuaternion a
+  let b' := toQuaternion b
+  have hb' : b' ≠ 0 := toQuaternion_ne_zero_iff.mpr hb
+  let q' := a' / b'
+  obtain ⟨q : 𝓞, hq : dist q' (toQuaternion q) < 1⟩ : ∃ _, _ := sorry
+  refine ⟨q, a - q * b, (add_sub_cancel _ _).symm, ?_⟩
+  rw [← Int.cast_lt (α := ℝ), ← normSq_toQuaternion, ← normSq_toQuaternion]
+  rw [normSq_eq_norm_mul_self, normSq_eq_norm_mul_self]
+  refine mul_self_lt_mul_self ?_ ?_
+  · exact _root_.norm_nonneg (a - q * b).toQuaternion
+  rw [toQuaternion_sub, ← dist_eq_norm]
+  calc
+    _ = dist (q' * b') (q.toQuaternion * b') := ?_
+    _ = dist q' (q.toQuaternion) * ‖b'‖ := ?_
+    _ < _ := ?_
+  · rw [toQuaternion_mul]
+    dsimp only [b', q']
+    rw [div_mul_cancel₀ a' hb']
+  · -- Surprised that this doesn't seem to exist in mathlib.
+    rw [dist_eq_norm_sub', ← sub_mul, _root_.norm_mul, ← dist_eq_norm_sub']
+  · rw [← norm_pos_iff] at hb'
+    exact mul_lt_of_lt_one_left hb' hq
 
 lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.span 𝓞 {a} := sorry
 
