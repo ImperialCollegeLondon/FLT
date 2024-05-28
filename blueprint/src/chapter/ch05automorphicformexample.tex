@@ -687,7 +687,9 @@ is the usual Hamilton quaternions.
     All left ideals of $\calO$ are principal.
 \end{corollary}
 \begin{proof}
-     Choose a nonzero element of smallest norm.
+    \uses{Hurwitz.quot_rem}
+    \leanok
+    If the ideal is 0, use 0. Otherwise, choose a nonzero element of smallest norm.
 \end{proof}
 
 \begin{remark}
