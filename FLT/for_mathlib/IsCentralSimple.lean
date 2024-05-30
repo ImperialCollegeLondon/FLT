@@ -470,41 +470,110 @@ lemma center_tensorProduct [Small.{v, u} K]
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
 -- We can't have `L` to have different universe level of `D` in this proof, again due that we used
 -- `flatness`
-lemma baseChange [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] :
-    IsCentralSimple L (L ⊗[K] D) where
+-- lemma baseChange [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] :
+--     IsCentralSimple L (L ⊗[K] D) where
 
-  is_central:= by
-    intro z hz
-    replace hz : z ∈ Subalgebra.center K (L ⊗[K] D) := by
-      rw [Subalgebra.mem_center_iff]
-      intro x
-      rw [Subring.mem_center_iff] at hz
-      exact hz x
+--   is_central:= by
+--     intro z hz
+--     replace hz : z ∈ Subalgebra.center K (L ⊗[K] D) := by
+--       rw [Subalgebra.mem_center_iff]
+--       intro x
+--       rw [Subring.mem_center_iff] at hz
+--       exact hz x
 
-    rw [center_tensorProduct K L] at hz
-    obtain ⟨x, rfl⟩ := hz
-    induction x using TensorProduct.induction_on with
-    | zero => exact ⟨0, by simp⟩
-    | tmul l d =>
-      obtain ⟨k, hk⟩ := h.is_central (d := d.1)
-        (Subring.mem_center_iff.2 <| fun x ↦ Subalgebra.mem_center_iff.mp d.2 x)
-      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
-        Subalgebra.coe_val, Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id,
-        RingHom.id_apply]
-      simp_rw [hk]
-      refine ⟨k • l, ?_⟩
-      rw [TensorProduct.smul_tmul, Algebra.algebraMap_eq_smul_one]
-    | add x y hx hy =>
-      obtain ⟨kx, hkx⟩ := hx
-      obtain ⟨ky, hky⟩ := hy
-      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.algebraMap_apply,
-        Algebra.id.map_eq_id, RingHom.id_apply] at hkx hky
-      refine ⟨kx + ky, ?_⟩
-      simp only [AlgHom.toRingHom_eq_coe, map_add, RingHom.coe_coe, hkx, hky,
-        Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
-  is_simple := by sorry
-
+--     rw [center_tensorProduct K L] at hz
+--     obtain ⟨x, rfl⟩ := hz
+--     induction x using TensorProduct.induction_on with
+--     | zero => exact ⟨0, by simp⟩
+--     | tmul l d =>
+--       obtain ⟨k, hk⟩ := h.is_central (d := d.1)
+--         (Subring.mem_center_iff.2 <| fun x ↦ Subalgebra.mem_center_iff.mp d.2 x)
+--       simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
+--         Subalgebra.coe_val, Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id,
+--         RingHom.id_apply]
+--       simp_rw [hk]
+--       refine ⟨k • l, ?_⟩
+--       rw [TensorProduct.smul_tmul, Algebra.algebraMap_eq_smul_one]
+--     | add x y hx hy =>
+--       obtain ⟨kx, hkx⟩ := hx
+--       obtain ⟨ky, hky⟩ := hy
+--       simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.algebraMap_apply,
+--         Algebra.id.map_eq_id, RingHom.id_apply] at hkx hky
+--       refine ⟨kx + ky, ?_⟩
+--       simp only [AlgHom.toRingHom_eq_coe, map_add, RingHom.coe_coe, hkx, hky,
+--         Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
+--   is_simple := by sorry
 end IsCentralSimple
+
+section CSA_implies_CSA
+variable (K : Type u) [Field K]
+variable (B : Type*) [Ring B]
+
+lemma top_eq_ring (R :Type*)[Ring R] : (⊤ : RingCon R) = (⊤ : Set R) := by 
+  aesop
+
+
+open Classical in
+lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
+    [FiniteDimensional K B] (hnon : Nontrivial B) (hcs : IsCentralSimple K B) (n : ℕ)
+    (C : Type*)[Ring C][Algebra K C](Iso : B ≃ₐ[K] C):
+    IsCentralSimple K C where
+  is_central := sorry
+  is_simple := by
+    obtain ⟨hcen, hsim⟩ := hcs
+    have hnon2 : Nontrivial C := Equiv.nontrivial Iso.symm.toEquiv
+    letI : Nontrivial (RingCon C) := by 
+      refine { exists_pair_ne := ?exists_pair_ne }
+      use ⊥; use ⊤
+      sorry
+    refine IsSimpleOrder.mk ?mk.eq_bot_or_eq_top
+    intro a
+    let b := a.comap (Iso.toAlgHom)
+    have hb : b = ⊥ ∨ b = ⊤ := by exact eq_bot_or_eq_top b
+    if hb1 : b = ⊥ then
+      left
+      simp_all only [bot_ne_top, or_false]
+
+
+      sorry
+    else
+      have hb2: b = ⊤ := by
+        simp_all only [ne_eq, RingEquiv.toRingHom_eq_coe, false_or,
+          top_ne_bot, not_false_eq_true, b]
+      clear hb hb1
+      have hb3 : 1 ∈ b := by sorry
+      right
+      have ha : 1 ∈ a := by
+        rw [RingCon.mem_comap] at hb3
+        simp_all only [RingEquiv.toRingHom_eq_coe, map_one, b]
+      suffices (a : Set C) = (⊤ : Set C) by sorry
+      have eq_ring : ∀(r : C), r ∈ a := by 
+        intro r
+        have := RingCon.mul_mem_left a r 1 ha
+        rw [mul_one] at this ; exact this
+      ext r ; constructor
+      · intro; simp only [Set.top_eq_univ, Set.mem_univ]
+      · intro hr ; simp_all only [Set.top_eq_univ, Set.mem_univ, SetLike.mem_coe]
+
+
+theorem CSA_implies_CSA (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
+    [FiniteDimensional K B] (hnon : Nontrivial B) (hsim : IsSimpleOrder (RingCon B)) (n : ℕ)
+    (D : Type*) (hn : 0 < n) (h : DivisionRing D) [Algebra K D]
+    (Wdb: B ≃+* (Matrix (Fin n) (Fin n) D)):
+    IsCentralSimple K B → IsCentralSimple K D := by
+  intro BCS
+  let hnone : Nonempty (Fin n) := ⟨0, hn⟩
+
+  constructor
+  · intro d hd
+    obtain ⟨h1, h2⟩ := inst1 K B hnon BCS n _ Wdb
+
+    -- have dd := (Matrix.mem_center_iff D n _)⟨0, by omega⟩
+    sorry
+
+  · let F := RingCon.equivRingConMatrix' D (ι := (Fin n)) ⟨0, hn⟩
+    exact F.isSimpleOrder
+
 
 -- restrict to 4d case
 -- theorem exists_quaternionAlgebra_iso (hK : (2 : K) ≠ 0) :
