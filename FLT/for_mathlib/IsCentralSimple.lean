@@ -29,7 +29,7 @@ universe u v w
 open Classical
 open scoped BigOperators
 
-structure IsCentralSimple
+class IsCentralSimple
     (K : Type u) [Field K] (D : Type v) [Ring D] [Algebra K D] : Prop where
   is_central : ∀ d : D, d ∈ Subring.center D → ∃ k : K, d = algebraMap K D k
   is_simple : IsSimpleOrder (RingCon D)
@@ -470,39 +470,38 @@ lemma center_tensorProduct [Small.{v, u} K]
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
 -- We can't have `L` to have different universe level of `D` in this proof, again due that we used
 -- `flatness`
--- lemma baseChange [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] :
---     IsCentralSimple L (L ⊗[K] D) where
+instance baseChange [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] :
+    IsCentralSimple L (L ⊗[K] D) where
+  is_central:= by
+    intro z hz
+    replace hz : z ∈ Subalgebra.center K (L ⊗[K] D) := by
+      rw [Subalgebra.mem_center_iff]
+      intro x
+      rw [Subring.mem_center_iff] at hz
+      exact hz x
 
---   is_central:= by
---     intro z hz
---     replace hz : z ∈ Subalgebra.center K (L ⊗[K] D) := by
---       rw [Subalgebra.mem_center_iff]
---       intro x
---       rw [Subring.mem_center_iff] at hz
---       exact hz x
-
---     rw [center_tensorProduct K L] at hz
---     obtain ⟨x, rfl⟩ := hz
---     induction x using TensorProduct.induction_on with
---     | zero => exact ⟨0, by simp⟩
---     | tmul l d =>
---       obtain ⟨k, hk⟩ := h.is_central (d := d.1)
---         (Subring.mem_center_iff.2 <| fun x ↦ Subalgebra.mem_center_iff.mp d.2 x)
---       simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
---         Subalgebra.coe_val, Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id,
---         RingHom.id_apply]
---       simp_rw [hk]
---       refine ⟨k • l, ?_⟩
---       rw [TensorProduct.smul_tmul, Algebra.algebraMap_eq_smul_one]
---     | add x y hx hy =>
---       obtain ⟨kx, hkx⟩ := hx
---       obtain ⟨ky, hky⟩ := hy
---       simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.algebraMap_apply,
---         Algebra.id.map_eq_id, RingHom.id_apply] at hkx hky
---       refine ⟨kx + ky, ?_⟩
---       simp only [AlgHom.toRingHom_eq_coe, map_add, RingHom.coe_coe, hkx, hky,
---         Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
---   is_simple := by sorry
+    rw [center_tensorProduct K L] at hz
+    obtain ⟨x, rfl⟩ := hz
+    induction x using TensorProduct.induction_on with
+    | zero => exact ⟨0, by simp⟩
+    | tmul l d =>
+      obtain ⟨k, hk⟩ := h.is_central (d := d.1)
+        (Subring.mem_center_iff.2 <| fun x ↦ Subalgebra.mem_center_iff.mp d.2 x)
+      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
+        Subalgebra.coe_val, Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id,
+        RingHom.id_apply]
+      simp_rw [hk]
+      refine ⟨k • l, ?_⟩
+      rw [TensorProduct.smul_tmul, Algebra.algebraMap_eq_smul_one]
+    | add x y hx hy =>
+      obtain ⟨kx, hkx⟩ := hx
+      obtain ⟨ky, hky⟩ := hy
+      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.algebraMap_apply,
+        Algebra.id.map_eq_id, RingHom.id_apply] at hkx hky
+      refine ⟨kx + ky, ?_⟩
+      simp only [AlgHom.toRingHom_eq_coe, map_add, RingHom.coe_coe, hkx, hky,
+        Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
+  is_simple := by sorry
 end IsCentralSimple
 
 section CSA_implies_CSA
@@ -515,8 +514,8 @@ lemma top_eq_ring (R :Type*)[Ring R] : (⊤ : RingCon R) = (⊤ : Set R) := by
 
 open Classical in
 lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
-    (hnon : Nontrivial B) (hcs : IsCentralSimple K B)
-    (C : Type*)[Ring C][Algebra K C](Iso : B ≃ₐ[K] C):
+    [hcs : IsCentralSimple K B]
+    (C : Type*) [Ring C] [Algebra K C] (Iso : B ≃ₐ[K] C):
     IsCentralSimple K C where
   is_central := sorry
   is_simple := by
@@ -562,12 +561,12 @@ theorem IsCentralSimple.algEquiv {K B D : Type*}
   sorry
 
 theorem CSA_implies_CSA (K : Type*) (B : Type*) [Field K] [Ring B] [Algebra K B]
-    (hnon : Nontrivial B) [IsSimpleOrder (RingCon B)] (n : ℕ)
+    [IsSimpleOrder (RingCon B)] (n : ℕ)
     (D : Type*) (hn : 0 < n) (h : DivisionRing D) [Algebra K D]
     (Wdb: B ≃ₐ[K] (Matrix (Fin n) (Fin n) D)):
     IsCentralSimple K B → IsCentralSimple K D := by
   intro BCS
-  letI inst1 := inst1 K B hnon BCS _ Wdb
+  letI inst1 := inst1 K B _ Wdb
   let hnone : Nonempty (Fin n) := ⟨0, hn⟩
   constructor
   · intro d hd
