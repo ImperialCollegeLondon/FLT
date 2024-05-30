@@ -208,6 +208,7 @@ noncomputable def mopEquivEnd : Aᵐᵒᵖ ≃+* Module.End A A :=
 /--
 the map `Aᵒᵖ → Hom(A, A)` is bijective
 -/
+@[simps!]
 noncomputable def equivEndMop : A ≃+* (Module.End A A)ᵐᵒᵖ :=
   RingEquiv.ofBijective (toEndMop A) ⟨RingHom.injective_iff_ker_eq_bot _ |>.mpr $ SetLike.ext
     fun α => ⟨fun ha => by
@@ -742,9 +743,8 @@ instance (I : Ideal B) : Algebra K (Module.End B I)ᵐᵒᵖ where
 lemma algebraEndIdealMop.algebraMap_eq (I : Ideal B) :
     algebraMap K (Module.End B I)ᵐᵒᵖ = algebraMapEndIdealMop K I := rfl
 
-#check AlgEquiv.ofRingEquiv
-lemma simple_eq_central_simple_prev
-    [sim : IsSimpleOrder (RingCon B)] (centerEquiv : Subalgebra.center B = ⊥):
+lemma Wedderburn_Artin_algebra_version
+    [sim : IsSimpleOrder (RingCon B)]:
     ∃ (n : ℕ) (S : Type u) (div_ring : DivisionRing S) (alg : Algebra K S),
     Nonempty (B ≃ₐ[K] (M[Fin n, S])) := by
   classical
@@ -775,8 +775,27 @@ lemma simple_eq_central_simple_prev
   · subst h
     ext x : 1
     simp only [LinearMap.coe_mk, AddHom.coe_mk, MulOpposite.unop_op]
-    sorry
-  · sorry
+    rw [show r • x = Function.update (0 : Fin n → I) i (r • x) i by simp]
+    refine congr_fun ?_ i
+    apply_fun e using e.toEquiv.injective
+    simp only [equivEndMop_apply, MulOpposite.unop_op, LinearMap.coe_mk, AddHom.coe_mk,
+      LinearEquiv.apply_symm_apply]
+    rw [show Function.update (0 : Fin n → I) i (r • x) = r • Function.update (0 : Fin n → I) i x
+      by ext : 1; simp [Function.update]]
+    rw [← Algebra.commutes, ← smul_eq_mul, ← e.map_smul]
+    exact congr_arg e $ by ext; simp
+  · ext x : 1
+    simp only [LinearMap.coe_mk, AddHom.coe_mk, MulOpposite.unop_zero, LinearMap.zero_apply]
+    rw [show (0 : I) = Function.update (0 : Fin n → I) i (r • x) j
+      by simp [Function.update, if_neg (Ne.symm h)]]
+    refine congr_fun ?_ j
+    apply_fun e using e.toEquiv.injective
+    simp only [equivEndMop_apply, MulOpposite.unop_op, LinearMap.coe_mk, AddHom.coe_mk,
+      LinearEquiv.apply_symm_apply, map_zero]
+    rw [show Function.update (0 : Fin n → I) i (r • x) = r • Function.update (0 : Fin n → I) i x
+      by ext : 1; simp [Function.update]]
+    rw [← Algebra.commutes, ← smul_eq_mul, ← e.map_smul]
+    exact congr_arg e $ by ext; simp
 
 -- theorem simple_eq_central_simple
 --     [hsim : IsSimpleOrder (RingCon B)] (hctr : Subalgebra.center B = ⊥)
