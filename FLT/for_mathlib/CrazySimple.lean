@@ -373,7 +373,7 @@ private lemma Wedderburn_Artin.aux.n_ne_zero
   have one_eq : ∑ j : Fin n, (i j) * (x j) = 1 :=
     Wedderburn_Artin.aux.nxi_spec I I_nontrivial I_minimal
 
-  let e : Fin n ≃ Fin 0 := Fin.castIso hn
+  let e : Fin n ≃ Fin 0 := Fin.castOrderIso hn
   have one_eq := calc 1
     _ = _ := one_eq.symm
     _ = ∑ j : Fin 0, i (e.symm j) * x (e.symm j) :=
@@ -401,13 +401,13 @@ private noncomputable abbrev Wedderburn_Artin.aux.nxi_ne_zero
     (show n - 1 < n by omega) ?_
 
   let e : Fin n ≃ Option (Fin (n - 1)) :=
-    (Fin.castIso <| by omega).toEquiv.trans (finSuccEquiv' (j.cast <| by omega))
+    (Fin.castOrderIso <| by omega).toEquiv.trans (finSuccEquiv' (j.cast <| by omega))
   have one_eq := calc 1
     _ = _ := one_eq.symm
     _ = ∑ j : Option (Fin (n - 1)), i (e.symm j) * x (e.symm j) :=
         Fintype.sum_bijective e (Equiv.bijective _) _ _ (fun _ ↦ by simp)
-  simp only [Equiv.symm_trans_apply, OrderIso.toEquiv_symm, Fin.symm_castIso,
-    RelIso.coe_fn_toEquiv, Fin.castIso_apply, Fintype.sum_option, finSuccEquiv'_symm_none,
+  simp only [Equiv.symm_trans_apply, OrderIso.toEquiv_symm, Fin.symm_castOrderIso,
+    RelIso.coe_fn_toEquiv, Fin.castOrderIso_apply, Fintype.sum_option, finSuccEquiv'_symm_none,
     Fin.cast_trans, Fin.cast_eq_self, finSuccEquiv'_symm_some, e] at one_eq
   if xj_eq : x j = 0
   then
@@ -466,7 +466,7 @@ private lemma Wedderburn_Artin.aux.equivIdeal
     have one_eq' : ∑ _, _ - ∑ _, _ = 1 - 0 := congr_arg₂ (· - ·) one_eq hy1
     rw [← Finset.sum_sub_distrib, sub_zero] at one_eq'
     let e : Fin n ≃ Option (Fin (n - 1)) :=
-      (Fin.castIso <| by omega).toEquiv.trans (finSuccEquiv' (j.cast <| by omega))
+      (Fin.castOrderIso <| by omega).toEquiv.trans (finSuccEquiv' (j.cast <| by omega))
 
     have one_eq' := calc 1
       _ = _ := one_eq'.symm
@@ -477,8 +477,8 @@ private lemma Wedderburn_Artin.aux.equivIdeal
             ((i (e.symm k) - r * y (e.symm k)) * x (e.symm k)) :=
           Finset.sum_congr rfl (fun _ _ ↦ by simp only [sub_mul, mul_assoc])
 
-    simp only [Equiv.symm_trans_apply, OrderIso.toEquiv_symm, Fin.symm_castIso,
-      RelIso.coe_fn_toEquiv, Fin.castIso_apply, Fintype.sum_option, finSuccEquiv'_symm_none,
+    simp only [Equiv.symm_trans_apply, OrderIso.toEquiv_symm, Fin.symm_castOrderIso,
+      RelIso.coe_fn_toEquiv, Fin.castOrderIso_apply, Fintype.sum_option, finSuccEquiv'_symm_none,
       Fin.cast_trans, Fin.cast_eq_self, hr', zero_mul, finSuccEquiv'_symm_some, zero_add,
       e] at one_eq'
     set f := _
