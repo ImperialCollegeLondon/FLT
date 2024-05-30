@@ -123,6 +123,15 @@ variable (A K L B : Type*) [CommRing A] [CommRing B]
   [IsIntegralClosure B A L] [FiniteDimensional K L] [IsFractionRing B L]
   [IsDedekindDomain A] [IsDedekindDomain B]
 
+/-
+**TODO**
+
+The below definition of `Ideal'` needs refactoring somehow, but I am not entirely clear
+how yet; perhaps when I understand this work better I'll know how to proceed. Right now
+it's the ideals of B but under the assumption that we're in some kind of AKLB set-up.
+
+-/
+
 /-- re-definition of `Ideal B` in terms of 'AKLB setup'. -/
 @[nolint unusedArguments] abbrev Ideal' (A K L B : Type*)
   [Semiring B] [SMul A B]
@@ -130,12 +139,18 @@ variable (A K L B : Type*) [CommRing A] [CommRing B]
   [SMul K L] [SMul A L] [IsScalarTower A B L]
   [IsScalarTower A K L]
    := Ideal B
--- we used the command `@[nolint unusedArguments]`, to indicate to lint that
--- all variables listed between `Ideal'` and `Ideal B`
--- are comprised in the abbreviation; so, `Ideal'` carries with it an
--- instance of `A`.
 
--- Amelia helped me to define smul, below
+/-
+**TODO**
+
+I feel like this definition should be broken into three pieces:
+
+1) Action of `B ≃ₐ[A] B` on `Ideal B`
+2) Isomorphism `B ≃ₐ[A] B` = `L ≃ₐ[A] L` if `IsScalarTower A B L`
+3) Isomorphism `L ≃ₐ[A] L` = `L ≃ₐ[K] L` if `IsScalarTower A K L`.
+
+
+-/
 /-- Action of the Galois group `L ≃ₐ[K] L` on the prime ideals `(Ideal' A K L B)`;
 where `(Ideal' A K L B)` denotes `Ideal B` re-defined with respect to the
 'AKLB setup'. -/
@@ -180,21 +195,7 @@ variable (P : Ideal A) [Ideal.IsMaximal P] [Fintype (A ⧸ P)] (P_ne_bot : P ≠
 
 /-- `Fintype.card (A ⧸ P)` -/
 local notation "q" => Fintype.card (A ⧸ P)
--- The main existence proof for the Frobenius element
--- will demonstrate that the order of the Frobenius element is this `q`.
-
--- By the following instance, we obtain that there is an element `g` in
--- `(B ⧸ Q)ˣ` which generates `(B ⧸ Q)ˣ`, as a cyclic group.
--- We will use the existence of such a `g` to prove the theorem `exists_generator`.
-variable {A K L B} in
-instance residue_field_units_is_cyclic : IsCyclic (B ⧸ Q)ˣ :=
-  isCyclic_of_subgroup_isDomain (Units.coeHom _) <| fun _ _ ↦ Units.eq_iff.mp
-
-/-- The Orbit-Stabilizer Theorem for the orbit of the non-zero prime ideal `Q` of `B`
-under the action of the Galois group `L ≃ₐ[K] L`. -/
-noncomputable def galOrbitStabilizer : (MulAction.orbit  (L ≃ₐ[K] L) Q) ≃
-    (L ≃ₐ[K] L) ⧸ ( decomposition_subgroup_Ideal' Q) :=
-  MulAction.orbitEquivQuotientStabilizer (L ≃ₐ[K] L) Q
+-- The main existence proof for the Frobenius element will show that mod `Q` it acts as `x ↦ x^q`.
 
 namespace CRTRepresentative.auxiliary
 
@@ -216,12 +217,6 @@ noncomputable def f :
     -- ⊢ σ • Q = τ • Q
     rwa [← eq_inv_smul_iff, eq_comm, smul_smul] -- manipulate
     -- the goal until it becomes `h`, then `rwa` finishes it.
-
--- In order to use the orbit `Fintype ((L ≃ₐ[K] L) ⧸ decomposition_subgroup_Ideal Q)`
--- as the Fintype demanded by the CRT, we had to tell Lean that the orbit is indeed a Fintype
-noncomputable instance : Fintype ((L ≃ₐ[K] L) ⧸ decomposition_subgroup_Ideal' Q) := by
-  classical
-  convert Quotient.fintype (QuotientGroup.leftRel (decomposition_subgroup_Ideal' Q))
 
 -- The following instance supplies one hypothesis of the CRT.
 instance MapPrimestoPrimes (σ : L ≃ₐ[K] L) (Q : Ideal' A K L B) [Ideal.IsPrime Q] :
@@ -282,11 +277,11 @@ variable {A K L B Q} in
 /--"By the Chinese remainder theorem, there exists an element `ρ` of `B` such that
 `ρ` generates the group `(B ⧸ Q)ˣ` and lies in `τ • Q` for all `τ` not in the
 decomposition subgroup of `Q` over `K`". -/
-theorem exists_generator  : ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
-    (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit)∧
-    (∀  τ : L ≃ₐ[K] L, (τ ∉ decomposition_subgroup_Ideal' Q) →
+theorem exists_generator : ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
+    (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit) ∧
+    (∀ τ : L ≃ₐ[K] L, (τ ∉ decomposition_subgroup_Ideal' Q) →
     ρ ∈ (τ • Q)) := by
-  have i : IsCyclic (B ⧸ Q)ˣ := residue_field_units_is_cyclic Q
+  have i : IsCyclic (B ⧸ Q)ˣ := inferInstance
   apply IsCyclic.exists_monoid_generator at i
   rcases i with ⟨⟨g, g', hgg', hg'g⟩, hg⟩
   induction' g using Quotient.inductionOn' with g
@@ -444,18 +439,17 @@ lemma generator_mem_zpowers :
     ∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers (generator_isUnit Q_ne_bot).unit :=
   (Classical.choose_spec (exists_generator Q_ne_bot)).choose_spec.1
 
-lemma generator_mem_submonoid_powers :  (∀ (x : (B ⧸ Q)ˣ),
-    x ∈ Submonoid.powers (generator_isUnit Q_ne_bot).unit) := by
+lemma generator_mem_submonoid_powers (x : (B ⧸ Q)ˣ) :
+    x ∈ Submonoid.powers (generator_isUnit Q_ne_bot).unit := by
   classical
   have h := IsCyclic.image_range_orderOf (generator_mem_zpowers Q_ne_bot)
-  intro x
   have hx : x ∈ Finset.univ := by simp only [Finset.mem_univ]
   rw [← h] at hx
   simp only [Finset.mem_image, Finset.mem_range] at hx
   rcases hx with ⟨n, _, hn2⟩
   use n
 
-lemma generator_well_defined :  (∀  τ : L ≃ₐ[K] L, (τ ∉ decomposition_subgroup_Ideal' Q) →
+lemma generator_well_defined : (∀ τ : L ≃ₐ[K] L, (τ ∉ decomposition_subgroup_Ideal' Q) →
    (generator Q_ne_bot) ∈ (τ • Q)) :=
   (Classical.choose_spec (exists_generator Q_ne_bot)).choose_spec.2
 
@@ -463,9 +457,6 @@ end generator
 
 /-- `generator A K L B Q Q_ne_bot` -/
 local notation "α" => generator Q_ne_bot
-
-
-noncomputable instance : Fintype (L ≃ₐ[K] L) := AlgEquiv.fintype K L
 
 open BigOperators
 
@@ -482,9 +473,9 @@ local notation "F" => F' A K L B Q Q_ne_bot
 variable [IsGalois K L] [IsIntegralClosure A A K]
 
 namespace coeff_lives_in_A.auxiliary
-/-- The action of automorphisms `σ :  L ≃ₐ[K] L` on linear factors of `F` acts as
+/-- The action of automorphisms `σ : L ≃ₐ[K] L` on linear factors of `F` acts as
 scalar multiplication on the constants `C (galRestrict A K L B τ (α))`.  -/
-theorem gal_smul_F_eq  (σ :  L ≃ₐ[K] L) :
+theorem gal_smul_F_eq  (σ : L ≃ₐ[K] L) :
     galRestrict A K L B σ •
     (∏ τ : L ≃ₐ[K] L,
       (X - C (galRestrict A K L B τ α))) =
@@ -526,16 +517,15 @@ lemma F_invariant_under_finite_aut (σ :  L ≃ₐ[K] L)  :
   apply Finset.prod_bij i hi i_inj i_surj h
 
 /-- ` L ≃ₐ[K] L` fixes `F`. -/
-theorem gal_smul_F_eq_self  (σ :  L ≃ₐ[K] L) :
+theorem gal_smul_F_eq_self (σ : L ≃ₐ[K] L) :
      galRestrict A K L B σ • (∏ τ : L ≃ₐ[K] L,
      (X - C (galRestrict A K L B τ α))) =
      (∏ τ : L ≃ₐ[K] L, (X - C (galRestrict A K L B τ α))) := by
   rw [gal_smul_F_eq, F_invariant_under_finite_aut]
   rfl
 
-set_option autoImplicit true
-theorem gal_smul_coeff_eq (n : ℕ) (h : ∀ σ : L ≃ₐ[K] L, galRestrict A K L B σ • F = F) :
-    galRestrict A K L B σ • (coeff F n) = coeff F n := by
+theorem gal_smul_coeff_eq (n : ℕ) (h : ∀ σ : L ≃ₐ[K] L, galRestrict A K L B σ • F = F)
+    (σ : L ≃ₐ[K] L) : galRestrict A K L B σ • (coeff F n) = coeff F n := by
   simp only [AlgEquiv.smul_def]
   nth_rewrite 2 [← h σ]
   simp only [coeff_smul, AlgEquiv.smul_def]
@@ -720,8 +710,8 @@ lemma B_m_expand_char_q : (Polynomial.map (algebraMap A (B ⧸ Q)) m) ^ q =
     IsScalarTower.algebraMap_eq A (A ⧸ P)  (B ⧸ Q)
   rw [st, ← Polynomial.map_map, ← Polynomial.map_pow, m_expand_char_q, map_expand]
 
-lemma A_B_scalar_tower_m :  (Polynomial.map (algebraMap A (B ⧸ Q)) m) =
-    (( Polynomial.map ( RingHom.comp (algebraMap B (B ⧸ Q)) (algebraMap A B))) m) := by
+lemma A_B_scalar_tower_m : Polynomial.map (algebraMap A (B ⧸ Q)) m =
+    Polynomial.map (RingHom.comp (algebraMap B (B ⧸ Q)) (algebraMap A B)) m := by
   have st : (algebraMap A (B ⧸ Q)) =
       RingHom.comp (algebraMap B (B ⧸ Q)) (algebraMap A B) :=
     IsScalarTower.algebraMap_eq A B (B ⧸ Q)
@@ -802,7 +792,7 @@ noncomputable def Frob' : L ≃ₐ[K] L := Classical.choose (pow_q_conjugate P Q
 
 local notation "Frob" => Frob' P Q_ne_bot
 
-/-- if `Frob ∉ decomposition_subgroup_Ideal'  A K L B Q`, then `Frob⁻¹ • Q ≠ Q` -/
+/-- if `Frob ∉ decomposition_subgroup_Ideal' A K L B Q`, then `Frob⁻¹ • Q ≠ Q` -/
 lemma inv_aut_not_mem_decomp (h : Frob ∉ decomposition_subgroup_Ideal' Q) : (Frob⁻¹ • Q) ≠ Q := by
   by_contra con
   apply inv_smul_eq_iff.1 at con
@@ -848,11 +838,9 @@ theorem Frob_is_in_decompositionSubgroup :
   exact Ideal.Quotient.eq_zero_iff_mem.2 <|
     Ideal.IsPrime.mem_of_pow_mem (hI := inferInstance)
     (H := is_zero_pow_gen_mod_Q (h := gen_zero_mod_inv_aut (h1 := con)))
--- Jujian helped me to drastically simplify this proof.
 
 /- ## Now, for `γ : B` we have two cases: `γ ∉ Q` and `γ ∈ Q`. -/
 
--- formerly known as `lemma D`
 /-- Every element `γ : B`, `γ ∉ Q`, can be written `γ = α ^ i + β`, with `β ∈ Q` -/
 lemma γ_not_in_Q_is_pow_gen {γ : B} (h : γ ∉ Q) :  ∃ (i : ℕ), γ - (α ^ i) ∈ Q := by
    let g :=  Units.mk0 (((Ideal.Quotient.mk Q γ))) <| by
@@ -887,11 +875,11 @@ lemma eq_pow_gen_apply {γ : B} (h: γ ∉ Q) : (galRestrict A K L B Frob) γ -
   rw [mem_decomposition_iff] at this
   apply (this _).1 h1
 
-set_option autoImplicit true
+-- γ ∈ B \ Q is α^i mod Q
 /-- `Frob • (α ^ i)  ≡ α ^ (i * q) mod Q` -/
-lemma pow_pow_gen_eq_pow_gen_apply : ((α ^ ((i h) * q)) -
+lemma pow_pow_gen_eq_pow_gen_apply {γ : B} {h : γ ∉ Q} : ((α ^ ((i h) * q)) -
     galRestrict A K L B Frob (α ^ (i h))) ∈ Q := by
-  have h1 :  (α ^ q - (galRestrict A K L B Frob) α) ∈ Q := prop_Frob P Q_ne_bot
+  have h1 : α ^ q - (galRestrict A K L B Frob) α ∈ Q := prop_Frob P Q_ne_bot
   simp_all only [ne_eq, ← Ideal.Quotient.mk_eq_mk_iff_sub_mem, map_pow]
   rw [pow_mul']
   exact congrFun (congrArg HPow.hPow h1) (i h)

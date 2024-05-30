@@ -1,6 +1,7 @@
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Tactic.Peel
 import Mathlib.Analysis.Quaternion
+import Mathlib.RingTheory.Flat.Basic
 /-
 
 # Example of a space of automorphic forms
@@ -211,6 +212,8 @@ lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
     exact this -- missing lemma
   simpa only [ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod, ZMod.val_zero] using congrArg ZMod.val this
 
+instance ZHat_flat : Module.Flat ℤ ZHat := sorry --by torsion-freeness
+
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
     N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
   have hhj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
@@ -301,13 +304,27 @@ lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗
     IsCoprime N₁ z₁ ∧ IsCoprime N₂ z₂ ∧ (1 / N₁ : ℚ) ⊗ₜ z₁ = (1 / N₂ : ℚ) ⊗ₜ[ℤ] z₂ →
       N₁ = N₂ ∧ z₁ = z₂) := sorry
 
-noncomputable abbrev i₁ : ℚ →ₐ[ℤ] QHat := Algebra.TensorProduct.includeLeft
-lemma injective_rat :
-    Function.Injective i₁ := sorry -- flatness
-
 noncomputable abbrev i₂ : ZHat →ₐ[ℤ] QHat := Algebra.TensorProduct.includeRight
 lemma injective_zHat :
-    Function.Injective i₂ := sorry -- flatness
+    Function.Injective i₂ := by
+      intro a b h
+      have h₁ := LinearMap.rTensor_tmul ZHat (f := Algebra.linearMap ℤ ℚ) a 1
+      have h₂ := LinearMap.rTensor_tmul ZHat (f := Algebra.linearMap ℤ ℚ) b 1
+      simp only [Algebra.linearMap_apply, map_one] at h₁ h₂
+      dsimp at h
+      rw [← h₁, ← h₂] at h
+      replace h := Module.Flat.rTensor_preserves_injective_linearMap
+        (M := ZHat) (Algebra.linearMap ℤ ℚ) (fun _ _ ↦ by simp) h
+      simp at h
+      have := congrArg (TensorProduct.lid ℤ ZHat) h
+      simpa using this
+
+instance nontrivial_QHat : Nontrivial QHat where
+  exists_pair_ne := ⟨1 ⊗ₜ 0, 1 ⊗ₜ 1, injective_zHat.ne ZHat.zeroNeOne⟩
+
+noncomputable abbrev i₁ : ℚ →ₐ[ℤ] QHat := Algebra.TensorProduct.includeLeft
+lemma injective_rat :
+    Function.Injective i₁ := RingHom.injective i₁.toRingHom
 
 section additive_structure_of_QHat
 
@@ -395,6 +412,13 @@ instance : Zero 𝓞 := ⟨zero⟩
 
 lemma toQuaternion_zero : toQuaternion 0 = 0 := by
   ext <;> simp [toQuaternion]
+
+@[simp]
+lemma toQuaternion_eq_zero_iff {z} : toQuaternion z = 0 ↔ z = 0 :=
+  toQuaternion_injective.eq_iff' toQuaternion_zero
+
+lemma toQuaternion_ne_zero_iff {z} : toQuaternion z ≠ 0 ↔ z ≠ 0 :=
+  toQuaternion_injective.ne_iff' toQuaternion_zero
 
 /-! ## one (1) -/
 
@@ -731,9 +755,75 @@ lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := by
     pow_eq_zero_iff, mul_eq_zero, or_false] at h1
   ext <;> assumption
 
-lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ norm r < norm b := sorry
+open Quaternion in
+lemma normSq_toQuaternion (z : 𝓞) : normSq (toQuaternion z) = norm z := by
+  apply coe_injective
+  rw [← self_mul_star, ← toQuaternion_star, ← toQuaternion_mul, ← norm_eq_mul_conj,
+    toQuaternion_intCast, coe_intCast]
 
-lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.span 𝓞 {a} := sorry
+open Quaternion in
+lemma exists_near (z : ℍ) : ∃ q : 𝓞, dist z (toQuaternion q) < 1 := by
+  sorry
+
+open Quaternion in
+lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ norm r < norm b := by
+  let a' := toQuaternion a
+  let b' := toQuaternion b
+  have hb' : b' ≠ 0 := toQuaternion_ne_zero_iff.mpr hb
+  let q' := a' / b'
+  obtain ⟨q : 𝓞, hq : dist q' (toQuaternion q) < 1⟩ : ∃ _, _ := exists_near q'
+  refine ⟨q, a - q * b, (add_sub_cancel _ _).symm, ?_⟩
+  rw [← Int.cast_lt (α := ℝ), ← normSq_toQuaternion, ← normSq_toQuaternion]
+  rw [normSq_eq_norm_mul_self, normSq_eq_norm_mul_self]
+  refine mul_self_lt_mul_self ?_ ?_
+  · exact _root_.norm_nonneg (a - q * b).toQuaternion
+  rw [toQuaternion_sub, ← dist_eq_norm]
+  calc
+    _ = dist (q' * b') (q.toQuaternion * b') := ?_
+    _ = dist q' (q.toQuaternion) * ‖b'‖ := ?_
+    _ < _ := ?_
+  · rw [toQuaternion_mul]
+    dsimp only [b', q']
+    rw [div_mul_cancel₀ a' hb']
+  · -- Surprised that this doesn't seem to exist in mathlib.
+    rw [dist_eq_norm_sub', ← sub_mul, _root_.norm_mul, ← dist_eq_norm_sub']
+  · rw [← norm_pos_iff] at hb'
+    exact mul_lt_of_lt_one_left hb' hq
+
+lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.span 𝓞 {a} := by
+  by_cases h_bot : I = ⊥
+  · use 0
+    rw [Eq.comm]
+    simp only [h_bot, Submodule.span_singleton_eq_bot]
+  let S := {a : 𝓞 // a ∈ I ∧ a ≠ 0}
+  have : Nonempty S := by
+    simp [S, ne_eq, norm_eq_zero]
+    exact Submodule.exists_mem_ne_zero_of_ne_bot h_bot
+  have hbdd : BddBelow <| Set.range (fun i : S ↦ norm i) := by
+    use 0
+    simp only [ne_eq, mem_lowerBounds, Set.mem_range]
+    rintro _ ⟨_, rfl⟩
+    exact norm_nonneg _
+  obtain ⟨a, ha⟩ : ∃ a : S, norm a = ⨅ i : S, norm i :=
+    exists_eq_ciInf_of_not_isPredLimit hbdd (Order.not_isPredLimit)
+  use a
+  apply le_antisymm
+  · intro i hi
+    rw [Submodule.mem_span_singleton]
+    simp only [ne_eq]
+    obtain ⟨q, r, hqr⟩ := quot_rem i a a.2.2
+    rw [ha] at hqr
+    have hrI : r ∈ I := by
+      rw [show r = i - q • a by apply eq_sub_of_add_eq; rw [add_comm]; exact hqr.1.symm ]
+      apply I.sub_mem hi (I.smul_mem _ a.2.1)
+    have hr : r = 0 := by
+      by_contra hr
+      lift r to S using ⟨hrI, hr⟩
+      apply (ciInf_le hbdd r).not_lt hqr.2
+    rw [hr, add_zero] at hqr
+    refine ⟨q, hqr.1.symm⟩
+  · rw [Submodule.span_singleton_le_iff_mem]
+    exact a.2.1
 
 open scoped TensorProduct
 
