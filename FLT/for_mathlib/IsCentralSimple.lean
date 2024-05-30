@@ -216,7 +216,7 @@ lemma TensorProduct.submodule_tensor_inf_tensor_submodule [Small.{v, u} K]
       TensorProduct.map (Submodule.mkQ _) LinearMap.id
     have exactuv : Function.Exact u v := by
       apply rTensor_exact
-      rw [Function.LinearMap.exact_iff]
+      rw [LinearMap.exact_iff]
       simp only [Submodule.ker_mkQ, Submodule.range_subtype]
       exact Submodule.mkQ_surjective _
 
@@ -224,7 +224,7 @@ lemma TensorProduct.submodule_tensor_inf_tensor_submodule [Small.{v, u} K]
     let v' : B ⊗[K] C →ₗ[K] (B ⧸ b) ⊗[K] C := TensorProduct.map (Submodule.mkQ _) LinearMap.id
     have exactu'v' : Function.Exact u' v' := by
       apply rTensor_exact
-      rw [Function.LinearMap.exact_iff]
+      rw [LinearMap.exact_iff]
       simp only [Submodule.ker_mkQ, Submodule.range_subtype]
       exact Submodule.mkQ_surjective _
 
@@ -244,7 +244,7 @@ lemma TensorProduct.submodule_tensor_inf_tensor_submodule [Small.{v, u} K]
     have hz1 : v' (β z) = γ (v z) := congr($comm0 z)
     have hz2 : v' (β z) = 0 := by
       rw [← LinearMap.mem_ker]
-      rw [Function.LinearMap.exact_iff] at exactu'v'
+      rw [LinearMap.exact_iff] at exactu'v'
       rw [exactu'v']
       exact hz.1
     rw [hz2] at hz1
@@ -253,7 +253,7 @@ lemma TensorProduct.submodule_tensor_inf_tensor_submodule [Small.{v, u} K]
       rw [← LinearMap.ker_eq_bot] at γ_inj; rw [γ_inj] at hz3; exact hz3
     replace hz3 : z ∈ LinearMap.ker v := hz3
     replace hz3 : z ∈ LinearMap.range u := by
-      rw [Function.LinearMap.exact_iff] at exactuv
+      rw [LinearMap.exact_iff] at exactuv
       rwa [← exactuv]
     obtain ⟨z, rfl⟩ := hz3
     change (β ∘ₗ u) z ∈ _
