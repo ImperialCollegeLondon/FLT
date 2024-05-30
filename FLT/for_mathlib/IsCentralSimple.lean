@@ -509,20 +509,20 @@ section CSA_implies_CSA
 variable (K : Type u) [Field K]
 variable (B : Type*) [Ring B]
 
-lemma top_eq_ring (R :Type*)[Ring R] : (⊤ : RingCon R) = (⊤ : Set R) := by 
+lemma top_eq_ring (R :Type*)[Ring R] : (⊤ : RingCon R) = (⊤ : Set R) := by
   aesop
 
 
 open Classical in
 lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
-    [FiniteDimensional K B] (hnon : Nontrivial B) (hcs : IsCentralSimple K B) (n : ℕ)
+    (hnon : Nontrivial B) (hcs : IsCentralSimple K B)
     (C : Type*)[Ring C][Algebra K C](Iso : B ≃ₐ[K] C):
     IsCentralSimple K C where
   is_central := sorry
   is_simple := by
     obtain ⟨hcen, hsim⟩ := hcs
     have hnon2 : Nontrivial C := Equiv.nontrivial Iso.symm.toEquiv
-    letI : Nontrivial (RingCon C) := by 
+    letI : Nontrivial (RingCon C) := by
       refine { exists_pair_ne := ?exists_pair_ne }
       use ⊥; use ⊤
       sorry
@@ -547,7 +547,7 @@ lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
         rw [RingCon.mem_comap] at hb3
         simp_all only [RingEquiv.toRingHom_eq_coe, map_one, b]
       suffices (a : Set C) = (⊤ : Set C) by sorry
-      have eq_ring : ∀(r : C), r ∈ a := by 
+      have eq_ring : ∀(r : C), r ∈ a := by
         intro r
         have := RingCon.mul_mem_left a r 1 ha
         rw [mul_one] at this ; exact this
@@ -556,23 +556,34 @@ lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
       · intro hr ; simp_all only [Set.top_eq_univ, Set.mem_univ, SetLike.mem_coe]
 
 
-theorem CSA_implies_CSA (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
-    [FiniteDimensional K B] (hnon : Nontrivial B) (hsim : IsSimpleOrder (RingCon B)) (n : ℕ)
+theorem IsCentralSimple.algEquiv {K B D : Type*}
+    [Field K] [Ring B] [Ring D] [Algebra K B] [Algebra K D]
+    (e : B ≃ₐ[K] D) (h : IsCentralSimple K B) :  IsCentralSimple K D := by
+  sorry
+
+theorem CSA_implies_CSA (K : Type*) (B : Type*) [Field K] [Ring B] [Algebra K B]
+    (hnon : Nontrivial B) [IsSimpleOrder (RingCon B)] (n : ℕ)
     (D : Type*) (hn : 0 < n) (h : DivisionRing D) [Algebra K D]
-    (Wdb: B ≃+* (Matrix (Fin n) (Fin n) D)):
+    (Wdb: B ≃ₐ[K] (Matrix (Fin n) (Fin n) D)):
     IsCentralSimple K B → IsCentralSimple K D := by
   intro BCS
+  letI inst1 := inst1 K B hnon BCS _ Wdb
   let hnone : Nonempty (Fin n) := ⟨0, hn⟩
-
   constructor
   · intro d hd
-    obtain ⟨h1, h2⟩ := inst1 K B hnon BCS n _ Wdb
-
-    -- have dd := (Matrix.mem_center_iff D n _)⟨0, by omega⟩
-    sorry
-
-  · let F := RingCon.equivRingConMatrix' D (ι := (Fin n)) ⟨0, hn⟩
-    exact F.isSimpleOrder
+    obtain ⟨k, hk⟩ := inst1.is_central (Matrix.diagonal fun _ => d) (by
+      rw [Matrix.mem_center_iff]
+      refine ⟨⟨d, hd⟩, ?_⟩
+      simp only [Submonoid.mk_smul]
+      ext i j
+      rw [Matrix.diagonal_apply, Matrix.smul_apply, Matrix.one_apply]
+      split_ifs <;> simp)
+    refine ⟨k, ?_⟩
+    apply_fun (· ⟨0, by omega⟩ ⟨0, by omega⟩) at hk
+    simp only [Matrix.diagonal_apply_eq] at hk
+    rw [hk]
+    rfl
+  · exact RingCon.equivRingConMatrix' D (ι := (Fin n)) ⟨0, hn⟩ |>.isSimpleOrder
 
 
 -- restrict to 4d case
