@@ -31,19 +31,25 @@ open scoped BigOperators
 
 class IsCentralSimple
     (K : Type u) [Field K] (D : Type v) [Ring D] [Algebra K D] : Prop where
-  is_central : ∀ d : D, d ∈ Subring.center D → ∃ k : K, d = algebraMap K D k
+  is_central : Subalgebra.center K D ≤ ⊥
   is_simple : IsSimpleOrder (RingCon D)
+
+lemma IsCentralSimple.center_eq
+    (K D : Type*) [Field K] [Ring D] [Algebra K D] [IsCentralSimple K D] :
+    Subalgebra.center K D = ⊥ :=
+  le_antisymm IsCentralSimple.is_central $ by
+    rintro _ ⟨x, rfl⟩
+    rw [Subalgebra.mem_center_iff]
+    exact (Algebra.commutes' x · |>.symm)
+
 
 variable (K : Type u) [Field K]
 
 open Matrix in
-theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty : Nonempty ι) [DecidableEq ι] :
+theorem MatrixRing.isCentralSimple (ι : Type v) [Fintype ι] [Nonempty ι] [DecidableEq ι] :
     IsCentralSimple K (Matrix ι ι K) where
-  is_central d hd := by
-    rw [Subring.mem_center_iff] at hd
-    convert mem_range_scalar_of_commute_stdBasisMatrix (M := d) fun i j _ => hd _
-    simp_rw [Set.mem_range, eq_comm, algebraMap_eq_diagonal, Pi.algebraMap_def,
-      Algebra.id.map_eq_self, scalar_apply]
+  is_central _ h := mem_range_scalar_of_commute_stdBasisMatrix fun _ _ _ =>
+    Subalgebra.mem_center_iff.mp h _
   is_simple := inferInstance
 
 namespace IsCentralSimple
@@ -473,34 +479,22 @@ lemma center_tensorProduct [Small.{v, u} K]
 instance baseChange [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] :
     IsCentralSimple L (L ⊗[K] D) where
   is_central:= by
-    intro z hz
-    replace hz : z ∈ Subalgebra.center K (L ⊗[K] D) := by
-      rw [Subalgebra.mem_center_iff]
-      intro x
-      rw [Subring.mem_center_iff] at hz
-      exact hz x
-
-    rw [center_tensorProduct K L] at hz
-    obtain ⟨x, rfl⟩ := hz
+    intro _ H
+    obtain ⟨x, rfl⟩ := le_of_eq (center_tensorProduct K L D) H; clear H
     induction x using TensorProduct.induction_on with
     | zero => exact ⟨0, by simp⟩
     | tmul l d =>
-      obtain ⟨k, hk⟩ := h.is_central (d := d.1)
-        (Subring.mem_center_iff.2 <| fun x ↦ Subalgebra.mem_center_iff.mp d.2 x)
-      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
-        Subalgebra.coe_val, Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id,
-        RingHom.id_apply]
-      simp_rw [hk]
+      obtain ⟨k, hk⟩ := h.is_central d.2
       refine ⟨k • l, ?_⟩
+      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
+        Subalgebra.coe_val, ← hk]
+      simp only [Algebra.ofId_apply, Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id,
+        RingHom.id_apply]
       rw [TensorProduct.smul_tmul, Algebra.algebraMap_eq_smul_one]
     | add x y hx hy =>
-      obtain ⟨kx, hkx⟩ := hx
-      obtain ⟨ky, hky⟩ := hy
-      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.algebraMap_apply,
-        Algebra.id.map_eq_id, RingHom.id_apply] at hkx hky
-      refine ⟨kx + ky, ?_⟩
-      simp only [AlgHom.toRingHom_eq_coe, map_add, RingHom.coe_coe, hkx, hky,
-        Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id, RingHom.id_apply]
+      obtain ⟨kx, (hkx : kx ⊗ₜ 1 = _)⟩ := hx
+      obtain ⟨ky, (hky : ky ⊗ₜ 1 = _)⟩ := hy
+      exact ⟨kx + ky, by simp [map_add, Algebra.ofId_apply, hkx, hky]⟩
   is_simple := by sorry
 end IsCentralSimple
 
@@ -515,16 +509,14 @@ lemma _root_.AlgEquiv.isCentralSimple {K B C : Type*}
     [Field K] [Ring B] [Algebra K B] [hcs : IsCentralSimple K B]
     [Ring C] [Algebra K C] (e : B ≃ₐ[K] C):
     IsCentralSimple K C where
-  is_central := by
-    intro z hz
-    obtain ⟨k, hk⟩ := hcs.is_central (e.symm z) (by
-      simp only [Subring.mem_center_iff] at hz ⊢
+  is_central z hz := by
+    obtain ⟨k, hk⟩ := hcs.is_central (show e.symm z ∈ _ by
+      simp only [Subalgebra.mem_center_iff] at hz ⊢
       exact fun x => by simpa using congr(e.symm $(hz (e x))))
-    exact ⟨k, by simpa using congr(e $hk)⟩
+    exact ⟨k, by simpa [Algebra.ofId_apply] using congr(e $hk)⟩
   is_simple := by
     haveI := hcs.is_simple
     exact RingCon.orderIsoOfRingEquiv e.symm.toRingEquiv |>.isSimpleOrder
-
 
 theorem CSA_implies_CSA (K : Type*) (B : Type*) [Field K] [Ring B] [Algebra K B]
     [IsSimpleOrder (RingCon B)] (n : ℕ)
@@ -532,24 +524,17 @@ theorem CSA_implies_CSA (K : Type*) (B : Type*) [Field K] [Ring B] [Algebra K B]
     (Wdb: B ≃ₐ[K] (Matrix (Fin n) (Fin n) D)):
     IsCentralSimple K B → IsCentralSimple K D := by
   intro BCS
-  letI inst1 := Wdb.isCentralSimple
-  let hnone : Nonempty (Fin n) := ⟨0, hn⟩
-  constructor
-  · intro d hd
-    obtain ⟨k, hk⟩ := inst1.is_central (Matrix.diagonal fun _ => d) (by
-      rw [Matrix.mem_center_iff]
-      refine ⟨⟨d, hd⟩, ?_⟩
-      simp only [Submonoid.mk_smul]
-      ext i j
-      rw [Matrix.diagonal_apply, Matrix.smul_apply, Matrix.one_apply]
-      split_ifs <;> simp)
-    refine ⟨k, ?_⟩
-    apply_fun (· ⟨0, by omega⟩ ⟨0, by omega⟩) at hk
-    simp only [Matrix.diagonal_apply_eq] at hk
-    rw [hk]
-    rfl
-  · exact RingCon.equivRingConMatrix' D (ι := (Fin n)) ⟨0, hn⟩ |>.isSimpleOrder
-
+  letI : Nonempty (Fin n) := ⟨0, hn⟩
+  refine ⟨fun d hd => ?_, RingCon.equivRingConMatrix' D (ι := (Fin n)) ⟨0, hn⟩ |>.isSimpleOrder⟩
+  obtain ⟨k, hk⟩ := Wdb.isCentralSimple.is_central (show (Matrix.diagonal fun _ => d)  ∈ _ by
+    rw [Matrix.mem_center_iff']
+    refine ⟨⟨d, hd⟩, ?_⟩
+    ext i j
+    simp only [Matrix.diagonal_apply, Matrix.smul_apply, Matrix.one_apply, smul_ite,
+      Submonoid.mk_smul, smul_eq_mul, mul_one, smul_zero])
+  refine ⟨k, ?_⟩
+  apply_fun (· ⟨0, by omega⟩ ⟨0, by omega⟩) at hk
+  simpa using hk
 
 -- restrict to 4d case
 -- theorem exists_quaternionAlgebra_iso (hK : (2 : K) ≠ 0) :

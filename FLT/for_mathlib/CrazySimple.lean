@@ -659,6 +659,11 @@ lemma Matrix.mem_center_iff (R : Type*) [Ring R] (n : ℕ) (M) :
     rw [Subring.mem_center_iff]
     intro g ; aesop
 
+lemma Matrix.mem_center_iff' (K R : Type*) [Field K] [Ring R] [Algebra K R] (n : ℕ) (M) :
+    M ∈ Subalgebra.center K M[Fin n, R] ↔
+    ∃ α : (Subalgebra.center K R), M = α • 1 :=
+  Matrix.mem_center_iff R n M
+
 @[simps]
 def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) (R : Type*) [Ring R]:
     Subring.center (M[Fin n, R]) ≃+* (Subring.center R) where
