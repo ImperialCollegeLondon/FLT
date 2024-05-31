@@ -537,9 +537,8 @@ end simple_ring
 
 universe u v w
 section central_simple
-variable (k : Type*) [Field k] [h : IsAlgClosed k]
+
 variable (K : Type*) [Field K]
-variable {A: Type*} [Ring A] [Algebra k A]
 variable (B : Type u) [Ring B] [Algebra K B] [FiniteDimensional K B]
 
 lemma IsArtinianRing.of_finiteDimensional : IsArtinianRing B := by
@@ -838,8 +837,20 @@ theorem is_fin_dim_of_wdb
   simp only [Finset.coe_image, Set.mem_image, Finset.mem_coe, s']
   exact ⟨i, hi, rfl⟩
 
-theorem simple_eq_matrix_algclo [h : IsSimpleOrder (RingCon A)] :
-    ∃ (n : ℕ), Nonempty (A ≃+* M[Fin n, k]) := by
-  sorry
+lemma bijective_algebraMap_of_finiteDimensional_divisionRing_over_algClosed
+    (K D : Type*) [Field K] [IsAlgClosed K] [DivisionRing D] [alg : Algebra K D]
+    [FiniteDimensional K D] : Function.Bijective (algebraMap K D) := by
+  letI ins1 := Algebra.IsIntegral.of_finite K D
+  have surj : Function.Surjective (algebraMap K D) :=
+    IsAlgClosed.algebraMap_surjective_of_isIntegral
+  exact ⟨(algebraMap K D).injective, surj⟩
+
+theorem simple_eq_matrix_algClosed [IsAlgClosed K] [IsSimpleOrder (RingCon B)] :
+    ∃ (n : ℕ) (_ : n ≠ 0), Nonempty (B ≃ₐ[K] M[Fin n, K]) := by
+  rcases Wedderburn_Artin_algebra_version K B with ⟨n, hn, S, ins1, ins2, ⟨e⟩⟩
+  have := is_fin_dim_of_wdb K B n S (by omega) e
+  refine ⟨n, hn, ⟨e.trans $ AlgEquiv.mapMatrix $ AlgEquiv.symm $
+    AlgEquiv.ofBijective (Algebra.ofId _ _) $
+      bijective_algebraMap_of_finiteDimensional_divisionRing_over_algClosed _ _⟩⟩
 
 end central_simple

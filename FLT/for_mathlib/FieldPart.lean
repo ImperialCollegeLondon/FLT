@@ -2,7 +2,7 @@ import Mathlib.Tactic
 import Mathlib.FieldTheory.IsSepClosed
 import Mathlib.RingTheory.Algebraic
 
-def div_contain_root_is_field (D : Type*)[Ring D][DivisionRing D]
+def div_contain_root_is_field (D : Type*) [Ring D] [DivisionRing D]
     (p : ℕ) [CharP D p](h : ∀ (a : D), ∃ (m : ℕ), (a ^ p ^ m) ∈ Subring.center D) :
     IsField D where
   exists_pair_ne := sorry
