@@ -517,7 +517,7 @@ lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
     [hcs : IsCentralSimple K B]
     (C : Type*) [Ring C] [Algebra K C] (Iso : B ≃ₐ[K] C):
     IsCentralSimple K C where
-  is_central := by -- condition "Nontrivial B" here for is_central is literally fart with pants off
+  is_central := by -- repeated work, recommend to keep IsCentralSimple.algEquiv
     intro z hz
     have hcent := hcs.is_central (Iso.invFun z)
     have inv_in_center: Iso.invFun z ∈ Subring.center B := by 
