@@ -135,12 +135,6 @@ open MulOpposite
 
 variable [IsSimpleOrder (RingCon A)] [Algebra K A] (h : FiniteDimensional K A)
 
-instance : Nontrivial A := by
-  refine subsingleton_or_nontrivial A |>.resolve_left fun r => ?_
-  obtain ⟨x, y, hxy⟩ := (inferInstance : IsSimpleOrder (RingCon A)).1
-  exact hxy $ SetLike.ext fun a => (show a = 0 from Subsingleton.elim _ _) ▸
-    by simp [RingCon.zero_mem]
-
 variable (D : Type*) [DivisionRing D]
 
 /--
@@ -327,7 +321,7 @@ private noncomputable abbrev Wedderburn_Artin.aux.nxi_spec
   exact (Nat.find_spec <| Wedderburn_Artin.aux.one_eq I I_nontrivial).choose_spec.choose_spec
 
 private lemma Wedderburn_Artin.aux.n_ne_zero
-    {A : Type u} [Ring A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) :
     Wedderburn_Artin.aux.n I I_nontrivial ≠ 0 := by
   by_contra hn
@@ -347,7 +341,7 @@ private lemma Wedderburn_Artin.aux.n_ne_zero
 
 open Wedderburn_Artin.aux in
 private noncomputable abbrev Wedderburn_Artin.aux.nxi_ne_zero
-    {A : Type u} [Ring A] [Nontrivial A] [simple : IsSimpleOrder (RingCon A)]
+    {A : Type u} [Ring A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) :
     ∀ j, x I I_nontrivial j ≠ 0 ∧ i I I_nontrivial j ≠ 0 := by
   classical
@@ -584,8 +578,6 @@ variable (k : Type*) [Field k] [h : IsAlgClosed k]
 variable (K : Type*) [Field K]
 variable {A: Type*} [Ring A] [Algebra k A]
 variable (B : Type u) [Ring B] [Algebra K B] [FiniteDimensional K B]
-
-instance: IsArtinianRing K := inferInstance
 
 lemma IsArtinianRing.of_finiteDimensional : IsArtinianRing B := by
   rw [IsArtinianRing, ← monotone_stabilizes_iff_artinian]
@@ -861,7 +853,7 @@ lemma Wedderburn_Artin_algebra_version
 
 --     sorry
 
-theorem simple_eq_matrix_algclo (h : IsSimpleOrder (RingCon A)) :
+theorem simple_eq_matrix_algclo [h : IsSimpleOrder (RingCon A)] :
     ∃ (n : ℕ), Nonempty (A ≃+* M[Fin n, k]) := by
   sorry
 

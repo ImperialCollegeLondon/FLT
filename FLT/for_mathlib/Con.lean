@@ -268,6 +268,32 @@ lemma lt_iff (I J : RingCon R) : I < J ↔ (I : Set R) ⊂ (J : Set R) := by
   rw [lt_iff_le_and_ne, Set.ssubset_iff_subset_ne, le_iff]
   simp
 
+protected def ker {F : Type*} [FunLike F R R'] [RingHomClass F R R'] (f : F) :
+    RingCon R :=
+  fromIdeal {x | f x = 0} (map_zero f)
+    (fun a b ha hb => show f (a + b) = 0 by rw [map_add f, ha, hb, zero_add])
+    (fun a ha => show f (-a) = 0 by rw [map_neg f, ha, neg_zero])
+    (fun a b hb => show f (a * b) = 0 by rw [map_mul f, hb, mul_zero])
+    (fun a b ha => show f (a * b) = 0 by rw [map_mul f, ha, zero_mul])
+
+@[simp]
+lemma mem_ker {F : Type*} [FunLike F R R'] [RingHomClass F R R'] (f : F) (x) :
+    x ∈ RingCon.ker f ↔ f x = 0 := by simp [RingCon.ker]
+
+lemma injective_iff_ker_eq_bot {F : Type*} [FunLike F R R'] [RingHomClass F R R'] (f : F) :
+    Function.Injective f ↔ RingCon.ker f = ⊥ := by
+  rw [Function.Injective, eq_bot_iff, le_iff]
+  change _ ↔ ∀ _, _
+  simp only [SetLike.mem_coe, mem_ker]
+  constructor
+  · intro h x hx
+    specialize @h x 0 (by simpa using hx)
+    rw [h]; rfl
+  · intro h a b hab
+    specialize h (a - b) (by rwa [map_sub, sub_eq_zero])
+    rw [← sub_eq_zero]
+    exact h
+
 def span (s : Set R) : RingCon R :=
 ringConGen (fun a b ↦ a - b ∈ s)
 
@@ -324,5 +350,58 @@ lemma mem_span_ideal_iff_exists_fin (s : Ideal R) (x : R) :
   · rintro ⟨n, fin, xR, y, rfl⟩
     exact ⟨n, fin, 1, xR, y, by simp⟩
 
+section IsSimpleOrder
+
+universe u
+
+variable (A : Type u) [Ring A]
+
+instance [so : IsSimpleOrder (RingCon A)] : Nontrivial A := by
+  refine subsingleton_or_nontrivial A |>.resolve_left fun r => ?_
+  obtain ⟨x, y, hxy⟩ := so.1
+  exact hxy $ SetLike.ext fun a => (show a = 0 from Subsingleton.elim _ _) ▸
+    by simp [RingCon.zero_mem]
+
+lemma eq_bot_or_eq_top [so : IsSimpleOrder (RingCon A)] (I : RingCon A) :
+    I = ⊥ ∨ I = ⊤ := so.2 I
+
+lemma IsSimpleOrder.iff_eq_zero_or_injective [Nontrivial A] :
+    IsSimpleOrder (RingCon A) ↔
+    ∀ ⦃B : Type u⦄ [Ring B] (f : A →+* B), RingCon.ker f = ⊤ ∨ Function.Injective f := by
+  classical
+  constructor
+  · intro so B _ f
+    if hker : RingCon.ker f = ⊤
+    then exact Or.inl hker
+    else
+      replace hker := so.2 (RingCon.ker f) |>.resolve_right hker
+      rw [injective_iff_ker_eq_bot]
+      exact Or.inr hker
+  · intro h
+    have : Nontrivial (RingCon A) := ⟨⊥, ⊤, by
+      apply_fun (· 0 1)
+      convert false_ne_true
+      -- Change after https://github.com/leanprover-community/mathlib4/pull/12860
+      exact iff_false_iff.mpr zero_ne_one⟩
+    refine ⟨fun I => ?_⟩
+    rcases h I.mk' with h|h
+    · right
+      rw [eq_top_iff, le_iff]
+      rintro x -
+      have mem : x ∈ RingCon.ker I.mk' := by rw [h]; trivial
+      rw [mem_ker] at mem
+      change _ = I.mk' 0 at mem
+      exact I.eq.mp mem
+    · left
+      rw [injective_iff_ker_eq_bot] at h
+      rw [eq_bot_iff, le_iff]
+      intro x hx
+      have mem : x ∈ RingCon.ker I.mk' := by
+        rw [mem_ker]
+        exact I.eq.mpr hx
+      rw [h] at mem
+      exact mem
+
+end IsSimpleOrder
 
 end RingCon
