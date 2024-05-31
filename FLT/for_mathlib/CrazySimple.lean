@@ -222,10 +222,6 @@ instance matrix_simple_ring (ι : Type*) [ne : Nonempty ι] [Fintype ι] [Decida
     IsSimpleOrder (RingCon M[ι, R]) :=
   RingCon.equivRingConMatrix' _ ι (ne.some) |>.symm.isSimpleOrder
 
--- Do we need this?
--- lemma simple_ring_simple_matrix (R : Type*) [Ring R] [IsSimpleOrder (RingCon R)] :
---     IsSimpleOrder (RingCon M[Fin 1, R]) := inferInstance
-
 universe u
 
 lemma Ideal.eq_of_le_of_isSimpleModule {A : Type u} [Ring A]
@@ -327,12 +323,11 @@ private lemma Wedderburn_Artin.aux.n_ne_zero
     Wedderburn_Artin.aux.nxi_spec I I_nontrivial
 
   let e : Fin n ≃ Fin 0 := Fin.castOrderIso hn
-  have one_eq := calc 1
+  simpa using calc 1
     _ = _ := one_eq.symm
     _ = ∑ j : Fin 0, i (e.symm j) * x (e.symm j) :=
-        Fintype.sum_bijective e (Equiv.bijective _) _ _ (fun _ ↦ rfl)
+        Fintype.sum_bijective e e.bijective _ _ (fun _ ↦ rfl)
     _ = 0 := by simp
-  simp at one_eq
 
 open Wedderburn_Artin.aux in
 private noncomputable abbrev Wedderburn_Artin.aux.nxi_ne_zero
@@ -367,7 +362,7 @@ private noncomputable abbrev Wedderburn_Artin.aux.nxi_ne_zero
 private lemma Wedderburn_Artin.aux.equivIdeal
     {A : Type u} [Ring A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) :
-    ∃ (n : ℕ), Nonempty ((Fin n → I) ≃ₗ[A] A) := by
+    ∃ (n : ℕ) (hn : n ≠ 0), Nonempty ((Fin n → I) ≃ₗ[A] A) := by
   classical
   letI n : ℕ := Wedderburn_Artin.aux.n I I_nontrivial
   have n_ne : n ≠ 0 := Wedderburn_Artin.aux.n_ne_zero I I_nontrivial
@@ -432,7 +427,7 @@ private lemma Wedderburn_Artin.aux.equivIdeal
     change 1 = ∑ k : Fin (n - 1), (i ∘ f - (r • y) ∘ f) k * (x ∘ f) k at one_eq'
     exact Nat.find_min (Wedderburn_Artin.aux.one_eq I I_nontrivial) (m := n - 1)
       (show n - 1 < n by omega) ⟨_, _, one_eq'.symm⟩
-  exact ⟨n, ⟨LinearEquiv.ofBijective g ⟨g_inj, g_surj⟩⟩⟩
+  exact ⟨n, n_ne, ⟨LinearEquiv.ofBijective g ⟨g_inj, g_surj⟩⟩⟩
 
 set_option maxHeartbeats 800000 in
 /--
@@ -444,50 +439,30 @@ For `A`-module `M`,
 def endPowEquivMatrix
     (A : Type u) [Ring A] (M : Type*) [AddCommGroup M] [Module A M] (n : ℕ):
     Module.End A (Fin n → M) ≃+* M[Fin n, Module.End A M] where
-  toFun := fun f ↦ Matrix.of fun i j ↦
+  toFun f := Matrix.of fun i j ↦
   { toFun := fun x ↦ f (Function.update 0 j x) i
     map_add' := fun x y ↦ by
-      dsimp
-      change _ = (f _ + f _) i
-      rw [← f.map_add]
-      congr!
-      ext
-      simp only [Function.update, eq_rec_constant, Pi.zero_apply, dite_eq_ite, Pi.add_apply]
-      aesop
+      change f _ i = (f _ + f _) i
+      rw [← f.map_add, ← Function.update_add, add_zero]
     map_smul' := fun x y ↦ by
-      dsimp
-      change _ = (x • f _) _
-      rw [← f.map_smul, ← Function.update_smul]
-      simp }
+      change f _ _ = (x • f _) _
+      rw [← f.map_smul, ← Function.update_smul, smul_zero] }
   invFun M :=
   { toFun := fun x ↦ ∑ i : Fin n, Function.update 0 i (∑ j : Fin n, M i j (x j))
     map_add' := by
       intro x y
-      dsimp
-      simp only [map_add, ← Finset.sum_add_distrib]
+      simp only [map_add, ← Finset.sum_add_distrib, Pi.add_apply]
       refine Finset.sum_congr rfl fun i _ ↦ ?_
       ext j : 1
-      simp only [Function.update, eq_rec_constant, Pi.zero_apply, dite_eq_ite, Pi.add_apply]
-      split_ifs with h
-      · subst h
-        rw [Finset.sum_add_distrib]
-      · simp
+      rw [← Function.update_add, zero_add, ← Finset.sum_add_distrib]
     map_smul' := by
       intro a x
-      dsimp
-      rw [Finset.smul_sum]
+      simp only [Pi.smul_apply, LinearMapClass.map_smul, RingHom.id_apply, Finset.smul_sum]
       refine Finset.sum_congr rfl fun i _ ↦ ?_
-      ext j : 1
-      simp only [Function.update, _root_.map_smul, eq_rec_constant, Pi.zero_apply, dite_eq_ite,
-        Pi.smul_apply, smul_ite, smul_zero]
-      split_ifs with h
-      · subst h
-        rw [Finset.smul_sum]
-      · simp }
+      rw [← Function.update_smul, smul_zero, Finset.smul_sum] }
   left_inv f := by
-    dsimp
     ext i x j : 3
-    simp only [LinearMap.coe_comp, LinearMap.coe_mk, AddHom.coe_mk, LinearMap.coe_single,
+    simp only [of_apply, LinearMap.coe_mk, AddHom.coe_mk, LinearMap.coe_comp, LinearMap.coe_single,
       Function.comp_apply, Finset.sum_apply, Function.update, eq_rec_constant, Pi.zero_apply,
       dite_eq_ite, Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte]
     rw [← Fintype.sum_apply, ← map_sum]
@@ -498,15 +473,12 @@ def endPowEquivMatrix
     dsimp
     ext i j x : 3
     simp only [Function.update, eq_rec_constant, Pi.zero_apply, dite_eq_ite, Finset.sum_apply,
-      Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte, of_apply, LinearMap.coe_mk, AddHom.coe_mk,
-      AddSubmonoid.coe_finset_sum, Submodule.coe_toAddSubmonoid]
+      Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte, of_apply, LinearMap.coe_mk, AddHom.coe_mk]
     rw [show ∑ k : Fin n, ((M i k) (if k = j then x else 0)) =
       ∑ k : Fin n, if k = j then (M i k x) else 0
       from Finset.sum_congr rfl fun k _ ↦ by split_ifs <;> aesop]
     simp
-  map_mul' := by
-    intro f g
-    dsimp
+  map_mul' f g := by
     ext i j x : 2
     simp only [of_apply, LinearMap.coe_mk, AddHom.coe_mk, mul_apply, LinearMap.coeFn_sum,
       Finset.sum_apply, LinearMap.mul_apply, AddSubmonoid.coe_finset_sum,
@@ -515,36 +487,32 @@ def endPowEquivMatrix
     congr! 1
     ext k : 1
     simp [Function.update]
-  map_add' := by
-    intro f g
-    dsimp
-    ext i j x : 2
-    simp
+  map_add' _ _ := by ext i j x : 2; simp
 
 example : true := rfl
 
 theorem Wedderburn_Artin_ideal_version
     (A : Type u) [Ring A] [IsArtinianRing A] [simple : IsSimpleOrder (RingCon A)] :
-    ∃ (n : ℕ) (I : Ideal A) (_ : IsSimpleModule A I),
+    ∃ (n : ℕ) (_ : n ≠ 0) (I : Ideal A) (_ : IsSimpleModule A I),
     Nonempty ((Fin n → I) ≃ₗ[A] A) := by
   classical
   obtain ⟨(I : Ideal A), (I_nontrivial : I ≠ ⊥), (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I)⟩ :=
       IsArtinian.set_has_minimal (R := A) (M := A) {I | I ≠ ⊥}
     ⟨⊤, show ⊤ ≠ ⊥ by aesop⟩
   haveI : IsSimpleModule A I := minimal_ideal_isSimpleModule I I_nontrivial I_minimal
-  obtain ⟨n, ⟨e⟩⟩ := Wedderburn_Artin.aux.equivIdeal I I_nontrivial I_minimal
-  exact ⟨n, I, inferInstance, ⟨e⟩⟩
+  obtain ⟨n, hn, ⟨e⟩⟩ := Wedderburn_Artin.aux.equivIdeal I I_nontrivial I_minimal
+  exact ⟨n, hn, I, inferInstance, ⟨e⟩⟩
 
 theorem Wedderburn_Artin
     (A : Type u) [Ring A] [IsArtinianRing A] [simple : IsSimpleOrder (RingCon A)] :
-    ∃ (n : ℕ) (I : Ideal A) (_ : IsSimpleModule A I),
+    ∃ (n : ℕ) (_ : n ≠ 0) (I : Ideal A) (_ : IsSimpleModule A I),
     Nonempty (A ≃+* M[Fin n, (Module.End A I)ᵐᵒᵖ]) := by
   classical
   obtain ⟨(I : Ideal A), (I_nontrivial : I ≠ ⊥), (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I)⟩ :=
       IsArtinian.set_has_minimal (R := A) (M := A) {I | I ≠ ⊥}
     ⟨⊤, show ⊤ ≠ ⊥ by aesop⟩
   haveI : IsSimpleModule A I := minimal_ideal_isSimpleModule I I_nontrivial I_minimal
-  obtain ⟨n, ⟨e⟩⟩ := Wedderburn_Artin.aux.equivIdeal I I_nontrivial I_minimal
+  obtain ⟨n, hn, ⟨e⟩⟩ := Wedderburn_Artin.aux.equivIdeal I I_nontrivial I_minimal
 
   let endEquiv : Module.End A A ≃+* Module.End A (Fin n → I) :=
   { toFun := fun f ↦ e.symm ∘ₗ f ∘ₗ e
@@ -554,16 +522,16 @@ theorem Wedderburn_Artin
     map_add' := by intros f g; ext; simp
     map_mul' := by intros f g; ext; simp }
 
-  exact ⟨n, I, inferInstance, ⟨equivEndMop A |>.trans <|
+  exact ⟨n, hn, I, inferInstance, ⟨equivEndMop A |>.trans <|
     endEquiv.op.trans <| (endPowEquivMatrix A I n).op.trans <| (matrixEquivMatrixMop _ _).symm⟩⟩
 
 theorem Wedderburn_Artin'
     (A : Type u) [Ring A] [IsArtinianRing A] [simple : IsSimpleOrder (RingCon A)] :
-    ∃ (n : ℕ) (S : Type u) (h : DivisionRing S),
+    ∃ (n : ℕ) (_ : n ≠ 0) (S : Type u) (h : DivisionRing S),
     Nonempty (A ≃+* (M[Fin n, S])) := by
   classical
-  obtain ⟨n, I, inst, e⟩ := Wedderburn_Artin A
-  exact ⟨n, (Module.End A I)ᵐᵒᵖ, inferInstance, e⟩
+  obtain ⟨n, hn, I, inst, e⟩ := Wedderburn_Artin A
+  exact ⟨n, hn, (Module.End A I)ᵐᵒᵖ, inferInstance, e⟩
 
 end simple_ring
 
@@ -762,11 +730,11 @@ lemma algebraEndIdealMop.algebraMap_eq (I : Ideal B) :
 
 lemma Wedderburn_Artin_algebra_version
     [sim : IsSimpleOrder (RingCon B)]:
-    ∃ (n : ℕ) (S : Type u) (div_ring : DivisionRing S) (alg : Algebra K S),
+    ∃ (n : ℕ) (_ : n ≠ 0) (S : Type u) (div_ring : DivisionRing S) (alg : Algebra K S),
     Nonempty (B ≃ₐ[K] (M[Fin n, S])) := by
   classical
   have hB : IsArtinianRing B := IsArtinianRing.of_finiteDimensional K B
-  obtain ⟨n, I, inst_I, ⟨e⟩⟩ := Wedderburn_Artin_ideal_version B
+  obtain ⟨n, hn, I, inst_I, ⟨e⟩⟩ := Wedderburn_Artin_ideal_version B
 
   let endEquiv : Module.End B B ≃+* Module.End B (Fin n → I) :=
   { toFun := fun f ↦ e.symm ∘ₗ f ∘ₗ e
@@ -776,7 +744,7 @@ lemma Wedderburn_Artin_algebra_version
     map_add' := by intros f g; ext; simp
     map_mul' := by intros f g; ext; simp }
 
-  refine ⟨n, (Module.End B I)ᵐᵒᵖ, inferInstance, inferInstance,
+  refine ⟨n, hn, (Module.End B I)ᵐᵒᵖ, inferInstance, inferInstance,
     ⟨AlgEquiv.ofRingEquiv (f := equivEndMop B |>.trans $
       endEquiv.op.trans $ (endPowEquivMatrix B I n).op.trans (matrixEquivMatrixMop _ _).symm) ?_⟩⟩
   intro r
