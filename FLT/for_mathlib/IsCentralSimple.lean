@@ -53,8 +53,8 @@ variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
 /-
 \begin{lemma}
     \label{IsCentralSimple.baseChange}
-    If $D$ is a central simple algebra over~$K$ and $L/K$ is a field extension, then $L\otimes_KD$
-    is a central simple algebra over~$L$.
+    If DD is a central simple algebra over~KK and L/KL/K is a field extension, then L⊗KDL\otimes_KD
+    is a central simple algebra over~LL.
 \end{lemma}
 \begin{proof}
     This is not too hard: it's lemma b of section 12.4 in Peirce's "Associative algebras".
@@ -517,7 +517,33 @@ lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
     [hcs : IsCentralSimple K B]
     (C : Type*) [Ring C] [Algebra K C] (Iso : B ≃ₐ[K] C):
     IsCentralSimple K C where
-  is_central := sorry
+  is_central := by -- repeated work, recommend to keep IsCentralSimple.algEquiv
+    intro z hz
+    have hcent := hcs.is_central (Iso.invFun z)
+    have inv_in_center: Iso.invFun z ∈ Subring.center B := by 
+      rw [Subring.mem_center_iff] at hz
+      rw [Subring.mem_center_iff]
+      intro b
+      specialize hz (Iso b)
+      have h1: b = Iso.invFun (Iso b):= by 
+        simp_all only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+          EquivLike.coe_coe, AlgEquiv.symm_apply_apply]
+      rw[h1]
+      have h21: Iso.invFun (Iso b) * Iso.invFun z = Iso.invFun ((Iso b) * z ):= by
+        simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+          EquivLike.coe_coe, map_mul, AlgEquiv.symm_apply_apply]
+      have h22: Iso.invFun z * Iso.invFun (Iso b) = Iso.invFun (z * (Iso b)):= by
+        simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+          EquivLike.coe_coe, AlgEquiv.symm_apply_apply, map_mul]
+      rw[h21, h22]
+      exact congrArg Iso.invFun hz
+    have ⟨k1, hk1⟩ := hcent inv_in_center
+    have hk11: Iso (Iso.invFun z) = Iso ((algebraMap K B) k1):= by 
+      simp_all only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+        EquivLike.coe_coe, AlgEquiv.commutes]
+    simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+      EquivLike.coe_coe, AlgEquiv.apply_symm_apply, AlgEquiv.commutes] at hk11
+    use k1
   is_simple := by
     obtain ⟨hcen, hsim⟩ := hcs
     have hnon2 : Nontrivial C := Equiv.nontrivial Iso.symm.toEquiv
@@ -557,8 +583,35 @@ lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
 
 theorem IsCentralSimple.algEquiv {K B D : Type*}
     [Field K] [Ring B] [Ring D] [Algebra K B] [Algebra K D]
-    (e : B ≃ₐ[K] D) (h : IsCentralSimple K B) :  IsCentralSimple K D := by
-  sorry
+    (e : B ≃ₐ[K] D) (h : IsCentralSimple K B) :  IsCentralSimple K D where
+    is_central:= by 
+      intro z hz
+      have hcent := h.is_central (e.invFun z)
+      have inv_in_center: e.invFun z ∈ Subring.center B := by 
+        rw [Subring.mem_center_iff] at hz
+        rw [Subring.mem_center_iff]
+        intro b
+        specialize hz (e b)
+        have h1: b = e.invFun (e b):= by 
+          simp_all only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+            EquivLike.coe_coe, AlgEquiv.symm_apply_apply]
+        rw[h1]
+        have h21: e.invFun (e b) * e.invFun z = e.invFun ((e b) * z ):= by
+          simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+            EquivLike.coe_coe, map_mul, AlgEquiv.symm_apply_apply]
+        have h22: e.invFun z * e.invFun (e b) = e.invFun (z * (e b)):= by
+          simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+            EquivLike.coe_coe, AlgEquiv.symm_apply_apply, map_mul]
+        rw[h21, h22]
+        exact congrArg e.invFun hz
+      have ⟨k1, hk1⟩ := hcent inv_in_center
+      have hk11: e (e.invFun z) = e ((algebraMap K B) k1):= by 
+        simp_all only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+          EquivLike.coe_coe, AlgEquiv.commutes]
+      simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
+        EquivLike.coe_coe, AlgEquiv.apply_symm_apply, AlgEquiv.commutes] at hk11
+      use k1
+    is_simple := sorry
 
 theorem CSA_implies_CSA (K : Type*) (B : Type*) [Field K] [Ring B] [Algebra K B]
     [IsSimpleOrder (RingCon B)] (n : ℕ)
