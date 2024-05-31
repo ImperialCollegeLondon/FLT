@@ -362,7 +362,7 @@ private noncomputable abbrev Wedderburn_Artin.aux.nxi_ne_zero
 private lemma Wedderburn_Artin.aux.equivIdeal
     {A : Type u} [Ring A] [simple : IsSimpleOrder (RingCon A)]
     (I : Ideal A) (I_nontrivial : I ≠ ⊥) (I_minimal : ∀ J : Ideal A, J ≠ ⊥ → ¬ J < I) :
-    ∃ (n : ℕ) (hn : n ≠ 0), Nonempty ((Fin n → I) ≃ₗ[A] A) := by
+    ∃ (n : ℕ) (_ : n ≠ 0), Nonempty ((Fin n → I) ≃ₗ[A] A) := by
   classical
   letI n : ℕ := Wedderburn_Artin.aux.n I I_nontrivial
   have n_ne : n ≠ 0 := Wedderburn_Artin.aux.n_ne_zero I I_nontrivial
@@ -782,44 +782,61 @@ lemma Wedderburn_Artin_algebra_version
     rw [← Algebra.commutes, ← smul_eq_mul, ← e.map_smul]
     exact congr_arg e $ by ext; simp
 
--- theorem simple_eq_central_simple
---     [hsim : IsSimpleOrder (RingCon B)] (hctr : Subalgebra.center B = ⊥)
---     (n : ℕ) (S : Type*) (hn : 0 < n) [h : DivisionRing S]
---     [Module K S] (Wdb: B ≃+* (M[Fin n, S])):
---     Nonempty (Subring.center S ≃+* K) ∧ FiniteDimensional K S := by
---   have hB : IsArtinianRing B := IsArtinianRing.of_finiteDimensional K B
+theorem is_central_of_wdb
+    [IsSimpleOrder (RingCon B)] (hctr : Subalgebra.center K B = ⊥)
+    (n : ℕ) (S : Type*) (hn : 0 < n) [h : DivisionRing S]
+    [Algebra K S] (Wdb: B ≃ₐ[K] M[Fin n, S]) :
+    Subalgebra.center K S = ⊥ := by
+  rw [eq_bot_iff] at hctr ⊢
+  intro x hx
+  have hx' : (Matrix.diagonal fun _ => x) ∈ Subalgebra.center K M[Fin n, S] := by
+    rw [Matrix.mem_center_iff']
+    refine ⟨⟨x, hx⟩, ?_⟩
+    ext
+    simp only [diagonal, of_apply, smul_apply, Submonoid.mk_smul, smul_eq_mul]
+    split_ifs <;> aesop
+  have hx'' : Wdb.symm (Matrix.diagonal fun _ => x) ∈ Subalgebra.center K B := by
+    rw [Subalgebra.mem_center_iff] at hx' ⊢
+    intro b
+    apply_fun Wdb using Wdb.injective
+    simpa only [_root_.map_mul, AlgEquiv.apply_symm_apply] using hx' (Wdb b)
 
---   constructor
---   · have center_equiv : Subring.center B ≃+* Subring.center (M[Fin n, S]) := {
---     toFun := fun a ↦ Wdb.toRingHom.restrict (Subring.center B)
---       (Subring.center (M[Fin n, S])) (ringequiv_perserve_center B (M[Fin n, S]) Wdb) a
+  specialize hctr hx''
+  rcases hctr with ⟨s, (hs : algebraMap _ _ s = _)⟩
+  refine ⟨s, show algebraMap _ _ _ = _ from ?_⟩
+  apply_fun Wdb at hs
+  simp only [AlgEquiv.commutes, AlgEquiv.apply_symm_apply] at hs
+  apply_fun (· ⟨0, by omega⟩ ⟨0, by omega⟩) at hs
+  simp only [diagonal_apply_eq] at hs
+  exact hs
 
---     invFun := fun A ↦ Wdb.symm.toRingHom.restrict (Subring.center (M[Fin n, S]))
---       (Subring.center B) (ringequiv_perserve_center (M[Fin n, S]) B Wdb.symm) A
---     left_inv := by
---       simp only [RingEquiv.toRingHom_eq_coe]
---       rw [Function.LeftInverse]; intro x; aesop
---     right_inv := by
---       simp only [RingEquiv.toRingHom_eq_coe]
---       rw [Function.RightInverse]; intro x; aesop
---     map_mul' := by simp only [RingEquiv.toRingHom_eq_coe, Subring.center_toSubsemiring,
---       Subsemiring.center_toSubmonoid, _root_.map_mul, implies_true]
---     map_add' := by simp only [RingEquiv.toRingHom_eq_coe, map_add, implies_true]
---   }
---     have equiv : Subring.center (M[Fin n, S]) ≃+* K := by
---       exact RingEquiv.symm (RingEquiv.trans hctr.symm center_equiv)
---     have equiv' : Subring.center S ≃+* K := by
---       exact RingEquiv.trans (Matrix.centerEquivBase n hn S).symm equiv
---     rw [← exists_true_iff_nonempty]
---     use equiv'
 
---   · rw [FiniteDimensional]
---     obtain ⟨(I : Ideal B), (I_nontrivial : I ≠ ⊥), (I_minimal : ∀ J : Ideal B, J ≠ ⊥ → ¬ J < I)⟩ :=
---       IsArtinian.set_has_minimal (R := B) (M := B) {I | I ≠ ⊥}
---       ⟨⊤, show ⊤ ≠ ⊥ by aesop⟩
---     haveI : IsSimpleModule B I := minimal_ideal_isSimpleModule I I_nontrivial I_minimal
-
---     sorry
+theorem is_fin_dim_of_wdb
+    [IsSimpleOrder (RingCon B)]
+    (n : ℕ) (S : Type*) (hn : 0 < n) [h : DivisionRing S]
+    [Algebra K S] (Wdb: B ≃ₐ[K] M[Fin n, S]) :
+    FiniteDimensional K S := by
+  classical
+  have : FiniteDimensional K M[Fin n, S] :=
+    FiniteDimensional.of_injective Wdb.symm.toLinearEquiv.toLinearMap Wdb.symm.injective
+  obtain ⟨⟨s, span_eq⟩⟩ := this
+  let s' := s.image (fun M : M[Fin n, S] => M ⟨0, by omega⟩ ⟨0, by omega⟩)
+  refine ⟨⟨s', ?_⟩⟩
+  rw [eq_top_iff] at span_eq ⊢
+  rintro x -
+  let X : M[Fin n, S] := diagonal fun _ => x
+  specialize span_eq (by trivial : X ∈ ⊤)
+  rw [mem_span_finset] at span_eq
+  obtain ⟨r, hr⟩ := span_eq
+  apply_fun (· ⟨0, by omega⟩ ⟨0, by omega⟩) at hr
+  simp only [diagonal_apply_eq, X] at hr
+  rw [Matrix.sum_apply] at hr
+  rw [← hr]
+  refine Submodule.sum_mem _ fun i hi => ?_
+  simp only [smul_apply]
+  refine Submodule.smul_mem _ _ $ Submodule.subset_span ?_
+  simp only [Finset.coe_image, Set.mem_image, Finset.mem_coe, s']
+  exact ⟨i, hi, rfl⟩
 
 theorem simple_eq_matrix_algclo [h : IsSimpleOrder (RingCon A)] :
     ∃ (n : ℕ), Nonempty (A ≃+* M[Fin n, k]) := by
