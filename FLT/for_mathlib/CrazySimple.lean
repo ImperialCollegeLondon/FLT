@@ -141,11 +141,6 @@ variable (D : Type*) [DivisionRing D]
 Division rings are a simple ring
 -/
 instance : IsSimpleOrder (RingCon D) where
-  exists_pair_ne := ⟨⊥, ⊤, by
-    apply_fun (· 0 1)
-    convert false_ne_true
-    -- Change after https://github.com/leanprover-community/mathlib4/pull/12860
-    exact iff_false_iff.mpr zero_ne_one⟩
   eq_bot_or_eq_top r := by
     obtain h | h := _root_.forall_or_exists_not (fun x ↦ x ∈ r ↔ x = 0)
     · left

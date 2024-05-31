@@ -362,6 +362,13 @@ instance [so : IsSimpleOrder (RingCon A)] : Nontrivial A := by
   exact hxy $ SetLike.ext fun a => (show a = 0 from Subsingleton.elim _ _) ▸
     by simp [RingCon.zero_mem]
 
+instance [Nontrivial A] : Nontrivial (RingCon A) :=
+⟨⊥, ⊤, by
+      apply_fun (· 0 1)
+      convert false_ne_true
+      -- Change after https://github.com/leanprover-community/mathlib4/pull/12860
+      exact iff_false_iff.mpr zero_ne_one⟩
+
 lemma eq_bot_or_eq_top [so : IsSimpleOrder (RingCon A)] (I : RingCon A) :
     I = ⊥ ∨ I = ⊤ := so.2 I
 
@@ -378,11 +385,6 @@ lemma IsSimpleOrder.iff_eq_zero_or_injective [Nontrivial A] :
       rw [injective_iff_ker_eq_bot]
       exact Or.inr hker
   · intro h
-    have : Nontrivial (RingCon A) := ⟨⊥, ⊤, by
-      apply_fun (· 0 1)
-      convert false_ne_true
-      -- Change after https://github.com/leanprover-community/mathlib4/pull/12860
-      exact iff_false_iff.mpr zero_ne_one⟩
     refine ⟨fun I => ?_⟩
     rcases h I.mk' with h|h
     · right
