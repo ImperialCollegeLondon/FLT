@@ -511,42 +511,19 @@ variable (B : Type*) [Ring B]
 lemma top_eq_ring (R :Type*)[Ring R] : (⊤ : RingCon R) = (⊤ : Set R) := by
   aesop
 
-
-open Classical in
-lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
-    [hcs : IsCentralSimple K B]
-    (C : Type*) [Ring C] [Algebra K C] (Iso : B ≃ₐ[K] C):
+lemma _root_.AlgEquiv.isCentralSimple {K B C : Type*}
+    [Field K] [Ring B] [Algebra K B] [hcs : IsCentralSimple K B]
+    [Ring C] [Algebra K C] (e : B ≃ₐ[K] C):
     IsCentralSimple K C where
-  is_central := by -- repeated work, recommend to keep IsCentralSimple.algEquiv
+  is_central := by
     intro z hz
-    have hcent := hcs.is_central (Iso.invFun z)
-    have inv_in_center: Iso.invFun z ∈ Subring.center B := by
-      rw [Subring.mem_center_iff] at hz
-      rw [Subring.mem_center_iff]
-      intro b
-      specialize hz (Iso b)
-      have h1: b = Iso.invFun (Iso b):= by
-        simp_all only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
-          EquivLike.coe_coe, AlgEquiv.symm_apply_apply]
-      rw[h1]
-      have h21: Iso.invFun (Iso b) * Iso.invFun z = Iso.invFun ((Iso b) * z ):= by
-        simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
-          EquivLike.coe_coe, map_mul, AlgEquiv.symm_apply_apply]
-      have h22: Iso.invFun z * Iso.invFun (Iso b) = Iso.invFun (z * (Iso b)):= by
-        simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
-          EquivLike.coe_coe, AlgEquiv.symm_apply_apply, map_mul]
-      rw[h21, h22]
-      exact congrArg Iso.invFun hz
-    have ⟨k1, hk1⟩ := hcent inv_in_center
-    have hk11: Iso (Iso.invFun z) = Iso ((algebraMap K B) k1):= by
-      simp_all only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
-        EquivLike.coe_coe, AlgEquiv.commutes]
-    simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
-      EquivLike.coe_coe, AlgEquiv.apply_symm_apply, AlgEquiv.commutes] at hk11
-    use k1
+    obtain ⟨k, hk⟩ := hcs.is_central (e.symm z) (by
+      simp only [Subring.mem_center_iff] at hz ⊢
+      exact fun x => by simpa using congr(e.symm $(hz (e x))))
+    exact ⟨k, by simpa using congr(e $hk)⟩
   is_simple := by
     haveI := hcs.is_simple
-    exact RingCon.orderIsoOfRingEquiv Iso.symm.toRingEquiv |>.isSimpleOrder
+    exact RingCon.orderIsoOfRingEquiv e.symm.toRingEquiv |>.isSimpleOrder
 
 
 theorem CSA_implies_CSA (K : Type*) (B : Type*) [Field K] [Ring B] [Algebra K B]
@@ -555,7 +532,7 @@ theorem CSA_implies_CSA (K : Type*) (B : Type*) [Field K] [Ring B] [Algebra K B]
     (Wdb: B ≃ₐ[K] (Matrix (Fin n) (Fin n) D)):
     IsCentralSimple K B → IsCentralSimple K D := by
   intro BCS
-  letI inst1 := inst1 K B (Matrix (Fin n) (Fin n) D) Wdb
+  letI inst1 := Wdb.isCentralSimple
   let hnone : Nonempty (Fin n) := ⟨0, hn⟩
   constructor
   · intro d hd
