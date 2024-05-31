@@ -520,12 +520,12 @@ lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
   is_central := by -- repeated work, recommend to keep IsCentralSimple.algEquiv
     intro z hz
     have hcent := hcs.is_central (Iso.invFun z)
-    have inv_in_center: Iso.invFun z ∈ Subring.center B := by 
+    have inv_in_center: Iso.invFun z ∈ Subring.center B := by
       rw [Subring.mem_center_iff] at hz
       rw [Subring.mem_center_iff]
       intro b
       specialize hz (Iso b)
-      have h1: b = Iso.invFun (Iso b):= by 
+      have h1: b = Iso.invFun (Iso b):= by
         simp_all only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
           EquivLike.coe_coe, AlgEquiv.symm_apply_apply]
       rw[h1]
@@ -538,44 +538,15 @@ lemma inst1 (K : Type*)(B : Type*)[Field K][Ring B][Algebra K B]
       rw[h21, h22]
       exact congrArg Iso.invFun hz
     have ⟨k1, hk1⟩ := hcent inv_in_center
-    have hk11: Iso (Iso.invFun z) = Iso ((algebraMap K B) k1):= by 
+    have hk11: Iso (Iso.invFun z) = Iso ((algebraMap K B) k1):= by
       simp_all only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
         EquivLike.coe_coe, AlgEquiv.commutes]
     simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
       EquivLike.coe_coe, AlgEquiv.apply_symm_apply, AlgEquiv.commutes] at hk11
     use k1
   is_simple := by
-    obtain ⟨_, hsim⟩ := hcs
-    have hnon2 : Nontrivial C := Equiv.nontrivial Iso.symm.toEquiv
-    letI : Nontrivial (RingCon C) := by
-      refine { exists_pair_ne := ?exists_pair_ne }
-      use ⊥; use ⊤
-      apply_fun (· 0 1)
-      simp_all only [RingCon.coe_bot, zero_ne_one, RingCon.coe_top, Pi.top_apply, Prop.top_eq_true,
-        ne_eq, eq_iff_iff, iff_true, not_false_eq_true]
-    refine IsSimpleOrder.mk ?mk.eq_bot_or_eq_top
-    intro a
-    obtain h | h := _root_.forall_or_exists_not (fun x ↦ x ∈ a ↔ x = 0)
-    · left
-      exact SetLike.ext fun x ↦ (h x).trans (by rfl)
-    · right
-      obtain ⟨x, hx⟩ := h
-      have hx' : x ≠ 0 := by rintro rfl; simp [a.zero_mem] at hx
-      refine SetLike.ext fun y ↦ ⟨fun y ↦ trivial, fun _ ↦ ?_⟩
-      suffices 1 ∈ a by 
-        have := a.mul_mem_right 1 y this
-        simp_all only [one_mul]
-      let b := a.comap (Iso.toAlgHom)
-      have hb : b = ⊥ ∨ b = ⊤ := by exact eq_bot_or_eq_top b
-      have hb' : b = ⊤ := by 
-        sorry 
-      have hb3 : 1 ∈ b := by 
-        simp_all only [iff_false, Decidable.not_not, ne_eq, AlgEquiv.toAlgHom_eq_coe, 
-          top_ne_bot, or_true, b]
-        rename_i _ _ _ _ _ _ _ _ _ _ _ hy
-        exact hy
-      rw [RingCon.mem_comap] at hb3
-      simp_all only [RingEquiv.toRingHom_eq_coe, map_one, b]
+    haveI := hcs.is_simple
+    exact RingCon.orderIsoOfRingEquiv Iso.symm.toRingEquiv |>.isSimpleOrder
 
 
 theorem CSA_implies_CSA (K : Type*) (B : Type*) [Field K] [Ring B] [Algebra K B]

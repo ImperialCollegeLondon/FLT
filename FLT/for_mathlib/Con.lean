@@ -241,6 +241,7 @@ def comap {F : Type*} [FunLike F R R'] [RingHomClass F R R'] (J : RingCon R') (f
   change J (f x) (f 0) ↔ J (f x) 0
   simp
 
+
 instance : Module Rᵐᵒᵖ I where
   smul r x := ⟨x.1 * r.unop, I.mul_mem_right _ _ x.2⟩
   one_smul x := by ext; show x.1 * 1 = x.1; simp
@@ -267,6 +268,25 @@ lemma le_iff (I J : RingCon R) : I ≤ J ↔ (I : Set R) ⊆ (J : Set R) := by
 lemma lt_iff (I J : RingCon R) : I < J ↔ (I : Set R) ⊂ (J : Set R) := by
   rw [lt_iff_le_and_ne, Set.ssubset_iff_subset_ne, le_iff]
   simp
+
+
+@[simps]
+def orderIsoOfRingEquiv {F : Type*} [EquivLike F R R'] [RingEquivClass F R R'] (f : F) :
+    RingCon R ≃o RingCon R' where
+  toFun := (comap · (RingEquivClass.toRingEquiv f).symm)
+  invFun := (comap · (RingEquivClass.toRingEquiv f))
+  left_inv := fun I => SetLike.ext $ fun x => by simp
+  right_inv := fun I => SetLike.ext $ fun x => by simp
+  map_rel_iff' := by
+    intro I J
+    rw [le_iff, le_iff]
+    constructor
+    · rintro h x hx
+      specialize @h (RingEquivClass.toRingEquiv f x) (by simpa using hx)
+      simpa using h
+    · intro h x hx
+      simp only [Equiv.coe_fn_mk, SetLike.mem_coe, mem_comap] at hx ⊢
+      exact h hx
 
 protected def ker {F : Type*} [FunLike F R R'] [RingHomClass F R R'] (f : F) :
     RingCon R :=
