@@ -1,11 +1,9 @@
-import Mathlib.RingTheory.Ideal.Basic
 import Mathlib.RingTheory.SimpleModule
 import Mathlib.RingTheory.Artinian
 import FLT.for_mathlib.Con
 import Mathlib.Algebra.Quaternion
 import Mathlib.Algebra.Ring.Equiv
 import Mathlib.LinearAlgebra.Matrix.IsDiag
-import Mathlib.Algebra.Category.AlgebraCat.Basic
 
 variable (K : Type*) [Field K]
 variable (A : Type*) [Ring A]
@@ -591,17 +589,44 @@ instance: IsArtinianRing K := inferInstance
 
 lemma IsArtinianRing.of_finiteDimensional : IsArtinianRing B := by
   rw [IsArtinianRing, ← monotone_stabilizes_iff_artinian]
-  let n := FiniteDimensional.finrank K B
-  intro ⟨f, hf⟩; unfold Monotone at hf
-  simp only [OrderHom.coe_mk]
-  use n ; intro m hmn; have lecon := hf hmn
-  rw [← LE.le.le_iff_eq]
-  · exact lecon
-  · by_contra hf0
-    -- rw [← lt_iff_not_le (y := f m) (x := f n)] at hf0
-    sorry
+  intro I
+  let V : ℕ →o (Submodule K B)ᵒᵈ :=
+    ⟨fun n => (OrderDual.toDual <| {
+      carrier := (OrderDual.ofDual $ I n).carrier
+      add_mem' := by
+        rintro a b ha hb
+        exact (OrderDual.ofDual $ I n).add_mem ha hb
+      zero_mem' := (OrderDual.ofDual $ I n).zero_mem
+      smul_mem' := by
+        rintro r x hx
+        simp only [AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup,
+          Submodule.mem_toAddSubmonoid] at hx ⊢
+        rw [Algebra.smul_def]
+        exact Ideal.mul_mem_left _ _ hx
+    }), fun m n hmn => by intro x hx; exact I.2 hmn hx⟩
+  let dim : ℕ →o ℕᵒᵈ :=
+    ⟨fun n => FiniteDimensional.finrank K (OrderDual.ofDual $ V n : Submodule K B),
+      fun m n hmn => Submodule.finrank_mono (V.2 hmn)⟩
+  obtain ⟨N, hN⟩ := WellFounded.monotone_chain_condition.mp (by
 
-  --exact FiniteDimensional.finite_basis_extends_to_basis
+    change WellFounded fun (x y : ℕ) => x < y
+    obtain ⟨ins⟩ : WellFoundedLT ℕ := inferInstance
+    exact ins) dim
+  refine ⟨N, fun m h => le_antisymm (I.2 h) ?_⟩
+  specialize hN m h
+  simp only [OrderHom.coe_mk, dim] at hN
+  let e := LinearMap.linearEquivOfInjective
+    (Submodule.inclusion $ V.2 h) (Submodule.inclusion_injective _) hN.symm
+  have s : Function.Surjective (Submodule.inclusion $ V.2 h) := by
+    intro x
+    obtain ⟨y, hy⟩ := e.surjective x
+    rw [← hy]
+    exact ⟨y, rfl⟩
+  intro x hx
+  obtain ⟨y, hy⟩ := s ⟨x, hx⟩
+  simp only [OrderHom.toFun_eq_coe, Subtype.ext_iff] at hy
+  subst hy
+  exact y.2
 
 lemma Matrix.mem_center_iff (R : Type*) [Ring R] (n : ℕ) (M) :
     M ∈ Subring.center M[Fin n, R] ↔ ∃ α : (Subring.center R), M = α • 1 := by
@@ -697,7 +722,7 @@ theorem ringequiv_perserve_center (R1 R2 : Type*) [Ring R1] [Ring R2] (h : R1 �
   have y_eq : y = h.toRingHom (h.symm.toRingHom y) := by simp
   rw [y_eq, ← h.toRingHom.map_mul, ← h.toRingHom.map_mul] ;
   simp_all only [RingEquiv.toRingHom_eq_coe, RingHom.coe_coe, RingEquiv.apply_symm_apply,
-     _root_.map_mul]
+    _root_.map_mul]
 
 variable {B} in
 @[simps]
