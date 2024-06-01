@@ -3,7 +3,14 @@ import Mathlib.FieldTheory.SeparableClosure
 
 theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a * · * b)^[n] =
     (a ^ n * · * b ^ n) := by
-  sorry
+  induction' n with n hn 
+  · ext g ; simp only [Function.iterate_zero, id_eq, pow_zero, one_mul, mul_one]
+  · ext g
+    rw [Function.iterate_succ, Function.comp_apply, hn] 
+    simp only ; group 
+    rw [show a^n * a = a^(n + 1) by rw [← pow_succ a n], mul_assoc]
+    rw [show b * b^n = b^(n + 1) by rw [← pow_succ' b n], add_comm]
+
 
 theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fact p.Prime] [CharP D p]
     (h : ∀ x : D, ∃ (m : ℕ),  x ^ (p ^ (m + 1)) ∈ Subring.center D) : IsField D where
