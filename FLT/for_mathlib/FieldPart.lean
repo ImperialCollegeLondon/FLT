@@ -11,13 +11,13 @@ theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a *
     rw [show a^n * a = a^(n + 1) by rw [← pow_succ a n], mul_assoc]
     rw [show b * b^n = b^(n + 1) by rw [← pow_succ' b n], add_comm]
 
-def fun1 {D : Type*} [DivisionRing D](x : D)(hx : x ≠ 0): D →+* D where
+abbrev fun1 {D : Type*} [DivisionRing D](x : D)(hx : x ≠ 0): D →+* D where
   toFun a := x * a * x⁻¹
   map_one' := by 
     simp_all only [ne_eq, mul_one, isUnit_iff_ne_zero, not_false_eq_true, IsUnit.mul_inv_cancel]
   map_mul' y1 y2 := by simp only; sorry
-  map_zero' := sorry
-  map_add' := sorry
+  map_zero' := by simp only [mul_zero, zero_mul]
+  map_add' a b := by simp only ; sorry
 
 theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fact p.Prime] [CharP D p]
     (h : ∀ x : D, ∃ (m : ℕ),  x ^ (p ^ (m + 1)) ∈ Subring.center D) : IsField D where
@@ -29,36 +29,32 @@ theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fac
         by_contra! hx
         let hx1 := h x
         cases' hx1 with m hxm
-        let fun1 := fun (a : D) ↦ x * a * x⁻¹
         let id := fun (a : D) ↦ a
         have x_neq_0 : x ≠ 0 := by
           intro hx0
           rw[hx0] at hx
           exact hx (Set.zero_mem_center D)
-        have x1 : x⁻¹ * x = 1 := by
-          rw[← mul_right_inj' x_neq_0, ← mul_assoc]
-          obtain x11 := DivisionRing.mul_inv_cancel x x_neq_0
-          rw[x11, one_mul, mul_one]
+        have x1 : x⁻¹ * x = 1 := by simp_all
+        let fun1 := fun (a : D) ↦ x * a * x⁻¹
         have fun_eq1 : fun1^[p ^ (m + 1)] - id = 0 := by
           ext d
-          aesop
-          rw[mul_left_right_iterate]
+          simp only [Pi.sub_apply, Pi.zero_apply]
+          rw [mul_left_right_iterate]
           simp only [inv_pow]
-          rw[Subring.mem_center_iff] at hxm
+          rw [Subring.mem_center_iff] at hxm
           specialize hxm d
-          rw[← hxm, mul_assoc,DivisionRing.mul_inv_cancel, mul_one, sub_self]
-          apply pow_ne_zero
-          rwa[ne_eq]
+          rw [← hxm, mul_assoc,DivisionRing.mul_inv_cancel, mul_one, sub_self]
+          apply pow_ne_zero; rwa[ne_eq]
         have fun_eq2 : ((fun1 - id)^[p ^ (m + 1)]) = fun1 ^[p ^ (m + 1)] - id := by
-          ext d
-          aesop
-          sorry
+          induction' m with m hm
+          · ext d
+            sorry
+          · sorry
         rw[fun_eq1] at fun_eq2
         have fun_eq3 : fun1 - id ≠ 0 := by
           intro heq
           have H := congr_fun heq
-          simp at H
-          simp [fun1, id] at H
+          simp only [Pi.sub_apply, Pi.zero_apply, fun1, id] at H
           apply hx
           rw[Subring.mem_center_iff]
           intro a
