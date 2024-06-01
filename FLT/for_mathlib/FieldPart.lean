@@ -11,6 +11,13 @@ theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a *
     rw [show a^n * a = a^(n + 1) by rw [← pow_succ a n], mul_assoc]
     rw [show b * b^n = b^(n + 1) by rw [← pow_succ' b n], add_comm]
 
+def fun1 {D : Type*} [DivisionRing D](x : D)(hx : x ≠ 0): D →+* D where
+  toFun a := x * a * x⁻¹
+  map_one' := by 
+    simp_all only [ne_eq, mul_one, isUnit_iff_ne_zero, not_false_eq_true, IsUnit.mul_inv_cancel]
+  map_mul' y1 y2 := by simp only; sorry
+  map_zero' := sorry
+  map_add' := sorry
 
 theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fact p.Prime] [CharP D p]
     (h : ∀ x : D, ∃ (m : ℕ),  x ^ (p ^ (m + 1)) ∈ Subring.center D) : IsField D where
