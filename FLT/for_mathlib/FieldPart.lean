@@ -1,5 +1,3 @@
-import FLT.for_mathlib.Con
-import Mathlib.Algebra.Quaternion
 import Mathlib.FieldTheory.SeparableClosure
 
 
