@@ -1,5 +1,8 @@
 import Mathlib.FieldTheory.SeparableClosure
+import Mathlib.FieldTheory.SplittingField.Construction
+import Mathlib.Data.Num.Lemmas
 
+open scoped Classical
 
 theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a * · * b)^[n] =
     (a ^ n * · * b ^ n) := by
@@ -11,7 +14,7 @@ theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a *
     rw [show a^n * a = a^(n + 1) by rw [← pow_succ a n], mul_assoc]
     rw [show b * b^n = b^(n + 1) by rw [← pow_succ' b n], add_comm]
 
-abbrev fun1 {D : Type*} [DivisionRing D](x : D)(hx : x ≠ 0): D →+* D where
+abbrev fun_1 {D : Type*} [DivisionRing D](x : D)(hx : x ≠ 0): D →+* D where
   toFun a := x * a * x⁻¹
   map_one' := by 
     simp_all only [ne_eq, mul_one, isUnit_iff_ne_zero, not_false_eq_true, IsUnit.mul_inv_cancel]
@@ -36,6 +39,7 @@ theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fac
           exact hx (Set.zero_mem_center D)
         have x1 : x⁻¹ * x = 1 := by simp_all
         let fun1 := fun (a : D) ↦ x * a * x⁻¹
+        let f := fun_1 x x_neq_0
         have fun_eq1 : fun1^[p ^ (m + 1)] - id = 0 := by
           ext d
           simp only [Pi.sub_apply, Pi.zero_apply]
@@ -157,16 +161,27 @@ theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fac
       exact DivisionRing.mul_inv_cancel a ha
 
 abbrev p_radical_extension (K E: Type*) [Field K] [DivisionRing E] [Algebra K E] (p : ℕ) [CharP K p]
-    (_ : p.Prime) := ∀(x : E), ∃(m : ℕ), x ^ p ^ m ∈ (Algebra.ofId K E).range
+    [Fact p.Prime] := ∀(x : E), ∃(m : ℕ), x ^ p ^ m ∈ (Algebra.ofId K E).range
 
-
+variable (K : Type*) [Field K] [IsSepClosed K]
+variable (f : Polynomial K)
 open Polynomial
-lemma findim_divring_over_sep_closed (K : Type*) (D : Type*) [Field K]
-    [IsSepClosed K] [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
-    (p : ℕ) (hp : p.Prime) [CharP K p]:
+noncomputable instance : Algebra K (Polynomial.SplittingField f) :=
+  Ideal.Quotient.algebra _
+
+lemma field_in_center (D : Type*) [DivisionRing D] [Algebra K D]: 
+    (Algebra.ofId K D).toRingHom.range ≤ Subring.center D := by
+  rintro _ ⟨x, rfl⟩
+  rw [Subring.mem_center_iff]
+  exact (Algebra.commutes' x · |>.symm)
+
+lemma findim_divring_over_sep_closed (D : Type*)
+    [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
+    (p : ℕ) [Fact p.Prime] [CharP K p] [CharP D p] :
     ∀(x y : D), x * y = y * x := by
-  have alg_ext: ∀(d : D), IsAlgebraic K d := sorry
-  have p_rad : p_radical_extension K D p hp := by
+  have alg_ext: ∀(d : D), IsAlgebraic K d := 
+    fun d ↦ Algebra.IsAlgebraic.isAlgebraic d
+  have p_rad : p_radical_extension K D p := by
     intro d ; let f := minpoly K d
     have hf: ∃(m : ℕ),
         f ∈ (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) ∧
@@ -181,7 +196,16 @@ lemma findim_divring_over_sep_closed (K : Type*) (D : Type*) [Field K]
       simp_all only [SetLike.coe_mem] ; sorry
     have hg2 : ↑g ∉ (Algebra.adjoin K {X^2} : Subalgebra K K[X]) := sorry
     have hg3 : g = minpoly K d^p^m := sorry
+    have p_pow_in_K : d^p^m ∈ (Algebra.ofId K D).range := sorry
+    use m
+  exact (division_char_is_commutative (D := D) (p := p) 
+    (by intro d; specialize p_rad d ; obtain ⟨m, hm⟩ := p_rad ;
+        use m - 1 ; have := field_in_center K D ; 
+        suffices d^p^m ∈ Subring.center D by 
+          if m = 0 then aesop
+          else 
+            have hm : 0 < m := by omega
+            rw [Nat.sub_one_add_one_eq_of_pos hm]
+            exact this
+        tauto)).mul_comm
 
-    sorry
-
-  sorry
