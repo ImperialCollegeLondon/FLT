@@ -16,7 +16,7 @@ theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a *
     rw [show a^n * a = a^(n + 1) by rw [← pow_succ a n], mul_assoc]
     rw [show b * b^n = b^(n + 1) by rw [← pow_succ' b n], add_comm]
 
-abbrev fun1 (x : D)(hx : x ≠ 0): D →+* D where
+abbrev fun1 (x : D) (hx : x ≠ 0) : D →+* D where
   toFun a := x * a * x⁻¹
   map_one' := by
     simp_all only [ne_eq, mul_one, isUnit_iff_ne_zero, not_false_eq_true, IsUnit.mul_inv_cancel]
@@ -38,13 +38,13 @@ lemma linear (n : ℕ) (d : D) (h : D → D) (hh : ∀ a b : D, h (a + b) = h a 
       exact h11
     · calc
       _ = h (∑ i in Finset.range (m + 1), d) := by aesop
-      _ = h (∑ i in Finset.range (m), d + d) := by 
+      _ = h (∑ i in Finset.range (m), d + d) := by
         rw[Finset.sum_range, Finset.sum_range, Fin.sum_univ_castSucc]
       _ = h (∑ i in Finset.range (m), d) + h d := by aesop
       _ = h (m * d) + (h d) := by aesop
       _ = m * (h d) + (h d) := by rw[hm]
       _ = ∑ i in Finset.range (m), h d + h d := by aesop
-      _ = ∑ i in Finset.range (m + 1), h d := by 
+      _ = ∑ i in Finset.range (m + 1), h d := by
         rw[Finset.sum_range, Finset.sum_range, Fin.sum_univ_castSucc]
       _ = ↑(m + 1) * h d := by aesop
 
@@ -285,7 +285,7 @@ lemma findim_divring_over_sep_closed (D : Type*)
     haveI : Irreducible f := minpoly.irreducible (Algebra.IsIntegral.isIntegral d)
     have hg1 : Irreducible g := by
       simp_all only [SetLike.coe_mem];
-      refine ⟨?_, ?_⟩ 
+      refine ⟨?_, ?_⟩
       · sorry
       · sorry
     have hg2 : ↑g ∉ (Algebra.adjoin K {X^2} : Subalgebra K K[X]) := sorry
