@@ -473,29 +473,46 @@ lemma center_tensorProduct [Small.{v, u} K]
   rw [eq5] at this
   rw [this]
 
+example : true := rfl
+
+-- lemma b ii in Pierce Associative algebra
+
 -- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
 -- We can't have `L` to have different universe level of `D` in this proof, again due that we used
 -- `flatness`
 instance baseChange [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] :
     IsCentralSimple L (L ⊗[K] D) where
-  is_central:= by
-    intro _ H
-    obtain ⟨x, rfl⟩ := le_of_eq (center_tensorProduct K L D) H; clear H
-    induction x using TensorProduct.induction_on with
-    | zero => exact ⟨0, by simp⟩
-    | tmul l d =>
-      obtain ⟨k, hk⟩ := h.is_central d.2
-      refine ⟨k • l, ?_⟩
-      simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
-        Subalgebra.coe_val, ← hk]
-      simp only [Algebra.ofId_apply, Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id,
-        RingHom.id_apply]
-      rw [TensorProduct.smul_tmul, Algebra.algebraMap_eq_smul_one]
-    | add x y hx hy =>
-      obtain ⟨kx, (hkx : kx ⊗ₜ 1 = _)⟩ := hx
-      obtain ⟨ky, (hky : ky ⊗ₜ 1 = _)⟩ := hy
-      exact ⟨kx + ky, by simp [map_add, Algebra.ofId_apply, hkx, hky]⟩
-  is_simple := by sorry
+  is_central:= by sorry
+    -- intro _ H
+    -- obtain ⟨x, rfl⟩ := le_of_eq (center_tensorProduct K L D) H; clear H
+    -- induction x using TensorProduct.induction_on with
+    -- | zero => exact ⟨0, by simp⟩
+    -- | tmul l d =>
+    --   obtain ⟨k, hk⟩ := h.is_central d.2
+    --   refine ⟨k • l, ?_⟩
+    --   simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
+    --     Subalgebra.coe_val, ← hk]
+    --   simp only [Algebra.ofId_apply, Algebra.TensorProduct.algebraMap_apply, Algebra.id.map_eq_id,
+    --     RingHom.id_apply]
+    --   rw [TensorProduct.smul_tmul, Algebra.algebraMap_eq_smul_one]
+    -- | add x y hx hy =>
+    --   obtain ⟨kx, (hkx : kx ⊗ₜ 1 = _)⟩ := hx
+    --   obtain ⟨ky, (hky : ky ⊗ₜ 1 = _)⟩ := hy
+    --   exact ⟨kx + ky, by simp [map_add, Algebra.ofId_apply, hkx, hky]⟩
+  is_simple := by
+    haveI inst0 : IsSimpleOrder (RingCon D) := h.2
+    haveI inst1 : Nontrivial (L ⊗[K] D) :=  ⟨0, 1, fun r => by
+      let f : K ⊗[K] D →ₐ[K] L ⊗[K] D :=
+        Algebra.TensorProduct.map (Algebra.ofId _ _) (.id _ _)
+      have hf : Function.Injective f := Module.Flat.rTensor_preserves_injective_linearMap _
+        (algebraMap K L).injective
+      have r' : f 0 = f 1 := by convert r; simp [f]
+      specialize hf r'
+      apply_fun Algebra.TensorProduct.lid K D at hf
+      simp only [map_zero, map_one] at hf
+      exact zero_ne_one hf⟩
+    refine ⟨?_⟩
+    sorry
 end IsCentralSimple
 
 section CSA_implies_CSA
