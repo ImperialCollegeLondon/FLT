@@ -317,6 +317,12 @@ lemma injective_iff_ker_eq_bot {F : Type*} [FunLike F R R'] [RingHomClass F R R'
 def span (s : Set R) : RingCon R :=
 ringConGen (fun a b ↦ a - b ∈ s)
 
+lemma subset_span (s : Set R) : s ⊆ span s := by
+  intro x hx
+  rw [SetLike.mem_coe]
+  change ringConGen _ x 0
+  exact RingConGen.Rel.of _ _ (by simpa using hx)
+
 def span' (s : Set R) : RingCon R := fromIdeal
   {x | ∃ (ι : Type) (fin : Fintype ι) (xL : ι → R) (xR : ι → R) (y : ι → s),
     x = ∑ i : ι, xL i * y i * xR i}
@@ -369,6 +375,26 @@ lemma mem_span_ideal_iff_exists_fin (s : Ideal R) (x : R) :
     exact ⟨n, fin, xR, fun i ↦ ⟨xL i * y i, s.mul_mem_left _ (y i).2⟩, by simp⟩
   · rintro ⟨n, fin, xR, y, rfl⟩
     exact ⟨n, fin, 1, xR, y, by simp⟩
+
+lemma span_le {s : Set R} {I : RingCon R} : s ⊆ I ↔ span s ≤ I := by
+  rw [le_iff]
+  constructor
+  · intro h x hx
+    rw [SetLike.mem_coe, mem_span_iff_exists_fin] at hx
+    obtain ⟨n, finn, xL, xR, y, rfl⟩ := hx
+    exact I.sum_mem _ fun i _ => I.mul_mem_right _ _ (I.mul_mem_left _ _ <| h (y i).2)
+  · intro h x hx
+    exact h $ subset_span s hx
+
+lemma coe_bot_set : ((⊥ : RingCon R) : Set R) = {0} := by
+  ext x
+  simp only [SetLike.mem_coe, Set.mem_singleton_iff]
+  rfl
+
+lemma coe_top_set : ((⊤ : RingCon R) : Set R) = Set.univ := by
+  ext x
+  simp only [SetLike.mem_coe, Set.mem_univ]
+  rfl
 
 section IsSimpleOrder
 

@@ -514,14 +514,58 @@ instance TensorProduct.nontrivial
   simp only [map_zero, map_one] at hf
   exact zero_ne_one hf
 
+lemma TensorProduct.map_comap_eq_of_isSimple_isCentralSimple
+    {A B : Type v} [Ring A] [Algebra K A] [Ring B] [Algebra K B]
+    [isSimple_A : IsSimpleOrder $ RingCon A]
+    [isCentralSimple_B : IsCentralSimple K B]
+    (I : RingCon (A ⊗[K] B)) :
+    I = RingCon.span
+      (Set.image (Algebra.TensorProduct.includeLeft : A →ₐ[K] A ⊗[K] B) $
+        I.comap (Algebra.TensorProduct.includeLeft : A →ₐ[K] A ⊗[K] B)) := by
+  refine le_antisymm ?_ ?_
+  · sorry
+  · rw [← RingCon.span_le]
+    rintro _ ⟨x, hx, rfl⟩
+    rw [SetLike.mem_coe, RingCon.mem_comap] at hx
+    exact hx
+
 instance TensorProduct.simple
     (A B : Type v) [Ring A] [Algebra K A] [Ring B] [Algebra K B]
     [isSimple_A : IsSimpleOrder $ RingCon A]
     [isCentralSimple_B : IsCentralSimple K B] :
     IsSimpleOrder (RingCon (A ⊗[K] B)) := by
   haveI := isCentralSimple_B.2
-  refine ⟨?_⟩
-  sorry
+  let f : A →ₐ[K] A ⊗[K] B := Algebra.TensorProduct.includeLeft
+  suffices eq1 : ∀ (I : RingCon (A ⊗[K] B)),
+      I = RingCon.span (Set.image f $ I.comap f) by
+    refine ⟨fun I => ?_⟩
+    specialize eq1 I
+    rcases isSimple_A.2 (I.comap f) with h|h
+    · left
+      rw [h, RingCon.coe_bot_set, Set.image_singleton, map_zero] at eq1
+      rw [eq1, eq_bot_iff, RingCon.le_iff]
+      rintro x hx
+      rw [SetLike.mem_coe, RingCon.mem_span_iff_exists_fin] at hx
+      obtain ⟨ι, inst, xL, xR, y, rfl⟩ := hx
+      rw [SetLike.mem_coe]
+      refine RingCon.sum_mem _ _ fun i _ => ?_
+      have := (y i).2
+      simp only [Set.mem_singleton_iff] at this
+      rw [this, mul_zero, zero_mul]
+      rfl
+    · right
+      rw [h, RingCon.coe_top_set] at eq1
+      rw [eq1, eq_top_iff, RingCon.le_iff]
+      rintro x -
+      rw [SetLike.mem_coe]
+      induction x using TensorProduct.induction_on with
+      | zero => simp [RingCon.zero_mem]
+      | tmul a b =>
+        rw [show a ⊗ₜ[K] b = (a ⊗ₜ 1) * (1 ⊗ₜ b) by simp]
+        exact RingCon.mul_mem_right _ _ _ $ RingCon.subset_span _ $ ⟨a, ⟨⟩, rfl⟩
+      | add x y hx hy => exact RingCon.add_mem _ hx hy
+
+  apply TensorProduct.map_comap_eq_of_isSimple_isCentralSimple
 
 -- lemma b ii in Pierce Associative algebra
 
