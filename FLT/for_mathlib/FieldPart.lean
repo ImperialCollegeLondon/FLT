@@ -47,10 +47,6 @@ lemma freshers_end (x : D) : (conj x - (1 : Module.End ℤ D))^p = (conj x)^p - 
   sub_pow_char_of_commute (Module.End ℤ D) (conj x) 1 (by simp)
 
 lemma isnil_conj_sub_one (x : D) : IsNilpotent (conj x - 1) := by
-lemma isnil_conj_sub_one (x : D) : IsNilpotent (conj x - 1) := by
-
-lemma isnil_conj_sub_one (x : D) : IsNilpotent (conj x - 1) := by
-
   sorry
 
 lemma upper_bound (x : D) : ∃(l : ℕ),
