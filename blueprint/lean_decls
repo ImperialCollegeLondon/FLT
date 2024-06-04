@@ -47,6 +47,7 @@ Hurwitz.norm_one
 Hurwitz.norm_mul
 Hurwitz.norm_nonneg
 Hurwitz.norm_eq_zero
+Hurwitz.exists_near
 Hurwitz.quot_rem
 Hurwitz.left_ideal_princ
 Hurwitz.canonicalForm

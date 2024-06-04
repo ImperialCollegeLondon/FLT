@@ -397,6 +397,29 @@ lemma leftInverse_fromQuaternion_toQuaternion :
 lemma toQuaternion_injective : Function.Injective toQuaternion :=
   leftInverse_fromQuaternion_toQuaternion.injective
 
+open Quaternion in
+lemma leftInvOn_toQuaternion_fromQuaternion :
+    Set.LeftInvOn toQuaternion fromQuaternion
+      { q : ℍ | ∃ a b c d : ℤ, q = ⟨a, b, c, d⟩ ∨ q = ⟨a + 2⁻¹, b + 2⁻¹, c + 2⁻¹, d + 2⁻¹⟩ } := by
+  have h₀ (x y : ℤ) : (x + 2 ⁻¹ : ℝ) + (y + 2⁻¹) = ↑(x + y + 1) := by
+    field_simp; norm_cast; ring
+  intro q hq
+  simp only [Set.mem_setOf] at hq
+  simp only [toQuaternion, fromQuaternion]
+  obtain ⟨a, b, c, d, rfl|rfl⟩ := hq <;>
+  ext <;>
+  simp only [h₀, add_sub_add_right_eq_sub, Int.floor_sub_int, Int.floor_intCast, Int.cast_sub,
+    Int.cast_add, Int.cast_one, Int.floor_add_one, Int.floor_add_int] <;>
+  field_simp <;>
+  norm_cast <;>
+  ring
+
+open Quaternion in
+lemma fromQuaternion_injOn :
+    Set.InjOn fromQuaternion
+      { q : ℍ | ∃ a b c d : ℤ, q = ⟨a, b, c, d⟩ ∨ q = ⟨a + 2⁻¹, b + 2⁻¹, c + 2⁻¹, d + 2⁻¹⟩ } :=
+  leftInvOn_toQuaternion_fromQuaternion.injOn
+
 /-! ## zero (0) -/
 
 /-- The Hurwitz number 0 -/
@@ -761,9 +784,78 @@ lemma normSq_toQuaternion (z : 𝓞) : normSq (toQuaternion z) = norm z := by
   rw [← self_mul_star, ← toQuaternion_star, ← toQuaternion_mul, ← norm_eq_mul_conj,
     toQuaternion_intCast, coe_intCast]
 
+private lemma aux (x y z w : ℤ) : toQuaternion (fromQuaternion ⟨x,y,z,w⟩) = ⟨x,y,z,w⟩ := by
+  apply leftInvOn_toQuaternion_fromQuaternion
+  simp only [Set.mem_setOf]
+  use x, y, z, w
+  simp
+
+private lemma aux2 (a b c d : ℝ) (ha : a ≤ 4⁻¹) (hb : b ≤ 4⁻¹) (hc : c ≤ 4⁻¹) (hd : d ≤ 4⁻¹)
+    (H : ¬ (a = 4⁻¹ ∧ b = 4⁻¹ ∧ c = 4⁻¹ ∧ d = 4⁻¹)) :
+    a + b + c + d < 1 := by
+  apply lt_of_le_of_ne
+  · calc
+      _ ≤ (4 : ℝ)⁻¹ + 4⁻¹ + 4⁻¹ + 4⁻¹ := by gcongr
+      _ = 1 := by norm_num
+  contrapose! H
+  have invs : (1 : ℝ) - 4⁻¹ = 4⁻¹ + 4⁻¹ + 4⁻¹ := by norm_num
+  refine ⟨?_, ?_, ?_, ?_⟩ <;> apply le_antisymm ‹_› <;>
+  [ (have : a = 1 - (b + c + d) := by rw [← H]; ring);
+    (have : b = 1 - (a + c + d) := by rw [← H]; ring);
+    (have : c = 1 - (a + b + d) := by rw [← H]; ring);
+    (have : d = 1 - (a + b + c) := by rw [← H]; ring) ] <;>
+  rw [this, le_sub_comm, invs] <;>
+  gcongr
+
 open Quaternion in
-lemma exists_near (z : ℍ) : ∃ q : 𝓞, dist z (toQuaternion q) < 1 := by
-  sorry
+lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
+  have four_inv : (4⁻¹ : ℝ) = 2⁻¹ ^ 2 := by norm_num
+  have (r : ℝ) : (r - round r) ^ 2 ≤ 4⁻¹ := by
+    rw [four_inv, sq_le_sq]
+    apply (abs_sub_round _).trans_eq
+    rw [abs_of_nonneg]
+    all_goals norm_num
+  let x := round a.re
+  let y := round a.imI
+  let z := round a.imJ
+  let w := round a.imK
+  by_cases H : |a.re - x| = 2⁻¹ ∧ |a.imI - y| = 2⁻¹ ∧ |a.imJ - z| = 2⁻¹ ∧ |a.imK - w| = 2⁻¹
+  · use fromQuaternion a
+    convert zero_lt_one' ℝ
+    rw [NormedRing.dist_eq, ← sq_eq_zero_iff, sq, ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
+    rw [add_eq_zero_iff' (by positivity) (by positivity)]
+    rw [add_eq_zero_iff' (by positivity) (by positivity)]
+    rw [add_eq_zero_iff' (by positivity) (by positivity)]
+    simp_rw [and_assoc, sq_eq_zero_iff, sub_re, sub_imI, sub_imJ, sub_imK, sub_eq_zero, ← ext_iff]
+    symm
+    apply leftInvOn_toQuaternion_fromQuaternion
+    · simp only [Set.mem_setOf]
+      have {r : ℝ} {z : ℤ} (h : |r - z| = 2⁻¹) : ∃ z' : ℤ, r = z' + 2⁻¹  := by
+        cases (abs_eq (by positivity)).mp h with (rw [sub_eq_iff_eq_add'] at h)
+        | inl h => use z
+        | inr h => use z - 1; rw [h, Int.cast_sub, Int.cast_one, add_comm_sub]; norm_num
+
+      obtain ⟨x', hx'⟩ := this H.1
+      obtain ⟨y', hy'⟩ := this H.2.1
+      obtain ⟨z', hz'⟩ := this H.2.2.1
+      obtain ⟨w', hw'⟩ := this H.2.2.2
+      use x', y', z', w', Or.inr ?_
+      ext <;> simp [*]
+
+  use fromQuaternion ⟨x,y,z,w⟩
+  rw [aux]
+  rw [NormedRing.dist_eq, ← sq_lt_one_iff (_root_.norm_nonneg _), sq,
+    ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
+
+  simp only [sub_re, sub_imI, sub_imJ, sub_imK]
+
+  apply aux2 <;> try apply this
+  contrapose! H
+  suffices ∀ r : ℝ, |r| = 2⁻¹ ↔ r ^ 2 = 4⁻¹ by
+    simpa [this]
+  intro r
+  rw [four_inv, sq_eq_sq_iff_abs_eq_abs, abs_of_nonneg (a := (2⁻¹ : ℝ))]
+  norm_num
 
 open Quaternion in
 lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ norm r < norm b := by
