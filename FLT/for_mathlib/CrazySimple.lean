@@ -5,26 +5,9 @@ import Mathlib.Algebra.Quaternion
 import Mathlib.Algebra.Ring.Equiv
 import Mathlib.LinearAlgebra.Matrix.IsDiag
 
-variable (K : Type*) [Field K]
 variable (A : Type*) [Ring A]
 
-
-
--- Theorem 2.21
-/-
-Theorem 2.21. Let Mn(R) be a full matrix ring on the ring R, then any ideal I is of the form Mn(I)
-for some ideal I of R.
-Proof. If I is an ideal of R, then as scalar multiplication and matrix addition happen component-wise
-it is clear that Mn(I) is an ideal of Mn(R). Further- more, if Mn(I1) = Mn(I2) for ideals I1,I2,
-it is clear that I1 = I2 because matrices are equal if and only if each component is equal.
-Next, suppose that J is an ideal of Mn(R). Let I denote the set of elements in the top left entry
-of the matrices of J , then I is an ideal of R. This is because first, it’s trivially closed under
-addition and secondly, if it’s not closed under multiplication of elements in R, then it contradicts
-J is an ideal of Mn(R). Let eij be the matrix with 0 in every entry apart from the ijth entry.
-Let M ∈ J , then e1jMej1 = mije11 ∈ J so that mij ∈ I and hence J ⊆ Mn(I). On the other hand, let N = (nij) ∈ Mn(I), and take M = (mij) ∈ J such that m11 = nij. Then nijeij = m11eij = ei1Me1j = m11eij ∈ J. Therefore, as J is closed under addition, and ij were arbitrary it follows that N ∈ J . Therefore, Mn(I) ⊆ I which means that Mn(I) = J .
--/
-
-open BigOperators Matrix Quaternion
+open BigOperators Matrix Quaternion MulOpposite
 
 local notation "M[" ι "," R "]" => Matrix ι ι R
 
@@ -133,9 +116,7 @@ section simple_ring
 
 open MulOpposite
 
-variable [IsSimpleOrder (RingCon A)] [Algebra K A] (h : FiniteDimensional K A)
-
-variable (D : Type*) [DivisionRing D]
+variable (K D : Type*) [Field K] [IsSimpleOrder (RingCon A)] [Algebra K A] [DivisionRing D]
 
 /--
 Division rings are a simple ring
@@ -373,20 +354,14 @@ private lemma Wedderburn_Artin.aux.equivIdeal
 
   haveI : IsSimpleModule A I := minimal_ideal_isSimpleModule I I_nontrivial I_minimal
 
-  letI g : (Fin n → I) →ₗ[A] A := {
-    toFun := fun v ↦ ∑ j : Fin n, v j * x j
-    map_add' := by
-      intro v1 v2
-      simp [add_mul, Finset.sum_add_distrib]
-    map_smul' := by
-      intro a v
-      simp [Finset.mul_sum, mul_assoc]
-  }
+  letI g : (Fin n → I) →ₗ[A] A :=
+  { toFun := fun v ↦ ∑ j : Fin n, v j * x j
+    map_add' := fun v1 v2 => by simp [add_mul, Finset.sum_add_distrib]
+    map_smul' := fun a v => by simp [Finset.mul_sum, mul_assoc] }
 
-  have g_surj : Function.Surjective g := by
-    intro a
-    refine ⟨fun j ↦ ⟨a * (i j).1, I.mul_mem_left _ (i j).2⟩, ?_⟩
-    simp [g, mul_assoc, ← Finset.mul_sum, one_eq]
+  have g_surj : Function.Surjective g := fun a =>
+    ⟨fun j ↦ ⟨a * (i j), I.mul_mem_left _ (i j).2⟩,
+      by simp [g, mul_assoc, ← Finset.mul_sum, one_eq]⟩
 
   have g_inj : Function.Injective g := by
     rw [← LinearMap.ker_eq_bot]
@@ -437,24 +412,20 @@ For `A`-module `M`,
 -/
 @[simps]
 def endPowEquivMatrix
-    (A : Type u) [Ring A] (M : Type*) [AddCommGroup M] [Module A M] (n : ℕ):
+    (M : Type*) [AddCommGroup M] [Module A M] (n : ℕ):
     Module.End A (Fin n → M) ≃+* M[Fin n, Module.End A M] where
   toFun f := Matrix.of fun i j ↦
   { toFun := fun x ↦ f (Function.update 0 j x) i
-    map_add' := fun x y ↦ by
-      change f _ i = (f _ + f _) i
+    map_add' := fun x y ↦ show  f _ i = (f _ + f _) i by
       rw [← f.map_add, ← Function.update_add, add_zero]
-    map_smul' := fun x y ↦ by
-      change f _ _ = (x • f _) _
+    map_smul' := fun x y ↦ show f _ _ = (x • f _) _ by
       rw [← f.map_smul, ← Function.update_smul, smul_zero] }
   invFun M :=
   { toFun := fun x ↦ ∑ i : Fin n, Function.update 0 i (∑ j : Fin n, M i j (x j))
-    map_add' := by
-      intro x y
+    map_add' := fun x y ↦ by
       simp only [map_add, ← Finset.sum_add_distrib, Pi.add_apply]
-      refine Finset.sum_congr rfl fun i _ ↦ ?_
-      ext j : 1
-      rw [← Function.update_add, zero_add, ← Finset.sum_add_distrib]
+      exact Finset.sum_congr rfl fun i _ ↦ funext fun j => by
+        rw [← Function.update_add, zero_add, ← Finset.sum_add_distrib]
     map_smul' := by
       intro a x
       simp only [Pi.smul_apply, LinearMapClass.map_smul, RingHom.id_apply, Finset.smul_sum]
@@ -488,8 +459,6 @@ def endPowEquivMatrix
     ext k : 1
     simp [Function.update]
   map_add' _ _ := by ext i j x : 2; simp
-
-example : true := rfl
 
 theorem Wedderburn_Artin_ideal_version
     (A : Type u) [Ring A] [IsArtinianRing A] [simple : IsSimpleOrder (RingCon A)] :
@@ -538,124 +507,51 @@ end simple_ring
 universe u v w
 section central_simple
 
-variable (K : Type*) [Field K]
-variable (B : Type u) [Ring B] [Algebra K B] [FiniteDimensional K B]
-
-lemma IsArtinianRing.of_finiteDimensional : IsArtinianRing B := by
-  rw [IsArtinianRing, ← monotone_stabilizes_iff_artinian]
-  intro I
-  let V : ℕ →o (Submodule K B)ᵒᵈ :=
-    ⟨fun n => (OrderDual.toDual <| {
-      carrier := (OrderDual.ofDual $ I n).carrier
-      add_mem' := by
-        rintro a b ha hb
-        exact (OrderDual.ofDual $ I n).add_mem ha hb
-      zero_mem' := (OrderDual.ofDual $ I n).zero_mem
-      smul_mem' := by
-        rintro r x hx
-        simp only [AddSubsemigroup.mem_carrier, AddSubmonoid.mem_toSubsemigroup,
-          Submodule.mem_toAddSubmonoid] at hx ⊢
-        rw [Algebra.smul_def]
-        exact Ideal.mul_mem_left _ _ hx
-    }), fun m n hmn => by intro x hx; exact I.2 hmn hx⟩
-  let dim : ℕ →o ℕᵒᵈ :=
-    ⟨fun n => FiniteDimensional.finrank K (OrderDual.ofDual $ V n : Submodule K B),
-      fun m n hmn => Submodule.finrank_mono (V.2 hmn)⟩
-  obtain ⟨N, hN⟩ := WellFounded.monotone_chain_condition.mp (by
-
-    change WellFounded fun (x y : ℕ) => x < y
-    obtain ⟨ins⟩ : WellFoundedLT ℕ := inferInstance
-    exact ins) dim
-  refine ⟨N, fun m h => le_antisymm (I.2 h) ?_⟩
-  specialize hN m h
-  simp only [OrderHom.coe_mk, dim] at hN
-  let e := LinearMap.linearEquivOfInjective
-    (Submodule.inclusion $ V.2 h) (Submodule.inclusion_injective _) hN.symm
-  have s : Function.Surjective (Submodule.inclusion $ V.2 h) := by
-    intro x
-    obtain ⟨y, hy⟩ := e.surjective x
-    rw [← hy]
-    exact ⟨y, rfl⟩
-  intro x hx
-  obtain ⟨y, hy⟩ := s ⟨x, hx⟩
-  simp only [OrderHom.toFun_eq_coe, Subtype.ext_iff] at hy
-  subst hy
-  exact y.2
+variable (K : Type u) (B : Type v) [Field K] [Ring B] [Algebra K B] [FiniteDimensional K B]
 
 lemma Matrix.mem_center_iff (R : Type*) [Ring R] (n : ℕ) (M) :
     M ∈ Subring.center M[Fin n, R] ↔ ∃ α : (Subring.center R), M = α • 1 := by
   constructor
-  · if h : n = 0
-    then subst h; exact fun _ => ⟨0, Subsingleton.elim _ _⟩
+  · if h : n = 0 then subst h; exact fun _ => ⟨0, Subsingleton.elim _ _⟩
     else
       intro h
       rw [Subring.mem_center_iff] at h
-      have diag : Matrix.IsDiag M := by
-        intro i j hij
-        specialize h (stdBasisMatrix i i 1)
-        rw [← Matrix.ext_iff] at h
-        specialize h i j
+      have diag : Matrix.IsDiag M := fun i j hij => by
         simpa only [StdBasisMatrix.mul_left_apply_same, one_mul,
-          StdBasisMatrix.mul_right_apply_of_ne (hbj := hij.symm)] using h
+          StdBasisMatrix.mul_right_apply_of_ne (hbj := hij.symm)] using
+          Matrix.ext_iff.2 (h (stdBasisMatrix i i 1)) i j
       have (i j : Fin n) : M i i = M j j := by
-        specialize h (stdBasisMatrix i j 1)
-        rw [← Matrix.ext_iff] at h
-        specialize h i j
-        simpa [Eq.comm] using h
+        simpa [Eq.comm] using Matrix.ext_iff.2 (h (stdBasisMatrix i j 1)) i j
       obtain ⟨b, hb⟩ : ∃ (b : R), M = b • 1 := by
-        refine ⟨M ⟨0, by omega⟩ ⟨0, by omega⟩, ?_⟩
-        ext i j
-        if heq : i = j
-        then
-          subst heq; rw [this i ⟨0, by omega⟩]; simp
-        else
-          rw [diag heq]
-          simp only [smul_apply, smul_eq_mul]
-          rwa [Matrix.one_apply_ne, mul_zero]
+        refine ⟨M ⟨0, by omega⟩ ⟨0, by omega⟩, Matrix.ext fun i j => ?_⟩
+        if heq : i = j then subst heq; rw [this i ⟨0, by omega⟩]; simp
+        else simp [diag heq, Matrix.one_apply_ne heq]
       suffices b ∈ Subring.center R by aesop
-      simp only [Subring.mem_center_iff]
-      intro g
-      specialize h (Matrix.diagonal (fun _ => g))
-      rw [← Matrix.ext_iff] at h
-      specialize h ⟨0, by omega⟩ ⟨0, by omega⟩
-      rw [hb] at h
-      simp_all only [hb, diagonal_mul, smul_apply, one_apply_eq, smul_eq_mul,
-        mul_one, mul_diagonal, isDiag_smul_one, implies_true]
+      refine Subring.mem_center_iff.mpr fun g => ?_
+      simpa [hb] using Matrix.ext_iff.2 (h (Matrix.diagonal fun _ => g)) ⟨0, by omega⟩ ⟨0, by omega⟩
 
-  · rintro ⟨α, ha⟩
-    rw [Subring.mem_center_iff]
-    intro g ; aesop
+  · rintro ⟨α, ha⟩; rw [Subring.mem_center_iff]; aesop
 
 lemma Matrix.mem_center_iff' (K R : Type*) [Field K] [Ring R] [Algebra K R] (n : ℕ) (M) :
     M ∈ Subalgebra.center K M[Fin n, R] ↔
     ∃ α : (Subalgebra.center K R), M = α • 1 :=
   Matrix.mem_center_iff R n M
 
+/--
+For a matrix ring `Mₙₙ(R)`, the center of the matrix ring `Z(Mₙₙ(R))` is isomorphic to the center
+`Z(R)` of `R`.
+-/
 @[simps]
 def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) (R : Type*) [Ring R]:
     Subring.center (M[Fin n, R]) ≃+* (Subring.center R) where
   toFun A := ⟨(A.1 ⟨0, by omega⟩ ⟨0, by omega⟩), by
-    have hA : A.1 ∈ Subring.center (M[Fin n, R]) := A.2
-    obtain ⟨a, ha⟩ := (Matrix.mem_center_iff R n A.1).1 hA
-    rw [← Matrix.ext_iff] at ha
-    specialize ha ⟨0, by omega⟩ ⟨0, by omega⟩
-    aesop⟩
-  invFun a := ⟨a • 1, by
-    rw [Subring.mem_center_iff]; intro A; ext i j; simp [mul_comm]⟩
+    obtain ⟨a, ha⟩ := (Matrix.mem_center_iff R n A.1).1 A.2
+    simpa only [ha, smul_apply, one_apply_eq] using Subring.mul_mem _ a.2 $ Subring.one_mem _⟩
+  invFun a := ⟨a • 1, Subring.mem_center_iff.2 fun A => Matrix.ext fun i j => by simp [mul_comm]⟩
   left_inv := by
     if hn : n = 0
-    then
-      subst hn
-      exact fun _ => Subsingleton.elim _ _
-    else
-      rintro ⟨A, hA⟩
-      rw [Matrix.mem_center_iff] at hA
-      obtain ⟨α, rfl⟩ := hA
-      simp only [trace_smul, trace_one, Fintype.card_fin,
-        smul_eq_mul, Subtype.mk.injEq]
-      ext
-      simp only [smul_apply, one_apply_eq, Submonoid.mk_smul,
-        smul_eq_mul, smul_one_mul]
+    then subst hn; exact fun _ => Subsingleton.elim _ _
+    else rintro ⟨A, hA⟩; obtain ⟨α, rfl⟩ := Matrix.mem_center_iff _ _ _ |>.1 hA; simp
   right_inv := by
     intro ; simp only [smul_apply, one_apply_eq]; aesop
   map_mul' := by
@@ -672,67 +568,45 @@ def Matrix.centerEquivBase (n : ℕ) (hn : 0 < n) (R : Type*) [Ring R]:
     obtain ⟨b, rfl⟩ := hB
     simp only [AddMemClass.mk_add_mk, add_apply, smul_apply, one_apply_eq]
 
-theorem ringequiv_perserve_center (R1 R2 : Type*) [Ring R1] [Ring R2] (h : R1 ≃+* R2) :
-    ∀ x ∈ Subring.center R1, h.toRingHom x ∈ Subring.center R2 := by
-  intro x hx
-  rw [Subring.mem_center_iff]
-  intro y ; rw [Subring.mem_center_iff] at hx
-  --simp only [RingEquiv.toRingHom_eq_coe, RingHom.coe_coe]
-  have y_eq : y = h.toRingHom (h.symm.toRingHom y) := by simp
-  rw [y_eq, ← h.toRingHom.map_mul, ← h.toRingHom.map_mul] ;
-  simp_all only [RingEquiv.toRingHom_eq_coe, RingHom.coe_coe, RingEquiv.apply_symm_apply,
-    _root_.map_mul]
+theorem RingEquiv.mem_center_iff {R1 R2 : Type*} [Ring R1] [Ring R2] (e : R1 ≃+* R2) :
+    ∀ x, x ∈ Subring.center R1 ↔ e x ∈ Subring.center R2 := fun x => by
+  simpa only [Subring.mem_center_iff] using
+    ⟨fun h r => e.symm.injective $ by simp [h], fun h r => e.injective $ by simpa using h (e r)⟩
 
 variable {B} in
+/--
+For a `K`-algebra B, there is a map from `I : Ideal B` to `End(I)ᵒᵖ` defined by `k ↦ x ↦ k • x`.
+-/
 @[simps]
 def algebraMapEndIdealMop (I : Ideal B) : K →+* (Module.End B I)ᵐᵒᵖ where
   toFun k := .op $
   { toFun := fun x => k • x
     map_add' := fun x y => by simp
     map_smul' := fun k' x => by ext; simp }
-  map_one' := MulOpposite.unop_injective $ by ext; simp
-  map_mul' _ _ := MulOpposite.unop_injective $ by ext; simp [MulAction.mul_smul]
-  map_zero' := MulOpposite.unop_injective $ by ext; simp
-  map_add' _ _ := MulOpposite.unop_injective $ by ext; simp [add_smul]
+  map_one' := unop_injective $ by ext; simp
+  map_mul' _ _ := unop_injective $ by ext; simp [MulAction.mul_smul]
+  map_zero' := unop_injective $ by ext; simp
+  map_add' _ _ := unop_injective $ by ext; simp [add_smul]
 
 instance (I : Ideal B) : Algebra K (Module.End B I)ᵐᵒᵖ where
   __ := algebraMapEndIdealMop K I
-  commutes' := by
-    rintro r ⟨x⟩
-    refine MulOpposite.unop_injective ?_
-    ext ⟨i, hi⟩
-    simp only [algebraMapEndIdealMop_apply, MulOpposite.unop_mul, MulOpposite.unop_op,
-      LinearMap.mul_apply, LinearMap.coe_mk, AddHom.coe_mk, SetLike.mk_smul_of_tower_mk,
-      SetLike.val_smul_of_tower]
-    change (x (r • ⟨i, hi⟩)).1 = _
-    convert Subtype.ext_iff.mp (x.map_smul (algebraMap K B r) ⟨i, hi⟩) using 1
-    simp only [SetLike.mk_smul_of_tower_mk, algebraMap_smul]
-    rw [SetLike.val_smul_of_tower]
-    rw [Algebra.smul_def]
-    rfl
+  commutes' := fun r ⟨x⟩ => MulOpposite.unop_injective $ DFunLike.ext _ _ fun ⟨i, hi⟩ =>
+    Subtype.ext $ show (x (r • ⟨i, hi⟩)).1 = r • (x ⟨i, hi⟩).1 by
+      convert Subtype.ext_iff.mp (x.map_smul (algebraMap K B r) ⟨i, hi⟩) using 1 <;> aesop
   smul k x := .op $ (algebraMapEndIdealMop K I k).unop * x.unop
-  smul_def' := by
-    rintro r ⟨x⟩
-    refine MulOpposite.unop_injective ?_
-    ext ⟨i, hi⟩
-    simp only [algebraMapEndIdealMop_apply, MulOpposite.unop_op, MulOpposite.op_mul,
-      MulOpposite.op_unop, MulOpposite.unop_smul, LinearMap.smul_apply, SetLike.val_smul_of_tower,
-      MulOpposite.unop_mul, LinearMap.mul_apply, LinearMap.coe_mk, AddHom.coe_mk,
-      SetLike.mk_smul_of_tower_mk]
-    change r • (x ⟨i, hi⟩).1 = (x (r • ⟨i, hi⟩)).1
-    convert Subtype.ext_iff.mp (x.map_smul (algebraMap K B r) ⟨i, hi⟩) |>.symm using 1
-    · rw [Algebra.smul_def]; rfl
-    · congr; ext; simp
+  smul_def' := fun r ⟨x⟩ => MulOpposite.unop_injective $ DFunLike.ext _ _ fun ⟨i, hi⟩ =>
+    Subtype.ext $ by
+      convert Subtype.ext_iff.mp (x.map_smul (algebraMap K B r) ⟨i, hi⟩) |>.symm using 1 <;> aesop
 
 lemma algebraEndIdealMop.algebraMap_eq (I : Ideal B) :
     algebraMap K (Module.End B I)ᵐᵒᵖ = algebraMapEndIdealMop K I := rfl
 
 lemma Wedderburn_Artin_algebra_version
     [sim : IsSimpleOrder (RingCon B)]:
-    ∃ (n : ℕ) (_ : n ≠ 0) (S : Type u) (div_ring : DivisionRing S) (alg : Algebra K S),
+    ∃ (n : ℕ) (_ : n ≠ 0) (S : Type v) (div_ring : DivisionRing S) (alg : Algebra K S),
     Nonempty (B ≃ₐ[K] (M[Fin n, S])) := by
   classical
-  have hB : IsArtinianRing B := IsArtinianRing.of_finiteDimensional K B
+  have hB : IsArtinianRing B := .of_finite K B
   obtain ⟨n, hn, I, inst_I, ⟨e⟩⟩ := Wedderburn_Artin_ideal_version B
 
   let endEquiv : Module.End B B ≃+* Module.End B (Fin n → I) :=
@@ -760,8 +634,7 @@ lemma Wedderburn_Artin_algebra_version
     ext x : 1
     simp only [LinearMap.coe_mk, AddHom.coe_mk, MulOpposite.unop_op]
     rw [show r • x = Function.update (0 : Fin n → I) i (r • x) i by simp]
-    refine congr_fun ?_ i
-    apply_fun e using e.toEquiv.injective
+    refine congr_fun (e.injective ?_) i
     simp only [equivEndMop_apply, MulOpposite.unop_op, LinearMap.coe_mk, AddHom.coe_mk,
       LinearEquiv.apply_symm_apply]
     rw [show Function.update (0 : Fin n → I) i (r • x) = r • Function.update (0 : Fin n → I) i x
@@ -772,8 +645,7 @@ lemma Wedderburn_Artin_algebra_version
     simp only [LinearMap.coe_mk, AddHom.coe_mk, MulOpposite.unop_zero, LinearMap.zero_apply]
     rw [show (0 : I) = Function.update (0 : Fin n → I) i (r • x) j
       by simp [Function.update, if_neg (Ne.symm h)]]
-    refine congr_fun ?_ j
-    apply_fun e using e.toEquiv.injective
+    refine congr_fun (e.injective ?_) j
     simp only [equivEndMop_apply, MulOpposite.unop_op, LinearMap.coe_mk, AddHom.coe_mk,
       LinearEquiv.apply_symm_apply, map_zero]
     rw [show Function.update (0 : Fin n → I) i (r • x) = r • Function.update (0 : Fin n → I) i x
@@ -782,60 +654,37 @@ lemma Wedderburn_Artin_algebra_version
     exact congr_arg e $ by ext; simp
 
 theorem is_central_of_wdb
-    [IsSimpleOrder (RingCon B)] (hctr : Subalgebra.center K B = ⊥)
+    (hctr : Subalgebra.center K B = ⊥)
     (n : ℕ) (S : Type*) (hn : 0 < n) [h : DivisionRing S]
     [Algebra K S] (Wdb: B ≃ₐ[K] M[Fin n, S]) :
     Subalgebra.center K S = ⊥ := by
   rw [eq_bot_iff] at hctr ⊢
   intro x hx
-  have hx' : (Matrix.diagonal fun _ => x) ∈ Subalgebra.center K M[Fin n, S] := by
-    rw [Matrix.mem_center_iff']
-    refine ⟨⟨x, hx⟩, ?_⟩
-    ext
-    simp only [diagonal, of_apply, smul_apply, Submonoid.mk_smul, smul_eq_mul]
-    split_ifs <;> aesop
+  have hx' : (Matrix.diagonal fun _ => x) ∈ Subalgebra.center K M[Fin n, S] :=
+    Matrix.mem_center_iff' _ _ _ _ |>.2 $
+      ⟨⟨x, hx⟩, by ext; simp only [diagonal, of_apply]; split_ifs <;> aesop⟩
   have hx'' : Wdb.symm (Matrix.diagonal fun _ => x) ∈ Subalgebra.center K B := by
     rw [Subalgebra.mem_center_iff] at hx' ⊢
-    intro b
-    apply_fun Wdb using Wdb.injective
-    simpa only [_root_.map_mul, AlgEquiv.apply_symm_apply] using hx' (Wdb b)
-
-  specialize hctr hx''
-  rcases hctr with ⟨s, (hs : algebraMap _ _ s = _)⟩
-  refine ⟨s, show algebraMap _ _ _ = _ from ?_⟩
-  apply_fun Wdb at hs
-  simp only [AlgEquiv.commutes, AlgEquiv.apply_symm_apply] at hs
-  apply_fun (· ⟨0, by omega⟩ ⟨0, by omega⟩) at hs
-  simp only [diagonal_apply_eq] at hs
-  exact hs
-
+    exact fun b => Wdb.injective $ by simpa using hx' (Wdb b)
+  obtain ⟨s, (hs : algebraMap _ _ s = _)⟩ := hctr hx''
+  exact ⟨s, show algebraMap _ _ _ = _ by
+    simpa using Matrix.ext_iff.2 congr(Wdb $hs) ⟨0, by omega⟩ ⟨0, by omega⟩⟩
 
 theorem is_fin_dim_of_wdb
-    [IsSimpleOrder (RingCon B)]
     (n : ℕ) (S : Type*) (hn : 0 < n) [h : DivisionRing S]
     [Algebra K S] (Wdb: B ≃ₐ[K] M[Fin n, S]) :
     FiniteDimensional K S := by
   classical
-  have : FiniteDimensional K M[Fin n, S] :=
+  obtain ⟨⟨s, span_eq⟩⟩ : FiniteDimensional K M[Fin n, S] :=
     FiniteDimensional.of_injective Wdb.symm.toLinearEquiv.toLinearMap Wdb.symm.injective
-  obtain ⟨⟨s, span_eq⟩⟩ := this
-  let s' := s.image (fun M : M[Fin n, S] => M ⟨0, by omega⟩ ⟨0, by omega⟩)
-  refine ⟨⟨s', ?_⟩⟩
+  refine ⟨⟨s.image (fun M : M[Fin n, S] => M ⟨0, by omega⟩ ⟨0, by omega⟩), ?_⟩⟩
   rw [eq_top_iff] at span_eq ⊢
   rintro x -
-  let X : M[Fin n, S] := diagonal fun _ => x
-  specialize span_eq (by trivial : X ∈ ⊤)
-  rw [mem_span_finset] at span_eq
-  obtain ⟨r, hr⟩ := span_eq
+  obtain ⟨r, hr⟩ := mem_span_finset.1 $ span_eq (by trivial : (diagonal fun _ => x) ∈ ⊤)
   apply_fun (· ⟨0, by omega⟩ ⟨0, by omega⟩) at hr
-  simp only [diagonal_apply_eq, X] at hr
-  rw [Matrix.sum_apply] at hr
-  rw [← hr]
-  refine Submodule.sum_mem _ fun i hi => ?_
-  simp only [smul_apply]
-  refine Submodule.smul_mem _ _ $ Submodule.subset_span ?_
-  simp only [Finset.coe_image, Set.mem_image, Finset.mem_coe, s']
-  exact ⟨i, hi, rfl⟩
+  simp only [sum_apply, smul_apply, diagonal_apply_eq] at hr
+  exact hr ▸ Submodule.sum_mem _ fun i hi =>
+    Submodule.smul_mem _ _ $ Submodule.subset_span $ by simpa using ⟨i, hi, rfl⟩
 
 lemma bijective_algebraMap_of_finiteDimensional_divisionRing_over_algClosed
     (K D : Type*) [Field K] [IsAlgClosed K] [DivisionRing D] [alg : Algebra K D]
@@ -849,7 +698,8 @@ theorem simple_eq_matrix_algClosed [IsAlgClosed K] [IsSimpleOrder (RingCon B)] :
     ∃ (n : ℕ) (_ : n ≠ 0), Nonempty (B ≃ₐ[K] M[Fin n, K]) := by
   rcases Wedderburn_Artin_algebra_version K B with ⟨n, hn, S, ins1, ins2, ⟨e⟩⟩
   have := is_fin_dim_of_wdb K B n S (by omega) e
-  refine ⟨n, hn, ⟨e.trans $ AlgEquiv.mapMatrix $ AlgEquiv.symm $
+
+  exact ⟨n, hn, ⟨e.trans $ AlgEquiv.mapMatrix $ AlgEquiv.symm $
     AlgEquiv.ofBijective (Algebra.ofId _ _) $
       bijective_algebraMap_of_finiteDimensional_divisionRing_over_algClosed _ _⟩⟩
 

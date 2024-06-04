@@ -29,6 +29,10 @@ universe u v w
 open Classical
 open scoped BigOperators
 
+/--
+For a field `K` and a `K`-algebra `D`, we say that `D` is a central algebra over `K` if the center
+of `D` is exactly `K` and that `D` is a simple ring.
+-/
 class IsCentralSimple
     (K : Type u) [Field K] (D : Type v) [Ring D] [Algebra K D] : Prop where
   is_central : Subalgebra.center K D ≤ ⊥
@@ -53,7 +57,7 @@ instance MatrixRing.isCentralSimple (ι : Type v) [Fintype ι] [Nonempty ι] [De
 
 namespace IsCentralSimple
 
-variable (D : Type v) [Ring D] [Algebra K D] (h : IsCentralSimple K D)
+variable (D : Type v) [Ring D] [Algebra K D]
 
 /-
 \begin{lemma}
@@ -602,6 +606,9 @@ instance TensorProduct.nontrivial
   exact zero_ne_one hf
 
 variable {K} in
+/--
+a non-zero element in an ideal that can be represented as a sum of tensor products of `n`-terms.
+-/
 structure is_obtainable_by_sum_tmul
     {ιA A B : Type*} [Ring A] [Algebra K A] [Ring B] [Algebra K B]
     (x : A ⊗[K] B) (𝒜 : Basis ιA K A) (I : RingCon $ A ⊗[K] B) (n : ℕ) : Prop :=
@@ -879,12 +886,10 @@ instance TensorProduct.simple
 
   apply TensorProduct.map_comap_eq_of_isSimple_isCentralSimple
 
--- lemma b ii in Pierce Associative algebra
-
--- lemma baseChange (L : Type w) [Field L] [Algebra K L] : IsCentralSimple L (L ⊗[K] D) := sorry
 -- We can't have `L` to have different universe level of `D` in this proof, again due that we used
 -- `flatness`
-instance baseChange [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] :
+instance baseChange
+    [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] [h : IsCentralSimple K D] :
     IsCentralSimple L (L ⊗[K] D) where
   is_central:= by
     intro _ H
@@ -937,8 +942,7 @@ lemma _root_.AlgEquiv.isCentralSimple {K B C : Type*}
     exact RingCon.orderIsoOfRingEquiv e.symm.toRingEquiv |>.isSimpleOrder
 
 theorem CSA_implies_CSA (K : Type*) (B : Type*) [Field K] [Ring B] [Algebra K B]
-    [IsSimpleOrder (RingCon B)] (n : ℕ)
-    (D : Type*) (hn : 0 < n) (h : DivisionRing D) [Algebra K D]
+    (n : ℕ) (D : Type*) (hn : 0 < n) (h : DivisionRing D) [Algebra K D]
     (Wdb: B ≃ₐ[K] (Matrix (Fin n) (Fin n) D)):
     IsCentralSimple K B → IsCentralSimple K D := by
   intro BCS
