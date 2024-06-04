@@ -1,7 +1,7 @@
 import Mathlib.FieldTheory.SeparableClosure
 import Mathlib.FieldTheory.SplittingField.Construction
+import Mathlib.Data.Num.Lemmas
 
-import Mathlib.RingTheory.LittleWedderburn
 open scoped Classical
 
 variable (D : Type*) [DivisionRing D]
@@ -9,9 +9,10 @@ variable (D : Type*) [DivisionRing D]
 
 theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a * · * b)^[n] =
     (a ^ n * · * b ^ n) := by
-  induction' n with n hn
-  · ext g ; simp only [Function.iterate_zero, id_eq, pow_zero, one_mul, mul_one]
-  · ext g
+  induction n with
+  | zero => ext; simp
+  | succ n hn =>
+    ext g
     rw [Function.iterate_succ, Function.comp_apply, hn]
     simp only ; group
     rw [show a^n * a = a^(n + 1) by rw [← pow_succ a n], mul_assoc]
@@ -22,45 +23,44 @@ variable {D : Type*}[DivisionRing D](p : ℕ)[Fact p.Prime][char: CharP D p]
 abbrev conj (x : D) : Module.End ℤ D where
   toFun := fun a ↦ x * a * x⁻¹
   map_add' := fun y1 y2 ↦ by simp only; rw [mul_add, add_mul]
-  map_smul' := fun z d ↦ by 
+  map_smul' := fun z d ↦ by
     simp only [zsmul_eq_mul, eq_intCast, Int.cast_id]
-    induction' z using Int.induction_on with a ha b hb
-    · simp 
-    · simp only [Int.cast_natCast, Int.cast_add, Int.cast_one] at ha ⊢
+    induction z using Int.induction_on with
+    | hz => simp
+    | hp a ha =>
+      simp only [Int.cast_natCast, Int.cast_add, Int.cast_one] at ha ⊢
       rw [add_mul, mul_add, add_mul, ha, one_mul, add_mul, one_mul]
-    · simp only [Int.cast_neg, Int.cast_sub, Int.cast_one] at hb ⊢
+    | hn b hb =>
+      simp only [Int.cast_neg, Int.cast_sub, Int.cast_one] at hb ⊢
       rw [sub_mul, mul_sub, sub_mul, hb, one_mul, sub_mul, one_mul]
 
 example : (1 : Module.End ℤ D) = LinearMap.id := rfl
 
 instance Same_char : CharP (Module.End ℤ D) p where
-  cast_eq_zero_iff' := by 
-    intro x ; constructor 
-    · intro hx; rw [DFunLike.ext_iff] at hx; specialize hx 1; 
-      simp only [Module.End.natCast_apply,
-        nsmul_eq_mul, mul_one, LinearMap.zero_apply] at hx
-      exact (char.1 x).mp hx
-    · intro hx
-      have := (char.1 x).2 hx
-      ext y; simp
-      left; exact this
+  cast_eq_zero_iff' x :=
+  ⟨fun hx => char.1 x |>.1 <| by simpa using DFunLike.ext_iff.1 hx 1,
+    fun hx => DFunLike.ext _ _ fun y => by
+      simp only [Module.End.natCast_apply, nsmul_eq_mul, LinearMap.zero_apply, mul_eq_zero]
+      exact Or.inl <| char.1 x |>.2 hx⟩
 
-
-lemma freshers_end (x : D) : (conj x - (1 : Module.End ℤ D))^p = (conj x)^p - 1^p := 
+lemma freshers_end (x : D) : (conj x - (1 : Module.End ℤ D))^p = (conj x)^p - 1^p :=
   sub_pow_char_of_commute (Module.End ℤ D) (conj x) 1 (by simp)
 
-lemma isnil_conj_sub_one (x : D) : IsNilpotent (conj x - 1) := by 
-  
+lemma isnil_conj_sub_one (x : D) : IsNilpotent (conj x - 1) := by
+lemma isnil_conj_sub_one (x : D) : IsNilpotent (conj x - 1) := by
+
+lemma isnil_conj_sub_one (x : D) : IsNilpotent (conj x - 1) := by
+
   sorry
-  
-lemma upper_bound (x : D) : ∃(l : ℕ), 
+
+lemma upper_bound (x : D) : ∃(l : ℕ),
     (conj x - 1)^l ≠ 0 ∧ ∀ (n : ℕ), (conj x - 1)^(n + l + 1) = 0 := by
   use (nilpotencyClass (conj x - 1)) - 1
   constructor
   · apply pow_pred_nilpotencyClass (isnil_conj_sub_one x)
-  · intro n 
+  · intro n
     have : nilpotencyClass (conj x - 1) > 0 := pos_nilpotencyClass_iff.2 (isnil_conj_sub_one x)
-    rw [show (n + (nilpotencyClass (conj x - 1) - 1) + 1) = 
+    rw [show (n + (nilpotencyClass (conj x - 1) - 1) + 1) =
       n + nilpotencyClass (conj x - 1) by omega]
     rw [pow_add, pow_nilpotencyClass, mul_zero]
     apply isnil_conj_sub_one
@@ -227,9 +227,9 @@ lemma field_in_center (D : Type*) [DivisionRing D] [Algebra K D]:
 
 lemma char_pow_eq [Infinite K] (D : Type*)
     [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
-    (p : ℕ) [Fact p.Prime] [CharP K p] [CharP D p] (x : K) 
+    (p : ℕ) [Fact p.Prime] [CharP K p] [CharP D p] (x : K)
     (k : ℕ := FiniteDimensional.finrank K D):
-    ∃(n : ℕ), n ≤ k ∧ x^ p ^n = x := by 
+    ∃(n : ℕ), n ≤ k ∧ x^ p ^n = x := by
   sorry
 
 theorem fin_version [Finite K] [Algebra K D] [FiniteDimensional K D] :
@@ -254,20 +254,20 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
       let m := FiniteDimensional.finrank K D
       constructor
       · let g' := f.comp (X^p^m)
-        have eq1 : f = g' := by 
-          apply Polynomial.eq_of_infinite_eval_eq 
+        have eq1 : f = g' := by
+          apply Polynomial.eq_of_infinite_eval_eq
           have : Infinite (@Set.univ K) := by
             have := @Set.infinite_univ K
             exact Set.infinite_coe_iff.mpr this
           fapply Set.infinite_of_injective_forall_mem (α := @Set.univ K) (β := K)
-            (f := Subtype.val) Subtype.val_injective 
+            (f := Subtype.val) Subtype.val_injective
           rintro ⟨x, _⟩ ; simp only [eval_comp, eval_pow, eval_X, Set.mem_setOf_eq, g']
           congr; sorry
         rw [eq1] ; simp only [g']
         rw [Polynomial.comp_eq_sum_left]
-        apply Subalgebra.sum_mem  
+        apply Subalgebra.sum_mem
         intro x hx ; simp only
-        apply Subalgebra.mul_mem; 
+        apply Subalgebra.mul_mem;
         exact Subalgebra.algebraMap_mem _ (f.coeff x)
         apply Subalgebra.pow_mem; apply Algebra.subset_adjoin
         simp only [Set.mem_singleton_iff]
@@ -279,42 +279,42 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
     haveI irr_f: Irreducible f := minpoly.irreducible (Algebra.IsIntegral.isIntegral d)
     have hg1 : Irreducible g := by
       simp_all only [SetLike.coe_mem];
-      refine ⟨?_, ?_⟩ 
-      · rintro ⟨⟨x, y, hx, hy⟩,rfl⟩ 
+      refine ⟨?_, ?_⟩
+      · rintro ⟨⟨x, y, hx, hy⟩,rfl⟩
         simp only at h2 irr_f
         rw [Subtype.ext_iff] at hx hy
         refine irr_f.1 ⟨⟨x, y, ?_, ?_⟩, rfl⟩
-        · exact hx 
+        · exact hx
         · exact hy
 
       · rintro a b rfl
-        simp only [Submonoid.coe_mul, Subsemiring.coe_toSubmonoid, 
+        simp only [Submonoid.coe_mul, Subsemiring.coe_toSubmonoid,
           Subalgebra.coe_toSubsemiring] at irr_f
         obtain (h|h) := irr_f.2 a b rfl
         · left
-          rw [Polynomial.isUnit_iff] at h 
-          obtain ⟨r, hr1, hr2⟩ := h 
-          refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩, 
+          rw [Polynomial.isUnit_iff] at h
+          obtain ⟨r, hr1, hr2⟩ := h
+          refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩,
             ?_⟩
           · rw [← map_mul, mul_inv_cancel, map_one]
             exact IsUnit.ne_zero hr1
           · rw [← map_mul, inv_mul_cancel, map_one]
             exact IsUnit.ne_zero hr1
-          · simp only 
+          · simp only
             ext : 1 ; exact hr2
 
-        · right 
-          rw [Polynomial.isUnit_iff] at h 
-          obtain ⟨r, hr1, hr2⟩ := h 
-          refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩, 
+        · right
+          rw [Polynomial.isUnit_iff] at h
+          obtain ⟨r, hr1, hr2⟩ := h
+          refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩,
             ?_⟩
           · rw [← map_mul, mul_inv_cancel, map_one]
             exact IsUnit.ne_zero hr1
           · rw [← map_mul, inv_mul_cancel, map_one]
             exact IsUnit.ne_zero hr1
-          · simp only 
+          · simp only
             ext : 1 ; exact hr2
-        
+
     have hg2 : ↑g ∉ (Algebra.adjoin K {X^p} : Subalgebra K K[X]) := sorry
     have hg3 : g = minpoly K d^p^m := sorry
     have p_pow_in_K : d^p^m ∈ (Algebra.ofId K D).range := sorry
