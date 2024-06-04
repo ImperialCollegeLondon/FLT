@@ -122,7 +122,40 @@ lemma TensorProduct.eq_repr_basis_left
     (C : Type*) [Ring C] [Algebra K C]
     {ιB : Type*} (ℬ : Basis ιB K B)
     (x : B ⊗[K] C) :
-    ∃ (s : Finset ιB) (c : ιB → C), ∑ i ∈ s, ℬ i ⊗ₜ[K] c i = x := sorry
+    ∃ (s : Finset ιB) (c : ιB → C), ∑ i ∈ s, ℬ i ⊗ₜ[K] c i = x := by
+  let 𝒞 := Basis.ofVectorSpace K C
+  let 𝒯 := Basis.tensorProduct ℬ 𝒞
+  have eq1 := calc x
+      _ = ∑ ij ∈ (𝒯.repr x).support, (𝒯.repr x) ij • 𝒯 ij := 𝒯.total_repr x |>.symm
+      _ = ∑ ij ∈ (𝒯.repr x).support, (𝒯.repr x) (ij.1, ij.2) • 𝒯 (ij.1, ij.2) :=
+          Finset.sum_congr rfl <| by simp
+      _ = ∑ i ∈ (𝒯.repr x).support.image Prod.fst, ∑ j ∈ (𝒯.repr x).support.image Prod.snd,
+            𝒯.repr x (i, j) • 𝒯 (i, j) := by
+          rw [← Finset.sum_product']
+          apply Finset.sum_subset
+          · rintro ⟨i, j⟩ hij
+            simp only [Finsupp.mem_support_iff, ne_eq, Finset.mem_product, Finset.mem_image,
+              Prod.exists, exists_and_right, exists_eq_right, Subtype.exists, 𝒯] at hij ⊢
+            exact ⟨⟨j.1, ⟨j.2, hij⟩⟩, ⟨i, hij⟩⟩
+          · rintro ⟨i, j⟩ hij1 hij2
+            simp only [Finset.mem_product, Finset.mem_image, Finsupp.mem_support_iff, ne_eq,
+              Prod.exists, exists_and_right, exists_eq_right, Subtype.exists, Decidable.not_not,
+              Basis.tensorProduct_apply, smul_eq_zero, 𝒯] at hij1 hij2 ⊢
+            rw [hij2]
+            tauto
+      _ = ∑ i ∈ (𝒯.repr x).support.image Prod.fst, ∑ j ∈ (𝒯.repr x).support.image Prod.snd,
+            𝒯.repr x (i, j) • (ℬ i ⊗ₜ[K] 𝒞 j) := by
+          refine Finset.sum_congr rfl fun _ _ => ?_
+          simp only [𝒯, Basis.tensorProduct_apply]
+      _ =  ∑ i ∈ (𝒯.repr x).support.image Prod.fst, ∑ j ∈ (𝒯.repr x).support.image Prod.snd,
+            ℬ i ⊗ₜ[K] (𝒯.repr x (i, j) • 𝒞 j : C) := by
+          refine Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => ?_
+          rw [TensorProduct.smul_tmul', TensorProduct.smul_tmul]
+      _ =  ∑ i ∈ (𝒯.repr x).support.image Prod.fst,
+            ℬ i ⊗ₜ[K] (∑ j ∈ (𝒯.repr x).support.image Prod.snd, (𝒯.repr x (i, j) • 𝒞 j)) := by
+          refine Finset.sum_congr rfl fun _ _ => ?_
+          rw [TensorProduct.tmul_sum]
+  exact ⟨_, _, eq1.symm⟩
 
 lemma TensorProduct.sum_tmul_basis_right_eq_zero
     (B : Type*) [Ring B] [Algebra K B]
@@ -181,7 +214,46 @@ lemma TensorProduct.sum_tmul_basis_left_eq_zero
     (s : Finset ιB) (c : ιB → C)
     (h : ∑ i ∈ s, ℬ i ⊗ₜ[K] c i = 0) :
     ∀ i ∈ s, c i = 0 := by
-  sorry
+  let 𝒞 := Basis.ofVectorSpace K C
+  let 𝒯 := Basis.tensorProduct ℬ 𝒞
+  let I := s.biUnion fun i => (𝒞.repr (c i)).support
+  have eq1 := calc (0 : B ⊗[K] C)
+      _ = ∑ i ∈ s, ℬ i ⊗ₜ[K] c i := h.symm
+      _ = ∑ i ∈ s, (ℬ i ⊗ₜ[K] (∑ k ∈ (𝒞.repr (c i)).support, (𝒞.repr (c i)) k • 𝒞 k)) := by
+          refine Finset.sum_congr rfl fun z _ => ?_
+          congr
+          exact 𝒞.total_repr (c z) |>.symm
+      _ = ∑ i ∈ s, ∑ k ∈ (𝒞.repr (c i)).support, (𝒞.repr (c i)) k • (ℬ i ⊗ₜ[K] 𝒞 k) := by
+          refine Finset.sum_congr rfl fun z _ => ?_
+          rw [TensorProduct.tmul_sum]
+          simp_rw [TensorProduct.smul_tmul', TensorProduct.smul_tmul]
+      _ = ∑ i ∈ s, ∑ k ∈ I, (𝒞.repr (c i)) k • (ℬ i ⊗ₜ[K] 𝒞 k) := by
+          refine Finset.sum_congr rfl fun j h => ?_
+          apply Finset.sum_subset
+          · intro i hi
+            simp only [Finsupp.mem_support_iff, ne_eq, Finset.mem_biUnion, I] at hi ⊢
+            exact ⟨_, h, hi⟩
+          · intro i hi1 hi2
+            simp only [Finsupp.mem_support_iff, ne_eq, Decidable.not_not, smul_eq_zero]
+              at hi1 hi2 ⊢
+            tauto
+      _ = ∑ ij ∈ s ×ˢ I, (𝒞.repr (c ij.1)) ij.2 • (ℬ ij.1 ⊗ₜ[K] 𝒞 ij.2) := by
+          rw [Finset.sum_product]
+      _ = ∑ ij ∈ s ×ˢ I, (𝒞.repr (c ij.1)) ij.2 • 𝒯 ij := by
+          refine Finset.sum_congr rfl fun ij _ => ?_
+          rw [Basis.tensorProduct_apply]
+  have LI := 𝒯.linearIndependent
+  rw [linearIndependent_iff'] at LI
+  specialize LI (s ×ˢ I) _ eq1.symm
+  intro i hi
+  rw [← 𝒞.total_repr (c i)]
+  change ∑ _ ∈ _, _ = 0
+  simp only [LinearMap.coe_smulRight, LinearMap.id_coe, id_eq]
+  refine Finset.sum_eq_zero fun j hj => ?_
+  specialize LI ⟨i, j⟩ (by
+    simp only [Finset.mem_product, Finset.mem_biUnion, Finsupp.mem_support_iff, ne_eq, I] at hj ⊢
+    exact ⟨hi, ⟨_, hi, hj⟩⟩)
+  simp [LI]
 
 lemma Subalgebra.centralizer_sup (K B : Type*) [CommRing K] [Ring B] [Algebra K B]
     (S T : Subalgebra K B) :
@@ -610,7 +682,6 @@ lemma TensorProduct.map_comap_eq_of_isSimple_isCentralSimple
       subst s_ne_empty
       simp only [Finset.card_empty, Finset.sum_empty, ne_eq, not_true_eq_false] at *
     else
-      save
       obtain ⟨i₀, hi₀⟩ := Finset.nonempty_iff_ne_empty.mpr s_ne_empty
 
       have ineq1 : 0 < n := by
@@ -634,7 +705,7 @@ lemma TensorProduct.map_comap_eq_of_isSimple_isCentralSimple
         · intro hx
           if hx' : x = i₀ then left; exact hx'
           else right; exact ⟨hx', hx⟩
-        · rintro (rfl|⟨hx1, hx2⟩) <;> assumption
+        · rintro (rfl|⟨_, hx2⟩) <;> assumption
 
 
       have span_bi₀ : RingCon.span {b i₀} = ⊤ := isCentralSimple_B.2.2 _ |>.resolve_left fun r => by
@@ -650,7 +721,7 @@ lemma TensorProduct.map_comap_eq_of_isSimple_isCentralSimple
 
       replace one_eq : 1 = ∑ i : ℐ, xL i * b i₀ * xR i := by
         rw [one_eq]
-        refine Finset.sum_congr rfl fun i hi => ?_
+        refine Finset.sum_congr rfl fun i _ => ?_
         congr
         simpa only [Set.mem_singleton_iff] using (y i).2
 
@@ -688,7 +759,6 @@ lemma TensorProduct.map_comap_eq_of_isSimple_isCentralSimple
             Ω_prop_2 x⟩⟩
         omega
 
-      save
       simp_rw [Ω_prop_2] at Ω_prop_3
       have Ω_prop_4 : ∀ i ∈ s.erase i₀,
           ∑ j : ℐ, (xL j * b i * xR j) ∈ Subalgebra.center K B := by
@@ -700,8 +770,71 @@ lemma TensorProduct.map_comap_eq_of_isSimple_isCentralSimple
         rw [← Finset.sum_sub_distrib]
         simpa using TensorProduct.sum_tmul_basis_left_eq_zero K A B 𝒜 (s.erase i₀) _ Ω_prop_3 i hi
 
-      simp_rw [IsCentralSimple.center_eq, Algebra.mem_bot] at Ω_prop_4
-      sorry
+      simp_rw [IsCentralSimple.center_eq, Algebra.mem_bot, Set.mem_range] at Ω_prop_4
+      choose k hk using Ω_prop_4
+      have Ω_eq2 := calc Ω
+        _ = 𝒜 i₀ ⊗ₜ[K] 1 + ∑ i ∈ s.erase i₀, 𝒜 i ⊗ₜ[K] ∑ j : ℐ, xL j * b i * xR j := Ω_eq
+        _ = 𝒜 i₀ ⊗ₜ[K] 1 + ∑ i ∈ (s.erase i₀).attach, 𝒜 i ⊗ₜ[K] ∑ j : ℐ, xL j * b i * xR j := by
+            congr 1
+            exact Finset.sum_attach _ _ |>.symm
+        _ = 𝒜 i₀ ⊗ₜ[K] 1 + ∑ i ∈ (s.erase i₀).attach, 𝒜 i ⊗ₜ[K] algebraMap _ _ (k i.1 i.2) := by
+            congr 1
+            refine Finset.sum_congr rfl fun i _ => ?_
+            rw [hk i.1 i.2]
+        _ = 𝒜 i₀ ⊗ₜ[K] 1 +  ∑ i ∈ (s.erase i₀).attach, 𝒜 i ⊗ₜ[K] (k i.1 i.2 • (1 : B) : B) := by
+            congr 1
+            refine Finset.sum_congr rfl fun i _ => ?_
+            rw [Algebra.algebraMap_eq_smul_one]
+        _ = 𝒜 i₀ ⊗ₜ[K] 1 + ∑ i ∈ (s.erase i₀).attach, (k i.1 i.2 • 𝒜 i) ⊗ₜ[K] (1 : B) := by
+            congr 1
+            refine Finset.sum_congr rfl fun i _ => ?_
+            rw [TensorProduct.smul_tmul]
+        _ = 𝒜 i₀ ⊗ₜ[K] 1 + (∑ i ∈ (s.erase i₀).attach, (k i.1 i.2 • 𝒜 i)) ⊗ₜ[K] (1 : B) := by
+            rw [TensorProduct.sum_tmul]
+        _ = (𝒜 i₀ + (∑ i ∈ (s.erase i₀).attach, (k i.1 i.2 • 𝒜 i))) ⊗ₜ[K] 1 := by
+            rw [TensorProduct.add_tmul]
+
+      rw [Ω_eq2] at Ω_in_I
+      have hI : I.comap f = ⊤ := isSimple_A.2 _ |>.resolve_left fun r => by
+        have mem : 𝒜 i₀ + (∑ i ∈ (s.erase i₀).attach, (k i.1 i.2 • 𝒜 i)) ∈ I.comap f := by
+          rw [RingCon.mem_comap]
+          exact Ω_in_I
+        rw [r] at mem
+        change _ = 0 at mem
+        rw [mem, TensorProduct.zero_tmul] at Ω_eq2
+        have LI := 𝒜.linearIndependent
+        rw [linearIndependent_iff'] at LI
+        specialize LI s (fun i =>
+          if i = i₀ then 1
+          else if h : i ∈ s.erase i₀ then k i h else 0) (by
+          dsimp only
+          simp_rw [ite_smul, one_smul, dite_smul, zero_smul]
+          rw [Finset.sum_ite,
+            show ∑ x ∈ Finset.filter (fun x ↦ x = i₀) s, 𝒜 x = ∑ x ∈ {i₀}, 𝒜 x by
+            refine Finset.sum_congr ?_ fun _ _ => rfl
+            ext
+            simp only [Finset.mem_filter, Finset.mem_singleton, and_iff_right_iff_imp]
+            rintro rfl
+            exact hi₀, Finset.sum_singleton,
+            show Finset.filter (fun x ↦ ¬x = i₀) s = s.erase i₀ by
+            ext
+            simp only [Finset.mem_filter, Finset.mem_erase, ne_eq]
+            rw [and_comm], ← Finset.sum_attach]
+          conv_rhs => rw [← mem]
+          congr 1
+          refine Finset.sum_congr rfl fun i _ => ?_
+          rw [dif_pos i.2]) i₀ hi₀
+        rw [if_pos rfl] at LI
+        exact zero_ne_one LI.symm
+      rw [hI, RingCon.coe_top_set, RingCon.le_iff]
+      rintro x -
+      rw [SetLike.mem_coe]
+      induction x using TensorProduct.induction_on with
+      | zero => simp [RingCon.zero_mem]
+      | tmul a b =>
+        rw [show a ⊗ₜ[K] b = (a ⊗ₜ 1) * (1 ⊗ₜ b) by simp]
+        exact RingCon.mul_mem_right _ _ _ $ RingCon.subset_span _ $ ⟨a, ⟨⟩, rfl⟩
+      | add x y hx hy => exact RingCon.add_mem _ hx hy
 
   · rw [← RingCon.span_le]
     rintro _ ⟨x, hx, rfl⟩
@@ -770,6 +903,16 @@ instance baseChange [Small.{v, u} K] (L : Type v) [Field L] [Algebra K L] :
       obtain ⟨kx, (hkx : kx ⊗ₜ 1 = _)⟩ := hx
       obtain ⟨ky, (hky : ky ⊗ₜ 1 = _)⟩ := hy
       exact ⟨kx + ky, by simp [map_add, Algebra.ofId_apply, hkx, hky]⟩
+
+instance tensorProduct [Small.{v, u} K]
+    {A B : Type v} [Ring A] [Algebra K A] [Ring B] [Algebra K B]
+    [csA : IsCentralSimple K A] [csB : IsCentralSimple K B] :
+    IsCentralSimple K (A ⊗[K] B) where
+  is_central := TensorProduct.isCentral _ _ _ csA.1 csB.1
+  is_simple := by
+    haveI : IsSimpleOrder (RingCon A) := csA.2
+    haveI : IsSimpleOrder (RingCon B) := csB.2
+    exact TensorProduct.simple K A B
 
 end IsCentralSimple
 
