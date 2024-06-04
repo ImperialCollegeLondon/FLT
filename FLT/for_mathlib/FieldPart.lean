@@ -1,7 +1,7 @@
 import Mathlib.FieldTheory.SeparableClosure
 import Mathlib.FieldTheory.SplittingField.Construction
-import Mathlib.Data.Num.Lemmas
 
+import Mathlib.RingTheory.LittleWedderburn
 open scoped Classical
 
 variable (D : Type*) [DivisionRing D]
@@ -50,6 +50,7 @@ lemma freshers_end (x : D) : (conj x - (1 : Module.End ℤ D))^p = (conj x)^p - 
   sub_pow_char_of_commute (Module.End ℤ D) (conj x) 1 (by simp)
 
 lemma isnil_conj_sub_one (x : D) : IsNilpotent (conj x - 1) := by 
+  
   sorry
   
 lemma upper_bound (x : D) : ∃(l : ℕ), 
@@ -227,8 +228,16 @@ lemma field_in_center (D : Type*) [DivisionRing D] [Algebra K D]:
 lemma char_pow_eq [Infinite K] (D : Type*)
     [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
     (p : ℕ) [Fact p.Prime] [CharP K p] [CharP D p] (x : K) 
-    (m : ℕ := FiniteDimensional.finrank K D):
-    x^ p ^m = x := sorry
+    (k : ℕ := FiniteDimensional.finrank K D):
+    ∃(n : ℕ), n ≤ k ∧ x^ p ^n = x := by 
+  sorry
+
+theorem fin_version [Finite K] [Algebra K D] [FiniteDimensional K D] :
+    ∀(x y : D), x * y = y * x := by
+  intro x y
+  have fin_D : Finite D := FiniteDimensional.finite_of_finite K D
+  exact Finite.isDomain_to_isField D |>.mul_comm x y
+
 
 lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
     [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
