@@ -82,21 +82,6 @@ lemma DedekindDomain.exists_y [IsDedekindDomain B] (hB : ¬IsField B) [Fintype (
     specialize hy (σ • Q) ⟨σ, by simp⟩
     simp_all
 
--- #13306
-lemma Ideal.pi_quotient_surjective {R : Type*} [CommRing R] {ι : Type*} [Finite ι] {I : ι → Ideal R}
-    (hI : Pairwise fun i j ↦ IsCoprime (I i) (I j)) (x : (i : ι) → R ⧸ I i) :
-    ∃ r : R, ∀ i, r = x i := by
-  obtain ⟨y, rfl⟩ := Ideal.quotientInfToPiQuotient_surj hI x
-  obtain ⟨r, rfl⟩ := Ideal.Quotient.mk_surjective y
-  exact ⟨r, fun i ↦ rfl⟩
-
--- #13306
-lemma Ideal.exists_forall_sub_mem_ideal {R : Type*} [CommRing R] {ι : Type*} [Finite ι]
-    {I : ι → Ideal R} (hI : Pairwise fun i j ↦ IsCoprime (I i) (I j)) (x : (i : ι) → R) :
-    ∃ r : R, ∀ i, r - x i ∈ I i := by
-  obtain ⟨y, hy⟩ := Ideal.pi_quotient_surjective hI (fun i ↦ x i)
-  exact ⟨y, fun i ↦ (Submodule.Quotient.eq (I i)).mp <| hy i⟩
-
 lemma exists_y [Fintype (B ≃ₐ[A] B)] [DecidableEq (Ideal B)] (Q : Ideal B) [Q.IsMaximal] (b : B) :
     ∃ y : B, y - b ∈ Q ∧ ∀ Q' : Ideal B, Q' ∈ MulAction.orbit (B ≃ₐ[A] B) Q → Q' ≠ Q → y ∈ Q' := by
   let O : Set (Ideal B) := MulAction.orbit (B ≃ₐ[A] B) Q
