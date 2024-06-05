@@ -49,17 +49,13 @@ theorem RingCon.sum {R : Type u} [AddCommMonoid R] [Mul R] {ι : Type v} {s : Fi
         exact h i (Finset.mem_insert_of_mem hi)
 
 open Matrix in
-theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) (hnonempty : Nonempty ι) [DecidableEq ι] :
+theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) [Nonempty ι] [DecidableEq ι] :
     IsCentralSimple K (Matrix ι ι K) where
   is_central d hd := by
     rw [Subring.mem_center_iff] at hd
-    convert mem_range_scalar_of_commute_stdBasisMatrix (M := d) fun i j hij => hd _
+    convert mem_range_scalar_of_commute_stdBasisMatrix (M := d) fun i j _ => hd _
     simp_rw [Set.mem_range, eq_comm, algebraMap_eq_diagonal, Pi.algebraMap_def,
       Algebra.id.map_eq_self, scalar_apply]
-  is_simple.exists_pair_ne := by
-    use ⊥, ⊤
-    apply_fun (· 0 1)
-    simp
   is_simple.eq_bot_or_eq_top := by
     intro r
     obtain h | h := _root_.forall_or_exists_not (fun x ↦ r 0 x ↔ x = 0)

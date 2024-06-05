@@ -22,7 +22,7 @@ universe u
 
 variable {k : Type u} [Field k] (E : EllipticCurve k)
 
-open WeierstrassCurve
+open WeierstrassCurve WeierstrassCurve.Affine
 
 abbrev EllipticCurve.n_torsion (n : ℕ) : Type u := Submodule.torsionBy ℤ (E.toWeierstrassCurve ⟮k⟯) n
 

@@ -751,7 +751,7 @@ lemma norm_mul (x y : 𝓞) : norm (x * y) = norm x * norm y := by
   rw [Int.cast_comm, ← mul_assoc, ← norm_eq_mul_conj, Int.cast_mul]
 
 lemma norm_nonneg (x : 𝓞) : 0 ≤ norm x := by
-  rw [← Int.cast_nonneg (α := ℝ), coe_norm]
+  rw [← Int.cast_nonneg (R := ℝ), coe_norm]
   positivity
 
 lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := by
@@ -865,7 +865,7 @@ lemma quot_rem (a b : 𝓞) (hb : b ≠ 0) : ∃ q r : 𝓞, a = q * b + r ∧ n
   let q' := a' / b'
   obtain ⟨q : 𝓞, hq : dist q' (toQuaternion q) < 1⟩ : ∃ _, _ := exists_near q'
   refine ⟨q, a - q * b, (add_sub_cancel _ _).symm, ?_⟩
-  rw [← Int.cast_lt (α := ℝ), ← normSq_toQuaternion, ← normSq_toQuaternion]
+  rw [← Int.cast_lt (R := ℝ), ← normSq_toQuaternion, ← normSq_toQuaternion]
   rw [normSq_eq_norm_mul_self, normSq_eq_norm_mul_self]
   refine mul_self_lt_mul_self ?_ ?_
   · exact _root_.norm_nonneg (a - q * b).toQuaternion
