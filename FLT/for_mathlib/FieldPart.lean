@@ -1,7 +1,7 @@
 import Mathlib.FieldTheory.SeparableClosure
 import Mathlib.FieldTheory.SplittingField.Construction
-import Mathlib.Data.Num.Lemmas
 
+import Mathlib.RingTheory.LittleWedderburn
 open scoped Classical
 
 variable (D : Type*) [DivisionRing D]
@@ -9,10 +9,9 @@ variable (D : Type*) [DivisionRing D]
 
 theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a * · * b)^[n] =
     (a ^ n * · * b ^ n) := by
-  induction n with
-  | zero => ext; simp
-  | succ n hn =>
-    ext g
+  induction' n with n hn
+  · ext g ; simp only [Function.iterate_zero, id_eq, pow_zero, one_mul, mul_one]
+  · ext g
     rw [Function.iterate_succ, Function.comp_apply, hn]
     simp only ; group
     rw [show a^n * a = a^(n + 1) by rw [← pow_succ a n], mul_assoc]
@@ -25,182 +24,156 @@ abbrev conj (x : D) : Module.End ℤ D where
   map_add' := fun y1 y2 ↦ by simp only; rw [mul_add, add_mul]
   map_smul' := fun z d ↦ by
     simp only [zsmul_eq_mul, eq_intCast, Int.cast_id]
-    induction z using Int.induction_on with
-    | hz => simp
-    | hp a ha =>
-      simp only [Int.cast_natCast, Int.cast_add, Int.cast_one] at ha ⊢
+    induction' z using Int.induction_on with a ha b hb
+    · simp
+    · simp only [Int.cast_natCast, Int.cast_add, Int.cast_one] at ha ⊢
       rw [add_mul, mul_add, add_mul, ha, one_mul, add_mul, one_mul]
-    | hn b hb =>
-      simp only [Int.cast_neg, Int.cast_sub, Int.cast_one] at hb ⊢
+    · simp only [Int.cast_neg, Int.cast_sub, Int.cast_one] at hb ⊢
       rw [sub_mul, mul_sub, sub_mul, hb, one_mul, sub_mul, one_mul]
 
 example : (1 : Module.End ℤ D) = LinearMap.id := rfl
 
 instance Same_char : CharP (Module.End ℤ D) p where
-  cast_eq_zero_iff' x :=
-  ⟨fun hx => char.1 x |>.1 <| by simpa using DFunLike.ext_iff.1 hx 1,
-    fun hx => DFunLike.ext _ _ fun y => by
-      simp only [Module.End.natCast_apply, nsmul_eq_mul, LinearMap.zero_apply, mul_eq_zero]
-      exact Or.inl <| char.1 x |>.2 hx⟩
+  cast_eq_zero_iff' := by
+    intro x ; constructor
+    · intro hx; rw [DFunLike.ext_iff] at hx; specialize hx 1;
+      simp only [Module.End.natCast_apply,
+        nsmul_eq_mul, mul_one, LinearMap.zero_apply] at hx
+      exact (char.1 x).mp hx
+    · intro hx
+      have := (char.1 x).2 hx
+      ext y; simp
+      left; exact this
 
-lemma freshers_end (x : D) : (conj x - (1 : Module.End ℤ D))^p = (conj x)^p - 1^p :=
-  sub_pow_char_of_commute (Module.End ℤ D) (conj x) 1 (by simp)
 
-lemma isnil_conj_sub_one (x : D) : IsNilpotent (conj x - 1) := by
-  sorry
+lemma freshers_end (x : D) (m : ℕ): (conj x - (1 : Module.End ℤ D))^p^m = (conj x)^p^m - 1^p^m :=
+  sub_pow_char_pow_of_commute (Module.End ℤ D) (conj x) 1 (by simp)
 
-lemma upper_bound (x : D) : ∃(l : ℕ),
+lemma conj_pow_eq (x : D) (n : ℕ): (conj x) ^ n = (conj (x ^ n)) := by
+    induction' n with n hn
+    · ext d'
+      simp only [pow_zero, LinearMap.one_apply, LinearMap.coe_mk, one_mul, inv_one,
+      mul_one, AddHom.coe_mk]
+    · ext d' ; rw [pow_add]; simp only [pow_one, LinearMap.mul_apply, LinearMap.coe_mk, AddHom.coe_mk]
+      rw [hn] ; simp only [LinearMap.coe_mk, AddHom.coe_mk]
+      rw [← mul_assoc, ← mul_assoc, ← pow_succ, mul_assoc, ← inv_pow]
+      congr ; symm ; rw [← inv_pow] ; exact pow_succ' x⁻¹ n
+
+lemma isnil_conj_sub_one (x : D) (hx' : x ≠ 0)
+    (hx : ∃ (m : ℕ),  x ^ (p ^ (m + 1)) ∈ Subring.center D):
+    IsNilpotent (conj x - 1) := by
+  obtain ⟨m, hm⟩ := hx
+  refine ⟨p ^ (m + 1), ?_⟩
+  rw [freshers_end, one_pow]
+  ext d ; simp only [LinearMap.sub_apply, LinearMap.one_apply, LinearMap.zero_apply]
+  have conj_pow := conj_pow_eq x (p ^ (m + 1))
+  rw [conj_pow]; simp only [LinearMap.coe_mk, AddHom.coe_mk]
+  have := (Subring.mem_center_iff (R := D)).1 hm d
+  rw [← this, mul_assoc, mul_inv_cancel]
+  · simp only [mul_one, sub_self]
+  · simp only [ne_eq, pow_eq_zero_iff', hx', add_eq_zero, one_ne_zero, and_false,
+    not_false_eq_true, pow_eq_zero_iff, false_and]
+
+lemma upper_bound (x : D) (hx' : x ≠ 0) (hx : ∃ (m : ℕ),  x ^ (p ^ (m + 1)) ∈ Subring.center D): ∃(l : ℕ),
     (conj x - 1)^l ≠ 0 ∧ ∀ (n : ℕ), (conj x - 1)^(n + l + 1) = 0 := by
   use (nilpotencyClass (conj x - 1)) - 1
   constructor
-  · apply pow_pred_nilpotencyClass (isnil_conj_sub_one x)
+  · apply pow_pred_nilpotencyClass (isnil_conj_sub_one p x hx' hx)
   · intro n
-    have : nilpotencyClass (conj x - 1) > 0 := pos_nilpotencyClass_iff.2 (isnil_conj_sub_one x)
+    have : nilpotencyClass (conj x - 1) > 0 := pos_nilpotencyClass_iff.2 
+      (isnil_conj_sub_one p x hx' hx)
     rw [show (n + (nilpotencyClass (conj x - 1) - 1) + 1) =
       n + nilpotencyClass (conj x - 1) by omega]
     rw [pow_add, pow_nilpotencyClass, mul_zero]
-    apply isnil_conj_sub_one
+    exact isnil_conj_sub_one p x hx' hx
 
-set_option maxHeartbeats 800000 in
+lemma conj_char_pow_eq_one (x : D) (hx' : x ≠ 0)
+    (m : ℕ) (hx :  x ^ (p ^ (m + 1)) ∈ Subring.center D):
+    (conj x) ^ p ^ (m + 1) - 1 = 0 := by 
+  ext d ; simp only [LinearMap.sub_apply, LinearMap.one_apply, LinearMap.zero_apply]
+  rw [conj_pow_eq]; simp only [LinearMap.coe_mk, AddHom.coe_mk]
+  have := (Subring.mem_center_iff (R := D)).1 hx d 
+  rw [← this, mul_assoc, mul_inv_cancel] 
+  · simp only [mul_one, sub_self] 
+  · exact pow_ne_zero (p ^ (m + 1)) hx'
+
+lemma conj_compose (n : ℕ) (x y : D): (conj x - 1) (((conj x - 1) ^ n) y) = 
+    ((conj x - 1) ^ (n + 1)) y := by 
+  symm; rw [add_comm, pow_add, pow_one]; simp
+
 theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fact p.Prime] [CharP D p]
     (h : ∀ x : D, ∃ (m : ℕ),  x ^ (p ^ (m + 1)) ∈ Subring.center D) : IsField D where
     exists_pair_ne := by exact exists_pair_ne D
     mul_comm := by
       intro x
-      suffices x ∈ Subring.center D by
-        rw [Subring.mem_center_iff] at this
-        intro y ; exact Eq.symm (SemiconjBy.eq (this y))
-      by_contra! hx
-      let hx1 := h x
-      cases' hx1 with m hxm
-      -- have x_neq_0 : x ≠ 0 := by
-      --     intro hx0
-      --     rw [hx0] at hx
-      --     exact hx (Set.zero_mem_center D)
-      -- have x1 : x⁻¹ * x = 1 := by simp_all
-      -- have fun_eq1 : fun1^[p ^ (m + 1)] - id = 0 := by
-      --     ext d
-      --     simp only [Pi.sub_apply, Pi.zero_apply]
-      --     change (fun1.toFun)^[p ^ (m + 1)] d - id.toFun d = 0
-      --     rw [mul_left_right_iterate]
-      --     simp only [inv_pow]; rw [Subring.mem_center_iff] at hxm
-      --     specialize hxm d
-      --     rw [← hxm, mul_assoc,DivisionRing.mul_inv_cancel, mul_one, id_eq, sub_self]
-      --     apply pow_ne_zero ; rwa [ne_eq]
-      -- have fun_eq2 : ((fun1 - id)^[p ^ (m + 1)]) = fun1 ^[p ^ (m + 1)] - id := by
-      --     induction' (m + 1) with n hn
-      --     · ext d
-      --       simp only [pow_zero, Function.iterate_one, LinearMap.sub_apply, Pi.sub_apply]
-      --     · ext d
-      --       rw[pow_add, Function.iterate_mul, Function.iterate_mul, hn]
-      --       simp only [pow_one, Pi.sub_apply]
-      --       sorry
-      sorry
-      -- have eq1 : ∀ (y : D), y * x = x * y := by
-
-
-
-
-      --    --fun (a : D) ↦ a
-
-
-
-
-      --   rw[fun_eq1] at fun_eq2
-      --   -- have fun_eq3 : fun1 - id ≠ 0 := by
-      --   --   intro heq
-      --   --   have H := congr_fun heq
-      --   --   simp only [Pi.sub_apply, Pi.zero_apply, fun1, id] at H
-      --   --   apply hx
-      --   --   rw [Subring.mem_center_iff]
-      --   --   intro a
-      --   --   specialize H a
-      --   --   rw [← mul_left_inj' x_neq_0, zero_mul, sub_mul, mul_assoc, x1, mul_one, sub_eq_zero] at H
-      --   --   exact H.symm
-      --   have h1 : ∃ l : ℕ, (fun1 - id)^[l] ≠ 0 ∧ ∀ n : ℕ, (fun1 - id)^[n.succ + l] = 0 := by
-      --     by_contra! h11
-      --     sorry
-      --     ---
-      --   cases' h1 with l hl
-      --   rcases hl with ⟨hl1, hl2⟩
-      --   have h2 : ∃ b : D, (fun1 - id)^[l] b ≠ 0 := by
-      --     by_contra! hb
-      --     apply hl1
-      --     ext b
-      --     specialize hb b
-      --     exact hb
-      --   cases' h2 with b hb
-      --   set y := (fun1 - id)^[l - 1] b
-      --   set z := (fun1 - id) y
-      --   have l1 : l ≥ 1 := by
-      --     by_contra! hl
-      --     have l0 : l = 0 := by omega
-      --     have l1 := hl2 0
-      --     rw [l0] at hl1 l1
-      --     aesop?
-      --   have hz : z ≠ 0 := by
-      --     intro hzq
-      --     simp [z, y] at hzq
-      --     apply hb
-      --     have hz1 : (fun1 - id) ((fun1 - id)^[l - 1] b) =
-      --       fun1 ((fun1 - id)^[l - 1] b) - id ((fun1 - id)^[l - 1] b) := by simp only [Pi.sub_apply]
-      --     rw [← hz1, ← Function.iterate_succ_apply' (f := fun1 - id) (n := l - 1)] at hzq
-      --     rwa [show l = (l-1).succ by omega]
-      --   have hz1 : fun1 z = z := by
-      --     rw[← sub_eq_zero]
-      --     simp [z, y] at *
-      --     rw[show fun1 (fun1 ((fun1 - id)^[l - 1] b) - id ((fun1 - id)^[l - 1] b))
-      --       - (fun1 ((fun1 - id)^[l - 1] b) - id ((fun1 - id)^[l - 1] b))
-      --       = (fun1 - id) (fun1 ((fun1 - id)^[l - 1] b) - id ((fun1 - id)^[l - 1] b)) by simp,
-      --       show fun1 ((fun1 - id)^[l - 1] b) - id ((fun1 - id)^[l - 1] b)
-      --       = (fun1 - id) ((fun1 - id)^[l - 1] b) by simp only [Pi.sub_apply],
-      --       ← Function.iterate_succ_apply' (f := fun1 - id) (n := l - 1),
-      --       ← Function.iterate_succ_apply' (f := fun1 - id) (n := (l - 1).succ),
-      --       show (l - 1).succ.succ = l + 1 by omega]
-      --     obtain funl1 := hl2 0
-      --     rw [show 0 + 1 = 1 by omega] at funl1
-      --     rw [add_comm]
-      --     calc
-      --     _ = (0 : D → D) b := by rw [funl1]
-      --     _ = 0 := by simp
-      --   set w := z⁻¹ * y
-      --   have hw1 : fun1 w = w + 1 := by
-      --     simp [fun1, w] at *
-      --     rw [← mul_assoc, mul_assoc, show y * x⁻¹ = 1 * (y * x⁻¹)  by rw[one_mul], ← x1, ← mul_assoc,
-      --       ← mul_assoc, ← mul_assoc, mul_assoc, mul_assoc, x1]
-      --     nth_rewrite 2 [← mul_assoc]
-      --     calc
-      --     _ = x * z⁻¹ * x⁻¹ * fun1 y := by aesop
-      --     _ = (x * z * x⁻¹)⁻¹ * fun1 y := by group
-      --     _ = z⁻¹ * fun1 y := by rw [hz1]
-      --     _ = z⁻¹ * (y + z) := by aesop
-      --     _ = z⁻¹ * y + z⁻¹ * z := by exact LeftDistribClass.left_distrib z⁻¹ y z
-      --     _ = z⁻¹ * y + 1 := by rw [show z⁻¹ * z = 1 by simp_all]
-      --   cases' h w with wm hwm
-      --   have final : w ^ p ^ (wm + 1) = w ^ p ^ (wm + 1) + 1 := by
-      --     calc
-      --     _ = w ^ p ^ (wm + 1) * 1 := by aesop
-      --     _ = w ^ p ^ (wm + 1) * x * x⁻¹ := by aesop
-      --     _ = x * w ^ p ^ (wm + 1) * x⁻¹ := by
-      --       rw [Subring.mem_center_iff] at hwm
-      --       specialize hwm x
-      --       rw [← hwm]
-      --     _ = (x * w * x⁻¹) ^ p ^ (wm + 1) := by
-      --       set q := p ^ (wm + 1)
-      --       induction' q with q1 hq1
-      --       · simp only [pow_zero, mul_one]
-      --         exact DivisionRing.mul_inv_cancel x x_neq_0
-      --       · nth_rewrite 2 [pow_add]
-      --         rw [pow_one, ← mul_assoc, ← mul_assoc, ← hq1]
-      --         nth_rewrite 4 [mul_assoc]
-      --         rw [x1]
-      --         nth_rewrite 3 [mul_assoc, mul_assoc]
-      --         rw [one_mul, pow_add, pow_one]
-      --     _ = (w + 1) ^ p ^ (wm + 1) := by aesop
-      --     _ = w ^ p ^ (wm + 1) + 1 := by rw [add_pow_char_pow_of_commute (h := Commute.one_right w), one_pow]
-      --   aesop
-      -- intro y
-      -- exact (eq1 y).symm
+      suffices ∀ (y : D), y * x = x * y by
+        intro y ; exact (this y).symm
+      obtain ⟨m, hm⟩ := h x
+      by_contra! hy
+      cases' hy with y hy
+      have hx : x ≠ 0 := by
+        intro hx
+        simp_all only [mul_zero, zero_mul, ne_eq, not_true_eq_false, exists_const]
+      have x1 : x⁻¹ * x = 1 := by simp_all
+      have x2 : x * x⁻¹ = 1 := by simp_all
+      have ineq1 : (conj x) - 1 ≠ 0 := by
+        intro h1
+        obtain h1 := (DFunLike.ext_iff.1 h1) y
+        simp only [LinearMap.sub_apply, LinearMap.coe_mk, AddHom.coe_mk, LinearMap.one_apply,
+          LinearMap.zero_apply, sub_eq_zero] at h1
+        apply hy; rw [← h1, mul_assoc, x1, h1, mul_one]
+      obtain ⟨l, hl, hn⟩ := upper_bound p x hx ⟨m, hm⟩
+      have h1 : ∃ b : D, (((conj x) - 1) ^ l) b ≠ 0 := by
+        by_contra! hb; 
+        exact hl (DFunLike.ext_iff.2 hb)
+      cases' h1 with b hb
+      set z := (((conj x) - 1)^ (l - 1)) b
+      set w := ((conj x) - 1) z
+      have l1 : l ≥ 1 := by
+        by_contra! h
+        have l0 : l = 0 := by linarith
+        have l1 := hn 0 
+        rw [l0, add_zero, zero_add] at l1; exact ineq1 l1
+      have hw0 : w ≠ 0 := by
+        intro hw
+        simp only [w, z] at hw; apply hb
+        rw [show l = 1 + (l - 1) by omega, pow_add] ; simp only [pow_one, LinearMap.mul_apply, hw]
+      have hw : (conj x) w = w := by
+        rw [← sub_eq_zero]; nth_rw 2 [show (w = (1 : Module.End ℤ D) w) by rw [LinearMap.one_apply]]
+        rw [← LinearMap.sub_apply]; simp only [w, z] 
+        rw [conj_compose (l - 1) x b, show (l - 1) + 1 = l by omega, conj_compose, 
+          ← zero_add (l + 1), ← add_assoc]
+        exact DFunLike.ext_iff.1 (hn 0) b
+      set q := w⁻¹ * z
+      have h1 : (conj x) z = z + w := by simp [w]
+      have hq_add : (conj x) q = q + 1 := by
+        simp only [LinearMap.coe_mk, AddHom.coe_mk, q]
+        simp only [LinearMap.coe_mk, AddHom.coe_mk] at hw h1
+        have : x * w⁻¹ * x⁻¹ = w⁻¹ := by nth_rewrite 2 [← hw] ; group
+        nth_rewrite 1 [← one_mul z, ← x1]
+        rw [← mul_assoc, ← mul_assoc, ← mul_assoc, this, mul_assoc, mul_assoc]
+        nth_rewrite 2 [← mul_assoc]
+        rw [h1, mul_add, inv_mul_cancel hw0]
+      cases' h q with qm hq
+      have final : q ^ p ^ (qm + 1) = q ^ p ^ (qm + 1) + 1 := by
+        nth_rw 1 [← mul_one (q ^ p ^ (qm + 1)),← x2,← mul_assoc,← (Subring.mem_center_iff.1 hq) x] 
+        calc
+        _ = (x * q * x⁻¹) ^ p ^ (qm + 1) := by
+          set e := p ^ (qm + 1)
+          induction' e with e he
+          · simp only [pow_zero, mul_one]
+            exact DivisionRing.mul_inv_cancel x hx
+          · nth_rewrite 2 [pow_add]
+            rw [ pow_add, pow_one, pow_one, ← he]
+            nth_rewrite 2 [← one_mul (a := q)]
+            rw [← x1, ← mul_assoc, ← mul_assoc]
+            nth_rewrite 2 [← mul_assoc, ← mul_assoc, ← mul_assoc] ; rfl
+        _ = (q + 1) ^ p ^ (qm + 1) := by
+          simp only [LinearMap.coe_mk, AddHom.coe_mk] at hq_add ; rw[hq_add]
+        _ = q ^ p ^ (qm + 1) + 1 := by
+          rw [add_pow_char_pow_of_commute (h := Commute.one_right q), one_pow]
+        
+      simp only [self_eq_add_right, one_ne_zero] at final
     mul_inv_cancel := by
       intro a ha ; use a⁻¹
       exact DivisionRing.mul_inv_cancel a ha
@@ -233,6 +206,26 @@ theorem fin_version [Finite K] [Algebra K D] [FiniteDimensional K D] :
   intro x y
   have fin_D : Finite D := FiniteDimensional.finite_of_finite K D
   exact Finite.isDomain_to_isField D |>.mul_comm x y
+
+variable (R : Type*) [Semiring R]
+
+abbrev unit_group : Group Rˣ where
+  mul a b := a * b
+  mul_assoc a b c := mul_assoc a b c
+  one := 1
+  one_mul := one_mul
+  mul_one := mul_one
+  npow n a := a^n
+  npow_zero x := pow_zero x
+  npow_succ n x := pow_succ x n
+  inv a := a⁻¹
+  div a b := a * b⁻¹
+  div_eq_mul_inv _ _ := rfl
+  zpow z x := x^z
+  zpow_zero' a := pow_zero a
+  zpow_succ' n a := pow_succ a n
+  zpow_neg' _ _ := rfl
+  mul_left_inv a := mul_left_inv a
 
 
 lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
