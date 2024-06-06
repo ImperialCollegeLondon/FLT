@@ -251,7 +251,28 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
           fapply Set.infinite_of_injective_forall_mem (α := @Set.univ K) (β := K)
             (f := Subtype.val) Subtype.val_injective
           rintro ⟨x, _⟩ ; simp only [eval_comp, eval_pow, eval_X, Set.mem_setOf_eq, g']
-          congr; sorry
+          congr
+          if x = 0
+          then
+            rename_i h0
+            rw [h0, zero_pow]
+            exact Ne.symm (NeZero.ne' (p ^ m))
+          else
+            have : IsUnit x := by
+              rename_i hn0
+              rw [← Ne.eq_def] at hn0
+              exact Ne.isUnit hn0
+            have : x ^ (p^m - 1) = 1 := by
+              rw [← orderOf_dvd_iff_pow_eq_one]
+              sorry
+            symm
+            calc
+              x ^ p ^ m = x ^ (p^m - 1 + 1) := by
+                rw [Nat.sub_add_cancel]
+                exact NeZero.one_le
+              _ = x ^ (p^m - 1) * x := by exact pow_succ x (p ^ m - 1)
+              _ = 1 * x := by rw [this]
+              _ = x := by simp
         rw [eq1] ; simp only [g']
         rw [Polynomial.comp_eq_sum_left]
         apply Subalgebra.sum_mem
