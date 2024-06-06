@@ -1,6 +1,6 @@
 import Mathlib.FieldTheory.SeparableClosure
 import Mathlib.FieldTheory.SplittingField.Construction
-
+import Mathlib.FieldTheory.PurelyInseparable
 import Mathlib.RingTheory.LittleWedderburn
 open scoped Classical
 
@@ -194,12 +194,6 @@ lemma field_in_center (D : Type*) [DivisionRing D] [Algebra K D]:
   rw [Subring.mem_center_iff]
   exact (Algebra.commutes' x · |>.symm)
 
-lemma char_pow_eq [Infinite K] (D : Type*)
-    [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
-    (p : ℕ) [Fact p.Prime] [CharP K p] [CharP D p] (x : K)
-    (k : ℕ := FiniteDimensional.finrank K D):
-    ∃(n : ℕ), n ≤ k ∧ x^ p ^n = x := by
-  sorry
 
 theorem fin_version [Finite K] [Algebra K D] [FiniteDimensional K D] :
     ∀(x y : D), x * y = y * x := by
@@ -210,125 +204,142 @@ theorem fin_version [Finite K] [Algebra K D] [FiniteDimensional K D] :
 variable (R : Type*) [Semiring R]
 
 abbrev unit_group : Group Rˣ where
-  mul a b := a * b
-  mul_assoc a b c := mul_assoc a b c
-  one := 1
-  one_mul := one_mul
-  mul_one := mul_one
-  npow n a := a^n
-  npow_zero x := pow_zero x
-  npow_succ n x := pow_succ x n
-  inv a := a⁻¹
-  div a b := a * b⁻¹
-  div_eq_mul_inv _ _ := rfl
-  zpow z x := x^z
-  zpow_zero' a := pow_zero a
-  zpow_succ' n a := pow_succ a n
-  zpow_neg' _ _ := rfl
-  mul_left_inv a := mul_left_inv a
+  mul_assoc _ _ _ := mul_assoc _ _ _
+  one_mul := _
+  mul_one := _
+  npow_zero _ := pow_zero _
+  npow_succ _ _ := pow_succ _ _
+  zpow_zero' _ := pow_zero _
+  zpow_succ' _ _ := pow_succ _ _
+  mul_left_inv _ := mul_left_inv _
+
+variable (D : Type*) [DivisionRing D] [Algebra K D] [FiniteDimensional K D] [CharP D p]
+
+abbrev K_d (d : D) := (Algebra.adjoin K {d} : Subalgebra K D)
+
+instance bjm01 (d : D): Field (K_d K D d) := sorry
+  -- add a b := a + b
+  -- add_assoc := add_assoc 
+  -- zero := 0
+  -- zero_add := zero_add
+  -- add_zero := add_zero
+  -- nsmul := fun n a => n • a
+  -- nsmul_zero := zero_smul _
+  -- nsmul_succ := _
+  -- add_comm := _
+  -- mul := _
+  -- left_distrib := _
+  -- right_distrib := _
+  -- zero_mul := _
+  -- mul_zero := _
+  -- mul_assoc := _
+  -- one := _
+  -- one_mul := _
+  -- mul_one := _
+  -- natCast := _
+  -- natCast_zero := _
+  -- natCast_succ := _
+  -- npow := _
+  -- npow_zero := _
+  -- npow_succ := _
+  -- neg := _
+  -- sub := _
+  -- sub_eq_add_neg := _
+  -- zsmul := _
+  -- zsmul_zero' := _
+  -- zsmul_succ' := _
+  -- zsmul_neg' := _
+  -- add_left_neg := _
+  -- intCast := _
+  -- intCast_ofNat := _
+  -- intCast_negSucc := _
+  -- mul_comm := sorry
+  -- inv := _
+  -- div := _
+  -- div_eq_mul_inv := _
+  -- zpow := _
+  -- zpow_zero' := _
+  -- zpow_succ' := _
+  -- zpow_neg' := _
+  -- exists_pair_ne := _
+  -- nnratCast := _
+  -- ratCast := _
+  -- mul_inv_cancel := _
+  -- inv_zero := _
+  -- nnratCast_def := _
+  -- nnqsmul := _
+  -- nnqsmul_def := _
+  -- ratCast_def := _
+  -- qsmul := _
+  -- qsmul_def := _
+  
+instance (d : D): DivisionRing (K_d K D d) := sorry
+instance (d : D): Algebra K (K_d K D d) := sorry
 
 
 lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
     [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
     (p : ℕ) [Fact p.Prime] [CharP K p] [CharP D p] :
     ∀(x y : D), x * y = y * x := by
-  have alg_ext: ∀(d : D), IsAlgebraic K d :=
-    fun d ↦ Algebra.IsAlgebraic.isAlgebraic d
+  have alg_ext := Algebra.IsAlgebraic.of_finite K D
   have p_rad : p_radical_extension K D p := by
     intro d ; let f := minpoly K d
-    have hf: ∃(m : ℕ),
-        f ∈ (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) ∧
-        f ∉ (Algebra.adjoin K {X^p^(m+1)} : Subalgebra K K[X]):= by
-      use FiniteDimensional.finrank K D
-      let m := FiniteDimensional.finrank K D
-      constructor
-      · let g' := f.comp (X^p^m)
-        have eq1 : f = g' := by
-          apply Polynomial.eq_of_infinite_eval_eq
-          have : Infinite (@Set.univ K) := by
-            have := @Set.infinite_univ K
-            exact Set.infinite_coe_iff.mpr this
-          fapply Set.infinite_of_injective_forall_mem (α := @Set.univ K) (β := K)
-            (f := Subtype.val) Subtype.val_injective
-          rintro ⟨x, _⟩ ; simp only [eval_comp, eval_pow, eval_X, Set.mem_setOf_eq, g']
-          congr
-          if x = 0
-          then
-            rename_i h0
-            rw [h0, zero_pow]
-            exact Ne.symm (NeZero.ne' (p ^ m))
-          else
-            have : IsUnit x := by
-              rename_i hn0
-              rw [← Ne.eq_def] at hn0
-              exact Ne.isUnit hn0
-            have : x ^ (p^m - 1) = 1 := by
-              rw [← orderOf_dvd_iff_pow_eq_one]
-              sorry
-            symm
-            calc
-              x ^ p ^ m = x ^ (p^m - 1 + 1) := by
-                rw [Nat.sub_add_cancel]
-                exact NeZero.one_le
-              _ = x ^ (p^m - 1) * x := by exact pow_succ x (p ^ m - 1)
-              _ = 1 * x := by rw [this]
-              _ = x := by simp
-        rw [eq1] ; simp only [g']
-        rw [Polynomial.comp_eq_sum_left]
-        apply Subalgebra.sum_mem
-        intro x hx ; simp only
-        apply Subalgebra.mul_mem;
-        exact Subalgebra.algebraMap_mem _ (f.coeff x)
-        apply Subalgebra.pow_mem; apply Algebra.subset_adjoin
-        simp only [Set.mem_singleton_iff]
-      · sorry
-    obtain ⟨m, h1, h2⟩ := hf
-    have : ∃(g : (Algebra.adjoin K {X^p^m} : Subalgebra K K[X])), f = g := by
-      simp_all only [Subtype.exists, exists_prop, exists_eq_right', f]
-    obtain ⟨g, hg⟩ := this
-    haveI irr_f: Irreducible f := minpoly.irreducible (Algebra.IsIntegral.isIntegral d)
-    have hg1 : Irreducible g := by
-      simp_all only [SetLike.coe_mem];
-      refine ⟨?_, ?_⟩
-      · rintro ⟨⟨x, y, hx, hy⟩,rfl⟩
-        simp only at h2 irr_f
-        rw [Subtype.ext_iff] at hx hy
-        refine irr_f.1 ⟨⟨x, y, ?_, ?_⟩, rfl⟩
-        · exact hx
-        · exact hy
+    suffices IsPurelyInseparable K (K_d K D d) by sorry 
 
-      · rintro a b rfl
-        simp only [Submonoid.coe_mul, Subsemiring.coe_toSubmonoid,
-          Subalgebra.coe_toSubsemiring] at irr_f
-        obtain (h|h) := irr_f.2 a b rfl
-        · left
-          rw [Polynomial.isUnit_iff] at h
-          obtain ⟨r, hr1, hr2⟩ := h
-          refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩,
-            ?_⟩
-          · rw [← map_mul, mul_inv_cancel, map_one]
-            exact IsUnit.ne_zero hr1
-          · rw [← map_mul, inv_mul_cancel, map_one]
-            exact IsUnit.ne_zero hr1
-          · simp only
-            ext : 1 ; exact hr2
+    -- have hf: ∃(m : ℕ),
+    --     f ∈ (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) ∧
+    --     f ∉ (Algebra.adjoin K {X^p^(m+1)} : Subalgebra K K[X]):= by
+    --   sorry
+    
+    -- obtain ⟨m, h1, h2⟩ := hf
+    -- have : ∃(g : (Algebra.adjoin K {X} : Subalgebra K K[X])), 
+    --   f = g.comp (X^p^m) := by sorry
+      
+    -- obtain ⟨g, hg⟩ := this
+    -- haveI irr_f: Irreducible f := minpoly.irreducible (Algebra.IsIntegral.isIntegral d)
+    -- have hg1 : Irreducible g := by sorry
+      -- simp_all only [SetLike.coe_mem];
+      -- refine ⟨?_, ?_⟩
+      -- · rintro ⟨⟨x, y, hx, hy⟩,rfl⟩
+      --   simp only at h2 irr_f
+      --   rw [Subtype.ext_iff] at hx hy
+      --   refine irr_f.1 ⟨⟨x, y, ?_, ?_⟩, rfl⟩
+      --   · exact hx
+      --   · exact hy
 
-        · right
-          rw [Polynomial.isUnit_iff] at h
-          obtain ⟨r, hr1, hr2⟩ := h
-          refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩,
-            ?_⟩
-          · rw [← map_mul, mul_inv_cancel, map_one]
-            exact IsUnit.ne_zero hr1
-          · rw [← map_mul, inv_mul_cancel, map_one]
-            exact IsUnit.ne_zero hr1
-          · simp only
-            ext : 1 ; exact hr2
+      -- · rintro a b rfl
+      --   simp only [Submonoid.coe_mul, Subsemiring.coe_toSubmonoid,
+      --     Subalgebra.coe_toSubsemiring] at irr_f
+      --   obtain (h|h) := irr_f.2 a b rfl
+      --   · left
+      --     rw [Polynomial.isUnit_iff] at h
+      --     obtain ⟨r, hr1, hr2⟩ := h
+      --     refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩,
+      --       ?_⟩
+      --     · rw [← map_mul, mul_inv_cancel, map_one]
+      --       exact IsUnit.ne_zero hr1
+      --     · rw [← map_mul, inv_mul_cancel, map_one]
+      --       exact IsUnit.ne_zero hr1
+      --     · simp only
+      --       ext : 1 ; exact hr2
 
-    have hg2 : ↑g ∉ (Algebra.adjoin K {X^p} : Subalgebra K K[X]) := sorry
-    have hg3 : g = minpoly K d^p^m := sorry
-    have p_pow_in_K : d^p^m ∈ (Algebra.ofId K D).range := sorry
-    use m
+      --   · right
+      --     rw [Polynomial.isUnit_iff] at h
+      --     obtain ⟨r, hr1, hr2⟩ := h
+      --     refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩,
+      --       ?_⟩
+      --     · rw [← map_mul, mul_inv_cancel, map_one]
+      --       exact IsUnit.ne_zero hr1
+      --     · rw [← map_mul, inv_mul_cancel, map_one]
+      --       exact IsUnit.ne_zero hr1
+      --     · simp only
+      --       ext : 1 ; exact hr2
+
+    -- have hg2 : ↑g ∉ (Algebra.adjoin K {X^p} : Subalgebra K K[X]) := sorry
+    -- have hg3 : g = minpoly K d^p^m := sorry
+    -- have p_pow_in_K : d^p^m ∈ (Algebra.ofId K D).range := sorry
+    -- use m
+    sorry
   exact (division_char_is_commutative (D := D) (p := p)
     (by intro d; specialize p_rad d ; obtain ⟨m, hm⟩ := p_rad ;
         use m - 1 ; have := field_in_center K D ;
