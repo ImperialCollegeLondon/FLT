@@ -217,80 +217,109 @@ variable (D : Type*) [DivisionRing D] [Algebra K D] [FiniteDimensional K D] [Cha
 
 open BigOperators
 
-lemma support_finset_sum_monomial {ι : Type*}  (s : Finset ι)
-    (deg : ι → ℕ) (hdeg : Function.InjOn deg s)
-    (coeff : ι → K) (hcoeff : ∀ i ∈ s, coeff i ≠ 0) :
-    (∑ i ∈ s, monomial (deg i) (coeff i)).support =
-    s.image deg := by
+lemma support_subset_finset_sum_monomial {ι : Type*}  (s : Finset ι)
+    (deg : ι → ℕ)
+    (coeff : ι → K) :
+    (∑ i ∈ s, monomial (deg i) (coeff i)).support ⊆ s.image deg := by
   induction s using Finset.cons_induction with
   | empty => simp
   | @cons i s hi ih =>
-    rw [Finset.sum_cons, support]
-    simp only [add_eq_add, toFinsupp_add, toFinsupp_monomial, Finset.cons_eq_insert,
-      Finset.image_insert]
-    rw [support] at ih
-    simp only at ih
-    rw [Finsupp.support_add_eq, ih, Finsupp.support_single_ne_zero]
-    · rfl
-    ·
-    sorry
+    rw [Finset.sum_cons]
+    trans
+    · exact support_add
+    simp only [Finset.cons_eq_insert, Finset.image_insert]
+    intro x hx
+    rw [Finset.mem_union] at hx
+    rcases hx with (hx|hx)
+    · if h : coeff i = 0
+      then
+        rw [h] at hx
+        simp at hx
+      else
+        simp only [support_monomial _ h, Finset.mem_singleton] at hx
+        simp only [Finset.mem_insert, Finset.mem_image]
+        tauto
+    · specialize ih hx
+      simp only [Finset.mem_image, Finset.mem_insert] at ih ⊢
+      right
+      exact ih
 
-example {m : ℕ} {p : K[X]} (h : p ∈ (Algebra.adjoin K {X^m} : Subalgebra K K[X])) :
+lemma dvd_natDegree_of_mem_adjoin
+    {m : ℕ} {p : K[X]} (h : p ∈ (Algebra.adjoin K {X^m} : Subalgebra K K[X])) :
     m ∣ p.natDegree := by
-
-  -- rw [Algebra.mem_adjoin_iff] at h
+  if hp : p = 0 then rw [hp]; exact Nat.dvd_zero m
+  else
   rw [Algebra.adjoin_singleton_eq_range_aeval, AlgHom.mem_range] at h
   obtain ⟨q, rfl⟩ := h
   rw [q.as_sum_range, map_sum]
-  simp_rw [aeval_monomial, ← pow_mul, algebraMap_eq]
-  set P : K[X] := _; change m ∣ P.natDegree
   rw [natDegree_eq_support_max']
-  suffices ∀ i ∈ P.support, m ∣ i from this _ $ Finset.max'_mem P.support _
+  pick_goal 2
+  · rw [← map_sum, ← q.as_sum_range]; exact hp
+
+  simp_rw [aeval_monomial, ← pow_mul, algebraMap_eq]
+  have subset1:= support_subset_finset_sum_monomial K (Finset.range (q.natDegree + 1))
+    (fun x => m * x) (fun x => q.coeff x)
+  simp_rw [← C_mul_X_pow_eq_monomial] at subset1
+  suffices ∀ i ∈ Finset.image (fun x ↦ m * x) (Finset.range (q.natDegree + 1)), m ∣ i from
+    this _ $ subset1 $ Finset.max'_mem _ _
   intro i hi
-  dsimp only [P] at hi
-  set n := q.natDegree
-  set c : ℕ → K := fun x => q.coeff x
-  have hi : i ∈ (∑ k ∈ Finset.range (n + 1), monomial (m * k) (c k)).support := by
-    convert hi using 2
-    refine Finset.sum_congr rfl fun k hk => ?_
-    rw [C_mul_X_pow_eq_monomial]
-
-  rw [Finset.sum_range_succ'] at hi
-  clear_value n c
-  induction n with
-  | zero =>
-    if h : i = 0 then aesop
-    else
-      simp [coeff_C_ne_zero (h := h)] at hi
-  | succ n hn =>
-    specialize hn (by
-      convert hi)
-    sorry
-  -- simp only [algebraMap_eq]
-
-
-  -- have := leadingCoeff
-  sorry
-    -- ⨅ (m : ℕ), (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) = ⊥ := by
-
+  simp only [Finset.mem_image, Finset.mem_range] at hi
+  obtain ⟨i, _, rfl⟩ := hi
+  exact Nat.dvd_mul_right m i
 
 lemma intersect_eq :
     ⨅ (m : ℕ), (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) = ⊥ := by
   rw [eq_bot_iff]
   intro x hx
   rw [Algebra.mem_iInf] at hx
-  -- have := Algebra.adjoin_singleton_eq_range_aeval
-  simp_rw [Algebra.adjoin_singleton_eq_range_aeval] at hx
-  simp only [AlgHom.mem_range] at hx
-  choose c hc using hx
-  have :=
+  have (i : ℕ) : p^i ∣ x.natDegree := by
+    apply dvd_natDegree_of_mem_adjoin; apply hx
 
-  sorry
+  if h : x.natDegree = 0 then
+    rw [natDegree_eq_zero] at h
+    rw [Algebra.mem_bot]
+    exact h
+  else
+    obtain ⟨i, hi⟩ : ∃ (i : ℕ), x.natDegree < p^i :=
+      pow_unbounded_of_one_lt x.natDegree $ Nat.Prime.one_lt Fact.out
+    have := Nat.le_of_dvd (by omega) $ this i
+    omega
+
+variable {D} in
+lemma minpoly_mem_aux (d : D) :
+    ∃ (m : ℕ), minpoly K d ∉ (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) := by
+  by_contra! r
+  have := intersect_eq p K
+  have mem1 : minpoly K d ∈ (⊥ : Subalgebra K K[X]) := by
+    rw [← intersect_eq p, Algebra.mem_iInf]
+    exact r
+  rw [Algebra.mem_bot] at mem1
+  obtain ⟨c, hc⟩ := mem1
+  have alg_ext := Algebra.IsAlgebraic.of_finite K D
+  have : 0 < (minpoly K d).natDegree := minpoly.natDegree_pos (Algebra.IsIntegral.isIntegral d)
+  rw [← hc, algebraMap_eq, natDegree_C] at this
+  exact lt_irrefl _ this
+
+lemma minpoly_mem (d : D) :
+    ∃ (m : ℕ), 0 < m ∧
+      minpoly K d ∉ Algebra.adjoin K {X^p^m} ∧
+      (∀ n : ℕ, n < m → minpoly K d ∈ Algebra.adjoin K {X^p^n}) := by
+  let M := Nat.find (minpoly_mem_aux p K _ d)
+  have hM : minpoly K d ∉ (Algebra.adjoin K {X^p^M} : Subalgebra K K[X]) :=
+    Nat.find_spec (minpoly_mem_aux p K _ d)
+
+  if M_ne_zero : M = 0
+  then
+    rw [M_ne_zero] at hM
+    simp at hM
+  else
+    refine ⟨M, by omega, hM, fun n hn => ?_⟩
+    simpa using Nat.find_min (minpoly_mem_aux p K _ d) hn
 
 abbrev K_d (d : D) := (Algebra.adjoin K {d} : Subalgebra K D)
 
 --- maybe don't use Field, for it creates a diamond
-lemma bjm01 (d : D): IsField (K_d K D d) := sorry
+-- lemma bjm01 (d : D): IsField (K_d K D d) := sorry
   -- add a b := a + b
   -- add_assoc := add_assoc
   -- zero := 0
@@ -346,8 +375,8 @@ lemma bjm01 (d : D): IsField (K_d K D d) := sorry
   -- qsmul := _
   -- qsmul_def := _
 
-instance (d : D): DivisionRing (K_d K D d) := sorry
-instance (d : D): Algebra K (K_d K D d) := sorry
+-- instance (d : D): DivisionRing (K_d K D d) := sorry
+-- instance (d : D): Algebra K (K_d K D d) := sorry
 
 
 lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
@@ -357,9 +386,9 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
   have alg_ext := Algebra.IsAlgebraic.of_finite K D
   have p_rad : p_radical_extension K D p := by
     intro d ; let f := minpoly K d
-    suffices IsPurelyInseparable K (K_d K D d) by sorry
+    -- suffices IsPurelyInseparable K (K_d K D d) by sorry
 
-    -- have hf: ∃(m : ℕ),
+    -- have hf: ∃ (m : ℕ),
     --     f ∈ (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) ∧
     --     f ∉ (Algebra.adjoin K {X^p^(m+1)} : Subalgebra K K[X]):= by
     --   sorry
