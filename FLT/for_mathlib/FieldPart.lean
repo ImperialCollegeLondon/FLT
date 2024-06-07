@@ -328,6 +328,22 @@ lemma edison_lemma2 {p : K[X]} {m : ℕ} (hp : p ∈ Algebra.adjoin K {X^m}) :
   · rintro _ _ ⟨p, rfl⟩ ⟨q, rfl⟩
     exact ⟨p * q, by simp⟩
 
+variable {K} in
+lemma edison_lemma4_helper {m n : ℕ} {x : K[X]}
+  (hx : x ∈ Algebra.adjoin K {X^n}) :
+  x.comp (X^m) ∈ Algebra.adjoin K {X^(m * n)} := by
+  refine Algebra.adjoin_induction hx ?_ ?_ ?_ ?_
+  · rintro _ ⟨⟩
+    simp only [pow_comp, X_comp, ← pow_mul]
+    exact Algebra.subset_adjoin $ by trivial
+  · intro k
+    simp only [algebraMap_eq, C_comp]
+    exact Subalgebra.algebraMap_mem _ k
+  · intro x y hx hy
+    simpa using Subalgebra.add_mem _ hx hy
+  · intro x y hx hy
+    simpa using Subalgebra.mul_mem _ hx hy
+
 abbrev K_d (d : D) := (Algebra.adjoin K {d} : Subalgebra K D)
 
 --- maybe don't use Field, for it creates a diamond
@@ -399,69 +415,25 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
   have p_rad : p_radical_extension K D p := by
     intro d ;
     let f := minpoly K d
-    obtain ⟨m, m_pos, minpoly_not_mem, minpoly_mem⟩ := minpoly_mem p K d
+    obtain ⟨m, m_pos, (minpoly_not_mem : f ∉ _), (minpoly_mem : ∀ _, _ → f ∈ _)⟩ :=
+      minpoly_mem p K d
     obtain ⟨g, (hg : _ = f)⟩ := edison_lemma2 (minpoly_mem (m - 1) (by omega))
-    have g_nin : g ∉ Algebra.adjoin K {X^p} := by
+    have g_irr : Irreducible g := sorry -- lemma 3
+    have g_nin : g ∉ Algebra.adjoin K {X^p} := by  -- lemma 4
       intro h
-      have := minpoly_not_mem
-      rw [← hg] at h
-      exact h
-    -- suffices IsPurelyInseparable K (K_d K D d) by sorry
+      have := edison_lemma4_helper (m := p ^ (m - 1)) h
+      rw [hg, ← pow_succ, show m - 1 + 1 = m by omega] at this
+      tauto
 
-    -- have hf: ∃ (m : ℕ),
-    --     f ∈ (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) ∧
-    --     f ∉ (Algebra.adjoin K {X^p^(m+1)} : Subalgebra K K[X]):= by
-    --   sorry
+    have g_min : g = minpoly K (d^p^(m - 1)) := by -- lemma 5
+      sorry
 
-    -- obtain ⟨m, h1, h2⟩ := hf
-    -- have : ∃(g : (Algebra.adjoin K {X} : Subalgebra K K[X])),
-    --   f = g.comp (X^p^m) := by sorry
+    have g_sep : Separable g := sorry -- lemma 6
 
-    -- obtain ⟨g, hg⟩ := this
-    -- haveI irr_f: Irreducible f := minpoly.irreducible (Algebra.IsIntegral.isIntegral d)
-    -- have hg1 : Irreducible g := by sorry
-      -- simp_all only [SetLike.coe_mem];
-      -- refine ⟨?_, ?_⟩
-      -- · rintro ⟨⟨x, y, hx, hy⟩,rfl⟩
-      --   simp only at h2 irr_f
-      --   rw [Subtype.ext_iff] at hx hy
-      --   refine irr_f.1 ⟨⟨x, y, ?_, ?_⟩, rfl⟩
-      --   · exact hx
-      --   · exact hy
+    have coup_de_grace := IsSepClosed.degree_eq_one_of_irreducible K g_irr g_sep
+    rw [g_min, minpoly.degree_eq_one_iff] at coup_de_grace
+    exact ⟨_, coup_de_grace⟩
 
-      -- · rintro a b rfl
-      --   simp only [Submonoid.coe_mul, Subsemiring.coe_toSubmonoid,
-      --     Subalgebra.coe_toSubsemiring] at irr_f
-      --   obtain (h|h) := irr_f.2 a b rfl
-      --   · left
-      --     rw [Polynomial.isUnit_iff] at h
-      --     obtain ⟨r, hr1, hr2⟩ := h
-      --     refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩,
-      --       ?_⟩
-      --     · rw [← map_mul, mul_inv_cancel, map_one]
-      --       exact IsUnit.ne_zero hr1
-      --     · rw [← map_mul, inv_mul_cancel, map_one]
-      --       exact IsUnit.ne_zero hr1
-      --     · simp only
-      --       ext : 1 ; exact hr2
-
-      --   · right
-      --     rw [Polynomial.isUnit_iff] at h
-      --     obtain ⟨r, hr1, hr2⟩ := h
-      --     refine ⟨⟨Algebra.ofId _ _ r, Algebra.ofId _ _ r⁻¹, ?_, ?_⟩,
-      --       ?_⟩
-      --     · rw [← map_mul, mul_inv_cancel, map_one]
-      --       exact IsUnit.ne_zero hr1
-      --     · rw [← map_mul, inv_mul_cancel, map_one]
-      --       exact IsUnit.ne_zero hr1
-      --     · simp only
-      --       ext : 1 ; exact hr2
-
-    -- have hg2 : ↑g ∉ (Algebra.adjoin K {X^p} : Subalgebra K K[X]) := sorry
-    -- have hg3 : g = minpoly K d^p^m := sorry
-    -- have p_pow_in_K : d^p^m ∈ (Algebra.ofId K D).range := sorry
-    -- use m
-    sorry
   exact (division_char_is_commutative (D := D) (p := p)
     (by intro d; specialize p_rad d ; obtain ⟨m, hm⟩ := p_rad ;
         use m - 1 ; have := field_in_center K D ;
