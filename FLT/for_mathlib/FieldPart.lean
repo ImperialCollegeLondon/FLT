@@ -327,8 +327,10 @@ lemma edison_lemma2 {p : K[X]} {m : ℕ} (hp : p ∈ Algebra.adjoin K {X^m}) :
     exact ⟨p + q, by simp⟩
   · rintro _ _ ⟨p, rfl⟩ ⟨q, rfl⟩
     exact ⟨p * q, by simp⟩
-lemma edison_lemma3 {f : K[X]} {m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
-  : Irreducible g := by sorry
+lemma edison_lemma3 (d:D) {f : K[X]}{hff: f = minpoly K d}{m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
+  : Irreducible g :=
+  { not_unit:= sorry
+    isUnit_or_isUnit':= sorry}
 
 lemma edison_lemma4 {f : K[X]} {m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
   : g ∉ Algebra.adjoin K {X^p} := by sorry
