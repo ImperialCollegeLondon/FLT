@@ -316,18 +316,18 @@ lemma minpoly_mem (d : D) :
     simpa using Nat.find_min (minpoly_mem_aux p K d) hn
 
 variable {K} in
-lemma edison_lemma2 {p : K[X]} {m : ℕ} (hp : p ∈ Algebra.adjoin K {X^m}) :
-    ∃ (q : K[X]), q.comp (X^m) = p := by
-  refine Algebra.adjoin_induction hp ?_ ?_ ?_ ?_
+lemma edison_lemma2 {a : K[X]} {m : ℕ} (ha : a ∈ Algebra.adjoin K {X^m}) :
+    ∃ (b : K[X]), b.comp (X^m) = a := by
+  refine Algebra.adjoin_induction ha ?_ ?_ ?_ ?_
   · rintro _ ⟨⟩
     exact ⟨X, by simp⟩
   · intro k
     refine ⟨C k, by simp⟩
-  · rintro _ _ ⟨p, rfl⟩ ⟨q, rfl⟩
-    exact ⟨p + q, by simp⟩
-  · rintro _ _ ⟨p, rfl⟩ ⟨q, rfl⟩
-    exact ⟨p * q, by simp⟩
-lemma edison_lemma3 (d:D) {f : K[X]}{hff: f = minpoly K d}{m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
+  · rintro _ _ ⟨a, rfl⟩ ⟨b, rfl⟩
+    exact ⟨a + b, by simp⟩
+  · rintro _ _ ⟨a, rfl⟩ ⟨b, rfl⟩
+    exact ⟨a * b, by simp⟩
+lemma edison_lemma3 (d:D) {f : K[X]}{hff: f = minpoly K d}{m : ℕ}(g : K[X])(hq: g.comp (X^p^(m-1)) = f )
   : Irreducible g :=
   { not_unit:= sorry
     isUnit_or_isUnit':= sorry}
