@@ -2,6 +2,7 @@ import Mathlib.FieldTheory.SeparableClosure
 import Mathlib.FieldTheory.SplittingField.Construction
 import Mathlib.FieldTheory.PurelyInseparable
 import Mathlib.RingTheory.LittleWedderburn
+import Mathlib.Algebra.Field.Basic
 open scoped Classical
 
 -- variable (D : Type*) [DivisionRing D]
@@ -257,11 +258,12 @@ lemma dvd_natDegree_of_mem_adjoin
   · rw [← map_sum, ← q.as_sum_range]; exact hp
 
   simp_rw [aeval_monomial, ← pow_mul, algebraMap_eq]
-  have subset1 := support_subset_finset_sum_monomial K (Finset.range (q.natDegree + 1))
+  have subset1:= support_subset_finset_sum_monomial K (Finset.range (q.natDegree + 1))
     (fun x => m * x) (fun x => q.coeff x)
   simp_rw [← C_mul_X_pow_eq_monomial] at subset1
   suffices ∀ i ∈ Finset.image (fun x ↦ m * x) (Finset.range (q.natDegree + 1)), m ∣ i from
-    this _ $ subset1 $  Finset.max'_mem _ _
+    --this _ subset1 subset1  Finset.max'_mem _ _
+    sorry
   intro i hi
   simp only [Finset.mem_image, Finset.mem_range] at hi
   obtain ⟨i, _, rfl⟩ := hi
@@ -317,28 +319,76 @@ lemma minpoly_mem (d : D) :
 
 variable {K} in
 lemma edison_lemma2 {a : K[X]} {m : ℕ} (ha : a ∈ Algebra.adjoin K {X^m}) :
-    ∃ (b : K[X]), b.comp (X^m) = a  := by
+    ∃ (b : K[X]), b.comp (X^m) = a := by
   refine Algebra.adjoin_induction ha ?_ ?_ ?_ ?_
   · rintro _ ⟨⟩
-    refine ⟨X, by simp⟩
+    exact ⟨X, by simp⟩
   · intro k
     refine ⟨C k, by simp⟩
   · rintro _ _ ⟨a, rfl⟩ ⟨b, rfl⟩
     exact ⟨a + b, by simp⟩
   · rintro _ _ ⟨a, rfl⟩ ⟨b, rfl⟩
     exact ⟨a * b, by simp⟩
-lemma edison_lemma3 (d:D) {f : K[X]}{hff: f = minpoly K d}{m : ℕ}(g : K[X])(hq: g.comp (X^p^(m-1)) = f )
-  : Irreducible g :=
-  { not_unit:= sorry
-    isUnit_or_isUnit':= sorry}
 
-lemma edison_lemma4 {f : K[X]} {m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
-  : g ∉ Algebra.adjoin K {X^p} := by sorry
-
-lemma edison_lemma5 (d : D){f : K[X]}(hff: f = minpoly K d){m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
-  : g = minpoly K d^p^m:= by sorry
-lemma edison_lemma6 (d : D){f : K[X]}(hff: f = minpoly K d){m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
-  : d ^ p ^ m ∈ (Algebra.ofId K D).range:= by sorry
+lemma edison_lemma3 (d:D) {f : K[X]}{hff: f = minpoly K d}{m : ℕ}(g : K[X])
+    (hq: g.comp (X^p^(m-1)) = f) : Irreducible g :=
+  { not_unit:= by 
+      by_contra! hg
+      have irr_f := minpoly.irreducible (A := K) (x := d) (Algebra.IsIntegral.isIntegral d)
+      obtain ⟨hf1, hf2⟩ := irr_f
+      rw [Polynomial.isUnit_iff_degree_eq_zero] at hg 
+      
+      sorry
+    isUnit_or_isUnit':= by 
+      intro a b hg 
+      by_contra! hab 
+      have f_ne_0 : f ≠ 0 := by
+          rw [hff] ; exact minpoly.ne_zero (x := d) (by exact Algebra.IsIntegral.isIntegral d)
+      have : g.comp (X^p^(m-1)) = a.comp (X^p^(m-1)) * b.comp (X^p^(m-1)):= by
+        simp only [hg, mul_comp]
+      rw [hq, hff] at this 
+      have irr_f := minpoly.irreducible (A := K) (x := d) (Algebra.IsIntegral.isIntegral d)
+      obtain ⟨hf1, hf2⟩ := irr_f ; obtain ⟨ha, hb⟩ := hab
+      specialize hf2 (a.comp (X ^ p ^ (m - 1))) (b.comp (X ^ p ^ (m - 1))) this
+      cases' hf2 with hf2 hf2
+      · have ha' : IsUnit a := by
+          rw [Polynomial.isUnit_iff_degree_eq_zero] at hf2 
+          have comp_deg := natDegree_comp (R := K) (p := a) (q := X ^ p ^ (m - 1)) 
+          rw [Polynomial.degree_eq_natDegree (by aesop)] at hf2
+          have deg_zero: (a.comp (X ^ p ^ (m - 1))).natDegree = 0 := by aesop 
+          simp only [deg_zero, natDegree_pow, natDegree_X, mul_one, zero_eq_mul, pow_eq_zero_iff',
+            ne_eq] at comp_deg
+          if ha': a.natDegree = 0 then 
+            have a_ne : a ≠ 0 := by 
+              by_contra! hh 
+              simp only [hh, zero_mul] at hg 
+              simp only [hg, zero_comp] at hq 
+              exact f_ne_0 hq.symm
+            exact Polynomial.isUnit_iff_degree_eq_zero.2 ((degree_eq_iff_natDegree_eq a_ne).2 ha')
+          else 
+            simp only [ha', false_or] at comp_deg
+            have p_ne : p ≠ 0 := Ne.symm (NeZero.ne' p)
+            tauto
+        exact ha ha'
+      · have hb' : IsUnit b := by
+          rw [Polynomial.isUnit_iff_degree_eq_zero] at hf2 
+          have comp_deg := natDegree_comp (R := K) (p := b) (q := X ^ p ^ (m - 1)) 
+          rw [Polynomial.degree_eq_natDegree (by aesop)] at hf2
+          have deg_zero: (b.comp (X ^ p ^ (m - 1))).natDegree = 0 := by aesop 
+          simp only [deg_zero, natDegree_pow, natDegree_X, mul_one, zero_eq_mul, pow_eq_zero_iff',
+            ne_eq] at comp_deg
+          if hb': b.natDegree = 0 then 
+            have a_ne : b ≠ 0 := by 
+              by_contra! hh 
+              simp only [hh, mul_zero] at hg 
+              simp only [hg, zero_comp] at hq 
+              exact f_ne_0 hq.symm
+            exact Polynomial.isUnit_iff_degree_eq_zero.2 ((degree_eq_iff_natDegree_eq a_ne).2 hb')
+          else 
+            simp only [hb', false_or] at comp_deg
+            have p_ne : p ≠ 0 := Ne.symm (NeZero.ne' p)
+            tauto
+        exact hb hb'}
 
 variable {K} in
 lemma edison_lemma4_helper {m n : ℕ} {x : K[X]}
@@ -357,67 +407,6 @@ lemma edison_lemma4_helper {m n : ℕ} {x : K[X]}
     simpa using Subalgebra.mul_mem _ hx hy
 
 abbrev K_d (d : D) := (Algebra.adjoin K {d} : Subalgebra K D)
-
---- maybe don't use Field, for it creates a diamond
--- lemma bjm01 (d : D): IsField (K_d K D d) := sorry
-  -- add a b := a + b
-  -- add_assoc := add_assoc
-  -- zero := 0
-  -- zero_add := zero_add
-  -- add_zero := add_zero
-  -- nsmul := fun n a => n • a
-  -- nsmul_zero := zero_smul _
-  -- nsmul_succ := _
-  -- add_comm := _
-  -- mul := _
-  -- left_distrib := _
-  -- right_distrib := _
-  -- zero_mul := _
-  -- mul_zero := _
-  -- mul_assoc := _
-  -- one := _
-  -- one_mul := _
-  -- mul_one := _
-  -- natCast := _
-  -- natCast_zero := _
-  -- natCast_succ := _
-  -- npow := _
-  -- npow_zero := _
-  -- npow_succ := _
-  -- neg := _
-  -- sub := _
-  -- sub_eq_add_neg := _
-  -- zsmul := _
-  -- zsmul_zero' := _
-  -- zsmul_succ' := _
-  -- zsmul_neg' := _
-  -- add_left_neg := _
-  -- intCast := _
-  -- intCast_ofNat := _
-  -- intCast_negSucc := _
-  -- mul_comm := sorry
-  -- inv := _
-  -- div := _
-  -- div_eq_mul_inv := _
-  -- zpow := _
-  -- zpow_zero' := _
-  -- zpow_succ' := _
-  -- zpow_neg' := _
-  -- exists_pair_ne := _
-  -- nnratCast := _
-  -- ratCast := _
-  -- mul_inv_cancel := _
-  -- inv_zero := _
-  -- nnratCast_def := _
-  -- nnqsmul := _
-  -- nnqsmul_def := _
-  -- ratCast_def := _
-  -- qsmul := _
-  -- qsmul_def := _
-
--- instance (d : D): DivisionRing (K_d K D d) := sorry
--- instance (d : D): Algebra K (K_d K D d) := sorry
-
 
 lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
     [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
