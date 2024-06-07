@@ -257,11 +257,11 @@ lemma dvd_natDegree_of_mem_adjoin
   · rw [← map_sum, ← q.as_sum_range]; exact hp
 
   simp_rw [aeval_monomial, ← pow_mul, algebraMap_eq]
-  have subset1:= support_subset_finset_sum_monomial K (Finset.range (q.natDegree + 1))
+  have subset1 := support_subset_finset_sum_monomial K (Finset.range (q.natDegree + 1))
     (fun x => m * x) (fun x => q.coeff x)
   simp_rw [← C_mul_X_pow_eq_monomial] at subset1
   suffices ∀ i ∈ Finset.image (fun x ↦ m * x) (Finset.range (q.natDegree + 1)), m ∣ i from
-    this _ subset1 subset1  Finset.max'_mem _ _
+    this _ $ subset1 $  Finset.max'_mem _ _
   intro i hi
   simp only [Finset.mem_image, Finset.mem_range] at hi
   obtain ⟨i, _, rfl⟩ := hi
