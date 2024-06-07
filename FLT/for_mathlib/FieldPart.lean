@@ -262,8 +262,7 @@ lemma dvd_natDegree_of_mem_adjoin
     (fun x => m * x) (fun x => q.coeff x)
   simp_rw [← C_mul_X_pow_eq_monomial] at subset1
   suffices ∀ i ∈ Finset.image (fun x ↦ m * x) (Finset.range (q.natDegree + 1)), m ∣ i from
-    --this _ subset1 subset1  Finset.max'_mem _ _
-    sorry
+    this _ $ subset1 $ Finset.max'_mem _ _
   intro i hi
   simp only [Finset.mem_image, Finset.mem_range] at hi
   obtain ⟨i, _, rfl⟩ := hi
@@ -329,66 +328,6 @@ lemma edison_lemma2 {a : K[X]} {m : ℕ} (ha : a ∈ Algebra.adjoin K {X^m}) :
     exact ⟨a + b, by simp⟩
   · rintro _ _ ⟨a, rfl⟩ ⟨b, rfl⟩
     exact ⟨a * b, by simp⟩
-
-lemma edison_lemma3 (d:D) {f : K[X]}{hff: f = minpoly K d}{m : ℕ}(g : K[X])
-    (hq: g.comp (X^p^(m-1)) = f) : Irreducible g :=
-  { not_unit:= by 
-      by_contra! hg
-      have irr_f := minpoly.irreducible (A := K) (x := d) (Algebra.IsIntegral.isIntegral d)
-      obtain ⟨hf1, hf2⟩ := irr_f
-      rw [Polynomial.isUnit_iff_degree_eq_zero] at hg 
-      
-      sorry
-    isUnit_or_isUnit':= by 
-      intro a b hg 
-      by_contra! hab 
-      have f_ne_0 : f ≠ 0 := by
-          rw [hff] ; exact minpoly.ne_zero (x := d) (by exact Algebra.IsIntegral.isIntegral d)
-      have : g.comp (X^p^(m-1)) = a.comp (X^p^(m-1)) * b.comp (X^p^(m-1)):= by
-        simp only [hg, mul_comp]
-      rw [hq, hff] at this 
-      have irr_f := minpoly.irreducible (A := K) (x := d) (Algebra.IsIntegral.isIntegral d)
-      obtain ⟨hf1, hf2⟩ := irr_f ; obtain ⟨ha, hb⟩ := hab
-      specialize hf2 (a.comp (X ^ p ^ (m - 1))) (b.comp (X ^ p ^ (m - 1))) this
-      cases' hf2 with hf2 hf2
-      · have ha' : IsUnit a := by
-          rw [Polynomial.isUnit_iff_degree_eq_zero] at hf2 
-          have comp_deg := natDegree_comp (R := K) (p := a) (q := X ^ p ^ (m - 1)) 
-          rw [Polynomial.degree_eq_natDegree (by aesop)] at hf2
-          have deg_zero: (a.comp (X ^ p ^ (m - 1))).natDegree = 0 := by aesop 
-          simp only [deg_zero, natDegree_pow, natDegree_X, mul_one, zero_eq_mul, pow_eq_zero_iff',
-            ne_eq] at comp_deg
-          if ha': a.natDegree = 0 then 
-            have a_ne : a ≠ 0 := by 
-              by_contra! hh 
-              simp only [hh, zero_mul] at hg 
-              simp only [hg, zero_comp] at hq 
-              exact f_ne_0 hq.symm
-            exact Polynomial.isUnit_iff_degree_eq_zero.2 ((degree_eq_iff_natDegree_eq a_ne).2 ha')
-          else 
-            simp only [ha', false_or] at comp_deg
-            have p_ne : p ≠ 0 := Ne.symm (NeZero.ne' p)
-            tauto
-        exact ha ha'
-      · have hb' : IsUnit b := by
-          rw [Polynomial.isUnit_iff_degree_eq_zero] at hf2 
-          have comp_deg := natDegree_comp (R := K) (p := b) (q := X ^ p ^ (m - 1)) 
-          rw [Polynomial.degree_eq_natDegree (by aesop)] at hf2
-          have deg_zero: (b.comp (X ^ p ^ (m - 1))).natDegree = 0 := by aesop 
-          simp only [deg_zero, natDegree_pow, natDegree_X, mul_one, zero_eq_mul, pow_eq_zero_iff',
-            ne_eq] at comp_deg
-          if hb': b.natDegree = 0 then 
-            have a_ne : b ≠ 0 := by 
-              by_contra! hh 
-              simp only [hh, mul_zero] at hg 
-              simp only [hg, zero_comp] at hq 
-              exact f_ne_0 hq.symm
-            exact Polynomial.isUnit_iff_degree_eq_zero.2 ((degree_eq_iff_natDegree_eq a_ne).2 hb')
-          else 
-            simp only [hb', false_or] at comp_deg
-            have p_ne : p ≠ 0 := Ne.symm (NeZero.ne' p)
-            tauto
-        exact hb hb'}
 
 variable {K} in
 lemma edison_lemma4_helper {m n : ℕ} {x : K[X]}
@@ -504,7 +443,7 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
           exact_mod_cast hf'
 
     have g_sep : Separable g := separable_or p g_irr |>.elim id $ by
-      rintro ⟨h1, ⟨g, hg, rfl⟩⟩
+      rintro ⟨h1, ⟨g, _, rfl⟩⟩
       exfalso
       refine g_nin ?_
       rw [expand_eq_comp_X_pow]
