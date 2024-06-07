@@ -317,10 +317,10 @@ lemma minpoly_mem (d : D) :
 
 variable {K} in
 lemma edison_lemma2 {a : K[X]} {m : ℕ} (ha : a ∈ Algebra.adjoin K {X^m}) :
-    ∃ (b : K[X]), b.comp (X^m) = a := by
+    ∃ (b : K[X]), b.comp (X^m) = a  := by
   refine Algebra.adjoin_induction ha ?_ ?_ ?_ ?_
   · rintro _ ⟨⟩
-    exact ⟨X, by simp⟩
+    refine ⟨X, by simp⟩
   · intro k
     refine ⟨C k, by simp⟩
   · rintro _ _ ⟨a, rfl⟩ ⟨b, rfl⟩
@@ -423,6 +423,7 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
     [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
     (p : ℕ) [Fact p.Prime] [CharP K p] [CharP D p] :
     ∀(x y : D), x * y = y * x := by
+  have : 1 < p := Nat.Prime.one_lt Fact.out
   have alg_ext := Algebra.IsAlgebraic.of_finite K D
   have p_rad : p_radical_extension K D p := by
     intro d ;
@@ -438,7 +439,42 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
       tauto
 
     have g_min : g = minpoly K (d^p^(m - 1)) := by -- lemma 5
-      sorry
+      apply minpoly.unique
+      · have hf' : f.leadingCoeff = 1 := minpoly.monic (Algebra.IsIntegral.isIntegral d)
+        have : (g.comp (X^p^(m-1))).leadingCoeff = _ * _ := leadingCoeff_comp (by
+          rw [natDegree_pow, natDegree_X, mul_one]
+          simp only [ne_eq, pow_eq_zero_iff', not_and, Decidable.not_not]
+          omega)
+        rw [hg, hf'] at this
+        simp only [monic_X_pow, Monic.leadingCoeff, one_pow, mul_one] at this
+        exact this.symm
+      · have hf : aeval d f = 0 := minpoly.aeval K d
+        rwa [← hg, aeval_comp, map_pow, aeval_X] at hf
+      · intro q hq1 hq2
+        have hq1' : Monic (q.comp (X^p^(m-1))) := by
+          refine hq1.comp (monic_X_pow _) ?_
+          simp only [natDegree_pow, natDegree_X, mul_one, ne_eq, pow_eq_zero_iff', not_and,
+            Decidable.not_not]
+          omega
+        have hf : f.degree ≤ _ := minpoly.min K d hq1' (by
+          rw [aeval_comp, map_pow, aeval_X, hq2])
+        have eq1 := natDegree_comp (p := q) (q := X^p^(m-1))
+        have eq2 := natDegree_comp (p := g) (q := X^p^(m-1))
+        simp only [natDegree_pow, natDegree_X, mul_one] at eq1 eq2
+        rw [hg] at eq2
+        have hf' := natDegree_le_natDegree hf
+        rw [eq1, eq2] at hf'
+        replace hf' : g.natDegree ≤ q.natDegree :=
+          Nat.le_of_mul_le_mul_right hf' (by apply Nat.pow_pos; omega)
+        if g0 : g = 0 then subst g0; simp else
+        if q0 : q = 0 then
+          subst q0
+          simp only [zero_comp, degree_zero, le_bot_iff, degree_eq_bot] at hf
+          have hf' : f.leadingCoeff = 1 := minpoly.monic (Algebra.IsIntegral.isIntegral d)
+          simp only [hf, leadingCoeff_zero, zero_ne_one] at hf'
+        else
+          rw [degree_eq_natDegree g0, degree_eq_natDegree q0]
+          exact_mod_cast hf'
 
     have g_sep : Separable g := sorry -- lemma 6
 
