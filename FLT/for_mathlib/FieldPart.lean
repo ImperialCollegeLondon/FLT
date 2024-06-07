@@ -4,7 +4,7 @@ import Mathlib.FieldTheory.PurelyInseparable
 import Mathlib.RingTheory.LittleWedderburn
 open scoped Classical
 
-variable (D : Type*) [DivisionRing D]
+-- variable (D : Type*) [DivisionRing D]
 
 
 theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a * · * b)^[n] =
@@ -17,7 +17,7 @@ theorem mul_left_right_iterate {G : Type*} [Monoid G] (a b : G) (n : ℕ) : (a *
     rw [show a^n * a = a^(n + 1) by rw [← pow_succ a n], mul_assoc]
     rw [show b * b^n = b^(n + 1) by rw [← pow_succ' b n], add_comm]
 
-variable {D : Type*}[DivisionRing D](p : ℕ)[Fact p.Prime][char: CharP D p]
+variable {D : Type*} [DivisionRing D] (p : ℕ) [Fact p.Prime] [char: CharP D p]
 
 abbrev conj (x : D) : Module.End ℤ D where
   toFun := fun a ↦ x * a * x⁻¹
@@ -213,7 +213,7 @@ abbrev unit_group : Group Rˣ where
   zpow_succ' _ _ := pow_succ _ _
   mul_left_inv _ := mul_left_inv _
 
-variable (D : Type*) [DivisionRing D] [Algebra K D] [FiniteDimensional K D] [CharP D p]
+variable [Algebra K D] [FiniteDimensional K D] [CharP D p]
 
 open BigOperators
 
@@ -285,7 +285,6 @@ lemma intersect_eq :
     have := Nat.le_of_dvd (by omega) $ this i
     omega
 
-variable {D} in
 lemma minpoly_mem_aux (d : D) :
     ∃ (m : ℕ), minpoly K d ∉ (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) := by
   by_contra! r
@@ -304,9 +303,9 @@ lemma minpoly_mem (d : D) :
     ∃ (m : ℕ), 0 < m ∧
       minpoly K d ∉ Algebra.adjoin K {X^p^m} ∧
       (∀ n : ℕ, n < m → minpoly K d ∈ Algebra.adjoin K {X^p^n}) := by
-  let M := Nat.find (minpoly_mem_aux p K _ d)
+  let M := Nat.find (minpoly_mem_aux p K d)
   have hM : minpoly K d ∉ (Algebra.adjoin K {X^p^M} : Subalgebra K K[X]) :=
-    Nat.find_spec (minpoly_mem_aux p K _ d)
+    Nat.find_spec (minpoly_mem_aux p K d)
 
   if M_ne_zero : M = 0
   then
@@ -314,7 +313,20 @@ lemma minpoly_mem (d : D) :
     simp at hM
   else
     refine ⟨M, by omega, hM, fun n hn => ?_⟩
-    simpa using Nat.find_min (minpoly_mem_aux p K _ d) hn
+    simpa using Nat.find_min (minpoly_mem_aux p K d) hn
+
+variable {K} in
+lemma edison_lemma2 {p : K[X]} {m : ℕ} (hp : p ∈ Algebra.adjoin K {X^m}) :
+    ∃ (q : K[X]), q.comp (X^m) = p := by
+  refine Algebra.adjoin_induction hp ?_ ?_ ?_ ?_
+  · rintro _ ⟨⟩
+    exact ⟨X, by simp⟩
+  · intro k
+    refine ⟨C k, by simp⟩
+  · rintro _ _ ⟨p, rfl⟩ ⟨q, rfl⟩
+    exact ⟨p + q, by simp⟩
+  · rintro _ _ ⟨p, rfl⟩ ⟨q, rfl⟩
+    exact ⟨p * q, by simp⟩
 
 abbrev K_d (d : D) := (Algebra.adjoin K {d} : Subalgebra K D)
 
@@ -385,7 +397,15 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
     ∀(x y : D), x * y = y * x := by
   have alg_ext := Algebra.IsAlgebraic.of_finite K D
   have p_rad : p_radical_extension K D p := by
-    intro d ; let f := minpoly K d
+    intro d ;
+    let f := minpoly K d
+    obtain ⟨m, m_pos, minpoly_not_mem, minpoly_mem⟩ := minpoly_mem p K d
+    obtain ⟨g, (hg : _ = f)⟩ := edison_lemma2 (minpoly_mem (m - 1) (by omega))
+    have g_nin : g ∉ Algebra.adjoin K {X^p} := by
+      intro h
+      have := minpoly_not_mem
+      rw [← hg] at h
+      exact h
     -- suffices IsPurelyInseparable K (K_d K D d) by sorry
 
     -- have hf: ∃ (m : ℕ),
