@@ -476,7 +476,13 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
           rw [degree_eq_natDegree g0, degree_eq_natDegree q0]
           exact_mod_cast hf'
 
-    have g_sep : Separable g := sorry -- lemma 6
+    have g_sep : Separable g := separable_or p g_irr |>.elim id $ by
+      rintro ⟨h1, ⟨g, hg, rfl⟩⟩
+      exfalso
+      refine g_nin ?_
+      rw [expand_eq_comp_X_pow]
+      have := edison_lemma4_helper (n := 1) (m := p) (x := g) (by simp)
+      simpa using this
 
     have coup_de_grace := IsSepClosed.degree_eq_one_of_irreducible K g_irr g_sep
     rw [g_min, minpoly.degree_eq_one_iff] at coup_de_grace
