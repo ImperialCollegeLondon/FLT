@@ -327,41 +327,10 @@ lemma edison_lemma2 {a : K[X]} {m : ℕ} (ha : a ∈ Algebra.adjoin K {X^m}) :
     exact ⟨a + b, by simp⟩
   · rintro _ _ ⟨a, rfl⟩ ⟨b, rfl⟩
     exact ⟨a * b, by simp⟩
-
-lemma edison_lemma3 (d:D) {f : K[X]}{hff: f = minpoly K d}{m : ℕ}(g : K[X])
-    (hq: g.comp (X^p^(m-1)) = f) : Irreducible g :=
+lemma edison_lemma3 (d:D) {f : K[X]}{hff: f = minpoly K d}{m : ℕ}(g : K[X])(hq: g.comp (X^p^(m-1)) = f )
+  : Irreducible g :=
   { not_unit:= sorry
-    isUnit_or_isUnit':= by 
-      intro a b hg 
-      by_contra! hab 
-      have : g.comp (X^p^(m-1)) = a.comp (X^p^(m-1)) * b.comp (X^p^(m-1)):= by
-        simp only [hg, mul_comp]
-      rw [hq, hff] at this 
-      have irr_f := minpoly.irreducible (A := K) (x := d) (Algebra.IsIntegral.isIntegral d)
-      obtain ⟨hf1, hf2⟩ := irr_f ; obtain ⟨ha, hb⟩ := hab
-      specialize hf2 (a.comp (X ^ p ^ (m - 1))) (b.comp (X ^ p ^ (m - 1))) this
-      cases' hf2 with hf2 hf2
-      · have ha' : IsUnit a := by
-          rw [Polynomial.isUnit_iff_degree_eq_zero] at hf2 
-          have comp_deg := natDegree_comp (R := K) (p := a) (q := X ^ p ^ (m - 1)) 
-          rw [Polynomial.degree_eq_natDegree (by aesop)] at hf2
-          have deg_zero: (a.comp (X ^ p ^ (m - 1))).natDegree = 0 := by aesop 
-          simp only [deg_zero, natDegree_pow, natDegree_X, mul_one, zero_eq_mul, pow_eq_zero_iff',
-            ne_eq] at comp_deg
-          if ha': a.natDegree = 0 then 
-            have f_ne_0 : f ≠ 0 := by
-              rw [hff] ; exact minpoly.ne_zero (x := d) (by sorry)
-            have a_ne : a ≠ 0 := by 
-              by_contra! hh 
-              simp only [hh, zero_mul] at hg 
-              simp only [hg, zero_comp] at hq 
-              exact f_ne_0 hq.symm
-            exact Polynomial.isUnit_iff_degree_eq_zero.2 ((degree_eq_iff_natDegree_eq a_ne).2 ha')
-          else 
-            simp only [ha', false_or] at comp_deg
-            have p_ne : p ≠ 0 := Ne.symm (NeZero.ne' p)
-            tauto
-      · sorry}
+    isUnit_or_isUnit':= sorry}
 
 lemma edison_lemma4 {f : K[X]} {m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
   : g ∉ Algebra.adjoin K {X^p} := by sorry
@@ -462,7 +431,53 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
     obtain ⟨m, m_pos, (minpoly_not_mem : f ∉ _), (minpoly_mem : ∀ _, _ → f ∈ _)⟩ :=
       minpoly_mem p K d
     obtain ⟨g, (hg : _ = f)⟩ := edison_lemma2 (minpoly_mem (m - 1) (by omega))
-    have g_irr : Irreducible g := sorry -- lemma 3
+
+    have g_mon : Monic g := by
+      have hf' : f.leadingCoeff = 1 := minpoly.monic (Algebra.IsIntegral.isIntegral d)
+      have : (g.comp (X^p^(m-1))).leadingCoeff = _ * _ := leadingCoeff_comp (by
+        rw [natDegree_pow, natDegree_X, mul_one]
+        simp only [ne_eq, pow_eq_zero_iff', not_and, Decidable.not_not]
+        omega)
+      rw [hg, hf'] at this
+      simp only [monic_X_pow, Monic.leadingCoeff, one_pow, mul_one] at this
+      exact this.symm
+    have g_irr : Irreducible g := by
+      rw [Polynomial.irreducible_of_monic g_mon]
+      pick_goal 2
+      · rintro rfl
+        simp only [one_comp] at hg
+        rw [← hg] at minpoly_not_mem
+        exact minpoly_not_mem $ Subalgebra.one_mem _
+      intro x y hx hy hxy
+      have hxy' : (x * y).comp (X^p^(m-1)) = f := by
+        rw [hxy, hg]
+      have f_irr : Irreducible f := minpoly.irreducible (Algebra.IsIntegral.isIntegral d)
+      rw [Polynomial.irreducible_of_monic (minpoly.monic (Algebra.IsIntegral.isIntegral d))
+        (minpoly.ne_one K d)] at f_irr
+      rw [mul_comp] at hxy'
+      specialize f_irr (x.comp (X^p^(m-1))) (y.comp (X^p^(m-1)))
+        (hx.comp (by simp) (by simpa using by omega)) (hy.comp (by simp) (by simpa using by omega)) hxy'
+      rcases f_irr with (h1|h2)
+      · left
+        rw [← expand_eq_comp_X_pow] at h1
+        apply_fun (fun x => contract (p^(m-1)) x) at h1
+        rw [contract_expand (hp := by simpa using by omega)] at h1
+        rw [h1]
+        ext n
+        rw [coeff_contract (hp := by simpa using by omega), coeff_one, coeff_one]
+        simp_rw [mul_eq_zero, show (n = 0 ∨ p ^ (m - 1) = 0) = (n = 0) by
+          rw [← iff_eq_eq]; simpa using by omega]
+
+      · right
+        rw [← expand_eq_comp_X_pow] at h2
+        apply_fun (fun x => contract (p^(m-1)) x) at h2
+        rw [contract_expand (hp := by simpa using by omega)] at h2
+        rw [h2]
+        ext n
+        rw [coeff_contract (hp := by simpa using by omega), coeff_one, coeff_one]
+        simp_rw [mul_eq_zero, show (n = 0 ∨ p ^ (m - 1) = 0) = (n = 0) by
+          rw [← iff_eq_eq]; simpa using by omega]
+
     have g_nin : g ∉ Algebra.adjoin K {X^p} := by  -- lemma 4
       intro h
       have := edison_lemma4_helper (m := p ^ (m - 1)) h
@@ -470,15 +485,7 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
       tauto
 
     have g_min : g = minpoly K (d^p^(m - 1)) := by -- lemma 5
-      apply minpoly.unique
-      · have hf' : f.leadingCoeff = 1 := minpoly.monic (Algebra.IsIntegral.isIntegral d)
-        have : (g.comp (X^p^(m-1))).leadingCoeff = _ * _ := leadingCoeff_comp (by
-          rw [natDegree_pow, natDegree_X, mul_one]
-          simp only [ne_eq, pow_eq_zero_iff', not_and, Decidable.not_not]
-          omega)
-        rw [hg, hf'] at this
-        simp only [monic_X_pow, Monic.leadingCoeff, one_pow, mul_one] at this
-        exact this.symm
+      apply minpoly.unique (pmonic := g_mon)
       · have hf : aeval d f = 0 := minpoly.aeval K d
         rwa [← hg, aeval_comp, map_pow, aeval_X] at hf
       · intro q hq1 hq2
