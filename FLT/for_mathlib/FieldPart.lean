@@ -262,8 +262,7 @@ lemma dvd_natDegree_of_mem_adjoin
     (fun x => m * x) (fun x => q.coeff x)
   simp_rw [← C_mul_X_pow_eq_monomial] at subset1
   suffices ∀ i ∈ Finset.image (fun x ↦ m * x) (Finset.range (q.natDegree + 1)), m ∣ i from
-    --this _ subset1 subset1  Finset.max'_mem _ _
-    sorry
+    this _ $ subset1 $ Finset.max'_mem _ _
   intro i hi
   simp only [Finset.mem_image, Finset.mem_range] at hi
   obtain ⟨i, _, rfl⟩ := hi
@@ -330,74 +329,74 @@ lemma edison_lemma2 {a : K[X]} {m : ℕ} (ha : a ∈ Algebra.adjoin K {X^m}) :
   · rintro _ _ ⟨a, rfl⟩ ⟨b, rfl⟩
     exact ⟨a * b, by simp⟩
 
-lemma edison_lemma3 (d:D) {f : K[X]}{hff: f = minpoly K d}{m : ℕ}(g : K[X])
+lemma edison_lemma3 (d : D) {hff : f = minpoly K d}{m : ℕ}(g : K[X])
     (hq: g.comp (X^p^(m-1)) = f) : Irreducible g :=
-  { not_unit:= by 
+  { not_unit:= by
       by_contra! hg
       have f_ne_0 : f ≠ 0 := by
           rw [hff] ; exact minpoly.ne_zero (Algebra.IsIntegral.isIntegral d)
       have irr_f := minpoly.irreducible (A := K) (x := d) (Algebra.IsIntegral.isIntegral d)
       obtain ⟨hf1, hf2⟩ := irr_f
-      rw [Polynomial.isUnit_iff_degree_eq_zero] at hg 
-      have g_ne_zero: g ≠ 0 := by 
-        suffices f ≠ 0 by 
+      rw [Polynomial.isUnit_iff_degree_eq_zero] at hg
+      have g_ne_zero: g ≠ 0 := by
+        suffices f ≠ 0 by
           by_contra! hgg
           simp only [hgg, zero_comp] at hq
           exact this (id (Eq.symm hq))
         exact f_ne_0
       have g_nat : g.natDegree = 0 := (degree_eq_iff_natDegree_eq g_ne_zero).1 hg
-      have comp_deg := natDegree_comp (R := K) (p := g) (q := X ^ p ^ (m - 1)) 
-      simp only [hq, g_nat, natDegree_pow, natDegree_X, mul_one, zero_mul] at comp_deg 
-      have : f.degree = 0 := by 
+      have comp_deg := natDegree_comp (R := K) (p := g) (q := X ^ p ^ (m - 1))
+      simp only [hq, g_nat, natDegree_pow, natDegree_X, mul_one, zero_mul] at comp_deg
+      have : f.degree = 0 := by
         exact (degree_eq_iff_natDegree_eq f_ne_0).2 comp_deg
-      rw [← Polynomial.isUnit_iff_degree_eq_zero, hff] at this 
+      rw [← Polynomial.isUnit_iff_degree_eq_zero, hff] at this
       exact hf1 this
-    isUnit_or_isUnit':= by 
-      intro a b hg 
-      by_contra! hab 
+    isUnit_or_isUnit':= by
+      intro a b hg
+      by_contra! hab
       have f_ne_0 : f ≠ 0 := by
           rw [hff] ; exact minpoly.ne_zero (x := d) (by exact Algebra.IsIntegral.isIntegral d)
       have : g.comp (X^p^(m-1)) = a.comp (X^p^(m-1)) * b.comp (X^p^(m-1)):= by
         simp only [hg, mul_comp]
-      rw [hq, hff] at this 
+      rw [hq, hff] at this
       have irr_f := minpoly.irreducible (A := K) (x := d) (Algebra.IsIntegral.isIntegral d)
       obtain ⟨hf1, hf2⟩ := irr_f ; obtain ⟨ha, hb⟩ := hab
       specialize hf2 (a.comp (X ^ p ^ (m - 1))) (b.comp (X ^ p ^ (m - 1))) this
       cases' hf2 with hf2 hf2
       · have ha' : IsUnit a := by
-          rw [Polynomial.isUnit_iff_degree_eq_zero] at hf2 
-          have comp_deg := natDegree_comp (R := K) (p := a) (q := X ^ p ^ (m - 1)) 
+          rw [Polynomial.isUnit_iff_degree_eq_zero] at hf2
+          have comp_deg := natDegree_comp (R := K) (p := a) (q := X ^ p ^ (m - 1))
           rw [Polynomial.degree_eq_natDegree (by aesop)] at hf2
-          have deg_zero: (a.comp (X ^ p ^ (m - 1))).natDegree = 0 := by aesop 
+          have deg_zero: (a.comp (X ^ p ^ (m - 1))).natDegree = 0 := by aesop
           simp only [deg_zero, natDegree_pow, natDegree_X, mul_one, zero_eq_mul, pow_eq_zero_iff',
             ne_eq] at comp_deg
-          if ha': a.natDegree = 0 then 
-            have a_ne : a ≠ 0 := by 
-              by_contra! hh 
-              simp only [hh, zero_mul] at hg 
-              simp only [hg, zero_comp] at hq 
+          if ha': a.natDegree = 0 then
+            have a_ne : a ≠ 0 := by
+              by_contra! hh
+              simp only [hh, zero_mul] at hg
+              simp only [hg, zero_comp] at hq
               exact f_ne_0 hq.symm
             exact Polynomial.isUnit_iff_degree_eq_zero.2 ((degree_eq_iff_natDegree_eq a_ne).2 ha')
-          else 
+          else
             simp only [ha', false_or] at comp_deg
             have p_ne : p ≠ 0 := Ne.symm (NeZero.ne' p)
             tauto
         exact ha ha'
       · have hb' : IsUnit b := by
-          rw [Polynomial.isUnit_iff_degree_eq_zero] at hf2 
-          have comp_deg := natDegree_comp (R := K) (p := b) (q := X ^ p ^ (m - 1)) 
+          rw [Polynomial.isUnit_iff_degree_eq_zero] at hf2
+          have comp_deg := natDegree_comp (R := K) (p := b) (q := X ^ p ^ (m - 1))
           rw [Polynomial.degree_eq_natDegree (by aesop)] at hf2
-          have deg_zero: (b.comp (X ^ p ^ (m - 1))).natDegree = 0 := by aesop 
+          have deg_zero: (b.comp (X ^ p ^ (m - 1))).natDegree = 0 := by aesop
           simp only [deg_zero, natDegree_pow, natDegree_X, mul_one, zero_eq_mul, pow_eq_zero_iff',
             ne_eq] at comp_deg
-          if hb': b.natDegree = 0 then 
-            have a_ne : b ≠ 0 := by 
-              by_contra! hh 
-              simp only [hh, mul_zero] at hg 
-              simp only [hg, zero_comp] at hq 
+          if hb': b.natDegree = 0 then
+            have a_ne : b ≠ 0 := by
+              by_contra! hh
+              simp only [hh, mul_zero] at hg
+              simp only [hg, zero_comp] at hq
               exact f_ne_0 hq.symm
             exact Polynomial.isUnit_iff_degree_eq_zero.2 ((degree_eq_iff_natDegree_eq a_ne).2 hb')
-          else 
+          else
             simp only [hb', false_or] at comp_deg
             have p_ne : p ≠ 0 := Ne.symm (NeZero.ne' p)
             tauto
@@ -443,9 +442,9 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
       rw [hg, hf'] at this
       simp only [monic_X_pow, Monic.leadingCoeff, one_pow, mul_one] at this
       exact this.symm
-    have g_irr : Irreducible g := by 
-      exact edison_lemma3 p K d g hg
-
+    have g_irr : Irreducible g := by
+      have : f = minpoly K d := rfl
+      exact edison_lemma3 p g hg (hff := this)
 
     have g_nin : g ∉ Algebra.adjoin K {X^p} := by  -- lemma 4
       intro h
