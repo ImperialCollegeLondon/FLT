@@ -80,7 +80,7 @@ lemma upper_bound (x : D) (hx' : x ≠ 0) (hx : ∃ (m : ℕ),  x ^ (p ^ (m + 1)
   constructor
   · apply pow_pred_nilpotencyClass (isnil_conj_sub_one p x hx' hx)
   · intro n
-    have : nilpotencyClass (conj x - 1) > 0 := pos_nilpotencyClass_iff.2 
+    have : nilpotencyClass (conj x - 1) > 0 := pos_nilpotencyClass_iff.2
       (isnil_conj_sub_one p x hx' hx)
     rw [show (n + (nilpotencyClass (conj x - 1) - 1) + 1) =
       n + nilpotencyClass (conj x - 1) by omega]
@@ -89,16 +89,16 @@ lemma upper_bound (x : D) (hx' : x ≠ 0) (hx : ∃ (m : ℕ),  x ^ (p ^ (m + 1)
 
 lemma conj_char_pow_eq_one (x : D) (hx' : x ≠ 0)
     (m : ℕ) (hx :  x ^ (p ^ (m + 1)) ∈ Subring.center D):
-    (conj x) ^ p ^ (m + 1) - 1 = 0 := by 
+    (conj x) ^ p ^ (m + 1) - 1 = 0 := by
   ext d ; simp only [LinearMap.sub_apply, LinearMap.one_apply, LinearMap.zero_apply]
   rw [conj_pow_eq]; simp only [LinearMap.coe_mk, AddHom.coe_mk]
-  have := (Subring.mem_center_iff (R := D)).1 hx d 
-  rw [← this, mul_assoc, mul_inv_cancel] 
-  · simp only [mul_one, sub_self] 
+  have := (Subring.mem_center_iff (R := D)).1 hx d
+  rw [← this, mul_assoc, mul_inv_cancel]
+  · simp only [mul_one, sub_self]
   · exact pow_ne_zero (p ^ (m + 1)) hx'
 
-lemma conj_compose (n : ℕ) (x y : D): (conj x - 1) (((conj x - 1) ^ n) y) = 
-    ((conj x - 1) ^ (n + 1)) y := by 
+lemma conj_compose (n : ℕ) (x y : D): (conj x - 1) (((conj x - 1) ^ n) y) =
+    ((conj x - 1) ^ (n + 1)) y := by
   symm; rw [add_comm, pow_add, pow_one]; simp
 
 theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fact p.Prime] [CharP D p]
@@ -124,7 +124,7 @@ theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fac
         apply hy; rw [← h1, mul_assoc, x1, h1, mul_one]
       obtain ⟨l, hl, hn⟩ := upper_bound p x hx ⟨m, hm⟩
       have h1 : ∃ b : D, (((conj x) - 1) ^ l) b ≠ 0 := by
-        by_contra! hb; 
+        by_contra! hb;
         exact hl (DFunLike.ext_iff.2 hb)
       cases' h1 with b hb
       set z := (((conj x) - 1)^ (l - 1)) b
@@ -132,7 +132,7 @@ theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fac
       have l1 : l ≥ 1 := by
         by_contra! h
         have l0 : l = 0 := by linarith
-        have l1 := hn 0 
+        have l1 := hn 0
         rw [l0, add_zero, zero_add] at l1; exact ineq1 l1
       have hw0 : w ≠ 0 := by
         intro hw
@@ -140,8 +140,8 @@ theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fac
         rw [show l = 1 + (l - 1) by omega, pow_add] ; simp only [pow_one, LinearMap.mul_apply, hw]
       have hw : (conj x) w = w := by
         rw [← sub_eq_zero]; nth_rw 2 [show (w = (1 : Module.End ℤ D) w) by rw [LinearMap.one_apply]]
-        rw [← LinearMap.sub_apply]; simp only [w, z] 
-        rw [conj_compose (l - 1) x b, show (l - 1) + 1 = l by omega, conj_compose, 
+        rw [← LinearMap.sub_apply]; simp only [w, z]
+        rw [conj_compose (l - 1) x b, show (l - 1) + 1 = l by omega, conj_compose,
           ← zero_add (l + 1), ← add_assoc]
         exact DFunLike.ext_iff.1 (hn 0) b
       set q := w⁻¹ * z
@@ -156,7 +156,7 @@ theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fac
         rw [h1, mul_add, inv_mul_cancel hw0]
       cases' h q with qm hq
       have final : q ^ p ^ (qm + 1) = q ^ p ^ (qm + 1) + 1 := by
-        nth_rw 1 [← mul_one (q ^ p ^ (qm + 1)),← x2,← mul_assoc,← (Subring.mem_center_iff.1 hq) x] 
+        nth_rw 1 [← mul_one (q ^ p ^ (qm + 1)),← x2,← mul_assoc,← (Subring.mem_center_iff.1 hq) x]
         calc
         _ = (x * q * x⁻¹) ^ p ^ (qm + 1) := by
           set e := p ^ (qm + 1)
@@ -172,7 +172,7 @@ theorem division_char_is_commutative {D : Type*} [DivisionRing D] {p : ℕ} [Fac
           simp only [LinearMap.coe_mk, AddHom.coe_mk] at hq_add ; rw[hq_add]
         _ = q ^ p ^ (qm + 1) + 1 := by
           rw [add_pow_char_pow_of_commute (h := Commute.one_right q), one_pow]
-        
+
       simp only [self_eq_add_right, one_ne_zero] at final
     mul_inv_cancel := by
       intro a ha ; use a⁻¹
@@ -215,11 +215,84 @@ abbrev unit_group : Group Rˣ where
 
 variable (D : Type*) [DivisionRing D] [Algebra K D] [FiniteDimensional K D] [CharP D p]
 
+open BigOperators
+
+lemma support_finset_sum_monomial {ι : Type*}  (s : Finset ι)
+    (deg : ι → ℕ) (hdeg : Function.InjOn deg s)
+    (coeff : ι → K) (hcoeff : ∀ i ∈ s, coeff i ≠ 0) :
+    (∑ i ∈ s, monomial (deg i) (coeff i)).support =
+    s.image deg := by
+  induction s using Finset.cons_induction with
+  | empty => simp
+  | @cons i s hi ih =>
+    rw [Finset.sum_cons, support]
+    simp only [add_eq_add, toFinsupp_add, toFinsupp_monomial, Finset.cons_eq_insert,
+      Finset.image_insert]
+    rw [support] at ih
+    simp only at ih
+    rw [Finsupp.support_add_eq, ih, Finsupp.support_single_ne_zero]
+    · rfl
+    ·
+    sorry
+
+example {m : ℕ} {p : K[X]} (h : p ∈ (Algebra.adjoin K {X^m} : Subalgebra K K[X])) :
+    m ∣ p.natDegree := by
+
+  -- rw [Algebra.mem_adjoin_iff] at h
+  rw [Algebra.adjoin_singleton_eq_range_aeval, AlgHom.mem_range] at h
+  obtain ⟨q, rfl⟩ := h
+  rw [q.as_sum_range, map_sum]
+  simp_rw [aeval_monomial, ← pow_mul, algebraMap_eq]
+  set P : K[X] := _; change m ∣ P.natDegree
+  rw [natDegree_eq_support_max']
+  suffices ∀ i ∈ P.support, m ∣ i from this _ $ Finset.max'_mem P.support _
+  intro i hi
+  dsimp only [P] at hi
+  set n := q.natDegree
+  set c : ℕ → K := fun x => q.coeff x
+  have hi : i ∈ (∑ k ∈ Finset.range (n + 1), monomial (m * k) (c k)).support := by
+    convert hi using 2
+    refine Finset.sum_congr rfl fun k hk => ?_
+    rw [C_mul_X_pow_eq_monomial]
+
+  rw [Finset.sum_range_succ'] at hi
+  clear_value n c
+  induction n with
+  | zero =>
+    if h : i = 0 then aesop
+    else
+      simp [coeff_C_ne_zero (h := h)] at hi
+  | succ n hn =>
+    specialize hn (by
+      convert hi)
+    sorry
+  -- simp only [algebraMap_eq]
+
+
+  -- have := leadingCoeff
+  sorry
+    -- ⨅ (m : ℕ), (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) = ⊥ := by
+
+
+lemma intersect_eq :
+    ⨅ (m : ℕ), (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) = ⊥ := by
+  rw [eq_bot_iff]
+  intro x hx
+  rw [Algebra.mem_iInf] at hx
+  -- have := Algebra.adjoin_singleton_eq_range_aeval
+  simp_rw [Algebra.adjoin_singleton_eq_range_aeval] at hx
+  simp only [AlgHom.mem_range] at hx
+  choose c hc using hx
+  have :=
+
+  sorry
+
 abbrev K_d (d : D) := (Algebra.adjoin K {d} : Subalgebra K D)
 
-instance bjm01 (d : D): Field (K_d K D d) := sorry
+--- maybe don't use Field, for it creates a diamond
+lemma bjm01 (d : D): IsField (K_d K D d) := sorry
   -- add a b := a + b
-  -- add_assoc := add_assoc 
+  -- add_assoc := add_assoc
   -- zero := 0
   -- zero_add := zero_add
   -- add_zero := add_zero
@@ -272,7 +345,7 @@ instance bjm01 (d : D): Field (K_d K D d) := sorry
   -- ratCast_def := _
   -- qsmul := _
   -- qsmul_def := _
-  
+
 instance (d : D): DivisionRing (K_d K D d) := sorry
 instance (d : D): Algebra K (K_d K D d) := sorry
 
@@ -284,17 +357,17 @@ lemma findim_divring_over_sep_closed [Infinite K] (D : Type*)
   have alg_ext := Algebra.IsAlgebraic.of_finite K D
   have p_rad : p_radical_extension K D p := by
     intro d ; let f := minpoly K d
-    suffices IsPurelyInseparable K (K_d K D d) by sorry 
+    suffices IsPurelyInseparable K (K_d K D d) by sorry
 
     -- have hf: ∃(m : ℕ),
     --     f ∈ (Algebra.adjoin K {X^p^m} : Subalgebra K K[X]) ∧
     --     f ∉ (Algebra.adjoin K {X^p^(m+1)} : Subalgebra K K[X]):= by
     --   sorry
-    
+
     -- obtain ⟨m, h1, h2⟩ := hf
-    -- have : ∃(g : (Algebra.adjoin K {X} : Subalgebra K K[X])), 
+    -- have : ∃(g : (Algebra.adjoin K {X} : Subalgebra K K[X])),
     --   f = g.comp (X^p^m) := by sorry
-      
+
     -- obtain ⟨g, hg⟩ := this
     -- haveI irr_f: Irreducible f := minpoly.irreducible (Algebra.IsIntegral.isIntegral d)
     -- have hg1 : Irreducible g := by sorry
