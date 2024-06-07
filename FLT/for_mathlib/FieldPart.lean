@@ -261,7 +261,7 @@ lemma dvd_natDegree_of_mem_adjoin
     (fun x => m * x) (fun x => q.coeff x)
   simp_rw [← C_mul_X_pow_eq_monomial] at subset1
   suffices ∀ i ∈ Finset.image (fun x ↦ m * x) (Finset.range (q.natDegree + 1)), m ∣ i from
-    this _ $ subset1 $ Finset.max'_mem _ _
+    this _ subset1 subset1  Finset.max'_mem _ _
   intro i hi
   simp only [Finset.mem_image, Finset.mem_range] at hi
   obtain ⟨i, _, rfl⟩ := hi
@@ -327,6 +327,16 @@ lemma edison_lemma2 {p : K[X]} {m : ℕ} (hp : p ∈ Algebra.adjoin K {X^m}) :
     exact ⟨p + q, by simp⟩
   · rintro _ _ ⟨p, rfl⟩ ⟨q, rfl⟩
     exact ⟨p * q, by simp⟩
+lemma edison_lemma3 {f : K[X]} {m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
+  : Irreducible g := by sorry
+
+lemma edison_lemma4 {f : K[X]} {m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
+  : g ∉ Algebra.adjoin K {X^p} := by sorry
+
+lemma edison_lemma5 (d : D){f : K[X]}(hff: f = minpoly K d){m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
+  : g = minpoly K d^p^m:= by sorry
+lemma edison_lemma6 (d : D){f : K[X]}(hff: f = minpoly K d){m : ℕ}(hf : f ∈ Algebra.adjoin K {X^m})(g : K[X])(hq: g.comp (X^m) = f )
+  : d ^ p ^ m ∈ (Algebra.ofId K D).range:= by sorry
 
 abbrev K_d (d : D) := (Algebra.adjoin K {d} : Subalgebra K D)
 
