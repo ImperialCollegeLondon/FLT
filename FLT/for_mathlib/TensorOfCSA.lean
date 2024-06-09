@@ -1,13 +1,14 @@
 import FLT.for_mathlib.IsCentralSimple
 
-variable (K : Type*) [Field K]
-variable (A B : Type*)[Ring A][Ring B][Algebra K A][Algebra K B]
+universe u v w
+variable (K : Type u) [Field K]
+variable (A B : Type v)[Ring A][Ring B][Algebra K A][Algebra K B]
 
 open scoped TensorProduct
-theorem tensor_CSA_is_CSA (hA: IsCentralSimple K A) (hB: IsCentralSimple K B):
+theorem tensor_CSA_is_CSA [Small.{v, u} K ](hA: IsCentralSimple K A) (hB: IsCentralSimple K B):
     IsCentralSimple K (A ⊗[K] B) where
-   is_central := sorry
-   is_simple := sorry
+   is_central := IsCentralSimple.TensorProduct.isCentral K A B hA.is_central hB.is_central
+   is_simple := by haveI := hA.is_simple; exact IsCentralSimple.TensorProduct.simple K A B 
 
 def tensor_self_op (hA: IsCentralSimple K A) [FiniteDimensional K A]
     (n : ℕ) (hn : n = FiniteDimensional.finrank K A):
