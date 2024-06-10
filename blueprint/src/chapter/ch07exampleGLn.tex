@@ -1,0 +1,183 @@
+\chapter{Automorphic forms and the Langlands Conjectures}
+
+This chapter was born on 10th June at the trimester running at the Hausdorff Research Institute for
+Mathematics in Bonn. The ultimate goal is to formally state some version of the global Langlands
+reciprocity conjectures for $\GL_n$ over $\Q$ which is unambigious, widely-believed, and largely open.
+
+\section[Definition of an automorphic form]{Definition of an automorphic form for $\GL_n$ over $\Q$.}
+
+The global Langlands reciprocity conjectures relate automorphic forms to Galois representations.
+The statements for a general connected reductive group involve the construction of the Langlands
+dual group, and we do not have quite enough Lie algebra theory to push this definition through
+in general. However if we restrict the special case of the group $\GL_n/\Q$, the dual group
+is just $\GL_n(\bbC)$ and several other technical obstructions are also removed. In this
+section we will explain the definition of an automorphic form for the group $\GL_n/\Q$, following
+the exposition by Borel and Jacquet in Corvallis.
+
+\section{The finite adeles of the rationals.}
+
+Mathlib already has the definition of the finite adeles $\A_{\Q}^f$ of the rationals as a
+commutative $\Q$-algebra. It does not yet have the topology; work on this is on PR 13703 to mathlib.
+See also the prerequisite PR 13705, which is ready for review. Note that 13703 still contains a
+`sorry`, but the `sorry` is true and not too hard. It is the following statement.
+
+\begin{theorem}
+    \label{FiniteAdeleRing.topology}
+    \leanok
+  Let $R$ be a Dedekind domain with field of fractions $K$. Then every $x\in\A_K^f$ can
+  be written as $x=st$ with $s\in\R\backslash\{0\}$ and $t\in\prod_v R_v$ a finite integral adele.
+\end{theorem}
+
+I tried proving it directly and it was quite messy. I think that it should be proved in the
+following way. First prove the following induction principle for finite adeles:
+\begin{lemma}
+    \label{DedekindDomain.FiniteAdeleRing.mul_induction_on}
+    \lean{DedekindDomain.FiniteAdeleRing.mul_induction_on}
+    \leanok
+    If we have a predicate $P$ on the finite adeles, with the following properties:
+  \begin{enumerate}
+    \item $P(a)$ is true for $a$ any finite integral adele;
+    \item $P(a)$ and $P(b)$ implies $P(ab)$;
+    \item For every valuation $v$, $P(a)$ is true for every finite adele which is integral
+      away from $v$.
+  \end{enumerate}
+  Then $P$ is true for all finite adeles.
+\end{lemma}
+\begin{proof}
+  Every finite adele is integral away from a finite bad set $v\in S$. For these $v$,
+  think of $a_v$ as the global finite adele which is 1 away from $v$, and $a_v$ at $v$.
+  hypothesis 3 hence applies to $a_v$. Furthermore, if $b$ is defineed to be $(b_v)$
+  with $b_v=a_v$ for $v\not\in S$ and $b_v=1$ for $v\in S$, then $b$ is a finite integral
+  adele (so hypothesis 1 applies), and $a=b\prod_{v\in S}a_v$ is a finite product of
+  finite adeles which satisfy $P$ and thus satisfies $P$ by hypothesis 2 (with hypothesis 1
+  to deal with the base case $a=1$).
+\end{proof}
+
+Then prove the theorem.
+\begin{proof}
+
+  Use the induction procedure. The first and second hypotheses are easily checked
+  (we can let $s=1$ for the first, and take the product of the $s$s for the second).
+  For the third, if $a_v$ is integral then we use the first hypothesis,and if the
+  additive valuation of $a_v$ is $-n<0$, we let $s$ be the $n$th power of a nonzero
+  element in the prime ideal of $R$ corresponding to $v$.
+\end{proof}
+
+Once we have this and the PR is merged, $\A_{\Q}^f$ is a topological ring.
+
+\section[The adelic general linear group]{The group $\GL_n(\A_{\Q})$.}
+
+The adeles of $\Q$ are the product $\A_{\Q}^f\times\R$, with the product topology. This
+is also a topological ring. Hence $\GL_n(\A_{\Q})=\GL_n(\A_{\Q}^f)\times\GL_n(\R)$ is a
+topological group, where we are being a bit liberal with our use of the equality symbol.
+
+We need to fix a maximal compact subgroup of $\GL_n(\R)$ as part of this definition;
+we choose the subgroup $O_n(\R)$. All other maximal compact subgroups are conjugate
+to this one, so we lose no generality in rigidifying the situation with a concrete choice.
+
+\section{Smooth functions}
+
+\begin{definition} A function $f:\GL_n(\A_{\Q}^f)\times\GL_n(\R)\to\bbC$ is \emph{smooth}
+  if it has the following three properties.
+
+  \begin{enumerate}
+    \item $f$ is continuous.
+    \item For all $x\in\GL_n(\A_{\Q}^f)$, the function $y\mapsto f(x,y)$ is smooth.
+    \item For all $y\in\GL_n(\R)$, the function $x\mapsto f(x,y)$ is locally constant.
+  \end{enumerate}
+\end{definition}
+
+I've half-done this definition; I don't know how to say the the function is smooth
+on the infinite part, because I have never used the manifold library before and I have
+no idea what my model with corners is supposed to be.
+
+\section{Slowly-increasing functions}
+
+Automorphic representations satisfy a growth condition which we may as well factor out
+into a separate definition.
+
+We define the following temporary ``size'' function $s:\GL_n(\R)\to\R_{>0}$ by
+$s(M)=trace(MM^T+M^{-1}M^{-T})$ where $M^{-T}$ denotes inverse-transpose.
+
+\begin{definition} We say that a function $f:\GL_n(\R)\to\bbC$ is \emph{slowly-increasing}
+  if there's some real constant $C$ and positive integer $n$ such that $f(M)\leq Cs(M)^n$
+  for all $M\in\GL_n(\R)$.
+\end{definition}
+
+\section{Weights at infinity}
+
+The \emph{weight} of an automorphic form for $\GL_n/\Q$ can be thought of as a finite-dimensional
+continuous complex representation $\rho$ of the compact Lie group $O_n(\R)$.
+
+\section{The action of the universal enveloping algebra.}
+
+The smooth complex-valued functions on $\GL_n(\R)$ are naturally a Lie algebra representation
+of the complexified Lie algebra of $\GL_n(\R)$. Hence the universal enveloping algebra of this
+complexified Lie algebra also acts on the smooth functions. Thus its centre $\Z_n$ acts too. The
+centre is a commutative ring which contains a copy of $\bbC$. Note that Harish-Chandra, or possibly
+this was known earlier, showed that it is a polynomial ring in $n$ variables over the complexes.
+We shall not need this.
+
+\section{Automorphic forms}
+
+This section might be premature.
+
+\begin{definition} A smooth function $f:\GL_n(\A_{\Q}^f)\times\GL_n(\R)\to\bbC$ is
+  an $O_n(\R)$-\emph{automorphic form} pn $\GL_n(\A_{\Q})$ if it satisfies the following
+  five conditions.
+
+  \begin{enumerate}
+    \item (periodicity) For all $g\in\GL_n(\Q)$, we have $f(gx,gy)=f(x,y)$.
+    \item (has a finite level) There exists a compact open subgroup $U\subseteq\GL_n(\A_{\Q}^f)$
+      such that $f(xu,y)=f(x,y)$ for all $u\in U$, $x\in \GL_n(\A_{\Q}^f)$ and $y\in\GL_n(\R)$.
+    \item (weight $\rho$) There exists a continuous finite-dimensional irreducible complex
+    representation $\rho$ of $O_n(\R)$ such that for every $(x,y)\in\GL_n(\A_{\Q})$, the
+    set of functions $k\mapsto f(x,yk)$ span a finite-dimensional complex vector space isomorphic
+    as $O_n(\R)$-representation to a direct sum of copies of $\rho$.
+    \item (has an infinite level) There is an ideal $I$ of the centre $Z_n$ described in the
+  previous section, which has finite complex codimension, and which annihiliates the
+  function $y \mapsto f(x,y)$ for all $x\in \GL_n(\A_{\Q}^f)$. Note that this is a very fancy
+  way of saying ``the function satisfies some natural differential equations''. In the
+  case of modular forms, the differential equations are the Cauchy-Riemann equations, which
+  is why modular forms are holomorphic.
+    \item (growth condition) For every $x\in\GL_n(\A_{\Q}^f)$, the function $y\mapsto f(x,y)$
+  on $\GL_n(\R)$ is slowly-increasing.
+  \end{enumerate}
+
+\end{definition}
+
+Automorphic forms of a fixed weight $\rho$ form a complex vector space, and if we also
+fix the finite level $U$ and the infinite level $I$ then we get a subspace which is
+finite-dimensional; this is a theorem of Harish-Chandra. There is also the concept
+of a cusp form, meaning an automorphic form for which furthermore some adelic integrals
+vanish.
+
+\section{Hecke operators}
+
+\begin{lemma} The group $\GL_n(\A_{\Q}^f)$ acts (on the left) on the space of automorphic forms
+  for $\GL_n(\A_{\Q})$ by the formula $(g\cdot f)(x,y)=f(xg,y)$.
+\end{lemma}
+\begin{proof}
+  This is obvious. Note that the conjugate of a compact open subgroup is still
+  compact and open.
+\end{proof}
+
+A formal development of the theory of Hecke operators looks like the following.
+
+Let $U$ be a fixed compact open subgroup of $\GL_n(\A_{\Q}^f)$, and let's also fix
+a weight $\rho$, and let $M_\rho(n)$ denote the complex vector space of automorphic
+forms for $\GL_n/\Q$ of weight $\rho$. The level $U$ forms $M_\rho(n,U)$ are just the $U$-invariants
+of this space. If $g\in\GL_n(\A_{\Q}^f)$, then I
+claim that the double coset space $UgU$ can be written as a \emph{finite} disjoint union
+of single cosets $g_iU$; one way of sesing this is that the double coset space is certainly
+a disjoint union of left cosets, but the double coset space is compact and the left cosets
+are open.
+
+Define the Hecke operator $T_g:M_\rho(n,U)\to M_\rho(n,U)$ by
+$T_g(f)=\sum g_i\cdot f$.
+
+\begin{lemma} This function is well-defined, i.e., it sends a $U$-invariant form to
+  a $U$-invariant form which is independent of the choice of $g_i$.
+\end{lemma}
+\begin{proof} Easy group theory.
+\end{proof}

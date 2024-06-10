@@ -54,3 +54,4 @@ Hurwitz.canonicalForm
 Hurwitz.completed_units
 IsCentralSimple
 MatrixRing.isCentralSimple
+DedekindDomain.FiniteAdeleRing.mul_induction_on
