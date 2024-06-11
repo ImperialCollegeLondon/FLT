@@ -126,7 +126,7 @@ namespace AutomorphicForm.GLn
 
 open DedekindDomain
 
-variable (n : ℕ)
+variable {n : ℕ}
 
 structure IsSmooth (f :
     (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
@@ -139,4 +139,38 @@ structure IsSmooth (f :
 --  smooth (x : Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) :
 --    Smooth sorry sorry (fun y ↦ f (x, y))
 
+-- \begin{definition} We say that a function $f:\GL_n(\R)\to\bbC$ is \emph{slowly-increasing}
+--   if there's some real constant $C$ and positive integer $n$ such that $f(M)\leq Cs(M)^n$
+--   for all $M\in\GL_n(\R)$.
+-- \end{definition}
+
+open Matrix
+
+noncomputable abbrev s (M : Matrix (Fin n) (Fin n) ℝ) : ℝ :=
+  (M * M.transpose).trace + (M⁻¹ * M⁻¹.transpose).trace
+
+structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop where
+  bounded_by : ∃ (C : ℝ) (N : ℕ),
+    ∀ (M : GeneralLinearGroup (Fin n) ℝ),
+    ‖f M‖ ≤ C * (s (M : Matrix (Fin n) (Fin n) ℝ)) ^ N
+
+--
+#check Matrix.orthogonalGroup (Fin n) ℝ
+
+structure weight (n : ℕ) where
+  d : ℕ -- dimension
+  hd : 0 < d -- 0-dimensional rep too simple to be simple
+  rho : orthogonalGroup (Fin n) ℝ →* GeneralLinearGroup (Fin d) ℂ
+  rho_continuous: Continuous rho
+  -- how to say "it's irreducible"?
+
+structure AutomorphicFormForGLnOverQ (n : ℕ) where
+  toFun : (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
+      (Matrix.GeneralLinearGroup (Fin n) ℝ) → ℂ
+  is_smooth : IsSmooth toFun
+  is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
+    IsSlowlyIncreasing (fun y ↦ toFun (x, y))
+  weight : GLn.weight n
+  -- stuff missing here
+  -- e.g. centre of universal enveloping algebra action, finite level etc
 end AutomorphicForm.GLn
