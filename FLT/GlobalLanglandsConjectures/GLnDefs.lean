@@ -107,6 +107,8 @@ lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
     ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
   sorry -- this needs doing
 
+#check Classical.choose (v.valuation_exists_uniformizer K)
+
 -- These instances are sorry-free in the PR.
 instance : TopologicalSpace (FiniteAdeleRing ℤ ℚ) := sorry
 
@@ -135,7 +137,6 @@ open DedekindDomain
 namespace GLn
 
 variable {n : ℕ}
--- should we be using `V ≃ₗ[ℝ] V` instead?
 structure IsSmooth (f :
     (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
     (Matrix.GeneralLinearGroup (Fin n) ℝ)
@@ -146,68 +147,6 @@ structure IsSmooth (f :
 -- I need some help to formalise the statement that it's smooth at the infinite places.
 --  smooth (x : Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) :
 --    Smooth sorry sorry (fun y ↦ f (x, y))
-
-end GLn
-
-namespace GLV
-
-
--- This works:
-#where
-variable {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [CompleteSpace V] in
-#synth LieGroup 𝓘(ℝ, V →L[ℝ] V) (V →L[ℝ] V)ˣ
-
--- And this works:
-
-section n
-
-variable (n : ℕ)
-#synth NormedAddCommGroup (Fin n → ℝ)
-#synth NormedSpace ℝ (Fin n → ℝ)
-#synth CompleteSpace (Fin n → ℝ)
-
--- So this works:
-
-#synth LieGroup 𝓘(ℝ, (Fin n → ℝ) →L[ℝ] (Fin n → ℝ)) ((Fin n → ℝ) →L[ℝ] (Fin n → ℝ))ˣ
-
-
--- But if I drop continuity from the linear maps, it fails,
--- even though all linear maps are continuous in the f.d. setting:
-
--- #synth LieGroup 𝓘(ℝ, (Fin n → ℝ) →ₗ[ℝ] (Fin n → ℝ)) ((Fin n → ℝ) →ₗ[ℝ] (Fin n → ℝ))ˣ
-
-end n
-
-
-
-
--- variable {W : Type*} [AddCommGroup V] [Module ℚ V] [Module.Finite ℚ V]
-
-
--- variable (n : ℕ)
--- #synth NormedAddCommGroup (Fin n → ℝ)
--- #synth NormedSpace ℝ (Fin n → ℝ)
--- #synth CompleteSpace (Fin n → ℝ)
-variable {n : ℕ}
-
--- structure IsSmooth (f :
---     (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
---     (Matrix.GeneralLinearGroup (Fin n) ℝ)
---     → ℂ) : Prop where
---   continuous : Continuous f
---   loc_cst (y : Matrix.GeneralLinearGroup (Fin n) ℝ) :
---     IsLocallyConstant (fun x ↦ f (x, y))
--- I need some help to formalise the statement that it's smooth at the infinite places.
---  smooth (x : Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) :
---    Smooth sorry sorry (fun y ↦ f (x, y))
--- \begin{definition} We say that a function $f:\GL_n(\R)\to\bbC$ is \emph{slowly-increasing}
---   if there's some real constant $C$ and positive integer $n$ such that $f(M)\leq Cs(M)^n$
---   for all $M\in\GL_n(\R)$.
--- \end{definition}
-
-end GLV
-
-namespace GLn
 
 variable {n : ℕ}
 
