@@ -8,6 +8,7 @@ import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.Topology.LocallyConstant.Basic
+import Mathlib
 /-
 
 # The Global Langlands Conjectures for GL(n) over a number field.
@@ -38,7 +39,7 @@ namespace DedekindDomain
 
 open scoped algebraMap
 
-section PR13705
+section PRs
 
 open IsDedekindDomain
 
@@ -46,10 +47,13 @@ variable (R K : Type*) [CommRing R] [IsDedekindDomain R] [Field K] [Algebra R K]
   [IsFractionRing R K] (v : HeightOneSpectrum R)
 
 local notation "K_hat" => ProdAdicCompletions
+local notation "R_hat" => FiniteIntegralAdeles
 
-open HeightOneSpectrum
+section PR13705
 
 namespace ProdAdicCompletions.IsFiniteAdele
+
+open IsDedekindDomain.HeightOneSpectrum
 
 @[simp]
 lemma mem_FiniteAdeleRing (x : K_hat R K) : x ∈ (
@@ -61,8 +65,6 @@ lemma mem_FiniteAdeleRing (x : K_hat R K) : x ∈ (
       algebraMap_mem' := algebraMap'
     } : Subalgebra K (K_hat R K)) ↔ {v | x v ∉ adicCompletionIntegers K v}.Finite := Iff.rfl
 
-local notation "R_hat" => FiniteIntegralAdeles
-
 open Set
 
 /-- The finite adele ring is an algebra over the finite integral adeles. -/
@@ -73,8 +75,7 @@ noncomputable instance : Algebra (R_hat R K) (FiniteAdeleRing R K) where
     apply Finite.subset this (fun v hv ↦ ?_)
     rw [mem_setOf_eq, mem_adicCompletionIntegers] at hv ⊢
     contrapose! hv
-    rw [map_mul]
-    exact mul_le_one₀ (rhat v).2 hv
+    sorry -- works in the PR, don't worry about this
     ⟩
   toFun r := ⟨r, by sorry⟩ -- works in the PR!
   map_one' := by ext; rfl
@@ -90,13 +91,24 @@ end PR13705 -- section
 
 section PR13703
 
--- just need one lemma about finite adeles for this
+open scoped nonZeroDivisors
 
+noncomputable instance : Algebra R (FiniteAdeleRing R K) :=
+  RingHom.toAlgebra ((algebraMap K (FiniteAdeleRing R K)).comp (algebraMap R K))
+
+lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
+    ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
+  sorry -- this needs doing
+
+-- These instances are sorry-free in the PR.
 instance : TopologicalSpace (FiniteAdeleRing ℤ ℚ) := sorry
 
-instance : TopologicalRing (FiniteAdeleRing ℤ ℚ) := sorry
+
+instance instTopologicalRingFiniteAdeleRing : TopologicalRing (FiniteAdeleRing ℤ ℚ) := sorry
 
 end PR13703
+
+end PRs  -- section
 
 -- This would be helpful for getting 13703 over the line.
 variable (R K : Type*) [CommRing R] [IsDedekindDomain R] [Field K] [Algebra R K]

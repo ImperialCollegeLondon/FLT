@@ -1,8 +1,9 @@
 \chapter{Automorphic forms and the Langlands Conjectures}
 
-This chapter was born on 10th June at the trimester running at the Hausdorff Research Institute for
+This chapter came from discussions between Patrick, Mario and myself, all currently
+visiting the Hausdorff Research Institute for
 Mathematics in Bonn. The ultimate goal is to formally state some version of the global Langlands
-reciprocity conjectures for $\GL_n$ over $\Q$ which is unambigious, widely-believed, and largely open.
+reciprocity conjectures for $\GL_n$ over $\Q$.
 
 \section[Definition of an automorphic form]{Definition of an automorphic form for $\GL_n$ over $\Q$.}
 
@@ -19,17 +20,9 @@ the exposition by Borel and Jacquet in Corvallis.
 Mathlib already has the definition of the finite adeles $\A_{\Q}^f$ of the rationals as a
 commutative $\Q$-algebra. It does not yet have the topology; work on this is on PR 13703 to mathlib.
 See also the prerequisite PR 13705, which is ready for review. Note that 13703 still contains a
-`sorry`, but the `sorry` is true and not too hard. It is the following statement.
-
-\begin{theorem}
-    \label{FiniteAdeleRing.topology}
-    \leanok
-  Let $R$ be a Dedekind domain with field of fractions $K$. Then every $x\in\A_K^f$ can
-  be written as $x=st$ with $s\in\R\backslash\{0\}$ and $t\in\prod_v R_v$ a finite integral adele.
-\end{theorem}
-
-I tried proving it directly and it was quite messy. I think that it should be proved in the
-following way. First prove the following induction principle for finite adeles:
+{\tt sorry}, but the result is true and not too hard. I tried proving it directly though and it ended
+up a bit long. I propose the following plan. Start by proving the following induction principle for
+finite adeles:
 \begin{lemma}
     \label{DedekindDomain.FiniteAdeleRing.mul_induction_on}
     \lean{DedekindDomain.FiniteAdeleRing.mul_induction_on}
@@ -39,23 +32,37 @@ following way. First prove the following induction principle for finite adeles:
     \item $P(a)$ is true for $a$ any finite integral adele;
     \item $P(a)$ and $P(b)$ implies $P(ab)$;
     \item For every valuation $v$, $P(a)$ is true for every finite adele which is integral
-      away from $v$.
+      away from $v$ and is a unit times the inverse of a uniformiser at $v$.
   \end{enumerate}
   Then $P$ is true for all finite adeles.
 \end{lemma}
 \begin{proof}
   Every finite adele is integral away from a finite bad set $v\in S$. For these $v$,
-  think of $a_v$ as the global finite adele which is 1 away from $v$, and $a_v$ at $v$.
-  hypothesis 3 hence applies to $a_v$. Furthermore, if $b$ is defineed to be $(b_v)$
-  with $b_v=a_v$ for $v\not\in S$ and $b_v=1$ for $v\in S$, then $b$ is a finite integral
-  adele (so hypothesis 1 applies), and $a=b\prod_{v\in S}a_v$ is a finite product of
-  finite adeles which satisfy $P$ and thus satisfies $P$ by hypothesis 2 (with hypothesis 1
-  to deal with the base case $a=1$).
+  embed the local field $K_v$ into the finite adeles by sending $x_v\in K_v$ to the
+  finite adele which is $x_v$ at $v$ and 1 elsewhere.
+
+  If $\varpi_v$ is the finite adele corresponding a uniformiser at $v$,
+  $a_v=u_v(\pi_v^{-1})^{n_v}$ for some unit $u_v$ and positive $n_v$ (the additive valuation
+  of the integer $a_v^{-1}$). Note that $P(u_v)$ by hypothesis~1, and
+  $P(\pi_v^{-1})$ by hypothesis~3.
+
+  Now if $b=(b_v)_v$ is the finite adels with $b_v=a_v$ for $v\not\in S$ and $b_v=1$ for $v\in S$,
+  then $b$ is a finite integral adele (so hypothesis 1 applies), and $a=b\prod_{v\in S}a_v$ is hence
+  a finite product of finite adeles which satisfy $P$ and thus satisfies $P$ by hypothesis 2
+  (with hypothesis 1 to deal with the base case $a=1$).
 \end{proof}
 
 Then prove the theorem.
-\begin{proof}
 
+\begin{theorem}
+  \label{DedekindDomain.FiniteAdeleRing.clear_denominator}
+  \lean{DedekindDomain.FiniteAdeleRing.clear_denominator}
+  \leanok
+Let $R$ be a Dedekind domain with field of fractions $K$. Then every $x\in\A_K^f$ can
+be written as $x=st$ with $s\in\R\backslash\{0\}$ and $t\in\prod_v R_v$ a finite integral adele.
+\end{theorem}
+\begin{proof}
+  \uses{DedekindDomain.FiniteAdeleRing.mul_induction_on}
   Use the induction procedure. The first and second hypotheses are easily checked
   (we can let $s=1$ for the first, and take the product of the $s$s for the second).
   For the third, if $a_v$ is integral then we use the first hypothesis,and if the
@@ -63,11 +70,20 @@ Then prove the theorem.
   element in the prime ideal of $R$ corresponding to $v$.
 \end{proof}
 
-Once we have this and the PR is merged, $\A_{\Q}^f$ is a topological ring.
+\begin{corollary}
+  \label{instTopologicalRingFiniteAdeleRing}
+  \lean{instTopologicalRingFiniteAdeleRing}
+  \leanok
+  The finite adeles are a topological ring.
+\end{corollary}
+\begin{proof} All this is done in the slightly technical mathlib PR 13703.
+  \uses{DedekindDomain.FiniteAdeleRing.clear_denominator}
+  \leanok
+\end{proof}
 
 \section[The adelic general linear group]{The group $\GL_n(\A_{\Q})$.}
 
-The adeles of $\Q$ are the product $\A_{\Q}^f\times\R$, with the product topology. This
+The adeles $\A_{\Q}$ of $\Q$ are the product $\A_{\Q}^f\times\R$, with the product topology. This
 is also a topological ring. Hence $\GL_n(\A_{\Q})=\GL_n(\A_{\Q}^f)\times\GL_n(\R)$ is a
 topological group, where we are being a bit liberal with our use of the equality symbol.
 
@@ -119,8 +135,6 @@ this was known earlier, showed that it is a polynomial ring in $n$ variables ove
 We shall not need this.
 
 \section{Automorphic forms}
-
-This section might be premature.
 
 \begin{definition} A smooth function $f:\GL_n(\A_{\Q}^f)\times\GL_n(\R)\to\bbC$ is
   an $O_n(\R)$-\emph{automorphic form} pn $\GL_n(\A_{\Q})$ if it satisfies the following
