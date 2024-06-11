@@ -8,7 +8,9 @@ import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.Topology.LocallyConstant.Basic
-import Mathlib
+import Mathlib.LinearAlgebra.UnitaryGroup
+import Mathlib.RepresentationTheory.FdRep
+
 /-
 
 # The Global Langlands Conjectures for GL(n) over a number field.
@@ -122,12 +124,13 @@ lemma FiniteAdeleRing.mul_induction_on {P : FiniteAdeleRing R K → Prop}
 
 end DedekindDomain
 
-namespace AutomorphicForm.GLn
+namespace AutomorphicForm
 
 open DedekindDomain
+namespace GLn
 
 variable {n : ℕ}
-
+-- should we be using `V ≃ₗ[ℝ] V` instead?
 structure IsSmooth (f :
     (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
     (Matrix.GeneralLinearGroup (Fin n) ℝ)
@@ -139,10 +142,69 @@ structure IsSmooth (f :
 --  smooth (x : Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) :
 --    Smooth sorry sorry (fun y ↦ f (x, y))
 
+end GLn
+
+namespace GLV
+
+
+-- This works:
+#where
+variable {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [CompleteSpace V] in
+#synth LieGroup 𝓘(ℝ, V →L[ℝ] V) (V →L[ℝ] V)ˣ
+
+-- And this works:
+
+section n
+
+variable (n : ℕ)
+#synth NormedAddCommGroup (Fin n → ℝ)
+#synth NormedSpace ℝ (Fin n → ℝ)
+#synth CompleteSpace (Fin n → ℝ)
+
+-- So this works:
+
+#synth LieGroup 𝓘(ℝ, (Fin n → ℝ) →L[ℝ] (Fin n → ℝ)) ((Fin n → ℝ) →L[ℝ] (Fin n → ℝ))ˣ
+
+
+-- But if I drop continuity from the linear maps, it fails,
+-- even though all linear maps are continuous in the f.d. setting:
+
+-- #synth LieGroup 𝓘(ℝ, (Fin n → ℝ) →ₗ[ℝ] (Fin n → ℝ)) ((Fin n → ℝ) →ₗ[ℝ] (Fin n → ℝ))ˣ
+
+end n
+
+
+
+
+-- variable {W : Type*} [AddCommGroup V] [Module ℚ V] [Module.Finite ℚ V]
+
+
+-- variable (n : ℕ)
+-- #synth NormedAddCommGroup (Fin n → ℝ)
+-- #synth NormedSpace ℝ (Fin n → ℝ)
+-- #synth CompleteSpace (Fin n → ℝ)
+variable {n : ℕ}
+
+-- structure IsSmooth (f :
+--     (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
+--     (Matrix.GeneralLinearGroup (Fin n) ℝ)
+--     → ℂ) : Prop where
+--   continuous : Continuous f
+--   loc_cst (y : Matrix.GeneralLinearGroup (Fin n) ℝ) :
+--     IsLocallyConstant (fun x ↦ f (x, y))
+-- I need some help to formalise the statement that it's smooth at the infinite places.
+--  smooth (x : Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) :
+--    Smooth sorry sorry (fun y ↦ f (x, y))
 -- \begin{definition} We say that a function $f:\GL_n(\R)\to\bbC$ is \emph{slowly-increasing}
 --   if there's some real constant $C$ and positive integer $n$ such that $f(M)\leq Cs(M)^n$
 --   for all $M\in\GL_n(\R)$.
 -- \end{definition}
+
+end GLV
+
+namespace GLn
+
+variable {n : ℕ}
 
 open Matrix
 
@@ -164,13 +226,21 @@ structure weight (n : ℕ) where
   rho_continuous: Continuous rho
   -- how to say "it's irreducible"?
 
+open CategoryTheory
+
+structure weight' where
+  rho : FdRep ℂ (orthogonalGroup (Fin n) ℝ)
+  isSimple : Simple rho --- rho is irreducible
+  -- now need to say that ρ is continuous
+
+
 structure AutomorphicFormForGLnOverQ (n : ℕ) where
   toFun : (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
       (Matrix.GeneralLinearGroup (Fin n) ℝ) → ℂ
   is_smooth : IsSmooth toFun
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
-  weight : GLn.weight n
+  weight : weight n
   -- stuff missing here
   -- e.g. centre of universal enveloping algebra action, finite level etc
 end AutomorphicForm.GLn
