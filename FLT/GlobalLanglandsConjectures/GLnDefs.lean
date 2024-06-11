@@ -11,11 +11,16 @@ import Mathlib.Topology.LocallyConstant.Basic
 import Mathlib.LinearAlgebra.UnitaryGroup
 import Mathlib.RepresentationTheory.FdRep
 
-/-
+/-!
 
-# The Global Langlands Conjectures for GL(n) over a number field.
+# The Global Langlands Conjectures for GL(n) over the rationals.
 
 ## First sub-goal: definition of an automorphic form.
+
+I've made the design decision of working with the functor
+`Matrix.GeneralLinearGroup (Fin n)` as our implementation
+of the `GL_n` functor.
+
 
 -/
 
