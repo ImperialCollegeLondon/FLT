@@ -6,6 +6,7 @@ import FLT.for_mathlib.Coalgebra.TensorProduct
 import FLT.for_mathlib.HopfAlgebra.Basic
 import FLT.for_mathlib.IsCentralSimple
 import FLT.GaloisRepresentation.HardlyRamified
+import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GroupScheme.FiniteFlat
 import FLT.Hard.Results
 import FLT.TateCurve.TateCurve
