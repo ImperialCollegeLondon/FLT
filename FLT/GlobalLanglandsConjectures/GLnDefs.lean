@@ -242,6 +242,13 @@ def _root_.RingHom.GL {A B : Type*} [CommRing A] [CommRing B] (φ : A →+* B)
   (m : Type*) [Fintype m] [DecidableEq m] :
   GL m A →* GL m B := Units.map <| (RingHom.mapMatrix φ).toMonoidHom
 
+structure InvariantSubgroup (U : Subgroup (GL (Fin n) (FiniteAdeleRing ℤ ℚ)))
+  (f : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) × (GL (Fin n) ℝ) → ℂ) : Prop where
+  is_open : IsOpen U.carrier
+  is_compact : IsCompact U.carrier
+  finite_level (u : U.carrier) (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) (y : GL (Fin n) ℝ) :
+    f (u * x, y) = f (x, y)
+
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
@@ -251,7 +258,7 @@ structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
     toFun (RingHom.GL (algebraMap _ _) _ g * x, RingHom.GL (algebraMap _ _) _ g * y) = toFun (x, y)
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
-  -- missing: invariance under compact open subgroup
+  has_finite_level: ∃ U, InvariantSubgroup U toFun
   -- missing: infinite part has a weight
   -- missing: Annihilator of `toFun` in centre of universal enveloping algebra of complexified Lie algebra)
   -- has finite codimension.
