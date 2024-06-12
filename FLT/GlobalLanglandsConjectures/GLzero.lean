@@ -48,15 +48,30 @@ State them first.
 
 namespace AutomorphicForm
 
+def GLn.Weight.IsTrivial {n : ℕ} (ρ : Weight n) : Prop := sorry -- (ρ = trivial 1d rep)
+
 open GLn
 
 namespace GL0
 
-#check classification
 -- the weakest form of the classification theorem
-theorem classification : ∀ (ρ : weight 0),
+theorem classification_aux : ∀ (ρ : Weight 0),
     Function.Bijective (fun f ↦ f 1 : AutomorphicFormForGLnOverQ 0 ρ → ℂ) := sorry
 
 -- Let's write down an inverse
+-- For general n, it will only work for ρ the trivial representation, but we didn't
+-- define the trivial representation yet.
+-- Some of the other fields will work for all n.
+def ofComplex (z : ℂ) {n : ℕ} (ρ : Weight n) (hρ : ρ.IsTrivial) :
+    AutomorphicFormForGLnOverQ n ρ where
+      toFun _ := z
+      is_smooth := sorry
+      is_periodic := sorry
+      is_slowly_increasing := sorry
 
-def ofComplex (z : ℂ) {n : ℕ} (ρ : Weight n) : AutomorphicFormForGLnOverQ 0 ρ
+-- no idea why it's not computable
+noncomputable def classification (ρ : Weight 0) : AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ where
+  toFun f := f 1
+  invFun z := ofComplex z ρ sorry
+  left_inv := sorry
+  right_inv := sorry

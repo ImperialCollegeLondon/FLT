@@ -233,7 +233,7 @@ noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
       rfl
   }
 
-structure weight (n : ℕ) where
+structure Weight (n : ℕ) where
   w : preweight n
   isSimple : Simple w.fdRep
 
@@ -243,7 +243,7 @@ def _root_.RingHom.GL {A B : Type*} [CommRing A] [CommRing B] (φ : A →+* B)
   GL m A →* GL m B := Units.map <| (RingHom.mapMatrix φ).toMonoidHom
 
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
-structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : weight n) where
+structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
       (GL (Fin n) ℝ) → ℂ
   is_smooth : IsSmooth toFun
@@ -261,7 +261,7 @@ namespace AutomorphicFormForGLnOverQ
 -- attribute [coe] toFun
 
 -- not entirely sure what I'm doing here. Is it as simple as this?
-variable (n : ℕ) (ρ : weight n) in
+variable (n : ℕ) (ρ : Weight n) in
 instance : CoeFun (AutomorphicFormForGLnOverQ n ρ) (fun _ ↦ (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
       (GL (Fin n) ℝ) → ℂ) :=
   ⟨toFun⟩
