@@ -11,6 +11,11 @@ import Mathlib.Topology.LocallyConstant.Basic
 import Mathlib.LinearAlgebra.UnitaryGroup
 import Mathlib.RepresentationTheory.FdRep
 import Mathlib.Analysis.Matrix
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
+import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
+import Mathlib.Analysis.Matrix
+import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
+
 
 /-!
 
@@ -146,6 +151,18 @@ attribute [local instance] Matrix.linftyOpNormedAddCommGroup Matrix.linftyOpNorm
 variable (n : ℕ) in
 #synth LieGroup 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (Matrix.GeneralLinearGroup (Fin n) ℝ)
 
+open Manifold
+
+#check SmoothMap
+-- need
+variable (n : ℕ) in
+def action :
+  let V : Type := SmoothMap 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) 𝓘(ℝ, ℂ) (Matrix.GeneralLinearGroup (Fin n) ℝ) ℂ -- replce this with the complex vector space of smooth functions on GL_n(R)
+  let hV : AddCommGroup V := inferInstance
+  let hV : Module ℂ V := sorry
+  -- The thing I want from the manifold library
+  (LeftInvariantDerivation 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (Matrix.GeneralLinearGroup (Fin n) ℝ))
+  →ₗ⁅ℝ⁆ (V →ₗ[ℂ] V) := sorry -- a derivation should act on a smooth function.
 
 variable {n : ℕ}
 structure IsSmooth (f :
