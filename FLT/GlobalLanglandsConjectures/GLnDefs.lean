@@ -305,6 +305,16 @@ def _root_.RingHom.GL {A B : Type*} [CommRing A] [CommRing B] (φ : A →+* B)
   (m : Type*) [Fintype m] [DecidableEq m] :
   GL m A →* GL m B := Units.map <| (RingHom.mapMatrix φ).toMonoidHom
 
+def annihilator {R} [CommSemiring R]
+  {M} [AddCommMonoid M] [Module R M]
+  {N} [AddCommMonoid N] [Module R N]
+  {P} [AddCommMonoid P] [Module R P]
+  (action : M →ₗ[R] (N →ₗ[R] P)) (a : N) : Submodule R M :=
+  { carrier := { x | action x a = 0 }
+    add_mem' := sorry
+    zero_mem' := sorry
+    smul_mem' := sorry }
+
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
@@ -315,14 +325,9 @@ structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
   is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
-    have ofToFun : ℂ ⊗[ℝ] C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯ := sorry
-    have : Submodule ℂ
-        (Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G))) :=
-      { carrier := { x | actionTensorCAlg'2 G I x ofToFun = 0 }
-        add_mem' := sorry
-        zero_mem' := sorry
-        smul_mem' := sorry }
-    FiniteDimensional ℂ (_ ⧸ this)
+    FiniteDimensional ℂ (_ ⧸ annihilator
+      (actionTensorCAlg'3 (GL (Fin n) ℝ) 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ)).toLinearMap
+      ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩)
   -- missing: invariance under compact open subgroup
   -- missing: infinite part has a weight
 
