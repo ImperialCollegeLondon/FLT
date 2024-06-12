@@ -165,26 +165,31 @@ structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop
 
 structure preweight (n : ℕ) where
   d : ℕ -- dimension
-  hd : 0 < d -- 0-dimensional rep too simple to be simple
   rho : orthogonalGroup (Fin n) ℝ →* GeneralLinearGroup (Fin d) ℂ
   rho_continuous: Continuous rho
-  -- how to say "it's irreducible"?
 
 open CategoryTheory
 
 noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
     FdRep ℂ (orthogonalGroup (Fin n) ℝ) where
-  V := FGModuleCat.of ℂ (Fin n → ℂ)
+  V := FGModuleCat.of ℂ (Fin w.d → ℂ)
   ρ := {
-    toFun := fun x ↦ sorry -- endomorphism given by the matrix
-    map_one' := sorry -- should be easy
-    map_mul' := sorry -- should be easy
+    toFun := fun A ↦ {
+      toFun := fun x ↦ (w.rho A).1 *ᵥ x
+      map_add' := fun _ _ ↦ Matrix.mulVec_add _ _ _
+      map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul _ _ _ }
+    map_one' := by aesop
+    map_mul' := fun _ _ ↦ by
+      simp only [obj_carrier, MonCat.mul_of, _root_.map_mul, Units.val_mul, ← Matrix.mulVec_mulVec]
+      rfl
   }
 
 structure weight (n : ℕ) where
   w : preweight n
   isSimple : Simple w.fdRep
 
+-- this was a hypothesis in `preweight` but it's probably automatic now.
+lemma weight_dim_pos (n : ℕ) (w : weight n) : 0 < w.w.d := sorry
 
 structure AutomorphicFormForGLnOverQ (n : ℕ) where
   toFun : (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
