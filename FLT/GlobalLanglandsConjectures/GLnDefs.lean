@@ -163,7 +163,7 @@ structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop
 --
 #check Matrix.orthogonalGroup (Fin n) ℝ
 
-structure weight (n : ℕ) where
+structure preweight (n : ℕ) where
   d : ℕ -- dimension
   hd : 0 < d -- 0-dimensional rep too simple to be simple
   rho : orthogonalGroup (Fin n) ℝ →* GeneralLinearGroup (Fin d) ℂ
@@ -172,10 +172,18 @@ structure weight (n : ℕ) where
 
 open CategoryTheory
 
-structure weight' where
-  rho : FdRep ℂ (orthogonalGroup (Fin n) ℝ)
-  isSimple : Simple rho --- rho is irreducible
-  -- now need to say that ρ is continuous
+noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
+    FdRep ℂ (orthogonalGroup (Fin n) ℝ) where
+  V := FGModuleCat.of ℂ (Fin n → ℂ)
+  ρ := {
+    toFun := fun x ↦ sorry -- endomorphism given by the matrix
+    map_one' := sorry -- should be easy
+    map_mul' := sorry -- should be easy
+  }
+
+structure weight (n : ℕ) where
+  w : preweight n
+  isSimple : Simple w.fdRep
 
 
 structure AutomorphicFormForGLnOverQ (n : ℕ) where
