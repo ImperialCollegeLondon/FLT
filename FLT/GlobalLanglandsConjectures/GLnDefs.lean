@@ -258,13 +258,27 @@ structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : weight n) where
 
 namespace AutomorphicFormForGLnOverQ
 
--- not enirely sure what I'm doing here
+-- attribute [coe] toFun
+
+-- not entirely sure what I'm doing here. Is it as simple as this?
 variable (n : ℕ) (ρ : weight n) in
-instance : CoeTC (AutomorphicFormForGLnOverQ n ρ) ((GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
+instance : CoeFun (AutomorphicFormForGLnOverQ n ρ) (fun _ ↦ (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
       (GL (Fin n) ℝ) → ℂ) :=
   ⟨toFun⟩
 
 end AutomorphicFormForGLnOverQ
+
 end GLn
+
+namespace GL0
+
+open GLn
+
+/-- The classification theorem for automorphic representations for GL(0).
+The first step towards the proof of the global Langlands conjectures. -/
+theorem classification : ∀ (ρ : weight 0),
+    Function.Bijective (fun f ↦ f 1 : AutomorphicFormForGLnOverQ 0 ρ → ℂ) := sorry
+
+end GL0
 
 end AutomorphicForm
