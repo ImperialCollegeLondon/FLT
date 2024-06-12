@@ -15,7 +15,7 @@ import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.Analysis.Matrix
 import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
-
+import Mathlib.Algebra.Lie.UniversalEnveloping
 
 /-!
 
@@ -149,32 +149,53 @@ attribute [local instance] Matrix.linftyOpNormedAddCommGroup Matrix.linftyOpNorm
 
 -- this now works
 variable (n : ℕ) in
-#synth LieGroup 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (Matrix.GeneralLinearGroup (Fin n) ℝ)
+#synth LieGroup 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (GL (Fin n) ℝ)
 
 open Manifold
 
-#check SmoothMap
+open Matrix
+
 -- need
-variable (n : ℕ) in
+
+
+
+/-
+LeftInvariantDerivation.{u_4, u_3, u_2, u_1} {𝕜 : Type u_1} [NontriviallyNormedField 𝕜] {E : Type u_2}
+  [NormedAddCommGroup E] [NormedSpace 𝕜 E] {H : Type u_3} [TopologicalSpace H] (I : ModelWithCorners 𝕜 E H)
+  (G : Type u_4) [TopologicalSpace G] [ChartedSpace H G] [Monoid G] [SmoothMul I G] : Type (max u_1 u_4)
+  -/
+variable (n : ℕ)
+variable (G : Type) [TopologicalSpace G] [Group G]
+  {E : Type} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  {H : Type} [TopologicalSpace H]
+  [ChartedSpace H G]
+  (I : ModelWithCorners ℝ E H)
+  [LieGroup I G]
+
 def action :
-  let V : Type := SmoothMap 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) 𝓘(ℝ, ℂ) (Matrix.GeneralLinearGroup (Fin n) ℝ) ℂ -- replce this with the complex vector space of smooth functions on GL_n(R)
-  let hV : AddCommGroup V := inferInstance
-  let hV : Module ℂ V := sorry
-  -- The thing I want from the manifold library
-  (LeftInvariantDerivation 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (Matrix.GeneralLinearGroup (Fin n) ℝ))
-  →ₗ⁅ℝ⁆ (V →ₗ[ℂ] V) := sorry -- a derivation should act on a smooth function.
+  (LeftInvariantDerivation I G) →ₗ⁅ℝ⁆ (C^∞⟮I, G; ℝ⟯ →ₗ[ℝ] C^∞⟮I, G; ℝ⟯) where
+    toFun l := Derivation.toLinearMap l
+    map_add' := by simp
+    map_smul' := by simp
+    map_lie' {x y} := rfl
+
+-- algebra needs to be done
+-- Step 1: tensor up to ℂ
+-- Step 2: induced action of univ env alg
+-- Step 3: induction action of centre
+
+#check UniversalEnvelopingAlgebra.lift
 
 variable {n : ℕ}
 structure IsSmooth (f :
-    (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
-    (Matrix.GeneralLinearGroup (Fin n) ℝ)
+    (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
+    (GL (Fin n) ℝ)
     → ℂ) : Prop where
   continuous : Continuous f
-  loc_cst (y : Matrix.GeneralLinearGroup (Fin n) ℝ) :
+  loc_cst (y : GL (Fin n) ℝ) :
     IsLocallyConstant (fun x ↦ f (x, y))
--- I need some help to formalise the statement that it's smooth at the infinite places.
---  smooth (x : Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) :
---    Smooth sorry sorry (fun y ↦ f (x, y))
+  smooth (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
+    Smooth 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) 𝓘(ℝ, ℂ) (fun y ↦ f (x, y))
 
 variable {n : ℕ}
 
@@ -216,16 +237,34 @@ structure weight (n : ℕ) where
   w : preweight n
   isSimple : Simple w.fdRep
 
--- this was a hypothesis in `preweight` but it's probably automatic now.
-lemma weight_dim_pos (n : ℕ) (w : weight n) : 0 < w.w.d := sorry
+-- This will be useful
+def _root_.RingHom.GL {A B : Type*} [CommRing A] [CommRing B] (φ : A →+* B)
+  (m : Type*) [Fintype m] [DecidableEq m] :
+  GL m A →* GL m B := Units.map <| (RingHom.mapMatrix φ).toMonoidHom
 
-structure AutomorphicFormForGLnOverQ (n : ℕ) where
-  toFun : (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
-      (Matrix.GeneralLinearGroup (Fin n) ℝ) → ℂ
+/-- Automorphic forms for GL_n/Q with weight ρ. -/
+structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : weight n) where
+  toFun : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
+      (GL (Fin n) ℝ) → ℂ
   is_smooth : IsSmooth toFun
+  is_periodic : ∀ (g : GL (Fin n) ℚ) (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) (y : GL (Fin n) ℝ),
+    toFun (RingHom.GL (algebraMap _ _) _ g * x, RingHom.GL (algebraMap _ _) _ g * y) = toFun (x, y)
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
-  weight : weight n
-  -- stuff missing here
-  -- e.g. centre of universal enveloping algebra action, finite level etc
-end AutomorphicForm.GLn
+  -- missing: invariance under compact open subgroup
+  -- missing: infinite part has a weight
+  -- missing: Annihilator of `toFun` in centre of universal enveloping algebra of complexified Lie algebra)
+  -- has finite codimension.
+
+namespace AutomorphicFormForGLnOverQ
+
+-- not enirely sure what I'm doing here
+variable (n : ℕ) (ρ : weight n) in
+instance : CoeTC (AutomorphicFormForGLnOverQ n ρ) ((GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
+      (GL (Fin n) ℝ) → ℂ) :=
+  ⟨toFun⟩
+
+end AutomorphicFormForGLnOverQ
+end GLn
+
+end AutomorphicForm
