@@ -336,7 +336,6 @@ structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
     FiniteDimensional ℂ (_ ⧸ annihilator
       (actionTensorCAlg'3 (GL (Fin n) ℝ) 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ)).toLinearMap
       ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩)
-  -- missing: invariance under compact open subgroup
   -- missing: infinite part has a weight
 
 namespace AutomorphicFormForGLnOverQ
