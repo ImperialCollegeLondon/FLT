@@ -274,10 +274,10 @@ namespace GL0
 
 open GLn
 
-/-- The classification theorem for automorphic representations for GL(0).
-The first step towards the proof of the global Langlands conjectures. -/
-theorem classification : ∀ (ρ : weight 0),
-    Function.Bijective (fun f ↦ f 1 : AutomorphicFormForGLnOverQ 0 ρ → ℂ) := sorry
+-- /-- The classification theorem for automorphic representations for GL(0).
+-- The first step towards the proof of the global Langlands conjectures. -/
+-- theorem classification : ∀ (ρ : weight 0),
+--     Function.Bijective (fun f ↦ f 1 : AutomorphicFormForGLnOverQ 0 ρ → ℂ) := sorry
 
 end GL0
 
