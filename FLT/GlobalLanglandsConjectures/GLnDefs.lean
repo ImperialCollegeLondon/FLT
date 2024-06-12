@@ -16,6 +16,9 @@ import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.Analysis.Matrix
 import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
 import Mathlib.Algebra.Lie.UniversalEnveloping
+import Mathlib.Algebra.Lie.BaseChange
+
+suppress_compilation
 
 /-!
 
@@ -173,18 +176,78 @@ variable (G : Type) [TopologicalSpace G] [Group G]
   [LieGroup I G]
 
 def action :
-  (LeftInvariantDerivation I G) →ₗ⁅ℝ⁆ (C^∞⟮I, G; ℝ⟯ →ₗ[ℝ] C^∞⟮I, G; ℝ⟯) where
-    toFun l := Derivation.toLinearMap l
-    map_add' := by simp
-    map_smul' := by simp
-    map_lie' {x y} := rfl
+    LeftInvariantDerivation I G →ₗ⁅ℝ⁆ (Module.End ℝ C^∞⟮I, G; ℝ⟯) where
+  toFun l := Derivation.toLinearMap l
+  map_add' := by simp
+  map_smul' := by simp
+  map_lie' {x y} := rfl
+
+open scoped TensorProduct
+
+def LieModuleHom.baseChange
+    (A : Type*) {R L M N : Type*}
+    [CommRing R] [CommRing A] [Algebra R A]
+    [LieRing L] [LieAlgebra R L]
+    [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
+    [AddCommGroup N] [Module R N] [LieRingModule L N] [LieModule R L N]
+    (f : M →ₗ⁅R, L⁆ N) : A ⊗[R] M →ₗ⁅A, A ⊗[R] L⁆ A ⊗[R] N := sorry
+
+def LieHom.baseChange
+    (A : Type*) {R L L' : Type*}
+    [CommRing R] [CommRing A] [Algebra R A]
+    [LieRing L] [LieAlgebra R L]
+    [LieRing L'] [LieAlgebra R L']
+    (f : L →ₗ⁅R⁆ L') : A ⊗[R] L →ₗ⁅A⁆ A ⊗[R] L' := sorry
+
+def actionTensorC :
+    ℂ ⊗[ℝ] LeftInvariantDerivation I G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮I, G; ℝ⟯)) :=
+  LieHom.baseChange _ (action _ _)
+
+section
+variable (R : Type*) (L : Type*)
+variable [CommRing R] [LieRing L] [LieAlgebra R L]
+variable {A : Type*} [Ring A] [Algebra R A] (f : L →ₗ⁅R⁆ A)
+variable {A' : Type*} [LieRing A'] [LieAlgebra R A']
+
+def lift' (e : A' ≃ₗ[R] A) (h : ∀ x y, e ⁅x, y⁆ = e x * e y - e y * e x) :
+    (L →ₗ⁅R⁆ A') ≃ (UniversalEnvelopingAlgebra R L →ₐ[R] A) := by
+  refine Equiv.trans ?_ (UniversalEnvelopingAlgebra.lift _)
+  sorry
+end
+
+def actionTensorCAlg :
+  UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G) →ₐ[ℂ]
+    ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯) :=
+  have := lift' ℂ
+    (ℂ ⊗[ℝ] LeftInvariantDerivation I G)
+    (A' := ℂ ⊗[ℝ] (C^∞⟮I, G; ℝ⟯ →ₗ[ℝ] C^∞⟮I, G; ℝ⟯))
+    (A := ℂ ⊗[ℝ] (C^∞⟮I, G; ℝ⟯ →ₗ[ℝ] C^∞⟮I, G; ℝ⟯))
+    (.refl _ _)
+    (fun x y => sorry)
+  this (actionTensorC G I)
+
+def actionTensorCAlg' :
+  UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G) →ₐ[ℂ]
+    Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯) :=
+  (LinearMap.tensorProductEnd ..).comp (actionTensorCAlg G I)
+
+def actionTensorCAlg'2 :
+  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G)) →ₐ[ℂ]
+    Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯) :=
+  (actionTensorCAlg' G I).comp (SubalgebraClass.val _)
+
+instance : Module ℝ C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯ := inferInstance
+instance : Module ℂ C^∞⟮I, G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
+
+def actionTensorCAlg'3 :
+  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G)) →ₐ[ℂ]
+    Module.End ℂ (C^∞⟮I, G; 𝓘(ℝ, ℂ), ℂ⟯) := sorry
+
 
 -- algebra needs to be done
 -- Step 1: tensor up to ℂ
 -- Step 2: induced action of univ env alg
--- Step 3: induction action of centre
-
-#check UniversalEnvelopingAlgebra.lift
+-- Step 3: induced action of centre
 
 variable {n : ℕ}
 structure IsSmooth (f :
@@ -251,10 +314,17 @@ structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
     toFun (RingHom.GL (algebraMap _ _) _ g * x, RingHom.GL (algebraMap _ _) _ g * y) = toFun (x, y)
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
+  is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
+    have ofToFun : ℂ ⊗[ℝ] C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯ := sorry
+    have : Submodule ℂ
+        (Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G))) :=
+      { carrier := { x | actionTensorCAlg'2 G I x ofToFun = 0 }
+        add_mem' := sorry
+        zero_mem' := sorry
+        smul_mem' := sorry }
+    FiniteDimensional ℂ (_ ⧸ this)
   -- missing: invariance under compact open subgroup
   -- missing: infinite part has a weight
-  -- missing: Annihilator of `toFun` in centre of universal enveloping algebra of complexified Lie algebra)
-  -- has finite codimension.
 
 namespace AutomorphicFormForGLnOverQ
 
