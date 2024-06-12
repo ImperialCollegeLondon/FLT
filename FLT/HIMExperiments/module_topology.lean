@@ -1,6 +1,5 @@
 import Mathlib.RingTheory.TensorProduct.Basic -- we need tensor products of rings at some point
 import Mathlib.Topology.Algebra.Module.Basic -- and we need topological rings and modules
-
 /-
 
 # The "module topology" for a module over a topological ring.
@@ -51,11 +50,10 @@ and target.
 --   refine Continuous.mul (Continuous.comp (continuous_apply _) (continuous_fst)) ?_
 --   exact (Continuous.comp (continuous_apply _) (continuous_snd))
 
-variable (A : Type*) [CommRing A] [TopologicalSpace A] [TopologicalRing A]
+variable (A : Type*) [CommRing A] [iA: TopologicalSpace A] [TopologicalRing A]
 
 -- let M be an A-module
 variable {M : Type*} [AddCommGroup M] [Module A M]
-
 -- Here is a conceptual way to put a topology on `M`. Let's define it to be
 -- the coarsest topology such that all `A`-linear maps from `M` to `A` are continuous
 -- (recall that `A` already has a topology). If M is free of finite rank then
@@ -107,10 +105,10 @@ def Module.homeomorphism_equiv (e : M ≃ₗ[A] N) :
   -- all the sorries should be formal.
   { toFun := e
     invFun := e.symm
-    left_inv := sorry
-    right_inv := sorry
-    continuous_toFun := sorry
-    continuous_invFun := sorry
+    left_inv := e.left_inv
+    right_inv := e.right_inv
+    continuous_toFun := Module.continuous_linear A e
+    continuous_invFun := Module.continuous_linear A e.symm
   }
 
 -- sanity check: the topology on A^n is the product topology
@@ -137,13 +135,55 @@ example (ι : Type*) [Finite ι] :
     -- it's linear, because Lean has the projections as linear maps.
     exact ⟨LinearMap.proj i, rfl⟩
 
+--maybe I should conclude this from the example above but don't know how
+--otherwise this should be very easy to do by hand
+lemma Module.topology_self : (iA :TopologicalSpace A) = Module.topology A := by
+  refine le_antisymm (le_iInf (fun i ↦ ?_)) <| sInf_le ⟨LinearMap.id, induced_id⟩
+  rw [← continuous_iff_le_induced, show i = LinearMap.lsmul A A (i 1) by ext;simp]
+  exact continuous_const.mul continuous_id
+
+lemma LinearMap.continuous_on_prod (f : (M × N) →ₗ[A] A) :  @Continuous _ _ (@instTopologicalSpaceProd M N (Module.topology A) (Module.topology A)) _ f := by
+  have : ⇑f = fun ⟨m, n⟩ ↦ f (⟨m, 0⟩) + f (⟨0, n⟩) := by
+    ext x
+    simp only
+    have : x = (x.1, 0) + (0, x.2) := by simp
+    nth_rewrite 1 [this]
+    apply LinearMap.map_add
+  rw [this]
+  simp only
+  apply @Continuous.add _ _ (@instTopologicalSpaceProd M N (Module.topology A) (Module.topology A)) _ _ _ (fun x ↦ (fun m ↦ f (m, 0)) x.1) (fun x ↦ (fun n ↦ f (0, n)) x.2)
+  . apply @Continuous.fst' _ _ _ (Module.topology A) (Module.topology A) _ (fun m ↦ f (m, 0))
+    nth_rewrite 2 [Module.topology_self A]
+    exact Module.continuous_linear A ({toFun := fun m ↦ f (m, 0), map_add' := by
+    {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, zero_add]}, map_smul' := by
+    {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
+  . apply @Continuous.snd' _ _ _ (Module.topology A) (Module.topology A) _ (fun n ↦ f (0, n))
+    nth_rewrite 2 [Module.topology_self A]
+    exact Module.continuous_linear A ({toFun := fun n ↦ f (0, n), map_add' := by
+    {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero]}, map_smul' := by
+    {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
+
 -- We need that the module topology on a product is the product topology
 lemma Module.prod_canonical :
     @instTopologicalSpaceProd M N (Module.topology A) (Module.topology A) =
     (Module.topology A : TopologicalSpace (M × N)) := by
   -- the goal is to prove that an iInf equals an inf (of two topologies).
-  unfold instTopologicalSpaceProd -- you can probably delete this later
-  sorry
+  apply le_antisymm
+  · apply le_iInf
+    intro f
+    rw [← continuous_iff_le_induced]
+    apply LinearMap.continuous_on_prod A f
+  · apply le_inf
+    · rw [induced_iInf]
+      apply le_iInf
+      intro f
+      rw [induced_compose]
+      exact iInf_le _ (LinearMap.lcomp _ _ (LinearMap.fst _ _ _) _)
+    · rw [induced_iInf]
+      apply le_iInf
+      intro f
+      rw [induced_compose]
+      exact iInf_le _ (LinearMap.lcomp _ _ (LinearMap.snd _ _ _) _)
 
 -- I assume this is true! Lots of things like this seem to be true.
 lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P]
