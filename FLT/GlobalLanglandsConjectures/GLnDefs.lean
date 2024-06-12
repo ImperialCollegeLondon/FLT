@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Kevin Buzzaed. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard
+Authors: Kevin Buzzard, Jonas Bayer, Mario Carneiro
 -/
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
@@ -305,12 +305,12 @@ def _root_.RingHom.GL {A B : Type*} [CommRing A] [CommRing B] (φ : A →+* B)
   (m : Type*) [Fintype m] [DecidableEq m] :
   GL m A →* GL m B := Units.map <| (RingHom.mapMatrix φ).toMonoidHom
 
-structure InvariantSubgroup (U : Subgroup (GL (Fin n) (FiniteAdeleRing ℤ ℚ)))
+structure IsConstantOn (U : Subgroup (GL (Fin n) (FiniteAdeleRing ℤ ℚ)))
   (f : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) × (GL (Fin n) ℝ) → ℂ) : Prop where
   is_open : IsOpen U.carrier
   is_compact : IsCompact U.carrier
   finite_level (u : U.carrier) (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) (y : GL (Fin n) ℝ) :
-    f (u * x, y) = f (x, y)
+    f (x * u, y) = f (x, y)
 
 def annihilator {R} [CommSemiring R]
   {M} [AddCommMonoid M] [Module R M]
@@ -331,7 +331,7 @@ structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
     toFun (RingHom.GL (algebraMap _ _) _ g * x, RingHom.GL (algebraMap _ _) _ g * y) = toFun (x, y)
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
-  has_finite_level: ∃ U, InvariantSubgroup U toFun
+  has_finite_level: ∃ U, IsConstantOn U toFun
   is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     FiniteDimensional ℂ (_ ⧸ annihilator
       (actionTensorCAlg'3 (GL (Fin n) ℝ) 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ)).toLinearMap
