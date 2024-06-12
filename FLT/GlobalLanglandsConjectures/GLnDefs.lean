@@ -10,6 +10,7 @@ import Mathlib.Analysis.Complex.Basic
 import Mathlib.Topology.LocallyConstant.Basic
 import Mathlib.LinearAlgebra.UnitaryGroup
 import Mathlib.RepresentationTheory.FdRep
+import Mathlib.Analysis.Matrix
 
 /-!
 
@@ -135,6 +136,16 @@ namespace AutomorphicForm
 
 open DedekindDomain
 namespace GLn
+
+open Manifold
+
+attribute [local instance] Matrix.linftyOpNormedAddCommGroup Matrix.linftyOpNormedSpace
+  Matrix.linftyOpNormedRing Matrix.linftyOpNormedAlgebra
+
+-- this now works
+variable (n : ℕ) in
+#synth LieGroup 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (Matrix.GeneralLinearGroup (Fin n) ℝ)
+
 
 variable {n : ℕ}
 structure IsSmooth (f :
