@@ -8,12 +8,25 @@ import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.Topology.LocallyConstant.Basic
-import Mathlib
-/-
+import Mathlib.LinearAlgebra.UnitaryGroup
+import Mathlib.RepresentationTheory.FdRep
+import Mathlib.Analysis.Matrix
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
+import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
+import Mathlib.Analysis.Matrix
+import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
 
-# The Global Langlands Conjectures for GL(n) over a number field.
+
+/-!
+
+# The Global Langlands Conjectures for GL(n) over the rationals.
 
 ## First sub-goal: definition of an automorphic form.
+
+I've made the design decision of working with the functor
+`Matrix.GeneralLinearGroup (Fin n)` as our implementation
+of the `GL_n` functor.
+
 
 -/
 
@@ -100,6 +113,8 @@ lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
     ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
   sorry -- this needs doing
 
+#check Classical.choose (v.valuation_exists_uniformizer K)
+
 -- These instances are sorry-free in the PR.
 instance : TopologicalSpace (FiniteAdeleRing ℤ ℚ) := sorry
 
@@ -122,12 +137,34 @@ lemma FiniteAdeleRing.mul_induction_on {P : FiniteAdeleRing R K → Prop}
 
 end DedekindDomain
 
-namespace AutomorphicForm.GLn
+namespace AutomorphicForm
 
 open DedekindDomain
+namespace GLn
+
+open Manifold
+
+attribute [local instance] Matrix.linftyOpNormedAddCommGroup Matrix.linftyOpNormedSpace
+  Matrix.linftyOpNormedRing Matrix.linftyOpNormedAlgebra
+
+-- this now works
+variable (n : ℕ) in
+#synth LieGroup 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (Matrix.GeneralLinearGroup (Fin n) ℝ)
+
+open Manifold
+
+#check SmoothMap
+-- need
+variable (n : ℕ) in
+def action :
+  let V : Type := SmoothMap 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) 𝓘(ℝ, ℂ) (Matrix.GeneralLinearGroup (Fin n) ℝ) ℂ -- replce this with the complex vector space of smooth functions on GL_n(R)
+  let hV : AddCommGroup V := inferInstance
+  let hV : Module ℂ V := sorry
+  -- The thing I want from the manifold library
+  (LeftInvariantDerivation 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (Matrix.GeneralLinearGroup (Fin n) ℝ))
+  →ₗ⁅ℝ⁆ (V →ₗ[ℂ] V) := sorry -- a derivation should act on a smooth function.
 
 variable {n : ℕ}
-
 structure IsSmooth (f :
     (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
     (Matrix.GeneralLinearGroup (Fin n) ℝ)
@@ -139,10 +176,7 @@ structure IsSmooth (f :
 --  smooth (x : Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) :
 --    Smooth sorry sorry (fun y ↦ f (x, y))
 
--- \begin{definition} We say that a function $f:\GL_n(\R)\to\bbC$ is \emph{slowly-increasing}
---   if there's some real constant $C$ and positive integer $n$ such that $f(M)\leq Cs(M)^n$
---   for all $M\in\GL_n(\R)$.
--- \end{definition}
+variable {n : ℕ}
 
 open Matrix
 
@@ -157,12 +191,33 @@ structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop
 --
 #check Matrix.orthogonalGroup (Fin n) ℝ
 
-structure weight (n : ℕ) where
+structure preweight (n : ℕ) where
   d : ℕ -- dimension
-  hd : 0 < d -- 0-dimensional rep too simple to be simple
   rho : orthogonalGroup (Fin n) ℝ →* GeneralLinearGroup (Fin d) ℂ
   rho_continuous: Continuous rho
-  -- how to say "it's irreducible"?
+
+open CategoryTheory
+
+noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
+    FdRep ℂ (orthogonalGroup (Fin n) ℝ) where
+  V := FGModuleCat.of ℂ (Fin w.d → ℂ)
+  ρ := {
+    toFun := fun A ↦ {
+      toFun := fun x ↦ (w.rho A).1 *ᵥ x
+      map_add' := fun _ _ ↦ Matrix.mulVec_add _ _ _
+      map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul _ _ _ }
+    map_one' := by aesop
+    map_mul' := fun _ _ ↦ by
+      simp only [obj_carrier, MonCat.mul_of, _root_.map_mul, Units.val_mul, ← Matrix.mulVec_mulVec]
+      rfl
+  }
+
+structure weight (n : ℕ) where
+  w : preweight n
+  isSimple : Simple w.fdRep
+
+-- this was a hypothesis in `preweight` but it's probably automatic now.
+lemma weight_dim_pos (n : ℕ) (w : weight n) : 0 < w.w.d := sorry
 
 structure AutomorphicFormForGLnOverQ (n : ℕ) where
   toFun : (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
@@ -170,7 +225,7 @@ structure AutomorphicFormForGLnOverQ (n : ℕ) where
   is_smooth : IsSmooth toFun
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
-  weight : GLn.weight n
+  weight : weight n
   -- stuff missing here
   -- e.g. centre of universal enveloping algebra action, finite level etc
 end AutomorphicForm.GLn
