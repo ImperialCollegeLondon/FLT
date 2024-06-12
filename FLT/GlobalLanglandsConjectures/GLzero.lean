@@ -68,6 +68,8 @@ def ofComplex (z : ℂ) {n : ℕ} (ρ : Weight n) (hρ : ρ.IsTrivial) :
       is_smooth := sorry
       is_periodic := sorry
       is_slowly_increasing := sorry
+      is_finite_cod := sorry -- needs a better name
+      has_finite_level := sorry -- needs a better name
 
 -- no idea why it's not computable
 noncomputable def classification (ρ : Weight 0) : AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ where
