@@ -75,3 +75,6 @@ noncomputable def classification (ρ : Weight 0) : AutomorphicFormForGLnOverQ 0 
   invFun z := ofComplex z ρ sorry
   left_inv := sorry
   right_inv := sorry
+
+-- Can this be beefed up to an isomorphism of complex
+-- vector spaces?
