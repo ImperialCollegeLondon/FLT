@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2024 Kevin Buzzaed. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Hannah Scholz, Ludwig Monnerjahn
+-/
+
 import Mathlib.RingTheory.TensorProduct.Basic -- we need tensor products of rings at some point
 import Mathlib.Topology.Algebra.Module.Basic -- and we need topological rings and modules
 /-
