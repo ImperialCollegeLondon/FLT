@@ -1,19 +1,35 @@
 /-
 Copyright (c) 2024 Kevin Buzzaed. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard
+Authors: Kevin Buzzard, Jonas Bayer, Mario Carneiro
 -/
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.Topology.LocallyConstant.Basic
-import Mathlib
-/-
+import Mathlib.LinearAlgebra.UnitaryGroup
+import Mathlib.RepresentationTheory.FdRep
+import Mathlib.Analysis.Matrix
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
+import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
+import Mathlib.Analysis.Matrix
+import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
+import Mathlib.Algebra.Lie.UniversalEnveloping
+import Mathlib.Algebra.Lie.BaseChange
 
-# The Global Langlands Conjectures for GL(n) over a number field.
+suppress_compilation
+
+/-!
+
+# The Global Langlands Conjectures for GL(n) over the rationals.
 
 ## First sub-goal: definition of an automorphic form.
+
+I've made the design decision of working with the functor
+`Matrix.GeneralLinearGroup (Fin n)` as our implementation
+of the `GL_n` functor.
+
 
 -/
 
@@ -100,6 +116,8 @@ lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
     ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
   sorry -- this needs doing
 
+#check Classical.choose (v.valuation_exists_uniformizer K)
+
 -- These instances are sorry-free in the PR.
 instance : TopologicalSpace (FiniteAdeleRing ℤ ℚ) := sorry
 
@@ -122,27 +140,127 @@ lemma FiniteAdeleRing.mul_induction_on {P : FiniteAdeleRing R K → Prop}
 
 end DedekindDomain
 
-namespace AutomorphicForm.GLn
+namespace AutomorphicForm
 
 open DedekindDomain
+namespace GLn
+
+open Manifold
+
+attribute [local instance] Matrix.linftyOpNormedAddCommGroup Matrix.linftyOpNormedSpace
+  Matrix.linftyOpNormedRing Matrix.linftyOpNormedAlgebra
+
+-- this now works
+variable (n : ℕ) in
+#synth LieGroup 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (GL (Fin n) ℝ)
+
+open Manifold
+
+open Matrix
+
+-- need
+
+
+
+/-
+LeftInvariantDerivation.{u_4, u_3, u_2, u_1} {𝕜 : Type u_1} [NontriviallyNormedField 𝕜] {E : Type u_2}
+  [NormedAddCommGroup E] [NormedSpace 𝕜 E] {H : Type u_3} [TopologicalSpace H] (I : ModelWithCorners 𝕜 E H)
+  (G : Type u_4) [TopologicalSpace G] [ChartedSpace H G] [Monoid G] [SmoothMul I G] : Type (max u_1 u_4)
+  -/
+variable (n : ℕ)
+variable (G : Type) [TopologicalSpace G] [Group G]
+  {E : Type} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  {H : Type} [TopologicalSpace H]
+  [ChartedSpace H G]
+  (I : ModelWithCorners ℝ E H)
+  [LieGroup I G]
+
+def action :
+    LeftInvariantDerivation I G →ₗ⁅ℝ⁆ (Module.End ℝ C^∞⟮I, G; ℝ⟯) where
+  toFun l := Derivation.toLinearMap l
+  map_add' := by simp
+  map_smul' := by simp
+  map_lie' {x y} := rfl
+
+open scoped TensorProduct
+
+def LieModuleHom.baseChange
+    (A : Type*) {R L M N : Type*}
+    [CommRing R] [CommRing A] [Algebra R A]
+    [LieRing L] [LieAlgebra R L]
+    [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
+    [AddCommGroup N] [Module R N] [LieRingModule L N] [LieModule R L N]
+    (f : M →ₗ⁅R, L⁆ N) : A ⊗[R] M →ₗ⁅A, A ⊗[R] L⁆ A ⊗[R] N := sorry
+
+def LieHom.baseChange
+    (A : Type*) {R L L' : Type*}
+    [CommRing R] [CommRing A] [Algebra R A]
+    [LieRing L] [LieAlgebra R L]
+    [LieRing L'] [LieAlgebra R L']
+    (f : L →ₗ⁅R⁆ L') : A ⊗[R] L →ₗ⁅A⁆ A ⊗[R] L' := sorry
+
+def actionTensorC :
+    ℂ ⊗[ℝ] LeftInvariantDerivation I G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮I, G; ℝ⟯)) :=
+  LieHom.baseChange _ (action _ _)
+
+section
+variable (R : Type*) (L : Type*)
+variable [CommRing R] [LieRing L] [LieAlgebra R L]
+variable {A : Type*} [Ring A] [Algebra R A] (f : L →ₗ⁅R⁆ A)
+variable {A' : Type*} [LieRing A'] [LieAlgebra R A']
+
+def lift' (e : A' ≃ₗ[R] A) (h : ∀ x y, e ⁅x, y⁆ = e x * e y - e y * e x) :
+    (L →ₗ⁅R⁆ A') ≃ (UniversalEnvelopingAlgebra R L →ₐ[R] A) := by
+  refine Equiv.trans ?_ (UniversalEnvelopingAlgebra.lift _)
+  sorry
+end
+
+def actionTensorCAlg :
+  UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G) →ₐ[ℂ]
+    ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯) :=
+  have := lift' ℂ
+    (ℂ ⊗[ℝ] LeftInvariantDerivation I G)
+    (A' := ℂ ⊗[ℝ] (C^∞⟮I, G; ℝ⟯ →ₗ[ℝ] C^∞⟮I, G; ℝ⟯))
+    (A := ℂ ⊗[ℝ] (C^∞⟮I, G; ℝ⟯ →ₗ[ℝ] C^∞⟮I, G; ℝ⟯))
+    (.refl _ _)
+    (fun x y => sorry)
+  this (actionTensorC G I)
+
+def actionTensorCAlg' :
+  UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G) →ₐ[ℂ]
+    Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯) :=
+  (LinearMap.tensorProductEnd ..).comp (actionTensorCAlg G I)
+
+def actionTensorCAlg'2 :
+  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G)) →ₐ[ℂ]
+    Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯) :=
+  (actionTensorCAlg' G I).comp (SubalgebraClass.val _)
+
+instance : Module ℝ C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯ := inferInstance
+instance : Module ℂ C^∞⟮I, G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
+
+def actionTensorCAlg'3 :
+  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G)) →ₐ[ℂ]
+    Module.End ℂ (C^∞⟮I, G; 𝓘(ℝ, ℂ), ℂ⟯) := sorry
+
+
+-- algebra needs to be done
+-- Step 1: tensor up to ℂ
+-- Step 2: induced action of univ env alg
+-- Step 3: induced action of centre
 
 variable {n : ℕ}
-
 structure IsSmooth (f :
-    (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
-    (Matrix.GeneralLinearGroup (Fin n) ℝ)
+    (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
+    (GL (Fin n) ℝ)
     → ℂ) : Prop where
   continuous : Continuous f
-  loc_cst (y : Matrix.GeneralLinearGroup (Fin n) ℝ) :
+  loc_cst (y : GL (Fin n) ℝ) :
     IsLocallyConstant (fun x ↦ f (x, y))
--- I need some help to formalise the statement that it's smooth at the infinite places.
---  smooth (x : Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) :
---    Smooth sorry sorry (fun y ↦ f (x, y))
+  smooth (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
+    Smooth 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) 𝓘(ℝ, ℂ) (fun y ↦ f (x, y))
 
--- \begin{definition} We say that a function $f:\GL_n(\R)\to\bbC$ is \emph{slowly-increasing}
---   if there's some real constant $C$ and positive integer $n$ such that $f(M)\leq Cs(M)^n$
---   for all $M\in\GL_n(\R)$.
--- \end{definition}
+variable {n : ℕ}
 
 open Matrix
 
@@ -157,20 +275,80 @@ structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop
 --
 #check Matrix.orthogonalGroup (Fin n) ℝ
 
-structure weight (n : ℕ) where
+structure preweight (n : ℕ) where
   d : ℕ -- dimension
-  hd : 0 < d -- 0-dimensional rep too simple to be simple
   rho : orthogonalGroup (Fin n) ℝ →* GeneralLinearGroup (Fin d) ℂ
   rho_continuous: Continuous rho
-  -- how to say "it's irreducible"?
 
-structure AutomorphicFormForGLnOverQ (n : ℕ) where
-  toFun : (Matrix.GeneralLinearGroup (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
-      (Matrix.GeneralLinearGroup (Fin n) ℝ) → ℂ
+open CategoryTheory
+
+noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
+    FdRep ℂ (orthogonalGroup (Fin n) ℝ) where
+  V := FGModuleCat.of ℂ (Fin w.d → ℂ)
+  ρ := {
+    toFun := fun A ↦ {
+      toFun := fun x ↦ (w.rho A).1 *ᵥ x
+      map_add' := fun _ _ ↦ Matrix.mulVec_add _ _ _
+      map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul _ _ _ }
+    map_one' := by aesop
+    map_mul' := fun _ _ ↦ by
+      simp only [obj_carrier, MonCat.mul_of, _root_.map_mul, Units.val_mul, ← Matrix.mulVec_mulVec]
+      rfl
+  }
+
+structure Weight (n : ℕ) where
+  w : preweight n
+  isSimple : Simple w.fdRep
+
+-- This will be useful
+def _root_.RingHom.GL {A B : Type*} [CommRing A] [CommRing B] (φ : A →+* B)
+  (m : Type*) [Fintype m] [DecidableEq m] :
+  GL m A →* GL m B := Units.map <| (RingHom.mapMatrix φ).toMonoidHom
+
+structure IsConstantOn (U : Subgroup (GL (Fin n) (FiniteAdeleRing ℤ ℚ)))
+  (f : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) × (GL (Fin n) ℝ) → ℂ) : Prop where
+  is_open : IsOpen U.carrier
+  is_compact : IsCompact U.carrier
+  finite_level (u : U.carrier) (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) (y : GL (Fin n) ℝ) :
+    f (x * u, y) = f (x, y)
+
+def annihilator {R} [CommSemiring R]
+  {M} [AddCommMonoid M] [Module R M]
+  {N} [AddCommMonoid N] [Module R N]
+  {P} [AddCommMonoid P] [Module R P]
+  (action : M →ₗ[R] (N →ₗ[R] P)) (a : N) : Submodule R M :=
+  { carrier := { x | action x a = 0 }
+    add_mem' := sorry
+    zero_mem' := sorry
+    smul_mem' := sorry }
+
+/-- Automorphic forms for GL_n/Q with weight ρ. -/
+structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
+  toFun : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
+      (GL (Fin n) ℝ) → ℂ
   is_smooth : IsSmooth toFun
+  is_periodic : ∀ (g : GL (Fin n) ℚ) (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) (y : GL (Fin n) ℝ),
+    toFun (RingHom.GL (algebraMap _ _) _ g * x, RingHom.GL (algebraMap _ _) _ g * y) = toFun (x, y)
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
-  weight : GLn.weight n
-  -- stuff missing here
-  -- e.g. centre of universal enveloping algebra action, finite level etc
-end AutomorphicForm.GLn
+  has_finite_level: ∃ U, IsConstantOn U toFun
+  is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
+    FiniteDimensional ℂ (_ ⧸ annihilator
+      (actionTensorCAlg'3 (GL (Fin n) ℝ) 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ)).toLinearMap
+      ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩)
+  -- missing: infinite part has a weight
+
+namespace AutomorphicFormForGLnOverQ
+
+-- not entirely sure what I'm doing here. Is it as simple as this?
+-- attribute [coe] toFun
+variable (n : ℕ) (ρ : Weight n) in
+instance : CoeFun (AutomorphicFormForGLnOverQ n ρ) (fun _ ↦ (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
+      (GL (Fin n) ℝ) → ℂ) :=
+  ⟨toFun⟩
+
+end AutomorphicFormForGLnOverQ
+
+end GLn
+
+end AutomorphicForm

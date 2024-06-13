@@ -46,7 +46,7 @@ finite adeles:
   of the integer $a_v^{-1}$). Note that $P(u_v)$ by hypothesis~1, and
   $P(\pi_v^{-1})$ by hypothesis~3.
 
-  Now if $b=(b_v)_v$ is the finite adels with $b_v=a_v$ for $v\not\in S$ and $b_v=1$ for $v\in S$,
+  Now if $b=(b_v)_v$ is the finite adele with $b_v=a_v$ for $v\not\in S$ and $b_v=1$ for $v\in S$,
   then $b$ is a finite integral adele (so hypothesis 1 applies), and $a=b\prod_{v\in S}a_v$ is hence
   a finite product of finite adeles which satisfy $P$ and thus satisfies $P$ by hypothesis 2
   (with hypothesis 1 to deal with the base case $a=1$).
@@ -122,7 +122,7 @@ $s(M)$ is always positive, and is large if $M$ has a very large or very small
   \lean{AutomorphicForm.GLn.IsSlowlyIncreasing}
   \leanok
   We say that a function $f:\GL_n(\R)\to\bbC$ is \emph{slowly-increasing}
-  if there's some real constant $C$ and positive integer $n$ such that $f(M)\leq Cs(M)^n$
+  if there's some real constant $C$ and positive integer $n$ such that $|f(M)|\leq Cs(M)^n$
   for all $M\in\GL_n(\R)$.
 \end{definition}
 
@@ -132,8 +132,8 @@ think it makes any difference.
 \section{Weights at infinity}
 
 \begin{definition}
-  \label{AutomorphicForm.GLn.weight}
-  \lean{AutomorphicForm.GLn.weight}
+  \label{AutomorphicForm.GLn.Weight}
+  \lean{AutomorphicForm.GLn.Weight}
 
 The \emph{weight} of an automorphic form for $\GL_n/\Q$ can be thought of as a finite-dimensional
 continuous complex representation $\rho$ of a maximal compact subgroup of $\GL_n(\R)$,
