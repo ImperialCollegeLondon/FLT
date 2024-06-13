@@ -270,18 +270,17 @@ instance Module.instContinuousSMul : @ContinuousSMul A M _ (topology A) (topolog
     ext
     rw [← mul_smul]
   rw [this]
-  have dcef: (fun a ↦ (a.1 * b.equivFun a.2 i) • b i) = (fun (a : A) ↦ a • b i) ∘ (fun (m : A × A) ↦ m.1 * m.2) ∘ (fun (m : A × M) ↦ (m.1, b.equivFun m.2 i)) := by
+  have : (fun a ↦ (a.1 * b.equivFun a.2 i) • b i) = (fun (a : A) ↦ a • b i) ∘ (fun (m : A × A) ↦ m.1 * m.2) ∘ (fun (m : A × M) ↦ (m.1, b.equivFun m.2 i)) := by
     ext a
     simp
-  rw [dcef]
+  rw [this]
   apply @Continuous.comp _ _ _ (@instTopologicalSpaceProd _ _ _ (topology A)) _ (topology A) _ _
   · have : (fun a ↦ a • b i) = (LinearMap.smul₁ A M (b i)) := by
       unfold LinearMap.smul₁
       simp
-    rw [this, Module.topology_self A]
-    -- this is legit the same. Why does this not work ?????
-    ---apply Module.continuous_linear A (LinearMap.smul₁ A M (b i))
-    sorry
+    rw [this]
+    nth_rewrite 1 [Module.topology_self A]
+    apply Module.continuous_linear A (LinearMap.smul₁ A M (b i))
   apply @Continuous.comp _ _ _ (@instTopologicalSpaceProd _ _ _ (topology A)) _ _ _ _
   exact continuous_mul
   apply @Continuous.prod_map _ _ _ _ _ _ _ (topology A) (fun m ↦ m) (fun m ↦ b.equivFun m i)
@@ -289,10 +288,9 @@ instance Module.instContinuousSMul : @ContinuousSMul A M _ (topology A) (topolog
   have : (fun m ↦ b.equivFun m i) = LinearMap.basis₁ A M ι b i := by
     unfold LinearMap.basis₁
     simp
-  rw [this, Module.topology_self A]
-  -- again this looks the exact same
-  --apply Module.continuous_linear A (LinearMap.basis₁ A M ι b i)
-  sorry
+  rw [this]
+  nth_rewrite 2 [Module.topology_self A]
+  apply Module.continuous_linear A (LinearMap.basis₁ A M ι b i)
 
 
 
@@ -335,10 +333,8 @@ lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Modu
       simp
     rw [this, ← Module.topology_self]
     apply @Continuous.comp _ _ _ (@instTopologicalSpaceProd _ _ (topology A) (topology A)) (topology A) _ _ _
-    · rw [Module.topology_self A]
-      -- another mysterious sorry
-      --apply Module.continuous_linear A (LinearMap.basis₁ A N κ d k)
-      sorry
+    · nth_rewrite 2 [Module.topology_self A]
+      apply Module.continuous_linear A (LinearMap.basis₁ A N κ d k)
     rw [Module.prod_canonical]
     exact Module.continuous_linear A (LinearMap.prodsnd A M N)
   apply @Continuous.smul _ _ _ (topology A) (topology A) (@instTopologicalSpaceProd _ _ (topology A) (topology A)) _ (@Module.instContinuousSMul _ _ iA _ _ _ _ _ _ ) _ _
@@ -348,10 +344,8 @@ lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Modu
       simp
     rw [this, ← Module.topology_self]
     apply @Continuous.comp _ _ _ (@instTopologicalSpaceProd _ _ (topology A) (topology A)) (topology A) _ _ _
-    · rw [Module.topology_self A]
-      -- another mysterious sorry
-      --apply Module.continuous_linear A (LinearMap.basis₁ A M ι b i)
-      sorry
+    · nth_rewrite 2 [Module.topology_self A]
+      apply Module.continuous_linear A (LinearMap.basis₁ A M ι b i)
     rw [Module.prod_canonical]
     exact Module.continuous_linear A (LinearMap.prodfst A M N)
   · apply @continuous_const _ _ (@instTopologicalSpaceProd _ _ (topology A) (topology A)) (topology A) _
