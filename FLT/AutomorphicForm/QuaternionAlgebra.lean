@@ -1,15 +1,18 @@
 /-
-Copyright (c) 2024 Kevin Buzzaed. All rights reserved.
+Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
-import Mathlib
+import Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.HIMExperiments.module_topology
+--import Mathlib
 
 /-
 
-# Definiteion of automorphic forms on a totally definite quaternion algebra
+# Definition of automorphic forms on a totally definite quaternion algebra
 -/
 
 suppress_compilation
@@ -34,9 +37,27 @@ open scoped TensorProduct
 
 #check D ⊗[F] (FiniteAdeleRing (𝓞 F) F)
 
+section missing_instances
+
+variable {R D A : Type*} [CommRing R] [Ring D] [CommRing A] [Algebra R D] [Algebra R A]
+
+--TODO:
+instance : Algebra A (D ⊗[R] A) :=
+  Algebra.TensorProduct.includeRight.toRingHom.toAlgebra' (by
+    sorry
+    )
+
+instance [Module.Finite R D]  : Module.Finite A (D ⊗[R] A) := sorry
+
+instance [Module.Free R D]  : Module.Free A (D ⊗[R] A) := sorry
+
+#check Group
+
+
+end missing_instances
 -- your work
-instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := sorry
-instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := sorry
+instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := Module.topology (FiniteAdeleRing (𝓞 F) F)
+instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := moobar (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
 
 namespace TotallyDefiniteQuaternionAlgebra
 
@@ -68,16 +89,37 @@ instance : CoeFun (AutomorphicForm F D M) (fun _ ↦ Dfx F D → M) where
 
 instance zero : (AutomorphicForm F D M) where
   toFun := 0
-  left_invt := sorry
-  loc_cst := sorry
-
+  left_invt := by simp
+  loc_cst := by use ⊤; simp
 
 instance  neg (φ : AutomorphicForm F D M) : AutomorphicForm F D M where
   toFun x := - φ x
-  left_invt := sorry
-  loc_cst := sorry
+  left_invt := by
+    intro d x
+    simp only [RingHom.toMonoidHom_eq_coe, neg_inj]
+    exact φ.left_invt d x
+  loc_cst := by
+    rcases φ.loc_cst with ⟨U, openU, hU⟩
+    use U
+    exact ⟨openU, fun x u umem ↦ by rw [neg_inj]; exact hU x u umem⟩
 
--- instance add
+instance add (φ ψ : AutomorphicForm F D M) : AutomorphicForm F D M where
+  toFun x := φ x + ψ x
+  left_invt := by
+    intro d x
+    simp only [← φ.left_invt d x, ← ψ.left_invt d x]
+  loc_cst := by
+    rcases φ.loc_cst with ⟨U, openU, hU⟩
+    rcases ψ.loc_cst with ⟨V, openV, hV⟩
+    use U ⊓ V
+    constructor
+    · unfold Subgroup.instInf Submonoid.instInf
+      simp only [Subgroup.coe_toSubmonoid, Subgroup.coe_set_mk]
+      exact IsOpen.inter openU openV
+    · intro x u ⟨umemU, umemV⟩
+      simp only
+      rw [hU x u umemU, hV x u umemV]
+
 
 -- instance : AddCommGroup
 
