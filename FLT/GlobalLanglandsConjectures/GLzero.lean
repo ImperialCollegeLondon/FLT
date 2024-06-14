@@ -99,14 +99,16 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
   }
 
 -- the weakest form of the classification theorem
-noncomputable instance: Equiv (AutomorphicFormForGLnOverQ 0 ρ) ℂ := {
+noncomputable def classification: AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
   toFun := fun f ↦ f 1
   invFun := fun c ↦ ofComplex ρ c
   left_inv := by
     rw [Function.LeftInverse]
     simp [ofComplex]
     intro x
-    sorry
+    have h: x.toFun = fun _ => x.toFun 1 := by
+      sorry
+    simp_rw [← h]
   right_inv := by
     rw [Function.RightInverse, Function.LeftInverse]
     simp [ofComplex]
