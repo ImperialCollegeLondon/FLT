@@ -28,30 +28,13 @@ suppress_compilation
 
 I've made the design decision of working with the functor
 `Matrix.GeneralLinearGroup (Fin n)` as our implementation
-of the `GL_n` functor.
-
+of the `GL_n` functor. There's notation `GL (Fin n)` for this.
 
 -/
 
---open Matrix
-
---#check GeneralLinearGroup
-
 open scoped Manifold
 
--- GL_n, basis-free version, is already a Lie group: this works:
---variable (n : ℕ) in
---#synth LieGroup 𝓘(ℝ, (Fin n → ℝ) →L[ℝ] (Fin n → ℝ)) ((Fin n → ℝ) →L[ℝ] (Fin n → ℝ))ˣ
-
--- Invertible matrix group version I don't know how to state yet:
---variable (n : ℕ) in
---#synth LieGroup sorry (Matrix.GeneralLinearGroup (Fin n) ℝ) -- don't know how to fill in the sorry
-
 namespace DedekindDomain
-
---#check FiniteAdeleRing ℤ ℚ -- type
---#synth CommRing (FiniteAdeleRing ℤ ℚ) -- works
--- #synth TopologicalSpace (FiniteAdeleRing ℤ ℚ) -- fails right now
 
 open scoped algebraMap
 
@@ -114,7 +97,7 @@ noncomputable instance : Algebra R (FiniteAdeleRing R K) :=
 
 lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
     ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
-  sorry -- this needs doing
+  sorry -- there's a nearly-done mathlib PR which proves this
 
 #check Classical.choose (v.valuation_exists_uniformizer K)
 
@@ -128,16 +111,6 @@ end PR13703
 
 end PRs  -- section
 
--- This would be helpful for getting 13703 over the line.
-variable (R K : Type*) [CommRing R] [IsDedekindDomain R] [Field K] [Algebra R K]
-    [IsFractionRing R K] in
-@[elab_as_elim]
-lemma FiniteAdeleRing.mul_induction_on {P : FiniteAdeleRing R K → Prop}
-    (h0 : ∀ (a : FiniteIntegralAdeles R K), P a)
-    (h1 : ∀ x y, P x → P y → P (x * y))
-    (h2 : ∀ (a : FiniteAdeleRing R K) (v :IsDedekindDomain.HeightOneSpectrum R),
-      ∀ w ≠ v, (a : ProdAdicCompletions R K) v ∈ v.adicCompletionIntegers K): ∀ x, P x := sorry
-
 end DedekindDomain
 
 namespace AutomorphicForm
@@ -150,23 +123,15 @@ open Manifold
 attribute [local instance] Matrix.linftyOpNormedAddCommGroup Matrix.linftyOpNormedSpace
   Matrix.linftyOpNormedRing Matrix.linftyOpNormedAlgebra
 
--- this now works
-variable (n : ℕ) in
-#synth LieGroup 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (GL (Fin n) ℝ)
+-- this makes
 
-open Manifold
+-- variable (n : ℕ) in
+-- #synth LieGroup 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) (GL (Fin n) ℝ)
+
+--work
 
 open Matrix
 
--- need
-
-
-
-/-
-LeftInvariantDerivation.{u_4, u_3, u_2, u_1} {𝕜 : Type u_1} [NontriviallyNormedField 𝕜] {E : Type u_2}
-  [NormedAddCommGroup E] [NormedSpace 𝕜 E] {H : Type u_3} [TopologicalSpace H] (I : ModelWithCorners 𝕜 E H)
-  (G : Type u_4) [TopologicalSpace G] [ChartedSpace H G] [Monoid G] [SmoothMul I G] : Type (max u_1 u_4)
-  -/
 variable (n : ℕ)
 variable (G : Type) [TopologicalSpace G] [Group G]
   {E : Type} [NormedAddCommGroup E] [NormedSpace ℝ E]
@@ -190,14 +155,30 @@ def LieModuleHom.baseChange
     [LieRing L] [LieAlgebra R L]
     [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
     [AddCommGroup N] [Module R N] [LieRingModule L N] [LieModule R L N]
-    (f : M →ₗ⁅R, L⁆ N) : A ⊗[R] M →ₗ⁅A, A ⊗[R] L⁆ A ⊗[R] N := sorry
+    (f : M →ₗ⁅R, L⁆ N) : A ⊗[R] M →ₗ⁅A, A ⊗[R] L⁆ A ⊗[R] N where
+      __ := (LinearMap.baseChange A f : A ⊗[R] M →ₗ[A] A ⊗[R] N)
+      map_lie' := by
+        simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+        intro x m
+        induction x using TensorProduct.induction_on
+        · simp only [zero_lie, map_zero]
+        · induction m using TensorProduct.induction_on <;> simp_all
+        · simp_all only [add_lie, map_add]
 
 def LieHom.baseChange
     (A : Type*) {R L L' : Type*}
     [CommRing R] [CommRing A] [Algebra R A]
     [LieRing L] [LieAlgebra R L]
     [LieRing L'] [LieAlgebra R L']
-    (f : L →ₗ⁅R⁆ L') : A ⊗[R] L →ₗ⁅A⁆ A ⊗[R] L' := sorry
+    (f : L →ₗ⁅R⁆ L') : A ⊗[R] L →ₗ⁅A⁆ A ⊗[R] L' where
+  __ := (LinearMap.baseChange A f : A ⊗[R] L →ₗ[A] A ⊗[R] L')
+  map_lie' := by
+    simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+    intro x m
+    induction x using TensorProduct.induction_on
+    · simp only [zero_lie, map_zero]
+    · induction m using TensorProduct.induction_on <;> simp_all
+    · simp_all only [add_lie, map_add]
 
 def actionTensorC :
     ℂ ⊗[ℝ] LeftInvariantDerivation I G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮I, G; ℝ⟯)) :=
@@ -212,7 +193,34 @@ variable {A' : Type*} [LieRing A'] [LieAlgebra R A']
 def lift' (e : A' ≃ₗ[R] A) (h : ∀ x y, e ⁅x, y⁆ = e x * e y - e y * e x) :
     (L →ₗ⁅R⁆ A') ≃ (UniversalEnvelopingAlgebra R L →ₐ[R] A) := by
   refine Equiv.trans ?_ (UniversalEnvelopingAlgebra.lift _)
-  sorry
+  exact {
+    toFun := fun l => {
+        __ := e.toLinearMap ∘ₗ l.toLinearMap
+        map_lie' := by
+          simp
+          intros x y
+          rw [h, ← @LieRing.of_associative_ring_bracket]
+        }
+    invFun := fun l => {
+        __ := e.symm.toLinearMap ∘ₗ l.toLinearMap
+        map_lie' := by sorry
+    }
+    left_inv := by
+      rw [Function.LeftInverse]
+      intro x
+      have h: ↑e.symm ∘ₗ e.toLinearMap ∘ₗ x.toLinearMap = x.toLinearMap := by
+        rw [← LinearMap.comp_assoc]
+        simp
+      simp_rw [h]
+    right_inv := by
+      rw [Function.RightInverse, Function.LeftInverse]
+      simp
+      intro x
+      have h: ↑e.toLinearMap ∘ₗ e.symm.toLinearMap ∘ₗ x.toLinearMap = x.toLinearMap := by
+        rw [← LinearMap.comp_assoc]
+        simp
+      simp_rw [h]
+  }
 end
 
 def actionTensorCAlg :
