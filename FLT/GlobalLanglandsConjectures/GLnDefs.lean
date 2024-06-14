@@ -170,8 +170,15 @@ def LieHom.baseChange
     [CommRing R] [CommRing A] [Algebra R A]
     [LieRing L] [LieAlgebra R L]
     [LieRing L'] [LieAlgebra R L']
-    (f : L →ₗ⁅R⁆ L') : A ⊗[R] L →ₗ⁅A⁆ A ⊗[R] L' := by
-  sorry
+    (f : L →ₗ⁅R⁆ L') : A ⊗[R] L →ₗ⁅A⁆ A ⊗[R] L' where
+  __ := (LinearMap.baseChange A f : A ⊗[R] L →ₗ[A] A ⊗[R] L')
+  map_lie' := by
+    simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+    intro x m
+    induction x using TensorProduct.induction_on
+    · simp only [zero_lie, map_zero]
+    · induction m using TensorProduct.induction_on <;> simp_all
+    · simp_all only [add_lie, map_add]
 
 def actionTensorC :
     ℂ ⊗[ℝ] LeftInvariantDerivation I G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮I, G; ℝ⟯)) :=
@@ -186,7 +193,34 @@ variable {A' : Type*} [LieRing A'] [LieAlgebra R A']
 def lift' (e : A' ≃ₗ[R] A) (h : ∀ x y, e ⁅x, y⁆ = e x * e y - e y * e x) :
     (L →ₗ⁅R⁆ A') ≃ (UniversalEnvelopingAlgebra R L →ₐ[R] A) := by
   refine Equiv.trans ?_ (UniversalEnvelopingAlgebra.lift _)
-  sorry
+  exact {
+    toFun := fun l => {
+        __ := e.toLinearMap ∘ₗ l.toLinearMap
+        map_lie' := by
+          simp
+          intros x y
+          rw [h, ← @LieRing.of_associative_ring_bracket]
+        }
+    invFun := fun l => {
+        __ := e.symm.toLinearMap ∘ₗ l.toLinearMap
+        map_lie' := by sorry
+    }
+    left_inv := by
+      rw [Function.LeftInverse]
+      intro x
+      have h: ↑e.symm ∘ₗ e.toLinearMap ∘ₗ x.toLinearMap = x.toLinearMap := by
+        rw [← LinearMap.comp_assoc]
+        simp
+      simp_rw [h]
+    right_inv := by
+      rw [Function.RightInverse, Function.LeftInverse]
+      simp
+      intro x
+      have h: ↑e.toLinearMap ∘ₗ e.symm.toLinearMap ∘ₗ x.toLinearMap = x.toLinearMap := by
+        rw [← LinearMap.comp_assoc]
+        simp
+      simp_rw [h]
+  }
 end
 
 def actionTensorCAlg :
