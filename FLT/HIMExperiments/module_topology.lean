@@ -103,12 +103,12 @@ lemma Module.continuous_linear (e : M →ₗ[A] N) :
 -- A formal corollary should be that
 def Module.homeomorphism_equiv (e : M ≃ₗ[A] N) :
     -- lean needs to be told the topologies explicitly in the statement
-    let τM : TopologicalSpace M := Module.topology A
-    let τN : TopologicalSpace N := Module.topology A
+    let _τM : TopologicalSpace M := Module.topology A
+    let _τN : TopologicalSpace N := Module.topology A
     M ≃ₜ N :=
   -- And also at the point where lean puts the structure together, unfortunately
-  let τM : TopologicalSpace M := Module.topology A
-  let τN : TopologicalSpace N := Module.topology A
+  let _τM : TopologicalSpace M := Module.topology A
+  let _τN : TopologicalSpace N := Module.topology A
   -- all the sorries should be formal.
   { toFun := e
     invFun := e.symm
@@ -146,31 +146,37 @@ example (ι : Type*) [Finite ι] :
 --otherwise this should be very easy to do by hand
 lemma Module.topology_self : (iA :TopologicalSpace A) = Module.topology A := by
   refine le_antisymm (le_iInf (fun i ↦ ?_)) <| sInf_le ⟨LinearMap.id, induced_id⟩
-  rw [← continuous_iff_le_induced, show i = LinearMap.lsmul A A (i 1) by ext;simp]
+  rw [← continuous_iff_le_induced, show i = LinearMap.lsmul A A (i 1) by ext; simp]
   exact continuous_const.mul continuous_id
 
+lemma Module.continuous_linear_from_ring (e : A →ₗ[A] M) :
+    @Continuous A M _ (Module.topology A) e := by
+  nth_rw 1 [Module.topology_self A]
+  exact Module.continuous_linear A e
+
+lemma Module.continuous_linear_to_ring (e : M →ₗ[A] A) :
+    @Continuous M A (Module.topology A) _ e := by
+  nth_rw 2 [Module.topology_self A]
+  exact Module.continuous_linear A e
+
 lemma LinearMap.continuous_on_prod (f : (M × N) →ₗ[A] A) :
-  @Continuous _ _ (@instTopologicalSpaceProd M N (Module.topology A) (Module.topology A)) _ f := by
-  have : ⇑f = fun ⟨m, n⟩ ↦ f (⟨m, 0⟩) + f (⟨0, n⟩) := by
-    ext x
-    simp only
-    have : x = (x.1, 0) + (0, x.2) := by simp
-    nth_rewrite 1 [this]
-    apply LinearMap.map_add
-  rw [this]
-  simp only
-  apply @Continuous.add _ _ (@instTopologicalSpaceProd M N (Module.topology A) (Module.topology A))
-    _ _ _ (fun x ↦ (fun m ↦ f (m, 0)) x.1) (fun x ↦ (fun n ↦ f (0, n)) x.2)
-  . apply @Continuous.fst' _ _ _ (Module.topology A) (Module.topology A) _ (fun m ↦ f (m, 0))
-    nth_rewrite 2 [Module.topology_self A]
-    exact Module.continuous_linear A ({toFun := fun m ↦ f (m, 0), map_add' := by
-    {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, zero_add]}, map_smul' := by
-    {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
-  . apply @Continuous.snd' _ _ _ (Module.topology A) (Module.topology A) _ (fun n ↦ f (0, n))
-    nth_rewrite 2 [Module.topology_self A]
-    exact Module.continuous_linear A ({toFun := fun n ↦ f (0, n), map_add' := by
-    {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero]}, map_smul' := by
-    {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
+    @Continuous _ _ (@instTopologicalSpaceProd M N (Module.topology A) (Module.topology A)) _ f := by
+  let _τM : TopologicalSpace M := Module.topology A
+  let _τN : TopologicalSpace N := Module.topology A
+  suffices Continuous fun (⟨m, n⟩ : M × N) ↦ f (⟨m, 0⟩) + f (⟨0, n⟩) by
+    convert this
+    simp_rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero, zero_add]
+  apply Continuous.add
+  . apply @Continuous.fst' _ _ _ _ _ _ (fun m ↦ f (m, 0))
+    exact Module.continuous_linear_to_ring A
+      ({toFun := fun m ↦ f (m, 0),
+        map_add' := by {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, zero_add]},
+        map_smul' := by {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
+  . apply @Continuous.snd' _ _ _ _ _ _ (fun n ↦ f (0, n))
+    exact Module.continuous_linear_to_ring A
+      ({toFun := fun n ↦ f (0, n),
+        map_add' := by {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero]},
+        map_smul' := by {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
 
 -- We need that the module topology on a product is the product topology
 lemma Module.prod_canonical :
@@ -211,26 +217,24 @@ noncomputable def LinearMap.add (M : Type*) [AddCommGroup M] [Module A M] :
   map_smul' _ _ := (DistribSMul.smul_add _ _ _).symm
 
 /-- Basis.repr in the first variable as a linear map. -/
-noncomputable def LinearMap.basis₁ (M : Type*) (ι : Type*) [Finite ι] [AddCommGroup M] [Module A M] (b : Basis ι A M) (i : ι):
-    M →ₗ[A] A where
+noncomputable def LinearMap.basis₁ (M : Type*) (ι : Type*) [Finite ι] [AddCommGroup M] [Module A M]
+  (b : Basis ι A M) (i : ι): M →ₗ[A] A where
   toFun m := b.repr m i
   map_add' := by simp only [map_add, Finsupp.coe_add, Pi.add_apply, implies_true]
   map_smul' _ _  := by simp only [LinearMapClass.map_smul, Finsupp.coe_smul, Pi.smul_apply,
     smul_eq_mul, RingHom.id_apply]
 
-noncomputable def LinearMap.prodfst (M N : Type*) [AddCommGroup M] [Module A M] [AddCommGroup N] [Module A N] :
-    M × N →ₗ[A] M where
+noncomputable def LinearMap.prodfst (M N : Type*) [AddCommGroup M] [Module A M] [AddCommGroup N]
+  [Module A N] : M × N →ₗ[A] M where
   toFun := Prod.fst
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
-noncomputable def LinearMap.prodsnd (M N : Type*) [AddCommGroup M] [Module A M] [AddCommGroup N] [Module A N] :
-    M × N →ₗ[A] N where
+noncomputable def LinearMap.prodsnd (M N : Type*) [AddCommGroup M] [Module A M] [AddCommGroup N]
+  [Module A N] : M × N →ₗ[A] N where
   toFun := Prod.snd
   map_add' _ _ := rfl
   map_smul' _ _:= rfl
-
---local instance : TopologicalSpace P := Module.topology A
 
 instance Module.instCommAdd {P : Type*} [AddCommGroup P] [Module A P]:
 @ContinuousAdd P (Module.topology A) _ := by
@@ -241,53 +245,38 @@ instance Module.instCommAdd {P : Type*} [AddCommGroup P] [Module A P]:
 variable [Module.Finite A M] [Module.Free A M] [Module.Finite A N] [Module.Free A N]
 
 
--- I really shoouldn't start with iA instead of topology A here.
+-- I really shouldn't start with iA instead of topology A here.
 -- But I need it like this in the next proof and don't know how to rewrite it there
 -- Sorry for leaving it like this...
-instance Module.instContinuousSMul : @ContinuousSMul A M _ (topology A) (topology A) := by
-  rw [← Module.topology_self]
+instance Module.instContinuousSMul : @ContinuousSMul A M _ _ (topology A) := by
+  let _τM : TopologicalSpace M := Module.topology A
   apply @ContinuousSMul.mk A M _ _ (topology A)
   let ι := Free.ChooseBasisIndex A M
   have b : Basis ι A M := Free.chooseBasis A M
-  have : (fun (p : A × M) ↦ p.1 • p.2) = (fun p ↦ ∑ i : ι, p.1 • b.repr p.2 i • b i) := by
-    ext x
-    rw [← Finset.smul_sum, Basis.sum_repr]
-  rw [this]
-  apply @continuous_finset_sum _ _ _ (@instTopologicalSpaceProd _  _ _ (topology A)) (topology A) _ _ _ _
+  suffices Continuous fun (p : A × M) ↦ ∑ i : ι, p.1 • b.repr p.2 i • b i by
+    convert this using 1
+    simp_rw [← Finset.smul_sum, Basis.sum_repr]
+  apply continuous_finset_sum
   intro i _
-  have : (fun (a : A × M) ↦ a.1 • b.repr a.2 i • b i) = (fun a ↦ (a.1 * b.repr a.2 i) • b i) := by
-    ext
-    rw [← mul_smul]
-  rw [this]
-  have : (fun a ↦ (a.1 * b.repr a.2 i) • b i) = (fun (a : A) ↦ a • b i) ∘ (fun (m : A × A) ↦ m.1 * m.2) ∘ (fun (m : A × M) ↦ (m.1, b.repr m.2 i)) := by
-    ext a
-    simp
-  rw [this]
-  apply @Continuous.comp _ _ _ (@instTopologicalSpaceProd _ _ _ (topology A)) _ (topology A) _ _
-  · have : (fun a ↦ a • b i) = (LinearMap.lsmul A M).flip (b i) := by
-      simp only [LinearMap.lsmul, LinearMap.flip, LinearMap.mk₂_apply]
-      exact rfl
-    rw [this]
-    nth_rewrite 1 [Module.topology_self A]
-    apply Module.continuous_linear A ((LinearMap.lsmul A M).flip (b i))
-  apply @Continuous.comp _ _ _ (@instTopologicalSpaceProd _ _ _ (topology A)) _ _ _ _
-  exact continuous_mul
-  apply @Continuous.prod_map _ _ _ _ _ _ _ (topology A) (fun m ↦ m) (fun m ↦ b.repr m i)
-  exact continuous_id
-  have : (fun m ↦ b.repr m i) = LinearMap.basis₁ A M ι b i := by
-    unfold LinearMap.basis₁
-    simp
-  rw [this]
-  nth_rewrite 2 [Module.topology_self A]
-  apply Module.continuous_linear A (LinearMap.basis₁ A M ι b i)
+  simp_rw [← mul_smul]
+  suffices Continuous ((fun (a : A) ↦ a • b i) ∘ (fun (m : A × A) ↦ m.1 * m.2)
+    ∘ (fun (m : A × M) ↦ (m.1, b.repr m.2 i))) from this
+  apply Continuous.comp
+  · exact Module.continuous_linear_from_ring A ((LinearMap.lsmul A M).flip (b i))
+  apply Continuous.comp
+  · exact continuous_mul
+  · apply @Continuous.prod_map _ _ _ _ _ _ _ (topology A) (fun m ↦ m) (fun m ↦ b.repr m i)
+    exact continuous_id
+    exact Module.continuous_linear_to_ring A (LinearMap.basis₁ A M ι b i)
+
 
 lemma Module.bilinear_continuous_of_continuous_on_basis {P : Type*} {ι κ : Type*} [Fintype ι]
 [Fintype κ] [AddCommGroup P] [Module A P] [TopologicalSpace M] [TopologicalSpace N]
 [TopologicalSpace P] [ContinuousAdd P] (b : Basis ι A M) (d : Basis κ A N) (f : M →ₗ[A] N →ₗ[A] P)
 (contonbasis : ∀ (k : κ) (i : ι), Continuous fun (mn : M × N) ↦ ((d.repr mn.2) k • (b.repr mn.1) i • f (b i)) (d k)) :
 Continuous fun (mn : M × N) ↦ f mn.1 mn.2 := by
-  suffices h : Continuous fun (mn : M × N) ↦  (∑ k : κ, (∑ i : ι, d.repr mn.2 k • b.repr mn.1 i • f (b i)) (d k)) by
-    convert h using 1
+  suffices Continuous fun (mn : M × N) ↦  (∑ k : κ, (∑ i : ι, d.repr mn.2 k • b.repr mn.1 i • f (b i)) (d k)) by
+    convert this using 1
     ext mn
     rw [← Basis.sum_repr b mn.1, ← Basis.sum_repr d mn.2]
     simp only [map_sum, LinearMapClass.map_smul, LinearMap.coeFn_sum, Finset.sum_apply,
@@ -295,8 +284,8 @@ Continuous fun (mn : M × N) ↦ f mn.1 mn.2 := by
       mul_one, Finsupp.univ_sum_single]
   apply continuous_finset_sum
   intro k _
-  suffices h : Continuous fun (a : M × N) ↦ ∑ i : ι, ((d.repr a.2 k • b.repr a.1 i • f (b i)) (d k)) by
-    convert h using 1
+  suffices Continuous fun (a : M × N) ↦ ∑ i : ι, ((d.repr a.2 k • b.repr a.1 i • f (b i)) (d k)) by
+    convert this using 1
     simp only [LinearMap.coeFn_sum, Finset.sum_apply, LinearMap.smul_apply]
   apply continuous_finset_sum
   intro i _
@@ -319,27 +308,17 @@ lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Modu
   apply Module.bilinear_continuous_of_continuous_on_basis A b d f
   intro k i
   convert Continuous.smul ?_ ?_
-  · exact Module.topology A
+  · exact iA
   · infer_instance
-  · have : (fun (x : M × N) ↦ d.repr x.2 k) = (LinearMap.basis₁ A N κ d k) ∘ Prod.snd := by
-      ext
-      simp [LinearMap.basis₁]
-    rw [this, ← Module.topology_self]
+  · suffices Continuous ((LinearMap.basis₁ A N κ d k) ∘ Prod.snd) from this
     apply Continuous.comp
-    · nth_rewrite 1 [Module.topology_self A]
-      apply Module.continuous_linear A (LinearMap.basis₁ A N κ d k)
-    rw [Module.prod_canonical]
-    exact Module.continuous_linear A (LinearMap.prodsnd A M N)
-  apply @Continuous.smul _ _ _ (topology A) (topology A) (@instTopologicalSpaceProd _ _ (topology A) (topology A)) _ (@Module.instContinuousSMul _ _ iA _ _ _ _ _ _ ) _ _
-  · have : (fun (x : M × N) ↦ b.repr x.1 i) = (LinearMap.basis₁ A M ι b i) ∘ Prod.fst := by
-      ext
-      simp [LinearMap.basis₁]
-    rw [this, ← Module.topology_self]
+    · exact Module.continuous_linear_to_ring A (LinearMap.basis₁ A N κ d k)
+    · exact continuous_snd
+  apply Continuous.smul
+  · suffices Continuous ((LinearMap.basis₁ A M ι b i) ∘ Prod.fst) from this
     apply Continuous.comp
-    · nth_rewrite 1 [Module.topology_self A]
-      apply Module.continuous_linear A (LinearMap.basis₁ A M ι b i)
-    rw [Module.prod_canonical]
-    exact Module.continuous_linear A (LinearMap.prodfst A M N)
+    · apply Module.continuous_linear_to_ring A (LinearMap.basis₁ A M ι b i)
+    · exact continuous_fst
   · apply continuous_const
 
 -- Note that we have multiplication as a bilinear map.
