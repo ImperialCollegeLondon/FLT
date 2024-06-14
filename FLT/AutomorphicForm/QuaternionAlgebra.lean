@@ -120,8 +120,31 @@ instance add (φ ψ : AutomorphicForm F D M) : AutomorphicForm F D M where
       simp only
       rw [hU x u umemU, hV x u umemV]
 
+instance zero' : Zero (AutomorphicForm F D M) where
+  zero := zero F D M
 
--- instance : AddCommGroup
+instance add' : Add (AutomorphicForm F D M) where
+  add := add F D M
+
+instance : AddCommGroup (AutomorphicForm F D M) where
+  add φ ψ := φ.add ψ
+  add_assoc := sorry
+  zero := zero F D M
+  zero_add := sorry
+  add_zero := sorry
+  nsmul := nsmulRec
+  nsmul_zero := fun x ↦ by rw [nsmulRec]
+  nsmul_succ := fun n x ↦  by rw [nsmulRec]
+  neg φ := φ.neg
+  sub := sorry
+  sub_eq_add_neg := sorry
+  zsmul := sorry
+  zsmul_zero' := sorry
+  zsmul_succ' := sorry
+  zsmul_neg' := sorry
+  add_left_neg := sorry
+  add_comm := sorry
+
 
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
   smul := sorry -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
