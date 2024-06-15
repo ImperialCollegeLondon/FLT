@@ -167,7 +167,7 @@ lemma LinearMap.continuous_on_prod (f : (M × N) →ₗ[A] A) :
     convert this
     simp_rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero, zero_add]
   apply Continuous.add
-  . apply @Continuous.fst' _ _ _ _ _ _ (fun m ↦ f (m, 0))
+  . refine Continuous.fst' (?_ : Continuous fun m ↦ f (m, 0))
     exact Module.continuous_linear_to_ring A
       ({toFun := fun m ↦ f (m, 0),
         map_add' := by {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, zero_add]},
@@ -218,7 +218,7 @@ noncomputable def LinearMap.add (M : Type*) [AddCommGroup M] [Module A M] :
 
 /-- Basis.repr in the first variable as a linear map. -/
 noncomputable def LinearMap.basis₁ (M : Type*) (ι : Type*) [Finite ι] [AddCommGroup M] [Module A M]
-  (b : Basis ι A M) (i : ι): M →ₗ[A] A where
+    (b : Basis ι A M) (i : ι) : M →ₗ[A] A where
   toFun m := b.repr m i
   map_add' := by simp only [map_add, Finsupp.coe_add, Pi.add_apply, implies_true]
   map_smul' _ _  := by simp only [LinearMapClass.map_smul, Finsupp.coe_smul, Pi.smul_apply,
@@ -239,8 +239,8 @@ noncomputable def LinearMap.prodsnd (M N : Type*) [AddCommGroup M] [Module A M] 
 instance Module.instCommAdd {P : Type*} [AddCommGroup P] [Module A P]:
 @ContinuousAdd P (Module.topology A) _ := by
   apply @ContinuousAdd.mk _ (topology A)
-  rw [Module.prod_canonical A]
-  exact Module.continuous_linear A (LinearMap.add A P)
+  rw [prod_canonical A]
+  exact continuous_linear A (LinearMap.add A P)
 
 variable [Module.Finite A M] [Module.Free A M] [Module.Finite A N] [Module.Free A N]
 
@@ -254,8 +254,7 @@ instance Module.instContinuousSMul : @ContinuousSMul A M _ _ (topology A) := by
   let ι := Free.ChooseBasisIndex A M
   have b : Basis ι A M := Free.chooseBasis A M
   suffices Continuous fun (p : A × M) ↦ ∑ i : ι, p.1 • b.repr p.2 i • b i by
-    convert this using 1
-    simp_rw [← Finset.smul_sum, Basis.sum_repr]
+    simpa [← Finset.smul_sum, Basis.sum_repr]
   apply continuous_finset_sum
   intro i _
   simp_rw [← mul_smul]
@@ -285,8 +284,7 @@ Continuous fun (mn : M × N) ↦ f mn.1 mn.2 := by
   apply continuous_finset_sum
   intro k _
   suffices Continuous fun (a : M × N) ↦ ∑ i : ι, ((d.repr a.2 k • b.repr a.1 i • f (b i)) (d k)) by
-    convert this using 1
-    simp only [LinearMap.coeFn_sum, Finset.sum_apply, LinearMap.smul_apply]
+    simpa [LinearMap.coeFn_sum, Finset.sum_apply, LinearMap.smul_apply]
   apply continuous_finset_sum
   intro i _
   exact contonbasis k i
@@ -307,9 +305,7 @@ lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Modu
   rw [← prod_canonical]
   apply Module.bilinear_continuous_of_continuous_on_basis A b d f
   intro k i
-  convert Continuous.smul ?_ ?_
-  · exact iA
-  · infer_instance
+  apply Continuous.smul ?_ ?_
   · suffices Continuous ((LinearMap.basis₁ A N κ d k) ∘ Prod.snd) from this
     apply Continuous.comp
     · exact Module.continuous_linear_to_ring A (LinearMap.basis₁ A N κ d k)
