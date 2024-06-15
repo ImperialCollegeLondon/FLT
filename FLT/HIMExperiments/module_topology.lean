@@ -142,8 +142,6 @@ example (ι : Type*) [Finite ι] :
     -- it's linear, because Lean has the projections as linear maps.
     exact ⟨LinearMap.proj i, rfl⟩
 
---maybe I should conclude this from the example above but don't know how
---otherwise this should be very easy to do by hand
 lemma Module.topology_self : (iA :TopologicalSpace A) = Module.topology A := by
   refine le_antisymm (le_iInf (fun i ↦ ?_)) <| sInf_le ⟨LinearMap.id, induced_id⟩
   rw [← continuous_iff_le_induced, show i = LinearMap.lsmul A A (i 1) by ext; simp]
@@ -201,21 +199,6 @@ lemma Module.prod_canonical :
       rw [induced_compose]
       exact iInf_le _ (LinearMap.lcomp _ _ (LinearMap.snd _ _ _) _)
 
--- Linear maps are automatically continuous, so let's make a couple of handy ones:
-/-- Negation on a module as a linear map. -/
-noncomputable def LinearMap.neg (M : Type*) [AddCommGroup M] [Module A M] :
-    M →ₗ[A] M where
-  toFun := (- .)
-  map_add' := neg_add
-  map_smul' r m := (smul_neg r m).symm
-
-/-- Addition on a module as a linear map from `M²` to `M`. -/
-noncomputable def LinearMap.add (M : Type*) [AddCommGroup M] [Module A M] :
-    M × M →ₗ[A] M where
-  toFun mn := mn.1 + mn.2
-  map_add' _ _ := add_add_add_comm _ _ _ _
-  map_smul' _ _ := (DistribSMul.smul_add _ _ _).symm
-
 /-- Basis.repr in the first variable as a linear map. -/
 noncomputable def LinearMap.basis₁ (M : Type*) (ι : Type*) [Finite ι] [AddCommGroup M] [Module A M]
     (b : Basis ι A M) (i : ι) : M →ₗ[A] A where
@@ -224,26 +207,13 @@ noncomputable def LinearMap.basis₁ (M : Type*) (ι : Type*) [Finite ι] [AddCo
   map_smul' _ _  := by simp only [LinearMapClass.map_smul, Finsupp.coe_smul, Pi.smul_apply,
     smul_eq_mul, RingHom.id_apply]
 
-noncomputable def LinearMap.prodfst (M N : Type*) [AddCommGroup M] [Module A M] [AddCommGroup N]
-  [Module A N] : M × N →ₗ[A] M where
-  toFun := Prod.fst
-  map_add' _ _ := rfl
-  map_smul' _ _ := rfl
-
-noncomputable def LinearMap.prodsnd (M N : Type*) [AddCommGroup M] [Module A M] [AddCommGroup N]
-  [Module A N] : M × N →ₗ[A] N where
-  toFun := Prod.snd
-  map_add' _ _ := rfl
-  map_smul' _ _:= rfl
-
 instance Module.instCommAdd {P : Type*} [AddCommGroup P] [Module A P]:
 @ContinuousAdd P (Module.topology A) _ := by
   apply @ContinuousAdd.mk _ (topology A)
   rw [prod_canonical A]
-  exact continuous_linear A (LinearMap.add A P)
+  exact continuous_linear A ((LinearMap.fst A P P) + (LinearMap.snd A P P))
 
 variable [Module.Finite A M] [Module.Free A M] [Module.Finite A N] [Module.Free A N]
-
 
 instance Module.instContinuousSMul : @ContinuousSMul A M _ _ (topology A) := by
   let _τM : TopologicalSpace M := Module.topology A
@@ -331,7 +301,7 @@ instance moobar : @TopologicalRing D (Module.topology A) _ :=
       -- the product topology is the module topology
       rw [Module.prod_canonical A]
       -- and addition is linear so it's continuous for the module topology
-      exact Module.continuous_linear A (LinearMap.add A D)
+      exact Module.continuous_linear A ((LinearMap.fst A D D) + (LinearMap.snd A D D))
     -- multiplication is continuous:
     continuous_mul := by
       -- the product topology is the module topology
@@ -339,4 +309,4 @@ instance moobar : @TopologicalRing D (Module.topology A) _ :=
       -- and multiplication is bilinear so it's continuous for the module topology (I hope)
       apply Module.continuous_bilinear A (LinearMap.mul A D)
     -- finally negation is continuous because it's linear.
-    continuous_neg := Module.continuous_linear A (LinearMap.neg _ _) }
+    continuous_neg := Module.continuous_linear A (-LinearMap.id) }
