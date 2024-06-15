@@ -164,19 +164,20 @@ lemma LinearMap.continuous_on_prod (f : (M × N) →ₗ[A] A) :
   let _τM : TopologicalSpace M := Module.topology A
   let _τN : TopologicalSpace N := Module.topology A
   suffices Continuous fun (⟨m, n⟩ : M × N) ↦ f (⟨m, 0⟩) + f (⟨0, n⟩) by
-    convert this
-    simp_rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero, zero_add]
+    simpa [← LinearMap.map_add, Prod.mk_add_mk, add_zero, zero_add]
   apply Continuous.add
   . refine Continuous.fst' (?_ : Continuous fun m ↦ f (m, 0))
     exact Module.continuous_linear_to_ring A
       ({toFun := fun m ↦ f (m, 0),
         map_add' := by {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, zero_add]},
-        map_smul' := by {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
+        map_smul' := by intro m x; rw [←LinearMap.map_smul,
+          RingHom.id_apply, Prod.smul_mk, smul_zero]})
   . apply @Continuous.snd' _ _ _ _ _ _ (fun n ↦ f (0, n))
     exact Module.continuous_linear_to_ring A
       ({toFun := fun n ↦ f (0, n),
         map_add' := by {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero]},
-        map_smul' := by {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
+        map_smul' := by intro m x; rw [← LinearMap.map_smul,
+          RingHom.id_apply, Prod.smul_mk, smul_zero]})
 
 -- We need that the module topology on a product is the product topology
 lemma Module.prod_canonical :
@@ -201,7 +202,6 @@ lemma Module.prod_canonical :
       exact iInf_le _ (LinearMap.lcomp _ _ (LinearMap.snd _ _ _) _)
 
 -- Linear maps are automatically continuous, so let's make a couple of handy ones:
--- they're probably there already but I couldn't find them
 /-- Negation on a module as a linear map. -/
 noncomputable def LinearMap.neg (M : Type*) [AddCommGroup M] [Module A M] :
     M →ₗ[A] M where
@@ -245,9 +245,6 @@ instance Module.instCommAdd {P : Type*} [AddCommGroup P] [Module A P]:
 variable [Module.Finite A M] [Module.Free A M] [Module.Finite A N] [Module.Free A N]
 
 
--- I really shouldn't start with iA instead of topology A here.
--- But I need it like this in the next proof and don't know how to rewrite it there
--- Sorry for leaving it like this...
 instance Module.instContinuousSMul : @ContinuousSMul A M _ _ (topology A) := by
   let _τM : TopologicalSpace M := Module.topology A
   apply @ContinuousSMul.mk A M _ _ (topology A)
@@ -270,11 +267,12 @@ instance Module.instContinuousSMul : @ContinuousSMul A M _ _ (topology A) := by
 
 
 lemma Module.bilinear_continuous_of_continuous_on_basis {P : Type*} {ι κ : Type*} [Fintype ι]
-[Fintype κ] [AddCommGroup P] [Module A P] [TopologicalSpace M] [TopologicalSpace N]
-[TopologicalSpace P] [ContinuousAdd P] (b : Basis ι A M) (d : Basis κ A N) (f : M →ₗ[A] N →ₗ[A] P)
-(contonbasis : ∀ (k : κ) (i : ι), Continuous fun (mn : M × N) ↦ ((d.repr mn.2) k • (b.repr mn.1) i • f (b i)) (d k)) :
-Continuous fun (mn : M × N) ↦ f mn.1 mn.2 := by
-  suffices Continuous fun (mn : M × N) ↦  (∑ k : κ, (∑ i : ι, d.repr mn.2 k • b.repr mn.1 i • f (b i)) (d k)) by
+    [Fintype κ] [AddCommGroup P] [Module A P] [TopologicalSpace M] [TopologicalSpace N]
+    [TopologicalSpace P] [ContinuousAdd P] (b : Basis ι A M) (d : Basis κ A N) (f : M →ₗ[A] N →ₗ[A] P)
+    (contonbasis : ∀ (k : κ) (i : ι), Continuous fun (mn : M × N) ↦ ((d.repr mn.2) k •
+    (b.repr mn.1) i • f (b i)) (d k)) :Continuous fun (mn : M × N) ↦ f mn.1 mn.2 := by
+  suffices Continuous fun (mn : M × N) ↦  (∑ k : κ, (∑ i : ι, d.repr mn.2 k •
+    b.repr mn.1 i • f (b i)) (d k)) by
     convert this using 1
     ext mn
     rw [← Basis.sum_repr b mn.1, ← Basis.sum_repr d mn.2]
@@ -290,8 +288,8 @@ Continuous fun (mn : M × N) ↦ f mn.1 mn.2 := by
   exact contonbasis k i
 
 -- I assume this is true! Lots of things like this seem to be true.
-lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Module.Finite A P] [Module.Free A P]
-    (f : M →ₗ[A] N →ₗ[A] P) :
+lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Module.Finite A P]
+    [Module.Free A P] (f : M →ₗ[A] N →ₗ[A] P) :
     let _τMN : TopologicalSpace (M × N) := Module.topology A
     let _τP : TopologicalSpace P := Module.topology A
     Continuous (fun mn ↦ f mn.1 mn.2 : M × N → P)  := by
