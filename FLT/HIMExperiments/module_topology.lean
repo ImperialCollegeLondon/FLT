@@ -199,14 +199,6 @@ lemma Module.prod_canonical :
       rw [induced_compose]
       exact iInf_le _ (LinearMap.lcomp _ _ (LinearMap.snd _ _ _) _)
 
-/-- Basis.repr in the first variable as a linear map. -/
-noncomputable def LinearMap.basis₁ (M : Type*) (ι : Type*) [Finite ι] [AddCommGroup M] [Module A M]
-    (b : Basis ι A M) (i : ι) : M →ₗ[A] A where
-  toFun m := b.repr m i
-  map_add' := by simp only [map_add, Finsupp.coe_add, Pi.add_apply, implies_true]
-  map_smul' _ _  := by simp only [LinearMapClass.map_smul, Finsupp.coe_smul, Pi.smul_apply,
-    smul_eq_mul, RingHom.id_apply]
-
 instance Module.instCommAdd {P : Type*} [AddCommGroup P] [Module A P]:
 @ContinuousAdd P (Module.topology A) _ := by
   apply @ContinuousAdd.mk _ (topology A)
@@ -233,8 +225,7 @@ instance Module.instContinuousSMul : @ContinuousSMul A M _ _ (topology A) := by
   · exact continuous_mul
   · apply @Continuous.prod_map _ _ _ _ _ _ _ (topology A) (fun m ↦ m) (fun m ↦ b.repr m i)
     exact continuous_id
-    exact Module.continuous_linear_to_ring A (LinearMap.basis₁ A M ι b i)
-
+    exact Module.continuous_linear_to_ring A (b.coord i)
 
 lemma Module.bilinear_continuous_of_continuous_on_basis {P : Type*} {ι κ : Type*} [Fintype ι]
     [Fintype κ] [AddCommGroup P] [Module A P] [TopologicalSpace M] [TopologicalSpace N]
@@ -257,7 +248,6 @@ lemma Module.bilinear_continuous_of_continuous_on_basis {P : Type*} {ι κ : Typ
   intro i _
   exact contonbasis k i
 
--- I assume this is true! Lots of things like this seem to be true.
 lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Module.Finite A P]
     [Module.Free A P] (f : M →ₗ[A] N →ₗ[A] P) :
     let _τMN : TopologicalSpace (M × N) := Module.topology A
@@ -274,14 +264,14 @@ lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Modu
   apply Module.bilinear_continuous_of_continuous_on_basis A b d f
   intro k i
   apply Continuous.smul ?_ ?_
-  · suffices Continuous ((LinearMap.basis₁ A N κ d k) ∘ Prod.snd) from this
+  · suffices Continuous ((d.coord k) ∘ Prod.snd) from this
     apply Continuous.comp
-    · exact Module.continuous_linear_to_ring A (LinearMap.basis₁ A N κ d k)
+    · exact Module.continuous_linear_to_ring A (d.coord k)
     · exact continuous_snd
   apply Continuous.smul
-  · suffices Continuous ((LinearMap.basis₁ A M ι b i) ∘ Prod.fst) from this
+  · suffices Continuous ((b.coord i) ∘ Prod.fst) from this
     apply Continuous.comp
-    · apply Module.continuous_linear_to_ring A (LinearMap.basis₁ A M ι b i)
+    · apply Module.continuous_linear_to_ring A (b.coord i)
     · exact continuous_fst
   · apply continuous_const
 
