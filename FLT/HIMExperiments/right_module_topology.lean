@@ -1,100 +1,69 @@
 import Mathlib.RingTheory.TensorProduct.Basic -- we need tensor products of rings at some point
 import Mathlib.Topology.Algebra.Module.Basic -- and we need topological rings and modules
+import Mathlib.Tactic
 
 /-
 
-# Another "module topology" for a module over a topological ring.
+# A "module topology" for a module over a topological ring.
 
 Let `A` denote a topological ring.
 
 If `M` is an `A`-module, then we can let `M` inherit a topology from `A`, namely
-the finest topology which makes
-all the `A`-linear maps `A →ₗ[A] M` continuous.
+the finest topology which makes all the `A`-linear maps `A →ₗ[A] M` continuous.
 
-This topology has the following cool properties:
+## Constructions on modules.
 
-1) Any `A`-linear map `φ : M →ₗ[A] N` is continuous for the module topologies on source
-and target.
+This module-topology may or may not have the following cool properties:
 
-2)
+1) Any `A`-linear map `φ : M →ₗ[A] N` is continuous.
+2) The `A`-module topology on `Unit` is the topology already present on `Unit`.
+3) The `A`-module topology on `A` is `A`s original topology.
+4) The `A`-module topology on a product `M × N` of two modules-with-module-topology is
+   the product topology.
+5) The `A`-module topology on a power `M^n`, that is, `n → M` with `n : Type`, is the
+(now possibly infinite) product topology.
+
+6) Now say `A` is commutative. Then the tensor product of two `A`-modules is an `A`-module,
+and so we can ask if the canonical bilinear map from `M × N` (with the module or product topology?
+probably they're the same) to `M ⊗[A] N` is continuous.
+
+7) Commutativity of `A` also gives spaces of `A`-linear maps the structure of `A`-modules,
+so we can ask for example whether the function application map `M × (M →ₗ[A] N) → N` is continuous.
+
+8) We could also ask whether the evaluation map, from `M →ₗ[A] N` to the power space `N^M` of bare
+functions from `M` (now considered only as an index set, so with no topology) to `N` is continuous.
 
 -/
 
--- This was an early theorem I proved when I didn't know what was true or not, and
--- was just experimenting.
-
--- theorem LinearMap.continuous_on_prod {ι κ : Type*} {R : Type*} {M : Type*}
---     [Finite ι] [Finite κ] [CommSemiring R] [TopologicalSpace R] [TopologicalSemiring R]
---     [AddCommMonoid M] [Module R M]
---     [TopologicalSpace M] [ContinuousAdd M] [ContinuousSMul R M]
---     (f : (ι → R) →ₗ[R] (κ → R) →ₗ[R] M) :
---     Continuous (fun xy ↦ f xy.1 xy.2 : (ι → R) × (κ → R) → M) := by
---   cases nonempty_fintype (ι × κ)
---   cases nonempty_fintype κ
---   cases nonempty_fintype ι
---   classical
---   have foo : (fun xy ↦ f xy.1 xy.2 : (ι → R) × (κ → R) → M) =
---       fun xy ↦ ∑ ik : ι × κ, ((xy.1 ik.1) * (xy.2 ik.2)) •
---         f (fun i ↦ if i = ik.1 then 1 else 0) (fun k ↦ if k = ik.2 then 1 else 0) := by
---     ext ⟨x, y⟩
---     simp only [pi_apply_eq_sum_univ (f x) y]
---     -- `rw [Fintype.sum_prod_type_right]` doesn't work and I don't know why
---     -- `rw [@Fintype.sum_prod_type_right _ ι κ ‹_› ‹_› _ _]` also doesn't work and I don't know why
---     -- annoying workaround
---     symm
---     convert @Fintype.sum_prod_type_right _ ι κ ‹_› ‹_› _ _
---     simp only [pi_apply_eq_sum_univ f x, mul_comm (x _), mul_smul, ← Finset.smul_sum, Eq.comm]
---     congr
---     apply sum_apply
---   rw [foo]
---   refine continuous_finset_sum _ fun i _ => Continuous.smul ?_ continuous_const
---   refine Continuous.mul (Continuous.comp (continuous_apply _) (continuous_fst)) ?_
---   exact (Continuous.comp (continuous_apply _) (continuous_snd))
-
+-- Let A be a ring, with a compatible topology.
 variable (A : Type*) [CommRing A] [TopologicalSpace A] [TopologicalRing A]
 
--- let M be an A-module
-variable {M : Type*} [AddCommGroup M] [Module A M]
 
-variable (M) in
-/-- The "canonical topology" on a module `M` over a topological ring `A`. It's defined as
-the finest topology on `M` which makes every `A`-linear map `A → M` continuous. -/
-abbrev Module.topology2 : TopologicalSpace M :=
+/-- The "right topology" on a module `M` over a topological ring `A`. It's defined as
+the finest topology on `M` which makes every `A`-linear map `A → M` continuous. It's called
+the "right topology" because `M` goes on the right.  -/
+abbrev Module.rtopology (M : Type*) [AddCommGroup M] [Module A M]: TopologicalSpace M :=
 -- Topology defined as LUB of pushforward.
   ⨆ (f : A →ₗ[A] M), TopologicalSpace.coinduced f inferInstance
 
--- let `N` be another module
+-- let `M` and `N` be `A`-modules
+variable (M : Type*) [AddCommGroup M] [Module A M]
 variable {N : Type*} [AddCommGroup N] [Module A N]
 
 /-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
 lemma Module.continuous_linear (e : M →ₗ[A] N) :
-    @Continuous M N (Module.topology2 A M) (Module.topology2 A N) e := by
-  -- rewrite the goal (continuity of `e`) as in inequality:
-  -- (pushforward of module topology) ≤ (module topology)
-  rw [continuous_iff_coinduced_le]
-  -- There's an already-proven lemma in mathlib that says the pushforward of an `iSup` of
-  -- topologies is the `iSup` of the pullbacks
-  rw [coinduced_iSup]
-  -- composite of the coinduced topologies is just topology induced by the composition
-  -- need `simp_rw` because it's under a binder.
-  simp_rw [coinduced_compose]
-  -- so now we've got to prove `iSup S` is `≤ iSup T` for `S` the set of all linear
-  -- maps from `M` to `A` which factor through `e`, and `T` the set of all of them.
-  -- It of course suffices to prove `T` ⊆ `S`.
-  apply sSup_le_sSup
-  -- and this is a trivial calculation.
-  rintro τ ⟨φ, rfl⟩
-  exact ⟨e ∘ₗ φ, rfl⟩
+    @Continuous M N (Module.rtopology A M) (Module.rtopology A N) e := by
+  sorry -- maybe some appropriate analogue of Hannah/Lugwig's proof will work?
 
 -- A formal corollary should be that
 def Module.homeomorphism_equiv (e : M ≃ₗ[A] N) :
     -- lean needs to be told the topologies explicitly in the statement
-    let τM := Module.topology2 A M
-    let τN := Module.topology2 A N
+    let τM := Module.rtopology A M
+    let τN := Module.rtopology A N
     M ≃ₜ N :=
   -- And also at the point where lean puts the structure together, unfortunately
-  let τM := Module.topology2 A M
-  let τN := Module.topology2 A N
+  let τM := Module.rtopology A M
+  let τN := Module.rtopology A N
   -- all the sorries should be formal.
   { toFun := e
     invFun := e.symm
@@ -104,20 +73,25 @@ def Module.homeomorphism_equiv (e : M ≃ₗ[A] N) :
     continuous_invFun := sorry
   }
 
--- sanity check: topology on A doesn't change
-example : (inferInstance : TopologicalSpace A) = Module.topology2 A A := by
-  apply le_antisymm
-  · apply le_sSup
-    use 1
-    apply coinduced_id
-  · apply sSup_le
-    rintro - ⟨φ, rfl⟩
-    rw [← continuous_iff_coinduced_le]
-    have foo : ⇑φ = fun a ↦ a • φ 1 := by
-      ext a
-      rw [← map_smul, smul_eq_mul, mul_one]
-    rw [foo]
-    exact continuous_mul_right (φ 1)
+-- Claim: topology on A doesn't change
+example : (inferInstance : TopologicalSpace A) = Module.rtopology A A := by
+  sorry
+
+-- claim: topology on the 1-point set is the canonical one
+example : (inferInstance : TopologicalSpace Unit) = Module.rtopology A Unit := by
+  sorry
+
+example :
+  let _τM : TopologicalSpace M := Module.rtopology A M
+  let _τN : TopologicalSpace N := Module.rtopology A N
+  (inferInstance : TopologicalSpace (M × N)) = Module.rtopology A (M × N) := by sorry
+
+example :
+  let _τM : TopologicalSpace M := Module.rtopology A M
+  let _τN : TopologicalSpace N := Module.rtopology A N
+  (inferInstance : TopologicalSpace (M × N)) = Module.rtopology A (M × N) := by sorry
+
+#exit
 
 -- -- sanity check: the topology on A^n is the product topology
 -- example (ι : Type*) [Finite ι] :
