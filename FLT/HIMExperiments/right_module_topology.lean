@@ -35,8 +35,9 @@ functions from `M` (now considered only as an index set, so with no topology) to
 
 -/
 
+section noncommutative
 -- Let A be a ring, with a compatible topology.
-variable (A : Type*) [CommRing A] [TopologicalSpace A] [TopologicalRing A]
+variable (A : Type*) [Ring A] [TopologicalSpace A] [TopologicalRing A]
 
 
 /-- The "right topology" on a module `M` over a topological ring `A`. It's defined as
@@ -73,12 +74,16 @@ def Module.homeomorphism_equiv (e : M ≃ₗ[A] N) :
     continuous_invFun := sorry
   }
 
--- Claim: topology on A doesn't change
-example : (inferInstance : TopologicalSpace A) = Module.rtopology A A := by
-  sorry
 
 -- claim: topology on the 1-point set is the canonical one
 example : (inferInstance : TopologicalSpace Unit) = Module.rtopology A Unit := by
+  sorry
+
+-- Anything from this point on *might* need commutative.
+-- Just move it to the commutative section and prove it there.
+
+-- Claim: topology on A doesn't change
+example : (inferInstance : TopologicalSpace A) = Module.rtopology A A := by
   sorry
 
 example :
@@ -95,6 +100,16 @@ example (ι : Type*) :
     let _τM : TopologicalSpace M := Module.rtopology A M
     (inferInstance : TopologicalSpace (ι → M)) = Module.rtopology A (ι → M) := by sorry
 
+end noncommutative
+
+section commutative
+
+-- Let A be a commutative ring, with a compatible topology.
+variable (A : Type*) [CommRing A] [TopologicalSpace A] [TopologicalRing A]
+-- let `M` and `N` be `A`-modules
+variable (M : Type*) [AddCommGroup M] [Module A M]
+variable {N : Type*} [AddCommGroup N] [Module A N]
+
 open scoped TensorProduct
 lemma Module.continuous_bilinear :
     let _τM : TopologicalSpace M := Module.rtopology A _
@@ -102,7 +117,7 @@ lemma Module.continuous_bilinear :
     let _τMN : TopologicalSpace (M ⊗[A] N) := Module.rtopology A _
     Continuous (fun (mn : M × N) ↦ mn.1 ⊗ₜ mn.2 : M × N → M ⊗[A] N) := by sorry
 
--- Now say we have a non-commutative `A`-algebra `D` which is free of finite type.
+-- Now say we have a (not necessarily commutative) `A`-algebra `D` which is free of finite type.
 
 -- are all these assumptions needed?
 variable (D : Type*) [Ring D] [Algebra A D] [Module.Finite A D] [Module.Free A D]
@@ -116,3 +131,5 @@ instance Module.topologicalRing : @TopologicalRing D (Module.rtopology A D) _ :=
       sorry
     continuous_neg := by
       sorry }
+
+end commutative
