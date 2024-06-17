@@ -57,32 +57,51 @@ and target.
 --   refine Continuous.mul (Continuous.comp (continuous_apply _) (continuous_fst)) ?_
 --   exact (Continuous.comp (continuous_apply _) (continuous_snd))
 
+-- Non-commutative variables
+variable (B : Type*) [Ring B] [iB: TopologicalSpace B] [TopologicalRing B]
+
+-- let M be an B-module
+variable {V : Type*} [AddCommGroup V] [Module B V]
+
+-- let `N` be another module
+variable {W : Type*} [AddCommGroup W] [Module B W]
+
+
+-- Commutative variables
 variable (A : Type*) [CommRing A] [iA: TopologicalSpace A] [TopologicalRing A]
 
 -- let M be an A-module
 variable {M : Type*} [AddCommGroup M] [Module A M]
+
+-- let `N` be another module
+variable {N : Type*} [AddCommGroup N] [Module A N]
+
+
+-- Now say we have a non-commutative `A`-algebra `D` which is free of finite type.
+variable (D : Type*) [Ring D] [Algebra A D] [Module.Finite A D] [Module.Free A D]
+
+
+
 -- Here is a conceptual way to put a topology on `M`. Let's define it to be
 -- the coarsest topology such that all `A`-linear maps from `M` to `A` are continuous
 -- (recall that `A` already has a topology). If M is free of finite rank then
 -- we'll see that this is the same as just choosing an isomorphism M = A^n and giving
 -- it the product topology
 
-/-- The "canonical topology" on a module `M` over a topological ring `A`. It's defined as
-the weakest topology on `M` which makes every `A`-linear map `M → A` continuous. -/
+/-- The "canonical topology" on a module `V` over a topological ring `B`. It's defined as
+the weakest topology on `V` which makes every `B`-linear map `V → B` continuous. -/
 -- make it an abbreviation not a definition; this means that Lean "prints `Module.topology`
 -- in the tactic state for the human reader" but interally is syntactically equal to
 -- to the `iInf`, meaning that all the `iInf` rewrites still work.
-abbrev Module.topology : TopologicalSpace M :=
+abbrev Module.topology : TopologicalSpace V :=
 -- Topology defined as greatest lower bound of pullback topologies. So it's the biggest
 -- topology making all the `f`s continuous.
-  ⨅ (f : M →ₗ[A] A), TopologicalSpace.induced f inferInstance
+  ⨅ (f : V →ₗ[B] B), TopologicalSpace.induced f inferInstance
 
--- let `N` be another module
-variable {N : Type*} [AddCommGroup N] [Module A N]
 
-/-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
-lemma Module.continuous_linear (e : M →ₗ[A] N) :
-    @Continuous M N (Module.topology A) (Module.topology A) e := by
+/-- Every `B`-linear map between two `B`-modules with the canonical topology is continuous. -/
+lemma Module.continuous_linear (e : V →ₗ[B] W) :
+    @Continuous V W (Module.topology B) (Module.topology B) e := by
   -- rewrite the goal (continuity of `e`) as in inequality:
   --(canonical topology) ≤ (pullback of induced topology)
   rw [continuous_iff_le_induced]
@@ -101,26 +120,26 @@ lemma Module.continuous_linear (e : M →ₗ[A] N) :
   exact ⟨φ ∘ₗ e, rfl⟩
 
 -- A formal corollary should be that
-def Module.homeomorphism_equiv (e : M ≃ₗ[A] N) :
+def Module.homeomorphism_equiv (e : V ≃ₗ[B] W) :
     -- lean needs to be told the topologies explicitly in the statement
-    let _τM : TopologicalSpace M := Module.topology A
-    let _τN : TopologicalSpace N := Module.topology A
-    M ≃ₜ N :=
+    let _τM : TopologicalSpace V := Module.topology B
+    let _τN : TopologicalSpace W := Module.topology B
+    V ≃ₜ W :=
   -- And also at the point where lean puts the structure together, unfortunately
-  let _τM : TopologicalSpace M := Module.topology A
-  let _τN : TopologicalSpace N := Module.topology A
+  let _τM : TopologicalSpace V := Module.topology B
+  let _τN : TopologicalSpace W := Module.topology B
   -- all the sorries should be formal.
   { toFun := e
     invFun := e.symm
     left_inv := e.left_inv
     right_inv := e.right_inv
-    continuous_toFun := Module.continuous_linear A e
-    continuous_invFun := Module.continuous_linear A e.symm
+    continuous_toFun := Module.continuous_linear B e
+    continuous_invFun := Module.continuous_linear B e.symm
   }
 
 -- sanity check: the topology on A^n is the product topology
 example (ι : Type*) [Finite ι] :
-    (Pi.topologicalSpace : TopologicalSpace (ι → A)) = Module.topology A := by
+    (Pi.topologicalSpace : TopologicalSpace (ι → B)) = Module.topology B := by
   -- suffices to prove that each topology is ≤ the other one
   apply le_antisymm
   · -- you're ≤ `iInf S` iff you're ≤ all elements of `S`
@@ -142,21 +161,25 @@ example (ι : Type*) [Finite ι] :
     -- it's linear, because Lean has the projections as linear maps.
     exact ⟨LinearMap.proj i, rfl⟩
 
+--! Needs CommRing A
 lemma Module.topology_self : (iA :TopologicalSpace A) = Module.topology A := by
   refine le_antisymm (le_iInf (fun i ↦ ?_)) <| sInf_le ⟨LinearMap.id, induced_id⟩
   rw [← continuous_iff_le_induced, show i = LinearMap.lsmul A A (i 1) by ext; simp]
   exact continuous_const.mul continuous_id
 
+--! topology_self Needs CommRing A
 lemma Module.continuous_linear_from_ring (e : A →ₗ[A] M) :
     @Continuous A M _ (Module.topology A) e := by
   nth_rw 1 [Module.topology_self A]
   exact Module.continuous_linear A e
 
+--! topology_self Needs CommRing A
 lemma Module.continuous_linear_to_ring (e : M →ₗ[A] A) :
     @Continuous M A (Module.topology A) _ e := by
   nth_rw 2 [Module.topology_self A]
   exact Module.continuous_linear A e
 
+--! Module.continuous_linear_to_ring Needs CommRing A
 lemma LinearMap.continuous_on_prod (f : (M × N) →ₗ[A] A) :
     @Continuous _ _ (@instTopologicalSpaceProd M N (Module.topology A) (Module.topology A)) _ f := by
   let _τM : TopologicalSpace M := Module.topology A
@@ -177,6 +200,7 @@ lemma LinearMap.continuous_on_prod (f : (M × N) →ₗ[A] A) :
         map_smul' := by intro m x; rw [← LinearMap.map_smul,
           RingHom.id_apply, Prod.smul_mk, smul_zero]})
 
+--! LinearMap.continuous_on_prod Needs CommRing A
 -- We need that the module topology on a product is the product topology
 lemma Module.prod_canonical :
     @instTopologicalSpaceProd M N (Module.topology A) (Module.topology A) =
@@ -199,6 +223,7 @@ lemma Module.prod_canonical :
       rw [induced_compose]
       exact iInf_le _ (LinearMap.lcomp _ _ (LinearMap.snd _ _ _) _)
 
+--! prod_canonical Needs CommRing A
 instance Module.instCommAdd {P : Type*} [AddCommGroup P] [Module A P]:
 @ContinuousAdd P (Module.topology A) _ := by
   apply @ContinuousAdd.mk _ (topology A)
@@ -207,6 +232,7 @@ instance Module.instCommAdd {P : Type*} [AddCommGroup P] [Module A P]:
 
 variable [Module.Finite A M] [Module.Free A M] [Module.Finite A N] [Module.Free A N]
 
+--! continuous_linear_from_ring Needs CommRing A therefore the rest does too
 instance Module.instContinuousSMul : @ContinuousSMul A M _ _ (topology A) := by
   let _τM : TopologicalSpace M := Module.topology A
   apply @ContinuousSMul.mk A M _ _ (topology A)
@@ -276,10 +302,6 @@ lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Modu
   · apply continuous_const
 
 -- Note that we have multiplication as a bilinear map.
-
--- Now say we have a non-commutative `A`-algebra `D` which is free of finite type.
-
-variable (D : Type*) [Ring D] [Algebra A D] [Module.Finite A D] [Module.Free A D]
 
 -- Let's put the module topology on `D`
 def D_topology : TopologicalSpace D := Module.topology A
