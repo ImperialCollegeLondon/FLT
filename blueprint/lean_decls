@@ -54,8 +54,6 @@ Hurwitz.canonicalForm
 Hurwitz.completed_units
 IsCentralSimple
 MatrixRing.isCentralSimple
-DedekindDomain.FiniteAdeleRing.mul_induction_on
-DedekindDomain.FiniteAdeleRing.clear_denominator
 DedekindDomain.instTopologicalRingFiniteAdeleRing
 AutomorphicForm.GLn.IsSmooth
 AutomorphicForm.GLn.IsSlowlyIncreasing
