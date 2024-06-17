@@ -44,14 +44,22 @@ variable {R D A : Type*} [CommRing R] [Ring D] [CommRing A] [Algebra R D] [Algeb
 --TODO:
 instance : Algebra A (D ⊗[R] A) :=
   Algebra.TensorProduct.includeRight.toRingHom.toAlgebra' (by
-    sorry
+    simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.includeRight_apply]
+    intro a b
+    apply TensorProduct.induction_on (motive := fun b ↦ 1 ⊗ₜ[R] a * b = b * 1 ⊗ₜ[R] a)
+    . simp only [mul_zero, zero_mul]
+    . intro d a'
+      simp only [Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one]
+      rw [NonUnitalCommSemiring.mul_comm]
+    . intro x y hx hy
+      rw [left_distrib, hx, hy, right_distrib]
     )
 
-instance [Module.Finite R D]  : Module.Finite A (D ⊗[R] A) := sorry
+
+
+instance [Module.Finite R D] : Module.Finite A (D ⊗[R] A) := sorry
 
 instance [Module.Free R D]  : Module.Free A (D ⊗[R] A) := sorry
-
-#check Group
 
 
 end missing_instances
@@ -60,10 +68,6 @@ instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := Module.to
 instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := moobar (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
 
 namespace TotallyDefiniteQuaternionAlgebra
-
-#check Units.map
-
-#synth Ring (D ⊗[F] FiniteAdeleRing (𝓞 F) F)
 
 noncomputable example : D →+* (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := by exact
   Algebra.TensorProduct.includeLeftRingHom
@@ -124,9 +128,31 @@ instance add (φ ψ : AutomorphicForm F D M) : AutomorphicForm F D M where
 -- instance : AddCommGroup
 
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
-  smul := sorry -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
-  one_smul := sorry
-  mul_smul := sorry
-
+  smul g φ :=   {
+    toFun := fun x => φ  (x*g),
+    left_invt := by
+      intros d x
+      simp only [← φ.left_invt d x]
+      rw [mul_assoc]
+      exact φ.left_invt d (x * g)
+    loc_cst := by
+      rcases φ.loc_cst with ⟨U, openU, hU⟩
+      use U
+      constructor
+      · exact openU
+      · intros x u umem
+        simp only
+        sorry
+  } -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
+  one_smul := by
+    intros φ
+    have h:{toFun := fun x => φ (x * 1), left_invt := ?_, loc_cst := ?_} = φ := by
+      simp only [mul_one]
+    exact h
+  mul_smul := by
+    intros g h φ
+    sorry
 -- if M is an R-module (e.g. if M = R!), then Automorphic forms are also an R-module
 -- with the action being 0on the coefficients.
+
+example(a b c :ℝ ): a * b * c = (a * b) * c := rfl
