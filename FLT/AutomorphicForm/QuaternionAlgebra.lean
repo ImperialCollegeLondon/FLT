@@ -168,11 +168,10 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
 
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
   smul g φ :=   {
-    toFun := fun x => φ  (x*g),
+    toFun := fun x => φ (x * g)
     left_invt := by
       intros d x
-      simp only [← φ.left_invt d x]
-      rw [mul_assoc]
+      simp only [← φ.left_invt d x, mul_assoc]
       exact φ.left_invt d (x * g)
     loc_cst := by
       rcases φ.loc_cst with ⟨U, openU, hU⟩
@@ -183,14 +182,8 @@ instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
         simp only
         sorry
   } -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
-  one_smul := by
-    intros φ
-    have h:{toFun := fun x => φ (x * 1), left_invt := ?_, loc_cst := ?_} = φ := by
-      simp only [mul_one]
-    exact h
-  mul_smul := by
-    intros g h φ
-    sorry
+  one_smul := by intros; simp only [instHSMul, mul_one]
+  mul_smul := by intros; ext; simp only [instHSMul, mk.injEq, mul_assoc]
 -- if M is an R-module (e.g. if M = R!), then Automorphic forms are also an R-module
 -- with the action being 0on the coefficients.
 
