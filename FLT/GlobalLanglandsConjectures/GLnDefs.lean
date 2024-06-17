@@ -111,6 +111,50 @@ end PR13703
 
 end PRs  -- section
 
+section
+
+@[simps!]
+def bracketBilin (R L M) [CommRing R] [LieRing L] [LieAlgebra R L] [AddCommGroup M] [Module R M]
+    [LieRingModule L M] [LieModule R L M] :
+    L →ₗ[R] M →ₗ[R] M :=
+  LinearMap.mk₂ _ (Bracket.bracket)
+    add_lie smul_lie lie_add lie_smul
+
+attribute [ext] Bracket
+
+open scoped TensorProduct
+
+noncomputable instance instLieAlgebra'
+  (S R A L : Type*) [CommRing S] [CommRing R] [CommRing A] [Algebra R A] [LieRing L] [LieAlgebra R L]
+    [Algebra S A] [SMulCommClass R S A] :
+    LieAlgebra S (A ⊗[R] L) where
+  lie_smul a x y := by
+    induction x using TensorProduct.induction_on generalizing y
+    · simp
+    · induction y using TensorProduct.induction_on
+      · simp
+      · simp [TensorProduct.smul_tmul']
+      · simp_all
+    · simp_all [add_lie]
+
+variable (R A L M B : Type*)
+variable [CommRing R] [CommRing A] [Ring B] [Algebra R A] [Algebra R B]
+
+theorem diamond_fix :
+    LieAlgebra.ExtendScalars.instBracketTensorProduct R A B B = Ring.instBracket := by
+  ext x y
+  conv_lhs => rw [← @bracketBilin_apply_apply R _ _ _ _]
+  rw [← @bracketBilin_apply_apply R _ _ _ (_) (.ofAssociativeAlgebra) _ _ (_) (_) x y]
+  rotate_left
+  exact @lieAlgebraSelfModule _ _ _ (_) (_)
+  refine LinearMap.congr_fun₂ ?_ x y
+  ext xa xb ya yb
+  change @Bracket.bracket _ _ (_) (xa ⊗ₜ[R] xb) (ya ⊗ₜ[R] yb) = _
+  dsimp [Ring.lie_def]
+  rw [TensorProduct.tmul_sub, mul_comm]
+
+end
+
 end DedekindDomain
 
 namespace AutomorphicForm
@@ -134,14 +178,12 @@ open Matrix
 
 variable (n : ℕ)
 variable (G : Type) [TopologicalSpace G] [Group G]
-  {E : Type} [NormedAddCommGroup E] [NormedSpace ℝ E]
-  {H : Type} [TopologicalSpace H]
-  [ChartedSpace H G]
-  (I : ModelWithCorners ℝ E H)
-  [LieGroup I G]
+  (E : Type) [NormedAddCommGroup E] [NormedSpace ℝ E]
+  [ChartedSpace E G]
+  [LieGroup 𝓘(ℝ, E) G]
 
 def action :
-    LeftInvariantDerivation I G →ₗ⁅ℝ⁆ (Module.End ℝ C^∞⟮I, G; ℝ⟯) where
+    LeftInvariantDerivation 𝓘(ℝ, E) G →ₗ⁅ℝ⁆ (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯) where
   toFun l := Derivation.toLinearMap l
   map_add' := by simp
   map_smul' := by simp
@@ -181,75 +223,43 @@ def LieHom.baseChange
     · simp_all only [add_lie, map_add]
 
 def actionTensorC :
-    ℂ ⊗[ℝ] LeftInvariantDerivation I G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮I, G; ℝ⟯)) :=
+    ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯)) :=
   LieHom.baseChange _ (action _ _)
 
-section
-variable (R : Type*) (L : Type*)
-variable [CommRing R] [LieRing L] [LieAlgebra R L]
-variable {A : Type*} [Ring A] [Algebra R A] (f : L →ₗ⁅R⁆ A)
-variable {A' : Type*} [LieRing A'] [LieAlgebra R A']
-
-def lift' (e : A' ≃ₗ[R] A) (h : ∀ x y, e ⁅x, y⁆ = e x * e y - e y * e x) :
-    (L →ₗ⁅R⁆ A') ≃ (UniversalEnvelopingAlgebra R L →ₐ[R] A) := by
-  refine Equiv.trans ?_ (UniversalEnvelopingAlgebra.lift _)
-  exact {
-    toFun := fun l => {
-        __ := e.toLinearMap ∘ₗ l.toLinearMap
-        map_lie' := by
-          simp
-          intros x y
-          rw [h, ← @LieRing.of_associative_ring_bracket]
-        }
-    invFun := fun l => {
-        __ := e.symm.toLinearMap ∘ₗ l.toLinearMap
-        map_lie' := by sorry
-    }
-    left_inv := by
-      rw [Function.LeftInverse]
-      intro x
-      have h: ↑e.symm ∘ₗ e.toLinearMap ∘ₗ x.toLinearMap = x.toLinearMap := by
-        rw [← LinearMap.comp_assoc]
-        simp
-      simp_rw [h]
-    right_inv := by
-      rw [Function.RightInverse, Function.LeftInverse]
-      simp
-      intro x
-      have h: ↑e.toLinearMap ∘ₗ e.symm.toLinearMap ∘ₗ x.toLinearMap = x.toLinearMap := by
-        rw [← LinearMap.comp_assoc]
-        simp
-      simp_rw [h]
-  }
-end
-
 def actionTensorCAlg :
-  UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G) →ₐ[ℂ]
-    ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯) :=
-  have := lift' ℂ
-    (ℂ ⊗[ℝ] LeftInvariantDerivation I G)
-    (A' := ℂ ⊗[ℝ] (C^∞⟮I, G; ℝ⟯ →ₗ[ℝ] C^∞⟮I, G; ℝ⟯))
-    (A := ℂ ⊗[ℝ] (C^∞⟮I, G; ℝ⟯ →ₗ[ℝ] C^∞⟮I, G; ℝ⟯))
-    (.refl _ _)
-    (fun x y => sorry)
-  this (actionTensorC G I)
+  UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
+    ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) := by
+  have := actionTensorC G E; revert this
+  convert ⇑(UniversalEnvelopingAlgebra.lift ℂ
+    (L := ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)
+    (A := ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯))) using 0
+  congr!
+  · dsimp [LieAlgebra.ExtendScalars.instLieRing, LieRing.ofAssociativeRing]; congr
+    apply diamond_fix
+  · change HEq ({..} : LieAlgebra ..) (@LieAlgebra.mk _ _ _ (_) _ _); congr!
 
 def actionTensorCAlg' :
-  UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G) →ₐ[ℂ]
-    Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯) :=
-  (LinearMap.tensorProductEnd ..).comp (actionTensorCAlg G I)
+  UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
+    Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) :=
+  (LinearMap.tensorProductEnd ..).comp (actionTensorCAlg G E)
 
 def actionTensorCAlg'2 :
-  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G)) →ₐ[ℂ]
-    Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯) :=
-  (actionTensorCAlg' G I).comp (SubalgebraClass.val _)
+  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)) →ₐ[ℂ]
+    Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) :=
+  (actionTensorCAlg' G E).comp (SubalgebraClass.val _)
 
-instance : Module ℝ C^∞⟮I, G; 𝓘(ℝ, ℝ), ℝ⟯ := inferInstance
-instance : Module ℂ C^∞⟮I, G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
+instance : Module ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯ := inferInstance
+instance : Module ℂ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
 
-def actionTensorCAlg'3 :
-  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation I G)) →ₐ[ℂ]
-    Module.End ℂ (C^∞⟮I, G; 𝓘(ℝ, ℂ), ℂ⟯) := sorry
+def Alg := UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)
+instance : Semiring (Alg G E) := inferInstanceAs (Semiring (UniversalEnvelopingAlgebra ..))
+instance : Algebra ℂ (Alg G E) := inferInstanceAs (Algebra ℂ (UniversalEnvelopingAlgebra ..))
+
+def Z := Subalgebra.center ℂ (Alg G E)
+instance : CommSemiring (Z G E) := inferInstanceAs (CommSemiring (Subalgebra.center ..))
+instance : AddCommMonoid (Z G E) := inferInstanceAs (AddCommMonoid (Subalgebra.center ..))
+
+def actionTensorCAlg'3 : Z G E →ₐ[ℂ] Module.End ℂ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
 
 
 -- algebra needs to be done
@@ -258,17 +268,12 @@ def actionTensorCAlg'3 :
 -- Step 3: induced action of centre
 
 variable {n : ℕ}
-structure IsSmooth (f :
-    (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
-    (GL (Fin n) ℝ)
-    → ℂ) : Prop where
+structure IsSmooth (f : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ) : Prop where
   continuous : Continuous f
   loc_cst (y : GL (Fin n) ℝ) :
     IsLocallyConstant (fun x ↦ f (x, y))
   smooth (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     Smooth 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) 𝓘(ℝ, ℂ) (fun y ↦ f (x, y))
-
-variable {n : ℕ}
 
 open Matrix
 
@@ -321,29 +326,25 @@ structure IsConstantOn (U : Subgroup (GL (Fin n) (FiniteAdeleRing ℤ ℚ)))
     f (x * u, y) = f (x, y)
 
 def annihilator {R} [CommSemiring R]
-  {M} [AddCommMonoid M] [Module R M]
-  {N} [AddCommMonoid N] [Module R N]
-  {P} [AddCommMonoid P] [Module R P]
-  (action : M →ₗ[R] (N →ₗ[R] P)) (a : N) : Submodule R M :=
-  { carrier := { x | action x a = 0 }
-    add_mem' := sorry
-    zero_mem' := sorry
-    smul_mem' := sorry }
+    {M} [AddCommMonoid M] [Module R M]
+    {N} [AddCommMonoid N] [Module R N]
+    (a : M) : Submodule R (M →ₗ[R] N) :=
+  Submodule.compatibleMaps (Submodule.span R {a}) ⊥
 
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
-  toFun : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) ×
-      (GL (Fin n) ℝ) → ℂ
+  toFun : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ
   is_smooth : IsSmooth toFun
   is_periodic : ∀ (g : GL (Fin n) ℚ) (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) (y : GL (Fin n) ℝ),
     toFun (RingHom.GL (algebraMap _ _) _ g * x, RingHom.GL (algebraMap _ _) _ g * y) = toFun (x, y)
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
-  has_finite_level: ∃ U, IsConstantOn U toFun
+  has_finite_level : ∃ U, IsConstantOn U toFun
   is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
-    FiniteDimensional ℂ (_ ⧸ annihilator
-      (actionTensorCAlg'3 (GL (Fin n) ℝ) 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ)).toLinearMap
-      ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩)
+    haveI f : C^∞⟮𝓘(ℝ, _), _; 𝓘(ℝ, ℂ), ℂ⟯ := ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩
+    letI m := (actionTensorCAlg'3 (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ)).toLinearMap
+    FiniteDimensional ℂ (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ) ⧸ (annihilator f).comap m)
+  -- missing: invariance under compact open subgroup
   -- missing: infinite part has a weight
 
 namespace AutomorphicFormForGLnOverQ
