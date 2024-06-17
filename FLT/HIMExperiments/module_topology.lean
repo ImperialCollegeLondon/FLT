@@ -6,6 +6,7 @@ Authors: Kevin Buzzard, Hannah Scholz, Ludwig Monnerjahn
 
 import Mathlib.RingTheory.TensorProduct.Basic -- we need tensor products of rings at some point
 import Mathlib.Topology.Algebra.Module.Basic -- and we need topological rings and modules
+import Mathlib.Topology.Algebra.Module.FiniteDimension
 /-
 
 # The "module topology" for a module over a topological ring.
@@ -56,10 +57,15 @@ and target.
 --   refine Continuous.mul (Continuous.comp (continuous_apply _) (continuous_fst)) ?_
 --   exact (Continuous.comp (continuous_apply _) (continuous_snd))
 
-variable (A : Type*) [CommRing A] [iA: TopologicalSpace A] [TopologicalRing A]
+-- Non-commutative variables
+variable (A : Type*) [Ring A] [iA: TopologicalSpace A] [TopologicalRing A]
 
 -- let M be an A-module
 variable {M : Type*} [AddCommGroup M] [Module A M]
+
+-- let `N` be another module
+variable {N : Type*} [AddCommGroup N] [Module A N]
+
 -- Here is a conceptual way to put a topology on `M`. Let's define it to be
 -- the coarsest topology such that all `A`-linear maps from `M` to `A` are continuous
 -- (recall that `A` already has a topology). If M is free of finite rank then
@@ -76,8 +82,6 @@ abbrev Module.topology : TopologicalSpace M :=
 -- topology making all the `f`s continuous.
   ⨅ (f : M →ₗ[A] A), TopologicalSpace.induced f inferInstance
 
--- let `N` be another module
-variable {N : Type*} [AddCommGroup N] [Module A N]
 
 /-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
 lemma Module.continuous_linear (e : M →ₗ[A] N) :
@@ -102,12 +106,12 @@ lemma Module.continuous_linear (e : M →ₗ[A] N) :
 -- A formal corollary should be that
 def Module.homeomorphism_equiv (e : M ≃ₗ[A] N) :
     -- lean needs to be told the topologies explicitly in the statement
-    let τM : TopologicalSpace M := Module.topology A
-    let τN : TopologicalSpace N := Module.topology A
+    let _τM : TopologicalSpace M := Module.topology A
+    let _τN : TopologicalSpace N := Module.topology A
     M ≃ₜ N :=
   -- And also at the point where lean puts the structure together, unfortunately
-  let τM : TopologicalSpace M := Module.topology A
-  let τN : TopologicalSpace N := Module.topology A
+  let _τM : TopologicalSpace M := Module.topology A
+  let _τN : TopologicalSpace N := Module.topology A
   -- all the sorries should be formal.
   { toFun := e
     invFun := e.symm
@@ -141,33 +145,52 @@ example (ι : Type*) [Finite ι] :
     -- it's linear, because Lean has the projections as linear maps.
     exact ⟨LinearMap.proj i, rfl⟩
 
---maybe I should conclude this from the example above but don't know how
---otherwise this should be very easy to do by hand
+-- Commutative variables
+variable (A : Type*) [CommRing A] [iA: TopologicalSpace A] [TopologicalRing A]
+
+-- let M be an A-module
+variable {M : Type*} [AddCommGroup M] [Module A M]
+
+-- let `N` be another module
+variable {N : Type*} [AddCommGroup N] [Module A N]
+
+-- Now say we have a non-commutative `A`-algebra `D` which is free of finite type.
+variable (D : Type*) [Ring D] [Algebra A D] [Module.Finite A D] [Module.Free A D]
+
 lemma Module.topology_self : (iA :TopologicalSpace A) = Module.topology A := by
   refine le_antisymm (le_iInf (fun i ↦ ?_)) <| sInf_le ⟨LinearMap.id, induced_id⟩
-  rw [← continuous_iff_le_induced, show i = LinearMap.lsmul A A (i 1) by ext;simp]
+  rw [← continuous_iff_le_induced, show i = LinearMap.lsmul A A (i 1) by ext; simp]
   exact continuous_const.mul continuous_id
 
-lemma LinearMap.continuous_on_prod (f : (M × N) →ₗ[A] A) :  @Continuous _ _ (@instTopologicalSpaceProd M N (Module.topology A) (Module.topology A)) _ f := by
-  have : ⇑f = fun ⟨m, n⟩ ↦ f (⟨m, 0⟩) + f (⟨0, n⟩) := by
-    ext x
-    simp only
-    have : x = (x.1, 0) + (0, x.2) := by simp
-    nth_rewrite 1 [this]
-    apply LinearMap.map_add
-  rw [this]
-  simp only
-  apply @Continuous.add _ _ (@instTopologicalSpaceProd M N (Module.topology A) (Module.topology A)) _ _ _ (fun x ↦ (fun m ↦ f (m, 0)) x.1) (fun x ↦ (fun n ↦ f (0, n)) x.2)
-  . apply @Continuous.fst' _ _ _ (Module.topology A) (Module.topology A) _ (fun m ↦ f (m, 0))
-    nth_rewrite 2 [Module.topology_self A]
-    exact Module.continuous_linear A ({toFun := fun m ↦ f (m, 0), map_add' := by
-    {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, zero_add]}, map_smul' := by
-    {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
-  . apply @Continuous.snd' _ _ _ (Module.topology A) (Module.topology A) _ (fun n ↦ f (0, n))
-    nth_rewrite 2 [Module.topology_self A]
-    exact Module.continuous_linear A ({toFun := fun n ↦ f (0, n), map_add' := by
-    {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero]}, map_smul' := by
-    {intro m x; rw [← LinearMap.map_smul, RingHom.id_apply, Prod.smul_mk, smul_zero]}})
+lemma Module.continuous_linear_from_ring (e : A →ₗ[A] M) :
+    @Continuous A M _ (Module.topology A) e := by
+  nth_rw 1 [Module.topology_self A]
+  exact Module.continuous_linear A e
+
+lemma Module.continuous_linear_to_ring (e : M →ₗ[A] A) :
+    @Continuous M A (Module.topology A) _ e := by
+  nth_rw 2 [Module.topology_self A]
+  exact Module.continuous_linear A e
+
+lemma LinearMap.continuous_on_prod (f : (M × N) →ₗ[A] A) :
+    @Continuous _ _ (@instTopologicalSpaceProd M N (Module.topology A) (Module.topology A)) _ f := by
+  let _τM : TopologicalSpace M := Module.topology A
+  let _τN : TopologicalSpace N := Module.topology A
+  suffices Continuous fun (⟨m, n⟩ : M × N) ↦ f (⟨m, 0⟩) + f (⟨0, n⟩) by
+    simpa [← LinearMap.map_add, Prod.mk_add_mk, add_zero, zero_add]
+  apply Continuous.add
+  . refine Continuous.fst' (?_ : Continuous fun m ↦ f (m, 0))
+    exact Module.continuous_linear_to_ring A
+      ({toFun := fun m ↦ f (m, 0),
+        map_add' := by {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, zero_add]},
+        map_smul' := by intro m x; rw [←LinearMap.map_smul,
+          RingHom.id_apply, Prod.smul_mk, smul_zero]})
+  . apply @Continuous.snd' _ _ _ _ _ _ (fun n ↦ f (0, n))
+    exact Module.continuous_linear_to_ring A
+      ({toFun := fun n ↦ f (0, n),
+        map_add' := by {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero]},
+        map_smul' := by intro m x; rw [← LinearMap.map_smul,
+          RingHom.id_apply, Prod.smul_mk, smul_zero]})
 
 -- We need that the module topology on a product is the product topology
 lemma Module.prod_canonical :
@@ -191,33 +214,83 @@ lemma Module.prod_canonical :
       rw [induced_compose]
       exact iInf_le _ (LinearMap.lcomp _ _ (LinearMap.snd _ _ _) _)
 
--- I assume this is true! Lots of things like this seem to be true.
-lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P]
-    (b : M →ₗ[A] N →ₗ[A] P) :
-    @Continuous (M × N) P (Module.topology A) (Module.topology A) (fun mn ↦ b mn.1 mn.2) := by
-  sorry
+instance Module.instCommAdd {P : Type*} [AddCommGroup P] [Module A P]:
+@ContinuousAdd P (Module.topology A) _ := by
+  apply @ContinuousAdd.mk _ (topology A)
+  rw [prod_canonical A]
+  exact continuous_linear A ((LinearMap.fst A P P) + (LinearMap.snd A P P))
 
--- Linear maps are automatically continuous, so let's make a couple of handy ones:
--- they're probably there already but I couldn't find them
-/-- Negation on a module as a linear map. -/
-noncomputable def LinearMap.neg (M : Type*) [AddCommGroup M] [Module A M] :
-    M →ₗ[A] M where
-  toFun := (- .)
-  map_add' := neg_add
-  map_smul' r m := (smul_neg r m).symm
+variable [Module.Finite A M] [Module.Free A M] [Module.Finite A N] [Module.Free A N]
 
-/-- Addition on a module as a linear map from `M²` to `M`. -/
-noncomputable def LinearMap.add (M : Type*) [AddCommGroup M] [Module A M] :
-    M × M →ₗ[A] M where
-  toFun mn := mn.1 + mn.2
-  map_add' _ _ := add_add_add_comm _ _ _ _
-  map_smul' _ _ := (DistribSMul.smul_add _ _ _).symm
+instance Module.instContinuousSMul : @ContinuousSMul A M _ _ (topology A) := by
+  let _τM : TopologicalSpace M := Module.topology A
+  apply @ContinuousSMul.mk A M _ _ (topology A)
+  let ι := Free.ChooseBasisIndex A M
+  have b : Basis ι A M := Free.chooseBasis A M
+  suffices Continuous fun (p : A × M) ↦ ∑ i : ι, p.1 • b.repr p.2 i • b i by
+    simpa [← Finset.smul_sum, Basis.sum_repr]
+  apply continuous_finset_sum
+  intro i _
+  simp_rw [← mul_smul]
+  suffices Continuous ((fun (a : A) ↦ a • b i) ∘ (fun (m : A × A) ↦ m.1 * m.2)
+    ∘ (fun (m : A × M) ↦ (m.1, b.repr m.2 i))) from this
+  apply Continuous.comp
+  · exact Module.continuous_linear_from_ring A ((LinearMap.lsmul A M).flip (b i))
+  apply Continuous.comp
+  · exact continuous_mul
+  · apply @Continuous.prod_map _ _ _ _ _ _ _ (topology A) (fun m ↦ m) (fun m ↦ b.repr m i)
+    exact continuous_id
+    exact Module.continuous_linear_to_ring A (b.coord i)
+
+lemma Module.bilinear_continuous_of_continuous_on_basis {P : Type*} {ι κ : Type*} [Fintype ι]
+    [Fintype κ] [AddCommGroup P] [Module A P] [TopologicalSpace M] [TopologicalSpace N]
+    [TopologicalSpace P] [ContinuousAdd P] (b : Basis ι A M) (d : Basis κ A N) (f : M →ₗ[A] N →ₗ[A] P)
+    (contonbasis : ∀ (k : κ) (i : ι), Continuous fun (mn : M × N) ↦ ((d.repr mn.2) k •
+    (b.repr mn.1) i • f (b i)) (d k)) :Continuous fun (mn : M × N) ↦ f mn.1 mn.2 := by
+  suffices Continuous fun (mn : M × N) ↦  (∑ k : κ, (∑ i : ι, d.repr mn.2 k •
+    b.repr mn.1 i • f (b i)) (d k)) by
+    convert this using 1
+    ext mn
+    rw [← Basis.sum_repr b mn.1, ← Basis.sum_repr d mn.2]
+    simp only [map_sum, LinearMapClass.map_smul, LinearMap.coeFn_sum, Finset.sum_apply,
+      LinearMap.smul_apply, Finset.smul_sum, Basis.repr_self, Finsupp.smul_single, smul_eq_mul,
+      mul_one, Finsupp.univ_sum_single]
+  apply continuous_finset_sum
+  intro k _
+  suffices Continuous fun (a : M × N) ↦ ∑ i : ι, ((d.repr a.2 k • b.repr a.1 i • f (b i)) (d k)) by
+    simpa [LinearMap.coeFn_sum, Finset.sum_apply, LinearMap.smul_apply]
+  apply continuous_finset_sum
+  intro i _
+  exact contonbasis k i
+
+lemma Module.continuous_bilinear {P : Type*} [AddCommGroup P] [Module A P] [Module.Finite A P]
+    [Module.Free A P] (f : M →ₗ[A] N →ₗ[A] P) :
+    let _τMN : TopologicalSpace (M × N) := Module.topology A
+    let _τP : TopologicalSpace P := Module.topology A
+    Continuous (fun mn ↦ f mn.1 mn.2 : M × N → P)  := by
+  let ι := Free.ChooseBasisIndex A M
+  let κ := Free.ChooseBasisIndex A N
+  let _τM : TopologicalSpace M := Module.topology A
+  let _τN : TopologicalSpace N := Module.topology A
+  let _τP : TopologicalSpace P := Module.topology A
+  have b : Basis ι A M := Free.chooseBasis A M
+  have d : Basis κ A N := Free.chooseBasis A N
+  rw [← prod_canonical]
+  apply Module.bilinear_continuous_of_continuous_on_basis A b d f
+  intro k i
+  apply Continuous.smul ?_ ?_
+  · suffices Continuous ((d.coord k) ∘ Prod.snd) from this
+    apply Continuous.comp
+    · exact Module.continuous_linear_to_ring A (d.coord k)
+    · exact continuous_snd
+  apply Continuous.smul
+  · suffices Continuous ((b.coord i) ∘ Prod.fst) from this
+    apply Continuous.comp
+    · apply Module.continuous_linear_to_ring A (b.coord i)
+    · exact continuous_fst
+  · apply continuous_const
 
 -- Note that we have multiplication as a bilinear map.
-
--- Now say we have a non-commutative `A`-algebra `D` which is free of finite type.
-
-variable (D : Type*) [Ring D] [Algebra A D] [Module.Finite A D] [Module.Free A D]
 
 -- Let's put the module topology on `D`
 def D_topology : TopologicalSpace D := Module.topology A
@@ -229,7 +302,7 @@ instance moobar : @TopologicalRing D (Module.topology A) _ :=
       -- the product topology is the module topology
       rw [Module.prod_canonical A]
       -- and addition is linear so it's continuous for the module topology
-      exact Module.continuous_linear A (LinearMap.add A D)
+      exact Module.continuous_linear A ((LinearMap.fst A D D) + (LinearMap.snd A D D))
     -- multiplication is continuous:
     continuous_mul := by
       -- the product topology is the module topology
@@ -237,4 +310,4 @@ instance moobar : @TopologicalRing D (Module.topology A) _ :=
       -- and multiplication is bilinear so it's continuous for the module topology (I hope)
       apply Module.continuous_bilinear A (LinearMap.mul A D)
     -- finally negation is continuous because it's linear.
-    continuous_neg := Module.continuous_linear A (LinearMap.neg _ _) }
+    continuous_neg := Module.continuous_linear A (-LinearMap.id) }
