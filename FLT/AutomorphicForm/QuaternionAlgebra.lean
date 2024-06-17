@@ -1,15 +1,18 @@
 /-
-Copyright (c) 2024 Kevin Buzzaed. All rights reserved.
+Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
-import Mathlib
+import Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.HIMExperiments.module_topology
+--import Mathlib
 
 /-
 
-# Definiteion of automorphic forms on a totally definite quaternion algebra
+# Definition of automorphic forms on a totally definite quaternion algebra
 -/
 
 suppress_compilation
@@ -34,13 +37,38 @@ open scoped TensorProduct
 
 #check D ⊗[F] (FiniteAdeleRing (𝓞 F) F)
 
--- your work
-instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := sorry
-instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := sorry
+section missing_instances
 
-namespace TotallyDefiniteQuaternionAlgebra
+variable {R D A : Type*} [CommRing R] [Ring D] [CommRing A] [Algebra R D] [Algebra R A]
+
+--TODO:
+instance : Algebra A (D ⊗[R] A) :=
+  Algebra.TensorProduct.includeRight.toRingHom.toAlgebra' (by
+    simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.includeRight_apply]
+    intro a b
+    apply TensorProduct.induction_on (motive := fun b ↦ 1 ⊗ₜ[R] a * b = b * 1 ⊗ₜ[R] a)
+    . simp only [mul_zero, zero_mul]
+    . intro d a'
+      simp only [Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one]
+      rw [NonUnitalCommSemiring.mul_comm]
+    . intro x y hx hy
+      rw [left_distrib, hx, hy, right_distrib]
+    )
+
+
+
+instance [Module.Finite R D] : Module.Finite A (D ⊗[R] A) := sorry
+
+instance [Module.Free R D]  : Module.Free A (D ⊗[R] A) := sorry
 
 -- #synth Ring (D ⊗[F] FiniteAdeleRing (𝓞 F) F)
+
+end missing_instances
+-- your work
+instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := Module.topology (FiniteAdeleRing (𝓞 F) F)
+instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := moobar (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
+
+namespace TotallyDefiniteQuaternionAlgebra
 
 noncomputable example : D →+* (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := by exact
   Algebra.TensorProduct.includeLeftRingHom
@@ -74,8 +102,8 @@ lemma ext (φ ψ : AutomorphicForm F D M) (h : ∀ x, φ x = ψ x) : φ = ψ := 
 
 def zero : (AutomorphicForm F D M) where
   toFun := 0
-  left_invt := sorry
-  loc_cst := sorry
+  left_invt := by simp
+  loc_cst := by use ⊤; simp
 
 instance : Zero (AutomorphicForm F D M) where
   zero := zero
@@ -86,8 +114,14 @@ lemma zero_apply (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
 
 def neg (φ : AutomorphicForm F D M) : AutomorphicForm F D M where
   toFun x := - φ x
-  left_invt := sorry
-  loc_cst := sorry
+  left_invt := by
+    intro d x
+    simp only [RingHom.toMonoidHom_eq_coe, neg_inj]
+    exact φ.left_invt d x
+  loc_cst := by
+    rcases φ.loc_cst with ⟨U, openU, hU⟩
+    use U
+    exact ⟨openU, fun x u umem ↦ by rw [neg_inj]; exact hU x u umem⟩
 
 instance : Neg (AutomorphicForm F D M) where
   neg := neg
@@ -96,10 +130,22 @@ instance : Neg (AutomorphicForm F D M) where
 lemma neg_apply (φ : AutomorphicForm F D M) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (-φ : AutomorphicForm F D M) x = -(φ x) := rfl
 
-def add (φ ψ : AutomorphicForm F D M) : AutomorphicForm F D M where
+instance add (φ ψ : AutomorphicForm F D M) : AutomorphicForm F D M where
   toFun x := φ x + ψ x
-  left_invt := sorry
-  loc_cst := sorry
+  left_invt := by
+    intro d x
+    simp only [← φ.left_invt d x, ← ψ.left_invt d x]
+  loc_cst := by
+    rcases φ.loc_cst with ⟨U, openU, hU⟩
+    rcases ψ.loc_cst with ⟨V, openV, hV⟩
+    use U ⊓ V
+    constructor
+    · unfold Subgroup.instInf Submonoid.instInf
+      simp only [Subgroup.coe_toSubmonoid, Subgroup.coe_set_mk]
+      exact IsOpen.inter openU openV
+    · intro x u ⟨umemU, umemV⟩
+      simp only
+      rw [hU x u umemU, hV x u umemV]
 
 instance : Add (AutomorphicForm F D M) where
   add := add
@@ -121,10 +167,31 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
   add_comm := by intros; ext; simp [add_comm]
 
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
-  smul g f := {
-    toFun := fun x ↦ f (x * g)
-    left_invt := sorry
-    loc_cst := sorry
-  }
-  one_smul := sorry
-  mul_smul := sorry
+  smul g φ :=   {
+    toFun := fun x => φ  (x*g),
+    left_invt := by
+      intros d x
+      simp only [← φ.left_invt d x]
+      rw [mul_assoc]
+      exact φ.left_invt d (x * g)
+    loc_cst := by
+      rcases φ.loc_cst with ⟨U, openU, hU⟩
+      use U
+      constructor
+      · exact openU
+      · intros x u umem
+        simp only
+        sorry
+  } -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
+  one_smul := by
+    intros φ
+    have h:{toFun := fun x => φ (x * 1), left_invt := ?_, loc_cst := ?_} = φ := by
+      simp only [mul_one]
+    exact h
+  mul_smul := by
+    intros g h φ
+    sorry
+-- if M is an R-module (e.g. if M = R!), then Automorphic forms are also an R-module
+-- with the action being 0on the coefficients.
+
+example(a b c :ℝ ): a * b * c = (a * b) * c := rfl
