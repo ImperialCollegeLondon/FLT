@@ -7,6 +7,7 @@ import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Algebra.Group.Subgroup.Pointwise
 import FLT.HIMExperiments.module_topology
 --import Mathlib
 
@@ -41,7 +42,6 @@ section missing_instances
 
 variable {R D A : Type*} [CommRing R] [Ring D] [CommRing A] [Algebra R D] [Algebra R A]
 
---TODO:
 instance : Algebra A (D ⊗[R] A) :=
   Algebra.TensorProduct.includeRight.toRingHom.toAlgebra' (by
     simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.includeRight_apply]
@@ -54,8 +54,6 @@ instance : Algebra A (D ⊗[R] A) :=
     . intro x y hx hy
       rw [left_distrib, hx, hy, right_distrib]
     )
-
-
 
 instance [Module.Finite R D] : Module.Finite A (D ⊗[R] A) := sorry
 
@@ -166,8 +164,13 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
   add_left_neg := by intros; ext; simp
   add_comm := by intros; ext; simp [add_comm]
 
+open scoped Pointwise
+lemma conjAct_mem {G: Type*}  [Group G] (U: Subgroup G) (g: G) (x : G):
+  x ∈ ConjAct.toConjAct g • U ↔ ∃ u ∈ U, g * u * g⁻¹ = x := by rfl
+
+
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
-  smul g φ :=   {
+  smul g φ :=   { -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
     toFun := fun x => φ (x * g)
     left_invt := by
       intros d x
@@ -175,13 +178,19 @@ instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
       exact φ.left_invt d (x * g)
     loc_cst := by
       rcases φ.loc_cst with ⟨U, openU, hU⟩
-      use U
+      use ConjAct.toConjAct g • U
       constructor
-      · exact openU
+      · simp only [Subgroup.coe_pointwise_smul]
+        suffices @IsOpen (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ _ ↑U by
+          --exact conjAct_open U g this
+          sorry
+        exact openU
       · intros x u umem
         simp only
-        sorry
-  } -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
+        rw[conjAct_mem] at umem
+        obtain ⟨ugu, hugu, eq⟩ := umem
+        rw[←eq, ←mul_assoc, ←mul_assoc, inv_mul_cancel_right, hU (x*g) ugu hugu]
+  }
   one_smul := by intros; simp only [instHSMul, mul_one]
   mul_smul := by intros; ext; simp only [instHSMul, mk.injEq, mul_assoc]
 -- if M is an R-module (e.g. if M = R!), then Automorphic forms are also an R-module
