@@ -127,3 +127,139 @@ open Polynomial BigOperators
 `τ` runs over `L ≃ₐ[K] L`, and `α : B` is an element which generates `(B ⧸ Q)ˣ`
 and lies in `τ • Q` for all `τ ∉ (decomposition_subgroup_Ideal'  A K L B Q)`.-/
 noncomputable abbrev F : B[X] := ∏ τ : B ≃ₐ[A] B, (X - C (τ • (y A Q)))
+
+lemma F_spec : F A Q = ∏ τ : B ≃ₐ[A] B, (X - C (τ • (y A Q))) := rfl
+
+variable {A Q} in
+open Finset in
+lemma F.smul_eq_self (σ :  B ≃ₐ[A] B)  : σ • (F A Q) = F A Q := calc
+  σ • F A Q = σ • ∏ τ : B ≃ₐ[A] B, (X - C (τ • (y A Q))) := by rw [F_spec]
+  _         = ∏ τ : B ≃ₐ[A] B, σ • (X - C (τ • (y A Q))) := smul_prod
+  _         = ∏ τ : B ≃ₐ[A] B, (X - C ((σ * τ) • (y A Q))) := by simp [smul_sub]
+  _         = ∏ τ' : B ≃ₐ[A] B, (X - C (τ' • (y A Q))) := Fintype.prod_bijective (fun τ ↦ σ * τ)
+                                                      (Group.mulLeft_bijective σ) _ _ (fun _ ↦ rfl)
+  _         = F A Q := by rw [F_spec]
+
+open scoped algebraMap
+
+noncomputable local instance : Algebra A[X] B[X] :=
+  RingHom.toAlgebra (Polynomial.mapRingHom (Algebra.toRingHom))
+
+@[simp, norm_cast]
+lemma coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) := by
+  change ((Polynomial.mapRingHom (Algebra.toRingHom : A →+* B))) (monomial n a : A[X]) = monomial n (a : B)
+  simp
+  rfl
+
+lemma F.descent (h : ∀ b : B, (∀ σ : B ≃ₐ[A] B, σ • b = b) → ∃ a : A, b = a) :
+    ∃ m : A[X], (m : B[X]) = F A Q := by
+  choose f hf using h
+  classical
+  let f' : B → A := fun b ↦ if h : ∀ σ : B ≃ₐ[A] B, σ b = b then f b h else 37
+  let m := (F A Q).sum (fun n r ↦ Polynomial.monomial n (f' r))
+  use m
+  ext N
+  simp only [m, sum]
+  push_cast
+  simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
+  simp only [Finset.sum_ite_eq', mem_support_iff, ne_eq, ite_not, f']
+  symm
+  split
+  · next h1 => exact h1
+  · next h1 =>
+    rw [dif_pos <| fun σ ↦ ?_]
+    · refine hf ?_ ?_
+    · nth_rw 2 [← F.smul_eq_self σ]
+      rfl
+
+variable (isGalois : ∀ b : B, (∀ σ : B ≃ₐ[A] B, σ • b = b) → ∃ a : A, b = a)
+
+noncomputable abbrev m := (F.descent A Q isGalois).choose
+
+lemma m_spec : ((m A Q isGalois) : B[X]) = F A Q := (F.descent A Q isGalois).choose_spec
+
+lemma m_spec' : (m A Q isGalois).map (algebraMap A B) = F A Q := by
+  rw [← m_spec A Q isGalois]
+  rfl
+
+lemma F.y_eq_zero : (F A Q).eval (y A Q) = 0 := by
+  simp [F_spec, eval_prod, Finset.prod_eq_zero (Finset.mem_univ (1 : B ≃ₐ[A] B))]
+
+example : B →+* B ⧸ Q := algebraMap _ _
+
+-- lemma F.mod_Q_y_eq_zero : ((F A Q).map (algebraMap B (B⧸Q))).eval (algebraMap B (B⧸Q) (y A Q)) = 0 := by
+--   rw [Polynomial.eval_map]
+--   simp
+--   simp only [Polynomial.eval_map, Ideal.Quotient.algebraMap_eq, eval₂_at_apply, map_zero, F.y_eq_zero A Q]
+
+variable (P : Ideal A) [P.IsMaximal] [Algebra (A ⧸ P) (B ⧸ Q)] [IsScalarTower A (A⧸P) (B⧸Q)]
+
+lemma m.mod_P_y_eq_zero : (m A Q isGalois).eval₂ (algebraMap A (B⧸Q)) (algebraMap B (B⧸Q) (y A Q)) = 0 := by
+  rw [show algebraMap A (B⧸Q) = (algebraMap B (B⧸Q)).comp (algebraMap A B) from IsScalarTower.algebraMap_eq A B (B ⧸ Q)]
+  rw [←eval₂_map]
+  change eval₂ _ _ (m A Q isGalois : B[X]) = _
+  simp [m_spec A Q isGalois, eval_map, F.y_eq_zero]
+
+noncomputable abbrev mmodP := (m A Q isGalois).map (algebraMap A (A⧸P))
+
+open scoped Polynomial
+
+-- mathlib
+lemma bar (k : Type*) [Field k] [Fintype k] : ∃ n : ℕ, ringExpChar k ^ n = Fintype.card k := by
+  sorry
+
+-- mathlib
+lemma foo (k : Type*) [Field k] [Fintype k] (f : k[X]) (L : Type*) [CommRing L] [Algebra k L]
+    (t : L) : f.eval₂ (algebraMap k L) (t^(Fintype.card k)) =
+              (f.eval₂ (algebraMap k L) t)^(Fintype.card k) := by
+  obtain ⟨n, hn⟩ := bar k
+  induction f using Polynomial.induction_on
+  · simp [← map_pow, FiniteField.pow_card]
+  · next g h h1 h2 =>
+    simp only [Polynomial.eval₂_add, h1, h2]
+    rw [← hn]
+    by_cases hL : Nontrivial L
+    · haveI := expChar_of_injective_algebraMap (NoZeroSMulDivisors.algebraMap_injective k L) (ringExpChar k)
+      rw [add_pow_expChar_pow]
+    · apply (not_nontrivial_iff_subsingleton.mp hL).elim
+  · simp only [Polynomial.eval₂_mul, Polynomial.eval₂_C, Polynomial.eval₂_X_pow, mul_pow,
+                 ← map_pow, pow_right_comm, FiniteField.pow_card]
+
+variable [Fintype (A⧸P)]
+-- (m-bar)(y^q)=0 in B/Q
+lemma m.mod_P_y_pow_q_eq_zero :
+    (m A Q isGalois).eval₂ (algebraMap A (B⧸Q)) ((algebraMap B (B⧸Q) (y A Q)) ^ (Fintype.card (A⧸P)))
+    = 0 := by
+  suffices ((m A Q isGalois).map (algebraMap A (A⧸P))).eval₂ (algebraMap (A⧸P) (B⧸Q))
+    ((algebraMap B (B⧸Q) (y A Q)) ^ (Fintype.card (A⧸P))) = 0 by
+    rwa [eval₂_map, ← IsScalarTower.algebraMap_eq A (A ⧸ P) (B ⧸ Q)] at this
+  let foobar : Field (A⧸P) := ((Ideal.Quotient.maximal_ideal_iff_isField_quotient P).mp ‹_›).toField
+  rw [foo, eval₂_map, ← IsScalarTower.algebraMap_eq A (A ⧸ P) (B ⧸ Q), m.mod_P_y_eq_zero, zero_pow]
+  exact Fintype.card_ne_zero
+
+lemma F.mod_Q_y_pow_q_eq_zero : (F A Q).eval₂ (algebraMap B (B⧸Q)) ((algebraMap B (B⧸Q) (y A Q)) ^ (Fintype.card (A⧸P))) = 0 := by
+  rw [← m_spec' A Q isGalois, eval₂_map]--, m.mod_P_y_pow_q_eq_zero]
+  rw [← IsScalarTower.algebraMap_eq A B (B ⧸ Q), m.mod_P_y_pow_q_eq_zero]
+
+lemma exists_thing : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q := by
+  have := F.mod_Q_y_pow_q_eq_zero A Q isGalois P
+  rw [F_spec] at this
+  rw [eval₂_finset_prod] at this
+  rw [Finset.prod_eq_zero_iff] at this
+  obtain ⟨σ, -, hσ⟩ := this
+  use σ
+  simp only [Ideal.Quotient.algebraMap_eq, AlgEquiv.smul_def, eval₂_sub, eval₂_X, eval₂_C,
+    sub_eq_zero] at hσ
+  exact (Submodule.Quotient.eq Q).mp (hσ.symm)
+
+noncomputable abbrev Frob := (exists_thing A Q isGalois P).choose
+
+lemma Frob_spec : (Frob A Q isGalois P) (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q :=
+  (exists_thing A Q isGalois P).choose_spec
+
+/- maths proof:
+
+1) σ Q = Q. Because if not then Q ≠ σ⁻¹ Q so y ∈ σ⁻¹ Q so σ y ∈ Q so y^p ∈ Q so y ∈ Q so #
+2) σ is x ^ #A/P mod Q
+3) Application to number fields
+-/
