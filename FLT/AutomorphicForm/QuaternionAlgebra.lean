@@ -166,6 +166,7 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
   add_left_neg := by intros; ext; simp
   add_comm := by intros; ext; simp [add_comm]
 
+-- this should be a SMul instance first, and then a simp lemma SMul_eval, and then one_smul etc are easy
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
   smul g φ :=   {
     toFun := fun x => φ  (x*g),
@@ -176,7 +177,7 @@ instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
       exact φ.left_invt d (x * g)
     loc_cst := by
       rcases φ.loc_cst with ⟨U, openU, hU⟩
-      use U
+      use U -- not mathematically correct
       constructor
       · exact openU
       · intros x u umem
@@ -185,9 +186,10 @@ instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
   } -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
   one_smul := by
     intros φ
-    have h:{toFun := fun x => φ (x * 1), left_invt := ?_, loc_cst := ?_} = φ := by
-      simp only [mul_one]
-    exact h
+    ext df
+    -- missing simp lemma
+    change φ (df * 1) = φ df
+    simp
   mul_smul := by
     intros g h φ
     sorry
