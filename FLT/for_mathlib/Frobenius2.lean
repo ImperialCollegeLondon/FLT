@@ -72,23 +72,25 @@ This was Jou Glasheen's final project for Kevin Buzzard's Formalising Mathematic
 -/
 variable (A : Type*) [CommRing A] {B : Type*} [CommRing B] [Algebra A B]
 
--- was Eric going to put this somewhere?
-instance : MulDistribMulAction (B ≃ₐ[A] B) (Ideal B) where
-  smul σ I := Ideal.comap σ.symm I
-  one_smul I := I.comap_id
-  smul_one σ := by simp only [Ideal.one_eq_top]; rfl
-  mul_smul _ _ _ := rfl
-  smul_mul σ I J := by
-    refine le_antisymm (fun x ↦ ?_ : Ideal.comap _ _ ≤ _) (Ideal.le_comap_mul _)
-    obtain ⟨y, rfl⟩ : ∃ y, σ y = x := ⟨σ.symm x, σ.apply_symm_apply x⟩
-    rw [Ideal.mem_comap, AlgEquiv.symm_apply_apply, ← Ideal.mem_comap]
-    revert y
-    refine Ideal.mul_le.mpr (fun r hr s hs ↦ ?_)
-    simp only [Ideal.mem_comap, map_mul]
-    exact Ideal.mul_mem_mul (Ideal.mem_comap.2 (by simp [hr])) (Ideal.mem_comap.2 <| by simp [hs])
+-- PR #13294
+variable {α : Type*} in
+instance Ideal.pointwiseMulSemiringAction
+    [Monoid α] [MulSemiringAction α B] : MulSemiringAction α (Ideal B) where
+  smul a I := Ideal.map (MulSemiringAction.toRingHom _ _ a) I
+  one_smul I :=
+    congr_arg (I.map ·) (RingHom.ext <| one_smul α) |>.trans I.map_id
+  mul_smul _a₁ _a₂ I :=
+    congr_arg (I.map ·) (RingHom.ext <| mul_smul _ _) |>.trans (I.map_map _ _).symm
+  smul_one a := by simp only [Ideal.one_eq_top]; exact Ideal.map_top _
+  smul_mul a I J := Ideal.map_mul _ I J
+  smul_add a I J := Ideal.map_sup _ I J
+  smul_zero a := Ideal.map_bot
 
-/-
--- Auxiliary lemma: if `Q` is a maximal ideal of a non-field Dedekind Domain `B` with a Galois action
+variable {α : Type*} in
+lemma Ideal.map_eq_comap_symm [Group α] [MulSemiringAction α B] (J : Ideal B) (σ : α) :
+    σ • J = J.comap (MulSemiringAction.toRingHom _ _ σ⁻¹) :=
+  J.map_comap_of_equiv (MulSemiringAction.toRingEquiv α B σ)
+
 -- and if `b ∈ B` then there's an element of `B` which is `b` mod `Q` and `0` modulo all the other
 -- Galois conjugates of `Q`.
 -- -/
@@ -120,14 +122,15 @@ lemma exists_y [Fintype (B ≃ₐ[A] B)] [DecidableEq (Ideal B)] (Q : Ideal B) [
   have hO' : Finite (O : Type _) := Set.finite_range _
   have hmax (I : O) : Ideal.IsMaximal (I : Ideal B) := by
     rcases I with ⟨_, σ, rfl⟩
-    exact Ideal.comap_isMaximal_of_surjective _ (AlgEquiv.surjective σ.symm)
+    convert Ideal.comap_isMaximal_of_surjective (K := Q) _ (AlgEquiv.surjective σ.symm)
+    apply Ideal.map_eq_comap_symm
   have hPairwise : Pairwise fun (I : O) (J : O) ↦ IsCoprime (I : Ideal B) J := fun x y h ↦ ⟨1, 1, by
     simp only [Ideal.one_eq_top, Ideal.top_mul]
     exact Ideal.IsMaximal.coprime_of_ne (hmax x) (hmax y) <| mt Subtype.ext h⟩
   obtain ⟨y, hy⟩ := Ideal.exists_forall_sub_mem_ideal (ι := O) hPairwise
-    (fun J ↦ if J = ⟨Q, 1, rfl⟩ then b else 0)
+    (fun J ↦ if J = ⟨Q, 1, by simp⟩ then b else 0)
   refine ⟨y, ?_, ?_⟩
-  · specialize hy ⟨Q, 1, Q.comap_id⟩
+  · specialize hy ⟨Q, 1, by simp⟩
     simpa only using hy
   · rintro Q' ⟨σ, rfl⟩ hQ'
     specialize hy ⟨σ • Q, σ, rfl⟩
