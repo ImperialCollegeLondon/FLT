@@ -12,27 +12,58 @@ import Mathlib.FieldTheory.Cardinality
 
 # Frobenius elements
 
-Definition of Frob_Q ∈ Gal(L/K) where L/K is a finite Galois extension of number fields
-and Q is a maximal ideal of the integers of L. In fact we work in sufficient generality
-that the definition will also work in the function field over a finite field setting.
+Frobenius elements in Galois groups.
+
+## Statement of the theorem
+
+Say `L/K` is a finite Galois extension of number fields, with integer rings `B/A`,
+and say `Q` is a maximal ideal of `B` dividing `P` of `A`. This file contains the
+construction of an element `Frob Q` in `Gal(L/K)`, and a proof that
+modulo `Q` it raises elements to the power `q := |A/P|`.
+
+More generally, our theory works in the "ABKL" setting, with `B/A` a finite extension of
+Dedekind domains, and the corresponding extension `L/K` of fields of fractions is
+assumed finite and Galois. Given `Q/P` a compatible pair of maximal ideals, under the
+assumption that `A/P` is a finite field of size `q`, we construct an element `Frob_Q`
+in `Gal(L/K)` and prove:
+
+1) `Frob_Q • Q = Q`;
+2) `x ^ q ≡ Frob_Q x (mod Q)`.
+
+Examples where these hypotheses hold are:
+
+1) Finite Galois extensions of number fields and their integers or `S`-integers;
+2) Finite Galois extensions of function fields over finite fields, and their `S`-integers for
+   `S` a nonempty set of places;
+3) Finite Galois extensions of finite fields L/K where B/A=L/K and Q/P=0/0 (recovering the
+classical theory of Frobenius elements)
+
+Note that if `Q` is ramified, there is more than one choice of `Frob_Q` which works;
+for example if `L=ℚ(i)` and `K=ℚ` then both the identity and complex conjugation
+work for `Frob Q` if `Q=(1+i)`, and `Frob` returns a random one (i.e. it's opaque; all we know
+is that it satisfies the two properties).
+
+## The construction
+
+We follow a proof in a footnote of a book by Milne. **TODO** which book
+
+The Galois orbit of `Q` consists of `Q` and possibly some other primes `Q'`. The unit group
+`(B/Q)ˣ` is finite and hence cyclic; so by the Chinese Remainder Theorem we may choose y ∈ B
+which reduces to a generator mod Q and to 0 modulo all other Q' in the Galois orbit of Q.
+
+The polynomial `F = ∏ (X - σ y)`, the product running over `σ` in the Galois group, is in `B[X]`
+and is Galois-stable so is in fact in `A[X]`. Hence if `Fbar` is `F mod Q`
+then `Fbar` has coefficients in `A/P=𝔽_q` and thus `Fbar(y^q)=Fbar(y)^q=0`, meaning that `y^q`
+is a root of `F` mod `Q` and thus congruent to `σ y mod Q` for some `σ`. We define `Frob Q` to
+be this `σ`.
 
 ## The proof
 
-We follow a proof by Milne. Let B be the integers of L. The Galois orbit of Q consists of Q and
-possibly various other maximal ideals Q'. We know (B/Q)ˣ is finite hence cyclic; choose a
-generator g. By the Chinese Remainder Theorem we may choose y ∈ B which reduces to g mod Q and
-to 0 modulo all other primes Q' in the Galois orbit of Q. The polynomial F = ∏ (X - σ y), the
-product running over σ in the Galois group, is in B[X] and is Galois-stable so is in fact in A[X]
-where A is the integers of K. If q denotes the size of A / (A ∩ Q) and if Fbar is F mod Q
-then Fbar has coefficients in 𝔽_q and thus Fbar(y^q)=Fbar(y)^q=0, meaning that y^q is a root
-of Fbar and thus congruent to σ y mod Q for some σ. This σ can be checked to have the following
-properties:
+We know `σ y ≡ y ^ q ≠ 0 mod Q`. Hence `σ y ∉ Q`, and thus `y ∉ σ⁻¹ Q`. But `y ∈ Q'` for all nontrivial
+conjugates `Q'` of `Q`, hence `σ⁻¹ Q = Q` and thus `Q` is `σ`-stable.
 
-1) σ Q = Q
-2) σ g = g^q mod Q
-
-and because g is a generator this means that σ is in fact the q'th power map mod Q, which
-is what we want.
+Hence `σ` induces a field automorphism of `B/Q` and we know it's `x ↦ x^q` on a generator,
+so it's `x ↦ x^q` on everything.
 
 ## Note
 
@@ -41,6 +72,7 @@ This was Jou Glasheen's final project for Kevin Buzzard's Formalising Mathematic
 -/
 variable (A : Type*) [CommRing A] {B : Type*} [CommRing B] [Algebra A B]
 
+-- was Eric going to put this somewhere?
 instance : MulDistribMulAction (B ≃ₐ[A] B) (Ideal B) where
   smul σ I := Ideal.comap σ.symm I
   one_smul I := I.comap_id
@@ -56,31 +88,31 @@ instance : MulDistribMulAction (B ≃ₐ[A] B) (Ideal B) where
     exact Ideal.mul_mem_mul (Ideal.mem_comap.2 (by simp [hr])) (Ideal.mem_comap.2 <| by simp [hs])
 
 /-
-Auxiliary lemma: if `Q` is a maximal ideal of a non-field Dedekind Domain `B` with a Galois action
-and if `b ∈ B` then there's an element of `B` which is `b` mod `Q` and `0` modulo all the other
-Galois conjugates of `Q`.
--/
-lemma DedekindDomain.exists_y [IsDedekindDomain B] (hB : ¬IsField B) [Fintype (B ≃ₐ[A] B)]
-    [DecidableEq (Ideal B)] (Q : Ideal B) [Q.IsMaximal] (b : B) : ∃ y : B,
-    y - b ∈ Q ∧ ∀ Q' : Ideal B, Q' ∈ MulAction.orbit (B ≃ₐ[A] B) Q → Q' ≠ Q → y ∈ Q' := by
-  let O : Set (Ideal B) := MulAction.orbit (B ≃ₐ[A] B) Q
-  have hO : O.Finite := Set.finite_range _
-  have hPrime : ∀ Q' ∈ hO.toFinset, Prime Q' := by
-    intro Q' hQ'
-    rw [Set.Finite.mem_toFinset] at hQ'
-    obtain ⟨σ, rfl⟩ := hQ'
-    apply (MulEquiv.prime_iff <| MulDistribMulAction.toMulEquiv (Ideal B) σ).mp
-    refine Q.prime_of_isPrime (Q.bot_lt_of_maximal hB).ne' ?_
-    apply Ideal.IsMaximal.isPrime inferInstance
-  obtain ⟨y, hy⟩ := IsDedekindDomain.exists_forall_sub_mem_ideal (s := hO.toFinset) id (fun _ ↦ 1)
-    hPrime (fun _ _ _ _ ↦ id) (fun Q' ↦ if Q' = Q then b else 0)
-  simp only [Set.Finite.mem_toFinset, id_eq, pow_one] at hy
-  refine ⟨y, ?_, ?_⟩
-  · specialize hy Q ⟨1, by simp⟩
-    simpa only using hy
-  · rintro Q' ⟨σ, rfl⟩ hQ'
-    specialize hy (σ • Q) ⟨σ, by simp⟩
-    simp_all
+-- Auxiliary lemma: if `Q` is a maximal ideal of a non-field Dedekind Domain `B` with a Galois action
+-- and if `b ∈ B` then there's an element of `B` which is `b` mod `Q` and `0` modulo all the other
+-- Galois conjugates of `Q`.
+-- -/
+-- lemma DedekindDomain.exists_y [IsDedekindDomain B] [Fintype (B ≃ₐ[A] B)]
+--     [DecidableEq (Ideal B)] (Q : Ideal B) [Q.IsMaximal] (b : B) : ∃ y : B,
+--     y - b ∈ Q ∧ ∀ Q' : Ideal B, Q' ∈ MulAction.orbit (B ≃ₐ[A] B) Q → Q' ≠ Q → y ∈ Q' := by
+--   let O : Set (Ideal B) := MulAction.orbit (B ≃ₐ[A] B) Q
+--   have hO : O.Finite := Set.finite_range _
+--   have hPrime : ∀ Q' ∈ hO.toFinset, Prime Q' := by
+--     intro Q' hQ'
+--     rw [Set.Finite.mem_toFinset] at hQ'
+--     obtain ⟨σ, rfl⟩ := hQ'
+--     apply (MulEquiv.prime_iff <| MulDistribMulAction.toMulEquiv (Ideal B) σ).mp
+--     refine Q.prime_of_isPrime (Q.bot_lt_of_maximal hB).ne' ?_
+--     apply Ideal.IsMaximal.isPrime inferInstance
+--   obtain ⟨y, hy⟩ := IsDedekindDomain.exists_forall_sub_mem_ideal (s := hO.toFinset) id (fun _ ↦ 1)
+--     hPrime (fun _ _ _ _ ↦ id) (fun Q' ↦ if Q' = Q then b else 0)
+--   simp only [Set.Finite.mem_toFinset, id_eq, pow_one] at hy
+--   refine ⟨y, ?_, ?_⟩
+--   · specialize hy Q ⟨1, by simp⟩
+--     simpa only using hy
+--   · rintro Q' ⟨σ, rfl⟩ hQ'
+--     specialize hy (σ • Q) ⟨σ, by simp⟩
+--     simp_all
 
 lemma exists_y [Fintype (B ≃ₐ[A] B)] [DecidableEq (Ideal B)] (Q : Ideal B) [Q.IsMaximal] (b : B) :
     ∃ y : B, y - b ∈ Q ∧ ∀ Q' : Ideal B, Q' ∈ MulAction.orbit (B ≃ₐ[A] B) Q → Q' ≠ Q → y ∈ Q' := by
@@ -203,6 +235,13 @@ lemma m.mod_P_y_eq_zero : (m A Q isGalois).eval₂ (algebraMap A (B⧸Q)) (algeb
 noncomputable abbrev mmodP := (m A Q isGalois).map (algebraMap A (A⧸P))
 
 open scoped Polynomial
+
+-- example (K : Type*) [Field K] [Fintype K] : ∃ p n : ℕ, p.Prime ∧ Fintype.card K = p ^ n ∧ CharP K p := by
+--   obtain ⟨p, n, h₁, h₂⟩ := FiniteField.card' K
+--   refine ⟨p, n.val, h₁, h₂, ?_⟩
+--   have : (p ^ n.val : K) = 0 := mod_cast h₂ ▸ Nat.cast_card_eq_zero K
+--   rw [CharP.charP_iff_prime_eq_zero h₁]
+--   simpa only [ne_eq, PNat.ne_zero, not_false_eq_true, pow_eq_zero_iff] using this
 
 -- mathlib
 lemma bar (k : Type*) [Field k] [Fintype k] : ∃ n : ℕ, ringExpChar k ^ n = Fintype.card k := by
