@@ -243,9 +243,7 @@ lemma F.mod_Q_y_pow_q_eq_zero : (F A Q).eval₂ (algebraMap B (B⧸Q)) ((algebra
 
 lemma exists_thing : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q := by
   have := F.mod_Q_y_pow_q_eq_zero A Q isGalois P
-  rw [F_spec] at this
-  rw [eval₂_finset_prod] at this
-  rw [Finset.prod_eq_zero_iff] at this
+  rw [F_spec, eval₂_finset_prod, Finset.prod_eq_zero_iff] at this
   obtain ⟨σ, -, hσ⟩ := this
   use σ
   simp only [Ideal.Quotient.algebraMap_eq, AlgEquiv.smul_def, eval₂_sub, eval₂_X, eval₂_C,
