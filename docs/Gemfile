@@ -23,3 +23,6 @@ gem "http_parser.rb", "~> 0.6.0", :platforms => [:jruby]
 
 # Used for locally serving the website.
 gem "webrick", "~> 1.7"
+
+# See https://github.com/ffi/ffi/issues/1103
+gem "ffi", "< 1.17.0"

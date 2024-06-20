@@ -169,6 +169,7 @@ lemma conjAct_mem {G: Type*}  [Group G] (U: Subgroup G) (g: G) (x : G):
   x ∈ ConjAct.toConjAct g • U ↔ ∃ u ∈ U, g * u * g⁻¹ = x := by rfl
 
 
+-- this should be a SMul instance first, and then a simp lemma SMul_eval, and then one_smul etc are easy
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
   smul g φ :=   { -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
     toFun := fun x => φ (x * g)

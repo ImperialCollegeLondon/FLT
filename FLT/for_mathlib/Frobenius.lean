@@ -397,7 +397,7 @@ lemma q_is_p'_pow_n : p' ^ n = q :=
 
 lemma p_is_p' : p = p' := by
   -- `q = 0` in `A⧸ P` and `p | q` since `CharP p` then since `q = p' ^ n` then `p' = p`
-  have eq0 : (q : A⧸ P) = 0 := CharP.cast_card_eq_zero (A ⧸ P)
+  have eq0 : (q : A⧸ P) = 0 := sorry--CharP.cast_card_eq_zero (A ⧸ P) -- mathlib bump broke this
   have h1 : p ∣ q := charP_iff (A ⧸ P) p |>.1 (p_is_char P) q |>.1 eq0
   have eq1 : p' ^ n = q := q_is_p'_pow_n P
   rw [← eq1] at h1
