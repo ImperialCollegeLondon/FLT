@@ -67,9 +67,16 @@ so it's `x ↦ x^q` on everything.
 
 ## Note
 
-This was Jou Glasheen's final project for Kevin Buzzard's Formalising Mathematics course.
+This work started its life as Jou Glasheen's final project for Kevin Buzzard's
+Formalising Mathematics 2024 course.
+
+## TODO
+
+Show that this applies to number fields and their rings of integers,
+i.e. supply the finiteness typeclasses and descent hypothesis in this case.
 
 -/
+
 variable (A : Type*) [CommRing A] {B : Type*} [CommRing B] [Algebra A B]
 
 -- PR #13294
@@ -86,38 +93,38 @@ instance Ideal.pointwiseMulSemiringAction
   smul_add a I J := Ideal.map_sup _ I J
   smul_zero a := Ideal.map_bot
 
+-- should be in #13294?
 variable {α : Type*} in
 lemma Ideal.map_eq_comap_symm [Group α] [MulSemiringAction α B] (J : Ideal B) (σ : α) :
     σ • J = J.comap (MulSemiringAction.toRingHom _ _ σ⁻¹) :=
   J.map_comap_of_equiv (MulSemiringAction.toRingEquiv α B σ)
 
--- and if `b ∈ B` then there's an element of `B` which is `b` mod `Q` and `0` modulo all the other
--- Galois conjugates of `Q`.
--- -/
--- lemma DedekindDomain.exists_y [IsDedekindDomain B] [Fintype (B ≃ₐ[A] B)]
---     [DecidableEq (Ideal B)] (Q : Ideal B) [Q.IsMaximal] (b : B) : ∃ y : B,
---     y - b ∈ Q ∧ ∀ Q' : Ideal B, Q' ∈ MulAction.orbit (B ≃ₐ[A] B) Q → Q' ≠ Q → y ∈ Q' := by
---   let O : Set (Ideal B) := MulAction.orbit (B ≃ₐ[A] B) Q
---   have hO : O.Finite := Set.finite_range _
---   have hPrime : ∀ Q' ∈ hO.toFinset, Prime Q' := by
---     intro Q' hQ'
---     rw [Set.Finite.mem_toFinset] at hQ'
---     obtain ⟨σ, rfl⟩ := hQ'
---     apply (MulEquiv.prime_iff <| MulDistribMulAction.toMulEquiv (Ideal B) σ).mp
---     refine Q.prime_of_isPrime (Q.bot_lt_of_maximal hB).ne' ?_
---     apply Ideal.IsMaximal.isPrime inferInstance
---   obtain ⟨y, hy⟩ := IsDedekindDomain.exists_forall_sub_mem_ideal (s := hO.toFinset) id (fun _ ↦ 1)
---     hPrime (fun _ _ _ _ ↦ id) (fun Q' ↦ if Q' = Q then b else 0)
---   simp only [Set.Finite.mem_toFinset, id_eq, pow_one] at hy
---   refine ⟨y, ?_, ?_⟩
---   · specialize hy Q ⟨1, by simp⟩
---     simpa only using hy
---   · rintro Q' ⟨σ, rfl⟩ hQ'
---     specialize hy (σ • Q) ⟨σ, by simp⟩
---     simp_all
+namespace ArithmeticFrobenius
+/-
 
-lemma exists_y [Fintype (B ≃ₐ[A] B)] [DecidableEq (Ideal B)] (Q : Ideal B) [Q.IsMaximal] (b : B) :
-    ∃ y : B, y - b ∈ Q ∧ ∀ Q' : Ideal B, Q' ∈ MulAction.orbit (B ≃ₐ[A] B) Q → Q' ≠ Q → y ∈ Q' := by
+## Auxiliary variables
+
+The noncomputable variables `g : (B ⧸ Q)ˣ` (a generator),
+`y : B` (congruent to `g` mod `Q` and to `0` mod all Galois conjugates of `Q`,
+`F : B[X]` (the product of `X - σ y` as `σ` runs through the Galois group), and
+`m : A[X]`, the descent of `F` to `A[X]` (it's Galois-stable).
+-/
+
+variable (Q : Ideal B) [Q.IsMaximal]
+
+variable [Fintype (B ⧸ Q)]
+
+noncomputable abbrev g : (B ⧸ Q)ˣ := (IsCyclic.exists_monoid_generator (α := (B ⧸ Q)ˣ)).choose
+
+lemma g_spec : ∀ (z : (B ⧸ Q)ˣ), z ∈ Submonoid.powers (g Q) :=
+  (IsCyclic.exists_monoid_generator (α := (B ⧸ Q)ˣ)).choose_spec
+
+variable [Fintype (B ≃ₐ[A] B)] [DecidableEq (Ideal B)]
+
+/-- An element `y` of `B` exists, which is congruent to `b` mod `Q`
+and to 0 mod all Galois conjugates of `Q` (if any).-/
+lemma exists_y :
+    ∃ y : B, (y : B ⧸ Q) = g Q ∧ ∀ Q' : Ideal B, Q' ∈ MulAction.orbit (B ≃ₐ[A] B) Q → Q' ≠ Q → y ∈ Q' := by
   let O : Set (Ideal B) := MulAction.orbit (B ≃ₐ[A] B) Q
   have hO' : Finite (O : Type _) := Set.finite_range _
   have hmax (I : O) : Ideal.IsMaximal (I : Ideal B) := by
@@ -128,33 +135,29 @@ lemma exists_y [Fintype (B ≃ₐ[A] B)] [DecidableEq (Ideal B)] (Q : Ideal B) [
     simp only [Ideal.one_eq_top, Ideal.top_mul]
     exact Ideal.IsMaximal.coprime_of_ne (hmax x) (hmax y) <| mt Subtype.ext h⟩
   obtain ⟨y, hy⟩ := Ideal.exists_forall_sub_mem_ideal (ι := O) hPairwise
-    (fun J ↦ if J = ⟨Q, 1, by simp⟩ then b else 0)
+    (fun J ↦ if J = ⟨Q, 1, by simp⟩ then (Ideal.Quotient.mk_surjective (g Q : B ⧸ Q)).choose else 0)
   refine ⟨y, ?_, ?_⟩
   · specialize hy ⟨Q, 1, by simp⟩
-    simpa only using hy
+    simp at hy
+    rw [← (Ideal.Quotient.mk_surjective (g Q : B ⧸ Q)).choose_spec]
+    exact
+      (Ideal.Quotient.mk_eq_mk_iff_sub_mem y
+        (Ideal.Quotient.mk_surjective (I := Q) (g Q)).choose).mpr hy
   · rintro Q' ⟨σ, rfl⟩ hQ'
     specialize hy ⟨σ • Q, σ, rfl⟩
     simp_all
 
-variable (Q : Ideal B) [Q.IsMaximal] [Fintype (B ⧸ Q)]
-
-noncomputable abbrev g : (B ⧸ Q)ˣ := (IsCyclic.exists_monoid_generator (α := (B ⧸ Q)ˣ)).choose
-
-lemma g_spec : ∀ (z : (B ⧸ Q)ˣ), z ∈ Submonoid.powers (g Q) :=
-  (IsCyclic.exists_monoid_generator (α := (B ⧸ Q)ˣ)).choose_spec
-
-noncomputable abbrev b : B := (Ideal.Quotient.mk_surjective (g Q : B ⧸ Q)).choose
-
-lemma b_spec : ((b Q : B) : B ⧸ Q) = g Q := (Ideal.Quotient.mk_surjective (g Q : B ⧸ Q)).choose_spec
-
-variable [Fintype (B ≃ₐ[A] B)] [DecidableEq (Ideal B)]
-
 noncomputable abbrev y : B :=
-  (exists_y A Q (b Q)).choose
+  (exists_y A Q).choose
 
-lemma y_spec : (y A Q) - (b Q) ∈ Q ∧
+lemma y_spec : ((y A Q : B) : B ⧸ Q) = g Q ∧
     ∀ Q' : Ideal B, Q' ∈ MulAction.orbit (B ≃ₐ[A] B) Q → Q' ≠ Q → (y A Q) ∈ Q' :=
-  (exists_y A Q (b Q)).choose_spec
+  (exists_y A Q).choose_spec
+
+lemma y_mod_Q : Ideal.Quotient.mk Q (y A Q) = g Q := (y_spec A Q).1
+
+lemma y_not_in_Q : (y A Q) ∉ Q :=
+  mt Ideal.Quotient.eq_zero_iff_mem.mpr <| y_mod_Q A Q ▸ (g Q).ne_zero
 
 open Polynomial BigOperators
 
@@ -175,38 +178,38 @@ lemma F.smul_eq_self (σ :  B ≃ₐ[A] B)  : σ • (F A Q) = F A Q := calc
                                                       (Group.mulLeft_bijective σ) _ _ (fun _ ↦ rfl)
   _         = F A Q := by rw [F_spec]
 
+lemma F.y_eq_zero : (F A Q).eval (y A Q) = 0 := by
+  simp [F_spec, eval_prod, Finset.prod_eq_zero (Finset.mem_univ (1 : B ≃ₐ[A] B))]
+
 open scoped algebraMap
 
 noncomputable local instance : Algebra A[X] B[X] :=
   RingHom.toAlgebra (Polynomial.mapRingHom (Algebra.toRingHom))
 
 @[simp, norm_cast]
-lemma coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) := by
-  change ((Polynomial.mapRingHom (Algebra.toRingHom : A →+* B))) (monomial n a : A[X]) = monomial n (a : B)
-  simp
-  rfl
+lemma coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
+  map_monomial _
 
 lemma F.descent (h : ∀ b : B, (∀ σ : B ≃ₐ[A] B, σ • b = b) → ∃ a : A, b = a) :
     ∃ m : A[X], (m : B[X]) = F A Q := by
   choose f hf using h
   classical
   let f' : B → A := fun b ↦ if h : ∀ σ : B ≃ₐ[A] B, σ b = b then f b h else 37
-  let m := (F A Q).sum (fun n r ↦ Polynomial.monomial n (f' r))
-  use m
+  use (∑ x ∈ (F A Q).support, (monomial x) (f' ((F A Q).coeff x)))
   ext N
-  simp only [m, sum]
   push_cast
   simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
   simp only [Finset.sum_ite_eq', mem_support_iff, ne_eq, ite_not, f']
   symm
   split
-  · next h1 => exact h1
+  · next h => exact h
   · next h1 =>
     rw [dif_pos <| fun σ ↦ ?_]
     · refine hf ?_ ?_
     · nth_rw 2 [← F.smul_eq_self σ]
       rfl
 
+-- This will be true in applications to number fields etc.
 variable (isGalois : ∀ b : B, (∀ σ : B ≃ₐ[A] B, σ • b = b) → ∃ a : A, b = a)
 
 noncomputable abbrev m := (F.descent A Q isGalois).choose
@@ -217,29 +220,28 @@ lemma m_spec' : (m A Q isGalois).map (algebraMap A B) = F A Q := by
   rw [← m_spec A Q isGalois]
   rfl
 
-lemma F.y_eq_zero : (F A Q).eval (y A Q) = 0 := by
-  simp [F_spec, eval_prod, Finset.prod_eq_zero (Finset.mem_univ (1 : B ≃ₐ[A] B))]
-
-example : B →+* B ⧸ Q := algebraMap _ _
-
--- lemma F.mod_Q_y_eq_zero : ((F A Q).map (algebraMap B (B⧸Q))).eval (algebraMap B (B⧸Q) (y A Q)) = 0 := by
---   rw [Polynomial.eval_map]
---   simp
---   simp only [Polynomial.eval_map, Ideal.Quotient.algebraMap_eq, eval₂_at_apply, map_zero, F.y_eq_zero A Q]
-
+-- Amelia's trick to insert "let P be the ideal under Q" into the typeclass system
 variable (P : Ideal A) [P.IsMaximal] [Algebra (A ⧸ P) (B ⧸ Q)] [IsScalarTower A (A⧸P) (B⧸Q)]
 
+-- want to move from eval₂?
 lemma m.mod_P_y_eq_zero : (m A Q isGalois).eval₂ (algebraMap A (B⧸Q)) (algebraMap B (B⧸Q) (y A Q)) = 0 := by
   rw [show algebraMap A (B⧸Q) = (algebraMap B (B⧸Q)).comp (algebraMap A B) from IsScalarTower.algebraMap_eq A B (B ⧸ Q)]
   rw [←eval₂_map]
   change eval₂ _ _ (m A Q isGalois : B[X]) = _
   simp [m_spec A Q isGalois, eval_map, F.y_eq_zero]
 
+lemma m.y_mod_P_eq_zero : Polynomial.aeval (↑(y A Q) : B ⧸ Q) (m A Q isGalois) = 0 := by
+  rw [← aeval_map_algebraMap B, m_spec']
+  -- why can't I do this with a `rw`?
+  change aeval (algebraMap B (B⧸Q) (y A Q)) _ = _
+  rw [aeval_algebraMap_apply, coe_aeval_eq_eval, F.y_eq_zero A Q, map_zero]
+
+
 noncomputable abbrev mmodP := (m A Q isGalois).map (algebraMap A (A⧸P))
 
 open scoped Polynomial
 
--- example (K : Type*) [Field K] [Fintype K] : ∃ p n : ℕ, p.Prime ∧ Fintype.card K = p ^ n ∧ CharP K p := by
+-- lemma barg (K : Type*) [Field K] [Fintype K] : ∃ p n : ℕ, p.Prime ∧ Fintype.card K = p ^ n ∧ CharP K p := by
 --   obtain ⟨p, n, h₁, h₂⟩ := FiniteField.card' K
 --   refine ⟨p, n.val, h₁, h₂, ?_⟩
 --   have : (p ^ n.val : K) = 0 := mod_cast h₂ ▸ Nat.cast_card_eq_zero K
@@ -247,25 +249,12 @@ open scoped Polynomial
 --   simpa only [ne_eq, PNat.ne_zero, not_false_eq_true, pow_eq_zero_iff] using this
 
 -- mathlib
-lemma bar (k : Type*) [Field k] [Fintype k] : ∃ n : ℕ, ringExpChar k ^ n = Fintype.card k := by
-  sorry
-
--- mathlib
-lemma foo (k : Type*) [Field k] [Fintype k] (f : k[X]) (L : Type*) [CommRing L] [Algebra k L]
+lemma _root_.Polynomial.eval₂_pow_card (k : Type*) [Field k] [Fintype k] (f : k[X])
+    (L : Type*) [CommRing L] [Algebra k L]
     (t : L) : f.eval₂ (algebraMap k L) (t^(Fintype.card k)) =
               (f.eval₂ (algebraMap k L) t)^(Fintype.card k) := by
-  obtain ⟨n, hn⟩ := bar k
-  induction f using Polynomial.induction_on
-  · simp [← map_pow, FiniteField.pow_card]
-  · next g h h1 h2 =>
-    simp only [Polynomial.eval₂_add, h1, h2]
-    rw [← hn]
-    by_cases hL : Nontrivial L
-    · haveI := expChar_of_injective_algebraMap (NoZeroSMulDivisors.algebraMap_injective k L) (ringExpChar k)
-      rw [add_pow_expChar_pow]
-    · apply (not_nontrivial_iff_subsingleton.mp hL).elim
-  · simp only [Polynomial.eval₂_mul, Polynomial.eval₂_C, Polynomial.eval₂_X_pow, mul_pow,
-                 ← map_pow, pow_right_comm, FiniteField.pow_card]
+  simp_rw [← Polynomial.aeval_def] -- `eval₂ (algebraMap k L)` is just `aeval`
+  rw [← map_pow, ← FiniteField.expand_card, Polynomial.expand_aeval]
 
 variable [Fintype (A⧸P)]
 -- (m-bar)(y^q)=0 in B/Q
@@ -276,14 +265,14 @@ lemma m.mod_P_y_pow_q_eq_zero :
     ((algebraMap B (B⧸Q) (y A Q)) ^ (Fintype.card (A⧸P))) = 0 by
     rwa [eval₂_map, ← IsScalarTower.algebraMap_eq A (A ⧸ P) (B ⧸ Q)] at this
   let foobar : Field (A⧸P) := ((Ideal.Quotient.maximal_ideal_iff_isField_quotient P).mp ‹_›).toField
-  rw [foo, eval₂_map, ← IsScalarTower.algebraMap_eq A (A ⧸ P) (B ⧸ Q), m.mod_P_y_eq_zero, zero_pow]
+  rw [eval₂_pow_card, eval₂_map, ← IsScalarTower.algebraMap_eq A (A ⧸ P) (B ⧸ Q), m.mod_P_y_eq_zero, zero_pow]
   exact Fintype.card_ne_zero
 
 lemma F.mod_Q_y_pow_q_eq_zero : (F A Q).eval₂ (algebraMap B (B⧸Q)) ((algebraMap B (B⧸Q) (y A Q)) ^ (Fintype.card (A⧸P))) = 0 := by
   rw [← m_spec' A Q isGalois, eval₂_map]--, m.mod_P_y_pow_q_eq_zero]
   rw [← IsScalarTower.algebraMap_eq A B (B ⧸ Q), m.mod_P_y_pow_q_eq_zero]
 
-lemma exists_thing : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q := by
+lemma exists_Frob : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q := by
   have := F.mod_Q_y_pow_q_eq_zero A Q isGalois P
   rw [F_spec] at this
   rw [eval₂_finset_prod] at this
@@ -294,14 +283,76 @@ lemma exists_thing : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.car
     sub_eq_zero] at hσ
   exact (Submodule.Quotient.eq Q).mp (hσ.symm)
 
-noncomputable abbrev Frob := (exists_thing A Q isGalois P).choose
+noncomputable abbrev Frob := (exists_Frob A Q isGalois P).choose
 
-lemma Frob_spec : (Frob A Q isGalois P) (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q :=
-  (exists_thing A Q isGalois P).choose_spec
+lemma Frob_spec : (Frob A Q isGalois P) • (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q :=
+  (exists_Frob A Q isGalois P).choose_spec
+
+lemma Frob_Q : Frob A Q isGalois P • Q = Q := by
+  rw [smul_eq_iff_eq_inv_smul]
+  by_contra h
+  have hy : y A Q ∈ (Frob A Q isGalois P)⁻¹ • Q := (y_spec A Q).2 _ ⟨_, rfl⟩ (Ne.symm h)
+  have hy2 : (Frob A Q isGalois P) • (y A Q) ∈ Q := by
+    rwa [Ideal.map_eq_comap_symm] at hy
+  have this := Q.sub_mem hy2 <| Frob_spec A Q isGalois P
+  simp only [sub_sub_cancel] at this
+  apply y_not_in_Q A Q <| Ideal.IsPrime.mem_of_pow_mem (show Q.IsPrime by infer_instance) _ this
+
+lemma _root_.Ideal.Quotient.coe_eq_coe_iff_sub_mem {R : Type*} [CommRing R] {I : Ideal R} (x y : R) :
+  (x : R ⧸ I) = y ↔ x - y ∈ I := Ideal.Quotient.mk_eq_mk_iff_sub_mem _ _
+
+lemma coething (A B : Type*) [CommSemiring A] [Ring B] [Algebra A B] (a : A) (n : ℕ) :
+    (a ^ n : A) = (a : B) ^ n := by
+  --change algebraMap A B a ^ n = algebraMap A B (a ^ n)
+  --symm
+  exact map_pow _ _ _
+--  simp only [map_pow]
+
+--attribute [norm_cast] map_pow
+
+lemma Frob_Q_eq_pow_card (x : B) : Frob A Q isGalois P x - x^(Fintype.card (A⧸P)) ∈ Q := by
+  by_cases hx : x ∈ Q
+  · refine Q.sub_mem ?_ (Q.pow_mem_of_mem hx _ Fintype.card_pos)
+    nth_rw 2 [← Frob_Q A Q isGalois P]
+    change (Frob A Q isGalois P) • x ∈ _
+    rw [Ideal.map_eq_comap_symm, Ideal.mem_comap]
+    convert hx
+    exact inv_smul_smul _ _
+  ·
+    have foo : (x : B ⧸ Q) ≠ 0 :=
+      mt (fun h ↦ (Submodule.Quotient.mk_eq_zero Q).mp h) hx
+    let foobar : Field (B⧸Q) := ((Ideal.Quotient.maximal_ideal_iff_isField_quotient Q).mp ‹_›).toField
+    let xbar : (B ⧸ Q)ˣ := Units.mk0 (x : B ⧸ Q) foo
+    obtain ⟨n, (hn : g Q ^ n = xbar)⟩ := g_spec Q xbar
+    have hn2 : (g Q : B ⧸ Q) ^ n = xbar := by exact_mod_cast hn
+    change _ = (x : B ⧸ Q) at hn2
+    rw [← Ideal.Quotient.mk_eq_mk_iff_sub_mem]
+    change ((Frob A Q isGalois P) x : B ⧸ Q) = x ^ Fintype.card (A ⧸ P)
+    rw [← hn2]
+    push_cast
+    have fact1 := Frob_spec A Q isGalois P
+    have fact2 : y A Q = (g Q : B⧸Q) := y_mod_Q A Q
+    rw [← fact2]
+    rw [← Ideal.Quotient.coe_eq_coe_iff_sub_mem] at fact1
+    push_cast at fact1
+    rw [pow_right_comm]
+    rw [← fact1]
+    norm_cast
+    rw [Ideal.Quotient.coe_eq_coe_iff_sub_mem]
+    have fact3 := Frob_Q A Q isGalois P
+    rw [← smul_pow']
+    change (Frob A Q isGalois P) • x - _ ∈ _
+    rw [← smul_sub]
+    nth_rw 3 [ ← fact3]
+    suffices (x - y A Q ^ n) ∈ Q by
+      exact?
+    rw [smul_mem_smul]
+    simp
+    skip
+    sorry
 
 /- maths proof:
 
-1) σ Q = Q. Because if not then Q ≠ σ⁻¹ Q so y ∈ σ⁻¹ Q so σ y ∈ Q so y^p ∈ Q so y ∈ Q so #
 2) σ is x ^ #A/P mod Q
 3) Application to number fields
 -/
