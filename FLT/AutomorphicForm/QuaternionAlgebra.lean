@@ -164,13 +164,32 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
   add_left_neg := by intros; ext; simp
   add_comm := by intros; ext; simp [add_comm]
 
+open ConjAct
+
 open scoped Pointwise
 lemma conjAct_mem {G: Type*}  [Group G] (U: Subgroup G) (g: G) (x : G):
-  x ∈ ConjAct.toConjAct g • U ↔ ∃ u ∈ U, g * u * g⁻¹ = x := by rfl
+  x ∈ toConjAct g • U ↔ ∃ u ∈ U, g * u * g⁻¹ = x := by rfl
 
+lemma toConjAct_open {G : Type*} [Group G] [TopologicalSpace G] [TopologicalGroup G]
+    (U : Subgroup G) (hU : IsOpen (U : Set G)) (g : G) : IsOpen (toConjAct g • U : Set G) := by
+  have this1 := continuous_mul_left g⁻¹
+  have this2 := continuous_mul_right g
+  rw [continuous_def] at this1 this2
+  specialize this2 U hU
+  specialize this1 _ this2
+  convert this1 using 1
+  ext x
+  convert conjAct_mem _ _ _ using 1
+  simp
+  refine ⟨?_, ?_⟩ <;> intro h
+  · use g⁻¹ * x * g -- duh
+    simp [h]
+    group
+  · rcases h with ⟨u, hu, rfl⟩
+    group
+    exact hu
 
--- this should be a SMul instance first, and then a simp lemma SMul_eval, and then one_smul etc are easy
-instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
+instance : SMul (Dfx F D) (AutomorphicForm F D M) where
   smul g φ :=   { -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
     toFun := fun x => φ (x * g)
     left_invt := by
@@ -179,22 +198,25 @@ instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
       exact φ.left_invt d (x * g)
     loc_cst := by
       rcases φ.loc_cst with ⟨U, openU, hU⟩
-      use ConjAct.toConjAct g • U
+      use toConjAct g • U
       constructor
       · simp only [Subgroup.coe_pointwise_smul]
-        suffices @IsOpen (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ _ ↑U by
-          --exact conjAct_open U g this
-          sorry
-        exact openU
+        apply toConjAct_open _ openU
       · intros x u umem
         simp only
         rw[conjAct_mem] at umem
         obtain ⟨ugu, hugu, eq⟩ := umem
         rw[←eq, ←mul_assoc, ←mul_assoc, inv_mul_cancel_right, hU (x*g) ugu hugu]
   }
-  one_smul := by intros; simp only [instHSMul, mul_one]
-  mul_smul := by intros; ext; simp only [instHSMul, mk.injEq, mul_assoc]
--- if M is an R-module (e.g. if M = R!), then Automorphic forms are also an R-module
--- with the action being 0on the coefficients.
+
+@[simp]
+lemma sMul_eval (g : Dfx F D) (f : AutomorphicForm F D M) (x : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
+  (g • f) x = f (x * g) := rfl
+
+-- this should be a SMul instance first, and then a simp lemma SMul_eval, and then one_smul etc are easy
+instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
+  smul := (. • .)
+  one_smul := by intros; ext; simp
+  mul_smul := by intros; ext; simp [mul_assoc]
 
 example(a b c :ℝ ): a * b * c = (a * b) * c := rfl
