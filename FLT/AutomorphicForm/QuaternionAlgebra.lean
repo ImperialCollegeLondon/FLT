@@ -1,12 +1,13 @@
 /-
 Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard
+Authors: Kevin Buzzard, Ludwig Monnerjahn, Hannah Scholz
 -/
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Algebra.Group.Subgroup.Pointwise
 import FLT.HIMExperiments.module_topology
 --import Mathlib
 
@@ -21,13 +22,9 @@ variable (F : Type*) [Field F] [NumberField F]
 
 variable (D : Type*) [Ring D] [Algebra F D] [FiniteDimensional F D]
 
-#check DedekindDomain.FiniteAdeleRing
-
 open DedekindDomain
 
 open scoped NumberField
-
-#check FiniteAdeleRing (𝓞 F) F
 
 -- my work (two PRs)
 instance : TopologicalSpace (FiniteAdeleRing (𝓞 F) F) := sorry
@@ -35,13 +32,10 @@ instance : TopologicalRing (FiniteAdeleRing (𝓞 F) F) := sorry
 
 open scoped TensorProduct
 
-#check D ⊗[F] (FiniteAdeleRing (𝓞 F) F)
-
 section missing_instances
 
 variable {R D A : Type*} [CommRing R] [Ring D] [CommRing A] [Algebra R D] [Algebra R A]
 
---TODO:
 instance : Algebra A (D ⊗[R] A) :=
   Algebra.TensorProduct.includeRight.toRingHom.toAlgebra' (by
     simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.includeRight_apply]
@@ -55,10 +49,7 @@ instance : Algebra A (D ⊗[R] A) :=
       rw [left_distrib, hx, hy, right_distrib]
     )
 
-
-
 instance [Module.Finite R D] : Module.Finite A (D ⊗[R] A) := sorry
-
 instance [Module.Free R D]  : Module.Free A (D ⊗[R] A) := sorry
 
 -- #synth Ring (D ⊗[F] FiniteAdeleRing (𝓞 F) F)
@@ -166,34 +157,55 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
   add_left_neg := by intros; ext; simp
   add_comm := by intros; ext; simp [add_comm]
 
--- this should be a SMul instance first, and then a simp lemma SMul_eval, and then one_smul etc are easy
-instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
-  smul g φ :=   {
-    toFun := fun x => φ  (x*g),
+open ConjAct
+open scoped Pointwise
+
+lemma conjAct_mem {G: Type*}  [Group G] (U: Subgroup G) (g: G) (x : G):
+  x ∈ toConjAct g • U ↔ ∃ u ∈ U, g * u * g⁻¹ = x := by rfl
+
+lemma toConjAct_open {G : Type*} [Group G] [TopologicalSpace G] [TopologicalGroup G]
+    (U : Subgroup G) (hU : IsOpen (U : Set G)) (g : G) : IsOpen (toConjAct g • U : Set G) := by
+  have this1 := continuous_mul_left g⁻¹
+  have this2 := continuous_mul_right g
+  rw [continuous_def] at this1 this2
+  specialize this2 U hU
+  specialize this1 _ this2
+  convert this1 using 1
+  ext x
+  convert conjAct_mem _ _ _ using 1
+  simp only [Set.mem_preimage, SetLike.mem_coe]
+  refine ⟨?_, ?_⟩ <;> intro h
+  · use g⁻¹ * x * g -- duh
+    simp [h]
+    group
+  · rcases h with ⟨u, hu, rfl⟩
+    group
+    exact hu
+
+instance : SMul (Dfx F D) (AutomorphicForm F D M) where
+  smul g φ :=   { -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
+    toFun := fun x => φ (x * g)
     left_invt := by
       intros d x
-      simp only [← φ.left_invt d x]
-      rw [mul_assoc]
+      simp only [← φ.left_invt d x, mul_assoc]
       exact φ.left_invt d (x * g)
     loc_cst := by
       rcases φ.loc_cst with ⟨U, openU, hU⟩
-      use U -- not mathematically correct
+      use toConjAct g • U
       constructor
-      · exact openU
+      · apply toConjAct_open _ openU
       · intros x u umem
         simp only
-        sorry
-  } -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
-  one_smul := by
-    intros φ
-    ext df
-    -- missing simp lemma
-    change φ (df * 1) = φ df
-    simp
-  mul_smul := by
-    intros g h φ
-    sorry
--- if M is an R-module (e.g. if M = R!), then Automorphic forms are also an R-module
--- with the action being 0on the coefficients.
+        rw[conjAct_mem] at umem
+        obtain ⟨ugu, hugu, eq⟩ := umem
+        rw[←eq, ←mul_assoc, ←mul_assoc, inv_mul_cancel_right, hU (x*g) ugu hugu]
+  }
 
-example(a b c :ℝ ): a * b * c = (a * b) * c := rfl
+@[simp]
+lemma sMul_eval (g : Dfx F D) (f : AutomorphicForm F D M) (x : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
+  (g • f) x = f (x * g) := rfl
+
+instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
+  smul := (. • .)
+  one_smul := by intros; ext; simp only [sMul_eval, mul_one]
+  mul_smul := by intros; ext; simp only [sMul_eval, mul_assoc]
