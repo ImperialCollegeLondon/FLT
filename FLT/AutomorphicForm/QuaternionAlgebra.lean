@@ -22,21 +22,15 @@ variable (F : Type*) [Field F] [NumberField F]
 
 variable (D : Type*) [Ring D] [Algebra F D] [FiniteDimensional F D]
 
-#check DedekindDomain.FiniteAdeleRing
-
 open DedekindDomain
 
 open scoped NumberField
-
-#check FiniteAdeleRing (𝓞 F) F
 
 -- my work (two PRs)
 instance : TopologicalSpace (FiniteAdeleRing (𝓞 F) F) := sorry
 instance : TopologicalRing (FiniteAdeleRing (𝓞 F) F) := sorry
 
 open scoped TensorProduct
-
-#check D ⊗[F] (FiniteAdeleRing (𝓞 F) F)
 
 section missing_instances
 
@@ -56,7 +50,6 @@ instance : Algebra A (D ⊗[R] A) :=
     )
 
 instance [Module.Finite R D] : Module.Finite A (D ⊗[R] A) := sorry
-
 instance [Module.Free R D]  : Module.Free A (D ⊗[R] A) := sorry
 
 -- #synth Ring (D ⊗[F] FiniteAdeleRing (𝓞 F) F)
@@ -165,8 +158,8 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
   add_comm := by intros; ext; simp [add_comm]
 
 open ConjAct
-
 open scoped Pointwise
+
 lemma conjAct_mem {G: Type*}  [Group G] (U: Subgroup G) (g: G) (x : G):
   x ∈ toConjAct g • U ↔ ∃ u ∈ U, g * u * g⁻¹ = x := by rfl
 
@@ -180,7 +173,7 @@ lemma toConjAct_open {G : Type*} [Group G] [TopologicalSpace G] [TopologicalGrou
   convert this1 using 1
   ext x
   convert conjAct_mem _ _ _ using 1
-  simp
+  simp only [Set.mem_preimage, SetLike.mem_coe]
   refine ⟨?_, ?_⟩ <;> intro h
   · use g⁻¹ * x * g -- duh
     simp [h]
@@ -200,8 +193,7 @@ instance : SMul (Dfx F D) (AutomorphicForm F D M) where
       rcases φ.loc_cst with ⟨U, openU, hU⟩
       use toConjAct g • U
       constructor
-      · simp only [Subgroup.coe_pointwise_smul]
-        apply toConjAct_open _ openU
+      · apply toConjAct_open _ openU
       · intros x u umem
         simp only
         rw[conjAct_mem] at umem
@@ -213,10 +205,7 @@ instance : SMul (Dfx F D) (AutomorphicForm F D M) where
 lemma sMul_eval (g : Dfx F D) (f : AutomorphicForm F D M) (x : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
   (g • f) x = f (x * g) := rfl
 
--- this should be a SMul instance first, and then a simp lemma SMul_eval, and then one_smul etc are easy
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
   smul := (. • .)
-  one_smul := by intros; ext; simp
-  mul_smul := by intros; ext; simp [mul_assoc]
-
-example(a b c :ℝ ): a * b * c = (a * b) * c := rfl
+  one_smul := by intros; ext; simp only [sMul_eval, mul_one]
+  mul_smul := by intros; ext; simp only [sMul_eval, mul_assoc]
