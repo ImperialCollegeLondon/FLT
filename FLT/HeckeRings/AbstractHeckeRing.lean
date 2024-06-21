@@ -12,7 +12,7 @@ import Mathlib.Algebra.BigOperators.Finsupp
 # Construction of Hecke rings following Shimura
 
 We define Hecke rings abstractly as a ring of formal sums of double cosets `HgH`, with H a subgroup
-of a group G, and g in a submonoid `Δ` of the commensurator of `G`.
+of a group G, and `g` in a submonoid `Δ` of the commensurator of `H`.
 
 In practice we might have `G = GL₂(ℚ)` (which will also be the relevant commensurator)
 and `H = SL₂(ℤ)`, and `Δ = Δ₀(N)` (this is where the condition on the determininat being positive
