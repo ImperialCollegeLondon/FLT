@@ -65,15 +65,23 @@ structure ArithmeticGroupPair (G : Type*) [Group G]  where
   H : Subgroup G
   Δ : Submonoid G
   h₀ : H.toSubmonoid ≤ Δ
-  h₁ : (Δ ≤ (commensurator H).toSubmonoid)
+  h₁ : Δ ≤ (commensurator H).toSubmonoid
 
 /--Given an arithmetic pair `P`, consisting of a subgroup `H` of `G` and a submonoid `Δ` of
 the commensurator of H, this is  the data of a set in `G` equal to some double coset
 `HgH`, with `g : Δ`. -/
 structure T' (P : ArithmeticGroupPair G) where
   set : Set G
-  elt : P.Δ
-  eql : set = Doset.doset (elt : G) P.H P.H
+  eql : ∃ elt : P.Δ,  set = Doset.doset (elt : G) P.H P.H
+
+@[ext]
+lemma ext (P : ArithmeticGroupPair G) (D1 D2 : T' P) (h : D1.set = D2.set):
+  D1 = D2 := by
+  cases D1
+  cases D2
+  simp at *
+  exact h
+
 
 /--Make an element of `T' H Δ` given an element `g : Δ`, i.e make `HgH`.  -/
 def T_mk (P : ArithmeticGroupPair G) (g : P.Δ) : T' P := ⟨doset g P.H P.H, g, rfl⟩
@@ -121,8 +129,8 @@ lemma set_eq_iUnion_leftCosets (K : Subgroup G) (hK : K ≤ H) : (H : Set G) = �
       apply hK hh.1
     exact this hi
 
-lemma ConjAct_mul_self_eq_self (g : G) : ((ConjAct.toConjAct g • H) : Set G)*(ConjAct.toConjAct g • H) =
-    (ConjAct.toConjAct g • H) := by
+lemma ConjAct_mul_self_eq_self (g : G) : ((ConjAct.toConjAct g • H) : Set G) *
+    (ConjAct.toConjAct g • H) = (ConjAct.toConjAct g • H) := by
   rw [ConjAct_smul_coe_Eq , show {g} * (H : Set G) * {g⁻¹} * ({g} * ↑H * {g⁻¹}) = {g} * ↑H *
       (({g⁻¹} * {g}) * ↑H) * {g⁻¹} by simp_rw [← mul_assoc],Set.singleton_mul_singleton ]
   conv =>
@@ -132,8 +140,8 @@ lemma ConjAct_mul_self_eq_self (g : G) : ((ConjAct.toConjAct g • H) : Set G)*(
     enter [1,1]
     rw [mul_assoc, coe_mul_coe H]
 
-lemma inter_mul_conjact_eq_conjact (g : G) : ((H : Set G) ∩ (ConjAct.toConjAct g • H))*(ConjAct.toConjAct g • H) =
-    (ConjAct.toConjAct g • H) := by
+lemma inter_mul_conjact_eq_conjact (g : G) : ((H : Set G) ∩ (ConjAct.toConjAct g • H)) *
+    (ConjAct.toConjAct g • H) = (ConjAct.toConjAct g • H) := by
   have := Set.inter_mul_subset (s₁ := (H : Set G)) (s₂ := (ConjAct.toConjAct g • H))
     (t := (ConjAct.toConjAct g • H))
   apply Subset.antisymm
@@ -149,7 +157,7 @@ lemma mul_singleton_cancel (g : G) (K L : Set G)  (h:  K * {g} = L * {g}) : K = 
   simpa using h2
 
 lemma doset_eq_iUnion_leftCosets (g : G) : doset g H H =
-  ⋃ (i : (H ⧸ (ConjAct.toConjAct g • H).subgroupOf H)), (i.out' * g) • (H : Set G):= by
+  ⋃ (i : (H ⧸ (ConjAct.toConjAct g • H).subgroupOf H)), (i.out' * g) • (H : Set G) := by
   rw [doset]
   have := set_eq_iUnion_leftCosets H (((ConjAct.toConjAct g • H).subgroupOf H).map H.subtype)
   simp only [Subgroup.subgroupOf_map_subtype, inf_le_right, Subgroup.coe_inf,
@@ -211,12 +219,11 @@ lemma doset_mul_doset_eq_union_doset (g h : G) :
 /--Finite linear combinations of double cosets `HgH` with `g` in the commensurator of `H`. -/
 def 𝕋 (P : ArithmeticGroupPair G) (Z : Type*) [CommRing Z] := Finsupp (T' P) Z
 
-
 variable  (P : ArithmeticGroupPair G) (Z : Type*) [CommRing Z]
 
 noncomputable instance (P : ArithmeticGroupPair G) (D : T' P) :
-    Fintype (P.H ⧸ ((ConjAct.toConjAct (D.elt : G)) • P.H).subgroupOf P.H) := by
-  apply Subgroup.fintypeOfIndexNeZero (P.h₁ D.elt.2 ).1
+    Fintype (P.H ⧸ ((ConjAct.toConjAct (D.eql.choose : G)) • P.H).subgroupOf P.H) := by
+  apply Subgroup.fintypeOfIndexNeZero (P.h₁ D.eql.choose.2 ).1
 
 lemma rep_mem (a b : Δ) (i : H) : (a : G) * i * b ∈ Δ := by
   rw [mul_assoc]
@@ -233,26 +240,26 @@ noncomputable instance addCommMonoid : AddCommMonoid (𝕋 P Z) :=
   inferInstanceAs (AddCommMonoid ((T' P) →₀ Z))
 
 /-- Take two doble cosets `HgH` and `HhH`, we define `HgH`*`HhH` by the sum over the double cosets
-  in `HgHhH`, i.e., `HgHhH = ⋃ i, HiH`  and then exten linearly to get multiplication on the
-  finite formal sums of double cosets. -/
+in `HgHhH`, i.e., if `HgHhH = ⋃ i, HiH` , then `HgH * HhH = ∑ i, HiH` and then extends
+linearly to get multiplication on the finite formal sums of double cosets. -/
 noncomputable instance (P : ArithmeticGroupPair G) : Mul (𝕋 P Z) where
  mul f g := Finsupp.sum f (fun D1 b₁ => g.sum fun D2 b₂ =>
-    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D2.elt : G) • P.H).subgroupOf P.H),
-      Finsupp.single (T_mk P ⟨((D1.elt : G) * (i.out' : G) * (D2.elt : G)),
-        rep_mem P.H P.Δ P.h₀ D1.elt D2.elt i.out'⟩) (b₁ * b₂ : Z)) : (T' P) →₀ Z))
+    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D2.eql.choose : G) • P.H).subgroupOf P.H),
+      Finsupp.single (T_mk P ⟨((D1.eql.choose : G) * (i.out' : G) * (D2.eql.choose : G)),
+        rep_mem P.H P.Δ P.h₀ D1.eql.choose D2.eql.choose i.out'⟩) (b₁ * b₂ : Z)) : (T' P) →₀ Z))
 
 lemma mul_def (f g : 𝕋 P Z) : f * g = Finsupp.sum f (fun D1 b₁ => g.sum fun D2 b₂ =>
-    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D2.elt : G) • P.H).subgroupOf P.H),
-      Finsupp.single (T_mk P ⟨((D1.elt : G) * (i.out' : G) * (D2.elt : G)),
-        rep_mem P.H P.Δ P.h₀ D1.elt D2.elt i.out'⟩) (b₁ * b₂ : Z)) : (T' P) →₀ Z)) := rfl
+    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D2.eql.choose : G) • P.H).subgroupOf P.H),
+      Finsupp.single (T_mk P ⟨((D1.eql.choose : G) * (i.out' : G) * (D2.eql.choose : G)),
+        rep_mem P.H P.Δ P.h₀ D1.eql.choose D2.eql.choose i.out'⟩) (b₁ * b₂ : Z)) : (T' P) →₀ Z)) := rfl
 
 noncomputable abbrev T_single (a : T' P) (b : Z) : (𝕋 P Z) := Finsupp.single a b
 
 lemma 𝕋_mul_singleton (D1 D2 : (T' P)) (a b : Z) :
   (T_single P Z D1 a) * (T_single P Z D2 b) =
-    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D2.elt : G) • P.H).subgroupOf P.H),
-      Finsupp.single (T_mk P ⟨((D1.elt : G) * (i.out' : G) * (D2.elt : G)),
-        rep_mem P.H P.Δ P.h₀ D1.elt D2.elt i.out'⟩) (a * b : Z)) : (T' P) →₀ Z) := by
+    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D2.eql.choose : G) • P.H).subgroupOf P.H),
+      Finsupp.single (T_mk P ⟨((D1.eql.choose : G) * (i.out' : G) * (D2.eql.choose : G)),
+        rep_mem P.H P.Δ P.h₀ D1.eql.choose D2.eql.choose i.out'⟩) (a * b : Z)) : (T' P) →₀ Z) := by
   rw [T_single, mul_def]
   simp only [mul_zero, Finsupp.single_zero, Finset.sum_const_zero, Finsupp.sum_single_index,
     zero_mul, Int.cast_mul]
@@ -293,7 +300,7 @@ noncomputable instance nonUnitalNonAssocSemiring : NonUnitalNonAssocSemiring (�
 
 noncomputable instance nonUnitalSemiring : NonUnitalSemiring (𝕋 P Z) :=
   {nonUnitalNonAssocSemiring P Z  with
-    mul_assoc := fun f g h => by sorry}
+    mul_assoc := fun f g h => by sorry} -- known in the 1980s so Kevin can't complain.
 
 
 /- The identity is `H1H`. -/
@@ -307,8 +314,35 @@ noncomputable instance nonAssocSemiring : NonAssocSemiring (𝕋 P Z) :=
     natCast := fun n => T_single P Z (T_one P) (n : Z)
     natCast_zero := by simp
     natCast_succ := fun _ => by simp; rfl
-    one_mul := fun f => by
+    one_mul :=  fun f => by sorry
+      /-
+      simp [one_def, mul_def, one_mul, zero_mul, single_zero,
+        Finset.sum_const_zero, sum_zero, sum_single_index, T_one, T_mk]
+
+      have := Finsupp.sum_single  f
+      nth_rw 2 [← this]
+      congr
+      ext D z v
+      rw [Finsupp.finset_sum_apply]
+      simp_rw [Finsupp.single_apply]
+      by_cases h : D = v
+      rw [if_pos h]
+      have h1 : D.elt = v.elt := by
+        rw [h]
+      have h2 : D.set = v.set := by
+        rw [h]
+      simp_rw [h1]
       sorry
+      sorry
+      -/
+
+
+
+
+
+
+
+
     mul_one :=sorry }
 
 noncomputable instance semiring : Semiring (𝕋 P Z) :=
