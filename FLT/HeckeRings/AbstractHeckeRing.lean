@@ -29,7 +29,7 @@ open scoped Pointwise
 
 namespace HeckeRing
 
-variable {G : Type*} [Group G] (H : Subgroup G) (Δ : Submonoid G) (h₀ : H.toSubmonoid ≤ Δ)
+variable {G α : Type*} [Group G] (H : Subgroup G) (Δ : Submonoid G) (h₀ : H.toSubmonoid ≤ Δ)
   (h₁ : (Δ ≤ (commensurator H).toSubmonoid))
 
 lemma ConjAct_smul_coe_Eq (g : G) :  ((ConjAct.toConjAct g • H) : Set G) = {g} * H * {g⁻¹} := by
@@ -74,17 +74,38 @@ structure T' (P : ArithmeticGroupPair G) where
   set : Set G
   eql : ∃ elt : P.Δ,  set = Doset.doset (elt : G) P.H P.H
 
+/-
+noncomputable instance uninon_monoid : Monoid (Set G) where
+  mul f g := f ∪ g
+  mul_assoc f g h := union_assoc f g h
+  one := ⊥
+  one_mul := by
+    intro a
+    have : ⊥ ∪ a = a := by simp only [bot_eq_empty, empty_union]
+    exact this
+  mul_one := by
+    intro a
+    have : a ∪ ⊥ = a := by simp only [bot_eq_empty, union_empty]
+    exact this
+-/
+
+structure M (P : ArithmeticGroupPair G) where
+  set : Set G
+  eql : ∃ elt : P.Δ,  set = {(elt : G)} * (P.H : Set G)
+
 @[ext]
-lemma ext (P : ArithmeticGroupPair G) (D1 D2 : T' P) (h : D1.set = D2.set):
-  D1 = D2 := by
+lemma ext (P : ArithmeticGroupPair G) (D1 D2 : T' P) (h : D1.set = D2.set): D1 = D2 := by
   cases D1
   cases D2
   simp at *
   exact h
 
 
-/--Make an element of `T' H Δ` given an element `g : Δ`, i.e make `HgH`.  -/
+/--Make an element of `T' P` given an element `g : P.Δ`, i.e make `HgH`.  -/
 def T_mk (P : ArithmeticGroupPair G) (g : P.Δ) : T' P := ⟨doset g P.H P.H, g, rfl⟩
+
+/--Make an element of `M P` given an element `g : P.Δ`, i.e make `gH`.  -/
+def M_mk (P : ArithmeticGroupPair G) (g : P.Δ) : M P := ⟨{(g : G)} * (P.H : Set G), g, rfl⟩
 
 /--The multiplicative identity. -/
 def T_one (P : ArithmeticGroupPair G) : T' P := T_mk P (1 : P.Δ)
@@ -219,6 +240,8 @@ lemma doset_mul_doset_eq_union_doset (g h : G) :
 /--Finite linear combinations of double cosets `HgH` with `g` in the commensurator of `H`. -/
 def 𝕋 (P : ArithmeticGroupPair G) (Z : Type*) [CommRing Z] := Finsupp (T' P) Z
 
+def 𝕄 (P : ArithmeticGroupPair G) (Z : Type*) [CommRing Z] := Finsupp (M P) Z
+
 variable  (P : ArithmeticGroupPair G) (Z : Type*) [CommRing Z]
 
 noncomputable instance (P : ArithmeticGroupPair G) (D : T' P) :
@@ -229,6 +252,10 @@ lemma rep_mem (a b : Δ) (i : H) : (a : G) * i * b ∈ Δ := by
   rw [mul_assoc]
   apply Submonoid.mul_mem _ (a.2) (Submonoid.mul_mem _ (h₀ i.2) b.2)
 
+lemma rep_mem2  (i : H) (a b : Δ) : (i : G) * a * b ∈ Δ := by
+ rw [mul_assoc]
+ apply Submonoid.mul_mem _ (h₀ i.2) (Submonoid.mul_mem _ (a.2) b.2)
+
 /-Test func. not needed
 noncomputable def mul' (D1 D2 : T' H Δ) : 𝕋 H Δ :=
     ((∑ (i : H ⧸ (ConjAct.toConjAct (D2.elt : G) • H).subgroupOf H),
@@ -238,6 +265,11 @@ noncomputable def mul' (D1 D2 : T' H Δ) : 𝕋 H Δ :=
 
 noncomputable instance addCommMonoid : AddCommMonoid (𝕋 P Z) :=
   inferInstanceAs (AddCommMonoid ((T' P) →₀ Z))
+
+noncomputable instance 𝕄addCommGroup : AddCommGroup (𝕄 P Z) :=
+  inferInstanceAs (AddCommGroup ((M P) →₀ Z))
+
+
 
 /-- Take two doble cosets `HgH` and `HhH`, we define `HgH`*`HhH` by the sum over the double cosets
 in `HgHhH`, i.e., if `HgHhH = ⋃ i, HiH` , then `HgH * HhH = ∑ i, HiH` and then extends
@@ -298,9 +330,44 @@ noncomputable instance nonUnitalNonAssocSemiring : NonUnitalNonAssocSemiring (�
       exact Eq.trans (congr_arg (sum f) (funext₂ fun a₁ b₁ => sum_zero_index)) sum_zero }
 
 
+noncomputable instance smul : SMul (𝕋 P Z) (𝕋 P Z) where
+  smul := (·  *  · )
+
+/-- Define `HgH • v H = ∑ i, v*a_i*g H` with the sum elements comming form
+`doset_eq_iUnion_leftCosets` and then extend linearly. This is like defining
+`HgH • v H = v H * HgH` and turning unions into sums. There should be a clean way to do this turning
+union into sums...-/
+noncomputable instance 𝕄smul : SMul (𝕋 P Z) (𝕄 P Z) where
+  smul := fun t => fun mm => Finsupp.sum t (fun D1 b₁ => mm.sum fun m b₂ =>
+    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D1.eql.choose : G) • P.H).subgroupOf P.H),
+      Finsupp.single (M_mk P ⟨((i.out' : G) * (D1.eql.choose : G) * (m.eql.choose : G)),
+        rep_mem2 P.H P.Δ P.h₀ i.out' D1.eql.choose m.eql.choose⟩) (b₁*b₂ : Z) : (M P) →₀ Z)))
+
+noncomputable instance 𝕄smulFaithful : FaithfulSMul (𝕋 P Z) (𝕄 P Z) where
+  eq_of_smul_eq_smul := by sorry
+
+lemma smul_def (f g : 𝕋 P Z) : f • g = f * g := rfl
+
+noncomputable instance isScalarTower : IsScalarTower (𝕋 P Z) (𝕋 P Z) (𝕄 P Z) := by sorry
+
+lemma 𝕋_mul_assoc (f g h : 𝕋 P Z) : (f * g) * h = f * (g * h) := by
+
+  have := (𝕄smulFaithful P Z).eq_of_smul_eq_smul (M := (𝕋 P Z)) (m₁ := (f * g) * h)
+      (m₂ := f * (g * h) )
+  apply this
+  intro a
+  have e1 :=  (isScalarTower P Z).smul_assoc (f ) ( g* h) a
+  have e2 :=  (isScalarTower P Z).smul_assoc (g) ( h) a
+  have e3 :=  (isScalarTower P Z).smul_assoc (f  * g) ( h) a
+  have e4 :=  (isScalarTower P Z).smul_assoc (f) (g) (h • a)
+  simp at *
+  rw [e2] at e1
+  rw [e4] at e3
+  rw [e1, e3]
+
 noncomputable instance nonUnitalSemiring : NonUnitalSemiring (𝕋 P Z) :=
   {nonUnitalNonAssocSemiring P Z  with
-    mul_assoc := fun f g h => by sorry} -- known in the 1980s so Kevin can't complain.
+    mul_assoc := 𝕋_mul_assoc P Z} -- known in the 1980s so Kevin can't complain.
 
 
 /- The identity is `H1H`. -/
@@ -314,8 +381,7 @@ noncomputable instance nonAssocSemiring : NonAssocSemiring (𝕋 P Z) :=
     natCast := fun n => T_single P Z (T_one P) (n : Z)
     natCast_zero := by simp
     natCast_succ := fun _ => by simp; rfl
-    one_mul :=  fun f => by sorry
-      /-
+    one_mul :=  fun f => by
       simp [one_def, mul_def, one_mul, zero_mul, single_zero,
         Finset.sum_const_zero, sum_zero, sum_single_index, T_one, T_mk]
 
@@ -325,16 +391,9 @@ noncomputable instance nonAssocSemiring : NonAssocSemiring (𝕋 P Z) :=
       ext D z v
       rw [Finsupp.finset_sum_apply]
       simp_rw [Finsupp.single_apply]
-      by_cases h : D = v
-      rw [if_pos h]
-      have h1 : D.elt = v.elt := by
-        rw [h]
-      have h2 : D.set = v.set := by
-        rw [h]
-      simp_rw [h1]
       sorry
-      sorry
-      -/
+
+
 
 
 
