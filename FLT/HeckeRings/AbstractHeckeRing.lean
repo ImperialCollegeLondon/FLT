@@ -58,6 +58,16 @@ lemma ConjAct_smul_elt_eq (h : H) : ConjAct.toConjAct (h : G) • H = H := by
   norm_cast at *
 
 
+
+lemma sub_eq (a b : G) (h : {a} * (H : Set G) ⊆ {b} * H) : {a} * (H : Set G) = {b} * H := by
+  have ha : a ∈ {a} * (H : Set G) := by
+    rw [@mem_mul]
+    use a
+    simp [Subgroup.one_mem]
+  have hb := h ha
+  sorry
+
+
 /-maybe call this commensurable pair??-/
 /-- This is a pair cosisting of a subgroup `H` and a submonoid `Δ` of some group, such that
 `H ≤ Δ ≤ commensurator H`. -/
@@ -109,6 +119,30 @@ def M_mk (P : ArithmeticGroupPair G) (g : P.Δ) : M P := ⟨{(g : G)} * (P.H : S
 
 /--The multiplicative identity. -/
 def T_one (P : ArithmeticGroupPair G) : T' P := T_mk P (1 : P.Δ)
+
+lemma T_one_eq (P : ArithmeticGroupPair G) : T_one P = T_mk P (1 : P.Δ) := rfl
+
+lemma T_one_eq_doset_one (P : ArithmeticGroupPair G) : T_one P = ⟨doset (1 : P.Δ) P.H P.H, 1, rfl⟩ := rfl
+
+lemma T_one_eq_doset_one' (P : ArithmeticGroupPair G) : doset ((T_one P).eql.choose : G) P.H P.H =
+  doset (1 : G) P.H P.H := by
+  have := (T_one P).eql.choose_spec
+  have h2 := T_one_eq_doset_one P
+  rw [h2] at this
+  simp at this
+  exact id (Eq.symm this)
+
+lemma doset_mul_left_eq_self (P : ArithmeticGroupPair G) (h : P.H) (g : G) : doset ((h : G) * g) P.H P.H =
+  doset g P.H P.H := by
+  simp_rw [doset, ← singleton_mul_singleton, ← mul_assoc]
+  conv =>
+    enter [1,1,1]
+    rw [Subgroup.subgroup_mul_singleton h.2]
+
+lemma doset_mul_assoc (f g h : G) : doset ((f * g) * h) H H = doset (f * (g * h)) H H := by
+  simp_rw [doset, ← singleton_mul_singleton, ← mul_assoc]
+
+def M_one (P : ArithmeticGroupPair G) : M P := M_mk P (1 : P.Δ)
 
 lemma smul_eq_mul_singleton (s : Set G) (g : G) : g • s = {g} * s := by
     rw [← Set.singleton_smul]
@@ -236,6 +270,10 @@ lemma doset_mul_doset_eq_union_doset (g h : G) :
     simp_rw [← mul_assoc]
   apply iUnion_congr h1
 
+lemma doset_one_mul (h : G) : doset (h : G) (H : Set G) H =
+    ⋃ (i : H ⧸ (ConjAct.toConjAct h • H).subgroupOf H), doset (h : G) H H := by
+  simp [iUnion_const]
+
 
 /--Finite linear combinations of double cosets `HgH` with `g` in the commensurator of `H`. -/
 def 𝕋 (P : ArithmeticGroupPair G) (Z : Type*) [CommRing Z] := Finsupp (T' P) Z
@@ -246,15 +284,20 @@ variable  (P : ArithmeticGroupPair G) (Z : Type*) [CommRing Z]
 
 noncomputable instance (P : ArithmeticGroupPair G) (D : T' P) :
     Fintype (P.H ⧸ ((ConjAct.toConjAct (D.eql.choose : G)) • P.H).subgroupOf P.H) := by
+  have := (D.eql.choose.2 )
   apply Subgroup.fintypeOfIndexNeZero (P.h₁ D.eql.choose.2 ).1
+
+noncomputable instance (P : ArithmeticGroupPair G) (D : T' P) :
+  Finite (P.H ⧸ ((ConjAct.toConjAct (D.eql.choose : G)) • P.H).subgroupOf P.H) := by
+  apply Finite.of_fintype
 
 lemma rep_mem (a b : Δ) (i : H) : (a : G) * i * b ∈ Δ := by
   rw [mul_assoc]
   apply Submonoid.mul_mem _ (a.2) (Submonoid.mul_mem _ (h₀ i.2) b.2)
 
-lemma rep_mem2  (i : H) (a b : Δ) : (i : G) * a * b ∈ Δ := by
+lemma rep_mem2  (i : H) (a b : Δ) : a * (i : G) * b ∈ Δ := by
  rw [mul_assoc]
- apply Submonoid.mul_mem _ (h₀ i.2) (Submonoid.mul_mem _ (a.2) b.2)
+ apply Submonoid.mul_mem _ (a.2) (Submonoid.mul_mem _ (h₀ i.2) b.2)
 
 /-Test func. not needed
 noncomputable def mul' (D1 D2 : T' H Δ) : 𝕋 H Δ :=
@@ -263,40 +306,94 @@ noncomputable def mul' (D1 D2 : T' H Δ) : 𝕋 H Δ :=
         rep_mem H Δ D1.h₀ D1.elt D2.elt i.out'⟩) (1 : ℤ) : (T' H Δ) →₀ ℤ))
 -/
 
-noncomputable instance addCommMonoid : AddCommMonoid (𝕋 P Z) :=
-  inferInstanceAs (AddCommMonoid ((T' P) →₀ Z))
+noncomputable instance addCommMonoid : AddCommGroup (𝕋 P Z) :=
+  inferInstanceAs (AddCommGroup ((T' P) →₀ Z))
 
 noncomputable instance 𝕄addCommGroup : AddCommGroup (𝕄 P Z) :=
   inferInstanceAs (AddCommGroup ((M P) →₀ Z))
 
+noncomputable example (s : Set G) (h : Nat.card s ≠ 0) : Finset G :=
+  Set.Finite.toFinset (Nat.finite_of_card_ne_zero h)
+
+noncomputable def m' (a b : Z) (D1 D2 d : T' P)  : Z :=
+ Nat.card {(⟨i, j⟩ : (P.H ⧸ (ConjAct.toConjAct (D1.eql.choose : G) • P.H).subgroupOf P.H) ×
+  (P.H ⧸ (ConjAct.toConjAct (D2.eql.choose : G) • P.H).subgroupOf P.H)) |
+  ({(i.out' : G) * (D1.eql.choose : G)} : Set G) * {(j.out' : G)*(D2.eql.choose : G)} * P.H =
+   {(d.eql.choose : G)} * (P.H : Set G) } * a * b
+
+noncomputable def mm (a b : Z) (D1 D2 : T' P) : Set (T' P) := {d : T' P | m' P Z a b D1 D2 d ≠ 0}
+
+noncomputable def m (a b : Z) (D1 D2 : T' P) : (T' P) →₀ Z :=
+    if h : (Nat.card (mm P Z a b D1 D2)) = 0 then Finsupp.single D1 0
+  else ⟨Set.Finite.toFinset (Nat.finite_of_card_ne_zero h), (m' P Z a b D1 D2), by
+   intro a
+   simp only [mm, ne_eq, Finite.mem_toFinset, mem_setOf_eq] ⟩
+
+lemma m'_comm (a b : Z) (D1 D2 : T' P) : m' P Z a b D1 D2 = m' P Z b a D1 D2 := by
+  unfold m'
+  ext A
+  ring
+
+lemma m_comm (a b : Z) (D1 D2 : T' P) : m P Z a b D1 D2 = m P Z b a D1 D2 := by
+  simp [m, m'_comm, mm]
+
+lemma m_zero_b (a : Z) (D1 D2 : T' P) : m P Z a 0 D1 D2 = 0 := by
+  simp only [m, mm, ne_eq, coe_setOf, Nat.card_eq_zero, isEmpty_subtype, Decidable.not_not,
+    Finsupp.single_zero, dite_eq_left_iff, not_or, not_forall, not_infinite_iff_finite]
+  intros h
+  apply Finsupp.ext
+  intro a
+  simp [m, m',mm]
+
+lemma m_a_zero (b : Z) (D1 D2 : T' P) : m P Z 0 b D1 D2 = 0 := by
+  rw [m_comm]
+  apply m_zero_b
 
 
 /-- Take two doble cosets `HgH` and `HhH`, we define `HgH`*`HhH` by the sum over the double cosets
-in `HgHhH`, i.e., if `HgHhH = ⋃ i, HiH` , then `HgH * HhH = ∑ i, HiH` and then extends
+in `HgHhH`, i.e., if `HgHhH = ⋃ i, HiH` , then `HgH * HhH = ∑ i, m(g,h,i)*HiH` and then extends
 linearly to get multiplication on the finite formal sums of double cosets. -/
 noncomputable instance (P : ArithmeticGroupPair G) : Mul (𝕋 P Z) where
- mul f g := Finsupp.sum f (fun D1 b₁ => g.sum fun D2 b₂ =>
-    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D2.eql.choose : G) • P.H).subgroupOf P.H),
-      Finsupp.single (T_mk P ⟨((D1.eql.choose : G) * (i.out' : G) * (D2.eql.choose : G)),
-        rep_mem P.H P.Δ P.h₀ D1.eql.choose D2.eql.choose i.out'⟩) (b₁ * b₂ : Z)) : (T' P) →₀ Z))
+ mul f g := Finsupp.sum f (fun D1 b₁ => g.sum fun D2 b₂ => m P Z b₁ b₂ D1 D2)
 
-lemma mul_def (f g : 𝕋 P Z) : f * g = Finsupp.sum f (fun D1 b₁ => g.sum fun D2 b₂ =>
-    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D2.eql.choose : G) • P.H).subgroupOf P.H),
-      Finsupp.single (T_mk P ⟨((D1.eql.choose : G) * (i.out' : G) * (D2.eql.choose : G)),
-        rep_mem P.H P.Δ P.h₀ D1.eql.choose D2.eql.choose i.out'⟩) (b₁ * b₂ : Z)) : (T' P) →₀ Z)) := rfl
+lemma mul_def (f g : 𝕋 P Z) : f * g = Finsupp.sum f
+  (fun D1 b₁ => g.sum fun D2 b₂ =>m P Z b₁ b₂ D1 D2) := rfl
 
 noncomputable abbrev T_single (a : T' P) (b : Z) : (𝕋 P Z) := Finsupp.single a b
 
+noncomputable abbrev M_single (a : M P) (b : Z) : (𝕄 P Z) := Finsupp.single a b
+
+
+
 lemma 𝕋_mul_singleton (D1 D2 : (T' P)) (a b : Z) :
-  (T_single P Z D1 a) * (T_single P Z D2 b) =
-    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D2.eql.choose : G) • P.H).subgroupOf P.H),
-      Finsupp.single (T_mk P ⟨((D1.eql.choose : G) * (i.out' : G) * (D2.eql.choose : G)),
-        rep_mem P.H P.Δ P.h₀ D1.eql.choose D2.eql.choose i.out'⟩) (a * b : Z)) : (T' P) →₀ Z) := by
-  rw [T_single, mul_def]
-  simp only [mul_zero, Finsupp.single_zero, Finset.sum_const_zero, Finsupp.sum_single_index,
-    zero_mul, Int.cast_mul]
+  (T_single P Z D1 a) * (T_single P Z D2 b) = m P Z a b D1 D2 := by
+  simp_rw [T_single, mul_def]
+  rw [Finsupp.sum_single_index]
+  rw [Finsupp.sum_single_index]
+  rw [m]
+  simp
+  intro h
+  apply Finsupp.ext
+  intro a
+  simp [m']
+  rw [Finsupp.sum_single_index]
+  apply Finsupp.ext
+  intro a
+  simp [m, m',mm]
+  apply Finsupp.ext
+  intro a
+  simp [m, m',mm]
+
+
+
 
 open Finsupp
+
+lemma 𝕋_one_mul_singleton (D2 : (T' P)) (b : Z) :
+  T_single P Z (T_one P) (1 : Z) * (T_single P Z D2 b) = (T_single P Z D2 b) := by
+  rw [𝕋_mul_singleton]
+
+  sorry
 
 noncomputable instance nonUnitalNonAssocSemiring : NonUnitalNonAssocSemiring (𝕋 P Z) :=
   {  (addCommMonoid P Z) with
@@ -305,23 +402,23 @@ noncomputable instance nonUnitalNonAssocSemiring : NonUnitalNonAssocSemiring (�
       refine Eq.trans (congr_arg (Finsupp.sum f) (funext₂ fun a₁ b₁ => Finsupp.sum_add_index ?_ ?_))
         ?_ <;>
         simp
-      intro D1 _ a b
-      rw [← Finset.sum_add_distrib ]
-      congr
-      group
-      simp only [Finsupp.single_add]
+      intro D1
+      exact fun a ↦ m_zero_b P Z b₁ a₁ D1
+      intro G2 h2 x y
+      sorry
+
+
     right_distrib := fun f g h => by
       simp only [mul_def]
       refine Eq.trans (Finsupp.sum_add_index ?_ ?_) ?_ <;>
         simp
-      intro D1 _ a b
-      rw [← Finsupp.sum_add]
-      apply congr_arg
-      ext i
-      rw [← Finset.sum_add_distrib ]
-      congr
-      group
-      simp only [Finsupp.single_add]
+      intro D1
+
+
+
+      sorry
+      sorry
+
     zero_mul := fun f => by
       simp only [mul_def]
       exact Finsupp.sum_zero_index
@@ -340,11 +437,71 @@ union into sums...-/
 noncomputable instance 𝕄smul : SMul (𝕋 P Z) (𝕄 P Z) where
   smul := fun t => fun mm => Finsupp.sum t (fun D1 b₁ => mm.sum fun m b₂ =>
     ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D1.eql.choose : G) • P.H).subgroupOf P.H),
-      Finsupp.single (M_mk P ⟨((i.out' : G) * (D1.eql.choose : G) * (m.eql.choose : G)),
-        rep_mem2 P.H P.Δ P.h₀ i.out' D1.eql.choose m.eql.choose⟩) (b₁*b₂ : Z) : (M P) →₀ Z)))
+      Finsupp.single (M_mk P ⟨((m.eql.choose : G) * (i.out' : G) * (D1.eql.choose : G)),
+        rep_mem2 P.H P.Δ P.h₀ i.out' m.eql.choose D1.eql.choose⟩) (b₁*b₂ : Z) : (M P) →₀ Z)))
+
+lemma 𝕋smul_def (T : 𝕋 P Z) (m : 𝕄 P Z) : T • m = Finsupp.sum T (fun D1 b₁ => m.sum fun m b₂ =>
+    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D1.eql.choose : G) • P.H).subgroupOf P.H),
+      Finsupp.single (M_mk P ⟨((m.eql.choose : G) * (i.out' : G) * (D1.eql.choose : G)),
+      rep_mem2 P.H P.Δ P.h₀ i.out' m.eql.choose D1.eql.choose⟩) (b₁*b₂ : Z) : (M P) →₀ Z))) := by rfl
+
+noncomputable instance hSMul : HSMul (𝕋 P Z) (𝕄 P Z) (𝕄 P Z) := inferInstance
+
+variable (t : T' P) (m : 𝕄 P Z) (a : Z)
+
+
+
+
+lemma single_smul_single (t : T' P) (m : M P) (a b : Z) :
+  (hSMul P Z).hSMul ((Finsupp.single t a) : 𝕋 P Z) ((Finsupp.single m b) : 𝕄 P Z)  =
+  ((∑ (i : P.H ⧸ (ConjAct.toConjAct (t.eql.choose : G) • P.H).subgroupOf P.H),
+      Finsupp.single (M_mk P ⟨((m.eql.choose : G) * (i.out' : G) * (t.eql.choose : G)),
+      rep_mem2 P.H P.Δ P.h₀ i.out' m.eql.choose t.eql.choose⟩) (a * b : Z) : (M P) →₀ Z)) := by
+  rw [𝕋smul_def]
+  simp only [singleton_mul, image_mul_left, mul_zero, single_zero, Finset.sum_const_zero,
+    sum_single_index, zero_mul]
+
+
+lemma single_basis {α : Type*} (t : Finsupp α Z) : t = ∑ (i ∈ t.support), single i (t.toFun i) := by
+  apply Finsupp.ext
+  intro a
+  simp_rw [Finsupp.finset_sum_apply, Finsupp.single_apply]
+  simp only [Finset.sum_ite_eq', mem_support_iff, ne_eq, ite_not]
+  aesop
+
+lemma support_eq {α : Type*} (t s : Finsupp α Z) (h : t.support = s.support) (h2 :∀ a ∈ t.support,
+  t a = s a) : t = s := by
+  refine Finsupp.ext ?h
+  intro a
+  by_cases ha : a ∈ t.support
+  exact h2 a ha
+  have hsa := ha
+  rw [h] at hsa
+  rw [not_mem_support_iff] at *
+  rw [ha, hsa]
+
+#check (M_single P Z (M_one P) (1 : Z))
+
+-- lemma smul_one𝕄 (a : 𝕋 P Z) : a • (M_single P Z (M_one P) (1 : Z))  = a := by sorry
+
+lemma 𝕋eq_of_smul_eq_smul (T1 T2 : (𝕋 P Z)) (h : ∀ (a : 𝕄 P Z), T1 • a = T2 • a) : T1 = T2 := by
+
+
+
+  /-
+  let a := Finsupp.single (M_mk P (1 : P.Δ)) (1 : Z)
+  have h1 := h a
+  have h2 := single_basis Z ((hSMul P Z).hSMul T1 a)
+  have h3 := single_basis Z ((hSMul P Z).hSMul T2 a)
+  have ha := h1
+  rw [h2, h3] at h1
+  apply support_eq
+  -/
+
+  sorry
 
 noncomputable instance 𝕄smulFaithful : FaithfulSMul (𝕋 P Z) (𝕄 P Z) where
-  eq_of_smul_eq_smul := by sorry
+  eq_of_smul_eq_smul  {t1 t2} h := 𝕋eq_of_smul_eq_smul P Z t1 t2 h
 
 lemma smul_def (f g : 𝕋 P Z) : f • g = f * g := rfl
 
@@ -356,10 +513,10 @@ lemma 𝕋_mul_assoc (f g h : 𝕋 P Z) : (f * g) * h = f * (g * h) := by
       (m₂ := f * (g * h) )
   apply this
   intro a
-  have e1 :=  (isScalarTower P Z).smul_assoc (f ) ( g* h) a
-  have e2 :=  (isScalarTower P Z).smul_assoc (g) ( h) a
-  have e3 :=  (isScalarTower P Z).smul_assoc (f  * g) ( h) a
-  have e4 :=  (isScalarTower P Z).smul_assoc (f) (g) (h • a)
+  have e1 :=  (isScalarTower P Z).smul_assoc f (g* h) a
+  have e2 :=  (isScalarTower P Z).smul_assoc g h a
+  have e3 :=  (isScalarTower P Z).smul_assoc (f  * g) h a
+  have e4 :=  (isScalarTower P Z).smul_assoc f g (h • a)
   simp at *
   rw [e2] at e1
   rw [e4] at e3
@@ -382,26 +539,23 @@ noncomputable instance nonAssocSemiring : NonAssocSemiring (𝕋 P Z) :=
     natCast_zero := by simp
     natCast_succ := fun _ => by simp; rfl
     one_mul :=  fun f => by
-      simp [one_def, mul_def, one_mul, zero_mul, single_zero,
-        Finset.sum_const_zero, sum_zero, sum_single_index, T_one, T_mk]
-
+      simp [one_def, mul_def, zero_mul, single_zero, Finset.sum_const_zero, sum_zero,
+        sum_single_index, one_mul]
       have := Finsupp.sum_single  f
       nth_rw 2 [← this]
       congr
       ext D z v
-      rw [Finsupp.finset_sum_apply]
-      simp_rw [Finsupp.single_apply]
       sorry
-
-
-
-
-
-
-
-
-
-
+      sorry
+      /-
+      rw [Finsupp.finset_sum_apply]
+      have :=  𝕋_one_mul_singleton P Z D z
+      simp_rw [T_single] at this
+      rw [← this]
+      rw [𝕋_mul_singleton]
+      simp
+      rw [@Finset.sum_apply']
+      -/
     mul_one :=sorry }
 
 noncomputable instance semiring : Semiring (𝕋 P Z) :=
@@ -420,6 +574,8 @@ noncomputable instance nonAssocRing : NonAssocRing (𝕋 P Z) :=
 
 noncomputable instance ring : Ring (𝕋 P Z) :=
     {HeckeRing.nonAssocRing P Z, HeckeRing.semiring P Z with }
+
+
 
 
 end HeckeRing
