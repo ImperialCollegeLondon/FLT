@@ -274,9 +274,7 @@ lemma F.mod_Q_y_pow_q_eq_zero : (F A Q).eval₂ (algebraMap B (B⧸Q)) ((algebra
 
 lemma exists_Frob : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q := by
   have := F.mod_Q_y_pow_q_eq_zero A Q isGalois P
-  rw [F_spec] at this
-  rw [eval₂_finset_prod] at this
-  rw [Finset.prod_eq_zero_iff] at this
+  rw [F_spec, eval₂_finset_prod, Finset.prod_eq_zero_iff] at this
   obtain ⟨σ, -, hσ⟩ := this
   use σ
   simp only [Ideal.Quotient.algebraMap_eq, AlgEquiv.smul_def, eval₂_sub, eval₂_X, eval₂_C,
@@ -344,11 +342,11 @@ lemma Frob_Q_eq_pow_card (x : B) : Frob A Q isGalois P x - x^(Fintype.card (A⧸
     change (Frob A Q isGalois P) • x - _ ∈ _
     rw [← smul_sub]
     nth_rw 3 [ ← fact3]
-    suffices (x - y A Q ^ n) ∈ Q by
-      exact?
-    rw [smul_mem_smul]
-    simp
-    skip
+    -- suffices (x - y A Q ^ n) ∈ Q by
+    --   exact?
+    -- rw [smul_mem_smul]
+    -- simp
+    -- skip
     sorry
 
 /- maths proof:

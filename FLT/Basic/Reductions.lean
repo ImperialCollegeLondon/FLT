@@ -108,11 +108,9 @@ lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c
   have foo : gcd a b ∣ gcd a c := by
     apply dvd_gcd (gcd_dvd_left a b)
     rw [← Int.pow_dvd_pow_iff hp.ne', ← h]
-    apply dvd_add
-    · rw [Int.pow_dvd_pow_iff hp.ne']
-      exact gcd_dvd_left a b
-    · rw [Int.pow_dvd_pow_iff hp.ne']
-      exact gcd_dvd_right a b
+    apply dvd_add <;> rw [Int.pow_dvd_pow_iff hp.ne']
+    · exact gcd_dvd_left a b
+    · exact gcd_dvd_right a b
   have bar : gcd a c ∣ gcd a b := by
     apply dvd_gcd (gcd_dvd_left a c)
     have h2 : b ^ p = c ^ p - a ^ p := eq_sub_of_add_eq' h
@@ -120,8 +118,7 @@ lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c
     apply dvd_add
     · rw [Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_right a c
-    · rw [dvd_neg]
-      rw [Int.pow_dvd_pow_iff hp.ne']
+    · rw [dvd_neg, Int.pow_dvd_pow_iff hp.ne']
       exact gcd_dvd_left a c
   change _ ∣ (Int.gcd a c : ℤ) at foo
   apply Int.ofNat_dvd.1 at bar
@@ -227,8 +224,7 @@ def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
       simp_rw [← mul_pow]
       refine pow_ne_zero 2 <| pow_ne_zero P.p <| (mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0)
     coe_Δ' := by
-      simp only [Units.val_mk0]
-      rw [← Int.cast_pow P.c, ← P.hFLT]
+      simp only [Units.val_mk0, ← Int.cast_pow P.c, ← P.hFLT]
       field_simp [EllipticCurve.Δ', WeierstrassCurve.Δ, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
         WeierstrassCurve.b₆, WeierstrassCurve.b₈]
       ring }
@@ -236,36 +232,27 @@ def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
 lemma FreyCurve.b₂ (P : FreyPackage) :
     P.FreyCurve.b₂ = P.b ^ P.p - P.a ^ P.p := by
   simp [FreyCurve, WeierstrassCurve.b₂]
-  field_simp
-  norm_cast
   ring
 
 lemma FreyCurve.b₄ (P : FreyPackage) :
     P.FreyCurve.b₄ = - (P.a * P.b) ^ P.p / 8 := by
   simp [FreyCurve, WeierstrassCurve.b₄]
-  field_simp
-  norm_cast
   ring
 
 lemma FreyCurve.c₄ (P : FreyPackage) :
     P.FreyCurve.c₄ = (P.a ^ P.p) ^ 2 + P.a ^ P.p * P.b ^ P.p + (P.b ^ P.p) ^ 2 := by
   simp [FreyCurve.b₂, FreyCurve.b₄, WeierstrassCurve.c₄]
-  field_simp
-  norm_cast
   ring
 
 lemma FreyCurve.c₄' (P : FreyPackage) :
     P.FreyCurve.c₄ = P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p := by
   rw [FreyCurve.c₄]
-  norm_cast
-  rw [pow_mul', ← hFLT]
+  rw_mod_cast [pow_mul', ← hFLT]
   ring
 
 lemma FreyCurve.Δ'inv (P : FreyPackage) :
     (↑(P.FreyCurve.Δ'⁻¹) : ℚ) = 2 ^ 8 / (P.a*P.b*P.c)^(2*P.p) := by
   simp [FreyCurve]
-  congr 1
-  norm_cast
   ring
 
 lemma FreyCurve.j (P : FreyPackage) :
@@ -283,7 +270,7 @@ private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := 
     apply mul_self_pos.mpr hb
   | inr h =>
     rw [sub_pos]
-    apply h.trans_le (sq_nonneg _)
+    exact h.trans_le (sq_nonneg _)
 
 /-- The q-adic valuation of the j-invariant of the Frey curve is a multiple of p if 2 < q is
 a prime of bad reduction. -/
@@ -293,8 +280,7 @@ lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : 
   have := Fact.mk hqPrime
   have hqPrime' := Nat.prime_iff_prime_int.mp hqPrime
   have h₀ : ((P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p) ^ 3 : ℚ) ≠ 0 := by
-    norm_cast
-    rw [pow_mul', ← P.hFLT, mul_pow]
+    rw_mod_cast [pow_mul', ← P.hFLT, mul_pow]
     exact pow_ne_zero _ <| ne_of_gt <| j_pos_aux _ _ (pow_ne_zero _ P.hb0)
   have h₁ : P.a * P.b * P.c ≠ 0 := mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0
   rw [FreyCurve.j, padicValRat.div (mul_ne_zero (by norm_num) h₀) (pow_ne_zero _ (mod_cast h₁)),
@@ -326,10 +312,6 @@ lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : 
   exact dvd_mul_of_dvd_left (dvd_mul_left _ _) _
 
 end FreyPackage
-
-
-
-
 
 /-!
 
@@ -367,9 +349,7 @@ It follows that there is no Frey package.
 /-- There is no Frey package. This profound result is proved using
 work of Mazur and Wiles/Ribet to rule out all possibilities for the
 $p$-torsion in the corresponding Frey curve. -/
-theorem FreyPackage.false (P : FreyPackage) : False := by
-  apply Wiles_Frey P
-  exact Mazur_Frey P
+theorem FreyPackage.false (P : FreyPackage) : False := Wiles_Frey P (Mazur_Frey P)
 
 -- Fermat's Last Theorem is true
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
