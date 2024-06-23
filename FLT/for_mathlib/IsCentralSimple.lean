@@ -44,8 +44,7 @@ theorem RingCon.sum {R : Type u} [AddCommMonoid R] [Mul R] {ι : Type v} {s : Fi
       simp_rw [Finset.sum_insert hj]
       apply RingCon.add
       · exact h j (Finset.mem_insert_self j s')
-      · apply ih
-        exact fun i hi ↦ h i (Finset.mem_insert_of_mem hi)
+      · exact ih fun i hi ↦ h i (Finset.mem_insert_of_mem hi)
 
 open Matrix in
 theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) [Nonempty ι] [DecidableEq ι] :
