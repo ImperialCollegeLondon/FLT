@@ -157,6 +157,16 @@ lemma doset_mul_left_eq_self (P : ArithmeticGroupPair G) (h : P.H) (g : G) : dos
     enter [1,1,1]
     rw [Subgroup.subgroup_mul_singleton h.2]
 
+lemma doset_mul_right_eq_self (P : ArithmeticGroupPair G) (h : P.H) (g : G) : doset ( g * h) P.H P.H =
+  doset g P.H P.H := by
+  simp_rw [doset, ← singleton_mul_singleton, ← mul_assoc]
+  conv =>
+    enter [1]
+    rw [mul_assoc]
+    rw [Subgroup.singleton_mul_subgroup h.2]
+
+
+
 lemma doset_mul_assoc (f g h : G) : doset ((f * g) * h) H H = doset (f * (g * h)) H H := by
   simp_rw [doset, ← singleton_mul_singleton, ← mul_assoc]
 
@@ -455,6 +465,7 @@ lemma rep_indep (D1 D2 d : T' P) : (mm P D1 D2 d).card = m' P Z D1 D2 d := by
   congr
   rw [mm, mmm]
   simp
+  --this is true, but a pain to prove.
   sorry
 
 lemma m'_T_one (D1 d : T' P) : D1 = d ↔ m' P Z D1 (T_one P) d = 1 := by
@@ -498,6 +509,31 @@ lemma m'_T_one (D1 d : T' P) : D1 = d ↔ m' P Z D1 (T_one P) d = 1 := by
     rw [@subsingleton_iff] at this
     apply this
   · intro h
+    sorry
+
+
+
+lemma m'_one_T (D1 d : T' P) : D1 = d ↔ m' P Z (T_one P) D1 d = 1 := by
+  constructor
+  · intro h
+    rw [← rep_indep, mm, show (1 : Z) = (1 : ℕ) by simp only [Nat.cast_one]]
+    congr
+    rw [mmm]
+    simp [map1]
+    rw [@Finset.card_eq_one]
+    use D1
+    rw [@Finset.ext_iff]
+    intro A
+    simp [h]
+    intro hh
+    rw [ hh, ← h]
+    refine ⟨(1 : P.H) (1 : P.H)
+
+
+
+
+    sorry
+  ·
     sorry
 
 
@@ -616,13 +652,11 @@ noncomputable abbrev M_single (a : M P) (b : Z) : (𝕄 P Z) := Finsupp.single a
 lemma 𝕋_mul_singleton (D1 D2 : (T' P)) (a b : ℤ) :
   (T_single P ℤ D1 a) * (T_single P ℤ D2 b) = a • b • m P D1 D2 := by
   simp_rw [T_single, mul_def]
-  rw [Finsupp.sum_single_index]
-  rw [Finsupp.sum_single_index]
-  rw [m]
-  simp
+  rw [Finsupp.sum_single_index, Finsupp.sum_single_index, m]
+  simp only [zero_smul, smul_zero]
   apply Finsupp.ext
   intro a
-  simp [m, m',mm]
+  simp only [m, mm, zero_smul, Finsupp.sum_zero, Finsupp.coe_zero, Pi.zero_apply]
 
 
 
@@ -631,47 +665,73 @@ open Finsupp
 
 lemma 𝕋_one_mul_singleton (D2 : (T' P)) (b : ℤ) :
   (T_single P ℤ D2 b) * T_single P ℤ (T_one P) (1 : ℤ)  = (T_single P ℤ D2 b) := by
-  rw [𝕋_mul_singleton, T_single, T_one, T_mk]
-  simp
+  simp only [T_single, T_one, T_mk, OneMemClass.coe_one, 𝕋_mul_singleton, one_smul]
   rw [← Finsupp.smul_single_one]
   congr
   rw [m]
   apply Finsupp.ext
   intro A
   simp
-  rw [rep_indep]
-  rw [Finsupp.single_apply]
+  rw [rep_indep, Finsupp.single_apply]
   split_ifs with h1
   rw [← h1]
   have := m'_T_one P ℤ D2 D2
   simpa using this
+  rw [← rep_indep, mm,mmm, show (0 : ℤ) = (0 : ℕ) by simp only [Nat.cast_zero]]
+  congr
+  by_contra h
+  rw [eufa, Finset.card_ne_zero, @Finset.filter_nonempty_iff] at h
+  simp [map1] at h
+  obtain ⟨x,y, hxy⟩ := h
+  have key : A = D2 := by
+    rw [← hxy]
+    have := D2.eql.choose_spec
+    apply HeckeRing.ext P
+    rw [T_mk]
+    simp only
+    conv =>
+      enter [2]
+      rw [this]
+    rw [mul_assoc,doset_mul_left_eq_self]
+    apply doset_mul_right_eq_self P ⟨y.out' * (T_one P).eql.choose, by
+      apply Subgroup.mul_mem _ (by simp) (T_one_choose_mem_H P) ⟩
+  exact h1 (id (Eq.symm key))
 
 
-
-
-
-
-  /-
-  --have hc : Nat.card (mm P D2 (T_one P)) ≠ 0 := by sorry
-  split_ifs with h1
-  exfalso
-  exact hc h1
+lemma 𝕋_singleton_mul_one (D2 : (T' P)) (b : ℤ) :
+  T_single P ℤ (T_one P) (1 : ℤ) * (T_single P ℤ D2 b)   = (T_single P ℤ D2 b) := by
+  simp only [T_single, T_one, T_mk, OneMemClass.coe_one, 𝕋_mul_singleton, one_smul]
+  rw [← Finsupp.smul_single_one]
+  congr
+  rw [m]
   apply Finsupp.ext
-  intro a
+  intro A
   simp
-  rw [@single_apply]
-  -/
+  rw [rep_indep, Finsupp.single_apply]
+  split_ifs with h1
+  rw [← h1]
+  have := m'_T_one P ℤ D2 D2
+  simpa using this
+  rw [← rep_indep, mm,mmm, show (0 : ℤ) = (0 : ℕ) by simp only [Nat.cast_zero]]
+  congr
+  by_contra h
+  rw [eufa, Finset.card_ne_zero, @Finset.filter_nonempty_iff] at h
+  simp [map1] at h
+  obtain ⟨x,y, hxy⟩ := h
+  have key : A = D2 := by
+    rw [← hxy]
+    have := D2.eql.choose_spec
+    apply HeckeRing.ext P
+    rw [T_mk]
+    simp only
+    conv =>
+      enter [2]
+      rw [this]
+    rw [mul_assoc,doset_mul_left_eq_self]
+    apply doset_mul_right_eq_self P ⟨y.out' * (T_one P).eql.choose, by
+      apply Subgroup.mul_mem _ (by simp) (T_one_choose_mem_H P) ⟩
+  exact h1 (id (Eq.symm key))
 
-
-
-
-
-
-
-
-
-
-  sorry
 
 noncomputable instance nonUnitalNonAssocSemiring : NonUnitalNonAssocSemiring (𝕋 P ℤ) :=
   {  (addCommMonoid P ℤ) with
@@ -812,26 +872,23 @@ theorem one_def : (1 : (𝕋 P Z)) = T_single P Z (T_one P) (1 : Z):=
 noncomputable instance nonAssocSemiring : NonAssocSemiring (𝕋 P ℤ) :=
   { nonUnitalNonAssocSemiring P  with
     natCast := fun n => T_single P ℤ (T_one P) (n : ℤ)
-    natCast_zero := by simp
-    natCast_succ := fun _ => by simp; rfl
-    one_mul :=  fun f => by
-      simp [one_def, mul_def, zero_mul, single_zero, Finset.sum_const_zero, sum_zero,
-        sum_single_index, one_mul]
+    natCast_zero := by simp only [Nat.cast_zero, single_zero]
+    natCast_succ := fun _ => by simp only [Nat.cast_add, Nat.cast_one, single_add, add_right_inj]; rfl
+    one_mul :=  sorry
+
+
+
+    mul_one :=fun f => by
+      simp only [one_def, mul_def, zero_smul, smul_zero, sum_single_index, one_smul]
       have := Finsupp.sum_single  f
       nth_rw 2 [← this]
       congr
       ext D z v
-      sorry
-      /-
-      rw [Finsupp.finset_sum_apply]
-      have :=  𝕋_one_mul_singleton P Z D z
+      have :=  𝕋_one_mul_singleton P  D z
       simp_rw [T_single] at this
       rw [← this]
       rw [𝕋_mul_singleton]
-      simp
-      rw [@Finset.sum_apply']
-      -/
-    mul_one :=sorry }
+      simp only [smul_eq_mul, one_smul, mul_eq_mul_left_iff] }
 
 noncomputable instance semiring : Semiring (𝕋 P ℤ) :=
   {HeckeRing.nonUnitalSemiring P ,
