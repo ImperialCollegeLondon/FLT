@@ -337,7 +337,7 @@ noncomputable def mul' (D1 D2 : T' H Δ) : 𝕋 H Δ :=
         rep_mem H Δ D1.h₀ D1.elt D2.elt i.out'⟩) (1 : ℤ) : (T' H Δ) →₀ ℤ))
 -/
 
-noncomputable instance addCommMonoid : AddCommGroup (𝕋 P Z) :=
+noncomputable instance addCommGroup : AddCommGroup (𝕋 P Z) :=
   inferInstanceAs (AddCommGroup ((T' P) →₀ Z))
 
 noncomputable instance 𝕄addCommGroup : AddCommGroup (𝕄 P Z) :=
@@ -775,7 +775,7 @@ lemma 𝕋_one_mul_singleton (D2 : (T' P)) (b : ℤ) :
 
 
 noncomputable instance nonUnitalNonAssocSemiring : NonUnitalNonAssocSemiring (𝕋 P ℤ) :=
-  {  (addCommMonoid P ℤ) with
+  {  (addCommGroup P ℤ) with
     left_distrib := fun f g h => by
       simp only [mul_def]
       refine Eq.trans (congr_arg (Finsupp.sum f) (funext₂ fun a₁ b₁ => Finsupp.sum_add_index ?_ ?_))
@@ -890,8 +890,8 @@ example (a b : M P) (x y : ℤ) (h : single a x + single b y =0 ) : a = b ∧ x 
   --aesop doenst help, it should, complain to Jeremy
   sorry
 
-lemma sum_single_eq_zero  (s : Finset (M P)) (fs : (M P) → Z)
-    (h : ∑ i in s, single (i : M P) (fs i) = 0) :  ∀ i ∈ s, fs i = 0 := by
+lemma sum_single_eq_zero {α  : Type*}  (s : Finset α) (fs : α → Z)
+    (h : ∑ i in s, single (i : α) (fs i) = 0) :  ∀ i ∈ s, fs i = 0 := by
   induction' s using Finset.induction_on with i s hi hs
   simp only [Finset.sum_empty, Finset.not_mem_empty, false_implies, implies_true] at *
   have hfin := h
@@ -931,47 +931,52 @@ lemma sum_single_eq_zero  (s : Finset (M P)) (fs : (M P) → Z)
       rw [← hxx.1] at hx
       exfalso
       exact hi hx
-    · /- have hgg := Finsupp.support_finset_sum (s := s) (f := fun m => single m (fs m))
+    · have hgg := Finsupp.support_finset_sum (s := s) (f := fun m => single m (fs m))
       rw [hr] at hgg
       simp only [Finset.singleton_subset_iff, Finset.mem_biUnion, mem_support_iff, ne_eq] at hgg
-      obtain ⟨x, hx, hxx⟩ := hgg  -/
-      sorry
+      obtain ⟨x, hx, hxx⟩ := hgg
+      rw [@single_apply_eq_zero] at hxx
+      simp at hxx
+      exfalso
+      rw [← hxx.1] at hx
+      exact hi hx
+
+lemma sum_finset_single_indepp (s t : 𝕄 P ℤ) (h : s = t) (h2 : s ≠ 0) :
+  ∃ (a : s.support × t.support), single (a.1 : M P) (s.2 a.1) = single (a.2 : M P) (t.2 a.2) := by
+  rw [h]
+  simp
 
 
+  sorry
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- /-  rw [Finset.sum_insert hi, Finsupp.add_eq_zero_iff (single i (fs i))] at h
-  simp only [single_eq_zero] at h
-  intro j hj
-  simp at hj
-  aesop  -/
-
-lemma sum_finset_single_indep (s t : Finset (M P)) (fs ts : (M P) → ℤ)
-  (h : ∑ (i ∈ s), single (i : M P) (fs i) = ∑ (i ∈ t), single (i : M P) (ts i)) :
-    ∃ (a : s × t), single (a.1 : M P) (fs a.1) = single (a.2 : M P) (ts a.2) := by
+lemma sum_finset_single_indep (s t : 𝕄 P ℤ)
+  (h : ∑ (i ∈ s.support), single (i : M P) (s.2 i) = ∑ (i ∈ t.support), single (i : M P) (t.2 i)) :
+    ∃ (a : s.support × t.support), single (a.1 : M P) (s.2 a.1) = single (a.2 : M P) (t.2 a.2) := by
   simp at *
-  have : ∑ i in s, single i (fs i) - ∑ i in t, single i (ts i) = 0 := by
+  have : ∑ i in s.support, single i (s.2 i) - ∑ i in t.support, single i (t.2 i) = 0 := by
     rw [h, sub_self]
   --rw [Finset.sum_disjiUnion]
-  have h_support : (∑ i in s, single i (fs i) - ∑ i in t, single i (ts i)).support = ∅ := by
+  have h_support : (∑ i in s.support, single i (s.2 i) - ∑ i in t.support, single i (t.2 i)).support = ∅ := by
     rw [this, support_zero]
+  rw [sub_eq_add_neg] at this
+  rw [← @Finset.sum_neg_distrib] at this
+
+
+  conv at this =>
+    enter [1,2,2]
+    ext r
+    rw [← Finsupp.single_neg ]
+  have ff :  ∑ (i ∈ s.support), single (i : M P) (s.2 i) + ∑ (i ∈ t.support), single (i : M P) (-t.2 i)=
+    ∑ (i ∈ s.support ∪ t.support), (single (i : M P) (s.2 i) + single (i : M P) (-t.2 i)) + ∑ (i ∈ s.support ∩ t.support),
+      (single (i : M P) (s.2 i) + single (i : M P) (-t.2 i)) := by
+    apply Finsupp.ext
+    intro a
+    simp
+    simp_rw [finset_sum_apply , Finset.sum_union_inter ]
+
+    sorry
+
+
 
 
 
@@ -1025,6 +1030,9 @@ lemma 𝕋eq_of_smul_single_eq_smul (T1 T2 : (T' P)) (c₁ c₂ : Z)
     enter [1,2]
     ext u
     rw [single_apply]
+
+
+
 
 
 
