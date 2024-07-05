@@ -278,13 +278,11 @@ lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) �
     simp
   | tmul q z =>
     refine ⟨⟨q.den, q.den_pos ⟩, q.num * z, ?_⟩
-    simp only [← zsmul_eq_mul, TensorProduct.tmul_smul]
+    simp_rw [← zsmul_eq_mul, TensorProduct.tmul_smul, TensorProduct.smul_tmul']
     simp only [PNat.mk_coe, zsmul_eq_mul]
-    congr
-    · simp only [← q.mul_den_eq_num, LinearMap.mul_apply', mul_assoc,
-        one_div, ne_eq, Nat.cast_eq_zero, Rat.den_ne_zero, not_false_eq_true,
-        mul_inv_cancel, mul_one]
-    · simp
+    simp only [← q.mul_den_eq_num, LinearMap.mul_apply', mul_assoc,
+      one_div, ne_eq, Nat.cast_eq_zero, Rat.den_ne_zero, not_false_eq_true,
+      mul_inv_cancel, mul_one]
   | add x y hx hy =>
     obtain ⟨N₁, z₁, rfl⟩ := hx
     obtain ⟨N₂, z₂, rfl⟩ := hy
@@ -727,7 +725,7 @@ def norm (z : 𝓞) : ℤ :=
   - z.re * (z.im_o + z.im_oi) + z.im_i * (z.im_o - z.im_oi)
 
 lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := by
-  ext <;> simp [norm, ← Int.cast_add, -Int.cast_add] <;> ring
+  ext <;> simp [norm, ← Int.cast_add] <;> ring
 
 lemma coe_norm (z : 𝓞) :
     (norm z : ℝ) =

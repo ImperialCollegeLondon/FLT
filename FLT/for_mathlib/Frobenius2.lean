@@ -3,10 +3,11 @@ Copyright (c) 2024 Jou Glasheen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jou Glasheen, Amelia Livingston, Jujian Zhang, Kevin Buzzard
 -/
-import Mathlib.RingTheory.DedekindDomain.Ideal
-import Mathlib.RingTheory.IntegralRestrict
-import Mathlib.RingTheory.Ideal.QuotientOperations
 import Mathlib.FieldTheory.Cardinality
+import Mathlib.RingTheory.DedekindDomain.Ideal
+import Mathlib.RingTheory.Ideal.Pointwise
+import Mathlib.RingTheory.Ideal.QuotientOperations
+import Mathlib.RingTheory.IntegralRestrict
 
 /-
 
@@ -79,21 +80,8 @@ i.e. supply the finiteness typeclasses and descent hypothesis in this case.
 
 variable (A : Type*) [CommRing A] {B : Type*} [CommRing B] [Algebra A B]
 
--- PR #13294
-variable {α : Type*} in
-instance Ideal.pointwiseMulSemiringAction
-    [Monoid α] [MulSemiringAction α B] : MulSemiringAction α (Ideal B) where
-  smul a I := Ideal.map (MulSemiringAction.toRingHom _ _ a) I
-  one_smul I :=
-    congr_arg (I.map ·) (RingHom.ext <| one_smul α) |>.trans I.map_id
-  mul_smul _a₁ _a₂ I :=
-    congr_arg (I.map ·) (RingHom.ext <| mul_smul _ _) |>.trans (I.map_map _ _).symm
-  smul_one a := by simp only [Ideal.one_eq_top]; exact Ideal.map_top _
-  smul_mul a I J := Ideal.map_mul _ I J
-  smul_add a I J := Ideal.map_sup _ I J
-  smul_zero a := Ideal.map_bot
+open scoped Pointwise
 
--- should be in #13294?
 variable {α : Type*} in
 lemma Ideal.map_eq_comap_symm [Group α] [MulSemiringAction α B] (J : Ideal B) (σ : α) :
     σ • J = J.comap (MulSemiringAction.toRingHom _ _ σ⁻¹) :=
@@ -329,7 +317,6 @@ lemma Frob_Q_eq_pow_card (x : B) : Frob A Q isGalois P x - x^(Fintype.card (A⧸
     rw [← Ideal.Quotient.mk_eq_mk_iff_sub_mem]
     change ((Frob A Q isGalois P) x : B ⧸ Q) = x ^ Fintype.card (A ⧸ P)
     rw [← hn2]
-    push_cast
     have fact1 := Frob_spec A Q isGalois P
     have fact2 : y A Q = (g Q : B⧸Q) := y_mod_Q A Q
     rw [← fact2]
@@ -345,10 +332,7 @@ lemma Frob_Q_eq_pow_card (x : B) : Frob A Q isGalois P x - x^(Fintype.card (A⧸
     rw [← smul_sub]
     nth_rw 3 [ ← fact3]
     suffices (x - y A Q ^ n) ∈ Q by
-      exact?
-    rw [smul_mem_smul]
-    simp
-    skip
+      exact? says exact Ideal.smul_mem_pointwise_smul_iff.mpr this
     sorry
 
 /- maths proof:

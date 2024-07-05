@@ -3,20 +3,17 @@ Copyright (c) 2024 Kevin Buzzaed. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Jonas Bayer, Mario Carneiro
 -/
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
-import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Algebra.Lie.BaseChange
+import Mathlib.Algebra.Lie.UniversalEnveloping
 import Mathlib.Analysis.Complex.Basic
-import Mathlib.Topology.LocallyConstant.Basic
-import Mathlib.LinearAlgebra.UnitaryGroup
-import Mathlib.RepresentationTheory.FdRep
-import Mathlib.Analysis.Matrix
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup
-import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.Analysis.Matrix
 import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
-import Mathlib.Algebra.Lie.UniversalEnveloping
-import Mathlib.Algebra.Lie.BaseChange
+import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
+import Mathlib.LinearAlgebra.UnitaryGroup
+import Mathlib.RepresentationTheory.FdRep
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Topology.LocallyConstant.Basic
 
 suppress_compilation
 
@@ -67,22 +64,7 @@ lemma mem_FiniteAdeleRing (x : K_hat R K) : x ∈ (
 open Set
 
 /-- The finite adele ring is an algebra over the finite integral adeles. -/
-noncomputable instance : Algebra (R_hat R K) (FiniteAdeleRing R K) where
-  smul rhat fadele := ⟨fun v ↦ rhat v * fadele.1 v, by
-    have this := fadele.2
-    rw [mem_FiniteAdeleRing] at this ⊢
-    apply Finite.subset this (fun v hv ↦ ?_)
-    rw [mem_setOf_eq, mem_adicCompletionIntegers] at hv ⊢
-    contrapose! hv
-    sorry -- works in the PR, don't worry about this
-    ⟩
-  toFun r := ⟨r, by sorry⟩ -- works in the PR!
-  map_one' := by ext; rfl
-  map_mul' _ _ := by ext; rfl
-  map_zero' := by ext; rfl
-  map_add' _ _ := by ext; rfl
-  commutes' _ _ := mul_comm _ _
-  smul_def' r x := rfl
+noncomputable instance : Algebra (R_hat R K) (FiniteAdeleRing R K) := inferInstance
 
 end ProdAdicCompletions.IsFiniteAdele -- namespace
 
