@@ -124,7 +124,6 @@ lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c
   apply Int.ofNat_dvd.1 at bar
   apply Int.ofNat_dvd.1 at foo
   exact congr_arg ((↑) : ℕ → ℤ) <| Nat.dvd_antisymm foo bar
-  done
 
 lemma hgcdac (P : FreyPackage) : gcd P.a P.c = 1 := by
   rw [← gcdab_eq_gcdac P.hppos P.hFLT, P.hgcdab]
