@@ -809,20 +809,26 @@ noncomputable instance nonUnitalNonAssocSemiring : NonUnitalNonAssocSemiring (�
 noncomputable instance smul : SMul (𝕋 P ℤ) (𝕋 P ℤ) where
   smul := (·  *  · )
 
+noncomputable def SFS (t : T' P) (m : M P) : Finset (M P) :=
+  Finset.image (fun i : (Q P t) => M_mk P ⟨((m.eql.choose : G) * (i.out' : G) * (t.eql.choose : G)),
+    rep_mem2 P.H P.Δ P.h₀ i.out' m.eql.choose t.eql.choose⟩) ⊤
+
 /-- Define `HgH • v H = ∑ i, v*a_i*g H` with the sum elements comming form
 `doset_eq_iUnion_leftCosets` and then extend linearly. This is like defining
 `HgH • v H = v H * HgH` and turning unions into sums. There should be a clean way to do this turning
 union into sums...-/
 noncomputable instance 𝕄smul : SMul (𝕋 P Z) (𝕄 P Z) where
   smul := fun t => fun mm => Finsupp.sum t (fun D1 b₁ => mm.sum fun m b₂ =>
+    ((∑ i in SFS P D1 m, Finsupp.single (i) (b₁*b₂ : Z) : (M P) →₀ Z)))
+
+/- noncomputable instance 𝕄smul : SMul (𝕋 P Z) (𝕄 P Z) where
+  smul := fun t => fun mm => Finsupp.sum t (fun D1 b₁ => mm.sum fun m b₂ =>
     ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D1.eql.choose : G) • P.H).subgroupOf P.H),
       Finsupp.single (M_mk P ⟨((m.eql.choose : G) * (i.out' : G) * (D1.eql.choose : G)),
-        rep_mem2 P.H P.Δ P.h₀ i.out' m.eql.choose D1.eql.choose⟩) (b₁*b₂ : Z) : (M P) →₀ Z)))
+        rep_mem2 P.H P.Δ P.h₀ i.out' m.eql.choose D1.eql.choose⟩) (b₁*b₂ : Z) : (M P) →₀ Z))) -/
 
 lemma 𝕋smul_def (T : 𝕋 P Z) (m : 𝕄 P Z) : T • m = Finsupp.sum T (fun D1 b₁ => m.sum fun m b₂ =>
-    ((∑ (i : P.H ⧸ (ConjAct.toConjAct (D1.eql.choose : G) • P.H).subgroupOf P.H),
-      Finsupp.single (M_mk P ⟨((m.eql.choose : G) * (i.out' : G) * (D1.eql.choose : G)),
-      rep_mem2 P.H P.Δ P.h₀ i.out' m.eql.choose D1.eql.choose⟩) (b₁*b₂ : Z) : (M P) →₀ Z))) := by rfl
+    ((∑ i in SFS P D1 m, Finsupp.single (i) (b₁*b₂ : Z) : (M P) →₀ Z))) := by rfl
 
 noncomputable instance hSMul : HSMul (𝕋 P Z) (𝕄 P Z) (𝕄 P Z) := inferInstance
 
@@ -832,12 +838,11 @@ noncomputable instance hSMul : HSMul (𝕋 P Z) (𝕄 P Z) (𝕄 P Z) := inferIn
 
 lemma single_smul_single (t : T' P) (m : M P) (a b : Z) :
   (hSMul P Z).hSMul ((Finsupp.single t a) : 𝕋 P Z) ((Finsupp.single m b) : 𝕄 P Z)  =
-  ((∑ (i : P.H ⧸ (ConjAct.toConjAct (t.eql.choose : G) • P.H).subgroupOf P.H),
-      Finsupp.single (M_mk P ⟨((m.eql.choose : G) * (i.out' : G) * (t.eql.choose : G)),
-      rep_mem2 P.H P.Δ P.h₀ i.out' m.eql.choose t.eql.choose⟩) (a * b : Z) : (M P) →₀ Z)) := by
+   ((∑ i in SFS P t m, Finsupp.single (i) (a * b : Z) : (M P) →₀ Z)):= by
   rw [𝕋smul_def]
-  simp only [singleton_mul, image_mul_left, mul_zero, single_zero, Finset.sum_const_zero,
+  simp [singleton_mul, image_mul_left, mul_zero, single_zero, Finset.sum_const_zero,
     sum_single_index, zero_mul]
+
 
 
 lemma single_basis {α : Type*} (t : Finsupp α Z) : t = ∑ (i ∈ t.support), single i (t.toFun i) := by
@@ -949,30 +954,36 @@ lemma sum_finset_single_indepp (s t : 𝕄 P ℤ) (h : s = t) (h2 : s ≠ 0) :
 
   sorry
 
-lemma sum_finset_single_indep (s t : 𝕄 P ℤ)
-  (h : ∑ (i ∈ s.support), single (i : M P) (s.2 i) = ∑ (i ∈ t.support), single (i : M P) (t.2 i)) :
-    ∃ (a : s.support × t.support), single (a.1 : M P) (s.2 a.1) = single (a.2 : M P) (t.2 a.2) := by
+lemma sum_finset_single_indep (s t : Finset (M P)) (x y : Z)
+  (h : ∑ (i ∈ s), single (i : M P) (x) = ∑ (i ∈ t), single (i : M P) (y)) :
+    ∃ (a : s × t), single (a.1 : M P) (x) = single (a.2 : M P) (y) := by
   simp at *
-  have : ∑ i in s.support, single i (s.2 i) - ∑ i in t.support, single i (t.2 i) = 0 := by
+  have : ∑ i in s, single i (x) - ∑ i in t, single i (y) = 0 := by
     rw [h, sub_self]
   --rw [Finset.sum_disjiUnion]
-  have h_support : (∑ i in s.support, single i (s.2 i) - ∑ i in t.support, single i (t.2 i)).support = ∅ := by
+  have h_support : (∑ i in s, single i (x) - ∑ i in t, single i (y)).support = ∅ := by
     rw [this, support_zero]
   rw [sub_eq_add_neg] at this
   rw [← @Finset.sum_neg_distrib] at this
+
 
 
   conv at this =>
     enter [1,2,2]
     ext r
     rw [← Finsupp.single_neg ]
-  have ff :  ∑ (i ∈ s.support), single (i : M P) (s.2 i) + ∑ (i ∈ t.support), single (i : M P) (-t.2 i)=
-    ∑ (i ∈ s.support ∪ t.support), (single (i : M P) (s.2 i) + single (i : M P) (-t.2 i)) + ∑ (i ∈ s.support ∩ t.support),
-      (single (i : M P) (s.2 i) + single (i : M P) (-t.2 i)) := by
+
+  --rw [← Finset.sum_disjUnion (s₁ := s) (s₂ := t)] at this
+
+ /-  have ff :  ∑ (i ∈ s), single (i : M P) (x) + ∑ (i ∈ t), single (i : M P) (-y)=
+    ∑ (i ∈ s ∪ t), (single (i : M P) (x) + single (i : M P) (-y)) + ∑ (i ∈ s ∩ t),
+      (single (i : M P) (x) + single (i : M P) (-y)) := by
     apply Finsupp.ext
     intro a
     simp
-    simp_rw [finset_sum_apply , Finset.sum_union_inter ]
+    simp_rw [finset_sum_apply]
+
+    simp_rw [Finset.sum_union_inter ] -/
 
     sorry
 
@@ -1000,6 +1011,28 @@ lemma sum_finset_single_indep (s t : 𝕄 P ℤ)
   exact ⟨i, finset.mem_inter.mpr ⟨hi.1, hi.2⟩, rfl⟩, -/
   sorry
 
+
+lemma sum_finset_single_indep2 {s t : Finset (M P)} {x y : Z}
+  (h : ∑ i in s, single (i : M P) (x) = ∑ i in t, single (i : M P) (y)) :
+    ((s ∩ t) ≠ ∅ ∧ x = y) ∨ (x = 0 ∧ y = 0) := by
+  by_cases h1 : (s ∩ t) = ∅
+  simp [h1]
+  have D : Disjoint s t := by exact Finset.disjoint_iff_inter_eq_empty.mpr h1
+  have : ∑ i in s, single i (x) - ∑ i in t, single i (y) = 0 := by
+    rw [h, sub_self]
+  --rw [Finset.sum_disjiUnion]
+  have h_support : (∑ i in s, single i (x) - ∑ i in t, single i (y)).support = ∅ := by
+    rw [this, support_zero]
+  rw [sub_eq_add_neg] at this
+  rw [← @Finset.sum_neg_distrib] at this
+  let c := fun (i : M P) =>if i ∈ s then single i x else single i (-y)
+  have := Finset.sum_disjUnion (f := fun x => single x (c x)) D
+  simp_rw [c] at this
+  simp at this
+
+
+  sorry
+
 lemma sdf {α : Type*} (s : Finsupp α Z) (a : α) : s.toFun a = s a := by
   exact rfl
 
@@ -1015,7 +1048,23 @@ lemma 𝕋eq_of_smul_single_eq_smul (T1 T2 : (T' P)) (c₁ c₂ : Z)
   rw [Finsupp.single_eq_single_iff]
   have := congrFun (congrArg toFun h1) (M_mk P ((1 : P.Δ)))
 
-  have  fv:= finset_sum_apply ⊤ (fun (i : Q P T1) => single
+  have gg :=  sum_finset_single_indep2 P Z h1
+  cases' gg with h1 h2
+  simp_rw [SFS] at h1
+  rw [← @Finset.nonempty_iff_ne_empty] at h1
+  obtain ⟨e, he⟩ := h1.1
+  simp at he
+  obtain ⟨i, hi⟩ := he.1
+  obtain ⟨j, hj⟩ := he.2
+  rw [M_mk] at hi hj
+  rw [← hj] at hi
+  simp only [ M.mk.injEq] at hi
+  constructor
+
+
+
+
+/-   have  fv:= finset_sum_apply ⊤ (fun (i : Q P T1) => single
   (M_mk P ⟨(((M_one P).eql.choose : G) * (i.out' : G) * (T1.eql.choose : G)),
       rep_mem2 P.H P.Δ P.h₀ i.out' (M_one P).eql.choose T1.eql.choose⟩) (c₁ : Z))
         (M_mk P ((1 : P.Δ)))
@@ -1025,11 +1074,12 @@ lemma 𝕋eq_of_smul_single_eq_smul (T1 T2 : (T' P)) (c₁ c₂ : Z)
         (M_mk P ((1 : P.Δ)))
   simp at fv fv2
   unfold Q at fv
-  rw [sdf, fv, sdf, fv2] at this
-  conv at this =>
+  rw [sdf, fv, sdf, fv2] at this -/
+  /- conv at this =>
     enter [1,2]
     ext u
-    rw [single_apply]
+    rw [single_apply] -/
+
 
 
 
