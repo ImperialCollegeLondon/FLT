@@ -887,13 +887,6 @@ lemma 𝕄one_def : (1 : 𝕄 P Z) = Finsupp.single (M_one P) (1 : Z) := by rfl
 
   sorry -/
 
-example (a b : M P) (x y : ℤ) (h : single a x + single b y =0 ) : a = b ∧ x = -y := by
-  rw [@add_eq_zero_iff_eq_neg] at h
-  rw [← @single_neg] at h
-  rw [@single_eq_single_iff] at h
-  simp at h
-  --aesop doenst help, it should, complain to Jeremy
-  sorry
 
 lemma sum_single_eq_zero {α  : Type*}  (s : Finset α) (fs : α → Z)
     (h : ∑ i in s, single (i : α) (fs i) = 0) :  ∀ i ∈ s, fs i = 0 := by
@@ -1012,6 +1005,96 @@ lemma sum_finset_single_indep (s t : Finset (M P)) (x y : Z)
   sorry
 
 
+lemma sum_single_support (s : Finset (M P)) (fs : M P → Z) :
+  (∑ i in s, single i (fs i)).support ⊆ s := by
+  induction' s using Finset.induction_on with i s hi hs
+  simp
+  rw [Finset.sum_insert hi]
+  have := Finsupp.support_add (g₁:= single i (fs i)) (g₂ := ∑ i in s, single i (fs i))
+  apply le_trans this
+  rw [@Finset.insert_eq]
+  apply Finset.union_subset_union
+  exact support_single_subset
+  exact hs
+
+lemma sum_disj (s t : Finset (M P)) (x y : M P → Z) (hst : Disjoint s t) :
+  (∑ i in s, single i (x i) + ∑ j in t, single j (y j) = 0) ↔
+    ∑ i in s, single i (x i) = 0 ∧ ∑ j in t, single j (y j) = 0 := by
+  constructor
+  intro h
+  rw [@add_eq_zero_iff_eq_neg, ← @Finset.sum_neg_distrib, @ext_iff'] at h
+  have hs1 := sum_single_support P Z s x
+  have hs2 := sum_single_support P Z t (-y)
+  simp only [Finset.sum_neg_distrib, support_neg, mem_support_iff, ne_eq, coe_neg, Pi.neg_apply,
+    single_neg] at *
+  have := hst.mono hs1 hs2
+  have ht := this
+  rw [h.1] at this
+  rw [← h.1] at ht
+  simp at this ht
+  exact ⟨ht, this⟩
+  intro h
+  rw [h.1, h.2]
+  exact card_support_eq_zero.mp rfl
+
+
+lemma finsupp_sum_support_subset_union_support (s : Finset (𝕄 P Z)) :
+  ((∑ x ∈ s, x).support) ≤  Finset.biUnion s fun i ↦ i.support := by
+  induction' s using Finset.induction_on with i s hi hs
+  simp
+  conv =>
+    enter[1,1]
+    rw [Finset.sum_insert hi]
+  apply le_trans Finsupp.support_add
+  rw [@Finset.biUnion_insert]
+  apply Finset.union_subset_union (by rfl) hs
+
+lemma sum_disj2 (S : (Finset (𝕄 P Z))) (hst : PairwiseDisjoint S.toSet fun x => x.support) :
+  (∑ i in S, i = 0) ↔ ∀ i : S, i = (0 : 𝕄 P Z) := by
+  constructor
+  · intro h
+    induction' S using Finset.induction_on with i s hi hs
+    · simp only [IsEmpty.forall_iff]
+    · simp only [Subtype.forall, Finset.mem_insert, forall_eq_or_imp]
+      rw [Finset.sum_insert hi, single_basis Z i, single_basis Z (∑ x ∈ s, x)] at h
+      rw [single_basis Z i]
+      have := (sum_disj P Z i.support (∑ x ∈ s, x).support i.toFun (∑ x ∈ s, x).toFun ?_).mp h
+      · constructor
+        · apply this.1
+        · rw [single_basis Z (∑ x ∈ s, x)] at hs
+          simp only [Subtype.forall] at hs
+          apply hs
+          · simp only [Finset.coe_insert] at hst
+            rw [pairwiseDisjoint_insert] at hst
+            exact hst.1
+          · apply this.2
+      · have sup : ((∑ x ∈ s, x).support) ≤  Finset.biUnion s fun i ↦ i.support := by
+          apply finsupp_sum_support_subset_union_support P Z s
+        have sup2 : i.support ≤ i.support := by rfl
+        have := Disjoint.mono sup sup2 ?_
+        · rw [@disjoint_comm]
+          exact this
+        · rw [@Finset.disjoint_biUnion_left]
+          intro I hI
+          simp only [Finset.coe_insert, pairwiseDisjoint_insert] at hst
+          rw [@disjoint_comm]
+          apply hst.2 I (hI) (Ne.symm (ne_of_mem_of_not_mem hI hi))
+  . intro h
+    refine Finset.sum_eq_zero ?mpr.h
+    simpa using h
+
+
+lemma d1 {α : Type*} (a b : Finset α): Disjoint (a \ (a ∩ b)) (b\ (a ∩ b)) := by
+  simp [Finset.disjoint_iff_inter_eq_empty]
+  rw [← Finset.inter_sdiff_assoc]
+  simp only [Finset.sdiff_inter_self, Finset.empty_sdiff]
+
+lemma d2 {α : Type*} (a b : Finset α): Disjoint (a \ (a ∩ b)) ((a ∩ b)) := by
+  simp [Finset.disjoint_iff_inter_eq_empty]
+  refine Finset.disjoint_iff_inter_eq_empty.mp ?_
+  exact Finset.disjoint_sdiff_inter a b
+
+
 lemma sum_finset_single_indep2 {s t : Finset (M P)} {x y : Z}
   (h : ∑ i in s, single (i : M P) (x) = ∑ i in t, single (i : M P) (y)) :
     ((s ∩ t) ≠ ∅ ∧ x = y) ∨ (x = 0 ∧ y = 0) := by
@@ -1025,13 +1108,90 @@ lemma sum_finset_single_indep2 {s t : Finset (M P)} {x y : Z}
     rw [this, support_zero]
   rw [sub_eq_add_neg] at this
   rw [← @Finset.sum_neg_distrib] at this
-  let c := fun (i : M P) =>if i ∈ s then single i x else single i (-y)
+
+  --have hr := sum_disj P Z s t x (-y) D
+ /-  let c := fun (i : M P) =>if i ∈ s then single i x else single i (-y)
   have := Finset.sum_disjUnion (f := fun x => single x (c x)) D
   simp_rw [c] at this
   simp at this
+   -/
+
 
 
   sorry
+  simp [h1]
+  left
+
+  have hl : ∑ i in s, single i x = ∑ i in (s ∩ t), single i x + ∑ i in s \ (s ∩ t), single i x := by
+    have hss : (s ∩ t) ⊆ s :=  Finset.inter_subset_left
+    rw [← Finset.sum_sdiff hss]
+    rw [add_comm]
+  have hr : ∑ j in t, single j y = ∑ j in (s ∩ t), single j y + ∑ j in t \ (s ∩ t), single j y := by
+    have hss : (s ∩ t) ⊆ t := Finset.inter_subset_right
+    rw [← Finset.sum_sdiff hss]
+    rw [add_comm]
+  rw [hr, hl] at h
+  rw [← @add_neg_eq_iff_eq_add, ← sub_eq_zero] at h
+  simp at h
+  have e1 : ∑ i ∈ s ∩ t, single i x + ∑ i ∈ s \ t, single i x +
+    -∑ x ∈ t \ s, single x y - ∑ x ∈ s ∩ t, single x y = (∑ i ∈ s ∩ t, single i x
+       - ∑ x ∈ s ∩ t, single x y) +
+    ∑ i ∈ s \ t, single i x + -∑ x ∈ t \ s, single x y := by abel
+  have e2 : (∑ i ∈ s ∩ t, single i x - ∑ x ∈ s ∩ t, single x y)  = (∑ i ∈ s ∩ t,
+    (single i x - single i y)) := by
+    simp only [Finset.sum_sub_distrib]
+
+  rw [e1,e2] at h
+  conv at h =>
+    enter [1,1,1,2]
+    ext t
+    rw [← single_sub]
+
+
+  by_cases hxy : x = y
+  · exact hxy
+  have := sum_disj2 P Z
+    ({∑ i ∈ s ∩ t, single i (x - y), ∑ j ∈ s \ t, single j x, -∑ j ∈ t \ s, single j (y)}) ?_
+  simp only [ Finset.sum_sub_distrib, Subtype.forall, Finset.mem_insert,
+    Finset.mem_singleton, forall_eq_or_imp, forall_eq, neg_eq_zero] at this
+  simp_rw [@Finset.insert_eq] at this
+  rw [Finset.sum_union, Finset.sum_union  ] at this
+  simp only [ Finset.sum_sub_distrib, Finset.sum_singleton, ← add_assoc] at this
+  have := this.mp h
+  have hte := sum_single_eq_zero Z (s ∩ t) (fun _ => x - y) this.1
+  simp only [Finset.mem_inter, and_imp] at hte
+  rw [@sub_eq_zero] at hte
+  rw [← @Ne.eq_def, ← @Finset.nonempty_iff_ne_empty] at h1
+  obtain ⟨i, hi, hj ⟩:= Finset.filter_nonempty_iff.mp h1
+  apply hte i hi hj
+  simp only [Finset.disjoint_singleton_right, Finset.mem_singleton, ne_eq]
+  by_contra h
+  rw [@neg_eq_iff_add_eq_zero] at h
+  have r1 := (sum_disj P Z  (t \ s) (s \ t) (fun _ => y) (fun _ => x) ?_).1 h
+  have s1 := sum_single_eq_zero Z (t \ s) (fun _ => y) r1.1
+  simp at s1
+
+  --rw [← Finset.sum_neg_distrib ] at h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 lemma sdf {α : Type*} (s : Finsupp α Z) (a : α) : s.toFun a = s a := by
   exact rfl
