@@ -9,6 +9,7 @@ import Mathlib.Tactic.FinCases
 import Mathlib.Algebra.BigOperators.Finsupp
 import Mathlib.Data.Finsupp.Basic
 import Mathlib.Data.Finsupp.Order
+import Mathlib.Algebra.Module.BigOperators
 /-
 
 # Construction of Hecke rings following Shimura
@@ -813,6 +814,11 @@ noncomputable def SFS (t : T' P) (m : M P) : Finset (M P) :=
   Finset.image (fun i : (Q P t) => M_mk P ⟨((m.eql.choose : G) * (i.out' : G) * (t.eql.choose : G)),
     rep_mem2 P.H P.Δ P.h₀ i.out' m.eql.choose t.eql.choose⟩) ⊤
 
+lemma SFS_nonempy (t : T' P) (m : M P) : (SFS P t m).Nonempty := by
+  rw [SFS]
+  simp
+  exact Finset.univ_nonempty
+
 /-- Define `HgH • v H = ∑ i, v*a_i*g H` with the sum elements comming form
 `doset_eq_iUnion_leftCosets` and then extend linearly. This is like defining
 `HgH • v H = v H * HgH` and turning unions into sums. There should be a clean way to do this turning
@@ -939,70 +945,8 @@ lemma sum_single_eq_zero {α  : Type*}  (s : Finset α) (fs : α → Z)
       rw [← hxx.1] at hx
       exact hi hx
 
-lemma sum_finset_single_indepp (s t : 𝕄 P ℤ) (h : s = t) (h2 : s ≠ 0) :
-  ∃ (a : s.support × t.support), single (a.1 : M P) (s.2 a.1) = single (a.2 : M P) (t.2 a.2) := by
-  rw [h]
-  simp
 
 
-  sorry
-
-lemma sum_finset_single_indep (s t : Finset (M P)) (x y : Z)
-  (h : ∑ (i ∈ s), single (i : M P) (x) = ∑ (i ∈ t), single (i : M P) (y)) :
-    ∃ (a : s × t), single (a.1 : M P) (x) = single (a.2 : M P) (y) := by
-  simp at *
-  have : ∑ i in s, single i (x) - ∑ i in t, single i (y) = 0 := by
-    rw [h, sub_self]
-  --rw [Finset.sum_disjiUnion]
-  have h_support : (∑ i in s, single i (x) - ∑ i in t, single i (y)).support = ∅ := by
-    rw [this, support_zero]
-  rw [sub_eq_add_neg] at this
-  rw [← @Finset.sum_neg_distrib] at this
-
-
-
-  conv at this =>
-    enter [1,2,2]
-    ext r
-    rw [← Finsupp.single_neg ]
-
-  --rw [← Finset.sum_disjUnion (s₁ := s) (s₂ := t)] at this
-
- /-  have ff :  ∑ (i ∈ s), single (i : M P) (x) + ∑ (i ∈ t), single (i : M P) (-y)=
-    ∑ (i ∈ s ∪ t), (single (i : M P) (x) + single (i : M P) (-y)) + ∑ (i ∈ s ∩ t),
-      (single (i : M P) (x) + single (i : M P) (-y)) := by
-    apply Finsupp.ext
-    intro a
-    simp
-    simp_rw [finset_sum_apply]
-
-    simp_rw [Finset.sum_union_inter ] -/
-
-    sorry
-
-
-
-
-
-
-
-
-
- /-  rw [← @Finset.nonempty_iff_ne_empty]
-  rw [@support_nonempty_iff]
-
-  rw [@ne_iff]
-
-
-  use (∑ i in s, single i (fs i) - ∑ i in t, single i (ts i)).support,
-  rw [finsupp.support_sum_eq] at h_support,
-  simp only [finset.not_subset] at h_support,
-  obtain ⟨a, ha⟩ := h_support,
-  rw [finsupp.support_sum_eq] at ha,
-  simp only [finsupp.support_single_ne_zero, finset.mem_bUnion, finset.mem_union, finset.mem_empty, finset.not_mem_empty] at ha,
-  obtain ⟨i, hi⟩ := ha,
-  exact ⟨i, finset.mem_inter.mpr ⟨hi.1, hi.2⟩, rfl⟩, -/
-  sorry
 
 
 lemma sum_single_support (s : Finset (M P)) (fs : M P → Z) :
@@ -1094,8 +1038,184 @@ lemma d2 {α : Type*} (a b : Finset α): Disjoint (a \ (a ∩ b)) ((a ∩ b)) :=
   refine Finset.disjoint_iff_inter_eq_empty.mp ?_
   exact Finset.disjoint_sdiff_inter a b
 
+lemma d3 (s t : Finset (M P)) (x y : Z) (hst : ¬ s ⊆ t) (hts : ¬ t ⊆ s)
+  (h : ∑ i in (s \ t), single i x + ∑ j in (t \ s), single j y = 0) : x = y := by
+  have : Disjoint (s \ t) (t \ s) := by
+    exact disjoint_sdiff_sdiff
+  rw [sum_disj P Z (s \ t) (t \ s) (fun _ => x) (fun _ => y) this] at h
+  have s1 := sum_single_eq_zero Z (s \ t) (fun _ => x) h.1
+  have s2 := sum_single_eq_zero Z (t \ s) (fun _ => y) h.2
+  rw [← Finset.sdiff_eq_empty_iff_subset] at hst hts
+  simp [Finset.mem_sdiff, and_imp] at s1 s2
+  rw [← @Finset.not_nonempty_iff_eq_empty] at hst hts
+  rw [Mathlib.Tactic.PushNeg.not_not_eq] at hst hts
+  have c1 : ∃ i ∈ s, i ∉ t := by
+    have :=   Finset.Nonempty.exists_mem hst
+    simpa using this
+  have c2 : ∃ i ∈ t, i ∉ s := by
+    have :=   Finset.Nonempty.exists_mem hts
+    simpa using this
+  obtain ⟨i, hi, hi2⟩ := c1
+  obtain ⟨j, hj, hj2⟩ := c2
+  have h1 := s1 i hi hi2
+  have h2 := s2 j hj hj2
+  rw [h1, h2]
 
-lemma sum_finset_single_indep2 {s t : Finset (M P)} {x y : Z}
+lemma d43 (s : Finset (M P)) (x : Z) (hx : x ≠ 0) :
+  (∑ i in s, single i x).support = s := by
+  induction' s using Finset.induction_on with i s hi hs
+  simp only [Finset.sum_empty, support_zero]
+  rw [Finset.sum_insert hi, support_add_eq, hs, Finsupp.support_single_ne_zero i hx]
+  rfl
+  rw [hs, Finsupp.support_single_ne_zero i hx]
+  exact Finset.disjoint_singleton_left.mpr hi
+
+lemma d44 (s t : 𝕄 P Z) : (s + t).toFun = s.toFun + t.toFun := by
+  exact rfl
+
+lemma d42 (s : Finset (M P)) (x : Z):
+  (∑ i in s, single i x).toFun = Finsupp.indicator s (fun _ _ => x) := by
+  ext t
+  simp
+  have : (∑ i in s, single i x).toFun = ∑ i in s, (single i x).toFun := by
+    induction' s using Finset.induction_on with i s hi hs
+    simp
+    rfl
+    simp_rw [Finset.sum_insert hi]
+    ext u
+    rw [@Pi.add_apply]
+    rw [d44]
+    simp [hs]
+  rw [this]
+  rw [@Finset.sum_apply]
+  conv =>
+    enter [1,2]
+    ext r
+    rw [single]
+    simp
+    rw [Pi.single_apply]
+  simp
+
+
+
+
+lemma d4 (s t : Finset (M P)) (x y z : Z) (h : ∑ i in (s ∩ t), single i z +
+  ∑ j in (s \ t), single j y + ∑ k in (t \ s), single k x = 0) :
+    ∑ i in (s ∩ t), single i z = 0  ∧  ∑ j in (s \ t), single j y = 0  ∧
+      ∑ k in (t \ s), single k x = 0 := by
+  rw [add_assoc, single_basis Z ( ∑ j in (s \ t), single j y + ∑ k in (t \ s), single k x),
+    sum_disj P Z (s ∩ t) ( ∑ j in (s \ t), single j y + ∑ k in (t \ s), single k x).support] at h
+  simp only [h.1, true_and]
+  have h2 := h.2
+  simp at h2
+  by_cases hy : y ≠ 0
+  by_cases hx : x ≠ 0
+  have h3 : ( ∑ j in (s \ t), single j y +
+    ∑ k in (t \ s), single k x).support = (s \ t) ∪ (t \ s) := by
+    have hh :=  support_add_eq (g₁ := ∑ j in (s \ t), single j y)
+      (g₂ := ∑ k in (t \ s), single k x) ?_
+    rw [hh, d43 _ _ _ _ hx, d43 _ _ _ _ hy]
+    rw [d43 _ _ _ _ hx, d43 _ _ _ _ hy]
+    exact disjoint_sdiff_sdiff
+  rw [h3, Finset.sum_union (disjoint_sdiff_sdiff), sum_disj P Z (s \ t) (t \ s)] at h2
+  conv at h2 =>
+    enter [1,1,2]
+    ext r
+    rw [d44]
+    simp
+  conv at h2 =>
+    enter [2,1,2]
+    ext r
+    rw [d44]
+    simp
+  simp_rw [d42] at h2
+  constructor
+  · rw [← h2.1]
+    apply Finset.sum_congr (by rfl)
+    intro i hi
+    simp only [ne_eq, Finsupp.indicator_apply, Finset.mem_sdiff, dite_eq_ite] at *
+    rw [if_pos hi]
+    simp only [self_eq_add_right, single_eq_zero, ite_eq_right_iff, and_imp]
+    intro _ hj
+    exfalso
+    exact hj hi.1
+  · rw [← h2.2]
+    apply Finset.sum_congr (by rfl)
+    intro i hi
+    simp only [ne_eq, Finsupp.indicator_apply, Finset.mem_sdiff, dite_eq_ite] at *
+    rw [if_pos hi]
+    simp only [self_eq_add_left, single_eq_zero, ite_eq_right_iff, and_imp]
+    intro _ hj
+    exfalso
+    exact hj hi.1
+  · exact (disjoint_sdiff_sdiff)
+  · simp only [ne_eq, Decidable.not_not] at hx
+    rw [hx]
+    simp only [single_zero, Finset.sum_const_zero, and_true]
+    simp_rw [hx] at h2
+    simp at h2
+    rw [d43 _ _ _ _ hy, d42] at h2
+    rw [← h2]
+    apply Finset.sum_congr (by rfl)
+    intro i hi
+    simp at *
+    rw [if_pos hi]
+  simp at hy
+  by_cases hx : x ≠ 0
+  rw [hy]
+  simp
+  simp_rw [hy] at h2
+  simp at h2
+  rw [d43 _ _ _ _ hx, d42] at h2
+  rw [← h2]
+  apply Finset.sum_congr (by rfl)
+  intro i hi
+  simp at *
+  rw [if_pos hi]
+  simp at hx
+  rw [hx, hy]
+  simp
+  have hh :=  support_add_eq (g₁ := ∑ j in (s \ t), single j y)
+      (g₂ := ∑ k in (t \ s), single k x) ?_
+  by_cases hx : x ≠ 0
+  by_cases hy : y ≠ 0
+  rw [d43 _ _ _ _ hx, d43 _ _ _ _ hy] at hh
+  rw [hh, disjoint_comm]
+
+  simp
+  have t1 := d2 s t
+  have t2 := d2 t s
+  simp at t1 t2
+  refine ⟨t1, ?_⟩
+  rw [Finset.inter_comm]
+  exact t2
+  simp at hy
+  rw [hy]
+  simp
+  rw [d43 _ _ _ _ hx, disjoint_comm, Finset.inter_comm]
+  have := d2 t s
+  simpa using this
+  simp at hx
+  by_cases hy : y ≠ 0
+  rw [hx]
+  simp
+  rw [d43 _ _ _ _ hy, disjoint_comm]
+  simpa using d2 s t
+  simp at hy
+  rw [hx, hy]
+  simp
+  by_cases hx : x ≠ 0
+  by_cases hy : y ≠ 0
+  rw [d43 _ _ _ _ hx, d43 _ _ _ _ hy]
+  exact (disjoint_sdiff_sdiff)
+  simp at hy
+  rw [hy]
+  simp
+  simp at hx
+  rw [hx]
+  simp
+
+lemma sum_finset_single_indep2 {s t : Finset (M P)} {x y : Z} (hs : s.Nonempty) (ht : t.Nonempty)
   (h : ∑ i in s, single (i : M P) (x) = ∑ i in t, single (i : M P) (y)) :
     ((s ∩ t) ≠ ∅ ∧ x = y) ∨ (x = 0 ∧ y = 0) := by
   by_cases h1 : (s ∩ t) = ∅
@@ -1108,20 +1228,23 @@ lemma sum_finset_single_indep2 {s t : Finset (M P)} {x y : Z}
     rw [this, support_zero]
   rw [sub_eq_add_neg] at this
   rw [← @Finset.sum_neg_distrib] at this
-
-  --have hr := sum_disj P Z s t x (-y) D
- /-  let c := fun (i : M P) =>if i ∈ s then single i x else single i (-y)
-  have := Finset.sum_disjUnion (f := fun x => single x (c x)) D
-  simp_rw [c] at this
-  simp at this
-   -/
-
-
-
-  sorry
+  have hr := sum_disj P Z s t (fun _ => x) (fun _ => -y) D
+  simp only [single_neg] at hr
+  have tt := hr.mp this
+  have t2 := sum_single_eq_zero Z s (fun _ => x) tt.1
+  have tt2 := tt.2
+  simp at tt2
+  have t3 := sum_single_eq_zero Z t (fun _ => y) tt2
+  have v1 :=   Finset.Nonempty.exists_mem hs
+  have v2 :=   Finset.Nonempty.exists_mem ht
+  obtain ⟨i, hi⟩ := v1
+  obtain ⟨j, hj⟩ := v2
+  have T1 := t2 i hi
+  have T2 := t3 j hj
+  simp at T1 T2
+  refine ⟨T1, T2⟩
   simp [h1]
   left
-
   have hl : ∑ i in s, single i x = ∑ i in (s ∩ t), single i x + ∑ i in s \ (s ∩ t), single i x := by
     have hss : (s ∩ t) ⊆ s :=  Finset.inter_subset_left
     rw [← Finset.sum_sdiff hss]
@@ -1140,57 +1263,26 @@ lemma sum_finset_single_indep2 {s t : Finset (M P)} {x y : Z}
   have e2 : (∑ i ∈ s ∩ t, single i x - ∑ x ∈ s ∩ t, single x y)  = (∑ i ∈ s ∩ t,
     (single i x - single i y)) := by
     simp only [Finset.sum_sub_distrib]
-
   rw [e1,e2] at h
   conv at h =>
     enter [1,1,1,2]
     ext t
     rw [← single_sub]
-
-
   by_cases hxy : x = y
   · exact hxy
-  have := sum_disj2 P Z
-    ({∑ i ∈ s ∩ t, single i (x - y), ∑ j ∈ s \ t, single j x, -∑ j ∈ t \ s, single j (y)}) ?_
-  simp only [ Finset.sum_sub_distrib, Subtype.forall, Finset.mem_insert,
-    Finset.mem_singleton, forall_eq_or_imp, forall_eq, neg_eq_zero] at this
-  simp_rw [@Finset.insert_eq] at this
-  rw [Finset.sum_union, Finset.sum_union  ] at this
-  simp only [ Finset.sum_sub_distrib, Finset.sum_singleton, ← add_assoc] at this
-  have := this.mp h
-  have hte := sum_single_eq_zero Z (s ∩ t) (fun _ => x - y) this.1
-  simp only [Finset.mem_inter, and_imp] at hte
-  rw [@sub_eq_zero] at hte
-  rw [← @Ne.eq_def, ← @Finset.nonempty_iff_ne_empty] at h1
-  obtain ⟨i, hi, hj ⟩:= Finset.filter_nonempty_iff.mp h1
-  apply hte i hi hj
-  simp only [Finset.disjoint_singleton_right, Finset.mem_singleton, ne_eq]
-  by_contra h
-  rw [@neg_eq_iff_add_eq_zero] at h
-  have r1 := (sum_disj P Z  (t \ s) (s \ t) (fun _ => y) (fun _ => x) ?_).1 h
-  have s1 := sum_single_eq_zero Z (t \ s) (fun _ => y) r1.1
-  simp at s1
-
-  --rw [← Finset.sum_neg_distrib ] at h
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  have := d4 P Z s t  (-y) (x) (x-y)
+  simp only [Finset.sum_sub_distrib, single_neg, Finset.sum_neg_distrib, neg_eq_zero] at this
+  have G := this h
+  have G1 := G.1
+  have := sum_single_eq_zero Z (s ∩ t) (fun _ => x - y) G1
+  simp at this
+  rw [@sub_eq_zero] at this
+  rw [← @Finset.not_nonempty_iff_eq_empty, Mathlib.Tactic.PushNeg.not_not_eq] at h1
+  have c1 : ∃ i ∈ s, i ∈ t := by
+    have :=   Finset.Nonempty.exists_mem h1
+    simpa using this
+  obtain ⟨i, hi, hi2⟩ := c1
+  apply this i hi hi2
 
 
 lemma sdf {α : Type*} (s : Finsupp α Z) (a : α) : s.toFun a = s a := by
@@ -1208,7 +1300,7 @@ lemma 𝕋eq_of_smul_single_eq_smul (T1 T2 : (T' P)) (c₁ c₂ : Z)
   rw [Finsupp.single_eq_single_iff]
   have := congrFun (congrArg toFun h1) (M_mk P ((1 : P.Δ)))
 
-  have gg :=  sum_finset_single_indep2 P Z h1
+  have gg :=  sum_finset_single_indep2 P Z ?_ ?_ h1
   cases' gg with h1 h2
   simp_rw [SFS] at h1
   rw [← @Finset.nonempty_iff_ne_empty] at h1
@@ -1220,37 +1312,28 @@ lemma 𝕋eq_of_smul_single_eq_smul (T1 T2 : (T' P)) (c₁ c₂ : Z)
   rw [← hj] at hi
   simp only [ M.mk.injEq] at hi
   constructor
+  refine ⟨?_, h1.2⟩
+
+  sorry
+  right
+  exact h2
+  apply SFS_nonempy
+  apply SFS_nonempy
 
 
+lemma T_single_smul_add (a b : T' P) (c₁ c₂ : Z) (c : 𝕄 P Z) :
+  ((T_single P Z a c₁) + (T_single P Z b c₂)) • c =
+    ((T_single P Z a c₁)) • c + ((T_single P Z b c₂)) • c := by
+  simp_rw [T_single]
+  rw [𝕋smul_def, 𝕋smul_def, 𝕋smul_def]
+  simp
+  simp_rw [sum]
+  sorry
 
+lemma smul_add (s : Finset (T' P)) (r : T' P → Z) (a: 𝕄 P Z) :
+  (∑ i in s, (T_single P Z i (r i))) • a = (∑ i in s, (T_single P Z i (r i)) • a) := by
 
-/-   have  fv:= finset_sum_apply ⊤ (fun (i : Q P T1) => single
-  (M_mk P ⟨(((M_one P).eql.choose : G) * (i.out' : G) * (T1.eql.choose : G)),
-      rep_mem2 P.H P.Δ P.h₀ i.out' (M_one P).eql.choose T1.eql.choose⟩) (c₁ : Z))
-        (M_mk P ((1 : P.Δ)))
-  have  fv2:= finset_sum_apply ⊤ (fun (i : Q P T2) => single
-  (M_mk P ⟨(((M_one P).eql.choose : G) * (i.out' : G) * (T2.eql.choose : G)),
-      rep_mem2 P.H P.Δ P.h₀ i.out' (M_one P).eql.choose T2.eql.choose⟩) (c₂ : Z))
-        (M_mk P ((1 : P.Δ)))
-  simp at fv fv2
-  unfold Q at fv
-  rw [sdf, fv, sdf, fv2] at this -/
-  /- conv at this =>
-    enter [1,2]
-    ext u
-    rw [single_apply] -/
-
-
-
-
-
-
-
-
-
-
-
-  --rw [Finset.sum_apply'] at h1
+  sorry
 
 
 
@@ -1260,8 +1343,29 @@ lemma 𝕋eq_of_smul_eq_smul (T1 T2 : (𝕋 P Z)) (h : ∀ (a : 𝕄 P Z), T1 �
   have h1 := h 1
   simp_rw [𝕋smul_def, 𝕄one_def] at h1
   simp at h1
-  rw [← sub_eq_zero]
-  apply induction_linear (p:= fun x => x = 0)
+  simp_rw [sum] at h1
+
+  rw [single_basis Z T1, single_basis Z T2] at h
+  have := smul_add P Z T1.support T1.toFun
+  simp_rw [T_single] at this
+  simp_rw [this] at h
+
+
+  sorry
+
+
+
+  --apply induction_linear (p:= fun x => x = T2)
+
+  --apply support_eq
+
+/-   have e1 : (∑ x ∈ T1.support, ∑ x_1 ∈ SFS P x (M_one P), single x_1 (T1 x)).support = T1.support :=
+    by sorry -/
+  --rw [single_basis Z T1, single_basis Z T2]
+
+
+  --rw [← sub_eq_zero]
+  --apply induction_linear (p:= fun x => x = 0)
   --apply support_eq
 
 
@@ -1361,9 +1465,6 @@ noncomputable instance nonAssocSemiring : NonAssocSemiring (𝕋 P ℤ) :=
 noncomputable instance semiring : Semiring (𝕋 P ℤ) :=
   {HeckeRing.nonUnitalSemiring P ,
     (HeckeRing.nonAssocSemiring P ) with}
-
-noncomputable instance addCommGroup : AddCommGroup (𝕋 P Z) :=
-  Finsupp.instAddCommGroup
 
 noncomputable instance nonAssocRing : NonAssocRing (𝕋 P ℤ) :=
   { HeckeRing.addCommGroup P ℤ,
