@@ -11,7 +11,7 @@ import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import Mathlib.LinearAlgebra.UnitaryGroup
-import Mathlib.RepresentationTheory.FdRep
+import Mathlib.RepresentationTheory.FDRep
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.LocallyConstant.Basic
 
@@ -278,7 +278,7 @@ structure preweight (n : ℕ) where
 open CategoryTheory
 
 noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
-    FdRep ℂ (orthogonalGroup (Fin n) ℝ) where
+    FDRep ℂ (orthogonalGroup (Fin n) ℝ) where
   V := FGModuleCat.of ℂ (Fin w.d → ℂ)
   ρ := {
     toFun := fun A ↦ {
