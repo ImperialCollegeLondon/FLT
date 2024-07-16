@@ -731,7 +731,8 @@ lemma F_expand_eval_eq_eval_pow :
 lemma quotient_F_is_product_of_quot :
     (Polynomial.map (Ideal.Quotient.mk Q) F) =
     ∏ τ : L ≃ₐ[K] L, (X - C ((Ideal.Quotient.mk Q) ((galRestrict A K L B τ) α))) := by
-  erw [← Polynomial.coe_mapRingHom, map_prod]
+  rw [← Polynomial.coe_mapRingHom]
+  erw [map_prod]
   simp [map_sub, coe_mapRingHom, map_X, map_C]
 
 lemma quotient_F_is_root_iff_is_conjugate (x : (B ⧸ Q)) :
