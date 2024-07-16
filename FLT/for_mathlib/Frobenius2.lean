@@ -282,7 +282,7 @@ lemma Frob_Q : Frob A Q isGalois P • Q = Q := by
     rwa [Ideal.map_eq_comap_symm] at hy
   have this := Q.sub_mem hy2 <| Frob_spec A Q isGalois P
   simp only [sub_sub_cancel] at this
-  apply y_not_in_Q A Q <| Ideal.IsPrime.mem_of_pow_mem (show Q.IsPrime by infer_instance) _ this
+  exact y_not_in_Q A Q <| Ideal.IsPrime.mem_of_pow_mem (show Q.IsPrime by infer_instance) _ this
 
 lemma _root_.Ideal.Quotient.coe_eq_coe_iff_sub_mem {R : Type*} [CommRing R] {I : Ideal R} (x y : R) :
   (x : R ⧸ I) = y ↔ x - y ∈ I := Ideal.Quotient.mk_eq_mk_iff_sub_mem _ _
