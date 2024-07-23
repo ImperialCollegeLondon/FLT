@@ -1,5 +1,6 @@
 import Mathlib.Data.PNat.Basic
 import Mathlib.NumberTheory.FLT.Four
+import Mathlib.NumberTheory.FLT.Three
 import Mathlib.Tactic
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine
 import Mathlib.RepresentationTheory.Basic
@@ -48,12 +49,6 @@ theorem PNat.pow_add_pow_ne_pow_of_FermatLastTheorem :
   intro h₁ a b c n h₂
   specialize h₁ n h₂ a b c (by simp) (by simp) (by simp)
   assumption_mod_cast
-
-/-- Fermat's Last Theorem is true when n = 3. -/
-lemma fermatLastTheoremThree : FermatLastTheoremFor 3 := sorry
--- This is proved in the FLT-regular project (https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698)
--- and the FLT3 project (https://github.com/riccardobrasca/flt3).
--- The way to turn this node green is to port this latter one to mathlib so we can use it here.
 
 namespace FLT
 
