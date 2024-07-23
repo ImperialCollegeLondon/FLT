@@ -28,10 +28,10 @@ Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not
   There are no solutions in positive integers to $a^3+b^3=c^3$.
 \end{lemma}
 \begin{proof}
+  \leanok
   A proof has been formalised in Lean in the FLT-regular project \href{https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698}{\underline{here}}.
   Another proof has been formalised in Lean in the FLT3 project \href{https://github.com/riccardobrasca/flt3}{\underline{here}} by a team from the Lean For the Curious Mathematician conference held in Luminy in March 2024
   (its dependency graph can be visualised \href{https://pitmonticone.github.io/FLT3/blueprint/dep_graph_document.html}{\underline{here}}).
-  To get this node green, this latter proof needs to be upstreamed to mathlib. This is currently work in progress by the same team.
 \end{proof}
 
 \begin{corollary}\label{FLT.of_p_ge_5}\lean{FLT.of_p_ge_5}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
