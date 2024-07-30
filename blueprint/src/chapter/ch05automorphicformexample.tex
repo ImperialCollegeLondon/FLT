@@ -650,19 +650,22 @@ is the usual Hamilton quaternions.
 \begin{proof}
     \leanok
     It's a sum of rational squares.
+\end{proof}
 
 \begin{lemma}
     \label{Hurwitz.exists_near}
     \lean{Hurwitz.exists_near}
     \uses{Hurwitz.norm}
-    Given a ``usual'' quaternion $z=x+yi+zj+wk$ with $x,y,z,w\in\R$,
-    there exists a Hurwitz quaternion $q$ such that $N(z-q)<1$.
+    \leanok
+    Given a ``usual'' quaternion $a=x+yi+zj+wk$ with $x,y,z,w\in\R$,
+    there exists a Hurwitz quaternion $q$ such that $N(a-q)<1$.
 \end{lemma}
 \begin{proof}
+    \leanok
   If $[r]$ denotes the nearest integer to the real number $r$, then $|r-[r]|\leq \frac{1}{2}$.
-  Hence if $q=[x]+[y]i+[z]j+[w]k$ then $N(z-q)=|x-[x]|^2+\cdots
+  Hence if $q=[x]+[y]i+[z]j+[w]k$ then $N(a-q)=|x-[x]|^2+\cdots
   \leq \frac{1}{4}+\frac{1}{4}+\frac{1}{4}+\frac{1}{4}\leq 1$, with strict inequality unless
-  $|x-[x]|=|y-[y]|=|z-[z]|=|w-[w]|=\frac{1}{2}$, in which case $z\in\mathcal{O}$ because $z-\omega$
+  $|x-[x]|=|y-[y]|=|z-[z]|=|w-[w]|=\frac{1}{2}$, in which case $a\in\mathcal{O}$ because $a-\omega$
   has integer coordinates.
 \end{proof}
 
@@ -675,7 +678,8 @@ is the usual Hamilton quaternions.
     $q$ and $r$ such that $a=qb+r$ and $N(r)<N(b)$.
 \end{lemma}
 \begin{proof}
-  Let $q$ be the Hurwitz quaternion obtained by applying Lemma~\cite{Hurwitz.exists_near}
+    \leanok
+  Let $q$ be the Hurwitz quaternion obtained by applying Lemma~\ref{Hurwitz.exists_near}
   to $a/b := ab^{-1}$; then $N(a/b-q)<1$ and now everything follows after multiplying up.
 \end{proof}
 
