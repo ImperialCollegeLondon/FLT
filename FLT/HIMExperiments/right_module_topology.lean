@@ -1,6 +1,6 @@
 import Mathlib.RingTheory.TensorProduct.Basic -- we need tensor products of rings at some point
 import Mathlib.Topology.Algebra.Module.Basic -- and we need topological rings and modules
-import Mathlib.Tactic
+import Mathlib
 
 /-
 
@@ -36,100 +36,123 @@ functions from `M` (now considered only as an index set, so with no topology) to
 -/
 
 section noncommutative
--- Let A be a ring, with a compatible topology.
-variable (A : Type*) [Ring A] [TopologicalSpace A] [TopologicalRing A]
 
+class IsActionTopology (R M : Type*) [SMul R M]
+    [τR : TopologicalSpace R] [τM : TopologicalSpace M] : Prop where
+  isActionTopology' : τM = ⨆ m, .coinduced (· • m) τR
 
-/-- The "right topology" on a module `M` over a topological ring `A`. It's defined as
-the finest topology on `M` which makes every `A`-linear map `A → M` continuous. It's called
-the "right topology" because `M` goes on the right.  -/
-abbrev Module.rtopology (M : Type*) [AddCommGroup M] [Module A M]: TopologicalSpace M :=
--- Topology defined as LUB of pushforward.
-  ⨆ (f : A →ₗ[A] M), TopologicalSpace.coinduced f inferInstance
+-- just to make R and M explicit
+def isActionTopology (R M : Type*) [SMul R M]
+    [TopologicalSpace R] [TopologicalSpace M] [IsActionTopology R M ]:=
+  IsActionTopology.isActionTopology' (R := R) (M := M)
 
--- let `M` and `N` be `A`-modules
-variable (M : Type*) [AddCommGroup M] [Module A M]
-variable {N : Type*} [AddCommGroup N] [Module A N]
+def ActionTopology (R M : Type*) [SMul R M] [TopologicalSpace R] :
+    TopologicalSpace M := ⨆ m, .coinduced (· • m) (inferInstance : TopologicalSpace R)
+
+namespace ActionTopology
+namespace type_stuff
+
+variable {R : Type} [τR : TopologicalSpace R]
+
+-- let `M` and `N` have an action of `R`
+variable {M : Type*} [SMul R M] [τM : TopologicalSpace M] [IsActionTopology R M]
+variable {N : Type*} [SMul R N] [τN : TopologicalSpace N] [IsActionTopology R N]
+
+example (L) [CompleteLattice L] (f : M → N) (g : N → L) : ⨆ m, g (f m) ≤ ⨆ n, g n := by
+  exact iSup_comp_le g f
+
+theorem map_smul_pointfree (f : M →[R] N) (r : R) : (fun m ↦ f (r • m)) = fun m ↦ r • f m :=
+  by ext; apply map_smul
+
 
 /-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
-lemma Module.continuous_linear (e : M →ₗ[A] N) :
-    @Continuous M N (Module.rtopology A M) (Module.rtopology A N) e := by
-  sorry -- maybe some appropriate analogue of Hannah/Lugwig's proof will work?
+lemma continuous_of_mulActionHom (e : M →[R] N) : Continuous e := by
+  -- Let's turn this question into an inequality question about coinduced topologies
+  rw [continuous_iff_coinduced_le]
+  -- Now let's use the fact that τM and τN are action topologies (hence also coinduced)
+  rw [isActionTopology R M, isActionTopology R N]
+  -- There's an already-proven lemma in mathlib that says that coinducing an `iSup` is the
+  -- same thing as taking the `iSup`s of the coinduced topologies
+  -- composite of the coinduced topologies is just topology coinduced by the composite
+  rw [coinduced_iSup]
+  simp_rw [coinduced_compose]
+  -- restate the current state of the question with better variables
+  change ⨆ m, TopologicalSpace.coinduced (fun r ↦ e (r • m)) τR ≤
+    ⨆ n, TopologicalSpace.coinduced (fun x ↦ x • n) τR
+  -- use the fact that `e (r • m) = r • (e m)`
+  simp_rw [map_smul]
+  -- and now the goal follows from the fact that the sup over a small set is ≤ the sup
+  -- over a big set
+  apply iSup_comp_le (_ : N → TopologicalSpace N)
 
 -- A formal corollary should be that
-def Module.homeomorphism_equiv (e : M ≃ₗ[A] N) :
-    -- lean needs to be told the topologies explicitly in the statement
-    let τM := Module.rtopology A M
-    let τN := Module.rtopology A N
-    M ≃ₜ N :=
-  -- And also at the point where lean puts the structure together, unfortunately
-  let τM := Module.rtopology A M
-  let τN := Module.rtopology A N
-  -- all the sorries should be formal.
-  { toFun := e
-    invFun := e.symm
-    left_inv := sorry
-    right_inv := sorry
+def homeomorph_of_mulActionEquiv (φ : M →[R] N) (ψ : N →[R] M) (h1 : ∀ m, ψ (φ m) = m)
+    (h2 : ∀ n, φ (ψ n) = n) : M ≃ₜ N :=
+  { toFun := φ
+    invFun := ψ
+    left_inv := h1
+    right_inv := h2
     continuous_toFun := sorry
     continuous_invFun := sorry
   }
 
-
--- claim: topology on the 1-point set is the canonical one
-example : (inferInstance : TopologicalSpace Unit) = Module.rtopology A Unit := by
+-- this is definitely true
+lemma unit : (inferInstance : TopologicalSpace Unit) = ActionTopology R Unit := by
   sorry
 
--- Anything from this point on *might* need commutative.
--- Just move it to the commutative section and prove it there.
-
--- Claim: topology on A doesn't change
-example : (inferInstance : TopologicalSpace A) = Module.rtopology A A := by
+-- is this true?
+lemma prod : (inferInstance : TopologicalSpace (M × N)) = ActionTopology R (M × N) := by
   sorry
 
-example :
-    let _τM : TopologicalSpace M := Module.rtopology A M
-    let _τN : TopologicalSpace N := Module.rtopology A N
-    (inferInstance : TopologicalSpace (M × N)) = Module.rtopology A (M × N) := by sorry
+-- is this true? If not, is it true if ι is finite?
+lemma pi {ι : Type*} {M : ι → Type*} [∀ i, SMul R (M i)] [τM : ∀ i, TopologicalSpace (M i)]
+    [∀ i, IsActionTopology R (M i)] :
+    (inferInstance : TopologicalSpace (∀ i, M i)) = ActionTopology R (∀ i, M i) := by
+  sorry
 
-example :
-    let _τM : TopologicalSpace M := Module.rtopology A M
-    let _τN : TopologicalSpace N := Module.rtopology A N
-    (inferInstance : TopologicalSpace (M × N)) = Module.rtopology A (M × N) := by sorry
+-- is this true? If not, is it true if ι is finite?
+lemma sigma {ι : Type*} {M : ι → Type*} [∀ i, SMul R (M i)] [τM : ∀ i, TopologicalSpace (M i)]
+    [∀ i, IsActionTopology R (M i)] :
+    (inferInstance : TopologicalSpace (Σ i, M i)) = ActionTopology R (Σ i, M i) := by
+  sorry
 
-example (ι : Type*) :
-    let _τM : TopologicalSpace M := Module.rtopology A M
-    (inferInstance : TopologicalSpace (ι → M)) = Module.rtopology A (ι → M) := by sorry
+end type_stuff
 
-end noncommutative
+section R_is_M_stuff
 
-section commutative
+variable {R : Type} [τR : TopologicalSpace R] [Monoid R]
+
+-- is this true? Do we need that R is commutative? Does it work if R is a only semigroup?
+example : (inferInstance : TopologicalSpace R) = ActionTopology R R := by
+  sorry
+
+end R_is_M_stuff
+
+section what_i_want
 
 -- Let A be a commutative ring, with a compatible topology.
 variable (A : Type*) [CommRing A] [TopologicalSpace A] [TopologicalRing A]
 -- let `M` and `N` be `A`-modules
-variable (M : Type*) [AddCommGroup M] [Module A M]
-variable {N : Type*} [AddCommGroup N] [Module A N]
+variable (M : Type*) [AddCommGroup M] [Module A M] [TopologicalSpace M] [TopologicalAddGroup M] [IsActionTopology A M]
+variable {N : Type*} [AddCommGroup N] [Module A N] [TopologicalSpace N] [TopologicalAddGroup N] [IsActionTopology A N]
+-- Remark: A needs to be commutative so that I get an A-action on M ⊗ N.
 
+-- What generality is this true in? I only need it when M and N are finite and free
 open scoped TensorProduct
-lemma Module.continuous_bilinear :
-    let _τM : TopologicalSpace M := Module.rtopology A _
-    let _τN : TopologicalSpace N := Module.rtopology A _
-    let _τMN : TopologicalSpace (M ⊗[A] N) := Module.rtopology A _
+lemma continuous_of_bilinear :
+    letI : TopologicalSpace (M ⊗[A] N) := ActionTopology A (M ⊗[A] N)
     Continuous (fun (mn : M × N) ↦ mn.1 ⊗ₜ mn.2 : M × N → M ⊗[A] N) := by sorry
 
 -- Now say we have a (not necessarily commutative) `A`-algebra `D` which is free of finite type.
-
 -- are all these assumptions needed?
-variable (D : Type*) [Ring D] [Algebra A D] [Module.Finite A D] [Module.Free A D]
+variable (D : Type*) [Ring D] [Algebra A D] [Module.Finite A D] [Module.Free A D] [TopologicalSpace D] [IsActionTopology A D]
 
-instance Module.topologicalRing : @TopologicalRing D (Module.rtopology A D) _ :=
-  let _ : TopologicalSpace D := Module.rtopology A D
-  {
-    continuous_add := by
-      sorry
-    continuous_mul := by
-      sorry
-    continuous_neg := by
-      sorry }
+theorem needed_for_FLT : TopologicalRing D where
+  continuous_add := sorry
+  continuous_mul := sorry
+  continuous_neg := sorry
 
-end commutative
+end what_i_want
+
+-- possible hints at https://github.com/ImperialCollegeLondon/FLT/blob/main/FLT/HIMExperiments/module_topology.lean
+-- except there the topology is *different* so the work does not apply
