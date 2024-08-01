@@ -35,7 +35,7 @@ functions from `M` (now considered only as an index set, so with no topology) to
 
 -/
 
-section noncommutative
+section defs
 
 class IsActionTopology (R M : Type*) [SMul R M]
     [τR : TopologicalSpace R] [τM : TopologicalSpace M] : Prop where
@@ -46,13 +46,46 @@ def isActionTopology (R M : Type*) [SMul R M]
     [TopologicalSpace R] [TopologicalSpace M] [IsActionTopology R M ]:=
   IsActionTopology.isActionTopology' (R := R) (M := M)
 
-def ActionTopology (R M : Type*) [SMul R M] [TopologicalSpace R] :
+def actionTopology (R M : Type*) [SMul R M] [TopologicalSpace R] :
     TopologicalSpace M := ⨆ m, .coinduced (· • m) (inferInstance : TopologicalSpace R)
 
+end defs
 namespace ActionTopology
-namespace type_stuff
 
-variable {R : Type} [τR : TopologicalSpace R]
+
+section one
+
+variable {R : Type*} [τR : TopologicalSpace R]
+
+-- this proof shoudl be much easier
+example [Monoid R] [ContinuousMul R] :
+    IsActionTopology R R where
+  isActionTopology' := by
+    rw [iSup.eq_1]
+    symm
+    rw [← isLUB_iff_sSup_eq]
+    constructor
+    · rintro - ⟨r, rfl⟩
+      simp
+      rw [← continuous_iff_coinduced_le]
+      fun_prop
+    · intro σR hσ
+      rw [mem_upperBounds] at hσ
+      specialize hσ ?_ ⟨?_, ?_⟩
+      swap
+      use 1
+      exact (fun m ↦ TopologicalSpace.coinduced (fun x ↦ x • m) τR) 1
+      rfl
+      convert hσ
+      simp only [smul_eq_mul, mul_one]
+      rfl
+-- this proof shoudl be much easier
+end one
+
+section type_stuff
+
+variable {R : Type*} [τR : TopologicalSpace R]
+
 
 -- let `M` and `N` have an action of `R`
 variable {M : Type*} [SMul R M] [τM : TopologicalSpace M] [IsActionTopology R M]
@@ -97,23 +130,23 @@ def homeomorph_of_mulActionEquiv (φ : M →[R] N) (ψ : N →[R] M) (h1 : ∀ m
   }
 
 -- this is definitely true
-lemma unit : (inferInstance : TopologicalSpace Unit) = ActionTopology R Unit := by
+lemma unit : (inferInstance : TopologicalSpace Unit) = actionTopology R Unit := by
   sorry
 
 -- is this true?
-lemma prod : (inferInstance : TopologicalSpace (M × N)) = ActionTopology R (M × N) := by
+lemma prod : (inferInstance : TopologicalSpace (M × N)) = actionTopology R (M × N) := by
   sorry
 
 -- is this true? If not, is it true if ι is finite?
 lemma pi {ι : Type*} {M : ι → Type*} [∀ i, SMul R (M i)] [τM : ∀ i, TopologicalSpace (M i)]
     [∀ i, IsActionTopology R (M i)] :
-    (inferInstance : TopologicalSpace (∀ i, M i)) = ActionTopology R (∀ i, M i) := by
+    (inferInstance : TopologicalSpace (∀ i, M i)) = actionTopology R (∀ i, M i) := by
   sorry
 
 -- is this true? If not, is it true if ι is finite?
 lemma sigma {ι : Type*} {M : ι → Type*} [∀ i, SMul R (M i)] [τM : ∀ i, TopologicalSpace (M i)]
     [∀ i, IsActionTopology R (M i)] :
-    (inferInstance : TopologicalSpace (Σ i, M i)) = ActionTopology R (Σ i, M i) := by
+    (inferInstance : TopologicalSpace (Σ i, M i)) = actionTopology R (Σ i, M i) := by
   sorry
 
 end type_stuff
@@ -123,7 +156,7 @@ section R_is_M_stuff
 variable {R : Type} [τR : TopologicalSpace R] [Monoid R]
 
 -- is this true? Do we need that R is commutative? Does it work if R is a only semigroup?
-example : (inferInstance : TopologicalSpace R) = ActionTopology R R := by
+example : (inferInstance : TopologicalSpace R) = actionTopology R R := by
   sorry
 
 end R_is_M_stuff
@@ -140,7 +173,7 @@ variable {N : Type*} [AddCommGroup N] [Module A N] [TopologicalSpace N] [Topolog
 -- What generality is this true in? I only need it when M and N are finite and free
 open scoped TensorProduct
 lemma continuous_of_bilinear :
-    letI : TopologicalSpace (M ⊗[A] N) := ActionTopology A (M ⊗[A] N)
+    letI : TopologicalSpace (M ⊗[A] N) := actionTopology A (M ⊗[A] N)
     Continuous (fun (mn : M × N) ↦ mn.1 ⊗ₜ mn.2 : M × N → M ⊗[A] N) := by sorry
 
 -- Now say we have a (not necessarily commutative) `A`-algebra `D` which is free of finite type.
@@ -156,3 +189,4 @@ end what_i_want
 
 -- possible hints at https://github.com/ImperialCollegeLondon/FLT/blob/main/FLT/HIMExperiments/module_topology.lean
 -- except there the topology is *different* so the work does not apply
+end ActionTopology

@@ -6,7 +6,7 @@ import Mathlib.Topology.Order
 import Mathlib.Algebra.Group.Action.Defs
 
 /-
-
+-- todo : A -> R, M -> A
 # An "action topology" for monoid actions.
 
 Let `A` denote a topological monoid, and say `A` acts on the type `M`.
@@ -29,6 +29,7 @@ may or may not have the following cool properties:
    the product topology.
 5) The `A`-module topology on a power `M^n`, that is, `n → M` with `n : Type`, is the
 (now possibly infinite) product topology.
+5.5) sigma types
 
 6) Now say `A` is commutative. Then the tensor product of two `A`-modules is an `A`-module,
 and so we can ask if the canonical bilinear map from `M × N` (with the module or product topology?
@@ -43,7 +44,7 @@ functions from `M` (now considered only as an index set, so with no topology) to
 -/
 section basics
 
-abbrev ActionTopology (R A : Type*) [SMul R A] [TopologicalSpace R] :
+abbrev actionTopology (R A : Type*) [SMul R A] [TopologicalSpace R] :
     TopologicalSpace A :=
   sInf {t | @ContinuousSMul R A _ _ t}
 
@@ -52,21 +53,135 @@ abbrev ActionTopology (R A : Type*) [SMul R A] [TopologicalSpace R] :
 -- called A M as well. Here we completely avoid the M ambiguity.
 class IsActionTopology (R A : Type*) [SMul R A]
     [TopologicalSpace R] [τA : TopologicalSpace A] : Prop where
-  isActionTopology : τA = ActionTopology R A
+  isActionTopology' : τA = actionTopology R A
 
---variable (M : Type*) [Monoid M] (X : Type*) [TopologicalSpace M] [SMul M X]
+lemma isActionTopology (R A : Type*) [SMul R A]
+    [TopologicalSpace R] [τA : TopologicalSpace A] [IsActionTopology R A] :
+    τA = actionTopology R A :=
+  IsActionTopology.isActionTopology' (R := R) (A := A)
 
 variable (R A : Type*) [SMul R A] [TopologicalSpace R] in
-example : @ContinuousSMul R A _ _ (ActionTopology R A) :=
+example : @ContinuousSMul R A _ _ (actionTopology R A) :=
   continuousSMul_sInf <| by aesop
 
 variable (R A : Type*) [SMul R A] [TopologicalSpace R]
     [TopologicalSpace A] [IsActionTopology R A] in
 example : ContinuousSMul R A := by
-  rw [IsActionTopology.isActionTopology (R := R) (A := A)]
+  rw [isActionTopology R A]
   exact continuousSMul_sInf <| by aesop
 
 end basics
+
+namespace ActionTopology
+section scratch
+
+example (L : Type*) [CompleteLattice L] (ι : Type*) (f : ι → L) (t : L) :
+    t = ⨆ i, f i ↔ (∀ i, t ≤ f i) ∧ (∀ j, (∀ i, j ≤ f i) → j ≤ t) := by
+  --rw [iSup_eq]
+  sorry
+
+end scratch
+
+section one
+
+lemma id' (R : Type*) [Monoid R] [τ : TopologicalSpace R] [ContinuousMul R] :
+    IsActionTopology R R := by
+  constructor
+  unfold actionTopology
+  symm
+  rw [← isGLB_iff_sInf_eq]
+  constructor
+  · intro σ hσ
+    cases' hσ with hσ
+    rw [← continuous_id_iff_le]
+    have foo : (id : R → R) = (fun ab ↦ ab.1 * ab.2 : R × R → R) ∘ (fun r ↦ (r, 1)) := by
+      funext
+      simp
+    rw [foo]
+    apply @Continuous.comp R (R × R) R τ (@instTopologicalSpaceProd R R τ σ)
+    · apply hσ
+    · refine @Continuous.prod_mk R R R ?_ ?_ ?_ ?_ ?_ ?_ ?_
+      · refine @continuous_id R ?_
+      · refine @continuous_const R R ?_ ?_ 1
+  · intro σ hσ
+    rw [mem_lowerBounds] at hσ
+    apply hσ
+    clear σ hσ
+    simp
+    constructor
+    rename_i foo
+    cases foo with
+    | mk continuous_mul => exact continuous_mul
+
+end one
+section prod
+
+variable {R : Type} [TopologicalSpace R]
+
+-- let `M` and `N` have an action of `R`
+variable {M : Type*} [SMul R M] [aM : TopologicalSpace M] [IsActionTopology R M]
+variable {N : Type*} [SMul R N] [aN : TopologicalSpace N] [IsActionTopology R N]
+
+--example (L) [CompleteLattice L] (f : M → N) (g : N → L) : ⨆ m, g (f m) ≤ ⨆ n, g n := by
+--  exact iSup_comp_le g f
+
+--theorem map_smul_pointfree (f : M →[R] N) (r : R) : (fun m ↦ f (r • m)) = fun m ↦ r • f m :=
+--  by ext; apply map_smul
+
+lemma prod : IsActionTopology R (M × N) := by
+  constructor
+  unfold instTopologicalSpaceProd actionTopology
+  apply le_antisymm
+  · apply le_sInf
+    intro σMN hσ
+    sorry
+  ·
+    sorry
+
+end prod
+#exit
+
+/-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
+lemma continuous_of_mulActionHom (φ : M →[R] N) : Continuous φ := by
+  -- Let's turn this question into an inequality question about coinduced topologies
+  -- Now let's use the fact that τM and τN are action topologies (hence also coinduced)
+  rw [isActionTopology R M, isActionTopology R N]
+  unfold actionTopology
+--  rw [continuous_iff_le_induced]
+--  sorry
+
+-- coinduced attempt, got tangled, pre paper approach
+  rw [continuous_iff_coinduced_le]
+  rw [le_sInf_iff]
+  intro τN hτN
+  rw [coinduced_le_iff_le_induced]
+
+
+  rw [sInf_le_iff]
+  intro τM hτM
+  change ∀ _, _ at hτM
+  apply hτM
+  simp
+  rw [@DFunLike.coe_eq_coe_fn]
+  simp
+
+  -- -- original proof, now broken
+  -- rw [coinduced_le_iff_le_induced]
+  -- -- There's an already-proven lemma in mathlib that says that coinducing an `iSup` is the
+  -- -- same thing as taking the `iSup`s of the coinduced topologies
+  -- -- composite of the coinduced topologies is just topology coinduced by the composite
+  -- rw [coinduced_iSup]
+  -- simp_rw [coinduced_compose]
+  -- -- restate the current state of the question with better variables
+  -- change ⨆ m, TopologicalSpace.coinduced (fun r ↦ e (r • m)) τR ≤
+  --   ⨆ n, TopologicalSpace.coinduced (fun x ↦ x • n) τR
+  -- -- use the fact that `e (r • m) = r • (e m)`
+  -- simp_rw [map_smul]
+  -- -- and now the goal follows from the fact that the sup over a small set is ≤ the sup
+  -- -- over a big set
+  -- apply iSup_comp_le (_ : N → TopologicalSpace N)
+
+#exit
 
 section
 -- Let R be a monoid, with a compatible topology.
