@@ -9,92 +9,121 @@ import Mathlib.Algebra.Group.Action.Defs
 -- todo : A -> R, M -> A
 # An "action topology" for monoid actions.
 
-Let `A` denote a topological monoid, and say `A` acts on the type `M`.
-There is then a smallest (in the sense of Lean's `≤`) topology on `M`
-making the induced action map `A × M → M` continuous.
-We call this topology on `M` the "action topology". It is some kind
-of "pushforward topology" on `M` coming from the topology on `A` and
-the action.
+If `R` has a topology and acts on the type `A`, then `A` inherits a topology
+called the action topology. It's the `≤`-smallest topology (i.e. the one with
+the most open sets) making the action `R × A → A` continuous. We call this
+topology the action topology.
 
-## Constructions on modules.
+In many cases this topology is the one you expect. For example if `R` is a topological field
+and `A` is a finite-dimensional real vector space over `R` then picking a basis gives `A` a
+product topology, and one can check that this is the action topology. Hence the product
+topology on `A` is independent of choice of basis. **TODO** I haven't actually proved this.
 
-This action topology (or `A`-action topology, if you want to specify
-the underlying monoid)
-may or may not have the following cool properties:
+## Overview
 
-1) Any `A`-linear map `φ : M →[A] N` is continuous.
-2) The `A`-module topology on `Unit` is the topology already present on `Unit`.
-3) The `A`-module topology on `A` acting on itself via `*`, is `A`s original topology.
-4) The `A`-module topology on a product `M × N` of two modules-with-action-topology is
-   the product topology.
-5) The `A`-module topology on a power `M^n`, that is, `n → M` with `n : Type`, is the
-(now possibly infinite) product topology.
-5.5) sigma types
+Let `R` denote a topological space, let `A` be a type (without
+a topology, for now) and say `R` acts on `A`,
+i.e., we're given `• : R × A → A`. In applications `R` might
+be a topological monoid and `A` an abelian group with an action of `R`.
+Or `R` might be a topological ring, for example the reals, and `A` an `R`-module
+or an `R`-algebra.
 
-6) Now say `A` is commutative. Then the tensor product of two `A`-modules is an `A`-module,
-and so we can ask if the canonical bilinear map from `M × N` (with the module or product topology?
-probably they're the same) to `M ⊗[A] N` is continuous.
+There are now at least two ways of inducing a topology on `A`
+(in the module over a ring situation, at least three ways).
+One could demand that `(· • a)` is continuous for all `a : A`, for example,
+and put the universal topology for this property on `A`.
+In the module case one could demand that all `R`-linear maps `A →ₗ[R] R`
+are continuous. But the definition here is one proposed by Yury
+Kudryashov. He pointed out that if `τᵢ : TopologicalSpace A` all make
+the action maps `R × A → A` continuous, then the `Inf` of the `τᵢ`
+also has this proprty. This means that there is a smallest (in the `≤` sense,
+i.e. the most open sets) topology on `A` such that `• : R × A → A` is
+continous. We call topology the *action topology*. It is some kind
+of "pushforward topology" on `A` coming from the `R`-action, but
+it is not a pushforward in the `f_*` sense of the word because
+there is no fixed `f : R → A`.
 
-7) Commutativity of `A` also gives spaces of `A`-linear maps the structure of `A`-modules,
-so we can ask for example whether the function application map `M × (M →ₗ[A] N) → N` is continuous.
+## Basic properties
 
-8) We could also ask whether the evaluation map, from `M →ₗ[A] N` to the power space `N^M` of bare
-functions from `M` (now considered only as an index set, so with no topology) to `N` is continuous.
+We fix a type `R` with a topology, and we let it act on things. We say an *R*-type
+is a type `A` equipped with `SMul R A`.
+
+0) (Unit) `Unit` is an `R`-type with the trivial action, action topology is the given topology on `Unit`
+(because there is only one topology on `Unit`)
+
+1) (Id) If `R` is a topological monoid (so `*` is continuous) then `R` becomes an `R`-type via `*`,
+and the action topology agrees with `R`'s original topology.
+
+2) (Functions) If `A` and `B` are `R`-types with the action topologies, then any `R`-equivariant map
+`φ : A →[R] B` is automatically continuous.
+
+3) (Prod) The action topology on a product `A × B` of `R`-types is the product of the action
+topologies **NOT YET PROVED, MAY NOT BE TRUE**
+
+4) (Pi): The action topology on an indexed product of `R`-types is the product topology
+**NOT YET PROVED, MAY NOT BE TRUE**
+
+5) (Sigma) The action topology on `Σ i, A i` is whatever topology mathlib has on this
+**NOT YET PROVED, MAY NOT BE TRUE**
+
+Now say `R` is a commutative topological ring. **NOTHING BELOW HERE IS PROVED YET**
+
+6) Say `A`, `B` are `R`-modules with their
+action topology. Then the tensor product `A ⊗[R] B` is also an `R`-module.
+and so we can ask if the canonical bilinear map from `A × B` (with the action or product topology?
+probably they're the same) to `A ⊗[R] B` is continuous.
+
+7) Commutativity of `R` also gives spaces of `R`-linear maps the structure of `R`-modules,
+so we can ask for example whether the function application map `A × (A →ₗ[R] B) → B` is continuous.
+
+8) We could also ask whether the evaluation map, from `A →ₗ[R] B` to the power space `B^A` of bare
+functions from `A` (now considered only as an index set, so with no topology) to `B` is continuous.
 
 -/
 section basics
 
-abbrev actionTopology (R A : Type*) [SMul R A] [TopologicalSpace R] :
-    TopologicalSpace A :=
+variable (R A : Type*) [SMul R A] [TopologicalSpace R]
+
+abbrev actionTopology : TopologicalSpace A :=
   sInf {t | @ContinuousSMul R A _ _ t}
 
--- I think R and A is good notation. R is a module. We could
--- have called it M; the problem with M is htat we could have
--- called A M as well. Here we completely avoid the M ambiguity.
-class IsActionTopology (R A : Type*) [SMul R A]
-    [TopologicalSpace R] [τA : TopologicalSpace A] : Prop where
+class IsActionTopology [τA : TopologicalSpace A] : Prop where
   isActionTopology' : τA = actionTopology R A
 
-lemma isActionTopology (R A : Type*) [SMul R A]
-    [TopologicalSpace R] [τA : TopologicalSpace A] [IsActionTopology R A] :
+lemma isActionTopology [τA : TopologicalSpace A] [IsActionTopology R A] :
     τA = actionTopology R A :=
   IsActionTopology.isActionTopology' (R := R) (A := A)
 
-variable (R A : Type*) [SMul R A] [TopologicalSpace R] in
 lemma ActionTopology.continuousSMul : @ContinuousSMul R A _ _ (actionTopology R A) :=
-  continuousSMul_sInf <| by aesop
+  continuousSMul_sInf <| fun _ _ ↦ by simp_all only [Set.mem_setOf_eq]
 
-lemma isActionTopology_continuousSMul (R A : Type*) [SMul R A]
+instance isActionTopology_continuousSMul (R A : Type*) [SMul R A]
     [TopologicalSpace R] [τA : TopologicalSpace A] [h : IsActionTopology R A] :
   ContinuousSMul R A where
     continuous_smul := by
-      obtain ⟨h⟩ := h
-      let _τA2 := τA
-      subst h
-      exact (ActionTopology.continuousSMul R A).1
+      obtain ⟨h⟩ := ActionTopology.continuousSMul R A
+      simpa [isActionTopology R A] using h
 
-
-variable (R A : Type*) [SMul R A] [TopologicalSpace R]
-    [TopologicalSpace A] [IsActionTopology R A] in
-lemma continuousSMul_of_isActionTopology : ContinuousSMul R A := by
-  rw [isActionTopology R A]
-  exact continuousSMul_sInf <| by aesop
+lemma actionTopology_le (R A : Type*) [SMul R A]
+    [TopologicalSpace R] [τA : TopologicalSpace A] [ContinuousSMul R A] :
+    actionTopology R A ≤ τA := sInf_le ‹ContinuousSMul R A›
 
 end basics
 
+-- this should be elsewhere
+lemma TopologicalSpace.induced_id (X : Type*) : TopologicalSpace.induced (id : X → X) = id := by
+  ext τ S
+  constructor
+  · rintro ⟨T,hT,rfl⟩
+    exact hT
+  · rintro hS
+    exact ⟨S, hS, rfl⟩
+
 namespace ActionTopology
-section scratch
-
--- example (L : Type*) [CompleteLattice L] (ι : Type*) (f : ι → L) (t : L) :
---     t = ⨆ i, f i ↔ (∀ i, t ≤ f i) ∧ (∀ j, (∀ i, j ≤ f i) → j ≤ t) := by
---   --rw [iSup_eq]
---   sorry
-
-end scratch
 
 section one
 
-lemma id' (R : Type*) [Monoid R] [τ : TopologicalSpace R] [ContinuousMul R] :
+protected lemma id (R : Type*) [Monoid R] [τ : TopologicalSpace R] [ContinuousMul R] :
     IsActionTopology R R := by
   constructor
   unfold actionTopology
@@ -123,15 +152,46 @@ lemma id' (R : Type*) [Monoid R] [τ : TopologicalSpace R] [ContinuousMul R] :
     cases foo with
     | mk continuous_mul => exact continuous_mul
 
-lemma TopologicalSpace.induced_id (X : Type*) : TopologicalSpace.induced (id : X → X) = id := by
-  ext τ S
-  constructor
-  · rintro ⟨T,hT,rfl⟩
-    exact hT
-  · rintro hS
-    exact ⟨S, hS, rfl⟩
-
 end one
+
+section function
+
+variable {R : Type} [τR : TopologicalSpace R]
+variable {A : Type} [SMul R A] [aA : TopologicalSpace A] [IsActionTopology R A]
+variable {B : Type} [SMul R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+
+/-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
+lemma continuous_of_mulActionHom (φ : A →[R] B) : Continuous φ := by
+  -- Let's turn this question into an inequality question about coinduced topologies
+  -- Now let's use the fact that τM and τN are action topologies (hence also coinduced)
+  rw [isActionTopology R A, isActionTopology R B]
+  unfold actionTopology
+  rw [continuous_iff_le_induced]
+  nth_rw 2 [sInf_eq_iInf]
+  rw [induced_iInf] --induced_sInf missing?
+  apply le_iInf
+  simp only [Set.mem_setOf_eq, induced_iInf, le_iInf_iff]
+  intro σN hσ
+  apply sInf_le
+  refine @ContinuousSMul.mk R A _ τR (TopologicalSpace.induced (⇑φ) σN) ?_
+  rw [continuous_iff_le_induced]
+  rw [induced_compose]
+  rw [← continuous_iff_le_induced]
+  rw [show φ ∘ (fun (p : R × A) ↦ p.1 • p.2) = fun rm ↦ rm.1 • φ (rm.2) by
+        ext rm
+        cases rm
+        simp]
+  obtain ⟨hσ'⟩ := hσ
+  rw [continuous_iff_le_induced] at *
+  have := induced_mono (g := fun (rm : R × A) ↦ (rm.1, φ (rm.2))) hσ'
+  rw [induced_compose] at this
+  refine le_trans ?_ this
+  rw [← continuous_iff_le_induced]
+  refine @Continuous.prod_map R B R A τR σN τR (TopologicalSpace.induced (φ : A → B) σN) id φ ?_ ?_
+  · fun_prop
+  · fun_prop
+
+end function
 
 section prod
 
@@ -293,42 +353,18 @@ lemma prod [MulOneClass.{0} R] : IsActionTopology.{0} R (M × N) := by
 
 end prod
 
-section function
+section Pi
 
 variable {R : Type} [τR : TopologicalSpace R]
-variable {M : Type} [SMul R M] [aM : TopologicalSpace M] [iM : IsActionTopology R M]
-variable {N : Type} [SMul R N] [aN : TopologicalSpace N] [iN : IsActionTopology R N]
 
-/-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
-lemma continuous_of_mulActionHom (φ : M →[R] N) : Continuous φ := by
-  -- Let's turn this question into an inequality question about coinduced topologies
-  -- Now let's use the fact that τM and τN are action topologies (hence also coinduced)
-  rw [isActionTopology R M, isActionTopology R N]
-  unfold actionTopology
-  rw [continuous_iff_le_induced]
-  nth_rw 2 [sInf_eq_iInf]
-  rw [induced_iInf] --induced_sInf missing?
-  apply le_iInf
-  simp only [Set.mem_setOf_eq, induced_iInf, le_iInf_iff]
-  intro σN hσ
-  apply sInf_le
-  refine @ContinuousSMul.mk R M _ τR (TopologicalSpace.induced (⇑φ) σN) ?_
-  rw [continuous_iff_le_induced]
-  rw [induced_compose]
-  rw [← continuous_iff_le_induced]
-  rw [show φ ∘ (fun (p : R × M) ↦ p.1 • p.2) = fun rm ↦ rm.1 • φ (rm.2) by
-        ext rm
-        cases rm
-        simp]
-  obtain ⟨hσ'⟩ := hσ
-  rw [continuous_iff_le_induced] at *
-  have := induced_mono (g := fun (rm : R × M) ↦ (rm.1, φ (rm.2))) hσ'
-  rw [induced_compose] at this
-  refine le_trans ?_ this
-  rw [← continuous_iff_le_induced]
-  refine @Continuous.prod_map R N R M τR σN τR (TopologicalSpace.induced (φ : M → N) σN) id φ ?_ ?_
-  · fun_prop
-  · fun_prop
+variable {ι : Type} {A : ι → Type} [∀ i, SMul R (A i)] [∀ i, TopologicalSpace (A i)]
+  [∀ i, IsActionTopology R (A i)]
+
+lemma Pi : IsActionTopology R (∀ i, A i) := by
+  sorry
+
+end Pi
+
 
 #check coinduced_iSup
 #check induced_iInf
