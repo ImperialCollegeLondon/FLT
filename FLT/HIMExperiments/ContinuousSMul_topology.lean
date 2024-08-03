@@ -6,13 +6,12 @@ import Mathlib.Topology.Order
 import Mathlib.Algebra.Group.Action.Defs
 
 /-
--- todo : A -> R, M -> A
 # An "action topology" for monoid actions.
 
-If `R` has a topology and acts on the type `A`, then `A` inherits a topology
-called the action topology. It's the `≤`-smallest topology (i.e. the one with
-the most open sets) making the action `R × A → A` continuous. We call this
-topology the action topology.
+If `R` and `A` are types, and if `R` has a topology `[TopologicalSpace R]`
+and acts on `A` `[SMul R A]`, then `A` inherits a topology from this set-up,
+which we call the *action* topology. It's the `≤`-smallest topology (i.e., the one with
+the most open sets) making the action `R × A → A` continuous.
 
 In many cases this topology is the one you expect. For example if `R` is a topological field
 and `A` is a finite-dimensional real vector space over `R` then picking a basis gives `A` a
@@ -80,6 +79,21 @@ so we can ask for example whether the function application map `A × (A →ₗ[R
 functions from `A` (now considered only as an index set, so with no topology) to `B` is continuous.
 
 -/
+
+section continuous_smul
+
+variable {R : Type} [τR : TopologicalSpace R]
+variable {A : Type} [SMul R A]
+variable {S : Type} [τS : TopologicalSpace S] {f : S → R} (hf : Continuous f)
+variable {B : Type} [SMul S B] (g : B →ₑ[f] A)
+
+-- note: use convert not exact to ensure typeclass inference doesn't try to find topology on B
+lemma induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] :
+    @ContinuousSMul S B _ _ (TopologicalSpace.induced g τA) := by
+  convert Inducing.continuousSMul (inducing_induced g) hf (fun {c} {x} ↦ map_smulₛₗ g c x)
+
+end continuous_smul
+
 section basics
 
 variable (R A : Type*) [SMul R A] [TopologicalSpace R]
