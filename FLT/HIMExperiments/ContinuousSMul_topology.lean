@@ -61,12 +61,22 @@ lemma isActionTopology (R A : Type*) [SMul R A]
   IsActionTopology.isActionTopology' (R := R) (A := A)
 
 variable (R A : Type*) [SMul R A] [TopologicalSpace R] in
-example : @ContinuousSMul R A _ _ (actionTopology R A) :=
+lemma ActionTopology.continuousSMul : @ContinuousSMul R A _ _ (actionTopology R A) :=
   continuousSMul_sInf <| by aesop
+
+lemma isActionTopology_continuousSMul (R A : Type*) [SMul R A]
+    [TopologicalSpace R] [τA : TopologicalSpace A] [h : IsActionTopology R A] :
+  ContinuousSMul R A where
+    continuous_smul := by
+      obtain ⟨h⟩ := h
+      let _τA2 := τA
+      subst h
+      exact (ActionTopology.continuousSMul R A).1
+
 
 variable (R A : Type*) [SMul R A] [TopologicalSpace R]
     [TopologicalSpace A] [IsActionTopology R A] in
-example : ContinuousSMul R A := by
+lemma continuousSMul_of_isActionTopology : ContinuousSMul R A := by
   rw [isActionTopology R A]
   exact continuousSMul_sInf <| by aesop
 
@@ -75,10 +85,10 @@ end basics
 namespace ActionTopology
 section scratch
 
-example (L : Type*) [CompleteLattice L] (ι : Type*) (f : ι → L) (t : L) :
-    t = ⨆ i, f i ↔ (∀ i, t ≤ f i) ∧ (∀ j, (∀ i, j ≤ f i) → j ≤ t) := by
-  --rw [iSup_eq]
-  sorry
+-- example (L : Type*) [CompleteLattice L] (ι : Type*) (f : ι → L) (t : L) :
+--     t = ⨆ i, f i ↔ (∀ i, t ≤ f i) ∧ (∀ j, (∀ i, j ≤ f i) → j ≤ t) := by
+--   --rw [iSup_eq]
+--   sorry
 
 end scratch
 
@@ -113,33 +123,181 @@ lemma id' (R : Type*) [Monoid R] [τ : TopologicalSpace R] [ContinuousMul R] :
     cases foo with
     | mk continuous_mul => exact continuous_mul
 
+lemma TopologicalSpace.induced_id (X : Type*) : TopologicalSpace.induced (id : X → X) = id := by
+  ext τ S
+  constructor
+  · rintro ⟨T,hT,rfl⟩
+    exact hT
+  · rintro hS
+    exact ⟨S, hS, rfl⟩
+
 end one
+
 section prod
 
-variable {R : Type} [TopologicalSpace R]
+variable {R : Type} [τR : TopologicalSpace R]
 
 -- let `M` and `N` have an action of `R`
-variable {M : Type*} [SMul R M] [aM : TopologicalSpace M] [IsActionTopology R M]
-variable {N : Type*} [SMul R N] [aN : TopologicalSpace N] [IsActionTopology R N]
+-- We do not need Mul on R, but there seems to be no class saying just 1 • m = m
+-- so we have to use MulAction
+--variable [Monoid R] -- no ContinuousMul becasuse we never need
+-- we do not need MulAction because we do not need mul_smul.
+-- We only need one_smul
+variable {M : Type} [Zero M] [SMul R M] [aM : TopologicalSpace M] [IsActionTopology R M]
+variable {N : Type} [Zero N] [SMul R N] [aN : TopologicalSpace N] [IsActionTopology R N]
 
---example (L) [CompleteLattice L] (f : M → N) (g : N → L) : ⨆ m, g (f m) ≤ ⨆ n, g n := by
---  exact iSup_comp_le g f
-
---theorem map_smul_pointfree (f : M →[R] N) (r : R) : (fun m ↦ f (r • m)) = fun m ↦ r • f m :=
---  by ext; apply map_smul
-
-lemma prod : IsActionTopology R (M × N) := by
+lemma prod [MulOneClass.{0} R] : IsActionTopology.{0} R (M × N) := by
   constructor
-  unfold instTopologicalSpaceProd actionTopology
+  --unfold instTopologicalSpaceProd actionTopology
   apply le_antisymm
-  · apply le_sInf
-    intro σMN hσ
-    sorry
   ·
+    -- NOTE
+    -- this is the one that isn't done
+    rw [← continuous_id_iff_le]
+
+
+    -- idea: map R x M -> M is R x M -> R x M x N, τR x σ
+    -- R x M has topology τR x (m ↦ Prod.mk m (0 : N))^*σ
+    -- M x N -> M is pr₁⋆σ
+    -- is pr1_*sigma=Prod.mk' 0^*sigma
+    --rw [← continuous_id_iff_le]
+    have := isActionTopology R M
+    let τ1 : TopologicalSpace M := (actionTopology R (M × N)).coinduced (Prod.fst)
+    have foo : aM ≤ τ1 := by
+      rw [this]
+      apply sInf_le
+      unfold_let
+      constructor
+      rw [continuous_iff_coinduced_le]
+      --rw [continuous_iff_le_induced]
+      --rw [instTopologicalSpaceProd]
+      have := ActionTopology.continuousSMul R (M × N)
+      obtain ⟨h⟩ := this
+      rw [continuous_iff_coinduced_le] at h
+      have h2 := coinduced_mono (f := (Prod.fst : M × N → M)) h
+      refine le_trans ?_ h2
+      rw [@coinduced_compose]
+      --rw [coinduced_le_iff_le_induced]
+      rw [show ((Prod.fst : M × N → M) ∘ (fun p ↦ p.1 • p.2 : R × M × N → M × N)) =
+        (fun rm ↦ rm.1 • rm.2) ∘ (fun rmn ↦ (rmn.1, rmn.2.1)) by
+        ext ⟨r, m, n⟩
+        rfl]
+      rw [← @coinduced_compose]
+      apply coinduced_mono
+      rw [← continuous_id_iff_le]
+      have this2 := @Continuous.prod_map R M R M τR ((TopologicalSpace.coinduced Prod.fst (actionTopology R (M × N)))) τR aM id id ?_ ?_
+      swap; fun_prop
+      swap; sorry -- action top ≤ coinduced Prod.fst (action)
+      convert this2
+      sorry -- action top on M now equals coinduced Prod.fst
+      sorry -- same
+      -- so we're going around in circles
     sorry
+    -- let τ2 : TopologicalSpace M := (actionTopology R (M × N)).induced (fun m ↦ (m, 0))
+    -- have moo : τ1 = τ2 := by
+    --   unfold_let
+    --   apply le_antisymm
+    --   · rw [coinduced_le_iff_le_induced]
+    --     apply le_of_eq
+    -- --     rw [induced_compose]
+
+
+
+    --     sorry
+    --   ·
+    --     sorry
+    -- sorry
+  · sorry
+--     --have foo : @Continuous (M × N) (M × N) _ _ _ := @Continuous.prod_map M N M N (σMN.coinduced Prod.fst) (σMN.coinduced Prod.snd) aM aN id id ?_ ?_-- Z * W -> X * Y
+--     -- conjecture: pushforward of σMN is continuous
+--     -- ⊢ instTopologicalSpaceProd ≤ σMN
+--     --rw [continuous_iff_coinduced_le] at hσ
+-- #exit
+--     refine le_trans ?_ (continuous_iff_coinduced_le.1 hσ)
+--     rw [← continuous_id_iff_le]
+--     have foo : (id : M × N → M × N) = fun mn ↦ Prod.mk mn.1 mn.2 := by
+--       ext <;> rfl
+--     rw [foo]
+--     --have h1 := @Continuous.prod_mk M N (M × N) _ _ (instTopologicalSpaceProd) Prod.fst Prod.snd (by continuity) (by continuity)
+--     --have h2 := @Continuous.prod_mk M N (M × N) _ _ ((TopologicalSpace.coinduced (fun p ↦ p.1 • p.2) (instTopologicalSpaceProd : TopologicalSpace (R × M × N))) Prod.fst Prod.snd ?_ ?_
+--     rw [continuous_iff_le_induced] at *
+--     simp
+--     have foo : TopologicalSpace.induced (fun (mn : M × N) ↦ mn) = id := by
+--       have := TopologicalSpace.induced_id (M × N)
+--       exact TopologicalSpace.induced_id (M × N)
+--     --refine le_trans h1 ?_
+--     rw [foo]
+--     simp
+--     rw [← continuous_id_iff_le]
+--     --have bar : (id : M × N → M × N) = fun mn ↦ ((1, mn).snd) := by rfl
+--     --rw [bar]
+--     have mar : (id : M × N → M × N) = (fun rmn ↦ rmn.1 • rmn.2 : R × M × N → M × N) ∘
+--         (fun mn ↦ (1, mn)) := by
+--       ext mn
+--       cases mn
+--       simp only [id_eq, Function.comp_apply, one_smul]
+--       cases mn
+--       simp only [id_eq, Function.comp_apply, one_smul]
+--     --have car : (id : M × N → M × N) = fun mn ↦ (((1, mn) : R × M × N).snd) := sorry
+--     --(Prod.snd : R × M × N → M × N) ∘ (fun mn ↦ ((1, mn) : R × M × N)) := by
+
+--     rw [mar]
+--     rw [← continuous_iff_le_induced] at hσ
+--     letI τfoo : TopologicalSpace (R × M × N) := instTopologicalSpaceProd (t₁ := (inferInstance : TopologicalSpace R)) (t₂ := σMN)
+--     refine @Continuous.comp (M × N) (R × M × N) (M × N) instTopologicalSpaceProd τfoo (TopologicalSpace.coinduced (fun (rmn : R × M × N) ↦ rmn.1 • rmn.2) ?_) ?_ ?_ ?_ ?_
+--     · --exact hσ
+--       rw [continuous_iff_coinduced_le]
+--     · simp only [τfoo]
+-- --      rw [continuous_iff_coinduced_le]
+
+--       --rw [continuous_iff_le_induced]
+--       clear foo
+--       clear foo
+--       refine @Continuous.prod_mk R (M × N) (M × N) ?_ ?_ ?_ (fun _ ↦ 1) id ?_ ?_
+--       --refine le_trans h1 ?_
+--       refine @continuous_const (M × N) R ?_ ?_ 1
+--       rw [continuous_iff_coinduced_le]
+
+
+--       sorry
+--     -- refine moo ?_ ?_
+--     -- · skip
+--     --   have := Continuous.snd
+--     --   sorry
+--     --   done
+--     -- · -- looks hard to solve for τsoln
+--     --   rw [continuous_iff_coinduced_le]
+--     --   -- wtf where is τsoln?
+--     --   sorry
+--     --   done
+--   · apply sInf_le
+--     simp only [Set.mem_setOf_eq]
+--     constructor
+--     apply Continuous.prod_mk
+--     · have := continuousSMul_of_isActionTopology R M
+--       obtain ⟨this⟩ := this
+--       convert Continuous.comp this ?_
+--       rename_i rmn
+--       swap
+--       exact fun rmn ↦ (rmn.1, rmn.2.1)
+--       rfl
+--       fun_prop
+--     · have := continuousSMul_of_isActionTopology R N
+--       obtain ⟨this⟩ := this
+--       convert Continuous.comp this ?_
+--       rename_i rmn
+--       swap
+--       exact fun rmn ↦ (rmn.1, rmn.2.2)
+--       rfl
+--       fun_prop
 
 end prod
-#exit
+
+section function
+
+variable {R : Type} [τR : TopologicalSpace R]
+variable {M : Type} [SMul R M] [aM : TopologicalSpace M] [iM : IsActionTopology R M]
+variable {N : Type} [SMul R N] [aN : TopologicalSpace N] [iN : IsActionTopology R N]
 
 /-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
 lemma continuous_of_mulActionHom (φ : M →[R] N) : Continuous φ := by
@@ -147,23 +305,40 @@ lemma continuous_of_mulActionHom (φ : M →[R] N) : Continuous φ := by
   -- Now let's use the fact that τM and τN are action topologies (hence also coinduced)
   rw [isActionTopology R M, isActionTopology R N]
   unfold actionTopology
---  rw [continuous_iff_le_induced]
---  sorry
+  rw [continuous_iff_le_induced]
+  nth_rw 2 [sInf_eq_iInf]
+  rw [induced_iInf] --induced_sInf missing?
+  apply le_iInf
+  simp only [Set.mem_setOf_eq, induced_iInf, le_iInf_iff]
+  intro σN hσ
+  apply sInf_le
+  refine @ContinuousSMul.mk R M _ τR (TopologicalSpace.induced (⇑φ) σN) ?_
+  rw [continuous_iff_le_induced]
+  rw [induced_compose]
+  rw [← continuous_iff_le_induced]
+  rw [show φ ∘ (fun (p : R × M) ↦ p.1 • p.2) = fun rm ↦ rm.1 • φ (rm.2) by
+        ext rm
+        cases rm
+        simp]
+  obtain ⟨hσ'⟩ := hσ
+  rw [continuous_iff_le_induced] at *
+  have := induced_mono (g := fun (rm : R × M) ↦ (rm.1, φ (rm.2))) hσ'
+  rw [induced_compose] at this
+  refine le_trans ?_ this
+  rw [← continuous_iff_le_induced]
+  refine @Continuous.prod_map R N R M τR σN τR (TopologicalSpace.induced (φ : M → N) σN) id φ ?_ ?_
+  · fun_prop
+  · fun_prop
 
--- coinduced attempt, got tangled, pre paper approach
-  rw [continuous_iff_coinduced_le]
-  rw [le_sInf_iff]
-  intro τN hτN
-  rw [coinduced_le_iff_le_induced]
-
-
-  rw [sInf_le_iff]
-  intro τM hτM
-  change ∀ _, _ at hτM
-  apply hτM
-  simp
-  rw [@DFunLike.coe_eq_coe_fn]
-  simp
+#check coinduced_iSup
+#check induced_iInf
+#exit
+/-
+coinduced_iSup.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι : Sort w} {t : ι → TopologicalSpace α} :
+  TopologicalSpace.coinduced f (⨆ i, t i) = ⨆ i, TopologicalSpace.coinduced f (t i)
+-/
+lemma induced_.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι : Sort w} {t : ι → TopologicalSpace α} :
+  TopologicalSpace.coinduced f (⨆ i, t i) = ⨆ i, TopologicalSpace.coinduced f (t i)
 
   -- -- original proof, now broken
   -- rw [coinduced_le_iff_le_induced]
@@ -180,6 +355,8 @@ lemma continuous_of_mulActionHom (φ : M →[R] N) : Continuous φ := by
   -- -- and now the goal follows from the fact that the sup over a small set is ≤ the sup
   -- -- over a big set
   -- apply iSup_comp_le (_ : N → TopologicalSpace N)
+
+end function
 
 #exit
 
