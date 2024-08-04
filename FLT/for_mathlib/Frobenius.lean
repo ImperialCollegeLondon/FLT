@@ -11,6 +11,12 @@ import Mathlib.FieldTheory.Cardinality
 
 /-!
 
+# DO NOT FIX THIS FILE IF IT BREAKS.
+
+It is work in progress. If it breaks just move the #exit up to
+just before it breaks. Frobenius elements need a complete refactor
+so keeping this code up to date is a waste of time.
+
 # Frobenius element for finite extensions L / K
 
 In this file, I :
