@@ -103,11 +103,6 @@ jobs:
       - name: Upload docs & blueprint artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/
-
-      - name: Upload docs & blueprint artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
           path: docs/_site
 
       - name: Deploy to GitHub Pages
