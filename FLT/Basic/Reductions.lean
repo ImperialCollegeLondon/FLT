@@ -343,7 +343,9 @@ It follows that there is no Frey package.
 /-- There is no Frey package. This profound result is proved using
 work of Mazur and Wiles/Ribet to rule out all possibilities for the
 $p$-torsion in the corresponding Frey curve. -/
-theorem FreyPackage.false (P : FreyPackage) : False := Wiles_Frey P (Mazur_Frey P)
+theorem FreyPackage.false (P : FreyPackage) : False := by
+  apply Wiles_Frey P
+  exact Mazur_Frey P
 
 -- Fermat's Last Theorem is true
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
