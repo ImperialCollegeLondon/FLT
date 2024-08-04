@@ -379,16 +379,30 @@ lemma Pi : IsActionTopology R (∀ i, A i) := by
 
 end Pi
 
+section Sigma
 
-#check coinduced_iSup
-#check induced_iInf
-#exit
+variable {R : Type} [τR : TopologicalSpace R]
+
+variable {ι : Type} {A : ι → Type} [∀ i, SMul R (A i)] [∀ i, TopologicalSpace (A i)]
+  [∀ i, IsActionTopology R (A i)]
+
+instance : SMul R (Σ i, A i) where
+  smul r s := ⟨s.1, r • s.2⟩
+
+-- this looks true to me
+lemma sigma : IsActionTopology R (Σ i, A i) := by
+  constructor
+  --unfold instTopologicalSpaceProd actionTopology
+  apply le_antisymm
+  sorry
+  sorry
+
 /-
 coinduced_iSup.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι : Sort w} {t : ι → TopologicalSpace α} :
   TopologicalSpace.coinduced f (⨆ i, t i) = ⨆ i, TopologicalSpace.coinduced f (t i)
 -/
-lemma induced_.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι : Sort w} {t : ι → TopologicalSpace α} :
-  TopologicalSpace.coinduced f (⨆ i, t i) = ⨆ i, TopologicalSpace.coinduced f (t i)
+-- lemma induced_.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι : Sort w} {t : ι → TopologicalSpace α} :
+--   TopologicalSpace.coinduced f (⨆ i, t i) = ⨆ i, TopologicalSpace.coinduced f (t i)
 
   -- -- original proof, now broken
   -- rw [coinduced_le_iff_le_induced]
@@ -406,10 +420,7 @@ lemma induced_.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι
   -- -- over a big set
   -- apply iSup_comp_le (_ : N → TopologicalSpace N)
 
-end function
-
 #exit
-
 section
 -- Let R be a monoid, with a compatible topology.
 variable (R : Type*) [Monoid R] [TopologicalSpace R] [ContinuousMul R]
