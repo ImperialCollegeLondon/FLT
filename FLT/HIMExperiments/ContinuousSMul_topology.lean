@@ -92,6 +92,9 @@ lemma induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] :
     @ContinuousSMul S B _ _ (TopologicalSpace.induced g τA) := by
   convert Inducing.continuousSMul (inducing_induced g) hf (fun {c} {x} ↦ map_smulₛₗ g c x)
 
+#check Prod.continuousSMul -- exists and is an instance :-)
+--#check Induced.continuousSMul -- doesn't exist
+
 end continuous_smul
 
 section basics
@@ -137,34 +140,19 @@ namespace ActionTopology
 
 section one
 
+-- I use `mul_one` in this proof and in particular I use `1`.
+-- Is the lemma true if `R` doesn't have a `1`?
 protected lemma id (R : Type*) [Monoid R] [τ : TopologicalSpace R] [ContinuousMul R] :
     IsActionTopology R R := by
   constructor
-  unfold actionTopology
-  symm
-  rw [← isGLB_iff_sInf_eq]
-  constructor
-  · intro σ hσ
-    cases' hσ with hσ
-    rw [← continuous_id_iff_le]
-    have foo : (id : R → R) = (fun ab ↦ ab.1 * ab.2 : R × R → R) ∘ (fun r ↦ (r, 1)) := by
-      funext
-      simp
-    rw [foo]
-    apply @Continuous.comp R (R × R) R τ (@instTopologicalSpaceProd R R τ σ)
-    · apply hσ
-    · refine @Continuous.prod_mk R R R ?_ ?_ ?_ ?_ ?_ ?_ ?_
-      · refine @continuous_id R ?_
-      · refine @continuous_const R R ?_ ?_ 1
-  · intro σ hσ
-    rw [mem_lowerBounds] at hσ
-    apply hσ
-    clear σ hσ
-    simp
-    constructor
-    rename_i foo
-    cases foo with
-    | mk continuous_mul => exact continuous_mul
+  refine le_antisymm ?_ (actionTopology_le R R)
+  rw [← continuous_id_iff_le]
+  rw [show (id : R → R) = (fun rs ↦ rs.1 • rs.2) ∘ (fun r ↦ (r, 1)) by ext; simp]
+  apply @Continuous.comp R (R × R) R τ (@instTopologicalSpaceProd R R τ (actionTopology R R))
+      (actionTopology R R)
+  · exact @continuous_smul _ _ _ _ (actionTopology R R) <| ActionTopology.continuousSMul ..
+  · exact @Continuous.prod_mk _ _ _ _ (actionTopology R R) _ _ _ continuous_id <|
+      @continuous_const _ _ _ (actionTopology R R) _
 
 end one
 
@@ -176,34 +164,14 @@ variable {B : Type} [SMul R B] [aB : TopologicalSpace B] [IsActionTopology R B]
 
 /-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
 lemma continuous_of_mulActionHom (φ : A →[R] B) : Continuous φ := by
-  -- Let's turn this question into an inequality question about coinduced topologies
-  -- Now let's use the fact that τM and τN are action topologies (hence also coinduced)
-  rw [isActionTopology R A, isActionTopology R B]
-  unfold actionTopology
-  rw [continuous_iff_le_induced]
-  nth_rw 2 [sInf_eq_iInf]
-  rw [induced_iInf] --induced_sInf missing?
-  apply le_iInf
-  simp only [Set.mem_setOf_eq, induced_iInf, le_iInf_iff]
-  intro σN hσ
-  apply sInf_le
-  refine @ContinuousSMul.mk R A _ τR (TopologicalSpace.induced (⇑φ) σN) ?_
-  rw [continuous_iff_le_induced]
-  rw [induced_compose]
-  rw [← continuous_iff_le_induced]
-  rw [show φ ∘ (fun (p : R × A) ↦ p.1 • p.2) = fun rm ↦ rm.1 • φ (rm.2) by
-        ext rm
-        cases rm
-        simp]
-  obtain ⟨hσ'⟩ := hσ
-  rw [continuous_iff_le_induced] at *
-  have := induced_mono (g := fun (rm : R × A) ↦ (rm.1, φ (rm.2))) hσ'
-  rw [induced_compose] at this
-  refine le_trans ?_ this
-  rw [← continuous_iff_le_induced]
-  refine @Continuous.prod_map R B R A τR σN τR (TopologicalSpace.induced (φ : A → B) σN) id φ ?_ ?_
-  · fun_prop
-  · fun_prop
+  -- the proof: We know that R × B → B is continuous for the action
+  -- topology, and `induced_continuous_smul` says that R × A → A
+  -- is continuous if A is given B's action topology pulled back along φ.
+  -- Because the action topology is an Inf, this means that A's
+  -- action topology is `≤` the the pullback of B's action topology.
+  -- But this is precisely the statement that `φ` is continuous.
+  rw [isActionTopology R A, continuous_iff_le_induced]
+  exact sInf_le <| induced_continuous_smul continuous_id φ
 
 end function
 
@@ -220,14 +188,35 @@ variable {R : Type} [τR : TopologicalSpace R]
 variable {M : Type} [Zero M] [SMul R M] [aM : TopologicalSpace M] [IsActionTopology R M]
 variable {N : Type} [Zero N] [SMul R N] [aN : TopologicalSpace N] [IsActionTopology R N]
 
+open TopologicalSpace in
 lemma prod [MulOneClass.{0} R] : IsActionTopology.{0} R (M × N) := by
   constructor
+  -- goal: to prove product topology is action topology.
+  -- Well product topology will obviously have continuous_smul becasue
+  -- of continuous_smulprod or whatever, assuming that exists.
   --unfold instTopologicalSpaceProd actionTopology
   apply le_antisymm
-  ·
+  · trans @instTopologicalSpaceProd M N (coinduced Prod.fst (actionTopology R (M × N))) (coinduced Prod.snd (actionTopology R (M × N)))
+    · apply le_inf
+      · rw [← continuous_iff_le_induced]
+        rw [continuous_iff_coinduced_le]
+        apply coinduced_mono
+        sorry
+      ·
+        sorry
+--      apply TopologicalSpace.prod_mono
     -- NOTE
     -- this is the one that isn't done
     rw [← continuous_id_iff_le]
+    -- There is no more proof here.
+    -- In the code below I go off on a tangent
+    -- trying to prove something else,
+    -- and then sorry this goal.
+
+    sorry
+  sorry
+
+#exit
 
 
     -- idea: map R x M -> M is R x M -> R x M x N, τR x σ
@@ -281,7 +270,7 @@ lemma prod [MulOneClass.{0} R] : IsActionTopology.{0} R (M × N) := by
     --   ·
     --     sorry
     -- sorry
-  · sorry
+  · apply actionTopology_le
 --     --have foo : @Continuous (M × N) (M × N) _ _ _ := @Continuous.prod_map M N M N (σMN.coinduced Prod.fst) (σMN.coinduced Prod.snd) aM aN id id ?_ ?_-- Z * W -> X * Y
 --     -- conjecture: pushforward of σMN is continuous
 --     -- ⊢ instTopologicalSpaceProd ≤ σMN
@@ -379,16 +368,30 @@ lemma Pi : IsActionTopology R (∀ i, A i) := by
 
 end Pi
 
+section Sigma
 
-#check coinduced_iSup
-#check induced_iInf
-#exit
+variable {R : Type} [τR : TopologicalSpace R]
+
+variable {ι : Type} {A : ι → Type} [∀ i, SMul R (A i)] [∀ i, TopologicalSpace (A i)]
+  [∀ i, IsActionTopology R (A i)]
+
+instance : SMul R (Σ i, A i) where
+  smul r s := ⟨s.1, r • s.2⟩
+
+-- this looks true to me
+lemma sigma : IsActionTopology R (Σ i, A i) := by
+  constructor
+  --unfold instTopologicalSpaceProd actionTopology
+  apply le_antisymm
+  sorry
+  sorry
+
 /-
 coinduced_iSup.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι : Sort w} {t : ι → TopologicalSpace α} :
   TopologicalSpace.coinduced f (⨆ i, t i) = ⨆ i, TopologicalSpace.coinduced f (t i)
 -/
-lemma induced_.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι : Sort w} {t : ι → TopologicalSpace α} :
-  TopologicalSpace.coinduced f (⨆ i, t i) = ⨆ i, TopologicalSpace.coinduced f (t i)
+-- lemma induced_.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι : Sort w} {t : ι → TopologicalSpace α} :
+--   TopologicalSpace.coinduced f (⨆ i, t i) = ⨆ i, TopologicalSpace.coinduced f (t i)
 
   -- -- original proof, now broken
   -- rw [coinduced_le_iff_le_induced]
@@ -406,10 +409,7 @@ lemma induced_.{w, u_1, u_2} {α : Type u_1} {β : Type u_2} {f : α → β} {ι
   -- -- over a big set
   -- apply iSup_comp_le (_ : N → TopologicalSpace N)
 
-end function
-
 #exit
-
 section
 -- Let R be a monoid, with a compatible topology.
 variable (R : Type*) [Monoid R] [TopologicalSpace R] [ContinuousMul R]
