@@ -60,7 +60,7 @@ instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := moobar (Fi
 
 namespace TotallyDefiniteQuaternionAlgebra
 
-noncomputable example : D →+* (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := by exact
+noncomputable example : D →+* (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
   Algebra.TensorProduct.includeLeftRingHom
 
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ

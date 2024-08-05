@@ -55,7 +55,7 @@ lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y := by
   apply h
 
 lemma ext_iff (x y : ZHat) : (∀ n : ℕ+, x n = y n) ↔ x = y :=
-  ⟨ext x y, fun h n => by exact congrFun (congrArg DFunLike.coe h) n⟩
+  ⟨ext x y, fun h n => congrFun (congrArg DFunLike.coe h) n⟩
 
 @[simp] lemma zero_val (n : ℕ+) : (0 : ZHat) n = 0 := rfl
 @[simp] lemma one_val (n : ℕ+) : (1 : ZHat) n = 1 := rfl
