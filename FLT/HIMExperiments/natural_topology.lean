@@ -4,6 +4,7 @@ import Mathlib.Tactic
 -- next two should be all we need for basic file to compile
 import Mathlib.Topology.Order
 import Mathlib.Algebra.Group.Action.Defs
+import Mathlib.Algebra.Module.Projective
 
 /-
 # An topology for monoid actions.
@@ -87,7 +88,7 @@ protected lemma id : IsActionTopology R R := by
     rw [← continuous_iff_coinduced_le]
     exact LinearMap.continuous_on_pi φ
 
-lemma pow (n : ℕ) : IsActionTopology R (Fin n → R) := by
+instance pow (n : ℕ) : IsActionTopology R (Fin n → R) := by
   constructor
   apply le_antisymm
   · refine le_iSup_of_le n ?_
@@ -137,13 +138,36 @@ section surj
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
 
-lemma surj {n : ℕ} (φ : ((Fin n) → R) →ₗ[R] A) :
-    TopologicalSpace.coinduced φ inferInstance = actionTopology R A := by
-  sorry
+lemma surj {n : ℕ} (φ : ((Fin n) → R) →ₗ[R] A) (hφ : Function.Surjective φ) :
+    TopologicalSpace.coinduced φ Pi.topologicalSpace = actionTopology R A := by
+  apply le_antisymm
+  · rw [← continuous_iff_coinduced_le]
+    rw [← isActionTopology R A]
+    fun_prop
+  · rw [iSup_le_iff]
+    intro m
+    rw [iSup_le_iff]
+    intro ψ
+    obtain ⟨α, rfl⟩ : ∃ α : (Fin m → R) →ₗ[R] (Fin n → R), φ.comp α = ψ :=
+      Module.projective_lifting_property _ _ hφ
+    change TopologicalSpace.coinduced (φ ∘ α) _ ≤ _
+    rw [← coinduced_compose]
+    apply coinduced_mono
+    rw [← continuous_iff_coinduced_le]
+    fun_prop
 
-lemma surj' {n : ℕ} (φ : ((Fin n) → R) →ₗ[R] A) :
-    TopologicalSpace.induced φ inferInstance = (inferInstance : TopologicalSpace _) := by
-  sorry
+-- probably not true
+-- lemma surj' {n : ℕ} (φ : ((Fin n) → R) →ₗ[R] A) (hφ : Function.Surjective φ) :
+  --   TopologicalSpace.induced φ inferInstance = (inferInstance : TopologicalSpace _) := by
+  -- apply le_antisymm
+  -- · rw [← continuous_id_iff_le]
+  --   refine (@continuous_pi_iff (Fin n → R) (Fin n) (fun _ ↦ R) (TopologicalSpace.induced (⇑φ) inferInstance) _ _).2 ?_
+  --   intro i
+  --   rw [continuous_iff_le_induced]
+  --   -- don't think this is provable in general
+  --   sorry
+  -- · rw [← continuous_iff_le_induced]
+  --   fun_prop
 
 end surj
 
