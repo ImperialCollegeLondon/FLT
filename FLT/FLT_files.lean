@@ -1,10 +1,5 @@
 import FLT.Basic.Reductions
 import FLT.EllipticCurve.Torsion
-import FLT.for_mathlib.Coalgebra.Monoid
-import FLT.for_mathlib.Coalgebra.Sweedler
-import FLT.for_mathlib.Coalgebra.TensorProduct
-import FLT.for_mathlib.HopfAlgebra.Basic
-import FLT.for_mathlib.IsCentralSimple
 import FLT.GaloisRepresentation.HardlyRamified
 import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GroupScheme.FiniteFlat
