@@ -499,7 +499,7 @@ lemma F_invariant_under_finite_aut (σ :  L ≃ₐ[K] L)  :
   set i : (τ : L ≃ₐ[K] L) → τ ∈ Finset.univ → L ≃ₐ[K] L := fun τ _ => σ * τ
   -- needed to use `set i` instead of `have i`, in order to be able to use `i` later on, in proof
   have hi : ∀ (τ : L ≃ₐ[K] L) (hτ : τ ∈ Finset.univ), i τ hτ ∈ Finset.univ := by
-    simp [Finset.mem_univ, forall_true_left, forall_const]
+    simp only [Finset.mem_univ, forall_true_left, forall_const]
   have i_inj : ∀ (τ₁ : L ≃ₐ[K] L) (hτ₁ : τ₁ ∈ Finset.univ) (τ₂ : L ≃ₐ[K] L)
       (hτ₂ : τ₂ ∈ Finset.univ), i τ₁ hτ₁ = i τ₂ hτ₂ → τ₁ = τ₂ := by
     intros τ₁ _ τ₂ _ h
