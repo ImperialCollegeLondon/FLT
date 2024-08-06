@@ -31,6 +31,57 @@ which we call the *something* topology.
 
 -- end continuous_smul
 
+section elsewhere
+
+variable {A : Type*} [AddCommGroup A] [τA : TopologicalSpace A] [ContinuousAdd A] [ContinuousNeg A]
+variable {B : Type*} [AddCommGroup B] [τB : TopologicalSpace B] --[ContinuousAdd B] [ContinuousNeg B]
+
+lemma foo {α : Type*} (P : Prop) [Decidable P] (X : Set α) :
+    ⋃ (_ : P), X = if P then X else ∅ := by
+  aesop
+
+lemma AddMonoidHom.sub_mem_ker_iff {A B : Type*} [AddCommGroup A]
+    [AddCommGroup B] (φ : A →+ B) {x y : A} :
+    x - y ∈ AddMonoidHom.ker φ ↔ φ x = φ y := by
+  rw [AddMonoidHom.mem_ker, map_sub, sub_eq_zero]
+
+lemma isOpenMap_of_coinduced (φ : A →+ B) (hφc : Continuous φ)
+    (h : TopologicalSpace.coinduced φ τA = τB) :
+    IsOpenMap φ := by
+  intro U hU
+  rw [← h]
+  rw [isOpen_coinduced]
+  have foo : IsOpen (⋃ k ∈ AddMonoidHom.ker φ, (fun x ↦ x + k) ⁻¹' U) := by
+    apply isOpen_sUnion
+    intro kU
+    intro hkU
+    rw [Set.mem_range] at hkU
+    rcases hkU with ⟨k, hk, rfl⟩
+    classical
+    simp_rw [foo]
+    split
+    · apply Continuous.isOpen_preimage _ _ hU
+      continuity
+    · exact isOpen_empty
+  convert foo
+  ext x
+  constructor
+  · rintro ⟨y, hyU, hyx⟩
+    apply Set.mem_iUnion_of_mem (y - x)
+    suffices y - x ∈ AddMonoidHom.ker φ by simp_all
+    rwa [AddMonoidHom.sub_mem_ker_iff]
+  · intro h
+    rw [Set.mem_iUnion] at h
+    rcases h with ⟨y, h⟩
+    rw [Set.mem_iUnion] at h
+    rcases h with ⟨h1, h2⟩
+    rw [Set.mem_preimage] at h2
+    use x + y, h2
+    rw [AddMonoidHom.map_add, h1, add_zero]
+
+end elsewhere
+
+
 section basics
 
 variable (R : Type*) [TopologicalSpace R] [Ring R] [TopologicalRing R]
@@ -161,7 +212,7 @@ end surj
 section add
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
-variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
+variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
 
 variable (R A) in
 abbrev thing2 : A × A →ₗ[R] A where
@@ -171,70 +222,106 @@ abbrev thing2 : A × A →ₗ[R] A where
   map_smul' r x := by
     simp only [Prod.smul_fst, Prod.smul_snd, RingHom.id_apply, smul_add]
 
+open TopologicalSpace in
+lemma coinduced_prod_eq_prod_coinduced (X Y S T : Type*) [AddCommGroup X] [AddCommGroup Y]
+    [AddCommGroup S] [AddCommGroup T] (f : X →+ S) (g : Y →+ T)
+    (hf : Function.Surjective f) (hg : Function.Surjective g)
+    [τX : TopologicalSpace X] [ContinuousAdd X] [τY : TopologicalSpace Y] [ContinuousAdd Y] :
+    coinduced (Prod.map f g) instTopologicalSpaceProd =
+    @instTopologicalSpaceProd S T (coinduced f τX) (coinduced g τY) := by
+  ext U
+  rw [@isOpen_prod_iff]
+  rw [isOpen_coinduced]
+  rw [isOpen_prod_iff]
+  constructor
+  · intro h s t hst
+    obtain ⟨x, rfl⟩ := hf s
+    obtain ⟨y, rfl⟩ := hg t
+    obtain ⟨V1, V2, hV1, hV2, hx1, hy2, h12⟩ := h x y hst
+    have this1 := @isOpenMap_of_coinduced _ _ _ _ _ _ (coinduced f τX) f ?_ rfl V1 hV1
+    · have this2 := @isOpenMap_of_coinduced _ _ _ _ _ _ (coinduced g τY) g ?_ rfl V2 hV2
+      · use f '' V1, g '' V2, this1, this2, ⟨x, hx1, rfl⟩, ⟨y, hy2, rfl⟩
+        intro ⟨s, t⟩ ⟨⟨x', hx', hxs⟩, ⟨y', hy', hyt⟩⟩
+        subst hxs hyt
+        specialize @h12 (x', y') ⟨hx', hy'⟩
+        exact h12
+      · rw [continuous_iff_coinduced_le]
+    · rw [continuous_iff_coinduced_le]
+  · intro h x y hxy
+    rw [Set.mem_preimage, Prod.map_apply] at hxy
+    obtain ⟨U1, U2, hU1, hU2, hx1, hy2, h12⟩ := h (f x) (g y) hxy
+    use f ⁻¹' U1, g ⁻¹' U2, hU1, hU2, hx1, hy2
+    intro ⟨x', y'⟩ ⟨hx', hy'⟩
+    apply h12
+    exact ⟨hx', hy'⟩
+
+variable (R A) in
+@[continuity, fun_prop]
 lemma continuous_add [Module.Finite R A]: Continuous (fun ab ↦ ab.1 + ab.2 : A × A → A) := by
   rw [continuous_iff_coinduced_le, isActionTopology R A]
   obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
   rw [← surj hf]
-  rw [← continuous_iff_coinduced_le]
-
-  --refine le_iSup_of_le 2 ?_
-
-  -- rw [le_iSup_iff]
-  -- intro τA hτA
-  -- rw [←continuous_iff_coinduced_le]
-  sorry
+  intro U hU
+  rw [isOpen_coinduced] at hU ⊢
+  apply @Continuous.isOpen_preimage ((Fin n → R) × (Fin n → R)) (Fin n → R) _ _
+      (fun rs ↦ rs.1 + rs.2) (by continuity) at hU
+  let ff : (Fin n → R) × (Fin n → R) →ₗ[R] A × A := f.prodMap f
+  convert isOpenMap_of_coinduced (τB := TopologicalSpace.coinduced ff instTopologicalSpaceProd)
+    ff.toAddMonoidHom _ rfl _ hU
+  · symm
+    convert @coinduced_prod_eq_prod_coinduced (Fin n → R) (Fin n → R) A A _ _ _ _ f f hf hf _ _ _ _
+  · ext x
+    cases' x with a b
+    simp only [Set.mem_preimage, LinearMap.toAddMonoidHom_coe, Set.mem_image, map_add, Prod.exists]
+    constructor
+    · intro h
+      obtain ⟨a1, rfl⟩ := hf a
+      obtain ⟨b1, rfl⟩ := hf b
+      use a1, b1, h
+      rfl
+    · rintro ⟨a1, b1, hU, hab⟩
+      cases hab
+      exact hU
+  · rw [continuous_iff_coinduced_le]
+    rfl
 
 end add
 
 
 section prod
 
-variable {R : Type*} [τR : TopologicalSpace R] [Ring R]
-variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
+variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
 
 example : A × B →ₗ[R] A := by exact LinearMap.fst R A B
 
+example : A →ₗ[R] A × B := by exact LinearMap.inl R A B
 open TopologicalSpace in
-lemma prod : IsActionTopology R (A × B) := by
+lemma prod [Module.Finite R A] [Module.Finite R B] :
+    IsActionTopology R (A × B) := by
   constructor
   apply le_antisymm
   · rw [← continuous_id_iff_le]
-    let id' : A × B → A × B := fun ab ↦ (ab.1, 0) + (0, ab.2)
-    have hid : @id (A × B) = fun ab ↦ (ab.1, 0) + (0, ab.2) := by ext ⟨a, b⟩ <;> simp
+    have hid : @id (A × B) = (fun abcd ↦ abcd.1 + abcd.2) ∘ (fun ab ↦ ((ab.1, 0),(0, ab.2))) := by ext ⟨a, b⟩ <;> simp
     rw [hid]
-
-
-    sorry
+    apply @Continuous.comp (A × B) ((A × B) × (A × B)) (A × B) instTopologicalSpaceProd (@instTopologicalSpaceProd _ _ (actionTopology R _) (actionTopology R _)) (actionTopology R _) _ _
+    · apply @continuous_add R _ _ _ (A × B) _ _ (actionTopology R _) ?_
+      convert IsActionTopology.mk rfl
+    · convert @Continuous.prod_map (A × B) (A × B) A B (actionTopology R _) (actionTopology R _) _ _ (LinearMap.inl R A B) (LinearMap.inr R A B) _ _ using 1
+      · rw [isActionTopology R A]
+        apply continuous_of_linearMap'
+      · rw [isActionTopology R B]
+        apply continuous_of_linearMap'
   · apply le_inf
     · rw [← continuous_iff_le_induced]
-      convert continuous_of_linearMap (LinearMap.fst R A B)
-      ·
-        sorry
-      ·
-        sorry
-    ·
-      sorry
---   · trans @instTopologicalSpaceProd M N (coinduced Prod.fst (actionTopology R (M × N))) (coinduced Prod.snd (actionTopology R (M × N)))
---     · apply le_inf
---       · rw [← continuous_iff_le_induced]
---         rw [continuous_iff_coinduced_le]
---         apply coinduced_mono
---         sorry
---       ·
---         sorry
--- --      apply TopologicalSpace.prod_mono
---     -- NOTE
---     -- this is the one that isn't done
---     rw [← continuous_id_iff_le]
---     -- There is no more proof here.
---     -- In the code below I go off on a tangent
---     -- trying to prove something else,
---     -- and then sorry this goal.
-
---     sorry
---   sorry
-
+      rw [isActionTopology R A]
+      change @Continuous (A × B) A (actionTopology R _) (actionTopology R _) (LinearMap.fst R A B)
+      apply continuous_of_linearMap'
+    · rw [← continuous_iff_le_induced]
+      rw [isActionTopology R B]
+      change @Continuous (A × B) B (actionTopology R _) (actionTopology R _) (LinearMap.snd R A B)
+      apply continuous_of_linearMap'
 #exit
 
     -- idea: map R x M -> M is R x M -> R x M x N, τR x σ
