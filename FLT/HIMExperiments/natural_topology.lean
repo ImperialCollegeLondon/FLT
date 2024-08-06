@@ -138,7 +138,7 @@ section surj
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
 
-lemma surj {n : ℕ} (φ : ((Fin n) → R) →ₗ[R] A) (hφ : Function.Surjective φ) :
+lemma surj {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ Pi.topologicalSpace = actionTopology R A := by
   apply le_antisymm
   · rw [← continuous_iff_coinduced_le]
@@ -156,24 +156,11 @@ lemma surj {n : ℕ} (φ : ((Fin n) → R) →ₗ[R] A) (hφ : Function.Surjecti
     rw [← continuous_iff_coinduced_le]
     fun_prop
 
--- probably not true
--- lemma surj' {n : ℕ} (φ : ((Fin n) → R) →ₗ[R] A) (hφ : Function.Surjective φ) :
-  --   TopologicalSpace.induced φ inferInstance = (inferInstance : TopologicalSpace _) := by
-  -- apply le_antisymm
-  -- · rw [← continuous_id_iff_le]
-  --   refine (@continuous_pi_iff (Fin n → R) (Fin n) (fun _ ↦ R) (TopologicalSpace.induced (⇑φ) inferInstance) _ _).2 ?_
-  --   intro i
-  --   rw [continuous_iff_le_induced]
-  --   -- don't think this is provable in general
-  --   sorry
-  -- · rw [← continuous_iff_le_induced]
-  --   fun_prop
-
 end surj
 
 section add
 
-variable {R : Type*} [τR : TopologicalSpace R] [Ring R]
+variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
 
 variable (R A) in
@@ -184,14 +171,17 @@ abbrev thing2 : A × A →ₗ[R] A where
   map_smul' r x := by
     simp only [Prod.smul_fst, Prod.smul_snd, RingHom.id_apply, smul_add]
 
-lemma continuous_add : Continuous (fun ab ↦ ab.1 + ab.2 : A × A → A) := by
+lemma continuous_add [Module.Finite R A]: Continuous (fun ab ↦ ab.1 + ab.2 : A × A → A) := by
   rw [continuous_iff_coinduced_le, isActionTopology R A]
+  obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
+  rw [← surj hf]
+  rw [← continuous_iff_coinduced_le]
 
-  refine le_iSup_of_le 2 ?_
+  --refine le_iSup_of_le 2 ?_
 
-  rw [le_iSup_iff]
-  intro τA hτA
-  rw [←continuous_iff_coinduced_le]
+  -- rw [le_iSup_iff]
+  -- intro τA hτA
+  -- rw [←continuous_iff_coinduced_le]
   sorry
 
 end add
