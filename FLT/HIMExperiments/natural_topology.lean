@@ -150,10 +150,6 @@ variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [I
 
 variable {C : Type*} [AddCommGroup C] [Module R C]
 
-#check actionTopology R C
-
-def foo : TopologicalSpace C := actionTopology R C
-
 /-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
 @[continuity, fun_prop]
 lemma continuous_of_linearMap (f : A →ₗ[R] B) : Continuous f := by
@@ -277,6 +273,31 @@ lemma continuous_add [Module.Finite R A]: Continuous (fun ab ↦ ab.1 + ab.2 : A
   · rw [continuous_iff_coinduced_le]
     rfl
 
+attribute [local instance] Fintype.ofFinite
+
+variable (R A) in
+@[continuity, fun_prop]
+lemma continuous_sum_finset (ι : Type*) [DecidableEq ι] (s : Finset ι) [Module.Finite R A] :
+    Continuous (fun as ↦ ∑ i ∈ s, as i : (∀ (_ : ι), A) → A) := by
+  induction s using Finset.induction
+  · simp only [Finset.sum_empty]
+    fun_prop
+  · case insert j s has hc =>
+    simp_rw [Finset.sum_insert has]
+    have foo : (fun (as : ∀ _, A) ↦ as j + ∑ i ∈ s, as i) = (fun ab ↦ ab.1 + ab.2 : A × A → A) ∘
+        (fun as ↦ (as j, ∑ i ∈ s, as i) : ((∀ _, A) → A × A)) := by
+      ext
+      simp
+    rw [foo]
+    apply Continuous.comp
+    · apply continuous_add R A
+    · fun_prop
+
+lemma continuous_sum_finite (ι : Type*) [Finite ι] [Module.Finite R A] :
+    Continuous (fun as ↦ ∑ i, as i : (∀ (_ : ι), A) → A) := by
+  classical
+  exact continuous_sum_finset R A ι _
+
 end add
 
 
@@ -286,9 +307,6 @@ variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
 variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
 
-example : A × B →ₗ[R] A := by exact LinearMap.fst R A B
-
-example : A →ₗ[R] A × B := by exact LinearMap.inl R A B
 open TopologicalSpace in
 lemma prod [Module.Finite R A] [Module.Finite R B] :
     IsActionTopology R (A × B) := by
@@ -325,7 +343,44 @@ variable {ι : Type} {A : ι → Type} [Finite ι] [∀ i, AddCommGroup (A i)]
     [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
     [∀ i, IsActionTopology R (A i)]
 
-lemma Pi : IsActionTopology R (∀ i, A i) := by
+#check Pi.topologicalSpace
+
+--#check continuouspi
+lemma pi [∀ i, Module.Finite R (A i)]: IsActionTopology R (∀ i, A i) := by
+  constructor
+  apply le_antisymm
+  · rw [← continuous_id_iff_le]
+    classical
+    letI : Fintype ι := Fintype.ofFinite ι
+    have hid : @id (∀ i, A i) = (fun l ↦ ∑ j, l j : (∀ (j : ι), ∀ i, A i) → ∀ i, A i) ∘
+        (fun as ↦ (fun j ↦ (fun i ↦ if i = j then as i else 0))) := by
+      ext
+      simp
+    rw [hid]
+    apply @Continuous.comp (∀ i, A i) (∀ (j : ι), ∀ i, A i) (∀ i, A i) (Pi.topologicalSpace) (@Pi.topologicalSpace ι _ (fun i ↦ actionTopology R _)) (actionTopology R _) _ _
+    · apply @continuous_sum_finite R _ _ _ (∀ i, A i) _ _ (actionTopology R _) ?_
+      convert IsActionTopology.mk rfl
+    -- up to here
+    -- remainder of proof of add follows
+    sorry
+  sorry
+#exit
+
+    ·
+      convert @Continuous.prod_map (A × B) (A × B) A B (actionTopology R _) (actionTopology R _) _ _ (LinearMap.inl R A B) (LinearMap.inr R A B) _ _ using 1
+      · rw [isActionTopology R A]
+        apply continuous_of_linearMap'
+      · rw [isActionTopology R B]
+        apply continuous_of_linearMap'
+  · apply le_inf
+    · rw [← continuous_iff_le_induced]
+      rw [isActionTopology R A]
+      change @Continuous (A × B) A (actionTopology R _) (actionTopology R _) (LinearMap.fst R A B)
+      apply continuous_of_linearMap'
+    · rw [← continuous_iff_le_induced]
+      rw [isActionTopology R B]
+      change @Continuous (A × B) B (actionTopology R _) (actionTopology R _) (LinearMap.snd R A B)
+      apply continuous_of_linearMap'
   sorry
 
 end Pi
