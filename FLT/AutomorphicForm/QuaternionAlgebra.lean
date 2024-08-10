@@ -40,11 +40,11 @@ instance : Algebra A (D ⊗[R] A) :=
     simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.includeRight_apply]
     intro a b
     apply TensorProduct.induction_on (motive := fun b ↦ 1 ⊗ₜ[R] a * b = b * 1 ⊗ₜ[R] a)
-    . simp only [mul_zero, zero_mul]
-    . intro d a'
+    · simp only [mul_zero, zero_mul]
+    · intro d a'
       simp only [Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one]
       rw [NonUnitalCommSemiring.mul_comm]
-    . intro x y hx hy
+    · intro x y hx hy
       rw [left_distrib, hx, hy, right_distrib]
     )
 
@@ -205,6 +205,6 @@ lemma sMul_eval (g : Dfx F D) (f : AutomorphicForm F D M) (x : (D ⊗[F] FiniteA
   (g • f) x = f (x * g) := rfl
 
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
-  smul := (. • .)
+  smul := (· • ·)
   one_smul := by intros; ext; simp only [sMul_eval, mul_one]
   mul_smul := by intros; ext; simp only [sMul_eval, mul_assoc]

@@ -179,13 +179,13 @@ lemma LinearMap.continuous_on_prod (f : (M × N) →ₗ[A] A) :
   suffices Continuous fun (⟨m, n⟩ : M × N) ↦ f (⟨m, 0⟩) + f (⟨0, n⟩) by
     simpa [← LinearMap.map_add, Prod.mk_add_mk, add_zero, zero_add]
   apply Continuous.add
-  . refine Continuous.fst' (?_ : Continuous fun m ↦ f (m, 0))
+  · refine Continuous.fst' (?_ : Continuous fun m ↦ f (m, 0))
     exact Module.continuous_linear_to_ring A
       ({toFun := fun m ↦ f (m, 0),
         map_add' := by {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, zero_add]},
         map_smul' := by intro m x; rw [←LinearMap.map_smul,
           RingHom.id_apply, Prod.smul_mk, smul_zero]})
-  . apply @Continuous.snd' _ _ _ _ _ _ (fun n ↦ f (0, n))
+  · apply @Continuous.snd' _ _ _ _ _ _ (fun n ↦ f (0, n))
     exact Module.continuous_linear_to_ring A
       ({toFun := fun n ↦ f (0, n),
         map_add' := by {intro x y; rw [← LinearMap.map_add, Prod.mk_add_mk, add_zero]},

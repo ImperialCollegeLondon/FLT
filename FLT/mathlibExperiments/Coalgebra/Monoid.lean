@@ -210,7 +210,7 @@ lemma comp_one {A' : Type*} [CommSemiring A'] [Bialgebra R A']
     (f : AlgHomPoint R A' L) :
     f.comp (1 : AlgHomPoint R A' A') = 1 := by
   ext
-  simp [one_def, Algebra.ofId_apply, Algebra.algebraMap_eq_smul_one, f.map_smul, f.map_one]
+  simp [one_def, Algebra.ofId_apply, Algebra.algebraMap_eq_smul_one, map_smul, _root_.map_one]
 
 end commutative_bialgebra
 
