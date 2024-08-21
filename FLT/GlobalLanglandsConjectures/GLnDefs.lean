@@ -77,9 +77,10 @@ open scoped nonZeroDivisors
 noncomputable instance : Algebra R (FiniteAdeleRing R K) :=
   RingHom.toAlgebra ((algebraMap K (FiniteAdeleRing R K)).comp (algebraMap R K))
 
+@[deprecated mul_nonZeroDivisor_mem_finiteIntegralAdeles]
 lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
     ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
-  sorry -- there's a nearly-done mathlib PR which proves this
+  exact mul_nonZeroDivisor_mem_finiteIntegralAdeles a
 
 #check Classical.choose (v.valuation_exists_uniformizer K)
 
@@ -313,6 +314,7 @@ def annihilator {R} [CommSemiring R]
     (a : M) : Submodule R (M →ₗ[R] N) :=
   Submodule.compatibleMaps (Submodule.span R {a}) ⊥
 
+set_option synthInstance.maxHeartbeats 40000 in
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ

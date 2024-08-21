@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Jonas Bayer
 -/
 import Mathlib.RingTheory.DedekindDomain.Ideal
-import Mathlib.RingTheory.IntegralRestrict
+import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.RingTheory.Ideal.QuotientOperations
 import Mathlib.FieldTheory.Cardinality
 import FLT.GlobalLanglandsConjectures.GLnDefs

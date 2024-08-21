@@ -6,7 +6,7 @@ Authors: Ivan Farabella, Amelia Livingston, Jujian Zhang, Kevin Buzzard
 import Mathlib.Tactic
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.NumberTheory.NumberField.Discriminant
-import Mathlib.RingTheory.IntegralRestrict
+import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.RingTheory.Ideal.QuotientOperations
 import Mathlib.NumberTheory.RamificationInertia
 

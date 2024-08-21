@@ -141,7 +141,7 @@ noncomputable instance instGroup : Group (AlgHomPoint R A L) where
   inv f := f.comp antipodeAlgHom
   mul_left_inv f := AlgHom.ext fun x ↦ by
     simp only [AlgHomPoint.mul_repr (repr := Coalgebra.comul_repr x), AlgHom.comp_apply,
-      antipodeAlgHom_apply, ← f.map_mul, ← map_sum, f.commutes, Algebra.ofId_apply,
+      antipodeAlgHom_apply, ← _root_.map_mul, ← map_sum, f.commutes, Algebra.ofId_apply,
       antipode_repr (repr := Coalgebra.comul_repr x), AlgHomPoint.one_def,
       Bialgebra.counitAlgHom_apply]
 

@@ -54,9 +54,6 @@ lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y := by
   ext n
   apply h
 
-lemma ext_iff (x y : ZHat) : (∀ n : ℕ+, x n = y n) ↔ x = y :=
-  ⟨ext x y, fun h n => by exact congrFun (congrArg DFunLike.coe h) n⟩
-
 @[simp] lemma zero_val (n : ℕ+) : (0 : ZHat) n = 0 := rfl
 @[simp] lemma one_val (n : ℕ+) : (1 : ZHat) n = 1 := rfl
 @[simp] lemma ofNat_val (m : ℕ) [m.AtLeastTwo] (n : ℕ+) :
@@ -75,7 +72,7 @@ lemma zeroNeOne : (0 : ZHat) ≠ 1 := by
 instance nontrivial : Nontrivial ZHat := ⟨0, 1, zeroNeOne⟩
 
 instance charZero : CharZero ZHat := ⟨ fun a b h ↦ by
-  rw [← ext_iff] at h
+  rw [ZHat.ext_iff] at h
   specialize h ⟨_, (max a b).succ_pos⟩
   apply_fun ZMod.val at h
   rwa [natCast_val, ZMod.val_cast_of_lt, natCast_val, ZMod.val_cast_of_lt] at h
@@ -200,8 +197,7 @@ lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
   rw [← AddMonoidHom.coe_mulLeft, injective_iff_map_eq_zero]
   intro a ha
   rw [AddMonoidHom.coe_mulLeft] at ha
-  rw [← ext_iff]
-  intro j
+  ext j
   rw [zero_val, ← a.prop j (N * j) (by simp)]
   apply torsionfree_aux
   apply Nat.dvd_of_mul_dvd_mul_left N.pos
@@ -824,7 +820,8 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
     rw [add_eq_zero_iff' (by positivity) (by positivity)]
     rw [add_eq_zero_iff' (by positivity) (by positivity)]
     rw [add_eq_zero_iff' (by positivity) (by positivity)]
-    simp_rw [and_assoc, sq_eq_zero_iff, sub_re, sub_imI, sub_imJ, sub_imK, sub_eq_zero, ← ext_iff]
+    simp_rw [and_assoc, sq_eq_zero_iff, sub_re, sub_imI, sub_imJ, sub_imK, sub_eq_zero,
+      ← Quaternion.ext_iff]
     symm
     apply leftInvOn_toQuaternion_fromQuaternion
     · simp only [Set.mem_setOf]

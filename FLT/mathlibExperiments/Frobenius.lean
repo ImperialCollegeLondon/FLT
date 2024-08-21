@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jou Glasheen
 -/
 import Mathlib.RingTheory.DedekindDomain.Ideal
-import Mathlib.RingTheory.IntegralRestrict
+import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.RingTheory.Ideal.QuotientOperations
 import Mathlib.FieldTheory.Cardinality
 
@@ -49,7 +49,7 @@ In this file, I :
 ## Notation
 
 Note that, to define the `MulAction` of `L ≃ₐ[K] L` on the prime ideals of `𝓞 L : = B`,
-we used the restriction map `galRestrict`, defined in the file Mathlib.RingTheory.IntegralRestrict.
+we used the restriction map `galRestrict`, defined in the file Mathlib.RingTheory.IntegralClosure.IntegralRestrict.
 The definition of `galRestrict` is in terms of an 'AKLB setup'; i.e., where
 "`A` is an integrally closed domain; `K` is the fraction ring of `A`; `L` is
 a finite (separable) extension of `K`; `B` is the integral closure of
@@ -258,7 +258,7 @@ lemma crt_representative (b : B) : ∃ (y : B),
       apply Ideal.prime_of_isPrime (h := MapPrimestoPrimes A K L B i Q)
       contrapose! Q_ne_bot
       -- goal: (Q_ne_bot : i • Q = ⊥) → Q = ⊥
-      apply_fun (i⁻¹ • .) at Q_ne_bot -- that's the hint it needs
+      apply_fun (i⁻¹ • ·) at Q_ne_bot -- that's the hint it needs
       simpa using Q_ne_bot
     )
     (fun i _ j _ hij ↦ by
