@@ -46,14 +46,9 @@ lemma isOpenMap_of_coinduced (φ : A →+ B) (hφc : Continuous φ)
     (h : TopologicalSpace.coinduced φ τA = τB) :
     IsOpenMap φ := by
   intro U hU
-  rw [← h]
-  rw [isOpen_coinduced]
-  have foo : IsOpen (⋃ k ∈ AddMonoidHom.ker φ, (fun x ↦ x + k) ⁻¹' U) := by
-    apply isOpen_biUnion
-    intro k _
-    apply Continuous.isOpen_preimage _ _ hU
-    continuity
-  convert foo
+  rw [← h, isOpen_coinduced]
+  suffices ⇑φ ⁻¹' (⇑φ '' U) = ⋃ k ∈ φ.ker, (fun x ↦ x + k) ⁻¹' U by
+    exact this ▸ isOpen_biUnion (fun k _ ↦ Continuous.isOpen_preimage (by continuity) _ hU)
   ext x
   constructor
   · rintro ⟨y, hyU, hyx⟩
@@ -313,12 +308,16 @@ lemma prod [Module.Finite R A] [Module.Finite R B] :
   constructor
   apply le_antisymm
   · rw [← continuous_id_iff_le]
-    have hid : @id (A × B) = (fun abcd ↦ abcd.1 + abcd.2) ∘ (fun ab ↦ ((ab.1, 0),(0, ab.2))) := by ext ⟨a, b⟩ <;> simp
+    have hid : @id (A × B) = (fun abcd ↦ abcd.1 + abcd.2) ∘ (fun ab ↦ ((ab.1, 0),(0, ab.2))) := by
+      ext ⟨a, b⟩ <;> simp
     rw [hid]
-    apply @Continuous.comp (A × B) ((A × B) × (A × B)) (A × B) instTopologicalSpaceProd (@instTopologicalSpaceProd _ _ (actionTopology R _) (actionTopology R _)) (actionTopology R _) _ _
+    apply @Continuous.comp (A × B) ((A × B) × (A × B)) (A × B) _
+        (@instTopologicalSpaceProd _ _ (actionTopology R _) (actionTopology R _))
+        (actionTopology R _) _ _
     · apply @continuous_add R _ _ _ (A × B) _ _ (actionTopology R _) ?_
       convert IsActionTopology.mk rfl
-    · convert @Continuous.prod_map (A × B) (A × B) A B (actionTopology R _) (actionTopology R _) _ _ (LinearMap.inl R A B) (LinearMap.inr R A B) _ _ using 1
+    · convert @Continuous.prod_map (A × B) (A × B) A B (actionTopology R _) (actionTopology R _)
+          _ _ (LinearMap.inl R A B) (LinearMap.inr R A B) _ _ using 1
       · rw [isActionTopology R A]
         apply continuous_of_linearMap'
       · rw [isActionTopology R B]
@@ -343,45 +342,28 @@ variable {ι : Type} {A : ι → Type} [Finite ι] [∀ i, AddCommGroup (A i)]
     [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
     [∀ i, IsActionTopology R (A i)]
 
-#check Pi.topologicalSpace
-
---#check continuouspi
 lemma pi [∀ i, Module.Finite R (A i)]: IsActionTopology R (∀ i, A i) := by
   constructor
   apply le_antisymm
   · rw [← continuous_id_iff_le]
     classical
     letI : Fintype ι := Fintype.ofFinite ι
-    have hid : @id (∀ i, A i) = (fun l ↦ ∑ j, l j : (∀ (j : ι), ∀ i, A i) → ∀ i, A i) ∘
-        (fun as ↦ (fun j ↦ (fun i ↦ if i = j then as i else 0))) := by
+    have hid : @id (∀ i, A i) = (fun l ↦ ∑ j, l j : (∀ (_ : ι), ∀ i, A i) → ∀ i, A i) ∘
+        (fun as ↦ (fun j ↦ (fun i ↦ if h : i = j then h ▸ as j else 0))) := by
       ext
       simp
     rw [hid]
-    apply @Continuous.comp (∀ i, A i) (∀ (j : ι), ∀ i, A i) (∀ i, A i) (Pi.topologicalSpace) (@Pi.topologicalSpace ι _ (fun i ↦ actionTopology R _)) (actionTopology R _) _ _
-    · apply @continuous_sum_finite R _ _ _ (∀ i, A i) _ _ (actionTopology R _) ?_
+    apply @Continuous.comp _ _ _ _ (@Pi.topologicalSpace ι _ (fun i ↦ actionTopology R _))
+        (actionTopology R _) _ _
+    · apply @continuous_sum_finite R _ _ _ _ _ _ (actionTopology R _) ?_
       convert IsActionTopology.mk rfl
-    -- up to here
-    -- remainder of proof of add follows
-    sorry
-  sorry
-#exit
-
-    ·
-      convert @Continuous.prod_map (A × B) (A × B) A B (actionTopology R _) (actionTopology R _) _ _ (LinearMap.inl R A B) (LinearMap.inr R A B) _ _ using 1
-      · rw [isActionTopology R A]
-        apply continuous_of_linearMap'
-      · rw [isActionTopology R B]
-        apply continuous_of_linearMap'
-  · apply le_inf
-    · rw [← continuous_iff_le_induced]
-      rw [isActionTopology R A]
-      change @Continuous (A × B) A (actionTopology R _) (actionTopology R _) (LinearMap.fst R A B)
-      apply continuous_of_linearMap'
-    · rw [← continuous_iff_le_induced]
-      rw [isActionTopology R B]
-      change @Continuous (A × B) B (actionTopology R _) (actionTopology R _) (LinearMap.snd R A B)
-      apply continuous_of_linearMap'
-  sorry
+    · refine @Pi.continuous_postcomp' _ _ _ _ (fun _ ↦ actionTopology R (∀ i, A i))
+          (fun j aj k ↦ if h : k = j then h ▸ aj else 0) (fun i ↦ ?_)
+      rw [isActionTopology R (A i)]
+      exact continuous_of_linearMap' (LinearMap.single i)
+  · apply le_iInf (fun i ↦ ?_)
+    rw [← continuous_iff_le_induced, isActionTopology R (A i)]
+    exact continuous_of_linearMap' (LinearMap.proj i)
 
 end Pi
 
