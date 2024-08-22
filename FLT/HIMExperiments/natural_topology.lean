@@ -1,10 +1,10 @@
 import Mathlib.RingTheory.TensorProduct.Basic -- we need tensor products of rings at some point
 import Mathlib.Topology.Algebra.Module.Basic -- and we need topological rings and modules
 import Mathlib.Tactic
--- next two should be all we need for basic file to compile
 import Mathlib.Topology.Order
 import Mathlib.Algebra.Group.Action.Defs
 import Mathlib.Algebra.Module.Projective
+import Mathlib.LinearAlgebra.TensorProduct.RightExactness
 
 /-
 # An topology for monoid actions.
@@ -240,7 +240,7 @@ lemma coinduced_prod_eq_prod_coinduced (X Y S T : Type*) [AddCommGroup X] [AddCo
 
 variable (R A) in
 @[continuity, fun_prop]
-lemma continuous_add [Module.Finite R A]: Continuous (fun ab ↦ ab.1 + ab.2 : A × A → A) := by
+lemma continuous_add [Module.Finite R A] : Continuous (fun ab ↦ ab.1 + ab.2 : A × A → A) := by
   rw [continuous_iff_coinduced_le, isActionTopology R A]
   obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
   rw [← surj hf]
@@ -251,8 +251,7 @@ lemma continuous_add [Module.Finite R A]: Continuous (fun ab ↦ ab.1 + ab.2 : A
   let ff : (Fin n → R) × (Fin n → R) →ₗ[R] A × A := f.prodMap f
   convert isOpenMap_of_coinduced (τB := TopologicalSpace.coinduced ff instTopologicalSpaceProd)
     ff.toAddMonoidHom _ rfl _ hU
-  · symm
-    convert @coinduced_prod_eq_prod_coinduced (Fin n → R) (Fin n → R) A A _ _ _ _ f f hf hf _ _ _ _
+  · convert (coinduced_prod_eq_prod_coinduced _ _ A A f f hf hf).symm
   · ext x
     cases' x with a b
     simp only [Set.mem_preimage, LinearMap.toAddMonoidHom_coe, Set.mem_image, map_add, Prod.exists]
@@ -267,8 +266,6 @@ lemma continuous_add [Module.Finite R A]: Continuous (fun ab ↦ ab.1 + ab.2 : A
       exact hU
   · rw [continuous_iff_coinduced_le]
     rfl
-
-attribute [local instance] Fintype.ofFinite
 
 variable (R A) in
 @[continuity, fun_prop]
@@ -287,6 +284,8 @@ lemma continuous_sum_finset (ι : Type*) [DecidableEq ι] (s : Finset ι) [Modul
     apply Continuous.comp
     · apply continuous_add R A
     · fun_prop
+
+attribute [local instance] Fintype.ofFinite
 
 lemma continuous_sum_finite (ι : Type*) [Finite ι] [Module.Finite R A] :
     Continuous (fun as ↦ ∑ i, as i : (∀ (_ : ι), A) → A) := by
@@ -376,8 +375,49 @@ variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [Is
 variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
 variable [aAB : TopologicalSpace (A ⊗[R] B)] [IsActionTopology R (A ⊗[R] B)]
 
-lemma Module.continuous_bilinear :
-    Continuous (fun (ab : A × B) ↦ ab.1 ⊗ₜ ab.2 : A × B → A ⊗[R] B) := by sorry
+open Function in
+theorem TensorProduct.map_surjective {R A A' B B' : Type*} [CommRing R]
+    [AddCommGroup A] [Module R A] [AddCommGroup A'] [Module R A']
+    [AddCommGroup B] [Module R B] [AddCommGroup B'] [Module R B']
+    {f : A →ₗ[R] A'} {g : B →ₗ[R] B'} (hf : Surjective f) (hg : Surjective g) :
+    Surjective (TensorProduct.map f g) := sorry
+
+lemma Module.continuous_bilinear [Module.Finite R A] [Module.Finite R B] :
+    Continuous (fun (ab : A × B) ↦ ab.1 ⊗ₜ ab.2 : A × B → A ⊗[R] B) := by
+  -- reduce to R^m x R^n -> R^m ⊗ R^n
+  -- then check explicitly
+  rw [continuous_iff_coinduced_le, isActionTopology R A, isActionTopology R B, isActionTopology R (A ⊗[R] B)]
+  obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
+  obtain ⟨m, g, hg⟩ := Module.Finite.exists_fin' R B
+  -- R^{mn} ->> A ⊗ B so by `surj` STP coinduced prod ≤ coinduced R^{mn}
+  sorry -- need R^a ⊗ R^b = R^{a×b}
+#exit
+  -- this is the proof for coninuous_add, which is presumably similar
+
+  rw [← surj <| TensorProduct.map_surjective hf hg]
+  intro U hU
+  rw [isOpen_coinduced] at hU ⊢
+  apply @Continuous.isOpen_preimage ((Fin n → R) × (Fin n → R)) (Fin n → R) _ _
+      (fun rs ↦ rs.1 + rs.2) (by continuity) at hU
+  let ff : (Fin n → R) × (Fin n → R) →ₗ[R] A × A := f.prodMap f
+  convert isOpenMap_of_coinduced (τB := TopologicalSpace.coinduced ff instTopologicalSpaceProd)
+    ff.toAddMonoidHom _ rfl _ hU
+  · convert (coinduced_prod_eq_prod_coinduced _ _ A A f f hf hf).symm
+  · ext x
+    cases' x with a b
+    simp only [Set.mem_preimage, LinearMap.toAddMonoidHom_coe, Set.mem_image, map_add, Prod.exists]
+    constructor
+    · intro h
+      obtain ⟨a1, rfl⟩ := hf a
+      obtain ⟨b1, rfl⟩ := hf b
+      use a1, b1, h
+      rfl
+    · rintro ⟨a1, b1, hU, hab⟩
+      cases hab
+      exact hU
+  · rw [continuous_iff_coinduced_le]
+    rfl
+
 
 -- Now say we have a (not necessarily commutative) `A`-algebra `D` which is free of finite type.
 
