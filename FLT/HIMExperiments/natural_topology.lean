@@ -418,7 +418,19 @@ variable (m n : Type*) [Finite m] [Finite n] [DecidableEq m] [DecidableEq n] (a1
     (b1 : n → R) (f : (m → R) →ₗ[R] A) (g : (n → R) →ₗ[R] B) in
 lemma key : ((TensorProduct.map f g ∘ₗ
     (isom'' R m n).symm.toLinearMap) fun mn ↦ a1 mn.1 * b1 mn.2) = f a1 ⊗ₜ[R] g b1 := by
-  sorry -- done in buster mathlib version of PR
+  sorry
+
+-- once we have mathlib#16122 we can replace `isom''` with `finiteTensorPiLid R R m n`
+-- and `key` with the following: (M ↦ A, N ↦ B)
+
+-- variable (m n : Type*) [Finite m] [DecidableEq m] (a1 : m → R)
+--     (b1 : n → R) (f : (m → R) →ₗ[R] M) (g : (n → R) →ₗ[R] N) in
+-- example : ((TensorProduct.map f g ∘ₗ (finiteTensorPiLid R R m n).symm.toLinearMap)
+--   fun mn ↦ a1 mn.1 * b1 mn.2) = f a1 ⊗ₜ[R] g b1 := by
+--   refine congr_arg (map f g) ((Equiv.symm_apply_eq (finiteTensorPiLid R R m n).toEquiv).2 ?_ :
+--     (finiteTensorPiLid R R m n).symm.toLinearMap (fun mn ↦ a1 mn.1 * b1 mn.2) = a1 ⊗ₜ b1)
+--   ext ⟨m, n⟩
+--   simp
 
 @[continuity, fun_prop]
 lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
