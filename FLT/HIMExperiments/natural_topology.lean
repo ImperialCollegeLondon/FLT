@@ -9,9 +9,18 @@ import Mathlib.LinearAlgebra.TensorProduct.RightExactness
 /-
 # An topology for monoid actions.
 
-If `R` and `A` are types, and if `R` has a topology `[TopologicalSpace R]`
-and acts on `A` `[SMul R A]`, then `A` inherits a topology from this set-up,
-which we call the *something* topology.
+If `R` is a topological ring and `A` is an `R`-module, then there are several ways in which
+`A` can inherit a topology from `R` via the action. We make one such definiion here,
+which we call the *module* topology, or the `R`-module topology if there is an ambiguity.
+This topology has very nice properties on the category of finite R-modules. For example,
+all `R`-linear maps between finite `A`-modules are continuous, and given any `R`-linear surjection
+`Rⁿ → A` for `n` finite, the topology on `A` is the pushforward of the product topology on `Rⁿ`.
+This has importance in the theory of algebraic groups over local fields such as the reals
+or the `p`-adics. Example: if `A` is a finite-dimensional central simple algebra over a
+topological ring `R`, then in the representation theory of algebraic groups we would like
+to consider certain continuous representations of `Aˣ`, so `A` needs a topology. In our
+approach we can do the following:
+
 -/
 
 -- section continuous_smul
@@ -159,6 +168,17 @@ lemma continuous_of_linearMap' {A : Type*} [AddCommMonoid A] [Module R A]
   haveI : IsActionTopology R B := ⟨rfl⟩
   fun_prop
 
+variable (R)
+def _root_.LinearMap.neg (A : Type*) [AddCommGroup A] [Module R A] : A →ₗ[R] A where
+  toFun := (-·)
+  map_add' := neg_add
+  map_smul' r a := (smul_neg r a).symm
+
+lemma continuous_neg (A : Type*) [AddCommGroup A] [Module R A] [TopologicalSpace A]
+    [IsActionTopology R A] :
+    Continuous (-· : A → A) :=
+  continuous_of_linearMap (LinearMap.neg R A)
+
 end function
 
 section surj
@@ -184,80 +204,28 @@ lemma surj {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjecti
     rw [← continuous_iff_coinduced_le]
     fun_prop
 
--- #check Equiv.coinduced_symm
--- #check Equiv.induced_symm
+lemma supersurj {B : Type*} [AddCommMonoid B] [aB : TopologicalSpace B] [Module R B] [IsActionTopology R B]
+    [Module.Finite R A] {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
+    TopologicalSpace.coinduced φ (actionTopology R A) = actionTopology R B := by
+  obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
+  have hg : Function.Surjective (φ ∘ₗ f) := by aesop
+  rw [← surj hg]
+  convert coinduced_compose
+  convert (surj hf).symm
 
-example {ι κ : Type*} (e : ι ≃ κ) (X : Type*) [TopologicalSpace X] :
-    TopologicalSpace.coinduced
-      (Equiv.piCongrLeft' (fun _ ↦ X) e : (ι → X) ≃ (κ → X))
-      Pi.topologicalSpace =
-    Pi.topologicalSpace := by
-  sorry
-
-
-
-
---   rename_i inst inst_1 inst_2 inst_3 inst_4
---   apply Iff.intro
---   · intro a
---     subst a
---     simp_all only [Equiv.preimage_image]
---   · intro a
---     subst a
---     simp_all only [Equiv.image_preimage]
-
-
-
--- example (X Y : Type*) (f : X ≃ Y) (τX : TopologicalSpace X) (τY : TopologicalSpace Y) :
---     TopologicalSpace.induced f τY = τX ↔ TopologicalSpace.coinduced f τX = τY := by
---   constructor <;> rintro rfl
---   · apply le_antisymm
---     · exact coinduced_le_iff_le_induced.mpr fun U a ↦ a
---     · rintro U ⟨V, hV, hVU⟩
---       rwa [(Set.preimage_injective.2 f.surjective hVU).symm]
---   · apply le_antisymm
---     · intro U hU
---       rw [@isOpen_induced_iff]
---       use f '' U
---       rw [isOpen_coinduced]
---       simp [f.preimage_image, hU]
---     · exact coinduced_le_iff_le_induced.mp fun U a ↦ a
-
+-- **^TODO** why didn't have/let linter warn me
 lemma surj' {ι : Type*} [Finite ι] {φ : (ι → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ Pi.topologicalSpace = actionTopology R A := by
   let n := Nat.card ι
   let f : (Fin n → R) ≃ₗ[R] (ι → R) := LinearEquiv.funCongrLeft R R (Finite.equivFin ι)
   have hf : Function.Surjective (φ ∘ₗ f : (Fin n → R) →ₗ[R] A) := by simp [hφ]
   rw [← surj hf]
-  simp [← coinduced_compose, f]
+  simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, ← coinduced_compose, f]
   congr
-  convert (congr_fun <| Equiv.induced_symm ((LinearEquiv.funCongrLeft R R (Finite.equivFin ι))).toEquiv) Pi.topologicalSpace
-  unfold Pi.topologicalSpace
-  simp [coinduced_iSup, induced_compose]
+  let foo' : (ι → R) ≃ₜ (Fin (Nat.card ι) → R) :=
+    Homeomorph.piCongrLeft (Y := fun _ ↦ R) (Finite.equivFin ι)
+  exact (Homeomorph.coinduced_eq foo'.symm).symm
 
-
-
-    intro rs
-    obtain ⟨rs', rfl⟩ := LinearEquiv.funCongrLeft_symm_apply rs
-    obtain ⟨is, rfl⟩ := Finite.equivFin_symm e rs'
-    obtain ⟨rs, rfl⟩ := LinearEquiv.funCongrLeft_apply rs
-    exact ⟨rs, rfl⟩
-  rw [← surj ]
-  apply le_antisymm
-  · rw [← continuous_iff_coinduced_le]
-    rw [← isActionTopology R A]
-    fun_prop
-  · rw [iSup_le_iff]
-    intro m
-    rw [iSup_le_iff]
-    intro ψ
-    obtain ⟨α, rfl⟩ : ∃ α : (Fin m → R) →ₗ[R] (Fin n → R), φ.comp α = ψ :=
-      Module.projective_lifting_property _ _ hφ
-    change TopologicalSpace.coinduced (φ ∘ α) _ ≤ _
-    rw [← coinduced_compose]
-    apply coinduced_mono
-    rw [← continuous_iff_coinduced_le]
-    fun_prop
 end surj
 
 section add
@@ -265,21 +233,16 @@ section add
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
 
-variable (R A) in
-abbrev thing2 : A × A →ₗ[R] A where
-  toFun ab := ab.1 + ab.2
-  map_add' x y := by
-    simp only [Prod.fst_add, Prod.snd_add, add_add_add_comm]
-  map_smul' r x := by
-    simp only [Prod.smul_fst, Prod.smul_snd, RingHom.id_apply, smul_add]
+example : A × A →ₗ[R] A := LinearMap.fst R A A + LinearMap.snd R A A
 
 open TopologicalSpace in
+-- **TODO** ask Yury how to golf
 lemma coinduced_prod_eq_prod_coinduced (X Y S T : Type*) [AddCommGroup X] [AddCommGroup Y]
     [AddCommGroup S] [AddCommGroup T] (f : X →+ S) (g : Y →+ T)
     (hf : Function.Surjective f) (hg : Function.Surjective g)
     [τX : TopologicalSpace X] [ContinuousAdd X] [τY : TopologicalSpace Y] [ContinuousAdd Y] :
     coinduced (Prod.map f g) instTopologicalSpaceProd =
-    @instTopologicalSpaceProd S T (coinduced f τX) (coinduced g τY) := by
+      @instTopologicalSpaceProd S T (coinduced f τX) (coinduced g τY) := by
   ext U
   rw [@isOpen_prod_iff]
   rw [isOpen_coinduced]
@@ -399,6 +362,11 @@ lemma prod [Module.Finite R A] [Module.Finite R B] :
       change @Continuous (A × B) B (actionTopology R _) (actionTopology R _) (LinearMap.snd R A B)
       apply continuous_of_linearMap'
 
+variable (R A B) in
+lemma prod_isActionTopology [Module.Finite R A] [Module.Finite R B] :
+    (instTopologicalSpaceProd : TopologicalSpace (A × B)) = actionTopology R (A × B) := by
+  convert prod.isActionTopology' <;> all_goals infer_instance
+
 end prod
 
 section Pi
@@ -443,64 +411,104 @@ variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [Is
 variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
 variable [aAB : TopologicalSpace (A ⊗[R] B)] [IsActionTopology R (A ⊗[R] B)]
 
-open Function in
-theorem TensorProduct.map_surjective {R A A' B B' : Type*} [CommRing R]
-    [AddCommGroup A] [Module R A] [AddCommGroup A'] [Module R A']
-    [AddCommGroup B] [Module R B] [AddCommGroup B'] [Module R B']
-    {f : A →ₗ[R] A'} {g : B →ₗ[R] B'} (hf : Surjective f) (hg : Surjective g) :
-    Surjective (TensorProduct.map f g) := sorry
+noncomputable def isom'' (R : Type*) [CommRing R] (m n : Type*) [Finite m] [DecidableEq m] :
+    (m → R) ⊗[R] (n → R) ≃ₗ[R] (m × n → R) := sorry -- done in mathlib
 
-lemma Module.continuous_bilinear [Module.Finite R A] [Module.Finite R B] :
+variable (m n : Type*) [Finite m] [Finite n] [DecidableEq m] [DecidableEq n] (a1 : m → R)
+    (b1 : n → R) (f : (m → R) →ₗ[R] A) (g : (n → R) →ₗ[R] B) in
+lemma key : ((TensorProduct.map f g ∘ₗ
+    (isom'' R m n).symm.toLinearMap) fun mn ↦ a1 mn.1 * b1 mn.2) = f a1 ⊗ₜ[R] g b1 := by
+  sorry -- done in buster mathlib version of PR
+
+@[continuity, fun_prop]
+lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
     Continuous (fun (ab : A × B) ↦ ab.1 ⊗ₜ ab.2 : A × B → A ⊗[R] B) := by
   -- reduce to R^m x R^n -> R^m ⊗ R^n
   -- then check explicitly
   rw [continuous_iff_coinduced_le, isActionTopology R A, isActionTopology R B, isActionTopology R (A ⊗[R] B)]
-  obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
-  obtain ⟨m, g, hg⟩ := Module.Finite.exists_fin' R B
-  -- R^{mn} ->> A ⊗ B so by `surj` STP coinduced prod ≤ coinduced R^{mn}
-  sorry -- need R^a ⊗ R^b = R^{a×b}
-#exit
-  -- this is the proof for coninuous_add, which is presumably similar
-
-  rw [← surj <| TensorProduct.map_surjective hf hg]
+  obtain ⟨m, f, hf⟩ := Module.Finite.exists_fin' R A
+  obtain ⟨n, g, hg⟩ := Module.Finite.exists_fin' R B
+  have hψ := TensorProduct.map_surjective hf hg
+  let φ : (Fin m × Fin n → R) →ₗ[R] A ⊗[R] B :=
+    (TensorProduct.map f g) ∘ₗ (isom'' R (Fin m) (Fin n)).symm.toLinearMap
+  have hφ : Function.Surjective φ := by aesop
+  rw [← surj' hφ]
   intro U hU
+  -- hU says that U is open for the action topology on A ⊗ B
   rw [isOpen_coinduced] at hU ⊢
-  apply @Continuous.isOpen_preimage ((Fin n → R) × (Fin n → R)) (Fin n → R) _ _
-      (fun rs ↦ rs.1 + rs.2) (by continuity) at hU
-  let ff : (Fin n → R) × (Fin n → R) →ₗ[R] A × A := f.prodMap f
-  convert isOpenMap_of_coinduced (τB := TopologicalSpace.coinduced ff instTopologicalSpaceProd)
-    ff.toAddMonoidHom _ rfl _ hU
-  · convert (coinduced_prod_eq_prod_coinduced _ _ A A f f hf hf).symm
+  apply @Continuous.isOpen_preimage ((Fin m → R) × (Fin n → R)) ((Fin m × Fin n) → R) _ _
+      (fun rs mn ↦ rs.1 mn.1 * rs.2 mn.2) (by fun_prop) at hU
+  let α : (Fin m → R) × (Fin n → R) →ₗ[R] A × B := f.prodMap g
+  convert isOpenMap_of_coinduced (τB := TopologicalSpace.coinduced α instTopologicalSpaceProd)
+    α.toAddMonoidHom _ rfl _ hU
+  · convert (rfl : actionTopology R (A × B) = actionTopology R (A × B))
+    ·
+      suffices IsActionTopology R (A × B) by
+        convert this.isActionTopology'
+        · symm
+          apply isActionTopology
+        · symm
+          apply isActionTopology
+      exact prod
+    · have hα : Function.Surjective α := by
+        unfold_let
+        -- missing API Function.prodmapsurjective
+        rintro ⟨a, b⟩
+        obtain ⟨x, rfl⟩ := hf a
+        obtain ⟨y, rfl⟩ := hg b
+        use (x, y)
+        rfl
+      convert supersurj hα
+      · exact prod_isActionTopology R (Fin m → R) (Fin n → R)
+      · apply prod
+      · apply prod
+    -- looks fine
   · ext x
-    cases' x with a b
-    simp only [Set.mem_preimage, LinearMap.toAddMonoidHom_coe, Set.mem_image, map_add, Prod.exists]
+    obtain ⟨a, b⟩ := x
+    simp [α]
+    -- need def of isom''
     constructor
     · intro h
       obtain ⟨a1, rfl⟩ := hf a
-      obtain ⟨b1, rfl⟩ := hf b
-      use a1, b1, h
-      rfl
-    · rintro ⟨a1, b1, hU, hab⟩
-      cases hab
-      exact hU
+      obtain ⟨b1, rfl⟩ := hg b
+      use a1, b1, ?_, rfl
+      /-
+      case left
+      φ : (Fin m × Fin n → R) →ₗ[R] A ⊗[R] B := TensorProduct.map f g ∘ₗ ↑isom''.symm
+      hφ : Function.Surjective ⇑φ
+      a1 : Fin m → R
+      b1 : Fin n → R
+      h : f a1 ⊗ₜ[R] g b1 ∈ U
+      ⊢ (φ fun mn ↦ a1 mn.1 * b1 mn.2) ∈ U
+      -/
+      unfold_let
+      rwa [key]
+    · rintro ⟨a1, b1, hU, rfl, rfl⟩
+      rwa [← key]
   · rw [continuous_iff_coinduced_le]
     rfl
 
+lemma Module.continuous_bilinear [Module.Finite R A] [Module.Finite R B]
+    {C : Type*} [AddCommGroup C] [Module R C] [TopologicalSpace C] [IsActionTopology R C]
+    (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
+  change Continuous (TensorProduct.uncurry R A B C bil ∘ (fun (ab : A × B) ↦ ab.1 ⊗ₜ ab.2))
+  fun_prop
 
--- Now say we have a (not necessarily commutative) `A`-algebra `D` which is free of finite type.
-
--- are all these assumptions needed?
-variable (D : Type*) [Ring D] [Algebra R D] -- [Module.Finite R D] [Module.Free R D]
+variable (R)
+variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
 variable [TopologicalSpace D] [IsActionTopology R D]
 
-instance Module.topologicalRing : TopologicalRing D :=
+@[continuity, fun_prop]
+lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
+  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
+  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
+  apply Module.continuous_bilinear <| LinearMap.mul R D
+
+def Module.topologicalRing : TopologicalRing D :=
   {
-    continuous_add := by
-      sorry
-    continuous_mul := by
-      sorry
-    continuous_neg := by
-      sorry }
+    continuous_add := continuous_add R D
+    continuous_mul := continuous_mul R D
+    continuous_neg := continuous_neg R D}
 
 end commutative
 
