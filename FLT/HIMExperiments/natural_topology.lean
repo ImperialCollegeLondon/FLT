@@ -100,17 +100,11 @@ section one
 
 variable (R : Type*) [Ring R] [τ : TopologicalSpace R] [TopologicalRing R]
 
-abbrev thing : (Fin 1 → R) →ₗ[R] R where
-  toFun := fun f ↦ f 0
-  map_add' _ _ := rfl
-  map_smul' _ _ := rfl
-
 protected lemma id : IsActionTopology R R := by
   constructor
   apply le_antisymm
   · refine le_iSup_of_le 1 ?_
-    refine le_iSup_of_le (thing R) ?_
-    intro U hU
+    refine le_iSup_of_le (LinearMap.proj 0) (fun U hU ↦ ?_)
     rw [isOpen_coinduced] at hU
     exact Continuous.isOpen_preimage (f := fun r ↦ (fun _ ↦ r)) (by fun_prop) _ hU
   · apply iSup_le
@@ -190,6 +184,80 @@ lemma surj {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjecti
     rw [← continuous_iff_coinduced_le]
     fun_prop
 
+-- #check Equiv.coinduced_symm
+-- #check Equiv.induced_symm
+
+example {ι κ : Type*} (e : ι ≃ κ) (X : Type*) [TopologicalSpace X] :
+    TopologicalSpace.coinduced
+      (Equiv.piCongrLeft' (fun _ ↦ X) e : (ι → X) ≃ (κ → X))
+      Pi.topologicalSpace =
+    Pi.topologicalSpace := by
+  sorry
+
+
+
+
+--   rename_i inst inst_1 inst_2 inst_3 inst_4
+--   apply Iff.intro
+--   · intro a
+--     subst a
+--     simp_all only [Equiv.preimage_image]
+--   · intro a
+--     subst a
+--     simp_all only [Equiv.image_preimage]
+
+
+
+-- example (X Y : Type*) (f : X ≃ Y) (τX : TopologicalSpace X) (τY : TopologicalSpace Y) :
+--     TopologicalSpace.induced f τY = τX ↔ TopologicalSpace.coinduced f τX = τY := by
+--   constructor <;> rintro rfl
+--   · apply le_antisymm
+--     · exact coinduced_le_iff_le_induced.mpr fun U a ↦ a
+--     · rintro U ⟨V, hV, hVU⟩
+--       rwa [(Set.preimage_injective.2 f.surjective hVU).symm]
+--   · apply le_antisymm
+--     · intro U hU
+--       rw [@isOpen_induced_iff]
+--       use f '' U
+--       rw [isOpen_coinduced]
+--       simp [f.preimage_image, hU]
+--     · exact coinduced_le_iff_le_induced.mp fun U a ↦ a
+
+lemma surj' {ι : Type*} [Finite ι] {φ : (ι → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
+    TopologicalSpace.coinduced φ Pi.topologicalSpace = actionTopology R A := by
+  let n := Nat.card ι
+  let f : (Fin n → R) ≃ₗ[R] (ι → R) := LinearEquiv.funCongrLeft R R (Finite.equivFin ι)
+  have hf : Function.Surjective (φ ∘ₗ f : (Fin n → R) →ₗ[R] A) := by simp [hφ]
+  rw [← surj hf]
+  simp [← coinduced_compose, f]
+  congr
+  convert (congr_fun <| Equiv.induced_symm ((LinearEquiv.funCongrLeft R R (Finite.equivFin ι))).toEquiv) Pi.topologicalSpace
+  unfold Pi.topologicalSpace
+  simp [coinduced_iSup, induced_compose]
+
+
+
+    intro rs
+    obtain ⟨rs', rfl⟩ := LinearEquiv.funCongrLeft_symm_apply rs
+    obtain ⟨is, rfl⟩ := Finite.equivFin_symm e rs'
+    obtain ⟨rs, rfl⟩ := LinearEquiv.funCongrLeft_apply rs
+    exact ⟨rs, rfl⟩
+  rw [← surj ]
+  apply le_antisymm
+  · rw [← continuous_iff_coinduced_le]
+    rw [← isActionTopology R A]
+    fun_prop
+  · rw [iSup_le_iff]
+    intro m
+    rw [iSup_le_iff]
+    intro ψ
+    obtain ⟨α, rfl⟩ : ∃ α : (Fin m → R) →ₗ[R] (Fin n → R), φ.comp α = ψ :=
+      Module.projective_lifting_property _ _ hφ
+    change TopologicalSpace.coinduced (φ ∘ α) _ ≤ _
+    rw [← coinduced_compose]
+    apply coinduced_mono
+    rw [← continuous_iff_coinduced_le]
+    fun_prop
 end surj
 
 section add
