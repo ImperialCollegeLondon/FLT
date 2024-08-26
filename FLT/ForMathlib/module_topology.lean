@@ -7,44 +7,37 @@ import Mathlib.Algebra.Module.Projective
 import Mathlib.LinearAlgebra.TensorProduct.RightExactness
 
 /-
-# An topology for monoid actions.
+# The module topology
+
+If `R` is a topological ring and `M` is an `R`-module, the *module topology* on `M` is
+the finest topology making all `R`-linear maps `Rⁿ → M` continuous. Here `n` runs through
+the naturals and `Rⁿ` has the product topology. This topology has some nice properties.
+For example if `D` is an `R`-algebra which is finite as an `R`-module, then `D` is
+automatically a topological ring for the module topology.
+
+## Details
 
 If `R` is a topological ring and `A` is an `R`-module, then there are several ways in which
-`A` can inherit a topology from `R` via the action. We make one such definiion here,
-which we call the *module* topology, or the `R`-module topology if there is an ambiguity.
-This topology has very nice properties on the category of finite R-modules. For example,
-all `R`-linear maps between finite `A`-modules are continuous, and given any `R`-linear surjection
-`Rⁿ → A` for `n` finite, the topology on `A` is the pushforward of the product topology on `Rⁿ`.
-This has importance in the theory of algebraic groups over local fields such as the reals
-or the `p`-adics. Example: if `A` is a finite-dimensional central simple algebra over a
-topological ring `R`, then in the representation theory of algebraic groups we would like
-to consider certain continuous representations of `Aˣ`, so `A` needs a topology. In our
-approach we can do the following:
+`A` can inherit a topology from `R` via the action (indeed, this is the 4th one which
+the author has tried). We make one such definition here, which we call the *module* topology,
+or the `R`-module topology if there is an ambiguity.
+
+The module topology has some nice properties: for example all `R`-linear maps between modules
+are automatically continuous for the module topology. On the category of finite `R`-modules
+things are even better. Given any `R`-linear surjection `Rⁿ → A` for `n` a natural (or a
+finite type), the topology on `A` is the pushforward (i.e. `TopologicalSpace.coinduced`)
+of the product topology on `Rⁿ`. If furthermore `R` is commutative and `A` is an `R`-algebra
+which is finite as an `R`-module, then `A` automatically becomes a topological ring for the
+module topology (i.e., multiplication is continuous). This can be very convenient (for example
+it can be used to topologise finite-dimensional central simple algebras over the reals
+or $p$-adics).
 
 -/
-
--- section continuous_smul
-
--- variable {R : Type} [τR : TopologicalSpace R]
--- variable {A : Type} [SMul R A]
--- variable {S : Type} [τS : TopologicalSpace S] {f : S → R} (hf : Continuous f)
--- variable {B : Type} [SMul S B] (g : B →ₑ[f] A)
-
--- -- note: use convert not exact to ensure typeclass inference doesn't try to find topology on B
--- lemma induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] :
---     @ContinuousSMul S B _ _ (TopologicalSpace.induced g τA) := by
---   convert Inducing.continuousSMul (inducing_induced g) hf (fun {c} {x} ↦ map_smulₛₗ g c x)
-
--- #check Prod.continuousSMul -- exists and is an instance :-)
--- --#check Induced.continuousSMul -- doesn't exist
-
--- end continuous_smul
 
 section elsewhere
 
 variable {A : Type*} [AddCommGroup A] [τA : TopologicalSpace A] [ContinuousAdd A]
 variable {B : Type*} [AddCommGroup B] [τB : TopologicalSpace B]
-
 
 lemma AddMonoidHom.sub_mem_ker_iff {A B : Type*} [AddCommGroup A]
     [AddCommGroup B] (φ : A →+ B) {x y : A} :
@@ -420,8 +413,9 @@ lemma key : ((TensorProduct.map f g ∘ₗ
     (isom'' R m n).symm.toLinearMap) fun mn ↦ a1 mn.1 * b1 mn.2) = f a1 ⊗ₜ[R] g b1 := by
   sorry
 
--- once we have mathlib#16122 we can replace `isom''` with `finiteTensorPiLid R R m n`
--- and `key` with the following: (M ↦ A, N ↦ B)
+-- once mathlib#16122 is merged we can bump and then replace `isom''` with
+-- `finiteTensorPiLid R R m n` and `key` with the following: (M ↦ A, N ↦ B)
+-- and this should complete the proof.
 
 -- variable (m n : Type*) [Finite m] [DecidableEq m] (a1 : m → R)
 --     (b1 : n → R) (f : (m → R) →ₗ[R] M) (g : (n → R) →ₗ[R] N) in
