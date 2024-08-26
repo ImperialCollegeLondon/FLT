@@ -6,3 +6,4 @@ import FLT.GroupScheme.FiniteFlat
 import FLT.Hard.Results
 import FLT.TateCurve.TateCurve
 import FLT.AutomorphicRepresentation.Example
+import FLT.mathlibExperiments.IsCentralSimple
