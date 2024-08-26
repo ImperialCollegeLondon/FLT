@@ -1,12 +1,9 @@
-import Mathlib.RingTheory.TensorProduct.Basic -- we need tensor products of rings at some point
-import Mathlib.Topology.Algebra.Module.Basic -- and we need topological rings and modules
-import Mathlib.Tactic
-import Mathlib.Topology.Order
-import Mathlib.Algebra.Group.Action.Defs
 import Mathlib.Algebra.Module.Projective
 import Mathlib.LinearAlgebra.TensorProduct.RightExactness
+import Mathlib.Topology.Algebra.Module.Basic
 
-/-
+/-!
+
 # The module topology
 
 If `R` is a topological ring and `M` is an `R`-module, the *module topology* on `M` is
