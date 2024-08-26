@@ -70,39 +70,39 @@ variable (A : Type*) [AddCommMonoid A] [Module R A]
 
 -- "smallest" (i.e. most open sets) topology on `A` such
 -- that all R-linear maps R^n → A are continuous
-abbrev actionTopology : TopologicalSpace A :=
+abbrev moduleTopology : TopologicalSpace A :=
   ⨆ (n : ℕ), ⨆ (φ : (Fin n → R) →ₗ[R] A), .coinduced φ inferInstance
 
-class IsActionTopology [τA : TopologicalSpace A] : Prop where
-  isActionTopology' : τA = actionTopology R A
+class IsModuleTopology [τA : TopologicalSpace A] : Prop where
+  isModuleTopology' : τA = moduleTopology R A
 
--- because default binders for isActionTopology' are wrong and currently
+-- because default binders for isModuleTopology' are wrong and currently
 -- there is no way to change this. See lean4#...**TODO**
-lemma isActionTopology [τA : TopologicalSpace A] [IsActionTopology R A] :
-    τA = actionTopology R A :=
-  IsActionTopology.isActionTopology' (R := R) (A := A)
+lemma isModuleTopology [τA : TopologicalSpace A] [IsModuleTopology R A] :
+    τA = moduleTopology R A :=
+  IsModuleTopology.isModuleTopology' (R := R) (A := A)
 
 -- **TODO** is this true?
--- lemma ActionTopology.continuousSMul : @ContinuousSMul R A _ _ (actionTopology R A) :=
+-- lemma ModuleTopology.continuousSMul : @ContinuousSMul R A _ _ (moduleTopology R A) :=
 --   continuousSMul_sInf <| fun _ _ ↦ by simp_all only [Set.mem_setOf_eq]
 
 -- **TODO** follows from the above
--- instance isActionTopology_continuousSMul (R A : Type*) [SMul R A]
---     [TopologicalSpace R] [τA : TopologicalSpace A] [h : IsActionTopology R A] :
+-- instance isModuleTopology_continuousSMul (R A : Type*) [SMul R A]
+--     [TopologicalSpace R] [τA : TopologicalSpace A] [h : IsModuleTopology R A] :
 --   ContinuousSMul R A where
 --     continuous_smul := by
---       obtain ⟨h⟩ := ActionTopology.continuousSMul R A
---       simpa [isActionTopology R A] using h
+--       obtain ⟨h⟩ := ModuleTopology.continuousSMul R A
+--       simpa [isModuleTopology R A] using h
 
 end basics
 
-namespace ActionTopology
+namespace ModuleTopology
 
 section one
 
 variable (R : Type*) [Ring R] [τ : TopologicalSpace R] [TopologicalRing R]
 
-protected lemma id : IsActionTopology R R := by
+protected lemma id : IsModuleTopology R R := by
   constructor
   apply le_antisymm
   · refine le_iSup_of_le 1 ?_
@@ -116,7 +116,7 @@ protected lemma id : IsActionTopology R R := by
     rw [← continuous_iff_coinduced_le]
     exact LinearMap.continuous_on_pi φ
 
-instance pow (n : ℕ) : IsActionTopology R (Fin n → R) := by
+instance pow (n : ℕ) : IsModuleTopology R (Fin n → R) := by
   constructor
   apply le_antisymm
   · refine le_iSup_of_le n ?_
@@ -136,29 +136,29 @@ end one
 section function
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R]
-variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
+variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsModuleTopology R B]
 
 variable {C : Type*} [AddCommGroup C] [Module R C]
 
 /-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
 @[continuity, fun_prop]
 lemma continuous_of_linearMap (f : A →ₗ[R] B) : Continuous f := by
-  rw [isActionTopology R A, continuous_iff_le_induced]
+  rw [isModuleTopology R A, continuous_iff_le_induced]
   apply iSup_le <| fun n ↦ ?_
   apply iSup_le <| fun φ ↦ ?_
-  rw [isActionTopology R B, ← coinduced_le_iff_le_induced, coinduced_compose]
+  rw [isModuleTopology R B, ← coinduced_le_iff_le_induced, coinduced_compose]
   apply le_iSup_of_le n
   apply le_iSup_of_le (f.comp φ)
   rfl
 
 lemma continuous_of_linearMap' {A : Type*} [AddCommMonoid A] [Module R A]
     {B : Type*} [AddCommMonoid B] [Module R B] (f : A →ₗ[R] B) :
-    @Continuous _ _ (actionTopology R A) (actionTopology R B) f := by
-  letI : TopologicalSpace A := actionTopology R A
-  letI : TopologicalSpace B := actionTopology R B
-  haveI : IsActionTopology R A := ⟨rfl⟩
-  haveI : IsActionTopology R B := ⟨rfl⟩
+    @Continuous _ _ (moduleTopology R A) (moduleTopology R B) f := by
+  letI : TopologicalSpace A := moduleTopology R A
+  letI : TopologicalSpace B := moduleTopology R B
+  haveI : IsModuleTopology R A := ⟨rfl⟩
+  haveI : IsModuleTopology R B := ⟨rfl⟩
   fun_prop
 
 variable (R)
@@ -168,7 +168,7 @@ def _root_.LinearMap.neg (A : Type*) [AddCommGroup A] [Module R A] : A →ₗ[R]
   map_smul' r a := (smul_neg r a).symm
 
 lemma continuous_neg (A : Type*) [AddCommGroup A] [Module R A] [TopologicalSpace A]
-    [IsActionTopology R A] :
+    [IsModuleTopology R A] :
     Continuous (-· : A → A) :=
   continuous_of_linearMap (LinearMap.neg R A)
 
@@ -177,13 +177,13 @@ end function
 section surj
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
-variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
+variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
 
 lemma surj {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
-    TopologicalSpace.coinduced φ Pi.topologicalSpace = actionTopology R A := by
+    TopologicalSpace.coinduced φ Pi.topologicalSpace = moduleTopology R A := by
   apply le_antisymm
   · rw [← continuous_iff_coinduced_le]
-    rw [← isActionTopology R A]
+    rw [← isModuleTopology R A]
     fun_prop
   · rw [iSup_le_iff]
     intro m
@@ -197,9 +197,9 @@ lemma surj {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjecti
     rw [← continuous_iff_coinduced_le]
     fun_prop
 
-lemma supersurj {B : Type*} [AddCommMonoid B] [aB : TopologicalSpace B] [Module R B] [IsActionTopology R B]
+lemma supersurj {B : Type*} [AddCommMonoid B] [aB : TopologicalSpace B] [Module R B] [IsModuleTopology R B]
     [Module.Finite R A] {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
-    TopologicalSpace.coinduced φ (actionTopology R A) = actionTopology R B := by
+    TopologicalSpace.coinduced φ (moduleTopology R A) = moduleTopology R B := by
   obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
   have hg : Function.Surjective (φ ∘ₗ f) := by aesop
   rw [← surj hg]
@@ -208,7 +208,7 @@ lemma supersurj {B : Type*} [AddCommMonoid B] [aB : TopologicalSpace B] [Module 
 
 -- **^TODO** why didn't have/let linter warn me
 lemma surj' {ι : Type*} [Finite ι] {φ : (ι → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
-    TopologicalSpace.coinduced φ Pi.topologicalSpace = actionTopology R A := by
+    TopologicalSpace.coinduced φ Pi.topologicalSpace = moduleTopology R A := by
   let n := Nat.card ι
   let f : (Fin n → R) ≃ₗ[R] (ι → R) := LinearEquiv.funCongrLeft R R (Finite.equivFin ι)
   have hf : Function.Surjective (φ ∘ₗ f : (Fin n → R) →ₗ[R] A) := by simp [hφ]
@@ -224,7 +224,7 @@ end surj
 section add
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
-variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
+variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
 
 example : A × A →ₗ[R] A := LinearMap.fst R A A + LinearMap.snd R A A
 
@@ -265,7 +265,7 @@ lemma coinduced_prod_eq_prod_coinduced (X Y S T : Type*) [AddCommGroup X] [AddCo
 variable (R A) in
 @[continuity, fun_prop]
 lemma continuous_add [Module.Finite R A] : Continuous (fun ab ↦ ab.1 + ab.2 : A × A → A) := by
-  rw [continuous_iff_coinduced_le, isActionTopology R A]
+  rw [continuous_iff_coinduced_le, isModuleTopology R A]
   obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
   rw [← surj hf]
   intro U hU
@@ -322,12 +322,12 @@ end add
 section prod
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
-variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsModuleTopology R B]
 
 open TopologicalSpace in
 lemma prod [Module.Finite R A] [Module.Finite R B] :
-    IsActionTopology R (A × B) := by
+    IsModuleTopology R (A × B) := by
   constructor
   apply le_antisymm
   · rw [← continuous_id_iff_le]
@@ -335,30 +335,30 @@ lemma prod [Module.Finite R A] [Module.Finite R B] :
       ext ⟨a, b⟩ <;> simp
     rw [hid]
     apply @Continuous.comp (A × B) ((A × B) × (A × B)) (A × B) _
-        (@instTopologicalSpaceProd _ _ (actionTopology R _) (actionTopology R _))
-        (actionTopology R _) _ _
-    · apply @continuous_add R _ _ _ (A × B) _ _ (actionTopology R _) ?_
-      convert IsActionTopology.mk rfl
-    · convert @Continuous.prod_map (A × B) (A × B) A B (actionTopology R _) (actionTopology R _)
+        (@instTopologicalSpaceProd _ _ (moduleTopology R _) (moduleTopology R _))
+        (moduleTopology R _) _ _
+    · apply @continuous_add R _ _ _ (A × B) _ _ (moduleTopology R _) ?_
+      convert IsModuleTopology.mk rfl
+    · convert @Continuous.prod_map (A × B) (A × B) A B (moduleTopology R _) (moduleTopology R _)
           _ _ (LinearMap.inl R A B) (LinearMap.inr R A B) _ _ using 1
-      · rw [isActionTopology R A]
+      · rw [isModuleTopology R A]
         apply continuous_of_linearMap'
-      · rw [isActionTopology R B]
+      · rw [isModuleTopology R B]
         apply continuous_of_linearMap'
   · apply le_inf
     · rw [← continuous_iff_le_induced]
-      rw [isActionTopology R A]
-      change @Continuous (A × B) A (actionTopology R _) (actionTopology R _) (LinearMap.fst R A B)
+      rw [isModuleTopology R A]
+      change @Continuous (A × B) A (moduleTopology R _) (moduleTopology R _) (LinearMap.fst R A B)
       apply continuous_of_linearMap'
     · rw [← continuous_iff_le_induced]
-      rw [isActionTopology R B]
-      change @Continuous (A × B) B (actionTopology R _) (actionTopology R _) (LinearMap.snd R A B)
+      rw [isModuleTopology R B]
+      change @Continuous (A × B) B (moduleTopology R _) (moduleTopology R _) (LinearMap.snd R A B)
       apply continuous_of_linearMap'
 
 variable (R A B) in
-lemma prod_isActionTopology [Module.Finite R A] [Module.Finite R B] :
-    (instTopologicalSpaceProd : TopologicalSpace (A × B)) = actionTopology R (A × B) := by
-  convert prod.isActionTopology' <;> all_goals infer_instance
+lemma prod_isModuleTopology [Module.Finite R A] [Module.Finite R B] :
+    (instTopologicalSpaceProd : TopologicalSpace (A × B)) = moduleTopology R (A × B) := by
+  convert prod.isModuleTopology' <;> all_goals infer_instance
 
 end prod
 
@@ -368,9 +368,9 @@ variable {R : Type} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 
 variable {ι : Type} {A : ι → Type} [Finite ι] [∀ i, AddCommGroup (A i)]
     [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
-    [∀ i, IsActionTopology R (A i)]
+    [∀ i, IsModuleTopology R (A i)]
 
-lemma pi [∀ i, Module.Finite R (A i)]: IsActionTopology R (∀ i, A i) := by
+lemma pi [∀ i, Module.Finite R (A i)]: IsModuleTopology R (∀ i, A i) := by
   constructor
   apply le_antisymm
   · rw [← continuous_id_iff_le]
@@ -381,16 +381,16 @@ lemma pi [∀ i, Module.Finite R (A i)]: IsActionTopology R (∀ i, A i) := by
       ext
       simp
     rw [hid]
-    apply @Continuous.comp _ _ _ _ (@Pi.topologicalSpace ι _ (fun i ↦ actionTopology R _))
-        (actionTopology R _) _ _
-    · apply @continuous_sum_finite R _ _ _ _ _ _ (actionTopology R _) ?_
-      convert IsActionTopology.mk rfl
-    · refine @Pi.continuous_postcomp' _ _ _ _ (fun _ ↦ actionTopology R (∀ i, A i))
+    apply @Continuous.comp _ _ _ _ (@Pi.topologicalSpace ι _ (fun i ↦ moduleTopology R _))
+        (moduleTopology R _) _ _
+    · apply @continuous_sum_finite R _ _ _ _ _ _ (moduleTopology R _) ?_
+      convert IsModuleTopology.mk rfl
+    · refine @Pi.continuous_postcomp' _ _ _ _ (fun _ ↦ moduleTopology R (∀ i, A i))
           (fun j aj k ↦ if h : k = j then h ▸ aj else 0) (fun i ↦ ?_)
-      rw [isActionTopology R (A i)]
+      rw [isModuleTopology R (A i)]
       exact continuous_of_linearMap' (LinearMap.single i)
   · apply le_iInf (fun i ↦ ?_)
-    rw [← continuous_iff_le_induced, isActionTopology R (A i)]
+    rw [← continuous_iff_le_induced, isModuleTopology R (A i)]
     exact continuous_of_linearMap' (LinearMap.proj i)
 
 end Pi
@@ -400,9 +400,9 @@ section commutative
 open scoped TensorProduct
 
 variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalRing R]
-variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
-variable [aAB : TopologicalSpace (A ⊗[R] B)] [IsActionTopology R (A ⊗[R] B)]
+variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsModuleTopology R B]
+variable [aAB : TopologicalSpace (A ⊗[R] B)] [IsModuleTopology R (A ⊗[R] B)]
 
 noncomputable def isom'' (R : Type*) [CommRing R] (m n : Type*) [Finite m] [DecidableEq m] :
     (m → R) ⊗[R] (n → R) ≃ₗ[R] (m × n → R) := sorry -- done in mathlib
@@ -431,7 +431,7 @@ lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
     Continuous (fun (ab : A × B) ↦ ab.1 ⊗ₜ ab.2 : A × B → A ⊗[R] B) := by
   -- reduce to R^m x R^n -> R^m ⊗ R^n
   -- then check explicitly
-  rw [continuous_iff_coinduced_le, isActionTopology R A, isActionTopology R B, isActionTopology R (A ⊗[R] B)]
+  rw [continuous_iff_coinduced_le, isModuleTopology R A, isModuleTopology R B, isModuleTopology R (A ⊗[R] B)]
   obtain ⟨m, f, hf⟩ := Module.Finite.exists_fin' R A
   obtain ⟨n, g, hg⟩ := Module.Finite.exists_fin' R B
   have hψ := TensorProduct.map_surjective hf hg
@@ -447,14 +447,14 @@ lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
   let α : (Fin m → R) × (Fin n → R) →ₗ[R] A × B := f.prodMap g
   convert isOpenMap_of_coinduced (τB := TopologicalSpace.coinduced α instTopologicalSpaceProd)
     α.toAddMonoidHom _ rfl _ hU
-  · convert (rfl : actionTopology R (A × B) = actionTopology R (A × B))
+  · convert (rfl : moduleTopology R (A × B) = moduleTopology R (A × B))
     ·
-      suffices IsActionTopology R (A × B) by
-        convert this.isActionTopology'
+      suffices IsModuleTopology R (A × B) by
+        convert this.isModuleTopology'
         · symm
-          apply isActionTopology
+          apply isModuleTopology
         · symm
-          apply isActionTopology
+          apply isModuleTopology
       exact prod
     · have hα : Function.Surjective α := by
         unfold_let
@@ -465,7 +465,7 @@ lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
         use (x, y)
         rfl
       convert supersurj hα
-      · exact prod_isActionTopology R (Fin m → R) (Fin n → R)
+      · exact prod_isModuleTopology R (Fin m → R) (Fin n → R)
       · apply prod
       · apply prod
     -- looks fine
@@ -495,19 +495,19 @@ lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
     rfl
 
 lemma Module.continuous_bilinear [Module.Finite R A] [Module.Finite R B]
-    {C : Type*} [AddCommGroup C] [Module R C] [TopologicalSpace C] [IsActionTopology R C]
+    {C : Type*} [AddCommGroup C] [Module R C] [TopologicalSpace C] [IsModuleTopology R C]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   change Continuous (TensorProduct.uncurry R A B C bil ∘ (fun (ab : A × B) ↦ ab.1 ⊗ₜ ab.2))
   fun_prop
 
 variable (R)
 variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
-variable [TopologicalSpace D] [IsActionTopology R D]
+variable [TopologicalSpace D] [IsModuleTopology R D]
 
 @[continuity, fun_prop]
 lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
-  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
-  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
+  letI : TopologicalSpace (D ⊗[R] D) := moduleTopology R _
+  haveI : IsModuleTopology R (D ⊗[R] D) := { isModuleTopology' := rfl }
   apply Module.continuous_bilinear <| LinearMap.mul R D
 
 def Module.topologicalRing : TopologicalRing D :=
@@ -518,4 +518,4 @@ def Module.topologicalRing : TopologicalRing D :=
 
 end commutative
 
-end ActionTopology
+end ModuleTopology
