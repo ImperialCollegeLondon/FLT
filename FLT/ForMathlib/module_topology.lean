@@ -61,6 +61,11 @@ lemma isOpenMap_of_coinduced (φ : A →+ B) (hφc : Continuous φ)
     use x + k, hx
     rw [AddMonoidHom.map_add, hk, add_zero]
 
+def LinearMap.neg (R : Type*) [Ring R] (A : Type*) [AddCommGroup A] [Module R A] : A →ₗ[R] A where
+  toFun := (-·)
+  map_add' := neg_add
+  map_smul' r a := (smul_neg r a).symm
+
 end elsewhere
 
 section basics
@@ -68,31 +73,23 @@ section basics
 variable (R : Type*) [TopologicalSpace R] [Ring R] [TopologicalRing R]
 variable (A : Type*) [AddCommMonoid A] [Module R A]
 
--- "smallest" (i.e. most open sets) topology on `A` such
--- that all R-linear maps R^n → A are continuous
+/- The module topology on an `R`-module `M` is the finest topology
+which makes all `R`-linear maps `Rⁿ →ₗ[R] M` continuous.
+-/
 abbrev moduleTopology : TopologicalSpace A :=
   ⨆ (n : ℕ), ⨆ (φ : (Fin n → R) →ₗ[R] A), .coinduced φ inferInstance
 
+/-
+`IsModuleTopology R A` is a propositional typclass carrying around a proof that the topology
+on `A` is the `R`-module topology.-/
 class IsModuleTopology [τA : TopologicalSpace A] : Prop where
   isModuleTopology' : τA = moduleTopology R A
 
 -- because default binders for isModuleTopology' are wrong and currently
--- there is no way to change this. See lean4#...**TODO**
+-- there is no way to change this. There's a Lean 4 issue for this IIRC **TODO** where?
 lemma isModuleTopology [τA : TopologicalSpace A] [IsModuleTopology R A] :
     τA = moduleTopology R A :=
   IsModuleTopology.isModuleTopology' (R := R) (A := A)
-
--- **TODO** is this true?
--- lemma ModuleTopology.continuousSMul : @ContinuousSMul R A _ _ (moduleTopology R A) :=
---   continuousSMul_sInf <| fun _ _ ↦ by simp_all only [Set.mem_setOf_eq]
-
--- **TODO** follows from the above
--- instance isModuleTopology_continuousSMul (R A : Type*) [SMul R A]
---     [TopologicalSpace R] [τA : TopologicalSpace A] [h : IsModuleTopology R A] :
---   ContinuousSMul R A where
---     continuous_smul := by
---       obtain ⟨h⟩ := ModuleTopology.continuousSMul R A
---       simpa [isModuleTopology R A] using h
 
 end basics
 
@@ -102,34 +99,23 @@ section one
 
 variable (R : Type*) [Ring R] [τ : TopologicalSpace R] [TopologicalRing R]
 
-protected lemma id : IsModuleTopology R R := by
-  constructor
-  apply le_antisymm
-  · refine le_iSup_of_le 1 ?_
-    refine le_iSup_of_le (LinearMap.proj 0) (fun U hU ↦ ?_)
-    rw [isOpen_coinduced] at hU
-    exact Continuous.isOpen_preimage (f := fun r ↦ (fun _ ↦ r)) (by fun_prop) _ hU
-  · apply iSup_le
-    intro n
-    apply iSup_le
-    intro φ
-    rw [← continuous_iff_coinduced_le]
-    exact LinearMap.continuous_on_pi φ
+instance instId : IsModuleTopology R R where
+  isModuleTopology' := le_antisymm (le_iSup_of_le 1 <| le_iSup_of_le (LinearMap.proj 0)
+    (fun U hU ↦ Continuous.isOpen_preimage (f := fun r ↦ fun _ ↦ r) (by fun_prop) _
+      (isOpen_coinduced.1 hU))) <|
+    iSup_le fun _ ↦ iSup_le fun φ ↦ continuous_iff_coinduced_le.1 <| LinearMap.continuous_on_pi φ
 
-instance pow (n : ℕ) : IsModuleTopology R (Fin n → R) := by
-  constructor
-  apply le_antisymm
-  · refine le_iSup_of_le n ?_
-    refine le_iSup_of_le (LinearMap.id) ?_
-    intro U hU
-    rw [isOpen_coinduced] at hU
-    apply hU
-  · apply iSup_le
-    intro m
-    apply iSup_le
-    intro φ
-    rw [← continuous_iff_coinduced_le]
-    exact LinearMap.continuous_on_pi φ
+instance instPiNat (n : ℕ) : IsModuleTopology R (Fin n → R) where
+  isModuleTopology' :=
+    le_antisymm (le_iSup_of_le n <| le_iSup_of_le (LinearMap.id) <| by rfl) <|
+      iSup_le fun _ ↦ iSup_le fun φ ↦ (LinearMap.continuous_on_pi φ).coinduced_le
+
+instance instPiFinite (ι : Type*) [Finite ι] : IsModuleTopology R (ι → R) where
+  isModuleTopology' :=
+    le_antisymm (le_iSup_of_le (Nat.card ι) <| le_iSup_of_le
+      (LinearMap.funLeft _ _ ((Finite.equivFin ι))) <| ge_of_eq <| Homeomorph.coinduced_eq
+      (Homeomorph.piCongrLeft (Y := fun _ ↦ R) (Finite.equivFin ι)).symm) <|
+      iSup_le fun _ ↦ iSup_le fun φ ↦ (LinearMap.continuous_on_pi φ).coinduced_le
 
 end one
 
@@ -139,19 +125,15 @@ variable {R : Type*} [τR : TopologicalSpace R] [Ring R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
 variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsModuleTopology R B]
 
-variable {C : Type*} [AddCommGroup C] [Module R C]
-
 /-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
 @[continuity, fun_prop]
 lemma continuous_of_linearMap (f : A →ₗ[R] B) : Continuous f := by
-  rw [isModuleTopology R A, continuous_iff_le_induced]
-  apply iSup_le <| fun n ↦ ?_
-  apply iSup_le <| fun φ ↦ ?_
-  rw [isModuleTopology R B, ← coinduced_le_iff_le_induced, coinduced_compose]
-  apply le_iSup_of_le n
-  apply le_iSup_of_le (f.comp φ)
-  rfl
+  rw [isModuleTopology R A, isModuleTopology R B, continuous_iff_le_induced]
+  apply iSup_le <| fun n ↦ iSup_le <| fun φ ↦ ?_
+  rw [← coinduced_le_iff_le_induced, coinduced_compose]
+  exact le_iSup_of_le n <| le_iSup_of_le (f.comp φ) le_rfl
 
+-- should this be in the API?
 lemma continuous_of_linearMap' {A : Type*} [AddCommMonoid A] [Module R A]
     {B : Type*} [AddCommMonoid B] [Module R B] (f : A →ₗ[R] B) :
     @Continuous _ _ (moduleTopology R A) (moduleTopology R B) f := by
@@ -161,11 +143,15 @@ lemma continuous_of_linearMap' {A : Type*} [AddCommMonoid A] [Module R A]
   haveI : IsModuleTopology R B := ⟨rfl⟩
   fun_prop
 
+def homeo_of_linearEquiv [IsModuleTopology R A] [IsModuleTopology R B] (f : A ≃ₗ[R] B) : A ≃ₜ B where
+  toFun := f
+  invFun := f.symm
+  left_inv := LinearEquiv.symm_apply_apply f
+  right_inv := LinearEquiv.apply_symm_apply f
+  continuous_toFun := continuous_of_linearMap f.toLinearMap
+  continuous_invFun := continuous_of_linearMap f.symm.toLinearMap
+
 variable (R)
-def _root_.LinearMap.neg (A : Type*) [AddCommGroup A] [Module R A] : A →ₗ[R] A where
-  toFun := (-·)
-  map_add' := neg_add
-  map_smul' r a := (smul_neg r a).symm
 
 lemma continuous_neg (A : Type*) [AddCommGroup A] [Module R A] [TopologicalSpace A]
     [IsModuleTopology R A] :
@@ -185,27 +171,27 @@ lemma surj {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjecti
   · rw [← continuous_iff_coinduced_le]
     rw [← isModuleTopology R A]
     fun_prop
-  · rw [iSup_le_iff]
-    intro m
-    rw [iSup_le_iff]
-    intro ψ
+  · apply iSup_le fun m ↦ iSup_le fun ψ ↦ ?_
     obtain ⟨α, rfl⟩ : ∃ α : (Fin m → R) →ₗ[R] (Fin n → R), φ.comp α = ψ :=
       Module.projective_lifting_property _ _ hφ
-    change TopologicalSpace.coinduced (φ ∘ α) _ ≤ _
+    push_cast
     rw [← coinduced_compose]
     apply coinduced_mono
     rw [← continuous_iff_coinduced_le]
     fun_prop
 
+/-- Any surjection between finite R-modules is coinducing for the R-module topology. -/
 lemma supersurj {B : Type*} [AddCommMonoid B] [aB : TopologicalSpace B] [Module R B] [IsModuleTopology R B]
     [Module.Finite R A] {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ (moduleTopology R A) = moduleTopology R B := by
   obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
-  have hg : Function.Surjective (φ ∘ₗ f) := by aesop
-  rw [← surj hg]
-  convert coinduced_compose
-  convert (surj hf).symm
+  rw [← surj <| show  Function.Surjective (φ ∘ₗ f) by aesop]
+  push_cast
+  rw [← coinduced_compose, surj hf]
 
+-- nice spot to end a PR.
+
+-- do I need this? Prove with supersurj
 -- **^TODO** why didn't have/let linter warn me
 lemma surj' {ι : Type*} [Finite ι] {φ : (ι → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ Pi.topologicalSpace = moduleTopology R A := by
@@ -331,12 +317,12 @@ lemma prod [Module.Finite R A] [Module.Finite R B] :
   constructor
   apply le_antisymm
   · rw [← continuous_id_iff_le]
-    have hid : @id (A × B) = (fun abcd ↦ abcd.1 + abcd.2) ∘ (fun ab ↦ ((ab.1, 0),(0, ab.2))) := by
+    have hid : (id : A × B → A × B) = (fun abcd ↦ abcd.1 + abcd.2) ∘ (fun ab ↦ ((ab.1, 0),(0, ab.2))) := by
       ext ⟨a, b⟩ <;> simp
     rw [hid]
     apply @Continuous.comp (A × B) ((A × B) × (A × B)) (A × B) _
-        (@instTopologicalSpaceProd _ _ (moduleTopology R _) (moduleTopology R _))
-        (moduleTopology R _) _ _
+        (@instTopologicalSpaceProd _ _ (moduleTopology R (A × B)) (moduleTopology R (A × B)))
+        (moduleTopology R (A × B))
     · apply @continuous_add R _ _ _ (A × B) _ _ (moduleTopology R _) ?_
       convert IsModuleTopology.mk rfl
     · convert @Continuous.prod_map (A × B) (A × B) A B (moduleTopology R _) (moduleTopology R _)
@@ -426,6 +412,9 @@ lemma key : ((TensorProduct.map f g ∘ₗ
 --   ext ⟨m, n⟩
 --   simp
 
+
+-- I don't know whether finiteness is needed on `B` here. Removing it here would enable
+-- removal in `continuous_bilinear`.
 @[continuity, fun_prop]
 lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
     Continuous (fun (ab : A × B) ↦ ab.1 ⊗ₜ ab.2 : A × B → A ⊗[R] B) := by
@@ -494,11 +483,24 @@ lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
   · rw [continuous_iff_coinduced_le]
     rfl
 
+-- did I really use finiteness of B?
 lemma Module.continuous_bilinear [Module.Finite R A] [Module.Finite R B]
     {C : Type*} [AddCommGroup C] [Module R C] [TopologicalSpace C] [IsModuleTopology R C]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
+  letI : TopologicalSpace (A ⊗[R] B) := moduleTopology R _
+  haveI : IsModuleTopology R (A ⊗[R] B) := ⟨rfl⟩
   change Continuous (TensorProduct.uncurry R A B C bil ∘ (fun (ab : A × B) ↦ ab.1 ⊗ₜ ab.2))
   fun_prop
+  -- `fun_prop` unravels to
+  -- -- set_option pp.explicit true in
+  -- -- set_option pp.instances false in
+  -- exact
+  --   @Continuous.comp' (Prod A B) (@TensorProduct R _ A B _ _ _ _) C _ _ _
+  --     (fun a ↦ (fun ab ↦ @TensorProduct.tmul R _ A B _ _ _ _ ab.1 ab.2) a)
+  --     (fun a12 ↦ ((@TensorProduct.uncurry R _ A B C _ _ _ _ _ _) bil) a12)
+  --     (@continuous_of_linearMap R _ _ (@TensorProduct R _ A B _ _ _ _) _ _ _ _ C _ _ _ _
+  --       ((@TensorProduct.uncurry R _ A B C _ _ _ _ _ _) bil))
+  --     (@continuous_tprod R _ _ _ A _ _ _ _ B _ _ _ _ _ _ _ _)
 
 variable (R)
 variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
@@ -518,4 +520,32 @@ def Module.topologicalRing : TopologicalRing D :=
 
 end commutative
 
+set_option linter.unusedTactic false
+
+lemma continuousSMul (R : Type*) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+    (A : Type*) [AddCommGroup A] [Module R A] [Module.Finite R A] [TopologicalSpace A]
+    [IsModuleTopology R A] :
+    ContinuousSMul R A := by
+  exact ⟨Module.continuous_bilinear <| LinearMap.lsmul R A⟩
+
 end ModuleTopology
+
+/-
+
+## Open problem
+
+I can only prove that `SMul : R × A → A` is continuous for the module topology if `R` is
+commutative (because my proof uses tensor products) and if `A` is finite (because
+I reduce to a basis check ). Is it true in general
+
+
+lemma continuousSMul (R : Type*) [Ring R] [TopologicalSpace R] [TopologicalRing R]
+    (A : Type*) [AddCommGroup A] [Module R A] : @ContinuousSMul R A _ _ (moduleTopology R A) := by
+  refine @ContinuousSMul.mk ?_ ?_ ?_ ?_ ?_ ?_
+  haveI : IsModuleTopology R R := inferInstance
+  rw [isModuleTopology R R]
+  refine Module.continuous_bilinear ?_
+  sorry
+  done
+end ModuleTopology
+-/
