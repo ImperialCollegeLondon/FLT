@@ -5,7 +5,7 @@ Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 -/
 
 import Mathlib.RingTheory.TensorProduct.Basic
-import FLT.for_mathlib.Coalgebra.Sweedler
+import FLT.mathlibExperiments.Coalgebra.Sweedler
 import Mathlib.RingTheory.HopfAlgebra
 
 /-!
@@ -210,7 +210,7 @@ lemma comp_one {A' : Type*} [CommSemiring A'] [Bialgebra R A']
     (f : AlgHomPoint R A' L) :
     f.comp (1 : AlgHomPoint R A' A') = 1 := by
   ext
-  simp [one_def, Algebra.ofId_apply, Algebra.algebraMap_eq_smul_one, f.map_smul, f.map_one]
+  simp [one_def, Algebra.ofId_apply, Algebra.algebraMap_eq_smul_one, map_smul, _root_.map_one]
 
 end commutative_bialgebra
 

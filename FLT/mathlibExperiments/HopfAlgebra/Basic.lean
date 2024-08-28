@@ -5,8 +5,8 @@ Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 -/
 
 import Mathlib.RingTheory.HopfAlgebra
-import FLT.for_mathlib.Coalgebra.Monoid
-import FLT.for_mathlib.Coalgebra.TensorProduct
+import FLT.mathlibExperiments.Coalgebra.Monoid
+import FLT.mathlibExperiments.Coalgebra.TensorProduct
 
 /-!
 # Basic properties of Hopf algebra
@@ -15,7 +15,7 @@ For an `R`-hopf algebra `A`, we prove in this file the following basic propertie
 - the antipodal map is anticommutative;
 - the antipodal map is unique linear map whose convolution inverse is the identity `𝟙 A`.
   (Note that, confusingly, the identity linear map `x ↦ x` is not actually the unit in the monoid
-  structure of linear maps. See `for_mathlib/Coalgebra/Monoid.lean`)
+  structure of linear maps. See `mathlibExperiments/Coalgebra/Monoid.lean`)
 if we further assume `A` is commutative then
 - the `R`-algebra homomorphisms from `A` to `L` has a group structure where multiplication is
   convolution, and inverse of `f `is `f ∘ antipode`
@@ -141,7 +141,7 @@ noncomputable instance instGroup : Group (AlgHomPoint R A L) where
   inv f := f.comp antipodeAlgHom
   mul_left_inv f := AlgHom.ext fun x ↦ by
     simp only [AlgHomPoint.mul_repr (repr := Coalgebra.comul_repr x), AlgHom.comp_apply,
-      antipodeAlgHom_apply, ← f.map_mul, ← map_sum, f.commutes, Algebra.ofId_apply,
+      antipodeAlgHom_apply, ← _root_.map_mul, ← map_sum, f.commutes, Algebra.ofId_apply,
       antipode_repr (repr := Coalgebra.comul_repr x), AlgHomPoint.one_def,
       Bialgebra.counitAlgHom_apply]
 

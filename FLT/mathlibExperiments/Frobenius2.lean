@@ -7,7 +7,7 @@ import Mathlib.FieldTheory.Cardinality
 import Mathlib.RingTheory.DedekindDomain.Ideal
 import Mathlib.RingTheory.Ideal.Pointwise
 import Mathlib.RingTheory.Ideal.QuotientOperations
-import Mathlib.RingTheory.IntegralRestrict
+import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 
 /-
 
