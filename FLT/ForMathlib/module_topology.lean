@@ -1,12 +1,9 @@
-import Mathlib.RingTheory.TensorProduct.Basic -- we need tensor products of rings at some point
-import Mathlib.Topology.Algebra.Module.Basic -- and we need topological rings and modules
-import Mathlib.Tactic
-import Mathlib.Topology.Order
-import Mathlib.Algebra.Group.Action.Defs
 import Mathlib.Algebra.Module.Projective
 import Mathlib.LinearAlgebra.TensorProduct.RightExactness
+import Mathlib.Topology.Algebra.Module.Basic
 
-/-
+/-!
+
 # The module topology
 
 If `R` is a topological ring and `M` is an `R`-module, the *module topology* on `M` is
@@ -503,8 +500,6 @@ def Module.topologicalRing : TopologicalRing D :=
 
 end commutative
 
-set_option linter.unusedTactic false
-
 lemma continuousSMul (R : Type*) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
     (A : Type*) [AddCommGroup A] [Module R A] [Module.Finite R A] [TopologicalSpace A]
     [IsModuleTopology R A] :
@@ -519,8 +514,7 @@ end ModuleTopology
 
 I can only prove that `SMul : R × A → A` is continuous for the module topology if `R` is
 commutative (because my proof uses tensor products) and if `A` is finite (because
-I reduce to a basis check ). Is it true in general
-
+I reduce to a basis check ). Is it true in general?
 
 lemma continuousSMul (R : Type*) [Ring R] [TopologicalSpace R] [TopologicalRing R]
     (A : Type*) [AddCommGroup A] [Module R A] : @ContinuousSMul R A _ _ (moduleTopology R A) := by
@@ -529,6 +523,4 @@ lemma continuousSMul (R : Type*) [Ring R] [TopologicalSpace R] [TopologicalRing 
   rw [isModuleTopology R R]
   refine Module.continuous_bilinear ?_
   sorry
-  done
-end ModuleTopology
 -/
