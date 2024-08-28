@@ -151,6 +151,22 @@ def homeo_of_linearEquiv [IsModuleTopology R A] [IsModuleTopology R B] (f : A �
   continuous_toFun := continuous_of_linearMap f.toLinearMap
   continuous_invFun := continuous_of_linearMap f.symm.toLinearMap
 
+-- lemma _root_.ContinuousLinearEquiv.isModuleTopology [IsModuleTopology R A]
+--     {B : Type*} [AddCommMonoid B] [Module R B] [TopologicalSpace B] (e : A ≃L[R] B) :
+--   IsModuleTopology R B where
+--     isModuleTopology' :=
+--       let e' := e.toLinearEquiv
+--       let e'' := (e.toHomeomorph : A ≃ₜ B)
+--       let this : _ ≃ₜ _ := homeo_of_linearEquiv (aB := moduleTopology R B) e'
+--       --R _ _ B _ _ (moduleTopology R B)
+--       let bid : @Homeomorph B B  := this.symm.trans e''--(e.toHomeomorph : A ≃ₜ B)
+--       have hbid : bid = Homeomorph.refl B := by
+--         ext
+--         exact e.toEquiv.apply_symm_apply _
+--       sorry
+
+#check Homeomorph.trans
+
 variable (R)
 
 lemma continuous_neg (A : Type*) [AddCommGroup A] [Module R A] [TopologicalSpace A]
@@ -168,9 +184,8 @@ variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [I
 lemma surj {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ Pi.topologicalSpace = moduleTopology R A := by
   apply le_antisymm
-  · rw [← continuous_iff_coinduced_le]
-    rw [← isModuleTopology R A]
-    fun_prop
+  · rw [← continuous_iff_coinduced_le, ← isModuleTopology R A]
+    exact continuous_of_linearMap φ
   · apply iSup_le fun m ↦ iSup_le fun ψ ↦ ?_
     obtain ⟨α, rfl⟩ : ∃ α : (Fin m → R) →ₗ[R] (Fin n → R), φ.comp α = ψ :=
       Module.projective_lifting_property _ _ hφ
@@ -178,7 +193,7 @@ lemma surj {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjecti
     rw [← coinduced_compose]
     apply coinduced_mono
     rw [← continuous_iff_coinduced_le]
-    fun_prop
+    exact continuous_of_linearMap α
 
 /-- Any surjection between finite R-modules is coinducing for the R-module topology. -/
 lemma supersurj {B : Type*} [AddCommMonoid B] [aB : TopologicalSpace B] [Module R B] [IsModuleTopology R B]
@@ -191,19 +206,12 @@ lemma supersurj {B : Type*} [AddCommMonoid B] [aB : TopologicalSpace B] [Module 
 
 -- nice spot to end a PR.
 
--- do I need this? Prove with supersurj
+-- do I need this?
 -- **^TODO** why didn't have/let linter warn me
 lemma surj' {ι : Type*} [Finite ι] {φ : (ι → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ Pi.topologicalSpace = moduleTopology R A := by
-  let n := Nat.card ι
-  let f : (Fin n → R) ≃ₗ[R] (ι → R) := LinearEquiv.funCongrLeft R R (Finite.equivFin ι)
-  have hf : Function.Surjective (φ ∘ₗ f : (Fin n → R) →ₗ[R] A) := by simp [hφ]
-  rw [← surj hf]
-  simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, ← coinduced_compose, f]
-  congr
-  let foo' : (ι → R) ≃ₜ (Fin (Nat.card ι) → R) :=
-    Homeomorph.piCongrLeft (Y := fun _ ↦ R) (Finite.equivFin ι)
-  exact (Homeomorph.coinduced_eq foo'.symm).symm
+  rw [(instPiFinite R ι).isModuleTopology']
+  apply supersurj hφ
 
 end surj
 
@@ -212,41 +220,35 @@ section add
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
 
-example : A × A →ₗ[R] A := LinearMap.fst R A A + LinearMap.snd R A A
-
 open TopologicalSpace in
 -- **TODO** ask Yury how to golf
-lemma coinduced_prod_eq_prod_coinduced (X Y S T : Type*) [AddCommGroup X] [AddCommGroup Y]
+lemma coinduced_prod_eq_prod_coinduced {X Y S T : Type*} [AddCommGroup X] [AddCommGroup Y]
     [AddCommGroup S] [AddCommGroup T] (f : X →+ S) (g : Y →+ T)
     (hf : Function.Surjective f) (hg : Function.Surjective g)
     [τX : TopologicalSpace X] [ContinuousAdd X] [τY : TopologicalSpace Y] [ContinuousAdd Y] :
     coinduced (Prod.map f g) instTopologicalSpaceProd =
       @instTopologicalSpaceProd S T (coinduced f τX) (coinduced g τY) := by
   ext U
-  rw [@isOpen_prod_iff]
-  rw [isOpen_coinduced]
-  rw [isOpen_prod_iff]
+  rw [@isOpen_prod_iff, isOpen_coinduced, isOpen_prod_iff]
   constructor
   · intro h s t hst
     obtain ⟨x, rfl⟩ := hf s
     obtain ⟨y, rfl⟩ := hg t
     obtain ⟨V1, V2, hV1, hV2, hx1, hy2, h12⟩ := h x y hst
-    have this1 := @isOpenMap_of_coinduced _ _ _ _ _ _ (coinduced f τX) f ?_ rfl V1 hV1
-    · have this2 := @isOpenMap_of_coinduced _ _ _ _ _ _ (coinduced g τY) g ?_ rfl V2 hV2
-      · use f '' V1, g '' V2, this1, this2, ⟨x, hx1, rfl⟩, ⟨y, hy2, rfl⟩
-        intro ⟨s, t⟩ ⟨⟨x', hx', hxs⟩, ⟨y', hy', hyt⟩⟩
-        subst hxs hyt
-        specialize @h12 (x', y') ⟨hx', hy'⟩
-        exact h12
-      · rw [continuous_iff_coinduced_le]
-    · rw [continuous_iff_coinduced_le]
+    use f '' V1, g '' V2,
+      @isOpenMap_of_coinduced _ _ _ _ _ _ (coinduced f τX) f
+        (by rw [continuous_iff_coinduced_le]) rfl V1 hV1,
+      @isOpenMap_of_coinduced _ _ _ _ _ _ (coinduced g τY) g
+        (by rw [continuous_iff_coinduced_le]) rfl V2 hV2,
+      ⟨x, hx1, rfl⟩, ⟨y, hy2, rfl⟩
+    rintro ⟨s, t⟩ ⟨⟨x', hx', rfl⟩, ⟨y', hy', rfl⟩⟩
+    exact @h12 (x', y') ⟨hx', hy'⟩
   · intro h x y hxy
     rw [Set.mem_preimage, Prod.map_apply] at hxy
     obtain ⟨U1, U2, hU1, hU2, hx1, hy2, h12⟩ := h (f x) (g y) hxy
     use f ⁻¹' U1, g ⁻¹' U2, hU1, hU2, hx1, hy2
     intro ⟨x', y'⟩ ⟨hx', hy'⟩
-    apply h12
-    exact ⟨hx', hy'⟩
+    exact h12 ⟨hx', hy'⟩
 
 variable (R A) in
 @[continuity, fun_prop]
@@ -256,26 +258,22 @@ lemma continuous_add [Module.Finite R A] : Continuous (fun ab ↦ ab.1 + ab.2 : 
   rw [← surj hf]
   intro U hU
   rw [isOpen_coinduced] at hU ⊢
-  apply @Continuous.isOpen_preimage ((Fin n → R) × (Fin n → R)) (Fin n → R) _ _
-      (fun rs ↦ rs.1 + rs.2) (by continuity) at hU
-  let ff : (Fin n → R) × (Fin n → R) →ₗ[R] A × A := f.prodMap f
-  convert isOpenMap_of_coinduced (τB := TopologicalSpace.coinduced ff instTopologicalSpaceProd)
-    ff.toAddMonoidHom _ rfl _ hU
-  · convert (coinduced_prod_eq_prod_coinduced _ _ A A f f hf hf).symm
-  · ext x
-    cases' x with a b
-    simp only [Set.mem_preimage, LinearMap.toAddMonoidHom_coe, Set.mem_image, map_add, Prod.exists]
-    constructor
-    · intro h
-      obtain ⟨a1, rfl⟩ := hf a
-      obtain ⟨b1, rfl⟩ := hf b
-      use a1, b1, h
-      rfl
-    · rintro ⟨a1, b1, hU, hab⟩
-      cases hab
-      exact hU
-  · rw [continuous_iff_coinduced_le]
-    rfl
+  apply Continuous.isOpen_preimage
+      (f := (fun rs ↦ rs.1 + rs.2 : (Fin n → R) × (Fin n → R) → (Fin n → R)))
+      (by continuity) at hU
+  rw [← coinduced_prod_eq_prod_coinduced f f hf hf]
+  suffices key : (fun ab ↦ ab.1 + ab.2 : A × A → A) ⁻¹' U =
+    ⇑(f.prodMap f).toAddMonoidHom '' ((fun rs ↦ rs.1 + rs.2) ⁻¹' (⇑f ⁻¹' U)) by
+    convert isOpenMap_of_coinduced (f.prodMap f).toAddMonoidHom
+      (by rw [continuous_iff_coinduced_le]; rfl) rfl _ hU
+      (τB := TopologicalSpace.coinduced (f.prodMap f) instTopologicalSpaceProd)
+  ext ⟨a, b⟩
+  simp only [Set.mem_preimage, LinearMap.toAddMonoidHom_coe, Set.mem_image, map_add, Prod.exists,
+    LinearMap.prodMap_apply, Prod.mk.injEq]
+  refine ⟨fun h ↦ ?_, by aesop⟩
+  obtain ⟨s, rfl⟩ := hf a
+  obtain ⟨t, rfl⟩ := hf b
+  use s, t, h
 
 variable (R A) in
 @[continuity, fun_prop]
@@ -286,14 +284,9 @@ lemma continuous_sum_finset (ι : Type*) [DecidableEq ι] (s : Finset ι) [Modul
     fun_prop
   · case insert j s has hc =>
     simp_rw [Finset.sum_insert has]
-    have foo : (fun (as : ∀ _, A) ↦ as j + ∑ i ∈ s, as i) = (fun ab ↦ ab.1 + ab.2 : A × A → A) ∘
-        (fun as ↦ (as j, ∑ i ∈ s, as i) : ((∀ _, A) → A × A)) := by
-      ext
-      simp
-    rw [foo]
-    apply Continuous.comp
-    · apply continuous_add R A
-    · fun_prop
+    suffices Continuous (fun as ↦ (as j, ∑ i ∈ s, as i): ((ι → A) → A × A)) from
+      Continuous.comp (continuous_add R A) this
+    fun_prop
 
 attribute [local instance] Fintype.ofFinite
 
@@ -312,47 +305,33 @@ variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [Is
 variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsModuleTopology R B]
 
 open TopologicalSpace in
-lemma prod [Module.Finite R A] [Module.Finite R B] :
+instance prod [Module.Finite R A] [Module.Finite R B] :
     IsModuleTopology R (A × B) := by
   constructor
   apply le_antisymm
-  · rw [← continuous_id_iff_le]
-    have hid : (id : A × B → A × B) = (fun abcd ↦ abcd.1 + abcd.2) ∘ (fun ab ↦ ((ab.1, 0),(0, ab.2))) := by
-      ext ⟨a, b⟩ <;> simp
-    rw [hid]
-    apply @Continuous.comp (A × B) ((A × B) × (A × B)) (A × B) _
-        (@instTopologicalSpaceProd _ _ (moduleTopology R (A × B)) (moduleTopology R (A × B)))
-        (moduleTopology R (A × B))
-    · apply @continuous_add R _ _ _ (A × B) _ _ (moduleTopology R _) ?_
-      convert IsModuleTopology.mk rfl
+  · rw [← continuous_id_iff_le, show (id : A × B → A × B) =
+      (fun abcd ↦ abcd.1 + abcd.2) ∘ (fun ab ↦ ((ab.1, 0),(0, ab.2))) by
+      ext ⟨a, b⟩ <;> simp]
+    apply @Continuous.comp (A × B) ((A × B) × (A × B)) (A × B) _ (_) (_)
+    · apply @continuous_add R _ _ _ (A × B) _ _ (_) <| IsModuleTopology.mk (τA := _) rfl
     · convert @Continuous.prod_map (A × B) (A × B) A B (moduleTopology R _) (moduleTopology R _)
           _ _ (LinearMap.inl R A B) (LinearMap.inr R A B) _ _ using 1
       · rw [isModuleTopology R A]
         apply continuous_of_linearMap'
       · rw [isModuleTopology R B]
         apply continuous_of_linearMap'
-  · apply le_inf
-    · rw [← continuous_iff_le_induced]
-      rw [isModuleTopology R A]
-      change @Continuous (A × B) A (moduleTopology R _) (moduleTopology R _) (LinearMap.fst R A B)
-      apply continuous_of_linearMap'
-    · rw [← continuous_iff_le_induced]
-      rw [isModuleTopology R B]
-      change @Continuous (A × B) B (moduleTopology R _) (moduleTopology R _) (LinearMap.snd R A B)
-      apply continuous_of_linearMap'
-
-variable (R A B) in
-lemma prod_isModuleTopology [Module.Finite R A] [Module.Finite R B] :
-    (instTopologicalSpaceProd : TopologicalSpace (A × B)) = moduleTopology R (A × B) := by
-  convert prod.isModuleTopology' <;> all_goals infer_instance
+  · rw [isModuleTopology R A, isModuleTopology R B]
+    apply le_inf <;> rw [← continuous_iff_le_induced]
+    · exact continuous_of_linearMap' (LinearMap.fst R A B)
+    · exact continuous_of_linearMap' (LinearMap.snd R A B)
 
 end prod
 
 section Pi
 
-variable {R : Type} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
+variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 
-variable {ι : Type} {A : ι → Type} [Finite ι] [∀ i, AddCommGroup (A i)]
+variable {ι : Type*} {A : ι → Type*} [Finite ι] [∀ i, AddCommGroup (A i)]
     [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
     [∀ i, IsModuleTopology R (A i)]
 
@@ -362,13 +341,12 @@ lemma pi [∀ i, Module.Finite R (A i)]: IsModuleTopology R (∀ i, A i) := by
   · rw [← continuous_id_iff_le]
     classical
     letI : Fintype ι := Fintype.ofFinite ι
-    have hid : @id (∀ i, A i) = (fun l ↦ ∑ j, l j : (∀ (_ : ι), ∀ i, A i) → ∀ i, A i) ∘
+    have hid : id = (fun l ↦ ∑ j, l j : (∀ (_ : ι), ∀ i, A i) → ∀ i, A i) ∘
         (fun as ↦ (fun j ↦ (fun i ↦ if h : i = j then h ▸ as j else 0))) := by
       ext
       simp
     rw [hid]
-    apply @Continuous.comp _ _ _ _ (@Pi.topologicalSpace ι _ (fun i ↦ moduleTopology R _))
-        (moduleTopology R _) _ _
+    apply @Continuous.comp _ _ _ _ (_) (_)
     · apply @continuous_sum_finite R _ _ _ _ _ _ (moduleTopology R _) ?_
       convert IsModuleTopology.mk rfl
     · refine @Pi.continuous_postcomp' _ _ _ _ (fun _ ↦ moduleTopology R (∀ i, A i))
@@ -378,6 +356,13 @@ lemma pi [∀ i, Module.Finite R (A i)]: IsModuleTopology R (∀ i, A i) := by
   · apply le_iInf (fun i ↦ ?_)
     rw [← continuous_iff_le_induced, isModuleTopology R (A i)]
     exact continuous_of_linearMap' (LinearMap.proj i)
+
+
+-- lemma pi' [∀ i, Module.Finite R (A i)]: IsModuleTopology R (∀ i, A i) := by
+--   induction ι using Finite.induction_empty_option with
+--   | of_equiv e => sorry
+--   | h_empty => sorry
+--   | h_option => sorry
 
 end Pi
 
@@ -454,9 +439,7 @@ lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
         use (x, y)
         rfl
       convert supersurj hα
-      · exact prod_isModuleTopology R (Fin m → R) (Fin n → R)
-      · apply prod
-      · apply prod
+      exact isModuleTopology R _
     -- looks fine
   · ext x
     obtain ⟨a, b⟩ := x
