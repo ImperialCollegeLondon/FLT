@@ -269,9 +269,7 @@ lemma F.mod_Q_y_pow_q_eq_zero : (F A Q).eval₂ (algebraMap B (B⧸Q)) ((algebra
 
 lemma exists_Frob : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q := by
   have := F.mod_Q_y_pow_q_eq_zero A Q isGalois P
-  rw [F_spec] at this
-  rw [eval₂_finset_prod] at this
-  rw [Finset.prod_eq_zero_iff] at this
+  rw [F_spec, eval₂_finset_prod, Finset.prod_eq_zero_iff] at this
   obtain ⟨σ, -, hσ⟩ := this
   use σ
   simp only [Ideal.Quotient.algebraMap_eq, AlgEquiv.smul_def, eval₂_sub, eval₂_X, eval₂_C,
@@ -291,7 +289,7 @@ lemma Frob_Q : Frob A Q isGalois P • Q = Q := by
     rwa [Ideal.map_eq_comap_symm] at hy
   have this := Q.sub_mem hy2 <| Frob_spec A Q isGalois P
   simp only [sub_sub_cancel] at this
-  apply y_not_in_Q A Q <| Ideal.IsPrime.mem_of_pow_mem (show Q.IsPrime by infer_instance) _ this
+  exact y_not_in_Q A Q <| Ideal.IsPrime.mem_of_pow_mem (show Q.IsPrime by infer_instance) _ this
 
 lemma _root_.Ideal.Quotient.coe_eq_coe_iff_sub_mem {R : Type*} [CommRing R] {I : Ideal R} (x y : R) :
   (x : R ⧸ I) = y ↔ x - y ∈ I := Ideal.Quotient.mk_eq_mk_iff_sub_mem _ _

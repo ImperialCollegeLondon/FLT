@@ -384,7 +384,7 @@ noncomputable instance : Field (A ⧸ P) := Ideal.Quotient.field P
 lemma is_primepow_char_A_quot_P : IsPrimePow q := Fintype.isPrimePow_card_of_field
 
 lemma ex_primepow_char_A_quot_P : ∃ p n : ℕ , Prime p ∧ 0 < n ∧ p ^ n = q := by
-  apply is_primepow_char_A_quot_P
+  exact is_primepow_char_A_quot_P _
 
 local notation "p" => Classical.choose (CharP.exists (A ⧸ P))
 local notation "p'" => Classical.choose (ex_primepow_char_A_quot_P P)
@@ -407,7 +407,7 @@ lemma p_is_p' : p = p' := by
   have h1 : p ∣ q := charP_iff (A ⧸ P) p |>.1 (p_is_char P) q |>.1 eq0
   have eq1 : p' ^ n = q := q_is_p'_pow_n P
   rw [← eq1] at h1
-  refine Nat.dvd_prime (p'_is_prime P) |>.1
+  exact Nat.dvd_prime (p'_is_prime P) |>.1
     (Nat.Prime.dvd_of_dvd_pow (p_is_prime P) h1) |>.resolve_left <| Nat.Prime.ne_one <| p_is_prime P
 
 lemma q_is_p_pow_n : p ^ n = q := by
@@ -421,7 +421,7 @@ theorem pow_eq_expand (a : (A ⧸ P)[X]) :
   have pprime : Nat.Prime p := p_is_prime P
   have factprime : Fact (Nat.Prime p) := { out := pprime }
   rw [← q_is_p_pow_n, ← map_expand_pow_char, map_expand, FiniteField.frobenius_pow]
-  · simp only [exists_and_left, RingHom.one_def, map_id]
+  · simp [exists_and_left, RingHom.one_def, map_id]
   · exact (q_is_p_pow_n P).symm
 
 end FreshmansDream
@@ -488,11 +488,7 @@ theorem gal_smul_F_eq  (σ : L ≃ₐ[K] L) :
     ∏ τ : L ≃ₐ[K] L,
     (X - C (galRestrict A K L B σ
       (galRestrict A K L B τ α))):= by
-  rw [Finset.smul_prod]
-  simp_rw [smul_sub]
-  ext
-  congr
-  simp only [smul_X, smul_C, AlgEquiv.smul_def]
+  simp [Finset.smul_prod, smul_sub, smul_X, smul_C, AlgEquiv.smul_def]
 
 /-- use `Finset.prod_bij` to show
 `(galRestrict A K L B σ • (∏ τ : L ≃ₐ[K] L, (X - C (galRestrict A K L B τ α))) =
@@ -507,7 +503,7 @@ lemma F_invariant_under_finite_aut (σ :  L ≃ₐ[K] L)  :
   have i_inj : ∀ (τ₁ : L ≃ₐ[K] L) (hτ₁ : τ₁ ∈ Finset.univ) (τ₂ : L ≃ₐ[K] L)
       (hτ₂ : τ₂ ∈ Finset.univ), i τ₁ hτ₁ = i τ₂ hτ₂ → τ₁ = τ₂ := by
     intros τ₁ _ τ₂ _ h
-    simpa only [i, mul_right_inj] using h
+    simpa [i, mul_right_inj] using h
   have i_surj : ∀ σ ∈ Finset.univ, ∃ (τ : L ≃ₐ[K] L) (hτ : τ ∈ Finset.univ), i τ hτ = σ := by
     intro τ'
     simp only [Finset.mem_univ, exists_true_left, forall_true_left, i]
@@ -520,7 +516,7 @@ lemma F_invariant_under_finite_aut (σ :  L ≃ₐ[K] L)  :
     simp only [i, map_mul, sub_right_inj, C_inj]
     rw [AlgEquiv.aut_mul]
     rfl
-  apply Finset.prod_bij i hi i_inj i_surj h
+  exact Finset.prod_bij i hi i_inj i_surj h
 
 /-- ` L ≃ₐ[K] L` fixes `F`. -/
 theorem gal_smul_F_eq_self (σ : L ≃ₐ[K] L) :
@@ -532,9 +528,8 @@ theorem gal_smul_F_eq_self (σ : L ≃ₐ[K] L) :
 
 theorem gal_smul_coeff_eq (n : ℕ) (h : ∀ σ : L ≃ₐ[K] L, galRestrict A K L B σ • F = F)
     (σ : L ≃ₐ[K] L) : galRestrict A K L B σ • (coeff F n) = coeff F n := by
-  simp only [AlgEquiv.smul_def]
   nth_rewrite 2 [← h σ]
-  simp only [coeff_smul, AlgEquiv.smul_def]
+  simp [coeff_smul, AlgEquiv.smul_def]
 
 variable {A K L B Q}
 
@@ -580,7 +575,7 @@ theorem coeff_lives_in_A (n : ℕ) : ∃ a : A, algebraMap B L (coeff F n) = (al
     exact NoZeroSMulDivisors.algebraMap_injective K L
   cases' h1.1 h2 with a' ha'
   use a'
-  simpa only [eq0, RingHom.coe_comp, Function.comp_apply, ha']
+  simpa [eq0, RingHom.coe_comp, Function.comp_apply, ha']
 
 /-- `α` is a root of `F`. -/
 lemma isRoot_α : eval α F = 0 := by
@@ -603,14 +598,12 @@ lemma isRoot_α : eval α F = 0 := by
   apply eq0 at evalid
   rwa [← eqF]
 
-lemma quotient_isRoot_α : (eval α F) ∈ Q := by
-  rw [isRoot_α Q_ne_bot]
-  apply Ideal.zero_mem
+lemma quotient_isRoot_α : (eval α F) ∈ Q := (isRoot_α Q_ne_bot) ▸ Ideal.zero_mem _
 
 lemma conjugate_isRoot_α (σ : L ≃ₐ[K] L) : (eval (galRestrict A K L B σ α) F) = 0 := by
   have evalσ : eval  (galRestrict A K L B σ α)
       (X - C (galRestrict A K L B σ α)) = 0 := by
-    simp only [eval_sub, eval_X, eval_C, sub_self]
+    simp [eval_sub, eval_X, eval_C, sub_self]
   have eqF : (eval (galRestrict A K L B σ α) (∏ τ : L ≃ₐ[K] L,
       (X - C (galRestrict A K L B τ α)))) =
       eval (galRestrict A K L B σ α) F := rfl
@@ -630,9 +623,7 @@ lemma conjugate_isRoot_α (σ : L ≃ₐ[K] L) : (eval (galRestrict A K L B σ �
   rw [← eqF, evalσ]
 
 lemma conjugate_quotient_isRoot_α (σ : L ≃ₐ[K] L) :
-    (eval (galRestrict A K L B σ α) F) ∈ Q := by
-  rw [conjugate_isRoot_α Q_ne_bot]
-  apply Ideal.zero_mem
+    (eval (galRestrict A K L B σ α) F) ∈ Q := (conjugate_isRoot_α Q_ne_bot) _ ▸ Ideal.zero_mem _
 
 lemma F_is_root_iff_is_conjugate {x : B} :
     IsRoot F x ↔ (∃ σ : L ≃ₐ[K] L, x = (galRestrict A K L B σ α)) := by
@@ -656,7 +647,7 @@ lemma F_is_root_iff_is_conjugate {x : B} :
   · intros h
     rcases h with ⟨σ, hσ⟩
     rw [Polynomial.IsRoot.def, hσ]
-    apply conjugate_isRoot_α Q_ne_bot
+    exact conjugate_isRoot_α Q_ne_bot _
 
 lemma F_eval_zero_is_conjugate {x : B} (h : eval x F = 0) : ∃ σ : L ≃ₐ[K] L,
     x = ((galRestrict A K L B σ) α) := by
@@ -678,17 +669,15 @@ lemma ex_poly_in_A : ∃ m : A[X], Polynomial.map (algebraMap A B) m = F := by
         apply Iff.not
         rw [← _root_.map_eq_zero_iff (algebraMap B L), this, map_eq_zero_iff]
         have I : NoZeroSMulDivisors A L := NoZeroSMulDivisors.trans A K L
-        · apply NoZeroSMulDivisors.algebraMap_injective
-        · apply NoZeroSMulDivisors.algebraMap_injective
+        · exact NoZeroSMulDivisors.algebraMap_injective _ _
+        · exact NoZeroSMulDivisors.algebraMap_injective _ _
         }}
   use m
   ext n
-  have := Classical.choose_spec (h n)
   simp only [coeff_map, coeff_ofFinsupp, Finsupp.coe_mk]
   set s := Classical.choose (h n)
   apply NoZeroSMulDivisors.algebraMap_injective B L
-  rw [this]
-  exact (IsScalarTower.algebraMap_apply A B L _).symm
+  exact (Classical.choose_spec (h n)) ▸ (IsScalarTower.algebraMap_apply A B L _).symm
 
 /--`m' : A[X]` such that `Polynomial.map (algebraMap A B) m = F`.  -/
 noncomputable def m' : A[X] := Classical.choose (ex_poly_in_A Q_ne_bot)
@@ -703,11 +692,11 @@ lemma m_eq_F_in_B_quot_Q :
     Polynomial.map (algebraMap B (B ⧸ Q)) F := by
   suffices h : Polynomial.map (algebraMap A B) m = F  by
     exact congrArg (map (algebraMap B (B ⧸ Q))) h
-  apply m_mapsto_F
+  exact m_mapsto_F _
 
 lemma m_expand_char_q : (Polynomial.map (algebraMap A (A ⧸ P)) m) ^ q =
     (expand _ q (Polynomial.map (algebraMap A (A ⧸ P)) m)) := by
-  apply pow_eq_expand
+  exact pow_eq_expand _ _
 
 lemma B_m_expand_char_q : (Polynomial.map (algebraMap A (B ⧸ Q)) m) ^ q =
     (expand _ q (Polynomial.map (algebraMap A (B ⧸ Q)) m)) := by
@@ -741,23 +730,23 @@ lemma pow_expand_A_B_scalar_tower_F :
 lemma F_expand_eval_eq_eval_pow :
     (eval₂ (Ideal.Quotient.mk Q) (Ideal.Quotient.mk Q α) F) ^ q =
     (eval₂ (Ideal.Quotient.mk Q) (Ideal.Quotient.mk Q (α ^ q)) F) := by
-  simp only [← Polynomial.eval_map,  ←  Ideal.Quotient.algebraMap_eq, ← Polynomial.coe_evalRingHom,
-    ← map_pow, pow_expand_A_B_scalar_tower_F]
-  simp only [Ideal.Quotient.algebraMap_eq, coe_evalRingHom, expand_eval, map_pow]
+  simp_rw [← Polynomial.eval_map,  ←  Ideal.Quotient.algebraMap_eq, ← Polynomial.coe_evalRingHom,
+    ← map_pow, pow_expand_A_B_scalar_tower_F, Ideal.Quotient.algebraMap_eq, coe_evalRingHom,
+    expand_eval, map_pow]
 
 lemma quotient_F_is_product_of_quot :
     (Polynomial.map (Ideal.Quotient.mk Q) F) =
     ∏ τ : L ≃ₐ[K] L, (X - C ((Ideal.Quotient.mk Q) ((galRestrict A K L B τ) α))) := by
   rw [← Polynomial.coe_mapRingHom]
   erw [map_prod]
-  simp only [map_sub, coe_mapRingHom, map_X, map_C]
+  simp [map_sub, coe_mapRingHom, map_X, map_C]
 
 lemma quotient_F_is_root_iff_is_conjugate (x : (B ⧸ Q)) :
     IsRoot (Polynomial.map  (Ideal.Quotient.mk Q) F) x ↔
     (∃ σ : L ≃ₐ[K] L, x = ((Ideal.Quotient.mk Q) ((galRestrict A K L B σ) α)))  := by
   rw [quotient_F_is_product_of_quot, Polynomial.isRoot_prod]
   simp only [Finset.mem_univ, eval_sub, eval_X, eval_C, true_and, Polynomial.root_X_sub_C]
-  simp only [eq_comm (a := x)]
+  simp [eq_comm]
 
 lemma pow_eval_root_in_Q : ((eval α F) ^ q) ∈ Q := by
   have h : (eval α F) ∈ Q := quotient_isRoot_α Q_ne_bot
@@ -767,16 +756,15 @@ lemma pow_eval_root_in_Q : ((eval α F) ^ q) ∈ Q := by
 
 lemma expand_eval_root_eq_zero :
     (eval₂ (Ideal.Quotient.mk Q) (Ideal.Quotient.mk Q (α ^ q)) F) = 0 := by
-  rw [← F_expand_eval_eq_eval_pow P Q_ne_bot]
-  simp only [eval₂_at_apply, ne_eq, Fintype.card_ne_zero, not_false_eq_true, pow_eq_zero_iff]
+  simp only [← F_expand_eval_eq_eval_pow P Q_ne_bot, eval₂_at_apply, ne_eq, Fintype.card_ne_zero,
+    not_false_eq_true, pow_eq_zero_iff]
   have h : eval α F ∈ Q := quotient_isRoot_α Q_ne_bot
   rwa [← Ideal.Quotient.eq_zero_iff_mem] at h
 
 -- now, want `∃ σ, α ^ q ≡ σ α mod Q`
 lemma pow_q_is_conjugate : ∃ σ : L ≃ₐ[K] L, (Ideal.Quotient.mk Q (α ^ q)) =
     (Ideal.Quotient.mk Q ((((galRestrict A K L B) σ)) α)) := by
-  rw [← quotient_F_is_root_iff_is_conjugate]
-  simp only [map_pow, IsRoot.def, Polynomial.eval_map]
+  rw [← quotient_F_is_root_iff_is_conjugate, map_pow, IsRoot.def, Polynomial.eval_map]
   exact expand_eval_root_eq_zero P Q_ne_bot
 
 -- following lemma suggested by Amelia
@@ -785,7 +773,7 @@ lemma pow_quotient_IsRoot_α : (eval (α ^ q) F) ∈ Q := by
   have h2 : (eval₂ (Ideal.Quotient.mk Q) (Ideal.Quotient.mk Q (α ^ q)) F) = 0 :=
     expand_eval_root_eq_zero P Q_ne_bot
   convert h2
-  simp only [eval₂_at_apply]
+  rw [eval₂_at_apply]
 
 /--`α ^ q ≡ σ • α mod Q` for some `σ : L ≃ₐ[K] L` -/
 lemma pow_q_conjugate :
@@ -808,9 +796,8 @@ lemma inv_aut_not_mem_decomp (h : Frob ∉ decomposition_subgroup_Ideal' Q) : (F
 lemma gen_zero_mod_inv_aut (h1 : Frob ∉ decomposition_subgroup_Ideal' Q) :
     α ∈ (Frob⁻¹ • Q) := by
   have inv : Frob⁻¹ ∉ decomposition_subgroup_Ideal' Q := by
-    simpa only [inv_mem_iff]
-  apply generator_well_defined
-  exact inv
+    simpa [inv_mem_iff]
+  exact generator_well_defined _ _ inv
 
 lemma prop_Frob : (α ^ q - (galRestrict A K L B Frob) α) ∈ Q :=
   Classical.choose_spec (pow_q_conjugate P Q_ne_bot)
@@ -830,11 +817,9 @@ lemma is_zero_pow_gen_mod_Q (h : α ∈ (Frob⁻¹ • Q)) :
   rw [← Ideal.neg_mem_iff] at h1
   have h3 : ((α ^ q - (galRestrict A K L B Frob) α) -
       (-(galRestrict A K L B Frob) α)) ∈ Q := by
-    apply Ideal.sub_mem
-    · exact h2
-    · exact h1
+    exact Ideal.sub_mem Q h2 h1
   convert h3
-  simp only [sub_neg_eq_add, sub_add_cancel]
+  simp [sub_neg_eq_add, sub_add_cancel]
 
 /-- `Frob ∈ decomposition_subgroup_Ideal'  A K L B Q`. -/
 theorem Frob_is_in_decompositionSubgroup :
@@ -852,13 +837,12 @@ lemma γ_not_in_Q_is_pow_gen {γ : B} (h : γ ∉ Q) :  ∃ (i : ℕ), γ - (α 
    let g :=  Units.mk0 (((Ideal.Quotient.mk Q γ))) <| by
     intro h1
     rw [Ideal.Quotient.eq_zero_iff_mem] at h1
-    apply h
-    exact h1
+    exact h h1
    rcases generator_mem_submonoid_powers Q_ne_bot g with ⟨i, hi⟩
    use i
    rw [← Ideal.Quotient.mk_eq_mk_iff_sub_mem]
-   simp only [g, Units.ext_iff, Units.val_pow_eq_pow_val, IsUnit.unit_spec, Units.val_mk0] at hi
-   simp only [g, map_pow, hi]
+   simp [g, Units.ext_iff, Units.val_pow_eq_pow_val, IsUnit.unit_spec, Units.val_mk0] at hi
+   simp [g, map_pow, hi]
 
 /--`i' : ℕ` such that, for `(γ : B) (h : γ ∉ Q)`, `γ - (α ^ i) ∈ Q`. -/
 noncomputable def i' {γ : B} (h : γ ∉ Q) : ℕ :=
@@ -874,12 +858,11 @@ lemma eq_pow_gen_apply {γ : B} (h: γ ∉ Q) : (galRestrict A K L B Frob) γ -
     galRestrict A K L B Frob (α ^ (i h)) ∈ Q := by
   rw [← Ideal.Quotient.mk_eq_mk_iff_sub_mem]
   have h1 : γ - (α ^ (i h)) ∈ Q := prop_γ_not_in_Q_is_pow_gen Q_ne_bot h
-  rw [← Ideal.Quotient.mk_eq_mk_iff_sub_mem] at h1
+  rw [← Ideal.Quotient.mk_eq_mk_iff_sub_mem, Ideal.Quotient.eq] at h1
   rw [Ideal.Quotient.eq, ← map_sub]
-  rw [Ideal.Quotient.eq] at h1
   have := Frob_is_in_decompositionSubgroup P Q_ne_bot
   rw [mem_decomposition_iff] at this
-  apply (this _).1 h1
+  exact (this _).1 h1
 
 -- γ ∈ B \ Q is α^i mod Q
 /-- `Frob • (α ^ i)  ≡ α ^ (i * q) mod Q` -/
@@ -916,10 +899,7 @@ theorem Frob_γ_not_in_Q_is_pow {γ : B} (h : γ ∉ Q) :
     · exact h3
   simp only [map_pow, sub_sub_sub_cancel_right] at h5
   have h6 : (( (((galRestrict A K L B) Frob)) γ - α ^ (i h * q)) +
-      (((α ^ ((i h) * q)) - (γ ^ q)))) ∈ Q := by
-    apply Ideal.add_mem
-    · exact h5
-    · exact h4
+      (((α ^ ((i h) * q)) - (γ ^ q)))) ∈ Q := Ideal.add_mem _ h5 h4
   simp only [sub_add_sub_cancel] at h6
   rw [← Ideal.neg_mem_iff] at h6
   simp only [neg_sub] at h6
