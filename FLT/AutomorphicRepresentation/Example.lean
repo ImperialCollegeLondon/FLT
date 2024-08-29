@@ -40,19 +40,11 @@ instance : DFunLike ZHat ℕ+ (fun (N : ℕ+) ↦ ZMod N) where
   coe z := z.1
   coe_injective' M N := by simp_all
 
--- Try to avoid introducing `z.1` and `z.2`.
--- @[simp]
--- lemma val_apply (z : ZHat) (n : ℕ+) : z.1 n = z n := rfl
-
 lemma prop (z : ZHat) (D N : ℕ+) (h : (D : ℕ) ∣ N) : ZMod.castHom h (ZMod D) (z N) = z D := z.2 ..
 
 @[ext]
-lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y := by
-  cases x
-  cases y
-  congr
-  ext n
-  apply h
+lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y :=
+  Subtype.ext <| funext <| h
 
 @[simp] lemma zero_val (n : ℕ+) : (0 : ZHat) n = 0 := rfl
 @[simp] lemma one_val (n : ℕ+) : (1 : ZHat) n = 1 := rfl
@@ -79,12 +71,10 @@ instance charZero : CharZero ZHat := ⟨ fun a b h ↦ by
   · simp [Nat.succ_eq_add_one, Nat.lt_add_one_iff]
   · simp [Nat.succ_eq_add_one, Nat.lt_add_one_iff]
   ⟩
---lemma NonAssocSemiring.Nontrivial_iff (R : Type) [NonAssocSemiring R] :
---    Nontrivial R ↔ (0 : R) ≠ 1 :=
---  ⟨fun _ ↦ zero_ne_one' R, fun a ↦ ⟨0, 1, a⟩⟩
 
 open BigOperators Nat Finset in
-/-- A nonarchimedean analogue $0! + 1! + 2! + \cdots$ of $e=1/0! + 1/1! + 1/2! + \cdots$. -/
+/-- A nonarchimedean analogue `0! + 1! + 2! + ⋯` of `e = 1/0! + 1/1! + 1/2! + ⋯`.
+It is defined as the function whose value at `ZMod n` is the sum of `i!` for `0 ≤ i < n`.-/
 def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i in range (n : ℕ), i !, by
   intros D N hDN
   dsimp only
