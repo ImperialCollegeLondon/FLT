@@ -13,7 +13,6 @@ If `R` is a topological space acting on an additive abelian group `A`, we define
 the *action topology* to be the finest topology on `A` making `• : R × A → A`
 and `+ : A × A → A` continuous (with all the products having the product topology).
 
-
 This topology was suggested by Will Sawin [here](https://mathoverflow.net/a/477763/1384).
 
 -/
@@ -74,7 +73,7 @@ namespace ActionTopology
 
 section zero
 
-lemma subsingleton (R : Type*) [TopologicalSpace R] (A : Type*) [Add A] [SMul R A] [Subsingleton A]
+instance subsingleton (R : Type*) [TopologicalSpace R] (A : Type*) [Add A] [SMul R A] [Subsingleton A]
     [TopologicalSpace A] : IsActionTopology R A := by
   constructor
   ext U
@@ -93,7 +92,7 @@ We first prove that the action topology on `R` considered as a module over itsel
 is `R`'s topology.
 
 -/
-protected lemma id (R : Type*) [Semiring R] [τR : TopologicalSpace R] [TopologicalSemiring R] :
+instance instId (R : Type*) [Semiring R] [τR : TopologicalSpace R] [TopologicalSemiring R] :
     IsActionTopology R R := by
   constructor
   /- Let `R` be a topological ring with topology τR. To prove that `τR` is the action
@@ -210,7 +209,7 @@ variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemirin
 variable {M : Type*} [AddCommMonoid M] [Module R M] [aM : TopologicalSpace M] [IsActionTopology R M]
 variable {N : Type*} [AddCommMonoid N] [Module R N] [aN : TopologicalSpace N] [IsActionTopology R N]
 
-lemma prod : IsActionTopology R (M × N) := by
+instance prod : IsActionTopology R (M × N) := by
   constructor
   haveI : ContinuousAdd M := isActionTopology_continuousAdd R M
   haveI : ContinuousAdd N := isActionTopology_continuousAdd R N
@@ -225,8 +224,7 @@ lemma prod : IsActionTopology R (M × N) := by
     refine @Continuous.comp _ _ _ (_) ((_ : TopologicalSpace ((M × N) × (M × N)))) (_) _ _ bar ?_
     apply (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2
     constructor
-    ·
-      -- bleurgh, fighting typeclass inference all the time, which wants one "canonical"
+    · -- bleurgh, fighting typeclass inference all the time, which wants one "canonical"
       -- topology on e.g. M × N.
       refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_
         (continuous_fst : Continuous (Prod.fst : M × N → M))
@@ -242,24 +240,53 @@ end prod
 
 section Pi
 
-variable {R : Type} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
+variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
+
+instance piNat (n : ℕ) {A : Fin n → Type*} [∀ i, AddCommGroup (A i)]
+    [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
+    [∀ i, IsActionTopology R (A i)]: IsActionTopology R (Π i, A i) := by
+  induction n
+  · infer_instance
+  ·
+    sorry
 
 variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsActionTopology R (A i)]
 
-lemma Pi : IsActionTopology R (∀ i, A i) := by
-  sorry -- ask on Zulip how to get this for free from `prod` and `iso`
+instance pi : IsActionTopology R (∀ i, A i) := by
+  induction ι using Finite.induction_empty_option
+  · case of_equiv X Y e hind _ _ _ _ =>
+    specialize hind (A := fun x ↦ A (e x))
+    apply iso (R := R) (A := ∀ i, A (e i)) (B := ∀ i, A i)
+      (Homeomorph.piCongrLeft e) (by exact LinearEquiv.piCongrLeft R A e)
+    aesop
+  · apply subsingleton
+  · case h_option X _ hind _ _ _ _ =>
+    specialize hind (A := fun x ↦ A (some x))
+    -- Option X ≃ X ⊕ Unit
+    -- look at what Yakov told me
+    sorry
 
 end Pi
 
+-- elsewhere
+lemma finsum_apply {α ι N : Type*} [AddCommMonoid N] [Finite ι]
+    (f : ι → α → N) (a : α) : (∑ᶠ i, f i) a = ∑ᶠ i, (f i) a := by
+  classical
+  simp only [finsum_def, dif_pos (Set.toFinite _), Finset.sum_apply]
+  symm
+  apply Finset.sum_subset <;> aesop
+
 section bilinear
 
-variable {R : Type*} [τR : TopologicalSpace R] [CommSemiring R] [TopologicalSemiring R]
+-- I need these because ` ChooseBasisIndex.fintype` needs a ring instead of a semiring
+variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalRing R]
 
-variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
-variable {C : Type*} [AddCommMonoid C] [Module R C] [aC : TopologicalSpace C] [IsActionTopology R C]
+-- similarly these don't need to be groups
+variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {C : Type*} [AddCommGroup C] [Module R C] [aC : TopologicalSpace C] [IsActionTopology R C]
 
 lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
     (bil : (ι → R) →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : ((ι → R) × B → C)) := by
@@ -273,34 +300,48 @@ lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
     simp_rw [← LinearMap.map_smul]
     --rw [LinearMap.finsum_apply]
     convert AddMonoidHom.map_finsum bil.toAddMonoidHom _
-    · simp_rw [← Pi.single_smul, smul_eq_mul, mul_one]
+    ·
       ext j
+      simp_rw [← Pi.single_smul, smul_eq_mul, mul_one]
       symm
       change (∑ᶠ (i : ι), Pi.single i (f i)) j = f j
-      convert finsum_eq_single (fun j ↦ ∑ᶠ (i : ι), Pi.single i (f i) j) j _
-      · sorry -- missing? finsum
-      · symm
-        convert finsum_eq_single (fun i ↦ Pi.single i (f i) j) j _ using 1
-        · simp
-        · intros i hi
-          simp [hi]
-      · intros i hi
-        simp [hi]
-        -- this goal is false
-        sorry
+      rw [finsum_apply]
+      convert finsum_eq_single (fun i ↦ Pi.single i (f i) j) j _ using 1
+      · simp
+      · aesop
     · exact Set.toFinite _--(Function.support fun x ↦ f x • Pi.single x 1)
-  sorry
+  rw [foo]
+  haveI : ContinuousAdd C := isActionTopology_continuousAdd R C
+  apply continuous_finsum (fun i ↦ by fun_prop)
+  intro x
+  use Set.univ
+  simp [Set.toFinite _]
 
-lemma Module.continuous_bilinear [Module.Finite R A] [Module.Free R A]
+lemma Module.continuous_bilinear_of_finite_free [Module.Finite R A] [Module.Free R A]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
-  sorry
+  let ι := Module.Free.ChooseBasisIndex R A
+  let b : Basis ι R A := Module.Free.chooseBasis R A
+  classical
+  haveI : Finite ι := Fintype.finite <| Module.Free.ChooseBasisIndex.fintype R A--infer_instance
+  let elinear : A ≃ₗ[R] (ι → R) := b.equivFun
+  let bil' : (ι → R) →ₗ[R] B →ₗ[R] C := bil.comp elinear.symm.toLinearMap
+  have := Module.continuous_bilinear_of_pi_finite ι bil'
+  have foo : (fun ab ↦ (bil ab.1) ab.2 : A × B → C) = (fun fb ↦ bil' fb.1 fb.2) ∘
+    (fun ab ↦ (elinear ab.1, ab.2) : A × B → (ι → R) × B) := by
+    ext ⟨a, b⟩
+    simp [bil']
+  rw [foo]
+  apply Continuous.comp this
+  apply Continuous.prod_mk
+  · exact continuous_of_linearMap (elinear.toLinearMap ∘ₗ (LinearMap.fst R A B))
+  · fun_prop
 
 end bilinear
 
 section algebra
 
-
-variable (R) [CommSemiring R] [TopologicalSpace R] [TopologicalSemiring R]
+-- these shouldn't be rings, they should be semirings
+variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
 variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
 variable [TopologicalSpace D] [IsActionTopology R D]
 
@@ -310,7 +351,7 @@ open scoped TensorProduct
 lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
   letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
   haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
-  apply Module.continuous_bilinear <| LinearMap.mul R D
+  convert Module.continuous_bilinear_of_finite_free <| LinearMap.mul R D
 
 def Module.topologicalRing : TopologicalRing D where
   continuous_add := (isActionTopology_continuousAdd R D).1
@@ -318,8 +359,6 @@ def Module.topologicalRing : TopologicalRing D where
   continuous_neg := continuous_neg R D
 
 end algebra
-
-
 
 -- everything from here on is dead code and ideas which use other topologies
 section topology_problem
