@@ -1,5 +1,6 @@
 import Mathlib.Algebra.Module.Projective
 import Mathlib.Topology.Algebra.Monoid
+import Mathlib
 
 section elsewhere
 
@@ -124,3 +125,46 @@ lemma TopologicalSpace.induced_id (X : Type*) : TopologicalSpace.induced (id : X
 --#check Induced.continuousSMul -- doesn't exist
 
 end continuous_smul
+
+
+-- elsewhere
+lemma induced_sInf {α β : Type*} {g : β → α}
+    {s : Set (TopologicalSpace α)} :
+    TopologicalSpace.induced g (sInf s) =
+    sInf ((TopologicalSpace.induced g) '' s) := by
+  rw [sInf_eq_iInf' s, sInf_image']
+  exact induced_iInf
+
+-- elsewhere
+theorem _root_.Homeomorph.coinducing {A B : Type*} [τA : TopologicalSpace A]
+    [τB : TopologicalSpace B] (e : A ≃ₜ B) : τB = τA.coinduced e := by
+  ext U
+  nth_rw 2 [isOpen_coinduced]
+  exact e.isOpen_preimage.symm
+
+-- elsewhere
+lemma Homeomorph.symm_apply_eq {M N : Type*} [TopologicalSpace M]
+    [TopologicalSpace N] (e : M ≃ₜ N) {x : N} {y : M} :
+  e.symm x = y ↔ x = e y := Equiv.symm_apply_eq _
+
+lemma finsum_option {ι : Type*} {B : Type*} [Finite ι]
+    [AddCommMonoid B] (φ : Option ι → B) :
+    (∑ᶠ oi, φ oi) = φ none + ∑ᶠ (j : ι),  φ (some j) := by
+  rw [← finsum_mem_univ]
+  convert finsum_mem_insert φ (show none ∉ Set.range Option.some by aesop)
+    (Set.finite_range some)
+  · aesop
+  · rw [finsum_mem_range]
+    exact Option.some_injective ι
+
+lemma LinearMap.finsum_apply {R : Type*} [Semiring R] {A B : Type*} [AddCommMonoid A] [Module R A]
+    [AddCommMonoid B] [Module R B] {ι : Type*} [Finite ι] (φ : ∀ _ : ι, A →ₗ[R] B) (a : A) :
+    (∑ᶠ i, φ i) a = ∑ᶠ i, φ i a := by
+  induction ι using Finite.induction_empty_option
+  · case of_equiv X Y e hx =>
+    convert hx (φ ∘ e)
+    · exact (finsum_comp_equiv e).symm
+    · exact (finsum_comp_equiv e).symm
+  · simp [finsum_of_isEmpty]
+  · case h_option X _ hX =>
+    simp [finsum_option, hX]
