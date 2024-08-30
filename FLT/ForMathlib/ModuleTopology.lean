@@ -1,7 +1,7 @@
 import Mathlib.Algebra.Module.Projective
 import Mathlib.LinearAlgebra.TensorProduct.RightExactness
 import Mathlib.Topology.Algebra.Module.Basic
-
+import FLT.ForMathlib.MiscLemmas
 /-!
 
 # The module topology
@@ -31,89 +31,6 @@ or $p$-adics).
 
 -/
 
-section elsewhere
-
-variable {A : Type*} [AddCommGroup A] [τA : TopologicalSpace A] [ContinuousAdd A]
-variable {B : Type*} [AddCommGroup B] [τB : TopologicalSpace B]
-
-lemma AddMonoidHom.sub_mem_ker_iff {A B : Type*} [AddCommGroup A]
-    [AddCommGroup B] (φ : A →+ B) {x y : A} :
-    x - y ∈ AddMonoidHom.ker φ ↔ φ x = φ y := by
-  rw [AddMonoidHom.mem_ker, map_sub, sub_eq_zero]
-
-lemma isOpenMap_of_coinduced (φ : A →+ B) (hφc : Continuous φ)
-    (h : TopologicalSpace.coinduced φ τA = τB) :
-    IsOpenMap φ := by
-  intro U hU
-  rw [← h, isOpen_coinduced]
-  suffices ⇑φ ⁻¹' (⇑φ '' U) = ⋃ k ∈ φ.ker, (fun x ↦ x + k) ⁻¹' U by
-    exact this ▸ isOpen_biUnion (fun k _ ↦ Continuous.isOpen_preimage (by continuity) _ hU)
-  ext x
-  constructor
-  · rintro ⟨y, hyU, hyx⟩
-    apply Set.mem_iUnion_of_mem (y - x)
-    suffices y - x ∈ AddMonoidHom.ker φ by simp_all
-    rwa [AddMonoidHom.sub_mem_ker_iff]
-  · rintro ⟨_, ⟨k, rfl⟩, _, ⟨hk, rfl⟩, hx⟩
-    use x + k, hx
-    rw [AddMonoidHom.map_add, hk, add_zero]
-
--- **TODO** ask Yury how to golf
-open TopologicalSpace in
-lemma coinduced_prod_eq_prod_coinduced {X Y S T : Type*} [AddCommGroup X] [AddCommGroup Y]
-    [AddCommGroup S] [AddCommGroup T] (f : X →+ S) (g : Y →+ T)
-    (hf : Function.Surjective f) (hg : Function.Surjective g)
-    [τX : TopologicalSpace X] [ContinuousAdd X] [τY : TopologicalSpace Y] [ContinuousAdd Y] :
-    coinduced (Prod.map f g) instTopologicalSpaceProd =
-      @instTopologicalSpaceProd S T (coinduced f τX) (coinduced g τY) := by
-  ext U
-  rw [@isOpen_prod_iff, isOpen_coinduced, isOpen_prod_iff]
-  constructor
-  · intro h s t hst
-    obtain ⟨x, rfl⟩ := hf s
-    obtain ⟨y, rfl⟩ := hg t
-    obtain ⟨V1, V2, hV1, hV2, hx1, hy2, h12⟩ := h x y hst
-    use f '' V1, g '' V2,
-      @isOpenMap_of_coinduced _ _ _ _ _ _ (coinduced f τX) f
-        (by rw [continuous_iff_coinduced_le]) rfl V1 hV1,
-      @isOpenMap_of_coinduced _ _ _ _ _ _ (coinduced g τY) g
-        (by rw [continuous_iff_coinduced_le]) rfl V2 hV2,
-      ⟨x, hx1, rfl⟩, ⟨y, hy2, rfl⟩
-    rintro ⟨s, t⟩ ⟨⟨x', hx', rfl⟩, ⟨y', hy', rfl⟩⟩
-    exact @h12 (x', y') ⟨hx', hy'⟩
-  · intro h x y hxy
-    rw [Set.mem_preimage, Prod.map_apply] at hxy
-    obtain ⟨U1, U2, hU1, hU2, hx1, hy2, h12⟩ := h (f x) (g y) hxy
-    use f ⁻¹' U1, g ⁻¹' U2, hU1, hU2, hx1, hy2
-    intro ⟨x', y'⟩ ⟨hx', hy'⟩
-    exact h12 ⟨hx', hy'⟩
-
-end elsewhere
-
-section missing_API
-
-variable {R : Type*} [Semiring R] {P : Type*} [AddCommMonoid P] [Module R P]
-
-namespace Module
-
--- all done for rings bu it should be semirings
-
-/-- Free modules are projective. -/
-theorem Projective.of_basis' {ι : Type*} (b : Basis ι R P) : Projective R P := by
-  -- need P →ₗ (P →₀ R) for definition of projective.
-  -- get it from `ι → (P →₀ R)` coming from `b`.
-  use b.constr ℕ fun i => Finsupp.single (b i) (1 : R)
-  intro m
-  simp only [b.constr_apply, mul_one, id, Finsupp.smul_single', Finsupp.total_single,
-    map_finsupp_sum]
-  exact b.total_repr m
-
-instance (priority := 100) Projective.of_free' [Module.Free R P] : Module.Projective R P :=
-  .of_basis' <| Module.Free.chooseBasis R P
-
-end Module
-
-end missing_API
 
 
 section basics
