@@ -242,31 +242,73 @@ section Pi
 
 variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
 
+-- not sure I'm going to do it this way -- see `pi` below.
 instance piNat (n : ℕ) {A : Fin n → Type*} [∀ i, AddCommGroup (A i)]
     [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
     [∀ i, IsActionTopology R (A i)]: IsActionTopology R (Π i, A i) := by
   induction n
   · infer_instance
-  ·
+  · case succ n IH _ _ _ _ =>
+    specialize IH (A := fun i => A (Fin.castSucc i))
     sorry
 
 variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsActionTopology R (A i)]
 
+variable (R) in
+def LinearEquiv.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
+    [∀ st, AddCommGroup (A st)] [∀ st, Module R (A st)] :
+    (∀ (st : S ⊕ T), A st) ≃ₗ[R] (∀ (s : S), A (.inl s)) × (∀ (t : T), A (.inr t)) where
+      toFun f := (fun s ↦ f (.inl s), fun t ↦ f (.inr t))
+      map_add' f g := by aesop
+      map_smul' := by aesop
+      invFun fg st := Sum.rec (fun s => fg.1 s) (fun t => fg.2 t) st
+      left_inv := by intro x; aesop
+      right_inv := by intro x; aesop
+
+def Homeomorph.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
+    [∀ st, TopologicalSpace (A st)] :
+    (∀ (st : S ⊕ T), A st) ≃ₜ (∀ (s : S), A (.inl s)) × (∀ (t : T), A (.inr t)) where
+      toFun f := (fun s ↦ f (.inl s), fun t ↦ f (.inr t))
+      invFun fg st := Sum.rec (fun s => fg.1 s) (fun t => fg.2 t) st
+      left_inv := by intro x; aesop
+      right_inv := by intro x; aesop
+      continuous_toFun := Continuous.prod_mk (by fun_prop) (by fun_prop)
+      continuous_invFun := continuous_pi <| fun st ↦ by
+        rcases st with s | t
+        · simp
+          fun_prop
+        · simp
+          fun_prop
+
+--example (f : PUnit → Type*) [∀ x, TopologicalSpace (f x)]: ((t : PUnit) → (f t)) ≃ₜ f () := by exact?
+--example (f : PUnit → Type*) [∀ x, AddCommGroup (f x)] [∀ x, Module R (f x)] : ((t : PUnit) → (f t)) ≃ₗ[R] f () := by exact?
+
 instance pi : IsActionTopology R (∀ i, A i) := by
   induction ι using Finite.induction_empty_option
   · case of_equiv X Y e hind _ _ _ _ =>
     specialize hind (A := fun x ↦ A (e x))
-    apply iso (R := R) (A := ∀ i, A (e i)) (B := ∀ i, A i)
+    apply iso (R := R) (A := ∀ j, A (e j)) (B := ∀ i, A i)
       (Homeomorph.piCongrLeft e) (by exact LinearEquiv.piCongrLeft R A e)
     aesop
   · apply subsingleton
   · case h_option X _ hind _ _ _ _ =>
     specialize hind (A := fun x ↦ A (some x))
-    -- Option X ≃ X ⊕ Unit
-    -- look at what Yakov told me
-    sorry
+    let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
+    apply @iso (R := R) (A := ∀ y, A (e.symm y)) (B := ∀ x, A x)
+      (ehomeo := Homeomorph.piCongrLeft e.symm)
+      (elinear := LinearEquiv.piCongrLeft R A e.symm) _ (_) (_)
+    · intros
+      rfl
+    · apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
+        (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm) (_) (_) (_)
+      · intros
+        rfl
+      · apply @prod _ _ _ _ _ _ (_) (_) _ _ _ (_) (_)
+        · exact hind
+        · --apply @iso (ehomeo := (_ :  A (e.symm (Sum.inr ())) ≃ₜ _))
+          sorry
 
 end Pi
 
