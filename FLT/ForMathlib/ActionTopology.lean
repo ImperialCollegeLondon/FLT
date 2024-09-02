@@ -15,7 +15,51 @@ and `+ : A × A → A` continuous (with all the products having the product topo
 
 This topology was suggested by Will Sawin [here](https://mathoverflow.net/a/477763/1384).
 
+## Mathematical details
+
+I (buzzard) don't know of any reference for this other than Sawin's mathoverflow answer,
+so I expand some of the details here.
+
+First note that there is a finest topology with this property! Indeed, topologies on a fixed
+type form a complete lattice (infinite infs and sups exist). So if `τ` is the Inf of all
+the topologies on `A` which make `+` and `•` continuous, then the claim is that `+` and `•`
+are still continuous for `τ`. To show `+ : A × A → A` is continuous we need to show that the
+pushforward of the product topology `τ × τ` along `+` is `≤ τ`, and because `τ` is an Inf it
+suffices to show that it's `≤ σ` for any `σ` on `A` which makes `+` and `•` continuous.
+However pushforward and products are monotone, so `τ × τ ≤ σ × σ`, and the pushforward of
+`σ × σ` is `≤ σ` because that's precisely the statement that `+` is continuous for `σ`.
+The proof for `•` is similar.
+
+A *topological module* for a topological ring `R` is an `R`-module `A` such that `+` and `•`
+are continuous. A crucial observation is that if `M` is a topological module, if `A` is a module,
+and if `φ : A → M` is linear, then the pullback of `M`'s topology to `A` is a topology making `A`
+into a topological module. Let's for example check that `•` is continuous. If `U ⊆ A` is open
+then by definition of the pullback topology, `U = φ⁻¹(V)` for some open `V ⊆ M`, and
+now the pullback of `U` under `•` is just the pullback along the continuous map
+`id × φ : R × A → R × M` of the preimage of `V` under the continuous map `• : R × M → M`,
+so it's open. The proof for `+` is similar.
+
+As a consequence of this, we see that all linear maps are automatically continuous for
+the action topology. Indeed the argument above shows that if `A → M` is linear then the action
+topology on `A` is `≤` the pullback of the action topology on `M` (because it's the inf of a set
+containing this topology) which is the definition of continuity.
+
+We deduce that the action topology is a functor from the category of `R`-modules (`R` a topological
+ring) to the category of topological `R`-modules, and it is perhaps unsurprising that this is
+an adjoint to the forgetful functor. Indeed, if `A` is an `R`-module and `M` is
+a topological `R`-module, then the linear maps `A → M` are precisely the continuous linear maps
+from `A` with its action topology, to `M`, so the action topology is a left adjoint to the
+forgetful functor.
+
+This file develops the theory of the action topology. We prove that the action topology on
+`R` as a module over itself is `R`'s original topology, that the action topology on a product
+of modules is the product of the action topologies, and that the action topology on a quotient
+module is the quotient topology.
+
+If the module is
+
 ## TODO
+
 Drop freeness from continuity of bilinear map claim; presumably only finiteness is needed,
 becuse of Sawin's observation that the quotient topology for a surjection of R-mods
 is the action topology.
@@ -216,28 +260,26 @@ instance prod : IsActionTopology R (M × N) := by
   constructor
   haveI : ContinuousAdd M := isActionTopology_continuousAdd R M
   haveI : ContinuousAdd N := isActionTopology_continuousAdd R N
-  apply le_antisymm
-  · rw [← continuous_id_iff_le]
-    have foo : (id : M × N → M × N) =
-      (fun abcd ↦ abcd.1 + abcd.2 : (M × N) × (M × N) → M × N) ∘
-      (fun ab ↦ ((ab.1, 0),(0, ab.2))) := by
-      ext ⟨a, b⟩ <;> simp
-    rw [foo]
-    obtain ⟨bar⟩ : @ContinuousAdd (M × N) (actionTopology R (M × N)) _ := ActionTopology.continuousAdd _ _
-    refine @Continuous.comp _ _ _ (_) ((_ : TopologicalSpace ((M × N) × (M × N)))) (_) _ _ bar ?_
-    apply (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2
-    constructor
-    · -- bleurgh, fighting typeclass inference all the time, which wants one "canonical"
-      -- topology on e.g. M × N.
-      refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_
-        (continuous_fst : Continuous (Prod.fst : M × N → M))
-      apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-      exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
-    · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inr R M N)) ?_
-        (continuous_snd : Continuous (Prod.snd : M × N → N))
-      apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-      exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
-  · exact sInf_le ⟨Prod.continuousSMul, Prod.continuousAdd⟩
+  refine le_antisymm ?_ <| sInf_le ⟨Prod.continuousSMul, Prod.continuousAdd⟩
+  rw [← continuous_id_iff_le]
+  rw [show (id : M × N → M × N) =
+       (fun abcd ↦ abcd.1 + abcd.2 : (M × N) × (M × N) → M × N) ∘
+       (fun ab ↦ ((ab.1, 0),(0, ab.2))) by
+       ext ⟨a, b⟩ <;> simp]
+  -- The rest of the proof is a massive fight against typeclass inference, which is desperate
+  -- to always put the product topology on M × N, when we sometimes want the action topology
+  -- (they are equal, but that's exactly what we're proving so we can't assume it yet).
+  -- This issue stops the standard continuity tactics from working.
+  obtain ⟨this⟩ : @ContinuousAdd (M × N) (actionTopology R (M × N)) _ :=
+    ActionTopology.continuousAdd _ _
+  refine @Continuous.comp _ ((M × N) × (M × N)) _ (_) (_) (_) _ _ this ?_
+  refine (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2 ⟨?_, ?_⟩
+  · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_ continuous_fst
+    apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
+    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+  · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inr R M N)) ?_ continuous_snd
+    apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
+    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
 
 end prod
 
@@ -261,14 +303,10 @@ variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
 
 instance pi : IsActionTopology R (∀ i, A i) := by
   induction ι using Finite.induction_empty_option
-  · case of_equiv X Y e hind _ _ _ _ =>
-    specialize hind (A := fun x ↦ A (e x))
-    apply iso (R := R) (A := ∀ j, A (e j)) (B := ∀ i, A i)
-      (Homeomorph.piCongrLeft e) (by exact LinearEquiv.piCongrLeft R A e)
-    aesop
+  · case of_equiv X Y e _ _ _ _ _ =>
+    exact iso (Homeomorph.piCongrLeft e) (LinearEquiv.piCongrLeft R A e) (fun _ ↦ rfl)
   · apply subsingleton
   · case h_option X _ hind _ _ _ _ =>
-    specialize hind (A := fun x ↦ A (some x))
     let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
     refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
       (elinear := LinearEquiv.piCongrLeft R A e.symm) _ (fun f ↦ rfl) ?_
@@ -276,15 +314,15 @@ instance pi : IsActionTopology R (∀ i, A i) := by
       (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ (fun f ↦ rfl) ?_
     refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
     let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
-    let f : (∀ t, A (φ t)) ≃ₜ A (φ ()) := Homeomorph.pUnitPiEquiv _
-    let g : (∀ t, A (φ t)) ≃ₗ[R] A (φ ()) := LinearEquiv.pUnitPiEquiv R _
-    exact iso f.symm g.symm (fun a ↦ rfl)
+    exact iso (Homeomorph.pUnitPiEquiv (fun t ↦ A (φ t))).symm
+      (LinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm (fun a ↦ rfl)
 
 end Pi
 
 section bilinear
 
--- I need these because ` ChooseBasisIndex.fintype` needs a ring instead of a semiring
+-- I need rings not semirings here, because ` ChooseBasisIndex.fintype` incorrectly(?) needs
+-- a ring instead of a semiring
 variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalRing R]
 
 -- similarly these don't need to be groups
@@ -295,25 +333,25 @@ variable {C : Type*} [AddCommGroup C] [Module R C] [aC : TopologicalSpace C] [Is
 lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
     (bil : (ι → R) →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : ((ι → R) × B → C)) := by
   classical
-  have foo : (fun fb ↦ bil fb.1 fb.2 : ((ι → R) × B → C)) = (fun fb ↦ ∑ᶠ i, ((fb.1 i) • (bil (Pi.single i 1) fb.2) : C)) := by
+  have foo : (fun fb ↦ bil fb.1 fb.2 : ((ι → R) × B → C)) =
+      (fun fb ↦ ∑ᶠ i, ((fb.1 i) • (bil (Pi.single i 1) fb.2) : C)) := by
     ext ⟨f, b⟩
     simp_rw [← LinearMap.smul_apply]
     rw [← LinearMap.finsum_apply]
     congr
-    simp_rw [LinearMap.smul_apply]
-    simp_rw [← LinearMap.map_smul]
-    --rw [LinearMap.finsum_apply]
+    simp_rw [LinearMap.smul_apply, ← LinearMap.map_smul]
     convert AddMonoidHom.map_finsum bil.toAddMonoidHom _
-    ·
-      ext j
+    · ext j
       simp_rw [← Pi.single_smul, smul_eq_mul, mul_one]
       symm
+      -- Is there a missing delaborator? No ∑ᶠ notation
       change (∑ᶠ (i : ι), Pi.single i (f i)) j = f j
+      -- last tactic has no effect
       rw [finsum_apply]
-      convert finsum_eq_single (fun i ↦ Pi.single i (f i) j) j _ using 1
-      · simp
-      · aesop
-    · exact Set.toFinite _--(Function.support fun x ↦ f x • Pi.single x 1)
+      convert finsum_eq_single (fun i ↦ Pi.single i (f i) j) j
+        (by simp (config := {contextual := true})) using 1
+      simp
+    · apply Set.toFinite _--(Function.support fun x ↦ f x • Pi.single x 1)
   rw [foo]
   haveI : ContinuousAdd C := isActionTopology_continuousAdd R C
   apply continuous_finsum (fun i ↦ by fun_prop)
@@ -321,6 +359,12 @@ lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
   use Set.univ
   simp [Set.toFinite _]
 
+-- Probably this can be beefed up in two distinct ways:
+-- Firstly, as it stands the lemma should be provable for semirings.
+-- Secind, we should be able to drop Module.Free in the ring case, change elinear.symm
+-- into a
+-- surjection not a bijection, and then use that quotients coinduce the action
+-- topology for groups (proved later, but not using this)
 lemma Module.continuous_bilinear_of_finite_free [Module.Finite R A] [Module.Free R A]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
@@ -362,14 +406,13 @@ def Module.topologicalRing : TopologicalRing D where
 
 end algebra
 
--- everything from here on is dead code and ideas which use other topologies
 section topology_problem
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
 variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
 
--- Here I need the lemma about how quotients are open so I need groups
+-- Here I need the lemma about how quotients are open so I do need groups
 -- because this relies on translates of an open being open
 lemma coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ (actionTopology R A) = actionTopology R B := by
@@ -418,7 +461,7 @@ lemma coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ
     · apply @Continuous.prod_map _ _ _ _ (_) (_) (_) (_) <;>
       · rw [continuous_iff_coinduced_le, isActionTopology R A]; rfl
     · rw [← isActionTopology R A]
-      exact coinduced_prod_eq_prod_coinduced (φ.toAddMonoidHom : A →+ B) φ.toAddMonoidHom hφ hφ
+      exact coinduced_prod_eq_prod_coinduced φ φ hφ hφ
 
 
 end topology_problem
