@@ -153,3 +153,60 @@ lemma LinearMap.finsum_apply {R : Type*} [Semiring R] {A B : Type*} [AddCommMono
   · simp [finsum_of_isEmpty]
   · case h_option X _ hX =>
     simp [finsum_option, hX]
+
+-- more continuous linear equiv stuff
+-- elsewhere
+variable (R : Type*) [Semiring R] in
+def LinearEquiv.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
+    [∀ st, AddCommGroup (A st)] [∀ st, Module R (A st)] :
+    (∀ (st : S ⊕ T), A st) ≃ₗ[R] (∀ (s : S), A (.inl s)) × (∀ (t : T), A (.inr t)) where
+      toFun f := (fun s ↦ f (.inl s), fun t ↦ f (.inr t))
+      map_add' f g := by aesop
+      map_smul' := by aesop
+      invFun fg st := Sum.rec (fun s => fg.1 s) (fun t => fg.2 t) st
+      left_inv := by intro x; aesop
+      right_inv := by intro x; aesop
+
+-- elsewhere
+def Homeomorph.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
+    [∀ st, TopologicalSpace (A st)] :
+    (∀ (st : S ⊕ T), A st) ≃ₜ (∀ (s : S), A (.inl s)) × (∀ (t : T), A (.inr t)) where
+      toFun f := (fun s ↦ f (.inl s), fun t ↦ f (.inr t))
+      invFun fg st := Sum.rec (fun s => fg.1 s) (fun t => fg.2 t) st
+      left_inv := by intro x; aesop
+      right_inv := by intro x; aesop
+      continuous_toFun := Continuous.prod_mk (by fun_prop) (by fun_prop)
+      continuous_invFun := continuous_pi <| fun st ↦ by
+        rcases st with s | t
+        · simp
+          fun_prop
+        · simp
+          fun_prop
+
+-- elsewhere
+def Homeomorph.pUnitPiEquiv (f : PUnit → Type*) [∀ x, TopologicalSpace (f x)]: ((t : PUnit) → (f t)) ≃ₜ f () where
+  toFun a := a ()
+  invFun a _t := a
+  left_inv x := by aesop
+  right_inv x := by aesop
+  continuous_toFun := by simp; fun_prop
+  continuous_invFun := by simp; fun_prop
+
+-- elsewhere
+variable (R : Type*) [Semiring R] in
+def LinearEquiv.pUnitPiEquiv (f : PUnit → Type*) [∀ x, AddCommGroup (f x)] [∀ x, Module R (f x)] :
+    ((t : PUnit) → (f t)) ≃ₗ[R] f () where
+  toFun a := a ()
+  invFun a _t := a
+  left_inv x := by aesop
+  right_inv x := by aesop
+  map_add' f g := rfl
+  map_smul' r f := rfl
+
+-- elsewhere
+lemma finsum_apply {α ι N : Type*} [AddCommMonoid N] [Finite ι]
+    (f : ι → α → N) (a : α) : (∑ᶠ i, f i) a = ∑ᶠ i, (f i) a := by
+  classical
+  simp only [finsum_def, dif_pos (Set.toFinite _), Finset.sum_apply]
+  symm
+  apply Finset.sum_subset <;> aesop
