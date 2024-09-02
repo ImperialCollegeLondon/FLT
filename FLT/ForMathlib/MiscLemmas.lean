@@ -70,8 +70,7 @@ variable {R : Type*} [Semiring R] {P : Type*} [AddCommMonoid P] [Module R P]
 
 namespace Module
 
--- all done for rings bu it should be semirings
-
+-- the below is all done for rings but it should be semirings
 /-- Free modules are projective. -/
 theorem Projective.of_basis' {ι : Type*} (b : Basis ι R P) : Projective R P := by
   -- need P →ₗ (P →₀ R) for definition of projective.
@@ -95,7 +94,7 @@ theorem TopologicalSpace.prod_mono {α β : Type*} {σ₁ σ₂ : TopologicalSpa
   le_inf (le_trans inf_le_left <| induced_mono hσ)
          (le_trans inf_le_right <| induced_mono hτ)
 
-section continuous_smul
+section induced
 
 variable {R : Type*} [τR : TopologicalSpace R]
 variable {A : Type*} [SMul R A]
@@ -112,28 +111,14 @@ lemma induced_continuous_add [AddCommMonoid A] [τA : TopologicalSpace A] [Conti
     @ContinuousAdd B (TopologicalSpace.induced h τA) _ := by
   convert Inducing.continuousAdd h (inducing_induced h)
 
--- this should be elsewhere
-lemma TopologicalSpace.induced_id (X : Type*) : TopologicalSpace.induced (id : X → X) = id := by
-  ext τ S
-  constructor
-  · rintro ⟨T, hT, rfl⟩
-    exact hT
-  · rintro hS
-    exact ⟨S, hS, rfl⟩
-
--- #check Prod.continuousSMul -- exists and is an instance :-)
---#check Induced.continuousSMul -- doesn't exist
-
-end continuous_smul
-
-
--- elsewhere
 lemma induced_sInf {α β : Type*} {g : β → α}
     {s : Set (TopologicalSpace α)} :
     TopologicalSpace.induced g (sInf s) =
     sInf ((TopologicalSpace.induced g) '' s) := by
   rw [sInf_eq_iInf' s, sInf_image']
   exact induced_iInf
+
+end induced
 
 -- elsewhere
 theorem _root_.Homeomorph.coinducing {A B : Type*} [τA : TopologicalSpace A]

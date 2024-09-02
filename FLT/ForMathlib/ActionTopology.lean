@@ -164,8 +164,7 @@ lemma iso (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B) (he : ∀ a, ehomeo a 
       refine ⟨⟨?_, ?_⟩, ?_⟩
       · convert @induced_continuous_smul (f := @id R) (hf := continuous_id) (g := elinear.toMulActionHom) (τA := τ) _ _ _ _ _
       · convert @induced_continuous_add (h := elinear.toAddMonoidHom) τ _
-      · change _ = id τ
-        rw [← TopologicalSpace.induced_id B]
+      · nth_rw 2 [← induced_id (t := τ)]
         congr
         ext x
         simp [(he _).symm]
@@ -243,19 +242,20 @@ section Pi
 variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
 
 -- not sure I'm going to do it this way -- see `pi` below.
-instance piNat (n : ℕ) {A : Fin n → Type*} [∀ i, AddCommGroup (A i)]
-    [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
-    [∀ i, IsActionTopology R (A i)]: IsActionTopology R (Π i, A i) := by
-  induction n
-  · infer_instance
-  · case succ n IH _ _ _ _ =>
-    specialize IH (A := fun i => A (Fin.castSucc i))
-    sorry
+-- instance piNat (n : ℕ) {A : Fin n → Type*} [∀ i, AddCommGroup (A i)]
+--     [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
+--     [∀ i, IsActionTopology R (A i)]: IsActionTopology R (Π i, A i) := by
+--   induction n
+--   · infer_instance
+--   · case succ n IH _ _ _ _ =>
+--     specialize IH (A := fun i => A (Fin.castSucc i))
+--     sorry
 
 variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsActionTopology R (A i)]
 
+-- elsewhere
 variable (R) in
 def LinearEquiv.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
     [∀ st, AddCommGroup (A st)] [∀ st, Module R (A st)] :
@@ -267,6 +267,7 @@ def LinearEquiv.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
       left_inv := by intro x; aesop
       right_inv := by intro x; aesop
 
+-- elsewhere
 def Homeomorph.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
     [∀ st, TopologicalSpace (A st)] :
     (∀ (st : S ⊕ T), A st) ≃ₜ (∀ (s : S), A (.inl s)) × (∀ (t : T), A (.inr t)) where
@@ -282,8 +283,25 @@ def Homeomorph.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
         · simp
           fun_prop
 
---example (f : PUnit → Type*) [∀ x, TopologicalSpace (f x)]: ((t : PUnit) → (f t)) ≃ₜ f () := by exact?
---example (f : PUnit → Type*) [∀ x, AddCommGroup (f x)] [∀ x, Module R (f x)] : ((t : PUnit) → (f t)) ≃ₗ[R] f () := by exact?
+-- elsewhere
+def Homeomorph.pUnitPiEquiv (f : PUnit → Type*) [∀ x, TopologicalSpace (f x)]: ((t : PUnit) → (f t)) ≃ₜ f () where
+  toFun a := a ()
+  invFun a _t := a
+  left_inv x := by aesop
+  right_inv x := by aesop
+  continuous_toFun := by simp; fun_prop
+  continuous_invFun := by simp; fun_prop
+
+-- elsewhere
+variable (R) in
+def LinearEquiv.pUnitPiEquiv (f : PUnit → Type*) [∀ x, AddCommGroup (f x)] [∀ x, Module R (f x)] :
+    ((t : PUnit) → (f t)) ≃ₗ[R] f () where
+  toFun a := a ()
+  invFun a _t := a
+  left_inv x := by aesop
+  right_inv x := by aesop
+  map_add' f g := rfl
+  map_smul' r f := rfl
 
 instance pi : IsActionTopology R (∀ i, A i) := by
   induction ι using Finite.induction_empty_option
@@ -296,19 +314,15 @@ instance pi : IsActionTopology R (∀ i, A i) := by
   · case h_option X _ hind _ _ _ _ =>
     specialize hind (A := fun x ↦ A (some x))
     let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
-    apply @iso (R := R) (A := ∀ y, A (e.symm y)) (B := ∀ x, A x)
-      (ehomeo := Homeomorph.piCongrLeft e.symm)
-      (elinear := LinearEquiv.piCongrLeft R A e.symm) _ (_) (_)
-    · intros
-      rfl
-    · apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
-        (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm) (_) (_) (_)
-      · intros
-        rfl
-      · apply @prod _ _ _ _ _ _ (_) (_) _ _ _ (_) (_)
-        · exact hind
-        · --apply @iso (ehomeo := (_ :  A (e.symm (Sum.inr ())) ≃ₜ _))
-          sorry
+    refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
+      (elinear := LinearEquiv.piCongrLeft R A e.symm) _ (fun f ↦ rfl) ?_
+    apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
+      (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ (fun f ↦ rfl) ?_
+    refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
+    let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
+    let f : (∀ t, A (φ t)) ≃ₜ A (φ ()) := Homeomorph.pUnitPiEquiv _
+    let g : (∀ t, A (φ t)) ≃ₗ[R] A (φ ()) := LinearEquiv.pUnitPiEquiv R _
+    exact iso f.symm g.symm (fun a ↦ rfl)
 
 end Pi
 
@@ -363,8 +377,6 @@ lemma Module.continuous_bilinear_of_finite_free [Module.Finite R A] [Module.Free
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
   let b : Basis ι R A := Module.Free.chooseBasis R A
-  classical
-  haveI : Finite ι := Fintype.finite <| Module.Free.ChooseBasisIndex.fintype R A--infer_instance
   let elinear : A ≃ₗ[R] (ι → R) := b.equivFun
   let bil' : (ι → R) →ₗ[R] B →ₗ[R] C := bil.comp elinear.symm.toLinearMap
   have := Module.continuous_bilinear_of_pi_finite ι bil'
@@ -405,13 +417,15 @@ end algebra
 -- everything from here on is dead code and ideas which use other topologies
 section topology_problem
 
-variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
-variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
+variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
 
 -- is this true? I used it with topology 4 to "reduce to the case of R^n -> B".
 -- It might not be true here. Maybe the quotient topology `R / I` is strictly finer than
 -- the action topology?
+-- Here I need this lemma about how quotients are open so I need groups
+-- because this relies on translates of an open being open
 lemma coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ (actionTopology R A) = actionTopology R B := by
   have : Continuous φ := continuous_of_linearMap φ
@@ -421,17 +435,54 @@ lemma coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ
   clear this
   apply sInf_le
   constructor
-  · -- Is this true?
+  · -- Is this true? Will Sawin thinks so
     apply @ContinuousSMul.mk R B _ _ (_)
     obtain ⟨foo⟩ : ContinuousSMul R A := inferInstance
     rw [continuous_def] at foo ⊢
     intro U hU
     rw [isOpen_coinduced, ← isActionTopology R A] at hU
     specialize foo _ hU
-    -- don't know if this is true
-    sorry
-  · -- is this true?
-    sorry
+    rw [← Set.preimage_comp] at foo
+    rw [show φ ∘ (fun p ↦ p.1 • p.2 : R × A → A) =
+      (fun p ↦ p.1 • p.2 : R × B → B) ∘
+      (Prod.map id ⇑φ.toAddMonoidHom) by ext; simp] at foo
+    rw [Set.preimage_comp] at foo
+    clear! aB -- easiest to just remove topology on B completely now
+    have : ContinuousAdd A := isActionTopology_continuousAdd R A
+    have := coinduced_prod_eq_prod_coinduced (AddMonoidHom.id R) φ.toAddMonoidHom (Function.surjective_id) hφ
+    convert isOpenMap_of_coinduced (AddMonoidHom.prodMap (AddMonoidHom.id R) φ.toAddMonoidHom) (_) (_) (_) foo
+    · -- aesop would do this if Function.surjective_id was known by it
+      apply (Set.image_preimage_eq _ _).symm
+      rw [AddMonoidHom.coe_prodMap, Prod.map_surjective]
+      exact ⟨Function.surjective_id, by simp_all⟩
+    · -- should `apply continuousprodmap ctrl-space` find `Continuous.prod_map`?
+      apply @Continuous.prod_map _ _ _ _ (_) (_) (_) (_) id φ
+      · exact continuous_id
+      · rw [continuous_iff_coinduced_le, isActionTopology R A]
+    · rw [← isActionTopology R A]
+      exact this
+  · apply @ContinuousAdd.mk _ (_)
+    have foo : ContinuousAdd A := isActionTopology_continuousAdd R A
+    let bar := foo
+    obtain ⟨bar⟩ := bar
+    rw [continuous_def] at bar ⊢
+    intro U hU
+    rw [isOpen_coinduced, ← isActionTopology R A] at hU
+    specialize bar _ hU
+    rw [← Set.preimage_comp] at bar
+    rw [show φ ∘ (fun p ↦ p.1 + p.2 : A × A → A) =
+      (fun p ↦ p.1 + p.2 : B × B → B) ∘
+      (Prod.map ⇑φ.toAddMonoidHom ⇑φ.toAddMonoidHom) by ext; simp] at bar
+    rw [Set.preimage_comp] at bar
+    clear! aB -- easiest to just remove topology on B completely now
+    have := coinduced_prod_eq_prod_coinduced (φ.toAddMonoidHom : A →+ B) φ.toAddMonoidHom hφ hφ
+    convert isOpenMap_of_coinduced (AddMonoidHom.prodMap φ.toAddMonoidHom φ.toAddMonoidHom) (_) (_) (_) bar
+    · aesop
+    · -- should `apply continuousprodmap ctrl-space` find `Continuous.prod_map`?
+      apply @Continuous.prod_map _ _ _ _ (_) (_) (_) (_) <;>
+      · rw [continuous_iff_coinduced_le, isActionTopology R A]; rfl
+    · rw [← isActionTopology R A]
+      exact this
 
 
 end topology_problem
