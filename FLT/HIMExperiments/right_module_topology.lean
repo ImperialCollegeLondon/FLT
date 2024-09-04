@@ -1,7 +1,7 @@
 import Mathlib.RingTheory.TensorProduct.Basic -- we need tensor products of rings at some point
 import Mathlib.Topology.Algebra.Module.Basic -- and we need topological rings and modules
 import Mathlib
-
+set_option lang.lemmaCmd true
 /-
 
 # A "module topology" for a module over a topological ring.
