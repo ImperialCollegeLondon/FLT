@@ -88,7 +88,7 @@ variable {S : Type} [τS : TopologicalSpace S] {f : S → R} (hf : Continuous f)
 variable {B : Type} [SMul S B] (g : B →ₑ[f] A)
 
 -- note: use convert not exact to ensure typeclass inference doesn't try to find topology on B
-lemma induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] :
+lemma induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] (hf : Continuous f) :
     @ContinuousSMul S B _ _ (TopologicalSpace.induced g τA) := by
   convert Inducing.continuousSMul (inducing_induced g) hf (fun {c} {x} ↦ map_smulₛₗ g c x)
 
@@ -171,7 +171,7 @@ lemma continuous_of_mulActionHom (φ : A →[R] B) : Continuous φ := by
   -- action topology is `≤` the the pullback of B's action topology.
   -- But this is precisely the statement that `φ` is continuous.
   rw [isActionTopology R A, continuous_iff_le_induced]
-  exact sInf_le <| induced_continuous_smul continuous_id φ
+  exact sInf_le <| induced_continuous_smul φ continuous_id
 
 end function
 
