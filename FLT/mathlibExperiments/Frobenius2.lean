@@ -263,12 +263,12 @@ lemma m.mod_P_y_pow_q_eq_zero :
   rw [eval₂_pow_card, eval₂_map, ← IsScalarTower.algebraMap_eq A (A ⧸ P) (B ⧸ Q), m.mod_P_y_eq_zero, zero_pow]
   exact Fintype.card_ne_zero
 
-lemma F.mod_Q_y_pow_q_eq_zero : (F A Q).eval₂ (algebraMap B (B⧸Q)) ((algebraMap B (B⧸Q) (y A Q)) ^ (Fintype.card (A⧸P))) = 0 := by
+lemma F.mod_Q_y_pow_q_eq_zero (isGalois : ∀ b : B, (∀ σ : B ≃ₐ[A] B, σ • b = b) → ∃ a : A, b = a) : (F A Q).eval₂ (algebraMap B (B⧸Q)) ((algebraMap B (B⧸Q) (y A Q)) ^ (Fintype.card (A⧸P))) = 0 := by
   rw [← m_spec' A Q isGalois, eval₂_map]--, m.mod_P_y_pow_q_eq_zero]
   rw [← IsScalarTower.algebraMap_eq A B (B ⧸ Q), m.mod_P_y_pow_q_eq_zero]
 
-lemma exists_Frob : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q := by
-  have := F.mod_Q_y_pow_q_eq_zero A Q isGalois P
+lemma exists_Frob (isGalois : ∀ b : B, (∀ σ : B ≃ₐ[A] B, σ • b = b) → ∃ a : A, b = a) : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q := by
+  have := F.mod_Q_y_pow_q_eq_zero A Q P isGalois
   rw [F_spec, eval₂_finset_prod, Finset.prod_eq_zero_iff] at this
   obtain ⟨σ, -, hσ⟩ := this
   use σ
@@ -276,10 +276,10 @@ lemma exists_Frob : ∃ σ : B ≃ₐ[A] B, σ (y A Q) - (y A Q) ^ (Fintype.card
     sub_eq_zero] at hσ
   exact (Submodule.Quotient.eq Q).mp (hσ.symm)
 
-noncomputable abbrev Frob := (exists_Frob A Q isGalois P).choose
+noncomputable abbrev Frob := (exists_Frob A Q P isGalois).choose
 
 lemma Frob_spec : (Frob A Q isGalois P) • (y A Q) - (y A Q) ^ (Fintype.card (A⧸P)) ∈ Q :=
-  (exists_Frob A Q isGalois P).choose_spec
+  (exists_Frob A Q P isGalois).choose_spec
 
 lemma Frob_Q : Frob A Q isGalois P • Q = Q := by
   rw [smul_eq_iff_eq_inv_smul]
@@ -302,6 +302,8 @@ lemma coething (A B : Type*) [CommSemiring A] [Ring B] [Algebra A B] (a : A) (n 
 --  simp only [map_pow]
 
 --attribute [norm_cast] map_pow
+
+#exit
 
 lemma Frob_Q_eq_pow_card (x : B) : Frob A Q isGalois P x - x^(Fintype.card (A⧸P)) ∈ Q := by
   by_cases hx : x ∈ Q
