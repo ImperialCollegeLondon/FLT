@@ -252,169 +252,7 @@ lemma continuous_neg (C : Type*) [AddCommGroup C] [Module R C] [TopologicalSpace
 
 end function
 
-section prod
-
-variable {R : Type*} [TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
-variable {M : Type*} [AddCommMonoid M] [Module R M] [TopologicalSpace M] [IsActionTopology R M]
-variable {N : Type*} [AddCommMonoid N] [Module R N] [TopologicalSpace N] [IsActionTopology R N]
-
-instance prod : IsActionTopology R (M × N) := by
-  constructor
-  haveI : ContinuousAdd M := isActionTopology_continuousAdd R M
-  haveI : ContinuousAdd N := isActionTopology_continuousAdd R N
-  refine le_antisymm ?_ <| sInf_le ⟨Prod.continuousSMul, Prod.continuousAdd⟩
-  rw [← continuous_id_iff_le]
-  rw [show (id : M × N → M × N) =
-       (fun abcd ↦ abcd.1 + abcd.2 : (M × N) × (M × N) → M × N) ∘
-       (fun ab ↦ ((ab.1, 0),(0, ab.2))) by
-       ext ⟨a, b⟩ <;> simp]
-  -- The rest of the proof is a massive fight against typeclass inference, which is desperate
-  -- to always put the product topology on M × N, when we sometimes want the action topology
-  -- (they are equal, but that's exactly what we're proving so we can't assume it yet).
-  -- This issue stops the standard continuity tactics from working.
-  obtain ⟨this⟩ : @ContinuousAdd (M × N) (actionTopology R (M × N)) _ :=
-    ActionTopology.continuousAdd _ _
-  refine @Continuous.comp _ ((M × N) × (M × N)) _ (_) (_) (_) _ _ this ?_
-  refine (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2 ⟨?_, ?_⟩
-  · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_ continuous_fst
-    sorry
-    -- apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    -- exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
-  · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inr R M N)) ?_ continuous_snd
-    sorry
-    -- apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    -- exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
-
-end prod
-
-section Pi
-
-variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
-
--- not sure I'm going to do it this way -- see `pi` below.
--- instance piNat (n : ℕ) {A : Fin n → Type*} [∀ i, AddCommGroup (A i)]
---     [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
---     [∀ i, IsActionTopology R (A i)]: IsActionTopology R (Π i, A i) := by
---   induction n
---   · infer_instance
---   · case succ n IH _ _ _ _ =>
---     specialize IH (A := fun i => A (Fin.castSucc i))
---     sorry
-
-variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
-  [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
-  [∀ i, IsActionTopology R (A i)]
-
-instance pi : IsActionTopology R (∀ i, A i) := by
-  induction ι using Finite.induction_empty_option
-  · case of_equiv X Y e _ _ _ _ _ =>
-    exact iso (Homeomorph.piCongrLeft e) (LinearEquiv.piCongrLeft R A e) (fun _ ↦ rfl)
-  · apply subsingleton
-  · case h_option X _ hind _ _ _ _ =>
-    let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
-    sorry
-    -- refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
-    --   (elinear := LinearEquiv.piCongrLeft R A e.symm) _ (fun f ↦ rfl) ?_
-    -- apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
-    --   (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ (fun f ↦ rfl) ?_
-    -- refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
-    -- let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
-    -- exact iso (Homeomorph.pUnitPiEquiv (fun t ↦ A (φ t))).symm
-    --   (LinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm (fun a ↦ rfl)
-
-end Pi
-
-section bilinear
-
--- I need rings not semirings here, because ` ChooseBasisIndex.fintype` incorrectly(?) needs
--- a ring instead of a semiring
-variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalRing R]
-
--- similarly these don't need to be groups
-variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
-variable {C : Type*} [AddCommGroup C] [Module R C] [aC : TopologicalSpace C] [IsActionTopology R C]
-
-lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
-    (bil : (ι → R) →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : ((ι → R) × B → C)) := by
-  classical
-  have foo : (fun fb ↦ bil fb.1 fb.2 : ((ι → R) × B → C)) =
-      (fun fb ↦ ∑ᶠ i, ((fb.1 i) • (bil (Pi.single i 1) fb.2) : C)) := by
-    ext ⟨f, b⟩
-    simp_rw [← LinearMap.smul_apply]
-    rw [← LinearMap.finsum_apply]
-    congr
-    simp_rw [LinearMap.smul_apply, ← LinearMap.map_smul]
-    convert AddMonoidHom.map_finsum bil.toAddMonoidHom _
-    · ext j
-      simp_rw [← Pi.single_smul, smul_eq_mul, mul_one]
-      symm
-      -- Is there a missing delaborator? No ∑ᶠ notation
-      change (∑ᶠ (i : ι), Pi.single i (f i)) j = f j
-      -- last tactic has no effect
-      rw [finsum_apply]
-      convert finsum_eq_single (fun i ↦ Pi.single i (f i) j) j
-        (by simp (config := {contextual := true})) using 1
-      simp
-    · apply Set.toFinite _--(Function.support fun x ↦ f x • Pi.single x 1)
-  rw [foo]
-  haveI : ContinuousAdd C := isActionTopology_continuousAdd R C
-  apply continuous_finsum (fun i ↦ by fun_prop)
-  intro x
-  use Set.univ
-  simp [Set.toFinite _]
-
--- Probably this can be beefed up in two distinct ways:
--- Firstly, as it stands the lemma should be provable for semirings.
--- Secind, we should be able to drop Module.Free in the ring case, change elinear.symm
--- into a
--- surjection not a bijection, and then use that quotients coinduce the action
--- topology for groups (proved later, but not using this)
-lemma Module.continuous_bilinear_of_finite_free [Module.Finite R A] [Module.Free R A]
-    (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
-  let ι := Module.Free.ChooseBasisIndex R A
-  let b : Basis ι R A := Module.Free.chooseBasis R A
-  let elinear : A ≃ₗ[R] (ι → R) := b.equivFun
-  let bil' : (ι → R) →ₗ[R] B →ₗ[R] C := bil.comp elinear.symm.toLinearMap
-  have := Module.continuous_bilinear_of_pi_finite ι bil'
-  have foo : (fun ab ↦ (bil ab.1) ab.2 : A × B → C) = (fun fb ↦ bil' fb.1 fb.2) ∘
-    (fun ab ↦ (elinear ab.1, ab.2) : A × B → (ι → R) × B) := by
-    ext ⟨a, b⟩
-    simp [bil']
-  rw [foo]
-  apply Continuous.comp this
-  apply Continuous.prod_mk
-  · exact continuous_of_linearMap (elinear.toLinearMap ∘ₗ (LinearMap.fst R A B))
-  · fun_prop
-
-end bilinear
-
-section algebra
-
--- these shouldn't be rings, they should be semirings
-variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
-variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
-variable [TopologicalSpace D] [IsActionTopology R D]
-
-open scoped TensorProduct
-
-@[continuity, fun_prop]
-lemma continuous_mul
-    (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
-    (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
-    [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
-  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
-  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
-  convert Module.continuous_bilinear_of_finite_free <| LinearMap.mul R D
-
-def Module.topologicalRing : TopologicalRing D where
-  continuous_add := (isActionTopology_continuousAdd R D).1
-  continuous_mul := continuous_mul R D
-  continuous_neg := continuous_neg R D
-
-end algebra
-
-section topology_problem
+section surjection
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
@@ -472,4 +310,207 @@ lemma coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ
       exact coinduced_prod_eq_prod_coinduced φ φ hφ hφ
 
 
-end topology_problem
+end surjection
+
+
+section prod
+
+variable {R : Type*} [TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
+variable {M : Type*} [AddCommMonoid M] [Module R M] [TopologicalSpace M] [IsActionTopology R M]
+variable {N : Type*} [AddCommMonoid N] [Module R N] [TopologicalSpace N] [IsActionTopology R N]
+
+instance prod : IsActionTopology R (M × N) := by
+  constructor
+  haveI : ContinuousAdd M := isActionTopology_continuousAdd R M
+  haveI : ContinuousAdd N := isActionTopology_continuousAdd R N
+  refine le_antisymm ?_ <| sInf_le ⟨Prod.continuousSMul, Prod.continuousAdd⟩
+  rw [← continuous_id_iff_le]
+  rw [show (id : M × N → M × N) =
+       (fun abcd ↦ abcd.1 + abcd.2 : (M × N) × (M × N) → M × N) ∘
+       (fun ab ↦ ((ab.1, 0),(0, ab.2))) by
+       ext ⟨a, b⟩ <;> simp]
+  -- The rest of the proof is a massive fight against typeclass inference, which is desperate
+  -- to always put the product topology on M × N, when we sometimes want the action topology
+  -- (they are equal, but that's exactly what we're proving so we can't assume it yet).
+  -- This issue stops the standard continuity tactics from working.
+  obtain ⟨this⟩ : @ContinuousAdd (M × N) (actionTopology R (M × N)) _ :=
+    ActionTopology.continuousAdd _ _
+  refine @Continuous.comp _ ((M × N) × (M × N)) _ (_) (_) (_) _ _ this ?_
+  refine (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2 ⟨?_, ?_⟩
+  · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_ continuous_fst
+    sorry
+    -- apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
+    -- exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+  · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inr R M N)) ?_ continuous_snd
+    sorry
+    -- apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
+    -- exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+
+end prod
+
+section Pi
+
+variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
+
+variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
+  [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
+  [∀ i, IsActionTopology R (A i)]
+
+instance pi : IsActionTopology R (∀ i, A i) := by
+  induction ι using Finite.induction_empty_option
+  · case of_equiv X Y e _ _ _ _ _ =>
+    exact iso (Homeomorph.piCongrLeft e) (LinearEquiv.piCongrLeft R A e) (fun _ ↦ rfl)
+  · apply subsingleton
+  · case h_option X _ hind _ _ _ _ =>
+    let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
+    sorry
+    -- refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
+    --   (elinear := LinearEquiv.piCongrLeft R A e.symm) _ (fun f ↦ rfl) ?_
+    -- apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
+    --   (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ (fun f ↦ rfl) ?_
+    -- refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
+    -- let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
+    -- exact iso (Homeomorph.pUnitPiEquiv (fun t ↦ A (φ t))).symm
+    --   (LinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm (fun a ↦ rfl)
+
+end Pi
+
+section semiring_bilinear
+
+-- I need rings not semirings here, because ` ChooseBasisIndex.fintype` incorrectly(?) needs
+-- a ring instead of a semiring. This should be fixed.
+variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalRing R]
+
+-- similarly these don't need to be groups
+variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {C : Type*} [AddCommGroup C] [Module R C] [aC : TopologicalSpace C] [IsActionTopology R C]
+
+lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
+    (bil : (ι → R) →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : ((ι → R) × B → C)) := by
+  classical
+  have foo : (fun fb ↦ bil fb.1 fb.2 : ((ι → R) × B → C)) =
+      (fun fb ↦ ∑ᶠ i, ((fb.1 i) • (bil (Pi.single i 1) fb.2) : C)) := by
+    ext ⟨f, b⟩
+    simp_rw [← LinearMap.smul_apply]
+    rw [← LinearMap.finsum_apply]
+    congr
+    simp_rw [LinearMap.smul_apply, ← LinearMap.map_smul]
+    convert AddMonoidHom.map_finsum bil.toAddMonoidHom _
+    · ext j
+      simp_rw [← Pi.single_smul, smul_eq_mul, mul_one]
+      symm
+      -- Is there a missing delaborator? No ∑ᶠ notation
+      change (∑ᶠ (i : ι), Pi.single i (f i)) j = f j
+      -- last tactic has no effect
+      rw [finsum_apply]
+      convert finsum_eq_single (fun i ↦ Pi.single i (f i) j) j
+        (by simp (config := {contextual := true})) using 1
+      simp
+    · apply Set.toFinite _--(Function.support fun x ↦ f x • Pi.single x 1)
+  rw [foo]
+  haveI : ContinuousAdd C := isActionTopology_continuousAdd R C
+  apply continuous_finsum (fun i ↦ by fun_prop)
+  intro x
+  use Set.univ
+  simp [Set.toFinite _]
+
+-- Probably this can be beefed up to semirings.
+lemma Module.continuous_bilinear_of_finite_free [Module.Finite R A] [Module.Free R A]
+    (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
+  let ι := Module.Free.ChooseBasisIndex R A
+  let b : Basis ι R A := Module.Free.chooseBasis R A
+  let elinear : A ≃ₗ[R] (ι → R) := b.equivFun
+  let bil' : (ι → R) →ₗ[R] B →ₗ[R] C := bil.comp elinear.symm.toLinearMap
+  have := Module.continuous_bilinear_of_pi_finite ι bil'
+  have foo : (fun ab ↦ (bil ab.1) ab.2 : A × B → C) = (fun fb ↦ bil' fb.1 fb.2) ∘
+    (fun ab ↦ (elinear ab.1, ab.2) : A × B → (ι → R) × B) := by
+    ext ⟨a, b⟩
+    simp [bil']
+  rw [foo]
+  apply Continuous.comp this
+  apply Continuous.prod_mk
+  · exact continuous_of_linearMap (elinear.toLinearMap ∘ₗ (LinearMap.fst R A B))
+  · fun_prop
+
+end semiring_bilinear
+
+section ring_bilinear
+
+variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalRing R]
+
+variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {C : Type*} [AddCommGroup C] [Module R C] [aC : TopologicalSpace C] [IsActionTopology R C]
+
+-- This needs rings though
+lemma Module.continuous_bilinear_of_finite [Module.Finite R A]
+    (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
+  obtain ⟨m, f, hf⟩ := Module.Finite.exists_fin' R A
+  let bil' : (Fin m → R) →ₗ[R] B →ₗ[R] C := bil.comp f
+  have := Module.continuous_bilinear_of_pi_finite (Fin m) bil'
+  let φ := f.prodMap (LinearMap.id : B →ₗ[R] B)
+  have foo : Function.Surjective (LinearMap.id : B →ₗ[R] B) :=
+    Function.RightInverse.surjective (congrFun rfl)
+  have hφ : Function.Surjective φ := Function.Surjective.prodMap hf foo
+  have := coinduced_of_surjective hφ
+  rw [isActionTopology R (A × B), ← this, continuous_def]
+  intro U hU
+  rw [isOpen_coinduced, ← Set.preimage_comp]
+  suffices Continuous ((fun ab ↦ (bil ab.1) ab.2) ∘ φ : (Fin m → R) × B → C) by
+    rw [continuous_def] at this
+    convert this _ hU
+    rw [← prod.isActionTopology']
+  rw [show (fun ab ↦ (bil ab.1) ab.2 : A × B → C) ∘ φ = (fun fb ↦ bil' fb.1 fb.2) by
+    ext ⟨a, b⟩
+    simp [bil', φ]]
+  apply Module.continuous_bilinear_of_finite_free
+
+end ring_bilinear
+
+section semiring_algebra
+
+-- these shouldn't be rings, they should be semirings
+variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
+variable [TopologicalSpace D] [IsActionTopology R D]
+
+open scoped TensorProduct
+
+@[continuity, fun_prop]
+lemma continuous_mul'
+    (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+    (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
+    [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
+  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
+  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
+  convert Module.continuous_bilinear_of_finite_free <| LinearMap.mul R D
+
+-- this should be about top semirings
+def Module.topologicalSemiring : TopologicalSemiring D where
+  continuous_add := (isActionTopology_continuousAdd R D).1
+  continuous_mul := continuous_mul' R D
+
+end semiring_algebra
+
+section ring_algebra
+
+-- these shouldn't be rings, they should be semirings
+variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
+variable [TopologicalSpace D] [IsActionTopology R D]
+
+open scoped TensorProduct
+
+@[continuity, fun_prop]
+lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
+  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
+  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
+  convert Module.continuous_bilinear_of_finite <| LinearMap.mul R D
+
+def Module.topologicalRing : TopologicalRing D where
+  continuous_add := (isActionTopology_continuousAdd R D).1
+  continuous_mul := continuous_mul R D
+  continuous_neg := continuous_neg R D
+
+end ring_algebra
