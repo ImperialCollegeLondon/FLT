@@ -502,15 +502,15 @@ variable [TopologicalSpace D] [IsActionTopology R D]
 
 open scoped TensorProduct
 
-@[continuity, fun_prop]
-lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
-  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
-  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
-  convert Module.continuous_bilinear_of_finite <| LinearMap.mul R D
+-- @[continuity, fun_prop]
+-- lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
+--   letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
+--   haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
+--   convert Module.continuous_bilinear_of_finite <| LinearMap.mul R D
 
-def Module.topologicalRing : TopologicalRing D where
-  continuous_add := (isActionTopology_continuousAdd R D).1
-  continuous_mul := continuous_mul R D
-  continuous_neg := continuous_neg R D
+-- def Module.topologicalRing : TopologicalRing D where
+--   continuous_add := (isActionTopology_continuousAdd R D).1
+--   continuous_mul := continuous_mul' R D
+--   continuous_neg := continuous_neg R D
 
 end ring_algebra
