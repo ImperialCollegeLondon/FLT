@@ -1,10 +1,6 @@
-import Mathlib.RingTheory.TensorProduct.Basic
-import Mathlib.Topology.Algebra.Module.Basic
-import Mathlib.Tactic
-import Mathlib.Topology.Order
-import Mathlib.Algebra.Group.Action.Defs
 import FLT.ForMathlib.MiscLemmas
-import Mathlib -- just for development
+import Mathlib.Topology.Algebra.Ring.Basic
+import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 
 /-!
 # An "action topology" for modules over a topological ring
@@ -20,20 +16,23 @@ This topology was suggested by Will Sawin [here](https://mathoverflow.net/a/4777
 I (buzzard) don't know of any reference for this other than Sawin's mathoverflow answer,
 so I expand some of the details here.
 
-First note that there is a finest topology with this property! Indeed, topologies on a fixed
+First note that there *is* a finest topology with this property! Indeed, topologies on a fixed
 type form a complete lattice (infinite infs and sups exist). So if `τ` is the Inf of all
 the topologies on `A` which make `+` and `•` continuous, then the claim is that `+` and `•`
-are still continuous for `τ`. To show `+ : A × A → A` is continuous we need to show that the
-pushforward of the product topology `τ × τ` along `+` is `≤ τ`, and because `τ` is an Inf it
-suffices to show that it's `≤ σ` for any `σ` on `A` which makes `+` and `•` continuous.
+are still continuous for `τ` (note that topologies are ordered so that finer topologies
+are smaller). To show `+ : A × A → A` is continuous we equivalently need to show
+that the pushforward of the product topology `τ × τ` along `+` is `≤ τ`, and because `τ` is
+the greatest lower bound of the topologies making `•` and `+` continuous,
+it suffices to show that it's `≤ σ` for any topology `σ` on `A` which makes `+` and `•` continuous.
 However pushforward and products are monotone, so `τ × τ ≤ σ × σ`, and the pushforward of
 `σ × σ` is `≤ σ` because that's precisely the statement that `+` is continuous for `σ`.
 The proof for `•` is similar.
 
-A *topological module* for a topological ring `R` is an `R`-module `A` such that `+` and `•`
-are continuous. A crucial observation is that if `M` is a topological module, if `A` is a module,
-and if `φ : A → M` is linear, then the pullback of `M`'s topology to `A` is a topology making `A`
-into a topological module. Let's for example check that `•` is continuous. If `U ⊆ A` is open
+A *topological module* for a topological ring `R` is an `R`-module `A` with a topology
+making `+` and `•` continuous. A crucial observation is that if `M` is a topological `R`-module,
+if `A` is an `R`-module with no topology, and if `φ : A → M` is linear, then the pullback of
+`M`'s topology to `A` is a topology making `A` into a topological module. Let's for example
+check that `•` is continuous. If `U ⊆ A` is open
 then by definition of the pullback topology, `U = φ⁻¹(V)` for some open `V ⊆ M`, and
 now the pullback of `U` under `•` is just the pullback along the continuous map
 `id × φ : R × A → R × M` of the preimage of `V` under the continuous map `• : R × M → M`,
@@ -44,25 +43,35 @@ the action topology. Indeed the argument above shows that if `A → M` is linear
 topology on `A` is `≤` the pullback of the action topology on `M` (because it's the inf of a set
 containing this topology) which is the definition of continuity.
 
-We deduce that the action topology is a functor from the category of `R`-modules (`R` a topological
-ring) to the category of topological `R`-modules, and it is perhaps unsurprising that this is
-an adjoint to the forgetful functor. Indeed, if `A` is an `R`-module and `M` is
-a topological `R`-module, then the linear maps `A → M` are precisely the continuous linear maps
-from `A` with its action topology, to `M`, so the action topology is a left adjoint to the
-forgetful functor.
+We also deduce that the action topology is a functor from the category of `R`-modules
+(`R` a topological ring) to the category of topological `R`-modules, and it is perhaps
+unsurprising that this is an adjoint to the forgetful functor. Indeed, if `A` is an `R`-module
+and `M` is a topological `R`-module, then the linear maps `A → M` are precisely the continuous
+linear maps from `A` with its action topology, to `M`, so the action topology is a left adjoint
+to the forgetful functor.
 
 This file develops the theory of the action topology. We prove that the action topology on
 `R` as a module over itself is `R`'s original topology, that the action topology on a product
 of modules is the product of the action topologies, and that the action topology on a quotient
 module is the quotient topology.
 
-If the module is
+We also show the slightly more subtle result that if `M`, `N` and `P` are `R`-modules
+equipped with the action topology and if furthermore `M` is finite as an `R`-module,
+then any bilinear map `M × N → P` is continuous.
 
 ## TODO
 
-Drop freeness from continuity of bilinear map claim; presumably only finiteness is needed,
-becuse of Sawin's observation that the quotient topology for a surjection of R-mods
-is the action topology.
+1) add the statement that the action topology is a functor from the category of `R`-modules
+to the category of topological `R`-modules, and prove it's an adjoint
+
+2) PRs to mathlib:
+
+2a) weaken ring to semiring in some freeness statements in mathlib and then weaken
+the corresponding statements in this file
+
+2b) PR `induced_sInf`, `induced_continuous_smul`, `induced_continuous_add`,
+  `isOpenMap_of_coinduced`, `LinearEquiv.sumPiEquivProdPi` and whatever else I use here.
+
 -/
 
 section basics
@@ -374,7 +383,9 @@ section semiring_bilinear
 
 -- I need rings not semirings here, because ` ChooseBasisIndex.fintype` incorrectly(?) needs
 -- a ring instead of a semiring. This should be fixed.
-variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalRing R]
+-- I also need commutativity because we don't have bilinear maps for non-commutative rings.
+-- **TODO** ask on the Zulip whether this is an issue.
+variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalSemiring R]
 
 -- similarly these don't need to be groups
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
@@ -414,6 +425,7 @@ lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
 lemma Module.continuous_bilinear_of_finite_free [Module.Finite R A] [Module.Free R A]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
+  let hι : Fintype ι := Module.Free.ChooseBasisIndex.fintype R A
   let b : Basis ι R A := Module.Free.chooseBasis R A
   let elinear : A ≃ₗ[R] (ι → R) := b.equivFun
   let bil' : (ι → R) →ₗ[R] B →ₗ[R] C := bil.comp elinear.symm.toLinearMap

@@ -1,6 +1,5 @@
 import Mathlib.Algebra.Module.Projective
 import Mathlib.Topology.Algebra.Monoid
-import Mathlib
 
 section elsewhere
 
