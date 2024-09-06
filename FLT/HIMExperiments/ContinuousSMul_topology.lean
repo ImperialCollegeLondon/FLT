@@ -35,9 +35,9 @@ In the module case one could demand that all `R`-linear maps `A →ₗ[R] R`
 are continuous. But the definition here is one proposed by Yury
 Kudryashov. He pointed out that if `τᵢ : TopologicalSpace A` all make
 the action maps `R × A → A` continuous, then the `Inf` of the `τᵢ`
-also has this proprty. This means that there is a smallest (in the `≤` sense,
+also has this property. This means that there is a smallest (in the `≤` sense,
 i.e. the most open sets) topology on `A` such that `• : R × A → A` is
-continous. We call topology the *action topology*. It is some kind
+continuous. We call topology the *action topology*. It is some kind
 of "pushforward topology" on `A` coming from the `R`-action, but
 it is not a pushforward in the `f_*` sense of the word because
 there is no fixed `f : R → A`.
@@ -182,7 +182,7 @@ variable {R : Type} [τR : TopologicalSpace R]
 -- let `M` and `N` have an action of `R`
 -- We do not need Mul on R, but there seems to be no class saying just 1 • m = m
 -- so we have to use MulAction
---variable [Monoid R] -- no ContinuousMul becasuse we never need
+--variable [Monoid R] -- no ContinuousMul because we never need
 -- we do not need MulAction because we do not need mul_smul.
 -- We only need one_smul
 variable {M : Type} [Zero M] [SMul R M] [aM : TopologicalSpace M] [IsActionTopology R M]
@@ -192,7 +192,7 @@ open TopologicalSpace in
 lemma prod [MulOneClass.{0} R] : IsActionTopology.{0} R (M × N) := by
   constructor
   -- goal: to prove product topology is action topology.
-  -- Well product topology will obviously have continuous_smul becasue
+  -- Well product topology will obviously have continuous_smul because
   -- of continuous_smulprod or whatever, assuming that exists.
   --unfold instTopologicalSpaceProd actionTopology
   apply le_antisymm

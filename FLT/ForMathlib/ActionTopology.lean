@@ -155,7 +155,7 @@ instance instId (R : Type*) [Semiring R] [τR : TopologicalSpace R] [Topological
   /- Let `R` be a topological ring with topology τR. To prove that `τR` is the action
   topology, it suffices to prove inclusions in both directions.
   One way is obvious: addition and multiplication are continuous for `R`, so the
-  action topology is finer than `R` because it's the finest topology wih these properties.-/
+  action topology is finer than `R` because it's the finest topology with these properties.-/
   refine le_antisymm ?_ (actionTopology_le R R)
   /- The other way is more interesting. We can interpret the problem as proving that
   the identity function is continuous from `R` with the action topology to `R` with

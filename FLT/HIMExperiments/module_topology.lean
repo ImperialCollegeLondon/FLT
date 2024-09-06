@@ -75,7 +75,7 @@ variable {N : Type*} [AddCommGroup N] [Module A N]
 /-- The "canonical topology" on a module `M` over a topological ring `A`. It's defined as
 the weakest topology on `M` which makes every `A`-linear map `M → A` continuous. -/
 -- make it an abbreviation not a definition; this means that Lean "prints `Module.topology`
--- in the tactic state for the human reader" but interally is syntactically equal to
+-- in the tactic state for the human reader" but internally is syntactically equal to
 -- to the `iInf`, meaning that all the `iInf` rewrites still work.
 abbrev Module.topology : TopologicalSpace M :=
 -- Topology defined as greatest lower bound of pullback topologies. So it's the biggest

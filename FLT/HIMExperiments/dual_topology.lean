@@ -43,9 +43,9 @@ In the module case one could demand that all `R`-linear maps `A →ₗ[R] R`
 are continuous. But the definition here is one proposed by Yury
 Kudryashov. He pointed out that if `τᵢ : TopologicalSpace A` all make
 the action maps `R × A → A` continuous, then the `Inf` of the `τᵢ`
-also has this proprty. This means that there is a smallest (in the `≤` sense,
+also has this property. This means that there is a smallest (in the `≤` sense,
 i.e. the most open sets) topology on `A` such that `• : R × A → A` is
-continous. We call topology the *action topology*. It is some kind
+continuous. We call topology the *action topology*. It is some kind
 of "pushforward topology" on `A` coming from the `R`-action, but
 it is not a pushforward in the `f_*` sense of the word because
 there is no fixed `f : R → A`.

@@ -57,7 +57,7 @@ section one
 
 variable {R : Type*} [τR : TopologicalSpace R]
 
--- this proof shoudl be much easier
+-- this proof should be much easier
 example [Monoid R] [ContinuousMul R] :
     IsActionTopology R R where
   isActionTopology' := by
@@ -79,7 +79,7 @@ example [Monoid R] [ContinuousMul R] :
       convert hσ
       simp only [smul_eq_mul, mul_one]
       rfl
--- this proof shoudl be much easier
+-- this proof should be much easier
 end one
 
 section type_stuff
