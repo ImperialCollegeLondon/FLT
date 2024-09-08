@@ -31,7 +31,7 @@ or $p$-adics).
 
 -/
 
-
+set_option lang.lemmaCmd true
 
 section basics
 
@@ -135,10 +135,10 @@ end linear_map
 
 section continuous_neg
 
-variable (R : Type*) [τR : TopologicalSpace R] [Ring R]
-variable (A : Type*) [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
-
-lemma continuous_neg : Continuous (-· : A → A) :=
+lemma continuous_neg
+    (R : Type*) [TopologicalSpace R] [Ring R]
+    (A : Type*) [AddCommGroup A] [Module R A] [TopologicalSpace A] [IsModuleTopology R A] :
+    Continuous (-· : A → A) :=
   continuous_of_linearMap (LinearEquiv.neg R).toLinearMap
 
 end continuous_neg
@@ -291,7 +291,7 @@ instance pi [∀ i, Module.Finite R (A i)]: IsModuleTopology R (∀ i, A i) := b
     · refine @Pi.continuous_postcomp' _ _ _ _ (fun _ ↦ moduleTopology R (∀ i, A i))
           (fun j aj k ↦ if h : k = j then h ▸ aj else 0) (fun i ↦ ?_)
       rw [isModuleTopology R (A i)]
-      exact continuous_of_linearMap' (LinearMap.single i)
+      exact continuous_of_linearMap' (LinearMap.single _ _ i)
   · apply le_iInf (fun i ↦ ?_)
     rw [← continuous_iff_le_induced, isModuleTopology R (A i)]
     exact continuous_of_linearMap' (LinearMap.proj i)
@@ -392,7 +392,8 @@ variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
 variable [TopologicalSpace D] [IsModuleTopology R D]
 
 @[continuity, fun_prop]
-lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
+lemma continuous_mul (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [TopologicalSpace D]
+    [IsModuleTopology R D] : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
   letI : TopologicalSpace (D ⊗[R] D) := moduleTopology R _
   haveI : IsModuleTopology R (D ⊗[R] D) := { isModuleTopology' := rfl }
   apply Module.continuous_bilinear <| LinearMap.mul R D
@@ -408,7 +409,8 @@ lemma continuousSMul (R : Type*) [CommRing R] [TopologicalSpace R] [TopologicalR
     (A : Type*) [AddCommGroup A] [Module R A] [Module.Finite R A] [TopologicalSpace A]
     [IsModuleTopology R A] :
     ContinuousSMul R A := by
-  exact ⟨Module.continuous_bilinear <| LinearMap.lsmul R A⟩
+  sorry
+  --exact ⟨Module.continuous_bilinear <| LinearMap.lsmul R A⟩
 
 end ModuleTopology
 

@@ -3,9 +3,8 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
+import Mathlib.Algebra.Module.Torsion
 import Mathlib.RingTheory.Flat.Basic
-import Mathlib.RingTheory.IsTensorProduct
-import Mathlib.LinearAlgebra.TensorProduct.Tower
 
 /-!
 # Relationships between flatness and torsionfreeness.
@@ -122,6 +121,4 @@ theorem flat_iff_torsion_eq_bot [IsPrincipalIdealRing R] [IsDomain R] :
       apply Function.Injective.of_comp_right _
         (LinearEquiv.rTensor M (Ideal.isoBaseOfIsPrincipal h)).surjective
       rw [← LinearEquiv.coe_toLinearMap, ← LinearMap.coe_comp]
-
-
       sorry

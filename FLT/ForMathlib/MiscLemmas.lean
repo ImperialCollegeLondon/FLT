@@ -1,6 +1,8 @@
 import Mathlib.Algebra.Module.Projective
 import Mathlib.Topology.Algebra.Monoid
 
+set_option lang.lemmaCmd true
+
 section elsewhere
 
 variable {A : Type*} [AddCommGroup A]
@@ -76,9 +78,9 @@ theorem Projective.of_basis' {ι : Type*} (b : Basis ι R P) : Projective R P :=
   -- get it from `ι → (P →₀ R)` coming from `b`.
   use b.constr ℕ fun i => Finsupp.single (b i) (1 : R)
   intro m
-  simp only [b.constr_apply, mul_one, id, Finsupp.smul_single', Finsupp.total_single,
+  simp only [b.constr_apply, mul_one, id, Finsupp.smul_single', Finsupp.linearCombination_single,
     map_finsupp_sum]
-  exact b.total_repr m
+  exact b.linearCombination_repr m
 
 instance (priority := 100) Projective.of_free' [Module.Free R P] : Module.Projective R P :=
   .of_basis' <| Module.Free.chooseBasis R P
@@ -101,8 +103,8 @@ variable {S : Type*} [τS : TopologicalSpace S] {f : S → R} (hf : Continuous f
 variable {B : Type*} [SMul S B]
 
 -- note: use convert not exact to ensure typeclass inference doesn't try to find topology on B
-lemma induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] (g : B →ₑ[f] A) :
-    @ContinuousSMul S B _ _ (TopologicalSpace.induced g τA) := by
+lemma induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] (g : B →ₑ[f] A)
+    (hf : Continuous f) : @ContinuousSMul S B _ _ (TopologicalSpace.induced g τA) := by
   convert Inducing.continuousSMul (inducing_induced g) hf (fun {c} {x} ↦ map_smulₛₗ g c x)
 
 lemma induced_continuous_add [AddCommMonoid A] [τA : TopologicalSpace A] [ContinuousAdd A]

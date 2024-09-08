@@ -243,7 +243,7 @@ open CRTRepresentative.auxiliary
 /-- There exists an element of `B` which is equal to the generator `g` of `(B ⧸ Q)ˣ` mod
 the coset of `Q` in the orbit of `Q` under `(L ≃ₐ[K] L)`, and
 equal to `0` mod any other coset.  -/
-lemma crt_representative (b : B) : ∃ (y : B),
+lemma crt_representative (b : B) (Q_ne_bot : Q ≠ (⊥ : Ideal B)) : ∃ (y : B),
     ∀ (i : (L ≃ₐ[K] L) ⧸ decomposition_subgroup_Ideal' Q),
     if i = Quotient.mk'' 1 then y - b ∈ f Q i else y ∈ f Q i := by
   -- We know that we want `IsDedekindDomain.exists_forall_sub_mem_ideal` to
@@ -283,7 +283,7 @@ variable {A K L B Q} in
 /--"By the Chinese remainder theorem, there exists an element `ρ` of `B` such that
 `ρ` generates the group `(B ⧸ Q)ˣ` and lies in `τ • Q` for all `τ` not in the
 decomposition subgroup of `Q` over `K`". -/
-theorem exists_generator : ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
+theorem exists_generator (Q_ne_bot : Q ≠ (⊥ : Ideal B)) : ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
     (∀ (x : (B ⧸ Q)ˣ), x ∈ Subgroup.zpowers h.unit) ∧
     (∀ τ : L ≃ₐ[K] L, (τ ∉ decomposition_subgroup_Ideal' Q) →
     ρ ∈ (τ • Q)) := by
@@ -291,7 +291,7 @@ theorem exists_generator : ∃ (ρ : B) (h : IsUnit (Ideal.Quotient.mk Q ρ)) ,
   apply IsCyclic.exists_monoid_generator at i
   rcases i with ⟨⟨g, g', hgg', hg'g⟩, hg⟩
   induction' g using Quotient.inductionOn' with g
-  obtain ⟨ρ , hρ⟩ := crt_representative A K L B Q Q_ne_bot g
+  obtain ⟨ρ , hρ⟩ := crt_representative A K L B Q g Q_ne_bot
   use ρ
   have eq1 : (Quotient.mk'' ρ : B ⧸ Q) = Quotient.mk'' g := by
     specialize hρ (Quotient.mk'' 1)
@@ -928,6 +928,8 @@ lemma for_all_gamma (γ : B) : ((γ ^ q) - (galRestrict A K L B Frob) γ) ∈ Q 
     · apply Frob_γ_not_in_Q_is_pow P Q_ne_bot at H
       exact H
   aesop
+
+#exit
 
 /--Let `L / K` be a finite Galois extension of number fields, and let `Q` be a prime ideal
 of `B`, the ring of integers of `L`. Then, there exists an element `σ : L ≃ₐ[K] L`

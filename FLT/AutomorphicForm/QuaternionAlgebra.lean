@@ -153,7 +153,7 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
   nsmul := nsmulRec
   neg := (-·)
   zsmul := zsmulRec
-  add_left_neg := by intros; ext; simp
+  neg_add_cancel := by intros; ext; simp
   add_comm := by intros; ext; simp [add_comm]
 
 open ConjAct

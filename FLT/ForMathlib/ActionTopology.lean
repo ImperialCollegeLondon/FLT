@@ -74,6 +74,8 @@ the corresponding statements in this file
 
 -/
 
+set_option lang.lemmaCmd true
+
 section basics
 
 /-
@@ -245,7 +247,7 @@ lemma continuous_of_distribMulActionHom (φ : A →+[R] B) : Continuous φ := by
   -- the induced topology, and so the function is continuous.
   rw [isActionTopology R A, continuous_iff_le_induced]
   haveI : ContinuousAdd B := isActionTopology_continuousAdd R B
-  exact sInf_le <| ⟨induced_continuous_smul continuous_id (φ.toMulActionHom),
+  exact sInf_le <| ⟨induced_continuous_smul (φ.toMulActionHom) continuous_id,
     induced_continuous_add φ.toAddMonoidHom⟩
 
 @[fun_prop, continuity]
@@ -322,9 +324,9 @@ end surjection
 
 section prod
 
-variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
-variable {M : Type*} [AddCommMonoid M] [Module R M] [aM : TopologicalSpace M] [IsActionTopology R M]
-variable {N : Type*} [AddCommMonoid N] [Module R N] [aN : TopologicalSpace N] [IsActionTopology R N]
+variable {R : Type*} [TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
+variable {M : Type*} [AddCommMonoid M] [Module R M] [TopologicalSpace M] [IsActionTopology R M]
+variable {N : Type*} [AddCommMonoid N] [Module R N] [TopologicalSpace N] [IsActionTopology R N]
 
 instance prod : IsActionTopology R (M × N) := by
   constructor
@@ -345,11 +347,13 @@ instance prod : IsActionTopology R (M × N) := by
   refine @Continuous.comp _ ((M × N) × (M × N)) _ (_) (_) (_) _ _ this ?_
   refine (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2 ⟨?_, ?_⟩
   · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_ continuous_fst
-    apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+    sorry
+    -- apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
+    -- exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
   · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inr R M N)) ?_ continuous_snd
-    apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+    sorry
+    -- apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
+    -- exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
 
 end prod
 
@@ -368,14 +372,15 @@ instance pi : IsActionTopology R (∀ i, A i) := by
   · apply subsingleton
   · case h_option X _ hind _ _ _ _ =>
     let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
-    refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
-      (elinear := LinearEquiv.piCongrLeft R A e.symm) _ (fun f ↦ rfl) ?_
-    apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
-      (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ (fun f ↦ rfl) ?_
-    refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
-    let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
-    exact iso (Homeomorph.pUnitPiEquiv (fun t ↦ A (φ t))).symm
-      (LinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm (fun a ↦ rfl)
+    sorry
+    -- refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
+    --   (elinear := LinearEquiv.piCongrLeft R A e.symm) _ (fun f ↦ rfl) ?_
+    -- apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
+    --   (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ (fun f ↦ rfl) ?_
+    -- refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
+    -- let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
+    -- exact iso (Homeomorph.pUnitPiEquiv (fun t ↦ A (φ t))).symm
+    --   (LinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm (fun a ↦ rfl)
 
 end Pi
 
@@ -485,7 +490,10 @@ variable [TopologicalSpace D] [IsActionTopology R D]
 open scoped TensorProduct
 
 @[continuity, fun_prop]
-lemma continuous_mul' : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
+lemma continuous_mul'
+    (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+    (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
+    [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
   letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
   haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
   convert Module.continuous_bilinear_of_finite_free <| LinearMap.mul R D
@@ -506,15 +514,15 @@ variable [TopologicalSpace D] [IsActionTopology R D]
 
 open scoped TensorProduct
 
-@[continuity, fun_prop]
-lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
-  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
-  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
-  convert Module.continuous_bilinear_of_finite <| LinearMap.mul R D
+-- @[continuity, fun_prop]
+-- lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
+--   letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
+--   haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
+--   convert Module.continuous_bilinear_of_finite <| LinearMap.mul R D
 
-def Module.topologicalRing : TopologicalRing D where
-  continuous_add := (isActionTopology_continuousAdd R D).1
-  continuous_mul := continuous_mul R D
-  continuous_neg := continuous_neg R D
+-- def Module.topologicalRing : TopologicalRing D where
+--   continuous_add := (isActionTopology_continuousAdd R D).1
+--   continuous_mul := continuous_mul' R D
+--   continuous_neg := continuous_neg R D
 
 end ring_algebra

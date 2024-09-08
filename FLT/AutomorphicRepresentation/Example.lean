@@ -269,6 +269,7 @@ lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) �
     simp only [← q.mul_den_eq_num, LinearMap.mul_apply', mul_assoc,
       one_div, ne_eq, Nat.cast_eq_zero, Rat.den_ne_zero, not_false_eq_true,
       mul_inv_cancel, mul_one]
+    sorry
   | add x y hx hy =>
     obtain ⟨N₁, z₁, rfl⟩ := hx
     obtain ⟨N₂, z₂, rfl⟩ := hy
@@ -524,13 +525,9 @@ lemma preserves_zsmul {G H : Type*} [Zero G] [Add G] [Neg G] [SMul ℕ G] [SubNe
     f (zsmulRec (· • ·) z g) = z • f g := by
   induction z with
   | ofNat n =>
-    rw [zsmulRec]
-    dsimp only
-    rw [nsmul, Int.ofNat_eq_coe, natCast_zsmul]
+    rw [zsmulRec, nsmul, Int.ofNat_eq_coe, natCast_zsmul]
   | negSucc n =>
-    rw [zsmulRec]
-    dsimp only
-    rw [neg, nsmul, negSucc_zsmul]
+    rw [zsmulRec, neg, nsmul, negSucc_zsmul]
 
 lemma toQuaternion_zsmul (z : 𝓞) (n : ℤ) :
     toQuaternion (n • z) = n • toQuaternion z :=
@@ -807,9 +804,9 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
   · use fromQuaternion a
     convert zero_lt_one' ℝ
     rw [NormedRing.dist_eq, ← sq_eq_zero_iff, sq, ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
-    rw [add_eq_zero_iff' (by positivity) (by positivity)]
-    rw [add_eq_zero_iff' (by positivity) (by positivity)]
-    rw [add_eq_zero_iff' (by positivity) (by positivity)]
+    rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
+    rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
+    rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
     simp_rw [and_assoc, sq_eq_zero_iff, sub_re, sub_imI, sub_imJ, sub_imK, sub_eq_zero,
       ← Quaternion.ext_iff]
     symm

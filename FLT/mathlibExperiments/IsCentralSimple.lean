@@ -63,7 +63,7 @@ theorem MatrixRing.isCentralSimple (ι : Type v) (hι : Fintype ι) [Nonempty ι
       have : r x y ↔ r 0 (y - x) := by
         constructor
         · convert RingCon.add r (r.refl (-x)) using 1
-          rw [neg_add_self, sub_eq_add_neg, add_comm]
+          rw [neg_add_cancel, sub_eq_add_neg, add_comm]
         · convert RingCon.add r (r.refl x) using 1
           rw [add_sub_cancel, add_zero]
       rw [this, h, sub_eq_zero, eq_comm, RingCon.coe_bot]

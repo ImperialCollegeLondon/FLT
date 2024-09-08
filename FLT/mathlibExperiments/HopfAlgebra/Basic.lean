@@ -7,6 +7,7 @@ Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 import Mathlib.RingTheory.HopfAlgebra
 import FLT.mathlibExperiments.Coalgebra.Monoid
 import FLT.mathlibExperiments.Coalgebra.TensorProduct
+import Mathlib.Tactic.Group
 
 /-!
 # Basic properties of Hopf algebra
@@ -110,6 +111,8 @@ lemma antipode_anticommute (a b : A) :
           (repr_b := Coalgebra.comul_repr (R := R) b)),
       LinearMap.mul'_apply, LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply, comm_tmul,
       map_tmul, show ∀ a b c d : A, a * b * (c * d) = a * (b * c) * d by intros; group,
+
+
       Finset.sum_product, ← Finset.sum_mul, ← Finset.mul_sum,
       antipode_repr_eq_smul' (repr := Coalgebra.comul_repr b), LinearPoint.one_def,
       TensorProduct.counit_tmul, smul_eq_mul, Algebra.linearMap_apply,
@@ -139,7 +142,7 @@ namespace AlgHomPoint
 
 noncomputable instance instGroup : Group (AlgHomPoint R A L) where
   inv f := f.comp antipodeAlgHom
-  mul_left_inv f := AlgHom.ext fun x ↦ by
+  inv_mul_cancel f := AlgHom.ext fun x ↦ by
     simp only [AlgHomPoint.mul_repr (repr := Coalgebra.comul_repr x), AlgHom.comp_apply,
       antipodeAlgHom_apply, ← _root_.map_mul, ← map_sum, f.commutes, Algebra.ofId_apply,
       antipode_repr (repr := Coalgebra.comul_repr x), AlgHomPoint.one_def,
