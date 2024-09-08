@@ -74,8 +74,6 @@ the corresponding statements in this file
 
 -/
 
-set_option lang.lemmaCmd true
-
 section basics
 
 /-
@@ -190,15 +188,15 @@ end one
 
 section iso
 
-variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
+variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] --[TopologicalSemiring R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [τA : TopologicalSpace A] [IsActionTopology R A]
 variable {B : Type*} [AddCommMonoid B] [Module R B] [τB : TopologicalSpace B]
 
 -- this is horrible. Why isn't it easy?
 -- One reason: we are rolling our own continuous linear equivs!
 -- **TODO** Ask about making continuous linear equivs properly
-lemma iso (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B) (he : ∀ a, ehomeo a = elinear a)
-    [IsActionTopology R A] : IsActionTopology R B where
+lemma iso (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B) (he : ∀ a, ehomeo a = elinear a) :
+    IsActionTopology R B where
   isActionTopology' := by
     simp_rw [ehomeo.symm.inducing.1, isActionTopology R A, actionTopology, induced_sInf]
     congr 1
@@ -233,7 +231,7 @@ end iso
 
 section function
 
-variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
+variable {R : Type*} [τR : TopologicalSpace R] [Semiring R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
 variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
 
@@ -347,13 +345,11 @@ instance prod : IsActionTopology R (M × N) := by
   refine @Continuous.comp _ ((M × N) × (M × N)) _ (_) (_) (_) _ _ this ?_
   refine (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2 ⟨?_, ?_⟩
   · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_ continuous_fst
-    sorry
-    -- apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    -- exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+    apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
+    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
   · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inr R M N)) ?_ continuous_snd
-    sorry
-    -- apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    -- exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+    apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
+    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
 
 end prod
 
@@ -365,6 +361,13 @@ variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsActionTopology R (A i)]
 
+/-
+-- ActionTopology.iso.{u_1, u_2, u_3} {R : Type u_1} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
+--   {A : Type u_2} [AddCommMonoid A] [Module R A] [τA : TopologicalSpace A] [IsActionTopology R A] {B : Type u_3}
+--   [AddCommMonoid B] [Module R B] [τB : TopologicalSpace B] (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B)
+--   (he : ∀ (a : A), ehomeo a = elinear a) [IsActionTopology R A] : IsActionTopology R B
+
+-/
 instance pi : IsActionTopology R (∀ i, A i) := by
   induction ι using Finite.induction_empty_option
   · case of_equiv X Y e _ _ _ _ _ =>
@@ -372,15 +375,16 @@ instance pi : IsActionTopology R (∀ i, A i) := by
   · apply subsingleton
   · case h_option X _ hind _ _ _ _ =>
     let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
-    sorry
-    -- refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
-    --   (elinear := LinearEquiv.piCongrLeft R A e.symm) _ (fun f ↦ rfl) ?_
-    -- apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
-    --   (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ (fun f ↦ rfl) ?_
-    -- refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
-    -- let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
-    -- exact iso (Homeomorph.pUnitPiEquiv (fun t ↦ A (φ t))).symm
-    --   (LinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm (fun a ↦ rfl)
+    refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
+        (elinear := LinearEquiv.piCongrLeft R A e.symm)
+        (he := fun f ↦ rfl) _ _ _ _ _ ?_
+    apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
+        (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm)
+        (he := fun f ↦ rfl) _ _ _ _ _ ?_
+    refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
+    let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
+    exact iso (Homeomorph.pUnitPiEquiv (fun t ↦ A (φ t))).symm
+      (LinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm (fun a ↦ rfl)
 
 end Pi
 
@@ -390,7 +394,7 @@ section semiring_bilinear
 -- a ring instead of a semiring. This should be fixed.
 -- I also need commutativity because we don't have bilinear maps for non-commutative rings.
 -- **TODO** ask on the Zulip whether this is an issue.
-variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalSemiring R]
+variable {R : Type*} [τR : TopologicalSpace R] [CommRing R]
 
 -- similarly these don't need to be groups
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
@@ -427,7 +431,7 @@ lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
   simp [Set.toFinite _]
 
 -- Probably this can be beefed up to semirings.
-lemma Module.continuous_bilinear_of_finite_free [Module.Finite R A] [Module.Free R A]
+lemma Module.continuous_bilinear_of_finite_free [TopologicalSemiring R] [Module.Finite R A] [Module.Free R A]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
   let hι : Fintype ι := Module.Free.ChooseBasisIndex.fintype R A

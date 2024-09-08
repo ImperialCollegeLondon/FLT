@@ -1,8 +1,6 @@
 import Mathlib.Algebra.Module.Projective
 import Mathlib.Topology.Algebra.Monoid
 
-set_option lang.lemmaCmd true
-
 section elsewhere
 
 variable {A : Type*} [AddCommGroup A]

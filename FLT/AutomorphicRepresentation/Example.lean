@@ -268,8 +268,7 @@ lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) �
     simp only [PNat.mk_coe, zsmul_eq_mul]
     simp only [← q.mul_den_eq_num, LinearMap.mul_apply', mul_assoc,
       one_div, ne_eq, Nat.cast_eq_zero, Rat.den_ne_zero, not_false_eq_true,
-      mul_inv_cancel, mul_one]
-    sorry
+      mul_inv_cancel, mul_one, mul_inv_cancel₀]
   | add x y hx hy =>
     obtain ⟨N₁, z₁, rfl⟩ := hx
     obtain ⟨N₂, z₂, rfl⟩ := hy
