@@ -7,6 +7,7 @@
 import Mathlib.RingTheory.Ideal.Pointwise
 import Mathlib.RingTheory.Ideal.Over
 import Mathlib.FieldTheory.Normal
+import Mathlib
 
 variable {A : Type*} [CommRing A]
   {B : Type*} [CommRing B] [Algebra A B] [Algebra.IsIntegral A B]
@@ -23,8 +24,8 @@ variable (P Q : Ideal B) [P.IsPrime] [Q.IsPrime]
 
 open scoped Pointwise
 
-private lemma norm_fixed (b : B) (g : G) : g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, σ • b := calc
-  g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, g • (σ • b) := sorry -- this is `smul_finprod` after we bump mathlib
+private theorem norm_fixed (b : B) (g : G) : g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, σ • b := calc
+  g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, g • (σ • b) := smul_finprod _
   _                     = ∏ᶠ σ : G, σ • b := finprod_eq_of_bijective (g • ·) (MulAction.bijective g)
                                                fun x ↦ smul_smul g x b
 
@@ -89,7 +90,7 @@ def IsNormalElement (x : L) : Prop := Splits (algebraMap K L) (minpoly K x)
 
 namespace IsNormalElement
 
-lemma iff_exists_monic_splits {x : L} (hx : IsIntegral K x) :
+theorem iff_exists_monic_splits {x : L} (hx : IsIntegral K x) :
     IsNormalElement K x ↔
     ∃ P : K[X], P.Monic ∧ P.eval₂ (algebraMap K L) x = 0 ∧ Splits (algebraMap K L) P := by
   constructor
@@ -99,7 +100,7 @@ lemma iff_exists_monic_splits {x : L} (hx : IsIntegral K x) :
     -- need min poly divides P and then it should all be over
     sorry
 
-lemma prod {x y : L} (hxint : IsIntegral K x) (hyint : IsIntegral K y)
+theorem prod {x y : L} (hxint : IsIntegral K x) (hyint : IsIntegral K y)
     (hx : IsNormalElement K x) (hy : IsNormalElement K y) :
     IsNormalElement K (x * y) := by
   rw [iff_exists_monic_splits K hxint] at hx
@@ -108,7 +109,8 @@ lemma prod {x y : L} (hxint : IsIntegral K x) (hyint : IsIntegral K y)
   obtain ⟨Py, hy1, hy2, hy3⟩ := hy
   rw [iff_exists_monic_splits K <| IsIntegral.mul hxint hyint]
   -- If roots of Px are xᵢ and roots of Py are yⱼ, then use the poly whose roots are xᵢyⱼ.
-  -- Do we have this? Is it the resultant or something?
+  -- Do we have this?
+  -- Is this even the best way to go about this?
   sorry
 
 -- API
@@ -160,7 +162,9 @@ variable (Q : Ideal B) [Q.IsPrime] (P : Ideal A) [P.IsPrime]
 -- Do I need this:
 --  [Algebra B L] [IsScalarTower B (B ⧸ Q) L]
 
-lemma Ideal.Quotient.eq_zero_iff_mem' (x : A) :
+-- version of Ideal.Quotient.eq_zero_iff_mem with algebraMap
+omit [P.IsPrime] in
+theorem Ideal.Quotient.eq_zero_iff_mem' (x : A) :
     algebraMap A (A ⧸ P) x = 0 ↔ x ∈ P :=
   Ideal.Quotient.eq_zero_iff_mem
 
@@ -175,8 +179,10 @@ example : --[Algebra A k] [IsScalarTower A (A ⧸ p) k] [Algebra k K] [IsScalarT
   rw [← map_eq_zero_iff _ <| IsFractionRing.injective (A ⧸ P) K]
   rw [← map_eq_zero_iff _ <| IsFractionRing.injective (B ⧸ Q) L]
   rw [← map_eq_zero_iff _ <| RingHom.injective ((algebraMap K L) : K →+* L)]
-  rw [← algebraMap_apply A B (B ⧸ Q), algebraMap_apply A (A ⧸ P) (B ⧸ Q)]
-  rw [← algebraMap_apply (A ⧸ P) K L, algebraMap_apply (A ⧸ P) (B ⧸ Q) L]
+  rw [← algebraMap_apply A B (B ⧸ Q)]
+  rw [← algebraMap_apply (A ⧸ P) K L]
+  rw [algebraMap_apply A (A ⧸ P) (B ⧸ Q)]
+  rw [algebraMap_apply (A ⧸ P) (B ⧸ Q) L]
 
 open Polynomial BigOperators
 
@@ -186,18 +192,26 @@ variable (G) in
 and lies in `τ • Q` for all `τ ∉ (decomposition_subgroup_Ideal'  A K L B Q)`.-/
 private noncomputable abbrev F (b : B) : B[X] := ∏ᶠ τ : G, (X - C (τ • b))
 
-private lemma F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
+omit [Finite G] in
+private theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
 
-private lemma F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
-  σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rfl
-  _         = ∏ᶠ τ : G, σ • (X - C (τ • b)) := sorry -- smul_prod for finprod
-  _         = ∏ᶠ τ : G, (X - C ((σ * τ) • b)) := by simp [smul_sub, smul_smul]; congr; ext t; congr 2; sorry -- is this missing??
-  _         = ∏ᶠ τ' : G, (X - C (τ' • b)) := sorry -- Finite.finprod_bijective (fun τ ↦ σ * τ)
-                                                      -- (Group.mulLeft_bijective σ) _ _ (fun _ ↦ rfl)
+private theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
+  σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rw [F_spec]
+  _         = ∏ᶠ τ : G, σ • (X - C (τ • b)) := smul_finprod _
+  _         = ∏ᶠ τ : G, (X - C ((σ * τ) • b)) := by simp [smul_sub, smul_smul]
+  _         = ∏ᶠ τ' : G, (X - C (τ' • b)) := finprod_eq_of_bijective (fun τ ↦ σ * τ)
+                                               (Group.mulLeft_bijective σ) (fun _ ↦ rfl)
   _         = F G b := by rw [F_spec]
 
-private lemma F_eval_eq_zero (b : B) : (F G b).eval b = 0 := by
-  simp [F_spec, eval_prod]; sorry -- missing lemma? Finprod.prod_eq_zero (Finset.mem_univ (1 : G))]
+--example (X : Type) [Finite X] : Fintype X := exact?%
+--#check finprod_eq_zero
+private theorem F_eval_eq_zero (b : B) : (F G b).eval b = 0 := by
+  let foo := Fintype.ofFinite G
+  simp [F_spec, eval_prod]
+  -- need eval finprod = finprod eval
+  -- then use `finprod_eq_zero _ (1 : G)`
+  sorry
+
 
 open scoped algebraMap
 
@@ -205,11 +219,13 @@ noncomputable local instance : Algebra A[X] B[X] :=
   RingHom.toAlgebra (Polynomial.mapRingHom (Algebra.toRingHom))
 
 -- PR?
+omit [Algebra.IsIntegral A B] in
 @[simp, norm_cast]
-lemma coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
+theorem coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
   map_monomial _
 
-private lemma F_descent (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) (b : B) :
+omit [Algebra.IsIntegral A B] in
+private theorem F_descent (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) (b : B) :
     ∃ M : A[X], (M : B[X]) = F G b := by
   choose f hf using fun b ↦ (hGalois b).mp
   classical
@@ -231,16 +247,17 @@ private lemma F_descent (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ �
 variable (G) in
 noncomputable def M (b : B) : A[X] := (F_descent hGalois b).choose
 
-lemma M_spec (b : B) : ((M G hGalois b : A[X]) : B[X]) = F G b := (F_descent hGalois b).choose_spec
+omit [Algebra.IsIntegral A B] in
+theorem M_spec (b : B) : ((M G hGalois b : A[X]) : B[X]) = F G b := (F_descent hGalois b).choose_spec
 
-lemma M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) b = 0 := by
+theorem M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) b = 0 := by
   sorry -- follows from `F_eval_eq_zero`
 
-lemma Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
+theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
     [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
     (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
   -- ratio of two algebraic numbers is algebraic (follows from reciprocal of algebraic number
-  -- is algebraic; proof is "reverse the min poly")
+  -- is algebraic; proof is "reverse the min poly", don't know if we have it)
   sorry
 
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
@@ -266,24 +283,36 @@ theorem part_b2 : Normal K L := by
   -/
   sorry
 
--- yikes! Don't have Ideal.Quotient.map or Ideal.Quotient.congr??
 open scoped Pointwise
-def foo : MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
-  toFun gh := {
-    toFun := sorry
-    invFun := sorry
-    left_inv := sorry
-    right_inv := sorry
-    map_mul' := sorry
-    map_add' := sorry
-    commutes' := sorry
-  }
+
+def foo (g : G) (hg : g • Q = Q) : B ⧸ Q ≃+* B ⧸ Q :=
+  Ideal.quotientEquiv Q Q (MulSemiringAction.toRingEquiv G B g) hg.symm
+
+def bar (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
+  __ := foo Q g hg
+  commutes' := sorry
+
+def baz : MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
+  toFun gh := bar Q P gh.1 gh.2
   map_one' := sorry
   map_mul' := sorry
--- definition of canonical map G_P →* (K ≃ₐ[k] K)
 
--- Main result: it's surjective.
--- Jou proved this (see Frobenius2.lean) assuming (a) K/k simple and (b) P maximal.
+noncomputable def bar2 (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
+  __ := IsFractionRing.fieldEquivOfRingEquiv e.toRingEquiv
+  commutes' := sorry
+
+noncomputable def baz2 : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
+  toFun gh := bar2 Q P L K (baz Q P gh)
+  map_one' := sorry
+  map_mul' := sorry
+
+theorem main_result : Function.Surjective
+    (baz2 Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
+  sorry
+
+
+-- In Frobenius2.lean in this dir (Jou's FM24 project) there's a proof of this assuming B/Q is
+-- finite and P is maximal.
 -- Bourbaki reduce to maximal case by localizing at P, and use finite + separable = simple
 -- on the max separable subextension, but then the argument follows Jou's formalisation
 -- in Frobenius2.lean in this directory.
