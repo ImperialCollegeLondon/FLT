@@ -878,7 +878,7 @@ lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.s
     rintro _ ⟨_, rfl⟩
     exact norm_nonneg _
   obtain ⟨a, ha⟩ : ∃ a : S, norm a = ⨅ i : S, norm i :=
-    exists_eq_ciInf_of_not_isPredLimit hbdd (Order.not_isPredLimit)
+    exists_eq_ciInf_of_not_isPredPrelimit hbdd (Order.not_isPredPrelimit)
   use a
   apply le_antisymm
   · intro i hi
