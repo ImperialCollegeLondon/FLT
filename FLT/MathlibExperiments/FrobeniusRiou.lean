@@ -208,17 +208,11 @@ private theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
                                                (Group.mulLeft_bijective σ) (fun _ ↦ rfl)
   _         = F G b := by rw [F_spec]
 
---example (X : Type) [Finite X] : Fintype X := exact?%
---#check finprod_eq_zero
 private theorem F_eval_eq_zero (b : B) : (F G b).eval b = 0 := by
   let foo := Fintype.ofFinite G
-  simp [F_spec, eval_prod]
-  -- need eval finprod = finprod eval (missing?)
-  -- then use `finprod_eq_zero _ (1 : G)`
-  -- maths proof: evaluating the finite product at b clearly gives 0 because
-  -- the term corresponding to τ=1 is 0
-  sorry
-
+  simp [F_spec,finprod_eq_prod_of_fintype,eval_prod]
+  apply @Finset.prod_eq_zero _ _ _ _ _ (1 : G) (Finset.mem_univ 1)
+  simp
 
 open scoped algebraMap
 
@@ -258,6 +252,7 @@ omit [Algebra.IsIntegral A B] in
 theorem M_spec (b : B) : ((M G hGalois b : A[X]) : B[X]) = F G b := (F_descent hGalois b).choose_spec
 
 theorem M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) b = 0 := by
+
   sorry -- follows from `F_eval_eq_zero`
 
 theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
@@ -266,6 +261,7 @@ theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] 
   -- ratio of two algebraic numbers is algebraic (follows from product of alg numbers is
   -- alg, which we surely have, and reciprocal of algebraic number
   -- is algebraic; proof of the latter is "reverse the min poly", don't know if we have it)
+
   sorry
 
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
@@ -307,11 +303,16 @@ def foo (g : G) (hg : g • Q = Q) : B ⧸ Q ≃+* B ⧸ Q :=
 
 def bar (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
   __ := foo Q g hg
-  commutes' := sorry
+  commutes' := by
+    intro r
+
+    sorry
 
 def baz : MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
   toFun gh := bar Q P gh.1 gh.2
-  map_one' := sorry
+  map_one' := by
+
+    sorry
   map_mul' := sorry
 
 noncomputable def bar2 (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
