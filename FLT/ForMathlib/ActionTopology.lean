@@ -95,13 +95,13 @@ the action topology. See `actionTopology` for more discussion of the action topo
 class IsActionTopology [τA : TopologicalSpace A] : Prop where
   isActionTopology' : τA = actionTopology R A
 
-lemma isActionTopology [τA : TopologicalSpace A] [IsActionTopology R A] :
+theorem isActionTopology [τA : TopologicalSpace A] [IsActionTopology R A] :
     τA = actionTopology R A :=
   IsActionTopology.isActionTopology' (R := R) (A := A)
 
 /-- Scalar multiplication `• : R × A → A` is continuous if `R` is a topological
 ring, and `A` is an `R` module with the action topology. -/
-lemma ActionTopology.continuousSMul : @ContinuousSMul R A _ _ (actionTopology R A) :=
+theorem ActionTopology.continuousSMul : @ContinuousSMul R A _ _ (actionTopology R A) :=
   -- Proof: We need to prove that the product topology is finer than the pullback
   -- of the action topology. But the action topology is an Inf and thus a limit,
   -- and pullback is a right adjoint, so it preserves limits.
@@ -112,16 +112,16 @@ lemma ActionTopology.continuousSMul : @ContinuousSMul R A _ _ (actionTopology R 
 
 /-- Addition `+ : A × A → A` is continuous if `R` is a topological
 ring, and `A` is an `R` module with the action topology. -/
-lemma ActionTopology.continuousAdd : @ContinuousAdd A (actionTopology R A) _ :=
+theorem ActionTopology.continuousAdd : @ContinuousAdd A (actionTopology R A) _ :=
   continuousAdd_sInf <| fun _ _ ↦ by simp_all only [Set.mem_setOf_eq]
 
 instance instIsActionTopology_continuousSMul [TopologicalSpace A] [IsActionTopology R A] :
     ContinuousSMul R A := isActionTopology R A ▸ ActionTopology.continuousSMul R A
 
-lemma isActionTopology_continuousAdd [TopologicalSpace A] [IsActionTopology R A] :
+theorem isActionTopology_continuousAdd [TopologicalSpace A] [IsActionTopology R A] :
     ContinuousAdd A := isActionTopology R A ▸ ActionTopology.continuousAdd R A
 
-lemma actionTopology_le [τA : TopologicalSpace A] [ContinuousSMul R A] [ContinuousAdd A] :
+theorem actionTopology_le [τA : TopologicalSpace A] [ContinuousSMul R A] [ContinuousAdd A] :
     actionTopology R A ≤ τA := sInf_le ⟨‹ContinuousSMul R A›, ‹ContinuousAdd A›⟩
 
 end basics
@@ -195,7 +195,7 @@ variable {B : Type*} [AddCommMonoid B] [Module R B] [τB : TopologicalSpace B]
 -- this is horrible. Why isn't it easy?
 -- One reason: we are rolling our own continuous linear equivs!
 -- **TODO** Ask about making continuous linear equivs properly
-lemma iso (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B) (he : ∀ a, ehomeo a = elinear a) :
+theorem iso (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B) (he : ∀ a, ehomeo a = elinear a) :
     IsActionTopology R B where
   isActionTopology' := by
     simp_rw [ehomeo.symm.inducing.1, isActionTopology R A, actionTopology, induced_sInf]
@@ -237,7 +237,7 @@ variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [I
 
 /-- Every `R`-linear map between two `R`-modules with the canonical topology is continuous. -/
 @[fun_prop, continuity]
-lemma continuous_of_distribMulActionHom (φ : A →+[R] B) : Continuous φ := by
+theorem continuous_of_distribMulActionHom (φ : A →+[R] B) : Continuous φ := by
   -- the proof: We know that `+ : B × B → B` and `• : R × B → B` are continuous for the action
   -- topology on `B`, and two earlier theorems (`induced_continuous_smul` and
   -- `induced_continuous_add`) say that hence `+` and `•` on `A` are continuous if `A`
@@ -249,11 +249,11 @@ lemma continuous_of_distribMulActionHom (φ : A →+[R] B) : Continuous φ := by
     induced_continuous_add φ.toAddMonoidHom⟩
 
 @[fun_prop, continuity]
-lemma continuous_of_linearMap (φ : A →ₗ[R] B) : Continuous φ :=
+theorem continuous_of_linearMap (φ : A →ₗ[R] B) : Continuous φ :=
   continuous_of_distribMulActionHom φ.toDistribMulActionHom
 
 variable (R) in
-lemma continuous_neg (C : Type*) [AddCommGroup C] [Module R C] [TopologicalSpace C]
+theorem continuous_neg (C : Type*) [AddCommGroup C] [Module R C] [TopologicalSpace C]
     [IsActionTopology R C] : Continuous (fun a ↦ -a : C → C) :=
   continuous_of_linearMap (LinearEquiv.neg R).toLinearMap
 
@@ -267,7 +267,7 @@ variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [Is
 
 -- Here I need the lemma about how quotients are open so I do need groups
 -- because this relies on translates of an open being open
-lemma coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
+theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ (actionTopology R A) = actionTopology R B := by
   have : Continuous φ := continuous_of_linearMap φ
   rw [continuous_iff_coinduced_le, isActionTopology R A, isActionTopology R B] at this
@@ -401,7 +401,7 @@ variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [Is
 variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
 variable {C : Type*} [AddCommGroup C] [Module R C] [aC : TopologicalSpace C] [IsActionTopology R C]
 
-lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
+theorem Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
     (bil : (ι → R) →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : ((ι → R) × B → C)) := by
   classical
   have foo : (fun fb ↦ bil fb.1 fb.2 : ((ι → R) × B → C)) =
@@ -431,7 +431,7 @@ lemma Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
   simp [Set.toFinite _]
 
 -- Probably this can be beefed up to semirings.
-lemma Module.continuous_bilinear_of_finite_free [TopologicalSemiring R] [Module.Finite R A] [Module.Free R A]
+theorem Module.continuous_bilinear_of_finite_free [TopologicalSemiring R] [Module.Finite R A] [Module.Free R A]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
   let hι : Fintype ι := Module.Free.ChooseBasisIndex.fintype R A
@@ -460,7 +460,7 @@ variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [Is
 variable {C : Type*} [AddCommGroup C] [Module R C] [aC : TopologicalSpace C] [IsActionTopology R C]
 
 -- This needs rings though
-lemma Module.continuous_bilinear_of_finite [Module.Finite R A]
+theorem Module.continuous_bilinear_of_finite [Module.Finite R A]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   obtain ⟨m, f, hf⟩ := Module.Finite.exists_fin' R A
   let bil' : (Fin m → R) →ₗ[R] B →ₗ[R] C := bil.comp f
@@ -494,7 +494,7 @@ variable [TopologicalSpace D] [IsActionTopology R D]
 open scoped TensorProduct
 
 @[continuity, fun_prop]
-lemma continuous_mul'
+theorem continuous_mul'
     (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
     (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
     [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by

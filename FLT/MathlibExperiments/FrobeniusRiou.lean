@@ -1,13 +1,54 @@
--- Frobenius elements following Joel Riou's idea to use a very general lemma
--- from Bourbaki comm alg
--- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
--- (see https://leanprover.zulipchat.com/#narrow/stream/416277-FLT/topic/Outstanding.20Tasks.2C.20V4/near/449562398)
-
-
+/-
+Copyright (c) 2024 Jou Glasheen. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jou Glasheen, Amelia Livingston, Jujian Zhang, Kevin Buzzard
+-/
+import Mathlib.FieldTheory.Cardinality
+import Mathlib.RingTheory.DedekindDomain.Ideal
+import Mathlib.RingTheory.Ideal.Pointwise
+import Mathlib.RingTheory.Ideal.QuotientOperations
+import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.RingTheory.Ideal.Pointwise
 import Mathlib.RingTheory.Ideal.Over
 import Mathlib.FieldTheory.Normal
 import Mathlib
+import Mathlib.RingTheory.OreLocalization.Ring
+
+/-!
+
+# Frobenius elements.
+
+This file proves a general result in commutative algebra which can be used to define Frobenius
+elements of Galois groups of local or fields (for example number fields).
+
+KB was alerted to this very general result (which needs no Noetherian or finiteness assumptions
+on the rings, just on the Galois group) by Joel Riou
+here https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/Uses.20of.20Frobenius.20elements.20in.20mathematics/near/448934112
+
+## Mathematical details
+
+### The general commutative algebra result
+
+This is Theorem 2 in Chapter V, Section 2, number 2 of Bourbaki Alg Comm. It says the following.
+Let `A → B` be commutative rings and let `G` be a finite group acting on `B` by ring automorphisms,
+such that the `G`-invariants of `B` are exactly the image of `A`.
+
+The two claims of the theorem are:
+(i) If `P` is a prime ideal of `A` then `G` acts transitively on the primes of `B` above `P`.
+(ii) If `Q` is a prime ideal of `B` lying over `P` then the canonica map from the stabilizer of `Q`
+in `G` to the automorphism group of the residue field extension `Frac(B/Q) / Frac(A/P)` is
+surjective.
+
+We say "automorphism group" rather than "Galois group" because the extension might not be
+separable (it is algebraic and normal however, but it can be infinite; however its maximal
+separable subextension is finite).
+
+This result means that if the inertia group I_Q is trivial and the residue fields are finite,
+there's a Frobenius element Frob_Q in the stabiliser of Q, and a Frobenius conjugacy class
+Frob_P in G.
+
+-/
+
 
 variable {A : Type*} [CommRing A]
   {B : Type*} [CommRing B] [Algebra A B] [Algebra.IsIntegral A B]
@@ -80,11 +121,11 @@ theorem part_a
 
 end part_a
 
-section normal_elements
+-- section normal_elements
 
-variable (K : Type*) [Field K] {L : Type*} [Field L] [Algebra K L]
+-- variable (K : Type*) [Field K] {L : Type*} [Field L] [Algebra K L]
 
-open Polynomial
+-- open Polynomial
 
 -- I've commented out the next section because ACL suggested
 -- reading up-to-date Bourbaki here https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/poly.20whose.20roots.20are.20the.20products.20of.20the.20roots.20of.20polys/near/468585267
@@ -322,6 +363,33 @@ theorem main_result : Function.Surjective
     (baz2 Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
   sorry
 
+section localization
+
+/-
+
+In this section we reduce to the case where P and Q are maximal.
+More precisely, we set `S := A - P` and localize everything in sight by `S`
+We then construct a group isomophism
+`MulAction.stabilizer G Q ≃ MulAction.stabilizer G SQ` where `SQ` is the prime ideal of `S⁻¹B`
+obtained by localizing `Q` at `S`, and show that it commutes with the maps currently called
+`baz2 Q P L K` and `baz2 SQ SP L K`.
+
+-/
+
+abbrev S := P.primeCompl
+abbrev SA := A[(S P)⁻¹]
+
+abbrev SB := B[(S P)⁻¹]
+
+-- Currently stuck here
+--instance : Algebra (A[(S P)⁻¹]) (B[(S P)⁻¹]) where
+--  sorry--__ := OreLocalization.instModule (R := A) (X := B) (S := P.primeCompl)
+
+/-
+failed to synthesize
+  Semiring (OreLocalization (S P) B)
+-/
+end localization
 
 -- In Frobenius2.lean in this dir (Jou's FM24 project) there's a proof of surjectivity
 -- assuming B/Q is finite and P is maximal.
