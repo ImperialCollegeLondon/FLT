@@ -85,39 +85,44 @@ section normal_elements
 variable (K : Type*) [Field K] {L : Type*} [Field L] [Algebra K L]
 
 open Polynomial
--- Do we have this?
-def IsNormalElement (x : L) : Prop := Splits (algebraMap K L) (minpoly K x)
 
-namespace IsNormalElement
+-- I've commented out the next section because ACL suggested
+-- reading up-to-date Bourbaki here https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/poly.20whose.20roots.20are.20the.20products.20of.20the.20roots.20of.20polys/near/468585267
+-- and apparently this will avoid the def below.
 
-theorem iff_exists_monic_splits {x : L} (hx : IsIntegral K x) :
-    IsNormalElement K x ↔
-    ∃ P : K[X], P.Monic ∧ P.eval₂ (algebraMap K L) x = 0 ∧ Splits (algebraMap K L) P := by
-  constructor
-  · intro h
-    exact ⟨minpoly K x, minpoly.monic hx, minpoly.aeval K x, h⟩
-  · rintro ⟨P, hPmonic, hPeval, hPsplits⟩
-    -- need min poly divides P and then it should all be over
-    sorry
+-- def IsNormalElement (x : L) : Prop := Splits (algebraMap K L) (minpoly K x)
 
-theorem prod {x y : L} (hxint : IsIntegral K x) (hyint : IsIntegral K y)
-    (hx : IsNormalElement K x) (hy : IsNormalElement K y) :
-    IsNormalElement K (x * y) := by
-  rw [iff_exists_monic_splits K hxint] at hx
-  obtain ⟨Px, hx1, hx2, hx3⟩ := hx
-  rw [iff_exists_monic_splits K hyint] at hy
-  obtain ⟨Py, hy1, hy2, hy3⟩ := hy
-  rw [iff_exists_monic_splits K <| IsIntegral.mul hxint hyint]
-  -- If roots of Px are xᵢ and roots of Py are yⱼ, then use the poly whose roots are xᵢyⱼ.
-  -- Do we have this?
-  -- Is this even the best way to go about this?
-  sorry
+-- namespace IsNormalElement
 
--- API
+-- theorem iff_exists_monic_splits {x : L} (hx : IsIntegral K x) :
+--     IsNormalElement K x ↔
+--     ∃ P : K[X], P.Monic ∧ P.eval₂ (algebraMap K L) x = 0 ∧ Splits (algebraMap K L) P := by
+--   constructor
+--   · intro h
+--     exact ⟨minpoly K x, minpoly.monic hx, minpoly.aeval K x, h⟩
+--   · rintro ⟨P, hPmonic, hPeval, hPsplits⟩
+--     -- need min poly divides P and then it should all be over
+--     sorry -- presumably some form of this is in the library
 
-end IsNormalElement
+-- theorem prod {x y : L} (hxint : IsIntegral K x) (hyint : IsIntegral K y)
+--     (hx : IsNormalElement K x) (hy : IsNormalElement K y) :
+--     IsNormalElement K (x * y) := by
+--   rw [iff_exists_monic_splits K hxint] at hx
+--   obtain ⟨Px, hx1, hx2, hx3⟩ := hx
+--   rw [iff_exists_monic_splits K hyint] at hy
+--   obtain ⟨Py, hy1, hy2, hy3⟩ := hy
+--   rw [iff_exists_monic_splits K <| IsIntegral.mul hxint hyint]
+--   -- If roots of Px are xᵢ and roots of Py are yⱼ, then use the poly whose roots are xᵢyⱼ.
+--   -- Do we have this?
+--   -- Is this even the best way to go about this?
+--   -- Note: Chambert-Loir says there's a proof in Bourbaki
+--   sorry
 
-end normal_elements
+-- -- API
+
+-- end IsNormalElement
+
+-- end normal_elements
 
 section part_b
 
@@ -208,8 +213,10 @@ private theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
 private theorem F_eval_eq_zero (b : B) : (F G b).eval b = 0 := by
   let foo := Fintype.ofFinite G
   simp [F_spec, eval_prod]
-  -- need eval finprod = finprod eval
+  -- need eval finprod = finprod eval (missing?)
   -- then use `finprod_eq_zero _ (1 : G)`
+  -- maths proof: evaluating the finite product at b clearly gives 0 because
+  -- the term corresponding to τ=1 is 0
   sorry
 
 
@@ -256,16 +263,17 @@ theorem M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) 
 theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
     [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
     (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
-  -- ratio of two algebraic numbers is algebraic (follows from reciprocal of algebraic number
-  -- is algebraic; proof is "reverse the min poly", don't know if we have it)
+  -- ratio of two algebraic numbers is algebraic (follows from product of alg numbers is
+  -- alg, which we surely have, and reciprocal of algebraic number
+  -- is algebraic; proof of the latter is "reverse the min poly", don't know if we have it)
   sorry
 
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
 theorem part_b1 : Algebra.IsAlgebraic K L := by
   /-
-  Because of `IsFractionRing (B ⧸ P) K` and the previous lemma it suffices to show that every
-  element of B/P is algebraic over k, and this is because you can lift to b ∈ B and then
-  use `M` above.
+  Because of `IsFractionRing (B ⧸ Q) K` and the previous lemma it suffices to show that every
+  element of B/Q is algebraic over k, and this is because you can lift to b ∈ B and then
+  use `M` above (which needs to be coerced to A/P and then to K)
   -/
   sorry
 
@@ -273,6 +281,11 @@ theorem part_b1 : Algebra.IsAlgebraic K L := by
 
 theorem part_b2 : Normal K L := by
   /-
+
+  See discussion at
+  https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/poly.20whose.20roots.20are.20the.20products.20of.20the.20roots.20of.20polys/near/468585267
+
+  Maybe I won't formalise the below proof then (which I made up):
   Let's temporarily say that an *element* of `K` is _normal_ if it is the root of a monic poly
   in `k[X]` all of whose roots are in `K`. Then `K/k` is normal iff all elements are normal
   (if `t` is a root of `P ∈ k[X]` then the min poly of `t` must divide `P`).
@@ -284,6 +297,10 @@ theorem part_b2 : Normal K L := by
   sorry
 
 open scoped Pointwise
+
+-- Basic API for what we're doing here. Writing down a map from the stabiliser of Q to
+-- the residual Galois group `L ≃ₐ[K] L`, where L=Frac(B/Q) and K=Frac(A/P).
+-- Hopefully sorrys aren't too hard
 
 def foo (g : G) (hg : g • Q = Q) : B ⧸ Q ≃+* B ⧸ Q :=
   Ideal.quotientEquiv Q Q (MulSemiringAction.toRingEquiv G B g) hg.symm
@@ -311,9 +328,10 @@ theorem main_result : Function.Surjective
   sorry
 
 
--- In Frobenius2.lean in this dir (Jou's FM24 project) there's a proof of this assuming B/Q is
--- finite and P is maximal.
+-- In Frobenius2.lean in this dir (Jou's FM24 project) there's a proof of surjectivity
+-- assuming B/Q is finite and P is maximal.
 -- Bourbaki reduce to maximal case by localizing at P, and use finite + separable = simple
--- on the max separable subextension, but then the argument follows Jou's formalisation
--- in Frobenius2.lean in this directory.
+-- on the max separable subextension, but then the argument in Bourbaki closely
+-- follows Jou's formalisation in Frobenius2.lean in this directory, so this work will
+-- be useful later.
 end part_b
