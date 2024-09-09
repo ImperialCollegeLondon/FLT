@@ -3,7 +3,6 @@ import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
 import FLT.EllipticCurve.Torsion
 import FLT.ForMathlib.ActionTopology
-import FLT.ForMathlib.FGModuleTopology
 import FLT.ForMathlib.MiscLemmas
 import FLT.GaloisRepresentation.Cyclotomic
 import FLT.GaloisRepresentation.HardlyRamified
@@ -12,6 +11,7 @@ import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat
 import FLT.HIMExperiments.ContinuousSMul_topology
 import FLT.HIMExperiments.dual_topology
+import FLT.HIMExperiments.FGModuleTopology
 import FLT.HIMExperiments.flatness
 import FLT.HIMExperiments.module_topology
 import FLT.HIMExperiments.right_module_topology
