@@ -125,13 +125,15 @@ def homeomorph_of_mulActionEquiv (φ : M →[R] N) (ψ : N →[R] M) (h1 : ∀ m
     invFun := ψ
     left_inv := h1
     right_inv := h2
-    continuous_toFun := sorry
-    continuous_invFun := sorry
+    continuous_toFun := continuous_of_mulActionHom φ
+    continuous_invFun := continuous_of_mulActionHom ψ
   }
 
--- this is definitely true
 lemma unit : (inferInstance : TopologicalSpace Unit) = actionTopology R Unit := by
-  sorry
+  unfold actionTopology
+  rw [ciSup_unique]
+  exact le_antisymm (fun U _ ↦ trivial) <|
+    Subsingleton.le (TopologicalSpace.coinduced (fun _ ↦ PUnit.unit) inferInstance) inferInstance
 
 -- is this true?
 lemma prod : (inferInstance : TopologicalSpace (M × N)) = actionTopology R (M × N) := by
