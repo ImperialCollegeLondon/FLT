@@ -1,8 +1,7 @@
-import Mathlib.Algebra.Module.Projective
+import FLT.ForMathlib.MiscLemmas
 import Mathlib.Data.Finite.Card
 import Mathlib.LinearAlgebra.TensorProduct.RightExactness
 import Mathlib.Topology.Algebra.Module.Basic
-import FLT.ForMathlib.MiscLemmas
 /-!
 
 # The module topology
