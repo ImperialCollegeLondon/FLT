@@ -50,7 +50,7 @@ class IsModuleTopology [τA : TopologicalSpace A] : Prop where
 
 -- because default binders for isModuleTopology' are wrong and currently
 -- there is no way to change this. There's a Lean 4 issue for this IIRC **TODO** where?
-lemma isModuleTopology [τA : TopologicalSpace A] [IsModuleTopology R A] :
+theorem isModuleTopology [τA : TopologicalSpace A] [IsModuleTopology R A] :
     τA = moduleTopology R A :=
   IsModuleTopology.isModuleTopology' (R := R) (A := A)
 
@@ -88,14 +88,14 @@ variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [I
 
 /-- Every `A`-linear map between two `A`-modules with the canonical topology is continuous. -/
 @[continuity, fun_prop]
-lemma continuous_of_linearMap (f : A →ₗ[R] B) : Continuous f := by
+theorem continuous_of_linearMap (f : A →ₗ[R] B) : Continuous f := by
   rw [isModuleTopology R A, isModuleTopology R B, continuous_iff_le_induced]
   apply iSup_le <| fun n ↦ iSup_le <| fun φ ↦ ?_
   rw [← coinduced_le_iff_le_induced, coinduced_compose]
   exact le_iSup_of_le n <| le_iSup_of_le (f.comp φ) le_rfl
 
 -- should this be in the API?
-lemma continuous_of_linearMap' {A : Type*} [AddCommMonoid A] [Module R A]
+theorem continuous_of_linearMap' {A : Type*} [AddCommMonoid A] [Module R A]
     {B : Type*} [AddCommMonoid B] [Module R B] (f : A →ₗ[R] B) :
     @Continuous _ _ (moduleTopology R A) (moduleTopology R B) f := by
   letI : TopologicalSpace A := moduleTopology R A
@@ -133,7 +133,7 @@ end linear_map
 
 section continuous_neg
 
-lemma continuous_neg
+theorem continuous_neg
     (R : Type*) [TopologicalSpace R] [Ring R]
     (A : Type*) [AddCommGroup A] [Module R A] [TopologicalSpace A] [IsModuleTopology R A] :
     Continuous (-· : A → A) :=
@@ -146,7 +146,7 @@ section surj
 variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
 
-lemma coinduced_of_surjectivePiFin {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
+theorem coinduced_of_surjectivePiFin {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ Pi.topologicalSpace = moduleTopology R A := by
   apply le_antisymm
   · rw [← continuous_iff_coinduced_le, ← isModuleTopology R A]
@@ -161,7 +161,7 @@ lemma coinduced_of_surjectivePiFin {n : ℕ} {φ : ((Fin n) → R) →ₗ[R] A} 
     exact continuous_of_linearMap α
 
 /-- Any surjection between finite R-modules is coinducing for the R-module topology. -/
-lemma coinduced_of_surjective {B : Type*} [AddCommMonoid B] [aB : TopologicalSpace B] [Module R B]
+theorem coinduced_of_surjective {B : Type*} [AddCommMonoid B] [aB : TopologicalSpace B] [Module R B]
     [IsModuleTopology R B] [Module.Finite R A] {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ (moduleTopology R A) = moduleTopology R B := by
   obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
@@ -173,7 +173,7 @@ lemma coinduced_of_surjective {B : Type*} [AddCommMonoid B] [aB : TopologicalSpa
 
 -- do I need this? Yes, I need (fin n) × fin m -> R
 -- **^TODO** why didn't have/let linter warn me
-lemma coinduced_of_surjectivePiFinite {ι : Type*} [Finite ι] {φ : (ι → R) →ₗ[R] A}
+theorem coinduced_of_surjectivePiFinite {ι : Type*} [Finite ι] {φ : (ι → R) →ₗ[R] A}
     (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ Pi.topologicalSpace = moduleTopology R A := by
   rw [(instPiFinite R ι).isModuleTopology']
@@ -188,7 +188,7 @@ variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [Is
 
 variable (R A) in
 @[continuity, fun_prop]
-lemma continuous_add [Module.Finite R A] : Continuous (fun ab ↦ ab.1 + ab.2 : A × A → A) := by
+theorem continuous_add [Module.Finite R A] : Continuous (fun ab ↦ ab.1 + ab.2 : A × A → A) := by
   rw [continuous_iff_coinduced_le, isModuleTopology R A]
   obtain ⟨n, f, hf⟩ := Module.Finite.exists_fin' R A
   rw [← coinduced_of_surjectivePiFin hf]
@@ -213,7 +213,7 @@ lemma continuous_add [Module.Finite R A] : Continuous (fun ab ↦ ab.1 + ab.2 : 
 
 variable (R A) in
 @[continuity, fun_prop]
-lemma continuous_sum_finset (ι : Type*) [DecidableEq ι] (s : Finset ι) [Module.Finite R A] :
+theorem continuous_sum_finset (ι : Type*) [DecidableEq ι] (s : Finset ι) [Module.Finite R A] :
     Continuous (fun as ↦ ∑ i ∈ s, as i : (∀ (_ : ι), A) → A) := by
   induction s using Finset.induction
   · simp only [Finset.sum_empty]
@@ -227,7 +227,7 @@ lemma continuous_sum_finset (ι : Type*) [DecidableEq ι] (s : Finset ι) [Modul
 attribute [local instance] Fintype.ofFinite
 variable (R A) in
 @[continuity, fun_prop]
-lemma continuous_sum_finite (ι : Type*) [Finite ι] [Module.Finite R A] :
+theorem continuous_sum_finite (ι : Type*) [Finite ι] [Module.Finite R A] :
     Continuous (fun as ↦ ∑ i, as i : (∀ (_ : ι), A) → A) := by
   classical
   exact continuous_sum_finset R A ι _
@@ -316,7 +316,7 @@ noncomputable def isom'' (R : Type*) [CommRing R] (m n : Type*) [Finite m] [Deci
 
 variable (m n : Type*) [Finite m] [DecidableEq m] (a1 : m → R)
     (b1 : n → R) (f : (m → R) →ₗ[R] A) (g : (n → R) →ₗ[R] B) in
-lemma key : ((TensorProduct.map f g ∘ₗ
+theorem key : ((TensorProduct.map f g ∘ₗ
     (isom'' R m n).symm.toLinearMap) fun mn ↦ a1 mn.1 * b1 mn.2) = f a1 ⊗ₜ[R] g b1 := by
   sorry
 
@@ -336,7 +336,7 @@ lemma key : ((TensorProduct.map f g ∘ₗ
 -- I don't know whether finiteness is needed on `B` here. Removing it here would enable
 -- removal in `continuous_bilinear`.
 @[continuity, fun_prop]
-lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
+theorem Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
     Continuous (fun (ab : A × B) ↦ ab.1 ⊗ₜ ab.2 : A × B → A ⊗[R] B) := by
   -- reduce to R^m x R^n -> R^m ⊗ R^n
   -- then check explicitly
@@ -377,7 +377,7 @@ lemma Module.continuous_tprod [Module.Finite R A] [Module.Finite R B] :
     rfl
 
 -- did I really use finiteness of B?
-lemma Module.continuous_bilinear [Module.Finite R A] [Module.Finite R B]
+theorem Module.continuous_bilinear [Module.Finite R A] [Module.Finite R B]
     {C : Type*} [AddCommGroup C] [Module R C] [TopologicalSpace C] [IsModuleTopology R C]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   letI : TopologicalSpace (A ⊗[R] B) := moduleTopology R _
@@ -390,7 +390,7 @@ variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
 variable [TopologicalSpace D] [IsModuleTopology R D]
 
 @[continuity, fun_prop]
-lemma continuous_mul (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [TopologicalSpace D]
+theorem continuous_mul (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [TopologicalSpace D]
     [IsModuleTopology R D] : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
   letI : TopologicalSpace (D ⊗[R] D) := moduleTopology R _
   haveI : IsModuleTopology R (D ⊗[R] D) := { isModuleTopology' := rfl }
@@ -403,7 +403,7 @@ def Module.topologicalRing : TopologicalRing D where
 
 end commutative
 
-lemma continuousSMul (R : Type*) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+theorem continuousSMul (R : Type*) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
     (A : Type*) [AddCommGroup A] [Module R A] [Module.Finite R A] [TopologicalSpace A]
     [IsModuleTopology R A] :
     ContinuousSMul R A := by
@@ -420,7 +420,7 @@ I can only prove that `SMul : R × A → A` is continuous for the module topolog
 commutative (because my proof uses tensor products) and if `A` is finite (because
 I reduce to a basis check ). Is it true in general? I'm assuming not.
 
-lemma continuousSMul (R : Type*) [Ring R] [TopologicalSpace R] [TopologicalRing R]
+theorem continuousSMul (R : Type*) [Ring R] [TopologicalSpace R] [TopologicalRing R]
     (A : Type*) [AddCommGroup A] [Module R A] : @ContinuousSMul R A _ _ (moduleTopology R A) := by
   refine @ContinuousSMul.mk ?_ ?_ ?_ ?_ ?_ ?_
   haveI : IsModuleTopology R R := inferInstance
