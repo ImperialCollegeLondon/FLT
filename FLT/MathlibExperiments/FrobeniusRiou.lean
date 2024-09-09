@@ -249,17 +249,11 @@ private theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
                                                (Group.mulLeft_bijective σ) (fun _ ↦ rfl)
   _         = F G b := by rw [F_spec]
 
---example (X : Type) [Finite X] : Fintype X := exact?%
---#check finprod_eq_zero
 private theorem F_eval_eq_zero (b : B) : (F G b).eval b = 0 := by
   let foo := Fintype.ofFinite G
-  simp [F_spec, eval_prod]
-  -- need eval finprod = finprod eval (missing?)
-  -- then use `finprod_eq_zero _ (1 : G)`
-  -- maths proof: evaluating the finite product at b clearly gives 0 because
-  -- the term corresponding to τ=1 is 0
-  sorry
-
+  simp [F_spec,finprod_eq_prod_of_fintype,eval_prod]
+  apply @Finset.prod_eq_zero _ _ _ _ _ (1 : G) (Finset.mem_univ 1)
+  simp
 
 open scoped algebraMap
 
@@ -307,6 +301,7 @@ theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] 
   -- ratio of two algebraic numbers is algebraic (follows from product of alg numbers is
   -- alg, which we surely have, and reciprocal of algebraic number
   -- is algebraic; proof of the latter is "reverse the min poly", don't know if we have it)
+
   sorry
 
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
