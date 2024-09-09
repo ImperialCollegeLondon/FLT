@@ -1,7 +1,7 @@
-import Mathlib.Algebra.Module.Projective
+import FLT.ForMathlib.MiscLemmas
+import Mathlib.Data.Finite.Card
 import Mathlib.LinearAlgebra.TensorProduct.RightExactness
 import Mathlib.Topology.Algebra.Module.Basic
-import FLT.ForMathlib.MiscLemmas
 /-!
 
 # The module topology
@@ -30,8 +30,6 @@ it can be used to topologise finite-dimensional central simple algebras over the
 or $p$-adics).
 
 -/
-
-set_option lang.lemmaCmd true
 
 section basics
 
