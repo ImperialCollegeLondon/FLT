@@ -80,8 +80,7 @@ functions from `A` (now considered only as an index set, so with no topology) to
 
 -/
 
--- See FLT.ForMathlib.ActionTopology for a parallel development.
-#exit
+namespace ContinuousSMul_topology
 
 section continuous_smul
 
@@ -191,7 +190,7 @@ variable {R : Type} [τR : TopologicalSpace R]
 variable {M : Type} [Zero M] [SMul R M] [aM : TopologicalSpace M] [IsActionTopology R M]
 variable {N : Type} [Zero N] [SMul R N] [aN : TopologicalSpace N] [IsActionTopology R N]
 
-open TopologicalSpace in
+open _root_.TopologicalSpace in
 lemma prod [MulOneClass.{0} R] : IsActionTopology.{0} R (M × N) := by
   constructor
   -- goal: to prove product topology is action topology.
@@ -219,46 +218,44 @@ lemma prod [MulOneClass.{0} R] : IsActionTopology.{0} R (M × N) := by
     sorry
   sorry
 
-#exit
-
 
     -- idea: map R x M -> M is R x M -> R x M x N, τR x σ
     -- R x M has topology τR x (m ↦ Prod.mk m (0 : N))^*σ
     -- M x N -> M is pr₁⋆σ
     -- is pr1_*sigma=Prod.mk' 0^*sigma
     --rw [← continuous_id_iff_le]
-    have := isActionTopology R M
-    let τ1 : TopologicalSpace M := (actionTopology R (M × N)).coinduced (Prod.fst)
-    have foo : aM ≤ τ1 := by
-      rw [this]
-      apply sInf_le
-      unfold_let
-      constructor
-      rw [continuous_iff_coinduced_le]
-      --rw [continuous_iff_le_induced]
-      --rw [instTopologicalSpaceProd]
-      have := ActionTopology.continuousSMul R (M × N)
-      obtain ⟨h⟩ := this
-      rw [continuous_iff_coinduced_le] at h
-      have h2 := coinduced_mono (f := (Prod.fst : M × N → M)) h
-      refine le_trans ?_ h2
-      rw [@coinduced_compose]
-      --rw [coinduced_le_iff_le_induced]
-      rw [show ((Prod.fst : M × N → M) ∘ (fun p ↦ p.1 • p.2 : R × M × N → M × N)) =
-        (fun rm ↦ rm.1 • rm.2) ∘ (fun rmn ↦ (rmn.1, rmn.2.1)) by
-        ext ⟨r, m, n⟩
-        rfl]
-      rw [← @coinduced_compose]
-      apply coinduced_mono
-      rw [← continuous_id_iff_le]
-      have this2 := @Continuous.prod_map R M R M τR ((TopologicalSpace.coinduced Prod.fst (actionTopology R (M × N)))) τR aM id id ?_ ?_
-      swap; fun_prop
-      swap; sorry -- action top ≤ coinduced Prod.fst (action)
-      convert this2
-      sorry -- action top on M now equals coinduced Prod.fst
-      sorry -- same
-      -- so we're going around in circles
-    sorry
+    -- have := isActionTopology R M
+    -- let τ1 : TopologicalSpace M := (actionTopology R (M × N)).coinduced (Prod.fst)
+    -- have foo : aM ≤ τ1 := by
+    --   rw [this]
+    --   apply sInf_le
+    --   unfold_let
+    --   constructor
+    --   rw [continuous_iff_coinduced_le]
+    --   --rw [continuous_iff_le_induced]
+    --   --rw [instTopologicalSpaceProd]
+    --   have := ActionTopology.continuousSMul R (M × N)
+    --   obtain ⟨h⟩ := this
+    --   rw [continuous_iff_coinduced_le] at h
+    --   have h2 := coinduced_mono (f := (Prod.fst : M × N → M)) h
+    --   refine le_trans ?_ h2
+    --   rw [@coinduced_compose]
+    --   --rw [coinduced_le_iff_le_induced]
+    --   rw [show ((Prod.fst : M × N → M) ∘ (fun p ↦ p.1 • p.2 : R × M × N → M × N)) =
+    --     (fun rm ↦ rm.1 • rm.2) ∘ (fun rmn ↦ (rmn.1, rmn.2.1)) by
+    --     ext ⟨r, m, n⟩
+    --     rfl]
+    --   rw [← @coinduced_compose]
+    --   apply coinduced_mono
+    --   rw [← continuous_id_iff_le]
+    --   have this2 := @Continuous.prod_map R M R M τR ((TopologicalSpace.coinduced Prod.fst (actionTopology R (M × N)))) τR aM id id ?_ ?_
+    --   swap; fun_prop
+    --   swap; sorry -- action top ≤ coinduced Prod.fst (action)
+    --   convert this2
+    --   sorry -- action top on M now equals coinduced Prod.fst
+    --   sorry -- same
+    --   -- so we're going around in circles
+    -- sorry
     -- let τ2 : TopologicalSpace M := (actionTopology R (M × N)).induced (fun m ↦ (m, 0))
     -- have moo : τ1 = τ2 := by
     --   unfold_let
@@ -273,7 +270,7 @@ lemma prod [MulOneClass.{0} R] : IsActionTopology.{0} R (M × N) := by
     --   ·
     --     sorry
     -- sorry
-  · apply actionTopology_le
+  -- · apply actionTopology_le
 --     --have foo : @Continuous (M × N) (M × N) _ _ _ := @Continuous.prod_map M N M N (σMN.coinduced Prod.fst) (σMN.coinduced Prod.snd) aM aN id id ?_ ?_-- Z * W -> X * Y
 --     -- conjecture: pushforward of σMN is continuous
 --     -- ⊢ instTopologicalSpaceProd ≤ σMN
@@ -502,3 +499,5 @@ instance Module.topologicalRing : @TopologicalRing D (Module.rtopology A D) _ :=
       sorry }
 
 end commutative
+
+end ContinuousSMul_topology

@@ -90,8 +90,7 @@ functions from `A` (now considered only as an index set, so with no topology) to
 
 -/
 
--- See FLT.ForMathlib.ActionTopology for a parallel development.
-#exit
+namespace dual_topology
 
 section basics
 
@@ -343,3 +342,5 @@ instance moobar : @TopologicalRing D (Module.topology A) _ :=
       apply Module.continuous_bilinear A (LinearMap.mul A D)
     -- finally negation is continuous because it's linear.
     continuous_neg := Module.continuous_linear A (-LinearMap.id) }
+
+end dual_topology
