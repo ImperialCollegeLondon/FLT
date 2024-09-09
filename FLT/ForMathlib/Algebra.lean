@@ -134,7 +134,21 @@ lemma left_distrib' (a b c : A[S⁻¹]) :
   simp only [OreLocalization.mul_def]
   rcases oreDivAddChar' (a * b) (a * c) (t * s) (u * s) with ⟨r₂, s₂, h₂, q⟩; rw [q]; clear q
   rw [oreDiv_eq_iff]
-  sorry
+  change ∃ w, _
+  use s₁ * t * s, s₂ * t * s
+  simp [mul_add]
+  constructor
+  · congr 1
+    · sorry
+    calc (s₁ * t * s) • r₂ • (a * c)
+      _ = (s₁ * t * s : R) • r₂ • (a * c) := by rw [@Submonoid.smul_def]; simp
+      _ = (r₁ * u * s : R) • r₂ • (a * c) := by rw [h₁]
+      _ = (r₂ * u * s : R) • r₁ • (a * c) := sorry
+      _ = (r₂ * ↑(u * s) : R) • r₁ • (a * c) := sorry
+      _ = (s₂ * ↑(t * s) : R) • r₁ • (a * c) := by rw [h₂]
+      _ = (s₂ * t * s : R) • r₁ • (a * c) := by simp [mul_assoc]
+      _ = (s₂ * t * s : R) • (a * r₁ • c) := sorry
+  · simp [mul_assoc, mul_comm, mul_left_comm]
 
 instance : CommSemiring A[S⁻¹] where
   __ := commMonoid
