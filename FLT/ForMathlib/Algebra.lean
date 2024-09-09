@@ -179,12 +179,14 @@ abbrev SR := R[S⁻¹]
 abbrev SA := A[S⁻¹]
 
 
-unseal OreLocalization.smul in
-instance : Algebra (R[S⁻¹]) (A[S⁻¹]) where
+--unseal OreLocalization.smul in
+--instance : Algebra (R[S⁻¹]) (A[S⁻¹]) where
 /-
 error:
 failed to synthesize
   Semiring (OreLocalization S A)
 -/
+
+end first_goal
 
 end OreLocalization
