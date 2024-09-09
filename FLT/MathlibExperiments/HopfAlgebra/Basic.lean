@@ -5,8 +5,8 @@ Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 -/
 
 import Mathlib.RingTheory.HopfAlgebra
-import FLT.mathlibExperiments.Coalgebra.Monoid
-import FLT.mathlibExperiments.Coalgebra.TensorProduct
+import FLT.MathlibExperiments.Coalgebra.Monoid
+import FLT.MathlibExperiments.Coalgebra.TensorProduct
 import Mathlib.Tactic.Group
 
 /-!
@@ -16,7 +16,7 @@ For an `R`-hopf algebra `A`, we prove in this file the following basic propertie
 - the antipodal map is anticommutative;
 - the antipodal map is unique linear map whose convolution inverse is the identity `𝟙 A`.
   (Note that, confusingly, the identity linear map `x ↦ x` is not actually the unit in the monoid
-  structure of linear maps. See `mathlibExperiments/Coalgebra/Monoid.lean`)
+  structure of linear maps. See `MathlibExperiments/Coalgebra/Monoid.lean`)
 if we further assume `A` is commutative then
 - the `R`-algebra homomorphisms from `A` to `L` has a group structure where multiplication is
   convolution, and inverse of `f `is `f ∘ antipode`
