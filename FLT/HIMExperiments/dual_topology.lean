@@ -90,6 +90,9 @@ functions from `A` (now considered only as an index set, so with no topology) to
 
 -/
 
+-- See FLT.ForMathlib.ActionTopology for a parallel development.
+#exit
+
 section basics
 
 variable (R : Type*) [Monoid R] [TopologicalSpace R] [ContinuousMul R]
