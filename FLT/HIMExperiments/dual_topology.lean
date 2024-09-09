@@ -90,6 +90,8 @@ functions from `A` (now considered only as an index set, so with no topology) to
 
 -/
 
+namespace dual_topology
+
 section basics
 
 variable (R : Type*) [Monoid R] [TopologicalSpace R] [ContinuousMul R]
@@ -340,3 +342,5 @@ instance moobar : @TopologicalRing D (Module.topology A) _ :=
       apply Module.continuous_bilinear A (LinearMap.mul A D)
     -- finally negation is continuous because it's linear.
     continuous_neg := Module.continuous_linear A (-LinearMap.id) }
+
+end dual_topology

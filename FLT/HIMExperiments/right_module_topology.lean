@@ -35,6 +35,9 @@ functions from `M` (now considered only as an index set, so with no topology) to
 
 -/
 
+-- See FLT.ForMathlib.ActionTopology for a parallel development.
+namespace right_module_topology
+
 section defs
 
 class IsActionTopology (R M : Type*) [SMul R M]
@@ -190,3 +193,5 @@ end what_i_want
 -- possible hints at https://github.com/ImperialCollegeLondon/FLT/blob/main/FLT/HIMExperiments/module_topology.lean
 -- except there the topology is *different* so the work does not apply
 end ActionTopology
+
+end right_module_topology
