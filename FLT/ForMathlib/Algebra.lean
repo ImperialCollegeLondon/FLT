@@ -14,6 +14,8 @@ in what generality.
 
 namespace OreLocalization
 
+section CommMagma
+
 variable {R A : Type*} [CommMonoid R] [CommMagma A] [MulAction R A] [IsScalarTower R A A]
   {S : Submonoid R}
 
@@ -72,8 +74,85 @@ protected def mul : A[S⁻¹] → A[S⁻¹] → A[S⁻¹] :=
 instance : Mul (A[S⁻¹]) where
   mul := OreLocalization.mul
 
+protected def mul_def (a : A) (s : { x // x ∈ S }) (b : A) (t : { x // x ∈ S }) :
+  a /ₒ s * (b /ₒ t) = a * b /ₒ (t * s) := rfl
+
 unseal OreLocalization.smul in
 example (as bt : R[S⁻¹]) : as * bt = as • bt := rfl
+
+end CommMagma
+
+section One
+
+variable {R A : Type*} [CommMonoid R] [MulAction R A] [One A] --[MulAction R A] [IsScalarTower R A A]
+  {S : Submonoid R}
+
+instance : One (A[S⁻¹]) where
+  one := 1 /ₒ 1
+
+protected lemma one_def' : (1 : A[S⁻¹]) = 1 /ₒ 1 := rfl
+
+end One
+
+section CommMonoid
+
+variable {R A : Type*} [CommMonoid R] [CommMonoid A] [MulAction R A] [IsScalarTower R A A]
+  {S : Submonoid R}
+
+instance commMonoid : CommMonoid (A[S⁻¹]) where
+  mul_assoc a b c := by
+    induction' a with a
+    induction' b with b
+    induction' c with c
+    change (a * b * c) /ₒ _ = (a * (b * c)) /ₒ _
+    simp [mul_assoc]
+  one_mul a := by
+    induction' a with a
+    change (1 * a) /ₒ _ = a /ₒ _
+    simp
+  mul_one a := by
+    induction' a with a s
+    simp [OreLocalization.mul_def, OreLocalization.one_def']
+  mul_comm a b := by
+    induction' a with a
+    induction' b with b
+    simp only [OreLocalization.mul_def, mul_comm]
+
+end CommMonoid
+
+section CommSemiring
+
+variable {R A : Type*} [CommMonoid R] [CommRing A] [DistribMulAction R A] [IsScalarTower R A A]
+  {S : Submonoid R}
+
+lemma left_distrib' (a b c : A[S⁻¹]) :
+    a * (b + c) = a * b + a * c := by
+  induction' a with a s
+  induction' b with b t
+  induction' c with c u
+  rcases oreDivAddChar' b c t u with ⟨r₁, s₁, h₁, q⟩; rw [q]; clear q
+  simp only [OreLocalization.mul_def]
+  rcases oreDivAddChar' (a * b) (a * c) (t * s) (u * s) with ⟨r₂, s₂, h₂, q⟩; rw [q]; clear q
+  rw [oreDiv_eq_iff]
+  sorry
+
+instance : CommSemiring A[S⁻¹] where
+  __ := commMonoid
+  left_distrib := left_distrib'
+  right_distrib a b c := by
+    rw [mul_comm, mul_comm a, mul_comm b, left_distrib']
+  zero_mul a := by
+    induction' a with a s
+    rw [OreLocalization.zero_def, OreLocalization.mul_def]
+    simp
+  mul_zero a := by
+    induction' a with a s
+    rw [OreLocalization.zero_def, OreLocalization.mul_def]
+    simp
+
+end CommSemiring
+
+
  -- fails on mathlib master;
 -- works if irreducibiliy of OreLocalization.smul is removed
 
@@ -90,4 +169,22 @@ units of `T`, to a ring homomorphism `R[S⁻¹] →+* T`. This extends the const
 monoids. -/
 def universalHom : R[S⁻¹] →+* T :=
 -/
+
+
+section first_goal
+
+variable {R A : Type*} [CommRing R] [CommRing A] [Algebra R A] {S : Submonoid R}
+
+abbrev SR := R[S⁻¹]
+abbrev SA := A[S⁻¹]
+
+
+unseal OreLocalization.smul in
+instance : Algebra (R[S⁻¹]) (A[S⁻¹]) where
+/-
+error:
+failed to synthesize
+  Semiring (OreLocalization S A)
+-/
+
 end OreLocalization
