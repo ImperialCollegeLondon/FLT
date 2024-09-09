@@ -252,7 +252,6 @@ omit [Algebra.IsIntegral A B] in
 theorem M_spec (b : B) : ((M G hGalois b : A[X]) : B[X]) = F G b := (F_descent hGalois b).choose_spec
 
 theorem M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) b = 0 := by
-
   sorry -- follows from `F_eval_eq_zero`
 
 theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
@@ -303,16 +302,11 @@ def foo (g : G) (hg : g • Q = Q) : B ⧸ Q ≃+* B ⧸ Q :=
 
 def bar (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
   __ := foo Q g hg
-  commutes' := by
-    intro r
-
-    sorry
+  commutes' := sorry
 
 def baz : MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
   toFun gh := bar Q P gh.1 gh.2
-  map_one' := by
-
-    sorry
+  map_one' := sorry
   map_mul' := sorry
 
 noncomputable def bar2 (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
