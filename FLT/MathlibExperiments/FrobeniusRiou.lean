@@ -13,6 +13,7 @@ import Mathlib.RingTheory.Ideal.Over
 import Mathlib.FieldTheory.Normal
 import Mathlib
 import Mathlib.RingTheory.OreLocalization.Ring
+import FLT.ForMathlib.Algebra
 
 /-!
 
@@ -386,11 +387,14 @@ abbrev SA := A[(S P)⁻¹]
 
 abbrev SB := B[(S P)⁻¹]
 
--- didn't work, maybe need to remove irreducibility of smul
--- instance : Algebra (A[(S P)⁻¹]) (B[(S P)⁻¹]) where
---   __ := OreLocalization.instModule (R := A) (X := B) (S := P.primeCompl)
+-- Currently stuck here
+--instance : Algebra (A[(S P)⁻¹]) (B[(S P)⁻¹]) where
+--  sorry--__ := OreLocalization.instModule (R := A) (X := B) (S := P.primeCompl)
 
-
+/-
+failed to synthesize
+  Semiring (OreLocalization (S P) B)
+-/
 end localization
 
 -- In Frobenius2.lean in this dir (Jou's FM24 project) there's a proof of surjectivity
