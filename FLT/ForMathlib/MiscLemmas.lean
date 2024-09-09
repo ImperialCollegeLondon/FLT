@@ -1,12 +1,15 @@
 import Mathlib.Algebra.Module.Projective
 import Mathlib.Topology.Algebra.Monoid
+import Mathlib.RingTheory.OreLocalization.Ring
+import Mathlib
+
 
 section elsewhere
 
 variable {A : Type*} [AddCommGroup A]
 variable {B : Type*} [AddCommGroup B]
 
-lemma AddMonoidHom.sub_mem_ker_iff {A B : Type*} [AddCommGroup A]
+theorem AddMonoidHom.sub_mem_ker_iff {A B : Type*} [AddCommGroup A]
     [AddCommGroup B] (φ : A →+ B) {x y : A} :
     x - y ∈ AddMonoidHom.ker φ ↔ φ x = φ y := by
   rw [AddMonoidHom.mem_ker, map_sub, sub_eq_zero]
@@ -14,7 +17,7 @@ lemma AddMonoidHom.sub_mem_ker_iff {A B : Type*} [AddCommGroup A]
 variable [τA : TopologicalSpace A] [ContinuousAdd A]
 variable [τB : TopologicalSpace B]
 
-lemma isOpenMap_of_coinduced (φ : A →+ B) (hφc : Continuous φ)
+theorem isOpenMap_of_coinduced (φ : A →+ B) (hφc : Continuous φ)
     (h : TopologicalSpace.coinduced φ τA = τB) :
     IsOpenMap φ := by
   intro U hU
@@ -33,7 +36,7 @@ lemma isOpenMap_of_coinduced (φ : A →+ B) (hφc : Continuous φ)
 
 -- **TODO** ask Yury how to golf
 open TopologicalSpace in
-lemma coinduced_prod_eq_prod_coinduced {X Y S T : Type*} [AddCommGroup X] [AddCommGroup Y]
+theorem coinduced_prod_eq_prod_coinduced {X Y S T : Type*} [AddCommGroup X] [AddCommGroup Y]
     [AddCommGroup S] [AddCommGroup T] (f : X →+ S) (g : Y →+ T)
     (hf : Function.Surjective f) (hg : Function.Surjective g)
     [τX : TopologicalSpace X] [ContinuousAdd X] [τY : TopologicalSpace Y] [ContinuousAdd Y] :
@@ -101,16 +104,16 @@ variable {S : Type*} [τS : TopologicalSpace S] {f : S → R} (hf : Continuous f
 variable {B : Type*} [SMul S B]
 
 -- note: use convert not exact to ensure typeclass inference doesn't try to find topology on B
-lemma induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] (g : B →ₑ[f] A)
+theorem induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] (g : B →ₑ[f] A)
     (hf : Continuous f) : @ContinuousSMul S B _ _ (TopologicalSpace.induced g τA) := by
   convert Inducing.continuousSMul (inducing_induced g) hf (fun {c} {x} ↦ map_smulₛₗ g c x)
 
-lemma induced_continuous_add [AddCommMonoid A] [τA : TopologicalSpace A] [ContinuousAdd A]
+theorem induced_continuous_add [AddCommMonoid A] [τA : TopologicalSpace A] [ContinuousAdd A]
     [AddCommMonoid B] (h : B →+ A) :
     @ContinuousAdd B (TopologicalSpace.induced h τA) _ := by
   convert Inducing.continuousAdd h (inducing_induced h)
 
-lemma induced_sInf {α β : Type*} {g : β → α}
+theorem induced_sInf {α β : Type*} {g : β → α}
     {s : Set (TopologicalSpace α)} :
     TopologicalSpace.induced g (sInf s) =
     sInf ((TopologicalSpace.induced g) '' s) := by
@@ -127,11 +130,11 @@ theorem _root_.Homeomorph.coinducing {A B : Type*} [τA : TopologicalSpace A]
   exact e.isOpen_preimage.symm
 
 -- elsewhere
-lemma Homeomorph.symm_apply_eq {M N : Type*} [TopologicalSpace M]
+theorem Homeomorph.symm_apply_eq {M N : Type*} [TopologicalSpace M]
     [TopologicalSpace N] (e : M ≃ₜ N) {x : N} {y : M} :
   e.symm x = y ↔ x = e y := Equiv.symm_apply_eq _
 
-lemma finsum_option {ι : Type*} {B : Type*} [Finite ι]
+theorem finsum_option {ι : Type*} {B : Type*} [Finite ι]
     [AddCommMonoid B] (φ : Option ι → B) :
     (∑ᶠ oi, φ oi) = φ none + ∑ᶠ (j : ι),  φ (some j) := by
   rw [← finsum_mem_univ]
@@ -141,7 +144,7 @@ lemma finsum_option {ι : Type*} {B : Type*} [Finite ι]
   · rw [finsum_mem_range]
     exact Option.some_injective ι
 
-lemma LinearMap.finsum_apply {R : Type*} [Semiring R] {A B : Type*} [AddCommMonoid A] [Module R A]
+theorem LinearMap.finsum_apply {R : Type*} [Semiring R] {A B : Type*} [AddCommMonoid A] [Module R A]
     [AddCommMonoid B] [Module R B] {ι : Type*} [Finite ι] (φ : ∀ _ : ι, A →ₗ[R] B) (a : A) :
     (∑ᶠ i, φ i) a = ∑ᶠ i, φ i a := by
   induction ι using Finite.induction_empty_option
@@ -203,7 +206,7 @@ def LinearEquiv.pUnitPiEquiv (f : PUnit → Type*) [∀ x, AddCommGroup (f x)] [
   map_smul' r f := rfl
 
 -- elsewhere
-lemma finsum_apply {α ι N : Type*} [AddCommMonoid N] [Finite ι]
+theorem finsum_apply {α ι N : Type*} [AddCommMonoid N] [Finite ι]
     (f : ι → α → N) (a : α) : (∑ᶠ i, f i) a = ∑ᶠ i, (f i) a := by
   classical
   simp only [finsum_def, dif_pos (Set.toFinite _), Finset.sum_apply]
