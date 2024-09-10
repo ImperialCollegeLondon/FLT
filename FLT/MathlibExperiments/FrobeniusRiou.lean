@@ -292,8 +292,16 @@ noncomputable def M (b : B) : A[X] := (F_descent hGalois b).choose
 omit [Algebra.IsIntegral A B] in
 theorem M_spec (b : B) : ((M G hGalois b : A[X]) : B[X]) = F G b := (F_descent hGalois b).choose_spec
 
+omit [Algebra.IsIntegral A B] in
+theorem M_spec' (b : B) : (M G hGalois b : A[X]).map (algebraMap A B) = F G b :=
+  (F_descent hGalois b).choose_spec
+
 theorem M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) b = 0 := by
   sorry -- follows from `F_eval_eq_zero`
+
+omit [Algebra.IsIntegral A B] in
+theorem M_eval_eq_zero' (b : B) : (M G hGalois b).eval₂ (algebraMap A B) b = 0 := by
+  rw [eval₂_eq_eval_map, M_spec', F_eval_eq_zero]
 
 theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
     [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
