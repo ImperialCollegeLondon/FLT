@@ -303,14 +303,40 @@ omit [Algebra.IsIntegral A B] in
 theorem M_eval_eq_zero' (b : B) : (M G hGalois b).eval₂ (algebraMap A B) b = 0 := by
   rw [eval₂_eq_eval_map, M_spec', F_eval_eq_zero]
 
+-- R ⊆ K
+-- K is the field of fractions of R
+-- k ⊆ K
+-- h: R is algebraic over k (as elements of K)
+-- WTS: K is algebraic over k
+
+#check IsAlgebraic.invOf
+#check IsLocalization.mk'
+
+theorem IsAlgebraic.mul {R K : Type*} [CommRing R] [CommRing K] [Algebra R K] {x y : K}
+  (hx : IsAlgebraic R x) (hy : IsAlgebraic R y) : IsAlgebraic R (x * y) := sorry
+
+theorem IsAlgebraic.invLoc {R S K : Type*} [CommRing R] {M : Submonoid R} [CommRing S] [Algebra R S]
+    [IsLocalization M S] {x : M} [CommRing K] [Algebra K S] (h : IsAlgebraic K ((x : R) : S)):
+    IsAlgebraic K (IsLocalization.mk' S 1 x) := by
+  rw [← IsAlgebraic.invOf_iff, IsLocalization.invertible_mk'_one_invOf]
+  exact h
+
 theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
     [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
     (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
   -- ratio of two algebraic numbers is algebraic (follows from product of alg numbers is
   -- alg, which we surely have, and reciprocal of algebraic number
   -- is algebraic; proof of the latter is "reverse the min poly", don't know if we have it)
-
-  sorry
+  rw [isAlgebraic_def]
+  let M := nonZeroDivisors R
+  intro x
+  have ⟨r, s, h'⟩ := IsLocalization.mk'_surjective M x
+  have : x = r * IsLocalization.mk' K 1 s := by
+    rw [← h', IsLocalization.mul_mk'_eq_mk'_of_mul]
+    simp
+  rw [this]
+  apply IsAlgebraic.mul (h r)
+  exact IsAlgebraic.invLoc (h s)
 
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
 theorem part_b1 : Algebra.IsAlgebraic K L := by
