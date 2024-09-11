@@ -289,28 +289,19 @@ private theorem F_descent (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔
 variable (G) in
 noncomputable def M (b : B) : A[X] := (F_descent hGalois b).choose
 
-omit [Algebra.IsIntegral A B] in
-theorem M_spec (b : B) : ((M G hGalois b : A[X]) : B[X]) = F G b := (F_descent hGalois b).choose_spec
+-- omit [Algebra.IsIntegral A B] in
+-- theorem M_spec' (b : B) : ((M G hGalois b : A[X]) : B[X]) = F G b := (F_descent hGalois b).choose_spec
 
 omit [Algebra.IsIntegral A B] in
-theorem M_spec' (b : B) : (M G hGalois b : A[X]).map (algebraMap A B) = F G b :=
+theorem M_spec (b : B) : (M G hGalois b : A[X]).map (algebraMap A B) = F G b :=
   (F_descent hGalois b).choose_spec
 
-theorem M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) b = 0 := by
-  sorry -- follows from `F_eval_eq_zero`
+-- theorem M_eval_eq_zero' (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) b = 0 := by
+--  sorry -- follows from `F_eval_eq_zero`
 
 omit [Algebra.IsIntegral A B] in
-theorem M_eval_eq_zero' (b : B) : (M G hGalois b).eval₂ (algebraMap A B) b = 0 := by
-  rw [eval₂_eq_eval_map, M_spec', F_eval_eq_zero]
-
--- R ⊆ K
--- K is the field of fractions of R
--- k ⊆ K
--- h: R is algebraic over k (as elements of K)
--- WTS: K is algebraic over k
-
-#check IsAlgebraic.invOf
-#check IsLocalization.mk'
+theorem M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A B) b = 0 := by
+  rw [eval₂_eq_eval_map, M_spec, F_eval_eq_zero]
 
 theorem IsAlgebraic.mul {R K : Type*} [CommRing R] [CommRing K] [Algebra R K] {x y : K}
   (hx : IsAlgebraic R x) (hy : IsAlgebraic R y) : IsAlgebraic R (x * y) := sorry
