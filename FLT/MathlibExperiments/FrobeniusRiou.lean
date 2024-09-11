@@ -329,15 +329,38 @@ theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] 
   apply IsAlgebraic.mul (h r)
   exact IsAlgebraic.invLoc (h s)
 
+/-
+All I want to say is:
+
+B ---> B / Q -----> L = Frac(B/Q)
+/\       /\        /\
+|        |         |
+|        |         |
+A ---> A / P ----> K = Frac(A/P)
+
+-/
+
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
-theorem part_b1 : Algebra.IsAlgebraic K L := by
+theorem part_b1 {A : Type*} [CommRing A] {B : Type*} [CommRing B] [Algebra A B]
+  [Algebra.IsIntegral A B] {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] (Q : Ideal B)
+  [Q.IsPrime] (P : Ideal A) [P.IsPrime] [Algebra (A ⧸ P) (B ⧸ Q)]
+  [IsScalarTower A (A ⧸ P) (B ⧸ Q)] (L : Type*) [Field L] [Algebra (B ⧸ Q) L]
+  [IsFractionRing (B ⧸ Q) L] [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
+  (K : Type*) [Field K] [Algebra (A ⧸ P) K] [IsFractionRing (A ⧸ P) K]
+  [Algebra K L] [IsScalarTower (A ⧸ P) K L]
+  (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a): Algebra.IsAlgebraic K L := by
   /-
   Because of `IsFractionRing (B ⧸ Q) K` and the previous lemma it suffices to show that every
   element of B/Q is algebraic over k, and this is because you can lift to b ∈ B and then
   use `M` above (which needs to be coerced to A/P and then to K)
   -/
-  sorry
-
+  apply @Algebra.isAlgebraic_of_subring_isAlgebraic (B ⧸ Q)
+  intro b_bar
+  have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
+  use ((M G hGalois b).map (algebraMap A (A ⧸ P))).map (algebraMap (A ⧸ P) K)
+  constructor
+  . sorry
+  . sorry
 
 
 theorem part_b2 : Normal K L := by
