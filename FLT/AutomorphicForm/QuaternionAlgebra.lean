@@ -8,11 +8,12 @@ import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Algebra.Group.Subgroup.Pointwise
-import FLT.HIMExperiments.module_topology
+import FLT.ForMathlib.ActionTopology
 
 /-
 
 # Definition of automorphic forms on a totally definite quaternion algebra
+
 -/
 
 suppress_compilation
@@ -24,10 +25,6 @@ variable (D : Type*) [Ring D] [Algebra F D] [FiniteDimensional F D]
 open DedekindDomain
 
 open scoped NumberField
-
--- my work (two PRs)
-instance : TopologicalSpace (FiniteAdeleRing (𝓞 F) F) := sorry
-instance : TopologicalRing (FiniteAdeleRing (𝓞 F) F) := sorry
 
 open scoped TensorProduct
 
@@ -55,8 +52,9 @@ instance [Module.Free R D]  : Module.Free A (D ⊗[R] A) := sorry
 
 end missing_instances
 -- your work
-instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := Module.topology (FiniteAdeleRing (𝓞 F) F)
-instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := moobar (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
+instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := actionTopology (FiniteAdeleRing (𝓞 F) F) _
+instance : IsActionTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := ⟨rfl⟩
+instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := inferInstance--moobar (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
 
 namespace TotallyDefiniteQuaternionAlgebra
 

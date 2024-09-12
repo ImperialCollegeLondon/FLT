@@ -59,6 +59,10 @@ We also show the slightly more subtle result that if `M`, `N` and `P` are `R`-mo
 equipped with the action topology and if furthermore `M` is finite as an `R`-module,
 then any bilinear map `M × N → P` is continuous.
 
+As a consequence of this, we deduce that if `R` is a commutative topological ring
+and `A` is an `R`-algebra of finite type as `R`-module, then `A` with its module
+topology becomes a topological ring (i.e., multiplication is continuous).
+
 ## TODO
 
 1) add the statement that the action topology is a functor from the category of `R`-modules
@@ -488,14 +492,14 @@ section semiring_algebra
 
 -- these shouldn't be rings, they should be semirings
 variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
-variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
+variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Fre(D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) e R D]
 variable [TopologicalSpace D] [IsActionTopology R D]
 
 open scoped TensorProduct
 
 @[continuity, fun_prop]
 theorem continuous_mul'
-    (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+    (R) [CommSemiring R] [TopologicalSpace R] [TopologicalSemiring R]
     (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
     [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
   letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
