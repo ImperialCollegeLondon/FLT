@@ -208,6 +208,8 @@ variable (Q : Ideal B) [Q.IsPrime] (P : Ideal A) [P.IsPrime]
 -- Do I need this:
 --  [Algebra B L] [IsScalarTower B (B ⧸ Q) L]
 
+variable [Nontrivial B]
+
 -- version of Ideal.Quotient.eq_zero_iff_mem with algebraMap
 omit [P.IsPrime] in
 theorem Ideal.Quotient.eq_zero_iff_mem' (x : A) :
@@ -255,6 +257,13 @@ private theorem F_eval_eq_zero (b : B) : (F G b).eval b = 0 := by
   apply @Finset.prod_eq_zero _ _ _ _ _ (1 : G) (Finset.mem_univ 1)
   simp
 
+#check leadingCoeff
+#check ne_zero_of_ne_zero_of_monic
+
+theorem F_monic [NeZero (1 : B)] (b : B) : Monic (F G b) := by
+  let foo := Fintype.ofFinite G
+  rw [Monic, F_spec, finprod_eq_prod_of_fintype, leadingCoeff_prod'] <;> simp
+
 open scoped algebraMap
 
 noncomputable local instance : Algebra A[X] B[X] :=
@@ -286,22 +295,36 @@ private theorem F_descent (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔
     · nth_rw 2 [← F_smul_eq_self σ]
       rfl
 
+omit [Algebra.IsIntegral A B] in
+private theorem F_descent' (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) (b : B) :
+    ∃ M : A[X], (M : B[X]) = F G b ∧ Monic M := by
+  have : F G b ∈ Polynomial.lifts (algebraMap A B) := by
+    choose M hM using F_descent hGalois b
+    use M; exact hM
+  choose M hM using lifts_and_degree_eq_and_monic this (F_monic b)
+  use M
+  exact ⟨hM.1, hM.2.2⟩
+
 variable (G) in
-noncomputable def M (b : B) : A[X] := (F_descent hGalois b).choose
+noncomputable def M (b : B) : A[X] := (F_descent' hGalois b).choose
 
 -- omit [Algebra.IsIntegral A B] in
 -- theorem M_spec' (b : B) : ((M G hGalois b : A[X]) : B[X]) = F G b := (F_descent hGalois b).choose_spec
 
 omit [Algebra.IsIntegral A B] in
-theorem M_spec (b : B) : (M G hGalois b : A[X]).map (algebraMap A B) = F G b :=
-  (F_descent hGalois b).choose_spec
+theorem M_spec_lift (b : B) : (M G hGalois b : A[X]).map (algebraMap A B) = F G b :=
+  (F_descent' hGalois b).choose_spec.1
+
+omit [Algebra.IsIntegral A B] in
+theorem M_spec_monic (b : B) : Monic (M G hGalois b) :=
+  (F_descent' hGalois b).choose_spec.2
 
 -- theorem M_eval_eq_zero' (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) b = 0 := by
 --  sorry -- follows from `F_eval_eq_zero`
 
 omit [Algebra.IsIntegral A B] in
 theorem M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A B) b = 0 := by
-  rw [eval₂_eq_eval_map, M_spec, F_eval_eq_zero]
+  rw [eval₂_eq_eval_map, M_spec_lift, F_eval_eq_zero]
 
 theorem IsAlgebraic.mul {R K : Type*} [CommRing R] [CommRing K] [Algebra R K] {x y : K}
   (hx : IsAlgebraic R x) (hy : IsAlgebraic R y) : IsAlgebraic R (x * y) := sorry
@@ -340,14 +363,31 @@ A ---> A / P ----> K = Frac(A/P)
 
 -/
 
+#check aeval_algHom
+#check map_map
+#check eval₂_comp
+#check IsScalarTower.algebraMap_eq
+#check M_eval_eq_zero
+
+theorem algebraMap_cast {R S: Type*} [CommRing R] [CommRing S] [Algebra R S] (r : R) :
+  (r : S) = (algebraMap R S) r := by
+  rfl
+
+theorem algebraMap_algebraMap {R S T : Type*} [CommRing R] [CommRing S] [CommRing T] [Algebra R S]
+  [Algebra S T] [Algebra R T] [IsScalarTower R S T] (r : R) :
+  (algebraMap S T) ((algebraMap R S) r) = (algebraMap R T) r := by
+  exact Eq.symm (IsScalarTower.algebraMap_apply R S T r)
+
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
-theorem part_b1 {A : Type*} [CommRing A] {B : Type*} [CommRing B] [Algebra A B]
+theorem part_b1 {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B] [Algebra A B]
   [Algebra.IsIntegral A B] {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] (Q : Ideal B)
   [Q.IsPrime] (P : Ideal A) [P.IsPrime] [Algebra (A ⧸ P) (B ⧸ Q)]
   [IsScalarTower A (A ⧸ P) (B ⧸ Q)] (L : Type*) [Field L] [Algebra (B ⧸ Q) L]
   [IsFractionRing (B ⧸ Q) L] [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
   (K : Type*) [Field K] [Algebra (A ⧸ P) K] [IsFractionRing (A ⧸ P) K]
-  [Algebra K L] [IsScalarTower (A ⧸ P) K L]
+  [Algebra K L] [IsScalarTower (A ⧸ P) K L] [Algebra A K] [IsScalarTower A (A ⧸ P) K]
+  [Algebra B L] [IsScalarTower B (B ⧸ Q) L] [Algebra A L] [IsScalarTower A K L]
+  [IsScalarTower A B L]
   (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a): Algebra.IsAlgebraic K L := by
   /-
   Because of `IsFractionRing (B ⧸ Q) K` and the previous lemma it suffices to show that every
@@ -357,11 +397,18 @@ theorem part_b1 {A : Type*} [CommRing A] {B : Type*} [CommRing B] [Algebra A B]
   apply @Algebra.isAlgebraic_of_subring_isAlgebraic (B ⧸ Q)
   intro b_bar
   have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
+  have hb : (algebraMap B (B ⧸ Q)) b = b_bar := hb
   use ((M G hGalois b).map (algebraMap A (A ⧸ P))).map (algebraMap (A ⧸ P) K)
   constructor
-  . sorry
-  . sorry
-
+  . apply ne_zero_of_ne_zero_of_monic X_ne_zero
+    apply Monic.map
+    apply Monic.map
+    exact M_spec_monic hGalois b
+  . rw [← hb, algebraMap_cast, map_map, ← IsScalarTower.algebraMap_eq]
+    rw [algebraMap_algebraMap, aeval_def, eval₂_eq_eval_map, map_map, ← IsScalarTower.algebraMap_eq]
+    rw [IsScalarTower.algebraMap_eq A B L, ← map_map, M_spec_lift]
+    rw [eval_map, eval₂_hom, F_eval_eq_zero]
+    exact algebraMap.coe_zero
 
 theorem part_b2 : Normal K L := by
   /-
