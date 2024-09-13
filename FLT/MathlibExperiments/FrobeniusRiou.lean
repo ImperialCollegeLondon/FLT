@@ -352,23 +352,6 @@ theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] 
   apply IsAlgebraic.mul (h r)
   exact IsAlgebraic.invLoc (h s)
 
-/-
-All I want to say is:
-
-B ---> B / Q -----> L = Frac(B/Q)
-/\       /\        /\
-|        |         |
-|        |         |
-A ---> A / P ----> K = Frac(A/P)
-
--/
-
-#check aeval_algHom
-#check map_map
-#check eval₂_comp
-#check IsScalarTower.algebraMap_eq
-#check M_eval_eq_zero
-
 theorem algebraMap_cast {R S: Type*} [CommRing R] [CommRing S] [Algebra R S] (r : R) :
   (r : S) = (algebraMap R S) r := by
   rfl
