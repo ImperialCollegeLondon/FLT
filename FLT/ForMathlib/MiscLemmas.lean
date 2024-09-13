@@ -8,12 +8,6 @@ section elsewhere
 
 variable {A : Type*} [AddCommGroup A]
 variable {B : Type*} [AddCommGroup B]
-
-theorem AddMonoidHom.sub_mem_ker_iff {A B : Type*} [AddCommGroup A]
-    [AddCommGroup B] (φ : A →+ B) {x y : A} :
-    x - y ∈ AddMonoidHom.ker φ ↔ φ x = φ y := by
-  rw [AddMonoidHom.mem_ker, map_sub, sub_eq_zero]
-
 variable [τA : TopologicalSpace A] [ContinuousAdd A]
 variable [τB : TopologicalSpace B]
 
@@ -160,7 +154,7 @@ theorem LinearMap.finsum_apply {R : Type*} [Semiring R] {A B : Type*} [AddCommMo
 -- elsewhere
 variable (R : Type*) [Semiring R] in
 def LinearEquiv.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
-    [∀ st, AddCommGroup (A st)] [∀ st, Module R (A st)] :
+    [∀ st, AddCommMonoid (A st)] [∀ st, Module R (A st)] :
     (∀ (st : S ⊕ T), A st) ≃ₗ[R] (∀ (s : S), A (.inl s)) × (∀ (t : T), A (.inr t)) where
       toFun f := (fun s ↦ f (.inl s), fun t ↦ f (.inr t))
       map_add' f g := by aesop
@@ -196,7 +190,7 @@ def Homeomorph.pUnitPiEquiv (f : PUnit → Type*) [∀ x, TopologicalSpace (f x)
 
 -- elsewhere
 variable (R : Type*) [Semiring R] in
-def LinearEquiv.pUnitPiEquiv (f : PUnit → Type*) [∀ x, AddCommGroup (f x)] [∀ x, Module R (f x)] :
+def LinearEquiv.pUnitPiEquiv (f : PUnit → Type*) [∀ x, AddCommMonoid (f x)] [∀ x, Module R (f x)] :
     ((t : PUnit) → (f t)) ≃ₗ[R] f () where
   toFun a := a ()
   invFun a _t := a
