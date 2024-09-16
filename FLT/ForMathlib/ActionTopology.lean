@@ -59,6 +59,10 @@ We also show the slightly more subtle result that if `M`, `N` and `P` are `R`-mo
 equipped with the action topology and if furthermore `M` is finite as an `R`-module,
 then any bilinear map `M × N → P` is continuous.
 
+As a consequence of this, we deduce that if `R` is a commutative topological ring
+and `A` is an `R`-algebra of finite type as `R`-module, then `A` with its module
+topology becomes a topological ring (i.e., multiplication is continuous).
+
 ## TODO
 
 1) add the statement that the action topology is a functor from the category of `R`-modules
@@ -130,7 +134,7 @@ namespace ActionTopology
 
 section zero
 
-instance subsingleton (R : Type*) [TopologicalSpace R] (A : Type*) [Add A] [SMul R A]
+instance instSubsingleton (R : Type*) [TopologicalSpace R] (A : Type*) [Add A] [SMul R A]
     [Subsingleton A] [TopologicalSpace A] : IsActionTopology R A where
   isActionTopology' := by
     ext U
@@ -149,7 +153,7 @@ We first prove that the action topology on `R` considered as a module over itsel
 is `R`'s topology.
 
 -/
-instance instId (R : Type*) [Semiring R] [τR : TopologicalSpace R] [TopologicalSemiring R] :
+instance instSelf (R : Type*) [Semiring R] [τR : TopologicalSpace R] [TopologicalSemiring R] :
     IsActionTopology R R := by
   constructor
   /- Let `R` be a topological ring with topology τR. To prove that `τR` is the action
@@ -319,7 +323,6 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
 
 end surjection
 
-
 section prod
 
 variable {R : Type*} [TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
@@ -372,7 +375,7 @@ instance pi : IsActionTopology R (∀ i, A i) := by
   induction ι using Finite.induction_empty_option
   · case of_equiv X Y e _ _ _ _ _ =>
     exact iso (Homeomorph.piCongrLeft e) (LinearEquiv.piCongrLeft R A e) (fun _ ↦ rfl)
-  · apply subsingleton
+  · infer_instance
   · case h_option X _ hind _ _ _ _ =>
     let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
     refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
@@ -391,7 +394,7 @@ end Pi
 section semiring_bilinear
 
 -- I need rings not semirings here, because ` ChooseBasisIndex.fintype` incorrectly(?) needs
--- a ring instead of a semiring. This should be fixed.
+-- a ring instead of a semiring. This should be fixed if I'm right.
 -- I also need commutativity because we don't have bilinear maps for non-commutative rings.
 -- **TODO** ask on the Zulip whether this is an issue.
 variable {R : Type*} [τR : TopologicalSpace R] [CommRing R]
@@ -431,8 +434,9 @@ theorem Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
   simp [Set.toFinite _]
 
 -- Probably this can be beefed up to semirings.
-theorem Module.continuous_bilinear_of_finite_free [TopologicalSemiring R] [Module.Finite R A] [Module.Free R A]
-    (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
+theorem Module.continuous_bilinear_of_finite_free [TopologicalSemiring R] [Module.Finite R A]
+    [Module.Free R A] (bil : A →ₗ[R] B →ₗ[R] C) :
+    Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
   let hι : Fintype ι := Module.Free.ChooseBasisIndex.fintype R A
   let b : Basis ι R A := Module.Free.chooseBasis R A
@@ -486,6 +490,12 @@ end ring_bilinear
 
 section semiring_algebra
 
+open scoped TensorProduct
+
+open DedekindDomain
+
+open scoped NumberField
+
 -- these shouldn't be rings, they should be semirings
 variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
 variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
@@ -497,13 +507,10 @@ open scoped TensorProduct
 theorem continuous_mul'
     (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
     (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
-    [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
-  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
-  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
-  convert Module.continuous_bilinear_of_finite_free <| LinearMap.mul R D
+    [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) :=
+  Module.continuous_bilinear_of_finite (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
--- this should be about top semirings
-def Module.topologicalSemiring : TopologicalSemiring D where
+def topologicalSemiring : TopologicalSemiring D where
   continuous_add := (isActionTopology_continuousAdd R D).1
   continuous_mul := continuous_mul' R D
 
@@ -518,15 +525,16 @@ variable [TopologicalSpace D] [IsActionTopology R D]
 
 open scoped TensorProduct
 
--- @[continuity, fun_prop]
--- lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
---   letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
---   haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
---   convert Module.continuous_bilinear_of_finite <| LinearMap.mul R D
+include R in
+@[continuity, fun_prop]
+theorem continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
+  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
+  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
+  convert Module.continuous_bilinear_of_finite <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
--- def Module.topologicalRing : TopologicalRing D where
---   continuous_add := (isActionTopology_continuousAdd R D).1
---   continuous_mul := continuous_mul' R D
---   continuous_neg := continuous_neg R D
+def Module.topologicalRing : TopologicalRing D where
+  continuous_add := (isActionTopology_continuousAdd R D).1
+  continuous_mul := continuous_mul R D
+  continuous_neg := continuous_neg R D
 
 end ring_algebra
