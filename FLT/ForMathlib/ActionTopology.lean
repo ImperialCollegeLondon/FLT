@@ -5,9 +5,10 @@ import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 /-!
 # An "action topology" for modules over a topological ring
 
-If `R` is a topological space acting on an additive abelian group `A`, we define
-the *action topology* to be the finest topology on `A` making `• : R × A → A`
-and `+ : A × A → A` continuous (with all the products having the product topology).
+If `R` is a topological group (or even just a topological space) acting on an additive
+abelian group `A`, we define the *action topology* to be the finest topology on `A`
+making `• : R × A → A` and `+ : A × A → A` continuous (with all the products having the
+product topology).
 
 This topology was suggested by Will Sawin [here](https://mathoverflow.net/a/477763/1384).
 
@@ -26,28 +27,32 @@ the greatest lower bound of the topologies making `•` and `+` continuous,
 it suffices to show that it's `≤ σ` for any topology `σ` on `A` which makes `+` and `•` continuous.
 However pushforward and products are monotone, so `τ × τ ≤ σ × σ`, and the pushforward of
 `σ × σ` is `≤ σ` because that's precisely the statement that `+` is continuous for `σ`.
-The proof for `•` is similar.
+The proof for `•` follows mutatis mutandis.
 
 A *topological module* for a topological ring `R` is an `R`-module `A` with a topology
-making `+` and `•` continuous. A crucial observation is that if `M` is a topological `R`-module,
-if `A` is an `R`-module with no topology, and if `φ : A → M` is linear, then the pullback of
-`M`'s topology to `A` is a topology making `A` into a topological module. Let's for example
-check that `•` is continuous. If `U ⊆ A` is open
-then by definition of the pullback topology, `U = φ⁻¹(V)` for some open `V ⊆ M`, and
-now the pullback of `U` under `•` is just the pullback along the continuous map
+making `+` and `•` continuous. The discussion so far has shown that the action topology makes `A`
+into a topological module.
+
+A crucial observation is that if `M` is a topological `R`-module, if `A` is an `R`-module with no
+topology, and if `φ : A → M` is linear, then the pullback of `M`'s topology to `A` is a topology
+making `A` into a topological module. Let's for example check that `•` is continuous.
+If `U ⊆ A` is open then by definition of the pullback topology, `U = φ⁻¹(V)` for some open `V ⊆ M`,
+and now the pullback of `U` under `•` is just the pullback along the continuous map
 `id × φ : R × A → R × M` of the preimage of `V` under the continuous map `• : R × M → M`,
 so it's open. The proof for `+` is similar.
 
-As a consequence of this, we see that all linear maps are automatically continuous for
-the action topology. Indeed the argument above shows that if `A → M` is linear then the action
+As a consequence of this, we see that if `φ : A → M` is a linear map between topological `R`-modules
+modules and if `A` has the action topology, then `φ` is automatically continuous.
+Indeed the argument above shows that if `A → M` is linear then the action
 topology on `A` is `≤` the pullback of the action topology on `M` (because it's the inf of a set
 containing this topology) which is the definition of continuity.
 
 We also deduce that the action topology is a functor from the category of `R`-modules
 (`R` a topological ring) to the category of topological `R`-modules, and it is perhaps
 unsurprising that this is an adjoint to the forgetful functor. Indeed, if `A` is an `R`-module
-and `M` is a topological `R`-module, then the linear maps `A → M` are precisely the continuous
-linear maps from `A` with its action topology, to `M`, so the action topology is a left adjoint
+and `M` is a topological `R`-module, then the previous paragraph shows that
+the linear maps `A → M` are precisely the continuous linear maps
+from (`A` with its action topology) to `M`, so the action topology is a left adjoint
 to the forgetful functor.
 
 This file develops the theory of the action topology. We prove that the action topology on
