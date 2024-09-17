@@ -204,10 +204,14 @@ variable {B : Type*} [AddCommMonoid B] [Module R B] [τB : TopologicalSpace B]
 -- this is horrible. Why isn't it easy?
 -- One reason: we are rolling our own continuous linear equivs!
 -- **TODO** Ask about making continuous linear equivs properly
-theorem iso (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B) (he : ∀ a, ehomeo a = elinear a) :
-    IsActionTopology R B where
+theorem iso (e : A ≃L[R] B) : IsActionTopology R B where
   isActionTopology' := by
-    simp_rw [ehomeo.symm.inducing.1, isActionTopology R A, actionTopology, induced_sInf]
+    -- get these in before I start putting new topologies on A and B
+    let g : A →[R] B := e.toMulActionHom
+    let g' : B →[R] A := e.symm.toMulActionHom
+    let h : A →+ B := e
+    let h' : B →+ A := e.symm
+    simp_rw [e.toHomeomorph.symm.inducing.1, isActionTopology R A, actionTopology, induced_sInf]
     congr 1
     ext τ
     rw [Set.mem_image]
@@ -215,26 +219,18 @@ theorem iso (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B) (he : ∀ a, ehomeo 
     constructor
     · rintro ⟨σ, ⟨hσ1, hσ2⟩, rfl⟩
       refine ⟨?_, ?_⟩
-      · convert @induced_continuous_smul (f := @id R) (hf := continuous_id)
-          (g := elinear.symm.toMulActionHom) (τA := σ) _ _ _ _ _
-        ext x
-        rw [@Homeomorph.symm_apply_eq, he, ← LinearEquiv.symm_apply_eq elinear]
-        rfl
-      · convert @induced_continuous_add (h := elinear.symm.toAddMonoidHom) σ _
-        ext x
-        rw [@Homeomorph.symm_apply_eq, he, ← LinearEquiv.symm_apply_eq elinear]
-        rfl
+      · exact @induced_continuous_smul (f := @id R) (hf := continuous_id)
+          (g := g') (τA := σ) _ _ _ _ _
+      · exact @induced_continuous_add (h := h') σ _
     · rintro ⟨h1, h2⟩
-      use τ.induced elinear
+      use τ.induced e
       rw [induced_compose]
       refine ⟨⟨?_, ?_⟩, ?_⟩
       · exact @induced_continuous_smul (f := @id R) (hf := continuous_id)
-          (g := elinear.toMulActionHom) (τA := τ) _ _ _ _ _
-      · exact @induced_continuous_add (h := elinear.toAddMonoidHom) τ _
+          (g := g) (τA := τ) _ _ _ _ _
+      · exact @induced_continuous_add (h := h) τ _
       · nth_rw 2 [← induced_id (t := τ)]
-        congr
-        ext x
-        simp [(he _).symm]
+        simp
 
 end iso
 
@@ -369,30 +365,40 @@ variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsActionTopology R (A i)]
 
-/-
--- ActionTopology.iso.{u_1, u_2, u_3} {R : Type u_1} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
---   {A : Type u_2} [AddCommMonoid A] [Module R A] [τA : TopologicalSpace A] [IsActionTopology R A] {B : Type u_3}
---   [AddCommMonoid B] [Module R B] [τB : TopologicalSpace B] (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B)
---   (he : ∀ (a : A), ehomeo a = elinear a) [IsActionTopology R A] : IsActionTopology R B
+-- elsewhere
+def ContinuousLinearEquiv.piCongrLeft (R : Type*) [Semiring R] {ι ι' : Type*}
+    (φ : ι → Type*) [∀ i, AddCommMonoid (φ i)] [∀ i, Module R (φ i)]
+    [∀ i, TopologicalSpace (φ i)]
+    (e : ι' ≃ ι) : ((i' : ι') → φ (e i')) ≃L[R] (i : ι) → φ i where
+  __ := Homeomorph.piCongrLeft e
+  __ := LinearEquiv.piCongrLeft R φ e
 
--/
+def ContinuousLinearEquiv.sumPiEquivProdPi (R : Type*) [Semiring R] (S T : Type*)
+    (A : S ⊕ T → Type*) [∀ st, AddCommGroup (A st)] [∀ st, Module R (A st)]
+    [∀ st, TopologicalSpace (A st)] :
+    ((st : S ⊕ T) → A st) ≃L[R] ((s : S) → A (Sum.inl s)) × ((t : T) → A (Sum.inr t)) where
+  __ := LinearEquiv.sumPiEquivProdPi R S T A
+  __ := Homeomorph.sumPiEquivProdPi S T A
+
+def ContinuousLinearEquiv.pUnitPiEquiv (R : Type*) [Semiring R] (f : PUnit → Type*)
+    [∀ x, AddCommGroup (f x)] [∀ x, Module R (f x)] [∀ x, TopologicalSpace (f x)] :
+    ((t : PUnit) → f t) ≃L[R] f () where
+  __ := LinearEquiv.pUnitPiEquiv R f
+  __ := Homeomorph.pUnitPiEquiv f
+
 instance pi : IsActionTopology R (∀ i, A i) := by
   induction ι using Finite.induction_empty_option
   · case of_equiv X Y e _ _ _ _ _ =>
-    exact iso (Homeomorph.piCongrLeft e) (LinearEquiv.piCongrLeft R A e) (fun _ ↦ rfl)
+    exact iso (ContinuousLinearEquiv.piCongrLeft R A e)
   · infer_instance
   · case h_option X _ hind _ _ _ _ =>
     let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
-    refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
-        (elinear := LinearEquiv.piCongrLeft R A e.symm)
-        (he := fun f ↦ rfl) _ _ _ _ _ ?_
-    apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
-        (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm)
-        (he := fun f ↦ rfl) _ _ _ _ _ ?_
+    refine @iso (e := ContinuousLinearEquiv.piCongrLeft R A e.symm) _ _ _ _ _ ?_
+    apply @iso
+        (e := (ContinuousLinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ _ _ _ _ ?_
     refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
     let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
-    exact iso (Homeomorph.pUnitPiEquiv (fun t ↦ A (φ t))).symm
-      (LinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm (fun a ↦ rfl)
+    exact iso (ContinuousLinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm
 
 end Pi
 
