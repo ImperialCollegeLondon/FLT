@@ -197,13 +197,10 @@ end one
 
 section iso
 
-variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] --[TopologicalSemiring R]
+variable {R : Type*} [τR : TopologicalSpace R] [Semiring R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [τA : TopologicalSpace A] [IsActionTopology R A]
 variable {B : Type*} [AddCommMonoid B] [Module R B] [τB : TopologicalSpace B]
 
--- this is horrible. Why isn't it easy?
--- One reason: we are rolling our own continuous linear equivs!
--- **TODO** Ask about making continuous linear equivs properly
 theorem iso (e : A ≃L[R] B) : IsActionTopology R B where
   isActionTopology' := by
     -- get these in before I start putting new topologies on A and B
@@ -241,7 +238,8 @@ variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [I
 variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B]
     [ContinuousAdd B] [ContinuousSMul R B]
 
-/-- Every `R`-linear map between two `R`-modules with the canonical topology is continuous. -/
+/-- Every `R`-linear map between two topological `R`-modules, where the source has the action
+topology, is continuous. -/
 @[fun_prop, continuity]
 theorem continuous_of_distribMulActionHom (φ : A →+[R] B) : Continuous φ := by
   -- the proof: We know that `+ : B × B → B` and `• : R × B → B` are continuous for the action
