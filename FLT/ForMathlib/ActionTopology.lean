@@ -5,9 +5,10 @@ import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 /-!
 # An "action topology" for modules over a topological ring
 
-If `R` is a topological space acting on an additive abelian group `A`, we define
-the *action topology* to be the finest topology on `A` making `• : R × A → A`
-and `+ : A × A → A` continuous (with all the products having the product topology).
+If `R` is a topological group (or even just a topological space) acting on an additive
+abelian group `A`, we define the *action topology* to be the finest topology on `A`
+making `• : R × A → A` and `+ : A × A → A` continuous (with all the products having the
+product topology).
 
 This topology was suggested by Will Sawin [here](https://mathoverflow.net/a/477763/1384).
 
@@ -26,28 +27,32 @@ the greatest lower bound of the topologies making `•` and `+` continuous,
 it suffices to show that it's `≤ σ` for any topology `σ` on `A` which makes `+` and `•` continuous.
 However pushforward and products are monotone, so `τ × τ ≤ σ × σ`, and the pushforward of
 `σ × σ` is `≤ σ` because that's precisely the statement that `+` is continuous for `σ`.
-The proof for `•` is similar.
+The proof for `•` follows mutatis mutandis.
 
 A *topological module* for a topological ring `R` is an `R`-module `A` with a topology
-making `+` and `•` continuous. A crucial observation is that if `M` is a topological `R`-module,
-if `A` is an `R`-module with no topology, and if `φ : A → M` is linear, then the pullback of
-`M`'s topology to `A` is a topology making `A` into a topological module. Let's for example
-check that `•` is continuous. If `U ⊆ A` is open
-then by definition of the pullback topology, `U = φ⁻¹(V)` for some open `V ⊆ M`, and
-now the pullback of `U` under `•` is just the pullback along the continuous map
+making `+` and `•` continuous. The discussion so far has shown that the action topology makes `A`
+into a topological module.
+
+A crucial observation is that if `M` is a topological `R`-module, if `A` is an `R`-module with no
+topology, and if `φ : A → M` is linear, then the pullback of `M`'s topology to `A` is a topology
+making `A` into a topological module. Let's for example check that `•` is continuous.
+If `U ⊆ A` is open then by definition of the pullback topology, `U = φ⁻¹(V)` for some open `V ⊆ M`,
+and now the pullback of `U` under `•` is just the pullback along the continuous map
 `id × φ : R × A → R × M` of the preimage of `V` under the continuous map `• : R × M → M`,
 so it's open. The proof for `+` is similar.
 
-As a consequence of this, we see that all linear maps are automatically continuous for
-the action topology. Indeed the argument above shows that if `A → M` is linear then the action
+As a consequence of this, we see that if `φ : A → M` is a linear map between topological `R`-modules
+modules and if `A` has the action topology, then `φ` is automatically continuous.
+Indeed the argument above shows that if `A → M` is linear then the action
 topology on `A` is `≤` the pullback of the action topology on `M` (because it's the inf of a set
 containing this topology) which is the definition of continuity.
 
 We also deduce that the action topology is a functor from the category of `R`-modules
 (`R` a topological ring) to the category of topological `R`-modules, and it is perhaps
 unsurprising that this is an adjoint to the forgetful functor. Indeed, if `A` is an `R`-module
-and `M` is a topological `R`-module, then the linear maps `A → M` are precisely the continuous
-linear maps from `A` with its action topology, to `M`, so the action topology is a left adjoint
+and `M` is a topological `R`-module, then the previous paragraph shows that
+the linear maps `A → M` are precisely the continuous linear maps
+from (`A` with its action topology) to `M`, so the action topology is a left adjoint
 to the forgetful functor.
 
 This file develops the theory of the action topology. We prove that the action topology on
@@ -58,6 +63,10 @@ module is the quotient topology.
 We also show the slightly more subtle result that if `M`, `N` and `P` are `R`-modules
 equipped with the action topology and if furthermore `M` is finite as an `R`-module,
 then any bilinear map `M × N → P` is continuous.
+
+As a consequence of this, we deduce that if `R` is a commutative topological ring
+and `A` is an `R`-algebra of finite type as `R`-module, then `A` with its module
+topology becomes a topological ring (i.e., multiplication is continuous).
 
 ## TODO
 
@@ -130,7 +139,7 @@ namespace ActionTopology
 
 section zero
 
-instance subsingleton (R : Type*) [TopologicalSpace R] (A : Type*) [Add A] [SMul R A]
+instance instSubsingleton (R : Type*) [TopologicalSpace R] (A : Type*) [Add A] [SMul R A]
     [Subsingleton A] [TopologicalSpace A] : IsActionTopology R A where
   isActionTopology' := by
     ext U
@@ -149,7 +158,7 @@ We first prove that the action topology on `R` considered as a module over itsel
 is `R`'s topology.
 
 -/
-instance instId (R : Type*) [Semiring R] [τR : TopologicalSpace R] [TopologicalSemiring R] :
+instance instSelf (R : Type*) [Semiring R] [τR : TopologicalSpace R] [TopologicalSemiring R] :
     IsActionTopology R R := by
   constructor
   /- Let `R` be a topological ring with topology τR. To prove that `τR` is the action
@@ -188,17 +197,18 @@ end one
 
 section iso
 
-variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] --[TopologicalSemiring R]
+variable {R : Type*} [τR : TopologicalSpace R] [Semiring R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [τA : TopologicalSpace A] [IsActionTopology R A]
 variable {B : Type*} [AddCommMonoid B] [Module R B] [τB : TopologicalSpace B]
 
--- this is horrible. Why isn't it easy?
--- One reason: we are rolling our own continuous linear equivs!
--- **TODO** Ask about making continuous linear equivs properly
-theorem iso (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B) (he : ∀ a, ehomeo a = elinear a) :
-    IsActionTopology R B where
+theorem iso (e : A ≃L[R] B) : IsActionTopology R B where
   isActionTopology' := by
-    simp_rw [ehomeo.symm.inducing.1, isActionTopology R A, actionTopology, induced_sInf]
+    -- get these in before I start putting new topologies on A and B
+    let g : A →[R] B := e.toMulActionHom
+    let g' : B →[R] A := e.symm.toMulActionHom
+    let h : A →+ B := e
+    let h' : B →+ A := e.symm
+    simp_rw [e.toHomeomorph.symm.inducing.1, isActionTopology R A, actionTopology, induced_sInf]
     congr 1
     ext τ
     rw [Set.mem_image]
@@ -206,26 +216,18 @@ theorem iso (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B) (he : ∀ a, ehomeo 
     constructor
     · rintro ⟨σ, ⟨hσ1, hσ2⟩, rfl⟩
       refine ⟨?_, ?_⟩
-      · convert @induced_continuous_smul (f := @id R) (hf := continuous_id)
-          (g := elinear.symm.toMulActionHom) (τA := σ) _ _ _ _ _
-        ext x
-        rw [@Homeomorph.symm_apply_eq, he, ← LinearEquiv.symm_apply_eq elinear]
-        rfl
-      · convert @induced_continuous_add (h := elinear.symm.toAddMonoidHom) σ _
-        ext x
-        rw [@Homeomorph.symm_apply_eq, he, ← LinearEquiv.symm_apply_eq elinear]
-        rfl
+      · exact @induced_continuous_smul (f := @id R) (hf := continuous_id)
+          (g := g') (τA := σ) _ _ _ _ _
+      · exact @induced_continuous_add (h := h') σ _
     · rintro ⟨h1, h2⟩
-      use τ.induced elinear
+      use τ.induced e
       rw [induced_compose]
       refine ⟨⟨?_, ?_⟩, ?_⟩
       · exact @induced_continuous_smul (f := @id R) (hf := continuous_id)
-          (g := elinear.toMulActionHom) (τA := τ) _ _ _ _ _
-      · exact @induced_continuous_add (h := elinear.toAddMonoidHom) τ _
+          (g := g) (τA := τ) _ _ _ _ _
+      · exact @induced_continuous_add (h := h) τ _
       · nth_rw 2 [← induced_id (t := τ)]
-        congr
-        ext x
-        simp [(he _).symm]
+        simp
 
 end iso
 
@@ -233,9 +235,11 @@ section function
 
 variable {R : Type*} [τR : TopologicalSpace R] [Semiring R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B]
+    [ContinuousAdd B] [ContinuousSMul R B]
 
-/-- Every `R`-linear map between two `R`-modules with the canonical topology is continuous. -/
+/-- Every `R`-linear map between two topological `R`-modules, where the source has the action
+topology, is continuous. -/
 @[fun_prop, continuity]
 theorem continuous_of_distribMulActionHom (φ : A →+[R] B) : Continuous φ := by
   -- the proof: We know that `+ : B × B → B` and `• : R × B → B` are continuous for the action
@@ -244,7 +248,7 @@ theorem continuous_of_distribMulActionHom (φ : A →+[R] B) : Continuous φ := 
   -- is given the topology induced from `φ`. Hence the action topology is finer than
   -- the induced topology, and so the function is continuous.
   rw [isActionTopology R A, continuous_iff_le_induced]
-  haveI : ContinuousAdd B := isActionTopology_continuousAdd R B
+  --haveI : ContinuousAdd B := isActionTopology_continuousAdd R B
   exact sInf_le <| ⟨induced_continuous_smul (φ.toMulActionHom) continuous_id,
     induced_continuous_add φ.toAddMonoidHom⟩
 
@@ -255,6 +259,7 @@ theorem continuous_of_linearMap (φ : A →ₗ[R] B) : Continuous φ :=
 variable (R) in
 theorem continuous_neg (C : Type*) [AddCommGroup C] [Module R C] [TopologicalSpace C]
     [IsActionTopology R C] : Continuous (fun a ↦ -a : C → C) :=
+  haveI : ContinuousAdd C := isActionTopology_continuousAdd R C
   continuous_of_linearMap (LinearEquiv.neg R).toLinearMap
 
 end function
@@ -262,13 +267,19 @@ end function
 section surjection
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
-variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {A : Type*} [AddCommGroup A] [Module R A] --[aA : TopologicalSpace A] [IsActionTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] --[aB : TopologicalSpace B] [IsActionTopology R B]
 
 -- Here I need the lemma about how quotients are open so I do need groups
 -- because this relies on translates of an open being open
 theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ (actionTopology R A) = actionTopology R B := by
+  letI : TopologicalSpace A := actionTopology R A
+  letI τB : TopologicalSpace B := actionTopology R B
+  haveI : IsActionTopology R A := ⟨rfl⟩
+  haveI : ContinuousAdd A := isActionTopology_continuousAdd R A
+  haveI : IsActionTopology R B := ⟨rfl⟩
+  haveI : ContinuousAdd B := isActionTopology_continuousAdd R B
   have : Continuous φ := continuous_of_linearMap φ
   rw [continuous_iff_coinduced_le, isActionTopology R A, isActionTopology R B] at this
   apply le_antisymm this
@@ -283,7 +294,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
     rw [← Set.preimage_comp, show φ ∘ (fun p ↦ p.1 • p.2 : R × A → A) =
       (fun p ↦ p.1 • p.2 : R × B → B) ∘
       (Prod.map id ⇑φ.toAddMonoidHom) by ext; simp, Set.preimage_comp] at foo
-    clear! aB -- easiest to just remove topology on B completely now so typeclass inference
+    clear! τB -- easiest to just remove topology on B completely now so typeclass inference
     -- never sees it
     convert isOpenMap_of_coinduced (AddMonoidHom.prodMap (AddMonoidHom.id R) φ.toAddMonoidHom)
       (_) (_) (_) foo
@@ -307,7 +318,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
     rw [← Set.preimage_comp, show φ ∘ (fun p ↦ p.1 + p.2 : A × A → A) =
       (fun p ↦ p.1 + p.2 : B × B → B) ∘
       (Prod.map ⇑φ.toAddMonoidHom ⇑φ.toAddMonoidHom) by ext; simp, Set.preimage_comp] at bar
-    clear! aB -- easiest to just remove topology on B completely now
+    clear! τB -- easiest to just remove topology on B completely now
     convert isOpenMap_of_coinduced (AddMonoidHom.prodMap φ.toAddMonoidHom φ.toAddMonoidHom)
       (_) (_) (_) bar
     · aesop
@@ -316,9 +327,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
     · rw [← isActionTopology R A]
       exact coinduced_prod_eq_prod_coinduced φ φ hφ hφ
 
-
 end surjection
-
 
 section prod
 
@@ -343,13 +352,14 @@ instance prod : IsActionTopology R (M × N) := by
   obtain ⟨this⟩ : @ContinuousAdd (M × N) (actionTopology R (M × N)) _ :=
     ActionTopology.continuousAdd _ _
   refine @Continuous.comp _ ((M × N) × (M × N)) _ (_) (_) (_) _ _ this ?_
+  haveI : @ContinuousSMul R (M × N) _ _ (actionTopology R _) := continuousSMul R (M × N)
   refine (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2 ⟨?_, ?_⟩
   · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_ continuous_fst
     apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+    exact continuousAdd R (M × N)
   · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inr R M N)) ?_ continuous_snd
     apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+    exact continuousAdd R (M × N)
 
 end prod
 
@@ -361,36 +371,49 @@ variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommMonoid (A i)
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsActionTopology R (A i)]
 
-/-
--- ActionTopology.iso.{u_1, u_2, u_3} {R : Type u_1} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
---   {A : Type u_2} [AddCommMonoid A] [Module R A] [τA : TopologicalSpace A] [IsActionTopology R A] {B : Type u_3}
---   [AddCommMonoid B] [Module R B] [τB : TopologicalSpace B] (ehomeo : A ≃ₜ B) (elinear : A ≃ₗ[R] B)
---   (he : ∀ (a : A), ehomeo a = elinear a) [IsActionTopology R A] : IsActionTopology R B
+-- elsewhere
+def ContinuousLinearEquiv.piCongrLeft (R : Type*) [Semiring R] {ι ι' : Type*}
+    (φ : ι → Type*) [∀ i, AddCommMonoid (φ i)] [∀ i, Module R (φ i)]
+    [∀ i, TopologicalSpace (φ i)]
+    (e : ι' ≃ ι) : ((i' : ι') → φ (e i')) ≃L[R] (i : ι) → φ i where
+  __ := Homeomorph.piCongrLeft e
+  __ := LinearEquiv.piCongrLeft R φ e
 
--/
+-- elsewhere
+def ContinuousLinearEquiv.sumPiEquivProdPi (R : Type*) [Semiring R] (S T : Type*)
+    (A : S ⊕ T → Type*) [∀ st, AddCommMonoid (A st)] [∀ st, Module R (A st)]
+    [∀ st, TopologicalSpace (A st)] :
+    ((st : S ⊕ T) → A st) ≃L[R] ((s : S) → A (Sum.inl s)) × ((t : T) → A (Sum.inr t)) where
+  __ := LinearEquiv.sumPiEquivProdPi R S T A
+  __ := Homeomorph.sumPiEquivProdPi S T A
+
+-- elsewhere
+def ContinuousLinearEquiv.pUnitPiEquiv (R : Type*) [Semiring R] (f : PUnit → Type*)
+    [∀ x, AddCommMonoid (f x)] [∀ x, Module R (f x)] [∀ x, TopologicalSpace (f x)] :
+    ((t : PUnit) → f t) ≃L[R] f () where
+  __ := LinearEquiv.pUnitPiEquiv R f
+  __ := Homeomorph.pUnitPiEquiv f
+
 instance pi : IsActionTopology R (∀ i, A i) := by
   induction ι using Finite.induction_empty_option
   · case of_equiv X Y e _ _ _ _ _ =>
-    exact iso (Homeomorph.piCongrLeft e) (LinearEquiv.piCongrLeft R A e) (fun _ ↦ rfl)
-  · apply subsingleton
+    exact iso (ContinuousLinearEquiv.piCongrLeft R A e)
+  · infer_instance
   · case h_option X _ hind _ _ _ _ =>
     let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
-    refine @iso (ehomeo := Homeomorph.piCongrLeft e.symm)
-        (elinear := LinearEquiv.piCongrLeft R A e.symm)
-        (he := fun f ↦ rfl) _ _ _ _ _ ?_
-    apply @iso (ehomeo := (Homeomorph.sumPiEquivProdPi X Unit _).symm)
-        (elinear := (LinearEquiv.sumPiEquivProdPi R X Unit _).symm)
-        (he := fun f ↦ rfl) _ _ _ _ _ ?_
+    refine @iso (e := ContinuousLinearEquiv.piCongrLeft R A e.symm) _ _ _ _ _ ?_
+    refine @iso (e := (ContinuousLinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ _ _ _ _ ?_
     refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
     let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
-    exact iso (Homeomorph.pUnitPiEquiv (fun t ↦ A (φ t))).symm
-      (LinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm (fun a ↦ rfl)
+    exact iso (ContinuousLinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm
 
 end Pi
 
 section semiring_bilinear
 
--- I need commutativity because we don't have bilinear maps for non-commutative rings.
+-- I need rings not semirings here, because ` ChooseBasisIndex.fintype` incorrectly(?) needs
+-- a ring instead of a semiring. This should be fixed if I'm right.
+-- I also need commutativity because we don't have bilinear maps for non-commutative rings.
 -- **TODO** ask on the Zulip whether this is an issue.
 variable {R : Type*} [τR : TopologicalSpace R] [CommSemiring R]
 
@@ -429,8 +452,9 @@ theorem Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
   simp [Set.toFinite _]
 
 -- Probably this can be beefed up to semirings.
-theorem Module.continuous_bilinear_of_finite_free [TopologicalSemiring R] [Module.Finite R A] [Module.Free R A]
-    (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
+theorem Module.continuous_bilinear_of_finite_free [TopologicalSemiring R] [Module.Finite R A]
+    [Module.Free R A] (bil : A →ₗ[R] B →ₗ[R] C) :
+    Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
   let hι : Fintype ι := Module.Free.ChooseBasisIndex.fintype R A
   let b : Basis ι R A := Module.Free.chooseBasis R A
@@ -484,6 +508,12 @@ end ring_bilinear
 
 section semiring_algebra
 
+open scoped TensorProduct
+
+open DedekindDomain
+
+open scoped NumberField
+
 -- these shouldn't be rings, they should be semirings
 variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
 variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
@@ -495,13 +525,10 @@ open scoped TensorProduct
 theorem continuous_mul'
     (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
     (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
-    [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
-  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
-  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
-  convert Module.continuous_bilinear_of_finite_free <| LinearMap.mul R D
+    [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) :=
+  Module.continuous_bilinear_of_finite (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
--- this should be about top semirings
-def Module.topologicalSemiring : TopologicalSemiring D where
+def topologicalSemiring : TopologicalSemiring D where
   continuous_add := (isActionTopology_continuousAdd R D).1
   continuous_mul := continuous_mul' R D
 
@@ -516,15 +543,16 @@ variable [TopologicalSpace D] [IsActionTopology R D]
 
 open scoped TensorProduct
 
--- @[continuity, fun_prop]
--- lemma continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
---   letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
---   haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
---   convert Module.continuous_bilinear_of_finite <| LinearMap.mul R D
+include R in
+@[continuity, fun_prop]
+theorem continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
+  letI : TopologicalSpace (D ⊗[R] D) := actionTopology R _
+  haveI : IsActionTopology R (D ⊗[R] D) := { isActionTopology' := rfl }
+  convert Module.continuous_bilinear_of_finite <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
--- def Module.topologicalRing : TopologicalRing D where
---   continuous_add := (isActionTopology_continuousAdd R D).1
---   continuous_mul := continuous_mul' R D
---   continuous_neg := continuous_neg R D
+def Module.topologicalRing : TopologicalRing D where
+  continuous_add := (isActionTopology_continuousAdd R D).1
+  continuous_mul := continuous_mul R D
+  continuous_neg := continuous_neg R D
 
 end ring_algebra
