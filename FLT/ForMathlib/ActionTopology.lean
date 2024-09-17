@@ -369,7 +369,7 @@ section Pi
 
 variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
 
-variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
+variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommMonoid (A i)]
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsActionTopology R (A i)]
 
@@ -381,15 +381,17 @@ def ContinuousLinearEquiv.piCongrLeft (R : Type*) [Semiring R] {ι ι' : Type*}
   __ := Homeomorph.piCongrLeft e
   __ := LinearEquiv.piCongrLeft R φ e
 
+-- elsewhere
 def ContinuousLinearEquiv.sumPiEquivProdPi (R : Type*) [Semiring R] (S T : Type*)
-    (A : S ⊕ T → Type*) [∀ st, AddCommGroup (A st)] [∀ st, Module R (A st)]
+    (A : S ⊕ T → Type*) [∀ st, AddCommMonoid (A st)] [∀ st, Module R (A st)]
     [∀ st, TopologicalSpace (A st)] :
     ((st : S ⊕ T) → A st) ≃L[R] ((s : S) → A (Sum.inl s)) × ((t : T) → A (Sum.inr t)) where
   __ := LinearEquiv.sumPiEquivProdPi R S T A
   __ := Homeomorph.sumPiEquivProdPi S T A
 
+-- elsewhere
 def ContinuousLinearEquiv.pUnitPiEquiv (R : Type*) [Semiring R] (f : PUnit → Type*)
-    [∀ x, AddCommGroup (f x)] [∀ x, Module R (f x)] [∀ x, TopologicalSpace (f x)] :
+    [∀ x, AddCommMonoid (f x)] [∀ x, Module R (f x)] [∀ x, TopologicalSpace (f x)] :
     ((t : PUnit) → f t) ≃L[R] f () where
   __ := LinearEquiv.pUnitPiEquiv R f
   __ := Homeomorph.pUnitPiEquiv f
@@ -402,8 +404,7 @@ instance pi : IsActionTopology R (∀ i, A i) := by
   · case h_option X _ hind _ _ _ _ =>
     let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
     refine @iso (e := ContinuousLinearEquiv.piCongrLeft R A e.symm) _ _ _ _ _ ?_
-    apply @iso
-        (e := (ContinuousLinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ _ _ _ _ ?_
+    refine @iso (e := (ContinuousLinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ _ _ _ _ ?_
     refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
     let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
     exact iso (ContinuousLinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm
@@ -416,7 +417,7 @@ section semiring_bilinear
 -- a ring instead of a semiring. This should be fixed if I'm right.
 -- I also need commutativity because we don't have bilinear maps for non-commutative rings.
 -- **TODO** ask on the Zulip whether this is an issue.
-variable {R : Type*} [τR : TopologicalSpace R] [CommRing R]
+variable {R : Type*} [τR : TopologicalSpace R] [CommSemiring R]
 
 -- similarly these don't need to be groups
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
