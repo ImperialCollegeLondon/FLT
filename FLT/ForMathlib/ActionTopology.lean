@@ -238,7 +238,8 @@ section function
 
 variable {R : Type*} [τR : TopologicalSpace R] [Semiring R]
 variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B]
+    [ContinuousAdd B] [ContinuousSMul R B]
 
 /-- Every `R`-linear map between two `R`-modules with the canonical topology is continuous. -/
 @[fun_prop, continuity]
@@ -249,7 +250,7 @@ theorem continuous_of_distribMulActionHom (φ : A →+[R] B) : Continuous φ := 
   -- is given the topology induced from `φ`. Hence the action topology is finer than
   -- the induced topology, and so the function is continuous.
   rw [isActionTopology R A, continuous_iff_le_induced]
-  haveI : ContinuousAdd B := isActionTopology_continuousAdd R B
+  --haveI : ContinuousAdd B := isActionTopology_continuousAdd R B
   exact sInf_le <| ⟨induced_continuous_smul (φ.toMulActionHom) continuous_id,
     induced_continuous_add φ.toAddMonoidHom⟩
 
@@ -260,6 +261,7 @@ theorem continuous_of_linearMap (φ : A →ₗ[R] B) : Continuous φ :=
 variable (R) in
 theorem continuous_neg (C : Type*) [AddCommGroup C] [Module R C] [TopologicalSpace C]
     [IsActionTopology R C] : Continuous (fun a ↦ -a : C → C) :=
+  haveI : ContinuousAdd C := isActionTopology_continuousAdd R C
   continuous_of_linearMap (LinearEquiv.neg R).toLinearMap
 
 end function
@@ -267,13 +269,19 @@ end function
 section surjection
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
-variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
-variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsActionTopology R B]
+variable {A : Type*} [AddCommGroup A] [Module R A] --[aA : TopologicalSpace A] [IsActionTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] --[aB : TopologicalSpace B] [IsActionTopology R B]
 
 -- Here I need the lemma about how quotients are open so I do need groups
 -- because this relies on translates of an open being open
 theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
     TopologicalSpace.coinduced φ (actionTopology R A) = actionTopology R B := by
+  letI : TopologicalSpace A := actionTopology R A
+  letI τB : TopologicalSpace B := actionTopology R B
+  haveI : IsActionTopology R A := ⟨rfl⟩
+  haveI : ContinuousAdd A := isActionTopology_continuousAdd R A
+  haveI : IsActionTopology R B := ⟨rfl⟩
+  haveI : ContinuousAdd B := isActionTopology_continuousAdd R B
   have : Continuous φ := continuous_of_linearMap φ
   rw [continuous_iff_coinduced_le, isActionTopology R A, isActionTopology R B] at this
   apply le_antisymm this
@@ -288,7 +296,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
     rw [← Set.preimage_comp, show φ ∘ (fun p ↦ p.1 • p.2 : R × A → A) =
       (fun p ↦ p.1 • p.2 : R × B → B) ∘
       (Prod.map id ⇑φ.toAddMonoidHom) by ext; simp, Set.preimage_comp] at foo
-    clear! aB -- easiest to just remove topology on B completely now so typeclass inference
+    clear! τB -- easiest to just remove topology on B completely now so typeclass inference
     -- never sees it
     convert isOpenMap_of_coinduced (AddMonoidHom.prodMap (AddMonoidHom.id R) φ.toAddMonoidHom)
       (_) (_) (_) foo
@@ -312,7 +320,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
     rw [← Set.preimage_comp, show φ ∘ (fun p ↦ p.1 + p.2 : A × A → A) =
       (fun p ↦ p.1 + p.2 : B × B → B) ∘
       (Prod.map ⇑φ.toAddMonoidHom ⇑φ.toAddMonoidHom) by ext; simp, Set.preimage_comp] at bar
-    clear! aB -- easiest to just remove topology on B completely now
+    clear! τB -- easiest to just remove topology on B completely now
     convert isOpenMap_of_coinduced (AddMonoidHom.prodMap φ.toAddMonoidHom φ.toAddMonoidHom)
       (_) (_) (_) bar
     · aesop
@@ -320,7 +328,6 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
       · rw [continuous_iff_coinduced_le, isActionTopology R A]; rfl
     · rw [← isActionTopology R A]
       exact coinduced_prod_eq_prod_coinduced φ φ hφ hφ
-
 
 end surjection
 
@@ -347,13 +354,14 @@ instance prod : IsActionTopology R (M × N) := by
   obtain ⟨this⟩ : @ContinuousAdd (M × N) (actionTopology R (M × N)) _ :=
     ActionTopology.continuousAdd _ _
   refine @Continuous.comp _ ((M × N) × (M × N)) _ (_) (_) (_) _ _ this ?_
+  haveI : @ContinuousSMul R (M × N) _ _ (actionTopology R _) := continuousSMul R (M × N)
   refine (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2 ⟨?_, ?_⟩
   · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_ continuous_fst
     apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+    exact continuousAdd R (M × N)
   · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inr R M N)) ?_ continuous_snd
     apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (actionTopology _ _) (?_)
-    exact @IsActionTopology.mk _ _ _ _ _ (_) rfl
+    exact continuousAdd R (M × N)
 
 end prod
 
