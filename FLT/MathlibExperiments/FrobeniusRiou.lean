@@ -66,7 +66,7 @@ variable (P Q : Ideal B) [P.IsPrime] [Q.IsPrime]
 open scoped Pointwise
 
 private theorem norm_fixed (b : B) (g : G) : g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, σ • b := calc
-  g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, g • (σ • b) := smul_finprod _
+  g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, g • (σ • b) := smul_finprod' _
   _                     = ∏ᶠ σ : G, σ • b := finprod_eq_of_bijective (g • ·) (MulAction.bijective g)
                                                fun x ↦ smul_smul g x b
 
@@ -243,7 +243,7 @@ private theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rf
 
 private theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
   σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rw [F_spec]
-  _         = ∏ᶠ τ : G, σ • (X - C (τ • b)) := smul_finprod _
+  _         = ∏ᶠ τ : G, σ • (X - C (τ • b)) := smul_finprod' _
   _         = ∏ᶠ τ : G, (X - C ((σ * τ) • b)) := by simp [smul_sub, smul_smul]
   _         = ∏ᶠ τ' : G, (X - C (τ' • b)) := finprod_eq_of_bijective (fun τ ↦ σ * τ)
                                                (Group.mulLeft_bijective σ) (fun _ ↦ rfl)
