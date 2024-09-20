@@ -32,6 +32,8 @@ section missing_instances
 
 variable {R D A : Type*} [CommRing R] [Ring D] [CommRing A] [Algebra R D] [Algebra R A]
 
+#synth Algebra A (A ⊗[R] D)
+-- does this make a diamond?
 instance : Algebra A (D ⊗[R] A) :=
   Algebra.TensorProduct.includeRight.toRingHom.toAlgebra' (by
     simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.includeRight_apply]
@@ -52,6 +54,10 @@ instance [Module.Free R D]  : Module.Free A (D ⊗[R] A) := sorry
 
 end missing_instances
 -- your work
+instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := actionTopology (FiniteAdeleRing (𝓞 F) F) _
+instance : IsActionTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := ⟨rfl⟩
+instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
+  ActionTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 F) F) _--moobar (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
 instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := actionTopology (FiniteAdeleRing (𝓞 F) F) _
 instance : IsActionTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := ⟨rfl⟩
 instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := inferInstance--moobar (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
@@ -85,7 +91,7 @@ instance : CoeFun (AutomorphicForm F D M) (fun _ ↦ Dfx F D → M) where
 attribute [coe] AutomorphicForm.toFun
 
 @[ext]
-lemma ext (φ ψ : AutomorphicForm F D M) (h : ∀ x, φ x = ψ x) : φ = ψ := by
+theorem ext (φ ψ : AutomorphicForm F D M) (h : ∀ x, φ x = ψ x) : φ = ψ := by
   cases φ; cases ψ; simp only [mk.injEq]; ext; apply h
 
 def zero : (AutomorphicForm F D M) where
@@ -97,7 +103,7 @@ instance : Zero (AutomorphicForm F D M) where
   zero := zero
 
 @[simp]
-lemma zero_apply (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+theorem zero_apply (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (0 : AutomorphicForm F D M) x = 0 := rfl
 
 def neg (φ : AutomorphicForm F D M) : AutomorphicForm F D M where
@@ -115,7 +121,7 @@ instance : Neg (AutomorphicForm F D M) where
   neg := neg
 
 @[simp, norm_cast]
-lemma neg_apply (φ : AutomorphicForm F D M) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+theorem neg_apply (φ : AutomorphicForm F D M) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (-φ : AutomorphicForm F D M) x = -(φ x) := rfl
 
 instance add (φ ψ : AutomorphicForm F D M) : AutomorphicForm F D M where
@@ -139,7 +145,7 @@ instance : Add (AutomorphicForm F D M) where
   add := add
 
 @[simp, norm_cast]
-lemma add_apply (φ ψ : AutomorphicForm F D M) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+theorem add_apply (φ ψ : AutomorphicForm F D M) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (φ + ψ) x = (φ x) + (ψ x) := rfl
 
 instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
@@ -157,10 +163,10 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
 open ConjAct
 open scoped Pointwise
 
-lemma conjAct_mem {G: Type*}  [Group G] (U: Subgroup G) (g: G) (x : G):
+theorem conjAct_mem {G: Type*}  [Group G] (U: Subgroup G) (g: G) (x : G):
   x ∈ toConjAct g • U ↔ ∃ u ∈ U, g * u * g⁻¹ = x := by rfl
 
-lemma toConjAct_open {G : Type*} [Group G] [TopologicalSpace G] [TopologicalGroup G]
+theorem toConjAct_open {G : Type*} [Group G] [TopologicalSpace G] [TopologicalGroup G]
     (U : Subgroup G) (hU : IsOpen (U : Set G)) (g : G) : IsOpen (toConjAct g • U : Set G) := by
   have this1 := continuous_mul_left g⁻¹
   have this2 := continuous_mul_right g
@@ -199,7 +205,7 @@ instance : SMul (Dfx F D) (AutomorphicForm F D M) where
   }
 
 @[simp]
-lemma sMul_eval (g : Dfx F D) (f : AutomorphicForm F D M) (x : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
+theorem sMul_eval (g : Dfx F D) (f : AutomorphicForm F D M) (x : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
   (g • f) x = f (x * g) := rfl
 
 instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
