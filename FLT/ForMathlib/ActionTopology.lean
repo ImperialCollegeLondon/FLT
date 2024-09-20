@@ -523,10 +523,10 @@ open scoped TensorProduct
 
 @[continuity, fun_prop]
 theorem continuous_mul'
-    (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+    (R : Type*) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
     (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
-    [IsActionTopology R D]: Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) :=
-  Module.continuous_bilinear_of_finite (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
+    [IsActionTopology R D] : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) :=
+  Module.continuous_bilinear_of_finite (LinearMap.mul R D)
 
 def topologicalSemiring : TopologicalSemiring D where
   continuous_add := (isActionTopology_continuousAdd R D).1
@@ -536,7 +536,8 @@ end semiring_algebra
 
 section ring_algebra
 
--- these shouldn't be rings, they should be semirings
+-- confusion about whether these are rings or semirings should ideally be resolved
+-- Is it: for D finite free R can be a semiring but for D finite it has to be a ring?
 variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
 variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
 variable [TopologicalSpace D] [IsActionTopology R D]
