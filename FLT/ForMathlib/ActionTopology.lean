@@ -475,7 +475,6 @@ end semiring_bilinear
 
 section ring_bilinear
 
--- I have universe errors!
 variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalRing R]
 
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
