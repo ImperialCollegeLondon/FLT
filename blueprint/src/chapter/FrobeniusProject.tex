@@ -48,24 +48,44 @@ $L/K$ is normal and the maximal separable subextension is finite of degree at mo
 
 The goal of this project is to get this theorem into mathlib.
 
-\section{Analysis of the field extension $L/K$}
+\section{Integrality of $(B/Q)/(A/P)$.}
+
+The precise set-up we'll work in is the following. We fix $G$ a finite group acting
+on $B$ a commutative ring, and we have another commutative ring $A$ such
+that $B$ is an $A$-algebra and the image of $A$ in $B$ is precisely the $G$-invariant
+elements of $B$. We don't need the map $A\to B$ to be injective so we don't assume this.
 
 We start with a fundamental construction.
 
 \begin{definition}
-  \lean{MulSemiringAction.CharacteristicPolynomial}
-  \label{MulSemiringAction.CharacteristicPolynomial}
+  \lean{MulSemiringAction.CharacteristicPolynomial.F}
+  \label{MulSemiringAction.CharacteristicPolynomial.F}
   \leanok
   If $b\in B$ then define the \emph{characteristic polynomial}
   $F_b$ of $b$ to be $\prod_{g\in G}(X-g\cdot b)$.
 \end{definition}
 
-\subsection{API for $F_b$.}
+Note that $F_b$ is $G$-invariant, because acting by some $a\in G$
+just permutes the order of the factors. Hence we can descend $F_b$
+to a monic polynomial in $A[X]$. We will denote this polynomial by $M_b$
+and we'll also call it the characteristic polynomial of $b$, even though
+it's not even well-defined if the map $A\to B$ isn't injective.
 
-We record some properties of $F_b$. We assume that $B$ has a prime ideal, or
-equivalently that is nontrivial.
+\begin{definition}
+  \lean{MulSemiringAction.CharacteristicPolynomial.M}
+  \label{MulSemiringAction.CharacteristicPolynomial.M}
+  \leanok
+  $M_b$ in $A[X]$ is any monic degree $|G|$ polynomial whose
+  image in $B[X]$ is $F_b$.
+\end{definition}
 
-%\begin{lemma} If $B\not=0$ then $F_b$ has degree $n$.
+\subsection{API for $M_b$.}
+
+We record some properties of $F_b$. We assume throughout
+that $B$ is nontrivial (we will be assuming that it
+has a prime ideal $Q$ very soon)
+
+\begin{lemma} $F_b$ has degree $n$.
 %\begin{lemma} Every element of $B$ is a root of a monic
 %  polynomial of degree $|G|$ in $A[X]$.
 %\end{lemma}
