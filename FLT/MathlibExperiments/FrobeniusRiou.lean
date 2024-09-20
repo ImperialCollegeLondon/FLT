@@ -375,7 +375,7 @@ theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] 
   sorry
 
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
-theorem part_b1 : Algebra.IsAlgebraic K L := by
+theorem Pointwise.residueFieldExtension_algebraic : Algebra.IsAlgebraic K L := by
   /-
   Because of `IsFractionRing (B ⧸ Q) K` and the previous lemma it suffices to show that every
   element of B/Q is algebraic over k, and this is because you can lift to b ∈ B and then
@@ -385,7 +385,7 @@ theorem part_b1 : Algebra.IsAlgebraic K L := by
 
 
 
-theorem part_b2 : Normal K L := by
+theorem Pointwise.residueFieldExtension_normal : Normal K L := by
   /-
 
   See discussion at
