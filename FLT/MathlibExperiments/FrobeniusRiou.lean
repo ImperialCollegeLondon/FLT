@@ -70,6 +70,17 @@ variable {A : Type*} [CommRing A]
 
 open scoped Pointwise
 
+/-
+If you're happy to stick to finite G, it's just this:
+
+private theorem norm_fixed' (b : B) (g : G) [Finite G] : g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, σ • b := calc
+  g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, g • (σ • b) := smul_finprod _
+  _                     = ∏ᶠ σ : G, σ • b := finprod_eq_of_bijective (g • ·) (MulAction.bijective g)
+                                               fun x ↦ smul_smul g x b
+
+But the below proof works in general.
+-/
+
 private theorem norm_fixed (b : B) (g : G) : g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, σ • b := by
   obtain (hfin | hinf) := em <| Finite G
   · calc

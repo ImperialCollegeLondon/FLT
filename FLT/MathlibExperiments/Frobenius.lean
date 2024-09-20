@@ -488,7 +488,7 @@ theorem gal_smul_F_eq  (σ : L ≃ₐ[K] L) :
     ∏ τ : L ≃ₐ[K] L,
     (X - C (galRestrict A K L B σ
       (galRestrict A K L B τ α))):= by
-  simp [Finset.smul_prod, smul_sub, smul_X, smul_C, AlgEquiv.smul_def]
+  simp [Finset.smul_prod', smul_sub, smul_X, smul_C, AlgEquiv.smul_def]
 
 /-- use `Finset.prod_bij` to show
 `(galRestrict A K L B σ • (∏ τ : L ≃ₐ[K] L, (X - C (galRestrict A K L B τ α))) =
