@@ -120,10 +120,13 @@ variable {A : Type*} [CommRing A]
 
 
 variable (G) in
-/-- `F : B[X]` defined to be a product of linear factors `(X - τ • α)`; where
-`τ` runs over `L ≃ₐ[K] L`, and `α : B` is an element which generates `(B ⧸ Q)ˣ`
-and lies in `τ • Q` for all `τ ∉ (decomposition_subgroup_Ideal'  A K L B Q)`.-/
-private noncomputable abbrev F (b : B) : B[X] := ∏ᶠ τ : G, (X - C (τ • b))
+/-- The characteristic polynomial of an element `b` of a `G`-semiring `B`
+is the polynomial `∏_{g ∈ G} (X - g • b)` (here `G` is finite; junk
+returned in the infinite case) .-/
+noncomputable def MulSemiringAction.CharacteristicPolynomial (b : B) : B[X] :=
+  ∏ᶠ τ : G, (X - C (τ • b))
+
+private noncomputable abbrev F := @MulSemiringAction.CharacteristicPolynomial
 
 private theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
 
