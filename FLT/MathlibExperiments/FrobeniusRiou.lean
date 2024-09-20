@@ -50,9 +50,16 @@ Frob_P in G.
 -/
 
 
+variable {A : Type*} [CommRing A]
+  {B : Type*} [CommRing B] [Algebra A B] --[Algebra.IsIntegral A B]
+  {G : Type*} [Group G] [Finite G] [MulSemiringAction G B]
+
+
+
 open scoped algebraMap
 
---variable (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a)
+--variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a)
+--variable (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
 
 section misc
 
@@ -185,9 +192,9 @@ open scoped Pointwise
 -- (Part a of Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
 theorem part_a [SMulCommClass G A B]
     (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
-    (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
+    (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     ∃ g : G, Q = g • P := by
-  haveI : Algebra.IsIntegral A B := isIntegral_of_Full hFull
+  haveI : Algebra.IsIntegral A B := isIntegral_of_Full hFull'
   cases nonempty_fintype G
   suffices ∃ g : G, Q ≤ g • P by
     obtain ⟨g, hg⟩ := this
@@ -199,7 +206,7 @@ theorem part_a [SMulCommClass G A B]
       Algebra.isIntegral_def.1 inferInstance x).ne
     rw [← hPQ]
     ext x
-    specialize hFull (algebraMap A B x)
+    specialize hFull' (algebraMap A B x)
     have : ∀ (g : G), g • (algebraMap A B x) = (algebraMap A B x) := fun g ↦ by
       rw [Algebra.algebraMap_eq_smul_one, smul_comm, smul_one]
     simp only [Ideal.mem_comap]
@@ -210,8 +217,8 @@ theorem part_a [SMulCommClass G A B]
   rw [← Ideal.subset_union_prime 1 1 <| fun g _ _ _ ↦ ?_]; swap
   · exact Ideal.map_isPrime_of_equiv (MulSemiringAction.toRingEquiv _ _ g)
   intro x hx
-  specialize hFull (∏ᶠ σ : G, σ • x)
-  obtain ⟨a, ha⟩ := hFull (norm_fixed _)
+  specialize hFull' (∏ᶠ σ : G, σ • x)
+  obtain ⟨a, ha⟩ := hFull' (norm_fixed _)
   have : (a : B) ∈ Q := by
     rw [← ha, Ideal.IsPrime.finprod_mem_iff_exists_mem]
     use 1
@@ -343,6 +350,10 @@ example : --[Algebra A k] [IsScalarTower A (A ⧸ p) k] [Algebra k K] [IsScalarT
   rw [algebraMap_apply A (A ⧸ P) (B ⧸ Q)]
   rw [algebraMap_apply (A ⧸ P) (B ⧸ Q) L]
 
+open Polynomial BigOperators
+
+open scoped algebraMap
+
 theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
     [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
     (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
@@ -407,6 +418,7 @@ noncomputable def baz2 : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
   map_one' := sorry
   map_mul' := sorry
 
+variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) in
 theorem main_result : Function.Surjective
     (baz2 Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
   sorry
