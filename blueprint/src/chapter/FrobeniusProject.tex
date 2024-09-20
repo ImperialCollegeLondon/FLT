@@ -11,15 +11,15 @@ theorem, let us make a definition.
 \begin{definition}
   \label{Pointwise.stabilizer.toGaloisGroup}
   \lean{Pointwise.stabilizer.toGaloisGroup}
-  Let $G$ be a finite group acting on a commutative ring $B$, and let $A$
-  be the subring of $G$-invariants. Let $Q$ be a prime ideal of $B$, whose
+  Let $G$ be a finite group acting (via ring isomorphisms) on a commutative ring $B$,
+  and let $A$ be the subring of $G$-invariants. Let $Q$ be a prime ideal of $B$, whose
   pullback to $A$ is the prime ideal $P$. Let $L$ be the field of fractions
   of the integral domain $B/Q$, and let $K$ be the field of fractions
   of the subring $A/P$. Then $L$ is naturally a $K$-algebra.
 
   Now $G$ acts on $B$ so it acts on the ideals of $B$. Let $D_Q\subseteq G$ be the
-  stabilizer of $Q$. For $g\in D_Q$ we get an induced $A/P$-algebra isomorphism
-  of $B/Q$ which extends to a $K$-algebra automorphism $\phi_g$ of $L$.
+  stabilizer of $Q$. For $g\in D_Q$ the action of $g$ on $B$ gives us an induced
+  $A/P$-algebra isomorphism of $B/Q$ which extends to a $K$-algebra automorphism $\phi_g$ of $L$.
   This construction $g\mapsto \phi_g$ defines a group homomorphism from $D_Q$
   to $\Aut_K(L)$.
   \leanok
@@ -30,7 +30,7 @@ The theorem we want in this project is
   \label{MulAction.stabilizer_surjective_of_action}
   \lean{MulAction.stabilizer_surjective_of_action}
   \uses{Pointwise.stabilizer.toGaloisGroup}
-  The map $g\mapsto \phi_g$ defined above is surjective.
+  The map $g\mapsto \phi_g$ from $D_Q$ to $\Aut_K(L)$ defined above is surjective.
 \end{theorem}
 
 In particular, $\Aut_K(L)$ is finite, although we prove this along the way and not
@@ -47,3 +47,26 @@ infinite degree. What is true however is that $\Aut_K(L)$ is always finite, beca
 $L/K$ is normal and the maximal separable subextension is finite of degree at most $|G|$.
 
 The goal of this project is to get this theorem into mathlib.
+
+\section{Analysis of the field extension L/K}
+
+I get some weird LaTeX error if I write $L/K$ in the section title but
+this is what we're analysing. We start with a fundamental construction.
+
+\begin{definition}
+  \lean{F}
+  \label{F}
+  \leanok
+  If $b\in B$ then define the \emph{characteristic polynomial}
+  $F_b$ of $b$ to be $\prod_{g\in G}(X-g\cdot b)$.
+\end{definition}
+
+
+
+\begin{lemma} Every element of $B$ is a root of a monic
+  polynomial of degree $\leq |G|$ in $A[X]$.
+\end{lemma}
+\begin{proof} Define $F(X)=\prod_{g\in\G}(X-g\cdot b)$. This polynomial
+  is easily checked to be $G$-invariant
+\begin{proof}
+  \proves{MulAction.stabilizer_surjective_of_action}
