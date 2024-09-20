@@ -53,11 +53,13 @@ instance [Module.Free R D]  : Module.Free A (D ⊗[R] A) := sorry
 -- #synth Ring (D ⊗[F] FiniteAdeleRing (𝓞 F) F)
 
 end missing_instances
--- your work
+
 instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := actionTopology (FiniteAdeleRing (𝓞 F) F) _
 instance : IsActionTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := ⟨rfl⟩
 instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  ActionTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 F) F) _--moobar (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
+  -- this def would be a dangerous instance
+  -- (it can't guess R) but it's just a Prop so we can easily add it here
+  ActionTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 F) F) _
 
 namespace TotallyDefiniteQuaternionAlgebra
 

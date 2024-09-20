@@ -167,7 +167,7 @@ variable {A Q} in
 open Finset in
 lemma F.smul_eq_self (σ :  B ≃ₐ[A] B)  : σ • (F A Q) = F A Q := calc
   σ • F A Q = σ • ∏ τ : B ≃ₐ[A] B, (X - C (τ • (y A Q))) := by rw [F_spec]
-  _         = ∏ τ : B ≃ₐ[A] B, σ • (X - C (τ • (y A Q))) := smul_prod
+  _         = ∏ τ : B ≃ₐ[A] B, σ • (X - C (τ • (y A Q))) := smul_prod'
   _         = ∏ τ : B ≃ₐ[A] B, (X - C ((σ * τ) • (y A Q))) := by simp [smul_sub]
   _         = ∏ τ' : B ≃ₐ[A] B, (X - C (τ' • (y A Q))) := Fintype.prod_bijective (fun τ ↦ σ * τ)
                                                       (Group.mulLeft_bijective σ) _ _ (fun _ ↦ rfl)
