@@ -128,9 +128,9 @@ noncomputable def MulSemiringAction.CharacteristicPolynomial.F (b : B) : B[X] :=
 
 namespace MulSemiringAction.CharacteristicPolynomial
 
-private theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
+theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
 
-private theorem F_smul_eq_self [Finite G] (σ : G) (b : B) : σ • (F G b) = F G b := calc
+theorem F_smul_eq_self [Finite G] (σ : G) (b : B) : σ • (F G b) = F G b := calc
   σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rw [F_spec]
   _         = ∏ᶠ τ : G, σ • (X - C (τ • b)) := smul_finprod' _
   _         = ∏ᶠ τ : G, (X - C ((σ * τ) • b)) := by simp [smul_sub, smul_smul]
@@ -138,11 +138,16 @@ private theorem F_smul_eq_self [Finite G] (σ : G) (b : B) : σ • (F G b) = F 
                                                (Group.mulLeft_bijective σ) (fun _ ↦ rfl)
   _         = F G b := by rw [F_spec]
 
-private theorem F_eval_eq_zero [Finite G] (b : B) : (F G b).eval b = 0 := by
+theorem F_eval_eq_zero [Finite G] (b : B) : (F G b).eval b = 0 := by
   let foo := Fintype.ofFinite G
   simp [F_spec,finprod_eq_prod_of_fintype,eval_prod]
   apply @Finset.prod_eq_zero _ _ _ _ _ (1 : G) (Finset.mem_univ 1)
   simp
+
+private theorem F_coeff_fixed [Finite G] (b : B) (n : ℕ) (g : G) :
+    g • (F G b).coeff n = (F G b).coeff n := by
+  change (g • (F G b)).coeff n = _
+  rw [F_smul_eq_self]
 
 open scoped algebraMap
 
@@ -153,36 +158,53 @@ noncomputable local instance : Algebra A[X] B[X] :=
 theorem _root_.coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
   map_monomial _
 
-private theorem descent [Finite G]
-    (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) (b : B) :
-    ∃ M : A[X], (M : B[X]) = F G b := by
-  choose f hf using fun b ↦ (hFull b)
-  classical
-  let f' : B → A := fun b ↦ if h : ∀ σ : G, σ • b = b then f b h else 37
-  use (∑ x ∈ (F G b).support, (monomial x) (f' ((F G b).coeff x)))
+section full_descent
+
+variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
+
+/-- This "splitting" function from B to A will only ever be evaluated on
+G-invariant elements of B, and the two key facts about it are
+that it lifts such an element to `A`, and for reasons of
+convenience it lifts `1` to `1`. -/
+noncomputable def splitting_of_full
+    (b : B) : A := by classical
+  exact
+  if b = 1 then 1 else
+    if h : ∀ σ : G, σ • b = b then (hFull b h).choose
+    else 37
+
+theorem splitting_of_full_spec {b : B} (hb : ∀ σ : G, σ • b = b) :
+    splitting_of_full hFull b = b := by
+  unfold splitting_of_full
+  split_ifs with h1
+  · rw_mod_cast [h1]
+  · exact (hFull b hb).choose_spec.symm
+
+theorem splitting_of_full_one : splitting_of_full hFull 1 = 1 := by
+  unfold splitting_of_full
+  rw [if_pos rfl]
+
+variable [Finite G]
+
+noncomputable def M (b : B) : A[X] :=
+  (∑ x ∈ (F G b).support, (monomial x) (splitting_of_full hFull ((F G b).coeff x)))
+
+theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
+  unfold M
   ext N
   push_cast
+  simp_rw [splitting_of_full_spec hFull <| F_coeff_fixed b _]
   simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
-  simp only [Finset.sum_ite_eq', mem_support_iff, ne_eq, ite_not, f']
-  symm
-  split
-  · next h => exact h
-  · next h1 =>
-    rw [dif_pos <| fun σ ↦ ?_]
-    · refine hf ?_ ?_
-    · nth_rw 2 [← F_smul_eq_self σ]
-      rfl
+  aesop
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) [Finite G]
-variable (G) in
-noncomputable def M [Finite G] (b : B) : A[X] := (descent hFull b).choose
 
-theorem M_spec (b : B) : ((M G hFull b : A[X]) : B[X]) = F G b := (descent hFull b).choose_spec
+theorem M_monic (b : B) : (M hFull b).Monic := sorry -- finprodmonic
 
-theorem M_monic (b : B) : (M G hFull b).Monic := sorry -- finprodmonic
-
-theorem M_eval_eq_zero (b : B) : (M G hFull b).eval₂ (algebraMap A B) b = 0 := by
+theorem M_eval_eq_zero (b : B) : (M hFull b).eval₂ (algebraMap A B) b = 0 := by
   sorry -- follows from `F_eval_eq_zero`
+
+end full_descent
 
 end MulSemiringAction.CharacteristicPolynomial
 
@@ -198,7 +220,7 @@ variable {A : Type*} [CommRing A]
 
 theorem isIntegral_of_Full (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     Algebra.IsIntegral A B where
-  isIntegral b := ⟨M G hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
+  isIntegral b := ⟨M hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
 
 variable (P Q : Ideal B) [P.IsPrime] [Q.IsPrime]
   --
