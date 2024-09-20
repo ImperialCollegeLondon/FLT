@@ -123,10 +123,10 @@ variable (G) in
 /-- The characteristic polynomial of an element `b` of a `G`-semiring `B`
 is the polynomial `∏_{g ∈ G} (X - g • b)` (here `G` is finite; junk
 returned in the infinite case) .-/
-noncomputable def MulSemiringAction.CharacteristicPolynomial (b : B) : B[X] :=
+noncomputable def MulSemiringAction.CharacteristicPolynomial.F (b : B) : B[X] :=
   ∏ᶠ τ : G, (X - C (τ • b))
 
-private noncomputable abbrev F := @MulSemiringAction.CharacteristicPolynomial
+namespace MulSemiringAction.CharacteristicPolynomial
 
 private theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
 
@@ -150,10 +150,10 @@ noncomputable local instance : Algebra A[X] B[X] :=
   RingHom.toAlgebra (Polynomial.mapRingHom (Algebra.toRingHom))
 
 @[simp, norm_cast]
-theorem coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
+theorem _root_.coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
   map_monomial _
 
-private theorem F_descent [Finite G]
+private theorem descent [Finite G]
     (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) (b : B) :
     ∃ M : A[X], (M : B[X]) = F G b := by
   choose f hf using fun b ↦ (hFull b)
@@ -175,18 +175,22 @@ private theorem F_descent [Finite G]
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) [Finite G]
 variable (G) in
-noncomputable def M [Finite G] (b : B) : A[X] := (F_descent hFull b).choose
+noncomputable def M [Finite G] (b : B) : A[X] := (descent hFull b).choose
 
-theorem M_spec (b : B) : ((M G hFull b : A[X]) : B[X]) = F G b := (F_descent hFull b).choose_spec
+theorem M_spec (b : B) : ((M G hFull b : A[X]) : B[X]) = F G b := (descent hFull b).choose_spec
 
 theorem M_monic (b : B) : (M G hFull b).Monic := sorry -- finprodmonic
 
 theorem M_eval_eq_zero (b : B) : (M G hFull b).eval₂ (algebraMap A B) b = 0 := by
   sorry -- follows from `F_eval_eq_zero`
 
+end MulSemiringAction.CharacteristicPolynomial
+
 end charpoly
 
 section part_a
+
+open MulSemiringAction.CharacteristicPolynomial
 
 variable {A : Type*} [CommRing A]
   {B : Type*} [CommRing B] [Algebra A B]
