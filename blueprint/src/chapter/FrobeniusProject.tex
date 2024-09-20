@@ -48,10 +48,9 @@ $L/K$ is normal and the maximal separable subextension is finite of degree at mo
 
 The goal of this project is to get this theorem into mathlib.
 
-\section{Analysis of the field extension L/K}
+\section{Analysis of the field extension $L/K$}
 
-I get some weird LaTeX error if I write $L/K$ in the section title but
-this is what we're analysing. We start with a fundamental construction.
+We start with a fundamental construction.
 
 \begin{definition}
   \lean{F}
@@ -61,12 +60,16 @@ this is what we're analysing. We start with a fundamental construction.
   $F_b$ of $b$ to be $\prod_{g\in G}(X-g\cdot b)$.
 \end{definition}
 
+\subsection{API for $F_b$.}
 
+We record some properties of $F_b$. We assume that $B$ has a prime ideal, or
+equivalently that is nontrivial.
 
-\begin{lemma} Every element of $B$ is a root of a monic
-  polynomial of degree $\leq |G|$ in $A[X]$.
-\end{lemma}
-\begin{proof} Define $F(X)=\prod_{g\in\G}(X-g\cdot b)$. This polynomial
-  is easily checked to be $G$-invariant
-\begin{proof}
-  \proves{MulAction.stabilizer_surjective_of_action}
+%\begin{lemma} If $B\not=0$ then $F_b$ has degree $n$.
+%\begin{lemma} Every element of $B$ is a root of a monic
+%  polynomial of degree $|G|$ in $A[X]$.
+%\end{lemma}
+%\begin{proof} Define $F(X)=\prod_{g\in G}(X-g\cdot b)$. This polynomial
+%  is easily checked to be $G$-invariant
+%\begin{proof}
+%  \proves{MulAction.stabilizer_surjective_of_action}
