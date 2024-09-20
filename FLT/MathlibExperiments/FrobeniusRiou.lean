@@ -408,30 +408,32 @@ open scoped Pointwise
 -- the residual Galois group `L ≃ₐ[K] L`, where L=Frac(B/Q) and K=Frac(A/P).
 -- Hopefully sorrys aren't too hard
 
-def foo (g : G) (hg : g • Q = Q) : B ⧸ Q ≃+* B ⧸ Q :=
-  Ideal.quotientEquiv Q Q (MulSemiringAction.toRingEquiv G B g) hg.symm
+def Pointwise.quotientRingAction (Q' : Ideal B) (g : G) (hg : g • Q = Q') :
+    B ⧸ Q ≃+* B ⧸ Q' :=
+  Ideal.quotientEquiv Q Q' (MulSemiringAction.toRingEquiv G B g) hg.symm
 
-def bar (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
-  __ := foo Q g hg
+def Pointwise.quotientAlgebraAction (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
+  __ := quotientRingAction Q Q g hg
   commutes' := sorry
 
-def baz : MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
-  toFun gh := bar Q P gh.1 gh.2
+def Pointwise.quotientAlgebraActionMonoidHom :
+    MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
+  toFun gh := quotientAlgebraAction Q P gh.1 gh.2
   map_one' := sorry
   map_mul' := sorry
 
-noncomputable def bar2 (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
+noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
   __ := IsFractionRing.fieldEquivOfRingEquiv e.toRingEquiv
   commutes' := sorry
 
-noncomputable def baz2 : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
-  toFun gh := bar2 Q P L K (baz Q P gh)
+noncomputable def Pointwise.stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
+  toFun gh := IsFractionRing.algEquiv_lift Q P L K (Pointwise.quotientAlgebraActionMonoidHom Q P gh)
   map_one' := sorry
   map_mul' := sorry
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) in
-theorem main_result : Function.Surjective
-    (baz2 Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
+theorem MulAction.stabilizer_surjective_of_action : Function.Surjective
+    (Pointwise.stabilizer.toGaloisGroup Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
   sorry
 
 section localization
