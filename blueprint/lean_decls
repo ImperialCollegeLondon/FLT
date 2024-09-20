@@ -59,3 +59,5 @@ AutomorphicForm.GLn.IsSmooth
 AutomorphicForm.GLn.IsSlowlyIncreasing
 AutomorphicForm.GLn.Weight
 AutomorphicForm.GLn.AutomorphicFormForGLnOverQ
+Pointwise.stabilizer.toGaloisGroup
+MulAction.stabilizer_surjective_of_action
