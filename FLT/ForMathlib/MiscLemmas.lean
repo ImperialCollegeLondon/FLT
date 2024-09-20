@@ -60,30 +60,6 @@ theorem coinduced_prod_eq_prod_coinduced {X Y S T : Type*} [AddCommGroup X] [Add
 
 end elsewhere
 
-section missing_API
-
-variable {R : Type*} [Semiring R] {P : Type*} [AddCommMonoid P] [Module R P]
-
-namespace Module
-
--- the below is all done for rings but it should be semirings
-/-- Free modules are projective. -/
-theorem Projective.of_basis' {ι : Type*} (b : Basis ι R P) : Projective R P := by
-  -- need P →ₗ (P →₀ R) for definition of projective.
-  -- get it from `ι → (P →₀ R)` coming from `b`.
-  use b.constr ℕ fun i => Finsupp.single (b i) (1 : R)
-  intro m
-  simp only [b.constr_apply, mul_one, id, Finsupp.smul_single', Finsupp.linearCombination_single,
-    map_finsupp_sum]
-  exact b.linearCombination_repr m
-
-instance (priority := 100) Projective.of_free' [Module.Free R P] : Module.Projective R P :=
-  .of_basis' <| Module.Free.chooseBasis R P
-
-end Module
-
-end missing_API
-
 theorem TopologicalSpace.prod_mono {α β : Type*} {σ₁ σ₂ : TopologicalSpace α}
     {τ₁ τ₂ : TopologicalSpace β} (hσ : σ₁ ≤ σ₂) (hτ : τ₁ ≤ τ₂) :
     @instTopologicalSpaceProd α β σ₁ τ₁ ≤ @instTopologicalSpaceProd α β σ₂ τ₂ :=
