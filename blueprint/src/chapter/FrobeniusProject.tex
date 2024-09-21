@@ -57,7 +57,15 @@ the local and global field setting, as $\Aut_K(L)$ is just a Galois group of fin
 in these cases, so by surjectivity we can lift a Frobenius element.
 
 Even though $G$ is finite, it is possible in this generality for the extension $L/K$ to be infinite!
-An example in the exercises in Bourbaki (exercise 9 of number 2 above):
+What is true however is that $\Aut_K(L)$ is always finite. Indeed we shall
+see that $L/K$ is normal, and its maximal separable subextension is finite of degree
+at most $|G|$.
+
+\subsection{A pathology}
+
+This example doesn't need to be formalised and can be omitted on first reading.
+
+The example is from the exercises in Bourbaki (exercise 9 of number 2 above):
 $B=\mathbb{F}_2[X_0,X_1,X_2,\ldots]$
 is a polynomial ring in infinitely many variables and $G$ is cyclic of order 2 with
 the generator acting on $B$ via $X_{2n}\mapsto X_{2n}+X_{2n+1}$ and $X_{2n+1}\mapsto X_{2n+1}$.
@@ -66,9 +74,18 @@ infinite degree; the generator swaps $X_{2n}$ and $X_{2n}+X_{2n+1}$, so it fixes
 their product $a\in A$, which becomes $X_{2n}^2$ modulo $Q$, so all
 of the $X_{2i}$ will be algebraically independent in $L/K$ and $X_{2i}^2\in K$.
 
-What is true however is that $\Aut_K(L)$ is always finite. Indeed we shall
-see that $L/K$ is normal, and its maximal separable subextension is finite of degree
-at most $|G|$.
+Perhaps a less intimidating way of understanding this example would be by first
+considering the case $B=\mathbb{F}_2[X_0,X_1]$ with the involution
+fixing $X_1$ and switching $X_0$, $X_0+X_1$. Then
+$A=\mathbb{F}_2[X_0^2+X_0X_1,X_1]$ (this needs checking!) and
+$B/A$ is free of rank 2 with basis $\{1,X_0\}$ (I think) (I don't know if
+we need this, it's just my mental model).
+Now we let $Q=(X_1)$ so $P=(X_1)$ and the quotient $(B/Q)/(A/P)$ is
+$\mathbb{F}_2[X_0]/\mathbb{F}_2[X_0^2]$, and the corresponding extension
+of the fields of fractions of these integral domains is a radical extension of degree 2.
+We now argue that this construction behaves well with respect to tensor
+products over $\mathbb{F}_2$ and filtered colimits, and if all that works
+out then we have our example directly.
 
 \section{The extension $B/A$.}
 
@@ -77,21 +94,22 @@ on $B$ a commutative ring, and we have another commutative ring $A$ such
 that $B$ is an $A$-algebra and the image of $A$ in $B$ is precisely the $G$-invariant
 elements of $B$. We don't ever need the map $A\to B$ to be injective so we don't assume this.
 
-We start with a fundamental construction.
+We start with a construction which is fundamental to everything,
+and which explains why we need $G$ to be finite.
 
 \begin{definition}
   \lean{MulSemiringAction.CharacteristicPolynomial.F}
   \label{MulSemiringAction.CharacteristicPolynomial.F}
   \leanok
   If $b\in B$ then define the \emph{characteristic polynomial}
-  $F_b$ of $b$ to be $\prod_{g\in G}(X-g\cdot b)$.
+  $F_b(X) \in B[X]$ of $b$ to be $\prod_{g\in G}(X-g\cdot b)$.
 \end{definition}
 
 Clearly $F_b$ is a monic polynomial of degree $|G|$. Note also
-that $F_b$ is $G$-invariant, because acting by some $a\in G$
+that $F_b$ is $G$-invariant, because acting by some $\gamma\in G$
 just permutes the order of the factors. Hence we can descend $F_b$
-to a monic polynomial $M_b$ of degree $|G|$ in $A[X]$. We will
-also call it the characteristic polynomial of $b$, even though
+to a monic polynomial $M_b(X)$ of degree $|G|$ in $A[X]$. We will
+also refer to $M_b$ as the characteristic polynomial of $b$, even though
 it's not even well-defined if the map $A\to B$ isn't injective.
 
 \begin{definition}
@@ -103,26 +121,37 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 \end{definition}
 
 \begin{lemma}
+  \label{MulSemiringAction.CharacteristicPolynomial.M_eval_eq_zero}
+  \lean{MulSemiringAction.CharacteristicPolynomial.M_eval_eq_zero}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M}
   $M_b$ has $b$ as a root.
 \end{lemma}
-\begin{proof} Exercise.
+\begin{proof} Follows from the fact that $F_b$ has $b$ as a root.
 \end{proof}
 \begin{lemma}
+  \label{MulSemiringAction.CharacteristicPolynomial.M_deg}
+  \lean{MulSemiringAction.CharacteristicPolynomial.M_deg}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M}
   $M_b$ has degree $n$.
 \end{lemma}
 \begin{proof} Exercise.
 \end{proof}
-\begin{lemma} $M_b$ is monic.
+\begin{lemma}
+  \lean{MulSemiringAction.CharacteristicPolynomial.M_monic}
+  \label{MulSemiringAction.CharacteristicPolynomial.M_monic}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M}
+  $M_b$ is monic.
 \end{lemma}
 \begin{proof}
   Exercise.
 \end{proof}
-\begin{lemma} $M_b$ splits completely in $B$
-\end{lemma}
-\begin{proof} Exercise.
-\end{proof}
 
-\begin{theorem} $B/A$ is integral.
+\begin{theorem}
+  \lean{MulSemiringAction.CharacteristicPolynomial.isIntegral}
+  \label{MulSemiringAction.CharacteristicPolynomial.isIntegral}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M,
+    MulSemiringAction.CharacteristicPolynomial.M_monic}
+  $B/A$ is integral.
 \end{theorem}
 \begin{proof} Use $M_b$.
 \end{proof}

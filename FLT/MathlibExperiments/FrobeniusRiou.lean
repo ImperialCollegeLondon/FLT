@@ -130,7 +130,26 @@ namespace MulSemiringAction.CharacteristicPolynomial
 
 theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
 
-theorem F_smul_eq_self [Finite G] (σ : G) (b : B) : σ • (F G b) = F G b := calc
+section F_API
+
+variable [Finite G]
+
+theorem F_monic (b : B) : (F G b).Monic := by
+  rw [F_spec]
+  sorry -- finprodmonic
+
+variable (G) in
+theorem F_degree (b : B) [Nontrivial B] : (F G b).degree = Nat.card G := by
+  unfold F
+  -- need (∏ᶠ fᵢ).degree = ∑ᶠ (fᵢ.degree)
+  -- then it should be easy
+  sorry
+
+theorem F_natdegree (b : B) [Nontrivial B] : (F G b).natDegree = Nat.card G := by
+  rw [← degree_eq_iff_natDegree_eq_of_pos Nat.card_pos]
+  exact F_degree G b
+
+theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
   σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rw [F_spec]
   _         = ∏ᶠ τ : G, σ • (X - C (τ • b)) := smul_finprod' _
   _         = ∏ᶠ τ : G, (X - C ((σ * τ) • b)) := by simp [smul_sub, smul_smul]
@@ -138,16 +157,18 @@ theorem F_smul_eq_self [Finite G] (σ : G) (b : B) : σ • (F G b) = F G b := c
                                                (Group.mulLeft_bijective σ) (fun _ ↦ rfl)
   _         = F G b := by rw [F_spec]
 
-theorem F_eval_eq_zero [Finite G] (b : B) : (F G b).eval b = 0 := by
+theorem F_eval_eq_zero (b : B) : (F G b).eval b = 0 := by
   let foo := Fintype.ofFinite G
   simp [F_spec,finprod_eq_prod_of_fintype,eval_prod]
   apply @Finset.prod_eq_zero _ _ _ _ _ (1 : G) (Finset.mem_univ 1)
   simp
 
-private theorem F_coeff_fixed [Finite G] (b : B) (n : ℕ) (g : G) :
+private theorem F_coeff_fixed (b : B) (n : ℕ) (g : G) :
     g • (F G b).coeff n = (F G b).coeff n := by
   change (g • (F G b)).coeff n = _
   rw [F_smul_eq_self]
+
+end F_API
 
 open scoped algebraMap
 
@@ -184,10 +205,60 @@ theorem splitting_of_full_one : splitting_of_full hFull 1 = 1 := by
   unfold splitting_of_full
   rw [if_pos rfl]
 
-variable [Finite G]
-
 noncomputable def M (b : B) : A[X] :=
-  (∑ x ∈ (F G b).support, (monomial x) (splitting_of_full hFull ((F G b).coeff x)))
+  (∑ x ∈ (F G b).support, monomial x (splitting_of_full hFull ((F G b).coeff x)))
+
+theorem M_deg_le (b : B) : (M hFull b).degree ≤ (F G b).degree := by
+  unfold M
+  have := Polynomial.degree_sum_le (F G b).support (fun x => monomial x (splitting_of_full hFull ((F G b).coeff x)))
+  refine le_trans this ?_
+  rw [Finset.sup_le_iff]
+  intro n hn
+  apply le_trans (degree_monomial_le n _) ?_
+  exact le_degree_of_mem_supp n hn
+
+variable [Nontrivial B] [Finite G]
+
+theorem M_coeff_card (b : B) :
+    (M hFull b).coeff (Nat.card G) = 1 := by
+  unfold M
+  simp only [finset_sum_coeff]
+  have hdeg := F_degree G b
+  rw [degree_eq_iff_natDegree_eq_of_pos Nat.card_pos] at hdeg
+  rw [ ← hdeg]
+  rw [Finset.sum_eq_single_of_mem ((F G b).natDegree)]
+  · have : (F G b).Monic := F_monic b
+    simp
+    simp_all [splitting_of_full_one]
+  · refine natDegree_mem_support_of_nonzero ?h.H
+    intro h
+    rw [h] at hdeg
+    have : 0 < Nat.card G := Nat.card_pos
+    simp_all
+  · intro d _ hd
+    exact coeff_monomial_of_ne (splitting_of_full hFull ((F G b).coeff d)) hd
+
+theorem M_deg_eq_F_deg (b : B) : (M hFull b).degree = (F G b).degree := by
+  apply le_antisymm (M_deg_le hFull b)
+  -- hopefully not too hard from previous two lemmas
+  sorry
+
+theorem M_deg (b : B) : (M hFull b).degree = Nat.card G := by
+  rw [M_deg_eq_F_deg hFull b]
+  exact F_degree G b
+
+theorem M_monic (b : B) : (M hFull b).Monic := by
+  have this1 := M_deg_le hFull b
+  have this2 := M_coeff_card hFull b
+  have this3 : 0 < Nat.card G := Nat.card_pos
+  rw [← F_natdegree b] at this2 this3
+  -- then the hypos say deg(M)<=n, coefficient of X^n is 1 in M
+  have this4 : (M hFull b).natDegree ≤ (F G b).natDegree := natDegree_le_natDegree this1
+  clear this1
+  -- Now it's just a logic puzzle. If deg(F)=n>0 then we
+  -- know deg(M)<=n and the coefficient of X^n is 1 in M
+  sorry
+
 
 theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
   unfold M
@@ -197,12 +268,16 @@ theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
   simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
   aesop
 
-variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) [Finite G]
 
-theorem M_monic (b : B) : (M hFull b).Monic := sorry -- finprodmonic
+
+variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
 
 theorem M_eval_eq_zero (b : B) : (M hFull b).eval₂ (algebraMap A B) b = 0 := by
   sorry -- follows from `F_eval_eq_zero`
+
+include hFull in
+theorem isIntegral : Algebra.IsIntegral A B where
+  isIntegral b := ⟨M hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
 
 end full_descent
 
@@ -218,7 +293,7 @@ variable {A : Type*} [CommRing A]
   {B : Type*} [CommRing B] [Algebra A B]
   {G : Type*} [Group G] [Finite G] [MulSemiringAction G B]
 
-theorem isIntegral_of_Full (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
+theorem isIntegral_of_Full [Nontrivial B] (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     Algebra.IsIntegral A B where
   isIntegral b := ⟨M hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
 
@@ -229,11 +304,27 @@ variable (P Q : Ideal B) [P.IsPrime] [Q.IsPrime]
 -- Algebra.IsIntegral A B
 open scoped Pointwise
 
+instance (R : Type*) [Semiring R] [Subsingleton R] :
+    Subsingleton (Ideal R) := ⟨fun _ _ => Subsingleton.elim _ _⟩
+
+theorem Nontrivial_of_exists_prime {R : Type*} [CommRing R]
+    (h : ∃ P : Ideal R, P.IsPrime) : Nontrivial R := by
+  contrapose! h
+  intro P hP
+  rw [@not_nontrivial_iff_subsingleton] at h
+  obtain ⟨h, _⟩ := hP
+  apply h
+  apply Subsingleton.elim
+
+
+
+
 -- (Part a of Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
 theorem part_a [SMulCommClass G A B]
     (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
     (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     ∃ g : G, Q = g • P := by
+  haveI : Nontrivial B := Nontrivial_of_exists_prime ⟨Q, inferInstance⟩
   haveI : Algebra.IsIntegral A B := isIntegral_of_Full hFull'
   cases nonempty_fintype G
   suffices ∃ g : G, Q ≤ g • P by
