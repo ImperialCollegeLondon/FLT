@@ -298,14 +298,9 @@ theorem isIntegral_of_Full [Nontrivial B] (hFull : ∀ (b : B), (∀ (g : G), g 
   isIntegral b := ⟨M hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
 
 variable (P Q : Ideal B) [P.IsPrime] [Q.IsPrime]
-  --
   (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
 
--- Algebra.IsIntegral A B
 open scoped Pointwise
-
-instance (R : Type*) [Semiring R] [Subsingleton R] :
-    Subsingleton (Ideal R) := ⟨fun _ _ => Subsingleton.elim _ _⟩
 
 theorem Nontrivial_of_exists_prime {R : Type*} [CommRing R]
     (h : ∃ P : Ideal R, P.IsPrime) : Nontrivial R := by
@@ -315,9 +310,6 @@ theorem Nontrivial_of_exists_prime {R : Type*} [CommRing R]
   obtain ⟨h, _⟩ := hP
   apply h
   apply Subsingleton.elim
-
-
-
 
 -- (Part a of Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
 theorem part_a [SMulCommClass G A B]
@@ -367,6 +359,8 @@ theorem part_a [SMulCommClass G A B]
 end part_a
 
 -- section normal_elements
+-- I'm going to avoid this because I'm just going to use scaling.
+-- I'll show that every nonzero element of B/Q divides an element of A/P.
 
 -- variable (K : Type*) [Field K] {L : Type*} [Field L] [Algebra K L]
 
@@ -412,39 +406,64 @@ end part_a
 
 section part_b
 
-
-
 variable {A : Type*} [CommRing A]
   {B : Type*} [CommRing B] [Algebra A B]
   {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] [SMulCommClass G A B]
 
--- set-up for part (b) of the lemma. G acts on B with invariants A (or more precisely the
--- image of A). Warning: `P` was a prime ideal of `B` in part (a) but it's a prime ideal
--- of `A` here, in fact it's Q ∩ A, the preimage of Q in A.
-
 /-
-All I want to say is:
+Set-up for part (b) of the lemma. G acts on B with invariants A (or more precisely the
+image of A). Warning: `P` was a prime ideal of `B` in part (a) but it's a prime ideal
+of `A` here, in fact it's `Q ∩ A`, the preimage of `Q` in `A`.
+
+We want to consider the following commutative diagram.
 
 B ---> B / Q -----> L = Frac(B/Q)
-/\       /\        /\
-|        |         |
-|        |         |
+/\       /\         /\
+|        |          |
+|        |          |
 A ---> A / P ----> K = Frac(A/P)
 
+We will get to L, K, and the second square later.
+First let's explain how to do P and Q.
 -/
 variable (Q : Ideal B) [Q.IsPrime] (P : Ideal A) [P.IsPrime]
---#synth Algebra A (B ⧸ Q) #exit -- works
---#synth IsScalarTower A B (B ⧸ Q) #exit-- works
+-- #synth Algebra A (B ⧸ Q) #exit -- works
+---synth IsScalarTower A B (B ⧸ Q) #exit-- works
 -- (hPQ : Ideal.comap (algebraMap A B) P = p) -- we will *prove* this from the
 -- commutativity of the diagram! This is a trick I learnt from Jou who apparently
 -- learnt it from Amelia
   [Algebra (A ⧸ P) (B ⧸ Q)] [IsScalarTower A (A ⧸ P) (B ⧸ Q)]
 -- So now we know the left square commutes.
--- Amelia's trick: commutativity of this diagram implies P ⊇ Q ∩ A
+-- Amelia's first trick: commutativity of th LH diagram implies `P ⊆ Q ∩ A`
+-- For the map `A -> A/P -> B/Q` must equal the map `A -> B -> B/Q` so `P` must
+-- be a subset of the kernel of `A → B/Q`, which is `A ∩ Q`
+
+omit [P.IsPrime] in
+theorem Ideal.Quotient.eq_zero_iff_mem' (x : A) :
+    algebraMap A (A ⧸ P) x = 0 ↔ x ∈ P :=
+  Ideal.Quotient.eq_zero_iff_mem
+
+section B_mod_Q_over_A_mod_P_stuff
+
+namespace MulSemiringAction.CharacteristicPolynomial
+
+example : Function.Surjective (Ideal.Quotient.mk Q) := Ideal.Quotient.mk_surjective
+
+open Polynomial in
+noncomputable def Mbar
+    (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
+    (bbar : B ⧸ Q) : (A ⧸ P)[X] :=
+  Polynomial.map (Ideal.Quotient.mk P) <| M hFull' <|
+    (Ideal.Quotient.mk_surjective bbar).choose
+
+end MulSemiringAction.CharacteristicPolynomial
+
+end B_mod_Q_over_A_mod_P_stuff
+
 -- And the fact that K and L are fields implies A / P -> B / Q is injective
 -- and thus P = Q ∩ A
 -- Let's now make the right square. First `L`
-  (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
+variable  (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
   -- Now top left triangle: A / P → B / Q → L commutes
   [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
   -- now introduce K
@@ -460,10 +479,7 @@ variable (Q : Ideal B) [Q.IsPrime] (P : Ideal A) [P.IsPrime]
 --  [Algebra B L] [IsScalarTower B (B ⧸ Q) L]
 
 -- version of Ideal.Quotient.eq_zero_iff_mem with algebraMap
-omit [P.IsPrime] in
-theorem Ideal.Quotient.eq_zero_iff_mem' (x : A) :
-    algebraMap A (A ⧸ P) x = 0 ↔ x ∈ P :=
-  Ideal.Quotient.eq_zero_iff_mem
+
 
 -- not sure if we need this but let's prove it just to check our setup is OK
 open IsScalarTower in
@@ -485,14 +501,15 @@ open Polynomial BigOperators
 
 open scoped algebraMap
 
-theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
-    [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
-    (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
-  -- ratio of two algebraic numbers is algebraic (follows from product of alg numbers is
-  -- alg, which we surely have, and reciprocal of algebraic number
-  -- is algebraic; proof of the latter is "reverse the min poly", don't know if we have it)
+-- not sure I need this
+-- theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
+--     [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
+--     (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
+--   -- ratio of two algebraic numbers is algebraic (follows from product of alg numbers is
+--   -- alg, which we surely have, and reciprocal of algebraic number
+--   -- is algebraic; proof of the latter is "reverse the min poly", don't know if we have it)
 
-  sorry
+--   sorry
 
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
 theorem Pointwise.residueFieldExtension_algebraic : Algebra.IsAlgebraic K L := by

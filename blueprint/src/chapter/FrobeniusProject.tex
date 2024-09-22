@@ -158,22 +158,53 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 
 \section{The extension $(B/Q)/(A/P)$.}
 
+\begin{definition}
+  \lean{MulSemiringAction.CharacteristicPolynomial.Mbar}
+  \label{MulSemiringAction.CharacteristicPolynomial.Mbar}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M}
+  \leanok
+  If $\overline{b}\in B/Q$ then we define $\overline{M}_{\overline{b}}\in A/P[X]$
+  to be the reductin of $M_b$ where $b$ is any lift of $\overline{b}$ to $B$.
+\end{definition}
+
+Say $\overline{b}\in B/Q$.
+
 \begin{theorem}
-  \label{dunno}
-  If $\beta\in B/Q$ then there's a monic polynomial of degree $|G|$ in $A/P[X]$
-  which has $\beta$ as a root. This polynomial splits completely in $B/Q[X]$.
+  $\overline{M}_{\overline{b}}$ has degree $|G|$.
 \end{theorem}
-\begin{proof}
-  Use the image of $M_b$ where $b$ lifts $\beta$.
+\begin{proof} Exercise.
 \end{proof}
 
+\begin{theorem}
+  $\overline{M}_{\overline{b}}$ is monic.
+\end{theorem}
+\begin{proof} Exercise.
+\end{proof}
+
+\begin{theorem}
+  $\overline{M}_{\overline{b}}$ has $\overline{b}$ as a root.
+\end{theorem}
+\begin{proof} Exercise.
+\end{proof}
+
+\begin{theorem}
+  $(B/Q)/(A/P)$ is an integral extension.
+\end{theorem}
+\begin{proof} Use $\overline{M}_{\overline{b}}$.
+\end{proof}
+
+Here is a corollary of this result: every nonzero element of $B/Q$ divides
+a nonzero element of $A/P$.
 \begin{corollary}
-  \uses{dunno}
   If $\beta\in B/Q$ is nonzero then there's some nonzero $\alpha\in A/P$
   such that $\beta$ divides the image of $\alpha$ in $B/Q$.
 \end{corollary}
-\begin{proof} Consider the monic polynomial $f(X)$ with $\beta$ as a root, whose
-  existence was shown in the previous theorem, and write $n=|G|$, so $f$ is monic
+\begin{proof} Is this in mathlib already? This proof works for any
+  integral extension if the top ring has no zero divisors.
+
+  Let $\beta$ be nonzero, and
+  consider the monic polynomial $\overline{M}_\beta(X)$, which is monic of
+  degree $|G|$ and has $\beta$ as a root. Write $n=|G|$, so $f$ is monic
   of degree $n$. We cannot have $f(X)=X^n$ as this would imply that $\beta$ is
   nilpotent and hence zero, as $B/Q$ is an integral domain. Hence $f(X)=X^n+\cdots +\alpha X^d$
   for some $d<n$ and nonzero $\alpha\in A$. Again using the fact that $B/Q$ is an integral domain, we
@@ -241,6 +272,18 @@ Note that the existence of some $\lambda\in L$ with this property just comes fro
 and separable implies simple; we can use the ``clear denominator'' technique introduced
 earlier to scale this by some nonzero $\alpha\in A$ into $B/Q$, as
 $K(\lambda)=K(\alpha\lambda)$.
+
+Here is a slightly delicate result whose proof I haven't thought too hard about.
+\begin{theorem} There exists some $x\in B$ and $\alpha\in A$ with the following
+  properties.
+  \begin{enumerate}
+  \item $x=\alpha y$ mod $Q$ and $\alpha$ isn't zero mod $Q$.
+  \item $x\in Q'$ for all $Q'\not=Q$ in the $G$-orbit of $Q$.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+  Idea. Localise away from P, then all the $Q_i$ are maximal, use CRT and then clear denominators.
+\end{proof}
 
 We now choose some $x\in B[1/S]$ which is $y$ modulo $Q$ and $0$ modulo all the other
 primes of $B$ above $P$, and consider the monic degree $|G|$ polynomial $f$ in $K[X]$
