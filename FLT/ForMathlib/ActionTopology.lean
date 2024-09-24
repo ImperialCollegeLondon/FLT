@@ -357,7 +357,7 @@ section Pi
 
 variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
 
-variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommGroup (A i)]
+variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommMonoid (A i)]
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsActionTopology R (A i)]
 
@@ -390,11 +390,9 @@ end Pi
 
 section semiring_bilinear
 
--- I need rings not semirings here, because ` ChooseBasisIndex.fintype` incorrectly(?) needs
--- a ring instead of a semiring. This should be fixed.
--- I also need commutativity because we don't have bilinear maps for non-commutative rings.
+-- I need commutativity because we don't have bilinear maps for non-commutative rings.
 -- **TODO** ask on the Zulip whether this is an issue.
-variable {R : Type*} [τR : TopologicalSpace R] [CommRing R]
+variable {R : Type*} [τR : TopologicalSpace R] [CommSemiring R]
 
 -- similarly these don't need to be groups
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsActionTopology R A]
