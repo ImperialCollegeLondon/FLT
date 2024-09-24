@@ -464,7 +464,15 @@ def baz : MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) wh
     have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
     rw [← hb, ← Ideal.Quotient.algebraMap_eq]
     simp
-  map_mul' := sorry
+  map_mul' := by
+    intro ⟨x, hx⟩ ⟨y, hy⟩
+    apply AlgEquiv.ext
+    intro b_bar; dsimp
+    rw [bar, bar, bar]; dsimp; rw [foo, foo, foo]
+    have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
+    rw [← hb, ← Ideal.Quotient.algebraMap_eq]
+    simp
+    rw [smul_smul]
 
 noncomputable def bar2 (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
   __ := IsFractionRing.fieldEquivOfRingEquiv e.toRingEquiv
