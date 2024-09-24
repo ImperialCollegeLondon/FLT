@@ -416,16 +416,54 @@ open scoped Pointwise
 -- the residual Galois group `L ≃ₐ[K] L`, where L=Frac(B/Q) and K=Frac(A/P).
 -- Hopefully sorrys aren't too hard
 
+/-
+All I want to say is:
+
+B ---> B / Q -----> L = Frac(B/Q)
+/\       /\        /\
+|        |         |
+|        |         |
+A ---> A / P ----> K = Frac(A/P)
+
+-/
+
 def foo (g : G) (hg : g • Q = Q) : B ⧸ Q ≃+* B ⧸ Q :=
   Ideal.quotientEquiv Q Q (MulSemiringAction.toRingEquiv G B g) hg.symm
 
+#check MulSemiringAction.toRingEquiv_apply
+#check Ideal.quotientMap_algebraMap
+#check Ideal.quotientEquiv_mk
+#check IsScalarTower.algebraMap_eq
+#check map_map
+#check algebraMap_algebraMap
+
+
 def bar (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
   __ := foo Q g hg
-  commutes' := sorry
+  commutes' := by
+    intro a_bar; dsimp
+    have ⟨a, ha⟩ := Ideal.Quotient.mk_surjective a_bar
+    rw [foo]; dsimp
+    rw [← ha, ← Ideal.Quotient.algebraMap_eq, algebraMap_algebraMap]
+    rw [@Ideal.quotientMap_algebraMap A B _ _ _ B _ Q Q _ ]
+    simp
+    rw [← Ideal.Quotient.mk_algebraMap]
+    congr
+    have := (hGalois ((algebraMap A B) a)).mpr
+    apply this
+    use a
+
+#check AlgEquiv.ext
 
 def baz : MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
-  toFun gh := bar Q P gh.1 gh.2
-  map_one' := sorry
+  toFun gh := bar hGalois Q P gh.1 gh.2
+  map_one' := by
+    apply AlgEquiv.ext
+    intro b_bar; dsimp
+    rw [bar]; dsimp; rw [foo]
+    have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
+    rw [← hb, ← Ideal.Quotient.algebraMap_eq]
+    simp
   map_mul' := sorry
 
 noncomputable def bar2 (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
@@ -433,12 +471,12 @@ noncomputable def bar2 (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L w
   commutes' := sorry
 
 noncomputable def baz2 : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
-  toFun gh := bar2 Q P L K (baz Q P gh)
+  toFun gh := bar2 Q P L K (baz hGalois Q P gh)
   map_one' := sorry
   map_mul' := sorry
 
 theorem main_result : Function.Surjective
-    (baz2 Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
+    (baz2 hGalois Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
   sorry
 
 section localization
