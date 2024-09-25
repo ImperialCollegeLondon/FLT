@@ -529,7 +529,14 @@ def Pointwise.quotientAlgebraActionMonoidHom :
 
 noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
   __ := IsFractionRing.fieldEquivOfRingEquiv e.toRingEquiv
-  commutes' := sorry
+  commutes' := by
+    intro k
+    dsimp
+    obtain ⟨x, y, _, rfl⟩ := @IsFractionRing.div_surjective (A ⧸ P) _ _ K _ _ _ k
+    simp [algebraMap_algebraMap]
+    unfold fieldEquivOfRingEquiv
+    unfold IsLocalization.ringEquivOfRingEquiv
+    simp [IsScalarTower.algebraMap_apply (A ⧸ P) (B ⧸ Q) L]
 
 noncomputable def Pointwise.stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
   toFun gh := IsFractionRing.algEquiv_lift Q P L K (Pointwise.quotientAlgebraActionMonoidHom Q P gh)
