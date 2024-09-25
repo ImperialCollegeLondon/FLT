@@ -171,10 +171,6 @@ private theorem F_descent [Finite G]
       rfl
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) [Finite G]
-variable (G) in
-noncomputable def M [Finite G] (b : B) : A[X] := (F_descent hFull b).choose
-
-theorem M_spec (b : B) : ((M G hFull b : A[X]) : B[X]) = F G b := (F_descent hFull b).choose_spec
 
 variable [Nontrivial B]
 
@@ -182,9 +178,7 @@ theorem F_monic (b : B) : Monic (F G b) := by
   have := Fintype.ofFinite G
   rw [Monic, F_spec, finprod_eq_prod_of_fintype, leadingCoeff_prod'] <;> simp
 
-
-
-private theorem F_descent'
+private theorem F_descent_monic
   (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) (b : B) :
     ∃ M : A[X], (M : B[X]) = F G b ∧ Monic M := by
   have : F G b ∈ Polynomial.lifts (algebraMap A B) := by
@@ -194,19 +188,19 @@ private theorem F_descent'
   use M
   exact ⟨hM.1, hM.2.2⟩
 
-/--
-theorem M_spec_lift (b : B) : (M G hFull b : A[X]).map (algebraMap A B) = F G b :=
-  (F_descent' hFull b).choose_spec.1
+variable (G) in
+noncomputable def M [Finite G] (b : B) : A[X] := (F_descent_monic hFull b).choose
 
-theorem M_spec_monic (b : B) : Monic (M G hFull b) :=
-  (F_descent' hFull b).choose_spec.2
---/
+theorem M_spec (b : B) : ((M G hFull b : A[X]) : B[X]) = F G b :=
+  (F_descent_monic hFull b).choose_spec.1
 
-theorem M_monic (b : B) : (M G hFull b).Monic := sorry -- finprodmonic
+theorem M_spec' (b : B) : (map (algebraMap A B) (M G hFull b)) = F G b :=
+  (F_descent_monic hFull b).choose_spec.1
+
+theorem M_monic (b : B) : (M G hFull b).Monic := (F_descent_monic hFull b).choose_spec.2
 
 theorem M_eval_eq_zero (b : B) : (M G hFull b).eval₂ (algebraMap A B) b = 0 := by
-  sorry
-  -- rw [eval₂_eq_eval_map, M_spec, F_eval_eq_zero]
+  rw [eval₂_eq_eval_map, M_spec', F_eval_eq_zero]
 
 end charpoly
 
@@ -460,7 +454,7 @@ theorem Pointwise.residueFieldExtension_algebraic {A : Type*} [CommRing A] {B : 
     exact M_monic hFull b
   . rw [← hb, algebraMap_cast, map_map, ← IsScalarTower.algebraMap_eq]
     rw [algebraMap_algebraMap, aeval_def, eval₂_eq_eval_map, map_map, ← IsScalarTower.algebraMap_eq]
-    rw [IsScalarTower.algebraMap_eq A B L, ← map_map, M_spec]
+    rw [IsScalarTower.algebraMap_eq A B L, ← map_map, M_spec']
     rw [eval_map, eval₂_hom, F_eval_eq_zero]
     exact algebraMap.coe_zero
 
