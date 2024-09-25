@@ -107,7 +107,7 @@ noncomputable def classification: AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
     simp [ofComplex]
     intro x
     have h: x.toFun = fun _ => x.toFun 1 := by
-      sorry
+      exact funext fun g ↦ congrArg x.toFun <| Subsingleton.eq_one g
     simp_rw [← h]
   right_inv := by
     rw [Function.RightInverse, Function.LeftInverse]
