@@ -540,8 +540,24 @@ noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B 
 
 noncomputable def Pointwise.stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
   toFun gh := IsFractionRing.algEquiv_lift Q P L K (Pointwise.quotientAlgebraActionMonoidHom Q P gh)
-  map_one' := sorry
-  map_mul' := sorry
+  map_one' := by
+    apply AlgEquiv.ext
+    intro l; simp
+    obtain ⟨x, y, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ _ L _ _ _ l
+    unfold IsFractionRing.algEquiv_lift
+    unfold IsFractionRing.fieldEquivOfRingEquiv
+    simp
+  map_mul' := by
+    intro ⟨x, hx⟩ ⟨y, hy⟩
+    apply AlgEquiv.ext
+    intro l; dsimp
+    obtain ⟨r, s, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ _ L _ _ _ l
+    unfold IsFractionRing.algEquiv_lift
+    unfold IsFractionRing.fieldEquivOfRingEquiv
+    unfold quotientAlgebraActionMonoidHom
+    simp
+
+    sorry
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) in
 theorem MulAction.stabilizer_surjective_of_action : Function.Surjective
