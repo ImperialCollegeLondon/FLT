@@ -176,17 +176,44 @@ noncomputable def M [Finite G] (b : B) : A[X] := (F_descent hFull b).choose
 
 theorem M_spec (b : B) : ((M G hFull b : A[X]) : B[X]) = F G b := (F_descent hFull b).choose_spec
 
+variable [Nontrivial B]
+
+theorem F_monic (b : B) : Monic (F G b) := by
+  have := Fintype.ofFinite G
+  rw [Monic, F_spec, finprod_eq_prod_of_fintype, leadingCoeff_prod'] <;> simp
+
+
+
+private theorem F_descent'
+  (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) (b : B) :
+    ∃ M : A[X], (M : B[X]) = F G b ∧ Monic M := by
+  have : F G b ∈ Polynomial.lifts (algebraMap A B) := by
+    choose M hM using F_descent hFull b
+    use M; exact hM
+  choose M hM using lifts_and_degree_eq_and_monic this (F_monic b)
+  use M
+  exact ⟨hM.1, hM.2.2⟩
+
+/--
+theorem M_spec_lift (b : B) : (M G hFull b : A[X]).map (algebraMap A B) = F G b :=
+  (F_descent' hFull b).choose_spec.1
+
+theorem M_spec_monic (b : B) : Monic (M G hFull b) :=
+  (F_descent' hFull b).choose_spec.2
+--/
+
 theorem M_monic (b : B) : (M G hFull b).Monic := sorry -- finprodmonic
 
 theorem M_eval_eq_zero (b : B) : (M G hFull b).eval₂ (algebraMap A B) b = 0 := by
-  sorry -- follows from `F_eval_eq_zero`
+  sorry
+  -- rw [eval₂_eq_eval_map, M_spec, F_eval_eq_zero]
 
 end charpoly
 
 section part_a
 
 variable {A : Type*} [CommRing A]
-  {B : Type*} [CommRing B] [Algebra A B]
+  {B : Type*} [CommRing B] [Algebra A B] [Nontrivial B]
   {G : Type*} [Group G] [Finite G] [MulSemiringAction G B]
 
 theorem isIntegral_of_Full (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
@@ -365,97 +392,10 @@ example : --[Algebra A k] [IsScalarTower A (A ⧸ p) k] [Algebra k K] [IsScalarT
 
 open Polynomial BigOperators
 
-variable (G) in
-/-- `F : B[X]` defined to be a product of linear factors `(X - τ • α)`; where
-`τ` runs over `L ≃ₐ[K] L`, and `α : B` is an element which generates `(B ⧸ Q)ˣ`
-and lies in `τ • Q` for all `τ ∉ (decomposition_subgroup_Ideal'  A K L B Q)`.-/
-private noncomputable abbrev F (b : B) : B[X] := ∏ᶠ τ : G, (X - C (τ • b))
-
-omit [Finite G] in
-private theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
-
-private theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
-  σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rw [F_spec]
-  _         = ∏ᶠ τ : G, σ • (X - C (τ • b)) := smul_finprod _
-  _         = ∏ᶠ τ : G, (X - C ((σ * τ) • b)) := by simp [smul_sub, smul_smul]
-  _         = ∏ᶠ τ' : G, (X - C (τ' • b)) := finprod_eq_of_bijective (fun τ ↦ σ * τ)
-                                               (Group.mulLeft_bijective σ) (fun _ ↦ rfl)
-  _         = F G b := by rw [F_spec]
-
-private theorem F_eval_eq_zero (b : B) : (F G b).eval b = 0 := by
-  let foo := Fintype.ofFinite G
-  simp [F_spec,finprod_eq_prod_of_fintype,eval_prod]
-  apply @Finset.prod_eq_zero _ _ _ _ _ (1 : G) (Finset.mem_univ 1)
-  simp
-
-#check leadingCoeff
-#check ne_zero_of_ne_zero_of_monic
-
-theorem F_monic [NeZero (1 : B)] (b : B) : Monic (F G b) := by
-  let foo := Fintype.ofFinite G
-  rw [Monic, F_spec, finprod_eq_prod_of_fintype, leadingCoeff_prod'] <;> simp
-
 open scoped algebraMap
 
 noncomputable local instance : Algebra A[X] B[X] :=
   RingHom.toAlgebra (Polynomial.mapRingHom (Algebra.toRingHom))
-
--- PR?
-omit [Algebra.IsIntegral A B] in
-@[simp, norm_cast]
-theorem coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
-  map_monomial _
-
-omit [Algebra.IsIntegral A B] in
-private theorem F_descent (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) (b : B) :
-    ∃ M : A[X], (M : B[X]) = F G b := by
-  choose f hf using fun b ↦ (hGalois b).mp
-  classical
-  let f' : B → A := fun b ↦ if h : ∀ σ : G, σ • b = b then f b h else 37
-  use (∑ x ∈ (F G b).support, (monomial x) (f' ((F G b).coeff x)))
-  ext N
-  push_cast
-  simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
-  simp only [Finset.sum_ite_eq', mem_support_iff, ne_eq, ite_not, f']
-  symm
-  split
-  · next h => exact h
-  · next h1 =>
-    rw [dif_pos <| fun σ ↦ ?_]
-    · refine hf ?_ ?_
-    · nth_rw 2 [← F_smul_eq_self σ]
-      rfl
-
-omit [Algebra.IsIntegral A B] in
-private theorem F_descent' (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) (b : B) :
-    ∃ M : A[X], (M : B[X]) = F G b ∧ Monic M := by
-  have : F G b ∈ Polynomial.lifts (algebraMap A B) := by
-    choose M hM using F_descent hGalois b
-    use M; exact hM
-  choose M hM using lifts_and_degree_eq_and_monic this (F_monic b)
-  use M
-  exact ⟨hM.1, hM.2.2⟩
-
-variable (G) in
-noncomputable def M (b : B) : A[X] := (F_descent' hGalois b).choose
-
--- omit [Algebra.IsIntegral A B] in
--- theorem M_spec' (b : B) : ((M G hGalois b : A[X]) : B[X]) = F G b := (F_descent hGalois b).choose_spec
-
-omit [Algebra.IsIntegral A B] in
-theorem M_spec_lift (b : B) : (M G hGalois b : A[X]).map (algebraMap A B) = F G b :=
-  (F_descent' hGalois b).choose_spec.1
-
-omit [Algebra.IsIntegral A B] in
-theorem M_spec_monic (b : B) : Monic (M G hGalois b) :=
-  (F_descent' hGalois b).choose_spec.2
-
--- theorem M_eval_eq_zero' (b : B) : (M G hGalois b).eval₂ (algebraMap A[X] B[X]) b = 0 := by
---  sorry -- follows from `F_eval_eq_zero`
-
-omit [Algebra.IsIntegral A B] in
-theorem M_eval_eq_zero (b : B) : (M G hGalois b).eval₂ (algebraMap A B) b = 0 := by
-  rw [eval₂_eq_eval_map, M_spec_lift, F_eval_eq_zero]
 
 theorem IsAlgebraic.mul {R K : Type*} [CommRing R] [CommRing K] [Algebra R K] {x y : K}
   (hx : IsAlgebraic R x) (hy : IsAlgebraic R y) : IsAlgebraic R (x * y) := sorry
@@ -502,25 +442,25 @@ theorem Pointwise.residueFieldExtension_algebraic {A : Type*} [CommRing A] {B : 
   [Algebra K L] [IsScalarTower (A ⧸ P) K L] [Algebra A K] [IsScalarTower A (A ⧸ P) K]
   [Algebra B L] [IsScalarTower B (B ⧸ Q) L] [Algebra A L] [IsScalarTower A K L]
   [IsScalarTower A B L]
-  (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a): Algebra.IsAlgebraic K L := by
+  (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a): Algebra.IsAlgebraic K L := by
   /-
   Because of `IsFractionRing (B ⧸ Q) K` and the previous lemma it suffices to show that every
   element of B/Q is algebraic over k, and this is because you can lift to b ∈ B and then
   use `M` above (which needs to be coerced to A/P and then to K)
   -/
-   apply @Algebra.isAlgebraic_of_subring_isAlgebraic (B ⧸ Q)
+  apply @Algebra.isAlgebraic_of_subring_isAlgebraic (B ⧸ Q)
   intro b_bar
   have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
   have hb : (algebraMap B (B ⧸ Q)) b = b_bar := hb
-  use ((M G hGalois b).map (algebraMap A (A ⧸ P))).map (algebraMap (A ⧸ P) K)
+  use ((M G hFull b).map (algebraMap A (A ⧸ P))).map (algebraMap (A ⧸ P) K)
   constructor
   . apply ne_zero_of_ne_zero_of_monic X_ne_zero
     apply Monic.map
     apply Monic.map
-    exact M_spec_monic hGalois b
+    exact M_monic hFull b
   . rw [← hb, algebraMap_cast, map_map, ← IsScalarTower.algebraMap_eq]
     rw [algebraMap_algebraMap, aeval_def, eval₂_eq_eval_map, map_map, ← IsScalarTower.algebraMap_eq]
-    rw [IsScalarTower.algebraMap_eq A B L, ← map_map, M_spec_lift]
+    rw [IsScalarTower.algebraMap_eq A B L, ← map_map, M_spec]
     rw [eval_map, eval₂_hom, F_eval_eq_zero]
     exact algebraMap.coe_zero
 
@@ -547,8 +487,6 @@ open scoped Pointwise
 -- the residual Galois group `L ≃ₐ[K] L`, where L=Frac(B/Q) and K=Frac(A/P).
 -- Hopefully sorrys aren't too hard
 
-
-
 /-
 All I want to say is:
 
@@ -557,45 +495,30 @@ B ---> B / Q -----> L = Frac(B/Q)
 |        |         |
 |        |         |
 A ---> A / P ----> K = Frac(A/P)
-
 -/
 
 def Pointwise.quotientRingAction (Q' : Ideal B) (g : G) (hg : g • Q = Q') :
     B ⧸ Q ≃+* B ⧸ Q' :=
   Ideal.quotientEquiv Q Q' (MulSemiringAction.toRingEquiv G B g) hg.symm
 
-#check MulSemiringAction.toRingEquiv_apply
-#check Ideal.quotientMap_algebraMap
-#check Ideal.quotientEquiv_mk
-#check IsScalarTower.algebraMap_eq
-#check map_map
-#check algebraMap_algebraMap
-
-
 def Pointwise.quotientAlgebraAction (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
   __ := quotientRingAction Q Q g hg
   commutes' := by
     intro a_bar; dsimp
     have ⟨a, ha⟩ := Ideal.Quotient.mk_surjective a_bar
-    rw [foo]; dsimp
+    rw [Pointwise.quotientRingAction]; dsimp
     rw [← ha, ← Ideal.Quotient.algebraMap_eq, algebraMap_algebraMap]
     rw [@Ideal.quotientMap_algebraMap A B _ _ _ B _ Q Q _ ]
     simp
-    rw [← Ideal.Quotient.mk_algebraMap]
-    congr
-    have := (hGalois ((algebraMap A B) a)).mpr
-    apply this
-    use a
-
-#check AlgEquiv.ext
 
 def Pointwise.quotientAlgebraActionMonoidHom :
     MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
-  toFun gh := quotientAlgebraAction hGalois Q P gh.1 gh.2
+  toFun gh := quotientAlgebraAction Q P gh.1 gh.2
   map_one' := by
     apply AlgEquiv.ext
     intro b_bar; dsimp
-    rw [bar]; dsimp; rw [foo]
+    unfold quotientAlgebraAction
+    unfold quotientRingAction
     have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
     rw [← hb, ← Ideal.Quotient.algebraMap_eq]
     simp
@@ -603,7 +526,8 @@ def Pointwise.quotientAlgebraActionMonoidHom :
     intro ⟨x, hx⟩ ⟨y, hy⟩
     apply AlgEquiv.ext
     intro b_bar; dsimp
-    rw [bar, bar, bar]; dsimp; rw [foo, foo, foo]
+    unfold quotientAlgebraAction
+    unfold quotientRingAction
     have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
     rw [← hb, ← Ideal.Quotient.algebraMap_eq]
     simp
@@ -614,7 +538,7 @@ noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B 
   commutes' := sorry
 
 noncomputable def Pointwise.stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
-  toFun gh := IsFractionRing.algEquiv_lift Q P L K (Pointwise.quotientAlgebraActionMonoidHom hGalois Q P gh)
+  toFun gh := IsFractionRing.algEquiv_lift Q P L K (Pointwise.quotientAlgebraActionMonoidHom Q P gh)
   map_one' := sorry
   map_mul' := sorry
 
