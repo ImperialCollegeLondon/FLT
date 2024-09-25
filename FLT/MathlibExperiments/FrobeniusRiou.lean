@@ -552,8 +552,6 @@ noncomputable def Pointwise.stabilizer.toGaloisGroup : MulAction.stabilizer G Q 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) in
 theorem MulAction.stabilizer_surjective_of_action : Function.Surjective
     (Pointwise.stabilizer.toGaloisGroup Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
-  intro e
-
   sorry
 
 section localization
