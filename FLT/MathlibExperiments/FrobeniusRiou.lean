@@ -51,24 +51,55 @@ Frob_P in G.
 
 
 variable {A : Type*} [CommRing A]
-  {B : Type*} [CommRing B] [Algebra A B] [Algebra.IsIntegral A B]
+  {B : Type*} [CommRing B] [Algebra A B] --[Algebra.IsIntegral A B]
   {G : Type*} [Group G] [Finite G] [MulSemiringAction G B]
+
+
 
 open scoped algebraMap
 
-variable (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a)
+--variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a)
+--variable (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
 
-section part_a
+section misc
 
-variable (P Q : Ideal B) [P.IsPrime] [Q.IsPrime]
-  (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
+variable {A : Type*} [CommRing A]
+  {B : Type*} [CommRing B] [Algebra A B]
+  {G : Type*} [Group G] [MulSemiringAction G B]
+  [SMulCommClass G A B]
 
 open scoped Pointwise
 
-private theorem norm_fixed (b : B) (g : G) : g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, σ • b := calc
-  g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, g • (σ • b) := smul_finprod _
+/-
+If you're happy to stick to finite G, it's just this:
+
+private theorem norm_fixed' (b : B) (g : G) [Finite G] : g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, σ • b := calc
+  g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, g • (σ • b) := smul_finprod' _
   _                     = ∏ᶠ σ : G, σ • b := finprod_eq_of_bijective (g • ·) (MulAction.bijective g)
                                                fun x ↦ smul_smul g x b
+
+But the below proof works in general.
+-/
+
+private theorem norm_fixed (b : B) (g : G) : g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, σ • b := by
+  obtain (hfin | hinf) := em <| Finite G
+  · calc
+    g • (∏ᶠ σ : G, σ • b) = ∏ᶠ σ : G, g • (σ • b) := smul_finprod' _
+    _                     = ∏ᶠ σ : G, σ • b := finprod_eq_of_bijective (g • ·) (MulAction.bijective g)
+                                                 fun x ↦ smul_smul g x b
+  · obtain (rfl | hb) := eq_or_ne b 1
+    · simp
+    · suffices (Function.mulSupport ((· • b) : G → B)).Infinite by
+        classical
+        simp [finprod_def, dif_neg this]
+      have htop : (⊤ : Set G).Infinite := by simpa using Set.infinite_univ_iff.mpr ({ not_finite := hinf })
+      convert htop
+      rw [eq_top_iff]
+      intro g _
+      simp only [Function.mem_mulSupport]
+      contrapose! hb
+      apply_fun (fun x ↦ g⁻¹ • x) at hb
+      simpa using hb
 
 theorem _root_.Ideal.IsPrime.finprod_mem_iff_exists_mem {R S : Type*} [Finite R] [CommSemiring S]
     (I : Ideal S) [hI : I.IsPrime] (f : R → S)  :
@@ -77,11 +108,104 @@ theorem _root_.Ideal.IsPrime.finprod_mem_iff_exists_mem {R S : Type*} [Finite R]
   rw [finprod_eq_prod_of_fintype, Finset.prod_eq_multiset_prod, hI.multiset_prod_mem_iff_exists_mem]
   simp
 
+end misc
+
+section charpoly
+
+open Polynomial BigOperators
+
+variable {A : Type*} [CommRing A]
+  {B : Type*} [CommRing B] [Algebra A B]
+  {G : Type*} [Group G] [MulSemiringAction G B] --[SMulCommClass G A B]
+
+
+variable (G) in
+/-- `F : B[X]` defined to be a product of linear factors `(X - τ • α)`; where
+`τ` runs over `L ≃ₐ[K] L`, and `α : B` is an element which generates `(B ⧸ Q)ˣ`
+and lies in `τ • Q` for all `τ ∉ (decomposition_subgroup_Ideal'  A K L B Q)`.-/
+private noncomputable abbrev F (b : B) : B[X] := ∏ᶠ τ : G, (X - C (τ • b))
+
+private theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
+
+private theorem F_smul_eq_self [Finite G] (σ : G) (b : B) : σ • (F G b) = F G b := calc
+  σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rw [F_spec]
+  _         = ∏ᶠ τ : G, σ • (X - C (τ • b)) := smul_finprod' _
+  _         = ∏ᶠ τ : G, (X - C ((σ * τ) • b)) := by simp [smul_sub, smul_smul]
+  _         = ∏ᶠ τ' : G, (X - C (τ' • b)) := finprod_eq_of_bijective (fun τ ↦ σ * τ)
+                                               (Group.mulLeft_bijective σ) (fun _ ↦ rfl)
+  _         = F G b := by rw [F_spec]
+
+private theorem F_eval_eq_zero [Finite G] (b : B) : (F G b).eval b = 0 := by
+  let foo := Fintype.ofFinite G
+  simp [F_spec,finprod_eq_prod_of_fintype,eval_prod]
+  apply @Finset.prod_eq_zero _ _ _ _ _ (1 : G) (Finset.mem_univ 1)
+  simp
+
+open scoped algebraMap
+
+noncomputable local instance : Algebra A[X] B[X] :=
+  RingHom.toAlgebra (Polynomial.mapRingHom (Algebra.toRingHom))
+
+@[simp, norm_cast]
+theorem coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
+  map_monomial _
+
+private theorem F_descent [Finite G]
+    (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) (b : B) :
+    ∃ M : A[X], (M : B[X]) = F G b := by
+  choose f hf using fun b ↦ (hFull b)
+  classical
+  let f' : B → A := fun b ↦ if h : ∀ σ : G, σ • b = b then f b h else 37
+  use (∑ x ∈ (F G b).support, (monomial x) (f' ((F G b).coeff x)))
+  ext N
+  push_cast
+  simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
+  simp only [Finset.sum_ite_eq', mem_support_iff, ne_eq, ite_not, f']
+  symm
+  split
+  · next h => exact h
+  · next h1 =>
+    rw [dif_pos <| fun σ ↦ ?_]
+    · refine hf ?_ ?_
+    · nth_rw 2 [← F_smul_eq_self σ]
+      rfl
+
+variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) [Finite G]
+variable (G) in
+noncomputable def M [Finite G] (b : B) : A[X] := (F_descent hFull b).choose
+
+theorem M_spec (b : B) : ((M G hFull b : A[X]) : B[X]) = F G b := (F_descent hFull b).choose_spec
+
+theorem M_monic (b : B) : (M G hFull b).Monic := sorry -- finprodmonic
+
+theorem M_eval_eq_zero (b : B) : (M G hFull b).eval₂ (algebraMap A B) b = 0 := by
+  sorry -- follows from `F_eval_eq_zero`
+
+end charpoly
+
+section part_a
+
+variable {A : Type*} [CommRing A]
+  {B : Type*} [CommRing B] [Algebra A B]
+  {G : Type*} [Group G] [Finite G] [MulSemiringAction G B]
+
+theorem isIntegral_of_Full (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
+    Algebra.IsIntegral A B where
+  isIntegral b := ⟨M G hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
+
+variable (P Q : Ideal B) [P.IsPrime] [Q.IsPrime]
+  --
+  (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
+
+-- Algebra.IsIntegral A B
+open scoped Pointwise
+
 -- (Part a of Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
-theorem part_a
+theorem part_a [SMulCommClass G A B]
     (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
-    (hGalois : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) :
+    (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     ∃ g : G, Q = g • P := by
+  haveI : Algebra.IsIntegral A B := isIntegral_of_Full hFull'
   cases nonempty_fintype G
   suffices ∃ g : G, Q ≤ g • P by
     obtain ⟨g, hg⟩ := this
@@ -93,8 +217,9 @@ theorem part_a
       Algebra.isIntegral_def.1 inferInstance x).ne
     rw [← hPQ]
     ext x
-    specialize hGalois (algebraMap A B x)
-    have := hGalois.2 ⟨x, rfl⟩
+    specialize hFull' (algebraMap A B x)
+    have : ∀ (g : G), g • (algebraMap A B x) = (algebraMap A B x) := fun g ↦ by
+      rw [Algebra.algebraMap_eq_smul_one, smul_comm, smul_one]
     simp only [Ideal.mem_comap]
     nth_rw 2 [← this]
     exact Ideal.smul_mem_pointwise_smul_iff.symm
@@ -103,8 +228,8 @@ theorem part_a
   rw [← Ideal.subset_union_prime 1 1 <| fun g _ _ _ ↦ ?_]; swap
   · exact Ideal.map_isPrime_of_equiv (MulSemiringAction.toRingEquiv _ _ g)
   intro x hx
-  specialize hGalois (∏ᶠ σ : G, σ • x)
-  obtain ⟨a, ha⟩ := hGalois.1 (norm_fixed _)
+  specialize hFull' (∏ᶠ σ : G, σ • x)
+  obtain ⟨a, ha⟩ := hFull' (norm_fixed _)
   have : (a : B) ∈ Q := by
     rw [← ha, Ideal.IsPrime.finprod_mem_iff_exists_mem]
     use 1
@@ -166,6 +291,12 @@ end part_a
 -- end normal_elements
 
 section part_b
+
+
+
+variable {A : Type*} [CommRing A]
+  {B : Type*} [CommRing B] [Algebra A B]
+  {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] [SMulCommClass G A B]
 
 -- set-up for part (b) of the lemma. G acts on B with invariants A (or more precisely the
 -- image of A). Warning: `P` was a prime ideal of `B` in part (a) but it's a prime ideal
@@ -362,7 +493,7 @@ theorem algebraMap_algebraMap {R S T : Type*} [CommRing R] [CommRing S] [CommRin
   exact Eq.symm (IsScalarTower.algebraMap_apply R S T r)
 
 -- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
-theorem part_b1 {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B] [Algebra A B]
+theorem Pointwise.residueFieldExtension_algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B] [Algebra A B]
   [Algebra.IsIntegral A B] {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] (Q : Ideal B)
   [Q.IsPrime] (P : Ideal A) [P.IsPrime] [Algebra (A ⧸ P) (B ⧸ Q)]
   [IsScalarTower A (A ⧸ P) (B ⧸ Q)] (L : Type*) [Field L] [Algebra (B ⧸ Q) L]
@@ -377,7 +508,7 @@ theorem part_b1 {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B]
   element of B/Q is algebraic over k, and this is because you can lift to b ∈ B and then
   use `M` above (which needs to be coerced to A/P and then to K)
   -/
-  apply @Algebra.isAlgebraic_of_subring_isAlgebraic (B ⧸ Q)
+   apply @Algebra.isAlgebraic_of_subring_isAlgebraic (B ⧸ Q)
   intro b_bar
   have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
   have hb : (algebraMap B (B ⧸ Q)) b = b_bar := hb
@@ -393,7 +524,7 @@ theorem part_b1 {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B]
     rw [eval_map, eval₂_hom, F_eval_eq_zero]
     exact algebraMap.coe_zero
 
-theorem part_b2 : Normal K L := by
+theorem Pointwise.residueFieldExtension_normal : Normal K L := by
   /-
 
   See discussion at
@@ -416,6 +547,8 @@ open scoped Pointwise
 -- the residual Galois group `L ≃ₐ[K] L`, where L=Frac(B/Q) and K=Frac(A/P).
 -- Hopefully sorrys aren't too hard
 
+
+
 /-
 All I want to say is:
 
@@ -427,8 +560,9 @@ A ---> A / P ----> K = Frac(A/P)
 
 -/
 
-def foo (g : G) (hg : g • Q = Q) : B ⧸ Q ≃+* B ⧸ Q :=
-  Ideal.quotientEquiv Q Q (MulSemiringAction.toRingEquiv G B g) hg.symm
+def Pointwise.quotientRingAction (Q' : Ideal B) (g : G) (hg : g • Q = Q') :
+    B ⧸ Q ≃+* B ⧸ Q' :=
+  Ideal.quotientEquiv Q Q' (MulSemiringAction.toRingEquiv G B g) hg.symm
 
 #check MulSemiringAction.toRingEquiv_apply
 #check Ideal.quotientMap_algebraMap
@@ -438,8 +572,8 @@ def foo (g : G) (hg : g • Q = Q) : B ⧸ Q ≃+* B ⧸ Q :=
 #check algebraMap_algebraMap
 
 
-def bar (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
-  __ := foo Q g hg
+def Pointwise.quotientAlgebraAction (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
+  __ := quotientRingAction Q Q g hg
   commutes' := by
     intro a_bar; dsimp
     have ⟨a, ha⟩ := Ideal.Quotient.mk_surjective a_bar
@@ -455,8 +589,9 @@ def bar (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
 
 #check AlgEquiv.ext
 
-def baz : MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
-  toFun gh := bar hGalois Q P gh.1 gh.2
+def Pointwise.quotientAlgebraActionMonoidHom :
+    MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
+  toFun gh := quotientAlgebraAction hGalois Q P gh.1 gh.2
   map_one' := by
     apply AlgEquiv.ext
     intro b_bar; dsimp
@@ -474,17 +609,18 @@ def baz : MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) wh
     simp
     rw [smul_smul]
 
-noncomputable def bar2 (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
+noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
   __ := IsFractionRing.fieldEquivOfRingEquiv e.toRingEquiv
   commutes' := sorry
 
-noncomputable def baz2 : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
-  toFun gh := bar2 Q P L K (baz hGalois Q P gh)
+noncomputable def Pointwise.stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
+  toFun gh := IsFractionRing.algEquiv_lift Q P L K (Pointwise.quotientAlgebraActionMonoidHom hGalois Q P gh)
   map_one' := sorry
   map_mul' := sorry
 
-theorem main_result : Function.Surjective
-    (baz2 hGalois Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
+variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) in
+theorem MulAction.stabilizer_surjective_of_action : Function.Surjective
+    (Pointwise.stabilizer.toGaloisGroup Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
   sorry
 
 section localization
