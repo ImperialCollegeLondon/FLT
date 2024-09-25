@@ -449,21 +449,139 @@ namespace MulSemiringAction.CharacteristicPolynomial
 
 example : Function.Surjective (Ideal.Quotient.mk Q) := Ideal.Quotient.mk_surjective
 
-open Polynomial in
+open Polynomial
+/-
+I didn't check that this definition was independent
+of the lift `b` of `bbar` (and it might not even be true).
+But this doesn't matter, because `G` no longer acts on `B/Q`.
+All we need is that `Mbar` is monic of degree `|G|`, is defined over the bottom ring
+and kills `bbar`.
+-/
+variable {Q} in
 noncomputable def Mbar
     (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
     (bbar : B ⧸ Q) : (A ⧸ P)[X] :=
   Polynomial.map (Ideal.Quotient.mk P) <| M hFull' <|
     (Ideal.Quotient.mk_surjective bbar).choose
 
-end MulSemiringAction.CharacteristicPolynomial
+variable (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
+
+theorem Mbar_deg (bbar : B ⧸ Q) : degree (Mbar P hFull' bbar) = Nat.card G := sorry
+
+theorem Mbar_monic (bbar : B ⧸ Q) : (Mbar P hFull' bbar).Monic := by
+  sorry
+
+theorem Mbar_eval_eq_zero (bbar : B ⧸ Q) : eval₂ (algebraMap (A ⧸ P) (B ⧸ Q)) bbar (Mbar P hFull' bbar) = 0 := by
+  sorry
+
+end CharacteristicPolynomial
+
+theorem reduction_isIntegral : Algebra.IsIntegral (A ⧸ P) (B ⧸ Q) := by
+  sorry
+
+end MulSemiringAction
+
+theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [CommRing S]
+    [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
+    ∃ r : R, r ≠ 0 ∧ s ∣ (r : S) := by
+  sorry
 
 end B_mod_Q_over_A_mod_P_stuff
 
--- And the fact that K and L are fields implies A / P -> B / Q is injective
--- and thus P = Q ∩ A
+/-
+\section{The extension $L/K$.}
+
+\begin{theorem}
+  \label{foo1}
+If $\lambda\in L$ then there's a monic polynomial $P_\lambda\in K[X]$ of degree $|G|$
+with $\lambda$ as a root, and which splits completely in $L[X]$.
+\end{theorem}
+\begin{proof}
+  A general $\lambda\in L$ can be written as $\beta_1/\beta_2$ where $\beta_1,\beta_2\in B/Q$.
+  The previous corollary showed that there's some nonzero $\alpha\in A/P$ such that $\beta_2$
+  divides $\alpha$, and hence $\alpha\lambda\in B/Q$ (we just cleared denominators).
+  Thus $\alpha\lambda$ is a root of some monic polynomial $f(x)\in (A/P)[X]$,
+  by~\ref{MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}.
+  The polynomial $f(\alpha x)\in (A/P)[X]$ thus
+  has $\lambda$ as a root, but it is not monic; its leading term is $\alpha^n$.
+  Dividing through in $K[X]$ gives us the polynomial we seek.
+\end{proof}
+
+\begin{corollary} The extension $L/K$ is algebraic and normal.
+\end{corollary}
+\begin{proof} \uses{foo1}
+  Exercise using the previous theorem.
+\end{proof}
+
+Note that $L/K$ might not be separable and might have infinite degree. However
+
+\begin{corollary} Any subextension of $L/K$ which is finite and separable over $K$
+  has degree at most $|G|$.
+\end{corollary}
+\begin{proof}
+  Finite and separable implies simple, and we've already seen that any
+  element of $L$ has degree at most $|G|$ over $K$.
+\end{proof}
+
+\begin{corollary} The maximal separable subextension $M$ of $L/K$ has degree at most $|G|$.
+\end{corollary}
+\begin{proof} If it has dimension greater than $|G|$ over $K$, then it has a finitely-generated
+  subfeld of $K$-dimension greater than $|G|$, and is finite and separable, contradicting
+  the previous result.
+\end{proof}
+
+\begin{corollary} $\Aut_K(L)$ is finite.
+\end{corollary}
+\begin{proof} Any $K$-automorphism of $L$ is determined by where it sends $M$.
+\end{proof}
+
+\begin{corollary} $\Aut_{A/P}(B/Q)$ is finite.
+\end{corollary}
+\begin{proof}
+  Two elements of $\Aut_{A/P}(B/Q)$ which agree once extended to automorphisms of $L$
+  must have already been equal, as $B/Q\subseteq L$. Hence the canonical map
+  from $\Aut_{A/P}(B/Q)$ to $\Aut_K(L)$ is injective.
+\end{proof}
+
+\section{Proof of surjectivity.}
+
+\begin{definition} We fix once and for all some nonzero $y\in B/Q$ such that $M=K(y)$,
+  with $M$ the maximal separable subextension of $L/K$.
+\end{definition}
+
+Note that the existence of some $\lambda\in L$ with this property just comes from finite
+and separable implies simple; we can use the ``clear denominator'' technique introduced
+earlier to scale this by some nonzero $\alpha\in A$ into $B/Q$, as
+$K(\lambda)=K(\alpha\lambda)$.
+
+Here is a slightly delicate result whose proof I haven't thought too hard about.
+\begin{theorem} There exists some $x\in B$ and $\alpha\in A$ with the following
+  properties.
+  \begin{enumerate}
+  \item $x=\alpha y$ mod $Q$ and $\alpha$ isn't zero mod $Q$.
+  \item $x\in Q'$ for all $Q'\not=Q$ in the $G$-orbit of $Q$.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+  Idea. Localise away from P, then all the $Q_i$ are maximal, use CRT and then clear denominators.
+\end{proof}
+
+We now choose some $x\in B[1/S]$ which is $y$ modulo $Q$ and $0$ modulo all the other
+primes of $B$ above $P$, and consider the monic degree $|G|$ polynomial $f$ in $K[X]$
+with $x$ and its conjugates as roots. If $\sigma\in\Aut_K(L)$ then $\sigma(\overline{x})$
+is a root of $f$ as $\sigma$ fixes $K$ pointwise. Hence $\sigma(\overline{x})=\overline{g(x)}$
+for some $g\in G$, and because $\sigma(\overline{x})\not=0$ we have $\overline{g(x)}\not=0$
+and hence $g(x)\notin Q[1/S]$. Hence $x\notin g^{-1} Q[1/S]$ and thus $g^{-1}Q=Q$ and $g\in SD_Q$.
+Finally we have $\phi_g=\sigma$ on $K$ and on $y$, so they are equal on $M$ and hence on $L$ as
+$L/M$ is purely inseparable.
+
+This part of the argument seems weak.
+-/
+
+section L_over_K_stuff
+
 -- Let's now make the right square. First `L`
-variable  (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
+variable (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
   -- Now top left triangle: A / P → B / Q → L commutes
   [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
   -- now introduce K
@@ -478,14 +596,15 @@ variable  (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) 
 -- Do I need this:
 --  [Algebra B L] [IsScalarTower B (B ⧸ Q) L]
 
--- version of Ideal.Quotient.eq_zero_iff_mem with algebraMap
+-- Do we need a version of Ideal.Quotient.eq_zero_iff_mem with algebraMap?
 
 
--- not sure if we need this but let's prove it just to check our setup is OK
+-- not sure if we need this but let's prove it just to check our setup is OK.
+-- The claim is that the preimage of Q really is P (rather than just contining P)
+-- and the proof is that A/P -> B/Q extends to a map of fields which is injective,
+-- so A/P -> B/Q must also be injective.
 open IsScalarTower in
-example : --[Algebra A k] [IsScalarTower A (A ⧸ p) k] [Algebra k K] [IsScalarTower (A ⧸ p) k K]
-    --[Algebra A K] [IsScalarTower A k K] :
-    Ideal.comap (algebraMap A B) Q = P := by
+example : Ideal.comap (algebraMap A B) Q = P := by
   ext x
   simp only [Ideal.mem_comap]
   rw [← Ideal.Quotient.eq_zero_iff_mem', ← Ideal.Quotient.eq_zero_iff_mem']
@@ -501,43 +620,54 @@ open Polynomial BigOperators
 
 open scoped algebraMap
 
--- not sure I need this
--- theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
---     [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
---     (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
---   -- ratio of two algebraic numbers is algebraic (follows from product of alg numbers is
---   -- alg, which we surely have, and reciprocal of algebraic number
---   -- is algebraic; proof of the latter is "reverse the min poly", don't know if we have it)
+open MulSemiringAction.CharacteristicPolynomial
 
---   sorry
+namespace Bourbaki52222
 
--- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
-theorem Pointwise.residueFieldExtension_algebraic : Algebra.IsAlgebraic K L := by
-  /-
-  Because of `IsFractionRing (B ⧸ Q) K` and the previous lemma it suffices to show that every
-  element of B/Q is algebraic over k, and this is because you can lift to b ∈ B and then
-  use `M` above (which needs to be coerced to A/P and then to K)
-  -/
+variable (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) in
+variable (G) in
+noncomputable def residueFieldExtensionPolynomial [DecidableEq L] (x : L) : K[X] :=
+  if x = 0 then monomial (Nat.card G) 1
+  else 37 -- this is not actually right. In the nonzero case you
+  -- clear denominators with a nonzero element of A, using
+  -- `Algebra.exists_dvd_nonzero_if_isIntegral` above, and then use Mbar
+  -- scaled appropriately.
+
+theorem f [DecidableEq L] (l : L) :
+    ∃ f : K[X], f.Monic ∧ f.degree = Nat.card G ∧
+    eval₂ (algebraMap K L) l f = 0 ∧ f.Splits (algebraMap K L) := by
+  use Bourbaki52222.residueFieldExtensionPolynomial G L K l
   sorry
 
-
-
-theorem Pointwise.residueFieldExtension_normal : Normal K L := by
-  /-
-
-  See discussion at
-  https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/poly.20whose.20roots.20are.20the.20products.20of.20the.20roots.20of.20polys/near/468585267
-
-  Maybe I won't formalise the below proof then (which I made up):
-  Let's temporarily say that an *element* of `K` is _normal_ if it is the root of a monic poly
-  in `k[X]` all of whose roots are in `K`. Then `K/k` is normal iff all elements are normal
-  (if `t` is a root of `P ∈ k[X]` then the min poly of `t` must divide `P`).
-  I claim that the product of two normal elements is normal. Indeed if `P` and `Q` are monic polys
-  in `k[X]` with roots `xᵢ` and `yⱼ` then there's another monic poly in `k[X]` whose roots are
-  the products `xᵢyⱼ`. Also the reciprocal of a nonzero normal element is normal (reverse the
-  polynomial and take the reciprocals of all the roots). This is enough.
-  -/
+theorem algebraic : Algebra.IsAlgebraic K L := by
   sorry
+
+theorem normal : Normal K L := by
+  sorry
+
+open FiniteDimensional
+
+theorem separableClosure_finiteDimensional : FiniteDimensional K (separableClosure K L) := sorry
+
+-- degree of max sep subextension is ≤ |G|
+theorem separableClosure_finrank_le : finrank K (separableClosure K L) ≤ Nat.card G := sorry
+
+open scoped IntermediateField
+theorem primitive_element : ∃ y : L, K⟮y⟯ = separableClosure K L := sorry
+
+-- this definition might break when primitive_element is proved because there will be
+-- more hypotheses.
+noncomputable def y : L := (primitive_element L K).choose
+
+--noncomputable def y_spec : K⟮y⟯ = separableClosure K L := (primitive_element L K).choose_spec
+
+end Bourbaki52222
+
+end L_over_K_stuff
+
+section main_theorem_statement
+
+namespace Bourbaki52222
 
 open scoped Pointwise
 
@@ -545,46 +675,57 @@ open scoped Pointwise
 -- the residual Galois group `L ≃ₐ[K] L`, where L=Frac(B/Q) and K=Frac(A/P).
 -- Hopefully sorrys aren't too hard
 
-def Pointwise.quotientRingAction (Q' : Ideal B) (g : G) (hg : g • Q = Q') :
+def quotientRingAction (Q' : Ideal B) (g : G) (hg : g • Q = Q') :
     B ⧸ Q ≃+* B ⧸ Q' :=
   Ideal.quotientEquiv Q Q' (MulSemiringAction.toRingEquiv G B g) hg.symm
 
-def Pointwise.quotientAlgebraAction (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
+def quotientAlgebraAction (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
   __ := quotientRingAction Q Q g hg
   commutes' := sorry
 
-def Pointwise.quotientAlgebraActionMonoidHom :
+def quotientAlgebraActionMonoidHom :
     MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
   toFun gh := quotientAlgebraAction Q P gh.1 gh.2
   map_one' := sorry
   map_mul' := sorry
 
+variable (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
+  [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
+  (K : Type*) [Field K] [Algebra (A ⧸ P) K] [IsFractionRing (A ⧸ P) K]
+  [Algebra K L] [IsScalarTower (A ⧸ P) K L]
+
 noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
   __ := IsFractionRing.fieldEquivOfRingEquiv e.toRingEquiv
   commutes' := sorry
 
-noncomputable def Pointwise.stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
-  toFun gh := IsFractionRing.algEquiv_lift Q P L K (Pointwise.quotientAlgebraActionMonoidHom Q P gh)
-  map_one' := sorry
-  map_mul' := sorry
+noncomputable def stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
+  toFun gh := IsFractionRing.algEquiv_lift Q P L K (quotientAlgebraActionMonoidHom Q P gh)
+  map_one' := by
+    ext
+    simp
+    sorry
+  map_mul' := by
+    intro ⟨x, hx⟩ ⟨y, hy⟩
+    apply AlgEquiv.ext
+    intro l; dsimp
+    obtain ⟨r, s, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ _ L _ _ _ l
+    unfold IsFractionRing.algEquiv_lift
+    unfold IsFractionRing.fieldEquivOfRingEquiv
+    simp
+
+    sorry
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) in
+/-- From Bourbaki Comm Alg, Chapter V. -/
 theorem MulAction.stabilizer_surjective_of_action : Function.Surjective
-    (Pointwise.stabilizer.toGaloisGroup Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
+    (stabilizer.toGaloisGroup Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
   sorry
 
+end Bourbaki52222
+
+end main_theorem_statement
+
 section localization
-
-/-
-
-In this section we reduce to the case where P and Q are maximal.
-More precisely, we set `S := A - P` and localize everything in sight by `S`
-We then construct a group isomophism
-`MulAction.stabilizer G Q ≃ MulAction.stabilizer G SQ` where `SQ` is the prime ideal of `S⁻¹B`
-obtained by localizing `Q` at `S`, and show that it commutes with the maps currently called
-`baz2 Q P L K` and `baz2 SQ SP L K`.
-
--/
 
 abbrev S := P.primeCompl
 abbrev SA := A[(S P)⁻¹]
