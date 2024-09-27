@@ -120,14 +120,36 @@ variable {A : Type*} [CommRing A]
 
 
 variable (G) in
-/-- `F : B[X]` defined to be a product of linear factors `(X - τ • α)`; where
-`τ` runs over `L ≃ₐ[K] L`, and `α : B` is an element which generates `(B ⧸ Q)ˣ`
-and lies in `τ • Q` for all `τ ∉ (decomposition_subgroup_Ideal'  A K L B Q)`.-/
-private noncomputable abbrev F (b : B) : B[X] := ∏ᶠ τ : G, (X - C (τ • b))
+/-- The characteristic polynomial of an element `b` of a `G`-semiring `B`
+is the polynomial `∏_{g ∈ G} (X - g • b)` (here `G` is finite; junk
+returned in the infinite case) .-/
+noncomputable def MulSemiringAction.CharacteristicPolynomial.F (b : B) : B[X] :=
+  ∏ᶠ τ : G, (X - C (τ • b))
 
-private theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
+namespace MulSemiringAction.CharacteristicPolynomial
 
-private theorem F_smul_eq_self [Finite G] (σ : G) (b : B) : σ • (F G b) = F G b := calc
+theorem F_spec (b : B) : F G b = ∏ᶠ τ : G, (X - C (τ • b)) := rfl
+
+section F_API
+
+variable [Finite G]
+
+theorem F_monic (b : B) : (F G b).Monic := by
+  rw [F_spec]
+  sorry -- finprodmonic
+
+variable (G) in
+theorem F_degree (b : B) [Nontrivial B] : (F G b).degree = Nat.card G := by
+  unfold F
+  -- need (∏ᶠ fᵢ).degree = ∑ᶠ (fᵢ.degree)
+  -- then it should be easy
+  sorry
+
+theorem F_natdegree (b : B) [Nontrivial B] : (F G b).natDegree = Nat.card G := by
+  rw [← degree_eq_iff_natDegree_eq_of_pos Nat.card_pos]
+  exact F_degree G b
+
+theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
   σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rw [F_spec]
   _         = ∏ᶠ τ : G, σ • (X - C (τ • b)) := smul_finprod' _
   _         = ∏ᶠ τ : G, (X - C ((σ * τ) • b)) := by simp [smul_sub, smul_smul]
@@ -135,11 +157,18 @@ private theorem F_smul_eq_self [Finite G] (σ : G) (b : B) : σ • (F G b) = F 
                                                (Group.mulLeft_bijective σ) (fun _ ↦ rfl)
   _         = F G b := by rw [F_spec]
 
-private theorem F_eval_eq_zero [Finite G] (b : B) : (F G b).eval b = 0 := by
+theorem F_eval_eq_zero (b : B) : (F G b).eval b = 0 := by
   let foo := Fintype.ofFinite G
   simp [F_spec,finprod_eq_prod_of_fintype,eval_prod]
   apply @Finset.prod_eq_zero _ _ _ _ _ (1 : G) (Finset.mem_univ 1)
   simp
+
+private theorem F_coeff_fixed (b : B) (n : ℕ) (g : G) :
+    g • (F G b).coeff n = (F G b).coeff n := by
+  change (g • (F G b)).coeff n = _
+  rw [F_smul_eq_self]
+
+end F_API
 
 open scoped algebraMap
 
@@ -147,28 +176,99 @@ noncomputable local instance : Algebra A[X] B[X] :=
   RingHom.toAlgebra (Polynomial.mapRingHom (Algebra.toRingHom))
 
 @[simp, norm_cast]
-theorem coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
+theorem _root_.coe_monomial (n : ℕ) (a : A) : ((monomial n a : A[X]) : B[X]) = monomial n (a : B) :=
   map_monomial _
 
-private theorem F_descent [Finite G]
-    (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) (b : B) :
-    ∃ M : A[X], (M : B[X]) = F G b := by
-  choose f hf using fun b ↦ (hFull b)
-  classical
-  let f' : B → A := fun b ↦ if h : ∀ σ : G, σ • b = b then f b h else 37
-  use (∑ x ∈ (F G b).support, (monomial x) (f' ((F G b).coeff x)))
+section full_descent
+
+variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
+
+/-- This "splitting" function from B to A will only ever be evaluated on
+G-invariant elements of B, and the two key facts about it are
+that it lifts such an element to `A`, and for reasons of
+convenience it lifts `1` to `1`. -/
+noncomputable def splitting_of_full
+    (b : B) : A := by classical
+  exact
+  if b = 1 then 1 else
+    if h : ∀ σ : G, σ • b = b then (hFull b h).choose
+    else 37
+
+theorem splitting_of_full_spec {b : B} (hb : ∀ σ : G, σ • b = b) :
+    splitting_of_full hFull b = b := by
+  unfold splitting_of_full
+  split_ifs with h1
+  · rw_mod_cast [h1]
+  · exact (hFull b hb).choose_spec.symm
+
+theorem splitting_of_full_one : splitting_of_full hFull 1 = 1 := by
+  unfold splitting_of_full
+  rw [if_pos rfl]
+
+noncomputable def M (b : B) : A[X] :=
+  (∑ x ∈ (F G b).support, monomial x (splitting_of_full hFull ((F G b).coeff x)))
+
+theorem M_deg_le (b : B) : (M hFull b).degree ≤ (F G b).degree := by
+  unfold M
+  have := Polynomial.degree_sum_le (F G b).support (fun x => monomial x (splitting_of_full hFull ((F G b).coeff x)))
+  refine le_trans this ?_
+  rw [Finset.sup_le_iff]
+  intro n hn
+  apply le_trans (degree_monomial_le n _) ?_
+  exact le_degree_of_mem_supp n hn
+
+variable [Nontrivial B] [Finite G]
+
+theorem M_coeff_card (b : B) :
+    (M hFull b).coeff (Nat.card G) = 1 := by
+  unfold M
+  simp only [finset_sum_coeff]
+  have hdeg := F_degree G b
+  rw [degree_eq_iff_natDegree_eq_of_pos Nat.card_pos] at hdeg
+  rw [ ← hdeg]
+  rw [Finset.sum_eq_single_of_mem ((F G b).natDegree)]
+  · have : (F G b).Monic := F_monic b
+    simp
+    simp_all [splitting_of_full_one]
+  · refine natDegree_mem_support_of_nonzero ?h.H
+    intro h
+    rw [h] at hdeg
+    have : 0 < Nat.card G := Nat.card_pos
+    simp_all
+  · intro d _ hd
+    exact coeff_monomial_of_ne (splitting_of_full hFull ((F G b).coeff d)) hd
+
+theorem M_deg_eq_F_deg (b : B) : (M hFull b).degree = (F G b).degree := by
+  apply le_antisymm (M_deg_le hFull b)
+  -- hopefully not too hard from previous two lemmas
+  sorry
+
+theorem M_deg (b : B) : (M hFull b).degree = Nat.card G := by
+  rw [M_deg_eq_F_deg hFull b]
+  exact F_degree G b
+
+theorem M_monic (b : B) : (M hFull b).Monic := by
+  have this1 := M_deg_le hFull b
+  have this2 := M_coeff_card hFull b
+  have this3 : 0 < Nat.card G := Nat.card_pos
+  rw [← F_natdegree b] at this2 this3
+  -- then the hypos say deg(M)<=n, coefficient of X^n is 1 in M
+  have this4 : (M hFull b).natDegree ≤ (F G b).natDegree := natDegree_le_natDegree this1
+  clear this1
+  -- Now it's just a logic puzzle. If deg(F)=n>0 then we
+  -- know deg(M)<=n and the coefficient of X^n is 1 in M
+  sorry
+
+
+theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
+  unfold M
   ext N
   push_cast
+  simp_rw [splitting_of_full_spec hFull <| F_coeff_fixed b _]
   simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
-  simp only [Finset.sum_ite_eq', mem_support_iff, ne_eq, ite_not, f']
-  symm
-  split
-  · next h => exact h
-  · next h1 =>
-    rw [dif_pos <| fun σ ↦ ?_]
-    · refine hf ?_ ?_
-    · nth_rw 2 [← F_smul_eq_self σ]
-      rfl
+  aesop
+
+
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) [Finite G]
 
@@ -202,30 +302,48 @@ theorem M_monic (b : B) : (M G hFull b).Monic := (F_descent_monic hFull b).choos
 theorem M_eval_eq_zero (b : B) : (M G hFull b).eval₂ (algebraMap A B) b = 0 := by
   rw [eval₂_eq_eval_map, M_spec', F_eval_eq_zero]
 
+include hFull in
+theorem isIntegral : Algebra.IsIntegral A B where
+  isIntegral b := ⟨M hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
+
+end full_descent
+
+end MulSemiringAction.CharacteristicPolynomial
+
 end charpoly
 
 section part_a
+
+open MulSemiringAction.CharacteristicPolynomial
 
 variable {A : Type*} [CommRing A]
   {B : Type*} [CommRing B] [Algebra A B] [Nontrivial B]
   {G : Type*} [Group G] [Finite G] [MulSemiringAction G B]
 
-theorem isIntegral_of_Full (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
+theorem isIntegral_of_Full [Nontrivial B] (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     Algebra.IsIntegral A B where
-  isIntegral b := ⟨M G hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
+  isIntegral b := ⟨M hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
 
 variable (P Q : Ideal B) [P.IsPrime] [Q.IsPrime]
-  --
   (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
 
--- Algebra.IsIntegral A B
 open scoped Pointwise
+
+theorem Nontrivial_of_exists_prime {R : Type*} [CommRing R]
+    (h : ∃ P : Ideal R, P.IsPrime) : Nontrivial R := by
+  contrapose! h
+  intro P hP
+  rw [@not_nontrivial_iff_subsingleton] at h
+  obtain ⟨h, _⟩ := hP
+  apply h
+  apply Subsingleton.elim
 
 -- (Part a of Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
 theorem part_a [SMulCommClass G A B]
     (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
     (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     ∃ g : G, Q = g • P := by
+  haveI : Nontrivial B := Nontrivial_of_exists_prime ⟨Q, inferInstance⟩
   haveI : Algebra.IsIntegral A B := isIntegral_of_Full hFull'
   cases nonempty_fintype G
   suffices ∃ g : G, Q ≤ g • P by
@@ -268,6 +386,8 @@ theorem part_a [SMulCommClass G A B]
 end part_a
 
 -- section normal_elements
+-- I'm going to avoid this because I'm just going to use scaling.
+-- I'll show that every nonzero element of B/Q divides an element of A/P.
 
 -- variable (K : Type*) [Field K] {L : Type*} [Field L] [Algebra K L]
 
@@ -313,39 +433,182 @@ end part_a
 
 section part_b
 
-
-
 variable {A : Type*} [CommRing A]
   {B : Type*} [CommRing B] [Algebra A B]
   {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] [SMulCommClass G A B]
 
--- set-up for part (b) of the lemma. G acts on B with invariants A (or more precisely the
--- image of A). Warning: `P` was a prime ideal of `B` in part (a) but it's a prime ideal
--- of `A` here, in fact it's Q ∩ A, the preimage of Q in A.
-
 /-
-All I want to say is:
+Set-up for part (b) of the lemma. G acts on B with invariants A (or more precisely the
+image of A). Warning: `P` was a prime ideal of `B` in part (a) but it's a prime ideal
+of `A` here, in fact it's `Q ∩ A`, the preimage of `Q` in `A`.
+
+We want to consider the following commutative diagram.
 
 B ---> B / Q -----> L = Frac(B/Q)
-/\       /\        /\
-|        |         |
-|        |         |
+/\       /\         /\
+|        |          |
+|        |          |
 A ---> A / P ----> K = Frac(A/P)
 
+We will get to L, K, and the second square later.
+First let's explain how to do P and Q.
 -/
 variable (Q : Ideal B) [Q.IsPrime] (P : Ideal A) [P.IsPrime]
---#synth Algebra A (B ⧸ Q) #exit -- works
---#synth IsScalarTower A B (B ⧸ Q) #exit-- works
+-- #synth Algebra A (B ⧸ Q) #exit -- works
+---synth IsScalarTower A B (B ⧸ Q) #exit-- works
 -- (hPQ : Ideal.comap (algebraMap A B) P = p) -- we will *prove* this from the
 -- commutativity of the diagram! This is a trick I learnt from Jou who apparently
 -- learnt it from Amelia
   [Algebra (A ⧸ P) (B ⧸ Q)] [IsScalarTower A (A ⧸ P) (B ⧸ Q)]
 -- So now we know the left square commutes.
--- Amelia's trick: commutativity of this diagram implies P ⊇ Q ∩ A
--- And the fact that K and L are fields implies A / P -> B / Q is injective
--- and thus P = Q ∩ A
+-- Amelia's first trick: commutativity of th LH diagram implies `P ⊆ Q ∩ A`
+-- For the map `A -> A/P -> B/Q` must equal the map `A -> B -> B/Q` so `P` must
+-- be a subset of the kernel of `A → B/Q`, which is `A ∩ Q`
+
+omit [P.IsPrime] in
+theorem Ideal.Quotient.eq_zero_iff_mem' (x : A) :
+    algebraMap A (A ⧸ P) x = 0 ↔ x ∈ P :=
+  Ideal.Quotient.eq_zero_iff_mem
+
+section B_mod_Q_over_A_mod_P_stuff
+
+namespace MulSemiringAction.CharacteristicPolynomial
+
+example : Function.Surjective (Ideal.Quotient.mk Q) := Ideal.Quotient.mk_surjective
+
+open Polynomial
+/-
+I didn't check that this definition was independent
+of the lift `b` of `bbar` (and it might not even be true).
+But this doesn't matter, because `G` no longer acts on `B/Q`.
+All we need is that `Mbar` is monic of degree `|G|`, is defined over the bottom ring
+and kills `bbar`.
+-/
+variable {Q} in
+noncomputable def Mbar
+    (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
+    (bbar : B ⧸ Q) : (A ⧸ P)[X] :=
+  Polynomial.map (Ideal.Quotient.mk P) <| M hFull' <|
+    (Ideal.Quotient.mk_surjective bbar).choose
+
+variable (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
+
+theorem Mbar_deg (bbar : B ⧸ Q) : degree (Mbar P hFull' bbar) = Nat.card G := sorry
+
+theorem Mbar_monic (bbar : B ⧸ Q) : (Mbar P hFull' bbar).Monic := by
+  sorry
+
+theorem Mbar_eval_eq_zero (bbar : B ⧸ Q) : eval₂ (algebraMap (A ⧸ P) (B ⧸ Q)) bbar (Mbar P hFull' bbar) = 0 := by
+  sorry
+
+end CharacteristicPolynomial
+
+theorem reduction_isIntegral : Algebra.IsIntegral (A ⧸ P) (B ⧸ Q) := by
+  sorry
+
+end MulSemiringAction
+
+theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [CommRing S]
+    [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
+    ∃ r : R, r ≠ 0 ∧ s ∣ (r : S) := by
+  sorry
+
+end B_mod_Q_over_A_mod_P_stuff
+
+/-
+\section{The extension $L/K$.}
+
+\begin{theorem}
+  \label{foo1}
+If $\lambda\in L$ then there's a monic polynomial $P_\lambda\in K[X]$ of degree $|G|$
+with $\lambda$ as a root, and which splits completely in $L[X]$.
+\end{theorem}
+\begin{proof}
+  A general $\lambda\in L$ can be written as $\beta_1/\beta_2$ where $\beta_1,\beta_2\in B/Q$.
+  The previous corollary showed that there's some nonzero $\alpha\in A/P$ such that $\beta_2$
+  divides $\alpha$, and hence $\alpha\lambda\in B/Q$ (we just cleared denominators).
+  Thus $\alpha\lambda$ is a root of some monic polynomial $f(x)\in (A/P)[X]$,
+  by~\ref{MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}.
+  The polynomial $f(\alpha x)\in (A/P)[X]$ thus
+  has $\lambda$ as a root, but it is not monic; its leading term is $\alpha^n$.
+  Dividing through in $K[X]$ gives us the polynomial we seek.
+\end{proof}
+
+\begin{corollary} The extension $L/K$ is algebraic and normal.
+\end{corollary}
+\begin{proof} \uses{foo1}
+  Exercise using the previous theorem.
+\end{proof}
+
+Note that $L/K$ might not be separable and might have infinite degree. However
+
+\begin{corollary} Any subextension of $L/K$ which is finite and separable over $K$
+  has degree at most $|G|$.
+\end{corollary}
+\begin{proof}
+  Finite and separable implies simple, and we've already seen that any
+  element of $L$ has degree at most $|G|$ over $K$.
+\end{proof}
+
+\begin{corollary} The maximal separable subextension $M$ of $L/K$ has degree at most $|G|$.
+\end{corollary}
+\begin{proof} If it has dimension greater than $|G|$ over $K$, then it has a finitely-generated
+  subfeld of $K$-dimension greater than $|G|$, and is finite and separable, contradicting
+  the previous result.
+\end{proof}
+
+\begin{corollary} $\Aut_K(L)$ is finite.
+\end{corollary}
+\begin{proof} Any $K$-automorphism of $L$ is determined by where it sends $M$.
+\end{proof}
+
+\begin{corollary} $\Aut_{A/P}(B/Q)$ is finite.
+\end{corollary}
+\begin{proof}
+  Two elements of $\Aut_{A/P}(B/Q)$ which agree once extended to automorphisms of $L$
+  must have already been equal, as $B/Q\subseteq L$. Hence the canonical map
+  from $\Aut_{A/P}(B/Q)$ to $\Aut_K(L)$ is injective.
+\end{proof}
+
+\section{Proof of surjectivity.}
+
+\begin{definition} We fix once and for all some nonzero $y\in B/Q$ such that $M=K(y)$,
+  with $M$ the maximal separable subextension of $L/K$.
+\end{definition}
+
+Note that the existence of some $\lambda\in L$ with this property just comes from finite
+and separable implies simple; we can use the ``clear denominator'' technique introduced
+earlier to scale this by some nonzero $\alpha\in A$ into $B/Q$, as
+$K(\lambda)=K(\alpha\lambda)$.
+
+Here is a slightly delicate result whose proof I haven't thought too hard about.
+\begin{theorem} There exists some $x\in B$ and $\alpha\in A$ with the following
+  properties.
+  \begin{enumerate}
+  \item $x=\alpha y$ mod $Q$ and $\alpha$ isn't zero mod $Q$.
+  \item $x\in Q'$ for all $Q'\not=Q$ in the $G$-orbit of $Q$.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+  Idea. Localise away from P, then all the $Q_i$ are maximal, use CRT and then clear denominators.
+\end{proof}
+
+We now choose some $x\in B[1/S]$ which is $y$ modulo $Q$ and $0$ modulo all the other
+primes of $B$ above $P$, and consider the monic degree $|G|$ polynomial $f$ in $K[X]$
+with $x$ and its conjugates as roots. If $\sigma\in\Aut_K(L)$ then $\sigma(\overline{x})$
+is a root of $f$ as $\sigma$ fixes $K$ pointwise. Hence $\sigma(\overline{x})=\overline{g(x)}$
+for some $g\in G$, and because $\sigma(\overline{x})\not=0$ we have $\overline{g(x)}\not=0$
+and hence $g(x)\notin Q[1/S]$. Hence $x\notin g^{-1} Q[1/S]$ and thus $g^{-1}Q=Q$ and $g\in SD_Q$.
+Finally we have $\phi_g=\sigma$ on $K$ and on $y$, so they are equal on $M$ and hence on $L$ as
+$L/M$ is purely inseparable.
+
+This part of the argument seems weak.
+-/
+
+section L_over_K_stuff
+
 -- Let's now make the right square. First `L`
-  (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
+variable (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
   -- Now top left triangle: A / P → B / Q → L commutes
   [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
   -- now introduce K
@@ -362,17 +625,16 @@ variable (Q : Ideal B) [Q.IsPrime] (P : Ideal A) [P.IsPrime]
 
 variable [Nontrivial B]
 
--- version of Ideal.Quotient.eq_zero_iff_mem with algebraMap
-omit [P.IsPrime] in
-theorem Ideal.Quotient.eq_zero_iff_mem' (x : A) :
-    algebraMap A (A ⧸ P) x = 0 ↔ x ∈ P :=
-  Ideal.Quotient.eq_zero_iff_mem
 
--- not sure if we need this but let's prove it just to check our setup is OK
+-- Do we need a version of Ideal.Quotient.eq_zero_iff_mem with algebraMap?
+
+
+-- not sure if we need this but let's prove it just to check our setup is OK.
+-- The claim is that the preimage of Q really is P (rather than just contining P)
+-- and the proof is that A/P -> B/Q extends to a map of fields which is injective,
+-- so A/P -> B/Q must also be injective.
 open IsScalarTower in
-example : --[Algebra A k] [IsScalarTower A (A ⧸ p) k] [Algebra k K] [IsScalarTower (A ⧸ p) k K]
-    --[Algebra A K] [IsScalarTower A k K] :
-    Ideal.comap (algebraMap A B) Q = P := by
+example : Ideal.comap (algebraMap A B) Q = P := by
   ext x
   simp only [Ideal.mem_comap]
   rw [← Ideal.Quotient.eq_zero_iff_mem', ← Ideal.Quotient.eq_zero_iff_mem']
@@ -400,13 +662,23 @@ theorem IsAlgebraic.invLoc {R S K : Type*} [CommRing R] {M : Submonoid R} [CommR
   rw [← IsAlgebraic.invOf_iff, IsLocalization.invertible_mk'_one_invOf]
   exact h
 
-theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
-    [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
-    (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
-  -- ratio of two algebraic numbers is algebraic (follows from product of alg numbers is
-  -- alg, which we surely have, and reciprocal of algebraic number
-  -- is algebraic; proof of the latter is "reverse the min poly", don't know if we have it)
-  rw [isAlgebraic_def]
+open MulSemiringAction.CharacteristicPolynomial
+
+namespace Bourbaki52222
+
+variable (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) in
+variable (G) in
+noncomputable def residueFieldExtensionPolynomial [DecidableEq L] (x : L) : K[X] :=
+  if x = 0 then monomial (Nat.card G) 1
+  else 37 -- this is not actually right. In the nonzero case you
+  -- clear denominators with a nonzero element of A, using
+  -- `Algebra.exists_dvd_nonzero_if_isIntegral` above, and then use Mbar
+  -- scaled appropriately.
+
+theorem f [DecidableEq L] (l : L) :
+    ∃ f : K[X], f.Monic ∧ f.degree = Nat.card G ∧
+    eval₂ (algebraMap K L) l f = 0 ∧ f.Splits (algebraMap K L) := by
+  use Bourbaki52222.residueFieldExtensionPolynomial G L K l  rw [isAlgebraic_def]
   let M := nonZeroDivisors R
   intro x
   have ⟨r, s, h'⟩ := IsLocalization.mk'_surjective M x
@@ -426,8 +698,7 @@ theorem algebraMap_algebraMap {R S T : Type*} [CommRing R] [CommRing S] [CommRin
   (algebraMap S T) ((algebraMap R S) r) = (algebraMap R T) r := by
   exact Eq.symm (IsScalarTower.algebraMap_apply R S T r)
 
--- (Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
-theorem Pointwise.residueFieldExtension_algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B] [Algebra A B]
+theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B] [Algebra A B]
   [Algebra.IsIntegral A B] {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] (Q : Ideal B)
   [Q.IsPrime] (P : Ideal A) [P.IsPrime] [Algebra (A ⧸ P) (B ⧸ Q)]
   [IsScalarTower A (A ⧸ P) (B ⧸ Q)] (L : Type*) [Field L] [Algebra (B ⧸ Q) L]
@@ -437,11 +708,6 @@ theorem Pointwise.residueFieldExtension_algebraic {A : Type*} [CommRing A] {B : 
   [Algebra B L] [IsScalarTower B (B ⧸ Q) L] [Algebra A L] [IsScalarTower A K L]
   [IsScalarTower A B L]
   (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a): Algebra.IsAlgebraic K L := by
-  /-
-  Because of `IsFractionRing (B ⧸ Q) K` and the previous lemma it suffices to show that every
-  element of B/Q is algebraic over k, and this is because you can lift to b ∈ B and then
-  use `M` above (which needs to be coerced to A/P and then to K)
-  -/
   apply @Algebra.isAlgebraic_of_subring_isAlgebraic (B ⧸ Q)
   intro b_bar
   have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
@@ -456,24 +722,32 @@ theorem Pointwise.residueFieldExtension_algebraic {A : Type*} [CommRing A] {B : 
     rw [algebraMap_algebraMap, aeval_def, eval₂_eq_eval_map, map_map, ← IsScalarTower.algebraMap_eq]
     rw [IsScalarTower.algebraMap_eq A B L, ← map_map, M_spec']
     rw [eval_map, eval₂_hom, F_eval_eq_zero]
-    exact algebraMap.coe_zero
-
-theorem Pointwise.residueFieldExtension_normal : Normal K L := by
-  /-
-
-  See discussion at
-  https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/poly.20whose.20roots.20are.20the.20products.20of.20the.20roots.20of.20polys/near/468585267
-
-  Maybe I won't formalise the below proof then (which I made up):
-  Let's temporarily say that an *element* of `K` is _normal_ if it is the root of a monic poly
-  in `k[X]` all of whose roots are in `K`. Then `K/k` is normal iff all elements are normal
-  (if `t` is a root of `P ∈ k[X]` then the min poly of `t` must divide `P`).
-  I claim that the product of two normal elements is normal. Indeed if `P` and `Q` are monic polys
-  in `k[X]` with roots `xᵢ` and `yⱼ` then there's another monic poly in `k[X]` whose roots are
-  the products `xᵢyⱼ`. Also the reciprocal of a nonzero normal element is normal (reverse the
-  polynomial and take the reciprocals of all the roots). This is enough.
-  -/
+    exact algebraMap.coe_zerotheorem normal : Normal K L := by
   sorry
+
+open FiniteDimensional
+
+theorem separableClosure_finiteDimensional : FiniteDimensional K (separableClosure K L) := sorry
+
+-- degree of max sep subextension is ≤ |G|
+theorem separableClosure_finrank_le : finrank K (separableClosure K L) ≤ Nat.card G := sorry
+
+open scoped IntermediateField
+theorem primitive_element : ∃ y : L, K⟮y⟯ = separableClosure K L := sorry
+
+-- this definition might break when primitive_element is proved because there will be
+-- more hypotheses.
+noncomputable def y : L := (primitive_element L K).choose
+
+--noncomputable def y_spec : K⟮y⟯ = separableClosure K L := (primitive_element L K).choose_spec
+
+end Bourbaki52222
+
+end L_over_K_stuff
+
+section main_theorem_statement
+
+namespace Bourbaki52222
 
 open scoped Pointwise
 
@@ -481,21 +755,11 @@ open scoped Pointwise
 -- the residual Galois group `L ≃ₐ[K] L`, where L=Frac(B/Q) and K=Frac(A/P).
 -- Hopefully sorrys aren't too hard
 
-/-
-All I want to say is:
-
-B ---> B / Q -----> L = Frac(B/Q)
-/\       /\        /\
-|        |         |
-|        |         |
-A ---> A / P ----> K = Frac(A/P)
--/
-
-def Pointwise.quotientRingAction (Q' : Ideal B) (g : G) (hg : g • Q = Q') :
+def quotientRingAction (Q' : Ideal B) (g : G) (hg : g • Q = Q') :
     B ⧸ Q ≃+* B ⧸ Q' :=
   Ideal.quotientEquiv Q Q' (MulSemiringAction.toRingEquiv G B g) hg.symm
 
-def Pointwise.quotientAlgebraAction (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
+def quotientAlgebraAction (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
   __ := quotientRingAction Q Q g hg
   commutes' := by
     intro a_bar; dsimp
@@ -527,6 +791,13 @@ def Pointwise.quotientAlgebraActionMonoidHom :
     simp
     rw [smul_smul]
 
+variable (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
+  [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
+  (K : Type*) [Field K] [Algebra (A ⧸ P) K] [IsFractionRing (A ⧸ P) K]
+  [Algebra K L] [IsScalarTower (A ⧸ P) K L]
+
+
+
 noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
   __ := IsFractionRing.fieldEquivOfRingEquiv e.toRingEquiv
   commutes' := by
@@ -538,34 +809,40 @@ noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B 
     unfold IsLocalization.ringEquivOfRingEquiv
     simp [IsScalarTower.algebraMap_apply (A ⧸ P) (B ⧸ Q) L]
 
-noncomputable def Pointwise.stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
-  toFun gh := IsFractionRing.algEquiv_lift Q P L K (Pointwise.quotientAlgebraActionMonoidHom Q P gh)
+noncomputable def stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
+  toFun gh := IsFractionRing.algEquiv_lift Q P L K (quotientAlgebraActionMonoidHom Q P gh)
   map_one' := by
+    ext
+    simp
+    by
     apply AlgEquiv.ext
     intro l; simp
     obtain ⟨x, y, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ _ L _ _ _ l
     unfold IsFractionRing.algEquiv_lift
     unfold IsFractionRing.fieldEquivOfRingEquiv
     simp
-  map_mul' := sorry
+  map_mul' := by
+    intro ⟨x, hx⟩ ⟨y, hy⟩
+    apply AlgEquiv.ext
+    intro l; dsimp
+    obtain ⟨r, s, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ _ L _ _ _ l
+    unfold IsFractionRing.algEquiv_lift
+    unfold IsFractionRing.fieldEquivOfRingEquiv
+    simp
+
+    sorry
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) in
+/-- From Bourbaki Comm Alg, Chapter V. -/
 theorem MulAction.stabilizer_surjective_of_action : Function.Surjective
-    (Pointwise.stabilizer.toGaloisGroup Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
+    (stabilizer.toGaloisGroup Q P L K : MulAction.stabilizer G Q → (L ≃ₐ[K] L)) := by
   sorry
 
+end Bourbaki52222
+
+end main_theorem_statement
+
 section localization
-
-/-
-
-In this section we reduce to the case where P and Q are maximal.
-More precisely, we set `S := A - P` and localize everything in sight by `S`
-We then construct a group isomophism
-`MulAction.stabilizer G Q ≃ MulAction.stabilizer G SQ` where `SQ` is the prime ideal of `S⁻¹B`
-obtained by localizing `Q` at `S`, and show that it commutes with the maps currently called
-`baz2 Q P L K` and `baz2 SQ SP L K`.
-
--/
 
 abbrev S := P.primeCompl
 abbrev SA := A[(S P)⁻¹]
