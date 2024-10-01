@@ -138,16 +138,16 @@ theorem F_monic [Nontrivial B] (b : B) : (F G b).Monic := by
   have := Fintype.ofFinite G
   rw [Monic, F_spec, finprod_eq_prod_of_fintype, leadingCoeff_prod'] <;> simp
 
-variable (G) in
-theorem F_degree [Nontrivial B] [NoZeroDivisors B] (b : B) : (F G b).degree = Nat.card G := by
+theorem F_natdegree [Nontrivial B] (b : B) : (F G b).natDegree = Nat.card G := by
   have := Fintype.ofFinite G
-  rw [F_spec, finprod_eq_prod_of_fintype, Polynomial.degree_prod]
-  simp only [degree_X_sub_C, Finset.sum_const, Finset.card_univ, Fintype.card_eq_nat_card,
-    nsmul_eq_mul, mul_one]
+  rw [F_spec, finprod_eq_prod_of_fintype, natDegree_prod_of_monic _ _ (fun _ _ => monic_X_sub_C _)]
+  simp only [natDegree_X_sub_C, Finset.sum_const, Finset.card_univ, Fintype.card_eq_nat_card,
+    nsmul_eq_mul, mul_one, Nat.cast_id]
 
-theorem F_natdegree [Nontrivial B] [NoZeroDivisors B] (b : B) : (F G b).natDegree = Nat.card G := by
-  rw [← degree_eq_iff_natDegree_eq_of_pos Nat.card_pos]
-  exact F_degree G b
+variable (G) in
+theorem F_degree [Nontrivial B] (b : B) : (F G b).degree = Nat.card G := by
+  have := Fintype.ofFinite G
+  rw [degree_eq_iff_natDegree_eq_of_pos Nat.card_pos, F_natdegree]
 
 theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
   σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rw [F_spec]
@@ -220,8 +220,7 @@ theorem M_deg_le (b : B) : (M hFull b).degree ≤ (F G b).degree := by
   apply le_trans (degree_monomial_le n _) ?_
   exact le_degree_of_mem_supp n hn
 
-section
-variable [Nontrivial B] [NoZeroDivisors B] [Finite G]
+variable [Nontrivial B] [Finite G]
 
 theorem M_coeff_card (b : B) :
     (M hFull b).coeff (Nat.card G) = 1 := by
@@ -264,10 +263,8 @@ theorem M_monic (b : B) : (M hFull b).Monic := by
   -- then the hypos say deg(M)<=n, coefficient of X^n is 1 in M
   have this4 : (M hFull b).natDegree ≤ (F G b).natDegree := natDegree_le_natDegree this1
   exact Polynomial.monic_of_natDegree_le_of_coeff_eq_one _ this4 this2
-end
 
-variable [Finite G]
-
+omit [Nontrivial B] in
 theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
   unfold M
   ext N
@@ -299,14 +296,16 @@ theorem M_spec' (b : B) : (map (algebraMap A B) (M G hFull b)) = F G b :=
 theorem M_monic (b : B) : (M G hFull b).Monic := (F_descent_monic hFull b).choose_spec.2
 -/
 
+omit [Nontrivial B] in
 theorem coe_poly_as_map (p : A[X]) : (p : B[X]) = map (algebraMap A B) p := rfl
 
 
+omit [Nontrivial B] in
 theorem M_eval_eq_zero (b : B) : (M hFull b).eval₂ (algebraMap A B) b = 0 := by
   rw [eval₂_eq_eval_map, ← coe_poly_as_map, M_spec, F_eval_eq_zero]
 
 include hFull in
-theorem isIntegral [Nontrivial B] [NoZeroDivisors B] : Algebra.IsIntegral A B where
+theorem isIntegral : Algebra.IsIntegral A B where
   isIntegral b := ⟨M hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
 
 end full_descent
@@ -323,8 +322,7 @@ variable {A : Type*} [CommRing A]
   {B : Type*} [CommRing B] [Algebra A B] [Nontrivial B]
   {G : Type*} [Group G] [Finite G] [MulSemiringAction G B]
 
-theorem isIntegral_of_Full [NoZeroDivisors B]
-    (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
+theorem isIntegral_of_Full (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     Algebra.IsIntegral A B where
   isIntegral b := ⟨M hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
 
@@ -343,8 +341,8 @@ theorem Nontrivial_of_exists_prime {R : Type*} [CommRing R]
   apply Subsingleton.elim
 
 -- (Part a of Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
-omit [Nontrivial B] in
-theorem part_a [SMulCommClass G A B] [NoZeroDivisors B]
+omit   [Nontrivial B] in
+theorem part_a [SMulCommClass G A B]
     (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
     (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     ∃ g : G, Q = g • P := by
@@ -712,9 +710,8 @@ theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] 
 -- this uses `Algebra.isAlgebraic_of_subring_isAlgebraic` but I think we're going to have
 -- to introduce `f` anyway because we need not just that the extension is algebraic but
 -- that every element satisfies a poly of degree <= |G|.
-theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B]
-  [NoZeroDivisors B] [Algebra A B] [Algebra.IsIntegral A B]
-  {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] (Q : Ideal B)
+theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B] [Algebra A B]
+  [Algebra.IsIntegral A B] {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] (Q : Ideal B)
   [Q.IsPrime] (P : Ideal A) [P.IsPrime] [Algebra (A ⧸ P) (B ⧸ Q)]
   [IsScalarTower A (A ⧸ P) (B ⧸ Q)] (L : Type*) [Field L] [Algebra (B ⧸ Q) L]
   [IsFractionRing (B ⧸ Q) L] [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
