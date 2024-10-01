@@ -183,7 +183,7 @@ section full_descent
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
 
--- **IMPORTANT** The `splitting_of_full` approach is lousy and should be
+-- Remark: the `splitting_of_full` approach is lousy and should be
 -- replaced by the commented-out code below (lines 275-296 currently)
 
 /-- This "splitting" function from B to A will only ever be evaluated on
@@ -241,7 +241,6 @@ theorem M_coeff_card (b : B) :
   · intro d _ hd
     exact coeff_monomial_of_ne (splitting_of_full hFull ((F G b).coeff d)) hd
 
--- **IMPORTANT** `M` should be refactored before proving this. See commented out code below.
 theorem M_deg_eq_F_deg [Nontrivial A] (b : B) : (M hFull b).degree = (F G b).degree := by
   apply le_antisymm (M_deg_le hFull b)
   rw [F_degree]
@@ -254,7 +253,6 @@ theorem M_deg [Nontrivial A] (b : B) : (M hFull b).degree = Nat.card G := by
   rw [M_deg_eq_F_deg hFull b]
   exact F_degree G b
 
--- **IMPORTANT** `M` should be refactored before proving this. See commented out code below.
 theorem M_monic (b : B) : (M hFull b).Monic := by
   have this1 := M_deg_le hFull b
   have this2 := M_coeff_card hFull b

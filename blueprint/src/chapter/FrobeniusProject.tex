@@ -340,30 +340,69 @@ Note that $L/K$ might not be separable and might have infinite degree. However
   with $M$ the maximal separable subextension of $L/K$.
 \end{definition}
 
+NB we do use nonzeroness at some point, and $y$ can be zero in the case $L=K$
+(this seems to have been missed by Bourbaki).
+
 Note that the existence of some $\lambda\in L$ with this property just comes from finite
 and separable implies simple; we can use the ``clear denominator'' technique introduced
 earlier to scale this by some nonzero $\alpha\in A$ into $B/Q$, as
 $K(\lambda)=K(\alpha\lambda)$.
 
-Here is a slightly delicate result whose proof I haven't thought too hard about.
+Our next goal is the following result:
 \begin{theorem} There exists some $x\in B$ and $\alpha\in A$ with the following
   properties.
   \begin{enumerate}
-  \item $x=\alpha y$ mod $Q$ and $\alpha$ isn't zero mod $Q$.
+  \item $x=\alpha y$ mod $Q$ and $\alpha$ isn't zero mod $P$.
   \item $x\in Q'$ for all $Q'\not=Q$ in the $G$-orbit of $Q$.
   \end{enumerate}
 \end{theorem}
+
+Bourbaki only prove this in the case that $P$ is maximal (and implicitly use $\alpha=1$),
+but this generalisation seems to be fine. To prove it, we need to talk a little about localization.
+
+Let $S$ be the complement of $P$, so $S$ is a multiplicative subset of $A$.
+Write $A[1/S]$ for the localisation of $A$ at $S$, and write $B[1/S]$
+for the localisation of $B$ at (the image of) $S$. I suspect that this is the
+same as $B\otimes_AA[1/S]$.
+
+\begin{lemma}
+  The prime ideals of $B[1/S]$ over $P[1/S] \subseteq A[1/S]$ biject naturally with
+  the prime ideals of $B$ over $P$. More precisely, the $B$-algebra $B[1/S]$
+  gives a canonical map $B\to B[1/S]$ and hence a canonical map from prime ideals
+  of $B[1/S]$ to prime ideals of $B$. The claim is that this map induces
+  a bijection between the primes of $B[1/S]$ above $P[1/S]$ and the primes
+  of $B$ above $P$.
+\end{lemma}
 \begin{proof}
-  Idea. Localise away from P, then all the $Q_i$ are maximal, use CRT and then clear denominators.
+  Hopefully this is in mathlib in some form already. In general $\Spec(B[1/S])$ is just the subset of $\Spec(B)$
+  consisting of primes of $B$ which miss $S$ (i.e., whose intersection with $A$ is a subset of $P$).
 \end{proof}
 
-We now choose some $x\in B[1/S]$ which is $y$ modulo $Q$ and $0$ modulo all the other
-primes of $B$ above $P$, and consider the monic degree $|G|$ polynomial $f$ in $K[X]$
-with $x$ and its conjugates as roots. If $\sigma\in\Aut_K(L)$ then $\sigma(\overline{x})$
+\begin{lemma}
+  The primes of $B[1/S]$ above $P[1/S]$ are all maximal.
+\end{lemma}
+\begin{proof}
+  This follows from {\tt Algebra.IsIntegral.isField\_iff\_isField} and the fact
+  that an ideal is maximal iff the quotient by it is a field.
+\end{proof}
+
+\begin{proof}(of theorem):
+Because all these ideals of $B[1/S]$ are maximal, they're pairwise coprime.
+So by the Chinese Remainder Theorem we can find an element of $B[1/S]$ which
+is equal to $y$ modulo $Q[1/S]$ and equal to $0$ modulo all the other primes.
+This element is of the form $x/\alpha$ for some $x\in B$ and $\alpha\in S$,
+and one now checks that everything works.
+\end{proof}
+
+It is probably worth remarking that the rest of the surjectivity argument was done
+by Jou Glasheen in the special case of number fields, in the file {\tt Frobenius2.lean}
+
+Briefly: we consider the monic degree $|G|$ polynomial $f_x$ in $K[X]$ or $\overline{M}_x$ in $(A/P)[X]$,
+which has $x$ and its G-conjugates as roots. If $\sigma\in\Aut_K(L)$ then $\sigma(\overline{x})$
 is a root of $f$ as $\sigma$ fixes $K$ pointwise. Hence $\sigma(\overline{x})=\overline{g(x)}$
-for some $g\in G$, and because $\sigma(\overline{x})\not=0$ we have $\overline{g(x)}\not=0$
+for some $g\in G$ (because we're over an integral domain), and because $\sigma(\overline{x})\not=0$ we have $\overline{g(x)}\not=0$
 and hence $g(x)\notin Q[1/S]$. Hence $x\notin g^{-1} Q[1/S]$ and thus $g^{-1}Q=Q$ and $g\in SD_Q$.
 Finally we have $\phi_g=\sigma$ on $K$ and on $y$, so they are equal on $M$ and hence on $L$ as
 $L/M$ is purely inseparable.
 
-This part of the argument seems weak.
+TODO: break this up into smaller pieces.
