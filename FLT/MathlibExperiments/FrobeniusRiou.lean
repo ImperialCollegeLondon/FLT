@@ -494,10 +494,20 @@ noncomputable def Mbar
 
 variable (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
 
-theorem Mbar_deg (bbar : B ⧸ Q) : degree (Mbar P hFull' bbar) = Nat.card G := sorry
+omit [SMulCommClass G A B] [Q.IsPrime] [P.IsPrime] [Algebra (A ⧸ P) (B ⧸ Q)]
+  [IsScalarTower A (A ⧸ P) (B ⧸ Q)] in
+theorem Mbar_monic [Nontrivial B] (bbar : B ⧸ Q) : (Mbar P hFull' bbar).Monic := by
+  have := M_monic hFull'
+  simp [Mbar, (M_monic hFull' _).map]
 
-theorem Mbar_monic (bbar : B ⧸ Q) : (Mbar P hFull' bbar).Monic := by
-  sorry
+omit [SMulCommClass G A B] [Q.IsPrime] [Algebra (A ⧸ P) (B ⧸ Q)] [IsScalarTower A (A ⧸ P) (B ⧸ Q)] in
+theorem Mbar_deg [Nontrivial A] [Nontrivial B] (bbar : B ⧸ Q) :
+    degree (Mbar P hFull' bbar) = Nat.card G := by
+  simp only [Mbar]
+  rw [degree_map_eq_of_leadingCoeff_ne_zero]
+  · exact M_deg hFull' _
+  · rw [(M_monic hFull' _).leadingCoeff]
+    simp only [map_one, ne_eq, one_ne_zero, not_false_eq_true]
 
 theorem Mbar_eval_eq_zero (bbar : B ⧸ Q) : eval₂ (algebraMap (A ⧸ P) (B ⧸ Q)) bbar (Mbar P hFull' bbar) = 0 := by
   sorry
