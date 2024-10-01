@@ -1,0 +1,22 @@
+name: Update Dependencies
+
+on:
+  schedule:             # Sets a schedule to trigger the workflow
+  - cron: "0 8 */3 * *" # Every 3 days at 08:00 AM UTC (for more info on the cron syntax see https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule)
+  workflow_dispatch:    # Allows the workflow to be triggered manually via the GitHub interface
+
+jobs:
+  update_lean:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # Grants permission to push changes to the repository
+      issues: write        # Grants permission to create or update issues
+      pull-requests: write # Grants permission to create or update pull requests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Update project
+        uses: oliver-butterley/lean-update@v1-alpha
+        with:
+          on_update_succeeds: pr # Create a pull request if the update succeeds
+          on_update_fails: issue # Create an issue if the update fails
