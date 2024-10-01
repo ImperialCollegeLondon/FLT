@@ -183,6 +183,9 @@ section full_descent
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
 
+-- **IMPORTANT** The `splitting_of_full` approach is lousy and should be
+-- replaced by the commented-out code below (lines 275-296 currently)
+
 /-- This "splitting" function from B to A will only ever be evaluated on
 G-invariant elements of B, and the two key facts about it are
 that it lifts such an element to `A`, and for reasons of
@@ -238,6 +241,7 @@ theorem M_coeff_card (b : B) :
   · intro d _ hd
     exact coeff_monomial_of_ne (splitting_of_full hFull ((F G b).coeff d)) hd
 
+-- **IMPORTANT** `M` should be refactored before proving this. See commented out code below.
 theorem M_deg_eq_F_deg (b : B) : (M hFull b).degree = (F G b).degree := by
   apply le_antisymm (M_deg_le hFull b)
   -- hopefully not too hard from previous two lemmas
@@ -247,6 +251,7 @@ theorem M_deg (b : B) : (M hFull b).degree = Nat.card G := by
   rw [M_deg_eq_F_deg hFull b]
   exact F_degree G b
 
+-- **IMPORTANT** `M` should be refactored before proving this. See commented out code below.
 theorem M_monic (b : B) : (M hFull b).Monic := by
   have this1 := M_deg_le hFull b
   have this2 := M_coeff_card hFull b
@@ -268,7 +273,7 @@ theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
   simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
   aesop
 
-/--
+/-
 private theorem F_descent_monic
   (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) (b : B) :
     ∃ M : A[X], (M : B[X]) = F G b ∧ Monic M := by
@@ -291,9 +296,11 @@ theorem M_spec' (b : B) : (map (algebraMap A B) (M G hFull b)) = F G b :=
 theorem M_monic (b : B) : (M G hFull b).Monic := (F_descent_monic hFull b).choose_spec.2
 --/
 
+omit [Nontrivial B] in
 theorem coe_poly_as_map (p : A[X]) : (p : B[X]) = map (algebraMap A B) p := rfl
 
 
+omit [Nontrivial B] in
 theorem M_eval_eq_zero (b : B) : (M hFull b).eval₂ (algebraMap A B) b = 0 := by
   rw [eval₂_eq_eval_map, ← coe_poly_as_map, M_spec, F_eval_eq_zero]
 
@@ -334,6 +341,7 @@ theorem Nontrivial_of_exists_prime {R : Type*} [CommRing R]
   apply Subsingleton.elim
 
 -- (Part a of Théorème 2 in section 2 of chapter 5 of Bourbaki Alg Comm)
+omit   [Nontrivial B] in
 theorem part_a [SMulCommClass G A B]
     (hPQ : Ideal.comap (algebraMap A B) P = Ideal.comap (algebraMap A B) Q)
     (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
@@ -670,7 +678,7 @@ noncomputable def residueFieldExtensionPolynomial [DecidableEq L] (x : L) : K[X]
   -- `Algebra.exists_dvd_nonzero_if_isIntegral` above, and then use Mbar
   -- scaled appropriately.
 
-theorem f [DecidableEq L] (l : L) :
+theorem f_exists [DecidableEq L] (l : L) :
     ∃ f : K[X], f.Monic ∧ f.degree = Nat.card G ∧
     eval₂ (algebraMap K L) l f = 0 ∧ f.Splits (algebraMap K L) := by
   use Bourbaki52222.residueFieldExtensionPolynomial G L K l
@@ -699,6 +707,9 @@ theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] 
   apply IsAlgebraic.mul (h r)
   exact IsAlgebraic.invLoc (h s)
 
+-- this uses `Algebra.isAlgebraic_of_subring_isAlgebraic` but I think we're going to have
+-- to introduce `f` anyway because we need not just that the extension is algebraic but
+-- that every element satisfies a poly of degree <= |G|.
 theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B] [Algebra A B]
   [Algebra.IsIntegral A B] {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] (Q : Ideal B)
   [Q.IsPrime] (P : Ideal A) [P.IsPrime] [Algebra (A ⧸ P) (B ⧸ Q)]
