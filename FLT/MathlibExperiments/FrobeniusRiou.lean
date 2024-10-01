@@ -138,16 +138,16 @@ theorem F_monic [Nontrivial B] (b : B) : (F G b).Monic := by
   have := Fintype.ofFinite G
   rw [Monic, F_spec, finprod_eq_prod_of_fintype, leadingCoeff_prod'] <;> simp
 
-variable (G) in
-theorem F_degree (b : B) [Nontrivial B] : (F G b).degree = Nat.card G := by
-  unfold F
-  -- need (∏ᶠ fᵢ).degree = ∑ᶠ (fᵢ.degree)
-  -- then it should be easy
-  sorry
-
 theorem F_natdegree [Nontrivial B] (b : B) : (F G b).natDegree = Nat.card G := by
-  rw [← degree_eq_iff_natDegree_eq_of_pos Nat.card_pos]
-  exact F_degree G b
+  have := Fintype.ofFinite G
+  rw [F_spec, finprod_eq_prod_of_fintype, natDegree_prod_of_monic _ _ (fun _ _ => monic_X_sub_C _)]
+  simp only [natDegree_X_sub_C, Finset.sum_const, Finset.card_univ, Fintype.card_eq_nat_card,
+    nsmul_eq_mul, mul_one, Nat.cast_id]
+
+variable (G) in
+theorem F_degree [Nontrivial B] (b : B) : (F G b).degree = Nat.card G := by
+  have := Fintype.ofFinite G
+  rw [degree_eq_iff_natDegree_eq_of_pos Nat.card_pos, F_natdegree]
 
 theorem F_smul_eq_self (σ : G) (b : B) : σ • (F G b) = F G b := calc
   σ • F G b = σ • ∏ᶠ τ : G, (X - C (τ • b)) := by rw [F_spec]
@@ -242,12 +242,15 @@ theorem M_coeff_card (b : B) :
     exact coeff_monomial_of_ne (splitting_of_full hFull ((F G b).coeff d)) hd
 
 -- **IMPORTANT** `M` should be refactored before proving this. See commented out code below.
-theorem M_deg_eq_F_deg (b : B) : (M hFull b).degree = (F G b).degree := by
+theorem M_deg_eq_F_deg [Nontrivial A] (b : B) : (M hFull b).degree = (F G b).degree := by
   apply le_antisymm (M_deg_le hFull b)
-  -- hopefully not too hard from previous two lemmas
-  sorry
+  rw [F_degree]
+  have := M_coeff_card hFull b
+  refine le_degree_of_ne_zero ?h
+  rw [this]
+  exact one_ne_zero
 
-theorem M_deg (b : B) : (M hFull b).degree = Nat.card G := by
+theorem M_deg [Nontrivial A] (b : B) : (M hFull b).degree = Nat.card G := by
   rw [M_deg_eq_F_deg hFull b]
   exact F_degree G b
 
@@ -259,10 +262,7 @@ theorem M_monic (b : B) : (M hFull b).Monic := by
   rw [← F_natdegree b] at this2 this3
   -- then the hypos say deg(M)<=n, coefficient of X^n is 1 in M
   have this4 : (M hFull b).natDegree ≤ (F G b).natDegree := natDegree_le_natDegree this1
-  clear this1
-  -- Now it's just a logic puzzle. If deg(F)=n>0 then we
-  -- know deg(M)<=n and the coefficient of X^n is 1 in M
-  sorry
+  exact Polynomial.monic_of_natDegree_le_of_coeff_eq_one _ this4 this2
 
 omit [Nontrivial B] in
 theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
@@ -294,7 +294,7 @@ theorem M_spec' (b : B) : (map (algebraMap A B) (M G hFull b)) = F G b :=
   (F_descent_monic hFull b).choose_spec.1
 
 theorem M_monic (b : B) : (M G hFull b).Monic := (F_descent_monic hFull b).choose_spec.2
---/
+-/
 
 omit [Nontrivial B] in
 theorem coe_poly_as_map (p : A[X]) : (p : B[X]) = map (algebraMap A B) p := rfl
