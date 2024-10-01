@@ -134,9 +134,9 @@ section F_API
 
 variable [Finite G]
 
-theorem F_monic (b : B) : (F G b).Monic := by
-  rw [F_spec]
-  sorry -- finprodmonic
+theorem F_monic [Nontrivial B] (b : B) : (F G b).Monic := by
+  have := Fintype.ofFinite G
+  rw [Monic, F_spec, finprod_eq_prod_of_fintype, leadingCoeff_prod'] <;> simp
 
 variable (G) in
 theorem F_degree (b : B) [Nontrivial B] : (F G b).degree = Nat.card G := by
@@ -145,7 +145,7 @@ theorem F_degree (b : B) [Nontrivial B] : (F G b).degree = Nat.card G := by
   -- then it should be easy
   sorry
 
-theorem F_natdegree (b : B) [Nontrivial B] : (F G b).natDegree = Nat.card G := by
+theorem F_natdegree [Nontrivial B] (b : B) : (F G b).natDegree = Nat.card G := by
   rw [← degree_eq_iff_natDegree_eq_of_pos Nat.card_pos]
   exact F_degree G b
 
@@ -259,7 +259,7 @@ theorem M_monic (b : B) : (M hFull b).Monic := by
   -- know deg(M)<=n and the coefficient of X^n is 1 in M
   sorry
 
-
+omit [Nontrivial B] in
 theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
   unfold M
   ext N
@@ -268,12 +268,34 @@ theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
   simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
   aesop
 
+/--
+private theorem F_descent_monic
+  (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) (b : B) :
+    ∃ M : A[X], (M : B[X]) = F G b ∧ Monic M := by
+  have : F G b ∈ Polynomial.lifts (algebraMap A B) := by
+    choose M hM using F_descent hFull b
+    use M; exact hM
+  choose M hM using lifts_and_degree_eq_and_monic this (F_monic b)
+  use M
+  exact ⟨hM.1, hM.2.2⟩
 
+variable (G) in
+noncomputable def M [Finite G] (b : B) : A[X] := (F_descent_monic hFull b).choose
 
-variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
+theorem M_spec (b : B) : ((M G hFull b : A[X]) : B[X]) = F G b :=
+  (F_descent_monic hFull b).choose_spec.1
+
+theorem M_spec' (b : B) : (map (algebraMap A B) (M G hFull b)) = F G b :=
+  (F_descent_monic hFull b).choose_spec.1
+
+theorem M_monic (b : B) : (M G hFull b).Monic := (F_descent_monic hFull b).choose_spec.2
+--/
+
+theorem coe_poly_as_map (p : A[X]) : (p : B[X]) = map (algebraMap A B) p := rfl
+
 
 theorem M_eval_eq_zero (b : B) : (M hFull b).eval₂ (algebraMap A B) b = 0 := by
-  sorry -- follows from `F_eval_eq_zero`
+  rw [eval₂_eq_eval_map, ← coe_poly_as_map, M_spec, F_eval_eq_zero]
 
 include hFull in
 theorem isIntegral : Algebra.IsIntegral A B where
@@ -290,10 +312,10 @@ section part_a
 open MulSemiringAction.CharacteristicPolynomial
 
 variable {A : Type*} [CommRing A]
-  {B : Type*} [CommRing B] [Algebra A B]
+  {B : Type*} [CommRing B] [Algebra A B] [Nontrivial B]
   {G : Type*} [Group G] [Finite G] [MulSemiringAction G B]
 
-theorem isIntegral_of_Full [Nontrivial B] (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
+theorem isIntegral_of_Full (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
     Algebra.IsIntegral A B where
   isIntegral b := ⟨M hFull b, M_monic hFull b, M_eval_eq_zero hFull b⟩
 
@@ -596,6 +618,9 @@ variable (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L
 -- Do I need this:
 --  [Algebra B L] [IsScalarTower B (B ⧸ Q) L]
 
+variable [Nontrivial B]
+
+
 -- Do we need a version of Ideal.Quotient.eq_zero_iff_mem with algebraMap?
 
 
@@ -620,6 +645,18 @@ open Polynomial BigOperators
 
 open scoped algebraMap
 
+noncomputable local instance : Algebra A[X] B[X] :=
+  RingHom.toAlgebra (Polynomial.mapRingHom (Algebra.toRingHom))
+
+theorem IsAlgebraic.mul {R K : Type*} [CommRing R] [CommRing K] [Algebra R K] {x y : K}
+  (hx : IsAlgebraic R x) (hy : IsAlgebraic R y) : IsAlgebraic R (x * y) := sorry
+
+theorem IsAlgebraic.invLoc {R S K : Type*} [CommRing R] {M : Submonoid R} [CommRing S] [Algebra R S]
+    [IsLocalization M S] {x : M} [CommRing K] [Algebra K S] (h : IsAlgebraic K ((x : R) : S)):
+    IsAlgebraic K (IsLocalization.mk' S 1 x) := by
+  rw [← IsAlgebraic.invOf_iff, IsLocalization.invertible_mk'_one_invOf]
+  exact h
+
 open MulSemiringAction.CharacteristicPolynomial
 
 namespace Bourbaki52222
@@ -639,8 +676,54 @@ theorem f [DecidableEq L] (l : L) :
   use Bourbaki52222.residueFieldExtensionPolynomial G L K l
   sorry
 
-theorem algebraic : Algebra.IsAlgebraic K L := by
-  sorry
+theorem algebraMap_cast {R S: Type*} [CommRing R] [CommRing S] [Algebra R S] (r : R) :
+  (r : S) = (algebraMap R S) r := by
+  rfl
+
+theorem algebraMap_algebraMap {R S T : Type*} [CommRing R] [CommRing S] [CommRing T] [Algebra R S]
+  [Algebra S T] [Algebra R T] [IsScalarTower R S T] (r : R) :
+  (algebraMap S T) ((algebraMap R S) r) = (algebraMap R T) r := by
+  exact Eq.symm (IsScalarTower.algebraMap_apply R S T r)
+
+theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
+    [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
+    (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
+  rw [Algebra.isAlgebraic_def]
+  let M := nonZeroDivisors R
+  intro x
+  have ⟨r, s, h'⟩ := IsLocalization.mk'_surjective M x
+  have : x = r * IsLocalization.mk' K 1 s := by
+    rw [← h', IsLocalization.mul_mk'_eq_mk'_of_mul]
+    simp
+  rw [this]
+  apply IsAlgebraic.mul (h r)
+  exact IsAlgebraic.invLoc (h s)
+
+theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing B] [Algebra A B]
+  [Algebra.IsIntegral A B] {G : Type*} [Group G] [Finite G] [MulSemiringAction G B] (Q : Ideal B)
+  [Q.IsPrime] (P : Ideal A) [P.IsPrime] [Algebra (A ⧸ P) (B ⧸ Q)]
+  [IsScalarTower A (A ⧸ P) (B ⧸ Q)] (L : Type*) [Field L] [Algebra (B ⧸ Q) L]
+  [IsFractionRing (B ⧸ Q) L] [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
+  (K : Type*) [Field K] [Algebra (A ⧸ P) K] [IsFractionRing (A ⧸ P) K]
+  [Algebra K L] [IsScalarTower (A ⧸ P) K L] [Algebra A K] [IsScalarTower A (A ⧸ P) K]
+  [Algebra B L] [IsScalarTower B (B ⧸ Q) L] [Algebra A L] [IsScalarTower A K L]
+  [IsScalarTower A B L]
+  (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a): Algebra.IsAlgebraic K L := by
+  apply @Algebra.isAlgebraic_of_subring_isAlgebraic (B ⧸ Q)
+  intro b_bar
+  have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
+  have hb : (algebraMap B (B ⧸ Q)) b = b_bar := hb
+  use ((M hFull b).map (algebraMap A (A ⧸ P))).map (algebraMap (A ⧸ P) K)
+  constructor
+  . apply ne_zero_of_ne_zero_of_monic X_ne_zero
+    apply Monic.map
+    apply Monic.map
+    exact M_monic hFull b
+  . rw [← hb, algebraMap_cast, map_map, ← IsScalarTower.algebraMap_eq]
+    rw [algebraMap_algebraMap, aeval_def, eval₂_eq_eval_map, map_map, ← IsScalarTower.algebraMap_eq]
+    rw [IsScalarTower.algebraMap_eq A B L, ← map_map, ← coe_poly_as_map (M hFull b), M_spec]
+    rw [eval_map, eval₂_hom, F_eval_eq_zero]
+    exact algebraMap.coe_zero
 
 theorem normal : Normal K L := by
   sorry
@@ -681,29 +764,63 @@ def quotientRingAction (Q' : Ideal B) (g : G) (hg : g • Q = Q') :
 
 def quotientAlgebraAction (g : G) (hg : g • Q = Q) : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q where
   __ := quotientRingAction Q Q g hg
-  commutes' := sorry
+  commutes' := by
+    intro a_bar; dsimp
+    have ⟨a, ha⟩ := Ideal.Quotient.mk_surjective a_bar
+    rw [quotientRingAction]; dsimp
+    rw [← ha, ← Ideal.Quotient.algebraMap_eq, algebraMap_algebraMap]
+    rw [@Ideal.quotientMap_algebraMap A B _ _ _ B _ Q Q _ ]
+    simp
 
-def quotientAlgebraActionMonoidHom :
+def Pointwise.quotientAlgebraActionMonoidHom :
     MulAction.stabilizer G Q →* ((B ⧸ Q) ≃ₐ[A ⧸ P] (B ⧸ Q)) where
   toFun gh := quotientAlgebraAction Q P gh.1 gh.2
-  map_one' := sorry
-  map_mul' := sorry
+  map_one' := by
+    apply AlgEquiv.ext
+    intro b_bar; dsimp
+    unfold quotientAlgebraAction
+    unfold quotientRingAction
+    have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
+    rw [← hb, ← Ideal.Quotient.algebraMap_eq]
+    simp
+  map_mul' := by
+    intro ⟨x, hx⟩ ⟨y, hy⟩
+    apply AlgEquiv.ext
+    intro b_bar; dsimp
+    unfold quotientAlgebraAction
+    unfold quotientRingAction
+    have ⟨b, hb⟩ := Ideal.Quotient.mk_surjective b_bar
+    rw [← hb, ← Ideal.Quotient.algebraMap_eq]
+    simp
+    rw [smul_smul]
 
 variable (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L]
   [Algebra (A ⧸ P) L] [IsScalarTower (A ⧸ P) (B ⧸ Q) L]
   (K : Type*) [Field K] [Algebra (A ⧸ P) K] [IsFractionRing (A ⧸ P) K]
   [Algebra K L] [IsScalarTower (A ⧸ P) K L]
 
+
+
 noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
   __ := IsFractionRing.fieldEquivOfRingEquiv e.toRingEquiv
-  commutes' := sorry
+  commutes' := by
+    intro k
+    dsimp
+    obtain ⟨x, y, _, rfl⟩ := @IsFractionRing.div_surjective (A ⧸ P) _ _ K _ _ _ k
+    simp [algebraMap_algebraMap]
+    unfold IsFractionRing.fieldEquivOfRingEquiv
+    unfold IsLocalization.ringEquivOfRingEquiv
+    simp [IsScalarTower.algebraMap_apply (A ⧸ P) (B ⧸ Q) L]
 
 noncomputable def stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L ≃ₐ[K] L) where
-  toFun gh := IsFractionRing.algEquiv_lift Q P L K (quotientAlgebraActionMonoidHom Q P gh)
+  toFun gh := IsFractionRing.algEquiv_lift Q P L K (Pointwise.quotientAlgebraActionMonoidHom Q P gh)
   map_one' := by
-    ext
+    apply AlgEquiv.ext
+    intro l; simp
+    obtain ⟨x, y, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ _ L _ _ _ l
+    unfold IsFractionRing.algEquiv_lift
+    unfold IsFractionRing.fieldEquivOfRingEquiv
     simp
-    sorry
   map_mul' := by
     intro ⟨x, hx⟩ ⟨y, hy⟩
     apply AlgEquiv.ext
@@ -712,7 +829,6 @@ noncomputable def stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L �
     unfold IsFractionRing.algEquiv_lift
     unfold IsFractionRing.fieldEquivOfRingEquiv
     simp
-
     sorry
 
 variable (hFull : ∀ (b : B), (∀ (g : G), g • b = b) ↔ ∃ a : A, b = a) in
