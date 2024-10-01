@@ -1,4 +1,4 @@
-\chapter{A project: Frobenius elements}
+\chapter{A project: Frobenius elements}\label{Frobenius_project}
 
 \section{Introduction and goal}
 
@@ -19,7 +19,7 @@ Say $Q$ is a prime ideal of $B$, whose pullback to $A$ is the prime ideal $P$.
 Note that $G$ naturally acts on the ideals of $B$. Let's define the
 \emph{decomposition group} $D_Q$ of $Q$ to be the subgroup of $G$ which
 stabilizes $Q$ (just to be clear: $g\in D_Q$ means
-$\{g\cdot q\, :\, q \in Q\}=Q$, not $\forall q\in Q, g\cdot q=qs$).
+$\{g\cdot q\, :\, q \in Q\}=Q$, not $\forall q\in Q, g\cdot q=q$).
 
 Let $L$ be the field of fractions of the integral domain $B/Q$, and let $K$ be the
 field of fractions of the subring $A/P$. Then $L$ is naturally a $K$-algebra.
@@ -46,9 +46,9 @@ The theorem we want in this project is
   The map $g\mapsto \phi_g$ from $D_Q$ to $\Aut_K(L)$ defined above is surjective.
 \end{theorem}
 
-The goal of this project is to get this theorem into mathlib.
+The goal of this project is to get this theorem formalised and ideally into mathlib.
 
-In particular, $\Aut_K(L)$ is finite, although we prove this along the way and not
+In particular, $\Aut_K(L)$ is finite, although we prove this beforehand and not
 as a corollary. What is so striking about this theorem to me is that the only finiteness hypothesis
 is on the group $G$ which acts; there are no finiteness hypotheses on the rings at all.
 
@@ -89,7 +89,7 @@ if $G$ is abelian then $\Frob_Q$ and $\Frob_{Q'}$ are equal, so we can call them
 An example which demonstrates that things can get a bit stranger in characteristic $p$ is the
 following (we restrict to $p=2$ but a generalisation of this pathology exists for all $p>0$).
 We let $B=\mathbb{F}_2[X,Y]$ and $G=\{1,\tau\}$ with the involution $\tau$
-fixing $Y$ and switching $X$, $X+Y$, i.e., $(\tau f)(X,Y)=f(X,X+Y)$.
+fixing $Y$ and switching $X$, $X+Y$, i.e., $(\tau f)(X,Y)=f(X+Y, Y)$.
 Hence $\tau$ fixes the sum and product of these two polynomials, and thus
 $A\supset \mathbb{F}_2[X^2+XY,Y]$. One can check (and this needs checking) that this
 is in fact an equality, and I believe that $B$ is free of
@@ -134,8 +134,21 @@ and which explains why we need $G$ to be finite.
   $F_b(X) \in B[X]$ of $b$ to be $\prod_{g\in G}(X-g\cdot b)$.
 \end{definition}
 
-Clearly $F_b$ is a monic polynomial of degree $|G|$. Note also
-that $F_b$ is $G$-invariant, because acting by some $\gamma\in G$
+Clearly $F_b$ is a monic polynomial of degree $|G|$. In fact this isn't clear:
+if $B$ is the zero ring then $F_b=0$ has degree less than $|G|$.
+
+\begin{lemma}
+  \label{MulSemiringAction.CharacteristicPolynomial.F_degree}
+  \lean{MulSemiringAction.CharacteristicPolynomial.F_degree}
+  \uses{MulSemiringAction.CharacteristicPolynomial.F}
+  \leanok
+  If $B$ is nontrivial then $F_b$ is monic.
+\end{lemma}
+\begin{proof} Obvious.
+\end{proof}
+
+It's also clear that $F_b$ has degree $|G|$ and has $b$ as a root.
+Also $F_b$ is $G$-invariant, because acting by some $\gamma\in G$
 just permutes the order of the factors. Hence we can descend $F_b$
 to a monic polynomial $M_b(X)$ of degree $|G|$ in $A[X]$. We will
 also refer to $M_b$ as the characteristic polynomial of $b$, even though
@@ -161,17 +174,22 @@ it's not even well-defined if the map $A\to B$ isn't injective.
   \label{MulSemiringAction.CharacteristicPolynomial.M_deg}
   \lean{MulSemiringAction.CharacteristicPolynomial.M_deg}
   \uses{MulSemiringAction.CharacteristicPolynomial.M}
+  \leanok
   $M_b$ has degree $n$.
 \end{lemma}
-\begin{proof} Exercise.
+\begin{proof}
+  \leanok
+  Exercise.
 \end{proof}
 \begin{lemma}
   \lean{MulSemiringAction.CharacteristicPolynomial.M_monic}
   \label{MulSemiringAction.CharacteristicPolynomial.M_monic}
   \uses{MulSemiringAction.CharacteristicPolynomial.M}
+  \leanok
   $M_b$ is monic.
 \end{lemma}
 \begin{proof}
+  \leanok
   Exercise.
 \end{proof}
 
