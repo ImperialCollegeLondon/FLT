@@ -1,0 +1,164 @@
+name: Withdraw PR
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  withdraw_pr:
+    if: github.event.issue.pull_request == null && contains(github.event.comment.body, 'withdraw PR')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check if the comment contains "withdraw PR #PR_NUMBER"
+      id: check_withdraw
+      run: |
+        COMMENT_BODY="${{ github.event.comment.body }}"
+        if [[ "$COMMENT_BODY" =~ withdraw\ PR\ \#([0-9]+) ]]; then
+          PR_NUMBER="${BASH_REMATCH[1]}"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_ENV
+        else
+          echo "The comment does not contain a valid 'withdraw PR #PR_NUMBER' format."
+          exit 0
+        fi
+
+    - name: Get issue details
+      id: get_issue
+      run: |
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} > issue.json
+        cat issue.json
+      continue-on-error: true
+
+    - name: Check if the commenter is assigned to the issue
+      id: check_assignee
+      run: |
+        COMMENTER="${{ github.event.comment.user.login }}"
+        ASSIGNED=$(jq --arg user "$COMMENTER" '.assignees[]?.login | select(. == $user)' issue.json)
+        if [ -z "$ASSIGNED" ]; then
+          echo "not_assigned=true" >> $GITHUB_ENV
+        else
+          echo "not_assigned=false" >> $GITHUB_ENV
+        fi
+
+    - name: Notify the user if they are not assigned
+      if: env.not_assigned == 'true'
+      run: |
+        echo "User ${{ github.event.comment.user.login }} is not assigned to this issue, exiting."
+        exit 0
+
+    - name: Unlink PR #PR_NUMBER from the issue
+      if: env.not_assigned == 'false'
+      run: |
+        PR_BODY=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/pulls/${{ env.pr_number }} | jq -r '.body')
+
+        # Remove "Closes #ISSUE_NUMBER" from the PR body
+        NEW_PR_BODY=$(echo "$PR_BODY" | sed "s/Closes #${{ github.event.issue.number }}//g")
+
+        # Escape quotes and newlines for JSON
+        ESCAPED_PR_BODY=$(echo "$NEW_PR_BODY" | jq -Rs '.')
+
+        curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -d "{\"body\": $ESCAPED_PR_BODY}" \
+        https://api.github.com/repos/${{ github.repository }}/pulls/${{ env.pr_number }}
+
+    - name: Log PR and issue unlink result
+      if: env.not_assigned == 'false'
+      run: echo "PR ${{ env.pr_number }} has been successfully unlinked from issue ${{ github.event.issue.number }}."
+
+    - name: Retrieve the project ITEM_ID
+      if: env.not_assigned == 'false'
+      id: get_item_id
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ repository(owner: \\"${{ github.repository_owner }}\\", name: \\"${{ github.event.repository.name }}\\") { issue(number: ${{ github.event.issue.number }}) { projectItems(first: 10) { nodes { id } } } } }"
+        }
+        EOF
+        )
+        echo "Sending query: $QUERY"
+
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        echo "GraphQL Response: $RESPONSE"
+        ITEM_ID=$(echo "$RESPONSE" | jq -r '.data.repository.issue.projectItems.nodes[0].id')
+
+        if [ -z "$ITEM_ID" ]; then
+          echo "Error: Could not retrieve ITEM_ID"
+          exit 1
+        else
+          echo "ITEM_ID=$ITEM_ID" >> $GITHUB_ENV
+        fi
+
+    - name: Retrieve the project FIELD_ID for "Status"
+      if: env.not_assigned == 'false'
+      id: get_field_id
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ node(id: \\"PROJECT_ID\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name id } } } } } }"
+        }
+        EOF
+        )
+        echo "Sending query: $QUERY"
+
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        echo "GraphQL Response: $RESPONSE"
+        FIELD_ID=$(echo "$RESPONSE" | jq -r '.data.node.fields.nodes[] | select(.name == "Status").id')
+
+        if [ -z "$FIELD_ID" ]; then
+          echo "Error: Could not retrieve FIELD_ID for Status"
+          exit 1
+        else
+          echo "FIELD_ID=$FIELD_ID" >> $GITHUB_ENV
+        fi
+
+    - name: Retrieve the "Claimed" option ID
+      if: env.not_assigned == 'false'
+      id: find_claimed_tasks_id
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ node(id: \\"PROJECT_ID\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"
+        }
+        EOF
+        )
+        echo "Sending query: $QUERY"
+
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        echo "GraphQL Response: $RESPONSE"
+        CLAIMED_TASKS_ID=$(echo "$RESPONSE" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "Claimed").id')
+
+        if [ -z "$CLAIMED_TASKS_ID" ]; then
+          echo "Error: Could not retrieve 'Claimed' ID"
+          exit 1
+        else
+          echo "CLAIMED_TASKS_ID=$CLAIMED_TASKS_ID" >> $GITHUB_ENV
+        fi
+
+    - name: Move task to "Claimed" status
+      if: env.not_assigned == 'false'
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "mutation { updateProjectV2ItemFieldValue(input: { projectId: \\"PROJECT_ID\\", itemId: \\"$ITEM_ID\\", fieldId: \\"$FIELD_ID\\", value: { singleSelectOptionId: \\"$CLAIMED_TASKS_ID\\" } }) { projectV2Item { id } } }"
+        }
+        EOF
+        )
+        curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+        -H "Content-Type: application/json" \
+        --data "$QUERY" \
+        https://api.github.com/graphql
+
+    - name: Log the project card movement result
+      if: env.not_assigned == 'false'
+      run: echo "Task successfully moved to 'Claimed' status."
