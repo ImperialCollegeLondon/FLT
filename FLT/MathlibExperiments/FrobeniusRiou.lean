@@ -271,36 +271,13 @@ theorem M_spec (b : B) : ((M hFull b : A[X]) : B[X]) = F G b := by
   simp_rw [finset_sum_coeff, ← lcoeff_apply, lcoeff_apply, coeff_monomial]
   aesop
 
-/-
-private theorem F_descent_monic
-  (hFull : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) (b : B) :
-    ∃ M : A[X], (M : B[X]) = F G b ∧ Monic M := by
-  have : F G b ∈ Polynomial.lifts (algebraMap A B) := by
-    choose M hM using F_descent hFull b
-    use M; exact hM
-  choose M hM using lifts_and_degree_eq_and_monic this (F_monic b)
-  use M
-  exact ⟨hM.1, hM.2.2⟩
-
-variable (G) in
-noncomputable def M [Finite G] (b : B) : A[X] := (F_descent_monic hFull b).choose
-
-theorem M_spec (b : B) : ((M G hFull b : A[X]) : B[X]) = F G b :=
-  (F_descent_monic hFull b).choose_spec.1
-
-theorem M_spec' (b : B) : (map (algebraMap A B) (M G hFull b)) = F G b :=
-  (F_descent_monic hFull b).choose_spec.1
-
-theorem M_monic (b : B) : (M G hFull b).Monic := (F_descent_monic hFull b).choose_spec.2
--/
-
 omit [Nontrivial B] in
-theorem coe_poly_as_map (p : A[X]) : (p : B[X]) = map (algebraMap A B) p := rfl
-
+theorem M_spec_map (b : B) : (map (algebraMap A B) (M hFull b)) = F G b := by
+  rw [← M_spec hFull b]; rfl
 
 omit [Nontrivial B] in
 theorem M_eval_eq_zero (b : B) : (M hFull b).eval₂ (algebraMap A B) b = 0 := by
-  rw [eval₂_eq_eval_map, ← coe_poly_as_map, M_spec, F_eval_eq_zero]
+  rw [eval₂_eq_eval_map, M_spec_map, F_eval_eq_zero]
 
 include hFull in
 theorem isIntegral : Algebra.IsIntegral A B where
@@ -730,7 +707,7 @@ theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing 
     exact M_monic hFull b
   . rw [← hb, algebraMap_cast, map_map, ← IsScalarTower.algebraMap_eq]
     rw [algebraMap_algebraMap, aeval_def, eval₂_eq_eval_map, map_map, ← IsScalarTower.algebraMap_eq]
-    rw [IsScalarTower.algebraMap_eq A B L, ← map_map, ← coe_poly_as_map (M hFull b), M_spec]
+    rw [IsScalarTower.algebraMap_eq A B L, ← map_map, M_spec_map]
     rw [eval_map, eval₂_hom, F_eval_eq_zero]
     exact algebraMap.coe_zero
 
