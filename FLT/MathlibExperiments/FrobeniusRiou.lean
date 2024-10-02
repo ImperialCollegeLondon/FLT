@@ -450,9 +450,31 @@ theorem Ideal.Quotient.eq_zero_iff_mem' (x : A) :
 
 section B_mod_Q_over_A_mod_P_stuff
 
+section Mathlib.RingTheory.Ideal.Quotient
+
+namespace Ideal
+
+variable {R : Type*} [CommRing R] {I : Ideal R}
+
+protected noncomputable
+def Quotient.out (x : R ⧸ I) :=
+  Quotient.out' x
+
+theorem Quotient.out_eq (x : R ⧸ I) : Ideal.Quotient.mk I (Ideal.Quotient.out x) = x := by
+  simp only [Ideal.Quotient.out, Ideal.Quotient.mk, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk,
+    Submodule.Quotient.mk, Quotient.out_eq']
+
+@[elab_as_elim]
+protected theorem Quotient.induction_on
+    {p : R ⧸ I → Prop} (x : R ⧸ I) (h : ∀ a, p (Ideal.Quotient.mk I a)) : p x :=
+  Quotient.inductionOn x h
+
+end Ideal
+
+end Mathlib.RingTheory.Ideal.Quotient
+
 namespace MulSemiringAction.CharacteristicPolynomial
 
-example : Function.Surjective (Ideal.Quotient.mk Q) := Ideal.Quotient.mk_surjective
 
 open Polynomial
 /-
@@ -466,8 +488,7 @@ variable {Q} in
 noncomputable def Mbar
     (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
     (bbar : B ⧸ Q) : (A ⧸ P)[X] :=
-  Polynomial.map (Ideal.Quotient.mk P) <| M hFull' <|
-    (Ideal.Quotient.mk_surjective bbar).choose
+  Polynomial.map (Ideal.Quotient.mk P) <| M hFull' <| Ideal.Quotient.out bbar
 
 variable (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
 
@@ -486,8 +507,13 @@ theorem Mbar_deg [Nontrivial A] [Nontrivial B] (bbar : B ⧸ Q) :
   · rw [(M_monic hFull' _).leadingCoeff]
     simp only [map_one, ne_eq, one_ne_zero, not_false_eq_true]
 
-theorem Mbar_eval_eq_zero (bbar : B ⧸ Q) : eval₂ (algebraMap (A ⧸ P) (B ⧸ Q)) bbar (Mbar P hFull' bbar) = 0 := by
-  sorry
+omit [SMulCommClass G A B] [Q.IsPrime] [P.IsPrime] in
+theorem Mbar_eval_eq_zero [Nontrivial A] [Nontrivial B] (bbar : B ⧸ Q) :
+    eval₂ (algebraMap (A ⧸ P) (B ⧸ Q)) bbar (Mbar P hFull' bbar) = 0 := by
+  have h := congr_arg (algebraMap B (B ⧸ Q)) (M_eval_eq_zero hFull' (Ideal.Quotient.out bbar))
+  rw [map_zero, hom_eval₂, Ideal.Quotient.algebraMap_eq, Ideal.Quotient.out_eq] at h
+  simpa [Mbar, eval₂_map, ← Ideal.Quotient.algebraMap_eq,
+    ← IsScalarTower.algebraMap_eq A (A ⧸ P) (B ⧸ Q), IsScalarTower.algebraMap_eq A B (B ⧸ Q)]
 
 end CharacteristicPolynomial
 
