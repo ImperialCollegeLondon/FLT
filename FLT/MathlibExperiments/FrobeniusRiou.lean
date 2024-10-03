@@ -486,10 +486,123 @@ theorem reduction_isIntegral : Algebra.IsIntegral (A ⧸ P) (B ⧸ Q) := by
 
 end MulSemiringAction
 
-theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [CommRing S]
-    [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
+theorem Polynomial.monic_nonzero_const_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
+    [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
+    ∃ (q : Polynomial R), Monic q ∧ q.coeff 0 ≠ 0 ∧ q.eval₂ (algebraMap R S) s = 0 := by
+    obtain ⟨p, p_monic, p_eval⟩ := (@Algebra.isIntegral_def R S).mp inferInstance s
+    have p_neq_zero := ne_zero_of_ne_zero_of_monic X_ne_zero p_monic
+    let d := p.natTrailingDegree
+    use ∑ n ∈ p.support, monomial (n - d) (p.coeff n)
+    have : (∑ n ∈ p.support, monomial (n - d) (p.coeff n)).degree ≤ p.natDegree - d := by
+      have := Polynomial.degree_sum_le p.support (fun x ↦ monomial (x - d) (p.coeff x))
+      refine le_trans this ?_
+      rw [Finset.sup_le_iff]
+      intro n hn
+      apply le_trans (degree_monomial_le (n - d) _) ?_
+      rw [Nat.cast_le]
+      apply Nat.sub_le_sub_right _ d
+      exact le_natDegree_of_mem_supp n hn
+    constructor
+    . apply monic_of_degree_le_of_coeff_eq_one (p.natDegree - d) this
+      rw [finset_sum_coeff]
+      rw [Finset.sum_eq_single_of_mem p.natDegree]
+      . simp
+        exact Monic.leadingCoeff p_monic
+      . exact natDegree_mem_support_of_nonzero p_neq_zero
+      . intro b b_support b_ne_natDegree
+        rw [coeff_monomial_of_ne]
+        by_contra h
+        apply b_ne_natDegree
+        have this1 : p.natTrailingDegree ≤ b := by
+          rw [natTrailingDegree_eq_support_min' p_neq_zero]
+          exact Finset.min'_le p.support b b_support
+        have this2 : d ≤ p.natDegree := by
+          exact Polynomial.natTrailingDegree_le_natDegree p
+        rw [Nat.sub_eq_iff_eq_add this1] at h
+        simp [h, this1, this2]
+    . constructor
+      . rw [finset_sum_coeff]
+        rw [Finset.sum_eq_single_of_mem d]
+        . rw [coeff_monomial]
+          simp [d, p_neq_zero]
+        . exact natTrailingDegree_mem_support_of_nonzero p_neq_zero
+        . intro n n_support n_neq_d
+          rw [coeff_monomial_of_ne]
+          have : d ≤ n := by
+            apply natTrailingDegree_le_of_mem_supp
+            exact n_support
+          by_contra h
+          apply n_neq_d
+          rw [Nat.sub_eq_iff_eq_add this] at h
+          simp [h, this]
+      . rw [eval₂_finset_sum]
+        simp
+        have : ∑ n ∈ p.support, (algebraMap R S) (p.coeff n) * s ^ n = 0 := by
+          rw [← p_eval]
+          nth_rw 3 [as_sum_support p]
+          rw [eval₂_finset_sum]
+          simp
+        have : (s ^ d) * ∑ n ∈ p.support, (algebraMap R S) (p.coeff n) * (s ^ (n - d)) = 0 := by
+          rw [← this]
+          rw [Finset.mul_sum]
+          congr
+          ext n
+          rcases Classical.em (n ∈ p.support) with n_support | n_nsupport
+          . have : d ≤ n := natTrailingDegree_le_of_mem_supp n n_support
+            rw [mul_comm, mul_assoc]
+            congr
+            rw [mul_comm]
+            exact pow_mul_pow_sub s this
+          . rw [not_mem_support_iff.mp n_nsupport]
+            simp
+        let zero_or_zero := NoZeroDivisors.eq_zero_or_eq_zero_of_mul_eq_zero this
+        rcases zero_or_zero with s_pow_zero | h
+        . by_contra
+          apply hs
+          exact pow_eq_zero s_pow_zero
+        . exact h
+
+theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
+    [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
     ∃ r : R, r ≠ 0 ∧ s ∣ (r : S) := by
-  sorry
+  obtain ⟨q, _, q_zero_coeff, q_eval_zero⟩ :=
+      Polynomial.monic_nonzero_const_if_isIntegral R S s hs
+  have zero_support : 0 ∈ q.support := by
+    exact Polynomial.mem_support_iff.mpr q_zero_coeff
+  have q_eval_zero : ∑ n ∈ q.support, (algebraMap R S) (q.coeff n) * s ^ n = 0 := by
+          rw [← q_eval_zero]
+          nth_rw 3 [Polynomial.as_sum_support q]
+          rw [Polynomial.eval₂_finset_sum]
+          simp
+  use q.coeff 0
+  constructor
+  . exact q_zero_coeff
+  . have : (q.coeff 0 : S) = ((algebraMap R S) (q.coeff 0)) * s ^ 0 := by
+      simp
+    have : q.coeff 0 = - ∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ n := by
+      rw [← sub_add_cancel_left (q.coeff 0 : S)
+        (∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ n)]
+      nth_rw 3 [this]
+      rw [add_comm, Finset.sum_erase_add _ _ zero_support, q_eval_zero]
+      simp
+    rw [this]
+    simp
+    use ∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ (n - 1)
+    rw [Finset.mul_sum]
+    apply Finset.sum_equiv (Equiv.refl ℕ)
+    . intro i; rfl
+    . intro i hi
+      rw [Finset.mem_erase] at hi
+      obtain ⟨i_nzero, _⟩ := hi
+      simp
+      rw [← mul_assoc]
+      nth_rw 3 [mul_comm]
+      rw [mul_assoc]
+      congr
+      symm
+      nth_rw 1 [← pow_one s]
+      apply pow_mul_pow_sub s
+      exact Nat.one_le_iff_ne_zero.mpr i_nzero
 
 end B_mod_Q_over_A_mod_P_stuff
 
