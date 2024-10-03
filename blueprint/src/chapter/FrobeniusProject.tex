@@ -144,7 +144,9 @@ if $B$ is the zero ring then $F_b=0$ has degree less than $|G|$.
   \leanok
   If $B$ is nontrivial then $F_b$ is monic.
 \end{lemma}
-\begin{proof} Obvious.
+\begin{proof}
+  \leanok
+  Obvious.
 \end{proof}
 
 It's also clear that $F_b$ has degree $|G|$ and has $b$ as a root.
@@ -157,6 +159,7 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 \begin{definition}
   \lean{MulSemiringAction.CharacteristicPolynomial.M}
   \label{MulSemiringAction.CharacteristicPolynomial.M}
+  \uses{MulSemiringAction.CharacteristicPolynomial.F}
   \leanok
   $M_b$ is any monic degree $|G|$ polynomial in $A[X]$ whose
   image in $B[X]$ is $F_b$.
@@ -166,9 +169,12 @@ it's not even well-defined if the map $A\to B$ isn't injective.
   \label{MulSemiringAction.CharacteristicPolynomial.M_eval_eq_zero}
   \lean{MulSemiringAction.CharacteristicPolynomial.M_eval_eq_zero}
   \uses{MulSemiringAction.CharacteristicPolynomial.M}
+  \leanok
   $M_b$ has $b$ as a root.
 \end{lemma}
-\begin{proof} Follows from the fact that $F_b$ has $b$ as a root.
+\begin{proof}
+  \leanok
+  Follows from the fact that $F_b$ has $b$ as a root.
 \end{proof}
 \begin{lemma}
   \label{MulSemiringAction.CharacteristicPolynomial.M_deg}
@@ -178,6 +184,7 @@ it's not even well-defined if the map $A\to B$ isn't injective.
   $M_b$ has degree $n$.
 \end{lemma}
 \begin{proof}
+  \uses{MulSemiringAction.CharacteristicPolynomial.F_degree}
   \leanok
   Exercise.
 \end{proof}
@@ -196,11 +203,14 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 \begin{theorem}
   \lean{MulSemiringAction.CharacteristicPolynomial.isIntegral}
   \label{MulSemiringAction.CharacteristicPolynomial.isIntegral}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M,
-    MulSemiringAction.CharacteristicPolynomial.M_monic}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M}
+  \leanok
   $B/A$ is integral.
 \end{theorem}
-\begin{proof} Use $M_b$.
+\begin{proof}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M_monic}
+  \leanok
+  Use $M_b$.
 \end{proof}
 
 \section{The extension \texorpdfstring{$(B/Q)/(A/P)$}{(B/Q)/(A/P)}.}
@@ -223,38 +233,53 @@ Say $\overline{b}\in B/Q$.
 \begin{theorem}
   \lean{MulSemiringAction.CharacteristicPolynomial.Mbar_deg}
   \label{MulSemiringAction.CharacteristicPolynomial.Mbar_deg}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M}
+  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
+  \leanok
   $\overline{M}_{\overline{b}}$ has degree $|G|$.
 \end{theorem}
-\begin{proof} Exercise.
+\begin{proof}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M_deg,
+    MulSemiringAction.CharacteristicPolynomial.M_monic}
+  \leanok
+  Exercise.
 \end{proof}
 
 \begin{theorem}
   \lean{MulSemiringAction.CharacteristicPolynomial.Mbar_monic}
   \label{MulSemiringAction.CharacteristicPolynomial.Mbar_monic}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M}
-    $\overline{M}_{\overline{b}}$ is monic.
+  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
+  \leanok
+  $\overline{M}_{\overline{b}}$ is monic.
 \end{theorem}
-\begin{proof} Exercise (note that integral domains are nontrivial).
+\begin{proof}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M_monic}
+  \leanok
+  Exercise (note that integral domains are nontrivial).
 \end{proof}
 
 \begin{theorem}
   \lean{MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}
   \label{MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M}
+  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
+  \leanok
   $\overline{M}_{\overline{b}}$ has $\overline{b}$ as a root.
 \end{theorem}
-\begin{proof} Exercise.
+\begin{proof}
+  \uses{MulSemiringAction.CharacteristicPolynomial.M_eval_eq_zero}
+  \leanok
+  Exercise.
 \end{proof}
 
 \begin{theorem}
   \lean{MulSemiringAction.reduction_isIntegral}
   \label{MulSemiringAction.reduction_isIntegral}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M}
+  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
+  \leanok
   $(B/Q)/(A/P)$ is an integral extension.
 \end{theorem}
 \begin{proof}
-  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar_monic}
+  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar_monic,
+    MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}
   Use $\overline{M}_{\overline{b}}$.
 \end{proof}
 
@@ -263,11 +288,13 @@ a nonzero element of $A/P$.
 \begin{corollary}
   \lean{Algebra.exists_dvd_nonzero_if_isIntegral}
   \label{Algebra.exists_dvd_nonzero_if_isIntegral}
-  \uses{MulSemiringAction.reduction_isIntegral}
+  \leanok
   If $\beta\in B/Q$ is nonzero then there's some nonzero $\alpha\in A/P$
   such that $\beta$ divides the image of $\alpha$ in $B/Q$.
 \end{corollary}
-\begin{proof} Note: Is this in mathlib already? This proof works for any
+\begin{proof}
+  \uses{MulSemiringAction.reduction_isIntegral}
+  Note: Is this in mathlib already? This proof works for any
   integral extension if the top ring has no zero divisors.
 
   Let $\beta$ be nonzero, and
