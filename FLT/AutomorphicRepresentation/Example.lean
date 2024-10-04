@@ -321,7 +321,31 @@ noncomputable abbrev zHatsub : AddSubgroup QHat :=
 noncomputable abbrev zsub : AddSubgroup QHat :=
   (Int.castRingHom QHat : ℤ →+ QHat).range
 
-lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := sorry
+lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := by
+  apply le_antisymm
+  · intro x ⟨⟨l, hl⟩, ⟨r, hr⟩⟩
+    simp at hl hr; rcases lowestTerms x with ⟨⟨N, z, hNz, hx⟩, unique⟩
+    have cop1 : IsCoprime l.den.toPNat' l.num := by
+      have : PNat.val l.den.toPNat' = l.den := by simp [l.den_pos]
+      simp [IsCoprime]; rw [this]
+      have hlp := (ZMod.isUnit_iff_coprime l.num.natAbs l.den).2 l.reduced
+      let m := l.num; have hm : l.num = m := by rfl
+      rcases m with m | m
+      · simp [hm] at *; exact hlp
+      · simp [hm] at *; rw [← neg_add, add_comm]; exact IsUnit.neg hlp
+    have cop2 : IsCoprime 1 r := ⟨default, by simp [ZMod.instUnique.uniq]⟩
+    have hcanon : x = (1/(l.den : ℚ)) ⊗ₜ[ℤ] (l.num : ZHat) := by
+      nth_rw 1 [← hl, ← Rat.num_div_den l, ← mul_one ((l.num : ℚ) / l.den), div_mul_comm,
+      mul_comm, ← zsmul_eq_mul, TensorProduct.smul_tmul, zsmul_eq_mul, mul_one]
+    rw [← PNat.toPNat'_coe l.den_pos, hx] at hcanon
+    have h := unique _ _ _ _ ⟨hNz, cop1, hcanon⟩
+    have : 1 = 1/(@Nat.cast ℚ Rat.instNatCast (PNat.val 1 : ℕ) : ℚ) := by rfl
+    nth_rw 1 [← hx, ← h.1, ← h.2, ← hr, this] at hcanon
+    use l.num; rw [hx, h.2, (unique N 1 z r ⟨hNz, cop2, hcanon.symm⟩).1]; norm_num
+    calc
+      ↑l.num = i₂ ↑l.num := by simp
+      _ = 1 ⊗ₜ[ℤ] ↑l.num:= by rfl
+  · exact fun x ⟨k, hk⟩ ↦ by constructor <;> (use k; simp; exact hk)
 
 lemma rat_join_zHat : ratsub ⊔ zHatsub = ⊤ := sorry
 
