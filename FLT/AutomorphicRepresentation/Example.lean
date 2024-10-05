@@ -349,29 +349,20 @@ lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := by
 
 lemma rat_join_zHat : ratsub ⊔ zHatsub = ⊤ := by
   apply le_antisymm
-  exact sup_le (by simp) (by simp)
-  intro x hx
+  simp; intro x _
   rcases x.canonicalForm with ⟨N, z, hNz⟩
-  let zn := z N
-  let t : ℤ := zn.cast
-  have h : (z - t) N = 0 := by
-    sorry
-  have h' : ∃ y, z - t = N * y := by
-    rw [← dvd_def]
-    simp [DFunLike.coe] at h
-    #check ZMod.intCast_zmod_eq_zero_iff_dvd
-    sorry
-  rcases h' with ⟨y, hy⟩
+  rcases ZHat.nat_dense N z with ⟨q, r, hz, _⟩
+  have h : z - r = N * q := by simp [hz]
   rw [AddSubgroup.mem_sup]
-  use (t / N : ℚ) ⊗ₜ[ℤ] 1
-  simp; use y
-  nth_rw 1 [← mul_one ((t : ℚ) / (N : ℚ)), div_mul_comm, mul_comm,
-    ← zsmul_eq_mul, TensorProduct.smul_tmul, zsmul_eq_mul, mul_one]
+  use ((r : ℤ) / N : ℚ) ⊗ₜ[ℤ] 1
+  constructor; simp; use 1 ⊗ₜ[ℤ] q
+  constructor; simp; nth_rw 1 [← mul_one ((r : ℤ) / N : ℚ), div_mul_comm,
+    mul_comm, ← zsmul_eq_mul, TensorProduct.smul_tmul, zsmul_eq_mul, mul_one]
   have : 1 = 1 / (N : ℚ) * (N : ℤ) := by simp
   nth_rw 2 [this]
   rw [mul_comm, ← zsmul_eq_mul, TensorProduct.smul_tmul, zsmul_eq_mul]
-  norm_cast
-  rw [← hy, ← TensorProduct.tmul_add, add_sub_cancel, hNz]
+  norm_cast; rw [← h, ← TensorProduct.tmul_add]
+  simp [hNz]
 
 end additive_structure_of_QHat
 
