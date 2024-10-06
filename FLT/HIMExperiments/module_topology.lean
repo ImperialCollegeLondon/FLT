@@ -26,6 +26,8 @@ and target.
 
 -/
 
+set_option linter.unusedSectionVars false
+
 -- This was an early theorem I proved when I didn't know what was true or not, and
 -- was just experimenting.
 

@@ -35,6 +35,8 @@ functions from `M` (now considered only as an index set, so with no topology) to
 
 -/
 
+set_option linter.unusedSectionVars false
+
 -- See FLT.ForMathlib.ActionTopology for a parallel development.
 namespace right_module_topology
 

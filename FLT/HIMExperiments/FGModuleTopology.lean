@@ -31,6 +31,8 @@ or $p$-adics).
 
 -/
 
+set_option linter.unusedSectionVars false
+
 section basics
 
 variable (R : Type*) [TopologicalSpace R] [Semiring R]
