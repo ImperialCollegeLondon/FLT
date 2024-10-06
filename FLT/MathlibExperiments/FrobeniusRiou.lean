@@ -756,7 +756,7 @@ theorem normal [DecidableEq L] : Normal K L := by
   constructor
   · rw [← isAlgebraic_iff_isIntegral]
     exact ⟨f, hfmonic.ne_zero, hf⟩
-  refine Polynomial.splits_of_splits_of_dvd (algebraMap K L) hnz hf.2.2.2 ?_
+  refine Polynomial.splits_of_splits_of_dvd (algebraMap K L) hnz hfsplits ?_
   exact minpoly.dvd _ _ hf
 
 open FiniteDimensional
