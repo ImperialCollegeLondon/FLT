@@ -750,7 +750,7 @@ theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing 
 theorem normal : Normal K L := by
   sorry
 
-open FiniteDimensional
+open Module
 
 theorem separableClosure_finiteDimensional : FiniteDimensional K (separableClosure K L) := sorry
 
