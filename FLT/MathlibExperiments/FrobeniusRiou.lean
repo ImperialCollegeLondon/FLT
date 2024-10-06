@@ -517,8 +517,13 @@ theorem Mbar_eval_eq_zero [Nontrivial A] [Nontrivial B] (bbar : B ⧸ Q) :
 
 end CharacteristicPolynomial
 
-theorem reduction_isIntegral : Algebra.IsIntegral (A ⧸ P) (B ⧸ Q) := by
-  sorry
+open CharacteristicPolynomial in
+omit [SMulCommClass G A B] [Q.IsPrime] [P.IsPrime] in
+theorem reduction_isIntegral
+    [Nontrivial A] [Nontrivial B]
+    (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
+    Algebra.IsIntegral (A ⧸ P) (B ⧸ Q) where
+  isIntegral x := ⟨Mbar P hFull' x, Mbar_monic Q P hFull' x, Mbar_eval_eq_zero Q P hFull' x⟩
 
 end MulSemiringAction
 
