@@ -94,7 +94,7 @@ namespace dual_topology
 
 section basics
 
-variable (R : Type*) [Monoid R] [TopologicalSpace R] [ContinuousMul R]
+variable (R : Type*) [Monoid R] [TopologicalSpace R]
 variable (A : Type*) [SMul R A]
 
 abbrev dualTopology : TopologicalSpace A :=
@@ -121,10 +121,10 @@ lemma isDualTopology [τA : TopologicalSpace A] [IsDualTopology R A] :
 end basics
 
 -- Non-commutative variables
-variable (R : Type*) [Monoid R] [τR: TopologicalSpace R] [ContinuousMul R]
+variable (R : Type*) [Monoid R] [τR: TopologicalSpace R]
 
 
-lemma Module.topology_self : τR = dualTopology R R := by
+lemma Module.topology_self [ContinuousMul R] : τR = dualTopology R R := by
   refine le_antisymm (le_iInf (fun i ↦ ?_)) <| sInf_le ⟨MulActionHom.id R, induced_id⟩
   rw [← continuous_iff_le_induced,
     show i = ⟨fun r ↦ r • i 1, fun _ _ ↦ mul_assoc _ _ _⟩ by
