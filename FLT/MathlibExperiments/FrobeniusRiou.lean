@@ -526,47 +526,41 @@ theorem Polynomial.monic_nonzero_const_if_isIntegral (R S : Type) [CommRing R] [
     [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
     ∃ (q : Polynomial R), Monic q ∧ q.coeff 0 ≠ 0 ∧ q.eval₂ (algebraMap R S) s = 0 := by
     obtain ⟨p, p_monic, p_eval⟩ := (@Algebra.isIntegral_def R S).mp inferInstance s
-    have p_neq_zero := ne_zero_of_ne_zero_of_monic X_ne_zero p_monic
-    let d := p.natTrailingDegree
-    use ∑ n ∈ p.support, monomial (n - d) (p.coeff n)
-    have : (∑ n ∈ p.support, monomial (n - d) (p.coeff n)).degree ≤ p.natDegree - d := by
-      have := Polynomial.degree_sum_le p.support (fun x ↦ monomial (x - d) (p.coeff x))
-      refine le_trans this ?_
+    use ∑ n ∈ p.support, monomial (n - p.natTrailingDegree) (p.coeff n)
+    have : (∑ n ∈ p.support, monomial (n - p.natTrailingDegree) (p.coeff n)).degree
+        ≤ p.natDegree - p.natTrailingDegree := by
+      refine le_trans (Polynomial.degree_sum_le p.support (fun x ↦ monomial (x - p.natTrailingDegree) (p.coeff x))) ?_
       rw [Finset.sup_le_iff]
-      intro n hn
-      apply le_trans (degree_monomial_le (n - d) _) ?_
+      refine fun n hn ↦ le_trans (degree_monomial_le (n - p.natTrailingDegree) _) (?_)
       rw [Nat.cast_le]
-      apply Nat.sub_le_sub_right _ d
-      exact le_natDegree_of_mem_supp n hn
+      exact Nat.sub_le_sub_right (le_natDegree_of_mem_supp n hn) p.natTrailingDegree
     constructor
-    . apply monic_of_degree_le_of_coeff_eq_one (p.natDegree - d) this
-      rw [finset_sum_coeff]
-      rw [Finset.sum_eq_single_of_mem p.natDegree]
-      . simp
+    . apply monic_of_degree_le_of_coeff_eq_one (p.natDegree - p.natTrailingDegree) this
+      rw [finset_sum_coeff, Finset.sum_eq_single_of_mem p.natDegree]
+      . rw [coeff_natDegree, coeff_monomial_same]
         exact Monic.leadingCoeff p_monic
-      . exact natDegree_mem_support_of_nonzero p_neq_zero
+      . exact natDegree_mem_support_of_nonzero (ne_zero_of_ne_zero_of_monic X_ne_zero p_monic)
       . intro b b_support b_ne_natDegree
         rw [coeff_monomial_of_ne]
         by_contra h
         apply b_ne_natDegree
         have this1 : p.natTrailingDegree ≤ b := by
-          rw [natTrailingDegree_eq_support_min' p_neq_zero]
+          rw [natTrailingDegree_eq_support_min' (ne_zero_of_ne_zero_of_monic X_ne_zero p_monic)]
           exact Finset.min'_le p.support b b_support
-        have this2 : d ≤ p.natDegree := by
-          exact Polynomial.natTrailingDegree_le_natDegree p
+        have this2 : p.natTrailingDegree ≤ p.natDegree := Polynomial.natTrailingDegree_le_natDegree p
         rw [Nat.sub_eq_iff_eq_add this1] at h
         simp [h, this1, this2]
     . constructor
-      . rw [finset_sum_coeff]
-        rw [Finset.sum_eq_single_of_mem d]
+      . rw [finset_sum_coeff, Finset.sum_eq_single_of_mem p.natTrailingDegree]
         . rw [coeff_monomial]
-          simp [d, p_neq_zero]
-        . exact natTrailingDegree_mem_support_of_nonzero p_neq_zero
+          simp only [le_refl, tsub_eq_zero_of_le, ↓reduceIte, ne_eq,
+            coeff_natTrailingDegree_eq_zero, ne_zero_of_ne_zero_of_monic X_ne_zero p_monic,
+            not_false_eq_true]
+        . exact natTrailingDegree_mem_support_of_nonzero
+            (ne_zero_of_ne_zero_of_monic X_ne_zero p_monic)
         . intro n n_support n_neq_d
           rw [coeff_monomial_of_ne]
-          have : d ≤ n := by
-            apply natTrailingDegree_le_of_mem_supp
-            exact n_support
+          have : p.natTrailingDegree ≤ n := natTrailingDegree_le_of_mem_supp _ n_support
           by_contra h
           apply n_neq_d
           rw [Nat.sub_eq_iff_eq_add this] at h
@@ -578,13 +572,12 @@ theorem Polynomial.monic_nonzero_const_if_isIntegral (R S : Type) [CommRing R] [
           nth_rw 3 [as_sum_support p]
           rw [eval₂_finset_sum]
           simp
-        have : (s ^ d) * ∑ n ∈ p.support, (algebraMap R S) (p.coeff n) * (s ^ (n - d)) = 0 := by
-          rw [← this]
-          rw [Finset.mul_sum]
-          congr
-          ext n
+        have : (s ^ p.natTrailingDegree) * ∑ n ∈ p.support, (algebraMap R S) (p.coeff n)
+            * (s ^ (n - p.natTrailingDegree)) = 0 := by
+          rw [← this, Finset.mul_sum]
+          congr with n
           rcases Classical.em (n ∈ p.support) with n_support | n_nsupport
-          . have : d ≤ n := natTrailingDegree_le_of_mem_supp n n_support
+          . have : p.natTrailingDegree ≤ n := natTrailingDegree_le_of_mem_supp n n_support
             rw [mul_comm, mul_assoc]
             congr
             rw [mul_comm]
@@ -593,9 +586,7 @@ theorem Polynomial.monic_nonzero_const_if_isIntegral (R S : Type) [CommRing R] [
             simp
         let zero_or_zero := NoZeroDivisors.eq_zero_or_eq_zero_of_mul_eq_zero this
         rcases zero_or_zero with s_pow_zero | h
-        . by_contra
-          apply hs
-          exact pow_eq_zero s_pow_zero
+        . by_contra; exact hs (pow_eq_zero s_pow_zero)
         . exact h
 
 theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
