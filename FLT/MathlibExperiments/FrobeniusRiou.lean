@@ -747,8 +747,17 @@ theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing 
     rw [eval_map, eval₂_hom, F_eval_eq_zero]
     exact algebraMap.coe_zero
 
-theorem normal : Normal K L := by
-  sorry
+include G in
+theorem normal [DecidableEq L] : Normal K L := by
+  rw [normal_iff]
+  intro l
+  obtain ⟨f, hfmonic, _, hf, hfsplits⟩ := @f_exists G _ _ L _ K _ _ _ l
+  have hnz : f ≠ 0 := hfmonic.ne_zero
+  constructor
+  · rw [← isAlgebraic_iff_isIntegral]
+    exact ⟨f, hfmonic.ne_zero, hf⟩
+  refine Polynomial.splits_of_splits_of_dvd (algebraMap K L) hnz hfsplits ?_
+  exact minpoly.dvd _ _ hf
 
 open Module
 
