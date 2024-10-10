@@ -527,7 +527,7 @@ theorem reduction_isIntegral
 
 end MulSemiringAction
 
-theorem Polynomial.monic_nonzero_const_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
+theorem Polynomial.nonzero_const_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
     [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
     ∃ (q : Polynomial R), q.coeff 0 ≠ 0 ∧ q.eval₂ (algebraMap R S) s = 0 := by
   obtain ⟨p, p_monic, p_eval⟩ := (@Algebra.isIntegral_def R S).mp inferInstance s
@@ -550,7 +550,7 @@ theorem Polynomial.monic_nonzero_const_if_isIntegral (R S : Type) [CommRing R] [
 theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
     [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
     ∃ r : R, r ≠ 0 ∧ s ∣ (algebraMap R S) r := by
-  obtain ⟨q, q_zero_coeff, q_eval_zero⟩ := Polynomial.monic_nonzero_const_if_isIntegral R S s hs
+  obtain ⟨q, q_zero_coeff, q_eval_zero⟩ := Polynomial.nonzero_const_if_isIntegral R S s hs
   use q.coeff 0
   refine ⟨q_zero_coeff, ?_⟩
   rw [← Polynomial.eval₂_X (algebraMap R S) s, ← dvd_neg, ← Polynomial.eval₂_C (algebraMap R S) s]
