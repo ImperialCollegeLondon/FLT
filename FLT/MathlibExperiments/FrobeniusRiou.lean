@@ -553,9 +553,7 @@ theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [Nont
   obtain ⟨q, q_zero_coeff, q_eval_zero⟩ := Polynomial.monic_nonzero_const_if_isIntegral R S s hs
   use q.coeff 0
   refine ⟨q_zero_coeff, ?_⟩
-  rw [← dvd_neg]
-  rw [← Polynomial.eval₂_C (algebraMap R S) s]
-  nth_rw 1 [← Polynomial.eval₂_X (algebraMap R S) s]
+  rw [← Polynomial.eval₂_X (algebraMap R S) s, ← dvd_neg, ← Polynomial.eval₂_C (algebraMap R S) s]
   rw [← zero_add (-_), Mathlib.Tactic.RingNF.add_neg, ← q_eval_zero, ← Polynomial.eval₂_sub]
   apply Polynomial.eval₂_dvd
   exact Polynomial.X_dvd_sub_C
