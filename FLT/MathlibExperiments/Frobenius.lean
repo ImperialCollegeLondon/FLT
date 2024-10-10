@@ -116,6 +116,8 @@ for "helping me to understand the math proof and to formalize it."
 
 -/
 
+set_option linter.unusedSectionVars false
+
 open Classical
 
 section FiniteFrobeniusDef

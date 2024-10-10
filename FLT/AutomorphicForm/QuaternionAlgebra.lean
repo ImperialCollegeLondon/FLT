@@ -20,7 +20,7 @@ suppress_compilation
 
 variable (F : Type*) [Field F] [NumberField F]
 
-variable (D : Type*) [Ring D] [Algebra F D] [FiniteDimensional F D]
+variable (D : Type*) [Ring D] [Algebra F D]
 
 open DedekindDomain
 
@@ -56,7 +56,7 @@ end missing_instances
 
 instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := actionTopology (FiniteAdeleRing (𝓞 F) F) _
 instance : IsActionTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) := ⟨rfl⟩
-instance : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
+instance [FiniteDimensional F D] : TopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   -- this def would be a dangerous instance
   -- (it can't guess R) but it's just a Prop so we can easily add it here
   ActionTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 F) F) _
@@ -93,16 +93,16 @@ attribute [coe] AutomorphicForm.toFun
 theorem ext (φ ψ : AutomorphicForm F D M) (h : ∀ x, φ x = ψ x) : φ = ψ := by
   cases φ; cases ψ; simp only [mk.injEq]; ext; apply h
 
-def zero : (AutomorphicForm F D M) where
+def zero [FiniteDimensional F D] : (AutomorphicForm F D M) where
   toFun := 0
   left_invt := by simp
   loc_cst := by use ⊤; simp
 
-instance : Zero (AutomorphicForm F D M) where
+instance [FiniteDimensional F D] : Zero (AutomorphicForm F D M) where
   zero := zero
 
 @[simp]
-theorem zero_apply (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+theorem zero_apply [FiniteDimensional F D] (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (0 : AutomorphicForm F D M) x = 0 := rfl
 
 def neg (φ : AutomorphicForm F D M) : AutomorphicForm F D M where
@@ -147,7 +147,7 @@ instance : Add (AutomorphicForm F D M) where
 theorem add_apply (φ ψ : AutomorphicForm F D M) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (φ + ψ) x = (φ x) + (ψ x) := rfl
 
-instance addCommGroup : AddCommGroup (AutomorphicForm F D M) where
+instance addCommGroup [FiniteDimensional F D] : AddCommGroup (AutomorphicForm F D M) where
   add := (· + ·)
   add_assoc := by intros; ext; simp [add_assoc];
   zero := 0
@@ -184,7 +184,7 @@ theorem toConjAct_open {G : Type*} [Group G] [TopologicalSpace G] [TopologicalGr
     group
     exact hu
 
-instance : SMul (Dfx F D) (AutomorphicForm F D M) where
+instance [FiniteDimensional F D] : SMul (Dfx F D) (AutomorphicForm F D M) where
   smul g φ :=   { -- (g • f) (x) := f(xg) -- x(gf)=(xg)f
     toFun := fun x => φ (x * g)
     left_invt := by
@@ -204,10 +204,10 @@ instance : SMul (Dfx F D) (AutomorphicForm F D M) where
   }
 
 @[simp]
-theorem sMul_eval (g : Dfx F D) (f : AutomorphicForm F D M) (x : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
+theorem sMul_eval [FiniteDimensional F D] (g : Dfx F D) (f : AutomorphicForm F D M) (x : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
   (g • f) x = f (x * g) := rfl
 
-instance : MulAction (Dfx F D) (AutomorphicForm F D M) where
+instance [FiniteDimensional F D] : MulAction (Dfx F D) (AutomorphicForm F D M) where
   smul := (· • ·)
   one_smul := by intros; ext; simp only [sMul_eval, mul_one]
   mul_smul := by intros; ext; simp only [sMul_eval, mul_assoc]
