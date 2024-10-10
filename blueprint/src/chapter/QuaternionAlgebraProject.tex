@@ -9,7 +9,7 @@ finite-dimensional. We need this to control the Hecke algebras which we'll defin
 later on using these spaces.
 
 Let's start with the definition of these spaces. We fix a totally real field $F$
-(that is, a number field $F$ such that the image of every ring homomorphism $F\to\CC$
+(that is, a number field $F$ such that the image of every ring homomorphism $F\to\bbC$
 is a subset of $\R$). We fix a quaternion algebra $D$ over $F$. This means
 the following: $D$ is an $F$-algebra of dimension 4, the centre of $D$ is $F$,
 and $D$ has no nontrivial two-sided ideals. Examples of quaternion algebras
@@ -53,7 +53,7 @@ a space of automorphic forms for $D^\times$ of this weight, level and character.
 about the theory of classical modular forms you will have seen these words used in that theory.
 In the adelic set-up these words have slightly different interpretations. We will define automorphic
 forms over $R$, an arbitrary commutative base ring. If you are thinking about analogies with
-spaces of classical modular forms then you could imagine the case $R=\CC$.
+spaces of classical modular forms then you could imagine the case $R=\bbC$.
 
 A \emph{weight} is a finitely-generated $R$-module~$W$ with an action of $D^\times$. For applications
 to Fermat's Last Theorem we only need to consider the case where $W=R$ and the action is trivial,
@@ -106,7 +106,7 @@ $\chi$. The first observation is
 \begin{theorem}
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
-  If $R=\CC$ then the space $S_{W,\chi}(U;\CC)$ is a finite-dimensional vector space.
+  If $R=\bbC$ then the space $S_{W,\chi}(U;\bbC)$ is a finite-dimensional vector space.
 \end{theorem}
 
 This theorem is in fact an easy consequence of the following finiteness claim:
@@ -120,4 +120,5 @@ This theorem is in fact an easy consequence of the following finiteness claim:
 Let's prove finite-dimensionality assuming this theorem.
 \begin{proof}
   Choose a set of coset representative $g_1,g_2,\ldots,g_n$ for
-  $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$.
+  $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$. TODO
+\end{proof}
