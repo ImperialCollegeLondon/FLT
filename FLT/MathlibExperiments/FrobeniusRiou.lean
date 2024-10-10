@@ -601,44 +601,35 @@ theorem Polynomial.monic_nonzero_const_if_isIntegral (R S : Type) [CommRing R] [
 theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
     [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
     ∃ r : R, r ≠ 0 ∧ s ∣ (r : S) := by
-  obtain ⟨q, _, q_zero_coeff, q_eval_zero⟩ :=
-      Polynomial.monic_nonzero_const_if_isIntegral R S s hs
-  have zero_support : 0 ∈ q.support := by
-    exact Polynomial.mem_support_iff.mpr q_zero_coeff
+  obtain ⟨q, _, q_zero_coeff, q_eval_zero⟩ := Polynomial.monic_nonzero_const_if_isIntegral R S s hs
+  have zero_support : 0 ∈ q.support := Polynomial.mem_support_iff.mpr q_zero_coeff
   have q_eval_zero : ∑ n ∈ q.support, (algebraMap R S) (q.coeff n) * s ^ n = 0 := by
-          rw [← q_eval_zero]
-          nth_rw 3 [Polynomial.as_sum_support q]
-          rw [Polynomial.eval₂_finset_sum]
-          simp
-  use q.coeff 0
-  constructor
-  . exact q_zero_coeff
-  . have : (q.coeff 0 : S) = ((algebraMap R S) (q.coeff 0)) * s ^ 0 := by
-      simp
-    have : q.coeff 0 = - ∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ n := by
-      rw [← sub_add_cancel_left (q.coeff 0 : S)
-        (∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ n)]
-      nth_rw 3 [this]
-      rw [add_comm, Finset.sum_erase_add _ _ zero_support, q_eval_zero]
-      simp
-    rw [this]
+    rw [← q_eval_zero]
+    nth_rw 3 [Polynomial.as_sum_support q]
+    rw [Polynomial.eval₂_finset_sum]
     simp
-    use ∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ (n - 1)
-    rw [Finset.mul_sum]
-    apply Finset.sum_equiv (Equiv.refl ℕ)
-    . intro i; rfl
-    . intro i hi
-      rw [Finset.mem_erase] at hi
-      obtain ⟨i_nzero, _⟩ := hi
-      simp
-      rw [← mul_assoc]
-      nth_rw 3 [mul_comm]
-      rw [mul_assoc]
-      congr
-      symm
-      nth_rw 1 [← pow_one s]
-      apply pow_mul_pow_sub s
-      exact Nat.one_le_iff_ne_zero.mpr i_nzero
+  refine ⟨q.coeff 0, q_zero_coeff, ?_⟩
+  have : (q.coeff 0 : S) = ((algebraMap R S) (q.coeff 0)) * s ^ 0 := by rw [pow_zero, mul_one]
+  have : q.coeff 0 = - ∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ n := by
+    rw [← sub_add_cancel_left (q.coeff 0 : S)
+      (∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ n)]
+    nth_rw 3 [this]
+    rw [add_comm, Finset.sum_erase_add _ _ zero_support, q_eval_zero]
+    simp
+  rw [this, dvd_neg]
+  refine ⟨∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ (n - 1), ?_⟩
+  rw [Finset.mul_sum]
+  refine Finset.sum_equiv (Equiv.refl ℕ) (fun _ ↦ Iff.symm (Eq.to_iff rfl)) ?_
+  . intro i hi
+    rw [Finset.mem_erase] at hi
+    obtain ⟨i_nzero, _⟩ := hi
+    rw [Equiv.refl_apply, ← mul_assoc]
+    nth_rw 3 [mul_comm]
+    rw [mul_assoc]
+    congr
+    symm
+    nth_rw 1 [← pow_one s]
+    exact pow_mul_pow_sub s (Nat.one_le_iff_ne_zero.mpr i_nzero)
 
 end B_mod_Q_over_A_mod_P_stuff
 
