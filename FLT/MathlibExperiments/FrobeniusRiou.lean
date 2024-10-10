@@ -11,7 +11,7 @@ import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.RingTheory.Ideal.Pointwise
 import Mathlib.RingTheory.Ideal.Over
 import Mathlib.FieldTheory.Normal
-import Mathlib
+import Mathlib.FieldTheory.SeparableClosure
 import Mathlib.RingTheory.OreLocalization.Ring
 
 /-!
