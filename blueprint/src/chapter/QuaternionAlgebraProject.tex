@@ -1,0 +1,123 @@
+\chapter{Project: Quaternion algebras}\label{Quat_alg_project}
+
+\section{Introduction and goal}
+
+At the time of writing, {\tt mathlib} still does not have a proof that the space
+of classical modular forms of a fixed weight and level is finite-dimensional. The main result
+in this project is to prove that spaces of quaternionic modular forms are
+finite-dimensional. We need this to control the Hecke algebras which we'll define
+later on using these spaces.
+
+Let's start with the definition of these spaces. We fix a totally real field $F$
+(that is, a number field $F$ such that the image of every ring homomorphism $F\to\CC$
+is a subset of $\R$). We fix a quaternion algebra $D$ over $F$. This means
+the following: $D$ is an $F$-algebra of dimension 4, the centre of $D$ is $F$,
+and $D$ has no nontrivial two-sided ideals. Examples of quaternion algebras
+would be 2 by 2 matrices $M_2(F)$ over $F$, or the $F$ version of Hamilton's quaternions,
+namely $F\oplus Fi\oplus Fj\oplus Fk$ with the usual laws $i^2=j^2=k^2=-1$ and
+$ij=-ji=k$.
+
+The high-falutin' explanation of what is about to happen is that $D^\times$
+can be regarded as a reductive algebraic group over $F$, and we are going to define spaces
+of automorphic forms for this algebraic group. In general such a definition would
+involve some analysis (for example modular forms are automorphic forms for the
+algebraic group $\GL_2$ over $\Q$, and the definition of a modular form involves
+holomorphic functions, which are solutions to the Cauchy--Riemann equations).
+However let us now make the assumption that $D$ is
+\emph{totally definite}, which means that for every field map $\tau:F\to\R$,
+the base extension $D\otimes_{F,\tau}\R$ along $\tau$ (which is a quaternion algebra
+over the reals) is isomorphic to Hamilton's quaternions
+$\R\oplus \R i\oplus\R j\oplus\R k$ rather than the other quaternion algebra
+over the reals, namely $M_2(\R)$. Under this assumption the associated symmetric space
+is 0-dimensional, meaning that no differential equations are involved in the definition
+of an automorphic form in this setting. As a consequence, the definition we're about to give
+makes sense not just over the complex numbers but over any commutative ring $R$, which will
+be crucial for us as we will need to think about, for example, mod~$p$ automorphic forms in this
+setting.
+
+Having made an assumption on $D$ which makes the theory far less technical, we will now
+make it a little more technical by using the modern adelic approach to the theory,
+so we also need to talk about the finite adeles of $F$. This is a huge topological ring
+denoted $\A_F^\infty$, which has a cheap definition as $F\otimes_{\Z}\Zhat$, where $\Zhat$ is
+the profinite completion of the integers, but which is often explained in the literature
+as the restricted product $\prod'_{\mathfrak{p}}F_{\mathfrak{p}}$ over the completions
+$F_{\mathfrak{p}}$ of $F$ at all prime ideals $\mathfrak{p}\subseteq\mathcal{O}_F$ of the
+integers of $F$. This is the subset of $\prod_{\mathfrak{p}}F_{\mathfrak{p}}$ consisting
+of elements which are in $\mathcal{O}_{F,\mathfrak{p}}$ for all but finitely many $\mathfrak{p}$.
+Mathlib already has the finite adeles and the proof that they're a topological ring. If you are
+not familiar with this kind of object, just remember that it is a commutative ring with a topology,
+because this is all we shall need.
+
+Let us now fix a \emph{weight}, a \emph{level} and a \emph{character}, and we will define
+a space of automorphic forms for $D^\times$ of this weight, level and character. If you know something
+about the theory of classical modular forms you will have seen these words used in that theory.
+In the adelic set-up these words have slightly different interpretations. We will define automorphic
+forms over $R$, an arbitrary commutative base ring. If you are thinking about analogies with
+spaces of classical modular forms then you could imagine the case $R=\CC$.
+
+A \emph{weight} is a finitely-generated $R$-module~$W$ with an action of $D^\times$. For applications
+to Fermat's Last Theorem we only need to consider the case where $W=R$ and the action is trivial,
+but there is no harm in setting things up in more generality. The case $W=R$
+
+A \emph{level} is a compact open subgroup~$U$ of $(D\otimes_F\A_F^\infty)^\times$. These are plentiful.
+The ring $D\otimes_F\A_F^\infty$ is a topological ring, and this fact is currently in the process
+of being PRed to mathlib. Hence the units $(F\otimes_F\A_F^\infty)^\times$ of this ring are a topological
+group. This group is locally profinite, and hence has many compact open subgroups; we will see
+explicit examples later on.
+
+A \emph{character} is a group homomorphism $\chi$ from $(\A_F^\infty)^\times$ to $R^\times$. For many
+of the applications, $\chi$ can also be trivial, although we will crucially have to allow
+certain nontrivial characters of $p$-power order when we are doing the patching argument needed
+to prove the modularity lifting theorem which is the first main goal of this project.
+We regard $\A_F^\infty$ as a subring of $D\otimes_F\A_F^\infty$ (which makes sense because
+$F$ is a subring of $D$) and hence we can regard $(\A_F^\infty)^\times$ as a (central)
+subgroup of $(D\otimes_F\A_F^\infty)^\times$.
+
+We fix a base ring $R$, a weight $W$, a level $U$ and a character $\chi$.
+
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
+  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
+  An \emph{automorphic form} of weight $W$, level $U$ and character $\chi$ for $D$ is
+  a function $f:(D\otimes_F\A_F^\infty)^\times\to W$ satisfying the following axioms:
+  \begin{itemize}
+    \item $f(\delta g)=\delta\cdot f(g)$ for all $\delta\in D^\times$ and $g\in (D\otimes_F\A_F^\infty)^\times$
+    (this makes sense because $W$ has an action of $D^\times$).
+    \item $f(gz)=\chi(z)f(g)$ for all $g\in (D\otimes_F\A_F^\infty)^\times$ and $z\in(\A_F^\infty)^\times$
+    (this makes sense because $W$ is an $R$-module).
+    \item $f(gu)=f(g)$ for all $g\in (D\otimes_F\A_F^\infty)^\times$ and $u\in U$.
+  \end{itemize}
+\end{definition}
+
+Let $S_{W,\chi}(U;R)$ denote the space of automorphic forms of weight $W$, level $U$ and character
+$\chi$. The first observation is
+
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
+  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
+  Pointwise addition $(f_1+f_2)(g):=f_1(g)+f_2(g)$ makes $S_{W,\chi}(U;R)$ into an additive
+  abelian group, and pointwise scalar multiplication $(r\cdot f)(g):= r\cdot(f(g))$ makes
+  it into an $R$-module.
+\end{definition}
+
+  Later on we are going to be defining Hecke operators on this space of quaternionic modular
+  forms, but the point of this mini-project is the following goal:
+
+\begin{theorem}
+  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
+  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
+  If $R=\CC$ then the space $S_{W,\chi}(U;\CC)$ is a finite-dimensional vector space.
+\end{theorem}
+
+This theorem is in fact an easy consequence of the following finiteness claim:
+\begin{theorem}
+  \lean{TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset}
+  \label{TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset}
+  If $U\subseteq (D\otimes_F\A_F^\infty)^\times$ is a compact open subgroup,
+  then the double coset space $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$ is a finite set.
+\end{theorem}
+
+Let's prove finite-dimensionality assuming this theorem.
+\begin{proof}
+  Choose a set of coset representative $g_1,g_2,\ldots,g_n$ for
+  $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$.
