@@ -529,106 +529,6 @@ end MulSemiringAction
 
 theorem Polynomial.monic_nonzero_const_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
     [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
-    ∃ (q : Polynomial R), Monic q ∧ q.coeff 0 ≠ 0 ∧ q.eval₂ (algebraMap R S) s = 0 := by
-    obtain ⟨p, p_monic, p_eval⟩ := (@Algebra.isIntegral_def R S).mp inferInstance s
-    use ∑ n ∈ p.support, monomial (n - p.natTrailingDegree) (p.coeff n)
-    have : (∑ n ∈ p.support, monomial (n - p.natTrailingDegree) (p.coeff n)).degree
-        ≤ p.natDegree - p.natTrailingDegree := by
-      refine le_trans (Polynomial.degree_sum_le p.support (fun x ↦ monomial (x - p.natTrailingDegree) (p.coeff x))) ?_
-      rw [Finset.sup_le_iff]
-      refine fun n hn ↦ le_trans (degree_monomial_le (n - p.natTrailingDegree) _) (?_)
-      rw [Nat.cast_le]
-      exact Nat.sub_le_sub_right (le_natDegree_of_mem_supp n hn) p.natTrailingDegree
-    constructor
-    . apply monic_of_degree_le_of_coeff_eq_one (p.natDegree - p.natTrailingDegree) this
-      rw [finset_sum_coeff, Finset.sum_eq_single_of_mem p.natDegree]
-      . rw [coeff_natDegree, coeff_monomial_same]
-        exact Monic.leadingCoeff p_monic
-      . exact natDegree_mem_support_of_nonzero (ne_zero_of_ne_zero_of_monic X_ne_zero p_monic)
-      . intro b b_support b_ne_natDegree
-        rw [coeff_monomial_of_ne]
-        by_contra h
-        apply b_ne_natDegree
-        have this1 : p.natTrailingDegree ≤ b := by
-          rw [natTrailingDegree_eq_support_min' (ne_zero_of_ne_zero_of_monic X_ne_zero p_monic)]
-          exact Finset.min'_le p.support b b_support
-        have this2 : p.natTrailingDegree ≤ p.natDegree := Polynomial.natTrailingDegree_le_natDegree p
-        rw [Nat.sub_eq_iff_eq_add this1] at h
-        simp [h, this1, this2]
-    . constructor
-      . rw [finset_sum_coeff, Finset.sum_eq_single_of_mem p.natTrailingDegree]
-        . rw [coeff_monomial]
-          simp only [le_refl, tsub_eq_zero_of_le, ↓reduceIte, ne_eq,
-            coeff_natTrailingDegree_eq_zero, ne_zero_of_ne_zero_of_monic X_ne_zero p_monic,
-            not_false_eq_true]
-        . exact natTrailingDegree_mem_support_of_nonzero
-            (ne_zero_of_ne_zero_of_monic X_ne_zero p_monic)
-        . intro n n_support n_neq_d
-          rw [coeff_monomial_of_ne]
-          have : p.natTrailingDegree ≤ n := natTrailingDegree_le_of_mem_supp _ n_support
-          by_contra h
-          apply n_neq_d
-          rw [Nat.sub_eq_iff_eq_add this] at h
-          simp [h, this]
-      . rw [eval₂_finset_sum]
-        simp
-        have : ∑ n ∈ p.support, (algebraMap R S) (p.coeff n) * s ^ n = 0 := by
-          rw [← p_eval]
-          nth_rw 3 [as_sum_support p]
-          rw [eval₂_finset_sum]
-          simp
-        have : (s ^ p.natTrailingDegree) * ∑ n ∈ p.support, (algebraMap R S) (p.coeff n)
-            * (s ^ (n - p.natTrailingDegree)) = 0 := by
-          rw [← this, Finset.mul_sum]
-          congr with n
-          rcases Classical.em (n ∈ p.support) with n_support | n_nsupport
-          . have : p.natTrailingDegree ≤ n := natTrailingDegree_le_of_mem_supp n n_support
-            rw [mul_comm, mul_assoc]
-            congr
-            rw [mul_comm]
-            exact pow_mul_pow_sub s this
-          . rw [not_mem_support_iff.mp n_nsupport]
-            simp
-        let zero_or_zero := NoZeroDivisors.eq_zero_or_eq_zero_of_mul_eq_zero this
-        rcases zero_or_zero with s_pow_zero | h
-        . by_contra; exact hs (pow_eq_zero s_pow_zero)
-        . exact h
-
-theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
-    [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
-    ∃ r : R, r ≠ 0 ∧ s ∣ (r : S) := by
-  obtain ⟨q, _, q_zero_coeff, q_eval_zero⟩ := Polynomial.monic_nonzero_const_if_isIntegral R S s hs
-  have zero_support : 0 ∈ q.support := Polynomial.mem_support_iff.mpr q_zero_coeff
-  have q_eval_zero : ∑ n ∈ q.support, (algebraMap R S) (q.coeff n) * s ^ n = 0 := by
-    rw [← q_eval_zero]
-    nth_rw 3 [Polynomial.as_sum_support q]
-    rw [Polynomial.eval₂_finset_sum]
-    simp
-  refine ⟨q.coeff 0, q_zero_coeff, ?_⟩
-  have : (q.coeff 0 : S) = ((algebraMap R S) (q.coeff 0)) * s ^ 0 := by rw [pow_zero, mul_one]
-  have : q.coeff 0 = - ∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ n := by
-    rw [← sub_add_cancel_left (q.coeff 0 : S)
-      (∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ n)]
-    nth_rw 3 [this]
-    rw [add_comm, Finset.sum_erase_add _ _ zero_support, q_eval_zero]
-    simp
-  rw [this, dvd_neg]
-  refine ⟨∑ n ∈ q.support.erase 0, (algebraMap R S) (q.coeff n) * s ^ (n - 1), ?_⟩
-  rw [Finset.mul_sum]
-  refine Finset.sum_equiv (Equiv.refl ℕ) (fun _ ↦ Iff.symm (Eq.to_iff rfl)) ?_
-  . intro i hi
-    rw [Finset.mem_erase] at hi
-    obtain ⟨i_nzero, _⟩ := hi
-    rw [Equiv.refl_apply, ← mul_assoc]
-    nth_rw 3 [mul_comm]
-    rw [mul_assoc]
-    congr
-    symm
-    nth_rw 1 [← pow_one s]
-    exact pow_mul_pow_sub s (Nat.one_le_iff_ne_zero.mpr i_nzero)
-
-theorem Polynomial.monic_nonzero_const_if_isIntegral' (R S : Type) [CommRing R] [Nontrivial R]
-    [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
     ∃ (q : Polynomial R), q.coeff 0 ≠ 0 ∧ q.eval₂ (algebraMap R S) s = 0 := by
   obtain ⟨p, p_monic, p_eval⟩ := (@Algebra.isIntegral_def R S).mp inferInstance s
   have p_nzero := ne_zero_of_ne_zero_of_monic X_ne_zero p_monic
@@ -647,10 +547,10 @@ theorem Polynomial.monic_nonzero_const_if_isIntegral' (R S : Type) [CommRing R] 
       exact pow_eq_zero Xpow_eval
     . exact q_eval
 
-theorem Algebra.exists_dvd_nonzero_if_isIntegral' (R S : Type) [CommRing R] [Nontrivial R]
+theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
     [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
     ∃ r : R, r ≠ 0 ∧ s ∣ (algebraMap R S) r := by
-  obtain ⟨q, q_zero_coeff, q_eval_zero⟩ := Polynomial.monic_nonzero_const_if_isIntegral' R S s hs
+  obtain ⟨q, q_zero_coeff, q_eval_zero⟩ := Polynomial.monic_nonzero_const_if_isIntegral R S s hs
   use q.coeff 0
   refine ⟨q_zero_coeff, ?_⟩
   rw [← dvd_neg]
