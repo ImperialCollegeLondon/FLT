@@ -43,6 +43,7 @@ The theorem we want in this project is
   \label{Bourbaki52222.MulAction.stabilizer_surjective_of_action}
   \lean{Bourbaki52222.MulAction.stabilizer_surjective_of_action}
   \uses{Bourbaki52222.stabilizer.toGaloisGroup}
+  \leanok
   The map $g\mapsto \phi_g$ from $D_Q$ to $\Aut_K(L)$ defined above is surjective.
 \end{theorem}
 
@@ -310,9 +311,11 @@ a nonzero element of $A/P$.
 \section{The extension \texorpdfstring{$L/K$}{L/K}.}
 
 \begin{theorem}
-  \label{foo1}
-If $\lambda\in L$ then there's a monic polynomial $P_\lambda\in K[X]$ of degree $|G|$
-with $\lambda$ as a root, and which splits completely in $L[X]$.
+  \lean{Bourbaki52222.f_exists}
+  \label{Bourbaki52222.f_exists}
+  If $\lambda\in L$ then there's a monic polynomial $P_\lambda\in K[X]$ of degree $|G|$
+  with $\lambda$ as a root, and which splits completely in $L[X]$.
+  \leanok
 \end{theorem}
 \begin{proof}
   A general $\lambda\in L$ can be written as $\beta_1/\beta_2$ where $\beta_1,\beta_2\in B/Q$.
@@ -325,15 +328,33 @@ with $\lambda$ as a root, and which splits completely in $L[X]$.
   Dividing through in $K[X]$ gives us the polynomial we seek.
 \end{proof}
 
-\begin{corollary} The extension $L/K$ is algebraic and normal.
+\begin{corollary}
+  \lean{Bourbaki52222.algebraic}
+  \label{Bourbaki52222.algebraic}
+  \leanok
+  The extension $L/K$ is algebraic.
 \end{corollary}
-\begin{proof} \uses{foo1}
-  Exercise using the previous theorem.
+\begin{proof}
+  \uses{Bourbaki52222.f_exists}
+  Exercise using~\ref{Bourbaki52222.f_exists}.
+\end{proof}
+
+\begin{corollary}
+  \lean{Bourbaki52222.normal}
+  \label{Bourbaki52222.normal}
+  \leanok
+  The extension $L/K$ is normal.
+\end{corollary}
+\begin{proof}
+  \uses{Bourbaki52222.f_exists}
+  Exercise using~\ref{Bourbaki52222.f_exists}.
 \end{proof}
 
 Note that $L/K$ might not be separable and might have infinite degree. However
 
-\begin{corollary} Any subextension of $L/K$ which is finite and separable over $K$
+\begin{corollary}
+  \label{Bourbaki52222.finite_separable_subextension_finrank_le}
+  Any subextension of $L/K$ which is finite and separable over $K$
   has degree at most $|G|$.
 \end{corollary}
 \begin{proof}
@@ -341,9 +362,15 @@ Note that $L/K$ might not be separable and might have infinite degree. However
   element of $L$ has degree at most $|G|$ over $K$.
 \end{proof}
 
-\begin{corollary} The maximal separable subextension $M$ of $L/K$ has degree at most $|G|$.
+\begin{corollary}
+  \lean{Bourbaki52222.separableClosure_finrank_le}
+  \label{Bourbaki52222.separableClosure_finrank_le}
+  The maximal separable subextension $M$ of $L/K$ has degree at most $|G|$.
+  \leanok
 \end{corollary}
-\begin{proof} If it has dimension greater than $|G|$ over $K$, then it has a finitely-generated
+\begin{proof}
+  \uses{Bourbaki52222.finite_separable_subextension_finrank_le}
+  If it has dimension greater than $|G|$ over $K$, then it has a finitely-generated
   subfeld of $K$-dimension greater than $|G|$, and is finite and separable, contradicting
   the previous result.
 \end{proof}

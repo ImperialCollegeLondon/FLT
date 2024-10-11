@@ -517,8 +517,13 @@ theorem Mbar_eval_eq_zero [Nontrivial A] [Nontrivial B] (bbar : B ⧸ Q) :
 
 end CharacteristicPolynomial
 
-theorem reduction_isIntegral : Algebra.IsIntegral (A ⧸ P) (B ⧸ Q) := by
-  sorry
+open CharacteristicPolynomial in
+omit [SMulCommClass G A B] [Q.IsPrime] [P.IsPrime] in
+theorem reduction_isIntegral
+    [Nontrivial A] [Nontrivial B]
+    (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
+    Algebra.IsIntegral (A ⧸ P) (B ⧸ Q) where
+  isIntegral x := ⟨Mbar P hFull' x, Mbar_monic Q P hFull' x, Mbar_eval_eq_zero Q P hFull' x⟩
 
 end MulSemiringAction
 
@@ -747,10 +752,19 @@ theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing 
     rw [eval_map, eval₂_hom, F_eval_eq_zero]
     exact algebraMap.coe_zero
 
-theorem normal : Normal K L := by
-  sorry
+include G in
+theorem normal [DecidableEq L] : Normal K L := by
+  rw [normal_iff]
+  intro l
+  obtain ⟨f, hfmonic, _, hf, hfsplits⟩ := @f_exists G _ _ L _ K _ _ _ l
+  have hnz : f ≠ 0 := hfmonic.ne_zero
+  constructor
+  · rw [← isAlgebraic_iff_isIntegral]
+    exact ⟨f, hfmonic.ne_zero, hf⟩
+  refine Polynomial.splits_of_splits_of_dvd (algebraMap K L) hnz hfsplits ?_
+  exact minpoly.dvd _ _ hf
 
-open FiniteDimensional
+open Module
 
 theorem separableClosure_finiteDimensional : FiniteDimensional K (separableClosure K L) := sorry
 
