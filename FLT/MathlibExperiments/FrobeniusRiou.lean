@@ -11,7 +11,7 @@ import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.RingTheory.Ideal.Pointwise
 import Mathlib.RingTheory.Ideal.Over
 import Mathlib.FieldTheory.Normal
-import Mathlib
+import Mathlib.FieldTheory.SeparableClosure
 import Mathlib.RingTheory.OreLocalization.Ring
 
 /-!
@@ -527,10 +527,36 @@ theorem reduction_isIntegral
 
 end MulSemiringAction
 
-theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [CommRing S]
-    [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
-    ∃ r : R, r ≠ 0 ∧ s ∣ (r : S) := by
-  sorry
+theorem Polynomial.nonzero_const_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
+    [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
+    ∃ (q : Polynomial R), q.coeff 0 ≠ 0 ∧ q.eval₂ (algebraMap R S) s = 0 := by
+  obtain ⟨p, p_monic, p_eval⟩ := (@Algebra.isIntegral_def R S).mp inferInstance s
+  have p_nzero := ne_zero_of_ne_zero_of_monic X_ne_zero p_monic
+  obtain ⟨q, p_eq, q_ndvd⟩ := Polynomial.exists_eq_pow_rootMultiplicity_mul_and_not_dvd p p_nzero 0
+  rw [C_0, sub_zero] at p_eq
+  rw [C_0, sub_zero] at q_ndvd
+  use q
+  constructor
+  . intro q_coeff_0
+    exact q_ndvd <| X_dvd_iff.mpr q_coeff_0
+  . rw [p_eq, eval₂_mul] at p_eval
+    rcases NoZeroDivisors.eq_zero_or_eq_zero_of_mul_eq_zero p_eval with Xpow_eval | q_eval
+    . by_contra
+      apply hs
+      rw [eval₂_X_pow] at Xpow_eval
+      exact pow_eq_zero Xpow_eval
+    . exact q_eval
+
+theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
+    [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
+    ∃ r : R, r ≠ 0 ∧ s ∣ (algebraMap R S) r := by
+  obtain ⟨q, q_zero_coeff, q_eval_zero⟩ := Polynomial.nonzero_const_if_isIntegral R S s hs
+  use q.coeff 0
+  refine ⟨q_zero_coeff, ?_⟩
+  rw [← Polynomial.eval₂_X (algebraMap R S) s, ← dvd_neg, ← Polynomial.eval₂_C (algebraMap R S) s]
+  rw [← zero_add (-_), Mathlib.Tactic.RingNF.add_neg, ← q_eval_zero, ← Polynomial.eval₂_sub]
+  apply Polynomial.eval₂_dvd
+  exact Polynomial.X_dvd_sub_C
 
 end B_mod_Q_over_A_mod_P_stuff
 
