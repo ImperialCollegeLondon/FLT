@@ -329,7 +329,8 @@ lemma ZMod.isUnit_natAbs {z : ℤ} {N : ℕ} : IsUnit (z.natAbs : ZMod N) ↔ Is
 lemma _root_.Algebra.TensorProduct.one_tmul_intCast {R : Type*} {A : Type*} {B : Type*}
     [CommRing R] [Ring A] [Algebra R A] [Ring B] [Algebra R B] {z : ℤ} :
     (1 : A) ⊗ₜ[R] (z : B) = (z : TensorProduct R A B) := by
-  rw [← map_intCast Algebra.TensorProduct.includeRight, Algebra.TensorProduct.includeRight_apply]
+  rw [← map_intCast (F := B →ₐ[R] TensorProduct R A B),
+    Algebra.TensorProduct.includeRight_apply]
 
 lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := by
   apply le_antisymm
