@@ -57,7 +57,8 @@ spaces of classical modular forms then you could imagine the case $R=\bbC$.
 
 A \emph{weight} is a finitely-generated $R$-module~$W$ with an action of $D^\times$. For applications
 to Fermat's Last Theorem we only need to consider the case where $W=R$ and the action is trivial,
-but there is no harm in setting things up in more generality. The case $W=R$
+but there is no harm in setting things up in more generality. The case $W=R$ corresponds (via
+the highly non-trivial Jacquet-Langlands correspondence) to the case of modular forms of weight 2.
 
 A \emph{level} is a compact open subgroup~$U$ of $(D\otimes_F\A_F^\infty)^\times$. These are plentiful.
 The ring $D\otimes_F\A_F^\infty$ is a topological ring, and this fact is currently in the process
@@ -78,6 +79,7 @@ We fix a base ring $R$, a weight $W$, a level $U$ and a character $\chi$.
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
   \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
+  \leanok
   An \emph{automorphic form} of weight $W$, level $U$ and character $\chi$ for $D$ is
   a function $f:(D\otimes_F\A_F^\infty)^\times\to W$ satisfying the following axioms:
   \begin{itemize}
@@ -90,15 +92,23 @@ We fix a base ring $R$, a weight $W$, a level $U$ and a character $\chi$.
 \end{definition}
 
 Let $S_{W,\chi}(U;R)$ denote the space of automorphic forms of weight $W$, level $U$ and character
-$\chi$. The first observation is
+$\chi$. Two basis observations are
+
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
+  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
+  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
+  Pointwise addition $(f_1+f_2)(g):=f_1(g)+f_2(g)$ makes $S_{W,\chi}(U;R)$ into an additive
+  abelian group.
+\end{definition}
 
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
   \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
-  Pointwise addition $(f_1+f_2)(g):=f_1(g)+f_2(g)$ makes $S_{W,\chi}(U;R)$ into an additive
-  abelian group, and pointwise scalar multiplication $(r\cdot f)(g):= r\cdot(f(g))$ makes
-  it into an $R$-module.
+  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+    TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
+  Pointwise scalar multiplication $(r\cdot f)(g):= r\cdot(f(g))$ makes
+  $S_{W,\chi}(U;R)$ into an $R$-module.
 \end{definition}
 
   Later on we are going to be defining Hecke operators on this space of quaternionic modular
@@ -107,6 +117,7 @@ $\chi$. The first observation is
 \begin{theorem}
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
+  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
   If $R$ is a field~$K$ and the weight $W$ is a finite-dimensional $K$-vector space
   then the space $S_{W,\chi}(U;K)$ is a finite-dimensional $K$-vector space.
 \end{theorem}
@@ -133,7 +144,7 @@ book~\cite{voight} this is Main Theorem 27.6.14(b) and Voight calls it Fujisakiâ
 Let's prove finite-dimensionality of the space of quaternionic modular forms
 assuming Fujisaki's lemma.
 \begin{proof}
-  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
+  \proves{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \uses{TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset}
   Choose a set of coset representative $g_1,g_2,\ldots,g_n$ for
   $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$. My claim is that

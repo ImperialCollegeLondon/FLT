@@ -53,7 +53,6 @@ Hurwitz.left_ideal_princ
 Hurwitz.canonicalForm
 Hurwitz.completed_units
 IsCentralSimple
-MatrixRing.isCentralSimple
 DedekindDomain.instTopologicalRingFiniteAdeleRing
 AutomorphicForm.GLn.IsSmooth
 AutomorphicForm.GLn.IsSlowlyIncreasing
@@ -74,3 +73,8 @@ MulSemiringAction.CharacteristicPolynomial.Mbar_monic
 MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero
 MulSemiringAction.reduction_isIntegral
 Algebra.exists_dvd_nonzero_if_isIntegral
+TotallyDefiniteQuaternionAlgebra.AutomorphicForm
+TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup
+TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module
+TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional
+TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset
