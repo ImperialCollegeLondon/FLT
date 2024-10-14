@@ -216,16 +216,14 @@ theorem iso (e : A ≃L[R] B) : IsActionTopology R B where
     constructor
     · rintro ⟨σ, ⟨hσ1, hσ2⟩, rfl⟩
       refine ⟨?_, ?_⟩
-      · exact @induced_continuous_smul (f := @id R) (hf := continuous_id)
-          (g := g') (τA := σ) _ _ _ _ _
-      · exact @induced_continuous_add (h := h') σ _
+      · exact induced_continuous_smul (f := @id R) (hf := continuous_id) (g := g') (τA := σ)
+      · exact induced_continuous_add (h := h')
     · rintro ⟨h1, h2⟩
       use τ.induced e
       rw [induced_compose]
       refine ⟨⟨?_, ?_⟩, ?_⟩
-      · exact @induced_continuous_smul (f := @id R) (hf := continuous_id)
-          (g := g) (τA := τ) _ _ _ _ _
-      · exact @induced_continuous_add (h := h) τ _
+      · exact induced_continuous_smul (f := @id R) (hf := continuous_id) (g := g) (τA := τ)
+      · exact induced_continuous_add (h := h)
       · nth_rw 2 [← induced_id (t := τ)]
         simp
 
@@ -401,8 +399,8 @@ instance pi : IsActionTopology R (∀ i, A i) := by
   · infer_instance
   · case h_option X _ hind _ _ _ _ =>
     let e : Option X ≃ X ⊕ Unit := Equiv.optionEquivSumPUnit X
-    refine @iso (e := ContinuousLinearEquiv.piCongrLeft R A e.symm) _ _ _ _ _ ?_
-    refine @iso (e := (ContinuousLinearEquiv.sumPiEquivProdPi R X Unit _).symm) _ _ _ _ _ ?_
+    apply @iso (e := ContinuousLinearEquiv.piCongrLeft R A e.symm)
+    apply @iso (e := (ContinuousLinearEquiv.sumPiEquivProdPi R X Unit _).symm)
     refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
     let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
     exact iso (ContinuousLinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm

@@ -78,3 +78,7 @@ TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional
 TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset
+Bourbaki52222.f_exists
+Bourbaki52222.algebraic
+Bourbaki52222.normal
+Bourbaki52222.separableClosure_finrank_le

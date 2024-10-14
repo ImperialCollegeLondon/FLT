@@ -94,7 +94,7 @@ lemma induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] (h
     @ContinuousSMul S B _ _ (TopologicalSpace.induced g τA) := by
   convert Inducing.continuousSMul (inducing_induced g) hf (fun {c} {x} ↦ map_smulₛₗ g c x)
 
-#check Prod.continuousSMul -- exists and is an instance :-)
+-- #check Prod.continuousSMul -- exists and is an instance :-)
 --#check Induced.continuousSMul -- doesn't exist
 
 end continuous_smul
