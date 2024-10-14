@@ -28,6 +28,7 @@ open DedekindDomain
 
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
+variable {F D} in
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
@@ -51,7 +52,7 @@ structure AutomorphicForm
   -- definition
   toFun : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ → W
   left_invt : ∀ (δ : Dˣ) (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
-    toFun (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom δ * g) = δ • (toFun g)
+    toFun (incl₁ δ * g) = δ • (toFun g)
   has_character : ∀ (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (z : (FiniteAdeleRing (𝓞 F) F)ˣ),
     toFun (g * incl₂ F D z) = χ z • toFun g
   right_invt : ∀ (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
@@ -62,7 +63,7 @@ namespace AutomorphicForm
 -- defined over R
 variable  (R : Type*) [CommRing R]
   -- weight
-  (W : Type*) [AddCommGroup W] [Module R W] [MulAction Dˣ W] -- actions should commute in practice
+  (W : Type*) [AddCommGroup W] [Module R W] [DistribMulAction Dˣ W] -- actions should commute in practice
   -- level
   (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) -- subgroup should be compact and open
   -- character
@@ -81,9 +82,9 @@ theorem ext (φ ψ : AutomorphicForm F D R W U χ) (h : ∀ x, φ x = ψ x) : φ
 
 def zero : (AutomorphicForm F D R W U χ) where
   toFun := 0
-  left_invt := sorry
-  has_character := sorry
-  right_invt := sorry
+  left_invt δ _ := by simp
+  has_character _ z := by simp
+  right_invt _ u _ := by simp
 
 instance : Zero (AutomorphicForm F D R W U χ) where
   zero := zero
@@ -94,9 +95,9 @@ theorem zero_apply (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
 
 def neg (φ : AutomorphicForm F D R W U χ) : AutomorphicForm F D R W U χ where
   toFun x := - φ x
-  left_invt := sorry
-  has_character := sorry
-  right_invt := sorry
+  left_invt δ g := by simp [left_invt]
+  has_character g z := by simp [has_character]
+  right_invt g u hu := by simp_all [right_invt]
 
 instance : Neg (AutomorphicForm F D R W U χ) where
   neg := neg
@@ -107,9 +108,9 @@ theorem neg_apply (φ : AutomorphicForm F D R W U χ) (x : (D ⊗[F] (FiniteAdel
 
 instance add (φ ψ : AutomorphicForm F D R W U χ) : AutomorphicForm F D R W U χ where
   toFun x := φ x + ψ x
-  left_invt := sorry
-  has_character := sorry
-  right_invt := sorry
+  left_invt := by simp [left_invt]
+  has_character := by simp [has_character]
+  right_invt := by simp_all [right_invt]
 
 instance : Add (AutomorphicForm F D R W U χ) where
   add := add
@@ -136,9 +137,11 @@ variable [SMulCommClass R Dˣ W]
 def smul (r : R) (φ : AutomorphicForm F D R W U χ) :
     AutomorphicForm F D R W U χ where
       toFun g := r • φ g
-      left_invt := sorry
-      has_character := sorry
-      right_invt := sorry
+      left_invt := by simp [left_invt, smul_comm]
+      has_character g z := by
+        simp_all [has_character]
+        rw [smul_comm] -- makes simp loop :-/
+      right_invt := by simp_all [right_invt]
 
 instance : SMul R (AutomorphicForm F D R W U χ) where
   smul := smul
@@ -158,7 +161,7 @@ end AutomorphicForm
 
 variable  (R : Type*) [Field R]
   -- weight
-  (W : Type*) [AddCommGroup W] [Module R W] [MulAction Dˣ W] -- actions should commute in practice
+  (W : Type*) [AddCommGroup W] [Module R W] [DistribMulAction Dˣ W] [SMulCommClass R Dˣ W]
   -- level
   (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) -- subgroup should be compact and open
   -- character
