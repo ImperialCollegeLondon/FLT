@@ -138,9 +138,7 @@ def smul (r : R) (φ : AutomorphicForm F D R W U χ) :
     AutomorphicForm F D R W U χ where
       toFun g := r • φ g
       left_invt := by simp [left_invt, smul_comm]
-      has_character g z := by
-        simp_all [has_character]
-        rw [smul_comm] -- makes simp loop :-/
+      has_character g z := by simp only [has_character, smul_comm r]
       right_invt := by simp_all [right_invt]
 
 instance : SMul R (AutomorphicForm F D R W U χ) where
