@@ -144,13 +144,16 @@ def smul (r : R) (φ : AutomorphicForm F D R W U χ) :
 instance : SMul R (AutomorphicForm F D R W U χ) where
   smul := smul
 
+lemma smul_apply (r : R) (φ : AutomorphicForm F D R W U χ) (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
+    (r • φ) g = r • (φ g) := rfl
+
 instance module : Module R (AutomorphicForm F D R W U χ) where
-  one_smul := sorry
-  mul_smul := sorry
-  smul_zero := sorry
-  smul_add := sorry
-  add_smul := sorry
-  zero_smul := sorry
+  one_smul g := by ext; simp [smul_apply]
+  mul_smul r s g := by ext; simp [smul_apply, mul_smul]
+  smul_zero r := by ext; simp [smul_apply]
+  smul_add r f g := by ext; simp [smul_apply]
+  add_smul r s g := by ext; simp [smul_apply, add_smul]
+  zero_smul g := by ext; simp [smul_apply]
 
 
 end AutomorphicForm
