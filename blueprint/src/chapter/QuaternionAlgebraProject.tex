@@ -8,28 +8,44 @@ in this project is to prove that spaces of quaternionic modular forms are
 finite-dimensional. We need this to control the Hecke algebras which we'll define
 later on using these spaces.
 
-Let's start with the definition of these spaces. We fix a totally real field $F$
-(that is, a number field $F$ such that the image of every ring homomorphism $F\to\bbC$
-is a subset of $\R$). We fix a quaternion algebra $D$ over $F$. This means
-the following: $D$ is an $F$-algebra of dimension 4, the centre of $D$ is $F$,
-and $D$ has no nontrivial two-sided ideals. Examples of quaternion algebras
-would be 2 by 2 matrices $M_2(F)$ over $F$, or the $F$ version of Hamilton's quaternions,
-namely $F\oplus Fi\oplus Fj\oplus Fk$ with the usual laws $i^2=j^2=k^2=-1$ and
-$ij=-ji=k$.
+Let's start with the definition of these spaces.
+
+Let $K$ be a field. A \emph{central simple $K$-algebra} is a $K$-algebra~$D$ with
+centre $K$ such that $D$ has no nontrivial two-sided ideals. A \emph{quaternion algebra}
+over $K$ is a central simple $K$-algebra of dimension~4.
+
+Matrix algebras $M_n(K)$ are examples of central simple $K$-algebras, so
+$2\times 2$ matrices $M_2(K)$ are an example of a quaternion algebra over $K$.
+If $K=\bbC$ then $M_2(\bbC)$ is the only example, up to isomorphism, but there are
+two examples over the reals, the other being Hamilton's quaternions
+$\bbH:=\R\oplus\R i\oplus\R j\oplus\R k$ with the usual rules $i^2=j^2=k^2=-1$,
+$ij=-ji=k$ etc. For a general field $K$ one can make an analogue of Hamilton's
+quaternions $K\oplus Ki\oplus Kj\oplus Kk$ with these same rules to describe the
+multiplication, and if the characteristic of~$K$ isn't 2 then this is a quaternion algebra
+(which may or may not be isomorphic to $M_2(K)$). If $K$ is a number field then there are
+infinitely many isomorphism classes of quaternion algebras over $K$.
+
+A fundamental fact about central simple algebras is that if $D/K$
+is a central simple $K$-algebra and $L/K$ is an extension of fields, then $D\otimes_KL$
+is a central simple $L$-algebra. In particular if $D$ is a quaternion algebra over $K$
+then $D\otimes_KL$ is a quaternion algebra over $L$. Some Imperial students have established
+this fact in ongoing project work.
+
+We now fix a totally real field $F$ (that is, a number field $F$ such that the image of every ring
+homomorphism $F\to\bbC$ is a subset of $\R$). We fix a quaternion algebra $D$ over $F$. We
+furthermore assume that $D$ is \emph{totally definite}, that is, that for all field embeddings
+$\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$.
 
 The high-falutin' explanation of what is about to happen is that $D^\times$
-can be regarded as a reductive algebraic group over $F$, and we are going to define spaces
+can be regarded as a reductive algebraic group over $F$, and in the special case where
+we are going to define spaces
 of automorphic forms for this algebraic group. In general such a definition would
 involve some analysis (for example modular forms are automorphic forms for the
 algebraic group $\GL_2$ over $\Q$, and the definition of a modular form involves
 holomorphic functions, which are solutions to the Cauchy--Riemann equations).
-However let us now make the assumption that $D$ is
-\emph{totally definite}, which means that for every field map $\tau:F\to\R$,
-the base extension $D\otimes_{F,\tau}\R$ along $\tau$ (which is a quaternion algebra
-over the reals) is isomorphic to Hamilton's quaternions
-$\R\oplus \R i\oplus\R j\oplus\R k$ rather than the other quaternion algebra
-over the reals, namely $M_2(\R)$. Under this assumption the associated symmetric space
-is 0-dimensional, meaning that no differential equations are involved in the definition
+However under the assumption that $F$ is totally real and $D/F$ is totally definite,
+the associated symmetric space is 0-dimensional, meaning that no differential equations are
+involved in the definition
 of an automorphic form in this setting. As a consequence, the definition we're about to give
 makes sense not just over the complex numbers but over any commutative ring $R$, which will
 be crucial for us as we will need to think about, for example, mod~$p$ automorphic forms in this
