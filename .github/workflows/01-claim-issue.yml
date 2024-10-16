@@ -1,0 +1,201 @@
+name: Claim Issue
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  claim_issue:
+    if: github.event.issue.pull_request == null && contains(github.event.comment.body, 'claim')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check if comment contains only 'claim' (ignoring white spaces, newlines, and case)
+      id: check_claim
+      env:
+        COMMENT: ${{ github.event.comment.body }}
+      run: |
+        TRIMMED_COMMENT=$(echo "$COMMENT" | tr -d '\n' | xargs | tr '[:upper:]' '[:lower:]')
+        if [ "$TRIMMED_COMMENT" != "claim" ]; then
+          echo "Comment does not contain only 'claim' modulo white spaces, newlines, and case."
+          exit 1
+        fi
+        echo "Claim comment detected."
+
+    - name: Retrieve project ID
+      id: get_project_id
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ repository(owner: \\"${{ github.repository_owner }}\\", name: \\"${{ github.event.repository.name }}\\") { projectsV2(first: 10) { nodes { id title } } } }"
+        }
+        EOF
+        )
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        PROJECT_ID=$(echo "$RESPONSE" | jq -r '.data.repository.projectsV2.nodes[] | select(.title == "FLT Project").id')
+
+        if [ -z "$PROJECT_ID" ]; then
+          echo "Error: Could not retrieve project ID"
+          exit 1
+        else
+          echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
+        fi
+
+    - name: Check if the issue is classified as 'Unclaimed'
+      id: check_unclaimed_tasks
+      run: |
+        # Retrieve project fields for 'Status'
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ node(id: \\"${{ env.PROJECT_ID }}\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name id options { id name } } } } } } }"
+        }
+        EOF
+        )
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        FIELD_ID=$(echo "$RESPONSE" | jq -r '.data.node.fields.nodes[] | select(.name == "Status").id')
+        UNCLAIMED_TASKS_ID=$(echo "$RESPONSE" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "Unclaimed").id')
+
+        if [ -z "$FIELD_ID" ] || [ -z "$UNCLAIMED_TASKS_ID" ]; then
+          echo "Error: Could not retrieve FIELD_ID or UNCLAIMED_TASKS_ID"
+          exit 1
+        fi
+
+        # Retrieve the project item (issue) and check its status
+        ITEM_ID_QUERY=$(cat <<EOF
+        {
+          "query": "{ repository(owner: \\"${{ github.repository_owner }}\\", name: \\"${{ github.event.repository.name }}\\") { issue(number: ${{ github.event.issue.number }}) { projectItems(first: 1) { nodes { id } } } } }"
+        }
+        EOF
+        )
+        ITEM_ID_RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$ITEM_ID_QUERY" https://api.github.com/graphql)
+
+        ITEM_ID=$(echo "$ITEM_ID_RESPONSE" | jq -r '.data.repository.issue.projectItems.nodes[0].id')
+
+        if [ "$ITEM_ID" == "null" ] || [ -z "$ITEM_ID" ]; then
+          echo "Issue has not been added to the project board. Posting a comment."
+          COMMENT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"body": "This issue cannot be assigned to @${{ github.event.comment.user.login }} because it has not been added to the project board by the project maintainers.\n\nPlease consider discussing the issue on our [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/416277-FLT). To understand the contribution process, please read the [CONTRIBUTING guide](https://github.com/teorth/equational_theories/blob/main/CONTRIBUTING.md)."}' \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments)
+
+          if [ "$COMMENT_RESPONSE" -eq 201 ]; then
+            echo "Comment posted successfully."
+          else
+            echo "Failed to post comment. HTTP status: $COMMENT_RESPONSE"
+          fi
+          exit 1
+        fi
+
+        echo "Retrieved ITEM_ID: $ITEM_ID"
+        echo "ITEM_ID=$ITEM_ID" >> $GITHUB_ENV
+
+        FIELD_QUERY=$(cat <<EOF
+        {
+          "query": "{ node(id: \\"$ITEM_ID\\") { ... on ProjectV2Item { fieldValues(first: 10) { nodes { ... on ProjectV2ItemFieldSingleSelectValue { field { ... on ProjectV2FieldCommon { name } } optionId } } } } } }"
+        }
+        EOF
+        )
+        FIELD_RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$FIELD_QUERY" https://api.github.com/graphql)
+
+        CURRENT_STATUS_ID=$(echo "$FIELD_RESPONSE" | jq -r '.data.node.fieldValues.nodes[] | select(.field.name == "Status").optionId')
+
+        if [ "$CURRENT_STATUS_ID" != "$UNCLAIMED_TASKS_ID" ]; then
+          echo "Issue is not classified as 'Unclaimed'. Posting comment."
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -d '{"body": "This issue cannot be assigned to @${{ github.event.comment.user.login }} because it has not been classified as an \"Unclaimed Outstanding Task\" by the project maintainers.\n\nPlease consider discussing the issue on our [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/416277-FLT). To understand the contribution process, please read the [CONTRIBUTING guide](https://github.com/teorth/equational_theories/blob/main/CONTRIBUTING.md)."}' \
+          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments
+          exit 1
+        fi
+
+        echo "Issue is classified as 'Unclaimed'."
+
+    - name: Check if issue is already assigned
+      id: check_assignee
+      run: |
+        ASSIGNEES_COUNT=$(echo "${{ toJson(github.event.issue.assignees) }}" | jq length)
+        if [ "$ASSIGNEES_COUNT" -gt 0 ]; then
+          echo "Issue is already assigned."
+          exit 1
+        fi
+
+    - name: Assign the issue to the commenter
+      run: |
+        curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -d '{"assignees":["${{ github.event.comment.user.login }}"]}' \
+        https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}
+
+    - name: Log the assignment result
+      run: echo "Issue successfully assigned to ${{ github.event.comment.user.login }}."
+
+    - name: Retrieve the project FIELD_ID for "Status"
+      id: get_field_id
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ node(id: \\"${{ env.PROJECT_ID }}\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name id } } } } } }"
+        }
+        EOF
+        )
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        FIELD_ID=$(echo "$RESPONSE" | jq -r '.data.node.fields.nodes[] | select(.name == "Status").id')
+        if [ -z "$FIELD_ID" ]; then
+          echo "Error: Could not retrieve FIELD_ID for Status"
+          exit 1
+        else
+          echo "FIELD_ID=$FIELD_ID" >> $GITHUB_ENV
+        fi
+
+    - name: Retrieve the "Claimed" option ID
+      id: find_claimed_tasks_id
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ node(id: \\"${{ env.PROJECT_ID }}\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"
+        }
+        EOF
+        )
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        CLAIMED_TASKS_ID=$(echo "$RESPONSE" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "Claimed").id')
+        if [ -z "$CLAIMED_TASKS_ID" ]; then
+          echo "Error: Could not retrieve 'Claimed' ID"
+          exit 1
+        else
+          echo "CLAIMED_TASKS_ID=$CLAIMED_TASKS_ID" >> $GITHUB_ENV
+        fi
+
+    - name: Move task to "Claimed" column
+      run: |
+        echo "Moving task to 'Claimed'..."
+        echo "ITEM_ID: $ITEM_ID"
+        echo "FIELD_ID: $FIELD_ID"
+        echo "CLAIMED_TASKS_ID: $CLAIMED_TASKS_ID"
+
+        QUERY=$(cat <<EOF
+        {
+          "query": "mutation { updateProjectV2ItemFieldValue(input: { projectId: \\"${{ env.PROJECT_ID }}\\", itemId: \\"$ITEM_ID\\", fieldId: \\"$FIELD_ID\\", value: { singleSelectOptionId: \\"$CLAIMED_TASKS_ID\\" } }) { projectV2Item { id } } }"
+        }
+        EOF
+        )
+        curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+        -H "Content-Type: application/json" \
+        --data "$QUERY" https://api.github.com/graphql
+
+    - name: Log the project card movement result
+      run: echo "Task successfully moved to 'Claimed' column."
