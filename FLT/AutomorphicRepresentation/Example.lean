@@ -2,6 +2,7 @@ import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Tactic.Peel
 import Mathlib.Analysis.Quaternion
 import Mathlib.RingTheory.Flat.Basic
+import FLT.HIMExperiments.flatness
 /-
 
 # Example of a space of automorphic forms
@@ -182,11 +183,7 @@ lemma torsionfree_aux (a b : ℕ) [NeZero b] (h : a ∣ b) (x : ZMod b) (hx : a 
   rw [hy]
   simp
 
--- ZHat is torsion-free. LaTeX proof in the notes.
-lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
-  rw [← AddMonoidHom.coe_mulLeft, injective_iff_map_eq_zero]
-  intro a ha
-  rw [AddMonoidHom.coe_mulLeft] at ha
+theorem eq_zero_of_mul_eq_zero (N : ℕ+) (a : ZHat) (ha : N * a = 0) : a = 0 := by
   ext j
   rw [zero_val, ← a.prop j (N * j) (by simp)]
   apply torsionfree_aux
@@ -198,7 +195,29 @@ lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
     exact this -- missing lemma
   simpa only [ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod, ZMod.val_zero] using congrArg ZMod.val this
 
-instance ZHat_flat : Module.Flat ℤ ZHat := sorry --by torsion-freeness
+-- ZHat is torsion-free. LaTeX proof in the notes.
+lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
+  rw [← AddMonoidHom.coe_mulLeft, injective_iff_map_eq_zero]
+  intro a ha
+  rw [AddMonoidHom.coe_mulLeft] at ha
+  exact eq_zero_of_mul_eq_zero N a ha
+
+instance ZHat_flat : Module.Flat ℤ ZHat := by
+  rw [Module.Flat.flat_iff_torsion_eq_bot]
+  rw [eq_bot_iff]
+  intro x hx
+  simp only [Submodule.mem_torsion'_iff, Subtype.exists, Submonoid.mk_smul, zsmul_eq_mul,
+    exists_prop, Submodule.mem_bot, mem_nonZeroDivisors_iff_ne_zero] at hx ⊢
+  obtain ⟨N, hN⟩ := hx
+  cases N
+  case ofNat N =>
+    simp only [Int.ofNat_eq_coe, ne_eq, cast_eq_zero, Int.cast_natCast] at hN
+    lift N to ℕ+ using by omega -- lol
+    exact eq_zero_of_mul_eq_zero _ _ hN.2
+  case negSucc N =>
+    simp only [ne_eq, Int.negSucc_ne_zero, not_false_eq_true, true_and, Int.cast_negSucc] at hN
+    rw [neg_mul, neg_eq_zero] at hN
+    exact eq_zero_of_mul_eq_zero ⟨N + 1, by omega⟩ _ hN
 
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
     N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
