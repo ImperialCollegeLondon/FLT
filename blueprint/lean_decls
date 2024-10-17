@@ -52,7 +52,6 @@ Hurwitz.quot_rem
 Hurwitz.left_ideal_princ
 Hurwitz.canonicalForm
 Hurwitz.completed_units
-IsCentralSimple
 DedekindDomain.instTopologicalRingFiniteAdeleRing
 AutomorphicForm.GLn.IsSmooth
 AutomorphicForm.GLn.IsSlowlyIncreasing
@@ -81,4 +80,4 @@ TotallyDefiniteQuaternionAlgebra.AutomorphicForm
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional
-TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset
+DivisionAlgebra.finiteDoubleCoset
