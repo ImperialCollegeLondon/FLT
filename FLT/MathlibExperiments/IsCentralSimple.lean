@@ -6,6 +6,7 @@ Authors: Kevin Buzzard
 
 import Mathlib.Algebra.Quaternion -- probably get away with less
 
+-- NOTE: this is all in/on the way to mathlib.
 
 /-!
 # Characteristic predicate for central simple algebras

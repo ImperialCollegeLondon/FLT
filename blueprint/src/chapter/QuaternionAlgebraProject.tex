@@ -1,18 +1,23 @@
 \chapter{Project: Quaternion algebras}\label{Quat_alg_project}
 
-\section{Introduction and goal}
+\section{The goal}
 
 At the time of writing, {\tt mathlib} still does not have a proof that the space
-of classical modular forms of a fixed weight and level is finite-dimensional. The main result
-in this project is to prove that spaces of quaternionic modular forms are
-finite-dimensional. We need this to control the Hecke algebras which we'll define
-later on using these spaces.
+of classical modular forms of a fixed weight, level and character is finite-dimensional.
+The main result in this miniproject is to prove that certain spaces of quaternionic modular forms
+of a fixed weight, level and character are finite-dimensional. We need finiteness results
+like this in order to control the Hecke algebras which act on these spaces; these Hecke
+algebras are the ``$T$''s which are isomorphic to the ``$R$''s in the $R=T$ theorem which
+is the big first target for the FLT project.
 
-Let's start with the definition of these spaces.
+\section{Initial definitions}
+
+Our first goal is the definition of these spaces of quaternionic modular forms. We start with
+some preliminary work towards this.
 
 Let $K$ be a field. A \emph{central simple $K$-algebra} is a $K$-algebra~$D$ with
 centre $K$ such that $D$ has no nontrivial two-sided ideals. A \emph{quaternion algebra}
-over $K$ is a central simple $K$-algebra of dimension~4.
+over $K$ is a central simple $K$-algebra of $K$-dimension~4.
 
 Matrix algebras $M_n(K)$ are examples of central simple $K$-algebras, so
 $2\times 2$ matrices $M_2(K)$ are an example of a quaternion algebra over $K$.
@@ -22,8 +27,8 @@ $\bbH:=\R\oplus\R i\oplus\R j\oplus\R k$ with the usual rules $i^2=j^2=k^2=-1$,
 $ij=-ji=k$ etc. For a general field $K$ one can make an analogue of Hamilton's
 quaternions $K\oplus Ki\oplus Kj\oplus Kk$ with these same rules to describe the
 multiplication, and if the characteristic of~$K$ isn't 2 then this is a quaternion algebra
-(which may or may not be isomorphic to $M_2(K)$). If $K$ is a number field then there are
-infinitely many isomorphism classes of quaternion algebras over $K$.
+(which may or may not be isomorphic to $M_2(K)$ in this generality). If $K$ is a number field
+then there are infinitely many isomorphism classes of quaternion algebras over $K$.
 
 A fundamental fact about central simple algebras is that if $D/K$
 is a central simple $K$-algebra and $L/K$ is an extension of fields, then $D\otimes_KL$
@@ -31,45 +36,47 @@ is a central simple $L$-algebra. In particular if $D$ is a quaternion algebra ov
 then $D\otimes_KL$ is a quaternion algebra over $L$. Some Imperial students have established
 this fact in ongoing project work.
 
-We now fix a totally real field $F$ (that is, a number field $F$ such that the image of every ring
-homomorphism $F\to\bbC$ is a subset of $\R$). We fix a quaternion algebra $D$ over $F$. We
-furthermore assume that $D$ is \emph{totally definite}, that is, that for all field embeddings
-$\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$.
+A \emph{totally real field} is a number field~$F$ such that the image of every ring
+homomorphism $F\to\bbC$ is a subset of $\R$. We fix a totally real field~$F$ and a
+quaternion algebra $D$ over $F$. We furthermore assume that $D$ is \emph{totally definite}, that is,
+that for all field embeddings $\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$.
 
-The high-falutin' explanation of what is about to happen is that $D^\times$
-can be regarded as a reductive algebraic group over $F$, and in the special case where
-we are going to define spaces
-of automorphic forms for this algebraic group. In general such a definition would
-involve some analysis (for example modular forms are automorphic forms for the
-algebraic group $\GL_2$ over $\Q$, and the definition of a modular form involves
-holomorphic functions, which are solutions to the Cauchy--Riemann equations).
-However under the assumption that $F$ is totally real and $D/F$ is totally definite,
-the associated symmetric space is 0-dimensional, meaning that no differential equations are
-involved in the definition
+The high-falutin' explanation of what is about to happen is that the units $D^\times$ of $D$
+can be regarded as a connected reductive algebraic group over $F$, and we are going to define spaces
+of automorphic forms for this algebraic group. For a general connected reductive algebraic group,
+part of the definition of an automorphic form is that it is the solution to some differential
+equations (for example modular forms are automorphic forms for the algebraic group $\GL_2$ over
+$\Q$, and the definition of a modular form involves holomorphic functions, which are solutions to
+the Cauchy--Riemann equations). However under the assumption that $F$ is totally real and $D/F$ is
+totally definite, the associated symmetric space is 0-dimensional, meaning that no differential
+equations are involved in the definition
 of an automorphic form in this setting. As a consequence, the definition we're about to give
 makes sense not just over the complex numbers but over any commutative ring $R$, which will
-be crucial for us as we will need to think about, for example, mod~$p$ automorphic forms in this
-setting.
+be crucial for us as we will need to think about, for example, mod~$p$ and more generally
+mod~$p^n$ automorphic forms in this setting.
 
-Having made an assumption on $D$ which makes the theory far less technical, we will now
-make it a little more technical by using the modern adelic approach to the theory,
-so we also need to talk about the finite adeles of $F$. This is a huge topological ring
+\section{The adelic viewpoint}
+
+Having made assumptions on $D$ which makes the theory far less technical, we will now
+make it a little more technical by using the modern adelic approach to the theory.
+In particular, we need to bring in the finite adeles of $F$. This is a huge topological ring
 denoted $\A_F^\infty$, which has a cheap definition as $F\otimes_{\Z}\Zhat$, where $\Zhat$ is
 the profinite completion of the integers, but which is often explained in the literature
 as the restricted product $\prod'_{\mathfrak{p}}F_{\mathfrak{p}}$ over the completions
-$F_{\mathfrak{p}}$ of $F$ at all prime ideals $\mathfrak{p}\subseteq\mathcal{O}_F$ of the
-integers of $F$. This is the subset of $\prod_{\mathfrak{p}}F_{\mathfrak{p}}$ consisting
-of elements which are in $\mathcal{O}_{F,\mathfrak{p}}$ for all but finitely many $\mathfrak{p}$.
+$F_{\mathfrak{p}}$ of $F$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_F$ of the
+integers of $F$. The restricted product is the subset of $\prod_{\mathfrak{p}}F_{\mathfrak{p}}$
+consisting of elements which are in $\mathcal{O}_{F,\mathfrak{p}}$ for all but finitely many
+$\mathfrak{p}$.
 Mathlib already has the finite adeles and the proof that they're a topological ring. If you are
-not familiar with this kind of object, just remember that it is a commutative ring with a topology,
-because this is all we shall need.
+not familiar with this kind of object, just remember that it is a commutative
+$F$-algebra $\A_F^\infty$ with a topology, because this is all we shall need for now.
 
 Let us now fix a \emph{weight}, a \emph{level} and a \emph{character}, and we will define
-a space of automorphic forms for $D^\times$ of this weight, level and character. If you know something
-about the theory of classical modular forms you will have seen these words used in that theory.
-In the adelic set-up these words have slightly different interpretations. We will define automorphic
-forms over $R$, an arbitrary commutative base ring. If you are thinking about analogies with
-spaces of classical modular forms then you could imagine the case $R=\bbC$.
+a space of automorphic forms for $D^\times$ of this weight, level and character. If you know
+something about the theory of classical modular forms you will have seen these words used in that
+theory. In the adelic set-up these words have slightly different interpretations. We will define
+automorphic forms over $R$, an arbitrary commutative base ring. If you are thinking about analogies
+with spaces of classical modular forms then you could imagine the case $R=\bbC$.
 
 A \emph{weight} is a finitely-generated $R$-module~$W$ with an action of $D^\times$. For applications
 to Fermat's Last Theorem we only need to consider the case where $W=R$ and the action is trivial,
@@ -85,12 +92,14 @@ explicit examples later on.
 A \emph{character} is a group homomorphism $\chi$ from $(\A_F^\infty)^\times$ to $R^\times$. For many
 of the applications, $\chi$ can also be trivial, although we will crucially have to allow
 certain nontrivial characters of $p$-power order when we are doing the patching argument needed
-to prove the modularity lifting theorem which is the first main goal of this project.
-We regard $\A_F^\infty$ as a subring of $D\otimes_F\A_F^\infty$ (which makes sense because
-$F$ is a subring of $D$) and hence we can regard $(\A_F^\infty)^\times$ as a (central)
-subgroup of $(D\otimes_F\A_F^\infty)^\times$.
+to prove the modularity lifting theorem which is the big first target of the FLT project.
+We regard $\A_F^\infty$ as a subring of $D\otimes_F\A_F^\infty$, which is possible because
+$F$ is a subring of $D$. More precisely we embed $\A_F^\infty$ into $D\otimes_F\A_F^\infty$
+via the map sending $g$ to $1\otimes g$. Because $F$ is in the centre of~$D$, we have
+that $\A_F^\infty$ is in the centre of $D\otimes_F\A_F^\infty$ and thus $(\A_F^\infty)^\times$
+is a central subgroup of $(D\otimes_F\A_F^\infty)^\times$.
 
-We fix a base ring $R$, a weight $W$, a level $U$ and a character $\chi$.
+We fix a base commutative ring $R$, a weight $W$, a level $U$ and a character $\chi$.
 
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
@@ -129,24 +138,36 @@ $\chi$. Two basis observations are
   $S_{W,\chi}(U;R)$ into an $R$-module.
 \end{definition}
 
-  Later on we are going to be defining Hecke operators on this space of quaternionic modular
-  forms, but the point of this mini-project is the following goal:
+These spaces $S_{W,\chi}(U;R)$ are sometimes referred to as spaces of ``quaternionic modular forms''.
+The Hecke algebras involved in the main modularity lifting theorems needed in the FLT project
+will be endomorphisms of these spaces.
+
+\section{Statement of the main result of the miniproject}
+
+The point of this miniproject is the following goal:
 
 \begin{theorem}
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
-  If $R$ is a field~$K$ and the weight $W$ is a finite-dimensional $K$-vector space
-  then the space $S_{W,\chi}(U;K)$ is a finite-dimensional $K$-vector space.
+  If $R$ is a field~$k$ and the weight $W$ is a finite-dimensional $k$-vector space
+  then the space $S_{W,\chi}(U;k)$ is a finite-dimensional $k$-vector space.
 \end{theorem}
 
 This is an analogue of the result that classical modular forms of a fixed
 level, weight and character are finite-dimensional. In fact, by delicate results
-of Jacquet and Langlands this result implies many cases of that classical claim,
-although the Jacquet--Langlands theorem is much harder to prove than anything
-here.
+of Jacquet and Langlands this result (in the case $k=\bbC$) implies many cases of that classical claim,
+although of course the Jacquet--Langlands theorem is much much harder to prove than the classical
+proof of finite-dimensionality.
 
-The finite-dimensionality theorem is in fact an easy consequence of the following finiteness claim:
+The finite-dimensionality theorem is in fact an easy consequence of a finiteness assertion
+which is valid in far more generality, namely for division algebras over number fields.
+We state and prove this result in this generality. Let $K$ be a number field and let $D/K$
+be a central simple $K$-algebra. Assume furthermore that $D$ is a \emph{division algebra},
+that is, that every nonzero element of $D$ is a unit. The finiteness theorem we want is this.
+
+*********************************
+
 \begin{theorem}
   \lean{TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset}
   \label{TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset}
