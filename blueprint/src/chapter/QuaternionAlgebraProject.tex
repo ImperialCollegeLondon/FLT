@@ -163,14 +163,13 @@ proof of finite-dimensionality.
 The finite-dimensionality theorem is in fact an easy consequence of a finiteness assertion
 which is valid in far more generality, namely for division algebras over number fields.
 We state and prove this result in this generality. Let $K$ be a number field and let $D/K$
-be a central simple $K$-algebra. Assume furthermore that $D$ is a \emph{division algebra},
-that is, that every nonzero element of $D$ is a unit. The finiteness theorem we want is this.
-
-*********************************
+be a finite-dimensional central simple $K$-algebra. Assume furthermore that $D$ is a
+\emph{division algebra}, that is, that every nonzero element of $D$ is a unit. The finiteness
+theorem we want is this.
 
 \begin{theorem}
-  \lean{TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset}
-  \label{TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset}
+  \lean{DivisionAlgebra.finiteDoubleCoset}
+  \label{DivisionAlgebra.finiteDoubleCoset}
   If $U\subseteq (D\otimes_F\A_F^\infty)^\times$ is a compact open subgroup,
   then the double coset space $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$ is a
   finite set.
@@ -178,13 +177,13 @@ that is, that every nonzero element of $D$ is a unit. The finiteness theorem we 
 
 I (kmb) had always imagined that this latter finiteness statement was ``folklore'' or
 ``a standard consequence of results about automorphic forms'', but in John Voight's
-book~\cite{voight} this is Main Theorem 27.6.14(b) and Voight calls it Fujisaki’s lemma.
+book~\cite{voightbook} this is Main Theorem 27.6.14(b) and Voight calls it Fujisaki’s lemma.
 
 Let's prove finite-dimensionality of the space of quaternionic modular forms
 assuming Fujisaki's lemma.
 \begin{proof}
   \proves{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
-  \uses{TotallyDefiniteQuaternionAlgebra.finiteDoubleCoset}
+  \uses{DivisionAlgebra.finiteDoubleCoset}
   Choose a set of coset representative $g_1,g_2,\ldots,g_n$ for
   $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$. My claim is that
   the function $S_{W,\chi}(U;K)\to W^n$ sending $f$ to $(f(g_1),f(g_2),\ldots,f(g_n))$
