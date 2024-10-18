@@ -162,16 +162,16 @@ proof of finite-dimensionality.
 
 The finite-dimensionality theorem is in fact an easy consequence of a finiteness assertion
 which is valid in far more generality, namely for division algebras over number fields.
-We state and prove this result in this generality. Let $K$ be a number field and let $D/K$
-be a finite-dimensional central simple $K$-algebra. Assume furthermore that $D$ is a
-\emph{division algebra}, that is, that every nonzero element of $D$ is a unit. The finiteness
+We state and prove this result in this generality. Let $K$ be a number field and let $B/K$
+be a finite-dimensional central simple $K$-algebra. Assume furthermore that $B$ is a
+\emph{division algebra}, that is, that every nonzero element of $B$ is a unit. The finiteness
 theorem we want is this.
 
 \begin{theorem}
   \lean{DivisionAlgebra.finiteDoubleCoset}
   \label{DivisionAlgebra.finiteDoubleCoset}
-  If $U\subseteq (D\otimes_F\A_F^\infty)^\times$ is a compact open subgroup,
-  then the double coset space $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$ is a
+  If $U\subseteq (B\otimes_K\A_K^\infty)^\times$ is a compact open subgroup,
+  then the double coset space $B^\times\backslash(B\otimes_K\A_K^\infty)^\times/U$ is a
   finite set.
 \end{theorem}
 
@@ -179,22 +179,32 @@ I (kmb) had always imagined that this latter finiteness statement was ``folklore
 ``a standard consequence of results about automorphic forms'', but in John Voight's
 book~\cite{voightbook} this is Main Theorem 27.6.14(b) and Voight calls it Fujisaki’s lemma.
 
-Let's prove finite-dimensionality of the space of quaternionic modular forms
+Let's prove Theorem~\ref{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional},
+the finite-dimensionality of the space of quaternionic modular forms,
 assuming Fujisaki's lemma.
 \begin{proof}
   \proves{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \uses{DivisionAlgebra.finiteDoubleCoset}
   Choose a set of coset representative $g_1,g_2,\ldots,g_n$ for
   $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$. My claim is that
-  the function $S_{W,\chi}(U;K)\to W^n$ sending $f$ to $(f(g_1),f(g_2),\ldots,f(g_n))$
-  is injective and $K$-linear, which suffices by finite-dimensionality of $W$.
-  $K$-linearity is easy, so let's talk about injectivity.
+  the function $S_{W,\chi}(U;k)\to W^n$ sending $f$ to $(f(g_1),f(g_2),\ldots,f(g_n))$
+  is injective and $k$-linear, which suffices by finite-dimensionality of $W$.
+  $k$-linearity is easy, so let's talk about injectivity.
 
-  Say $f_1$ and $f_2$ are two elements of $S_{W,\chi}(U;K)$ which agree on
+  Say $f_1$ and $f_2$ are two elements of $S_{W,\chi}(U;k)$ which agree on
   each $g_i$. It suffices to prove that $f_1(g)=f_2(g)$ for all
   $g\in(D\otimes_F\A_F^\infty)^\times$. So say $g\in(D\otimes_F\A_F^\infty)^\times$,
   and write $g=\delta g_iu$ for $\delta \in D^\times$ and $u\in U$.
   Then $f_1(g)=f_1(\delta g_iu)=\delta\cdot f_1(g_i)$ (by hypotheses (i) and (iii)
-  of the definition of $S_{W,\chi}(U;K)$), and similarly $f_2(g)=\delta\cdot f_2(g_i)$
+  of the definition of $S_{W,\chi}(U;k)$), and similarly $f_2(g)=\delta\cdot f_2(g_i)$
   and because $f_1(g_i)=f_2(g_i)$ by assumption, we deduce $f_1(g)=f_2(g)$ as required.
 \end{proof}
+
+It thus remains to prove Fujisaki's lemma.
+
+% \section{Proof of Fujisaki's lemma}
+
+% We need to talk about the full adele ring of the number field~$K$. This is
+% the product of the finite adele ring $\A_K^\infty$ and the ring of ``infinite adeles''
+% $K\otimes_{\Q}\R$, which is often described as $\prod_{v\infty}K_v$, where
+% $v$ runs through the infinite places of $K$.
