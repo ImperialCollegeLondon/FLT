@@ -202,9 +202,85 @@ assuming Fujisaki's lemma.
 
 It thus remains to prove Fujisaki's lemma.
 
-% \section{Proof of Fujisaki's lemma}
+\section{Preliminaries on adeles of a number field}
 
-% We need to talk about the full adele ring of the number field~$K$. This is
-% the product of the finite adele ring $\A_K^\infty$ and the ring of ``infinite adeles''
-% $K\otimes_{\Q}\R$, which is often described as $\prod_{v\infty}K_v$, where
-% $v$ runs through the infinite places of $K$.
+Let $K$ be a number field. Right now mathlib has the finite adeles $\A_K^\infty$ of $K$,
+with its topological ring structure. It does not however have the infinite adeles $K_\infty$,
+which can be defined either as $K\otimes_{\Q}\R$ or as $\prod_{v\infty}K_v$, where
+$v$ runs through the infinite places of $K$. There are PRs by Salvatore Mercuri currently
+in progress for defining this topological ring. Once we have it, the full ring of
+adeles $\A_K$ is defined as $\A_K:=\A_K^\infty\times K_\infty$; it is also a topological ring
+and also a $K$-algebra.
+
+Once mathlib PR `16485` is merged, we will have $\A_K$ as a topological $K$-algebra. We will
+need several theorems about this topological $K$-algebra, which are essentially impossible
+to work on until we have the definition in mathlib.
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.discrete}
+  \label{NumberField.AdeleRing.discrete}
+  The additive subgroup $K$ of $\A_K$ is discrete.
+\end{theorem}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.cocompact}
+  \label{NumberField.AdeleRing.cocompact}
+  The quotient $\A_K/K$ is compact.
+\end{theorem}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.locallyCompact}
+  \label{NumberField.AdeleRing.locallyCompact}
+  The topological ring $\A_K$ is locally compact.
+\end{theorem}
+
+Mercuri has already proved local compactness in
+\href{https://github.com/smmercuri/adele-ring_locally-compact}{his own repo} but rather than
+depending on this repo, we should aim to have this in mathlib. As far as I know, the other
+two theorems remain unformalised (but as I've mentioned, we cannot start on them until
+we have a definition of the adele ring).
+
+However, there is something that we can do here: one proof I know that of discreteness
+and cocompactness of $K$ in $\A_K$ reduces to the case $K=\Q$, using the ``canonical''
+isomorphism $\A_K\cong\A_{\Q}\otimes_{\Q}K$. This is proved by checking it for finite
+and infinite adeles separately, so one thing which we can work on now is the finite case.
+The general results we need are:
+
+\begin{theorem}
+  If $K$ is any field equipped with a real-valued absolute value $|.|$, and $L/K$ is a finite
+  separable extension of degree $N$, then there are at most $N$ extensions of $|.|$ to $L$.
+\end{theorem}
+
+The Lean formalisation of this would use {\tt AbsoluteValue}. However, I suspect that the
+archimedean case can be dealt with by hand, which means that we can probably restrict to
+{\tt Valuation}s.
+
+Now say $K$ is any field equipped with a real-valued absolute value $|.|$, $L/K$ is a finite
+separable extension, and let $||.||_i$ denote the finitely many extensions of $|.|$ to $L$.
+Let $\hat{K}$ denote the completion of $K$ with respect to $|.|$, and let $\hat{L}_i$ denote
+the completion of $L$ with respect to $||.||_i$. For each $i$ we have natural maps
+$\hat{K}\to\hat{L}_i$ and $L\to\hat{L}_i$, giving us a map $\theta:
+L\otimes_K\hat{K}\cong\prod_i\hat{L}_i$.
+
+\begin{theorem}
+  The map $\theta$ is an isomorphism of $L$-algebras.
+\end{theorem}
+
+Because $\hat{K}$ has a topology, we can give $L\otimes_K\hat{K}$ the $\hat{K}$-module topology.
+
+\begin{theorem}
+  The map $\theta$ is a topological isomorphism.
+\end{theorem}
+
+The map $\theta$ thus induces an isomorphism $L\otimes\prod_vK_v\to \prod_wL_w$, where $v$
+(resp. $w$) runs through the finite places of $K$ (resp. $L$).
+
+\begin{theorem}
+  The map $\theta$ induces an isomorphism (both topological and algebraic)
+  $L\otimes\A_K^\infty\to\A_L^\infty$.
+\end{theorem}
+\begin{proof}
+  It suffices to show that show that for all but finitely many finite places $v$ of $K$, the map
+  $\theta$ induces an isomorphism $\calO_L\otimes_{\calO_K}\calO_{K_v}\to\prod_i\calO_{\hat{L}_i}$
+  at the integral level.
+\end{proof}
