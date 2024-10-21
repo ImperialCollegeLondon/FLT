@@ -24,4 +24,5 @@ import FLT.MathlibExperiments.Frobenius2
 import FLT.MathlibExperiments.FrobeniusRiou
 import FLT.MathlibExperiments.HopfAlgebra.Basic
 import FLT.MathlibExperiments.IsFrobenius
+import FLT.NumberField.AdeleRing
 import FLT.TateCurve.TateCurve

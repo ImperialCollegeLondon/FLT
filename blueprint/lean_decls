@@ -81,3 +81,6 @@ TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional
 DivisionAlgebra.finiteDoubleCoset
+NumberField.AdeleRing.discrete
+NumberField.AdeleRing.cocompact
+NumberField.AdeleRing.locallyCompactSpace
