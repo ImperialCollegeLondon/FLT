@@ -104,3 +104,10 @@ noncomputable def ProdAdicCompletions.baseChange :
   map_add' := sorry
   map_smul' := sorry
 }
+
+-- hard but hopefully enough (this proof will be a lot of work)
+theorem ProdAdicCompletions.baseChange_iso (x : ProdAdicCompletions (𝓞 K) K) :
+  ProdAdicCompletions.IsFiniteAdele x ↔
+  ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChange K L (1 ⊗ₜ x)) := sorry
+
+-- Can we now write down the isomorphism L ⊗ 𝔸_K^∞ = 𝔸_L^∞ ?
