@@ -79,13 +79,19 @@ variable {L} in
 def HeightOneSpectrum.comap (w : HeightOneSpectrum (𝓞 L)) : HeightOneSpectrum (𝓞 K) where
   asIdeal := w.asIdeal.comap (algebraMap (𝓞 K) (𝓞 L))
   isPrime := Ideal.comap_isPrime (algebraMap (𝓞 K) (𝓞 L)) w.asIdeal
-  ne_bot := sorry -- pullback of nonzero prime is nonzero? Certainly true for number fields. Is it true for general Dedekind domains?
+  ne_bot := sorry -- pullback of nonzero prime is nonzero? Certainly true for number fields.
+  -- Idea of proof: show that if B/A is integral and B is an integral domain, then
+  -- any nonzero element of B divides a nonzero element of A.
+  -- In fact this definition should be made in that generality.
+  -- Use `Algebra.exists_dvd_nonzero_if_isIntegral` in the FLT file MathlibExperiments/FrobeniusRiou.lean
 
 variable {L} in
-def HeightOneSpectrum.of_comap (w : HeightOneSpectrum (𝓞 L)) :
-    (HeightOneSpectrum.adicCompletion K (comap K w)) →+* (HeightOneSpectrum.adicCompletion L w) := sorry -- this needs
-    -- the universal property of completions of topological rings.
-    -- **NOTE**: Sorried data, so right now the four sorries below this are not possible to prove.
+noncomputable def HeightOneSpectrum.of_comap (w : HeightOneSpectrum (𝓞 L)) :
+    (HeightOneSpectrum.adicCompletion K (comap K w)) →+* (HeightOneSpectrum.adicCompletion L w) :=
+  letI : UniformSpace K := (comap K w).adicValued.toUniformSpace;
+  letI : UniformSpace L := w.adicValued.toUniformSpace;
+  UniformSpace.Completion.mapRingHom (algebraMap K L) <| by
+  sorry
 
 open HeightOneSpectrum in
 noncomputable def ProdAdicCompletions.baseChange :
