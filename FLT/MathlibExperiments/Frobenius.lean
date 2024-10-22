@@ -394,7 +394,7 @@ local notation "n" => Classical.choose (Classical.choose_spec (ex_primepow_char_
 
 instance p_is_char : CharP (A ⧸ P) p := Classical.choose_spec (CharP.exists (A ⧸ P))
 
-lemma p_is_prime : (Nat.Prime p) := char_prime_of_ne_zero (A ⧸ P) <|
+lemma p_is_prime : (Nat.Prime p) := CharP.char_prime_of_ne_zero (A ⧸ P) <|
   CharP.char_ne_zero_of_finite (A ⧸ P) _
 
 lemma p'_is_prime : Nat.Prime p' :=
