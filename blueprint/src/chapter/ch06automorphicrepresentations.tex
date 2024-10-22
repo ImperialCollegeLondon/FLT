@@ -37,27 +37,21 @@ Before we talk about quaternion algebras, let's talk about central simple algebr
 
 \section{Central simple algebras}
 
-Convention: in this section, fields are commutative, but algebras over a field may not be. An example
-of what we are considering below would be Hamilton's quaternions $\R\oplus\R i\oplus\R j\oplus\R k$
-as an algebra over $\R$.
+Convention: in this section, fields are commutative, but algebras over a field may not be.
 
-
-\begin{definition}
-    \label{IsCentralSimple}
-    \lean{IsCentralSimple}
-    \leanok
-A \emph{central simple algebra} over a field $K$ is a nonzero $K$-algebra $D$ such that $K$ is the
+Recall that a \emph{central simple algebra} over a field $K$ is a
+nonzero $K$-algebra $D$ such that $K$ is the
 centre of $D$ and that $D$ has no nontrivial two-sided ideals.
-\end{definition}
 
-Equivalently, every surjective ring homomorphism $D\twoheadrightarrow A$ to any non-commutative
-ring~$A$ is either an isomorphism, or the zero map to the zero ring. Note that this latter condition
+Another way of saying that $D$ has no nontrivial two-sided ideals: every surjective ring
+homomorphism $D\twoheadrightarrow A$ to any ring~$A$ is either an isomorphism, or the zero map
+to the zero ring. Note that this latter condition
 has nothing to do with~$K$.
 
 \begin{lemma}
     \label{MatrixRing.isCentralSimple}
-    \lean{MatrixRing.isCentralSimple}
-    \uses{IsCentralSimple}
+    %\lean{MatrixRing.isCentralSimple}
+    %\uses{IsCentralSimple}
     \discussion{47}
     \leanok
     If $n\geq1$ then the $n\times n$ matrices $M_n(K)$ are a central simple algebra over~$K$.
@@ -85,13 +79,12 @@ nonempty.
 
 \begin{lemma}
     \label{IsCentralSimple.baseChange} % no Lean yet because Lean didn't seem to know L \otimes_K D was a ring
-    \uses{IsCentralSimple}
+    %\uses{IsCentralSimple}
     If $D$ is a central simple algebra over~$K$ and $L/K$ is a field extension, then $L\otimes_KD$
     is a central simple algebra over~$L$.
 \end{lemma}
 \begin{proof}
     This is not too hard: it's lemma b of section 12.4 in Peirce's "Associative algebras".
-    Will maybe write more on Saturday.
 \end{proof}
 
 

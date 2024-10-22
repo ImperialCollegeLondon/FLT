@@ -6,10 +6,44 @@ on:
 
 jobs:
   disclaim_issue:
-    if: github.event.issue.pull_request == null && github.event.comment.body == 'disclaim'
+    if: github.event.issue.pull_request == null && contains(github.event.comment.body, 'disclaim')
     runs-on: ubuntu-latest
 
     steps:
+    - name: Check if comment contains only 'disclaim' (ignoring white spaces, newlines, and case)
+      id: check_disclaim
+      env:
+        COMMENT: ${{ github.event.comment.body }}
+      run: |
+        TRIMMED_COMMENT=$(echo "$COMMENT" | tr -d '\n' | xargs | tr '[:upper:]' '[:lower:]')
+        if [ "$TRIMMED_COMMENT" != "disclaim" ]; then
+          echo "Comment does not contain only 'disclaim' modulo white spaces, newlines and case."
+          exit 1
+        fi
+        echo "Disclaim comment detected."
+
+    - name: Retrieve project ID
+      id: get_project_id
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ repository(owner: \\"${{ github.repository_owner }}\\", name: \\"${{ github.event.repository.name }}\\") { projectsV2(first: 10) { nodes { id title } } } }"
+        }
+        EOF
+        )
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        PROJECT_ID=$(echo "$RESPONSE" | jq -r '.data.repository.projectsV2.nodes[] | select(.title == "FLT Project").id')
+
+        if [ -z "$PROJECT_ID" ]; then
+          echo "Error: Could not retrieve project ID"
+          exit 1
+        else
+          echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
+        fi
+
     - name: Get issue details
       id: issue
       run: |
@@ -70,7 +104,7 @@ jobs:
       run: |
         QUERY=$(cat <<EOF
         {
-          "query": "{ node(id: \\"PVT_kwHOAeZDs84ApSkY\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name id } ... on ProjectV2IterationField { name id } } } } } }"
+          "query": "{ node(id: \\"${{ env.PROJECT_ID }}\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name id } ... on ProjectV2IterationField { name id } } } } } }"
         }
         EOF
         )
@@ -95,7 +129,7 @@ jobs:
       run: |
         QUERY=$(cat <<EOF
         {
-          "query": "{ node(id: \\"PVT_kwHOAeZDs84ApSkY\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"
+          "query": "{ node(id: \\"${{ env.PROJECT_ID }}\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"
         }
         EOF
         )
@@ -119,7 +153,7 @@ jobs:
       run: |
         QUERY=$(cat <<EOF
         {
-          "query": "mutation { updateProjectV2ItemFieldValue(input: { projectId: \\"PVT_kwHOAeZDs84ApSkY\\", itemId: \\"$ITEM_ID\\", fieldId: \\"$FIELD_ID\\", value: { singleSelectOptionId: \\"$UNCLAIMED_TASKS_ID\\" } }) { projectV2Item { id } } }"
+          "query": "mutation { updateProjectV2ItemFieldValue(input: { projectId: \\"${{ env.PROJECT_ID }}\\", itemId: \\"$ITEM_ID\\", fieldId: \\"$FIELD_ID\\", value: { singleSelectOptionId: \\"$UNCLAIMED_TASKS_ID\\" } }) { projectV2Item { id } } }"
         }
         EOF
         )

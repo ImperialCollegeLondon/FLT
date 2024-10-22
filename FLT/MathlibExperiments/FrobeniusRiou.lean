@@ -11,7 +11,7 @@ import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.RingTheory.Ideal.Pointwise
 import Mathlib.RingTheory.Ideal.Over
 import Mathlib.FieldTheory.Normal
-import Mathlib
+import Mathlib.FieldTheory.SeparableClosure
 import Mathlib.RingTheory.OreLocalization.Ring
 
 /-!
@@ -450,9 +450,31 @@ theorem Ideal.Quotient.eq_zero_iff_mem' (x : A) :
 
 section B_mod_Q_over_A_mod_P_stuff
 
+section Mathlib.RingTheory.Ideal.Quotient
+
+namespace Ideal
+
+variable {R : Type*} [CommRing R] {I : Ideal R}
+
+protected noncomputable
+def Quotient.out (x : R ⧸ I) :=
+  Quotient.out' x
+
+theorem Quotient.out_eq (x : R ⧸ I) : Ideal.Quotient.mk I (Ideal.Quotient.out x) = x := by
+  simp only [Ideal.Quotient.out, Ideal.Quotient.mk, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk,
+    Submodule.Quotient.mk, Quotient.out_eq']
+
+@[elab_as_elim]
+protected theorem Quotient.induction_on
+    {p : R ⧸ I → Prop} (x : R ⧸ I) (h : ∀ a, p (Ideal.Quotient.mk I a)) : p x :=
+  Quotient.inductionOn x h
+
+end Ideal
+
+end Mathlib.RingTheory.Ideal.Quotient
+
 namespace MulSemiringAction.CharacteristicPolynomial
 
-example : Function.Surjective (Ideal.Quotient.mk Q) := Ideal.Quotient.mk_surjective
 
 open Polynomial
 /-
@@ -466,8 +488,7 @@ variable {Q} in
 noncomputable def Mbar
     (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
     (bbar : B ⧸ Q) : (A ⧸ P)[X] :=
-  Polynomial.map (Ideal.Quotient.mk P) <| M hFull' <|
-    (Ideal.Quotient.mk_surjective bbar).choose
+  Polynomial.map (Ideal.Quotient.mk P) <| M hFull' <| Ideal.Quotient.out bbar
 
 variable (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a)
 
@@ -486,20 +507,56 @@ theorem Mbar_deg [Nontrivial A] [Nontrivial B] (bbar : B ⧸ Q) :
   · rw [(M_monic hFull' _).leadingCoeff]
     simp only [map_one, ne_eq, one_ne_zero, not_false_eq_true]
 
-theorem Mbar_eval_eq_zero (bbar : B ⧸ Q) : eval₂ (algebraMap (A ⧸ P) (B ⧸ Q)) bbar (Mbar P hFull' bbar) = 0 := by
-  sorry
+omit [SMulCommClass G A B] [Q.IsPrime] [P.IsPrime] in
+theorem Mbar_eval_eq_zero [Nontrivial A] [Nontrivial B] (bbar : B ⧸ Q) :
+    eval₂ (algebraMap (A ⧸ P) (B ⧸ Q)) bbar (Mbar P hFull' bbar) = 0 := by
+  have h := congr_arg (algebraMap B (B ⧸ Q)) (M_eval_eq_zero hFull' (Ideal.Quotient.out bbar))
+  rw [map_zero, hom_eval₂, Ideal.Quotient.algebraMap_eq, Ideal.Quotient.out_eq] at h
+  simpa [Mbar, eval₂_map, ← Ideal.Quotient.algebraMap_eq,
+    ← IsScalarTower.algebraMap_eq A (A ⧸ P) (B ⧸ Q), IsScalarTower.algebraMap_eq A B (B ⧸ Q)]
 
 end CharacteristicPolynomial
 
-theorem reduction_isIntegral : Algebra.IsIntegral (A ⧸ P) (B ⧸ Q) := by
-  sorry
+open CharacteristicPolynomial in
+omit [SMulCommClass G A B] [Q.IsPrime] [P.IsPrime] in
+theorem reduction_isIntegral
+    [Nontrivial A] [Nontrivial B]
+    (hFull' : ∀ (b : B), (∀ (g : G), g • b = b) → ∃ a : A, b = a) :
+    Algebra.IsIntegral (A ⧸ P) (B ⧸ Q) where
+  isIntegral x := ⟨Mbar P hFull' x, Mbar_monic Q P hFull' x, Mbar_eval_eq_zero Q P hFull' x⟩
 
 end MulSemiringAction
 
-theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [CommRing S]
-    [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
-    ∃ r : R, r ≠ 0 ∧ s ∣ (r : S) := by
-  sorry
+theorem Polynomial.nonzero_const_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
+    [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
+    ∃ (q : Polynomial R), q.coeff 0 ≠ 0 ∧ q.eval₂ (algebraMap R S) s = 0 := by
+  obtain ⟨p, p_monic, p_eval⟩ := (@Algebra.isIntegral_def R S).mp inferInstance s
+  have p_nzero := ne_zero_of_ne_zero_of_monic X_ne_zero p_monic
+  obtain ⟨q, p_eq, q_ndvd⟩ := Polynomial.exists_eq_pow_rootMultiplicity_mul_and_not_dvd p p_nzero 0
+  rw [C_0, sub_zero] at p_eq
+  rw [C_0, sub_zero] at q_ndvd
+  use q
+  constructor
+  . intro q_coeff_0
+    exact q_ndvd <| X_dvd_iff.mpr q_coeff_0
+  . rw [p_eq, eval₂_mul] at p_eval
+    rcases NoZeroDivisors.eq_zero_or_eq_zero_of_mul_eq_zero p_eval with Xpow_eval | q_eval
+    . by_contra
+      apply hs
+      rw [eval₂_X_pow] at Xpow_eval
+      exact pow_eq_zero Xpow_eval
+    . exact q_eval
+
+theorem Algebra.exists_dvd_nonzero_if_isIntegral (R S : Type) [CommRing R] [Nontrivial R]
+    [CommRing S] [Algebra R S] [Algebra.IsIntegral R S] [IsDomain S] (s : S) (hs : s ≠ 0) :
+    ∃ r : R, r ≠ 0 ∧ s ∣ (algebraMap R S) r := by
+  obtain ⟨q, q_zero_coeff, q_eval_zero⟩ := Polynomial.nonzero_const_if_isIntegral R S s hs
+  use q.coeff 0
+  refine ⟨q_zero_coeff, ?_⟩
+  rw [← Polynomial.eval₂_X (algebraMap R S) s, ← dvd_neg, ← Polynomial.eval₂_C (algebraMap R S) s]
+  rw [← zero_add (-_), Mathlib.Tactic.RingNF.add_neg, ← q_eval_zero, ← Polynomial.eval₂_sub]
+  apply Polynomial.eval₂_dvd
+  exact Polynomial.X_dvd_sub_C
 
 end B_mod_Q_over_A_mod_P_stuff
 
@@ -721,10 +778,19 @@ theorem algebraic {A : Type*} [CommRing A] {B : Type*} [Nontrivial B] [CommRing 
     rw [eval_map, eval₂_hom, F_eval_eq_zero]
     exact algebraMap.coe_zero
 
-theorem normal : Normal K L := by
-  sorry
+include G in
+theorem normal [DecidableEq L] : Normal K L := by
+  rw [normal_iff]
+  intro l
+  obtain ⟨f, hfmonic, _, hf, hfsplits⟩ := @f_exists G _ _ L _ K _ _ _ l
+  have hnz : f ≠ 0 := hfmonic.ne_zero
+  constructor
+  · rw [← isAlgebraic_iff_isIntegral]
+    exact ⟨f, hfmonic.ne_zero, hf⟩
+  refine Polynomial.splits_of_splits_of_dvd (algebraMap K L) hnz hfsplits ?_
+  exact minpoly.dvd _ _ hf
 
-open FiniteDimensional
+open Module
 
 theorem separableClosure_finiteDimensional : FiniteDimensional K (separableClosure K L) := sorry
 

@@ -1,0 +1,287 @@
+\chapter{Miniproject: Quaternion algebras}\label{Quat_alg_project}
+
+\section{The goal}
+
+At the time of writing, {\tt mathlib} still does not have a proof that the space
+of classical modular forms of a fixed weight, level and character is finite-dimensional.
+The main result in this miniproject is to prove that certain spaces of quaternionic modular forms
+of a fixed weight, level and character are finite-dimensional. We need finiteness results
+like this in order to control the Hecke algebras which act on these spaces; these Hecke
+algebras are the ``$T$''s which are isomorphic to the ``$R$''s in the $R=T$ theorem which
+is the big first target for the FLT project.
+
+\section{Initial definitions}
+
+Our first goal is the definition of these spaces of quaternionic modular forms. We start with
+some preliminary work towards this.
+
+Let $K$ be a field. A \emph{central simple $K$-algebra} is a $K$-algebra~$D$ with
+centre $K$ such that $D$ has no nontrivial two-sided ideals. A \emph{quaternion algebra}
+over $K$ is a central simple $K$-algebra of $K$-dimension~4.
+
+Matrix algebras $M_n(K)$ are examples of central simple $K$-algebras, so
+$2\times 2$ matrices $M_2(K)$ are an example of a quaternion algebra over $K$.
+If $K=\bbC$ then $M_2(\bbC)$ is the only example, up to isomorphism, but there are
+two examples over the reals, the other being Hamilton's quaternions
+$\bbH:=\R\oplus\R i\oplus\R j\oplus\R k$ with the usual rules $i^2=j^2=k^2=-1$,
+$ij=-ji=k$ etc. For a general field $K$ one can make an analogue of Hamilton's
+quaternions $K\oplus Ki\oplus Kj\oplus Kk$ with these same rules to describe the
+multiplication, and if the characteristic of~$K$ isn't 2 then this is a quaternion algebra
+(which may or may not be isomorphic to $M_2(K)$ in this generality). If $K$ is a number field
+then there are infinitely many isomorphism classes of quaternion algebras over $K$.
+
+A fundamental fact about central simple algebras is that if $D/K$
+is a central simple $K$-algebra and $L/K$ is an extension of fields, then $D\otimes_KL$
+is a central simple $L$-algebra. In particular if $D$ is a quaternion algebra over $K$
+then $D\otimes_KL$ is a quaternion algebra over $L$. Some Imperial students have established
+this fact in ongoing project work.
+
+A \emph{totally real field} is a number field~$F$ such that the image of every ring
+homomorphism $F\to\bbC$ is a subset of $\R$. We fix a totally real field~$F$ and a
+quaternion algebra $D$ over $F$. We furthermore assume that $D$ is \emph{totally definite}, that is,
+that for all field embeddings $\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$.
+
+The high-falutin' explanation of what is about to happen is that the units $D^\times$ of $D$
+can be regarded as a connected reductive algebraic group over $F$, and we are going to define spaces
+of automorphic forms for this algebraic group. For a general connected reductive algebraic group,
+part of the definition of an automorphic form is that it is the solution to some differential
+equations (for example modular forms are automorphic forms for the algebraic group $\GL_2$ over
+$\Q$, and the definition of a modular form involves holomorphic functions, which are solutions to
+the Cauchy--Riemann equations). However under the assumption that $F$ is totally real and $D/F$ is
+totally definite, the associated symmetric space is 0-dimensional, meaning that no differential
+equations are involved in the definition
+of an automorphic form in this setting. As a consequence, the definition we're about to give
+makes sense not just over the complex numbers but over any commutative ring $R$, which will
+be crucial for us as we will need to think about, for example, mod~$p$ and more generally
+mod~$p^n$ automorphic forms in this setting.
+
+\section{The adelic viewpoint}
+
+Having made assumptions on $D$ which makes the theory far less technical, we will now
+make it a little more technical by using the modern adelic approach to the theory.
+In particular, we need to bring in the finite adeles of $F$. This is a huge topological ring
+denoted $\A_F^\infty$, which has a cheap definition as $F\otimes_{\Z}\Zhat$, where $\Zhat$ is
+the profinite completion of the integers, but which is often explained in the literature
+as the restricted product $\prod'_{\mathfrak{p}}F_{\mathfrak{p}}$ over the completions
+$F_{\mathfrak{p}}$ of $F$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_F$ of the
+integers of $F$. The restricted product is the subset of $\prod_{\mathfrak{p}}F_{\mathfrak{p}}$
+consisting of elements which are in $\mathcal{O}_{F,\mathfrak{p}}$ for all but finitely many
+$\mathfrak{p}$.
+Mathlib already has the finite adeles and the proof that they're a topological ring. If you are
+not familiar with this kind of object, just remember that it is a commutative
+$F$-algebra $\A_F^\infty$ with a topology, because this is all we shall need for now.
+
+Let us now fix a \emph{weight}, a \emph{level} and a \emph{character}, and we will define
+a space of automorphic forms for $D^\times$ of this weight, level and character. If you know
+something about the theory of classical modular forms you will have seen these words used in that
+theory. In the adelic set-up these words have slightly different interpretations. We will define
+automorphic forms over $R$, an arbitrary commutative base ring. If you are thinking about analogies
+with spaces of classical modular forms then you could imagine the case $R=\bbC$.
+
+A \emph{weight} is a finitely-generated $R$-module~$W$ with an action of $D^\times$. For applications
+to Fermat's Last Theorem we only need to consider the case where $W=R$ and the action is trivial,
+but there is no harm in setting things up in more generality. The case $W=R$ corresponds (via
+the highly non-trivial Jacquet-Langlands correspondence) to the case of modular forms of weight 2.
+
+A \emph{level} is a compact open subgroup~$U$ of $(D\otimes_F\A_F^\infty)^\times$. These are plentiful.
+The ring $D\otimes_F\A_F^\infty$ is a topological ring, and this fact is currently in the process
+of being PRed to mathlib. Hence the units $(F\otimes_F\A_F^\infty)^\times$ of this ring are a topological
+group. This group is locally profinite, and hence has many compact open subgroups; we will see
+explicit examples later on.
+
+A \emph{character} is a group homomorphism $\chi$ from $(\A_F^\infty)^\times$ to $R^\times$. For many
+of the applications, $\chi$ can also be trivial, although we will crucially have to allow
+certain nontrivial characters of $p$-power order when we are doing the patching argument needed
+to prove the modularity lifting theorem which is the big first target of the FLT project.
+We regard $\A_F^\infty$ as a subring of $D\otimes_F\A_F^\infty$, which is possible because
+$F$ is a subring of $D$. More precisely we embed $\A_F^\infty$ into $D\otimes_F\A_F^\infty$
+via the map sending $g$ to $1\otimes g$. Because $F$ is in the centre of~$D$, we have
+that $\A_F^\infty$ is in the centre of $D\otimes_F\A_F^\infty$ and thus $(\A_F^\infty)^\times$
+is a central subgroup of $(D\otimes_F\A_F^\infty)^\times$.
+
+We fix a base commutative ring $R$, a weight $W$, a level $U$ and a character $\chi$.
+
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
+  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
+  \leanok
+  An \emph{automorphic form} of weight $W$, level $U$ and character $\chi$ for $D$ is
+  a function $f:(D\otimes_F\A_F^\infty)^\times\to W$ satisfying the following axioms:
+  \begin{itemize}
+    \item $f(\delta g)=\delta\cdot f(g)$ for all $\delta\in D^\times$ and $g\in (D\otimes_F\A_F^\infty)^\times$
+    (this makes sense because $W$ has an action of $D^\times$).
+    \item $f(gz)=\chi(z)f(g)$ for all $g\in (D\otimes_F\A_F^\infty)^\times$ and $z\in(\A_F^\infty)^\times$
+    (this makes sense because $W$ is an $R$-module).
+    \item $f(gu)=f(g)$ for all $g\in (D\otimes_F\A_F^\infty)^\times$ and $u\in U$.
+  \end{itemize}
+\end{definition}
+
+Let $S_{W,\chi}(U;R)$ denote the space of automorphic forms of weight $W$, level $U$ and character
+$\chi$. Two basic observations are
+
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
+  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
+  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
+  \leanok
+  Pointwise addition $(f_1+f_2)(g):=f_1(g)+f_2(g)$ makes $S_{W,\chi}(U;R)$ into an additive
+  abelian group.
+\end{definition}
+
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
+  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
+  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+    TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
+  \leanok
+  Pointwise scalar multiplication $(r\cdot f)(g):= r\cdot(f(g))$ makes
+  $S_{W,\chi}(U;R)$ into an $R$-module.
+\end{definition}
+
+These spaces $S_{W,\chi}(U;R)$ are sometimes referred to as spaces of ``quaternionic modular forms''.
+The Hecke algebras involved in the main modularity lifting theorems needed in the FLT project
+will be endomorphisms of these spaces.
+
+\section{Statement of the main result of the miniproject}
+
+The point of this miniproject is the following goal:
+
+\begin{theorem}
+  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
+  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
+  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
+  If $R$ is a field~$k$ and the weight $W$ is a finite-dimensional $k$-vector space
+  then the space $S_{W,\chi}(U;k)$ is a finite-dimensional $k$-vector space.
+\end{theorem}
+
+This is an analogue of the result that classical modular forms of a fixed
+level, weight and character are finite-dimensional. In fact, by delicate results
+of Jacquet and Langlands this result (in the case $k=\bbC$) implies many cases of that classical claim,
+although of course the Jacquet--Langlands theorem is much much harder to prove than the classical
+proof of finite-dimensionality.
+
+The finite-dimensionality theorem is in fact an easy consequence of a finiteness assertion
+which is valid in far more generality, namely for division algebras over number fields.
+We state and prove this result in this generality. Let $K$ be a number field and let $B/K$
+be a finite-dimensional central simple $K$-algebra. Assume furthermore that $B$ is a
+\emph{division algebra}, that is, that every nonzero element of $B$ is a unit. The finiteness
+theorem we want is this.
+
+\begin{theorem}
+  \lean{DivisionAlgebra.finiteDoubleCoset}
+  \label{DivisionAlgebra.finiteDoubleCoset}
+  If $U\subseteq (B\otimes_K\A_K^\infty)^\times$ is a compact open subgroup,
+  then the double coset space $B^\times\backslash(B\otimes_K\A_K^\infty)^\times/U$ is a
+  finite set.
+\end{theorem}
+
+I (kmb) had always imagined that this latter finiteness statement was ``folklore'' or
+``a standard consequence of results about automorphic forms'', but in John Voight's
+book~\cite{voightbook} this is Main Theorem 27.6.14(b) and Voight calls it Fujisaki’s lemma.
+
+Let's prove Theorem~\ref{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional},
+the finite-dimensionality of the space of quaternionic modular forms,
+assuming Fujisaki's lemma.
+\begin{proof}
+  \proves{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
+  \uses{DivisionAlgebra.finiteDoubleCoset}
+  Choose a set of coset representative $g_1,g_2,\ldots,g_n$ for
+  $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$. My claim is that
+  the function $S_{W,\chi}(U;k)\to W^n$ sending $f$ to $(f(g_1),f(g_2),\ldots,f(g_n))$
+  is injective and $k$-linear, which suffices by finite-dimensionality of $W$.
+  $k$-linearity is easy, so let's talk about injectivity.
+
+  Say $f_1$ and $f_2$ are two elements of $S_{W,\chi}(U;k)$ which agree on
+  each $g_i$. It suffices to prove that $f_1(g)=f_2(g)$ for all
+  $g\in(D\otimes_F\A_F^\infty)^\times$. So say $g\in(D\otimes_F\A_F^\infty)^\times$,
+  and write $g=\delta g_iu$ for $\delta \in D^\times$ and $u\in U$.
+  Then $f_1(g)=f_1(\delta g_iu)=\delta\cdot f_1(g_i)$ (by hypotheses (i) and (iii)
+  of the definition of $S_{W,\chi}(U;k)$), and similarly $f_2(g)=\delta\cdot f_2(g_i)$
+  and because $f_1(g_i)=f_2(g_i)$ by assumption, we deduce $f_1(g)=f_2(g)$ as required.
+\end{proof}
+
+It thus remains to prove Fujisaki's lemma.
+
+\section{Preliminaries on adeles of a number field}
+
+Let $K$ be a number field. Right now mathlib has the finite adeles $\A_K^\infty$ of $K$,
+with its topological ring structure. It does not however have the infinite adeles $K_\infty$,
+which can be defined either as $K\otimes_{\Q}\R$ or as $\prod_{v\infty}K_v$, where
+$v$ runs through the infinite places of $K$. There are PRs by Salvatore Mercuri currently
+in progress for defining this topological ring. Once we have it, the full ring of
+adeles $\A_K$ is defined as $\A_K:=\A_K^\infty\times K_\infty$; it is a topological ring
+and also a $K$-algebra. Once Mercuri's mathlib PR `16485` is merged, we will have
+all this available to us; until then, we sorry the definitions and these facts.
+
+Mercuri's work isn't however enough for us; we also need several theorems about this topological
+$K$-algebra. These lemmas are essentially impossible to work on until we have the definition in
+mathlib. We state them here without proof.
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.discrete}
+  \label{NumberField.AdeleRing.discrete}
+  The additive subgroup $K$ of $\A_K$ is discrete.
+\end{theorem}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.cocompact}
+  \label{NumberField.AdeleRing.cocompact}
+  The quotient $\A_K/K$ is compact.
+\end{theorem}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.locallyCompactSpace}
+  \label{NumberField.AdeleRing.locallyCompact}
+  The topological ring $\A_K$ is locally compact.
+\end{theorem}
+
+Mercuri has already proved local compactness in
+\href{https://github.com/smmercuri/adele-ring_locally-compact}{his own repo} but rather than
+depending on this repo, we should aim to have this in mathlib. As far as I know, the other
+two theorems remain unformalised (but as I've mentioned, we cannot start on them until
+we have a definition of the adele ring).
+
+However, there is something that we can do here: one proof I know that of discreteness
+and cocompactness of $K$ in $\A_K$ reduces to the case $K=\Q$, using the ``canonical''
+isomorphism $\A_K\cong\A_{\Q}\otimes_{\Q}K$. This is proved by checking it for finite
+and infinite adeles separately, so one thing which we can work on now is the finite case.
+The general results we need are:
+
+\begin{theorem}
+  If $K$ is any field equipped with a real-valued absolute value $|.|$, and $L/K$ is a finite
+  separable extension of degree $N$, then there are at most $N$ extensions of $|.|$ to $L$.
+\end{theorem}
+
+The Lean formalisation of this would use {\tt AbsoluteValue}. However, I suspect that the
+archimedean case can be dealt with by hand, which means that we can probably restrict to
+{\tt Valuation}s.
+
+Now say $K$ is any field equipped with a real-valued absolute value $|.|$, $L/K$ is a finite
+separable extension, and let $||.||_i$ denote the finitely many extensions of $|.|$ to $L$.
+Let $\hat{K}$ denote the completion of $K$ with respect to $|.|$, and let $\hat{L}_i$ denote
+the completion of $L$ with respect to $||.||_i$. For each $i$ we have natural maps
+$\hat{K}\to\hat{L}_i$ and $L\to\hat{L}_i$, giving us a map $\theta:
+L\otimes_K\hat{K}\cong\prod_i\hat{L}_i$.
+
+\begin{theorem}
+  The map $\theta$ is an isomorphism of $L$-algebras.
+\end{theorem}
+
+Because $\hat{K}$ has a topology, we can give $L\otimes_K\hat{K}$ the $\hat{K}$-module topology.
+
+\begin{theorem}
+  The map $\theta$ is a topological isomorphism.
+\end{theorem}
+
+The map $\theta$ thus induces an isomorphism $L\otimes\prod_vK_v\to \prod_wL_w$, where $v$
+(resp. $w$) runs through the finite places of $K$ (resp. $L$).
+
+\begin{theorem}
+  The map $\theta$ induces an isomorphism (both topological and algebraic)
+  $L\otimes\A_K^\infty\to\A_L^\infty$.
+\end{theorem}
+\begin{proof}
+  It suffices to show that show that for all but finitely many finite places $v$ of $K$, the map
+  $\theta$ induces an isomorphism $\calO_L\otimes_{\calO_K}\calO_{K_v}\to\prod_i\calO_{\hat{L}_i}$
+  at the integral level.
+\end{proof}

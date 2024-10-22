@@ -6,20 +6,45 @@ on:
 
 jobs:
   withdraw_pr:
-    if: github.event.issue.pull_request == null && contains(github.event.comment.body, 'withdraw PR')
+    if: github.event.issue.pull_request == null && contains(github.event.comment.body, 'withdraw')
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check if the comment contains "withdraw PR #PR_NUMBER"
+    - name: Check if the comment contains "withdraw #PR_NUMBER"
       id: check_withdraw
+      env:
+        COMMENT: ${{ github.event.comment.body }}
       run: |
-        COMMENT_BODY="${{ github.event.comment.body }}"
-        if [[ "$COMMENT_BODY" =~ withdraw\ PR\ \#([0-9]+) ]]; then
-          PR_NUMBER="${BASH_REMATCH[1]}"
+        COMMENT_LOWER=$(echo "$COMMENT" | tr '[:upper:]' '[:lower:]')
+
+        if [[ "$COMMENT_LOWER" =~ withdraw[[:space:]]*(pr[[:space:]]*)?\#([0-9]+)[[:space:]]* ]]; then
+          PR_NUMBER="${BASH_REMATCH[2]}"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_ENV
         else
-          echo "The comment does not contain a valid 'withdraw PR #PR_NUMBER' format."
-          exit 0
+          echo "The comment does not contain a valid 'withdraw #PR_NUMBER' format."
+          exit 1
+        fi
+
+    - name: Retrieve project ID
+      id: get_project_id
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ repository(owner: \\"${{ github.repository_owner }}\\", name: \\"${{ github.event.repository.name }}\\") { projectsV2(first: 10) { nodes { id title } } } }"
+        }
+        EOF
+        )
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        PROJECT_ID=$(echo "$RESPONSE" | jq -r '.data.repository.projectsV2.nodes[] | select(.title == "FLT Project").id')
+
+        if [ -z "$PROJECT_ID" ]; then
+          echo "Error: Could not retrieve project ID"
+          exit 1
+        else
+          echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
         fi
 
     - name: Get issue details
@@ -28,7 +53,6 @@ jobs:
         curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
         https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} > issue.json
         cat issue.json
-      continue-on-error: true
 
     - name: Check if the commenter is assigned to the issue
       id: check_assignee
@@ -99,7 +123,7 @@ jobs:
       run: |
         QUERY=$(cat <<EOF
         {
-          "query": "{ node(id: \\"PVT_kwHOAeZDs84ApSkY\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name id } } } } } }"
+          "query": "{ node(id: \\"${{ env.PROJECT_ID }}\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name id } } } } } }"
         }
         EOF
         )
@@ -125,7 +149,7 @@ jobs:
       run: |
         QUERY=$(cat <<EOF
         {
-          "query": "{ node(id: \\"PVT_kwHOAeZDs84ApSkY\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"
+          "query": "{ node(id: \\"${{ env.PROJECT_ID }}\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"
         }
         EOF
         )
@@ -150,14 +174,13 @@ jobs:
       run: |
         QUERY=$(cat <<EOF
         {
-          "query": "mutation { updateProjectV2ItemFieldValue(input: { projectId: \\"PVT_kwHOAeZDs84ApSkY\\", itemId: \\"$ITEM_ID\\", fieldId: \\"$FIELD_ID\\", value: { singleSelectOptionId: \\"$CLAIMED_TASKS_ID\\" } }) { projectV2Item { id } } }"
+          "query": "mutation { updateProjectV2ItemFieldValue(input: { projectId: \\"${{ env.PROJECT_ID }}\\", itemId: \\"$ITEM_ID\\", fieldId: \\"$FIELD_ID\\", value: { singleSelectOptionId: \\"$CLAIMED_TASKS_ID\\" } }) { projectV2Item { id } } }"
         }
         EOF
         )
         curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
         -H "Content-Type: application/json" \
-        --data "$QUERY" \
-        https://api.github.com/graphql
+        --data "$QUERY" https://api.github.com/graphql
 
     - name: Log the project card movement result
       if: env.not_assigned == 'false'

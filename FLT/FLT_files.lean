@@ -23,6 +23,6 @@ import FLT.MathlibExperiments.Frobenius
 import FLT.MathlibExperiments.Frobenius2
 import FLT.MathlibExperiments.FrobeniusRiou
 import FLT.MathlibExperiments.HopfAlgebra.Basic
-import FLT.MathlibExperiments.IsCentralSimple
 import FLT.MathlibExperiments.IsFrobenius
+import FLT.NumberField.AdeleRing
 import FLT.TateCurve.TateCurve

@@ -6,31 +6,54 @@ on:
 
 jobs:
   propose_pr:
-    if: github.event.issue.pull_request == null && contains(github.event.comment.body, 'propose PR')
+    if: github.event.issue.pull_request == null && contains(github.event.comment.body, 'propose')
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check if the comment contains "propose PR #PR_NUMBER"
+    - name: Check if the comment contains "propose #PR_NUMBER"
       id: check_propose
+      env:
+        COMMENT: ${{ github.event.comment.body }}
       run: |
-        COMMENT_BODY="${{ github.event.comment.body }}"
-        if [[ "$COMMENT_BODY" =~ propose\ PR\ \#([0-9]+) ]]; then
-          PR_NUMBER="${BASH_REMATCH[1]}"
+        COMMENT_LOWER=$(echo "$COMMENT" | tr '[:upper:]' '[:lower:]')
+
+        # Use a refined regex with [[:space:]] to match any whitespace
+        if [[ "$COMMENT_LOWER" =~ propose[[:space:]]*(pr[[:space:]]*)?\#([0-9]+)[[:space:]]* ]]; then
+          PR_NUMBER="${BASH_REMATCH[2]}"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_ENV
         else
-          echo "The comment does not contain a valid 'propose PR #PR_NUMBER' format."
-          exit 0
+          echo "The comment does not contain a valid 'propose #PR_NUMBER' format."
+          exit 1
+        fi
+
+    - name: Retrieve project ID
+      id: get_project_id
+      run: |
+        QUERY=$(cat <<EOF
+        {
+          "query": "{ repository(owner: \\"${{ github.repository_owner }}\\", name: \\"${{ github.event.repository.name }}\\") { projectsV2(first: 10) { nodes { id title } } } }"
+        }
+        EOF
+        )
+        RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data "$QUERY" https://api.github.com/graphql)
+
+        PROJECT_ID=$(echo "$RESPONSE" | jq -r '.data.repository.projectsV2.nodes[] | select(.title == "FLT Project").id')
+
+        if [ -z "$PROJECT_ID" ]; then
+          echo "Error: Could not retrieve project ID"
+          exit 1
+        else
+          echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
         fi
 
     - name: Get issue details
-      id: get_issue
       run: |
         curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
         https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} > issue.json
-        cat issue.json
 
     - name: Check if the commenter is assigned to the issue
-      id: check_assignee
       run: |
         COMMENTER="${{ github.event.comment.user.login }}"
         ASSIGNED=$(jq --arg user "$COMMENTER" '.assignees[]?.login | select(. == $user)' issue.json)
@@ -46,21 +69,33 @@ jobs:
         echo "User ${{ github.event.comment.user.login }} is not assigned to this issue, exiting."
         exit 0
 
-    - name: Link PR #PR_NUMBER to the issue
+    - name: Link PR to the issue
       if: env.not_assigned == 'false'
       run: |
+        PR_NUMBER="${{ env.pr_number }}"
+        if [ -z "$PR_NUMBER" ]; then
+          echo "Error: PR number is not set. Exiting."
+          exit 1
+        fi
+
+        # Get the current PR body (ensure newlines are treated properly)
         PR_BODY=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          https://api.github.com/repos/${{ github.repository }}/pulls/${{ env.pr_number }} | jq -r '.body')
+          https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER} | jq -r '.body')
 
-        NEW_PR_BODY="$PR_BODY\n\nCloses #${{ github.event.issue.number }}"
+        # Remove unnecessary carriage returns
+        PR_BODY_CLEAN=$(echo "$PR_BODY" | sed 's/\r//g')
 
-        curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-        -d "{\"body\": \"$NEW_PR_BODY\"}" \
-        https://api.github.com/repos/${{ github.repository }}/pulls/${{ env.pr_number }}
+        # Append the issue closing reference
+        NEW_PR_BODY=$(echo -e "${PR_BODY_CLEAN}\n\nCloses #${{ github.event.issue.number }}")
 
-    - name: Log PR and issue link result
-      if: env.not_assigned == 'false'
-      run: echo "PR ${{ env.pr_number }} has been successfully linked to issue ${{ github.event.issue.number }}."
+        # Prepare the JSON payload (properly escaped for newlines)
+        PAYLOAD=$(jq -n --arg body "$NEW_PR_BODY" '{body: $body}')
+
+        # Update the PR body with the properly formatted content
+        curl -s -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -H "Content-Type: application/json" \
+        -d "$PAYLOAD" \
+        https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}
 
     - name: Retrieve the project ITEM_ID
       id: get_item_id
@@ -71,13 +106,11 @@ jobs:
         }
         EOF
         )
-        echo "Sending query: $QUERY"
 
         RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
           -H "Content-Type: application/json" \
           --data "$QUERY" https://api.github.com/graphql)
 
-        echo "GraphQL Response: $RESPONSE"
         ITEM_ID=$(echo "$RESPONSE" | jq -r '.data.repository.issue.projectItems.nodes[0].id')
 
         if [ -z "$ITEM_ID" ]; then
@@ -92,17 +125,15 @@ jobs:
       run: |
         QUERY=$(cat <<EOF
         {
-          "query": "{ node(id: \\"PVT_kwHOAeZDs84ApSkY\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name id } } } } } }"
+          "query": "{ node(id: \\"${{ env.PROJECT_ID }}\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name id } } } } } }"
         }
         EOF
         )
-        echo "Sending query: $QUERY"
 
         RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
           -H "Content-Type: application/json" \
           --data "$QUERY" https://api.github.com/graphql)
 
-        echo "GraphQL Response: $RESPONSE"
         FIELD_ID=$(echo "$RESPONSE" | jq -r '.data.node.fields.nodes[] | select(.name == "Status").id')
 
         if [ -z "$FIELD_ID" ]; then
@@ -117,17 +148,15 @@ jobs:
       run: |
         QUERY=$(cat <<EOF
         {
-          "query": "{ node(id: \\"PVT_kwHOAeZDs84ApSkY\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"
+          "query": "{ node(id: \\"${{ env.PROJECT_ID }}\\") { ... on ProjectV2 { fields(first: 10) { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"
         }
         EOF
         )
-        echo "Sending query: $QUERY"
 
         RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
           -H "Content-Type: application/json" \
           --data "$QUERY" https://api.github.com/graphql)
 
-        echo "GraphQL Response: $RESPONSE"
         IN_PROGRESS_TASKS_ID=$(echo "$RESPONSE" | jq -r '.data.node.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "In Progress").id')
 
         if [ -z "$IN_PROGRESS_TASKS_ID" ]; then
@@ -141,10 +170,11 @@ jobs:
       run: |
         QUERY=$(cat <<EOF
         {
-          "query": "mutation { updateProjectV2ItemFieldValue(input: { projectId: \\"PVT_kwHOAeZDs84ApSkY\\", itemId: \\"$ITEM_ID\\", fieldId: \\"$FIELD_ID\\", value: { singleSelectOptionId: \\"$IN_PROGRESS_TASKS_ID\\" } }) { projectV2Item { id } } }"
+          "query": "mutation { updateProjectV2ItemFieldValue(input: { projectId: \\"${{ env.PROJECT_ID }}\\", itemId: \\"$ITEM_ID\\", fieldId: \\"$FIELD_ID\\", value: { singleSelectOptionId: \\"$IN_PROGRESS_TASKS_ID\\" } }) { projectV2Item { id } } }"
         }
         EOF
         )
+
         curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
         -H "Content-Type: application/json" \
         --data "$QUERY" \
