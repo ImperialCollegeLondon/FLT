@@ -209,12 +209,13 @@ with its topological ring structure. It does not however have the infinite adele
 which can be defined either as $K\otimes_{\Q}\R$ or as $\prod_{v\infty}K_v$, where
 $v$ runs through the infinite places of $K$. There are PRs by Salvatore Mercuri currently
 in progress for defining this topological ring. Once we have it, the full ring of
-adeles $\A_K$ is defined as $\A_K:=\A_K^\infty\times K_\infty$; it is also a topological ring
-and also a $K$-algebra.
+adeles $\A_K$ is defined as $\A_K:=\A_K^\infty\times K_\infty$; it is a topological ring
+and also a $K$-algebra. Once Mercuri's mathlib PR `16485` is merged, we will have
+all this available to us; until then, we sorry the definitions and these facts.
 
-Once mathlib PR `16485` is merged, we will have $\A_K$ as a topological $K$-algebra. We will
-need several theorems about this topological $K$-algebra, which are essentially impossible
-to work on until we have the definition in mathlib.
+Mercuri's work isn't however enough for us; we also need several theorems about this topological
+$K$-algebra. These lemmas are essentially impossible to work on until we have the definition in
+mathlib. We state them here without proof.
 
 \begin{theorem}
   \lean{NumberField.AdeleRing.discrete}
@@ -229,7 +230,7 @@ to work on until we have the definition in mathlib.
 \end{theorem}
 
 \begin{theorem}
-  \lean{NumberField.AdeleRing.locallyCompact}
+  \lean{NumberField.AdeleRing.locallyCompactSpace}
   \label{NumberField.AdeleRing.locallyCompact}
   The topological ring $\A_K$ is locally compact.
 \end{theorem}
