@@ -9,12 +9,7 @@ import FLT.GaloisRepresentation.HardlyRamified
 import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat
-import FLT.HIMExperiments.ContinuousSMul_topology
-import FLT.HIMExperiments.dual_topology
-import FLT.HIMExperiments.FGModuleTopology
 import FLT.HIMExperiments.flatness
-import FLT.HIMExperiments.module_topology
-import FLT.HIMExperiments.right_module_topology
 import FLT.Hard.Results
 import FLT.MathlibExperiments.Coalgebra.Monoid
 import FLT.MathlibExperiments.Coalgebra.Sweedler
