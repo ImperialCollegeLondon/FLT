@@ -83,13 +83,6 @@ theorem induced_continuous_add [AddCommMonoid A] [τA : TopologicalSpace A] [Con
     @ContinuousAdd B (TopologicalSpace.induced h τA) _ := by
   convert Inducing.continuousAdd h (inducing_induced h)
 
-theorem induced_sInf {α β : Type*} {g : β → α}
-    {s : Set (TopologicalSpace α)} :
-    TopologicalSpace.induced g (sInf s) =
-    sInf ((TopologicalSpace.induced g) '' s) := by
-  rw [sInf_eq_iInf' s, sInf_image']
-  exact induced_iInf
-
 end induced
 
 -- elsewhere
