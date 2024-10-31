@@ -33,24 +33,8 @@ section missing_instances
 
 variable {R D A : Type*} [CommSemiring R] [Semiring D] [CommSemiring A] [Algebra R D] [Algebra R A]
 
--- Algebra.TensorProduct.rightAlgebra has unnecessary commutativity assumptions
--- This should be fixed in mathlib; ideally it should be an exact mirror of leftAlgebra but
--- I ignore S as I don't need it.
-def Algebra.TensorProduct.rightAlgebra' : Algebra A (D ⊗[R] A) :=
-  Algebra.TensorProduct.includeRight.toRingHom.toAlgebra' (by
-    simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.includeRight_apply]
-    intro a b
-    apply TensorProduct.induction_on (motive := fun b ↦ 1 ⊗ₜ[R] a * b = b * 1 ⊗ₜ[R] a)
-    · simp only [mul_zero, zero_mul]
-    · intro d a'
-      simp only [Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one,
-        NonUnitalCommSemiring.mul_comm]
-    · intro x y hx hy
-      rw [left_distrib, hx, hy, right_distrib]
-    )
-
 -- this makes a diamond for Algebra A (A ⊗[R] A) which will never happen here
-attribute [local instance] Algebra.TensorProduct.rightAlgebra'
+attribute [local instance] Algebra.TensorProduct.rightAlgebra
 
 -- These seem to be missing
 instance [Module.Finite R D] : Module.Finite A (D ⊗[R] A) := sorry
@@ -58,7 +42,7 @@ instance [Module.Free R D]  : Module.Free A (D ⊗[R] A) := sorry
 
 end missing_instances
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra'
+attribute [local instance] Algebra.TensorProduct.rightAlgebra
 
 variable (K : Type*) [Field K] [NumberField K]
 variable (D : Type*) [DivisionRing D] [Algebra K D]
@@ -81,7 +65,7 @@ noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 K) K)ˣ →* Dfx K D :=
-  Units.map Algebra.TensorProduct.rightAlgebra'.toMonoidHom
+  Units.map Algebra.TensorProduct.rightAlgebra.toMonoidHom
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
 /-!
