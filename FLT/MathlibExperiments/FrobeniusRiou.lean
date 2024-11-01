@@ -6,7 +6,6 @@ Authors: Jou Glasheen, Amelia Livingston, Jujian Zhang, Kevin Buzzard
 import Mathlib.FieldTheory.Cardinality
 import Mathlib.RingTheory.DedekindDomain.Ideal
 import Mathlib.RingTheory.Ideal.Pointwise
-import Mathlib.RingTheory.Ideal.QuotientOperations
 import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.RingTheory.Ideal.Pointwise
 import Mathlib.RingTheory.Ideal.Over
