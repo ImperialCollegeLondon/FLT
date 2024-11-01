@@ -5,7 +5,6 @@ Authors: Kevin Buzzard, Jonas Bayer
 -/
 import Mathlib.RingTheory.DedekindDomain.Ideal
 import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
-import Mathlib.RingTheory.Ideal.QuotientOperations
 import Mathlib.FieldTheory.Cardinality
 import FLT.GlobalLanglandsConjectures.GLnDefs
 /-
