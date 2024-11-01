@@ -76,19 +76,12 @@ variable {B : Type*} [SMul S B]
 -- note: use convert not exact to ensure typeclass inference doesn't try to find topology on B
 theorem induced_continuous_smul [τA : TopologicalSpace A] [ContinuousSMul R A] (g : B →ₑ[f] A)
     (hf : Continuous f) : @ContinuousSMul S B _ _ (TopologicalSpace.induced g τA) := by
-  convert Inducing.continuousSMul (inducing_induced g) hf (fun {c} {x} ↦ map_smulₛₗ g c x)
+  convert IsInducing.continuousSMul (IsInducing.induced g) hf (fun {c} {x} ↦ map_smulₛₗ g c x)
 
 theorem induced_continuous_add [AddCommMonoid A] [τA : TopologicalSpace A] [ContinuousAdd A]
     [AddCommMonoid B] (h : B →+ A) :
     @ContinuousAdd B (TopologicalSpace.induced h τA) _ := by
-  convert Inducing.continuousAdd h (inducing_induced h)
-
-theorem induced_sInf {α β : Type*} {g : β → α}
-    {s : Set (TopologicalSpace α)} :
-    TopologicalSpace.induced g (sInf s) =
-    sInf ((TopologicalSpace.induced g) '' s) := by
-  rw [sInf_eq_iInf' s, sInf_image']
-  exact induced_iInf
+  convert IsInducing.continuousAdd h (IsInducing.induced h)
 
 end induced
 

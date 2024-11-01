@@ -5,10 +5,7 @@ Authors: Ivan Farabella, Amelia Livingston, Jujian Zhang, Kevin Buzzard
 -/
 import Mathlib.Tactic
 import Mathlib.NumberTheory.NumberField.Basic
-import Mathlib.NumberTheory.NumberField.Discriminant
 import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
-import Mathlib.RingTheory.Ideal.QuotientOperations
-import Mathlib.NumberTheory.RamificationInertia
 
 /-!
 
@@ -53,7 +50,7 @@ its image is itself-/
 def IsInvariant (f : (B ≃ₐ[A] B)) (Q : Ideal B) : Prop := (Q = Q.comap (f.symm : B →+* B))
 
 lemma comap_symm (f : (B ≃ₐ[A] B)) (Q : Ideal B)  : (Q.comap (f.symm : B →+* B) = Q.map f) :=
-  Ideal.comap_symm _ _
+  Ideal.comap_symm _
 
 variable (B)
 

@@ -1,7 +1,0 @@
-% Add chapters of the blueprint here
-
-\input{chapter/chapter1}
-%%\input{chapter/entropy}
-%%\input{chapter/distance}
-%%\input{chapter/pfr-entropy}
-%%\input{chapter/pfr}

@@ -5,7 +5,6 @@ Authors: Jou Glasheen
 -/
 import Mathlib.RingTheory.DedekindDomain.Ideal
 import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
-import Mathlib.RingTheory.Ideal.QuotientOperations
 import Mathlib.FieldTheory.Cardinality
 
 
@@ -330,7 +329,7 @@ variable {A K L B Q}
 -- this lemma written by Amelia
 lemma smul_ideal_eq_map (g : L ≃ₐ[K] L) (I : Ideal' A K L B) :
     g • I = Ideal.map (galRestrict A K L B g) I :=
-  Ideal.comap_symm I (galRestrict A K L B g).toRingEquiv
+  Ideal.comap_symm (galRestrict A K L B g).toRingEquiv
 
 lemma mem_smul_ideal_iff (g : L ≃ₐ[K] L) (I : Ideal' A K L B) (x : B) :
   x ∈ g • I ↔ (galRestrict A K L B g).symm x ∈ I := Iff.rfl
@@ -394,7 +393,7 @@ local notation "n" => Classical.choose (Classical.choose_spec (ex_primepow_char_
 
 instance p_is_char : CharP (A ⧸ P) p := Classical.choose_spec (CharP.exists (A ⧸ P))
 
-lemma p_is_prime : (Nat.Prime p) := char_prime_of_ne_zero (A ⧸ P) <|
+lemma p_is_prime : (Nat.Prime p) := CharP.char_prime_of_ne_zero (A ⧸ P) <|
   CharP.char_ne_zero_of_finite (A ⧸ P) _
 
 lemma p'_is_prime : Nat.Prime p' :=

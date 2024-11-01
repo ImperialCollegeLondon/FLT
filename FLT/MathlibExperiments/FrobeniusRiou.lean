@@ -6,7 +6,6 @@ Authors: Jou Glasheen, Amelia Livingston, Jujian Zhang, Kevin Buzzard
 import Mathlib.FieldTheory.Cardinality
 import Mathlib.RingTheory.DedekindDomain.Ideal
 import Mathlib.RingTheory.Ideal.Pointwise
-import Mathlib.RingTheory.Ideal.QuotientOperations
 import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.RingTheory.Ideal.Pointwise
 import Mathlib.RingTheory.Ideal.Over
@@ -675,7 +674,7 @@ variable [Nontrivial B]
 
 
 -- not sure if we need this but let's prove it just to check our setup is OK.
--- The claim is that the preimage of Q really is P (rather than just contining P)
+-- The claim is that the preimage of Q really is P (rather than just containing P)
 -- and the proof is that A/P -> B/Q extends to a map of fields which is injective,
 -- so A/P -> B/Q must also be injective.
 open IsScalarTower in
