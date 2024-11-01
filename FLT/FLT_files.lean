@@ -1,6 +1,7 @@
 import FLT.AutomorphicForm.QuaternionAlgebra
 import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
+import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.EllipticCurve.Torsion
 import FLT.ForMathlib.ActionTopology
 import FLT.ForMathlib.MiscLemmas
@@ -9,6 +10,7 @@ import FLT.GaloisRepresentation.HardlyRamified
 import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat
+import FLT.HaarMeasure.Map
 import FLT.HIMExperiments.flatness
 import FLT.Hard.Results
 import FLT.MathlibExperiments.Coalgebra.Monoid

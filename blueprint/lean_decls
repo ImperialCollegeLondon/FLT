@@ -84,3 +84,4 @@ DivisionAlgebra.finiteDoubleCoset
 NumberField.AdeleRing.discrete
 NumberField.AdeleRing.cocompact
 NumberField.AdeleRing.locallyCompactSpace
+IsDedekindDomain.HeightOneSpectrum.adicCompletion_alg_comap

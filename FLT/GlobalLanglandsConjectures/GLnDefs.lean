@@ -74,7 +74,7 @@ section PR13703
 
 open scoped nonZeroDivisors
 
-noncomputable instance : Algebra R (FiniteAdeleRing R K) :=
+noncomputable instance foobar37 : Algebra R (FiniteAdeleRing R K) :=
   RingHom.toAlgebra ((algebraMap K (FiniteAdeleRing R K)).comp (algebraMap R K))
 
 @[deprecated mul_nonZeroDivisor_mem_finiteIntegralAdeles]
