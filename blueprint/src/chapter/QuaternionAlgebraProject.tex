@@ -202,7 +202,7 @@ assuming Fujisaki's lemma.
 
 It thus remains to prove Fujisaki's lemma.
 
-\section{Preliminaries on adeles of a number field}
+\section{Results about adeles of a number field that we await}
 
 Let $K$ be a number field. Right now mathlib has the finite adeles $\A_K^\infty$ of $K$,
 with its topological ring structure. It does not however have the infinite adeles $K_\infty$,
@@ -243,45 +243,50 @@ we have a definition of the adele ring).
 
 However, there is something that we can do here: one proof I know that of discreteness
 and cocompactness of $K$ in $\A_K$ reduces to the case $K=\Q$, using the ``canonical''
-isomorphism $\A_K\cong\A_{\Q}\otimes_{\Q}K$. This is proved by checking it for finite
+isomorphism $\A_K\cong\A_{\Q}\otimes_{\Q}K$. This can be proved by checking it for finite
 and infinite adeles separately, so one thing which we can work on now is the finite case.
-The general results we need are:
+We explain this in the next section.
+
+\section{Results about finite adeles which we can work on now}
+
+Adeles are arithmetic objects, attached to global fields like number fields.
+However (as I learnt from Maria Ines de Frutos Fernandez) finite adeles are algebraic
+objects, as they can be attached to any Dedekind domain. The ``theorem'' that we need
+is the following:
 
 \begin{theorem}
-  If $K$ is any field equipped with a real-valued absolute value $|.|$, and $L/K$ is a finite
-  separable extension of degree $N$, then there are at most $N$ extensions of $|.|$ to $L$.
+  Let~$A$ be a Dedekind domain with field of fractions~$K$, and write $\mathbb{A}_{A,K}^\infty$
+  for the finite adeles of $A$. Let~$L/K$ be a finite
+  separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
+  Then there's a ``canonical'' isomorphism $\mathbb{A}_{R,K}^\infty \otimes_KL\mathbb{A}_{B,L}^\infty$.
 \end{theorem}
 
-The Lean formalisation of this would use {\tt AbsoluteValue}. However, I suspect that the
-archimedean case can be dealt with by hand, which means that we can probably restrict to
-{\tt Valuation}s.
+Of course, this isn't a theorem; this is actually a \emph{definition} (the map) and a theorem about
+the definition. Before we can prove the theorem, we need to make the definition.
 
-Now say $K$ is any field equipped with a real-valued absolute value $|.|$, $L/K$ is a finite
-separable extension, and let $||.||_i$ denote the finitely many extensions of $|.|$ to $L$.
-Let $\hat{K}$ denote the completion of $K$ with respect to $|.|$, and let $\hat{L}_i$ denote
-the completion of $L$ with respect to $||.||_i$. For each $i$ we have natural maps
-$\hat{K}\to\hat{L}_i$ and $L\to\hat{L}_i$, giving us a map $\theta:
-L\otimes_K\hat{K}\cong\prod_i\hat{L}_i$.
+If $A$ is a Dedekind domain then the \emph{height one spectrum} of $A$ is
+the nonzero prime ideals of~$A$. Note that because we stick to the literature,
+rather than to common sense, fields are Dedekind domains in mathlib, and the
+height one spectrum of a field is empty.
 
-\begin{theorem}
-  The map $\theta$ is an isomorphism of $L$-algebras.
-\end{theorem}
+There are two steps to the definition of the map; the first is to define it locally
+on the individual completions and the second is to glue everything together. Let's
+start with the local construction. I am not really clear about the generality in which one
+wants this. Cassels' article in Cassels--Froehlich works with a general field equipped with
+a real-valued norm, but we only need norms coming from points in the height one spectrum
+on an AKLB setup, and also the cases of $\mathbb{R}$ and $\mathbb{C}$.
 
-Because $\hat{K}$ has a topology, we can give $L\otimes_K\hat{K}$ the $\hat{K}$-module topology.
+So say we're in the AKLB setup, with $L/K$ a finite separable extension.
+Let $w$ be a finite place of $L$ lying above a finite place $v$ of $K$.
 
-\begin{theorem}
-  The map $\theta$ is a topological isomorphism.
-\end{theorem}
+\begin{definition}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletion_alg_comap}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletion_alg_comap}
+  There's a natural $K$-algebra homomorphism map $K_v\to L_w$.
+\end{definition}
 
-The map $\theta$ thus induces an isomorphism $L\otimes\prod_vK_v\to \prod_wL_w$, where $v$
-(resp. $w$) runs through the finite places of $K$ (resp. $L$).
-
-\begin{theorem}
-  The map $\theta$ induces an isomorphism (both topological and algebraic)
-  $L\otimes\A_K^\infty\to\A_L^\infty$.
-\end{theorem}
-\begin{proof}
-  It suffices to show that show that for all but finitely many finite places $v$ of $K$, the map
-  $\theta$ induces an isomorphism $\calO_L\otimes_{\calO_K}\calO_{K_v}\to\prod_i\calO_{\hat{L}_i}$
-  at the integral level.
-\end{proof}
+This gives us a map $\prod_v K_v\to\prod_w L_w$
+and hence $L\otimes_K\prod_v K_v\to\prod_w L_w$ which presumably is an isomorphism.
+One then has to check that for good primes everything works on an integral level,
+thus giving the isomorphism on the finite adeles. One also has to check that it's a
+topological isomorphism.
