@@ -62,10 +62,49 @@ lemma map_comap (w : HeightOneSpectrum B) :
     w.asIdeal ^ ((Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal)) := by
   -- This must be standard? Maybe a hole in the library for Dedekind domains
   -- or maybe I just missed it?
-  sorry
+  -- simp
+
 
 open scoped algebraMap
 
+
+
+-- Need to know how the valuation `w` and its pullback are related on elements of `K`.
+def intValuation_comap (w : HeightOneSpectrum B) (x : A) :
+    (comap A w).intValuation x =
+    w.intValuation (algebraMap A B x) ^
+    (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) := by
+  classical
+  simp only [intValuation, Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk]
+  show ite _ _ _ = (ite _ _ _) ^ _
+  have h_inj : Function.Injective (algebraMap A B) := sorry
+  have H₁ : Ideal.map (algebraMap A B) (comap A w).asIdeal ≠ ⊥ := by
+    rw [ne_eq, Ideal.map_eq_bot_iff_of_injective h_inj]; exact (comap A w).ne_bot
+
+  have h_ne_zero : Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal ≠ 0 := by
+    apply Ideal.IsDedekindDomain.ramificationIdx_ne_zero H₁
+    · exact w.2
+    · rw [Ideal.map_le_iff_le_comap]
+      rfl
+  by_cases hx : x = 0
+  · subst hx; simp [h_ne_zero]
+  · rw [map_eq_zero_iff _ h_inj, if_neg hx, if_neg hx]
+    rw [← WithZero.coe_pow]
+    congr 1
+    apply Multiplicative.toAdd.injective
+    simp only [ofAdd_neg, toAdd_inv, toAdd_ofAdd, inv_pow, toAdd_pow, nsmul_eq_mul, neg_inj]
+    rw [← Nat.cast_mul]
+    congr 1
+    apply le_antisymm
+    rw [Ideal.IsDedekindDomain.ramificationIdx_eq_factors_count]
+
+
+    simp only [ofAdd_neg, WithZero.coe_inv, inv_pow, inv_inj]
+
+
+
+  -- This should follow from map_comap?
+  sorry
 
 
 -- Need to know how the valuation `w` and its pullback are related on elements of `K`.
@@ -73,6 +112,7 @@ def valuation_comap (w : HeightOneSpectrum B) (x : K) :
     (comap A w).valuation x =
     w.valuation (algebraMap K L x) ^
     (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) := by
+  simp [valuation]
   -- This should follow from map_comap?
   sorry
 
