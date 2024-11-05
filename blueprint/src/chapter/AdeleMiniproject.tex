@@ -1,0 +1,133 @@
+\chapter{Miniproject: Adeles}\label{Adele_miniproject}
+
+\section{Status}
+
+This is an active miniproject.
+
+\section{The goal}
+
+At the time of writing, mathlib does not have a definition of the adeles of
+a number field. There are several goals to this miniproject.
+
+\begin{itemize}
+  \item Define the adeles $\A_K$ of a number field~$K$ and
+  give them the structure of a $K$-algebra;
+  \item Prove that $\A_K$ is a locally compact topological ring;
+  \item Show that if $L/K$ is a finite extension of number fields then the
+    natural map $L\otimes_K\A_K\to\A_L$ is an isomorphism;
+  \item Prove that $K \subseteq \A_K$ is a discrete subgoup and the quotient is compact.
+\end{itemize}
+
+We briefly go through the basic definitions. A cheap definition of the finite
+adeles $\A_K^\infty$ of $K$ is $K\otimes_{\Z}\Zhat$, where $\Zhat$ is
+the profinite completion of the integers. A cheap definition of the infinite adeles
+$K_\infty$ of $K$ is $K\otimes_{\Q}\R$, and a cheap definition of the adeles
+of $K$ is $\A_K^\infty\otimes K_\infty$. However in the literature different definitions
+are often given. The finite adeles of $K$ are usually defined
+as the so-called restricted product $\prod'_{\mathfrak{p}}K_{\mathfrak{p}}$ over the completions
+$K_{\mathfrak{p}}$ of $K$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_K$ of the
+integers of $K$. Here the restricted product is the subset of $\prod_{\mathfrak{p}}K_{\mathfrak{p}}$
+consisting of elements which are in $\mathcal{O}_{K,\mathfrak{p}}$ for all but finitely many
+$\mathfrak{p}$.
+Mathlib already has the finite adeles and the proof that they're a topological ring;
+in fact the construction in mathlib works for any Dedekind domain.
+
+Similarly the infinite adeles of a number field
+are usually defined as $\prod_v K_v$,
+the product running over the archimedean completions of~$K$.
+
+\section{Current status}
+
+Salvatore Mercuri has made great progress with the definition of $\A_K$ and he even
+has a complete formalisation of the proof that the adele ring is locally compact. His work is in
+\href{https://github.com/smmercuri/adele-ring_locally-compact}{his own repo} which
+I don't want to have as a dependency of FLT, because this work should all be
+in mathlib. We quote some of it here.
+
+\section{Results about adeles of a number field that we await}
+
+Let $K$ be a number field. Right now mathlib has the finite adeles $\A_K^\infty$ of $K$,
+with its topological ring structure. It does not however have the infinite adeles $K_\infty$.
+There are PRs by Salvatore Mercuri currently
+in progress for defining this topological ring. Once we have it, the full ring of
+adeles $\A_K$ is defined as $\A_K:=\A_K^\infty\times K_\infty$; it is a topological ring
+and also a $K$-algebra. Once Mercuri's mathlib PR `16485` is merged, we will have
+all this available to us; until then, we sorry the definitions and these facts.
+
+Mercuri's work isn't however enough for us; we also need several theorems about this topological
+$K$-algebra. These lemmas are essentially impossible to work on until we have the definition in
+mathlib. We state them here without proof.
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.discrete}
+  \label{NumberField.AdeleRing.discrete}
+  The additive subgroup $K$ of $\A_K$ is discrete.
+\end{theorem}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.cocompact}
+  \label{NumberField.AdeleRing.cocompact}
+  The quotient $\A_K/K$ is compact.
+\end{theorem}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.locallyCompactSpace}
+  \label{NumberField.AdeleRing.locallyCompact}
+  The topological ring $\A_K$ is locally compact.
+\end{theorem}
+
+Mercuri has already proved local compactness in his repo.
+As far as I know, the other
+two theorems remain unformalised (but as I've mentioned, we cannot start on them until
+we have a definition of the adele ring in this project, and I would prefer
+that this were achieved by upstreaming Mercuri's work to mathlib).
+
+However, there is something that we can do here even before Mercuri's work
+is upstreamed: one proof I know that of discreteness
+and cocompactness of $K$ in $\A_K$ reduces to the case $K=\Q$, using the ``canonical''
+isomorphism $\A_K\cong\A_{\Q}\otimes_{\Q}K$. This can be proved by checking it for finite
+and infinite adeles separately, so one thing which we can work on now is the finite case.
+We explain this in the next section.
+
+\section{Results about finite adeles which we can work on now}
+
+Adeles are arithmetic objects, attached to global fields like number fields.
+However (as I learnt from Maria Ines de Frutos Fernandez) finite adeles are algebraic
+objects, as they can be attached to any Dedekind domain. The ``theorem'' that we need
+is the following:
+
+\begin{theorem}
+  Let~$A$ be a Dedekind domain with field of fractions~$K$, and write $\mathbb{A}_{A,K}^\infty$
+  for the finite adeles of $A$. Let~$L/K$ be a finite
+  separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
+  Then there's a ``canonical'' isomorphism $\mathbb{A}_{R,K}^\infty \otimes_KL\mathbb{A}_{B,L}^\infty$.
+\end{theorem}
+
+Of course, this isn't a theorem; this is actually a \emph{definition} (the map) and a theorem about
+the definition. Before we can prove the theorem, we need to make the definition.
+
+If $A$ is a Dedekind domain then the \emph{height one spectrum} of $A$ is
+the nonzero prime ideals of~$A$. Note that because we stick to the literature,
+rather than to common sense, fields are Dedekind domains in mathlib, and the
+height one spectrum of a field is empty. The reason I don't like allowing fields
+to be Dedekind domain is that geometrically the standard definition of Dedekind
+domain is ``smooth affine curve, or a point''.
+
+There are two steps to the definition of the map; the first is to define it locally
+on the individual completions and the second is to glue everything together. Let's
+start with the local construction.
+
+Say we're in the AKLB setup above, with $L/K$ a finite separable extension.
+Let $w$ be a finite place of $L$ lying above a finite place $v$ of $K$.
+
+\begin{definition}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletion_alg_comap}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletion_alg_comap}
+  There's a natural $K$-algebra homomorphism map $K_v\to L_w$.
+\end{definition}
+
+This gives us a map $\prod_v K_v\to\prod_w L_w$
+and hence $L\otimes_K\prod_v K_v\to\prod_w L_w$ which presumably is an isomorphism.
+One then has to check that for good primes everything works on an integral level,
+thus giving the isomorphism on the finite adeles. One also has to check that it's a
+topological isomorphism.

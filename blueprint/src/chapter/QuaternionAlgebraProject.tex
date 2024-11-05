@@ -37,7 +37,7 @@ then $D\otimes_KL$ is a quaternion algebra over $L$. Some Imperial students have
 this fact in ongoing project work.
 
 A \emph{totally real field} is a number field~$F$ such that the image of every ring
-homomorphism $F\to\bbC$ is a subset of $\R$. We fix a totally real field~$F$ and a
+homomorphism $F\to\bbC$ is a subset of $\R$. We fix once and for all a totally real field~$F$ and a
 quaternion algebra $D$ over $F$. We furthermore assume that $D$ is \emph{totally definite}, that is,
 that for all field embeddings $\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$.
 
@@ -59,17 +59,10 @@ mod~$p^n$ automorphic forms in this setting.
 
 Having made assumptions on $D$ which makes the theory far less technical, we will now
 make it a little more technical by using the modern adelic approach to the theory.
-In particular, we need to bring in the finite adeles of $F$. This is a huge topological ring
-denoted $\A_F^\infty$, which has a cheap definition as $F\otimes_{\Z}\Zhat$, where $\Zhat$ is
-the profinite completion of the integers, but which is often explained in the literature
-as the restricted product $\prod'_{\mathfrak{p}}F_{\mathfrak{p}}$ over the completions
-$F_{\mathfrak{p}}$ of $F$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_F$ of the
-integers of $F$. The restricted product is the subset of $\prod_{\mathfrak{p}}F_{\mathfrak{p}}$
-consisting of elements which are in $\mathcal{O}_{F,\mathfrak{p}}$ for all but finitely many
-$\mathfrak{p}$.
-Mathlib already has the finite adeles and the proof that they're a topological ring. If you are
-not familiar with this kind of object, just remember that it is a commutative
-$F$-algebra $\A_F^\infty$ with a topology, because this is all we shall need for now.
+The adeles of a number field are discussed in far more detail
+in the adele miniproject \ref{Adele_miniproject}. We just recall here that if $K$ is a number field
+then there are two huge topological $K$-algebras called the \emph{finite adeles}
+$\A_K^\infty$ and the \emph{adeles} $\A_K$ of $K$.
 
 Let us now fix a \emph{weight}, a \emph{level} and a \emph{character}, and we will define
 a space of automorphic forms for $D^\times$ of this weight, level and character. If you know
@@ -80,8 +73,9 @@ with spaces of classical modular forms then you could imagine the case $R=\bbC$.
 
 A \emph{weight} is a finitely-generated $R$-module~$W$ with an action of $D^\times$. For applications
 to Fermat's Last Theorem we only need to consider the case where $W=R$ and the action is trivial,
-but there is no harm in setting things up in more generality. The case $W=R$ corresponds (via
-the highly non-trivial Jacquet-Langlands correspondence) to the case of modular forms of weight 2.
+but there is no harm in setting things up in more generality. The case $W=R=\bbC$ corresponds (via
+the highly non-trivial Jacquet-Langlands correspondence) when $F=\Q$ to the case of modular forms
+of weight 2, and for general~$F$ corresponds to Hilbert modular forms of parallel weight~2.
 
 A \emph{level} is a compact open subgroup~$U$ of $(D\otimes_F\A_F^\infty)^\times$. These are plentiful.
 The ring $D\otimes_F\A_F^\infty$ is a topological ring, and this fact is currently in the process
@@ -200,93 +194,9 @@ assuming Fujisaki's lemma.
   and because $f_1(g_i)=f_2(g_i)$ by assumption, we deduce $f_1(g)=f_2(g)$ as required.
 \end{proof}
 
-It thus remains to prove Fujisaki's lemma.
+It thus remains to prove Fujisaki's lemma. Note that we will be assuming the results
+from the adele mini-project~\ref{Adele_miniproject}.
 
-\section{Results about adeles of a number field that we await}
+\section{Proof of Fujisaki's lemma}
 
-Let $K$ be a number field. Right now mathlib has the finite adeles $\A_K^\infty$ of $K$,
-with its topological ring structure. It does not however have the infinite adeles $K_\infty$,
-which can be defined either as $K\otimes_{\Q}\R$ or as $\prod_{v\infty}K_v$, where
-$v$ runs through the infinite places of $K$. There are PRs by Salvatore Mercuri currently
-in progress for defining this topological ring. Once we have it, the full ring of
-adeles $\A_K$ is defined as $\A_K:=\A_K^\infty\times K_\infty$; it is a topological ring
-and also a $K$-algebra. Once Mercuri's mathlib PR `16485` is merged, we will have
-all this available to us; until then, we sorry the definitions and these facts.
-
-Mercuri's work isn't however enough for us; we also need several theorems about this topological
-$K$-algebra. These lemmas are essentially impossible to work on until we have the definition in
-mathlib. We state them here without proof.
-
-\begin{theorem}
-  \lean{NumberField.AdeleRing.discrete}
-  \label{NumberField.AdeleRing.discrete}
-  The additive subgroup $K$ of $\A_K$ is discrete.
-\end{theorem}
-
-\begin{theorem}
-  \lean{NumberField.AdeleRing.cocompact}
-  \label{NumberField.AdeleRing.cocompact}
-  The quotient $\A_K/K$ is compact.
-\end{theorem}
-
-\begin{theorem}
-  \lean{NumberField.AdeleRing.locallyCompactSpace}
-  \label{NumberField.AdeleRing.locallyCompact}
-  The topological ring $\A_K$ is locally compact.
-\end{theorem}
-
-Mercuri has already proved local compactness in
-\href{https://github.com/smmercuri/adele-ring_locally-compact}{his own repo} but rather than
-depending on this repo, we should aim to have this in mathlib. As far as I know, the other
-two theorems remain unformalised (but as I've mentioned, we cannot start on them until
-we have a definition of the adele ring).
-
-However, there is something that we can do here: one proof I know that of discreteness
-and cocompactness of $K$ in $\A_K$ reduces to the case $K=\Q$, using the ``canonical''
-isomorphism $\A_K\cong\A_{\Q}\otimes_{\Q}K$. This can be proved by checking it for finite
-and infinite adeles separately, so one thing which we can work on now is the finite case.
-We explain this in the next section.
-
-\section{Results about finite adeles which we can work on now}
-
-Adeles are arithmetic objects, attached to global fields like number fields.
-However (as I learnt from Maria Ines de Frutos Fernandez) finite adeles are algebraic
-objects, as they can be attached to any Dedekind domain. The ``theorem'' that we need
-is the following:
-
-\begin{theorem}
-  Let~$A$ be a Dedekind domain with field of fractions~$K$, and write $\mathbb{A}_{A,K}^\infty$
-  for the finite adeles of $A$. Let~$L/K$ be a finite
-  separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
-  Then there's a ``canonical'' isomorphism $\mathbb{A}_{R,K}^\infty \otimes_KL\mathbb{A}_{B,L}^\infty$.
-\end{theorem}
-
-Of course, this isn't a theorem; this is actually a \emph{definition} (the map) and a theorem about
-the definition. Before we can prove the theorem, we need to make the definition.
-
-If $A$ is a Dedekind domain then the \emph{height one spectrum} of $A$ is
-the nonzero prime ideals of~$A$. Note that because we stick to the literature,
-rather than to common sense, fields are Dedekind domains in mathlib, and the
-height one spectrum of a field is empty.
-
-There are two steps to the definition of the map; the first is to define it locally
-on the individual completions and the second is to glue everything together. Let's
-start with the local construction. I am not really clear about the generality in which one
-wants this. Cassels' article in Cassels--Froehlich works with a general field equipped with
-a real-valued norm, but we only need norms coming from points in the height one spectrum
-on an AKLB setup, and also the cases of $\mathbb{R}$ and $\mathbb{C}$.
-
-So say we're in the AKLB setup, with $L/K$ a finite separable extension.
-Let $w$ be a finite place of $L$ lying above a finite place $v$ of $K$.
-
-\begin{definition}
-  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletion_alg_comap}
-  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletion_alg_comap}
-  There's a natural $K$-algebra homomorphism map $K_v\to L_w$.
-\end{definition}
-
-This gives us a map $\prod_v K_v\to\prod_w L_w$
-and hence $L\otimes_K\prod_v K_v\to\prod_w L_w$ which presumably is an isomorphism.
-One then has to check that for good primes everything works on an integral level,
-thus giving the isomorphism on the finite adeles. One also has to check that it's a
-topological isomorphism.
+See Main Theorem 27.6.14 of Voight. TODO: make these into issues.
