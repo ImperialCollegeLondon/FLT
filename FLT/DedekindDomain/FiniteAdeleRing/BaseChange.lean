@@ -1,6 +1,7 @@
 --import Mathlib -- **TODO** fix when finished or if `exact?` is too slow
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.NumberTheory.RamificationInertia
 /-!
 
 # Base change of adele rings.
@@ -117,11 +118,11 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 noncomputable local instance : Algebra K (ProdAdicCompletions B L) := RingHom.toAlgebra <|
   (algebraMap L (ProdAdicCompletions B L)).comp (algebraMap K L)
 
--- These should be easy
+-- These should be easy but I've just noticed that it should be an alghom
 noncomputable def ProdAdicCompletions.baseChange :
     L ⊗[K] ProdAdicCompletions A K →ₗ[K] ProdAdicCompletions B L := TensorProduct.lift <| {
   toFun := fun l ↦ {
-    toFun := fun kv w ↦ l • (adicCompletion_comap A K w (kv (comap A w)))
+    toFun := fun kv w ↦ l • (adicCompletion_comap_algHom A K w (kv (comap A w)))
     map_add' := sorry
     map_smul' := sorry
   }
