@@ -1,9 +1,19 @@
 \chapter{Miniproject: Frobenius elements}\label{Frobenius_project}
 
+\section{Status}
+
+This miniproject has been a success: the main results
+are sorry-free and in the process of being PRed to
+{\tt mathlib (see \href{https://github.com/leanprover-community/mathlib4/pull/17717}{here})}.
+As a result there will be no more work
+on this project in the FLT repo. Below is a fairly
+detailed sketch of the argument used.
+
 \section{Introduction and goal}
 
-I had thought that the existence of Frobenius elements was specific to the theory
-of local and global fields, until Joel Riou pointed out
+When this project started, I had thought that the existence of Frobenius elements was
+specific to the theory of local and global fields, and a slightly more general result
+held for Dedekind domains. Then Joel Riou pointed out on the Lean Zulip
 an extremely general result from from Bourbaki's Commutative Algebra
 (Chapter V, Section 2, number 2, theorem 2, part (ii)). This beautiful
 result is surely what we want to see in mathlib. Before we state Bourbaki's
@@ -38,7 +48,7 @@ In the next definition we write down a group homomorphism $\phi$ from $D_Q$ to $
   \leanok
 \end{definition}
 
-The theorem we want in this project is
+The theorem we want in this mini-project is
 \begin{theorem}
   \label{Bourbaki52222.MulAction.stabilizer_surjective_of_action}
   \lean{Bourbaki52222.MulAction.stabilizer_surjective_of_action}
@@ -47,11 +57,12 @@ The theorem we want in this project is
   The map $g\mapsto \phi_g$ from $D_Q$ to $\Aut_K(L)$ defined above is surjective.
 \end{theorem}
 
-The goal of this project is to get this theorem formalised and ideally into mathlib.
+The goal of this mini-project is to get this theorem formalised and ideally into mathlib.
 
 In particular, $\Aut_K(L)$ is finite, although we prove this beforehand and not
 as a corollary. What is so striking about this theorem to me is that the only finiteness hypothesis
-is on the group $G$ which acts; there are no finiteness hypotheses on the rings at all.
+is on the group $G$ which acts; there are no finiteness or Noetherian
+hypotheses on the rings at all.
 
 As a trivial consequence we get Frobenius elements for finite Galois extensions in both
 the local and global field setting, as $\Aut_K(L)$ is just a Galois group of finite fields
@@ -83,7 +94,15 @@ Its kernel is the inertia subgroup of $Q$, which for all but finitely many prime
 is the trivial group. So in these cases we get an \emph{isomorphism} from $D$ to $\Gal(k/\F_p)$
 meaning that $D$ is cyclic, and furthermore has two canonical generators, one called $\Frob_Q$
 (by Artin) and the other one unfortunately also called $\Frob_Q$ (by Deligne), which are inverses
-to each other. If $Q$ and $Q'$ are two primes above $p$ then there's some $g\in G$ such that
+to each other. Some people think that both Frobenii are canonical, some people (for example
+the Shimura variety crowd) think that Deligne's choice is more canonical, and others
+(for example the Heegner point crowd) think that Artin's choice is more canonical.
+It was this example which convinced me that the word ``canonical'' should be banished
+from mathematics if not accompanied by a clear explanation of what the author means
+by the word. I know several examples of papers in the literature where $\Frob_Q$ is
+used with no explanation as to which one it is. And sometimes it doesn't matter.
+For example, with either choice of normalization the following is true.
+If $Q$ and $Q'$ are two primes above $p$ then there's some $g\in G$ such that
 $gQ=Q'$ and one can deduce from this that $\Frob_Q$ and $\Frob_{Q'}$ are conjugate. In particular
 if $G$ is abelian then $\Frob_Q$ and $\Frob_{Q'}$ are equal, so we can call them both $\Frob_p$.
 
@@ -448,15 +467,20 @@ This element is of the form $x/\alpha$ for some $x\in B$ and $\alpha\in S$,
 and one now checks that everything works.
 \end{proof}
 
-It is probably worth remarking that the rest of the surjectivity argument was done
-by Jou Glasheen in the special case of number fields, in the file {\tt Frobenius2.lean}
+The rest of the surjectivity argument was done
+by Jou Glasheen in the special case of number fields, in her
+final project for my Formalising Mathematics 2024 course.
 
-Briefly: we consider the monic degree $|G|$ polynomial $f_x$ in $K[X]$ or $\overline{M}_x$ in $(A/P)[X]$,
+A summary of the argument: we consider the monic degree $|G|$ polynomial $f_x$ in $K[X]$ or
+$\overline{M}_x$ in $(A/P)[X]$,
 which has $x$ and its G-conjugates as roots. If $\sigma\in\Aut_K(L)$ then $\sigma(\overline{x})$
 is a root of $f$ as $\sigma$ fixes $K$ pointwise. Hence $\sigma(\overline{x})=\overline{g(x)}$
-for some $g\in G$ (because we're over an integral domain), and because $\sigma(\overline{x})\not=0$ we have $\overline{g(x)}\not=0$
+for some $g\in G$ (because we're over an integral domain), and because $\sigma(\overline{x})\not=0$
+we have $\overline{g(x)}\not=0$
 and hence $g(x)\notin Q[1/S]$. Hence $x\notin g^{-1} Q[1/S]$ and thus $g^{-1}Q=Q$ and $g\in SD_Q$.
 Finally we have $\phi_g=\sigma$ on $K$ and on $y$, so they are equal on $M$ and hence on $L$ as
 $L/M$ is purely inseparable.
 
-TODO: break this up into smaller pieces.
+This argument is formalised and at the time of writing
+is being \href{https://github.com/leanprover-community/mathlib4/pull/17717}{PRed to mathlib}
+by Thomas Browning.

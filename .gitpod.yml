@@ -1,10 +1,12 @@
 # This is run when starting a Gitpod workspace on this repository
 
-image: leanprovercommunity/mathlib:gitpod
+image: leanprovercommunity/gitpod4
 
 vscode:
   extensions:
     - leanprover.lean4 # install the Lean 4 VS Code extension
 
 tasks:
-  - command: . /home/gitpod/.profile && lake exe cache get # Download cache
+  - init: |
+      elan self update
+      lake exe cache get
