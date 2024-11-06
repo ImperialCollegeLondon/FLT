@@ -30,6 +30,7 @@ noncomputable def CyclotomicCharacter_aux : (L ≃+* L) →* ZHat where
     intros D M h
     apply ModularCyclotomicCharacter.unique
     intros t htD
+    norm_cast at h
     rw [ModularCyclotomicCharacter.spec L (IsAlgClosed.card_rootsOfUnity L M) g <|
           rootsOfUnity_le_of_dvd h htD]
     norm_cast
