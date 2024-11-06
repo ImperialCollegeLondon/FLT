@@ -1,9 +1,79 @@
 \chapter{Introduction}
 
-Fermat's Last Theorem is the statement that if $a,b,c,n$ are positive whole numbers with $n\geq 3$, then $a^n+b^n\not=c^n$. It is thus a statement about a family of \emph{Diophantine equations} ($a^3+b^3=c^3, a^4+b^4=c^4,\ldots$). Diophantus was a Greek mathematician who lived around 1800 years ago, and he would have been able to understand the statement of the theorem (he knew about positive integers, addition and multiplication).
+Fermat's Last Theorem is the statement that if $a,b,c,n$ are positive whole numbers with $n\geq 3$,
+then $a^n+b^n\not=c^n$. It is thus a statement about a family of \emph{Diophantine equations}
+($a^3+b^3=c^3, a^4+b^4=c^4,\ldots$). Diophantus was a Greek mathematician who lived around 1800
+years ago, and he would have been able to understand the statement of the theorem (he knew about
+positive integers, addition and multiplication).
 
-Fermat's Last Theorem was explicitly raised by Fermat in 1637, and was proved by Wiles (with the proof completed in joint work with Taylor) in 1994. There are now several proofs but all of them go broadly in the same direction, using elliptic curves and modular forms.
+Fermat's Last Theorem was explicitly raised by Fermat in 1637, and was proved by Wiles (with the
+proof completed in joint work with Taylor) in 1994. There are now several proofs but all of them
+go broadly in the same direction, using elliptic curves and modular forms.
 
-Explaining a proof of Fermat's Last Theorem to Lean is in some sense like explaining the proof to Diophantus; for example, the proof starts by observing that before we go any further it's convenient to first invent/discover zero and negative numbers, and one can point explicitly at places in Lean's source code \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Prelude.lean#L1049}{here} and \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Data/Int/Basic.lean#L45}{here} where these things happen. However we will adopt a more efficient approach: we will assume all of the theorems both in Lean and in its mathematics library \href{https://github.com/leanprover-community/mathlib4}{\tt mathlib}, and proceed from there. To give some idea of what this entails: {\tt mathlib} at the time of writing contains most of an undergraduate mathematics degree and parts of several relevant Masters level courses (for example, the definitions and basic properties of \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/AlgebraicGeometry/EllipticCurve/Weierstrass.html}{elliptic curves} and \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/ModularForms/Basic.html}{modular forms} are in {\tt mathlib}). Thus our task can be likened to teaching a graduate level course on Fermat's Last Theorem to a computer.
+Explaining a proof of Fermat's Last Theorem to Lean is in some sense like explaining the proof to
+Diophantus; for example, the proof starts by observing that before we go any further it's convenient
+to first invent/discover zero and negative numbers, and one can point explicitly at places in Lean's
+source code \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Prelude.lean#L1049}{here}
+and \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Data/Int/Basic.lean#L45}{here}
+where these things happen. However we will adopt a more efficient approach: we will assume all of
+the theorems both in Lean and in its mathematics library
+\href{https://github.com/leanprover-community/mathlib4}{\tt mathlib}, and proceed from there.
+To give some idea of what this entails: {\tt mathlib} at the time of writing contains most of an
+undergraduate mathematics degree and parts of several relevant Masters level courses (for example,
+the definitions and basic properties of
+\href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/AlgebraicGeometry/EllipticCurve/Weierstrass.html}{elliptic curves}
+and \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/ModularForms/Basic.html}{modular forms}
+are in {\tt mathlib}). Thus our task can be likened to teaching a graduate level course on
+Fermat's Last Theorem to a computer.
 
-The proof explained in these notes was constructed by Taylor, taking into account Buzzard's comments on what would be easy or hard to do in Lean. The proof uses refinements of the original Taylor-Wiles method by Diamond/Fujiwara, Khare-Wintenberger, Skinner-Wiles, Kisin, Taylor and others -- one could call it a 21st century proof of the theorem. We shall explain more about the exact path we're taking in Chapter~\ref{ch_overview}. But before we go into those technical details, we can enjoy some of the more basic arguments at the start of the proof. And the proof starts, as every known proof does, with some basic reductions and the introduction of a certain elliptic curve. We explain this in the next chapter.
+\section{Which proof is being formalised?}
+
+At the time of writing, these notes do not contain anywhere near a proof of FLT, or even a sketch proof.
+Over the next few years, we will be building parts of the argument, following a strategy
+constructed by Taylor, taking into account Buzzard's comments on what would be easy or hard to do
+in Lean. The proof uses refinements of the original Taylor-Wiles method by Diamond/Fujiwara,
+Khare-Wintenberger, Skinner-Wiles, Kisin, Taylor and others -- one could call it a 21st century
+proof of the theorem. We shall furthermore be assuming many nontrivial theorems without proof,
+at least initially. For example we shall be assuming the existence of Galois representations
+attached to weight~2 Hilbert modular forms, Langlands' cyclic base change theorem for $\GL_2$,
+Mazur's theorem bounding the torsion subgroup of an elliptic curve over the rationals, and
+several other nontrivial results which were known by the end of the 1980s. The first main goal
+of the project is to state, and then prove, a modularity lifting theorem; the proof of such a theorem
+was the key breakthrough introduced in Wiles' 1994 paper which historically completed the proof
+of FLT. We will not be proving the original Wiles--Taylor-Wiles modularity lifting theorem, but
+instead will prove a more general result which works for Hilbert modular forms.
+
+We shall say more about the exact path we're taking in
+Chapter~\ref{ch_overview}.
+
+\section{The structure of this blueprint}
+
+The following chapter of the blueprint, chapter~\ref{ch_reductions}, explains how to reduce FLT
+to two highly nontrivial statements about the $p$-torsion in a certain elliptic curve (the Frey curve).
+It mostly comprises of some basic reductions and the introduction of the Frey curve.
+
+The chapter after that, chapter~\ref{ch_frey}, goes into more details about elliptic curves,
+however we need so much material here that somehow the top-down approach felt quite overwhelming
+at this point. For example even the basic claim that the $p$-torsion in the Frey curve curve is
+a 2-dimensional mod $p$ Galois representation feels like quite a battle to formalise,
+and proving that it is semistable and unramified outside $2p$ is even harder.
+Several people are working on the basic theory of elliptic curves, and hopefully
+we will be able to make more progess on this "top-down" approach later.
+
+The next chapter, chapter~\ref{ch_overview}, is an \emph{extremely} sketchy overview of how
+the rest of the proof goes. There is so much to do here that I felt that there was little
+point continuing with this; definition after definition is missing.
+
+All of the remaining chapters are experiments, and most of them are what I am currently
+calling ``mini-projects''. A mini-project is a bottom-up project, typically at early graduate
+student level, with a concrete goal. The ultimate goal of many of these projects is to actually
+get some result into mathlib. We have had one success so far -- the Frobenius mini-project
+is currently being PRed to mathlib by Thomas Browning. Currently most of my efforts are
+going into running mini-projects, with the two most active ones currently being the adeles
+mini-project and the quaternion algebra mini-project. These projects do not logically depend
+on each other for the most part, and one can pick and choose how one reads them.
+
+We finish with an appendix, which is again very sketchy, and comprises mostly of a big
+list of nontrivial theorems many of which we will be assuming without proof in the FLT
+project, or at least not prioritising until we have proved the modularity lifing
+theorem assuming them.
