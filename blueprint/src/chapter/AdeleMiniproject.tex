@@ -22,7 +22,7 @@ We briefly go through the basic definitions. A cheap definition of the finite
 adeles $\A_K^\infty$ of $K$ is $K\otimes_{\Z}\Zhat$, where $\Zhat$ is
 the profinite completion of the integers. A cheap definition of the infinite adeles
 $K_\infty$ of $K$ is $K\otimes_{\Q}\R$, and a cheap definition of the adeles
-of $K$ is $\A_K^\infty\otimes K_\infty$. However in the literature different definitions
+of $K$ is $\A_K^\infty\times K_\infty$. However in the literature different definitions
 are often given. The finite adeles of $K$ are usually defined
 as the so-called restricted product $\prod'_{\mathfrak{p}}K_{\mathfrak{p}}$ over the completions
 $K_{\mathfrak{p}}$ of $K$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_K$ of the
@@ -51,7 +51,8 @@ with its topological ring structure. It does not however have the infinite adele
 There are PRs by Salvatore Mercuri currently
 in progress for defining this topological ring. Once we have it, the full ring of
 adeles $\A_K$ is defined as $\A_K:=\A_K^\infty\times K_\infty$; it is a topological ring
-and also a $K$-algebra. Once Mercuri's mathlib PR `16485` is merged, we will have
+and also a $K$-algebra. Once Mercuri's mathlib
+PR~\href{https://github.com/leanprover-community/mathlib4/pull/16485}{16485} is merged, we will have
 all this available to us; until then, we sorry the definitions and these facts.
 
 Mercuri's work isn't however enough for us; we also need several theorems about this topological
@@ -104,14 +105,16 @@ is the following:
 \end{theorem}
 
 Of course, this isn't a theorem; this is actually a \emph{definition} (the map) and a theorem about
-the definition. Before we can prove the theorem, we need to make the definition.
+the definition (that it's an isomorphism). Before we can prove the theorem, we need to make the
+definition.
 
 If $A$ is a Dedekind domain then the \emph{height one spectrum} of $A$ is
 the nonzero prime ideals of~$A$. Note that because we stick to the literature,
 rather than to common sense, fields are Dedekind domains in mathlib, and the
 height one spectrum of a field is empty. The reason I don't like allowing fields
 to be Dedekind domain is that geometrically the standard definition of Dedekind
-domain is ``smooth affine curve, or a point''.
+domain is ``smooth affine curve, or a point''. But many theorems in algebraic geometry
+begin ``let $C$ be a smooth curve''.
 
 There are two steps to the definition of the map; the first is to define it locally
 on the individual completions and the second is to glue everything together. Let's
@@ -119,15 +122,47 @@ start with the local construction.
 
 Say we're in the AKLB setup above, with $L/K$ a finite separable extension.
 Let $w$ be a finite place of $L$ lying above a finite place $v$ of $K$.
+We put the $w$-adic topology on $L$ and the $v$-adic topology on~$K$. We now claim
+that inclusion $i:K\to L$ is continuous with respect to these topologies. This
+claim follows from
+
+\begin{lemma} If $i:K\to L$ denotes the inclusion then $e*w(i(k))=v(k)$, where
+  $e$ is the ramification index of $w/v$.
+  \label{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
+  \lean{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
+\end{lemma}
+\begin{proof}
+   Standard.
+\end{proof}
 
 \begin{definition}
-  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletion_alg_comap}
-  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletion_alg_comap}
-  There's a natural $K$-algebra homomorphism map $K_v\to L_w$.
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom}
+  \uses{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
+  There's a natural continuous $K$-algebra homomorphism map $K_v\to L_w$. It is defined by completing
+  the inclusion $K\to L$ at the finite places $v$ and $w$, which can be done
+  by the previous lemma.
 \end{definition}
 
-This gives us a map $\prod_v K_v\to\prod_w L_w$
-and hence $L\otimes_K\prod_v K_v\to\prod_w L_w$ which presumably is an isomorphism.
+Note: the formalization right now only claims that the map is a $K$-algebra homomorphism,
+not the continuity. Do we have continuous $K$-algebra maps?
+
+We can take the product of all of these maps.
+
+\begin{definition}
+  \lean{DedekindDomain.ProdAdicCompletions.baseChange}
+  \label{DedekindDomain.ProdAdicCompletions.baseChange}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom}
+  There's a natural $K$-algebra homomorphism $\prod_v K_v\to\prod_w L_w$, where the
+  products run over the height one spectrums of $A$ and $B$ respectively.
+\end{definition}
+
 One then has to check that for good primes everything works on an integral level,
-thus giving the isomorphism on the finite adeles. One also has to check that it's a
-topological isomorphism.
+
+\begin{definition}
+  The map above induces a natural $K$-algebra homomorphism $\A_K^\infty\to\A_L^\infty$
+  at the level of finite adeles.
+\end{definition}
+
+Note that the finite adeles do not have the subspace topology, so one has to be slightly
+careful here.
