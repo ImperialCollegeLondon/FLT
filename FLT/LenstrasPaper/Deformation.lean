@@ -40,7 +40,7 @@ structure Lift where
   -- Function.Bijective (fun (_ : W ⊗[A] (𝓴 𝓞)) => (____ : V))
   is_lift: ∀ v, ρ (1 : G) v = v
 
-instance : Setoid (Lift A ρ) where
+def setoid : Setoid (Lift A ρ) where
   r W W' := W.carrier = W'.carrier -- this needs to be isomorphism
   iseqv := {
     refl := sorry
@@ -48,7 +48,8 @@ instance : Setoid (Lift A ρ) where
     trans := sorry
   }
 
-structure Deformation where
-  lift : Quotient (Lift A ρ)
+#check Quotient
+
+def Deformation := Quotient <| setoid A ρ
 
 end Definitions
