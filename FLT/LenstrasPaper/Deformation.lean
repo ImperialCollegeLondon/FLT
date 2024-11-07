@@ -1,5 +1,7 @@
 import Mathlib
 
+open scoped TensorProduct
+
 section Definitions
 
 variable {𝓞 : Type*} [CommRing 𝓞] [LocalRing 𝓞] [IsNoetherianRing 𝓞]
@@ -27,7 +29,7 @@ variable (ρ : Representation (𝓴 𝓞) G V)
 
 instance : Algebra A (𝓴 𝓞) := sorry
 
-#synth (Algebra A (𝓴 𝓞))
+#synth (Module A (𝓴 𝓞))
 
 structure Lift where
   carrier: Type*
@@ -38,7 +40,7 @@ structure Lift where
   map: Representation A G carrier
   -- is_lift is wrong, but defining W ⊗[A] (𝓴 𝓞) is hard. Just adding a foo condition for templating
   -- Function.Bijective (fun (_ : W ⊗[A] (𝓴 𝓞)) => (____ : V))
-  is_lift: ∀ v, ρ (1 : G) v = v
+  is_lift: Function.Bijective (fun (x : carrier ⊗[A] (𝓴 𝓞)) => (0 : V))
 
 def setoid : Setoid (Lift A ρ) where
   r W W' := W.carrier = W'.carrier -- this needs to be isomorphism
