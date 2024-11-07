@@ -23,25 +23,32 @@ variable {M : Type*} [AddCommMonoid M] [Module A M] [Module.Free A M] [Module.Fi
 
 variable {V : Type*} [AddCommMonoid V]
 variable [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
-variable (ρbar : Representation (𝓴 𝓞) G V)
+variable (ρ : Representation (𝓴 𝓞) G V)
 
-instance algebra_on_residue : Algebra A (𝓴 𝓞) :=
-  Algebra.mk (LocalRing.residue A ∘ algebraMap 𝓞 A)
+instance : Algebra A (𝓴 𝓞) := sorry
+
+#synth (Algebra A (𝓴 𝓞))
 
 structure Lift where
-  W: Type*
-  [is_add_comm_monoid : AddCommMonoid W]
-  [is_module : Module A W]
-  [is_free : Module.Free A W]
-  [is_finite : Module.Finite A W]
-  ρ: Representation A G W
-  is_lift: Function.Bijective (fun (x : W ⊗[A] (𝓴 𝓞)) => (0 : V))
+  carrier: Type*
+  [is_add_comm_monoid : AddCommMonoid carrier]
+  [is_module : Module A carrier]
+  [is_free : Module.Free A carrier]
+  [is_finite : Module.Finite A carrier]
+  map: Representation A G carrier
+  -- is_lift is wrong, but defining W ⊗[A] (𝓴 𝓞) is hard. Just adding a foo condition for templating
+  -- Function.Bijective (fun (_ : W ⊗[A] (𝓴 𝓞)) => (____ : V))
+  is_lift: ∀ v, ρ (1 : G) v = v
 
 instance : Setoid (Lift A ρ) where
-  r := sorry
-  iseqv := sorry
+  r W W' := W.carrier = W'.carrier -- this needs to be isomorphism
+  iseqv := {
+    refl := sorry
+    symm := sorry
+    trans := sorry
+  }
 
 structure Deformation where
-  lift: Quotient (Lift A ρ)
+  lift : Quotient (Lift A ρ)
 
 end Definitions
