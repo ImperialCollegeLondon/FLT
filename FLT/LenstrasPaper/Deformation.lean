@@ -27,7 +27,17 @@ variable {V : Type*} [AddCommMonoid V]
 variable [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
 variable (ρ : Representation (𝓴 𝓞) G V)
 
-instance : Algebra A (𝓴 𝓞) := sorry
+-- TODO(javierlcontreras)
+-- before doing this, think about has_mathcing_residue is the best way to express that condition
+instance : Algebra A (𝓴 𝓞) where
+  smul := sorry
+  toFun := sorry
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
+  commutes' := sorry
+  smul_def' := sorry
 
 #synth (Module A (𝓴 𝓞))
 
