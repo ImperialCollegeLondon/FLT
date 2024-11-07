@@ -15,3 +15,5 @@ The project is currently being led by Kevin Buzzard. From October 2024 it will b
 General information ("What is Fermat's Last Theorem/Lean?" / "Why are you doing this?" etc) is [here](GENERAL.md).
 
 The route we will be taking was planned out essentially entirely by Richard Taylor in discussions with Buzzard. It is a modern variant of the original Wiles/Taylor-Wiles proof. For more details about the mathematics behind the proof, a good place to start is the [blueprint](https://ImperialCollegeLondon.github.io/FLT/blueprint/).
+
+Information on how to contribute is available [here](CONTRIBUTING.md).
