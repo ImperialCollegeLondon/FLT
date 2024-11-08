@@ -1,7 +1,7 @@
---import Mathlib -- **TODO** fix when finished or if `exact?` is too slow
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.NumberTheory.NumberField.Basic
-import Mathlib.NumberTheory.RamificationInertia
+import Mathlib -- **TODO** fix when finished or if `exact?` is too slow
+--import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+--import Mathlib.NumberTheory.NumberField.Basic
+--import Mathlib.NumberTheory.RamificationInertia
 /-!
 
 # Base change of adele rings.
@@ -102,7 +102,7 @@ noncomputable def adicCompletion_comap_algHom (w : HeightOneSpectrum B) :
     letI : Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
   (algebraMap L (adicCompletion L w)).comp (algebraMap K L);
     letI : Module K (adicCompletion L w) := Algebra.toModule
-    (HeightOneSpectrum.adicCompletion K (comap A w)) →ₗ[K] (HeightOneSpectrum.adicCompletion L w) :=
+    (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K] (HeightOneSpectrum.adicCompletion L w) :=
   sorry -- use `adicCompletion_comap_ringHom` and prove it's a K-algebra homomorphism
 
 end IsDedekindDomain.HeightOneSpectrum
