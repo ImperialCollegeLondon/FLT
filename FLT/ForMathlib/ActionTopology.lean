@@ -208,7 +208,7 @@ theorem iso (e : A ≃L[R] B) : IsActionTopology R B where
     let g' : B →[R] A := e.symm.toMulActionHom
     let h : A →+ B := e
     let h' : B →+ A := e.symm
-    simp_rw [e.toHomeomorph.symm.inducing.1, isActionTopology R A, actionTopology, induced_sInf]
+    simp_rw [e.toHomeomorph.symm.isInducing.1, isActionTopology R A, actionTopology, induced_sInf]
     congr 1
     ext τ
     rw [Set.mem_image]
@@ -302,7 +302,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
       rw [AddMonoidHom.coe_prodMap, Prod.map_surjective]
       exact ⟨Function.surjective_id, by simp_all⟩
     · -- should `apply continuousprodmap ctrl-space` find `Continuous.prod_map`?
-      apply @Continuous.prod_map _ _ _ _ (_) (_) (_) (_) id φ continuous_id
+      apply @Continuous.prodMap _ _ _ _ (_) (_) (_) (_) id φ continuous_id
       rw [continuous_iff_coinduced_le, isActionTopology R A]
     · rw [← isActionTopology R A]
       exact coinduced_prod_eq_prod_coinduced (AddMonoidHom.id R) φ.toAddMonoidHom
@@ -320,7 +320,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
     convert isOpenMap_of_coinduced (AddMonoidHom.prodMap φ.toAddMonoidHom φ.toAddMonoidHom)
       (_) (_) (_) bar
     · aesop
-    · apply @Continuous.prod_map _ _ _ _ (_) (_) (_) (_) <;>
+    · apply @Continuous.prodMap _ _ _ _ (_) (_) (_) (_) <;>
       · rw [continuous_iff_coinduced_le, isActionTopology R A]; rfl
     · rw [← isActionTopology R A]
       exact coinduced_prod_eq_prod_coinduced φ φ hφ hφ
