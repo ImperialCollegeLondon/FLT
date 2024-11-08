@@ -259,9 +259,7 @@ private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := 
     calc
       0 < a * a + a * b + b * b := ?_
       _ = _ := by ring
-    apply add_pos_of_nonneg_of_pos
-    apply add_nonneg (mul_self_nonneg _) h
-    apply mul_self_pos.mpr hb
+    exact add_pos_of_nonneg_of_pos (add_nonneg (mul_self_nonneg _) h) (mul_self_pos.mpr hb)
   | inr h =>
     rw [sub_pos]
     exact h.trans_le (sq_nonneg _)
@@ -343,14 +341,11 @@ It follows that there is no Frey package.
 /-- There is no Frey package. This profound result is proved using
 work of Mazur and Wiles/Ribet to rule out all possibilities for the
 $p$-torsion in the corresponding Frey curve. -/
-theorem FreyPackage.false (P : FreyPackage) : False := by
-  apply Wiles_Frey P
-  exact Mazur_Frey P
+theorem FreyPackage.false (P : FreyPackage) : False :=
+  Wiles_Frey P (Mazur_Frey P)
 
 -- Fermat's Last Theorem is true
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
-  apply of_p_ge_5
-  intro p hp5 pp a b c ha hb _ h
-  refine Nonempty.elim ?_ FreyPackage.false
+  refine of_p_ge_5 fun p hp5 pp a b c ha hb _ h ↦  Nonempty.elim ?_ FreyPackage.false
   apply FreyPackage.of_not_FermatLastTheorem_p_ge_5 (a := a) (b := b) (c := c)
     <;> assumption_mod_cast
