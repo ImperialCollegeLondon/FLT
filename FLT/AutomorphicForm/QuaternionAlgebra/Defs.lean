@@ -63,7 +63,8 @@ namespace AutomorphicForm
 -- defined over R
 variable  (R : Type*) [CommRing R]
   -- weight
-  (W : Type*) [AddCommGroup W] [Module R W] [DistribMulAction Dˣ W] -- actions should commute in practice
+  (W : Type*) [AddCommGroup W] [Module R W] [DistribMulAction Dˣ W]
+  -- NB actions of Dˣ and R should commute
   -- level
   (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) -- subgroup should be compact and open
   -- character
@@ -155,20 +156,4 @@ instance module : Module R (AutomorphicForm F D R W U χ) where
   add_smul r s g := by ext; simp [smul_apply, add_smul]
   zero_smul g := by ext; simp [smul_apply]
 
-
-end AutomorphicForm
-
--- Now assume R is a field.
-
-variable  (R : Type*) [Field R]
-  -- weight
-  (W : Type*) [AddCommGroup W] [Module R W] [DistribMulAction Dˣ W] [SMulCommClass R Dˣ W]
-  -- level
-  (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) -- subgroup should be compact and open
-  -- character
-  (χ : (FiniteAdeleRing (𝓞 F) F)ˣ →* R)
-
-theorem AutomorphicForm.finiteDimensional [FiniteDimensional R W] :
-    FiniteDimensional R (AutomorphicForm F D R W U χ) := sorry
-
-end TotallyDefiniteQuaternionAlgebra
+end TotallyDefiniteQuaternionAlgebra.AutomorphicForm
