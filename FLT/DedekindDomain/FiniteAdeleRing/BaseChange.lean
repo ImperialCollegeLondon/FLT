@@ -37,20 +37,8 @@ variable [IsDomain B]
 variable [Algebra.IsIntegral A B]
 
 example: Module.Finite A B := by
-  obtain ⟨ι, u, hi⟩ := FiniteDimensional.exists_is_basis_integral A K L
-  have: DecidableEq { x // x ∈ ι } := by exact Classical.typeDecidableEq { x // x ∈ ι }
-  have h := integralClosure_le_span_dualBasis u hi
-  let V := (Submodule.span A (Set.range ⇑((Algebra.traceForm K L).dualBasis (traceForm_nondegenerate K L) u)))
-  have hb: B ≃ₐ[A] (integralClosure A L) :=
-    IsIntegralClosure.equiv A B L (integralClosure A L)
-  have h2: IsNoetherian A V := by
-    refine isNoetherian_span_of_finite A ?hA
-    exact Set.finite_range ⇑((Algebra.traceForm K L).dualBasis (traceForm_nondegenerate K L) u)
-  have h3: Module.Finite A (integralClosure A L) := by
-    refine (@Module.Finite.iff_fg A L _ _ _ (Subalgebra.toSubmodule (integralClosure A L))).mpr ?_
-    exact (@isNoetherian_submodule A L _ _ _ V).mp h2 (Subalgebra.toSubmodule (integralClosure A L)) h
-  apply @Module.Finite.equiv A (integralClosure A L) B
-  exact AlgEquiv.toLinearEquiv (AlgEquiv.symm hb)
+  have := IsIntegralClosure.isNoetherian A K L B
+  exact Module.IsNoetherian.finite A B
 
 /-
 In this generality there's a natural isomorphism `L ⊗[K] 𝔸_K^∞ → 𝔸_L^∞` .
