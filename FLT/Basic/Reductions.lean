@@ -256,8 +256,8 @@ lemma FreyCurve.j (P : FreyPackage) :
 private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := by
   rify
   calc
-      (0 : ℝ) < (a ^ 2 + (a + b) ^ 2 + b ^ 2) / 2 := by positivity
-      _ = (a + b) ^ 2 - a * b := by ring
+    (0 : ℝ) < (a ^ 2 + (a + b) ^ 2 + b ^ 2) / 2 := by positivity
+    _ = (a + b) ^ 2 - a * b := by ring
 
 /-- The q-adic valuation of the j-invariant of the Frey curve is a multiple of p if 2 < q is
 a prime of bad reduction. -/
