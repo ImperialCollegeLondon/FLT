@@ -256,10 +256,10 @@ lemma FreyCurve.j (P : FreyPackage) :
 private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := by
   cases le_or_lt 0 (a * b) with
   | inl h =>
+    rify
     calc
-      0 < a * a + a * b + b * b := ?_
-      _ = _ := by ring
-    exact add_pos_of_nonneg_of_pos (add_nonneg (mul_self_nonneg _) h) (mul_self_pos.mpr hb)
+      (0 : ℝ) < (a ^ 2 + (a + b) ^ 2 + b ^ 2) / 2 := by positivity
+      _ = (a + b) ^ 2 - a * b := by ring
   | inr h =>
     rw [sub_pos]
     exact h.trans_le (sq_nonneg _)
