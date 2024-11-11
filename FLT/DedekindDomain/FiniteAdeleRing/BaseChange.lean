@@ -1,4 +1,7 @@
 import Mathlib -- **TODO** fix when finished or if `exact?` is too slow
+--import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+--import Mathlib.NumberTheory.NumberField.Basic
+--import Mathlib.NumberTheory.RamificationInertia
 /-!
 
 # Base change of adele rings.
@@ -6,8 +9,9 @@ import Mathlib -- **TODO** fix when finished or if `exact?` is too slow
 If `A` is a Dedekind domain with field of fractions `K`, if `L/K` is a finite separable
 extension and if `B` is the integral closure of `A` in `L`, then `B` is also a Dedekind
 domain. Hence the rings of finite adeles `𝔸_K^∞` and `𝔸_L^∞` (defined using `A` and `B`)
-are defined, and there's a canonical map `L ⊗[K] 𝔸_K^∞ → 𝔸_L^∞`. The main theorem
-of this file is that it's an isomorphism. This result should be in mathlib.
+are defined. In this file we define the natural `K`-algebra map `𝔸_K^∞ → 𝔸_L^∞` and
+the natural `L`-algebra map `𝔸_K^∞ ⊗[K] L → 𝔸_L^∞`, and show that the latter map
+is an isomorphism.
 
 -/
 
@@ -34,11 +38,10 @@ variable [Algebra.IsIntegral A B]
 
 -- I can't find in mathlib the assertion that B is a finite A-moduie.
 -- It should follow from L/K finite.
+example : Module.Finite A B := by sorry -- I assume this is correct
 
 /-
-Conjecture: in this generality there's a natural isomorphism `L ⊗[K] 𝔸_K^∞ → 𝔸_L^∞`
-I've not found a reference for this but we can try following the usual
-references (which work for global fields). This is what we do below.
+In this generality there's a natural isomorphism `L ⊗[K] 𝔸_K^∞ → 𝔸_L^∞` .
 
 Update: Javier suggests p21 of
 https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf
@@ -67,106 +70,8 @@ def comap (w : HeightOneSpectrum B) : HeightOneSpectrum A where
 
 open scoped algebraMap
 
-
-
 -- Need to know how the valuation `w` and its pullback are related on elements of `K`.
-def intValuation_comap (w : HeightOneSpectrum B) (x : A) :
-    (comap A w).intValuation x =
-    w.intValuation (algebraMap A B x) ^
-    (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) := by
-  classical
-  simp only [intValuation, Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk]
-  show ite _ _ _ = (ite _ _ _) ^ _
-  have h_inj : Function.Injective (algebraMap A B) := sorry
-  have H₁ : Ideal.map (algebraMap A B) (comap A w).asIdeal ≠ ⊥ := by
-    rw [ne_eq, Ideal.map_eq_bot_iff_of_injective h_inj]; exact (comap A w).ne_bot
-
-  have h_ne_zero : Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal ≠ 0 := by
-    apply Ideal.IsDedekindDomain.ramificationIdx_ne_zero H₁
-    · exact w.2
-    · rw [Ideal.map_le_iff_le_comap]
-      rfl
-  by_cases hx : x = 0
-  · subst hx; simp [h_ne_zero]
-  · rw [map_eq_zero_iff _ h_inj, if_neg hx, if_neg hx]
-    rw [← WithZero.coe_pow]
-    congr 1
-    apply Multiplicative.toAdd.injective
-    simp only [ofAdd_neg, toAdd_inv, toAdd_ofAdd, inv_pow, toAdd_pow, nsmul_eq_mul, neg_inj]
-    rw [← Nat.cast_mul]
-    congr 1
-    rw [Ideal.IsDedekindDomain.ramificationIdx_eq_factors_count H₁ w.2 w.3]
-    rw [← Set.image_singleton, ← Ideal.map_span]
-    replace hx : Ideal.span {x} ≠ ⊥ := by simpa
-    generalize (Ideal.span {x}) = I at *
-    clear x
-    induction I using UniqueFactorizationMonoid.induction_on_prime with
-    | h₁ => cases hx rfl
-    | h₂ I hI =>
-      obtain rfl : I = ⊤ := by simpa using hI
-      simp only [Submodule.zero_eq_bot, ne_eq, top_ne_bot, not_false_eq_true,
-        UniqueFactorizationMonoid.factors_eq_normalizedFactors, Ideal.map_top]
-      simp only [← Ideal.one_eq_top, Associates.mk_one, Associates.factors_one]
-      rw [Associates.count_zero (associates_irreducible (comap A w)),
-        Associates.count_zero (associates_irreducible _), mul_zero]
-    | h₃ I p hI hp IH =>
-      simp only [Ideal.map_mul, ← Associates.mk_mul_mk]
-      by_cases hp_bot : p = ⊥
-      · subst hp_bot; simp at hx
-      rw [Associates.count_mul (Associates.mk_ne_zero.mpr hp_bot) (Associates.mk_ne_zero.mpr hI)
-        (associates_irreducible _), Associates.count_mul (Associates.mk_ne_zero.mpr
-        ((Ideal.map_eq_bot_iff_of_injective h_inj).not.mpr hp_bot))
-        (Associates.mk_ne_zero.mpr ((Ideal.map_eq_bot_iff_of_injective h_inj).not.mpr hI))
-        (associates_irreducible _)]
-      simp only [IH hI, mul_add]
-      congr 1
-
-      -- have hp' : (p.map (algebraMap A B)).comap (algebraMap A B) = p := sorry
-      -- nth_rw 1 [← hp']
-      -- rw [← hp'] at hp_bot hp
-
-      -- generalize (Ideal.map (algebraMap A B) p) = q at *
-      -- clear hI hx IH I
-      -- induction q using UniqueFactorizationMonoid.induction_on_prime with
-      -- | h₁ =>
-      --   simp [← RingHom.ker_eq_comap_bot, (RingHom.injective_iff_ker_eq_bot _).mp h_inj] at hp_bot
-      -- | h₂ J hJ =>
-      --   obtain rfl : J = ⊤ := by simpa using hJ
-      --   simp only [Submodule.zero_eq_bot, ne_eq, top_ne_bot, not_false_eq_true,
-      --     UniqueFactorizationMonoid.factors_eq_normalizedFactors, Ideal.comap_top]
-      --   simp only [← Ideal.one_eq_top, Associates.mk_one, Associates.factors_one]
-      --   rw [Associates.count_zero (associates_irreducible (comap A w)),
-      --     Associates.count_zero (associates_irreducible _), mul_zero]
-      -- | h₃ J q hJ hq IH =>
-      --   simp only [Ideal.map_mul, ← Associates.mk_mul_mk]
-      --   by_cases hq_bot : q = ⊥
-      --   · subst hq_bot
-      --     simp [← RingHom.ker_eq_comap_bot, (RingHom.injective_iff_ker_eq_bot _).mp h_inj] at hp_bot
-      --   have hJ' : J.comap (algebraMap A B) = p := sorry
-      --   have hq' : q.comap (algebraMap A B) = p := sorry
-      --   have hJ_bot : J.comap (algebraMap A B) ≠ ⊥ := by rwa [hJ', ← hp']
-      --   rw [hp', ← hJ', Associates.count_mul (Associates.mk_ne_zero.mpr hq_bot)
-      --     (Associates.mk_ne_zero.mpr hJ) (associates_irreducible _),
-      --     IH ((hJ'.trans hp'.symm) ▸ hp) hJ_bot hJ', mul_add]
-      --   rw [Associates.count_mul (Associates.mk_ne_zero.mpr hp_bot) (Associates.mk_ne_zero.mpr hI)
-      --     (associates_irreducible _), Associates.count_mul (Associates.mk_ne_zero.mpr
-      --     ((Ideal.map_eq_bot_iff_of_injective h_inj).not.mpr hp_bot))
-      --     (Associates.mk_ne_zero.mpr ((Ideal.map_eq_bot_iff_of_injective h_inj).not.mpr hI))
-      --     (associates_irreducible _)]
-
-
-
-
-
-
-
-
-  -- This should follow from map_comap?
-  sorry
-
-
--- Need to know how the valuation `w` and its pullback are related on elements of `K`.
-def valuation_comap (w : HeightOneSpectrum B) (x : K) :
+lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
     (comap A w).valuation x =
     w.valuation (algebraMap K L x) ^
     (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) := by
@@ -177,7 +82,7 @@ def valuation_comap (w : HeightOneSpectrum B) (x : K) :
 -- Say w is a finite place of L lying above v a finite places
 -- of K. Then there's a ring hom K_v -> L_w.
 variable {B L} in
-noncomputable def adicCompletion_comap (w : HeightOneSpectrum B) :
+noncomputable def adicCompletion_comap_ringHom (w : HeightOneSpectrum B) :
     (adicCompletion K (comap A w)) →+* (adicCompletion L w) :=
   letI : UniformSpace K := (comap A w).adicValued.toUniformSpace;
   letI : UniformSpace L := w.adicValued.toUniformSpace;
@@ -204,12 +109,12 @@ noncomputable local instance (w : HeightOneSpectrum B) :
   (algebraMap L (adicCompletion L w)).comp (algebraMap K L)
 
 variable {B L} in
-noncomputable def adicCompletion_alg_comap (w : HeightOneSpectrum B) :
+noncomputable def adicCompletion_comap_algHom (w : HeightOneSpectrum B) :
     letI : Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
   (algebraMap L (adicCompletion L w)).comp (algebraMap K L);
     letI : Module K (adicCompletion L w) := Algebra.toModule
-    (HeightOneSpectrum.adicCompletion K (comap A w)) →ₗ[K] (HeightOneSpectrum.adicCompletion L w) :=
-  sorry -- use `adicCompletion_comap` and prove it's a K-algebra homomorphism
+    (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K] (HeightOneSpectrum.adicCompletion L w) :=
+  sorry -- use `adicCompletion_comap_ringHom` and prove it's a K-algebra homomorphism
 
 end IsDedekindDomain.HeightOneSpectrum
 
@@ -224,11 +129,11 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 noncomputable local instance : Algebra K (ProdAdicCompletions B L) := RingHom.toAlgebra <|
   (algebraMap L (ProdAdicCompletions B L)).comp (algebraMap K L)
 
--- These should be easy
+-- These should be easy but I've just noticed that it should be an alghom
 noncomputable def ProdAdicCompletions.baseChange :
     L ⊗[K] ProdAdicCompletions A K →ₗ[K] ProdAdicCompletions B L := TensorProduct.lift <| {
   toFun := fun l ↦ {
-    toFun := fun kv w ↦ l • (adicCompletion_comap A K w (kv (comap A w)))
+    toFun := fun kv w ↦ l • (adicCompletion_comap_algHom A K w (kv (comap A w)))
     map_add' := sorry
     map_smul' := sorry
   }
