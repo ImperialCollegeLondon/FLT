@@ -56,13 +56,13 @@ def comap (w : HeightOneSpectrum B) : HeightOneSpectrum A where
   isPrime := Ideal.comap_isPrime (algebraMap A B) w.asIdeal
   ne_bot := mt Ideal.eq_bot_of_comap_eq_bot w.ne_bot
 
--- lemma: pushforward of pullback is P^(ram index)
-lemma map_comap (w : HeightOneSpectrum B) :
-    (w.comap A).asIdeal.map (algebraMap A B) =
-    w.asIdeal ^ ((Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal)) := by
-  -- This must be standard? Maybe a hole in the library for Dedekind domains
-  -- or maybe I just missed it?
-  -- simp
+-- -- lemma: pushforward of pullback is P^(ram index)
+-- lemma map_comap (w : HeightOneSpectrum B) :
+--     (w.comap A).asIdeal.map (algebraMap A B) =
+--     w.asIdeal ^ ((Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal)) := by
+--   -- This must be standard? Maybe a hole in the library for Dedekind domains
+--   -- or maybe I just missed it?
+--   -- simp
 
 
 open scoped algebraMap
@@ -95,11 +95,69 @@ def intValuation_comap (w : HeightOneSpectrum B) (x : A) :
     simp only [ofAdd_neg, toAdd_inv, toAdd_ofAdd, inv_pow, toAdd_pow, nsmul_eq_mul, neg_inj]
     rw [← Nat.cast_mul]
     congr 1
-    apply le_antisymm
-    rw [Ideal.IsDedekindDomain.ramificationIdx_eq_factors_count]
+    rw [Ideal.IsDedekindDomain.ramificationIdx_eq_factors_count H₁ w.2 w.3]
+    rw [← Set.image_singleton, ← Ideal.map_span]
+    replace hx : Ideal.span {x} ≠ ⊥ := by simpa
+    generalize (Ideal.span {x}) = I at *
+    clear x
+    induction I using UniqueFactorizationMonoid.induction_on_prime with
+    | h₁ => cases hx rfl
+    | h₂ I hI =>
+      obtain rfl : I = ⊤ := by simpa using hI
+      simp only [Submodule.zero_eq_bot, ne_eq, top_ne_bot, not_false_eq_true,
+        UniqueFactorizationMonoid.factors_eq_normalizedFactors, Ideal.map_top]
+      simp only [← Ideal.one_eq_top, Associates.mk_one, Associates.factors_one]
+      rw [Associates.count_zero (associates_irreducible (comap A w)),
+        Associates.count_zero (associates_irreducible _), mul_zero]
+    | h₃ I p hI hp IH =>
+      simp only [Ideal.map_mul, ← Associates.mk_mul_mk]
+      by_cases hp_bot : p = ⊥
+      · subst hp_bot; simp at hx
+      rw [Associates.count_mul (Associates.mk_ne_zero.mpr hp_bot) (Associates.mk_ne_zero.mpr hI)
+        (associates_irreducible _), Associates.count_mul (Associates.mk_ne_zero.mpr
+        ((Ideal.map_eq_bot_iff_of_injective h_inj).not.mpr hp_bot))
+        (Associates.mk_ne_zero.mpr ((Ideal.map_eq_bot_iff_of_injective h_inj).not.mpr hI))
+        (associates_irreducible _)]
+      simp only [IH hI, mul_add]
+      congr 1
+
+      -- have hp' : (p.map (algebraMap A B)).comap (algebraMap A B) = p := sorry
+      -- nth_rw 1 [← hp']
+      -- rw [← hp'] at hp_bot hp
+
+      -- generalize (Ideal.map (algebraMap A B) p) = q at *
+      -- clear hI hx IH I
+      -- induction q using UniqueFactorizationMonoid.induction_on_prime with
+      -- | h₁ =>
+      --   simp [← RingHom.ker_eq_comap_bot, (RingHom.injective_iff_ker_eq_bot _).mp h_inj] at hp_bot
+      -- | h₂ J hJ =>
+      --   obtain rfl : J = ⊤ := by simpa using hJ
+      --   simp only [Submodule.zero_eq_bot, ne_eq, top_ne_bot, not_false_eq_true,
+      --     UniqueFactorizationMonoid.factors_eq_normalizedFactors, Ideal.comap_top]
+      --   simp only [← Ideal.one_eq_top, Associates.mk_one, Associates.factors_one]
+      --   rw [Associates.count_zero (associates_irreducible (comap A w)),
+      --     Associates.count_zero (associates_irreducible _), mul_zero]
+      -- | h₃ J q hJ hq IH =>
+      --   simp only [Ideal.map_mul, ← Associates.mk_mul_mk]
+      --   by_cases hq_bot : q = ⊥
+      --   · subst hq_bot
+      --     simp [← RingHom.ker_eq_comap_bot, (RingHom.injective_iff_ker_eq_bot _).mp h_inj] at hp_bot
+      --   have hJ' : J.comap (algebraMap A B) = p := sorry
+      --   have hq' : q.comap (algebraMap A B) = p := sorry
+      --   have hJ_bot : J.comap (algebraMap A B) ≠ ⊥ := by rwa [hJ', ← hp']
+      --   rw [hp', ← hJ', Associates.count_mul (Associates.mk_ne_zero.mpr hq_bot)
+      --     (Associates.mk_ne_zero.mpr hJ) (associates_irreducible _),
+      --     IH ((hJ'.trans hp'.symm) ▸ hp) hJ_bot hJ', mul_add]
+      --   rw [Associates.count_mul (Associates.mk_ne_zero.mpr hp_bot) (Associates.mk_ne_zero.mpr hI)
+      --     (associates_irreducible _), Associates.count_mul (Associates.mk_ne_zero.mpr
+      --     ((Ideal.map_eq_bot_iff_of_injective h_inj).not.mpr hp_bot))
+      --     (Associates.mk_ne_zero.mpr ((Ideal.map_eq_bot_iff_of_injective h_inj).not.mpr hI))
+      --     (associates_irreducible _)]
 
 
-    simp only [ofAdd_neg, WithZero.coe_inv, inv_pow, inv_inj]
+
+
+
 
 
 
