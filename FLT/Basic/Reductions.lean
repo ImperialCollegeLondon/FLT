@@ -337,7 +337,11 @@ It follows that there is no Frey package.
 work of Mazur and Wiles/Ribet to rule out all possibilities for the
 $p$-torsion in the corresponding Frey curve. -/
 theorem FreyPackage.false (P : FreyPackage) : False :=
-  Wiles_Frey P (Mazur_Frey P)
+  -- by Wiles' result, the p-torsion is not irreducible
+  apply Wiles_Frey P
+  -- but by Mazur's result, the p-torsion is irreducible!
+  exact Mazur_Frey P
+  -- Contradiction!
 
 -- Fermat's Last Theorem is true
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
