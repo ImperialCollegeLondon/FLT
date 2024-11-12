@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'lean-toolchain'
-
+      
 jobs:
   create_release:
+    paths:
+      - 'lean-toolchain'
+      
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
