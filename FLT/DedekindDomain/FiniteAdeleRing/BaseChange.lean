@@ -36,9 +36,11 @@ variable [IsDomain B]
 -- example : Algebra.IsIntegral A B := IsIntegralClosure.isIntegral_algebra A L
 variable [Algebra.IsIntegral A B]
 
--- I can't find in mathlib the assertion that B is a finite A-moduie.
--- It should follow from L/K finite.
-example : Module.Finite A B := by sorry -- I assume this is correct
+-- I can't find in mathlib the assertion that B is a finite A-module.
+-- But it is!
+example : Module.Finite A B := by
+  have := IsIntegralClosure.isNoetherian A K L B
+  exact Module.IsNoetherian.finite A B
 
 /-
 In this generality there's a natural isomorphism `L ⊗[K] 𝔸_K^∞ → 𝔸_L^∞` .
