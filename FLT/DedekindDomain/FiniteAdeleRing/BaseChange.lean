@@ -181,12 +181,9 @@ noncomputable def adicCompletion_comap_algHom (w : HeightOneSpectrum B) :
     (algebraMap L (adicCompletion L w)) (algebraMap K L r) := by
       letI : UniformSpace L := w.adicValued.toUniformSpace;
       letI : UniformSpace K := (comap A w).adicValued.toUniformSpace;
-      rw [adicCompletion_comap_ringHom]
-      rw [UniformSpace.Completion.mapRingHom]
-      have h : @UniformSpace.Completion.coe' K this r  = (r : adicCompletion K (comap A w)) := by
-        rfl
-      rw [← h]
-      rw [UniformSpace.Completion.extensionHom_coe
+      rw [adicCompletion_comap_ringHom, UniformSpace.Completion.mapRingHom]
+      have h : @UniformSpace.Completion.coe' K this r  = (r : adicCompletion K (comap A w)) := rfl
+      rw [← h, UniformSpace.Completion.extensionHom_coe
       (UniformSpace.Completion.coeRingHom.comp (algebraMap K L))
       (UniformSpace.Completion.mapRingHom.proof_2 (algebraMap K L)
       (adicCompletion_comap_ringHom.proof_4 A K w) :
