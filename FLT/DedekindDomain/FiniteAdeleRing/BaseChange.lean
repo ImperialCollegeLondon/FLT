@@ -97,41 +97,27 @@ noncomputable local instance (w : HeightOneSpectrum B) :
     Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
   (algebraMap L (adicCompletion L w)).comp (algebraMap K L)
 
-lemma help1 (w : HeightOneSpectrum B) (r : K) :
-  (adicCompletion_comap_ringHom A K w) (r : adicCompletion K (comap A w)) =
-  (algebraMap L (adicCompletion L w)) (algebraMap K L r) := by
-    letI : UniformSpace L := w.adicValued.toUniformSpace;
-    letI : UniformSpace K := (comap A w).adicValued.toUniformSpace;
-    rw [adicCompletion_comap_ringHom]
-    rw [UniformSpace.Completion.mapRingHom]
-    rw [UniformSpace.Completion.extensionHom]
-    simp only [RingHom.coe_comp, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
-    rw [UniformSpace.Completion.extension]
-    simp_rw [algebraMap]
-    have h : UniformSpace.Completion.cPkg.extend (⇑UniformSpace.Completion.coeRingHom ∘ ⇑Algebra.toRingHom) (r : adicCompletion K (comap A w)) =
-      (⇑UniformSpace.Completion.coeRingHom ∘ ⇑(algebraMap K L)) r := by
-
-      sorry
-    rw [h]
-    rfl
-
-lemma help2 (w :HeightOneSpectrum B ) (r : K) :
-  (algebraMap K (adicCompletion L w)) r =
-  (algebraMap L (adicCompletion L w)) (algebraMap K L r):= by
-    rfl
 
 variable {B L} in
 noncomputable def adicCompletion_comap_algHom (w : HeightOneSpectrum B) :
-    letI : Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
-  (algebraMap L (adicCompletion L w)).comp (algebraMap K L);
-    letI : Module K (adicCompletion L w) := Algebra.toModule
     (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K] (HeightOneSpectrum.adicCompletion L w) := by
     use adicCompletion_comap_ringHom A K w
     intro r
     simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe]
-    rw [help1]
-    rw [← help2]
+    have : (adicCompletion_comap_ringHom A K w) (r : adicCompletion K (comap A w))  =
+    (algebraMap L (adicCompletion L w)) (algebraMap K L r) := by
+      letI : UniformSpace L := w.adicValued.toUniformSpace;
+      letI : UniformSpace K := (comap A w).adicValued.toUniformSpace;
+      rw [adicCompletion_comap_ringHom]
+      rw [UniformSpace.Completion.mapRingHom]
+      have h : @UniformSpace.Completion.coe' K this r  = (r : adicCompletion K (comap A w)) := by
+        rfl
+      rw [← h]
+      rw [UniformSpace.Completion.extensionHom_coe (UniformSpace.Completion.coeRingHom.comp (algebraMap K L)) (UniformSpace.Completion.mapRingHom.proof_2 (algebraMap K L) (adicCompletion_comap_ringHom.proof_4 A K w) : Continuous ⇑(UniformSpace.Completion.coeRingHom.comp Algebra.toRingHom)) r]
+      rfl
+    rw [this]
+    rfl
 
 end IsDedekindDomain.HeightOneSpectrum
 
