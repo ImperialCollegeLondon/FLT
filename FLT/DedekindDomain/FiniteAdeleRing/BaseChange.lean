@@ -172,9 +172,10 @@ noncomputable local instance (w : HeightOneSpectrum B) :
 
 variable {B L} in
 noncomputable def adicCompletion_comap_algHom (w : HeightOneSpectrum B) :
-    (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K] (HeightOneSpectrum.adicCompletion L w) := by
-    use adicCompletion_comap_ringHom A K w
-    intro r
+    (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K]
+    (HeightOneSpectrum.adicCompletion L w) where
+  __ := adicCompletion_comap_ringHom A K w
+  commutes' r := by
     simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe]
     have : (adicCompletion_comap_ringHom A K w) (r : adicCompletion K (comap A w))  =
