@@ -179,7 +179,7 @@ noncomputable def adicCompletion_comap_algHom (w : HeightOneSpectrum B) :
     simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe]
     have : (adicCompletion_comap_ringHom A K w) (r : adicCompletion K (comap A w))  =
-    (algebraMap L (adicCompletion L w)) (algebraMap K L r) := by
+        (algebraMap L (adicCompletion L w)) (algebraMap K L r) := by
       letI : UniformSpace L := w.adicValued.toUniformSpace;
       letI : UniformSpace K := (comap A w).adicValued.toUniformSpace;
       rw [adicCompletion_comap_ringHom, UniformSpace.Completion.mapRingHom]
