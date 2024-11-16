@@ -92,8 +92,7 @@ noncomputable def _root_.Ideal.isoBaseOfIsPrincipal {I : Ideal R} [IsDomain R]
     rw [LinearMap.mem_ker] at h
     apply (AddSubmonoid.mk_eq_zero _).mp at h
     rw [Ideal.mem_bot]
-    refine eq_zero_of_ne_zero_of_mul_right_eq_zero ?_ h
-    refine mt (fun h3 ↦ ?_) hI
+    refine eq_zero_of_ne_zero_of_mul_right_eq_zero (mt (fun h3 ↦ ?_) hI) h
     rwa [Submodule.IsPrincipal.eq_bot_iff_generator_eq_zero I])
   (by
     rintro ⟨i, hi⟩

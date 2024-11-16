@@ -110,12 +110,8 @@ lemma IsMaximal_not_eq_bot [NumberField K] (Q : Ideal (𝓞 K)) [Ideal.IsMaximal
   Ring.ne_bot_of_isMaximal_of_not_isField inferInstance (RingOfIntegers.not_isField K)
 
 lemma NumberField_Ideal_IsPrime_iff_IsMaximal  [NumberField K]
-    (Q : Ideal (𝓞 K)) (h1: Q ≠ ⊥) : Ideal.IsPrime Q ↔ Ideal.IsMaximal Q := by
-  constructor
-  · intro h
-    exact Ideal.IsPrime.isMaximal h h1
-  · intro h
-    exact Ideal.IsMaximal.isPrime h
+    (Q : Ideal (𝓞 K)) (h1: Q ≠ ⊥) : Ideal.IsPrime Q ↔ Ideal.IsMaximal Q :=
+  ⟨fun h => Ideal.IsPrime.isMaximal h h1, fun h => Ideal.IsMaximal.isPrime h⟩
 
 instance Fintype_Quot_of_IsMaximal [NumberField K] (P : Ideal (𝓞 K)) [Ideal.IsMaximal P] : Fintype ((𝓞 K) ⧸ P) := by
   sorry

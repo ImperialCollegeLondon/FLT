@@ -129,10 +129,10 @@ theorem diamond_fix :
   conv_lhs => rw [← @bracketBilin_apply_apply R _ _ _ _]
   rw [← @bracketBilin_apply_apply R _ _ _ (_) (.ofAssociativeAlgebra) _ _ (_) (_) x y]
   rotate_left
-  exact @lieAlgebraSelfModule _ _ _ (_) (_)
+  exact @lieAlgebraSelfModule ..
   refine LinearMap.congr_fun₂ ?_ x y
   ext xa xb ya yb
-  change @Bracket.bracket _ _ (_) (xa ⊗ₜ[R] xb) (ya ⊗ₜ[R] yb) = _
+  change @Bracket.bracket _ _ _ (xa ⊗ₜ[R] xb) (ya ⊗ₜ[R] yb) = _
   dsimp [Ring.lie_def]
   rw [TensorProduct.tmul_sub, mul_comm]
 
@@ -168,9 +168,9 @@ variable (G : Type) [TopologicalSpace G] [Group G]
 def action :
     LeftInvariantDerivation 𝓘(ℝ, E) G →ₗ⁅ℝ⁆ (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯) where
   toFun l := Derivation.toLinearMap l
-  map_add' := by simp
-  map_smul' := by simp
-  map_lie' {x y} := rfl
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+  map_lie' {_ _} := rfl
 
 open scoped TensorProduct
 
@@ -284,8 +284,8 @@ noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
   ρ := {
     toFun := fun A ↦ {
       toFun := fun x ↦ (w.rho A).1 *ᵥ x
-      map_add' := fun _ _ ↦ Matrix.mulVec_add _ _ _
-      map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul _ _ _ }
+      map_add' := fun _ _ ↦ Matrix.mulVec_add ..
+      map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul .. }
     map_one' := by aesop
     map_mul' := fun _ _ ↦ by
       simp only [obj_carrier, MonCat.mul_of, _root_.map_mul, Units.val_mul, ← Matrix.mulVec_mulVec]

@@ -96,8 +96,7 @@ lemma _root_.Nat.sum_factorial_lt_factorial_succ {j : ℕ} (hj : 1 < j) :
     ∑ i ∈ range (j + 1), i ! < ∑ _i ∈ range (j + 1), j ! := ?_
     _ = (j + 1) * (j !) := by rw [sum_const, card_range, smul_eq_mul]
     _ = (j + 1)! := Nat.factorial_succ _
-  apply sum_lt_sum
-  apply (fun i hi => factorial_le <| by simpa only [mem_range, lt_succ] using hi)
+  apply sum_lt_sum (fun i hi => factorial_le <| by simpa only [mem_range, lt_succ] using hi) ?_
   use 0
   rw [factorial_zero]
   simp [hj]

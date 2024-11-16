@@ -2,8 +2,6 @@ import Mathlib.Algebra.Module.Projective
 import Mathlib.Topology.Algebra.Monoid
 import Mathlib.RingTheory.OreLocalization.Ring
 import Mathlib
-
-
 section elsewhere
 
 variable {A : Type*} [AddCommGroup A]
@@ -54,9 +52,7 @@ theorem coinduced_prod_eq_prod_coinduced {X Y S T : Type*} [AddCommGroup X] [Add
   · intro h x y hxy
     rw [Set.mem_preimage, Prod.map_apply] at hxy
     obtain ⟨U1, U2, hU1, hU2, hx1, hy2, h12⟩ := h (f x) (g y) hxy
-    use f ⁻¹' U1, g ⁻¹' U2, hU1, hU2, hx1, hy2
-    intro ⟨x', y'⟩ ⟨hx', hy'⟩
-    exact h12 ⟨hx', hy'⟩
+    exact ⟨f ⁻¹' U1, g ⁻¹' U2, hU1, hU2, hx1, hy2, fun ⟨x', y'⟩ ⟨hx', hy'⟩ ↦ h12 ⟨hx', hy'⟩⟩
 
 end elsewhere
 
@@ -103,7 +99,7 @@ theorem finsum_option {ι : Type*} {B : Type*} [Finite ι]
   rw [← finsum_mem_univ]
   convert finsum_mem_insert φ (show none ∉ Set.range Option.some by aesop)
     (Set.finite_range some)
-  · aesop
+  · exact (Set.insert_none_range_some ι).symm
   · rw [finsum_mem_range]
     exact Option.some_injective ι
 
@@ -126,8 +122,8 @@ def LinearEquiv.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
     [∀ st, AddCommMonoid (A st)] [∀ st, Module R (A st)] :
     (∀ (st : S ⊕ T), A st) ≃ₗ[R] (∀ (s : S), A (.inl s)) × (∀ (t : T), A (.inr t)) where
       toFun f := (fun s ↦ f (.inl s), fun t ↦ f (.inr t))
-      map_add' f g := by aesop
-      map_smul' := by aesop
+      map_add' f g := rfl
+      map_smul' _ _ := rfl
       invFun fg st := Sum.rec (fun s => fg.1 s) (fun t => fg.2 t) st
       left_inv := by intro x; aesop
       right_inv := by intro x; aesop
@@ -152,8 +148,8 @@ def Homeomorph.sumPiEquivProdPi (S T : Type*) (A : S ⊕ T → Type*)
 def Homeomorph.pUnitPiEquiv (f : PUnit → Type*) [∀ x, TopologicalSpace (f x)]: ((t : PUnit) → (f t)) ≃ₜ f () where
   toFun a := a ()
   invFun a _t := a
-  left_inv x := by aesop
-  right_inv x := by aesop
+  left_inv x := rfl
+  right_inv x := rfl
   continuous_toFun := by simp; fun_prop
   continuous_invFun := by simp; fun_prop
 
@@ -163,10 +159,10 @@ def LinearEquiv.pUnitPiEquiv (f : PUnit → Type*) [∀ x, AddCommMonoid (f x)] 
     ((t : PUnit) → (f t)) ≃ₗ[R] f () where
   toFun a := a ()
   invFun a _t := a
-  left_inv x := by aesop
-  right_inv x := by aesop
-  map_add' f g := rfl
-  map_smul' r f := rfl
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
 
 -- elsewhere
 theorem finsum_apply {α ι N : Type*} [AddCommMonoid N] [Finite ι]
