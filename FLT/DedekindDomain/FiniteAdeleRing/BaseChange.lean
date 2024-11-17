@@ -169,13 +169,24 @@ noncomputable local instance (w : HeightOneSpectrum B) :
     Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
   (algebraMap L (adicCompletion L w)).comp (algebraMap K L)
 
+
 variable {B L} in
 noncomputable def adicCompletion_comap_algHom (w : HeightOneSpectrum B) :
-    letI : Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
-  (algebraMap L (adicCompletion L w)).comp (algebraMap K L);
-    letI : Module K (adicCompletion L w) := Algebra.toModule
-    (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K] (HeightOneSpectrum.adicCompletion L w) :=
-  sorry -- use `adicCompletion_comap_ringHom` and prove it's a K-algebra homomorphism
+    (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K]
+    (HeightOneSpectrum.adicCompletion L w) where
+  __ := adicCompletion_comap_ringHom A K w
+  commutes' r := by
+    simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
+      MonoidHom.coe_coe]
+    have : (adicCompletion_comap_ringHom A K w) (r : adicCompletion K (comap A w))  =
+        (algebraMap L (adicCompletion L w)) (algebraMap K L r) := by
+      letI : UniformSpace L := w.adicValued.toUniformSpace
+      letI : UniformSpace K := (comap A w).adicValued.toUniformSpace
+      rw [adicCompletion_comap_ringHom, UniformSpace.Completion.mapRingHom]
+      rw [show (r : adicCompletion K (comap A w)) = @UniformSpace.Completion.coe' K this r from rfl]
+      apply UniformSpace.Completion.extensionHom_coe
+    rw [this]
+    rfl
 
 end IsDedekindDomain.HeightOneSpectrum
 
