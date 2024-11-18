@@ -1,4 +1,7 @@
 import Mathlib
+--import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+--import Mathlib.NumberTheory.NumberField.Basic
+--import Mathlib.NumberTheory.RamificationInertia
 import FLT.Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
 
@@ -62,14 +65,6 @@ def comap (w : HeightOneSpectrum B) : HeightOneSpectrum A where
   asIdeal := w.asIdeal.comap (algebraMap A B)
   isPrime := Ideal.comap_isPrime (algebraMap A B) w.asIdeal
   ne_bot := mt Ideal.eq_bot_of_comap_eq_bot w.ne_bot
-
--- lemma: pushforward of pullback is P^(ram index)
-lemma map_comap (w : HeightOneSpectrum B) :
-    (w.comap A).asIdeal.map (algebraMap A B) =
-    w.asIdeal ^ ((Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal)) := by
-  -- This mus t be standard? Maybe a hole in the library for Dedekind domains
-  -- or maybe I just missed it?
-  sorry
 
 open scoped algebraMap
 
@@ -141,16 +136,19 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
   simp
 
 -- Need to know how the valuation `w` and its pullback are related on elements of `K`.
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
 lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
-    w.valuation (algebraMap K L x) = (comap A w).valuation x ^
-    (comap A w).asIdeal.ramificationIdx (algebraMap A B) w.asIdeal := by
-  -- This should follow from map_comap?
-  sorry
+    (comap A w).valuation x ^
+    (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) =
+    w.valuation (algebraMap K L x) := by
+  obtain ⟨x, y, hy, rfl⟩ := IsFractionRing.div_surjective (A := A) x
+  simp [valuation, ← IsScalarTower.algebraMap_apply A K L, IsScalarTower.algebraMap_apply A B L,
+    ← intValuation_comap A B (algebraMap_injective_of_field_isFractionRing A B K L), div_pow]
 
--- Say w is a finite place of L lying above v a finite places
--- of K. Then there's a ring hom K_v -> L_w.
 variable {B L} in
-noncomputable def adicCompletion_comap (w : HeightOneSpectrum B) :
+/-- Say `w` is a finite place of `L` lying above `v` a finite place of `K`. Then there's a ring hom
+`K_v → L_w`. -/
+noncomputable def adicCompletion_comap_ringHom (w : HeightOneSpectrum B) :
     adicCompletion K (comap A w) →+* adicCompletion L w :=
   letI : UniformSpace K := (comap A w).adicValued.toUniformSpace;
   letI : UniformSpace L := w.adicValued.toUniformSpace;
@@ -177,7 +175,7 @@ noncomputable def adicCompletion_comap (w : HeightOneSpectrum B) :
     exact (Ideal.map_eq_bot_iff_of_injective
       (algebraMap_injective_of_field_isFractionRing A B K L)).not.mpr (comap A w).3
   refine ⟨a / m, fun x hx ↦ ?_⟩
-  simp_rw [valuation_comap A]
+  simp_rw [← valuation_comap A]
   calc
     (comap A w).valuation x ^ m < e (a / ↑m) ^ m := by gcongr; exacts [zero_le', hx]
   _ = e (m • (a / ↑m)) := by
