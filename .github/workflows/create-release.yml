@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
-      
-jobs:
-  create_release:
     paths:
       - 'lean-toolchain'
       
+jobs:
+  create_release:
     runs-on: ubuntu-latest
     
     steps:
