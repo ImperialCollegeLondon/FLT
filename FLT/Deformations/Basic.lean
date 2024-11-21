@@ -18,23 +18,25 @@ local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 variable (𝓞) in
 def CommAlgCat := Under (CommRingCat.of 𝓞)
 
-variable (𝓞) in
-instance : Coe (CommAlgCat 𝓞) (CommRingCat) where
+instance : CoeOut (CommAlgCat 𝓞) (CommRingCat) where
   coe A := A.right
 
-def IsResidueAlgebra (A : CommAlgCat 𝓞) [IsLocalRing A.right] : Prop :=
-  Surjective (RingHom.comp (IsLocalRing.residue A.right) A.hom)
+def IsResidueAlgebra (A : CommAlgCat 𝓞) [IsLocalRing A] : Prop :=
+  Surjective (RingHom.comp (IsLocalRing.residue A) A.hom)
 
 def IsProartinian (_ : CommAlgCat 𝓞) : Prop := True
 
 variable (𝓞) in
 def 𝓒 := FullSubcategory (fun (A : CommAlgCat 𝓞) => by
-  exact IsLocalRing A.right
+  exact IsLocalRing A
   ∧ IsLocalHom A.hom
-  -- ∧ IsResidueAlgebra A How to make typeclass inference synthesize IsLocalRing A.right, when its
+  -- ∧ IsResidueAlgebra A
+  -- How to make typeclass inference synthesize IsLocalRing A, when its
   -- inside the and!
   ∧ IsProartinian A)
 
+instance : CoeOut (𝓒 𝓞) (CommAlgCat 𝓞) where
+  coe A := A.obj
 
 variable (A : 𝓒 𝓞)
 variable {G : Type u} [Group G] [TopologicalSpace G] [TopologicalGroup G]

@@ -33,12 +33,22 @@ variable (match_residue_by: RingHom.comp (IsLocalRing.residue A) (algebraMap �
 variable (W : Type u) [AddCommGroup W] [Module A W] [Module.Finite A W] [Module.Free A W]
 variable (ρ : Representation A G W)
 
-instance : Module (𝓴 A) V := sorry
+instance match_residue_module : Module (𝓴 A) V := sorry
+  -- smul ka v := (match_residue.invFun ka) • v
 
-def extend_ctts : W →+ (W ⊗[A] (𝓴 A)) := sorry
-def mod_ctts : (W ⊗[A] (𝓴 A)) →+[𝓴 A] V  := sorry
-def representation_mod : W →+ V :=
-  AddMonoidHom.comp (mod_ctts V W (A := A)) (extend_ctts W (A := A))
+noncomputable def extend_ctts : W →ₗ[𝓴 A] (W ⊗[A] (𝓴 A)) where
+  toFun w := w ⊗ₜ[A] (1 : (𝓴 A))
+  map_add' := by
+    simp [TensorProduct.add_tmul]
+  map_smul' := sorry
+
+noncomputable def mod_ctts : (W ⊗[A] (𝓴 A)) →ₗ[𝓴 A] V where
+  toFun t := sorry
+  map_add' := sorry
+  map_smul' := sorry
+
+noncomputable def representation_mod : W →ₗ[𝓴 A] V :=
+  LinearMap.comp (mod_ctts V W (A := A)) (extend_ctts W (A := A))
 
 variable (is_lift : Bijective (mod_ctts V W (A := A)))
 variable (is_lift_ρ : ∀ g : G, ∀ w : W, ρbar g (representation_mod V W (A := A) w)
@@ -51,17 +61,19 @@ def pbar' :=  GL_map_of_representation_of_basis ρbar 𝓫
 
 -- (W ⊗[A] (𝓴 A)) = W ⊗ A/mA = W/mW ≃+* V means there is a w_i A-basis of W such
 -- that w_i ↦ v_i by representation_mod
-def Nakayama_compatible_basis : Basis ι A W := by sorry
-def ρ' :=  GL_map_of_representation_of_basis ρ (Nakayama_compatible_basis W (ι := ι) (A := A))
+def nakayama_compatible_basis : Basis ι A W := by
+  sorry
+
+def ρ' :=  GL_map_of_representation_of_basis ρ (nakayama_compatible_basis W (ι := ι) (A := A))
 
 -- This is the ring 𝓞[G, n] given by Smit&Lenstra
-variable (G 𝓞 ι) in
-def LenstraRing : Type u := sorry
+local notation "LenstraRing" G 𝓞 ι => 𝓞
 
-local notation "GL_" ι "(" R ")" => GeneralLinearGroup ι R
-local notation 𝓞 "[" G ";" ι "]" => LenstraRing G 𝓞 ι
+local notation "GL_" ι "(" R ")" => (GeneralLinearGroup ι R)
+local notation 𝓞 "[" G "," ι "]" => FreeModule
+local notation "Hom[" G "," G' "]" => (G →* G')
 
-def map_of_lenstraRing : 𝓞[G;ι] → Hom(G, GL_ι(𝓞))
+def map_of_lenstraRing : 𝓞[G, ι] → Type u := sorry
 
 theorem bijection_lenstraRing : IsBijective map_of_lenstraRing := by sorry
 
