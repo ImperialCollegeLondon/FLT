@@ -863,13 +863,13 @@ variable (L : Type*) [Field L] [Algebra (B ⧸ Q) L] [IsFractionRing (B ⧸ Q) L
 
 
 noncomputable def IsFractionRing.algEquiv_lift (e : (B ⧸ Q) ≃ₐ[A ⧸ P] B ⧸ Q) : L ≃ₐ[K] L where
-  __ := IsFractionRing.fieldEquivOfRingEquiv e.toRingEquiv
+  __ := IsFractionRing.ringEquivOfRingEquiv e.toRingEquiv
   commutes' := by
     intro k
     dsimp
-    obtain ⟨x, y, _, rfl⟩ := @IsFractionRing.div_surjective (A ⧸ P) _ _ K _ _ _ k
+    obtain ⟨x, y, _, rfl⟩ := @IsFractionRing.div_surjective (A ⧸ P) _ K _ _ _ k
     simp [algebraMap_algebraMap]
-    unfold IsFractionRing.fieldEquivOfRingEquiv
+    unfold IsFractionRing.ringEquivOfRingEquiv
     unfold IsLocalization.ringEquivOfRingEquiv
     simp [IsScalarTower.algebraMap_apply (A ⧸ P) (B ⧸ Q) L]
 
@@ -878,17 +878,17 @@ noncomputable def stabilizer.toGaloisGroup : MulAction.stabilizer G Q →* (L �
   map_one' := by
     apply AlgEquiv.ext
     intro l; simp
-    obtain ⟨x, y, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ _ L _ _ _ l
+    obtain ⟨x, y, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ L _ _ _ l
     unfold IsFractionRing.algEquiv_lift
-    unfold IsFractionRing.fieldEquivOfRingEquiv
+    unfold IsFractionRing.ringEquivOfRingEquiv
     simp
   map_mul' := by
     intro ⟨x, hx⟩ ⟨y, hy⟩
     apply AlgEquiv.ext
     intro l; dsimp
-    obtain ⟨r, s, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ _ L _ _ _ l
+    obtain ⟨r, s, _, rfl⟩ := @IsFractionRing.div_surjective (B ⧸ Q) _ L _ _ _ l
     unfold IsFractionRing.algEquiv_lift
-    unfold IsFractionRing.fieldEquivOfRingEquiv
+    unfold IsFractionRing.ringEquivOfRingEquiv
     simp
     sorry
 
