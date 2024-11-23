@@ -6,107 +6,100 @@ This is an active miniproject.
 
 \section{The goal}
 
-At the time of writing, mathlib does not have a definition of the adeles of
-a number field. There are several goals to this miniproject.
+There are several goals to this miniproject.
 
-\begin{itemize}
+\begin{enumerate}
   \item Define the adeles $\A_K$ of a number field~$K$ and
-  give them the structure of a $K$-algebra;
-  \item Prove that $\A_K$ is a locally compact topological ring;
-  \item Show that if $L/K$ is a finite extension of number fields then the
-    natural map $L\otimes_K\A_K\to\A_L$ is an isomorphism;
-  \item Prove that $K \subseteq \A_K$ is a discrete subgoup and the quotient is compact.
-\end{itemize}
+    give them the structure of a $K$-algebra (status: now in mathlib thanks to
+    Salvatore Mercuri);
+  \item Prove that $\A_K$ is a locally compact topological ring (status:
+      \href{https://github.com/smmercuri/adele-ring_locally-compact}{
+      also proved by Mercuri} but not yet in mathlib);
+  \item Base change: show that if $L/K$ is a finite extension of number fields then the
+    natural map $L\otimes_K\A_K\to\A_L$ is an isomorphism; (status: not
+    formalized yet);
+  \item Prove that $K \subseteq \A_K$ is a discrete subgoup and the quotient
+    is compact (status: not formalized yet);
+  \item Get this stuff into mathlib (status: (1) done, (2)--(4) not done).
+\end{enumerate}
 
 We briefly go through the basic definitions. A cheap definition of the finite
 adeles $\A_K^\infty$ of $K$ is $K\otimes_{\Z}\Zhat$, where $\Zhat$ is
 the profinite completion of the integers. A cheap definition of the infinite adeles
 $K_\infty$ of $K$ is $K\otimes_{\Q}\R$, and a cheap definition of the adeles
 of $K$ is $\A_K^\infty\times K_\infty$. However in the literature different definitions
-are often given. The finite adeles of $K$ are usually defined
+are often given. The finite adeles of $K$ are usually defined in the books
 as the so-called restricted product $\prod'_{\mathfrak{p}}K_{\mathfrak{p}}$ over the completions
 $K_{\mathfrak{p}}$ of $K$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_K$ of the
 integers of $K$. Here the restricted product is the subset of $\prod_{\mathfrak{p}}K_{\mathfrak{p}}$
 consisting of elements which are in $\mathcal{O}_{K,\mathfrak{p}}$ for all but finitely many
-$\mathfrak{p}$.
-Mathlib already has the finite adeles and the proof that they're a topological ring;
-in fact the construction in mathlib works for any Dedekind domain.
+$\mathfrak{p}$. This is the definition given in mathlib.
+Mathlib also has the proof that they're a topological ring;
+furthermore the construction of the finite adeles in mathlib works for any
+Dedekind domain.
 
 Similarly the infinite adeles of a number field
 are usually defined as $\prod_v K_v$,
-the product running over the archimedean completions of~$K$.
+the product running over the archimedean completions of~$K$, and this is
+the mathlib definition.
 
-\section{Current status}
+The adeles of a number field $K$ are the product of the finite and infinite
+adeles, and mathlib knows that they're a $K$-algebra and a topological ring.
 
-Salvatore Mercuri has made great progress with the definition of $\A_K$ and he even
-has a complete formalisation of the proof that the adele ring is locally compact. His work is in
+\section{Local compactness}
+
+As mentioned above, Salvatore Mercuri has a complete formalisation of the proof
+that the adele ring is locally compact. His work is in
 \href{https://github.com/smmercuri/adele-ring_locally-compact}{his own repo} which
 I don't want to have as a dependency of FLT, because this work should all be
-in mathlib. We quote some of it here.
-
-\section{Results about adeles of a number field that we await}
-
-Let $K$ be a number field. Right now mathlib has the finite adeles $\A_K^\infty$ of $K$,
-with its topological ring structure. It does not however have the infinite adeles $K_\infty$.
-There are PRs by Salvatore Mercuri currently
-in progress for defining this topological ring. Once we have it, the full ring of
-adeles $\A_K$ is defined as $\A_K:=\A_K^\infty\times K_\infty$; it is a topological ring
-and also a $K$-algebra. Once Mercuri's mathlib
-PR~\href{https://github.com/leanprover-community/mathlib4/pull/16485}{16485} is merged, we will have
-all this available to us; until then, we sorry the definitions and these facts.
-
-Mercuri's work isn't however enough for us; we also need several theorems about this topological
-$K$-algebra. These lemmas are essentially impossible to work on until we have the definition in
-mathlib. We state them here without proof.
-
-\begin{theorem}
-  \lean{NumberField.AdeleRing.discrete}
-  \label{NumberField.AdeleRing.discrete}
-  The additive subgroup $K$ of $\A_K$ is discrete.
-\end{theorem}
-
-\begin{theorem}
-  \lean{NumberField.AdeleRing.cocompact}
-  \label{NumberField.AdeleRing.cocompact}
-  The quotient $\A_K/K$ is compact.
-\end{theorem}
+in mathlib.
 
 \begin{theorem}
   \lean{NumberField.AdeleRing.locallyCompactSpace}
-  \label{NumberField.AdeleRing.locallyCompact}
-  The topological ring $\A_K$ is locally compact.
+  \label{NumberField.AdeleRing.locallyCompactSpace}
+  \leanok
+  The adeles of a number field are locally compact.
 \end{theorem}
+\begin{proof}
+  See Mercuri's repo.
+\end{proof}
 
-Mercuri has already proved local compactness in his repo.
-As far as I know, the other
-two theorems remain unformalised (but as I've mentioned, we cannot start on them until
-we have a definition of the adele ring in this project, and I would prefer
-that this were achieved by upstreaming Mercuri's work to mathlib).
+\section{Base change}
 
-However, there is something that we can do here even before Mercuri's work
-is upstreamed: one proof I know that of discreteness
-and cocompactness of $K$ in $\A_K$ reduces to the case $K=\Q$, using the ``canonical''
-isomorphism $\A_K\cong\A_{\Q}\otimes_{\Q}K$. This can be proved by checking it for finite
-and infinite adeles separately, so one thing which we can work on now is the finite case.
-We explain this in the next section.
+The ``theorem'' we want is that if $L/K$ is a finite extension of number fields,
+then $\A_L=L\otimes_K\A_K$. This isn't a theorem though, this is actually a \emph{definition}
+(the map between the two objects) and a theorem about
+the definition (that it's an isomorphism). Before we can prove the theorem, we need to make the
+definition.
 
-\section{Results about finite adeles which we can work on now}
+Recall that the adeles $\A_K$ of a number field is a product $\A_K^\infty\times K_\infty$
+of the finite adeles and the infinite adeles. So our ``theorem'' follows immediately from
+the ``theorem''s that $\A_L^\infty=L\otimes_K\A_K^\infty$ and $L_\infty=L\otimes_KK_\infty$.
+We may thus treat the finite and infinite results separately.
+
+\subsection{Base change for finite adeles}
 
 Adeles are arithmetic objects, attached to global fields like number fields.
 However (as I learnt from Maria Ines de Frutos Fernandez) finite adeles are algebraic
-objects, as they can be attached to any Dedekind domain. The ``theorem'' that we need
-is the following:
+objects, as they can be attached to any Dedekind domain. The definition that we need
+is the following.
 
-\begin{theorem}
-  Let~$A$ be a Dedekind domain with field of fractions~$K$, and write $\mathbb{A}_{A,K}^\infty$
-  for the finite adeles of $A$. Let~$L/K$ be a finite
-  separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
-  Then there's a ``canonical'' isomorphism $\mathbb{A}_{R,K}^\infty \otimes_KL\mathbb{A}_{B,L}^\infty$.
-\end{theorem}
+Let~$A$ be a Dedekind domain with field of fractions~$K$, and write $\mathbb{A}_{A,K}^\infty$
+for the finite adeles of $A$. Let~$L/K$ be a finite
+separable extension, and let $B$ be the integral closure of~$A$ in~$L$. Recall that
+the finite adeles $\mathbb{A}_{A,K}^\infty$ of $K$ with respect to $A$ is the restricted
+product of $K_v$
 
-Of course, this isn't a theorem; this is actually a \emph{definition} (the map) and a theorem about
-the definition (that it's an isomorphism). Before we can prove the theorem, we need to make the
-definition.
+***************************************
+
+\begin{definition}
+  \lean{DedekindDomain.FiniteAdeleRing.baseChange}
+  \label{DedekindDomain.FiniteAdeleRing.baseChange}
+  \leanok
+  something **TODO**
+\end{definition}
+
+%  Then there's a ``canonical'' isomorphism $\mathbb{A}_{R,K}^\infty \otimes_KL\mathbb{A}_{B,L}^\infty$.
 
 If $A$ is a Dedekind domain then the \emph{height one spectrum} of $A$ is
 the nonzero prime ideals of~$A$. Note that because we stick to the literature,
@@ -167,3 +160,78 @@ One then has to check that for good primes everything works on an integral level
 
 Note that the finite adeles do not have the subspace topology, so one has to be slightly
 careful here.
+
+**********************************************
+
+\section{Discreteness and compactness}
+
+We need that if $K$ is a number field then
+$K\subseteq\mathbb{A}_K$ is discrete, and the quotient (with the
+quotient topology) is compact. Here is a proposed proof.
+
+\begin{theorem}
+  \lean{Rat.AdeleRing.zero_discrete}
+  \label{Rat.AdeleRing.zero_discrete}
+  \leanok
+  There's an open subset of $\A_{\Q}$ whose intersection with $\Q$ is $\{0\}$.
+\end{theorem}
+\begin{proof}
+  Use $\prod_p{\Z_p}\otimes(-1,1)$. Any rational $q$ in this set is a $p$-adic
+  integer for all primes $p$ and hence (writing it in lowest terms as $q=n/d$)
+  satisfies $p\nmid d$, meaning that $d=\pm1$ and thus $q\in\Z$. The fact
+  that $q\in(-1,1)$ implies $q=0$.
+\end{proof}
+
+\begin{theorem}
+  \lean{Rat.AdeleRing.discrete}
+  \label{Rat.AdeleRing.discrete}
+  \leanok
+  The rationals $\Q$ are a discrete subgroup of $\A_{\Q}$.
+\end{theorem}
+\begin{proof}
+  If $q\in\Q$ and $U$ is the open subset in the previous lemma, then
+  it's easily checked that $\Q\cap U=\{0\}$ implies $\Q\cap (U+q)=\{q\}$,
+  and $U+q$ is open.
+\end{proof}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.discrete}
+  \label{NumberField.AdeleRing.discrete}
+  \leanok
+  The additive subgroup $K$ of $\A_K$ is discrete.
+\end{theorem}
+\begin{proof}
+  By a previous result, we have $\A_K=K\otimes_{\Q}\A_{\Q}$.
+  Choose a basis of $K/\Q$; then $K$ can be identified with $\Q^n\subseteq(\A_{\Q})^n$
+  and the result follows from the previous theorem.
+\end{proof}
+
+For compactness we follow the same approach.
+
+\begin{theorem}
+  \lean{Rat.AdeleRing.cocompact}
+  \label{Rat.AdeleRing.cocompact}
+  \leanok
+  The quotient $\A_{\Q}/\Q$ is compact.
+\end{theorem}
+\begin{proof}
+  The space $\prod_p\Z_p\times[0,1]\subseteq\A_{\Q}$ is a product of compact spaces
+  and is hence compact. I claim that it surjects onto $\A_{\Q}/\Q$. Indeed,
+  if $a\in\A_{\Q}$ then for the finitely many prime numbers $p\in S$ such that $a_p\not\in\Z_p$
+  we have $a_p\in\frac{r_p}{p^{n_p}}+\Z_p$ with $r_p/p^{n_p}\in\Q$, and
+  if $q=\sum_{p\in S}\frac{r_p}{p^{n_p}}\in\Q$ then $a-q\in \prod_p\Z_p\times\R$.
+  Now just subtract $\lfloor a_{\infty}-q\rfloor$ to move into $\prod_p\Z_p\times[0,1)$
+  and we are done.
+\end{proof}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.cocompact}
+  \label{NumberField.AdeleRing.cocompact}
+  \leanok
+  The quotient $\A_K/K$ is compact.
+\end{theorem}
+\begin{proof}
+  We proceed as in the discreteness proof above, by reducing to $\Q$. As before, choosing
+  a $\Q$-basis of $K$ gives us $\A_K/K\cong(\A_{\Q}/\Q)^n$ so the result follows from
+  the previous theorem.
+\end{proof}

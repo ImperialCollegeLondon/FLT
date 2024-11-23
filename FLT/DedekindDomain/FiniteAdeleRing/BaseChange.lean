@@ -143,7 +143,8 @@ lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
 -- Say w is a finite place of L lying above v a finite places
 -- of K. Then there's a ring hom K_v -> L_w.
 variable {B L} in
-noncomputable def adicCompletion_comap_ringHom (w : HeightOneSpectrum B) :
+
+noncomputable def adicCompletionComapRingHom (w : HeightOneSpectrum B) :
     (adicCompletion K (comap A w)) →+* (adicCompletion L w) :=
   letI : UniformSpace K := (comap A w).adicValued.toUniformSpace;
   letI : UniformSpace L := w.adicValued.toUniformSpace;
@@ -164,18 +165,13 @@ noncomputable def adicCompletion_comap_ringHom (w : HeightOneSpectrum B) :
   -- now use `valuation_comap` to finish
   sorry
 
-
-noncomputable local instance (w : HeightOneSpectrum B) :
-    Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
-  (algebraMap L (adicCompletion L w)).comp (algebraMap K L)
+variable [∀ w : HeightOneSpectrum B, Algebra K (adicCompletion L w)]
+  [∀ w : HeightOneSpectrum B, IsScalarTower K L (adicCompletion L w)]
 
 variable {B L} in
-noncomputable def adicCompletion_comap_algHom (w : HeightOneSpectrum B) :
-    letI : Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
-  (algebraMap L (adicCompletion L w)).comp (algebraMap K L);
-    letI : Module K (adicCompletion L w) := Algebra.toModule
+noncomputable def adicCompletionComapAlgHom (w : HeightOneSpectrum B) :
     (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K] (HeightOneSpectrum.adicCompletion L w) :=
-  sorry -- use `adicCompletion_comap_ringHom` and prove it's a K-algebra homomorphism
+  sorry -- use `adicCompletionComapRingHom` and prove it's a K-algebra homomorphism
 
 end IsDedekindDomain.HeightOneSpectrum
 
@@ -185,37 +181,69 @@ open IsDedekindDomain HeightOneSpectrum
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
--- make `∏_w L_w` into an algebra over `K` (it's already
--- an algebra over `L` which is a `K`-algebra).
-noncomputable local instance : Algebra K (ProdAdicCompletions B L) := RingHom.toAlgebra <|
-  (algebraMap L (ProdAdicCompletions B L)).comp (algebraMap K L)
+-- Make L_w into a K-algebra in a way compatible with the L-algebra structure
+variable [∀ w : HeightOneSpectrum B, Algebra K (adicCompletion L w)]
+  [∀ w : HeightOneSpectrum B, IsScalarTower K L (adicCompletion L w)]
 
--- These should be easy but I've just noticed that it should be an alghom
+-- Make ∏_w L_w into a K-algebra in a way compatible with the L-algebra structure
+variable [Algebra K (ProdAdicCompletions B L)]
+  [IsScalarTower K L (ProdAdicCompletions B L)]
+
 noncomputable def ProdAdicCompletions.baseChange :
-    L ⊗[K] ProdAdicCompletions A K →ₗ[K] ProdAdicCompletions B L := TensorProduct.lift <| {
-  toFun := fun l ↦ {
-    toFun := fun kv w ↦ l • (adicCompletion_comap_algHom A K w (kv (comap A w)))
-    map_add' := sorry
-    map_smul' := sorry
-  }
+    ProdAdicCompletions A K →ₐ[K] ProdAdicCompletions B L where
+  toFun kv w := (adicCompletionComapAlgHom A K w (kv (comap A w)))
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
   map_add' := sorry
-  map_smul' := sorry
-}
+  commutes' := sorry
 
--- This is harder
-theorem ProdAdicCompletions.baseChange_surjective :
-  Function.Surjective (ProdAdicCompletions.baseChange A K L B) := sorry
+-- Do we not have this?
+def foo {X Y : Type*} [CommRing X] [CommRing Y] [Algebra X Y] : X →ₐ[X] Y where
+  toRingHom := algebraMap X Y
+  commutes' _ := rfl
 
--- hard but hopefully enough (this proof will be a lot of work)
-theorem ProdAdicCompletions.baseChange_iso (x : ProdAdicCompletions A K) :
+noncomputable def ProdAdicCompletions.baseChangeIso :
+    L ⊗[K] ProdAdicCompletions A K ≃ₐ[L] ProdAdicCompletions B L :=
+  AlgEquiv.ofBijective
+  (Algebra.TensorProduct.lift foo (ProdAdicCompletions.baseChange A K L B) sorry) sorry
+
+theorem ProdAdicCompletions.baseChange_isFiniteAdele_iff
+    (x : ProdAdicCompletions A K) :
   ProdAdicCompletions.IsFiniteAdele x ↔
-  ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChange A K L B (1 ⊗ₜ x)) := sorry
+  ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChange A K L B x) := sorry
 
-noncomputable local instance : Algebra K (FiniteAdeleRing B L) := RingHom.toAlgebra <|
-  (algebraMap L (FiniteAdeleRing B L)).comp (algebraMap K L)
+theorem ProdAdicCompletions.baseChangeIso_isFiniteAdele_iff
+    (x : ProdAdicCompletions A K) :
+  ProdAdicCompletions.IsFiniteAdele x ↔
+  ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChangeIso A K L B (1 ⊗ₜ x)) := sorry
 
-def FiniteAdeleRing.baseChange : L ⊗[K] FiniteAdeleRing A K ≃ₗ[K] FiniteAdeleRing B L := by
-  -- modulo the sorries above this should be easy
-  sorry
+theorem ProdAdicCompletions.baseChangeIso_isFiniteAdele_iff'
+    (x : ProdAdicCompletions A K) :
+    ProdAdicCompletions.IsFiniteAdele x ↔
+    ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
+      (ProdAdicCompletions.baseChangeIso A K L B (l ⊗ₜ x)) := sorry
+
+-- Make ∏_w L_w into a K-algebra in a way compatible with the L-algebra structure
+variable [Algebra K (FiniteAdeleRing B L)]
+  [IsScalarTower K L (FiniteAdeleRing B L)]
+
+noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] FiniteAdeleRing B L where
+  toFun ak := ⟨ProdAdicCompletions.baseChange A K L B ak.1,
+    (ProdAdicCompletions.baseChange_isFiniteAdele_iff A K L B ak).1 ak.2⟩
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
+  commutes' := sorry
+
+noncomputable def bar {K L AK AL : Type*} [CommRing K] [CommRing L]
+    [CommRing AK] [CommRing AL] [Algebra K AK] [Algebra K AL] [Algebra K L]
+    [Algebra L AL] [IsScalarTower K L AL]
+    (f : AK →ₐ[K] AL) : L ⊗[K] AK →ₐ[L] AL :=
+  Algebra.TensorProduct.lift foo f <| fun l ak ↦ mul_comm (foo l) (f ak)
+
+noncomputable def FiniteAdeleRing.baseChangeIso : L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L :=
+  AlgEquiv.ofBijective (bar <| FiniteAdeleRing.baseChange A K L B) sorry
 
 end DedekindDomain

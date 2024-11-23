@@ -1,6 +1,8 @@
 import Mathlib.RingTheory.OreLocalization.Ring
+#exit
 
 -- extend localization theory to algebras
+-- I should only be doing this in the commutative case
 
 /-!
 
