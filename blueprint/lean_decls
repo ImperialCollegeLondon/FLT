@@ -77,10 +77,11 @@ Bourbaki52222.algebraic
 Bourbaki52222.normal
 Bourbaki52222.separableClosure_finrank_le
 NumberField.AdeleRing.locallyCompactSpace
-DedekindDomain.FiniteAdeleRing.baseChange
 IsDedekindDomain.HeightOneSpectrum.valuation_comap
-IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom
+IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom
 DedekindDomain.ProdAdicCompletions.baseChange
+DedekindDomain.FiniteAdeleRing.baseChange
+DedekindDomain.FiniteAdeleRing.baseChangeIso
 Rat.AdeleRing.zero_discrete
 Rat.AdeleRing.discrete
 NumberField.AdeleRing.discrete
