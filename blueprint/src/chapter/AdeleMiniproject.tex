@@ -86,9 +86,10 @@ is the following.
 
 Let~$A$ be a Dedekind domain with field of fractions~$K$, and write $\mathbb{A}_{A,K}^\infty$
 for the finite adeles of $A$. Let~$L/K$ be a finite
-separable extension, and let $B$ be the integral closure of~$A$ in~$L$. Recall that
-the finite adeles $\mathbb{A}_{A,K}^\infty$ of $K$ with respect to $A$ is the restricted
-product of $K_v$
+separable extension, and let $B$ be the integral closure of~$A$ in~$L$. If $w$ is a nonzero
+prime ideal of $B$ lying under $v$, a prime ideal of $A$, then we can put the $w$-adic
+topology on $L$ and the $v$-adic topology on~$K$.
+
 
 ***************************************
 
@@ -102,12 +103,7 @@ product of $K_v$
 %  Then there's a ``canonical'' isomorphism $\mathbb{A}_{R,K}^\infty \otimes_KL\mathbb{A}_{B,L}^\infty$.
 
 If $A$ is a Dedekind domain then the \emph{height one spectrum} of $A$ is
-the nonzero prime ideals of~$A$. Note that because we stick to the literature,
-rather than to common sense, fields are Dedekind domains in mathlib, and the
-height one spectrum of a field is empty. The reason I don't like allowing fields
-to be Dedekind domain is that geometrically the standard definition of Dedekind
-domain is ``smooth affine curve, or a point''. But many theorems in algebraic geometry
-begin ``let $C$ be a smooth curve''.
+the nonzero prime ideals of~$A$.
 
 There are two steps to the definition of the map; the first is to define it locally
 on the individual completions and the second is to glue everything together. Let's
