@@ -123,16 +123,32 @@ $w$-adic topology on $L$ and the $v$-adic topology on~$K$.
   by the previous lemma.
 \end{definition}
 
-We can now take the product of all these maps, giving us a natural $K$-algebra homomorphism
-$\prod_vK_v\to\prod_wL_w$, where the products run over the height one spectrums of $A$ and $B$ respectively.
+Now say $v$ is in the height one spectrum of $A$. The map above induces a continuous
+$K$-algebra homomorphism $K_v\to\prod_{w|v}L_w$, where the product runs over the height one
+primes of $B$ which pull back to $v$.
+
+\begin{theorem}
+  \lean{TODO}
+  \label{TODO}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
+  The induced continuous $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an isomorphism.
+\end{theorem}
+\begin{proof}
+  See Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
+  {these notes}.
+\end{proof}
+
+We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
 
 \begin{definition}
   \lean{DedekindDomain.ProdAdicCompletions.baseChange}
   \label{DedekindDomain.ProdAdicCompletions.baseChange}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom}
   There's a natural $K$-algebra homomorphism $\prod_v K_v\to\prod_w L_w$, where the
-  products run over the height one spectrums of $A$ and $B$ respectively.
+  products run over the height one spectra of $A$ and $B$ respectively.
 \end{definition}
+
+Note that we make no claim about continuity.
 
 \begin{theorem} This map induces a natural continuous $K$-algebra homomorphism $\A_{A,K}^\infty\to\A_{B,L}^\infty$.
   \label{DedekindDomain.FiniteAdeleRing.baseChange}
