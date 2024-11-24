@@ -185,15 +185,28 @@ noncomputable def adicCompletionComapRingHom (w : HeightOneSpectrum B) :
     rw [mul_comm]
     exact Int.mul_le_of_le_ediv (by positivity) le_rfl
 
--- Make L_w into a K-algebra in a way compatible with the L-algebra structure
-variable [∀ w : HeightOneSpectrum B, Algebra K (adicCompletion L w)]
-  [erm : ∀ w : HeightOneSpectrum B, IsScalarTower K L (adicCompletion L w)]
+-- The below works!
+--variable (w : HeightOneSpectrum B) in
+--#synth SMul K (adicCompletion L w)
 
--- noncomputable local instance (w : HeightOneSpectrum B) :
---     Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
---   (algebraMap L (adicCompletion L w)).comp (algebraMap K L)
+-- So we need to be careful making L_w into a K-algebra
+-- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/beef.20up.20smul.20on.20completion.20to.20algebra.20instance/near/484166527
+variable (w : HeightOneSpectrum B) in
+noncomputable instance : Algebra K (adicCompletion L w) where
+  toFun k := algebraMap L (adicCompletion L w) (algebraMap K L k)
+  map_one' := by simp only [map_one]
+  map_mul' k₁ k₂ := by simp only [map_mul]
+  map_zero' := by simp only [map_zero]
+  map_add' k₁ k₂ := by simp only [map_add]
+  commutes' k lhat := mul_comm _ _
+  smul_def' k lhat := by
+    simp only [RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
+    rw [UniformSpace.Completion.smul_def] -- not sure if this is the right move
+    sorry -- surely true
 
-set_option maxSynthPendingDepth 2 in
+variable (w : HeightOneSpectrum B) in
+instance : IsScalarTower K L (adicCompletion L w) := IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
+
 variable {B L} in
 noncomputable def adicCompletionComapAlgHom (w : HeightOneSpectrum B) :
     (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K]
@@ -209,10 +222,7 @@ noncomputable def adicCompletionComapAlgHom (w : HeightOneSpectrum B) :
       rw [adicCompletionComapRingHom, UniformSpace.Completion.mapRingHom]
       rw [show (r : adicCompletion K (comap A w)) = @UniformSpace.Completion.coe' K this r from rfl]
       apply UniformSpace.Completion.extensionHom_coe
-    rw [this]
-    convert Eq.symm (IsScalarTower.algebraMap_apply K L (adicCompletion L w) r)
-    convert erm w
-    sorry
+    rw [this, ← IsScalarTower.algebraMap_apply K L]
 
 noncomputable def adicCompletionComapAlgHom' (v : HeightOneSpectrum A) :
   (HeightOneSpectrum.adicCompletion K v) →ₐ[K]
@@ -221,23 +231,14 @@ noncomputable def adicCompletionComapAlgHom' (v : HeightOneSpectrum A) :
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
-variable (v : HeightOneSpectrum A) in
-#synth Algebra K (HeightOneSpectrum.adicCompletion K v)
-#synth Algebra K L
-variable (v : HeightOneSpectrum A)
---#synth CommRing (L ⊗[K] (HeightOneSpectrum.adicCompletion K v))
-noncomputable example : CommRing (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) := by
-  convert Algebra.TensorProduct.instCommRing (R := K) (A := L) (B := (HeightOneSpectrum.adicCompletion K v))
-  ext
-
-  sorry
-
-#check Algebra.TensorProduct.instCommRing
-
 noncomputable def adicCompletionComapAlgIso (v : HeightOneSpectrum A) :
   (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃ₐ[L]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
   sorry
+
+theorem adicCompletionComapAlgIso_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
+  -- image of B ⊗[A] (integer ring at v) = (product of integer rings at w's) under above iso
+  sorry := sorry
 
 end IsDedekindDomain.HeightOneSpectrum
 
@@ -246,10 +247,6 @@ namespace DedekindDomain
 open IsDedekindDomain HeightOneSpectrum
 
 open scoped TensorProduct -- ⊗ notation for tensor product
-
--- Make L_w into a K-algebra in a way compatible with the L-algebra structure
-variable [∀ w : HeightOneSpectrum B, Algebra K (adicCompletion L w)]
-  [∀ w : HeightOneSpectrum B, IsScalarTower K L (adicCompletion L w)]
 
 -- Make ∏_w L_w into a K-algebra in a way compatible with the L-algebra structure
 variable [Algebra K (ProdAdicCompletions B L)]
@@ -269,7 +266,6 @@ def algebraMapOfAlgebra {X Y : Type*} [CommRing X] [CommRing Y] [Algebra X Y] : 
   toRingHom := algebraMap X Y
   commutes' _ := rfl
 
-#synth CommRing (L ⊗[K] ProdAdicCompletions A K)
 noncomputable def ProdAdicCompletions.baseChangeIso :
     L ⊗[K] ProdAdicCompletions A K ≃ₐ[L] ProdAdicCompletions B L :=
   AlgEquiv.ofBijective
