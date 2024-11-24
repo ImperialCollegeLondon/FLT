@@ -128,14 +128,35 @@ $K$-algebra homomorphism $K_v\to\prod_{w|v}L_w$, where the product runs over the
 primes of $B$ which pull back to $v$.
 
 \begin{theorem}
-  \lean{TODO}
-  \label{TODO}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
   The induced continuous $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an isomorphism.
 \end{theorem}
 \begin{proof}
   See Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
   {these notes}.
+\end{proof}
+
+\begin{theorem}
+  \lean{TODO}
+  \label{TODO}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
+  The isomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ induces an isomorphism
+  $B\otimes_AA_v\to \prod_{w|v}B_w$
+  for all but finitely many $v$ in the height one spectrum of $A$.
+\end{theorem}
+\begin{proof}
+  Certainly the image of the integral elements are integral. The argument in the other
+  direction is more delicate. One approach (following Cassels--Froehlich, Cassels' article
+  ``Global fields'', section 12 lemma, 61) is the following. Choose a $K$-basis
+  $\omega_1,\omega_2,\ldots,\omega_n$ for $L/K$. Then $\omega_1A\oplus\cdots\oplus\omega_nA$ and $B$ are two $A$-lattices in $L$, so they agree at almost all primes. In particular
+  $\omega_1A_v\oplus\omega_2A_v\oplus\cdots\oplus\omega_nA_v=B\otimes_AA_v$ for all but
+  finitely many primes $v$ of $A$. If we define the discriminant map~$D$ on $L/K$
+  by $D(\gamma_1,\gamma_2,\ldots,\gamma_n)=det_{i,j}(trace_{L/K}(\gamma_i\gamma_j))$
+  then it's well-known that $D(\omega_1,\omega_2,\ldots,\omega_n)$ is a $v$-adic
+  unit for all but finitely many $v$.
+
 \end{proof}
 
 We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
@@ -148,7 +169,7 @@ We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
   products run over the height one spectra of $A$ and $B$ respectively.
 \end{definition}
 
-Note that we make no claim about continuity.
+Note that we make no claim about continuity (for reasons which will become clear below).
 
 \begin{theorem} This map induces a natural continuous $K$-algebra homomorphism $\A_{A,K}^\infty\to\A_{B,L}^\infty$.
   \label{DedekindDomain.FiniteAdeleRing.baseChange}
@@ -160,14 +181,17 @@ Note that we make no claim about continuity.
   a little here.
 \end{proof}
 
-\begin{theorem} The induced map $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$ is a topological
-  isomorphism.
+\begin{theorem}
+  If we give $L\otimes_K\A_{A,K}^\infty$ the ``module topology'', coming from the fact
+  that $L\otimes_K\A_{A,K}^\infty$ is an $\A_{A,K}^\infty$-module, then the induced
+  $L$-algebra morphism
+  $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$ is a topological isomorphism.
   \label{DedekindDomain.FiniteAdeleRing.baseChangeIso}
   \lean{DedekindDomain.FiniteAdeleRing.baseChangeIso}
   \leanok
 \end{theorem}
 \begin{proof}
-  Xavier notes **TODO**
+
 \end{proof}
 
 \section{Discreteness and compactness}

@@ -49,9 +49,6 @@ example : Module.Finite A B := by
 
 /-
 In this generality there's a natural isomorphism `L ⊗[K] 𝔸_K^∞ → 𝔸_L^∞` .
-
-Update: Javier suggests p21 of
-https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf
 -/
 
 -- We start by filling in some holes in the API for finite extensions of Dedekind domains.
@@ -188,11 +185,15 @@ noncomputable def adicCompletionComapRingHom (w : HeightOneSpectrum B) :
     rw [mul_comm]
     exact Int.mul_le_of_le_ediv (by positivity) le_rfl
 
-noncomputable local instance (w : HeightOneSpectrum B) :
-    Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
-  (algebraMap L (adicCompletion L w)).comp (algebraMap K L)
+-- Make L_w into a K-algebra in a way compatible with the L-algebra structure
+variable [∀ w : HeightOneSpectrum B, Algebra K (adicCompletion L w)]
+  [erm : ∀ w : HeightOneSpectrum B, IsScalarTower K L (adicCompletion L w)]
 
+-- noncomputable local instance (w : HeightOneSpectrum B) :
+--     Algebra K (adicCompletion L w) := RingHom.toAlgebra <|
+--   (algebraMap L (adicCompletion L w)).comp (algebraMap K L)
 
+set_option maxSynthPendingDepth 2 in
 variable {B L} in
 noncomputable def adicCompletionComapAlgHom (w : HeightOneSpectrum B) :
     (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K]
@@ -209,7 +210,34 @@ noncomputable def adicCompletionComapAlgHom (w : HeightOneSpectrum B) :
       rw [show (r : adicCompletion K (comap A w)) = @UniformSpace.Completion.coe' K this r from rfl]
       apply UniformSpace.Completion.extensionHom_coe
     rw [this]
-    rfl
+    convert Eq.symm (IsScalarTower.algebraMap_apply K L (adicCompletion L w) r)
+    convert erm w
+    sorry
+
+noncomputable def adicCompletionComapAlgHom' (v : HeightOneSpectrum A) :
+  (HeightOneSpectrum.adicCompletion K v) →ₐ[K]
+    (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
+  sorry
+
+open scoped TensorProduct -- ⊗ notation for tensor product
+
+variable (v : HeightOneSpectrum A) in
+#synth Algebra K (HeightOneSpectrum.adicCompletion K v)
+#synth Algebra K L
+variable (v : HeightOneSpectrum A)
+--#synth CommRing (L ⊗[K] (HeightOneSpectrum.adicCompletion K v))
+noncomputable example : CommRing (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) := by
+  convert Algebra.TensorProduct.instCommRing (R := K) (A := L) (B := (HeightOneSpectrum.adicCompletion K v))
+  ext
+
+  sorry
+
+#check Algebra.TensorProduct.instCommRing
+
+noncomputable def adicCompletionComapAlgIso (v : HeightOneSpectrum A) :
+  (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃ₐ[L]
+    (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
+  sorry
 
 end IsDedekindDomain.HeightOneSpectrum
 
@@ -237,14 +265,15 @@ noncomputable def ProdAdicCompletions.baseChange :
   commutes' := sorry
 
 -- Do we not have this?
-def foo {X Y : Type*} [CommRing X] [CommRing Y] [Algebra X Y] : X →ₐ[X] Y where
+def algebraMapOfAlgebra {X Y : Type*} [CommRing X] [CommRing Y] [Algebra X Y] : X →ₐ[X] Y where
   toRingHom := algebraMap X Y
   commutes' _ := rfl
 
+#synth CommRing (L ⊗[K] ProdAdicCompletions A K)
 noncomputable def ProdAdicCompletions.baseChangeIso :
     L ⊗[K] ProdAdicCompletions A K ≃ₐ[L] ProdAdicCompletions B L :=
   AlgEquiv.ofBijective
-  (Algebra.TensorProduct.lift foo (ProdAdicCompletions.baseChange A K L B) sorry) sorry
+  (Algebra.TensorProduct.lift algebraMapOfAlgebra (ProdAdicCompletions.baseChange A K L B) sorry) sorry
 
 theorem ProdAdicCompletions.baseChange_isFiniteAdele_iff
     (x : ProdAdicCompletions A K) :
@@ -279,7 +308,7 @@ noncomputable def bar {K L AK AL : Type*} [CommRing K] [CommRing L]
     [CommRing AK] [CommRing AL] [Algebra K AK] [Algebra K AL] [Algebra K L]
     [Algebra L AL] [IsScalarTower K L AL]
     (f : AK →ₐ[K] AL) : L ⊗[K] AK →ₐ[L] AL :=
-  Algebra.TensorProduct.lift foo f <| fun l ak ↦ mul_comm (foo l) (f ak)
+  Algebra.TensorProduct.lift algebraMapOfAlgebra f <| fun l ak ↦ mul_comm (algebraMapOfAlgebra l) (f ak)
 
 noncomputable def FiniteAdeleRing.baseChangeIso : L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L :=
   AlgEquiv.ofBijective (bar <| FiniteAdeleRing.baseChange A K L B) sorry
