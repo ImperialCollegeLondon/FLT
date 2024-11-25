@@ -6,11 +6,7 @@ universe u
 open Function
 open scoped TensorProduct
 
-def GL_map_of_representation_of_basis {R V G ι: Type u} [CommRing R] [AddCommMonoid V] [Module R V]
-  [Module.Free R V] [Module.Finite R V] [Group G] [DecidableEq ι] [Fintype ι]
-  (ρ : Representation R G V) (𝓑 : Basis ι R V)
-  : G →* GeneralLinearGroup ι R :=
-  sorry
+
 
 section G_finite
 
