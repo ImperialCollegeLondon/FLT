@@ -19,8 +19,8 @@ import Mathlib.GroupTheory.DoubleCoset
 
 We prove a lemma which Voight (in his quaternion algebra book) attributes to Fujisaki:
 if `D` is a finite-dimensional division algebra over a number field `K`
-and if `U ⊆ (D ⊗[K] 𝔸_K^infty)ˣ` is a compact open subgroup then the double coset
-space `Dˣ \ (D ⊗ 𝔸_F^infty)ˣ / U` is finite.
+and if `U ⊆ (𝔸_K^infty ⊗[K] D)ˣ` is a compact open subgroup then the double coset
+space `Dˣ \ (𝔸_F^infty ⊗[K] D)ˣ / U` is finite.
 
 -/
 
@@ -50,8 +50,8 @@ abbrev Dfx := ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D)ˣ
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeRight.toMonoidHom
 
--- noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 K) K)ˣ →* Dfx K D :=
---   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
+noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 K) K)ˣ →* Dfx K D :=
+  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
 /-!

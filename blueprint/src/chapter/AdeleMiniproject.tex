@@ -6,130 +6,108 @@ This is an active miniproject.
 
 \section{The goal}
 
-At the time of writing, mathlib does not have a definition of the adeles of
-a number field. There are several goals to this miniproject.
+There are several goals to this miniproject.
 
-\begin{itemize}
+\begin{enumerate}
   \item Define the adeles $\A_K$ of a number field~$K$ and
-  give them the structure of a $K$-algebra;
-  \item Prove that $\A_K$ is a locally compact topological ring;
-  \item Show that if $L/K$ is a finite extension of number fields then the
-    natural map $L\otimes_K\A_K\to\A_L$ is an isomorphism;
-  \item Prove that $K \subseteq \A_K$ is a discrete subgoup and the quotient is compact.
-\end{itemize}
+    give them the structure of a $K$-algebra (status: now in mathlib thanks to
+    Salvatore Mercuri);
+  \item Prove that $\A_K$ is a locally compact topological ring (status:
+      \href{https://github.com/smmercuri/adele-ring_locally-compact}{
+      also proved by Mercuri} but not yet in mathlib);
+  \item Base change: show that if $L/K$ is a finite extension of number fields then the
+    natural map $L\otimes_K\A_K\to\A_L$ is an isomorphism; (status: not
+    formalized yet, but there is a plan -- see the project dashboard);
+  \item Prove that $K \subseteq \A_K$ is a discrete subgoup and the quotient
+    is compact (status: not formalized yet, but there is a plan -- see the project
+    dashboard);
+  \item Get this stuff into mathlib (status: (1) done, (2)--(4) not done).
+\end{enumerate}
 
 We briefly go through the basic definitions. A cheap definition of the finite
 adeles $\A_K^\infty$ of $K$ is $K\otimes_{\Z}\Zhat$, where $\Zhat$ is
 the profinite completion of the integers. A cheap definition of the infinite adeles
 $K_\infty$ of $K$ is $K\otimes_{\Q}\R$, and a cheap definition of the adeles
-of $K$ is $\A_K^\infty\times K_\infty$. However in the literature different definitions
-are often given. The finite adeles of $K$ are usually defined
+of $K$ is $\A_K^\infty\times K_\infty$.
+
+However in the literature different definitions
+are often given. The finite adeles of $K$ are usually defined in the books
 as the so-called restricted product $\prod'_{\mathfrak{p}}K_{\mathfrak{p}}$ over the completions
 $K_{\mathfrak{p}}$ of $K$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_K$ of the
 integers of $K$. Here the restricted product is the subset of $\prod_{\mathfrak{p}}K_{\mathfrak{p}}$
 consisting of elements which are in $\mathcal{O}_{K,\mathfrak{p}}$ for all but finitely many
-$\mathfrak{p}$.
-Mathlib already has the finite adeles and the proof that they're a topological ring;
-in fact the construction in mathlib works for any Dedekind domain.
+$\mathfrak{p}$. This is the definition given in mathlib.
+Mathlib also has the proof that they're a topological ring;
+furthermore the construction of the finite adeles in mathlib works for any
+Dedekind domain (this was pointed out to me by Maria Ines de Frutos Fernandez; the adeles
+are an arithmetic object, but the finite adeles are an algebraic object).
 
-Similarly the infinite adeles of a number field
+Similarly the infinite adeles of a number field~$K$
 are usually defined as $\prod_v K_v$,
-the product running over the archimedean completions of~$K$.
+the product running over the archimedean completions of~$K$, and this is
+the mathlib definition.
 
-\section{Current status}
+The adeles of a number field $K$ are the product of the finite and infinite
+adeles, and mathlib knows that they're a $K$-algebra and a topological ring.
 
-Salvatore Mercuri has made great progress with the definition of $\A_K$ and he even
-has a complete formalisation of the proof that the adele ring is locally compact. His work is in
+\section{Local compactness}
+
+As mentioned above, Salvatore Mercuri has a complete formalisation of the proof
+that the adele ring is locally compact. His work is in
 \href{https://github.com/smmercuri/adele-ring_locally-compact}{his own repo} which
 I don't want to have as a dependency of FLT, because this work should all be
-in mathlib. We quote some of it here.
-
-\section{Results about adeles of a number field that we await}
-
-Let $K$ be a number field. Right now mathlib has the finite adeles $\A_K^\infty$ of $K$,
-with its topological ring structure. It does not however have the infinite adeles $K_\infty$.
-There are PRs by Salvatore Mercuri currently
-in progress for defining this topological ring. Once we have it, the full ring of
-adeles $\A_K$ is defined as $\A_K:=\A_K^\infty\times K_\infty$; it is a topological ring
-and also a $K$-algebra. Once Mercuri's mathlib
-PR~\href{https://github.com/leanprover-community/mathlib4/pull/16485}{16485} is merged, we will have
-all this available to us; until then, we sorry the definitions and these facts.
-
-Mercuri's work isn't however enough for us; we also need several theorems about this topological
-$K$-algebra. These lemmas are essentially impossible to work on until we have the definition in
-mathlib. We state them here without proof.
-
-\begin{theorem}
-  \lean{NumberField.AdeleRing.discrete}
-  \label{NumberField.AdeleRing.discrete}
-  The additive subgroup $K$ of $\A_K$ is discrete.
-\end{theorem}
-
-\begin{theorem}
-  \lean{NumberField.AdeleRing.cocompact}
-  \label{NumberField.AdeleRing.cocompact}
-  The quotient $\A_K/K$ is compact.
-\end{theorem}
+in mathlib.
 
 \begin{theorem}
   \lean{NumberField.AdeleRing.locallyCompactSpace}
-  \label{NumberField.AdeleRing.locallyCompact}
-  The topological ring $\A_K$ is locally compact.
+  \label{NumberField.AdeleRing.locallyCompactSpace}
+  \leanok
+  The adeles of a number field are locally compact.
 \end{theorem}
+\begin{proof}
+  See \href{https://github.com/smmercuri/adele-ring_locally-compact/blob/e8e34608c139ee95a1e21d9d24f138524196a2e1/AdeleRingLocallyCompact/NumberTheory/NumberField/AdeleRing.lean#L70}
+  {this line} in Mercuri's repo.
+\end{proof}
 
-Mercuri has already proved local compactness in his repo.
-As far as I know, the other
-two theorems remain unformalised (but as I've mentioned, we cannot start on them until
-we have a definition of the adele ring in this project, and I would prefer
-that this were achieved by upstreaming Mercuri's work to mathlib).
+\section{Base change}
 
-However, there is something that we can do here even before Mercuri's work
-is upstreamed: one proof I know that of discreteness
-and cocompactness of $K$ in $\A_K$ reduces to the case $K=\Q$, using the ``canonical''
-isomorphism $\A_K\cong\A_{\Q}\otimes_{\Q}K$. This can be proved by checking it for finite
-and infinite adeles separately, so one thing which we can work on now is the finite case.
-We explain this in the next section.
-
-\section{Results about finite adeles which we can work on now}
-
-Adeles are arithmetic objects, attached to global fields like number fields.
-However (as I learnt from Maria Ines de Frutos Fernandez) finite adeles are algebraic
-objects, as they can be attached to any Dedekind domain. The ``theorem'' that we need
-is the following:
-
-\begin{theorem}
-  Let~$A$ be a Dedekind domain with field of fractions~$K$, and write $\mathbb{A}_{A,K}^\infty$
-  for the finite adeles of $A$. Let~$L/K$ be a finite
-  separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
-  Then there's a ``canonical'' isomorphism $\mathbb{A}_{R,K}^\infty \otimes_KL\mathbb{A}_{B,L}^\infty$.
-\end{theorem}
-
-Of course, this isn't a theorem; this is actually a \emph{definition} (the map) and a theorem about
+The ``theorem'' we want is that if $L/K$ is a finite extension of number fields,
+then $\A_L=L\otimes_K\A_K$. This isn't a theorem though, this is actually a \emph{definition}
+(the map between the two objects) and a theorem about
 the definition (that it's an isomorphism). Before we can prove the theorem, we need to make the
 definition.
 
-If $A$ is a Dedekind domain then the \emph{height one spectrum} of $A$ is
+Recall that the adeles $\A_K$ of a number field is a product $\A_K^\infty\times K_\infty$
+of the finite adeles and the infinite adeles. So our ``theorem'' follows immediately from
+the ``theorem''s that $\A_L^\infty=L\otimes_K\A_K^\infty$ and $L_\infty=L\otimes_KK_\infty$.
+We may thus treat the finite and infinite results separately.
+
+\subsection{Base change for finite adeles}
+
+As pointed out above, the theory of finite adeles works fine for Dedekind domains.
+So Let~$A$ be a Dedekind domain. Recall that the \emph{height one spectrum} of $A$ is
 the nonzero prime ideals of~$A$. Note that because we stick to the literature,
 rather than to common sense, fields are Dedekind domains in mathlib, and the
 height one spectrum of a field is empty. The reason I don't like allowing fields
-to be Dedekind domain is that geometrically the standard definition of Dedekind
+to be Dedekind domains is that geometrically the standard definition of Dedekind
 domain is ``smooth affine curve, or a point''. But many theorems in algebraic geometry
-begin ``let $C$ be a smooth curve''.
+begin ``let $C$ be a smooth curve'', rather than ``let $C$ be a smooth curve or a point''.
 
-There are two steps to the definition of the map; the first is to define it locally
-on the individual completions and the second is to glue everything together. Let's
-start with the local construction.
+Let $K$ be the field of fractions of $A$. If $v$ is in the height one spectrum of $A$,
+then we can put the $v$-adic topology on $A$ and on $K$, and consider the completions
+$A_v$ and $K_v$. The finite adele ring $\mathbb{A}_{A,K}^\infty$ is defined to be
+the restricted product of the $K_v$ with respect to the $A_v$, as $v$ runs over
+the height one spectrum of $A$.
 
-Say we're in the AKLB setup above, with $L/K$ a finite separable extension.
-Let $w$ be a finite place of $L$ lying above a finite place $v$ of $K$.
-We put the $w$-adic topology on $L$ and the $v$-adic topology on~$K$. We now claim
-that inclusion $i:K\to L$ is continuous with respect to these topologies. This
-claim follows from
+Now let~$L/K$ be a finite separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
+If $w$ is a nonzero prime ideal of $B$ lying under $v$, a prime ideal of $A$, then we can put the
+$w$-adic topology on $L$ and the $v$-adic topology on~$K$.
 
-\begin{lemma} If $i:K\to L$ denotes the inclusion then $e*w(i(k))=v(k)$, where
+\begin{lemma} If $i:K\to L$ denotes the inclusion then $e\times w(i(k))=v(k)$, where
   $e$ is the ramification index of $w/v$.
   \label{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \lean{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
+  \leanok
 \end{lemma}
 \begin{proof}
   \leanok
@@ -137,33 +115,180 @@ claim follows from
 \end{proof}
 
 \begin{definition}
-  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom}
-  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
   \uses{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
+  \leanok
   There's a natural continuous $K$-algebra homomorphism map $K_v\to L_w$. It is defined by completing
   the inclusion $K\to L$ at the finite places $v$ and $w$, which can be done
   by the previous lemma.
 \end{definition}
 
-Note: the formalization right now only claims that the map is a $K$-algebra homomorphism,
-not the continuity. Do we have continuous $K$-algebra maps?
+Now say $v$ is in the height one spectrum of $A$. The map above induces a continuous
+$K$-algebra homomorphism $K_v\to\prod_{w|v}L_w$, where the product runs over the height one
+primes of $B$ which pull back to $v$.
 
-We can take the product of all of these maps.
+\begin{theorem}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
+  The induced continuous $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an isomorphism.
+\end{theorem}
+\begin{proof}
+  See Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
+  {these notes}.
+\end{proof}
+
+\begin{theorem}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso_integral}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso_integral}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso}
+  The isomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ induces a topological isomorphism
+  $B\otimes_AA_v\to \prod_{w|v}B_w$
+  for all but finitely many $v$ in the height one spectrum of $A$.
+\end{theorem}
+\begin{proof}
+  Certainly the image of the integral elements are integral. The argument in the other
+  direction is more delicate. One approach (following Cassels--Froehlich, Cassels' article
+  ``Global fields'', section 12 lemma, 61) is the following. Choose a $K$-basis
+  $\omega_1,\omega_2,\ldots,\omega_n$ for $L/K$ with all $\omega_i\in A$.
+  Then $\omega_1A\oplus\cdots\oplus\omega_nA$ and
+  $B$ are two $A$-lattices in $L$, so they agree at almost all primes. In particular
+  $\omega_1A_v\oplus\omega_2A_v\oplus\cdots\oplus\omega_nA_v=B\otimes_AA_v$ for all but
+  finitely many primes $v$ of $A$. If we define the discriminant map~$D$ on $L/K$
+  by $D(\gamma_1,\gamma_2,\ldots,\gamma_n)=det_{i,j}(trace_{L/K}(\gamma_i\gamma_j))$
+  then it's well-known that $d:=D(\omega_1,\omega_2,\ldots,\omega_n)$ is nonzero (here we use
+  separability), and hence a $v$-adic unit for all but finitely many $v$. Furthermore if
+  $\gamma_i\in \prod_{w|v}B_w$ for all $i$ then $D(\gamma_1,\gamma_2,\ldots,\gamma_n)\in A_v$
+  as all of the traces are in $A_v$. Now say
+  we have an element of $\prod_{w|v}B_w$, and write it as $\sum_i b_i\omega_i$ with
+  $b_i\in K_v$. Then for each $i$ we have
+  $D(\omega_1,\omega_2,\ldots,\omega_{i-1},b,\omega_{i+1},\ldots,\omega_n)\in A_v$
+  but it is also $b_i^2d$. Because $d$ is a $v$-adic unit for almost all $v$, we
+  see that the $b_i$ must also be in $A_v$ for almost all $v$.
+\end{proof}
+
+We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
 
 \begin{definition}
   \lean{DedekindDomain.ProdAdicCompletions.baseChange}
   \label{DedekindDomain.ProdAdicCompletions.baseChange}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom}
   There's a natural $K$-algebra homomorphism $\prod_v K_v\to\prod_w L_w$, where the
-  products run over the height one spectrums of $A$ and $B$ respectively.
+  products run over the height one spectra of $A$ and $B$ respectively.
 \end{definition}
 
-One then has to check that for good primes everything works on an integral level,
+Note that we make no claim about continuity (for reasons which will become clear below).
 
-\begin{definition}
-  The map above induces a natural $K$-algebra homomorphism $\A_K^\infty\to\A_L^\infty$
-  at the level of finite adeles.
-\end{definition}
+\begin{theorem} This map induces a natural continuous $K$-algebra homomorphism
+  $\A_{A,K}^\infty\to\A_{B,L}^\infty$.
+  \label{DedekindDomain.FiniteAdeleRing.baseChange}
+  \lean{DedekindDomain.FiniteAdeleRing.baseChange}
+  \leanok
+\end{theorem}
+\begin{proof}
+  Note that the restricted product does not have the subspace topology.
+\end{proof}
 
-Note that the finite adeles do not have the subspace topology, so one has to be slightly
-careful here.
+\begin{theorem}
+  \label{DedekindDomain.FiniteAdeleRing.baseChangeIso}
+  \lean{DedekindDomain.FiniteAdeleRing.baseChangeIso}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso_integral}
+  \leanok
+  If we give $L\otimes_K\A_{A,K}^\infty$ the ``module topology'', coming from the fact
+  that $L\otimes_K\A_{A,K}^\infty$ is an $\A_{A,K}^\infty$-module, then the induced
+  $L$-algebra morphism
+  $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$ is a topological isomorphism.
+\end{theorem}
+\begin{proof}
+  Follows from theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso_integral}.
+\end{proof}
+
+\subsection{Base change for infinite adeles}
+
+Recall that if $K$ is a number field then the infinite adeles of $K$ are defined
+to be the product $\prod_{v\mid\infty} K_v$ of all the completions of $K$ at the
+infinite places.
+
+The result we need here is that if $L/K$ is a finite extension of number fields,
+then the map $K\to L$ extends to a continuous $K$-algebra map $K_\infty\to L_\infty$,
+and thus to a continuous $L$-algebra isomorphism $L\otimes_KK_\infty\to L_\infty$.
+
+\subsection{Base change for adeles}
+
+From the previous results we deduce immediately that if $L/K$ is a finite extension
+of number fields then there's a natural (topological and algebraic) isomorphism
+$L\otimes_K\A_K\to \A_L$.
+
+\section{Discreteness and compactness}
+
+We need that if $K$ is a number field then
+$K\subseteq\mathbb{A}_K$ is discrete, and the quotient (with the
+quotient topology) is compact. Here is a proposed proof.
+
+\begin{theorem}
+  \lean{Rat.AdeleRing.zero_discrete}
+  \label{Rat.AdeleRing.zero_discrete}
+  \leanok
+  There's an open subset of $\A_{\Q}$ whose intersection with $\Q$ is $\{0\}$.
+\end{theorem}
+\begin{proof}
+  Use $\prod_p{\Z_p}\otimes(-1,1)$. Any rational $q$ in this set is a $p$-adic
+  integer for all primes $p$ and hence (writing it in lowest terms as $q=n/d$)
+  satisfies $p\nmid d$, meaning that $d=\pm1$ and thus $q\in\Z$. The fact
+  that $q\in(-1,1)$ implies $q=0$.
+\end{proof}
+
+\begin{theorem}
+  \lean{Rat.AdeleRing.discrete}
+  \label{Rat.AdeleRing.discrete}
+  \leanok
+  The rationals $\Q$ are a discrete subgroup of $\A_{\Q}$.
+\end{theorem}
+\begin{proof}
+  If $q\in\Q$ and $U$ is the open subset in the previous lemma, then
+  it's easily checked that $\Q\cap U=\{0\}$ implies $\Q\cap (U+q)=\{q\}$,
+  and $U+q$ is open.
+\end{proof}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.discrete}
+  \label{NumberField.AdeleRing.discrete}
+  \leanok
+  The additive subgroup $K$ of $\A_K$ is discrete.
+\end{theorem}
+\begin{proof}
+  By a previous result, we have $\A_K=K\otimes_{\Q}\A_{\Q}$.
+  Choose a basis of $K/\Q$; then $K$ can be identified with $\Q^n\subseteq(\A_{\Q})^n$
+  and the result follows from the previous theorem.
+\end{proof}
+
+For compactness we follow the same approach.
+
+\begin{theorem}
+  \lean{Rat.AdeleRing.cocompact}
+  \label{Rat.AdeleRing.cocompact}
+  \leanok
+  The quotient $\A_{\Q}/\Q$ is compact.
+\end{theorem}
+\begin{proof}
+  The space $\prod_p\Z_p\times[0,1]\subseteq\A_{\Q}$ is a product of compact spaces
+  and is hence compact. I claim that it surjects onto $\A_{\Q}/\Q$. Indeed,
+  if $a\in\A_{\Q}$ then for the finitely many prime numbers $p\in S$ such that $a_p\not\in\Z_p$
+  we have $a_p\in\frac{r_p}{p^{n_p}}+\Z_p$ with $r_p/p^{n_p}\in\Q$, and
+  if $q=\sum_{p\in S}\frac{r_p}{p^{n_p}}\in\Q$ then $a-q\in \prod_p\Z_p\times\R$.
+  Now just subtract $\lfloor a_{\infty}-q\rfloor$ to move into $\prod_p\Z_p\times[0,1)$
+  and we are done.
+\end{proof}
+
+\begin{theorem}
+  \lean{NumberField.AdeleRing.cocompact}
+  \label{NumberField.AdeleRing.cocompact}
+  \leanok
+  The quotient $\A_K/K$ is compact.
+\end{theorem}
+\begin{proof}
+  We proceed as in the discreteness proof above, by reducing to $\Q$. As before, choosing
+  a $\Q$-basis of $K$ gives us $\A_K/K\cong(\A_{\Q}/\Q)^n$ so the result follows from
+  the previous theorem.
+\end{proof}

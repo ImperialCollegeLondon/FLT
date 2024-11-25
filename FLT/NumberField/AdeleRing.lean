@@ -1,30 +1,55 @@
-import Mathlib.NumberTheory.NumberField.AdeleRing
+import FLT.NumberField.InfiniteAdeleRing
 
 universe u
 
-section AdeleRingLocallyCompact
--- This theorem is proved in another project, so we may as well assume it.
+section LocallyCompact
 
 -- see https://github.com/smmercuri/adele-ring_locally-compact
+-- for a proof of this
 
 variable (K : Type*) [Field K] [NumberField K]
 
-instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing K) := sorry
+instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing K) :=
+  sorry
 
-end AdeleRingLocallyCompact
+end LocallyCompact
 
--- these next two theorems can't be worked on yet because we don't have an actual definition
--- of the adele ring. We can work out a strategy when we do.
+section BaseChange
 
-variable (K : Type*) [Field K] [NumberField K]
+end BaseChange
 
--- Maybe this isn't even stated in the best way?
-theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing K),
-    IsOpen U ∧ (algebraMap K (AdeleRing K)) ⁻¹' U = {k} := sorry
+-- Maybe this discreteness isn't even stated in the best way?
+-- I'm ambivalent about how it's stated
+
+section Discrete
 
 open NumberField
 
--- ditto for this one
+theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {0} := sorry
+
+theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing ℚ),
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {q} := sorry
+
+variable (K : Type*) [Field K] [NumberField K]
+
+theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing K),
+    IsOpen U ∧ (algebraMap K (AdeleRing K)) ⁻¹' U = {k} := sorry
+
+end Discrete
+
+section Compact
+
+open NumberField
+
+theorem Rat.AdeleRing.cocompact :
+    CompactSpace (AdeleRing ℚ ⧸ AddMonoidHom.range (algebraMap ℚ (AdeleRing ℚ)).toAddMonoidHom) :=
+  sorry
+
+variable (K : Type*) [Field K] [NumberField K]
+
 theorem NumberField.AdeleRing.cocompact :
     CompactSpace (AdeleRing K ⧸ AddMonoidHom.range (algebraMap K (AdeleRing K)).toAddMonoidHom) :=
   sorry
+
+end Compact
