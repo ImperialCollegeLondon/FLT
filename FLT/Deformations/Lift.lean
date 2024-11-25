@@ -156,21 +156,24 @@ abbrev SLRingRelations (ι : Type u) [Fintype ι] : Ideal (MvPolynomial (ι × �
       - ∑ᶠ (l : ι), (X (i, l, g)) * (X (l, j, h))  | (i : ι) (j : ι) (g : G) (h : G)}
   Ideal.span (rel1 ∪ rel2 ∪ rel3)
 
+-- SLRing is the ring 𝓞[G, n] given by Smit&Lenstra
 variable (𝓞 G) in
 abbrev SLRing (ι : Type u) [Fintype ι] : Type u :=
   (MvPolynomial (ι × ι × G) 𝓞) ⧸ SLRingRelations 𝓞 G ι
 
--- This is the ring 𝓞[G, n] given by Smit&Lenstra
-local notation 𝓞 "[" G ", " ι"]" => SLRing 𝓞 G ι
-local notation3 "GL(" ι ", " 𝓞 ")" => (GeneralLinearGroup ι 𝓞)
-local notation3 "Hom_g(" G ", " G' ")" => (G →* G')
+local notation3:max O "[" G' ", " α "]" => SLRing O G' α
+local notation3:max "GL(" α ", " R ")" => (GeneralLinearGroup α R)
+local notation3:max "Hom_grp(" G₁ ", " G₂ ")" => (G₁ →* G₂)
+local notation3:max "Hom_alg(" O "; " A "," A' ")" => (A →ₗ[O] A')
 
 -- Choose any basis of V, this makes ρbar into a G →* GL_ι(𝓴 A)
 variable {ι : Type u} [DecidableEq ι] [Fintype ι]
 variable (𝓫 : Basis ι (𝓴 𝓞) V)
 def pbar' := GL_map_of_representation_of_basis ρbar 𝓫
 
-theorem := sorry
+variable (A : 𝓒 𝓞)
+
+def SLMap : Hom_alg(𝓞; 𝓞[G, ι], A) ≃ Hom_grp(G, GL(ι, A)) := sorry
 
 end G_finite
 
