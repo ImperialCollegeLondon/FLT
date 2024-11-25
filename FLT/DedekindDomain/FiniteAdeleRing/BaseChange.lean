@@ -146,9 +146,10 @@ variable {B L} in
 
 /-- Say `w` is a finite place of `L` lying above `v` a finite place of `K`. Then there's a ring hom
 `K_v → L_w`. -/
-noncomputable def adicCompletionComapRingHom (w : HeightOneSpectrum B) :
-    adicCompletion K (comap A w) →+* adicCompletion L w :=
-  letI : UniformSpace K := (comap A w).adicValued.toUniformSpace;
+noncomputable def adicCompletionComapRingHom
+    (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) :
+    adicCompletion K v →+* adicCompletion L w :=
+  letI : UniformSpace K := v.adicValued.toUniformSpace;
   letI : UniformSpace L := w.adicValued.toUniformSpace;
   UniformSpace.Completion.mapRingHom (algebraMap K L) <| by
   -- question is the following:
@@ -156,6 +157,7 @@ noncomputable def adicCompletionComapRingHom (w : HeightOneSpectrum B) :
   -- and if w is a finite place of L lying above v a finite place of K,
   -- and if we give L the w-adic topology and K the v-adic topology,
   -- then the map K → L is continuous
+  subst hvw
   refine continuous_of_continuousAt_zero (algebraMap K L) ?hf
   delta ContinuousAt
   simp only [map_zero]
@@ -207,15 +209,16 @@ noncomputable instance : Algebra K (adicCompletion L w) where
 variable (w : HeightOneSpectrum B) in
 instance : IsScalarTower K L (adicCompletion L w) := IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
 
-variable {B L} in
-noncomputable def adicCompletionComapAlgHom (w : HeightOneSpectrum B) :
-    (HeightOneSpectrum.adicCompletion K (comap A w)) →ₐ[K]
+noncomputable def adicCompletionComapAlgHom
+  (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) :
+    (HeightOneSpectrum.adicCompletion K v) →ₐ[K]
     (HeightOneSpectrum.adicCompletion L w) where
-  __ := adicCompletionComapRingHom A K w
+  __ := adicCompletionComapRingHom A K v w hvw
   commutes' r := by
+    subst hvw
     simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe]
-    have : (adicCompletionComapRingHom A K w) (r : adicCompletion K (comap A w))  =
+    have : (adicCompletionComapRingHom A K _ w rfl) (r : adicCompletion K (comap A w))  =
         (algebraMap L (adicCompletion L w)) (algebraMap K L r) := by
       letI : UniformSpace L := w.adicValued.toUniformSpace
       letI : UniformSpace K := (comap A w).adicValued.toUniformSpace
@@ -224,17 +227,27 @@ noncomputable def adicCompletionComapAlgHom (w : HeightOneSpectrum B) :
       apply UniformSpace.Completion.extensionHom_coe
     rw [this, ← IsScalarTower.algebraMap_apply K L]
 
+lemma v_adicCompletionComapAlgHom
+  (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) (x) :
+    Valued.v (adicCompletionComapAlgHom A K L B v w hvw x) ^
+    (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) = Valued.v x := sorry
+
 noncomputable def adicCompletionComapAlgHom' (v : HeightOneSpectrum A) :
   (HeightOneSpectrum.adicCompletion K v) →ₐ[K]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
-  sorry --#229
+  Pi.algHom _ _ fun i ↦ adicCompletionComapAlgHom A K L B v i.1 i.2
 
 open scoped TensorProduct -- ⊗ notation for tensor product
+
+noncomputable def adicCompletionTensorComapAlgHom (v : HeightOneSpectrum A) :
+    L ⊗[K] adicCompletion K v →ₐ[L]
+      Π w : {w : HeightOneSpectrum B // v = comap A w}, adicCompletion L w.1 :=
+  Algebra.TensorProduct.lift (Algebra.ofId _ _) (adicCompletionComapAlgHom' A K L B v) fun _ _ ↦ .all _ _
 
 noncomputable def adicCompletionComapAlgIso (v : HeightOneSpectrum A) :
   (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃ₐ[L]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
-  sorry --=229
+  AlgEquiv.ofBijective (adicCompletionTensorComapAlgHom A K L B v) sorry
 
 theorem adicCompletionComapAlgIso_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
   -- image of B ⊗[A] (integer ring at v) = (product of integer rings at w's) under above iso
@@ -254,7 +267,7 @@ variable [Algebra K (ProdAdicCompletions B L)]
 
 noncomputable def ProdAdicCompletions.baseChange :
     ProdAdicCompletions A K →ₐ[K] ProdAdicCompletions B L where
-  toFun kv w := (adicCompletionComapAlgHom A K w (kv (comap A w)))
+  toFun kv w := (adicCompletionComapAlgHom A K L B _ w rfl (kv (comap A w)))
   map_one' := sorry -- #232 for this and the next few. There is probably a cleverer way to do this.
   map_mul' := sorry
   map_zero' := sorry
