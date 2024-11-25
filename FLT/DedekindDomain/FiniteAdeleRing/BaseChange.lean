@@ -202,7 +202,7 @@ noncomputable instance : Algebra K (adicCompletion L w) where
   smul_def' k lhat := by
     simp only [RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
     rw [UniformSpace.Completion.smul_def] -- not sure if this is the right move
-    sorry -- surely true
+    sorry -- surely true; issue #230
 
 variable (w : HeightOneSpectrum B) in
 instance : IsScalarTower K L (adicCompletion L w) := IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
@@ -227,18 +227,18 @@ noncomputable def adicCompletionComapAlgHom (w : HeightOneSpectrum B) :
 noncomputable def adicCompletionComapAlgHom' (v : HeightOneSpectrum A) :
   (HeightOneSpectrum.adicCompletion K v) →ₐ[K]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
-  sorry
+  sorry --#229
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
 noncomputable def adicCompletionComapAlgIso (v : HeightOneSpectrum A) :
   (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃ₐ[L]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
-  sorry
+  sorry --=229
 
 theorem adicCompletionComapAlgIso_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
   -- image of B ⊗[A] (integer ring at v) = (product of integer rings at w's) under above iso
-  sorry := sorry
+  sorry := sorry -- stated properly in #229
 
 end IsDedekindDomain.HeightOneSpectrum
 
@@ -255,21 +255,16 @@ variable [Algebra K (ProdAdicCompletions B L)]
 noncomputable def ProdAdicCompletions.baseChange :
     ProdAdicCompletions A K →ₐ[K] ProdAdicCompletions B L where
   toFun kv w := (adicCompletionComapAlgHom A K w (kv (comap A w)))
-  map_one' := sorry
+  map_one' := sorry -- #232 for this and the next few. There is probably a cleverer way to do this.
   map_mul' := sorry
   map_zero' := sorry
   map_add' := sorry
   commutes' := sorry
 
--- Do we not have this?
-def algebraMapOfAlgebra {X Y : Type*} [CommRing X] [CommRing Y] [Algebra X Y] : X →ₐ[X] Y where
-  toRingHom := algebraMap X Y
-  commutes' _ := rfl
-
 noncomputable def ProdAdicCompletions.baseChangeIso :
     L ⊗[K] ProdAdicCompletions A K ≃ₐ[L] ProdAdicCompletions B L :=
   AlgEquiv.ofBijective
-  (Algebra.TensorProduct.lift algebraMapOfAlgebra (ProdAdicCompletions.baseChange A K L B) sorry) sorry
+  (Algebra.TensorProduct.lift (Algebra.ofId _ _) (ProdAdicCompletions.baseChange A K L B) sorry) sorry
 
 theorem ProdAdicCompletions.baseChange_isFiniteAdele_iff
     (x : ProdAdicCompletions A K) :
@@ -304,7 +299,7 @@ noncomputable def bar {K L AK AL : Type*} [CommRing K] [CommRing L]
     [CommRing AK] [CommRing AL] [Algebra K AK] [Algebra K AL] [Algebra K L]
     [Algebra L AL] [IsScalarTower K L AL]
     (f : AK →ₐ[K] AL) : L ⊗[K] AK →ₐ[L] AL :=
-  Algebra.TensorProduct.lift algebraMapOfAlgebra f <| fun l ak ↦ mul_comm (algebraMapOfAlgebra l) (f ak)
+  Algebra.TensorProduct.lift (Algebra.ofId _ _) f <| fun l ak ↦ mul_comm (Algebra.ofId _ _ l) (f ak)
 
 noncomputable def FiniteAdeleRing.baseChangeIso : L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L :=
   AlgEquiv.ofBijective (bar <| FiniteAdeleRing.baseChange A K L B) sorry
