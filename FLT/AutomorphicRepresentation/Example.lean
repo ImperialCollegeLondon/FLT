@@ -895,7 +895,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
 
   use fromQuaternion ⟨x,y,z,w⟩
   rw [aux]
-  rw [NormedRing.dist_eq, ← sq_lt_one_iff (_root_.norm_nonneg _), sq,
+  rw [NormedRing.dist_eq, ← sq_lt_one_iff₀ (_root_.norm_nonneg _), sq,
     ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
 
   simp only [sub_re, sub_imI, sub_imJ, sub_imK]

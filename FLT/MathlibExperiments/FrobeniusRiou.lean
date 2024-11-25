@@ -456,8 +456,7 @@ namespace Ideal
 variable {R : Type*} [CommRing R] {I : Ideal R}
 
 protected noncomputable
-def Quotient.out (x : R ⧸ I) :=
-  Quotient.out' x
+def Quotient.out (x : R ⧸ I) := x.out
 
 theorem Quotient.out_eq (x : R ⧸ I) : Ideal.Quotient.mk I (Ideal.Quotient.out x) = x := by
   simp only [Ideal.Quotient.out, Ideal.Quotient.mk, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk,
