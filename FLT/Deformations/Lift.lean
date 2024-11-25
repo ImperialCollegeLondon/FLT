@@ -49,7 +49,13 @@ noncomputable def IsResidueAlgebra.toRingEquiv (A : CommAlgCat 𝓞) [IsLocalRin
       exact IsLocalRing.ResidueField.lift mp ko
     left_inv := sorry
     right_inv := sorry
-    map_mul' := sorry
+    map_mul' := by
+      simp [modMap]
+      intro x y
+      rw [← map_mul, eq_of_surj]
+
+
+
     map_add' := sorry
 
 variable (𝓞) in
@@ -137,12 +143,6 @@ def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
 
 end Definitions
 
-section MainTheorem -- Main theorem. Smit&Lenstra paper in "Modular Forms and FLT" book
-
-theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresentable  := sorry
-
-end MainTheorem
-
 section G_finite -- Section 3.1 Smit & Lenstra
 
 open Matrix Set MvPolynomial
@@ -173,10 +173,15 @@ def pbar' := GL_map_of_representation_of_basis ρbar 𝓫
 
 variable (A : 𝓒 𝓞)
 
-def SLMap : Hom_alg(𝓞; 𝓞[G, ι], A) ≃ Hom_grp(G, GL(ι, A)) := sorry
+def SLMap : Hom_alg(𝓞; 𝓞[G, ι], A) ≃ Hom_grp(G, GL(ι, A)) where
+  toFun f := _
+  invFun ρ := _
+  left_inv := sorry
+  right_inv := sorry
+
+theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
 
 end G_finite
-
 
 section G_profinite -- Section 3.2 Smit & Lenstra
 
