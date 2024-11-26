@@ -63,8 +63,6 @@ def comap (w : HeightOneSpectrum B) : HeightOneSpectrum A where
   isPrime := Ideal.comap_isPrime (algebraMap A B) w.asIdeal
   ne_bot := mt Ideal.eq_bot_of_comap_eq_bot w.ne_bot
 
-open scoped algebraMap
-
 lemma mk_count_factors_map
     (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) (I : Ideal A) [DecidableEq (Associates (Ideal A))]
@@ -219,22 +217,43 @@ noncomputable def adicCompletionComapAlgHom
     subst hvw
     simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe]
-    have : (adicCompletionComapRingHom A K _ w rfl) (r : adicCompletion K (comap A w))  =
+    have : (adicCompletionComapRingHom A K _ w rfl) (algebraMap _ _ r)  =
         (algebraMap L (adicCompletion L w)) (algebraMap K L r) := by
       letI : UniformSpace L := w.adicValued.toUniformSpace
       letI : UniformSpace K := (comap A w).adicValued.toUniformSpace
       rw [adicCompletionComapRingHom, UniformSpace.Completion.mapRingHom]
-      rw [show (r : adicCompletion K (comap A w)) = @UniformSpace.Completion.coe' K this r from rfl]
       apply UniformSpace.Completion.extensionHom_coe
     rw [this, ← IsScalarTower.algebraMap_apply K L]
-  cont := sorry -- #235
+  cont :=
+    letI : UniformSpace K := v.adicValued.toUniformSpace;
+    letI : UniformSpace L := w.adicValued.toUniformSpace;
+    UniformSpace.Completion.continuous_extension
+
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
+lemma adicCompletionComapAlgHom_coe
+    (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) (x : K) :
+    adicCompletionComapAlgHom A K L B v w hvw x = algebraMap K L x :=
+  (adicCompletionComapAlgHom A K L B v w hvw).commutes _
 
 -- this name is surely wrong
+open WithZeroTopology in
 lemma v_adicCompletionComapAlgHom
   (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) (x) :
-    Valued.v (adicCompletionComapAlgHom A K L B v w hvw x) ^
-    (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) = Valued.v x := sorry
-    -- #234
+    Valued.v (adicCompletionComapAlgHom A K L B v w hvw x) = Valued.v x ^
+      Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal := by
+  revert x
+  apply funext_iff.mp
+  symm
+  letI : UniformSpace K := v.adicValued.toUniformSpace
+  letI : UniformSpace L := w.adicValued.toUniformSpace
+  apply UniformSpace.Completion.ext
+  · exact Valued.continuous_valuation.pow _
+  · exact Valued.continuous_valuation.comp (adicCompletionComapAlgHom ..).cont
+  intro a
+  simp only [Valued.valuedCompletion_apply, adicCompletionComapAlgHom_coe]
+  show v.valuation a ^ _ = (w.valuation _)
+  subst hvw
+  rw [← valuation_comap A K L B w a]
 
 noncomputable def adicCompletionComapAlgHom' (v : HeightOneSpectrum A) :
   (HeightOneSpectrum.adicCompletion K v) →ₐ[K]
@@ -245,7 +264,7 @@ noncomputable def adicCompletionContinuousComapAlgHom (v : HeightOneSpectrum A) 
   (HeightOneSpectrum.adicCompletion K v) →A[K]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) where
   __ := adicCompletionComapAlgHom' A K L B v
-  cont := sorry -- #236
+  cont := continuous_pi fun w ↦ (adicCompletionComapAlgHom A K L B v _ w.2).cont
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
