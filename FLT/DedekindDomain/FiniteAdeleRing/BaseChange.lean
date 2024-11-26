@@ -193,6 +193,7 @@ noncomputable def adicCompletionComapRingHom
 
 -- So we need to be careful making L_w into a K-algebra
 -- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/beef.20up.20smul.20on.20completion.20to.20algebra.20instance/near/484166527
+-- Hopefully resolved in https://github.com/leanprover-community/mathlib4/pull/19466
 variable (w : HeightOneSpectrum B) in
 noncomputable instance : Algebra K (adicCompletion L w) where
   toFun k := algebraMap L (adicCompletion L w) (algebraMap K L k)
@@ -211,7 +212,7 @@ instance : IsScalarTower K L (adicCompletion L w) := IsScalarTower.of_algebraMap
 
 noncomputable def adicCompletionComapAlgHom
   (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) :
-    (HeightOneSpectrum.adicCompletion K v) →ₐ[K]
+    (HeightOneSpectrum.adicCompletion K v) →A[K]
     (HeightOneSpectrum.adicCompletion L w) where
   __ := adicCompletionComapRingHom A K v w hvw
   commutes' r := by
@@ -226,16 +227,25 @@ noncomputable def adicCompletionComapAlgHom
       rw [show (r : adicCompletion K (comap A w)) = @UniformSpace.Completion.coe' K this r from rfl]
       apply UniformSpace.Completion.extensionHom_coe
     rw [this, ← IsScalarTower.algebraMap_apply K L]
+  cont := sorry -- #235
 
+-- this name is surely wrong
 lemma v_adicCompletionComapAlgHom
   (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) (x) :
     Valued.v (adicCompletionComapAlgHom A K L B v w hvw x) ^
     (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) = Valued.v x := sorry
+    -- #234
 
 noncomputable def adicCompletionComapAlgHom' (v : HeightOneSpectrum A) :
   (HeightOneSpectrum.adicCompletion K v) →ₐ[K]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
   Pi.algHom _ _ fun i ↦ adicCompletionComapAlgHom A K L B v i.1 i.2
+
+noncomputable def adicCompletionContinuousComapAlgHom (v : HeightOneSpectrum A) :
+  (HeightOneSpectrum.adicCompletion K v) →A[K]
+    (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) where
+  __ := adicCompletionComapAlgHom' A K L B v
+  cont := sorry -- #236
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
@@ -244,14 +254,32 @@ noncomputable def adicCompletionTensorComapAlgHom (v : HeightOneSpectrum A) :
       Π w : {w : HeightOneSpectrum B // v = comap A w}, adicCompletion L w.1 :=
   Algebra.TensorProduct.lift (Algebra.ofId _ _) (adicCompletionComapAlgHom' A K L B v) fun _ _ ↦ .all _ _
 
-noncomputable def adicCompletionComapAlgIso (v : HeightOneSpectrum A) :
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+variable (v : HeightOneSpectrum A) in
+instance : TopologicalSpace (L ⊗[K] adicCompletion K v) := moduleTopology (adicCompletion K v) _
+
+noncomputable def adicCompletionTensorComapContinuousAlgHom (v : HeightOneSpectrum A) :
+    L ⊗[K] adicCompletion K v →A[L]
+      Π w : {w : HeightOneSpectrum B // v = comap A w}, adicCompletion L w.1 where
+  __ := adicCompletionTensorComapAlgHom A K L B v
+  cont := sorry -- #237
+
+noncomputable def adicCompletionComapAlgEquiv (v : HeightOneSpectrum A) :
   (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃ₐ[L]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
-  AlgEquiv.ofBijective (adicCompletionTensorComapAlgHom A K L B v) sorry
+  AlgEquiv.ofBijective (adicCompletionTensorComapAlgHom A K L B v) sorry --#231
 
-theorem adicCompletionComapAlgIso_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
+-- Can't state this properly because ≃[A]L doesn't exist yet -- #238
+noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A) :
+  sorry
+--  (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃A[L]
+--    (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1)
+  := sorry
+
+theorem adicCompletionComapAlgEquiv_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
   -- image of B ⊗[A] (integer ring at v) = (product of integer rings at w's) under above iso
-  sorry := sorry -- stated properly in #229
+  sorry := sorry -- stated properly in #229. Can't make progress
+  -- until actual statement is merged.
 
 end IsDedekindDomain.HeightOneSpectrum
 
@@ -268,37 +296,49 @@ variable [Algebra K (ProdAdicCompletions B L)]
 noncomputable def ProdAdicCompletions.baseChange :
     ProdAdicCompletions A K →ₐ[K] ProdAdicCompletions B L where
   toFun kv w := (adicCompletionComapAlgHom A K L B _ w rfl (kv (comap A w)))
-  map_one' := sorry -- #232 for this and the next few. There is probably a cleverer way to do this.
+  map_one' := sorry -- #232 is this and the next few sorries. There is probably a cleverer way to do this.
   map_mul' := sorry
   map_zero' := sorry
   map_add' := sorry
   commutes' := sorry
 
-noncomputable def ProdAdicCompletions.baseChangeIso :
+-- Note that this is only true because L/K is finite; in general tensor product doesn't
+-- commute with infinite products, but it does here.
+noncomputable def ProdAdicCompletions.baseChangeEquiv :
     L ⊗[K] ProdAdicCompletions A K ≃ₐ[L] ProdAdicCompletions B L :=
   AlgEquiv.ofBijective
-  (Algebra.TensorProduct.lift (Algebra.ofId _ _) (ProdAdicCompletions.baseChange A K L B) sorry) sorry
+  (Algebra.TensorProduct.lift (Algebra.ofId _ _)
+  (ProdAdicCompletions.baseChange A K L B) fun _ _ ↦ mul_comm _ _) sorry -- #239
 
+-- I am unclear about whether these next two sorries are in the right order.
+-- One direction of `baseChange_isFiniteAdele_iff` below (->) is easy, but perhaps the other way
+-- should be deduced from the result after this one. See #240.
+-- (`ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff`).
 theorem ProdAdicCompletions.baseChange_isFiniteAdele_iff
     (x : ProdAdicCompletions A K) :
-  ProdAdicCompletions.IsFiniteAdele x ↔
-  ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChange A K L B x) := sorry
+    ProdAdicCompletions.IsFiniteAdele x ↔
+    ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChange A K L B x) := sorry --#240
 
-theorem ProdAdicCompletions.baseChangeIso_isFiniteAdele_iff
+-- This theorem and the one before are probably equivalent, I'm not sure which one to prove first.
+-- See #240
+theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff
     (x : ProdAdicCompletions A K) :
-  ProdAdicCompletions.IsFiniteAdele x ↔
-  ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChangeIso A K L B (1 ⊗ₜ x)) := sorry
+    ProdAdicCompletions.IsFiniteAdele x ↔
+    ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChangeEquiv A K L B (1 ⊗ₜ x)) :=
+  sorry -- #240
 
-theorem ProdAdicCompletions.baseChangeIso_isFiniteAdele_iff'
+-- Easy consequence of the previous result
+theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff'
     (x : ProdAdicCompletions A K) :
     ProdAdicCompletions.IsFiniteAdele x ↔
     ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
-      (ProdAdicCompletions.baseChangeIso A K L B (l ⊗ₜ x)) := sorry
+      (ProdAdicCompletions.baseChangeEquiv A K L B (l ⊗ₜ x)) := sorry -- #241
 
 -- Make ∏_w L_w into a K-algebra in a way compatible with the L-algebra structure
 variable [Algebra K (FiniteAdeleRing B L)]
   [IsScalarTower K L (FiniteAdeleRing B L)]
 
+-- Restriction of an algebra map is an algebra map; these should be easy. #242
 noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] FiniteAdeleRing B L where
   toFun ak := ⟨ProdAdicCompletions.baseChange A K L B ak.1,
     (ProdAdicCompletions.baseChange_isFiniteAdele_iff A K L B ak).1 ak.2⟩
@@ -308,13 +348,16 @@ noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] Fin
   map_add' := sorry
   commutes' := sorry
 
+-- Presumably we have this?
 noncomputable def bar {K L AK AL : Type*} [CommRing K] [CommRing L]
     [CommRing AK] [CommRing AL] [Algebra K AK] [Algebra K AL] [Algebra K L]
     [Algebra L AL] [IsScalarTower K L AL]
     (f : AK →ₐ[K] AL) : L ⊗[K] AK →ₐ[L] AL :=
   Algebra.TensorProduct.lift (Algebra.ofId _ _) f <| fun l ak ↦ mul_comm (Algebra.ofId _ _ l) (f ak)
 
-noncomputable def FiniteAdeleRing.baseChangeIso : L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L :=
-  AlgEquiv.ofBijective (bar <| FiniteAdeleRing.baseChange A K L B) sorry
+-- Follows from the above. Should be a continuous L-alg equiv but we don't have continuous
+-- alg equivs yet so can't even state it properly.
+noncomputable def FiniteAdeleRing.baseChangeEquiv : L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L :=
+  AlgEquiv.ofBijective (bar <| FiniteAdeleRing.baseChange A K L B) sorry -- #243
 
 end DedekindDomain

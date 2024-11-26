@@ -129,8 +129,8 @@ $K$-algebra homomorphism $K_v\to\prod_{w|v}L_w$, where the product runs over the
 primes of $B$ which pull back to $v$.
 
 \begin{theorem}
-  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso}
-  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
   The induced continuous $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an isomorphism.
 \end{theorem}
@@ -140,9 +140,9 @@ primes of $B$ which pull back to $v$.
 \end{proof}
 
 \begin{theorem}
-  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso_integral}
-  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso_integral}
-  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   The isomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ induces a topological isomorphism
   $B\otimes_AA_v\to \prod_{w|v}B_w$
   for all but finitely many $v$ in the height one spectrum of $A$.
@@ -191,9 +191,9 @@ Note that we make no claim about continuity (for reasons which will become clear
 \end{proof}
 
 \begin{theorem}
-  \label{DedekindDomain.FiniteAdeleRing.baseChangeIso}
-  \lean{DedekindDomain.FiniteAdeleRing.baseChangeIso}
-  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso_integral}
+  \label{DedekindDomain.FiniteAdeleRing.baseChangeEquiv}
+  \lean{DedekindDomain.FiniteAdeleRing.baseChangeEquiv}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
   \leanok
   If we give $L\otimes_K\A_{A,K}^\infty$ the ``module topology'', coming from the fact
   that $L\otimes_K\A_{A,K}^\infty$ is an $\A_{A,K}^\infty$-module, then the induced
@@ -201,7 +201,7 @@ Note that we make no claim about continuity (for reasons which will become clear
   $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$ is a topological isomorphism.
 \end{theorem}
 \begin{proof}
-  Follows from theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgIso_integral}.
+  Follows from theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
 \end{proof}
 
 \subsection{Base change for infinite adeles}
