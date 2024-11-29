@@ -52,10 +52,8 @@ noncomputable def IsResidueAlgebra.toRingEquiv (A : CommAlgCat 𝓞) [IsLocalRin
     map_mul' := by
       simp [modMap]
       intro x y
-      rw [← map_mul, eq_of_surj]
-
-
-
+      rw [← map_mul]
+      sorry
     map_add' := sorry
 
 variable (𝓞) in
