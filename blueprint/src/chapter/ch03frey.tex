@@ -10,7 +10,7 @@ this we sketch proofs of the two main results of this chapter: firstly that the 
 We give an overview of the results we need, citing the literature for proofs. Everything here is
  standard, and most of it dates back to the 1970s or before.
 
-\begin{theorem}\label{EllipticCurve.n_torsion_card}\lean{EllipticCurve.n_torsion_card}\notready
+\begin{theorem}\label{WeierstrassCurve.n_torsion_card}\lean{WeierstrassCurve.n_torsion_card}\notready
   Let $n$ be a positive integer, let $F$ be a separably closed
   field with $n$ nonzero in $F$, and let $E$ be an elliptic curve over $F$. Then the $n$-torsion $E(K)[n]$
   in the $F$-points of $E$ is a finite group of size $n^2$.
@@ -29,14 +29,14 @@ purely group-theoretic result:
   with $a_i\mid a_{i+1}$ (this is possible by the structure theorem for finite abelian groups), and then to apply our hypothesis firstly with $d=a_1$ to deduce $t=r$ and then with $d=a_t$ to deduce $a_1=a_t$.
 \end{proof}
 
-\begin{corollary}\label{Elliptic_curve_n_torsion_2d}\lean{EllipticCurve.n_torsion_dimension}
+\begin{corollary}\label{Elliptic_curve_n_torsion_2d}\lean{WeierstrassCurve.n_torsion_dimension}
   Let $n$ be a positive integer, let $F$ be a separably closed
   field with $n$ nonzero in $F$, and let $E$ be an elliptic curve over $F$. Then the $n$-torsion $E(F)[n]$
   in the $F$-points of $E$ is a finite group isomorphic to $(\Z/n\Z)^2$.
 \end{corollary}
-\begin{proof}\uses{group_theory_lemma,EllipticCurve.n_torsion_card}
+\begin{proof}\uses{group_theory_lemma,WeierstrassCurve.n_torsion_card}
   This follows from the previous group-theoretic lemma~\ref{group_theory_lemma} and
-  theorem~\ref{EllipticCurve.n_torsion_card}.
+  theorem~\ref{WeierstrassCurve.n_torsion_card}.
 \end{proof}
 
 We saw in section~\ref{twopointfour} that if $E$ is an elliptic curve over a field $k$ and if $k^{\sep}$ is a separable closure of~$k$, then the group $\Gal(k^{\sep}/k)$ acts on $E(k^{\sep})[n]$. Now let $n$ be a positive integer which is nonzero in $k$. We have just seen that $E(k^{\sep})[n]$ is isomorphic to $(\Z/n\Z)^2$, and it inherits an action of $\Gal(k^{\sep}/k)$. If we fix an isomorphism $E(k^{\sep})[n]\cong(\Z/n\Z)^2$ then we get a representation $\Gal(k^{\sep}/k)\to\GL_2(\Z/n\Z)$. A fundamental fact about this Galois representation is that its determinant is the cyclotomic character.
