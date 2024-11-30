@@ -96,7 +96,7 @@ jobs:
             echo "The 'docs' folder exists in the repository."
             echo "DOCS_EXISTS=true" >> $GITHUB_ENV
           else
-            echo "The 'DOCS' folder does not exist in the repository."
+            echo "The 'docs' folder does not exist in the repository."
             echo "DOCS_EXISTS=false" >> $GITHUB_ENV
           fi
 
