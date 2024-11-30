@@ -205,23 +205,30 @@ upon a Frey package guarantee that the running hypotheses in
 Section 4.1 of [Serre] all hold. We put the curve into the form where the
 equation is semistable at 2, rather than the usual `Y^2=X(X-a^p)(X+b^p)` form.
 The change of variables is `X=4x` and `Y=8y+4x`, and then divide through by 64. -/
-def FreyCurve (P : FreyPackage) : EllipticCurve ℚ := {
-    a₁ := 1
-    -- a₂ is (or should be) an integer because of the congruences assumed e.g. P.ha4
-    a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
-    a₃ := 0
-    a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this should also be an integer
-    a₆ := 0
-    Δ' := Units.mk0 ((P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8) <| by
-      field_simp
-      norm_cast
-      simp_rw [← mul_pow]
-      refine pow_ne_zero 2 <| pow_ne_zero P.p <| (mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0)
-    coe_Δ' := by
-      simp only [Units.val_mk0, ← Int.cast_pow P.c, ← P.hFLT]
-      field_simp [EllipticCurve.Δ', WeierstrassCurve.Δ, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
-        WeierstrassCurve.b₆, WeierstrassCurve.b₈]
-      ring }
+def FreyCurve (P : FreyPackage) : WeierstrassCurve ℚ where
+  a₁ := 1
+  -- a₂ is (or should be) an integer because of the congruences assumed e.g. P.ha4
+  a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
+  a₃ := 0
+  a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this should also be an integer
+  a₆ := 0
+
+lemma FreyCurve.Δ (P : FreyPackage) : P.FreyCurve.Δ = (P.a*P.b*P.c)^(2*P.p) / 2 ^ 8 := by
+  trans (P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8
+  · field_simp
+    norm_cast
+    simp [← P.hFLT, WeierstrassCurve.Δ, FreyCurve, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
+      WeierstrassCurve.b₆, WeierstrassCurve.b₈]
+    ring
+  · simp [← mul_pow, ← pow_mul, mul_comm 2]
+
+instance (P : FreyPackage) : WeierstrassCurve.IsElliptic (FreyCurve P) where
+  isUnit := by
+    rw [FreyCurve.Δ, isUnit_iff_ne_zero]
+    apply div_ne_zero
+    · norm_cast
+      exact pow_ne_zero _ <| mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0
+    · norm_num
 
 lemma FreyCurve.b₂ (P : FreyPackage) :
     P.FreyCurve.b₂ = P.b ^ P.p - P.a ^ P.p := by
@@ -246,12 +253,11 @@ lemma FreyCurve.c₄' (P : FreyPackage) :
 
 lemma FreyCurve.Δ'inv (P : FreyPackage) :
     (↑(P.FreyCurve.Δ'⁻¹) : ℚ) = 2 ^ 8 / (P.a*P.b*P.c)^(2*P.p) := by
-  simp [FreyCurve]
-  ring
+  simp [FreyCurve.Δ]
 
 lemma FreyCurve.j (P : FreyPackage) :
     P.FreyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 /(P.a*P.b*P.c)^(2*P.p) := by
-  rw [mul_div_right_comm, EllipticCurve.j, FreyCurve.Δ'inv, FreyCurve.c₄']
+  rw [mul_div_right_comm, WeierstrassCurve.j, FreyCurve.Δ'inv, FreyCurve.c₄']
 
 private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := by
   rify

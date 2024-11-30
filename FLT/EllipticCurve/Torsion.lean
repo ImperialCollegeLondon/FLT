@@ -20,11 +20,11 @@ could talk to David first. Note that he has already made substantial progress.
 
 universe u
 
-variable {k : Type u} [Field k] (E : EllipticCurve k)
+variable {k : Type u} [Field k] (E : WeierstrassCurve k) [E.IsElliptic]
 
 open WeierstrassCurve WeierstrassCurve.Affine
 
-abbrev EllipticCurve.n_torsion (n : ℕ) : Type u := Submodule.torsionBy ℤ (E.toWeierstrassCurve ⟮k⟯) n
+abbrev WeierstrassCurve.n_torsion (n : ℕ) : Type u := Submodule.torsionBy ℤ (E ⟮k⟯) n
 
 --variable (n : ℕ) in
 --#synth AddCommGroup (E.n_torsion n)
@@ -38,11 +38,11 @@ instance (n : ℕ) : Module (ZMod n) (E.n_torsion n) := sorry -- shouldn't be to
 
 -- This theorem needs e.g. a theory of division polynomials. It's ongoing work of David Angdinata.
 -- Please do not work on it without talking to KB and David first.
-theorem EllipticCurve.n_torsion_finite {n : ℕ} (hn : 0 < n) : Finite (E.n_torsion n) := sorry
+theorem WeierstrassCurve.n_torsion_finite {n : ℕ} (hn : 0 < n) : Finite (E.n_torsion n) := sorry
 
 -- This theorem needs e.g. a theory of division polynomials. It's ongoing work of David Angdinata.
 -- Please do not work on it without talking to KB and David first.
-theorem EllipticCurve.n_torsion_card [IsSepClosed k] {n : ℕ} (hn : (n : k) ≠ 0) :
+theorem WeierstrassCurve.n_torsion_card [IsSepClosed k] {n : ℕ} (hn : (n : k) ≠ 0) :
     Nat.card (E.n_torsion n) = n^2 := sorry
 
 set_option autoImplicit true in -- TODO: fix statement
@@ -53,27 +53,27 @@ theorem group_theory_lemma {A : Type*} [AddCommGroup A] {n : ℕ} (hn : 0 < n) (
 -- I only need this if n is prime but there's no harm thinking about it in general I guess.
 -- It follows from the previous theorem using pure group theory (possibly including the
 -- structure theorem for finite abelian groups)
-theorem EllipticCurve.n_torsion_dimension [IsSepClosed k] {n : ℕ} (hn : (n : k) ≠ 0) :
+theorem WeierstrassCurve.n_torsion_dimension [IsSepClosed k] {n : ℕ} (hn : (n : k) ≠ 0) :
     ∃ φ : E.n_torsion n ≃+ (ZMod n) × (ZMod n), True := sorry
 
 -- This should be a straightforward but perhaps long unravelling of the definition
 /-- The map on points for an elliptic curve over `k` induced by a morphism of `k`-algebras
 is a group homomorphism. -/
-def EllipticCurve.Points.map {K L : Type u} [Field K] [Field L] [Algebra k K] [Algebra k L]
-    (f : K →ₐ[k] L) : E.toWeierstrassCurve ⟮K⟯ →+ E.toWeierstrassCurve ⟮L⟯ := sorry
+def WeierstrassCurve.Points.map {K L : Type u} [Field K] [Field L] [Algebra k K] [Algebra k L]
+    (f : K →ₐ[k] L) : E ⟮K⟯ →+ E ⟮L⟯ := sorry
 
-lemma EllipticCurve.Points.map_id (K : Type u) [Field K] [Algebra k K] :
-    EllipticCurve.Points.map E (AlgHom.id k K) = AddMonoidHom.id _ := sorry
+lemma WeierstrassCurve.Points.map_id (K : Type u) [Field K] [Algebra k K] :
+    WeierstrassCurve.Points.map E (AlgHom.id k K) = AddMonoidHom.id _ := sorry
 
-lemma EllipticCurve.Points.map_comp (K L M : Type u) [Field K] [Field L] [Field M]
+lemma WeierstrassCurve.Points.map_comp (K L M : Type u) [Field K] [Field L] [Field M]
     [Algebra k K] [Algebra k L] [Algebra k M] (f : K →ₐ[k] L) (g : L →ₐ[k] M) :
-    (EllipticCurve.Points.map E g).comp (EllipticCurve.Points.map E f) =
-    EllipticCurve.Points.map E (g.comp f) := sorry
+    (WeierstrassCurve.Points.map E g).comp (WeierstrassCurve.Points.map E f) =
+    WeierstrassCurve.Points.map E (g.comp f) := sorry
 
 /-- The Galois action on the points of an elliptic curve. -/
-def EllipticCurve.galoisRepresentation (K : Type u) [Field K] [Algebra k K] :
-    DistribMulAction (K ≃ₐ[k] K) (E.toWeierstrassCurve ⟮K⟯) := sorry
+def WeierstrassCurve.galoisRepresentation (K : Type u) [Field K] [Algebra k K] :
+    DistribMulAction (K ≃ₐ[k] K) (E ⟮K⟯) := sorry
 
 /-- The Galois action on the n-torsion points of an elliptic curve. -/
-def EllipticCurve.torsionGaloisRepresentation (n : ℕ) (K : Type u) [Field K] [Algebra k K] :
+def WeierstrassCurve.torsionGaloisRepresentation (n : ℕ) (K : Type u) [Field K] [Algebra k K] :
     Representation (ZMod n) (K ≃ₐ[k] K) (E.n_torsion n) := sorry
