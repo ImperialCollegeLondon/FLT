@@ -1,7 +1,29 @@
+name: Compile blueprint
+
 on:
   push:
     branches:
       - main
+    paths:
+      - '**/*.lean'
+      - '**/blueprint.yml'
+      - 'blueprint/**'
+      - 'docs/**'
+      - 'lean-toolchain'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**/*.lean'
+      - '**/blueprint.yml'
+      - 'blueprint/**'
+      - 'docs/**'
+      - 'lean-toolchain'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+  workflow_dispatch: # Allow manual triggering of the workflow from the GitHub Actions interface
 
 # Cancel previous runs if a new commit is pushed to the same PR or branch
 concurrency:
@@ -13,6 +35,8 @@ permissions:
   contents: read          # Read access to repository contents
   pages: write            # Write access to GitHub Pages
   id-token: write         # Write access to ID tokens
+  issues: write           # Write access to issues
+  pull-requests: write    # Write access to pull requests
 
 jobs:
   style_lint:
@@ -36,18 +60,18 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Fetch all history for all branches and tags
 
       - name: Install elan
-        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
 
-      - name: Get cache
+      - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
 
       - name: Build project
         run: ~/.elan/bin/lake build FLT
 
-      - name: Cache mathlib docs
+      - name: Cache Mathlib docs
         uses: actions/cache@v4
         with:
           path: |
@@ -62,14 +86,26 @@ jobs:
           restore-keys: |
             MathlibDoc-
 
-      - name: Build documentation
+      - name: Build project API documentation
         run: ~/.elan/bin/lake -R -Kenv=dev build FLT:docs
 
-      - name: Build blueprint
+      - name: Check for `docs` folder # this is meant to detect a Jekyll-based website
+        id: check_docs
+        run: |
+          if [ -d docs ]; then
+            echo "The 'docs' folder exists in the repository."
+            echo "DOCS_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "The 'docs' folder does not exist in the repository."
+            echo "DOCS_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Build blueprint and copy to `docs/blueprint`
         uses: xu-cheng/texlive-action@v2
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
+            # Install necessary dependencies and build the blueprint
             apk update
             apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
             git config --global --add safe.directory $GITHUB_WORKSPACE
@@ -85,37 +121,33 @@ jobs:
             leanblueprint web
             cp -r blueprint/web docs/blueprint
 
-      - name: Check declarations
+      - name: Check declarations mentioned in the blueprint exist in Lean code
         run: |
             ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
-      - name: Move documentation to `docs/docs`
-        run: |
-          sudo chown -R runner docs
-          cp -r .lake/build/doc docs/docs
+      - name: Copy API documentation to `docs/docs`
+        run: cp -r .lake/build/doc docs/docs
 
       - name: Bundle dependencies
+        if: github.event_name == 'push'
         uses: ruby/setup-ruby@v1
         with:
           working-directory: docs
-          ruby-version: "3.0" # Not needed with a .ruby-version file
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          ruby-version: "3.0"  # Specify Ruby version
+          bundler-cache: true  # Enable caching for bundler
 
-      - name: Bundle website
+      - name: Build website using Jekyll
+        if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
         working-directory: docs
-        env:
-          JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: JEKYLL_ENV=production bundle exec jekyll build
+        run: JEKYLL_ENV=production bundle exec jekyll build  # Note this will also copy the blueprint and API doc into docs/_site
 
-      - name: Upload docs & blueprint artifact
+      - name: "Upload website (API documentation, blueprint and any home page)"
+        if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/_site
+          path: ${{ env.DOCS_EXISTS == 'true' && 'docs/_site' || 'docs/' }}
 
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push'
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Make sure the cache works
-        run: |
-          mv docs/docs .lake/build/doc
