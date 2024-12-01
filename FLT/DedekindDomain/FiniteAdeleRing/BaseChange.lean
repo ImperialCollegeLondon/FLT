@@ -277,11 +277,22 @@ attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 variable (v : HeightOneSpectrum A) in
 instance : TopologicalSpace (L ⊗[K] adicCompletion K v) := moduleTopology (adicCompletion K v) _
 
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+variable (v : HeightOneSpectrum A) in
+instance : IsModuleTopology (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
+  ⟨rfl⟩
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 noncomputable def adicCompletionTensorComapContinuousAlgHom (v : HeightOneSpectrum A) :
     L ⊗[K] adicCompletion K v →A[L]
       Π w : {w : HeightOneSpectrum B // v = comap A w}, adicCompletion L w.1 where
   __ := adicCompletionTensorComapAlgHom A K L B v
-  cont := sorry -- #237
+  cont := by
+    apply IsModuleTopology.continuous_of_ringHom (R := adicCompletion K v)
+    show Continuous (RingHom.comp _ (Algebra.TensorProduct.includeRight.toRingHom))
+    convert (adicCompletionContinuousComapAlgHom A K L B v).cont using 1
+    ext
+    simp [adicCompletionTensorComapAlgHom, adicCompletionContinuousComapAlgHom]
 
 noncomputable def adicCompletionComapAlgEquiv (v : HeightOneSpectrum A) :
   (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃ₐ[L]
