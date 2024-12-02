@@ -94,8 +94,20 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
 
 -- Maybe this discreteness isn't even stated in the best way?
 -- I'm ambivalent about how it's stated
+open Pointwise in
 theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing ℚ),
-    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {q} := sorry -- issue #256
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {q} := by
+  obtain ⟨V, hV, hV0⟩ := zero_discrete
+  intro q
+  set ι  := algebraMap ℚ (AdeleRing ℚ)    with hι
+  set qₐ := ι q                           with hqₐ
+  set f  := Homeomorph.subLeft qₐ         with hf
+  use f ⁻¹' V, f.isOpen_preimage.mpr hV
+  have : f ∘ ι = ι ∘ Homeomorph.subLeft q := by ext; simp [hf, hqₐ]
+  rw [← Set.preimage_comp, this, Set.preimage_comp, hV0]
+  ext
+  simp only [Set.mem_preimage, Homeomorph.subLeft_apply, Set.mem_singleton_iff, sub_eq_zero, eq_comm]
+
 
 variable (K : Type*) [Field K] [NumberField K]
 
