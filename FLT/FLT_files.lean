@@ -7,6 +7,7 @@ import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
 import FLT.ForMathlib.ActionTopology
 import FLT.ForMathlib.Algebra
+import FLT.ForMathlib.DomMulActMeasure
 import FLT.ForMathlib.MiscLemmas
 import FLT.FromMathlib.Algebra
 import FLT.GaloisRepresentation.Cyclotomic
@@ -14,8 +15,7 @@ import FLT.GaloisRepresentation.HardlyRamified
 import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat
-import FLT.HaarMeasure.Map
-import FLT.HaarMeasure.ModularCharacter
+import FLT.HaarMeasure.DistribHaarChar
 import FLT.Hard.Results
 import FLT.HIMExperiments.flatness
 import FLT.MathlibExperiments.Coalgebra.Monoid
