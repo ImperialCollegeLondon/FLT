@@ -337,11 +337,6 @@ theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
       (adicCompletionTensorComapAlgHom A K L B v).map_add]
     exact add_mem hx hy
 
-theorem adicCompletionComapAlgIso_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
-    AlgHom.range (((adicCompletionTensorComapAlgHom A K L B v).restrictScalars B).comp
-      (tensorAdicCompletionIntegersTo A K L B v)) =
-      Subalgebra.pi Set.univ (fun _ ↦ adicCompletionIntegersSubalgebra _ _) := sorry
-
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 variable (v : HeightOneSpectrum A) in
 instance : TopologicalSpace (L ⊗[K] adicCompletion K v) := moduleTopology (adicCompletion K v) _
@@ -376,9 +371,9 @@ noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A
   := sorry
 
 theorem adicCompletionComapAlgEquiv_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
-  -- image of B ⊗[A] (integer ring at v) = (product of integer rings at w's) under above iso
-  sorry := sorry -- stated properly in #229. Can't make progress
-  -- until actual statement is merged.
+  AlgHom.range (((adicCompletionTensorComapAlgHom A K L B v).restrictScalars B).comp
+      (tensorAdicCompletionIntegersTo A K L B v)) =
+      Subalgebra.pi Set.univ (fun _ ↦ adicCompletionIntegersSubalgebra _ _) := sorry
 
 end IsDedekindDomain.HeightOneSpectrum
 
