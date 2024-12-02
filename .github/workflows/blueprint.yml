@@ -75,11 +75,21 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
+            .lake/build/doc/Aesop
+            .lake/build/doc/Batteries
+            .lake/build/doc/Cli
+            .lake/build/doc/DocGen4
+            .lake/build/doc/ImportGraph
             .lake/build/doc/Init
             .lake/build/doc/Lake
             .lake/build/doc/Lean
-            .lake/build/doc/Std
+            .lake/build/doc/LeanSearchClient
             .lake/build/doc/Mathlib
+            .lake/build/doc/Plausible
+            .lake/build/doc/ProofWidgets
+            .lake/build/doc/Qq
+            .lake/build/doc/Std
+            .lake/build/doc/UnicodeBasic
             .lake/build/doc/declarations
             !.lake/build/doc/declarations/declaration-data-FLT*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
