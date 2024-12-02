@@ -122,7 +122,10 @@ noncomputable instance instMonoid : Monoid (LinearPoint R A L) where
   one_mul := one_mul'
   mul_one := mul_one'
 
-attribute [deprecated] mul_assoc' mul_one' one_mul' mul_repr'
+attribute [deprecated mul_assoc (since := "2024-03-10")] mul_assoc'
+attribute [deprecated mul_one (since := "2024-03-10")] mul_one'
+attribute [deprecated one_mul (since := "2024-03-10")] one_mul'
+attribute [deprecated mul_repr (since := "2024-03-10")] mul_repr'
 
 end LinearPoint
 
@@ -200,7 +203,9 @@ noncomputable instance instMonoid : Monoid (AlgHomPoint R A L) where
   one_mul := one_mul'
   mul_one := mul_one'
 
-attribute [deprecated] mul_assoc' mul_one' one_mul'
+attribute [deprecated mul_assoc (since := "2024-03-10")] mul_assoc'
+attribute [deprecated mul_one (since := "2024-03-10")] mul_one'
+attribute [deprecated one_mul (since := "2024-03-10")] one_mul'
 
 section commutative_bialgebra
 

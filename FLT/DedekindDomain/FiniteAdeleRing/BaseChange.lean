@@ -236,6 +236,7 @@ lemma adicCompletionComapAlgHom_coe
   (adicCompletionComapAlgHom A K L B v w hvw).commutes _
 
 -- this name is surely wrong
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
 open WithZeroTopology in
 lemma v_adicCompletionComapAlgHom
   (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) (x) :

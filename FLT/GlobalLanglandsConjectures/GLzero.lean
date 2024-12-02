@@ -62,7 +62,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
       loc_cst := by
         rw [IsLocallyConstant]
         aesop
-      smooth := by simp [smooth_const]
+      smooth := by simp [contMDiff_const]
     }
     is_periodic := by simp
     is_slowly_increasing := by

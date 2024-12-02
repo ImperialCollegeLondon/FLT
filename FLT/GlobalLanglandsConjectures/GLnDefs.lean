@@ -80,7 +80,7 @@ open scoped nonZeroDivisors
 noncomputable instance foobar37 : Algebra R (FiniteAdeleRing R K) :=
   RingHom.toAlgebra ((algebraMap K (FiniteAdeleRing R K)).comp (algebraMap R K))
 
-@[deprecated mul_nonZeroDivisor_mem_finiteIntegralAdeles]
+@[deprecated mul_nonZeroDivisor_mem_finiteIntegralAdeles (since := "2024-08-11")]
 lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
     ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
   exact mul_nonZeroDivisor_mem_finiteIntegralAdeles a

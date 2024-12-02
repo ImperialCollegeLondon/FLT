@@ -323,7 +323,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
     · apply @Continuous.prodMap _ _ _ _ (_) (_) (_) (_) <;>
       · rw [continuous_iff_coinduced_le, isActionTopology R A]; rfl
     · rw [← isActionTopology R A]
-      exact coinduced_prod_eq_prod_coinduced φ φ hφ hφ
+      exact coinduced_prod_eq_prod_coinduced (X := A) (Y := A) (S := B) (T := B) φ φ hφ hφ
 
 end surjection
 
