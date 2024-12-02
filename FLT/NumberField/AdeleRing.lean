@@ -61,6 +61,11 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
         -- h2 says that no prime divides the denominator of x
         -- so x is an integer
         -- and the goal is that there exists an integer `y` such that `y = x`.
+        suffices ∀ p : ℕ, p.Prime → ¬(p ∣ x.den) by
+          use x.num
+          rw [← den_eq_one_iff]
+          contrapose! this
+          exact ⟨x.den.minFac, Nat.minFac_prime this, Nat.minFac_dvd _⟩
         sorry -- issue #254
       obtain ⟨y, rfl⟩ := intx
       simp only [abs_lt] at h1
