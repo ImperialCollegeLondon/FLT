@@ -302,7 +302,7 @@ noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
     ((Algebra.TensorProduct.includeRight.restrictScalars A).comp (IsScalarTower.toAlgHom _ _ _))
     (fun _ _ ↦ .all _ _)
 
-set_option linter.deprecated false in
+set_option linter.deprecated false in -- `map_zero` and `map_add` time-outs
 theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
     (v : HeightOneSpectrum A) :
     AlgHom.range (((adicCompletionTensorComapAlgHom A K L B v).restrictScalars B).comp
