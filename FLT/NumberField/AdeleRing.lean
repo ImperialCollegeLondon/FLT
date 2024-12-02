@@ -10,7 +10,7 @@ section LocallyCompact
 variable (K : Type*) [Field K] [NumberField K]
 
 instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing K) :=
-  sorry
+  sorry -- issue #253
 
 end LocallyCompact
 
@@ -25,7 +25,7 @@ open NumberField DedekindDomain
 
 -- mathlib PR #19644
 lemma Rat.norm_infinitePlace_completion (v : InfinitePlace ℚ) (x : ℚ) :
-    ‖(x : v.completion)‖ = |x| := sorry
+    ‖(x : v.completion)‖ = |x| := sorry -- this will be done when the mathlib PR is merged
 
 -- mathlib PR #19644
 noncomputable def Rat.infinitePlace : InfinitePlace ℚ := .mk (Rat.castHom _)
@@ -35,7 +35,8 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
   use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ
     {f | ∀ v , f v ∈ IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v}
   refine ⟨?_, ?_⟩
-  · sorry -- should be easy (product of opens is open, product of integers is surely
+  · dsimp
+    sorry -- issue #252 -- should be easy (product of opens is open, product of integers is surely
           -- known to be open)
   · apply subset_antisymm
     · intro x hx
@@ -56,19 +57,21 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
       change ‖(x : ℂ)‖ < 1 at h1
       simp at h1
       have intx: ∃ (y:ℤ), y = x
-      · by_contra h
-        push_neg at h
+      · clear h1 -- not needed
         -- mathematically this is trivial:
         -- h2 says that no prime divides the denominator of x
         -- so x is an integer
-        -- and then h says it's not an integer
-        sorry
+        -- and the goal is that there exists an integer `y` such that `y = x`.
+        sorry -- issue #254
       obtain ⟨y, rfl⟩ := intx
       simp at h1
+      clear h2 -- not needed
+      norm_cast
+      norm_cast at h1
       -- mathematically this is trivial:
       -- h1 says that the integer y satisfies |y| < 1
       -- and the goal is that y = 0
-      sorry
+      sorry -- issue #255
     · intro x
       simp only [Set.mem_singleton_iff, Set.mem_preimage]
       rintro rfl
@@ -86,15 +89,15 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
         intro v
         apply zero_mem
 
+-- Maybe this discreteness isn't even stated in the best way?
+-- I'm ambivalent about how it's stated
 theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing ℚ),
-    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {q} := sorry
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {q} := sorry -- issue #256
 
 variable (K : Type*) [Field K] [NumberField K]
 
--- Maybe this discreteness isn't even stated in the best way?
--- I'm ambivalent about how it's stated
 theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing K),
-    IsOpen U ∧ (algebraMap K (AdeleRing K)) ⁻¹' U = {k} := sorry
+    IsOpen U ∧ (algebraMap K (AdeleRing K)) ⁻¹' U = {k} := sorry -- issue #257
 
 end Discrete
 
@@ -104,12 +107,12 @@ open NumberField
 
 theorem Rat.AdeleRing.cocompact :
     CompactSpace (AdeleRing ℚ ⧸ AddMonoidHom.range (algebraMap ℚ (AdeleRing ℚ)).toAddMonoidHom) :=
-  sorry
+  sorry -- issue #258
 
 variable (K : Type*) [Field K] [NumberField K]
 
 theorem NumberField.AdeleRing.cocompact :
     CompactSpace (AdeleRing K ⧸ AddMonoidHom.range (algebraMap K (AdeleRing K)).toAddMonoidHom) :=
-  sorry
+  sorry -- issue #259
 
 end Compact
