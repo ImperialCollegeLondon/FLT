@@ -30,6 +30,9 @@ of the `GL_n` functor. There's notation `GL (Fin n)` for this.
 -/
 
 open scoped Manifold
+/- Next line is necessary while the manifold smoothness class is not extended to `ω`.
+Later, replace with `open scoped ContDiff`. -/
+local notation "∞" => (⊤ : ℕ∞)
 
 namespace DedekindDomain
 
@@ -77,7 +80,7 @@ open scoped nonZeroDivisors
 noncomputable instance foobar37 : Algebra R (FiniteAdeleRing R K) :=
   RingHom.toAlgebra ((algebraMap K (FiniteAdeleRing R K)).comp (algebraMap R K))
 
-@[deprecated mul_nonZeroDivisor_mem_finiteIntegralAdeles]
+@[deprecated mul_nonZeroDivisor_mem_finiteIntegralAdeles (since := "2024-08-11")]
 lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
     ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
   exact mul_nonZeroDivisor_mem_finiteIntegralAdeles a
@@ -256,7 +259,7 @@ structure IsSmooth (f : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ �
   loc_cst (y : GL (Fin n) ℝ) :
     IsLocallyConstant (fun x ↦ f (x, y))
   smooth (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
-    Smooth 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) 𝓘(ℝ, ℂ) (fun y ↦ f (x, y))
+    ContMDiff 𝓘(ℝ, Matrix (Fin n) (Fin n) ℝ) 𝓘(ℝ, ℂ) ∞ (fun y ↦ f (x, y))
 
 open Matrix
 

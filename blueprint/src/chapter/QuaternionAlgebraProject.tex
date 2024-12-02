@@ -194,9 +194,100 @@ assuming Fujisaki's lemma.
   and because $f_1(g_i)=f_2(g_i)$ by assumption, we deduce $f_1(g)=f_2(g)$ as required.
 \end{proof}
 
-It thus remains to prove Fujisaki's lemma. Note that we will be assuming the results
-from the adele mini-project~\ref{Adele_miniproject}.
+It thus remains to prove Fujisaki's lemma, which is what we do in the rest of this
+miniproject. Note that we will be assuming the results
+from the adele mini-project, chapter~\ref{Adele_miniproject} of this blueprint.
+
+\section{The ``Haar character'' on a ring.}
+
+Say $A$ is a topological ring, which is locally compact (i.e. there's a compact
+subset of $A$ which contains a nonempty open subset of $A$). Then the additive
+abelian group $(A,+)$ has a Haar measure. If $u\in A^\times$ is a unit of $A$,
+then multiplication by $u$ is an additive isomorphism $(A,+)\to(A,+)$, and thus
+pulls back a Haar measure $\mu$ to a positive real scalar multiple of $\mu$. This
+scalar $h(u)\in\R_{>0}$ is independent of the choice of Haar measure $\mu$,
+and gives us a canonical group homomorphism $h:A^\times\to\R_{>0}$, which is
+presumably continuous although I didn't check this and I don't think we need it.
+This initially looks like the ``modular character'' of a group but it isn't.
+The modular character of a locally compact topological group is a character on
+the group which measures the difference between the left and right Haar measure.
+Here the Haar measure is additive, and addition is commutative, so there is
+no difference between left and right Haar measure. To put it another way,
+the crucial axiom which makes this construction work is distributivity $u(a+b)=ua+ub$,
+and the crucial axiom which makes the modular character work is associativity $g(hk)=(gh)k$.
+
+We need a name for this character. Right now I propose calling it the Haar character,
+and in mathlib perhaps {\tt distribHaarCharacter} is an appropriate name.
+
+\subsection{Examples}
+
+1) If $A=\R$ then $h(r)=|r|$.
+
+2) If $A=\mathbb{C}$ then $h(r)=|r|^2$ (for example, multiplication by 2 changes the area
+of a shape in the complexes by a factor of 4).
+
+3) If $A=\Q_p$ then $h(r)=|r|_p$, the usual $p$-adic norm with $|p|_p=p^{-1}$.
+This is because $p\Z_p$ has index $p$ in $\Z_p$, so $\Z_p$ is the disjoint union
+of $p$ additive cosets of $p\Z_p$ and each of these has the same additive Haar measure.
+As a consequence, the measure of $p\Z_p$ must be $1/p$ times the measure of $\Z_p$.
+
+4) More generally if $A$ is a nonarchimedean local field with integers $R$,
+maximal ideal $m=(\varpi)$ and finite residue field of size $q$, then $h(\varpi)=1/q$
+for the same reason.
+
+Note that these examples give us a ``canonical'' norm on any local field (set $h(0)=0$).
+
+5) If $A=B\times C$ is a product of two locally compact topological rings, then $A$
+is locally compact, and $h_A=h_B\times h_C$ in the sense that $h_A(b,c)=h_B(b)h_C(c)$.
+
+6) Now say $A$ is a restricted product of topological rings $A_i$ with respect to compact
+open subrings $R_i$ (note: the existence of such an $R_i$ implies that $A_i$ is
+locally compact). If $u_i\in R_i^\times$ then multiplication by $u_i$ sends $R_i$
+bijectively to itself, so $h_i(u_i)=1$, with $h_i$ denoting the Haar character of $A_i$.
+A general element $u\in A^\times$ with inverse $v$
+has local components $u_i$ satisfying $u_iv_i=1$, and $u_i,v_i\in R_i$ for all but
+finitely many $i$, meaning $u_i\in R_i^\times$ for all but finitely many $i$, and thus
+$h_i(u_i)=1$ for these $i$. Thus the product $\prod_i h_i(u_i)$ is a finite product
+(in the sense that all but finitely many terms in it are 1), and one can check
+that this is $h(u)$.
+
+7) If $A$ is the adeles of a number field, then $A$ is the product of the finite adeles
+and the infinite adeles. Example (6) applies to the finite adeles, and using example (5)
+on the infinite adeles we deduce a formula $h(a)=\prod_v h_v(a_v)$ relating the global
+Haar character to the product of local Haar chacters.
+
+8) Let $K$ be a number field, and let $B$ be a finite-dimensional $K$-algebra containing
+an $\mathcal{O}_K$-order $R\subseteq B$, that is, a module-finite $\mathcal{O}_K$-subalgebra
+$R$ of $B$ such that the canonical map $R\otimes_{\mathcal{O}_K}K\to B$ is an isomorphism.
+Set $A=B\otimes_K\mathbb{A}_K$. Then $A$ is a product
+$(B\otimes_K\mathbb{A}_K^\infty)\times(B\otimes_KK_\infty)$, and
+$B\otimes_K\mathbb{A}_K^\infty=\prod'_vB\otimes_KK_v$, with the restricted product over
+the finite places of $v$ being with respect to the compact open subrings
+$R\otimes_{\mathcal{O}_K}\mathcal{O}_{K_v}$. All orders are commensurable, so the choice
+of order $R$ here doesn't really matter: it only changes the subring at finitely many places.
+So (5) and (6) apply again, giving us $h(b)=\prod_v h_v(b_v)$, a finite product.
+
+\section{The product formula}
+
+Let $K$ be a number field, and let $B$ be a finite-dimensional $K$-algebra (not necessarily
+commutative), containing an $\mathcal{O}_K$-order. Set $A=B\otimes_K\mathcal{A}_K$.
+Then $A$ is a locally compact topological ring (give it the module topology coming from
+$\mathcal{A}_K$, which is just the product topology if one chooses a $K$-basis for $B$).
+
+What I believe to be true is
+
+\begin{theorem} Write $h_A$ for the Haar character of $A$.
+  If $b\in B^\times$, regarded as an element of $A^\times$, then $h_A(b)=1.$
+\end{theorem}
+\begin{proof} WLOG $K=\Q$, as $B\otimes_K\mathcal{A}_K=B\otimes_{\Q}\mathcal{A}_{\Q}$.
+  There must now be some way to reduce it to the case $B=\Q$. And then it's just
+  the product formula.
+\end{proof}
+
+This proof needs some work.
 
 \section{Proof of Fujisaki's lemma}
 
-See Main Theorem 27.6.14 of Voight. TODO: make these into issues.
+TODO.
+
+See Main Theorem 27.6.14 of Voight.

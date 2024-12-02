@@ -63,8 +63,6 @@ def comap (w : HeightOneSpectrum B) : HeightOneSpectrum A where
   isPrime := Ideal.comap_isPrime (algebraMap A B) w.asIdeal
   ne_bot := mt Ideal.eq_bot_of_comap_eq_bot w.ne_bot
 
--- open scoped algebraMap
-
 lemma mk_count_factors_map
     (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) (I : Ideal A) [DecidableEq (Associates (Ideal A))]
@@ -219,8 +217,7 @@ noncomputable def adicCompletionComapAlgHom
     subst hvw
     simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe]
-    have : (adicCompletionComapRingHom A K _ w rfl)
-        (algebraMap K (adicCompletion K (comap A w)) r)  =
+    have : (adicCompletionComapRingHom A K _ w rfl) (algebraMap _ _ r)  =
         (algebraMap L (adicCompletion L w)) (algebraMap K L r) := by
       letI : UniformSpace L := w.adicValued.toUniformSpace
       letI : UniformSpace K := (comap A w).adicValued.toUniformSpace
@@ -239,11 +236,12 @@ lemma adicCompletionComapAlgHom_coe
   (adicCompletionComapAlgHom A K L B v w hvw).commutes _
 
 -- this name is surely wrong
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
 open WithZeroTopology in
 lemma v_adicCompletionComapAlgHom
   (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) (x) :
     Valued.v (adicCompletionComapAlgHom A K L B v w hvw x) = Valued.v x ^
-      (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) := by
+      Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal := by
   revert x
   apply funext_iff.mp
   symm
@@ -267,7 +265,7 @@ noncomputable def adicCompletionContinuousComapAlgHom (v : HeightOneSpectrum A) 
   (HeightOneSpectrum.adicCompletion K v) →A[K]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) where
   __ := adicCompletionComapAlgHom' A K L B v
-  cont := continuous_pi (fun w ↦ (adicCompletionComapAlgHom A K L B v _ w.2).cont)
+  cont := continuous_pi fun w ↦ (adicCompletionComapAlgHom A K L B v _ w.2).cont
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
@@ -363,11 +361,21 @@ variable (v : HeightOneSpectrum A) in
 instance : IsModuleTopology (adicCompletion K v) (L ⊗[K] adicCompletion K v) := ⟨rfl⟩
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+variable (v : HeightOneSpectrum A) in
+instance : IsModuleTopology (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
+  ⟨rfl⟩
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 noncomputable def adicCompletionTensorComapContinuousAlgHom (v : HeightOneSpectrum A) :
     L ⊗[K] adicCompletion K v →A[L]
       Π w : {w : HeightOneSpectrum B // v = comap A w}, adicCompletion L w.1 where
   __ := adicCompletionTensorComapAlgHom A K L B v
-  cont := sorry--#237
+  cont := by
+    apply IsModuleTopology.continuous_of_ringHom (R := adicCompletion K v)
+    show Continuous (RingHom.comp _ (Algebra.TensorProduct.includeRight.toRingHom))
+    convert (adicCompletionContinuousComapAlgHom A K L B v).cont using 1
+    ext
+    simp [adicCompletionTensorComapAlgHom, adicCompletionContinuousComapAlgHom]
 
 noncomputable def adicCompletionComapAlgEquiv (v : HeightOneSpectrum A) :
   (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃ₐ[L]

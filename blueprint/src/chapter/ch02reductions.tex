@@ -69,21 +69,21 @@ If $E$ is an elliptic curve over a field $k$, and if $K$ is any field which is a
 
 The group structure behaves well under change of field.
 
-\begin{lemma}\label{EllipticCurve.Points.map}\lean{EllipticCurve.Points.map}\leanok If $E$ is an elliptic curve over a field $k$, and if $K$ and $L$ are two fields which are $k$-algebras, and if $f:K\to L$ is a $k$-algebra homomorphism, the map from $E(K)$ to $E(L)$ induced by $f$ is an additive group homomorphism.
+\begin{lemma}\label{WeierstrassCurve.Points.map}\lean{WeierstrassCurve.Points.map}\leanok If $E$ is an elliptic curve over a field $k$, and if $K$ and $L$ are two fields which are $k$-algebras, and if $f:K\to L$ is a $k$-algebra homomorphism, the map from $E(K)$ to $E(L)$ induced by $f$ is an additive group homomorphism.
 \end{lemma}
 \begin{proof} The equations defining the group law are ratios of polynomials with coefficients in $k$, and such things behave well under $k$-algebra homomorphisms.
 \end{proof}
 
 This construction is functorial (it sends the identity to the identity, and compositions to compositions).
 
-\begin{lemma}\label{EllipticCurve.Points.map_id}\lean{EllipticCurve.Points.map_id}\uses{EllipticCurve.Points.map}
+\begin{lemma}\label{WeierstrassCurve.Points.map_id}\lean{WeierstrassCurve.Points.map_id}\uses{WeierstrassCurve.Points.map}
   The group homomorphism $E(K)\to E(K)$ induced by the identity map $K\to K$ is the
   identity group homomorphism.
 \end{lemma}
 \begin{proof} An easy calculation.
 \end{proof}
 
-\begin{lemma}\label{EllipticCurve.Points.map_comp}\lean{EllipticCurve.Points.map_comp}\uses{EllipticCurve.Points.map}
+\begin{lemma}\label{WeierstrassCurve.Points.map_comp}\lean{WeierstrassCurve.Points.map_comp}\uses{WeierstrassCurve.Points.map}
   If $K\to L\to M$ are $k$-algebra homomorphisms then the group homomorphism $E(K)\to E(M)$
   induced by the map $K\to M$ is the composite of the map $E(K)\to E(L)$ induced by $K\to L$
   and the map $E(L)\to E(M)$ induced by the map $L\to M$.
@@ -93,7 +93,7 @@ This construction is functorial (it sends the identity to the identity, and comp
 
  Thus if $f:K\to L$ is an isomorphism of fields, the induced map $E(K)\to E(L)$ is an isomorphism of groups, with the inverse isomorphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This construction thus gives us an action of the multiplicative group $\Aut_k(K)$ of automorphisms of the field $K$ on the additive abelian group $E(K)$.
 
-\begin{definition}\label{EllipticCurve.galoisRepresentation}\lean{EllipticCurve.galoisRepresentation}\uses{EllipticCurve.Points.map_id,EllipticCurve.Points.map_comp}
+\begin{definition}\label{WeierstrassCurve.galoisRepresentation}\lean{WeierstrassCurve.galoisRepresentation}\uses{WeierstrassCurve.Points.map_id,WeierstrassCurve.Points.map_comp}
   If $E$ is an elliptic curve over a field $k$ and $K$ is a field and a $k$-algebra,
   then the group of $k$-automorphisms of $K$ acts on the additive abelian group $E(K)$.
 \end{definition}
@@ -101,7 +101,7 @@ This construction is functorial (it sends the identity to the identity, and comp
 
 We need a variant of this construction where we only consider the $n$-torsion of the curve, for $n$ a positive integer. Recall that if $A$ is any additive abelian group, and if $n$ is a positive integer, then we can consider the subgroup $A[n]$ of elements $a$ such that $na=0$. If a group~$G$ acts on $A$ via additive group isomorphisms, then there will be an induced action of~$G$ on $A[n]$.
 
-\begin{definition}\label{EllipticCurve.torsionGaloisRepresentation}\lean{EllipticCurve.torsionGaloisRepresentation}\uses{EllipticCurve.galoisRepresentation}
+\begin{definition}\label{WeierstrassCurve.torsionGaloisRepresentation}\lean{WeierstrassCurve.torsionGaloisRepresentation}\uses{WeierstrassCurve.galoisRepresentation}
   If $E$ is an elliptic curve over a field $k$ and $K$ is a field and a $k$-algebra,
   and if $n$ is a natural number, then the group of $k$-automorphisms of $K$ acts on the additive abelian group $E(K)[n]$ of $n$-torsion points on the curve.
 \end{definition}
