@@ -159,7 +159,7 @@ noncomputable def adicCompletionComapRingHom
   refine continuous_of_continuousAt_zero (algebraMap K L) ?hf
   delta ContinuousAt
   simp only [map_zero]
-  rw [(@Valued.hasBasis_nhds_zero K _ _ _ (w.comap A).adicValued).tendsto_iff
+  rw [(@Valued.hasBasis_nhds_zero K _ _ _ (comap A w).adicValued).tendsto_iff
     (@Valued.hasBasis_nhds_zero L _ _ _ w.adicValued)]
   simp only [HeightOneSpectrum.adicValued_apply, Set.mem_setOf_eq, true_and, true_implies]
   rw [WithZero.unitsWithZeroEquiv.forall_congr_left, Multiplicative.forall]
@@ -356,9 +356,6 @@ theorem adicCompletionComapAlgIso_integral : ∃ S : Finset (HeightOneSpectrum A
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 variable (v : HeightOneSpectrum A) in
 instance : TopologicalSpace (L ⊗[K] adicCompletion K v) := moduleTopology (adicCompletion K v) _
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-variable (v : HeightOneSpectrum A) in
-instance : IsModuleTopology (adicCompletion K v) (L ⊗[K] adicCompletion K v) := ⟨rfl⟩
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 variable (v : HeightOneSpectrum A) in
