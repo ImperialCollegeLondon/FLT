@@ -18,7 +18,6 @@ section BaseChange
 
 end BaseChange
 
-
 section Discrete
 
 open NumberField DedekindDomain
@@ -64,11 +63,13 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
         -- and then h says it's not an integer
         sorry
       obtain ⟨y, rfl⟩ := intx
-      simp at h1
-      -- mathematically this is trivial:
-      -- h1 says that the integer y satisfies |y| < 1
-      -- and the goal is that y = 0
-      sorry
+      simp only [abs_lt] at h1
+      norm_cast at h1 ⊢
+      -- We need the next line because `norm_cast` is for some reason producing a `negSucc 0`.
+      -- I haven't been able to isolate this behaviour even in a standalone lemma.
+      -- We could also make `omega` more robust against accidental appearances of `negSucc`.
+      rw [Int.negSucc_eq] at h1
+      omega
     · intro x
       simp only [Set.mem_singleton_iff, Set.mem_preimage]
       rintro rfl
