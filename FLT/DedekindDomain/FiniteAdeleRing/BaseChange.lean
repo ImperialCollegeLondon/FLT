@@ -470,7 +470,7 @@ noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] Fin
         algebraMap L (FiniteAdeleRing B L) (algebraMap K L r) :=
       IsScalarTower.algebraMap_apply K L (FiniteAdeleRing B L) r
     simp_rw [i]
-    have j (p : L): (((algebraMap L (FiniteAdeleRing B L)) p) : ProdAdicCompletions B L) =
+    have j (p : L) : (((algebraMap L (FiniteAdeleRing B L)) p) : ProdAdicCompletions B L) =
       (algebraMap L (ProdAdicCompletions B L)) p := rfl
     simp_rw [j]
     exact IsScalarTower.algebraMap_apply K L (ProdAdicCompletions B L) r
