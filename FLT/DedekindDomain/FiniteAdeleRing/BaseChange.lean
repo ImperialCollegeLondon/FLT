@@ -17,6 +17,10 @@ are defined. In this file we define the natural `K`-algebra map `𝔸_K^∞ → 
 the natural `L`-algebra map `𝔸_K^∞ ⊗[K] L → 𝔸_L^∞`, and show that the latter map
 is an isomorphism.
 
+## Main definition
+
+* `FiniteAdeleRing.baseChangeEquiv : L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L`
+
 -/
 
 open scoped Multiplicative
@@ -47,10 +51,6 @@ variable [Algebra.IsIntegral A B]
 example : Module.Finite A B := by
   have := IsIntegralClosure.isNoetherian A K L B
   exact Module.IsNoetherian.finite A B
-
-/-
-In this generality there's a natural isomorphism `L ⊗[K] 𝔸_K^∞ → 𝔸_L^∞` .
--/
 
 -- We start by filling in some holes in the API for finite extensions of Dedekind domains.
 namespace IsDedekindDomain
