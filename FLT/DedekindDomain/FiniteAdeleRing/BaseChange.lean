@@ -478,15 +478,6 @@ noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] Fin
     simp_rw [j]
     exact IsScalarTower.algebraMap_apply K L (ProdAdicCompletions B L) r
 
-
-    -- How can I coerce r into L - without using algebraMap?
-    -- this is cleary true, just need to show it
-
-
-
-
-
-
 -- Presumably we have this?
 noncomputable def bar {K L AK AL : Type*} [CommRing K] [CommRing L]
     [CommRing AK] [CommRing AL] [Algebra K AK] [Algebra K AL] [Algebra K L]
