@@ -467,8 +467,8 @@ noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] Fin
     simp_rw [h]
     simp only [AlgHom.commutes]
     have i : algebraMap K (FiniteAdeleRing B L) r =
-      algebraMap L (FiniteAdeleRing B L) (algebraMap K L r) := by
-      exact IsScalarTower.algebraMap_apply K L (FiniteAdeleRing B L) r
+        algebraMap L (FiniteAdeleRing B L) (algebraMap K L r) :=
+      IsScalarTower.algebraMap_apply K L (FiniteAdeleRing B L) r
     simp_rw [i]
     have j (p : L): (((algebraMap L (FiniteAdeleRing B L)) p) : ProdAdicCompletions B L) =
       (algebraMap L (ProdAdicCompletions B L)) p := rfl
