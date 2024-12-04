@@ -438,41 +438,37 @@ noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] Fin
     (ProdAdicCompletions.baseChange_isFiniteAdele_iff A K L B ak).1 ak.2⟩
   map_one' := by
     ext
+    ext
     have h : (1 : FiniteAdeleRing A K) = (1 : ProdAdicCompletions A K) := rfl
     have t : (1 : FiniteAdeleRing B L) = (1 : ProdAdicCompletions B L) := rfl
     simp_rw [h, t, map_one]
   map_mul' x y := by
+    simp_rw [h, t, map_one]
+  map_mul' x y := by
     have h : (x * y : FiniteAdeleRing A K) =
       (x : ProdAdicCompletions A K) * (y : ProdAdicCompletions A K) := rfl
-    simp_rw [h]
-    simp only [map_mul]
+    simp_rw [h, map_mul]
     rfl
   map_zero' := by
-    refine ext B L ?_
+    ext
     have h : (0 : FiniteAdeleRing A K) = (0 : ProdAdicCompletions A K) := rfl
     have t : (0 : FiniteAdeleRing B L) = (0 : ProdAdicCompletions B L) := rfl
-    simp_rw [h,t]
-    simp only [map_zero]
-  map_add' := by
-    intro x y
+    simp_rw [h,t, map_zero]
+  map_add' x y:= by
     have h : (x+y : FiniteAdeleRing A K) =
       (x : ProdAdicCompletions A K) + (y : ProdAdicCompletions A K) := rfl
-    simp_rw [h]
-    simp only [map_add]
+    simp_rw [h, map_add]
     rfl
   commutes' r := by
-    refine ext B L ?_
+    ext
     have h : (((algebraMap K (FiniteAdeleRing A K)) r) : ProdAdicCompletions A K) =
       (algebraMap K (ProdAdicCompletions A K)) r := rfl
-    simp_rw [h]
-    simp only [AlgHom.commutes]
     have i : algebraMap K (FiniteAdeleRing B L) r =
-        algebraMap L (FiniteAdeleRing B L) (algebraMap K L r) :=
+      algebraMap L (FiniteAdeleRing B L) (algebraMap K L r) :=
       IsScalarTower.algebraMap_apply K L (FiniteAdeleRing B L) r
-    simp_rw [i]
     have j (p : L) : (((algebraMap L (FiniteAdeleRing B L)) p) : ProdAdicCompletions B L) =
       (algebraMap L (ProdAdicCompletions B L)) p := rfl
-    simp_rw [j]
+    simp_rw [h, AlgHom.commutes, i, j]
     exact IsScalarTower.algebraMap_apply K L (ProdAdicCompletions B L) r
 
 -- Presumably we have this?
