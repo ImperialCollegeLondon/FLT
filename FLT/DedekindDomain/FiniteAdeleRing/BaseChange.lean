@@ -462,8 +462,7 @@ noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] Fin
     simp_rw [h]
     simp only [map_add]
     rfl
-  commutes' := by
-    intro r
+  commutes' r := by
     refine ext B L ?_
     have h : (((algebraMap K (FiniteAdeleRing A K)) r) : ProdAdicCompletions A K) =
       (algebraMap K (ProdAdicCompletions A K)) r := rfl
