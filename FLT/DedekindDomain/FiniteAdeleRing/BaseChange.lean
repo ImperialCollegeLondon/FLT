@@ -437,7 +437,7 @@ noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] Fin
   toFun ak := ⟨ProdAdicCompletions.baseChange A K L B ak.1,
     (ProdAdicCompletions.baseChange_isFiniteAdele_iff A K L B ak).1 ak.2⟩
   map_one' := by
-    refine ext B L ?_
+    ext
     have h : (1 : FiniteAdeleRing A K) = (1 : ProdAdicCompletions A K) := rfl
     have t : (1 : FiniteAdeleRing B L) = (1 : ProdAdicCompletions B L) := rfl
     simp_rw [h,t]
