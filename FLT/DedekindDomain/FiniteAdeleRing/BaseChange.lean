@@ -394,8 +394,7 @@ noncomputable def ProdAdicCompletions.baseChange :
   map_one' := by
     simp only
     funext w
-    rw [Pi.one_apply, map_one]
-    rfl
+    rw [Pi.one_apply, Pi.one_apply, map_one]
   map_mul' := by
     intro x y
     simp only
@@ -404,8 +403,7 @@ noncomputable def ProdAdicCompletions.baseChange :
   map_zero' := by
     simp only
     funext w
-    rw [Pi.zero_apply, map_zero]
-    rfl
+    rw [Pi.zero_apply, Pi.zero_apply, map_zero]
   map_add' := by
     intro x y
     simp only
