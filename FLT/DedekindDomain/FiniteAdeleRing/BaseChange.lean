@@ -400,8 +400,7 @@ noncomputable def ProdAdicCompletions.baseChange :
     intro x y
     simp only
     funext w
-    rw [Pi.mul_apply, map_mul]
-    rfl
+    rw [Pi.mul_apply, Pi.mul_apply, map_mul]
   map_zero' := by
     simp only
     funext w
@@ -412,11 +411,9 @@ noncomputable def ProdAdicCompletions.baseChange :
     simp only
     funext w
     haveI : Module K (adicCompletion L w) := Algebra.toModule
-    rw [Pi.add_apply, map_add]
-    rfl
+    rw [Pi.add_apply, Pi.add_apply, map_add]
   commutes' := by
     intro r
-    simp only
     funext w
     rw [IsScalarTower.algebraMap_apply K L (ProdAdicCompletions B L)]
     simp only [algebraMap_apply']
