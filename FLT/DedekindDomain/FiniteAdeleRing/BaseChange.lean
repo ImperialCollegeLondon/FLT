@@ -452,7 +452,7 @@ noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] Fin
     have t : (0 : FiniteAdeleRing B L) = (0 : ProdAdicCompletions B L) := rfl
     simp_rw [h, t, map_zero]
   map_add' x y:= by
-    have h : (x+y : FiniteAdeleRing A K) =
+    have h : (x + y : FiniteAdeleRing A K) =
       (x : ProdAdicCompletions A K) + (y : ProdAdicCompletions A K) := rfl
     simp_rw [h, map_add]
     rfl
