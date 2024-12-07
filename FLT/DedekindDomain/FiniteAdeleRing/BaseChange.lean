@@ -392,7 +392,7 @@ noncomputable def ProdAdicCompletions.baseChange :
   toFun kv w := (adicCompletionComapAlgHom A K L B _ w rfl (kv (comap A w)))
   map_one' := by
     dsimp only
-    refine funext fun w => by rw [Pi.one_apply, Pi.one_apply, map_one]
+    exact funext fun w => by rw [Pi.one_apply, Pi.one_apply, map_one]
   map_mul' := by
     intro x y
     simp only
