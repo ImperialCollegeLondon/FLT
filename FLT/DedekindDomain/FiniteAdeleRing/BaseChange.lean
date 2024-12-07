@@ -387,7 +387,6 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 variable [Algebra K (ProdAdicCompletions B L)]
   [IsScalarTower K L (ProdAdicCompletions B L)]
 
-
 noncomputable def ProdAdicCompletions.baseChange :
     ProdAdicCompletions A K →ₐ[K] ProdAdicCompletions B L where
   toFun kv w := (adicCompletionComapAlgHom A K L B _ w rfl (kv (comap A w)))
