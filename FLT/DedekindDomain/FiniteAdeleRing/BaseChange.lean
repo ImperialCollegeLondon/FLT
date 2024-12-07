@@ -400,8 +400,7 @@ noncomputable def ProdAdicCompletions.baseChange :
   map_zero' := by
     simp only
     refine funext fun w => by rw [Pi.zero_apply, Pi.zero_apply, map_zero]
-  map_add' := by
-    intro x y
+  map_mul' x y := by
     simp only
     funext w
     haveI : Module K (adicCompletion L w) := Algebra.toModule
