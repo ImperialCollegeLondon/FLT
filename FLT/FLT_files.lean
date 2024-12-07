@@ -15,6 +15,8 @@ import FLT.GroupScheme.FiniteFlat
 import FLT.HaarMeasure.DistribHaarChar
 import FLT.Hard.Results
 import FLT.HIMExperiments.flatness
+import FLT.Junk.Algebra
+import FLT.Junk.Algebra2
 import FLT.Mathlib.Algebra.Algebra.Subalgebra.Pi
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags
