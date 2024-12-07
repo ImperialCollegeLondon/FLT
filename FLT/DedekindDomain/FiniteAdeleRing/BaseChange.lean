@@ -393,23 +393,21 @@ noncomputable def ProdAdicCompletions.baseChange :
   map_one' := by
     dsimp only
     exact funext fun w => by rw [Pi.one_apply, Pi.one_apply, map_one]
-  map_mul' := by
-    intro x y
-    simp only
-    refine funext fun w => by rw [Pi.mul_apply, Pi.mul_apply, map_mul]
-  map_zero' := by
-    simp only
-    refine funext fun w => by rw [Pi.zero_apply, Pi.zero_apply, map_zero]
   map_mul' x y := by
-    simp only
+    dsimp only
+    exact funext fun w => by rw [Pi.mul_apply, Pi.mul_apply, map_mul]
+  map_zero' := by
+    dsimp only
+    exact funext fun w => by rw [Pi.zero_apply, Pi.zero_apply, map_zero]
+  map_add' x y := by
+    dsimp only
     funext w
-    haveI : Module K (adicCompletion L w) := Algebra.toModule
+    letI : Module K (adicCompletion L w) := Algebra.toModule
     rw [Pi.add_apply, Pi.add_apply, map_add]
-  commutes' := by
-    intro r
+  commutes' r := by
     funext w
     rw [IsScalarTower.algebraMap_apply K L (ProdAdicCompletions B L)]
-    simp only [algebraMap_apply']
+    dsimp only [algebraMap_apply']
     exact adicCompletionComapAlgHom_coe A K L B _ w _ r
 
 
