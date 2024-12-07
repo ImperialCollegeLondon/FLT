@@ -41,7 +41,7 @@ local instance : IsModuleTopology (FiniteAdeleRing (𝓞 K) K) ((FiniteAdeleRing
 variable [FiniteDimensional K D]
 
 instance : TopologicalRing ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) :=
-  ModuleTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 K) K) _
+  IsModuleTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 K) K) _
 
 variable [Algebra.IsCentral K D]
 

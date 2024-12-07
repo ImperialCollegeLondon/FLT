@@ -15,25 +15,6 @@ This topology was suggested by Will Sawin [here](https://mathoverflow.net/a/4777
 
 ## Mathematical details
 
-I (buzzard) don't know of any reference for this other than Sawin's mathoverflow answer,
-so I expand some of the details here.
-
-First note that there *is* a finest topology with this property! Indeed, topologies on a fixed
-type form a complete lattice (infinite infs and sups exist). So if `τ` is the Inf of all
-the topologies on `A` which make `+` and `•` continuous, then the claim is that `+` and `•`
-are still continuous for `τ` (note that topologies are ordered so that finer topologies
-are smaller). To show `+ : A × A → A` is continuous we equivalently need to show
-that the pushforward of the product topology `τ × τ` along `+` is `≤ τ`, and because `τ` is
-the greatest lower bound of the topologies making `•` and `+` continuous,
-it suffices to show that it's `≤ σ` for any topology `σ` on `A` which makes `+` and `•` continuous.
-However pushforward and products are monotone, so `τ × τ ≤ σ × σ`, and the pushforward of
-`σ × σ` is `≤ σ` because that's precisely the statement that `+` is continuous for `σ`.
-The proof for `•` follows mutatis mutandis.
-
-A *topological module* for a topological ring `R` is an `R`-module `A` with a topology
-making `+` and `•` continuous. The discussion so far has shown that the action topology makes `A`
-into a topological module.
-
 A crucial observation is that if `M` is a topological `R`-module, if `A` is an `R`-module with no
 topology, and if `φ : A → M` is linear, then the pullback of `M`'s topology to `A` is a topology
 making `A` into a topological module. Let's for example check that `•` is continuous.
@@ -84,30 +65,25 @@ the corresponding statements in this file
 
 -/
 
-namespace ModuleTopology
+namespace IsModuleTopology
 
-open IsModuleTopology
+open ModuleTopology
 
 section surjection
 
 variable {R : Type*} [τR : TopologicalSpace R] [Ring R] [TopologicalRing R]
-variable {A : Type*} [AddCommGroup A] [Module R A] --[aA : TopologicalSpace A] [IsModuleTopology R A]
-variable {B : Type*} [AddCommGroup B] [Module R B] --[aB : TopologicalSpace B] [IsModuleTopology R B]
+variable {A : Type*} [AddCommGroup A] [Module R A] [TopologicalSpace A] [IsModuleTopology R A]
+variable {B : Type*} [AddCommGroup B] [Module R B] [τB : TopologicalSpace B] [IsModuleTopology R B]
 
--- Here I need the lemma about how quotients are open so I do need groups
--- because this relies on translates of an open being open
 theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective φ) :
-    TopologicalSpace.coinduced φ (moduleTopology R A) = moduleTopology R B := by
-  letI : TopologicalSpace A := moduleTopology R A
-  letI τB : TopologicalSpace B := moduleTopology R B
-  haveI : IsModuleTopology R A := ⟨rfl⟩
-  haveI : ContinuousAdd A := continuousAdd R A
-  haveI : IsModuleTopology R B := ⟨rfl⟩
-  haveI : ContinuousAdd B := continuousAdd R B
+    Topology.IsQuotientMap φ := by
+  refine ⟨hφ, ?_⟩
+  haveI : ContinuousAdd A := toContinuousAdd R A
+  haveI : ContinuousAdd B := toContinuousAdd R B
   have : Continuous φ := continuous_of_linearMap φ
-  rw [continuous_iff_coinduced_le, eq_moduleTopology R A, eq_moduleTopology R B] at this
-  apply le_antisymm this
-  have : ContinuousAdd A := continuousAdd R A
+  rw [continuous_iff_coinduced_le] at this
+  apply le_antisymm ?_ this
+  rw [eq_moduleTopology R B, eq_moduleTopology R A]
   refine sInf_le ⟨?_, ?_⟩
   · apply @ContinuousSMul.mk R B _ _ (_)
     obtain ⟨foo⟩ : ContinuousSMul R A := inferInstance
@@ -137,12 +113,13 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
     obtain ⟨bar⟩ := continuousAdd R A
     rw [continuous_def] at bar ⊢
     intro U hU
-    rw [isOpen_coinduced, ← eq_moduleTopology R A] at hU
+    rw [isOpen_coinduced] at hU
     specialize bar _ hU; clear hU
     rw [← Set.preimage_comp, show φ ∘ (fun p ↦ p.1 + p.2 : A × A → A) =
       (fun p ↦ p.1 + p.2 : B × B → B) ∘
       (Prod.map ⇑φ.toAddMonoidHom ⇑φ.toAddMonoidHom) by ext; simp, Set.preimage_comp] at bar
     clear! τB -- easiest to just remove topology on B completely now
+    rw [← eq_moduleTopology R A] at bar
     convert isOpenMap_of_coinduced (AddMonoidHom.prodMap φ.toAddMonoidHom φ.toAddMonoidHom)
       (_) (_) (_) bar
     · aesop
@@ -315,14 +292,13 @@ theorem Module.continuous_bilinear_of_finite [Module.Finite R A]
   have foo : Function.Surjective (LinearMap.id : B →ₗ[R] B) :=
     Function.RightInverse.surjective (congrFun rfl)
   have hφ : Function.Surjective φ := Function.Surjective.prodMap hf foo
-  have := coinduced_of_surjective hφ
-  rw [eq_moduleTopology R (A × B), ← this, continuous_def]
+  have := (coinduced_of_surjective hφ).2
+  rw [this, continuous_def]
   intro U hU
   rw [isOpen_coinduced, ← Set.preimage_comp]
   suffices Continuous ((fun ab ↦ (bil ab.1) ab.2) ∘ φ : (Fin m → R) × B → C) by
     rw [continuous_def] at this
     convert this _ hU
-    rw [← prod.eq_moduleTopology']
   rw [show (fun ab ↦ (bil ab.1) ab.2 : A × B → C) ∘ φ = (fun fb ↦ bil' fb.1 fb.2) by
     ext ⟨a, b⟩
     simp [bil', φ]]
