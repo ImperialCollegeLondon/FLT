@@ -8,7 +8,7 @@ import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Algebra.Group.Subgroup.Pointwise
-import FLT.ForMathlib.ActionTopology
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.NumberField.IsTotallyReal
 import FLT.NumberField.AdeleRing
 import Mathlib.GroupTheory.DoubleCoset
