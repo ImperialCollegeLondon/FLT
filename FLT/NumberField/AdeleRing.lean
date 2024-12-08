@@ -22,13 +22,6 @@ section Discrete
 
 open NumberField DedekindDomain
 
--- mathlib PR #19644
-lemma Rat.norm_infinitePlace_completion (v : InfinitePlace ℚ) (x : ℚ) :
-    ‖(x : v.completion)‖ = |x| := sorry -- this will be done when the mathlib PR is merged
-
--- mathlib PR #19644
-noncomputable def Rat.infinitePlace : InfinitePlace ℚ := .mk (Rat.castHom _)
-
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
     IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {0} := by
   use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ

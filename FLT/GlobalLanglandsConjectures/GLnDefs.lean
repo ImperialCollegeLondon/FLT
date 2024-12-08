@@ -285,7 +285,7 @@ noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
     FDRep ℂ (orthogonalGroup (Fin n) ℝ) where
   V := FGModuleCat.of ℂ (Fin w.d → ℂ)
   ρ := {
-    toFun := fun A ↦ {
+    toFun := fun A ↦ ModuleCat.ofHom {
       toFun := fun x ↦ (w.rho A).1 *ᵥ x
       map_add' := fun _ _ ↦ Matrix.mulVec_add ..
       map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul .. }
