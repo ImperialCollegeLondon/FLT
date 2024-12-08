@@ -4,7 +4,8 @@ import FLT.Mathlib.Algebra.Group.Units.Hom
 /-!
 # TODO
 
-Make `PadicInt.valuation` `ℕ`-valued
+* Make `PadicInt.valuation` `ℕ`-valued
+* Rename `Coe.ringHom` to `coeRingHom`
 -/
 
 -- This is cool notation. Should mathlib have it?
@@ -43,14 +44,13 @@ lemma index_ideal_ppown (n : ℕ) :
   rw [AddSubgroup.index_eq_card]
   sorry
 
-def nonZeroDivisors_eq_units (G₀ : Type*) [GroupWithZero G₀] : nonZeroDivisors G₀ ≃* G₀ˣ := by sorry
-
-noncomputable instance  : Coe (nonZeroDivisors ℤ_[p]) ℚ_[p]ˣ where
+-- (Yaël): Do we really want this as a coercion?
+noncomputable instance : Coe (nonZeroDivisors ℤ_[p]) ℚ_[p]ˣ where
   coe x := .mk0 x.1 (map_ne_zero_of_mem_nonZeroDivisors (M := ℤ_[p])
     PadicInt.Coe.ringHom PadicInt.coe_injective x.2)
 
-lemma closure_nonZeroDiviorsZp_eq_unitsQp :
-  Subgroup.closure (Set.range ((↑) : (nonZeroDivisors ℤ_[p]) → ℚ_[p]ˣ)) = ⊤ :=
+lemma closure_nonZeroDivisorsZp_eq_unitsQp :
+    Subgroup.closure (Set.range ((↑) : (nonZeroDivisors ℤ_[p]) → ℚ_[p]ˣ)) = ⊤ :=
   sorry
 
 end PadicInt

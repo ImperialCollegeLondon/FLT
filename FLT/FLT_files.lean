@@ -21,6 +21,7 @@ import FLT.Junk.Algebra2
 import FLT.Mathlib.Algebra.Algebra.Subalgebra.Pi
 import FLT.Mathlib.Algebra.Group.Subgroup.Defs
 import FLT.Mathlib.Algebra.Group.Units.Hom
+import FLT.Mathlib.Algebra.GroupWithZero.NonZeroDivisors
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags
 import FLT.Mathlib.Analysis.Complex.Basic
