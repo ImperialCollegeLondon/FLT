@@ -78,3 +78,9 @@ lemma addHaarScalarFactor_smul_congr (g : Gᵈᵐᵃ) :
     addHaarScalarFactor μ (g • μ) = addHaarScalarFactor ν (g • ν) := by
   rw [addHaarScalarFactor_eq_mul _ (g • ν), addHaarScalarFactor_dma_smul,
     mul_comm, ← addHaarScalarFactor_eq_mul]
+
+variable (μ) in
+lemma addHaarScalarFactor_smul_congr' (g : Gᵈᵐᵃ) :
+    addHaarScalarFactor (g • μ) μ = addHaarScalarFactor (g • ν) ν := by
+  rw [addHaarScalarFactor_eq_mul _ (g • ν), addHaarScalarFactor_dma_smul,
+    mul_comm, ← addHaarScalarFactor_eq_mul]
