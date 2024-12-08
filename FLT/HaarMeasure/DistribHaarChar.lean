@@ -48,10 +48,8 @@ noncomputable def distribHaarChar : G →* ℝ≥0 where
 
 variable (μ) in
 lemma addHaarScalarFactor_smul_eq_distribHaarChar (g : G) :
-    addHaarScalarFactor (DomMulAct.mk g • μ) μ = distribHaarChar A g := by
-  unfold distribHaarChar
-  dsimp
-  exact addHaarScalarFactor_smul_congr' ..
+    addHaarScalarFactor (DomMulAct.mk g • μ) μ = distribHaarChar A g :=
+  addHaarScalarFactor_smul_congr' ..
 
 variable (μ) in
 lemma addHaarScalarFactor_smul_inv_eq_distribHaarChar (g : G) :
