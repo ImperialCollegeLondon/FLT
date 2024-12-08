@@ -390,11 +390,26 @@ variable [Algebra K (ProdAdicCompletions B L)]
 noncomputable def ProdAdicCompletions.baseChange :
     ProdAdicCompletions A K →ₐ[K] ProdAdicCompletions B L where
   toFun kv w := (adicCompletionComapAlgHom A K L B _ w rfl (kv (comap A w)))
-  map_one' := sorry -- #232 is this and the next few sorries. There is probably a cleverer way to do this.
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
-  commutes' := sorry
+  map_one' := by
+    dsimp only
+    exact funext fun w => by rw [Pi.one_apply, Pi.one_apply, map_one]
+  map_mul' x y := by
+    dsimp only
+    exact funext fun w => by rw [Pi.mul_apply, Pi.mul_apply, map_mul]
+  map_zero' := by
+    dsimp only
+    exact funext fun w => by rw [Pi.zero_apply, Pi.zero_apply, map_zero]
+  map_add' x y := by
+    dsimp only
+    funext w
+    letI : Module K (adicCompletion L w) := Algebra.toModule
+    rw [Pi.add_apply, Pi.add_apply, map_add]
+  commutes' r := by
+    funext w
+    rw [IsScalarTower.algebraMap_apply K L (ProdAdicCompletions B L)]
+    dsimp only [algebraMap_apply']
+    exact adicCompletionComapAlgHom_coe A K L B _ w _ r
+
 
 -- Note that this is only true because L/K is finite; in general tensor product doesn't
 -- commute with infinite products, but it does here.
