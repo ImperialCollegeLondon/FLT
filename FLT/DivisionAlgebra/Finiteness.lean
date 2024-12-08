@@ -8,7 +8,7 @@ import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Algebra.Group.Subgroup.Pointwise
-import FLT.ForMathlib.ActionTopology
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.NumberField.IsTotallyReal
 import FLT.NumberField.AdeleRing
 import Mathlib.GroupTheory.DoubleCoset
@@ -34,14 +34,14 @@ variable (K : Type*) [Field K] [NumberField K]
 variable (D : Type*) [DivisionRing D] [Algebra K D]
 
 local instance : TopologicalSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] D) :=
-  actionTopology (FiniteAdeleRing (𝓞 K) K) _
-local instance : IsActionTopology (FiniteAdeleRing (𝓞 K) K) ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) :=
+  moduleTopology (FiniteAdeleRing (𝓞 K) K) _
+local instance : IsModuleTopology (FiniteAdeleRing (𝓞 K) K) ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) :=
   ⟨rfl⟩
 
 variable [FiniteDimensional K D]
 
 instance : TopologicalRing ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) :=
-  ActionTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 K) K) _
+  IsModuleTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 K) K) _
 
 variable [Algebra.IsCentral K D]
 

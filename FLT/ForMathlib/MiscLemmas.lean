@@ -27,6 +27,7 @@ theorem isOpenMap_of_coinduced (φ : A →+ B) (hφc : Continuous φ)
     rw [AddMonoidHom.map_add, hk, add_zero]
 
 -- **TODO** ask Yury how to golf
+-- Answer: `IsOpenQuotientMap.prodMap`
 open TopologicalSpace in
 theorem coinduced_prod_eq_prod_coinduced {X Y S T : Type*} [AddCommGroup X] [AddCommGroup Y]
     [AddCommGroup S] [AddCommGroup T] (f : X →+ S) (g : Y →+ T)
