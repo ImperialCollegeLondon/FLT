@@ -6,7 +6,8 @@ import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import Mathlib.RepresentationTheory.Basic
 import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 import Mathlib.Topology.Algebra.Group.Basic
-import Mathlib.Order.DirectedInverseSystem
+import FLT.Mathlib.Order.DirectedInverseSystem
+import FLT.Mathlib.Algebra.InverseLimit
 
 universe u
 
@@ -106,8 +107,8 @@ def proartinianCompletion_inverseSystem (A : CommAlgCat 𝓞)
     map_self := sorry
     map_map := sorry
 
-def proartinianCompletion (A : CommAlgCat 𝓞) :=
-  (proartinianCompletion_inverseSystem A).limit
+abbrev proartinianCompletion (A : CommAlgCat 𝓞) :=
+  Ring.InverseLimit (proartinianCompletion_inverseSystem A)
 
 def diagonalMap (A : Type*) : A →+* proartinianCompletion A := sorry
 
