@@ -1,4 +1,12 @@
-import Mathlib
+import Mathlib.Algebra.Category.Ring.Basic
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.CategoryTheory.Comma.Over
+import Mathlib.Combinatorics.Quiver.ReflQuiver
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+import Mathlib.RepresentationTheory.Basic
+import Mathlib.RingTheory.LocalRing.ResidueField.Basic
+import Mathlib.Topology.Algebra.Group.Basic
+import Mathlib.Order.DirectedInverseSystem
 
 universe u
 
@@ -32,7 +40,8 @@ instance : CoeOut (CommAlgCat 𝓞) (CommRingCat) where coe A := A.right
 
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
 variable (𝓞) in
-def modMap (A : CommAlgCat 𝓞) [IsLocalRing A] := RingHom.comp (IsLocalRing.residue A) A.hom
+abbrev modMap (A : CommAlgCat 𝓞) [IsLocalRing A] : 𝓞 →+* 𝓴 A :=
+   (IsLocalRing.residue ↑A.right).comp A.hom
 
 variable (𝓞) in
 class IsResidueAlgebra (A : CommAlgCat 𝓞) [IsLocalRing A] : Prop where
@@ -43,22 +52,68 @@ noncomputable def IsResidueAlgebra.toRingEquiv (A : CommAlgCat 𝓞) [IsLocalRin
   [IsResidueAlgebra 𝓞 A] : (𝓴 A) ≃+* (𝓴 𝓞) where
     toFun ka := IsLocalRing.residue (R := 𝓞) (surjInv (f := modMap 𝓞 A)
       (IsResidueAlgebra.isSurjective (A := A)) ka)
-    invFun ko := by
-      let mp := (RingHom.comp (IsLocalRing.residue (R := A)) A.hom)
-      simp only [Functor.const_obj_obj, CommRingCat.coe_of] at mp
-      exact IsLocalRing.ResidueField.lift mp ko
-    left_inv := sorry
-    right_inv := sorry
+    invFun ko := IsLocalRing.ResidueField.lift (modMap 𝓞 A) ko
+    left_inv := by
+      simp [LeftInverse]
+      rintro x
+      rw [← RingHom.comp_apply]
+      change (⇑(IsLocalRing.residue ↑A.right) ∘ ⇑A.hom) (surjInv _ x) = x
+      rw [Function.surjInv_eq (f := (⇑(IsLocalRing.residue ↑A.right) ∘ ⇑A.hom))]
+    right_inv := by
+      simp [RightInverse, LeftInverse]
+      rintro x
+      let y := (IsLocalRing.ResidueField.lift (modMap 𝓞 A)) x
+      let z := surjInv (IsResidueAlgebra.isSurjective (A := A)) y
+      let X := surjInv (IsLocalRing.residue_surjective) x
+      have hX_to_x : IsLocalRing.residue 𝓞 X = x := by
+        unfold X
+        exact surjInv_eq (f := IsLocalRing.residue 𝓞) _ _
+      have hy : y = (modMap 𝓞 A) X := by
+        unfold y
+        rw [← hX_to_x]
+        simp
+      suffices h : (IsLocalRing.residue 𝓞) z = (IsLocalRing.residue 𝓞) X by
+        change (IsLocalRing.residue 𝓞) z = x
+        unfold X at h
+        rw [surjInv_eq (f := IsLocalRing.residue 𝓞)] at h
+        exact h
+      sorry
     map_mul' := by
       simp [modMap]
-      intro x y
+      rintro x y
       rw [← map_mul]
       sorry
-    map_add' := sorry
+    map_add' := by
+      simp [modMap]
+      rintro x y
+      sorry
+
+abbrev ArtininianQuotientIdeal (A : CommAlgCat 𝓞)
+  := {a : Ideal A // IsArtinianRing (A ⧸ a)}
+
+instance {A : CommAlgCat 𝓞} : Coe (ArtininianQuotientIdeal A) (Ideal A) where
+  coe a := a.1
+
+abbrev proartinianCompletion_obj {A : CommAlgCat 𝓞} (a : ArtininianQuotientIdeal A) :=
+  A ⧸ (a : Ideal A)
+
+def proartinianCompletion_map {A : CommAlgCat 𝓞} {a b : ArtininianQuotientIdeal A} (h : a ≤ b) :
+  proartinianCompletion_obj b →+* proartinianCompletion_obj a := sorry
+
+def proartinianCompletion_inverseSystem (A : CommAlgCat 𝓞)
+  : InverseSystem (fun {a b : ArtininianQuotientIdeal A} (h : a ≤ b) => (proartinianCompletion_map h))
+  where
+    map_self := sorry
+    map_map := sorry
+
+def proartinianCompletion (A : CommAlgCat 𝓞) :=
+  (proartinianCompletion_inverseSystem A).limit
+
+def diagonalMap (A : Type*) : A →+* proartinianCompletion A := sorry
 
 variable (𝓞) in
 class IsProartinian (A : CommAlgCat 𝓞) : Prop where
-  pro_artin : True
+  pro_artin : Function.Bijective (diagonalMap (artinCompletion A))
 
 variable (𝓞) in
 def 𝓒_filter : CommAlgCat 𝓞 → Prop := fun A =>
@@ -172,8 +227,8 @@ def pbar' := GL_map_of_representation_of_basis ρbar 𝓫
 variable (A : 𝓒 𝓞)
 
 def SLMap : Hom_alg(𝓞; 𝓞[G, ι], A) ≃ Hom_grp(G, GL(ι, A)) where
-  toFun f := _
-  invFun ρ := _
+  toFun f := sorry
+  invFun ρ := sorry
   left_inv := sorry
   right_inv := sorry
 
