@@ -7,4 +7,4 @@ variable {M A B : Type*} [CommRing A] [CommRing B] [AddCommGroup M] [Algebra A B
   -- for free modules of finite rank
 
 lemma det_restrictScalars (f : M →ₗ[B] M) : (f.restrictScalars A).det = Algebra.norm A f.det := by
-  sorry
+  sorry -- #275
