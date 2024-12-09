@@ -30,6 +30,7 @@ import FLT.MathlibExperiments.FrobeniusRiou
 import FLT.MathlibExperiments.HopfAlgebra.Basic
 import FLT.MathlibExperiments.IsCentralSimple
 import FLT.MathlibExperiments.IsFrobenius
+import FLT.Mathlib.RingTheory.Norm.Defs
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.NumberField.AdeleRing
