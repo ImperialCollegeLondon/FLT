@@ -16,8 +16,16 @@ open Subgroup Set
 open scoped Pointwise
 
 namespace MeasureTheory
-variable {G α : Type*} [Group G] [MeasurableSpace G] [MeasurableMul G] [MeasurableSpace α]
+variable {G α : Type*} [Group G] [MeasurableSpace G] [MeasurableSpace α]
   {H K : Subgroup G}
+
+@[to_additive]
+instance [MeasurableMul₂ G] : MeasurableMul₂ H where measurable_mul := by measurability
+
+@[to_additive]
+instance [MeasurableInv G] : MeasurableInv H where measurable_inv := sorry
+
+variable [MeasurableMul G]
 
 @[to_additive]
 instance : MeasurableMul H where

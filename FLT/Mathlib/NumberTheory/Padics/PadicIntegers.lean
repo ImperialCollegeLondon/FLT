@@ -1,7 +1,6 @@
 import Mathlib.Algebra.CharZero.Infinite
 import Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.Algebra.Group.Subgroup.Pointwise
-import FLT.Mathlib.Algebra.Group.Units.Hom
 import FLT.Mathlib.Algebra.GroupWithZero.NonZeroDivisors
 import FLT.Mathlib.GroupTheory.Index
 
@@ -58,26 +57,23 @@ lemma isOpenEmbedding_coe : IsOpenEmbedding ((↑) : ℤ_[p] → ℚ_[p]) := by
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]ˣ ℚ_[p]ˣ where coe := Units.map Coe.ringHom.toMonoidHom
 
-/-- `x • sℤ_[p]` has index `‖x‖⁻¹` in `sℤ_[p]`.
+/-- For a `ℤ_[p]`-submodule `s` of `ℚ_[p]`, `x • s` has index `‖x‖⁻¹` in `s`.
 
-Note that `sℤ_[p]` is the form `yℤ_[p]` for some `y : ℚ_[p]`, but this is syntactically less
+Note that `s` is of the form `yℤ_[p]` for some `y : ℚ_[p]`, but this is syntactically less
 general. -/
-lemma smul_submoduleSpan_relindex_submoduleSpan (x : ℤ_[p]) (s : Set ℚ_[p]) :
-    (x • (Submodule.span ℤ_[p] s).toAddSubgroup).relindex (Submodule.span ℤ_[p] s).toAddSubgroup
-      = ‖x‖₊⁻¹ :=
+lemma smul_submodule_relindex (x : ℤ_[p]) (s : Submodule ℤ_[p] ℚ_[p]) :
+    (x • s.toAddSubgroup).relindex s.toAddSubgroup = ‖x‖₊⁻¹ :=
   -- https://github.com/ImperialCollegeLondon/FLT/issues/279
   -- Note: You might need to prove `smul_submoduleSpan_finiteRelIndex_submoduleSpan` first
   sorry
 
-/-- `x • sℤ_[p]` has finite index in `sℤ_[p]` if `x ≠ 0`.
+/-- For a `ℤ_[p]`-submodule `s` of `ℚ_[p]`, `x • s` has finite index if `x ≠ 0`.
 
-Note that `sℤ_[p]` is the form `yℤ_[p]` for some `y : ℚ_[p]`, but this is syntactically less
+Note that `s` is the form `yℤ_[p]` for some `y : ℚ_[p]`, but this is syntactically less
 general. -/
-lemma smul_submoduleSpan_finiteRelIndex_submoduleSpan (hx : x ≠ 0) (s : Set ℚ_[p]) :
-    (x • (Submodule.span ℤ_[p] s).toAddSubgroup).FiniteRelIndex
-      (Submodule.span ℤ_[p] s).toAddSubgroup where
-  relIndex_ne_zero := by
-    simpa [← Nat.cast_ne_zero (R := ℝ≥0), smul_submoduleSpan_relindex_submoduleSpan]
+lemma smul_submodule_finiteRelIndex (hx : x ≠ 0) (s : Submodule ℤ_[p] ℚ_[p]) :
+    (x • s.toAddSubgroup).FiniteRelIndex s.toAddSubgroup where
+  relIndex_ne_zero := by simpa [← Nat.cast_ne_zero (R := ℝ≥0), smul_submodule_relindex]
 
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]⁰ ℚ_[p]ˣ where
@@ -100,11 +96,7 @@ end PadicInt
 
 namespace Padic
 
-lemma submoduleSpan_padicInt_one :
-    Submodule.span ℤ_[p] (1 : Set ℚ_[p]) = Metric.closedBall (0 : ℚ_[p]) 1 := by
-  rw [← Submodule.one_eq_span_one_set]
-  ext x
-  simp
-  simp [PadicInt]
+lemma submodule_one_eq_closedBall :
+    (1 : Submodule ℤ_[p] ℚ_[p]) = Metric.closedBall (0 : ℚ_[p]) 1 := by ext x; simp; simp [PadicInt]
 
 end Padic

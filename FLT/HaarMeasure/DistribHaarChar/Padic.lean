@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2024 Yaël Dillies, Javier Lopez-Contreras. All rights reserved.
+Copyright (c) 2024 Yaël Dillies, Javier López-Contreras. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Yaël Dillies, Javier Lopez-Contreras
+Authors: Yaël Dillies, Javier López-Contreras
 -/
 import FLT.Mathlib.MeasureTheory.Group.Action
 import FLT.HaarMeasure.DistribHaarChar.Basic
@@ -18,8 +18,8 @@ p-adic/p-adic integer and `s` is a set of p-adics/p-adic integers.
 
 ## Main declarations
 
-* `distribHaarChar_padic`: `distribHaarChar ℚ_[p]` is the usual p-adic norm on `ℚ_[p]`.
-* `distribHaarChar_padicInt`: `distribHaarChar ℤ_[p]` is the usual p-adic norm on `ℤ_[p]`.
+* `distribHaarChar_padic`: `distribHaarChar ℚ_[p]` is the usual p-adic norm on `ℚ_[p]ˣ`.
+* `distribHaarChar_padicInt`: `distribHaarChar ℤ_[p]` is constantly `1` on `ℤ_[p]ˣ`.
 * `Padic.volume_padic_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℚ_[p]` and
   `s : Set ℚ_[p]`.
 * `PadicInt.volume_padicInt_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℤ_[p]` and
@@ -34,35 +34,35 @@ variable {p : ℕ} [Fact p.Prime]
 private lemma distribHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
     distribHaarChar ℚ_[p] (x : ℚ_[p]ˣ) = ‖(x : ℚ_[p])‖₊ := by
   -- Let `K` be the copy of `ℤ_[p]` inside `ℚ_[p]` and `H` be `xK`.
-  let K : AddSubgroup ℚ_[p] := (Submodule.span ℤ_[p] 1).toAddSubgroup
+  let K : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
   let H := (x : ℚ_[p]) • K
   -- We compute that `volume H = ‖x‖₊ * volume K`.
   refine distribHaarChar_eq_of_measure_smul_eq_mul (s := K) (μ := volume) (G := ℚ_[p]ˣ)
-    (by simp [K, Padic.submoduleSpan_padicInt_one, closedBall, Padic.volume_closedBall_one])
-    (by simp [K, Padic.submoduleSpan_padicInt_one, closedBall, Padic.volume_closedBall_one]) ?_
+    (by simp [K, Padic.submodule_one_eq_closedBall, closedBall, Padic.volume_closedBall_one])
+    (by simp [K, Padic.submodule_one_eq_closedBall, closedBall, Padic.volume_closedBall_one]) ?_
   change volume (H : Set ℚ_[p]) = ‖(x : ℚ_[p])‖₊ * volume (K : Set ℚ_[p])
   -- This is true because `H` is a `‖x‖₊⁻¹`-index subgroup of `K`.
   have hHK : H ≤ K := by
     simpa [H, K, -Submodule.smul_le_self_of_tower]
-      using (.span _ 1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
+      using (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
   have : H.FiniteRelIndex K :=
-    PadicInt.smul_submoduleSpan_finiteRelIndex_submoduleSpan (p := p)
-      (mem_nonZeroDivisors_iff_ne_zero.1 x.2) {1}
+    PadicInt.smul_submodule_finiteRelIndex (p := p) (mem_nonZeroDivisors_iff_ne_zero.1 x.2) 1
   have H_relindex_Z : (H.relindex K : ℝ≥0∞) = ‖(x : ℚ_[p])‖₊⁻¹ :=
-    congr(ENNReal.ofNNReal $(PadicInt.smul_submoduleSpan_relindex_submoduleSpan (p := p) x {1}))
+    congr(ENNReal.ofNNReal $(PadicInt.smul_submodule_relindex (p := p) x 1))
   rw [← index_mul_addHaar_addSubgroup_eq_addHaar_addSubgroup hHK, H_relindex_Z, ENNReal.coe_inv,
     ENNReal.mul_inv_cancel_left]
   · simp
   · simp
   · simp
-  · simpa [H, K, Padic.submoduleSpan_padicInt_one]
+  · simpa [H, K, Padic.submodule_one_eq_closedBall]
       using measurableSet_closedBall.const_smul (x : ℚ_[p]ˣ)
-  · simpa [K, Padic.submoduleSpan_padicInt_one] using measurableSet_closedBall
+  · simpa [K, Padic.submodule_one_eq_closedBall] using measurableSet_closedBall
 
 /-- The distributive Haar character of the action of `ℚ_[p]ˣ` on `ℚ_[p]` is the usual p-adic norm.
 
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℚ_[p]` and `s : Set ℚ_[p]`.
 See `Padic.volume_padic_smul` -/
+@[simp]
 lemma distribHaarChar_padic (x : ℚ_[p]ˣ) : distribHaarChar ℚ_[p] x = ‖(x : ℚ_[p])‖₊ := by
   -- Write the RHS as the application of a monoid hom `g`.
   let g : ℚ_[p]ˣ →* ℝ≥0 := {
@@ -96,11 +96,12 @@ lemma Padic.volume_padic_smul (x : ℚ_[p]) (s : Set ℚ_[p]) : volume (x • s)
     volume (x • s) = ‖x‖₊ * volume s := by
   simpa [-volume_padicInt_smul, ← image_coe_smul_set] using Padic.volume_padicInt_smul x ((↑) '' s)
 
-/-- The distributive Haar character of the action of `ℤ_[p]ˣ` on `ℤ_[p]` is the usual p-adic norm.
+/-- The distributive Haar character of the action of `ℤ_[p]ˣ` on `ℤ_[p]` is the constant `1`.
 
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℤ_[p]` and `s : Set ℤ_[p]`.
 See `PadicInt.volume_padicInt_smul` -/
-lemma distribHaarChar_padicInt (x : ℤ_[p]ˣ) : distribHaarChar ℤ_[p] x = ‖(x : ℤ_[p])‖₊ :=
+@[simp]
+lemma distribHaarChar_padicInt (x : ℤ_[p]ˣ) : distribHaarChar ℤ_[p] x = 1 :=
   -- We compute `distribHaarChar ℤ_[p]` by lifting everything to `ℚ_[p]`.
   distribHaarChar_eq_of_measure_smul_eq_mul (s := univ) (μ := volume) (by simp) (measure_ne_top _ _)
-    (PadicInt.volume_padicInt_smul ..)
+    (by simp [PadicInt.volume_padicInt_smul])

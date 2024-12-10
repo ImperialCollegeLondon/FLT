@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2024 Yaël Dillies, Javier Lopez-Contreras. All rights reserved.
+Copyright (c) 2024 Yaël Dillies, Javier López-Contreras. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Yaël Dillies, Javier Lopez-Contreras
+Authors: Yaël Dillies, Javier López-Contreras
 -/
 import Mathlib.Analysis.Complex.ReImTopology
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
@@ -60,15 +60,12 @@ lemma distribHaarChar_complex (z : ℂˣ) : distribHaarChar ℂ z = ‖(z : ℂ)
     rw [LinearMap.det_restrictScalars]
     simp [Algebra.norm_complex_apply, normSq_eq_norm_sq, zpow_ofNat]
   -- Massaging, we find the result.
-  have := addHaar_preimage_linearMap (E := ℂ) volume
-    (f := (LinearMap.mul ℂ ℂ z⁻¹).restrictScalars ℝ)
-  simp [key] at this
-  convert this _ _ using 2
-  · symm
-    simpa [LinearMap.mul, LinearMap.mk₂, LinearMap.mk₂', LinearMap.mk₂'ₛₗ, Units.smul_def]
+  convert addHaar_preimage_linearMap (E := ℂ) volume
+    (f := (LinearMap.mul ℂ ℂ z⁻¹).restrictScalars ℝ) _ _ using 2
+  · simpa [LinearMap.mul, LinearMap.mk₂, LinearMap.mk₂', LinearMap.mk₂'ₛₗ, Units.smul_def, eq_comm]
       using preimage_smul_inv z (Icc 0 1 ×ℂ Icc 0 1)
-  · simp [ofReal_norm_eq_coe_nnnorm, ← Complex.norm_eq_abs, ENNReal.ofReal_pow, zpow_ofNat]
-  · simp [zpow_ofNat]
+  · simp [key, ofReal_norm_eq_coe_nnnorm, ← Complex.norm_eq_abs, ENNReal.ofReal_pow, zpow_ofNat]
+  · simp [key, zpow_ofNat]
 
 lemma Complex.volume_complex_smul (z : ℂ) (s : Set ℂ) : volume (z • s) = ‖z‖₊ ^ 2 * volume s := by
   obtain rfl | hz := eq_or_ne z 0
