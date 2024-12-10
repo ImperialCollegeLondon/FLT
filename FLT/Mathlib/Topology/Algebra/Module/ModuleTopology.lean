@@ -1,7 +1,9 @@
-import FLT.ForMathlib.MiscLemmas
-import Mathlib.Topology.Algebra.Ring.Basic
+import Mathlib.Algebra.Algebra.Bilinear
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.Mathlib.Algebra.Module.LinearMap.Defs
+import FLT.Mathlib.Topology.Algebra.Module.Basic
+import FLT.Mathlib.Topology.Algebra.Monoid
 
 /-!
 # An "action topology" for modules over a topological ring
@@ -96,7 +98,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
       (Prod.map id ⇑φ.toAddMonoidHom) by ext; simp, Set.preimage_comp] at foo
     clear! τB -- easiest to just remove topology on B completely now so typeclass inference
     -- never sees it
-    convert isOpenMap_of_coinduced (AddMonoidHom.prodMap (AddMonoidHom.id R) φ.toAddMonoidHom)
+    convert (AddMonoidHom.prodMap (AddMonoidHom.id R) φ.toAddMonoidHom).isOpenMap_of_coinduced
       (_) (_) (_) foo
     · -- aesop would do this if `Function.surjective_id : Surjective ⇑(AddMonoidHom.id R)`
       -- was known by it
@@ -107,7 +109,7 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
       apply @Continuous.prodMap _ _ _ _ (_) (_) (_) (_) id φ continuous_id
       rw [continuous_iff_coinduced_le, eq_moduleTopology R A]
     · rw [← eq_moduleTopology R A]
-      exact coinduced_prod_eq_prod_coinduced (AddMonoidHom.id R) φ.toAddMonoidHom
+      exact (AddMonoidHom.id R).coinduced_prod_eq_prod_coinduced  φ.toAddMonoidHom
        (Function.surjective_id) hφ
   · apply @ContinuousAdd.mk _ (_)
     obtain ⟨bar⟩ := continuousAdd R A
@@ -120,13 +122,14 @@ theorem coinduced_of_surjective {φ : A →ₗ[R] B} (hφ : Function.Surjective 
       (Prod.map ⇑φ.toAddMonoidHom ⇑φ.toAddMonoidHom) by ext; simp, Set.preimage_comp] at bar
     clear! τB -- easiest to just remove topology on B completely now
     rw [← eq_moduleTopology R A] at bar
-    convert isOpenMap_of_coinduced (AddMonoidHom.prodMap φ.toAddMonoidHom φ.toAddMonoidHom)
+    convert (AddMonoidHom.prodMap φ.toAddMonoidHom φ.toAddMonoidHom).isOpenMap_of_coinduced
       (_) (_) (_) bar
     · aesop
     · apply @Continuous.prodMap _ _ _ _ (_) (_) (_) (_) <;>
       · rw [continuous_iff_coinduced_le, eq_moduleTopology R A]; rfl
     · rw [← eq_moduleTopology R A]
-      exact coinduced_prod_eq_prod_coinduced (X := A) (Y := A) (S := B) (T := B) φ φ hφ hφ
+      exact φ.toAddMonoidHom.coinduced_prod_eq_prod_coinduced (X := A) (Y := A) (S := B) (T := B)
+        φ hφ hφ
 
 end surjection
 
@@ -171,29 +174,6 @@ variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemirin
 variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommMonoid (A i)]
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsModuleTopology R (A i)]
-
--- elsewhere
-def ContinuousLinearEquiv.piCongrLeft (R : Type*) [Semiring R] {ι ι' : Type*}
-    (φ : ι → Type*) [∀ i, AddCommMonoid (φ i)] [∀ i, Module R (φ i)]
-    [∀ i, TopologicalSpace (φ i)]
-    (e : ι' ≃ ι) : ((i' : ι') → φ (e i')) ≃L[R] (i : ι) → φ i where
-  __ := Homeomorph.piCongrLeft e
-  __ := LinearEquiv.piCongrLeft R φ e
-
--- elsewhere
-def ContinuousLinearEquiv.sumPiEquivProdPi (R : Type*) [Semiring R] (S T : Type*)
-    (A : S ⊕ T → Type*) [∀ st, AddCommMonoid (A st)] [∀ st, Module R (A st)]
-    [∀ st, TopologicalSpace (A st)] :
-    ((st : S ⊕ T) → A st) ≃L[R] ((s : S) → A (Sum.inl s)) × ((t : T) → A (Sum.inr t)) where
-  __ := LinearEquiv.sumPiEquivProdPi R S T A
-  __ := Homeomorph.sumPiEquivProdPi S T A
-
--- elsewhere
-def ContinuousLinearEquiv.pUnitPiEquiv (R : Type*) [Semiring R] (f : PUnit → Type*)
-    [∀ x, AddCommMonoid (f x)] [∀ x, Module R (f x)] [∀ x, TopologicalSpace (f x)] :
-    ((t : PUnit) → f t) ≃L[R] f () where
-  __ := LinearEquiv.pUnitPiEquiv R f
-  __ := Homeomorph.pUnitPiEquiv f
 
 instance pi : IsModuleTopology R (∀ i, A i) := by
   induction ι using Finite.induction_empty_option
@@ -309,10 +289,6 @@ end ring_bilinear
 section semiring_algebra
 
 open scoped TensorProduct
-
-open DedekindDomain
-
-open scoped NumberField
 
 -- these shouldn't be rings, they should be semirings
 variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
