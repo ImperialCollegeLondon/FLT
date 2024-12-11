@@ -13,7 +13,6 @@ import FLT.GroupScheme.FiniteFlat
 import FLT.HaarMeasure.DistribHaarChar.Basic
 import FLT.HaarMeasure.DistribHaarChar.Padic
 import FLT.HaarMeasure.DistribHaarChar.RealComplex
-import FLT.HaarMeasure.DistribHaarCharStuff
 import FLT.HaarMeasure.DomMulActMeasure
 import FLT.HaarMeasure.MeasurableSpacePadics
 import FLT.Hard.Results
