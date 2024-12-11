@@ -55,5 +55,4 @@ import FLT.Mathlib.Topology.Homeomorph
 import FLT.NumberField.AdeleRing
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.IsTotallyReal
-import FLT.RestrictedProduct.Defs
 import FLT.TateCurve.TateCurve
