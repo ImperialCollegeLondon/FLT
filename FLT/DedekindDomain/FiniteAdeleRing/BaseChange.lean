@@ -437,8 +437,8 @@ theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff
   sorry -- #240
 
 theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff' (x : ProdAdicCompletions A K) :
-  ProdAdicCompletions.IsFiniteAdele x ↔ ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
-  (ProdAdicCompletions.baseChangeEquiv A K L B (l ⊗ₜ x)) := by
+    ProdAdicCompletions.IsFiniteAdele x ↔ ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
+    (ProdAdicCompletions.baseChangeEquiv A K L B (l ⊗ₜ x)) := by
   constructor
   · simp_rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B, baseChangeEquiv,
       AlgEquiv.coe_ofBijective, Algebra.TensorProduct.lift_tmul, map_one, one_mul]
