@@ -6,8 +6,10 @@ import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import Mathlib.RepresentationTheory.Basic
 import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 import Mathlib.Topology.Algebra.Group.Basic
-import FLT.Mathlib.Order.DirectedInverseSystem
+import Mathlib.Topology.Algebra.Ring.Basic
+
 import FLT.Mathlib.Algebra.InverseLimit
+
 
 universe u
 
@@ -89,32 +91,29 @@ noncomputable def IsResidueAlgebra.toRingEquiv (A : CommAlgCat 𝓞) [IsLocalRin
       rintro x y
       sorry
 
-abbrev ArtininianQuotientIdeal (A : CommAlgCat 𝓞)
+abbrev ArtinianQuotientIdeal (A : CommAlgCat 𝓞)
   := {a : Ideal A // IsArtinianRing (A ⧸ a)}
 
-instance {A : CommAlgCat 𝓞} : Coe (ArtininianQuotientIdeal A) (Ideal A) where
+instance {A : CommAlgCat 𝓞} : Coe (ArtinianQuotientIdeal A) (Ideal A) where
   coe a := a.1
 
-abbrev proartinianCompletion_obj {A : CommAlgCat 𝓞} (a : ArtininianQuotientIdeal A) :=
+abbrev proartinianCompletion_obj {A : CommAlgCat 𝓞} (a : ArtinianQuotientIdeal A) :=
   A ⧸ (a : Ideal A)
 
-def proartinianCompletion_map {A : CommAlgCat 𝓞} {a b : ArtininianQuotientIdeal A} (h : a ≤ b) :
+def proartinianCompletion_map {A : CommAlgCat 𝓞} {a b : ArtinianQuotientIdeal A} (h : a ≤ b) :
   proartinianCompletion_obj b →+* proartinianCompletion_obj a := sorry
 
-def proartinianCompletion_inverseSystem (A : CommAlgCat 𝓞)
-  : InverseSystem (fun {a b : ArtininianQuotientIdeal A} (h : a ≤ b) => (proartinianCompletion_map h))
-  where
-    map_self := sorry
-    map_map := sorry
-
 abbrev proartinianCompletion (A : CommAlgCat 𝓞) :=
-  Ring.InverseLimit (proartinianCompletion_inverseSystem A)
+  Ring.InverseLimit
+  (fun (a : ArtinianQuotientIdeal A) => proartinianCompletion_obj a)
+  (fun (a b : ArtinianQuotientIdeal A) (h : a ≤ b)
+    => proartinianCompletion_map (A := A) h)
 
-def diagonalMap (A : Type*) : A →+* proartinianCompletion A := sorry
+def diagonalMap (A : CommAlgCat 𝓞) : A →+* proartinianCompletion A := sorry
 
 variable (𝓞) in
 class IsProartinian (A : CommAlgCat 𝓞) : Prop where
-  pro_artin : Function.Bijective (diagonalMap (artinCompletion A))
+  pro_artin : Function.Bijective (diagonalMap A)
 
 variable (𝓞) in
 def 𝓒_filter : CommAlgCat 𝓞 → Prop := fun A =>
@@ -137,6 +136,9 @@ instance : IsLocalHom A.obj.hom := by unfold 𝓒 at A; exact A.property.2.1
 instance : IsResidueAlgebra 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.1
 noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) :=
   RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A)
+instance : TopologicalSpace A := sorry
+instance : TopologicalRing A := sorry
+
 
 instance : IsProartinian 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.2
 variable [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
@@ -165,7 +167,8 @@ structure Lift : Type (u+1) where
   [module : Module A W]
   [free : Module.Free A W]
   [finite : Module.Finite A W]
-  -- The following 4 instances are just a weird LEAN pattern. What we really want is for any A : 𝓒 𝓞
+  -- The following 4 instances are just a LEAN specification pattern.
+  -- What we really want is for any A : 𝓒 𝓞
   -- to have module structure on V with the natural scalar product, but we cannot define this
   -- as a dependent instance as it further depends on 𝓞, which is not the scope of "Module A V"
   -- To solve this: assume there is *some* structure, and further assume that structre coincides
