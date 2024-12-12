@@ -48,11 +48,11 @@ class IsValidDeformationRestriction (res : (R : 𝓒 𝓞) → Set (Deformation 
   cond1 : ∀ A : 𝓒 𝓞, ∀ D : Deformation ρbar A,
     (D ∈ res A) ↔ (∀ a : OpenIdeal A, (D.quotient a) ∈ res (A.quotient a))
   cond2 : ∀ A : 𝓒 𝓞, ∀ D : Deformation ρbar A, ∀ a b : OpenIdeal A,
-    ∀ ha: (a : Ideal A) ≠ ⊤, ∀ hb: (b : Ideal A) ≠ ⊤,
+    ∃ _: (a : Ideal A) ≠ ⊤, ∃ _: (b : Ideal A) ≠ ⊤,
     ((D.quotient a) ∈ res (A.quotient a) ∧ (D.quotient b) ∈ res (A.quotient b) →
       D.quotient (a ⊓ b) ∈ res (A.quotient (a ⊓ b)))
-  cond3 : ∀ A A' : 𝓒 𝓞, ∀ ι : A  →+* A', ∀ hinj : Function.Injective ι,
-    ∀ hart : IsArtinianRing A, ∀ hart' : IsArtinianRing A',
+  cond3 : ∀ A A' : 𝓒 𝓞, ∀ ι : A  →+* A', ∃ _ : Function.Injective ι,
+    ∃ _ : IsArtinianRing A, ∃ _ : IsArtinianRing A',
     ∀ D : Deformation ρbar A, (D ∈ res A) ↔ ((D.tensorProduct A) ∈ res A)
 
 variable (res : (R : 𝓒 𝓞) → Set (Deformation ρbar R))
@@ -65,9 +65,7 @@ def Deformation.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) : Deformation ρba
 variable (𝓞) in
 def Deformation.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
   obj A := Deformation ρbar A
-  map f := Deformation.functor_onMap ρbar f
-  map_id := sorry
-  map_comp := sorry
+  map f := sorry -- Deformation.functor_onMap ρbar f
 
 -- Proposition 2.3
 theorem Deformation.functor_isCorepresentable : (Deformation.functor 𝓞 ρbar).IsCorepresentable  := sorry
