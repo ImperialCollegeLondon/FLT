@@ -69,4 +69,5 @@ def Deformation.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
   map_id := sorry
   map_comp := sorry
 
+-- Proposition 2.3
 theorem Deformation.functor_isCorepresentable : (Deformation.functor 𝓞 ρbar).IsCorepresentable  := sorry

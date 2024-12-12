@@ -91,36 +91,48 @@ noncomputable def IsResidueAlgebra.toRingEquiv (A : CommAlgCat 𝓞) [IsLocalRin
       rintro x y
       sorry
 
-abbrev ArtinianQuotientIdeal (A : CommAlgCat 𝓞)
+abbrev ArtinianQuotientIdeal (A : Type*) [CommRing A]
   := {a : Ideal A // IsArtinianRing (A ⧸ a)}
 
-instance {A : CommAlgCat 𝓞} : Coe (ArtinianQuotientIdeal A) (Ideal A) where
+instance {A : Type*} [CommRing A] : Coe (ArtinianQuotientIdeal A) (Ideal A) where
   coe a := a.1
 
-abbrev proartinianCompletion_obj {A : CommAlgCat 𝓞} (a : ArtinianQuotientIdeal A) :=
+abbrev proartinianCompletion_obj {A : Type*} [CommRing A] (a : ArtinianQuotientIdeal A) :=
   A ⧸ (a : Ideal A)
 
-def proartinianCompletion_map {A : CommAlgCat 𝓞} {a b : ArtinianQuotientIdeal A} (h : a ≤ b) :
+def proartinianCompletion_map {A : Type*} [CommRing A] {a b : ArtinianQuotientIdeal A} (h : a ≤ b) :
   proartinianCompletion_obj b →+* proartinianCompletion_obj a := sorry
 
-abbrev proartinianCompletion (A : CommAlgCat 𝓞) :=
+abbrev proartinianCompletion (A : Type*) [CommRing A] :=
   Ring.InverseLimit
   (fun (a : ArtinianQuotientIdeal A) => proartinianCompletion_obj a)
   (fun (a b : ArtinianQuotientIdeal A) (h : a ≤ b)
     => proartinianCompletion_map (A := A) h)
 
-def diagonalMap (A : CommAlgCat 𝓞) : A →+* proartinianCompletion A := sorry
+def diagonalMap (A : Type*) [CommRing A] : A →+* proartinianCompletion A := sorry
+
+def diagonalMap_toComponent (A : Type*) [CommRing A] (a : ArtinianQuotientIdeal A) :
+  A →+* proartinianCompletion_obj a := algebraMap _ _
 
 variable (𝓞) in
-class IsProartinian (A : CommAlgCat 𝓞) : Prop where
+class IsProartinian (A : Type*) [CommRing A] : Prop where
   pro_artin : Function.Bijective (diagonalMap A)
+
+instance (A : CommAlgCat 𝓞) [IsProartinian A] : TopologicalSpace A := .generateFrom
+  {U | ∃ a : ArtinianQuotientIdeal A, ∃ V : Set (proartinianCompletion_obj a),
+    U = (diagonalMap_toComponent A a) ⁻¹' V}
+
+instance (A : CommAlgCat 𝓞) [IsProartinian A] : TopologicalRing A where
+  continuous_add := sorry
+  continuous_mul := sorry
+  continuous_neg := sorry
 
 variable (𝓞) in
 def 𝓒_filter : CommAlgCat 𝓞 → Prop := fun A =>
   ∃ (_ : IsLocalRing A),
   ∃ (_ : IsLocalHom A.hom),
   IsResidueAlgebra 𝓞 A ∧
-  IsProartinian 𝓞 A
+  IsProartinian A
 
 variable (𝓞) in
 def 𝓒 := FullSubcategory (𝓒_filter 𝓞)
@@ -136,11 +148,7 @@ instance : IsLocalHom A.obj.hom := by unfold 𝓒 at A; exact A.property.2.1
 instance : IsResidueAlgebra 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.1
 noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) :=
   RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A)
-instance : TopologicalSpace A := sorry
-instance : TopologicalRing A := sorry
-
-
-instance : IsProartinian 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.2
+instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
 variable [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
 variable [Module A V] [IsScalarTower A (𝓴 A) V]
 
@@ -191,12 +199,12 @@ def Lift.isIso : Setoid (Lift ρbar A) where
 
 omit A in
 def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) : Lift ρbar A → Lift ρbar B :=
-  sorry
+  fun (W : Lift ρbar A) => sorry
 
 variable (𝓞) in
 def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
   obj A := Lift ρbar A
-  map f := sorry -- Lift.functor_onMap ρbar f
+  map f := Lift.functor_onMap ρbar f
 
 end Definitions
 
@@ -236,6 +244,7 @@ def SLMap : Hom_alg(𝓞; 𝓞[G, ι], A) ≃ Hom_grp(G, GL(ι, A)) where
   left_inv := sorry
   right_inv := sorry
 
+-- Proposition 2.5 in G Finite
 theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
 
 end G_finite

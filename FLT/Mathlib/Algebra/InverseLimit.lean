@@ -152,6 +152,9 @@ instance zero : Zero (InverseLimit G f) := by
 instance : Inhabited (InverseLimit G f) :=
   ⟨0⟩
 
+def toComponent (i) : InverseLimit G f →+* G i :=
+  sorry
+
 
 end InverseLimit
 
