@@ -6,8 +6,10 @@ import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 import Mathlib.Topology.Algebra.Ring.Basic
 import Mathlib.RepresentationTheory.Basic
 import Mathlib.CategoryTheory.Widesubcategory
+import Mathlib.CategoryTheory.Category.Basic
 
 import FLT.Mathlib.Algebra.InverseLimit
+import FLT.Mathlib.CategoryTheory.Comma.Over
 
 universe u
 
@@ -25,6 +27,7 @@ variable (ρbar : Representation (𝓴 𝓞) G V)
 
 variable (𝓞) in
 abbrev CommAlgCat := Under (CommRingCat.of 𝓞)
+instance : ConcreteCategory (CommAlgCat 𝓞) := by unfold CommAlgCat; infer_instance
 
 instance : CoeOut (CommAlgCat 𝓞) (CommRingCat) where coe A := A.right
 
@@ -50,7 +53,7 @@ noncomputable def IsResidueAlgebra.toRingEquiv (A : CommAlgCat 𝓞) [IsLocalRin
       change (⇑(IsLocalRing.residue ↑A.right) ∘ ⇑A.hom) (surjInv _ x) = x
       rw [Function.surjInv_eq (f := (⇑(IsLocalRing.residue ↑A.right) ∘ ⇑A.hom))]
     right_inv := by
-      simp [RightInverse, LeftInverse]
+      simp [Function.RightInverse, LeftInverse]
       rintro x
       let y := (IsLocalRing.ResidueField.lift (modMap 𝓞 A)) x
       let z := surjInv (IsResidueAlgebra.isSurjective (A := A)) y
@@ -105,11 +108,11 @@ variable (𝓞) in
 class IsProartinian (A : Type*) [CommRing A] : Prop where
   pro_artin : Function.Bijective (diagonalMap A)
 
-instance (A : CommAlgCat 𝓞) [IsProartinian A] : TopologicalSpace A := .generateFrom
+instance (A : Type*) [CommRing A] [IsProartinian A] : TopologicalSpace A := .generateFrom
   {U | ∃ a : ArtinianQuotientIdeal A, ∃ V : Set (proartinianCompletion_obj a),
     U = (diagonalMap_toComponent A a) ⁻¹' V}
 
-instance (A : CommAlgCat 𝓞) [IsProartinian A] : TopologicalRing A where
+instance (A : Type*) [CommRing A] [IsProartinian A] : TopologicalRing A where
   continuous_add := sorry
   continuous_mul := sorry
   continuous_neg := sorry
@@ -122,20 +125,37 @@ def 𝓒_filter : CommAlgCat 𝓞 → Prop := fun A =>
   IsProartinian A
 
 variable (𝓞) in
-def 𝓒_full := FullSubcategory (𝓒_filter 𝓞)
+def 𝓒 := FullSubcategory (𝓒_filter 𝓞)
 
-instance : Category (𝓒_full 𝓞) := by unfold 𝓒_full; infer_instance
+instance : Category (𝓒 𝓞) := by unfold 𝓒; infer_instance
 
-instance : CoeOut (𝓒_full 𝓞) (CommAlgCat 𝓞) where coe A := A.obj
+instance : CoeOut (𝓒 𝓞) (CommAlgCat 𝓞) where coe A := A.obj
 
-abbrev ContinuousHoms :=
-  (fun {A B : 𝓒_full 𝓞} => fun (f : A ⟶ B) => Continuous f)
+variable (A : 𝓒 𝓞)
 
-instance : CategoryTheory.MorphismProperty.IsMultiplicative
+instance : Algebra 𝓞 A := by unfold 𝓒 at A; exact A.obj.hom.toAlgebra
+instance : IsLocalRing A := by unfold 𝓒 at A; exact A.property.1
+instance : IsLocalHom A.obj.hom := by unfold 𝓒 at A; exact A.property.2.1
+instance : IsResidueAlgebra 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.1
+noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A)
+instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
+instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
 
-def 𝓒 := WideSubcategory
-  (fun {A B : 𝓒_full 𝓞} => fun (f : A ⟶ B) => Continuous f)
-  (IsMultiplicative := sorry)
+
+/-
+instance {A B : 𝓒 𝓞} : Coe (A ⟶ B) (A →+* B) := sorry
+
+instance : MorphismProperty.IsMultiplicative
+  (fun {A B : 𝓒 𝓞} => fun (f : A ⟶ B) => Continuous (f : A →+* B)) where
+  id_mem X := sorry
+  comp_mem f g := sorry
+
+TODO(jlcontreras): This is all wrong. How do i restrict to continuous morphisms?
+variable (𝓞) in
+abbrev 𝓒 := WideSubcategory (fun {A B : 𝓒 𝓞} => fun (f : A ⟶ B) => Continuous (f : A →+* B))
+
+instance : Coe (𝓒 𝓞) (𝓒 𝓞) where
+  coe A := A.obj
 
 
 variable (A : 𝓒 𝓞)
@@ -144,6 +164,7 @@ instance : Algebra 𝓞 A := by unfold 𝓒 at A; exact A.obj.hom.toAlgebra
 instance : IsLocalRing A := by unfold 𝓒 at A; exact A.property.1
 instance : IsLocalHom A.obj.hom := by unfold 𝓒 at A; exact A.property.2.1
 instance : IsResidueAlgebra 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.1
-noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) :=
-  RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A)
+noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A)
 instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
+instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
+-/
