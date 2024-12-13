@@ -32,6 +32,14 @@ instance : ConcreteCategory (CommAlgCat 𝓞) := by unfold CommAlgCat; infer_ins
 
 instance : CoeOut (CommAlgCat 𝓞) (CommRingCat) where coe A := A.right
 
+def CommRingCat.quotient {A : CommRingCat} (a : Ideal A) : CommRingCat where
+  α := A ⧸ a
+
+def CommAlgCat.quotient {A : CommAlgCat 𝓞} (a : Ideal A) : CommAlgCat 𝓞 where
+  left := sorry
+  right := CommRingCat.quotient a
+  hom := sorry
+
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
 variable (𝓞) in
 abbrev modMap (A : CommAlgCat 𝓞) [IsLocalRing A] : 𝓞 →+* 𝓴 A :=
@@ -141,16 +149,6 @@ instance : IsResidueAlgebra 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.
 noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A)
 instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
 instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
-
-variable {A} in
-def CommRingCat.quotient (a : Ideal A) : CommRingCat where
-  α := A ⧸ a
-
-variable {A} in
-def CommAlgCat.quotient (a : Ideal A) : CommAlgCat 𝓞 where
-  left := sorry
-  right := CommRingCat.quotient a
-  hom := sorry
 
 variable {A} in
 def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where

@@ -127,7 +127,7 @@ local notation3:max "Hom_alg(" O "; " A "," A' ")" => (A →ₗ[O] A')
 -- Choose any basis of V, this makes ρbar into a G →* GL_ι(𝓴 A)
 variable {ι : Type u} [DecidableEq ι] [Fintype ι]
 variable (𝓫 : Basis ι (𝓴 𝓞) V)
-def pbar' := GL_map_of_representation_of_basis ρbar 𝓫
+def pbar' := Representation.GL_map_of_representation_of_basis ρbar 𝓫
 
 variable (A : 𝓒 𝓞)
 
