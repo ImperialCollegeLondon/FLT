@@ -7,6 +7,7 @@ import Mathlib.Topology.Algebra.Ring.Basic
 import Mathlib.RepresentationTheory.Basic
 import Mathlib.CategoryTheory.Widesubcategory
 import Mathlib.CategoryTheory.Category.Basic
+import Mathlib.RingTheory.AdicCompletion.Basic
 
 import FLT.Mathlib.Algebra.InverseLimit
 import FLT.Mathlib.CategoryTheory.Comma.Over
@@ -182,3 +183,14 @@ noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (IsRe
 instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
 instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
 -/
+
+section Noetherian -- Proposition 2.4 of Smit&Lenstra
+
+instance noetherian_𝓒_topology [IsNoetherianRing A] : IsAdic (IsLocalRing.maximalIdeal A) := sorry
+
+instance noetherian_𝓒_isAdic [IsNoetherianRing A] : IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
+
+lemma noetherian_continuous_maps {A A' : 𝓒 𝓞} [IsNoetherianRing A] (f : A →ₐ[𝓞] A') : Continuous f := sorry
+
+
+end Noetherian

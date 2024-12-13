@@ -21,21 +21,26 @@ open scoped TensorProduct
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
+
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
+
 variable {V : Type u}
   [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
+
 variable {G : Type u}
   [Group G] [TopologicalSpace G] [TopologicalGroup G]
-variable (ρbar : Representation (𝓴 𝓞) G V)
 
-section Definitions
+variable (ρbar : Representation (𝓴 𝓞) G V)
 
 variable (A : 𝓒 𝓞)
 variable [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
 variable [Module A V] [IsScalarTower A (𝓴 A) V]
 
 variable {W: Type u} [AddCommMonoid W] [Module A W] [Module.Free A W] [Module.Finite A W]
+
 variable (ρ: Representation A G W)
+
+section Definition
 
 variable (W V) in
 noncomputable def extend_ctts : W →ₗ[A] ((𝓴 A) ⊗[A] W) :=
@@ -79,6 +84,10 @@ def Lift.isIso : Setoid (Lift ρbar A) where
     trans := sorry
   }
 
+end Definition
+
+section UnrestrictedFunctor
+
 omit A in
 def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) : Lift ρbar A → Lift ρbar B :=
   fun (W : Lift ρbar A) => sorry
@@ -90,7 +99,7 @@ def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
 
 theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
 
-end Definitions
+section UnrestrictedFunctor
 
 section G_finite -- Section 3.1 Smit & Lenstra
 
