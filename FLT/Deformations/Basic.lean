@@ -141,6 +141,20 @@ noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (IsRe
 instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
 instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
 
+variable {A} in
+def CommRingCat.quotient (a : Ideal A) : CommRingCat where
+  α := A ⧸ a
+
+variable {A} in
+def CommAlgCat.quotient (a : Ideal A) : CommAlgCat 𝓞 where
+  left := sorry
+  right := CommRingCat.quotient a
+  hom := sorry
+
+variable {A} in
+def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
+  obj := CommAlgCat.quotient a
+  property := sorry
 
 /-
 instance {A B : 𝓒 𝓞} : Coe (A ⟶ B) (A →+* B) := sorry

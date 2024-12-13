@@ -1,4 +1,5 @@
 import Mathlib
+import FLT.Deformations.Basic
 import FLT.Deformations.Lift
 
 universe u
@@ -22,21 +23,6 @@ def OpenIdeal := {a : Ideal A // IsOpen a.carrier}
 
 instance : Coe (OpenIdeal A) (Ideal A) where
   coe a := a.1
-
-variable {A} in
-def CommRingCat.quotient (a : Ideal A) : CommRingCat where
-  α := A ⧸ a
-
-variable {A} in
-def CommAlgCat.quotient (a : Ideal A) : CommAlgCat 𝓞 where
-  left := sorry
-  right := CommRingCat.quotient a
-  hom := sorry
-
-variable {A} in
-def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
-  obj := CommAlgCat.quotient a
-  property := sorry
 
 variable {A ρbar} in
 def Deformation.quotient (D : Deformation ρbar A) (a : Ideal A) : Deformation ρbar (A.quotient a) := sorry
