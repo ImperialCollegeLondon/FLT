@@ -1,4 +1,4 @@
-import Mathlib
+import Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.LinearAlgebra.Span.Defs
 
 open Pointwise
@@ -46,19 +46,24 @@ instance : Min (Subrepresentation ρ) where
       intro g x hx₁ hx₂
       exact ⟨ρ₁.apply_mem_toSubmodule g hx₁, ρ₂.apply_mem_toSubmodule g hx₂⟩
 
+
 @[simp, norm_cast]
-lemma coe_sup (ρ₁ ρ₂ : Subrepresentation ρ) : ↑(ρ₁ ⊔ ρ₂) = (ρ₁ : Set W) + (ρ₂ : Set W) := sorry
+lemma coe_sup (ρ₁ ρ₂ : Subrepresentation ρ) : ↑(ρ₁ ⊔ ρ₂) = (ρ₁ : Set W) + (ρ₂ : Set W) := by
+  sorry
 
 @[simp, norm_cast]
 lemma coe_inf (ρ₁ ρ₂ : Subrepresentation ρ) : ↑(ρ₁ ⊓ ρ₂) = (ρ₁ ∩ ρ₂ : Set W) := rfl
 
 @[simp]
-lemma toSubmodule_sup (ρ₁ ρ₂ : Subrepresentation ρ) : (ρ₁ ⊔ ρ₂).toSubmodule = ρ₁.toSubmodule ⊔ ρ₂.toSubmodule := rfl
+lemma toSubmodule_sup (ρ₁ ρ₂ : Subrepresentation ρ) :
+  (ρ₁ ⊔ ρ₂).toSubmodule = ρ₁.toSubmodule ⊔ ρ₂.toSubmodule := rfl
 
 @[simp]
-lemma toSubmodule_inf (ρ₁ ρ₂ : Subrepresentation ρ) : (ρ₁ ⊓ ρ₂).toSubmodule = ρ₁.toSubmodule ⊓ ρ₂.toSubmodule := rfl
+lemma toSubmodule_inf (ρ₁ ρ₂ : Subrepresentation ρ) :
+  (ρ₁ ⊓ ρ₂).toSubmodule = ρ₁.toSubmodule ⊓ ρ₂.toSubmodule := rfl
 
-instance : Lattice (Subrepresentation ρ) := toSubmodule_injective.lattice _ toSubmodule_sup toSubmodule_inf
+instance : Lattice (Subrepresentation ρ) :=
+  toSubmodule_injective.lattice _ toSubmodule_sup toSubmodule_inf
 
 instance : BoundedOrder (Subrepresentation ρ) where
   top := ⟨⊤, by simp⟩

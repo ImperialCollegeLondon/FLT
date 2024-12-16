@@ -1,4 +1,6 @@
-import Mathlib
+import Mathlib.LinearAlgebra.Span.Defs
+
+open Pointwise
 
 variable {R : Type*} [Semiring R]
 
@@ -8,13 +10,19 @@ variable {p p' : Submodule R M}
 
 variable {P : M → Prop}
 
+namespace Submodule
+
 @[simp high]
-lemma Submodule.forall_mem_sup : (∀ x ∈ p ⊔ p', P x) ↔ (∀ x₁ ∈ p, ∀ x₂ ∈ p', P (x₁ + x₂)) := by
-  simp [Submodule.mem_sup]
+lemma forall_mem_sup : (∀ x ∈ p ⊔ p', P x) ↔ (∀ x₁ ∈ p, ∀ x₂ ∈ p', P (x₁ + x₂)) := by
+  simp [mem_sup]
   aesop
 
 @[simp high]
-lemma Submodule.exists_mem_sup : (∃ x ∈ p ⊔ p', P x) ↔ (∃ x₁ ∈ p, ∃ x₂ ∈ p', P (x₁ + x₂)) := by
-  simp [Submodule.mem_sup]
+lemma exists_mem_sup : (∃ x ∈ p ⊔ p', P x) ↔ (∃ x₁ ∈ p, ∃ x₂ ∈ p', P (x₁ + x₂)) := by
+  simp [mem_sup]
 
-#min_imports
+@[simp, norm_cast]
+lemma coe_sup' : ↑(p ⊔ p') = (p : Set M) + (p' : Set M) := by
+  simp [coe_sup]
+
+end Submodule
