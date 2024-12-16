@@ -27,7 +27,6 @@ lemma toSubmodule_injective : Function.Injective (toSubmodule : Subrepresentatio
 instance : SetLike (Subrepresentation ρ) W where
   coe ρ' := ρ'.toSubmodule
   coe_injective' := SetLike.coe_injective.comp toSubmodule_injective
-
 def toRepresentation (ρ' : Subrepresentation ρ): Representation A G ρ'.toSubmodule where
   toFun g := (ρ g).restrict (ρ'.apply_mem_toSubmodule g)
   map_one' := by ext; simp

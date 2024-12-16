@@ -1,3 +1,4 @@
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import Mathlib.RepresentationTheory.Basic
 
 open LinearMap
