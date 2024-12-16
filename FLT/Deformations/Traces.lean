@@ -1,7 +1,7 @@
 import Mathlib
 import FLT.Deformations.Basic
-import FLT.Mathlib.RepresentationTheory.Basic
-import FLT.Mathlib.RepresentationTheory.RepresentationEquiv
+import FLT.Deformations.RepresentationTheory.Subrepresentation
+import FLT.Deformations.RepresentationTheory.RepresentationEquiv
 
 open scoped TensorProduct Representation RepresentationEquiv
 

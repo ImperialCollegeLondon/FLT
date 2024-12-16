@@ -12,6 +12,7 @@ import Mathlib.LinearAlgebra.Quotient.Defs
 
 import FLT.Mathlib.Algebra.InverseLimit
 import FLT.Mathlib.RepresentationTheory.Basic
+import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Basic
 
 universe u
