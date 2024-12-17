@@ -1,7 +1,6 @@
 import Mathlib.Algebra.CharZero.Infinite
 import Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.Algebra.Group.Subgroup.Pointwise
-import FLT.Mathlib.Algebra.GroupWithZero.NonZeroDivisors
 import FLT.Mathlib.GroupTheory.Index
 
 /-!

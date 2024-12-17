@@ -23,7 +23,6 @@ import FLT.Mathlib.Algebra.Algebra.Subalgebra.Pi
 import FLT.Mathlib.Algebra.BigOperators.Finprod
 import FLT.Mathlib.Algebra.Group.Subgroup.Defs
 import FLT.Mathlib.Algebra.Group.Subgroup.Pointwise
-import FLT.Mathlib.Algebra.GroupWithZero.NonZeroDivisors
 import FLT.Mathlib.Algebra.Module.Equiv.Defs
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
@@ -46,7 +45,6 @@ import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.MeasureTheory.Group.Action
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.RingTheory.Norm.Defs
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.Module.Basic
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology

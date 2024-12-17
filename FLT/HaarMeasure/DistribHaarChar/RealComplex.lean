@@ -6,11 +6,11 @@ Authors: Yaël Dillies, Javier López-Contreras
 import Mathlib.Analysis.Complex.ReImTopology
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.RingTheory.Complex
+import Mathlib.RingTheory.Norm.Transitivity
 import FLT.HaarMeasure.DistribHaarChar.Basic
 import FLT.Mathlib.Analysis.Complex.Basic
 import FLT.Mathlib.Data.Complex.Basic
 import FLT.Mathlib.LinearAlgebra.Determinant
-import FLT.Mathlib.RingTheory.Norm.Defs
 
 /-!
 # The distributive Haar characters of `ℝ` and `ℂ`
