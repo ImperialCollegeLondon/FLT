@@ -1,10 +1,11 @@
-import Mathlib -- **TODO** fix when finished or if `exact?` is too slow
---import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
---import Mathlib.NumberTheory.NumberField.Basic
---import Mathlib.NumberTheory.RamificationInertia
-import FLT.Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags
-import FLT.Mathlib.Algebra.Order.Hom.Monoid
+import Mathlib.FieldTheory.Separable
+import Mathlib.NumberTheory.RamificationInertia.Basic
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.RingTheory.DedekindDomain.IntegralClosure
+import Mathlib.Topology.Algebra.Algebra
+import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.Algebra.Subalgebra.Pi
+import FLT.Mathlib.Algebra.Order.Hom.Monoid
 
 /-!
 
@@ -275,6 +276,7 @@ noncomputable def adicCompletionTensorComapAlgHom (v : HeightOneSpectrum A) :
       Π w : {w : HeightOneSpectrum B // v = comap A w}, adicCompletion L w.1 :=
   Algebra.TensorProduct.lift (Algebra.ofId _ _) (adicCompletionComapAlgHom' A K L B v) fun _ _ ↦ .all _ _
 
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
 lemma adicCompletionComapAlgIso_tmul_apply (v : HeightOneSpectrum A) (x y i) :
   adicCompletionTensorComapAlgHom A K L B v (x ⊗ₜ y) i =
     x • adicCompletionComapAlgHom A K L B v i.1 i.2 y := by
@@ -302,6 +304,7 @@ noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
     ((Algebra.TensorProduct.includeRight.restrictScalars A).comp (IsScalarTower.toAlgHom _ _ _))
     (fun _ _ ↦ .all _ _)
 
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
 set_option linter.deprecated false in -- `map_zero` and `map_add` time-outs
 theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
     (v : HeightOneSpectrum A) :

@@ -44,6 +44,7 @@ import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.MeasureTheory.Group.Action
+import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RingTheory.Norm.Defs
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv

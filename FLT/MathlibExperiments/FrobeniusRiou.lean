@@ -3,15 +3,8 @@ Copyright (c) 2024 Jou Glasheen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jou Glasheen, Amelia Livingston, Jujian Zhang, Kevin Buzzard
 -/
-import Mathlib.FieldTheory.Cardinality
-import Mathlib.RingTheory.DedekindDomain.Ideal
-import Mathlib.RingTheory.Ideal.Pointwise
-import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
-import Mathlib.RingTheory.Ideal.Pointwise
-import Mathlib.RingTheory.Ideal.Over
-import Mathlib.FieldTheory.Normal
 import Mathlib.FieldTheory.SeparableClosure
-import Mathlib.RingTheory.OreLocalization.Ring
+import Mathlib.RingTheory.Ideal.Over
 
 /-!
 
@@ -21,7 +14,7 @@ This file proves a general result in commutative algebra which can be used to de
 elements of Galois groups of local or fields (for example number fields).
 
 KB was alerted to this very general result (which needs no Noetherian or finiteness assumptions
-on the rings, just on the Galois group) by Joel Riou
+on the rings, just on the Galois group) by Joël Riou
 here https://leanprover.zulipchat.com/#narrow/stream/116395-maths/topic/Uses.20of.20Frobenius.20elements.20in.20mathematics/near/448934112
 
 ## Mathematical details
@@ -696,9 +689,6 @@ open scoped algebraMap
 noncomputable local instance : Algebra A[X] B[X] :=
   RingHom.toAlgebra (Polynomial.mapRingHom (Algebra.toRingHom))
 
-theorem IsAlgebraic.mul {R K : Type*} [CommRing R] [CommRing K] [Algebra R K] {x y : K}
-  (hx : IsAlgebraic R x) (hy : IsAlgebraic R y) : IsAlgebraic R (x * y) := sorry
-
 theorem IsAlgebraic.invLoc {R S K : Type*} [CommRing R] {M : Submonoid R} [CommRing S] [Algebra R S]
     [IsLocalization M S] {x : M} [CommRing K] [Algebra K S] (h : IsAlgebraic K ((x : R) : S)):
     IsAlgebraic K (IsLocalization.mk' S 1 x) := by
@@ -734,7 +724,7 @@ theorem algebraMap_algebraMap {R S T : Type*} [CommRing R] [CommRing S] [CommRin
   exact Eq.symm (IsScalarTower.algebraMap_apply R S T r)
 
 theorem Algebra.isAlgebraic_of_subring_isAlgebraic {R k K : Type*} [CommRing R] [CommRing k]
-    [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K]
+    [CommRing K] [Algebra R K] [IsFractionRing R K] [Algebra k K] [NoZeroDivisors k]
     (h : ∀ x : R, IsAlgebraic k (x : K)) : Algebra.IsAlgebraic k K := by
   rw [Algebra.isAlgebraic_def]
   let M := nonZeroDivisors R

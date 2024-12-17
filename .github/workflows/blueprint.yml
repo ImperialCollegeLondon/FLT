@@ -115,9 +115,10 @@ jobs:
             leanblueprint web
             cp -r blueprint/web docs/blueprint
 
-      - name: Check declarations mentioned in the blueprint exist in Lean code
-        run: |
-            ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+# uncomment when https://github.com/leanprover/lean4/pull/6325 is merged
+#      - name: Check declarations mentioned in the blueprint exist in Lean code
+#        run: |
+#            ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Copy API documentation to `docs/docs`
         run: cp -r .lake/build/doc docs/docs
