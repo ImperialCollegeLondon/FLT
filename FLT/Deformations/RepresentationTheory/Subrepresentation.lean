@@ -35,21 +35,21 @@ def toRepresentation (ρ' : Subrepresentation ρ): Representation A G ρ'.toSubm
 
 instance : Max (Subrepresentation ρ) where
   max ρ₁ ρ₂ := .mk (ρ₁.toSubmodule ⊔ ρ₂.toSubmodule) <| by
-      simp [Submodule.forall_mem_sup]
+      simp only [Submodule.forall_mem_sup, map_add]
       intro g x₁ hx₁ x₂ hx₂
       exact Submodule.mem_sup.mpr
         ⟨ρ g x₁, ρ₁.apply_mem_toSubmodule g hx₁, ρ g x₂, ρ₂.apply_mem_toSubmodule g hx₂, rfl⟩
 
 instance : Min (Subrepresentation ρ) where
   min ρ₁ ρ₂ := .mk (ρ₁.toSubmodule ⊓ ρ₂.toSubmodule) <| by
-      simp
-      intro g x hx₁ hx₂
+      simp only [Submodule.mem_inf, and_imp]
+      rintro g x hx₁ hx₂
       exact ⟨ρ₁.apply_mem_toSubmodule g hx₁, ρ₂.apply_mem_toSubmodule g hx₂⟩
 
 
 @[simp, norm_cast]
-lemma coe_sup (ρ₁ ρ₂ : Subrepresentation ρ) : ↑(ρ₁ ⊔ ρ₂) = (ρ₁ : Set W) + (ρ₂ : Set W) := by
-  sorry
+lemma coe_sup (ρ₁ ρ₂ : Subrepresentation ρ) : ↑(ρ₁ ⊔ ρ₂) = (ρ₁ : Set W) + (ρ₂ : Set W) :=
+  Submodule.coe_sup ρ₁.toSubmodule ρ₂.toSubmodule
 
 @[simp, norm_cast]
 lemma coe_inf (ρ₁ ρ₂ : Subrepresentation ρ) : ↑(ρ₁ ⊓ ρ₂) = (ρ₁ ∩ ρ₂ : Set W) := rfl
