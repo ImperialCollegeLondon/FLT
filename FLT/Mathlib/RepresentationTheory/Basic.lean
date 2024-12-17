@@ -17,7 +17,7 @@ lemma comp_eq_mul (g h : G): ρ g ∘ₗ ρ h = ρ (g * h) := by
   simp_all only [map_mul]
   rfl
 
-noncomputable def GL_map_of_representation_of_basis
+noncomputable def gl_map_of_representation_of_basis
   : G →* Matrix.GeneralLinearGroup ι R where
     toFun g := {
       val := LinearMap.toMatrix 𝓑 𝓑 (ρ g)
@@ -31,7 +31,7 @@ noncomputable def GL_map_of_representation_of_basis
 noncomputable def tprod' (R' : Type*) [CommRing R'] [Algebra R R'] (ρ : Representation R G V)
     : Representation R G (R' ⊗[R] V) where
   toFun g := TensorProduct.map .id (ρ g)
-  map_one' := by simp; rw [← LinearMap.one_eq_id, TensorProduct.map_one]
+  map_one' := by simp only [map_one]; rw [← LinearMap.one_eq_id, TensorProduct.map_one]
   map_mul' := by aesop
 
 scoped notation ρ "⊗ᵣ" ρ' => tprod ρ ρ'
