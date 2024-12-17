@@ -439,12 +439,17 @@ theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff
     ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChangeEquiv A K L B (1 ⊗ₜ x)) :=
   sorry -- #240
 
--- Easy consequence of the previous result
-theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff'
-    (x : ProdAdicCompletions A K) :
-    ProdAdicCompletions.IsFiniteAdele x ↔
-    ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
-      (ProdAdicCompletions.baseChangeEquiv A K L B (l ⊗ₜ x)) := sorry -- #241
+theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff' (x : ProdAdicCompletions A K) :
+    ProdAdicCompletions.IsFiniteAdele x ↔ ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
+    (ProdAdicCompletions.baseChangeEquiv A K L B (l ⊗ₜ x)) := by
+  constructor
+  · simp_rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B, baseChangeEquiv,
+      AlgEquiv.coe_ofBijective, Algebra.TensorProduct.lift_tmul, map_one, one_mul]
+    intro h l
+    exact ProdAdicCompletions.IsFiniteAdele.mul (ProdAdicCompletions.IsFiniteAdele.algebraMap' l) h
+  · intro h
+    rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B]
+    exact h 1
 
 -- Make ∏_w L_w into a K-algebra in a way compatible with the L-algebra structure
 variable [Algebra K (FiniteAdeleRing B L)]

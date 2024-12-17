@@ -3,8 +3,8 @@ Copyright (c) 2024 Andrew Yang, Yaël Dillies, Javier López-Contreras. All righ
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Andrew Yang, Yaël Dillies, Javier López-Contreras
 -/
+import FLT.HaarMeasure.DomMulActMeasure
 import FLT.Mathlib.Data.ENNReal.Inv
-import FLT.ForMathlib.DomMulActMeasure
 
 /-!
 # The distributive character of Haar measures
@@ -66,16 +66,19 @@ lemma addHaarScalarFactor_smul_eq_distribHaarChar_inv (g : G) :
 lemma distribHaarChar_pos : 0 < distribHaarChar A g :=
   pos_iff_ne_zero.mpr ((Group.isUnit g).map (distribHaarChar A)).ne_zero
 
-variable [IsFiniteMeasureOnCompacts μ] [Regular μ] {s : Set A}
+variable [Regular μ] {s : Set A}
 
 variable (μ) in
-omit [IsFiniteMeasureOnCompacts μ] in
 lemma distribHaarChar_mul (g : G) (s : Set A) : distribHaarChar A g * μ s = μ (g • s) := by
   have : (DomMulAct.mk g • μ) s = μ (g • s) := by simp [dma_smul_apply]
   rw [eq_comm, ← nnreal_smul_coe_apply, ← addHaarScalarFactor_smul_eq_distribHaarChar μ,
     ← this, ← smul_apply, ← isAddLeftInvariant_eq_smul_of_regular]
 
-omit [IsFiniteMeasureOnCompacts μ] in
 lemma distribHaarChar_eq_div (hs₀ : μ s ≠ 0) (hs : μ s ≠ ∞) (g : G) :
     distribHaarChar A g = μ (g • s) / μ s := by
-  rw [← distribHaarChar_mul, ENNReal.mul_div_cancel_right hs₀ hs]
+  rw [← distribHaarChar_mul, ENNReal.mul_div_cancel_right] <;> simp [*]
+
+lemma distribHaarChar_eq_of_measure_smul_eq_mul (hs₀ : μ s ≠ 0) (hs : μ s ≠ ∞) {r : ℝ≥0}
+    (hμgs : μ (g • s) = r * μ s) : distribHaarChar A g = r := by
+  refine ENNReal.coe_injective ?_
+  rw [distribHaarChar_eq_div hs₀ hs, hμgs, ENNReal.mul_div_cancel_right] <;> simp [*]
