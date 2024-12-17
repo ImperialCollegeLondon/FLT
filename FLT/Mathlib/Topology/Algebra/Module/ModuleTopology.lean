@@ -185,31 +185,40 @@ variable {R : Type*} [TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
 variable {M : Type*} [AddCommMonoid M] [Module R M] [TopologicalSpace M] [IsModuleTopology R M]
 variable {N : Type*} [AddCommMonoid N] [Module R N] [TopologicalSpace N] [IsModuleTopology R N]
 
+/-- The product of the module topologies for two modules over a topological ring
+is the module topology. -/
 instance prod : IsModuleTopology R (M × N) := by
   constructor
   haveI : ContinuousAdd M := toContinuousAdd R M
   haveI : ContinuousAdd N := toContinuousAdd R N
+  -- In this proof, `M × N` always denotes the product with its product topology.
+  -- Addition `(M × N)² → M × N` and scalar multiplication `R × (M × N) → M × N`
+  -- are continuous for the product topology (by results in the library), so the module topology
+  -- on `M × N` is finer than the product topology (as it's the Inf of such topologies).
+  -- It thus remains to show that the product topology is finer than the module topology.
   refine le_antisymm ?_ <| sInf_le ⟨Prod.continuousSMul, Prod.continuousAdd⟩
+  -- Or equivalently, if `P` denotes `M × N` with the module topology,
+  -- that the identity map from `M × N` to `P` is continuous.
   rw [← continuous_id_iff_le]
-  rw [show (id : M × N → M × N) =
-       (fun abcd ↦ abcd.1 + abcd.2 : (M × N) × (M × N) → M × N) ∘
-       (fun ab ↦ ((ab.1, 0),(0, ab.2))) by
-       ext ⟨a, b⟩ <;> simp]
-  -- The rest of the proof is a massive fight against typeclass inference, which is desperate
-  -- to always put the product topology on M × N, when we sometimes want the action topology
-  -- (they are equal, but that's exactly what we're proving so we can't assume it yet).
-  -- This issue stops the standard continuity tactics from working.
-  obtain ⟨this⟩ : @ContinuousAdd (M × N) (moduleTopology R (M × N)) _ :=
-    ModuleTopology.continuousAdd _ _
-  refine @Continuous.comp _ ((M × N) × (M × N)) _ (_) (_) (_) _ _ this ?_
-  haveI : @ContinuousSMul R (M × N) _ _ (moduleTopology R _) := continuousSMul R (M × N)
-  refine (@continuous_prod_mk _ _ _ (_) (_) (_) _ _).2 ⟨?_, ?_⟩
-  · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inl R M N)) ?_ continuous_fst
-    apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (moduleTopology _ _) (?_)
-    exact continuousAdd R (M × N)
-  · refine @Continuous.comp _ _ _ (_) (_) (_) _ ((LinearMap.inr R M N)) ?_ continuous_snd
-    apply @continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (moduleTopology _ _) (?_)
-    exact continuousAdd R (M × N)
+  -- Now let P denote M × N with the module topology.
+  let P := M × N
+  letI τP : TopologicalSpace P := moduleTopology R P
+  haveI : IsModuleTopology R P := ⟨rfl⟩
+  haveI : ContinuousAdd P := ModuleTopology.continuousAdd R P
+  -- We want to show that the identity map `i` from M × N to P is continuous.
+  let i : M × N → P := id
+  change @Continuous (M × N) P (_) τP i
+  -- But the identity map can be written as (m,n) ↦ (m,0)+(0,n)
+  -- or equivalently as i₁ ∘ pr₁ + i₂ ∘ pr₂, where prᵢ are the projections,
+  -- the i's are linear inclusions M → P and N → P, and the addition is P × P → P.
+  let i₁ : M →ₗ[R] P := LinearMap.inl R M N
+  let i₂ : N →ₗ[R] P := LinearMap.inr R M N
+  rw [show (i : M × N → P) =
+       (fun abcd ↦ abcd.1 + abcd.2 : P × P → P) ∘
+       (fun ab ↦ (i₁ ab.1,i₂ ab.2)) by
+       ext ⟨a, b⟩ <;> aesop]
+  -- and these maps are all continuous, hence `i` is too
+  fun_prop
 
 end prod
 
