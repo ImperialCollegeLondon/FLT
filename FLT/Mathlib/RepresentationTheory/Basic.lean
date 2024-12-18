@@ -15,7 +15,7 @@ omit [Module.Free R V] [Module.Finite R V] in
 @[simp]
 lemma comp_def (g h : G): ρ g ∘ₗ ρ h = ρ g * ρ h := rfl
 
-noncomputable def gl_map_of_representation_of_basis
+noncomputable def gl_map_of_basis
   : G →* Matrix.GeneralLinearGroup ι R where
     toFun g := {
       val := LinearMap.toMatrix 𝓑 𝓑 (ρ g)
