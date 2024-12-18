@@ -33,9 +33,6 @@ import FLT.Mathlib.Data.ENNReal.Inv
 import FLT.MathlibExperiments.Coalgebra.Monoid
 import FLT.MathlibExperiments.Coalgebra.Sweedler
 import FLT.MathlibExperiments.Coalgebra.TensorProduct
-import FLT.MathlibExperiments.Frobenius
-import FLT.MathlibExperiments.Frobenius2
-import FLT.MathlibExperiments.FrobeniusRiou
 import FLT.MathlibExperiments.HopfAlgebra.Basic
 import FLT.MathlibExperiments.IsCentralSimple
 import FLT.MathlibExperiments.IsFrobenius
