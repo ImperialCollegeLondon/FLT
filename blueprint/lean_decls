@@ -89,6 +89,14 @@ Rat.AdeleRing.discrete
 NumberField.AdeleRing.discrete
 Rat.AdeleRing.cocompact
 NumberField.AdeleRing.cocompact
+distribHaarChar_real
+distribHaarChar_complex
+distribHaarChar_padic
+addHaarScalarFactor_eq_distribHaarChar_det
+distribHaarChar_algebra
+left_det_eq_right_det
+distribHaarChar_prod
+distribHaarChar_restricted_product
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module
