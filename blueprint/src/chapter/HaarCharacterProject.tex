@@ -1,0 +1,327 @@
+\chapter{Miniproject: Haar Characters}\label{Haar_char_project}
+
+\section{The goal}
+
+The goal of this miniproject is to develop the theory (i.e., the basic API) of Haar characters.
+``Haar character'' is a name I've made up to describe a certain character of the units of a locally
+compact topological ring. The main result we need here is that if $B$ is a finite-dimensional
+algebra over a number field~$K$, then $B^\times$ is in the kernel of the Haar character
+of $B\otimes_K\A_K$, where $\A_K$ is the ring of adeles of~$K$. Most if not all of this
+should probably be in mathlib.
+
+\section{Initial definitions}
+
+Let $A$ be a locally compact topological abelian group. There's then a regular Haar measure $\mu$
+on $A$, unique up to a positive scalar factor. If $\phi:(A,+)\cong(A,+)$ is a homeomorphism
+and an additive automorphism of $A$, then we can pull back $\mu$
+to get a second measure $\phi^*\mu$ on $A$, which is translation-invariant and regular,
+and hence also a Haar measure on $A$. It must thus differ from $\mu$ by a positive scalar
+factor, which we call $d_A(\phi)$. There is a choice of normalization here between $d_A(\phi)$
+and $d_A(\phi)^{-1}$; we normalize in such that way that
+if $X$ is Borel measurable then $\mu(\phi(X))=d_A(\phi)\mu(X)$.
+It is easily checked that the definition of $d_A(\phi)$ is independent of the initial choice
+$\mu$ of regular Haar measure.
+
+Note that if $X$ is a Borel subset of $A$ with positive finite measure then we can read
+off $d_A(\phi)$ by $d_A(\phi):=\mu(\phi(X))/\mu(X)$. A nice special case is when
+$\mu(X)=1$, in which case we have $d_A(\phi)=\mu(\phi(X))$ for all $\phi$.
+
+Now let $R$ be a locally compact topological ring. The \emph{Haar character} of $R$,
+or more precisely the \emph{left Haar character} of $R$, is a group homomorphism
+$R^\times\to\R^\times$ defined in the following way. If $u\in R^\times$ then left multiplication
+by $u$, namely the map $\phi:(R,+)\to(R,+)$ defined by $r\mapsto ur$, is homeomorphism and
+an additive automorphism of $(R,+)$, and we define $\delta_R(u)$ (or just $\delta(u)$ when
+$R$ is clear) to be $d_R(\phi)$.
+
+\section{Examples}
+
+We discuss some examples of Haar characters.
+
+\begin{lemma}
+  \label{distribHaarChar_real}
+  \lean{distribHaarChar_real}
+  If $R=\R$ then $\delta_R(u)=|u|$.
+  \leanok
+\end{lemma}
+\begin{proof}\leanok Take $\mu$ to be Lebesgue measure and $X=[0,1]$.
+We have $\delta(u)=\mu(uX)$. If $u>0$ then $u[0,1]=[0,u]$ which has measure $u=|u|$,
+and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
+\end{proof}
+
+\begin{lemma}
+  \label{distribHaarChar_complex}
+  \lean{distribHaarChar_complex}
+  \leanok
+  If $R=\bbC$ then $\delta_R(u)=|u|^2$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Multiplication by a positive real $r$ sends a unit square to a square of area $r^2=|r|^2$.
+  Multiplication by $e^{i\theta}$ is a rotation and thus does not change area.
+  The general case follows.
+\end{proof}
+
+\begin{lemma}
+  \label{distribHaarChar_padic}
+  \lean{distribHaarChar_padic}
+  \leanok
+  If $R=\Q_p$ then $\delta_R(u)=|u|_p$, the usual $p$-adic norm.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Normalise Haar measure so that $\mu(\Z_p)=1$.
+  If $u$ is a $p$-adic unit then $u\Z_p=\Z_p$ so multiplication by $u$ didn't change
+  Haar measure. If however $u=p$ then $u\Z_p$ has index $p$ in $\Z_p$ and, because
+  $\mu(i+p\Z_p)=\mu(p\Z_p)$ we have that $\mu(\Z_p)=p\mu(p\Z_p)$ and thus $\delta(p)=p^{-1}$.
+  These elements generate $\Q_p^\times$ and two characters which agree on generators
+  of a group must agree on the group.
+\end{proof}
+
+\begin{remark}
+
+If $R$ is a finite extension of $\Q_p$ then $\delta_R(u)$
+is the norm on $R$ normalised in the following way:
+$\delta_R(\varpi)=q^{-1}$, where $\varpi$ is a uniformiser
+and $q$ is the size of the (finite) residue field. The proof is
+the same as for $\Q_p$, but we won't need this.
+\end{remark}
+
+\section{Algebras}
+
+  Say $F$ is a locally compact topological field (for example $\R$ or $\bbC$ or $\Q_p$), $V$
+  is a finite-dimensional $F$-vector space, and $\phi:V\to V$ is an invertible $F$-linear map.
+  Then $V$ with its module topology (which is the product topology if one picks a basis)
+  is a locally compact topological abelian group, and $\phi$ is additive.
+  One can check that linearity implies continuity (this is {\tt IsModuleTopology.continuous\_of\_linearMap} in mathlib),
+  so in fact $\phi$ is a homeomorphism
+  and our theory applies. The following lemma gives a formula for the scale factor $d_V(\phi)$.
+
+\begin{lemma}
+  \label{addHaarScalarFactor_eq_distribHaarChar_det}
+  \lean{addHaarScalarFactor_eq_distribHaarChar_det}
+  $d_V(\phi)=\delta_F(\det(\phi))$, where $\det(\phi)\in F$ is the determinant of $\phi$ as an $F$-linear map.
+\end{lemma}
+\begin{proof}
+The proof should be inspired by \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/MeasureTheory/Measure/Lebesgue/Basic.html\#Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi}{\tt Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi},
+which crucially uses the induction principle \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/LinearAlgebra/Matrix/Transvection.html\#Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}{\tt Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}.
+In short, one needs to check it for diagonal matrices and for matrices which are the identity
+except that one off-diagonal entry is non-zero. Note that we only need the result for $F=\R$
+and $F=\mathbb{Q}_p$, so if it helps we can assume that $F$ is second countable.
+\end{proof}
+
+  Now say $F$ is a locally compact topological field, and $R$ is a (possibly non-commutative)
+  $F$-algebra, finite-dimensional as an $F$-vector space. Then both left and right multiplication
+  by a fixed element of $R$ are $F$-linear. We used left multiplication in our definition
+  of the Haar character. If $u\in R^\times$ then left multiplication by $u$
+  is an $F$-linear automorphism of $R$, and hence has a determinant $\det(u)\in F^\times$.
+  The preceding lemma then immediately implies
+
+  \begin{lemma}
+  \label{distribHaarChar_algebra}
+  \lean{distribHaarChar_algebra}
+  If $u\in R^\times$ then $\delta_R(u)=\delta_F(\det(u))$.
+\end{lemma}
+\begin{proof}
+  Follows immediately from the preceding lemma.
+\end{proof}
+
+%   Right multiplication can have a different determinant to left multiplication.
+%   For example if $R$ is the upper-triangular $2\times 2$ matrices with real
+%   entries, then left multiplication by $\begin{pmatrix}a&0\\0&b\end{pmatrix}$ scales $R$'s additive
+%   Haar measure by $a^2b$, but right multiplication by the same matrix scales Haar measure by $ab^2$.
+
+%   What's going on here is that if we regard left and right multiplication as $\R$-linear
+%   maps from $R$ to $R$, then their associated matrices with respect to the obvious bases
+%   are $diag(a,a,b)$ and $diag(a,b,b)$, which have different determinants.
+
+%   However, if $k$ is now any field and if $B$ is a finite-dimensional central
+%   simple algebra over $k$ (for example a quaternion algebra, the case we'll care about later),
+%   and if $u\in B^\times$ then $x\mapsto ux$ and $x\mapsto xu$
+%   are both $k$-linear endomorphisms of $B$, and I claim that they have
+%   the same determinant.
+
+% \begin{lemma}
+%   \label{left_det_eq_right_det}
+%   \lean{left_det_eq_right_det}
+%   If $u\in B^\times$, if $u_l:B\to B$ sends $x$ to $ux$ and if $u_r:B\to B$
+%   sends $x$ to $xu$ then $\det(u_l)=\det(u_r)$ as $k$-linear endomorphisms of $B$.
+% \end{lemma}
+% \begin{proof}
+%   Determinants are unchanged by base extension, so WLOG $k$ is algebraically closed.
+%   Then it's known that $B$ must be a matrix algebra, say $M_n(k)$. Now $u$ can be thought
+%   of as a matrix which has its own intrinsic determinant $d$, and $B$ as a left $B$-module
+%   becomes a direct sum of $n$ copies of $V$, the standard $n$-dimensional representation of $B$.
+%   Thus $\det(u_l)=d^n$. Similarly $\det(u_r)=d^n$ and in particular they are equal.
+% \end{proof}
+
+% \begin{corollary}
+%   \label{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
+%   \lean{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
+%   If $B$ is a central simple algebra over a locally compact field $F$, and if $u\in B^\times$,
+%   then $\delta_B(u)=d_B(u_l)$ is equal to $d_B(u_r)$.
+% \end{corollary}
+% \begin{proof}
+%   If $u_l$ and $u_r$ denote left and right multiplication by $u$ on $B$, then we have
+%   seen in lemma~\ref{addHaarScalarFactor_eq_distribHaarChar_det} that $d_B(u_r)=\delta_F(\det(u_r))$.
+%   Lemma~\ref{left_det_eq_right_det} tells
+%   us that this is $\delta_F(\det(u_l))$ and this is $\delta_B(u)$ by lemma~\ref{distribHaarChar_algebra}.
+% \end{proof}
+
+\section{Products}
+
+Here are two facts which we will need about products.
+
+\begin{lemma}
+  \label{addHaarScalarFactor_prod}
+  \lean{addHaarScalarFactor_prod}
+  If $(A,+)$ and $(B,+)$ are locally compact topological abelian groups,
+  and if $\phi:A\to A$ and $\psi:B\to B$ are additive homeomorphisms,
+  then $\phi\times\psi:A\times B\to A\times B$ is an additive homeomorphism (this is
+  obvious), and
+  $d_{A\times B}(\phi\times\psi)=d_A(\phi)d_B(\psi)$.
+\end{lemma}
+\begin{proof}
+  We only need this result in the case where both $A$ and $B$ are second-countable, in which case
+  {\tt Prod.borelSpace} can be used to show that Haar measure on $A\times B$ is the product of
+  Haar measures on $A$ and $B$, and in this case the result follows easily. Without this assumption,
+  the product of these measures may not even be a Borel measure and one has to be more careful.
+  The proof in this case is explained \href{https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Product.20of.20Borel.20spaces/near/487257981}{here}.
+\end{proof}
+
+\begin{lemma}
+  \label{addHaarScalarFactor_pi_finite}
+  \lean{addHaarScalarFactor_pi_finite}
+  If $A_i$ are a finite collection of locally compact topological abelian groups,
+  with $\phi_i:A_i\to A_i$ additive homeomorphisms, then $d_{\prod_i A_i}(\prod_i\phi_i)=\prod_i d_{A_i}(\phi_i)$.
+\end{lemma}
+\begin{proof}
+  Induction on the size of the finite set, using the previous lemma.
+\end{proof}
+
+\begin{lemma}
+  \label{distribHaarChar_prod}
+  \lean{distribHaarChar_prod}
+  If $R$ and $S$ are locally compact topological rings, then $\delta_{R\times S}(r,s)=\delta_R(r)\times\delta_S(s)$.
+\end{lemma}
+\begin{proof}
+  Follows immediately from lemma~\ref{addHaarScalarFactor_prod}.
+\end{proof}
+
+\begin{lemma}
+  \label{distribHaarChar_pi_finite}
+  \lean{distribHaarChar_pi_finite}
+  If $R_i$ are a finite collection of locally compact topological rings,
+  and $u_i\in R_i^\times$ then $\delta_{\prod_i R_i}((u_i)_i)=\prod_i\delta_{R_i}(u_i)$.
+\end{lemma}
+\begin{proof}
+  Follows immediately from lemma~\ref{addHaarScalarFactor_pi_finite}.
+\end{proof}
+
+Now say $A=\prod'_i A_i$ is the restricted product of a collection of topological abelian additive groups $A_i$
+  equipped with compact open subgroups $C_i$. Say $\phi_i:A_i\to A_i$ are additive homeomorphisms
+  with the property that $\phi_i(C_i)=C_i$ for all but finitely many $i$. Then the restricted
+  product $\prod'_i\phi_i$ is an additive homeomorphism $\phi:A\to A$. Note also that
+  $d_{A_i}(\phi_i)=1$ for all the $i$ such that $\phi_i(C_i)=C_i$, as $d_{A_i}(\phi_i)$ can be
+  computed as $\mu(\phi_i(C_i))/\mu(C_i)$ and $\mu(C_i)$ is guaranteed to have positive finite measure
+  as it is open and compact. Thus the product $\prod_i\delta(\phi_i)$ is a finite product (and in
+  particular cannot diverge to $0$). Moreover, we have
+
+\begin{lemma}
+  \label{addHaarScalarFactor_restricted_product}
+  \lean{addHaarScalarFactor_restricted_product}
+  With $A$, $A_i$, $C_i$, $\phi_i$, $\phi$ defined as above, we have
+  $\delta_A(\phi)=\prod_i\delta_{A_i}(\phi_i)$.
+\end{lemma}
+\begin{proof}
+  Assume $\phi_i(C_i)=C_i$ for all $i\not\in S$, a finite set, and work in the
+  open subgroup $\prod_{i\in S}A_i\times\prod_{i\not\in S}C_i$. Then $\phi$ is an automorphism of
+  this open subgroup of $A$, and in particular we can compute $\delta(\phi)$ using
+  this group instead. Because $\prod_{i\not\in S}\phi_i$ is an automorphism of a compact
+  group we must have $\delta(\phi_{i\not\in S}\phi_i)=1$. Finally
+  $\delta(\prod_{i\in S}\phi_i)=\prod_{i\in S}\delta(\phi_i)$ by the previous result.
+\end{proof}
+
+As a special case, if $R$ is the restricted product of a collection of topological rings $R_i$
+  (not necessarily commutative) each equipped with a compact open subring $C_i$, then
+  we have
+
+\begin{corollary}
+  \label{distribHaarChar_restricted_product}
+  \lean{distribHaarChar_restricted_product}
+  If $u=(u_i)_i\in R^\times$ then $\delta_R(u)=\prod_i\delta_{R_i}(u_i)$.
+\end{corollary}
+\begin{proof}
+  By definition of restricted product we have $u_i\in C_i$ for all but finitely many $i$.
+  Note also that $u$ has an inverse $v=(v_i)_i$ with $v_i\in C_i$ for all but finitely many $i$.
+  The fact that $u_iv_i=v_iu_i=1$ means that $u_i,v_i\in C_i^\times$ for all but finitely many $i$.
+  Thus the previous lemma applies.
+\end{proof}
+
+\section{Adeles}
+
+  We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic}
+  that if $v$ is a place of $\Q$ (i.e., a prime
+  number or $+\infty$) then $\delta_{\Q_v}=|\cdot|_v$.
+  We can deduce from this, lemma~\ref{distribHaarChar_restricted_product} (at the finite places)
+  and lemma~\ref{distribHaarChar_prod} (to include the infinite place) that if $(x_v)_v\in\A_{\Q}^\times$
+  then $\delta_{\A_{\Q}}((x_v)_v)=\prod_v|x_v|_v$, where the product
+  runs over all places of $\Q$.
+  The \emph{product formula} (on the way to mathlib) says
+  that if $x\in\Q^\times\subseteq\A_{\Q}^\times$ then $\prod_v|x|_v=1.$
+  A quick proof: if $x=\pm\prod_pp^{e_p}$ then $\prod_p|x|_p=\prod_pp^{-e_p}$
+  and $|x|_\infty=\prod_pp^{e_p}$ so they cancel. We conclude that $\delta_{\A_{\Q}}(\Q^\times)=\{1\}$.
+
+  Next we generalize this to
+  finite-dimensional $\Q$-vector spaces. So say $V$ is an $N$-dimensional $\Q$-vector space,
+  and define $V_{\A}:= V\otimes_{\Q}\A_{\Q}$ with its $\A_{\Q}$-module topology.
+  If we choose an isomorphism $V\cong\Q^N$ then $V_{\A}\cong\A_{\Q}^N$
+  as an additive topological abelian group. In particular, $V_{\A}$ is locally compact.
+
+  Fix a $\Q$-linear automorphism $\phi:V\to V$. By base extension $\phi$ induces
+  an $\A_{\Q}$-linear automorphism $\phi_{\A}$ of $V_{\A}$ which is also a homeomorphism of $V_{\A}$
+  if $V_{\A}$ is given the module topology as an $\A_{\Q}$-module. Our goal is
+
+  \begin{theorem}
+    \label{addHaarScalarFactor_eq_one}
+    \lean{addHaarScalarFactor_eq_one}
+    $d_{V_{\A}}(\phi_{\A})=1.$
+  \end{theorem}
+  \begin{proof}
+    Notation: write $\A_{\Q}=\A_{\Q}^\infty\times\R$, where $\A_{\Q}^\infty$ is the finite adeles of $\Q$.
+    Define $V_f:= V\otimes_{\Q}\A_{\Q}^\infty$ and for $v$ a place of $\Q$ (that is either $v=p$ prime
+    or $v=\infty$) write $V_v:=V\otimes_{\Q}\Q_v$, so for example $V_\infty=V\otimes_{\Q}\R$.
+    Then $V_{\A}=V_f\times V_\infty$. Fix once and for all a $\Z$-lattice $L\subseteq V$
+    (that is, a spanning $\Z^N$ in the $\Q^N$).
+    For $p$ a prime, define $C_p:=L\otimes_{\Z}\Z_p\subseteq V_p$. It can be checked that
+    as a topological abelian group $V_f$ is the restricted product $\prod'_p V_p$ over the
+    subgroups $C_p$.
+
+    We have $\phi:V\to V$. For $v$ a place of $\Q$, let $\phi_v:V_v\to V_v$ denote the $\Q_v$-linear
+    base extension of $\phi$ to $V_v$. We have $d_{V_{\A}}(\phi_{\A})=d_{V_f}(\prod'_p \phi_p)\times d_{V_\infty}(\phi_\infty)$,
+    where $\prod'_p \phi_p$ is the restricted product of the $\phi_p$ as an endomorphism of $V_f$.
+    Thus $d_{V_{\A}}(\phi_{\A})=\prod_p d_{V_p}(\phi_p)\times d_{V_\infty}(\phi_\infty)=\prod_v d_{V_v}(\phi_v)$, where
+    we note that all but finitely many of the $d_{V_p}(\phi_p)$ are 1.
+
+    By Lemma~\ref{addHaarScalarFactor_eq_distribHaarChar_det} we have that
+    $d_{V_v}(\phi_v)=\delta_{\Q_v}(\det(\phi_v))$, hence $d_{V_{\A}}(\phi_{\A})=\prod_v\delta_{\Q_v}(\det(\phi_v))$.
+    But $\det(\phi_v)$ is equal to the determinant of $\phi$ on $V$ as $\Q$-vector space (because
+    base change does not change determinant),
+    which is some nonzero rational number $q$. Thus $d_{V_{\A}}(\phi_{\A})=\prod_v\delta_{\Q_v}(q)=1$
+    by the product formula for $\Q$.
+  \end{proof}
+
+  \begin{corollary} If $B$ is a finite-dimensional $\Q$-algebra (for example a number field, or a quaternion algebra over a number field),
+    if $B_{\A}$ denotes the ring $B\otimes_{\Q}\A_{\Q}$, and if $b\in B^\times$,
+    then $\delta_{B_{\A}}(b)=1$.
+  \end{corollary}
+  \begin{proof}
+    Follows immediately from the previous theorem.
+  \end{proof}
+
+  \begin{corollary} If $B$ is a finite-dimensional $\Q$-algebra and
+    if $b\in B^\times$ then right multiplication by $b$
+    does not change Haar measure on $B_{\A}$.
+  \end{corollary}
+  \begin{proof}
+    Follows immediately from the previous theorem.
+  \end{proof}
