@@ -27,9 +27,6 @@ import FLT.Mathlib.Algebra.Module.Equiv.Defs
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags
-import FLT.Mathlib.Analysis.Complex.Basic
-import FLT.Mathlib.Data.Complex.Basic
-import FLT.Mathlib.Data.ENNReal.Inv
 import FLT.MathlibExperiments.Coalgebra.Monoid
 import FLT.MathlibExperiments.Coalgebra.Sweedler
 import FLT.MathlibExperiments.Coalgebra.TensorProduct
