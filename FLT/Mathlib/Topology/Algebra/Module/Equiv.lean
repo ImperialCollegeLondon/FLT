@@ -1,4 +1,4 @@
-import Mathlib.Topology.Algebra.Module.Basic
+import Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.Algebra.Module.Equiv.Defs
 import FLT.Mathlib.Topology.Homeomorph
 
@@ -8,7 +8,6 @@ def ContinuousLinearEquiv.piCongrLeft (R : Type*) [Semiring R] {ι ι' : Type*}
     (e : ι' ≃ ι) : ((i' : ι') → φ (e i')) ≃L[R] (i : ι) → φ i where
   __ := Homeomorph.piCongrLeft e
   __ := LinearEquiv.piCongrLeft R φ e
-
 
 section Pi
 
