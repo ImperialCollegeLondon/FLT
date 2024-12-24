@@ -230,6 +230,10 @@ variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommMonoid (A i)
   [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
   [∀ i, IsModuleTopology R (A i)]
 
+def ContinuousLinearEquiv.piUnique {α : Type*} [Unique α] (R : Type*) [Semiring R] (f : α → Type*)
+    [∀ x, AddCommMonoid (f x)] [∀ x, Module R (f x)] [∀ x, TopologicalSpace (f x)] :
+    (Π t, f t) ≃L[R] f default := sorry
+
 instance pi : IsModuleTopology R (∀ i, A i) := by
   induction ι using Finite.induction_empty_option
   · case of_equiv X Y e _ _ _ _ _ =>
@@ -241,7 +245,7 @@ instance pi : IsModuleTopology R (∀ i, A i) := by
     apply @iso (e := (ContinuousLinearEquiv.sumPiEquivProdPi R X Unit _).symm)
     refine @prod _ _ _ _ _ _ (_) (hind) _ _ _ (_) (?_)
     let φ : Unit → Option X := fun t ↦ e.symm (Sum.inr t)
-    exact iso (ContinuousLinearEquiv.pUnitPiEquiv R (fun t ↦ A (φ t))).symm
+    exact iso (ContinuousLinearEquiv.piUnique R (fun t ↦ A (φ t))).symm
 
 end Pi
 

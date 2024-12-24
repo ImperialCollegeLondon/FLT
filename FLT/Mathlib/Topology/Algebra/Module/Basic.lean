@@ -2,6 +2,10 @@ import Mathlib.Topology.Algebra.Module.Basic
 import FLT.Mathlib.Algebra.Module.Equiv.Defs
 import FLT.Mathlib.Topology.Homeomorph
 
+/-- Combine a family of linear equivalences into a linear equivalence of `pi`-types.
+
+This is `Equiv.piCongrLeft` as a `ContinuousLinearEquiv` -/
+@[simps]
 def ContinuousLinearEquiv.piCongrLeft (R : Type*) [Semiring R] {ι ι' : Type*}
     (φ : ι → Type*) [∀ i, AddCommMonoid (φ i)] [∀ i, Module R (φ i)]
     [∀ i, TopologicalSpace (φ i)]
@@ -12,10 +16,11 @@ def ContinuousLinearEquiv.piCongrLeft (R : Type*) [Semiring R] {ι ι' : Type*}
 
 section Pi
 
-variable {R : Type*} [τR : TopologicalSpace R] [Semiring R] [TopologicalSemiring R]
+/-- The space of functions from `S ⊕ T` into a family of topological modules
+is isomorphic to the product of the functions from `S` and the functions from `T`.
 
-variable {ι : Type*} [Finite ι] {A : ι → Type*} [∀ i, AddCommMonoid (A i)]
-  [∀ i, Module R (A i)] [∀ i, TopologicalSpace (A i)]
+This is `Equiv.sumPiEquivProdPi` as a `ContinuousLinearEquiv`
+-/
 def ContinuousLinearEquiv.sumPiEquivProdPi (R : Type*) [Semiring R] (S T : Type*)
     (A : S ⊕ T → Type*) [∀ st, AddCommMonoid (A st)] [∀ st, Module R (A st)]
     [∀ st, TopologicalSpace (A st)] :
