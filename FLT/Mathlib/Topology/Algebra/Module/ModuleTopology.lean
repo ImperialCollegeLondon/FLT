@@ -2,7 +2,7 @@ import Mathlib.Algebra.Algebra.Bilinear
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
-import FLT.Mathlib.Topology.Algebra.Module.Basic
+import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.Topology.Algebra.Monoid
 
 /-!
@@ -70,29 +70,6 @@ the corresponding statements in this file
 namespace IsModuleTopology
 
 open ModuleTopology
-
--- this section PRed in mathlib #20012
-section function
-
-variable {R : Type*} [τR : TopologicalSpace R] [Semiring R]
-variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
-variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B]
-    [ContinuousAdd B] [ContinuousSMul R B]
-
-variable (R) in
-theorem continuousNeg (C : Type*) [AddCommGroup C] [Module R C] [TopologicalSpace C]
-    [IsModuleTopology R C] : ContinuousNeg C where
-  continuous_neg :=
-    haveI : ContinuousAdd C := IsModuleTopology.toContinuousAdd R C
-    continuous_of_linearMap (LinearEquiv.neg R).toLinearMap
-
-variable (R) in
-theorem topologicalAddGroup (C : Type*) [AddCommGroup C] [Module R C] [TopologicalSpace C]
-    [IsModuleTopology R C] : TopologicalAddGroup C where
-      continuous_add := (IsModuleTopology.toContinuousAdd R C).1
-      continuous_neg := (continuousNeg R C).1
-
-end function
 
 -- this section PRed in mathlib #20012
 section surjection
