@@ -3,11 +3,15 @@
 \section{Status}
 
 This miniproject has been a success: the main results
-are sorry-free and in the process of being PRed to
-{\tt mathlib (see \href{https://github.com/leanprover-community/mathlib4/pull/17717}{here})}.
+are sorry-free and merged into mathlib
+(see \href{https://github.com/leanprover-community/mathlib4/pull/19926}{this PR}).
 As a result there will be no more work
-on this project in the FLT repo. Below is a fairly
-detailed sketch of the argument used.
+on this miniproject in the FLT repo. Below is a fairly
+detailed sketch of the argument used. Note
+that various things were renamed during the process
+of merging into mathlib, and as a result the blueprint
+graph of this miniproject is broken; I am not motivated
+to fix it.
 
 \section{Introduction and goal}
 
@@ -40,7 +44,6 @@ In the next definition we write down a group homomorphism $\phi$ from $D_Q$ to $
 
 \begin{definition}
   \label{Bourbaki52222.stabilizer.toGaloisGroup}
-  \lean{Bourbaki52222.stabilizer.toGaloisGroup}
   Choose $g\in D_Q$. Then the action of $g$ on $B$ gives us an induced
   $A/P$-algebra automorphism of $B/Q$ which extends to a $K$-algebra automorphism $\phi(g)$ of $L$.
   This construction $g\mapsto \phi(g)$ defines a group homomorphism from $D_Q$
@@ -51,7 +54,6 @@ In the next definition we write down a group homomorphism $\phi$ from $D_Q$ to $
 The theorem we want in this mini-project is
 \begin{theorem}
   \label{Bourbaki52222.MulAction.stabilizer_surjective_of_action}
-  \lean{Bourbaki52222.MulAction.stabilizer_surjective_of_action}
   \uses{Bourbaki52222.stabilizer.toGaloisGroup}
   \leanok
   The map $g\mapsto \phi_g$ from $D_Q$ to $\Aut_K(L)$ defined above is surjective.
@@ -147,7 +149,6 @@ We start with a construction which is fundamental to everything,
 and which explains why we need $G$ to be finite.
 
 \begin{definition}
-  \lean{MulSemiringAction.CharacteristicPolynomial.F}
   \label{MulSemiringAction.CharacteristicPolynomial.F}
   \leanok
   If $b\in B$ then define the \emph{characteristic polynomial}
@@ -159,7 +160,6 @@ if $B$ is the zero ring then $F_b=0$ has degree less than $|G|$.
 
 \begin{lemma}
   \label{MulSemiringAction.CharacteristicPolynomial.F_degree}
-  \lean{MulSemiringAction.CharacteristicPolynomial.F_degree}
   \uses{MulSemiringAction.CharacteristicPolynomial.F}
   \leanok
   If $B$ is nontrivial then $F_b$ is monic.
@@ -177,7 +177,6 @@ also refer to $M_b$ as the characteristic polynomial of $b$, even though
 it's not even well-defined if the map $A\to B$ isn't injective.
 
 \begin{definition}
-  \lean{MulSemiringAction.CharacteristicPolynomial.M}
   \label{MulSemiringAction.CharacteristicPolynomial.M}
   \uses{MulSemiringAction.CharacteristicPolynomial.F}
   \leanok
@@ -187,7 +186,6 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 
 \begin{lemma}
   \label{MulSemiringAction.CharacteristicPolynomial.M_eval_eq_zero}
-  \lean{MulSemiringAction.CharacteristicPolynomial.M_eval_eq_zero}
   \uses{MulSemiringAction.CharacteristicPolynomial.M}
   \leanok
   $M_b$ has $b$ as a root.
@@ -198,7 +196,6 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 \end{proof}
 \begin{lemma}
   \label{MulSemiringAction.CharacteristicPolynomial.M_deg}
-  \lean{MulSemiringAction.CharacteristicPolynomial.M_deg}
   \uses{MulSemiringAction.CharacteristicPolynomial.M}
   \leanok
   $M_b$ has degree $n$.
@@ -209,7 +206,6 @@ it's not even well-defined if the map $A\to B$ isn't injective.
   Exercise.
 \end{proof}
 \begin{lemma}
-  \lean{MulSemiringAction.CharacteristicPolynomial.M_monic}
   \label{MulSemiringAction.CharacteristicPolynomial.M_monic}
   \uses{MulSemiringAction.CharacteristicPolynomial.M}
   \leanok
@@ -221,7 +217,6 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 \end{proof}
 
 \begin{theorem}
-  \lean{MulSemiringAction.CharacteristicPolynomial.isIntegral}
   \label{MulSemiringAction.CharacteristicPolynomial.isIntegral}
   \uses{MulSemiringAction.CharacteristicPolynomial.M}
   \leanok
@@ -240,7 +235,6 @@ Furthermore, all our polynomials are monic and hence nonzero (indeed they
 all have degree $|G|$>0), so both Lean notions of degree coincide.
 
 \begin{definition}
-  \lean{MulSemiringAction.CharacteristicPolynomial.Mbar}
   \label{MulSemiringAction.CharacteristicPolynomial.Mbar}
   \uses{MulSemiringAction.CharacteristicPolynomial.M}
   \leanok
@@ -251,7 +245,6 @@ all have degree $|G|$>0), so both Lean notions of degree coincide.
 Say $\overline{b}\in B/Q$.
 
 \begin{theorem}
-  \lean{MulSemiringAction.CharacteristicPolynomial.Mbar_deg}
   \label{MulSemiringAction.CharacteristicPolynomial.Mbar_deg}
   \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
   \leanok
@@ -265,7 +258,6 @@ Say $\overline{b}\in B/Q$.
 \end{proof}
 
 \begin{theorem}
-  \lean{MulSemiringAction.CharacteristicPolynomial.Mbar_monic}
   \label{MulSemiringAction.CharacteristicPolynomial.Mbar_monic}
   \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
   \leanok
@@ -278,7 +270,6 @@ Say $\overline{b}\in B/Q$.
 \end{proof}
 
 \begin{theorem}
-  \lean{MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}
   \label{MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}
   \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
   \leanok
@@ -291,7 +282,6 @@ Say $\overline{b}\in B/Q$.
 \end{proof}
 
 \begin{theorem}
-  \lean{MulSemiringAction.reduction_isIntegral}
   \label{MulSemiringAction.reduction_isIntegral}
   \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
   \leanok
@@ -300,13 +290,13 @@ Say $\overline{b}\in B/Q$.
 \begin{proof}
   \uses{MulSemiringAction.CharacteristicPolynomial.Mbar_monic,
     MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}
+  \leanok
   Use $\overline{M}_{\overline{b}}$.
 \end{proof}
 
 Here is a corollary of this result: every nonzero element of $B/Q$ divides
 a nonzero element of $A/P$.
 \begin{corollary}
-  \lean{Algebra.exists_dvd_nonzero_if_isIntegral}
   \label{Algebra.exists_dvd_nonzero_if_isIntegral}
   \leanok
   If $\beta\in B/Q$ is nonzero then there's some nonzero $\alpha\in A/P$
@@ -314,7 +304,8 @@ a nonzero element of $A/P$.
 \end{corollary}
 \begin{proof}
   \uses{MulSemiringAction.reduction_isIntegral}
-  Note: Is this in mathlib already? This proof works for any
+  \leanok
+  Note: his proof works for any
   integral extension if the top ring has no zero divisors.
 
   Let $\beta$ be nonzero, and
@@ -330,13 +321,13 @@ a nonzero element of $A/P$.
 \section{The extension \texorpdfstring{$L/K$}{L/K}.}
 
 \begin{theorem}
-  \lean{Bourbaki52222.f_exists}
   \label{Bourbaki52222.f_exists}
   If $\lambda\in L$ then there's a monic polynomial $P_\lambda\in K[X]$ of degree $|G|$
   with $\lambda$ as a root, and which splits completely in $L[X]$.
   \leanok
 \end{theorem}
 \begin{proof}
+  \leanok
   A general $\lambda\in L$ can be written as $\beta_1/\beta_2$ where $\beta_1,\beta_2\in B/Q$.
   The previous corollary showed that there's some nonzero $\alpha\in A/P$ such that $\beta_2$
   divides $\alpha$, and hence $\alpha\lambda\in B/Q$ (we just cleared denominators).
@@ -348,24 +339,23 @@ a nonzero element of $A/P$.
 \end{proof}
 
 \begin{corollary}
-  \lean{Bourbaki52222.algebraic}
   \label{Bourbaki52222.algebraic}
   \leanok
   The extension $L/K$ is algebraic.
 \end{corollary}
 \begin{proof}
   \uses{Bourbaki52222.f_exists}
+  \leanok
   Exercise using~\ref{Bourbaki52222.f_exists}.
 \end{proof}
 
 \begin{corollary}
-  \lean{Bourbaki52222.normal}
-  \label{Bourbaki52222.normal}
   \leanok
   The extension $L/K$ is normal.
 \end{corollary}
 \begin{proof}
   \uses{Bourbaki52222.f_exists}
+  \leanok
   Exercise using~\ref{Bourbaki52222.f_exists}.
 \end{proof}
 
@@ -375,33 +365,40 @@ Note that $L/K$ might not be separable and might have infinite degree. However
   \label{Bourbaki52222.finite_separable_subextension_finrank_le}
   Any subextension of $L/K$ which is finite and separable over $K$
   has degree at most $|G|$.
+  \leanok
 \end{corollary}
 \begin{proof}
+  \leanok
   Finite and separable implies simple, and we've already seen that any
   element of $L$ has degree at most $|G|$ over $K$.
 \end{proof}
 
 \begin{corollary}
-  \lean{Bourbaki52222.separableClosure_finrank_le}
   \label{Bourbaki52222.separableClosure_finrank_le}
   The maximal separable subextension $M$ of $L/K$ has degree at most $|G|$.
   \leanok
 \end{corollary}
 \begin{proof}
   \uses{Bourbaki52222.finite_separable_subextension_finrank_le}
+  \leanok
   If it has dimension greater than $|G|$ over $K$, then it has a finitely-generated
   subfeld of $K$-dimension greater than $|G|$, and is finite and separable, contradicting
   the previous result.
 \end{proof}
 
 \begin{corollary} $\Aut_K(L)$ is finite.
+  \leanok
 \end{corollary}
-\begin{proof} Any $K$-automorphism of $L$ is determined by where it sends $M$.
+\begin{proof}
+  \leanok
+  Any $K$-automorphism of $L$ is determined by where it sends $M$.
 \end{proof}
 
 \begin{corollary} $\Aut_{A/P}(B/Q)$ is finite.
+  \leanok
 \end{corollary}
 \begin{proof}
+  \leanok
   Two elements of $\Aut_{A/P}(B/Q)$ which agree once extended to automorphisms of $L$
   must have already been equal, as $B/Q\subseteq L$. Hence the canonical map
   from $\Aut_{A/P}(B/Q)$ to $\Aut_K(L)$ is injective.
@@ -411,6 +408,7 @@ Note that $L/K$ might not be separable and might have infinite degree. However
 
 \begin{definition} We fix once and for all some nonzero $y\in B/Q$ such that $M=K(y)$,
   with $M$ the maximal separable subextension of $L/K$.
+  \leanok
 \end{definition}
 
 NB we do use nonzeroness at some point, and $y$ can be zero in the case $L=K$
@@ -422,7 +420,9 @@ earlier to scale this by some nonzero $\alpha\in A$ into $B/Q$, as
 $K(\lambda)=K(\alpha\lambda)$.
 
 Our next goal is the following result:
-\begin{theorem} There exists some $x\in B$ and $\alpha\in A$ with the following
+\begin{theorem}
+  \leanok
+  There exists some $x\in B$ and $\alpha\in A$ with the following
   properties.
   \begin{enumerate}
   \item $x=\alpha y$ mod $Q$ and $\alpha$ isn't zero mod $P$.
@@ -439,6 +439,7 @@ for the localisation of $B$ at (the image of) $S$. I suspect that this is the
 same as $B\otimes_AA[1/S]$.
 
 \begin{lemma}
+  \leanok
   The prime ideals of $B[1/S]$ over $P[1/S] \subseteq A[1/S]$ biject naturally with
   the prime ideals of $B$ over $P$. More precisely, the $B$-algebra $B[1/S]$
   gives a canonical map $B\to B[1/S]$ and hence a canonical map from prime ideals
@@ -447,19 +448,23 @@ same as $B\otimes_AA[1/S]$.
   of $B$ above $P$.
 \end{lemma}
 \begin{proof}
+  \leanok
   Hopefully this is in mathlib in some form already. In general $\Spec(B[1/S])$ is just the subset of $\Spec(B)$
   consisting of primes of $B$ which miss $S$ (i.e., whose intersection with $A$ is a subset of $P$).
 \end{proof}
 
 \begin{lemma}
+  \leanok
   The primes of $B[1/S]$ above $P[1/S]$ are all maximal.
 \end{lemma}
 \begin{proof}
+  \leanok
   This follows from {\tt Algebra.IsIntegral.isField\_iff\_isField} and the fact
   that an ideal is maximal iff the quotient by it is a field.
 \end{proof}
 
 \begin{proof}(of theorem):
+  \leanok
 Because all these ideals of $B[1/S]$ are maximal, they're pairwise coprime.
 So by the Chinese Remainder Theorem we can find an element of $B[1/S]$ which
 is equal to $y$ modulo $Q[1/S]$ and equal to $0$ modulo all the other primes.
@@ -481,6 +486,5 @@ and hence $g(x)\notin Q[1/S]$. Hence $x\notin g^{-1} Q[1/S]$ and thus $g^{-1}Q=Q
 Finally we have $\phi_g=\sigma$ on $K$ and on $y$, so they are equal on $M$ and hence on $L$ as
 $L/M$ is purely inseparable.
 
-This argument is formalised and at the time of writing
-is being \href{https://github.com/leanprover-community/mathlib4/pull/19926}{PRed to mathlib}
+This argument is formalised and now merged into mathlib
 by Thomas Browning.
