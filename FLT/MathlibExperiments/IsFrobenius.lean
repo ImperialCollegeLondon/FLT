@@ -3,7 +3,6 @@ Copyright (c) 2024 Ivan Farabella. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ivan Farabella, Amelia Livingston, Jujian Zhang, Kevin Buzzard
 -/
-import Mathlib.Tactic
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 
