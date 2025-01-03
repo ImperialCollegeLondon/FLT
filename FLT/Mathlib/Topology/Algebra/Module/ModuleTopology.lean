@@ -2,7 +2,6 @@ import Mathlib.Algebra.Algebra.Bilinear
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.Topology.Algebra.Monoid
 
 /-!
