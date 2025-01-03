@@ -85,7 +85,7 @@ lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
     ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
   exact mul_nonZeroDivisor_mem_finiteIntegralAdeles a
 
-#check Classical.choose (v.valuation_exists_uniformizer K)
+--#check Classical.choose (v.valuation_exists_uniformizer K)
 
 -- These instances are sorry-free in the PR.
 instance : TopologicalSpace (FiniteAdeleRing ℤ ℚ) := sorry
@@ -272,7 +272,7 @@ structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop
     ‖f M‖ ≤ C * (s (M : Matrix (Fin n) (Fin n) ℝ)) ^ N
 
 --
-#check Matrix.orthogonalGroup (Fin n) ℝ
+--#check Matrix.orthogonalGroup (Fin n) ℝ
 
 structure preweight (n : ℕ) where
   d : ℕ -- dimension
