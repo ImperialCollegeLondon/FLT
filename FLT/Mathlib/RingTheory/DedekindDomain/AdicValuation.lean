@@ -2,6 +2,7 @@ import Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 open IsDedekindDomain
 
+-- mathlib PR #20523
 namespace IsDedekindDomain.HeightOneSpectrum
 
 variable (R K : Type*) [CommRing R] [Field K] [IsDedekindDomain R] [Algebra R K]
