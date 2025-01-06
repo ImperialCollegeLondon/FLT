@@ -1,5 +1,3 @@
-import Mathlib.Tactic
-
 /-
 Taylor: You could say that
 a representation

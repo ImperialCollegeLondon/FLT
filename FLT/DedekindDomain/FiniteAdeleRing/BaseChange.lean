@@ -1,10 +1,11 @@
-import Mathlib -- **TODO** fix when finished or if `exact?` is too slow
---import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
---import Mathlib.NumberTheory.NumberField.Basic
---import Mathlib.NumberTheory.RamificationInertia
-import FLT.Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags
-import FLT.Mathlib.Algebra.Order.Hom.Monoid
+import Mathlib.FieldTheory.Separable
+import Mathlib.NumberTheory.RamificationInertia.Basic
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.RingTheory.DedekindDomain.IntegralClosure
+import Mathlib.Topology.Algebra.Algebra
+import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.Algebra.Subalgebra.Pi
+import FLT.Mathlib.Algebra.Order.Hom.Monoid
 
 /-!
 
@@ -16,6 +17,10 @@ domain. Hence the rings of finite adeles `𝔸_K^∞` and `𝔸_L^∞` (defined 
 are defined. In this file we define the natural `K`-algebra map `𝔸_K^∞ → 𝔸_L^∞` and
 the natural `L`-algebra map `𝔸_K^∞ ⊗[K] L → 𝔸_L^∞`, and show that the latter map
 is an isomorphism.
+
+## Main definition
+
+* `FiniteAdeleRing.baseChangeEquiv : L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L`
 
 -/
 
@@ -47,10 +52,6 @@ variable [Algebra.IsIntegral A B]
 example : Module.Finite A B := by
   have := IsIntegralClosure.isNoetherian A K L B
   exact Module.IsNoetherian.finite A B
-
-/-
-In this generality there's a natural isomorphism `L ⊗[K] 𝔸_K^∞ → 𝔸_L^∞` .
--/
 
 -- We start by filling in some holes in the API for finite extensions of Dedekind domains.
 namespace IsDedekindDomain
@@ -275,6 +276,7 @@ noncomputable def adicCompletionTensorComapAlgHom (v : HeightOneSpectrum A) :
       Π w : {w : HeightOneSpectrum B // v = comap A w}, adicCompletion L w.1 :=
   Algebra.TensorProduct.lift (Algebra.ofId _ _) (adicCompletionComapAlgHom' A K L B v) fun _ _ ↦ .all _ _
 
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
 lemma adicCompletionComapAlgIso_tmul_apply (v : HeightOneSpectrum A) (x y i) :
   adicCompletionTensorComapAlgHom A K L B v (x ⊗ₜ y) i =
     x • adicCompletionComapAlgHom A K L B v i.1 i.2 y := by
@@ -302,6 +304,7 @@ noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
     ((Algebra.TensorProduct.includeRight.restrictScalars A).comp (IsScalarTower.toAlgHom _ _ _))
     (fun _ _ ↦ .all _ _)
 
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
 set_option linter.deprecated false in -- `map_zero` and `map_add` time-outs
 theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
     (v : HeightOneSpectrum A) :
@@ -390,11 +393,26 @@ variable [Algebra K (ProdAdicCompletions B L)]
 noncomputable def ProdAdicCompletions.baseChange :
     ProdAdicCompletions A K →ₐ[K] ProdAdicCompletions B L where
   toFun kv w := (adicCompletionComapAlgHom A K L B _ w rfl (kv (comap A w)))
-  map_one' := sorry -- #232 is this and the next few sorries. There is probably a cleverer way to do this.
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
-  commutes' := sorry
+  map_one' := by
+    dsimp only
+    exact funext fun w => by rw [Pi.one_apply, Pi.one_apply, map_one]
+  map_mul' x y := by
+    dsimp only
+    exact funext fun w => by rw [Pi.mul_apply, Pi.mul_apply, map_mul]
+  map_zero' := by
+    dsimp only
+    exact funext fun w => by rw [Pi.zero_apply, Pi.zero_apply, map_zero]
+  map_add' x y := by
+    dsimp only
+    funext w
+    letI : Module K (adicCompletion L w) := Algebra.toModule
+    rw [Pi.add_apply, Pi.add_apply, map_add]
+  commutes' r := by
+    funext w
+    rw [IsScalarTower.algebraMap_apply K L (ProdAdicCompletions B L)]
+    dsimp only [algebraMap_apply']
+    exact adicCompletionComapAlgHom_coe A K L B _ w _ r
+
 
 -- Note that this is only true because L/K is finite; in general tensor product doesn't
 -- commute with infinite products, but it does here.
@@ -421,12 +439,17 @@ theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff
     ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChangeEquiv A K L B (1 ⊗ₜ x)) :=
   sorry -- #240
 
--- Easy consequence of the previous result
-theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff'
-    (x : ProdAdicCompletions A K) :
-    ProdAdicCompletions.IsFiniteAdele x ↔
-    ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
-      (ProdAdicCompletions.baseChangeEquiv A K L B (l ⊗ₜ x)) := sorry -- #241
+theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff' (x : ProdAdicCompletions A K) :
+    ProdAdicCompletions.IsFiniteAdele x ↔ ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
+    (ProdAdicCompletions.baseChangeEquiv A K L B (l ⊗ₜ x)) := by
+  constructor
+  · simp_rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B, baseChangeEquiv,
+      AlgEquiv.coe_ofBijective, Algebra.TensorProduct.lift_tmul, map_one, one_mul]
+    intro h l
+    exact ProdAdicCompletions.IsFiniteAdele.mul (ProdAdicCompletions.IsFiniteAdele.algebraMap' l) h
+  · intro h
+    rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B]
+    exact h 1
 
 -- Make ∏_w L_w into a K-algebra in a way compatible with the L-algebra structure
 variable [Algebra K (FiniteAdeleRing B L)]
@@ -436,11 +459,37 @@ variable [Algebra K (FiniteAdeleRing B L)]
 noncomputable def FiniteAdeleRing.baseChange : FiniteAdeleRing A K →ₐ[K] FiniteAdeleRing B L where
   toFun ak := ⟨ProdAdicCompletions.baseChange A K L B ak.1,
     (ProdAdicCompletions.baseChange_isFiniteAdele_iff A K L B ak).1 ak.2⟩
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
-  commutes' := sorry
+  map_one' := by
+    ext
+    have h : (1 : FiniteAdeleRing A K) = (1 : ProdAdicCompletions A K) := rfl
+    have t : (1 : FiniteAdeleRing B L) = (1 : ProdAdicCompletions B L) := rfl
+    simp_rw [h, t, map_one]
+  map_mul' x y := by
+    have h : (x * y : FiniteAdeleRing A K) =
+      (x : ProdAdicCompletions A K) * (y : ProdAdicCompletions A K) := rfl
+    simp_rw [h, map_mul]
+    rfl
+  map_zero' := by
+    ext
+    have h : (0 : FiniteAdeleRing A K) = (0 : ProdAdicCompletions A K) := rfl
+    have t : (0 : FiniteAdeleRing B L) = (0 : ProdAdicCompletions B L) := rfl
+    simp_rw [h, t, map_zero]
+  map_add' x y:= by
+    have h : (x + y : FiniteAdeleRing A K) =
+      (x : ProdAdicCompletions A K) + (y : ProdAdicCompletions A K) := rfl
+    simp_rw [h, map_add]
+    rfl
+  commutes' r := by
+    ext
+    have h : (((algebraMap K (FiniteAdeleRing A K)) r) : ProdAdicCompletions A K) =
+      (algebraMap K (ProdAdicCompletions A K)) r := rfl
+    have i : algebraMap K (FiniteAdeleRing B L) r =
+      algebraMap L (FiniteAdeleRing B L) (algebraMap K L r) :=
+      IsScalarTower.algebraMap_apply K L (FiniteAdeleRing B L) r
+    have j (p : L) : (((algebraMap L (FiniteAdeleRing B L)) p) : ProdAdicCompletions B L) =
+      (algebraMap L (ProdAdicCompletions B L)) p := rfl
+    simp_rw [h, AlgHom.commutes, i, j]
+    exact IsScalarTower.algebraMap_apply K L (ProdAdicCompletions B L) r
 
 -- Presumably we have this?
 noncomputable def bar {K L AK AL : Type*} [CommRing K] [CommRing L]
