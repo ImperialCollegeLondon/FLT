@@ -25,24 +25,37 @@ jobs:
     - name: Retrieve project ID
       id: get_project_id
       run: |
+        echo "Debugging environment variables..."
+        echo "Repository Owner: ${{ github.repository_owner }}"
+        echo "Repository Name: ${{ github.event.repository.name }}"
+
+        echo "Constructing query..."
         QUERY=$(cat <<EOF
         {
           "query": "{ repository(owner: \\"${{ github.repository_owner }}\\", name: \\"${{ github.event.repository.name }}\\") { projectsV2(first: 10) { nodes { id title } } } }"
         }
         EOF
         )
+        echo "Constructed Query: $QUERY"
+
+        echo "Sending GraphQL request..."
         RESPONSE=$(curl -X POST -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
           -H "Content-Type: application/json" \
           --data "$QUERY" https://api.github.com/graphql)
 
+        echo "API Response: $RESPONSE"
+
+        echo "Validating response and parsing project ID..."
         PROJECT_ID=$(echo "$RESPONSE" | jq -r '.data.repository.projectsV2.nodes[] | select(.title == "FLT Project").id')
 
         if [ -z "$PROJECT_ID" ]; then
-          echo "Error: Could not retrieve project ID"
+          echo "Error: Could not retrieve project ID. Debugging response structure..."
+          echo "$RESPONSE" | jq '.'
           exit 1
-        else
-          echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
         fi
+
+        echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
+        echo "Successfully retrieved project ID: $PROJECT_ID"
 
     - name: Check if the issue is classified as 'Unclaimed'
       id: check_unclaimed_tasks
