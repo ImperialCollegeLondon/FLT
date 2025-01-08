@@ -271,8 +271,9 @@ As a special case, if $R$ is the restricted product of a collection of topologic
   A quick proof: if $x=\pm\prod_pp^{e_p}$ then $\prod_p|x|_p=\prod_pp^{-e_p}$
   and $|x|_\infty=\prod_pp^{e_p}$ so they cancel. We conclude that $\delta_{\A_{\Q}}(\Q^\times)=\{1\}$.
 
-  Next we generalize this to
-  finite-dimensional $\Q$-vector spaces. So say $V$ is an $N$-dimensional $\Q$-vector space,
+  Next we generalize this to finite-dimensional $\Q$-vector spaces.
+
+  So say $V$ is an $N$-dimensional $\Q$-vector space,
   and define $V_{\A}:= V\otimes_{\Q}\A_{\Q}$ with its $\A_{\Q}$-module topology.
   If we choose an isomorphism $V\cong\Q^N$ then $V_{\A}\cong\A_{\Q}^N$
   as an additive topological abelian group. In particular, $V_{\A}$ is locally compact.
@@ -284,7 +285,9 @@ As a special case, if $R$ is the restricted product of a collection of topologic
   \begin{theorem}
     \label{addHaarScalarFactor_eq_one}
     %\lean{addHaarScalarFactor_eq_one}
-    $d_{V_{\A}}(\phi_{\A})=1.$
+    In the above situation ($V$ a finite-dimensional $\Q$-vector space, $\phi:V\to V$ is $\Q$-linear,
+    $\phi_{\A}$ the base extension to $V_{\A}:=V\otimes_{\Q}{\A_{\Q}}$, a continuous linear
+    endomorphism of $V_{\A}$ with the $\A_{\Q}$-module topology), we have $d_{V_{\A}}(\phi_{\A})=1.$
   \end{theorem}
   \begin{proof}
     Notation: write $\A_{\Q}=\A_{\Q}^\infty\times\R$, where $\A_{\Q}^\infty$ is the finite adeles of $\Q$.
@@ -310,7 +313,9 @@ As a special case, if $R$ is the restricted product of a collection of topologic
     by the product formula for $\Q$.
   \end{proof}
 
-  \begin{corollary} If $B$ is a finite-dimensional $\Q$-algebra (for example a number field, or a quaternion algebra over a number field),
+  \begin{corollary}
+    \label{distribHaarCharacter_kernel_tensor_adeleRing}
+    If $B$ is a finite-dimensional $\Q$-algebra (for example a number field, or a quaternion algebra over a number field),
     if $B_{\A}$ denotes the ring $B\otimes_{\Q}\A_{\Q}$, and if $b\in B^\times$,
     then $\delta_{B_{\A}}(b)=1$.
   \end{corollary}
