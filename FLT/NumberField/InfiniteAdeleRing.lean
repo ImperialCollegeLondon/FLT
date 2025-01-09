@@ -6,10 +6,10 @@ open NumberField
 
 variable [Algebra K (InfiniteAdeleRing L)] [IsScalarTower K L (InfiniteAdeleRing L)]
 
--- TODO should be →A[K]
+-- https://leanprover.zulipchat.com/#narrow/channel/416277-FLT/topic/Functoriality.20of.20infinite.20completion.20for.20number.20fields/near/492313867
 /-- The canonical map from the infinite adeles of K to the infinite adeles of L -/
-def NumberField.InfiniteAdeleRing.baseChange :
-    InfiniteAdeleRing K →ₐ[K] InfiniteAdeleRing L :=
+noncomputable def NumberField.InfiniteAdeleRing.baseChange :
+    InfiniteAdeleRing K →A[K] InfiniteAdeleRing L :=
   sorry
 
 open scoped TensorProduct
