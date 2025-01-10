@@ -214,11 +214,47 @@ The result we need here is that if $L/K$ is a finite extension of number fields,
 then the map $K\to L$ extends to a continuous $K$-algebra map $K_\infty\to L_\infty$,
 and thus to a continuous $L$-algebra isomorphism $L\otimes_KK_\infty\to L_\infty$.
 
+\begin{theorem}
+  \label{NumberField.InfiniteAdeleRing.baseChangeEquiv}
+  \lean{NumberField.InfiniteAdeleRing.baseChangeEquiv}
+  If $K\to L$ is a ring homomorphism between two number fields then there is a natural isomorphism
+  (both topological and algebraic) $L\otimes_KK_\infty\cong L_\infty$.
+\end{theorem}
+\begin{proof}
+  Standard.
+\end{proof}
+
 \subsection{Base change for adeles}
 
 From the previous results we deduce immediately that if $L/K$ is a finite extension
 of number fields then there's a natural (topological and algebraic) isomorphism
 $L\otimes_K\A_K\to \A_L$.
+
+\begin{theorem}
+  \label{NumberField.AdeleRing.baseChangeEquiv}
+  \lean{NumberField.AdeleRing.baseChangeEquiv}
+  If $K\to L$ is a ring homomorphism between two number fields then there is a natural isomorphism
+  (both topological and algebraic) $L\otimes_K\A_K\cong\A_L$.
+\end{theorem}
+\begin{proof}
+  Follows from the previous results.
+\end{proof}
+
+Something else we shall need:
+
+\begin{theorem}
+  \label{NumberField.AdeleRing.baseChange_moduleTopology}
+  If $K\to L$ is a ring homomorphism between two number fields then the topology on $\A_L$
+  is the $\A_K$-module topology, where the module structure comes from the
+  natural map $\A_K\to\A_L$.
+\end{theorem}
+\begin{proof}
+  Because $\A_L=\A_K\otimes_{K}L$ we know that $\A_L$ is a finite free $\A_K$-module,
+  and a standard fact (being PRed to mathlib) about the module topology is that the module topology
+  on a finite free module is just the product topology. It thus suffices to show that
+  the topology on $\A_L$ is the product topology after picking an $\A_K$-basis for $\A_L$
+  but this is standard.
+\end{proof}
 
 \section{Discreteness and compactness}
 
