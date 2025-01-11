@@ -1,7 +1,7 @@
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
 import Mathlib.Topology.Algebra.Module.Equiv
-import FLT.ForMathlib.Topology.Algebra.Module.Equiv
-import FLT.ForMathlib.Topology.Algebra.Module.Quotient
+import FLT.Mathlib.Topology.Algebra.Module.Equiv
+import FLT.Mathlib.Topology.Algebra.Module.Quotient
 
 def ContinuousAddEquiv.toIntContinuousLinearEquiv {M M₂ : Type*} [AddCommGroup M]
     [TopologicalSpace M] [AddCommGroup M₂] [TopologicalSpace M₂] (e : M ≃ₜ+ M₂) :

@@ -1,7 +1,7 @@
 import Mathlib
-import FLT.ForMathlib.RingTheory.TensorProduct.Pi
-import FLT.ForMathlib.Topology.Algebra.Group.Quotient
-import FLT.ForMathlib.Topology.Algebra.Algebra
+import FLT.Mathlib.RingTheory.TensorProduct.Pi
+import FLT.Mathlib.Topology.Algebra.Group.Quotient
+import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 
 open scoped TensorProduct
 
@@ -148,7 +148,8 @@ theorem baseChangePi_map_principalSubgroup :
   rfl
 
 noncomputable def baseChangeQuotientPi :
-    (Fin (Module.finrank K L) → AdeleRing K ⧸ principalSubgroup K) ≃ₜ+ AdeleRing L ⧸ principalSubgroup L :=
+    (Fin (Module.finrank K L) → AdeleRing K ⧸ principalSubgroup K) ≃ₜ+
+      AdeleRing L ⧸ principalSubgroup L :=
   (ContinuousAddEquiv.quotientPi _).symm.trans <|
     QuotientAddGroup.continuousAddEquiv _ _ _ _ (baseChangePi K L).toContinuousAddEquiv
       (baseChangePi_map_principalSubgroup K L)
