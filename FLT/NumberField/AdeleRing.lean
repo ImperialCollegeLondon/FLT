@@ -1,4 +1,6 @@
 import Mathlib
+import FLT.Mathlib.NumberTheory.NumberField.Basic
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
@@ -189,17 +191,15 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
       change ‖(x : ℂ)‖ < 1 at h1
       simp at h1
       have intx: ∃ (y:ℤ), y = x
-      · clear h1 -- not needed
-        -- mathematically this is trivial:
-        -- h2 says that no prime divides the denominator of x
-        -- so x is an integer
-        -- and the goal is that there exists an integer `y` such that `y = x`.
-        suffices ∀ p : ℕ, p.Prime → ¬(p ∣ x.den) by
-          use x.num
-          rw [← den_eq_one_iff]
-          contrapose! this
-          exact ⟨x.den.minFac, Nat.minFac_prime this, Nat.minFac_dvd _⟩
-        sorry -- issue #254
+      · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
+            (𝓞 ℚ) ℚ x <| fun v ↦ by
+          specialize h2 v
+          letI : UniformSpace ℚ := v.adicValued.toUniformSpace
+          rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
+          rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
+        use Rat.ringOfIntegersEquiv z
+        rw [← hz]
+        apply Rat.ringOfIntegersEquiv_eq_algebraMap
       obtain ⟨y, rfl⟩ := intx
       simp only [abs_lt] at h1
       norm_cast at h1 ⊢
