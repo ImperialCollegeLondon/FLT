@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
 import Mathlib.Topology.Algebra.Algebra
+import Mathlib.Topology.Algebra.Module.Equiv
 
 /-!
 # Topological (sub)algebras
@@ -38,6 +39,11 @@ variable {R A B C : Type*}
 def toContinuousAlgHom (e : A ≃A[R] B) : A →A[R] B where
   __ := e.toAlgHom
   cont := e.continuous_toFun
+
+def toContinuousLinearEquiv (e : A ≃A[R] B) : A ≃L[R] B where
+  __ := e.toLinearEquiv
+  continuous_toFun := e.continuous_toFun
+  continuous_invFun := e.continuous_invFun
 
 instance coe : Coe (A ≃A[R] B) (A →A[R] B) := ⟨toContinuousAlgHom⟩
 
