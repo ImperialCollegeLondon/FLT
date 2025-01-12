@@ -12,12 +12,12 @@ is the big first target for the FLT project.
 
 \section{Initial definitions}
 
-Our first goal is the definition of these spaces of quaternionic modular forms. We start with
-some preliminary work towards this.
+Our first goal in this miniproject is the definition of these spaces of quaternionic modular forms.
+We start with some preliminary work towards this.
 
 Let $K$ be a field. Recall that a \emph{quaternion algebra}
 over $K$ is a central simple $K$-algebra of $K$-dimension~4.
-***************************************UP TO HERE*****************\grlse
+
 A fundamental fact about central simple algebras is that if $D/K$
 is a central simple $K$-algebra and $L/K$ is an extension of fields, then $D\otimes_KL$
 is a central simple $L$-algebra. In particular if $D$ is a quaternion algebra over $K$
@@ -27,17 +27,21 @@ this fact in ongoing project work.
 A \emph{totally real field} is a number field~$F$ such that the image of every ring
 homomorphism $F\to\bbC$ is a subset of $\R$. We fix once and for all a totally real field~$F$ and a
 quaternion algebra $D$ over $F$. We furthermore assume that $D$ is \emph{totally definite}, that is,
-that for all field embeddings $\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$.
+that for all field embeddings $\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$. Because $F$
+has at least one real place, the totally definiteness hypothesis is enough to show that $D$
+is not a matrix algebra and thus must be a division algebra. Thus Fujisaki's theorem {\bf TODO link}
+from the Fujisaki miniproject applies, and we know that $D^\times\backslash (D\otimes_F\A_F)^{(1)}$
+is compact.
 
 The high-falutin' explanation of what is about to happen is that the units $D^\times$ of $D$
 can be regarded as a connected reductive algebraic group over $F$, and we are going to define spaces
 of automorphic forms for this algebraic group. For a general connected reductive algebraic group,
-part of the definition of an automorphic form is that it is the solution to some differential
+part of the definition of an automorphic form is that it is satisfies some differential
 equations (for example modular forms are automorphic forms for the algebraic group $\GL_2$ over
 $\Q$, and the definition of a modular form involves holomorphic functions, which are solutions to
 the Cauchy--Riemann equations). However under the assumption that $F$ is totally real and $D/F$ is
-totally definite, the associated symmetric space is 0-dimensional, meaning that no differential
-equations are involved in the definition
+totally definite, the ``associated symmetric space is 0-dimensional'', meaning in practice that
+no differential equations are involved in the definition
 of an automorphic form in this setting. As a consequence, the definition we're about to give
 makes sense not just over the complex numbers but over any commutative ring $R$, which will
 be crucial for us as we will need to think about, for example, mod~$p$ and more generally
@@ -47,10 +51,8 @@ mod~$p^n$ automorphic forms in this setting.
 
 Having made assumptions on $D$ which makes the theory far less technical, we will now
 make it a little more technical by using the modern adelic approach to the theory.
-The adeles of a number field are discussed in far more detail
-in the adele miniproject \ref{Adele_miniproject}. We just recall here that if $K$ is a number field
-then there are two huge topological $K$-algebras called the \emph{finite adeles}
-$\A_K^\infty$ and the \emph{adeles} $\A_K$ of $K$.
+Note that many results about the adeles of a number field are proved in the adele
+miniproject \ref{Adele_miniproject}.
 
 Let us now fix a \emph{weight}, a \emph{level} and a \emph{character}, and we will define
 a space of automorphic forms for $D^\times$ of this weight, level and character. If you know
