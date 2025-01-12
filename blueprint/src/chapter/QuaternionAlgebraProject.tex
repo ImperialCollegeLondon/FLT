@@ -31,7 +31,12 @@ that for all field embeddings $\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bb
 has at least one real place, the totally definiteness hypothesis is enough to show that $D$
 is not a matrix algebra and thus must be a division algebra. Thus Fujisaki's theorem {\bf TODO link}
 from the Fujisaki miniproject applies, and we know that $D^\times\backslash (D\otimes_F\A_F)^{(1)}$
-is compact.
+is compact. We fix once and for all a maximal compact subgroup $K_\infty$ of
+$(D\otimes_{\Q}\R)^\times$; all maximal compact subgroups are conjugate so changing this choice
+just amounts to some
+bookkeeping. Because $D\otimes_{\Q}\R$ is isomorphic to $\prod_{v\mid\infty}\bbH$, the maximal
+compact subgroup is isomorphic to $\prod_{v\mid\infty}S^3$, where $S^3$ denotes the unit
+quaternions in $\bbH$.
 
 The high-falutin' explanation of what is about to happen is that the units $D^\times$ of $D$
 can be regarded as a connected reductive algebraic group over $F$, and we are going to define spaces
@@ -41,75 +46,84 @@ equations (for example modular forms are automorphic forms for the algebraic gro
 $\Q$, and the definition of a modular form involves holomorphic functions, which are solutions to
 the Cauchy--Riemann equations). However under the assumption that $F$ is totally real and $D/F$ is
 totally definite, the ``associated symmetric space is 0-dimensional'', meaning in practice that
-no differential equations are involved in the definition
-of an automorphic form in this setting. As a consequence, the definition we're about to give
-makes sense not just over the complex numbers but over any commutative ring $R$, which will
-be crucial for us as we will need to think about, for example, mod~$p$ and more generally
-mod~$p^n$ automorphic forms in this setting.
+no differential equations are involved in the definition of an automorphic form in this setting.
+As a consequence, the definitions we're about to give have a far more algebaic flavour and, as
+we shall see, it is possible to construct mod $p$ and $p$-adic variants of these spaces without
+too much trouble.
 
-\section{The adelic viewpoint}
+\section{Brief introduction to automorphic forms in this setting}
 
-Having made assumptions on $D$ which makes the theory far less technical, we will now
-make it a little more technical by using the modern adelic approach to the theory.
-Note that many results about the adeles of a number field are proved in the adele
-miniproject \ref{Adele_miniproject}.
+Having made assumptions on $D$ which makes the theory of automorphic forms over $D^\times$
+far less technical, we will now make it a little more technical by using the modern adelic
+approach to the theory. Note that many results about the adeles of a number field are proved
+in the adele miniproject \ref{Adele_miniproject}. Our automorphic forms will be certain
+functions on the units of the ring $D_{\A}:=D\otimes_F\A_F\cong D\otimes_{\Q}\A_{\Q}$
+and there are adelic analogues of a weight, level and character in this setting, corresponding
+to the classical notions which one sees in the theory of modular forms. We remark again that
+there is no analogue of the holomorphicity condition that one sees in the classical theory,
+because the symmetric space is a finite set of points rather than the upper half plane. Also
+there is no analogue of the cuspidality condition because there are no cusps in this setting.
+We will fix a weight $\rho_\infty$, a level $U$ and a character $\chi$, and define
+a complex vector space $S_{\rho_\infty}^D(U;\chi)$ of quaternionic modular forms of level $U$,
+weight $\rho_\infty$ and character $\chi$. The main theorem of this miniproject is the claim
+that this space is finite-dimensional.
 
-Let us now fix a \emph{weight}, a \emph{level} and a \emph{character}, and we will define
-a space of automorphic forms for $D^\times$ of this weight, level and character. If you know
-something about the theory of classical modular forms you will have seen these words used in that
-theory. In the adelic set-up these words have slightly different interpretations. We will define
-automorphic forms over $R$, an arbitrary commutative base ring. If you are thinking about analogies
-with spaces of classical modular forms then you could imagine the case $R=\bbC$.
+\section{Definition of spaces of automorphic forms}
 
-A \emph{weight} is a finitely-generated $R$-module~$W$ with an action of $D^\times$. For applications
-to Fermat's Last Theorem we only need to consider the case where $W=R$ and the action is trivial,
-but there is no harm in setting things up in more generality. The case $W=R=\bbC$ corresponds (via
-the highly non-trivial Jacquet-Langlands correspondence) when $F=\Q$ to the case of modular forms
-of weight 2, and for general~$F$ corresponds to Hilbert modular forms of parallel weight~2.
+Let us now give precise definitions of weights, levels, characters, and these spaces of quaternionic
+modular forms.
 
-A \emph{level} is a compact open subgroup~$U$ of $(D\otimes_F\A_F^\infty)^\times$. These are plentiful.
-The ring $D\otimes_F\A_F^\infty$ is a topological ring, and this fact is currently in the process
-of being PRed to mathlib. Hence the units $(F\otimes_F\A_F^\infty)^\times$ of this ring are a topological
-group. This group is locally profinite, and hence has many compact open subgroups; we will see
-explicit examples later on.
+A \emph{weight} $\rho_\infty$ is a finite-dimensional $\bbC$-vector space $W$ (with the
+usual vector space topology) equipped with a continuous action of $K_\infty$, our fixed maximal
+compact subgroup. For applications
+to Fermat's Last Theorem we only need to consider the case where $W=\bbC$ and $\rho_\infty$
+is the trivial representation, but there is no harm in setting things up in more generality.
+The case $W=\bbC$ corresponds (via the highly non-trivial Jacquet-Langlands correspondence)
+when $F=\Q$ to the case of modular forms of weight 2, and for general~$F$ corresponds to
+Hilbert modular forms of parallel weight~2.
 
-A \emph{character} is a group homomorphism $\chi$ from $(\A_F^\infty)^\times$ to $R^\times$. For many
-of the applications, $\chi$ can also be trivial, although we will crucially have to allow
-certain nontrivial characters of $p$-power order when we are doing the patching argument needed
-to prove the modularity lifting theorem which is the big first target of the FLT project.
-We regard $\A_F^\infty$ as a subring of $D\otimes_F\A_F^\infty$, which is possible because
-$F$ is a subring of $D$. More precisely we embed $\A_F^\infty$ into $D\otimes_F\A_F^\infty$
+A \emph{level} is a compact open subgroup~$U$ of $(D\otimes_F\A_F^\infty)^\times$. These are
+plentiful. The ring $D_f:=D\otimes_F\A_F^\infty$ is a topological ring, and this fact is currently
+in the process of being PRed to mathlib. Hence the units $D_f^\times$ of this ring
+are a topological group. This group is locally profinite, and hence has many compact open subgroups;
+we will see explicit examples later on.
+
+A \emph{character} is a continuous group homomorphism $\chi$ from $F^\times\backslash\A_F^\times$ to
+$\bbC^\times$. For many of the applications, $\chi$ can also be trivial, although we will crucially
+have to allow certain nontrivial characters of $p$-power order when we are doing the patching
+argument needed to prove the modularity lifting theorem which is the big first target of the FLT
+project. We regard $\A_F$ as a subring of $D_{\A}:=D\otimes_F\A_F$, which is possible because
+$F$ is a subring of $D$. More precisely we embed $\A_F$ into $D\otimes_F\A_F$
 via the map sending $g$ to $1\otimes g$. Because $F$ is in the centre of~$D$, we have
-that $\A_F^\infty$ is in the centre of $D\otimes_F\A_F^\infty$ and thus $(\A_F^\infty)^\times$
-is a central subgroup of $(D\otimes_F\A_F^\infty)^\times$.
+that $\A_F$ is in the centre of $D_{\A}$ and thus $F^\times\backslash\A_F^\times$
+is a central subgroup of $D_{\A}^\times$.
 
-We fix a base commutative ring $R$, a weight $W$, a level $U$ and a character $\chi$.
+We fix a weight $(W,\rho_{\infty})$, a level $U$ and a character $\chi$.
 
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
   \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
   \leanok
   An $R$-valued \emph{automorphic form} of weight $W$, level $U$ and character $\chi$ for $D$ is
-  a function $f:(D\otimes_F\A_F^\infty)^\times\to W$ satisfying the following axioms:
+  a function $f:D^\times\backslash D_{\A}^\times\to W$ satisfying the following axioms:
   \begin{itemize}
-    \item $f(\delta g)=\delta\cdot f(g)$ for all $\delta\in D^\times$ and $g\in (D\otimes_F\A_F^\infty)^\times$
-    (this makes sense because $W$ has an action of $D^\times$).
-    \item $f(gz)=\chi(z)f(g)$ for all $g\in (D\otimes_F\A_F^\infty)^\times$ and $z\in(\A_F^\infty)^\times$
-    (this makes sense because $W$ is an $R$-module).
-    \item $f(gu)=f(g)$ for all $g\in (D\otimes_F\A_F^\infty)^\times$ and $u\in U$.
+    \item $f(gk_\infty)=\rho(k_\infty)f(g)$ for all $k\in K_\infty$ and $g\in D_{\A}^\times$.
+    \item $f(gz)=\chi(z)f(g)$ for all $g\in D_{\A}^\times$ and $z\in\A_F^\times$ (this makes
+    sense because $W$ is a $\bbC$-vector space).
+    \item $f(gu)=f(g)$ for all $g\in D_{\A}^\times$ and $u\in U$.
   \end{itemize}
 \end{definition}
 
-Let $S_{W,\chi}(U;R)$ denote the space of $R$-valued automorphic forms of weight $W$, level $U$ and character
-$\chi$. Two basic observations are
+Let $S_{\rho_\infty}^D(U;\chi)$ denote the space of automorphic forms of weight $W$, level $U$
+and character $\chi$. Two basic observations are
 
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
   \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
   \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
   \leanok
-  Pointwise addition $(f_1+f_2)(g):=f_1(g)+f_2(g)$ makes $S_{W,\chi}(U;R)$ into an additive
-  abelian group.
+  Pointwise addition $(f_1+f_2)(g):=f_1(g)+f_2(g)$ makes $S_{\rho_\infty}^D(U;\chi)$ into an
+  additive abelian group.
 \end{definition}
 
 \begin{definition}
@@ -119,12 +133,12 @@ $\chi$. Two basic observations are
     TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
   \leanok
   Pointwise scalar multiplication $(r\cdot f)(g):= r\cdot(f(g))$ makes
-  $S_{W,\chi}(U;R)$ into an $R$-module.
+  $S_{\rho_\infty}^D(U;\chi)$ into an $R$-module.
 \end{definition}
 
-These spaces $S_{W,\chi}(U;R)$ are sometimes referred to as spaces of ``quaternionic modular forms''.
-The Hecke algebras involved in the main modularity lifting theorems needed in the FLT project
-will be endomorphisms of these spaces.
+These spaces $S_{\rho_\infty}^D(U;\chi)$ are sometimes referred to as spaces of
+``quaternionic modular forms''. The Hecke algebras involved in the main modularity lifting
+theorems needed in the FLT project will be endomorphisms of these spaces.
 
 \section{Statement of the main result of the miniproject}
 
@@ -134,8 +148,7 @@ The point of this miniproject is the following goal:
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
-  If $R$ is a field~$k$ and the weight $W$ is a finite-dimensional $k$-vector space
-  then the space $S_{W,\chi}(U;k)$ is a finite-dimensional $k$-vector space.
+  The space $S_{\rho_\infty}^D(U;\chi)$ is a finite-dimensional $k$-vector space.
 \end{theorem}
 
 This is an analogue of the result that classical modular forms of a fixed
@@ -144,28 +157,10 @@ of Jacquet and Langlands this result (in the case $k=\bbC$) implies many cases o
 although of course the Jacquet--Langlands theorem is much much harder to prove than the classical
 proof of finite-dimensionality.
 
-The finite-dimensionality theorem is in fact an easy consequence of a finiteness assertion
-which is valid in far more generality, namely for division algebras over number fields.
-We state and prove this result in this generality. Let $K$ be a number field and let $B/K$
-be a finite-dimensional central simple $K$-algebra. Assume furthermore that $B$ is a
-\emph{division algebra}, that is, that every nonzero element of $B$ is a unit. The finiteness
-theorem we want is this.
+The finite-dimensionality theorem is in fact an easy consequence of Fujisaki's lemma,
+proved in the Fukisaki miniproject, chapter~\ref{Fujisaki_project}. {\bf TODO add the
+consequence}
 
-\begin{theorem}
-  %\lean{FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset}
-  \label{FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset}
-  If $U\subseteq (B\otimes_K\A_K^\infty)^\times$ is a compact open subgroup,
-  then the double coset space $B^\times\backslash(B\otimes_K\A_K^\infty)^\times/U$ is a
-  finite set.
-\end{theorem}
-
-I (kmb) had always imagined that this latter finiteness statement was ``folklore'' or
-``a standard consequence of results about automorphic forms'', but in John Voight's
-book~\cite{voightbook} this is Main Theorem 27.6.14(b) and Voight calls it Fujisaki’s lemma.
-
-Let's prove Theorem~\ref{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional},
-the finite-dimensionality of the space of quaternionic modular forms,
-assuming Fujisaki's lemma.
 \begin{proof}
   \proves{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \uses{DivisionAlgebra.finiteDoubleCoset}
@@ -184,28 +179,6 @@ assuming Fujisaki's lemma.
   and because $f_1(g_i)=f_2(g_i)$ by assumption, we deduce $f_1(g)=f_2(g)$ as required.
 \end{proof}
 
-It thus remains to prove Fujisaki's lemma, i.e. theorem~\ref{FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset},
-which is what we do in the rest of this
-miniproject. Note that we will be assuming the results
-from the adele mini-project, chapter~\ref{Adele_miniproject} of this blueprint,
-and also from the Haar character mini-project, chapter~\ref{Haar_char_project}.
-
-\section{Proof of Fujisaki's lemma}
-
-Let $B_{\A}$ denote the topological ring $B\otimes_K\A_K$, or equivalently $B\otimes_{\Q}\A_{\Q}$
-(because $\A_K=\A_{\Q}\otimes_{\Q}K$ both algebraically and topologically). Let $B_{\A}^{(1)}$
-denote the kernel of $\delta$, the Haar chacter of $B_{\A}$ defined in the Haar character
-mini-project, chapter~\ref{Haar_char_project}. We know from
-corollary~\ref{distribHaarCharacter_kernel_tensor_adeleRing} that $B^\times\subseteq B_{\A}^{(1)}$.
-What we will actually prove is
-
-\begin{theorem}
-  \label{AdeleRing.DivisionAlgebra.compact_quotient} The quotient $B^\times\backslash B_{\A}^{(1)}$
-  is compact.
-\end{theorem}
-
-First we show
-\begin{lemma}
   \label{FiniteAdeleRing.DivisionAlgebra.finite_doset_of_compact_quotient}
   Compactness of the above quotient $B^\times\backslash B_{\A}^{(1)}$ implies Fujisaki's lemma.
 \end{lemma}

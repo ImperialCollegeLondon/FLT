@@ -178,3 +178,31 @@ We can now prove Fujisaki's theorem.
   space so it's compact, and the previous lemma shows that $M$ surjects onto
   $D^\times\backslash D_{\A}^{(1)}$ which is thus also compact.
 \end{proof}
+
+We note here a useful consequence.
+
+\begin{theorem}
+  $D^\times\backslash(D\otimes_K\A_K^\infty)^\times$ is compact.
+\end{theorem}
+\begin{remark} In this generality the quotient might not be Hausdorff.
+\end{remark}
+\begin{proof}
+  There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
+  $D^\times\backslash (D\otimes_K \A_K^\infty)^\times$. We claim that it's
+  surjective. Granted this claim, we are home, because if we put the quotient
+  topology on $D^\times\backslash (D\otimes_K \A_K^\infty)^\times$ coming from
+  $(D\otimes_K \A_K^\infty)^\times$ then it's readily verified that $\alpha$
+  is continuous, and the continuous image of a compact space is compact.
+
+  As for surjectivity: say $x\in (D\otimes_K \A_K^\infty)^\times$. We need to extend
+  $x$ to an element $(x,y)\in (D\otimes_K \A_K^\infty)^\times\times(D\otimes_K K_\infty)^\times$
+  which is in the kernel of $\delta_{D_{\A}}$. Because $\delta_{D_{\A}}(x,1)$ is some positive
+  real number, it will suffice to show that if $r$ is any positive real number then we can
+  find $y\in (D\otimes_K \A_K^\infty)^\times=(D\otimes_{\Q}\R)^\times$ with $\delta_{D_{\A}}(1,y)=r$,
+  or equivalently (setting $D_{\R}=D\otimes_{\Q}\R$) that $\delta_{D_{\R}}(y)=r$.
+  But $D\not=0$ as it is a division algebra,and hence $\Q\subseteq D$, meaning
+  $\R\subseteq D_{\R}$, and if
+  $x\in\R^\times\subseteq D_{\R}^\times$ then $\delta(x)=|x|^d$ with $d=\dim_{\Q}(D)$,
+  as multiplication by $x$ is just scaling by a factor of $x$ on $D_{\R}\cong\R^d$.
+  In particular we can set $x=y^{1/d}$.
+\end{proof}
