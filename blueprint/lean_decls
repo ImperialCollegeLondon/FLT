@@ -65,6 +65,8 @@ IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral
 DedekindDomain.ProdAdicCompletions.baseChange
 DedekindDomain.FiniteAdeleRing.baseChange
 DedekindDomain.FiniteAdeleRing.baseChangeEquiv
+NumberField.InfiniteAdeleRing.baseChangeEquiv
+NumberField.AdeleRing.baseChangeEquiv
 Rat.AdeleRing.zero_discrete
 Rat.AdeleRing.discrete
 NumberField.AdeleRing.discrete
@@ -77,4 +79,3 @@ TotallyDefiniteQuaternionAlgebra.AutomorphicForm
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module
 TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional
-DivisionAlgebra.finiteDoubleCoset

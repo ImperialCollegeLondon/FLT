@@ -1,6 +1,7 @@
 import Mathlib
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 
 universe u
 
@@ -15,10 +16,6 @@ instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleR
   sorry -- issue #253
 
 end LocallyCompact
-
-section BaseChange
-
-end BaseChange
 
 section Discrete
 
@@ -124,3 +121,32 @@ theorem NumberField.AdeleRing.cocompact :
   sorry -- issue #259
 
 end Compact
+
+section BaseChange
+
+variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
+
+open NumberField
+
+variable [Algebra K (AdeleRing L)] [IsScalarTower K L (AdeleRing L)]
+
+/-- The canonical map from the adeles of K to the adeles of L -/
+noncomputable def NumberField.AdeleRing.baseChange :
+    AdeleRing K →A[K] AdeleRing L :=
+  sorry -- product of finite and infinite adele maps
+
+open scoped TensorProduct
+
+noncomputable instance : Algebra (AdeleRing K) (L ⊗[K] AdeleRing K) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : TopologicalSpace (L ⊗[K] AdeleRing K) :=
+  moduleTopology (AdeleRing K) (L ⊗[K] AdeleRing K)
+-- TODO should be ≃A[L]
+/-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
+`K`-algebra base change map `K_∞ → L_∞`. -/
+def NumberField.AdeleRing.baseChangeEquiv :
+    (L ⊗[K] (AdeleRing K)) ≃A[L] AdeleRing L :=
+  sorry
+
+end BaseChange
