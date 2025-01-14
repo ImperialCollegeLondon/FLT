@@ -259,6 +259,7 @@ theorem Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
       convert finsum_eq_single (fun i ↦ Pi.single i (f i) j) j
         (by simp (config := {contextual := true})) using 1
       simp
+      sorry -- new finiteness goal?
     · apply Set.toFinite _--(Function.support fun x ↦ f x • Pi.single x 1)
   rw [foo]
   haveI : ContinuousAdd C := toContinuousAdd R C

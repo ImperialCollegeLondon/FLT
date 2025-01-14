@@ -4,8 +4,8 @@ import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.RingTheory.DedekindDomain.IntegralClosure
 import Mathlib.Topology.Algebra.Algebra
 import Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Algebra.Algebra.Subalgebra.Pi
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
+import Mathlib
 
 /-!
 

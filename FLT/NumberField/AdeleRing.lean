@@ -1,8 +1,9 @@
 import Mathlib
 import FLT.Mathlib.NumberTheory.NumberField.Basic
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 universe u
+
+open NumberField
 
 section LocallyCompact
 
@@ -11,7 +12,7 @@ section LocallyCompact
 
 variable (K : Type*) [Field K] [NumberField K]
 
-instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing K) :=
+instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing (𝓞 K) K) :=
   sorry -- issue #253
 
 end LocallyCompact
@@ -22,10 +23,10 @@ end BaseChange
 
 section Discrete
 
-open NumberField DedekindDomain
+open DedekindDomain
 
-theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
-    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {0} := by
+theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
   use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ
     {f | ∀ v , f v ∈ IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v}
   refine ⟨?_, ?_⟩
@@ -36,7 +37,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
     · intro x hx
       rw [Set.mem_preimage] at hx
       simp only [Set.mem_singleton_iff]
-      have : (algebraMap ℚ (AdeleRing ℚ)) x =
+      have : (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
         (algebraMap ℚ (InfiniteAdeleRing ℚ) x, algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) x)
       · rfl
       rw [this] at hx
@@ -52,7 +53,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
       simp at h1
       have intx: ∃ (y:ℤ), y = x
       · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
-            (𝓞 ℚ) ℚ x <| fun v ↦ by
+            ℚ x <| fun v ↦ by
           specialize h2 v
           letI : UniformSpace ℚ := v.adicValued.toUniformSpace
           rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
@@ -88,11 +89,11 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
 -- Maybe this discreteness isn't even stated in the best way?
 -- I'm ambivalent about how it's stated
 open Pointwise in
-theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing ℚ),
-    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {q} := by
+theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {q} := by
   obtain ⟨V, hV, hV0⟩ := zero_discrete
   intro q
-  set ι  := algebraMap ℚ (AdeleRing ℚ)    with hι
+  set ι  := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)    with hι
   set qₐ := ι q                           with hqₐ
   set f  := Homeomorph.subLeft qₐ         with hf
   use f ⁻¹' V, f.isOpen_preimage.mpr hV
@@ -104,8 +105,8 @@ theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing ℚ),
 
 variable (K : Type*) [Field K] [NumberField K]
 
-theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing K),
-    IsOpen U ∧ (algebraMap K (AdeleRing K)) ⁻¹' U = {k} := sorry -- issue #257
+theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing (𝓞 K) K),
+    IsOpen U ∧ (algebraMap K (AdeleRing (𝓞 K) K)) ⁻¹' U = {k} := sorry -- issue #257
 
 end Discrete
 
@@ -114,13 +115,13 @@ section Compact
 open NumberField
 
 theorem Rat.AdeleRing.cocompact :
-    CompactSpace (AdeleRing ℚ ⧸ AddMonoidHom.range (algebraMap ℚ (AdeleRing ℚ)).toAddMonoidHom) :=
+    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AddMonoidHom.range (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)).toAddMonoidHom) :=
   sorry -- issue #258
 
 variable (K : Type*) [Field K] [NumberField K]
 
 theorem NumberField.AdeleRing.cocompact :
-    CompactSpace (AdeleRing K ⧸ AddMonoidHom.range (algebraMap K (AdeleRing K)).toAddMonoidHom) :=
+    CompactSpace (AdeleRing (𝓞 K) K ⧸ AddMonoidHom.range (algebraMap K (AdeleRing (𝓞 K) K)).toAddMonoidHom) :=
   sorry -- issue #259
 
 end Compact
