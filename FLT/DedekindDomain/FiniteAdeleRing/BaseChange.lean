@@ -195,15 +195,28 @@ noncomputable def adicCompletionComapRingHom
 -- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/beef.20up.20smul.20on.20completion.20to.20algebra.20instance/near/484166527
 -- Hopefully resolved in https://github.com/leanprover-community/mathlib4/pull/19466
 variable (w : HeightOneSpectrum B) in
+protected noncomputable nonrec def algebraMap : K →+* adicCompletion L w :=
+  have : RingHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := inferInstance
+  have : MonoidHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := RingHomClass.toMonoidHomClass
+  have : MulHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := MonoidHomClass.toMulHomClass
+  have : AddMonoidHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := RingHomClass.toAddMonoidHomClass
+  have : AddHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := AddMonoidHomClass.toAddHomClass
+  { toFun k := algebraMap L (adicCompletion L w) (algebraMap K L k)
+    map_one' := by simp only [map_one]
+    map_mul' k₁ k₂ := by simp only [map_mul]
+    map_zero' := by simp only [map_zero]
+    map_add' k₁ k₂ := by simp only [map_add] }
+
+variable (w : HeightOneSpectrum B) in
 noncomputable instance : Algebra K (adicCompletion L w) where
-  toFun k := algebraMap L (adicCompletion L w) (algebraMap K L k)
-  map_one' := by simp only [map_one]
-  map_mul' k₁ k₂ := by simp only [map_mul]
-  map_zero' := by simp only [map_zero]
-  map_add' k₁ k₂ := by simp only [map_add]
-  commutes' k lhat := mul_comm _ _
+  algebraMap := IsDedekindDomain.HeightOneSpectrum.algebraMap K L B w
+  commutes' k lhat := by
+    let _ : Field (adicCompletion L w) := inferInstance
+    let _ : CommMonoid (adicCompletion L w) := Field.toCommRing.toCommMonoid
+    let _ : CommMagma (adicCompletion L w) := CommMonoid.toCommSemigroup.toCommMagma
+    exact mul_comm _ _
   smul_def' k lhat := by
-    simp only [RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
+    simp only [IsDedekindDomain.HeightOneSpectrum.algebraMap, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
     rw [UniformSpace.Completion.smul_def] -- not sure if this is the right move
     sorry -- surely true; issue #230
 
