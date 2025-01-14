@@ -8,14 +8,14 @@ package FLT where
     ⟨`relaxedAutoImplicit, false⟩ -- switch off relaxed auto-implicit
   ]
 
-require mathlib from git "https://github.com/leanprover-community/mathlib4.git" @ "v4.15.0"
+require mathlib from git "https://github.com/leanprover-community/mathlib4.git" @ "v4.16.0-rc2"
 
 require checkdecls from git "https://github.com/PatrickMassot/checkdecls.git"
 
 -- This is run only if we're in `dev` mode. This is so not everyone has to build doc-gen
 meta if get_config? env = some "dev" then
 require «doc-gen4» from git
-  "https://github.com/leanprover/doc-gen4" @ "v4.15.0"
+  "https://github.com/leanprover/doc-gen4" @ "v4.16.0-rc2"
 
 @[default_target]
 lean_lib FLT where
