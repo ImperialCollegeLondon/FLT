@@ -85,10 +85,17 @@ We prove the theorem via a series of lemmas.
   the obvious map $xE\to D\backslash D_{\A}$ is not injective.
 \end{lemma}
 
-\begin{proof} We know that $D\backslash D_{\A}=(\Q\backslash\A_{\Q})^N$
-  is compact, and that $D$ is discrete in $D_{\A}$ {\bf todo citations}
+\begin{proof} We know that if we pick a $\Q$-basis for $D$
+  of size $d$ then this identifies $D$ with $\Q^d$,
+  $D_{\A}$ with $\A_{\Q}^d$, and $D\backslash D_{\A}$ with
+  $(\Q\backslash\A_{\Q})^d$. Now $\Q$ is discrete in $\A_{\Q}$
+  by theorem~\ref{Rat.AdeleRing.discrete}, and the quotient
+  $\Q\backslash \A_{\Q}$ is compact by theorem~\ref{Rat.AdeleRing.cocompact}.
+  Hence $D$ is discrete in $D_{\A}$
+  and the quotient $D\backslash D_{\A}$ is compact.
+
     Fix a Haar measure $\mu$ on $D_{\A}$ and push it forward
-    to $D\backslash D_{\A}$; this quotient has finite
+    to $D\backslash D_{\A}$; by compactness this quotient has finite
     and positive measure, say $m\in\R_{>0}$.
     Choose any compact $E\subseteq D_{\A}$ with measure $> m$
     (for example, choose a $\Z$-lattice $L\cong\Z^d$ in $D\cong\Q^d$,
@@ -169,6 +176,7 @@ noting that $K$ is compact because $X$ is compact and $T$ is finite.
 We can now prove Fujisaki's theorem.
 
 \begin{theorem}
+  \label{DivisionAlegbra.units_cocompact}
   $D^\times\backslash D_{\A}^{(1)}$ is compact.
 \end{theorem}
 \begin{proof}
@@ -182,6 +190,7 @@ We can now prove Fujisaki's theorem.
 We note here a useful consequence.
 
 \begin{theorem}
+  \label{DivisionAlegbra.units_cocompact'}
   $D^\times\backslash(D\otimes_K\A_K^\infty)^\times$ is compact.
 \end{theorem}
 \begin{remark} In this generality the quotient might not be Hausdorff.

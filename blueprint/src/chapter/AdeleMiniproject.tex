@@ -24,10 +24,13 @@ There are several goals to this miniproject.
   \item Get this stuff into mathlib (status: (1) done, (2)--(4) not done).
 \end{enumerate}
 
-We briefly go through the basic definitions. A cheap definition of the finite
+We briefly go through the basic definitions. Let $K$ be a number field.
+A cheap definition of the finite
 adeles $\A_K^\infty$ of $K$ is $K\otimes_{\Z}\Zhat$, where $\Zhat$ is
-the profinite completion of the integers. A cheap definition of the infinite adeles
-$K_\infty$ of $K$ is $K\otimes_{\Q}\R$, and a cheap definition of the adeles
+the profinite completion of the integers (although this doesn't specify the topology).
+A cheap definition of the infinite adeles
+$K_\infty$ of $K$ is $K\otimes_{\Q}\R$ (this is a finite-dimensional $\R$-vector space;
+put the product topology on it), and a cheap definition of the adeles
 of $K$ is $\A_K^\infty\times K_\infty$.
 
 However in the literature different definitions
@@ -35,9 +38,9 @@ are often given. The finite adeles of $K$ are usually defined in the books
 as the so-called restricted product $\prod'_{\mathfrak{p}}K_{\mathfrak{p}}$ over the completions
 $K_{\mathfrak{p}}$ of $K$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_K$ of the
 integers of $K$. Here the restricted product is the subset of $\prod_{\mathfrak{p}}K_{\mathfrak{p}}$
-consisting of elements which are in $\mathcal{O}_{K,\mathfrak{p}}$ for all but finitely many
-$\mathfrak{p}$. This is the definition given in mathlib.
-Mathlib also has the proof that they're a topological ring;
+consisting of elements which are in the integers $\mathcal{O}_{K,\mathfrak{p}}$ of
+$K_{\mathfrak{p}}$ for all but finitely many $\mathfrak{p}$. This is the definition given in
+mathlib. Mathlib also has the proof that they're a topological ring;
 furthermore the construction of the finite adeles in mathlib works for any
 Dedekind domain (this was pointed out to me by Maria Ines de Frutos Fernandez; the adeles
 are an arithmetic object, but the finite adeles are an algebraic object).
@@ -66,7 +69,13 @@ in mathlib.
 \end{theorem}
 \begin{proof}
   See \href{https://github.com/smmercuri/adele-ring_locally-compact/blob/e8e34608c139ee95a1e21d9d24f138524196a2e1/AdeleRingLocallyCompact/NumberTheory/NumberField/AdeleRing.lean#L70}
-  {this line} in Mercuri's repo.
+  {this line} in Mercuri's repo. The proof is: a restricted product of topological spaces $X_i$
+  over compact open subspaces $C_i$ is locally compact, because $\prod_i C_i$ is open and compact
+  (we should have this result in mathlib in general rather than the ad hoc approach which we
+  currently have for adeles).
+  Hence $\A_K^\infty$ is locally compact.
+  The vector space $\R^n$ is locally compact. Hence $K_{\infty}$ is locally compact.
+  Hence their product $\A_K$ is localy compact.
 \end{proof}
 
 \section{Base change}
@@ -74,7 +83,8 @@ in mathlib.
 The ``theorem'' we want is that if $L/K$ is a finite extension of number fields,
 then $\A_L=L\otimes_K\A_K$. This isn't a theorem though, this is actually a \emph{definition}
 (the map between the two objects) and a theorem about
-the definition (that it's an isomorphism). Before we can prove the theorem, we need to make the
+the definition (that it's an isomorphism). In fact the full claim is that it is both a homeomorphism
+and an $L$-algebra isomorphism. Before we can prove the theorem, we need to make the
 definition.
 
 Recall that the adeles $\A_K$ of a number field is a product $\A_K^\infty\times K_\infty$
@@ -85,13 +95,13 @@ We may thus treat the finite and infinite results separately.
 \subsection{Base change for finite adeles}
 
 As pointed out above, the theory of finite adeles works fine for Dedekind domains.
-So Let~$A$ be a Dedekind domain. Recall that the \emph{height one spectrum} of $A$ is
-the nonzero prime ideals of~$A$. Note that because we stick to the literature,
+So in this subsection let~$A$ be a Dedekind domain. Recall that the \emph{height one spectrum}
+of $A$ is the nonzero prime ideals of~$A$. Note that because we stick to the literature,
 rather than to common sense, fields are Dedekind domains in mathlib, and the
 height one spectrum of a field is empty. The reason I don't like allowing fields
-to be Dedekind domains is that geometrically the standard definition of Dedekind
-domain is ``smooth affine curve, or a point''. But many theorems in algebraic geometry
-begin ``let $C$ be a smooth curve'', rather than ``let $C$ be a smooth curve or a point''.
+to be Dedekind domains is that geometrically the definition of Dedekind
+domain in the literature is ``smooth affine curve, or a point''. But many theorems in algebraic
+geometry begin ``let $C$ be a smooth curve'', rather than ``let $C$ be a smooth curve or a point''.
 
 Let $K$ be the field of fractions of $A$. If $v$ is in the height one spectrum of $A$,
 then we can put the $v$-adic topology on $A$ and on $K$, and consider the completions
@@ -100,8 +110,11 @@ the restricted product of the $K_v$ with respect to the $A_v$, as $v$ runs over
 the height one spectrum of $A$.
 
 Now let~$L/K$ be a finite separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
-If $w$ is a nonzero prime ideal of $B$ lying under $v$, a prime ideal of $A$, then we can put the
-$w$-adic topology on $L$ and the $v$-adic topology on~$K$.
+If $w$ is a nonzero prime ideal of $B$ lying over $v$, a nonzero prime ideal of $A$,
+then we can put the $w$-adic topology on $L$ and the $v$-adic topology on~$K$. Furthermore
+we can equip $K$ and $L$ with $v$-adic and $w$-adic additive valuations, normalized such that the
+valuation of a uniformizer is 1. The next lemma explains how the valuations on $K$ and $L$
+are related.
 
 \begin{lemma} If $i:K\to L$ denotes the inclusion then $e\times w(i(k))=v(k)$, where
   $e$ is the ramification index of $w/v$.
@@ -111,7 +124,7 @@ $w$-adic topology on $L$ and the $v$-adic topology on~$K$.
 \end{lemma}
 \begin{proof}
   \leanok
-  Standard.
+  Standard (and formalized).
 \end{proof}
 
 \begin{definition}
@@ -150,7 +163,7 @@ primes of $B$ which pull back to $v$.
 \begin{proof}
   Certainly the image of the integral elements are integral. The argument in the other
   direction is more delicate. One approach (following Cassels--Froehlich, Cassels' article
-  ``Global fields'', section 12 lemma, 61) is the following. Choose a $K$-basis
+  ``Global fields'', section 12, lemma) is the following. Choose a $K$-basis
   $\omega_1,\omega_2,\ldots,\omega_n$ for $L/K$ with all $\omega_i\in A$.
   Then $\omega_1A\oplus\cdots\oplus\omega_nA$ and
   $B$ are two $A$-lattices in $L$, so they agree at almost all primes. In particular
@@ -178,7 +191,8 @@ We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
   products run over the height one spectra of $A$ and $B$ respectively.
 \end{definition}
 
-Note that we make no claim about continuity (for reasons which will become clear below).
+Note that we make no claim about continuity; such a claim wouldn't help
+us because the adeles do not get the subspace topology.
 
 \begin{theorem} This map induces a natural continuous $K$-algebra homomorphism
   $\A_{A,K}^\infty\to\A_{B,L}^\infty$.
@@ -187,7 +201,12 @@ Note that we make no claim about continuity (for reasons which will become clear
   \leanok
 \end{theorem}
 \begin{proof}
-  Note that the restricted product does not have the subspace topology.
+  This does not need the hard direction of
+  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
+  the definition of the map is straightforward using only that integers map
+  to integers. Continuity also follows from this property; the induction function from
+  $\prod_v A_v$ to $\prod_w B_w$ is continuous, and this gives continuity
+  of the map at zero, and hence continuity everywhere.
 \end{proof}
 
 \begin{theorem}
@@ -201,7 +220,14 @@ Note that we make no claim about continuity (for reasons which will become clear
   $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$ is a topological isomorphism.
 \end{theorem}
 \begin{proof}
-  Follows from theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
+  Existence of the map follows from
+  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
+  Surjectivity follows from
+  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
+  The fact that it is a topological isomorphism follows from the fact that
+  $L\otimes_K K_v=\oplus_{w|v}L_w$ and that this identification identifies
+  the subgroup $\calO_L\otimes_K K_v$ with $\oplus_{w|v}\calO_{L_w}$ for all
+  but finitely many $v$.
 \end{proof}
 
 \subsection{Base change for infinite adeles}

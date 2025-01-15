@@ -29,7 +29,7 @@ homomorphism $F\to\bbC$ is a subset of $\R$. We fix once and for all a totally r
 quaternion algebra $D$ over $F$. We furthermore assume that $D$ is \emph{totally definite}, that is,
 that for all field embeddings $\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$. Because $F$
 has at least one real place, the totally definiteness hypothesis is enough to show that $D$
-is not a matrix algebra and thus must be a division algebra. Thus Fujisaki's theorem {\bf TODO link}
+is not a matrix algebra and thus must be a division algebra. Thus Fujisaki's theorem~\ref{DivisionAlegbra.units_cocompact}
 from the Fujisaki miniproject applies, and we know that $D^\times\backslash (D\otimes_F\A_F)^{(1)}$
 is compact. We fix once and for all a maximal compact subgroup $K_\infty$ of
 $(D\otimes_{\Q}\R)^\times$; all maximal compact subgroups are conjugate so changing this choice
@@ -163,9 +163,13 @@ consequence}
 
 \begin{proof}
   \proves{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
-  \uses{DivisionAlgebra.finiteDoubleCoset}
-  Choose a set of coset representative $g_1,g_2,\ldots,g_n$ for
-  $D^\times\backslash(D\otimes_F\A_F^\infty)^\times/U$. My claim is that
+  \uses{DivisionAlgebra.finiteDoubleCoset'}
+  Write $(D\otimes_F\A_F^\infty)^\times$ as a disjoin union of double cosets
+  $\coprod_i D^\times g_i U$. This open cover descends to a disjoint open
+  cover of $D^\times\backslash (D\otimes_F\A_F^\infty)^\times$,
+  and this latter space is compact by theorem~\ref{DivisionAlgebra.finiteDoubleCoset'}.
+  Hence the cover is finite; write the double coset representatives
+  as $g_1,g_2,\ldots,g_n$. We claim that
   the function $S_{W,\chi}(U;k)\to W^n$ sending $f$ to $(f(g_1),f(g_2),\ldots,f(g_n))$
   is injective and $k$-linear, which suffices by finite-dimensionality of $W$.
   $k$-linearity is easy, so let's talk about injectivity.
