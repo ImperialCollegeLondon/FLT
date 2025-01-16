@@ -6,6 +6,7 @@ open NumberField
 
 variable [Algebra K (InfiniteAdeleRing L)] [IsScalarTower K L (InfiniteAdeleRing L)]
 
+-- TODO should be →A[K]
 /-- The canonical map from the infinite adeles of K to the infinite adeles of L -/
 def NumberField.InfiniteAdeleRing.baseChange :
     InfiniteAdeleRing K →ₐ[K] InfiniteAdeleRing L :=
@@ -13,6 +14,7 @@ def NumberField.InfiniteAdeleRing.baseChange :
 
 open scoped TensorProduct
 
+-- TODO should be ≃A[L]
 /-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
 def NumberField.InfiniteAdeleRing.baseChangeIso :

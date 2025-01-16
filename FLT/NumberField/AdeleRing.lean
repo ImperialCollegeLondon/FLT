@@ -1,4 +1,6 @@
 import Mathlib
+import FLT.Mathlib.NumberTheory.NumberField.Basic
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 universe u
 
@@ -21,13 +23,6 @@ end BaseChange
 section Discrete
 
 open NumberField DedekindDomain
-
--- mathlib PR #19644
-lemma Rat.norm_infinitePlace_completion (v : InfinitePlace ℚ) (x : ℚ) :
-    ‖(x : v.completion)‖ = |x| := sorry -- this will be done when the mathlib PR is merged
-
--- mathlib PR #19644
-noncomputable def Rat.infinitePlace : InfinitePlace ℚ := .mk (Rat.castHom _)
 
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
     IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {0} := by
@@ -56,17 +51,15 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
       change ‖(x : ℂ)‖ < 1 at h1
       simp at h1
       have intx: ∃ (y:ℤ), y = x
-      · clear h1 -- not needed
-        -- mathematically this is trivial:
-        -- h2 says that no prime divides the denominator of x
-        -- so x is an integer
-        -- and the goal is that there exists an integer `y` such that `y = x`.
-        suffices ∀ p : ℕ, p.Prime → ¬(p ∣ x.den) by
-          use x.num
-          rw [← den_eq_one_iff]
-          contrapose! this
-          exact ⟨x.den.minFac, Nat.minFac_prime this, Nat.minFac_dvd _⟩
-        sorry -- issue #254
+      · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
+            (𝓞 ℚ) ℚ x <| fun v ↦ by
+          specialize h2 v
+          letI : UniformSpace ℚ := v.adicValued.toUniformSpace
+          rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
+          rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
+        use Rat.ringOfIntegersEquiv z
+        rw [← hz]
+        apply Rat.ringOfIntegersEquiv_eq_algebraMap
       obtain ⟨y, rfl⟩ := intx
       simp only [abs_lt] at h1
       norm_cast at h1 ⊢
@@ -94,8 +87,20 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
 
 -- Maybe this discreteness isn't even stated in the best way?
 -- I'm ambivalent about how it's stated
+open Pointwise in
 theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing ℚ),
-    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {q} := sorry -- issue #256
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {q} := by
+  obtain ⟨V, hV, hV0⟩ := zero_discrete
+  intro q
+  set ι  := algebraMap ℚ (AdeleRing ℚ)    with hι
+  set qₐ := ι q                           with hqₐ
+  set f  := Homeomorph.subLeft qₐ         with hf
+  use f ⁻¹' V, f.isOpen_preimage.mpr hV
+  have : f ∘ ι = ι ∘ Homeomorph.subLeft q := by ext; simp [hf, hqₐ]
+  rw [← Set.preimage_comp, this, Set.preimage_comp, hV0]
+  ext
+  simp only [Set.mem_preimage, Homeomorph.subLeft_apply, Set.mem_singleton_iff, sub_eq_zero, eq_comm]
+
 
 variable (K : Type*) [Field K] [NumberField K]
 

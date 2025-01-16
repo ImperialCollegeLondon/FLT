@@ -3,6 +3,7 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
+import Mathlib.Algebra.Module.Torsion
 import Mathlib.AlgebraicGeometry.EllipticCurve.Group
 import Mathlib.FieldTheory.IsSepClosed
 import Mathlib.RepresentationTheory.Basic
@@ -29,12 +30,9 @@ abbrev WeierstrassCurve.n_torsion (n : ℕ) : Type u := Submodule.torsionBy ℤ 
 --variable (n : ℕ) in
 --#synth AddCommGroup (E.n_torsion n)
 
-def ZMod.module (A : Type*) [AddCommGroup A] (n : ℕ) (hn : ∀ a : A, n • a = 0) :
-    Module (ZMod n) A :=
-  sorry
-
 -- not sure if this instance will cause more trouble than it's worth
-instance (n : ℕ) : Module (ZMod n) (E.n_torsion n) := sorry -- shouldn't be too hard
+noncomputable instance (n : ℕ) : Module (ZMod n) (E.n_torsion n) :=
+  AddCommGroup.zmodModule sorry -- shouldn't be too hard
 
 -- This theorem needs e.g. a theory of division polynomials. It's ongoing work of David Angdinata.
 -- Please do not work on it without talking to KB and David first.
