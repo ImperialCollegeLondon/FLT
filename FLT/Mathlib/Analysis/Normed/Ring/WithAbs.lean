@@ -38,7 +38,7 @@ variable {K L : Type*} [Field K] [Field L] [Algebra K L] {v : AbsoluteValue K �
   {w : AbsoluteValue L ℝ}
 
 abbrev mapOfComp {g : WithAbs v →+* WithAbs w} (h : ∀ x, w (g x) = v x) :
-    v.Completion →+* w.Completion :=
+    v.completion →+* w.completion :=
   UniformSpace.Completion.mapRingHom g
     (WithAbs.isUniformInducing_of_comp h).uniformContinuous.continuous
 
