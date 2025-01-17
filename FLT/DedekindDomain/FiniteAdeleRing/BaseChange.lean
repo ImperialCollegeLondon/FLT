@@ -1,11 +1,18 @@
+import Mathlib.Algebra.Algebra.Subalgebra.Pi
+import Mathlib.Algebra.Group.Int.TypeTags
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.Algebra.Order.Group.Int
 import Mathlib.FieldTheory.Separable
 import Mathlib.NumberTheory.RamificationInertia.Basic
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.RingTheory.DedekindDomain.Dvr
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.RingTheory.DedekindDomain.IntegralClosure
-import Mathlib.Topology.Algebra.Algebra
+import Mathlib.RingTheory.Henselian
 import Mathlib.Topology.Algebra.Module.ModuleTopology
+import Mathlib.Topology.Separation.CompletelyRegular
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
-import Mathlib
+
+import Mathlib.RingTheory.DedekindDomain.IntegralClosure -- for example
 
 /-!
 
@@ -195,28 +202,20 @@ noncomputable def adicCompletionComapRingHom
 -- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/beef.20up.20smul.20on.20completion.20to.20algebra.20instance/near/484166527
 -- Hopefully resolved in https://github.com/leanprover-community/mathlib4/pull/19466
 variable (w : HeightOneSpectrum B) in
-protected noncomputable nonrec def algebraMap : K →+* adicCompletion L w :=
-  have : RingHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := inferInstance
-  have : MonoidHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := RingHomClass.toMonoidHomClass
-  have : MulHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := MonoidHomClass.toMulHomClass
-  have : AddMonoidHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := RingHomClass.toAddMonoidHomClass
-  have : AddHomClass (L →+* adicCompletion L w) L (adicCompletion L w) := AddMonoidHomClass.toAddHomClass
-  { toFun k := algebraMap L (adicCompletion L w) (algebraMap K L k)
-    map_one' := by simp only [map_one]
-    map_mul' k₁ k₂ := by simp only [map_mul]
-    map_zero' := by simp only [map_zero]
-    map_add' k₁ k₂ := by simp only [map_add] }
+noncomputable instance : SMul K (w.adicCompletion L) := inferInstanceAs <|
+  SMul K (@UniformSpace.Completion L w.adicValued.toUniformSpace)
 
 variable (w : HeightOneSpectrum B) in
 noncomputable instance : Algebra K (adicCompletion L w) where
-  algebraMap := IsDedekindDomain.HeightOneSpectrum.algebraMap K L B w
-  commutes' k lhat := by
-    let _ : Field (adicCompletion L w) := inferInstance
-    let _ : CommMonoid (adicCompletion L w) := Field.toCommRing.toCommMonoid
-    let _ : CommMagma (adicCompletion L w) := CommMonoid.toCommSemigroup.toCommMagma
-    exact mul_comm _ _
+  algebraMap :=
+    { toFun k := algebraMap L (adicCompletion L w) (algebraMap K L k)
+      map_one' := by simp only [map_one]
+      map_mul' k₁ k₂ := by simp only [map_mul]
+      map_zero' := by simp only [map_zero]
+      map_add' k₁ k₂ := by simp only [map_add] }
+  commutes' k lhat := mul_comm _ _
   smul_def' k lhat := by
-    simp only [IsDedekindDomain.HeightOneSpectrum.algebraMap, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
+    simp only [RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
     rw [UniformSpace.Completion.smul_def] -- not sure if this is the right move
     sorry -- surely true; issue #230
 
@@ -266,8 +265,8 @@ lemma v_adicCompletionComapAlgHom
   · exact Valued.continuous_valuation.pow _
   · exact Valued.continuous_valuation.comp (adicCompletionComapAlgHom ..).cont
   intro a
-  simp only [Valued.valuedCompletion_apply, adicCompletionComapAlgHom_coe]
-  show v.valuation a ^ _ = (w.valuation _)
+  simp_rw [adicCompletionComapAlgHom_coe, adicCompletion, Valued.valuedCompletion_apply,
+    adicValued_apply]
   subst hvw
   rw [← valuation_comap A K L B w a]
 
