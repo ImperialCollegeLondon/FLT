@@ -30,7 +30,6 @@ import FLT.MathlibExperiments.Coalgebra.TensorProduct
 import FLT.MathlibExperiments.HopfAlgebra.Basic
 import FLT.MathlibExperiments.IsCentralSimple
 import FLT.MathlibExperiments.IsFrobenius
-import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Span.Defs
