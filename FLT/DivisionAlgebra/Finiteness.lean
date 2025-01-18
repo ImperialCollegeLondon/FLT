@@ -9,7 +9,6 @@ import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Algebra.Group.Subgroup.Pointwise
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.NumberField.IsTotallyReal
 import FLT.NumberField.AdeleRing
 import Mathlib.GroupTheory.DoubleCoset
 

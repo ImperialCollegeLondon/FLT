@@ -166,7 +166,7 @@ variable (n : ℕ)
 variable (G : Type) [TopologicalSpace G] [Group G]
   (E : Type) [NormedAddCommGroup E] [NormedSpace ℝ E]
   [ChartedSpace E G]
-  [LieGroup 𝓘(ℝ, E) G]
+  [LieGroup 𝓘(ℝ, E) ⊤ G]
 
 def action :
     LeftInvariantDerivation 𝓘(ℝ, E) G →ₗ⁅ℝ⁆ (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯) where
