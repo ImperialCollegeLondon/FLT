@@ -143,7 +143,6 @@ noncomputable instance : Algebra (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (�
 
 instance : TopologicalSpace (L ⊗[K] AdeleRing (𝓞 K) K) :=
   moduleTopology (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K)
--- TODO should be ≃A[L]
 /-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
 def NumberField.AdeleRing.baseChangeEquiv :

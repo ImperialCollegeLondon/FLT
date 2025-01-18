@@ -86,6 +86,23 @@ and $q$ is the size of the (finite) residue field. The proof is
 the same as for $\Q_p$, but we won't need this.
 \end{remark}
 
+\section{Continuity}
+
+\begin{theorem}
+  \label{DistribHaarChar.continuous}
+  If $R$ is a locally compact topological ring then
+  $\delta_R:R\to\R_{>0}$ is continuous.
+\end{theorem}
+\begin{proof} (Taken from Sebastien Gouezel's proof \href{https://leanprover.zulipchat.com/#narrow/channel/217875-Is-there-code-for-X.3F/topic/.22Haar.20measure.20is.20continuous.22/near/487299979}{Zulip}).
+  Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function
+  on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
+  Then $$u \mapsto \int f(ux) d\mu(x)$$ is obviously a continuous function
+  of $u$ (because a continuous function with compact support is uniformly
+   continuous). And you can read the value of $\delta(u)$ on how $u$
+   rescales the integral of continuous functions, so continuity of $\delta$
+   follows.
+\end{proof}
+
 % Note that if $R$ is non-commutative then there is also a right Haar character $\delta'(u)$
 % defined as $\delta'(u)=d_R(\psi)$ where $\psi(r)=ru$. In general these characters do not
 % coincide; for example if $R$ is the ring of upper-triangular $2\times 2$ matrices with
@@ -285,7 +302,9 @@ and this makes them into topological rings. In fact we shall only be concerned
 with algebras of the form $B\otimes_K\A_K$ where $B$ is a finite-dimensional
 $K$-algebra. So fix such a $B$, and write $B_{\A}$ for $B\otimes_K\A_K$.
 
-\begin{theorem} Let $B$ be a finite-dimensional central simple $K$-algebra.
+\begin{theorem}
+  \label{addHaarScalarFactor.left_mul_eq_right_mul}
+  Let $B$ be a finite-dimensional central simple $K$-algebra.
   Say $u\in B_{\A}^\times$, and define $\ell_u$ and $r_u:B_{\A}\to B_{\A}$ by
   $\ell_u(x)=ux$ and $r_u(x)=xu$. Then $d_{B_{\A}}(\ell_u)=d_{B_{\A}}(r_u)$.
 \end{theorem}

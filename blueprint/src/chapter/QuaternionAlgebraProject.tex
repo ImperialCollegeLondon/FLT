@@ -142,7 +142,13 @@ theorems needed in the FLT project will be endomorphisms of these spaces.
 
 \section{Statement of the main result of the miniproject}
 
-The point of this miniproject is the following goal:
+The point of this miniproject is the finite-dimensionality result below.
+This is an analogue of the result that classical modular forms of a fixed
+level, weight and character are finite-dimensional. In fact, by delicate results
+of Jacquet and Langlands this result (in the case $k=\bbC$) implies many cases of that classical claim,
+although of course the Jacquet--Langlands theorem is much much harder to prove than the classical
+proof of finite-dimensionality.
+
 
 \begin{theorem}
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
@@ -151,19 +157,13 @@ The point of this miniproject is the following goal:
   The space $S_{\rho_\infty}^D(U;\chi)$ is a finite-dimensional $k$-vector space.
 \end{theorem}
 
-This is an analogue of the result that classical modular forms of a fixed
-level, weight and character are finite-dimensional. In fact, by delicate results
-of Jacquet and Langlands this result (in the case $k=\bbC$) implies many cases of that classical claim,
-although of course the Jacquet--Langlands theorem is much much harder to prove than the classical
-proof of finite-dimensionality.
 
-The finite-dimensionality theorem is in fact an easy consequence of Fujisaki's lemma,
-proved in the Fukisaki miniproject, chapter~\ref{Fujisaki_project}. {\bf TODO add the
-consequence}
 
 \begin{proof}
   \proves{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \uses{DivisionAlgebra.finiteDoubleCoset'}
+  The finite-dimensionality theorem is in fact an easy consequence of Fujisaki's lemma,
+  proved in the Fukisaki miniproject, chapter~\ref{Fujisaki_project}.
   Write $(D\otimes_F\A_F^\infty)^\times$ as a disjoin union of double cosets
   $\coprod_i D^\times g_i U$. This open cover descends to a disjoint open
   cover of $D^\times\backslash (D\otimes_F\A_F^\infty)^\times$,

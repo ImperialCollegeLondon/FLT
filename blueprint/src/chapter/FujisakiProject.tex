@@ -132,8 +132,7 @@ Define $X:=E-E:=\{e-f:e,f\in E\}\subseteq D_{\A}$ and $Y:=X.X:=\{xy:x,y\in X\}\s
 \begin{proof}
   Indeed, $\beta^{-1}\in D_{\A}^{(1)}$, and so left multiplication by $\beta^{-1}$
   doesn't change Haar measure on $D_{\A}$, so neither does right multiplication
-  (as they change Haar measure by the same amount, as $D$ is a form of a matrix
-  algebra: did I remember to prove this? {\bf TODO}).
+  (by theorem~\ref{addHaarScalarFactor.left_mul_eq_right_mul}).
   So the same argument works: $E\beta^{-1}\to D\backslash D_{\A}$ is not
   injective so choose $e_1\beta^{-1}\not=e_2\beta^{-1}$ with difference $b\in D$
   and then $(e_1-e_2)\beta^{-1}\in D^\times$.
@@ -181,9 +180,11 @@ We can now prove Fujisaki's theorem.
 \end{theorem}
 \begin{proof}
   Indeed, if $M$ is the preimage of $K$ under the map $D_{\A}^{(1)} \to D_{\A}\times D_{\A}$
-  sending $\nu$ to $(\nu,\nu^{-1})$, then $M$ is a closed subspace ({\bf TODO we just assumed $\delta_{D_{\A}}$
-  was continuous}) of a compact
-  space so it's compact, and the previous lemma shows that $M$ surjects onto
+  sending $\nu$ to $(\nu,\nu^{-1})$, then $M$ is a closed subspace
+    of a compact
+  space so it's compact (note that $\delta_{D_{\A}}$ is continuous,
+  by theorem~\ref{DistribHaarChar.continuous}).
+  The previous lemma shows that $M$ surjects onto
   $D^\times\backslash D_{\A}^{(1)}$ which is thus also compact.
 \end{proof}
 
