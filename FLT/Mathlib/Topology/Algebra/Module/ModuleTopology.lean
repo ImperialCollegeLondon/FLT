@@ -255,7 +255,7 @@ theorem Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
       -- Is there a missing delaborator? No ∑ᶠ notation
       change (∑ᶠ (i : ι), Pi.single i (f i)) j = f j
       -- last tactic has no effect
-      rw [finsum_apply]
+      rw [finsum_apply (Set.toFinite _)]
       convert finsum_eq_single (fun i ↦ Pi.single i (f i) j) j
         (by simp (config := {contextual := true})) using 1
       simp

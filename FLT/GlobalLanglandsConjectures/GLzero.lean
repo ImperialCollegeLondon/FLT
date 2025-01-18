@@ -80,7 +80,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
       rw [annihilator]
       simp
       exact {
-        out := by sorry
+        fg_top := by sorry
       }
     has_finite_level := by
       let U : Subgroup (GL (Fin 0) (DedekindDomain.FiniteAdeleRing ℤ ℚ)) := {

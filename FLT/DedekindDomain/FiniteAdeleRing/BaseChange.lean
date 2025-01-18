@@ -1,12 +1,19 @@
+import Mathlib.Algebra.Algebra.Subalgebra.Pi
+import Mathlib.Algebra.Group.Int.TypeTags
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.Algebra.Order.Group.Int
 import Mathlib.FieldTheory.Separable
 import Mathlib.NumberTheory.RamificationInertia.Basic
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.RingTheory.DedekindDomain.Dvr
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.RingTheory.DedekindDomain.IntegralClosure
-import Mathlib.Topology.Algebra.Algebra
+import Mathlib.RingTheory.Henselian
 import Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Algebra.Algebra.Subalgebra.Pi
+import Mathlib.Topology.Separation.CompletelyRegular
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+
+import Mathlib.RingTheory.DedekindDomain.IntegralClosure -- for example
 
 /-!
 
@@ -203,12 +210,17 @@ noncomputable def adicCompletionComapRingHom
 -- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/beef.20up.20smul.20on.20completion.20to.20algebra.20instance/near/484166527
 -- Hopefully resolved in https://github.com/leanprover-community/mathlib4/pull/19466
 variable (w : HeightOneSpectrum B) in
+noncomputable instance : SMul K (w.adicCompletion L) := inferInstanceAs <|
+  SMul K (@UniformSpace.Completion L w.adicValued.toUniformSpace)
+
+variable (w : HeightOneSpectrum B) in
 noncomputable instance : Algebra K (adicCompletion L w) where
-  toFun k := algebraMap L (adicCompletion L w) (algebraMap K L k)
-  map_one' := by simp only [map_one]
-  map_mul' k₁ k₂ := by simp only [map_mul]
-  map_zero' := by simp only [map_zero]
-  map_add' k₁ k₂ := by simp only [map_add]
+  algebraMap :=
+    { toFun k := algebraMap L (adicCompletion L w) (algebraMap K L k)
+      map_one' := by simp only [map_one]
+      map_mul' k₁ k₂ := by simp only [map_mul]
+      map_zero' := by simp only [map_zero]
+      map_add' k₁ k₂ := by simp only [map_add] }
   commutes' k lhat := mul_comm _ _
   smul_def' k lhat := by
     simp only [RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
@@ -262,8 +274,8 @@ lemma v_adicCompletionComapAlgHom
   · exact Valued.continuous_valuation.pow _
   · exact Valued.continuous_valuation.comp (adicCompletionComapAlgHom ..).cont
   intro a
-  simp only [Valued.valuedCompletion_apply, adicCompletionComapAlgHom_coe]
-  show v.valuation a ^ _ = (w.valuation _)
+  simp_rw [adicCompletionComapAlgHom_coe, adicCompletion, Valued.valuedCompletion_apply,
+    adicValued_apply]
   subst hvw
   rw [← valuation_comap A K L B w a]
 

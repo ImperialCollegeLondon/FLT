@@ -33,7 +33,7 @@ noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
-  Units.map Algebra.TensorProduct.rightAlgebra.toMonoidHom
+  Units.map Algebra.TensorProduct.rightAlgebra.algebraMap.toMonoidHom
 
 /-!
 This definition is made in mathlib-generality but is *not* the definition of an automorphic
