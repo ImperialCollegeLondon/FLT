@@ -1,6 +1,5 @@
 import Mathlib
 import FLT.Mathlib.NumberTheory.NumberField.Basic
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
@@ -9,6 +8,8 @@ open scoped TensorProduct
 
 universe u
 
+open NumberField
+
 section LocallyCompact
 
 -- see https://github.com/smmercuri/adele-ring_locally-compact
@@ -16,7 +17,7 @@ section LocallyCompact
 
 variable (K : Type*) [Field K] [NumberField K]
 
-instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing K) :=
+instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing (𝓞 K) K) :=
   sorry -- issue #253
 
 end LocallyCompact
@@ -27,19 +28,20 @@ namespace NumberField.AdeleRing
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
-noncomputable instance : Algebra K (NumberField.AdeleRing L) :=
-  RingHom.toAlgebra <| (algebraMap L (NumberField.AdeleRing L)).comp <| algebraMap K L
+noncomputable instance : Algebra K (NumberField.AdeleRing (𝓞 L) L) :=
+  Algebra.compHom _ (algebraMap K L)
 
-noncomputable abbrev tensorProductLinearEquivPi : AdeleRing K ⊗[K] L ≃ₗ[K]
-    (Fin (Module.finrank K L) → AdeleRing K) :=
-  LinearEquiv.trans (TensorProduct.congr (LinearEquiv.refl K (AdeleRing K))
+noncomputable abbrev tensorProductLinearEquivPi : L ⊗[K] AdeleRing (𝓞 K) K ≃ₗ[K]
+    (Fin (Module.finrank K L) → AdeleRing (𝓞 K) K) :=
+  (TensorProduct.comm _ _ _).trans <|
+  LinearEquiv.trans (TensorProduct.congr (LinearEquiv.refl K (AdeleRing (𝓞 K) K))
       (Basis.equivFun (Module.finBasis K L)))
     (TensorProduct.piScalarRight _ _ _ _)
 
 variable {L}
 
 theorem tensorProductLinearEquivPi_tsum_apply (l : L) :
-    tensorProductLinearEquivPi K L (1 ⊗ₜ[K] l) =
+    tensorProductLinearEquivPi K L (l ⊗ₜ[K] 1) =
       fun i => algebraMap _ _ (Module.finBasis K L |>.equivFun l i) := by
   simp [tensorProductLinearEquivPi, Algebra.algebraMap_eq_smul_one]
 
@@ -48,8 +50,8 @@ variable {K}
 theorem tensorProductLinearEquivPi_symm_apply_of_algebraMap
     (x : Fin (Module.finrank K L) → K) :
     (tensorProductLinearEquivPi K L).symm (fun i => algebraMap _ _ (x i)) =
-      1 ⊗ₜ[K] ((Module.finBasis K L).equivFun.symm x) := by
-  simp only [LinearEquiv.trans_symm, LinearEquiv.trans_apply,
+      ((Module.finBasis K L).equivFun.symm x) ⊗ₜ[K] 1 := by
+  simp only [LinearEquiv.trans_symm, LinearEquiv.trans_apply, TensorProduct.comm_symm_tmul,
     Algebra.TensorProduct.piScalarRight_symm_apply_of_algebraMap, TensorProduct.congr_symm_tmul,
     LinearEquiv.refl_symm, LinearEquiv.refl_apply, map_sum, Basis.equivFun_symm_apply]
   rw [Finset.sum_comm]
@@ -69,13 +71,13 @@ https://math.mit.edu/classes/18.785/2017fa/LectureNotes25.pdf (just above Prop 2
 for an informal source where the tensor product is given the product topology. Maybe they
 coincide!
 -/
-instance : TopologicalSpace (NumberField.AdeleRing K ⊗[K] L) :=
+instance : TopologicalSpace (L ⊗[K] NumberField.AdeleRing (𝓞 K) K) :=
   TopologicalSpace.induced (NumberField.AdeleRing.tensorProductLinearEquivPi K L) inferInstance
 
 variable (K L)
 
 noncomputable def tensorProductContinuousLinearEquivPi :
-    AdeleRing K ⊗[K] L ≃L[K] (Fin (Module.finrank K L) → AdeleRing K) where
+    L ⊗[K] AdeleRing (𝓞 K) K ≃L[K] (Fin (Module.finrank K L) → AdeleRing (𝓞 K) K) where
   toLinearEquiv := tensorProductLinearEquivPi K L
   continuous_toFun := continuous_induced_dom
   continuous_invFun := by
@@ -86,50 +88,41 @@ variable {K L}
 theorem tensorProductContinuousLinearEquivPi_symm_apply_of_algebraMap
     (x : Fin (Module.finrank K L) → K) :
     (tensorProductContinuousLinearEquivPi K L).symm (fun i => algebraMap _ _ (x i)) =
-      1 ⊗ₜ[K] ((Module.finBasis K L).equivFun.symm x) := by
+      ((Module.finBasis K L).equivFun.symm x) ⊗ₜ[K] 1 := by
   exact tensorProductLinearEquivPi_symm_apply_of_algebraMap _
 
 variable (K L)
 
-/-
-smmercuri : The tensor product here is in a different order to the one
-appearing in the finite adele ring base change, where `L ⊗[K] FiniteAdeleRing A K`
-is used. Is there a preference between these orderings? One benefit
-to using `AdeleRing K ⊗[K] L` is that it automatically gets
-a `K` algebra instance via the instance `Algebra.TensorProduct.leftAlgebra`
-(while `rightAlgebra` is a def), but maybe there are other reasons to
-prefer the `rightAlgebra` set up.
--/
-def baseChange : (AdeleRing K ⊗[K] L) ≃A[K] AdeleRing L := sorry
+def baseChange : L ⊗[K] AdeleRing (𝓞 K) K ≃A[K] AdeleRing (𝓞 L) L := sorry
 
 variable {L}
 
 theorem baseChange_tsum_apply_right (l : L) :
-  baseChange K L (1 ⊗ₜ[K] l) = algebraMap L (AdeleRing L) l := sorry
+  baseChange K L (l ⊗ₜ[K] 1) = algebraMap L (AdeleRing (𝓞 L) L) l := sorry
 
 variable (L)
 
 noncomputable def baseChangePi :
-    (Fin (Module.finrank K L) → AdeleRing K) ≃L[K] AdeleRing L :=
+    (Fin (Module.finrank K L) → AdeleRing (𝓞 K) K) ≃L[K] AdeleRing (𝓞 L) L :=
   (tensorProductContinuousLinearEquivPi K L).symm.trans (baseChange K L).toContinuousLinearEquiv
 
 variable {K L}
 
-theorem baseChangePi_apply (x : Fin (Module.finrank K L) → AdeleRing K) :
+theorem baseChangePi_apply (x : Fin (Module.finrank K L) → AdeleRing (𝓞 K) K) :
     baseChangePi K L x = baseChange K L ((tensorProductContinuousLinearEquivPi K L).symm x) := rfl
 
 theorem baseChangePi_apply_eq_algebraMap_comp
-    {x : Fin (Module.finrank K L) → AdeleRing K}
+    {x : Fin (Module.finrank K L) → AdeleRing (𝓞 K) K}
     {y : Fin (Module.finrank K L) → K}
-    (h : ∀ i, algebraMap K (AdeleRing K) (y i) = x i) :
-    baseChangePi K L x = algebraMap L (AdeleRing L) ((Module.finBasis K L).equivFun.symm y) := by
+    (h : ∀ i, algebraMap K (AdeleRing (𝓞 K) K) (y i) = x i) :
+    baseChangePi K L x = algebraMap L (AdeleRing (𝓞 L) L) ((Module.finBasis K L).equivFun.symm y) := by
   rw [← funext h, baseChangePi_apply, tensorProductContinuousLinearEquivPi_symm_apply_of_algebraMap,
     baseChange_tsum_apply_right]
 
 theorem baseChangePi_mem_principalSubgroup
-    {x : Fin (Module.finrank K L) → AdeleRing K}
-    (h : x ∈ AddSubgroup.pi Set.univ (fun _ => principalSubgroup K)) :
-    baseChangePi K L x ∈ principalSubgroup L := by
+    {x : Fin (Module.finrank K L) → AdeleRing (𝓞 K) K}
+    (h : x ∈ AddSubgroup.pi Set.univ (fun _ => principalSubgroup (𝓞 K) K)) :
+    baseChangePi K L x ∈ principalSubgroup (𝓞 L) L := by
   simp only [AddSubgroup.mem_pi, Set.mem_univ, forall_const] at h
   choose y hy using h
   exact baseChangePi_apply_eq_algebraMap_comp hy ▸ ⟨(Module.finBasis K L).equivFun.symm y, rfl⟩
@@ -137,21 +130,20 @@ theorem baseChangePi_mem_principalSubgroup
 variable (K L)
 
 theorem baseChangePi_map_principalSubgroup :
-    (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup K)).map
-      (baseChangePi K L).toAddMonoidHom = principalSubgroup L := by
+    (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K)).map
+      (baseChangePi K L).toAddMonoidHom = principalSubgroup (𝓞 L) L := by
   ext x
   simp only [AddSubgroup.mem_map, LinearMap.toAddMonoidHom_coe, LinearEquiv.coe_coe,
     ContinuousLinearEquiv.coe_toLinearEquiv]
   refine ⟨fun ⟨a, h, ha⟩ => ha ▸ baseChangePi_mem_principalSubgroup h, ?_⟩
   rintro ⟨a, rfl⟩
-  use fun i => algebraMap K (AdeleRing K) ((Module.finBasis K L).equivFun a i)
+  use fun i => algebraMap K (AdeleRing (𝓞 K) K) ((Module.finBasis K L).equivFun a i)
   refine ⟨fun i _ => ⟨(Module.finBasis K L).equivFun a i, rfl⟩, ?_⟩
   rw [baseChangePi_apply_eq_algebraMap_comp (fun i => rfl), LinearEquiv.symm_apply_apply]
-  rfl
 
 noncomputable def baseChangeQuotientPi :
-    (Fin (Module.finrank K L) → AdeleRing K ⧸ principalSubgroup K) ≃ₜ+
-      AdeleRing L ⧸ principalSubgroup L :=
+    (Fin (Module.finrank K L) → AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) ≃ₜ+
+      AdeleRing (𝓞 L) L ⧸ principalSubgroup (𝓞 L) L :=
   (ContinuousAddEquiv.quotientPi _).symm.trans <|
     QuotientAddGroup.continuousAddEquiv _ _ _ _ (baseChangePi K L).toContinuousAddEquiv
       (baseChangePi_map_principalSubgroup K L)
@@ -162,10 +154,10 @@ end BaseChange
 
 section Discrete
 
-open NumberField DedekindDomain
+open DedekindDomain
 
-theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
-    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {0} := by
+theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
   use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ
     {f | ∀ v , f v ∈ IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v}
   refine ⟨?_, ?_⟩
@@ -176,7 +168,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
     · intro x hx
       rw [Set.mem_preimage] at hx
       simp only [Set.mem_singleton_iff]
-      have : (algebraMap ℚ (AdeleRing ℚ)) x =
+      have : (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
         (algebraMap ℚ (InfiniteAdeleRing ℚ) x, algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) x)
       · rfl
       rw [this] at hx
@@ -192,7 +184,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
       simp at h1
       have intx: ∃ (y:ℤ), y = x
       · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
-            (𝓞 ℚ) ℚ x <| fun v ↦ by
+            ℚ x <| fun v ↦ by
           specialize h2 v
           letI : UniformSpace ℚ := v.adicValued.toUniformSpace
           rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
@@ -228,11 +220,11 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing ℚ),
 -- Maybe this discreteness isn't even stated in the best way?
 -- I'm ambivalent about how it's stated
 open Pointwise in
-theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing ℚ),
-    IsOpen U ∧ (algebraMap ℚ (AdeleRing ℚ)) ⁻¹' U = {q} := by
+theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {q} := by
   obtain ⟨V, hV, hV0⟩ := zero_discrete
   intro q
-  set ι  := algebraMap ℚ (AdeleRing ℚ)    with hι
+  set ι  := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)    with hι
   set qₐ := ι q                           with hqₐ
   set f  := Homeomorph.subLeft qₐ         with hf
   use f ⁻¹' V, f.isOpen_preimage.mpr hV
@@ -243,8 +235,8 @@ theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing ℚ),
 
 variable (K : Type*) [Field K] [NumberField K]
 
-theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing K),
-    IsOpen U ∧ (algebraMap K (AdeleRing K)) ⁻¹' U = {k} := sorry -- issue #257
+theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing (𝓞 K) K),
+    IsOpen U ∧ (algebraMap K (AdeleRing (𝓞 K) K)) ⁻¹' U = {k} := sorry -- issue #257
 
 end Discrete
 
@@ -253,13 +245,13 @@ section Compact
 open NumberField
 
 theorem Rat.AdeleRing.cocompact :
-    CompactSpace (AdeleRing ℚ ⧸ AdeleRing.principalSubgroup ℚ) :=
+    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) :=
   sorry -- issue #258
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
 theorem NumberField.AdeleRing.cocompact :
-    CompactSpace (AdeleRing K ⧸ principalSubgroup K) :=
+    CompactSpace (AdeleRing (𝓞 K) K ⧸ AdeleRing.principalSubgroup (𝓞 K) K) :=
   letI := Rat.AdeleRing.cocompact
   (baseChangeQuotientPi ℚ K).compactSpace
 

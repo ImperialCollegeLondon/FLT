@@ -21,8 +21,6 @@ import FLT.Hard.Results
 import FLT.HIMExperiments.flatness
 import FLT.Junk.Algebra
 import FLT.Junk.Algebra2
-import FLT.Mathlib.Algebra.Algebra.Subalgebra.Pi
-import FLT.Mathlib.Algebra.BigOperators.Finprod
 import FLT.Mathlib.Algebra.Group.Subgroup.Defs
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
@@ -32,7 +30,6 @@ import FLT.MathlibExperiments.Coalgebra.TensorProduct
 import FLT.MathlibExperiments.HopfAlgebra.Basic
 import FLT.MathlibExperiments.IsCentralSimple
 import FLT.MathlibExperiments.IsFrobenius
-import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Span.Defs
@@ -47,5 +44,4 @@ import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.NumberField.AdeleRing
 import FLT.NumberField.InfiniteAdeleRing
-import FLT.NumberField.IsTotallyReal
 import FLT.TateCurve.TateCurve

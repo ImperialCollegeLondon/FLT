@@ -1,8 +1,8 @@
+import Mathlib.GroupTheory.Complement
 import Mathlib.MeasureTheory.Group.Action
 import Mathlib.MeasureTheory.Group.Pointwise
 import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
 import FLT.Mathlib.Algebra.Group.Subgroup.Defs
-import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 
 /-!
@@ -45,12 +45,12 @@ instance (μ : Measure G) [μ.IsMulRightInvariant] :
 @[to_additive index_mul_addHaar_addSubgroup]
 lemma index_mul_haar_subgroup [H.FiniteIndex] (hH : MeasurableSet (H : Set G)) (μ : Measure G)
     [μ.IsMulLeftInvariant] : H.index * μ H = μ univ := by
-  obtain ⟨s, hs, -⟩ := H.exists_left_transversal 1
-  have hs' : Finite s := finite_of_mem_leftTransversals hs
+  obtain ⟨s, hs, -⟩ := H.exists_isComplement_left 1
+  have hs' : Finite s := hs.finite_left_iff.mpr inferInstance
   calc
     H.index * μ H = ∑' a : s, μ (a.val • H) := by
       simp [measure_smul]
-      rw [← Set.Finite.cast_ncard_eq hs', ← Nat.card_coe_set_eq, card_left_transversal hs]
+      rw [← Set.Finite.cast_ncard_eq hs', ← Nat.card_coe_set_eq, hs.card_left]
       norm_cast
     _ = μ univ := by
       rw [← measure_iUnion _ fun _ ↦ hH.const_smul _]
