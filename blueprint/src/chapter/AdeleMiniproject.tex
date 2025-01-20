@@ -110,14 +110,15 @@ the restricted product of the $K_v$ with respect to the $A_v$, as $v$ runs over
 the height one spectrum of $A$.
 
 Now let~$L/K$ be a finite separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
-If $w$ is a nonzero prime ideal of $B$ lying over $v$, a nonzero prime ideal of $A$,
-then we can put the $w$-adic topology on $L$ and the $v$-adic topology on~$K$. Furthermore
-we can equip $K$ and $L$ with $v$-adic and $w$-adic additive valuations, normalized such that the
-valuation of a uniformizer is 1. The next lemma explains how the valuations on $K$ and $L$
-are related.
+If $w$ is a nonzero prime ideal of $B$ lying under $v$, a prime ideal of $A$, then we can put the
+$w$-adic topology on $L$ and the $v$-adic topology on~$K$. Furthermore
+we can equip $K$ with an additive $v$-adic valuation, that is,
+a function also called $v$ fron $K$ to $\Z\cup\{\infty\}$ normalised so that if $\pi$ is a uniformiser
+for $v$ then $v(\pi)=1$. Similarly we consider $w$ as a function from $L$ to $\Z\cup\{\infty\}$.
+The next lemma explains how these valuations are related.
 
-\begin{lemma} If $i:K\to L$ denotes the inclusion then $e\times w(i(k))=v(k)$, where
-  $e$ is the ramification index of $w/v$.
+\begin{lemma} If $i:K\to L$ denotes the inclusion then for $k\in K$ we have
+  $e\times w(i(k))=v(k)$, where $e$ is the ramification index of $w/v$.
   \label{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \lean{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \leanok
@@ -133,8 +134,9 @@ are related.
   \uses{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \leanok
   There's a natural continuous $K$-algebra homomorphism map $K_v\to L_w$. It is defined by completing
-  the inclusion $K\to L$ at the finite places $v$ and $w$, which can be done
-  by the previous lemma.
+  the inclusion $K\to L$ at the finite places $v$ and $w$ (which can be done
+  because the previous lemma shows that the map is uniformly continuous for the $v$-adic
+  and $w$-adic topologies).
 \end{definition}
 
 Now say $v$ is in the height one spectrum of $A$. The map above induces a continuous
@@ -145,7 +147,8 @@ primes of $B$ which pull back to $v$.
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
-  The induced continuous $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an isomorphism.
+  The induced continuous $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an
+  isomorphism (both algebraic and topological).
 \end{theorem}
 \begin{proof}
   See Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
@@ -163,7 +166,7 @@ primes of $B$ which pull back to $v$.
 \begin{proof}
   Certainly the image of the integral elements are integral. The argument in the other
   direction is more delicate. One approach (following Cassels--Froehlich, Cassels' article
-  ``Global fields'', section 12, lemma) is the following. Choose a $K$-basis
+  ``Global fields'', section 12 lemma, p61) is the following. Choose a $K$-basis
   $\omega_1,\omega_2,\ldots,\omega_n$ for $L/K$ with all $\omega_i\in A$.
   Then $\omega_1A\oplus\cdots\oplus\omega_nA$ and
   $B$ are two $A$-lattices in $L$, so they agree at almost all primes. In particular
@@ -239,6 +242,7 @@ infinite places.
 The result we need here is that if $L/K$ is a finite extension of number fields,
 then the map $K\to L$ extends to a continuous $K$-algebra map $K_\infty\to L_\infty$,
 and thus to a continuous $L$-algebra isomorphism $L\otimes_KK_\infty\to L_\infty$.
+Perhaps a cheap proof would be to deduce it from the fact that $K_\infty=K\otimes_{\Q}\R$.
 
 \begin{theorem}
   \label{NumberField.InfiniteAdeleRing.baseChangeEquiv}
@@ -295,7 +299,7 @@ quotient topology) is compact. Here is a proposed proof.
   There's an open subset of $\A_{\Q}$ whose intersection with $\Q$ is $\{0\}$.
 \end{theorem}
 \begin{proof}
-  Use $\prod_p{\Z_p}\otimes(-1,1)$. Any rational $q$ in this set is a $p$-adic
+  Use $\prod_p{\Z_p}\times(-1,1)$. Any rational $q$ in this set is a $p$-adic
   integer for all primes $p$ and hence (writing it in lowest terms as $q=n/d$)
   satisfies $p\nmid d$, meaning that $d=\pm1$ and thus $q\in\Z$. The fact
   that $q\in(-1,1)$ implies $q=0$.
