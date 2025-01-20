@@ -57,20 +57,7 @@ theorem tensorProductLinearEquivPi_symm_apply_of_algebraMap
   rw [Finset.sum_comm]
   simp only [← Finset.sum_smul, Fintype.sum_pi_single]
 
-/-
-smmercuri: A possible alternative using `moduleTopology` is
-```
-instance :
-    TopologicalSpace (NumberField.AdeleRing K ⊗[K] L) :=
-  letI := TopologicalSpace.induced (algebraMap K (AdeleRing K)) inferInstance
-  moduleTopology K _
-```
-However it is not clear to me how the inverse function is of `tensorProductLinearEquivPi`
-is continuous in that case. Additionally,
-https://math.mit.edu/classes/18.785/2017fa/LectureNotes25.pdf (just above Prop 25.10)
-for an informal source where the tensor product is given the product topology. Maybe they
-coincide!
--/
+-- TODO : Use `moduleTopology`
 instance : TopologicalSpace (L ⊗[K] NumberField.AdeleRing (𝓞 K) K) :=
   TopologicalSpace.induced (NumberField.AdeleRing.tensorProductLinearEquivPi K L) inferInstance
 
@@ -93,6 +80,7 @@ theorem tensorProductContinuousLinearEquivPi_symm_apply_of_algebraMap
 
 variable (K L)
 
+-- TODO: make this `L`-algebra equiv (works but causes an issue further down the line)
 def baseChange : L ⊗[K] AdeleRing (𝓞 K) K ≃A[K] AdeleRing (𝓞 L) L := sorry
 
 variable {L}
