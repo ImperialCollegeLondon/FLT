@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
 import Mathlib.Topology.Algebra.Algebra
+import Mathlib.Topology.Algebra.Module.Equiv
 
 /-!
 # Topological (sub)algebras
@@ -38,6 +39,12 @@ variable {R A B C : Type*}
 def toContinuousAlgHom (e : A ≃A[R] B) : A →A[R] B where
   __ := e.toAlgHom
   cont := e.continuous_toFun
+
+@[coe]
+def toContinuousLinearEquiv (e : A ≃A[R] B) : A ≃L[R] B where
+  __ := e.toLinearEquiv
+  continuous_toFun := e.continuous_toFun
+  continuous_invFun := e.continuous_invFun
 
 instance coe : Coe (A ≃A[R] B) (A →A[R] B) := ⟨toContinuousAlgHom⟩
 
@@ -266,5 +273,15 @@ theorem _root_.AlgEquiv.isUniformEmbedding {E₁ E₂ : Type*} [UniformSpace E�
     (e : E₁ ≃ₐ[R] E₂) (h₁ : Continuous e) (h₂ : Continuous e.symm) :
     IsUniformEmbedding e :=
   ContinuousAlgEquiv.isUniformEmbedding { e with continuous_toFun := h₁ }
+
+@[simps!]
+def restrictScalars (A : Type*) {B : Type*} {C D : Type*}
+    [CommSemiring A] [CommSemiring C] [CommSemiring D] [TopologicalSpace C]
+    [TopologicalSpace D] [CommSemiring B]  [Algebra B C] [Algebra B D] [Algebra A B]
+    [Algebra A C] [Algebra A D] [IsScalarTower A B C] [IsScalarTower A B D] (f : C ≃A[B] D) :
+    C ≃A[A] D where
+  __ := f.toAlgEquiv.restrictScalars A
+  continuous_toFun := f.continuous_toFun
+  continuous_invFun := f.continuous_invFun
 
 end ContinuousAlgEquiv

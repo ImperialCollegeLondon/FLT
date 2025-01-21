@@ -525,4 +525,9 @@ noncomputable def bar {K L AK AL : Type*} [CommRing K] [CommRing L]
 noncomputable def FiniteAdeleRing.baseChangeEquiv : L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L :=
   AlgEquiv.ofBijective (bar <| FiniteAdeleRing.baseChange A K L B) sorry -- #243
 
+instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) := sorry
+
+instance : letI := TopologicalSpace.induced (algebraMap K (FiniteAdeleRing A K)) inferInstance
+    IsModuleTopology K (FiniteAdeleRing A K) := sorry
+
 end DedekindDomain
