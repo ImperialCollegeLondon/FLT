@@ -151,8 +151,27 @@ primes of $B$ which pull back to $v$.
   isomorphism (both algebraic and topological).
 \end{theorem}
 \begin{proof}
-  See Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
-  {these notes}.
+  We follow Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
+  {these notes}. We may write $L=K(\alpha)$ as a finite separable extension is simple. Let $f(x)$
+  be the minimum polynomial of $\alpha$. Factor $f(x)=f_1(x)f_2(x)\cdots f_r(x)$ into
+  monic irreducibles $K_v[x]$; these are distinct by separability. We have $L=K[x]/(f)$
+  so $L\otimes_KK_v=K_v[x]/(f)=K_v[x]/(\prod_i f_i)=\oplus_i K_v[x]/(f_i)$. Write
+  $L_i=K_v[x]/(f_i)$. We need to show that the $L_i$ correspond naturally to the completions
+  $L_w$ for $w|v$.
+
+  First note that $[L_i:K_v]\leq [L:K]<\infty$ and so there's a unique extension of the $v$-adic
+  norm on $K_v$ to $L_i$. The restriction of this norm to $L$ must be equivalent to the $w$-adic
+  norm for some $w|v$ by Ostrowski; then we must have $L_i=L_w$ because $L$ is dense in both
+  and both are complete.
+
+  Next note that if $i\not=j$ then $L_i$ and $L_j$ cannot be isomorphic as $L\otimes_KK_v$-algebras,
+  because such an isomorphism would send $x$ to $x$ and thus show $f_i=f_j$. Hence the map
+  from $L_i$ to the $w$ dividing $v$ is injective.
+
+  For surjectivity, note that if $w|v$ then $L_w$ is an $L\otimes_KK_v$-algebra and hence
+  admits a map from $L\otimes_K K_v$ which must factor through one of the $L_i$.
+  This gives an injection $L_i\to L_w$. But $L_i$ is complete, as it's a finite extension
+  of $K_v$, and the image is dense because $L$ is dense in $L_w$, hence $L_i=L_w$.
 \end{proof}
 
 \begin{theorem}
