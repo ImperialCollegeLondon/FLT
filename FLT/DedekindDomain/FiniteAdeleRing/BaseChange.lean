@@ -11,6 +11,7 @@ import Mathlib.RingTheory.Henselian
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Separation.CompletelyRegular
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
+import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 
 import Mathlib.RingTheory.DedekindDomain.IntegralClosure -- for example
 
@@ -388,11 +389,9 @@ noncomputable def adicCompletionComapAlgEquiv (v : HeightOneSpectrum A) :
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
   AlgEquiv.ofBijective (adicCompletionTensorComapAlgHom A K L B v) sorry --#231
 
--- Can't state this properly because ≃[A]L doesn't exist yet -- #238
 noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A) :
-  sorry
---  (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃A[L]
---    (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1)
+  (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃A[L]
+    (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1)
   := sorry
 
 theorem adicCompletionComapAlgEquiv_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
@@ -520,9 +519,17 @@ noncomputable def bar {K L AK AL : Type*} [CommRing K] [CommRing L]
     (f : AK →ₐ[K] AL) : L ⊗[K] AK →ₐ[L] AL :=
   Algebra.TensorProduct.lift (Algebra.ofId _ _) f <| fun l ak ↦ mul_comm (Algebra.ofId _ _ l) (f ak)
 
+noncomputable instance : Algebra (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
+  moduleTopology (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K)
 -- Follows from the above. Should be a continuous L-alg equiv but we don't have continuous
 -- alg equivs yet so can't even state it properly.
-noncomputable def FiniteAdeleRing.baseChangeEquiv : L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L :=
-  AlgEquiv.ofBijective (bar <| FiniteAdeleRing.baseChange A K L B) sorry -- #243
+noncomputable def FiniteAdeleRing.baseChangeEquiv :
+    L ⊗[K] FiniteAdeleRing A K ≃A[L] FiniteAdeleRing B L where
+  __ := AlgEquiv.ofBijective (bar <| FiniteAdeleRing.baseChange A K L B) sorry -- #243
+  continuous_toFun := sorry -- TODO
+  continuous_invFun := sorry -- TODO
 
 end DedekindDomain
