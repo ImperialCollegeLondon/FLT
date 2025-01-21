@@ -274,4 +274,14 @@ theorem _root_.AlgEquiv.isUniformEmbedding {E₁ E₂ : Type*} [UniformSpace E�
     IsUniformEmbedding e :=
   ContinuousAlgEquiv.isUniformEmbedding { e with continuous_toFun := h₁ }
 
+@[simps!]
+def restrictScalars (A : Type*) {B : Type*} {C D : Type*}
+    [CommSemiring A] [CommSemiring C] [CommSemiring D] [TopologicalSpace C]
+    [TopologicalSpace D] [CommSemiring B]  [Algebra B C] [Algebra B D] [Algebra A B]
+    [Algebra A C] [Algebra A D] [IsScalarTower A B C] [IsScalarTower A B D] (f : C ≃A[B] D) :
+    C ≃A[A] D where
+  __ := f.toAlgEquiv.restrictScalars A
+  continuous_toFun := f.continuous_toFun
+  continuous_invFun := f.continuous_invFun
+
 end ContinuousAlgEquiv
