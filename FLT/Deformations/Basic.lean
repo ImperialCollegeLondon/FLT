@@ -27,7 +27,9 @@ instance : ConcreteCategory (CommAlgCat 𝓞) := by unfold CommAlgCat; infer_ins
 
 instance : CoeOut (CommAlgCat 𝓞) (CommRingCat) where coe A := A.right
 
-instance (A : CommAlgCat 𝓞) : Algebra 𝓞 A := sorry
+variable (A : CommAlgCat 𝓞) [IsLocalRing A] [IsLocalHom A.hom]
+
+instance : Algebra 𝓞 A := sorry
 
 def CommRingCat.quotient {A : CommRingCat} (a : Ideal A) : CommRingCat where
   α := A ⧸ a
@@ -39,16 +41,17 @@ def CommAlgCat.quotient {A : CommAlgCat 𝓞} (a : Ideal A) : CommAlgCat 𝓞 wh
 
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
 variable (𝓞) in
-abbrev modMap (A : CommAlgCat 𝓞) [IsLocalRing A] : 𝓞 →+* 𝓴 A :=
+abbrev modMap : 𝓞 →+* 𝓴 A :=
    (IsLocalRing.residue ↑A.right).comp A.hom
 
 variable (𝓞) in
-class IsResidueAlgebra (A : CommAlgCat 𝓞) [IsLocalRing A] : Prop where
+class IsResidueAlgebra : Prop where
   isSurjective : Surjective (modMap 𝓞 A)
 
+variable [IsResidueAlgebra 𝓞 A]
+
 variable (𝓞) in
-noncomputable def IsResidueAlgebra.toRingEquiv (A : CommAlgCat 𝓞) [IsLocalRing A] [IsLocalHom A.hom]
-  [IsResidueAlgebra 𝓞 A] : (𝓴 A) ≃+* (𝓴 𝓞) where
+noncomputable def IsResidueAlgebra.toRingEquiv : (𝓴 A) ≃+* (𝓴 𝓞) where
     toFun ka := IsLocalRing.residue (R := 𝓞) (surjInv (f := modMap 𝓞 A)
       (IsResidueAlgebra.isSurjective (A := A)) ka)
     invFun ko := IsLocalRing.ResidueField.lift (modMap 𝓞 A) ko
@@ -86,6 +89,24 @@ noncomputable def IsResidueAlgebra.toRingEquiv (A : CommAlgCat 𝓞) [IsLocalRin
       simp [modMap]
       rintro x y
       sorry
+
+noncomputable instance : Algebra (𝓴 𝓞) (𝓴 A) :=
+  RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A).symm
+
+noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) :=
+  RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A)
+
+instance : RingHomInvPair
+  (algebraMap (𝓴 A) (𝓴 𝓞))
+  (algebraMap (𝓴 𝓞) (𝓴 A)) where
+    comp_eq := sorry
+    comp_eq₂ := sorry
+
+instance : RingHomInvPair
+  (algebraMap (𝓴 𝓞) (𝓴 A))
+  (algebraMap (𝓴 A) (𝓴 𝓞)) where
+    comp_eq := sorry
+    comp_eq₂ := sorry
 
 abbrev ArtinianQuotientIdeal (A : Type*) [CommRing A]
   := {a : Ideal A // IsArtinianRing (A ⧸ a)}
@@ -143,7 +164,8 @@ instance : Algebra 𝓞 A := by unfold 𝓒 at A; exact A.obj.hom.toAlgebra
 instance : IsLocalRing A := by unfold 𝓒 at A; exact A.property.1
 instance : IsLocalHom A.obj.hom := by unfold 𝓒 at A; exact A.property.2.1
 instance : IsResidueAlgebra 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.1
-noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A)
+noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := by unfold 𝓒 at A; infer_instance
+noncomputable instance : Algebra (𝓴 𝓞) (𝓴 A) := by unfold 𝓒 at A; infer_instance
 instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
 instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
 

@@ -25,6 +25,11 @@ variable [Module A V] [IsScalarTower A (𝓴 A) V]
 
 variable {W: Type u} [AddCommMonoid W] [Module A W] [Module.Free A W] [Module.Finite A W]
 
+variable (reduction : LinearEquiv
+  (algebraMap (𝓴 A) (𝓴 𝓞))
+  ((𝓴 A) ⊗[A] W)
+  V)
+
 variable (ρ: Representation A G W)
 
 section Definition
@@ -34,9 +39,13 @@ noncomputable def extend_ctts : W →ₗ[A] ((𝓴 A) ⊗[A] W) :=
   (TensorProduct.mk A (𝓴 A) W) (1 : (𝓴 A))
 
 variable (V W) in
-noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V := by
-  refine TensorProduct.lift ?_
-  sorry
+noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V where
+  toFun kaw := reduction kaw
+  map_add' := by simp
+  map_smul' := by
+    simp
+    rintro m x
+    sorry -- why is rw [LinearEquiv.map_smulₛₗ reduction] not matching?
 
 variable (W V) in
 noncomputable def representation_mod : W →ₗ[A] V :=
