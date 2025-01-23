@@ -8,10 +8,10 @@ import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.DedekindDomain.Dvr
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.RingTheory.Henselian
+import Mathlib.Topology.Algebra.Algebra.Equiv
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Separation.CompletelyRegular
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
-import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 
 import Mathlib.RingTheory.DedekindDomain.IntegralClosure -- for example
 
