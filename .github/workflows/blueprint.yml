@@ -83,7 +83,7 @@ jobs:
         working-directory: docbuild
         run: |
           ~/.elan/bin/lake exe cache get || true
-          ~/.elan/bin/lake build LeanCamCombi:docs
+          ~/.elan/bin/lake build FLT:docs
 
       - name: Check for `docs` folder # this is meant to detect a Jekyll-based website
         id: check_docs
