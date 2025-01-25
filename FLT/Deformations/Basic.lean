@@ -1,10 +1,13 @@
 import FLT.Deformations.Algebra.InverseLimit
 import FLT.Mathlib.CategoryTheory.Comma.Over
+import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
 
 universe u
 
 open CategoryTheory Function
 open scoped TensorProduct
+
+section CommAlgCat
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
@@ -29,7 +32,7 @@ instance : CoeOut (CommAlgCat 𝓞) (CommRingCat) where coe A := A.right
 
 variable (A : CommAlgCat 𝓞) [IsLocalRing A] [IsLocalHom A.hom]
 
-instance : Algebra 𝓞 A := sorry
+instance : Algebra 𝓞 A := A.hom.toAlgebra
 
 def CommRingCat.quotient {A : CommRingCat} (a : Ideal A) : CommRingCat where
   α := A ⧸ a
@@ -108,23 +111,45 @@ instance : RingHomInvPair
     comp_eq := sorry
     comp_eq₂ := sorry
 
-abbrev ArtinianQuotientIdeal (A : Type*) [CommRing A]
-  := {a : Ideal A // IsArtinianRing (A ⧸ a)}
+end CommAlgCat
 
-instance {A : Type*} [CommRing A] : Coe (ArtinianQuotientIdeal A) (Ideal A) where
+section IsProartinian
+
+variable {A : Type*} [CommRing A]
+
+variable (A) in
+def ArtinianQuotientIdeal := {a : Ideal A // IsArtinianRing (A ⧸ a)}
+
+instance : Coe (ArtinianQuotientIdeal A) (Ideal A) where
   coe a := a.1
+
+instance : Preorder (ArtinianQuotientIdeal A) where
+  le a b := (a : Ideal A) ≥ (b : Ideal A)
+  lt a b := (a : Ideal A) > (b : Ideal A)
+  le_refl := by simp
+  le_trans := by
+    rintro a b c hab hbc
+    simp_all
+    exact le_trans hbc hab
 
 abbrev proartinianCompletion_obj {A : Type*} [CommRing A] (a : ArtinianQuotientIdeal A) :=
   A ⧸ (a : Ideal A)
 
-def proartinianCompletion_map {A : Type*} [CommRing A] {a b : ArtinianQuotientIdeal A} (h : a ≤ b) :
-  proartinianCompletion_obj b →+* proartinianCompletion_obj a := sorry
+def ideal_le_of_artinianQuotientIdeal_le {A : Type*} [CommRing A] {a b : ArtinianQuotientIdeal A}
+  (h : a ≤ b) : (b : Ideal A) ≤ (a : Ideal A) := by
+    simp [LE.le] at h
+    exact h
+
+def proartinianCompletion_map {A : Type*} [CommRing A] {a b : ArtinianQuotientIdeal A}
+  (h : a ≤ b) :
+  (proartinianCompletion_obj b) →+* (proartinianCompletion_obj a) :=
+    Ideal.ringHomOfQuot_of_le (ideal_le_of_artinianQuotientIdeal_le h)
 
 abbrev proartinianCompletion (A : Type*) [CommRing A] :=
   Ring.InverseLimit
   (fun (a : ArtinianQuotientIdeal A) => proartinianCompletion_obj a)
   (fun (a b : ArtinianQuotientIdeal A) (h : a ≤ b)
-    => proartinianCompletion_map (A := A) h)
+    => proartinianCompletion_map h)
 
 def diagonalMap (A : Type*) [CommRing A] : A →+* proartinianCompletion A := sorry
 
@@ -143,6 +168,10 @@ instance (A : Type*) [CommRing A] [IsProartinian A] : TopologicalRing A where
   continuous_add := sorry
   continuous_mul := sorry
   continuous_neg := sorry
+
+end IsProartinian
+
+section 𝓒
 
 variable (𝓞) in
 def 𝓒_filter : CommAlgCat 𝓞 → Prop := fun A =>
@@ -174,39 +203,16 @@ def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
   obj := CommAlgCat.quotient a
   property := sorry
 
-/-
-instance {A B : 𝓒 𝓞} : Coe (A ⟶ B) (A →+* B) := sorry
-
-instance : MorphismProperty.IsMultiplicative
-  (fun {A B : 𝓒 𝓞} => fun (f : A ⟶ B) => Continuous (f : A →+* B)) where
-  id_mem X := sorry
-  comp_mem f g := sorry
-
-TODO(jlcontreras): This is all wrong. How do i restrict to continuous morphisms?
-variable (𝓞) in
-abbrev 𝓒 := WideSubcategory (fun {A B : 𝓒 𝓞} => fun (f : A ⟶ B) => Continuous (f : A →+* B))
-
-instance : Coe (𝓒 𝓞) (𝓒 𝓞) where
-  coe A := A.obj
-
-
-variable (A : 𝓒 𝓞)
-
-instance : Algebra 𝓞 A := by unfold 𝓒 at A; exact A.obj.hom.toAlgebra
-instance : IsLocalRing A := by unfold 𝓒 at A; exact A.property.1
-instance : IsLocalHom A.obj.hom := by unfold 𝓒 at A; exact A.property.2.1
-instance : IsResidueAlgebra 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.1
-noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (IsResidueAlgebra.toRingEquiv 𝓞 A)
-instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
-instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
--/
-
+end 𝓒
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
-instance noetherian_deformationCat_topology [IsNoetherianRing A] : IsAdic (IsLocalRing.maximalIdeal A) := sorry
+instance noetherian_deformationCat_topology [IsNoetherianRing A] :
+  IsAdic (IsLocalRing.maximalIdeal A) := sorry
 
-instance noetherian_deformationCat_isAdic [IsNoetherianRing A] : IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
+instance noetherian_deformationCat_isAdic [IsNoetherianRing A] :
+  IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
 
-lemma noetherian_deformationCat_continuous {A A' : 𝓒 𝓞} [IsNoetherianRing A] (f : A →ₐ[𝓞] A') : Continuous f := sorry
+lemma noetherian_deformationCat_continuous {A A' : 𝓒 𝓞} [IsNoetherianRing A]
+  (f : A →ₐ[𝓞] A') : Continuous f := sorry
 
 end Noetherian
