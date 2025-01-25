@@ -1,5 +1,6 @@
 import FLT.Deformations.Basic
 import FLT.Mathlib.RepresentationTheory.Basic
+import FLT.Mathlib.Algebra.Module.Equiv.Defs
 
 universe u
 
@@ -45,19 +46,20 @@ noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V where
   map_smul' := by
     simp
     rintro m x
-    sorry -- why is rw [LinearEquiv.map_smulₛₗ reduction] not matching?
+    sorry -- TODO: why is rw [LinearEquiv.map_smulₛₗ reduction] not matching?
 
 variable (W V) in
 noncomputable def representation_mod : W →ₗ[A] V :=
-  LinearMap.comp (mod_ctts V A W) (extend_ctts A W)
+  (mod_ctts V A W reduction).comp (extend_ctts A W)
 
-omit W in
+omit W reduction in
 structure Lift : Type (u+1) where
   W: Type u
   [addCommMonoid : AddCommMonoid W]
   [module : Module A W]
   [free : Module.Free A W]
   [finite : Module.Finite A W]
+  reduction : LinearEquiv (algebraMap (𝓴 A) (𝓴 𝓞)) ((𝓴 A) ⊗[A] W) V
   -- The following 4 instances are just a LEAN specification pattern.
   -- What we really want is for any A : 𝓒 𝓞
   -- to have module structure on V with the natural scalar product, but we cannot define this
@@ -69,15 +71,34 @@ structure Lift : Type (u+1) where
   [isScalarTower_𝓴A : IsScalarTower (𝓴 A) (𝓴 𝓞) V]
   [isScalarTower_A : IsScalarTower A (𝓴 A) V]
   ρ: Representation A G W
-  is_lift: ∀ g : G, ∀ w : W, ρbar g (representation_mod V W (A := A) w)
-      = representation_mod V W (A := A) (ρ g w)
+  is_lift: ∀ g : G, ∀ w : W, ρbar g (representation_mod V A W reduction w)
+      = representation_mod V A W reduction (ρ g w)
+
+#check Lift.addCommMonoid
+
+attribute [instance] Lift.addCommMonoid Lift.module Lift.free Lift.finite
 
 def Lift.isIso : Setoid (Lift ρbar A) where
-  r W W' := sorry
+  r l l' := Representation.IsRepresentationEquiv l.ρ l'.ρ
   iseqv := {
-    refl := sorry
-    symm := sorry
-    trans := sorry
+    refl := by
+      unfold Representation.IsRepresentationEquiv
+      rintro l
+      use LinearEquiv.id l.W
+      rintro g
+      unfold LinearEquiv.id
+      aesop
+    symm := by
+      unfold Representation.IsRepresentationEquiv
+      rintro x y ⟨φ, φ_prop⟩
+      use φ.symm
+      rintro g
+      sorry
+    trans := by
+      unfold Representation.IsRepresentationEquiv
+      rintro x y z ⟨φ, φ_prop⟩ ⟨φ', φ'_prop⟩
+      use LinearEquiv.comp' φ φ'
+      sorry
   }
 
 end Definition
@@ -85,13 +106,27 @@ end Definition
 section UnrestrictedFunctor
 
 omit A in
-def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) : Lift ρbar A → Lift ρbar B :=
-  fun (W : Lift ρbar A) => sorry
+def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift ρbar B where
+  W :=
+    let f' : A →+* B := sorry
+    let _ : Algebra A B := f'.toAlgebra
+    l.W ⊗[A] B
+  addCommMonoid := sorry
+  module := sorry
+  free := sorry
+  finite := sorry
+  reduction := sorry
+  module_A := sorry
+  module_𝓴A := sorry
+  isScalarTower_𝓴A := sorry
+  isScalarTower_A := sorry
+  ρ := sorry
+  is_lift := sorry
 
 variable (𝓞) in
 def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
   obj A := Lift ρbar A
-  map f := sorry -- Lift.functor_onMap ρbar f
+  map f l := sorry -- Lift.functor_onMap ρbar f l
 
 theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
 
