@@ -82,7 +82,7 @@ jobs:
       - name: Build project API documentation
         working-directory: docbuild
         run: |
-          ~/.elan/bin/lake exe cache get || true
+          MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT || true
           ~/.elan/bin/lake build FLT:docs
 
       - name: Check for `docs` folder # this is meant to detect a Jekyll-based website

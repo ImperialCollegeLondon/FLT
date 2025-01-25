@@ -2,5 +2,7 @@
 lake update mathlib
 # Update the doc-gen version inside the docbuild project
 cd docbuild
-lake update doc-gen4
+lake update FLT
+rm lean-toolchain
+rm lake-manifest.json
 cd ..
