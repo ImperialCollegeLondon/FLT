@@ -13,73 +13,81 @@ See Atiyah-Macdonald PP.32-33, Matsumura PP.269-270
 ## Main definitions
 
 * `InverseSystem f`
-* `Module.InverseLimit G f`
-* `AddCommGroup.InverseLimit G f`
-* `Ring.InverseLimit G f`
+* `Module.InverseLimit obj f`
+* `AddCommGroup.InverseLimit obj f`
+* `Ring.InverseLimit obj f`
 -/
 
 suppress_compilation
 
-universe u v v' v'' w u₁
-
 open Submodule
 
-variable {R : Type u} [Ring R]
-variable {ι : Type v}
-variable [Preorder ι]
-variable (G : ι → Type w)
+variable {ι : Type*} [Preorder ι] [DecidableEq ι]
+variable {obj : ι → Type*}
 
 namespace Module
 
-variable [∀ i, AddCommGroup (G i)] [∀ i, Module R (G i)]
-variable {G}
-variable (f : ∀ i j, i ≤ j → G j →ₗ[R] G i)
+variable {R : Type*} [Ring R]
+variable [∀ i : ι, AddCommGroup (obj i)] [∀ i, Module R (obj i)]
+variable (func : ∀ i j : ι, i ≤ j → obj j →ₗ[R] obj i)
 
 /-- A copy of `InverseSystem.map_self` specialized to linear maps, as otherwise the
-`fun i j h ↦ f i j h` can confuse the simplifier. -/
-nonrec theorem InverseSystem.map_self [InverseSystem (F := G) fun i j h => f i j h] (i x h) :
-    f i i h x = x :=
-  InverseSystem.map_self (f := (f · · ·)) x
+`fun i j h ↦ func i j h` can confuse the simplifier. -/
+nonrec theorem InverseSystem.map_self [InverseSystem (F := obj) (fun i j h => func i j h)]
+    (i x h) : func i i h x = x :=
+  InverseSystem.map_self (f := (func · · ·)) x
 
 /-- A copy of `InverseSystem.map_map` specialized to linear maps, as otherwise the
-`fun i j h ↦ f i j h` can confuse the simplifier. -/
-nonrec theorem InverseSystem.map_map [InverseSystem (F := G) fun i j h => f i j h]
-  {i j k} (hij hjk x) :
-    f i j hij (f j k hjk x) = f i k (le_trans hij hjk) x :=
-  InverseSystem.map_map (f := (f · · ·)) hij hjk x
+`fun i j h ↦ func i j h` can confuse the simplifier. -/
+nonrec theorem InverseSystem.map_map [InverseSystem (F := obj) fun i j h => func i j h]
+    {i j k} (hij hjk x) : func i j hij (func j k hjk x) = func i k (le_trans hij hjk) x :=
+  InverseSystem.map_map (f := (func · · ·)) hij hjk x
 
-variable (G)
-
+variable (obj) in
 /-- The inverse limit of an inverse system is the modules glued together along the maps. -/
-def InverseLimit [DecidableEq ι] : Set (Π i : ι, G i) :=
-  span R <| { a : Π i : ι, G i |
-    ∀ (i j : _) (h : i ≤ j), f i j h (a j) = a i }
+def InverseLimit : Set (Π i : ι, obj i) :=
+  span R <| { a : Π i : ι, obj i |
+    ∀ (i j : _) (h : i ≤ j), func i j h (a j) = a i }
 
 namespace InverseLimit
 
-section Basic
-
-variable [DecidableEq ι]
-
-instance addCommGroup : AddCommGroup (InverseLimit G f) := by
+instance addCommGroup : AddCommGroup (InverseLimit obj func) := by
   unfold InverseLimit
   infer_instance
 
-instance module : Module R (InverseLimit G f) := by
+instance module : Module R (InverseLimit obj func) := by
   unfold InverseLimit
   infer_instance
 
-instance inhabited : Inhabited (InverseLimit G f) :=
+instance inhabited : Inhabited (InverseLimit obj func) :=
   ⟨0⟩
 
-
+instance unique [IsEmpty ι] : Unique (InverseLimit obj func) where
+  default := ⟨default, by
+    unfold InverseLimit
+    simp
+  ⟩
+  uniq := by
+    rintro ⟨x, _⟩
+    exact SetCoe.ext ((Pi.uniqueOfIsEmpty obj).uniq x)
 variable (R ι)
 
-def toComponent (i) : InverseLimit G f →ₗ[R] G i :=
-  sorry
+def toComponent (i) : InverseLimit obj func →ₗ[R] obj i where
+  toFun z := (z : Π j : ι, obj j) i
+  map_add' := by simp
+  map_smul' := by simp
 
+variable {W : Type*} [AddCommGroup W] [Module R W]
 
-end Basic
+def map_of_maps (maps : (i : ι) → W →ₗ[R] obj i)
+    (comm : ∀ i j (h : i ≤ j), LinearMap.comp (func i j h) (maps j) = (maps i))
+    : W →ₗ[R] InverseLimit obj func where
+      toFun w := ⟨fun i ↦ maps i w, by
+        unfold InverseLimit
+        sorry
+      ⟩
+      map_add' := by aesop
+      map_smul' := by aesop
 
 end InverseLimit
 
@@ -87,30 +95,27 @@ end Module
 
 namespace AddCommGroup
 
-variable [∀ i, AddCommGroup (G i)]
+variable [∀ i : ι, AddCommGroup (obj i)]
+variable (func : ∀ i j : ι, i ≤ j → obj j →+ obj i)
 
-def InverseLimit [DecidableEq ι] (f : ∀ i j, i ≤ j → G j →+ G i) : Type _ :=
-  @Module.InverseLimit ℤ _ ι _ G _ _ (fun i j hij => (f i j hij).toIntLinearMap) _
+variable (obj) in
+def InverseLimit : Type _ :=
+  @Module.InverseLimit ι _ obj ℤ _ _ _ (fun i j hij => (func i j hij).toIntLinearMap)
 
 namespace InverseLimit
 
-variable (f : ∀ i j, i ≤ j → G j →+ G i)
-
-protected theorem inverseSystem [h : InverseSystem (F := G) fun i j h => f i j h] :
-    InverseSystem (F := G) fun i j hij => (f i j hij).toIntLinearMap :=
+protected theorem inverseSystem [h : InverseSystem (F := obj) (fun i j h => func i j h)] :
+    InverseSystem (F := obj) fun i j hij => (func i j hij).toIntLinearMap :=
   h
 
 attribute [local instance] InverseLimit.inverseSystem
 
-variable [DecidableEq ι]
+instance : AddCommGroup (InverseLimit obj func) :=
+  Module.InverseLimit.addCommGroup (fun i j hij => (func i j hij).toIntLinearMap)
 
-instance : AddCommGroup (InverseLimit G f) :=
-  Module.InverseLimit.addCommGroup G fun i j hij => (f i j hij).toIntLinearMap
+instance : Inhabited (InverseLimit obj func) := ⟨0⟩
 
-instance : Inhabited (InverseLimit G f) :=
-  ⟨0⟩
-
--- instance [IsEmpty ι] : Unique (InverseLimit G f) := Module.InverseLimit.unique _ _
+instance [IsEmpty ι] : Unique (InverseLimit obj func) := Module.InverseLimit.unique _
 
 end InverseLimit
 
@@ -118,44 +123,43 @@ end AddCommGroup
 
 namespace Ring
 
-variable [∀ i, CommRing (G i)]
-
-section
-
-variable (f : ∀ i j, i ≤ j → G j →+* G i)
-
 open FreeCommRing
 
+variable [∀ i : ι, CommRing (obj i)]
+variable (func : ∀ i j, i ≤ j → obj j →+* obj i)
+
+variable (obj) in
 /-- The inverse limit of an inverse system is the rings glued together along the maps. -/
-def InverseLimit : Type max v w :=
-  Subring.closure { a : Π i : ι, G i |
-    ∀ (i j : _) (h : i ≤ j), f i j h (a j) = a i }
+def InverseLimit : Type _ :=
+  Subring.closure { a : Π i : ι, obj i |
+    ∀ (i j : _) (h : i ≤ j), func i j h (a j) = a i }
 
 namespace InverseLimit
 
-instance commRing : CommRing (InverseLimit G f) :=
+instance commRing : CommRing (InverseLimit obj func) :=
   Subring.closureCommRingOfComm (by
     intro x hx y hy
     rw [mul_comm]
   )
 
-instance ring : Ring (InverseLimit G f) :=
+instance ring : Ring (InverseLimit obj func) :=
   CommRing.toRing
 
 -- Porting note: Added a `Zero` instance to get rid of `0` errors.
-instance zero : Zero (InverseLimit G f) := by
+instance zero : Zero (InverseLimit obj func) := by
   unfold InverseLimit
   exact ⟨0⟩
 
-instance : Inhabited (InverseLimit G f) :=
+instance : Inhabited (InverseLimit obj func) :=
   ⟨0⟩
 
-def toComponent (i) : InverseLimit G f →+* G i :=
-  sorry
-
+def toComponent (i) : InverseLimit obj func →+* obj i where
+  toFun z := (z.1 : Π j : ι, obj j) i
+  map_one' := by simp
+  map_mul' := by aesop
+  map_zero' := by simp
+  map_add' := by aesop
 
 end InverseLimit
-
-end
 
 end Ring
