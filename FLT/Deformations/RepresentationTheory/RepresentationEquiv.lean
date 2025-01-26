@@ -1,19 +1,22 @@
-import Mathlib.RepresentationTheory.Basic
+import FLT.Deformations.RepresentationTheory.Subrepresentation
+import FLT.Mathlib.RepresentationTheory.Basic
 
-variable {G : Type*} [Group G]
+namespace Representation
 
-variable {A : Type*} [CommRing A]
+variable {R V V' G: Type*} [CommSemiring R]
+  [AddCommMonoid V] [Module R V]
+  [AddCommMonoid V'] [Module R V']
+  [Group G]
 
-variable {W : Type*} [AddCommMonoid W] [Module A W]
+variable (ρ : Representation R G V)
+variable (ρ' : Representation R G V')
 
-variable {W' : Type*} [AddCommMonoid W'] [Module A W']
+structure RepresentationEquiv : Type _ where
+  map : V ≃ₗ[R] V'
+  comm : ∀ g : G, map ∘ (ρ g) = (ρ' g) ∘ map
 
-structure RepresentationEquiv (ρ : Representation A G W) (ρ' : Representation A G W') where
-  iso : W ≃ₗ[A] W'
-  compatible : True
-
-namespace RepresentationEquiv
+def IsRepresentationEquiv : Prop := Nonempty (RepresentationEquiv ρ ρ')
 
 notation ρ "≃ᵣ" ρ' => RepresentationEquiv ρ ρ'
 
-end RepresentationEquiv
+end Representation

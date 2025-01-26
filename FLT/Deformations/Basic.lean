@@ -1,13 +1,12 @@
 import FLT.Deformations.Algebra.InverseLimit
 import FLT.Mathlib.CategoryTheory.Comma.Over
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
-
+import FLT.Mathlib.RingTheory.LocalRing.Defs
+import FLT.Mathlib.Algebra.Group.Units.Hom
 universe u
 
 open CategoryTheory Function
 open scoped TensorProduct
-
-section CommAlgCat
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
@@ -22,8 +21,9 @@ variable {G : Type u}
 
 variable (ρbar : Representation (𝓴 𝓞) G V)
 
-variable (𝓞) in
+section CommAlgCat
 
+variable (𝓞) in
 abbrev CommAlgCat := Under (CommRingCat.of 𝓞)
 
 instance : ConcreteCategory (CommAlgCat 𝓞) := by unfold CommAlgCat; infer_instance
@@ -182,7 +182,7 @@ end IsProartinian
 section 𝓒
 
 variable (𝓞) in
-def 𝓒_filter : CommAlgCat 𝓞 → Prop := fun A =>
+def 𝓒_filter (A : CommAlgCat 𝓞) : Prop :=
   ∃ (_ : IsLocalRing A),
   ∃ (_ : IsLocalHom A.hom),
   IsResidueAlgebra 𝓞 A ∧
@@ -197,7 +197,6 @@ instance : CoeOut (𝓒 𝓞) (CommAlgCat 𝓞) where coe A := A.obj
 
 variable (A : 𝓒 𝓞)
 
-instance : Algebra 𝓞 A := by unfold 𝓒 at A; exact A.obj.hom.toAlgebra
 instance : IsLocalRing A := by unfold 𝓒 at A; exact A.property.1
 instance : IsLocalHom A.obj.hom := by unfold 𝓒 at A; exact A.property.2.1
 instance : IsResidueAlgebra 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.1
@@ -209,10 +208,15 @@ instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
 variable {A} in
 def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
   obj := CommAlgCat.quotient a
-  property := sorry
+  property := by
+    unfold 𝓒_filter
+    sorry -- We need 1) quotient of local is local, 2) quotient of localhom is localhom
+          -- 3) quotient of residue algebra is residue algebra, 4) quotient of proartinian is proartinian
 
 end 𝓒
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
+
+variable (A : 𝓒 𝓞)
 
 instance noetherian_deformationCat_topology [IsNoetherianRing A] :
   IsAdic (IsLocalRing.maximalIdeal A) := sorry

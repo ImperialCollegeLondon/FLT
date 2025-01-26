@@ -3,7 +3,7 @@ import FLT.Deformations.Basic
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.RepresentationTheory.RepresentationEquiv
 
-open scoped TensorProduct Representation RepresentationEquiv
+open scoped TensorProduct Representation
 
 variable {𝓞 : Type*} [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)

@@ -1,19 +1,15 @@
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import Mathlib.RepresentationTheory.Basic
 
-universe u
-
 open LinearMap
 open scoped TensorProduct
 
 namespace Representation
 
-variable {R V V' G ι: Type u} [CommRing R]
-  [AddCommMonoid V] [Module R V] [Module.Free R V] [Module.Finite R V]
-  [AddCommMonoid V'] [Module R V'] [Module.Free R V'] [Module.Finite R V']
-  [Group G] [DecidableEq ι] [Fintype ι]
+variable {R V G ι: Type*} [CommRing R] [AddCommMonoid V] [Module R V] [Module.Free R V]
+  [Module.Finite R V] [Group G] [DecidableEq ι] [Fintype ι]
 
-variable (ρ : Representation R G V) (ρ' : Representation R G V') (𝓑 : Basis ι R V)
+variable (ρ : Representation R G V) (𝓑 : Basis ι R V)
 
 omit [Module.Free R V] [Module.Finite R V] in
 @[simp]

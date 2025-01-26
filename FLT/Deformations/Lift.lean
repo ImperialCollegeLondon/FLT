@@ -1,4 +1,5 @@
 import FLT.Deformations.Basic
+import FLT.Deformations.RepresentationTheory.RepresentationEquiv
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.Algebra.Module.Equiv.Defs
 
@@ -73,8 +74,6 @@ structure Lift : Type (u+1) where
   ρ: Representation A G W
   is_lift: ∀ g : G, ∀ w : W, ρbar g (representation_mod V A W reduction w)
       = representation_mod V A W reduction (ρ g w)
-
-#check Lift.addCommMonoid
 
 attribute [instance] Lift.addCommMonoid Lift.module Lift.free Lift.finite
 
@@ -158,7 +157,7 @@ local notation3:max "Hom_alg(" O "; " A "," A' ")" => (A →ₗ[O] A')
 -- Choose any basis of V, this makes ρbar into a G →* GL_ι(𝓴 A)
 variable {ι : Type u} [DecidableEq ι] [Fintype ι]
 variable (𝓫 : Basis ι (𝓴 𝓞) V)
-noncomputable def pbar' := Representation.GL_map_of_representation_of_basis ρbar 𝓫
+noncomputable def pbar' := Representation.gl_map_of_basis ρbar 𝓫
 
 variable (A : 𝓒 𝓞)
 
