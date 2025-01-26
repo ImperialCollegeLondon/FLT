@@ -1,4 +1,4 @@
-import Mathlib
+import Mathlib.NumberTheory.NumberField.Embeddings
 
 /-!
 # Embeddings of number fields
