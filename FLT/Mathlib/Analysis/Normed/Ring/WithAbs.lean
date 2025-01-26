@@ -12,10 +12,10 @@ instance : Algebra K (WithAbs w) := ‹Algebra K L›
 
 instance [NumberField K] : NumberField (WithAbs v) := ‹NumberField K›
 
+theorem norm_eq_abs (x : WithAbs v) : ‖x‖ = v x := rfl
+
 theorem algebraMap_def {L : Type*} [Field L] {w : AbsoluteValue L ℝ} [Algebra K L] (k : K) :
     algebraMap K (WithAbs w) k = algebraMap K L k := rfl
-
---theorem norm_eq (v : AbsoluteValue K ℝ) (x : WithAbs v) : ‖x‖ = v x := rfl
 
 theorem uniformContinuous_algebraMap {L : Type*} [Field L] [Algebra K L]
     (v : AbsoluteValue K ℝ) (w : AbsoluteValue L ℝ)
