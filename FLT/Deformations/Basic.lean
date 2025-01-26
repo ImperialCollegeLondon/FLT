@@ -136,22 +136,30 @@ abbrev proartinianCompletion_obj {A : Type*} [CommRing A] (a : ArtinianQuotientI
   A ⧸ (a : Ideal A)
 
 def ideal_le_of_artinianQuotientIdeal_le {A : Type*} [CommRing A] {a b : ArtinianQuotientIdeal A}
-  (h : a ≤ b) : (b : Ideal A) ≤ (a : Ideal A) := by
+    (h : a ≤ b) : (b : Ideal A) ≤ (a : Ideal A) :=
+  by
     simp [LE.le] at h
     exact h
 
 def proartinianCompletion_map {A : Type*} [CommRing A] {a b : ArtinianQuotientIdeal A}
-  (h : a ≤ b) :
+    (h : a ≤ b) :
   (proartinianCompletion_obj b) →+* (proartinianCompletion_obj a) :=
     Ideal.ringHomOfQuot_of_le (ideal_le_of_artinianQuotientIdeal_le h)
 
 abbrev proartinianCompletion (A : Type*) [CommRing A] :=
   Ring.InverseLimit
-  (fun (a : ArtinianQuotientIdeal A) => proartinianCompletion_obj a)
-  (fun (a b : ArtinianQuotientIdeal A) (h : a ≤ b)
-    => proartinianCompletion_map h)
+    (fun (a : ArtinianQuotientIdeal A) => proartinianCompletion_obj a)
+    proartinianCompletion_map
 
-def diagonalMap (A : Type*) [CommRing A] : A →+* proartinianCompletion A := sorry
+noncomputable def diagonalMap (A : Type*) [CommRing A] : A →+* proartinianCompletion A :=
+  Ring.InverseLimit.map_of_maps
+    proartinianCompletion_map
+    (fun a ↦ Ideal.Quotient.mk (a : Ideal A))
+    (by
+      rintro a b h
+      unfold proartinianCompletion_map
+      aesop
+    )
 
 def diagonalMap_toComponent (A : Type*) [CommRing A] (a : ArtinianQuotientIdeal A) :
   A →+* proartinianCompletion_obj a := algebraMap _ _
