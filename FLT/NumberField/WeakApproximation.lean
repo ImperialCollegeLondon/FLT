@@ -7,7 +7,6 @@ import Mathlib.NumberTheory.NumberField.Embeddings
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.Tactic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
-import FLT.Mathlib.Analysis.SpecificLimits.Basic
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Finset.Lattice.Fold
 import FLT.Mathlib.Topology.Constructions
