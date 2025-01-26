@@ -6,9 +6,11 @@ Authors: Salvatore Mercuri
 import Mathlib.NumberTheory.NumberField.Embeddings
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.Tactic
+import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Finset.Lattice.Fold
+import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Constructions
 
 /-!
@@ -49,199 +51,6 @@ if `w x < 1`. We show that this is the case if and only if there is some real `t
 `v = w ^ t`.
 -/
 
-theorem inv_pos {x : K} (h : 0 < v x) : 0 < v x⁻¹ := by
-  rwa [map_inv₀, _root_.inv_pos]
-
-theorem exists_lt_one_of_exists_one_lt
-    (h : ∃ x, 1 < v x) :
-    ∃ x, 0 < v x ∧ v x < 1 :=
-  let ⟨x, hx⟩ := h
-  ⟨x⁻¹, inv_pos (by linarith), map_inv₀ v _ ▸ inv_lt_one_iff₀.2 <| Or.inr hx⟩
-
-theorem ne_zero_of_lt_one {x : K} (hv : 1 < v x) :
-    x ≠ 0 := by
-  intro hx
-  rw [hx, map_zero] at hv
-  linarith
-
-theorem nonpos_iff (x : K) : v x ≤ 0 ↔ v x = 0 := by
-  simp only [le_antisymm_iff, v.nonneg _, and_true]
-
-theorem inv_lt_one_iff {x : K} : v x⁻¹ < 1 ↔ x = 0 ∨ 1 < v x := by
-  simp only [map_inv₀, inv_lt_one_iff₀, nonpos_iff, map_eq_zero]
-
-theorem mul_one_div_lt_iff {y : K} (x : K) (h : 0 < v y) : v (x * (1 / y)) < 1 ↔ v x < v y := by
-  rw [map_mul, one_div, map_inv₀, mul_inv_lt_iff₀ h, one_mul]
-
-theorem mul_one_div_pow_lt_iff {n : ℕ} {y : K} (x : K) (h : 0 < v y) :
-    v (x * (1 / y ^ n)) < 1 ↔ v x < v y ^ n :=
-  map_pow v _ _ ▸ mul_one_div_lt_iff x (map_pow v _ _ ▸ pow_pos h n)
-
-theorem one_lt_of_lt_one {v w : AbsoluteValue K ℝ}
-    (h : ∀ x, v x < 1 → w x < 1) {x : K} (hv : 1 < v x) : 1 < w x :=
-  (inv_lt_one_iff.1 <| h _ <| map_inv₀ v _ ▸ inv_lt_one_of_one_lt₀ hv).resolve_left <|
-    ne_zero_of_lt_one hv
-
-/--
-If the absolute values `v` and `w` are both less than 1 on the same points, then they
-are both greater than one on the same points.
--/
-theorem one_lt_iff_of_lt_one_iff {v w : AbsoluteValue K ℝ}
-    (h : ∀ x, v x < 1 ↔ w x < 1) (x : K) : 1 < v x ↔ 1 < w x :=
-  ⟨fun hv => one_lt_of_lt_one (fun _ => (h _).1) hv,
-    fun hw => one_lt_of_lt_one (fun _ => (h _).2) hw⟩
-
-theorem eq_one_of_lt_one_iff {v w : AbsoluteValue K ℝ}
-    (h : ∀ x, v x < 1 ↔ w x < 1) {x : K} (hv : v x = 1) : w x = 1 := by
-  cases eq_or_lt_of_le (not_lt.1 <| (h x).not.1 hv.not_lt) with
-  | inl hl => rw [← hl]
-  | inr hr => rw [← one_lt_iff_of_lt_one_iff h] at hr; linarith
-
-/--
-If the absolute values `v` and `w` are both less than 1 on the same points, then they
-are both equal one on the same points.
--/
-theorem eq_one_iff_of_lt_one_iff {v w : AbsoluteValue K ℝ}
-    (h : ∀ x, v x < 1 ↔ w x < 1) (x : K) : v x = 1 ↔ w x = 1 :=
-  ⟨fun hv => eq_one_of_lt_one_iff h hv, fun hw => eq_one_of_lt_one_iff (fun _ => (h _).symm) hw⟩
-
-theorem pos_of_pos {v : AbsoluteValue K ℝ} {a : K} (w : AbsoluteValue K ℝ) (hv : 0 < v a) :
-    0 < w a := by
-  rwa [AbsoluteValue.pos_iff] at hv ⊢
-
-/--
-If `v` is a nontrivial absolute value, and `w` is another absolute value such that `w x < 1`
-if `v x < 1`, then we must also have `v x < 1` if `w x < 1`.
--/
-theorem lt_one_iff_of_lt_one_imp (hv : ∃ x, 1 < v x) (h : ∀ x, v x < 1 → w x < 1) {a : K} :
-    v a < 1 ↔ w a < 1:= by
-  let ⟨x₀, hx₀⟩ := exists_lt_one_of_exists_one_lt hv
-  refine ⟨h a, fun hw => ?_⟩
-  by_contra! hv
-  have (n : ℕ) : w x₀ < w a ^ n := by
-    have : v (x₀ * (1 / a ^ n)) < 1 := by
-      rw [mul_one_div_pow_lt_iff _ (by linarith)]
-      exact lt_of_lt_of_le hx₀.2 <| one_le_pow₀ hv
-    exact mul_one_div_pow_lt_iff _ (pos_of_pos w (by linarith)) |>.1 <| h _ this
-  have hcontr : Filter.Tendsto (fun (_ : ℕ) => w x₀) Filter.atTop (𝓝 0) := by
-    have hwn : Filter.Tendsto (fun n => w a ^ n) Filter.atTop (𝓝 0) := by
-      have := abs_eq_self.2 (w.nonneg _) ▸ hw
-      exact tendsto_pow_atTop_nhds_zero_iff.2 this
-    have hwn' : ∀ᶠ n in Filter.atTop, w x₀ ≤ w a ^ n := by
-      simp only [Filter.eventually_atTop, ge_iff_le]
-      exact ⟨1, fun n _ => le_of_lt (this n)⟩
-    exact tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds
-      hwn (Filter.Eventually.of_forall fun (_ : ℕ) => w.nonneg x₀) hwn'
-  linarith [tendsto_nhds_unique hcontr tendsto_const_nhds, pos_of_pos w hx₀.1]
-
-/--
-If `v` and `w` be two absolute values on `K`, `v` is non-trivial, and `v x < 1` if and
-only if `w x < 1`, then `log (v a) / log (w a)` is constant for all `a ∈ K`.
--/
-theorem log_div_image_eq_singleton_of_le_one_iff {v w : AbsoluteValue K ℝ}
-    (hv : ∃ x, 1 < v x)
-    (h : ∀ x, v x < 1 ↔ w x < 1) :
-    let f : K → ℝ := fun a => Real.log (v a) / Real.log (w a)
-    ∃ (a : K) (_ : 1 < v a), ∀ (b : K) (_ : 1 < v b), f b = f a := by
-  obtain ⟨a, ha⟩ := hv
-  refine ⟨a, ha, fun b hb₁ => ?_⟩
-  by_contra! hb₂
-  wlog hwlog : Real.log (v b) / Real.log (w b) < Real.log (v a) / Real.log (w a) generalizing a b
-  · exact this b hb₁ a ha hb₂.symm <| lt_of_le_of_ne (not_lt.1 hwlog) hb₂.symm
-  have : Real.log (v b) / Real.log (v a) < Real.log (w b) / Real.log (w a) := by
-    have hwa := (one_lt_iff_of_lt_one_iff h _).1 ha
-    have hwb := (one_lt_iff_of_lt_one_iff h _).1 hb₁
-    rw [div_lt_div_iff₀ (Real.log_pos ha) (Real.log_pos hwa)]
-    nth_rw 2 [mul_comm]
-    rwa [← div_lt_div_iff₀ (Real.log_pos hwb) (Real.log_pos hwa)]
-  let ⟨q, hq⟩ := exists_rat_btwn this
-  rw [← Rat.num_div_den q, Rat.cast_div, Rat.cast_intCast, Rat.cast_natCast] at hq
-  have h₀ : v (b ^ q.den / a ^ q.num) < 1 := by
-    have := hq.1
-    rwa [div_lt_div_iff₀ (Real.log_pos ha) (by simp only [Nat.cast_pos, q.den_pos]), mul_comm,
-      ← Real.log_pow, ← Real.log_zpow, Real.log_lt_log_iff (pow_pos (by linarith) _)
-      (zpow_pos (by linarith) _), ← div_lt_one (zpow_pos (by linarith) _),
-      ← map_pow, ← map_zpow₀, ← map_div₀] at this
-  have h₁ : 1 < w (b ^ q.den / a ^ q.num) := by
-    have hwa := (one_lt_iff_of_lt_one_iff h _).1 ha
-    letI := (one_lt_iff_of_lt_one_iff h _).1 hb₁
-    have := hq.2
-    rw [div_lt_div_iff₀ (by simp only [Nat.cast_pos, q.den_pos]) (Real.log_pos hwa)] at this
-    nth_rw 2 [mul_comm] at this
-    rwa [← Real.log_pow, ← Real.log_zpow,
-      Real.log_lt_log_iff (zpow_pos (by linarith) _) (pow_pos (by linarith) _),
-      ← one_lt_div (zpow_pos (by linarith) _), ← map_pow, ← map_zpow₀, ← map_div₀] at this
-  exact not_lt_of_lt ((h _).1 h₀) h₁
-
-theorem exists_rpow_of_one_lt {v w : AbsoluteValue K ℝ} (hv : ∃ x, 1 < v x)
-    (h : ∀ x, v x < 1 ↔ w x < 1) :
-    ∃ (t : ℝ) (_ : 0 < t), ∀ x, 1 < v x → v x = w x ^ t := by
-  obtain ⟨a, ha, hlog⟩ := log_div_image_eq_singleton_of_le_one_iff hv h
-  refine ⟨Real.log (v a) / Real.log (w a),
-    div_pos (Real.log_pos ha) (Real.log_pos ((one_lt_iff_of_lt_one_iff h a).1 ha)), fun b hb => ?_⟩
-  simp_rw [← hlog b hb]
-  letI := (one_lt_iff_of_lt_one_iff h b).1 hb
-  rw [div_eq_inv_mul, Real.rpow_mul (w.nonneg _), Real.rpow_inv_log (by linarith) (by linarith),
-    Real.exp_one_rpow, Real.exp_log (by linarith)]
-
-open Real in
-/--
-Let `v` and `w` be two absolute values on `K`, where `v` is non-trivial. The condition that
-`v x < 1` if and only if `w x < 1` is equivalent to the condition that `v = w ^ t` for some
-real `t > 0`.
--/
-theorem eq_rpow_iff_lt_one_iff (v w : AbsoluteValue K ℝ) (hv : ∃ x, 1 < v x) :
-    (∃ (t : ℝ) (_ : 0 < t), ∀ x, v x = (w x) ^ t) ↔ (∀ x, v x < 1 ↔ w x < 1) := by
-  refine ⟨fun ⟨t, ht, h⟩ x => h x ▸ Real.rpow_lt_one_iff' (w.nonneg _) ht, fun h => ?_⟩
-  suffices : ∃ (t : ℝ) (_ : t > 0), ∀ x, 1 < v x → v x = w x ^ t
-  · obtain ⟨t, ht, hsuff⟩ := this
-    refine ⟨t, ht, fun x => ?_⟩
-    by_cases h₀ : v x = 0
-    · rw [(map_eq_zero v).1 h₀, map_zero, map_zero, zero_rpow (by linarith)]
-    · by_cases h₁ : v x = 1
-      · rw [h₁, (eq_one_iff_of_lt_one_iff h x).1 h₁, one_rpow]
-      · by_cases h₂ : 0 < v x ∧ v x < 1
-        · rw [← inv_inj, ← map_inv₀ v, hsuff _ (map_inv₀ v _ ▸ one_lt_inv_iff₀.2 h₂), map_inv₀,
-            Real.inv_rpow (w.nonneg _)]
-        · rw [← one_lt_inv_iff₀, ← map_inv₀, not_lt] at h₂
-          rw [← ne_eq, ← inv_ne_one, ← map_inv₀] at h₁
-          exact hsuff _ <| (inv_lt_one_iff.1 <| lt_of_le_of_ne h₂ h₁).resolve_left
-            ((map_ne_zero v).1 h₀)
-  exact exists_rpow_of_one_lt hv h
-
-/--
-If `v` is non-trivial and `v = w ^ t` for some `t > 0`, then we can find an `a ∈ K` such that
-`v a < 1` while `1 ≤ w a`.
--/
-theorem exists_lt_one_one_le_of_ne_rpow (hv : ∃ x, 1 < v x)
-    (h : ¬∃ (t : ℝ) (_ : 0 < t), ∀ x, v x = (w x) ^ t) :
-    ∃ a : K, v a < 1 ∧ 1 ≤ w a := by
-  contrapose! h
-  exact eq_rpow_iff_lt_one_iff _ _ hv |>.2 <| fun  _ => lt_one_iff_of_lt_one_imp hv h
-
-theorem ne_pow_symm (h : ¬∃ (t : ℝ) (_ : 0 < t), ∀ x, v x = (w x) ^ t) :
-    ¬∃ (t : ℝ) (_ : 0 < t), ∀ x, w x = (v x) ^ t := by
-  simp only [exists_prop, not_exists, not_and, not_forall] at h ⊢
-  refine fun t ht => let ⟨x, hx⟩ := h t⁻¹ (_root_.inv_pos.2 ht); ⟨x, ?_⟩
-  contrapose! hx
-  exact Real.eq_rpow_inv (v.nonneg _) (w.nonneg _) (by linarith) |>.2 hx.symm
-
-/--
-If `v` and `w` are two non-trivial absolute values such that `v = w ^ t` for some `t > 0`, then
-we can find an `a ∈ K` such that `1 < v a` while `w a  < 1`.
--/
-theorem exists_one_lt_lt_one_of_ne_rpow
-    (hv : ∃ x, 1 < v x)
-    (hw : ∃ x, 1 < w x)
-    (h : ¬∃ (t : ℝ) (_ : 0 < t), ∀ x, v x = (w x) ^ t) :
-    ∃ a : K, 1 < v a ∧ w a < 1 := by
-  let ⟨a, ha⟩ := exists_lt_one_one_le_of_ne_rpow hv h
-  let ⟨b, hb⟩ := exists_lt_one_one_le_of_ne_rpow hw (ne_pow_symm h)
-  refine ⟨b / a, ?_⟩
-  simp only [map_div₀]
-  exact ⟨one_lt_div (pos_of_pos v (by linarith)) |>.2 (by linarith),
-    div_lt_one (by linarith) |>.2 (by linarith)⟩
-
 /-!
 ## Results about limits and collections of absolute values
 
@@ -250,11 +59,6 @@ size at least two, we can find an element of `K` such that one absolute value is
 all others are `< 1`.
 -/
 
-theorem apply_one_add_pow_le (a : K) (n : ℕ) : v (1 + a ^ n) ≤ 1 + v a ^ n :=
-  le_trans (v.add_le _ _) (by rw [map_one, map_pow])
-
-theorem one_sub_pow_le (a : K) (n : ℕ) : 1 - v a ^ n ≤ v (1 + a ^ n) :=
-  le_trans (by rw [map_one, map_pow]) (v.le_add _ _)
 
 open Filter in
 /--
@@ -268,8 +72,8 @@ theorem tendsto_div_one_add_pow_nhds_one {a : K} (ha : v a < 1) :
   have h_add := Tendsto.const_add 1 <| tendsto_pow_atTop_nhds_zero_of_lt_one (v.nonneg _) ha
   have h_sub := Tendsto.const_sub 1 <| tendsto_pow_atTop_nhds_zero_of_lt_one (v.nonneg _) ha
   simp only [add_zero, sub_zero] at h_add h_sub
-  exact tendsto_of_tendsto_of_tendsto_of_le_of_le h_sub h_add (one_sub_pow_le _)
-    (apply_one_add_pow_le _)
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le h_sub h_add (v.one_sub_pow_le _)
+    (v.one_add_pow_le _)
 
 /--
 `v (1 / (1 + a ^ n)) → 0` if `1 < v a`.
@@ -391,7 +195,7 @@ absolute values. Then there is `a ∈ K` such that `1 < v₁ a` while `vⱼ a < 
 all other `j ≠ 0`.
 -/
 theorem exists_one_lt_lt_one {n : ℕ} {v : Fin (n + 2) → AbsoluteValue K ℝ}
-    (h : ∀ i, ∃ x, 1 < v i x)
+    (h : ∀ i, (v i).IsNontrivial)
     (hv : Pairwise fun i j => ¬∃ (t : ℝ) (_ : 0 < t), ∀ x, v i x = (v j x) ^ t) :
     ∃ (a : K), 1 < v 0 a ∧ ∀ j ≠ 0, v j a < 1 := by
   induction n using Nat.case_strong_induction_on with
@@ -474,8 +278,8 @@ variable (v)
 /--
 Infinite places are represented by non-trivial absolute values.
 -/
-theorem exists_one_lt : ∃ x, 1 < v x := by
-  refine ⟨2, let ⟨φ, hφ⟩ := v.2; ?_⟩
+theorem exists_one_lt : v.1.IsNontrivial := by
+  refine isNontrivial_iff_exists_abv_gt_one.2 ⟨2, let ⟨φ, hφ⟩ := v.2; ?_⟩
   simp only [coe_apply, ← hφ, place_apply, map_ofNat, RCLike.norm_ofNat, Nat.one_lt_ofNat]
 
 variable {v}
