@@ -54,6 +54,11 @@ def extensionPlaceContinuousAlgHom (wv : v.ExtensionPlace L) :
       <| WithAbs.uniformContinuous_algebraMap wv.abs_comp]; rfl
   cont := continuous_map
 
+variable (v L)
+
+abbrev baseChange : v.Completion →A[v.Completion] (wv : v.ExtensionPlace L) → wv.1.Completion where
+  __ := (Pi.algHom _ _ fun wv => (extensionPlaceContinuousAlgHom wv))
+
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : TopologicalSpace (L ⊗[K] v.Completion) := moduleTopology v.Completion _
 
@@ -66,7 +71,7 @@ def tensorPiExtensionPlaceContinuousAlgHom :
     L ⊗[K] v.Completion →A[L] ((wv : v.ExtensionPlace L) → wv.1.Completion) where
   __ := Algebra.TensorProduct.lift
     (Pi.algHom L _ fun wv => ⟨algebraMap L wv.1.Completion, fun _ => rfl⟩)
-    (Pi.algHom K _ fun wv => (extensionPlaceContinuousAlgHom wv).restrictScalars K)
+    (baseChange L v |>.restrictScalars K)
     (fun _ _ => Commute.all _ _)
   cont := by
     apply IsModuleTopology.continuous_of_ringHom (R := v.Completion)
