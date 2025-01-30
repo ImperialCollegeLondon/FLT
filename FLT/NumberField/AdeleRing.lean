@@ -1,6 +1,5 @@
 import Mathlib
 import FLT.Mathlib.NumberTheory.NumberField.Basic
-import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 
 universe u
 
