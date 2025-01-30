@@ -4,65 +4,6 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Topology.Algebra.Monoid
 
-/-!
-# An "action topology" for modules over a topological ring
-
-If `R` is a topological group (or even just a topological space) acting on an additive
-abelian group `A`, we define the *action topology* to be the finest topology on `A`
-making `• : R × A → A` and `+ : A × A → A` continuous (with all the products having the
-product topology).
-
-This topology was suggested by Will Sawin [here](https://mathoverflow.net/a/477763/1384).
-
-## Mathematical details
-
-A crucial observation is that if `M` is a topological `R`-module, if `A` is an `R`-module with no
-topology, and if `φ : A → M` is linear, then the pullback of `M`'s topology to `A` is a topology
-making `A` into a topological module. Let's for example check that `•` is continuous.
-If `U ⊆ A` is open then by definition of the pullback topology, `U = φ⁻¹(V)` for some open `V ⊆ M`,
-and now the pullback of `U` under `•` is just the pullback along the continuous map
-`id × φ : R × A → R × M` of the preimage of `V` under the continuous map `• : R × M → M`,
-so it's open. The proof for `+` is similar.
-
-As a consequence of this, we see that if `φ : A → M` is a linear map between topological `R`-modules
-modules and if `A` has the action topology, then `φ` is automatically continuous.
-Indeed the argument above shows that if `A → M` is linear then the action
-topology on `A` is `≤` the pullback of the action topology on `M` (because it's the inf of a set
-containing this topology) which is the definition of continuity.
-
-We also deduce that the action topology is a functor from the category of `R`-modules
-(`R` a topological ring) to the category of topological `R`-modules, and it is perhaps
-unsurprising that this is an adjoint to the forgetful functor. Indeed, if `A` is an `R`-module
-and `M` is a topological `R`-module, then the previous paragraph shows that
-the linear maps `A → M` are precisely the continuous linear maps
-from (`A` with its action topology) to `M`, so the action topology is a left adjoint
-to the forgetful functor.
-
-This file develops the theory of the action topology. We prove that the action topology on
-`R` as a module over itself is `R`'s original topology, that the action topology on a product
-of modules is the product of the action topologies, and that the action topology on a quotient
-module is the quotient topology.
-
-We also show the slightly more subtle result that if `M`, `N` and `P` are `R`-modules
-equipped with the action topology and if furthermore `M` is finite as an `R`-module,
-then any bilinear map `M × N → P` is continuous.
-
-As a consequence of this, we deduce that if `R` is a commutative topological ring
-and `A` is an `R`-algebra of finite type as `R`-module, then `A` with its module
-topology becomes a topological ring (i.e., multiplication is continuous).
-
-## TODO
-
-1) add the statement that the action topology is a functor from the category of `R`-modules
-to the category of topological `R`-modules, and prove it's an adjoint
-
-2) PRs to mathlib:
-
-3) weaken ring to semiring in some freeness statements in mathlib and then weaken
-the corresponding statements in this file (this might have been done?)
-
--/
-
 namespace IsModuleTopology
 
 open ModuleTopology
@@ -208,3 +149,94 @@ def Module.topologicalRing : TopologicalRing D where
   continuous_neg := continuous_neg R D
 
 end ring_algebra
+
+-- two other results (not needed for FLT but would be
+-- independently interesting in the theory)
+section trans
+
+variable (R S M : Type*)
+  [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+  [CommRing S] [TopologicalSpace S] [TopologicalRing S]
+    [Algebra R S] [Module.Finite R S] [IsModuleTopology R S]
+  [AddCommGroup M]
+    [Module R M]
+    [Module S M]
+      [IsScalarTower R S M]
+
+example : moduleTopology R M = moduleTopology S M := by
+  sorry
+
+/-
+
+Proof: First, it suffices to show that if M has the R-module topology
+τRM then it's a topological S-module, and that if M has the S-module
+topology τSM then it's a topological R-module. This is because the former
+claim shows τSM ≤ τRM and the latter shows τRM ≤ τSM.
+
+If M has the S-module topology then it's clearly a topological R-module,
+because it's a topological S-module so (+ : M × M → M) is continuous
+and (• : S × M → M) are continuous, and the map R → S is continuous
+because it's R-linear and S has the R-module topology, so
+R × M → S × M is continuous and thus (• : R × M → M) is continuous.
+
+The converse is more subtle and it's here where we need some finiteness
+assumptions. If M has the R-module topology then certainly (+ : M × M → M)
+is continuous, so it all rests on showing that (• : S × M → M) is
+continuous. But everything here is an R-module and • is R-bilinear,
+and thus if either S or M are module-finite over R the result is
+automatic.
+-/
+
+-- maybe
+end trans
+
+section opensubring
+
+variable (R S : Type*)
+  [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+  [CommRing S] [TopologicalSpace S] [TopologicalRing S]
+    [Algebra R S]
+
+example (hcont : Continuous (algebraMap R S))
+    (hopen : IsOpenMap (algebraMap R S)) : IsModuleTopology R S := by
+  sorry
+
+/-
+Proof.
+
+First note that `S` is a topological ring so addition and multiplication
+on `S` are continuous. Futhermore the hypothesis `Contiuous (algebraMap R S)`
+shows that • : R × S → S is continuous, so S is a topological R-module.
+In particular the identity map (S,R-module top) -> (S, given top) is continuous.
+
+The algebra map from R to (S,R-module top) is R-linear
+and hence also continuous. Furthermore, the composite is open
+and I claim that the two topologies on S thus "look the same near 0".
+More precisely, the image of R is open in S with the given topology
+and hence also with the module topology (by continuity of the identity map above),
+and if U ⊆ S is a subset of the image of R then we claim that it's open for
+the given topology iff it's open for the module topology. Firstly,
+continuity of the identity
+map shows that if U is open for the given topology it's open for the module
+topology. Secondly, if U is open for the module topology then its preimage
+in R is open for R's topology, and then the image of this in S is open for
+the given topology, and this is U again as U is a subset of the image of R.
+
+-/
+end opensubring
+
+/-
+
+Consequence: if one defines the finite adeles of a number field K
+as K ⊗[ℤ] ℤ-hat and gives it the ℤ-hat-module topology,
+this gives the right answer. Proof: algebraically we have 𝔸_K^f=𝔸_ℚ^f ⊗[ℚ] K
+and 𝔸_ℚ^f=ℤhat ⊗[ℤ] ℚ, so certainly 𝔸_K^f=K ⊗[ℤ] ℤhat algebraically.
+It thus suffices to show that the topologies agree. Writing R for the integers
+of K we have K = K ⊗[R] R so 𝔸_K^f = ℤhat ⊗[ℤ] R ⊗[R] K = Rhat ⊗[R] K
+and because Rhat is open in K with its usual topology this shows that 𝔸_K^f
+has the Rhat-module topology by one of the above results. And Rhat=Zhat ⊗[ℤ] R
+is finite over ℤhat so we're done if we can check that Rhat with its usual
+topology is the ℤhat topology and this should be fine, it's finite and free
+over a complete thing so I don't think there can be any other possibility
+(the argument is weak here)
+-/
