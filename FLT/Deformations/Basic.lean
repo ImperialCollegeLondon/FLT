@@ -3,6 +3,8 @@ import FLT.Mathlib.CategoryTheory.Comma.Over
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.Algebra.Group.Units.Hom
+import FLT.Mathlib.Algebra.Category.Ring.Basic
+
 universe u
 
 open CategoryTheory Function
@@ -21,26 +23,9 @@ variable {G : Type u}
 
 variable (ρbar : Representation (𝓴 𝓞) G V)
 
-section CommAlgCat
-
-variable (𝓞) in
-abbrev CommAlgCat := Under (CommRingCat.of 𝓞)
-
-instance : ConcreteCategory (CommAlgCat 𝓞) := by unfold CommAlgCat; infer_instance
-
-instance : CoeOut (CommAlgCat 𝓞) (CommRingCat) where coe A := A.right
+section IsResidueAlgebra
 
 variable (A : CommAlgCat 𝓞) [IsLocalRing A] [IsLocalHom A.hom]
-
-instance : Algebra 𝓞 A := A.hom.toAlgebra
-
-def CommRingCat.quotient {A : CommRingCat} (a : Ideal A) : CommRingCat where
-  α := A ⧸ a
-
-def CommAlgCat.quotient {A : CommAlgCat 𝓞} (a : Ideal A) : CommAlgCat 𝓞 where
-  left := ⟨⟨⟩⟩
-  right := CommRingCat.quotient a
-  hom := by simp; exact CommRingCat.ofHom (algebraMap _ _)
 
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
 variable (𝓞) in
@@ -111,7 +96,7 @@ instance : RingHomInvPair
     comp_eq := sorry
     comp_eq₂ := sorry
 
-end CommAlgCat
+end IsResidueAlgebra
 
 section IsProartinian
 
@@ -205,9 +190,20 @@ noncomputable instance : Algebra (𝓴 𝓞) (𝓴 A) := by unfold 𝓒 at A; in
 instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
 instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
 
+instance (A B : 𝓒 𝓞) : FunLike (A ⟶ B) A B where
+  coe f := sorry
+  coe_injective' := sorry
+
+instance (A B : 𝓒 𝓞) : AlgHomClass (A ⟶ B) 𝓞 A B where
+  map_mul := sorry
+  map_one := sorry
+  map_add := sorry
+  map_zero := sorry
+  commutes := sorry
+
 variable {A} in
 def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
-  obj := CommAlgCat.quotient a
+  obj := sorry -- CommAlgCat.quotient a
   property := by
     unfold 𝓒_filter
     sorry -- We need 1) quotient of local is local, 2) quotient of localhom is localhom

@@ -107,8 +107,7 @@ section UnrestrictedFunctor
 omit A in
 def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift ρbar B where
   W :=
-    let f' : A →+* B := sorry
-    let _ : Algebra A B := f'.toAlgebra
+    letI : Algebra A B := (f : A →ₐ[𝓞] B).toAlgebra
     l.W ⊗[A] B
   addCommMonoid := sorry
   module := sorry

@@ -2,6 +2,7 @@ import Mathlib
 import FLT.Deformations.Basic
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.RepresentationTheory.RepresentationEquiv
+import FLT.Mathlib.Algebra.Category.Ring.Basic
 
 open scoped TensorProduct Representation
 
