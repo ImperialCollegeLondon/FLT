@@ -133,8 +133,8 @@ The next lemma explains how these valuations are related.
 \end{proof}
 
 \begin{definition}
-  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
-  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
   \uses{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \leanok
   There's a natural continuous $K$-algebra homomorphism map $K_v\to L_w$. It is defined by completing
@@ -150,7 +150,7 @@ primes of $B$ which pull back to $v$.
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
-  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
   The induced continuous $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an
   isomorphism (both algebraic and topological).
 \end{theorem}
