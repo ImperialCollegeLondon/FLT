@@ -25,13 +25,16 @@ There are several goals to this miniproject.
 \end{enumerate}
 
 We briefly go through the basic definitions. Let $K$ be a number field.
-A cheap definition of the finite
-adeles $\A_K^\infty$ of $K$ is $K\otimes_{\Z}\Zhat$, where $\Zhat$ is
-the profinite completion of the integers (although this doesn't specify the topology).
+Let $\Zhat=\projlim_{N\geq1}(\Z/N\Z)$ be the profinite completion of $\Z$,
+equipped with its profinite topology.
+
+A cheap definition of the finite adeles $\A_K^\infty$ of $K$ is $K\otimes_{\Z}\Zhat$,
+equipped with the $\Zhat$-module topology.
 A cheap definition of the infinite adeles
 $K_\infty$ of $K$ is $K\otimes_{\Q}\R$ (this is a finite-dimensional $\R$-vector space;
-put the product topology on it), and a cheap definition of the adeles
-of $K$ is $\A_K^\infty\times K_\infty$.
+put the product topology on it, or equivalently the $\R$-module topology).
+A cheap definition of the adeles of $K$ is $\A_K^\infty\times K_\infty$ with
+the product topology. This is a commutative topological ring.
 
 However in the literature different definitions
 are often given. The finite adeles of $K$ are usually defined in the books
@@ -56,7 +59,7 @@ adeles, and mathlib knows that they're a $K$-algebra and a topological ring.
 \section{Local compactness}
 
 As mentioned above, Salvatore Mercuri has a complete formalisation of the proof
-that the adele ring is locally compact. His work is in
+that the adele ring is locally compact as a topological space. His work is in
 \href{https://github.com/smmercuri/adele-ring_locally-compact}{his own repo} which
 I don't want to have as a dependency of FLT, because this work should all be
 in mathlib.
@@ -75,7 +78,7 @@ in mathlib.
   currently have for adeles).
   Hence $\A_K^\infty$ is locally compact.
   The vector space $\R^n$ is locally compact. Hence $K_{\infty}$ is locally compact.
-  Hence their product $\A_K$ is localy compact.
+  Hence their product $\A_K$ is locally compact.
 \end{proof}
 
 \section{Base change}
