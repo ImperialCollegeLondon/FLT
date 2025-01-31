@@ -74,14 +74,16 @@ jobs:
       - name: Cache Mathlib docs
         uses: actions/cache@v4
         with:
-          path: |
-            .lake/build/doc
+          path: docbuild/.lake/build/doc
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             MathlibDoc-
 
       - name: Build project API documentation
-        run: ~/.elan/bin/lake -R -Kenv=dev build FLT:docs
+        working-directory: docbuild
+        run: |
+          MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT || true
+          ~/.elan/bin/lake build FLT:docs
 
       - name: Check for `docs` folder # this is meant to detect a Jekyll-based website
         id: check_docs
@@ -120,7 +122,7 @@ jobs:
             ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Copy API documentation to `docs/docs`
-        run: cp -r .lake/build/doc docs/docs
+        run: cp -r docbuild/.lake/build/doc docs/docs
 
       - name: Bundle dependencies
         if: github.event_name == 'push'
