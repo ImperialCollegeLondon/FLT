@@ -114,8 +114,11 @@ the restricted product of the $K_v$ with respect to the $A_v$, as $v$ runs over
 the height one spectrum of $A$.
 
 Now let~$L/K$ be a finite separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
-If $w$ is a nonzero prime ideal of $B$ lying under $v$, a prime ideal of $A$, then we can put the
-$w$-adic topology on $L$ and the $v$-adic topology on~$K$. Furthermore
+We want to relate the finite adeles of $K$ and of $L$. We work place by place, starting by fixing
+one place upstairs and analysing its relation to the place downstairs.
+
+So let $w$ be a nonzero prime ideal of $B$. Say $w$ lies over $v$, a prime ideal of $A$.
+Then we can put the $w$-adic topology on $L$ and the $v$-adic topology on~$K$. Furthermore
 we can equip $K$ with an additive $v$-adic valuation, that is,
 a function also called $v$ fron $K$ to $\Z\cup\{\infty\}$ normalised so that if $\pi$ is a uniformiser
 for $v$ then $v(\pi)=1$. Similarly we consider $w$ as a function from $L$ to $\Z\cup\{\infty\}$.
@@ -137,22 +140,55 @@ The next lemma explains how these valuations are related.
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
   \uses{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \leanok
-  There's a natural continuous $K$-algebra homomorphism map $K_v\to L_w$. It is defined by completing
+  There's a natural ring map $K_v\to L_w$ extending the map $K\to L$.
+  It is defined by completing
   the inclusion $K\to L$ at the finite places $v$ and $w$ (which can be done
   because the previous lemma shows that the map is uniformly continuous for the $v$-adic
   and $w$-adic topologies).
 \end{definition}
 
-Now say $v$ is in the height one spectrum of $A$. The map above induces a continuous
-$K$-algebra homomorphism $K_v\to\prod_{w|v}L_w$, where the product runs over the height one
-primes of $B$ which pull back to $v$.
+\begin{theorem}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
+  \leanok
+  Giving $L_w$ the $K_v$-module structure coming from the natural map $K_v\to L_w$,
+  the $w$-adic topology on $L_w$ is the $K_v$-module topology.
+\end{theorem}
+\begin{proof}
+  Any basis for $L$ as a $K$-vector space spans $L_w$ as a $K_v$-module, so $L_w$ is
+  finite-dimensional over $K_v$ and the module topology is the same as the product
+  topology. So we need to establish that the product topology on $L_w=K_v^n$ is
+  the $w$-adic topology. But the $w$-adic topology is induced by the $w$-adic norm,
+  which makes $L_w$ into a normed $K_v$-vector space, and (after picking a basis)
+  the product norm on $L_w=K_v^n$ also makes $L_w$ into a normed $K_v$-vector space.
+  So the result follows from the standard fact (see for example the lemma on p52
+  of Cassels-Froelich) that any two norms on a finite-dimensional vector space over
+  a complete field are equivalent (and thus induce the same topology).
+\end{proof}
+
+Now instead of fixing $w$ upstairs, we fix $v$ downstairs. So say $v$ is in the height one
+spectrum of $A$.
+
+\begin{definition}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom'}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom'}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
+  \leanok
+  The product of the maps $K_v\to L_w$ for $w|v$ is a natural ring map $K_v\to\prod_{w|v}L_w$
+  lying over $K\to L$. Here the product runs over the height one primes of $B$ which pull back to $v$.
+\end{definition}
+
+Because $K_v\to\prod_{w|v}L_w$ lies over $K\to L$, there's an induced $L$-algebra
+map $L\otimes_KK_v\to\prod_{w|v}L_w$.
 
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
-  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
-  The induced continuous $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an
-  isomorphism (both algebraic and topological).
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom'}
+  \leanok
+  The induced $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an
+  isomorphism of rings.
 \end{theorem}
 \begin{proof}
   We follow Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
@@ -179,10 +215,39 @@ primes of $B$ which pull back to $v$.
 \end{proof}
 
 \begin{theorem}
+  \label{IsDedekindDomain.HeightOneSpectrum.prodAdicCompletionComap_isModuleTopology}
+  \lean{IsDedekindDomain.HeightOneSpectrum.prodAdicCompletionComap_isModuleTopology}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
+  \leanok
+  For $v$ fixed, the product topology on $\prod_{w|v}L_w$ is the $K_v$-module
+  topology.
+\end{theorem}
+\begin{proof}
+  This is a finite product of $K_v$-modules each of which has the $K_v$-module topology
+  by~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology},
+  and the product topology is the module topology for a finite product of modules each of which
+  has the module topology (this is in mathlib).
+\end{proof}
+
+\begin{theorem}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapContinuousAlgEquiv}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapContinuousAlgEquiv}
+  \uses{IsDedekindDomain.HeightOneSpectrum.prodAdicCompletionComap_isModuleTopology}
+  If we give $L\otimes_KK_v$ the $K_v$-module topology then the $L$-algebra isomorphism
+  $L\otimes_K K_v\cong\prod_{w|v}L_w$ is also a homeomorphism.
+\end{theorem}
+\begin{proof} Indeed, is a $K_v$-algebra isomorphism between two modules each of which
+  have the module topology, and any module map is automorphically continuous for the
+  module topologies.
+\end{proof}
+
+We now start thinking about what's going on at the integral level.
+
+\begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
-  The isomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ induces a topological isomorphism
+  The isomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ induces an isomorphism
   $B\otimes_AA_v\to \prod_{w|v}B_w$
   for all but finitely many $v$ in the height one spectrum of $A$.
 \end{theorem}
@@ -250,10 +315,14 @@ us because the adeles do not get the subspace topology.
   theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
   Surjectivity follows from
   theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
-  The fact that it is a topological isomorphism follows from the fact that
+  The fact that it is a topological isomorphism surely follows from the fact that
   $L\otimes_K K_v=\oplus_{w|v}L_w$ and that this identification identifies
   the subgroup $\calO_L\otimes_K K_v$ with $\oplus_{w|v}\calO_{L_w}$ for all
-  but finitely many $v$.
+  but finitely many $v$. Although I'm wondering whether it's easier to prove
+  that the map $\A_{A,K}^\infty\to\A_{B,L}^\infty$ makes $\A_{B,L}^\infty$
+  into an $\A_{A,K}^\infty$-module and the claim (also undoubtedly true, although
+  I am not sure of the best level of abstractionhere ) that the topology on
+  $\A_{B,L}^\infty$ is the $\A_{A,K}^\infty$-module topology.
 \end{proof}
 
 \subsection{Base change for infinite adeles}
