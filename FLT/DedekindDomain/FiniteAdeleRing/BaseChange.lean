@@ -252,7 +252,6 @@ noncomputable def adicCompletionComapSemialgHom' (v : HeightOneSpectrum A) :
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
   Pi.semialgHom _ _ fun i ↦ adicCompletionComapSemialgHom A K L B v i.1 i.2
 
--- put
 lemma prodAdicCompletionComap_isModuleTopology
     (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) :
     -- temporarily make ∏_w L_w a K_v-algebra
@@ -322,7 +321,7 @@ def adicCompletionIntegersSubalgebra {R : Type*} (K : Type*) [CommRing R]
   __ := HeightOneSpectrum.adicCompletionIntegers K v
   algebraMap_mem' r := coe_mem_adicCompletionIntegers v r
 
-/-- The canonical map `B ⊗[A] O_v → L ⊗[K] K_v` -/
+/-- The canonical map `B ⊗[A] A_v → L ⊗[K] K_v` -/
 noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
     B ⊗[A] adicCompletionIntegers K v →ₐ[B] L ⊗[K] adicCompletion K v :=
   Algebra.TensorProduct.lift
