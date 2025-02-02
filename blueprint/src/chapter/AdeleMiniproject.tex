@@ -285,7 +285,7 @@ We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
 Note that we make no claim about continuity; such a claim wouldn't help
 us because the adeles do not get the subspace topology.
 
-\begin{theorem} This map induces a natural continuous $K$-algebra homomorphism
+\begin{theorem} This map induces a natural $K$-algebra homomorphism
   $\A_{A,K}^\infty\to\A_{B,L}^\infty$.
   \label{DedekindDomain.FiniteAdeleRing.baseChange}
   \lean{DedekindDomain.FiniteAdeleRing.baseChange}
@@ -295,14 +295,12 @@ us because the adeles do not get the subspace topology.
   This does not need the hard direction of
   theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
   the definition of the map is straightforward using only that integers map
-  to integers. Continuity also follows from this property; the induction function from
-  $\prod_v A_v$ to $\prod_w B_w$ is continuous, and this gives continuity
-  of the map at zero, and hence continuity everywhere.
+  to integers.
 \end{proof}
 
 \begin{theorem}
-  \label{DedekindDomain.FiniteAdeleRing.baseChangeEquiv}
-  \lean{DedekindDomain.FiniteAdeleRing.baseChangeEquiv}
+  \label{DedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
+  \lean{DedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
   \leanok
   If we give $L\otimes_K\A_{A,K}^\infty$ the ``module topology'', coming from the fact
