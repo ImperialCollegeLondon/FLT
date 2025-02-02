@@ -127,7 +127,7 @@ theorem flat_iff_torsion_eq_bot [IsPrincipalIdealRing R] [IsDomain R] :
     -- now assume R is a PID and M is a torsionfree R-module
   · intro htors
     -- we need to show that if I is an ideal of R then the natural map I ⊗ M → M is injective
-    constructor
+    rw [iff_lift_lsmul_comp_subtype_injective]
     rintro I -
     -- If I = 0 this is obvious because I ⊗ M is a subsingleton (i.e. has ≤1 element)
     obtain (rfl | h) := eq_or_ne I ⊥
