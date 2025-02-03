@@ -14,9 +14,14 @@ noncomputable def NumberField.InfiniteAdeleRing.baseChange :
 
 open scoped TensorProduct
 
+noncomputable instance : Algebra (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : TopologicalSpace (L ⊗[K] InfiniteAdeleRing K) :=
+  moduleTopology (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K)
 -- TODO should be ≃A[L]
 /-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
-def NumberField.InfiniteAdeleRing.baseChangeIso :
-    (L ⊗[K] (InfiniteAdeleRing K)) ≃ₐ[L] InfiniteAdeleRing L :=
+def NumberField.InfiniteAdeleRing.baseChangeEquiv :
+    (L ⊗[K] (InfiniteAdeleRing K)) ≃A[L] InfiniteAdeleRing L :=
   sorry

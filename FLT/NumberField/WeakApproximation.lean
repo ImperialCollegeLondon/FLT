@@ -43,23 +43,6 @@ namespace AbsoluteValue
 
 variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ}
 
-/-!
-## Results about equivalent absolute values
-
-Two non-trivial absolute values `v` and `w` on `K` to be "equivalent" if `v x < 1` if and only
-if `w x < 1`. We show that this is the case if and only if there is some real `t > 0` such that
-`v = w ^ t`.
--/
-
-/-!
-## Results about limits and collections of absolute values
-
-The main result of this section is that for any collection of non-trivial absolute values of
-size at least two, we can find an element of `K` such that one absolute value is `> 1` while
-all others are `< 1`.
--/
-
-
 open Filter in
 /--
 `v (1 / (1 + a ^ n)) → 1` if `v a < 1`.
