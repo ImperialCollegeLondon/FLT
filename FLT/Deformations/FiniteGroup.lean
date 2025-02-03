@@ -32,7 +32,6 @@ variable (reduction : LinearEquiv
   V)
 
 variable (ρ: Representation A G W)
-
 section G_finite -- Section 3.1 Smit & Lenstra
 
 open Matrix Set MvPolynomial
@@ -41,8 +40,8 @@ variable [Finite G]
 variable (𝓞 G) in
 abbrev smitLenstraRingRelations (ι : Type u) [Fintype ι] : Ideal (MvPolynomial (ι × ι × G) 𝓞) :=
   let rel1 := {X (i, i, (1:G)) - C (1 : 𝓞) | (i : ι)}
-  let rel2 := {X (i, i, g) | (i : ι) (g : G)}
-  let rel3 := { X (i, j, g)
+  let rel2 := {X (i, j, (1:G)) | (i : ι) (j : ι) (_ : i ≠ j)}
+  let rel3 := { X (i, j, g * h)
       - ∑ᶠ (l : ι), (X (i, l, g)) * (X (l, j, h))  | (i : ι) (j : ι) (g : G) (h : G)}
   Ideal.span (rel1 ∪ rel2 ∪ rel3)
 
@@ -53,8 +52,6 @@ abbrev smitLenstraRing (ι : Type u) [Fintype ι] : Type u :=
 
 local notation3:max 𝓞 "[" G ", " α "]" => smitLenstraRing 𝓞 G α
 local notation3:max "GL(" α ", " R ")" => (GeneralLinearGroup α R)
-local notation3:max "Hom_grp(" G₁ ", " G₂ ")" => (G₁ →* G₂)
-local notation3:max "Hom_alg(" O "; " A "," A' ")" => (A →ₗ[O] A')
 
 -- Choose any basis of V, this makes ρbar into a G →* GL_ι(𝓴 A)
 variable {ι : Type u} [DecidableEq ι] [Fintype ι]
@@ -63,16 +60,25 @@ noncomputable def pbar' := Representation.gl_map_of_basis ρbar 𝓫
 
 variable (A : 𝓒 𝓞)
 
-noncomputable def smitLenstraMap : Hom_alg(𝓞; 𝓞[G, ι], A) ≃ Hom_grp(G, GL(ι, A)) where
+def eval_smitLenstraPoly (ρ' : G →* GL(ι, A)) (F : MvPolynomial (ι × ι × G) 𝓞) : A.obj :=
+  F.eval₂ (algebraMap 𝓞 A) (fun ⟨i, j, g⟩  ↦ (ρ' g).val i j)
+
+noncomputable def smitLenstraMap : (𝓞[G, ι] →ₗ[𝓞] A) ≃ (G →* GL(ι, A)) where
   toFun f := {
-    toFun := fun g : G => .mk' (.of (fun i j : ι =>
-            f (Ideal.Quotient.mk (smitLenstraRingRelations 𝓞 G ι) (X (i, j, g)))))
-          (by sorry)
+    toFun := fun g : G ↦
+      .mk' (.of
+        (fun i j : ι ↦
+          f (Ideal.Quotient.mk (smitLenstraRingRelations 𝓞 G ι) (X (i, j, g)))
+        )
+      )
+      (by sorry)
     map_one' := sorry
     map_mul' := sorry
   }
-  invFun ρ := {
-    toFun := fun φ : 𝓞[G, ι] => sorry
+  invFun ρ' := {
+    toFun := fun mpoly : 𝓞[G, ι] ↦
+      let mpoly' := mpoly.out
+      eval_smitLenstraPoly A ρ' mpoly'
     map_add' := sorry
     map_smul' := sorry
   }
