@@ -1,5 +1,5 @@
+import FLT.Deformations.Algebra.Category.AlgebraCat.CommAlgebraCat
 import FLT.Deformations.Algebra.InverseLimit
-import FLT.Mathlib.CategoryTheory.Comma.Over
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.Algebra.Group.Units.Hom
@@ -25,12 +25,12 @@ variable (ρbar : Representation (𝓴 𝓞) G V)
 
 section IsResidueAlgebra
 
-variable (A : CommAlgCat 𝓞) [IsLocalRing A] [IsLocalHom A.hom]
+variable (A : CommAlgebraCat 𝓞) [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
 
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
 variable (𝓞) in
 abbrev modMap : 𝓞 →+* 𝓴 A :=
-   (IsLocalRing.residue ↑A.right).comp A.hom
+   (IsLocalRing.residue A).comp (algebraMap 𝓞 A)
 
 variable (𝓞) in
 class IsResidueAlgebra : Prop where
@@ -47,8 +47,8 @@ noncomputable def IsResidueAlgebra.toRingEquiv : (𝓴 A) ≃+* (𝓴 𝓞) wher
       simp [LeftInverse]
       rintro x
       rw [← RingHom.comp_apply]
-      change (⇑(IsLocalRing.residue ↑A.right) ∘ ⇑A.hom) (surjInv _ x) = x
-      rw [Function.surjInv_eq (f := (⇑(IsLocalRing.residue ↑A.right) ∘ ⇑A.hom))]
+      change ((IsLocalRing.residue A) ∘ (algebraMap 𝓞 A)) (surjInv _ x) = x
+      rw [Function.surjInv_eq (f := (⇑(IsLocalRing.residue A) ∘ (algebraMap 𝓞 A)))]
     right_inv := by
       simp [Function.RightInverse, LeftInverse]
       rintro x
@@ -167,9 +167,9 @@ end IsProartinian
 section 𝓒
 
 variable (𝓞) in
-def 𝓒_filter (A : CommAlgCat 𝓞) : Prop :=
+def 𝓒_filter (A : CommAlgebraCat 𝓞) : Prop :=
   ∃ (_ : IsLocalRing A),
-  ∃ (_ : IsLocalHom A.hom),
+  ∃ (_ : IsLocalHom (algebraMap 𝓞 A)),
   IsResidueAlgebra 𝓞 A ∧
   IsProartinian A
 
@@ -178,32 +178,22 @@ def 𝓒 := FullSubcategory (𝓒_filter 𝓞)
 
 instance : Category (𝓒 𝓞) := by unfold 𝓒; infer_instance
 
-instance : CoeOut (𝓒 𝓞) (CommAlgCat 𝓞) where coe A := A.obj
+instance : CoeOut (𝓒 𝓞) (CommAlgebraCat 𝓞) where coe A := A.obj
 
 variable (A : 𝓒 𝓞)
 
 instance : IsLocalRing A := by unfold 𝓒 at A; exact A.property.1
-instance : IsLocalHom A.obj.hom := by unfold 𝓒 at A; exact A.property.2.1
+instance : IsLocalHom (algebraMap 𝓞 A) := by unfold 𝓒 at A; exact A.property.2.1
 instance : IsResidueAlgebra 𝓞 A := by unfold 𝓒 at A; exact A.property.2.2.1
 noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := by unfold 𝓒 at A; infer_instance
 noncomputable instance : Algebra (𝓴 𝓞) (𝓴 A) := by unfold 𝓒 at A; infer_instance
 instance : IsProartinian A := by unfold 𝓒 at A; exact A.property.2.2.2
-instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
 
-instance (A B : 𝓒 𝓞) : FunLike (A ⟶ B) A B where
-  coe f := sorry
-  coe_injective' := sorry
-
-instance (A B : 𝓒 𝓞) : AlgHomClass (A ⟶ B) 𝓞 A B where
-  map_mul := sorry
-  map_one := sorry
-  map_add := sorry
-  map_zero := sorry
-  commutes := sorry
+instance : ConcreteCategory (𝓒 𝓞) (· →ₐ[𝓞] ·) := by unfold 𝓒; infer_instance
 
 variable {A} in
 def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
-  obj := sorry -- CommAlgCat.quotient a
+  obj := CommAlgebraCat.quotient a
   property := by
     unfold 𝓒_filter
     sorry -- We need 1) quotient of local is local, 2) quotient of localhom is localhom

@@ -54,8 +54,8 @@ noncomputable def representation_mod : W →ₗ[A] V :=
   (mod_ctts V A W reduction).comp (extend_ctts A W)
 
 omit W reduction in
-structure Lift : Type (u+1) where
-  W: Type u
+structure Lift : Type _ where
+  W: Type _
   [addCommMonoid : AddCommMonoid W]
   [module : Module A W]
   [free : Module.Free A W]
@@ -107,7 +107,7 @@ section UnrestrictedFunctor
 omit A in
 def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift ρbar B where
   W :=
-    letI : Algebra A B := (f : A →ₐ[𝓞] B).toAlgebra
+    letI : Algebra A B := f.hom.toAlgebra
     l.W ⊗[A] B
   addCommMonoid := sorry
   module := sorry
@@ -124,7 +124,9 @@ def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift
 variable (𝓞) in
 def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
   obj A := Lift ρbar A
-  map f l := sorry -- Lift.functor_onMap ρbar f l
+  map f l := Lift.functor_onMap ρbar f l
+  map_id := sorry
+  map_comp := sorry
 
 theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
 
