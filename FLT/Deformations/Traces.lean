@@ -1,5 +1,5 @@
 import Mathlib
-import FLT.Deformations.Basic
+import FLT.Deformations.BaseCategory
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.RepresentationEquiv

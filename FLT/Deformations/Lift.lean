@@ -1,4 +1,4 @@
-import FLT.Deformations.Basic
+import FLT.Deformations.BaseCategory
 import FLT.Deformations.RepresentationTheory.RepresentationEquiv
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.Algebra.Module.Equiv.Defs

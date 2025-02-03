@@ -1,7 +1,7 @@
 import Mathlib
 import Mathlib.RingTheory.LocalRing.Defs
 
-variable {R : Type*} [CommRing R] [IsLocalRing R]
+variable {R R' : Type*} [CommRing R] [CommRing R']
 
-lemma isLocalRing_of_quotient (A : Ideal R) : IsLocalRing (R ⧸ A) :=
-  by sorry
+instance isLocalRing_of_quotient [IsLocalRing R] (A : Ideal R) : IsLocalRing (R ⧸ A) :=
+  sorry
