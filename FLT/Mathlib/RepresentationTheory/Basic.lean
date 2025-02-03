@@ -6,10 +6,13 @@ open scoped TensorProduct
 
 namespace Representation
 
-variable {R V G ι: Type*} [CommRing R] [AddCommMonoid V] [Module R V] [Module.Free R V]
-  [Module.Finite R V] [Group G] [DecidableEq ι] [Fintype ι]
+variable {R V V' G ι: Type*} [CommRing R]
+  [AddCommMonoid V] [Module R V] [Module.Free R V] [Module.Finite R V]
+  [AddCommMonoid V'] [Module R V'] [Module.Free R V'] [Module.Finite R V']
+  [Group G] [DecidableEq ι] [Fintype ι]
 
 variable (ρ : Representation R G V) (𝓑 : Basis ι R V)
+variable (ρ' : Representation R G V')
 
 omit [Module.Free R V] [Module.Finite R V] in
 @[simp]
@@ -35,10 +38,10 @@ noncomputable def baseChange (R' : Type*) [CommRing R'] [Algebra R R'] (ρ : Rep
 scoped notation ρ "⊗ᵣ" ρ' => tprod ρ ρ'
 scoped notation R' "⊗ᵣ'" ρ => baseChange R' ρ
 
-structure RepresentationEquiv : Type u where
+structure RepresentationEquiv : Type _ where
   map : V ≃ₗ[R] V'
   comm : ∀ g : G, map ∘ (ρ g) = (ρ' g) ∘ map
 
-def IsRepresentationEquiv : Prop := ∃ φ : V ≃ₗ[R] V', ∀ g : G, φ ∘ (ρ g) = (ρ' g) ∘ φ
+def IsRepresentationEquiv : Prop := ∃ _ : RepresentationEquiv ρ ρ', True
 
 end Representation
