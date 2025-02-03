@@ -4,6 +4,7 @@ import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.Algebra.Group.Units.Hom
 import FLT.Mathlib.Algebra.Category.Ring.Basic
+import Mathlib.CategoryTheory.ConcreteCategory.Basic
 
 universe u
 
