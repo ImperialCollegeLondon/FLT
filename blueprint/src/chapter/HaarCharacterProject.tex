@@ -29,9 +29,9 @@ $\mu(X)=1$, in which case we have $d_A(\phi)=\mu(\phi(X))$ for all $\phi$.
 Now let $R$ be a locally compact topological ring. The \emph{Haar character} of $R$,
 or more precisely the \emph{left Haar character} of $R$, is a group homomorphism
 $R^\times\to\R^\times$ defined in the following way. If $u\in R^\times$ then left multiplication
-by $u$, namely the map $\phi:(R,+)\to(R,+)$ defined by $r\mapsto ur$, is homeomorphism and
+by $u$, namely the map $\ell_u:(R,+)\to(R,+)$ defined by $\ell_u(r)=ur$, is a homeomorphism and
 an additive automorphism of $(R,+)$, and we define $\delta_R(u)$ (or just $\delta(u)$ when
-$R$ is clear) to be $d_R(\phi)$.
+the ring $R$ is clear) to be $d_R(\ell_u)$.
 
 \section{Examples}
 
@@ -86,6 +86,32 @@ and $q$ is the size of the (finite) residue field. The proof is
 the same as for $\Q_p$, but we won't need this.
 \end{remark}
 
+\section{Continuity}
+
+\begin{theorem}
+  \label{DistribHaarChar.continuous}
+  If $R$ is a locally compact topological ring then
+  $\delta_R:R\to\R_{>0}$ is continuous.
+\end{theorem}
+\begin{proof} (Taken from Sebastien Gouezel's proof \href{https://leanprover.zulipchat.com/#narrow/channel/217875-Is-there-code-for-X.3F/topic/.22Haar.20measure.20is.20continuous.22/near/487299979}{Zulip}).
+  Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function
+  on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
+  Then $$u \mapsto \int f(ux) d\mu(x)$$ is obviously a continuous function
+  of $u$ (because a continuous function with compact support is uniformly
+   continuous). And you can read the value of $\delta(u)$ on how $u$
+   rescales the integral of continuous functions, so continuity of $\delta$
+   follows.
+\end{proof}
+
+% Note that if $R$ is non-commutative then there is also a right Haar character $\delta'(u)$
+% defined as $\delta'(u)=d_R(\psi)$ where $\psi(r)=ru$. In general these characters do not
+% coincide; for example if $R$ is the ring of upper-triangular $2\times 2$ matrices with
+% real coefficients then left multiplication by $\begin{pmatrix}2&0\\0&1\end{pmatrix}$ sends $\begin{pmatrix}a&b\\0&c\end{pmatrix}$
+% to $\begin{pmatrix}2a&2b\\0&c\end{pmatrix}$ and thus scales Haar measure by a factor of 4, but right multiplication
+% by $\begin{pmatrix}2&0\\0&1\end{pmatrix}$ sends it to $\begin{pmatrix}2a&&b\\0&&c\end{pmatrix}$ and thus only scales Haar measure
+% by a factor of 2. We will see later on that for (inner forms of) matrix algebras this phenomenon
+% does not occur.
+
 \section{Algebras}
 
   Say $F$ is a locally compact topological field (for example $\R$ or $\bbC$ or $\Q_p$), $V$
@@ -112,60 +138,69 @@ and $F=\mathbb{Q}_p$, so if it helps we can assume that $F$ is second countable.
   Now say $F$ is a locally compact topological field, and $R$ is a (possibly non-commutative)
   $F$-algebra, finite-dimensional as an $F$-vector space. Then both left and right multiplication
   by a fixed element of $R$ are $F$-linear. We used left multiplication in our definition
-  of the Haar character. If $u\in R^\times$ then left multiplication by $u$
-  is an $F$-linear automorphism of $R$, and hence has a determinant $\det(u)\in F^\times$.
+  of the Haar character. If $u\in R^\times$ then let us denote by $\ell_u:R\to R$
+  the function $r\mapsto ur$. This is an $F$-linear automorphism of $R$, and hence has a
+  determinant $\det(\ell_u)\in F^\times$.
   The preceding lemma then immediately implies
 
-  \begin{lemma}
+  \begin{corollary}
   \label{distribHaarChar_algebra}
   %\lean{distribHaarChar_algebra}
-  If $u\in R^\times$ then $\delta_R(u)=\delta_F(\det(u))$.
-\end{lemma}
+  If $u\in R^\times$ then $\delta_R(u)=\delta_F(\det(\ell_u))$.
+\end{corollary}
 \begin{proof}
   Follows immediately from the preceding lemma.
 \end{proof}
 
-%   Right multiplication can have a different determinant to left multiplication.
-%   For example if $R$ is the upper-triangular $2\times 2$ matrices with real
-%   entries, then left multiplication by $\begin{pmatrix}a&0\\0&b\end{pmatrix}$ scales $R$'s additive
-%   Haar measure by $a^2b$, but right multiplication by the same matrix scales Haar measure by $ab^2$.
+\section{Left and right Haar characters}
 
-%   What's going on here is that if we regard left and right multiplication as $\R$-linear
-%   maps from $R$ to $R$, then their associated matrices with respect to the obvious bases
-%   are $diag(a,a,b)$ and $diag(a,b,b)$, which have different determinants.
+If $R$ is a non-commutative ring, then left and right multiplication by an element
+can scale Haar measure in different ways.
+For example if $R$ is the upper-triangular $2\times 2$ matrices with real
+entries, then left multiplication by $\begin{pmatrix}a&0\\0&1\end{pmatrix}$
+sends $\begin{pmatrix}x&y\\0&z\end{pmatrix}$ to $\begin{pmatrix}ax&ay\\0&z\end{pmatrix}$
+and thus scales $R$'s additive
+Haar measure by $|a|^2$, but right multiplication by $\begin{pmatrix}a&0\\0&1\end{pmatrix}$
+sends $\begin{pmatrix}x&y\\0&z\end{pmatrix}$ to $\begin{pmatrix}ax&y\\0&z\end{pmatrix}$
+and thus scales $R$'s additive Haar measure by a factor of $|a|$.
 
-%   However, if $k$ is now any field and if $B$ is a finite-dimensional central
-%   simple algebra over $k$ (for example a quaternion algebra, the case we'll care about later),
-%   and if $u\in B^\times$ then $x\mapsto ux$ and $x\mapsto xu$
-%   are both $k$-linear endomorphisms of $B$, and I claim that they have
-%   the same determinant.
+What's going on here is that if we regard left and right multiplication as $\R$-linear
+maps from $R$ to $R$, then their associated matrices with respect to the obvious basis
+are $diag(a,a,1)$ and $diag(a,1,1)$, which have different determinants.
 
-% \begin{lemma}
-%   \label{left_det_eq_right_det}
-%   \lean{left_det_eq_right_det}
-%   If $u\in B^\times$, if $u_l:B\to B$ sends $x$ to $ux$ and if $u_r:B\to B$
-%   sends $x$ to $xu$ then $\det(u_l)=\det(u_r)$ as $k$-linear endomorphisms of $B$.
-% \end{lemma}
-% \begin{proof}
-%   Determinants are unchanged by base extension, so WLOG $k$ is algebraically closed.
-%   Then it's known that $B$ must be a matrix algebra, say $M_n(k)$. Now $u$ can be thought
-%   of as a matrix which has its own intrinsic determinant $d$, and $B$ as a left $B$-module
-%   becomes a direct sum of $n$ copies of $V$, the standard $n$-dimensional representation of $B$.
-%   Thus $\det(u_l)=d^n$. Similarly $\det(u_r)=d^n$ and in particular they are equal.
-% \end{proof}
+However, if $k$ is now any field and if $B$ is a finite-dimensional central
+simple algebra over $k$ (for example a quaternion algebra, the case we'll care about later),
+and if $u\in B^\times$ then $x\mapsto ux$ and $x\mapsto xu$
+are both $k$-linear endomorphisms of $B$, and I claim that they have
+the same determinant.
 
-% \begin{corollary}
-%   \label{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
-%   \lean{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
-%   If $B$ is a central simple algebra over a locally compact field $F$, and if $u\in B^\times$,
-%   then $\delta_B(u)=d_B(u_l)$ is equal to $d_B(u_r)$.
-% \end{corollary}
-% \begin{proof}
-%   If $u_l$ and $u_r$ denote left and right multiplication by $u$ on $B$, then we have
-%   seen in lemma~\ref{addHaarScalarFactor_eq_distribHaarChar_det} that $d_B(u_r)=\delta_F(\det(u_r))$.
-%   Lemma~\ref{left_det_eq_right_det} tells
-%   us that this is $\delta_F(\det(u_l))$ and this is $\delta_B(u)$ by lemma~\ref{distribHaarChar_algebra}.
-% \end{proof}
+\begin{lemma}
+  \label{left_det_eq_right_det}
+  %\lean{left_det_eq_right_det}
+  If $u\in B^\times$, if $\ell_u:B\to B$ sends $x$ to $ux$ and if $r_u:B\to B$
+  sends $x$ to $xu$ then $\det(\ell_u)=\det(r_u)$ as $k$-linear endomorphisms of $B$.
+\end{lemma}
+\begin{proof}
+  Determinants are unchanged by base extension, so WLOG $k$ is algebraically closed.
+  Then it's known that $B$ must be a matrix algebra, say $M_n(k)$. Now $u$ can be thought
+  of as a matrix which has its own intrinsic determinant $d$, and $B$ as a left $B$-module
+  becomes a direct sum of $n$ copies of $V$, the standard $n$-dimensional representation of $B$.
+  Thus $\det(\ell_u)=d^n$. Similarly $\det(r_u)=d^n$ and in particular they are equal.
+\end{proof}
+
+\begin{corollary}
+  \label{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
+  %\lean{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
+  If $B$ is a central simple algebra over a locally compact field $F$, and if $u\in B^\times$,
+  then $\delta_B(u):=d_B(\ell_u)$ is equal to $d_B(r_u)$.
+\end{corollary}
+\begin{proof}
+  If $\ell_u$ and $r_u$ denote left and right multiplication by $u$ on $B$, then we have
+  seen in lemma~\ref{addHaarScalarFactor_eq_distribHaarChar_det} that $d_B(r_u)=\delta_F(\det(r_u))$.
+  Lemma~\ref{left_det_eq_right_det} tells
+  us that this is $\delta_F(\det(\ell_u))$ and this is $\delta_B(u)$ by
+  corollary~\ref{distribHaarChar_algebra}.
+\end{proof}
 
 \section{Products}
 
@@ -259,20 +294,46 @@ As a special case, if $R$ is the restricted product of a collection of topologic
 
 \section{Adeles}
 
-  We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic}
+We finish this miniproject by proving two results about Haar characters for
+adelic rings. So let $K$ be a field and let $\A_K$ be the adeles of $K$.
+We will prove some theorems about $\A_K$-algebras $R$ which are finite
+and free as $\A_K$-modules. Such algebras can be given the $\A_K$-module topology
+and this makes them into topological rings. In fact we shall only be concerned
+with algebras of the form $B\otimes_K\A_K$ where $B$ is a finite-dimensional
+$K$-algebra. So fix such a $B$, and write $B_{\A}$ for $B\otimes_K\A_K$.
+
+\begin{theorem}
+  \label{addHaarScalarFactor.left_mul_eq_right_mul}
+  Let $B$ be a finite-dimensional central simple $K$-algebra.
+  Say $u\in B_{\A}^\times$, and define $\ell_u$ and $r_u:B_{\A}\to B_{\A}$ by
+  $\ell_u(x)=ux$ and $r_u(x)=xu$. Then $d_{B_{\A}}(\ell_u)=d_{B_{\A}}(r_u)$.
+\end{theorem}
+\begin{proof} If $u=(u_v)$ as $v$ runs through the places of $K$ then
+  $d_{B_{\A}}(\ell_u)=\prod_v d_{B_v}(\ell_{u_v})$ by
+  theorem~\ref{addHaarScalarFactor_restricted_product} (and the product is finite).
+  By corollary~\ref{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
+  this equals $\prod_v d_{B_v}(r_{u_v})$, and again by
+  theorem~\ref{addHaarScalarFactor_restricted_product} this is $d_{B_{\A}}(r_u)$.
+\end{proof}
+
+That theorem only works for inner forms of matrix algebras, but the below theorem,
+a generalization of the adelic product formula, is valid for any finite-dimensional
+$K$-algebra.
+We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic}
   that if $v$ is a place of $\Q$ (i.e., a prime
   number or $+\infty$) then $\delta_{\Q_v}=|\cdot|_v$.
   We can deduce from this, lemma~\ref{distribHaarChar_restricted_product} (at the finite places)
   and lemma~\ref{distribHaarChar_prod} (to include the infinite place) that if $(x_v)_v\in\A_{\Q}^\times$
   then $\delta_{\A_{\Q}}((x_v)_v)=\prod_v|x_v|_v$, where the product
   runs over all places of $\Q$.
-  The \emph{product formula} (on the way to mathlib) says
+  The \emph{product formula for $\Q$} (which we have in mathlib) says
   that if $x\in\Q^\times\subseteq\A_{\Q}^\times$ then $\prod_v|x|_v=1.$
   A quick proof: if $x=\pm\prod_pp^{e_p}$ then $\prod_p|x|_p=\prod_pp^{-e_p}$
   and $|x|_\infty=\prod_pp^{e_p}$ so they cancel. We conclude that $\delta_{\A_{\Q}}(\Q^\times)=\{1\}$.
 
-  Next we generalize this to
-  finite-dimensional $\Q$-vector spaces. So say $V$ is an $N$-dimensional $\Q$-vector space,
+  Next we generalize this to finite-dimensional $\Q$-vector spaces.
+
+  So say $V$ is an $N$-dimensional $\Q$-vector space,
   and define $V_{\A}:= V\otimes_{\Q}\A_{\Q}$ with its $\A_{\Q}$-module topology.
   If we choose an isomorphism $V\cong\Q^N$ then $V_{\A}\cong\A_{\Q}^N$
   as an additive topological abelian group. In particular, $V_{\A}$ is locally compact.
@@ -284,7 +345,9 @@ As a special case, if $R$ is the restricted product of a collection of topologic
   \begin{theorem}
     \label{addHaarScalarFactor_eq_one}
     %\lean{addHaarScalarFactor_eq_one}
-    $d_{V_{\A}}(\phi_{\A})=1.$
+    In the above situation ($V$ a finite-dimensional $\Q$-vector space, $\phi:V\to V$ is $\Q$-linear,
+    $\phi_{\A}$ the base extension to $V_{\A}:=V\otimes_{\Q}{\A_{\Q}}$, a continuous linear
+    endomorphism of $V_{\A}$ with the $\A_{\Q}$-module topology), we have $d_{V_{\A}}(\phi_{\A})=1.$
   \end{theorem}
   \begin{proof}
     Notation: write $\A_{\Q}=\A_{\Q}^\infty\times\R$, where $\A_{\Q}^\infty$ is the finite adeles of $\Q$.
@@ -310,7 +373,9 @@ As a special case, if $R$ is the restricted product of a collection of topologic
     by the product formula for $\Q$.
   \end{proof}
 
-  \begin{corollary} If $B$ is a finite-dimensional $\Q$-algebra (for example a number field, or a quaternion algebra over a number field),
+  \begin{corollary}
+    \label{distribHaarCharacter_kernel_tensor_adeleRing}
+    If $B$ is a finite-dimensional $\Q$-algebra (for example a number field, or a quaternion algebra over a number field),
     if $B_{\A}$ denotes the ring $B\otimes_{\Q}\A_{\Q}$, and if $b\in B^\times$,
     then $\delta_{B_{\A}}(b)=1$.
   \end{corollary}

@@ -32,7 +32,9 @@ open scoped NumberField TensorProduct
 variable (K : Type*) [Field K] [NumberField K]
 variable (D : Type*) [DivisionRing D] [Algebra K D]
 
-instance : Algebra (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := sorry
+instance : Algebra (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
+  Algebra.TensorProduct.rightAlgebra
+
 instance : Module.Finite (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := sorry
 
 local instance : TopologicalSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=

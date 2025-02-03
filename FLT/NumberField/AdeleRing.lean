@@ -312,3 +312,31 @@ theorem NumberField.AdeleRing.cocompact :
   (baseChangeQuotientPi ℚ K).compactSpace
 
 end Compact
+
+section BaseChange
+
+variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
+
+open NumberField
+
+variable [Algebra K (AdeleRing (𝓞 L) L)] [IsScalarTower K L (AdeleRing (𝓞 L) L)]
+
+/-- The canonical map from the adeles of K to the adeles of L -/
+noncomputable def NumberField.AdeleRing.baseChange :
+    AdeleRing (𝓞 K) K →A[K] AdeleRing (𝓞 L) L :=
+  sorry -- product of finite and infinite adele maps
+
+open scoped TensorProduct
+
+noncomputable instance : Algebra (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : TopologicalSpace (L ⊗[K] AdeleRing (𝓞 K) K) :=
+  moduleTopology (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K)
+/-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
+`K`-algebra base change map `K_∞ → L_∞`. -/
+def NumberField.AdeleRing.baseChangeEquiv :
+    (L ⊗[K] (AdeleRing (𝓞 K) K)) ≃A[L] AdeleRing (𝓞 L) L :=
+  sorry
+
+end BaseChange
