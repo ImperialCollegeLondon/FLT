@@ -24,21 +24,14 @@ theorem algebraMap_eq_coe :
     (algebraMap K v.Completion).toFun = ((↑) : K → v.Completion) := rfl
 
 @[simp]
-theorem algebraMap_apply (wv : v.ExtensionPlace L) (x : v.Completion) :
-    algebraMap v.Completion wv.1.Completion x = UniformSpace.Completion.map
-      (algebraMap (WithAbs v.1) (WithAbs wv.1.1)) x :=
-  rfl
-
-@[simp]
 theorem algebraMap_coe (wv : v.ExtensionPlace L) (k : K) :
-    algebraMap v.Completion wv.1.Completion k = algebraMap (WithAbs v.1) (WithAbs wv.1.1) k := by
-  rw [algebraMap_apply]
-  exact UniformSpace.Completion.map_coe (WithAbs.uniformContinuous_algebraMap wv.abs_comp) _
+    algebraMap v.Completion wv.1.Completion k = algebraMap (WithAbs v.1) (WithAbs wv.1.1) k :=
+  UniformSpace.Completion.map_coe (WithAbs.uniformContinuous_algebraMap wv.abs_comp) _
 
 theorem algebraMap_comp (wv : v.ExtensionPlace L) (k : K) :
     algebraMap K wv.1.Completion k =
       algebraMap v.Completion wv.1.Completion (algebraMap K v.Completion k) := by
-  simp only [UniformSpace.Completion.algebraMap_def, algebraMap_coe _]
+  simp only [UniformSpace.Completion.algebraMap_def, algebraMap_coe]
   rfl
 
 instance {wv : v.ExtensionPlace L} : IsScalarTower K v.Completion wv.1.Completion :=
@@ -47,7 +40,7 @@ instance {wv : v.ExtensionPlace L} : IsScalarTower K v.Completion wv.1.Completio
 open UniformSpace.Completion in
 def extensionPlaceContinuousAlgHom (wv : v.ExtensionPlace L) :
     v.Completion →A[v.Completion] wv.1.Completion where
-  __ := mapOfComp wv.abs_comp
+  __ := algebraMap v.Completion wv.1.Completion
   commutes' (r : _) := by
     simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe, mapRingHom_apply, algebraMap_eq_coe, map_coe

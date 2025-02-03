@@ -34,7 +34,7 @@ end WithAbs
 
 namespace AbsoluteValue.Completion
 
-variable {K L : Type*} [Field K] [Field L] [Algebra K L] {v : AbsoluteValue K ℝ}
+variable {K L : Type*} [Field K] [Field L] {v : AbsoluteValue K ℝ}
   {w : AbsoluteValue L ℝ}
 
 abbrev mapOfComp {g : WithAbs v →+* WithAbs w} (h : ∀ x, w (g x) = v x) :
@@ -42,7 +42,6 @@ abbrev mapOfComp {g : WithAbs v →+* WithAbs w} (h : ∀ x, w (g x) = v x) :
   UniformSpace.Completion.mapRingHom g
     (WithAbs.isUniformInducing_of_comp h).uniformContinuous.continuous
 
-omit [Algebra K L] in
 theorem mapOfComp_coe {g : WithAbs v →+* WithAbs w} (h : ∀ x, w (g x) = v x) (x : K) :
     mapOfComp h x = g x :=
   UniformSpace.Completion.mapRingHom_coe

@@ -52,16 +52,13 @@ def AlgEquiv.piCongrLeft' (S : Type*) [CommSemiring S] (A : α → Type*) (e : �
 theorem AlgEquiv.piCongrLeft'_symm (S : Type*) {A : Type*} [CommSemiring S] [Semiring A]
     [Algebra S A] (e : α ≃ β) :
     (AlgEquiv.piCongrLeft' S (fun _ => A) e).symm = AlgEquiv.piCongrLeft' S _ e.symm := by
-  simp [AlgEquiv.piCongrLeft', AlgEquiv.symm, RingEquiv.symm, MulEquiv.symm,
-    Equiv.piCongrLeft'_symm]
-  rfl
+  simp [AlgEquiv.piCongrLeft', Equiv.piCongrLeft']
 
 @[simp]
 theorem AlgEquiv.piCongrLeft'_symm_apply_apply (S : Type*) (A : α → Type*) [CommSemiring S]
     [∀ a, Semiring (A a)] [∀ a, Algebra S (A a)] (e : α ≃ β) (g : (b : β) → A (e.symm b)) (b : β) :
     (piCongrLeft' S A e).symm g (e.symm b) = g b := by
-  rw [← Equiv.piCongrLeft'_symm_apply_apply A e g b]
-  rfl
+  simp [← Equiv.piCongrLeft'_symm_apply_apply A e g b, Equiv.piCongrLeft']
 
 @[simps! apply toEquiv]
 def AlgEquiv.piCongrLeft (S : Type*) [CommSemiring S] (B : β → Type*) (e : α ≃ β)

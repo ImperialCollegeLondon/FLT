@@ -278,10 +278,8 @@ def piCurry (S : Type*) [CommSemiring S] {Y : ι → Type*}
   toAlgEquiv := AlgEquiv.piCurry S α
   continuous_toFun := continuous_pi (fun _ => continuous_pi <| fun _ => continuous_apply _)
   continuous_invFun := by
-    refine continuous_pi (fun ⟨x, y⟩ => ?_)
-    simp only [AlgEquiv.toEquiv_eq_coe, Equiv.invFun_as_coe, AlgEquiv.symm_toEquiv_eq_symm,
-      EquivLike.coe_coe, AlgEquiv.piCurry_symm_apply, Sigma.uncurry]
-    exact Continuous.comp' (continuous_apply _) (continuous_apply _)
+    unfold AlgEquiv.piCurry Equiv.piCurry Sigma.uncurry
+    fun_prop
 
 @[simps!]
 def piCongrLeft (S : Type*) [CommSemiring S] (B : β → Type*) (e : α ≃ β)
@@ -314,9 +312,7 @@ theorem piCongrRight_apply {R ι : Type*} {A₁ A₂ : ι → Type*} [CommSemiri
 
 end ContinuousAlgEquiv
 
-
 namespace Pi
-
 
 variable {I : Type*}
 variable {R : Type*}
@@ -329,6 +325,6 @@ def mapContinuousAlgHom [CommSemiring R] [(i : I) → Semiring (f i)]
     (g : (i : I) → a i →A[R] f i) :
     ((i : I) → a i) →A[R] (i : I) → f i where
   __ := Pi.mapAlgHom _ _ _ (fun _ => (g _).toAlgHom)
-  cont := continuous_pi fun i => Continuous.comp (g i).cont (continuous_apply _)
+  cont := by simp [mapAlgHom]; fun_prop
 
 end Pi
