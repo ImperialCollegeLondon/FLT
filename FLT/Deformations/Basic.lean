@@ -164,7 +164,6 @@ instance (A : Type*) [CommRing A] [IsProartinian A] : TopologicalRing A where
   continuous_neg := sorry
 
 end IsProartinian
-
 section 𝓒
 
 variable (𝓞) in
@@ -201,6 +200,7 @@ def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
           -- 3) quotient of residue algebra is residue algebra, 4) quotient of proartinian is proartinian
 
 end 𝓒
+
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
 variable (A : 𝓒 𝓞)
