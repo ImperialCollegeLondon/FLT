@@ -16,7 +16,7 @@ local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 variable {V : Type u}
   [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
 
-variable {G : Type u} [Group G]
+variable {G : Type u} [Group G] [TopologicalSpace G] [TopologicalGroup G]
 
 variable (ρbar : Representation (𝓴 𝓞) G V)
 
@@ -25,6 +25,8 @@ variable [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
 variable [Module A V] [IsScalarTower A (𝓴 A) V]
 
 variable {W: Type u} [AddCommMonoid W] [Module A W] [Module.Free A W] [Module.Finite A W]
+
+variable {ι : Type*} [Fintype ι]
 
 variable (reduction : LinearEquiv
   (algebraMap (𝓴 A) (𝓴 𝓞))
@@ -52,25 +54,33 @@ variable (W V) in
 noncomputable def representation_mod : W →ₗ[A] V :=
   (mod_ctts V A W reduction).comp (extend_ctts A W)
 
+instance {A W : Type*} [CommRing A] [TopologicalSpace A] [TopologicalRing A]
+    [AddCommMonoid W] [Module A W] [Module.Free A W] [Module.Finite A W] [TopologicalSpace W]
+    [is_prod_topo : Nonempty (W ≃ₜ (Module.Free.ChooseBasisIndex A W → A))]
+  : TopologicalSpace (W →ₗ[A] W) := sorry
+
 omit W reduction in
 structure Lift : Type _ where
   W: Type _
+  -- Basic structure on carrier
   [addCommMonoid : AddCommMonoid W]
   [module : Module A W]
   [free : Module.Free A W]
   [finite : Module.Finite A W]
-  reduction : LinearEquiv (algebraMap (𝓴 A) (𝓴 𝓞)) ((𝓴 A) ⊗[A] W) V
-  -- The following 4 instances are just a LEAN specification pattern.
-  -- What we really want is for any A : 𝓒 𝓞
-  -- to have module structure on V with the natural scalar product, but we cannot define this
-  -- as a dependent instance as it further depends on 𝓞, which is not the scope of "Module A V"
-  -- To solve this: assume there is *some* structure, and further assume that structre coincides
-  -- the natural one by IsScalarTower
+  -- Topology W
+  [topo : TopologicalSpace W]
+  [is_prod_topo : Nonempty (W ≃ₜ (Module.Free.ChooseBasisIndex A W → A.obj))]
+  -- Reduction
+  reduction : ((𝓴 A) ⊗[A] W) ≃ₛₗ[algebraMap (𝓴 A) (𝓴 𝓞)] V
+  -- Scalar products on W
   [module_A : Module A V]
   [module_𝓴A : Module (𝓴 A) V]
   [isScalarTower_𝓴A : IsScalarTower (𝓴 A) (𝓴 𝓞) V]
   [isScalarTower_A : IsScalarTower A (𝓴 A) V]
+  -- G-Representation on W as A-module
   ρ: Representation A G W
+  is_cont: Continuous ρ
+  -- Lift property
   is_lift: ∀ g : G, ∀ w : W, ρbar g (representation_mod V A W reduction w)
       = representation_mod V A W reduction (ρ g w)
 
@@ -100,7 +110,6 @@ def Lift.isIso : Setoid (Lift ρbar A) where
   }
 
 end Definition
-
 section UnrestrictedFunctor
 
 omit A in
