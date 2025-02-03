@@ -37,9 +37,11 @@ def Deformation.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) : Deformation ρba
   sorry
 
 variable (𝓞) in
-def Deformation.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
+def Deformation.functor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
   obj A := Deformation ρbar A
-  map f := sorry -- Deformation.functor_onMap ρbar f
+  map f := Deformation.functor_onMap ρbar f
+  map_id := sorry
+  map_comp := sorry
 
 -- Theorem 2.3
 theorem Deformation.functor_isCorepresentable : (Deformation.functor 𝓞 ρbar).IsCorepresentable  := sorry
