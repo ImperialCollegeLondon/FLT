@@ -1,6 +1,7 @@
 import FLT.Deformations.Algebra.Category.AlgebraCat.CommAlgebraCat
 import FLT.Deformations.Proartinian
 import FLT.Deformations.ResidueAlgebra
+import FLT.Mathlib.Algebra.Group.Units.Hom
 
 universe u
 
@@ -17,7 +18,6 @@ variable {V : Type u}
 
 variable {G : Type u} [Group G]
 variable (ρbar : Representation (𝓴 𝓞) G V)
-
 section 𝓒
 
 variable (𝓞) in
@@ -47,13 +47,18 @@ instance : ConcreteCategory (𝓒 𝓞) (· →ₐ[𝓞] ·) := by unfold 𝓒; 
 
 variable {A} in
 def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
-  obj := CommAlgebraCat.quotient a
+  obj := CommAlgebraCat.of 𝓞 (A ⧸ a)
   property := by
     unfold 𝓒_filter
-    sorry -- We need 1) quotient of local is local,
-              -- 2) quotient of localhom is localhom
-              -- 3) quotient of residue algebra is residue algebra,
-              -- 4) quotient of proartinian is proartinian
+    simp only [exists_and_left, exists_prop, exists_and_right]
+    split_ands
+    . use isLocalRing_of_quotient a
+      infer_instance
+    . have h := isLocalHom_of_quotient (algebraMap 𝓞 A) a
+      simp at h
+      exact h
+    . infer_instance
+
 
 end 𝓒
 
