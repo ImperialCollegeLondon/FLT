@@ -16,8 +16,6 @@ local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 variable {V : Type u}
   [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
 
-variable {G : Type u} [Group G]
-variable (ρbar : Representation (𝓴 𝓞) G V)
 section 𝓒
 
 variable (𝓞) in

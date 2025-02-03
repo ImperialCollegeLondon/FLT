@@ -8,11 +8,14 @@ open scoped TensorProduct
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
+
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
+
 variable {V : Type u}
   [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
-variable {G : Type u}
-  [Group G] [TopologicalSpace G] [TopologicalGroup G]
+
+variable {G : Type u} [Group G]
+
 variable (ρbar : Representation (𝓴 𝓞) G V)
 
 variable (A : 𝓒 𝓞)
