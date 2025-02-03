@@ -1,5 +1,12 @@
 import Mathlib
+import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.Mathlib.NumberTheory.NumberField.Basic
+import FLT.Mathlib.RingTheory.TensorProduct.Pi
+import FLT.Mathlib.Topology.Algebra.Group.Quotient
+import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+import FLT.NumberField.InfiniteAdeleRing
+
+open scoped TensorProduct
 
 universe u
 
@@ -102,7 +109,6 @@ theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing (𝓞 ℚ) 
   ext
   simp only [Set.mem_preimage, Homeomorph.subLeft_apply, Set.mem_singleton_iff, sub_eq_zero, eq_comm]
 
-
 variable (K : Type*) [Field K] [NumberField K]
 
 theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing (𝓞 K) K),
@@ -115,13 +121,42 @@ section Compact
 open NumberField
 
 theorem Rat.AdeleRing.cocompact :
-    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AddMonoidHom.range (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)).toAddMonoidHom) :=
+    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) :=
   sorry -- issue #258
 
-variable (K : Type*) [Field K] [NumberField K]
+variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
 theorem NumberField.AdeleRing.cocompact :
-    CompactSpace (AdeleRing (𝓞 K) K ⧸ AddMonoidHom.range (algebraMap K (AdeleRing (𝓞 K) K)).toAddMonoidHom) :=
-  sorry -- issue #259
+    CompactSpace (AdeleRing (𝓞 K) K ⧸ AdeleRing.principalSubgroup (𝓞 K) K) :=
+  letI := Rat.AdeleRing.cocompact
+  (baseChangeQuotientPi ℚ K).compactSpace
 
 end Compact
+
+section BaseChange
+
+variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
+
+open NumberField
+
+variable [Algebra K (AdeleRing (𝓞 L) L)] [IsScalarTower K L (AdeleRing (𝓞 L) L)]
+
+/-- The canonical map from the adeles of K to the adeles of L -/
+noncomputable def NumberField.AdeleRing.baseChange :
+    AdeleRing (𝓞 K) K →A[K] AdeleRing (𝓞 L) L :=
+  sorry -- product of finite and infinite adele maps
+
+open scoped TensorProduct
+
+noncomputable instance : Algebra (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : TopologicalSpace (L ⊗[K] AdeleRing (𝓞 K) K) :=
+  moduleTopology (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K)
+/-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
+`K`-algebra base change map `K_∞ → L_∞`. -/
+def NumberField.AdeleRing.baseChangeEquiv :
+    (L ⊗[K] (AdeleRing (𝓞 K) K)) ≃A[L] AdeleRing (𝓞 L) L :=
+  sorry
+
+end BaseChange
