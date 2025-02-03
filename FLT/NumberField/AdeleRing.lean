@@ -1,9 +1,5 @@
 import Mathlib
-import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.Mathlib.NumberTheory.NumberField.Basic
-import FLT.Mathlib.RingTheory.TensorProduct.Pi
-import FLT.Mathlib.Topology.Algebra.Group.Quotient
-import FLT.NumberField.InfiniteAdeleRing
 
 open scoped TensorProduct
 
@@ -22,10 +18,6 @@ instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleR
   sorry -- issue #253
 
 end LocallyCompact
-
-section BaseChange
-
-end BaseChange
 
 section Discrete
 
