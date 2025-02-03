@@ -24,20 +24,26 @@ There are several goals to this miniproject.
   \item Get this stuff into mathlib (status: (1) done, (2)--(4) not done).
 \end{enumerate}
 
-We briefly go through the basic definitions. A cheap definition of the finite
-adeles $\A_K^\infty$ of $K$ is $K\otimes_{\Z}\Zhat$, where $\Zhat$ is
-the profinite completion of the integers. A cheap definition of the infinite adeles
-$K_\infty$ of $K$ is $K\otimes_{\Q}\R$, and a cheap definition of the adeles
-of $K$ is $\A_K^\infty\times K_\infty$.
+We briefly go through the basic definitions. Let $K$ be a number field.
+Let $\Zhat=\projlim_{N\geq1}(\Z/N\Z)$ be the profinite completion of $\Z$,
+equipped with the projective limit topology.
+
+A cheap definition of the finite adeles $\A_K^\infty$ of $K$ is $K\otimes_{\Z}\Zhat$,
+equipped with the $\Zhat$-module topology.
+A cheap definition of the infinite adeles
+$K_\infty$ of $K$ is $K\otimes_{\Q}\R$ with the $\R$-module topology (this is a
+finite-dimensional $\R$-vector space so this is just the usual topology on $\R^n$).
+A cheap definition of the adeles of $K$ is $\A_K^\infty\times K_\infty$ with
+the product topology. This is a commutative topological ring.
 
 However in the literature different definitions
 are often given. The finite adeles of $K$ are usually defined in the books
 as the so-called restricted product $\prod'_{\mathfrak{p}}K_{\mathfrak{p}}$ over the completions
 $K_{\mathfrak{p}}$ of $K$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_K$ of the
 integers of $K$. Here the restricted product is the subset of $\prod_{\mathfrak{p}}K_{\mathfrak{p}}$
-consisting of elements which are in $\mathcal{O}_{K,\mathfrak{p}}$ for all but finitely many
-$\mathfrak{p}$. This is the definition given in mathlib.
-Mathlib also has the proof that they're a topological ring;
+consisting of elements which are in the integers $\mathcal{O}_{K,\mathfrak{p}}$ of
+$K_{\mathfrak{p}}$ for all but finitely many $\mathfrak{p}$. This is the definition given in
+mathlib. Mathlib also has the proof that they're a topological ring;
 furthermore the construction of the finite adeles in mathlib works for any
 Dedekind domain (this was pointed out to me by Maria Ines de Frutos Fernandez; the adeles
 are an arithmetic object, but the finite adeles are an algebraic object).
@@ -53,7 +59,7 @@ adeles, and mathlib knows that they're a $K$-algebra and a topological ring.
 \section{Local compactness}
 
 As mentioned above, Salvatore Mercuri has a complete formalisation of the proof
-that the adele ring is locally compact. His work is in
+that the adele ring is locally compact as a topological space. His work is in
 \href{https://github.com/smmercuri/adele-ring_locally-compact}{his own repo} which
 I don't want to have as a dependency of FLT, because this work should all be
 in mathlib.
@@ -61,12 +67,19 @@ in mathlib.
 \begin{theorem}
   \lean{NumberField.AdeleRing.locallyCompactSpace}
   \label{NumberField.AdeleRing.locallyCompactSpace}
+  \discussion{253}
   \leanok
   The adeles of a number field are locally compact.
 \end{theorem}
 \begin{proof}
   See \href{https://github.com/smmercuri/adele-ring_locally-compact/blob/e8e34608c139ee95a1e21d9d24f138524196a2e1/AdeleRingLocallyCompact/NumberTheory/NumberField/AdeleRing.lean#L70}
-  {this line} in Mercuri's repo.
+  {this line} in Mercuri's repo. The proof is: a restricted product of topological spaces $X_i$
+  over compact open subspaces $C_i$ is locally compact, because $\prod_i C_i$ is open and compact
+  (we should have this result in mathlib in general rather than the ad hoc approach which we
+  currently have for adeles).
+  Hence $\A_K^\infty$ is locally compact.
+  The vector space $\R^n$ is locally compact. Hence $K_{\infty}$ is locally compact.
+  Hence their product $\A_K$ is locally compact.
 \end{proof}
 
 \section{Base change}
@@ -74,7 +87,8 @@ in mathlib.
 The ``theorem'' we want is that if $L/K$ is a finite extension of number fields,
 then $\A_L=L\otimes_K\A_K$. This isn't a theorem though, this is actually a \emph{definition}
 (the map between the two objects) and a theorem about
-the definition (that it's an isomorphism). Before we can prove the theorem, we need to make the
+the definition (that it's an isomorphism). In fact the full claim is that it is both a homeomorphism
+and an $L$-algebra isomorphism. Before we can prove the theorem, we need to make the
 definition.
 
 Recall that the adeles $\A_K$ of a number field is a product $\A_K^\infty\times K_\infty$
@@ -85,13 +99,13 @@ We may thus treat the finite and infinite results separately.
 \subsection{Base change for finite adeles}
 
 As pointed out above, the theory of finite adeles works fine for Dedekind domains.
-So Let~$A$ be a Dedekind domain. Recall that the \emph{height one spectrum} of $A$ is
-the nonzero prime ideals of~$A$. Note that because we stick to the literature,
+So in this subsection let~$A$ be a Dedekind domain. Recall that the \emph{height one spectrum}
+of $A$ is the nonzero prime ideals of~$A$. Note that because we stick to the literature,
 rather than to common sense, fields are Dedekind domains in mathlib, and the
 height one spectrum of a field is empty. The reason I don't like allowing fields
-to be Dedekind domains is that geometrically the standard definition of Dedekind
-domain is ``smooth affine curve, or a point''. But many theorems in algebraic geometry
-begin ``let $C$ be a smooth curve'', rather than ``let $C$ be a smooth curve or a point''.
+to be Dedekind domains is that geometrically the definition of Dedekind
+domain in the literature is ``smooth affine curve, or a point''. But many theorems in algebraic
+geometry begin ``let $C$ be a smooth curve'', rather than ``let $C$ be a smooth curve or a point''.
 
 Let $K$ be the field of fractions of $A$. If $v$ is in the height one spectrum of $A$,
 then we can put the $v$-adic topology on $A$ and on $K$, and consider the completions
@@ -100,57 +114,147 @@ the restricted product of the $K_v$ with respect to the $A_v$, as $v$ runs over
 the height one spectrum of $A$.
 
 Now let~$L/K$ be a finite separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
-If $w$ is a nonzero prime ideal of $B$ lying under $v$, a prime ideal of $A$, then we can put the
-$w$-adic topology on $L$ and the $v$-adic topology on~$K$.
+We want to relate the finite adeles of $K$ and of $L$. We work place by place, starting by fixing
+one place upstairs and analysing its relation to the place downstairs.
 
-\begin{lemma} If $i:K\to L$ denotes the inclusion then $e\times w(i(k))=v(k)$, where
-  $e$ is the ramification index of $w/v$.
+So let $w$ be a nonzero prime ideal of $B$. Say $w$ lies over $v$, a prime ideal of $A$.
+Then we can put the $w$-adic topology on $L$ and the $v$-adic topology on~$K$. Furthermore
+we can equip $K$ with an additive $v$-adic valuation, that is,
+a function also called $v$ fron $K$ to $\Z\cup\{\infty\}$ normalised so that if $\pi$ is a uniformiser
+for $v$ then $v(\pi)=1$. Similarly we consider $w$ as a function from $L$ to $\Z\cup\{\infty\}$.
+The next lemma explains how these valuations are related.
+
+\begin{lemma} If $i:K\to L$ denotes the inclusion then for $k\in K$ we have
+  $e\times w(i(k))=v(k)$, where $e$ is the ramification index of $w/v$.
   \label{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \lean{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \leanok
 \end{lemma}
 \begin{proof}
   \leanok
-  Standard.
+  Standard (and formalized).
 \end{proof}
 
 \begin{definition}
-  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
-  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
   \uses{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \leanok
-  There's a natural continuous $K$-algebra homomorphism map $K_v\to L_w$. It is defined by completing
-  the inclusion $K\to L$ at the finite places $v$ and $w$, which can be done
-  by the previous lemma.
+  There's a natural ring map $K_v\to L_w$ extending the map $K\to L$.
+  It is defined by completing
+  the inclusion $K\to L$ at the finite places $v$ and $w$ (which can be done
+  because the previous lemma shows that the map is uniformly continuous for the $v$-adic
+  and $w$-adic topologies).
 \end{definition}
 
-Now say $v$ is in the height one spectrum of $A$. The map above induces a continuous
-$K$-algebra homomorphism $K_v\to\prod_{w|v}L_w$, where the product runs over the height one
-primes of $B$ which pull back to $v$.
+\begin{theorem}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
+  \leanok
+  Giving $L_w$ the $K_v$-module structure coming from the natural map $K_v\to L_w$,
+  the $w$-adic topology on $L_w$ is the $K_v$-module topology.
+\end{theorem}
+\begin{proof}
+  Any basis for $L$ as a $K$-vector space spans $L_w$ as a $K_v$-module, so $L_w$ is
+  finite-dimensional over $K_v$ and the module topology is the same as the product
+  topology. So we need to establish that the product topology on $L_w=K_v^n$ is
+  the $w$-adic topology. But the $w$-adic topology is induced by the $w$-adic norm,
+  which makes $L_w$ into a normed $K_v$-vector space, and (after picking a basis)
+  the product norm on $L_w=K_v^n$ also makes $L_w$ into a normed $K_v$-vector space.
+  So the result follows from the standard fact (see for example the lemma on p52
+  of Cassels-Froelich) that any two norms on a finite-dimensional vector space over
+  a complete field are equivalent (and thus induce the same topology).
+\end{proof}
+
+Now instead of fixing $w$ upstairs, we fix $v$ downstairs. So say $v$ is in the height one
+spectrum of $A$.
+
+\begin{definition}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom'}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom'}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
+  \leanok
+  The product of the maps $K_v\to L_w$ for $w|v$ is a natural ring map $K_v\to\prod_{w|v}L_w$
+  lying over $K\to L$. Here the product runs over the height one primes of $B$ which pull back to $v$.
+\end{definition}
+
+Because $K_v\to\prod_{w|v}L_w$ lies over $K\to L$, there's an induced $L$-algebra
+map $L\otimes_KK_v\to\prod_{w|v}L_w$.
 
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
-  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgHom}
-  The induced continuous $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an isomorphism.
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom'}
+  \leanok
+  The induced $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an
+  isomorphism of rings.
 \end{theorem}
 \begin{proof}
-  See Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
-  {these notes}.
+  We follow Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
+  {these notes}. We may write $L=K(\alpha)$ as a finite separable extension is simple. Let $f(x)$
+  be the minimum polynomial of $\alpha$. Factor $f(x)=f_1(x)f_2(x)\cdots f_r(x)$ into
+  monic irreducibles $K_v[x]$; these are distinct by separability. We have $L=K[x]/(f)$
+  so $L\otimes_KK_v=K_v[x]/(f)=K_v[x]/(\prod_i f_i)=\oplus_i K_v[x]/(f_i)$. Write
+  $L_i=K_v[x]/(f_i)$. We need to show that the $L_i$ correspond naturally to the completions
+  $L_w$ for $w|v$.
+
+  First note that $[L_i:K_v]\leq [L:K]<\infty$ and so there's a unique extension of the $v$-adic
+  norm on $K_v$ to $L_i$. The restriction of this norm to $L$ must be equivalent to the $w$-adic
+  norm for some $w|v$ by Ostrowski; then we must have $L_i=L_w$ because $L$ is dense in both
+  and both are complete.
+
+  Next note that if $i\not=j$ then $L_i$ and $L_j$ cannot be isomorphic as $L\otimes_KK_v$-algebras,
+  because such an isomorphism would send $x$ to $x$ and thus show $f_i=f_j$. Hence the map
+  from $L_i$ to the $w$ dividing $v$ is injective.
+
+  For surjectivity, note that if $w|v$ then $L_w$ is an $L\otimes_KK_v$-algebra and hence
+  admits a map from $L\otimes_K K_v$ which must factor through one of the $L_i$.
+  This gives an injection $L_i\to L_w$. But $L_i$ is complete, as it's a finite extension
+  of $K_v$, and the image is dense because $L$ is dense in $L_w$, hence $L_i=L_w$.
 \end{proof}
+
+\begin{theorem}
+  \label{IsDedekindDomain.HeightOneSpectrum.prodAdicCompletionComap_isModuleTopology}
+  \lean{IsDedekindDomain.HeightOneSpectrum.prodAdicCompletionComap_isModuleTopology}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
+  \leanok
+  For $v$ fixed, the product topology on $\prod_{w|v}L_w$ is the $K_v$-module
+  topology.
+\end{theorem}
+\begin{proof}
+  This is a finite product of $K_v$-modules each of which has the $K_v$-module topology
+  by~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology},
+  and the product topology is the module topology for a finite product of modules each of which
+  has the module topology (this is in mathlib).
+\end{proof}
+
+\begin{theorem}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapContinuousAlgEquiv}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapContinuousAlgEquiv}
+  \uses{IsDedekindDomain.HeightOneSpectrum.prodAdicCompletionComap_isModuleTopology}
+  If we give $L\otimes_KK_v$ the $K_v$-module topology then the $L$-algebra isomorphism
+  $L\otimes_K K_v\cong\prod_{w|v}L_w$ is also a homeomorphism.
+\end{theorem}
+\begin{proof} Indeed, is a $K_v$-algebra isomorphism between two modules each of which
+  have the module topology, and any module map is automorphically continuous for the
+  module topologies.
+\end{proof}
+
+We now start thinking about what's going on at the integral level.
 
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
-  The isomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ induces a topological isomorphism
+  The isomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ induces an isomorphism
   $B\otimes_AA_v\to \prod_{w|v}B_w$
   for all but finitely many $v$ in the height one spectrum of $A$.
 \end{theorem}
 \begin{proof}
   Certainly the image of the integral elements are integral. The argument in the other
   direction is more delicate. One approach (following Cassels--Froehlich, Cassels' article
-  ``Global fields'', section 12 lemma, 61) is the following. Choose a $K$-basis
+  ``Global fields'', section 12 lemma, p61) is the following. Choose a $K$-basis
   $\omega_1,\omega_2,\ldots,\omega_n$ for $L/K$ with all $\omega_i\in A$.
   Then $\omega_1A\oplus\cdots\oplus\omega_nA$ and
   $B$ are two $A$-lattices in $L$, so they agree at almost all primes. In particular
@@ -178,21 +282,25 @@ We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
   products run over the height one spectra of $A$ and $B$ respectively.
 \end{definition}
 
-Note that we make no claim about continuity (for reasons which will become clear below).
+Note that we make no claim about continuity; such a claim wouldn't help
+us because the adeles do not get the subspace topology.
 
-\begin{theorem} This map induces a natural continuous $K$-algebra homomorphism
+\begin{theorem} This map induces a natural $K$-algebra homomorphism
   $\A_{A,K}^\infty\to\A_{B,L}^\infty$.
   \label{DedekindDomain.FiniteAdeleRing.baseChange}
   \lean{DedekindDomain.FiniteAdeleRing.baseChange}
   \leanok
 \end{theorem}
 \begin{proof}
-  Note that the restricted product does not have the subspace topology.
+  This does not need the hard direction of
+  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
+  the definition of the map is straightforward using only that integers map
+  to integers.
 \end{proof}
 
 \begin{theorem}
-  \label{DedekindDomain.FiniteAdeleRing.baseChangeEquiv}
-  \lean{DedekindDomain.FiniteAdeleRing.baseChangeEquiv}
+  \label{DedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
+  \lean{DedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
   \leanok
   If we give $L\otimes_K\A_{A,K}^\infty$ the ``module topology'', coming from the fact
@@ -201,7 +309,18 @@ Note that we make no claim about continuity (for reasons which will become clear
   $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$ is a topological isomorphism.
 \end{theorem}
 \begin{proof}
-  Follows from theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
+  Existence of the map follows from
+  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
+  Surjectivity follows from
+  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
+  The fact that it is a topological isomorphism surely follows from the fact that
+  $L\otimes_K K_v=\oplus_{w|v}L_w$ and that this identification identifies
+  the subgroup $\calO_L\otimes_K K_v$ with $\oplus_{w|v}\calO_{L_w}$ for all
+  but finitely many $v$. Although I'm wondering whether it's easier to prove
+  that the map $\A_{A,K}^\infty\to\A_{B,L}^\infty$ makes $\A_{B,L}^\infty$
+  into an $\A_{A,K}^\infty$-module and the claim (also undoubtedly true, although
+  I am not sure of the best level of abstractionhere ) that the topology on
+  $\A_{B,L}^\infty$ is the $\A_{A,K}^\infty$-module topology.
 \end{proof}
 
 \subsection{Base change for infinite adeles}
@@ -213,12 +332,49 @@ infinite places.
 The result we need here is that if $L/K$ is a finite extension of number fields,
 then the map $K\to L$ extends to a continuous $K$-algebra map $K_\infty\to L_\infty$,
 and thus to a continuous $L$-algebra isomorphism $L\otimes_KK_\infty\to L_\infty$.
+Perhaps a cheap proof would be to deduce it from the fact that $K_\infty=K\otimes_{\Q}\R$.
+
+\begin{theorem}
+  \label{NumberField.InfiniteAdeleRing.baseChangeEquiv}
+  \lean{NumberField.InfiniteAdeleRing.baseChangeEquiv}
+  If $K\to L$ is a ring homomorphism between two number fields then there is a natural isomorphism
+  (both topological and algebraic) $L\otimes_KK_\infty\cong L_\infty$.
+\end{theorem}
+\begin{proof}
+  Standard.
+\end{proof}
 
 \subsection{Base change for adeles}
 
 From the previous results we deduce immediately that if $L/K$ is a finite extension
 of number fields then there's a natural (topological and algebraic) isomorphism
 $L\otimes_K\A_K\to \A_L$.
+
+\begin{theorem}
+  \label{NumberField.AdeleRing.baseChangeEquiv}
+  \lean{NumberField.AdeleRing.baseChangeEquiv}
+  If $K\to L$ is a ring homomorphism between two number fields then there is a natural isomorphism
+  (both topological and algebraic) $L\otimes_K\A_K\cong\A_L$.
+\end{theorem}
+\begin{proof}
+  Follows from the previous results.
+\end{proof}
+
+Something else we shall need:
+
+\begin{theorem}
+  \label{NumberField.AdeleRing.baseChange_moduleTopology}
+  If $K\to L$ is a ring homomorphism between two number fields then the topology on $\A_L$
+  is the $\A_K$-module topology, where the module structure comes from the
+  natural map $\A_K\to\A_L$.
+\end{theorem}
+\begin{proof}
+  Because $\A_L=\A_K\otimes_{K}L$ we know that $\A_L$ is a finite free $\A_K$-module,
+  and a standard fact (being PRed to mathlib) about the module topology is that the module topology
+  on a finite free module is just the product topology. It thus suffices to show that
+  the topology on $\A_L$ is the product topology after picking an $\A_K$-basis for $\A_L$
+  but this is standard.
+\end{proof}
 
 \section{Discreteness and compactness}
 
@@ -233,7 +389,7 @@ quotient topology) is compact. Here is a proposed proof.
   There's an open subset of $\A_{\Q}$ whose intersection with $\Q$ is $\{0\}$.
 \end{theorem}
 \begin{proof}
-  Use $\prod_p{\Z_p}\otimes(-1,1)$. Any rational $q$ in this set is a $p$-adic
+  Use $\prod_p{\Z_p}\times(-1,1)$. Any rational $q$ in this set is a $p$-adic
   integer for all primes $p$ and hence (writing it in lowest terms as $q=n/d$)
   satisfies $p\nmid d$, meaning that $d=\pm1$ and thus $q\in\Z$. The fact
   that $q\in(-1,1)$ implies $q=0$.

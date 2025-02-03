@@ -1,5 +1,5 @@
 import Mathlib.Algebra.Algebra.Pi
-import Mathlib.Logic.Function.Defs
+import FLT.Mathlib.Algebra.Algebra.Hom
 
 universe u v w
 
@@ -65,3 +65,10 @@ def AlgEquiv.piCongrLeft (S : Type*) [CommSemiring S] (B : β → Type*) (e : α
     [∀ b, Semiring (B b)] [∀ b, Algebra S (B b)] :
     ((a : α) → B (e a)) ≃ₐ[S] ((b : β) → B b) :=
   (AlgEquiv.piCongrLeft' S B e.symm).symm
+
+def Pi.semialgHom  {I : Type*} {R S : Type*} (f : I → Type*) [CommSemiring R] [CommSemiring S]
+    (φ : R →+* S) [s : (i : I) → Semiring (f i)] [(i : I) → Algebra S (f i)] {A : Type*}
+    [Semiring A]  [Algebra R A] (g : (i : I) → A →ₛₐ[φ] f i) :
+  A →ₛₐ[φ] (i : I) → f i where
+  __ := Pi.ringHom fun i ↦ (g i).toRingHom
+  map_smul' r a := by ext; simp

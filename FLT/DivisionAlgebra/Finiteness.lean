@@ -9,7 +9,6 @@ import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Algebra.Group.Subgroup.Pointwise
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.NumberField.IsTotallyReal
 import FLT.NumberField.AdeleRing
 import Mathlib.GroupTheory.DoubleCoset
 
@@ -19,8 +18,8 @@ import Mathlib.GroupTheory.DoubleCoset
 
 We prove a lemma which Voight (in his quaternion algebra book) attributes to Fujisaki:
 if `D` is a finite-dimensional division algebra over a number field `K`
-and if `U ⊆ (𝔸_K^infty ⊗[K] D)ˣ` is a compact open subgroup then the double coset
-space `Dˣ \ (𝔸_F^infty ⊗[K] D)ˣ / U` is finite.
+and if `U ⊆ (D ⊗[K] 𝔸_K^infty)ˣ` is a compact open subgroup then the double coset
+space `Dˣ \ (D ⊗[K] 𝔸_K^infty)ˣ / U` is finite.
 
 -/
 
@@ -33,25 +32,31 @@ open scoped NumberField TensorProduct
 variable (K : Type*) [Field K] [NumberField K]
 variable (D : Type*) [DivisionRing D] [Algebra K D]
 
-local instance : TopologicalSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] D) :=
+instance : Algebra (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : Module.Finite (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := sorry
+
+local instance : TopologicalSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
   moduleTopology (FiniteAdeleRing (𝓞 K) K) _
-local instance : IsModuleTopology (FiniteAdeleRing (𝓞 K) K) ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) :=
+
+local instance : IsModuleTopology (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   ⟨rfl⟩
 
 variable [FiniteDimensional K D]
 
-instance : TopologicalRing ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) :=
+instance : TopologicalRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   IsModuleTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 K) K) _
 
 variable [Algebra.IsCentral K D]
 
-abbrev Dfx := ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D)ˣ
+abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
-  Units.map Algebra.TensorProduct.includeRight.toMonoidHom
+  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 K) K)ˣ →* Dfx K D :=
-  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
+  Units.map Algebra.TensorProduct.includeRight.toMonoidHom
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
 /-!

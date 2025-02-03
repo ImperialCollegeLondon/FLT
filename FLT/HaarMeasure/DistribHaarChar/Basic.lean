@@ -43,7 +43,7 @@ noncomputable def distribHaarChar : G →* ℝ≥0 where
     rw [addHaarScalarFactor_eq_mul _ (DomMulAct.mk g' • addHaar (G := A))]
     congr 1
     simp_rw [mul_smul]
-    rw [addHaarScalarFactor_dma_smul]
+    rw [addHaarScalarFactor_domSMul]
 
 variable (μ) in
 lemma addHaarScalarFactor_smul_eq_distribHaarChar (g : G) :
@@ -53,7 +53,7 @@ lemma addHaarScalarFactor_smul_eq_distribHaarChar (g : G) :
 variable (μ) in
 lemma addHaarScalarFactor_smul_inv_eq_distribHaarChar (g : G) :
     addHaarScalarFactor μ ((DomMulAct.mk g)⁻¹ • μ) = distribHaarChar A g := by
-  rw [← addHaarScalarFactor_dma_smul _ _ (DomMulAct.mk g)]
+  rw [← addHaarScalarFactor_domSMul _ _ (DomMulAct.mk g)]
   simp_rw [← mul_smul, mul_inv_cancel, one_smul]
   exact addHaarScalarFactor_smul_eq_distribHaarChar ..
 
@@ -69,7 +69,7 @@ variable [Regular μ] {s : Set A}
 
 variable (μ) in
 lemma distribHaarChar_mul (g : G) (s : Set A) : distribHaarChar A g * μ s = μ (g • s) := by
-  have : (DomMulAct.mk g • μ) s = μ (g • s) := by simp [dma_smul_apply]
+  have : (DomMulAct.mk g • μ) s = μ (g • s) := by simp [domSMul_apply]
   rw [eq_comm, ← nnreal_smul_coe_apply, ← addHaarScalarFactor_smul_eq_distribHaarChar μ,
     ← this, ← smul_apply, ← isAddLeftInvariant_eq_smul_of_regular]
 
