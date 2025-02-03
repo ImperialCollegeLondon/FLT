@@ -33,7 +33,7 @@ def Deformation.tensorProduct (D : Deformation ρbar A) (R : 𝓒 𝓞) [Algebra
 section UnrestrictedFunctor -- Theorem 2.3 of Smit&Lenstra
 
 omit A in
-def Deformation.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) : Deformation ρbar A → Deformation ρbar B :=
+def Deformation.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (D :  Deformation ρbar A) : Deformation ρbar B :=
   sorry
 
 variable (𝓞) in
@@ -63,5 +63,21 @@ class IsValidDeformationRestriction (res : (R : 𝓒 𝓞) → Set (Deformation 
 
 variable (res : (R : 𝓒 𝓞) → Set (Deformation ρbar R))
 variable [IsValidDeformationRestriction ρbar res]
+
+omit A in
+def Deformation.restrictedFunctor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (D : res A) : (res B) :=
+  ⟨Deformation.functor_onMap ρbar f D, sorry⟩
+
+variable (𝓞) in
+def Deformation.restrictedFunctor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
+  obj A := res A
+  map f := Deformation.restrictedFunctor_onMap ρbar res f
+  map_id := sorry
+  map_comp := sorry
+
+-- Theorem 2.3
+theorem Deformation.restrictedFunctor_isCorepresentable :
+    (Deformation.restrictedFunctor 𝓞 ρbar res).IsCorepresentable :=
+  sorry
 
 end RestrictedFunctor
