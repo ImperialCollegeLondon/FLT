@@ -3,7 +3,6 @@ import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
-import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.NumberField.InfiniteAdeleRing
 
 open scoped TensorProduct
@@ -121,15 +120,14 @@ section Compact
 open NumberField
 
 theorem Rat.AdeleRing.cocompact :
-    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) :=
+    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AddMonoidHom.range (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)).toAddMonoidHom) :=
   sorry -- issue #258
 
-variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
+variable (K : Type*) [Field K] [NumberField K]
 
 theorem NumberField.AdeleRing.cocompact :
-    CompactSpace (AdeleRing (𝓞 K) K ⧸ AdeleRing.principalSubgroup (𝓞 K) K) :=
-  letI := Rat.AdeleRing.cocompact
-  (baseChangeQuotientPi ℚ K).compactSpace
+    CompactSpace (AdeleRing (𝓞 K) K ⧸ AddMonoidHom.range (algebraMap K (AdeleRing (𝓞 K) K)).toAddMonoidHom) :=
+  sorry -- issue #259
 
 end Compact
 
