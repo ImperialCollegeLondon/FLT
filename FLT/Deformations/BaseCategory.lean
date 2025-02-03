@@ -59,20 +59,18 @@ def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
       exact h
     . infer_instance
 
-
 end 𝓒
-
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
-variable (A : 𝓒 𝓞)
+variable (A : 𝓒 𝓞) [IsNoetherianRing A]
 
-instance noetherian_deformationCat_topology [IsNoetherianRing A] :
+instance noetherian_deformationCat_topology :
   IsAdic (IsLocalRing.maximalIdeal A) := sorry
 
-instance noetherian_deformationCat_isAdic [IsNoetherianRing A] :
+instance noetherian_deformationCat_isAdic :
   IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
 
-lemma noetherian_deformationCat_continuous {A A' : 𝓒 𝓞} [IsNoetherianRing A]
+lemma noetherian_deformationCat_continuous {A A' : 𝓒 𝓞}
   (f : A →ₐ[𝓞] A') : Continuous f := sorry
 
 end Noetherian
