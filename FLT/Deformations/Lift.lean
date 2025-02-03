@@ -114,19 +114,20 @@ section UnrestrictedFunctor
 
 omit A in
 def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift ρbar B where
-  W :=
-    letI : Algebra A B := f.hom.toAlgebra
-    l.W ⊗[A] B
+  W := letI : Algebra A B := f.hom.toAlgebra; l.W ⊗[A] B
   addCommMonoid := sorry
   module := sorry
   free := sorry
   finite := sorry
+  topo := sorry
+  is_prod_topo := sorry
   reduction := sorry
   module_A := sorry
   module_𝓴A := sorry
   isScalarTower_𝓴A := sorry
   isScalarTower_A := sorry
   ρ := sorry
+  is_cont := sorry
   is_lift := sorry
 
 variable (𝓞) in
@@ -138,59 +139,4 @@ def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
 
 theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
 
-section UnrestrictedFunctor
-
-section G_finite -- Section 3.1 Smit & Lenstra
-
-open Matrix Set MvPolynomial
-variable [Finite G]
-
-variable (𝓞 G) in
-abbrev smitLenstraRingRelations (ι : Type u) [Fintype ι] : Ideal (MvPolynomial (ι × ι × G) 𝓞) :=
-  let rel1 := {X (i, i, (1:G)) - C (1 : 𝓞) | (i : ι)}
-  let rel2 := {X (i, i, g) | (i : ι) (g : G)}
-  let rel3 := { X (i, j, g)
-      - ∑ᶠ (l : ι), (X (i, l, g)) * (X (l, j, h))  | (i : ι) (j : ι) (g : G) (h : G)}
-  Ideal.span (rel1 ∪ rel2 ∪ rel3)
-
--- SmitLenstraRing is the ring 𝓞[G, n] given by Smit&Lenstra
-variable (𝓞 G) in
-abbrev smitLenstraRing (ι : Type u) [Fintype ι] : Type u :=
-  (MvPolynomial (ι × ι × G) 𝓞) ⧸ smitLenstraRingRelations 𝓞 G ι
-
-local notation3:max 𝓞 "[" G ", " α "]" => smitLenstraRing 𝓞 G α
-local notation3:max "GL(" α ", " R ")" => (GeneralLinearGroup α R)
-local notation3:max "Hom_grp(" G₁ ", " G₂ ")" => (G₁ →* G₂)
-local notation3:max "Hom_alg(" O "; " A "," A' ")" => (A →ₗ[O] A')
-
--- Choose any basis of V, this makes ρbar into a G →* GL_ι(𝓴 A)
-variable {ι : Type u} [DecidableEq ι] [Fintype ι]
-variable (𝓫 : Basis ι (𝓴 𝓞) V)
-noncomputable def pbar' := Representation.gl_map_of_basis ρbar 𝓫
-
-variable (A : 𝓒 𝓞)
-
-noncomputable def smitLenstraMap : Hom_alg(𝓞; 𝓞[G, ι], A) ≃ Hom_grp(G, GL(ι, A)) where
-  toFun f := {
-    toFun := fun g : G => .mk' (.of (fun i j : ι =>
-            f (Ideal.Quotient.mk (smitLenstraRingRelations 𝓞 G ι) (X (i, j, g)))))
-          (by sorry)
-    map_one' := sorry
-    map_mul' := sorry
-  }
-  invFun ρ := {
-    toFun := fun φ : 𝓞[G, ι] => sorry
-    map_add' := sorry
-    map_smul' := sorry
-  }
-  left_inv := sorry
-  right_inv := sorry
-
--- Proposition 2.5 in G Finite
-theorem Lift.functor_isCorepresentable_finite : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
-
-end G_finite
-
-section G_profinite -- Section 3.2 Smit & Lenstra
-
-end G_profinite
+end UnrestrictedFunctor
