@@ -1,8 +1,6 @@
 import Mathlib
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 
-open scoped TensorProduct
-
 universe u
 
 open NumberField
