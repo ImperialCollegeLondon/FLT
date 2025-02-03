@@ -196,8 +196,10 @@ def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
   obj := CommAlgebraCat.quotient a
   property := by
     unfold 𝓒_filter
-    sorry -- We need 1) quotient of local is local, 2) quotient of localhom is localhom
-          -- 3) quotient of residue algebra is residue algebra, 4) quotient of proartinian is proartinian
+    sorry -- We need 1) quotient of local is local,
+              -- 2) quotient of localhom is localhom
+              -- 3) quotient of residue algebra is residue algebra,
+              -- 4) quotient of proartinian is proartinian
 
 end 𝓒
 
