@@ -1,5 +1,8 @@
 import Mathlib.NumberTheory.NumberField.Completion
 import Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.Mathlib.Algebra.Algebra.Hom
+import FLT.Mathlib.Algebra.Algebra.Pi
+import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.NumberField.Embeddings
 
@@ -13,44 +16,22 @@ noncomputable section
 
 namespace NumberField.InfinitePlace.Completion
 
-open AbsoluteValue.Completion
+open AbsoluteValue.Completion UniformSpace.Completion
 
 variable {K L : Type*} [Field K] [Field L] [Algebra K L] {v : InfinitePlace K} {w : InfinitePlace L}
 
-instance {wv : v.ExtensionPlace L} : Algebra v.Completion wv.1.Completion :=
-  mapOfComp wv.abs_comp |>.toAlgebra
+def comapSemialgHom (h : w.comap (algebraMap K L) = v) :
+    v.Completion →ₛₐ[algebraMap (WithAbs v.1) (WithAbs w.1)] w.Completion :=
+  mapSemialgHom _ <| (WithAbs.uniformContinuous_algebraMap (v.comp_of_comap_eq _ h)).continuous
 
-theorem algebraMap_eq_coe :
-    (algebraMap K v.Completion).toFun = ((↑) : K → v.Completion) := rfl
+theorem comapSemialgHom_cont (h : w.comap (algebraMap K L) = v) :
+    Continuous (comapSemialgHom h) := continuous_map
 
-@[simp]
-theorem algebraMap_coe (wv : v.ExtensionPlace L) (k : K) :
-    algebraMap v.Completion wv.1.Completion k = algebraMap (WithAbs v.1) (WithAbs wv.1.1) k :=
-  UniformSpace.Completion.map_coe (WithAbs.uniformContinuous_algebraMap wv.abs_comp) _
+variable (L v)
 
-theorem algebraMap_comp (wv : v.ExtensionPlace L) (k : K) :
-    algebraMap K wv.1.Completion k =
-      algebraMap v.Completion wv.1.Completion (algebraMap K v.Completion k) := by
-  simp only [UniformSpace.Completion.algebraMap_def, algebraMap_coe]
-  rfl
-
-instance {wv : v.ExtensionPlace L} : IsScalarTower K v.Completion wv.1.Completion :=
-  IsScalarTower.of_algebraMap_eq (algebraMap_comp wv)
-
-open UniformSpace.Completion in
-def extensionPlaceContinuousAlgHom (wv : v.ExtensionPlace L) :
-    v.Completion →A[v.Completion] wv.1.Completion where
-  __ := algebraMap v.Completion wv.1.Completion
-  commutes' (r : _) := by
-    simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
-      MonoidHom.coe_coe, mapRingHom_apply, algebraMap_eq_coe, map_coe
-      <| WithAbs.uniformContinuous_algebraMap wv.abs_comp]; rfl
-  cont := continuous_map
-
-variable (v L)
-
-abbrev baseChange : v.Completion →A[v.Completion] (wv : v.ExtensionPlace L) → wv.1.Completion where
-  __ := (Pi.algHom _ _ fun wv => (extensionPlaceContinuousAlgHom wv))
+abbrev baseChange :
+    v.Completion →ₛₐ[algebraMap K L] ((wv : v.ExtensionPlace L) → wv.1.Completion) :=
+  Pi.semialgHom _ _ fun wv => comapSemialgHom wv.2
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : TopologicalSpace (L ⊗[K] v.Completion) := moduleTopology v.Completion _
@@ -60,17 +41,14 @@ instance : IsModuleTopology v.Completion (L ⊗[K] v.Completion) :=
   ⟨rfl⟩
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-def tensorPiExtensionPlaceContinuousAlgHom :
+def piExtensionPlaceContinuousAlgHom :
     L ⊗[K] v.Completion →A[L] ((wv : v.ExtensionPlace L) → wv.1.Completion) where
-  __ := Algebra.TensorProduct.lift
-    (Pi.algHom L _ fun wv => ⟨algebraMap L wv.1.Completion, fun _ => rfl⟩)
-    (baseChange L v |>.restrictScalars K)
-    (fun _ _ => Commute.all _ _)
+  __ := SemialgHom.baseChange_of_algebraMap (baseChange L v)
   cont := by
     apply IsModuleTopology.continuous_of_ringHom (R := v.Completion)
-    show Continuous (RingHom.comp _ (Algebra.TensorProduct.includeRight.toRingHom))
-    convert (continuous_pi fun wv => (extensionPlaceContinuousAlgHom wv).cont) using 1
+    show Continuous (RingHom.comp _ Algebra.TensorProduct.includeRight.toRingHom)
+    convert (continuous_pi fun wv : v.ExtensionPlace L => comapSemialgHom_cont wv.2) using 1
     ext
-    simp [extensionPlaceContinuousAlgHom]
+    simp [baseChange]
 
 end NumberField.InfinitePlace.Completion

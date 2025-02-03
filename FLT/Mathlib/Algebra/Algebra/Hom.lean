@@ -65,4 +65,7 @@ lemma SemialgHom.commutes (ψ : A →ₛₐ[φ] B) (r : R) :
   rw [Algebra.smul_def, mul_one, map_one] at this
   rw [this, Algebra.smul_def, mul_one]
 
+theorem SemialgHom.toLinearMap_eq_coe (f : A →ₛₐ[φ] B) : f.toLinearMap = f :=
+  rfl
+
 end semialghom

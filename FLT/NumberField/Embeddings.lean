@@ -6,21 +6,25 @@ import Mathlib.NumberTheory.NumberField.Embeddings
 
 namespace NumberField.InfinitePlace
 
-variable {K : Type*} (L : Type*) [Field K] [Field L] [Algebra K L]
+variable {K : Type*} (L : Type*) [Field K] [Field L]
 
 /--
 If `L / K` are fields and `v` is an infinite place of `K`, then we say an infinite place `w`
 of `L` _extends_ `v` if `w` can be constructed from a complex embedding `L →+* ℂ` whose
-restriction to `K` is an associated complex embedding `K →+* ℂ` of `v`. -/
-abbrev ExtensionPlace (v : InfinitePlace K) :=
+restriction to `K` is an associated complex embedding `K →+* ℂ` of `v`.
+-/
+abbrev ExtensionPlace [Algebra K L] (v : InfinitePlace K) :=
   { w : InfinitePlace L // w.comap (algebraMap K L) = v }
-
-namespace ExtensionPlace
 
 variable {L}
 
-theorem abs_comp {v : InfinitePlace K} (wv : v.ExtensionPlace L) (x : K) :
-    wv.1 (algebraMap K L x) = v x := by
-  simp_rw [← wv.2]; rfl
+@[simp]
+theorem comap_apply (w : InfinitePlace L) (f : K →+* L) (x : K) :
+    w.comap f x = w (f x) := rfl
 
-end NumberField.InfinitePlace.ExtensionPlace
+theorem comp_of_comap_eq {v : InfinitePlace K} {w : InfinitePlace L} (f : K →+* L)
+    (h : w.comap f = v) (x : K) :
+    w (f x) = v x := by
+  simp [← h]
+
+end NumberField.InfinitePlace

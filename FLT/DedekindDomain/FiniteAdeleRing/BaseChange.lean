@@ -378,25 +378,8 @@ namespace DedekindDomain
 open IsDedekindDomain HeightOneSpectrum
 
 noncomputable def ProdAdicCompletions.baseChange :
-    ProdAdicCompletions A K →ₛₐ[algebraMap K L] ProdAdicCompletions B L where
-  toFun kv w := (adicCompletionComapSemialgHom A K L B _ w rfl (kv (comap A w)))
-  map_one' := by
-    dsimp only
-    exact funext fun w => by rw [Pi.one_apply, Pi.one_apply, map_one]
-  map_mul' x y := by
-    dsimp only
-    exact funext fun w => by rw [Pi.mul_apply, Pi.mul_apply, map_mul]
-  map_zero' := by
-    dsimp only
-    exact funext fun w => by rw [Pi.zero_apply, Pi.zero_apply, map_zero]
-  map_add' x y := by
-    dsimp only
-    funext w
-    rw [Pi.add_apply, Pi.add_apply, map_add]
-  map_smul' k xv := by
-    apply funext
-    intro w
-    exact (adicCompletionComapSemialgHom A K L B _ w rfl).map_smul' k (xv (comap A w))
+    ProdAdicCompletions A K →ₛₐ[algebraMap K L] ProdAdicCompletions B L :=
+  Pi.semialgHomPi _ _ fun w => adicCompletionComapSemialgHom A K L B _ w rfl
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
