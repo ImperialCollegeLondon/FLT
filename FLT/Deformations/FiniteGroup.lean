@@ -162,7 +162,7 @@ instance : (smitLenstraCandidate_maximalIdeal ρbar 𝓫).IsMaximal :=
     )
 
 noncomputable abbrev smitLenstraCandidate : Type _ :=
-  Localization.AtPrime (smitLenstraCandidate_maximalIdeal ρbar 𝓫)
+  AdicCompletion (smitLenstraCandidate_maximalIdeal ρbar 𝓫) 𝓞[G, ι]
 
 omit ι 𝓫 in
 noncomputable def smitLenstraCandidate_𝓒_𝓞 : 𝓒 𝓞 where
