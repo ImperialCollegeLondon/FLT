@@ -2,7 +2,6 @@ import Mathlib
 import FLT.NumberField.Completion
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
