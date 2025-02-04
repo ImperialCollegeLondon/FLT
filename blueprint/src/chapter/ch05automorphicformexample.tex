@@ -409,7 +409,8 @@ $\Qhat=\Q\otimes\Zhat$ both maps from $\Q$ and $\Zhat$ are inclusions.
     The ring homomorphism $\Q\to\Qhat$ sending $q$ to $q\otimes_t 1$
     is injective.
 \end{lemma}
-\begin{proof} We have seen that the map from $\Z$ to $\Zhat$ is
+\begin{proof} \leanok
+    We have seen that the map from $\Z$ to $\Zhat$ is
     injective. Now $\Q$ is a flat $\Z$-module, because it's
     torsion-free, so tensoring up we deduce that the map
     from $\Q=\Q\otimes\Z$ to $\Qhat=\Q\otimes\Zhat$ is also injective.
@@ -424,7 +425,7 @@ $\Qhat=\Q\otimes\Zhat$ both maps from $\Q$ and $\Zhat$ are inclusions.
     The ring homomorphism $\Zhat\to\Qhat$ sending
     $z$ to $1\otimes_t z$ is injective.
 \end{lemma}
-\begin{proof}
+\begin{proof} \leanok
     The map from $\Z$ to $\Q$ is injective, and we have seen
     that $\Zhat$ is a torsion-free and thus flat $\Z$-module,
     so the map from $\Zhat$ to $\Qhat$ is also injective.
@@ -451,7 +452,9 @@ these results as $\Q\sqcap\Zhat=\Z$ and $\Q\sqcup\Zhat=\Qhat$.
     \leanok
     The intersection of $\Q$ and $\Zhat$ in $\Qhat$ is $\Z$.
 \end{lemma}
-\begin{proof} \leanok
+\begin{proof}
+    \uses{QHat.lowestTerms}
+    \leanok
     Clearly $\Z\subseteq\Q\cap\Zhat$. Now suppose that $x\in\Q\cap\Zhat$.
     Because $x$ is rational we can write it as $\frac{A}{B}\otimes_t1$ for some
     fraction $A/B$ in lowest terms, and hence $x=A/B$ where now we regard $A\in\Zhat$
@@ -468,7 +471,9 @@ these results as $\Q\sqcap\Zhat=\Z$ and $\Q\sqcup\Zhat=\Qhat$.
     More precisely, every element of $\Qhat$ can be written as $q+z$ with $q\in\Q$ and $z\in\Zhat$,
     or more precisely as $q\otimes_t 1+1\otimes_t z$.
 \end{lemma}
-\begin{proof} \leanok
+\begin{proof}
+    \uses{QHat.canonicalForm}
+    \leanok
     Write $x\in\Qhat$ as $x=z/N$ in lowest terms. Lift $z_N$ to an integer $t$ and observe
     that $(z-t)_N=0$, hence $z-t=Ny$ for some $y\in\Zhat$. Now $x=t/N+y\in\Q+\Zhat$.
 \end{proof}
@@ -488,7 +493,8 @@ subgroups $\Q^\times$, $\Z^\times$ and $\Zhat^\times$.
     The intersection of $\Q^\times$ and $\Zhat^\times$ in $\Qhat^\times$ is $\Z^\times$.
 \end{lemma}
 \begin{proof}
-    \uses{QHat.lowestTerms}
+    \uses{QHat.lowestTerms,QHat.rat_meet_zHat}
+    \leanok
     Clearly the intersection is contained within $\Q\cap\Zhat=\Z$. If $n\in\Z$ is in $\Zhat^\times$
     then $n\not=0$ and its inverse $1/n=\pm1/|n|$ is in lowest terms but also in $\Zhat$,
     and hence $|n|=1$ by uniqueness of lowest term representation.

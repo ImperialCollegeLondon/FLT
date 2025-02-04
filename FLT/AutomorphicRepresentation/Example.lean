@@ -456,9 +456,8 @@ lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
         ZMod.isUnit_iff_coprime, Int.natAbs_sign_of_nonzero znez]
       exact Nat.coprime_one_left _
     have cop2 : IsCoprime 1 ↑zinvZHat := by
-      use 1
-      match (zinvZHat : ZHat) 1 with
-      | Fin.mk 0 isLt => norm_num; rfl
+      simp only [IsCoprime, PNat.val_ofNat]
+      exact isUnit_of_subsingleton _
     obtain ⟨hb, ha⟩ := (lowestTerms ↑x).2 (Nat.toPNat b bpos) 1 ↑a ↑zinvZHat ⟨cop1, cop2, heq⟩
     have b1 : b = 1 := by
       have : (1 : ℕ) = ↑(@OfNat.ofNat ℕ+ 1 (instOfNatPNatOfNeZeroNat 1)) := by norm_cast
