@@ -5,11 +5,12 @@ universe u
 open CategoryTheory Function
 open scoped TensorProduct
 
+namespace Deformations
+
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
-
 section IsResidueAlgebra
 
 variable (A : Type*) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
@@ -88,3 +89,5 @@ instance (a : Ideal A) : IsResidueAlgebra 𝓞 (A ⧸ a) :=
   sorry
 
 end IsResidueAlgebra
+
+end Deformations

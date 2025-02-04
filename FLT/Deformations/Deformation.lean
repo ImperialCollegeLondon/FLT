@@ -4,12 +4,12 @@ import FLT.Deformations.Lift
 
 universe u
 
-open scoped TensorProduct
+open scoped TensorProduct Deformations
+
+namespace Deformations
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
-
-local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
 variable {V : Type u}
   [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
@@ -84,3 +84,5 @@ theorem Deformation.restrictedFunctor_isCorepresentable :
   sorry
 
 end RestrictedFunctor
+
+end Deformations

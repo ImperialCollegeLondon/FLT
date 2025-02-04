@@ -8,10 +8,12 @@ universe u
 open CategoryTheory Function
 open scoped TensorProduct
 
+namespace Deformations
+
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
-local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
+notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
 variable {V : Type u}
   [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
@@ -72,3 +74,5 @@ lemma noetherian_deformationCat_continuous {A A' : 𝓒 𝓞}
   (f : A →ₐ[𝓞] A') : Continuous f := sorry
 
 end Noetherian
+
+end Deformations

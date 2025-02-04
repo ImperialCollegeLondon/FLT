@@ -8,6 +8,8 @@ import Mathlib.RingTheory.LocalRing.ResidueField.Defs
 
 universe u
 
+namespace Deformations
+
 variable {𝓞 : Type u} [CommRing 𝓞] [IsLocalRing 𝓞]
 
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
@@ -80,3 +82,5 @@ instance (A : Type*) [CommRing A] [IsProartinian A] (a : Ideal A) : IsProartinia
   sorry
 
 end IsProartinian
+
+end Deformations

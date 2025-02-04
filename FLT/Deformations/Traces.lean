@@ -8,8 +8,9 @@ import FLT.Mathlib.RepresentationTheory.Basic
 
 open scoped TensorProduct Representation CategoryTheory
 
+namespace Deformations
+
 variable {𝓞 : Type*} [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
-local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
 variable {G : Type*} [Group G]
 
@@ -28,3 +29,6 @@ lemma baseChange_of_traces_mem (A' : 𝓒 𝓞) [Algebra A' A] (hinj : Function.
         : ∃ W', ∃ _ : AddCommMonoid W', ∃ _ : Module A' W', ∃ ρ' : Representation A' G W',
         ∃ iso : ρ ≃ᵣ A ⊗ᵣ' ρ', True :=
     sorry
+
+
+end Deformations
