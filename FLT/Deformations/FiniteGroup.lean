@@ -172,7 +172,7 @@ noncomputable def smitLenstraCandidate_𝓒_𝓞 : 𝓒 𝓞 where
   property := sorry
 
 -- Proposition 2.5 in G Finite
-theorem functor_isCorepresentable_finite' : (Lift.functor 𝓞 ρbar).IsCorepresentable where
+theorem Lift.functor_isCorepresentable_finite : (Lift.functor 𝓞 ρbar).IsCorepresentable where
   has_corepresentation := ⟨
     smitLenstraCandidate_𝓒_𝓞 ρbar,
     sorry
