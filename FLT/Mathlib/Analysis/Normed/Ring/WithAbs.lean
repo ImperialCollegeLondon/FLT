@@ -31,20 +31,3 @@ theorem uniformContinuous_algebraMap {v : AbsoluteValue K ℝ} {w : AbsoluteValu
   isUniformInducing_of_comp h |>.uniformContinuous
 
 end WithAbs
-
-namespace AbsoluteValue.Completion
-
-variable {K L : Type*} [Field K] [Field L] {v : AbsoluteValue K ℝ}
-  {w : AbsoluteValue L ℝ}
-
-abbrev mapOfComp {g : WithAbs v →+* WithAbs w} (h : ∀ x, w (g x) = v x) :
-    v.Completion →+* w.Completion :=
-  UniformSpace.Completion.mapRingHom g
-    (WithAbs.isUniformInducing_of_comp h).uniformContinuous.continuous
-
-theorem mapOfComp_coe {g : WithAbs v →+* WithAbs w} (h : ∀ x, w (g x) = v x) (x : K) :
-    mapOfComp h x = g x :=
-  UniformSpace.Completion.mapRingHom_coe
-    (WithAbs.isUniformInducing_of_comp h).uniformContinuous x
-
-end AbsoluteValue.Completion
