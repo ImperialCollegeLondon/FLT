@@ -20,13 +20,15 @@ variable {G : Type u} [Group G] [TopologicalSpace G] [TopologicalGroup G]
 
 variable (ρbar : Representation (𝓴 𝓞) G V)
 
+variable {ι : Type*} [Fintype ι]
+
+section Definitions
+
 variable (A : 𝓒 𝓞)
-variable [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
-variable [Module A V] [IsScalarTower A (𝓴 A) V]
+  [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
+  [Module A V] [IsScalarTower A (𝓴 A) V]
 
 variable {W: Type u} [AddCommMonoid W] [Module A W] [Module.Free A W] [Module.Finite A W]
-
-variable {ι : Type*} [Fintype ι]
 
 variable (reduction : LinearEquiv
   (algebraMap (𝓴 A) (𝓴 𝓞))
@@ -34,8 +36,6 @@ variable (reduction : LinearEquiv
   V)
 
 variable (ρ: Representation A G W)
-
-section Definition
 
 variable (W V) in
 noncomputable def extend_ctts : W →ₗ[A] ((𝓴 A) ⊗[A] W) :=
@@ -59,7 +59,12 @@ instance {A W : Type*} [CommRing A] [TopologicalSpace A] [TopologicalRing A]
     [is_prod_topo : Nonempty (W ≃ₜ (Module.Free.ChooseBasisIndex A W → A))]
   : TopologicalSpace (W →ₗ[A] W) := sorry
 
-omit W reduction in
+end Definitions
+
+section Lift
+
+variable (A : 𝓒 𝓞)
+
 structure Lift : Type _ where
   W: Type _
   -- Basic structure on carrier
@@ -72,7 +77,8 @@ structure Lift : Type _ where
   [is_prod_topo : Nonempty (W ≃ₜ (Module.Free.ChooseBasisIndex A W → A.obj))]
   -- Reduction
   reduction : ((𝓴 A) ⊗[A] W) ≃ₛₗ[algebraMap (𝓴 A) (𝓴 𝓞)] V
-  -- Scalar products on W
+  -- Scalar products on V. This is saying that V has A-module some structure
+  -- and this "some" is precisely the obvious one via algebraMap A kA algebraMap kA kO
   [module_A : Module A V]
   [module_𝓴A : Module (𝓴 A) V]
   [isScalarTower_𝓴A : IsScalarTower (𝓴 A) (𝓴 𝓞) V]
@@ -109,10 +115,10 @@ def Lift.isIso : Setoid (Lift ρbar A) where
       sorry
   }
 
-end Definition
+end Lift
+
 section UnrestrictedFunctor
 
-omit A in
 def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift ρbar B where
   W := letI : Algebra A B := f.hom.toAlgebra; l.W ⊗[A] B
   addCommMonoid := sorry
