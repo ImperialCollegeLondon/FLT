@@ -1,19 +1,18 @@
 import Mathlib.Analysis.Normed.Ring.WithAbs
-import FLT.Mathlib.Topology.Algebra.UniformRing
-
-/-!
-# `WithAbs`
--/
-
-noncomputable section
+import Mathlib.NumberTheory.NumberField.Basic
 
 namespace WithAbs
 
-variable {K L : Type*} [Field K] [Field L] [Algebra K L]
+variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ}
+  {L : Type*} [Field L] [Algebra K L] {w : AbsoluteValue L ℝ}
 
-instance {v : AbsoluteValue K ℝ} {w : AbsoluteValue L ℝ} :
-    Algebra (WithAbs v) (WithAbs w) :=
-  ‹Algebra K L›
+instance : Algebra (WithAbs v) (WithAbs w) := ‹Algebra K L›
+
+instance : Algebra K (WithAbs w) := ‹Algebra K L›
+
+instance [NumberField K] : NumberField (WithAbs v) := ‹NumberField K›
+
+theorem norm_eq_abs (x : WithAbs v) : ‖x‖ = v x := rfl
 
 theorem uniformContinuous_algebraMap {v : AbsoluteValue K ℝ} {w : AbsoluteValue L ℝ}
     (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v x) :
