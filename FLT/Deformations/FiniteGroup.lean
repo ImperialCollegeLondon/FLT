@@ -4,7 +4,7 @@ import FLT.Mathlib.Algebra.MvPolynomial.Eval
 
 universe u
 
-open CategoryTheory Function
+open CategoryTheory Function Matrix Set MvPolynomial
 open scoped TensorProduct
 
 variable {𝓞 : Type u}
@@ -19,26 +19,12 @@ variable {G : Type u} [Group G] [TopologicalSpace G] [TopologicalGroup G]
 
 variable (ρbar : Representation (𝓴 𝓞) G V)
 
-variable (A : 𝓒 𝓞)
-variable [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
-variable [Module A V] [IsScalarTower A (𝓴 A) V]
+variable {ι : Type*} [DecidableEq ι] [Fintype ι]
+variable (𝓫 : Basis ι (𝓴 𝓞) V)
 
-variable {W: Type u} [AddCommMonoid W] [Module A W] [Module.Free A W] [Module.Finite A W]
-
-variable {ι : Type*} [Fintype ι]
-
-variable (reduction : LinearEquiv
-  (algebraMap (𝓴 A) (𝓴 𝓞))
-  ((𝓴 A) ⊗[A] W)
-  V)
-
-variable (ρ: Representation A G W)
 section G_finite -- Section 3.1 Smit & Lenstra
 
-open Matrix Set MvPolynomial
 variable [Finite G]
-
-variable {ι : Type*} [DecidableEq ι] [Fintype ι]
 
 variable (𝓞 G) in
 noncomputable abbrev smitLenstraRingRelations1 (i : ι) : MvPolynomial (ι × ι × G) 𝓞 :=
@@ -147,7 +133,6 @@ noncomputable def smitLenstraMap : (𝓞[G, ι] →ₐ[𝓞] A) ≃ (G →* GL(�
     sorry
 
 -- Choose any basis of V, this makes ρbar into a G →* GL_ι(𝓴 A)
-variable (𝓫 : Basis ι (𝓴 𝓞) V)
 noncomputable def ρbar' := Representation.gl_map_of_basis ρbar 𝓫
 
 noncomputable def smitLenstraCandidate_map : 𝓞[G, ι] →ₐ[𝓞] (𝓴 𝓞) :=
