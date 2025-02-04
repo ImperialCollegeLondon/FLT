@@ -1,9 +1,9 @@
 import Mathlib.NumberTheory.NumberField.Completion
 import Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
+import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.NumberField.Embeddings
 
 open scoped TensorProduct
