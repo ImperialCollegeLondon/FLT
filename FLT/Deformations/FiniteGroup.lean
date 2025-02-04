@@ -20,7 +20,10 @@ variable {G : Type u} [Group G] [TopologicalSpace G] [TopologicalGroup G]
 variable (ρbar : Representation (𝓴 𝓞) G V)
 
 variable {ι : Type*} [DecidableEq ι] [Fintype ι]
-variable (𝓫 : Basis ι (𝓴 𝓞) V)
+  (𝓫 : Basis ι (𝓴 𝓞) V)
+
+-- Given a basis of V, ρbar can be made into a G →* GL(ι, 𝓴 𝓞)
+noncomputable def ρbar' := Representation.gl_map_of_basis ρbar 𝓫
 
 section G_finite -- Section 3.1 Smit & Lenstra
 
@@ -132,8 +135,9 @@ noncomputable def smitLenstraMap : (𝓞[G, ι] →ₐ[𝓞] A) ≃ (G →* GL(�
     simp_all only [MonoidHom.coe_mk, OneHom.coe_mk]
     sorry
 
--- Choose any basis of V, this makes ρbar into a G →* GL_ι(𝓴 A)
-noncomputable def ρbar' := Representation.gl_map_of_basis ρbar 𝓫
+section ρbar_NonTrivial
+
+variable (hρbar_nontrivial : ∃ g, ρbar g ≠ 1)
 
 noncomputable def smitLenstraCandidate_map : 𝓞[G, ι] →ₐ[𝓞] (𝓴 𝓞) :=
   (smitLenstraMap (𝓞 := 𝓞) (G := G) (A := 𝓴 𝓞) (ι := ι)).symm (ρbar' ρbar 𝓫)
@@ -141,15 +145,39 @@ noncomputable def smitLenstraCandidate_map : 𝓞[G, ι] →ₐ[𝓞] (𝓴 𝓞
 noncomputable abbrev smitLenstraCandidate_maximalIdeal : Ideal (𝓞[G, ι]) :=
   RingHom.ker (smitLenstraCandidate_map ρbar 𝓫)
 
+lemma smitLenstraCandidate_map_nonTrivial :
+    ∃ F, (smitLenstraCandidate_map ρbar 𝓫) F ≠ 0 :=
+  sorry
+
+instance : IsSimpleModule 𝓞 (𝓴 𝓞) := sorry
+
 instance : (smitLenstraCandidate_maximalIdeal ρbar 𝓫).IsMaximal :=
   RingHom.ker_isMaximal_of_surjective
     (smitLenstraCandidate_map ρbar 𝓫)
-    (by sorry) -- For this to be true, ρbar needs to be nontrivial!
+    (by
+      have hsurj_or_zero := LinearMap.surjective_or_eq_zero
+        (R := 𝓞) (N := 𝓴 𝓞) (M := 𝓞[G, ι]) (smitLenstraCandidate_map ρbar 𝓫).toLinearMap
+      have hnon_zero := smitLenstraCandidate_map_nonTrivial ρbar 𝓫
+      sorry
+    )
 
 noncomputable abbrev smitLenstraCandidate : Type _ :=
   Localization.AtPrime (smitLenstraCandidate_maximalIdeal ρbar 𝓫)
 
+omit ι 𝓫 in
+noncomputable def smitLenstraCandidate_𝓒_𝓞 : 𝓒 𝓞 where
+  obj :=
+    let 𝓫 := Module.Free.chooseBasis (𝓴 𝓞) V
+    .of 𝓞 (smitLenstraCandidate ρbar 𝓫)
+  property := sorry
+
 -- Proposition 2.5 in G Finite
-theorem Lift.functor_isCorepresentable_finite : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
+theorem functor_isCorepresentable_finite' : (Lift.functor 𝓞 ρbar).IsCorepresentable where
+  has_corepresentation := ⟨
+    smitLenstraCandidate_𝓒_𝓞 ρbar,
+    sorry
+  ⟩
+
+end ρbar_NonTrivial
 
 end G_finite
