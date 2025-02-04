@@ -15,16 +15,6 @@ instance {v : AbsoluteValue K ℝ} {w : AbsoluteValue L ℝ} :
     Algebra (WithAbs v) (WithAbs w) :=
   ‹Algebra K L›
 
-instance {w : AbsoluteValue L ℝ} [Algebra K L] :
-    Algebra K (WithAbs w) :=
-  ‹Algebra K L›
-
-instance {w : AbsoluteValue L ℝ} : UniformContinuousConstSMul K (WithAbs w) :=
-  uniformContinuousConstSMul_of_continuousConstSMul _ _
-
-instance {w : AbsoluteValue L ℝ}  : IsScalarTower K L (WithAbs w) :=
-  inferInstanceAs (IsScalarTower K L L)
-
 theorem uniformContinuous_algebraMap {v : AbsoluteValue K ℝ} {w : AbsoluteValue L ℝ}
     (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v x) :
     UniformContinuous (algebraMap (WithAbs v) (WithAbs w)) :=
