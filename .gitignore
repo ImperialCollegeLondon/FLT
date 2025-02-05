@@ -3,6 +3,8 @@
 /lake-packages/*
 .lake/*
 .DS_Store
+# Documentation
+docs/build
 # Lean blueprint
 blueprint/print/print.log
 blueprint/web/
