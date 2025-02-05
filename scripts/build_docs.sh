@@ -1,4 +1,4 @@
-# Buid HTML documentation for FLT
+# Build HTML documentation for FLT
 # The output will be located in docs/docs
 
 # Template lakefile.toml
