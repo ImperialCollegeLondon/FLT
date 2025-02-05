@@ -116,7 +116,6 @@ jobs:
             ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Build project API documentation
-        working-directory: docbuild
         run: scripts/build_docs.sh
 
       - name: Bundle dependencies
