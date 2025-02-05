@@ -133,7 +133,7 @@ noncomputable instance : Algebra (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (�
 instance : TopologicalSpace (L ⊗[K] AdeleRing (𝓞 K) K) :=
   moduleTopology (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K)
 
-instance i' : IsModuleTopology (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
+instance : IsModuleTopology (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
 
 /-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
@@ -213,19 +213,6 @@ def IsModuleTopology.continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
 
-def IsModuleTopology.continuousAlgEquiv {A B R : Type*} [TopologicalSpace A] [TopologicalSpace R]
-    [TopologicalSpace B] [CommSemiring R]  [CommSemiring A] [CommSemiring B]
-    [Algebra R A] [Algebra R B]  [IsModuleTopology R A] (e : A ≃ₐ[R] B)
-    [IsModuleTopology R B] :
-    A ≃A[R] B where
-  toAlgEquiv := e
-  continuous_toFun :=
-    letI := IsModuleTopology.toContinuousAdd
-    IsModuleTopology.continuous_of_linearMap e.toLinearMap
-  continuous_invFun :=
-    letI := IsModuleTopology.toContinuousAdd
-    IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
-
 @[simp]
 theorem IsModuleTopology.continuousLinearEquiv_symm_apply {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
@@ -233,18 +220,11 @@ theorem IsModuleTopology.continuousLinearEquiv_symm_apply {A B R : Type*} [Topol
     (e : A ≃ₗ[R] B) (b : B) :
     (continuousLinearEquiv e).symm b = e.symm b := rfl
 
-
 instance instPiIsModuleTopology : IsModuleTopology (AdeleRing (𝓞 K) K) (Fin (Module.finrank K L) → AdeleRing (𝓞 K) K) :=
   IsModuleTopology.instPi
 
 instance : IsScalarTower K L (AdeleRing (𝓞 L) L) :=
   IsScalarTower.of_algebraMap_eq' rfl
-
-instance : TopologicalSpace (AdeleRing (𝓞 K) K ⊗[K] L) :=
-  moduleTopology (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 K) K ⊗[K] L)
-
-instance : IsModuleTopology (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 K) K ⊗[K] L)  := by
-  exact ⟨rfl⟩
 
 noncomputable def comm' (A R B : Type*) [CommSemiring A] [CommSemiring B] [CommSemiring R] [Algebra R A] [Algebra R B] :
     letI : Algebra A (B ⊗[R] A) := Algebra.TensorProduct.rightAlgebra
