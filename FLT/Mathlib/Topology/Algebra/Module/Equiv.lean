@@ -9,3 +9,13 @@ def ContinuousLinearEquiv.toContinuousAddEquiv
     M₁ ≃ₜ+ M₂ where
   __ := e.toLinearEquiv.toAddEquiv
   continuous_invFun := e.symm.continuous
+
+@[simps!]
+def ContinuousLinearEquiv.restrictScalars (R : Type*) {S M M₂ : Type*}
+    [Semiring R] [Semiring S] [AddCommMonoid M] [AddCommMonoid M₂] [Module R M] [Module R M₂]
+    [Module S M] [Module S M₂] [LinearMap.CompatibleSMul M M₂ R S] [TopologicalSpace M]
+    [TopologicalSpace M₂] (f : M ≃L[S] M₂) :
+    M ≃L[R] M₂ where
+  __ := f.toLinearEquiv.restrictScalars R
+  continuous_toFun := f.continuous_toFun
+  continuous_invFun := f.continuous_invFun
