@@ -73,7 +73,6 @@ lemma antipode_unique {T : LinearPoint R A A} (h : T * LinearMap.id = 1) :
     T = antipode :=
   left_inv_eq_right_inv (M := LinearPoint R A A) h id_mul_antipode
 
-
 lemma antipode_unique' {T : LinearPoint R A A} (h : LinearMap.id * T = 1) :
     T = antipode :=
   left_inv_eq_right_inv (M := LinearPoint R A A) antipode_mul_id h |>.symm
