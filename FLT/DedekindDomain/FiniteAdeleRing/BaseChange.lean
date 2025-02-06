@@ -342,8 +342,7 @@ theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
     RingHom.coe_coe, AlgHom.coe_comp, AlgHom.coe_restrictScalars', AlgHom.coe_coe,
     Function.comp_apply, SetLike.mem_coe]
   induction' x with x y x y hx hy
-  · rw [(tensorAdicCompletionIntegersTo A K L B v).map_zero,
-      (tensorAdicCompletionComapAlgHom A K L B v).map_zero]
+  · simp only [map_zero, Pi.zero_apply]
     exact zero_mem _
   · simp only [tensorAdicCompletionIntegersTo, Algebra.TensorProduct.lift_tmul, AlgHom.coe_comp,
       Function.comp_apply, Algebra.ofId_apply, AlgHom.commutes,
@@ -362,8 +361,7 @@ theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
     · exact Ideal.IsDedekindDomain.ramificationIdx_ne_zero  ((Ideal.map_eq_bot_iff_of_injective
         (algebraMap_injective_of_field_isFractionRing A B K L)).not.mpr
         (comap A i.1).3) i.1.2 Ideal.map_comap_le
-  · rw [(tensorAdicCompletionIntegersTo A K L B v).map_add,
-      (tensorAdicCompletionComapAlgHom A K L B v).map_add]
+  · simp only [map_add, Pi.add_apply]
     exact add_mem hx hy
 
 theorem adicCompletionComapAlgEquiv_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
