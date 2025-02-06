@@ -94,23 +94,23 @@ variable {R A B}
 
 lemma comul_apply_repr (a : A) (b : B) {ιA ιB : Type*}
     (sA : Finset ιA) (sB : Finset ιB)
-    (xA yA : ιA → A) (repr_a : comul a = ∑ i in sA, xA i ⊗ₜ[R] yA i)
-    (xB yB : ιB → B) (repr_b : comul b = ∑ i in sB, xB i ⊗ₜ[R] yB i) :
-    comul (a ⊗ₜ[R] b) = ∑ i in sA, ∑ j in sB, (xA i ⊗ₜ xB j) ⊗ₜ[R] (yA i ⊗ₜ yB j) := by
+    (xA yA : ιA → A) (repr_a : comul a = ∑ i ∈ sA, xA i ⊗ₜ[R] yA i)
+    (xB yB : ιB → B) (repr_b : comul b = ∑ i ∈ sB, xB i ⊗ₜ[R] yB i) :
+    comul (a ⊗ₜ[R] b) = ∑ i ∈ sA, ∑ j ∈ sB, (xA i ⊗ₜ xB j) ⊗ₜ[R] (yA i ⊗ₜ yB j) := by
   simpa [TensorProduct.comul_def, repr_a, repr_b, map_sum, sum_tmul, tmul_sum] using Finset.sum_comm
 
 lemma comul_apply_repr' (a : A) (b : B) {ιA ιB : Type*}
     (sA : Finset ιA) (sB : Finset ιB)
-    (xA yA : ιA → A) (repr_a : comul a = ∑ i in sA, xA i ⊗ₜ[R] yA i)
-    (xB yB : ιB → B) (repr_b : comul b = ∑ i in sB, xB i ⊗ₜ[R] yB i) :
-    comul (a ⊗ₜ[R] b) = ∑ j in sB, ∑ i in sA, (xA i ⊗ₜ xB j) ⊗ₜ[R] (yA i ⊗ₜ yB j) := by
+    (xA yA : ιA → A) (repr_a : comul a = ∑ i ∈ sA, xA i ⊗ₜ[R] yA i)
+    (xB yB : ιB → B) (repr_b : comul b = ∑ i ∈ sB, xB i ⊗ₜ[R] yB i) :
+    comul (a ⊗ₜ[R] b) = ∑ j ∈ sB, ∑ i ∈ sA, (xA i ⊗ₜ xB j) ⊗ₜ[R] (yA i ⊗ₜ yB j) := by
   simp [TensorProduct.comul_def, repr_a, repr_b, map_sum, sum_tmul, tmul_sum]
 
 lemma comul_apply_repr'' (a : A) (b : B) {ιA ιB : Type*}
     (sA : Finset ιA) (sB : Finset ιB)
-    (xA yA : ιA → A) (repr_a : comul a = ∑ i in sA, xA i ⊗ₜ[R] yA i)
-    (xB yB : ιB → B) (repr_b : comul b = ∑ i in sB, xB i ⊗ₜ[R] yB i) :
-    comul (a ⊗ₜ[R] b) = ∑ i in sA ×ˢ sB, (xA i.1 ⊗ₜ xB i.2) ⊗ₜ[R] (yA i.1 ⊗ₜ yB i.2) := by
+    (xA yA : ιA → A) (repr_a : comul a = ∑ i ∈ sA, xA i ⊗ₜ[R] yA i)
+    (xB yB : ιB → B) (repr_b : comul b = ∑ i ∈ sB, xB i ⊗ₜ[R] yB i) :
+    comul (a ⊗ₜ[R] b) = ∑ i ∈ sA ×ˢ sB, (xA i.1 ⊗ₜ xB i.2) ⊗ₜ[R] (yA i.1 ⊗ₜ yB i.2) := by
   rw [TensorProduct.comul_apply_repr (repr_a := repr_a) (repr_b := repr_b), Finset.sum_product]
 
 end Coalgebra

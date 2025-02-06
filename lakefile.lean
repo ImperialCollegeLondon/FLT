@@ -8,7 +8,7 @@ package FLT where
     ⟨`relaxedAutoImplicit, false⟩ -- switch off relaxed auto-implicit
   ]
 
-require mathlib from git "https://github.com/leanprover-community/mathlib4.git" @ "master"
+require mathlib from git "https://github.com/leanprover-community/mathlib4.git" @ "stable"
 
 require checkdecls from git "https://github.com/PatrickMassot/checkdecls.git"
 
