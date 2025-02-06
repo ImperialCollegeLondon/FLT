@@ -253,10 +253,3 @@ def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
   continuous_invFun :=
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
-
-@[simp]
-theorem continuousLinearEquiv_symm_apply {A B R : Type*} [TopologicalSpace A]
-    [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
-    [Module R A] [Module R B] [IsModuleTopology R A] [IsModuleTopology R B]
-    (e : A ≃ₗ[R] B) (b : B) :
-    (continuousLinearEquiv e).symm b = e.symm b := rfl
