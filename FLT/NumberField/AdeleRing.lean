@@ -117,52 +117,50 @@ end Discrete
 
 section BaseChange
 
-variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
-
-open NumberField
-
-variable [Algebra K (AdeleRing (𝓞 L) L)] [IsScalarTower K L (AdeleRing (𝓞 L) L)]
-
-/-- The canonical map from the adeles of K to the adeles of L -/
-noncomputable def NumberField.AdeleRing.baseChange :
-    AdeleRing (𝓞 K) K →A[K] AdeleRing (𝓞 L) L :=
-  sorry -- product of finite and infinite adele maps
-
-open scoped TensorProduct
-
-noncomputable instance : Algebra (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K) :=
-  Algebra.TensorProduct.rightAlgebra
-
-instance : TopologicalSpace (L ⊗[K] AdeleRing (𝓞 K) K) :=
-  moduleTopology (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K)
-
-instance : IsModuleTopology (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
-
-/-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
-`K`-algebra base change map `K_∞ → L_∞`. -/
-def NumberField.AdeleRing.baseChangeEquiv :
-    (L ⊗[K] (AdeleRing (𝓞 K) K)) ≃A[L] AdeleRing (𝓞 L) L :=
-  sorry
-
-variable {L}
-
-theorem NumberField.AdeleRing.baseChangeEquiv_tsum_apply_right (l : L) :
-  baseChangeEquiv K L (l ⊗ₜ[K] 1) = algebraMap L (AdeleRing (𝓞 L) L) l := sorry
-
 namespace NumberField.AdeleRing
 
-scoped notation:100 "𝔸" K => AdeleRing (𝓞 K) K
+variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
-variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
+scoped notation:100 "𝔸" K => AdeleRing (𝓞 K) K
 
 noncomputable instance : Algebra K (𝔸 L) :=
   Algebra.compHom _ (algebraMap K L)
 
+instance : IsScalarTower K L (𝔸 L) :=
+  IsScalarTower.of_algebraMap_eq' rfl
+
+/-- The canonical map from the adeles of K to the adeles of L -/
+noncomputable def baseChange :
+    (𝔸 K) →A[K] 𝔸 L :=
+  sorry -- product of finite and infinite adele maps
+
+open scoped TensorProduct
+
+noncomputable instance : Algebra (𝔸  K) (L ⊗[K] 𝔸 K) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : TopologicalSpace (L ⊗[K] 𝔸 K) :=
+  moduleTopology (𝔸 K) (L ⊗[K] 𝔸 K)
+
+instance : IsModuleTopology (𝔸 K) (L ⊗[K] 𝔸 K) := ⟨rfl⟩
+
 instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank K L) → 𝔸 K) :=
   IsModuleTopology.instPi
 
-instance : IsScalarTower K L (𝔸 L) :=
-  IsScalarTower.of_algebraMap_eq' rfl
+open DedekindDomain in
+/-- The canonical `L`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
+`K`-algebra base change map `𝔸_K → 𝔸_L`. -/
+def baseChangeEquiv :
+    (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L :=
+  sorry
+
+variable {L}
+
+theorem baseChangeEquiv_tsum_apply_right (l : L) :
+    baseChangeEquiv K L (l ⊗ₜ[K] 1) = algebraMap L (𝔸 L) l :=
+  sorry
+
+variable (L)
 
 open TensorProduct.AlgebraTensorModule in
 noncomputable abbrev tensorProductEquivPi :
@@ -217,7 +215,7 @@ theorem piEquiv_map_principalSubgroup :
     ContinuousLinearEquiv.coe_toLinearEquiv]
   refine ⟨fun ⟨a, h, ha⟩ => ha ▸ piEquiv_mem_principalSubgroup h, ?_⟩
   rintro ⟨a, rfl⟩
-  use fun i => algebraMap K (AdeleRing (𝓞 K) K) (Module.Finite.equivPi _ _ a i)
+  use fun i => algebraMap K (𝔸 K) (Module.Finite.equivPi _ _ a i)
   refine ⟨fun i _ => ⟨Module.Finite.equivPi _ _ a i, rfl⟩, ?_⟩
   rw [piEquiv_apply_of_algebraMap (fun i => rfl), LinearEquiv.symm_apply_apply]
 
@@ -244,7 +242,7 @@ theorem Rat.AdeleRing.cocompact :
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
 theorem NumberField.AdeleRing.cocompact :
-    CompactSpace (AdeleRing (𝓞 K) K ⧸ AdeleRing.principalSubgroup (𝓞 K) K) :=
+    CompactSpace (AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) :=
   letI := Rat.AdeleRing.cocompact
   (piQuotientEquiv ℚ K).compactSpace
 
