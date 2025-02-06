@@ -76,11 +76,11 @@ instance charZero : CharZero ZHat := ⟨ fun a b h ↦ by
 open BigOperators Nat Finset in
 /-- A nonarchimedean analogue `0! + 1! + 2! + ⋯` of `e = 1/0! + 1/1! + 1/2! + ⋯`.
 It is defined as the function whose value at `ZMod n` is the sum of `i!` for `0 ≤ i < n`.-/
-def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i in range (n : ℕ), i !, by
+def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i ∈ range (n : ℕ), i !, by
   intros D N hDN
   dsimp only
   obtain ⟨k, hk⟩ := exists_add_of_le <| le_of_dvd N.pos hDN
-  simp_rw [map_sum, map_natCast, hk, sum_range_add, add_right_eq_self]
+  simp_rw [map_sum, map_natCast, hk, sum_range_add, add_right_eq_self];
   refine sum_eq_zero (fun i _ => ?_)
   rw [ZMod.natCast_zmod_eq_zero_iff_dvd]
   exact Nat.dvd_factorial D.pos le_self_add
@@ -88,7 +88,7 @@ def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i in range (n : ℕ), i !, by
 
 open BigOperators Nat Finset
 
-lemma e_def (n : ℕ+) : e n = ∑ i in range (n : ℕ), (i ! : ZMod n) := rfl
+lemma e_def (n : ℕ+) : e n = ∑ i ∈ range (n : ℕ), (i ! : ZMod n) := rfl
 
 lemma _root_.Nat.sum_factorial_lt_factorial_succ {j : ℕ} (hj : 1 < j) :
     ∑ i ∈ range (j + 1), i ! < (j + 1) ! := by
