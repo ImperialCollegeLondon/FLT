@@ -1,9 +1,12 @@
 import Mathlib
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+import FLT.Mathlib.Algebra.Algebra.Tower
+import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.NumberField.InfiniteAdeleRing
 
 open scoped TensorProduct
@@ -146,172 +149,85 @@ variable {L}
 theorem NumberField.AdeleRing.baseChangeEquiv_tsum_apply_right (l : L) :
   baseChangeEquiv K L (l ⊗ₜ[K] 1) = algebraMap L (AdeleRing (𝓞 L) L) l := sorry
 
-variable (L)
-
--- TODO: Move this stuff
-noncomputable def Module.Finite.equivPi (R M : Type*) [Ring R] [StrongRankCondition R]
-    [AddCommGroup M] [Module R M] [Module.Free R M] [Module.Finite R M] :
-    M ≃ₗ[R] Fin (Module.finrank R M) → R :=
-  LinearEquiv.ofFinrankEq _ _ <| by rw [Module.finrank_pi, Fintype.card_fin]
-
-variable (R M N : Type*) [CommRing R] [AddCommMonoid N]
-    [Semiring M] [Module R N] [Module R M] [Module.Free R M] [Module.Finite R M]
-
--- Need to turn this into an N-linear map
-noncomputable abbrev TensorProduct.finiteEquivPi (R M N : Type*) [CommRing R] [AddCommMonoid N]
-    [AddCommGroup M] [Module R N] [Module R M] [Module.Free R M] [Module.Finite R M]
-    [StrongRankCondition R] :
-    M ⊗[R] N ≃ₗ[R] Fin (Module.finrank R M) → N :=
-  (TensorProduct.comm _ _ _).trans <|
-    (TensorProduct.congr (LinearEquiv.refl R N) (Module.Finite.equivPi _ _)).trans
-      (TensorProduct.piScalarRight _ _ _ _)
-
-noncomputable abbrev TensorProduct.finiteEquivPiRight (R M N : Type*) [CommRing R] [CommSemiring N]
-    [CommRing M] [Algebra R N] [Algebra R M] [Module.Free R M] [Module.Finite R M]
-    [StrongRankCondition R] :
-    N ⊗[R] M ≃ₗ[N] Fin (Module.finrank R M) → N :=
-  (TensorProduct.AlgebraTensorModule.congr (LinearEquiv.refl N N) (Module.Finite.equivPi _ _)).trans
-    (TensorProduct.piScalarRight _ _ _ _)
-
-theorem Fintype.sum_pi_single_pi {α : Type*} {β : α → Type*} [DecidableEq α] [Fintype α]
-    [(a : α) → AddCommMonoid (β a)] (f : (a : α) → β a) :
-    ∑ (a : α), Pi.single a (f a) = f := by
-  simp_rw [funext_iff, Fintype.sum_apply]
-  exact fun _ => Fintype.sum_pi_single _ _
-
-theorem TensorProduct.finiteEquivPi_symm_apply (R M N : Type*) [Field R] [CommSemiring N]
-    [AddCommGroup M] [Algebra R N] [Module R M] [FiniteDimensional R M]
-    (x : Fin (Module.finrank R M) → R) :
-    (finiteEquivPi R M N).symm (fun i => algebraMap _ _ (x i)) =
-      (Module.Finite.equivPi R M).symm x ⊗ₜ[R] 1 := by
-  simp [Algebra.TensorProduct.piScalarRight_symm_apply_of_algebraMap, Fintype.sum_pi_single_pi]
-
-theorem TensorProduct.finiteEquivPiRight_symm_apply (R M N : Type*) [Field R] [CommSemiring N]
-    [CommRing M] [Algebra R N] [Algebra R M] [FiniteDimensional R M]
-    (x : Fin (Module.finrank R M) → R) :
-    (finiteEquivPiRight R M N).symm (fun i => algebraMap _ _ (x i)) =
-      1 ⊗ₜ[R] (Module.Finite.equivPi R M).symm x := by
-  simp [Algebra.TensorProduct.piScalarRight_symm_apply_of_algebraMap, Fintype.sum_pi_single_pi]
-
 namespace NumberField.AdeleRing
+
+scoped notation:100 "𝔸" K => AdeleRing (𝓞 K) K
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
-noncomputable instance : Algebra K (NumberField.AdeleRing (𝓞 L) L) :=
+noncomputable instance : Algebra K (𝔸 L) :=
   Algebra.compHom _ (algebraMap K L)
 
-def IsModuleTopology.continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
-    [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
-    [Module R A] [Module R B] [IsModuleTopology R A] [IsModuleTopology R B]
-    (e : A ≃ₗ[R] B) :
-    A ≃L[R] B where
-  __ := e
-  continuous_toFun :=
-    letI := IsModuleTopology.toContinuousAdd
-    IsModuleTopology.continuous_of_linearMap e.toLinearMap
-  continuous_invFun :=
-    letI := IsModuleTopology.toContinuousAdd
-    IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
-
-@[simp]
-theorem IsModuleTopology.continuousLinearEquiv_symm_apply {A B R : Type*} [TopologicalSpace A]
-    [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
-    [Module R A] [Module R B] [IsModuleTopology R A] [IsModuleTopology R B]
-    (e : A ≃ₗ[R] B) (b : B) :
-    (continuousLinearEquiv e).symm b = e.symm b := rfl
-
-instance instPiIsModuleTopology : IsModuleTopology (AdeleRing (𝓞 K) K) (Fin (Module.finrank K L) → AdeleRing (𝓞 K) K) :=
+instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank K L) → 𝔸 K) :=
   IsModuleTopology.instPi
 
-instance : IsScalarTower K L (AdeleRing (𝓞 L) L) :=
+instance : IsScalarTower K L (𝔸 L) :=
   IsScalarTower.of_algebraMap_eq' rfl
 
-noncomputable def comm' (A R B : Type*) [CommSemiring A] [CommSemiring B] [CommSemiring R] [Algebra R A] [Algebra R B] :
-    letI : Algebra A (B ⊗[R] A) := Algebra.TensorProduct.rightAlgebra
-    A ⊗[R] B ≃ₗ[A] B ⊗[R] A where
-  __ : Algebra A (B ⊗[R] A) := Algebra.TensorProduct.rightAlgebra
-  toFun := Algebra.TensorProduct.comm R A B |>.toFun
-  invFun := Algebra.TensorProduct.comm R A B |>.invFun
-  map_add' := Algebra.TensorProduct.comm R A B |>.map_add'
-  left_inv := Algebra.TensorProduct.comm R A B |>.left_inv
-  right_inv := Algebra.TensorProduct.comm R A B |>.right_inv
-  map_smul' a x := by
-    simp
-    induction' x using TensorProduct.induction_on
-    · simp
-    · simp only [TensorProduct.smul_tmul']
-      simp only [Algebra.TensorProduct.comm_tmul]
-      rw [RingHom.smul_toAlgebra']
-      simp
-    · rw [RingHom.smul_toAlgebra']
-      simp
-      simp_rw [Algebra.smul_def]
-      simp
-      rw [mul_add]
-
-noncomputable abbrev tensorProductContinuousLinearEquivPi :
-    L ⊗[K] AdeleRing (𝓞 K) K ≃L[K] (Fin (Module.finrank K L) → AdeleRing (𝓞 K) K) :=
+open TensorProduct.AlgebraTensorModule in
+noncomputable abbrev tensorProductEquivPi :
+    L ⊗[K] (𝔸 K) ≃L[K] (Fin (Module.finrank K L) → 𝔸 K) :=
   letI := instPiIsModuleTopology K L
-  IsModuleTopology.continuousLinearEquiv ((comm' _ _ _).symm.trans <|
-    TensorProduct.finiteEquivPiRight K L (AdeleRing (𝓞 K) K)) |>.restrictScalars K
+  -- `𝔸 K ⊗[K] L ≃ₗ[𝔸 K] L ⊗[K] 𝔸 K`
+  -- Note: needs to be this order to avoid instance clash with inferred leftAlgebra
+  let comm := (Algebra.TensorProduct.comm K (𝔸 K) L).extendScalars (𝔸 K) |>.toLinearEquiv
+  -- `𝔸 K ⊗[K] L ≃ₗ[𝔸 K] ⊕ 𝔸 K`
+  let π := finiteEquivPi K L (𝔸 K)
+  -- Stitch together to get `L ⊗[K] 𝔸 K ≃ₗ[𝔸 K] ⊕ 𝔸 K`, which is automatically
+  -- continuous due to `𝔸 K` module topologies on both sides, then restrict scalars to `K`
+  IsModuleTopology.continuousLinearEquiv (comm.symm.trans π) |>.restrictScalars K
 
-noncomputable abbrev baseChangePi :
-    (Fin (Module.finrank K L) → AdeleRing (𝓞 K) K) ≃L[K] AdeleRing (𝓞 L) L :=
-  (tensorProductContinuousLinearEquivPi K L).symm.trans
-    ((baseChangeEquiv K L).restrictScalars K).toContinuousLinearEquiv
+noncomputable abbrev piEquiv :
+    (Fin (Module.finrank K L) → 𝔸 K) ≃L[K] 𝔸 L :=
+  -- `⊕ 𝔸 K ≃L[K] L ⊗[K] 𝔸 K` from previous def
+  let π := (tensorProductEquivPi K L).symm
+  -- `L ⊗[K] 𝔸 K ≃L[K] 𝔸 L` base change  restricted to `K` as a continuous linear equiv
+  let BC := baseChangeEquiv K L |>.restrictScalars K |>.toContinuousLinearEquiv
+  π.trans BC
 
 variable {K L}
 
-@[simp]
-theorem TensorProduct.AlgebraTensorModule.congr_symm_apply {R A M N P Q : Type*} [CommSemiring R]
-    [Semiring A] [Algebra R A] [AddCommMonoid M] [Module R M] [Module A M] [IsScalarTower R A M]
-    [AddCommMonoid N] [Module R N] [AddCommMonoid P] [Module R P] [Module A P] [IsScalarTower R A P]
-    [AddCommMonoid Q] [Module R Q] [IsScalarTower R A M] [IsScalarTower R A P] (f : M ≃ₗ[A] P) (g : N ≃ₗ[R] Q) (x : P ⊗[R] Q) :
-    (TensorProduct.AlgebraTensorModule.congr f g).symm x = TensorProduct.AlgebraTensorModule.map (A := A) f.symm g.symm x := rfl
-
-theorem baseChangePi_apply_of_algebraMap
-    {x : Fin (Module.finrank K L) → AdeleRing (𝓞 K) K}
+open TensorProduct.AlgebraTensorModule in
+theorem piEquiv_apply_of_algebraMap
+    {x : Fin (Module.finrank K L) → 𝔸 K}
     {y : Fin (Module.finrank K L) → K}
-    (h : ∀ i, algebraMap K (AdeleRing (𝓞 K) K) (y i) = x i) :
-    baseChangePi K L x = algebraMap L _ (Module.Finite.equivPi _ _ |>.symm y) := by
-  rw [← funext h, ContinuousLinearEquiv.trans_apply,
-    ContinuousLinearEquiv.restrictScalars_symm_apply, ContinuousAlgEquiv.coe_restrictScalars_apply,
-    LinearEquiv.restrictScalars_apply, ContinuousLinearEquiv.coe_toLinearEquiv]
+    (h : ∀ i, algebraMap K (𝔸 K) (y i) = x i) :
+    piEquiv K L x = algebraMap L _ (Module.Finite.equivPi _ _ |>.symm y) := by
+  simp [← funext h]
   simp only [IsModuleTopology.continuousLinearEquiv]
-  rw [LinearEquiv.trans_symm, LinearEquiv.symm_symm, LinearEquiv.trans_apply]
-  rw [TensorProduct.finiteEquivPiRight_symm_apply]
-  simp [comm']
-  rw [ContinuousAlgEquiv.toContinuousLinearEquiv_apply,
+  rw [LinearEquiv.trans_symm, LinearEquiv.trans_apply, finiteEquivPi_symm_apply]
+  simp [AlgEquiv.extendScalars, ContinuousAlgEquiv.toContinuousLinearEquiv_apply,
     baseChangeEquiv_tsum_apply_right]
 
-theorem baseChangePi_mem_principalSubgroup
-    {x : Fin (Module.finrank K L) → AdeleRing (𝓞 K) K}
+theorem piEquiv_mem_principalSubgroup
+    {x : Fin (Module.finrank K L) → 𝔸 K}
     (h : x ∈ AddSubgroup.pi Set.univ (fun _ => principalSubgroup (𝓞 K) K)) :
-    baseChangePi K L x ∈ principalSubgroup (𝓞 L) L := by
+    piEquiv K L x ∈ principalSubgroup (𝓞 L) L := by
   simp only [AddSubgroup.mem_pi, Set.mem_univ, forall_const] at h
   choose y hy using h
-  exact baseChangePi_apply_of_algebraMap hy ▸ ⟨Module.Finite.equivPi _ _ |>.symm y, rfl⟩
+  exact piEquiv_apply_of_algebraMap hy ▸ ⟨Module.Finite.equivPi _ _ |>.symm y, rfl⟩
 
 variable (K L)
 
-theorem baseChangePi_map_principalSubgroup :
+theorem piEquiv_map_principalSubgroup :
     (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K)).map
-      (baseChangePi K L).toAddMonoidHom = principalSubgroup (𝓞 L) L := by
+      (piEquiv K L).toAddMonoidHom = principalSubgroup (𝓞 L) L := by
   ext x
   simp only [AddSubgroup.mem_map, LinearMap.toAddMonoidHom_coe, LinearEquiv.coe_coe,
     ContinuousLinearEquiv.coe_toLinearEquiv]
-  refine ⟨fun ⟨a, h, ha⟩ => ha ▸ baseChangePi_mem_principalSubgroup h, ?_⟩
+  refine ⟨fun ⟨a, h, ha⟩ => ha ▸ piEquiv_mem_principalSubgroup h, ?_⟩
   rintro ⟨a, rfl⟩
   use fun i => algebraMap K (AdeleRing (𝓞 K) K) (Module.Finite.equivPi _ _ a i)
   refine ⟨fun i _ => ⟨Module.Finite.equivPi _ _ a i, rfl⟩, ?_⟩
-  rw [baseChangePi_apply_of_algebraMap (fun i => rfl), LinearEquiv.symm_apply_apply]
+  rw [piEquiv_apply_of_algebraMap (fun i => rfl), LinearEquiv.symm_apply_apply]
 
-noncomputable def baseChangeQuotientPi :
-    (Fin (Module.finrank K L) → AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) ≃ₜ+
-      AdeleRing (𝓞 L) L ⧸ principalSubgroup (𝓞 L) L :=
+noncomputable def piQuotientEquiv :
+    (Fin (Module.finrank K L) → (𝔸 K) ⧸ principalSubgroup (𝓞 K) K) ≃ₜ+
+      (𝔸 L) ⧸ principalSubgroup (𝓞 L) L :=
+  -- The map `⊕ 𝔸 K ≃L[K] 𝔸 L` reduces to quotients `⊕ 𝔸 K / K ≃ₜ+ 𝔸 L / L`
   (ContinuousAddEquiv.quotientPi _).symm.trans <|
-    QuotientAddGroup.continuousAddEquiv _ _ _ _ (baseChangePi K L).toContinuousAddEquiv
-      (baseChangePi_map_principalSubgroup K L)
+    QuotientAddGroup.continuousAddEquiv _ _ _ _ (piEquiv K L).toContinuousAddEquiv
+      (piEquiv_map_principalSubgroup K L)
 
 end NumberField.AdeleRing
 
@@ -330,6 +246,6 @@ variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Alge
 theorem NumberField.AdeleRing.cocompact :
     CompactSpace (AdeleRing (𝓞 K) K ⧸ AdeleRing.principalSubgroup (𝓞 K) K) :=
   letI := Rat.AdeleRing.cocompact
-  (baseChangeQuotientPi ℚ K).compactSpace
+  (piQuotientEquiv ℚ K).compactSpace
 
 end Compact

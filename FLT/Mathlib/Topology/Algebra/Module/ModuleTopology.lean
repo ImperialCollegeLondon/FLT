@@ -240,3 +240,23 @@ topology is the ℤhat topology and this should be fine, it's finite and free
 over a complete thing so I don't think there can be any other possibility
 (the argument is weak here)
 -/
+
+def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
+    [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
+    [Module R A] [Module R B] [IsModuleTopology R A] [IsModuleTopology R B]
+    (e : A ≃ₗ[R] B) :
+    A ≃L[R] B where
+  __ := e
+  continuous_toFun :=
+    letI := IsModuleTopology.toContinuousAdd
+    IsModuleTopology.continuous_of_linearMap e.toLinearMap
+  continuous_invFun :=
+    letI := IsModuleTopology.toContinuousAdd
+    IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
+
+@[simp]
+theorem continuousLinearEquiv_symm_apply {A B R : Type*} [TopologicalSpace A]
+    [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
+    [Module R A] [Module R B] [IsModuleTopology R A] [IsModuleTopology R B]
+    (e : A ≃ₗ[R] B) (b : B) :
+    (continuousLinearEquiv e).symm b = e.symm b := rfl
