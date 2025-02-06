@@ -31,8 +31,7 @@ open Real Complex MeasureTheory Measure Set
 open scoped Pointwise
 
 lemma Real.volume_real_smul (x : ℝ) (s : Set ℝ) : volume (x • s) = ‖x‖₊ * volume s := by
-  simp [← enorm_eq_ofReal_abs]
-  rfl
+  simp [← enorm_eq_ofReal_abs, enorm_eq_nnnorm]
 
 /-- The distributive Haar character of the action of `ℝˣ` on `ℝ` is the usual norm.
 
