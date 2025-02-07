@@ -82,34 +82,6 @@ end InverseLimit
 
 end Module
 
-namespace AddCommGroup
-
-variable [∀ i : ι, AddCommGroup (obj i)]
-variable (func : ∀ {i j : ι}, i ≤ j → obj j →+ obj i)
-
-variable (obj) in
-def InverseLimit : Type _ :=
-  @Module.InverseLimit ι _ obj ℤ _ _ _ (fun hij => (func hij).toIntLinearMap)
-
-namespace InverseLimit
-
-protected theorem inverseSystem [h : InverseSystem (F := obj) (fun _ _ h => func h)] :
-    InverseSystem (F := obj) fun i j hij => (func hij).toIntLinearMap :=
-  h
-
-attribute [local instance] InverseLimit.inverseSystem
-
-instance : AddCommGroup (InverseLimit obj func) :=
-  Module.InverseLimit.addCommGroup (fun hij => (func hij).toIntLinearMap)
-
-instance : Inhabited (InverseLimit obj func) := ⟨0⟩
-
-instance [IsEmpty ι] : Unique (InverseLimit obj func) := Module.InverseLimit.unique _
-
-end InverseLimit
-
-end AddCommGroup
-
 namespace Ring
 
 open FreeCommRing
@@ -152,10 +124,12 @@ def toComponent (i) : InverseLimit obj func →+* obj i where
 variable {R' : Type*} [Ring R']
 
 def map_of_maps (maps : (i : ι) → R' →+* obj i)
-    (comm : ∀ i j (h : i ≤ j), RingHom.comp (func h) (maps j) = (maps i))
+    (comm : ∀ r' i j (h : i ≤ j), (func h) ((maps j) r') = (maps i) r')
     : R' →+* InverseLimit obj func where
       toFun r := ⟨fun i ↦ maps i r, by
-        sorry
+        suffices h : (fun i ↦ maps i r) ∈ { a : Π i : ι, obj i | ∀ (i j : _) (h : i ≤ j), func h (a j) = a i } by
+          exact Subring.mem_closure.mpr fun K a ↦ a h
+        aesop
       ⟩
       map_one' := by aesop
       map_mul' := by aesop
@@ -165,3 +139,54 @@ def map_of_maps (maps : (i : ι) → R' →+* obj i)
 end InverseLimit
 
 end Ring
+
+namespace Group
+
+variable [∀ i : ι, Group (obj i)]
+variable (func : ∀ {i j}, i ≤ j → obj j →* obj i)
+
+variable (obj) in
+/-- The inverse limit of an inverse system is the rings glued together along the maps. -/
+@[to_additive]
+def InverseLimit : Type _ :=
+  Subgroup.closure { a : Π i : ι, obj i |
+    ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
+
+namespace InverseLimit
+
+@[to_additive]
+instance group : Group (InverseLimit obj func) := by unfold InverseLimit; infer_instance
+
+@[to_additive]
+instance zero : Zero (InverseLimit obj func) := by
+  unfold InverseLimit
+  exact ⟨1⟩
+
+@[to_additive]
+instance : Inhabited (InverseLimit obj func) :=
+  ⟨0⟩
+
+@[to_additive]
+def toComponent (i) : InverseLimit obj func →* obj i where
+  toFun z := (z.1 : Π j : ι, obj j) i
+  map_one' := by simp
+  map_mul' := by aesop
+
+variable {G' : Type*} [Group G']
+
+set_option maxHeartbeats 0 in
+@[to_additive]
+def map_of_maps (maps : (i : ι) → G' →* obj i)
+    (comm : ∀ g' i j (h : i ≤ j), (func h) ((maps j) g') = (maps i) g')
+    : G' →* InverseLimit obj func where
+      toFun g := ⟨fun i ↦ maps i g, by
+        suffices h : (fun i ↦ maps i g) ∈ { a : Π i : ι, obj i | ∀ (i j : _) (h : i ≤ j), func h (a j) = a i } by
+          exact Subgroup.mem_closure.mpr fun K a ↦ a h
+        aesop
+      ⟩
+      map_one' := by aesop
+      map_mul' := by aesop
+
+end InverseLimit
+
+end Group
