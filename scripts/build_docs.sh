@@ -31,6 +31,7 @@ sed -i s/TOOLCHAIN/`grep -oP 'v4\..*' lean-toolchain`/ docbuild/lakefile.toml
 
 # Initialise docbuild as a Lean project
 cd docbuild
+MATHLIB_NO_CACHE_ON_UPDATE=1 # Disable an error message due to a non-blocking bug. See Zulip
 ~/.elan/bin/lake update FLT
 ~/.elan/bin/lake exe cache get
 
