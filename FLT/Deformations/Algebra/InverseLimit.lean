@@ -15,7 +15,8 @@ See Atiyah-Macdonald PP.32-33, Matsumura PP.269-270
 
 * `Module.InverseLimit obj f`
 * `Ring.InverseLimit obj f`
-* `.InverseLimit obj f`
+* `Group.InverseLimit obj f`
+* `Representation.InverseLimit obj f`
 -/
 
 suppress_compilation
