@@ -13,10 +13,9 @@ See Atiyah-Macdonald PP.32-33, Matsumura PP.269-270
 
 ## Main definitions
 
-* `InverseSystem f`
 * `Module.InverseLimit obj f`
-* `AddCommGroup.InverseLimit obj f`
 * `Ring.InverseLimit obj f`
+* `.InverseLimit obj f`
 -/
 
 suppress_compilation
