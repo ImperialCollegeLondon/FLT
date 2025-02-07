@@ -68,13 +68,13 @@ lemma mul_def (φ ψ : LinearPoint R A L) :
     φ * ψ = LinearMap.mul' _ _ ∘ₗ TensorProduct.map φ ψ ∘ₗ Coalgebra.comul := rfl
 
 lemma mul_repr' {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
-    (repr : Coalgebra.comul (R := R) a = ∑ i in ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
-    φ.mul ψ a = ∑ i in ℐ, φ (Δ₁ i) * ψ (Δ₂ i) := by
+    (repr : Coalgebra.comul (R := R) a = ∑ i ∈ ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
+    φ.mul ψ a = ∑ i ∈ ℐ, φ (Δ₁ i) * ψ (Δ₂ i) := by
   simp only [mul, comp_apply, repr, map_sum, map_tmul, mul'_apply]
 
 lemma mul_repr {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
-    (repr : Coalgebra.comul (R := R) a = ∑ i in ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
-    (φ * ψ) a = ∑ i in ℐ, φ (Δ₁ i) * ψ (Δ₂ i) :=
+    (repr : Coalgebra.comul (R := R) a = ∑ i ∈ ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
+    (φ * ψ) a = ∑ i ∈ ℐ, φ (Δ₁ i) * ψ (Δ₂ i) :=
   mul_repr' _ _ a ℐ Δ₁ Δ₂ repr
 
 lemma mul_assoc' : φ * ψ * χ = φ * (ψ * χ) := LinearMap.ext fun x ↦ by
@@ -172,8 +172,8 @@ lemma mul_def (φ ψ : AlgHomPoint R A L) :
       Algebra.TensorProduct.map φ ψ |>.comp <| Bialgebra.comulAlgHom R A) := rfl
 
 lemma mul_repr {ι : Type* } (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
-    (repr : Coalgebra.comul (R := R) a = ∑ i in ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
-    (φ * ψ) a = ∑ i in ℐ, φ (Δ₁ i) * ψ (Δ₂ i) :=
+    (repr : Coalgebra.comul (R := R) a = ∑ i ∈ ℐ, Δ₁ i ⊗ₜ Δ₂ i) :
+    (φ * ψ) a = ∑ i ∈ ℐ, φ (Δ₁ i) * ψ (Δ₂ i) :=
   LinearPoint.mul_repr _ _ a ℐ Δ₁ Δ₂ repr
 
 lemma mul_assoc' : φ * ψ * χ = φ * (ψ * χ) := by

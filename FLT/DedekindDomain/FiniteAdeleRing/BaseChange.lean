@@ -342,9 +342,7 @@ theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
     RingHom.coe_coe, AlgHom.coe_comp, AlgHom.coe_restrictScalars', AlgHom.coe_coe,
     Function.comp_apply, SetLike.mem_coe]
   induction' x with x y x y hx hy
-  · rw [(tensorAdicCompletionIntegersTo A K L B v).map_zero,
-      (tensorAdicCompletionComapAlgHom A K L B v).map_zero]
-    exact zero_mem _
+  · simp [map_zero, Pi.zero_apply, zero_mem]
   · simp only [tensorAdicCompletionIntegersTo, Algebra.TensorProduct.lift_tmul, AlgHom.coe_comp,
       Function.comp_apply, Algebra.ofId_apply, AlgHom.commutes,
       Algebra.TensorProduct.algebraMap_apply, AlgHom.coe_restrictScalars',
@@ -362,9 +360,7 @@ theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
     · exact Ideal.IsDedekindDomain.ramificationIdx_ne_zero  ((Ideal.map_eq_bot_iff_of_injective
         (algebraMap_injective_of_field_isFractionRing A B K L)).not.mpr
         (comap A i.1).3) i.1.2 Ideal.map_comap_le
-  · rw [(tensorAdicCompletionIntegersTo A K L B v).map_add,
-      (tensorAdicCompletionComapAlgHom A K L B v).map_add]
-    exact add_mem hx hy
+  · simp [map_add, Pi.add_apply, add_mem hx hy]
 
 theorem adicCompletionComapAlgEquiv_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
     AlgHom.range (((tensorAdicCompletionComapAlgHom A K L B v).restrictScalars B).comp
@@ -378,25 +374,8 @@ namespace DedekindDomain
 open IsDedekindDomain HeightOneSpectrum
 
 noncomputable def ProdAdicCompletions.baseChange :
-    ProdAdicCompletions A K →ₛₐ[algebraMap K L] ProdAdicCompletions B L where
-  toFun kv w := (adicCompletionComapSemialgHom A K L B _ w rfl (kv (comap A w)))
-  map_one' := by
-    dsimp only
-    exact funext fun w => by rw [Pi.one_apply, Pi.one_apply, map_one]
-  map_mul' x y := by
-    dsimp only
-    exact funext fun w => by rw [Pi.mul_apply, Pi.mul_apply, map_mul]
-  map_zero' := by
-    dsimp only
-    exact funext fun w => by rw [Pi.zero_apply, Pi.zero_apply, map_zero]
-  map_add' x y := by
-    dsimp only
-    funext w
-    rw [Pi.add_apply, Pi.add_apply, map_add]
-  map_smul' k xv := by
-    apply funext
-    intro w
-    exact (adicCompletionComapSemialgHom A K L B _ w rfl).map_smul' k (xv (comap A w))
+    ProdAdicCompletions A K →ₛₐ[algebraMap K L] ProdAdicCompletions B L :=
+  Pi.semialgHomPi _ _ fun w => adicCompletionComapSemialgHom A K L B _ w rfl
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 

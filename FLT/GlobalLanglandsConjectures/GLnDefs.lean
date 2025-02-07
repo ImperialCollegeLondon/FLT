@@ -284,7 +284,7 @@ open CategoryTheory
 noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
     FDRep ℂ (orthogonalGroup (Fin n) ℝ) where
   V := FGModuleCat.of ℂ (Fin w.d → ℂ)
-  ρ := {
+  ρ := MonCat.ofHom {
     toFun := fun A ↦ ModuleCat.ofHom {
       toFun := fun x ↦ (w.rho A).1 *ᵥ x
       map_add' := fun _ _ ↦ Matrix.mulVec_add ..

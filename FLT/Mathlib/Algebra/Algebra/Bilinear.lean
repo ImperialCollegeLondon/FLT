@@ -19,3 +19,9 @@ def SemialgHom.baseChange_of_algebraMap [Algebra R S] (ψ : A →ₛₐ[algebraM
     commutes' := ψ.commutes
   }
   Algebra.TensorProduct.lift (Algebra.ofId S _) ρ fun s a ↦ Algebra.commutes s (ρ a)
+
+@[simp]
+theorem SemialgHom.baseChange_of_algebraMap_tmul_right [Algebra R S] (ψ : A →ₛₐ[algebraMap R S] B)
+    (a : A) :
+    ψ.baseChange_of_algebraMap (1 ⊗ₜ[R] a) = ψ a := by
+  simp [baseChange_of_algebraMap, SemialgHom.toLinearMap_eq_coe]

@@ -35,7 +35,7 @@ structure IsCentralSimple
 variable (K : Type u) [Field K]
 
 theorem RingCon.sum {R : Type u} [AddCommMonoid R] [Mul R] {ι : Type v} {s : Finset ι} {a b : ι → R}
-    {r : RingCon R} (h : ∀ i ∈ s, r (a i) (b i)) : r (∑ i in s, a i) (∑ i in s, b i) := by
+    {r : RingCon R} (h : ∀ i ∈ s, r (a i) (b i)) : r (∑ i ∈ s, a i) (∑ i ∈ s, b i) := by
   induction s using Finset.induction_on with
   | empty =>
     simp only [Finset.sum_empty]
