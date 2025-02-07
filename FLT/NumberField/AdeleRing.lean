@@ -180,7 +180,7 @@ noncomputable abbrev piEquiv :
   -- `⊕ 𝔸 K ≃L[K] L ⊗[K] 𝔸 K` from previous def
   let π := (tensorProductEquivPi K L).symm
   -- `L ⊗[K] 𝔸 K ≃L[K] 𝔸 L` base change  restricted to `K` as a continuous linear equiv
-  let BC := baseChangeEquiv K L |>.restrictScalars K |>.toContinuousLinearEquiv
+  let BC := baseChangeEquiv K L |>.toContinuousLinearEquiv |>.restrictScalars K
   π.trans BC
 
 variable {K L}
