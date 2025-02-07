@@ -36,27 +36,27 @@ variable (A : Type*) [Semiring A] [HopfAlgebra R A]
 variable {R A}
 
 lemma antipode_repr {ι : Type*} (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
-    (repr : Coalgebra.comul a = ∑ i in ℐ, Δ₁ i ⊗ₜ[R] Δ₂ i) :
-    ∑ i in ℐ, antipode (R := R) (Δ₁ i) * Δ₂ i = algebraMap R A (Coalgebra.counit a) := by
+    (repr : Coalgebra.comul a = ∑ i ∈ ℐ, Δ₁ i ⊗ₜ[R] Δ₂ i) :
+    ∑ i ∈ ℐ, antipode (R := R) (Δ₁ i) * Δ₂ i = algebraMap R A (Coalgebra.counit a) := by
   have := mul_antipode_rTensor_comul_apply (R := R) a
   rw [repr, map_sum, map_sum] at this
   exact this
 
 lemma antipode_repr_eq_smul {ι : Type*} (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
-    (repr : Coalgebra.comul a = ∑ i in ℐ, Δ₁ i ⊗ₜ[R] Δ₂ i) :
-    ∑ i in ℐ, antipode (R := R) (Δ₁ i) * Δ₂ i = (Coalgebra.counit a : R) • (1 : A) := by
+    (repr : Coalgebra.comul a = ∑ i ∈ ℐ, Δ₁ i ⊗ₜ[R] Δ₂ i) :
+    ∑ i ∈ ℐ, antipode (R := R) (Δ₁ i) * Δ₂ i = (Coalgebra.counit a : R) • (1 : A) := by
   rw [antipode_repr (repr := repr), Algebra.smul_def, mul_one]
 
 lemma antipode_repr' {ι : Type*} (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
-    (repr : Coalgebra.comul a = ∑ i in ℐ, Δ₁ i ⊗ₜ[R] Δ₂ i) :
-    ∑ i in ℐ, Δ₁ i * antipode (R := R) (Δ₂ i) = algebraMap R A (Coalgebra.counit a) := by
+    (repr : Coalgebra.comul a = ∑ i ∈ ℐ, Δ₁ i ⊗ₜ[R] Δ₂ i) :
+    ∑ i ∈ ℐ, Δ₁ i * antipode (R := R) (Δ₂ i) = algebraMap R A (Coalgebra.counit a) := by
   have := mul_antipode_lTensor_comul_apply (R := R) a
   rw [repr, map_sum, map_sum] at this
   exact this
 
 lemma antipode_repr_eq_smul' {ι : Type*} (a : A) (ℐ : Finset ι) (Δ₁ Δ₂ : ι → A)
-    (repr : Coalgebra.comul a = ∑ i in ℐ, Δ₁ i ⊗ₜ[R] Δ₂ i) :
-    ∑ i in ℐ, Δ₁ i * antipode (R := R) (Δ₂ i) = (Coalgebra.counit a : R) • 1 := by
+    (repr : Coalgebra.comul a = ∑ i ∈ ℐ, Δ₁ i ⊗ₜ[R] Δ₂ i) :
+    ∑ i ∈ ℐ, Δ₁ i * antipode (R := R) (Δ₂ i) = (Coalgebra.counit a : R) • 1 := by
   rw [antipode_repr' (repr := repr), Algebra.smul_def, mul_one]
 
 lemma antipode_mul_id : antipode (R := R) (A := A) * LinearMap.id = 1 := by
@@ -72,7 +72,6 @@ lemma id_mul_antipode : LinearMap.id * antipode (R := R) (A := A) = 1 := by
 lemma antipode_unique {T : LinearPoint R A A} (h : T * LinearMap.id = 1) :
     T = antipode :=
   left_inv_eq_right_inv (M := LinearPoint R A A) h id_mul_antipode
-
 
 lemma antipode_unique' {T : LinearPoint R A A} (h : LinearMap.id * T = 1) :
     T = antipode :=
