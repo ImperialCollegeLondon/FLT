@@ -1,5 +1,15 @@
 import Mathlib
+import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+import FLT.Mathlib.Algebra.Algebra.Tower
+import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.NumberTheory.NumberField.Basic
+import FLT.Mathlib.RingTheory.TensorProduct.Pi
+import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+import FLT.Mathlib.Topology.Algebra.Group.Quotient
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.NumberField.InfiniteAdeleRing
+
+open scoped TensorProduct
 
 universe u
 
@@ -98,7 +108,6 @@ theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing (𝓞 ℚ) 
   ext
   simp only [Set.mem_preimage, Homeomorph.subLeft_apply, Set.mem_singleton_iff, sub_eq_zero, eq_comm]
 
-
 variable (K : Type*) [Field K] [NumberField K]
 
 theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing (𝓞 K) K),
@@ -106,46 +115,135 @@ theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing (𝓞
 
 end Discrete
 
+section BaseChange
+
+namespace NumberField.AdeleRing
+
+variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
+
+scoped notation:100 "𝔸" K => AdeleRing (𝓞 K) K
+
+noncomputable instance : Algebra K (𝔸 L) :=
+  Algebra.compHom _ (algebraMap K L)
+
+instance : IsScalarTower K L (𝔸 L) :=
+  IsScalarTower.of_algebraMap_eq' rfl
+
+/-- The canonical map from the adeles of K to the adeles of L -/
+noncomputable def baseChange :
+    (𝔸 K) →A[K] 𝔸 L :=
+  sorry -- product of finite and infinite adele maps
+
+open scoped TensorProduct
+
+noncomputable instance : Algebra (𝔸  K) (L ⊗[K] 𝔸 K) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : TopologicalSpace (L ⊗[K] 𝔸 K) :=
+  moduleTopology (𝔸 K) (L ⊗[K] 𝔸 K)
+
+instance : IsModuleTopology (𝔸 K) (L ⊗[K] 𝔸 K) := ⟨rfl⟩
+
+instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank K L) → 𝔸 K) :=
+  IsModuleTopology.instPi
+
+open DedekindDomain in
+/-- The canonical `L`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
+`K`-algebra base change map `𝔸_K → 𝔸_L`. -/
+def baseChangeEquiv :
+    (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L :=
+  sorry
+
+variable {L}
+
+theorem baseChangeEquiv_tsum_apply_right (l : L) :
+    baseChangeEquiv K L (l ⊗ₜ[K] 1) = algebraMap L (𝔸 L) l :=
+  sorry
+
+variable (L)
+
+open TensorProduct.AlgebraTensorModule in
+noncomputable abbrev tensorProductEquivPi :
+    L ⊗[K] (𝔸 K) ≃L[K] (Fin (Module.finrank K L) → 𝔸 K) :=
+  letI := instPiIsModuleTopology K L
+  -- `𝔸 K ⊗[K] L ≃ₗ[𝔸 K] L ⊗[K] 𝔸 K`
+  -- Note: needs to be this order to avoid instance clash with inferred leftAlgebra
+  let comm := (Algebra.TensorProduct.comm K (𝔸 K) L).extendScalars (𝔸 K) |>.toLinearEquiv
+  -- `𝔸 K ⊗[K] L ≃ₗ[𝔸 K] ⊕ 𝔸 K`
+  let π := finiteEquivPi K L (𝔸 K)
+  -- Stitch together to get `L ⊗[K] 𝔸 K ≃ₗ[𝔸 K] ⊕ 𝔸 K`, which is automatically
+  -- continuous due to `𝔸 K` module topologies on both sides, then restrict scalars to `K`
+  IsModuleTopology.continuousLinearEquiv (comm.symm.trans π) |>.restrictScalars K
+
+noncomputable abbrev piEquiv :
+    (Fin (Module.finrank K L) → 𝔸 K) ≃L[K] 𝔸 L :=
+  -- `⊕ 𝔸 K ≃L[K] L ⊗[K] 𝔸 K` from previous def
+  let π := (tensorProductEquivPi K L).symm
+  -- `L ⊗[K] 𝔸 K ≃L[K] 𝔸 L` base change  restricted to `K` as a continuous linear equiv
+  let BC := baseChangeEquiv K L |>.toContinuousLinearEquiv |>.restrictScalars K
+  π.trans BC
+
+variable {K L}
+
+open TensorProduct.AlgebraTensorModule in
+theorem piEquiv_apply_of_algebraMap
+    {x : Fin (Module.finrank K L) → 𝔸 K}
+    {y : Fin (Module.finrank K L) → K}
+    (h : ∀ i, algebraMap K (𝔸 K) (y i) = x i) :
+    piEquiv K L x = algebraMap L _ (Module.Finite.equivPi _ _ |>.symm y) := by
+  simp [← funext h]
+  simp only [IsModuleTopology.continuousLinearEquiv]
+  rw [LinearEquiv.trans_symm, LinearEquiv.trans_apply, finiteEquivPi_symm_apply]
+  simp [AlgEquiv.extendScalars, ContinuousAlgEquiv.toContinuousLinearEquiv_apply,
+    baseChangeEquiv_tsum_apply_right]
+
+theorem piEquiv_mem_principalSubgroup
+    {x : Fin (Module.finrank K L) → 𝔸 K}
+    (h : x ∈ AddSubgroup.pi Set.univ (fun _ => principalSubgroup (𝓞 K) K)) :
+    piEquiv K L x ∈ principalSubgroup (𝓞 L) L := by
+  simp only [AddSubgroup.mem_pi, Set.mem_univ, forall_const] at h
+  choose y hy using h
+  exact piEquiv_apply_of_algebraMap hy ▸ ⟨Module.Finite.equivPi _ _ |>.symm y, rfl⟩
+
+variable (K L)
+
+theorem piEquiv_map_principalSubgroup :
+    (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K)).map
+      (piEquiv K L).toAddMonoidHom = principalSubgroup (𝓞 L) L := by
+  ext x
+  simp only [AddSubgroup.mem_map, LinearMap.toAddMonoidHom_coe, LinearEquiv.coe_coe,
+    ContinuousLinearEquiv.coe_toLinearEquiv]
+  refine ⟨fun ⟨a, h, ha⟩ => ha ▸ piEquiv_mem_principalSubgroup h, ?_⟩
+  rintro ⟨a, rfl⟩
+  use fun i => algebraMap K (𝔸 K) (Module.Finite.equivPi _ _ a i)
+  refine ⟨fun i _ => ⟨Module.Finite.equivPi _ _ a i, rfl⟩, ?_⟩
+  rw [piEquiv_apply_of_algebraMap (fun i => rfl), LinearEquiv.symm_apply_apply]
+
+noncomputable def piQuotientEquiv :
+    (Fin (Module.finrank K L) → (𝔸 K) ⧸ principalSubgroup (𝓞 K) K) ≃ₜ+
+      (𝔸 L) ⧸ principalSubgroup (𝓞 L) L :=
+  -- The map `⊕ 𝔸 K ≃L[K] 𝔸 L` reduces to quotients `⊕ 𝔸 K / K ≃ₜ+ 𝔸 L / L`
+  (ContinuousAddEquiv.quotientPi _).symm.trans <|
+    QuotientAddGroup.continuousAddEquiv _ _ _ _ (piEquiv K L).toContinuousAddEquiv
+      (piEquiv_map_principalSubgroup K L)
+
+end NumberField.AdeleRing
+
+end BaseChange
+
 section Compact
 
 open NumberField
 
 theorem Rat.AdeleRing.cocompact :
-    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AddMonoidHom.range (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)).toAddMonoidHom) :=
+    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) :=
   sorry -- issue #258
 
-variable (K : Type*) [Field K] [NumberField K]
+variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
 theorem NumberField.AdeleRing.cocompact :
-    CompactSpace (AdeleRing (𝓞 K) K ⧸ AddMonoidHom.range (algebraMap K (AdeleRing (𝓞 K) K)).toAddMonoidHom) :=
-  sorry -- issue #259
+    CompactSpace (AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) :=
+  letI := Rat.AdeleRing.cocompact
+  (piQuotientEquiv ℚ K).compactSpace
 
 end Compact
-
-section BaseChange
-
-variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
-
-open NumberField
-
-variable [Algebra K (AdeleRing (𝓞 L) L)] [IsScalarTower K L (AdeleRing (𝓞 L) L)]
-
-/-- The canonical map from the adeles of K to the adeles of L -/
-noncomputable def NumberField.AdeleRing.baseChange :
-    AdeleRing (𝓞 K) K →A[K] AdeleRing (𝓞 L) L :=
-  sorry -- product of finite and infinite adele maps
-
-open scoped TensorProduct
-
-noncomputable instance : Algebra (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K) :=
-  Algebra.TensorProduct.rightAlgebra
-
-instance : TopologicalSpace (L ⊗[K] AdeleRing (𝓞 K) K) :=
-  moduleTopology (AdeleRing (𝓞 K) K) (L ⊗[K] AdeleRing (𝓞 K) K)
-/-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
-`K`-algebra base change map `K_∞ → L_∞`. -/
-def NumberField.AdeleRing.baseChangeEquiv :
-    (L ⊗[K] (AdeleRing (𝓞 K) K)) ≃A[L] AdeleRing (𝓞 L) L :=
-  sorry
-
-end BaseChange
