@@ -14,8 +14,7 @@ import FLT.Mathlib.Algebra.Category.Ring.Basic
 # Category instance for algebras over a commutative ring
 
 We introduce the bundled category `CommAlgebraCat` of commutative algebras over a fixed commutative ring `R` along
-with the forgetful functors to `CommRingCat` and `ModuleCat`. We furthermore show that the functor
-associating to a type the free `R`-algebra on that type is left adjoint to the forgetful functor.
+with the forgetful functors to `CommRingCat` and `ModuleCat`.
 -/
 
 open CategoryTheory Limits
