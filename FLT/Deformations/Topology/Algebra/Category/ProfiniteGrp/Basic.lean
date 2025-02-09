@@ -25,7 +25,11 @@ def func {Gi Gj : index G U} (h : Gi ≤ Gj) : obj Gi →* obj Gj := by
   exact {
     toFun := Subgroup.quotientMapOfLE h
     map_one' := by aesop
-    map_mul' := by sorry;
+    map_mul' := by
+      intro x y
+      simp
+      exact?
+
   }
 
 namespace OpenAvoidingDecomposition
