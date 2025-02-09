@@ -23,28 +23,67 @@ suppress_compilation
 
 open Submodule
 
-variable {ι : Type*} [Preorder ι] [DecidableEq ι]
+variable {ι : Type*} [Preorder ι]
 variable {obj : ι → Type*}
 
 namespace Module
 
 variable {R : Type*} [Ring R]
-variable [addCommGroupObj : ∀ {i : ι}, AddCommGroup (obj i)] [∀ i, Module R (obj i)]
+variable [addCommGroupObj : ∀ i, AddCommGroup (obj i)] [∀ i, Module R (obj i)]
 variable (func : ∀ {i j : ι}, i ≤ j → obj j →ₗ[R] obj i)
 
 variable (obj) in
 /-- The inverse limit of an inverse system is the modules glued together along the maps. -/
-def InverseLimit : Submodule R (Π i, obj i) where
+def InverseLimit : Type _ := ({
   carrier := { a : Π i, obj i |
     ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
   add_mem' := by aesop
   zero_mem' := by aesop
   smul_mem' := by aesop
+}: Submodule R (Π i, obj i))
 
 namespace InverseLimit
 
+instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) where
+  coe a := a.val
+
+variable {func} in
 @[simp]
-lemma component_eq_component_by_func {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
+lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+
+variable {func} in
+abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+  ⟨a, h⟩
+
+instance instZero : Zero (InverseLimit obj func) where
+  zero := of 0 (by simp)
+
+instance instAdd : Add (InverseLimit obj func) where
+  add a b := of (a.val + b.val) (by simp)
+
+instance instNeg : Neg (InverseLimit obj func) where
+  neg a := of (-a.val) (by simp)
+
+instance instAddCommGroup : AddCommGroup (InverseLimit obj func) where
+  add_assoc a b c := by simp [InverseLimit, add_assoc]
+  zero_add a := by simp [InverseLimit, zero_add]
+  add_zero a := by simp [InverseLimit, add_zero]
+  nsmul := nsmulRec
+  zsmul := zsmulRec
+  neg_add_cancel a := by unfold InverseLimit at *; aesop
+  add_comm a b := by simp [InverseLimit, add_comm]
+
+instance instModule : Module R (InverseLimit obj func) where
+  smul r a := of (r • a.val) (by simp)
+  one_smul := by simp [InverseLimit]
+  mul_smul := by simp [InverseLimit, ← smul_eq_mul]
+  smul_zero := by simp [InverseLimit]
+  smul_add := by simp [InverseLimit]
+  add_smul := by simp [InverseLimit, add_smul]
+  zero_smul := by simp [InverseLimit]
+
+@[simp]
+lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
     func h (g.1 j) = g.1 i := by
   unfold InverseLimit at g
   aesop
@@ -53,10 +92,7 @@ instance inhabited : Inhabited (InverseLimit obj func) :=
   ⟨0⟩
 
 instance unique [IsEmpty ι] : Unique (InverseLimit obj func) where
-  default := ⟨default, by
-    unfold InverseLimit
-    simp
-  ⟩
+  default := ⟨default, by simp [InverseLimit]⟩
   uniq := by
     rintro ⟨x, _⟩
     exact SetCoe.ext ((Pi.uniqueOfIsEmpty obj).uniq x)
@@ -72,10 +108,7 @@ variable {W : Type*} [AddCommGroup W] [Module R W]
 def map_of_maps (maps : (i : ι) → W →ₗ[R] obj i)
     (comm : ∀ i j (h : i ≤ j) w, (func h) ((maps j) w) = (maps i) w)
     : W →ₗ[R] InverseLimit obj func where
-      toFun w := ⟨fun i ↦ maps i w, by
-        unfold InverseLimit
-        aesop
-      ⟩
+      toFun w := ⟨fun i ↦ maps i w, by aesop⟩
       map_add' := by aesop
       map_smul' := by aesop
 
@@ -90,7 +123,7 @@ variable (func : ∀ {i j}, i ≤ j → obj j →+* obj i)
 
 variable (obj) in
 /-- The inverse limit of an inverse system is the rings glued together along the maps. -/
-def InverseLimit : Subring (Π i : ι, obj i) where
+def InverseLimit : Type _ := ({
   carrier := { a : Π i : ι, obj i |
     ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
   mul_mem' := by aesop
@@ -98,16 +131,54 @@ def InverseLimit : Subring (Π i : ι, obj i) where
   add_mem' := by aesop
   zero_mem' := by aesop
   neg_mem' := by aesop
+} : Subring (Π i : ι, obj i))
 
 namespace InverseLimit
 
+instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) where
+  coe a := a.val
+
+variable {func} in
 @[simp]
-lemma component_eq_component_by_func {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
+lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+
+variable {func} in
+abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+  ⟨a, h⟩
+
+@[simp]
+lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
     func h (g.1 j) = g.1 i := by
   unfold InverseLimit at g
   aesop
 
--- Porting note: Added a `Zero` instance to get rid of `0` errors.
+instance instZero : Zero (InverseLimit obj func) where
+  zero := of 0 (by simp)
+
+instance instAdd : Add (InverseLimit obj func) where
+  add a b := of (a.val + b.val) (by simp)
+
+instance instNeg : Neg (InverseLimit obj func) where
+  neg a := of (-a.val) (by simp)
+
+instance instRing : Ring (InverseLimit obj func) where
+  add_assoc := by simp [InverseLimit, add_assoc]
+  zero_add := by simp [InverseLimit, zero_add]
+  add_zero := by simp [InverseLimit, add_zero]
+  add_comm := by simp [InverseLimit, add_comm]
+  mul a b := of (a.val * b.val) (by simp)
+  left_distrib := by simp [InverseLimit, left_distrib]
+  right_distrib := by simp [InverseLimit, right_distrib]
+  zero_mul := by simp [InverseLimit, zero_mul]
+  mul_zero := by simp [InverseLimit, mul_zero]
+  mul_assoc := by simp [InverseLimit, mul_assoc]
+  one := of 1 (by simp)
+  one_mul := by simp [InverseLimit, one_mul]
+  mul_one := by simp [InverseLimit, mul_one]
+  neg_add_cancel a := by unfold InverseLimit at *; aesop
+  nsmul := nsmulRec
+  zsmul := zsmulRec
+
 instance zero : Zero (InverseLimit obj func) := by
   unfold InverseLimit
   exact ⟨0, by aesop⟩
@@ -145,20 +216,57 @@ variable (func : ∀ {i j}, i ≤ j → obj j →* obj i)
 variable (obj) in
 /-- The inverse limit of an inverse system is the rings glued together along the maps. -/
 @[to_additive]
-def InverseLimit : Subgroup (Π i, obj i) where
-  carrier := { a : Π i : ι, obj i |
+def InverseLimit : Type _ := ({
+  carrier := { a : Π i, obj i |
     ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
   mul_mem' := by aesop
   one_mem' := by aesop
   inv_mem' := by aesop
-
+} : Subgroup (Π i, obj i))
 namespace InverseLimit
 
+@[to_additive]
+instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) where
+  coe a := a.val
+
+variable {func} in
 @[to_additive, simp]
-lemma component_eq_component_by_func {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
+lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+
+variable {func} in
+@[to_additive]
+abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+  ⟨a, h⟩
+
+@[to_additive, simp]
+lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
     func h (g.1 j) = g.1 i := by
   unfold InverseLimit at g
   aesop
+
+@[to_additive]
+instance instMul : Mul (InverseLimit obj func) where
+  mul a b := of (a.val * b.val) (by simp)
+
+@[to_additive]
+instance instInv : Inv (InverseLimit obj func) where
+  inv a := of (a⁻¹) (by simp)
+
+@[to_additive]
+instance instOne : One (InverseLimit obj func) where
+  one := of 1 (by simp)
+
+@[to_additive]
+instance instGroup : Group (InverseLimit obj func) where
+  mul_assoc a b c := by simp [InverseLimit, mul_assoc]
+  one_mul a := by simp [InverseLimit]
+  mul_one a := by simp [InverseLimit]
+  inv_mul_cancel a := by
+    simp only [InverseLimit] at *
+    change of (a.val⁻¹ * a.val) _ = 1
+    simp only [inv_mul_cancel]
+    rfl
+  div a b := a * b⁻¹
 
 @[to_additive]
 instance : Inhabited (InverseLimit obj func) := ⟨1⟩
@@ -171,7 +279,6 @@ def toComponent (i) : InverseLimit obj func →* obj i where
 
 variable {G' : Type*} [Group G']
 
-set_option maxHeartbeats 0 in
 @[to_additive]
 def map_of_maps (maps : (i : ι) → G' →* obj i)
     (comm : ∀ g' i j (h : i ≤ j), (func h) ((maps j) g') = (maps i) g')
@@ -203,16 +310,16 @@ def InverseLimit :
     toFun := fun v ↦ {
       val := fun i ↦ ρ i (g.1 i) (v.1 i)
       property := by
-        unfold Module.InverseLimit
+        unfold Module.InverseLimit at *
         rintro i j hle
         have h := ρ_comm (i := i) (j := j) hle ((g : (k:ι)→grp_obj k) j) ((v : (k:ι)→mod_obj k) j)
         simp at h
         exact h.symm
     }
-    map_add' := by aesop
-    map_smul' := by aesop
+    map_add' := by unfold Module.InverseLimit at *; aesop
+    map_smul' := by unfold Module.InverseLimit at *; aesop
   }
-  map_one' := by aesop
-  map_mul' := by aesop
+  map_one' := by unfold Module.InverseLimit at *; aesop
+  map_mul' := by unfold Module.InverseLimit at *; unfold Group.InverseLimit at *; aesop
 
 end Representation
