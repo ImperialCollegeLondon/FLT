@@ -34,8 +34,8 @@ variable (func : ∀ {i j : ι}, i ≤ j → obj j →ₗ[R] obj i)
 
 variable (obj) in
 /-- The inverse limit of an inverse system is the modules glued together along the maps. -/
-def InverseLimit : Submodule R (Π i : ι, obj i) where
-  carrier := { a : Π i : ι, obj i |
+def InverseLimit : Submodule R (Π i, obj i) where
+  carrier := { a : Π i, obj i |
     ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
   add_mem' := by aesop
   zero_mem' := by aesop
