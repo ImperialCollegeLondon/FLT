@@ -5,6 +5,8 @@ import Mathlib.RingTheory.Ideal.Quotient.Defs
 import Mathlib.Order.DirectedInverseSystem
 import Mathlib.Tactic.SuppressCompilation
 import Mathlib.RepresentationTheory.Basic
+import Mathlib.Topology.Defs.Basic
+import Mathlib.Topology.Algebra.Group.Basic
 
 /-!
 # Inverse limit of modules, abelian groups, rings.
@@ -23,7 +25,7 @@ suppress_compilation
 
 open Submodule
 
-variable {ι : Type*} [Preorder ι]
+variable {ι : Type*} [instPreorder : Preorder ι]
 variable {obj : ι → Type*}
 
 namespace Module
@@ -96,12 +98,17 @@ instance unique [IsEmpty ι] : Unique (InverseLimit obj func) where
   uniq := by
     rintro ⟨x, _⟩
     exact SetCoe.ext ((Pi.uniqueOfIsEmpty obj).uniq x)
-variable (R ι)
 
 def toComponent (i) : InverseLimit obj func →ₗ[R] obj i where
   toFun z := (z : Π j : ι, obj j) i
   map_add' := by aesop
   map_smul' := by aesop
+
+@[simp]
+lemma func_toComponent {i j : ι} {h : i ≤ j}:
+    .comp (func h) (toComponent func j) = toComponent func i := by
+  unfold toComponent
+  aesop
 
 variable {W : Type*} [AddCommGroup W] [Module R W]
 
@@ -193,6 +200,12 @@ def toComponent (i) : InverseLimit obj func →+* obj i where
   map_zero' := by aesop
   map_add' := by aesop
 
+@[simp]
+lemma func_toComponent {i j : ι} {h : i ≤ j}:
+    .comp (func h) (toComponent func j) = toComponent func i := by
+  unfold toComponent
+  aesop
+
 variable {R' : Type*} [Ring R']
 
 def map_of_maps (maps : (i : ι) → R' →+* obj i)
@@ -276,6 +289,12 @@ def toComponent (i) : InverseLimit obj func →* obj i where
   toFun z := (z.1 : Π j : ι, obj j) i
   map_one' := by aesop
   map_mul' := by aesop
+
+@[to_additive, simp]
+lemma func_toComponent {i j : ι} {h : i ≤ j}:
+    .comp (func h) (toComponent func j) = toComponent func i := by
+  unfold toComponent
+  aesop
 
 variable {G' : Type*} [Group G']
 
