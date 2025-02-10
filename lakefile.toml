@@ -2,9 +2,9 @@ name = "FLT"
 defaultTargets = ["FLT"]
 
 [leanOptions]
-pp.unicode.fun = true
-autoImplicit = false
-relaxedAutoImplicit = false
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+autoImplicit = false # switch off auto-implicit
+relaxedAutoImplicit = false # switch off relaxed auto-implicit
 
 [[require]]
 name = "mathlib"
