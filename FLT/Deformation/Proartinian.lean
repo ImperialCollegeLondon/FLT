@@ -85,7 +85,8 @@ instance (A : Type*) [CommRing A] [IsProartinian A] (a : Ideal A) : IsProartinia
 
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
-variable (A : Type*) [CommRing A] [IsLocalRing A] [IsProartinian A] [IsNoetherianRing A]
+variable (A : Type*) [CommRing A] [IsLocalRing A] [Algebra 𝓞 A]
+  [IsNoetherianRing A] [IsProartinian A]
 
 instance noetherian_topology :
   IsAdic (IsLocalRing.maximalIdeal A) := sorry
@@ -93,9 +94,9 @@ instance noetherian_topology :
 instance noetherian_isAdic :
   IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
 
-variable (A' : Type*) [CommRing A'] [IsLocalRing A'] [IsProartinian A'] [IsNoetherianRing A']
+variable (A' : Type*) [CommRing A'] [Algebra 𝓞 A'] [IsLocalRing A'] [IsProartinian A']
 
-lemma noetherian_continuous (f : A →+* A') : Continuous f := sorry
+lemma noetherian_continuous (f : A →ₐ[𝓞] A') : Continuous f := sorry
 
 end Noetherian
 

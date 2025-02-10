@@ -166,7 +166,7 @@ noncomputable abbrev smitLenstraCandidate : Type _ :=
 
 omit ι 𝓫 in
 variable (𝓞) in
-noncomputable def smitLenstraCandidate_𝓒_𝓞 : 𝓒 𝓞 where
+noncomputable def smitLenstraCandidate_BaseCat : BaseCat 𝓞 where
   obj :=
     let 𝓫 := Module.Free.chooseBasis (𝓴 𝓞) V
     .of 𝓞 (smitLenstraCandidate ρbar 𝓫)
@@ -175,7 +175,7 @@ noncomputable def smitLenstraCandidate_𝓒_𝓞 : 𝓒 𝓞 where
 -- Proposition 2.5 in G Finite
 theorem Lift.functor_isCorepresentable_finite : (Lift.functor 𝓞 ρbar).IsCorepresentable where
   has_corepresentation := ⟨
-    smitLenstraCandidate_𝓒_𝓞 𝓞 ρbar,
+    smitLenstraCandidate_BaseCat 𝓞 ρbar,
     sorry
   ⟩
 
