@@ -1,12 +1,12 @@
 import Mathlib
-import FLT.Deformations.BaseCategory
-import FLT.Deformations.Lift
+import FLT.Deformation.BaseCategory
+import FLT.Deformation.Lift
 
 universe u
 
-open scoped TensorProduct Deformations
+open scoped TensorProduct Deformation
 
-namespace Deformations
+namespace Deformation
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
@@ -85,4 +85,4 @@ theorem Deformation.restrictedFunctor_isCorepresentable :
 
 end RestrictedFunctor
 
-end Deformations
+end Deformation

@@ -1,14 +1,14 @@
-import FLT.Deformations.BaseCategory
-import FLT.Deformations.RepresentationTheory.RepresentationEquiv
+import FLT.Deformation.BaseCategory
+import FLT.Deformation.RepresentationTheory.RepresentationEquiv
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.Algebra.Module.Equiv.Defs
 
 universe u
 
 open CategoryTheory Function
-open scoped TensorProduct Deformations
+open scoped TensorProduct Deformation
 
-namespace Deformations
+namespace Deformation
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
@@ -147,4 +147,4 @@ theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresent
 
 end UnrestrictedFunctor
 
-end Deformations
+end Deformation

@@ -1,6 +1,6 @@
-import FLT.Deformations.Algebra.Category.AlgebraCat.CommAlgebraCat
-import FLT.Deformations.Proartinian
-import FLT.Deformations.ResidueAlgebra
+import FLT.Deformation.Algebra.Category.AlgebraCat.CommAlgebraCat
+import FLT.Deformation.Proartinian
+import FLT.Deformation.ResidueAlgebra
 import FLT.Mathlib.Algebra.Group.Units.Hom
 
 universe u
@@ -8,7 +8,7 @@ universe u
 open CategoryTheory Function
 open scoped TensorProduct
 
-namespace Deformations
+namespace Deformation
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
@@ -17,8 +17,6 @@ notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
 variable {V : Type u}
   [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
-
-section 𝓒
 
 variable (𝓞) in
 def 𝓒_filter (A : CommAlgebraCat 𝓞) : Prop :=
@@ -29,6 +27,8 @@ def 𝓒_filter (A : CommAlgebraCat 𝓞) : Prop :=
 
 variable (𝓞) in
 def 𝓒 := FullSubcategory (𝓒_filter 𝓞)
+
+namespace BaseCat
 
 instance : Category (𝓒 𝓞) := by unfold 𝓒; infer_instance
 
@@ -59,13 +59,14 @@ def 𝓒.quotient (a : Ideal A) : 𝓒 𝓞 where
       exact h
     . infer_instance
 
-end 𝓒
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
 variable (A : 𝓒 𝓞) [IsNoetherianRing A]
 
-instance noetherian_deformationCat_topology :
-  IsAdic (IsLocalRing.maximalIdeal A) := sorry
+instance noetherian_deformationCat_topology
+    : IsAdic (IsLocalRing.maximalIdeal A) := by
+  unfold 𝓒 at *
+
 
 instance noetherian_deformationCat_isAdic :
   IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
@@ -75,4 +76,6 @@ lemma noetherian_deformationCat_continuous {A A' : 𝓒 𝓞}
 
 end Noetherian
 
-end Deformations
+end BaseCat
+
+end Deformation

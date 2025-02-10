@@ -1,13 +1,13 @@
-import FLT.Deformations.BaseCategory
-import FLT.Deformations.Lift
+import FLT.Deformation.BaseCategory
+import FLT.Deformation.Lift
 import FLT.Mathlib.Algebra.MvPolynomial.Eval
 
 universe u
 
 open CategoryTheory Function Matrix Set MvPolynomial
-open scoped TensorProduct Deformations
+open scoped TensorProduct Deformation
 
-namespace Deformations
+namespace Deformation
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
@@ -183,4 +183,4 @@ end ρbar_NonTrivial
 
 end G_finite
 
-end Deformations
+end Deformation

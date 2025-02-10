@@ -1,14 +1,14 @@
 import Mathlib
-import FLT.Deformations.Lift
-import FLT.Deformations.Topology.Algebra.Category.ProfiniteGrp.Basic
-import FLT.Deformations.RepresentationTheory.ContinuousRepresentation
-import FLT.Deformations.RepresentationTheory.TopologicalModule
+import FLT.Deformation.Lift
+import FLT.Deformation.Topology.Algebra.Category.ProfiniteGrp.Basic
+import FLT.Deformation.RepresentationTheory.ContinuousRepresentation
+import FLT.Deformation.RepresentationTheory.TopologicalModule
 
 universe u
 
 open ProfiniteGrp
 
-namespace Deformations
+namespace Deformation
 
 variable {𝓞 : Type u} [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
@@ -33,4 +33,4 @@ theorem Lift.functor_isCorepresentable_profinite :
 
 end G_profinite
 
-end Deformations
+end Deformation

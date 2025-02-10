@@ -1,4 +1,4 @@
-import FLT.Deformations.Algebra.InverseLimit.Basic
+import FLT.Deformation.Algebra.InverseLimit.Basic
 import Mathlib.Order.CompletePartialOrder
 
 namespace Group.InverseLimit

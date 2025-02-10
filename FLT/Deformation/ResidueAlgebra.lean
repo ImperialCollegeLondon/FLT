@@ -5,7 +5,7 @@ universe u
 open CategoryTheory Function
 open scoped TensorProduct
 
-namespace Deformations
+namespace Deformation
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
@@ -90,4 +90,4 @@ instance (a : Ideal A) : IsResidueAlgebra 𝓞 (A ⧸ a) :=
 
 end IsResidueAlgebra
 
-end Deformations
+end Deformation

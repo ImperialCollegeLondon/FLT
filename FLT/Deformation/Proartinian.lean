@@ -1,20 +1,20 @@
-import FLT.Deformations.Algebra.InverseLimit.Basic
+import FLT.Deformation.Algebra.InverseLimit.Basic
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.Artinian.Module
 import Mathlib.Topology.Algebra.Ring.Basic
 import Mathlib.RingTheory.LocalRing.Defs
 import Mathlib.RingTheory.LocalRing.ResidueField.Defs
+import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
+import Mathlib.RingTheory.AdicCompletion.Basic
 
 universe u
 
-namespace Deformations
+namespace Deformation
 
 variable {𝓞 : Type u} [CommRing 𝓞] [IsLocalRing 𝓞]
 
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
-
-section IsProartinian -- This is a the pro-category of artinian rings (written out noncategorically)
 
 variable {A : Type*} [CommRing A]
 
@@ -69,6 +69,8 @@ variable (𝓞) in
 class IsProartinian (A : Type*) [CommRing A] : Prop where
   pro_artin : Function.Bijective (diagonalMap A)
 
+namespace IsProartinian
+
 instance (A : Type*) [CommRing A] [IsProartinian A] : TopologicalSpace A := .generateFrom
   {U | ∃ a : ArtinianQuotientIdeal A, ∃ V : Set (proartinianCompletion_obj a),
     U = (diagonalMap_toComponent A a) ⁻¹' V}
@@ -81,6 +83,22 @@ instance (A : Type*) [CommRing A] [IsProartinian A] : TopologicalRing A where
 instance (A : Type*) [CommRing A] [IsProartinian A] (a : Ideal A) : IsProartinian (A ⧸ a) :=
   sorry
 
+section Noetherian -- Proposition 2.4 of Smit&Lenstra
+
+variable (A : Type*) [CommRing A] [IsLocalRing A] [IsProartinian A] [IsNoetherianRing A]
+
+instance noetherian_topology :
+  IsAdic (IsLocalRing.maximalIdeal A) := sorry
+
+instance noetherian_isAdic :
+  IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
+
+variable (A' : Type*) [CommRing A'] [IsLocalRing A'] [IsProartinian A'] [IsNoetherianRing A']
+
+lemma noetherian_continuous (f : A →+* A') : Continuous f := sorry
+
+end Noetherian
+
 end IsProartinian
 
-end Deformations
+end Deformation

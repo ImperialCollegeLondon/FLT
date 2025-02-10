@@ -1,14 +1,14 @@
 import Mathlib
-import FLT.Deformations.BaseCategory
-import FLT.Deformations.RepresentationTheory.Subrepresentation
-import FLT.Deformations.RepresentationTheory.Irreducible
-import FLT.Deformations.RepresentationTheory.RepresentationEquiv
+import FLT.Deformation.BaseCategory
+import FLT.Deformation.RepresentationTheory.Subrepresentation
+import FLT.Deformation.RepresentationTheory.Irreducible
+import FLT.Deformation.RepresentationTheory.RepresentationEquiv
 import FLT.Mathlib.Algebra.Category.Ring.Basic
 import FLT.Mathlib.RepresentationTheory.Basic
 
 open scoped TensorProduct Representation CategoryTheory
 
-namespace Deformations
+namespace Deformation
 
 variable {𝓞 : Type*} [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
@@ -31,4 +31,4 @@ lemma baseChange_of_traces_mem (A' : 𝓒 𝓞) [Algebra A' A] (hinj : Function.
     sorry
 
 
-end Deformations
+end Deformation

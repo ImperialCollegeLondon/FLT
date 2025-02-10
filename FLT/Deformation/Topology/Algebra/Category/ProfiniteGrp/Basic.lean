@@ -1,8 +1,8 @@
 import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Basic
 import Mathlib.Topology.Algebra.OpenSubgroup
 import FLT.Mathlib.GroupTheory.Coset.Basic
-import FLT.Deformations.Algebra.InverseLimit.Basic
-import FLT.Deformations.Algebra.InverseLimit.Topology
+import FLT.Deformation.Algebra.InverseLimit.Basic
+import FLT.Deformation.Algebra.InverseLimit.Topology
 
 import Mathlib -- TODO(jlcontreras): delete this via min imports
 
