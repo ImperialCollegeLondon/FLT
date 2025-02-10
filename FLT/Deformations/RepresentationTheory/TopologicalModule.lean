@@ -11,14 +11,14 @@ class TopologicalModule [TopologicalSpace M] where
 variable [Module.Free R M] [Module.Finite R M]
 
 variable (R M) in
-def productTopology : TopologicalSpace M :=
+def freeFiniteModuleProductTopology : TopologicalSpace M :=
   let ι := Module.Free.ChooseBasisIndex R M
   let ψ := Module.Free.repr R M
   .generateFrom <| setOf fun (V : Set M) ↦ ∃ (b : ι → Set R),
       (∀ i, IsOpen (b i)) ∧
       (V = ψ ⁻¹' setOf fun (coord : ι →₀ R) ↦ ∀ i, coord i ∈ b i)
 
-variable [TopologicalSpace M] (h_topo : IsOpen (X := M) = (productTopology R M).IsOpen)
+variable [TopologicalSpace M] (h_topo : IsOpen (X := M) = (freeFiniteModuleProductTopology R M).IsOpen)
 
-def productTopology_topologicalModule : TopologicalModule R M where
+def freeFiniteModuleProductTopology_topologicalModule : TopologicalModule R M where
   smul_cont r := sorry

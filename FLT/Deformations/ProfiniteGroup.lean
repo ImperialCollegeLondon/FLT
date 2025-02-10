@@ -1,6 +1,8 @@
 import Mathlib
 import FLT.Deformations.Lift
 import FLT.Deformations.Topology.Algebra.Category.ProfiniteGrp.Basic
+import FLT.Deformations.RepresentationTheory.ContinuousRepresentation
+import FLT.Deformations.RepresentationTheory.TopologicalModule
 
 universe u
 
@@ -10,15 +12,15 @@ namespace Deformations
 
 variable {𝓞 : Type u} [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
-variable {V : Type u} [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
+variable {V : Type u} [AddCommGroup V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
 
 section G_profinite -- Section 3.2 Smit & Lenstra
 
 variable {G : ProfiniteGrp}
 
-variable (ρbar : Representation (𝓴 𝓞) G V)
+variable (ρbar : ContinuousRepresentation (𝓴 𝓞) G V)
 
-lemma ker_isOpen : IsOpen (X := G) (MonoidHom.ker ρbar) := sorry
+lemma ker_isOpen : IsOpen (X := G) (MonoidHom.ker ρbar.1) := sorry
 
 local notation3:max "k" => (⟨MonoidHom.ker ρbar, ker_isOpen ρbar⟩ : OpenSubgroup G)
 local notation3:max "Hs" => OpenAvoidingDecomposition G k
