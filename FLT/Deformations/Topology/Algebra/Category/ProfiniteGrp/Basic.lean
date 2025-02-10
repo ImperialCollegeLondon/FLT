@@ -1,7 +1,8 @@
 import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Basic
 import Mathlib.Topology.Algebra.OpenSubgroup
 import FLT.Mathlib.GroupTheory.Coset.Basic
-import FLT.Deformations.Algebra.InverseLimit
+import FLT.Deformations.Algebra.InverseLimit.Basic
+import FLT.Deformations.Algebra.InverseLimit.Topology
 
 import Mathlib -- TODO(jlcontreras): delete this via min imports
 
@@ -15,14 +16,13 @@ def index : Type _ :=
 instance instCoeSubgroup : CoeOut (index G V) (Subgroup G) where
   coe a := a.val
 
-instance : Preorder (index G V) where
+instance : LinearOrder (index G V) where
   le a b := (a : Subgroup G) ≥ (b : Subgroup G)
-  lt a b := (a : Subgroup G) > (b : Subgroup G)
-  le_refl := by simp
-  le_trans := by
-    rintro a b c hab hbc
-    simp_all
-    exact le_trans hbc hab
+  le_refl a := by simp
+  le_trans a b c hab hbc := by exact fun ⦃x⦄ a ↦ hab (hbc a)
+  le_antisymm := by sorry
+  le_total := by sorry
+  decidableLE := by sorry
 
 instance {Gi : index G V} : Gi.1.Normal := by
   unfold index at Gi
@@ -56,13 +56,16 @@ noncomputable instance : Group (OpenAvoidingDecomposition G V) := by
   unfold OpenAvoidingDecomposition;
   infer_instance
 
-instance : TopologicalSpace (OpenAvoidingDecomposition G V) := sorry
+instance : TopologicalSpace (OpenAvoidingDecomposition G V) := by
+  unfold OpenAvoidingDecomposition
+  infer_instance
 
-instance : TopologicalGroup (OpenAvoidingDecomposition G V) := sorry
+instance : TopologicalGroup (OpenAvoidingDecomposition G V) := by
+  unfold OpenAvoidingDecomposition
+  infer_instance
 
 namespace OpenAvoidingDecomposition
 
-set_option maxHeartbeats 0 in
 def diagonalMap_component (Gi : index G V) : G →* obj G V Gi := QuotientGroup.mk' Gi.1.1
 
 def diagonalMap_commutes (g : G) (Gi Gj : index G V) (h : Gi ≤ Gj) :

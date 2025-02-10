@@ -1,5 +1,5 @@
-import FLT.Deformations.InverseLimit.Basic
-import Mathlib -- TODO(jlcontreras): delete this with min_imports
+import FLT.Deformations.Algebra.InverseLimit.Basic
+import Mathlib.Order.CompletePartialOrder
 
 namespace Group.InverseLimit
 
@@ -55,12 +55,3 @@ instance : TopologicalGroup (InverseLimit obj func) where
 end Topology
 
 namespace Group.InverseLimit
---  isOpen_univ := by
---     simp only
---     use Classical.choice nonempty
---     use ⊤
---     aesop
---   isOpen_inter := by
---     simp only [forall_exists_index]
---     rintro V₁ V₂ i₁ W₁ h₁ i₂ W₂ h₂
---
