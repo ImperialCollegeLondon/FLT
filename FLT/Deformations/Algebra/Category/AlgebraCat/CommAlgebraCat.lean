@@ -8,7 +8,7 @@ import Mathlib.Algebra.FreeAlgebra
 import Mathlib.Algebra.Category.Ring.Basic
 import Mathlib.Algebra.Category.ModuleCat.Basic
 import Mathlib.RingTheory.Ideal.Defs
-import FLT.Mathlib.Algebra.Category.Ring.Basic
+import FLT.Mathlib.Algebra.Algebra.Defs
 
 /-!
 # Category instance for algebras over a commutative ring
