@@ -191,8 +191,10 @@ theorem piEquiv_apply_of_algebraMap
     {y : Fin (Module.finrank K L) → K}
     (h : ∀ i, algebraMap K (𝔸 K) (y i) = x i) :
     piEquiv K L x = algebraMap L _ (Module.Finite.equivPi _ _ |>.symm y) := by
-  simp [← funext h]
-  simp only [IsModuleTopology.continuousLinearEquiv]
+  simp only [← funext h, ContinuousLinearEquiv.trans_apply,
+    ContinuousLinearEquiv.restrictScalars_symm_apply, AlgEquiv.toAlgHom_eq_coe,
+    AlgHom.toRingHom_eq_coe, AlgEquiv.toLinearEquiv_symm,
+    ContinuousLinearEquiv.restrictScalars_apply, IsModuleTopology.continuousLinearEquiv]
   rw [LinearEquiv.trans_symm, LinearEquiv.trans_apply, finiteEquivPi_symm_apply]
   simp [AlgEquiv.extendScalars, ContinuousAlgEquiv.toContinuousLinearEquiv_apply,
     baseChangeEquiv_tsum_apply_right]
