@@ -1,4 +1,4 @@
-import FLT.Deformations.Algebra.InverseLimit
+import FLT.Deformations.Algebra.InverseLimit.Basic
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.Artinian.Module
