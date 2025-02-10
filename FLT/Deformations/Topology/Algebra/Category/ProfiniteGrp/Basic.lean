@@ -10,7 +10,7 @@ namespace ProfiniteGrp
 variable (G : ProfiniteGrp) (V : OpenSubgroup G)
 
 def index : Type _ :=
-  setOf fun (Gi : Subgroup G) ↦ Gi.Normal ∧ Gi ≤ V
+  setOf fun (Gi : OpenSubgroup G) ↦ Gi.Normal ∧ Gi ≤ V
 
 instance instCoeSubgroup : CoeOut (index G V) (Subgroup G) where
   coe a := a.val
@@ -28,10 +28,15 @@ instance {Gi : index G V} : Gi.1.Normal := by
   unfold index at Gi
   aesop
 
-def obj (Gi : index G V) : Type _ := G ⧸ Gi.1
+def obj (Gi : index G V) : Type _ := G ⧸ Gi.1.1
 
 instance obj_instGroup {Gi : index G V} : Group (obj G V Gi) := by
   unfold obj
+  infer_instance
+
+instance obj_instFinite {Gi : index G V} : Finite (obj G V Gi) := by
+  unfold obj
+  letI := Gi.1.2
   infer_instance
 
 def func {Gi Gj : index G V} (h : Gi ≤ Gj) : obj G V Gj →* obj G V Gi := by
@@ -58,7 +63,7 @@ instance : TopologicalGroup (OpenAvoidingDecomposition G V) := sorry
 namespace OpenAvoidingDecomposition
 
 set_option maxHeartbeats 0 in
-def diagonalMap_component (Gi : index G V) : G →* obj G V Gi := QuotientGroup.mk' Gi.1
+def diagonalMap_component (Gi : index G V) : G →* obj G V Gi := QuotientGroup.mk' Gi.1.1
 
 def diagonalMap_commutes (g : G) (Gi Gj : index G V) (h : Gi ≤ Gj) :
     func G V h (diagonalMap_component G V Gj g) = diagonalMap_component G V Gi g :=
