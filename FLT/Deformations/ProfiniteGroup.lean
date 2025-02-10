@@ -28,6 +28,7 @@ local notation3:max "G_to_Hs" => OpenAvoidingDecomposition.diagonalMap_homeo G k
 theorem Lift.functor_isCorepresentable_profinite :
     (Lift.functor 𝓞 ρbar).IsCorepresentable := by
   sorry
+
 end G_profinite
 
 end Deformations
