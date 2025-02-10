@@ -14,7 +14,7 @@ variable {𝓞 : Type u} [CommRing 𝓞] [IsLocalRing 𝓞]
 
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
-section IsProartinian
+section IsProartinian -- This is a the pro-category of artinian rings (written out noncategorically)
 
 variable {A : Type*} [CommRing A]
 
