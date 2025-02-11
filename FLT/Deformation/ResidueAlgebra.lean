@@ -90,8 +90,14 @@ instance : RingHomInvPair
     comp_eq := by simp
     comp_eq₂ := by simp
 
-instance (a : Ideal A) : IsResidueAlgebra 𝓞 (A ⧸ a) :=
-  sorry
+variable (a : Ideal A) in
+#synth IsLocalRing (A ⧸ a)
+
+instance (a : Ideal A) : IsResidueAlgebra 𝓞 (A ⧸ a) where
+  isSurjective := by
+    unfold Surjective
+    rintro x
+    sorry
 
 end IsResidueAlgebra
 
