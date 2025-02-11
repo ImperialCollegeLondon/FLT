@@ -78,7 +78,7 @@ noncomputable def IsResidueAlgebra.toRingEquiv : (𝓴 A) ≃+* (𝓴 𝓞) wher
   map_mul' := by aesop
   map_add' := by aesop
 
-instance : RingHomInvPair
+instance instRingHomPair : RingHomInvPair
   (algebraMap (𝓴 A) (𝓴 𝓞))
   (algebraMap (𝓴 𝓞) (𝓴 A)) where
     comp_eq := sorry
@@ -87,8 +87,8 @@ instance : RingHomInvPair
 instance : RingHomInvPair
   (algebraMap (𝓴 𝓞) (𝓴 A))
   (algebraMap (𝓴 A) (𝓴 𝓞)) where
-    comp_eq := sorry
-    comp_eq₂ := sorry
+    comp_eq := by simp
+    comp_eq₂ := by simp
 
 instance (a : Ideal A) : IsResidueAlgebra 𝓞 (A ⧸ a) :=
   sorry
