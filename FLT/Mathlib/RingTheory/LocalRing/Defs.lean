@@ -2,13 +2,14 @@ import Mathlib.RingTheory.LocalRing.Defs
 import Mathlib.Order.Notation
 import Mathlib.RingTheory.Ideal.Quotient.Operations
 import Mathlib.Algebra.Quotient
+import FLT.Mathlib.RingTheory.Ideal.Lattice
 
-variable {R R' : Type*} [CommRing R] [CommRing R']
+variable {R : Type*} [CommRing R] [IsLocalRing R]
 
-instance isLocalRing_of_quotient [instLocalRing : IsLocalRing R] (A : Ideal R) (ht : A ≠ ⊤)
-    : IsLocalRing (R ⧸ A) where
+instance isLocalRing_of_quotient (I : Ideal R) [I.NeqTop]
+    : IsLocalRing (R ⧸ I) where
   exists_pair_ne := by
-    have ho : ∃ x, x ∉ A := by sorry
+    have ho : ∃ x, x ∉ I := by sorry
     use 0
     use algebraMap _ _ ho.choose
     sorry

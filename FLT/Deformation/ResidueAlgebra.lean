@@ -1,9 +1,12 @@
 import FLT.Mathlib.RingTheory.LocalRing.Defs
+import FLT.Mathlib.RingTheory.Ideal.Lattice
 
-universe u
+import Mathlib
 
 open CategoryTheory Function
 open scoped TensorProduct
+
+universe u
 
 namespace Deformation
 
@@ -12,7 +15,7 @@ variable {𝓞 : Type u}
 
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
-variable (A : Type*) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
+variable (A : Type u) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
 
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
 variable (𝓞) in
@@ -84,19 +87,23 @@ instance instRingHomPair : RingHomInvPair
     comp_eq := sorry
     comp_eq₂ := sorry
 
-instance : RingHomInvPair
+instance instRingHomPair₂ : RingHomInvPair
   (algebraMap (𝓴 𝓞) (𝓴 A))
   (algebraMap (𝓴 A) (𝓴 𝓞)) where
     comp_eq := by simp
     comp_eq₂ := by simp
 
-variable (a : Ideal A) in
-#synth IsLocalRing (A ⧸ a)
-
-instance (a : Ideal A) : IsResidueAlgebra 𝓞 (A ⧸ a) where
+instance (I : Ideal A) [I.NeqTop] : IsResidueAlgebra 𝓞 (A ⧸ I) where
   isSurjective := by
-    unfold Surjective
-    rintro x
+    simp only [Surjective, modMap, algebraMap, Algebra.algebraMap, RingHom.coe_comp,
+      Function.comp_apply]
+    rintro x_kai
+    let x_ai := surjInv (IsLocalRing.residue_surjective) x_kai
+    let x_a := surjInv (Ideal.Quotient.mk_surjective) x_ai
+    let x_ka := IsLocalRing.residue A x_a
+    let x_o := surjInv (IsResidueAlgebra.isSurjective (𝓞 := 𝓞) (A := A)) x_ka
+    use x_o
+    unfold x_o x_ka x_a x_ai
     sorry
 
 end IsResidueAlgebra
