@@ -74,7 +74,7 @@ jobs:
       - name: Cache Mathlib docs
         uses: actions/cache@v4
         with:
-          path: docbuild/.lake/build/doc
+          path: docs/docs
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             MathlibDoc-
