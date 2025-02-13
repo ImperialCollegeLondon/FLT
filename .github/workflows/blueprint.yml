@@ -67,6 +67,7 @@ jobs:
 
       - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
+
       - name: Build project
         run: ~/.elan/bin/lake build FLT
 
