@@ -1,4 +1,5 @@
 import FLT.Deformation.Algebra.InverseLimit.Basic
+import FLT.Deformation.Algebra.InverseLimit.Topology
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.Artinian.Module
@@ -20,14 +21,22 @@ def ArtinianQuotientIdeal := {a : Ideal A // IsArtinianRing (A ⧸ a)}
 instance : Coe (ArtinianQuotientIdeal A) (Ideal A) where
   coe a := a.1
 
-instance : Preorder (ArtinianQuotientIdeal A) where
-  le a b := (a : Ideal A) ≥ (b : Ideal A)
-  lt a b := (a : Ideal A) > (b : Ideal A)
+instance : LinearOrder (ArtinianQuotientIdeal A) where
+  le a b := (b : Ideal A) ≤ (a : Ideal A)
   le_refl := by simp
   le_trans := by
     rintro a b c hab hbc
     simp_all
     exact le_trans hbc hab
+  le_antisymm := by
+    intro a b hab hba
+    simp_all
+    have h : (a : Ideal A) = (b : Ideal A) := by exact le_antisymm hba hab
+    unfold ArtinianQuotientIdeal at a b
+    exact ⟨h, ?_⟩
+
+  le_total := _
+  decidableLE := _
 
 variable {a b : ArtinianQuotientIdeal A}
 
@@ -58,6 +67,8 @@ noncomputable def diagonalMap : A →+* proartinianCompletion A :=
       unfold proartinianCompletion_map
       aesop
     )
+
+#synth TopologicalSpace (proartinianCompletion_obj a)
 
 variable (a) in
 def diagonalMap_toComponent : A →+* proartinianCompletion_obj a := algebraMap _ _
