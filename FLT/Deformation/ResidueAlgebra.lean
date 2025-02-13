@@ -1,21 +1,18 @@
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.RingTheory.Ideal.Lattice
-
 import Mathlib
 
 open CategoryTheory Function
 open scoped TensorProduct
 
-universe u
-
 namespace Deformation
 
-variable {𝓞 : Type u}
+variable {𝓞 : Type*}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
-variable (A : Type u) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
+variable (A : Type*) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
 
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
 variable (𝓞) in
