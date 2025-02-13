@@ -19,79 +19,65 @@ variable (A : Type u) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom 
 
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
 variable (𝓞) in
-abbrev modMap : 𝓞 →+* 𝓴 A :=
-   (IsLocalRing.residue A).comp (algebraMap 𝓞 A)
+abbrev modMap_high : 𝓞 →+* 𝓴 A :=
+  (IsLocalRing.residue A).comp (algebraMap 𝓞 A)
+
+variable (𝓞) in
+abbrev modMap : (𝓴 𝓞) →+* 𝓴 A :=
+  IsLocalRing.ResidueField.lift (modMap_high 𝓞 A)
+
+instance instInjective : Injective (modMap 𝓞 A) := RingHom.injective (modMap 𝓞 A)
 
 variable (𝓞) in
 class IsResidueAlgebra : Prop where
-  isSurjective : Surjective (modMap 𝓞 A)
+  isSurjective : Surjective (modMap_high 𝓞 A)
 
-section IsResidueAlgebra
+namespace IsResidueAlgebra
 
 variable [IsResidueAlgebra 𝓞 A]
 
-noncomputable instance : Algebra (𝓴 𝓞) (𝓴 A) where
-  algebraMap := IsLocalRing.ResidueField.lift (modMap 𝓞 A)
-  smul ko ka := (IsLocalRing.ResidueField.lift (modMap 𝓞 A) ko) * ka
-  commutes' := by
-    rintro r x
-    exact CommMonoid.mul_comm ..
-  smul_def' := by aesop
-
-noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) where
-  algebraMap := {
-    toFun := fun ka ↦ (IsLocalRing.residue (R := 𝓞)) ((surjInv (IsResidueAlgebra.isSurjective (A := A))) ka)
-    map_one' := sorry
-    map_mul' := sorry
-    map_zero' := sorry
-    map_add' := sorry
-  }
-  smul ka ko := (IsLocalRing.residue (R := 𝓞)) ((surjInv (IsResidueAlgebra.isSurjective (A := A))) ka) * ko
-  commutes' := by
-    rintro r x
-    exact CommMonoid.mul_comm ..
-  smul_def' := by
-    rintro r x
-    rfl
-
-variable {A} in
-lemma left_inv : Function.LeftInverse (algebraMap (𝓴 𝓞) (𝓴 A)) (algebraMap (𝓴 A) (𝓴 𝓞)) := by
-  simp only [LeftInverse, RingHom.coe_comp, IsLocalRing.ResidueField.lift_residue_apply,
-    Function.comp_apply]
-  rintro x
-  rw [← RingHom.comp_apply]
-  change ((IsLocalRing.residue A) ∘ (algebraMap 𝓞 A)) (surjInv _ x) = x
-  rw [surjInv_eq (f := (⇑(IsLocalRing.residue A) ∘ (algebraMap 𝓞 A)))]
-
-variable {A} in
-lemma right_inv : Function.RightInverse (algebraMap (𝓴 𝓞) (𝓴 A)) (algebraMap (𝓴 A) (𝓴 𝓞)) := by
-  unfold Function.RightInverse LeftInverse
-  rintro x
-  simp only [algebraMap, Algebra.algebraMap, RingHom.coe_comp, Function.comp_apply]
-  let hinj := injective_surjInv (IsLocalRing.residue_surjective (R := 𝓞))
-  rw [← hinj.eq_iff]
-  sorry
+instance instSurjective : Surjective (modMap 𝓞 A) := by
+  have hcomp : (modMap 𝓞 A) ∘ (IsLocalRing.residue (R := 𝓞)) = modMap_high 𝓞 A := by aesop
+  have hsurj1 := (IsLocalRing.residue_surjective (R := 𝓞))
+  have hsurj2 := IsResidueAlgebra.isSurjective (𝓞 := 𝓞) (A := A)
+  unfold modMap_high at hsurj2
+  refine (Function.Surjective.of_comp_iff (modMap 𝓞 A) hsurj1).mp hsurj2
 
 variable (𝓞) in
-noncomputable def IsResidueAlgebra.toRingEquiv : (𝓴 A) ≃+* (𝓴 𝓞) where
-  toFun := algebraMap ..
-  invFun := algebraMap ..
-  left_inv := left_inv
-  right_inv := right_inv
-  map_mul' := by aesop
-  map_add' := by aesop
+noncomputable abbrev modMapInv' : (𝓴 A) → 𝓴 𝓞 := invFun (modMap 𝓞 A)
 
-instance instRingHomPair : RingHomInvPair
-  (algebraMap (𝓴 A) (𝓴 𝓞))
-  (algebraMap (𝓴 𝓞) (𝓴 A)) where
-    comp_eq := sorry
-    comp_eq₂ := sorry
+omit [IsNoetherianRing 𝓞] [IsResidueAlgebra 𝓞 A] in
+variable (𝓞) in
+lemma leftInverse : LeftInverse (modMapInv' 𝓞 A) (modMap 𝓞 A) :=
+  leftInverse_invFun (instInjective A)
 
-instance instRingHomPair₂ : RingHomInvPair
-  (algebraMap (𝓴 𝓞) (𝓴 A))
-  (algebraMap (𝓴 A) (𝓴 𝓞)) where
-    comp_eq := by simp
-    comp_eq₂ := by simp
+omit [IsNoetherianRing 𝓞] in
+variable (𝓞) in
+lemma rightInverse : RightInverse (modMapInv' 𝓞 A) (modMap 𝓞 A) :=
+  rightInverse_invFun (instSurjective A)
+
+variable (𝓞) in
+noncomputable abbrev modMapInv : (𝓴 A) →+* 𝓴 𝓞 :=
+  RingHom.inverse (modMap 𝓞 A) (modMapInv' 𝓞 A) (leftInverse 𝓞 A) (rightInverse 𝓞 A)
+
+instance instRingHomPair : RingHomInvPair (modMap 𝓞 A) (modMapInv 𝓞 A) where
+  comp_eq := by
+    ext x
+    simp only [RingHom.coe_comp, Function.comp_apply, RingHom.inverse_apply, RingHom.id_apply]
+    exact (leftInverse 𝓞 A) x
+  comp_eq₂ := by
+    ext x
+    simp only [RingHom.coe_comp, Function.comp_apply, RingHom.inverse_apply, RingHom.id_apply]
+    exact (rightInverse 𝓞 A) x
+
+variable (𝓞) in
+noncomputable def ringEquiv : (𝓴 𝓞) ≃+* (𝓴 A) := .ofHomInv (modMap 𝓞 A) (modMapInv 𝓞 A)
+  (by change (modMapInv _ _).comp (modMap _ _) = _; simp)
+  (by change (modMap _ _).comp (modMapInv _ _) = _; simp)
+
+instance instRingHomPair₂ : RingHomInvPair (modMapInv 𝓞 A) (modMap 𝓞 A) where
+  comp_eq := by simp
+  comp_eq₂ := by simp
 
 instance (I : Ideal A) [I.NeqTop] : IsResidueAlgebra 𝓞 (A ⧸ I) where
   isSurjective := by
