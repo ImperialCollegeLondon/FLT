@@ -29,6 +29,10 @@ template > docbuild/lakefile.toml
 # Substitute the toolchain from lean-toolchain into docbuild/lakefile.toml
 sed -i s/TOOLCHAIN/`grep -oP 'v4\..*' lean-toolchain`/ docbuild/lakefile.toml
 
+# Fetch the docs cache if it exists
+mkdir -p docs/docs
+mv docs/docs docbuild/.lake/build/doc
+
 # Initialise docbuild as a Lean project
 cd docbuild
 MATHLIB_NO_CACHE_ON_UPDATE=1 # Disable an error message due to a non-blocking bug. See Zulip

@@ -67,14 +67,13 @@ jobs:
 
       - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
-
       - name: Build project
         run: ~/.elan/bin/lake build FLT
 
       - name: Cache Mathlib docs
         uses: actions/cache@v4
         with:
-          path: docbuild/.lake/build/doc
+          path: docs/docs
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             MathlibDoc-
