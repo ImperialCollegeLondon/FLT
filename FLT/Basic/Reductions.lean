@@ -1,10 +1,10 @@
+import Mathlib.AlgebraicGeometry.EllipticCurve.Affine
 import Mathlib.Data.PNat.Basic
 import Mathlib.NumberTheory.FLT.Four
 import Mathlib.NumberTheory.FLT.Three
-import Mathlib.AlgebraicGeometry.EllipticCurve.Affine
-import Mathlib.Tactic.ModCases
 import Mathlib.RepresentationTheory.Basic
-import Mathlib.RingTheory.SimpleModule
+import Mathlib.RingTheory.SimpleModule.Basic
+import Mathlib.Tactic.ModCases
 import FLT.EllipticCurve.Torsion
 
 
