@@ -69,14 +69,17 @@ variable (a) in
 def diagonalMap_toComponent : A →+* proartinianCompletion_obj a := algebraMap _ _
 
 variable (A) in
-class IsProartinian : Prop where
+class IsProartinianRing : Prop where
   pro_artin : Function.Bijective (diagonalMap A)
 
-namespace IsProartinian
+namespace IsProartinianRing
 
-instance [IsProartinian A] : TopologicalSpace A := TopologicalSpace.induced (diagonalMap A) (by infer_instance)
+instance [IsProartinianRing A] : TopologicalSpace A := TopologicalSpace.induced (diagonalMap A) (by infer_instance)
 
-instance [IsProartinian A] (I : Ideal A) : IsProartinian (A ⧸ I) where
+instance [IsProartinianRing A] : TopologicalRing A := sorry
+
+
+instance [IsProartinianRing A] (I : Ideal A) : IsProartinianRing (A ⧸ I) where
   pro_artin := by
     simp [Function.Bijective, Function.Injective, Function.Surjective]
     split_ands
@@ -89,7 +92,7 @@ section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
 variable {𝓞 : Type*} [CommRing 𝓞] [IsNoetherianRing 𝓞] [IsLocalRing 𝓞]
 
-variable [IsLocalRing A] [Algebra 𝓞 A] [IsNoetherianRing A] [IsProartinian A]
+variable [IsLocalRing A] [Algebra 𝓞 A] [IsNoetherianRing A] [IsProartinianRing A]
 
 variable (A) in
 instance noetherian_topology :
@@ -99,13 +102,13 @@ variable (A) in
 instance noetherian_isAdic :
   IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
 
-variable {A' : Type*} [CommRing A'] [Algebra 𝓞 A'] [IsLocalRing A'] [IsProartinian A']
+variable {A' : Type*} [CommRing A'] [Algebra 𝓞 A'] [IsLocalRing A'] [IsProartinianRing A']
 
 variable (A A') in
 lemma noetherian_continuous (f : A →ₐ[𝓞] A') : Continuous f := sorry
 
 end Noetherian
 
-end IsProartinian
+end IsProartinianRing
 
 end Deformation

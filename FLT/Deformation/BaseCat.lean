@@ -1,6 +1,6 @@
 import FLT.Deformation.Algebra.Category.AlgebraCat.CommAlgebraCat
-import FLT.Deformation.Proartinian
-import FLT.Deformation.ResidueAlgebra
+import FLT.Deformation.IsProartinianRing
+import FLT.Deformation.IsResidueAlgebra
 import FLT.Mathlib.Algebra.Group.Units.Hom
 
 set_option linter.unusedSectionVars false
@@ -24,7 +24,7 @@ structure BaseCat where
   [isLocalRing : IsLocalRing carrier]
   [isLocalHom : IsLocalHom (algebraMap 𝓞 carrier)]
   [isResidueAlgebra : IsResidueAlgebra 𝓞 carrier]
-  [isProartinian : IsProartinian carrier]
+  [isProartinianRing : IsProartinianRing carrier]
 
 scoped notation3:max "𝓒" 𝓞 => BaseCat 𝓞
 
@@ -36,10 +36,10 @@ abbrev BaseCatMax.{v₁, v₂, u₁} (𝓞 : Type u₁) [CommRing 𝓞] [IsLocal
   BaseCat.{max v₁ v₂} 𝓞
 
 attribute [instance] BaseCat.isCommRing BaseCat.isAlgebra BaseCat.isLocalRing BaseCat.isLocalHom
-  BaseCat.isResidueAlgebra BaseCat.isProartinian
+  BaseCat.isResidueAlgebra BaseCat.isProartinianRing
 
 initialize_simps_projections BaseCat (-isCommRing, -isAlgebra, -isLocalRing, -isLocalHom,
-  -isResidueAlgebra, -isProartinian)
+  -isResidueAlgebra, -isProartinianRing)
 
 namespace BaseCat
 
@@ -49,11 +49,11 @@ instance : CoeSort (BaseCat 𝓞) (Type v) :=
 attribute [coe] BaseCat.carrier
 
 abbrev of (X : Type v) [CommRing X] [Algebra 𝓞 X] [IsLocalRing X] [IsLocalHom (algebraMap 𝓞 X)]
-  [IsResidueAlgebra 𝓞 X] [IsProartinian X] : BaseCat.{v} 𝓞 :=
+  [IsResidueAlgebra 𝓞 X] [IsProartinianRing X] : BaseCat.{v} 𝓞 :=
   ⟨X⟩
 
 lemma coe_of (X : Type v) [CommRing X] [Algebra 𝓞 X] [IsLocalRing X] [IsLocalHom (algebraMap 𝓞 X)]
-  [IsResidueAlgebra 𝓞 X] [IsProartinian X] : (of 𝓞 X : Type v) = X := rfl
+  [IsResidueAlgebra 𝓞 X] [IsProartinianRing X] : (of 𝓞 X : Type v) = X := rfl
 
 variable {𝓞} in
 /-- The type of morphisms in `BaseCat 𝓞`. -/
@@ -81,9 +81,9 @@ variable {𝓞} in
 /-- Typecheck an `ContinuousAlgHom` as a morphism in `BaseCat`. -/
 abbrev ofHom {A B : Type v}
   [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
-  [IsResidueAlgebra 𝓞 A] [IsProartinian A]
+  [IsResidueAlgebra 𝓞 A] [IsProartinianRing A]
   [CommRing B] [Algebra 𝓞 B] [IsLocalRing B] [IsLocalHom (algebraMap 𝓞 B)]
-  [IsResidueAlgebra 𝓞 B] [IsProartinian B]
+  [IsResidueAlgebra 𝓞 B] [IsProartinianRing B]
   (f : A →A[𝓞] B) :
     of 𝓞 A ⟶ of 𝓞 B :=
   ConcreteCategory.ofHom (C := BaseCat 𝓞) f
@@ -100,11 +100,11 @@ variable {𝓞}
 
 variable {X Y Z : Type v}
   [CommRing X] [Algebra 𝓞 X] [IsLocalRing X] [IsLocalHom (algebraMap 𝓞 X)]
-  [IsResidueAlgebra 𝓞 X] [IsProartinian X]
+  [IsResidueAlgebra 𝓞 X] [IsProartinianRing X]
   [CommRing Y] [Algebra 𝓞 Y] [IsLocalRing Y] [IsLocalHom (algebraMap 𝓞 Y)]
-  [IsResidueAlgebra 𝓞 Y] [IsProartinian Y]
+  [IsResidueAlgebra 𝓞 Y] [IsProartinianRing Y]
   [CommRing Z] [Algebra 𝓞 Z] [IsLocalRing Z] [IsLocalHom (algebraMap 𝓞 Z)]
-  [IsResidueAlgebra 𝓞 Z] [IsProartinian Z]
+  [IsResidueAlgebra 𝓞 Z] [IsProartinianRing Z]
 
 variable {A B C : BaseCat.{v} 𝓞}
 
@@ -196,16 +196,16 @@ def quotient (a : Ideal A) [a.NeqTop] : BaseCat.{v} 𝓞 where
   isLocalRing := isLocalRing_of_quotient a
   isLocalHom := by sorry -- isLocalHom_of_quotient (algebraMap 𝓞 A) a
   isResidueAlgebra := by infer_instance
-  isProartinian := by infer_instance
+  isProartinianRing := by infer_instance
 
 end BaseCat
 
 variable {𝓞}
 variable {X Y : Type u}
   [CommRing X] [Algebra 𝓞 X] [IsLocalRing X] [IsLocalHom (algebraMap 𝓞 X)]
-  [IsResidueAlgebra 𝓞 X] [IsProartinian X]
+  [IsResidueAlgebra 𝓞 X] [IsProartinianRing X]
   [CommRing Y] [Algebra 𝓞 Y] [IsLocalRing Y] [IsLocalHom (algebraMap 𝓞 Y)]
-  [IsResidueAlgebra 𝓞 Y] [IsProartinian Y]
+  [IsResidueAlgebra 𝓞 Y] [IsProartinianRing Y]
 variable {A B : BaseCat 𝓞}
 
 /-- Build an isomorphism in the category `BaseCat R` from a `ContinuousAlgEquiv` between `Algebra`s. -/
@@ -248,15 +248,15 @@ variable (A : 𝓒 𝓞) [IsNoetherianRing A]
 
 instance noetherian_topology
     : IsAdic (IsLocalRing.maximalIdeal A) := by
-  exact IsProartinian.noetherian_topology A
+  exact IsProartinianRing.noetherian_topology A
 
 instance noetherian_isAdic
     : IsAdicComplete (IsLocalRing.maximalIdeal A) A := by
-  exact IsProartinian.noetherian_isAdic A
+  exact IsProartinianRing.noetherian_isAdic A
 
 lemma noetherian_continuous (A' : 𝓒 𝓞) (f : A →ₐ[𝓞] A')
     : Continuous f := by
-  exact IsProartinian.noetherian_continuous A A' f
+  exact IsProartinianRing.noetherian_continuous A A' f
 
 end Noetherian
 

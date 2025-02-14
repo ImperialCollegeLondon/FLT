@@ -1,5 +1,5 @@
 import FLT.Deformation.BaseCat
-import FLT.Deformation.ResidueAlgebra
+import FLT.Deformation.IsResidueAlgebra
 import FLT.Deformation.RepresentationTheory.RepresentationEquiv
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.Algebra.Module.Equiv.Defs
@@ -18,11 +18,11 @@ variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
 variable {V : Type u}
-  [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
+  [AddCommGroup V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
 
 variable {G : Type u} [Group G] [TopologicalSpace G] [TopologicalGroup G]
 
-variable (ρbar : Representation (𝓴 𝓞) G V)
+variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ ⊥ (by sorry) G _ _ _ V _ _ ⊥ (by sorry))
 
 variable {ι : Type*} [Fintype ι]
 
@@ -32,14 +32,12 @@ variable (A : 𝓒 𝓞)
   [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
   [Module A V] [IsScalarTower A (𝓴 A) V]
 
-variable {W: Type u} [AddCommMonoid W] [Module A W] [Module.Free A W] [Module.Finite A W]
+variable {W: Type u} [AddCommGroup W] [Module A W] [Module.Free A W] [Module.Finite A W]
+  [TopologicalSpace W] [TopologicalModule A W]
 
-variable (reduction : LinearEquiv
-  (algebraMap (𝓴 A) (𝓴 𝓞))
-  ((𝓴 A) ⊗[A] W)
-  V)
+variable (reduction : ((𝓴 A) ⊗[A] W) ≃ₛₗ[algebraMap (𝓴 A) (𝓴 𝓞)] V)
 
-variable (ρ: Representation A G W)
+variable (ρ: ContinuousRepresentation A G W)
 
 variable (W V) in
 noncomputable def extend_ctts : W →ₗ[A] ((𝓴 A) ⊗[A] W) :=
@@ -50,18 +48,14 @@ noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V where
   toFun kaw := reduction kaw
   map_add' := by simp
   map_smul' := by
-    simp
+    simp only [RingHom.id_apply]
     rintro m x
-    sorry -- TODO: why is rw [LinearEquiv.map_smulₛₗ reduction] not matching?
+    sorry
+    -- rw [LinearEquiv.map_smulₛₗ reduction]
 
 variable (W V) in
 noncomputable def representation_mod : W →ₗ[A] V :=
   (mod_ctts V A W reduction).comp (extend_ctts A W)
-
-instance {A W : Type*} [CommRing A] [TopologicalSpace A] [TopologicalRing A]
-    [AddCommMonoid W] [Module A W] [Module.Free A W] [Module.Finite A W] [TopologicalSpace W]
-    [is_prod_topo : Nonempty (W ≃ₜ (Module.Free.ChooseBasisIndex A W → A))]
-  : TopologicalSpace (W →ₗ[A] W) := sorry
 
 end Definitions
 
@@ -88,8 +82,7 @@ structure Lift : Type _ where
   [isScalarTower_𝓴A : IsScalarTower (𝓴 A) (𝓴 𝓞) V]
   [isScalarTower_A : IsScalarTower A (𝓴 A) V]
   -- G-Representation on W as A-module
-  ρ: Representation A G W
-  is_cont: Continuous ρ
+  ρ: ContinuousRepresentation A G W
   -- Lift property
   is_lift: ∀ g : G, ∀ w : W, ρbar g (representation_mod V A W reduction w)
       = representation_mod V A W reduction (ρ g w)
@@ -97,7 +90,7 @@ structure Lift : Type _ where
 attribute [instance] Lift.addCommGroup Lift.module Lift.free Lift.finite
 
 def Lift.isIso : Setoid (Lift ρbar A) where
-  r l l' := Representation.IsRepresentationEquiv l.ρ l'.ρ
+  r l l' := Representation.IsRepresentationEquiv (l.ρ : Representation A G l.W) (l'.ρ : Representation A G l'.W)
   iseqv := {
     refl := by
       unfold Representation.IsRepresentationEquiv
@@ -137,7 +130,6 @@ def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift
   isScalarTower_𝓴A := sorry
   isScalarTower_A := sorry
   ρ := sorry
-  is_cont := sorry
   is_lift := sorry
 
 variable (𝓞) in
