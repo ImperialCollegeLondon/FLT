@@ -15,10 +15,10 @@ See Atiyah-Macdonald PP.32-33, Matsumura PP.269-270
 
 ## Main definitions
 
-* `Module.InverseLimit obj f`
-* `Ring.InverseLimit obj f`
-* `Group.InverseLimit obj f`
-* `Representation.InverseLimit obj f`
+* `Module.InverseLimit obj func`
+* `Ring.InverseLimit obj func`
+* `Group.InverseLimit obj func`
+* `Representation.InverseLimit obj func`
 -/
 
 suppress_compilation
