@@ -111,7 +111,7 @@ instance (I : Ideal A) [I.NeqTop] : IsResidueAlgebra 𝓞 (A ⧸ I) where
     let x_o := surjInv (IsResidueAlgebra.isSurjective (𝓞 := 𝓞) (A := A)) x_ka
     use x_o
     unfold x_o x_ka x_a x_ai
-    sorry
+    sorry -- TODO(jlcontreras): finish this
 
 end IsResidueAlgebra
 
