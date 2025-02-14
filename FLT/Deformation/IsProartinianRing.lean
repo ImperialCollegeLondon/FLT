@@ -10,8 +10,6 @@ import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
 import Mathlib.RingTheory.AdicCompletion.Basic
 import Mathlib
 
-universe u
-
 namespace Deformation
 
 variable {A : Type*} [CommRing A]
@@ -77,7 +75,6 @@ namespace IsProartinianRing
 instance [IsProartinianRing A] : TopologicalSpace A := TopologicalSpace.induced (diagonalMap A) (by infer_instance)
 
 instance [IsProartinianRing A] : TopologicalRing A := sorry
-
 
 instance [IsProartinianRing A] (I : Ideal A) : IsProartinianRing (A ⧸ I) where
   pro_artin := by
