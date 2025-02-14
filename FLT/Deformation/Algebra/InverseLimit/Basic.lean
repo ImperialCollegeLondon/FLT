@@ -109,18 +109,38 @@ lemma func_toComponent {i j : ι} {h : i ≤ j}:
   unfold toComponent
   aesop
 
-variable {W : Type*} [AddCommGroup W] [Module R W]
+variable {X : Type*}
 
-def map_of_maps (maps : (i : ι) → W → obj i)
-    (comm : ∀ {i j} (h : i ≤ j) w, (func h) ((maps j) w) = (maps i) w)
-    : W → InverseLimit obj func := fun w ↦ ⟨fun i ↦ maps i w, by aesop⟩
+def map_of_maps (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : X → InverseLimit obj func := fun x ↦ ⟨fun i ↦ maps i x, by aesop⟩
 
-def map_of_maps' (maps : (i : ι) → W →ₗ[R] obj i)
-    (comm : ∀ {i j} (h : i ≤ j) w, (func h) ((maps j) w) = (maps i) w)
-    : W →ₗ[R] InverseLimit obj func where
-      toFun := map_of_maps func (fun i ↦ (maps i : W → obj i)) comm
+@[simp]
+lemma map_of_maps_toComponent (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps func maps comm x) = maps i x := by
+  aesop
+
+variable [AddCommGroup X] [Module R X]
+
+def map_of_maps' (maps : (i : ι) → X →ₗ[R] obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : X →ₗ[R] InverseLimit obj func where
+      toFun := map_of_maps func (fun i ↦ (maps i : X → obj i)) comm
       map_add' := by unfold map_of_maps; aesop
       map_smul' := by unfold map_of_maps; aesop
+
+@[simp]
+lemma map_of_maps'_toComponent (maps : (i : ι) → X →ₗ[R] obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps' func maps comm x) = maps i x := by
+  aesop
+
+@[simp]
+lemma map_of_maps'_eq_map_of_maps (maps : (i : ι) → X →ₗ[R] obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : ∀ x, map_of_maps' func maps comm x = map_of_maps func (fun i ↦ (maps i).toFun) comm x := by
+  aesop
 
 
 end InverseLimit
@@ -209,23 +229,43 @@ lemma func_toComponent {i j : ι} {h : i ≤ j}:
   unfold toComponent
   aesop
 
-variable {R' : Type*} [Ring R']
+variable {X : Type*}
 
-def map_of_maps (maps : (i : ι) → R' → obj i)
-    (comm : ∀ {i j} (h : i ≤ j) r', (func h) ((maps j) r') = (maps i) r')
-    (r' : R'): InverseLimit obj func := ⟨fun i ↦ maps i r', by
+def map_of_maps (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    (x : X): InverseLimit obj func := ⟨fun i ↦ maps i x, by
       change _ ∈ {a | ∀ {i j} (h : i ≤ j), _}
       aesop
     ⟩
 
-def map_of_maps' (maps : (i : ι) → R' →+* obj i)
-    (comm : ∀ {i j} (h : i ≤ j) r', (func h) ((maps j) r') = (maps i) r')
-    : R' →+* InverseLimit obj func where
-      toFun := map_of_maps func (fun i ↦ (maps i : R' → obj i)) comm
+@[simp]
+lemma map_of_maps_toComponent (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps func maps comm x) = maps i x := by
+  aesop
+
+variable [Ring X]
+
+def map_of_maps' (maps : (i : ι) → X →+* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : X →+* InverseLimit obj func where
+      toFun := map_of_maps func (fun i ↦ (maps i : X → obj i)) comm
       map_one' := by unfold map_of_maps; aesop
       map_mul' := by unfold map_of_maps; aesop
       map_zero' := by unfold map_of_maps; aesop
       map_add' := by unfold map_of_maps; aesop
+
+@[simp]
+lemma map_of_maps'_toComponent (maps : (i : ι) → X →+* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps' func maps comm x) = maps i x := by
+  aesop
+
+@[simp]
+lemma map_of_maps'_eq_map_of_maps (maps : (i : ι) → X →+* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : ∀ x, map_of_maps' func maps comm x = map_of_maps func (fun i ↦ (maps i).toFun) comm x := by
+  aesop
 
 end InverseLimit
 
@@ -305,23 +345,43 @@ lemma func_toComponent {i j : ι} {h : i ≤ j}:
   unfold toComponent
   aesop
 
-variable {G' : Type*} [Group G']
+variable {X : Type*}
 
 @[to_additive]
-def map_of_maps (maps : (i : ι) → G' → obj i)
-    (comm : ∀ {i j} (h : i ≤ j) g', (func h) ((maps j) g') = (maps i) g')
-    (g' : G'): InverseLimit obj func := ⟨fun i ↦ maps i g', by
+def map_of_maps (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    (x : X): InverseLimit obj func := ⟨fun i ↦ maps i x, by
       change _ ∈ {a | ∀ {i j} (h : i ≤ j), _}
       aesop
     ⟩
 
+@[simp]
+lemma map_of_maps_toComponent (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps func maps comm x) = maps i x := by
+  aesop
+
+variable [Group X]
+
 @[to_additive]
-def map_of_maps' (maps : (i : ι) → G' →* obj i)
-    (comm : ∀ {i j} (h : i ≤ j) g', (func h) ((maps j) g') = (maps i) g')
-    : G' →* InverseLimit obj func where
+def map_of_maps' (maps : (i : ι) → X →* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : X →* InverseLimit obj func where
       toFun := map_of_maps func (fun i ↦ (maps i).toFun) _
       map_one' := by unfold map_of_maps; aesop
       map_mul' := by unfold map_of_maps; aesop
+
+@[simp]
+lemma map_of_maps'_toComponent (maps : (i : ι) → X →* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps' func maps comm x) = maps i x := by
+  aesop
+
+@[simp]
+lemma map_of_maps'_eq_map_of_maps (maps : (i : ι) → X →* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : ∀ x, map_of_maps' func maps comm x = map_of_maps func (fun i ↦ (maps i).toFun) comm x := by
+  aesop
 
 end InverseLimit
 
