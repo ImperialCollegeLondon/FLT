@@ -1,7 +1,6 @@
-import Mathlib.RingTheory.LocalRing.Defs
-import Mathlib.Order.Notation
 import Mathlib.RingTheory.Ideal.Quotient.Operations
-import Mathlib.Algebra.Quotient
+import Mathlib.RingTheory.LocalRing.Defs
+
 import FLT.Mathlib.RingTheory.Ideal.Lattice
 
 variable {R : Type*} [CommRing R] [IsLocalRing R]

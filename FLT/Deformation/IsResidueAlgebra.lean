@@ -1,14 +1,15 @@
+import Mathlib.RingTheory.LocalRing.ResidueField.Basic
+import Mathlib.Logic.Function.Defs
 import FLT.Mathlib.RingTheory.LocalRing.Defs
-import FLT.Mathlib.RingTheory.Ideal.Lattice
-import Mathlib
 
-open CategoryTheory Function
+
+open Function
 open scoped TensorProduct
 
 namespace Deformation
 
 variable {𝓞 : Type*}
-  [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
+  [CommRing 𝓞] [IsLocalRing 𝓞]
 
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
@@ -43,12 +44,11 @@ instance instSurjective : Surjective (modMap 𝓞 A) := by
 variable (𝓞) in
 noncomputable abbrev modMapInv' : (𝓴 A) → 𝓴 𝓞 := invFun (modMap 𝓞 A)
 
-omit [IsNoetherianRing 𝓞] [IsResidueAlgebra 𝓞 A] in
+omit [IsResidueAlgebra 𝓞 A] in
 variable (𝓞) in
 lemma leftInverse : LeftInverse (modMapInv' 𝓞 A) (modMap 𝓞 A) :=
   leftInverse_invFun (instInjective A)
 
-omit [IsNoetherianRing 𝓞] in
 variable (𝓞) in
 lemma rightInverse : RightInverse (modMapInv' 𝓞 A) (modMap 𝓞 A) :=
   rightInverse_invFun (instSurjective A)
