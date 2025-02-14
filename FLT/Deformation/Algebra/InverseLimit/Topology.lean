@@ -7,6 +7,35 @@ open TopologicalSpace
 
 variable {ι : Type*} [instPreorder : Preorder ι]
   {obj : (i : ι) → Type*}
+
+namespace Module.InverseLimit
+
+variable {R : Type*} [Ring R] [∀ i : ι, AddCommGroup (obj i)] [∀ i : ι, Module R (obj i)]
+  [∀ i : ι, TopologicalSpace (obj i)]
+  (func : ∀ {i j}, i ≤ j → obj j →ₗ[R] obj i)
+  (cont : {i j : ι} → (h : i ≤ j) → Continuous (func h))
+
+def minimumOpens : Set (Set (InverseLimit obj func)) :=
+    setOf fun V ↦ ∃ (i : ι) (W : Set (obj i)), IsOpen W ∧ V = (toComponent func i) ⁻¹' W
+
+instance : TopologicalSpace (InverseLimit obj func) := .generateFrom <| minimumOpens func
+
+end Module.InverseLimit
+
+namespace Ring.InverseLimit
+
+variable [∀ i : ι, Ring (obj i)]
+  [∀ i : ι, TopologicalSpace (obj i)]
+  (func : ∀ {i j}, i ≤ j → obj j →+* obj i)
+  (cont : {i j : ι} → (h : i ≤ j) → Continuous (func h))
+
+def minimumOpens : Set (Set (InverseLimit obj func)) :=
+    setOf fun V ↦ ∃ (i : ι) (W : Set (obj i)), IsOpen W ∧ V = (toComponent func i) ⁻¹' W
+
+instance : TopologicalSpace (InverseLimit obj func) := .generateFrom <| minimumOpens func
+
+end Ring.InverseLimit
+
 namespace Group.InverseLimit
 
 variable [∀ i : ι, Group (obj i)]
