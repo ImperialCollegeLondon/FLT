@@ -37,8 +37,7 @@ variable (func : ∀ {i j : ι}, i ≤ j → obj j →ₗ[R] obj i)
 variable (obj) in
 /-- The inverse limit of an inverse system is the modules glued together along the maps. -/
 def InverseLimit : Type _ := ({
-  carrier := { a : Π i, obj i |
-    ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
+  carrier := {a : Π i : ι, obj i | ∀ {i j} (h : i ≤ j), func h (a j) = a i}
   add_mem' := by aesop
   zero_mem' := by aesop
   smul_mem' := by aesop
@@ -51,10 +50,10 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} : ∀ {i j} (h : i ≤ j), func h (a.val j) = a.val i := a.prop
 
 variable {func} in
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ {i j} (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
   ⟨a, h⟩
 
 instance instZero : Zero (InverseLimit obj func) where
@@ -112,12 +111,17 @@ lemma func_toComponent {i j : ι} {h : i ≤ j}:
 
 variable {W : Type*} [AddCommGroup W] [Module R W]
 
-def map_of_maps (maps : (i : ι) → W →ₗ[R] obj i)
-    (comm : ∀ i j (h : i ≤ j) w, (func h) ((maps j) w) = (maps i) w)
+def map_of_maps (maps : (i : ι) → W → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) w, (func h) ((maps j) w) = (maps i) w)
+    : W → InverseLimit obj func := fun w ↦ ⟨fun i ↦ maps i w, by aesop⟩
+
+def map_of_maps' (maps : (i : ι) → W →ₗ[R] obj i)
+    (comm : ∀ {i j} (h : i ≤ j) w, (func h) ((maps j) w) = (maps i) w)
     : W →ₗ[R] InverseLimit obj func where
-      toFun w := ⟨fun i ↦ maps i w, by aesop⟩
-      map_add' := by aesop
-      map_smul' := by aesop
+      toFun := map_of_maps func (fun i ↦ (maps i : W → obj i)) comm
+      map_add' := by unfold map_of_maps; aesop
+      map_smul' := by unfold map_of_maps; aesop
+
 
 end InverseLimit
 
@@ -131,8 +135,7 @@ variable (func : ∀ {i j}, i ≤ j → obj j →+* obj i)
 variable (obj) in
 /-- The inverse limit of an inverse system is the rings glued together along the maps. -/
 def InverseLimit : Type _ := ({
-  carrier := { a : Π i : ι, obj i |
-    ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
+  carrier := {a : Π i : ι, obj i | ∀ {i j} (h : i ≤ j), func h (a j) = a i}
   mul_mem' := by aesop
   one_mem' := by aesop
   add_mem' := by aesop
@@ -147,10 +150,10 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} : ∀ {i j} (h : i ≤ j), func h (a.val j) = a.val i := a.prop
 
 variable {func} in
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ {i j} (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
   ⟨a, h⟩
 
 @[simp]
@@ -208,14 +211,21 @@ lemma func_toComponent {i j : ι} {h : i ≤ j}:
 
 variable {R' : Type*} [Ring R']
 
-def map_of_maps (maps : (i : ι) → R' →+* obj i)
-    (comm : ∀ r' i j (h : i ≤ j), (func h) ((maps j) r') = (maps i) r')
+def map_of_maps (maps : (i : ι) → R' → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) r', (func h) ((maps j) r') = (maps i) r')
+    (r' : R'): InverseLimit obj func := ⟨fun i ↦ maps i r', by
+      change _ ∈ {a | ∀ {i j} (h : i ≤ j), _}
+      aesop
+    ⟩
+
+def map_of_maps' (maps : (i : ι) → R' →+* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) r', (func h) ((maps j) r') = (maps i) r')
     : R' →+* InverseLimit obj func where
-      toFun r := ⟨fun i ↦ maps i r, by aesop⟩
-      map_one' := by aesop
-      map_mul' := by aesop
-      map_zero' := by aesop
-      map_add' := by aesop
+      toFun := map_of_maps func (fun i ↦ (maps i : R' → obj i)) comm
+      map_one' := by unfold map_of_maps; aesop
+      map_mul' := by unfold map_of_maps; aesop
+      map_zero' := by unfold map_of_maps; aesop
+      map_add' := by unfold map_of_maps; aesop
 
 end InverseLimit
 
@@ -230,8 +240,7 @@ variable (obj) in
 /-- The inverse limit of an inverse system is the rings glued together along the maps. -/
 @[to_additive]
 def InverseLimit : Type _ := ({
-  carrier := { a : Π i, obj i |
-    ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
+  carrier := {a : Π i : ι, obj i | ∀ {i j} (h : i ≤ j), func h (a j) = a i}
   mul_mem' := by aesop
   one_mem' := by aesop
   inv_mem' := by aesop
@@ -244,11 +253,11 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[to_additive, simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} : ∀ {i j} (h : i ≤ j), func h (a.val j) = a.val i := a.prop
 
 variable {func} in
 @[to_additive]
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ {i j} (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
   ⟨a, h⟩
 
 @[to_additive, simp]
@@ -299,12 +308,20 @@ lemma func_toComponent {i j : ι} {h : i ≤ j}:
 variable {G' : Type*} [Group G']
 
 @[to_additive]
-def map_of_maps (maps : (i : ι) → G' →* obj i)
-    (comm : ∀ g' i j (h : i ≤ j), (func h) ((maps j) g') = (maps i) g')
+def map_of_maps (maps : (i : ι) → G' → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) g', (func h) ((maps j) g') = (maps i) g')
+    (g' : G'): InverseLimit obj func := ⟨fun i ↦ maps i g', by
+      change _ ∈ {a | ∀ {i j} (h : i ≤ j), _}
+      aesop
+    ⟩
+
+@[to_additive]
+def map_of_maps' (maps : (i : ι) → G' →* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) g', (func h) ((maps j) g') = (maps i) g')
     : G' →* InverseLimit obj func where
-      toFun g := ⟨fun i ↦ maps i g, by aesop⟩
-      map_one' := by aesop
-      map_mul' := by aesop
+      toFun := map_of_maps func (fun i ↦ (maps i).toFun) _
+      map_one' := by unfold map_of_maps; aesop
+      map_mul' := by unfold map_of_maps; aesop
 
 end InverseLimit
 
