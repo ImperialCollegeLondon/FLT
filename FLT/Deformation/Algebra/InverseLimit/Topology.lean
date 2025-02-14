@@ -1,8 +1,9 @@
-import FLT.Deformation.Algebra.InverseLimit.Basic
-import FLT.Mathlib.Order.Defs.Unbundled
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Order.Defs.Unbundled
+
 import FLT.Deformation.ContinuousRepresentation.TopologicalModule
+import FLT.Deformation.Algebra.InverseLimit.Basic
+import FLT.Mathlib.Order.Defs.Unbundled
 
 open TopologicalSpace
 
@@ -21,8 +22,61 @@ def minimumOpens : Set (Set (InverseLimit obj func)) :=
 
 instance : TopologicalSpace (InverseLimit obj func) := .generateFrom <| minimumOpens func
 
+@[continuity]
+lemma map_of_maps_continuous {X : Type*} [TopologicalSpace X]
+  (maps : (i : ι) → X → obj i) (comm : _) (maps_cont : (i : ι) → Continuous (maps i))
+    : Continuous (map_of_maps func maps comm) := by
+  refine continuous_generateFrom_iff.mpr ?_
+  unfold minimumOpens
+  intro V hV
+  let i := hV.choose
+  let R := hV.choose_spec.choose
+  have hRo := hV.choose_spec.choose_spec.1
+  have hR := hV.choose_spec.choose_spec.2
+  rw [hR]
+  have hcomp : (toComponent func i) ∘ (map_of_maps func maps comm) = maps i := by
+    ext x
+    simp
+  rw [← Set.preimage_comp, hcomp]
+  exact (maps_cont i).isOpen_preimage (Exists.choose_spec hV).choose hRo
+
+lemma minimumOpens_isOpen {s : Set (InverseLimit obj func)} : s ∈ minimumOpens func → IsOpen s :=
+  GenerateOpen.basic s
+
+@[continuity]
+lemma toComponent_continuous (i : ι) : Continuous (toComponent func i) where
+  isOpen_preimage R hR := by
+    refine minimumOpens_isOpen func ?_
+    unfold minimumOpens
+    simp only [Set.mem_setOf_eq]
+    use i, R
+
 instance [TopologicalSpace R] [TopologicalRing R]
-  [∀ i : ι, TopologicalModule R (obj i)] : TopologicalModule R (InverseLimit obj func) := sorry
+    [∀ i : ι, TopologicalModule R (obj i)] : TopologicalModule R (InverseLimit obj func) where
+  smul_continuous := by
+    refine continuous_generateFrom_iff.mpr ?_
+    rintro V hV
+    unfold minimumOpens at hV
+    let i := hV.choose
+    let X := hV.choose_spec.choose
+    have hXo := hV.choose_spec.choose_spec.1
+    have hX := hV.choose_spec.choose_spec.2
+    rw [hX]
+    rw [← Set.preimage_comp]
+    let M := InverseLimit obj func
+    let Xinvsmul := ((fun ⟨r, mi⟩ ↦ r • mi) : R × obj i → obj i) ⁻¹' X
+    let hXinvaddo : IsOpen (Xinvsmul) := by
+      exact (TopologicalModule.smul_continuous (R := R) (M := obj i)).isOpen_preimage X hXo
+    have hcomm : ((toComponent func i) ∘ (fun ⟨r, m⟩ ↦ r • m) : R × M → obj i) =
+      (fun ⟨r, mi⟩ ↦ r • mi) ∘ (fun ⟨r, m⟩ ↦ (⟨r, toComponent func i m⟩ : R × obj i))  := by
+      ext x
+      simp
+    rw [hcomm, Set.preimage_comp]
+    simp only
+    have hcont : Continuous (fun (⟨r, m⟩ : R × M) ↦
+      (⟨r, toComponent func i m⟩ : R × obj i)) := by
+      continuity
+    exact hcont.isOpen_preimage _ hXinvaddo
 
 end Module.InverseLimit
 
@@ -38,7 +92,101 @@ def minimumOpens : Set (Set (InverseLimit obj func)) :=
 
 instance : TopologicalSpace (InverseLimit obj func) := .generateFrom <| minimumOpens func
 
-instance [∀ i : ι, TopologicalRing (obj i)] : TopologicalRing (InverseLimit obj func) := sorry
+@[continuity]
+lemma map_of_maps_continuous {X : Type*} [TopologicalSpace X]
+  (maps : (i : ι) → X → obj i) (comm : _) (maps_cont : (i : ι) → Continuous (maps i))
+    : Continuous (map_of_maps func maps comm) := by
+  refine continuous_generateFrom_iff.mpr ?_
+  unfold minimumOpens
+  intro V hV
+  let i := hV.choose
+  let R := hV.choose_spec.choose
+  have hRo := hV.choose_spec.choose_spec.1
+  have hR := hV.choose_spec.choose_spec.2
+  rw [hR]
+  have hcomp : (toComponent func i) ∘ (map_of_maps func maps comm) = maps i := by
+    ext x
+    simp
+  rw [← Set.preimage_comp, hcomp]
+  exact (maps_cont i).isOpen_preimage (Exists.choose_spec hV).choose hRo
+
+lemma minimumOpens_isOpen {s : Set (InverseLimit obj func)} : s ∈ minimumOpens func → IsOpen s :=
+  GenerateOpen.basic s
+
+@[continuity]
+lemma toComponent_continuous (i : ι) : Continuous (toComponent func i) where
+  isOpen_preimage R hR := by
+    refine minimumOpens_isOpen func ?_
+    unfold minimumOpens
+    simp only [Set.mem_setOf_eq]
+    use i, R
+
+instance [∀ i : ι, TopologicalRing (obj i)] : TopologicalRing (InverseLimit obj func) where
+  continuous_add := by
+    refine continuous_generateFrom_iff.mpr ?_
+    rintro V hV
+    unfold minimumOpens at hV
+    let i := hV.choose
+    let R := hV.choose_spec.choose
+    have hRo := hV.choose_spec.choose_spec.1
+    have hR := hV.choose_spec.choose_spec.2
+    rw [hR]
+    rw [← Set.preimage_comp]
+    let G := InverseLimit obj func
+    let Rinvadd := ((fun ⟨x, y⟩ ↦ x + y) : obj i × obj i → obj i) ⁻¹' R
+    let hRinvaddo : IsOpen (Rinvadd) := by
+      exact (continuous_add (M := obj i)).isOpen_preimage R hRo
+    have hcomm : ((toComponent func i) ∘ (fun ⟨x, y⟩ ↦ x + y) : G × G → obj i) =
+      (fun ⟨x, y⟩ ↦ x + y) ∘ (fun ⟨x, y⟩ ↦ (⟨toComponent func i x, toComponent func i y⟩ : obj i × obj i))  := by
+      ext x
+      simp
+    rw [hcomm, Set.preimage_comp]
+    simp only
+    have hcont : Continuous (fun (⟨x, y⟩ : G × G) ↦
+      (⟨toComponent func i x, toComponent func i y⟩ : obj i × obj i)) := by
+      continuity
+    exact hcont.isOpen_preimage _ hRinvaddo
+  continuous_mul := by
+    refine continuous_generateFrom_iff.mpr ?_
+    rintro V hV
+    unfold minimumOpens at hV
+    let i := hV.choose
+    let R := hV.choose_spec.choose
+    have hRo := hV.choose_spec.choose_spec.1
+    have hR := hV.choose_spec.choose_spec.2
+    rw [hR]
+    rw [← Set.preimage_comp]
+    let G := InverseLimit obj func
+    let Rinvadd := ((fun ⟨x, y⟩ ↦ x * y) : obj i × obj i → obj i) ⁻¹' R
+    let hRinvaddo : IsOpen (Rinvadd) := by
+      exact (continuous_mul (M := obj i)).isOpen_preimage R hRo
+    have hcomm : ((toComponent func i) ∘ (fun ⟨x, y⟩ ↦ x * y) : G × G → obj i) =
+      (fun ⟨x, y⟩ ↦ x * y) ∘ (fun ⟨x, y⟩ ↦ (⟨toComponent func i x, toComponent func i y⟩ : obj i × obj i))  := by
+      ext x
+      simp
+    rw [hcomm, Set.preimage_comp]
+    simp only
+    have hcont : Continuous (fun (⟨x, y⟩ : G × G) ↦
+      (⟨toComponent func i x, toComponent func i y⟩ : obj i × obj i)) := by
+      continuity
+    exact hcont.isOpen_preimage _ hRinvaddo
+  continuous_neg := by
+    refine continuous_generateFrom_iff.mpr ?_
+    rintro V hV
+    unfold minimumOpens at hV
+    let i := hV.choose
+    let R := hV.choose_spec.choose
+    have hRo := hV.choose_spec.choose_spec.1
+    have hR := hV.choose_spec.choose_spec.2
+    rw [hR]
+    rw [← Set.preimage_comp]
+    have hRnego : IsOpen (-R) := by exact IsOpen.neg hRo
+    have hcomm : (toComponent func i) ∘ (fun x ↦ -x) = (fun x ↦ -x) ∘ (toComponent func i) := by
+      ext x
+      simp
+    rw [hcomm]
+    simp only [Set.inv_preimage]
+    exact (toComponent_continuous func i).isOpen_preimage _ hRnego
 
 end Ring.InverseLimit
 
@@ -150,7 +298,7 @@ instance [∀ i : ι, TopologicalGroup (obj i)] : TopologicalGroup (InverseLimit
     have hcont : Continuous (fun (⟨x, y⟩ : G × G) ↦
       (⟨toComponent func i x, toComponent func i y⟩ : obj i × obj i)) := by
       continuity
-    exact hcont.isOpen_preimage ((fun x ↦ x.1 * x.2) ⁻¹' (Exists.choose_spec hV).choose) hRinvaddo
+    exact hcont.isOpen_preimage _ hRinvaddo
   continuous_inv := by
     refine continuous_generateFrom_iff.mpr ?_
     rintro V hV
@@ -167,6 +315,6 @@ instance [∀ i : ι, TopologicalGroup (obj i)] : TopologicalGroup (InverseLimit
       simp
     rw [hcomm]
     simp only [Set.inv_preimage]
-    exact (toComponent_continuous func i).isOpen_preimage R⁻¹ hRinvo
+    exact (toComponent_continuous func i).isOpen_preimage _ hRinvo
 
 namespace Group.InverseLimit
