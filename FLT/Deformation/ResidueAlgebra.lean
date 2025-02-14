@@ -57,7 +57,8 @@ variable (𝓞) in
 noncomputable abbrev modMapInv : (𝓴 A) →+* 𝓴 𝓞 :=
   RingHom.inverse (modMap 𝓞 A) (modMapInv' 𝓞 A) (leftInverse 𝓞 A) (rightInverse 𝓞 A)
 
-instance instRingHomPair : RingHomInvPair (modMap 𝓞 A) (modMapInv 𝓞 A) where
+variable (𝓞) in
+instance instRingHomPair₁ : RingHomInvPair (modMap 𝓞 A) (modMapInv 𝓞 A) where
   comp_eq := by
     ext x
     simp only [RingHom.coe_comp, Function.comp_apply, RingHom.inverse_apply, RingHom.id_apply]
@@ -72,7 +73,30 @@ noncomputable def ringEquiv : (𝓴 𝓞) ≃+* (𝓴 A) := .ofHomInv (modMap �
   (by change (modMapInv _ _).comp (modMap _ _) = _; simp)
   (by change (modMap _ _).comp (modMapInv _ _) = _; simp)
 
+variable (𝓞) in
 instance instRingHomPair₂ : RingHomInvPair (modMapInv 𝓞 A) (modMap 𝓞 A) where
+  comp_eq := by simp
+  comp_eq₂ := by simp
+
+noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (modMapInv 𝓞 A)
+
+variable (𝓞) in
+instance algebraMap_instRingHomPair₁ : RingHomInvPair (algebraMap (𝓴 𝓞) (𝓴 A)) (algebraMap (𝓴 A) (𝓴 𝓞)) where
+  comp_eq := by
+    unfold algebraMap Algebra.algebraMap instAlgebraResidueField IsLocalRing.ResidueField.instAlgebra
+    have h : modMap 𝓞 A = (IsLocalRing.ResidueField.map (algebraMap 𝓞 A)) := by aesop
+    rw [← h]
+    letI := instRingHomPair₁ 𝓞 A
+    exact RingHomInvPair.comp_eq (self := this)
+  comp_eq₂ := by
+    unfold algebraMap Algebra.algebraMap instAlgebraResidueField IsLocalRing.ResidueField.instAlgebra
+    have h : modMap 𝓞 A = (IsLocalRing.ResidueField.map (algebraMap 𝓞 A)) := by aesop
+    rw [← h]
+    letI := instRingHomPair₁ 𝓞 A
+    exact RingHomInvPair.comp_eq₂ (self := this)
+
+variable (𝓞) in
+instance algebraMap_instRingHomPair₂ : RingHomInvPair (algebraMap (𝓴 A) (𝓴 𝓞)) (algebraMap (𝓴 𝓞) (𝓴 A)) where
   comp_eq := by simp
   comp_eq₂ := by simp
 

@@ -7,6 +7,11 @@ variable {M : Type*} [AddCommGroup M] [Module R M]
 
 variable [Module.Free R M] [Module.Finite R M]
 
+
+-- TODO(jlcontreras): change this, instread of doing it manually use the natural topology in
+--  (ChooseBasisIndex) → R
+--   [is_prod_topo : Nonempty (W ≃ₜ (Module.Free.ChooseBasisIndex A W → A))]
+
 variable (R M) in
 def freeFiniteModuleProductTopology : TopologicalSpace M :=
   let ι := Module.Free.ChooseBasisIndex R M

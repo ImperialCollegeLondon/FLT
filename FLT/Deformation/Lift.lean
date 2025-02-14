@@ -1,7 +1,11 @@
 import FLT.Deformation.BaseCat
+import FLT.Deformation.ResidueAlgebra
 import FLT.Deformation.RepresentationTheory.RepresentationEquiv
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.Algebra.Module.Equiv.Defs
+import FLT.Deformation.ContinuousRepresentation.TopologicalModule
+import FLT.Deformation.ContinuousRepresentation.FreeFiniteModuleTopology
+import FLT.Deformation.ContinuousRepresentation.Basic
 
 universe u
 
@@ -68,13 +72,13 @@ variable (A : 𝓒 𝓞)
 structure Lift : Type _ where
   W: Type _
   -- Basic structure on carrier
-  [addCommMonoid : AddCommMonoid W]
+  [addCommGroup : AddCommGroup W]
   [module : Module A W]
   [free : Module.Free A W]
   [finite : Module.Finite A W]
   -- Topology W
   [topo : TopologicalSpace W]
-  [is_prod_topo : Nonempty (W ≃ₜ (Module.Free.ChooseBasisIndex A W → A.obj))]
+  [topo_module : TopologicalModule A W]
   -- Reduction
   reduction : ((𝓴 A) ⊗[A] W) ≃ₛₗ[algebraMap (𝓴 A) (𝓴 𝓞)] V
   -- Scalar products on V. This is saying that V has A-module some structure
@@ -90,7 +94,7 @@ structure Lift : Type _ where
   is_lift: ∀ g : G, ∀ w : W, ρbar g (representation_mod V A W reduction w)
       = representation_mod V A W reduction (ρ g w)
 
-attribute [instance] Lift.addCommMonoid Lift.module Lift.free Lift.finite
+attribute [instance] Lift.addCommGroup Lift.module Lift.free Lift.finite
 
 def Lift.isIso : Setoid (Lift ρbar A) where
   r l l' := Representation.IsRepresentationEquiv l.ρ l'.ρ
@@ -121,12 +125,12 @@ section UnrestrictedFunctor
 
 def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift ρbar B where
   W := letI : Algebra A B := f.hom.toAlgebra; l.W ⊗[A] B
-  addCommMonoid := sorry
+  addCommGroup := sorry
   module := sorry
   free := sorry
   finite := sorry
   topo := sorry
-  is_prod_topo := sorry
+  topo_module := sorry
   reduction := sorry
   module_A := sorry
   module_𝓴A := sorry
