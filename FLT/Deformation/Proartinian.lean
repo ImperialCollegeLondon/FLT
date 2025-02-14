@@ -21,27 +21,23 @@ def ArtinianQuotientIdeal := {a : Ideal A // IsArtinianRing (A ⧸ a)}
 instance : Coe (ArtinianQuotientIdeal A) (Ideal A) where
   coe a := a.1
 
-instance : LinearOrder (ArtinianQuotientIdeal A) where
+instance : Preorder (ArtinianQuotientIdeal A) where
   le a b := (b : Ideal A) ≤ (a : Ideal A)
   le_refl := by simp
   le_trans := by
     rintro a b c hab hbc
     simp_all
     exact le_trans hbc hab
-  le_antisymm := by
-    intro a b hab hba
-    simp_all
-    have h : (a : Ideal A) = (b : Ideal A) := by exact le_antisymm hba hab
-    unfold ArtinianQuotientIdeal at a b
-    exact ⟨h, ?_⟩
-
-  le_total := _
-  decidableLE := _
 
 variable {a b : ArtinianQuotientIdeal A}
 
 variable (a) in
 abbrev proartinianCompletion_obj := A ⧸ (a : Ideal A)
+
+instance : TopologicalSpace (proartinianCompletion_obj a) := ⊥
+
+instance : DiscreteTopology (proartinianCompletion_obj a) where
+  eq_bot := rfl
 
 def ideal_le_of_artinianQuotientIdeal_le (h : a ≤ b) : (b : Ideal A) ≤ (a : Ideal A) := by
   simp [LE.le] at h
@@ -59,7 +55,7 @@ abbrev proartinianCompletion :=
 
 variable (A) in
 noncomputable def diagonalMap : A →+* proartinianCompletion A :=
-  Ring.InverseLimit.map_of_maps
+  Ring.InverseLimit.map_of_maps'
     proartinianCompletion_map
     (fun a ↦ Ideal.Quotient.mk (a : Ideal A))
     (by
@@ -67,8 +63,6 @@ noncomputable def diagonalMap : A →+* proartinianCompletion A :=
       unfold proartinianCompletion_map
       aesop
     )
-
-#synth TopologicalSpace (proartinianCompletion_obj a)
 
 variable (a) in
 def diagonalMap_toComponent : A →+* proartinianCompletion_obj a := algebraMap _ _
@@ -81,25 +75,7 @@ namespace IsProartinian
 
 variable [IsProartinian A]
 
-instance : TopologicalSpace A where
-  IsOpen V := ∃ a, ∃ W, V = (diagonalMap_toComponent a) ⁻¹' W
-  isOpen_univ := by sorry
-  isOpen_inter := by sorry
-  isOpen_sUnion := by sorry
-
-instance : TopologicalRing A where
-  continuous_add := {
-    isOpen_preimage V h := by
-      sorry
-  }
-  continuous_mul := {
-    isOpen_preimage V h:= by
-      sorry
-  }
-  continuous_neg := {
-    isOpen_preimage V h := by
-      sorry
-  }
+instance : TopologicalSpace A := TopologicalSpace.induced (diagonalMap A) (by infer_instance)
 
 instance (I : Ideal A) : IsProartinian (A ⧸ I) where
   pro_artin := by
