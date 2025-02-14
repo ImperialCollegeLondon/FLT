@@ -21,6 +21,6 @@ fi
 # replace the `.lean` suffix with `»`
 # prepend `import «`
 # Does the above really describe what's going on below??
-find "$dir" -name \*.lean -not -name FLT_files.lean \
+find "$dir" -name \*.lean -not -name FLT.lean \
   | sed 's,^\./,,;s,^\.\./[^/]*,,;s,/,.,g;s,\.lean$,,;s,^,import FLT.,' \
-  | sort >"$dir"/../FLT_files.lean
+  | sort >"$dir"/../FLT.lean
