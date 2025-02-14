@@ -41,7 +41,7 @@ noncomputable section
 
 namespace AbsoluteValue
 
-variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ}
+variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ}
 
 open Filter in
 /--
