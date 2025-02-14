@@ -109,7 +109,7 @@ variable {X Y Z : Type v}
 variable {A B C : BaseCat.{v} 𝓞}
 
 @[simp]
-lemma hom_id : (𝟙 A : A ⟶ A).hom = AlgHom.id 𝓞 A := rfl
+lemma hom_id : (𝟙 A : A ⟶ A).hom = ContinuousAlgHom.id 𝓞 A := rfl
 
 /- Provided for rewriting. -/
 lemma id_apply (a : A) : (𝟙 A : A ⟶ A) a = a := by simp
