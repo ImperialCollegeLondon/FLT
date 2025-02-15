@@ -74,15 +74,15 @@ class IsProartinianRing : Prop where
 
 namespace IsProartinianRing
 
-variable [IsProartinianRing A]
+instance [IsProartinianRing A] : TopologicalSpace A := induced (diagonalMap A) (by infer_instance)
 
-instance : TopologicalSpace A := induced (diagonalMap A) (by infer_instance)
+variable [IsProartinianRing A]
 
 variable (A) in
 instance instIsInducing : IsInducing (diagonalMap A) where
   eq_induced := rfl
 
-instance [IsProartinianRing A] : TopologicalRing A where
+instance : TopologicalRing A where
   continuous_add := (IsInducing.continuousAdd (diagonalMap A) (instIsInducing A)).continuous_add
   continuous_mul := (IsInducing.continuousMul (diagonalMap A) (instIsInducing A)).continuous_mul
   continuous_neg := (IsInducing.continuousNeg (f := diagonalMap A) (instIsInducing A) (by simp)).continuous_neg
