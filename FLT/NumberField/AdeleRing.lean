@@ -5,6 +5,7 @@ import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.NumberField.InfiniteAdeleRing
@@ -211,7 +212,8 @@ variable (K L)
 
 theorem piEquiv_map_principalSubgroup :
     (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K)).map
-      (piEquiv K L).toAddMonoidHom = principalSubgroup (𝓞 L) L := by
+      (piEquiv K L).toAddMonoidHom
+      = principalSubgroup (𝓞 L) L := by
   ext x
   simp only [AddSubgroup.mem_map, LinearMap.toAddMonoidHom_coe, LinearEquiv.coe_coe,
     ContinuousLinearEquiv.coe_toLinearEquiv]
@@ -221,13 +223,19 @@ theorem piEquiv_map_principalSubgroup :
   refine ⟨fun i _ => ⟨Module.Finite.equivPi _ _ a i, rfl⟩, ?_⟩
   rw [piEquiv_apply_of_algebraMap (fun i => rfl), LinearEquiv.symm_apply_apply]
 
+theorem comap_piEquiv_principalSubgroup :
+    (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K))
+      = (principalSubgroup (𝓞 L) L).comap (piEquiv K L).toAddMonoidHom := by
+  rw [← piEquiv_map_principalSubgroup K L,
+    AddSubgroup.comap_map_eq_self_of_injective (piEquiv K L).injective]
+
 noncomputable def piQuotientEquiv :
     (Fin (Module.finrank K L) → (𝔸 K) ⧸ principalSubgroup (𝓞 K) K) ≃ₜ+
       (𝔸 L) ⧸ principalSubgroup (𝓞 L) L :=
   -- The map `⊕ 𝔸 K ≃L[K] 𝔸 L` reduces to quotients `⊕ 𝔸 K / K ≃ₜ+ 𝔸 L / L`
   (ContinuousAddEquiv.quotientPi _).symm.trans <|
-    QuotientAddGroup.continuousAddEquiv _ _ _ _ (piEquiv K L).toContinuousAddEquiv
-      (piEquiv_map_principalSubgroup K L)
+    QuotientAddGroup.continuousAddEquiv _ _ (piEquiv K L).toContinuousAddEquiv
+      (comap_piEquiv_principalSubgroup K L)
 
 end NumberField.AdeleRing
 
