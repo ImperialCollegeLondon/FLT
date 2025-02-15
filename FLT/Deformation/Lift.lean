@@ -61,8 +61,7 @@ variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ ⊥ 𝓴𝓞_topologic
 variable {ι : Type*} [Fintype ι]
 section Definitions
 
-variable (A : 𝓒 𝓞)
-  [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
+variable (A : 𝓒 𝓞) [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
   [Module A V] [IsScalarTower A (𝓴 A) V]
 
 variable (W: Type*) [AddCommGroup W] [Module A W] [Module.Free A W] [Module.Finite A W]
@@ -80,9 +79,19 @@ noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V where
   map_add' := by simp
   map_smul' := by
     simp only [RingHom.id_apply]
-    rintro m x
-    sorry
-    -- rw [LinearEquiv.map_smulₛₗ reduction]
+    rintro a x
+    change reduction (algebraMap A (𝓴 A) a • x) = a • reduction x
+    have h : ∀ v : V, a • v = algebraMap (𝓴 A) (𝓴 𝓞) (algebraMap A (𝓴 A) a) • v := by
+      intro v
+      have : a • v = ((a • (1 : 𝓴 A)) • (1 : 𝓴 𝓞)) • v := by
+        rw [smul_assoc, one_smul, smul_assoc, one_smul]
+      have : algebraMap A (𝓴 A) a = a • (1 : 𝓴 A) := by
+        unfold HSMul.hSMul instHSMul SMul.smul Algebra.toSMul
+        simp [IsLocalRing.ResidueField.algebra, IsLocalRing.residue]
+        sorry -- This is probably a mathlib issue, AFAIK this whole "have" should just be rfl, right?
+      rw [this]
+      aesop
+    rw [h (reduction x), LinearEquiv.map_smulₛₗ reduction]
 
 noncomputable def representation_mod : W →ₗ[A] V :=
   (mod_ctts V A W reduction).comp (extend_ctts A W)
@@ -133,6 +142,7 @@ def Lift.isIso : Setoid (Lift ρbar A) where
       rintro x y ⟨φ, φ_prop⟩
       use φ.symm
       rintro g
+      ext x
       sorry
     trans := by
       unfold Representation.IsRepresentationEquiv

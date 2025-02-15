@@ -70,6 +70,8 @@ instance instRingHomPair₂ : RingHomInvPair (modMapInv 𝓞 A) (modMap 𝓞 A) 
 
 noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (modMapInv 𝓞 A)
 
+noncomputable instance : Algebra A (𝓴 𝓞) := RingHom.toAlgebra (.comp (modMapInv 𝓞 A) (algebraMap _ _))
+
 instance algebraMap_instRingHomPair₁ : RingHomInvPair (algebraMap (𝓴 𝓞) (𝓴 A)) (algebraMap (𝓴 A) (𝓴 𝓞)) where
   comp_eq := by
     unfold algebraMap Algebra.algebraMap instAlgebraResidueField IsLocalRing.ResidueField.instAlgebra
