@@ -20,7 +20,43 @@ variable (V : Type*)
 
 variable {G : Type*} [Group G] [TopologicalSpace G] [TopologicalGroup G]
 
-variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ ⊥ (by sorry) G _ _ _ V _ _ ⊥ (by sorry))
+def 𝓴𝓞_topology : TopologicalSpace (𝓴 𝓞) := ⊥
+
+def 𝓴𝓞_discrete : @DiscreteTopology (𝓴 𝓞) 𝓴𝓞_topology := by
+  letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
+  exact {
+    eq_bot := rfl
+  }
+
+def 𝓴𝓞_topologicalRing : @TopologicalRing (𝓴 𝓞) 𝓴𝓞_topology _ := by
+  letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
+  letI := 𝓴𝓞_discrete (𝓞 := 𝓞)
+  exact DiscreteTopology.topologicalRing
+
+variable {V} in
+def V_topology : TopologicalSpace V := ⊥
+
+variable {V} in
+def V_discrete : @DiscreteTopology V V_topology := by
+  letI : TopologicalSpace V := V_topology
+  exact {
+    eq_bot := rfl
+  }
+
+variable {V} in
+def V_topologicalModule : @TopologicalModule (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_topologicalRing V _ _ V_topology := by
+  letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
+  letI := 𝓴𝓞_topologicalRing (𝓞 := 𝓞)
+  letI := 𝓴𝓞_discrete (𝓞 := 𝓞)
+  letI := V_topology (V := V)
+  letI := V_discrete (V := V)
+  exact {
+    continuous_smul := by continuity
+    continuous_add := by continuity
+  }
+
+variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ ⊥ 𝓴𝓞_topologicalRing
+  G _ _ _ V _ _ V_topology V_topologicalModule)
 
 variable {ι : Type*} [Fintype ι]
 section Definitions
@@ -109,7 +145,9 @@ end Lift
 
 section UnrestrictedFunctor
 
-def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift ρbar B where
+variable {V}
+
+noncomputable def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift ρbar B where
   carrier := letI : Algebra A B := f.hom.toAlgebra; B ⊗[A] l.carrier
   addCommGroup := by infer_instance
   module := by infer_instance
@@ -124,7 +162,7 @@ def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift
   is_lift := sorry
 
 variable (𝓞) in
-def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type (u+1)) where
+noncomputable def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
   obj A := Lift ρbar A
   map f l := Lift.functor_onMap ρbar f l
   map_id := sorry
