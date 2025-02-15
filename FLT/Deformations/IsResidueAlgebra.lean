@@ -7,7 +7,7 @@ open scoped TensorProduct
 
 namespace Deformation
 
-variable {𝓞 : Type*}
+variable (𝓞 : Type*)
   [CommRing 𝓞] [IsLocalRing 𝓞]
 
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
@@ -15,17 +15,14 @@ local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 variable (A : Type*) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
 
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
-variable (𝓞) in
 abbrev modMap_high : 𝓞 →+* 𝓴 A :=
   (IsLocalRing.residue A).comp (algebraMap 𝓞 A)
 
-variable (𝓞) in
 abbrev modMap : (𝓴 𝓞) →+* 𝓴 A :=
   IsLocalRing.ResidueField.lift (modMap_high 𝓞 A)
 
 instance instInjective : Injective (modMap 𝓞 A) := RingHom.injective (modMap 𝓞 A)
 
-variable (𝓞) in
 class IsResidueAlgebra : Prop where
   isSurjective : Surjective (modMap_high 𝓞 A)
 
@@ -40,23 +37,18 @@ instance instSurjective : Surjective (modMap 𝓞 A) := by
   unfold modMap_high at hsurj2
   refine (Function.Surjective.of_comp_iff (modMap 𝓞 A) hsurj1).mp hsurj2
 
-variable (𝓞) in
 noncomputable abbrev modMapInv' : (𝓴 A) → 𝓴 𝓞 := invFun (modMap 𝓞 A)
 
 omit [IsResidueAlgebra 𝓞 A] in
-variable (𝓞) in
 lemma leftInverse : LeftInverse (modMapInv' 𝓞 A) (modMap 𝓞 A) :=
-  leftInverse_invFun (instInjective A)
+  leftInverse_invFun (instInjective 𝓞 A)
 
-variable (𝓞) in
 lemma rightInverse : RightInverse (modMapInv' 𝓞 A) (modMap 𝓞 A) :=
-  rightInverse_invFun (instSurjective A)
+  rightInverse_invFun (instSurjective 𝓞 A)
 
-variable (𝓞) in
 noncomputable abbrev modMapInv : (𝓴 A) →+* 𝓴 𝓞 :=
   RingHom.inverse (modMap 𝓞 A) (modMapInv' 𝓞 A) (leftInverse 𝓞 A) (rightInverse 𝓞 A)
 
-variable (𝓞) in
 instance instRingHomPair₁ : RingHomInvPair (modMap 𝓞 A) (modMapInv 𝓞 A) where
   comp_eq := by
     ext x
@@ -67,19 +59,16 @@ instance instRingHomPair₁ : RingHomInvPair (modMap 𝓞 A) (modMapInv 𝓞 A) 
     simp only [RingHom.coe_comp, Function.comp_apply, RingHom.inverse_apply, RingHom.id_apply]
     exact (rightInverse 𝓞 A) x
 
-variable (𝓞) in
 noncomputable def ringEquiv : (𝓴 𝓞) ≃+* (𝓴 A) := .ofHomInv (modMap 𝓞 A) (modMapInv 𝓞 A)
   (by change (modMapInv _ _).comp (modMap _ _) = _; simp)
   (by change (modMap _ _).comp (modMapInv _ _) = _; simp)
 
-variable (𝓞) in
 instance instRingHomPair₂ : RingHomInvPair (modMapInv 𝓞 A) (modMap 𝓞 A) where
   comp_eq := by simp
   comp_eq₂ := by simp
 
 noncomputable instance : Algebra (𝓴 A) (𝓴 𝓞) := RingHom.toAlgebra (modMapInv 𝓞 A)
 
-variable (𝓞) in
 instance algebraMap_instRingHomPair₁ : RingHomInvPair (algebraMap (𝓴 𝓞) (𝓴 A)) (algebraMap (𝓴 A) (𝓴 𝓞)) where
   comp_eq := by
     unfold algebraMap Algebra.algebraMap instAlgebraResidueField IsLocalRing.ResidueField.instAlgebra
@@ -94,7 +83,6 @@ instance algebraMap_instRingHomPair₁ : RingHomInvPair (algebraMap (𝓴 𝓞) 
     letI := instRingHomPair₁ 𝓞 A
     exact RingHomInvPair.comp_eq₂ (self := this)
 
-variable (𝓞) in
 instance algebraMap_instRingHomPair₂ : RingHomInvPair (algebraMap (𝓴 A) (𝓴 𝓞)) (algebraMap (𝓴 𝓞) (𝓴 A)) where
   comp_eq := by simp
   comp_eq₂ := by simp
