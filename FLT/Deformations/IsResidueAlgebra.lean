@@ -87,7 +87,7 @@ instance algebraMap_instRingHomPair₂ : RingHomInvPair (algebraMap (𝓴 A) (�
   comp_eq := by simp
   comp_eq₂ := by simp
 
-instance (I : Ideal A) [I.NeqTop] : IsResidueAlgebra 𝓞 (A ⧸ I) where
+instance (I : Ideal A) [Nontrivial (A ⧸ I)] : IsResidueAlgebra 𝓞 (A ⧸ I) where
   isSurjective := by
     simp only [Surjective, modMap, algebraMap, Algebra.algebraMap, RingHom.coe_comp,
       Function.comp_apply]
