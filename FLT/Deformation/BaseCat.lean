@@ -1,4 +1,3 @@
-import FLT.Deformation.Algebra.Category.AlgebraCat.CommAlgebraCat
 import FLT.Deformation.IsProartinianRing
 import FLT.Deformation.IsResidueAlgebra
 import FLT.Mathlib.Algebra.Group.Units.Hom
@@ -189,12 +188,15 @@ def ofSelfIso : of 𝓞 A ≅ A where
   hom := 𝟙 A
   inv := 𝟙 A
 
-def quotient (a : Ideal A) [a.NeqTop] : BaseCat.{v} 𝓞 where
+def quotient (a : Ideal A) [Nontrivial (A ⧸ a)] : BaseCat.{v} 𝓞 where
   carrier := A ⧸ a
   isCommRing := by infer_instance
   isAlgebra := by infer_instance
-  isLocalRing := isLocalRing_of_quotient a
-  isLocalHom := by sorry -- isLocalHom_of_quotient (algebraMap 𝓞 A) a
+  isLocalRing := by infer_instance
+  isLocalHom := by
+    have h := isLocalHom_of_quotient (algebraMap 𝓞 A) a
+    simp only [Ideal.Quotient.mk_comp_algebraMap] at h
+    exact h
   isResidueAlgebra := by infer_instance
   isProartinianRing := by infer_instance
 
