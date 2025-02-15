@@ -53,7 +53,7 @@ lemma toComponent_continuous (i : ι) : Continuous (toComponent func i) where
 
 instance [TopologicalSpace R] [TopologicalRing R]
     [∀ i : ι, TopologicalModule R (obj i)] : TopologicalModule R (InverseLimit obj func) where
-  smul_continuous := by
+  continuous_smul := by
     refine continuous_generateFrom_iff.mpr ?_
     rintro V hV
     unfold minimumOpens at hV
@@ -66,7 +66,7 @@ instance [TopologicalSpace R] [TopologicalRing R]
     let M := InverseLimit obj func
     let Xinvsmul := ((fun ⟨r, mi⟩ ↦ r • mi) : R × obj i → obj i) ⁻¹' X
     let hXinvaddo : IsOpen (Xinvsmul) := by
-      exact (TopologicalModule.smul_continuous (R := R) (M := obj i)).isOpen_preimage X hXo
+      exact (continuous_smul (M := R) (X := obj i)).isOpen_preimage X hXo
     have hcomm : ((toComponent func i) ∘ (fun ⟨r, m⟩ ↦ r • m) : R × M → obj i) =
       (fun ⟨r, mi⟩ ↦ r • mi) ∘ (fun ⟨r, m⟩ ↦ (⟨r, toComponent func i m⟩ : R × obj i))  := by
       ext x
@@ -77,6 +77,30 @@ instance [TopologicalSpace R] [TopologicalRing R]
       (⟨r, toComponent func i m⟩ : R × obj i)) := by
       continuity
     exact hcont.isOpen_preimage _ hXinvaddo
+  continuous_add := by
+    refine continuous_generateFrom_iff.mpr ?_
+    rintro V hV
+    unfold minimumOpens at hV
+    let i := hV.choose
+    let R := hV.choose_spec.choose
+    have hRo := hV.choose_spec.choose_spec.1
+    have hR := hV.choose_spec.choose_spec.2
+    rw [hR]
+    rw [← Set.preimage_comp]
+    let G := InverseLimit obj func
+    let Rinvadd := ((fun ⟨x, y⟩ ↦ x + y) : obj i × obj i → obj i) ⁻¹' R
+    let hRinvaddo : IsOpen (Rinvadd) := by
+      exact (continuous_add (M := obj i)).isOpen_preimage R hRo
+    have hcomm : ((toComponent func i) ∘ (fun ⟨x, y⟩ ↦ x + y) : G × G → obj i) =
+      (fun ⟨x, y⟩ ↦ x + y) ∘ (fun ⟨x, y⟩ ↦ (⟨toComponent func i x, toComponent func i y⟩ : obj i × obj i))  := by
+      ext x
+      simp
+    rw [hcomm, Set.preimage_comp]
+    simp only
+    have hcont : Continuous (fun (⟨x, y⟩ : G × G) ↦
+      (⟨toComponent func i x, toComponent func i y⟩ : obj i × obj i)) := by
+      continuity
+    exact hcont.isOpen_preimage _ hRinvaddo
 
 end Module.InverseLimit
 
