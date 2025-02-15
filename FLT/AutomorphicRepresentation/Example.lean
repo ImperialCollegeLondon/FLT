@@ -408,7 +408,65 @@ noncomputable abbrev unitszHatsub : Subgroup QHatˣ :=
 noncomputable abbrev unitszsub : Subgroup QHatˣ :=
   (Units.map (Int.castRingHom QHat : ℤ →* QHat)).range
 
-lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := sorry
+lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
+  apply le_antisymm
+  · intro x ⟨⟨q, hxq⟩, ⟨zHat, hxzHat⟩⟩
+    obtain ⟨z, (hz : (z : QHat) = x)⟩ : (x : QHat) ∈ zsub := by
+      rw [← rat_meet_zHat]
+      exact ⟨⟨q, by simp [← hxq]⟩, zHat, by simp [← hxzHat]⟩
+    have znez : z ≠ 0 := by
+      rintro rfl
+      simp [Eq.comm] at hz
+    let a := Int.sign z
+    let b := Int.natAbs z
+    set zinvRat : ℚ := a / b with zinvRat_def
+    have hzinvRat : z * zinvRat = 1 := by
+      rw [mul_div, div_eq_one_iff_eq]
+      · rw_mod_cast [Int.mul_sign z]
+      · exact_mod_cast Int.natAbs_ne_zero.mpr znez
+    let zinvZHat : ZHatˣ := zHat⁻¹
+    have hzinvZHat : ↑zHat * ↑zinvZHat = (1 : ZHat) := Units.mul_inv zHat
+    let xinv : QHatˣ := x⁻¹
+    have h1 : zinvRat ⊗ₜ[ℤ] (1 : ZHat) = xinv := by
+      apply Units.eq_inv_of_mul_eq_one_left
+      rw [← hz, ← zsmul_eq_mul, TensorProduct.smul_tmul', zsmul_eq_mul,
+        hzinvRat, Algebra.TensorProduct.one_def]
+    have h2 : (1 : ℚ) ⊗ₜ[ℤ] (Units.val zinvZHat) = xinv := by
+      apply Units.eq_inv_of_mul_eq_one_left
+      have hzHat : (1 : ℚ) ⊗ₜ[ℤ] (zHat : ZHat) = (x : QHat) := by simp [← hxzHat]
+      rw [← hzHat, Algebra.TensorProduct.tmul_mul_tmul, mul_one, hzinvZHat, Algebra.TensorProduct.one_def]
+    have h3 : zinvRat ⊗ₜ[ℤ] (1 : ZHat) = (1 / b : ℚ) ⊗ₜ[ℤ] (a : ZHat) := by
+      rw [zinvRat_def, ← mul_one (a : ℚ), ← mul_div,
+      ← zsmul_eq_mul, TensorProduct.smul_tmul, zsmul_eq_mul, mul_one]
+    have bpos : 0 < b := Int.natAbs_pos.2 znez
+    have heq : (1 / (((Nat.toPNat b bpos) : ℕ) : ℚ)) ⊗ₜ[ℤ] (a : ZHat) = (1 / (((1 : ℕ+) : ℕ) : ℚ)) ⊗ₜ[ℤ] ↑zinvZHat := by
+      have : ↑(Nat.toPNat b bpos) = b := by
+        unfold Nat.toPNat
+        rw [PNat.mk_coe]
+      rw [PNat.val_ofNat, Nat.cast_one, div_self one_ne_zero, this, ← h3, h1, h2]
+    have cop1 : IsCoprime (b.toPNat bpos) ↑a := by
+      rw [IsCoprime, ZHat.intCast_val, ← ZMod.isUnit_natAbs,
+        ZMod.isUnit_iff_coprime, Int.natAbs_sign_of_nonzero znez]
+      exact Nat.coprime_one_left _
+    have cop2 : IsCoprime 1 ↑zinvZHat := by
+      simp only [IsCoprime, PNat.val_ofNat, isUnit_of_subsingleton]
+    obtain ⟨hb, ha⟩ := (lowestTerms ↑x).2 (Nat.toPNat b bpos) 1 ↑a ↑zinvZHat ⟨cop1, cop2, heq⟩
+    have b1 : b = 1 := PNat.coe_eq_one_iff.2 hb
+    obtain ⟨u, rfl⟩ := Int.isUnit_iff_natAbs_eq.2 b1
+    use u
+    ext
+    norm_cast at hz
+  · intro x ⟨xz, hxz⟩
+    constructor
+    · use (Units.map ↑(Int.castRingHom ℚ)) xz
+      norm_cast
+    · use (Units.map ↑(Int.castRingHom ZHat)) xz
+      rw [← hxz, ← MonoidHom.comp_apply, ← Units.map_comp]
+      congr
+      ext x
+      · simp only [MonoidHom.coe_comp, MonoidHom.coe_coe, Function.comp_apply, Int.coe_castRingHom,
+        Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.one_tmul_intCast]
+      simp
 
 -- this needs that ℤ is a PID.
 lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := sorry

@@ -113,7 +113,7 @@ jobs:
         if [ "$CURRENT_STATUS_ID" != "$UNCLAIMED_TASKS_ID" ]; then
           echo "Issue is not classified as 'Unclaimed'. Posting comment."
           curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -d '{"body": "This issue cannot be assigned to @${{ github.event.comment.user.login }} because it has not been classified as an \"Unclaimed Outstanding Task\" by the project maintainers.\n\nPlease consider discussing the issue on our [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/416277-FLT). To understand the contribution process, please read the [CONTRIBUTING guide](https://github.com/ImperialCollegeLondon/FLT/blob/main/CONTRIBUTING.md)."}' \
+          -d '{"body": "This issue cannot be assigned to @${{ github.event.comment.user.login }} because it has not been classified as an \"Unclaimed\" by the project maintainers.\n\nPlease consider discussing the issue on our [Zulip channel](https://leanprover.zulipchat.com/#narrow/stream/416277-FLT). To understand the contribution process, please read the [CONTRIBUTING guide](https://github.com/ImperialCollegeLondon/FLT/blob/main/CONTRIBUTING.md)."}' \
           https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments
           exit 1
         fi

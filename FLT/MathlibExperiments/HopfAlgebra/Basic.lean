@@ -3,11 +3,10 @@ Copyright (c) 2024 Yunzhou Xie. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yunzhou Xie, Yichen Feng, Yanqiao Zhou, Jujian Zhang
 -/
-
-import Mathlib.RingTheory.HopfAlgebra
+import Mathlib.RingTheory.HopfAlgebra.Basic
+import Mathlib.Tactic.Group
 import FLT.MathlibExperiments.Coalgebra.Monoid
 import FLT.MathlibExperiments.Coalgebra.TensorProduct
-import Mathlib.Tactic.Group
 
 /-!
 # Basic properties of Hopf algebra
