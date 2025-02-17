@@ -57,12 +57,6 @@ import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Homeomorph
-import FLT.MathlibExperiments.Coalgebra.Monoid
-import FLT.MathlibExperiments.Coalgebra.Sweedler
-import FLT.MathlibExperiments.Coalgebra.TensorProduct
-import FLT.MathlibExperiments.HopfAlgebra.Basic
-import FLT.MathlibExperiments.IsCentralSimple
-import FLT.MathlibExperiments.IsFrobenius
 import FLT.NumberField.AdeleRing
 import FLT.NumberField.Completion
 import FLT.NumberField.Embeddings
