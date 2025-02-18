@@ -49,7 +49,7 @@ theorem Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
   haveI : ContinuousAdd C := toContinuousAdd R C
   exact continuous_finsum (fun i ↦ by fun_prop) (locallyFinite_of_finite _)
 
-theorem Module.continuous_bilinear_of_finite_free [TopologicalSemiring R] [Module.Finite R A]
+theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Module.Finite R A]
     [Module.Free R A] (bil : A →ₗ[R] B →ₗ[R] C) :
     Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
@@ -72,7 +72,7 @@ end semiring_bilinear
 
 section ring_bilinear
 
-variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [TopologicalRing R]
+variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [IsTopologicalRing R]
 
 variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
 variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsModuleTopology R B]
@@ -107,7 +107,7 @@ section semiring_algebra
 open scoped TensorProduct
 
 -- these shouldn't be rings, they should be semirings
-variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+variable (R) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
 variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
 variable [TopologicalSpace D] [IsModuleTopology R D]
 
@@ -115,12 +115,12 @@ open scoped TensorProduct
 
 @[continuity, fun_prop]
 theorem continuous_mul'
-    (R : Type*) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+    (R : Type*) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
     (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
     [IsModuleTopology R D] : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) :=
   Module.continuous_bilinear_of_finite (LinearMap.mul R D)
 
-def topologicalSemiring : TopologicalSemiring D where
+def topologicalSemiring : IsTopologicalSemiring D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul' R D
 
@@ -130,7 +130,7 @@ section ring_algebra
 
 -- confusion about whether these are rings or semirings should ideally be resolved
 -- Is it: for D finite free R can be a semiring but for D finite it has to be a ring?
-variable (R) [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+variable (R) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
 variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
 variable [TopologicalSpace D] [IsModuleTopology R D]
 
@@ -143,7 +143,7 @@ theorem continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := b
   haveI : IsModuleTopology R (D ⊗[R] D) := { eq_moduleTopology' := rfl }
   convert Module.continuous_bilinear_of_finite <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
-def Module.topologicalRing : TopologicalRing D where
+def Module.topologicalRing : IsTopologicalRing D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul R D
   continuous_neg := continuous_neg R D
@@ -155,8 +155,8 @@ end ring_algebra
 section trans
 
 variable (R S M : Type*)
-  [CommRing R] [TopologicalSpace R] [TopologicalRing R]
-  [CommRing S] [TopologicalSpace S] [TopologicalRing S]
+  [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+  [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
     [Algebra R S] [Module.Finite R S] [IsModuleTopology R S]
   [AddCommGroup M]
     [Module R M]
@@ -193,8 +193,8 @@ end trans
 section opensubring
 
 variable (R S : Type*)
-  [CommRing R] [TopologicalSpace R] [TopologicalRing R]
-  [CommRing S] [TopologicalSpace S] [TopologicalRing S]
+  [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+  [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
     [Algebra R S]
 
 example (hcont : Continuous (algebraMap R S))
