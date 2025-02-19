@@ -30,7 +30,7 @@ variable {G A : Type*} [Group G] [AddCommGroup A] [DistribMulAction G A]
   [MeasurableSMul G A] -- only need `MeasurableConstSMul` but we don't have this class.
 variable {μ ν : Measure A} {g : G}
 
-variable [TopologicalSpace A] [BorelSpace A] [TopologicalAddGroup A] [LocallyCompactSpace A]
+variable [TopologicalSpace A] [BorelSpace A] [IsTopologicalAddGroup A] [LocallyCompactSpace A]
   [ContinuousConstSMul G A] [μ.IsAddHaarMeasure] [ν.IsAddHaarMeasure]
 
 variable (μ A) in

@@ -17,7 +17,7 @@ def Submodule.Quotient.continuousLinearEquiv {R : Type*} [Ring R] (G H : Type*) 
 
 def Submodule.quotientPiContinuousLinearEquiv {R ι : Type*} [CommRing R] {G : ι → Type*}
     [(i : ι) → AddCommGroup (G i)] [(i : ι) → Module R (G i)] [(i : ι) → TopologicalSpace (G i)]
-    [(i : ι) → TopologicalAddGroup (G i)] [Fintype ι] [DecidableEq ι]
+    [(i : ι) → IsTopologicalAddGroup (G i)] [Fintype ι] [DecidableEq ι]
     (p : (i : ι) → Submodule R (G i)) :
     (((i : ι) → G i) ⧸ Submodule.pi Set.univ p) ≃L[R] ((i : ι) → G i ⧸ p i) where
   toLinearEquiv := Submodule.quotientPi p
