@@ -12,7 +12,7 @@ def ContinuousAddEquiv.toIntContinuousLinearEquiv {M M₂ : Type*} [AddCommGroup
 
 def ContinuousAddEquiv.quotientPi {ι : Type*} {G : ι → Type*} [(i : ι) → AddCommGroup (G i)]
     [(i : ι) → TopologicalSpace (G i)]
-    [(i : ι) → TopologicalAddGroup (G i)]
+    [(i : ι) → IsTopologicalAddGroup (G i)]
     [Fintype ι] (p : (i : ι) → AddSubgroup (G i)) [DecidableEq ι] :
     ((i : ι) → G i) ⧸ AddSubgroup.pi (_root_.Set.univ) p ≃ₜ+ ((i : ι) → G i ⧸ p i) :=
   (Submodule.quotientPiContinuousLinearEquiv

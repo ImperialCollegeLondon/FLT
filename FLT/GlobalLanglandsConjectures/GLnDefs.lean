@@ -91,7 +91,7 @@ lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
 instance : TopologicalSpace (FiniteAdeleRing ℤ ℚ) := sorry
 
 
-instance instTopologicalRingFiniteAdeleRing : TopologicalRing (FiniteAdeleRing ℤ ℚ) := sorry
+instance instTopologicalRingFiniteAdeleRing : IsTopologicalRing (FiniteAdeleRing ℤ ℚ) := sorry
 
 end PR13703
 

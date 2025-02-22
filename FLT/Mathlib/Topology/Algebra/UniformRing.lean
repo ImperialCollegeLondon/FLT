@@ -7,8 +7,8 @@ import FLT.Mathlib.Algebra.Algebra.Hom
 
 namespace UniformSpace.Completion
 
-variable {α : Type*} [Ring α] [UniformSpace α] [TopologicalRing α] [UniformAddGroup α]
-  {β : Type*} [UniformSpace β] [Ring β] [UniformAddGroup β] [TopologicalRing β]
+variable {α : Type*} [Ring α] [UniformSpace α] [IsTopologicalRing α] [UniformAddGroup α]
+  {β : Type*} [UniformSpace β] [Ring β] [UniformAddGroup β] [IsTopologicalRing β]
   (f : α →+* β) (hf : Continuous f)
 
 theorem mapRingHom_apply {x : UniformSpace.Completion α} :
@@ -21,8 +21,8 @@ theorem mapRingHom_coe (hf : UniformContinuous f) (a : α) :
   rw [mapRingHom_apply, map_coe hf]
 
 noncomputable def mapSemialgHom {α : Type*} [CommRing α] [UniformSpace α]
-    [TopologicalRing α] [UniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
-    [UniformAddGroup β] [TopologicalRing β] (f : α →+* β) (hf : Continuous f) :
+    [IsTopologicalRing α] [UniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
+    [UniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f) :
     Completion α →ₛₐ[f] Completion β where
   __ := UniformSpace.Completion.mapRingHom f hf
   map_smul' m x := by
