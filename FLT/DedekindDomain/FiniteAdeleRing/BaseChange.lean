@@ -246,7 +246,31 @@ lemma v_adicCompletionComapSemialgHom
   subst hvw
   rw [← valuation_comap A K L B w a]
 
-instance (v : HeightOneSpectrum A) : Finite {w : HeightOneSpectrum B // v = comap A w} := sorry
+def noZeroSMulDivisors : NoZeroSMulDivisors A B := by
+  constructor
+  intro r x h
+  suffices (algebraMap A K r) • (algebraMap B L x) = 0 by
+    rw [smul_eq_zero] at this
+    simpa using this
+  have ht : Algebra.linearMap B L (r • x) = r • algebraMap B L x := by
+    simp [LinearMap.map_smul_of_tower]
+  rw [IsScalarTower.algebraMap_smul, ← ht, h, map_zero]
+
+def finite (v : HeightOneSpectrum A) : Finite {w : HeightOneSpectrum B // v = comap A w} := by
+  have := noZeroSMulDivisors A K L B
+  rw [← Set.coe_setOf]
+  rw [@Set.finite_coe_iff]
+  have := primesOver_finite v.asIdeal B
+  refine Set.Finite.of_finite_image (f := HeightOneSpectrum.asIdeal) ?_ ?_
+  · refine Set.Finite.subset this ?_
+    simp only [Set.subset_def, Set.mem_image, Set.mem_setOf_eq, forall_exists_index, and_imp,
+      forall_apply_eq_imp_iff₂]
+    rintro w rfl
+    simp only [Ideal.primesOver, Set.mem_setOf_eq, isPrime, true_and]
+    constructor
+    simp [Ideal.under_def, comap]
+  · intro x hx y hy hxy
+    rwa [← @HeightOneSpectrum.ext_iff] at hxy
 
 /-- The canonical map `K_v → ∏_{w|v} L_w` extending K → L. -/
 noncomputable def adicCompletionComapSemialgHom' (v : HeightOneSpectrum A) :
@@ -268,6 +292,7 @@ lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
   let _ (w : { w : HeightOneSpectrum B // v = comap A w }) :
       IsModuleTopology (adicCompletion K v) (adicCompletion L w.1) :=
     adicCompletionComap_isModuleTopology A K L B v w.1 w.2
+  let _ := finite A K L B v
   infer_instance
 
 open scoped TensorProduct -- ⊗ notation for tensor product
