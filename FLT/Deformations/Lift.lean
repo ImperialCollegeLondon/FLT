@@ -1,19 +1,5 @@
-import Mathlib.Algebra.Category.Ring.Basic
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.CategoryTheory.Comma.Over
-import Mathlib.Combinatorics.Quiver.ReflQuiver
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
-import Mathlib.RepresentationTheory.Basic
-import Mathlib.RingTheory.LocalRing.ResidueField.Basic
-import Mathlib.Topology.Algebra.Group.Basic
-import Mathlib.Topology.Algebra.Ring.Basic
-import Mathlib.RingTheory.Ideal.Quotient.Defs
-import Mathlib.LinearAlgebra.Quotient.Defs
-
-import FLT.Mathlib.Algebra.InverseLimit
-import FLT.Mathlib.RepresentationTheory.Basic
-import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Basic
+import FLT.Mathlib.RepresentationTheory.Basic
 
 universe u
 
@@ -128,7 +114,7 @@ local notation3:max "Hom_alg(" O "; " A "," A' ")" => (A →ₗ[O] A')
 -- Choose any basis of V, this makes ρbar into a G →* GL_ι(𝓴 A)
 variable {ι : Type u} [DecidableEq ι] [Fintype ι]
 variable (𝓫 : Basis ι (𝓴 𝓞) V)
-def pbar' := Representation.GL_map_of_representation_of_basis ρbar 𝓫
+noncomputable def pbar' := Representation.GL_map_of_representation_of_basis ρbar 𝓫
 
 variable (A : 𝓒 𝓞)
 

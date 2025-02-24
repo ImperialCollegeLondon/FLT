@@ -1,11 +1,11 @@
-import Mathlib
-
+import Mathlib.RepresentationTheory.Basic
 
 variable {G : Type*} [Group G]
 
 variable {A : Type*} [CommRing A]
 
 variable {W : Type*} [AddCommMonoid W] [Module A W]
+
 variable {W' : Type*} [AddCommMonoid W'] [Module A W']
 
 structure RepresentationEquiv (ρ : Representation A G W) (ρ' : Representation A G W') where

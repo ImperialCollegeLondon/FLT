@@ -1,15 +1,4 @@
-import Mathlib.Algebra.Category.Ring.Basic
-import Mathlib.CategoryTheory.Comma.Over
-import Mathlib.Order.CompletePartialOrder
-import Mathlib.RingTheory.Artinian
-import Mathlib.RingTheory.LocalRing.ResidueField.Basic
-import Mathlib.Topology.Algebra.Ring.Basic
-import Mathlib.RepresentationTheory.Basic
-import Mathlib.CategoryTheory.Widesubcategory
-import Mathlib.CategoryTheory.Category.Basic
-import Mathlib.RingTheory.AdicCompletion.Basic
-
-import FLT.Mathlib.Algebra.InverseLimit
+import FLT.Deformations.Algebra.InverseLimit
 import FLT.Mathlib.CategoryTheory.Comma.Over
 
 universe u
@@ -19,26 +8,34 @@ open scoped TensorProduct
 
 variable {𝓞 : Type u}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
+
 local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
+
 variable {V : Type u}
   [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
+
 variable {G : Type u}
   [Group G] [TopologicalSpace G] [TopologicalGroup G]
+
 variable (ρbar : Representation (𝓴 𝓞) G V)
 
 variable (𝓞) in
+
 abbrev CommAlgCat := Under (CommRingCat.of 𝓞)
+
 instance : ConcreteCategory (CommAlgCat 𝓞) := by unfold CommAlgCat; infer_instance
 
 instance : CoeOut (CommAlgCat 𝓞) (CommRingCat) where coe A := A.right
+
+instance (A : CommAlgCat 𝓞) : Algebra 𝓞 A := sorry
 
 def CommRingCat.quotient {A : CommRingCat} (a : Ideal A) : CommRingCat where
   α := A ⧸ a
 
 def CommAlgCat.quotient {A : CommAlgCat 𝓞} (a : Ideal A) : CommAlgCat 𝓞 where
-  left := sorry
+  left := ⟨⟨⟩⟩
   right := CommRingCat.quotient a
-  hom := sorry
+  hom := by simp; exact CommRingCat.ofHom (algebraMap _ _)
 
 -- modMap : O --Under.hom-> A --IsLocalRing.residue-> k A
 variable (𝓞) in
@@ -184,11 +181,10 @@ instance : ConcreteCategory (𝓒 𝓞) := by unfold 𝓒; infer_instance
 
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
-instance noetherian_𝓒_topology [IsNoetherianRing A] : IsAdic (IsLocalRing.maximalIdeal A) := sorry
+instance noetherian_deformationCat_topology [IsNoetherianRing A] : IsAdic (IsLocalRing.maximalIdeal A) := sorry
 
-instance noetherian_𝓒_isAdic [IsNoetherianRing A] : IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
+instance noetherian_deformationCat_isAdic [IsNoetherianRing A] : IsAdicComplete (IsLocalRing.maximalIdeal A) A := sorry
 
-lemma noetherian_continuous_maps {A A' : 𝓒 𝓞} [IsNoetherianRing A] (f : A →ₐ[𝓞] A') : Continuous f := sorry
-
+lemma noetherian_deformationCat_continuous {A A' : 𝓒 𝓞} [IsNoetherianRing A] (f : A →ₐ[𝓞] A') : Continuous f := sorry
 
 end Noetherian
