@@ -1,6 +1,6 @@
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Order.Defs.Unbundled
-import FLT.Deformations.ContinuousRepresentation.TopologicalModule
+import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
 import FLT.Deformations.Algebra.InverseLimit.Basic
 import FLT.Mathlib.Order.Defs.Unbundled
 
@@ -48,8 +48,8 @@ lemma toComponent_continuous (i : ι) : Continuous (toComponent func i) where
     simp only [Set.mem_setOf_eq]
     use i, R
 
-instance [TopologicalSpace R] [TopologicalRing R]
-    [∀ i : ι, TopologicalModule R (obj i)] : TopologicalModule R (InverseLimit obj func) where
+instance [TopologicalSpace R] [IsTopologicalRing R]
+    [∀ i : ι, IsTopologicalModule R (obj i)] : IsTopologicalModule R (InverseLimit obj func) where
   continuous_smul := by
     refine continuous_generateFrom_iff.mpr ?_
     rintro V hV
@@ -138,7 +138,7 @@ lemma toComponent_continuous (i : ι) : Continuous (toComponent func i) where
     simp only [Set.mem_setOf_eq]
     use i, R
 
-instance [∀ i : ι, TopologicalRing (obj i)] : TopologicalRing (InverseLimit obj func) where
+instance [∀ i : ι, IsTopologicalRing (obj i)] : IsTopologicalRing (InverseLimit obj func) where
   continuous_add := by
     refine continuous_generateFrom_iff.mpr ?_
     rintro V hV
@@ -285,7 +285,7 @@ lemma toComponent_continuous (i : ι) : Continuous (toComponent func i) where
     simp only [Set.mem_setOf_eq]
     use i, R
 
-instance [∀ i : ι, TopologicalGroup (obj i)] : TopologicalGroup (InverseLimit obj func) where
+instance [∀ i : ι, IsTopologicalGroup (obj i)] : IsTopologicalGroup (InverseLimit obj func) where
   continuous_mul := by
     refine continuous_generateFrom_iff.mpr ?_
     rintro V hV
