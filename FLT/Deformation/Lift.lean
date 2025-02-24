@@ -61,13 +61,13 @@ variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ ⊥ 𝓴𝓞_topologic
 variable {ι : Type*} [Fintype ι]
 section Definitions
 
-variable (A : 𝓒 𝓞) [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
+variable (A : 𝓒 𝓞) [Module (𝓴 A) V] [IsScalarTower (𝓴 𝓞) (𝓴 A) V]
   [Module A V] [IsScalarTower A (𝓴 A) V]
 
 variable (W: Type*) [AddCommGroup W] [Module A W] [Module.Free A W] [Module.Finite A W]
   [TopologicalSpace W] [TopologicalModule A W]
 
-variable (reduction : ((𝓴 A) ⊗[A] W) ≃ₛₗ[algebraMap (𝓴 A) (𝓴 𝓞)] V)
+variable (reduction : ((𝓴 A) ⊗[A] W) ≃ₛₗ[(IsResidueAlgebra.ringEquiv 𝓞 A).symm.toRingHom] V)
 
 variable (ρ: ContinuousRepresentation A G W)
 

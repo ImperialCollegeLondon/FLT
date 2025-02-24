@@ -1,6 +1,7 @@
 import FLT.Deformation.Algebra.InverseLimit.Basic
 import FLT.Deformation.Algebra.InverseLimit.Topology
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
+
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.Artinian.Module
 import Mathlib.Topology.Algebra.Ring.Basic
@@ -11,7 +12,6 @@ import Mathlib.RingTheory.AdicCompletion.Basic
 import Mathlib
 
 open Topology TopologicalSpace
-
 namespace Deformation
 
 variable {A : Type*} [CommRing A]
