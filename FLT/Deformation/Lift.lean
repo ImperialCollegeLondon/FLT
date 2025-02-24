@@ -27,7 +27,7 @@ def 𝓴𝓞_discrete : @DiscreteTopology (𝓴 𝓞) 𝓴𝓞_topology := by
     eq_bot := rfl
   }
 
-def 𝓴𝓞_topologicalRing : @IsTopologicalRing (𝓴 𝓞) 𝓴𝓞_topology _ := by
+def 𝓴𝓞_isTopologicalRing : @IsTopologicalRing (𝓴 𝓞) 𝓴𝓞_topology _ := by
   letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
   letI := 𝓴𝓞_discrete (𝓞 := 𝓞)
   exact DiscreteTopology.topologicalRing
@@ -43,18 +43,15 @@ def V_discrete : @DiscreteTopology V V_topology := by
   }
 
 variable {V} in
-def V_topologicalModule : @IsTopologicalModule (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_topologicalRing V _ _ V_topology := by
+def V_isTopologicalModule : @IsTopologicalModule (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_isTopologicalRing V _ _ V_topology := by
   letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
-  letI := 𝓴𝓞_topologicalRing (𝓞 := 𝓞)
+  letI := 𝓴𝓞_isTopologicalRing (𝓞 := 𝓞)
   letI := 𝓴𝓞_discrete (𝓞 := 𝓞)
   letI := V_topology (V := V)
   letI := V_discrete (V := V)
-  exact {
-    continuous_smul := by continuity
-    continuous_add := by continuity
-  }
+  DiscreteTopology.isTopologicalModule
 
-variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ ⊥ 𝓴𝓞_topologicalRing
+variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_topologicalRing
   G _ _ _ V _ _ V_topology V_topologicalModule)
 
 variable {ι : Type*} [Fintype ι]
