@@ -1,11 +1,12 @@
-import Mathlib
-import FLT.Deformation.ContinuousRepresentation.TopologicalModule
+import FLT.Deformation.ContinuousRepresentation.IsTopologicalModule
+import Mathlib.LinearAlgebra.FreeModule.Basic
+import Mathlib.RingTheory.Finiteness.Defs
 
 -- TODO(jlcontreras): change this, instread of doing it manually use the natural topology in
 --  (ChooseBasisIndex) → R
 --   [is_prod_topo : Nonempty (W ≃ₜ (Module.Free.ChooseBasisIndex A W → A))]
 def freeFiniteModuleProductTopology
-  (R : Type*) [Ring R] [TopologicalSpace R] [TopologicalRing R]
+  (R : Type*) [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
   (M : Type*) [AddCommGroup M] [Module R M]
   [Module.Free R M] [Module.Finite R M] : TopologicalSpace M :=
   let ι := Module.Free.ChooseBasisIndex R M
@@ -14,9 +15,11 @@ def freeFiniteModuleProductTopology
       (∀ i, IsOpen (b i)) ∧
       (V = ψ ⁻¹' setOf fun (coord : ι →₀ R) ↦ ∀ i, coord i ∈ b i)
 
-variable {R : Type*} [Ring R] [TopologicalSpace R] [TopologicalRing R]
+variable {R : Type*} [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
   {M : Type*} [AddCommGroup M] [Module R M]
   [Module.Free R M] [Module.Finite R M]
 
 def freeFiniteModuleProductTopology_topologicalModule
-    : @TopologicalModule R _ _ _ M _ _ (freeFiniteModuleProductTopology R M) := sorry
+    : @IsTopologicalModule R _ _ _ M _ _ (freeFiniteModuleProductTopology R M) := sorry
+
+#min_imports

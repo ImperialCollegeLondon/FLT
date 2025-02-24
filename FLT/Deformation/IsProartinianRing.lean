@@ -82,7 +82,7 @@ variable (A) in
 instance instIsInducing : IsInducing (diagonalMap A) where
   eq_induced := rfl
 
-instance : TopologicalRing A where
+instance : IsTopologicalRing A where
   continuous_add := (IsInducing.continuousAdd (diagonalMap A) (instIsInducing A)).continuous_add
   continuous_mul := (IsInducing.continuousMul (diagonalMap A) (instIsInducing A)).continuous_mul
   continuous_neg := (IsInducing.continuousNeg (f := diagonalMap A) (instIsInducing A) (by simp)).continuous_neg

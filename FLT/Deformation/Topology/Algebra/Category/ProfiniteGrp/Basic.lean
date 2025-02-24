@@ -1,8 +1,7 @@
 import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Basic
 import Mathlib.Topology.Algebra.OpenSubgroup
-import FLT.Mathlib.GroupTheory.Coset.Basic
-import FLT.Deformation.Algebra.InverseLimit.Basic
 import FLT.Deformation.Algebra.InverseLimit.Topology
+import FLT.Mathlib.GroupTheory.Coset.Basic
 
 import Mathlib -- TODO(jlcontreras): delete this via min imports
 
@@ -39,7 +38,7 @@ instance obj_instGroup : Group (obj G V Gi) := by
   unfold obj
   infer_instance
 
-instance obj_instTopologicalGroup : TopologicalGroup (obj G V Gi) where
+instance obj_instTopologicalGroup : IsTopologicalGroup (obj G V Gi) where
   continuous_mul := by continuity
   continuous_inv := by continuity
 
@@ -69,7 +68,7 @@ instance : TopologicalSpace (OpenAvoidingDecomposition G V) := by
   unfold OpenAvoidingDecomposition
   infer_instance
 
-instance : TopologicalGroup (OpenAvoidingDecomposition G V) := by
+instance : IsTopologicalGroup (OpenAvoidingDecomposition G V) := by
   unfold OpenAvoidingDecomposition
   infer_instance
 

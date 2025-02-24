@@ -3,8 +3,6 @@ import FLT.Mathlib.LinearAlgebra.Span.Defs
 
 open Pointwise
 
-universe u
-
 variable {A : Type*} [CommRing A]
 
 variable {G : Type*} [Group G]

@@ -1,9 +1,8 @@
 import FLT.Deformation.BaseCat
-import FLT.Deformation.IsResidueAlgebra
 import FLT.Deformation.RepresentationTheory.RepresentationEquiv
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.Algebra.Module.Equiv.Defs
-import FLT.Deformation.ContinuousRepresentation.TopologicalModule
+import FLT.Deformation.ContinuousRepresentation.IsTopologicalModule
 import FLT.Deformation.ContinuousRepresentation.FreeFiniteModuleTopology
 import FLT.Deformation.ContinuousRepresentation.Basic
 
@@ -18,7 +17,7 @@ variable {𝓞 : Type*}
 variable (V : Type*)
   [AddCommGroup V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
 
-variable {G : Type*} [Group G] [TopologicalSpace G] [TopologicalGroup G]
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 
 def 𝓴𝓞_topology : TopologicalSpace (𝓴 𝓞) := ⊥
 
@@ -28,7 +27,7 @@ def 𝓴𝓞_discrete : @DiscreteTopology (𝓴 𝓞) 𝓴𝓞_topology := by
     eq_bot := rfl
   }
 
-def 𝓴𝓞_topologicalRing : @TopologicalRing (𝓴 𝓞) 𝓴𝓞_topology _ := by
+def 𝓴𝓞_topologicalRing : @IsTopologicalRing (𝓴 𝓞) 𝓴𝓞_topology _ := by
   letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
   letI := 𝓴𝓞_discrete (𝓞 := 𝓞)
   exact DiscreteTopology.topologicalRing
@@ -44,7 +43,7 @@ def V_discrete : @DiscreteTopology V V_topology := by
   }
 
 variable {V} in
-def V_topologicalModule : @TopologicalModule (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_topologicalRing V _ _ V_topology := by
+def V_topologicalModule : @IsTopologicalModule (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_topologicalRing V _ _ V_topology := by
   letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
   letI := 𝓴𝓞_topologicalRing (𝓞 := 𝓞)
   letI := 𝓴𝓞_discrete (𝓞 := 𝓞)
@@ -65,7 +64,7 @@ variable (A : 𝓒 𝓞) [Module (𝓴 A) V] [IsScalarTower (𝓴 𝓞) (𝓴 A)
   [Module A V] [IsScalarTower A (𝓴 A) V]
 
 variable (W: Type*) [AddCommGroup W] [Module A W] [Module.Free A W] [Module.Finite A W]
-  [TopologicalSpace W] [TopologicalModule A W]
+  [TopologicalSpace W] [IsTopologicalModule A W]
 
 variable (reduction : ((𝓴 A) ⊗[A] W) ≃ₛₗ[(IsResidueAlgebra.ringEquiv 𝓞 A).symm.toRingHom] V)
 
@@ -74,6 +73,7 @@ variable (ρ: ContinuousRepresentation A G W)
 noncomputable def extend_ctts : W →ₗ[A] ((𝓴 A) ⊗[A] W) :=
   (TensorProduct.mk A (𝓴 A) W) (1 : (𝓴 A))
 
+#exit
 noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V where
   toFun kaw := reduction kaw
   map_add' := by simp
