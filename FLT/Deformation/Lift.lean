@@ -49,10 +49,10 @@ def V_isTopologicalModule : @IsTopologicalModule (𝓴 𝓞) _ 𝓴𝓞_topology
   letI := 𝓴𝓞_discrete (𝓞 := 𝓞)
   letI := V_topology (V := V)
   letI := V_discrete (V := V)
-  DiscreteTopology.isTopologicalModule
+  exact DiscreteTopology.isTopologicalModule
 
-variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_topologicalRing
-  G _ _ _ V _ _ V_topology V_topologicalModule)
+variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_isTopologicalRing
+  G _ _ _ V _ _ V_topology V_isTopologicalModule)
 
 variable {ι : Type*} [Fintype ι]
 section Definitions
@@ -71,6 +71,7 @@ noncomputable def extend_ctts : W →ₗ[A] ((𝓴 A) ⊗[A] W) :=
   (TensorProduct.mk A (𝓴 A) W) (1 : (𝓴 A))
 
 #exit
+
 noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V where
   toFun kaw := reduction kaw
   map_add' := by simp
@@ -78,17 +79,13 @@ noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V where
     simp only [RingHom.id_apply]
     rintro a x
     change reduction (algebraMap A (𝓴 A) a • x) = a • reduction x
-    have h : ∀ v : V, a • v = algebraMap (𝓴 A) (𝓴 𝓞) (algebraMap A (𝓴 A) a) • v := by
-      intro v
-      have : a • v = ((a • (1 : 𝓴 A)) • (1 : 𝓴 𝓞)) • v := by
-        rw [smul_assoc, one_smul, smul_assoc, one_smul]
-      have : algebraMap A (𝓴 A) a = a • (1 : 𝓴 A) := by
-        unfold HSMul.hSMul instHSMul SMul.smul Algebra.toSMul
-        simp [IsLocalRing.ResidueField.algebra, IsLocalRing.residue]
-        sorry -- This is probably a mathlib issue, AFAIK this whole "have" should just be rfl, right?
-      rw [this]
-      aesop
+    have h : ∀ v : V, a • v = (algebraMap A (𝓴 A) a) • v := by
+      sorry
+    have h2 : ∀ ka : (𝓴 A), ∀ v : V, ka • v = sorry
+    sorry
     rw [h (reduction x), LinearEquiv.map_smulₛₗ reduction]
+
+#exit
 
 noncomputable def representation_mod : W →ₗ[A] V :=
   (mod_ctts V A W reduction).comp (extend_ctts A W)
