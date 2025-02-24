@@ -38,6 +38,12 @@ lemma modMap_surjective : Surjective (modMap 𝓞 A) := by
 noncomputable def ringEquiv : (𝓴 𝓞) ≃+* (𝓴 A) := RingEquiv.ofBijective
   (modMap 𝓞 A) ⟨modMap_injective 𝓞 A, modMap_surjective 𝓞 A⟩
 
+instance ringHomInvPair₁ : RingHomInvPair (ringEquiv 𝓞 A).toRingHom (ringEquiv 𝓞 A).symm.toRingHom :=
+  RingHomInvPair.of_ringEquiv (ringEquiv 𝓞 A)
+
+instance ringHomInvPair₂ : RingHomInvPair (ringEquiv 𝓞 A).symm.toRingHom (ringEquiv 𝓞 A).toRingHom :=
+  RingHomInvPair.of_ringEquiv (ringEquiv 𝓞 A).symm
+
 instance (I : Ideal A) [Nontrivial (A ⧸ I)] : IsResidueAlgebra 𝓞 (A ⧸ I) where
   isSurjective := by
     simp only [Surjective, modMap, algebraMap, Algebra.algebraMap, RingHom.coe_comp,
