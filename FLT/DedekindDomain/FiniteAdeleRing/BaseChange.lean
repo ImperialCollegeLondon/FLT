@@ -246,23 +246,29 @@ lemma v_adicCompletionComapSemialgHom
   subst hvw
   rw [← valuation_comap A K L B w a]
 
+instance (v : HeightOneSpectrum A) : Finite {w : HeightOneSpectrum B // v = comap A w} := sorry
+
 /-- The canonical map `K_v → ∏_{w|v} L_w` extending K → L. -/
 noncomputable def adicCompletionComapSemialgHom' (v : HeightOneSpectrum A) :
   (HeightOneSpectrum.adicCompletion K v) →ₛₐ[algebraMap K L]
     (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
   Pi.semialgHom _ _ fun i ↦ adicCompletionComapSemialgHom A K L B v i.1 i.2
 
-lemma prodAdicCompletionComap_isModuleTopology
-    (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : v = comap A w) :
+lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
     -- temporarily make ∏_w L_w a K_v-algebra
-    let inst_alg : Algebra (HeightOneSpectrum.adicCompletion K v)
+    letI inst_alg : Algebra (HeightOneSpectrum.adicCompletion K v)
       (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) :=
-      RingHom.toAlgebra <|
-        Pi.ringHom (fun w : {w : HeightOneSpectrum B // v = comap A w} ↦ adicCompletionComapSemialgHom A K L B v w.1 w.2)
+      RingHom.toAlgebra <| adicCompletionComapSemialgHom' A K L B v
     -- the claim that L_w has the module topology.
     IsModuleTopology (HeightOneSpectrum.adicCompletion K v)
       (∀ w : {w : HeightOneSpectrum B // v = comap A w}, HeightOneSpectrum.adicCompletion L w.1) := by
-  sorry -- FLT#327
+  let _ (w : { w : HeightOneSpectrum B // v = comap A w }) :
+      Module (adicCompletion K v) (adicCompletion L w.1) :=
+    @Algebra.toModule _ _ _ _ <| RingHom.toAlgebra <| adicCompletionComapSemialgHom A K L B v w.1 w.2
+  let _ (w : { w : HeightOneSpectrum B // v = comap A w }) :
+      IsModuleTopology (adicCompletion K v) (adicCompletion L w.1) :=
+    adicCompletionComap_isModuleTopology A K L B v w.1 w.2
+  infer_instance
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
