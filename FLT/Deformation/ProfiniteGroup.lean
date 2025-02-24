@@ -1,8 +1,8 @@
 import Mathlib
 import FLT.Deformation.Lift
 import FLT.Deformation.Topology.Algebra.Category.ProfiniteGrp.Basic
-import FLT.Deformation.RepresentationTheory.ContinuousRepresentation
-import FLT.Deformation.RepresentationTheory.TopologicalModule
+import FLT.Deformation.ContinuousRepresentation.Basic
+import FLT.Deformation.ContinuousRepresentation.TopologicalModule
 
 universe u
 

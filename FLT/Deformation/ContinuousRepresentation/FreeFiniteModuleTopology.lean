@@ -1,12 +1,9 @@
 import Mathlib
+import FLT.Deformation.ContinuousRepresentation.TopologicalModule
 
-variable {R : Type*} [CommRing R] [TopologicalSpace R] [TopologicalRing R]
+variable {R : Type*} [Ring R] [TopologicalSpace R] [TopologicalRing R]
 
 variable {M : Type*} [AddCommGroup M] [Module R M]
-
-variable (R M) in
-class TopologicalModule [TopologicalSpace M] where
-  smul_cont : ∀ r : R, Continuous (X := M) (Y := M) (fun m ↦ r • m)
 
 variable [Module.Free R M] [Module.Finite R M]
 

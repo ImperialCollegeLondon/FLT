@@ -1,5 +1,5 @@
 import Mathlib
-import FLT.Deformation.BaseCategory
+import FLT.Deformation.BaseCat
 import FLT.Deformation.Lift
 
 universe u

@@ -1,5 +1,5 @@
 import Mathlib
-import FLT.Deformation.RepresentationTheory.TopologicalModule
+import FLT.Deformation.ContinuousRepresentation.TopologicalModule
 
 variable {R : Type*} [CommRing R] [TopologicalSpace R] [TopologicalRing R]
 

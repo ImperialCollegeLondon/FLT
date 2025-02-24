@@ -16,30 +16,39 @@ def index : Type _ :=
 instance instCoeSubgroup : CoeOut (index G V) (Subgroup G) where
   coe a := a.val
 
-instance : LinearOrder (index G V) where
+instance : Preorder (index G V) where
   le a b := (a : Subgroup G) ≥ (b : Subgroup G)
   le_refl a := by simp
   le_trans a b c hab hbc := by exact fun ⦃x⦄ a ↦ hab (hbc a)
-  le_antisymm := by sorry
-  le_total := by sorry
-  decidableLE := by sorry
 
-instance {Gi : index G V} : Gi.1.Normal := by
+variable {Gi Gj : index G V}
+
+instance index_instNormal : Gi.1.Normal := by
   unfold index at Gi
   aesop
 
-def obj (Gi : index G V) : Type _ := G ⧸ Gi.1.1
+variable (Gi) in
+def obj : Type _ := G ⧸ Gi.1.1
 
-instance obj_instGroup {Gi : index G V} : Group (obj G V Gi) := by
+instance obj_instTopologicalSpace : TopologicalSpace (obj G V Gi) := ⊥
+
+instance obj_instDiscreteTopology : DiscreteTopology (obj G V Gi) where
+  eq_bot := rfl
+
+instance obj_instGroup : Group (obj G V Gi) := by
   unfold obj
   infer_instance
 
-instance obj_instFinite {Gi : index G V} : Finite (obj G V Gi) := by
+instance obj_instTopologicalGroup : TopologicalGroup (obj G V Gi) where
+  continuous_mul := by continuity
+  continuous_inv := by continuity
+
+instance obj_instFinite : Finite (obj G V Gi) := by
   unfold obj
   letI := Gi.1.2
   infer_instance
 
-def func {Gi Gj : index G V} (h : Gi ≤ Gj) : obj G V Gj →* obj G V Gi := by
+def func (h : Gi ≤ Gj) : obj G V Gj →* obj G V Gi := by
   unfold obj
   exact {
     toFun := Subgroup.quotientMapOfLE h
@@ -68,12 +77,15 @@ namespace OpenAvoidingDecomposition
 
 def diagonalMap_component (Gi : index G V) : G →* obj G V Gi := QuotientGroup.mk' Gi.1.1
 
-def diagonalMap_commutes (g : G) (Gi Gj : index G V) (h : Gi ≤ Gj) :
+def diagonalMap_commutes {Gi Gj : index G V} (h : Gi ≤ Gj) (g : G) :
     func G V h (diagonalMap_component G V Gj g) = diagonalMap_component G V Gi g :=
   by aesop
 
 noncomputable def diagonalMap :=
-  Group.InverseLimit.map_of_maps (func G V) (diagonalMap_component G V) (diagonalMap_commutes G V)
+  Group.InverseLimit.map_of_maps'
+  (func G V)
+  (diagonalMap_component G V)
+  (diagonalMap_commutes G V)
 
 noncomputable def diagonalMap_homeo :
     ContinuousMonoidHom G (OpenAvoidingDecomposition G V) where

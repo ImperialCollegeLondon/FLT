@@ -14,7 +14,7 @@ namespace Deformation
 variable (𝓞 : Type u)
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
-notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
+scoped notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
 structure BaseCat where
   private mk ::
@@ -26,7 +26,7 @@ structure BaseCat where
   [isResidueAlgebra : IsResidueAlgebra 𝓞 carrier]
   [isProartinian : IsProartinian carrier]
 
-notation3:max "𝓒" 𝓞 => BaseCat 𝓞
+scoped notation3:max "𝓒" 𝓞 => BaseCat 𝓞
 
 -- Porting note: typemax hack to fix universe complaints
 /-- An alias for `BaseCat.{max u₁ u₂}`, to deal around unification issues.

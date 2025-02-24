@@ -8,6 +8,7 @@ import Mathlib.RingTheory.LocalRing.Defs
 import Mathlib.RingTheory.LocalRing.ResidueField.Defs
 import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
 import Mathlib.RingTheory.AdicCompletion.Basic
+import Mathlib
 
 universe u
 
@@ -73,11 +74,9 @@ class IsProartinian : Prop where
 
 namespace IsProartinian
 
-variable [IsProartinian A]
+instance [IsProartinian A] : TopologicalSpace A := TopologicalSpace.induced (diagonalMap A) (by infer_instance)
 
-instance : TopologicalSpace A := TopologicalSpace.induced (diagonalMap A) (by infer_instance)
-
-instance (I : Ideal A) : IsProartinian (A ⧸ I) where
+instance [IsProartinian A] (I : Ideal A) : IsProartinian (A ⧸ I) where
   pro_artin := by
     simp [Function.Bijective, Function.Injective, Function.Surjective]
     split_ands
@@ -90,7 +89,7 @@ section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
 variable {𝓞 : Type*} [CommRing 𝓞] [IsNoetherianRing 𝓞] [IsLocalRing 𝓞]
 
-variable [IsLocalRing A] [Algebra 𝓞 A] [IsNoetherianRing A]
+variable [IsLocalRing A] [Algebra 𝓞 A] [IsNoetherianRing A] [IsProartinian A]
 
 variable (A) in
 instance noetherian_topology :

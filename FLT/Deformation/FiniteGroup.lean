@@ -1,4 +1,4 @@
-import FLT.Deformation.BaseCategory
+import FLT.Deformation.BaseCat
 import FLT.Deformation.Lift
 import FLT.Mathlib.Algebra.MvPolynomial.Eval
 

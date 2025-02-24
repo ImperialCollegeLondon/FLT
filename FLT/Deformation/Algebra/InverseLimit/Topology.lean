@@ -2,6 +2,7 @@ import FLT.Deformation.Algebra.InverseLimit.Basic
 import FLT.Mathlib.Order.Defs.Unbundled
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Order.Defs.Unbundled
+import FLT.Deformation.ContinuousRepresentation.TopologicalModule
 
 open TopologicalSpace
 
@@ -20,6 +21,9 @@ def minimumOpens : Set (Set (InverseLimit obj func)) :=
 
 instance : TopologicalSpace (InverseLimit obj func) := .generateFrom <| minimumOpens func
 
+instance [TopologicalSpace R] [TopologicalRing R]
+  [∀ i : ι, TopologicalModule R (obj i)] : TopologicalModule R (InverseLimit obj func) := sorry
+
 end Module.InverseLimit
 
 namespace Ring.InverseLimit
@@ -33,6 +37,8 @@ def minimumOpens : Set (Set (InverseLimit obj func)) :=
     setOf fun V ↦ ∃ (i : ι) (W : Set (obj i)), IsOpen W ∧ V = (toComponent func i) ⁻¹' W
 
 instance : TopologicalSpace (InverseLimit obj func) := .generateFrom <| minimumOpens func
+
+instance [∀ i : ι, TopologicalRing (obj i)] : TopologicalRing (InverseLimit obj func) := sorry
 
 end Ring.InverseLimit
 
