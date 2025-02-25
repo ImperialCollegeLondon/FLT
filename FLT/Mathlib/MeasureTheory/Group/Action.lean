@@ -1,7 +1,6 @@
 import Mathlib.MeasureTheory.Group.Action
 import Mathlib.MeasureTheory.Group.Pointwise
 import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
-import FLT.Mathlib.Algebra.Group.Subgroup.Defs
 import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 
