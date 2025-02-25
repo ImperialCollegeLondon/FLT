@@ -180,20 +180,52 @@ end Lift
 section UnrestrictedFunctor
 
 variable {V}
+variable {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A)
 
-noncomputable def Lift.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A) : Lift ρbar B where
-  carrier := letI : Algebra A B := f.hom.toAlgebra; B ⊗[A] l.carrier
-  addCommGroup := by infer_instance
-  module := by infer_instance
-  free := by infer_instance
-  finite := by infer_instance
-  reduction := sorry
-  module_A := sorry
-  module_𝓴A := sorry
-  isScalarTower_𝓴A := sorry
-  isScalarTower_A := sorry
-  ρ := sorry
-  is_lift := sorry
+noncomputable def relModMap (f : A ⟶ B) : (𝓴 A) ≃+* (𝓴 B) := .ofBijective
+  (IsLocalRing.ResidueField.map f.hom) ⟨sorry, sorry⟩
+
+noncomputable abbrev relModMapInv := (Deformation.relModMap f).symm.toRingHom
+
+instance relModMap_ringHomInvPair₁ : RingHomInvPair (relModMap f).toRingHom (relModMapInv f) :=
+  RingHomInvPair.of_ringEquiv (relModMap f)
+
+instance relModMap_ringHomInvPair₂ : RingHomInvPair (relModMapInv f) (relModMap f).toRingHom :=
+  RingHomInvPair.of_ringEquiv (relModMap f).symm
+
+variable {ρbar l} in
+def onMap_reduction :
+  letI : Algebra A B := f.hom.toAlgebra;
+  (𝓴 B) ⊗[B] (B ⊗[A] l.carrier) ≃ₛₗ[relModMapInv f] (𝓴 A) ⊗[A] l.carrier := sorry
+
+instance : RingHomCompTriple (relModMapInv f) (modMapInv A) (modMapInv B) := sorry
+
+instance : RingHomCompTriple (IsResidueAlgebra.ringEquiv 𝓞 A).toRingHom (relModMap f).toRingHom
+    (IsResidueAlgebra.ringEquiv 𝓞 B).toRingHom := sorry
+
+noncomputable def Lift.functor_onMap : Lift ρbar B :=
+  letI : Algebra A B := f.hom.toAlgebra
+  letI : TopologicalSpace (B ⊗[A] l.carrier) := freeFiniteModuleProductTopology B (B ⊗[A] l.carrier)
+  letI : IsTopologicalModule B (B ⊗[A] l.carrier) := freeFiniteModuleProductTopology_topologicalModule
+  {
+    carrier := B ⊗[A] l.carrier
+    addCommGroup := by infer_instance
+    module := by infer_instance
+    free := by infer_instance
+    finite := by infer_instance
+    reduction := LinearEquiv.trans (onMap_reduction f) l.reduction
+    module_A := Module.compHom V (RingHom.comp (modMapInv B) (IsLocalRing.residue B))
+    module_𝓴A := Module.compHom V (modMapInv B)
+    isScalarTower_𝓴A := sorry
+    isScalarTower_A := sorry
+    ρ := {
+      toFun g := TensorProduct.lift _
+      map_one' := sorry
+      map_mul' := sorry
+      continuous := sorry
+    }
+    is_lift := sorry
+  }
 
 variable (𝓞) in
 noncomputable def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where

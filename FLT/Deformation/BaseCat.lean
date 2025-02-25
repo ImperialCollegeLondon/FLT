@@ -60,21 +60,29 @@ variable {𝓞} in
 structure Hom (A B : BaseCat.{v} 𝓞) where
   private mk ::
   /-- The underlying algebra map. -/
-  hom' : A →A[𝓞] B
+  hom : A →A[𝓞] B
+  [isLocalHom : IsLocalHom hom]
+
+attribute [instance] Hom.isLocalHom
+
+-- TODO(jlcontreras): find home
+instance ContinuousAlgHom.isLocalHom_id {R A : Type*}
+    [CommRing R] [CommRing A] [Algebra R A] [TopologicalSpace A] [IsTopologicalRing A]:
+  IsLocalHom (ContinuousAlgHom.id R A) := sorry
+
+-- TODO(jlcontreras): find home
+instance ContinuousAlgHom.isLocalHom_comp {R A B C : Type*}
+    [CommRing R] [Ring A] [Ring B] [Ring C]
+    [Algebra R A] [Algebra R B] [Algebra R C]
+    [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C]
+    {g : B →A[R] C} {f : A →A[R] B}
+    [IsLocalHom g] [IsLocalHom f] :
+  IsLocalHom (ContinuousAlgHom.comp g f) := sorry
 
 instance : Category (BaseCat.{v} 𝓞) where
   Hom A B := Hom A B
   id A := ⟨ContinuousAlgHom.id 𝓞 A⟩
-  comp f g := ⟨g.hom'.comp f.hom'⟩
-
-instance : ConcreteCategory (BaseCat.{v} 𝓞) (· →A[𝓞] ·) where
-  hom := Hom.hom'
-  ofHom := Hom.mk
-
-variable {𝓞} in
-/-- Turn a morphism in `BaseCat` back into an `ContinuousAlgHom`. -/
-abbrev Hom.hom {A B : BaseCat.{v} 𝓞} (f : Hom A B) :=
-  ConcreteCategory.hom (C := BaseCat 𝓞) f
+  comp f g := ⟨ContinuousAlgHom.comp g.hom f.hom⟩
 
 variable {𝓞} in
 /-- Typecheck an `ContinuousAlgHom` as a morphism in `BaseCat`. -/
@@ -83,16 +91,11 @@ abbrev ofHom {A B : Type v}
   [IsResidueAlgebra 𝓞 A] [IsProartinianRing A]
   [CommRing B] [Algebra 𝓞 B] [IsLocalRing B] [IsLocalHom (algebraMap 𝓞 B)]
   [IsResidueAlgebra 𝓞 B] [IsProartinianRing B]
-  (f : A →A[𝓞] B) :
-    of 𝓞 A ⟶ of 𝓞 B :=
-  ConcreteCategory.ofHom (C := BaseCat 𝓞) f
+  (f : A →A[𝓞] B) [IsLocalHom f]:
+    of 𝓞 A ⟶ of 𝓞 B := ⟨f⟩
 
-variable {𝓞} in
-/-- Use the `ConcreteCategory.hom` projection for `@[simps]` lemmas. -/
-def Hom.Simps.hom (A B : BaseCat.{v} 𝓞) (f : Hom A B) :=
-  f.hom
-
-initialize_simps_projections Hom (hom' → hom)
+instance {A B : BaseCat.{v} 𝓞} : CoeFun (A ⟶ B) fun _ ↦ (A → B) where
+  coe f := f.hom
 
 ------------------------------------------------------------
 variable {𝓞}
@@ -125,7 +128,7 @@ lemma hom_ext {f g : A ⟶ B} (hf : f.hom = g.hom) : f = g :=
   Hom.ext hf
 
 @[simp]
-lemma hom_ofHom (f : X →A[𝓞] Y) : (ofHom f).hom = f := rfl
+lemma hom_ofHom (f : X →A[𝓞] Y) [IsLocalHom f] : (ofHom f).hom = f := rfl
 
 @[simp]
 lemma ofHom_hom (f : A ⟶ B) : ofHom (Hom.hom f) = f := rfl
@@ -134,11 +137,11 @@ lemma ofHom_hom (f : A ⟶ B) : ofHom (Hom.hom f) = f := rfl
 lemma ofHom_id : ofHom (ContinuousAlgHom.id 𝓞 X) = 𝟙 (of 𝓞 X) := rfl
 
 @[simp]
-lemma ofHom_comp (f : X →A[𝓞] Y) (g : Y →A[𝓞] Z) :
+lemma ofHom_comp (f : X →A[𝓞] Y) (g : Y →A[𝓞] Z) [IsLocalHom f] [IsLocalHom g]:
     ofHom (g.comp f) = ofHom f ≫ ofHom g :=
   rfl
 
-lemma ofHom_apply (f : X →A[𝓞] Y) (x : X) : ofHom f x = f x := rfl
+lemma ofHom_apply (f : X →A[𝓞] Y) [IsLocalHom f] (x : X) : ofHom f x = f x := rfl
 
 @[simp]
 lemma inv_hom_apply (e : A ≅ B) (x : A) : e.inv (e.hom x) = x := by
@@ -150,36 +153,8 @@ lemma hom_inv_apply (e : A ≅ B) (x : B) : e.hom (e.inv x) = x := by
   rw [← comp_apply]
   simp
 
--- TODO(jlcontreras): why is 𝓞 in BaseCat 𝓞
+-- TODO(jlcontreras): why is 𝓞 in BaseCat 𝓞. Is it?
 -- instance : Inhabited (BaseCat 𝓞) := ⟨of 𝓞 𝓞⟩
-
-lemma forget_obj : (forget (BaseCat.{v} 𝓞)).obj A = A := rfl
-
-lemma forget_map (f : A ⟶ B) : (forget (BaseCat.{v} 𝓞)).map f = f := rfl
-
-instance : CommRing ((forget (BaseCat 𝓞)).obj A) := (inferInstance : CommRing A.carrier)
-
-instance : Algebra 𝓞 ((forget (BaseCat 𝓞)).obj A) := (inferInstance : Algebra 𝓞 A.carrier)
-
-instance hasForgetToCommRing : HasForget₂ (BaseCat.{v} 𝓞) CommRingCat.{v} where
-  forget₂ :=
-    { obj := fun A => CommRingCat.of A
-      map := fun f => CommRingCat.ofHom f.hom.toRingHom }
-
-instance hasForgetToModule : HasForget₂ (BaseCat.{v} 𝓞) (ModuleCat.{v} 𝓞) where
-  forget₂ :=
-    { obj := fun M => ModuleCat.of 𝓞 M
-      map := fun f => ModuleCat.ofHom f.hom.toLinearMap }
-
-@[simp]
-lemma forget₂_module_obj :
-    (forget₂ (BaseCat.{v} 𝓞) (ModuleCat.{v} 𝓞)).obj A = ModuleCat.of 𝓞 A :=
-  rfl
-
-@[simp]
-lemma forget₂_module_map (f : A ⟶ B) :
-    (forget₂ (BaseCat.{v} 𝓞) (ModuleCat.{v} 𝓞)).map f = ModuleCat.ofHom f.hom.toLinearMap :=
-  rfl
 
 /-- Forgetting to the underlying type and then building the bundled object returns the original
 algebra. -/
@@ -212,7 +187,8 @@ variable {A B : BaseCat 𝓞}
 
 /-- Build an isomorphism in the category `BaseCat R` from a `ContinuousAlgEquiv` between `Algebra`s. -/
 @[simps]
-def _root_.ContinuousAlgEquiv.toContinuousAlgebraIso (e : X ≃A[𝓞] Y) : BaseCat.of 𝓞 X ≅ BaseCat.of 𝓞 Y where
+def _root_.ContinuousAlgEquiv.toContinuousAlgebraIso (e : X ≃A[𝓞] Y)
+  [IsLocalHom e.toContinuousAlgHom] [IsLocalHom e.symm.toContinuousAlgHom] : BaseCat.of 𝓞 X ≅ BaseCat.of 𝓞 Y where
   hom := BaseCat.ofHom (e : X →A[𝓞] Y)
   inv := BaseCat.ofHom (e.symm : Y →A[𝓞] X)
 
@@ -225,24 +201,6 @@ def _root_.CategoryTheory.Iso.toContinuousAlgEquiv (i : A ≅ B) : A ≃A[𝓞] 
     left_inv := fun x ↦ by simp
     right_inv := fun x ↦ by simp
     continuous_toFun := by continuity}
-
-/-- Continuous Algebra equivalences between `Algebra`s are the same as (isomorphic to) isomorphisms in
-`BaseCat`. -/
-@[simps]
-def _root_.continuousAlgEquivIsoContinuousAlgebraIso : (X ≃A[𝓞] Y) ≅ BaseCat.of 𝓞 X ≅ BaseCat.of 𝓞 Y where
-  hom e := e.toContinuousAlgebraIso
-  inv i := i.toContinuousAlgEquiv
-
-instance BaseCat.forget_reflects_isos : (forget (BaseCat.{u} 𝓞)).ReflectsIsomorphisms where
-  reflects {X Y} f _ := by
-    let i := asIso ((forget (BaseCat.{u} 𝓞)).map f)
-    let e : X ≃A[𝓞] Y := {
-        f.hom, i.toEquiv with
-        continuous_invFun := by
-          simp
-          sorry
-      }
-    exact e.toContinuousAlgebraIso.isIso_hom
 
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
