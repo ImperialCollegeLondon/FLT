@@ -34,12 +34,28 @@ open DedekindDomain
 
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
     IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
-  use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ
-    {f | ∀ v , f v ∈ IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v}
+  let integralAdeles := {f : FiniteAdeleRing (𝓞 ℚ) ℚ |
+    ∀ v , f v ∈ IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v}
+  use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ integralAdeles
   refine ⟨?_, ?_⟩
-  · dsimp
-    sorry -- issue #252 -- should be easy (product of opens is open, product of integers is surely
-          -- known to be open)
+  · apply IsOpen.prod
+    . rw [Set.setOf_forall]
+      apply isOpen_iInter_of_finite
+      intro v
+      exact Metric.isOpen_ball.preimage (continuous_apply v)
+    let basis := FiniteAdeleRing.submodulesRingBasis (𝓞 ℚ) ℚ
+    let integralAdeles' := basis.toRing_subgroups_basis.openAddSubgroup 1
+    suffices h : integralAdeles = ↑integralAdeles' by
+      rw [h]
+      exact integralAdeles'.isOpen
+    ext x
+    simp only [← FiniteAdeleRing.exists_finiteIntegralAdele_iff, FiniteAdeleRing.ext_iff,
+      SetCoe.ext_iff, Set.mem_setOf_eq, RingSubgroupsBasis.openAddSubgroup, Submonoid.one_def,
+      map_one, SetLike.mem_coe, ← OpenAddSubgroup.mem_toAddSubgroup, Submodule.mem_toAddSubgroup,
+      Submodule.mem_span_singleton, Algebra.smul_def', mul_one, integralAdeles, integralAdeles']
+    apply exists_congr
+    intro a
+    exact eq_comm
   · apply subset_antisymm
     · intro x hx
       rw [Set.mem_preimage] at hx
@@ -54,7 +70,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       dsimp only at h1 h2
       simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq,
         InfiniteAdeleRing.algebraMap_apply, UniformSpace.Completion.norm_coe] at h1
-      simp only [Set.mem_setOf_eq] at h2
+      simp only [integralAdeles, Set.mem_setOf_eq] at h2
       specialize h1 Rat.infinitePlace
       change ‖(x : ℂ)‖ < 1 at h1
       simp at h1
@@ -89,7 +105,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
         · simp only [norm_eq_zero]
           rfl
         simp [this, zero_lt_one]
-      · simp only [Set.mem_setOf_eq]
+      · simp only [integralAdeles, Set.mem_setOf_eq]
         intro v
         apply zero_mem
 
