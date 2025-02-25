@@ -44,6 +44,9 @@ instance ringHomInvPair₁ : RingHomInvPair (ringEquiv 𝓞 A).toRingHom (ringEq
 instance ringHomInvPair₂ : RingHomInvPair (ringEquiv 𝓞 A).symm.toRingHom (ringEquiv 𝓞 A).toRingHom :=
   RingHomInvPair.of_ringEquiv (ringEquiv 𝓞 A).symm
 
+noncomputable instance instSmul : SMul (𝓴 A) (𝓴 𝓞) :=
+  ⟨fun ka ko ↦ (IsResidueAlgebra.ringEquiv 𝓞 A).symm ka * ko⟩
+
 instance (I : Ideal A) [Nontrivial (A ⧸ I)] : IsResidueAlgebra 𝓞 (A ⧸ I) where
   isSurjective := by
     simp only [Surjective, modMap, algebraMap, Algebra.algebraMap, RingHom.coe_comp,

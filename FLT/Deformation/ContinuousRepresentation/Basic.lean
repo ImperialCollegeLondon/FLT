@@ -21,7 +21,7 @@ instance : FunLike (ContinuousRepresentation R G M) G (M →L[R] M) where
     toFun := ρ.toFun g
     map_add' := by aesop
     map_smul' := by aesop
-    cont := sorry
+    cont := by sorry
   }
   coe_injective' ρ ρ' h := by
     sorry

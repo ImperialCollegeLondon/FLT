@@ -11,6 +11,23 @@ open scoped TensorProduct Deformation
 
 namespace Deformation
 
+/-!
+# The Lift Functor
+- `G` is a topological group
+- `𝓴 X` is notation for the residue field of `{X : Type*} [CommRing X] [IsLocalRing X]`
+- `𝓞` is a `CommRing, IsLocalRing, IsNoetherianRing` and represents the Witt Vectors of `(𝓴 𝓞) = k`, `k` is topologized discretely
+- `V` is a continuous `k`-representation of `G`, represented in `ρbar`, topologized discretely
+- `A` is an object of the category `BaseCat 𝓞` which makes it
+  - `CommRing`
+  - `Algebra 𝓞`
+  - `IsLocalRing A`
+  - `IsLocalHom (algebraMap A (𝓴 A))`
+  - `IsResidueAlgebra 𝓞` (meaning its residue field is isomorphic to `k` via the canonical algebraMap)
+  - `IsProartinianRing` (meaning its isomorphic, via the diagonal map, to the inverse limit of its artinian quotients, and gets topologized by induced topology over this isomorphism, where the RHS is topologized as the InverseLimit topology where each quotient is topologized discretely)
+- `W` is a continuous `A`-representation of `G`, represented in `ρ`, topologized with the ProArtinian topology
+- `reduction` is the isomorphism between `W` after extending constants to `𝓴 A` and `V`
+!-/
+
 variable {𝓞 : Type*}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
@@ -57,20 +74,22 @@ variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴
 variable {ι : Type*} [Fintype ι]
 section Definitions
 
-variable (A : 𝓒 𝓞) [Module (𝓴 A) V] [IsScalarTower (𝓴 𝓞) (𝓴 A) V]
+variable (A : 𝓒 𝓞)
+
+noncomputable abbrev modMapInv := (IsResidueAlgebra.ringEquiv 𝓞 A).symm.toRingHom
+
+variable [Module (𝓴 A) V] [IsScalarTower (𝓴 A) (𝓴 𝓞) V]
   [Module A V] [IsScalarTower A (𝓴 A) V]
 
 variable (W: Type*) [AddCommGroup W] [Module A W] [Module.Free A W] [Module.Finite A W]
   [TopologicalSpace W] [IsTopologicalModule A W]
 
-variable (reduction : ((𝓴 A) ⊗[A] W) ≃ₛₗ[(IsResidueAlgebra.ringEquiv 𝓞 A).symm.toRingHom] V)
+variable (reduction : ((𝓴 A) ⊗[A] W) ≃ₛₗ[modMapInv A] V)
 
 variable (ρ: ContinuousRepresentation A G W)
 
 noncomputable def extend_ctts : W →ₗ[A] ((𝓴 A) ⊗[A] W) :=
   (TensorProduct.mk A (𝓴 A) W) (1 : (𝓴 A))
-
-#exit
 
 noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V where
   toFun kaw := reduction kaw
@@ -78,14 +97,14 @@ noncomputable def mod_ctts : ((𝓴 A) ⊗[A] W) →ₗ[A] V where
   map_smul' := by
     simp only [RingHom.id_apply]
     rintro a x
-    change reduction (algebraMap A (𝓴 A) a • x) = a • reduction x
-    have h : ∀ v : V, a • v = (algebraMap A (𝓴 A) a) • v := by
-      sorry
-    have h2 : ∀ ka : (𝓴 A), ∀ v : V, ka • v = sorry
-    sorry
-    rw [h (reduction x), LinearEquiv.map_smulₛₗ reduction]
-
-#exit
+    change reduction (algebraMap A (𝓴 A) a • x) = _
+    have h_tower1 (a : A) (v : V) : a • v = algebraMap A (𝓴 A) a • v := by
+      exact algebra_compatible_smul (𝓴 A) a v
+    have h_tower2 (ka : 𝓴 A) (v : V) : ka • v = (ka • (1 : (𝓴 𝓞))) • v := by
+      exact Eq.symm (smul_one_smul (𝓴 𝓞) ka v)
+    have h_tower3 (ka : 𝓴 A) : (ka • (1 : 𝓴 𝓞)) = (IsResidueAlgebra.ringEquiv 𝓞 A).symm ka * (1 : 𝓴 𝓞) := rfl
+    rw [LinearEquiv.map_smulₛₗ reduction, h_tower1, h_tower2, h_tower3]
+    simp
 
 noncomputable def representation_mod : W →ₗ[A] V :=
   (mod_ctts V A W reduction).comp (extend_ctts A W)
@@ -105,12 +124,12 @@ structure Lift : Type _ where
   [free : Module.Free A carrier]
   [finite : Module.Finite A carrier]
   -- Reduction
-  reduction : ((𝓴 A) ⊗[A] carrier) ≃ₛₗ[algebraMap (𝓴 A) (𝓴 𝓞)] V
+  reduction : ((𝓴 A) ⊗[A] carrier) ≃ₛₗ[modMapInv A] V
   -- Scalar products on V. This is saying that V has A-module some structure
   -- and this "some" is precisely the obvious one via algebraMap A kA algebraMap kA kO
-  [module_A : Module A V]
   [module_𝓴A : Module (𝓴 A) V]
   [isScalarTower_𝓴A : IsScalarTower (𝓴 A) (𝓴 𝓞) V]
+  [module_A : Module A V]
   [isScalarTower_A : IsScalarTower A (𝓴 A) V]
   -- G-Representation on carrier as A-module
   ρ: @ContinuousRepresentation A _ _ _ G _ _ _ carrier _ _
@@ -133,17 +152,28 @@ def Lift.isIso : Setoid (Lift ρbar A) where
       aesop
     symm := by
       unfold Representation.IsRepresentationEquiv
-      rintro x y ⟨φ, φ_prop⟩
+      rintro l l' ⟨φ, φ_prop⟩
       use φ.symm
       rintro g
-      ext x
-      sorry
+      calc
+        φ.symm ∘ (l'.ρ g) = φ.symm ∘ (l'.ρ g) ∘ (φ ∘ φ.symm) := by aesop
+        _ = φ.symm ∘ ((l'.ρ g) ∘ φ) ∘ φ.symm := by aesop
+        _ = φ.symm ∘ (φ ∘ (l.ρ g)) ∘ φ.symm := by erw [← φ_prop g]; rfl
+        _ = (φ.symm ∘ φ) ∘ (l.ρ g) ∘ φ.symm := by aesop
+        _ = (l.ρ g) ∘ φ.symm := by aesop
     trans := by
       unfold Representation.IsRepresentationEquiv
       rintro x y z ⟨φ, φ_prop⟩ ⟨φ', φ'_prop⟩
       use LinearEquiv.comp' φ φ'
-      sorry
-  }
+      rintro g
+      calc
+        _ = φ' ∘ (φ ∘ (x.ρ g)) := by aesop
+        _ = φ' ∘ ((y.ρ g) ∘ φ) := by erw [φ_prop g]; rfl
+        _ = (φ' ∘ (y.ρ g)) ∘ φ := by aesop
+        _ = ((z.ρ g) ∘ φ') ∘ φ := by erw [φ'_prop g]; rfl
+        _ = (z.ρ g) ∘ (φ' ∘ φ) := by aesop
+        _ = _ := by aesop
+    }
 
 end Lift
 
