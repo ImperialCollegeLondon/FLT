@@ -141,9 +141,9 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [Module.Finite A B] in
 lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
-    (comap A w).valuation x ^
+    (comap A w).valuation K x ^
     (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) =
-    w.valuation (algebraMap K L x) := by
+    w.valuation L (algebraMap K L x) := by
   obtain ⟨x, y, hy, rfl⟩ := IsFractionRing.div_surjective (A := A) x
   simp [valuation, ← IsScalarTower.algebraMap_apply A K L, IsScalarTower.algebraMap_apply A B L,
     ← intValuation_comap A B (algebraMap_injective_of_field_isFractionRing A B K L), div_pow]
@@ -177,7 +177,7 @@ lemma _root_.IsDedekindDomain.HeightOneSpectrum.adicValued.continuous_algebraMap
   refine ⟨a / m, fun x hx ↦ ?_⟩
   simp_rw [← valuation_comap A]
   calc
-    (comap A w).valuation x ^ m < e (a / ↑m) ^ m := by gcongr; exacts [zero_le', hx]
+    (comap A w).valuation K x ^ m < e (a / ↑m) ^ m := by gcongr; exacts [zero_le', hx]
   _ = e (m • (a / ↑m)) := by
     dsimp [e]
     norm_cast
