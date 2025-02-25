@@ -650,7 +650,7 @@ lemma preserves_zsmul {G H : Type*} [Zero G] [Add G] [Neg G] [SMul ℕ G] [SubNe
     (neg : ∀ x, f (-x) = - f x)
     (z : ℤ) (g : G) :
     f (zsmulRec (· • ·) z g) = z • f g := by
-  induction z using Int.rec with
+  cases z with
   | ofNat n =>
     rw [zsmulRec, nsmul, Int.ofNat_eq_coe, natCast_zsmul]
   | negSucc n =>
