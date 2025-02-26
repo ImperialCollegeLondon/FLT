@@ -77,8 +77,6 @@ section Definitions
 
 variable (A : 𝓒 𝓞)
 
-noncomputable abbrev modMapInv := (IsResidueAlgebra.ringEquiv 𝓞 A).symm.toRingHom
-
 variable (W: Type*) [AddCommGroup W] [Module A W] [Module.Free A W] [Module.Finite A W]
   [TopologicalSpace W] [IsTopologicalModule A W]
   [Module 𝓞 W] [IsScalarTower 𝓞 A W]
@@ -163,19 +161,41 @@ section UnrestrictedLiftFunctor
 variable {V ρbar}
 variable {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A)
 
+def onMap_reduction_aux1 :
+    letI : Algebra A B := f.hom.toAlgebra;
+    (𝓴 B) ⊗[B] (B ⊗[A] l.carrier) ≃ₗ[𝓞] ((𝓴 B) ⊗[B] B) ⊗[A] l.carrier := by
+  sorry
+
+def onMap_reduction_aux2 :
+    letI : Algebra A B := f.hom.toAlgebra;
+    letI : IsResidueAlgebra A B := IsResidueAlgebra.relativeResidueAlgebra f.hom.toAlgHom;
+    ((𝓴 B) ⊗[B] B) ⊗[A] l.carrier ≃ₗ[𝓞] (𝓴 A) ⊗[A] l.carrier := by
+  have := IsResidueAlgebra.relativeResidueAlgebra_baseChange f.hom.toAlgHom
+  sorry
+
+  -- this thing about base change should be done for normal IsResidueAlgebras, not relative
+  -- the whole point is you will get it for free on relative.
+
 def onMap_reduction :
     letI : Algebra A B := f.hom.toAlgebra;
     letI : IsResidueAlgebra A B := IsResidueAlgebra.relativeResidueAlgebra f.hom.toAlgHom;
     (𝓴 B) ⊗[B] (B ⊗[A] l.carrier) ≃ₗ[𝓞] (𝓴 A) ⊗[A] l.carrier :=
-  sorry
+  (onMap_reduction_aux2 ..) <<>>ₗ (onMap_reduction_aux1 ..)
 
-def onMap_ρ :
+noncomputable def onMap_ρ :
     letI : Algebra A B := f.hom.toAlgebra;
-    letI : IsResidueAlgebra A B := IsResidueAlgebra.relativeResidueAlgebra f.hom.toAlgHom;
     letI : TopologicalSpace (B ⊗[A] l.carrier) := freeFiniteModuleProductTopology B (B ⊗[A] l.carrier)
     letI : IsTopologicalModule B (B ⊗[A] l.carrier) := freeFiniteModuleProductTopology_topologicalModule
     ContinuousRepresentation B G (B ⊗[A] l.carrier) :=
-  sorry
+  letI : Algebra A B := f.hom.toAlgebra;
+  letI : TopologicalSpace (B ⊗[A] l.carrier) := freeFiniteModuleProductTopology B (B ⊗[A] l.carrier)
+  letI : IsTopologicalModule B (B ⊗[A] l.carrier) := freeFiniteModuleProductTopology_topologicalModule
+  {
+    toFun g := LinearMap.baseChange B ((l.ρ : Representation _ _ _) g)
+    map_one' := by aesop
+    map_mul' := by aesop
+    continuous := by sorry
+  }
 
 noncomputable def Lift.functor_onMap : Lift ρbar B :=
   letI : Algebra A B := f.hom.toAlgebra
