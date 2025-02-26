@@ -38,27 +38,44 @@ lemma modMap_surjective : Surjective (modMap 𝓞 A) := by
 noncomputable def ringEquiv : (𝓴 𝓞) ≃+* (𝓴 A) := RingEquiv.ofBijective
   (modMap 𝓞 A) ⟨modMap_injective 𝓞 A, modMap_surjective 𝓞 A⟩
 
-instance ringHomInvPair₁ : RingHomInvPair (ringEquiv 𝓞 A).toRingHom (ringEquiv 𝓞 A).symm.toRingHom :=
-  RingHomInvPair.of_ringEquiv (ringEquiv 𝓞 A)
+variable {A} in
+omit [IsLocalRing A] in
+lemma Ideal.neq_top_of_nontrivial_quotient (I : Ideal A) [nontrivial : Nontrivial (A ⧸ I)] : I ≠ ⊤ := by
+  by_contra hc
+  have h := nontrivial.exists_pair_ne
+  have hsubsing := Ideal.Quotient.subsingleton_iff.mpr hc
+  rw [hc] at *
+  exact h.choose_spec.choose_spec (hsubsing.allEq h.choose h.choose_spec.choose)
 
-instance ringHomInvPair₂ : RingHomInvPair (ringEquiv 𝓞 A).symm.toRingHom (ringEquiv 𝓞 A).toRingHom :=
-  RingHomInvPair.of_ringEquiv (ringEquiv 𝓞 A).symm
+variable {A} in
+def residue_of_quot (I : Ideal A) [nontrivial : Nontrivial (A ⧸ I)] : (𝓴 A) →+* 𝓴 (A ⧸ I) :=
+  Ideal.quotientMap (IsLocalRing.maximalIdeal (A ⧸ I)) (Ideal.Quotient.mk I) (by
+    rw [← Ideal.map_le_iff_le_comap]
+    suffices h : Ideal.map (Ideal.Quotient.mk I) (IsLocalRing.maximalIdeal A) ≠ ⊤ by
+      exact IsLocalRing.le_maximalIdeal h
+    rw [Ideal.ne_top_iff_one]
+    by_contra hcontra
+    have h := (Ideal.mem_map_iff_of_surjective (Ideal.Quotient.mk I) (Ideal.Quotient.mk_surjective)).mp hcontra
+    let x := h.choose
+    have hu1 : ¬ IsUnit (x) := h.choose_spec.1
+    have hu2 : IsUnit (1 - x) := IsLocalRing.isUnit_one_sub_self_of_mem_nonunits x h.choose_spec.1
+    have h1minusx : 1 - x ∈ I := (Submodule.Quotient.eq I).mp (id (Eq.symm h.choose_spec.2))
+    have hIneqTop : I ≠ ⊤ := Ideal.neq_top_of_nontrivial_quotient I
+    have hIA : I ≤ IsLocalRing.maximalIdeal A := IsLocalRing.le_maximalIdeal hIneqTop
+    have hInonUnits (x : A) (h : x ∈ I) : ¬ IsUnit x := fun _ ↦ hIA h1minusx hu2
+    exact (hInonUnits (1 - x) h1minusx) hu2
+  )
 
-noncomputable instance instSmul : SMul (𝓴 A) (𝓴 𝓞) :=
-  ⟨fun ka ko ↦ (IsResidueAlgebra.ringEquiv 𝓞 A).symm ka * ko⟩
+variable {A} in
+lemma residue_of_quot_surjective (I : Ideal A) [Nontrivial (A ⧸ I)] : Surjective (residue_of_quot I) :=
+  Ideal.quotientMap_surjective (Ideal.Quotient.mk_surjective)
 
 instance (I : Ideal A) [Nontrivial (A ⧸ I)] : IsResidueAlgebra 𝓞 (A ⧸ I) where
   isSurjective := by
-    simp only [Surjective, modMap, algebraMap, Algebra.algebraMap, RingHom.coe_comp,
-      Function.comp_apply]
-    rintro x_kai
-    let x_ai := surjInv (IsLocalRing.residue_surjective) x_kai
-    let x_a := surjInv (Ideal.Quotient.mk_surjective) x_ai
-    let x_ka := IsLocalRing.residue A x_a
-    let x_o := surjInv (IsResidueAlgebra.isSurjective (𝓞 := 𝓞) (A := A)) x_ka
-    use x_o
-    unfold x_o x_ka x_a x_ai
-    sorry -- TODO(jlcontreras): finish this
+    have h : (residue_of_quot I) ∘ (modMap_high 𝓞 A) = modMap_high 𝓞 (A ⧸ I) := by
+      aesop
+    rw [← h]
+    exact Function.Surjective.comp (residue_of_quot_surjective I) (IsResidueAlgebra.isSurjective (A := A))
 
 end IsResidueAlgebra
 
