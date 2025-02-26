@@ -131,8 +131,6 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
   · simpa [hx]
   simp only [intValuation, Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk]
   show (ite _ _ _) ^ _ = ite _ _ _
-  by_cases hx : x = 0
-  · subst hx; simp [h_ne_zero]
   rw [map_eq_zero_iff _ hAB, if_neg hx, if_neg hx, ← Set.image_singleton, ← Ideal.map_span,
     mk_count_factors_map _ _ hAB, mul_comm]
   simp

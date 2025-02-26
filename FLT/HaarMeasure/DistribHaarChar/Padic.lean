@@ -76,11 +76,9 @@ lemma distribHaarChar_padic (x : ℚ_[p]ˣ) : distribHaarChar ℚ_[p] x = ‖(x 
   -- `g` agree on `ℤ_[p]⁰`.
   refine MonoidHom.eq_of_eqOn_dense (PadicInt.closure_nonZeroDivisors_padicInt (p := p)) ?_
   -- But this is what we proved in `distribHaarChar_padic_padicInt`.
-  simp
+  simp only [eqOn_range, g]
   ext x
-  simp [g]
-  rw [distribHaarChar_padic_padicInt]
-  rfl
+  simp [distribHaarChar_padic_padicInt]
 
 @[simp]
 lemma Padic.volume_padic_smul (x : ℚ_[p]) (s : Set ℚ_[p]) : volume (x • s) = ‖x‖₊ * volume s := by
