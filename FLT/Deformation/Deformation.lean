@@ -1,63 +1,74 @@
-import Mathlib
 import FLT.Deformation.BaseCat
+import FLT.Deformation.RepresentationTheory.RepresentationEquiv
+import FLT.Mathlib.RepresentationTheory.Basic
+import FLT.Mathlib.Algebra.Module.Equiv.Defs
+import FLT.Deformation.ContinuousRepresentation.IsTopologicalModule
+import FLT.Deformation.ContinuousRepresentation.FreeFiniteModuleTopology
+import FLT.Deformation.ContinuousRepresentation.Basic
 import FLT.Deformation.Lift
 
-universe u
-
+open CategoryTheory Function
 open scoped TensorProduct Deformation
 
 namespace Deformation
 
-variable {𝓞 : Type u}
+/-!
+# The Deformation Functor
+- Setting is the same as for the Lift functor
+- Deformation functor is the Lift functor quotiented by ≃ᵣ
+!-/
+
+variable {𝓞 : Type*}
   [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
 
-variable {V : Type u}
-  [AddCommMonoid V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
+variable {V : Type*}
+  [AddCommGroup V] [Module (𝓴 𝓞) V] [Module.Free (𝓴 𝓞) V] [Module.Finite (𝓴 𝓞) V]
+  [Module 𝓞 V] [IsScalarTower 𝓞 (𝓴 𝓞) V]
 
-variable {G : Type u} [Group G] [TopologicalSpace G] [TopologicalGroup G]
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 
-variable (ρbar : Representation (𝓴 𝓞) G V)
+variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_isTopologicalRing
+  G _ _ _ V _ _ V_topology V_isTopologicalModule)
 
 variable (A : 𝓒 𝓞)
 
-def Deformation := Quotient <| Lift.isIso ρbar A
-
-def OpenIdeal := {a : Ideal A // IsOpen a.carrier}
-
-instance : Coe (OpenIdeal A) (Ideal A) where
-  coe a := a.1
-
-variable {A ρbar} in
-def Deformation.quotient (D : Deformation ρbar A) (a : Ideal A) : Deformation ρbar (A.quotient a) := sorry
-
-variable {A ρbar} in
-def Deformation.tensorProduct (D : Deformation ρbar A) (R : 𝓒 𝓞) [Algebra A R] : Deformation ρbar R := sorry
-
-section UnrestrictedFunctor -- Theorem 2.3 of Smit&Lenstra
+def _root_.Deformation := Quotient (Lift.isIso ρbar A)
+section UnrestrictedDeformationFunctor -- Theorem 2.3 of Smit&Lenstra
 
 omit A in
-def Deformation.functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (D :  Deformation ρbar A) : Deformation ρbar B :=
+def functor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (D : Deformation ρbar A) : Deformation ρbar B :=
   sorry
 
 variable (𝓞) in
-def Deformation.functor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
+def functor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
   obj A := Deformation ρbar A
   map f := Deformation.functor_onMap ρbar f
   map_id := sorry
   map_comp := sorry
 
 -- Theorem 2.3
-theorem Deformation.functor_isCorepresentable : (Deformation.functor 𝓞 ρbar).IsCorepresentable  := sorry
+theorem functor_isCorepresentable : (functor 𝓞 ρbar).IsCorepresentable  := sorry
 
-end UnrestrictedFunctor
+end UnrestrictedDeformationFunctor
 
-section RestrictedFunctor -- Section 6 of Smit&Lenstra
+section RestrictedDeformationFunctor -- Section 6 of Smit&Lenstra
+
+def OpenIdeal := {a : Ideal A // IsOpen a.carrier}
+
+instance : CoeOut (OpenIdeal A) (Ideal A) where
+  coe a := a.1
+
+variable {A ρbar} in
+def quotient (D : Deformation ρbar A) (a : Ideal A) [Nontrivial (A ⧸ a)]: Deformation ρbar (A.quotient a) := sorry
+
+variable {A ρbar} in
+def tensorProduct (D : Deformation ρbar A) (R : 𝓒 𝓞) [Algebra A R] : Deformation ρbar R := sorry
 
 class IsValidDeformationRestriction (res : (R : 𝓒 𝓞) → Set (Deformation ρbar R)) : Prop where
   cond1 : ∀ A : 𝓒 𝓞, ∀ D : Deformation ρbar A,
-    (D ∈ res A) ↔ (∀ a : OpenIdeal A, (D.quotient a) ∈ res (A.quotient a))
+    (D ∈ res A) ↔ (∀ a : OpenIdeal A, ∀ _ : Nontrivial (A ⧸ a.1), (D.quotient a) ∈ res (A.quotient a))
   cond2 : ∀ A : 𝓒 𝓞, ∀ D : Deformation ρbar A, ∀ a b : OpenIdeal A,
-    ∃ _: (a : Ideal A) ≠ ⊤, ∃ _: (b : Ideal A) ≠ ⊤,
+    ∀ _ : Nontrivial (A ⧸ a.1), ∀ _ : Nontrivial (A ⧸ b.1), ∀ _ : Nontrivial (A ⧸ (a.1 ⊓ b.1)),
     ((D.quotient a) ∈ res (A.quotient a) ∧ (D.quotient b) ∈ res (A.quotient b) →
       D.quotient (a ⊓ b) ∈ res (A.quotient (a ⊓ b)))
   cond3 : ∀ A A' : 𝓒 𝓞, ∀ ι : A  →+* A', ∃ _ : Function.Injective ι,
@@ -68,21 +79,21 @@ variable (res : (R : 𝓒 𝓞) → Set (Deformation ρbar R))
 variable [IsValidDeformationRestriction ρbar res]
 
 omit A in
-def Deformation.restrictedFunctor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (D : res A) : (res B) :=
+def restrictedFunctor_onMap {A B : 𝓒 𝓞} (f : A ⟶ B) (D : res A) : (res B) :=
   ⟨Deformation.functor_onMap ρbar f D, sorry⟩
 
 variable (𝓞) in
-def Deformation.restrictedFunctor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
+def restrictedFunctor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
   obj A := res A
   map f := Deformation.restrictedFunctor_onMap ρbar res f
   map_id := sorry
   map_comp := sorry
 
 -- Theorem 2.3
-theorem Deformation.restrictedFunctor_isCorepresentable :
+theorem restrictedFunctor_isCorepresentable :
     (Deformation.restrictedFunctor 𝓞 ρbar res).IsCorepresentable :=
   sorry
 
-end RestrictedFunctor
+end RestrictedDeformationFunctor
 
 end Deformation
