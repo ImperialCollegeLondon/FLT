@@ -54,9 +54,9 @@ noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
 
 end IsDedekindDomain.HeightOneSpectrum
 
-namespace DedekindDomain
-
-def ProdAdicCompletions.toAdicCompletionAlgHom (v : HeightOneSpectrum (𝓞 F)) :
+-- should be in mathlib once sorry-free
+def DedekindDomain.ProdAdicCompletions.toAdicCompletion
+    (v : HeightOneSpectrum (𝓞 F)) :
     ProdAdicCompletions (𝓞 F) F →ₐ[F] v.adicCompletion F where
   toFun k := k v
   map_one' := sorry
@@ -65,11 +65,11 @@ def ProdAdicCompletions.toAdicCompletionAlgHom (v : HeightOneSpectrum (𝓞 F)) 
   map_add' := sorry
   commutes' := sorry
 
-namespace FiniteAdeleRing
+namespace DedekindDomain.FiniteAdeleRing
 
 def toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
     FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v :=
-  (ProdAdicCompletions.toAdicCompletionAlgHom v).comp
+  (ProdAdicCompletions.toAdicCompletion v).comp
   ((FiniteAdeleRing.subalgebra (𝓞 F) F).val)
 
 noncomputable def GL2.toAdicCompletion
