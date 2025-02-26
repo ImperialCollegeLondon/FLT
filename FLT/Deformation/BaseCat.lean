@@ -61,14 +61,15 @@ structure Hom (A B : BaseCat.{v} 𝓞) where
   private mk ::
   /-- The underlying algebra map. -/
   hom : A →A[𝓞] B
-  [isLocalHom : IsLocalHom hom]
+  [isLocalHom : IsLocalHom hom.toRingHom]
 
 attribute [instance] Hom.isLocalHom
 
 -- TODO(jlcontreras): find home
 instance ContinuousAlgHom.isLocalHom_id {R A : Type*}
     [CommRing R] [CommRing A] [Algebra R A] [TopologicalSpace A] [IsTopologicalRing A]:
-  IsLocalHom (ContinuousAlgHom.id R A) := sorry
+    IsLocalHom (ContinuousAlgHom.id R A).toRingHom :=
+  sorry
 
 -- TODO(jlcontreras): find home
 instance ContinuousAlgHom.isLocalHom_comp {R A B C : Type*}
@@ -76,8 +77,9 @@ instance ContinuousAlgHom.isLocalHom_comp {R A B C : Type*}
     [Algebra R A] [Algebra R B] [Algebra R C]
     [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C]
     {g : B →A[R] C} {f : A →A[R] B}
-    [IsLocalHom g] [IsLocalHom f] :
-  IsLocalHom (ContinuousAlgHom.comp g f) := sorry
+    [IsLocalHom g.toRingHom] [IsLocalHom f.toRingHom] :
+    IsLocalHom (ContinuousAlgHom.comp g f).toRingHom :=
+  sorry
 
 instance : Category (BaseCat.{v} 𝓞) where
   Hom A B := Hom A B
@@ -91,7 +93,7 @@ abbrev ofHom {A B : Type v}
   [IsResidueAlgebra 𝓞 A] [IsProartinianRing A]
   [CommRing B] [Algebra 𝓞 B] [IsLocalRing B] [IsLocalHom (algebraMap 𝓞 B)]
   [IsResidueAlgebra 𝓞 B] [IsProartinianRing B]
-  (f : A →A[𝓞] B) [IsLocalHom f]:
+  (f : A →A[𝓞] B) [IsLocalHom f.toRingHom]:
     of 𝓞 A ⟶ of 𝓞 B := ⟨f⟩
 
 instance {A B : BaseCat.{v} 𝓞} : CoeFun (A ⟶ B) fun _ ↦ (A → B) where
@@ -128,7 +130,7 @@ lemma hom_ext {f g : A ⟶ B} (hf : f.hom = g.hom) : f = g :=
   Hom.ext hf
 
 @[simp]
-lemma hom_ofHom (f : X →A[𝓞] Y) [IsLocalHom f] : (ofHom f).hom = f := rfl
+lemma hom_ofHom (f : X →A[𝓞] Y) [IsLocalHom f.toRingHom] : (ofHom f).hom = f := rfl
 
 @[simp]
 lemma ofHom_hom (f : A ⟶ B) : ofHom (Hom.hom f) = f := rfl
@@ -137,11 +139,11 @@ lemma ofHom_hom (f : A ⟶ B) : ofHom (Hom.hom f) = f := rfl
 lemma ofHom_id : ofHom (ContinuousAlgHom.id 𝓞 X) = 𝟙 (of 𝓞 X) := rfl
 
 @[simp]
-lemma ofHom_comp (f : X →A[𝓞] Y) (g : Y →A[𝓞] Z) [IsLocalHom f] [IsLocalHom g]:
+lemma ofHom_comp (f : X →A[𝓞] Y) (g : Y →A[𝓞] Z) [IsLocalHom f.toRingHom] [IsLocalHom g.toRingHom]:
     ofHom (g.comp f) = ofHom f ≫ ofHom g :=
   rfl
 
-lemma ofHom_apply (f : X →A[𝓞] Y) [IsLocalHom f] (x : X) : ofHom f x = f x := rfl
+lemma ofHom_apply (f : X →A[𝓞] Y) [IsLocalHom f.toRingHom] (x : X) : ofHom f x = f x := rfl
 
 @[simp]
 lemma inv_hom_apply (e : A ≅ B) (x : A) : e.inv (e.hom x) = x := by
@@ -188,7 +190,7 @@ variable {A B : BaseCat 𝓞}
 /-- Build an isomorphism in the category `BaseCat R` from a `ContinuousAlgEquiv` between `Algebra`s. -/
 @[simps]
 def _root_.ContinuousAlgEquiv.toContinuousAlgebraIso (e : X ≃A[𝓞] Y)
-  [IsLocalHom e.toContinuousAlgHom] [IsLocalHom e.symm.toContinuousAlgHom] : BaseCat.of 𝓞 X ≅ BaseCat.of 𝓞 Y where
+  [IsLocalHom e.toContinuousAlgHom.toRingHom] [IsLocalHom e.symm.toContinuousAlgHom.toRingHom] : BaseCat.of 𝓞 X ≅ BaseCat.of 𝓞 Y where
   hom := BaseCat.ofHom (e : X →A[𝓞] Y)
   inv := BaseCat.ofHom (e.symm : Y →A[𝓞] X)
 
