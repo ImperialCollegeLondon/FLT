@@ -86,7 +86,8 @@ open FiniteAdeleRing
 
 def GL2.TameLevel (S : Finset (HeightOneSpectrum (𝓞 F))) :
   Subgroup (GL (Fin 2) (FiniteAdeleRing (𝓞 F) F)) where
-    carrier := {x | ∀ v, GL2.toAdicCompletion v x ∈ GL2.localFullLevel v}
+    carrier := {x | (∀ v, GL2.toAdicCompletion v x ∈ GL2.localFullLevel v) ∧
+      (∀ v ∈ S, GL2.toAdicCompletion v x ∈ GL2.localTameLevel v)}
     mul_mem' := sorry
     one_mem' := sorry
     inv_mem' := sorry
