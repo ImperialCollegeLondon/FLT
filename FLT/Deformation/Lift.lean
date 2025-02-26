@@ -161,26 +161,13 @@ section UnrestrictedLiftFunctor
 variable {V ρbar}
 variable {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A)
 
-def onMap_reduction_aux1 :
-    letI : Algebra A B := f.hom.toAlgebra;
-    (𝓴 B) ⊗[B] (B ⊗[A] l.carrier) ≃ₗ[𝓞] ((𝓴 B) ⊗[B] B) ⊗[A] l.carrier := by
-  sorry
-
-def onMap_reduction_aux2 :
-    letI : Algebra A B := f.hom.toAlgebra;
-    letI : IsResidueAlgebra A B := IsResidueAlgebra.relativeResidueAlgebra f.hom.toAlgHom;
-    ((𝓴 B) ⊗[B] B) ⊗[A] l.carrier ≃ₗ[𝓞] (𝓴 A) ⊗[A] l.carrier := by
-  have := IsResidueAlgebra.relativeResidueAlgebra_baseChange f.hom.toAlgHom
-  sorry
-
-  -- this thing about base change should be done for normal IsResidueAlgebras, not relative
-  -- the whole point is you will get it for free on relative.
-
 def onMap_reduction :
     letI : Algebra A B := f.hom.toAlgebra;
-    letI : IsResidueAlgebra A B := IsResidueAlgebra.relativeResidueAlgebra f.hom.toAlgHom;
+    letI : IsLocalHom (algebraMap A B) := f.isLocalHom
+    letI : IsScalarTower 𝓞 A B := .of_algHom f.hom.toAlgHom
+    letI : IsResidueAlgebra A B := IsResidueAlgebra.of_restrictScalars (𝓞 := 𝓞)
     (𝓴 B) ⊗[B] (B ⊗[A] l.carrier) ≃ₗ[𝓞] (𝓴 A) ⊗[A] l.carrier :=
-  (onMap_reduction_aux2 ..) <<>>ₗ (onMap_reduction_aux1 ..)
+    sorry
 
 noncomputable def onMap_ρ :
     letI : Algebra A B := f.hom.toAlgebra;
@@ -198,8 +185,10 @@ noncomputable def onMap_ρ :
   }
 
 noncomputable def Lift.functor_onMap : Lift ρbar B :=
-  letI : Algebra A B := f.hom.toAlgebra
-  letI : IsResidueAlgebra A B := IsResidueAlgebra.relativeResidueAlgebra f.hom.toAlgHom;
+  letI : Algebra A B := f.hom.toAlgebra;
+  letI : IsLocalHom (algebraMap A B) := f.isLocalHom
+  letI : IsScalarTower 𝓞 A B := .of_algHom f.hom.toAlgHom
+  letI : IsResidueAlgebra A B := IsResidueAlgebra.of_restrictScalars (𝓞 := 𝓞)
   letI : TopologicalSpace (B ⊗[A] l.carrier) := freeFiniteModuleProductTopology B (B ⊗[A] l.carrier)
   letI : IsTopologicalModule B (B ⊗[A] l.carrier) := freeFiniteModuleProductTopology_topologicalModule
   {
@@ -212,17 +201,21 @@ noncomputable def Lift.functor_onMap : Lift ρbar B :=
     module_carrier := by infer_instance
     isScalarTower_carrier := by infer_instance
     ρ := onMap_ρ f l
-    is_lift g w := by
-      simp only [ContinuousAlgHom.toAlgHom_eq_coe]
-      sorry
+    is_lift g w := by sorry
   }
 
 variable (𝓞 ρbar) in
 noncomputable def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
   obj A := Lift ρbar A
   map {A B} f (l : Lift ρbar A) := ((Lift.functor_onMap f l) : Lift ρbar B)
-  map_id := sorry
-  map_comp := sorry
+  map_id A := by
+    ext l
+    simp at l
+    sorry
+  map_comp {A B C} f g := by
+    ext l
+    simp at l
+    sorry
 
 theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
 
