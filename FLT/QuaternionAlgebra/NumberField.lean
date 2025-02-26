@@ -33,28 +33,72 @@ end IsQuaternionAlgebra.NumberField
 open IsQuaternionAlgebra.NumberField IsDedekindDomain
 
 -- surely we have this
-def Matrix.mapRingHom {A B : Type*} [Semiring A] [Semiring B]
-    (i : Type*) [Fintype i] [DecidableEq i] (f : A →+* B) :
-    Matrix i i A →+* Matrix i i B := sorry
+def Matrix.mapRingHom {A B : Type*} [Semiring A] [Semiring B] (i : Type*) [Fintype i]
+    [DecidableEq i] (f : A →+* B) : Matrix i i A →+* Matrix i i B where
+  toFun M := Matrix.map M f
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
 
 variable {F}
 
-noncomputable def localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
+namespace IsDedekindDomain.HeightOneSpectrum
+
+noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
   MonoidHom.range (Units.map
     (Matrix.mapRingHom (Fin 2) (v.adicCompletionIntegers F).subtype).toMonoidHom)
 
 open Valued
 
-noncomputable def localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
+noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) where
-      carrier := {x ∈ localFullLevel v | Valued.v (x.val 0 0 - x.val 1 1) < 1 ∧ Valued.v (x.val 1 0) < 1}
+      carrier := {x ∈ localFullLevel v |
+        Valued.v (x.val 0 0 - x.val 1 1) < 1 ∧ Valued.v (x.val 1 0) < 1}
       mul_mem' := sorry
-      one_mem' := by
-        simp [one_mem]
+      one_mem' := by simp [one_mem]
       inv_mem' := sorry
 
-def TameLevel_aux (S : Finset (HeightOneSpectrum (𝓞 F))) :
-  Subgroup ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D)ˣ := sorry
-def TameLevel (r : Rigidification F D) (S : Finset (HeightOneSpectrum (𝓞 F))) :
-  Subgroup ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D)ˣ := sorry
+end IsDedekindDomain.HeightOneSpectrum
+
+namespace DedekindDomain
+
+def ProdAdicCompletions.toAdicCompletionAlgHom (v : HeightOneSpectrum (𝓞 F)) :
+    ProdAdicCompletions (𝓞 F) F →ₐ[F] v.adicCompletion F where
+  toFun k := k v
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
+  commutes' := sorry
+
+namespace FiniteAdeleRing
+
+def toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
+    FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v :=
+  (ProdAdicCompletions.toAdicCompletionAlgHom v).comp
+  ((FiniteAdeleRing.subalgebra (𝓞 F) F).val)
+
+private noncomputable def localFactor
+    (g : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F))
+    (v : HeightOneSpectrum (𝓞 F)) : GL (Fin 2) (v.adicCompletion F) :=
+  Units.map (Matrix.mapRingHom (Fin 2) (toAdicCompletion v)).toMonoidHom g
+
+end DedekindDomain.FiniteAdeleRing
+
+namespace IsDedekindDomain.HeightOneSpectrum
+
+open FiniteAdeleRing
+
+def GL2.TameLevel (S : Finset (HeightOneSpectrum (𝓞 F))) :
+  Subgroup (GL (Fin 2) (FiniteAdeleRing (𝓞 F) F)) where
+    carrier := {x | ∀ v, localFactor x v ∈ GL2.localFullLevel v}
+    mul_mem' := sorry
+    one_mem' := sorry
+    inv_mem' := sorry
+
+noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D)
+    (S : Finset (HeightOneSpectrum (𝓞 F))) :
+    Subgroup ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D)ˣ :=
+  Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
