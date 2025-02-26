@@ -14,9 +14,7 @@ local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
 variable (A : Type*) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
 
-noncomputable abbrev modMap : (𝓴 𝓞) →+* 𝓴 A := algebraMap (𝓴 𝓞) (𝓴 A)
-
-lemma modMap_injective : Injective (algebraMap (𝓴 𝓞) (𝓴 A)) := RingHom.injective (algebraMap (𝓴 𝓞) (𝓴 A))
+lemma injective : Injective (algebraMap (𝓴 𝓞) (𝓴 A)) := RingHom.injective (algebraMap (𝓴 𝓞) (𝓴 A))
 
 class IsResidueAlgebra : Prop where
   isSurjective : Surjective (algebraMap 𝓞 (𝓴 A))
@@ -31,7 +29,7 @@ lemma surjective : Surjective (algebraMap (𝓴 𝓞) (𝓴 A)) := by
   exact (Function.Surjective.of_comp_iff (algebraMap (𝓴 𝓞) (𝓴 A)) hsurj1).mp hsurj2
 
 noncomputable def ringEquiv : (𝓴 𝓞) ≃+* (𝓴 A) := RingEquiv.ofBijective
-  (algebraMap (𝓴 𝓞) (𝓴 A)) ⟨modMap_injective 𝓞 A, surjective 𝓞 A⟩
+  (algebraMap (𝓴 𝓞) (𝓴 A)) ⟨injective 𝓞 A, surjective 𝓞 A⟩
 
 section Quotient
 
