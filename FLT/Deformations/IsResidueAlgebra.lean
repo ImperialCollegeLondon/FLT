@@ -40,6 +40,15 @@ lemma surjective : Surjective (algebraMap (𝓴 𝓞) (𝓴 A)) := by
 noncomputable def ringEquiv : (𝓴 𝓞) ≃+* (𝓴 A) := RingEquiv.ofBijective
   (algebraMap (𝓴 𝓞) (𝓴 A)) ⟨(algebraMap (𝓴 𝓞) (𝓴 A)).injective, surjective 𝓞 A⟩
 
+noncomputable def algEquiv : (𝓴 𝓞) ≃ₐ[𝓞] (𝓴 A) where
+  toFun := ringEquiv 𝓞 A
+  invFun := (ringEquiv 𝓞 A).symm
+  left_inv := by unfold LeftInverse; aesop
+  right_inv := by unfold RightInverse LeftInverse; aesop
+  map_mul' := by aesop
+  map_add' := by aesop
+  commutes' := by aesop
+
 section Quotient
 
 variable {A} in
