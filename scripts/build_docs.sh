@@ -39,7 +39,7 @@ cd docbuild
 MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
 
 # Move the docs cache into docbuild if it is not empty
-if [ "$(ls -A docs/docs)" ]; then
+if [ -d "docs/docs" ] && [ "$(ls -A docs/docs)" ]; then
   mv docs/docs docbuild/.lake/build/doc
 fi
 
@@ -48,6 +48,7 @@ fi
 
 # Move them out of docbuild
 cd ../
+rm -rf docs/docs
 mv docbuild/.lake/build/doc docs/docs
 
 # Clean up after ourselves
