@@ -14,6 +14,11 @@ local notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
 variable (A : Type*) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
 
+/--!
+  `IsResidueAlgebra 𝓞` indicates that `A` `[Algebra 𝓞 A]` has the same residue field as `𝓞`.
+  It is sufficient for the natural map 𝓞 to 𝓴 A to be surjective. The actual `≃+*` between residue
+  fields is given in `IsResidueAlgebra.ringEquiv`.
+--/
 class IsResidueAlgebra : Prop where
   isSurjective' : Surjective (algebraMap 𝓞 (𝓴 A))
 
@@ -29,6 +34,9 @@ lemma surjective : Surjective (algebraMap (𝓴 𝓞) (𝓴 A)) := by
   have hsurj2 := IsResidueAlgebra.isSurjective 𝓞 A
   exact (Function.Surjective.of_comp_iff (algebraMap (𝓴 𝓞) (𝓴 A)) hsurj1).mp hsurj2
 
+/--!
+  Ring equivalence between the residue field of `𝓞` and `A`, when `[IsResidueAlgebra 𝓞 A]`
+--/
 noncomputable def ringEquiv : (𝓴 𝓞) ≃+* (𝓴 A) := RingEquiv.ofBijective
   (algebraMap (𝓴 𝓞) (𝓴 A)) ⟨(algebraMap (𝓴 𝓞) (𝓴 A)).injective, surjective 𝓞 A⟩
 
@@ -77,6 +85,10 @@ lemma _Ideal.Quotient.isLocalHom_mk {A : Type*} [CommRing A] [IsLocalRing A]
       exact h_a_nonUnit this
 
 variable {A} in
+/--!
+  Given `I : Ideal A`, `IsResidueAlgebra.residue_of_quot` is the natural ring hom
+  between the residue field of a `LocalRing A` and the residue field of `A ⧸ I`
+--/
 def residue_of_quot (I : Ideal A) [nontrivial : Nontrivial (A ⧸ I)] : (𝓴 A) →+* 𝓴 (A ⧸ I) :=
   Ideal.quotientMap (IsLocalRing.maximalIdeal (A ⧸ I)) (Ideal.Quotient.mk I) (by
     intro nu hnu
@@ -115,10 +127,6 @@ lemma of_restrictScalars [Algebra A B] [isScalarTower : IsScalarTower 𝓞 A B]
       have hcomp : (algebraMap (𝓴 A) (𝓴 B)) ∘ (algebraMap 𝓞 (𝓴 A)) = (algebraMap 𝓞 (𝓴 B)) := by
         have : (algebraMap A (𝓴 A)) ∘ algebraMap 𝓞 A = algebraMap 𝓞 (𝓴 A) := by aesop
         rw [← this]
-        have : (algebraMap B (𝓴 B)) ∘ (algebraMap A B) = (algebraMap A (𝓴 B)) := by
-          ext x
-          simp only [comp_apply, Algebra.algebraMap_eq_smul_one, one_smul]
-          aesop
         have : (algebraMap A (𝓴 B)) ∘ algebraMap 𝓞 A = algebraMap 𝓞 (𝓴 B) := by
           ext x
           simp [comp_apply, Algebra.algebraMap_eq_smul_one, one_smul]
