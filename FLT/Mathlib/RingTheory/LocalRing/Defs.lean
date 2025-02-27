@@ -1,9 +1,9 @@
-import Mathlib.RingTheory.Ideal.Quotient.Operations
-import Mathlib.RingTheory.LocalRing.Defs
-import Mathlib.RingTheory.LocalRing.Basic
+import Mathlib.RingTheory.LocalRing.RingHom.Basic
 
-variable {R : Type*} [CommRing R] [IsLocalRing R]
+variable {R : Type*} [CommRing R] [IsLocalRing R] (I : Ideal R) [Nontrivial (R ⧸ I)]
 
-instance isLocalRing_of_quotient (I : Ideal R) [Nontrivial (R ⧸ I)] :
-    IsLocalRing (R ⧸ I) :=
-  IsLocalRing.of_surjective' (Ideal.Quotient.mk I) Ideal.Quotient.mk_surjective
+open IsLocalRing
+
+instance IsLocalRing.quot : IsLocalRing (R ⧸ I) := .of_surjective' _ Ideal.Quotient.mk_surjective
+
+instance IsLocalHom.quotient_mk : IsLocalHom (algebraMap R (R ⧸ I)) := .of_surjective _ Ideal.Quotient.mk_surjective

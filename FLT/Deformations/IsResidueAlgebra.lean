@@ -47,64 +47,21 @@ omit [IsLocalRing A] in
 lemma Ideal.neq_top_of_nontrivial_quotient (I : Ideal A) [nontrivial : Nontrivial (A ⧸ I)] : I ≠ ⊤ :=
   Ideal.Quotient.zero_ne_one_iff.mp zero_ne_one
 
-lemma _Ideal.Quotient.isLocalHom_mk {A : Type*} [CommRing A] [IsLocalRing A]
-    (I : Ideal A) [nontrivial : Nontrivial (A ⧸ I)] : IsLocalHom (Ideal.Quotient.mk I) where
-  map_nonunit a h_fa_unit := by
-    by_contra h_a_nonUnit
-    obtain ⟨⟨fa, fa_inv, h_fa, h_fa_inv⟩, h_fa_eq⟩ := h_fa_unit
-    simp at h_fa_eq
-    rw [h_fa_eq] at h_fa h_fa_inv
-    induction fa_inv using Quotient.inductionOn with
-    | h b =>
-      obtain ⟨i, h_iI, h_i⟩ : ∃ i ∈ I, a * b = 1 + i := by
-        use a * b - 1
-        split_ands
-        . rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, map_mul, map_one]
-          change _ * ⟦b⟧ - 1 = _
-          rw [h_fa]
-          simp
-        . ring
-      obtain ⟨⟨oi, oi_inv, h_oi, h_oi_inv⟩, h_oi_eq⟩ : IsUnit (1 + i) := by
-        have : I ≠ ⊤ := Ideal.neq_top_of_nontrivial_quotient I
-        have hIA : I ≤ IsLocalRing.maximalIdeal A := IsLocalRing.le_maximalIdeal this
-        have : -i ∈ I := by exact Submodule.neg_mem I h_iI
-        have : -i ∈ IsLocalRing.maximalIdeal A := by exact hIA this
-        have : IsUnit (1 - (-i)) := IsLocalRing.isUnit_one_sub_self_of_mem_nonunits (-i) this
-        simp at this
-        exact this
-      simp at h_oi_eq
-      rw [h_oi_eq] at h_oi h_oi_inv
-      let ainv := b * oi_inv
-      have h_a : a * ainv = 1 := by
-        unfold ainv
-        rw [← mul_assoc, h_i, h_oi]
-      have h_ainv : ainv * a = 1 := by
-        unfold ainv
-        rw [mul_comm, ← mul_assoc, h_i, h_oi]
-      have : IsUnit a := ⟨⟨a, ainv, h_a, h_ainv⟩, rfl⟩
-      exact h_a_nonUnit this
-
 variable {A} in
-/--!
-  Given `I : Ideal A`, `IsResidueAlgebra.residue_of_quot` is the natural ring hom
-  between the residue field of a `LocalRing A` and the residue field of `A ⧸ I`
---/
-def residue_of_quot (I : Ideal A) [nontrivial : Nontrivial (A ⧸ I)] : (𝓴 A) →+* 𝓴 (A ⧸ I) :=
-  Ideal.quotientMap (IsLocalRing.maximalIdeal (A ⧸ I)) (Ideal.Quotient.mk I) (by
+lemma residue_of_quot_surjective (I : Ideal A) [Nontrivial (A ⧸ I)] :
+    Surjective (algebraMap (𝓴 A) (𝓴 (A ⧸ I))) := by
+  change Surjective (Ideal.quotientMap _ _ (by
     intro nu hnu
     have : ¬IsUnit (Ideal.Quotient.mk I nu) := by
       by_contra hfnu
-      exact hnu ((_Ideal.Quotient.isLocalHom_mk I).map_nonunit nu hfnu)
+      exact hnu ((IsLocalHom.quotient_mk I).map_nonunit nu hfnu)
     aesop
-  )
-
-variable {A} in
-lemma residue_of_quot_surjective (I : Ideal A) [Nontrivial (A ⧸ I)] : Surjective (residue_of_quot I) :=
-  Ideal.quotientMap_surjective (Ideal.Quotient.mk_surjective)
+  ))
+  exact Ideal.quotientMap_surjective (Ideal.Quotient.mk_surjective)
 
 instance (I : Ideal A) [Nontrivial (A ⧸ I)] : IsResidueAlgebra 𝓞 (A ⧸ I) where
   isSurjective' := by
-    have h : (residue_of_quot I) ∘ (algebraMap 𝓞 (𝓴 A)) = algebraMap 𝓞 (𝓴 (A ⧸ I)) := by
+    have h : (algebraMap (𝓴 A) (𝓴 (A ⧸ I))) ∘ (algebraMap 𝓞 (𝓴 A)) = algebraMap 𝓞 (𝓴 (A ⧸ I)) := by
       aesop
     rw [← h]
     exact Function.Surjective.comp (residue_of_quot_surjective I)
