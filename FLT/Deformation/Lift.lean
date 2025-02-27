@@ -161,13 +161,32 @@ section UnrestrictedLiftFunctor
 variable {V ρbar}
 variable {A B : 𝓒 𝓞} (f : A ⟶ B) (l : Lift ρbar A)
 
-def onMap_reduction :
+def onMap_reduction' :
     letI : Algebra A B := f.hom.toAlgebra;
     letI : IsLocalHom (algebraMap A B) := f.isLocalHom
     letI : IsScalarTower 𝓞 A B := .of_algHom f.hom.toAlgHom
     letI : IsResidueAlgebra A B := IsResidueAlgebra.of_restrictScalars (𝓞 := 𝓞)
-    (𝓴 B) ⊗[B] (B ⊗[A] l.carrier) ≃ₗ[𝓞] (𝓴 A) ⊗[A] l.carrier :=
-    sorry
+    (𝓴 B) ⊗[B] (B ⊗[A] l.carrier) ≃ₗ[A] ((𝓴 B) ⊗[B] B) ⊗[A] l.carrier := sorry
+    -- this should be a general fact: extension of scalar twice
+
+variable (B) in
+def onMap_reduction'' :
+    (𝓴 B) ⊗[B] B ≃ₗ[B] 𝓴 B := sorry
+  -- this should be a general fact: tensoring by the constants does nothing
+
+noncomputable def onMap_reduction :
+    letI : Algebra A B := f.hom.toAlgebra;
+    letI : IsLocalHom (algebraMap A B) := f.isLocalHom
+    letI : IsScalarTower 𝓞 A B := .of_algHom f.hom.toAlgHom
+    letI : IsResidueAlgebra A B := IsResidueAlgebra.of_restrictScalars (𝓞 := 𝓞)
+    (𝓴 B) ⊗[B] (B ⊗[A] l.carrier) ≃ₗ[A] (𝓴 A) ⊗[A] l.carrier :=
+  letI : Algebra A B := f.hom.toAlgebra;
+  letI : IsLocalHom (algebraMap A B) := f.isLocalHom
+  letI : IsScalarTower 𝓞 A B := .of_algHom f.hom.toAlgHom
+  letI : IsResidueAlgebra A B := IsResidueAlgebra.of_restrictScalars (𝓞 := 𝓞)
+  let ekBB_kB : (𝓴 B) ⊗[B] B ≃ₗ[A] (𝓴 B) := (onMap_reduction'' B).restrictScalars A
+  let ekB_kA : (𝓴 B) ≃ₗ[A] (𝓴 A) := (IsResidueAlgebra.algEquiv A B).symm.toLinearEquiv
+  onMap_reduction' f l ≪≫ₗ (ekBB_kB ≪≫ₗ ekB_kA).rTensor l.carrier
 
 noncomputable def onMap_ρ :
     letI : Algebra A B := f.hom.toAlgebra;
@@ -197,7 +216,7 @@ noncomputable def Lift.functor_onMap : Lift ρbar B :=
     module := by infer_instance
     free := by infer_instance
     finite := by infer_instance
-    reduction := LinearEquiv.trans (onMap_reduction f l) l.reduction
+    reduction := LinearEquiv.trans ((onMap_reduction f l).restrictScalars 𝓞) l.reduction
     module_carrier := by infer_instance
     isScalarTower_carrier := by infer_instance
     ρ := onMap_ρ f l
