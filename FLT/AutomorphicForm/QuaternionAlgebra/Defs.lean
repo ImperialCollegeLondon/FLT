@@ -107,7 +107,7 @@ instance : Neg (AutomorphicForm F D R W U χ) where
 theorem neg_apply (φ : AutomorphicForm F D R W U χ) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (-φ : AutomorphicForm F D R W U χ) x = -(φ x) := rfl
 
-instance add (φ ψ : AutomorphicForm F D R W U χ) : AutomorphicForm F D R W U χ where
+def add (φ ψ : AutomorphicForm F D R W U χ) : AutomorphicForm F D R W U χ where
   toFun x := φ x + ψ x
   left_invt := by simp [left_invt]
   has_character := by simp [has_character]
