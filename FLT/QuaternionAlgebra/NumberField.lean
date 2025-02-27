@@ -59,11 +59,11 @@ def DedekindDomain.ProdAdicCompletions.toAdicCompletion
     (v : HeightOneSpectrum (𝓞 F)) :
     ProdAdicCompletions (𝓞 F) F →ₐ[F] v.adicCompletion F where
   toFun k := k v
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
-  commutes' := sorry
+  map_one' := rfl
+  map_mul' _ _ := rfl
+  map_zero' := rfl
+  map_add' _ _ := rfl
+  commutes' _ := rfl
 
 namespace DedekindDomain.FiniteAdeleRing
 
@@ -88,9 +88,9 @@ def GL2.TameLevel (S : Finset (HeightOneSpectrum (𝓞 F))) :
   Subgroup (GL (Fin 2) (FiniteAdeleRing (𝓞 F) F)) where
     carrier := {x | (∀ v, GL2.toAdicCompletion v x ∈ GL2.localFullLevel v) ∧
       (∀ v ∈ S, GL2.toAdicCompletion v x ∈ GL2.localTameLevel v)}
-    mul_mem' := sorry
-    one_mem' := sorry
-    inv_mem' := sorry
+    mul_mem' {a b} ha hb := by simp_all [mul_mem]
+    one_mem' := by simp_all [one_mem]
+    inv_mem' {x} hx := by simp_all
 
 noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D)
     (S : Finset (HeightOneSpectrum (𝓞 F))) :
