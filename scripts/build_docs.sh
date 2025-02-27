@@ -32,23 +32,13 @@ template > docbuild/lakefile.toml
 sed -i s/TOOLCHAIN/`grep -oP 'v4\..*' lean-toolchain`/ docbuild/lakefile.toml
 
 # Fetch the docs cache if it exists
-mkdir -p docs/docs
+# # mkdir -p docs/docs
 
 # Initialise docbuild as a Lean project
 cd docbuild
 
 # Disable an error message due to a non-blocking bug. See Zulip
 MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
-
-cd ../
-
-# Move the docs cache into docbuild if it is not empty
-if [ -d "docs/docs" ] && [ "$(ls -A docs/docs)" ]; then
-  sudo chown -R runner docs
-  cp -r docs/docs docbuild/.lake/build/doc
-fi
-
-cd docbuild
 
 # Build the docs
 ~/.elan/bin/lake build FLT:docs
@@ -57,6 +47,3 @@ cd docbuild
 cd ../
 sudo chown -R runner docs
 cp -r docbuild/.lake/build/doc docs/docs
-
-# Clean up after ourselves
-rm -rf docbuild
