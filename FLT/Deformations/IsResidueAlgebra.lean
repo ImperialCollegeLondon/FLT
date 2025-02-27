@@ -49,9 +49,22 @@ lemma _Ideal.Quotient.isLocalHom_mk {A : Type*} [CommRing A] [IsLocalRing A]
     induction fa_inv using Quotient.inductionOn with
     | h b =>
       obtain ⟨i, h_iI, h_i⟩ : ∃ i ∈ I, a * b = 1 + i := by
-        sorry
+        use a * b - 1
+        split_ands
+        . rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, map_mul, map_one]
+          change _ * ⟦b⟧ - 1 = _
+          rw [h_fa]
+          simp
+        . ring
       obtain ⟨⟨oi, oi_inv, h_oi, h_oi_inv⟩, h_oi_eq⟩ : IsUnit (1 + i) := by
-        sorry
+        have : I ≠ ⊤ := Ideal.neq_top_of_nontrivial_quotient I
+        have hIA : I ≤ IsLocalRing.maximalIdeal A := IsLocalRing.le_maximalIdeal this
+        have : -i ∈ I := by exact Submodule.neg_mem I h_iI
+        have : -i ∈ IsLocalRing.maximalIdeal A := by exact hIA this
+        have : ¬ IsUnit (-i) := this
+        have : IsUnit (1 - (-i)) := IsLocalRing.isUnit_one_sub_self_of_mem_nonunits (-i) this
+        simp at this
+        exact this
       simp at h_oi_eq
       rw [h_oi_eq] at h_oi h_oi_inv
       let ainv := b * oi_inv
@@ -67,18 +80,11 @@ lemma _Ideal.Quotient.isLocalHom_mk {A : Type*} [CommRing A] [IsLocalRing A]
 variable {A} in
 def residue_of_quot (I : Ideal A) [nontrivial : Nontrivial (A ⧸ I)] : (𝓴 A) →+* 𝓴 (A ⧸ I) :=
   Ideal.quotientMap (IsLocalRing.maximalIdeal (A ⧸ I)) (Ideal.Quotient.mk I) (by
-    rw [← Ideal.map_le_iff_le_comap]
-    apply IsLocalRing.le_maximalIdeal
-    rw [Ideal.ne_top_iff_one]
-    by_contra hcontra
-    obtain ⟨x, hx1, hx2⟩ := (Ideal.mem_map_iff_of_surjective (Ideal.Quotient.mk I) (Ideal.Quotient.mk_surjective)).mp hcontra
-    have hu1 : ¬ IsUnit x := hx1
-    have hu2 : IsUnit (1 - x) := IsLocalRing.isUnit_one_sub_self_of_mem_nonunits x hx1
-    have h1minusx : 1 - x ∈ I := (Submodule.Quotient.eq I).mp (id (Eq.symm hx2))
-    have hIneqTop : I ≠ ⊤ := Ideal.neq_top_of_nontrivial_quotient I
-    have hIA : I ≤ IsLocalRing.maximalIdeal A := IsLocalRing.le_maximalIdeal hIneqTop
-    have hInonUnits (x : A) (h : x ∈ I) : ¬ IsUnit x := fun _ ↦ hIA h1minusx hu2
-    exact (hInonUnits (1 - x) h1minusx) hu2
+    intro nu hnu
+    have : ¬IsUnit (Ideal.Quotient.mk I nu) := by
+      by_contra hfnu
+      exact hnu ((_Ideal.Quotient.isLocalHom_mk I).map_nonunit nu hfnu)
+    aesop
   )
 
 variable {A} in
