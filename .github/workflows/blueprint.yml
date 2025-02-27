@@ -121,7 +121,7 @@ jobs:
         run: scripts/build_docs.sh
 
       - name: Bundle dependencies
-        if: github.event_name == 'push'
+        # if: github.event_name == 'push'
         uses: ruby/setup-ruby@v1
         with:
           working-directory: docs
@@ -129,17 +129,17 @@ jobs:
           bundler-cache: true  # Enable caching for bundler
 
       - name: Build website using Jekyll
-        if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
+        # if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
         working-directory: docs
         run: JEKYLL_ENV=production bundle exec jekyll build  # Note this will also copy the blueprint and API doc into docs/_site
 
       - name: "Upload website (API documentation, blueprint and any home page)"
-        if: github.event_name == 'push'
+        # if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ env.DOCS_EXISTS == 'true' && 'docs/_site' || 'docs/' }}
 
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'push'
+        # if: github.event_name == 'push'
         id: deployment
         uses: actions/deploy-pages@v4
