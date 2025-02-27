@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Exit immediately if a command exits with a non-zero status,
+# treat unset variables as an error, and ensure errors in pipelines are not masked.
+set -euo pipefail
+
 # Build HTML documentation for FLT
 # The output will be located in docs/docs
 
