@@ -27,7 +27,7 @@ mkdir -p docbuild
 template > docbuild/lakefile.toml
 
 # Substitute the toolchain from lean-toolchain into docbuild/lakefile.toml
-sed -i s/TOOLCHAIN/`grep -oP 'v4\..*' lean-toolchain`/ docbuild/lakefile.toml
+sed -i s/TOOLCHAIN/`grep -oP 'v4\.[0-9]+(?:\.[0-9]+)*(-rc[0-9]+)?' lean-toolchain`/ docbuild/lakefile.toml
 
 # Fetch the docs cache if it exists
 mkdir -p docs/docs
@@ -44,7 +44,7 @@ MATHLIB_NO_CACHE_ON_UPDATE=1 # Disable an error message due to a non-blocking bu
 
 # Move them out of docbuild
 cd ../
-rm -rf docs/docs
+# rm -rf docs/docs
 mv docbuild/.lake/build/doc docs/docs
 
 # Clean up after ourselves
