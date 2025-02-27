@@ -27,6 +27,7 @@ import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
@@ -57,9 +58,11 @@ import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Homeomorph
+import FLT.Mathlib.Topology.Instances.Matrix
 import FLT.NumberField.AdeleRing
 import FLT.NumberField.Completion
 import FLT.NumberField.Embeddings
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.WeakApproximation
+import FLT.QuaternionAlgebra.NumberField
 import FLT.TateCurve.TateCurve

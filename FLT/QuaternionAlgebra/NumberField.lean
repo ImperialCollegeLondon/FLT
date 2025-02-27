@@ -1,5 +1,6 @@
 import Mathlib
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
+import FLT.Mathlib.Topology.Instances.Matrix
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
@@ -18,7 +19,7 @@ for all finite places `v` together with a guarantee that the isomorphism works
 on the integral level at all but finitely many places. Such a rigidification exists
 if and only if F is unramified at all finite places.
 -/
-def Rigidification :=
+abbrev Rigidification :=
     ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D ≃ₐ[FiniteAdeleRing (𝓞 F) F]
     Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F))
 
@@ -35,12 +36,20 @@ open IsQuaternionAlgebra.NumberField IsDedekindDomain
 
 variable {F}
 
-namespace IsDedekindDomain.HeightOneSpectrum
+namespace IsDedekindDomain
 
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
   MonoidHom.range (Units.map
     (RingHom.mapMatrix (v.adicCompletionIntegers F).subtype).toMonoidHom)
+
+theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
+    IsOpen (GL2.localFullLevel v).carrier :=
+  sorry
+
+theorem GL2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
+    IsCompact (GL2.localFullLevel v).carrier :=
+  sorry
 
 open Valued
 
@@ -52,9 +61,17 @@ noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
       one_mem' := by simp [one_mem]
       inv_mem' := sorry
 
-end IsDedekindDomain.HeightOneSpectrum
+theorem GL2.localTameLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
+    IsOpen (GL2.localTameLevel v).carrier :=
+  sorry
 
--- should be in mathlib once sorry-free
+theorem GL2.localTameLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
+    IsCompact (GL2.localTameLevel v).carrier :=
+  sorry
+
+end IsDedekindDomain
+
+-- should be in mathlib
 def DedekindDomain.ProdAdicCompletions.toAdicCompletion
     (v : HeightOneSpectrum (𝓞 F)) :
     ProdAdicCompletions (𝓞 F) F →ₐ[F] v.adicCompletion F where
@@ -65,12 +82,13 @@ def DedekindDomain.ProdAdicCompletions.toAdicCompletion
   map_add' _ _ := rfl
   commutes' _ := rfl
 
-namespace DedekindDomain.FiniteAdeleRing
-
-def toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
+-- should be in mathlib
+def DedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
     FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v :=
   (ProdAdicCompletions.toAdicCompletion v).comp
   ((FiniteAdeleRing.subalgebra (𝓞 F) F).val)
+
+namespace DedekindDomain.FiniteAdeleRing
 
 noncomputable def GL2.toAdicCompletion
     (v : HeightOneSpectrum (𝓞 F)) :
@@ -92,7 +110,34 @@ def GL2.TameLevel (S : Finset (HeightOneSpectrum (𝓞 F))) :
     one_mem' := by simp_all [one_mem]
     inv_mem' {x} hx := by simp_all
 
-noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D)
-    (S : Finset (HeightOneSpectrum (𝓞 F))) :
+variable (S : Finset (HeightOneSpectrum (𝓞 F)))
+
+theorem GL2.TameLevel.isOpen : IsOpen (GL2.TameLevel S).carrier :=
+  sorry
+
+theorem GL2.TameLevel.isCompact : IsCompact (GL2.TameLevel S).carrier :=
+  sorry
+
+noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
     Subgroup ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D)ˣ :=
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
+
+instance : TopologicalSpace ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D) :=
+  moduleTopology (FiniteAdeleRing (𝓞 F) F) _
+
+instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D) :=
+  ⟨rfl⟩
+
+instance : IsTopologicalRing ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D) :=
+  IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D)
+
+omit [IsQuaternionAlgebra F D] in
+theorem Rigidification.continuous_toFun (r : Rigidification F D) :
+    Continuous r :=
+  IsModuleTopology.continuous_of_linearMap r.toLinearMap
+
+omit [IsQuaternionAlgebra F D] in
+theorem Rigidification.continuous_invFun (r : Rigidification F D) :
+    Continuous r.symm :=
+  sorry
+  -- IsModuleTopology.continuous_of_linearMap r.symm.toLinearMap
