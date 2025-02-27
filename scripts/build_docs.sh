@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Build HTML documentation for FLT
 # The output will be located in docs/docs
 
@@ -38,18 +40,22 @@ cd docbuild
 # Disable an error message due to a non-blocking bug. See Zulip
 MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
 
+cd ../
+
 # Move the docs cache into docbuild if it is not empty
 if [ -d "docs/docs" ] && [ "$(ls -A docs/docs)" ]; then
   mv docs/docs docbuild/.lake/build/doc
 fi
 
+cd docbuild
+
 # Build the docs
 ~/.elan/bin/lake build FLT:docs
 
-# Move them out of docbuild
+# Copy documentation to `docs/docs`
 cd ../
-rm -rf docs/docs
-mv docbuild/.lake/build/doc docs/docs
+sudo chown -R runner docs
+cp -r docbuild/.lake/build/doc docs/docs
 
 # Clean up after ourselves
 rm -rf docbuild
