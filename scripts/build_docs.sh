@@ -44,7 +44,8 @@ cd ../
 
 # Move the docs cache into docbuild if it is not empty
 if [ -d "docs/docs" ] && [ "$(ls -A docs/docs)" ]; then
-  mv docs/docs docbuild/.lake/build/doc
+  sudo chown -R runner docs
+  cp -r docs/docs docbuild/.lake/build/doc
 fi
 
 cd docbuild
