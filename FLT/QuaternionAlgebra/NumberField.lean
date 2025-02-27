@@ -51,6 +51,54 @@ theorem GL2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (GL2.localFullLevel v).carrier :=
   sorry
 
+omit [NumberField F] in
+@[simp]
+lemma _root_.ValuationSubring.subtype_apply {R : ValuationSubring F} (x : R) :
+    R.subtype x = x :=
+  rfl
+
+omit [NumberField F] in
+lemma _root_.ValuationSubring.subtype_injective (R : ValuationSubring F) :
+    Function.Injective R.subtype :=
+  (Set.injective_codRestrict Subtype.property).mp (fun ⦃_ _⦄ a ↦ a)
+
+omit [NumberField F] in
+@[simp]
+lemma _root_.ValuationSubring.subtype_inj {R : ValuationSubring F} {x y : R} :
+    R.subtype x = R.subtype y ↔ x = y :=
+  R.subtype_injective.eq_iff
+
+omit [NumberField F] in
+@[simp]
+lemma Valued.isUnit_valuationSubring_iff {Γ₀ : Type*} [LinearOrderedCommGroupWithZero Γ₀]
+    [Valued F Γ₀] {x : Valued.v.valuationSubring} :
+    IsUnit x ↔ Valued.v (x.val : F) = 1 := by
+  convert Valuation.Integers.isUnit_iff_valuation_eq_one _
+  exact Valuation.integer.integers _
+
+lemma GL2.mem_localFullLevel {v : HeightOneSpectrum (𝓞 F)} {x : GL (Fin 2) (v.adicCompletion F)}
+    (hx : x ∈ localFullLevel v) :
+    ∃ x' : GL (Fin 2) (v.adicCompletionIntegers F),
+      Units.map ((v.adicCompletionIntegers F).subtype.mapMatrix.toMonoidHom) x' = x :=
+  hx
+
+lemma GL2.mem_localFullLevel' {v : HeightOneSpectrum (𝓞 F)} {x : GL (Fin 2) (v.adicCompletion F)}
+    (hx : x ∈ localFullLevel v) :
+    ∃ x' : GL (Fin 2) (v.adicCompletionIntegers F), ∀ i j, x' i j = x i j := by
+  refine (mem_localFullLevel hx).imp ?_
+  simp only [RingHom.toMonoidHom_eq_coe, Units.ext_iff, Units.coe_map, MonoidHom.coe_coe,
+    RingHom.mapMatrix_apply]
+  rintro y hy
+  simp [← hy]
+
+lemma GL2.v_det_val_mem_localFullLevel_eq_one {v : HeightOneSpectrum (𝓞 F)}
+    {x : GL (Fin 2) (v.adicCompletion F)} (hx : x ∈ localFullLevel v) :
+    Valued.v x.val.det = 1 := by
+  obtain ⟨y, hy⟩ := mem_localFullLevel hx
+  have hd : IsUnit y.det.val := by simp
+  rw [Valued.isUnit_valuationSubring_iff] at hd
+  simpa [← hy, Matrix.det_fin_two] using hd
+
 lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
     (hx : x ∈ localFullLevel v) (i j) : Valued.v (x i j) ≤ 1 := by
   simp [-iff_false, localFullLevel, RingHom.mapMatrix, Units.map, Matrix.map,
@@ -69,19 +117,10 @@ lemma norm_sub_le_max (v : HeightOneSpectrum (𝓞 F)) (x y : v.adicCompletion F
   rw [sub_eq_add_neg, ← Valuation.map_neg _ y]
   exact norm_add_le_max v x (-y)
 
-lemma GL2.v_det_eq_one (v : HeightOneSpectrum (𝓞 F)) (x : GL (Fin 2) (v.adicCompletion F))
-    (hx : x ∈ localFullLevel v) :
-    Valued.v (Matrix.det (x : (Matrix (Fin 2) (Fin 2) (HeightOneSpectrum.adicCompletion F v)))) = 1 := by
-  obtain ⟨x', hx⟩ := Matrix.isUnits_det_units x
-  rw [← hx]
-  rw [← Valuation.mem_unitGroup_iff]
-  simp
-  sorry
-
 lemma GL2.aux (v : HeightOneSpectrum (𝓞 F)) (x : GL (Fin 2) (v.adicCompletion F))
     (hx : x ∈ localFullLevel v) (hx' : Valued.v (x.val 1 0) < 1) :
     Valued.v (x.val 0 0) = 1 ∧ Valued.v (x.val 1 1) = 1 := by
-  have h0 := GL2.v_det_eq_one v x hx
+  have h0 := GL2.v_det_val_mem_localFullLevel_eq_one hx
   rw [Matrix.det_fin_two] at h0
   have h1 := norm_sub_le_max v (x.val 0 0 * x.val 1 1) (x.val 0 1 * x.val 1 0)
   rw [h0] at h1
@@ -149,7 +188,7 @@ noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
           Matrix.cons_val_fin_one, smul_eq_mul, Matrix.cons_val_one, Matrix.head_cons,
           Matrix.head_fin_const, ← mul_sub, map_mul, map_inv₀, mul_neg, Valuation.map_neg]
         rw [@Valuation.map_sub_swap]
-        rw [v_det_eq_one _ _ ha.1]
+        rw [v_det_val_mem_localFullLevel_eq_one ha.1]
         simp [ha.2]
 
 theorem GL2.localTameLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
