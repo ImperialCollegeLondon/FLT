@@ -72,7 +72,7 @@ DedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv
 NumberField.InfiniteAdeleRing.baseChangeEquiv
 NumberField.AdeleRing.baseChangeEquiv
 Rat.AdeleRing.zero_discrete
-Rat.AdeleRing.discrete
+NumberField.AdeleRing.zero_discrete
 NumberField.AdeleRing.discrete
 Rat.AdeleRing.cocompact
 NumberField.AdeleRing.cocompact

@@ -399,15 +399,15 @@ quotient topology) is compact. Here is a proposed proof.
 \end{proof}
 
 \begin{theorem}
-  \lean{Rat.AdeleRing.discrete}
-  \label{Rat.AdeleRing.discrete}
+  \lean{NumberField.AdeleRing.zero_discrete}
+  \label{NumberField.AdeleRing.zero_discrete}
   \leanok
-  The rationals $\Q$ are a discrete subgroup of $\A_{\Q}$.
+  There's an open subset of $\A_{K}$ whose intersection with $K$ is $\{0\}$.
 \end{theorem}
 \begin{proof}
-  If $q\in\Q$ and $U$ is the open subset in the previous lemma, then
-  it's easily checked that $\Q\cap U=\{0\}$ implies $\Q\cap (U+q)=\{q\}$,
-  and $U+q$ is open.
+  By a previous result, we have $\A_K=K\otimes_{\Q}\A_{\Q}$.
+  Choose a basis of $K/\Q$; then $K$ can be identified with $\Q^n\subseteq(\A_{\Q})^n$
+  and the result follows from the previous theorem.
 \end{proof}
 
 \begin{theorem}
@@ -417,9 +417,9 @@ quotient topology) is compact. Here is a proposed proof.
   The additive subgroup $K$ of $\A_K$ is discrete.
 \end{theorem}
 \begin{proof}
-  By a previous result, we have $\A_K=K\otimes_{\Q}\A_{\Q}$.
-  Choose a basis of $K/\Q$; then $K$ can be identified with $\Q^n\subseteq(\A_{\Q})^n$
-  and the result follows from the previous theorem.
+  If $x\in K$ and $U$ is the open subset in the previous lemma, then
+  it's easily checked that $K\cap U=\{0\}$ implies $K\cap (U+x)=\{x\}$,
+  and $U+x$ is open.
 \end{proof}
 
 For compactness we follow the same approach.
