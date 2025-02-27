@@ -9,6 +9,7 @@ on:
       - '**/blueprint.yml'
       - 'blueprint/**'
       - 'docs/**'
+      - 'scripts/**'
       - 'lean-toolchain'
       - 'lakefile.toml'
       - 'lake-manifest.json'
@@ -20,6 +21,7 @@ on:
       - '**/blueprint.yml'
       - 'blueprint/**'
       - 'docs/**'
+      - 'scripts/**'
       - 'lean-toolchain'
       - 'lakefile.toml'
       - 'lake-manifest.json'
@@ -74,7 +76,7 @@ jobs:
       - name: Cache Mathlib docs
         uses: actions/cache@v4
         with:
-          path: docs/docs
+          path: docbuild/.lake/build/doc
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             MathlibDoc-
@@ -112,8 +114,7 @@ jobs:
             cp -r blueprint/web docs/blueprint
 
       - name: Check declarations mentioned in the blueprint exist in Lean code
-        run: |
-            ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+        run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Build project API documentation
         run: scripts/build_docs.sh
@@ -129,6 +130,8 @@ jobs:
       - name: Build website using Jekyll
         if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
         working-directory: docs
+        env:
+            JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: JEKYLL_ENV=production bundle exec jekyll build  # Note this will also copy the blueprint and API doc into docs/_site
 
       - name: "Upload website (API documentation, blueprint and any home page)"
