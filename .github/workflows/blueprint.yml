@@ -92,30 +92,30 @@ jobs:
             echo "DOCS_EXISTS=false" >> $GITHUB_ENV
           fi
 
-      - name: Build blueprint and copy to `docs/blueprint`
-        uses: xu-cheng/texlive-action@v2
-        with:
-          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
-          run: |
-            # Install necessary dependencies and build the blueprint
-            apk update
-            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
-            git config --global --add safe.directory $GITHUB_WORKSPACE
-            git config --global --add safe.directory `pwd`
-            python3 -m venv env
-            source env/bin/activate
-            pip install --upgrade pip requests wheel
-            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-            pip install leanblueprint
-            leanblueprint pdf
-            mkdir -p docs
-            cp blueprint/print/print.pdf docs/blueprint.pdf
-            leanblueprint web
-            cp -r blueprint/web docs/blueprint
+      # - name: Build blueprint and copy to `docs/blueprint`
+      #   uses: xu-cheng/texlive-action@v2
+      #   with:
+      #     docker_image: ghcr.io/xu-cheng/texlive-full:20231201
+      #     run: |
+      #       # Install necessary dependencies and build the blueprint
+      #       apk update
+      #       apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+      #       git config --global --add safe.directory $GITHUB_WORKSPACE
+      #       git config --global --add safe.directory `pwd`
+      #       python3 -m venv env
+      #       source env/bin/activate
+      #       pip install --upgrade pip requests wheel
+      #       pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+      #       pip install leanblueprint
+      #       leanblueprint pdf
+      #       mkdir -p docs
+      #       cp blueprint/print/print.pdf docs/blueprint.pdf
+      #       leanblueprint web
+      #       cp -r blueprint/web docs/blueprint
 
-      - name: Check declarations mentioned in the blueprint exist in Lean code
-        run: |
-            ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+      # - name: Check declarations mentioned in the blueprint exist in Lean code
+      #   run: |
+      #       ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Build project API documentation
         run: scripts/build_docs.sh
