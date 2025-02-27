@@ -34,9 +34,11 @@ mkdir -p docs/docs
 
 # Initialise docbuild as a Lean project
 cd docbuild
-MATHLIB_NO_CACHE_ON_UPDATE=1 # Disable an error message due to a non-blocking bug. See Zulip
-~/.elan/bin/lake update FLT
 
+# Disable an error message due to a non-blocking bug. See Zulip
+MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
+
+# Move the docs cache into docbuild
 mv docs/docs docbuild/.lake/build/doc
 
 # Build the docs
