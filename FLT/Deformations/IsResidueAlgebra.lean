@@ -61,7 +61,6 @@ lemma _Ideal.Quotient.isLocalHom_mk {A : Type*} [CommRing A] [IsLocalRing A]
         have hIA : I ≤ IsLocalRing.maximalIdeal A := IsLocalRing.le_maximalIdeal this
         have : -i ∈ I := by exact Submodule.neg_mem I h_iI
         have : -i ∈ IsLocalRing.maximalIdeal A := by exact hIA this
-        have : ¬ IsUnit (-i) := this
         have : IsUnit (1 - (-i)) := IsLocalRing.isUnit_one_sub_self_of_mem_nonunits (-i) this
         simp at this
         exact this
