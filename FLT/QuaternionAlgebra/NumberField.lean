@@ -138,6 +138,7 @@ theorem Rigidification.continuous_toFun (r : Rigidification F D) :
 
 omit [IsQuaternionAlgebra F D] in
 theorem Rigidification.continuous_invFun (r : Rigidification F D) :
-    Continuous r.symm :=
-  sorry
-  -- IsModuleTopology.continuous_of_linearMap r.symm.toLinearMap
+    Continuous r.symm := by
+  haveI : ContinuousAdd (FiniteAdeleRing (𝓞 F) F ⊗[F] D) :=
+    IsModuleTopology.toContinuousAdd (FiniteAdeleRing (𝓞 F) F) ((FiniteAdeleRing (𝓞 F) F) ⊗[F] D)
+  exact IsModuleTopology.continuous_of_linearMap r.symm.toLinearMap
