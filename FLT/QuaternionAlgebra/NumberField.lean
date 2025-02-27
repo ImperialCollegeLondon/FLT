@@ -56,7 +56,7 @@ lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
   simp [-iff_false, localFullLevel, RingHom.mapMatrix, Units.map, Matrix.map,
     ValuationSubring.subtype, Subring.subtype, Matrix.GeneralLinearGroup.ext_iff] at hx
   obtain ⟨x', hx'⟩ := hx
-  simp only [← hx', ← mem_adicCompletionIntegers, SetLike.coe_mem]
+  simp only [← hx', ← HeightOneSpectrum.mem_adicCompletionIntegers, SetLike.coe_mem]
 
 open Valued
 
@@ -71,7 +71,7 @@ lemma norm_sub_le_max (v : HeightOneSpectrum (𝓞 F)) (x y : v.adicCompletion F
 
 lemma GL2.v_det_eq_one (v : HeightOneSpectrum (𝓞 F)) (x : GL (Fin 2) (v.adicCompletion F))
     (hx : x ∈ localFullLevel v) :
-    Valued.v (Matrix.det (x : (Matrix (Fin 2) (Fin 2) (adicCompletion F v)))) = 1 := by
+    Valued.v (Matrix.det (x : (Matrix (Fin 2) (Fin 2) (HeightOneSpectrum.adicCompletion F v)))) = 1 := by
   obtain ⟨x', hx⟩ := Matrix.isUnits_det_units x
   rw [← hx]
   rw [← Valuation.mem_unitGroup_iff]
