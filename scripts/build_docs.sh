@@ -40,6 +40,7 @@ cd docbuild
 
 # Disable an error message due to a non-blocking bug. See Zulip
 MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
+~/.elan/bin/lake exe cache get
 
 # Build the docs
 ~/.elan/bin/lake build FLT:docs
