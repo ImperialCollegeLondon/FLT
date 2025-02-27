@@ -38,8 +38,10 @@ cd docbuild
 # Disable an error message due to a non-blocking bug. See Zulip
 MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
 
-# Move the docs cache into docbuild
-mv docs/docs docbuild/.lake/build/doc
+# Move the docs cache into docbuild if it is not empty
+if [ "$(ls -A docs/docs)" ]; then
+  mv docs/docs docbuild/.lake/build/doc
+fi
 
 # Build the docs
 ~/.elan/bin/lake build FLT:docs
