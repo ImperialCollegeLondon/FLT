@@ -39,35 +39,35 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 
 def 𝓴𝓞_topology : TopologicalSpace (𝓴 𝓞) := ⊥
 
-def 𝓴𝓞_discrete : @DiscreteTopology (𝓴 𝓞) 𝓴𝓞_topology := by
+def 𝓴𝓞_discrete : @DiscreteTopology (𝓴 𝓞) 𝓴𝓞_topology :=
   letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
-  exact {
+  {
     eq_bot := rfl
   }
 
-def 𝓴𝓞_isTopologicalRing : @IsTopologicalRing (𝓴 𝓞) 𝓴𝓞_topology _ := by
+def 𝓴𝓞_isTopologicalRing : @IsTopologicalRing (𝓴 𝓞) 𝓴𝓞_topology _ :=
   letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
   letI := 𝓴𝓞_discrete (𝓞 := 𝓞)
-  exact DiscreteTopology.topologicalRing
+  DiscreteTopology.topologicalRing
 
 variable {V} in
 def V_topology : TopologicalSpace V := ⊥
 
 variable {V} in
-def V_discrete : @DiscreteTopology V V_topology := by
+def V_discrete : @DiscreteTopology V V_topology :=
   letI : TopologicalSpace V := V_topology
-  exact {
+  {
     eq_bot := rfl
   }
 
 variable {V} in
-def V_isTopologicalModule : @IsTopologicalModule (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_isTopologicalRing V _ _ V_topology := by
+def V_isTopologicalModule : @IsTopologicalModule (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_isTopologicalRing V _ _ V_topology :=
   letI : TopologicalSpace (𝓴 𝓞) := 𝓴𝓞_topology
   letI := 𝓴𝓞_isTopologicalRing (𝓞 := 𝓞)
   letI := 𝓴𝓞_discrete (𝓞 := 𝓞)
   letI := V_topology (V := V)
   letI := V_discrete (V := V)
-  exact DiscreteTopology.isTopologicalModule
+  DiscreteTopology.isTopologicalModule
 
 variable (ρbar : @ContinuousRepresentation (𝓴 𝓞) _ 𝓴𝓞_topology 𝓴𝓞_isTopologicalRing
   G _ _ _ V _ _ V_topology V_isTopologicalModule)
