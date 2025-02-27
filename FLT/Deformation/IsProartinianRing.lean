@@ -76,25 +76,38 @@ namespace IsProartinianRing
 
 instance [IsProartinianRing A] : TopologicalSpace A := induced (diagonalMap A) (by infer_instance)
 
-variable [IsProartinianRing A]
-
 variable (A) in
-instance instIsInducing : IsInducing (diagonalMap A) where
+instance instIsInducing [IsProartinianRing A] : IsInducing (diagonalMap A) where
   eq_induced := rfl
 
-instance : IsTopologicalRing A where
+instance [IsProartinianRing A] : IsTopologicalRing A where
   continuous_add := (IsInducing.continuousAdd (diagonalMap A) (instIsInducing A)).continuous_add
   continuous_mul := (IsInducing.continuousMul (diagonalMap A) (instIsInducing A)).continuous_mul
   continuous_neg := (IsInducing.continuousNeg (f := diagonalMap A) (instIsInducing A) (by simp)).continuous_neg
 
-instance [IsProartinianRing A] (I : Ideal A) : IsProartinianRing (A ⧸ I) where
+def map_quot [IsProartinianRing A] (I : Ideal A) (isOpen : IsOpen I.carrier) :
+    proartinianCompletion A →+* proartinianCompletion (A ⧸ I) :=
+  sorry
+
+lemma map_quot_surjective [IsProartinianRing A] (I : Ideal A) (isOpen : IsOpen I.carrier) :
+    Function.Surjective (map_quot I isOpen) := by
+  sorry
+
+instance [IsProartinianRing A] (I : Ideal A) [Nontrivial (A ⧸ I)] (isOpen : IsOpen I.carrier) :
+    IsProartinianRing (A ⧸ I) where
   pro_artin := by
-    simp [Function.Bijective, Function.Injective, Function.Surjective]
-    split_ands
-    . intro a b h
+    refine ⟨?_, ?_⟩
+    . rw [RingHom.injective_iff_ker_eq_bot, RingHom.ker_eq_bot_iff_eq_zero]
+      intro x h
+      simp [diagonalMap, Ring.InverseLimit.map_of_maps', Ring.InverseLimit.map_of_maps,
+        proartinianCompletion, Ring.InverseLimit] at h
+      have (a : ArtinianQuotientIdeal (A ⧸ I)) : Ideal.Quotient.mk a x = 0 := by
+        sorry
       sorry
-    . intro b
-      sorry
+    . have : (diagonalMap (A ⧸ I)) ∘ (algebraMap A (A ⧸ I)) = (map_quot I isOpen) ∘ (diagonalMap A) := sorry
+      refine Function.Surjective.of_comp (g := algebraMap A (A ⧸ I)) ?_
+      rw [this]
+      exact Function.Surjective.comp (map_quot_surjective I isOpen) pro_artin.surjective
 
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
