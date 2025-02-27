@@ -44,6 +44,7 @@ MATHLIB_NO_CACHE_ON_UPDATE=1 # Disable an error message due to a non-blocking bu
 
 # Move them out of docbuild
 cd ../
+rm -rf docs/docs
 mv docbuild/.lake/build/doc docs/docs
 
 # Clean up after ourselves
