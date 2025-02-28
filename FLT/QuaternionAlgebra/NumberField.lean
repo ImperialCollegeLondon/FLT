@@ -110,7 +110,7 @@ open Valued
 
 lemma norm_add_le_max (v : HeightOneSpectrum (𝓞 F)) (x y : v.adicCompletion F) :
     Valued.v (x + y) ≤ max (Valued.v x) (Valued.v y) := by
-  simp only [HeightOneSpectrum.adicCompletion, le_sup_iff, Valuation.map_add']
+  simp only [HeightOneSpectrum.adicCompletion, Valuation.map_add]
 
 lemma norm_sub_le_max (v : HeightOneSpectrum (𝓞 F)) (x y : v.adicCompletion F) :
     Valued.v (x - y) ≤ max (Valued.v x) (Valued.v y) := by
