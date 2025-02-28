@@ -1,5 +1,8 @@
 import Mathlib
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
+import FLT.Mathlib.RingTheory.Valuation.Basic
+import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
+import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
@@ -51,31 +54,6 @@ theorem GL2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (GL2.localFullLevel v).carrier :=
   sorry
 
-omit [NumberField F] in
-@[simp]
-lemma _root_.ValuationSubring.subtype_apply {R : ValuationSubring F} (x : R) :
-    R.subtype x = x :=
-  rfl
-
-omit [NumberField F] in
-lemma _root_.ValuationSubring.subtype_injective (R : ValuationSubring F) :
-    Function.Injective R.subtype :=
-  (Set.injective_codRestrict Subtype.property).mp (fun ⦃_ _⦄ a ↦ a)
-
-omit [NumberField F] in
-@[simp]
-lemma _root_.ValuationSubring.subtype_inj {R : ValuationSubring F} {x y : R} :
-    R.subtype x = R.subtype y ↔ x = y :=
-  R.subtype_injective.eq_iff
-
-omit [NumberField F] in
-@[simp]
-lemma Valued.isUnit_valuationSubring_iff {Γ₀ : Type*} [LinearOrderedCommGroupWithZero Γ₀]
-    [Valued F Γ₀] {x : Valued.v.valuationSubring} :
-    IsUnit x ↔ Valued.v (x.val : F) = 1 := by
-  convert Valuation.Integers.isUnit_iff_valuation_eq_one _
-  exact Valuation.integer.integers _
-
 lemma GL2.mem_localFullLevel {v : HeightOneSpectrum (𝓞 F)} {x : GL (Fin 2) (v.adicCompletion F)}
     (hx : x ∈ localFullLevel v) :
     ∃ x' : GL (Fin 2) (v.adicCompletionIntegers F),
@@ -108,88 +86,54 @@ lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
 
 open Valued
 
-lemma norm_add_le_max (v : HeightOneSpectrum (𝓞 F)) (x y : v.adicCompletion F) :
-    Valued.v (x + y) ≤ max (Valued.v x) (Valued.v y) := by
-  simp only [HeightOneSpectrum.adicCompletion, Valuation.map_add]
-
-lemma norm_sub_le_max (v : HeightOneSpectrum (𝓞 F)) (x y : v.adicCompletion F) :
-    Valued.v (x - y) ≤ max (Valued.v x) (Valued.v y) := by
-  rw [sub_eq_add_neg, ← Valuation.map_neg _ y]
-  exact norm_add_le_max v x (-y)
-
-lemma GL2.aux (v : HeightOneSpectrum (𝓞 F)) (x : GL (Fin 2) (v.adicCompletion F))
-    (hx : x ∈ localFullLevel v) (hx' : Valued.v (x.val 1 0) < 1) :
-    Valued.v (x.val 0 0) = 1 ∧ Valued.v (x.val 1 1) = 1 := by
-  have h0 := GL2.v_det_val_mem_localFullLevel_eq_one hx
-  rw [Matrix.det_fin_two] at h0
-  have h1 := norm_sub_le_max v (x.val 0 0 * x.val 1 1) (x.val 0 1 * x.val 1 0)
-  rw [h0] at h1
-  rw [@le_max_iff] at h1
-  cases h1 with
-  | inl h1 =>
-    rw [@Valuation.map_mul] at h1
-    refine ⟨eq_one_of_one_le_mul_left ?_ ?_ h1, eq_one_of_one_le_mul_right ?_ ?_ h1⟩ <;>
-      apply v_le_one_of_mem_localFullLevel _ hx
-  | inr h1 =>
-    rw [@Valuation.map_mul, mul_comm] at h1
-    have := eq_one_of_one_le_mul_left hx'.le (v_le_one_of_mem_localFullLevel _ hx _ _) h1
-    rw [this] at hx'
-    exact hx'.false.elim
-
 noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) where
-      carrier := {x ∈ localFullLevel v |
-        Valued.v (x.val 0 0 - x.val 1 1) < 1 ∧ Valued.v (x.val 1 0) < 1}
-      mul_mem' {a b} ha hb := by
-        simp_all only [Set.mem_setOf_eq, Units.val_mul]
-        refine ⟨Subgroup.mul_mem _ ha.1 hb.1, ?_, ?_⟩
-        · rw [@Matrix.mul_apply, Matrix.mul_apply]
-          simp
-          suffices Valued.v (a.val 0 1 * b.val 1 0) < 1 ∧
-                   Valued.v (a.val 1 0 * b.val 0 1) < 1 ∧
-                   Valued.v (a.val 0 0 * b.val 0 0 - a.val 1 1 * b.val 1 1) < 1 by
-            calc
-                Valued.v (a.val 0 0 * b.val 0 0 + a.val 0 1 * b.val 1 0 - (a.val 1 0 * b.val 0 1 + a.val 1 1 * b.val 1 1))
-              _ = Valued.v ((a.val 0 0 * b.val 0 0 - a.val 1 1 * b.val 1 1) + (a.val 0 1 * b.val 1 0 - a.val 1 0 * b.val 0 1)) := by ring_nf
-              _ ≤ max (Valued.v (a.val 0 0 * b.val 0 0 - a.val 1 1 * b.val 1 1)) (Valued.v (a.val 0 1 * b.val 1 0 - a.val 1 0 * b.val 0 1)) := by apply norm_add_le_max
-              _ ≤ max (Valued.v (a.val 0 0 * b.val 0 0 - a.val 1 1 * b.val 1 1)) (max (Valued.v (a.val 0 1 * b.val 1 0)) (Valued.v (a.val 1 0 * b.val 0 1))) := by
-                  apply max_le_max_left
-                  apply norm_sub_le_max
-              _ < 1 := max_lt this.2.2 (max_lt this.1 this.2.1)
-          refine ⟨?_, ?_, ?_⟩
-          · rw [map_mul, mul_comm]
-            apply mul_lt_one_of_lt_of_le hb.2.2
-            apply v_le_one_of_mem_localFullLevel _ ha.1
-          · rw [map_mul]
-            apply mul_lt_one_of_lt_of_le ha.2.2
-            apply v_le_one_of_mem_localFullLevel _ hb.1
-          · convert_to Valued.v (a.val 0 0 * (b.val 0 0 - b.val 1 1) + (a.val 0 0 - a.val 1 1) * b.val 1 1) < 1
-            · ring_nf
-            apply (norm_add_le_max _ _ _).trans_lt (max_lt ?_ ?_)
-            · rw [map_mul, mul_comm]
-              apply mul_lt_one_of_lt_of_le hb.2.1
-              apply v_le_one_of_mem_localFullLevel _ ha.1
-            · rw [map_mul]
-              apply mul_lt_one_of_lt_of_le ha.2.1
-              apply v_le_one_of_mem_localFullLevel _ hb.1
-        · simp [Matrix.mul_apply]
-          apply (norm_add_le_max _ _ _).trans_lt (max_lt ?_ ?_)
-          · rw [map_mul]
-            apply mul_lt_one_of_lt_of_le ha.2.2
-            apply v_le_one_of_mem_localFullLevel _ hb.1
-          · rw [map_mul, mul_comm]
-            apply mul_lt_one_of_lt_of_le hb.2.2
-            apply v_le_one_of_mem_localFullLevel _ ha.1
-      one_mem' := by simp [one_mem]
-      inv_mem' {a} ha := by
-        simp_all only [Set.mem_setOf_eq, inv_mem_iff, Matrix.coe_units_inv, true_and]
-        simp_all only [Matrix.inv_def, Ring.inverse_eq_inv', Matrix.adjugate_fin_two,
-          Matrix.smul_apply, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
-          Matrix.cons_val_fin_one, smul_eq_mul, Matrix.cons_val_one, Matrix.head_cons,
-          Matrix.head_fin_const, ← mul_sub, map_mul, map_inv₀, mul_neg, Valuation.map_neg]
-        rw [@Valuation.map_sub_swap]
-        rw [v_det_val_mem_localFullLevel_eq_one ha.1]
-        simp [ha.2]
+  carrier := {x ∈ localFullLevel v |
+    Valued.v (x.val 0 0 - x.val 1 1) < 1 ∧ Valued.v (x.val 1 0) < 1}
+  mul_mem' {a b} ha hb := by
+    simp_all only [Set.mem_setOf_eq, Units.val_mul]
+    refine ⟨Subgroup.mul_mem _ ha.1 hb.1, ?_, ?_⟩
+    · simp only [Matrix.mul_apply, Fin.isValue, Fin.sum_univ_two]
+      convert_to Valued.v ((a.val 0 0 * b.val 0 0 - a.val 1 1 * b.val 1 1) + (a.val 0 1 * b.val 1 0 - a.val 1 0 * b.val 0 1)) < 1
+      · ring_nf
+      suffices Valued.v (a.val 0 1 * b.val 1 0) < 1 ∧
+                Valued.v (a.val 1 0 * b.val 0 1) < 1 ∧
+                Valued.v (a.val 0 0 * b.val 0 0 - a.val 1 1 * b.val 1 1) < 1 by
+        apply Valuation.map_add_lt _ this.2.2 ?_
+        apply Valuation.map_sub_lt _ this.1 this.2.1
+      refine ⟨?_, ?_, ?_⟩
+      · rw [map_mul, mul_comm]
+        apply mul_lt_one_of_lt_of_le hb.2.2
+        apply v_le_one_of_mem_localFullLevel _ ha.1
+      · rw [map_mul]
+        apply mul_lt_one_of_lt_of_le ha.2.2
+        apply v_le_one_of_mem_localFullLevel _ hb.1
+      · convert_to Valued.v (a.val 0 0 * (b.val 0 0 - b.val 1 1) + (a.val 0 0 - a.val 1 1) * b.val 1 1) < 1
+        · ring_nf
+        apply Valuation.map_add_lt _
+        · rw [map_mul, mul_comm]
+          apply mul_lt_one_of_lt_of_le hb.2.1
+          apply v_le_one_of_mem_localFullLevel _ ha.1
+        · rw [map_mul]
+          apply mul_lt_one_of_lt_of_le ha.2.1
+          apply v_le_one_of_mem_localFullLevel _ hb.1
+    · simp only [Fin.isValue, Matrix.mul_apply, Fin.sum_univ_two]
+      apply Valuation.map_add_lt _
+      · rw [map_mul]
+        apply mul_lt_one_of_lt_of_le ha.2.2
+        apply v_le_one_of_mem_localFullLevel _ hb.1
+      · rw [map_mul, mul_comm]
+        apply mul_lt_one_of_lt_of_le hb.2.2
+        apply v_le_one_of_mem_localFullLevel _ ha.1
+  one_mem' := by simp [one_mem]
+  inv_mem' {a} ha := by
+    simp_all only [Set.mem_setOf_eq, inv_mem_iff, Matrix.coe_units_inv, true_and,
+      Matrix.inv_def, Ring.inverse_eq_inv', Matrix.adjugate_fin_two,
+      Matrix.smul_apply, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
+      Matrix.cons_val_fin_one, smul_eq_mul, Matrix.cons_val_one, Matrix.head_cons,
+      Matrix.head_fin_const, ← mul_sub, map_mul, map_inv₀, mul_neg, Valuation.map_neg]
+    rw [Valuation.map_sub_swap, v_det_val_mem_localFullLevel_eq_one ha.1]
+    simp [ha.2]
 
 theorem GL2.localTameLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localTameLevel v).carrier :=
