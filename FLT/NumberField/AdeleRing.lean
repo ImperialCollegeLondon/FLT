@@ -28,110 +28,6 @@ instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleR
 
 end LocallyCompact
 
-section Discrete
-
-open DedekindDomain
-
-theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
-    IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
-  let integralAdeles := {f : FiniteAdeleRing (𝓞 ℚ) ℚ |
-    ∀ v , f v ∈ IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v}
-  use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ integralAdeles
-  refine ⟨?_, ?_⟩
-  · apply IsOpen.prod
-    . rw [Set.setOf_forall]
-      apply isOpen_iInter_of_finite
-      intro v
-      exact Metric.isOpen_ball.preimage (continuous_apply v)
-    let basis := FiniteAdeleRing.submodulesRingBasis (𝓞 ℚ) ℚ
-    let integralAdeles' := basis.toRing_subgroups_basis.openAddSubgroup 1
-    suffices h : integralAdeles = ↑integralAdeles' by
-      rw [h]
-      exact integralAdeles'.isOpen
-    ext x
-    simp only [← FiniteAdeleRing.exists_finiteIntegralAdele_iff, FiniteAdeleRing.ext_iff,
-      SetCoe.ext_iff, Set.mem_setOf_eq, RingSubgroupsBasis.openAddSubgroup, Submonoid.one_def,
-      map_one, SetLike.mem_coe, ← OpenAddSubgroup.mem_toAddSubgroup, Submodule.mem_toAddSubgroup,
-      Submodule.mem_span_singleton, Algebra.smul_def', mul_one, integralAdeles, integralAdeles']
-    apply exists_congr
-    intro a
-    exact eq_comm
-  · apply subset_antisymm
-    · intro x hx
-      rw [Set.mem_preimage] at hx
-      simp only [Set.mem_singleton_iff]
-      have : (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
-        (algebraMap ℚ (InfiniteAdeleRing ℚ) x, algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) x)
-      · rfl
-      rw [this] at hx
-      clear this
-      rw [Set.mem_prod] at hx
-      obtain ⟨h1, h2⟩ := hx
-      dsimp only at h1 h2
-      simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq,
-        InfiniteAdeleRing.algebraMap_apply, UniformSpace.Completion.norm_coe] at h1
-      simp only [integralAdeles, Set.mem_setOf_eq] at h2
-      specialize h1 Rat.infinitePlace
-      change ‖(x : ℂ)‖ < 1 at h1
-      simp at h1
-      have intx: ∃ (y:ℤ), y = x
-      · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
-            ℚ x <| fun v ↦ by
-          specialize h2 v
-          letI : UniformSpace ℚ := v.adicValued.toUniformSpace
-          rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
-          rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
-        use Rat.ringOfIntegersEquiv z
-        rw [← hz]
-        apply Rat.ringOfIntegersEquiv_eq_algebraMap
-      obtain ⟨y, rfl⟩ := intx
-      simp only [abs_lt] at h1
-      norm_cast at h1 ⊢
-      -- We need the next line because `norm_cast` is for some reason producing a `negSucc 0`.
-      -- I haven't been able to isolate this behaviour even in a standalone lemma.
-      -- We could also make `omega` more robust against accidental appearances of `negSucc`.
-      rw [Int.negSucc_eq] at h1
-      omega
-    · intro x
-      simp only [Set.mem_singleton_iff, Set.mem_preimage]
-      rintro rfl
-      simp only [map_zero]
-      change (0, 0) ∈ _
-      simp only [Prod.mk_zero_zero, Set.mem_prod, Prod.fst_zero, Prod.snd_zero]
-      constructor
-      · simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq]
-        intro v
-        have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0
-        · simp only [norm_eq_zero]
-          rfl
-        simp [this, zero_lt_one]
-      · simp only [integralAdeles, Set.mem_setOf_eq]
-        intro v
-        apply zero_mem
-
--- Maybe this discreteness isn't even stated in the best way?
--- I'm ambivalent about how it's stated
-open Pointwise in
-theorem Rat.AdeleRing.discrete : ∀ q : ℚ, ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
-    IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {q} := by
-  obtain ⟨V, hV, hV0⟩ := zero_discrete
-  intro q
-  set ι  := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)    with hι
-  set qₐ := ι q                           with hqₐ
-  set f  := Homeomorph.subLeft qₐ         with hf
-  use f ⁻¹' V, f.isOpen_preimage.mpr hV
-  have : f ∘ ι = ι ∘ Homeomorph.subLeft q := by ext; simp [hf, hqₐ]
-  rw [← Set.preimage_comp, this, Set.preimage_comp, hV0]
-  ext
-  simp only [Set.mem_preimage, Homeomorph.subLeft_apply, Set.mem_singleton_iff, sub_eq_zero, eq_comm]
-
-variable (K : Type*) [Field K] [NumberField K]
-
-theorem NumberField.AdeleRing.discrete : ∀ k : K, ∃ U : Set (AdeleRing (𝓞 K) K),
-    IsOpen U ∧ (algebraMap K (AdeleRing (𝓞 K) K)) ⁻¹' U = {k} := sorry -- issue #257
-
-end Discrete
-
 section BaseChange
 
 namespace NumberField.AdeleRing
@@ -256,6 +152,134 @@ noncomputable def piQuotientEquiv :
 end NumberField.AdeleRing
 
 end BaseChange
+
+section Discrete
+
+open DedekindDomain
+
+theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
+    IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
+  let integralAdeles := {f : FiniteAdeleRing (𝓞 ℚ) ℚ |
+    ∀ v , f v ∈ IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v}
+  use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ integralAdeles
+  refine ⟨?_, ?_⟩
+  · apply IsOpen.prod
+    . rw [Set.setOf_forall]
+      apply isOpen_iInter_of_finite
+      intro v
+      exact Metric.isOpen_ball.preimage (continuous_apply v)
+    let basis := FiniteAdeleRing.submodulesRingBasis (𝓞 ℚ) ℚ
+    let integralAdeles' := basis.toRing_subgroups_basis.openAddSubgroup 1
+    suffices h : integralAdeles = ↑integralAdeles' by
+      rw [h]
+      exact integralAdeles'.isOpen
+    ext x
+    simp only [← FiniteAdeleRing.exists_finiteIntegralAdele_iff, FiniteAdeleRing.ext_iff,
+      SetCoe.ext_iff, Set.mem_setOf_eq, RingSubgroupsBasis.openAddSubgroup, Submonoid.one_def,
+      map_one, SetLike.mem_coe, ← OpenAddSubgroup.mem_toAddSubgroup, Submodule.mem_toAddSubgroup,
+      Submodule.mem_span_singleton, Algebra.smul_def', mul_one, integralAdeles, integralAdeles']
+    apply exists_congr
+    intro a
+    exact eq_comm
+  · apply subset_antisymm
+    · intro x hx
+      rw [Set.mem_preimage] at hx
+      simp only [Set.mem_singleton_iff]
+      have : (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
+        (algebraMap ℚ (InfiniteAdeleRing ℚ) x, algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) x)
+      · rfl
+      rw [this] at hx
+      clear this
+      rw [Set.mem_prod] at hx
+      obtain ⟨h1, h2⟩ := hx
+      dsimp only at h1 h2
+      simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq,
+        InfiniteAdeleRing.algebraMap_apply, UniformSpace.Completion.norm_coe] at h1
+      simp only [integralAdeles, Set.mem_setOf_eq] at h2
+      specialize h1 Rat.infinitePlace
+      change ‖(x : ℂ)‖ < 1 at h1
+      simp at h1
+      have intx: ∃ (y:ℤ), y = x
+      · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
+            ℚ x <| fun v ↦ by
+          specialize h2 v
+          letI : UniformSpace ℚ := v.adicValued.toUniformSpace
+          rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
+          rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
+        use Rat.ringOfIntegersEquiv z
+        rw [← hz]
+        apply Rat.ringOfIntegersEquiv_eq_algebraMap
+      obtain ⟨y, rfl⟩ := intx
+      simp only [abs_lt] at h1
+      norm_cast at h1 ⊢
+      -- We need the next line because `norm_cast` is for some reason producing a `negSucc 0`.
+      -- I haven't been able to isolate this behaviour even in a standalone lemma.
+      -- We could also make `omega` more robust against accidental appearances of `negSucc`.
+      rw [Int.negSucc_eq] at h1
+      omega
+    · intro x
+      simp only [Set.mem_singleton_iff, Set.mem_preimage]
+      rintro rfl
+      simp only [map_zero]
+      change (0, 0) ∈ _
+      simp only [Prod.mk_zero_zero, Set.mem_prod, Prod.fst_zero, Prod.snd_zero]
+      constructor
+      · simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq]
+        intro v
+        have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0
+        · simp only [norm_eq_zero]
+          rfl
+        simp [this, zero_lt_one]
+      · simp only [integralAdeles, Set.mem_setOf_eq]
+        intro v
+        apply zero_mem
+
+variable (K : Type*) [Field K] [NumberField K]
+
+theorem NumberField.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 K) K),
+    IsOpen U ∧ (algebraMap K (AdeleRing (𝓞 K) K)) ⁻¹' U = {0} := by
+  obtain ⟨V, hV, hV0⟩ := Rat.AdeleRing.zero_discrete
+  use (piEquiv ℚ K) '' {f | ∀i, f i ∈ V }
+  constructor
+  . rw [← (piEquiv ℚ K).coe_toHomeomorph, Homeomorph.isOpen_image, Set.setOf_forall]
+    apply isOpen_iInter_of_finite
+    intro i
+    exact hV.preimage (continuous_apply i)
+  rw [Set.eq_singleton_iff_unique_mem]
+  constructor
+  . rw [Set.eq_singleton_iff_unique_mem, Set.mem_preimage, map_zero] at hV0
+    simp only [Set.mem_preimage, map_zero, Set.mem_image,
+      EmbeddingLike.map_eq_zero_iff, exists_eq_right, Pi.zero_apply]
+    exact fun _ => hV0.left
+  intro x ⟨y, hy, hyx⟩
+  apply (Module.Finite.equivPi ℚ K).injective
+  set f := Module.Finite.equivPi ℚ K x
+  let g := fun i => algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) (f i)
+  have hfg : ∀ i, (algebraMap _ _) (f i) = g i := fun i => rfl
+  have hg := piEquiv_apply_of_algebraMap hfg
+  simp only [LinearEquiv.symm_apply_apply, f, ← hyx, EquivLike.apply_eq_iff_eq] at hg
+  subst hg
+  ext i
+  rw [map_zero, Pi.zero_apply, ← Set.mem_singleton_iff, ← hV0, Set.mem_preimage]
+  exact hy i
+
+-- Maybe this discreteness isn't even stated in the best way?
+-- I'm ambivalent about how it's stated
+open Pointwise in
+theorem NumberField.AdeleRing.discrete : ∀ x : K, ∃ U : Set (AdeleRing (𝓞 K) K),
+    IsOpen U ∧ (algebraMap K (AdeleRing (𝓞 K) K)) ⁻¹' U = {x} := by
+  obtain ⟨V, hV, hV0⟩ := zero_discrete K
+  intro x
+  set ι  := algebraMap K (AdeleRing (𝓞 K) K)    with hι
+  set xₐ := ι x                           with hxₐ
+  set f  := Homeomorph.subLeft xₐ         with hf
+  use f ⁻¹' V, f.isOpen_preimage.mpr hV
+  have : f ∘ ι = ι ∘ Equiv.subLeft x := by ext; simp [hf, hxₐ]
+  rw [← Set.preimage_comp, this, Set.preimage_comp, hV0]
+  ext
+  simp only [Set.mem_preimage, Equiv.subLeft_apply, Set.mem_singleton_iff, sub_eq_zero, eq_comm]
+
+end Discrete
 
 section Compact
 
