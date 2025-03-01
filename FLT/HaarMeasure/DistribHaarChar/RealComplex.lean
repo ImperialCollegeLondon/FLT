@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Javier López-Contreras
 -/
 import Mathlib.Analysis.Complex.ReImTopology
+import Mathlib.LinearAlgebra.Determinant
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.RingTheory.Complex
 import Mathlib.RingTheory.Norm.Transitivity
 import FLT.HaarMeasure.DistribHaarChar.Basic
-import FLT.Mathlib.LinearAlgebra.Determinant
 
 /-!
 # The distributive Haar characters of `ℝ` and `ℂ`

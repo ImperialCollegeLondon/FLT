@@ -38,7 +38,6 @@ import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
-import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.MeasureTheory.Group.Action
