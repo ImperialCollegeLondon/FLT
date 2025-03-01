@@ -47,6 +47,8 @@ import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
+import FLT.Mathlib.RingTheory.Valuation.Basic
+import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
@@ -56,6 +58,7 @@ import FLT.Mathlib.Topology.Algebra.Module.Quotient
 import FLT.Mathlib.Topology.Algebra.Monoid
 import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Algebra.UniformRing
+import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
