@@ -45,7 +45,8 @@ consisting of elements which are in the integers $\mathcal{O}_{K,\mathfrak{p}}$ 
 $K_{\mathfrak{p}}$ for all but finitely many $\mathfrak{p}$. This is the definition given in
 mathlib. Mathlib also has the proof that they're a topological ring;
 furthermore the construction of the finite adeles in mathlib works for any
-Dedekind domain (this was pointed out to me by Maria Ines de Frutos Fernandez; the adeles
+Dedekind domain (this was pointed out to me by Mar\'ia In\'es
+de Frutos Fern\'andez; the adeles
 are an arithmetic object, but the finite adeles are an algebraic object).
 
 Similarly the infinite adeles of a number field~$K$
@@ -152,6 +153,7 @@ The next lemma explains how these valuations are related.
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
   \leanok
+  \discussion{326}
   Giving $L_w$ the $K_v$-module structure coming from the natural map $K_v\to L_w$,
   the $w$-adic topology on $L_w$ is the $K_v$-module topology.
 \end{theorem}
@@ -223,6 +225,7 @@ map $L\otimes_KK_v\to\prod_{w|v}L_w$.
   topology.
 \end{theorem}
 \begin{proof}
+  \leanok
   This is a finite product of $K_v$-modules each of which has the $K_v$-module topology
   by~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology},
   and the product topology is the module topology for a finite product of modules each of which
@@ -319,7 +322,7 @@ us because the adeles do not get the subspace topology.
   but finitely many $v$. Although I'm wondering whether it's easier to prove
   that the map $\A_{A,K}^\infty\to\A_{B,L}^\infty$ makes $\A_{B,L}^\infty$
   into an $\A_{A,K}^\infty$-module and the claim (also undoubtedly true, although
-  I am not sure of the best level of abstractionhere ) that the topology on
+  I am not sure of the best level of abstraction here) that the topology on
   $\A_{B,L}^\infty$ is the $\A_{A,K}^\infty$-module topology.
 \end{proof}
 
@@ -396,15 +399,15 @@ quotient topology) is compact. Here is a proposed proof.
 \end{proof}
 
 \begin{theorem}
-  \lean{Rat.AdeleRing.discrete}
-  \label{Rat.AdeleRing.discrete}
+  \lean{NumberField.AdeleRing.zero_discrete}
+  \label{NumberField.AdeleRing.zero_discrete}
   \leanok
-  The rationals $\Q$ are a discrete subgroup of $\A_{\Q}$.
+  There's an open subset of $\A_{K}$ whose intersection with $K$ is $\{0\}$.
 \end{theorem}
 \begin{proof}
-  If $q\in\Q$ and $U$ is the open subset in the previous lemma, then
-  it's easily checked that $\Q\cap U=\{0\}$ implies $\Q\cap (U+q)=\{q\}$,
-  and $U+q$ is open.
+  By a previous result, we have $\A_K=K\otimes_{\Q}\A_{\Q}$.
+  Choose a basis of $K/\Q$; then $K$ can be identified with $\Q^n\subseteq(\A_{\Q})^n$
+  and the result follows from the previous theorem.
 \end{proof}
 
 \begin{theorem}
@@ -414,9 +417,9 @@ quotient topology) is compact. Here is a proposed proof.
   The additive subgroup $K$ of $\A_K$ is discrete.
 \end{theorem}
 \begin{proof}
-  By a previous result, we have $\A_K=K\otimes_{\Q}\A_{\Q}$.
-  Choose a basis of $K/\Q$; then $K$ can be identified with $\Q^n\subseteq(\A_{\Q})^n$
-  and the result follows from the previous theorem.
+  If $x\in K$ and $U$ is the open subset in the previous lemma, then
+  it's easily checked that $K\cap U=\{0\}$ implies $K\cap (U+x)=\{x\}$,
+  and $U+x$ is open.
 \end{proof}
 
 For compactness we follow the same approach.

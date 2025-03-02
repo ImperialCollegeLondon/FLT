@@ -13,7 +13,7 @@
 
 # Ensure the script is in the outermost 'FLT' folder
 echo "Checking if you are in the correct directory..."
-if [ ! -f lakefile.lean ]; then
+if [ ! -f lakefile.toml ]; then
   echo "❌ Error: This doesn't appear to be the outermost 'FLT' directory.
         Please run this script from the correct folder."
   echo "Press any key to exit..."

@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Update project
-        uses: oliver-butterley/lean-update@v1-alpha
+        uses: Seasawher/lean-update@main
         with:
           on_update_succeeds: pr # Create a pull request if the update succeeds
           on_update_fails: issue # Create an issue if the update fails

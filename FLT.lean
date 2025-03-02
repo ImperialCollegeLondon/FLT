@@ -27,7 +27,7 @@ import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
-import FLT.Mathlib.Algebra.Group.Subgroup.Defs
+import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
@@ -37,6 +37,7 @@ import FLT.Mathlib.Data.Finset.Lattice.Fold
 import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
+import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Span.Defs
@@ -46,6 +47,8 @@ import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
+import FLT.Mathlib.RingTheory.Valuation.Basic
+import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
@@ -55,17 +58,14 @@ import FLT.Mathlib.Topology.Algebra.Module.Quotient
 import FLT.Mathlib.Topology.Algebra.Monoid
 import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Algebra.UniformRing
+import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Homeomorph
-import FLT.MathlibExperiments.Coalgebra.Monoid
-import FLT.MathlibExperiments.Coalgebra.Sweedler
-import FLT.MathlibExperiments.Coalgebra.TensorProduct
-import FLT.MathlibExperiments.HopfAlgebra.Basic
-import FLT.MathlibExperiments.IsCentralSimple
-import FLT.MathlibExperiments.IsFrobenius
+import FLT.Mathlib.Topology.Instances.Matrix
 import FLT.NumberField.AdeleRing
 import FLT.NumberField.Completion
 import FLT.NumberField.Embeddings
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.WeakApproximation
+import FLT.QuaternionAlgebra.NumberField
 import FLT.TateCurve.TateCurve

@@ -26,7 +26,7 @@ lemma integral_domSMul {α} [NormedAddCommGroup α] [NormedSpace ℝ α] (g : G�
     ∫ x, f x ∂g • μ = ∫ x, f ((DomMulAct.mk.symm g)⁻¹ • x) ∂μ :=
   integral_map_equiv (MeasurableEquiv.smul ((DomMulAct.mk.symm g : G)⁻¹)) f
 
-variable [TopologicalSpace A] [BorelSpace A] [TopologicalAddGroup A] [LocallyCompactSpace A]
+variable [TopologicalSpace A] [BorelSpace A] [IsTopologicalAddGroup A] [LocallyCompactSpace A]
   [ContinuousConstSMul G A] [μ.IsAddHaarMeasure] [ν.IsAddHaarMeasure]
 
 instance : SMulCommClass ℝ≥0 Gᵈᵐᵃ (Measure A) where

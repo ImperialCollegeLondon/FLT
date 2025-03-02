@@ -546,7 +546,7 @@ instance : Zero 𝓞 := ⟨zero⟩
 @[simp] lemma zero_im_oi : im_oi (0 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_zero : toQuaternion 0 = 0 := by
-  ext <;> simp [toQuaternion]
+  ext <;> (simp [toQuaternion]; aesop)
 
 @[simp]
 lemma toQuaternion_eq_zero_iff {z} : toQuaternion z = 0 ↔ z = 0 :=
@@ -568,7 +568,7 @@ instance : One 𝓞 := ⟨one⟩
 @[simp] lemma one_im_oi : im_oi (1 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_one : toQuaternion 1 = 1 := by
-  ext <;> simp [toQuaternion]
+  ext <;> (simp [toQuaternion]; aesop)
 
 /-! ## Neg (-) -/
 
@@ -650,7 +650,7 @@ lemma preserves_zsmul {G H : Type*} [Zero G] [Add G] [Neg G] [SMul ℕ G] [SubNe
     (neg : ∀ x, f (-x) = - f x)
     (z : ℤ) (g : G) :
     f (zsmulRec (· • ·) z g) = z • f g := by
-  induction z with
+  cases z with
   | ofNat n =>
     rw [zsmulRec, nsmul, Int.ofNat_eq_coe, natCast_zsmul]
   | negSucc n =>
