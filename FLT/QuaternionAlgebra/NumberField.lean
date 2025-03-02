@@ -146,6 +146,7 @@ theorem GL2.localTameLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
 end IsDedekindDomain
 
 -- should be in mathlib
+noncomputable
 def DedekindDomain.ProdAdicCompletions.toAdicCompletion
     (v : HeightOneSpectrum (𝓞 F)) :
     ProdAdicCompletions (𝓞 F) F →ₐ[F] v.adicCompletion F where
@@ -157,6 +158,7 @@ def DedekindDomain.ProdAdicCompletions.toAdicCompletion
   commutes' _ := rfl
 
 -- should be in mathlib
+noncomputable
 def DedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
     FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v :=
   (ProdAdicCompletions.toAdicCompletion v).comp
