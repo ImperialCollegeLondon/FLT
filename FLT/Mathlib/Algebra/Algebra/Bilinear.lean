@@ -25,3 +25,9 @@ theorem SemialgHom.baseChange_of_algebraMap_tmul_right [Algebra R S] (ψ : A →
     (a : A) :
     ψ.baseChange_of_algebraMap (1 ⊗ₜ[R] a) = ψ a := by
   simp [baseChange_of_algebraMap, SemialgHom.toLinearMap_eq_coe]
+
+@[simp]
+theorem SemialgHom.baseChange_of_algebraMap_tmul_left [Algebra R S] (ψ : A →ₛₐ[algebraMap R S] B)
+    (s : S) :
+    ψ.baseChange_of_algebraMap (s ⊗ₜ[R] 1) = algebraMap _ _ s := by
+  simp [baseChange_of_algebraMap, SemialgHom.toLinearMap_eq_coe, Algebra.ofId_apply]
