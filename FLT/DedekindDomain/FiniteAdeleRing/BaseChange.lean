@@ -24,15 +24,6 @@ is an isomorphism.
 
 -/
 
--- Some of the instances for adicCompletionIntegers take much longer to synthesize now
--- in particular the trace for SMul (v.adicCompletionIntegers K) (v.adicCompletion K)
--- contains ~1300 entries, while Module (v.adicCompletionIntegers K) (v.adicCompletion K)
--- contains ~100. These should be simple `Algebra.toSMul`'s -- possibly the new
--- type synonym is causing issues with this
--- Note that SMul (Valued.integer (v.adicCompletion K)) (v.adicCompletion K) seems
--- to have better performance, with ~400 traces (and about 40 traces for Module)
-set_option synthInstance.maxHeartbeats 0
-
 open scoped Multiplicative Valued
 
 -- The general set-up.
@@ -158,7 +149,7 @@ omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [Module.Finite A B] in
 lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
     (comap A w).valuation K x ^
-    (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) =
+      (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) =
     w.valuation L (algebraMap K L x) := by
   obtain ⟨x, y, hy, rfl⟩ := IsFractionRing.div_surjective (A := A) x
   simp [valuation, ← IsScalarTower.algebraMap_apply A K L, IsScalarTower.algebraMap_apply A B L,
@@ -285,17 +276,23 @@ noncomputable def adicCompletionComapPi (v : HeightOneSpectrum A) :
   v.adicCompletion K →ₛₐ[algebraMap K L] ∀ w : v.Extension B, w.1.adicCompletion L :=
   Pi.semialgHom _ _ fun i ↦ adicCompletionComap A K L B v i.1 i.2
 
-noncomputable def comap_pi_algebra (v : HeightOneSpectrum A) :
+noncomputable instance comap_pi_algebra (v : HeightOneSpectrum A) :
     Algebra (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) :=
   (adicCompletionComapPi A K L B v).toAlgebra
 
 lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
-    letI := comap_pi_algebra A K L B v
+    -- TODO: the `let _` in the statement below should not be required as it is an instance
+    -- see mathlib PR #22488 for potential fix to this.
+    -- Note that this one does not involve `adicCompletionIntegers` so the
+    -- issue may not be to do with subtype vs. type implementation of
+    -- `adicCompletionIntegers`.
+    let _ := comap_pi_algebra A K L B v |>.toSMul
     -- the claim that L_w has the module topology.
-    IsModuleTopology (v.adicCompletion K) (∀ w : v.Extension B, w.1.adicCompletion L)  := by
-  letI (w : v.Extension B) := comap_algebra A K L B w.2 |>.toModule
-  letI (w : v.Extension B) := adicCompletion_comap_isModuleTopology A K L B v w.1 w.2
-  letI := finite A K L B v
+    IsModuleTopology (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) := by
+  -- these are defs or lemmas so are required
+  let _ (w : v.Extension B) := comap_algebra A K L B w.2 |>.toModule
+  let _ (w : v.Extension B) := adicCompletion_comap_isModuleTopology A K L B v w.1 w.2
+  let _ := finite A K L B v
   exact IsModuleTopology.instPi
 
 open scoped TensorProduct -- ⊗ notation for tensor product
@@ -318,8 +315,7 @@ theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
   sorry -- issue FLT#231
 
 noncomputable def adicCompletionComapAlgEquiv (v : HeightOneSpectrum A) :
-  (L ⊗[K] (HeightOneSpectrum.adicCompletion K v)) ≃ₐ[L]
-    (∀ w : {w : HeightOneSpectrum B // w.comap A = v}, HeightOneSpectrum.adicCompletion L w.1) :=
+    L ⊗[K] v.adicCompletion K ≃ₐ[L] (∀ w : v.Extension B, w.1.adicCompletion L) :=
   AlgEquiv.ofBijective (tensorAdicCompletionComapAlgHom A K L B v) <|
     tensorAdicCompletionComapAlgHom_bijective A K L B v
 
@@ -342,6 +338,8 @@ noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A
 
 attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left IsScalarTower.right
 
+-- TODO : this maxHeartbeats should not be required, see mathlib PR #22488 for potential fix
+set_option synthInstance.maxHeartbeats 80000 in
 instance (R K : Type*) [CommRing R] [IsDedekindDomain R] [Field K]
     [Algebra R K] [IsFractionRing R K] (v : HeightOneSpectrum R) :
     IsScalarTower R (v.adicCompletionIntegers K) (v.adicCompletion K) :=
