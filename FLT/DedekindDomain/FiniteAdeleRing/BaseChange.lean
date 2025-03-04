@@ -190,7 +190,7 @@ lemma _root_.IsDedekindDomain.HeightOneSpectrum.adicValued.continuous_algebraMap
     rw [mul_comm]
     exact Int.mul_le_of_le_ediv (by positivity) le_rfl
 
-noncomputable def adicCompletionComap (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
+noncomputable def adicCompletionComapSemialgHom (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
     (hvw : w.comap A = v) :
     v.adicCompletion K →ₛₐ[σ v w] w.adicCompletion L :=
   UniformSpace.Completion.mapSemialgHom _ <|
@@ -209,9 +209,9 @@ noncomputable def adicCompletionComap (v : HeightOneSpectrum A) (w : HeightOneSp
 noncomputable
 def comap_algebra {v : HeightOneSpectrum A} {w : HeightOneSpectrum B} (h : w.comap A = v) :
     Algebra (v.adicCompletion K) (w.adicCompletion L) :=
-  (adicCompletionComap A K L B v w h).toAlgebra
+  (adicCompletionComapSemialgHom A K L B v w h).toAlgebra
 
-lemma adicCompletion_comap_isModuleTopology
+lemma adicCompletionComap_isModuleTopology
     (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
     -- temporarily make L_w a K_v-algebra
     letI := comap_algebra A K L B hvw
@@ -223,15 +223,15 @@ omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [Module.Finite A B] in
 lemma adicCompletionComap_coe
     (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) (x : K) :
-    adicCompletionComap A K L B v w hvw x = algebraMap K L x :=
-  (adicCompletionComap A K L B v w hvw).commutes x
+    adicCompletionComapSemialgHom A K L B v w hvw x = algebraMap K L x :=
+  (adicCompletionComapSemialgHom A K L B v w hvw).commutes x
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [Module.Finite A B] in
 open WithZeroTopology in
 lemma valued_adicCompletionComap
   (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) (x) :
-    Valued.v (adicCompletionComap A K L B v w hvw x) = Valued.v x ^
+    Valued.v (adicCompletionComapSemialgHom A K L B v w hvw x) = Valued.v x ^
       Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal := by
   revert x
   apply funext_iff.mp
@@ -272,13 +272,13 @@ def finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
     rwa [← @HeightOneSpectrum.ext_iff] at hxy
 
 /-- The canonical map `K_v → ∏_{w|v} L_w` extending K → L. -/
-noncomputable def adicCompletionComapPi (v : HeightOneSpectrum A) :
+noncomputable def adicCompletionComapSemialgHom' (v : HeightOneSpectrum A) :
   v.adicCompletion K →ₛₐ[algebraMap K L] ∀ w : v.Extension B, w.1.adicCompletion L :=
-  Pi.semialgHom _ _ fun i ↦ adicCompletionComap A K L B v i.1 i.2
+  Pi.semialgHom _ _ fun i ↦ adicCompletionComapSemialgHom A K L B v i.1 i.2
 
 noncomputable instance comap_pi_algebra (v : HeightOneSpectrum A) :
     Algebra (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) :=
-  (adicCompletionComapPi A K L B v).toAlgebra
+  (adicCompletionComapSemialgHom' A K L B v).toAlgebra
 
 lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
     -- TODO: the `let _` in the statement below should not be required as it is an instance
@@ -291,7 +291,7 @@ lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
     IsModuleTopology (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) := by
   -- these are defs or lemmas so are required
   let _ (w : v.Extension B) := comap_algebra A K L B w.2 |>.toModule
-  let _ (w : v.Extension B) := adicCompletion_comap_isModuleTopology A K L B v w.1 w.2
+  let _ (w : v.Extension B) := adicCompletionComap_isModuleTopology A K L B v w.1 w.2
   let _ := finite A K L B v
   exact IsModuleTopology.instPi
 
@@ -300,13 +300,13 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 /-- The canonical L-algebra map `L ⊗_K K_v → ∏_{w|v} L_w`. -/
 noncomputable def tensorAdicCompletionComapAlgHom (v : HeightOneSpectrum A) :
     L ⊗[K] adicCompletion K v →ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
-  SemialgHom.baseChange_of_algebraMap (adicCompletionComapPi A K L B v)
+  SemialgHom.baseChange_of_algebraMap (adicCompletionComapSemialgHom' A K L B v)
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [Module.Finite A B] in
 lemma tensorAdicCompletionComapAlgHom_tmul_apply (v : HeightOneSpectrum A) (x y i) :
   tensorAdicCompletionComapAlgHom A K L B v (x ⊗ₜ y) i =
-    x • adicCompletionComap A K L B v i.1 i.2 y := by
+    x • adicCompletionComapSemialgHom A K L B v i.1 i.2 y := by
   simp_rw [Algebra.smul_def]
   rfl
 
@@ -406,7 +406,7 @@ open IsDedekindDomain HeightOneSpectrum
 
 noncomputable def ProdAdicCompletions.baseChange :
     ProdAdicCompletions A K →ₛₐ[algebraMap K L] ProdAdicCompletions B L :=
-  Pi.semialgHomPi _ _ fun w => adicCompletionComap A K L B _ w rfl
+  Pi.semialgHomPi _ _ fun w => adicCompletionComapSemialgHom A K L B _ w rfl
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
@@ -475,7 +475,7 @@ noncomputable def FiniteAdeleRing.baseChange :
     rfl
   map_smul' k xv := by
     refine ext B L <| funext fun w ↦ ?_
-    exact (adicCompletionComap A K L B _ w rfl).map_smul' k (xv (comap A w))
+    exact (adicCompletionComapSemialgHom A K L B _ w rfl).map_smul' k (xv (comap A w))
 
 noncomputable instance : Algebra (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K) :=
   Algebra.TensorProduct.rightAlgebra
