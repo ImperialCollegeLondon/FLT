@@ -5,6 +5,8 @@ import Mathlib.RingTheory.Ideal.Quotient.Defs
 import Mathlib.Order.DirectedInverseSystem
 import Mathlib.Tactic.SuppressCompilation
 import Mathlib.RepresentationTheory.Basic
+import Mathlib.Topology.Defs.Basic
+import Mathlib.Topology.Algebra.Group.Basic
 
 /-!
 # Inverse limit of modules, abelian groups, rings.
@@ -13,17 +15,17 @@ See Atiyah-Macdonald PP.32-33, Matsumura PP.269-270
 
 ## Main definitions
 
-* `Module.InverseLimit obj f`
-* `Ring.InverseLimit obj f`
-* `Group.InverseLimit obj f`
-* `Representation.InverseLimit obj f`
+* `Module.InverseLimit obj func`
+* `Ring.InverseLimit obj func`
+* `Group.InverseLimit obj func`
+* `Representation.InverseLimit obj func`
 -/
 
 suppress_compilation
 
 open Submodule
 
-variable {ι : Type*} [Preorder ι]
+variable {ι : Type*} [instPreorder : Preorder ι]
 variable {obj : ι → Type*}
 
 namespace Module
@@ -35,8 +37,7 @@ variable (func : ∀ {i j : ι}, i ≤ j → obj j →ₗ[R] obj i)
 variable (obj) in
 /-- The inverse limit of an inverse system is the modules glued together along the maps. -/
 def InverseLimit : Type _ := ({
-  carrier := { a : Π i, obj i |
-    ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
+  carrier := {a : Π i : ι, obj i | ∀ {i j} (h : i ≤ j), func h (a j) = a i}
   add_mem' := by aesop
   zero_mem' := by aesop
   smul_mem' := by aesop
@@ -49,10 +50,10 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} : ∀ {i j} (h : i ≤ j), func h (a.val j) = a.val i := a.prop
 
 variable {func} in
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ {i j} (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
   ⟨a, h⟩
 
 instance instZero : Zero (InverseLimit obj func) where
@@ -96,21 +97,51 @@ instance unique [IsEmpty ι] : Unique (InverseLimit obj func) where
   uniq := by
     rintro ⟨x, _⟩
     exact SetCoe.ext ((Pi.uniqueOfIsEmpty obj).uniq x)
-variable (R ι)
 
 def toComponent (i) : InverseLimit obj func →ₗ[R] obj i where
   toFun z := (z : Π j : ι, obj j) i
   map_add' := by aesop
   map_smul' := by aesop
 
-variable {W : Type*} [AddCommGroup W] [Module R W]
+@[simp]
+lemma func_toComponent {i j : ι} {h : i ≤ j}:
+    .comp (func h) (toComponent func j) = toComponent func i := by
+  unfold toComponent
+  aesop
 
-def map_of_maps (maps : (i : ι) → W →ₗ[R] obj i)
-    (comm : ∀ i j (h : i ≤ j) w, (func h) ((maps j) w) = (maps i) w)
-    : W →ₗ[R] InverseLimit obj func where
-      toFun w := ⟨fun i ↦ maps i w, by aesop⟩
-      map_add' := by aesop
-      map_smul' := by aesop
+variable {X : Type*}
+
+def map_of_maps (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : X → InverseLimit obj func := fun x ↦ ⟨fun i ↦ maps i x, by aesop⟩
+
+@[simp]
+lemma map_of_maps_toComponent (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps func maps comm x) = maps i x := by
+  aesop
+
+variable [AddCommGroup X] [Module R X]
+
+def map_of_maps' (maps : (i : ι) → X →ₗ[R] obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : X →ₗ[R] InverseLimit obj func where
+      toFun := map_of_maps func (fun i ↦ (maps i : X → obj i)) comm
+      map_add' := by unfold map_of_maps; aesop
+      map_smul' := by unfold map_of_maps; aesop
+
+@[simp]
+lemma map_of_maps'_toComponent (maps : (i : ι) → X →ₗ[R] obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps' func maps comm x) = maps i x := by
+  aesop
+
+@[simp]
+lemma map_of_maps'_eq_map_of_maps (maps : (i : ι) → X →ₗ[R] obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : ∀ x, map_of_maps' func maps comm x = map_of_maps func (fun i ↦ (maps i).toFun) comm x := by
+  aesop
+
 
 end InverseLimit
 
@@ -124,8 +155,7 @@ variable (func : ∀ {i j}, i ≤ j → obj j →+* obj i)
 variable (obj) in
 /-- The inverse limit of an inverse system is the rings glued together along the maps. -/
 def InverseLimit : Type _ := ({
-  carrier := { a : Π i : ι, obj i |
-    ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
+  carrier := {a : Π i : ι, obj i | ∀ {i j} (h : i ≤ j), func h (a j) = a i}
   mul_mem' := by aesop
   one_mem' := by aesop
   add_mem' := by aesop
@@ -140,10 +170,10 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} : ∀ {i j} (h : i ≤ j), func h (a.val j) = a.val i := a.prop
 
 variable {func} in
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ {i j} (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
   ⟨a, h⟩
 
 @[simp]
@@ -193,16 +223,49 @@ def toComponent (i) : InverseLimit obj func →+* obj i where
   map_zero' := by aesop
   map_add' := by aesop
 
-variable {R' : Type*} [Ring R']
+@[simp]
+lemma func_toComponent {i j : ι} {h : i ≤ j}:
+    .comp (func h) (toComponent func j) = toComponent func i := by
+  unfold toComponent
+  aesop
 
-def map_of_maps (maps : (i : ι) → R' →+* obj i)
-    (comm : ∀ r' i j (h : i ≤ j), (func h) ((maps j) r') = (maps i) r')
-    : R' →+* InverseLimit obj func where
-      toFun r := ⟨fun i ↦ maps i r, by aesop⟩
-      map_one' := by aesop
-      map_mul' := by aesop
-      map_zero' := by aesop
-      map_add' := by aesop
+variable {X : Type*}
+
+def map_of_maps (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    (x : X): InverseLimit obj func := ⟨fun i ↦ maps i x, by
+      change _ ∈ {a | ∀ {i j} (h : i ≤ j), _}
+      aesop
+    ⟩
+
+@[simp]
+lemma map_of_maps_toComponent (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps func maps comm x) = maps i x := by
+  aesop
+
+variable [Ring X]
+
+def map_of_maps' (maps : (i : ι) → X →+* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : X →+* InverseLimit obj func where
+      toFun := map_of_maps func (fun i ↦ (maps i : X → obj i)) comm
+      map_one' := by unfold map_of_maps; aesop
+      map_mul' := by unfold map_of_maps; aesop
+      map_zero' := by unfold map_of_maps; aesop
+      map_add' := by unfold map_of_maps; aesop
+
+@[simp]
+lemma map_of_maps'_toComponent (maps : (i : ι) → X →+* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps' func maps comm x) = maps i x := by
+  aesop
+
+@[simp]
+lemma map_of_maps'_eq_map_of_maps (maps : (i : ι) → X →+* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : ∀ x, map_of_maps' func maps comm x = map_of_maps func (fun i ↦ (maps i).toFun) comm x := by
+  aesop
 
 end InverseLimit
 
@@ -217,8 +280,7 @@ variable (obj) in
 /-- The inverse limit of an inverse system is the rings glued together along the maps. -/
 @[to_additive]
 def InverseLimit : Type _ := ({
-  carrier := { a : Π i, obj i |
-    ∀ (i j : _) (h : i ≤ j), func h (a j) = a i }
+  carrier := {a : Π i : ι, obj i | ∀ {i j} (h : i ≤ j), func h (a j) = a i}
   mul_mem' := by aesop
   one_mem' := by aesop
   inv_mem' := by aesop
@@ -231,11 +293,11 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[to_additive, simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} : ∀ {i j} (h : i ≤ j), func h (a.val j) = a.val i := a.prop
 
 variable {func} in
 @[to_additive]
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ {i j} (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
   ⟨a, h⟩
 
 @[to_additive, simp]
@@ -277,15 +339,49 @@ def toComponent (i) : InverseLimit obj func →* obj i where
   map_one' := by aesop
   map_mul' := by aesop
 
-variable {G' : Type*} [Group G']
+@[to_additive, simp]
+lemma func_toComponent {i j : ι} {h : i ≤ j}:
+    .comp (func h) (toComponent func j) = toComponent func i := by
+  unfold toComponent
+  aesop
+
+variable {X : Type*}
 
 @[to_additive]
-def map_of_maps (maps : (i : ι) → G' →* obj i)
-    (comm : ∀ g' i j (h : i ≤ j), (func h) ((maps j) g') = (maps i) g')
-    : G' →* InverseLimit obj func where
-      toFun g := ⟨fun i ↦ maps i g, by aesop⟩
-      map_one' := by aesop
-      map_mul' := by aesop
+def map_of_maps (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    (x : X): InverseLimit obj func := ⟨fun i ↦ maps i x, by
+      change _ ∈ {a | ∀ {i j} (h : i ≤ j), _}
+      aesop
+    ⟩
+
+@[simp]
+lemma map_of_maps_toComponent (maps : (i : ι) → X → obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps func maps comm x) = maps i x := by
+  aesop
+
+variable [Group X]
+
+@[to_additive]
+def map_of_maps' (maps : (i : ι) → X →* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : X →* InverseLimit obj func where
+      toFun := map_of_maps func (fun i ↦ (maps i).toFun) _
+      map_one' := by unfold map_of_maps; aesop
+      map_mul' := by unfold map_of_maps; aesop
+
+@[simp]
+lemma map_of_maps'_toComponent (maps : (i : ι) → X →* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x) (x : X) (i : ι)
+    : toComponent func i (map_of_maps' func maps comm x) = maps i x := by
+  aesop
+
+@[simp]
+lemma map_of_maps'_eq_map_of_maps (maps : (i : ι) → X →* obj i)
+    (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
+    : ∀ x, map_of_maps' func maps comm x = map_of_maps func (fun i ↦ (maps i).toFun) comm x := by
+  aesop
 
 end InverseLimit
 
