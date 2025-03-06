@@ -1,6 +1,9 @@
 import FLT.Patching.Utils.AdicTopology
 import FLT.Patching.Ultraproduct
 import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
+import Mathlib.Topology.Compactness.Paracompact
+import Mathlib.Algebra.Module.Torsion
+import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
 
 local notation "Ann" => Module.annihilator
 
@@ -545,3 +548,4 @@ lemma PatchingModule.rank_patchingModule [Nontrivial R] :
     Module.rank R (PatchingModule R M F) = rank R M F := by
   simpa using LinearEquiv.lift_rank_eq
     (LinearEquiv.ofBijective _ (PatchingModule.mapOfIsPatchingSystem_bijective R M F)).symm
+#min_imports

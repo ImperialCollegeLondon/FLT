@@ -9,9 +9,6 @@ variable (F : Ultrafilter ι)
 variable [TopologicalSpace Λ] [IsTopologicalRing Λ] [∀ i, ContinuousSMul Λ (R i)]
 variable [Algebra.TopologicallyFG ℤ Λ]
 
--- TODO: remove bad instance
-attribute [-instance] Algebra.instEtaleOfIsStandardSmoothOfRelativeDimensionOfNatNat
-
 open IsLocalRing
 
 -- This is true when `R i` is topologically fg over `𝒪` by a bounded number of generators, and
