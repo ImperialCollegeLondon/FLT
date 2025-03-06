@@ -1,6 +1,8 @@
 import Mathlib.RingTheory.AdicCompletion.Basic
+import Mathlib.RingTheory.Ideal.Quotient.Index
 import Mathlib.Topology.Algebra.Algebra
 import Mathlib.Topology.Algebra.ClosedSubgroup
+import Mathlib.Topology.Algebra.Field
 import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
 import Mathlib.Topology.Connected.Separation
 import FLT.Patching.Utils.InverseLimit
