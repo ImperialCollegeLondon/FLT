@@ -34,8 +34,8 @@ instance : Algebra v.Completion wv.1.Completion :=
 
 instance : NormedSpace v.Completion wv.1.Completion where
   norm_smul_le x y := by
-    rw [Algebra.smul_def, norm_mul, SemialgHom.algebraMap_coe,
-      isometry_semiAlgHomOfComp (comp_of_comap_eq wv.2) |>.norm_map_of_map_zero (map_zero _)]
+    rw [Algebra.smul_def, norm_mul, SemialgHom.algebraMap_apply,
+      ← isometry_semiAlgHomOfComp (comp_of_comap_eq wv.2) |>.norm_map_of_map_zero (map_zero _)]
 
 noncomputable instance : FiniteDimensional v.Completion wv.1.Completion :=
   FiniteDimensional.of_locallyCompactSpace v.Completion

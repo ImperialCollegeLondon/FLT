@@ -35,12 +35,10 @@ theorem SemialgHom.baseChange_of_algebraMap_tmul_left [Semiring A] [Algebra R S]
   simp [baseChange_of_algebraMap, SemialgHom.toLinearMap_eq_coe, Algebra.ofId_apply]
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-/--
-Let `S` be an `R`-algebra and `ψ` a ring homomorphism from an `R`-algebra `A` to an
+/-- Let `S` be an `R`-algebra and `ψ` a ring homomorphism from an `R`-algebra `A` to an
 `S`-algebra `B` compatible with the algebra map `R → S`. If, in addition, `B` is
 an `R`-algebra and the scalar action of `R` on `B` factors through `S`, then
-`baseChangeRightOfAlgebraMap ψ` is the induced `A`-algebra map `S ⊗[R] A → B`.
--/
+`baseChangeRightOfAlgebraMap ψ` is the induced `A`-algebra map `S ⊗[R] A → B`.-/
 noncomputable
 def SemialgHom.baseChangeRightOfAlgebraMap [Algebra R S] [CommSemiring A] [Algebra R A]
     [CommSemiring B] [Algebra R B] [Algebra S B] [IsScalarTower R S B]
@@ -48,7 +46,8 @@ def SemialgHom.baseChangeRightOfAlgebraMap [Algebra R S] [CommSemiring A] [Algeb
     letI := ψ.toAlgebra
     S ⊗[R] A →ₐ[A] B :=
   letI := ψ.toAlgebra
-  AlgHom.changeScalars R A ψ.baseChange_of_algebraMap (by simp [RingHom.algebraMap_toAlgebra])
+  AlgHom.changeScalars R A ψ.baseChange_of_algebraMap
+    (by simp [RingHom.algebraMap_toAlgebra, SemialgHom.toLinearMap_eq_coe])
 
 @[simp]
 theorem SemialgHom.baseChangeRightOfAlgebraMap_apply [Algebra R S] [CommSemiring A] [Algebra R A]

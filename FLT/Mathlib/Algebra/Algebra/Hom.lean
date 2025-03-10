@@ -69,16 +69,7 @@ lemma SemialgHom.commutes (ψ : A →ₛₐ[φ] B) (r : R) :
 theorem SemialgHom.toLinearMap_eq_coe (f : A →ₛₐ[φ] B) : f.toLinearMap = f :=
   rfl
 
-def SemialgHom.toAlgebra {A B : Type*} [CommSemiring A] [CommSemiring B]
-    [Algebra R A] [Algebra S B] (f : A →ₛₐ[φ] B) : Algebra A B :=
-  RingHom.toAlgebra f
-
-theorem SemialgHom.algebraMap_toAlgebra {A B : Type*} [CommSemiring A] [CommSemiring B]
-    [Algebra R A] [Algebra S B] (f : A →ₛₐ[φ] B) :
-    letI := f.toAlgebra
-    algebraMap A B = f := rfl
-
-theorem SemialgHom.algebraMap_coe {A B : Type*} [CommSemiring A] [CommSemiring B]
+theorem SemialgHom.algebraMap_apply {A B : Type*} [CommSemiring A] [CommSemiring B]
     [Algebra R A] [Algebra S B] (f : A →ₛₐ[φ] B) (a : A) :
     letI := f.toAlgebra
     algebraMap A B a = f a := rfl
