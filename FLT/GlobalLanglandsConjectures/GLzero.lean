@@ -45,6 +45,8 @@ State them first.
 
 -/
 
+set_option synthInstance.maxHeartbeats 50000
+
 namespace AutomorphicForm
 
 def GLn.Weight.IsTrivial {n : ℕ} (ρ : Weight n) : Prop := sorry -- (ρ = trivial 1d rep)
@@ -70,7 +72,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
       exact {
       bounded_by := by
         simp
-        apply Exists.intro (Complex.abs c)
+        apply Exists.intro ‖c‖
         apply Exists.intro 0
         simp
     }

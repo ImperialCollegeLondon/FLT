@@ -291,7 +291,7 @@ noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
       map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul .. }
     map_one' := by aesop
     map_mul' := fun _ _ ↦ by
-      simp only [obj_carrier, MonCat.mul_of, _root_.map_mul, Units.val_mul, ← Matrix.mulVec_mulVec]
+      simp only [_root_.map_mul, Units.val_mul, ← mulVec_mulVec, End.mul_def]
       rfl }
 
 structure Weight (n : ℕ) where
