@@ -20,6 +20,11 @@ theorem uniformContinuous_algebraMap {v : AbsoluteValue K ℝ} {w : AbsoluteValu
     UniformContinuous (algebraMap (WithAbs v) (WithAbs w)) :=
   isUniformInducing_of_comp h |>.uniformContinuous
 
+instance : UniformContinuousConstSMul K (WithAbs w) :=
+  uniformContinuousConstSMul_of_continuousConstSMul _ _
+
+instance : IsScalarTower K L (WithAbs w) := inferInstanceAs (IsScalarTower K L L)
+
 end WithAbs
 
 namespace AbsoluteValue.Completion

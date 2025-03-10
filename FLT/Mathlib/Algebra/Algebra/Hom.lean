@@ -1,4 +1,5 @@
 import Mathlib.Algebra.Algebra.Hom
+import Mathlib.RingTheory.AlgebraTower
 
 section semialghom
 
@@ -83,3 +84,8 @@ theorem SemialgHom.algebraMap_coe {A B : Type*} [CommSemiring A] [CommSemiring B
     algebraMap A B a = f a := rfl
 
 end semialghom
+
+@[simp]
+theorem AlgHom.coe_toLinearMap {R A B : Type*} [CommSemiring R] [Semiring A] [Semiring B]
+    [Algebra R A] [Algebra R B] (f : A →ₐ[R] B) :
+    ⇑(f : A →ₗ[R] B) = ⇑f := rfl
