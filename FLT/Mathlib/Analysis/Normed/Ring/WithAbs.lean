@@ -1,4 +1,4 @@
-import Mathlib.Analysis.Normed.Ring.WithAbs
+import Mathlib.Analysis.Normed.Field.WithAbs
 import Mathlib.NumberTheory.NumberField.Basic
 
 namespace WithAbs
