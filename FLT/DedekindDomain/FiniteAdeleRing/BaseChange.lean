@@ -196,28 +196,123 @@ noncomputable def adicCompletionComapSemialgHom (v : HeightOneSpectrum A) (w : H
   UniformSpace.Completion.mapSemialgHom _ <|
   IsDedekindDomain.HeightOneSpectrum.adicValued.continuous_algebraMap A K L B v w hvw
 
--- Do we even need to prove that this map is continuous? It will follow from
--- the fact that it's K_v-linear once we know L_w has the K_v-module topology,
--- which is the next lemma.
--- omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
---     [Module.Finite A B] in
--- lemma adicCompletionComapSemialgHom_continuous
---     (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
---     Continuous (adicCompletionComapSemialgHom A K L B v w hvw) := by
---   convert UniformSpace.Completion.continuous_extension (β := (adicCompletion L w))
+section ModuleTopology
+
+open WithZeroMulInt Valued
+
+-- Make (v.adicCompletion K) a normed field.
+-- This exists for number fields in Mathlib, but not for general Dedekind Domains.
+-- v.asIdeal.absNorm may be 0 so just use 2 as the base for the norm.
+noncomputable local instance adicCompletion_RkOne :
+    Valuation.RankOne (Valued.v : Valuation (adicCompletion K v) ℤₘ₀) where
+  hom := {
+    toFun := toNNReal (by norm_num : (2 : NNReal) ≠ 0)
+    map_zero' := rfl
+    map_one' := rfl
+    map_mul' := MonoidWithZeroHom.map_mul (toNNReal (by norm_num))
+  }
+  strictMono' := toNNReal_strictMono (by norm_num)
+  nontrivial' := by
+    rcases Submodule.exists_mem_ne_zero_of_ne_bot v.ne_bot with ⟨x, hx1, hx2⟩
+    use algebraMap A K x
+    rw [valuedAdicCompletion_eq_valuation' v (algebraMap A K x)]
+    constructor
+    · simpa only [ne_eq, map_eq_zero, FaithfulSMul.algebraMap_eq_zero_iff]
+    · apply ne_of_lt
+      rwa [valuation_eq_intValuationDef, intValuation_lt_one_iff_dvd, Ideal.dvd_span_singleton]
+
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
+    [Module.Finite A B] in
+lemma adicCompletionComapSemialgHom_continuous
+    (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
+    Continuous (adicCompletionComapSemialgHom A K L B v w hvw) := by
+  convert UniformSpace.Completion.continuous_extension (β := (adicCompletion L w))
 
 noncomputable
 def comap_algebra {v : HeightOneSpectrum A} {w : HeightOneSpectrum B} (h : w.comap A = v) :
     Algebra (v.adicCompletion K) (w.adicCompletion L) :=
   (adicCompletionComapSemialgHom A K L B v w h).toAlgebra
 
+def comap_algebra_continuousSmul (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
+  (hvw : comap A w = v) : letI := comap_algebra A K L B hvw
+    ContinuousSMul (adicCompletion K v) (adicCompletion L w) := by
+  let inst_alg := comap_algebra A K L B hvw
+  constructor
+  have leftCts := adicCompletionComapSemialgHom_continuous A K L B v w hvw
+  exact Continuous.mul (Continuous.fst' leftCts) continuous_snd
+
+open TensorProduct in
+noncomputable def baseChange_of_algebraMap_adicComletion (v : HeightOneSpectrum A)
+    (w : HeightOneSpectrum B) (hvw : comap A w = v) :
+  letI := comap_algebra A K L B hvw
+  ((HeightOneSpectrum.adicCompletion K v) ⊗[K] L)
+      →ₗ[(HeightOneSpectrum.adicCompletion K v)] adicCompletion L w :=
+  let inst_alg := comap_algebra A K L B hvw
+  let sa : L →ₛₐ[algebraMap K (adicCompletion K v)] adicCompletion L w := {
+    __ := (algebraMap L (adicCompletion L w))
+    map_smul' x y := by
+      simp only [Algebra.smul_def, Algebra.smul_def, MonoidHom.map_mul']
+      congr 1
+      symm
+      apply (adicCompletionComapSemialgHom A K L B v w hvw).commutes x
+  }
+  (SemialgHom.baseChange_of_algebraMap sa).toLinearMap
+
+omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
+theorem baseChange_of_algebraMap_adicComletion_surjective (v : HeightOneSpectrum A)
+    (w : HeightOneSpectrum B) (hvw : comap A w = v) :
+    Function.Surjective (baseChange_of_algebraMap_adicComletion A K L B v w hvw) := by
+  let inst_alg := comap_algebra A K L B hvw
+  let inst_cSmul : ContinuousSMul (adicCompletion K v) (adicCompletion L w) :=
+    comap_algebra_continuousSmul A K L B v w hvw
+  set f := (baseChange_of_algebraMap_adicComletion A K L B v w hvw)
+  have isClosed : IsClosed (LinearMap.range f).carrier := by
+    apply Submodule.closed_of_finiteDimensional
+  let coeL : WithVal (w.valuation L) → adicCompletion L w := UniformSpace.Completion.coe'
+  have denseL : DenseRange coeL := UniformSpace.Completion.denseRange_coe
+  rw [← LinearMap.range_eq_top, Submodule.eq_top_iff']
+  simp_rw [← Submodule.mem_toAddSubmonoid, ← AddSubmonoid.mem_toSubsemigroup,
+      ← AddSubsemigroup.mem_carrier]
+  rw [← isClosed.closure_eq]
+  apply Dense.mono _ denseL
+  intro x ⟨l, hl⟩
+  use (1 ⊗ₜ l)
+  simp only [f, baseChange_of_algebraMap_adicComletion, ← hl,
+    SemialgHom.baseChange_of_algebraMap_tmul_right, AlgHom.toLinearMap_apply]
+  rfl
+
+omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
+theorem comap_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
+    (hvw : comap A w = v)
+  : letI := comap_algebra A K L B hvw
+    Module.Finite (adicCompletion K v) (adicCompletion L w) := by
+  let inst_alg := comap_algebra A K L B hvw
+  have fdRange : (LinearMap.range (baseChange_of_algebraMap_adicComletion A K L B v w hvw)).FG := by
+    rw [← Module.Finite.iff_fg]
+    apply LinearMap.finiteDimensional_range
+  rw [Module.finite_def]
+  convert fdRange
+  symm
+  rw [LinearMap.range_eq_top]
+  apply baseChange_of_algebraMap_adicComletion_surjective
+
+omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
 lemma adicCompletionComap_isModuleTopology
     (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
     -- temporarily make L_w a K_v-algebra
     letI := comap_algebra A K L B hvw
-    -- the claim that L_w has the module topology.
-    IsModuleTopology (v.adicCompletion K) (w.adicCompletion L) :=
-  sorry -- FLT#326
+    -- then claim that L_w has the module topology.
+    IsModuleTopology (v.adicCompletion K) (w.adicCompletion L) := by
+  let Kv := HeightOneSpectrum.adicCompletion K v
+  let Lw := HeightOneSpectrum.adicCompletion L w
+  let _ : Algebra Kv Lw := comap_algebra A K L B hvw
+  let _ : ContinuousSMul Kv Lw := comap_algebra_continuousSmul A K L B v w hvw
+  let _ : Module.Finite Kv Lw := comap_algebra_finite A K L B v w hvw
+  let iso : ((Fin (Module.finrank Kv Lw)) → Kv) ≃L[Kv] Lw :=
+    ContinuousLinearEquiv.ofFinrankEq (Module.finrank_fin_fun Kv)
+  apply IsModuleTopology.iso iso
+
+end ModuleTopology
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [Module.Finite A B] in
