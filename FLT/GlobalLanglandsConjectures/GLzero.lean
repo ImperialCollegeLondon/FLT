@@ -45,8 +45,6 @@ State them first.
 
 -/
 
-set_option synthInstance.maxHeartbeats 50000
-
 namespace AutomorphicForm
 
 def GLn.Weight.IsTrivial {n : ℕ} (ρ : Weight n) : Prop := sorry -- (ρ = trivial 1d rep)
@@ -57,6 +55,7 @@ namespace GL0
 
 variable (ρ : Weight 0)
 
+set_option synthInstance.maxHeartbeats 50000 in
 def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
     toFun := fun _ => c,
     is_smooth := {

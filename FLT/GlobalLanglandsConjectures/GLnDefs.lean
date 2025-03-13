@@ -38,65 +38,6 @@ namespace DedekindDomain
 
 open scoped algebraMap
 
-section PRs
-
-open IsDedekindDomain
-
-variable (R K : Type*) [CommRing R] [IsDedekindDomain R] [Field K] [Algebra R K]
-  [IsFractionRing R K] (v : HeightOneSpectrum R)
-
-local notation "K_hat" => ProdAdicCompletions
-local notation "R_hat" => FiniteIntegralAdeles
-
-section PR13705
-
-namespace ProdAdicCompletions.IsFiniteAdele
-
-open IsDedekindDomain.HeightOneSpectrum
-
-@[simp]
-lemma mem_FiniteAdeleRing (x : K_hat R K) : x ∈ (
-    { carrier := {x : K_hat R K | x.IsFiniteAdele}
-      mul_mem' := mul
-      one_mem' := one
-      add_mem' := add
-      zero_mem' := zero
-      algebraMap_mem' := algebraMap'
-    } : Subalgebra K (K_hat R K)) ↔ {v | x v ∉ adicCompletionIntegers K v}.Finite := Iff.rfl
-
-open Set
-
-/-- The finite adele ring is an algebra over the finite integral adeles. -/
-noncomputable instance : Algebra (R_hat R K) (FiniteAdeleRing R K) := inferInstance
-
-end ProdAdicCompletions.IsFiniteAdele -- namespace
-
-end PR13705 -- section
-
-section PR13703
-
-open scoped nonZeroDivisors
-
-noncomputable instance foobar37 : Algebra R (FiniteAdeleRing R K) :=
-  RingHom.toAlgebra ((algebraMap K (FiniteAdeleRing R K)).comp (algebraMap R K))
-
-@[deprecated mul_nonZeroDivisor_mem_finiteIntegralAdeles (since := "2024-08-11")]
-lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
-    ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
-  exact mul_nonZeroDivisor_mem_finiteIntegralAdeles a
-
---#check Classical.choose (v.valuation_exists_uniformizer K)
-
--- These instances are sorry-free in the PR.
-instance : TopologicalSpace (FiniteAdeleRing ℤ ℚ) := sorry
-
-
-instance instTopologicalRingFiniteAdeleRing : IsTopologicalRing (FiniteAdeleRing ℤ ℚ) := sorry
-
-end PR13703
-
-end PRs  -- section
-
 section
 
 @[simps!]
