@@ -138,7 +138,27 @@ def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAu
   left_invt δ x := by simp [left_invt, mul_assoc]
   right_invt := by
     obtain ⟨U, hU⟩ := φ.right_invt
-    use g * U * g⁻¹
+    -- use g * U * g⁻¹
+    sorry
+  trivial_central_char z x := by
+    simp only [mul_assoc]
+    sorry -- are we sure we only ever need trivial central character?
+
+instance : SMul  (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+  smul := group_smul
+
+@[simp]
+lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+    (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+    (g • φ) x = φ (x * g) := rfl
+
+instance : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+  smul := group_smul
+  one_smul φ := by ext; simp
+  mul_smul g h φ := by ext; simp [mul_assoc]
+  smul_zero g := by ext; simp
+  smul_add g φ ψ := by ext; simp
+
 end add_comm_group
 
 section comm_ring
@@ -158,6 +178,7 @@ def ring_smul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
 instance : SMul R (WeightTwoAutomorphicForm F D R) where
   smul := ring_smul
 
+@[simp] -- maybe? ASK?
 lemma smul_apply (r : R) (φ : WeightTwoAutomorphicForm F D R)
     (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
     (r • φ) g = r • (φ g) := rfl
