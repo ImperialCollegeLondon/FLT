@@ -18,19 +18,7 @@ the exposition by Borel and Jacquet in Corvallis.
 \section{The finite adeles of the rationals.}
 
 Mathlib already has the definition of the finite adeles $\A_{\Q}^f$ of the rationals as a
-commutative $\Q$-algebra. It does not yet have the topology; work on this is on PR 13703 to mathlib.
-See also the prerequisite PR 13705, which is ready for review. Once these PRs are merged, we will
-have
-
-\begin{corollary}
-  \label{DedekindDomain.instTopologicalRingFiniteAdeleRing}
-  \lean{DedekindDomain.instTopologicalRingFiniteAdeleRing}
-  \leanok
-  The finite adeles are a topological ring.
-\end{corollary}
-\begin{proof} All this is done in the slightly technical mathlib PR 13703.
-  \leanok
-\end{proof}
+commutative $\Q$-algebra, and the proof that it's a topological ring.
 
 \section[The adelic general linear group]{The group $\GL_n(\A_{\Q})$.}
 
@@ -43,7 +31,6 @@ topological group, where we are being a bit liberal with our use of the equality
 \begin{definition}
   \label{AutomorphicForm.GLn.IsSmooth}
   \lean{AutomorphicForm.GLn.IsSmooth}
-  \uses{DedekindDomain.instTopologicalRingFiniteAdeleRing}
   A function $f:\GL_n(\A_{\Q}^f)\times\GL_n(\R)\to\bbC$ is \emph{smooth}
   if it has the following three properties.
 
