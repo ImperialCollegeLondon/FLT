@@ -52,7 +52,6 @@ Hurwitz.quot_rem
 Hurwitz.left_ideal_princ
 Hurwitz.canonicalForm
 Hurwitz.completed_units
-DedekindDomain.instTopologicalRingFiniteAdeleRing
 AutomorphicForm.GLn.IsSmooth
 AutomorphicForm.GLn.IsSlowlyIncreasing
 AutomorphicForm.GLn.Weight
