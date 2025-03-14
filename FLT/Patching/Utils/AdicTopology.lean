@@ -52,7 +52,7 @@ lemma Submodule.isCompact_of_fg {R M : Type*} [CommRing R] [TopologicalSpace R] 
     IsCompact (X := M) N := by
   have := IsModuleTopology.toContinuousAdd R M
   obtain ⟨s, hs⟩ := hN
-  have : LinearMap.range (Fintype.linearCombination R R (α := s) Subtype.val) = N := by
+  have : LinearMap.range (Fintype.linearCombination R (α := s) Subtype.val) = N := by
     simp [Finsupp.range_linearCombination, hs]
   rw [← this]
   refine isCompact_range ?_
