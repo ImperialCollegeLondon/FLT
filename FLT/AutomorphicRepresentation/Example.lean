@@ -422,7 +422,7 @@ lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
     set zinvRat : ℚ := a / b with zinvRat_def
     have hzinvRat : z * zinvRat = 1 := by
       rw [mul_div, div_eq_one_iff_eq]
-      · rw_mod_cast [Int.mul_sign z]
+      · rw_mod_cast [Int.mul_sign_self z]
       · exact_mod_cast Int.natAbs_ne_zero.mpr znez
     let zinvZHat : ZHatˣ := zHat⁻¹
     have hzinvZHat : ↑zHat * ↑zinvZHat = (1 : ZHat) := Units.mul_inv zHat
