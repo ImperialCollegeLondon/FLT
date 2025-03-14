@@ -22,7 +22,7 @@ variable {L}
 theorem comap_apply (w : InfinitePlace L) (f : K →+* L) (x : K) :
     w.comap f x = w (f x) := rfl
 
-theorem comp_of_comap_eq {v : InfinitePlace K} {w : InfinitePlace L} (f : K →+* L)
+theorem comp_of_comap_eq {v : InfinitePlace K} {w : InfinitePlace L} {f : K →+* L}
     (h : w.comap f = v) (x : K) :
     w (f x) = v x := by
   simp [← h]
