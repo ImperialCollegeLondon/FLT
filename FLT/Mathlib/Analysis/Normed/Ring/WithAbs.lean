@@ -32,18 +32,21 @@ namespace AbsoluteValue.Completion
 variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ}
   {L : Type*} [Field L] [Algebra K L] {w : AbsoluteValue L ℝ}
 
-noncomputable abbrev semiAlgHomOfComp (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v x) :
+noncomputable abbrev semiAlgHomOfComp
+    (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x)) :
     v.Completion →ₛₐ[algebraMap (WithAbs v) (WithAbs w)] w.Completion :=
   UniformSpace.Completion.mapSemialgHom _
     (WithAbs.isUniformInducing_of_comp h).uniformContinuous.continuous
 
-theorem semiAlgHomOfComp_coe (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v x)
+theorem semiAlgHomOfComp_coe
+    (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x))
     (x : WithAbs v) :
     semiAlgHomOfComp h x = algebraMap (WithAbs v) (WithAbs w) x :=
   UniformSpace.Completion.mapSemialgHom_coe
     (WithAbs.isUniformInducing_of_comp h).uniformContinuous x
 
-theorem semiAlgHomOfComp_dist_eq (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v x)
+theorem semiAlgHomOfComp_dist_eq
+    (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x))
     (x y : v.Completion) :
     dist (semiAlgHomOfComp h x) (semiAlgHomOfComp h y) = dist x y := by
   refine UniformSpace.Completion.induction_on₂ x y ?_ (fun x y => ?_)
@@ -53,7 +56,8 @@ theorem semiAlgHomOfComp_dist_eq (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs 
     exact UniformSpace.Completion.dist_eq x y ▸
       (WithAbs.isometry_of_comp (L := WithAbs w) h).dist_eq x y
 
-theorem isometry_semiAlgHomOfComp (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v x) :
+theorem isometry_semiAlgHomOfComp
+    (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x)) :
     Isometry (semiAlgHomOfComp h) :=
   Isometry.of_dist_eq <| semiAlgHomOfComp_dist_eq h
 
