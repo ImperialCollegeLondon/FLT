@@ -3,8 +3,11 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.DivisionAlgebra.Finiteness
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Topology.Algebra.Module.ModuleTopology
 
 /-
 
@@ -16,7 +19,7 @@ suppress_compilation
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
-variable (D : Type*) [Ring D] [Algebra F D] --[IsCentralSimple F D] [FiniteDimensional F D]
+variable (D : Type*) [Ring D] [Algebra F D]
 
 namespace TotallyDefiniteQuaternionAlgebra
 
@@ -26,17 +29,37 @@ open DedekindDomain
 
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
-variable {F D} in
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
+/-- The inclusion 𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ) -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
   Units.map Algebra.TensorProduct.rightAlgebra.algebraMap.toMonoidHom
+
+-- it's actually equal but ⊆ is all we need, and equality is harder
+lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
+  sorry
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   moduleTopology (FiniteAdeleRing (𝓞 F) F) _
 
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
+  ⟨rfl⟩
+
+
+variable [IsQuaternionAlgebra F D] in
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+instance : Module.Finite (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := by
+  have foo : Module.Finite F D := inferInstance
+  -- Now follows from "if M is a finite F-module then M ⊗[F] A is a finite A-module"
+  sorry
+
+variable [IsQuaternionAlgebra F D] in
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
+  IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) _
 /-!
 This definition is made in mathlib-generality but is *not* the definition of a
 weight 2 automorphic form unless Dˣ is compact mod centre at infinity.
@@ -48,7 +71,7 @@ structure WeightTwoAutomorphicForm
   -- definition
   toFun : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ → R
   left_invt : ∀ (δ : Dˣ) (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
-    toFun (incl₁ δ * g) = (toFun g)
+    toFun (incl₁ F D δ * g) = (toFun g)
 --  (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
   right_invt : ∃ (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
     IsOpen (U : Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) ∧
@@ -132,19 +155,37 @@ instance addCommGroup : AddCommGroup (WeightTwoAutomorphicForm F D R) where
   neg_add_cancel := by intros; ext; simp
   add_comm := by intros; ext; simp [add_comm]
 
+open scoped Pointwise
+
+-- this should be in mathlib
+lemma _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] {U : Subgroup G} (hU : IsOpen (U : Set G)) (g : ConjAct G) :
+    IsOpen ((g • U : Subgroup G) : Set G) := by
+  sorry
+
+open ConjAct
+
+variable [IsQuaternionAlgebra F D]
+
 def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAutomorphicForm F D R) :
     WeightTwoAutomorphicForm F D R where
   toFun x := φ (x * g)
   left_invt δ x := by simp [left_invt, mul_assoc]
   right_invt := by
     obtain ⟨U, hU⟩ := φ.right_invt
-    -- use g * U * g⁻¹
-    sorry
+    refine ⟨(toConjAct g) • U, ?_, ?_⟩
+    · replace hU := hU.1
+      exact isOpen_smul hU (toConjAct g)
+    · rintro k x ⟨u, hu, rfl⟩
+      simp [smul_def, ← hU.2 (k * g) u hu]
+      group
   trivial_central_char z x := by
     simp only [mul_assoc]
-    sorry -- are we sure we only ever need trivial central character?
+    have := range_incl₂_le_center F D ⟨z, rfl⟩
+    rw [Subgroup.mem_center_iff] at this
+    rw [← this, ← mul_assoc, trivial_central_char]
 
-instance : SMul  (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+instance : SMul (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
 
 @[simp]
@@ -178,7 +219,6 @@ def ring_smul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
 instance : SMul R (WeightTwoAutomorphicForm F D R) where
   smul := ring_smul
 
-@[simp] -- maybe? ASK?
 lemma smul_apply (r : R) (φ : WeightTwoAutomorphicForm F D R)
     (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
     (r • φ) g = r • (φ g) := rfl
@@ -191,6 +231,41 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
   add_smul r s g := by ext; simp [smul_apply, add_mul]
   zero_smul g := by ext; simp [smul_apply]
 
+variable [IsQuaternionAlgebra F D]
+
+instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R (WeightTwoAutomorphicForm F D R) where
+  smul_comm g r φ := by
+    ext x
+    simp [smul_apply]
+
 end comm_ring
 
-end TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
+end WeightTwoAutomorphicForm
+
+section finite_level
+
+variable [IsQuaternionAlgebra F D]
+
+def WeightTwoAutomorphicFormOfLevel_aux (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+    (R : Type*) [CommRing R] : Submodule R (WeightTwoAutomorphicForm F D R) where
+  carrier := {φ | ∀ u ∈ U, u • φ = φ}
+  add_mem' := sorry
+  zero_mem' := sorry
+  smul_mem' := sorry
+
+def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+    (R : Type*) [CommRing R] : Type _ := WeightTwoAutomorphicFormOfLevel_aux U R
+
+variable (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (R : Type*) [CommRing R]
+
+instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) :=
+  AddSubgroup.toAddCommGroup (WeightTwoAutomorphicFormOfLevel_aux U R).toAddSubgroup
+
+instance : Module R (WeightTwoAutomorphicFormOfLevel U R) :=
+  SMulMemClass.toModule (WeightTwoAutomorphicFormOfLevel_aux U R)
+
+end finite_level
+
+end TotallyDefiniteQuaternionAlgebra
+
+#min_imports
