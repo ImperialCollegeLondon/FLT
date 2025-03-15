@@ -101,7 +101,8 @@ theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
   -- `L` is dense inside Π v | w, L_w
   have := denseRange_algebraMap_subtype_pi _ fun w : InfinitePlace L => w.comap (algebraMap K L) = v
   -- So there exists a vector `α ∈ L^d` whose matrix wrt `Bw` gets close to `1` (has non-zero det)
-  let ⟨α, h⟩ := this.exists_matrix_det_ne_zero (Basis.toMatrix_continuous Bw) Bw.toMatrix_self
+  let ⟨α, h⟩ := (DenseRange.piMap fun _ => this).exists_matrix_det_ne_zero
+    (Basis.toMatrix_continuous Bw) Bw.toMatrix_self
   -- Therefore `α` is a basis under the image of `piExtensionPlace L v`, hence it's surjective
   rw [← isUnit_iff_ne_zero, ← Bw.det_apply, ← is_basis_iff_det Bw] at h
   rw [← baseChangeRightOfAlgebraMap_coe, ← LinearMap.range_eq_top, ← top_le_iff, ← h.2,

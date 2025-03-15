@@ -268,9 +268,9 @@ e : A <–––––––––> B
           \ /
            R
 ```
-where `A` and `B` are both `S₁` and `S₂`-algebras, `S₁` and `S₂` are parallel algebras
-over a base ring `R`, and `A` and `B` both have the `S₁`-module topology. If the algebras
-form scalar towers and the algebra map from  `S₁` to `B` factors through `f`, and if `A` and `B`
+where `A` and `B` are both `S₁` and `S₂`-algebras, `S₁` and `S₂` are algebras
+over a common base ring `R`, and `A` and `B` both have the `S₁`-module topology. If the algebras
+form scalar towers and the algebra map from  `S₁` to `B` factors through `e`, and if `A` and `B`
 are equivalent as `S₂`-algebras, then they are topologically equivalent as `S₂`-algebras as well
 (even though they do not necessarily have the `S₂`-module topologies).
 

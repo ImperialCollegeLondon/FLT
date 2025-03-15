@@ -35,6 +35,7 @@ import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Finset.Lattice.Fold
 import FLT.Mathlib.Data.Set.Card
+import FLT.Mathlib.Data.Set.Function
 import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
@@ -64,7 +65,6 @@ import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
-import FLT.Mathlib.Topology.MetricSpace.Pseudo.Defs
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 import FLT.NumberField.AdeleRing
 import FLT.NumberField.Completion

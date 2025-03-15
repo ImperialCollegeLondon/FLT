@@ -16,7 +16,7 @@ instance [NumberField K] : NumberField (WithAbs v) := ‹NumberField K›
 theorem norm_eq_abs (x : WithAbs v) : ‖x‖ = v x := rfl
 
 theorem uniformContinuous_algebraMap {v : AbsoluteValue K ℝ} {w : AbsoluteValue L ℝ}
-    (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v x) :
+    (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x)) :
     UniformContinuous (algebraMap (WithAbs v) (WithAbs w)) :=
   isUniformInducing_of_comp h |>.uniformContinuous
 
