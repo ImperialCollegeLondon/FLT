@@ -1,4 +1,3 @@
-import FLT.Assumptions.Odlyzko
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 import FLT.AutomorphicRepresentation.Example
