@@ -5,7 +5,7 @@
 At the time of writing, {\tt mathlib} still does not have a proof that the space
 of classical modular forms of a fixed weight, level and character is finite-dimensional.
 The main result in this miniproject is to prove that certain spaces of quaternionic modular forms
-of a fixed weight, level and character are finite-dimensional. We need finiteness results
+are finite-dimensional. We need finiteness results
 like this in order to control the Hecke algebras which act on these spaces; these Hecke
 algebras are the ``$T$''s which are isomorphic to the ``$R$''s in the $R=T$ theorem which
 is the big first target for the FLT project.
@@ -21,124 +21,131 @@ over $K$ is a central simple $K$-algebra of $K$-dimension~4.
 A fundamental fact about central simple algebras is that if $D/K$
 is a central simple $K$-algebra and $L/K$ is an extension of fields, then $D\otimes_KL$
 is a central simple $L$-algebra. In particular if $D$ is a quaternion algebra over $K$
-then $D\otimes_KL$ is a quaternion algebra over $L$. Some Imperial students have established
+then $D\otimes_KL$ is a quaternion algebra over $L$. Some Imperial undergraduate students have established
 this fact in ongoing project work.
 
 A \emph{totally real field} is a number field~$F$ such that the image of every ring
 homomorphism $F\to\bbC$ is a subset of $\R$. We fix once and for all a totally real field~$F$ and a
 quaternion algebra $D$ over $F$. We furthermore assume that $D$ is \emph{totally definite}, that is,
 that for all field embeddings $\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$. Because $F$
-has at least one real place, the totally definiteness hypothesis is enough to show that $D$
-is not a matrix algebra and thus must be a division algebra. Thus Fujisaki's theorem~\ref{DivisionAlegbra.units_cocompact}
-from the Fujisaki miniproject applies, and we know that $D^\times\backslash (D\otimes_F\A_F)^{(1)}$
-is compact. We fix once and for all a maximal compact subgroup $K_\infty$ of
-$(D\otimes_{\Q}\R)^\times$; all maximal compact subgroups are conjugate so changing this choice
-just amounts to some
-bookkeeping. Because $D\otimes_{\Q}\R$ is isomorphic to $\prod_{v\mid\infty}\bbH$, the maximal
-compact subgroup is isomorphic to $\prod_{v\mid\infty}S^3$, where $S^3$ denotes the unit
-quaternions in $\bbH$.
+has at least one real place, the totally definite hypothesis is enough to show that $D$
+is not a matrix algebra and thus must be a division algebra. Thus Fujisaki's theorem (theorem~\ref{DivisionAlgebra.units_cocompact}
+from the Fujisaki miniproject) applies, and we know that $D^\times\backslash (D\otimes_F\A_F)^{(1)}$
+is compact.
 
 The high-falutin' explanation of what is about to happen is that the units $D^\times$ of $D$
-can be regarded as a connected reductive algebraic group over $F$, and we are going to define spaces
+can be regarded as a connected reductive algebraic group over $F$, and we are going to define certain spaces
 of automorphic forms for this algebraic group. For a general connected reductive algebraic group,
 part of the definition of an automorphic form is that it is satisfies some differential
 equations (for example modular forms are automorphic forms for the algebraic group $\GL_2$ over
 $\Q$, and the definition of a modular form involves holomorphic functions, which are solutions to
 the Cauchy--Riemann equations). However under the assumption that $F$ is totally real and $D/F$ is
-totally definite, the ``associated symmetric space is 0-dimensional'', meaning in practice that
-no differential equations are involved in the definition of an automorphic form in this setting.
-As a consequence, the definitions we're about to give have a far more algebaic flavour and, as
-we shall see, it is possible to construct mod $p$ and $p$-adic variants of these spaces without
-too much trouble.
+totally definite, the ``associated symmetric space is a 0-dimensional manifold'', meaning in practice that
+the part of the definition of an automorphic form involving differential equations is vacuously satisfied in this setting.
+As a consequence, the definitions we're about to give have a far more algebaic flavour. Crucially, in stark
+contrast to the general theory, the fact that we do not need to talk about differential equations at all means that one does
+not need to assume that our automorphic forms are $\bbC$-valued; our definition makes sense for forms valued in an arbitrary additive commutative group.
+In particular, it is possible to talk about mod $p^n$ and $p$-adic automorphic forms in this setting without doing any complicated algebraic geometry.
 
 \section{Brief introduction to automorphic forms in this setting}
 
 Having made assumptions on $D$ which makes the theory of automorphic forms over $D^\times$
 far less technical, we will now make it a little more technical by using the modern adelic
 approach to the theory. Note that many results about the adeles of a number field are proved
-in the adele miniproject \ref{Adele_miniproject}. Our automorphic forms will be certain
-functions on the units of the ring $D_{\A}:=D\otimes_F\A_F\cong D\otimes_{\Q}\A_{\Q}$
-and there are adelic analogues of a weight, level and character in this setting, corresponding
-to the classical notions which one sees in the theory of modular forms. We remark again that
+in the adele miniproject (section \ref{Adele_miniproject}). Our automorphic forms will be certain
+functions on the units of the ring $D_{\A^\infty}:=D\otimes_F\A_F^\infty\cong D\otimes_{\Q}\A_{\Q}^\infty$.
+To prove Fermat's Last Theorem it suffices to work in weight 2 and trivial character, and for simplicity we shall (at least for now)
+bake these assumptions into our definitions, even though they would be easy to remove (at the expense of having
+to write ``of weight 2 and trivial character'' throughout the proof). We remark again that
 there is no analogue of the holomorphicity condition that one sees in the classical theory,
 because the symmetric space is a finite set of points rather than the upper half plane. Also
 there is no analogue of the cuspidality condition because there are no cusps in this setting.
-We will fix a weight $\rho_\infty$, a level $U$ and a character $\chi$, and define
-a complex vector space $S_{\rho_\infty}^D(U;\chi)$ of quaternionic modular forms of level $U$,
-weight $\rho_\infty$ and character $\chi$. The main theorem of this miniproject is the claim
-that this space is finite-dimensional.
+Other than the number field $F$ and the quaternion algebra $D$, the other variable we will see in our situation
+will be the \emph{level} of the forms. The main result in this miniproject will be that the space of weight 2 automorphic forms of level $U$
+is finite-dimensional.
 
 \section{Definition of spaces of automorphic forms}
 
-Let us now give precise definitions of weights, levels, characters, and these spaces of quaternionic
-modular forms.
-
-A \emph{weight} $\rho_\infty$ is a finite-dimensional $\bbC$-vector space $W$ (with the
-usual vector space topology) equipped with a continuous action of $K_\infty$, our fixed maximal
-compact subgroup. For applications
-to Fermat's Last Theorem we only need to consider the case where $W=\bbC$ and $\rho_\infty$
-is the trivial representation, but there is no harm in setting things up in more generality.
-The case $W=\bbC$ corresponds (via the highly non-trivial Jacquet-Langlands correspondence)
-when $F=\Q$ to the case of modular forms of weight 2, and for general~$F$ corresponds to
-Hilbert modular forms of parallel weight~2.
+Let us now give some precise definitions. Recall that by $\A_F^\infty$ we mean the finite adeles of the totally real number field $F$.
 
 A \emph{level} is a compact open subgroup~$U$ of $(D\otimes_F\A_F^\infty)^\times$. These are
-plentiful. The ring $D_f:=D\otimes_F\A_F^\infty$ is a topological ring, and this fact is currently
-in the process of being PRed to mathlib. Hence the units $D_f^\times$ of this ring
+plentiful. The ring $D_f:=D\otimes_F\A_F^\infty$ is a topological ring,
+and hence the units $D_f^\times$ of this ring
 are a topological group. This group is locally profinite, and hence has many compact open subgroups;
 we will see explicit examples later on.
 
-A \emph{character} is a continuous group homomorphism $\chi$ from $F^\times\backslash\A_F^\times$ to
-$\bbC^\times$. For many of the applications, $\chi$ can also be trivial, although we will crucially
-have to allow certain nontrivial characters of $p$-power order when we are doing the patching
-argument needed to prove the modularity lifting theorem which is the big first target of the FLT
-project. We regard $\A_F$ as a subring of $D_{\A}:=D\otimes_F\A_F$, which is possible because
-$F$ is a subring of $D$. More precisely we embed $\A_F$ into $D\otimes_F\A_F$
+We regard $\A_F^\infty$ as a subring of $D_{\A^\infty}:=D\otimes_F\A_F^\infty$, which is possible because
+$F$ is a subring of $D$. More precisely we embed $\A_F^\infty$ into $D\otimes_F\A_F^\infty$
 via the map sending $g$ to $1\otimes g$. Because $F$ is in the centre of~$D$, we have
-that $\A_F$ is in the centre of $D_{\A}$ and thus $F^\times\backslash\A_F^\times$
-is a central subgroup of $D_{\A}^\times$.
+that $\A_F^\infty$ is in the centre of $D_{\A^\infty}$ (in fact it is the centre, but we do not need this).
+As a consequence we can identify $(\A_F^\infty)^\times$ as a subgroup of $(D\otimes_F\A_F^\infty)^\times$.
+We may also regard $D$ as a subring of $D\otimes_F\A_F^\infty$ via the map $d\mapsto d\otimes 1$, and hence
+we can think of $D^\times$ as a subgroup of $(D\otimes_F\A_F^\infty)^\times$.
 
-We fix a weight $(W,\rho_{\infty})$, a level $U$ and a character $\chi$.
-
+Let $R$ be an additive commutative group. Later on $R$ will be a commutative ring but we will not need this for the definition.
 \begin{definition}
-  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
-  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
+  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
   \leanok
-  An $R$-valued \emph{automorphic form} of weight $W$, level $U$ and character $\chi$ for $D$ is
-  a function $f:D^\times\backslash D_{\A}^\times\to W$ satisfying the following axioms:
+  The space of $R$-valued \emph{automorphic forms} for $D^\times$ is the set of
+  functions $f:D_{\A^\infty}^\times\to R$ satisfying the following axioms:
   \begin{itemize}
-    \item $f(gk_\infty)=\rho(k_\infty)f(g)$ for all $k\in K_\infty$ and $g\in D_{\A}^\times$.
-    \item $f(gz)=\chi(z)f(g)$ for all $g\in D_{\A}^\times$ and $z\in\A_F^\times$ (this makes
-    sense because $W$ is a $\bbC$-vector space).
-    \item $f(gu)=f(g)$ for all $g\in D_{\A}^\times$ and $u\in U$.
+    \item $f(dg)=f(g)$ for all $d\in D^\times$ and $g\in D_{\A^\infty}^\times$.
+    \item $f(gz)=f(g)$ for all $g\in D_{\A^\infty}^\times$.
+    \item There exists a compact open subgroup $U\subseteq (D_{\A^f}^\times)$ such that $f(gu)=f(g)$ for all $g\in D_{\A^\infty}^\times$ and $u\in U$.
   \end{itemize}
 \end{definition}
 
-Let $S_{\rho_\infty}^D(U;\chi)$ denote the space of automorphic forms of weight $W$, level $U$
-and character $\chi$. Two basic observations are
+Let $S^D(R)$ denote the set of automorphic forms for $D^\times$. The space $S^D(R)$ is sometimes referred to as a space of
+``quaternionic modular forms'' over $R$.
+Three basic observations about $S^D(R)$ are
 
 \begin{definition}
-  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
-  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup}
+  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup}
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
   \leanok
-  Pointwise addition $(f_1+f_2)(g):=f_1(g)+f_2(g)$ makes $S_{\rho_\infty}^D(U;\chi)$ into an
+  Pointwise addition $(f_1+f_2)(g):=f_1(g)+f_2(g)$ makes $S^D(R)$ into an
   additive abelian group.
 \end{definition}
 
 \begin{definition}
-  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
-  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
+  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
   \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
-    TotallyDefiniteQuaternionAlgebra.AutomorphicForm.addCommGroup}
+    TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup}
   \leanok
-  Pointwise scalar multiplication $(r\cdot f)(g):= r\cdot(f(g))$ makes
-  $S_{\rho_\infty}^D(U;\chi)$ into an $R$-module.
+  If $R$ is a commutative ring then pointwise scalar multiplication $(r\cdot f)(g):= r\cdot(f(g))$ makes
+  $S^D(R)$ into an $R$-module.
 \end{definition}
 
-These spaces $S_{\rho_\infty}^D(U;\chi)$ are sometimes referred to as spaces of
-``quaternionic modular forms''. The Hecke algebras involved in the main modularity lifting
-theorems needed in the FLT project will be endomorphisms of these spaces.
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.distribMulAction}
+  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.distribMulAction}
+  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+    TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup,
+    TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
+  \leanok
+  The group $D_{\A^f}^\times$ acts on the addive abelian group $S^D(R)$ by $(g\cdot f)(x)=f(xg)$.
+\end{definition}
+
+If $R$ is a commutative ring then the action of $D_{\A^\infty}^\times$ commutes with the $R$-action.
+
+Now let $U$ be a level, that is, a compact open subgroup of $D_{\A^\infty}^\times$.
+
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
+  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
+  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+    TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup,
+    TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.distribMulAction,
+    TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
+  \leanok
+  The quaternionic modular forms of level $U$, with notation $S^D(U;R)$, are the $U$-invariants for the $D_{\A^\infty}^\times$-action on $S^D(R)$.
+\end{definition}
+
+The Hecke algebras involved in the main modularity lifting
+theorems needed in the FLT project will be endomorphisms of these spaces $S^D(U;R)$.
 
 \section{Statement of the main result of the miniproject}
 
@@ -154,7 +161,7 @@ proof of finite-dimensionality.
   \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
   \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
-  The space $S_{\rho_\infty}^D(U;\chi)$ is a finite-dimensional $k$-vector space.
+  Let $k$ be a field. Then the space $S^D(U;k)$ is a finite-dimensional $k$-vector space.
 \end{theorem}
 
 
