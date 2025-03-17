@@ -249,9 +249,9 @@ variable [IsQuaternionAlgebra F D]
 def WeightTwoAutomorphicFormOfLevel_aux (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (R : Type*) [CommRing R] : Submodule R (WeightTwoAutomorphicForm F D R) where
   carrier := {φ | ∀ u ∈ U, u • φ = φ}
-  add_mem' := sorry
-  zero_mem' := sorry
-  smul_mem' := sorry
+  add_mem' {a b} ha hb := by simp_all
+  zero_mem' := by simp_all
+  smul_mem' c {x} hx := by simp_all [smul_comm]
 
 def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (R : Type*) [CommRing R] : Type _ := WeightTwoAutomorphicFormOfLevel_aux U R
