@@ -102,10 +102,17 @@ theorem Set.bijOn_thing {α β γ : Type*} {f : α → β} {g : β → γ} {s : 
     · exact Set.SurjOn.comp h₃ fun ⦃a⦄ a ↦ a
 
 -- This should be in Mathlib.Data.Set.Function
-theorem Set.bijOn_image_image {α β γ δ : Type*} {f : α → β} {g : β → δ}
-    {h : α → γ} {i : γ → δ} (comm : g ∘ f = i ∘ h) {s : Set α} {t : Set β}
-    (hbij : Set.BijOn f s t) : Set.BijOn i (h '' s) (g '' t) := by
-  sorry
+theorem Set.bijOn_image_image {α β γ δ : Type*} {f : α → β} {p₂ : β → δ}
+    {p₁ : α → γ} {i : γ → δ} (comm : ∀ a, p₂ (f a) = i (p₁ a)) {s : Set α} {t : Set β}
+    (hbij : Set.BijOn f s t) (hinj: Set.InjOn i (p₁ '' s)) : Set.BijOn i (p₁ '' s) (p₂ '' t) := by
+  obtain ⟨h1, h2, h3⟩ := hbij
+  refine ⟨?_, hinj, ?_⟩
+  . rintro _ ⟨a, ha, rfl⟩
+    refine ⟨f a, h1 ha, by rw [comm a]⟩
+  . rintro _ ⟨b, hb, rfl⟩
+    obtain ⟨a, ha, rfl⟩ := h3 hb
+    rw [← Set.image_comp, comm]
+    exact ⟨a, ha, rfl⟩
 
 /-- The Hecke operator T_g = [UgV] : A^V → A^U associated to the double coset UgV. -/
 noncomputable def T : {a : A // ∀ γ ∈ V, γ • a = a} → {a : A // ∀ γ ∈ U, γ • a = a} :=
@@ -125,7 +132,8 @@ noncomputable def T : {a : A // ∀ γ ∈ V, γ • a = a} → {a : A // ∀ γ
     rw [Set.bijOn_thing]
     · rw [← Set.image_comp]
       simp only [Function.comp_apply, Quotient.out_eq, Set.image_id']
-      apply Set.bijOn_image_image (f := fun x ↦ u • x) (by ext; rfl)
+      refine Set.bijOn_image_image (f := fun (x : G) ↦ u • x) (p₁ := (QuotientGroup.mk : G → G ⧸ V))
+        (fun a ↦ rfl) ?_ (Set.injOn_of_injective (MulAction.injective u))
       refine ⟨?_, ?_, ?_⟩
       . rintro x ⟨u', hu', gv, hgv, rfl⟩
         refine ⟨u * u', mul_mem huU hu', gv, hgv, ?_⟩
