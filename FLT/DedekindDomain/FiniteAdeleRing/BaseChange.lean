@@ -5,7 +5,6 @@ import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 /-!
 
