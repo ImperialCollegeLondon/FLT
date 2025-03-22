@@ -80,7 +80,7 @@ def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i ∈ range (n : ℕ), i !, by
   intros D N hDN
   dsimp only
   obtain ⟨k, hk⟩ := exists_add_of_le <| le_of_dvd N.pos hDN
-  simp_rw [map_sum, map_natCast, hk, sum_range_add, add_right_eq_self]
+  simp_rw [map_sum, map_natCast, hk, sum_range_add, add_eq_left]
   refine sum_eq_zero (fun i _ => ?_)
   rw [ZMod.natCast_zmod_eq_zero_iff_dvd]
   exact Nat.dvd_factorial D.pos le_self_add
@@ -116,7 +116,7 @@ lemma e_factorial_succ (j : ℕ) :
     e ⟨(j + 1)!, by positivity⟩ = ∑ i ∈ range (j + 1), i ! := by
   simp_rw [e_def, PNat.mk_coe, cast_sum]
   obtain ⟨k, hk⟩ := exists_add_of_le <| self_le_factorial (j + 1)
-  rw [hk, sum_range_add, add_right_eq_self]
+  rw [hk, sum_range_add, add_eq_left]
   refine sum_eq_zero (fun i _ => ?_)
   rw [ZMod.natCast_zmod_eq_zero_iff_dvd, ← hk]
   exact factorial_dvd_factorial (Nat.le_add_right _ _)

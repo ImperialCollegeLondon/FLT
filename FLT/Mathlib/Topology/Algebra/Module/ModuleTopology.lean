@@ -64,7 +64,7 @@ theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Mod
     simp [bil']
   rw [foo]
   apply Continuous.comp this
-  apply Continuous.prod_mk
+  apply Continuous.prodMk
   · exact continuous_of_linearMap (elinear.toLinearMap ∘ₗ (LinearMap.fst R A B))
   · fun_prop
 
