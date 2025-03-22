@@ -61,9 +61,8 @@ lemma well_defined {a : A} (hVa : ∀ γ ∈ V, γ • a = a) {X : Set (G ⧸ V)
   have he₀ : Set.BijOn e s (Quotient.out '' X) := by
     refine Set.BijOn.comp ?_ hs
     exact Set.InjOn.bijOn_image <| Set.injOn_of_injective Quotient.out_injective
-  have he₁ : ∀ g ∈ s, g • a = (e g) • a := by
+  have he₁ : ∀ g ∈ s, g • a = (Quotient.out (QuotientGroup.mk g : G ⧸ V)) • a := by
     intro g hgs
-    unfold e
     obtain ⟨v, hv⟩ := QuotientGroup.mk_out_eq_mul V g
     rw [hv, mul_smul, hVa v v.2]
   exact finsum_mem_eq_of_bijOn e he₀ he₁
@@ -82,6 +81,7 @@ lemma finsum_to_finset {ι A : Type*} [AddCommMonoid A]
   rw [finsum_mem_eq_sum_of_inter_support_eq]
   simp
 
+-- This should be in Mathlib.Data.Set.Function
 theorem Set.bijOn_thing {α β γ : Type*} {f : α → β} {g : β → γ} {s : Set α}
     (hf : Set.InjOn f s) {t : Set γ} :
     Set.BijOn (g ∘ f) s t ↔ Set.BijOn g (f '' s) t := by
@@ -101,12 +101,13 @@ theorem Set.bijOn_thing {α β γ : Type*} {f : α → β} {g : β → γ} {s : 
       exact Set.mapsTo_image f s
     · exact Set.SurjOn.comp h₃ fun ⦃a⦄ a ↦ a
 
+-- This should be in Mathlib.Data.Set.Function
 theorem Set.bijOn_image_image {α β γ δ : Type*} {f : α → β} {g : β → δ}
     {h : α → γ} {i : γ → δ} (comm : g ∘ f = i ∘ h) {s : Set α} {t : Set β}
     (hbij : Set.BijOn f s t) : Set.BijOn i (h '' s) (g '' t) := by
   sorry
 
-/-- The Hecke operator -/
+/-- The Hecke operator T_g = [UgV] : A^V → A^U associated to the double coset UgV. -/
 noncomputable def T : {a : A // ∀ γ ∈ V, γ • a = a} → {a : A // ∀ γ ∈ U, γ • a = a} :=
   fun a ↦ ⟨∑ᶠ gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)), gᵢ • a.1, by
   intro u huU
