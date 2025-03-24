@@ -6,6 +6,7 @@ import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 
 /-!
 
@@ -416,7 +417,67 @@ noncomputable def ProdAdicCompletions.baseChangeEquiv :
     L ⊗[K] ProdAdicCompletions A K ≃ₐ[L] ProdAdicCompletions B L :=
   AlgEquiv.ofBijective
     (SemialgHom.baseChange_of_algebraMap (ProdAdicCompletions.baseChange A K L B))
-    sorry -- #239
+    (by
+      --strategy, compose a `K`-linear iso from `L ⊗ ∏ K v` to `∏ L w`
+      -- `prod_equiv` says that `∏ L ⊗ K v ≃ ∏v∣w ∏w L w`
+      let prod_equiv := AlgEquiv.piCongrRight (fun (v: HeightOneSpectrum A)
+        ↦ adicCompletionComapAlgEquiv A K L B v)
+      -- `commute` says `L ⊗ ∏ K v ≃ ∏ L ⊗ K v`
+      let commute := tensorPi_equiv_piTensor K L (adicCompletion K (R := A))
+      -- `restrict` map restricts `prod_equiv` to `K`-linear iso
+      let restrict := (prod_equiv.restrictScalars K).toLinearEquiv
+      -- `equiv_prod` gives a map from `L ⊗ ∏ K v ≃ ∏v∣w ∏w L w`
+      let equiv_prod := commute ≪≫ₗ restrict
+      -- not picking up instance; `inst_alg` should be a `haveI`? Fails on next `haveI`
+      let inst_alg : Algebra K (ProdAdicCompletions B L) := RingHom.toAlgebra <|
+        (algebraMap L (ProdAdicCompletions B L)).comp (algebraMap K L)
+      haveI : IsScalarTower K L (ProdAdicCompletions B L) :=
+        IsScalarTower.of_algebraMap_eq (congrFun rfl)
+      -- `prod_equiv'` gives a map from ∏v∣w ∏w L w ≃ ∏ L w
+      let prod_equiv' : (∀ (v : HeightOneSpectrum A),
+          (∀ w : {w : HeightOneSpectrum B // v = comap A w},
+        HeightOneSpectrum.adicCompletion L w.1)) ≃ₐ[L] ProdAdicCompletions B L :=
+        {
+        toFun f w := f (comap A w) ⟨w, rfl⟩
+        invFun g _ w := g w
+        -- better way to prove `left_inv`?
+        left_inv f := by
+          ext v w₁
+          simp only
+          congr
+          · exact w₁.2.symm
+          · rw [← w₁.2]
+          · exact proof_irrel_heq rfl w₁.2
+        right_inv _ := rfl
+        map_mul' _ _ := rfl
+        map_add' _ _ := rfl
+        commutes' _ := rfl
+      }
+      -- `restrict'` map restricts `prod_equiv'` to `K`-linear iso
+      let restrict' := (prod_equiv'.restrictScalars K).toLinearEquiv
+      -- `baseChangeEquiv'` gives us the `K`-linear iso `L ⊗ ∏ K v` to `∏ L w`
+      let baseChangeEquiv' := equiv_prod ≪≫ₗ restrict'
+      --show the maps are the same
+      have : ((SemialgHom.baseChange_of_algebraMap
+        (ProdAdicCompletions.baseChange A K L B)).restrictScalars K).toLinearMap =
+        (baseChangeEquiv').toLinearMap := by
+        apply TensorProduct.ext'
+        intro x y
+        simp only [AlgHom.toLinearMap_apply, AlgHom.coe_restrictScalars', LinearEquiv.coe_coe]
+        dsimp [SemialgHom.baseChange_of_algebraMap, baseChangeEquiv', restrict', prod_equiv',
+        equiv_prod, prod_equiv, restrict, commute]
+        refine funext ?_
+        intro w
+        erw [tensorPi_equiv_piTensor_apply]
+        dsimp [adicCompletionComapAlgEquiv]
+        rw [tensorAdicCompletionComapAlgHom_tmul_apply, Algebra.ofId_apply, Algebra.smul_def x]
+        erw [ProdAdicCompletions.baseChange]
+        rfl
+      suffices Function.Bijective ((SemialgHom.baseChange_of_algebraMap
+        (ProdAdicCompletions.baseChange A K L B)).restrictScalars K).toLinearMap by
+        convert this
+      rw [this]
+      exact baseChangeEquiv'.bijective)-- #239
 
 -- I am unclear about whether these next two sorries are in the right order.
 -- One direction of `baseChange_isFiniteAdele_iff` below (->) is easy, but perhaps the other way
