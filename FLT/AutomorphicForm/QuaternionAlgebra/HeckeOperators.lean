@@ -43,36 +43,37 @@ has finite index.
 
 section move_these
 
--- This should be in Mathlib.Algebra.BigOperators.Finprod
-lemma finsum_mem_eq_finset_sum {ι A : Type*} [AddCommMonoid A]
+-- PRed to mathlib in #23284
+lemma finsum_mem_eq_sum' {ι A : Type*} [AddCommMonoid A]
     {s : Set ι} (hs : s.Finite) (f : ι → A) :
     ∑ᶠ i ∈ s, f i = ∑ i ∈ hs.toFinset, f i := by
   rw [finsum_mem_eq_sum_of_inter_support_eq]
   simp
 
--- This should be in Mathlib.Data.Set.Function
+-- PRed to mathlib in #23284
+lemma smul_finsum_mem {ι A : Type*} [AddCommMonoid A]
+    {s : Set ι} (hs : s.Finite) (f : ι → A) {M : Type*} [Monoid M]
+    [DistribMulAction M A] (m : M) :
+    m • ∑ᶠ i ∈ s, f i = ∑ᶠ i ∈ s, m • f i := by
+  rw [finsum_mem_eq_sum' hs, Finset.smul_sum,
+    ← finsum_mem_eq_sum']
+
+-- PRed to mathlib #23286
 /-- If `f : α → β` and `g : β → γ` and if `f` is injective on `s`, then `f ∘ g` is a bijection
 on `s` iff  `g` is a bijection on `f '' s`. -/
-theorem _root_.Set.bijOn_comp_iff_bijOn_image {α β γ : Type*} {f : α → β} {g : β → γ} {s : Set α}
-    (hf : Set.InjOn f s) {t : Set γ} :
-    Set.BijOn (g ∘ f) s t ↔ Set.BijOn g (f '' s) t := by
+theorem Set.bijOn_comp_iff_bijOn_image {α β γ : Type*} {f : α → β} {g : β → γ} {s : Set α}
+    (hf : InjOn f s) {t : Set γ} :
+    Set.BijOn (g ∘ f) s t ↔ BijOn g (f '' s) t := by
   constructor
   · rintro ⟨h₁, h₂, h₃⟩
-    refine ⟨?_, ?_, ?_⟩
-    · exact Set.mapsTo_image_iff.mpr h₁
-    · exact Set.InjOn.image_of_comp h₂
-    · intro x hx
-      obtain ⟨y, hy, rfl⟩ := h₃ hx
-      refine ⟨f y, ?_, rfl⟩
-      refine ⟨y, hy, rfl⟩
+    refine ⟨mapsTo_image_iff.mpr h₁, InjOn.image_of_comp h₂, fun x hx ↦ ?_⟩
+    obtain ⟨y, hy, rfl⟩ := h₃ hx
+    exact ⟨f y, ⟨y, hy, rfl⟩, rfl⟩
   · rintro ⟨h₁, h₂, h₃⟩
-    refine ⟨?_, ?_, ?_⟩
-    · exact Set.mapsTo_image_iff.mp h₁
-    · apply Set.InjOn.comp h₂ hf
-      exact Set.mapsTo_image f s
-    · exact Set.SurjOn.comp h₃ fun ⦃a⦄ a ↦ a
+    exact ⟨mapsTo_image_iff.mp h₁, InjOn.comp h₂ hf <| mapsTo_image f s,
+      SurjOn.comp h₃ <| surjOn_image _ _⟩
 
--- This should be in Mathlib.Data.Set.Function
+-- PRed to mathlib #23286
 /--
 If we have a commutative square
 
@@ -84,19 +85,19 @@ p₁       p₂
 γ --g--> δ
 
 and `f` induces a bijection from `s : Set α` to `t : Set β` then `g`
-induces a bijection from the image of `s` to the image of `t`, as long as it
+induces a bijection from the image of `s` to the image of `t`, as long as `g` is
 is injective on the image of `s`.
 -/
-theorem _root_.Set.bijOn_image_image {α β γ δ : Type*} {f : α → β} {p₁ : α → γ} {p₂ : β → δ}
+theorem Set.bijOn_image_image {α β γ δ : Type*} {f : α → β} {p₁ : α → γ} {p₂ : β → δ}
     {g : γ → δ} (comm : ∀ a, p₂ (f a) = g (p₁ a)) {s : Set α} {t : Set β}
-    (hbij : Set.BijOn f s t) (hinj: Set.InjOn g (p₁ '' s)) : Set.BijOn g (p₁ '' s) (p₂ '' t) := by
+    (hbij : BijOn f s t) (hinj: InjOn g (p₁ '' s)) : BijOn g (p₁ '' s) (p₂ '' t) := by
   obtain ⟨h1, h2, h3⟩ := hbij
   refine ⟨?_, hinj, ?_⟩
   . rintro _ ⟨a, ha, rfl⟩
     exact ⟨f a, h1 ha, by rw [comm a]⟩
   . rintro _ ⟨b, hb, rfl⟩
     obtain ⟨a, ha, rfl⟩ := h3 hb
-    rw [← Set.image_comp, comm]
+    rw [← image_comp, comm]
     exact ⟨a, ha, rfl⟩
 
 end move_these
@@ -136,47 +137,38 @@ lemma eq_finsum_quotient_out_of_bijOn
     rw [hv, mul_smul, hVa v v.2]
   exact finsum_mem_eq_of_bijOn e he₀ he₁
 
+variable (G : Type*) [Group G] (U : Subgroup G) (X : Set G) {u : G} in
+lemma _root_.Set.bijOn_smul (hu : u ∈ U) : Set.BijOn (fun x ↦ u • x) ((U : Set G) * X) (U * X) := by
+  refine ⟨?_, Set.injOn_of_injective (MulAction.injective u), ?_⟩
+  · rintro x ⟨u', hu', x, hx, rfl⟩
+    exact ⟨u * u', mul_mem hu hu', x, hx, by simp [mul_assoc]⟩
+  · rintro x ⟨u', hu', x, hx, rfl⟩
+    exact ⟨(u⁻¹ * u') * x, ⟨u⁻¹ * u', mul_mem (inv_mem hu) hu', x, hx, rfl⟩, by simp [mul_assoc]⟩
+
 /-- The Hecke operator T_g = [UgV] : A^V → A^U associated to the double coset UgV. -/
 noncomputable def HeckeOperator_toFun : {a : A // ∀ γ ∈ V, γ • a = a} → {a : A // ∀ γ ∈ U, γ • a = a} :=
   fun a ↦ ⟨∑ᶠ gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)), gᵢ • a.1, by
   intro u huU
   classical
   have := h.image Quotient.out
-  -- missing lemma from finsum means we need to convert to finset and back
-  rw [finsum_mem_eq_finset_sum this, Finset.smul_sum,
-    ← finsum_mem_eq_finset_sum this, ← finsum_mem_eq_finset_sum this]
-  rw [← eq_finsum_quotient_out_of_bijOn (X := (QuotientGroup.mk '' (↑U * g • ↑V)))
-        (s := u • (Quotient.out '' (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)))) a.2]
+  rw [smul_finsum_mem (h.image Quotient.out), ← eq_finsum_quotient_out_of_bijOn a.2]
   · rw [finsum_mem_eq_of_bijOn (fun g ↦ u • g)]
     · exact Set.InjOn.bijOn_image <| Set.injOn_of_injective (MulAction.injective u)
     · simp [mul_smul]
-  · -- fun
-    apply (Set.bijOn_comp_iff_bijOn_image (Set.injOn_of_injective (MulAction.injective u))).1
+  · apply (Set.bijOn_comp_iff_bijOn_image (Set.injOn_of_injective (MulAction.injective u))).1
     change Set.BijOn ((fun xbar ↦ u • xbar) ∘ (QuotientGroup.mk : G → G ⧸ V)) _ _
     rw [Set.bijOn_comp_iff_bijOn_image]
     · rw [← Set.image_comp]
       simp only [Function.comp_apply, Quotient.out_eq, Set.image_id']
       refine Set.bijOn_image_image (f := fun (x : G) ↦ u • x) (p₁ := (QuotientGroup.mk : G → G ⧸ V))
         (fun a ↦ rfl) ?_ (Set.injOn_of_injective (MulAction.injective u))
-      refine ⟨?_, ?_, ?_⟩
-      . rintro x ⟨u', hu', gv, hgv, rfl⟩
-        refine ⟨u * u', mul_mem huU hu', gv, hgv, ?_⟩
-        simp [mul_assoc]
-      . exact Set.injOn_of_injective (MulAction.injective u)
-      · rintro x ⟨u', hu', gv, hgv, rfl⟩
-        refine ⟨(u⁻¹ * u') * gv, ⟨u⁻¹ * u', mul_mem (inv_mem huU) hu', gv, hgv, rfl⟩, ?_⟩
-        simp [mul_assoc]
+      apply Set.bijOn_smul _ _ _ huU
     · refine Set.InjOn.image_of_comp ?_
-      change Set.InjOn (fun x ↦ QuotientGroup.mk (Quotient.out x)) _
-      simp only [Quotient.out_eq]
+      simp only [Function.comp_def, Quotient.out_eq]
       exact Function.Injective.injOn Function.injective_id
     ⟩
 
-namespace HeckeOperator_toFun
-
--- define `FixedPoints`?
+-- define `FixedPoints`? (TODO)
 
 --lemma map_add (a b : {a : A | ∀ v ∈ V, v • a = a}) :
 --  HeckeOperator_toFun h a + HeckeOperator_toFun h b = 0 := sorry
-
-#check {a : A // ∀ γ ∈ V, γ • a = a}
