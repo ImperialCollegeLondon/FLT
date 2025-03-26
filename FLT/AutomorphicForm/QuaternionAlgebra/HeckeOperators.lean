@@ -16,18 +16,15 @@ from `A^V` (the `V`-fixedpoints of `G` on `A`) to `A^U`.
 
 ## Main definition
 
+Let G act on A via R-linear maps.
+
+* `AbstractHeckeOperator.HeckeOperator` : the R-linear map from A^V to A^U
+  coming from the double coset `UgV`.
+
 ## Mathematical details
 
-
-Before we give the definition, let us observe that our finiteness
-hypothesis is the same as asking that g⁻¹Ug ∩ V has finite index in
-g⁻¹Ug, and by an appropriate version of the second isomorphism theorem,
-that g⁻¹UgV is a finite union of left cosets hᵢV of V.
-Hence the double coset UgV is also a finite union of left cosets
-of `V` (namely `ghᵢV`).
-
 The definition of the Hecke operator is as follows. Write UgV as a
-finite disjoint union gᵢV.
+finite disjoint union gᵢV (the finiteness is our running assumption).
 If a ∈ A^V then we define `[UgV]a := ∑ᵢ gᵢ•a`. Note that replacing
 the choice of gᵢ with another element g'ᵢ := gᵢv will not change gᵢ•a
 as a ∈ A^v, so the sum is a well-defined element of A. Finally
