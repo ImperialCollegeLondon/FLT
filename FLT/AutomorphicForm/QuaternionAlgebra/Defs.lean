@@ -3,7 +3,11 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.DivisionAlgebra.Finiteness
+import FLT.Mathlib.Algebra.IsQuaternionAlgebra
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Topology.Algebra.Module.ModuleTopology
 
 /-
 
@@ -15,12 +19,9 @@ suppress_compilation
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
-variable (D : Type*) [Ring D] [Algebra F D] --[IsCentralSimple F D] [FiniteDimensional F D]
+variable (D : Type*) [Ring D] [Algebra F D]
 
 namespace TotallyDefiniteQuaternionAlgebra
-
--- noncomputable example : D →+* (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
---   Algebra.TensorProduct.includeLeftRingHom
 
 open scoped TensorProduct NumberField
 
@@ -28,99 +29,121 @@ open DedekindDomain
 
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
-variable {F D} in
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
+/-- The inclusion 𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ) -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
   Units.map Algebra.TensorProduct.rightAlgebra.algebraMap.toMonoidHom
 
+-- it's actually equal but ⊆ is all we need, and equality is harder
+lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
+  sorry
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
+  moduleTopology (FiniteAdeleRing (𝓞 F) F) _
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
+  ⟨rfl⟩
+
+
+variable [IsQuaternionAlgebra F D] in
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+instance : Module.Finite (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := by
+  have foo : Module.Finite F D := inferInstance
+  -- Now follows from "if M is a finite F-module then M ⊗[F] A is a finite A-module"
+  sorry
+
+variable [IsQuaternionAlgebra F D] in
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
+  IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) _
 /-!
-This definition is made in mathlib-generality but is *not* the definition of an automorphic
-form unless Dˣ is compact mod centre at infinity. This hypothesis will be true if `D` is a
-totally definite quaternion algebra.
+This definition is made in mathlib-generality but is *not* the definition of a
+weight 2 automorphic form unless Dˣ is compact mod centre at infinity.
+This hypothesis will be true if `D` is a totally definite quaternion algebra.
 -/
-structure AutomorphicForm
+structure WeightTwoAutomorphicForm
   -- defined over R
-  (R : Type*) [CommRing R]
-  -- of weight W
-  (W : Type*) [AddCommGroup W] [Module R W] [MulAction Dˣ W]
-  -- and level U
-  (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
-  -- and character χ
-  (χ : (FiniteAdeleRing (𝓞 F) F)ˣ →* R) where
+  (R : Type*) [AddCommMonoid R] where
   -- definition
-  toFun : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ → W
+  toFun : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ → R
   left_invt : ∀ (δ : Dˣ) (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
-    toFun (incl₁ δ * g) = δ • (toFun g)
-  has_character : ∀ (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (z : (FiniteAdeleRing (𝓞 F) F)ˣ),
-    toFun (g * incl₂ F D z) = χ z • toFun g
-  right_invt : ∀ (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
+    toFun (incl₁ F D δ * g) = (toFun g)
+--  (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+  right_invt : ∃ (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
+    IsOpen (U : Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) ∧
+    ∀ (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
     ∀ u ∈ U, toFun (g * u) = toFun g
+  trivial_central_char (z : (FiniteAdeleRing (𝓞 F) F)ˣ)
+      (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+      toFun (g * incl₂ F D z) = toFun g
 
-namespace AutomorphicForm
+variable {F D}
 
--- defined over R
-variable  (R : Type*) [CommRing R]
-  -- weight
-  (W : Type*) [AddCommGroup W] [Module R W] [DistribMulAction Dˣ W]
-  -- NB actions of Dˣ and R should commute
-  -- level
-  (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) -- subgroup should be compact and open
-  -- character
-  (χ : (FiniteAdeleRing (𝓞 F) F)ˣ →* R)
+namespace WeightTwoAutomorphicForm
 
-variable {F D R W U χ}
+section add_comm_group
 
-instance : CoeFun (AutomorphicForm F D R W U χ) (fun _ ↦ Dfx F D → W) where
+variable {R : Type*} [AddCommGroup R]
+
+instance : CoeFun (WeightTwoAutomorphicForm F D R) (fun _ ↦ Dfx F D → R) where
   coe := toFun
 
-attribute [coe] AutomorphicForm.toFun
+attribute [coe] WeightTwoAutomorphicForm.toFun
 
 @[ext]
-theorem ext (φ ψ : AutomorphicForm F D R W U χ) (h : ∀ x, φ x = ψ x) : φ = ψ := by
+theorem ext (φ ψ : WeightTwoAutomorphicForm F D R) (h : ∀ x, φ x = ψ x) : φ = ψ := by
   cases φ; cases ψ; simp only [mk.injEq]; ext; apply h
 
-def zero : (AutomorphicForm F D R W U χ) where
+def zero : (WeightTwoAutomorphicForm F D R) where
   toFun := 0
   left_invt δ _ := by simp
-  has_character _ z := by simp
-  right_invt _ u _ := by simp
+  right_invt := ⟨⊤, by simp⟩
+  trivial_central_char _ z := by simp
 
-instance : Zero (AutomorphicForm F D R W U χ) where
+instance : Zero (WeightTwoAutomorphicForm F D R) where
   zero := zero
 
 @[simp]
 theorem zero_apply (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
-    (0 : AutomorphicForm F D R W U χ) x = 0 := rfl
+    (0 : WeightTwoAutomorphicForm F D R) x = 0 := rfl
 
-def neg (φ : AutomorphicForm F D R W U χ) : AutomorphicForm F D R W U χ where
+def neg (φ : WeightTwoAutomorphicForm F D R) : WeightTwoAutomorphicForm F D R where
   toFun x := - φ x
   left_invt δ g := by simp [left_invt]
-  has_character g z := by simp [has_character]
-  right_invt g u hu := by simp_all [right_invt]
+  right_invt := by
+    obtain ⟨U, hU⟩ := φ.right_invt
+    simp_all [right_invt]
+  trivial_central_char g z := by simp [trivial_central_char]
 
-instance : Neg (AutomorphicForm F D R W U χ) where
+instance : Neg (WeightTwoAutomorphicForm F D R) where
   neg := neg
 
 @[simp, norm_cast]
-theorem neg_apply (φ : AutomorphicForm F D R W U χ) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
-    (-φ : AutomorphicForm F D R W U χ) x = -(φ x) := rfl
+theorem neg_apply (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+    (-φ : WeightTwoAutomorphicForm F D R) x = -(φ x) := rfl
 
-def add (φ ψ : AutomorphicForm F D R W U χ) : AutomorphicForm F D R W U χ where
+def add (φ ψ : WeightTwoAutomorphicForm F D R) : WeightTwoAutomorphicForm F D R where
   toFun x := φ x + ψ x
   left_invt := by simp [left_invt]
-  has_character := by simp [has_character]
-  right_invt := by simp_all [right_invt]
+  right_invt := by
+    obtain ⟨U, hU⟩ := φ.right_invt
+    obtain ⟨V, hV⟩ := ψ.right_invt
+    use U ⊓ V
+    simp_all [right_invt, IsOpen.inter]
+  trivial_central_char := by simp [trivial_central_char]
 
-instance : Add (AutomorphicForm F D R W U χ) where
+instance : Add (WeightTwoAutomorphicForm F D R) where
   add := add
 
 @[simp, norm_cast]
-theorem add_apply (φ ψ : AutomorphicForm F D R W U χ) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+theorem add_apply (φ ψ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (φ + ψ) x = (φ x) + (ψ x) := rfl
 
-instance addCommGroup : AddCommGroup (AutomorphicForm F D R W U χ) where
+instance addCommGroup : AddCommGroup (WeightTwoAutomorphicForm F D R) where
   add := (· + ·)
   add_assoc := by intros; ext; simp [add_assoc];
   zero := 0
@@ -132,28 +155,117 @@ instance addCommGroup : AddCommGroup (AutomorphicForm F D R W U χ) where
   neg_add_cancel := by intros; ext; simp
   add_comm := by intros; ext; simp [add_comm]
 
--- from this point we need the Dˣ-action on W to be R-linear
-variable [SMulCommClass R Dˣ W]
+open scoped Pointwise
 
-def smul (r : R) (φ : AutomorphicForm F D R W U χ) :
-    AutomorphicForm F D R W U χ where
+-- this should be in mathlib
+lemma _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] {U : Subgroup G} (hU : IsOpen (U : Set G)) (g : ConjAct G) :
+    IsOpen ((g • U : Subgroup G) : Set G) := by
+  sorry
+
+open ConjAct
+
+variable [IsQuaternionAlgebra F D]
+
+def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAutomorphicForm F D R) :
+    WeightTwoAutomorphicForm F D R where
+  toFun x := φ (x * g)
+  left_invt δ x := by simp [left_invt, mul_assoc]
+  right_invt := by
+    obtain ⟨U, hU⟩ := φ.right_invt
+    refine ⟨(toConjAct g) • U, ?_, ?_⟩
+    · replace hU := hU.1
+      exact isOpen_smul hU (toConjAct g)
+    · rintro k x ⟨u, hu, rfl⟩
+      simp [smul_def, ← hU.2 (k * g) u hu]
+      group
+  trivial_central_char z x := by
+    simp only [mul_assoc]
+    have := range_incl₂_le_center F D ⟨z, rfl⟩
+    rw [Subgroup.mem_center_iff] at this
+    rw [← this, ← mul_assoc, trivial_central_char]
+
+instance : SMul (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+  smul := group_smul
+
+@[simp]
+lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+    (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+    (g • φ) x = φ (x * g) := rfl
+
+instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+  smul := group_smul
+  one_smul φ := by ext; simp
+  mul_smul g h φ := by ext; simp [mul_assoc]
+  smul_zero g := by ext; simp
+  smul_add g φ ψ := by ext; simp
+
+end add_comm_group
+
+section comm_ring
+
+variable {R : Type*} [CommRing R]
+
+def ring_smul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
+    WeightTwoAutomorphicForm F D R where
       toFun g := r • φ g
       left_invt := by simp [left_invt, smul_comm]
-      has_character g z := by simp only [has_character, smul_comm r]
-      right_invt := by simp_all [right_invt]
+      right_invt := by
+        obtain ⟨U, hU⟩ := φ.right_invt
+        use U
+        simp_all [right_invt]
+      trivial_central_char g z := by simp only [trivial_central_char, smul_comm r]
 
-instance : SMul R (AutomorphicForm F D R W U χ) where
-  smul := smul
+instance : SMul R (WeightTwoAutomorphicForm F D R) where
+  smul := ring_smul
 
-lemma smul_apply (r : R) (φ : AutomorphicForm F D R W U χ) (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
+lemma smul_apply (r : R) (φ : WeightTwoAutomorphicForm F D R)
+    (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
     (r • φ) g = r • (φ g) := rfl
 
-instance module : Module R (AutomorphicForm F D R W U χ) where
+instance module : Module R (WeightTwoAutomorphicForm F D R) where
   one_smul g := by ext; simp [smul_apply]
-  mul_smul r s g := by ext; simp [smul_apply, mul_smul]
+  mul_smul r s g := by ext; simp [smul_apply, mul_smul, mul_assoc]
   smul_zero r := by ext; simp [smul_apply]
-  smul_add r f g := by ext; simp [smul_apply]
-  add_smul r s g := by ext; simp [smul_apply, add_smul]
+  smul_add r f g := by ext; simp [smul_apply, mul_add]
+  add_smul r s g := by ext; simp [smul_apply, add_mul]
   zero_smul g := by ext; simp [smul_apply]
 
-end TotallyDefiniteQuaternionAlgebra.AutomorphicForm
+variable [IsQuaternionAlgebra F D]
+
+instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R (WeightTwoAutomorphicForm F D R) where
+  smul_comm g r φ := by
+    ext x
+    simp [smul_apply]
+
+end comm_ring
+
+end WeightTwoAutomorphicForm
+
+section finite_level
+
+variable [IsQuaternionAlgebra F D]
+
+def WeightTwoAutomorphicFormOfLevel_aux (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+    (R : Type*) [CommRing R] : Submodule R (WeightTwoAutomorphicForm F D R) where
+  carrier := {φ | ∀ u ∈ U, u • φ = φ}
+  add_mem' {a b} ha hb := by simp_all
+  zero_mem' := by simp_all
+  smul_mem' c {x} hx := by simp_all [smul_comm]
+
+def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+    (R : Type*) [CommRing R] : Type _ := WeightTwoAutomorphicFormOfLevel_aux U R
+
+variable (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (R : Type*) [CommRing R]
+
+instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) :=
+  AddSubgroup.toAddCommGroup (WeightTwoAutomorphicFormOfLevel_aux U R).toAddSubgroup
+
+instance : Module R (WeightTwoAutomorphicFormOfLevel U R) :=
+  SMulMemClass.toModule (WeightTwoAutomorphicFormOfLevel_aux U R)
+
+end finite_level
+
+end TotallyDefiniteQuaternionAlgebra
+
+#min_imports

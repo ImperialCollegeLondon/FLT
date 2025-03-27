@@ -80,7 +80,7 @@ def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i ∈ range (n : ℕ), i !, by
   intros D N hDN
   dsimp only
   obtain ⟨k, hk⟩ := exists_add_of_le <| le_of_dvd N.pos hDN
-  simp_rw [map_sum, map_natCast, hk, sum_range_add, add_right_eq_self]
+  simp_rw [map_sum, map_natCast, hk, sum_range_add, add_eq_left]
   refine sum_eq_zero (fun i _ => ?_)
   rw [ZMod.natCast_zmod_eq_zero_iff_dvd]
   exact Nat.dvd_factorial D.pos le_self_add
@@ -116,7 +116,7 @@ lemma e_factorial_succ (j : ℕ) :
     e ⟨(j + 1)!, by positivity⟩ = ∑ i ∈ range (j + 1), i ! := by
   simp_rw [e_def, PNat.mk_coe, cast_sum]
   obtain ⟨k, hk⟩ := exists_add_of_le <| self_le_factorial (j + 1)
-  rw [hk, sum_range_add, add_right_eq_self]
+  rw [hk, sum_range_add, add_eq_left]
   refine sum_eq_zero (fun i _ => ?_)
   rw [ZMod.natCast_zmod_eq_zero_iff_dvd, ← hk]
   exact factorial_dvd_factorial (Nat.le_add_right _ _)
@@ -422,7 +422,7 @@ lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
     set zinvRat : ℚ := a / b with zinvRat_def
     have hzinvRat : z * zinvRat = 1 := by
       rw [mul_div, div_eq_one_iff_eq]
-      · rw_mod_cast [Int.mul_sign z]
+      · rw_mod_cast [Int.mul_sign_self z]
       · exact_mod_cast Int.natAbs_ne_zero.mpr znez
     let zinvZHat : ZHatˣ := zHat⁻¹
     have hzinvZHat : ↑zHat * ↑zinvZHat = (1 : ZHat) := Units.mul_inv zHat
