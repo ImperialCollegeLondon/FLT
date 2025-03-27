@@ -34,7 +34,6 @@ import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
-import FLT.Mathlib.Data.Finset.Lattice.Fold
 import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.Data.Set.Function
 import FLT.Mathlib.GroupTheory.Complement
@@ -47,7 +46,6 @@ import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RepresentationTheory.Basic
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
