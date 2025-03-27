@@ -1,7 +1,9 @@
 import Mathlib.Algebra.Algebra.Bilinear
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Topology.Algebra.Module.ModuleTopology
+import Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
+import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Topology.Algebra.Monoid
 
 namespace IsModuleTopology
@@ -64,7 +66,7 @@ theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Mod
     simp [bil']
   rw [foo]
   apply Continuous.comp this
-  apply Continuous.prod_mk
+  apply Continuous.prodMk
   · exact continuous_of_linearMap (elinear.toLinearMap ∘ₗ (LinearMap.fst R A B))
   · fun_prop
 
@@ -253,3 +255,57 @@ def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
   continuous_invFun :=
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
+
+/--
+Given the following
+```
+e : A <–––––––––> B
+     \     /\    /
+      \   /  \  /
+       \ /    \/
+        S₁    S₂
+         \   /
+          \ /
+           R
+```
+where `A` and `B` are both `S₁` and `S₂`-algebras, `S₁` and `S₂` are algebras
+over a common base ring `R`, and `A` and `B` both have the `S₁`-module topology. If the algebras
+form scalar towers and the algebra map from  `S₁` to `B` factors through `e`, and if `A` and `B`
+are equivalent as `S₂`-algebras, then they are topologically equivalent as `S₂`-algebras as well
+(even though they do not necessarily have the `S₂`-module topologies).
+
+In application this is used for a situation where we have
+```
+v.Completion    L
+         \    /
+          \  /
+           K
+```
+for an infinite place `v` of a number field `K`. We have an `L`-algebra equivalence
+`L ⊗[K] v.Completion ≃ₐ[L] Π (w : v.ExtensionPlace L), wv.1.Completion`
+between `v.Completion`-module topological spaces. And so this allows us to assert that this
+is a _continuous_ `L`-algebra equivalence as well.
+-/
+def continuousAlgEquiv {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [TopologicalSpace A] [CommRing S₁]
+    [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A] [CommRing B] [Algebra S₁ A]
+    [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B] [IsTopologicalSemiring B] [IsTopologicalSemiring A]
+    [TopologicalSpace S₁] [Algebra R A] [Algebra R B] [IsModuleTopology S₁ A]
+    [IsModuleTopology S₁ B] [Algebra R S₁] [IsScalarTower R S₁ A] [Algebra R S₂]
+    [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₐ[S₂] B)
+    (he₁ : Continuous (e.toRingHom.comp (algebraMap S₁ A)))
+    (he₂ : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) :
+    A ≃A[S₂] B where
+  toAlgEquiv := e
+  continuous_toFun :=
+    IsModuleTopology.continuous_of_ringHom (φ := e.toRingHom) he₁
+  continuous_invFun := by
+    -- the inverse is continuous if `A`'s topology is coinduced by it
+    convert continuous_coinduced_rng
+    -- `A` has the `S₁`-module topology
+    rw [eq_moduleTopology S₁ A]
+    -- switch the equivalence scalars of `e` from `S₂` over to `S₁`
+    have := e.changeScalars R S₁ he₂ |>.toLinearEquiv.symm.surjective
+    -- then the `S₁`-module topology is coinduced by this `S₁`-algebra equivalence
+    rw [ModuleTopology.eq_coinduced_of_surjective this]
+    -- and the underlying functions are the same
+    congr
