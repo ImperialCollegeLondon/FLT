@@ -1,4 +1,4 @@
-import Mathlib.Analysis.Normed.Ring.Seminorm
+import Mathlib.Analysis.Normed.Ring.Basic
 import Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.Constructions
 
