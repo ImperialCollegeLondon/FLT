@@ -261,7 +261,7 @@ variable (v)
 /--
 Infinite places are represented by non-trivial absolute values.
 -/
-theorem exists_one_lt : v.1.IsNontrivial := by
+theorem isNontrivial : v.1.IsNontrivial := by
   refine isNontrivial_iff_exists_abv_gt_one.2 ⟨2, let ⟨φ, hφ⟩ := v.2; ?_⟩
   simp only [coe_apply, ← hφ, place_apply, map_ofNat, RCLike.norm_ofNat, Nat.one_lt_ofNat]
 
@@ -320,7 +320,7 @@ theorem exists_one_lt_lt_one [NumberField K] (h : 1 < Fintype.card (InfinitePlac
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' this
   let ⟨m, hm⟩ := e.symm.surjective v
   let e₀ := e.trans (Equiv.swap 0 m)
-  let ⟨x, hx⟩ := AbsoluteValue.exists_one_lt_lt_one (fun i => (e₀.symm i).exists_one_lt)
+  let ⟨x, hx⟩ := AbsoluteValue.exists_one_lt_lt_one (fun i => (e₀.symm i).isNontrivial)
       (fun i j hj => mt eq_of_eq_rpow <| e₀.symm.injective.ne hj)
   refine ⟨x, hm ▸ hx.1, fun w hw => ?_⟩
   have he₀ : e₀ v = 0 := by simp [e₀, e.symm_apply_eq.1 hm]
