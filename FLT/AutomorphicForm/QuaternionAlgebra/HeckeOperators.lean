@@ -40,25 +40,18 @@ has finite index.
 
 section move_these
 
--- PRed to mathlib in #23284
-lemma finsum_mem_eq_sum' {ι A : Type*} [AddCommMonoid A]
-    {s : Set ι} (hs : s.Finite) (f : ι → A) :
-    ∑ᶠ i ∈ s, f i = ∑ i ∈ hs.toFinset, f i := by
-  rw [finsum_mem_eq_sum_of_inter_support_eq]
-  simp
-
--- PRed to mathlib in #23284
+-- PRed to mathlib in #23330 (now merged)
 lemma smul_finsum_mem {ι A : Type*} [AddCommMonoid A]
     {s : Set ι} (hs : s.Finite) (f : ι → A) {M : Type*} [Monoid M]
     [DistribMulAction M A] (m : M) :
     m • ∑ᶠ i ∈ s, f i = ∑ᶠ i ∈ s, m • f i := by
-  rw [finsum_mem_eq_sum' hs, Finset.smul_sum,
-    ← finsum_mem_eq_sum']
+  rw [finsum_mem_eq_finite_toFinset_sum f hs, Finset.smul_sum,
+    ← finsum_mem_eq_finite_toFinset_sum]
 
--- PRed to mathlib #23286
+-- PRed to mathlib #23286 (merged)
 /-- If `f : α → β` and `g : β → γ` and if `f` is injective on `s`, then `f ∘ g` is a bijection
 on `s` iff  `g` is a bijection on `f '' s`. -/
-theorem Set.bijOn_comp_iff_bijOn_image {α β γ : Type*} {f : α → β} {g : β → γ} {s : Set α}
+theorem Set.bijOn_comp_iff {α β γ : Type*} {f : α → β} {g : β → γ} {s : Set α}
     (hf : InjOn f s) {t : Set γ} :
     Set.BijOn (g ∘ f) s t ↔ BijOn g (f '' s) t := by
   constructor
@@ -70,7 +63,7 @@ theorem Set.bijOn_comp_iff_bijOn_image {α β γ : Type*} {f : α → β} {g : �
     exact ⟨mapsTo_image_iff.mp h₁, InjOn.comp h₂ hf <| mapsTo_image f s,
       SurjOn.comp h₃ <| surjOn_image _ _⟩
 
--- PRed to mathlib #23286
+-- PRed to mathlib #23286 (merged)
 /--
 If we have a commutative square
 
@@ -108,13 +101,6 @@ lemma Set.BijOn.finite_iff_finite {α β : Type*} {f : α → β} {s : Set α}
   ⟨fun h1 ↦ h1.of_surjOn _ h.2.2, fun h1 ↦ h1.of_injOn h.1 h.2.1⟩
 
 end move_these
-
---section delaborator
-
---variable (α β : Type) [AddCommMonoid β] (s : Set α) (f : α → β) in
---#check ∑ᶠ a ∈ s, f a -- ∑ᶠ (a : α) (_ : a ∈ s), f a : β
-
---end delaborator
 
 namespace FixedPoints
 
@@ -158,7 +144,7 @@ instance [Monoid R] [MulAction R A] [SMulCommClass G R A] :
     push_cast
     simp [mul_smul]
 
--- should I be making a submodule?? Is that the point??
+-- Probably this should be a submodule instance and then get module instance for free
 instance module [Ring R] [Module R A] [SMulCommClass G R A] : Module R (fixedPoints G A) where
   one_smul a := by
     ext
@@ -189,6 +175,7 @@ end FixedPoints
 
 open scoped Pointwise
 
+-- should maybe be in mathlib but not sure where to put it.
 variable (G : Type*) [Group G] (U : Subgroup G) (X : Set G) {u : G} in
 lemma Set.bijOn_smul (hu : u ∈ U) : Set.BijOn (fun x ↦ u • x) ((U : Set G) * X) (U * X) := by
   refine ⟨?_, Set.injOn_of_injective (MulAction.injective u), ?_⟩
@@ -202,7 +189,8 @@ variable {G : Type*} [Group G] {A : Type*} [AddCommMonoid A]
 
 open MulAction
 
--- finiteness hypothesis we need
+-- finiteness hypothesis we need to make Hecke operators work: UgV is
+-- a finite number of left V-cosets.
 variable (h : (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)).Finite)
 
 open ConjAct
@@ -211,20 +199,6 @@ namespace AbstractHeckeOperator
 
 /-- If a is fixed by V then `∑ᶠ g ∈ s, g • a` is independent of the choice `s` of
 coset representatives in `G` for a subset of `G ⧸ V` -/
-lemma eq_finsum_quotient_out_of_bijOn
-    {a : A} (hVa : ∀ γ ∈ V, γ • a = a) {X : Set (G ⧸ V)}
-    {s : Set G} (hs : s.BijOn (QuotientGroup.mk : G → G ⧸ V) X) :
-    ∑ᶠ g ∈ s, g • a = ∑ᶠ g ∈ Quotient.out '' X, g • a := by
-  let e (g : G) : G := Quotient.out (QuotientGroup.mk g : G ⧸ V)
-  have he₀ : Set.BijOn e s (Quotient.out '' X) := by
-    refine Set.BijOn.comp ?_ hs
-    exact Set.InjOn.bijOn_image <| Set.injOn_of_injective Quotient.out_injective
-  have he₁ : ∀ g ∈ s, g • a = (Quotient.out (QuotientGroup.mk g : G ⧸ V)) • a := by
-    intro g hgs
-    obtain ⟨v, hv⟩ := QuotientGroup.mk_out_eq_mul V g
-    rw [hv, mul_smul, hVa v v.2]
-  exact finsum_mem_eq_of_bijOn e he₀ he₁
-
 lemma eq_finsum_quotient_out_of_bijOn' (a : fixedPoints V A)
     {X : Set (G ⧸ V)}
     {s : Set G} (hs : s.BijOn (QuotientGroup.mk : G → G ⧸ V) X) :
@@ -243,16 +217,14 @@ lemma eq_finsum_quotient_out_of_bijOn' (a : fixedPoints V A)
 noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
   ⟨∑ᶠ gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)), gᵢ • a.1, by
   rintro ⟨u, huU⟩
-  obtain ⟨a, ha⟩ := a
-  have aprop : ∀ v ∈ V, v • a = a := fun v hv ↦ ha ⟨v, hv⟩
   have := h.image Quotient.out
-  rw [smul_finsum_mem (h.image Quotient.out), ← eq_finsum_quotient_out_of_bijOn aprop]
+  rw [smul_finsum_mem (h.image Quotient.out), ← eq_finsum_quotient_out_of_bijOn' a]
   · rw [finsum_mem_eq_of_bijOn (fun g ↦ u • g)]
     · exact Set.InjOn.bijOn_image <| Set.injOn_of_injective (MulAction.injective u)
     · simp [mul_smul]
-  · apply (Set.bijOn_comp_iff_bijOn_image (Set.injOn_of_injective (MulAction.injective u))).1
+  · apply (Set.bijOn_comp_iff (Set.injOn_of_injective (MulAction.injective u))).1
     change Set.BijOn ((fun xbar ↦ u • xbar) ∘ (QuotientGroup.mk : G → G ⧸ V)) _ _
-    rw [Set.bijOn_comp_iff_bijOn_image]
+    rw [Set.bijOn_comp_iff]
     · rw [← Set.image_comp]
       simp only [Function.comp_apply, Quotient.out_eq, Set.image_id']
       refine Set.bijOn_image_image (f := fun (x : G) ↦ u • x) (p₁ := (QuotientGroup.mk : G → G ⧸ V))
@@ -310,5 +282,6 @@ theorem comm {g₁ g₂ : G} (h₁ : (QuotientGroup.mk '' (U * g₁ • U) : Set
   have hfs₁ : s₁.Finite := by rwa [hs₁.finite_iff_finite]
   have hfs₂ : s₂.Finite := by rwa [hs₂.finite_iff_finite]
   simp_rw [smul_finsum_mem hfs₁, smul_finsum_mem hfs₂, finsum_mem_comm _ hfs₁ hfs₂]
+  -- I'm sure there's a better way to do this!
   congr; ext g₂; congr; ext hg₂; congr; ext g₁; congr; ext hg₁;
   rw [smul_smul, smul_smul, hcomm _ hg₁ _ hg₂]
