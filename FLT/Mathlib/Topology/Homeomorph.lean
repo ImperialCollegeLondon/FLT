@@ -1,4 +1,4 @@
-import Mathlib.Topology.Homeomorph
+import Mathlib.Topology.Homeomorph.Defs
 
 -- elsewhere
 theorem Homeomorph.coinducing {A B : Type*} [τA : TopologicalSpace A]

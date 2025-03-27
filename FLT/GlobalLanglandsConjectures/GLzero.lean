@@ -55,6 +55,7 @@ namespace GL0
 
 variable (ρ : Weight 0)
 
+set_option synthInstance.maxHeartbeats 50000 in
 def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
     toFun := fun _ => c,
     is_smooth := {
@@ -70,7 +71,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
       exact {
       bounded_by := by
         simp
-        apply Exists.intro (Complex.abs c)
+        apply Exists.intro ‖c‖
         apply Exists.intro 0
         simp
     }

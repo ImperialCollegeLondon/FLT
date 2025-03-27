@@ -4,6 +4,7 @@ import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.Deformations.Algebra.InverseLimit
+import FLT.Deformations.IsResidueAlgebra
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.DivisionAlgebra.Finiteness
@@ -39,7 +40,6 @@ import FLT.Mathlib.Data.Set.Function
 import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
-import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.MeasureTheory.Group.Action
@@ -48,6 +48,8 @@ import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Finite
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.RingTheory.Valuation.Basic
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
@@ -62,6 +64,7 @@ import FLT.Mathlib.Topology.Algebra.Monoid
 import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
+import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
@@ -71,5 +74,18 @@ import FLT.NumberField.Completion
 import FLT.NumberField.Embeddings
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.WeakApproximation
+import FLT.Patching.Algebra
+import FLT.Patching.Module
+import FLT.Patching.Over
+import FLT.Patching.REqualsT
+import FLT.Patching.System
+import FLT.Patching.Ultraproduct
+import FLT.Patching.Utils.AdicTopology
+import FLT.Patching.Utils.Depth
+import FLT.Patching.Utils.InverseLimit
+import FLT.Patching.Utils.Lemmas
+import FLT.Patching.Utils.StructureFiniteness
+import FLT.Patching.Utils.TopologicallyFG
+import FLT.Patching.VanishingFilter
 import FLT.QuaternionAlgebra.NumberField
 import FLT.TateCurve.TateCurve
