@@ -217,7 +217,6 @@ lemma eq_finsum_quotient_out_of_bijOn' (a : fixedPoints V A)
 noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
   ⟨∑ᶠ gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)), gᵢ • a.1, by
   rintro ⟨u, huU⟩
-  have := h.image Quotient.out
   rw [smul_finsum_mem (h.image Quotient.out), ← eq_finsum_quotient_out_of_bijOn' a]
   · rw [finsum_mem_eq_of_bijOn (fun g ↦ u • g)]
     · exact Set.InjOn.bijOn_image <| Set.injOn_of_injective (MulAction.injective u)
