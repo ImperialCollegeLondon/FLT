@@ -32,4 +32,17 @@ noncomputable def mapSemialgHom {α : Type*} [CommRing α] [UniformSpace α]
     congr
     exact extensionHom_coe _ _ m
 
+theorem mapSemialgHom_apply {α : Type*} [CommRing α] [UniformSpace α]
+    [IsTopologicalRing α] [UniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
+    [UniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f)
+    (x : UniformSpace.Completion α) :
+    mapSemialgHom f hf x = UniformSpace.Completion.map f x := rfl
+
+theorem mapSemialgHom_coe {α : Type*} [CommRing α] [UniformSpace α]
+    [IsTopologicalRing α] [UniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
+    [UniformAddGroup β] [IsTopologicalRing β] {f : α →+* β} (hf : UniformContinuous f)
+    (a : α) :
+    mapSemialgHom f hf.continuous a = f a := by
+  rw [mapSemialgHom_apply, map_coe hf]
+
 end UniformSpace.Completion

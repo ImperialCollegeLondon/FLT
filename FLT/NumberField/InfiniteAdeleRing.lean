@@ -1,7 +1,5 @@
 import Mathlib
 import FLT.NumberField.Completion
-import FLT.Mathlib.Algebra.Algebra.Hom
-import FLT.Mathlib.Algebra.Algebra.Pi
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
@@ -13,7 +11,7 @@ open scoped TensorProduct
 /-- The canonical map from the infinite adeles of K to the infinite adeles of L -/
 noncomputable def NumberField.InfiniteAdeleRing.baseChange :
     InfiniteAdeleRing K →ₛₐ[algebraMap K L] InfiniteAdeleRing L :=
-  Pi.semialgHomPi _ _ fun _ => Completion.comapSemialgHom rfl
+  Pi.semialgHomPi _ _ fun _ => Completion.comapHom rfl
 
 noncomputable instance : Algebra (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) :=
   Algebra.TensorProduct.rightAlgebra

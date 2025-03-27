@@ -31,5 +31,5 @@ lemma Algebra.TopologicallyFG.module_ext (s : Set S)
       exact (((m₁.mul_smul _ _ _).trans (hx' _)).trans
         congr(x • $(hy' _))).trans (m₂.mul_smul _ _ _).symm
   | isClosed =>
-    exact isClosed_eq (hm₁'.1.comp (continuous_prod_mk.mpr ⟨continuous_id', continuous_const⟩))
-      (hm₂'.1.comp (continuous_prod_mk.mpr ⟨continuous_id', continuous_const⟩))
+    exact isClosed_eq (hm₁'.1.comp (continuous_prodMk.mpr ⟨continuous_id', continuous_const⟩))
+      (hm₂'.1.comp (continuous_prodMk.mpr ⟨continuous_id', continuous_const⟩))

@@ -60,7 +60,7 @@ jobs:
     name: Build project
     steps:
       - name: Checkout project
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
@@ -74,7 +74,7 @@ jobs:
         run: ~/.elan/bin/lake build FLT
 
       - name: Cache Mathlib docs
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: docbuild/.lake/build/doc
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
@@ -93,7 +93,7 @@ jobs:
           fi
 
       - name: Build blueprint and copy to `docs/blueprint`
-        uses: xu-cheng/texlive-action@v2
+        uses: xu-cheng/texlive-action@3586544d56723b23ab69aec1e9d73e7220d9c313 # v2
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
@@ -121,7 +121,7 @@ jobs:
 
       - name: Bundle dependencies
         if: github.event_name == 'push'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@1a615958ad9d422dd932dc1d5823942ee002799f # v1.227.0
         with:
           working-directory: docs
           ruby-version: "3.1"  # Specify Ruby version
@@ -136,11 +136,11 @@ jobs:
 
       - name: "Upload website (API documentation, blueprint and any home page)"
         if: github.event_name == 'push'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: ${{ env.DOCS_EXISTS == 'true' && 'docs/_site' || 'docs/' }}
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
