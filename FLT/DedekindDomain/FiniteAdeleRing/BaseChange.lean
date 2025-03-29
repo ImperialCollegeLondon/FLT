@@ -425,12 +425,39 @@ variable (v : HeightOneSpectrum A) in
 instance : IsModuleTopology (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
   ⟨rfl⟩
 
-noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A) :
-  L ⊗[K] v.adicCompletion K ≃A[L] ∀ w : v.Extension B, w.1.adicCompletion L
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+/-- `adicCompletionComapAlgEquiv` as a `K_v`-algebra equivalence -/
+noncomputable def adicCompletionComapRightAlgEquiv (v : HeightOneSpectrum A) :
+    L ⊗[K] v.adicCompletion K ≃ₐ[v.adicCompletion K] (∀ w : v.Extension B, w.1.adicCompletion L)
   where
+    __ := adicCompletionComapAlgEquiv A K L B v
+    commutes' r := by
+      have hmap : (algebraMap (v.adicCompletion K) (L ⊗[K] v.adicCompletion K)) r = 1 ⊗ₜ r :=
+        rfl
+      simp [hmap, adicCompletionComapAlgEquiv,
+        tensorAdicCompletionComapAlgHom, SemialgHom.algebraMap_apply]
+
+noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A) :
+    L ⊗[K] v.adicCompletion K ≃A[L] ∀ w : v.Extension B, w.1.adicCompletion L :=
+  let _ := comap_pi_algebra A K L B v |>.toModule
+  let _ := comap_pi_algebra A K L B v |>.toSMul
+  let _ : Algebra (v.adicCompletion K) (L ⊗[K] v.adicCompletion K) :=
+    Algebra.TensorProduct.rightAlgebra
+  have : IsModuleTopology (v.adicCompletion K) (∀ w : v.Extension B, w.1.adicCompletion L) :=
+    prodAdicCompletionComap_isModuleTopology A K L B v
+  have : ContinuousAdd (L ⊗[K] v.adicCompletion K) :=
+    ModuleTopology.continuousAdd (v.adicCompletion K) (L ⊗[K] v.adicCompletion K)
+  have := ModuleTopology.continuousSMul (v.adicCompletion K) (L ⊗[K] v.adicCompletion K)
+  let _ := fun (w : Extension B v) => comap_algebra A K L B w.2 |>.toSMul
+  have := fun (w : Extension B v) =>
+    ModuleTopology.continuousSMul (v.adicCompletion K) (w.1.adicCompletion L)
+  {
     toAlgEquiv := adicCompletionComapAlgEquiv A K L B v
-    continuous_toFun := sorry -- FLT#328
-    continuous_invFun := sorry -- FLT#328
+    continuous_toFun := IsModuleTopology.continuous_of_linearMap
+          (adicCompletionComapRightAlgEquiv A K L B v).toLinearMap
+    continuous_invFun := IsModuleTopology.continuous_of_linearMap
+          (adicCompletionComapRightAlgEquiv A K L B v).symm.toLinearMap
+  }
 
 attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left IsScalarTower.right
 
