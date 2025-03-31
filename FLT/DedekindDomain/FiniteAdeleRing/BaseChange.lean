@@ -435,18 +435,17 @@ noncomputable def ProdAdicCompletions.baseChangeEquiv :
         IsScalarTower.of_algebraMap_eq (congrFun rfl)
       -- `prod_equiv'` gives a map from ∏v∣w ∏w L w ≃ ∏ L w
       let prod_equiv' : (∀ (v : HeightOneSpectrum A),
-          (∀ w : {w : HeightOneSpectrum B // v = comap A w},
-        HeightOneSpectrum.adicCompletion L w.1)) ≃ₐ[L] ProdAdicCompletions B L :=
+          (∀ w : v.Extension B, w.1.adicCompletion L)) ≃ₐ[L] ProdAdicCompletions B L :=
         {
         toFun f w := f (comap A w) ⟨w, rfl⟩
-        invFun g _ w := g w
+        invFun g _ w := g w.1
         -- better way to prove `left_inv`?
         left_inv f := by
           ext v w₁
           simp only
           congr
-          · exact w₁.2.symm
-          · rw [← w₁.2]
+          · exact w₁.2
+          · rw [w₁.2]
           · exact proof_irrel_heq rfl w₁.2
         right_inv _ := rfl
         map_mul' _ _ := rfl

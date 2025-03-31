@@ -1,6 +1,18 @@
 import Mathlib.Algebra.DirectSum.Module
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 
+/-!
+
+# Tensor product commutes with direct product when tensoring with a finite free module
+
+If M is a finite free module and N i is an indexed collection of modules of a commutative ring
+R then there is an R-module isomorphsm between M ⊗ ∏ N i and ∏ M ⊗ N i.
+
+## Main definition
+
+* tensorPi_equiv_piTensor M ⊗[R] (∀ i, N i) ≃ₗ[R] ∀ i, (M ⊗[R] N i)
+
+-/
 open DirectSum
 
 section
@@ -48,7 +60,6 @@ end
 
 section
 
-
 variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] [Module.Free R M]
   [Module.Finite R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)] [∀ i, Module R (N i)]
 
@@ -81,35 +92,23 @@ noncomputable def tensorPi_equiv_piTensor :
 lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
     tensorPi_equiv_piTensor R M N (m ⊗ₜ n) = fun i ↦ (m ⊗ₜ n i) := by
   unfold tensorPi_equiv_piTensor
-  simp only [finitefreeModule_tensorPiEquiv, LinearEquiv.trans_apply, congr_tmul, LinearEquiv.refl_apply]
-  -- the goal now mentions `(Module.Free.repr R M) m` which has type `(some set) →₀ R`
-  -- i.e. `Finsupp`, so we can (rather inelegantly) change the goal so that it
-  -- doesn't mention m at all and only mentions `m'`, this finitely-supported function.
+  simp only [finitefreeModule_tensorPiEquiv, LinearEquiv.trans_apply, congr_tmul,
+    LinearEquiv.refl_apply]
   let m' := (Module.Free.repr R M) m
   have hm' : (Module.Free.repr R M).symm m' = m := by simp [m']
   rw [← hm']
   simp only [LinearEquiv.apply_symm_apply]
-  -- Now the goal only has m' not m so we can apply an induction principle
   induction m' using Finsupp.induction_linear
-  · -- goal true for zero function
-    ext
+  · ext
     simp
-  · -- goal preserved under addition
-    ext i
+  · ext i
     simp_all [add_tmul]
-  · -- what's left: goal is true for functions supported at one place
-    rename_i j r
-    -- STP for m' the function sending j to r and everything else to 0
-    -- randomly move an equiv to the other side out of hope more
-    -- than anything else
+  · rename_i j r
     rw [← LinearEquiv.eq_symm_apply]
     simp only [tensorPiEquiv_finitefreeModule, LinearEquiv.piCongrRight_symm]
     ext i
     simp only [LinearEquiv.piCongrRight_apply, LinearEquiv.rTensor_symm_tmul, LinearEquiv.symm_symm,
       LinearEquiv.apply_symm_apply, m']
-    -- we are surely close!
-    -- ⊢ (TensorProdEquivProdTensor R M N) (Finsupp.single j r ⊗ₜ[R] n) i = Finsupp.single j r ⊗ₜ[R] n i
-    -- Kevin got here
     rw [finsuppLeft_TensorPi_equiv_piTensor]
     simp only [LinearEquiv.trans_apply, LinearEquiv.piCongrRight_apply]
     rw [LinearEquiv.symm_apply_eq]
