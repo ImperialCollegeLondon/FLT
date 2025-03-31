@@ -439,7 +439,6 @@ noncomputable def ProdAdicCompletions.baseChangeEquiv :
         {
         toFun f w := f (comap A w) ⟨w, rfl⟩
         invFun g _ w := g w.1
-        -- better way to prove `left_inv`?
         left_inv f := by
           ext v w₁
           simp only
