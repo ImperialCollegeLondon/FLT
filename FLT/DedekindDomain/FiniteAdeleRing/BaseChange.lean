@@ -636,4 +636,3 @@ noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
   continuous_invFun := sorry
 
 end DedekindDomain
-#min_imports
