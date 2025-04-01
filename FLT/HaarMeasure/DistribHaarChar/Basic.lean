@@ -34,7 +34,7 @@ variable [TopologicalSpace A] [BorelSpace A] [IsTopologicalAddGroup A] [LocallyC
   [ContinuousConstSMul G A] [μ.IsAddHaarMeasure] [ν.IsAddHaarMeasure]
 
 variable (μ A) in
-@[simps (config := .lemmasOnly)]
+@[simps -isSimp]
 noncomputable def distribHaarChar : G →* ℝ≥0 where
   toFun g := addHaarScalarFactor (DomMulAct.mk g • addHaar) (addHaar (G := A))
   map_one' := by simp
