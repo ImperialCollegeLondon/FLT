@@ -13,6 +13,7 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Valued.NormedValued
 import Mathlib.RingTheory.Valuation.RankOne
 import Mathlib.Topology.Algebra.Module.FiniteDimension
+import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 
 /-!
 
