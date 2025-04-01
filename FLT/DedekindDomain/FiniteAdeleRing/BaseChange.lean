@@ -1,10 +1,18 @@
-import Mathlib.RingTheory.DedekindDomain.AdicValuation
-import FLT.Mathlib.Algebra.Order.Hom.Monoid
-import FLT.Mathlib.Algebra.Algebra.Hom
-import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Bilinear
+import FLT.Mathlib.Algebra.Algebra.Pi
+import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
+import Mathlib.Algebra.Algebra.Subalgebra.Pi
+import Mathlib.Algebra.Group.Int.TypeTags
+import Mathlib.Data.Int.WithZero
+import Mathlib.NumberTheory.RamificationInertia.Basic
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Topology.Algebra.Algebra.Equiv
+import Mathlib.Topology.Algebra.Module.ModuleTopology
+import Mathlib.Topology.Algebra.Valued.NormedValued
+import Mathlib.RingTheory.Valuation.RankOne
+import Mathlib.Topology.Algebra.Module.FiniteDimension
 
 /-!
 
@@ -627,5 +635,5 @@ noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
   continuous_toFun := sorry
   continuous_invFun := sorry
 
-
 end DedekindDomain
+#min_imports
