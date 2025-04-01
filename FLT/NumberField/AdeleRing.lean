@@ -1,4 +1,3 @@
-import Mathlib
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
