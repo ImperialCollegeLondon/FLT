@@ -7,8 +7,8 @@ import FLT.Mathlib.Algebra.Algebra.Hom
 
 namespace UniformSpace.Completion
 
-variable {α : Type*} [Ring α] [UniformSpace α] [IsTopologicalRing α] [UniformAddGroup α]
-  {β : Type*} [UniformSpace β] [Ring β] [UniformAddGroup β] [IsTopologicalRing β]
+variable {α : Type*} [Ring α] [UniformSpace α] [IsTopologicalRing α] [IsUniformAddGroup α]
+  {β : Type*} [UniformSpace β] [Ring β] [IsUniformAddGroup β] [IsTopologicalRing β]
   (f : α →+* β) (hf : Continuous f)
 
 theorem mapRingHom_apply {x : UniformSpace.Completion α} :
@@ -21,8 +21,8 @@ theorem mapRingHom_coe (hf : UniformContinuous f) (a : α) :
   rw [mapRingHom_apply, map_coe hf]
 
 noncomputable def mapSemialgHom {α : Type*} [CommRing α] [UniformSpace α]
-    [IsTopologicalRing α] [UniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
-    [UniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f) :
+    [IsTopologicalRing α] [IsUniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
+    [IsUniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f) :
     Completion α →ₛₐ[f] Completion β where
   __ := UniformSpace.Completion.mapRingHom f hf
   map_smul' m x := by
@@ -33,14 +33,14 @@ noncomputable def mapSemialgHom {α : Type*} [CommRing α] [UniformSpace α]
     exact extensionHom_coe _ _ m
 
 theorem mapSemialgHom_apply {α : Type*} [CommRing α] [UniformSpace α]
-    [IsTopologicalRing α] [UniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
-    [UniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f)
+    [IsTopologicalRing α] [IsUniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
+    [IsUniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f)
     (x : UniformSpace.Completion α) :
     mapSemialgHom f hf x = UniformSpace.Completion.map f x := rfl
 
 theorem mapSemialgHom_coe {α : Type*} [CommRing α] [UniformSpace α]
-    [IsTopologicalRing α] [UniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
-    [UniformAddGroup β] [IsTopologicalRing β] {f : α →+* β} (hf : UniformContinuous f)
+    [IsTopologicalRing α] [IsUniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
+    [IsUniformAddGroup β] [IsTopologicalRing β] {f : α →+* β} (hf : UniformContinuous f)
     (a : α) :
     mapSemialgHom f hf.continuous a = f a := by
   rw [mapSemialgHom_apply, map_coe hf]
