@@ -1,6 +1,5 @@
 import Mathlib
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.RingTheory.Valuation.Basic
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
