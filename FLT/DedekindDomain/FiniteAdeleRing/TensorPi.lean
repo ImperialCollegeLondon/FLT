@@ -96,7 +96,7 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
     LinearEquiv.refl_apply]
   let m' := (Module.Free.repr R M) m
   have hm' : (Module.Free.repr R M).symm m' = m := by simp [m']
-rw [← hm', LinearEquiv.apply_symm_apply]
+  rw [← hm', LinearEquiv.apply_symm_apply]
   induction m' using Finsupp.induction_linear
   · ext
     simp
