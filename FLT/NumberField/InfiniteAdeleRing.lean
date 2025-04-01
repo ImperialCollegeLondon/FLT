@@ -1,4 +1,3 @@
-import Mathlib
 import FLT.NumberField.Completion
 import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
