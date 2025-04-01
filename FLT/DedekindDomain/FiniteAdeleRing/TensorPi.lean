@@ -115,9 +115,7 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
     ext k
     rw [finsuppScalarLeft_apply, LinearMap.rTensor_tmul, Finsupp.lapply_apply,
       TensorProduct.lid_tmul, Finsupp.single_apply, ite_smul, zero_smul, ← Finsupp.single_apply]
-    apply congrFun
-    apply congrArg
-    clear k hm' m' m
+    congr
     rw [LinearEquiv.symm_apply_eq,finsuppLEquivDirectSum_single,
       finsuppScalarLeft_apply_tmul, Finsupp.sum_single_index (by simp),
       finsuppLEquivDirectSum_single, DirectSum.lof_eq_of, DirectSum.lof_eq_of,
