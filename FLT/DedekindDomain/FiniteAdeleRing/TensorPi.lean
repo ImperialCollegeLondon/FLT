@@ -1,4 +1,4 @@
-import Mathlib.Algebra.DirectSum.Module
+import Mathlib.LinearAlgebra.DirectSum.Finsupp
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 
 /-!
