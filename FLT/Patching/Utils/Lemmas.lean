@@ -97,14 +97,14 @@ theorem exists_subgroup_isOpen_and_subset {α : Type*} [TopologicalSpace α]
   exact ⟨G, hG, (hG'.trans hKU).trans hVU⟩
 
 @[simp]
-theorem TwoSidedIdeal.span_le {α} [NonUnitalNonAssocRing α] {s : Set α} {I : TwoSidedIdeal α} :
+theorem TwoSidedIdeal.span_le' {α} [NonUnitalNonAssocRing α] {s : Set α} {I : TwoSidedIdeal α} :
     span s ≤ I ↔ s ⊆ I :=
   ⟨subset_span.trans, fun h _ hx ↦ mem_span_iff.mp hx I h⟩
 
 @[simp]
 theorem TwoSidedIdeal.span_neg {α} [NonUnitalNonAssocRing α] (s : Set α) :
     TwoSidedIdeal.span (-s) = TwoSidedIdeal.span s := by
-  apply le_antisymm <;> rw [span_le]
+  apply le_antisymm <;> rw [span_le']
   · rintro x hx
     exact neg_neg x ▸ neg_mem _ (subset_span (s := s) hx)
   · rintro x hx
@@ -113,7 +113,7 @@ theorem TwoSidedIdeal.span_neg {α} [NonUnitalNonAssocRing α] (s : Set α) :
 @[simp]
 theorem TwoSidedIdeal.span_singleton_zero {α} [NonUnitalNonAssocRing α] :
     span {(0 : α)} = ⊥ :=
-  le_bot_iff.mp (span_le.mpr (by simp))
+  le_bot_iff.mp (span_le'.mpr (by simp))
 
 theorem TwoSidedIdeal.mem_span_singleton {α} [NonUnitalNonAssocRing α] {x : α} :
     x ∈ span {x} :=
@@ -126,17 +126,17 @@ def TwoSidedIdeal.leAddSubgroup {α} [NonUnitalNonAssocRing α] (G : AddSubgroup
     (by simp [Set.subset_def, G.zero_mem])
     (fun {x y} hx hy ↦ by
       have : span {x + y} ≤ span {x} ⊔ span {y} :=
-        span_le.mpr <| Set.singleton_subset_iff.mpr <|
+        span_le'.mpr <| Set.singleton_subset_iff.mpr <|
           mem_sup.mpr ⟨x, mem_span_singleton, y, mem_span_singleton, rfl⟩
       refine subset_trans (c := (G : Set α)) this fun a ha ↦ ?_
       obtain ⟨a₁, ha₁, a₂, ha₂, rfl⟩ := mem_sup.mp ha
       exact G.add_mem (hx ha₁) (hy ha₂))
     (fun {x} hx ↦ by simpa only [Set.mem_setOf_eq, ← Set.neg_singleton, TwoSidedIdeal.span_neg])
     (fun {x y} hy ↦ subset_trans (c := (G : Set α))
-      (TwoSidedIdeal.span_le.mpr <| by
+      (TwoSidedIdeal.span_le'.mpr <| by
         simpa using TwoSidedIdeal.mul_mem_left _ x y mem_span_singleton) hy)
     (fun {x y} hy ↦ subset_trans (c := (G : Set α))
-      (TwoSidedIdeal.span_le.mpr <| by
+      (TwoSidedIdeal.span_le'.mpr <| by
         simpa using TwoSidedIdeal.mul_mem_right _ x y mem_span_singleton) hy)
 
 lemma TwoSidedIdeal.leAddSubgroup_subset {α} [NonUnitalNonAssocRing α] (G : AddSubgroup α) :
@@ -338,55 +338,6 @@ lemma IsModuleTopology.compactSpace
     [CompactSpace R] [Module.Finite R M] : CompactSpace M :=
   letI : ContinuousAdd M := toContinuousAdd R M
   ⟨Submodule.isCompact_of_fg (Module.Finite.fg_top (R := R))⟩
-
-theorem Module.support_quotient {R M} [CommRing R] [AddCommGroup M]
-    [Module R M] [Module.Finite R M] (I : Ideal R) :
-    Module.support R (M ⧸ (I • ⊤ : Submodule R M)) =
-      Module.support R M ∩ PrimeSpectrum.zeroLocus I := by
-  apply subset_antisymm
-  · refine Set.subset_inter ?_ ?_
-    · exact Module.support_subset_of_surjective _ (Submodule.mkQ_surjective _)
-    · rw [support_eq_zeroLocus]
-      apply PrimeSpectrum.zeroLocus_anti_mono_ideal
-      rw [Submodule.annihilator_quotient]
-      exact fun x hx ↦ Submodule.mem_colon.mpr fun p ↦ Submodule.smul_mem_smul hx
-  · rintro p ⟨hp₁, hp₂⟩
-    rw [Module.mem_support_iff] at hp₁ ⊢
-    let Rₚ := Localization.AtPrime p.asIdeal
-    let Mₚ := LocalizedModule p.asIdeal.primeCompl M
-    let Mₚ' := LocalizedModule p.asIdeal.primeCompl (M ⧸ (I • ⊤ : Submodule R M))
-    let f : Mₚ →ₗ[R] Mₚ' := (LocalizedModule.map _ (Submodule.mkQ _)).restrictScalars R
-    have hf : LinearMap.ker f = I • ⊤ := by
-      refine (LinearMap.ker_localizedMap_eq_localized'_ker Rₚ ..).trans ?_
-      show Submodule.localized₀ _ _ _ = _
-      simp only [Submodule.ker_mkQ, Submodule.localized₀_smul, Submodule.localized₀_top]
-    let f' : (Mₚ ⧸ (I • ⊤ : Submodule R Mₚ)) ≃ₗ[R] Mₚ' :=
-      LinearEquiv.ofBijective (Submodule.liftQ _ f hf.ge) <| by
-        constructor
-        · rw [← LinearMap.ker_eq_bot, Submodule.ker_liftQ, hf,
-            ← le_bot_iff, Submodule.map_le_iff_le_comap, Submodule.comap_bot, Submodule.ker_mkQ]
-        · rw [← LinearMap.range_eq_top, Submodule.range_liftQ, LinearMap.range_eq_top]
-          exact (LocalizedModule.map_surjective _ _ (Submodule.mkQ_surjective _))
-    have : Module.Finite Rₚ Mₚ :=
-      Module.Finite.of_isLocalizedModule p.asIdeal.primeCompl
-        (LocalizedModule.mkLinearMap _ _)
-    have : Nontrivial (Mₚ ⧸ (I • ⊤ : Submodule R Mₚ)) := by
-      apply Submodule.Quotient.nontrivial_of_lt_top
-      rw [lt_top_iff_ne_top]
-      intro H
-      have : I.map (algebraMap R Rₚ) • (⊤ : Submodule Rₚ Mₚ) = ⊤ := by
-        rw [← top_le_iff]
-        show ⊤ ≤ (I.map (algebraMap R Rₚ) • (⊤ : Submodule Rₚ Mₚ)).restrictScalars R
-        rw [← H, Submodule.smul_le]
-        intro r hr n hn
-        rw [← algebraMap_smul Rₚ, Submodule.restrictScalars_mem]
-        exact Submodule.smul_mem_smul (Ideal.mem_map_of_mem _ hr) hn
-      have := Submodule.eq_bot_of_le_smul_of_le_jacobson_bot _ ⊤ Module.Finite.fg_top this.ge
-        ((Ideal.map_mono hp₂).trans (by
-          rw [Localization.AtPrime.map_eq_maximalIdeal]
-          exact IsLocalRing.maximalIdeal_le_jacobson _))
-      exact top_ne_bot this
-    exact f'.symm.nontrivial
 
 lemma ringKrullDim_quotient {R : Type*} [CommRing R] (I : Ideal R) :
     ringKrullDim (R ⧸ I) = Order.krullDim (PrimeSpectrum.zeroLocus (R := R) I) := by
