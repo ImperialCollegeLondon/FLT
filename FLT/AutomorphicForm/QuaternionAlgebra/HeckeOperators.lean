@@ -1,6 +1,7 @@
 import Mathlib.Algebra.BigOperators.GroupWithZero.Action
+import Mathlib.Algebra.Module.LinearMap.Defs
+import Mathlib.Algebra.Ring.Action.Submonoid
 import Mathlib.GroupTheory.GroupAction.Quotient
-import Mathlib
 /-
 
 # Abstract Hecke operators

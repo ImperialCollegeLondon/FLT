@@ -1,6 +1,6 @@
-import Mathlib
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Tower
+import Mathlib.RingTheory.TensorProduct.Basic
 
 open scoped TensorProduct
 variable {R S : Type*} [CommSemiring R] [CommSemiring S] {φ : R →+* S}

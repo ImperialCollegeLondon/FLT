@@ -1,4 +1,3 @@
-import Mathlib
 import FLT.NumberField.Completion
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
