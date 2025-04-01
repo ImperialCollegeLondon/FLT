@@ -102,8 +102,7 @@ rw [← hm', LinearEquiv.apply_symm_apply]
     simp
   · ext i
     simp_all [add_tmul]
-  · rename_i j r
-    rw [← LinearEquiv.eq_symm_apply]
+  · rw [← LinearEquiv.eq_symm_apply]
     simp only [tensorPiEquiv_finitefreeModule, LinearEquiv.piCongrRight_symm]
     ext i
     simp only [LinearEquiv.piCongrRight_apply, LinearEquiv.rTensor_symm_tmul, LinearEquiv.symm_symm,
