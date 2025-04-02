@@ -571,12 +571,8 @@ noncomputable def ProdAdicCompletions.baseChangeEquiv :
         toFun f w := f (comap A w) ⟨w, rfl⟩
         invFun g _ w := g w.1
         left_inv f := by
-          ext v w₁
+          ext v ⟨w, rfl⟩
           simp only
-          congr
-          · exact w₁.2
-          · rw [w₁.2]
-          · exact proof_irrel_heq rfl w₁.2
         right_inv _ := rfl
         map_mul' _ _ := rfl
         map_add' _ _ := rfl
