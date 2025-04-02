@@ -4,6 +4,7 @@ import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators
 import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 import FLT.Deformations.Algebra.InverseLimit
 import FLT.Deformations.IsResidueAlgebra
 import FLT.Deformations.RepresentationTheory.Irreducible
@@ -19,7 +20,6 @@ import FLT.HIMExperiments.flatness
 import FLT.HaarMeasure.DistribHaarChar.Basic
 import FLT.HaarMeasure.DistribHaarChar.Padic
 import FLT.HaarMeasure.DistribHaarChar.RealComplex
-import FLT.HaarMeasure.DomMulActMeasure
 import FLT.HaarMeasure.MeasurableSpacePadics
 import FLT.Hard.Results
 import FLT.Junk.Algebra

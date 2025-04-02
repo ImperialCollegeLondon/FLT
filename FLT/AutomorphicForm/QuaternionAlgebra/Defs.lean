@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 
@@ -283,5 +281,3 @@ instance : Module R (WeightTwoAutomorphicFormOfLevel U R) :=
 end finite_level
 
 end TotallyDefiniteQuaternionAlgebra
-
-#min_imports
