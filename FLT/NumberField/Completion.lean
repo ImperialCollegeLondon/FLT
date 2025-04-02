@@ -135,7 +135,7 @@ of `L` lying above `v`. -/
 def baseChangeEquiv :
     L ⊗[K] v.Completion ≃A[L] (wv : v.ExtensionPlace L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
-  IsModuleTopology.continuousAlgEquiv K v.Completion e (continuous_baseChange_tmul_right L v)
+  IsModuleTopology.continuousAlgEquiv' K v.Completion e (continuous_baseChange_tmul_right L v)
     (baseChange_of_algebraMap_tmul_right _)
 
 end NumberField.InfinitePlace.Completion
