@@ -594,7 +594,7 @@ noncomputable def ProdAdicCompletions.baseChangeEquiv :
         intro x y
         simp only [AlgHom.toLinearMap_apply, AlgHom.coe_restrictScalars', LinearEquiv.coe_coe]
         dsimp [SemialgHom.baseChange_of_algebraMap, baseChangeEquiv', restrict', prod_equiv',
-        equiv_prod, prod_equiv, restrict, commute]
+          equiv_prod, prod_equiv, restrict, commute]
         refine funext ?_
         intro w
         erw [tensorPi_equiv_piTensor_apply]
