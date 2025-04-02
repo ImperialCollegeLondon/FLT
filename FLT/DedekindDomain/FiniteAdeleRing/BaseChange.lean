@@ -606,7 +606,7 @@ noncomputable def ProdAdicCompletions.baseChangeEquiv :
         (ProdAdicCompletions.baseChange A K L B)).restrictScalars K).toLinearMap by
         convert this
       rw [this]
-      exact baseChangeEquiv'.bijective)-- #239
+      exact baseChangeEquiv'.bijective)
 
 -- I am unclear about whether these next two sorries are in the right order.
 -- One direction of `baseChange_isFiniteAdele_iff` below (->) is easy, but perhaps the other way
