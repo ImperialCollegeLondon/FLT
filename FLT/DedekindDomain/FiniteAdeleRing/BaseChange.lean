@@ -550,7 +550,7 @@ noncomputable def ProdAdicCompletions.baseChangeEquiv :
     (SemialgHom.baseChange_of_algebraMap (ProdAdicCompletions.baseChange A K L B))
     (by
       --strategy, compose a `K`-linear iso from `L ⊗ ∏ K v` to `∏ L w`
-      -- `prod_equiv` says that `∏ L ⊗ K v ≃ ∏v∣w ∏w L w`
+      -- `prod_equiv` says that `∏ L ⊗ K v ≃ ∏v∣w ∏w L w` as L-algebras
       let prod_equiv := AlgEquiv.piCongrRight (fun (v: HeightOneSpectrum A)
         ↦ adicCompletionComapAlgEquiv A K L B v)
       -- `commute` says `L ⊗ ∏ K v ≃ ∏ L ⊗ K v` as K-modules
