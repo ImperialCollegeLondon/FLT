@@ -598,9 +598,8 @@ noncomputable def ProdAdicCompletions.baseChangeEquiv :
         rw [tensorAdicCompletionComapAlgHom_tmul_apply, Algebra.ofId_apply, Algebra.smul_def x]
         erw [ProdAdicCompletions.baseChange]
         rfl
-      suffices Function.Bijective ((SemialgHom.baseChange_of_algebraMap
-        (ProdAdicCompletions.baseChange A K L B)).restrictScalars K).toLinearMap by
-        convert this
+      change Function.Bijective ((SemialgHom.baseChange_of_algebraMap
+        (ProdAdicCompletions.baseChange A K L B)).restrictScalars K).toLinearMap
       rw [this]
       exact baseChangeEquiv'.bijective)
 
