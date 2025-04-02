@@ -1,8 +1,6 @@
-import Mathlib.Algebra.Ring.Ext
-import Mathlib.Order.CompletePartialOrder
-import Mathlib.RingTheory.FiniteType
-import Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Patching.Utils.TopologicallyFG
+import Mathlib.Algebra.Ring.Ext
+import Mathlib.Topology.Algebra.Module.Equiv
 
 @[to_additive]
 instance {α : Type*} [Finite α] : Finite (Monoid α) :=
