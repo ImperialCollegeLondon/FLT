@@ -1,5 +1,4 @@
 import Mathlib.Algebra.Central.Defs
-import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.Algebra.Quaternion
 import Mathlib.NumberTheory.NumberField.Embeddings
 import Mathlib.Analysis.Quaternion -- for *notation* ℍ only!

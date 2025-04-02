@@ -3,7 +3,7 @@ Copyright (c) 2024 Andrew Yang, Yaël Dillies, Javier López-Contreras. All righ
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Andrew Yang, Yaël Dillies, Javier López-Contreras
 -/
-import FLT.HaarMeasure.DomMulActMeasure
+import Mathlib.MeasureTheory.Measure.Haar.Unique
 
 /-!
 # The distributive character of Haar measures
@@ -24,14 +24,12 @@ open scoped NNReal Pointwise ENNReal
 
 namespace MeasureTheory.Measure
 
-variable {G A : Type*} [Group G] [AddCommGroup A] [DistribMulAction G A]
-  [MeasurableSpace A]
-  [MeasurableSpace G] -- not needed actually
-  [MeasurableSMul G A] -- only need `MeasurableConstSMul` but we don't have this class.
-variable {μ ν : Measure A} {g : G}
-
-variable [TopologicalSpace A] [BorelSpace A] [IsTopologicalAddGroup A] [LocallyCompactSpace A]
-  [ContinuousConstSMul G A] [μ.IsAddHaarMeasure] [ν.IsAddHaarMeasure]
+variable {G A : Type*} [Group G] [AddCommGroup A] [DistribMulAction G A] [MeasurableSpace A]
+  -- We only need `MeasurableConstSMul G A` but we don't have this class. So we erroneously must
+  -- assume `MeasurableSpace G` + `MeasurableSMul G A`
+  [MeasurableSpace G] [MeasurableSMul G A] [TopologicalSpace A] [BorelSpace A]
+  [IsTopologicalAddGroup A] [LocallyCompactSpace A] [ContinuousConstSMul G A] {μ ν : Measure A}
+  {g : G} [μ.IsAddHaarMeasure] [ν.IsAddHaarMeasure]
 
 variable (μ A) in
 @[simps -isSimp]
@@ -69,7 +67,7 @@ variable [Regular μ] {s : Set A}
 
 variable (μ) in
 lemma distribHaarChar_mul (g : G) (s : Set A) : distribHaarChar A g * μ s = μ (g • s) := by
-  have : (DomMulAct.mk g • μ) s = μ (g • s) := by simp [domSMul_apply]
+  have : (DomMulAct.mk g • μ) s = μ (g • s) := by simp [dmaSMul_apply]
   rw [eq_comm, ← nnreal_smul_coe_apply, ← addHaarScalarFactor_smul_eq_distribHaarChar μ,
     ← this, ← smul_apply, ← isAddLeftInvariant_eq_smul_of_regular]
 
