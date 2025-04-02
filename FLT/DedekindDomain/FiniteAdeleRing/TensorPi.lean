@@ -26,8 +26,7 @@ def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i
   map_add' x y := by
     simp only [add_apply, Pi.add_apply, map_add]
     ext i
-    rw [Finset.sum_add_distrib]
-    rfl
+    simp [Finset.sum_add_distrib]
   map_smul' r nm := by
     ext i
     simp only [RingHom.id_apply, Pi.smul_apply]
