@@ -196,6 +196,7 @@ noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
 
 variable {R : Type*} [Ring R] [Module R A] [SMulCommClass G R A]
 
+variable (g U V) in
 noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A where
   toFun := HeckeOperator_toFun h
   map_add' a b := by
@@ -206,7 +207,7 @@ noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A wher
     simp [-Set.mem_image, HeckeOperator_toFun, smul_comm, smul_finsum_mem (h.image Quotient.out)]
 
 lemma HeckeOperator_apply (a : fixedPoints V A) :
-    (HeckeOperator (R := R) h a : A) =
+    (HeckeOperator (R := R) g U V h a : A) =
     ∑ᶠ (gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * g • ↑V) : Set (G ⧸ V))), gᵢ • (a : A) :=
   rfl
 
@@ -216,8 +217,8 @@ theorem comm {g₁ g₂ : G} (h₁ : (QuotientGroup.mk '' (U * g₁ • U) : Set
       Set.BijOn QuotientGroup.mk s₁ (QuotientGroup.mk '' (U * g₁ • U) : Set (G ⧸ U)) ∧
       Set.BijOn QuotientGroup.mk s₂ (QuotientGroup.mk '' (U * g₂ • U) : Set (G ⧸ U)) ∧
       ∀ a ∈ s₁, ∀ b ∈ s₂, a * b = b * a) :
-    (HeckeOperator h₁ ∘ₗ HeckeOperator h₂ : fixedPoints U A →ₗ[R] fixedPoints U A) =
-    HeckeOperator h₂ ∘ₗ HeckeOperator h₁ := by
+    (HeckeOperator g₁ U U h₁ ∘ₗ HeckeOperator g₂ U U h₂ : fixedPoints U A →ₗ[R] fixedPoints U A) =
+    HeckeOperator g₂ U U h₂ ∘ₗ HeckeOperator g₁ U U h₁ := by
   ext a
   rcases hcomm with ⟨s₁, s₂, hs₁, hs₂, hcomm⟩
   simp only [LinearMap.coe_comp, Function.comp_apply]

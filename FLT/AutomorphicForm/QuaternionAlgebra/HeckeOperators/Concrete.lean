@@ -28,4 +28,26 @@ variable (S : Finset (HeightOneSpectrum (𝓞 F)))
 -- let P be a good prime
 variable {P : HeightOneSpectrum (𝓞 F)} (hP : P ∉ S)
 
+open TotallyDefiniteQuaternionAlgebra
 -- let's do T_P : S_2^D(U_1(S)) -> S_2^D(U_1(S))
+namespace TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
+
+open IsDedekindDomain.HeightOneSpectrum
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+#check Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
+
+open scoped TensorProduct
+
+variable {F D} in
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+/-- U1(S) -/
+noncomputable abbrev U1 : Subgroup (D ⊗[F] (DedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
+  Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
+
+variable (R : Type*) [CommRing R]
+
+def HeckeOperatorT : WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
+    WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
+  let g : (D ⊗[F] (DedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ := sorry
+  AbstractHeckeOperator.HeckeOperator _ (U1 r S) (U1 r S) sorry
