@@ -40,10 +40,54 @@ variable {F}
 
 namespace IsDedekindDomain
 
+section topology_experiments
+
+-- Units.map.{u, v} {M : Type u} {N : Type v} [Monoid M] [Monoid N] (f : M →* N) : Mˣ →* Nˣ
+
+#check RingHom.mapMatrix
+
+-- present already
+example {m α β : Type*} [Fintype m] [DecidableEq m] [NonAssocSemiring α]
+    [NonAssocSemiring β] [TopologicalSpace α] [TopologicalSpace β] (f : α →+* β)
+    (hf : Continuous f) :
+    Continuous (RingHom.mapMatrix f : Matrix m m α →+* Matrix m m β) :=
+  Continuous.matrix_map continuous_id' hf
+
+
+-- variable (M : Type*) [Monoid M] [TopologicalSpace M] in
+-- #synth TopologicalSpace Mˣ -- subspace of product topology, as it should be
+
+-- not there -- is it true?
+lemma IsOpenMap.units_map {M N : Type*} [Monoid M] [Monoid N] [TopologicalSpace M]
+    [TopologicalSpace N] (f : M →* N) (hf : IsOpenMap f) :
+    IsOpenMap (Units.map f : Mˣ →* Nˣ) := by
+  unfold Units.map
+  dsimp
+  sorry
+
+variable (v : HeightOneSpectrum (𝓞 F))
+
+-- why can't fun_prop do this?
+example : Continuous (Units.map (RingHom.mapMatrix
+    (v.adicCompletionIntegers F).subtype).toMonoidHom :
+    GL (Fin 2) _ →* GL (Fin 2) (v.adicCompletion F)) := by
+  apply Continuous.units_map
+  suffices Continuous ((HeightOneSpectrum.adicCompletionIntegers F v).subtype) from
+    Continuous.matrix_map continuous_id' this
+  fun_prop
+
+example : IsOpenMap (Units.map (RingHom.mapMatrix
+    (v.adicCompletionIntegers F).subtype).toMonoidHom :
+    GL (Fin 2) (v.adicCompletionIntegers F) →* GL (Fin 2) (v.adicCompletion F)) := by
+  sorry
+
+end topology_experiments
+
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
   MonoidHom.range (Units.map
     (RingHom.mapMatrix (v.adicCompletionIntegers F).subtype).toMonoidHom)
+
 
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localFullLevel v).carrier :=
