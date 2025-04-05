@@ -49,9 +49,9 @@ instance : Subsingleton (PatchingAlgebra.Component R F 0) := by
   exact e.symm.toRingHom.codomain_trivial
 
 instance (k : ℕ) [NeZero k] : IsLocalRing (PatchingAlgebra.Component R F k) :=
-  .of_surjective' ((PatchingAlgebra.componentEquiv ℤ R F k).exists.choose_spec
-    |>.some.symm.toRingHom.comp (Ideal.Quotient.mk _))
-    ((AlgEquiv.surjective _).comp Ideal.Quotient.mk_surjective)
+  let ⟨i, ⟨e⟩⟩ := (PatchingAlgebra.componentEquiv ℤ R F k).exists
+  .of_surjective' (e.symm.toRingHom.comp (Ideal.Quotient.mk (maximalIdeal (R i) ^ k))) <|
+    e.symm.surjective.comp Ideal.Quotient.mk_surjective
 
 instance : Nontrivial (Π k, PatchingAlgebra.Component R F k) :=
   (Pi.evalRingHom _ 1).domain_nontrivial

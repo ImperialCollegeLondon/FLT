@@ -239,34 +239,22 @@ abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a 
   ⟨a, h⟩
 
 @[to_additive, simp]
-lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
+lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j} :
     func h (g.1 j) = g.1 i := by
   unfold InverseLimit at g
   aesop
 
 @[to_additive]
-instance instMul : Mul (InverseLimit obj func) where
-  mul a b := of (a.val * b.val) (by simp)
+instance instMul : Mul (InverseLimit obj func) := Subgroup.mul _
 
 @[to_additive]
-instance instInv : Inv (InverseLimit obj func) where
-  inv a := of (a⁻¹) (by simp)
+instance instInv : Inv (InverseLimit obj func)  := Subgroup.inv _
 
 @[to_additive]
-instance instOne : One (InverseLimit obj func) where
-  one := of 1 (by simp)
+instance instOne : One (InverseLimit obj func) := Subgroup.one _
 
 @[to_additive]
-instance instGroup : Group (InverseLimit obj func) where
-  mul_assoc a b c := by simp [InverseLimit, mul_assoc]
-  one_mul a := by simp [InverseLimit]
-  mul_one a := by simp [InverseLimit]
-  inv_mul_cancel a := by
-    simp only [InverseLimit] at *
-    change of (a.val⁻¹ * a.val) _ = 1
-    simp only [inv_mul_cancel]
-    rfl
-  div a b := a * b⁻¹
+instance instGroup : Group (InverseLimit obj func) := Subgroup.toGroup _
 
 @[to_additive]
 instance : Inhabited (InverseLimit obj func) := ⟨1⟩

@@ -7,8 +7,8 @@ import Mathlib.RingTheory.DedekindDomain.Ideal
 import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
 import Mathlib.FieldTheory.Cardinality
 import FLT.GlobalLanglandsConjectures.GLnDefs
-/-
 
+/-!
 # Proof of a case of the global Langlands conjectures.
 
 Class Field Theory was one of the highlights of 19th century mathematics, linking
@@ -66,15 +66,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
       smooth := by simp [contMDiff_const]
     }
     is_periodic := by simp
-    is_slowly_increasing := by
-      intros x
-      exact {
-      bounded_by := by
-        simp
-        apply Exists.intro ‖c‖
-        apply Exists.intro 0
-        simp
-    }
+    is_slowly_increasing x := ⟨‖c‖, 0, by simp⟩
     is_finite_cod := by
       intros x
       rw [FiniteDimensional]
