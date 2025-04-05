@@ -115,7 +115,8 @@ theorem ext (φ ψ : WeightTwoAutomorphicForm F D R) (h : ∀ x, φ x = ψ x) : 
 def zero : (WeightTwoAutomorphicForm F D R) where
   toFun := 0
   left_invt δ _ := by simp
-  right_invt := ⟨⊤, by simp⟩
+  right_invt := ⟨⊤, by simp only [Subgroup.coe_top, isOpen_univ, Subgroup.mem_top,
+    Pi.zero_apply, imp_self, implies_true, and_self]⟩
   trivial_central_char _ z := by simp
 
 instance : Zero (WeightTwoAutomorphicForm F D R) where
@@ -130,7 +131,7 @@ def neg (φ : WeightTwoAutomorphicForm F D R) : WeightTwoAutomorphicForm F D R w
   left_invt δ g := by simp [left_invt]
   right_invt := by
     obtain ⟨U, hU⟩ := φ.right_invt
-    simp_all [right_invt]
+    simp_all only [neg_inj, right_invt]
   trivial_central_char g z := by simp [trivial_central_char]
 
 instance : Neg (WeightTwoAutomorphicForm F D R) where
@@ -147,7 +148,7 @@ def add (φ ψ : WeightTwoAutomorphicForm F D R) : WeightTwoAutomorphicForm F D 
     obtain ⟨U, hU⟩ := φ.right_invt
     obtain ⟨V, hV⟩ := ψ.right_invt
     use U ⊓ V
-    simp_all [right_invt, IsOpen.inter]
+    simp_all only [Subgroup.coe_inf, IsOpen.inter, Subgroup.mem_inf, implies_true, and_self]
   trivial_central_char := by simp [trivial_central_char]
 
 instance : Add (WeightTwoAutomorphicForm F D R) where
@@ -227,7 +228,7 @@ def ring_smul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
       right_invt := by
         obtain ⟨U, hU⟩ := φ.right_invt
         use U
-        simp_all [right_invt]
+        simp_all only [smul_eq_mul, implies_true, and_self]
       trivial_central_char g z := by simp only [trivial_central_char, smul_comm r]
 
 instance : SMul R (WeightTwoAutomorphicForm F D R) where
