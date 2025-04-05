@@ -70,7 +70,6 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
       intros x
       exact {
       bounded_by := by
-        simp
         apply Exists.intro ‖c‖
         apply Exists.intro 0
         simp
