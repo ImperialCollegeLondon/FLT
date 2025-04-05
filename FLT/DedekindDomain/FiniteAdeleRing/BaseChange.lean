@@ -385,6 +385,7 @@ noncomputable instance comap_pi_algebra (v : HeightOneSpectrum A) :
     Algebra (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) :=
   (adicCompletionComapSemialgHom' A K L B v).toAlgebra
 
+omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
 lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
     -- TODO: the `let _` in the statement below should not be required as it is an instance
     -- see mathlib PR #22488 for potential fix to this.

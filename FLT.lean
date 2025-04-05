@@ -31,6 +31,7 @@ import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
+import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs

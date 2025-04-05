@@ -1,3 +1,4 @@
+import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Patching.Algebra
 import FLT.Patching.Over
 import FLT.Patching.Module
@@ -165,13 +166,14 @@ instance [PatchingAlgebra.smulData Λ R M] : Module.Finite (PatchingAlgebra R F)
 
 noncomputable
 instance : PatchingAlgebra.smulData Λ R M where
-  f := _
+  f α := α.1.toAddSubgroup.index ^ bound Λ M
   pow_f_smul_le i α := maximalIdeal_pow_bound_le_smul_top Λ R M i α
   f_mono α β h := by
     have : α.1.toAddSubgroup.FiniteIndex :=
       @AddSubgroup.finiteIndex_of_finite_quotient _ _ _
         (AddSubgroup.quotient_finite_of_isOpen _ α.2)
-    gcongr; exact AddSubgroup.index_antitone h
+    dsimp
+    gcongr
 
 variable {R₀ M₀ : Type*} [CommRing R₀] [AddCommGroup M₀] [Module R₀ M₀] [Module.Finite R₀ M₀]
 variable [IsLocalRing R₀] [IsNoetherianRing R₀]
@@ -352,7 +354,9 @@ omit
   [Algebra.UniformlyBoundedRank R]
   [IsPatchingSystem Λ M ↑F]
   [Module.Finite R₀ M₀]
-  [∀ (i : ι), Nontrivial (M i)] in
+  [∀ (i : ι), Nontrivial (M i)]
+  [∀ (i : ι), IsTopologicalRing (R i)]
+  [(i : ι) → TopologicalSpace (R i)] in
 lemma smul_lemma
     (HCompat : ∀ i m (r : R i), sM i (Submodule.Quotient.mk (r • m)) =
       sR i (Ideal.Quotient.mk _ r) • sM i (Submodule.Quotient.mk m))

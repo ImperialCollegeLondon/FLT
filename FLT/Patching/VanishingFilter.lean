@@ -94,6 +94,7 @@ def vanishingFilterGI [∀ i, Nontrivial (R i)]:
       (toDual ∘ eventuallyProd (⊥ : ∀ i, Ideal (R i))) where
   gc := vanishingFilter_gc
   le_l_u x := (by simp [vanishingFilter_eventuallyProd])
+  choice := _
   choice_eq _ _ := rfl
 
 lemma vanishingFilter_antimono {p q : Ideal (Π i, R i)} (h : p ≤ q) :
