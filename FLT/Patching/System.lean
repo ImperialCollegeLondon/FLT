@@ -171,7 +171,8 @@ instance : PatchingAlgebra.smulData Λ R M where
     have : α.1.toAddSubgroup.FiniteIndex :=
       @AddSubgroup.finiteIndex_of_finite_quotient _ _ _
         (AddSubgroup.quotient_finite_of_isOpen _ α.2)
-    gcongr
+    apply pow_le_pow_left₀
+    simp only [zero_le]
     exact AddSubgroup.index_antitone h
 
 variable {R₀ M₀ : Type*} [CommRing R₀] [AddCommGroup M₀] [Module R₀ M₀] [Module.Finite R₀ M₀]
