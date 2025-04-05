@@ -353,7 +353,8 @@ omit
   [Algebra.UniformlyBoundedRank R]
   [IsPatchingSystem Λ M ↑F]
   [Module.Finite R₀ M₀]
-  [∀ (i : ι), Nontrivial (M i)] in
+  [∀ (i : ι), Nontrivial (M i)]
+  [∀ (i : ι), IsTopologicalRing (R i)] in
 lemma smul_lemma
     (HCompat : ∀ i m (r : R i), sM i (Submodule.Quotient.mk (r • m)) =
       sR i (Ideal.Quotient.mk _ r) • sM i (Submodule.Quotient.mk m))
