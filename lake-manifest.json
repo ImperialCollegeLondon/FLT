@@ -15,7 +15,7 @@
    "type": "git",
    "subDir": null,
    "scope": "",
-   "rev": "9de2021a258c9c044d7a7499508648161c1dc478",
+   "rev": "dae0320af288f9aee7ce5236c10c5f506c17bf52",
    "name": "mathlib",
    "manifestFile": "lake-manifest.json",
    "inputRev": "kbuzzard-finite-adele-ring-refactor",
