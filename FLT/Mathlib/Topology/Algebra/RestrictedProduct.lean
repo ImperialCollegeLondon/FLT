@@ -4,6 +4,11 @@ open Set Topology Filter
 
 namespace RestrictedProduct
 
+@[ext]
+lemma ext {ι : Type*} (R : ι → Type*) (A : (i : ι) → Set (R i)) {𝓕 : Filter ι}
+    {x y :  Πʳ i, [R i, A i]_[𝓕]} (h : ∀ i, x i = y i) : x = y :=
+  Subtype.ext <| funext h
+
 section instances
 
 variable {ι : Type*}
@@ -62,28 +67,46 @@ variable (f : ι₂ → ι₁) (hf : 𝓕₂.Tendsto f 𝓕₁)
 
 section set
 
-variable (φ : ∀ j, R₁ (f j) → R₂ j) (hφ : ∀ᶠ j in 𝓕₂, φ j '' B₁ (f j) ≤ B₂ j)
+variable (φ : ∀ j, R₁ (f j) → R₂ j) (hφ : ∀ᶠ j in 𝓕₂, φ j '' B₁ (f j) ⊆ B₂ j)
 
 def map (x : Πʳ i, [R₁ i, B₁ i]_[𝓕₁]) : Πʳ j, [R₂ j, B₂ j]_[𝓕₂] := ⟨fun j ↦ φ j (x (f j)), by
-  -- I know x(i)∈B₁(i) for an 𝓕₁-good set of i by definition of restricted product
-  -- the preimage of an 𝓕₁-good set of i is an 𝓕₂-good set of j by hf
-  -- So then x(f(j))∈B₁(f(j)) for an 𝓕₂-good set of j and I didn't use hφ
-  have := x.2
-  apply hf at this
-  convert this
-  simp
-  have foo (S : Set ι₁) (hs : S ∈ 𝓕₁) : f ⁻¹' S ∈ 𝓕₂ := by
-    exact hf hs
-  sorry
+  apply mem_of_superset (𝓕₂.inter_mem hφ (hf x.2))
+  simp only [image_subset_iff, SetLike.mem_coe, preimage_setOf_eq]
+  rintro _ ⟨h1, h2⟩
+  exact h1 h2
   ⟩
 end set
 
+section monoid
+
+variable [Π i, Monoid (R₁ i)] [Π i, Monoid (R₂ i)] [∀ i, SubmonoidClass (S₁ i) (R₁ i)]
+    [∀ i, SubmonoidClass (S₂ i) (R₂ i)] (φ : ∀ j, R₁ (f j) →* R₂ j)
+    (hφ : ∀ᶠ j in 𝓕₂, (φ j) '' (B₁ (f j)) ≤ B₂ j)
+
+@[to_additive]
+def mapMonoidHom : Πʳ i, [R₁ i, B₁ i]_[𝓕₁] →* Πʳ j, [R₂ j, B₂ j]_[𝓕₂] where
+  toFun := map R₁ R₂ f hf (fun j r ↦ φ j r) hφ
+  map_one' := by
+    ext i
+    exact map_one (φ i)
+  map_mul' x y := by
+    ext i
+    exact map_mul (φ i) _ _
+
+end monoid
+
+section ring
+
+variable [Π i, Ring (R₁ i)] [Π i, Ring (R₂ i)] [∀ i, SubringClass (S₁ i) (R₁ i)]
+    [∀ i, SubringClass (S₂ i) (R₂ i)] (φ : ∀ j, R₁ (f j) →+* R₂ j)
+    (hφ : ∀ᶠ j in 𝓕₂, (φ j) '' (B₁ (f j)) ≤ B₂ j)
+
+def mapRingHom : Πʳ i, [R₁ i, B₁ i]_[𝓕₁] →+* Πʳ j, [R₂ j, B₂ j]_[𝓕₂] where
+  __ := mapMonoidHom R₁ R₂ f hf (fun j ↦ φ j) hφ
+  __ := mapAddMonoidHom R₁ R₂ f hf (fun j ↦ φ j) hφ
+
+end ring
+
 end map
 
-/-
-RestrictedProduct.projectionRingHom.{u_1, u_2, u_3} {ι : Type u_1} (R : ι → Type u_2) {𝓕 : Filter ι} {S : ι → Type u_3}
-  [(i : ι) → SetLike (S i) (R i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → Ring (R i)]
-  [∀ (i : ι), SubringClass (S i) (R i)] : Πʳ (i : ι), [R i, ↑(B i)]_[𝓕] →+* R j
--/
---def map
 end RestrictedProduct
