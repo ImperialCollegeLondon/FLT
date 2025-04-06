@@ -167,19 +167,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       apply isOpen_iInter_of_finite
       intro v
       exact Metric.isOpen_ball.preimage (continuous_apply v)
-    let basis := FiniteAdeleRing.submodulesRingBasis (𝓞 ℚ) ℚ
-    let integralAdeles' := basis.toRing_subgroups_basis.openAddSubgroup 1
-    suffices h : integralAdeles = ↑integralAdeles' by
-      rw [h]
-      exact integralAdeles'.isOpen
-    ext x
-    simp only [← FiniteAdeleRing.exists_finiteIntegralAdele_iff, FiniteAdeleRing.ext_iff,
-      SetCoe.ext_iff, Set.mem_setOf_eq, RingSubgroupsBasis.openAddSubgroup, Submonoid.one_def,
-      map_one, SetLike.mem_coe, ← OpenAddSubgroup.mem_toAddSubgroup, Submodule.mem_toAddSubgroup,
-      Submodule.mem_span_singleton, Algebra.smul_def', mul_one, integralAdeles, integralAdeles']
-    apply exists_congr
-    intro a
-    exact eq_comm
+    sorry
   · apply subset_antisymm
     · intro x hx
       rw [Set.mem_preimage] at hx
