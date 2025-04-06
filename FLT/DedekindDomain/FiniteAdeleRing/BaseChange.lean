@@ -537,131 +537,131 @@ namespace DedekindDomain
 
 open IsDedekindDomain HeightOneSpectrum
 
-noncomputable def ProdAdicCompletions.baseChange :
-    ProdAdicCompletions A K →ₛₐ[algebraMap K L] ProdAdicCompletions B L :=
-  Pi.semialgHomPi _ _ fun w => adicCompletionComapSemialgHom A K L B _ w rfl
+-- noncomputable def ProdAdicCompletions.baseChange :
+--     ProdAdicCompletions A K →ₛₐ[algebraMap K L] ProdAdicCompletions B L :=
+--   Pi.semialgHomPi _ _ fun w => adicCompletionComapSemialgHom A K L B _ w rfl
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
--- Note that this is only true because L/K is finite; in general tensor product doesn't
--- commute with infinite products, but it does here.
-noncomputable def ProdAdicCompletions.baseChangeEquiv :
-    L ⊗[K] ProdAdicCompletions A K ≃ₐ[L] ProdAdicCompletions B L :=
-  AlgEquiv.ofBijective
-    (SemialgHom.baseChange_of_algebraMap (ProdAdicCompletions.baseChange A K L B))
-    (by
-      --strategy, compose a `K`-linear iso from `L ⊗ ∏ K v` to `∏ L w`
-      -- `prod_equiv` says that `∏ L ⊗ K v ≃ ∏v∣w ∏w L w` as L-algebras
-      let prod_equiv := AlgEquiv.piCongrRight (fun (v: HeightOneSpectrum A)
-        ↦ adicCompletionComapAlgEquiv A K L B v)
-      -- `commute` says `L ⊗ ∏ K v ≃ ∏ L ⊗ K v` as K-modules
-      let commute := tensorPi_equiv_piTensor K L (adicCompletion K (R := A))
-      -- `restrict` map restricts `prod_equiv` to `K`-linear iso
-      let restrict := (prod_equiv.restrictScalars K).toLinearEquiv
-      -- `equiv_prod` gives a map from `L ⊗ ∏ K v ≃ ∏v∣w ∏w L w`
-      let equiv_prod := commute ≪≫ₗ restrict
-      -- not picking up instance; `inst_alg` should be a `haveI`? Fails on next `haveI`
-      let inst_alg : Algebra K (ProdAdicCompletions B L) := RingHom.toAlgebra <|
-        (algebraMap L (ProdAdicCompletions B L)).comp (algebraMap K L)
-      haveI : IsScalarTower K L (ProdAdicCompletions B L) :=
-        IsScalarTower.of_algebraMap_eq (congrFun rfl)
-      -- `prod_equiv'` gives a map from ∏v∣w ∏w L w ≃ ∏ L w
-      let prod_equiv' : (∀ (v : HeightOneSpectrum A),
-          (∀ w : v.Extension B, w.1.adicCompletion L)) ≃ₐ[L] ProdAdicCompletions B L :=
-        {
-        toFun f w := f (comap A w) ⟨w, rfl⟩
-        invFun g _ w := g w.1
-        left_inv f := by
-          ext v ⟨w, rfl⟩
-          simp only
-        right_inv _ := rfl
-        map_mul' _ _ := rfl
-        map_add' _ _ := rfl
-        commutes' _ := rfl
-      }
-      -- `restrict'` map restricts `prod_equiv'` to `K`-linear iso
-      let restrict' := (prod_equiv'.restrictScalars K).toLinearEquiv
-      -- `baseChangeEquiv'` gives us the `K`-linear iso `L ⊗ ∏ K v` to `∏ L w`
-      let baseChangeEquiv' := equiv_prod ≪≫ₗ restrict'
-      --show the maps are the same
-      have : ((SemialgHom.baseChange_of_algebraMap
-        (ProdAdicCompletions.baseChange A K L B)).restrictScalars K).toLinearMap =
-        (baseChangeEquiv').toLinearMap := by
-        apply TensorProduct.ext'
-        intro x y
-        simp only [AlgHom.toLinearMap_apply, AlgHom.coe_restrictScalars', LinearEquiv.coe_coe]
-        dsimp [SemialgHom.baseChange_of_algebraMap, baseChangeEquiv', restrict', prod_equiv',
-          equiv_prod, prod_equiv, restrict, commute]
-        refine funext ?_
-        intro w
-        erw [tensorPi_equiv_piTensor_apply]
-        dsimp [adicCompletionComapAlgEquiv]
-        rw [tensorAdicCompletionComapAlgHom_tmul_apply, Algebra.ofId_apply, Algebra.smul_def x]
-        erw [ProdAdicCompletions.baseChange]
-        rfl
-      change Function.Bijective ((SemialgHom.baseChange_of_algebraMap
-        (ProdAdicCompletions.baseChange A K L B)).restrictScalars K).toLinearMap
-      rw [this]
-      exact baseChangeEquiv'.bijective)
+-- -- Note that this is only true because L/K is finite; in general tensor product doesn't
+-- -- commute with infinite products, but it does here.
+-- noncomputable def ProdAdicCompletions.baseChangeEquiv :
+--     L ⊗[K] ProdAdicCompletions A K ≃ₐ[L] ProdAdicCompletions B L :=
+--   AlgEquiv.ofBijective
+--     (SemialgHom.baseChange_of_algebraMap (ProdAdicCompletions.baseChange A K L B))
+--     (by
+--       --strategy, compose a `K`-linear iso from `L ⊗ ∏ K v` to `∏ L w`
+--       -- `prod_equiv` says that `∏ L ⊗ K v ≃ ∏v∣w ∏w L w` as L-algebras
+--       let prod_equiv := AlgEquiv.piCongrRight (fun (v: HeightOneSpectrum A)
+--         ↦ adicCompletionComapAlgEquiv A K L B v)
+--       -- `commute` says `L ⊗ ∏ K v ≃ ∏ L ⊗ K v` as K-modules
+--       let commute := tensorPi_equiv_piTensor K L (adicCompletion K (R := A))
+--       -- `restrict` map restricts `prod_equiv` to `K`-linear iso
+--       let restrict := (prod_equiv.restrictScalars K).toLinearEquiv
+--       -- `equiv_prod` gives a map from `L ⊗ ∏ K v ≃ ∏v∣w ∏w L w`
+--       let equiv_prod := commute ≪≫ₗ restrict
+--       -- not picking up instance; `inst_alg` should be a `haveI`? Fails on next `haveI`
+--       let inst_alg : Algebra K (ProdAdicCompletions B L) := RingHom.toAlgebra <|
+--         (algebraMap L (ProdAdicCompletions B L)).comp (algebraMap K L)
+--       haveI : IsScalarTower K L (ProdAdicCompletions B L) :=
+--         IsScalarTower.of_algebraMap_eq (congrFun rfl)
+--       -- `prod_equiv'` gives a map from ∏v∣w ∏w L w ≃ ∏ L w
+--       let prod_equiv' : (∀ (v : HeightOneSpectrum A),
+--           (∀ w : v.Extension B, w.1.adicCompletion L)) ≃ₐ[L] ProdAdicCompletions B L :=
+--         {
+--         toFun f w := f (comap A w) ⟨w, rfl⟩
+--         invFun g _ w := g w.1
+--         left_inv f := by
+--           ext v ⟨w, rfl⟩
+--           simp only
+--         right_inv _ := rfl
+--         map_mul' _ _ := rfl
+--         map_add' _ _ := rfl
+--         commutes' _ := rfl
+--       }
+--       -- `restrict'` map restricts `prod_equiv'` to `K`-linear iso
+--       let restrict' := (prod_equiv'.restrictScalars K).toLinearEquiv
+--       -- `baseChangeEquiv'` gives us the `K`-linear iso `L ⊗ ∏ K v` to `∏ L w`
+--       let baseChangeEquiv' := equiv_prod ≪≫ₗ restrict'
+--       --show the maps are the same
+--       have : ((SemialgHom.baseChange_of_algebraMap
+--         (ProdAdicCompletions.baseChange A K L B)).restrictScalars K).toLinearMap =
+--         (baseChangeEquiv').toLinearMap := by
+--         apply TensorProduct.ext'
+--         intro x y
+--         simp only [AlgHom.toLinearMap_apply, AlgHom.coe_restrictScalars', LinearEquiv.coe_coe]
+--         dsimp [SemialgHom.baseChange_of_algebraMap, baseChangeEquiv', restrict', prod_equiv',
+--           equiv_prod, prod_equiv, restrict, commute]
+--         refine funext ?_
+--         intro w
+--         erw [tensorPi_equiv_piTensor_apply]
+--         dsimp [adicCompletionComapAlgEquiv]
+--         rw [tensorAdicCompletionComapAlgHom_tmul_apply, Algebra.ofId_apply, Algebra.smul_def x]
+--         erw [ProdAdicCompletions.baseChange]
+--         rfl
+--       change Function.Bijective ((SemialgHom.baseChange_of_algebraMap
+--         (ProdAdicCompletions.baseChange A K L B)).restrictScalars K).toLinearMap
+--       rw [this]
+--       exact baseChangeEquiv'.bijective)
 
--- I am unclear about whether these next two sorries are in the right order.
--- One direction of `baseChange_isFiniteAdele_iff` below (->) is easy, but perhaps the other way
--- should be deduced from the result after this one. See #240.
--- (`ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff`).
-theorem ProdAdicCompletions.baseChange_isFiniteAdele_iff
-    (x : ProdAdicCompletions A K) :
-    ProdAdicCompletions.IsFiniteAdele x ↔
-    ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChange A K L B x) := sorry --#240
+-- -- I am unclear about whether these next two sorries are in the right order.
+-- -- One direction of `baseChange_isFiniteAdele_iff` below (->) is easy, but perhaps the other way
+-- -- should be deduced from the result after this one. See #240.
+-- -- (`ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff`).
+-- theorem ProdAdicCompletions.baseChange_isFiniteAdele_iff
+--     (x : ProdAdicCompletions A K) :
+--     ProdAdicCompletions.IsFiniteAdele x ↔
+--     ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChange A K L B x) := sorry --#240
 
--- This theorem and the one before are probably equivalent, I'm not sure which one to prove first.
--- See #240
-theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff
-    (x : ProdAdicCompletions A K) :
-    ProdAdicCompletions.IsFiniteAdele x ↔
-    ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChangeEquiv A K L B (1 ⊗ₜ x)) :=
-  sorry -- #240
+-- -- This theorem and the one before are probably equivalent, I'm not sure which one to prove first.
+-- -- See #240
+-- theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff
+--     (x : ProdAdicCompletions A K) :
+--     ProdAdicCompletions.IsFiniteAdele x ↔
+--     ProdAdicCompletions.IsFiniteAdele (ProdAdicCompletions.baseChangeEquiv A K L B (1 ⊗ₜ x)) :=
+--   sorry -- #240
 
-theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff' (x : ProdAdicCompletions A K) :
-    ProdAdicCompletions.IsFiniteAdele x ↔ ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
-    (ProdAdicCompletions.baseChangeEquiv A K L B (l ⊗ₜ x)) := by
-  constructor
-  · simp_rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B, baseChangeEquiv,
-      AlgEquiv.coe_ofBijective, SemialgHom.baseChange_of_algebraMap ,
-      Algebra.TensorProduct.lift_tmul, map_one, one_mul]
-    intro h l
-    exact ProdAdicCompletions.IsFiniteAdele.mul (ProdAdicCompletions.IsFiniteAdele.algebraMap' l) h
-  · intro h
-    rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B]
-    exact h 1
+-- theorem ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff' (x : ProdAdicCompletions A K) :
+--     ProdAdicCompletions.IsFiniteAdele x ↔ ∀ (l : L), ProdAdicCompletions.IsFiniteAdele
+--     (ProdAdicCompletions.baseChangeEquiv A K L B (l ⊗ₜ x)) := by
+--   constructor
+--   · simp_rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B, baseChangeEquiv,
+--       AlgEquiv.coe_ofBijective, SemialgHom.baseChange_of_algebraMap ,
+--       Algebra.TensorProduct.lift_tmul, map_one, one_mul]
+--     intro h l
+--     exact ProdAdicCompletions.IsFiniteAdele.mul (ProdAdicCompletions.IsFiniteAdele.algebraMap' l) h
+--   · intro h
+--     rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B]
+--     exact h 1
 
 -- Restriction of an algebra map is an algebra map; these should be easy. #242
 noncomputable def FiniteAdeleRing.baseChange :
-    FiniteAdeleRing A K →ₛₐ[algebraMap K L] FiniteAdeleRing B L where
-  toFun ak := ⟨ProdAdicCompletions.baseChange A K L B ak.1,
-    (ProdAdicCompletions.baseChange_isFiniteAdele_iff A K L B ak).1 ak.2⟩
-  map_one' := by
-    ext
-    have h : (1 : FiniteAdeleRing A K) = (1 : ProdAdicCompletions A K) := rfl
-    have t : (1 : FiniteAdeleRing B L) = (1 : ProdAdicCompletions B L) := rfl
-    simp_rw [h, t, map_one]
-  map_mul' x y := by
-    have h : (x * y : FiniteAdeleRing A K) =
-      (x : ProdAdicCompletions A K) * (y : ProdAdicCompletions A K) := rfl
-    simp_rw [h, map_mul]
-    rfl
-  map_zero' := by
-    ext
-    have h : (0 : FiniteAdeleRing A K) = (0 : ProdAdicCompletions A K) := rfl
-    have t : (0 : FiniteAdeleRing B L) = (0 : ProdAdicCompletions B L) := rfl
-    simp_rw [h, t, map_zero]
-  map_add' x y := by
-    have h : (x + y : FiniteAdeleRing A K) =
-      (x : ProdAdicCompletions A K) + (y : ProdAdicCompletions A K) := rfl
-    simp_rw [h, map_add]
-    rfl
-  map_smul' k xv := by
-    refine ext B L <| funext fun w ↦ ?_
-    exact (adicCompletionComapSemialgHom A K L B _ w rfl).map_smul' k (xv (comap A w))
+    FiniteAdeleRing A K →ₛₐ[algebraMap K L] FiniteAdeleRing B L := sorry
+  -- toFun ak := ⟨ProdAdicCompletions.baseChange A K L B ak.1,
+  --   (ProdAdicCompletions.baseChange_isFiniteAdele_iff A K L B ak).1 ak.2⟩
+  -- map_one' := by
+  --   ext
+  --   have h : (1 : FiniteAdeleRing A K) = (1 : ProdAdicCompletions A K) := rfl
+  --   have t : (1 : FiniteAdeleRing B L) = (1 : ProdAdicCompletions B L) := rfl
+  --   simp_rw [h, t, map_one]
+  -- map_mul' x y := by
+  --   have h : (x * y : FiniteAdeleRing A K) =
+  --     (x : ProdAdicCompletions A K) * (y : ProdAdicCompletions A K) := rfl
+  --   simp_rw [h, map_mul]
+  --   rfl
+  -- map_zero' := by
+  --   ext
+  --   have h : (0 : FiniteAdeleRing A K) = (0 : ProdAdicCompletions A K) := rfl
+  --   have t : (0 : FiniteAdeleRing B L) = (0 : ProdAdicCompletions B L) := rfl
+  --   simp_rw [h, t, map_zero]
+  -- map_add' x y := by
+  --   have h : (x + y : FiniteAdeleRing A K) =
+  --     (x : ProdAdicCompletions A K) + (y : ProdAdicCompletions A K) := rfl
+  --   simp_rw [h, map_add]
+  --   rfl
+  -- map_smul' k xv := by
+  --   refine ext B L <| funext fun w ↦ ?_
+  --   exact (adicCompletionComapSemialgHom A K L B _ w rfl).map_smul' k (xv (comap A w))
 
 noncomputable instance : Algebra (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K) :=
   Algebra.TensorProduct.rightAlgebra
@@ -670,10 +670,11 @@ noncomputable
 instance BaseChange.algebra : Algebra (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
   RingHom.toAlgebra (FiniteAdeleRing.baseChange A K L B)
 
+set_option synthInstance.maxHeartbeats 40000 in
 lemma BaseChange.isModuleTopology : IsModuleTopology (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
   sorry
 
-instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
+noncomputable instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
   moduleTopology (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K)
 -- Follows from the above. Should be a continuous L-alg equiv but we don't have continuous
 -- alg equivs yet so can't even state it properly.
