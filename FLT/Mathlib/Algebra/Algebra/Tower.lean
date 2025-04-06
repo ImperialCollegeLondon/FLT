@@ -10,6 +10,22 @@ def AlgEquiv.extendScalars {A C D : Type*} (B : Type*) [CommSemiring A] [CommSem
   __ := f
   commutes' := fun _ => rfl
 
+@[simp]
+def AlgEquiv.extendScalars_apply {A C D : Type*} (B : Type*) [CommSemiring A] [CommSemiring C]
+    [CommSemiring D] [Algebra A C] [Algebra A D] [CommSemiring B] [Algebra A B] [Algebra B C]
+    [IsScalarTower A B C] (f : C ≃ₐ[A] D) (c : C) :
+    letI := (f.toAlgHom.restrictDomain B).toRingHom.toAlgebra
+    (AlgEquiv.extendScalars B f) c = f c := by
+  rfl
+
+@[simp]
+def AlgEquiv.symmExtendScalars_apply {A C D : Type*} (B : Type*) [CommSemiring A] [CommSemiring C]
+    [CommSemiring D] [Algebra A C] [Algebra A D] [CommSemiring B] [Algebra A B] [Algebra B C]
+    [IsScalarTower A B C] (f : C ≃ₐ[A] D) (d : D) :
+    letI := (f.toAlgHom.restrictDomain B).toRingHom.toAlgebra
+    (AlgEquiv.extendScalars B f).symm d = f.symm d := by
+  rfl
+
 /--
 Given the following
 ```
