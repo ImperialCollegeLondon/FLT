@@ -1,6 +1,7 @@
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import Mathlib.Topology.Algebra.Valued.NormedValued
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
+import Mathlib.RingTheory.DedekindDomain.Dvr
 import Mathlib.Algebra.Algebra.Subalgebra.Pi
 import Mathlib.Algebra.Order.GroupWithZero.Canonical
 
@@ -9,42 +10,46 @@ namespace IsDedekindDomain
 variable { A : Type* } ( K : Type* ) [CommRing A] [Field K] [Algebra A K] [IsFractionRing A K]
     [IsDedekindDomain A] (v : HeightOneSpectrum A)
 
-/-- `IsDedekindDomain.irreducible_pow_sup_of_ge`, stated using intValuation instead of
-    multiplicity -/
-lemma asIdeal_pow_sup_of_ge { a : A } { k n : ℕ } ( hnz : a ≠ 0 ) ( hle : k ≤ n )
-    (hv : (Multiplicative.ofAdd (-(k : ℤ))) = v.intValuationDef a) :
-    v.asIdeal ^ n ⊔ Ideal.span {a} = v.asIdeal ^ k := by
+lemma intValuation_eq_coe_neg_multiplicity { a : A } ( hnz : a ≠ 0 ) :
+    v.intValuationDef a =
+    (Multiplicative.ofAdd (-(multiplicity v.asIdeal (Ideal.span {a}): ℤ))) := by
   classical
   have hnb : Ideal.span {a} ≠ ⊥ := by
     rwa [ne_eq, Ideal.span_singleton_eq_bot]
-  have hk : emultiplicity v.asIdeal (Ideal.span {a}) = k := by
-    rw [HeightOneSpectrum.intValuationDef_if_neg _ hnz] at hv
-    simp only [ofAdd_neg, WithZero.coe_inv, inv_inj, WithZero.coe_inj,
-        EmbeddingLike.apply_eq_iff_eq, Nat.cast_inj] at hv
-    rw [hv, UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb,
-        count_associates_factors_eq hnb v.isPrime v.ne_bot, normalize_eq]
-  have hm : emultiplicity v.asIdeal (Ideal.span {a}) ≤ n :=
-    le_of_eq_of_le hk (ENat.coe_le_coe.mpr hle)
-  rw [irreducible_pow_sup_of_ge hnb (HeightOneSpectrum.irreducible v) n hm]
+  rw [HeightOneSpectrum.intValuationDef_if_neg _ hnz,
+    count_associates_factors_eq hnb v.isPrime v.ne_bot]
+  nth_rw 1 [← normalize_eq v.asIdeal]
   congr
-  exact multiplicity_eq_of_emultiplicity_eq_some hk
+  symm
+  apply multiplicity_eq_of_emultiplicity_eq_some
+  rw [← UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb]
 
--- This should probably make use of the multiplicity
-lemma exists_nat_coeEq_intValuation { a : A } ( hnz : a ≠ 0 ) :
-    ∃ (n : ℕ), v.intValuationDef a = (Multiplicative.ofAdd (-(n : ℤ))) := by
+lemma emultiplicity_eq_of_valuation_eq_ofAdd { a : A } { k : ℕ } ( hnz : a ≠ 0 )
+    (hv : v.intValuationDef a = (Multiplicative.ofAdd (-(k : ℤ)))) :
+    emultiplicity v.asIdeal (Ideal.span {a}) = k := by
   classical
-  rw [HeightOneSpectrum.intValuationDef_if_neg _ hnz]
-  exact Exists.intro ((Associates.mk v.asIdeal).count (Associates.mk (Ideal.span {a})).factors) rfl
+  have hnb : Ideal.span {a} ≠ ⊥ := by
+    rwa [ne_eq, Ideal.span_singleton_eq_bot]
+  simp only [HeightOneSpectrum.intValuationDef_if_neg _ hnz, ofAdd_neg, WithZero.coe_inv, inv_inj,
+    WithZero.coe_inj, EmbeddingLike.apply_eq_iff_eq, Nat.cast_inj] at hv
+  rw [← hv, UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb,
+    count_associates_factors_eq hnb v.isPrime v.ne_bot, normalize_eq]
 
 lemma exists_approxInverse { a b : A } { n : ℕ } ( hnz : a ≠ 0 )
-  ( hle : Multiplicative.ofAdd (-(n : ℤ)) ≤ v.intValuationDef a)
-  ( hle' : v.intValuationDef b ≤ v.intValuationDef a ) :
+    ( hle : Multiplicative.ofAdd (-(n : ℤ)) ≤ v.intValuationDef a)
+    ( hle' : v.intValuationDef b ≤ v.intValuationDef a ) :
     ∃ y, v.intValuationDef (y * a - b) ≤ (Multiplicative.ofAdd (-(n : ℤ))) := by
-  obtain ⟨k, hk⟩ := exists_nat_coeEq_intValuation v hnz
-  rw [hk, WithZero.coe_le_coe, Multiplicative.ofAdd_le, neg_le_neg_iff, Int.ofNat_le] at hle
-  have hb : b ∈ v.asIdeal ^ k := by
-    rwa [← Ideal.dvd_span_singleton, ← HeightOneSpectrum.intValuation_le_pow_iff_dvd, ← hk]
-  rw [← asIdeal_pow_sup_of_ge v hnz hle hk.symm] at hb
+  have hnb : Ideal.span {a} ≠ ⊥ := by
+    rwa [ne_eq, Ideal.span_singleton_eq_bot]
+  rw [intValuation_eq_coe_neg_multiplicity _ hnz, WithZero.coe_le_coe, Multiplicative.ofAdd_le,
+    neg_le_neg_iff, Int.ofNat_le] at hle
+  have hm : emultiplicity v.asIdeal (Ideal.span {a}) ≤ n := by
+    apply le_of_eq_of_le (emultiplicity_eq_of_valuation_eq_ofAdd v hnz _) (ENat.coe_le_coe.mpr hle)
+    exact intValuation_eq_coe_neg_multiplicity v hnz
+  have hb : b ∈ v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) := by
+    rwa [← Ideal.dvd_span_singleton, ← HeightOneSpectrum.intValuation_le_pow_iff_dvd,
+        ← intValuation_eq_coe_neg_multiplicity _ hnz]
+  rw [← irreducible_pow_sup_of_ge hnb (HeightOneSpectrum.irreducible v) n hm] at hb
   obtain ⟨x, hx, z, hz, hxz⟩ := Submodule.mem_sup.mp hb
   obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.mp hz
   use y
@@ -266,7 +271,7 @@ theorem closureAlgebraMapIntergers_eq_prodIntegers {ι : Type*}
   . rw [RingHom.coe_range]
     exact Set.mem_range_self a
   apply hts
-  rintro w hw
+  intro w hw
   apply hg
   apply ha w hw
 
