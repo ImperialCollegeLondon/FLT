@@ -1,4 +1,4 @@
-import FLT.DedekindDomain.DenseIntegers
+import FLT.DedekindDomain.AdicValuation
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
@@ -604,6 +604,10 @@ lemma tensorAdicCompletionIsClosedRange :
     -- continuous due to `K_v` module topologies on both sides, then restrict scalars to `K`
     IsModuleTopology.continuousLinearEquiv (comm.symm.trans π') |>.restrictScalars K
 
+  have equiv_product : ∀ a x, (equiv (b x ⊗ₜ a)) = (fun j ↦ (Finsupp.single x (1 : K)) j • a) := by
+    intro a x
+    simp [equiv]
+
   have preimage : equiv ⁻¹' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v))) ⊆
       (tensorAdicCompletionIntegersTo A K L B v).range := by
     intro t ht
@@ -635,30 +639,8 @@ lemma tensorAdicCompletionIsClosedRange :
       Algebra.TensorProduct.includeRight_apply, Algebra.ofId_apply, hf_prop',
       Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
     apply equiv.injective
-    rw [map_sum]
-    -- TODO: Pull out the rewriting here
-    show ∑ x,
-        (let _ : DecidableEq ι := Classical.typeDecidableEq ι
-        let _ : Algebra (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
-          Algebra.TensorProduct.rightAlgebra
-        let comm :=
-          (AlgEquiv.extendScalars (adicCompletion K v) (Algebra.TensorProduct.comm K (adicCompletion K v) L)).toLinearEquiv;
-        let π := TensorProduct.piScalarRight K (adicCompletion K v) (adicCompletion K v) { x // x ∈ ι };
-        let π' :=
-          TensorProduct.AlgebraTensorModule.congr (LinearEquiv.refl (adicCompletion K v) (adicCompletion K v))
-              b.equivFun ≪≫ₗ
-            TensorProduct.piScalarRight K (adicCompletion K v) (adicCompletion K v) { x // x ∈ ι };
-        ContinuousLinearEquiv.restrictScalars K (IsModuleTopology.continuousLinearEquiv (comm.symm ≪≫ₗ π')))
-        (b x ⊗ₜ[K] equiv t x) = equiv t
-    simp only [AlgEquiv.toAlgHom_eq_coe, AlgHom.toRingHom_eq_coe, AlgEquiv.toLinearEquiv_symm,
-      ContinuousLinearEquiv.restrictScalars_apply, IsModuleTopology.continuousLinearEquiv_apply,
-      LinearEquiv.trans_apply, AlgEquiv.toLinearEquiv_apply, AlgEquiv.symmExtendScalars_apply,
-      Algebra.TensorProduct.comm_symm_tmul, congr_tmul, LinearEquiv.refl_apply,
-      Basis.equivFun_apply, Basis.repr_self, TensorProduct.piScalarRight_apply,
-      TensorProduct.piScalarRightHom_tmul, Finsupp.single_smul, one_smul]
-    rw [Finset.sum_fn]
-    ext i
-    rw [Finsupp.univ_sum_single_apply']
+    simp only [equiv_product, map_sum, Finsupp.single_smul, one_smul,
+      Finset.sum_fn, Finsupp.univ_sum_single_apply']
   use equiv ⁻¹' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v))), preimage
   constructor
   . apply IsOpen.preimage equiv.continuous
