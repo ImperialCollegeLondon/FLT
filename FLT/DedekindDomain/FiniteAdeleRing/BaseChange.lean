@@ -13,6 +13,8 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Valued.NormedValued
 import Mathlib.RingTheory.Valuation.RankOne
 import Mathlib.Topology.Algebra.Module.FiniteDimension
+import Mathlib.LinearAlgebra.TensorProduct.Quotient
+import Mathlib.RingTheory.TensorProduct.Quotient
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 
 /-!
@@ -490,9 +492,26 @@ noncomputable def polynomialPrimitiveElement_otimes (α : L) (hα : K⟮α⟯ = 
     L ⊗[K] (v.adicCompletion K) ≃ (K[X] ⧸ Ideal.span {f}) ⊗[K] (v.adicCompletion K) :=
   (polynomialPrimitiveElement K L α hα f hf).toLinearEquiv.rTensor (v.adicCompletion K)
 
-def baseChangePolynomialQuotient :
-  (K[X] ⧸ Ideal.span {f}) ⊗[K] (v.adicCompletion K) ≃
-      (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} := by
+noncomputable def baseChangePolynomialQuotient :
+    (K[X] ⧸ Ideal.span {f}) ⊗[K] (v.adicCompletion K) ≃ₐ[K]
+      (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} :=
+  AlgEquiv.ofBijective
+    (Algebra.TensorProduct.lift
+      (Ideal.Quotient.liftₐ
+        (Ideal.span {f})
+        ((Ideal.Quotient.mkₐ K _).comp (mapAlg K (v.adicCompletion K)))
+        (by
+          intro g hg
+          simp only [AlgHom.coe_comp, Ideal.Quotient.mkₐ_eq_mk, Function.comp_apply]
+          rw [Ideal.Quotient.eq_zero_iff_mem, Ideal.mem_span_singleton, mapAlg_eq_map]
+          have ⟨c, hc⟩ := Ideal.mem_span_singleton.mp hg
+          use Polynomial.map (algebraMap K (adicCompletion K v)) c
+          rw [hc, Polynomial.map_mul]
+        )
+      )
+      ((Ideal.Quotient.mkₐ K _).comp CAlgHom)
+      (by intros; exact Commute.all _ _)
+    )
     sorry
 
 variable (factors : Multiset (v.adicCompletion K)[X])
