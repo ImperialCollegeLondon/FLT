@@ -3,6 +3,7 @@ import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Algebra.Algebra.Subalgebra.Pi
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.Data.Int.WithZero
@@ -72,9 +73,6 @@ namespace HeightOneSpectrum
 
 variable (v : HeightOneSpectrum A)
 
-local notation "σ" => fun v w => algebraMap (WithVal (HeightOneSpectrum.valuation K v))
-    (WithVal (HeightOneSpectrum.valuation L w))
-
 -- first need a way to pull back valuations on B to A
 variable {B L} in
 def comap (w : HeightOneSpectrum B) : HeightOneSpectrum A where
@@ -83,6 +81,8 @@ def comap (w : HeightOneSpectrum B) : HeightOneSpectrum A where
   ne_bot := mt Ideal.eq_bot_of_comap_eq_bot w.ne_bot
 
 variable {A} in
+/-- If `B` is an `A`-algebra and `v : HeightOneSpectrum A` then `v.Extension B` is
+the subtype of `HeightOneSpeectrum B` consisting of valuations which restrict to `v`. -/
 def Extension (v : HeightOneSpectrum A) := {w : HeightOneSpectrum B // w.comap A = v}
 
 omit [Module.Finite A B] in
@@ -163,6 +163,18 @@ lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
   simp [valuation, ← IsScalarTower.algebraMap_apply A K L, IsScalarTower.algebraMap_apply A B L,
     ← intValuation_comap A B (algebraMap_injective_of_field_isFractionRing A B K L), div_pow]
 
+/--
+If we have an AKLB set-up, and `w` is a valuation on `L` extending `v` on `K`,
+then `σ v w` is the ring homomorphism from (K with valuation v) to (L with valuation w).
+More precisely, by (K with valuation v) we mean the
+type synonym `WithVal (HeightOneSpectrum.valuation K v)`, which is `K` equipped with
+the instance `Valued K Γ₀` coming from `v`. In particular this type synonym has
+a canonical valuation, topology, and uniform addive group structure. It is shown
+that `σ v w` is continuous.
+-/
+local notation "σ" => fun v w => algebraMap (WithVal (HeightOneSpectrum.valuation K v))
+    (WithVal (HeightOneSpectrum.valuation L w))
+
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [Module.Finite A B] in
 lemma _root_.IsDedekindDomain.HeightOneSpectrum.adicValued.continuous_algebraMap
@@ -203,6 +215,23 @@ noncomputable def adicCompletionComapSemialgHom (v : HeightOneSpectrum A) (w : H
     v.adicCompletion K →ₛₐ[σ v w] w.adicCompletion L :=
   UniformSpace.Completion.mapSemialgHom _ <|
   IsDedekindDomain.HeightOneSpectrum.adicValued.continuous_algebraMap A K L B v w hvw
+
+set_option linter.unusedTactic false
+
+lemma adicCompletionComapSemialgHom.mapValuationSubring (v : HeightOneSpectrum A)
+    (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
+    (adicCompletionComapSemialgHom A K L B v w hvw) '' (v.adicCompletionIntegers K) ≤
+    w.adicCompletionIntegers L := by
+  -- rintro y ⟨x, hx, rfl⟩
+  -- unfold adicCompletionComapSemialgHom adicCompletionIntegers
+  --   UniformSpace.Completion.mapSemialgHom UniformSpace.Completion.mapRingHom at *
+  -- simp
+  -- simp at hx
+  -- unfold DFunLike.coe Valuation.instFunLike instFunLike
+  --   RingHom.instFunLike
+  -- simp
+  sorry
+  -- TODO needs an issue
 
 section ModuleTopology
 
@@ -253,7 +282,7 @@ def comap_algebra_continuousSmul (v : HeightOneSpectrum A) (w : HeightOneSpectru
 open TensorProduct in
 /-- The canonical `K_v`-linear map `K_v ⨂[K] L → L_w` coming from the embeddings
     `K_v → L_w` and `L → L_w`. -/
-noncomputable def baseChange_of_algebraMap_adicComletion (v : HeightOneSpectrum A)
+noncomputable def baseChange_of_algebraMap_adicCompletion (v : HeightOneSpectrum A)
     (w : HeightOneSpectrum B) (hvw : comap A w = v) :
     letI := comap_algebra A K L B hvw
     (adicCompletion K v ⊗[K] L) →ₗ[adicCompletion K v] adicCompletion L w :=
@@ -271,11 +300,11 @@ noncomputable def baseChange_of_algebraMap_adicComletion (v : HeightOneSpectrum 
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
 theorem baseChange_of_algebraMap_adicComletion_surjective (v : HeightOneSpectrum A)
     (w : HeightOneSpectrum B) (hvw : comap A w = v) :
-    Function.Surjective (baseChange_of_algebraMap_adicComletion A K L B v w hvw) := by
+    Function.Surjective (baseChange_of_algebraMap_adicCompletion A K L B v w hvw) := by
   let inst_alg := comap_algebra A K L B hvw
   let inst_cSmul : ContinuousSMul (adicCompletion K v) (adicCompletion L w) :=
     comap_algebra_continuousSmul A K L B v w hvw
-  set f := (baseChange_of_algebraMap_adicComletion A K L B v w hvw)
+  set f := (baseChange_of_algebraMap_adicCompletion A K L B v w hvw)
   have isClosed : IsClosed (LinearMap.range f).carrier := by
     apply Submodule.closed_of_finiteDimensional
   let coeL : WithVal (w.valuation L) → adicCompletion L w := UniformSpace.Completion.coe'
@@ -287,7 +316,7 @@ theorem baseChange_of_algebraMap_adicComletion_surjective (v : HeightOneSpectrum
   apply Dense.mono _ denseL
   intro x ⟨l, hl⟩
   use (1 ⊗ₜ l)
-  simp only [f, baseChange_of_algebraMap_adicComletion, ← hl,
+  simp only [f, baseChange_of_algebraMap_adicCompletion, ← hl,
     SemialgHom.baseChange_of_algebraMap_tmul_right, AlgHom.toLinearMap_apply]
   rfl
 
@@ -297,11 +326,11 @@ theorem comap_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
     letI := comap_algebra A K L B hvw
     Module.Finite (adicCompletion K v) (adicCompletion L w) := by
   let inst_alg := comap_algebra A K L B hvw
-  have fdRange : (LinearMap.range (baseChange_of_algebraMap_adicComletion A K L B v w hvw)).FG := by
+  have fdRange : (LinearMap.range (baseChange_of_algebraMap_adicCompletion A K L B v w hvw)).FG := by
     rw [← Module.Finite.iff_fg]
     apply LinearMap.finiteDimensional_range
   rw [Module.finite_def]
-  suffices LinearMap.range (baseChange_of_algebraMap_adicComletion A K L B v w hvw) = ⊤ by
+  suffices LinearMap.range (baseChange_of_algebraMap_adicCompletion A K L B v w hvw) = ⊤ by
     rwa [← this]
   rw [LinearMap.range_eq_top]
   apply baseChange_of_algebraMap_adicComletion_surjective
@@ -360,7 +389,7 @@ def noZeroSMulDivisors : NoZeroSMulDivisors A B := by
     simp [LinearMap.map_smul_of_tower]
   rw [IsScalarTower.algebraMap_smul, ← ht, h, map_zero]
 
-def finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
+def Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
   have := noZeroSMulDivisors A K L B
   rw [Extension, ← Set.coe_setOf]
   rw [@Set.finite_coe_iff]
@@ -398,7 +427,7 @@ lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
   -- these are defs or lemmas so are required
   let _ (w : v.Extension B) := comap_algebra A K L B w.2 |>.toModule
   let _ (w : v.Extension B) := adicCompletionComap_isModuleTopology A K L B v w.1 w.2
-  let _ := finite A K L B v
+  let _ := Extension.finite A K L B v
   exact IsModuleTopology.instPi
 
 open scoped TensorProduct -- ⊗ notation for tensor product
@@ -416,6 +445,7 @@ lemma tensorAdicCompletionComapAlgHom_tmul_apply (v : HeightOneSpectrum A) (x y 
   simp_rw [Algebra.smul_def]
   rfl
 
+/-- The canonical map `L ⊗[K] K_v → ∏_{w|v} L_w` is bijective. -/
 theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
     Function.Bijective (tensorAdicCompletionComapAlgHom A K L B v) := by
   sorry -- issue FLT#231
@@ -485,7 +515,7 @@ def adicCompletionIntegersSubalgebra {R : Type*} (K : Type*) [CommRing R]
   __ := HeightOneSpectrum.adicCompletionIntegers K v
   algebraMap_mem' r := coe_mem_adicCompletionIntegers v r
 
-/-- The canonical map `B ⊗[A] A_v → L ⊗[K] K_v` -/
+/-- The canonical B-algebra map `B ⊗[A] A_v → L ⊗[K] K_v` -/
 noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
     B ⊗[A] adicCompletionIntegers K v →ₐ[B] L ⊗[K] adicCompletion K v :=
   Algebra.TensorProduct.lift
@@ -526,6 +556,8 @@ theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
         (comap A i.1).3) i.1.2 Ideal.map_comap_le
   · simp [map_add, Pi.add_apply, add_mem hx hy]
 
+/-- For all but finitely many places v of K, the isomorphism `L ⊗[K] K_v = ∏_w L_w`
+sends `B ⊗[A] A_v` onto `∏_w B_w`. -/
 theorem adicCompletionComapAlgEquiv_integral : ∃ S : Finset (HeightOneSpectrum A), ∀ v ∉ S,
     AlgHom.range (((tensorAdicCompletionComapAlgHom A K L B v).restrictScalars B).comp
       (tensorAdicCompletionIntegersTo A K L B v)) =
@@ -633,6 +665,22 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 --   · intro h
 --     rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B]
 --     exact h 1
+
+-- #loogle "cofinite" "finite"
+
+noncomputable def FiniteAdeleRing.baseChange_ringHom :
+    FiniteAdeleRing A K →+* FiniteAdeleRing B L := RestrictedProduct.mapRingHom
+  (fun (v : HeightOneSpectrum A) ↦ v.adicCompletion K)
+  (fun (w : HeightOneSpectrum B) ↦ w.adicCompletion L)
+  (HeightOneSpectrum.comap A)
+  (by
+    have := Extension.finite A K L B
+    -- if X → Y has finite fibres then cofinite.tendsto cofinite
+    sorry)
+  (fun w ↦ adicCompletionComapSemialgHom A K L B (w.comap A) w rfl)
+  sorry
+
+
 
 -- Restriction of an algebra map is an algebra map; these should be easy. #242
 noncomputable def FiniteAdeleRing.baseChange :
