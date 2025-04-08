@@ -514,15 +514,7 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
         use 0
         simp
     | add x y hx hy =>
-        -- Instances are timing out without help
-        let _ : NonUnitalNonAssocSemiring (B ⊗[A] ↥(adicCompletionIntegers K v)) :=
-          Algebra.TensorProduct.instNonUnitalNonAssocSemiring
-        let _ : NonUnitalSemiring (B ⊗[A] ↥(adicCompletionIntegers K v)) :=
-          Algebra.TensorProduct.instNonUnitalSemiring
-        let _ : AddHomClass (B ⊗[A] ↥(adicCompletionIntegers K v) →+* L ⊗[K] adicCompletion K v)
-            (B ⊗[A] ↥(adicCompletionIntegers K v)) (L ⊗[K] adicCompletion K v) :=
-          AddMonoidHomClass.toAddHomClass
-        rw [map_add]
+        rw [RingHom.map_add]
         letI : SMul (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
             Algebra.TensorProduct.rightAlgebra |>.toSMul
         apply map_mem_closure₂ _ hx hy _
@@ -536,10 +528,10 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
           AlgHom.coe_comp, AlgHom.coe_restrictScalars', IsScalarTower.coe_toAlgHom',
           Function.comp_apply, ValuationSubring.algebraMap_apply,
           Algebra.TensorProduct.includeRight_apply]
-        let f (y : ↥(adicCompletionIntegers K v)) : (L ⊗[K] adicCompletion K v) :=
-          (Algebra.ofId B (L ⊗[K] adicCompletion K v)) x * (1 : L) ⊗ₜ[K] (y : adicCompletion K v)
         letI : SMul (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
             Algebra.TensorProduct.rightAlgebra |>.toSMul
+        let f (y : ↥(adicCompletionIntegers K v)) : (L ⊗[K] adicCompletion K v) :=
+          (Algebra.ofId B (L ⊗[K] adicCompletion K v)) x * (1 : L) ⊗ₜ[K] (y : adicCompletion K v)
         have hfval : f = fun (y : ↥(adicCompletionIntegers K v)) =>
               (y : adicCompletion K v) • (Algebra.ofId B (L ⊗[K] adicCompletion K v)) x := by
           ext y
@@ -550,29 +542,22 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
           apply Continuous.continuousAt
           rw [hfval]
           apply Continuous.smul continuous_subtype_val continuous_const
-        let g : A → (adicCompletionIntegers K v) :=
-          fun a ↦ ⟨algebraMap A _ a, coe_mem_adicCompletionIntegers v a⟩
-        have hy : y ∈ closure (Set.range g) := by
-          simp [g]
-          apply IsDedekindDomain.denseRange_of_integerAlgerbaMap
+        have hy : y ∈ closure (Set.range (algebraMap A _)) := by
+          apply IsDedekindDomain.denseRange_of_integerAlgebraMap
         apply mem_closure_image hcf hy
         constructor
         . exact isClosed_closure
-        intro u ⟨a', ⟨a, ha⟩, ha'⟩
-        rw [← ha', ← ha]
+        rintro u ⟨a', ⟨a, rfl⟩, rfl⟩
         apply subset_closure
         use algebraMap A B a * x
-        simp [f, g]
-        rw [Algebra.ofId_apply]
-        have halgMap : (algebraMap A (adicCompletion K v)) a =
-            (algebraMap A K a) • (1 : adicCompletion K v) := by
-          rw [← Algebra.algebraMap_eq_smul_one]
-          rfl
-        rw [halgMap, ← TensorProduct.smul_tmul]
-        simp [← Algebra.smul_def, IsScalarTower.algebraMap_smul]
+        unfold f
+        rw [Algebra.algebraMap_eq_smul_one (A := (adicCompletionIntegers K v)) a,
+          coe_smul_adicCompletionIntegers, ← TensorProduct.smul_tmul, Algebra.ofId_apply,
+          Algebra.TensorProduct.algebraMap_apply, RingHom.map_mul, ← Algebra.smul_def]
+        simp
 
 open TensorProduct.AlgebraTensorModule in
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 300000 in
 omit [Algebra.IsSeparable K L] [IsDomain B] [Algebra.IsIntegral A B]
     [Module.Finite A B] [IsDedekindDomain B] [IsFractionRing B L]  in
 lemma tensorAdicCompletionIsClosedRange :
@@ -607,10 +592,9 @@ lemma tensorAdicCompletionIsClosedRange :
   have equiv_product : ∀ a x, (equiv (b x ⊗ₜ a)) = (fun j ↦ (Finsupp.single x (1 : K)) j • a) := by
     intro a x
     simp [equiv]
-
-  have preimage : equiv ⁻¹' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v))) ⊆
-      (tensorAdicCompletionIntegersTo A K L B v).range := by
-    intro t ht
+  use equiv ⁻¹' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v)))
+  refine ⟨?_, ?_, ?_⟩
+  . intro t ht
     have hf : ∀ (i : ι), ∃ (w : B), (algebraMap B L w) = (b i) := by
       intro i
       apply IsIntegralClosure.isIntegral_iff.mp (hb i)
@@ -622,27 +606,22 @@ lemma tensorAdicCompletionIsClosedRange :
       intro i
       rw [Algebra.TensorProduct.algebraMap_apply, hf_prop]
     use ∑ (i : ι), (f i) ⊗ₜ ⟨equiv t i, ht i ⟨⟩⟩
-    let _ : NonUnitalNonAssocSemiring (B ⊗[A] ↥(adicCompletionIntegers K v)) :=
-      Algebra.TensorProduct.instNonUnitalNonAssocSemiring
-    let _ : NonUnitalSemiring (B ⊗[A] ↥(adicCompletionIntegers K v)) :=
-      Algebra.TensorProduct.instNonUnitalSemiring
+    let _ : NonAssocSemiring (B ⊗[A] ↥(adicCompletionIntegers K v)) :=
+      Algebra.TensorProduct.instNonAssocSemiring
     let _ : AddMonoidHomClass (B ⊗[A] ↥(adicCompletionIntegers K v) →+* L ⊗[K] adicCompletion K v)
         (B ⊗[A] ↥(adicCompletionIntegers K v)) (L ⊗[K] adicCompletion K v) :=
-      by apply AddMonoidHomClass.mk
-    let _ : AddHomClass (B ⊗[A] ↥(adicCompletionIntegers K v) →+* L ⊗[K] adicCompletion K v)
-        (B ⊗[A] ↥(adicCompletionIntegers K v)) (L ⊗[K] adicCompletion K v) :=
-      AddMonoidHomClass.toAddHomClass
+      RingHomClass.toAddMonoidHomClass
+    rw [map_sum]
     simp only [tensorAdicCompletionIntegersTo, Algebra.comp_ofId, AlgHom.toRingHom_eq_coe,
-      map_sum, RingHom.coe_coe, Algebra.TensorProduct.lift_tmul,
+      RingHom.coe_coe, Algebra.TensorProduct.lift_tmul,
       AlgHom.coe_comp, AlgHom.coe_restrictScalars', IsScalarTower.coe_toAlgHom',
       Function.comp_apply, ValuationSubring.algebraMap_apply,
       Algebra.TensorProduct.includeRight_apply, Algebra.ofId_apply, hf_prop',
       Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
     apply equiv.injective
-    simp only [equiv_product, map_sum, Finsupp.single_smul, one_smul,
+    rw [map_sum]
+    simp only [equiv_product, Finsupp.single_smul, one_smul,
       Finset.sum_fn, Finsupp.univ_sum_single_apply']
-  use equiv ⁻¹' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v))), preimage
-  constructor
   . apply IsOpen.preimage equiv.continuous
     apply isOpen_set_pi Set.finite_univ
     rintro i -
@@ -673,7 +652,7 @@ lemma prodAdicCompletionsIntegers_eq_closureIntegers :
   let val := (fun (w : Extension B v) ↦ w.1)
   have hinj : Function.Injective val := by exact
     (Set.injective_codRestrict Subtype.property).mp fun _ _ a ↦ a
-  rw [closureAlgebraMapIntergers_eq_prodIntegers L val hinj]
+  rw [closureAlgebraMapIntegers_eq_prodIntegers L val hinj]
   rfl
 
 set_option synthInstance.maxHeartbeats 40000 in
@@ -681,16 +660,16 @@ theorem adicCompletionComapAlgEquiv_integral :
     AlgHom.range (((tensorAdicCompletionComapAlgHom A K L B v).restrictScalars B).comp
       (tensorAdicCompletionIntegersTo A K L B v)) =
     Subalgebra.pi Set.univ (fun _ ↦ adicCompletionIntegersSubalgebra _ _) := by
-  have h1 := tensorAdicCompletionIntegersToRange_eq_closureIntegers
-  have h2 := prodAdicCompletionsIntegers_eq_closureIntegers
-  have h3 :
+  have hlhs := tensorAdicCompletionIntegersToRange_eq_closureIntegers
+  have hrhs := prodAdicCompletionsIntegers_eq_closureIntegers
+  have hrange :
     SetLike.coe (algebraMap B ((w : Extension B v) → adicCompletion L w.1)).range =
       (tensorAdicCompletionComapAlgHom A K L B v) ''
       SetLike.coe (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
     ext x
     simp [Algebra.algebraMap_eq_smul_one, AlgHom.map_smul_of_tower]
   rw [AlgHom.range_comp, ← SetLike.coe_set_eq, Subalgebra.coe_map, AlgHom.coe_restrictScalars',
-      h1, h2, h3]
+      hlhs, hrhs, hrange]
   apply Homeomorph.image_closure (adicCompletionComapContinuousAlgEquiv A K L B v).toHomeomorph
 
 end IsDedekindDomain.HeightOneSpectrum

@@ -9,7 +9,7 @@ lemma Valued.isUnit_valuationSubring_iff {Γ₀ : Type*} [LinearOrderedCommGroup
   convert Valuation.Integers.isUnit_iff_valuation_eq_one _
   exact Valuation.integer.integers _
 
-/-- The unit ball of a valued ring is open. -/
+/-- The unit ball of a valued ring is closed. -/
 theorem Valued.integer_isClosed ( R : Type* ) {Γ₀ : Type*} [Ring R]
     [LinearOrderedCommGroupWithZero Γ₀] [_i : Valued R Γ₀] : IsClosed (_i.v.integer : Set R) := by
   rw [← Subring.coe_toAddSubgroup]
