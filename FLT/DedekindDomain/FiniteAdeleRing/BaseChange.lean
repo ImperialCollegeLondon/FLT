@@ -416,65 +416,87 @@ lemma tensorAdicCompletionComapAlgHom_tmul_apply (v : HeightOneSpectrum A) (x y 
   simp_rw [Algebra.smul_def]
   rfl
 
-open scoped Polynomial IntermediateField
+open Polynomial IntermediateField
 
+variable [DecidableEq K]
 variable [DecidableEq (v.adicCompletion K)]
 
-def polynomialPrimitiveElement  (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α) :
-    L ≃ₐ[K] K[X] ⧸ Ideal.span {f} :=
-  sorry
+variable (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α)
+variable (factors : Multiset (v.adicCompletion K)[X])
+    (factors_prime : ∀ factor : factors.toFinset, Irreducible factor.1)
+    (factors_distinct : ∀ (factor : factors.toEnumFinset), factor.1.2 = 1)
+    (factors_product : f.map (algebraMap _ _) = ∏ᶠ (factor : factors.toFinset), factor.1)
 
-def polynomialPrimitiveElement_otimes (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α) :
+noncomputable def polynomialPrimitiveElement   :
+    L ≃ₐ[K] K[X] ⧸ Ideal.span {f} := by
+  let poly_map : K[X] →ₐ[K] L := {
+    toFun f := (f.map (algebraMap K L)).eval α
+    map_one' := by simp
+    map_mul' := by simp
+    map_zero' := by simp
+    map_add' := by simp
+    commutes' := by simp
+  }
+  let surj : Function.Surjective poly_map := by
+    intro l
+    have l_in : l ∈ K⟮α⟯ := by rw [hα]; simp
+    have ⟨r, s, hrs⟩ := (IntermediateField.mem_adjoin_simple_iff K l).mp l_in
+    have : IsCoprime f s := sorry
+    let ⟨a, b⟩ := EuclideanDomain.xgcd f s
+    have : EuclideanDomain.gcd f s = f * a + s * b := sorry
+    have : (EuclideanDomain.gcd f s).degree = 0 := sorry
+    use (EuclideanDomain.gcd f s).constantCoeff⁻¹ • (r * b)
+    simp only [Polynomial.eval_map_algebraMap, AlgHom.mk_coe, poly_map]
+    sorry
+  let equiv := Ideal.quotientKerAlgEquivOfSurjective surj
+  have hker : RingHom.ker poly_map.toRingHom = Ideal.span {f} := sorry
+  rw [← hker]
+  exact equiv.symm
+
+noncomputable def polynomialPrimitiveElement_otimes (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α) :
     L ⊗[K] (v.adicCompletion K) ≃ (K[X] ⧸ Ideal.span {f}) ⊗[K] (v.adicCompletion K) :=
-  sorry
+  (polynomialPrimitiveElement K L α hα f).toLinearEquiv.rTensor (v.adicCompletion K)
 
-def baseChangePolynomialQuotient (f : K[X]) :
+def baseChangePolynomialQuotient :
   (K[X] ⧸ Ideal.span {f}) ⊗[K] (v.adicCompletion K) ≃
       (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} :=
   sorry
 
 -- no need to add exponents "e i" because L/K is separable -> f decomposes linearly in algebraic closure
 -- so fv must decompose without multiplicities
-def polynomialChineseReminder (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α) :
-    let fv := f.map (algebraMap K (v.adicCompletion K))
-    let factors := UniqueFactorizationMonoid.factors fv
-    (v.adicCompletion K)[X] ⧸ Ideal.span {fv} ≃
+def polynomialChineseReminder :
+    (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} ≃
       Π (factor : factors.toFinset), (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1} :=
   sorry
 
-def factorsToPlacesAbove (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α) :
-    let fv := f.map (algebraMap K (v.adicCompletion K))
-    let factors := UniqueFactorizationMonoid.factors fv
+def factorsToPlacesAbove :
     factors.toFinset ≃ v.Extension B :=
   sorry
 
-def factorFieldToCompletionAbove (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α) :
-    let fv := f.map (algebraMap K (v.adicCompletion K))
-    let factors := UniqueFactorizationMonoid.factors fv
+def factorFieldToCompletionAbove :
     ∀ (factor : factors.toFinset),
       (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1} ≃
-        (factorsToPlacesAbove A K L B v α hα f hf factor).1.adicCompletion L :=
+        (factorsToPlacesAbove A K L B v α hα f hf factors factors_prime factors_distinct factors_product).1.adicCompletion L :=
   sorry
 
-def factorFieldToCompletionAbove_pi (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α) :
-    let fv := f.map (algebraMap K (v.adicCompletion K))
-    let factors := UniqueFactorizationMonoid.factors fv
-    Π (factor : factors.toFinset), (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1} ≃
-      Π (w : v.Extension B), w.1.adicCompletion L
+def factorFieldToCompletionAbove_pi :
+    (Π (factor : factors.toFinset), (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1}) ≃
+      (Π (w : v.Extension B), w.1.adicCompletion L)
     :=
   sorry
 
-def tensorAdicCompletionComapAlgHom' :
+noncomputable def tensorAdicCompletionComapAlgHom' :
     L ⊗[K] (v.adicCompletion K) ≃ Π (w : v.Extension B), w.1.adicCompletion L :=
-  let a := Field.exists_primitive_element K L
+  let prim := Field.exists_primitive_element K L
   let α := prim.choose
   let hα := prim.choose_spec
   let f : K[X] := minpoly K α
   have hf : f = minpoly K α := rfl
+  let factors := UniqueFactorizationMonoid.factors (f.map (algebraMap K (v.adicCompletion K)))
   (polynomialPrimitiveElement_otimes A K L v α hα f rfl).trans <|
-    (baseChangePolynomialQuotient A K L v f).trans <|
-    (polynomialChineseReminder A K L v α hα f rfl).trans <|
-    factorFieldToCompletionAbove_pi A K L B v α hα f rfl
+    (baseChangePolynomialQuotient A K v f).trans <|
+    (polynomialChineseReminder A K v f factors).trans <|
+    factorFieldToCompletionAbove_pi A K L B v factors
 
 lemma tensorAdicCompletionComapAlgHom_eq :
     let α := Field.exists_primitive_element K L
