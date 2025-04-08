@@ -422,45 +422,61 @@ variable [DecidableEq K]
 variable [DecidableEq (v.adicCompletion K)]
 
 variable (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α)
-variable (factors : Multiset (v.adicCompletion K)[X])
-    (factors_prime : ∀ factor : factors.toFinset, Irreducible factor.1)
-    (factors_distinct : ∀ (factor : factors.toEnumFinset), factor.1.2 = 1)
-    (factors_product : f.map (algebraMap _ _) = ∏ᶠ (factor : factors.toFinset), factor.1)
+
+lemma aeval_α_surj (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α)
+    : Function.Surjective (aeval α (R := K)) := by
+  intro l
+  have l_in : l ∈ K⟮α⟯ := by rw [hα]; simp
+  have ⟨r, s, hrs⟩ := (IntermediateField.mem_adjoin_simple_iff K l).mp l_in
+  have hrs' : l * (aeval α) s = (aeval α) r := by
+    letI : Invertible ((aeval α) s) := sorry
+    rw [hrs, div_mul_cancel_of_invertible]
+  have ctt : (EuclideanDomain.gcd f s).degree = 0 := by
+    have coprime : IsCoprime f s := sorry
+    sorry
+  let ⟨a, b⟩ := EuclideanDomain.xgcd f s
+  let hc := eq_C_of_degree_eq_zero ctt
+  have bezout : (EuclideanDomain.gcd f s) = f * a + s * b := sorry
+  have bezout' : (aeval α) (EuclideanDomain.gcd f s) = (aeval α) (s) * (aeval α) (b) := by
+    rw [bezout, hf, aeval_add, aeval_mul,
+      (minpoly.eq_iff_aeval_eq_zero (p := minpoly K α)
+        (minpoly.irreducible (Algebra.IsSeparable.isIntegral K α))
+        (minpoly.monic (Algebra.IsSeparable.isIntegral K α))
+      ).mp rfl, zero_mul, zero_add, aeval_mul]
+  simp only [aeval_C, aeval_mul, aeval_add] at bezout'
+  letI : Invertible ((EuclideanDomain.gcd f s).coeff 0) := sorry
+  letI : Invertible (algebraMap K L ((EuclideanDomain.gcd f s).coeff 0)) := sorry
+  use (EuclideanDomain.gcd f s).constantCoeff⁻¹ • (r * b)
+  simp only [eval_map_algebraMap, AlgHom.mk_coe, constantCoeff_apply, map_smul, aeval_mul]
+  rw [← hrs', mul_assoc l, ← bezout']
+  nth_rw 2 [hc]
+  rw [aeval_C, ← algebraMap_smul (A := L), smul_eq_mul, mul_comm, mul_assoc, map_inv₀ (f := algebraMap K L),
+    mul_inv_cancel_of_invertible, mul_one]
+
+omit [FiniteDimensional K L] [Algebra.IsSeparable K L] [DecidableEq K] in
+lemma aeval_α_ker (α : L) (f : K[X]) (hf : f = minpoly K α) : RingHom.ker (aeval α (R := K)) = Ideal.span {f} := by
+  rw [minpoly.ker_aeval_eq_span_minpoly K α, hf]
+  aesop
 
 noncomputable def polynomialPrimitiveElement   :
     L ≃ₐ[K] K[X] ⧸ Ideal.span {f} := by
-  let poly_map : K[X] →ₐ[K] L := {
-    toFun f := (f.map (algebraMap K L)).eval α
-    map_one' := by simp
-    map_mul' := by simp
-    map_zero' := by simp
-    map_add' := by simp
-    commutes' := by simp
-  }
-  let surj : Function.Surjective poly_map := by
-    intro l
-    have l_in : l ∈ K⟮α⟯ := by rw [hα]; simp
-    have ⟨r, s, hrs⟩ := (IntermediateField.mem_adjoin_simple_iff K l).mp l_in
-    have : IsCoprime f s := sorry
-    let ⟨a, b⟩ := EuclideanDomain.xgcd f s
-    have : EuclideanDomain.gcd f s = f * a + s * b := sorry
-    have : (EuclideanDomain.gcd f s).degree = 0 := sorry
-    use (EuclideanDomain.gcd f s).constantCoeff⁻¹ • (r * b)
-    simp only [Polynomial.eval_map_algebraMap, AlgHom.mk_coe, poly_map]
-    sorry
-  let equiv := Ideal.quotientKerAlgEquivOfSurjective surj
-  have hker : RingHom.ker poly_map.toRingHom = Ideal.span {f} := sorry
-  rw [← hker]
+  let equiv := Ideal.quotientKerAlgEquivOfSurjective (aeval_α_surj K L α hα f hf)
+  rw [← aeval_α_ker K L α f hf]
   exact equiv.symm
 
 noncomputable def polynomialPrimitiveElement_otimes (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α) :
     L ⊗[K] (v.adicCompletion K) ≃ (K[X] ⧸ Ideal.span {f}) ⊗[K] (v.adicCompletion K) :=
-  (polynomialPrimitiveElement K L α hα f).toLinearEquiv.rTensor (v.adicCompletion K)
+  (polynomialPrimitiveElement K L α hα f hf).toLinearEquiv.rTensor (v.adicCompletion K)
 
 def baseChangePolynomialQuotient :
   (K[X] ⧸ Ideal.span {f}) ⊗[K] (v.adicCompletion K) ≃
       (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} :=
-  sorry
+  by exact?
+
+variable (factors : Multiset (v.adicCompletion K)[X])
+    (factors_prime : ∀ factor : factors.toFinset, Irreducible factor.1)
+    (factors_distinct : ∀ (factor : factors.toEnumFinset), factor.1.2 = 1)
+    (factors_product : f.map (algebraMap _ _) = ∏ᶠ (factor : factors.toFinset), factor.1)
 
 -- no need to add exponents "e i" because L/K is separable -> f decomposes linearly in algebraic closure
 -- so fv must decompose without multiplicities
