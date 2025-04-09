@@ -16,6 +16,7 @@ import Mathlib.Topology.Algebra.Module.FiniteDimension
 import Mathlib.LinearAlgebra.TensorProduct.Quotient
 import Mathlib.RingTheory.TensorProduct.Quotient
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
+import FLT.Mathlib.RingTheory.DedekindDomain.Ideal
 
 /-!
 
@@ -514,17 +515,30 @@ noncomputable def baseChangePolynomialQuotient :
     )
     sorry
 
+variable [DecidableEq (Ideal (v.adicCompletion K)[X])]
+  {factors : Multiset ((v.adicCompletion K)[X])}
+  (factors_product : f.map (algebraMap K (v.adicCompletion K)) = ∏ᶠ factor ∈ factors, factor ^ factors.count factor)
+  (factors_count : ∀ factor ∈ factors, factors.count factor = 1)
+  (factors_prime : ∀ factor ∈ factors, Prime (factor))
+  (factors_non_zero : ∀ factor ∈ factors, factor ≠ 0)
 
 -- no need to add exponents "e i" because L/K is separable -> f decomposes linearly in algebraic closure
 -- so fv must decompose without multiplicities
-def polynomialChineseReminder :
-    (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} ≃
+noncomputable def polynomialChineseReminder :
+    (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} ≃+*
       Π (factor : factors.toFinset), (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1} := by
+  let φ := Polynomial.ringEquiv_chineseReminder (P := factors)
+  rw [factors_product]
   sorry
+  -- rw [factors_count] not matching... why?
+  -- exact φ
 
 
 def factorsToPlacesAbove :
-    factors.toFinset ≃ v.Extension B :=
+    factors.toFinset ≃ v.Extension B := .ofBijective
+  (fun p ↦
+    sorry
+  )
   sorry
 
 def factorFieldToCompletionAbove :
