@@ -41,4 +41,4 @@ noncomputable def CyclotomicCharacter_aux : (L ≃+* L) →* ZHat where
   map_one' := by ext; simp only [map_one]; rfl
   map_mul' _ _ := by ext; simp only [map_mul]; rfl
 
-noncomputable def CyclotomicCharacter : (L ≃+* L) →* ZHatˣ := (CyclotomicCharacter_aux L).toHomUnits
+noncomputable def CyclotomicCharacterZHat : (L ≃+* L) →* ZHatˣ := (CyclotomicCharacter_aux L).toHomUnits
