@@ -1,6 +1,5 @@
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import Mathlib.Algebra.Algebra.Subalgebra.Pi
@@ -191,8 +190,6 @@ lemma _root_.IsDedekindDomain.HeightOneSpectrum.adicValued.continuous_algebraMap
     (comap A w).valuation K x ^ m < e (a / ↑m) ^ m := by gcongr; exacts [zero_le', hx]
   _ = e (m • (a / ↑m)) := by
     dsimp [e]
-    norm_cast
-    rw [map_pow]
   _ ≤ e a := by
     simp only [nsmul_eq_mul, e_apply, Units.val_le_val, OrderIsoClass.map_le_map_iff]
     rw [mul_comm]
