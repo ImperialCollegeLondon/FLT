@@ -514,17 +514,14 @@ noncomputable def baseChangePolynomialQuotient :
     )
     sorry
 
-variable (factors : Multiset (v.adicCompletion K)[X])
-    (factors_prime : ∀ factor : factors.toFinset, Irreducible factor.1)
-    (factors_distinct : ∀ (factor : factors.toEnumFinset), factor.1.2 = 1)
-    (factors_product : f.map (algebraMap _ _) = ∏ᶠ (factor : factors.toFinset), factor.1)
 
 -- no need to add exponents "e i" because L/K is separable -> f decomposes linearly in algebraic closure
 -- so fv must decompose without multiplicities
 def polynomialChineseReminder :
     (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} ≃
-      Π (factor : factors.toFinset), (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1} :=
+      Π (factor : factors.toFinset), (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1} := by
   sorry
+
 
 def factorsToPlacesAbove :
     factors.toFinset ≃ v.Extension B :=
