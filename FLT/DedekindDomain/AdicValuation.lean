@@ -34,12 +34,15 @@ lemma emultiplicity_eq_of_valuation_eq_ofAdd { a : A } { k : ℕ } ( hnz : a ≠
   rw [← hv, UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb,
     count_associates_factors_eq hnb v.isPrime v.ne_bot, normalize_eq]
 
-lemma exists_approxInverse { a b : A } { n : ℕ } ( hnz : a ≠ 0 )
+/-- Given `a, b ∈ A` and `v b ≤ v a` we can find `y in A` such that `y` is close to `a / b` by
+    the valuation v. -/
+lemma exists_adicValued_mul_sub_le { a b : A } { n : ℕ } ( hnz : a ≠ 0 )
     ( hle : Multiplicative.ofAdd (-(n : ℤ)) ≤ v.intValuationDef a)
     ( hle' : v.intValuationDef b ≤ v.intValuationDef a ) :
     ∃ y, v.intValuationDef (y * a - b) ≤ (Multiplicative.ofAdd (-(n : ℤ))) := by
   have hnb : Ideal.span {a} ≠ ⊥ := by
     rwa [ne_eq, Ideal.span_singleton_eq_bot]
+  -- Rewrite the statements to involve multiplicity rather than valuations
   rw [intValuation_eq_coe_neg_multiplicity _ hnz, WithZero.coe_le_coe, Multiplicative.ofAdd_le,
     neg_le_neg_iff, Int.ofNat_le] at hle
   have hm : emultiplicity v.asIdeal (Ideal.span {a}) ≤ n := by
@@ -48,15 +51,20 @@ lemma exists_approxInverse { a b : A } { n : ℕ } ( hnz : a ≠ 0 )
   have hb : b ∈ v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) := by
     rwa [← Ideal.dvd_span_singleton, ← HeightOneSpectrum.intValuation_le_pow_iff_dvd,
         ← intValuation_eq_coe_neg_multiplicity _ hnz]
+  -- Now make use of
+  -- `v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) = v.asIdeal ^ n ⊔ Ideal.span {a}`
+  -- (this is where we need IsDedekindDomain A)
   rw [← irreducible_pow_sup_of_ge hnb (HeightOneSpectrum.irreducible v) n hm] at hb
+  -- Extract y by writing b as a general term of the sum of the two ideals.
   obtain ⟨x, hx, z, hz, hxz⟩ := Submodule.mem_sup.mp hb
   obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.mp hz
   use y
+  -- And again prove the result about valuations by turning into one about ideals.
   rwa [hy, ← hxz, sub_add_cancel_right, HeightOneSpectrum.intValuation_le_pow_iff_dvd,
       Ideal.dvd_span_singleton, neg_mem_iff]
 
 open scoped Multiplicative in
-lemma exists_ofAdd_lt_and_ofAdd_lt { x y : ℤₘ₀ } ( hx : x ≠ 0 ) ( hy : y ≠ 0) :
+private lemma exists_ofAdd_lt_and_ofAdd_lt { x y : ℤₘ₀ } ( hx : x ≠ 0 ) ( hy : y ≠ 0) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) < x ∧ (Multiplicative.ofAdd (-(k : ℤ))) < y := by
   let u := WithZero.unzero hx
   let v := WithZero.unzero hy
@@ -83,8 +91,10 @@ lemma exists_ofAdd_lt_and_ofAdd_lt { x y : ℤₘ₀ } ( hx : x ≠ 0 ) ( hy : y
 lemma exists_adicValued_sub_lt_of_adicValued_le_one { x : (WithVal (v.valuation K)) }
     ( γ : (WithZero (Multiplicative ℤ))ˣ ) ( hx : Valued.v x ≤ 1 ) :
     ∃a, Valued.v ((algebraMap A K a) - (x : v.adicCompletion K)) < γ.val := by
+  -- Write `x = n / d`
   obtain ⟨⟨n, d, hd⟩, hnd⟩ := IsLocalization.surj (nonZeroDivisors A) x
   dsimp only at hnd
+  -- Show v n ≤ v d
   have hnd' := congr_arg Valued.v hnd
   simp only [HeightOneSpectrum.adicValued_apply', map_mul] at hnd'
   have hge : Valued.v ((algebraMap A (WithVal (v.valuation K))) d) ≥
@@ -99,6 +109,7 @@ lemma exists_adicValued_sub_lt_of_adicValued_le_one { x : (WithVal (v.valuation 
     HeightOneSpectrum.valuation_of_algebraMap] at hge
   have hdz : (algebraMap A (WithVal (v.valuation K)) d) ≠ 0 :=
     IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors _ (fun _ ↦ id) hd
+  -- Find a suitable `k` for the bound in `exists_adicValued_mul_sub_le`
   have hv : Valued.v ((algebraMap A (WithVal (v.valuation K)) d)) ≠ 0 := by
     rw [Valuation.ne_zero_iff]
     exact hdz
@@ -108,7 +119,8 @@ lemma exists_adicValued_sub_lt_of_adicValued_le_one { x : (WithVal (v.valuation 
   obtain ⟨k, hku, hkv⟩ := exists_ofAdd_lt_and_ofAdd_lt hu hv
   simp only [WithVal, HeightOneSpectrum.adicValued_apply,
     HeightOneSpectrum.valuation_of_algebraMap, HeightOneSpectrum.intValuation_apply] at hkv
-  obtain ⟨a, hval⟩ := exists_approxInverse v (nonZeroDivisors.ne_zero hd) hkv.le hge
+  -- Now can apply `exists_adicValued_mul_sub_le` to get the approximation of x.
+  obtain ⟨a, hval⟩ := exists_adicValued_mul_sub_le v (nonZeroDivisors.ne_zero hd) hkv.le hge
   use a
   rw [← eq_div_iff_mul_eq hdz] at hnd
   rw [← UniformSpace.Completion.coe_sub,
@@ -128,20 +140,14 @@ theorem closureAlgebraMapIntegers_eq_integers :
   . apply closure_minimal _ Valued.valuationSubring_isClosed
     rintro b ⟨a, rfl⟩
     exact HeightOneSpectrum.coe_mem_adicCompletionIntegers v a
+  -- Show `O_[K_v] ⊆ closure A` from `O_[K_v] ⊆ closure O_[K]` and `closure O_[K] ⊆ closure A`
   let f := fun (k : WithVal (v.valuation K)) => (k : v.adicCompletion K)
-  suffices h : closure (algebraMap A (HeightOneSpectrum.adicCompletion K v)).range =
-      closure (f '' (f ⁻¹' (HeightOneSpectrum.adicCompletionIntegers K v))) by
-    rw [h]
+  suffices h : closure (f '' (f ⁻¹' (HeightOneSpectrum.adicCompletionIntegers K v))) ⊆
+      closure (algebraMap A (HeightOneSpectrum.adicCompletion K v)).range by
+    apply Set.Subset.trans _ h
     exact DenseRange.subset_closure_image_preimage_of_isOpen
       UniformSpace.Completion.denseRange_coe (Valued.valuationSubring_isOpen _)
-  apply subset_antisymm
-  . apply closure_mono
-    rintro b ⟨a, rfl⟩
-    use algebraMap A K a
-    rw [Set.mem_preimage, SetLike.mem_coe]
-    constructor
-    . exact HeightOneSpectrum.coe_algebraMap_mem A K v a
-    rw [HeightOneSpectrum.algebraMap_adicCompletion, Function.comp_apply]
+  -- Unfold the topological definitions until we get the result from the previous lemma
   apply closure_minimal _ isClosed_closure
   rintro k ⟨x, hx, rfl⟩
   unfold f at hx
@@ -196,8 +202,13 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
     (e : ι → (WithZero (Multiplicative ℤ))ˣ ) (valuation : ι → HeightOneSpectrum A)
     (injective : Function.Injective valuation)
     (x : (i : ι) → (valuation i).adicCompletionIntegers K) :
-    ∃ a, ∀ i ∈ s, Valued.v ((algebraMap A K a) - (x i : (valuation i).adicCompletion K))
-      < (e i).val := by
+    ∃ a, ∀ i ∈ s, Valued.v ((algebraMap A K a) - (x i).val) < (e i).val := by
+  -- Approximate the completion integers with actual integers using the previous lemma
+  let ⟨f, hf⟩ := Classical.axiomOfChoice
+    fun (i : s) => (exists_adicValued_sub_lt_of_adicCompletionInteger K (valuation i) (x i) (e i))
+
+  -- Convert the hypotheses from being about valuations to being about ideals, so
+  -- that we can apply (a suitable corollary of) the Chinese remainder theorem.
   let e' : ι → ℕ := fun i => (WithZero.unzero (e i).ne_zero)⁻¹.toNat + 1
   have he' : ∀ (i : ι), (Multiplicative.ofAdd (-(e' i : ℤ))) < (e i).val := by
     intro i
@@ -223,13 +234,9 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
     intro hij
     apply injective
     apply HeightOneSpectrum.ext hij
-  let f (i : s) : A :=
-    (exists_adicValued_sub_lt_of_adicCompletionInteger K (valuation i) (x i) (e i)).choose
-  have hf : ∀ (i : s), Valued.v (((algebraMap A K) (f i)) - (x i : (valuation i).adicCompletion K))
-      < (e i) :=
-    fun (i : s) =>
-      (exists_adicValued_sub_lt_of_adicCompletionInteger K (valuation i) (x i) (e i)).choose_spec
 
+  -- Use Chinese remainder theorem to go from one approximation at each element of `s` to
+  -- an approximation for all `i ∈ s`.
   obtain ⟨a, ha⟩ := IsDedekindDomain.exists_forall_sub_mem_ideal (s := s)
     (fun i => (valuation i).asIdeal) e' (fun i hi => (valuation i).prime) hinj f
   use a
