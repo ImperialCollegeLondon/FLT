@@ -6,6 +6,11 @@ import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Topology.Algebra.Monoid
 
+theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
+    [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
+  __ := (moduleTopology R S)
+  eq_moduleTopology' := rfl
+
 namespace IsModuleTopology
 
 open ModuleTopology
@@ -199,9 +204,57 @@ variable (R S : Type*)
   [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
     [Algebra R S]
 
-example (hcont : Continuous (algebraMap R S))
+open scoped Topology in
+theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
     (hopen : IsOpenMap (algebraMap R S)) : IsModuleTopology R S := by
-  sorry
+  --have hS_add : ContinuousAdd S := IsTopologicalAddGroup.toContinuousAdd
+  --have hS_mul : ContinuousMul S := IsTopologicalSemiring.toContinuousMul
+  have h_smul : ContinuousSMul R S := continuousSMul_of_algebraMap R S hcont
+  have h_i_cont : Continuous[moduleTopology R S, inferInstance] (id : S → S) := by
+    rw [continuous_id_iff_le]
+    exact moduleTopology_le _ _
+  have h_a_cont : Continuous[_, moduleTopology R S] (Algebra.linearMap R S) := by
+    exact @IsModuleTopology.continuous_of_linearMap R _ _ R _ _ _ _ S _ _ (moduleTopology R S)
+      (ModuleTopology.continuousAdd _ _) (ModuleTopology.continuousSMul _ _) (Algebra.linearMap R S)
+  have h_isOpen : @IsOpen S (moduleTopology R S) (Set.range (algebraMap R S)) := by
+    have : IsOpen (Set.range (algebraMap R S)) := by exact IsOpenMap.isOpen_range hopen
+    exact @Continuous.isOpen_preimage S S (moduleTopology R S) _ id h_i_cont
+      (Set.range (algebraMap R S)) this
+  have h_isOpen_mpr {U : Set S} (h : IsOpen U) : @IsOpen S (moduleTopology R S) U := by
+    exact @Continuous.isOpen_preimage S S (moduleTopology R S) _ id h_i_cont U h
+  have h_isOpen_mp {U : Set S} (h : @IsOpen S (moduleTopology R S) U) (hUS : U ⊆ Set.range (algebraMap R S)):
+      IsOpen U := by
+    have := @Continuous.isOpen_preimage R S _ (moduleTopology R S) _ h_a_cont U h
+    convert hopen _ this
+    simp [Algebra.linearMap]
+    symm
+    apply Set.image_preimage_eq_of_subset hUS
+  apply IsModuleTopology.mk
+  rw [IsTopologicalAddGroup.ext_iff IsTopologicalRing.to_topologicalAddGroup]
+  apply (nhds_basis_opens 0).ext (@nhds_basis_opens S (moduleTopology R S) 0)
+  · intro U hU
+    use Set.range (algebraMap R S) ∩ U
+    constructor
+    · constructor
+      · simp
+        refine ⟨⟨0, by simp⟩, hU.1⟩
+      · apply @IsOpen.inter _ (moduleTopology R S)
+        · exact h_isOpen
+        · exact h_isOpen_mpr hU.2
+    · simp
+  · intro U hU
+    use Set.range (algebraMap R S) ∩ U
+    constructor
+    · constructor
+      · simp
+        refine ⟨⟨0, by simp⟩, hU.1⟩
+      · apply h_isOpen_mp (U := Set.range (algebraMap R S) ∩ U)
+        · apply @IsOpen.inter _ (moduleTopology R S)
+          · exact h_isOpen
+          · exact hU.2
+        · simp
+    · simp
+  · exact @IsModuleTopology.topologicalAddGroup R _ _ S _ _ (moduleTopology R S) (isModuleTopology R S)
 
 /-
 Proof.
@@ -256,19 +309,6 @@ def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
 
-def continuousAlgEquiv {A B R : Type*} [TopologicalSpace A]
-    [TopologicalSpace B] [TopologicalSpace R] [CommSemiring R] [Semiring A] [Semiring B]
-    [Algebra R A] [Algebra R B] [IsModuleTopology R A] [IsModuleTopology R B]
-    (e : A ≃ₐ[R] B) :
-    A ≃A[R] B where
-  __ := e
-  continuous_toFun :=
-    letI := IsModuleTopology.toContinuousAdd
-    IsModuleTopology.continuous_of_linearMap e.toLinearMap
-  continuous_invFun :=
-    letI := IsModuleTopology.toContinuousAdd
-    IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
-
 /--
 Given the following
 ```
@@ -299,7 +339,7 @@ for an infinite place `v` of a number field `K`. We have an `L`-algebra equivale
 between `v.Completion`-module topological spaces. And so this allows us to assert that this
 is a _continuous_ `L`-algebra equivalence as well.
 -/
-def continuousAlgEquiv' {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [TopologicalSpace A] [CommRing S₁]
+def continuousAlgEquiv {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [TopologicalSpace A] [CommRing S₁]
     [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A] [CommRing B] [Algebra S₁ A]
     [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B] [IsTopologicalSemiring B] [IsTopologicalSemiring A]
     [TopologicalSpace S₁] [Algebra R A] [Algebra R B] [IsModuleTopology S₁ A]
@@ -323,299 +363,27 @@ def continuousAlgEquiv' {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [Topologic
     -- and the underlying functions are the same
     congr
 
-variable {R : Type*} [TopologicalSpace R] [Ring R]
-variable {S : Type*} [TopologicalSpace S] [Ring S]
-variable {M : Type*} [AddCommGroup M] [Module R M] [TopologicalSpace M]
-  [IsModuleTopology R M]
-variable {N : Type*} [AddCommGroup N] [Module S N] [TopologicalSpace N]
-  [IsModuleTopology S N]
+@[simp]
+theorem continuousAlgEquiv_apply {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [TopologicalSpace A] [CommRing S₁]
+    [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A] [CommRing B] [Algebra S₁ A]
+    [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B] [IsTopologicalSemiring B] [IsTopologicalSemiring A]
+    [TopologicalSpace S₁] [Algebra R A] [Algebra R B] [IsModuleTopology S₁ A]
+    [IsModuleTopology S₁ B] [Algebra R S₁] [IsScalarTower R S₁ A] [Algebra R S₂]
+    [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₐ[S₂] B)
+    (he₁ : Continuous (e.toRingHom.comp (algebraMap S₁ A)))
+    (he₂ : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) (a : A) :
+    continuousAlgEquiv R S₁ e he₁ he₂ a = e a :=
+  rfl
 
-instance : Module (R × S) (M × N) where
-  smul rs mn := (rs.1 • mn.1, rs.2 • mn.2)
-  one_smul _ := by ext <;> exact one_smul ..
-  mul_smul _ _ _ := by ext <;> exact mul_smul ..
-  smul_zero _ := by ext <;> exact smul_zero ..
-  smul_add _ _ _ := by ext <;> exact smul_add ..
-  add_smul _ _ _ := by ext <;> exact add_smul ..
-  zero_smul _ := by ext <;> exact zero_smul ..
-
-instance Prod.moduleFst : Module (R × S) M where
-  smul r x := r.1 • x
-  one_smul _ := one_smul ..
-  mul_smul _ _ _ := mul_smul ..
-  smul_zero _ := smul_zero ..
-  smul_add _ _ _ := smul_add ..
-  add_smul _ _ _ := add_smul ..
-  zero_smul _ := zero_smul ..
-
-instance Prod.moduleSnd : Module (R × S) N where
-  smul r x := r.2 • x
-  one_smul _ := one_smul ..
-  mul_smul _ _ _ := mul_smul ..
-  smul_zero _ := smul_zero ..
-  smul_add _ _ _ := smul_add ..
-  add_smul _ _ _ := add_smul ..
-  zero_smul _ := zero_smul ..
-
-instance : DistribMulAction R (M × N) where
-  smul r mn := (r • mn.1, mn.2)
-  one_smul _ := by ext; exact one_smul ..; rfl
-  mul_smul _ _ _ := by ext; exact mul_smul ..; rfl
-  smul_zero _ := by ext; exact smul_zero ..; rfl
-  smul_add _ _ _ := by ext; exact smul_add ..; rfl
-
-def Module.prodMap' (f : M →ₗ[R] M) (g : N →ₗ[S] N) :
-    M × N →ₗ[R × S] M × N where
-  toFun := Prod.map f g
-  map_add' m n := by simp [Prod.map]
-  map_smul' rs mn := by
-    simp [Prod.map]
-    exact ⟨rfl, rfl⟩
-
-instance [i : ContinuousSMul R M] : ContinuousSMul (R × S) M := by
-  apply ContinuousSMul.mk
-  let f := fun (p : (R × S) × M) => p.1 • p.2
-  let g := fun (p : R × M) => p.1 • p.2
-  have : f = g ∘ fun (p : (R × S) × M) => (p.1.1, p.2) := by
-    ext; rfl
-  show Continuous f
-  rw [this]
-  fun_prop
-
-instance [ContinuousSMul S N] : ContinuousSMul (R × S) N where
-  continuous_smul := by
-    let f := fun (p : (R × S) × N) => p.1 • p.2
-    let g := fun (p : S × N) => p.1 • p.2
-    show Continuous f
-    rw [show f = g ∘ fun p => (p.1.2, p.2) by ext; rfl]
-    fun_prop
-
-instance Prod.continuousSMul' [ContinuousSMul R M] [ContinuousSMul S N] :
-    ContinuousSMul (R × S) (M × N) :=
-  ⟨(continuous_fst.smul (continuous_fst.comp continuous_snd)).prodMk
-      (continuous_fst.smul (continuous_snd.comp continuous_snd))⟩
-
-open scoped Topology in
-/-- The product of the module topologies for two modules over a topological ring
-is the module topology. -/
-instance : IsModuleTopology (R × S) (M × N) := by
-  constructor
-  have : ContinuousAdd M := toContinuousAdd R M
-  have : ContinuousAdd N := toContinuousAdd S N
-  -- In this proof, `M × N` always denotes the product with its *product* topology.
-  -- Addition `(M × N)² → M × N` and scalar multiplication `R × (M × N) → M × N`
-  -- are continuous for the product topology (by results in the library), so the module topology
-  -- on `M × N` is finer than the product topology (as it's the Inf of such topologies).
-  -- It thus remains to show that the product topology is finer than the module topology.
-  refine le_antisymm ?_ <| sInf_le ⟨Prod.continuousSMul', Prod.continuousAdd⟩
-  -- Or equivalently, if `P` denotes `M × N` with the module topology,
-  let P := M × N
-  let Q := R × S
-  let τP : TopologicalSpace P := moduleTopology Q P
-  have : IsModuleTopology Q P := ⟨rfl⟩
-  have : ContinuousAdd P := ModuleTopology.continuousAdd Q P
-  -- and if `i` denotes the identity map from `M × N` to `P`
-  let i : M × N → P := id
-  -- then we need to show that `i` is continuous.
-  rw [← continuous_id_iff_le]
-  change Continuous[instTopologicalSpaceProd, τP] i
-  -- But `i` can be written as (m, n) ↦ (m, 0) + (0, n)
-  -- or equivalently as i₁ ∘ pr₁ + i₂ ∘ pr₂, where prᵢ are the projections,
-  -- the iⱼ's are linear inclusions M → P and N → P, and the addition is P × P → P.
-  /-let R_Q : Submodule Q Q := LinearMap.range <| LinearMap.inl Q R S
-  let S_Q := LinearMap.range <| LinearMap.inr Q R S
-  let i₁ : M →ₗ[R_Q] P := LinearMap.inl R_Q M N-/
-  let i₁ : M →ₗ[Q] P := LinearMap.inl Q M _
-  have : Continuous i₁ := by
-    simp [i₁, LinearMap.inl_eq_prod]
-    have hc : Continuous (LinearMap.id : M →ₗ[Q] _) := by
-      show Continuous (LinearMap.id : M →ₗ[R] _)
-      fun_prop
-    sorry
-  let i₂ : N →ₗ[Q] P := LinearMap.inr Q _ _
-  have : Continuous i₂ := sorry
-  --rw [this]
-  rw [show (i : M × N → P) =
-       (fun abcd ↦ abcd.1 + abcd.2 : P × P → P) ∘
-       (fun ab ↦ (i₁ ab.1, i₂ ab.2)) by
-       ext ⟨a, b⟩ <;> aesop]
-  fun_prop
-  -- and these maps are all continuous, hence `i` is too
-  /-have : ContinuousSMul Q P := by
-    have : Continuous (fun (r : R) => (r, (1 : S))) := by fun_prop
-    /-apply (Homeomorph.refl _).isInducing.continuousSMul this
-    have : Module R P := by exact Prod.instModule
-    simp
-    intro c ⟨m, n⟩
-    simp_rw [show (c, (1 : S)) • (m, n) = (c • m, 1 • n) from sorry]
-    ext
-    · simp; rfl
-    · simp -/
-    sorry-/
-
-
-
-
-variable {R : Type*} [TopologicalSpace R] [CommRing R]
-variable {S : Type*} [TopologicalSpace S] [CommRing S]
-variable {M : Type*} [Semiring M] [Algebra R M] [TopologicalSpace M]
-  [IsModuleTopology R M] [IsTopologicalSemiring M]
-variable {N : Type*} [Semiring N] [Algebra S N] [TopologicalSpace N]
-  [IsModuleTopology S N] [IsTopologicalSemiring N]
-
-instance : Module (R × S) (M × N) where
-  smul rs mn := (rs.1 • mn.1, rs.2 • mn.2)
-  one_smul _ := by ext <;> exact one_smul ..
-  mul_smul _ _ _ := by ext <;> exact mul_smul ..
-  smul_zero _ := by ext <;> exact smul_zero ..
-  smul_add _ _ _ := by ext <;> exact smul_add ..
-  add_smul _ _ _ := by ext <;> exact add_smul ..
-  zero_smul _ := by ext <;> exact zero_smul ..
-
-instance Prod.continuousSMul'' [ContinuousSMul R M] [ContinuousSMul S N] :
-    ContinuousSMul (R × S) (M × N) := sorry
-
-instance t : IsTopologicalSemiring (M × N) :=
-  sorry
-
-open scoped Topology in
-/-- The product of the module topologies for two modules over a topological ring
-is the module topology. -/
-instance : IsModuleTopology (R × S) (M × N) := by
-  constructor
-  have : ContinuousAdd M := toContinuousAdd R M
-  have : ContinuousAdd N := toContinuousAdd S N
-  -- In this proof, `M × N` always denotes the product with its *product* topology.
-  -- Addition `(M × N)² → M × N` and scalar multiplication `R × (M × N) → M × N`
-  -- are continuous for the product topology (by results in the library), so the module topology
-  -- on `M × N` is finer than the product topology (as it's the Inf of such topologies).
-  -- It thus remains to show that the product topology is finer than the module topology.
-  refine le_antisymm ?_ <| sInf_le ⟨Prod.continuousSMul'', Prod.continuousAdd⟩
-  -- Or equivalently, if `P` denotes `M × N` with the module topology,
-  let P := M × N
-  let Q := R × S
-  let τP : TopologicalSpace P := moduleTopology Q P
-  have : IsModuleTopology Q P := ⟨rfl⟩
-  have : IsTopologicalSemiring P := sorry
-  have : ContinuousAdd P := ModuleTopology.continuousAdd Q P
-  -- and if `i` denotes the identity map from `M × N` to `P`
-  let i : M × N →+* P := RingHom.id _
-  -- then we need to show that `i` is continuous.
-  rw [← continuous_id_iff_le]
-  change Continuous[instTopologicalSpaceProd, τP] i
-  -- But `i` can be written as (m, n) ↦ (m, 0) + (0, n)
-  -- or equivalently as i₁ ∘ pr₁ + i₂ ∘ pr₂, where prᵢ are the projections,
-  -- the iⱼ's are linear inclusions M → P and N → P, and the addition is P × P → P.
-  /-let R_Q : Submodule Q Q := LinearMap.range <| LinearMap.inl Q R S
-  let S_Q := LinearMap.range <| LinearMap.inr Q R S
-  let i₁ : M →ₗ[R_Q] P := LinearMap.inl R_Q M N-/
-  let i₁ : M →ₗ[R] M := LinearMap.id
-  let i₁' : M →ₗ[Q] P := LinearMap.inl Q M N
-  let i₁'' : M →+[R] P := sorry
-  have := @IsModuleTopology.continuous_of_distribMulActionHom R _ _ M _ _ _ _ P _
-  have : Continuous i₁' := by
-    rw [show (i₁' : M → P) =
-       (fun abcd ↦ abcd.1 + abcd.2 : P × P → P) ∘
-       (fun ab ↦ (i₁' ab, 0)) by
-       ext  <;> aesop]
-    simp [i₁', LinearMap.inl_eq_prod]
-    have hc : Continuous (LinearMap.id : M →ₗ[Q] _) := by
-      show Continuous (LinearMap.id : M →ₗ[R] _)
-      fun_prop
-    apply Continuous.comp
-    · fun_prop
-    have := @Continuous.prodMk M N M _ _ _
-      (LinearMap.id : M →ₗ[Q] _) 0 hc continuous_const
-    sorry
-  let i₂ : N →ₗ[S] N := LinearMap.id
-  have : i = Module.prodMap' i₁ i₂ := sorry
-  rw [this]
-  /-rw [show (i : M × N → P) =
-       (fun abcd ↦ abcd.1 + abcd.2 : P × P → P) ∘
-       (fun ab ↦ (i₁ ab.1, i₂ ab.2)) by
-       ext ⟨a, b⟩ <;> aesop]-/
-  -- and these maps are all continuous, hence `i` is too
-  /-have : ContinuousSMul Q P := by
-    have : Continuous (fun (r : R) => (r, (1 : S))) := by fun_prop
-    /-apply (Homeomorph.refl _).isInducing.continuousSMul this
-    have : Module R P := by exact Prod.instModule
-    simp
-    intro c ⟨m, n⟩
-    simp_rw [show (c, (1 : S)) • (m, n) = (c • m, 1 • n) from sorry]
-    ext
-    · simp; rfl
-    · simp -/
-    sorry-/
-
-
-  --fun_prop
-  apply @Continuous.comp (M × N) (P × P) P instTopologicalSpaceProd
-  · fun_prop
-  · have : Continuous i₁ := sorry
-    have : Continuous i₂ := sorry
-    fun_prop
-
-instance Pi.moduleLeft {ι : Type*} {f : ι → Type*} {g : ι → Type*}
-    [∀ i, Semiring (f i)] [∀ i, AddCommMonoid (g i)]
-    [∀ i, Module (f i) (g i)] {j : ι} :
-    Module ((i : ι) → f i) (g j) where
-  smul r x := (r j) • x
-  one_smul b := one_smul (f j) b
-  mul_smul x y b := mul_smul (x j) (y j) b
-  smul_zero b := smul_zero (b j)
-  smul_add x a b := smul_add (x j) a b
-  add_smul r s b := add_smul (r j) (s j) b
-  zero_smul b := zero_smul (f j) b
-
-variable {R S : Type*} [τR : TopologicalSpace R] [Semiring R] [τS : TopologicalSpace S] [Semiring S]
-variable {A : Type*} [AddCommMonoid A] [Module R A] [τA : TopologicalSpace A] [IsModuleTopology R A]
-  [Module S A]
-variable {B : Type*} [AddCommMonoid B] [τB : TopologicalSpace B] [Module S B]
-
-theorem iso' (e : R ≃ₜ S) (h : ∀ c (x : A), c • x = e.symm c • x) : IsModuleTopology S A where
-  eq_moduleTopology' := by
-    simp_rw [eq_moduleTopology R A, moduleTopology]
-    apply congr_arg
-    ext τ
-    simp
-    refine fun _ => ⟨fun _ => ?_, fun _ => ?_⟩
-    · exact (Homeomorph.refl A).isInducing.continuousSMul e.symm.continuous (by simp [h])
-    · exact (Homeomorph.refl A).isInducing.continuousSMul e.continuous (by simp [h])
-
-instance {ι : Type*} [Finite ι] {R : ι → Type*} [∀ i, TopologicalSpace (R i)] [∀ i, Semiring (R i)]
-    {A : ι → Type*} [∀ i, AddCommMonoid (A i)] [∀ i, Module (R i) (A i)]
-    [∀ i, TopologicalSpace (A i)] [∀ i, IsModuleTopology (R i) (A i)] :
-    IsModuleTopology ((i : ι) → R i) ((i : ι) → A i) := by
-  induction ι using Finite.induction_empty_option with
-  | @of_equiv X Y e h =>
-    let hA := (ContinuousLinearEquiv.piCongrLeft ((i : Y) → R i) A e)
-    let hR := (ContinuousLinearEquiv.piCongrLeft ((i : Y) → R i) R e).toHomeomorph
-    have : (∀ (c : (i : Y) → R i) (x : (i : X) → A (e i)), c • x = hR.symm c • x) := by
-      intro c x
-      funext i
-      simp
-      have : hR.symm c i = c (e i) := by
-        have : hR.symm c i = (Equiv.piCongrLeft R e).symm c i := rfl
-        simp [this]
-      rw [this]
-      rfl
-    letI := iso' hR (A := (∀ i, A (e i))) this
-    exact iso hA
-  | h_empty => infer_instance
-  | @h_option ι =>
-    let e : Option ι ≃ ι ⊕ Unit := Equiv.optionEquivSumPUnit ι
-    have : IsModuleTopology ((i' : ι ⊕ Unit) → R (e.symm i')) ((i' : ι ⊕ Unit) → A (e.symm i')) :=
-      sorry -- iso (.piCongrLeft _ A e.symm)
-    let hR := Homeomorph.piCongrLeft (Y := R) e.symm
-    have : (∀ (c : (j : Option ι) → R j) (x : (i : ι ⊕ Unit) → A (e.symm i)), c • x = hR.symm c • x) := by
-      intro c x
-      funext i
-      simp
-      have : hR.symm c i = c (e.symm i) := by
-        have : hR.symm c i = (Equiv.piCongrLeft _ e.symm).symm c i := rfl
-        simp [this]
-      rw [this]
-      rfl
-    letI := iso' hR (A := (∀ i, A (e.symm i))) this
-    let hA := ContinuousLinearEquiv.piCongrLeft (∀ i, R i) A e.symm
-    exact iso hA
+def continuousAlgEquiv' {A B R : Type*} [TopologicalSpace A]
+    [TopologicalSpace B] [TopologicalSpace R] [CommSemiring R] [Semiring A] [Semiring B]
+    [Algebra R A] [Algebra R B] [IsModuleTopology R A] [IsModuleTopology R B]
+    (e : A ≃ₐ[R] B) :
+    A ≃A[R] B where
+  __ := e
+  continuous_toFun :=
+    letI := IsModuleTopology.toContinuousAdd
+    IsModuleTopology.continuous_of_linearMap e.toLinearMap
+  continuous_invFun :=
+    letI := IsModuleTopology.toContinuousAdd
+    IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
