@@ -17,5 +17,6 @@ def ContinuousLinearEquiv.restrictScalars (R : Type*) {S M M₂ : Type*}
     [TopologicalSpace M₂] (f : M ≃L[S] M₂) :
     M ≃L[R] M₂ where
   __ := f.toLinearEquiv.restrictScalars R
+  invFun := f.symm
   continuous_toFun := f.continuous_toFun
   continuous_invFun := f.continuous_invFun
