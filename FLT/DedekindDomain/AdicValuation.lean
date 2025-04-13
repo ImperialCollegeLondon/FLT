@@ -132,7 +132,7 @@ lemma exists_adicValued_sub_lt_of_adicValued_le_one { x : (WithVal (v.valuation 
       HeightOneSpectrum.intValuation_apply]
   apply lt_of_le_of_lt hval hku
 
-/-- The closure of `A` in `K_v` is `O_[K_v]`. -/
+/-- The closure of `A` in `K_v` is `𝒪_v`. -/
 theorem closureAlgebraMapIntegers_eq_integers :
     closure (algebraMap A (v.adicCompletion K)).range =
     SetLike.coe (v.adicCompletionIntegers K) := by
@@ -140,7 +140,7 @@ theorem closureAlgebraMapIntegers_eq_integers :
   . apply closure_minimal _ Valued.valuationSubring_isClosed
     rintro b ⟨a, rfl⟩
     exact HeightOneSpectrum.coe_mem_adicCompletionIntegers v a
-  -- Show `O_[K_v] ⊆ closure A` from `O_[K_v] ⊆ closure O_[K]` and `closure O_[K] ⊆ closure A`
+  -- Show `𝒪_v ⊆ closure A` from `𝒪_v ⊆ closure O_[K]` and `closure O_[K] ⊆ closure A`
   let f := fun (k : WithVal (v.valuation K)) => (k : v.adicCompletion K)
   suffices h : closure (f '' (f ⁻¹' (HeightOneSpectrum.adicCompletionIntegers K v))) ⊆
       closure (algebraMap A (HeightOneSpectrum.adicCompletion K v)).range by
@@ -165,7 +165,7 @@ theorem closureAlgebraMapIntegers_eq_integers :
   apply hγ
   simpa
 
-/-- A is dense in `O_[K_v]`. -/
+/-- A is dense in `𝒪_v`. -/
 theorem denseRange_of_integerAlgebraMap :
     DenseRange (algebraMap A (v.adicCompletionIntegers K)) := by
   rw [denseRange_iff_closure_range]
@@ -179,7 +179,7 @@ theorem denseRange_of_integerAlgebraMap :
   simp only [RingHom.coe_range, ← Set.range_comp']
   rfl
 
-/-- An element of `O_[K_v]` can be approximated by an element of `A`. -/
+/-- An element of `𝒪_v` can be approximated by an element of `A`. -/
 theorem exists_adicValued_sub_lt_of_adicCompletionInteger ( x : v.adicCompletionIntegers K )
     ( γ : (WithZero (Multiplicative ℤ))ˣ ) :
     ∃a, Valued.v ((algebraMap A K a) - (x : v.adicCompletion K)) < γ.val := by
@@ -196,7 +196,7 @@ theorem exists_adicValued_sub_lt_of_adicCompletionInteger ( x : v.adicCompletion
   rw [HeightOneSpectrum.algebraMap_adicCompletion, Function.comp_apply] at ha
   rwa [ha]
 
-/-- An element of `∏_{v ∈ s} O_[K_v]`, with `s` finite, can be approximated by an element of `A`.
+/-- An element of `∏_{v ∈ s} 𝒪_v`, with `s` finite, can be approximated by an element of `A`.
   -/
 theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
     (e : ι → (WithZero (Multiplicative ℤ))ˣ ) (valuation : ι → HeightOneSpectrum A)
@@ -253,7 +253,7 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
     add_comm_sub, add_sub, eq_sub_iff_add_eq]
   rfl
 
-/-- The closure of `A` in `∏_{v ∈ s} K_v` is `∏_{v ∈ s} O_[K_v]`. `s` may be infinite. -/
+/-- The closure of `A` in `∏_{v ∈ s} K_v` is `∏_{v ∈ s} 𝒪_v`. `s` may be infinite. -/
 theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
     (valuation : ι → HeightOneSpectrum A) (injective : Function.Injective valuation) :
     closure (SetLike.coe (algebraMap A ((i : ι) → (valuation i).adicCompletion K)).range) =
