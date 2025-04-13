@@ -34,7 +34,7 @@ variable {p : ℕ} [Fact p.Prime]
 private lemma distribHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
     distribHaarChar ℚ_[p] (x : ℚ_[p]ˣ) = ‖(x : ℚ_[p])‖₊ := by
   -- Let `K` be the copy of `ℤ_[p]` inside `ℚ_[p]` and `H` be `xK`.
-  let K : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
+  set K : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup with hK
   let H := (x : ℚ_[p]) • K
   -- We compute that `volume H = ‖x‖₊ * volume K`.
   refine distribHaarChar_eq_of_measure_smul_eq_mul (s := K) (μ := volume) (G := ℚ_[p]ˣ)
@@ -45,10 +45,13 @@ private lemma distribHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
   have hHK : H ≤ K := by
     simpa [H, K, -Submodule.smul_le_self_of_tower]
       using (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
+  have isCompact_K : IsCompact (K : Set ℚ_[p]) := by
+    rw [hK, Submodule.one_eq_range]; exact isCompact_range PadicInt.isEmbedding_coe.continuous
   have : H.FiniteRelIndex K :=
-    PadicInt.smul_submodule_finiteRelIndex (p := p) (mem_nonZeroDivisors_iff_ne_zero.1 x.2) 1
+    PadicInt.smul_submodule_finiteRelIndex (p := p) (mem_nonZeroDivisors_iff_ne_zero.1 x.2)
+      isCompact_K
   have H_relindex_Z : (H.relindex K : ℝ≥0∞) = ‖(x : ℚ_[p])‖₊⁻¹ :=
-    congr(ENNReal.ofNNReal $(PadicInt.smul_submodule_relindex (p := p) x 1))
+    congr(ENNReal.ofNNReal $(PadicInt.smul_submodule_relindex (p := p) isCompact_K x))
   rw [← index_mul_addHaar_addSubgroup_eq_addHaar_addSubgroup hHK, H_relindex_Z, ENNReal.coe_inv,
     ENNReal.mul_inv_cancel_left]
   · simp

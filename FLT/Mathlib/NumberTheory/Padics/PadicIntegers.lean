@@ -55,8 +55,8 @@ noncomputable instance : Coe ℤ_[p]ˣ ℚ_[p]ˣ where coe := Units.map Coe.ring
 
 Note that `s` is of the form `yℤ_[p]` for some `y : ℚ_[p]`, but this is syntactically less
 general. -/
-lemma smul_submodule_relindex (x : ℤ_[p]) (s : Submodule ℤ_[p] ℚ_[p]) :
-    (x • s.toAddSubgroup).relindex s.toAddSubgroup = ‖x‖₊⁻¹ :=
+lemma smul_submodule_relindex {s : Submodule ℤ_[p] ℚ_[p]} (hs : IsCompact (s : Set ℚ_[p]))
+    (x : ℤ_[p]) : (x • s.toAddSubgroup).relindex s.toAddSubgroup = ‖x‖₊⁻¹ :=
   -- https://github.com/ImperialCollegeLondon/FLT/issues/279
   -- Note: You might need to prove `smul_submoduleSpan_finiteRelIndex_submoduleSpan` first
   sorry
@@ -65,9 +65,10 @@ lemma smul_submodule_relindex (x : ℤ_[p]) (s : Submodule ℤ_[p] ℚ_[p]) :
 
 Note that `s` is the form `yℤ_[p]` for some `y : ℚ_[p]`, but this is syntactically less
 general. -/
-lemma smul_submodule_finiteRelIndex (hx : x ≠ 0) (s : Submodule ℤ_[p] ℚ_[p]) :
+lemma smul_submodule_finiteRelIndex (hx : x ≠ 0) {s : Submodule ℤ_[p] ℚ_[p]}
+    (hs : IsCompact (s : Set ℚ_[p])) :
     (x • s.toAddSubgroup).FiniteRelIndex s.toAddSubgroup where
-  relIndex_ne_zero := by simpa [← Nat.cast_ne_zero (R := ℝ≥0), smul_submodule_relindex]
+  relIndex_ne_zero := by simpa [← Nat.cast_ne_zero (R := ℝ≥0), smul_submodule_relindex, hs]
 
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]⁰ ℚ_[p]ˣ where
@@ -85,6 +86,9 @@ lemma closure_nonZeroDivisors_padicInt :
     (subset_closure <| Set.mem_range_self ⟨z, hz⟩) using 1
   ext
   simpa using hyzx.symm
+
+lemma isEmbedding_coe : IsEmbedding ((↑) : ℤ_[p] → ℚ_[p]) := by
+  sorry
 
 end PadicInt
 
