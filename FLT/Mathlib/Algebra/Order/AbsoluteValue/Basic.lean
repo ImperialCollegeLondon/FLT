@@ -1,7 +1,5 @@
 import Mathlib.Algebra.Order.AbsoluteValue.Basic
 import Mathlib.Tactic
-import Mathlib
-
 namespace AbsoluteValue
 
 variable {F S : Type*} [Field F] [Field S] [LinearOrder S] [IsStrictOrderedRing S]
