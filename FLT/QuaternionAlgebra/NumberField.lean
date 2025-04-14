@@ -3,6 +3,7 @@ import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.Mathlib.RingTheory.TensorProduct.Finite -- just for Module.Finite.base_change_right
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
@@ -208,9 +209,6 @@ instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   ⟨rfl⟩
-
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : Module.Finite (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := sorry
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
