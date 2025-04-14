@@ -276,19 +276,9 @@ We now start thinking about what's going on at the integral level.
 \end{proof}
 
 We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
+By the preceding theorem we deduce
 
-\begin{definition}
-  \lean{DedekindDomain.ProdAdicCompletions.baseChange}
-  \label{DedekindDomain.ProdAdicCompletions.baseChange}
-  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom}
-  There's a natural $K$-algebra homomorphism $\prod_v K_v\to\prod_w L_w$, where the
-  products run over the height one spectra of $A$ and $B$ respectively.
-\end{definition}
-
-Note that we make no claim about continuity; such a claim wouldn't help
-us because the adeles do not get the subspace topology.
-
-\begin{theorem} This map induces a natural $K$-algebra homomorphism
+\begin{theorem} There's a natural $K$-algebra homomorphism
   $\A_{A,K}^\infty\to\A_{B,L}^\infty$.
   \label{DedekindDomain.FiniteAdeleRing.baseChange}
   \lean{DedekindDomain.FiniteAdeleRing.baseChange}
