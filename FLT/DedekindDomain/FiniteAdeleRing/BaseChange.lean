@@ -378,10 +378,12 @@ noncomputable def adicCompletionComapSemialgHom' (v : HeightOneSpectrum A) :
   v.adicCompletion K →ₛₐ[algebraMap K L] ∀ w : v.Extension B, w.1.adicCompletion L :=
   Pi.semialgHom _ _ fun i ↦ adicCompletionComapSemialgHom A K L B v i.1 i.2
 
+set_option maxSynthPendingDepth 2 in
 noncomputable instance comap_pi_algebra (v : HeightOneSpectrum A) :
     Algebra (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) :=
   (adicCompletionComapSemialgHom' A K L B v).toAlgebra
 
+set_option maxSynthPendingDepth 2 in
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
 lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
     -- TODO: the `let _` in the statement below should not be required as it is an instance
@@ -432,6 +434,7 @@ variable (v : HeightOneSpectrum A) in
 instance : IsModuleTopology (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
   ⟨rfl⟩
 
+set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- `adicCompletionComapAlgEquiv` as a `K_v`-algebra equivalence -/
 noncomputable def adicCompletionComapRightAlgEquiv (v : HeightOneSpectrum A) :
@@ -444,6 +447,7 @@ noncomputable def adicCompletionComapRightAlgEquiv (v : HeightOneSpectrum A) :
       simp [hmap, adicCompletionComapAlgEquiv,
         tensorAdicCompletionComapAlgHom, SemialgHom.algebraMap_apply]
 
+set_option maxSynthPendingDepth 2 in
 noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A) :
     L ⊗[K] v.adicCompletion K ≃A[L] ∀ w : v.Extension B, w.1.adicCompletion L :=
   let _ := comap_pi_algebra A K L B v |>.toModule
@@ -542,6 +546,7 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 
 -- Note that this is only true because L/K is finite; in general tensor product doesn't
 -- commute with infinite products, but it does here.
+set_option maxSynthPendingDepth 2 in
 noncomputable def ProdAdicCompletions.baseChangeEquiv :
     L ⊗[K] ProdAdicCompletions A K ≃ₐ[L] ProdAdicCompletions B L :=
   AlgEquiv.ofBijective
