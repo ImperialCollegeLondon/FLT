@@ -520,8 +520,8 @@ lemma leftInvOn_toQuaternion_fromQuaternion :
   simp only [toQuaternion, fromQuaternion]
   obtain ⟨a, b, c, d, rfl|rfl⟩ := hq <;>
   ext <;>
-  simp only [h₀, add_sub_add_right_eq_sub, Int.floor_sub_int, Int.floor_intCast, Int.cast_sub,
-    Int.cast_add, Int.cast_one, Int.floor_add_one, Int.floor_add_int] <;>
+  simp only [h₀, add_sub_add_right_eq_sub, Int.floor_sub_intCast, Int.floor_intCast, Int.cast_sub,
+    Int.cast_add, Int.cast_one, Int.floor_add_one, Int.floor_sub_intCast] <;>
   field_simp <;>
   norm_cast <;>
   ring

@@ -1,19 +1,21 @@
 import Mathlib.Algebra.Order.AbsoluteValue.Basic
 import Mathlib.Tactic
+import Mathlib
 
 namespace AbsoluteValue
 
-variable {F S : Type*} [Field F] [LinearOrderedField S] {v w : AbsoluteValue F S}
+variable {F S : Type*} [Field F] [Field S] [LinearOrder S] [IsStrictOrderedRing S]
+  {v w : AbsoluteValue F S}
 
 theorem inv_pos {x : F} (h : 0 < v x) : 0 < v x⁻¹ := by
   rwa [IsAbsoluteValue.abv_inv v, _root_.inv_pos]
 
-theorem ne_zero_of_lt_one {F S : Type*} [Field F] [LinearOrderedField S]
+theorem ne_zero_of_lt_one {F S : Type*} [Field F] [Field S] [LinearOrder S] [IsStrictOrderedRing S]
     {v : AbsoluteValue F S} {x : F} (hv : 1 < v x) : x ≠ 0 :=
   fun hx => by linarith [map_zero v ▸ hx ▸ hv]
 
-theorem isNontrivial_iff_exists_abv_gt_one {F S : Type*} [Field F] [LinearOrderedField S]
-    {v : AbsoluteValue F S} :
+theorem isNontrivial_iff_exists_abv_gt_one {F S : Type*} [Field F] [Field S] [LinearOrder S]
+    [IsStrictOrderedRing S] {v : AbsoluteValue F S} :
     v.IsNontrivial ↔ ∃ x, 1 < v x := by
   refine ⟨fun h => h.exists_abv_gt_one, fun ⟨x, hx⟩ => ?_⟩
   refine ⟨x⁻¹, ?_, ?_⟩
@@ -54,14 +56,14 @@ variable (w)
 theorem pos_of_pos {a : F} (hv : 0 < v a) : 0 < w a := by
   rwa [AbsoluteValue.pos_iff] at hv ⊢
 
-variable {R S : Type*} [OrderedRing S] [Semiring R] (v : AbsoluteValue R S) [IsDomain S]
-  [Nontrivial R]
+variable {R S : Type*} [Ring S] [PartialOrder S] [IsOrderedRing S] [Semiring R]
+  (v : AbsoluteValue R S) [IsDomain S] [Nontrivial R]
 
 theorem one_add_pow_le (a : R) (n : ℕ) : v (1 + a ^ n) ≤ 1 + v a ^ n :=
   le_trans (v.add_le _ _) (by rw [map_one, map_pow])
 
-variable {R S : Type*} [OrderedCommRing S] [Ring R] (v : AbsoluteValue R S) [NoZeroDivisors S]
-  [IsDomain S] [Nontrivial R]
+variable {R S : Type*} [CommRing S] [PartialOrder S] [IsOrderedRing S] [Ring R]
+  (v : AbsoluteValue R S) [NoZeroDivisors S] [IsDomain S] [Nontrivial R]
 
 theorem one_sub_pow_le (a : R) (n : ℕ) : 1 - v a ^ n ≤ v (1 + a ^ n) :=
   le_trans (by rw [map_one, map_pow]) (v.le_add 1 (a ^ n))
