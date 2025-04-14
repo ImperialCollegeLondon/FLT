@@ -1,11 +1,12 @@
 import Mathlib.Algebra.Order.AbsoluteValue.Basic
-import Mathlib.Tactic
+import Mathlib.Tactic.Linarith
+
 namespace AbsoluteValue
 
-variable {F S : Type*} [Field F] [Field S] [LinearOrder S] [IsStrictOrderedRing S]
+variable {F S : Type*} [Field F] [Field S] [LinearOrder S]
   {v w : AbsoluteValue F S}
 
-theorem inv_pos {x : F} (h : 0 < v x) : 0 < v x⁻¹ := by
+theorem inv_pos [IsStrictOrderedRing S] {x : F} (h : 0 < v x) : 0 < v x⁻¹ := by
   rwa [IsAbsoluteValue.abv_inv v, _root_.inv_pos]
 
 theorem ne_zero_of_lt_one {F S : Type*} [Field F] [Field S] [LinearOrder S] [IsStrictOrderedRing S]
@@ -23,10 +24,12 @@ theorem isNontrivial_iff_exists_abv_gt_one {F S : Type*} [Field F] [Field S] [Li
 theorem nonpos_iff (x : F) : v x ≤ 0 ↔ v x = 0 := by
   simp only [le_antisymm_iff, v.nonneg _, and_true]
 
+variable [IsStrictOrderedRing S]
 theorem inv_lt_one_iff {x : F} : v x⁻¹ < 1 ↔ x = 0 ∨ 1 < v x := by
   simp only [map_inv₀, inv_lt_one_iff₀, nonpos_iff, map_eq_zero]
 
-theorem mul_one_div_lt_iff {y : F} (x : F) (h : 0 < v y) : v (x * (1 / y)) < 1 ↔ v x < v y := by
+theorem mul_one_div_lt_iff {y : F} (x : F) (h : 0 < v y) :
+    v (x * (1 / y)) < 1 ↔ v x < v y := by
   rw [map_mul, one_div, map_inv₀, mul_inv_lt_iff₀ h, one_mul]
 
 theorem mul_one_div_pow_lt_iff {n : ℕ} {y : F} (x : F) (h : 0 < v y) :
@@ -51,10 +54,11 @@ theorem eq_one_iff_of_lt_one_iff (h : ∀ x, v x < 1 ↔ w x < 1) (x : F) : v x 
 
 variable (w)
 
+omit [IsStrictOrderedRing S] in
 theorem pos_of_pos {a : F} (hv : 0 < v a) : 0 < w a := by
   rwa [AbsoluteValue.pos_iff] at hv ⊢
 
-variable {R S : Type*} [Ring S] [PartialOrder S] [IsOrderedRing S] [Semiring R]
+variable {R S : Type*} [Ring S] [PartialOrder S] [Semiring R]
   (v : AbsoluteValue R S) [IsDomain S] [Nontrivial R]
 
 theorem one_add_pow_le (a : R) (n : ℕ) : v (1 + a ^ n) ≤ 1 + v a ^ n :=
