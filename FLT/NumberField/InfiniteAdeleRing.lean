@@ -112,10 +112,6 @@ attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsTopologicalSemiring (L ⊗[K] InfiniteAdeleRing K) :=
   IsModuleTopology.topologicalSemiring (InfiniteAdeleRing K) _
 
-theorem continuous_baseChangeEquivAux_tmul_right :
-    Continuous fun x => baseChangeEquivAux K L (1 ⊗ₜ x) := by
-  simpa [baseChangeEquivAux_apply] using baseChange_cont K L
-
 -- `IsModuleTopology.continuousAlgEquivOfIsScalarTower` is then applicable in the same
 -- way it was for `baseChangeEquiv` in `InfinitePlace.Completion`
 
@@ -135,8 +131,7 @@ def baseChangeEquiv :
      K
   ```
   -/
-  IsModuleTopology.continuousAlgEquivOfIsScalarTower K (InfiniteAdeleRing K)
-    (baseChangeEquivAux K L) (continuous_baseChangeEquivAux_tmul_right K L)
+  IsModuleTopology.continuousAlgEquivOfIsScalarTower K _ (baseChangeEquivAux K L)
     (by simp_rw [baseChangeEquivAux_apply]; exact SemialgHom.baseChange_of_algebraMap_tmul_right _)
 
 end NumberField.InfiniteAdeleRing

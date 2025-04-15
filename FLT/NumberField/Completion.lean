@@ -73,9 +73,6 @@ abbrev baseChange :
     L ⊗[K] v.Completion →ₐ[L] (wv : v.ExtensionPlace L) → wv.1.Completion :=
   baseChange_of_algebraMap (piExtensionPlace L v)
 
-theorem continuous_baseChange_tmul_right : Continuous fun x => baseChange L v (1 ⊗ₜ x) := by
-  simpa [baseChange_of_algebraMap_tmul_right] using continuous_pi fun _ => comapHom_cont _
-
 /- The motivation for changing the scalars of `baseChange L v` to `v.Completion` is that
 both sides are _finite-dimensional_ `v.Completion`-modules, which have the same dimension.
 This fact is used to show that `baseChangeRight` (and therefore `baseChange`) is surjective. -/
@@ -138,7 +135,7 @@ def baseChangeEquiv :
     L ⊗[K] v.Completion ≃A[L] (wv : v.ExtensionPlace L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
   IsModuleTopology.continuousAlgEquivOfIsScalarTower K v.Completion e
-    (continuous_baseChange_tmul_right L v) (baseChange_of_algebraMap_tmul_right _)
+    (baseChange_of_algebraMap_tmul_right _)
 
 @[simp]
 theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :

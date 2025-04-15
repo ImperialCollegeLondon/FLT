@@ -9,7 +9,7 @@ import FLT.Mathlib.Topology.Algebra.Monoid
 
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
-  __ := (moduleTopology R S)
+  __ := moduleTopology R S
   eq_moduleTopology' := rfl
 
 namespace IsModuleTopology
@@ -354,23 +354,17 @@ def continuousAlgEquivOfIsScalarTower {A B : Type*} (R S₁ : Type*) {S₂ : Typ
     [IsTopologicalSemiring A] [TopologicalSpace S₁] [Algebra R A] [Algebra R B]
     [IsModuleTopology S₁ A] [IsModuleTopology S₁ B] [Algebra R S₁] [IsScalarTower R S₁ A]
     [Algebra R S₂] [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₐ[S₂] B)
-    (he₁ : Continuous (e.toRingHom.comp (algebraMap S₁ A)))
-    (he₂ : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) :
+    (he : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) :
     A ≃A[S₂] B where
   toAlgEquiv := e
-  continuous_toFun :=
-    IsModuleTopology.continuous_of_ringHom (φ := e.toRingHom) he₁
-  continuous_invFun := by
-    -- the inverse is continuous if `A`'s topology is coinduced by it
-    convert continuous_coinduced_rng
-    -- `A` has the `S₁`-module topology
-    rw [eq_moduleTopology S₁ A]
+  continuous_toFun := by
     -- switch the equivalence scalars of `e` from `S₂` over to `S₁`
-    have := e.changeScalars R S₁ he₂ |>.toLinearEquiv.symm.surjective
-    -- then the `S₁`-module topology is coinduced by this `S₁`-algebra equivalence
-    rw [ModuleTopology.eq_coinduced_of_surjective this]
-    -- and the underlying functions are the same
-    congr
+    show Continuous (e.changeScalars R S₁ he).toLinearEquiv
+    -- then this is an `S₁`-linear map on the `S₁`-module topology, so is continuous
+    exact IsModuleTopology.continuous_of_linearMap _
+  continuous_invFun := by
+    show Continuous (e.changeScalars R S₁ he).toLinearEquiv.symm
+    exact IsModuleTopology.continuous_of_linearMap _
 
 @[simp]
 theorem continuousAlgEquivOsIfScalarTower_apply {A B : Type*} (R S₁ : Type*) {S₂ : Type*}
@@ -379,9 +373,8 @@ theorem continuousAlgEquivOsIfScalarTower_apply {A B : Type*} (R S₁ : Type*) {
     [IsTopologicalSemiring B] [IsTopologicalSemiring A] [TopologicalSpace S₁] [Algebra R A]
     [Algebra R B] [IsModuleTopology S₁ A] [IsModuleTopology S₁ B] [Algebra R S₁]
     [IsScalarTower R S₁ A] [Algebra R S₂] [IsScalarTower R S₂ A] [IsScalarTower R S₂ B]
-    (e : A ≃ₐ[S₂] B) (he₁ : Continuous (e.toRingHom.comp (algebraMap S₁ A)))
-    (he₂ : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) (a : A) :
-    continuousAlgEquivOfIsScalarTower R S₁ e he₁ he₂ a = e a :=
+    (e : A ≃ₐ[S₂] B) (he: ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) (a : A) :
+    continuousAlgEquivOfIsScalarTower R S₁ e he a = e a :=
   rfl
 
 def continuousAlgEquiv {A B R : Type*} [TopologicalSpace A]
