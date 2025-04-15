@@ -204,57 +204,80 @@ variable (R S : Type*)
   [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
     [Algebra R S]
 
+-- Proved this thinking I could use it to prove `IsModuleTopology K_∞ L_∞`,
+-- which application failed, but may as well keep this proof
 open scoped Topology in
+/-- An `R`-algebra `S` has the `R`-module topology if the embedding `R →+* S` is continuous
+and open. -/
 theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
-    (hopen : IsOpenMap (algebraMap R S)) : IsModuleTopology R S := by
-  --have hS_add : ContinuousAdd S := IsTopologicalAddGroup.toContinuousAdd
-  --have hS_mul : ContinuousMul S := IsTopologicalSemiring.toContinuousMul
-  have h_smul : ContinuousSMul R S := continuousSMul_of_algebraMap R S hcont
-  have h_i_cont : Continuous[moduleTopology R S, inferInstance] (id : S → S) := by
-    rw [continuous_id_iff_le]
-    exact moduleTopology_le _ _
-  have h_a_cont : Continuous[_, moduleTopology R S] (Algebra.linearMap R S) := by
-    exact @IsModuleTopology.continuous_of_linearMap R _ _ R _ _ _ _ S _ _ (moduleTopology R S)
-      (ModuleTopology.continuousAdd _ _) (ModuleTopology.continuousSMul _ _) (Algebra.linearMap R S)
-  have h_isOpen : @IsOpen S (moduleTopology R S) (Set.range (algebraMap R S)) := by
-    have : IsOpen (Set.range (algebraMap R S)) := by exact IsOpenMap.isOpen_range hopen
-    exact @Continuous.isOpen_preimage S S (moduleTopology R S) _ id h_i_cont
-      (Set.range (algebraMap R S)) this
-  have h_isOpen_mpr {U : Set S} (h : IsOpen U) : @IsOpen S (moduleTopology R S) U := by
-    exact @Continuous.isOpen_preimage S S (moduleTopology R S) _ id h_i_cont U h
-  have h_isOpen_mp {U : Set S} (h : @IsOpen S (moduleTopology R S) U) (hUS : U ⊆ Set.range (algebraMap R S)):
-      IsOpen U := by
-    have := @Continuous.isOpen_preimage R S _ (moduleTopology R S) _ h_a_cont U h
-    convert hopen _ this
-    simp [Algebra.linearMap]
-    symm
-    apply Set.image_preimage_eq_of_subset hUS
-  apply IsModuleTopology.mk
-  rw [IsTopologicalAddGroup.ext_iff IsTopologicalRing.to_topologicalAddGroup]
-  apply (nhds_basis_opens 0).ext (@nhds_basis_opens S (moduleTopology R S) 0)
-  · intro U hU
-    use Set.range (algebraMap R S) ∩ U
-    constructor
-    · constructor
-      · simp
-        refine ⟨⟨0, by simp⟩, hU.1⟩
-      · apply @IsOpen.inter _ (moduleTopology R S)
-        · exact h_isOpen
-        · exact h_isOpen_mpr hU.2
-    · simp
-  · intro U hU
-    use Set.range (algebraMap R S) ∩ U
-    constructor
-    · constructor
-      · simp
-        refine ⟨⟨0, by simp⟩, hU.1⟩
-      · apply h_isOpen_mp (U := Set.range (algebraMap R S) ∩ U)
-        · apply @IsOpen.inter _ (moduleTopology R S)
-          · exact h_isOpen
-          · exact hU.2
-        · simp
-    · simp
-  · exact @IsModuleTopology.topologicalAddGroup R _ _ S _ _ (moduleTopology R S) (isModuleTopology R S)
+    (hopen : IsOpenMap (algebraMap R S)) : IsModuleTopology R S where
+  eq_moduleTopology' := by
+    -- Let `τS` denote the topology on `S`, and let `τRS` denote the `R`-module topology on `S`,
+    -- and let `τR` denote the topology on `R`. Note that `τR` coincides with the `R`-module
+    -- topology on `R`.
+    -- This proof consists of pushing fowards and pulling back open sets between
+    -- three topological spaces as follows:
+    -- ```
+    -- (S, τRS) <-[hcont_id]- (S, τS)
+    --       |                 ↗
+    -- [hcont_alg]      [hopen]
+    --       |          /
+    --       |        /
+    --       |   [hcont]
+    --       ↓   ↙
+    --     (R, τR)
+    -- ```
+    -- where the arrows indicate the direction in which open sets are moved, `hopen` and `hcont`
+    -- are given hypotheses, and `hcont_id` and `hcont_alg` are the continuity of the identity map
+    -- and the algebra map respectively, which are proved below.
+    -- • : R × S → S is continuous
+    have : ContinuousSMul R S := continuousSMul_of_algebraMap R S hcont
+    -- The identity map `(S, τRS) → (S, τS)` is continuous, by minimality of module topology.
+    have hcont_id : Continuous[moduleTopology R S, _] id :=
+      continuous_id_iff_le.2 <| moduleTopology_le _ _
+    -- The algebra map `(R, τR) →ₗ[R] (S, τRS)` from `R` is continuous, since `τR` is the
+    -- `R`-module topology on `R`, and any `R`-linear map on this domain is continuous.
+    have hcont_alg : Continuous[_, moduleTopology R S] (Algebra.linearMap R S) :=
+      @IsModuleTopology.continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (moduleTopology R S)
+        (ModuleTopology.continuousAdd _ _) (ModuleTopology.continuousSMul _ _) _
+    -- If `U` is open in `(S, τS)` with its usual topology, then it is open in `(S, τ_R_S)` with the
+    -- module topology, by pullback along [hcont_id].
+    have hopen_mpr {U : Set S} (h : IsOpen U) : @IsOpen S (moduleTopology R S) U :=
+      -- Because `id : (S, τRS) → (S, τS)` is continuous by hcont_id above, so the preimage is open.
+      @Continuous.isOpen_preimage S S (moduleTopology R S) _ id hcont_id U h
+    -- If `U` is open in `(S, τRS)` with the module topology and is contained in the image
+    -- of `R` inside `S`, then it is open in `(S, τS)` with the usual topology.
+    -- This is by pullback along [hcont_alg] and push forward along [hopen].
+    have hopen_mp {U : Set S} (h : @IsOpen S (moduleTopology R S) U)
+        (hUS : U ⊆ Set.range (algebraMap R S)) : IsOpen U :=
+      -- Continuity of `R →+* (S, τRS)` means the preimage of `U` is open in `R`, and so the image
+      -- of this in `(S, τS)` is open as well. The image of the preimage coincides with `U` because
+      -- `U` is contained in the image of `R` in `S`.
+      Set.image_preimage_eq_of_subset hUS ▸ hopen _ <|
+        @Continuous.isOpen_preimage R S _ (moduleTopology R S) _ hcont_alg U h
+    -- To finish the proof, we now show that the neighbourhoods of zero in `τS` and `τ_R_S` coincide
+    rw [IsTopologicalRing.to_topologicalAddGroup.ext_iff <|
+      @IsModuleTopology.topologicalAddGroup R _ _ S _ _ (moduleTopology R S) (isModuleTopology R S)]
+    -- It is enough to show that the basis of neighbourhoods of zero are contained within each other
+    apply (nhds_basis_opens 0).ext (@nhds_basis_opens S (moduleTopology R S) 0)
+    · -- Assume `U` is open in `(S, τS)` with the usual topology
+      intro U hU
+      -- Then `U` is open in `(S, τRS)` by `hopen_mpr` above.
+      exact ⟨U, ⟨⟨hU.1, hopen_mpr hU.2⟩, by simp⟩⟩
+    · -- Assume `U` is open in `(S, τRS)` with the module topology
+      intro U hU
+      -- Intersect `U` with the image of `R` in `(S, τRS)`. This remains open because the image
+      -- of `R` in `(S, τS)` is open by `hopen`, and the preimage of this in `(S, τRS)` is
+      -- open by hopen_mpr.
+      use Set.range (algebraMap R S) ∩ U
+      refine ⟨⟨⟨⟨0, by simp⟩, hU.1⟩, ?_⟩, by simp⟩
+      -- `Set.range (algebraMap R S)` is open in `(S, τRS)` because the image
+      -- of `R` in `(S, τS)` is open by `hopen`, and the preimage of this in `(S, τRS)` is
+      -- open by hopen_mpr.
+      let hopen_range := hopen_mpr hopen.isOpen_range
+      -- So `U ∩ Set.range (algebraMap R S)` is open in `(S, τ_R_S)`, and therefore in
+      -- `(S, τS)` by `hopen_mp`.
+      exact hopen_mp (@IsOpen.inter _ (moduleTopology R S) _ _ hopen_range hU.2) (by simp)
 
 /-
 Proof.
@@ -339,12 +362,12 @@ for an infinite place `v` of a number field `K`. We have an `L`-algebra equivale
 between `v.Completion`-module topological spaces. And so this allows us to assert that this
 is a _continuous_ `L`-algebra equivalence as well.
 -/
-def continuousAlgEquiv {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [TopologicalSpace A] [CommRing S₁]
-    [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A] [CommRing B] [Algebra S₁ A]
-    [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B] [IsTopologicalSemiring B] [IsTopologicalSemiring A]
-    [TopologicalSpace S₁] [Algebra R A] [Algebra R B] [IsModuleTopology S₁ A]
-    [IsModuleTopology S₁ B] [Algebra R S₁] [IsScalarTower R S₁ A] [Algebra R S₂]
-    [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₐ[S₂] B)
+def continuousAlgEquivOfIsScalarTower {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [TopologicalSpace A]
+    [CommRing S₁] [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A] [CommRing B]
+    [Algebra S₁ A] [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B] [IsTopologicalSemiring B]
+    [IsTopologicalSemiring A] [TopologicalSpace S₁] [Algebra R A] [Algebra R B]
+    [IsModuleTopology S₁ A] [IsModuleTopology S₁ B] [Algebra R S₁] [IsScalarTower R S₁ A]
+    [Algebra R S₂] [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₐ[S₂] B)
     (he₁ : Continuous (e.toRingHom.comp (algebraMap S₁ A)))
     (he₂ : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) :
     A ≃A[S₂] B where
@@ -364,18 +387,18 @@ def continuousAlgEquiv {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [Topologica
     congr
 
 @[simp]
-theorem continuousAlgEquiv_apply {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [TopologicalSpace A] [CommRing S₁]
-    [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A] [CommRing B] [Algebra S₁ A]
-    [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B] [IsTopologicalSemiring B] [IsTopologicalSemiring A]
-    [TopologicalSpace S₁] [Algebra R A] [Algebra R B] [IsModuleTopology S₁ A]
-    [IsModuleTopology S₁ B] [Algebra R S₁] [IsScalarTower R S₁ A] [Algebra R S₂]
-    [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₐ[S₂] B)
-    (he₁ : Continuous (e.toRingHom.comp (algebraMap S₁ A)))
+theorem continuousAlgEquivOsIfScalarTower_apply {A B : Type*} (R S₁ : Type*) {S₂ : Type*}
+    [TopologicalSpace A] [CommRing S₁] [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A]
+    [CommRing B] [Algebra S₁ A] [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B]
+    [IsTopologicalSemiring B] [IsTopologicalSemiring A] [TopologicalSpace S₁] [Algebra R A]
+    [Algebra R B] [IsModuleTopology S₁ A] [IsModuleTopology S₁ B] [Algebra R S₁]
+    [IsScalarTower R S₁ A] [Algebra R S₂] [IsScalarTower R S₂ A] [IsScalarTower R S₂ B]
+    (e : A ≃ₐ[S₂] B) (he₁ : Continuous (e.toRingHom.comp (algebraMap S₁ A)))
     (he₂ : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) (a : A) :
-    continuousAlgEquiv R S₁ e he₁ he₂ a = e a :=
+    continuousAlgEquivOfIsScalarTower R S₁ e he₁ he₂ a = e a :=
   rfl
 
-def continuousAlgEquiv' {A B R : Type*} [TopologicalSpace A]
+def continuousAlgEquiv {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [CommSemiring R] [Semiring A] [Semiring B]
     [Algebra R A] [Algebra R B] [IsModuleTopology R A] [IsModuleTopology R B]
     (e : A ≃ₐ[R] B) :

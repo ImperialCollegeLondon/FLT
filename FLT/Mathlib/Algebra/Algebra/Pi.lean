@@ -1,5 +1,6 @@
 import Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Hom
+import FLT.Mathlib.Logic.Equiv.Basic
 
 def Pi.semialgHom {I : Type*} {R S : Type*} (f : I → Type*) [CommSemiring R] [CommSemiring S]
     (φ : R →+* S) [s : (i : I) → Semiring (f i)] [(i : I) → Algebra S (f i)] {A : Type*}
@@ -34,3 +35,17 @@ theorem Pi.semialgHomPi_apply {I J : Type*} {R S : Type*} (f : I → Type*)
     [(j : J) → Algebra R (g j)] {r : I → J} (p : (i : I) → g (r i) →ₛₐ[φ] f i)
     (a : (j : J) → g j) (i : I) :
     Pi.semialgHomPi _ _ p a i = p i (a (r i)) := rfl
+
+/-- Let `f : α → β` be a function on index types. A family of `R`-algebra equivalences, indexed by
+`b : β`, between the product over the fiber of `b` under `f` given as
+`∀ (σ : { a : α // f a = b }) → γ₁ σ.1) ≃ₐ[R] γ₂ b` lifts to an equivalence over the products
+`∀ a, γ₁ a ≃ₐ[R] ∀ b, γ₂ b`. This is `Equiv.piCongrFiberwise` as an `AlgEquiv`. -/
+def AlgEquiv.piCongrFiberwise {α : Type*} {β : Type*} {R : Type*} {γ₁ : α → Type*} {γ₂ : β → Type*}
+    {f : α → β} [CommSemiring R] [(a : α) → Semiring (γ₁ a)] [(b : β) → Semiring (γ₂ b)]
+    [(a : α) → Algebra R (γ₁ a)] [(b : β) → Algebra R (γ₂ b)]
+    (e : (b : β) → ((x : { x : α // f x = b }) → γ₁ x.1) ≃ₐ[R] γ₂ b) :
+    ((a : α) → γ₁ a) ≃ₐ[R] ((b : β) → γ₂ b) where
+  __ := Equiv.piCongrFiberwise fun _ => (e _).toEquiv
+  map_add' _ _ := by funext b; simp [← Pi.add_def]
+  map_mul' _ _ := by funext b; simp [← Pi.mul_def]
+  commutes' r := by funext b; simp [← (e b).commutes' r, Pi.algebraMap_def]
