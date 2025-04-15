@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
 
-import Mathlib.Analysis.SpecialFunctions.Stirling
+import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import Mathlib.Data.Complex.ExponentialBounds
 import Mathlib.Data.Real.Pi.Bounds
 import Mathlib.Data.Real.StarOrdered
@@ -12,36 +12,6 @@ import Mathlib.Tactic.NormNum.NatFactorial
 
 open scoped Nat
 open Real
-
-namespace Stirling
-
-open Filter
-
--- upstream
-theorem sqrt_pi_le_stirlingSeq {n : ℕ} (hn : n ≠ 0) : √π ≤ stirlingSeq n :=
-  match n, hn with
-  | n + 1, _ =>
-    stirlingSeq'_antitone.le_of_tendsto (b := n) <|
-      tendsto_stirlingSeq_sqrt_pi.comp (tendsto_add_atTop_nat 1)
-
-theorem semi_precise_stirling (n : ℕ) : √(2 * π * n) * (n / exp 1) ^ n ≤ n ! := by
-  obtain rfl | hn := eq_or_ne n 0
-  case inl => simp
-  calc
-    _ = (√(π * (2 * n)) * (n / exp 1) ^ n) := by congr! 2; ring
-    _ = (√π * √(2 * n) * (n / exp 1) ^ n) := by congr! 1; simp [sqrt_mul']
-    _ = √π * (√(2 * n) * (n / exp 1) ^ n) := by ring
-  rw [← le_div_iff₀ (by positivity)]
-  exact sqrt_pi_le_stirlingSeq hn
-
-theorem semi_precise_stirling_log (n : ℕ) (hn : n ≠ 0) :
-    log (2 * π) / 2 + log n / 2 + n * log n - n ≤ log n ! := by calc
-      log ↑n ! ≥ log (√(2 * π * n) * (n / rexp 1) ^ n) :=
-          log_le_log (by positivity) (semi_precise_stirling n)
-      _ ≥ (log (2 * π) + log ↑n) / 2 + ↑n * (log ↑n - 1) := by
-          rw [log_mul, log_sqrt, log_mul, log_pow, log_div, log_exp]
-          all_goals positivity
-      _ = _ := by ring
 
 private lemma constant_approx : 9 / 5 < log (2 * π) := by
   rw [lt_log_iff_exp_lt (by positivity), ← Real.exp_one_rpow, div_eq_mul_inv,
@@ -51,43 +21,39 @@ private lemma constant_approx : 9 / 5 < log (2 * π) := by
     _ ≤ 6.28 ^ (5 : ℝ) := by norm_num
     _ ≤ (2 * π) ^ (5 : ℝ) := by gcongr; linarith [pi_gt_d4]
 
-end Stirling
-
 private lemma log_approx {x : ℝ} (hx : 0 < x) : (1 + x)⁻¹ ≤ log (1 + x⁻¹) := by calc
   _ ≥ 1 - (1 + x⁻¹)⁻¹ := Real.one_sub_inv_le_log_of_pos (by positivity)
   _ ≥ _ := by field_simp [add_comm]
 
-lemma kevinsFunction_strictMono_aux3 {x : ℝ} (hx : 1 ≤ x) : -0.5 ≤ log x / 2 - x / (x + 1) := by
-  set f : ℝ → ℝ := fun x ↦ log x / 2 - x / (x + 1)
-  suffices h : StrictMonoOn f (Set.Ioi 0) by
+private lemma discrBound_strictMono_aux3 {x : ℝ} (hx : 1 ≤ x) : -0.5 ≤ log x / 2 - x / (x + 1) := by
+  suffices h : StrictMonoOn (fun x ↦ log x / 2 - x / (x + 1)) (Set.Ioi 0) by
     convert h.monotoneOn (by simp) (by simp; linarith) hx using 1
-    norm_num [f]
-  apply strictMonoOn_of_hasDerivWithinAt_pos
+    norm_num
+  apply strictMonoOn_of_hasDerivWithinAt_pos (convex_Ioi _)
     (f' := fun x ↦ (x ^ 2 + 1) / (2 * x * (x + 1) ^ 2))
-    (convex_Ioi _)
   case hf =>
     refine ((continuousOn_log.mono (by simp)).div_const _).sub
       (continuousOn_id.div (by fun_prop) ?_)
-    simp only [Set.mem_Ioi, ne_eq, f]
+    simp only [Set.mem_Ioi, ne_eq]
     intro x hx
-    linarith
+    positivity
   case hf'₀ =>
-    simp only [interior_Ioi, Set.mem_Ioi, f]
+    simp only [interior_Ioi, Set.mem_Ioi]
     intro x hx
     positivity
   case hf' =>
-    simp only [interior_Ioi, Set.mem_Ioi, f]
+    simp only [interior_Ioi, Set.mem_Ioi]
     intro x hx
-    refine HasDerivWithinAt.congr_deriv ((((hasDerivWithinAt_id _ _).log hx.ne').div_const _).sub
+    refine .congr_deriv ((((hasDerivWithinAt_id _ _).log hx.ne').div_const _).sub
       ((hasDerivWithinAt_id _ _).div ((hasDerivWithinAt_id _ _).add_const _) (by linarith))) ?_
     field_simp
     ring
 
-lemma kevinsFunction_strictMono_aux2 (n : ℕ) (hn : n ≠ 0) :
+private lemma discrBound_strictMono_aux2 (n : ℕ) (hn : n ≠ 0) :
     0 < n ^ 2 * (log (n + 1) - log n) + log n ! - n * log n := by
   calc
     _ > n ^ 2 * (log (n + 1) - log n) + 0.9 + log n / 2 - n := by
-        linear_combination Stirling.semi_precise_stirling_log n hn + Stirling.constant_approx / 2
+        linear_combination Stirling.le_log_factorial_stirling n hn + constant_approx / 2
     _ ≥ n ^ 2 * log (1 + (n : ℝ)⁻¹) + 0.9 + log n / 2 - n := by
         rw [← log_div (by positivity) (by positivity)]; field_simp
     _ ≥ n ^ 2 * (1 + n : ℝ)⁻¹ + 0.9 + log n / 2 - n := by
@@ -95,12 +61,12 @@ lemma kevinsFunction_strictMono_aux2 (n : ℕ) (hn : n ≠ 0) :
     _ = log n / 2 - n / (n + 1) + 0.9 := by
         field_simp; ring
     _ ≥ 0 := by
-        linear_combination kevinsFunction_strictMono_aux3 (x := n) (by simp; omega)
+        linear_combination discrBound_strictMono_aux3 (x := n) (by simp; omega)
 
 -- upstream
 theorem strictMonoOn_Ici_nat_of_lt_succ {α : Type*} [Preorder α] {f : ℕ → α} {x : ℕ}
     (h : ∀ n, x ≤ n → f n < f (n + 1)) :
-    StrictMonoOn f (Set.Ici x) :=
+    StrictMonoOn f {i | x ≤ i} :=
   fun _ ha _ _ ↦ Nat.rel_of_forall_rel_succ_of_le_of_lt (· < ·) h ha
 
 -- upstream
@@ -109,38 +75,37 @@ theorem strictMonoOn_Ioi_nat_of_lt_succ {α : Type*} [Preorder α] {f : ℕ → 
     StrictMonoOn f (Set.Ioi x) :=
   strictMonoOn_Ici_nat_of_lt_succ (x := x + 1) h
 
-lemma kevinsFunction_strictMono_aux :
-    StrictMonoOn (fun n : ℕ ↦ log ↑n - (↑n)⁻¹ * log n !) (Set.Ioi 0) :=
+private lemma discrBound_strictMono_aux :
+    StrictMonoOn (fun n : ℕ ↦ log n - (n : ℝ)⁻¹ * log n !) (Set.Ioi 0) :=
   strictMonoOn_Ioi_nat_of_lt_succ fun n hn ↦ by
     refine lt_of_mul_lt_mul_left (a := n * (n + 1 : ℝ)) ?_ (by positivity)
     calc
       _ = (n * (n + 1)) * log n - (n + 1) * log n ! := by field_simp; ring
       _ < n * (n + 1) * log (n + 1) - n * (log (n + 1) + log n !) := by
-          linear_combination kevinsFunction_strictMono_aux2 n hn.ne'
+          linear_combination discrBound_strictMono_aux2 n hn.ne'
       _ = n * (n + 1) * (log (n + 1) - (n + 1 : ℝ)⁻¹ * (log (n + 1) + log n !)) := by
           field_simp; ring
       _ = n * (n + 1) * (log (n + 1 : ℕ) - (↑(n + 1) : ℝ)⁻¹ * log (n + 1)!) := by
           rw [Nat.factorial_succ, Nat.cast_mul, log_mul (by positivity) (by positivity),
             Nat.cast_add_one]
 
-noncomputable def kevinsFunction (n : ℕ) : ℝ :=
+noncomputable def discrBound (n : ℕ) : ℝ :=
   (π / 4) * (n ^ 2 / (n ! : ℝ) ^ (2 / n : ℝ))
 
-lemma kevinsFunction_strictMono :
-    StrictMono kevinsFunction := by
+lemma discrBound_strictMono : StrictMono discrBound := by
   refine .const_mul (StrictMonoOn.Iic_union_Ici (a := 1) ?_ ?_) (by positivity)
   next =>
     have : Set.Iic 1 = {0, 1} := by simp [Set.ext_iff]; omega
-    aesop (add simp StrictMonoOn)
+    simp [this, StrictMonoOn]
   refine ((exp_strictMono.comp (strictMono_mul_left_of_pos zero_lt_two)).comp_strictMonoOn
-    kevinsFunction_strictMono_aux).congr fun n (hn : 0 < n) ↦ ?_
+    discrBound_strictMono_aux).congr fun n (hn : 0 < n) ↦ ?_
   calc
-    _ = rexp (2 * log n) / rexp (2 * ((n : ℝ)⁻¹ * log n !)) := by simp [mul_sub, exp_sub]
-    _ = rexp (log n * 2) / rexp ((log n !) * (2 / n)) := by ring_nf
+    _ = exp (2 * log n) / exp (2 * ((n : ℝ)⁻¹ * log n !)) := by simp [mul_sub, exp_sub]
+    _ = exp (log n * 2) / exp ((log n !) * (2 / n)) := by ring_nf
     _ = (n ^ 2 / n ! ^ (2 / n : ℝ)) := by simp (disch := positivity) [← rpow_def_of_pos]
 
-lemma kevinsFunction_four : kevinsFunction 4 < 2.75 := by
-  have h₁ : kevinsFunction 4 < 2.75 := by calc
+private lemma discrBound_four_lt : discrBound 4 < 2.75 := by
+  have h₁ : discrBound 4 < 2.75 := by calc
     _ = π / 4 * (4 ^ 2 / 4! ^ (2 / 4 : ℝ)) := rfl
     _ < π / 4 * (4 ^ 2 / 4.8) := by
         gcongr
@@ -149,9 +114,8 @@ lemma kevinsFunction_four : kevinsFunction 4 < 2.75 := by
     _ < 2.75 := by linarith [pi_lt_d4]
   exact h₁
 
-lemma kevinsFunction_five : 2.75 < kevinsFunction 5 := by
-  have h₁ : 2.75 < kevinsFunction 5 := by calc
-    _ = π / 4 * (5 ^ 2 / 5! ^ (2 / 5 : ℝ)) := rfl
+private lemma discrBound_five_gt : 2.75 < discrBound 5 := by
+  have h₁ : 2.75 < discrBound 5 := by calc _ * _
     _ > π / 4 * (5 ^ 2 / 7) := by
         gcongr
         rw [div_eq_mul_inv, rpow_mul, rpow_inv_lt_iff_of_pos]
@@ -159,9 +123,8 @@ lemma kevinsFunction_five : 2.75 < kevinsFunction 5 := by
     _ > 2.75 := by linarith [pi_gt_d4]
   exact h₁
 
-lemma kevinsFunction_thirteen : kevinsFunction 13 < 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) := by
-  have h₁ : kevinsFunction 13 < 4.15 := by calc
-    _ = π / 4 * (13 ^ 2 / 13! ^ (2 / 13 : ℝ)) := rfl
+private lemma discrBound_thirteen_lt : discrBound 13 < 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) := by
+  have h₁ : discrBound 13 < 4.15 := by calc _ * _
     _ < π / 4 * (13 ^ 2 / 32) := by
         gcongr
         rw [div_eq_mul_inv, rpow_mul, lt_rpow_inv_iff_of_pos]
@@ -172,9 +135,8 @@ lemma kevinsFunction_thirteen : kevinsFunction 13 < 2 ^ (2 / 3 : ℝ) * 3 ^ (7 /
     all_goals first | positivity | norm_num
   exact h₁.trans h₂
 
-lemma kevinsFunction_fourteen : 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) < kevinsFunction 14 := by
-  have h₁ : 4.16 < kevinsFunction 14 := by calc
-    _ = π / 4 * (14 ^ 2 / 14! ^ (2 / 14 : ℝ)) := rfl
+private lemma discrBound_fourteen_gt : 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) < discrBound 14 := by
+  have h₁ : 4.16 < discrBound 14 := by calc _ * _
     _ > π / 4 * (14 ^ 2 / 37) := by
         gcongr
         rw [div_eq_mul_inv, rpow_mul, rpow_inv_lt_iff_of_pos]
@@ -185,28 +147,28 @@ lemma kevinsFunction_fourteen : 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) < kevinsFu
     all_goals first | positivity | norm_num
   exact h₂.trans h₁
 
-theorem kevin_strong {n : ℕ} :
+theorem discrBound_lt_iff_lt_fourteen {n : ℕ} :
     (π / 4) * (n ^ 2 / (n !) ^ (2 / n : ℝ)) < 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) ↔ n < 14 := by
-  change kevinsFunction n < 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) ↔ _
+  change discrBound n < 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) ↔ _
   refine ⟨fun h ↦ ?mp, fun h ↦ ?mpr⟩
-  case mp => exact kevinsFunction_strictMono.lt_iff_lt.mp (h.trans kevinsFunction_fourteen)
+  case mp => exact discrBound_strictMono.lt_iff_lt.mp (h.trans discrBound_fourteen_gt)
   case mpr =>
     replace h : n ≤ 13 := by omega
-    refine (kevinsFunction_strictMono.le_iff_le.mpr h).trans_lt kevinsFunction_thirteen
+    exact (discrBound_strictMono.le_iff_le.mpr h).trans_lt discrBound_thirteen_lt
 
-theorem kevin_strong2 {n : ℕ} :
+theorem discrBound_lt_iff_lt_five {n : ℕ} :
     (π / 4) * (n ^ 2 / (n !) ^ (2 / n : ℝ)) < 2.75 ↔ n < 5 := by
-  change kevinsFunction n < 2.75 ↔ _
+  change discrBound n < 2.75 ↔ _
   refine ⟨fun h ↦ ?mp, fun h ↦ ?mpr⟩
-  case mp => exact kevinsFunction_strictMono.lt_iff_lt.mp (h.trans kevinsFunction_five)
+  case mp => exact discrBound_strictMono.lt_iff_lt.mp (h.trans discrBound_five_gt)
   case mpr =>
     replace h : n ≤ 4 := by omega
-    refine (kevinsFunction_strictMono.le_iff_le.mpr h).trans_lt kevinsFunction_four
+    exact (discrBound_strictMono.le_iff_le.mpr h).trans_lt discrBound_four_lt
 
-theorem kevin {n : ℕ}
+theorem le_fourteen_of_discrBound {n : ℕ}
     (h : (π / 4) * (n ^ 2 / (n !) ^ (2 / n : ℝ)) < 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ)) : n ≤ 14 :=
-  (kevin_strong.mp h).le
+  (discrBound_lt_iff_lt_fourteen.mp h).le
 
-theorem kevin2 {n : ℕ}
+theorem le_five_of_discrBound {n : ℕ}
     (h : (π / 4) * (n ^ 2 / (n !) ^ (2 / n : ℝ)) < 2.75) : n ≤ 5 :=
-  (kevin_strong2.mp h).le
+  (discrBound_lt_iff_lt_five.mp h).le
