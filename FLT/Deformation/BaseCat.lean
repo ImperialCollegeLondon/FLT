@@ -6,7 +6,7 @@ set_option linter.unusedSectionVars false
 
 universe v u
 
-open CategoryTheory Function Limits
+open CategoryTheory Function Limits IsLocalRing
 
 namespace Deformation
 
@@ -16,7 +16,6 @@ variable (𝓞 : Type u)
 scoped notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
 structure BaseCat where
-  private mk ::
   carrier : Type v
   [isCommRing : CommRing carrier]
   [isAlgebra : Algebra 𝓞 carrier]
@@ -58,7 +57,6 @@ variable {𝓞} in
 /-- The type of morphisms in `BaseCat 𝓞`. -/
 @[ext]
 structure Hom (A B : BaseCat.{v} 𝓞) where
-  private mk ::
   /-- The underlying algebra map. -/
   hom : A →A[𝓞] B
   [isLocalHom : IsLocalHom hom.toRingHom]
@@ -165,21 +163,6 @@ def ofSelfIso : of 𝓞 A ≅ A where
   hom := 𝟙 A
   inv := 𝟙 A
 
-def quotient (a : Ideal A) [Nontrivial (A ⧸ a)] : BaseCat.{v} 𝓞 where
-  carrier := A ⧸ a
-  isCommRing := by infer_instance
-  isAlgebra := by infer_instance
-  isLocalRing := by infer_instance
-  isLocalHom := by
-    have h := isLocalHom_of_quotient (algebraMap 𝓞 A) a
-    simp only [Ideal.Quotient.mk_comp_algebraMap] at h
-    exact h
-  isResidueAlgebra := by infer_instance
-  isProartinianRing := by infer_instance
-
-end BaseCat
-
-variable {𝓞}
 variable {X Y : Type u}
   [CommRing X] [Algebra 𝓞 X] [IsLocalRing X] [IsLocalHom (algebraMap 𝓞 X)]
   [IsResidueAlgebra 𝓞 X] [IsProartinianRing X]
@@ -203,6 +186,93 @@ def _root_.CategoryTheory.Iso.toContinuousAlgEquiv (i : A ≅ B) : A ≃A[𝓞] 
     left_inv := fun x ↦ by simp
     right_inv := fun x ↦ by simp
     continuous_toFun := by continuity}
+
+variable {R : BaseCat 𝓞}
+
+lemma exists_sub_mem_maximalIdeal (r : R.carrier) : ∃ (a : 𝓞), r - algebraMap _ _ a ∈ maximalIdeal _ := by
+  obtain ⟨a, ha⟩ := R.isResidueAlgebra.surjective 𝓞 R.carrier (residue _ r)
+  obtain ⟨a, rfl⟩ := Ideal.Quotient.mk_surjective a
+  refine ⟨a, ?_⟩
+  rw [← Ideal.Quotient.eq]
+  exact ha.symm
+
+noncomputable
+def preimage (r : R.carrier) : 𝓞 := (exists_sub_mem_maximalIdeal r).choose
+
+lemma preimage_spec (r : R.carrier) : r - algebraMap _ _ (preimage r) ∈ maximalIdeal _ :=
+  (exists_sub_mem_maximalIdeal r).choose_spec
+
+lemma residue_preimage (r : R.carrier) : residue _ (algebraMap _ _ (preimage r)) = residue _ r :=
+  (Ideal.Quotient.eq.mpr (preimage_spec r)).symm
+
+lemma residue_preimage_eq_iff {r : R.carrier} {a} :
+    residue _ (preimage r) = a ↔ residue _ r = ResidueField.map (algebraMap 𝓞 R.carrier) a := by
+  rw [← (R.isResidueAlgebra.bijective 𝓞).1.eq_iff]
+  erw [ResidueField.map_residue]
+  rw [residue_preimage]
+  rfl
+
+def self : 𝓒 𝓞 where
+  carrier := 𝓞
+  isCommRing := by infer_instance
+  isAlgebra := by infer_instance
+  isLocalRing := by infer_instance
+  isLocalHom := ⟨fun _ ↦ id⟩
+  isResidueAlgebra := .mk (by change Surjective (residue 𝓞); exact residue_surjective)
+  isProartinianRing := sorry
+
+def residueField : 𝓒 𝓞 where
+  carrier := ResidueField 𝓞
+  isCommRing := by infer_instance
+  isAlgebra := by infer_instance
+  isLocalRing := by infer_instance
+  isLocalHom := .of_surjective _ (by change Surjective (residue 𝓞); exact residue_surjective)
+  isResidueAlgebra := sorry
+  isProartinianRing := sorry
+
+def fromSelf (R : 𝓒 𝓞) : self ⟶ R :=
+  BaseCat.Hom.mk ⟨(Algebra.ofId 𝓞 R.carrier), by sorry⟩  (isLocalHom := ⟨R.isLocalHom.1⟩)
+
+noncomputable
+def toResidueField (R : 𝓒 𝓞) : R ⟶ residueField :=
+  BaseCat.Hom.mk
+    ⟨
+      ⟨(RingEquiv.ofBijective _ R.isResidueAlgebra.bijective).symm.toRingHom.comp (residue _), fun _ ↦
+        (R.isResidueAlgebra.bijective 𝓞).1
+        ((RingEquiv.ofBijective _ R.isResidueAlgebra.bijective).apply_symm_apply _)⟩,
+      by sorry
+    ⟩
+    (isLocalHom := .of_surjective _ ((RingEquiv.ofBijective _ R.isResidueAlgebra.bijective).symm.surjective.comp residue_surjective))
+
+lemma to_residueField_apply {R : 𝓒 𝓞} (f : R ⟶ residueField) (r : R.carrier) : f.hom r = residue _ (preimage r)  := by
+  trans f.hom (algebraMap _ _ (preimage r))
+  · rw [← sub_eq_zero, ← map_sub, ← not_ne_iff,
+      ← @isUnit_iff_ne_zero _ (inferInstanceAs (GroupWithZero (ResidueField 𝓞)))]
+    change ¬IsUnit (f.hom.toRingHom _)
+    rw [isUnit_map_iff f.hom.toRingHom, ← mem_nonunits_iff, ← mem_maximalIdeal]
+    exact preimage_spec _
+  · sorry
+
+lemma to_residueField_ext {R : 𝓒 𝓞} (f₁ f₂ : R ⟶ residueField) : f₁ = f₂ := by
+  refine BaseCat.Hom.ext ?_
+  ext r
+  rw [to_residueField_apply, to_residueField_apply]
+
+def quotient (a : Ideal A) (isOpen : IsOpen a.carrier) [Nontrivial (A ⧸ a)] : BaseCat.{v} 𝓞 where
+  carrier := A ⧸ a
+  isCommRing := by infer_instance
+  isAlgebra := by infer_instance
+  isLocalRing := by infer_instance
+  isLocalHom := by
+    have h := IsLocalHom.of_quotient (algebraMap 𝓞 A) a
+    simp only [Ideal.Quotient.mk_comp_algebraMap] at h
+    exact h
+  isResidueAlgebra := by infer_instance
+  isProartinianRing :=
+    IsProartinianRing.instQuotientIdealOfNontrivialOfIsOpenCarrier a isOpen
+
+
+end BaseCat
 
 section Noetherian -- Proposition 2.4 of Smit&Lenstra
 
