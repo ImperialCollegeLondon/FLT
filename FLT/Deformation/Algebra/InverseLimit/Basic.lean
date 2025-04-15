@@ -105,7 +105,7 @@ def toComponent (i) : InverseLimit obj func →ₗ[R] obj i where
 
 @[simp]
 lemma func_toComponent {i j : ι} {h : i ≤ j}:
-    .comp (func h) (toComponent func j) = toComponent func i := by
+    Function.comp (func h) (toComponent func j) = toComponent func i := by
   unfold toComponent
   aesop
 
@@ -141,7 +141,6 @@ lemma map_of_maps'_eq_map_of_maps (maps : (i : ι) → X →ₗ[R] obj i)
     (comm : ∀ {i j} (h : i ≤ j) x, (func h) ((maps j) x) = (maps i) x)
     : ∀ x, map_of_maps' func maps comm x = map_of_maps func (fun i ↦ (maps i).toFun) comm x := by
   aesop
-
 
 end InverseLimit
 
@@ -225,7 +224,7 @@ def toComponent (i) : InverseLimit obj func →+* obj i where
 
 @[simp]
 lemma func_toComponent {i j : ι} {h : i ≤ j}:
-    .comp (func h) (toComponent func j) = toComponent func i := by
+    Function.comp (func h) (toComponent func j) = toComponent func i := by
   unfold toComponent
   aesop
 
@@ -341,7 +340,7 @@ def toComponent (i) : InverseLimit obj func →* obj i where
 
 @[to_additive, simp]
 lemma func_toComponent {i j : ι} {h : i ≤ j}:
-    .comp (func h) (toComponent func j) = toComponent func i := by
+    Function.comp (func h) (toComponent func j) = toComponent func i := by
   unfold toComponent
   aesop
 
