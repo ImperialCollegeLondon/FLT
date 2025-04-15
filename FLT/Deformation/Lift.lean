@@ -236,8 +236,6 @@ noncomputable def Lift.functor : CategoryTheory.Functor (𝓒 𝓞) (Type _) whe
     simp at l
     sorry
 
-theorem Lift.functor_isCorepresentable : (Lift.functor 𝓞 ρbar).IsCorepresentable := sorry
-
 end UnrestrictedLiftFunctor
 
 end Deformation

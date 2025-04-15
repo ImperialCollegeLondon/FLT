@@ -6,6 +6,7 @@ import FLT.Deformation.ContinuousRepresentation.IsTopologicalModule
 import FLT.Deformation.ContinuousRepresentation.FreeFiniteModuleTopology
 import FLT.Deformation.ContinuousRepresentation.Basic
 import FLT.Deformation.Lift
+import FLT.Deformation.Topology.Algebra.OpenIdeal
 
 open CategoryTheory Function
 open scoped TensorProduct Deformation
@@ -46,20 +47,12 @@ def functor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
   map_id := sorry
   map_comp := sorry
 
--- Theorem 2.3
-theorem functor_isCorepresentable : (functor 𝓞 ρbar).IsCorepresentable  := sorry
-
 end UnrestrictedDeformationFunctor
 
 section RestrictedDeformationFunctor -- Section 6 of Smit&Lenstra
 
-def OpenIdeal := {a : Ideal A // IsOpen a.carrier}
-
-instance : CoeOut (OpenIdeal A) (Ideal A) where
-  coe a := a.1
-
 variable {A ρbar} in
-def quotient (D : Deformation ρbar A) (a : Ideal A) [Nontrivial (A ⧸ a)]: Deformation ρbar (A.quotient a) := sorry
+def quotient (D : Deformation ρbar A) (a : OpenIdeal A) [Nontrivial (A ⧸ a.1)]: Deformation ρbar (A.quotient a) := sorry
 
 variable {A ρbar} in
 def tensorProduct (D : Deformation ρbar A) (R : 𝓒 𝓞) [Algebra A R] : Deformation ρbar R := sorry
@@ -68,9 +61,9 @@ class IsValidDeformationRestriction (res : (R : 𝓒 𝓞) → Set (Deformation 
   cond1 : ∀ A : 𝓒 𝓞, ∀ D : Deformation ρbar A,
     (D ∈ res A) ↔ (∀ a : OpenIdeal A, ∀ _ : Nontrivial (A ⧸ a.1), (D.quotient a) ∈ res (A.quotient a))
   cond2 : ∀ A : 𝓒 𝓞, ∀ D : Deformation ρbar A, ∀ a b : OpenIdeal A,
-    ∀ _ : Nontrivial (A ⧸ a.1), ∀ _ : Nontrivial (A ⧸ b.1), ∀ _ : Nontrivial (A ⧸ (a.1 ⊓ b.1)),
+    ∀ _ : Nontrivial (A ⧸ a.1), ∀ _ : Nontrivial (A ⧸ b.1), ∀ _ : Nontrivial (A ⧸ (a ⊓ b).1),
     ((D.quotient a) ∈ res (A.quotient a) ∧ (D.quotient b) ∈ res (A.quotient b) →
-      D.quotient (a ⊓ b) ∈ res (A.quotient (a ⊓ b)))
+      D.quotient (a ⊓ b)  ∈ res (A.quotient (a ⊓ b)))
   cond3 : ∀ A A' : 𝓒 𝓞, ∀ ι : A  →+* A', ∃ _ : Function.Injective ι,
     ∃ _ : IsArtinianRing A, ∃ _ : IsArtinianRing A',
     ∀ D : Deformation ρbar A, (D ∈ res A) ↔ ((D.tensorProduct A) ∈ res A)
@@ -86,13 +79,8 @@ variable (𝓞) in
 def restrictedFunctor : CategoryTheory.Functor (𝓒 𝓞) (Type _) where
   obj A := res A
   map f := Deformation.restrictedFunctor_onMap ρbar res f
-  map_id := sorry
+  map_id X := sorry
   map_comp := sorry
-
--- Theorem 2.3
-theorem restrictedFunctor_isCorepresentable :
-    (Deformation.restrictedFunctor 𝓞 ρbar res).IsCorepresentable :=
-  sorry
 
 end RestrictedDeformationFunctor
 

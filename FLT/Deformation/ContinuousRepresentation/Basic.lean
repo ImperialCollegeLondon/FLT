@@ -25,3 +25,5 @@ instance : FunLike (ContinuousRepresentation R G M) G (M →L[R] M) where
   }
   coe_injective' ρ ρ' h := by
     sorry
+
+def toRep (ρ : ContinuousRepresentation R G M) : Representation R G M := ρ.1

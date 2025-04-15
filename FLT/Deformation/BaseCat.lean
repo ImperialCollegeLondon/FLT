@@ -1,8 +1,7 @@
 import FLT.Deformation.IsProartinianRing
 import FLT.Deformation.IsResidueAlgebra
 import FLT.Mathlib.Algebra.Group.Units.Hom
-
-set_option linter.unusedSectionVars false
+import FLT.Deformation.Topology.Algebra.OpenIdeal
 
 universe v u
 
@@ -11,7 +10,7 @@ open CategoryTheory Function Limits IsLocalRing
 namespace Deformation
 
 variable (𝓞 : Type u)
-  [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
+  [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing 𝓞] [IsProartinianRing 𝓞]
 
 scoped notation3:max "𝓴" 𝓞 => (IsLocalRing.ResidueField 𝓞)
 
@@ -153,9 +152,6 @@ lemma hom_inv_apply (e : A ≅ B) (x : B) : e.hom (e.inv x) = x := by
   rw [← comp_apply]
   simp
 
--- TODO(jlcontreras): why is 𝓞 in BaseCat 𝓞. Is it?
--- instance : Inhabited (BaseCat 𝓞) := ⟨of 𝓞 𝓞⟩
-
 /-- Forgetting to the underlying type and then building the bundled object returns the original
 algebra. -/
 @[simps]
@@ -219,7 +215,12 @@ def self : 𝓒 𝓞 where
   isLocalRing := by infer_instance
   isLocalHom := ⟨fun _ ↦ id⟩
   isResidueAlgebra := .mk (by change Surjective (residue 𝓞); exact residue_surjective)
-  isProartinianRing := sorry
+  isProartinianRing := by infer_instance
+
+instance : Inhabited (BaseCat 𝓞) := ⟨self⟩
+
+def fromSelf (R : 𝓒 𝓞) : self ⟶ R :=
+  BaseCat.Hom.mk ⟨(Algebra.ofId 𝓞 R.carrier), by sorry⟩  (isLocalHom := ⟨R.isLocalHom.1⟩)
 
 def residueField : 𝓒 𝓞 where
   carrier := ResidueField 𝓞
@@ -229,9 +230,6 @@ def residueField : 𝓒 𝓞 where
   isLocalHom := .of_surjective _ (by change Surjective (residue 𝓞); exact residue_surjective)
   isResidueAlgebra := sorry
   isProartinianRing := sorry
-
-def fromSelf (R : 𝓒 𝓞) : self ⟶ R :=
-  BaseCat.Hom.mk ⟨(Algebra.ofId 𝓞 R.carrier), by sorry⟩  (isLocalHom := ⟨R.isLocalHom.1⟩)
 
 noncomputable
 def toResidueField (R : 𝓒 𝓞) : R ⟶ residueField :=
@@ -258,19 +256,30 @@ lemma to_residueField_ext {R : 𝓒 𝓞} (f₁ f₂ : R ⟶ residueField) : f�
   ext r
   rw [to_residueField_apply, to_residueField_apply]
 
-def quotient (a : Ideal A) (isOpen : IsOpen a.carrier) [Nontrivial (A ⧸ a)] : BaseCat.{v} 𝓞 where
-  carrier := A ⧸ a
+def quotient (a : OpenIdeal A) [Nontrivial (A ⧸ a.1)] : BaseCat.{v} 𝓞 where
+  carrier := A ⧸ a.1
   isCommRing := by infer_instance
   isAlgebra := by infer_instance
   isLocalRing := by infer_instance
   isLocalHom := by
-    have h := IsLocalHom.of_quotient (algebraMap 𝓞 A) a
+    have h := IsLocalHom.of_quotient (algebraMap 𝓞 A) a.1
     simp only [Ideal.Quotient.mk_comp_algebraMap] at h
     exact h
   isResidueAlgebra := by infer_instance
   isProartinianRing :=
-    IsProartinianRing.instQuotientIdealOfNontrivialOfIsOpenCarrier a isOpen
+    IsProartinianRing.instQuotientIdealOfNontrivialOfIsOpenCarrier a.1 a.2
 
+def toQuotient (a : OpenIdeal A) [Nontrivial (A ⧸ a.1)] : A ⟶ (quotient a) where
+  hom := {
+    toFun := Ideal.Quotient.mkₐ A a.1
+    map_one' := by simp
+    map_mul' := by simp
+    map_zero' := by simp
+    map_add' := by simp
+    commutes' r := by simp; rfl
+    cont := sorry
+  }
+  isLocalHom := sorry
 
 end BaseCat
 

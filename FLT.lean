@@ -3,9 +3,6 @@ import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
-import FLT.Deformations.Algebra.InverseLimit
-import FLT.Deformations.RepresentationTheory.Irreducible
-import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
 import FLT.GaloisRepresentation.Cyclotomic
