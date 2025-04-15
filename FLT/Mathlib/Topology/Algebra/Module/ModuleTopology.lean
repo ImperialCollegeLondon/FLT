@@ -198,7 +198,6 @@ automatic.
 end trans
 
 section opensubring
-
 variable (R S : Type*)
   [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
   [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
@@ -212,11 +211,9 @@ and open. -/
 theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
     (hopen : IsOpenMap (algebraMap R S)) : IsModuleTopology R S where
   eq_moduleTopology' := by
-    -- Let `τS` denote the topology on `S`, and let `τRS` denote the `R`-module topology on `S`,
-    -- and let `τR` denote the topology on `R`. Note that `τR` coincides with the `R`-module
-    -- topology on `R`.
-    -- This proof consists of pushing fowards and pulling back open sets between
-    -- three topological spaces as follows:
+    -- Let `τS` denote the topology on `S`, `τRS` denote the `R`-module topology on `S`,
+    -- `τR` denote the topology on `R`.. This proof consists of pushing fowards and pulling
+    -- back open sets between three topological spaces as follows:
     -- ```
     -- (S, τRS) <-[hcont_id]- (S, τS)
     --       |                 ↗
@@ -240,19 +237,13 @@ theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
     have hcont_alg : Continuous[_, moduleTopology R S] (Algebra.linearMap R S) :=
       @IsModuleTopology.continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (moduleTopology R S)
         (ModuleTopology.continuousAdd _ _) (ModuleTopology.continuousSMul _ _) _
-    -- If `U` is open in `(S, τS)` with its usual topology, then it is open in `(S, τ_R_S)` with the
-    -- module topology, by pullback along [hcont_id].
+    -- If `U` is open in `(S, τS)`, then it is open in `(S, τRS)` by pullback along [hcont_id].
     have hopen_mpr {U : Set S} (h : IsOpen U) : @IsOpen S (moduleTopology R S) U :=
-      -- Because `id : (S, τRS) → (S, τS)` is continuous by hcont_id above, so the preimage is open.
       @Continuous.isOpen_preimage S S (moduleTopology R S) _ id hcont_id U h
-    -- If `U` is open in `(S, τRS)` with the module topology and is contained in the image
-    -- of `R` inside `S`, then it is open in `(S, τS)` with the usual topology.
-    -- This is by pullback along [hcont_alg] and push forward along [hopen].
+    -- If `U` is open in `(S, τRS)` and is contained in the image of `R` inside `S`, then it is
+    -- open in `(S, τS)`, by pullback along [hcont_alg] and push forward along [hopen].
     have hopen_mp {U : Set S} (h : @IsOpen S (moduleTopology R S) U)
         (hUS : U ⊆ Set.range (algebraMap R S)) : IsOpen U :=
-      -- Continuity of `R →+* (S, τRS)` means the preimage of `U` is open in `R`, and so the image
-      -- of this in `(S, τS)` is open as well. The image of the preimage coincides with `U` because
-      -- `U` is contained in the image of `R` in `S`.
       Set.image_preimage_eq_of_subset hUS ▸ hopen _ <|
         @Continuous.isOpen_preimage R S _ (moduleTopology R S) _ hcont_alg U h
     -- To finish the proof, we now show that the neighbourhoods of zero in `τS` and `τ_R_S` coincide
@@ -260,23 +251,17 @@ theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
       @IsModuleTopology.topologicalAddGroup R _ _ S _ _ (moduleTopology R S) (isModuleTopology R S)]
     -- It is enough to show that the basis of neighbourhoods of zero are contained within each other
     apply (nhds_basis_opens 0).ext (@nhds_basis_opens S (moduleTopology R S) 0)
-    · -- Assume `U` is open in `(S, τS)` with the usual topology
+    · -- Assume `U` is open in `(S, τS)`, then it is open in `(S, τRS)` by `hopen_mpr` above.
+      exact fun U hU => ⟨U, ⟨⟨hU.1, hopen_mpr hU.2⟩, by simp⟩⟩
+    · -- Assume `U` is open in `(S, τRS)`
       intro U hU
-      -- Then `U` is open in `(S, τRS)` by `hopen_mpr` above.
-      exact ⟨U, ⟨⟨hU.1, hopen_mpr hU.2⟩, by simp⟩⟩
-    · -- Assume `U` is open in `(S, τRS)` with the module topology
-      intro U hU
-      -- Intersect `U` with the image of `R` in `(S, τRS)`. This remains open because the image
-      -- of `R` in `(S, τS)` is open by `hopen`, and the preimage of this in `(S, τRS)` is
-      -- open by hopen_mpr.
-      use Set.range (algebraMap R S) ∩ U
-      refine ⟨⟨⟨⟨0, by simp⟩, hU.1⟩, ?_⟩, by simp⟩
-      -- `Set.range (algebraMap R S)` is open in `(S, τRS)` because the image
-      -- of `R` in `(S, τS)` is open by `hopen`, and the preimage of this in `(S, τRS)` is
-      -- open by hopen_mpr.
+      -- Intersect `U` with the image of `R` in `(S, τRS)`.
+      refine ⟨Set.range (algebraMap R S) ∩ U, ⟨⟨⟨⟨0, by simp⟩, hU.1⟩, ?_⟩, by simp⟩⟩
+      -- `Set.range (algebraMap R S)` is open in `(S, τS)` by hopen, so too in `(S, τRS)`
+      -- by hopen_mpr.
       let hopen_range := hopen_mpr hopen.isOpen_range
-      -- So `U ∩ Set.range (algebraMap R S)` is open in `(S, τ_R_S)`, and therefore in
-      -- `(S, τS)` by `hopen_mp`.
+      -- Therefore `U ∩ Set.range (algebraMap R S)` is open in `(S, τRS)`, so too in `(S, τS)`
+      -- by hopen_mp.
       exact hopen_mp (@IsOpen.inter _ (moduleTopology R S) _ _ hopen_range hU.2) (by simp)
 
 /-

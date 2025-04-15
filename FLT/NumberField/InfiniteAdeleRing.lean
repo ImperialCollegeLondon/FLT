@@ -46,8 +46,8 @@ instance : IsScalarTower K L (InfiniteAdeleRing L) := Pi.isScalarTower
 
 instance : Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion where
   -- `K_∞` acts on `L_∞` fiberwise with respect to `comap (algebraMap K L)` because we specifically
-  -- built such a product action out of the action from fibers,
-  -- see `baseChange` and `Completion.comapHom`
+  -- built such a product action out of the action from fibers, see `baseChange` and
+  -- `Completion.comapHom`
   map_smul' r x b σ := by obtain ⟨a, rfl⟩ := σ; rfl
 
 noncomputable
