@@ -12,7 +12,10 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Valued.NormedValued
 import Mathlib.RingTheory.Valuation.RankOne
 import Mathlib.Topology.Algebra.Module.FiniteDimension
+import Mathlib.LinearAlgebra.TensorProduct.Quotient
+import Mathlib.RingTheory.TensorProduct.Quotient
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
+import FLT.Mathlib.RingTheory.DedekindDomain.Ideal
 
 /-!
 
@@ -266,7 +269,7 @@ noncomputable def baseChange_of_algebraMap_adicComletion (v : HeightOneSpectrum 
   (SemialgHom.baseChange_of_algebraMap sa).toLinearMap
 
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
-theorem baseChange_of_algebraMap_adicComletion_surjective (v : HeightOneSpectrum A)
+theorem baseChange_of_algebraMap_adicCompletion_surjective (v : HeightOneSpectrum A)
     (w : HeightOneSpectrum B) (hvw : comap A w = v) :
     Function.Surjective (baseChange_of_algebraMap_adicComletion A K L B v w hvw) := by
   let inst_alg := comap_algebra A K L B hvw
@@ -301,7 +304,7 @@ theorem comap_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
   suffices LinearMap.range (baseChange_of_algebraMap_adicComletion A K L B v w hvw) = ⊤ by
     rwa [← this]
   rw [LinearMap.range_eq_top]
-  apply baseChange_of_algebraMap_adicComletion_surjective
+  apply baseChange_of_algebraMap_adicCompletion_surjective
 
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
 lemma adicCompletionComap_isModuleTopology
@@ -417,9 +420,163 @@ lemma tensorAdicCompletionComapAlgHom_tmul_apply (v : HeightOneSpectrum A) (x y 
   simp_rw [Algebra.smul_def]
   rfl
 
+open Polynomial IntermediateField
+
+variable [DecidableEq K]
+variable [DecidableEq (v.adicCompletion K)]
+
+variable (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α)
+
+omit [FiniteDimensional K L] in
+lemma aeval_α_surj (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α)
+    : Function.Surjective (aeval α (R := K)) := by
+  intro l
+  have l_in : l ∈ K⟮α⟯ := by rw [hα]; simp
+  have ⟨r, s, hrs⟩ := (IntermediateField.mem_adjoin_simple_iff K l).mp l_in
+  by_cases degen : ((aeval α) s) = 0
+  . have : l = 0 := by rw [degen, div_zero] at hrs; exact hrs
+    use C 0
+    rw [aeval_C, map_zero, this]
+  . letI : Invertible ((aeval α) s) := by exact invertibleOfNonzero degen
+    have hrs' : l * (aeval α) s = (aeval α) r := by
+      rw [hrs, div_mul_cancel_of_invertible]
+    have ctt : (EuclideanDomain.gcd f s).degree = 0 := by
+      have coprime : IsCoprime f s := by
+        rw [hf]
+        obtain cop|dvd := (minpoly.irreducible (Algebra.IsSeparable.isIntegral K α)).isCoprime_or_dvd s
+        . exact cop
+        . by_contra
+          exact degen (minpoly.dvd_iff.mp dvd)
+      have h_unit : IsUnit (EuclideanDomain.gcd f s) := EuclideanDomain.gcd_isUnit_iff.mpr coprime
+      exact Polynomial.degree_eq_zero_of_isUnit h_unit
+    let a := EuclideanDomain.gcdA f s
+    let b := EuclideanDomain.gcdB f s
+    let hc := eq_C_of_degree_eq_zero ctt
+    have bezout : (EuclideanDomain.gcd f s) = f * a + s * b := by
+      unfold a b
+      exact EuclideanDomain.gcd_eq_gcd_ab f s
+    have bezout' : (aeval α) (EuclideanDomain.gcd f s) = (aeval α) (s) * (aeval α) (b) := by
+      rw [bezout, hf, aeval_add, aeval_mul,
+        (minpoly.eq_iff_aeval_eq_zero (p := minpoly K α)
+          (minpoly.irreducible (Algebra.IsSeparable.isIntegral K α))
+          (minpoly.monic (Algebra.IsSeparable.isIntegral K α))
+        ).mp rfl, zero_mul, zero_add, aeval_mul]
+    simp only [aeval_C, aeval_mul, aeval_add] at bezout'
+    letI : Invertible ((EuclideanDomain.gcd f s).coeff 0) := invertibleOfNonzero (by
+        intro hc
+        have h : (EuclideanDomain.gcd f s) = C ((EuclideanDomain.gcd f s).coeff 0) :=
+          Polynomial.eq_C_of_degree_eq_zero ctt
+        rw [hc, C_0] at h
+        rw [h, degree_zero] at ctt
+        exact WithBot.zero_ne_bot ctt.symm
+      )
+    letI : Invertible (algebraMap K L ((EuclideanDomain.gcd f s).coeff 0)) := by
+      exact Invertible.map (algebraMap K L) ((EuclideanDomain.gcd f s).coeff 0)
+    use (EuclideanDomain.gcd f s).constantCoeff⁻¹ • (r * b)
+    simp only [eval_map_algebraMap, AlgHom.mk_coe, constantCoeff_apply, map_smul, aeval_mul]
+    rw [← hrs', mul_assoc l, ← bezout']
+    nth_rw 2 [hc]
+    rw [aeval_C, ← algebraMap_smul (A := L), smul_eq_mul, mul_comm, mul_assoc, map_inv₀ (f := algebraMap K L),
+      mul_inv_cancel_of_invertible, mul_one]
+
+omit [FiniteDimensional K L] [Algebra.IsSeparable K L] [DecidableEq K] in
+lemma aeval_α_ker (α : L) (f : K[X]) (hf : f = minpoly K α) : RingHom.ker (aeval α (R := K)) = Ideal.span {f} := by
+  rw [minpoly.ker_aeval_eq_span_minpoly K α, hf]
+  aesop
+
+noncomputable def polynomialPrimitiveElement   :
+    L ≃ₐ[K] K[X] ⧸ Ideal.span {f} := by
+  let equiv := Ideal.quotientKerAlgEquivOfSurjective (aeval_α_surj K L α hα f hf)
+  rw [← aeval_α_ker K L α f hf]
+  exact equiv.symm
+
+noncomputable def polynomialPrimitiveElement_otimes (α : L) (hα : K⟮α⟯ = ⊤) (f : K[X]) (hf : f = minpoly K α) :
+    L ⊗[K] (v.adicCompletion K) ≃ (K[X] ⧸ Ideal.span {f}) ⊗[K] (v.adicCompletion K) :=
+  (polynomialPrimitiveElement K L α hα f hf).toLinearEquiv.rTensor (v.adicCompletion K)
+
+noncomputable def baseChangePolynomialQuotient :
+    (K[X] ⧸ Ideal.span {f}) ⊗[K] (v.adicCompletion K) ≃ₐ[K]
+      (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} :=
+  AlgEquiv.ofBijective
+    (Algebra.TensorProduct.lift
+      (Ideal.Quotient.liftₐ
+        (Ideal.span {f})
+        ((Ideal.Quotient.mkₐ K _).comp (mapAlg K (v.adicCompletion K)))
+        (by
+          intro g hg
+          simp only [AlgHom.coe_comp, Ideal.Quotient.mkₐ_eq_mk, Function.comp_apply]
+          rw [Ideal.Quotient.eq_zero_iff_mem, Ideal.mem_span_singleton, mapAlg_eq_map]
+          have ⟨c, hc⟩ := Ideal.mem_span_singleton.mp hg
+          use Polynomial.map (algebraMap K (adicCompletion K v)) c
+          rw [hc, Polynomial.map_mul]
+        )
+      )
+      ((Ideal.Quotient.mkₐ K _).comp CAlgHom)
+      (by intros; exact Commute.all _ _)
+    )
+    sorry
+
+variable [DecidableEq (Ideal (v.adicCompletion K)[X])]
+  {factors : Multiset ((v.adicCompletion K)[X])}
+  (factors_product : f.map (algebraMap K (v.adicCompletion K)) = ∏ᶠ factor ∈ factors, factor ^ factors.count factor)
+  (factors_count : ∀ factor ∈ factors, factors.count factor = 1)
+  (factors_prime : ∀ factor ∈ factors, Prime (factor))
+  (factors_non_zero : ∀ factor ∈ factors, factor ≠ 0)
+
+-- no need to add exponents "e i" because L/K is separable -> f decomposes linearly in algebraic closure
+-- so fv must decompose without multiplicities
+noncomputable def polynomialChineseReminder :
+    (v.adicCompletion K)[X] ⧸ Ideal.span {f.map (algebraMap K (v.adicCompletion K))} ≃+*
+      Π (factor : factors.toFinset), (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1} := by
+  let φ := Polynomial.ringEquiv_chineseReminder (P := factors)
+  rw [factors_product]
+  sorry
+  -- rw [factors_count] not matching... why?
+  -- exact φ
+
+
+def factorsToPlacesAbove :
+    factors.toFinset ≃ v.Extension B := .ofBijective
+  (fun p ↦
+    sorry
+  )
+  sorry
+
+def factorFieldToCompletionAbove :
+    ∀ (factor : factors.toFinset),
+      (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1} ≃
+        (factorsToPlacesAbove A K L B v α hα f hf factors factors_prime factors_distinct factors_product).1.adicCompletion L :=
+  sorry
+
+def factorFieldToCompletionAbove_pi :
+    (Π (factor : factors.toFinset), (v.adicCompletion K)[X] ⧸ Ideal.span {factor.1}) ≃
+      (Π (w : v.Extension B), w.1.adicCompletion L)
+    :=
+  sorry
+
+noncomputable def tensorAdicCompletionComapAlgHom' :
+    L ⊗[K] (v.adicCompletion K) ≃ Π (w : v.Extension B), w.1.adicCompletion L :=
+  let prim := Field.exists_primitive_element K L
+  let α := prim.choose
+  let hα := prim.choose_spec
+  let f : K[X] := minpoly K α
+  have hf : f = minpoly K α := rfl
+  let factors := UniqueFactorizationMonoid.factors (f.map (algebraMap K (v.adicCompletion K)))
+  (polynomialPrimitiveElement_otimes A K L v α hα f rfl).trans <|
+    (baseChangePolynomialQuotient A K v f).trans <|
+    (polynomialChineseReminder A K v f factors).trans <|
+    factorFieldToCompletionAbove_pi A K L B v factors
+
+lemma tensorAdicCompletionComapAlgHom_eq :
+    let α := Field.exists_primitive_element K L
+    let f : K[X] := minpoly K α.choose
+    let fv := f.map (algebraMap K (v.adicCompletion K))
+    let factors := UniqueFactorizationMonoid.factors fv
+    (tensorAdicCompletionComapAlgHom A K L B v).toFun =
+      (tensorAdicCompletionComapAlgHom' A K L B v) := sorry
+
 theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
-    Function.Bijective (tensorAdicCompletionComapAlgHom A K L B v) := by
-  sorry -- issue FLT#231
+    Function.Bijective (tensorAdicCompletionComapAlgHom A K L B v) := sorry
 
 noncomputable def adicCompletionComapAlgEquiv (v : HeightOneSpectrum A) :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] (∀ w : v.Extension B, w.1.adicCompletion L) :=
