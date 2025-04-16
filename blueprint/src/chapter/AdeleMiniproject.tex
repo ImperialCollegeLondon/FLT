@@ -160,7 +160,7 @@ The next lemma explains how these valuations are related.
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
   \leanok
   \discussion{326}
-  Giving $L_w$ the $K_v$-module structure coming from the natural map $K_v\to L_w$,
+  Giving $L_w$ the $K_v$-algebra structure coming from the natural map $K_v\to L_w$,
   the $w$-adic topology on $L_w$ is the $K_v$-module topology.
 \end{theorem}
 \begin{proof}
@@ -176,8 +176,18 @@ The next lemma explains how these valuations are related.
   a complete field are equivalent (and thus induce the same topology).
 \end{proof}
 
-Now instead of fixing $w$ upstairs, we fix $v$ downstairs. So say $v$ is in the height one
-spectrum of $A$.
+Because of the commutative diagram
+\[
+\begin{tikzcd}
+K_v \arrow{r} & L_w  \\
+K \arrow{u} \arrow{r} & L \arrow{u}
+\end{tikzcd}
+\]
+
+we can view $L_w$ as an $L\otimes_KK_v$-algebra.
+
+Now instead of fixing $w$ upstairs, we fix $v$ downstairs and consider all $w$ lying
+over it at once. So say $v$ is in the height one spectrum of $A$.
 
 \begin{lemma}
   \lean{IsDedekindDomain.HeightOneSpectrum.Extension.finite}
@@ -204,7 +214,7 @@ We write $w|v$ to denote the fact that $w$ is a prime of $B$ above $v$ of $A$.
 
 Because $K_v\to\prod_{w|v}L_w$ lies over $K\to L$, there's an induced $L$-algebra
 map $L\otimes_KK_v\to\prod_{w|v}L_w$. We are now able to state one of the key results
-in this section.
+in this section. The proof might be nontrivial to formalize.
 
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
@@ -216,14 +226,18 @@ in this section.
   isomorphism of rings.
 \end{theorem}
 \begin{proof}
-  We follow Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
+  My proposal (and I'm open to other suggestions) is to follow Theorem 5.12 on p21
+  of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
   {these notes}. We may write $L=K(\alpha)$ as a finite separable extension is simple. Let $f(x)$
   be the minimum polynomial of $\alpha$. This is irreducible over $K$ but may factor over
   the bigger field $K_v$. Factor $f(x)=f_1(x)f_2(x)\cdots f_r(x)$ into
   monic irreducibles $K_v[x]$; these are distinct by separability. We have $L=K[x]/(f)$
   so $L\otimes_KK_v=K_v[x]/(f)=K_v[x]/(\prod_i f_i)=\prod_i K_v[x]/(f_i)$. Write
-  $L_i=K_v[x]/(f_i)$. We have shown that $L\otimes_KK_v=\prod_i L_i$ so what we need to do
-  informally is to identify the fields $L_i$ with the fields $L_w$. More formally, we need
+  $L_i=K_v[x]/(f_i)$. Informally we have shown that $L\otimes_KK_v=\prod_i L_i$. More formally
+  we have constructed some $L\otimes_KK_v$-algebras $L_i$ and given an $L\otimes_KK_v$-algebra
+  isomorphism $L\otimes_KK_v\equiv \prod_i L_i$, so what we need to do
+  is to identify the fields $L_i$ with the fields $L_w$ as $L\otimes_KK_v$-algebras.
+  In other words, we need
   to set up a bijection between the $i$'s indexing the $f_i$ and the $w$'s indexing the
   places dividing $v$, and if $i$ corresponds to $w$ then we need to establish an
   $L\otimes_K K_v$-algebra isomorphism between $L_i$ and $L_w$.
@@ -238,14 +252,15 @@ in this section.
   it is an injection and a surjection.
 
   We first deal with injectivity. Note that if $i\not=j$ then $L_i$ and $L_j$ cannot be isomorphic
-  as $L\otimes_KK_v$-algebras, because (thinking of $L_i$ as $K_v(\alpha)$ such an isomorphism would send $x$ to $x$ and thus
-  show $f_i=f_j$. Hence the map
+  as $L\otimes_KK_v$-algebras, because (thinking of $L_i$ as $K_v[x]/(f_i)$) such an isomorphism
+  would send $x$ to $x$ and thus show $f_i=f_j$, contradicting separability of $\alpha$. Hence the map
   from $L_i$ to the $w$ dividing $v$ is injective.
 
   For surjectivity, note that if $w|v$ then $L_w$ is an $L\otimes_KK_v$-algebra and hence
   admits a map from $L\otimes_K K_v$ which must factor through one of the $L_i$.
   This gives an injection $L_i\to L_w$. But $L_i$ is complete, as it's a finite extension
-  of $K_v$, and the image is dense because $L$ is dense in $L_w$, hence $L_i=L_w$.
+  of $K_v$, and the image is dense because $L$ is dense in $L_w$, hence the injection
+  is an isomorphism. This shows that $i$ maps to $w$.
 \end{proof}
 
 \begin{theorem}
@@ -284,28 +299,17 @@ We now start thinking about what's going on at the integral level.
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   The isomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ induces an isomorphism
   $B\otimes_AA_v\to \prod_{w|v}B_w$
-  for all but finitely many $v$ in the height one spectrum of $A$.
+  for all $v$ in the height one spectrum of $A$.
 \end{theorem}
 \begin{proof}
   Certainly the image of the integral elements are integral. The argument in the other
-  direction is more delicate. One approach (following Cassels--Froehlich, Cassels' article
-  ``Global fields'', section 12 lemma, p61) is the following. Choose a $K$-basis
-  $\omega_1,\omega_2,\ldots,\omega_n$ for $L/K$ with all $\omega_i\in A$.
-  Then $\omega_1A\oplus\cdots\oplus\omega_nA$ and
-  $B$ are two $A$-lattices in $L$, so they agree at almost all primes. In particular
-  $\omega_1A_v\oplus\omega_2A_v\oplus\cdots\oplus\omega_nA_v=B\otimes_AA_v$ for all but
-  finitely many primes $v$ of $A$. If we define the discriminant map~$D$ on $L/K$
-  by $D(\gamma_1,\gamma_2,\ldots,\gamma_n)=det_{i,j}(trace_{L/K}(\gamma_i\gamma_j))$
-  then it's well-known that $d:=D(\omega_1,\omega_2,\ldots,\omega_n)$ is nonzero (here we use
-  separability), and hence a $v$-adic unit for all but finitely many $v$. Furthermore if
-  $\gamma_i\in \prod_{w|v}B_w$ for all $i$ then $D(\gamma_1,\gamma_2,\ldots,\gamma_n)\in A_v$
-  as all of the traces are in $A_v$. Now say
-  we have an element of $\prod_{w|v}B_w$, and write it as $\sum_i b_i\omega_i$ with
-  $b_i\in K_v$. Then for each $i$ we have
-  $D(\omega_1,\omega_2,\ldots,\omega_{i-1},b,\omega_{i+1},\ldots,\omega_n)\in A_v$
-  but it is also $b_i^2d$. Because $d$ is a $v$-adic unit for almost all $v$, we
-  see that the $b_i$ must also be in $A_v$ for almost all $v$.
+  direction is more delicate. My original plan was to follow Cassels--Froehlich,
+  Cassels' article ``Global fields'', section 12 lemma, p61, which proves it for
+  all but finitely many primes, but \href{https://github.com/ImperialCollegeLondon/FLT/pull/400}
+  {a PR by Matthew Jasper} gives another approach which seems to work for all primes.
 \end{proof}
+
+{\bf TODO up to here}
 
 We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
 By the preceding theorem we deduce
