@@ -29,7 +29,7 @@ lemma relIndex_ne_zero [H.FiniteRelIndex K] : H.relindex K ≠ 0 := FiniteRelInd
 @[to_additive]
 instance FiniteRelIndex.to_finiteIndex_subgroupOf [H.FiniteRelIndex K] :
     (H.subgroupOf K).FiniteIndex where
-  finiteIndex := relIndex_ne_zero
+  index_ne_zero := relIndex_ne_zero
 
 @[to_additive]
 lemma index_map_of_bijective (S : Subgroup G) (hf : Bijective f) : (S.map f).index = S.index :=
