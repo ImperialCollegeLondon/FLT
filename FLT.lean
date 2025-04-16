@@ -1,6 +1,6 @@
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
-import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators
+import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
@@ -33,7 +33,6 @@ import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
-import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Set.Card

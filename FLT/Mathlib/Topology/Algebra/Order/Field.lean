@@ -6,7 +6,8 @@ open scoped Topology
 
 namespace AbsoluteValue
 
-variable {F S : Type*} [Field F] [LinearOrderedField S] {v w : AbsoluteValue F S}
+variable {F S : Type*} [Field F] [Field S] [LinearOrder S] [IsStrictOrderedRing S]
+  {v w : AbsoluteValue F S}
 
 /--
 If `v` is a nontrivial absolute value, and `w` is another absolute value such that `w x < 1`

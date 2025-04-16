@@ -1,6 +1,5 @@
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Algebra.Order.Hom.Monoid
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
@@ -203,8 +202,6 @@ lemma _root_.IsDedekindDomain.HeightOneSpectrum.adicValued.continuous_algebraMap
     (comap A w).valuation K x ^ m < e (a / ↑m) ^ m := by gcongr; exacts [zero_le', hx]
   _ = e (m • (a / ↑m)) := by
     dsimp [e]
-    norm_cast
-    rw [map_pow]
   _ ≤ e a := by
     simp only [nsmul_eq_mul, e_apply, Units.val_le_val, OrderIsoClass.map_le_map_iff]
     rw [mul_comm]
@@ -389,7 +386,9 @@ def noZeroSMulDivisors : NoZeroSMulDivisors A B := by
     simp [LinearMap.map_smul_of_tower]
   rw [IsScalarTower.algebraMap_smul, ← ht, h, map_zero]
 
-def Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
+include K L in
+omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
+theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
   have := noZeroSMulDivisors A K L B
   rw [Extension, ← Set.coe_setOf]
   rw [@Set.finite_coe_iff]
@@ -410,10 +409,12 @@ noncomputable def adicCompletionComapSemialgHom' (v : HeightOneSpectrum A) :
   v.adicCompletion K →ₛₐ[algebraMap K L] ∀ w : v.Extension B, w.1.adicCompletion L :=
   Pi.semialgHom _ _ fun i ↦ adicCompletionComapSemialgHom A K L B v i.1 i.2
 
+set_option maxSynthPendingDepth 2 in
 noncomputable instance comap_pi_algebra (v : HeightOneSpectrum A) :
     Algebra (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) :=
   (adicCompletionComapSemialgHom' A K L B v).toAlgebra
 
+set_option maxSynthPendingDepth 2 in
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
 lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
     -- TODO: the `let _` in the statement below should not be required as it is an instance
@@ -465,6 +466,7 @@ variable (v : HeightOneSpectrum A) in
 instance : IsModuleTopology (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
   ⟨rfl⟩
 
+set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- `adicCompletionComapAlgEquiv` as a `K_v`-algebra equivalence -/
 noncomputable def adicCompletionComapRightAlgEquiv (v : HeightOneSpectrum A) :
@@ -477,6 +479,7 @@ noncomputable def adicCompletionComapRightAlgEquiv (v : HeightOneSpectrum A) :
       simp [hmap, adicCompletionComapAlgEquiv,
         tensorAdicCompletionComapAlgHom, SemialgHom.algebraMap_apply]
 
+set_option maxSynthPendingDepth 2 in
 noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A) :
     L ⊗[K] v.adicCompletion K ≃A[L] ∀ w : v.Extension B, w.1.adicCompletion L :=
   let _ := comap_pi_algebra A K L B v |>.toModule

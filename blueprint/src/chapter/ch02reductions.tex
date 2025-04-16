@@ -1,7 +1,12 @@
 \chapter{First reductions of the problem}\label{ch_reductions}
 
 \section{Overview}
-The proof of Fermat's Last Theorem is by contradiction. We assume that we have a counterexample $a^n+b^n=c^n$, and manipulate it until it satisfies the axioms of a ``Frey package''. From the Frey package we build a Frey curve -- an elliptic curve defined over the rationals. We then look at a certain representation of a Galois group coming from this elliptic curve, and finally using two very deep and independent theorems (one due to Mazur, the other due to Wiles) we show that this representation is neither reducible or irreducible, a contradiction.
+The proof of Fermat's Last Theorem is by contradiction. We assume that we have a counterexample
+$a^n+b^n=c^n$, and manipulate it until it satisfies the axioms of a ``Frey package''. From the
+Frey package we build a Frey curve -- an elliptic curve defined over the rationals. We then look at
+a certain representation of a Galois group coming from this elliptic curve, and finally using two
+very deep and independent theorems (one due to Mazur, the other due to Wiles) we show that this
+representation is neither reducible or irreducible, a contradiction.
 
 \section{Reduction to \texorpdfstring{$n\geq5$}{ngeq5} and prime}
 
@@ -18,10 +23,12 @@ The proof of Fermat's Last Theorem is by contradiction. We assume that we have a
   $(a^k)^p+(b^k)^p=(c^k)^p$ is the counterexample we seek. It remains to deal with the case where
   $n$ is a power of 2, so let's assume this. We have $3\leq n$ by assumption, so
   $n=4k$ must be a multiple of~4, and thus $(a^k)^4=(b^k)^4=(c^k)^4$, giving us a counterexample
-  to Fermat's Last Theorem for $n=4$. However an old result of Fermat himself (proved as \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/FLT/Four.html#fermatLastTheoremFour}{\tt fermatLastTheoremFour} in {\tt mathlib}) says that $x^4+y^4=z^4$ has no nontrivial solutions.
+  to Fermat's Last Theorem for $n=4$. However an old result of Fermat himself (proved as
+  \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/FLT/Four.html#fermatLastTheoremFour}{\tt fermatLastTheoremFour}
+  in {\tt mathlib}) says that $x^4+y^4=z^4$ has no solutions in positive integers.
 \end{proof}
 
-Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not in mathlib.
+Euler proved Fermat's Last Theorem for $p=3$;
 
 \begin{lemma}\label{fermatLastTheoremThree}\lean{fermatLastTheoremThree}\leanok
 \discussion{16}
@@ -29,14 +36,15 @@ Euler proved Fermat's Last Theorem for $p=3$; at the time of writing this is not
 \end{lemma}
 \begin{proof}
   \leanok
-  A proof has been formalised in Lean in the FLT-regular project \href{https://github.com/leanprover-community/flt-regular/blob/861b7df057140b45b8bb7d30d33426ffbbdda52b/FltRegular/FltThree/FltThree.lean#L698}{\underline{here}}.
-  Another proof has been formalised in Lean in the FLT3 project \href{https://github.com/riccardobrasca/flt3}{\underline{here}} by a team from the Lean For the Curious Mathematician conference held in Luminy in March 2024
+  The proof in mathlib was formalized by a team from the ``Lean For the Curious Mathematician'' conference held in Luminy in March 2024
   (its dependency graph can be visualised \href{https://pitmonticone.github.io/FLT3/blueprint/dep_graph_document.html}{\underline{here}}).
 \end{proof}
 
-\begin{corollary}\label{FLT.of_p_ge_5}\lean{FLT.of_p_ge_5}\leanok If there is a counterexample to Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
+\begin{corollary}\label{FLT.of_p_ge_5}\lean{FLT.of_p_ge_5}\leanok If there is a counterexample to
+  Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
 \end{corollary}
-\begin{proof}\uses{fermatLastTheoremThree, FermatLastTheorem.of_odd_primes}\leanok Follows from the previous two lemmas.\end{proof}
+\begin{proof}\uses{fermatLastTheoremThree, FermatLastTheorem.of_odd_primes}\leanok Follows from the
+  previous two lemmas.\end{proof}
 
 \section{Frey packages}
 
@@ -91,13 +99,18 @@ This construction is functorial (it sends the identity to the identity, and comp
 \begin{proof} Another easy calculation.
 \end{proof}
 
- Thus if $f:K\to L$ is an isomorphism of fields, the induced map $E(K)\to E(L)$ is an isomorphism of groups, with the inverse isomorphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This construction thus gives us an action of the multiplicative group $\Aut_k(K)$ of automorphisms of the field $K$ on the additive abelian group $E(K)$.
+ Thus if $f:K\to L$ is an isomorphism of fields, the induced map $E(K)\to E(L)$ is an isomorphism of
+ groups, with the inverse isomorphism being the map $E(L)\to E(K)$ induced by $f^{-1}$. This
+ construction thus gives us an action of the multiplicative group $\Aut_k(K)$ of $k$-automorphisms of
+ the field $K$ on the additive abelian group $E(K)$.
 
 \begin{definition}\label{WeierstrassCurve.galoisRepresentation}\lean{WeierstrassCurve.galoisRepresentation}\uses{WeierstrassCurve.Points.map_id,WeierstrassCurve.Points.map_comp}
   If $E$ is an elliptic curve over a field $k$ and $K$ is a field and a $k$-algebra,
   then the group of $k$-automorphisms of $K$ acts on the additive abelian group $E(K)$.
 \end{definition}
- In particular, if $\Qbar$ denotes an algebraic closure of the rationals (for example, the algebraic numbers in $\bbC$) and if $\GQ$ denotes the group of field isomorphisms $\Qbar\to\Qbar$, then for any elliptic curve $E$ over $\Q$ we have an action of $\GQ$ on the additive abelian group $E(\Qbar)$.
+ In particular, if $\Qbar$ denotes an algebraic closure of the rationals (for example, the
+ algebraic numbers in $\bbC$) and if $\GQ$ denotes the group of field isomorphisms $\Qbar\to\Qbar$,
+ then for any elliptic curve $E$ over $\Q$ we have an action of $\GQ$ on the additive abelian group $E(\Qbar)$.
 
 We need a variant of this construction where we only consider the $n$-torsion of the curve, for $n$ a positive integer. Recall that if $A$ is any additive abelian group, and if $n$ is a positive integer, then we can consider the subgroup $A[n]$ of elements $a$ such that $na=0$. If a group~$G$ acts on $A$ via additive group isomorphisms, then there will be an induced action of~$G$ on $A[n]$.
 
@@ -153,4 +166,5 @@ We deduce
   contradicting Corollary~\ref{FLT.FreyPackage.false}.
 \end{proof}
 
-The structure of the rest of this (highly incomplete, for now) document is as follows. In Chapter 3 we develop some of the basic theory of elliptic curves and the Galois representations attached to their $p$-torsion subgroups. We then apply this theory to the Frey curve, deducing in particular how Mazur's result on torsion subgroups of elliptic curves implies Theorem~\ref{FLT.Mazur_Frey}, the assertion that $\rho$ cannot be reducible. In Chapter~\ref{ch_overview} we give a high-level overview of our strategy to prove that $\rho$ cannot be irreducible, which diverges from the original approach taken by Wiles; one key difference is that we work with the $p$-torsion directly rather than switching to the 3-torsion. We also give a precise statement of the modularity lifting theorem which we will use. Finally, in Chapter~\ref{ch_bestiary} we give a collection of theorem statements which we shall need in order to push our strategy through. All of these results were known in the 1980s or before. This chapter is incoherent in the sense that it is just a big list of apparently unrelated results. As our exposition of the proof expands, the results of this chapter will slowly move to more appropriate places. The chapter is merely there to give some kind of idea of the magnitude of the project.
+In the next chapter we develop the theory of elliptic curves further, and discuss
+Theorem~\ref{FLT.Mazur_Frey}, the assertion that $\rho$ cannot be reducible.
