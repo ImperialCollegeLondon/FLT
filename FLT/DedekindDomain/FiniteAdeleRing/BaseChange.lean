@@ -357,7 +357,9 @@ def noZeroSMulDivisors : NoZeroSMulDivisors A B := by
     simp [LinearMap.map_smul_of_tower]
   rw [IsScalarTower.algebraMap_smul, ← ht, h, map_zero]
 
-def finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
+include K L in
+omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] in
+theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
   have := noZeroSMulDivisors A K L B
   rw [Extension, ← Set.coe_setOf]
   rw [@Set.finite_coe_iff]
@@ -397,7 +399,7 @@ lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
   -- these are defs or lemmas so are required
   let _ (w : v.Extension B) := comap_algebra A K L B w.2 |>.toModule
   let _ (w : v.Extension B) := adicCompletionComap_isModuleTopology A K L B v w.1 w.2
-  let _ := finite A K L B v
+  let _ := Extension.finite A K L B v
   exact IsModuleTopology.instPi
 
 open scoped TensorProduct -- ⊗ notation for tensor product
