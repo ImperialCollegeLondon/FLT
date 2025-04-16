@@ -666,8 +666,6 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 --     rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B]
 --     exact h 1
 
--- #loogle "cofinite" "finite"
-
 noncomputable def FiniteAdeleRing.baseChange_ringHom :
     FiniteAdeleRing A K →+* FiniteAdeleRing B L := RestrictedProduct.mapRingHom
   (fun (v : HeightOneSpectrum A) ↦ v.adicCompletion K)
