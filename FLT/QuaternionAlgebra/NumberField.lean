@@ -151,6 +151,7 @@ end IsDedekindDomain
 
 open RestrictedProduct
 
+set_option maxSynthPendingDepth 2 in
 noncomputable
 def DedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
     FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v where
@@ -204,11 +205,13 @@ attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
 
+set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [IsQuaternionAlgebra F D] in
 theorem Rigidification.continuous_toFun (r : Rigidification F D) :
     Continuous r :=
-  letI : ∀ (i : HeightOneSpectrum (𝓞 F)), Algebra (FiniteAdeleRing (𝓞 F) F) ((i.adicCompletion F)) := fun i ↦ (RestrictedProduct.projectionRingHom _ i).toAlgebra
+  letI : ∀ (i : HeightOneSpectrum (𝓞 F)), Algebra (FiniteAdeleRing (𝓞 F) F) ((i.adicCompletion F)) :=
+    fun i ↦ (RestrictedProduct.projectionRingHom _ i).toAlgebra
   IsModuleTopology.continuous_of_linearMap r.toLinearMap
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
