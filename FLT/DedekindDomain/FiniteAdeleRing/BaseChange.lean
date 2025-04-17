@@ -65,7 +65,9 @@ variable [IsDedekindDomain B]
 example : IsFractionRing B L := IsIntegralClosure.isFractionRing_of_finite_extension A K L B
 variable [IsFractionRing B L]
 
--- We start by filling in some holes in the API for finite extensions of Dedekind domains.
+example : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
+variable [FaithfulSMul A B]
+
 namespace IsDedekindDomain
 
 namespace HeightOneSpectrum
@@ -213,22 +215,27 @@ noncomputable def adicCompletionComapSemialgHom (v : HeightOneSpectrum A) (w : H
   UniformSpace.Completion.mapSemialgHom _ <|
   IsDedekindDomain.HeightOneSpectrum.adicValued.continuous_algebraMap A K L B v w hvw
 
-set_option linter.unusedTactic false
+/-- If x in K_v and i:K_v->L_w then w(i(x))^e=v(x)
+-/
+theorem adicCompletionComapSemialgHom_valued {v : HeightOneSpectrum A} {w : HeightOneSpectrum B}
+    (hvw : w.comap A = v) (x : v.adicCompletion K) :
+  Valued.v (adicCompletionComapSemialgHom A K L B v w hvw x) ^
+    (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) =
+  Valued.v x := sorry -- **TODO** needs an issue number when this is merged
 
-lemma adicCompletionComapSemialgHom.mapValuationSubring (v : HeightOneSpectrum A)
+lemma adicCompletionComapSemialgHom.mapadicCompletionIntegers (v : HeightOneSpectrum A)
     (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
     (adicCompletionComapSemialgHom A K L B v w hvw) '' (v.adicCompletionIntegers K) ≤
     w.adicCompletionIntegers L := by
-  -- rintro y ⟨x, hx, rfl⟩
-  -- unfold adicCompletionComapSemialgHom adicCompletionIntegers
-  --   UniformSpace.Completion.mapSemialgHom UniformSpace.Completion.mapRingHom at *
-  -- simp
-  -- simp at hx
-  -- unfold DFunLike.coe Valuation.instFunLike instFunLike
-  --   RingHom.instFunLike
-  -- simp
-  sorry
-  -- TODO needs an issue
+  rintro y ⟨x, hx, rfl⟩
+  rw [SetLike.mem_coe, mem_adicCompletionIntegers] at hx ⊢
+  rw [← adicCompletionComapSemialgHom_valued A K L B hvw] at hx
+  rwa [pow_le_one_iff] at hx
+  apply Ideal.IsDedekindDomain.ramificationIdx_ne_zero _ w.isPrime
+  · rw [Ideal.map_le_iff_le_comap]
+    rfl
+  · rw [hvw]
+    apply Ideal.map_ne_bot_of_ne_bot v.ne_bot
 
 section ModuleTopology
 
@@ -669,7 +676,7 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 --     rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B]
 --     exact h 1
 
-noncomputable def FiniteAdeleRing.baseChange_ringHom :
+noncomputable def FiniteAdeleRing.mapRingHom :
     FiniteAdeleRing A K →+* FiniteAdeleRing B L := RestrictedProduct.mapRingHom
   (fun (v : HeightOneSpectrum A) ↦ v.adicCompletion K)
   (fun (w : HeightOneSpectrum B) ↦ w.adicCompletion L)
@@ -684,7 +691,7 @@ noncomputable def FiniteAdeleRing.baseChange_ringHom :
 
 
 -- Restriction of an algebra map is an algebra map; these should be easy. #242
-noncomputable def FiniteAdeleRing.baseChange :
+noncomputable def FiniteAdeleRing.mapSemialgHom :
     FiniteAdeleRing A K →ₛₐ[algebraMap K L] FiniteAdeleRing B L := sorry
   -- toFun ak := ⟨ProdAdicCompletions.baseChange A K L B ak.1,
   --   (ProdAdicCompletions.baseChange_isFiniteAdele_iff A K L B ak).1 ak.2⟩
@@ -717,7 +724,7 @@ noncomputable instance : Algebra (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing
 
 noncomputable
 instance BaseChange.algebra : Algebra (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
-  RingHom.toAlgebra (FiniteAdeleRing.baseChange A K L B)
+  RingHom.toAlgebra (FiniteAdeleRing.mapRingHom A K L B)
 
 set_option synthInstance.maxHeartbeats 40000 in
 lemma BaseChange.isModuleTopology : IsModuleTopology (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
@@ -730,7 +737,7 @@ noncomputable instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
 noncomputable def FiniteAdeleRing.baseChangeAlgEquiv :
     L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L where
   __ := AlgEquiv.ofBijective
-    (SemialgHom.baseChange_of_algebraMap <| FiniteAdeleRing.baseChange A K L B)
+    (SemialgHom.baseChange_of_algebraMap <| FiniteAdeleRing.mapRingHom A K L B)
     -- ⊢ Function.Bijective ⇑(baseChange A K L B).baseChange_of_algebraMap
     sorry -- #243
 

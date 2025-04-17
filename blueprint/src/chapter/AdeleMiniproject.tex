@@ -131,11 +131,13 @@ a function also called $v$ from $K$ to $\Z\cup\{\infty\}$ normalised so that if 
 for $v$ then $v(\pi)=1$. Similarly we consider $w$ as a function from $L$ to $\Z\cup\{\infty\}$.
 The next lemma explains how these valuations are related.
 
-\begin{lemma} If $i:K\to L$ denotes the inclusion then for $k\in K$ we have
-  $e\times w(i(k))=v(k)$, where $e$ is the ramification index of $w/v$.
+\begin{lemma}
   \label{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \lean{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \leanok
+  If $i:K\to L$ denotes the inclusion then for $k\in K$ we have
+  $e\times w(i(k))=v(k)$, where $e$ is the ramification index of $w/v$
+  (recall that valuations here are written additively, unlike in mathlib).
 \end{lemma}
 \begin{proof}
   \leanok
@@ -154,6 +156,30 @@ The next lemma explains how these valuations are related.
   and $w$-adic topologies).
 \end{definition}
 
+\begin{lemma}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom_valued}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom_valued}
+  \leanok
+   % \discussion{???} % **TODO** needs an issue
+  If $i_v:K_v\to L_w$ denotes the map of the previous definition
+  then for $x\in K_v$ we have
+  $e\times w(i(k))=v(k)$, where $e$ is the ramification index of $w/v$.
+\end{lemma}
+\begin{proof}
+  Follows by continuity from lemma~\ref{IsDedekindDomain.HeightOneSpectrum.valuation_comap}.
+\end{proof}
+
+\begin{theorem}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom.mapadicCompletionIntegers}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom.mapadicCompletionIntegers}
+  \leanok
+  The map $i_v:K_v\to L_w$ sends the integer ring $A_v$ into $B_w$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  The integer ring is defined by $v\geq0$ (or $v\leq 1$ in mathlib, which uses multiplicative
+  valuations) so the result follows from \ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom_valued}.
+\end{proof}
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
@@ -214,7 +240,8 @@ We write $w|v$ to denote the fact that $w$ is a prime of $B$ above $v$ of $A$.
 
 Because $K_v\to\prod_{w|v}L_w$ lies over $K\to L$, there's an induced $L$-algebra
 map $L\otimes_KK_v\to\prod_{w|v}L_w$. We are now able to state one of the key results
-in this section. The proof might be nontrivial to formalize.
+in this section. The proof is probably the hardest proof
+in this section to formalize.
 
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
@@ -318,23 +345,31 @@ for the integers of $K_v$ and $B_w$ for the integers of $L_w$.
   that $L\otimes_KK_v=\prod_{w|v}L_w$.
 \end{proof}
 
-{\bf TODO up to here}
+A summary of what we have so far: for all finite places $v$ of $A$
+we have shown that the natural map $L\otimes_KK_v\to\prod_wL_w$
+is an isomorphism of $L$-algebras, and that if $L\otimes_KK_v$ has
+the $K_v$-module topology and each $L_w$ has the valuation topology
+then this map is also a homeomorphism. Furthermore we have shown
+that there is an induced algebraic isomorphism $B\otimes_AA_v\equiv\prod_w B_w$
+on the subrings of the left and right hand sides.
 
-We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
-By the preceding theorem we deduce
+Recall that the finite adeles $\A_{A,K}^\infty$ is defined in mathlib to be
+the restricted product of the $K_v$ with respect to the $A_v$, equipped with a certain
+restricted product topology (which is not the subspace topology of the product
+topology, indeed $\prod_v A_v$ is open in this topology). We
 
-\begin{theorem} There's a natural $K$-algebra homomorphism
-  $\A_{A,K}^\infty\to\A_{B,L}^\infty$.
-  \label{DedekindDomain.FiniteAdeleRing.baseChange}
-  \lean{DedekindDomain.FiniteAdeleRing.baseChange}
+\begin{theorem} There's a natural homomorphism
+  $\A_{A,K}^\infty\to\A_{B,L}^\infty$ lying over $K\to L$.
+  \label{DedekindDomain.FiniteAdeleRing.mapSemialgHom}
+  \lean{DedekindDomain.FiniteAdeleRing.mapSemialgHom}
   \leanok
 \end{theorem}
 \begin{proof}
-  This does not need the hard direction of
-  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
-  the definition of the map is straightforward using only that integers map
-  to integers.
+  This follows immediately from the fact (ref?) that integesr map to integers
+  and general nonsense.
 \end{proof}
+
+I would like to conclude the following also by general nonsense:
 
 \begin{theorem}
   \label{DedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
@@ -347,6 +382,8 @@ By the preceding theorem we deduce
   $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$ is a topological isomorphism.
 \end{theorem}
 \begin{proof}
+  {\bf TODO} rewrite this.
+
   Existence of the map follows from
   theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
   Surjectivity follows from
