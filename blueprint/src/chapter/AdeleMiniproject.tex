@@ -291,7 +291,8 @@ in this section. The proof might be nontrivial to formalize.
   module topologies.
 \end{proof}
 
-We now start thinking about what's going on at the integral level.
+We now start thinking about what's going on at the integral level. We write $A_v$
+for the integers of $K_v$ and $B_w$ for the integers of $L_w$.
 
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
@@ -306,7 +307,15 @@ We now start thinking about what's going on at the integral level.
   direction is more delicate. My original plan was to follow Cassels--Froehlich,
   Cassels' article ``Global fields'', section 12 lemma, p61, which proves it for
   all but finitely many primes, but \href{https://github.com/ImperialCollegeLondon/FLT/pull/400}
-  {a PR by Matthew Jasper} gives another approach which seems to work for all primes.
+  {a PR by Matthew Jasper} gives another approach which works for all primes.
+  Jasper's argument is to show that the closure of $A$ in $K_v$ is $A_v$
+  for a valuation on a Dedekind domain, and then that the closure of $A$ in $\prod_{v\in S}K_v$
+  is $\prod_{v\in S}A_v$ for $S$ a finite set of valuations (using the Chinese
+  remainder theorem). Applying this to $B$ we get that the closure of $B$ in $\prod_{w|v}L_w$
+  is $\prod_{w|v}B_w$. He then shows that this closure is the image of
+  $B\otimes_A\mathcal{O}_v$ (by showing that this image is closed becasue it's open),
+  giving surjectivity; injectivity follows from the statement
+  that $L\otimes_KK_v=\prod_{w|v}L_w$.
 \end{proof}
 
 {\bf TODO up to here}
