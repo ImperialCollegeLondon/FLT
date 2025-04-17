@@ -8,9 +8,9 @@ import Mathlib.Algebra.Algebra.Subalgebra.Pi
 
 # Adic Completions
 
-If `A` is a valued ring with field of fractions `K` there are two ways one
-might define the integers of the completion `K_v`, first by
-`𝒪_v = {x ∈ K_v | v x ≤ 1}` and second by taking the `v-adic` completion of `A`.
+If `A` is a valued ring with field of fractions `K` there are two different
+complete rings containing `A` one might define, the first is
+`𝒪_v = {x ∈ K_v | v x ≤ 1}` and the second is the `v-adic` completion of `A`.
 In the case when `A` is a Dedekind domain these definitions give isomorphic
 topological `A`-algebras. This file makes some progress towards this.
 

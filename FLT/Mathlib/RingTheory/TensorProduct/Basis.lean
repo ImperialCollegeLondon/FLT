@@ -16,9 +16,8 @@ variable [CommSemiring B] [Algebra R B]
 /-- The lift of an `R`-basis of `A` to a `B`-basis of the base change `A ⊗[R] B`. -/
 
 noncomputable
-def Basis.rightBaseChange (b : Basis ι R A) : Basis ι B (A ⊗[R] B) where
+def Basis.rightBaseChange [DecidableEq ι] (b : Basis ι R A) : Basis ι B (A ⊗[R] B) where
   repr :=
-    letI : DecidableEq ι := Classical.typeDecidableEq ι
     let comm := (Algebra.TensorProduct.comm R B A).extendScalars B |>.toLinearEquiv
     let π : B ⊗[R] A ≃ₗ[B] (ι → B) :=
       (TensorProduct.AlgebraTensorModule.congr
@@ -29,9 +28,8 @@ def Basis.rightBaseChange (b : Basis ι R A) : Basis ι B (A ⊗[R] B) where
     comm.symm.trans π |>.trans finite.symm
 
 @[simp]
-lemma Basis.rightBaseChange_repr (b : Basis ι R A) (i) (x : B) :
+lemma Basis.rightBaseChange_repr [DecidableEq ι] (b : Basis ι R A) (i) (x : B) :
     (b.rightBaseChange A).repr (b i ⊗ₜ x) = Finsupp.single i x := by
-  letI : DecidableEq ι := Classical.typeDecidableEq ι
   have : ∑ (j : ι), (Pi.single i (1 : R) : ι → R) j • (b j) = b i := by
     conv =>
       lhs
@@ -43,7 +41,7 @@ lemma Basis.rightBaseChange_repr (b : Basis ι R A) (i) (x : B) :
   simp [rightBaseChange, this]
 
 @[simp]
-lemma Basis.rightBaseChange_apply (b : Basis ι R A) (i) :
+lemma Basis.rightBaseChange_apply [DecidableEq ι] (b : Basis ι R A) (i) :
     b.rightBaseChange A i = b i ⊗ₜ (1 : B) := by
   rw [apply_eq_iff]
   exact rightBaseChange_repr A b i 1

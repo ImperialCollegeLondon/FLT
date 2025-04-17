@@ -506,9 +506,7 @@ omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
 lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
   (tensorAdicCompletionIntegersTo A K L B v).range.carrier ⊆
       closure (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
-  intro t ⟨s, hs⟩
-  rw [← hs]
-  clear t hs
+  rintro _ ⟨s, rfl⟩
   induction s with
     | zero =>
         apply subset_closure
@@ -524,7 +522,7 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
         intro _ ha _ hb
         exact add_mem ha hb
     | tmul b a' =>
-        -- Rewrite tensorAdicCompletionIntegersTo `(b ⊗ₜ a')` to `b • (1 ⊗ₜ a')`
+        -- Rewrite `tensorAdicCompletionIntegersTo (b ⊗ₜ a')` to `b • (1 ⊗ₜ a')`
         simp only [RingHom.coe_range, tensorAdicCompletionIntegersTo, Algebra.comp_ofId,
           AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.lift_tmul,
           AlgHom.coe_comp, AlgHom.coe_restrictScalars', IsScalarTower.coe_toAlgHom',
@@ -539,13 +537,12 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
               (y : adicCompletion K v) • (Algebra.ofId B (L ⊗[K] adicCompletion K v)) b := by
           ext y
           unfold f
-          rw [mul_comm]
-          rfl
+          exact mul_comm _ _
         have hcf : ContinuousAt f a' := by
           apply Continuous.continuousAt
           rw [hfval]
           apply Continuous.smul continuous_subtype_val continuous_const
-        -- So, because `A` is dense in `A'`, `b • (1 ⊗ₜ a') ∈ closure f '' A`
+        -- So, because `A` is dense in `𝒪_v`, `b • (1 ⊗ₜ a') ∈ f '' closure A ⊆ closure f '' A`
         have hy : a' ∈ closure (Set.range (algebraMap A _)) := by
           apply IsDedekindDomain.denseRange_of_integerAlgebraMap
         apply mem_closure_image hcf hy
@@ -562,7 +559,6 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
         simp
 
 open TensorProduct.AlgebraTensorModule in
-open scoped Classical in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [Algebra.IsSeparable K L] [IsDomain B] [Algebra.IsIntegral A B]
     [Module.Finite A B] [IsDedekindDomain B] [IsFractionRing B L]  in
@@ -571,10 +567,6 @@ lemma tensorAdicCompletionIsClosedRange :
   -- `B ⊗[A] 𝒪_v` is a subgroup of `L ⊗[K] K_v`, so we can show it's closed
   -- by showing that it's open.
   rw [← Subalgebra.coe_toSubring, ← Subring.coe_toAddSubgroup]
-  letI : Module (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
-      Algebra.TensorProduct.rightAlgebra.toModule
-  letI : SMul (adicCompletion K v) (L ⊗[K] adicCompletion K v) :=
-      Algebra.TensorProduct.rightAlgebra.toSMul
   have := ModuleTopology.continuousAdd (adicCompletion K v) (L ⊗[K] adicCompletion K v)
   apply AddSubgroup.isClosed_of_isOpen
   -- Further, we can show `B ⊗[A] 𝒪_v` is open by showing that it contains an
@@ -585,15 +577,16 @@ lemma tensorAdicCompletionIsClosedRange :
   -- Take a basis `b` of `L` over `K` with elements in `B` and use it to
   -- get a basis `b'` of `L ⊗[K] K_v` over `K_v`.
   obtain ⟨ι, b, hb⟩ := FiniteDimensional.exists_is_basis_integral A K L
-  let b' : Basis ι (adicCompletion K v) (L ⊗[K] (adicCompletion K v)) :=
-    Basis.rightBaseChange L b
+  let b' : Basis ι (adicCompletion K v) (L ⊗[K] (adicCompletion K v)) := by
+    classical
+    exact Basis.rightBaseChange L b
   -- Use the basis to get a continuous equivalence from `L ⊗[K] K_v` to `ι → K_v`.
   let equiv : L ⊗[K] (adicCompletion K v) ≃L[K] (ι → adicCompletion K v) :=
     IsModuleTopology.continuousLinearEquiv (b'.equivFun) |>.restrictScalars K
 
   -- Use the preimage of `∏ 𝒪_v` as the open neighbourhood.
   use equiv.symm '' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v)))
-  refine ⟨?_, ?_, ?_⟩
+  refine ⟨?_, ?_, by simp [ValuationSubring.zero_mem]⟩
   . intro t ⟨g, hg, ht⟩
     -- We have `t = equiv g = ∑ i, b i ⊗ g i`, since `g in ∏ 𝒪_v` and
     -- `b i ∈ (algebraMap B L).range`, this is `tensorAdicCompletionIntegersTo`
@@ -601,7 +594,7 @@ lemma tensorAdicCompletionIsClosedRange :
     have hf : ∀ (i : ι), ∃ (w : B), (algebraMap B L w) = (b i) := by
       intro i
       apply IsIntegralClosure.isIntegral_iff.mp (hb i)
-    obtain ⟨f, hf_prop⟩ := Classical.axiomOfChoice hf
+    choose f hf_prop using hf
     have hf_prop' : ∀ (i : ι), (algebraMap B (L ⊗[K] adicCompletion K v) (f i)) = (b i) ⊗ₜ 1 := by
       intro i
       rw [Algebra.TensorProduct.algebraMap_apply, hf_prop]
@@ -626,7 +619,6 @@ lemma tensorAdicCompletionIsClosedRange :
     apply isOpen_set_pi Set.finite_univ
     rintro i -
     exact Valued.valuationSubring_isOpen (v.adicCompletion K)
-  simp [ValuationSubring.zero_mem]
 
 omit [Algebra.IsSeparable K L] [IsDomain B] [Algebra.IsIntegral A B] [Module.Finite A B]
     [IsDedekindDomain B] [IsFractionRing B L] in
@@ -635,11 +627,10 @@ lemma tensorAdicCompletionIntegersToRange_eq_closureIntegers :
         closure (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
   apply Set.Subset.antisymm
   . apply tensorAdicCompletionIntegersToRange_subset_closureIntegers
-  apply closure_minimal
-  . intro c ⟨b, hb⟩
-    rw [← hb]
-    apply algebraMap_mem
-  apply tensorAdicCompletionIsClosedRange
+  . apply closure_minimal
+    . rintro _ ⟨b, rfl⟩
+      apply algebraMap_mem
+    . apply tensorAdicCompletionIsClosedRange
 
 omit [Algebra A L] [IsScalarTower A B L] [IsIntegralClosure B A L] [Module.Finite A B] in
 lemma prodAdicCompletionsIntegers_eq_closureIntegers :
@@ -647,7 +638,9 @@ lemma prodAdicCompletionsIntegers_eq_closureIntegers :
       (fun (w : Extension B v) ↦ adicCompletionIntegersSubalgebra L w.1)) =
     closure (SetLike.coe (algebraMap B _).range) := by
   rw [Subalgebra.coe_pi]
-  show (SetLike.coe (Submodule.pi _  _)) = _
+  let _ (w : Extension B v) : Module B (adicCompletion L w.val) :=
+    UniformSpace.Completion.instModule
+  show SetLike.coe (Submodule.pi _ _) = _
   rw [Submodule.coe_pi]
   let val := (fun (w : Extension B v) ↦ w.1)
   have hinj : Function.Injective val :=
@@ -655,7 +648,18 @@ lemma prodAdicCompletionsIntegers_eq_closureIntegers :
   rw [closureAlgebraMapIntegers_eq_prodIntegers L val hinj]
   rfl
 
-set_option synthInstance.maxHeartbeats 40000 in
+instance : MulActionHomClass
+    (L ⊗[K] adicCompletion K v →ₐ[L] (w : Extension B v) → adicCompletion L w.1) B
+    (L ⊗[K] adicCompletion K v) ((w : Extension B v) → adicCompletion L w.1) where
+  map_smulₛₗ φ b x := by
+    rw [← IsScalarTower.algebraMap_smul L, AlgHom.map_smul_of_tower,
+      IsScalarTower.algebraMap_smul, id_def]
+
+instance : OneHomClass
+    (L ⊗[K] adicCompletion K v →ₐ[L] (w : Extension B v) → adicCompletion L w.1)
+    (L ⊗[K] adicCompletion K v) ((w : Extension B v) → adicCompletion L w.1) where
+  map_one f := f.toRingHom.map_one
+
 theorem adicCompletionComapAlgEquiv_integral :
     AlgHom.range (((tensorAdicCompletionComapAlgHom A K L B v).restrictScalars B).comp
       (tensorAdicCompletionIntegersTo A K L B v)) =
