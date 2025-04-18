@@ -1,6 +1,5 @@
 import Mathlib.Algebra.CharZero.Infinite
 import Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.GroupTheory.Index
 
 /-!
 # TODO
@@ -65,9 +64,9 @@ lemma smul_submodule_relindex (x : ℤ_[p]) (s : Submodule ℤ_[p] ℚ_[p]) :
 
 Note that `s` is the form `yℤ_[p]` for some `y : ℚ_[p]`, but this is syntactically less
 general. -/
-lemma smul_submodule_finiteRelIndex (hx : x ≠ 0) (s : Submodule ℤ_[p] ℚ_[p]) :
-    (x • s.toAddSubgroup).FiniteRelIndex s.toAddSubgroup where
-  relIndex_ne_zero := by simpa [← Nat.cast_ne_zero (R := ℝ≥0), smul_submodule_relindex]
+lemma smul_submodule_isFiniteRelIndex (hx : x ≠ 0) (s : Submodule ℤ_[p] ℚ_[p]) :
+    (x • s.toAddSubgroup).IsFiniteRelIndex s.toAddSubgroup where
+  relindex_ne_zero := by simpa [← Nat.cast_ne_zero (R := ℝ≥0), smul_submodule_relindex]
 
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]⁰ ℚ_[p]ˣ where

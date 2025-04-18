@@ -2,7 +2,6 @@ import Mathlib.MeasureTheory.Group.Action
 import Mathlib.MeasureTheory.Group.Pointwise
 import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
 import FLT.Mathlib.GroupTheory.Complement
-import FLT.Mathlib.GroupTheory.Index
 
 /-!
 # TODO
@@ -54,7 +53,7 @@ lemma index_mul_haar_subgroup [H.FiniteIndex] (hH : MeasurableSet (H : Set G)) (
       · exact fun a b hab ↦ hs.pairwiseDisjoint_smul a.2 b.2 (Subtype.val_injective.ne hab)
 
 @[to_additive index_mul_addHaar_addSubgroup_eq_addHaar_addSubgroup]
-lemma index_mul_haar_subgroup_eq_haar_subgroup [H.FiniteRelIndex K] (hHK : H ≤ K)
+lemma index_mul_haar_subgroup_eq_haar_subgroup [H.IsFiniteRelIndex K] (hHK : H ≤ K)
     (hH : MeasurableSet (H : Set G)) (hK : MeasurableSet (K : Set G)) (μ : Measure G)
     [μ.IsMulLeftInvariant] : H.relindex K * μ H = μ K := by
   have := index_mul_haar_subgroup (H := H.subgroupOf K) (measurable_subtype_coe hH)
