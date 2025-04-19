@@ -363,7 +363,7 @@ lemma RingHom.continuous_of_finite_of_compact {R H : Type*} [CommRing R] [Semiri
   have : (RingHom.ker f).toAddSubgroup.FiniteIndex := by
     have : _root_.Finite (R ⧸ (RingHom.ker f).toAddSubgroup) :=
       _root_.Finite.of_injective _ f.kerLift_injective
-    exact AddSubgroup.finiteIndex_of_finite_quotient _
+    exact AddSubgroup.finiteIndex_of_finite_quotient
   have := (isCompact_of_isNoetherianRing (RingHom.ker f)).isClosed
   exact AddSubgroup.isOpen_of_isClosed_of_finiteIndex (RingHom.ker f).toAddSubgroup this
 
