@@ -1,5 +1,6 @@
 import Mathlib.Algebra.CharZero.Infinite
 import Mathlib.NumberTheory.Padics.PadicIntegers
+import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import Mathlib.NumberTheory.Padics.RingHoms
 
 /-!
@@ -51,81 +52,54 @@ lemma isOpenEmbedding_coe : IsOpenEmbedding ((↑) : ℤ_[p] → ℚ_[p]) := by
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]ˣ ℚ_[p]ˣ where coe := Units.map Coe.ringHom.toMonoidHom
 
-/-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
+lemma index_pow_z_p (hx: x ≠ 0): (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation})).index = ‖↑x‖₊⁻¹ := by
+  have quotient_equiv_zmod := RingHom.quotientKerEquivOfSurjective (f := PadicInt.toZModPow (x.valuation) (p := p)) (R := ℤ_[p]) (ZMod.ringHom_surjective (PadicInt.toZModPow x.valuation))
+  have card_eq_zmod := Nat.card_congr quotient_equiv_zmod.toEquiv
 
-lemma smul_submodule_one_relindex (hx: x ≠ 0):
-    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
+  have quotient_equiv_quotient := Ideal.quotEquivOfEq (PadicInt.ker_toZModPow (x.valuation) (p := p))
+  have card_eq_quotient := Nat.card_congr quotient_equiv_quotient.toEquiv
+  rw [card_eq_quotient] at card_eq_zmod
+  have quotients_defeq: (ℤ_[p] ⧸ (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation}))) = (ℤ_[p] ⧸ Ideal.span {(p: ℤ_[p]) ^ x.valuation}) := by
+    rfl
 
-  -- We first prove a closely related statement using subgroups of `ℤ_[p]`. We then use the coercion from
-  -- ℤ_[p] to ℚ_[p] to obtain the desired result for the groups considered
-  -- as subgroups of `ℚ_[p]`.
+  dsimp [AddSubgroup.index]
+  rw [quotients_defeq, card_eq_zmod]
+  dsimp [nnnorm]
+  rw [Subtype.ext_iff_val]
+  simp [PadicInt.norm_eq_zpow_neg_valuation hx]
 
-  let H := (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup
-
-  have H_relindex_Z : (H.index) = ‖(x : ℚ_[p])‖₊⁻¹ := by
+lemma smul_submodule_one_index : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := by
+  by_cases hx: x = 0
+  . simp [hx]
+  .
     have x_factor := PadicInt.unitCoeff_spec hx
     norm_cast at x_factor
-    unfold H
     nth_rw 1 [x_factor]
-    conv =>
-      pattern _ • _
-      equals (Ideal.span {(p: ℤ_[p]) ^ (x.valuation)}) =>
-        ext y
-        refine ⟨?_, ?_⟩
-        . intro hy
-          rw [← Submodule.singleton_set_smul, Submodule.mem_singleton_set_smul] at hy
-          obtain ⟨m, ⟨_, hm⟩⟩ := hy
-          rw [Ideal.mem_span_singleton']
-          simp only [Nat.cast_pow, smul_eq_mul] at hm
-          rw [mul_comm, ← mul_assoc] at hm
-          exact ⟨(m * ↑(PadicInt.unitCoeff hx)), hm.symm⟩
+    rw [Submodule.smul_one_eq_span, Ideal.span_singleton_mul_left_unit (Units.isUnit _)]
+    push_cast
+    exact index_pow_z_p hx
 
-        . intro hy
-          simp
-          rw [← Submodule.singleton_set_smul]
-          rw [Submodule.mem_singleton_set_smul]
-          simp only [Submodule.mem_top, smul_eq_mul, true_and]
-          simp_rw [mul_assoc, mul_comm, ← mul_assoc, mul_comm]
+/-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
+lemma smul_submodule_one_relindex:
+    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
 
-          rw [Ideal.mem_span_singleton'] at hy
-          obtain ⟨b, hb⟩ := hy
-          use (b * ↑(PadicInt.unitCoeff hx)⁻¹)
-          simp [hb.symm]
+  have relindex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := smul_submodule_one_index
+  rw [← AddSubgroup.relindex_top_right] at relindex_in_z_p
 
-    have quotient_equiv_zmod := RingHom.quotientKerEquivOfSurjective (f := PadicInt.toZModPow (x.valuation) (p := p)) (R := ℤ_[p]) (ZMod.ringHom_surjective (PadicInt.toZModPow x.valuation))
-    have card_eq_zmod := Nat.card_congr quotient_equiv_zmod.toEquiv
-
-    have quotient_equiv_quotient := Ideal.quotEquivOfEq (PadicInt.ker_toZModPow (x.valuation) (p := p))
-    have card_eq_quotient := Nat.card_congr quotient_equiv_quotient.toEquiv
-    rw [card_eq_quotient] at card_eq_zmod
-    have quotients_defeq: (ℤ_[p] ⧸ (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation}))) = (ℤ_[p] ⧸ Ideal.span {(p: ℤ_[p]) ^ x.valuation}) := by
-      rfl
-
-    dsimp [AddSubgroup.index]
-    rw [quotients_defeq, card_eq_zmod]
-    dsimp [nnnorm]
-    rw [Subtype.ext_iff_val]
-    simp [PadicInt.norm_eq_zpow_neg_valuation hx]
-
-  rw [← AddSubgroup.relindex_top_right] at H_relindex_Z
-
+  -- Use the coercion from ℤ_[p] to ℚ_[p] and `AddSubgroup.relindex_comap` to convert our result about subgroups of `Z_[p]`
+  -- to a result about subgroups of `Q_[p]`.
   let z_q_coe: ℤ_[p] →+ ℚ_[p] := PadicInt.Coe.ringHom.toAddMonoidHom
-
-
-  -- Now, consider these groups as subgroups of ℚ_[p]
   let K_Q : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
   let H_Q := (x : ℚ_[p]) • K_Q
-
   have hHK_Q : H_Q ≤ K_Q := (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
 
   have relindex_preserved := AddSubgroup.relindex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))
   have map_top: (AddSubgroup.map z_q_coe ⊤) = K_Q := by
     ext a
     simp [z_q_coe, K_Q]
-
-  have map_H_Q: (AddSubgroup.comap z_q_coe H_Q) = H := by
+  have map_H_Q: (AddSubgroup.comap z_q_coe H_Q) = (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup := by
     ext a
-    unfold z_q_coe H_Q H K_Q
+    unfold z_q_coe H_Q K_Q
     refine ⟨?_, ?_⟩
     . intro ha
       simp only [RingHom.toAddMonoidHom_eq_coe, AddSubgroup.mem_comap, AddMonoidHom.coe_coe, coe_coeRingHom] at ha
@@ -136,14 +110,16 @@ lemma smul_submodule_one_relindex (hx: x ≠ 0):
       rw [Submodule.one_eq_span] at ha
       simp only [Submodule.mem_toAddSubgroup, Submodule.mem_span_singleton, smul_eq_mul,
         exists_exists_eq_and, Algebra.mul_smul_comm, mul_one, K_Q, z_q_coe] at ha
+
+
       obtain ⟨s, hs⟩ := ha
       use s
       simp only [AddSubgroup.mem_top, smul_eq_mul, true_and]
       rw [mul_comm]
       exact PadicInt.ext hs
     . intro ha
-      simp at ha
-      simp
+      simp only [Ideal.one_eq_top, Submodule.pointwise_smul_toAddSubgroup, Submodule.top_toAddSubgroup] at ha
+      simp only [RingHom.toAddMonoidHom_eq_coe, AddSubgroup.mem_comap, AddMonoidHom.coe_coe]
 
       rw [AddSubgroup.mem_smul_pointwise_iff_exists] at ha
       rw [AddSubgroup.mem_smul_pointwise_iff_exists]
@@ -157,17 +133,15 @@ lemma smul_submodule_one_relindex (hx: x ≠ 0):
       dsimp [HSMul.hSMul, SMul.smul]
       rw [← PadicInt.coe_mul, hs]
 
-
   rw [map_top, map_H_Q] at relindex_preserved
-  rw [relindex_preserved] at H_relindex_Z
-  exact H_relindex_Z
+  rwa [relindex_preserved] at relindex_in_z_p
 
 /-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
 lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0):
     (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
   relindex_ne_zero := by
     rw [← Nat.cast_ne_zero (R := ℝ≥0)]
-    simp [smul_submodule_one_relindex hx, hx]
+    simp [smul_submodule_one_relindex, hx]
 
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]⁰ ℚ_[p]ˣ where

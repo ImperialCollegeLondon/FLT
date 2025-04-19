@@ -45,16 +45,11 @@ private lemma distribHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
   have hHK : H ≤ K := by
     simpa [H, K, -Submodule.smul_le_self_of_tower]
       using (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
-
   have x_nonzero: x.val ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.1 x.property
-
   have : H.IsFiniteRelIndex K :=
     PadicInt.smul_submodule_one_isFiniteRelIndex (p := p) x_nonzero
-
-
   have H_relindex_Z : (H.relindex K : ℝ≥0∞) = ‖(x : ℚ_[p])‖₊⁻¹ :=
-    congr(ENNReal.ofNNReal $(PadicInt.smul_submodule_one_relindex (p := p) x_nonzero))
-
+    congr(ENNReal.ofNNReal $(PadicInt.smul_submodule_one_relindex (p := p)))
   rw [← index_mul_addHaar_addSubgroup_eq_addHaar_addSubgroup hHK, H_relindex_Z, ENNReal.coe_inv,
     ENNReal.mul_inv_cancel_left]
   · simp
