@@ -243,11 +243,13 @@ over a complete thing so I don't think there can be any other possibility
 (the argument is weak here)
 -/
 
+@[simps!]
 def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
     [Module R A] [Module R B] [IsModuleTopology R A] [IsModuleTopology R B]
     (e : A ≃ₗ[R] B) :
     A ≃L[R] B where
+  toFun := e
   __ := e
   continuous_toFun :=
     letI := IsModuleTopology.toContinuousAdd
