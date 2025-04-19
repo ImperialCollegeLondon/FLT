@@ -12,14 +12,10 @@ lemma exists_ne_zero_and_lt {G : Type*} [LinearOrder G] [NoMinOrder G]
 lemma exists_ne_zero_and_le_and_le {G : Type*} [LinearOrder G]
   {x y : WithZero G} (hx : x ≠ 0) (hy : y ≠ 0) :
     ∃ z, z ≠ 0 ∧ z ≤ x ∧ z ≤ y := by
-  let z := x ⊓ y
-  use z
-  constructor
-  . unfold z
-    intro hz
-    rw [min_eq_iff] at hz
-    tauto
-  . constructor <;> simp_all [z]
+  use x ⊓ y
+  refine ⟨fun hz ↦ ?_, by simp, by simp⟩
+  rw [min_eq_iff] at hz
+  tauto
 
 lemma exists_ne_zero_and_lt_and_lt {G : Type*} [LinearOrder G] [NoMinOrder G]
   {x y : WithZero G} (hx : x ≠ 0) (hy : y ≠ 0) :
