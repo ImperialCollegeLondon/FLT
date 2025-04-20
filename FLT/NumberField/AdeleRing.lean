@@ -106,7 +106,7 @@ theorem piEquiv_apply_of_algebraMap
   simp only [← funext h, ContinuousLinearEquiv.trans_apply,
     ContinuousLinearEquiv.restrictScalars_symm_apply, AlgEquiv.toAlgHom_eq_coe,
     AlgHom.toRingHom_eq_coe, AlgEquiv.toLinearEquiv_symm,
-    ContinuousLinearEquiv.restrictScalars_apply, IsModuleTopology.continuousLinearEquiv]
+    ContinuousLinearEquiv.restrictScalars_apply, IsModuleTopology.continuousLinearEquiv_symm_apply]
   rw [LinearEquiv.trans_symm, LinearEquiv.trans_apply, finiteEquivPi_symm_apply]
   simp [AlgEquiv.extendScalars, ContinuousAlgEquiv.toContinuousLinearEquiv_apply,
     baseChangeEquiv_tsum_apply_right]

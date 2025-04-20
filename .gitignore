@@ -23,3 +23,4 @@ blueprint/lean_decls
 *.fdb_latexmk
 *.synctex.gz
 docbuild/*
+*.toc

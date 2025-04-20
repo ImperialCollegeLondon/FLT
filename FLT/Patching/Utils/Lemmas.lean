@@ -123,7 +123,8 @@ def TwoSidedIdeal.leAddSubgroup {α} [NonUnitalNonAssocRing α] (G : AddSubgroup
     TwoSidedIdeal α :=
   .mk'
     { x | (span {x} : Set α) ⊆ G }
-    (by simp [Set.subset_def, G.zero_mem])
+    -- TODO: `TwoSidedIdeal.span` shouldn't be an `abbrev`!!
+    (by simp [-coe_mk, G.zero_mem])
     (fun {x y} hx hy ↦ by
       have : span {x + y} ≤ span {x} ⊔ span {y} :=
         span_le'.mpr <| Set.singleton_subset_iff.mpr <|
