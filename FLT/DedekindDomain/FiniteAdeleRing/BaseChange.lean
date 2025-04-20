@@ -476,7 +476,8 @@ noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A
           (adicCompletionComapRightAlgEquiv A K L B v).symm.toLinearMap
   }
 
-attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left IsScalarTower.right
+attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
+  IsScalarTower.right
 
 -- TODO : this maxHeartbeats should not be required, see mathlib PR #22488 for potential fix
 set_option synthInstance.maxHeartbeats 80000 in

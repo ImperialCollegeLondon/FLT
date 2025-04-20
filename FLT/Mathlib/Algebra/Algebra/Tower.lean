@@ -39,7 +39,8 @@ def AlgHom.changeScalars (R : Type*) {A B : Type*} (S₁ : Type*) {S₂ : Type*}
   commutes' (r : _) := by
     simp [RingHom.algebraMap_toAlgebra, ← h, restrictDomain]
 
-theorem AlgHom.changeScalars_apply (R : Type*) {A B : Type*} (S₁ : Type*) {S₂ : Type*} [CommSemiring R]
+theorem AlgHom.changeScalars_apply (R : Type*) {A B : Type*} (S₁ : Type*) {S₂ : Type*}
+    [CommSemiring R]
     [CommSemiring A] [CommSemiring B] [CommSemiring S₁] [CommSemiring S₂] [Algebra S₂ A]
     [Algebra R S₁] [Algebra S₂ B] [Algebra S₁ A] [Algebra R S₂] [Algebra S₁ B] [Algebra R A]
     [Algebra R B] [IsScalarTower R S₂ A] [IsScalarTower R S₁ A] [IsScalarTower R S₂ B]

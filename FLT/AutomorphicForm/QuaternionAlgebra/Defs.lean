@@ -173,7 +173,8 @@ def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAu
     · replace hU := hU.1
       exact isOpen_smul hU (toConjAct g)
     · rintro k x ⟨u, hu, rfl⟩
-      simp [smul_def, ← hU.2 (k * g) u hu]
+      simp only [MulDistribMulAction.toMonoidEnd_apply, MulDistribMulAction.toMonoidHom_apply,
+        smul_def, ofConjAct_toConjAct, ← hU.2 (k * g) u hu]
       group
   trivial_central_char z x := by
     simp only [mul_assoc]
@@ -189,7 +190,8 @@ lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (g • φ) x = φ (x * g) := rfl
 
-instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
+    (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
   one_smul φ := by ext; simp
   mul_smul g h φ := by ext; simp [mul_assoc]
@@ -229,7 +231,8 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
 
 variable [IsQuaternionAlgebra F D]
 
-instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R (WeightTwoAutomorphicForm F D R) where
+instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R
+    (WeightTwoAutomorphicForm F D R) where
   smul_comm g r φ := by
     ext x
     simp [smul_apply]

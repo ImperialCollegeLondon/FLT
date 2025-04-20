@@ -4,7 +4,8 @@ import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import FLT.AutomorphicRepresentation.Example
 
 variable (K : Type) [Field K]
-variable (L : Type) [Field L] [Algebra K L] [CharZero L] [IsAlgClosed L] -- not even sure if i need it to be the alg closure at this point
+variable (L : Type) [Field L] [Algebra K L] [CharZero L] [IsAlgClosed L]
+  -- not even sure if i need it to be the alg closure at this point
 
 lemma IsAlgClosed.card_rootsOfUnity (N : ℕ+) : Fintype.card (rootsOfUnity N L) = N := by
   obtain ⟨z, hz⟩ : ∃ z : L, IsPrimitiveRoot z N :=
@@ -41,4 +42,5 @@ noncomputable def CyclotomicCharacter_aux : (L ≃+* L) →* ZHat where
   map_one' := by ext; simp only [map_one]; rfl
   map_mul' _ _ := by ext; simp only [map_mul]; rfl
 
-noncomputable def CyclotomicCharacterZHat : (L ≃+* L) →* ZHatˣ := (CyclotomicCharacter_aux L).toHomUnits
+noncomputable def CyclotomicCharacterZHat : (L ≃+* L) →* ZHatˣ :=
+  (CyclotomicCharacter_aux L).toHomUnits

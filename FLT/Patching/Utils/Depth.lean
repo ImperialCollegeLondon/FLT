@@ -54,10 +54,12 @@ lemma Module.depth_le_krullDim_support [IsNoetherianRing R] [Nontrivial M]
   have : Nonempty (Module.support R M) := by
     rwa [Set.nonempty_coe_sort, Set.nonempty_iff_ne_empty,
       ne_eq, support_eq_empty_iff, not_subsingleton_iff_nontrivial]
-  cases' h : Order.krullDim (Module.support R M) with n
-  · simpa using Order.krullDim_nonneg.trans_eq h
-  cases' n with n
-  · simp
+  cases h : Order.krullDim (Module.support R M) with
+  | bot => simpa using Order.krullDim_nonneg.trans_eq h
+  | coe n =>
+  cases n with
+  | top => simp
+  | coe n =>
   clear this
   simp only [WithBot.coe_le_coe, ge_iff_le]
   induction n using Nat.strong_induction_on generalizing M with
@@ -65,8 +67,9 @@ lemma Module.depth_le_krullDim_support [IsNoetherianRing R] [Nontrivial M]
     rw [depth, sSup_le_iff]
     rintro _ ⟨l, hl, hl', rfl⟩
     apply WithTop.coe_le_coe.mpr ?_
-    cases' l with x l
-    · simp
+    cases l with
+    | nil => simp
+    | cons x l =>
     simp only [Sequence.isWeaklyRegular_cons_iff] at hl
     have : Nontrivial (QuotSMulTop x M) := by
       apply Submodule.Quotient.nontrivial_of_lt_top
@@ -102,16 +105,20 @@ lemma Module.depth_le_krullDim_support [IsNoetherianRing R] [Nontrivial M]
       simpa [smul_comm x, mul_smul] using hz m)
     rw [h] at this
     replace this := (add_le_add (ringKrullDim_le_of_surjective f hf) le_rfl).trans this
-    cases' h : ringKrullDim (R ⧸ annihilator R (QuotSMulTop x M)) with m
-    · have : Nontrivial (R ⧸ annihilator R (QuotSMulTop x M)) := by
+    cases h : ringKrullDim (R ⧸ annihilator R (QuotSMulTop x M)) with
+    | bot =>
+      have : Nontrivial (R ⧸ annihilator R (QuotSMulTop x M)) := by
         apply Ideal.Quotient.nontrivial
         rw [← Submodule.annihilator_top, ne_eq, Submodule.annihilator_eq_top_iff]
         exact top_ne_bot
       have := ringKrullDim_nonneg_of_nontrivial.trans_eq h
       simp at this
-    cases' m with m
-    · have : (⊤ : ℕ∞) ≤ (n : ℕ) := by apply WithBot.coe_le_coe.mp; simpa only [h] using this
+    | coe m =>
+    cases m with
+    | top =>
+      have : (⊤ : ℕ∞) ≤ (n : ℕ) := by apply WithBot.coe_le_coe.mp; simpa only [h] using this
       cases (ENat.coe_lt_top n).not_le this
+    | coe m =>
     rw [h] at this
     replace this : m + 1 ≤ n := WithTop.coe_le_coe.mp (WithBot.coe_le_coe.mp this)
     replace IH := IH m (Nat.succ_le.mp this) (QuotSMulTop x M)
@@ -165,8 +172,9 @@ lemma RingTheory.Sequence.isWeaklyRegular_of_free_aux
   induction n generalizing R M with
   | zero => simp_all
   | succ n IH =>
-    cases' s with x xs
-    · simp at hn
+    cases s with
+    | nil => simp at hn
+    | cons x xs =>
     let e : QuotSMulTop x R ≃ₗ[R] R ⧸ Ideal.span {x} := Submodule.quotEquivOfEq _ _
       (by rw [← Submodule.ideal_span_singleton_smul]; simp)
     let e' := QuotSMulTop.equivQuotTensor x M
@@ -210,19 +218,19 @@ lemma Module.faithfulSMul_of_depth_eq_ringKrullDim
       simp only [ringKrullDim, Order.krullDim_eq_iSup_length,
         WithBot.coe_lt_coe]
       rw [← ENat.add_one_le_iff, ENat.iSup_add, iSup_le_iff]
-      intro l
-      let l' : LTSeries (PrimeSpectrum R) := (l.map
-        (PrimeSpectrum.comap (Ideal.Quotient.mk _)) ?_).cons ⊥ ?_
-      · refine le_trans ?_ (le_iSup _ l')
-        show _ ≤ ((0 + l.length + 1 : ℕ) : ℕ∞)
-        simp
-      · intros I J
-        show I < J → I.asIdeal.comap _ < J.asIdeal.comap _
-        simp [lt_iff_le_not_le, ← Ideal.map_le_iff_le_comap,
-          Ideal.map_comap_of_surjective _ Ideal.Quotient.mk_surjective]
-      · refine (bot_lt_iff_ne_bot.mpr H'').trans_le ?_
-        conv_lhs => rw [← Ideal.mk_ker (I := annihilator R M), RingHom.ker]
-        exact Ideal.comap_mono bot_le
+      · intro l
+        let l' : LTSeries (PrimeSpectrum R) := (l.map
+          (PrimeSpectrum.comap (Ideal.Quotient.mk _)) ?_).cons ⊥ ?_
+        · refine le_trans ?_ (le_iSup _ l')
+          show _ ≤ ((0 + l.length + 1 : ℕ) : ℕ∞)
+          simp
+        · intros I J
+          show I < J → I.asIdeal.comap _ < J.asIdeal.comap _
+          simp [lt_iff_le_not_le, ← Ideal.map_le_iff_le_comap,
+            Ideal.map_comap_of_surjective _ Ideal.Quotient.mk_surjective]
+        · refine (bot_lt_iff_ne_bot.mpr H'').trans_le ?_
+          conv_lhs => rw [← Ideal.mk_ker (I := annihilator R M), RingHom.ker]
+          exact Ideal.comap_mono bot_le
       · rw [← lt_top_iff_ne_top]
         apply WithBot.coe_lt_coe.mp
         rw [← Order.krullDim_eq_iSup_length, ← ringKrullDim]

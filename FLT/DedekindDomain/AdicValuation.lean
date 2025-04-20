@@ -209,7 +209,8 @@ theorem denseRange_of_integerAlgebraMap :
   rw [denseRange_iff_closure_range, Set.eq_univ_iff_forall]
   intro x
   rw [closure_subtype]
-  suffices h : Subtype.val '' Set.range ((algebraMap A ↥(HeightOneSpectrum.adicCompletionIntegers K v))) =
+  suffices h : Subtype.val ''
+      Set.range ((algebraMap A ↥(HeightOneSpectrum.adicCompletionIntegers K v))) =
       (algebraMap A (v.adicCompletion K)).range by
     rw [h, closureAlgebraMapIntegers_eq_integers K v]
     exact Subtype.coe_prop x
@@ -276,7 +277,8 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
 theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
     (valuation : ι → HeightOneSpectrum A) (injective : Function.Injective valuation) :
     closure (SetLike.coe (algebraMap A ((i : ι) → (valuation i).adicCompletion K)).range) =
-    (Set.pi Set.univ (fun (i : ι) ↦ (HeightOneSpectrum.adicCompletionIntegers K (valuation i)).carrier)) := by
+    (Set.pi Set.univ (fun (i : ι) ↦
+      (HeightOneSpectrum.adicCompletionIntegers K (valuation i)).carrier)) := by
   apply Set.Subset.antisymm
   . apply closure_minimal
     . rintro c ⟨a, ha⟩ i -

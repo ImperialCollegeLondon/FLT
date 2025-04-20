@@ -197,7 +197,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       simp only [integralAdeles, Set.mem_setOf_eq] at h2
       specialize h1 Rat.infinitePlace
       change ‖(x : ℂ)‖ < 1 at h1
-      simp at h1
+      simp only [Complex.norm_ratCast, integralAdeles] at h1
       have intx: ∃ (y:ℤ), y = x
       · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
             ℚ x <| fun v ↦ by

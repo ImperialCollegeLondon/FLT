@@ -112,7 +112,8 @@ instance : Module R₀ (UltraProduct M F) :=
 
 -- making this an instance timesout everything.
 lemma UltraProduct.instIsScalarTower
-    {R₁ : Type*} [CommRing R₁] [∀ i, Module R₁ (M i)] [Algebra R₀ R₁] [∀ i, IsScalarTower R₀ R₁ (M i)] :
+    {R₁ : Type*} [CommRing R₁] [∀ i, Module R₁ (M i)] [Algebra R₀ R₁]
+    [∀ i, IsScalarTower R₀ R₁ (M i)] :
     IsScalarTower R₀ R₁ (UltraProduct M F) :=
   inferInstanceAs (IsScalarTower R₀ R₁ ((Π i, M i) ⧸ eventuallyProd (R := fun _ ↦ R₁) (M := M) ⊥ F))
 
@@ -147,7 +148,7 @@ instance : SMul (UltraProduct R F) (UltraProduct M F) where
   smul := Quotient.lift₂ (UltraProduct.πₗ R M F <| · • ·) fun r₁ m₁ r₂ m₂ e₁ e₂ ↦ by
     rw [← sub_eq_zero]
     simp only [← map_smul, ← map_sub, UltraProduct.πₗ_eq_zero]
-    simp at e₁
+    simp only at e₁
     filter_upwards [(Submodule.quotientRel_def _).mp e₁,
       (Submodule.quotientRel_def _).mp e₂] with i h₁ h₂
     simp_all [sub_eq_zero]
@@ -342,11 +343,13 @@ lemma UltraProduct.exists_ringEquiv_of_bddAbove_card
     [∀ i, T2Space (R i)] (F : Ultrafilter ι)
     (N : ℕ) (H : ∀ᶠ i in F, Finite (R i) ∧ Nat.card (R i) < N)
     (f : ∀ i, R₀ →+* R i) (hf : ∀ᶠ i in F, Continuous (f i)) :
-    ∀ᶠ i in F, ∃ e : UltraProduct R F ≃+* R i, e.toRingHom.comp ((π R F).comp (Pi.ringHom f)) = f i := by
+    ∀ᶠ i in F, ∃ e : UltraProduct R F ≃+*
+      R i, e.toRingHom.comp ((π R F).comp (Pi.ringHom f)) = f i := by
   classical
   letI := fun i ↦ (f i).toAlgebra
   have := UltraProduct.exists_algEquiv_of_bddAbove_card (R₀ := R₀) F N H
-    (by filter_upwards [hf] with i hi; exact ⟨show Continuous fun p : R₀ × R i ↦ f i p.1 * p.2 by continuity⟩)
+    (by filter_upwards [hf] with i hi;
+        exact ⟨show Continuous fun p : R₀ × R i ↦ f i p.1 * p.2 by continuity⟩)
   filter_upwards [this] with i ⟨e⟩
   exact ⟨e, e.toAlgHom.comp_algebraMap⟩
 

@@ -12,6 +12,7 @@ theorem DenseRange.exists_matrix_det_ne_zero {X Y n R : Type*} [PseudoMetricSpac
     {b : X} (hb : A b = 1) :
     ∃ y, (A (f y)).det ≠ 0 := by
   replace hf := hf.codRestrict_comp (Continuous.matrix_det hA)
-  simp [Metric.denseRange_iff] at hf
+  simp only [Metric.denseRange_iff, gt_iff_lt, Function.comp_apply, Subtype.forall, Set.mem_range,
+    forall_exists_index] at hf
   let ⟨y, h⟩ := hf (A b).det b rfl (1 / 2) (by linarith)
   exact ⟨y, fun hc => by simp [Subtype.dist_eq, hc, hb] at h; linarith⟩
