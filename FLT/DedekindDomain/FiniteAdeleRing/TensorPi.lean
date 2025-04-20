@@ -122,5 +122,6 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
       enter [2, x]
       rw [DirectSum.of_apply]
       simp only [Eq.recOn.eq_def, eq_rec_constant, dif_eq_if]
-      rw [ite_apply, Pi.zero_apply, Pi.smul_apply, apply_ite (DFunLike.coe _), AddMonoidHom.map_zero]
+      rw [ite_apply, Pi.zero_apply, Pi.smul_apply, apply_ite (DFunLike.coe _),
+        AddMonoidHom.map_zero]
     apply Fintype.sum_dite_eq

@@ -470,7 +470,8 @@ noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A
           (adicCompletionComapRightAlgEquiv A K L B v).symm.toLinearMap
   }
 
-attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left IsScalarTower.right
+attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
+  IsScalarTower.right
 
 -- TODO : this maxHeartbeats should not be required, see mathlib PR #22488 for potential fix
 set_option synthInstance.maxHeartbeats 80000 in
@@ -512,8 +513,8 @@ theorem range_adicCompletionComapAlgIso_tensorAdicCompletionIntegersTo_le_pi
       Function.comp_apply, Algebra.ofId_apply, AlgHom.commutes,
       Algebra.TensorProduct.algebraMap_apply, AlgHom.coe_restrictScalars',
       IsScalarTower.coe_toAlgHom', ValuationSubring.algebraMap_apply,
-      Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul,
-      tensorAdicCompletionComapAlgHom_tmul_apply, algebraMap_smul]
+      Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.tmul_mul_tmul, mul_one,
+      one_mul, tensorAdicCompletionComapAlgHom_tmul_apply, algebraMap_smul]
     apply Subalgebra.smul_mem
     show _ ≤ (1 : ℤₘ₀)
     rw [valued_adicCompletionComap A K (L := L) (B := B) v i.1 i.2 y.1,

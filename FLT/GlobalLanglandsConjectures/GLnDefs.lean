@@ -52,8 +52,8 @@ attribute [ext] Bracket
 open scoped TensorProduct
 
 noncomputable instance instLieAlgebra'
-  (S R A L : Type*) [CommRing S] [CommRing R] [CommRing A] [Algebra R A] [LieRing L] [LieAlgebra R L]
-    [Algebra S A] [SMulCommClass R S A] :
+  (S R A L : Type*) [CommRing S] [CommRing R] [CommRing A] [Algebra R A] [LieRing L]
+    [LieAlgebra R L] [Algebra S A] [SMulCommClass R S A] :
     LieAlgebra S (A ⊗[R] L) where
   lie_smul a x y := by
     induction x using TensorProduct.induction_on generalizing y
@@ -73,7 +73,7 @@ theorem diamond_fix :
   conv_lhs => rw [← @bracketBilin_apply_apply R _ _ _ _]
   rw [← @bracketBilin_apply_apply R _ _ _ (_) (.ofAssociativeAlgebra) _ _ (_) (_) x y]
   rotate_left
-  exact @lieAlgebraSelfModule ..
+  · exact @lieAlgebraSelfModule ..
   refine LinearMap.congr_fun₂ ?_ x y
   ext xa xb ya yb
   change @Bracket.bracket _ _ _ (xa ⊗ₜ[R] xb) (ya ⊗ₜ[R] yb) = _
@@ -171,7 +171,8 @@ def actionTensorCAlg' :
   (LinearMap.tensorProductEnd ..).comp (actionTensorCAlg G E)
 
 def actionTensorCAlg'2 :
-  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)) →ₐ[ℂ]
+  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ
+    (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)) →ₐ[ℂ]
     Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) :=
   (actionTensorCAlg' G E).comp (SubalgebraClass.val _)
 

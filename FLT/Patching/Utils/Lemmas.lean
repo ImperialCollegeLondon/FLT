@@ -228,8 +228,8 @@ lemma WellFoundedLT.exists_eq_inf {α} [CompleteLattice α] [WellFoundedLT α]
   WellFoundedGT.exists_eq_sup (α := αᵒᵈ) f
 
 lemma IsLocalRing.maximalIdeal_pow_card_smul_top_le {R M}
-    [CommRing R] [IsLocalRing R] [IsNoetherianRing R] [AddCommGroup M] [Module R M] (N : Submodule R M)
-    [Finite (M ⧸ N)] : maximalIdeal R ^ Nat.card (M ⧸ N) • ⊤ ≤ N := by
+    [CommRing R] [IsLocalRing R] [IsNoetherianRing R] [AddCommGroup M] [Module R M]
+    (N : Submodule R M) [Finite (M ⧸ N)] : maximalIdeal R ^ Nat.card (M ⧸ N) • ⊤ ≤ N := by
   let f (n) : Submodule R (M ⧸ N) := maximalIdeal R ^ n • ⊤
   have hf : ∀ i j, i ≤ j → f j ≤ f i :=
     fun i j h ↦ Submodule.smul_mono (Ideal.pow_le_pow_right h) le_rfl
@@ -300,15 +300,15 @@ def Pi.liftQuotientₗ {ι R M : Type*} [CommRing R] [AddCommGroup M] [Module R 
     exact sum_mem fun i hi ↦ Submodule.smul_mem_smul (hx i) Submodule.mem_top
   · exact Function.Surjective.comp_left Ideal.Quotient.mk_surjective
 
-lemma Pi.liftQuotientₗ_surjective {ι R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Finite ι]
-    (f : (ι → R) →ₗ[R] M) (I : Ideal R) (hf : Function.Surjective f) :
+lemma Pi.liftQuotientₗ_surjective {ι R M : Type*} [CommRing R] [AddCommGroup M] [Module R M]
+    [Finite ι] (f : (ι → R) →ₗ[R] M) (I : Ideal R) (hf : Function.Surjective f) :
     Function.Surjective (Pi.liftQuotientₗ f I) := by
   simp only [liftQuotientₗ, LinearMap.coe_comp, LinearEquiv.coe_coe, EquivLike.surjective_comp]
   rw [← LinearMap.range_eq_top, Submodule.range_liftQ, LinearMap.range_eq_top]
   exact (Submodule.mkQ_surjective _).comp hf
 
-lemma Pi.liftQuotientₗ_bijective {ι R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Finite ι]
-    (f : (ι → R) →ₗ[R] M) (I : Ideal R) (hf : Function.Surjective f)
+lemma Pi.liftQuotientₗ_bijective {ι R M : Type*} [CommRing R] [AddCommGroup M] [Module R M]
+    [Finite ι] (f : (ι → R) →ₗ[R] M) (I : Ideal R) (hf : Function.Surjective f)
     (hf' : LinearMap.ker f ≤ LinearMap.ker ((Algebra.linearMap R (R ⧸ I)).compLeft ι)) :
     Function.Bijective (Pi.liftQuotientₗ f I) := by
   refine ⟨?_, liftQuotientₗ_surjective f I hf⟩

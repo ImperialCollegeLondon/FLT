@@ -81,8 +81,10 @@ lemma GL2.v_det_val_mem_localFullLevel_eq_one {v : HeightOneSpectrum (𝓞 F)}
 
 lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
     (hx : x ∈ localFullLevel v) (i j) : Valued.v (x i j) ≤ 1 := by
-  simp [-iff_false, localFullLevel, RingHom.mapMatrix, Units.map, Matrix.map,
-    ValuationSubring.subtype, Subring.subtype, Matrix.GeneralLinearGroup.ext_iff] at hx
+  simp only [localFullLevel, Units.map, RingHom.mapMatrix, Matrix.map, ValuationSubring.subtype,
+    Subring.subtype, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk, RingHom.toMonoidHom_eq_coe,
+    RingHom.coe_monoidHom_mk, Units.inv_eq_val_inv, Matrix.coe_units_inv, MonoidHom.mem_range,
+    MonoidHom.mk'_apply, Matrix.GeneralLinearGroup.ext_iff, Matrix.of_apply] at hx
   obtain ⟨x', hx'⟩ := hx
   simp only [← hx', ← HeightOneSpectrum.mem_adicCompletionIntegers, SetLike.coe_mem]
 
@@ -97,7 +99,8 @@ noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
     simp_all only [Set.mem_setOf_eq, Units.val_mul]
     refine ⟨Subgroup.mul_mem _ ha.1 hb.1, ?_, ?_⟩
     · simp only [Matrix.mul_apply, Fin.isValue, Fin.sum_univ_two]
-      convert_to Valued.v ((a.val 0 0 * b.val 0 0 - a.val 1 1 * b.val 1 1) + (a.val 0 1 * b.val 1 0 - a.val 1 0 * b.val 0 1)) < 1
+      convert_to Valued.v ((a.val 0 0 * b.val 0 0 - a.val 1 1 * b.val 1 1) +
+        (a.val 0 1 * b.val 1 0 - a.val 1 0 * b.val 0 1)) < 1
       · ring_nf
       suffices Valued.v (a.val 0 1 * b.val 1 0) < 1 ∧
                 Valued.v (a.val 1 0 * b.val 0 1) < 1 ∧
@@ -111,7 +114,8 @@ noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
       · rw [map_mul]
         apply mul_lt_one_of_lt_of_le ha.2.2
         apply v_le_one_of_mem_localFullLevel _ hb.1
-      · convert_to Valued.v (a.val 0 0 * (b.val 0 0 - b.val 1 1) + (a.val 0 0 - a.val 1 1) * b.val 1 1) < 1
+      · convert_to Valued.v (a.val 0 0 * (b.val 0 0 - b.val 1 1) +
+          (a.val 0 0 - a.val 1 1) * b.val 1 1) < 1
         · ring_nf
         apply Valuation.map_add_lt _
         · rw [map_mul, mul_comm]

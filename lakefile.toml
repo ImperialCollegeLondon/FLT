@@ -10,7 +10,7 @@ linter.oldObtain = true # no "stream of consciousness `obtain`" -- remove `weak`
 linter.style.cases = true # no `cases'` tactic -- remove `weak` after bump?
 linter.style.refine = true # no `refine'` tactic
 linter.style.multiGoal = true # no multiple active goals
-linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible tactic (e.g. `simp`)
+weak.linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible tactic (e.g. `simp`)
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"

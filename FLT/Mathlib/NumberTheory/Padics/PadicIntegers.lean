@@ -71,7 +71,8 @@ lemma smul_submodule_finiteRelIndex (hx : x ≠ 0) (s : Submodule ℤ_[p] ℚ_[p
 
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]⁰ ℚ_[p]ˣ where
-  coe x := .mk0 x.1 <| map_ne_zero_of_mem_nonZeroDivisors (M₀ := ℤ_[p]) Coe.ringHom coe_injective x.2
+  coe x := .mk0 x.1 <| map_ne_zero_of_mem_nonZeroDivisors (M₀ := ℤ_[p])
+    Coe.ringHom coe_injective x.2
 
 /-- Non-zero p-adic integers generate non-zero p-adic numbers as a group. -/
 lemma closure_nonZeroDivisors_padicInt :
@@ -80,7 +81,10 @@ lemma closure_nonZeroDivisors_padicInt :
   rw [eq_top_iff']
   intro x
   obtain ⟨y, z, hz, hyzx⟩ := IsFractionRing.div_surjective (A := ℤ_[p]) x.val
-  have hy : y ∈ ℤ_[p]⁰ := by simp; rintro rfl; simp [eq_comm] at hyzx
+  have hy : y ∈ ℤ_[p]⁰ := by
+    simp only [mem_nonZeroDivisors_iff_ne_zero, ne_eq]
+    rintro rfl
+    simp [eq_comm] at hyzx
   convert div_mem (H := H) (subset_closure <| Set.mem_range_self ⟨y, hy⟩)
     (subset_closure <| Set.mem_range_self ⟨z, hz⟩) using 1
   ext

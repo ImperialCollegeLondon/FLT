@@ -49,10 +49,12 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j),
+    func h (a.val j) = a.val i := a.prop
 
 variable {func} in
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) :
+    InverseLimit obj func :=
   ⟨a, h⟩
 
 instance instZero : Zero (InverseLimit obj func) where
@@ -140,10 +142,12 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} :
+    ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
 
 variable {func} in
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) :
+    InverseLimit obj func :=
   ⟨a, h⟩
 
 @[simp]
@@ -231,11 +235,13 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[to_additive, simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j),
+    func h (a.val j) = a.val i := a.prop
 
 variable {func} in
 @[to_additive]
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) :
+    InverseLimit obj func :=
   ⟨a, h⟩
 
 @[to_additive, simp]
@@ -293,7 +299,8 @@ variable (ρ_comm : ∀ {i j} (hle : i ≤ j) (gj : grp_obj j) (vj : mod_obj j),
                     ρ i (grp_func hle gj) (mod_func hle vj) = mod_func hle (ρ j gj vj))
 
 def InverseLimit :
-    Representation R (Group.InverseLimit grp_obj grp_func) (Module.InverseLimit mod_obj mod_func) where
+    Representation R (Group.InverseLimit grp_obj grp_func)
+    (Module.InverseLimit mod_obj mod_func) where
   toFun g := {
     toFun := fun v ↦ {
       val := fun i ↦ ρ i (g.1 i) (v.1 i)

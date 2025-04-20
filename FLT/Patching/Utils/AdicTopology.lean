@@ -47,8 +47,9 @@ instance (priority := 100) [IsArtinianRing R] : DiscreteTopology R := by
   rw [← jacobson_eq_maximalIdeal _ bot_ne_top, hn]
   rfl
 
-lemma Submodule.isCompact_of_fg {R M : Type*} [CommRing R] [TopologicalSpace R] [AddCommGroup M] [Module R M]
-  [TopologicalSpace M] [IsModuleTopology R M] [CompactSpace R] {N : Submodule R M} (hN : N.FG) :
+lemma Submodule.isCompact_of_fg {R M : Type*} [CommRing R] [TopologicalSpace R] [AddCommGroup M]
+    [Module R M]
+    [TopologicalSpace M] [IsModuleTopology R M] [CompactSpace R] {N : Submodule R M} (hN : N.FG) :
     IsCompact (X := M) N := by
   have := IsModuleTopology.toContinuousAdd R M
   obtain ⟨s, hs⟩ := hN
@@ -60,8 +61,8 @@ lemma Submodule.isCompact_of_fg {R M : Type*} [CommRing R] [TopologicalSpace R] 
     AddHom.coe_mk]
   continuity
 
-lemma Ideal.isCompact_of_fg {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [CompactSpace R]
-    {I : Ideal R} (hI : I.FG) : IsCompact (X := R) I :=
+lemma Ideal.isCompact_of_fg {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+    [CompactSpace R] {I : Ideal R} (hI : I.FG) : IsCompact (X := R) I :=
   Submodule.isCompact_of_fg hI
 
 lemma IsModuleTopology.compactSpace
@@ -123,7 +124,8 @@ instance [CompactSpace R] : IsPrecomplete (maximalIdeal R) R where
       (fun i ↦ (Ideal.Quotient.mk_surjective).denseRange)
     have := ((isCompact_range (Continuous.subtype_mk (continuous_pi
       fun i ↦ continuous_algebraMap _ _) _)).isClosed.closure_eq.symm.trans
-      this.closure_eq).ge (Set.mem_univ <| by exact ⟨fun i ↦ f i, fun i j e ↦ by simpa using (H e).symm⟩)
+      this.closure_eq).ge (Set.mem_univ <| by exact ⟨fun i ↦ f i, fun i j e ↦ by
+        simpa using (H e).symm⟩)
     simpa [funext_iff, eq_comm (b := Ideal.Quotient.mk _ (f _))] using this
 
 variable {R} in
@@ -160,9 +162,11 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
       have := mt (IsPrecomplete.prec (inferInstanceAs (IsPrecomplete (maximalIdeal R) R)) (f := g))
       simp_rw [← Ideal.one_eq_top, smul_eq_mul, mul_one] at this
       simp only [Set.mem_compl_iff, Set.mem_range, eq_comm, funext_iff, Pi.algebraMap_apply,
-        Ideal.Quotient.algebraMap_eq, not_exists, not_forall, SModEq, Ideal.Quotient.mk_eq_mk, f] at hx this
+        Ideal.Quotient.algebraMap_eq, not_exists, not_forall, SModEq, Ideal.Quotient.mk_eq_mk, f]
+          at hx this
       obtain ⟨i, j, e, H⟩ := this hx
-      refine ⟨_, ?_, isOpen_set_pi ((Set.finite_singleton i).insert j) (s := fun i ↦ {Ideal.Quotient.mk _ (g i)})
+      refine ⟨_, ?_, isOpen_set_pi ((Set.finite_singleton i).insert j)
+        (s := fun i ↦ {Ideal.Quotient.mk _ (g i)})
         (fun _ _ ↦ isOpen_discrete _), by simp⟩
       rintro _ hx ⟨x, rfl⟩
       simp only [Set.insert_pi, Set.singleton_pi, Set.mem_inter_iff, Set.mem_preimage,
@@ -200,8 +204,8 @@ instance (priority := 100) [IsNoetherianRing R]
   obtain ⟨n, hn⟩ := exists_maximalIdeal_pow_le_of_finite_quotient I
   exact ⟨n, subset_trans hn hIs⟩
 
-lemma Continuous.of_isLocalHom {R S : Type*} [CommRing R] [IsLocalRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsAdicTopology R] [CommRing S] [IsLocalRing S] [TopologicalSpace S]
+lemma Continuous.of_isLocalHom {R S : Type*} [CommRing R] [IsLocalRing R] [TopologicalSpace R]
+    [IsTopologicalRing R] [IsAdicTopology R] [CommRing S] [IsLocalRing S] [TopologicalSpace S]
     [IsTopologicalRing S] [IsAdicTopology S] (f : R →+* S) [IsLocalHom f] : Continuous f := by
   apply continuous_of_continuousAt_zero
   unfold ContinuousAt
