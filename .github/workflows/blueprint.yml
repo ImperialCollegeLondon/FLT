@@ -65,6 +65,9 @@ jobs:
       - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
 
+      - name: check that FLT.lean is up to date
+        run: lake exe mk_all --check
+
       - name: Build project
         run: ~/.elan/bin/lake build FLT
 
