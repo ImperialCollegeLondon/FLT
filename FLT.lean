@@ -5,7 +5,8 @@ import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
-import FLT.Deformations.Algebra.InverseLimit
+import FLT.Deformations.Algebra.InverseLimit.Basic
+import FLT.Deformations.Algebra.InverseLimit.Topology
 import FLT.Deformations.IsResidueAlgebra
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
