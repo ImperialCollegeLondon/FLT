@@ -236,19 +236,23 @@ theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
     -- The algebra map `(R, τR) →ₗ[R] (S, τRS)` from `R` is continuous, since `τR` is the
     -- `R`-module topology on `R`, and any `R`-linear map on this domain is continuous.
     have hcont_alg : Continuous[_, moduleTopology R S] (Algebra.linearMap R S) :=
-      @IsModuleTopology.continuous_of_linearMap _ _ _ _ _ _ _ _ _ _ _ (moduleTopology R S)
-        (ModuleTopology.continuousAdd _ _) (ModuleTopology.continuousSMul _ _) _
+      -- Give `S` the `R`-module topology
+      letI := moduleTopology R S
+      letI : ContinuousAdd S := ModuleTopology.continuousAdd _ _
+      letI : ContinuousSMul R S := ModuleTopology.continuousSMul _ _
+      IsModuleTopology.continuous_of_linearMap _
     -- If `U` is open in `(S, τS)`, then it is open in `(S, τRS)` by pullback along [hcont_id].
-    have hopen_mpr {U : Set S} (h : IsOpen U) : @IsOpen S (moduleTopology R S) U :=
+    have hopen_mpr {U : Set S} (h : IsOpen U) : IsOpen[moduleTopology R S] U :=
       @Continuous.isOpen_preimage S S (moduleTopology R S) _ id hcont_id U h
     -- If `U` is open in `(S, τRS)` and is contained in the image of `R` inside `S`, then it is
     -- open in `(S, τS)`, by pullback along [hcont_alg] and push forward along [hopen].
-    have hopen_mp {U : Set S} (h : @IsOpen S (moduleTopology R S) U)
+    have hopen_mp {U : Set S} (h : IsOpen[moduleTopology R S] U)
         (hUS : U ⊆ Set.range (algebraMap R S)) : IsOpen U :=
       Set.image_preimage_eq_of_subset hUS ▸ hopen _ <|
         @Continuous.isOpen_preimage R S _ (moduleTopology R S) _ hcont_alg U h
     -- To finish the proof, we now show that the neighbourhoods of zero in `τS` and `τ_R_S` coincide
     rw [IsTopologicalRing.to_topologicalAddGroup.ext_iff <|
+      -- `(S, τRS)` is a topological add group
       @IsModuleTopology.topologicalAddGroup R _ _ S _ _ (moduleTopology R S) (isModuleTopology R S)]
     -- It is enough to show that the basis of neighbourhoods of zero are contained within each other
     apply (nhds_basis_opens 0).ext (@nhds_basis_opens S (moduleTopology R S) 0)
@@ -377,7 +381,7 @@ theorem continuousAlgEquivOsIfScalarTower_apply {A B : Type*} (R S₁ : Type*) {
     continuousAlgEquivOfIsScalarTower R S₁ e he a = e a :=
   rfl
 
-def continuousAlgEquiv {A B R : Type*} [TopologicalSpace A]
+def continuousAlgEquivOfAlgEquiv {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [CommSemiring R] [Semiring A] [Semiring B]
     [Algebra R A] [Algebra R B] [IsModuleTopology R A] [IsModuleTopology R B]
     (e : A ≃ₐ[R] B) :

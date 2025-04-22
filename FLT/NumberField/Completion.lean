@@ -148,7 +148,7 @@ of `L` lying above `v`.-/
 def baseChangeEquivRight :
     L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.ExtensionPlace L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
-  IsModuleTopology.continuousAlgEquiv
+  IsModuleTopology.continuousAlgEquivOfAlgEquiv
     (e.changeScalars K v.Completion (baseChange_of_algebraMap_tmul_right _))
 
 open TensorProduct.AlgebraTensorModule in

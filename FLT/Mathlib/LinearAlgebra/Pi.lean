@@ -9,6 +9,7 @@ class Pi.FiberwiseSMul {α β : Type*} (f : α → β) (R : β → Type*) (M : �
     [(b : β) → Semiring (R b)] [(a : α) → AddCommMonoid (M a)]
     [(b : β) → (σ : {a // f a = b}) → Module (R b) (M σ)]
     [Module ((b : β) → R b) ((a : α) → M a)] : Prop where
+  -- TODO : remove this after https://github.com/leanprover/lean4/pull/7742 ?
   map_smul' (r : (b : β) → R b) (x : (a : α) → M a) (b : β) (σ : {a // f a = b}) :
     (r • x) σ = r b • x σ
 
