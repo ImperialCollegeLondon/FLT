@@ -93,11 +93,8 @@ theorem finrank_pi_eq_finrank_tensorProduct :
 
 open scoped Classical in
 theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
-  -- Let `d` be the `K_v` dimension of `L ⊗[K] K_v`.
-  -- Then `Π v | w, L_w` also has dimension d over `K_v`.
-  -- Let `Bw` be a basis of `Π v | w, L_w` size `d`.
-  let Bw := Module.finBasisOfFinrankEq v.Completion
-    ((w : v.ExtensionPlace L) → w.1.Completion) (finrank_pi_eq_finrank_tensorProduct L v)
+  -- Let `Bw` be a `K_v` basis of `Π v | w, L_w`
+  let Bw := Module.finBasis v.Completion ((w : v.ExtensionPlace L) → w.1.Completion)
   -- `L` is dense inside Π v | w, L_w
   have := denseRange_algebraMap_subtype_pi _ fun w : InfinitePlace L => w.comap (algebraMap K L) = v
   -- So there exists a vector `α ∈ L^d` whose matrix wrt `Bw` gets close to `1` (has non-zero det)

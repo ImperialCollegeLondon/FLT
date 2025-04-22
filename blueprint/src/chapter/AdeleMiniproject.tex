@@ -337,6 +337,135 @@ then the map $K\to L$ extends to a continuous $K$-algebra map $K_\infty\to L_\in
 and thus to a continuous $L$-algebra isomorphism $L\otimes_KK_\infty\to L_\infty$.
 Perhaps a cheap proof would be to deduce it from the fact that $K_\infty=K\otimes_{\Q}\R$.
 
+The overall strategy for base change of the infinite adele ring is to first establish
+base change for the completion $K_v$ at a fixed infinite place $v$ of $K$ with the product
+$\prod_{w\mid v}L_w$ of completions of $L$ at all infinite places $w$ of $L$ lying above $v$.
+It is then possible to use these homeomorphisms to construct base change for the infinite adele
+ring directly.
+
+\subsubsection{Weak approximation at infinite places}
+
+First, we require a preliminary result that $K$ is dense inside any finite collection of
+completions $(K_v)_{v \in S}$ of $K$ at infinite places.
+
+\begin{theorem}
+  \label{NumberField.InfinitePlace.Completion.denseRange_algebraMap_pi}
+  \lean{NumberField.InfinitePlace.Completion.denseRange_algebraMap_pi}
+  Let $(K, v)$ denote $K$ equipped with the topology induced by the infinite place $v$. The
+  image of $K$ under the embedding $K\hookrightarrow ((K, v))_{v\mid \infty}$
+  is dense in the product topology.
+\end{theorem}
+\begin{proof}
+  TODO
+\end{proof}
+
+\begin{theorem}
+  \label{NumberField.InfinitePlace.Completion.denseRange_algebraMap_subtype_pi}
+  \lean{NumberField.InfinitePlace.Completion.denseRange_algebraMap_subtype_pi}
+  Let $S$ be a set of intinite places of $K$. The image of $K$ under embedding
+  $K\hookrightarrow (K_v)_{v\in S}; k \mapsto (k)_v$ is dense in the product topology.
+\end{theorem}
+\begin{proof}
+  Follows from the fact that $K_v\mapsto ((K, v))_{v \in S}$ is dense (by composition of the
+  map in Theorem~\ref{NumberField.InfinitePlace.Completion.denseRange_algebraMap_pi} with
+  the surjective projection map), and the fact that each embedding $(K, v) \hookrightarrow K_v$ is
+  dense.
+\end{proof}
+
+\subsubsection{Dimensionality of $\prod_{w\mid v}L_w$ as a $K_v$-vector space}
+
+This subsection contains another standard preliminary result, whose formal proof is in the process
+of being upstreamed to mathlib rather than to FLT.
+
+\begin{theorem}
+  \label{KvDimensionality}
+  For a fixed infinite place $v$ of $K$, we have
+  $\text{dim}_{K_v} L\otimes_K K_v = \text{dim}_{K_v} \prod_{w\mid v} L_w$.
+\end{theorem}
+
+\subsubsection{Base change at infinite places}
+
+\begin{definition}
+  \label{NumberField.InfinitePlace.Completion.piExtensionPlace}
+  \lean{NumberField.InfinitePlace.Completion.piExtensionPlace}
+  Let $v$ be an infinite place of $K$. There is a continuous $K$-algebra homomorphism
+  $K_v \to \prod_{w\mid v}L_w$, whose restriction to $K$ corresponds to the global embedding
+  of $K$ into $(L_w)_w$.
+\end{definition}
+
+The map in~\ref{NumberField.InfinitePlace.Completion.piExtensionPlace} can be lifted to an
+$L$-algebra homomorphism defined on $L\otimes_K K_v$.
+
+\begin{definition}
+  \label{NumberField.InfinitePlace.Completion.baseChange}
+  \lean{NumberField.InfinitePlace.Completion.baseChange}
+  Let $v$ be an infinite place of $K$. There is a natural $L$-algebra homomorphism
+  $L\otimes_K K_v \to \prod_{w\mid v}L_w$, whose restriction to $1\otimes_K K_v$ corresponds to
+  the map in~\ref{NumberField.InfinitePlace.Completion.piExtensionPlace}.
+\end{definition}
+
+\begin{theorem}
+  \label{NumberField.InfinitePlace.Completion.baseChange_surjective}
+  \lean{NumberField.InfinitePlace.Completion.baseChange_surjective}
+  For a fixed infinite place $v$ of $K$, the map $L\otimes_K K_v \to\prod_{w\mid v}L_w$ is
+  surjective.
+\end{theorem}
+\begin{proof}
+  Let $(x_i)_i$ be a $K_v$-basis of $\prod_{w\mid v}L_w$. By density of $L$ in $\prod_{w\mid v}L_w$
+  (Theorem~\ref{NumberField.InfinitePlace.Completion.denseRange_algebraMap_subtype_pi}), we can
+  find $\alpha_i \in L$ arbitrarily close to $x_i$ with respect to the sup norm (recall that we
+  think of $(\alpha_i)_{w \mid v}$ embedded globally in $\prod_{w\mid v}L_w$). In particular,
+  it is possible to choose such $\alpha_i$ so that the matrix representing
+  $((\alpha_i)_{w \mid v})_i$ has non-zero determinant. Since $(\alpha_i)_{w \mid v}$ is the
+  image of $1\otimes \alpha_i$ under base change, we have that $(1 \otimes \alpha_i)_i$ also forms
+  a basis of $L\otimes_K K_v$, and so base change is surjective.
+\end{proof}
+
+\begin{theorem}
+  \label{NumberField.InfinitePlace.Completion.baseChange_injective}
+  \lean{NumberField.InfinitePlace.Completion.baseChange_injective}
+  For a fixed infinite place $v$ of $K$, the map $L\otimes_K K_v \to\prod_{w\mid v}L_w$ is
+  injective.
+\end{theorem}
+\begin{proof}
+  The $L$_algebra map $L\otimes_K K_v \to\prod_{w\mid v}L_w$ can equivalently be thought of
+  as $K_v$-linear, which is injective because it is surjective by
+  Theorem~\ref{NumberField.InfinitePlace.baseChange_surjective} and both side have the same
+  $K_v$-dimension by Theorem~\ref{KvDimensionality}.
+\end{proof}
+
+Now, by showing injectivity and surjectivty, the map of
+Definition~\ref{NumberField.InfinitePlace.Completion.baseChange} gives an $L$-algebra isomorphism
+between $L\otimes_K K_v$ and $\prod_{w\mid v}L_w$. The left-hand side is given the $K_v$-module
+topology, while we also have that the right-hand side has the $K_v$-module topology as a result
+of the following.
+\begin{theorem}
+  \label{NumberField.InfinitePlace.Completion.instIsModuleTopologyValEqComapAlgebraMap_fLT}
+  \lean{NumberField.InfinitePlace.Completion.instIsModuleTopologyValEqComapAlgebraMap_fLT}
+  If $w \mid v$ is an infinite place of $L$ lying above the infinite place $v$ of $K$, then
+  $L_w$ has the $K_v$-module topology.
+\end{theorem}
+\begin{proof}
+  Because $L_w$ is a finite-dimensional normed $K_v$ vector space, there exists a $K_v$-linear
+  linear homeomorphism $L_w \cong K_v^n$, from which we see that $L_w$ has the $K_v$ module
+  topology.
+\end{proof}
+
+Every $K_v$-algebra isomorphism between two topological $K_v$-module vector spaces is a
+homeomorphism. Since the $L$-algebra isomorphis of
+Definition~\ref{NumberField.InfinitePlace.Completion.baseChange} can equivalently be viewed as
+a $K_v$-algebra isomorphism, it is also a homeomorphism.
+\begin{definition}
+  \label{NumberTheory.InfinitePlace.Completion.baseChangeEquiv}
+  \lean{NumberTheory.InfinitePlace.Completion.baseChangeEquiv}
+  Let $v$ be an infinite place of $K$. There is a natural $L$-algebra homeomorphism
+  $L\otimes_K K_v \to \prod_{w\mid v}L_w$, whose restriction to $1\otimes_K K_v$ corresponds to
+  the map in~\ref{NumberField.InfinitePlace.Completion.piExtensionPlace}.
+\end{definition}
+
+\subsubsection{Base change for the infinite adele ring}
+
+
 \begin{theorem}
   \label{NumberField.InfiniteAdeleRing.baseChangeEquiv}
   \lean{NumberField.InfiniteAdeleRing.baseChangeEquiv}
