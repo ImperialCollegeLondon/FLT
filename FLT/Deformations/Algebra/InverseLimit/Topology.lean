@@ -22,7 +22,8 @@ namespace InverseLimit
 
 variable {W : Type*} {M : ι → Type*} (maps : ∀ i, M i) [∀ i, FunLike (M i) W (G i)]
 variable [instInverseSystemHom : InverseSystemHom G f maps]
-variable [TopologicalSpace W] (maps_cont : (i : ι) → Continuous (maps i))
+variable [TopologicalSpace W]
+variable (maps_cont : (i : ι) → Continuous (maps i))
 
 instance : TopologicalSpace (InverseLimit G f) := by
   unfold InverseLimit
@@ -51,10 +52,11 @@ section Maps
 
 omit [InverseSystem fun x1 x2 x3 ↦ ⇑(f x1 x2 x3)] [IsDirected ι fun x1 x2 ↦ x1 ≤ x2] in
 @[continuity]
-lemma map_of_maps_continuous : Continuous (map_of_maps G f maps) := by
+lemma map_of_maps_continuous (maps_cont : ∀ i, Continuous (maps i)) : Continuous (map_of_maps G f maps) := by
   unfold InverseLimit
   unfold map_of_maps
-  sorry
+  suffices Continuous fun w ↦ (fun i ↦ maps i w) by continuity
+  continuity
 
 end Maps
 
