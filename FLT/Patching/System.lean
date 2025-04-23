@@ -221,8 +221,7 @@ instance : PatchingAlgebra.smulData Λ (fun _ : ι ↦ R₀) (fun _ ↦ M₀) :=
   exact ⟨_, IsLocalRing.maximalIdeal_pow_card_smul_top_le (α' • ⊤)⟩
 
 include hfRₒₒ hfRₒₒ' in
-omit
-  [IsNoetherianRing Λ] in
+omit [IsNoetherianRing Λ] [IsNoetherianRing Rₒₒ] in
 lemma PatchingAlgebra.faithfulSMul
     (H₀ : ringKrullDim Rₒₒ < ⊤)
     (H : .some (Module.depth Λ Λ) = ringKrullDim Rₒₒ) :
