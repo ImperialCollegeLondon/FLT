@@ -9,6 +9,8 @@ variable {F : Type*} [Field F] [NumberField F] [IsTotallyReal F]
     {D : Type*} [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
     (hD : IsTotallyDefinite F D)
 
+set_option maxSynthPendingDepth 2
+
 variable (K : Type*) [Field K]
     (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (hU : IsOpen (U : Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ))

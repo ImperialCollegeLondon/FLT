@@ -819,15 +819,6 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 --     rw [ProdAdicCompletions.baseChangeEquiv_isFiniteAdele_iff A K L B]
 --     exact h 1
 
--- mathlib PR #24147
-open Filter in
-/-- For a function with finite fibres, inverse images of finite sets are finite. -/
-theorem _root_.Filter.Tendsto.cofinite_of_finite_preimage_singleton {α β : Type*} {f : α → β}
-    (hf : ∀ b, Finite (f ⁻¹' {b})) : Tendsto f cofinite cofinite := by
-  intro t ht
-  rw [mem_map, mem_cofinite, ← Set.preimage_compl]
-  exact ht.preimage' fun b _ ↦ hf b
-
 -- not sure we even want to define this?
 noncomputable def FiniteAdeleRing.mapRingHom :
     FiniteAdeleRing A K →+* FiniteAdeleRing B L := RestrictedProduct.mapRingHom
@@ -842,15 +833,15 @@ noncomputable def FiniteAdeleRing.mapRingHom :
     apply le_of_eq
     sorry) -- done in #400
 
--- Do we actually want this now?
 noncomputable def FiniteAdeleRing.mapSemialgHom :
     FiniteAdeleRing A K →ₛₐ[algebraMap K L] FiniteAdeleRing B L where
       __ := FiniteAdeleRing.mapRingHom A K L B
       map_smul' k a := by
-        apply RestrictedProduct.ext
-        intro w
-        exact (adicCompletionComapSemialgHom A K L B (comap A w) w rfl).map_smul' k (a (comap A w))
+        ext w
+        simpa only [Algebra.smul_def'] using
+          (adicCompletionComapSemialgHom A K L B (comap A w) w rfl).map_smul' k (a (comap A w))
 
+set_option maxSynthPendingDepth 2 in
 noncomputable instance : Algebra (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K) :=
   Algebra.TensorProduct.rightAlgebra
 
@@ -861,10 +852,12 @@ instance BaseChange.algebra : Algebra (FiniteAdeleRing A K) (FiniteAdeleRing B L
 lemma BaseChange.isModuleTopology : IsModuleTopology (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
   sorry -- this should follow from the fact that L_w has the K_v-module topology? Hopefully?
 
+set_option maxSynthPendingDepth 2 in
 noncomputable instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
   moduleTopology (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K)
--- Follows from the above. Should be a continuous L-alg equiv but we don't have continuous
--- alg equivs yet so can't even state it properly.
+
+-- Follows from the above.
+set_option maxSynthPendingDepth 2 in
 noncomputable def FiniteAdeleRing.baseChangeAlgEquiv :
     L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L where
   __ := AlgEquiv.ofBijective
@@ -872,6 +865,7 @@ noncomputable def FiniteAdeleRing.baseChangeAlgEquiv :
     -- ⊢ Function.Bijective ⇑(mapSemialgHom A K L B).baseChange_of_algebraWMap
     sorry -- #243
 
+set_option maxSynthPendingDepth 2 in
 noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
     L ⊗[K] FiniteAdeleRing A K ≃A[L] FiniteAdeleRing B L where
   __ := FiniteAdeleRing.baseChangeAlgEquiv A K L B

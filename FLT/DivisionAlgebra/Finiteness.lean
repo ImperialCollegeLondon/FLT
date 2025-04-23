@@ -24,6 +24,8 @@ space `Dˣ \ (D ⊗[K] 𝔸_K^infty)ˣ / U` is finite.
 
 -/
 
+set_option maxSynthPendingDepth 2
+
 suppress_compilation
 
 open DedekindDomain

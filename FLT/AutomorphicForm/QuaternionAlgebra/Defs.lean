@@ -26,6 +26,8 @@ open scoped TensorProduct NumberField
 
 open DedekindDomain
 
+set_option maxSynthPendingDepth 2
+
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
@@ -191,6 +193,8 @@ lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (g • φ) x = φ (x * g) := rfl
 
+-- ?! TODO
+set_option synthInstance.maxHeartbeats 40000 in
 instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
     (WeightTwoAutomorphicForm F D R) where
   smul := group_smul

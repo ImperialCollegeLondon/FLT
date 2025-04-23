@@ -106,6 +106,11 @@ def mapRingHom : Πʳ i, [R₁ i, B₁ i]_[𝓕₁] →+* Πʳ j, [R₂ j, B₂ 
   __ := mapMonoidHom R₁ R₂ f hf (fun j ↦ φ j) hφ
   __ := mapAddMonoidHom R₁ R₂ f hf (fun j ↦ φ j) hφ
 
+@[simp]
+lemma mapRingHom_apply (x : Πʳ i, [R₁ i, B₁ i]_[𝓕₁]) (j : ι₂) :
+    x.mapRingHom R₁ R₂ f hf φ hφ j = φ j (x (f j)) :=
+  rfl
+
 end ring
 
 end map
