@@ -1,3 +1,4 @@
+import FLT.Basic.Reductions -- ignore -- random import for linter reasons
 /-
 
 Need Tate uniformisation from Silverman 2 Ch 5. Don't need surjectivity.

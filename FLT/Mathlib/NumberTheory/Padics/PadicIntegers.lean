@@ -1,6 +1,8 @@
 import Mathlib.Algebra.CharZero.Infinite
 import Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.GroupTheory.Index
+import FLT.Mathlib.Algebra.Module.Submodule.Basic
+import FLT.Mathlib.RingTheory.Ideal.Operations
+import Mathlib.NumberTheory.Padics.RingHoms
 
 /-!
 # TODO
@@ -51,27 +53,78 @@ lemma isOpenEmbedding_coe : IsOpenEmbedding ((↑) : ℤ_[p] → ℚ_[p]) := by
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]ˣ ℚ_[p]ˣ where coe := Units.map Coe.ringHom.toMonoidHom
 
-/-- For a `ℤ_[p]`-submodule `s` of `ℚ_[p]`, `x • s` has index `‖x‖⁻¹` in `s`.
+lemma _root_.AddSubgroup.comap_smul_one (R A : Type*) [CommRing R] [CommRing A] [Algebra R A]
+    [FaithfulSMul R A]
+    (r : R) : AddSubgroup.comap (algebraMap R A) (r • (1 : Submodule R A).toAddSubgroup) =
+    r • (1 : Submodule R R).toAddSubgroup := by
+  ext s
+  simp [AddSubgroup.mem_smul_pointwise_iff_exists]
+  apply exists_congr (fun t ↦ ?_)
+  rw [Algebra.smul_def, ← map_mul, Injective.eq_iff]
+  rwa [← faithfulSMul_iff_algebraMap_injective R A]
 
-Note that `s` is of the form `yℤ_[p]` for some `y : ℚ_[p]`, but this is syntactically less
-general. -/
-lemma smul_submodule_relindex (x : ℤ_[p]) (s : Submodule ℤ_[p] ℚ_[p]) :
-    (x • s.toAddSubgroup).relindex s.toAddSubgroup = ‖x‖₊⁻¹ :=
-  -- https://github.com/ImperialCollegeLondon/FLT/issues/279
-  -- Note: You might need to prove `smul_submoduleSpan_finiteRelIndex_submoduleSpan` first
-  sorry
+lemma index_span_p_pow (hx: x ≠ 0):
+    (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation})).index = ‖↑x‖₊⁻¹ := by
+  have quotient_equiv_zmod := RingHom.quotientKerEquivOfSurjective
+    (f := PadicInt.toZModPow (x.valuation) (p := p)) (R := ℤ_[p])
+    (ZMod.ringHom_surjective (PadicInt.toZModPow x.valuation))
+  have card_eq_zmod := Nat.card_congr quotient_equiv_zmod.toEquiv
+  have quotient_equiv_quotient :=
+    Ideal.quotEquivOfEq (PadicInt.ker_toZModPow (x.valuation) (p := p))
+  have card_eq_quotient := Nat.card_congr quotient_equiv_quotient.toEquiv
+  rw [card_eq_quotient] at card_eq_zmod
+  have quotients_defeq :
+    (ℤ_[p] ⧸ (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation}))) =
+    (ℤ_[p] ⧸ Ideal.span {(p: ℤ_[p]) ^ x.valuation}) := rfl
+  simp [AddSubgroup.index, quotients_defeq, card_eq_zmod, NNReal.eq_iff,
+    norm_eq_zpow_neg_valuation hx]
 
-/-- For a `ℤ_[p]`-submodule `s` of `ℚ_[p]`, `x • s` has finite index if `x ≠ 0`.
+lemma smul_submodule_one_index : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := by
+  by_cases hx: x = 0
+  . simp [hx]
+  . have x_factor := PadicInt.unitCoeff_spec hx
+    nth_rw 1 [x_factor]
+    rw [Submodule.smul_one_eq_span, Ideal.span_singleton_mul_left_unit (Units.isUnit _)]
+    exact index_span_p_pow hx
 
-Note that `s` is the form `yℤ_[p]` for some `y : ℚ_[p]`, but this is syntactically less
-general. -/
-lemma smul_submodule_finiteRelIndex (hx : x ≠ 0) (s : Submodule ℤ_[p] ℚ_[p]) :
-    (x • s.toAddSubgroup).FiniteRelIndex s.toAddSubgroup where
-  relIndex_ne_zero := by simpa [← Nat.cast_ne_zero (R := ℝ≥0), smul_submodule_relindex]
+/-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
+lemma smul_submodule_one_relindex:
+    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
+
+  have relindex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := smul_submodule_one_index
+  rw [← AddSubgroup.relindex_top_right] at relindex_in_z_p
+
+  -- Use the coercion from ℤ_[p] to ℚ_[p] and `AddSubgroup.relindex_comap` to convert our result about subgroups of `Z_[p]`
+  -- to a result about subgroups of `Q_[p]`.
+  let z_q_coe: ℤ_[p] →+ ℚ_[p] := PadicInt.Coe.ringHom.toAddMonoidHom
+  let K_Q : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
+  let H_Q := (x : ℚ_[p]) • K_Q
+  have hHK_Q : H_Q ≤ K_Q := (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
+
+  have relindex_preserved := AddSubgroup.relindex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))
+  have map_top: (AddSubgroup.map z_q_coe ⊤) = K_Q := by
+    ext a
+    simp [z_q_coe, K_Q]
+  have map_H_Q : (AddSubgroup.comap z_q_coe H_Q) =
+    (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup := by
+    simp only [z_q_coe, H_Q, K_Q, RingHom.toAddMonoidHom_eq_coe,
+      Submodule.pointwise_smul_toAddSubgroup, Submodule.top_toAddSubgroup, z_q_coe, K_Q, ← AddSubgroup.comap_smul_one ℤ_[p] ℚ_[p]]
+    rfl
+
+  rw [map_top, map_H_Q] at relindex_preserved
+  rwa [relindex_preserved] at relindex_in_z_p
+
+/-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
+lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0):
+    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
+  relindex_ne_zero := by
+    rw [← Nat.cast_ne_zero (R := ℝ≥0)]
+    simp [smul_submodule_one_relindex, hx]
 
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]⁰ ℚ_[p]ˣ where
-  coe x := .mk0 x.1 <| map_ne_zero_of_mem_nonZeroDivisors (M₀ := ℤ_[p]) Coe.ringHom coe_injective x.2
+  coe x := .mk0 x.1 <| map_ne_zero_of_mem_nonZeroDivisors (M₀ := ℤ_[p])
+    Coe.ringHom coe_injective x.2
 
 /-- Non-zero p-adic integers generate non-zero p-adic numbers as a group. -/
 lemma closure_nonZeroDivisors_padicInt :
@@ -80,7 +133,10 @@ lemma closure_nonZeroDivisors_padicInt :
   rw [eq_top_iff']
   intro x
   obtain ⟨y, z, hz, hyzx⟩ := IsFractionRing.div_surjective (A := ℤ_[p]) x.val
-  have hy : y ∈ ℤ_[p]⁰ := by simp; rintro rfl; simp [eq_comm] at hyzx
+  have hy : y ∈ ℤ_[p]⁰ := by
+    simp only [mem_nonZeroDivisors_iff_ne_zero, ne_eq]
+    rintro rfl
+    simp [eq_comm] at hyzx
   convert div_mem (H := H) (subset_closure <| Set.mem_range_self ⟨y, hy⟩)
     (subset_closure <| Set.mem_range_self ⟨z, hz⟩) using 1
   ext

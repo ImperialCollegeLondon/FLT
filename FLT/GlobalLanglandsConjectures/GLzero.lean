@@ -71,7 +71,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
       intros x
       rw [FiniteDimensional]
       rw [annihilator]
-      simp
+      simp only [id_eq, eq_mpr_eq_cast, cast_eq]
       exact {
         fg_top := by sorry
       }
@@ -96,7 +96,7 @@ noncomputable def classification: AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
   invFun := fun c ↦ ofComplex ρ c
   left_inv := by
     rw [Function.LeftInverse]
-    simp [ofComplex]
+    simp only [ofComplex]
     intro x
     have h: x.toFun = fun _ => x.toFun 1 := by
       exact funext fun g ↦ congrArg x.toFun <| Subsingleton.eq_one g

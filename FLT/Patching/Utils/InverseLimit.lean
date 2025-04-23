@@ -56,7 +56,8 @@ theorem nonempty_inverseLimit_of_finite [∀ i, Finite (α i)] [∀ i, Nonempty 
     intros i j
     obtain ⟨i', hi'⟩ := hl' i
     obtain ⟨j', hj'⟩ := hl' j
-    refine ⟨l (max i' j'), le_trans hi' (hl (le_max_left _ _)), le_trans hj' (hl (le_max_right _ _))⟩
+    refine ⟨l (max i' j'), le_trans hi' (hl (le_max_left _ _)),
+      le_trans hj' (hl (le_max_right _ _))⟩
   obtain ⟨x, hx⟩ := nonempty_sections_of_finite_inverse_system f'
   exact ⟨⟨fun i ↦ x ⟨i⟩, fun i j e ↦ hx (homOfLE e).op⟩⟩
 
