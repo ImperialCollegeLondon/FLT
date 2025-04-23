@@ -525,8 +525,7 @@ lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) 
 -- Compact + T2 actually implies NonarchimedeanRing.
 variable [NonarchimedeanRing R] [T2Space R]
 
-noncomputable
-def PatchingModule.mapOfIsPatchingSystem_bijective :
+lemma PatchingModule.mapOfIsPatchingSystem_bijective :
     Function.Bijective (mapOfIsPatchingSystem R M F) := by
   constructor
   · rw [injective_iff_map_eq_zero]
