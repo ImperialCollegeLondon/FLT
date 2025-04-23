@@ -136,8 +136,6 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
   have : Finite (R ⧸ maximalIdeal R) := ‹_›
   have : ∀ i, Finite (R ⧸ (maximalIdeal R) ^ i) := fun i ↦
     Ideal.finite_quotient_pow (IsNoetherian.noetherian _) _
-  have : ∀ i, IsClosed (X := R) ↑((maximalIdeal R) ^ i) := fun i ↦
-    ((maximalIdeal R) ^ i).toAddSubgroup.isClosed_of_isOpen (isOpen_maximalIdeal_pow R i)
   have hf : Continuous f := by continuity
   have : Topology.IsClosedEmbedding f := by
     refine ⟨⟨?_, ?_⟩, ?_⟩

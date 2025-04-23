@@ -404,9 +404,7 @@ lemma smul_lemma
     rfl
 
 include Λ R M F fRₒₒ hfRₒₒ hfRₒₒ' sR sM in
-omit
-  [Module.Finite R₀ M₀]
-  [Module.Finite Λ M₀] in
+omit [Module.Finite R₀ M₀] [Module.Finite Λ M₀] [IsNoetherianRing Rₒₒ] in
 lemma support_eq_top
     (HCompat : ∀ i m (r : R i), sM i (Submodule.Quotient.mk (r • m)) =
       sR i (Ideal.Quotient.mk _ r) • sM i (Submodule.Quotient.mk m))

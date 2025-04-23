@@ -102,7 +102,6 @@ lemma smul_submodule_one_relindex:
   let z_q_coe: ℤ_[p] →+ ℚ_[p] := PadicInt.Coe.ringHom.toAddMonoidHom
   let K_Q : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
   let H_Q := (x : ℚ_[p]) • K_Q
-  have hHK_Q : H_Q ≤ K_Q := (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
 
   have relindex_preserved :=
     AddSubgroup.relindex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))

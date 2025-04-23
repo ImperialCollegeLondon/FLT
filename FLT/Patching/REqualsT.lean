@@ -64,6 +64,7 @@ variable (RtoT : R₀ →+* T₀) (hRtoT : ∀ r (m : M₀), RtoT r • m = r �
 
 -- Then `R₀ →+* T₀` has nilpotent kernel.
 include F HCompat hfRₒₒ hfRₒₒ' H₀ H hRtoT in
+omit [IsNoetherianRing Rₒₒ] in
 theorem ker_RtoT_le_nilradical : RingHom.ker RtoT ≤ nilradical R₀ := by
   have : Module.Finite Λ M₀ := by
     cases isEmpty_or_nonempty ι
