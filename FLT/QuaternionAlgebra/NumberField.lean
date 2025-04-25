@@ -16,7 +16,6 @@ open scoped NumberField TensorProduct
 
 namespace IsQuaternionAlgebra.NumberField
 
-set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /--
 A rigidification of a quaternion algebra D over a number field F
@@ -156,7 +155,6 @@ end IsDedekindDomain
 
 open RestrictedProduct
 
-set_option maxSynthPendingDepth 2 in
 noncomputable
 def DedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
     FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v where
@@ -193,28 +191,23 @@ theorem GL2.TameLevel.isOpen : IsOpen (GL2.TameLevel S).carrier :=
 theorem GL2.TameLevel.isCompact : IsCompact (GL2.TameLevel S).carrier :=
   sorry
 
-set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
     Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
 
-set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 noncomputable instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   moduleTopology (FiniteAdeleRing (𝓞 F) F) _
 
-set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   ⟨rfl⟩
 
-set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
 
-set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [IsQuaternionAlgebra F D] in
 theorem Rigidification.continuous_toFun (r : Rigidification F D) :
@@ -224,7 +217,6 @@ theorem Rigidification.continuous_toFun (r : Rigidification F D) :
     fun i ↦ (RestrictedProduct.evalRingHom _ i).toAlgebra
   IsModuleTopology.continuous_of_linearMap r.toLinearMap
 
-set_option maxSynthPendingDepth 2 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [IsQuaternionAlgebra F D] in
 theorem Rigidification.continuous_invFun (r : Rigidification F D) :

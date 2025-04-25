@@ -167,7 +167,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       apply isOpen_iInter_of_finite
       intro v
       exact Metric.isOpen_ball.preimage (continuous_apply v)
-    sorry
+    . exact RestrictedProduct.isOpen_forall_mem fun v ↦ Valued.integer_isOpen _
   · apply subset_antisymm
     · intro x hx
       rw [Set.mem_preimage] at hx

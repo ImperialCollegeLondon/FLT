@@ -26,7 +26,6 @@ open scoped TensorProduct NumberField
 
 open DedekindDomain
 
-
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
@@ -98,6 +97,8 @@ theorem ext (φ ψ : WeightTwoAutomorphicForm F D R) (h : ∀ x, φ x = ψ x) : 
 def zero : (WeightTwoAutomorphicForm F D R) where
   toFun := 0
   left_invt δ _ := by simp
+  -- this used to be `by simp` but now it times out doing some crazy typeclass search for
+  -- `DiscreteTopology (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ`
   right_invt := ⟨⊤, by simp only [Subgroup.coe_top, isOpen_univ, Subgroup.mem_top,
     Pi.zero_apply, imp_self, implies_true, and_self]⟩
   trivial_central_char _ z := by simp
@@ -192,14 +193,15 @@ lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (g • φ) x = φ (x * g) := rfl
 
--- ?! TODO
 set_option synthInstance.maxHeartbeats 40000 in
 instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
     (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
   one_smul φ := by ext; simp
   mul_smul g h φ := by ext; simp [mul_assoc]
-  smul_zero g := by ext; simp
+  smul_zero g := by ext; simp -- at 20K heartbeats we get
+  -- failed to synthesize
+  -- SMulZeroClass (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ (WeightTwoAutomorphicForm F D R)
   smul_add g φ ψ := by ext; simp
 
 end add_comm_group
