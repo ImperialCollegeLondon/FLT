@@ -26,7 +26,6 @@ open scoped TensorProduct NumberField
 
 open DedekindDomain
 
-set_option maxSynthPendingDepth 2
 
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
