@@ -14,10 +14,13 @@ topological `A`-algebras. This file makes some progress towards this.
 
 ## Main theorems
 
-* `FiniteAdeleRing.closureAlgebraMapIntegers_eq_integers` : The closure of `A` in `K_v` is `𝒪_v`.
+* `HeightOneSpectrum.closureAlgebraMapIntegers_eq_integers` : The closure of `A` in `K_v` is `𝒪_v`.
 
-* `FiniteAdeleRing.closureAlgebraMapIntegers_eq_prodIntegers` : If `s` is a set of primes of `A`,
+* `HeightOneSpectrum.closureAlgebraMapIntegers_eq_prodIntegers` : If `s` is a set of primes of `A`,
     then the closure of `A` in `∏_{v ∈ s} K_v` is `∏_{v ∈ s} 𝒪_v`.
+
+* `HeightOneSpectrum.denseRange_of_prodAlgebraMap` : If `s` is a finite set of primes of `A`, then
+    `K` is dense in `∏_{v ∈ s} K_v`.
 -/
 
 namespace IsDedekindDomain.HeightOneSpectrum
@@ -298,5 +301,70 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
     . rw [RingHom.coe_range]
       exact Set.mem_range_self a
     . exact hts fun w hw ↦ hg w <| ha w hw
+
+lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : HeightOneSpectrum A)
+    (x : v.adicCompletion K) :
+    ∃a ∈ nonZeroDivisors A, ∃b ∈ v.adicCompletionIntegers K, x = (algebraMap A K a)⁻¹ • b := by
+  obtain ⟨a, hz, ha⟩ :=
+    adicCompletion.mul_nonZeroDivisor_mem_adicCompletionIntegers v x
+  use a, hz, (algebraMap A K a) • x
+  constructor
+  . rwa [Algebra.smul_def, ← IsScalarTower.algebraMap_apply, mul_comm]
+  . rw [smul_smul, inv_mul_cancel₀, one_smul]
+    exact IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors K (fun _ ↦ id) hz
+
+lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
+    (valuation : ι → HeightOneSpectrum A) (x : (i : ι) → (valuation i).adicCompletion K) :
+      ∃k : K, ∃y ∈ Set.pi Set.univ (fun (i : ι) ↦ ((valuation i).adicCompletionIntegers K).carrier),
+      x = k • y := by
+  classical
+  choose f hf using fun (i : ι) =>
+    eq_mul_nonZeroDivisor_inv_adicCompletionIntegers K (valuation i) (x i)
+  use (algebraMap A K (∏ i : ι, f i))⁻¹, (algebraMap A K (∏ i : ι, f i)) • x
+  have hz : ∀ (i : ι), (algebraMap A K) (f i) ≠ 0 := fun i =>
+    IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors K (fun _ ↦ id) (hf i).left
+  constructor
+  . rintro i -
+    obtain ⟨b, hb, hx⟩ := (hf i).right
+    beta_reduce
+    rw [Pi.smul_apply, algebraMap_smul, Subsemiring.coe_carrier_toSubmonoid,
+        Subring.coe_toSubsemiring, SetLike.mem_coe, ValuationSubring.mem_toSubring, hx,
+        ← Finset.prod_erase_mul _ f (Finset.mem_univ i), mul_smul,
+        ← IsScalarTower.smul_assoc (f i), Algebra.smul_def (f i), mul_inv_cancel₀ (hz i), one_smul,
+        Algebra.smul_def]
+    apply mul_mem (coe_mem_adicCompletionIntegers _ _) hb
+  . rw [smul_smul, inv_mul_cancel₀, one_smul]
+    simp [Finset.prod_ne_zero_iff, hz]
+
+/-- If `s` is finite then `K` in dense in `∏_{v ∈ s} K_v`. -/
+theorem denseRange_of_prodAlgebraMap {ι : Type*} [Fintype ι]
+    {valuation : ι → HeightOneSpectrum A} (injective : Function.Injective valuation) :
+    DenseRange (algebraMap K ((i : ι) → (valuation i).adicCompletion K)) := by
+  rw [denseRange_iff_closure_range]
+  let S := Set.range (algebraMap K ((i : ι) → (valuation i).adicCompletion K))
+  let I := Set.pi Set.univ (fun (i : ι) ↦ ((valuation i).adicCompletionIntegers K).carrier)
+  -- We've already shown that the closure of `A` is `∏_{v ∈ s} 𝒪_v`, so
+  -- the closure of `K` at least contains this set.
+  have hint : I ⊆ closure S := by
+    unfold I
+    rw [← closureAlgebraMapIntegers_eq_prodIntegers _ _ injective]
+    apply closure_mono
+    exact fun _ ⟨a, ha⟩ ↦ ⟨algebraMap A K a, ha⟩
+  -- Next, the closure of `K` is closed under multiplication by `K` because
+  -- scalar multiplication by a constant is continuous.
+  have hmul : ∀x, x ∈ closure S → ∀y : K, y • x ∈ closure S := by
+    intro x h y
+    let f := fun (z : (i : ι) → (valuation i).adicCompletion K) ↦ y • z
+    have hf : ContinuousAt f x := Continuous.continuousAt (continuous_const_smul y)
+    apply closure_mono _ <| mem_closure_image hf h
+    rintro x ⟨_, ⟨z, rfl⟩, rfl⟩
+    use y • algebraMap K _ z
+    ext i
+    simp [Algebra.smul_def, f]
+  -- Finally, `∏_{v ∈ s} K_v = K • ∏_{v ∈ s} 𝒪_v`
+  rw [Set.eq_univ_iff_forall]
+  intro x
+  obtain ⟨k, y, hy, hx⟩ := adicCompletion.eq_mul_pi_adicCompletionIntegers K valuation x
+  exact hx ▸ hmul y (hint hy) k
 
 end IsDedekindDomain.HeightOneSpectrum
