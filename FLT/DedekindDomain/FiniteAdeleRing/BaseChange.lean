@@ -589,7 +589,7 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
           apply Continuous.smul continuous_subtype_val continuous_const
         -- So, because `A` is dense in `𝒪_v`, `b • (1 ⊗ₜ a') ∈ f '' closure A ⊆ closure f '' A`
         have hy : a' ∈ closure (Set.range (algebraMap A _)) := by
-          apply IsDedekindDomain.denseRange_of_integerAlgebraMap
+          apply denseRange_of_integerAlgebraMap
         apply mem_closure_image hcf hy
         constructor
         . exact isClosed_closure
