@@ -124,6 +124,7 @@ instance : IsModuleTopology v.Completion wv.1.Completion :=
   IsModuleTopology.iso (FiniteDimensional.nonempty_continuousLinearEquiv_of_finrank_eq
     (Module.finrank_fin_fun v.Completion)).some
 
+attribute [instance 10000] Module.Free.of_divisionRing in -- hack to make it quicker
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsTopologicalSemiring (L ⊗[K] v.Completion) :=
   IsModuleTopology.topologicalSemiring v.Completion _
