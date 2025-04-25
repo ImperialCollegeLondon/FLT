@@ -241,6 +241,94 @@ lemma adicCompletionComapSemialgHom.mapadicCompletionIntegers (v : HeightOneSpec
   · rw [hvw]
     apply Ideal.map_ne_bot_of_ne_bot v.ne_bot
 
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
+    [Module.Finite A B] [FaithfulSMul A B] in
+lemma adicCompletionComap_coe
+    (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) (x : K) :
+    adicCompletionComapSemialgHom A K L B v w hvw x = algebraMap K L x :=
+  (adicCompletionComapSemialgHom A K L B v w hvw).commutes x
+
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
+    [Module.Finite A B] [FaithfulSMul A B] in
+open WithZeroTopology in
+lemma valued_adicCompletionComap
+  (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) (x) :
+    Valued.v (adicCompletionComapSemialgHom A K L B v w hvw x) = Valued.v x ^
+      Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal := by
+  revert x
+  apply funext_iff.mp
+  symm
+  apply UniformSpace.Completion.ext
+  · exact Valued.continuous_valuation.pow _
+  · exact Valued.continuous_valuation.comp UniformSpace.Completion.continuous_extension
+  intro a
+  simp_rw [adicCompletionComap_coe, adicCompletion, Valued.valuedCompletion_apply,
+    adicValued_apply']
+  subst hvw
+  rw [← valuation_comap A K L B w a]
+
+include K L in
+omit [IsDedekindDomain A] [IsIntegralClosure B A L] [Algebra.IsSeparable K L]
+    [IsDomain B] [Algebra.IsIntegral A B] [Module.Finite A B] [IsDedekindDomain B]
+    [FaithfulSMul A B] in
+lemma noZeroSMulDivisors : NoZeroSMulDivisors A B := by
+  constructor
+  intro r x h
+  suffices (algebraMap A K r) • (algebraMap B L x) = 0 by
+    rw [smul_eq_zero] at this
+    simpa using this
+  have ht : Algebra.linearMap B L (r • x) = r • algebraMap B L x := by
+    simp [LinearMap.map_smul_of_tower]
+  rw [IsScalarTower.algebraMap_smul, ← ht, h, map_zero]
+
+include K L in
+omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] [FaithfulSMul A B] in
+theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
+  have := noZeroSMulDivisors A K L B
+  rw [Extension, ← Set.coe_setOf]
+  rw [@Set.finite_coe_iff]
+  have := primesOver_finite v.asIdeal B
+  refine Set.Finite.of_finite_image (f := HeightOneSpectrum.asIdeal) ?_ ?_
+  · refine Set.Finite.subset this ?_
+    simp only [Set.subset_def, Set.mem_image, Set.mem_setOf_eq, forall_exists_index, and_imp,
+      forall_apply_eq_imp_iff₂]
+    rintro w rfl
+    simp only [Ideal.primesOver, Set.mem_setOf_eq, isPrime, true_and]
+    constructor
+    simp [Ideal.under_def, comap]
+  · intro x hx y hy hxy
+    rwa [← @HeightOneSpectrum.ext_iff] at hxy
+
+noncomputable
+def comap_algebra {v : HeightOneSpectrum A} {w : HeightOneSpectrum B} (h : w.comap A = v) :
+    Algebra (v.adicCompletion K) (w.adicCompletion L) :=
+  (adicCompletionComapSemialgHom A K L B v w h).toAlgebra
+
+/-- The canonical map `K_v → ∏_{w|v} L_w` extending K → L. -/
+noncomputable def adicCompletionComapSemialgHom' (v : HeightOneSpectrum A) :
+  v.adicCompletion K →ₛₐ[algebraMap K L] ∀ w : v.Extension B, w.1.adicCompletion L :=
+  Pi.semialgHom _ _ fun i ↦ adicCompletionComapSemialgHom A K L B v i.1 i.2
+
+set_option maxSynthPendingDepth 2 in
+noncomputable instance comap_pi_algebra (v : HeightOneSpectrum A) :
+    Algebra (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) :=
+  (adicCompletionComapSemialgHom' A K L B v).toAlgebra
+
+open scoped TensorProduct -- ⊗ notation for tensor product
+
+/-- The canonical L-algebra map `L ⊗_K K_v → ∏_{w|v} L_w`. -/
+noncomputable def tensorAdicCompletionComapAlgHom (v : HeightOneSpectrum A) :
+    L ⊗[K] adicCompletion K v →ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
+  SemialgHom.baseChange_of_algebraMap (adicCompletionComapSemialgHom' A K L B v)
+
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
+    [Module.Finite A B] [FaithfulSMul A B] in
+lemma tensorAdicCompletionComapAlgHom_tmul_apply (v : HeightOneSpectrum A) (x y i) :
+  tensorAdicCompletionComapAlgHom A K L B v (x ⊗ₜ y) i =
+    x • adicCompletionComapSemialgHom A K L B v i.1 i.2 y := by
+  simp_rw [Algebra.smul_def]
+  rfl
+
 section ModuleTopology
 
 open WithZeroMulInt Valued
@@ -272,11 +360,6 @@ lemma adicCompletionComapSemialgHom_continuous
     (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
     Continuous (adicCompletionComapSemialgHom A K L B v w hvw) :=
   UniformSpace.Completion.continuous_extension (β := (adicCompletion L w))
-
-noncomputable
-def comap_algebra {v : HeightOneSpectrum A} {w : HeightOneSpectrum B} (h : w.comap A = v) :
-    Algebra (v.adicCompletion K) (w.adicCompletion L) :=
-  (adicCompletionComapSemialgHom A K L B v w h).toAlgebra
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [Module.Finite A B] [FaithfulSMul A B] in
@@ -362,76 +445,6 @@ lemma adicCompletionComap_isModuleTopology
     ContinuousLinearEquiv.ofFinrankEq (Module.finrank_fin_fun Kv)
   apply IsModuleTopology.iso iso
 
-end ModuleTopology
-
-omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
-    [Module.Finite A B] [FaithfulSMul A B] in
-lemma adicCompletionComap_coe
-    (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) (x : K) :
-    adicCompletionComapSemialgHom A K L B v w hvw x = algebraMap K L x :=
-  (adicCompletionComapSemialgHom A K L B v w hvw).commutes x
-
-omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
-    [Module.Finite A B] [FaithfulSMul A B] in
-open WithZeroTopology in
-lemma valued_adicCompletionComap
-  (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) (x) :
-    Valued.v (adicCompletionComapSemialgHom A K L B v w hvw x) = Valued.v x ^
-      Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal := by
-  revert x
-  apply funext_iff.mp
-  symm
-  apply UniformSpace.Completion.ext
-  · exact Valued.continuous_valuation.pow _
-  · exact Valued.continuous_valuation.comp UniformSpace.Completion.continuous_extension
-  intro a
-  simp_rw [adicCompletionComap_coe, adicCompletion, Valued.valuedCompletion_apply,
-    adicValued_apply']
-  subst hvw
-  rw [← valuation_comap A K L B w a]
-
-include K L in
-omit [IsDedekindDomain A] [IsIntegralClosure B A L] [Algebra.IsSeparable K L]
-    [IsDomain B] [Algebra.IsIntegral A B] [Module.Finite A B] [IsDedekindDomain B]
-    [FaithfulSMul A B] in
-lemma noZeroSMulDivisors : NoZeroSMulDivisors A B := by
-  constructor
-  intro r x h
-  suffices (algebraMap A K r) • (algebraMap B L x) = 0 by
-    rw [smul_eq_zero] at this
-    simpa using this
-  have ht : Algebra.linearMap B L (r • x) = r • algebraMap B L x := by
-    simp [LinearMap.map_smul_of_tower]
-  rw [IsScalarTower.algebraMap_smul, ← ht, h, map_zero]
-
-include K L in
-omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] [FaithfulSMul A B] in
-theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
-  have := noZeroSMulDivisors A K L B
-  rw [Extension, ← Set.coe_setOf]
-  rw [@Set.finite_coe_iff]
-  have := primesOver_finite v.asIdeal B
-  refine Set.Finite.of_finite_image (f := HeightOneSpectrum.asIdeal) ?_ ?_
-  · refine Set.Finite.subset this ?_
-    simp only [Set.subset_def, Set.mem_image, Set.mem_setOf_eq, forall_exists_index, and_imp,
-      forall_apply_eq_imp_iff₂]
-    rintro w rfl
-    simp only [Ideal.primesOver, Set.mem_setOf_eq, isPrime, true_and]
-    constructor
-    simp [Ideal.under_def, comap]
-  · intro x hx y hy hxy
-    rwa [← @HeightOneSpectrum.ext_iff] at hxy
-
-/-- The canonical map `K_v → ∏_{w|v} L_w` extending K → L. -/
-noncomputable def adicCompletionComapSemialgHom' (v : HeightOneSpectrum A) :
-  v.adicCompletion K →ₛₐ[algebraMap K L] ∀ w : v.Extension B, w.1.adicCompletion L :=
-  Pi.semialgHom _ _ fun i ↦ adicCompletionComapSemialgHom A K L B v i.1 i.2
-
-set_option maxSynthPendingDepth 2 in
-noncomputable instance comap_pi_algebra (v : HeightOneSpectrum A) :
-    Algebra (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) :=
-  (adicCompletionComapSemialgHom' A K L B v).toAlgebra
-
 set_option maxSynthPendingDepth 2 in
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] [FaithfulSMul A B] in
 lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
@@ -449,20 +462,7 @@ lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
   let _ := Extension.finite A K L B v
   exact IsModuleTopology.instPi
 
-open scoped TensorProduct -- ⊗ notation for tensor product
-
-/-- The canonical L-algebra map `L ⊗_K K_v → ∏_{w|v} L_w`. -/
-noncomputable def tensorAdicCompletionComapAlgHom (v : HeightOneSpectrum A) :
-    L ⊗[K] adicCompletion K v →ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
-  SemialgHom.baseChange_of_algebraMap (adicCompletionComapSemialgHom' A K L B v)
-
-omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
-    [Module.Finite A B] [FaithfulSMul A B] in
-lemma tensorAdicCompletionComapAlgHom_tmul_apply (v : HeightOneSpectrum A) (x y i) :
-  tensorAdicCompletionComapAlgHom A K L B v (x ⊗ₜ y) i =
-    x • adicCompletionComapSemialgHom A K L B v i.1 i.2 y := by
-  simp_rw [Algebra.smul_def]
-  rfl
+end ModuleTopology
 
 /-- The canonical map `L ⊗[K] K_v → ∏_{w|v} L_w` is bijective. -/
 theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
