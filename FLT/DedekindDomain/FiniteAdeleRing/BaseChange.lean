@@ -849,15 +849,22 @@ noncomputable
 instance BaseChange.algebra : Algebra (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
   RingHom.toAlgebra (FiniteAdeleRing.mapRingHom A K L B)
 
+#synth Algebra (FiniteAdeleRing A K) (FiniteAdeleRing B L) -- immediate
+
+#check RestrictedProduct.instSMulCoeOfSMulMemClass
+
+attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
+-- otherwise
+-- #synth SMul (FiniteAdeleRing A K) (FiniteAdeleRing B L)
+-- spends 2 seconds failing to find `SMul (FiniteAdeleRing A K) (adicCompletion L w)
+
 lemma BaseChange.isModuleTopology : IsModuleTopology (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
   sorry -- this should follow from the fact that L_w has the K_v-module topology? Hopefully?
 
-set_option maxSynthPendingDepth 2 in
 noncomputable instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
   moduleTopology (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K)
 
 -- Follows from the above.
-set_option maxSynthPendingDepth 2 in
 noncomputable def FiniteAdeleRing.baseChangeAlgEquiv :
     L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L where
   __ := AlgEquiv.ofBijective
@@ -865,7 +872,6 @@ noncomputable def FiniteAdeleRing.baseChangeAlgEquiv :
     -- ⊢ Function.Bijective ⇑(mapSemialgHom A K L B).baseChange_of_algebraWMap
     sorry -- #243
 
-set_option maxSynthPendingDepth 2 in
 noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
     L ⊗[K] FiniteAdeleRing A K ≃A[L] FiniteAdeleRing B L where
   __ := FiniteAdeleRing.baseChangeAlgEquiv A K L B
