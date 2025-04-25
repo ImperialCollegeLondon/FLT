@@ -23,7 +23,7 @@ variable [∀ i j (h : i ≤ j), FunLike (T h) (G j) (G i)] [InverseSystem (f ·
 variable [IsDirected ι (· ≤ ·)]
 
 variable (G f) in
-abbrev InverseLimit : Type _ := {x : (i : ι) → G i // ∀ i j h, f i j h (x j) = (x i)}
+def InverseLimit : Type _ := {x : (i : ι) → G i // ∀ i j h, f i j h (x j) = (x i)}
 
 namespace InverseLimit
 
@@ -35,6 +35,13 @@ instance : CoeOut (InverseLimit G f) ((i : ι) → G i) where
 omit [InverseSystem fun x1 x2 x3 ↦ ⇑(f x1 x2 x3)] [IsDirected ι fun x1 x2 ↦ x1 ≤ x2] in
 @[simp]
 lemma prop : ∀ (i j : _) (h : i ≤ j), f i j h (x.1 j) = x.1 i := x.2
+
+omit [InverseSystem fun x1 x2 x3 ↦ ⇑(f x1 x2 x3)] [IsDirected ι fun x1 x2 ↦ x1 ≤ x2] in
+@[ext]
+lemma ext_lemma (h : ∀ i, x.1 i = y.1 i) : x = y := by
+  unfold InverseLimit at *
+  ext i
+  exact h i
 
 section ZeroOne
 
@@ -195,7 +202,8 @@ instance [∀ i, CommMonoidWithZero (G i)] [∀ i j h, MonoidWithZeroHomClass (T
 
 section GroupWithZero
 
-variable [instGroupWithZeroG : ∀ i, GroupWithZero (G i)] [∀ i j h, MonoidWithZeroHomClass (T h) (G j) (G i)]
+variable [instGroupWithZeroG : ∀ i, GroupWithZero (G i)]
+  [∀ i j h, MonoidWithZeroHomClass (T h) (G j) (G i)]
 
 instance : DivInvMonoid (InverseLimit G f) where
   inv x := ⟨x.1⁻¹, by simp⟩
@@ -270,7 +278,7 @@ instance : AddGroupWithOne (InverseLimit G f) where
   natCast_succ := Nat.cast_succ
 
 omit [InverseSystem fun x1 x2 x3 ↦ ⇑(f x1 x2 x3)] [IsDirected ι fun x1 x2 ↦ x1 ≤ x2] [Nonempty ι] in
-theorem intCast_def  (n : ℤ) :
+theorem intCast_def (n : ℤ) :
     (n : InverseLimit G f).1 i = n := rfl
 
 end AddGroupWithOne
@@ -361,7 +369,7 @@ instance [∀ i, AddZeroClass (G i)] [∀ i, DistribSMul R (G i)]
 instance [Monoid R] [∀ i, AddMonoid (G i)] [∀ i, DistribMulAction R (G i)]
     [∀ i j h, DistribMulActionHomClass (T h) R (G j) (G i)] :
     DistribMulAction R (InverseLimit G f) :=
-  have _ i j h : MulActionHomClass (T h) R (G j) (G i) := inferInstance
+  letI _ i j h : MulActionHomClass (T h) R (G j) (G i) := inferInstance
   { smul_zero := smul_zero, smul_add := smul_add }
 
 instance [Monoid R] [∀ i, Monoid (G i)] [∀ i, MulDistribMulAction R (G i)]
@@ -376,7 +384,7 @@ instance [Monoid R] [∀ i, Monoid (G i)] [∀ i, MulDistribMulAction R (G i)]
 instance [Semiring R] [∀ i, AddCommMonoid (G i)] [∀ i, Module R (G i)]
     [∀ i j h, LinearMapClass (T h) R (G j) (G i)] :
     Module R (InverseLimit G f) :=
-  have _ i j h : DistribMulActionHomClass (T h) R (G j) (G i) := inferInstance
+  letI _ i j h : DistribMulActionHomClass (T h) R (G j) (G i) := inferInstance
   {
     add_smul r s x := by ext i; simp [add_smul],
     zero_smul x := by ext i; simp
@@ -387,29 +395,29 @@ end Action
 section ToComponent
 
 variable (G f) in
-def to_component (i : ι) : InverseLimit G f → G i := fun (z : InverseLimit G f) ↦ z.1 i
+def toComponent (i : ι) : InverseLimit G f → G i := fun (z : InverseLimit G f) ↦ z.1 i
 
 variable (G f) in
-def to_componentₘ (i : ι) [∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j) (G i)] :
+def toComponentₘ (i : ι) [∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j) (G i)] :
     InverseLimit G f →* G i where
-  toFun := to_component G f i
+  toFun := toComponent G f i
   map_one' := by aesop
   map_mul' := by aesop
 
 variable (G f) in
-def to_componentᵣ (i : ι) [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T h) (G j) (G i)] :
+def toComponentᵣ (i : ι) [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T h) (G j) (G i)] :
     InverseLimit G f →+* G i where
-  toFun := to_component G f i
+  toFun := toComponent G f i
   map_one' := by aesop
   map_mul' := by aesop
   map_zero' := by aesop
   map_add' := by aesop
 
 variable (G f) in
-def to_componentₗ (i : ι) {R : Type*} [Ring R]
+def toComponentₗ (i : ι) {R : Type*} [Ring R]
   [∀ i, AddCommGroup (G i)] [∀ i, Module R (G i)] [∀ i j h, LinearMapClass (T h) R (G j) (G i)] :
     InverseLimit G f →ₗ[R] G i where
-  toFun := to_component G f i
+  toFun := toComponent G f i
   map_add' := by aesop
   map_smul' := by aesop
 
@@ -420,43 +428,42 @@ section Maps
 variable {W : Type*} {M : ι → Type*} (maps : ∀ i, M i) [∀ i, FunLike (M i) W (G i)]
 
 variable (G f) in
-class InverseSystemHom where
-  comm : ∀ i j (h : i ≤ j) w, (f i j h) (maps j w) = maps i w
+def InverseSystemHom := ∀ i j (h : i ≤ j) w, (f i j h) (maps j w) = maps i w
 
-variable [instInverseSystemHom : InverseSystemHom G f maps]
+variable (inverseSystemHom : InverseSystemHom G f maps)
 
 variable (G f) in
-abbrev map_of_maps : W → InverseLimit G f :=
+abbrev lift : W → InverseLimit G f :=
   fun w ↦ ⟨fun i ↦ maps i w, by
     intro i j h
     simp only
-    exact instInverseSystemHom.comm i j h w
+    exact inverseSystemHom i j h w
   ⟩
 
 variable (G f) in
-def map_of_mapsₘ [∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j) (G i)]
+def liftₘ [∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j) (G i)]
     [Group W] [∀ i, MonoidHomClass (M i) W (G i)] :
     W →* InverseLimit G f where
-  toFun := map_of_maps G f maps
+  toFun := lift G f maps inverseSystemHom
   map_one' := by ext i; simp
   map_mul' x y := by ext i; simp
 
 variable (G f) in
-def map_of_mapsᵣ [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T h) (G j) (G i)]
+def liftᵣ [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T h) (G j) (G i)]
     [Ring W] [∀ i, RingHomClass (M i) W (G i)] :
     W →+* InverseLimit G f where
-  toFun := map_of_maps G f maps
+  toFun := lift G f maps inverseSystemHom
   map_one' := by ext i; simp
   map_mul' x y := by ext i; simp
   map_zero' := by ext i; simp
   map_add' x y := by ext i; simp
 
 variable (G f) in
-def map_of_mapsₗ {R : Type*} [Ring R]
+def liftₗ {R : Type*} [Ring R]
     [∀ i, AddCommGroup (G i)] [∀ i, Module R (G i)] [∀ i j h, LinearMapClass (T h) R (G j) (G i)]
     [AddCommGroup W] [Module R W] [∀ i, LinearMapClass (M i) R W (G i)] :
     W →ₗ[R] InverseLimit G f where
-  toFun := map_of_maps G f maps
+  toFun := lift G f maps inverseSystemHom
   map_add' x y := by ext i; simp
   map_smul' r x := by ext i; simp
 
