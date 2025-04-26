@@ -6,6 +6,8 @@ import Mathlib.Topology.Algebra.Field
 import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
 import Mathlib.Topology.Connected.Separation
 import FLT.Patching.Utils.InverseLimit
+import FLT.Patching.Utils.Lemmas
+import Mathlib.RingTheory.Artinian.Ring
 
 variable (R) [CommRing R] [IsLocalRing R] [TopologicalSpace R] [IsTopologicalRing R]
 

@@ -1,6 +1,9 @@
 import Mathlib.Algebra.Order.AbsoluteValue.Basic
-import Mathlib.Tactic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
+import Mathlib.Algebra.EuclideanDomain.Field
+import Mathlib.RingTheory.LocalRing.Basic
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Tactic.Have
 
 open scoped Topology
 

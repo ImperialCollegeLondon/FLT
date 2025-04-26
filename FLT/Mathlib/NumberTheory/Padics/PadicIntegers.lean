@@ -1,6 +1,5 @@
 import Mathlib.Algebra.CharZero.Infinite
 import Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.RingTheory.Ideal.Operations
 import Mathlib.NumberTheory.Padics.RingHoms
 

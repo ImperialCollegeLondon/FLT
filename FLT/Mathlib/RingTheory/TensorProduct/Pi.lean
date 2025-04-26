@@ -1,4 +1,4 @@
-import Mathlib.RingTheory.TensorProduct.Pi
+import Mathlib.LinearAlgebra.TensorProduct.Pi
 
 theorem Algebra.TensorProduct.piScalarRight_symm_apply_of_algebraMap (R S N ι : Type*)
     [CommSemiring R] [CommSemiring S] [Algebra R S] [Semiring N] [Algebra R N] [Algebra S N]

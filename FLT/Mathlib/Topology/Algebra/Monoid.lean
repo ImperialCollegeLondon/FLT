@@ -1,4 +1,3 @@
-import Mathlib.Algebra.Group.Subgroup.Ker
 import Mathlib.Topology.Algebra.Monoid
 
 variable {G H : Type*} [Group G] [Group H] [TopologicalSpace G] [TopologicalSpace H]
