@@ -1,8 +1,6 @@
 import Mathlib.LinearAlgebra.Quotient.Basic
-import Mathlib.RingTheory.FreeCommRing
 import Mathlib.RingTheory.Ideal.Maps
 import Mathlib.RingTheory.Ideal.Quotient.Defs
-import Mathlib.Order.DirectedInverseSystem
 import Mathlib.Tactic.SuppressCompilation
 import Mathlib.RepresentationTheory.Basic
 

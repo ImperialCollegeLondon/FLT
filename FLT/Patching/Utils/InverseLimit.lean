@@ -1,4 +1,3 @@
-import FLT.Patching.Utils.Lemmas
 import Mathlib.CategoryTheory.CofilteredSystem
 import Mathlib.Data.Finset.Order
 

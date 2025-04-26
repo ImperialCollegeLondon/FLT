@@ -4,7 +4,6 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Algebra.Tower
-import FLT.Mathlib.Topology.Algebra.Monoid
 
 namespace IsModuleTopology
 

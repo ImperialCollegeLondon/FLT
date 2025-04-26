@@ -3,15 +3,12 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Ludwig Monnerjahn, Hannah Scholz
 -/
-import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Algebra.Group.Subgroup.Pointwise
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.NumberField.AdeleRing
 import Mathlib.GroupTheory.DoubleCoset
-import Mathlib.Algebra.Central.Basic
+import Mathlib.Algebra.Central.Defs
 
 /-
 

@@ -1,5 +1,4 @@
 import Mathlib.GroupTheory.Complement
-import FLT.Mathlib.Data.Set.Card
 
 /-!
 # TODO

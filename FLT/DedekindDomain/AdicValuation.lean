@@ -1,8 +1,6 @@
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Algebra.Order.GroupWithZero
-import Mathlib.Topology.Algebra.Valued.NormedValued
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
-import Mathlib.Algebra.Algebra.Subalgebra.Pi
 
 /-!
 
