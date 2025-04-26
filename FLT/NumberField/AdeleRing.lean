@@ -7,7 +7,6 @@ import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib.Tactic.Have
 
 open scoped TensorProduct
 
@@ -184,8 +183,8 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       specialize h1 Rat.infinitePlace
       change ‖(x : ℂ)‖ < 1 at h1
       simp only [Complex.norm_ratCast, integralAdeles] at h1
-      have intx: ∃ (y:ℤ), y = x
-      · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
+      have intx: ∃ (y:ℤ), y = x := by
+        obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
             ℚ x <| fun v ↦ by
           specialize h2 v
           letI : UniformSpace ℚ := v.adicValued.toUniformSpace
@@ -211,8 +210,8 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       constructor
       · simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq]
         intro v
-        have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0
-        · simp only [norm_eq_zero]
+        have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0 := by
+          simp only [norm_eq_zero]
           rfl
         simp [this, zero_lt_one]
       · simp only [integralAdeles, Set.mem_setOf_eq]
