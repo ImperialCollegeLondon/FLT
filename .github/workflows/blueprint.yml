@@ -45,11 +45,6 @@ jobs:
     name: Lint style
     runs-on: ubuntu-latest
     steps:
-      - name: Check for long lines
-        if: always()
-        run: |
-          ! (find FLT -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
-
       - name: Don't 'import Mathlib', use precise imports
         if: always()
         run: |
@@ -70,8 +65,14 @@ jobs:
       - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
 
+      - name: check that FLT.lean is up to date
+        run: ~/.elan/bin/lake exe mk_all --check
+
       - name: Build project
         run: ~/.elan/bin/lake build FLT
+
+      - name: Lint project
+        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter FLT
 
       - name: Cache Mathlib docs
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
