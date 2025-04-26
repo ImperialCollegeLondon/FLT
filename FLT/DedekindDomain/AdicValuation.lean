@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Matthew Jasper. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Matthew Jasper
+-/
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Algebra.Order.GroupWithZero
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
@@ -8,9 +13,10 @@ import Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 If `A` is a valued ring with field of fractions `K` there are two different
 complete rings containing `A` one might define, the first is
-`𝒪_v = {x ∈ K_v | v x ≤ 1}` and the second is the `v-adic` completion of `A`.
-In the case when `A` is a Dedekind domain these definitions give isomorphic
-topological `A`-algebras. This file makes some progress towards this.
+`𝒪_v = {x ∈ K_v | v x ≤ 1}` (defined in Lean as `adicCompletionIntegers K v`)
+and the second is the `v-adic` completion of `A`. In the case when `A` is a
+Dedekind domain these definitions give isomorphic topological `A`-algebras.
+This file makes some progress towards this.
 
 ## Main theorems
 
