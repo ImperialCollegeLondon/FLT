@@ -48,8 +48,7 @@ lemma Module.depth_of_isScalarTower :
   exact ⟨_, hs₁, by simpa, by simp⟩
 
 @[stacks 00LK]
-lemma Module.depth_le_krullDim_support [IsNoetherianRing R] [Nontrivial M]
-    [Module.Finite R M] :
+lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     .some (Module.depth R M) ≤ Order.krullDim (Module.support R M) := by
   have : Nonempty (Module.support R M) := by
     rwa [Set.nonempty_coe_sort, Set.nonempty_iff_ne_empty,
@@ -129,13 +128,12 @@ lemma Module.depth_le_krullDim_support [IsNoetherianRing R] [Nontrivial M]
       linarith
 
 lemma Module.depth_le_dim_annihilator
-    [IsNoetherianRing R] [Nontrivial M] [Module.Finite R M] :
+    [Nontrivial M] [Module.Finite R M] :
     .some (Module.depth R M) ≤ ringKrullDim (R ⧸ Module.annihilator R M) := by
   rw [ringKrullDim_quotient, ← Module.support_eq_zeroLocus]
   exact Module.depth_le_krullDim_support _ _
 
-lemma Module.depth_le_dim
-    [IsNoetherianRing R] [Nontrivial M] [Module.Finite R M] :
+lemma Module.depth_le_dim [Nontrivial M] [Module.Finite R M] :
     .some (Module.depth R M) ≤ ringKrullDim R :=
   (depth_le_dim_annihilator R M).trans (ringKrullDim_quotient_le _)
 
@@ -202,10 +200,9 @@ lemma Module.depth_le_of_free [Module.Free R M] : Module.depth R R ≤ Module.de
   rintro _ ⟨s, hs, hs', rfl⟩
   refine ⟨s, Sequence.isWeaklyRegular_of_free.mpr hs, hs', rfl⟩
 
-lemma Module.faithfulSMul_of_depth_eq_ringKrullDim
-    [IsNoetherianRing R] [IsDomain R] [Nontrivial M] [Module.Finite R M]
-    (H : ringKrullDim R < ⊤)
-    (H' : .some (Module.depth R M) = ringKrullDim R) : FaithfulSMul R M := by
+lemma Module.faithfulSMul_of_depth_eq_ringKrullDim [IsDomain R] [Nontrivial M] [Module.Finite R M]
+    (H : ringKrullDim R < ⊤) (H' : .some (Module.depth R M) = ringKrullDim R) :
+    FaithfulSMul R M := by
   have : Nontrivial (R ⧸ annihilator R M) := Ideal.Quotient.nontrivial
     (by rw [ne_eq, ← Submodule.annihilator_top, Submodule.annihilator_eq_top_iff]
         exact top_ne_bot)

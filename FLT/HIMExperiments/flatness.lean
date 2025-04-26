@@ -67,10 +67,11 @@ noncomputable def _root_.Ideal.mulGeneratorOfIsPrincipal (I : Ideal R) [hprinc :
   map_add' _ _ := Subtype.ext <| add_mul _ _ _
   map_smul' _ _ := Subtype.ext <| mul_assoc _ _ _
 
--- should be elsewhere
 variable {R : Type*} [CommRing R]
   variable {M : Type*} [AddCommGroup M] [Module R M]
   variable {M' : Type*} [AddCommGroup M'] [Module R M'] in
+/-- Given a surjective linear map with trivial kernel, returns the associated
+linear isomorphism. -/
 noncomputable def LinearMap.EquivOfKerEqBotOfSurjective
     (φ : M' →ₗ[R] M) (h1 : LinearMap.ker φ = ⊥) (h2 : Function.Surjective φ) :
     M' ≃ₗ[R] M := { φ with
@@ -112,7 +113,7 @@ theorem extracted_1 [IsPrincipalIdealRing R] [IsDomain R] {I : Ideal R}
   simp [Ideal.isoBaseOfIsPrincipal,
     LinearMap.EquivOfKerEqBotOfSurjective, Ideal.mulGeneratorOfIsPrincipal]
 
-theorem extracted_2 [IsPrincipalIdealRing R] {y : R} :
+theorem extracted_2 {y : R} :
     lift (lsmul R M ∘ₗ LinearMap.mul R R y) = lsmul R M y ∘ₗ lift (lsmul R M) := by
   ext x
   simp

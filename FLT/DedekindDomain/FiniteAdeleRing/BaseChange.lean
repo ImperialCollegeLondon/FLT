@@ -280,7 +280,9 @@ def comap_algebra {v : HeightOneSpectrum A} {w : HeightOneSpectrum B} (h : w.com
     Algebra (v.adicCompletion K) (w.adicCompletion L) :=
   (adicCompletionComapSemialgHom A K L B v w h).toAlgebra
 
-def comap_algebra_continuousSmul (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
+    [Module.Finite A B] [FaithfulSMul A B] in
+lemma comap_algebra_continuousSmul (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
     (hvw : comap A w = v) :
     letI := comap_algebra A K L B hvw
     ContinuousSMul (adicCompletion K v) (adicCompletion L w) := by
@@ -390,7 +392,11 @@ lemma valued_adicCompletionComap
   subst hvw
   rw [← valuation_comap A K L B w a]
 
-def noZeroSMulDivisors : NoZeroSMulDivisors A B := by
+include K L in
+omit [IsDedekindDomain A] [IsIntegralClosure B A L] [Algebra.IsSeparable K L]
+    [IsDomain B] [Algebra.IsIntegral A B] [Module.Finite A B] [IsDedekindDomain B]
+    [FaithfulSMul A B] in
+lemma noZeroSMulDivisors : NoZeroSMulDivisors A B := by
   constructor
   intro r x h
   suffices (algebraMap A K r) • (algebraMap B L x) = 0 by
@@ -508,8 +514,6 @@ noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A
     prodAdicCompletionComap_isModuleTopology A K L B v
   have := ModuleTopology.continuousAdd (v.adicCompletion K) (L ⊗[K] v.adicCompletion K)
   let _ := fun (w : Extension B v) => comap_algebra A K L B w.2 |>.toSMul
-  have := fun (w : Extension B v) =>
-    ModuleTopology.continuousSMul (v.adicCompletion K) (w.1.adicCompletion L)
   {
     toAlgEquiv := adicCompletionComapAlgEquiv A K L B v
     continuous_toFun := IsModuleTopology.continuous_of_linearMap
@@ -728,7 +732,7 @@ open IsDedekindDomain HeightOneSpectrum
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
--- not sure we even want to define this?
+/-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields.-/
 noncomputable def FiniteAdeleRing.mapRingHom :
     FiniteAdeleRing A K →+* FiniteAdeleRing B L := RestrictedProduct.mapRingHom
   (fun (v : HeightOneSpectrum A) ↦ v.adicCompletion K)
@@ -741,6 +745,8 @@ noncomputable def FiniteAdeleRing.mapRingHom :
     intro w
     sorry) -- done in #400
 
+/-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields,
+as a morphism lying over the canonical map `K → L`. -/
 noncomputable def FiniteAdeleRing.mapSemialgHom :
     FiniteAdeleRing A K →ₛₐ[algebraMap K L] FiniteAdeleRing B L where
       __ := FiniteAdeleRing.mapRingHom A K L B
@@ -768,7 +774,7 @@ lemma BaseChange.isModuleTopology : IsModuleTopology (FiniteAdeleRing A K) (Fini
 noncomputable instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
   moduleTopology (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K)
 
--- Follows from the above.
+/-- The `L`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
 noncomputable def FiniteAdeleRing.baseChangeAlgEquiv :
     L ⊗[K] FiniteAdeleRing A K ≃ₐ[L] FiniteAdeleRing B L where
   __ := AlgEquiv.ofBijective
@@ -776,6 +782,7 @@ noncomputable def FiniteAdeleRing.baseChangeAlgEquiv :
     -- ⊢ Function.Bijective ⇑(mapSemialgHom A K L B).baseChange_of_algebraWMap
     sorry -- #243
 
+/-- The continuous `L`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞` -/
 noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
     L ⊗[K] FiniteAdeleRing A K ≃A[L] FiniteAdeleRing B L where
   __ := FiniteAdeleRing.baseChangeAlgEquiv A K L B
