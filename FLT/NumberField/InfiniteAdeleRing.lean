@@ -4,6 +4,7 @@ import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
+import Mathlib.RingTheory.TensorProduct.Pi
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
