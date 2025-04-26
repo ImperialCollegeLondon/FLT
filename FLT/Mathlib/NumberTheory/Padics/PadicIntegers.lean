@@ -29,12 +29,6 @@ lemma coe_injective : Injective ((↑) : ℤ_[p] → ℚ_[p]) := Subtype.val_inj
 
 instance : Infinite ℤ_[p] := CharZero.infinite _
 
-@[simp]
-protected lemma nnnorm_mul (x y : ℤ_[p]) : ‖x * y‖₊ = ‖x‖₊ * ‖y‖₊ := by simp [nnnorm, NNReal]
-
-@[simp]
-protected lemma nnnorm_pow (x : ℤ_[p]) (n : ℕ) : ‖x ^ n‖₊ = ‖x‖₊ ^ n := by simp [nnnorm, NNReal]
-
 @[simp] lemma nnnorm_p : ‖(p : ℤ_[p])‖₊ = (p : ℝ≥0)⁻¹ := by simp [nnnorm]; rfl
 
 @[simp] protected lemma nnnorm_units (u : ℤ_[p]ˣ) : ‖(u : ℤ_[p])‖₊ = 1 := by simp [nnnorm, NNReal]
