@@ -6,6 +6,7 @@ import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
+import FLT.Mathlib.RingTheory.Finiteness.Pi
 import Mathlib.Algebra.Algebra.Subalgebra.Pi
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.Data.Int.WithZero
@@ -329,6 +330,32 @@ lemma tensorAdicCompletionComapAlgHom_tmul_apply (v : HeightOneSpectrum A) (x y 
   simp_rw [Algebra.smul_def]
   rfl
 
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+/-- `tensorAdicCompletionComapAlgHom` as a K_v-linear map. -/
+noncomputable def tensorAdicCompletionComapLinearMap :
+    letI := comap_pi_algebra A K L B v |>.toModule
+    L ⊗[K] adicCompletion K v →ₗ[adicCompletion K v]
+    (w : Extension B v) → adicCompletion L w.val :=
+  letI := comap_pi_algebra A K L B v |>.toModule
+  {
+    __ := tensorAdicCompletionComapAlgHom A K L B v
+    map_smul' a x := by
+      ext w
+      have : ((algebraMap (adicCompletion K v) (L ⊗[K] adicCompletion K v)) a) = 1 ⊗ₜ a := rfl
+      simp only [tensorAdicCompletionComapAlgHom, adicCompletionComapSemialgHom',
+        AlgHom.toRingHom_eq_coe, RingHom.toMonoidHom_eq_coe, AlgHom.toRingHom_toMonoidHom,
+        Algebra.smul_def, this, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe, map_mul,
+        MonoidHom.coe_coe, SemialgHom.baseChange_of_algebraMap_tmul_right]
+      rfl
+  }
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+instance : Module.Finite (adicCompletion K v) (L ⊗[K] adicCompletion K v) := by
+  classical
+  obtain ⟨ι, b, hb⟩ := FiniteDimensional.exists_is_basis_integral A K L
+  let b' : Basis ι _ (L ⊗[K] adicCompletion K v) := Basis.rightBaseChange L b
+  exact FiniteDimensional.of_fintype_basis <| b'
+
 section ModuleTopology
 
 open WithZeroMulInt Valued
@@ -372,62 +399,54 @@ lemma comap_algebra_continuousSmul (v : HeightOneSpectrum A) (w : HeightOneSpect
   have leftCts := adicCompletionComapSemialgHom_continuous A K L B v w hvw
   exact Continuous.mul (Continuous.fst' leftCts) continuous_snd
 
-open TensorProduct in
-/-- The canonical `K_v`-linear map `K_v ⨂[K] L → L_w` coming from the embeddings
-    `K_v → L_w` and `L → L_w`. -/
-noncomputable def baseChange_of_algebraMap_adicCompletion (v : HeightOneSpectrum A)
-    (w : HeightOneSpectrum B) (hvw : comap A w = v) :
-    letI := comap_algebra A K L B hvw
-    (adicCompletion K v ⊗[K] L) →ₗ[adicCompletion K v] adicCompletion L w :=
-  let inst_alg := comap_algebra A K L B hvw
-  let sa : L →ₛₐ[algebraMap K (adicCompletion K v)] adicCompletion L w := {
-    __ := (algebraMap L (adicCompletion L w))
-    map_smul' x y := by
-      simp only [Algebra.smul_def, Algebra.smul_def, MonoidHom.map_mul']
-      congr 1
-      symm
-      apply (adicCompletionComapSemialgHom A K L B v w hvw).commutes x
-  }
-  (SemialgHom.baseChange_of_algebraMap sa).toLinearMap
-
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] [FaithfulSMul A B] in
-theorem baseChange_of_algebraMap_adicComletion_surjective (v : HeightOneSpectrum A)
-    (w : HeightOneSpectrum B) (hvw : comap A w = v) :
-    Function.Surjective (baseChange_of_algebraMap_adicCompletion A K L B v w hvw) := by
-  let inst_alg := comap_algebra A K L B hvw
-  let inst_cSmul : ContinuousSMul (adicCompletion K v) (adicCompletion L w) :=
-    comap_algebra_continuousSmul A K L B v w hvw
-  set f := (baseChange_of_algebraMap_adicCompletion A K L B v w hvw)
-  have isClosed : IsClosed (LinearMap.range f).carrier := by
-    apply Submodule.closed_of_finiteDimensional
-  let coeL : WithVal (w.valuation L) → adicCompletion L w := UniformSpace.Completion.coe'
-  have denseL : DenseRange coeL := UniformSpace.Completion.denseRange_coe
+lemma tensorAdicCompletionComapLinearMap_surjective (v : HeightOneSpectrum A) :
+    Function.Surjective (tensorAdicCompletionComapLinearMap A K L B v) := by
+  letI : Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
+    comap_pi_algebra A K L B v |>.toModule
+  let _ (w : Extension B v) : SMul (adicCompletion K v) (adicCompletion L w.val) :=
+    comap_algebra A K L B w.prop |>.toSMul
+  let _ (w : Extension B v) : ContinuousSMul (adicCompletion K v) (adicCompletion L w.val) :=
+    comap_algebra_continuousSmul A K L B v w.val w.prop
+  let f' := tensorAdicCompletionComapLinearMap A K L B v
+  let s : Submodule (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
+    LinearMap.range f'
+  have hFinite : Module.Finite (adicCompletion K v) s := Module.Finite.range f'
+  have isClosed : IsClosed s.carrier :=
+    Submodule.closed_of_finiteDimensional (E := (w : Extension B v) → adicCompletion L w.val) s
   rw [← LinearMap.range_eq_top, Submodule.eq_top_iff']
   simp_rw [← Submodule.mem_toAddSubmonoid, ← AddSubmonoid.mem_toSubsemigroup,
       ← AddSubsemigroup.mem_carrier]
+  have denseL : DenseRange (algebraMap L ((w : Extension B v) → adicCompletion L w.val)) := by
+    have := Extension.finite A K L B v
+    let _ := Fintype.ofFinite <| Extension B v
+    exact denseRange_of_prodAlgebraMap _ Subtype.val_injective
   rw [← isClosed.closure_eq]
   apply Dense.mono _ denseL
-  intro x ⟨l, hl⟩
-  use (1 ⊗ₜ l)
-  simp only [f, baseChange_of_algebraMap_adicCompletion, ← hl,
-    SemialgHom.baseChange_of_algebraMap_tmul_right, AlgHom.toLinearMap_apply]
-  rfl
+  rintro _ ⟨l, rfl⟩
+  use (l ⊗ₜ 1)
+  ext w
+  simp [tensorAdicCompletionComapAlgHom_tmul_apply, Algebra.algebraMap_eq_smul_one,
+      tensorAdicCompletionComapLinearMap, f']
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] [FaithfulSMul A B] in
+theorem comap_pi_algebra_finite (v : HeightOneSpectrum A) :
+    letI := comap_pi_algebra A K L B v |>.toModule
+    Module.Finite (adicCompletion K v) (Π w : v.Extension B, w.1.adicCompletion L) :=
+  letI := comap_pi_algebra A K L B v |>.toModule
+  Module.Finite.of_surjective (tensorAdicCompletionComapLinearMap A K L B v)
+    (tensorAdicCompletionComapLinearMap_surjective A K L B v)
 
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] [FaithfulSMul A B] in
 theorem comap_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
     (hvw : comap A w = v) :
     letI := comap_algebra A K L B hvw
-    Module.Finite (adicCompletion K v) (adicCompletion L w) := by
-  let inst_alg := comap_algebra A K L B hvw
-  have fdRange :
-      (LinearMap.range (baseChange_of_algebraMap_adicCompletion A K L B v w hvw)).FG := by
-    rw [← Module.Finite.iff_fg]
-    apply LinearMap.finiteDimensional_range
-  rw [Module.finite_def]
-  suffices LinearMap.range (baseChange_of_algebraMap_adicCompletion A K L B v w hvw) = ⊤ by
-    rwa [← this]
-  rw [LinearMap.range_eq_top]
-  apply baseChange_of_algebraMap_adicComletion_surjective
+    Module.Finite (adicCompletion K v) (adicCompletion L w) :=
+  have := comap_pi_algebra_finite A K L B v
+  let _ (w : Extension B v) := comap_algebra A K L B w.prop |>.toModule
+  Module.Finite.of_pi (fun (w : Extension B v) => w.1.adicCompletion L) ⟨w, hvw⟩
 
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] [Module.Finite A B] [FaithfulSMul A B] in
 lemma adicCompletionComap_isModuleTopology
@@ -467,11 +486,16 @@ end ModuleTopology
 /-- The canonical map `L ⊗[K] K_v → ∏_{w|v} L_w` is bijective. -/
 theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
     Function.Bijective (tensorAdicCompletionComapAlgHom A K L B v) := by
-  sorry -- issue FLT#231; one proof is proof in blueprint at
+  show Function.Bijective (tensorAdicCompletionComapLinearMap A K L B v)
+  have hsurj := tensorAdicCompletionComapLinearMap_surjective A K L B v
+  refine ⟨?_, hsurj⟩
+  -- |- Function.Injective ⇑(tensorAdicCompletionComapLinearMap_completion A K L B v)
+  -- issue FLT#231; one proof is proof in blueprint at
   -- https://imperialcollegelondon.github.io/FLT/blueprint/Adele_miniproject.html#IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv
-  -- and another one might be: show surjectivity following Matthew Jasper's ideas
-  -- and deduce injectivity from a dimension count. For that we'd need that local and global
-  -- e's and f's match up.
+  -- and another one might be deduce injectivity from a dimension count.
+  -- For that we'd need that local and global e's and f's match up.
+  sorry
+
 
 noncomputable def adicCompletionComapAlgEquiv (v : HeightOneSpectrum A) :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] (∀ w : v.Extension B, w.1.adicCompletion L) :=
