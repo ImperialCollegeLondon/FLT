@@ -1,7 +1,7 @@
 import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
-import Mathlib.NumberTheory.Cyclotomic.PrimitiveRoots
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import FLT.AutomorphicRepresentation.Example
+import Mathlib.NumberTheory.Cyclotomic.Basic
 
 variable (K : Type) [Field K]
 variable (L : Type) [Field L] [Algebra K L] [CharZero L] [IsAlgClosed L]

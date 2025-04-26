@@ -1,4 +1,3 @@
-import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.NumberTheory.NumberField.Basic
@@ -7,7 +6,7 @@ import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.NumberField.InfiniteAdeleRing
+import Mathlib.NumberTheory.NumberField.AdeleRing
 
 open scoped TensorProduct
 
@@ -172,11 +171,9 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
     · intro x hx
       rw [Set.mem_preimage] at hx
       simp only [Set.mem_singleton_iff]
-      have : (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
+      rw [show (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
         (algebraMap ℚ (InfiniteAdeleRing ℚ) x, algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) x)
-      · rfl
-      rw [this] at hx
-      clear this
+        from rfl] at hx
       rw [Set.mem_prod] at hx
       obtain ⟨h1, h2⟩ := hx
       dsimp only at h1 h2
@@ -186,8 +183,8 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       specialize h1 Rat.infinitePlace
       change ‖(x : ℂ)‖ < 1 at h1
       simp only [Complex.norm_ratCast, integralAdeles] at h1
-      have intx: ∃ (y:ℤ), y = x
-      · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
+      have intx: ∃ (y:ℤ), y = x := by
+        obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
             ℚ x <| fun v ↦ by
           specialize h2 v
           letI : UniformSpace ℚ := v.adicValued.toUniformSpace
@@ -213,8 +210,8 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       constructor
       · simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq]
         intro v
-        have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0
-        · simp only [norm_eq_zero]
+        have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0 := by
+          simp only [norm_eq_zero]
           rfl
         simp [this, zero_lt_one]
       · simp only [integralAdeles, Set.mem_setOf_eq]

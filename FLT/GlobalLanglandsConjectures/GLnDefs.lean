@@ -9,7 +9,6 @@ import Mathlib.Analysis.Complex.Basic
 import Mathlib.Analysis.Matrix
 import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import Mathlib.LinearAlgebra.UnitaryGroup
 import Mathlib.RepresentationTheory.FDRep
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing

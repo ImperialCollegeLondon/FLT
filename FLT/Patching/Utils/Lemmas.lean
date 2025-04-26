@@ -1,14 +1,11 @@
-import Mathlib.RingTheory.Artinian.Ring
 import Mathlib.RingTheory.Filtration
-import Mathlib.RingTheory.Localization.Finiteness
-import Mathlib.RingTheory.Nakayama
 import Mathlib.RingTheory.Spectrum.Prime.Topology
-import Mathlib.RingTheory.Support
 import Mathlib.Topology.Algebra.Module.Compact
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.OpenSubgroup
 import Mathlib.Topology.Algebra.Ring.Ideal
 import Mathlib.Topology.Separation.Profinite
+import Mathlib.RingTheory.Artinian.Module
 
 lemma IsUnit.pi_iff {ι} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i} :
     IsUnit x ↔ ∀ i, IsUnit (x i) := by
