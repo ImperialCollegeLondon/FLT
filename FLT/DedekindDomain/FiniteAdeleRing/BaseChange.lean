@@ -281,7 +281,7 @@ def comap_algebra {v : HeightOneSpectrum A} {w : HeightOneSpectrum B} (h : w.com
   (adicCompletionComapSemialgHom A K L B v w h).toAlgebra
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
-    [Module.Finite A B] in
+    [Module.Finite A B] [FaithfulSMul A B] in
 lemma comap_algebra_continuousSmul (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
     (hvw : comap A w = v) :
     letI := comap_algebra A K L B hvw
@@ -394,7 +394,8 @@ lemma valued_adicCompletionComap
 
 include K L in
 omit [IsDedekindDomain A] [IsIntegralClosure B A L] [Algebra.IsSeparable K L]
-    [IsDomain B] [Algebra.IsIntegral A B] [Module.Finite A B] [IsDedekindDomain B] in
+    [IsDomain B] [Algebra.IsIntegral A B] [Module.Finite A B] [IsDedekindDomain B]
+    [FaithfulSMul A B] in
 lemma noZeroSMulDivisors : NoZeroSMulDivisors A B := by
   constructor
   intro r x h
