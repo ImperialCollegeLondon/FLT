@@ -51,6 +51,7 @@ import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RepresentationTheory.Basic
+import FLT.Mathlib.RingTheory.Finiteness.Pi
 import FLT.Mathlib.RingTheory.Ideal.Operations
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
