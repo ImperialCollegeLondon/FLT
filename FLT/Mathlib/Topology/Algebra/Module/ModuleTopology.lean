@@ -85,7 +85,6 @@ theorem Module.continuous_bilinear_of_finite [Module.Finite R A]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   obtain ⟨m, f, hf⟩ := Module.Finite.exists_fin' R A
   let bil' : (Fin m → R) →ₗ[R] B →ₗ[R] C := bil.comp f
-  have := Module.continuous_bilinear_of_pi_finite (Fin m) bil'
   let φ := f.prodMap (LinearMap.id : B →ₗ[R] B)
   have foo : Function.Surjective (LinearMap.id : B →ₗ[R] B) :=
     Function.RightInverse.surjective (congrFun rfl)
@@ -110,7 +109,7 @@ open scoped TensorProduct
 
 -- these shouldn't be rings, they should be semirings
 variable (R) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
+variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
 variable [TopologicalSpace D] [IsModuleTopology R D]
 
 open scoped TensorProduct
@@ -122,7 +121,8 @@ theorem continuous_mul'
     [IsModuleTopology R D] : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) :=
   Module.continuous_bilinear_of_finite (LinearMap.mul R D)
 
-def topologicalSemiring : IsTopologicalSemiring D where
+include R in
+lemma topologicalSemiring [Module.Free R D] : IsTopologicalSemiring D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul' R D
 
@@ -145,7 +145,8 @@ theorem continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := b
   haveI : IsModuleTopology R (D ⊗[R] D) := { eq_moduleTopology' := rfl }
   convert Module.continuous_bilinear_of_finite <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
-def Module.topologicalRing : IsTopologicalRing D where
+include R in
+lemma Module.topologicalRing : IsTopologicalRing D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul R D
   continuous_neg := continuous_neg R D
@@ -290,7 +291,7 @@ is a _continuous_ `L`-algebra equivalence as well.
 -/
 def continuousAlgEquiv {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [TopologicalSpace A] [CommRing S₁]
     [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A] [CommRing B] [Algebra S₁ A]
-    [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B] [IsTopologicalSemiring B] [IsTopologicalSemiring A]
+    [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B] [IsTopologicalSemiring B]
     [TopologicalSpace S₁] [Algebra R A] [Algebra R B] [IsModuleTopology S₁ A]
     [IsModuleTopology S₁ B] [Algebra R S₁] [IsScalarTower R S₁ A] [Algebra R S₂]
     [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₐ[S₂] B)

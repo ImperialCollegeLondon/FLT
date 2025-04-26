@@ -141,7 +141,7 @@ open scoped Topology in
 variable (R) in
 noncomputable
 def TopologicalModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M]
-    [TopologicalSpace M] [Module R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [Module R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) : TopologicalModuleTypeCardLT R N :=
   ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.addCommGroup, .coinduced (Finite.equivFin M)
     inferInstance,
@@ -160,7 +160,7 @@ def TopologicalModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M]
 
 noncomputable
 def TopologicalModuleTypeCardLT.equivOfModule (N : ℕ) (M : Type*) [AddCommGroup M] [Module R M]
-    [TopologicalSpace M] [Module R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) :
     M ≃L[R] Fin (TopologicalModuleTypeCardLT.ofModule R N M hM).1 where
   __ := ((show M ≃ Fin ((ModuleTypeCardLT.ofModule R N M hM).1) from
@@ -208,7 +208,7 @@ open scoped Topology in
 variable (R) in
 noncomputable
 def TopologicalAlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M]
-    [TopologicalSpace M] [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) : TopologicalAlgebraTypeCardLT R N :=
   ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.ring, .coinduced (Finite.equivFin M) inferInstance,
     letI := TopologicalSpace.coinduced (Finite.equivFin M) inferInstance
@@ -219,14 +219,14 @@ def TopologicalAlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M]
 
 noncomputable
 def TopologicalAlgebraTypeCardLT.equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
-    [TopologicalSpace M] [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) :
     M ≃ₐ[R] Fin (TopologicalAlgebraTypeCardLT.ofAlgebra R N M hM).1 :=
   ((show M ≃ Fin ((AlgebraTypeCardLT.ofAlgebra R N M hM).1)
     from Finite.equivFin M).symm.algEquiv R).symm
 
 lemma TopologicalAlgebraTypeCardLT.isHomeomorph_equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
-    [TopologicalSpace M] [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) : IsHomeomorph (equivOfAlgebra (R := R) N M hM) :=
   ((Finite.equivFin M).toHomeomorph (Y := Fin (ofAlgebra R N M hM).1)
     (fun _ ↦ Iff.rfl)).isHomeomorph
