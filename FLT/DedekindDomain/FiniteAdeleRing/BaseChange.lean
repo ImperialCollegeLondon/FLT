@@ -6,7 +6,6 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import Mathlib.Algebra.Algebra.Subalgebra.Pi
 import Mathlib.Algebra.Group.Int.TypeTags
@@ -723,7 +722,7 @@ theorem adicCompletionComapAlgEquiv_integral :
 
 end IsDedekindDomain.HeightOneSpectrum
 
-namespace DedekindDomain
+namespace IsDedekindDomain
 
 open IsDedekindDomain HeightOneSpectrum
 
@@ -740,7 +739,6 @@ noncomputable def FiniteAdeleRing.mapRingHom :
   (by
     apply Filter.Eventually.of_forall
     intro w
-    apply le_of_eq
     sorry) -- done in #400
 
 noncomputable def FiniteAdeleRing.mapSemialgHom :
@@ -784,4 +782,4 @@ noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
   continuous_toFun := sorry
   continuous_invFun := sorry
 
-end DedekindDomain
+end IsDedekindDomain

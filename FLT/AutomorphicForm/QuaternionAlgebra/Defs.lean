@@ -24,7 +24,7 @@ namespace TotallyDefiniteQuaternionAlgebra
 
 open scoped TensorProduct NumberField
 
-open DedekindDomain
+open IsDedekindDomain
 
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
