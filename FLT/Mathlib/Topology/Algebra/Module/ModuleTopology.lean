@@ -121,7 +121,7 @@ theorem continuous_mul'
   Module.continuous_bilinear_of_finite (LinearMap.mul R D)
 
 include R in
-lemma topologicalSemiring [Module.Free R D] : IsTopologicalSemiring D where
+lemma topologicalSemiring : IsTopologicalSemiring D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul' R D
 
@@ -243,6 +243,9 @@ over a complete thing so I don't think there can be any other possibility
 (the argument is weak here)
 -/
 
+/-- Given a linear isomorphism between two topological modules with the module topology,
+upgrades it to a continuous linear isomorphism using the fact that linear maps between modules
+with the module topology are automatically continuous. -/
 @[simps!]
 def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
@@ -311,3 +314,4 @@ def continuousAlgEquiv {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [Topologica
     rw [ModuleTopology.eq_coinduced_of_surjective this]
     -- and the underlying functions are the same
     congr
+#lint
