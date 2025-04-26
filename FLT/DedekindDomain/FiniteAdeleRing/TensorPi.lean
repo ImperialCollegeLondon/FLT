@@ -26,7 +26,7 @@ open DirectSum
 
 section
 
-variable {ι' : Type*} [Fintype ι'] [DecidableEq ι'] {R ι : Type*} [Ring R]
+variable {ι' : Type*} [Fintype ι'] [DecidableEq ι'] {R ι : Type*} [Semiring R]
   {M N : ι → ι' → Type*} [∀ i i', AddCommMonoid (M i i')] [∀ i i', AddCommMonoid (N i i')]
   [∀i i', Module R (M i i')] [∀i i', Module R (N i i')]
 
