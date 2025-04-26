@@ -170,6 +170,7 @@ def piEquiv :
   -- `Kᵥ^d ≃L[Kᵥ] ∏ w | v, L_w`
   exact e₃.trans <| baseChangeEquivRight L v |>.toContinuousLinearEquiv
 
+set_option synthInstance.maxHeartbeats 40000 in
 theorem piEquiv_smul (x : v.Completion) (y : Fin (Module.finrank K L) → v.Completion)
     (wv : v.ExtensionPlace L) :
     piEquiv L v (x • y) wv = comapHom wv.2 x * piEquiv L v y wv := by
