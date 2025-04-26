@@ -14,13 +14,12 @@ topological `A`-algebras. This file makes some progress towards this.
 
 ## Main theorems
 
-* `HeightOneSpectrum.closureAlgebraMapIntegers_eq_integers` : The closure of `A` in `K_v` is `𝒪_v`.
-
-* `HeightOneSpectrum.closureAlgebraMapIntegers_eq_prodIntegers` : If `s` is a set of primes of `A`,
-    then the closure of `A` in `∏_{v ∈ s} K_v` is `∏_{v ∈ s} 𝒪_v`.
-
-* `HeightOneSpectrum.denseRange_of_prodAlgebraMap` : If `s` is a finite set of primes of `A`, then
-    `K` is dense in `∏_{v ∈ s} K_v`.
+* `IsDedekindDomain.HeightOneSpectrum.closureAlgebraMapIntegers_eq_integers` : The closure of
+    `A` in `K_v` is `𝒪_v`.
+* `IsDedekindDomain.HeightOneSpectrum.closureAlgebraMapIntegers_eq_prodIntegers` : If `s` is
+    a set of primes of `A`, then the closure of `A` in `∏_{v ∈ s} K_v` is `∏_{v ∈ s} 𝒪_v`.
+* `IsDedekindDomain.HeightOneSpectrum.denseRange_of_prodAlgebraMap` : If `s` is a finite set
+    of primes of `A`, then `K` is dense in `∏_{v ∈ s} K_v`.
 -/
 
 namespace IsDedekindDomain.HeightOneSpectrum
@@ -30,26 +29,21 @@ section Multiplicative
 open scoped Multiplicative
 lemma exists_ofAdd_natCast_of_le_one {x : ℤₘ₀} (hx : x ≠ 0) (hx' : x ≤ 1):
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) = x := by
-  let y := WithZero.unzero hx
-  have hy : y = x := WithZero.coe_unzero hx
-  have hy' : y ≤ 1 := by
-    rw [← hy] at hx'
-    exact WithBot.coe_le_one.mp hx'
-  obtain ⟨k, hk⟩ := Int.eq_ofNat_of_zero_le (Int.neg_nonneg_of_nonpos hy')
+  lift x to Multiplicative ℤ using hx
+  norm_cast at hx'
+  obtain ⟨k, hk⟩ := Int.eq_ofNat_of_zero_le (Int.neg_nonneg_of_nonpos hx')
   use k
-  simp only [← hk, Int.neg_neg, ← hy, WithZero.coe_inj]
+  rw [← hk, Int.neg_neg]
   rfl
 
 lemma exists_ofAdd_natCast_lt {x : ℤₘ₀} (hx : x ≠ 0) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) < x := by
   obtain ⟨y, hnz, hyx⟩ := WithZero.exists_ne_zero_and_lt hx
-  let k': ℤ := WithZero.unzero hnz
-  use k'.natAbs
+  lift y to Multiplicative ℤ using hnz
+  use y.natAbs
   apply lt_of_le_of_lt _ hyx
-  rw [← WithZero.coe_unzero hnz]
   norm_cast
-  let _ := |k'|
-  apply neg_abs_le k'
+  exact inv_mabs_le y
 
 end Multiplicative
 
@@ -340,29 +334,27 @@ lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
 theorem denseRange_of_prodAlgebraMap {ι : Type*} [Fintype ι]
     {valuation : ι → HeightOneSpectrum A} (injective : Function.Injective valuation) :
     DenseRange (algebraMap K ((i : ι) → (valuation i).adicCompletion K)) := by
-  rw [denseRange_iff_closure_range]
+  rw [denseRange_iff_closure_range, Set.eq_univ_iff_forall]
   let S := Set.range (algebraMap K ((i : ι) → (valuation i).adicCompletion K))
-  let I := Set.pi Set.univ (fun (i : ι) ↦ ((valuation i).adicCompletionIntegers K).carrier)
   -- We've already shown that the closure of `A` is `∏_{v ∈ s} 𝒪_v`, so
   -- the closure of `K` at least contains this set.
-  have hint : I ⊆ closure S := by
-    unfold I
+  have hint : Set.pi Set.univ (fun (i : ι) ↦ ((valuation i).adicCompletionIntegers K).carrier)
+      ⊆ closure S := by
     rw [← closureAlgebraMapIntegers_eq_prodIntegers _ _ injective]
     apply closure_mono
     exact fun _ ⟨a, ha⟩ ↦ ⟨algebraMap A K a, ha⟩
   -- Next, the closure of `K` is closed under multiplication by `K` because
   -- scalar multiplication by a constant is continuous.
-  have hmul : ∀x, x ∈ closure S → ∀y : K, y • x ∈ closure S := by
-    intro x h y
-    let f := fun (z : (i : ι) → (valuation i).adicCompletion K) ↦ y • z
-    have hf : ContinuousAt f x := Continuous.continuousAt (continuous_const_smul y)
+  have hmul : ∀x, x ∈ closure S → ∀k : K, k • x ∈ closure S := by
+    intro x h k
+    let f := fun (z : (i : ι) → (valuation i).adicCompletion K) ↦ k • z
+    have hf : ContinuousAt f x := Continuous.continuousAt (continuous_const_smul k)
     apply closure_mono _ <| mem_closure_image hf h
     rintro x ⟨_, ⟨z, rfl⟩, rfl⟩
-    use y • algebraMap K _ z
+    use k • algebraMap K _ z
     ext i
     simp [Algebra.smul_def, f]
   -- Finally, `∏_{v ∈ s} K_v = K • ∏_{v ∈ s} 𝒪_v`
-  rw [Set.eq_univ_iff_forall]
   intro x
   obtain ⟨k, y, hy, hx⟩ := adicCompletion.eq_mul_pi_adicCompletionIntegers K valuation x
   exact hx ▸ hmul y (hint hy) k

@@ -310,7 +310,6 @@ noncomputable def adicCompletionComapSemialgHom' (v : HeightOneSpectrum A) :
   v.adicCompletion K →ₛₐ[algebraMap K L] ∀ w : v.Extension B, w.1.adicCompletion L :=
   Pi.semialgHom _ _ fun i ↦ adicCompletionComapSemialgHom A K L B v i.1 i.2
 
-set_option maxSynthPendingDepth 2 in
 noncomputable instance comap_pi_algebra (v : HeightOneSpectrum A) :
     Algebra (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) :=
   (adicCompletionComapSemialgHom' A K L B v).toAlgebra
@@ -489,7 +488,7 @@ theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
   show Function.Bijective (tensorAdicCompletionComapLinearMap A K L B v)
   have hsurj := tensorAdicCompletionComapLinearMap_surjective A K L B v
   refine ⟨?_, hsurj⟩
-  -- |- Function.Injective ⇑(tensorAdicCompletionComapLinearMap_completion A K L B v)
+  -- ⊢ Function.Injective ⇑(tensorAdicCompletionComapLinearMap_completion A K L B v)
   -- issue FLT#231; one proof is proof in blueprint at
   -- https://imperialcollegelondon.github.io/FLT/blueprint/Adele_miniproject.html#IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv
   -- and another one might be deduce injectivity from a dimension count.
