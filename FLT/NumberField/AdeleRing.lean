@@ -7,7 +7,7 @@ import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.NumberTheory.NumberField.AdeleRing
-import FLT.NumberField.InfiniteAdeleRing
+import Mathlib.Tactic.Have
 
 open scoped TensorProduct
 
@@ -172,11 +172,9 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
     · intro x hx
       rw [Set.mem_preimage] at hx
       simp only [Set.mem_singleton_iff]
-      have : (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
+      rw [show (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
         (algebraMap ℚ (InfiniteAdeleRing ℚ) x, algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) x)
-      · rfl
-      rw [this] at hx
-      clear this
+        from rfl] at hx
       rw [Set.mem_prod] at hx
       obtain ⟨h1, h2⟩ := hx
       dsimp only at h1 h2
