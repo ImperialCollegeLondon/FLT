@@ -5,7 +5,6 @@ import Mathlib.Topology.Algebra.Algebra.Equiv
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Algebra.Tower
-import FLT.Mathlib.Topology.Algebra.Monoid
 
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
@@ -91,7 +90,6 @@ theorem Module.continuous_bilinear_of_finite [Module.Finite R A]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   obtain ⟨m, f, hf⟩ := Module.Finite.exists_fin' R A
   let bil' : (Fin m → R) →ₗ[R] B →ₗ[R] C := bil.comp f
-  have := Module.continuous_bilinear_of_pi_finite (Fin m) bil'
   let φ := f.prodMap (LinearMap.id : B →ₗ[R] B)
   have foo : Function.Surjective (LinearMap.id : B →ₗ[R] B) :=
     Function.RightInverse.surjective (congrFun rfl)
@@ -116,7 +114,7 @@ open scoped TensorProduct
 
 -- these shouldn't be rings, they should be semirings
 variable (R) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
+variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
 variable [TopologicalSpace D] [IsModuleTopology R D]
 
 open scoped TensorProduct
@@ -124,11 +122,12 @@ open scoped TensorProduct
 @[continuity, fun_prop]
 theorem continuous_mul'
     (R : Type*) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
+    (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [TopologicalSpace D]
     [IsModuleTopology R D] : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) :=
   Module.continuous_bilinear_of_finite (LinearMap.mul R D)
 
-def topologicalSemiring : IsTopologicalSemiring D where
+include R in
+lemma topologicalSemiring : IsTopologicalSemiring D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul' R D
 
@@ -151,7 +150,8 @@ theorem continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := b
   haveI : IsModuleTopology R (D ⊗[R] D) := { eq_moduleTopology' := rfl }
   convert Module.continuous_bilinear_of_finite <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
-def Module.topologicalRing : IsTopologicalRing D where
+include R in
+lemma Module.topologicalRing : IsTopologicalRing D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul R D
   continuous_neg := continuous_neg R D
@@ -309,11 +309,16 @@ over a complete thing so I don't think there can be any other possibility
 (the argument is weak here)
 -/
 
+/-- Given a linear isomorphism between two topological modules with the module topology,
+upgrades it to a continuous linear isomorphism using the fact that linear maps between modules
+with the module topology are automatically continuous. -/
+@[simps!]
 def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
     [Module R A] [Module R B] [IsModuleTopology R A] [IsModuleTopology R B]
     (e : A ≃ₗ[R] B) :
     A ≃L[R] B where
+  toFun := e
   __ := e
   continuous_toFun :=
     letI := IsModuleTopology.toContinuousAdd

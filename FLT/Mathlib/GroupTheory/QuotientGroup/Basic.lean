@@ -1,4 +1,4 @@
-import Mathlib.GroupTheory.QuotientGroup.Basic
+import Mathlib.GroupTheory.QuotientGroup.Defs
 
 @[to_additive]
 def QuotientGroup.mulEquiv {G H : Type*} [Group G] (N : Subgroup G)

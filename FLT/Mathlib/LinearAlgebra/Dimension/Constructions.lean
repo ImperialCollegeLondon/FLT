@@ -2,6 +2,7 @@ import Mathlib.LinearAlgebra.Dimension.Constructions
 import Mathlib.LinearAlgebra.TensorProduct.Pi
 import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
+import Mathlib.GroupTheory.MonoidLocalization.Basic
 
 open scoped TensorProduct
 

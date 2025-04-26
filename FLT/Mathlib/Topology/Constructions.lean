@@ -1,5 +1,4 @@
 import Mathlib.Topology.Constructions
-import Mathlib.Topology.ContinuousOn
 import FLT.Mathlib.Data.Set.Function
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Data.Set.Function

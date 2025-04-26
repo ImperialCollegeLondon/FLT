@@ -1,5 +1,4 @@
 import Mathlib.Algebra.Algebra.Hom
-import Mathlib.RingTheory.AlgebraTower
 
 section semialghom
 

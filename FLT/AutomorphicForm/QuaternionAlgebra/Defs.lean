@@ -24,14 +24,19 @@ namespace TotallyDefiniteQuaternionAlgebra
 
 open scoped TensorProduct NumberField
 
-open DedekindDomain
+open IsDedekindDomain
 
+/-- `Dfx` is an abbreviation for $(D\otimes_F\mathbb{A}_F^\infty)^\times.$ -/
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
+/-- incl₁ is an abbreviation for the inclusion
+$D^\times\to(D\otimes_F\mathbb{A}_F^\infty)^\times.$ Remark: I wrote the `incl₁`
+docstring in LaTeX and the `incl₂` one in unicode. Which is better?-/
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
-/-- The inclusion 𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ) -/
+/-- `incl₂` is he inclusion `𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ)`. Remark: I wrote the `incl₁`
+docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
   Units.map Algebra.TensorProduct.rightAlgebra.algebraMap.toMonoidHom
 
@@ -56,15 +61,15 @@ variable [IsQuaternionAlgebra F D] in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) _
-/-!
+/--
 This definition is made in mathlib-generality but is *not* the definition of a
-weight 2 automorphic form unless Dˣ is compact mod centre at infinity.
+weight 2 automorphic form unless `Dˣ` is compact mod centre at infinity.
 This hypothesis will be true if `D` is a totally definite quaternion algebra.
 -/
 structure WeightTwoAutomorphicForm
   -- defined over R
   (R : Type*) [AddCommMonoid R] where
-  -- definition
+  /-- The function underlying an automorphic form. -/
   toFun : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ → R
   left_invt : ∀ (δ : Dˣ) (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
     toFun (incl₁ F D δ * g) = (toFun g)
@@ -94,10 +99,14 @@ attribute [coe] WeightTwoAutomorphicForm.toFun
 theorem ext (φ ψ : WeightTwoAutomorphicForm F D R) (h : ∀ x, φ x = ψ x) : φ = ψ := by
   cases φ; cases ψ; simp only [mk.injEq]; ext; apply h
 
+/-- The zero automorphic form for a totally definite quaterion algebra. -/
 def zero : (WeightTwoAutomorphicForm F D R) where
   toFun := 0
   left_invt δ _ := by simp
-  right_invt := ⟨⊤, by simp⟩
+  -- this used to be `by simp` but now it times out doing some crazy typeclass search for
+  -- `DiscreteTopology (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ`
+  right_invt := ⟨⊤, by simp only [Subgroup.coe_top, isOpen_univ, Subgroup.mem_top,
+    Pi.zero_apply, imp_self, implies_true, and_self]⟩
   trivial_central_char _ z := by simp
 
 instance : Zero (WeightTwoAutomorphicForm F D R) where
@@ -107,12 +116,13 @@ instance : Zero (WeightTwoAutomorphicForm F D R) where
 theorem zero_apply (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (0 : WeightTwoAutomorphicForm F D R) x = 0 := rfl
 
+/-- Negation on the space of automorphic forms over a totally definite quaternion algebra. -/
 def neg (φ : WeightTwoAutomorphicForm F D R) : WeightTwoAutomorphicForm F D R where
   toFun x := - φ x
   left_invt δ g := by simp [left_invt]
   right_invt := by
     obtain ⟨U, hU⟩ := φ.right_invt
-    simp_all [right_invt]
+    simp_all only [neg_inj, right_invt]
   trivial_central_char g z := by simp [trivial_central_char]
 
 instance : Neg (WeightTwoAutomorphicForm F D R) where
@@ -122,6 +132,7 @@ instance : Neg (WeightTwoAutomorphicForm F D R) where
 theorem neg_apply (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (-φ : WeightTwoAutomorphicForm F D R) x = -(φ x) := rfl
 
+/-- Addition on the space of automorphic forms over a totally definite quaternion algebra. -/
 def add (φ ψ : WeightTwoAutomorphicForm F D R) : WeightTwoAutomorphicForm F D R where
   toFun x := φ x + ψ x
   left_invt := by simp [left_invt]
@@ -129,7 +140,7 @@ def add (φ ψ : WeightTwoAutomorphicForm F D R) : WeightTwoAutomorphicForm F D 
     obtain ⟨U, hU⟩ := φ.right_invt
     obtain ⟨V, hV⟩ := ψ.right_invt
     use U ⊓ V
-    simp_all [right_invt, IsOpen.inter]
+    simp_all only [Subgroup.coe_inf, IsOpen.inter, Subgroup.mem_inf, implies_true, and_self]
   trivial_central_char := by simp [trivial_central_char]
 
 instance : Add (WeightTwoAutomorphicForm F D R) where
@@ -163,6 +174,8 @@ open ConjAct
 
 variable [IsQuaternionAlgebra F D]
 
+/-- The adelic group action on the space of automorphic forms over a totally definite
+quaternion algebra. -/
 def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAutomorphicForm F D R) :
     WeightTwoAutomorphicForm F D R where
   toFun x := φ (x * g)
@@ -173,7 +186,8 @@ def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAu
     · replace hU := hU.1
       exact isOpen_smul hU (toConjAct g)
     · rintro k x ⟨u, hu, rfl⟩
-      simp [smul_def, ← hU.2 (k * g) u hu]
+      simp only [MulDistribMulAction.toMonoidEnd_apply, MulDistribMulAction.toMonoidHom_apply,
+        smul_def, ofConjAct_toConjAct, ← hU.2 (k * g) u hu]
       group
   trivial_central_char z x := by
     simp only [mul_assoc]
@@ -189,11 +203,15 @@ lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (g • φ) x = φ (x * g) := rfl
 
-instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+set_option synthInstance.maxHeartbeats 40000 in
+instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
+    (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
   one_smul φ := by ext; simp
   mul_smul g h φ := by ext; simp [mul_assoc]
-  smul_zero g := by ext; simp
+  smul_zero g := by ext; simp -- at 20K heartbeats we get
+  -- failed to synthesize
+  -- SMulZeroClass (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ (WeightTwoAutomorphicForm F D R)
   smul_add g φ ψ := by ext; simp
 
 end add_comm_group
@@ -202,6 +220,8 @@ section comm_ring
 
 variable {R : Type*} [CommRing R]
 
+/-- The scalar action on the space of weight 2 automorphic forms on a totally definite
+quaternion algebra. -/
 def ring_smul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
     WeightTwoAutomorphicForm F D R where
       toFun g := r • φ g
@@ -209,7 +229,7 @@ def ring_smul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
       right_invt := by
         obtain ⟨U, hU⟩ := φ.right_invt
         use U
-        simp_all [right_invt]
+        simp_all only [smul_eq_mul, implies_true, and_self]
       trivial_central_char g z := by simp only [trivial_central_char, smul_comm r]
 
 instance : SMul R (WeightTwoAutomorphicForm F D R) where
@@ -229,7 +249,8 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
 
 variable [IsQuaternionAlgebra F D]
 
-instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R (WeightTwoAutomorphicForm F D R) where
+instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R
+    (WeightTwoAutomorphicForm F D R) where
   smul_comm g r φ := by
     ext x
     simp [smul_apply]
@@ -242,6 +263,9 @@ section finite_level
 
 variable [IsQuaternionAlgebra F D]
 
+/-- An auxiliary definition: weight 2 automorphic forms of a fixed level, but given as
+a submodule of the space of all weight 2 automorphic forms. For the type, see
+`TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel`. -/
 def WeightTwoAutomorphicFormOfLevel_aux (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (R : Type*) [CommRing R] : Submodule R (WeightTwoAutomorphicForm F D R) where
   carrier := {φ | ∀ u ∈ U, u • φ = φ}
@@ -249,6 +273,10 @@ def WeightTwoAutomorphicFormOfLevel_aux (U : Subgroup (D ⊗[F] (FiniteAdeleRing
   zero_mem' := by simp_all
   smul_mem' c {x} hx := by simp_all [smul_comm]
 
+/--
+Weight 2 automorphic forms of a fixed level for a totally definite quaternion algebra
+over a totally real field.
+-/
 def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (R : Type*) [CommRing R] : Type _ := WeightTwoAutomorphicFormOfLevel_aux U R
 

@@ -6,4 +6,5 @@ open IsLocalRing
 
 instance IsLocalRing.quot : IsLocalRing (R ⧸ I) := .of_surjective' _ Ideal.Quotient.mk_surjective
 
-instance IsLocalHom.quotient_mk : IsLocalHom (algebraMap R (R ⧸ I)) := .of_surjective _ Ideal.Quotient.mk_surjective
+instance IsLocalHom.quotient_mk : IsLocalHom (algebraMap R (R ⧸ I)) :=
+  .of_surjective _ Ideal.Quotient.mk_surjective
