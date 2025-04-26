@@ -24,7 +24,7 @@ namespace TotallyDefiniteQuaternionAlgebra
 
 open scoped TensorProduct NumberField
 
-open DedekindDomain
+open IsDedekindDomain
 
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
@@ -97,7 +97,10 @@ theorem ext (φ ψ : WeightTwoAutomorphicForm F D R) (h : ∀ x, φ x = ψ x) : 
 def zero : (WeightTwoAutomorphicForm F D R) where
   toFun := 0
   left_invt δ _ := by simp
-  right_invt := ⟨⊤, by simp⟩
+  -- this used to be `by simp` but now it times out doing some crazy typeclass search for
+  -- `DiscreteTopology (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ`
+  right_invt := ⟨⊤, by simp only [Subgroup.coe_top, isOpen_univ, Subgroup.mem_top,
+    Pi.zero_apply, imp_self, implies_true, and_self]⟩
   trivial_central_char _ z := by simp
 
 instance : Zero (WeightTwoAutomorphicForm F D R) where
@@ -112,7 +115,7 @@ def neg (φ : WeightTwoAutomorphicForm F D R) : WeightTwoAutomorphicForm F D R w
   left_invt δ g := by simp [left_invt]
   right_invt := by
     obtain ⟨U, hU⟩ := φ.right_invt
-    simp_all [right_invt]
+    simp_all only [neg_inj, right_invt]
   trivial_central_char g z := by simp [trivial_central_char]
 
 instance : Neg (WeightTwoAutomorphicForm F D R) where
@@ -129,7 +132,7 @@ def add (φ ψ : WeightTwoAutomorphicForm F D R) : WeightTwoAutomorphicForm F D 
     obtain ⟨U, hU⟩ := φ.right_invt
     obtain ⟨V, hV⟩ := ψ.right_invt
     use U ⊓ V
-    simp_all [right_invt, IsOpen.inter]
+    simp_all only [Subgroup.coe_inf, IsOpen.inter, Subgroup.mem_inf, implies_true, and_self]
   trivial_central_char := by simp [trivial_central_char]
 
 instance : Add (WeightTwoAutomorphicForm F D R) where
@@ -190,12 +193,15 @@ lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (g • φ) x = φ (x * g) := rfl
 
+set_option synthInstance.maxHeartbeats 40000 in
 instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
     (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
   one_smul φ := by ext; simp
   mul_smul g h φ := by ext; simp [mul_assoc]
-  smul_zero g := by ext; simp
+  smul_zero g := by ext; simp -- at 20K heartbeats we get
+  -- failed to synthesize
+  -- SMulZeroClass (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ (WeightTwoAutomorphicForm F D R)
   smul_add g φ ψ := by ext; simp
 
 end add_comm_group
@@ -211,7 +217,7 @@ def ring_smul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
       right_invt := by
         obtain ⟨U, hU⟩ := φ.right_invt
         use U
-        simp_all [right_invt]
+        simp_all only [smul_eq_mul, implies_true, and_self]
       trivial_central_char g z := by simp only [trivial_central_char, smul_comm r]
 
 instance : SMul R (WeightTwoAutomorphicForm F D R) where

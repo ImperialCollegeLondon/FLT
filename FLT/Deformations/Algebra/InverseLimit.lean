@@ -49,8 +49,9 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j),
-    func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} :
+    ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i :=
+  a.prop
 
 variable {func} in
 abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) :
