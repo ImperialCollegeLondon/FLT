@@ -1,0 +1,5 @@
+{
+  "ignore": {
+    "FLT.Mathlib.Algebra.IsQuaternionAlgebra": ["Mathlib.Analysis.Quaternion"]
+  }
+}

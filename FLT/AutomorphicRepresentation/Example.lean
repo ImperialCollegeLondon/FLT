@@ -1,4 +1,3 @@
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Tactic.Peel
 import Mathlib.Analysis.Quaternion
 import Mathlib.RingTheory.Flat.Basic
