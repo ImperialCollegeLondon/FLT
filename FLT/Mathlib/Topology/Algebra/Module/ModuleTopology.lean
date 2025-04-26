@@ -314,4 +314,3 @@ def continuousAlgEquiv {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [Topologica
     rw [ModuleTopology.eq_coinduced_of_surjective this]
     -- and the underlying functions are the same
     congr
-#lint
