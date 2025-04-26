@@ -34,7 +34,7 @@ open scoped Manifold
 Later, replace with `open scoped ContDiff`. -/
 local notation "∞" => (⊤ : ℕ∞)
 
-namespace DedekindDomain
+namespace IsDedekindDomain
 
 open scoped algebraMap
 
@@ -82,11 +82,11 @@ theorem diamond_fix :
 
 end
 
-end DedekindDomain
+end IsDedekindDomain
 
 namespace AutomorphicForm
 
-open DedekindDomain
+open IsDedekindDomain
 namespace GLn
 
 open Manifold

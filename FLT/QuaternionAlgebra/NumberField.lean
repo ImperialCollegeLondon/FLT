@@ -3,14 +3,13 @@ import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.RingTheory.TensorProduct.Finite -- just for Module.Finite.base_change_right
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
 variable (D : Type*) [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
 
-open DedekindDomain
+open IsDedekindDomain
 
 open scoped NumberField TensorProduct
 
@@ -156,12 +155,12 @@ end IsDedekindDomain
 open RestrictedProduct
 
 noncomputable
-def DedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
+def IsDedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
     FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v where
   __ := RestrictedProduct.evalRingHom _ v
   commutes' _ := rfl
 
-namespace DedekindDomain.FiniteAdeleRing
+namespace IsDedekindDomain.FiniteAdeleRing
 
 noncomputable def GL2.toAdicCompletion
     (v : HeightOneSpectrum (𝓞 F)) :
@@ -169,7 +168,7 @@ noncomputable def GL2.toAdicCompletion
     GL (Fin 2) (v.adicCompletion F) :=
   Units.map (RingHom.mapMatrix (FiniteAdeleRing.toAdicCompletion v)).toMonoidHom
 
-end DedekindDomain.FiniteAdeleRing
+end IsDedekindDomain.FiniteAdeleRing
 
 namespace IsDedekindDomain.HeightOneSpectrum
 

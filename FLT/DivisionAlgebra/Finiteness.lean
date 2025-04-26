@@ -26,7 +26,7 @@ space `Dˣ \ (D ⊗[K] 𝔸_K^infty)ˣ / U` is finite.
 
 suppress_compilation
 
-open DedekindDomain
+open IsDedekindDomain
 
 open scoped NumberField TensorProduct
 
