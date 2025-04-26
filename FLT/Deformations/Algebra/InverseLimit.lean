@@ -85,11 +85,8 @@ instance instModule : Module R (InverseLimit obj func) where
   add_smul := by simp [InverseLimit, add_smul]
   zero_smul := by simp [InverseLimit]
 
-@[simp]
 lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
-    func h (g.1 j) = g.1 i := by
-  unfold InverseLimit at g
-  aesop
+    func h (g.1 j) = g.1 i := by simp
 
 instance inhabited : Inhabited (InverseLimit obj func) :=
   ⟨0⟩
@@ -151,11 +148,8 @@ abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a 
     InverseLimit obj func :=
   ⟨a, h⟩
 
-@[simp]
 lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
-    func h (g.1 j) = g.1 i := by
-  unfold InverseLimit at g
-  aesop
+    func h (g.1 j) = g.1 i := by simp
 
 instance instZero : Zero (InverseLimit obj func) where
   zero := of 0 (by simp)
@@ -245,11 +239,9 @@ abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a 
     InverseLimit obj func :=
   ⟨a, h⟩
 
-@[to_additive, simp]
+@[to_additive]
 lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j} :
-    func h (g.1 j) = g.1 i := by
-  unfold InverseLimit at g
-  aesop
+    func h (g.1 j) = g.1 i := by simp
 
 @[to_additive]
 instance instMul : Mul (InverseLimit obj func) := Subgroup.mul _

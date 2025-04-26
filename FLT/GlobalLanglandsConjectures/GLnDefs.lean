@@ -40,6 +40,7 @@ open scoped algebraMap
 
 section
 
+/-- The action of a Lie `R`-algebra on a Lie `R`-module, as an `R`-bilinear map. -/
 @[simps!]
 def bracketBilin (R L M) [CommRing R] [LieRing L] [LieAlgebra R L] [AddCommGroup M] [Module R M]
     [LieRingModule L M] [LieModule R L M] :

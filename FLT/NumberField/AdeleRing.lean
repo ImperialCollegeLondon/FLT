@@ -257,7 +257,7 @@ theorem NumberField.AdeleRing.discrete : ∀ x : K, ∃ U : Set (AdeleRing (𝓞
     IsOpen U ∧ (algebraMap K (AdeleRing (𝓞 K) K)) ⁻¹' U = {x} := by
   obtain ⟨V, hV, hV0⟩ := zero_discrete K
   intro x
-  set ι  := algebraMap K (AdeleRing (𝓞 K) K)    with hι
+  let ι  := algebraMap K (AdeleRing (𝓞 K) K)
   set xₐ := ι x                           with hxₐ
   set f  := Homeomorph.subLeft xₐ         with hf
   use f ⁻¹' V, f.isOpen_preimage.mpr hV
