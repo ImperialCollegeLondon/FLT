@@ -9,7 +9,7 @@ variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
 variable (D : Type*) [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
 
-open DedekindDomain
+open IsDedekindDomain
 
 open scoped NumberField TensorProduct
 
@@ -152,26 +152,15 @@ theorem GL2.localTameLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
 
 end IsDedekindDomain
 
--- should be in mathlib
+open RestrictedProduct
+
 noncomputable
-def DedekindDomain.ProdAdicCompletions.toAdicCompletion
-    (v : HeightOneSpectrum (𝓞 F)) :
-    ProdAdicCompletions (𝓞 F) F →ₐ[F] v.adicCompletion F where
-  toFun k := k v
-  map_one' := rfl
-  map_mul' _ _ := rfl
-  map_zero' := rfl
-  map_add' _ _ := rfl
+def IsDedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
+    FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v where
+  __ := RestrictedProduct.evalRingHom _ v
   commutes' _ := rfl
 
--- should be in mathlib
-noncomputable
-def DedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
-    FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v :=
-  (ProdAdicCompletions.toAdicCompletion v).comp
-  ((FiniteAdeleRing.subalgebra (𝓞 F) F).val)
-
-namespace DedekindDomain.FiniteAdeleRing
+namespace IsDedekindDomain.FiniteAdeleRing
 
 noncomputable def GL2.toAdicCompletion
     (v : HeightOneSpectrum (𝓞 F)) :
@@ -179,13 +168,13 @@ noncomputable def GL2.toAdicCompletion
     GL (Fin 2) (v.adicCompletion F) :=
   Units.map (RingHom.mapMatrix (FiniteAdeleRing.toAdicCompletion v)).toMonoidHom
 
-end DedekindDomain.FiniteAdeleRing
+end IsDedekindDomain.FiniteAdeleRing
 
 namespace IsDedekindDomain.HeightOneSpectrum
 
 open FiniteAdeleRing
 
-def GL2.TameLevel (S : Finset (HeightOneSpectrum (𝓞 F))) :
+noncomputable def GL2.TameLevel (S : Finset (HeightOneSpectrum (𝓞 F))) :
   Subgroup (GL (Fin 2) (FiniteAdeleRing (𝓞 F) F)) where
     carrier := {x | (∀ v, GL2.toAdicCompletion v x ∈ GL2.localFullLevel v) ∧
       (∀ v ∈ S, GL2.toAdicCompletion v x ∈ GL2.localTameLevel v)}
@@ -207,7 +196,7 @@ noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
+noncomputable instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   moduleTopology (FiniteAdeleRing (𝓞 F) F) _
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
@@ -222,6 +211,9 @@ attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [IsQuaternionAlgebra F D] in
 theorem Rigidification.continuous_toFun (r : Rigidification F D) :
     Continuous r :=
+  letI : ∀ (i : HeightOneSpectrum (𝓞 F)),
+      Algebra (FiniteAdeleRing (𝓞 F) F) ((i.adicCompletion F)) :=
+    fun i ↦ (RestrictedProduct.evalRingHom _ i).toAlgebra
   IsModuleTopology.continuous_of_linearMap r.toLinearMap
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in

@@ -22,8 +22,9 @@ variable [∀ i, Module (R i) (M i)] [∀ i, IsScalarTower Λ (R i) (M i)]
 -- Let `F` be an ultrafilter on the index set.
 variable (F : Ultrafilter ι)
 
-variable [Algebra.UniformlyBoundedRank R] -- For each `k`, the cardinality of `Rᵢ⧸(𝔪_Rᵢ)ᵏ` is
-                                          -- uniformly bounded
+-- For each `k`, the cardinality of `Rᵢ⧸(𝔪_Rᵢ)ᵏ` is uniformly bounded
+variable [Algebra.UniformlyBoundedRank R]
+
 variable [∀ i, Module.Free (Λ ⧸ Module.annihilator Λ (M i)) (M i)] -- `Mᵢ` is free
                                                                    -- over `Λ ⧸ Ann Mᵢ`.
 variable [Module.UniformlyBoundedRank Λ M] -- `rank_{Λ / Ann Mᵢ} Mᵢ` is finite and uniformly bounded

@@ -81,7 +81,8 @@ lemma index_span_p_pow (hx: x ≠ 0):
   simp [AddSubgroup.index, quotients_defeq, card_eq_zmod, NNReal.eq_iff,
     norm_eq_zpow_neg_valuation hx]
 
-lemma smul_submodule_one_index : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := by
+lemma smul_submodule_one_index :
+    (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := by
   by_cases hx: x = 0
   . simp [hx]
   . have x_factor := PadicInt.unitCoeff_spec hx
@@ -91,7 +92,8 @@ lemma smul_submodule_one_index : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSu
 
 /-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
 lemma smul_submodule_one_relindex:
-    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
+    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex
+      (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
 
   have relindex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ :=
     smul_submodule_one_index
@@ -120,7 +122,8 @@ lemma smul_submodule_one_relindex:
 
 /-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
 lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0):
-    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
+    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex
+    (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
   relindex_ne_zero := by
     rw [← Nat.cast_ne_zero (R := ℝ≥0)]
     simp [smul_submodule_one_relindex, hx]
