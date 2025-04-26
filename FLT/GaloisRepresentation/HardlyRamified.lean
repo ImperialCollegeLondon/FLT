@@ -1,4 +1,4 @@
-import FLT.Basic.Reductions -- ignore -- random import for linter reasons
+import Mathlib.Init -- run mathlib's syntax linters on this file
 /-
 Taylor: You could say that
 a representation
