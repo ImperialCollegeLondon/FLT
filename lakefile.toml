@@ -6,11 +6,13 @@ pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 autoImplicit = false # no "assume a typo is a new variable"
 relaxedAutoImplicit = false # no "assume a typo is a new variable"
 linter.style.longLine = true # no lines longer than 100 chars
-linter.oldObtain = true # no "stream of consciousness `obtain`" -- remove `weak` after bump?
-linter.style.cases = true # no `cases'` tactic -- remove `weak` after bump?
+linter.oldObtain = true # no "stream of consciousness `obtain`"
+linter.style.cases = true # no `cases'` tactic
 linter.style.refine = true # no `refine'` tactic
 linter.style.multiGoal = true # no multiple active goals
-weak.linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible tactic (e.g. `simp`)
+linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible tactic (e.g. `simp`)
+maxSynthPendingDepth = 3 # same as mathlib, changes behaviour of typeclass inference
+
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"

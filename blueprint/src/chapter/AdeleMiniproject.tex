@@ -16,7 +16,8 @@ There are several goals to this miniproject.
       \href{https://github.com/smmercuri/adele-ring_locally-compact}{
       also proved by Mercuri} but not yet in mathlib);
   \item Base change: show that if $L/K$ is a finite extension of number fields then the
-    natural map $L\otimes_K\A_K\to\A_L$ is an isomorphism; (status: not
+    natural map $L\otimes_K\A_K\to\A_L$ is an isomorphism, both algebraic and
+    topological; (status: not
     formalized yet, but there is a plan -- see the project dashboard);
   \item Prove that $K \subseteq \A_K$ is a discrete subgroup and the quotient
     is compact (status: not formalized yet, but there is a plan -- see the project
@@ -36,8 +37,8 @@ finite-dimensional $\R$-vector space so this is just the usual topology on $\R^n
 A cheap definition of the adeles of $K$ is $\A_K^\infty\times K_\infty$ with
 the product topology. This is a commutative topological ring.
 
-However in the literature different definitions
-are often given. The finite adeles of $K$ are usually defined in the books
+However in the literature (and in mathlib) we see different definitions.
+The finite adeles of $K$ are usually defined in the books
 as the so-called restricted product $\prod'_{\mathfrak{p}}K_{\mathfrak{p}}$ over the completions
 $K_{\mathfrak{p}}$ of $K$ at all maximal ideals $\mathfrak{p}\subseteq\mathcal{O}_K$ of the
 integers of $K$. Here the restricted product is the subset of $\prod_{\mathfrak{p}}K_{\mathfrak{p}}$
@@ -59,7 +60,7 @@ adeles, and mathlib knows that they're a $K$-algebra and a topological ring.
 
 \section{Local compactness}
 
-As mentioned above, Salvatore Mercuri has a complete formalisation of the proof
+As mentioned above, Salvatore Mercuri was the first to give a complete formalisation of the proof
 that the adele ring is locally compact as a topological space. His work is in
 \href{https://github.com/smmercuri/adele-ring_locally-compact}{his own repo} which
 I don't want to have as a dependency of FLT, because this work should all be
@@ -73,14 +74,16 @@ in mathlib.
   The adeles of a number field are locally compact.
 \end{theorem}
 \begin{proof}
-  See \href{https://github.com/smmercuri/adele-ring_locally-compact/blob/e8e34608c139ee95a1e21d9d24f138524196a2e1/AdeleRingLocallyCompact/NumberTheory/NumberField/AdeleRing.lean#L70}
-  {this line} in Mercuri's repo. The proof is: a restricted product of topological spaces $X_i$
-  over compact open subspaces $C_i$ is locally compact, because $\prod_i C_i$ is open and compact
-  (we should have this result in mathlib in general rather than the ad hoc approach which we
-  currently have for adeles).
-  Hence $\A_K^\infty$ is locally compact.
-  The vector space $\R^n$ is locally compact. Hence $K_{\infty}$ is locally compact.
-  Hence their product $\A_K$ is locally compact.
+  The adeles of a number field are a product of the finite adeles and the infinite adeles
+  so it suffices to prove that the finite and infinite adeles are locally compact.
+  The infinite adeles are just isomorphic to $\R^n$ as a topological space, so they're certainly
+  locally compact. As for the finite adeles,
+  the mathlib theorem {\tt RestrictedProduct.locallyCompactSpace\_of\_addGroup}
+  says that a restricted product of locally compact additive groups with respect to open compact
+  subgroups is locally compact, so this reduces us to the claim that if $K$ is a number field
+  and $v$ is a finite place then the completion $K_v$ is locally compact and its integer
+  ring $\mathcal{O}_v$ is open and compact. All of these facts are either in mathlib or
+  proved by Mercuri in his repo and are on the way to mathlib.
 \end{proof}
 
 \section{Base change}
@@ -94,13 +97,14 @@ definition.
 
 Recall that the adeles $\A_K$ of a number field is a product $\A_K^\infty\times K_\infty$
 of the finite adeles and the infinite adeles. So our ``theorem'' follows immediately from
-the ``theorem''s that $\A_L^\infty=L\otimes_K\A_K^\infty$ and $L_\infty=L\otimes_KK_\infty$.
+the ``theorem''s that $\A_L^\infty=L\otimes_K\A_K^\infty$ and $L_\infty=L\otimes_KK_\infty$
+(both of these equalities mean an algebraic and topological isomorphism).
 We may thus treat the finite and infinite results separately.
 
 \subsection{Base change for finite adeles}
 
 As pointed out above, the theory of finite adeles works fine for Dedekind domains.
-So in this subsection let~$A$ be a Dedekind domain. Recall that the \emph{height one spectrum}
+So for the time being let~$A$ be a Dedekind domain. Recall that the \emph{height one spectrum}
 of $A$ is the nonzero prime ideals of~$A$. Note that because we stick to the literature,
 rather than to common sense, fields are Dedekind domains in mathlib, and the
 height one spectrum of a field is empty. The reason I don't like allowing fields
@@ -112,11 +116,13 @@ Let $K$ be the field of fractions of $A$. If $v$ is in the height one spectrum o
 then we can put the $v$-adic topology on $A$ and on $K$, and consider the completions
 $A_v$ and $K_v$. The finite adele ring $\mathbb{A}_{A,K}^\infty$ is defined to be
 the restricted product of the $K_v$ with respect to the $A_v$, as $v$ runs over
-the height one spectrum of $A$.
+the height one spectrum of $A$. It is topologised by making $\prod_v A_v$ open with
+the product topology (here $A_v$ has the $v$-adic topology).
 
 Now let~$L/K$ be a finite separable extension, and let $B$ be the integral closure of~$A$ in~$L$.
 We want to relate the finite adeles of $K$ and of $L$. We work place by place, starting by fixing
-one place upstairs and analysing its relation to the place downstairs.
+one place $w$ of $B$ and analysing the relation of $L_w$ and $B_w$ to the completions $K_v$
+and $A_v$ where $v$ is the place of $A$ dividing $w$.
 
 So let $w$ be a nonzero prime ideal of $B$. Say $w$ lies over $v$, a prime ideal of $A$.
 Then we can put the $w$-adic topology on $L$ and the $v$-adic topology on~$K$. Furthermore
@@ -125,11 +131,13 @@ a function also called $v$ from $K$ to $\Z\cup\{\infty\}$ normalised so that if 
 for $v$ then $v(\pi)=1$. Similarly we consider $w$ as a function from $L$ to $\Z\cup\{\infty\}$.
 The next lemma explains how these valuations are related.
 
-\begin{lemma} If $i:K\to L$ denotes the inclusion then for $k\in K$ we have
-  $e\times w(i(k))=v(k)$, where $e$ is the ramification index of $w/v$.
+\begin{lemma}
   \label{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \lean{IsDedekindDomain.HeightOneSpectrum.valuation_comap}
   \leanok
+  If $i:K\to L$ denotes the inclusion then for $k\in K$ we have
+  $e\times w(i(k))=v(k)$, where $e$ is the ramification index of $w/v$
+  (recall that valuations here are written additively, unlike in mathlib).
 \end{lemma}
 \begin{proof}
   \leanok
@@ -148,13 +156,37 @@ The next lemma explains how these valuations are related.
   and $w$-adic topologies).
 \end{definition}
 
+\begin{lemma}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom_valued}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom_valued}
+  \leanok
+   % \discussion{???} % **TODO** needs an issue
+  If $i_v:K_v\to L_w$ denotes the map of the previous definition
+  then for $x\in K_v$ we have
+  $e\times w(i(k))=v(k)$, where $e$ is the ramification index of $w/v$.
+\end{lemma}
+\begin{proof}
+  Follows by continuity from lemma~\ref{IsDedekindDomain.HeightOneSpectrum.valuation_comap}.
+\end{proof}
+
+\begin{theorem}
+  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom.mapadicCompletionIntegers}
+  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom.mapadicCompletionIntegers}
+  \leanok
+  The map $i_v:K_v\to L_w$ sends the integer ring $A_v$ into $B_w$.
+\end{theorem}
+\begin{proof}
+  \leanok
+  The integer ring is defined by $v\geq0$ (or $v\leq 1$ in mathlib, which uses multiplicative
+  valuations) so the result follows from \ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom_valued}.
+\end{proof}
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
   \leanok
   \discussion{326}
-  Giving $L_w$ the $K_v$-module structure coming from the natural map $K_v\to L_w$,
+  Giving $L_w$ the $K_v$-algebra structure coming from the natural map $K_v\to L_w$,
   the $w$-adic topology on $L_w$ is the $K_v$-module topology.
 \end{theorem}
 \begin{proof}
@@ -165,12 +197,37 @@ The next lemma explains how these valuations are related.
   which makes $L_w$ into a normed $K_v$-vector space, and (after picking a basis)
   the product norm on $L_w=K_v^n$ also makes $L_w$ into a normed $K_v$-vector space.
   So the result follows from the standard fact (see for example the lemma on p52
-  of Cassels-Froelich) that any two norms on a finite-dimensional vector space over
+  of Cassels-Froelich, formalized as {\tt ContinuousLinearEquiv.ofFinrankEq} in mathlib)
+  that any two norms on a finite-dimensional vector space over
   a complete field are equivalent (and thus induce the same topology).
 \end{proof}
 
-Now instead of fixing $w$ upstairs, we fix $v$ downstairs. So say $v$ is in the height one
-spectrum of $A$.
+Because of the commutative diagram
+\[
+\begin{tikzcd}
+K_v \arrow{r} & L_w  \\
+K \arrow{u} \arrow{r} & L \arrow{u}
+\end{tikzcd}
+\]
+
+we can view $L_w$ as an $L\otimes_KK_v$-algebra.
+
+Now instead of fixing $w$ upstairs, we fix $v$ downstairs and consider all $w$ lying
+over it at once. So say $v$ is in the height one spectrum of $A$.
+
+\begin{lemma}
+  \lean{IsDedekindDomain.HeightOneSpectrum.Extension.finite}
+  \label{IsDedekindDomain.HeightOneSpectrum.Extension.finite}
+  \leanok
+  There are only finitely many primes $w$ of $B$ lying above $v$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  This is a standard fact about Dedekind domains. The key input is
+  mathlib's theorem {\tt primesOver\_finite}.
+\end{proof}
+
+We write $w|v$ to denote the fact that $w$ is a prime of $B$ above $v$ of $A$.
 
 \begin{definition}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom'}
@@ -178,42 +235,59 @@ spectrum of $A$.
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom}
   \leanok
   The product of the maps $K_v\to L_w$ for $w|v$ is a natural ring map $K_v\to\prod_{w|v}L_w$
-  lying over $K\to L$. Here the product runs over the height one primes of $B$ which pull back to $v$.
+  lying over $K\to L$.
 \end{definition}
 
 Because $K_v\to\prod_{w|v}L_w$ lies over $K\to L$, there's an induced $L$-algebra
-map $L\otimes_KK_v\to\prod_{w|v}L_w$.
+map $L\otimes_KK_v\to\prod_{w|v}L_w$. We are now able to state one of the key results
+in this section. The proof is probably the hardest proof
+in this section to formalize.
 
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
-  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom'}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom',
+  IsDedekindDomain.HeightOneSpectrum.Extension.finite}
   \leanok
   The induced $L$-algebra homomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ is an
   isomorphism of rings.
 \end{theorem}
 \begin{proof}
-  We follow Theorem 5.12 on p21 of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
+  My proposal (and I'm open to other suggestions) is to follow Theorem 5.12 on p21
+  of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
   {these notes}. We may write $L=K(\alpha)$ as a finite separable extension is simple. Let $f(x)$
-  be the minimum polynomial of $\alpha$. Factor $f(x)=f_1(x)f_2(x)\cdots f_r(x)$ into
+  be the minimum polynomial of $\alpha$. This is irreducible over $K$ but may factor over
+  the bigger field $K_v$. Factor $f(x)=f_1(x)f_2(x)\cdots f_r(x)$ into
   monic irreducibles $K_v[x]$; these are distinct by separability. We have $L=K[x]/(f)$
-  so $L\otimes_KK_v=K_v[x]/(f)=K_v[x]/(\prod_i f_i)=\oplus_i K_v[x]/(f_i)$. Write
-  $L_i=K_v[x]/(f_i)$. We need to show that the $L_i$ correspond naturally to the completions
-  $L_w$ for $w|v$.
+  so $L\otimes_KK_v=K_v[x]/(f)=K_v[x]/(\prod_i f_i)=\prod_i K_v[x]/(f_i)$. Write
+  $L_i=K_v[x]/(f_i)$. Informally we have shown that $L\otimes_KK_v=\prod_i L_i$. More formally
+  we have constructed some $L\otimes_KK_v$-algebras $L_i$ and given an $L\otimes_KK_v$-algebra
+  isomorphism $L\otimes_KK_v\equiv \prod_i L_i$, so what we need to do
+  is to identify the fields $L_i$ with the fields $L_w$ as $L\otimes_KK_v$-algebras.
+  In other words, we need
+  to set up a bijection between the $i$'s indexing the $f_i$ and the $w$'s indexing the
+  places dividing $v$, and if $i$ corresponds to $w$ then we need to establish an
+  $L\otimes_K K_v$-algebra isomorphism between $L_i$ and $L_w$.
 
   First note that $[L_i:K_v]\leq [L:K]<\infty$ and so there's a unique extension of the $v$-adic
   norm on $K_v$ to $L_i$. The restriction of this norm to $L$ must be equivalent to the $w$-adic
-  norm for some $w|v$ by Ostrowski; then we must have $L_i=L_w$ because $L$ is dense in both
-  and both are complete.
+  norm for some $w|v$ by Ostrowski (one does not need the full force of Ostrowski here,
+  one just needs that a nonarchimedean norm on $L$ whose restriction to $K$ is equivalent to $v$
+  must come from a unique place of $L$ above $v$). This gives us a function from the $i$'s
+  to the $w$'s and the $L\otimes_K K_v$-algebra isomorphism $L_i=L_w$, so all that is left is
+  to prove that this function from $i$'s to $w$'s is a bijection, which we do by showing that
+  it is an injection and a surjection.
 
-  Next note that if $i\not=j$ then $L_i$ and $L_j$ cannot be isomorphic as $L\otimes_KK_v$-algebras,
-  because such an isomorphism would send $x$ to $x$ and thus show $f_i=f_j$. Hence the map
+  We first deal with injectivity. Note that if $i\not=j$ then $L_i$ and $L_j$ cannot be isomorphic
+  as $L\otimes_KK_v$-algebras, because (thinking of $L_i$ as $K_v[x]/(f_i)$) such an isomorphism
+  would send $x$ to $x$ and thus show $f_i=f_j$, contradicting separability of $\alpha$. Hence the map
   from $L_i$ to the $w$ dividing $v$ is injective.
 
   For surjectivity, note that if $w|v$ then $L_w$ is an $L\otimes_KK_v$-algebra and hence
   admits a map from $L\otimes_K K_v$ which must factor through one of the $L_i$.
   This gives an injection $L_i\to L_w$. But $L_i$ is complete, as it's a finite extension
-  of $K_v$, and the image is dense because $L$ is dense in $L_w$, hence $L_i=L_w$.
+  of $K_v$, and the image is dense because $L$ is dense in $L_w$, hence the injection
+  is an isomorphism. This shows that $i$ maps to $w$.
 \end{proof}
 
 \begin{theorem}
@@ -244,7 +318,8 @@ map $L\otimes_KK_v\to\prod_{w|v}L_w$.
   module topologies.
 \end{proof}
 
-We now start thinking about what's going on at the integral level.
+We now start thinking about what's going on at the integral level. We write $A_v$
+for the integers of $K_v$ and $B_w$ for the integers of $L_w$.
 
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
@@ -252,58 +327,53 @@ We now start thinking about what's going on at the integral level.
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv}
   The isomorphism $L\otimes_KK_v\to\prod_{w|v}L_w$ induces an isomorphism
   $B\otimes_AA_v\to \prod_{w|v}B_w$
-  for all but finitely many $v$ in the height one spectrum of $A$.
+  for all $v$ in the height one spectrum of $A$.
 \end{theorem}
 \begin{proof}
   Certainly the image of the integral elements are integral. The argument in the other
-  direction is more delicate. One approach (following Cassels--Froehlich, Cassels' article
-  ``Global fields'', section 12 lemma, p61) is the following. Choose a $K$-basis
-  $\omega_1,\omega_2,\ldots,\omega_n$ for $L/K$ with all $\omega_i\in A$.
-  Then $\omega_1A\oplus\cdots\oplus\omega_nA$ and
-  $B$ are two $A$-lattices in $L$, so they agree at almost all primes. In particular
-  $\omega_1A_v\oplus\omega_2A_v\oplus\cdots\oplus\omega_nA_v=B\otimes_AA_v$ for all but
-  finitely many primes $v$ of $A$. If we define the discriminant map~$D$ on $L/K$
-  by $D(\gamma_1,\gamma_2,\ldots,\gamma_n)=det_{i,j}(trace_{L/K}(\gamma_i\gamma_j))$
-  then it's well-known that $d:=D(\omega_1,\omega_2,\ldots,\omega_n)$ is nonzero (here we use
-  separability), and hence a $v$-adic unit for all but finitely many $v$. Furthermore if
-  $\gamma_i\in \prod_{w|v}B_w$ for all $i$ then $D(\gamma_1,\gamma_2,\ldots,\gamma_n)\in A_v$
-  as all of the traces are in $A_v$. Now say
-  we have an element of $\prod_{w|v}B_w$, and write it as $\sum_i b_i\omega_i$ with
-  $b_i\in K_v$. Then for each $i$ we have
-  $D(\omega_1,\omega_2,\ldots,\omega_{i-1},b,\omega_{i+1},\ldots,\omega_n)\in A_v$
-  but it is also $b_i^2d$. Because $d$ is a $v$-adic unit for almost all $v$, we
-  see that the $b_i$ must also be in $A_v$ for almost all $v$.
+  direction is more delicate. My original plan was to follow Cassels--Froehlich,
+  Cassels' article ``Global fields'', section 12 lemma, p61, which proves it for
+  all but finitely many primes, but \href{https://github.com/ImperialCollegeLondon/FLT/pull/400}
+  {a PR by Matthew Jasper} gives another approach which works for all primes.
+  Jasper's argument is to show that the closure of $A$ in $K_v$ is $A_v$
+  for a valuation on a Dedekind domain, and then that the closure of $A$ in $\prod_{v\in S}K_v$
+  is $\prod_{v\in S}A_v$ for $S$ a finite set of valuations (using the Chinese
+  remainder theorem). Applying this to $B$ we get that the closure of $B$ in $\prod_{w|v}L_w$
+  is $\prod_{w|v}B_w$. He then shows that this closure is the image of
+  $B\otimes_A\mathcal{O}_v$ (by showing that this image is closed becasue it's open),
+  giving surjectivity; injectivity follows from the statement
+  that $L\otimes_KK_v=\prod_{w|v}L_w$.
 \end{proof}
 
-We can take the product of the maps $K_v\to\prod_{w|v}L_w$ over $v$.
+A summary of what we have so far: for all finite places $v$ of $A$
+we have shown that the natural map $L\otimes_KK_v\to\prod_wL_w$
+is an isomorphism of $L$-algebras, and that if $L\otimes_KK_v$ has
+the $K_v$-module topology and each $L_w$ has the valuation topology
+then this map is also a homeomorphism. Furthermore we have shown
+that there is an induced algebraic isomorphism $B\otimes_AA_v\equiv\prod_w B_w$
+on the subrings of the left and right hand sides.
 
-\begin{definition}
-  \lean{DedekindDomain.ProdAdicCompletions.baseChange}
-  \label{DedekindDomain.ProdAdicCompletions.baseChange}
-  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletion_comap_algHom}
-  There's a natural $K$-algebra homomorphism $\prod_v K_v\to\prod_w L_w$, where the
-  products run over the height one spectra of $A$ and $B$ respectively.
-\end{definition}
+Recall that the finite adeles $\A_{A,K}^\infty$ is defined in mathlib to be
+the restricted product of the $K_v$ with respect to the $A_v$, equipped with a certain
+restricted product topology (which is not the subspace topology of the product
+topology, indeed $\prod_v A_v$ is open in this topology). We
 
-Note that we make no claim about continuity; such a claim wouldn't help
-us because the adeles do not get the subspace topology.
-
-\begin{theorem} This map induces a natural $K$-algebra homomorphism
-  $\A_{A,K}^\infty\to\A_{B,L}^\infty$.
-  \label{DedekindDomain.FiniteAdeleRing.baseChange}
-  \lean{DedekindDomain.FiniteAdeleRing.baseChange}
+\begin{theorem} There's a natural homomorphism
+  $\A_{A,K}^\infty\to\A_{B,L}^\infty$ lying over $K\to L$.
+  \label{IsDedekindDomain.FiniteAdeleRing.mapSemialgHom}
+  \lean{IsDedekindDomain.FiniteAdeleRing.mapSemialgHom}
   \leanok
 \end{theorem}
 \begin{proof}
-  This does not need the hard direction of
-  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
-  the definition of the map is straightforward using only that integers map
-  to integers.
+  This follows immediately from the fact (ref?) that integesr map to integers
+  and general nonsense.
 \end{proof}
 
+I would like to conclude the following also by general nonsense:
+
 \begin{theorem}
-  \label{DedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
-  \lean{DedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
+  \label{IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
+  \lean{IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}
   \leanok
   If we give $L\otimes_K\A_{A,K}^\infty$ the ``module topology'', coming from the fact
@@ -312,6 +382,8 @@ us because the adeles do not get the subspace topology.
   $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$ is a topological isomorphism.
 \end{theorem}
 \begin{proof}
+  {\bf TODO} rewrite this.
+
   Existence of the map follows from
   theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
   Surjectivity follows from

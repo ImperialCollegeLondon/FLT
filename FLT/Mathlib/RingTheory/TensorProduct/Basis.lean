@@ -1,7 +1,7 @@
-import Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.LinearAlgebra.Basis.Basic
 import Mathlib.LinearAlgebra.TensorProduct.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
+import Mathlib.RingTheory.TensorProduct.Basic
 
 section Basis
 

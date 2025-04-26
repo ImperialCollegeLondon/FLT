@@ -167,16 +167,16 @@ instance : SemilatticeInf (OpenIdeals R) :=
 instance : OrderTop (OpenIdeals R) :=
   Subtype.orderTop isOpen_univ
 
-abbrev PatchingModule.componentMap {α β : Ideal R} (h : α ≤ β) : Component R M F α →ₗ[R]
-    Component R M F β :=
+abbrev PatchingModule.componentMap {α β : Ideal R} (h : α ≤ β) :
+    Component R M F α →ₗ[R] Component R M F β :=
   UltraProduct.map (R := fun _ ↦ R)
     (M := (fun i ↦ M i ⧸ (α • ⊤ : Submodule R (M i))))
     (N := (fun i ↦ M i ⧸ (β • ⊤ : Submodule R (M i)))) F
     (fun _ ↦ Submodule.mapQ _ _ LinearMap.id
     (Submodule.smul_mono h le_rfl))
 
-attribute [-instance] instIsScalarTowerUltraProduct in -- needs investigation why
-                                                       -- this slows everything
+attribute [-instance] instIsScalarTowerUltraProduct in
+-- needs investigation why this instance slows everything
 def PatchingModule.submodule : Submodule (ι → R) (Π α : OpenIdeals R, Component R M F α.1) where
   carrier := { x | ∀ (α β : OpenIdeals R) (h : α ≤ β), componentMap R M F h (x α) = x β }
   add_mem' {v w} hv hw α β h := by
@@ -332,8 +332,7 @@ def PatchingModule.map :
       obtain ⟨a, ha⟩ := UltraProduct.πₗ_surjective (fun _ ↦ R) (x α)
       simp only [LinearMap.coe_restrictScalars, LinearMap.piMap_apply,
         ← hx α β h, ← ha, UltraProduct.map_πₗ, LinearMap.coe_restrictScalars,
-        UltraProduct.πₗ_eq_iff] -- TODO if I move this line to the line before, it's < 100 chars
-                               -- but the 100 char linter triggers??
+        UltraProduct.πₗ_eq_iff]
       filter_upwards with i
       rw [← LinearMap.comp_apply, ← LinearMap.comp_apply, ← Submodule.mapQ_comp,
         ← Submodule.mapQ_comp]
@@ -525,8 +524,7 @@ lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) 
 -- Compact + T2 actually implies NonarchimedeanRing.
 variable [NonarchimedeanRing R] [T2Space R]
 
-noncomputable
-def PatchingModule.mapOfIsPatchingSystem_bijective :
+lemma PatchingModule.mapOfIsPatchingSystem_bijective :
     Function.Bijective (mapOfIsPatchingSystem R M F) := by
   constructor
   · rw [injective_iff_map_eq_zero]

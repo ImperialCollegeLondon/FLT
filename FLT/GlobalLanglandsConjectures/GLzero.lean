@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Jonas Bayer
 -/
 import Mathlib.RingTheory.DedekindDomain.Ideal
-import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
-import Mathlib.FieldTheory.Cardinality
 import FLT.GlobalLanglandsConjectures.GLnDefs
 
 /-!
@@ -76,7 +74,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
         fg_top := by sorry
       }
     has_finite_level := by
-      let U : Subgroup (GL (Fin 0) (DedekindDomain.FiniteAdeleRing ℤ ℚ)) := {
+      let U : Subgroup (GL (Fin 0) (IsDedekindDomain.FiniteAdeleRing ℤ ℚ)) := {
         carrier := {1},
         one_mem' := by simp,
         mul_mem' := by simp

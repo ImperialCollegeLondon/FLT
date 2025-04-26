@@ -1,11 +1,13 @@
 import Mathlib.RingTheory.AdicCompletion.Basic
 import Mathlib.RingTheory.Ideal.Quotient.Index
 import Mathlib.Topology.Algebra.Algebra
-import Mathlib.Topology.Algebra.ClosedSubgroup
+import Mathlib.Topology.Algebra.Group.ClosedSubgroup
 import Mathlib.Topology.Algebra.Field
 import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
 import Mathlib.Topology.Connected.Separation
 import FLT.Patching.Utils.InverseLimit
+import FLT.Patching.Utils.Lemmas
+import Mathlib.RingTheory.Artinian.Ring
 
 variable (R) [CommRing R] [IsLocalRing R] [TopologicalSpace R] [IsTopologicalRing R]
 
@@ -136,8 +138,6 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
   have : Finite (R ⧸ maximalIdeal R) := ‹_›
   have : ∀ i, Finite (R ⧸ (maximalIdeal R) ^ i) := fun i ↦
     Ideal.finite_quotient_pow (IsNoetherian.noetherian _) _
-  have : ∀ i, IsClosed (X := R) ↑((maximalIdeal R) ^ i) := fun i ↦
-    ((maximalIdeal R) ^ i).toAddSubgroup.isClosed_of_isOpen (isOpen_maximalIdeal_pow R i)
   have hf : Continuous f := by continuity
   have : Topology.IsClosedEmbedding f := by
     refine ⟨⟨?_, ?_⟩, ?_⟩

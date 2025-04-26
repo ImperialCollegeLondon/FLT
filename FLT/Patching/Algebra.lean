@@ -254,9 +254,10 @@ def PatchingAlgebra.incl :
 
 section Functorial
 
-variable {R' : ι → Type*} [∀ i, CommRing (R' i)] [∀ i, IsLocalRing (R' i)] --[∀ i, Module R' (N i)]
-variable {R'' : ι → Type*} [∀ i, CommRing (R'' i)] [∀ i, IsLocalRing (R'' i)] --
-                                                                          -- [∀ i, Module R (N' i)]
+variable {R' : ι → Type*} [∀ i, CommRing (R' i)] [∀ i, IsLocalRing (R' i)]
+-- [∀ i, Module R' (N i)]
+variable {R'' : ι → Type*} [∀ i, CommRing (R'' i)] [∀ i, IsLocalRing (R'' i)]
+-- [∀ i, Module R (N' i)]
 variable (f : ∀ i, R i →+* R' i) (g : ∀ i, R' i →+* R'' i)
 variable [∀ i, IsLocalHom (f i)] [∀ i, IsLocalHom (g i)]
 

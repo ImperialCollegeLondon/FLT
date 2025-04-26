@@ -1,5 +1,4 @@
 import Mathlib.Topology.Constructions
-import Mathlib.Topology.ContinuousOn
 import FLT.Mathlib.Data.Set.Function
 
 theorem TopologicalSpace.prod_mono {α β : Type*} {σ₁ σ₂ : TopologicalSpace α}

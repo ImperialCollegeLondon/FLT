@@ -1,5 +1,6 @@
 import Mathlib.Algebra.Order.AbsoluteValue.Basic
 import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Ring.Basic
 
 namespace AbsoluteValue
 

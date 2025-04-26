@@ -1,4 +1,4 @@
-import FLT.Basic.Reductions -- ignore -- random import for linter reasons
+import Mathlib.Init -- run mathlib's syntax linters on this file
 #exit
 /-
 Copyright (c) 2024 Kevin Buzzard. All rights reserved.

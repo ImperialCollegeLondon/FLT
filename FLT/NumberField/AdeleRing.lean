@@ -1,4 +1,3 @@
-import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.NumberTheory.NumberField.Basic
@@ -7,7 +6,7 @@ import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.NumberField.InfiniteAdeleRing
+import Mathlib.NumberTheory.NumberField.AdeleRing
 
 open scoped TensorProduct
 
@@ -59,7 +58,7 @@ instance : IsModuleTopology (𝔸 K) (L ⊗[K] 𝔸 K) := ⟨rfl⟩
 instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank K L) → 𝔸 K) :=
   IsModuleTopology.instPi
 
-open DedekindDomain in
+open IsDedekindDomain in
 /-- The canonical `L`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
 `K`-algebra base change map `𝔸_K → 𝔸_L`. -/
 def baseChangeEquiv :
@@ -154,7 +153,7 @@ end BaseChange
 
 section Discrete
 
-open DedekindDomain
+open IsDedekindDomain
 
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
     IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
@@ -167,28 +166,14 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       apply isOpen_iInter_of_finite
       intro v
       exact Metric.isOpen_ball.preimage (continuous_apply v)
-    let basis := FiniteAdeleRing.submodulesRingBasis (𝓞 ℚ) ℚ
-    let integralAdeles' := basis.toRing_subgroups_basis.openAddSubgroup 1
-    suffices h : integralAdeles = ↑integralAdeles' by
-      rw [h]
-      exact integralAdeles'.isOpen
-    ext x
-    simp only [← FiniteAdeleRing.exists_finiteIntegralAdele_iff, FiniteAdeleRing.ext_iff,
-      SetCoe.ext_iff, Set.mem_setOf_eq, RingSubgroupsBasis.openAddSubgroup, Submonoid.one_def,
-      map_one, SetLike.mem_coe, ← OpenAddSubgroup.mem_toAddSubgroup, Submodule.mem_toAddSubgroup,
-      Submodule.mem_span_singleton, Algebra.smul_def', mul_one, integralAdeles, integralAdeles']
-    apply exists_congr
-    intro a
-    exact eq_comm
+    . exact RestrictedProduct.isOpen_forall_mem fun v ↦ Valued.integer_isOpen _
   · apply subset_antisymm
     · intro x hx
       rw [Set.mem_preimage] at hx
       simp only [Set.mem_singleton_iff]
-      have : (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
+      rw [show (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) x =
         (algebraMap ℚ (InfiniteAdeleRing ℚ) x, algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) x)
-      · rfl
-      rw [this] at hx
-      clear this
+        from rfl] at hx
       rw [Set.mem_prod] at hx
       obtain ⟨h1, h2⟩ := hx
       dsimp only at h1 h2
@@ -198,8 +183,8 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       specialize h1 Rat.infinitePlace
       change ‖(x : ℂ)‖ < 1 at h1
       simp only [Complex.norm_ratCast, integralAdeles] at h1
-      have intx: ∃ (y:ℤ), y = x
-      · obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
+      have intx: ∃ (y:ℤ), y = x := by
+        obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
             ℚ x <| fun v ↦ by
           specialize h2 v
           letI : UniformSpace ℚ := v.adicValued.toUniformSpace
@@ -225,8 +210,8 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       constructor
       · simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq]
         intro v
-        have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0
-        · simp only [norm_eq_zero]
+        have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0 := by
+          simp only [norm_eq_zero]
           rfl
         simp [this, zero_lt_one]
       · simp only [integralAdeles, Set.mem_setOf_eq]
@@ -269,7 +254,7 @@ theorem NumberField.AdeleRing.discrete : ∀ x : K, ∃ U : Set (AdeleRing (𝓞
     IsOpen U ∧ (algebraMap K (AdeleRing (𝓞 K) K)) ⁻¹' U = {x} := by
   obtain ⟨V, hV, hV0⟩ := zero_discrete K
   intro x
-  set ι  := algebraMap K (AdeleRing (𝓞 K) K)    with hι
+  let ι  := algebraMap K (AdeleRing (𝓞 K) K)
   set xₐ := ι x                           with hxₐ
   set f  := Homeomorph.subLeft xₐ         with hf
   use f ⁻¹' V, f.isOpen_preimage.mpr hV
