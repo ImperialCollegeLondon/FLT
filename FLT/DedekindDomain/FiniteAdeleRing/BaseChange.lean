@@ -545,7 +545,7 @@ noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [IsDomain B] [Algebra.IsIntegral A B] [Module.Finite A B] [IsDedekindDomain B]
-    [IsFractionRing B L] in
+    [IsFractionRing B L] [FaithfulSMul A B] in
 lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
   (tensorAdicCompletionIntegersTo A K L B v).range.carrier ⊆
       closure (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
@@ -604,7 +604,7 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
 open TensorProduct.AlgebraTensorModule in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [Algebra.IsSeparable K L] [IsDomain B] [Algebra.IsIntegral A B]
-    [Module.Finite A B] [IsDedekindDomain B] [IsFractionRing B L]  in
+    [Module.Finite A B] [IsDedekindDomain B] [IsFractionRing B L] [FaithfulSMul A B] in
 lemma tensorAdicCompletionIsClosedRange :
     IsClosed (SetLike.coe (tensorAdicCompletionIntegersTo A K L B v).range) := by
   -- `B ⊗[A] 𝒪_v` is a subgroup of `L ⊗[K] K_v`, so we can show it's closed
@@ -664,7 +664,7 @@ lemma tensorAdicCompletionIsClosedRange :
     exact Valued.valuationSubring_isOpen (v.adicCompletion K)
 
 omit [Algebra.IsSeparable K L] [IsDomain B] [Algebra.IsIntegral A B] [Module.Finite A B]
-    [IsDedekindDomain B] [IsFractionRing B L] in
+    [IsDedekindDomain B] [IsFractionRing B L] [FaithfulSMul A B] in
 lemma tensorAdicCompletionIntegersToRange_eq_closureIntegers :
     SetLike.coe (tensorAdicCompletionIntegersTo A K L B v).range =
         closure (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
@@ -675,7 +675,8 @@ lemma tensorAdicCompletionIntegersToRange_eq_closureIntegers :
       apply algebraMap_mem
     . apply tensorAdicCompletionIsClosedRange
 
-omit [Algebra A L] [IsScalarTower A B L] [IsIntegralClosure B A L] [Module.Finite A B] in
+omit [Algebra A L] [IsScalarTower A B L] [IsIntegralClosure B A L] [Module.Finite A B]
+    [FaithfulSMul A B] in
 lemma prodAdicCompletionsIntegers_eq_closureIntegers :
     SetLike.coe (Subalgebra.pi (R := B) Set.univ
       (fun (w : Extension B v) ↦ adicCompletionIntegersSubalgebra L w.1)) =
