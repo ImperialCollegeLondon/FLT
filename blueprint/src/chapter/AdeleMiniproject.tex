@@ -101,7 +101,7 @@ the ``theorem''s that $\A_L^\infty=L\otimes_K\A_K^\infty$ and $L_\infty=L\otimes
 (both of these equalities mean an algebraic and topological isomorphism).
 We may thus treat the finite and infinite results separately.
 
-\subsection{Base change for finite adeles}
+\subsection{Base change for nonarchimedean completions.}
 
 As pointed out above, the theory of finite adeles works fine for Dedekind domains.
 So for the time being let~$A$ be a Dedekind domain. Recall that the \emph{height one spectrum}
@@ -253,7 +253,22 @@ in this section to formalize.
   isomorphism of rings.
 \end{theorem}
 \begin{proof}
-  My proposal (and I'm open to other suggestions) is to follow Theorem 5.12 on p21
+
+  My current proposal to formalize this is as follows. The map is surjective
+  because the image is dense and closed; this has been formalized already.
+  It is also a $K_v$-algebra homomorphism if we give $L_w$ the obvious $K_v$-algebra
+  structure. Thus we can conclude the result if we can prove that both spaces are
+  finite-dimensional and have the same dimension. The $K_v$-dimension of $L\otimes_KK_v$
+  is equal to the $K$-dimension of $L$, which is $\sum_{w|v}e_wf_w$ using the standard
+  notation that $e_w$ is the ramification index of $w$ and $f_w$ the residue degree
+  (this result is in mathlib). So it suffices to prove that $[L_w:K_v]=e_wf_w$.
+  We already have that $e_w$ (defined globally) is equal to the local ramification
+  index (defined as the factor by which the valuations differ on $K$). So what is left
+  is to prove that (i) the residue field extension induced by $L_w/K_v$ has degree is equal to the
+  globally-defined $f_w$, (ii) an extension of local fields has degree $ef$.
+
+  For transparency I'll leave the original proposal here too.
+  My original proposal was to follow Theorem 5.12 on p21
   of \href{https://math.berkeley.edu/~ltomczak/notes/Mich2022/LF_Notes.pdf}
   {these notes}. We may write $L=K(\alpha)$ as a finite separable extension is simple. Let $f(x)$
   be the minimum polynomial of $\alpha$. This is irreducible over $K$ but may factor over
@@ -356,20 +371,26 @@ on the subrings of the left and right hand sides.
 Recall that the finite adeles $\A_{A,K}^\infty$ is defined in mathlib to be
 the restricted product of the $K_v$ with respect to the $A_v$, equipped with a certain
 restricted product topology (which is not the subspace topology of the product
-topology, indeed $\prod_v A_v$ is open in this topology). We
+topology, indeed $\prod_v A_v$ is open in this topology). We have seen in definition~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom} that there's a map $K_v\to L_w$
+if $w|v$, extending $K\to L$, and we have seen in theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom.mapadicCompletionIntegers} that this sends $A_v$ to $B_w$. We
+conclude
 
-\begin{theorem} There's a natural homomorphism
+\begin{definition} There's a natural ring homomorphism
   $\A_{A,K}^\infty\to\A_{B,L}^\infty$ lying over $K\to L$.
   \label{IsDedekindDomain.FiniteAdeleRing.mapSemialgHom}
   \lean{IsDedekindDomain.FiniteAdeleRing.mapSemialgHom}
+  \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom,
+  IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom.mapadicCompletionIntegers}
   \leanok
-\end{theorem}
-\begin{proof}
-  This follows immediately from the fact (ref?) that integesr map to integers
-  and general nonsense.
-\end{proof}
+\end{definition}
 
-I would like to conclude the following also by general nonsense:
+Hence
+
+\begin{definition} There's a natural $L$-algebra homomorphism
+  $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$.
+\end{definition}
+
+Our next goal in this section is the following result:
 
 \begin{theorem}
   \label{IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
@@ -381,23 +402,135 @@ I would like to conclude the following also by general nonsense:
   $L$-algebra morphism
   $L\otimes_K\A_{A,K}^\infty\to\A_{B,L}^\infty$ is a topological isomorphism.
 \end{theorem}
-\begin{proof}
-  {\bf TODO} rewrite this.
 
-  Existence of the map follows from
-  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
-  Surjectivity follows from
-  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
-  The fact that it is a topological isomorphism surely follows from the fact that
-  $L\otimes_K K_v=\oplus_{w|v}L_w$ and that this identification identifies
-  the subgroup $\calO_L\otimes_K K_v$ with $\oplus_{w|v}\calO_{L_w}$ for all
-  but finitely many $v$. Although I'm wondering whether it's easier to prove
-  that the map $\A_{A,K}^\infty\to\A_{B,L}^\infty$ makes $\A_{B,L}^\infty$
-  into an $\A_{A,K}^\infty$-module and the claim (also undoubtedly true, although
-  I am not sure of the best level of abstraction here) that the topology on
-  $\A_{B,L}^\infty$ is the $\A_{A,K}^\infty$-module topology.
+Informally, the proof is simple: componentwise we know
+that $L\otimes_KK_v$ is isomorphic both algebraically and
+topologically to $\prod_{w|v}L_w$, and that this isomorphism
+sends the open set $B\otimes_AA_v$ homeomorphically onto
+$\prod_{w|v}B_w$, so now it's just a case of putting everything
+together. Formally, we really need to spell this out.
+
+\subsection{Base change for nonarchimedean completions.}
+
+Here are the theorems which we seem to need. As usual we are
+in the AKLB set-up, so in particular $K$ is the field
+of fractions of the Dedekind domain $A$, $L/K$ is a finite
+separable extension, and $B$ is the integral closure of $A$
+in $L$.
+
+\begin{definition} If $M$ is a $K$-module then there's a canonical
+  map $B\otimes_AM\to L\otimes_KM$ sending $b\otimes m$ to $b\otimes m$.
+\end{definition}
+
+Indeed this follows from the universal property of the tensor product. Our first goal
+is to show that this map is an isomorphism. Let us establish some lemmas first.
+
+\begin{lemma}
+  \label{templabel1}
+  If $0\not=b\in B$ then there exists $0\not=a\in A$ such that $b$ divides
+  the image of $a$ in $B$.
+\end{lemma}
+\begin{remark} Is this already in mathlib?
+\end{remark}
+\begin{proof} Let $a=N_{L/K}(b)$, the norm. This is known to take nonzero elements of $L$
+to nonzero elements of $K$ (because the norm is the determinant of an invertible linear map)
+and integral elements to integral elements. Furthermore $a/b\in L$ is the the product of the
+conjugatesof $b$ in some normal closure of $L$, and hence it is integral, and thus in $B$.
 \end{proof}
 
+\begin{corollary}
+  \label{templabel2}
+  The $A$-bilinear map $B\times K\to L$ sending $(b,k)$ to $bk$ is surjective.
+\end{corollary}
+\begin{proof} Follows immediately from lemma~\ref{templabel1}.
+\end{proof}
+
+\begin{corollary} The natural map $B\otimes_AK\to L$ is an isomorphism.
+\end{corollary}
+\begin{proof} It suffices to show that the bilinear map $B\times K\to L$ obeys the universal
+property of the tensor product.
+So let $N$ be an $A$-module and assume that we have a bilinear map $B\times K\to N$.
+We need to show that this extends uniquely to an $A$-linear map $L\to N$. Uniqueness is
+clear from the surjectivity proved in corollary~\ref{templabel2}. For uniqueness,
+we first observe that if $b_1k_1=b_2k_2\in L$ then any $A$-bilinear map $\phi:B\times K\to N$
+sends $(b_1,k_1)$ and $(b_2,k_2)$ to the same element. For we can write $k_1=x/a$ and $k_2=y/a$
+with a common denominator $0\not=a\in A$ and $x,y\in A$, and then observe that
+$b_1x=b_1k_1a=b_2k_2a=b_2y$ and that
+$\phi(b_1,k_1)=\phi(b_1,x/a)=\phi(b_1x,1/a)=\phi(b_2y,1/a)=\phi(b_2,y/a)=\phi(b_2,k_2).$
+So we can define our map $L\to N$ on $l\in L$ by setting $l=bk$ and sending it to $\phi(b,k)$;
+this is independent of the decomposition, and $A$-linearity and additivity both follow
+using similar sorts of arguments (I assume! Someone should check this before we start
+formalizing it!)
+\end{proof}
+
+\begin{corollary} If $M$ is any $K$-module then the canonical map $B\otimes_A M\to L\otimes_K M$
+  is an isomorphism.
+\end{corollary}
+\begin{proof} We can factor this map as $B\otimes_AM\equiv B\otimes_A(K\otimes_KM)\equiv
+  (B\otimes_A K)\otimes_KM\to L\otimes_KM$ and we just showed that the latter map was an
+  isomorphism.
+\end{proof}
+
+We now need to explain how tensor products sometimes commute with restricted products.
+Something we will need along the way is
+
+\begin{theorem} $B$ is a finitely-presented $A$-module.
+\end{theorem}
+\begin{proof} $A$ is Noetherian as it is a Dedekind domain, so it suffices to prove that $B$ is finitely-generated as an $A$-module. But this is in mathlib already (a proof is
+  around line 101 of {\tt BaseChange.lean} in FLT at the time of writing).
+\end{proof}
+
+The reason we care about this is the following.
+
+\begin{theorem} If $R$ is a commutative ring, if $M$ is a finitely presented $R$-module
+  and if $N_i$ are a collection of $R$-modules, then the canonical map
+  $M\otimes_R\prod_i N_i\to\prod_i(M\otimes_R N_i)$ is an isomorphism.
+\end{theorem}
+\begin{proof} If $M$ is finite and free then Maddy Crim has already formalized this
+  in FLT. For the general case present $M$ as $R^a\to R^b\to M\to 0$ and use that tensor
+  products and arbitrary products preserve surjections.
+\end{proof}
+
+\begin{corollary} If $S$ is a finite set of nonzero primes of $A$ then
+  the natural map
+  $B\otimes((\prod_{v\in S}K_v)\times(\prod_{v\notin S}A_v))\to
+  (\prod_{v\in S}(B\otimes_AK_v))\times(\prod_{v\notin S}(B\otimes_AA_v))$
+  is an isomorphism.
+\end{corollary}
+\begin{proof} Follows from the previous two theorems.
+\end{proof}
+
+Recall that $\A_K^\infty$ is the finite adeles of $K$,
+defined as the restricted product of the $K_v$ with respect to the $A_v$,
+where $v$ runs through the nonzero primes of $A$. Let $R$ denote the restricted
+product of the $B\otimes_A K_v$ with respect to the $B\otimes_A A_v$.
+
+\begin{corollary} The natural map $B\otimes_A\A_K^\infty\to R$ is an isomorphism.
+\end{corollary}
+\begin{proof} This follows from the previous corollary and the fact that
+  tensor products commute with filtered colimits.
+\end{proof}
+
+Recall from earlier in this section that if $v$ is a finite place of $A$ then the natural map from
+$B\otimes_A K_v$ to $L\otimes_KK_v$ is an isomorphism, and recall from the previous section
+that the natural map from $L\otimes_KK_v$ to $\prod_{w|v}L_w$ was also an isomorphism.
+This isomorphism sends $B\otimes_A A_v$ to $\prod_{w|v}B_w$ (I thank Matthew Jasper for
+pointing out to me that this statement was true at all primes, not just at unramified primes).
+Finally, the set of $w$ of $B$ dividing a fixed place $v$ of $A$ is finite.
+So there is some natural isomorphism from the ring $R$ above to the restricted product of the $L_w$
+with respect to the $B_w$ and this is a construction which we will have to abstract out.
+Once we have done this, we can deduce
+
+\begin{theorem} The natural map $B\otimes_A\A_K^\infty\to\A_L^\infty$ is an algebraic
+  isomorphism
+\end{theorem}
+Because this map factors through the isomorphism $B\otimes_A\A_K^\infty\to L\otimes_K\A_K^\infty$
+we deduce
+\begin{corollary} The natural map $L\otimes_K\A_K^\infty\to\A_K^\infty$ is an algebraic
+  isomorphism.
+\end{corollary}
+
+We still need to talk about topologies though.
 \subsection{Base change for infinite adeles}
 
 Recall that if $K$ is a number field then the infinite adeles of $K$ are defined
