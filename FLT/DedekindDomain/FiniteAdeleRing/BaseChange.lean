@@ -528,7 +528,10 @@ theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
   -- issue FLT#231; one proof is proof in blueprint at
   -- https://imperialcollegelondon.github.io/FLT/blueprint/Adele_miniproject.html#IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv
   -- and another one might be deduce injectivity from a dimension count.
-  -- For that we'd need that local and global e's and f's match up.
+  -- For that we'd need that local and global e's and f's match up
+  -- (e's we have and f's won't be so hard), and then the statement
+  -- that the local extension is e*f (I don't know what generality this is true in,
+  -- maybe it's a general phenomenon for nonarch normed fields?
   sorry
 
 /-- The L-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
