@@ -51,6 +51,7 @@ instance : Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Compl
   -- `Completion.comapHom`
   map_smul' r x b σ := by obtain ⟨a, rfl⟩ := σ; rfl
 
+/-- The $K_{\infty}$-linear homeomorphism $K_{\infty}^{[L:K]} \cong L_{\infty}$. -/
 noncomputable
 def piEquiv : let d := Module.finrank K L
     (Fin d → InfiniteAdeleRing K) ≃L[InfiniteAdeleRing K] InfiniteAdeleRing L := by
@@ -69,11 +70,12 @@ instance : IsModuleTopology (InfiniteAdeleRing K) (InfiniteAdeleRing L) := by
 -- First establish the map as an `L`-algebra isomorphism by lifting the established
 -- equivalences for infinite completions of `K` and the product over all `w` lying above `v`
 open scoped Classical in
+/-- The $L$-algebra isomorphism $L\otimes_K K_{\infty} \cong L_{\infty}$. -/
 noncomputable def baseChangeEquivAux :
     L ⊗[K] InfiniteAdeleRing K ≃ₐ[L] InfiniteAdeleRing L :=
   -- L ⊗ K_∞ ≃[K_∞] ∏ v, L ⊗ K_v
   Algebra.TensorProduct.piRight K L L Completion |>.trans
-    -- lift the already established equivalence L ⊗ K_v ≃[v.Completion] ∏ w ∣ v, L_w on fibers of comap
+    -- lift the established equivalence L ⊗ K_v ≃[v.Completion] ∏ w ∣ v, L_w on fibers of comap
     (AlgEquiv.piCongrFiberwise
       (fun v : InfinitePlace K => (Completion.baseChangeEquiv L v).toAlgEquiv.symm)).symm
 
@@ -83,10 +85,10 @@ noncomputable def baseChangeEquivAux :
 open scoped Classical in
 theorem baseChangeEquivAux_tmul (l : L) (x : InfiniteAdeleRing K) :
     baseChangeEquivAux K L (l ⊗ₜ[K] x) = algebraMap _ _ l * baseChange K L x := by
-  simp [baseChangeEquivAux]
+  simp only [baseChangeEquivAux, AlgEquiv.trans_apply]
   funext
-  -- erw are needed here because cannot unify InfiniteAdeleRing K with (v : InfinitePlace K) → v.Completion
-  -- maybe we should make InfiniteAdeleRing K an abbrev?
+  -- erw are needed here because cannot unify InfiniteAdeleRing K with
+  -- (v : InfinitePlace K) → v.Completion maybe we should make InfiniteAdeleRing K an abbrev?
   erw [Algebra.TensorProduct.piRight_tmul K L L Completion, Equiv.piCongrFiberwise_symm_apply]
   rfl
 
@@ -118,7 +120,7 @@ instance : IsTopologicalSemiring (L ⊗[K] InfiniteAdeleRing K) :=
 
 open scoped Classical in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-/-- The canonical `L`-algebra isomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
+/-- The canonical `L`-algebra homeomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
 noncomputable
 def baseChangeEquiv :

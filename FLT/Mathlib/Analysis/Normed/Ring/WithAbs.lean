@@ -32,6 +32,9 @@ namespace AbsoluteValue.Completion
 variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ}
   {L : Type*} [Field L] [Algebra K L] {w : AbsoluteValue L ℝ}
 
+/-- If $K/L$ are fields, $v$ and $w$ are absolute values of $K$ and $L$ respectively, such that
+$w|_K = v$, then this is the natural semi-algebra map from the completion $K_v$ of $K$ at $v$
+to the completion $L_w$ at $w$. -/
 noncomputable abbrev semialgHomOfComp
     (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x)) :
     v.Completion →ₛₐ[algebraMap (WithAbs v) (WithAbs w)] w.Completion :=

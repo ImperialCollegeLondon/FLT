@@ -41,6 +41,9 @@ def ContinuousLinearEquiv.piScalarPiCongrFiberwise {α : Type*} {β : Type*} {R 
     show Continuous (fun (g : (b : β) → γ₂ b) a => (e (f a)).symm (g (f a)) ⟨a, rfl⟩)
     fun_prop
 
+/-- Given `φ : α → β → Type*` and `R : α → Type*` such that `φ a b` is an `R a` module for all
+`a b`, this is the continuous linear equivalence between `∀ a b, φ a b` and `∀ b a, φ a b` with
+product scalars. This is `Equiv.piComm` as a product-scalar `ContinuousLinearEquiv`. -/
 def ContinuousLinearEquiv.piScalarPiComm {α β : Type*} (R : α → Type*) (φ : α → β → Type*)
     [(a : α) → Semiring (R a)] [(a : α) → (b : β) → AddCommMonoid (φ a b)]
     [(a : α) → (b : β) → Module (R a) (φ a b)] [(a : α) → (b : β) → TopologicalSpace (φ a b)] :

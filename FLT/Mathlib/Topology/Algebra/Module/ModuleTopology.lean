@@ -386,6 +386,8 @@ theorem continuousAlgEquivOsIfScalarTower_apply {A B : Type*} (R S₁ : Type*) {
     continuousAlgEquivOfIsScalarTower R S₁ e he a = e a :=
   rfl
 
+/-- An algebra isomorphism between two topological algebras over `R` with the
+`R`-module topology is automatically an algebra homeomorphism. -/
 def continuousAlgEquivOfAlgEquiv {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [CommSemiring R] [Semiring A] [Semiring B]
     [Algebra R A] [Algebra R B] [IsModuleTopology R A] [IsModuleTopology R B]
