@@ -600,7 +600,7 @@ def adicCompletionIntegersSubalgebra {R : Type*} (K : Type*) [CommRing R]
   __ := HeightOneSpectrum.adicCompletionIntegers K v
   algebraMap_mem' r := coe_mem_adicCompletionIntegers v r
 
-/-- The canonical B-algebra map `B ⊗[A] A_v → L ⊗[K] K_v` -/
+/-- The canonical B-algebra map `B ⊗[A] 𝓞_v → L ⊗[K] K_v` -/
 noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
     B ⊗[A] adicCompletionIntegers K v →ₐ[B] L ⊗[K] adicCompletion K v :=
   Algebra.TensorProduct.lift
@@ -611,6 +611,7 @@ noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
     [IsDomain B] [Algebra.IsIntegral A B] [IsDedekindDomain B]
     [IsFractionRing B L] in
+/-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is contained in the closure of the image of `B`. -/
 lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
   (tensorAdicCompletionIntegersTo A K L B v).range.carrier ⊆
       closure (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
@@ -670,10 +671,11 @@ open TensorProduct.AlgebraTensorModule in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [Algebra.IsSeparable K L] [IsDomain B] [Algebra.IsIntegral A B]
     [IsDedekindDomain B] [IsFractionRing B L]  in
+/-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is closed. -/
 lemma tensorAdicCompletionIsClosedRange :
     IsClosed (SetLike.coe (tensorAdicCompletionIntegersTo A K L B v).range) := by
   -- `B ⊗[A] 𝒪_v` is a subgroup of `L ⊗[K] K_v`, so we can show it's closed
-  -- by showing that it's open.
+  -- by showing that it's open. **TODO** factor this out, openness sounds useful!
   rw [← Subalgebra.coe_toSubring, ← Subring.coe_toAddSubgroup]
   have := ModuleTopology.continuousAdd (adicCompletion K v) (L ⊗[K] adicCompletion K v)
   apply AddSubgroup.isClosed_of_isOpen
@@ -730,6 +732,7 @@ lemma tensorAdicCompletionIsClosedRange :
 
 omit [Algebra.IsSeparable K L] [IsDomain B] [Algebra.IsIntegral A B]
     [IsDedekindDomain B] [IsFractionRing B L] in
+/-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is the closure of the image of `B`. -/
 lemma tensorAdicCompletionIntegersToRange_eq_closureIntegers :
     SetLike.coe (tensorAdicCompletionIntegersTo A K L B v).range =
         closure (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
@@ -741,6 +744,7 @@ lemma tensorAdicCompletionIntegersToRange_eq_closureIntegers :
     . apply tensorAdicCompletionIsClosedRange
 
 omit [Algebra A L] [IsScalarTower A B L] [IsIntegralClosure B A L] in
+/-- The `B`-subalgebra `∏_{w|v} 𝓞_w` of `∏_{w|v} L_w` is the closure of the image of `B`. -/
 lemma prodAdicCompletionsIntegers_eq_closureIntegers :
     SetLike.coe (Subalgebra.pi (R := B) Set.univ
       (fun (w : Extension B v) ↦ adicCompletionIntegersSubalgebra L w.1)) =
@@ -768,6 +772,7 @@ instance : OneHomClass
     (L ⊗[K] adicCompletion K v) ((w : Extension B v) → adicCompletion L w.1) where
   map_one f := f.toRingHom.map_one
 
+/-- The image of `B ⊗[A] 𝓞_v` in `∏_w L_w` is `∏_w 𝓞_w`. -/
 theorem adicCompletionComapAlgEquiv_integral :
     AlgHom.range (((tensorAdicCompletionComapAlgHom A K L B v).restrictScalars B).comp
       (tensorAdicCompletionIntegersTo A K L B v)) =
@@ -803,7 +808,9 @@ noncomputable def FiniteAdeleRing.mapRingHom :
   (by
     apply Filter.Eventually.of_forall
     intro w
-    sorry) -- done in #400
+    have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
+    have := adicCompletionComapSemialgHom.mapadicCompletionIntegers A K L B (comap A w) w rfl
+    exact Set.image_subset_iff.1 this)
 
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields,
 as a morphism lying over the canonical map `K → L`. -/
