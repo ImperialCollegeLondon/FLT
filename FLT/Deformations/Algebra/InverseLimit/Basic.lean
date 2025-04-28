@@ -385,6 +385,9 @@ def toComponent (i : ι) : InverseLimit G f → G i := fun (z : InverseLimit G f
 lemma toComponent_def : toComponent G f i = fun (z : InverseLimit G f) ↦ z.1 i := rfl
 
 variable (G f) in
+/--
+MonoidHom version of `toComponent G f i`
+-/
 def toComponentMonoidHom (i : ι) [∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j) (G i)] :
     InverseLimit G f →* G i where
   toFun := toComponent G f i
@@ -392,6 +395,9 @@ def toComponentMonoidHom (i : ι) [∀ i, Group (G i)] [∀ i j h, MonoidHomClas
   map_mul' _ _ := rfl
 
 variable (G f) in
+/--
+RingHom version of `toComponent G f i`
+-/
 def toComponentRingHom (i : ι) [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T h) (G j) (G i)] :
     InverseLimit G f →+* G i where
   toFun := toComponent G f i
@@ -401,6 +407,9 @@ def toComponentRingHom (i : ι) [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T 
   map_add' _ _ := rfl
 
 variable (G f) in
+/--
+LinearMap version of `toComponent G f i`
+-/
 def toComponentLinearMap (i : ι) {R : Type*} [Ring R]
   [∀ i, AddCommGroup (G i)] [∀ i, Module R (G i)] [∀ i j h, LinearMapClass (T h) R (G j) (G i)] :
     InverseLimit G f →ₗ[R] G i where
@@ -415,6 +424,10 @@ section Maps
 variable {W : Type*} {M : ι → Type*} (maps : ∀ i, M i) [∀ i, FunLike (M i) W (G i)]
 
 variable (G f) in
+/--
+`InverseSystemHom G f maps` states that a indexed family of `maps : W →G i` have image
+in the `InverseLimit G f` subset of the product
+-/
 def InverseSystemHom := ∀ i j (h : i ≤ j) w, (f i j h) (maps j w) = maps i w
 
 variable (inverseSystemHom : InverseSystemHom G f maps)
@@ -433,6 +446,9 @@ lemma lift_def : lift G f maps inverseSystemHom =
   := rfl
 
 variable (G f) in
+/--
+MonoidHom version of `lift G f maps inverseSystemHom`
+-/
 def liftMonoidHom [∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j) (G i)]
     [Group W] [∀ i, MonoidHomClass (M i) W (G i)] :
     W →* InverseLimit G f where
@@ -441,6 +457,9 @@ def liftMonoidHom [∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j) (G
   map_mul' x y := by ext i; simp [lift_def]
 
 variable (G f) in
+/--
+RingHom version of `lift G f maps inverseSystemHom`
+-/
 def liftRingHom [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T h) (G j) (G i)]
     [Ring W] [∀ i, RingHomClass (M i) W (G i)] :
     W →+* InverseLimit G f where
@@ -451,6 +470,9 @@ def liftRingHom [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T h) (G j) (G i)]
   map_add' x y := by ext i; simp [lift_def]
 
 variable (G f) in
+/--
+LinearMap version of `lift G f maps inverseSystemHom`
+-/
 def liftLinearMap {R : Type*} [Ring R]
     [∀ i, AddCommGroup (G i)] [∀ i, Module R (G i)] [∀ i j h, LinearMapClass (T h) R (G j) (G i)]
     [AddCommGroup W] [Module R W] [∀ i, LinearMapClass (M i) R W (G i)] :
