@@ -13,8 +13,7 @@ open TopologicalSpace
 
 variable {ι : Type*} [Preorder ι] {G : ι → Type*}
 variable {T : ∀ ⦃i j : ι⦄, i ≤ j → Type*} {f : ∀ _ _ h, T h}
-variable [∀ i j (h : i ≤ j), FunLike (T h) (G j) (G i)] [InverseSystem (f · · ·)]
-variable [IsDirected ι (· ≤ ·)]
+variable [∀ i j (h : i ≤ j), FunLike (T h) (G j) (G i)]
 variable [∀ i : ι, TopologicalSpace (G i)]
   {cont : ∀ {i j}, (h : i ≤ j) → Continuous (f i j h)}
 
@@ -25,39 +24,31 @@ variable (inverseSystemHom : InverseSystemHom G f maps)
 variable [TopologicalSpace W]
 variable (maps_cont : (i : ι) → Continuous (maps i))
 
-instance : TopologicalSpace (InverseLimit G f) := by
-  unfold InverseLimit
-  infer_instance
+instance : TopologicalSpace (InverseLimit G f) :=
+  inferInstanceAs (TopologicalSpace {x : (i : ι) → G i // ∀ i j h, f i j h (x j) = x i})
 
-omit [InverseSystem fun x1 x2 x3 ↦ ⇑(f x1 x2 x3)] [IsDirected ι fun x1 x2 ↦ x1 ≤ x2] in
 @[fun_prop, continuity]
 lemma val_continuous : Continuous (fun (x : InverseLimit G f) ↦ x.val) := by
-  unfold InverseLimit
   continuity
 
 section ToComponent
 
-omit [InverseSystem fun x1 x2 x3 ↦ ⇑(f x1 x2 x3)] [IsDirected ι fun x1 x2 ↦ x1 ≤ x2] in
 @[fun_prop, continuity]
 lemma toComponent_continuous (i : ι) : Continuous (toComponent G f i) := by
-  unfold InverseLimit
-  unfold toComponent
+  rw [toComponent_def]
   have : (fun (z : InverseLimit G f) ↦ z.val i) = (fun y ↦ y i) ∘ (fun z ↦ z.val) := rfl
   rw [this]
-  refine Continuous.comp (by fun_prop) (val_continuous ..)
+  exact Continuous.comp (by fun_prop) (val_continuous ..)
 
 end ToComponent
 
 section Maps
 
-omit [InverseSystem fun x1 x2 x3 ↦ ⇑(f x1 x2 x3)] [IsDirected ι fun x1 x2 ↦ x1 ≤ x2] in
 @[fun_prop, continuity]
 lemma lift_continuous (maps_cont : ∀ i, Continuous (maps i)) :
     Continuous (lift G f maps inverseSystemHom) := by
-  unfold InverseLimit
-  unfold lift
-  suffices Continuous fun w ↦ (fun i ↦ maps i w) by continuity
-  continuity
+  rw [lift_def]
+  fun_prop
 
 end Maps
 
