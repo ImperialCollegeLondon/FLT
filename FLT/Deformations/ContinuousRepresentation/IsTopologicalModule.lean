@@ -6,7 +6,7 @@ import Mathlib.Topology.Algebra.Module.LinearMap
 
 open Topology
 
-variable  (R : Type*) [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
+variable  (R : Type*) [Ring R] [TopologicalSpace R]
   (M : Type*) [AddCommGroup M] [Module R M] [TopologicalSpace M]
 
 /--
