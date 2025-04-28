@@ -22,6 +22,9 @@ variable {T : ∀ ⦃i j : ι⦄, i ≤ j → Type*} {f : ∀ _ _ h, T h}
 variable [∀ i j (h : i ≤ j), FunLike (T h) (G j) (G i)]
 
 variable (G f) in
+/--
+`InverseLimit G f` is the Inverse Limit of the objects `G i` glued by functions `f`.
+-/
 def InverseLimit : Type _ := {x : (i : ι) → G i // ∀ i j h, f i j h (x j) = (x i)}
 
 namespace InverseLimit
