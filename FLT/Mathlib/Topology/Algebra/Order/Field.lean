@@ -1,6 +1,7 @@
 import Mathlib.Algebra.Order.AbsoluteValue.Basic
-import Mathlib.Tactic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
+import Mathlib.Algebra.EuclideanDomain.Field
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
 open scoped Topology
 
@@ -95,8 +96,8 @@ theorem eq_rpow_iff_lt_one_iff {v : AbsoluteValue F ℝ} (w : AbsoluteValue F �
     (hv : v.IsNontrivial) :
     (∃ (t : ℝ) (_ : 0 < t), ∀ x, v x = (w x) ^ t) ↔ (∀ x, v x < 1 ↔ w x < 1) := by
   refine ⟨fun ⟨t, ht, h⟩ x => h x ▸ Real.rpow_lt_one_iff' (w.nonneg _) ht, fun h => ?_⟩
-  suffices : ∃ (t : ℝ) (_ : t > 0), ∀ x, 1 < v x → v x = w x ^ t
-  · obtain ⟨t, ht, hsuff⟩ := this
+  suffices ∃ (t : ℝ) (_ : t > 0), ∀ x, 1 < v x → v x = w x ^ t by
+    obtain ⟨t, ht, hsuff⟩ := this
     refine ⟨t, ht, fun x => ?_⟩
     by_cases h₀ : v x = 0
     · rw [(map_eq_zero v).1 h₀, map_zero, map_zero, zero_rpow (by linarith)]

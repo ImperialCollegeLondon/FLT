@@ -1,4 +1,3 @@
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Tactic.Peel
 import Mathlib.Analysis.Quaternion
 import Mathlib.RingTheory.Flat.Basic
@@ -192,7 +191,8 @@ theorem eq_zero_of_mul_eq_zero (N : ℕ+) (a : ZHat) (ha : N * a = 0) : a = 0 :=
   have : N * a (N * j) = 0 := by
     have : ((N : ZHat) * a) (N * j) = 0 := by simp [ha]
     exact this -- missing lemma
-  simpa only [ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod, ZMod.val_zero] using congrArg ZMod.val this
+  simpa only [ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod, ZMod.val_zero]
+    using congrArg ZMod.val this
 
 -- ZHat is torsion-free. LaTeX proof in the notes.
 lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
@@ -317,7 +317,7 @@ lemma injective_zHat :
       rw [← h₁, ← h₂] at h
       replace h := Module.Flat.rTensor_preserves_injective_linearMap
         (M := ZHat) (Algebra.linearMap ℤ ℚ) (fun _ _ ↦ by simp) h
-      simp at h
+      simp only at h
       have := congrArg (TensorProduct.lid ℤ ZHat) h
       simpa using this
 
@@ -372,7 +372,9 @@ lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := by
     nth_rw 1 [← hx, ← hr, this] at hcanon
     use l.num; rw [hx, (unique _ 1 _ r ⟨hNz, cop2, hcanon.symm⟩).1]
     simp
-  · exact fun x ⟨k, hk⟩ ↦ by constructor <;> (use k; simp; exact hk)
+  · exact fun x ⟨k, hk⟩ ↦ by constructor <;>
+      (use k; simp only [AddMonoidHom.coe_coe,
+        map_intCast]; exact hk)
 
 lemma rat_join_zHat : ratsub ⊔ zHatsub = ⊤ := by
   rw [eq_top_iff]
@@ -434,12 +436,14 @@ lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
     have h2 : (1 : ℚ) ⊗ₜ[ℤ] (Units.val zinvZHat) = xinv := by
       apply Units.eq_inv_of_mul_eq_one_left
       have hzHat : (1 : ℚ) ⊗ₜ[ℤ] (zHat : ZHat) = (x : QHat) := by simp [← hxzHat]
-      rw [← hzHat, Algebra.TensorProduct.tmul_mul_tmul, mul_one, hzinvZHat, Algebra.TensorProduct.one_def]
+      rw [← hzHat, Algebra.TensorProduct.tmul_mul_tmul, mul_one, hzinvZHat,
+        Algebra.TensorProduct.one_def]
     have h3 : zinvRat ⊗ₜ[ℤ] (1 : ZHat) = (1 / b : ℚ) ⊗ₜ[ℤ] (a : ZHat) := by
       rw [zinvRat_def, ← mul_one (a : ℚ), ← mul_div,
       ← zsmul_eq_mul, TensorProduct.smul_tmul, zsmul_eq_mul, mul_one]
     have bpos : 0 < b := Int.natAbs_pos.2 znez
-    have heq : (1 / (((Nat.toPNat b bpos) : ℕ) : ℚ)) ⊗ₜ[ℤ] (a : ZHat) = (1 / (((1 : ℕ+) : ℕ) : ℚ)) ⊗ₜ[ℤ] ↑zinvZHat := by
+    have heq : (1 / (((Nat.toPNat b bpos) : ℕ) : ℚ)) ⊗ₜ[ℤ] (a : ZHat) =
+        (1 / (((1 : ℕ+) : ℕ) : ℚ)) ⊗ₜ[ℤ] ↑zinvZHat := by
       have : ↑(Nat.toPNat b bpos) = b := by
         unfold Nat.toPNat
         rw [PNat.mk_coe]
@@ -679,26 +683,34 @@ lemma toQuaternion_zsmul (z : 𝓞) (n : ℤ) :
 
 /-- Multiplication `z*w` of two Hurwitz numbers -/
 def mul (z w : 𝓞) : 𝓞 where
-  re := z.re * w.re - z.im_o * w.im_o - z.im_i * w.im_o - z.im_i * w.im_i + z.im_i * w.im_oi - z.im_oi * w.im_oi
-  im_o := z.im_o * w.re + z.re * w.im_o - z.im_o * w.im_o - z.im_oi * w.im_o - z.im_oi * w.im_i + z.im_i * w.im_oi
-  im_i := z.im_i * w.re - z.im_i * w.im_o + z.im_oi * w.im_o + z.re * w.im_i - z.im_o * w.im_oi - z.im_i * w.im_oi
-  im_oi := z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i + z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi
+  re := z.re * w.re - z.im_o * w.im_o - z.im_i * w.im_o -
+    z.im_i * w.im_i + z.im_i * w.im_oi - z.im_oi * w.im_oi
+  im_o := z.im_o * w.re + z.re * w.im_o - z.im_o * w.im_o -
+    z.im_oi * w.im_o - z.im_oi * w.im_i + z.im_i * w.im_oi
+  im_i := z.im_i * w.re - z.im_i * w.im_o + z.im_oi * w.im_o +
+    z.re * w.im_i - z.im_o * w.im_oi - z.im_i * w.im_oi
+  im_oi := z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i +
+    z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi
 
 /-- Notation `*` for multiplication -/
 instance : Mul 𝓞 := ⟨mul⟩
 
 -- how `mul` reacts with `re` and `im`
 @[simp] lemma mul_re (z w : 𝓞) :
-    re (z * w) = z.re * w.re - z.im_o * w.im_o - z.im_i * w.im_o - z.im_i * w.im_i + z.im_i * w.im_oi - z.im_oi * w.im_oi := rfl
+    re (z * w) = z.re * w.re - z.im_o * w.im_o - z.im_i * w.im_o -
+      z.im_i * w.im_i + z.im_i * w.im_oi - z.im_oi * w.im_oi := rfl
 
 @[simp] lemma mul_im_o (z w : 𝓞) :
-    im_o (z * w) = z.im_o * w.re + z.re * w.im_o - z.im_o * w.im_o - z.im_oi * w.im_o - z.im_oi * w.im_i + z.im_i * w.im_oi := rfl
+    im_o (z * w) = z.im_o * w.re + z.re * w.im_o - z.im_o * w.im_o -
+      z.im_oi * w.im_o - z.im_oi * w.im_i + z.im_i * w.im_oi := rfl
 
 @[simp] lemma mul_im_i (z w : 𝓞) :
-    im_i (z * w) = z.im_i * w.re - z.im_i * w.im_o + z.im_oi * w.im_o + z.re * w.im_i - z.im_o * w.im_oi - z.im_i * w.im_oi := rfl
+    im_i (z * w) = z.im_i * w.re - z.im_i * w.im_o + z.im_oi * w.im_o +
+      z.re * w.im_i - z.im_o * w.im_oi - z.im_i * w.im_oi := rfl
 
 @[simp] lemma mul_im_oi (z w : 𝓞) :
-    im_oi (z * w) = z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i + z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi := rfl
+    im_oi (z * w) = z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i +
+      z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi := rfl
 
 lemma toQuaternion_mul (z w : 𝓞) :
     toQuaternion (z * w) = toQuaternion z * toQuaternion w := by
@@ -736,14 +748,14 @@ lemma toQuaternion_natCast (n : ℕ) : toQuaternion n = n :=
 
 instance : IntCast 𝓞 := ⟨Int.castDef⟩
 
-lemma Int.castDef_ofNat {R : Type*} [One R] [Zero R] [Add R] [NatCast R] [Neg R] (n : ℕ) :
+lemma Int.castDef_ofNat {R : Type*} [NatCast R] [Neg R] (n : ℕ) :
     (Int.castDef (Int.ofNat n) : R) = n := rfl
 
-lemma Int.castDef_negSucc {R : Type*} [One R] [Zero R] [Add R] [NatCast R] [Neg R] (n : ℕ) :
+lemma Int.castDef_negSucc {R : Type*} [NatCast R] [Neg R] (n : ℕ) :
     (Int.castDef (Int.negSucc n) : R) = -(n + 1 : ℕ) := rfl
 
 lemma preserves_castDef
-    {R S : Type*} [One R] [Zero R] [Add R] [NatCast R] [Neg R] [AddGroupWithOne S]
+    {R S : Type*} [NatCast R] [Neg R] [AddGroupWithOne S]
     (f : R → S) (natCast : ∀ n : ℕ, f n = n) (neg : ∀ x, f (-x) = - f x) (n : ℤ) :
     f (Int.castDef n) = n := by
   cases n with
@@ -998,7 +1010,7 @@ lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.s
     simp only [h_bot, Submodule.span_singleton_eq_bot]
   let S := {a : 𝓞 // a ∈ I ∧ a ≠ 0}
   have : Nonempty S := by
-    simp [S, ne_eq, norm_eq_zero]
+    simp only [ne_eq, nonempty_subtype, S]
     exact Submodule.exists_mem_ne_zero_of_ne_bot h_bot
   have hbdd : BddBelow <| Set.range (fun i : S ↦ norm i) := by
     use 0
@@ -1046,7 +1058,8 @@ scoped notation "D^" => HurwitzRatHat
 
 noncomputable instance : Ring D^ := Algebra.TensorProduct.instRing
 
-noncomputable abbrev j₁ : D →ₐ[ℤ] D^ := Algebra.TensorProduct.includeLeft -- (Algebra.TensorProduct.assoc ℤ ℚ 𝓞 ZHat).symm.trans Algebra.TensorProduct.includeLeft
+noncomputable abbrev j₁ : D →ₐ[ℤ] D^ := Algebra.TensorProduct.includeLeft
+-- (Algebra.TensorProduct.assoc ℤ ℚ 𝓞 ZHat).symm.trans Algebra.TensorProduct.includeLeft
 
 lemma injective_hRat :
     Function.Injective j₁ := sorry -- flatness

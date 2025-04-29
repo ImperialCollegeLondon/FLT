@@ -1,8 +1,6 @@
 import Mathlib.LinearAlgebra.Quotient.Basic
-import Mathlib.RingTheory.FreeCommRing
 import Mathlib.RingTheory.Ideal.Maps
 import Mathlib.RingTheory.Ideal.Quotient.Defs
-import Mathlib.Order.DirectedInverseSystem
 import Mathlib.Tactic.SuppressCompilation
 import Mathlib.RepresentationTheory.Basic
 
@@ -49,10 +47,13 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} :
+    ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i :=
+  a.prop
 
 variable {func} in
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) :
+    InverseLimit obj func :=
   ⟨a, h⟩
 
 instance instZero : Zero (InverseLimit obj func) where
@@ -82,11 +83,8 @@ instance instModule : Module R (InverseLimit obj func) where
   add_smul := by simp [InverseLimit, add_smul]
   zero_smul := by simp [InverseLimit]
 
-@[simp]
 lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
-    func h (g.1 j) = g.1 i := by
-  unfold InverseLimit at g
-  aesop
+    func h (g.1 j) = g.1 i := by simp
 
 instance inhabited : Inhabited (InverseLimit obj func) :=
   ⟨0⟩
@@ -140,17 +138,16 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} :
+    ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
 
 variable {func} in
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) :
+    InverseLimit obj func :=
   ⟨a, h⟩
 
-@[simp]
 lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j}:
-    func h (g.1 j) = g.1 i := by
-  unfold InverseLimit at g
-  aesop
+    func h (g.1 j) = g.1 i := by simp
 
 instance instZero : Zero (InverseLimit obj func) where
   zero := of 0 (by simp)
@@ -231,18 +228,18 @@ instance instCoeOutPi : CoeOut (InverseLimit obj func) ((i : ι) → obj i) wher
 
 variable {func} in
 @[to_additive, simp]
-lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j), func h (a.val j) = a.val i := a.prop
+lemma definingProp {a : InverseLimit obj func} : ∀ (i j : _) (h : i ≤ j),
+    func h (a.val j) = a.val i := a.prop
 
 variable {func} in
 @[to_additive]
-abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) : InverseLimit obj func :=
+abbrev of (a : (i : ι) → obj i) (h :  ∀ (i j : _) (h : i ≤ j), func h (a j) = a i) :
+    InverseLimit obj func :=
   ⟨a, h⟩
 
-@[to_additive, simp]
+@[to_additive]
 lemma func_component {g : InverseLimit obj func} {i j : ι} {h : i ≤ j} :
-    func h (g.1 j) = g.1 i := by
-  unfold InverseLimit at g
-  aesop
+    func h (g.1 j) = g.1 i := by simp
 
 @[to_additive]
 instance instMul : Mul (InverseLimit obj func) := Subgroup.mul _
@@ -293,7 +290,8 @@ variable (ρ_comm : ∀ {i j} (hle : i ≤ j) (gj : grp_obj j) (vj : mod_obj j),
                     ρ i (grp_func hle gj) (mod_func hle vj) = mod_func hle (ρ j gj vj))
 
 def InverseLimit :
-    Representation R (Group.InverseLimit grp_obj grp_func) (Module.InverseLimit mod_obj mod_func) where
+    Representation R (Group.InverseLimit grp_obj grp_func)
+    (Module.InverseLimit mod_obj mod_func) where
   toFun g := {
     toFun := fun v ↦ {
       val := fun i ↦ ρ i (g.1 i) (v.1 i)

@@ -1,7 +1,9 @@
 import Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Bilinear
+import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.RingTheory.TensorProduct.Finite
+import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
@@ -30,7 +32,7 @@ instance {v : InfinitePlace K} : NontriviallyNormedField (v.Completion) where
     ⟨x, by rw [UniformSpace.Completion.norm_coe]; exact hx⟩
 
 instance : Algebra v.Completion wv.1.Completion :=
-  semiAlgHomOfComp (comp_of_comap_eq wv.2) |>.toAlgebra
+  semialgHomOfComp (comp_of_comap_eq wv.2) |>.toAlgebra
 
 instance : NormedSpace v.Completion wv.1.Completion where
   norm_smul_le x y := by
@@ -42,9 +44,9 @@ noncomputable instance : FiniteDimensional v.Completion wv.1.Completion :=
 
 /-- The map from `v.Completion` to `w.Completion` whenever the infinite place `w` of `L` lies
 above the infinite place `v` of `K`. -/
-def comapHom (h : w.comap (algebraMap K L) = v) :
+abbrev comapHom (h : w.comap (algebraMap K L) = v) :
     v.Completion →ₛₐ[algebraMap (WithAbs v.1) (WithAbs w.1)] w.Completion :=
-  mapSemialgHom _ <| (WithAbs.uniformContinuous_algebraMap (v.comp_of_comap_eq h)).continuous
+  semialgHomOfComp (comp_of_comap_eq h)
 
 theorem comapHom_cont (h : w.comap (algebraMap K L) = v) : Continuous (comapHom h) := continuous_map
 
@@ -70,9 +72,6 @@ above `v`, induced by `piExtensionPlace`. -/
 abbrev baseChange :
     L ⊗[K] v.Completion →ₐ[L] (wv : v.ExtensionPlace L) → wv.1.Completion :=
   baseChange_of_algebraMap (piExtensionPlace L v)
-
-theorem continuous_baseChange_tmul_right : Continuous fun x => baseChange L v (1 ⊗ₜ x) := by
-  simpa [baseChange_of_algebraMap_tmul_right] using continuous_pi fun _ => comapHom_cont _
 
 /- The motivation for changing the scalars of `baseChange L v` to `v.Completion` is that
 both sides are _finite-dimensional_ `v.Completion`-modules, which have the same dimension.
@@ -121,6 +120,7 @@ instance : IsModuleTopology v.Completion wv.1.Completion :=
   IsModuleTopology.iso (FiniteDimensional.nonempty_continuousLinearEquiv_of_finrank_eq
     (Module.finrank_fin_fun v.Completion)).some
 
+attribute [local instance 10000] Module.Free.of_divisionRing in -- hack to make it quicker
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsTopologicalSemiring (L ⊗[K] v.Completion) :=
   IsModuleTopology.topologicalSemiring v.Completion _
@@ -132,7 +132,46 @@ of `L` lying above `v`. -/
 def baseChangeEquiv :
     L ⊗[K] v.Completion ≃A[L] (wv : v.ExtensionPlace L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
-  IsModuleTopology.continuousAlgEquiv K v.Completion e (continuous_baseChange_tmul_right L v)
+  IsModuleTopology.continuousAlgEquivOfIsScalarTower K v.Completion e
     (baseChange_of_algebraMap_tmul_right _)
+
+@[simp]
+theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
+    baseChangeEquiv L v (l ⊗ₜ[K] x) = fun wv : v.ExtensionPlace L => l * comapHom wv.2 x := by
+  simp [baseChangeEquiv, baseChange, SemialgHom.baseChange_of_algebraMap_tmul]
+  rfl
+
+/-- The `Kᵥ`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
+of `L` lying above `v`.-/
+def baseChangeEquivRight :
+    L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.ExtensionPlace L) → wv.1.Completion :=
+  let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
+  IsModuleTopology.continuousAlgEquivOfAlgEquiv
+    (e.changeScalars K v.Completion (baseChange_of_algebraMap_tmul_right _))
+
+open TensorProduct.AlgebraTensorModule in
+/-- The `Kᵥ`-linear homeomorphism between `Kᵥ^d` and the product of all completions
+of `L` lying above `v`, where `d = [K : L]`. -/
+def piEquiv :
+    (Fin (Module.finrank K L) → v.Completion) ≃L[v.Completion]
+      (wv : v.ExtensionPlace L) → wv.1.Completion := by
+  -- `L ⊗ Kᵥ ≃ₗ[Kᵥ] Kᵥ ⊗ L`
+  let e₁ := (Algebra.TensorProduct.comm K v.Completion L).extendScalars
+    v.Completion |>.toLinearEquiv.symm
+  -- `Kᵥ ⊗ L ≃ₗ[Kᵥ] Kᵥ^d`
+  let e₂ := finiteEquivPi K L v.Completion
+  -- Compose and apply module topologies to get the `Kᵥ`-linear homeomorphism
+  -- `Kᵥ^d ≃L[Kᵥ] L ⊗ Kᵥ`
+  let e₃ := IsModuleTopology.continuousLinearEquiv (e₁.trans <| e₂) |>.symm
+  -- Compose with `Kᵥ`-scalar base change to finish
+  -- `Kᵥ^d ≃L[Kᵥ] ∏ w | v, L_w`
+  exact e₃.trans <| baseChangeEquivRight L v |>.toContinuousLinearEquiv
+
+set_option synthInstance.maxHeartbeats 40000 in
+theorem piEquiv_smul (x : v.Completion) (y : Fin (Module.finrank K L) → v.Completion)
+    (wv : v.ExtensionPlace L) :
+    piEquiv L v (x • y) wv = comapHom wv.2 x * piEquiv L v y wv := by
+  simp_rw [(piEquiv L v).map_smul x y, Pi.smul_def, RingHom.smul_toAlgebra,
+    SemialgHom.toRingHom_eq_coe, RingHom.coe_coe]
 
 end NumberField.InfinitePlace.Completion
