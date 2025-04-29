@@ -5,6 +5,7 @@ Authors: Madison Crim
 -/
 import Mathlib.LinearAlgebra.DirectSum.Finsupp
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+import Mathlib.Algebra.Module.FinitePresentation
 
 /-!
 
@@ -151,3 +152,55 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
       rw [ite_apply, Pi.zero_apply, Pi.smul_apply, apply_ite (DFunLike.coe _),
         AddMonoidHom.map_zero]
     apply Fintype.sum_dite_eq
+
+end
+
+
+section
+open Finsupp
+
+universe u v
+
+open TensorProduct
+
+variable (R : Type u) (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
+  [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
+  [∀ i, Module R (N i)] [Small.{v} R]
+
+
+/-- Tensoring with a finitly presented module commutes with arbitrary products. -/
+noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] [Small.{v} R]:
+   -- Module.Free R M := by
+    M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
+  have := Module.FinitePresentation.exists_fin R M
+  choose n K iso fg using this -- why doesn't obtain work?
+  have : (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R)  ⊗[R] N i):= by
+    exact tensorPi_equiv_piTensor R (Fin n → R) N
+  --constructing the exact sequence K ⊗ Π N i → R^n ⊗ Π N i → M ⊗ Π N i → 0
+  --first need the embedding from K → R ^ n
+  -- think we may need to construct a K s.t. R^m → R^k has image K
+  let f : K →ₗ[R] (Fin n → R) := K.subtype
+  let π : (Fin n → R) →ₗ[R] (Fin n → R) ⧸ K := Submodule.mkQ K
+  let g' := iso.symm.toLinearMap
+  let g : (Fin n → R) →ₗ[R] M := g'.comp π
+  have inj_f : Function.Injective f := Submodule.injective_subtype K
+  have surj_g : Function.Surjective g := sorry
+  have exact : Function.Exact f g := by
+    refine (Function.Injective.comp_exact_iff_exact ?_).mpr ?_
+    · exact LinearEquiv.injective iso.symm
+    · exact LinearMap.exact_subtype_mkQ K
+
+  --now tensor above with Π N i
+  let f' : (K ⊗[R] (Π i, N i)) →ₗ[R] ((Fin n → R) ⊗[R] (Π i, N i)) := by
+    exact (TensorProduct.map f LinearMap.id)
+  -- think I'll need this later to get my chain of isomorphisms
+  let K' : Submodule R ((Fin n → R) ⊗[R] (Π i, N i)) := LinearMap.range f'
+
+
+
+  --have : M ⊗[R] (Π i, N i) ≃ₗ[R] ((Fin n → R) ⊗[R] (Π i, N i) ⧸ (K ⊗[R] (Π i, N i))) := sorry
+
+
+  --obtain ⟨s, hs, hs'⟩ := h
+
+  sorry
