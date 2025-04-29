@@ -1,4 +1,4 @@
-import FLT.NumberField.Completion
+import FLT.NumberField.Completion.Infinite
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
