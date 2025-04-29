@@ -76,7 +76,8 @@ import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 import FLT.NumberField.AdeleRing
-import FLT.NumberField.Completion
+import FLT.NumberField.Completion.Finite
+import FLT.NumberField.Completion.Infinite
 import FLT.NumberField.DiscriminantBounds
 import FLT.NumberField.Embeddings
 import FLT.NumberField.InfiniteAdeleRing
