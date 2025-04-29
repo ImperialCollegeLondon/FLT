@@ -219,7 +219,8 @@ theorem denseRange_of_integerAlgebraMap :
   rfl
 
 open IsLocalRing in
-/-- The canonical map from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the completion Kᵥ. -/
+/-- The canonical ring homomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
+completion Kᵥ of the field of fractions of A. -/
 noncomputable def ResidueFieldToCompletionResidueField :
     A ⧸ v.asIdeal →+* ResidueField (v.adicCompletionIntegers K) :=
   Ideal.Quotient.lift v.asIdeal
@@ -228,6 +229,8 @@ noncomputable def ResidueFieldToCompletionResidueField :
   sorry -- issue FLT#448
 
 open IsLocalRing in
+/-- The canonical isomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
+completion Kᵥ of the field of fractions K of A. -/
 noncomputable def ResidueFieldEquivCompletionResidueField :
     A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) :=
   RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
