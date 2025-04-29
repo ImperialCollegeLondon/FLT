@@ -178,7 +178,12 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] [Smal
     exact tensorPi_equiv_piTensor R (Fin n → R) N
   --constructing the exact sequence K ⊗ Π N i → R^n ⊗ Π N i → M ⊗ Π N i → 0
   --first need the embedding from K → R ^ n
-  -- think we may need to construct a K s.t. R^m → R^k has image K
+  -- think we may need to construct a R^m s.t. R^m → R^k has image K
+  choose s hs using fg
+  let m := s.card
+  let φ : (Fin m → R) →ₗ[R] (Fin n → R) := sorry
+
+
   let f : K →ₗ[R] (Fin n → R) := K.subtype
   let π : (Fin n → R) →ₗ[R] (Fin n → R) ⧸ K := Submodule.mkQ K
   let g' := iso.symm.toLinearMap
