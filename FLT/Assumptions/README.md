@@ -8,9 +8,15 @@ assumptions. More assumptions will be added as the project progresses;
 some of the assumptions we need cannot even be stated until we formalize
 more definitions.
 
-Each file in this directory contains one axiom. The axiom corresponds
+Anybody (humans, AI) is welcome to work on formalizing the proofs of these
+assumptions; this task is not high priority for me at this point. For now,
+my focus is on proving FLT assuming these assumptions. To avoid duplication,
+anyone proposing to work on an assumption should consider indicating this
+on the github issue associated to the assumption.
+
+Each file in this directory contains one `axiom`. The `axiom` corresponds
 to a theorem which was in the published mathematical literature
-on 31st December 1989. The file should contain a precise reference to the
+by 31st December 1989. The file contains a precise reference to the
 literature where the theorem is proved.
 
 ## Formalized assumptions
