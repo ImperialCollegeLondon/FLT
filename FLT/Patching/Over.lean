@@ -12,7 +12,8 @@ variable (M : ι → Type*) [∀ i, AddCommGroup (M i)] [∀ i, Module Λ (M i)]
 variable [∀ i, Module (R i) (M i)] [∀ i, IsScalarTower Λ (R i) (M i)]
 variable (F : Ultrafilter ι)
 variable [TopologicalSpace Λ] [IsTopologicalRing Λ] [∀ i, ContinuousSMul Λ (R i)]
-variable [IsLocalRing Λ] [IsNoetherianRing Λ] [NonarchimedeanRing Λ] [T2Space Λ] [Algebra.TopologicallyFG ℤ Λ]
+variable [IsLocalRing Λ] [IsNoetherianRing Λ] [NonarchimedeanRing Λ] [T2Space Λ]
+  [Algebra.TopologicallyFG ℤ Λ]
 
 attribute [local instance] Module.quotientAnnihilator
 
@@ -30,7 +31,8 @@ def Submodule.liftModIdeal {R M N : Type*} [CommRing R]
     (f : M ⧸ (I • ⊤ : Submodule R M) →ₗ[R] N ⧸ (I • ⊤ : Submodule R N)) (J : Ideal R) :
     (M ⧸ (J • ⊤ : Submodule R M)) ⧸ (I • ⊤ : Submodule R (M ⧸ (J • ⊤ : Submodule R M))) →ₗ[R]
     (N ⧸ (J • ⊤ : Submodule R N)) ⧸ (I • ⊤ : Submodule R (N ⧸ (J • ⊤ : Submodule R N))) := by
-  refine Submodule.liftQ _ (Submodule.liftQ _ (Submodule.mapQ _ _ (Submodule.mkQ _) ?_ ∘ₗ f ∘ₗ Submodule.mkQ _) ?_) ?_
+  refine Submodule.liftQ _ (Submodule.liftQ _ (Submodule.mapQ _ _ (Submodule.mkQ _)
+    ?_ ∘ₗ f ∘ₗ Submodule.mkQ _) ?_) ?_
   · rw [← Submodule.map_le_iff_le_comap, Submodule.map_smul'']
     exact Submodule.smul_mono le_rfl le_top
   · rw [LinearMap.ker_comp, ← Submodule.map_le_iff_le_comap, Submodule.map_smul'', Submodule.mapQ,
@@ -92,8 +94,10 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
   set f := componentMapModule Λ F (fun i ↦ (𝔫 • ⊤ : Submodule Λ (M i)).mkQ) α
   have : Finite (Λ ⧸ α) := AddSubgroup.quotient_finite_of_isOpen _ hα₁
   let M₁ := fun i ↦ M i ⧸ (α • ⊤ : Submodule Λ (M i))
-  let M₂ := fun i ↦ (M i ⧸ (𝔫 • ⊤ : Submodule Λ (M i))) ⧸ (α • ⊤ : Submodule Λ (M i ⧸ (𝔫 • ⊤ : Submodule Λ (M i))))
-  have h₀ (j) : (α • ⊤ : Submodule Λ (M j)) ≤ Submodule.comap (𝔫 • ⊤ : Submodule Λ (M j)).mkQ (α • ⊤) := by
+  let M₂ := fun i ↦ (M i ⧸ (𝔫 • ⊤ : Submodule Λ (M i))) ⧸
+    (α • ⊤ : Submodule Λ (M i ⧸ (𝔫 • ⊤ : Submodule Λ (M i))))
+  have h₀ (j) : (α • ⊤ : Submodule Λ (M j)) ≤
+      Submodule.comap (𝔫 • ⊤ : Submodule Λ (M j)).mkQ (α • ⊤) := by
     rw [← Submodule.map_le_iff_le_comap, Submodule.map_smul'']
     exact Submodule.smul_mono le_rfl le_top
   let π (j) : M₁ j →ₗ[Λ] M₂ j := Submodule.mapQ _ _ (Submodule.mkQ _) (h₀ j)
@@ -102,25 +106,31 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
     refine Finite.of_surjective (π i) ?_
     simp only [Submodule.mapQ, ← LinearMap.range_eq_top, Submodule.range_liftQ, M₁, M₂, π,
       LinearMap.range_comp, Submodule.range_mkQ, Submodule.map_top]
-  have H₁ := UltraProduct.exists_bijective_of_bddAbove_card (R₀ := Λ ⧸ α) (M := M₁) F (Nat.card (Λ ⧸ α) ^ bound Λ M).succ
+  have H₁ := UltraProduct.exists_bijective_of_bddAbove_card (R₀ := Λ ⧸ α) (M := M₁) F
+    (Nat.card (Λ ⧸ α) ^ bound Λ M).succ
     (.of_forall fun i ↦ ⟨Module.UniformlyBoundedRank.finite_quotient_smul Λ M i α,
       (Module.UniformlyBoundedRank.card_quotient_le Λ M i α).trans_lt (Nat.lt_succ_self _)⟩)
   obtain ⟨i, ⟨H, hi₁⟩⟩ := H₁.exists
-  let g₁ (j) : M₁ i →ₗ[Λ] M₁ j := (if h : Nonempty (M₁ i ≃ₗ[Λ ⧸ α] M₁ j) then h.some.toLinearMap else 0).restrictScalars Λ
-  replace hi₁ : Function.Bijective ((UltraProduct.πₗ (fun _ ↦ Λ) M₁ F).restrictScalars Λ ∘ₗ LinearMap.pi g₁) := hi₁
+  let g₁ (j) : M₁ i →ₗ[Λ] M₁ j := (if h : Nonempty (M₁ i ≃ₗ[Λ ⧸ α] M₁ j) then
+    h.some.toLinearMap else 0).restrictScalars Λ
+  replace hi₁ : Function.Bijective ((UltraProduct.πₗ (fun _ ↦ Λ) M₁ F).restrictScalars Λ ∘ₗ
+    LinearMap.pi g₁) := hi₁
   let g₂ (j) : M₂ i →ₗ[Λ] M₂ j := Submodule.liftModIdeal (g₁ j) 𝔫
   have hg₂ : ∀ᶠ j in F, Function.Bijective (g₂ j) := by
     filter_upwards [H] with j hj
     have : Function.Bijective (g₁ j) := by simpa only [g₁, dif_pos hj] using hj.some.bijective
     exact (Submodule.liftModIdealEquiv (.ofBijective _ this) 𝔫).bijective
-  have hi₂ : Function.Bijective ((UltraProduct.πₗ (fun _ ↦ Λ) M₂ F).restrictScalars Λ ∘ₗ LinearMap.pi g₂) :=
+  have hi₂ : Function.Bijective ((UltraProduct.πₗ (fun _ ↦ Λ) M₂ F).restrictScalars Λ ∘ₗ
+      LinearMap.pi g₂) :=
     UltraProduct.bijective_of_eventually_bijective _ _ hg₂
   let e₁ := (LinearEquiv.ofBijective _ hi₁).restrictScalars Λ
   let e₂ := (LinearEquiv.ofBijective _ hi₂).restrictScalars Λ
-  have h₀ : (α • ⊤ : Submodule Λ (M i)) ≤ Submodule.comap (𝔫 • ⊤ : Submodule Λ (M i)).mkQ (α • ⊤) := by
+  have h₀ : (α • ⊤ : Submodule Λ (M i)) ≤
+      Submodule.comap (𝔫 • ⊤ : Submodule Λ (M i)).mkQ (α • ⊤) := by
     rw [← Submodule.map_le_iff_le_comap, Submodule.map_smul'']
     exact Submodule.smul_mono le_rfl le_top
-  have : f.restrictScalars Λ = e₂.toLinearMap ∘ₗ Submodule.mapQ _ _ (Submodule.mkQ _) h₀ ∘ₗ e₁.symm.toLinearMap := by
+  have : f.restrictScalars Λ = e₂.toLinearMap ∘ₗ Submodule.mapQ _ _ (Submodule.mkQ _) h₀ ∘ₗ
+      e₁.symm.toLinearMap := by
     ext x
     obtain ⟨x, rfl⟩ := e₁.surjective x
     obtain ⟨x, rfl⟩ := Submodule.mkQ_surjective _ x
@@ -234,7 +244,8 @@ lemma PatchingModule.ker_map_mkQ :
   · rintro ⟨x, hx⟩ H
     replace H (α) : x α ∈ (𝔫 • ⊤ : Submodule Λ (Component Λ M F α.1)) := by
       have : x α ∈ LinearMap.ker ((componentMapModule Λ F (fun i ↦
-        (𝔫 • ⊤ : Submodule Λ (M i)).mkQ) α.1).restrictScalars Λ) := congr_fun (congr_arg Subtype.val H) α
+        (𝔫 • ⊤ : Submodule Λ (M i)).mkQ) α.1).restrictScalars Λ) := congr_fun
+          (congr_arg Subtype.val H) α
       rwa [PatchingModule.ker_componentMapModule_mkQ] at this
     rwa [PatchingModule.mem_smul_top]
   · rw [Submodule.smul_le]
@@ -271,7 +282,8 @@ def PatchingModule.quotientEquiv :
 noncomputable
 def PatchingModule.quotientEquivOver [Module.Finite Λ M₀] :
     (PatchingModule Λ M F ⧸ (𝔫 • ⊤ : Submodule Λ (PatchingModule Λ M F))) ≃ₗ[Λ] M₀ :=
-  quotientEquiv Λ M F 𝔫 ≪≫ₗ (mapEquiv Λ F (by exact sM)).restrictScalars Λ ≪≫ₗ (constEquiv Λ F M₀).symm
+  quotientEquiv Λ M F 𝔫 ≪≫ₗ (mapEquiv Λ F (by exact sM)).restrictScalars Λ ≪≫ₗ
+    (constEquiv Λ F M₀).symm
 
 variable [IsLocalRing R₀] [IsNoetherianRing R₀]
   [TopologicalSpace R₀] [IsTopologicalRing R₀] [CompactSpace R₀] [IsAdicTopology R₀]

@@ -106,14 +106,15 @@ end Topology
 
 section TopologicalModule
 
-variable {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R]
+variable {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+  [Algebra.TopologicallyFG ℤ R]
 
 instance {α : Type*} [Finite α] [AddCommGroup α] [TopologicalSpace α] [T2Space α] :
     Finite (Σ' (_ : Module R α), ContinuousSMul R α) := by
   obtain ⟨s, hs⟩ := Algebra.TopologicallyFG.out (self := ‹_›)
   refine .of_injective (fun g ↦ g.1.1.1.1.1 ∘ ((↑) : s → R)) fun g₁ g₂ e ↦ ?_
-  cases' g₁ with g₁ hg₁
-  cases' g₂ with g₂ hg₂
+  obtain ⟨g₁, hg₁⟩ := g₁
+  obtain ⟨g₂, hg₂⟩ := g₂
   congr
   exact Algebra.TopologicallyFG.module_ext ℤ R (↑s) hs inferInstance inferInstance hg₁ hg₂
     fun x hx ↦ congr_fun (congr_fun e ⟨x, hx⟩)
@@ -140,9 +141,10 @@ open scoped Topology in
 variable (R) in
 noncomputable
 def TopologicalModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M]
-    [TopologicalSpace M] [Module R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [Module R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) : TopologicalModuleTypeCardLT R N :=
-  ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.addCommGroup, .coinduced (Finite.equivFin M) inferInstance,
+  ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.addCommGroup, .coinduced (Finite.equivFin M)
+    inferInstance,
     letI := TopologicalSpace.coinduced (Finite.equivFin M) inferInstance
     Topology.IsEmbedding.t2Space (f := (Finite.equivFin M).symm)
     ⟨⟨by rw [(Finite.equivFin M).induced_symm.symm]⟩, (Finite.equivFin M).symm.injective⟩,
@@ -158,29 +160,34 @@ def TopologicalModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M]
 
 noncomputable
 def TopologicalModuleTypeCardLT.equivOfModule (N : ℕ) (M : Type*) [AddCommGroup M] [Module R M]
-    [TopologicalSpace M] [Module R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
-    [Finite M] (hM : Nat.card M < N) : M ≃L[R] Fin (TopologicalModuleTypeCardLT.ofModule R N M hM).1 where
-  __ := ((show M ≃ Fin ((ModuleTypeCardLT.ofModule R N M hM).1) from Finite.equivFin M).symm.linearEquiv R).symm
+    [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [Finite M] (hM : Nat.card M < N) :
+    M ≃L[R] Fin (TopologicalModuleTypeCardLT.ofModule R N M hM).1 where
+  __ := ((show M ≃ Fin ((ModuleTypeCardLT.ofModule R N M hM).1) from
+    Finite.equivFin M).symm.linearEquiv R).symm
   __ := (Finite.equivFin M).toHomeomorph (Y := Fin (ofModule R N M hM).1) (fun _ ↦ Iff.rfl)
 
 end TopologicalModule
 
 section TopologicalAlgebra
 
-variable {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R]
+variable {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+  [Algebra.TopologicallyFG ℤ R]
 
 instance {α : Type*} [Finite α] [Ring α] [TopologicalSpace α] [T2Space α] :
     Finite (Σ' (_ : Algebra R α), ContinuousSMul R α) := by
-  refine .of_injective (β := Σ' (_ : Module R α), ContinuousSMul R α) (fun g ↦ PSigma.mk g.1.toModule g.2)
+  refine .of_injective (β := Σ' (_ : Module R α), ContinuousSMul R α)
+    (fun g ↦ PSigma.mk g.1.toModule g.2)
     fun g₁ g₂ e ↦ ?_
-  cases' g₁ with g₁ hg₁
-  cases' g₂ with g₂ hg₂
+  obtain ⟨g₁, hg₁⟩ := g₁
+  obtain ⟨g₂, hg₂⟩ := g₂
   congr
   ext
   exact congr(($e).1.smul _ _)
 
 variable (R) in
-def TopologicalAlgebraTypeCardLT [IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R] (N : ℕ) : Type _ :=
+def TopologicalAlgebraTypeCardLT [IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R] (N : ℕ) :
+    Type _ :=
   Σ' (n : Fin N) (_ : Ring (Fin n)) (_ : TopologicalSpace (Fin n)) (_ : T2Space (Fin n))
     (_ : Algebra R (Fin n)), ContinuousSMul R (Fin n)
 
@@ -201,24 +208,27 @@ open scoped Topology in
 variable (R) in
 noncomputable
 def TopologicalAlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M]
-    [TopologicalSpace M] [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) : TopologicalAlgebraTypeCardLT R N :=
   ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.ring, .coinduced (Finite.equivFin M) inferInstance,
     letI := TopologicalSpace.coinduced (Finite.equivFin M) inferInstance
     Topology.IsEmbedding.t2Space (f := (Finite.equivFin M).symm)
-    ⟨⟨congr_fun (Finite.equivFin M).induced_symm.symm inferInstance⟩, (Finite.equivFin M).symm.injective⟩,
+    ⟨⟨congr_fun (Finite.equivFin M).induced_symm.symm inferInstance⟩,
+    (Finite.equivFin M).symm.injective⟩,
     (Finite.equivFin M).symm.algebra _, (TopologicalModuleTypeCardLT.ofModule R N M hM).2.2.2.2.2⟩
 
 noncomputable
 def TopologicalAlgebraTypeCardLT.equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
-    [TopologicalSpace M] [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
-    [Finite M] (hM : Nat.card M < N) : M ≃ₐ[R] Fin (TopologicalAlgebraTypeCardLT.ofAlgebra R N M hM).1 :=
+    [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [Finite M] (hM : Nat.card M < N) :
+    M ≃ₐ[R] Fin (TopologicalAlgebraTypeCardLT.ofAlgebra R N M hM).1 :=
   ((show M ≃ Fin ((AlgebraTypeCardLT.ofAlgebra R N M hM).1)
     from Finite.equivFin M).symm.algEquiv R).symm
 
 lemma TopologicalAlgebraTypeCardLT.isHomeomorph_equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
-    [TopologicalSpace M] [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
+    [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) : IsHomeomorph (equivOfAlgebra (R := R) N M hM) :=
-  ((Finite.equivFin M).toHomeomorph (Y := Fin (ofAlgebra R N M hM).1) (fun _ ↦ Iff.rfl)).isHomeomorph
+  ((Finite.equivFin M).toHomeomorph (Y := Fin (ofAlgebra R N M hM).1)
+    (fun _ ↦ Iff.rfl)).isHomeomorph
 
 end TopologicalAlgebra

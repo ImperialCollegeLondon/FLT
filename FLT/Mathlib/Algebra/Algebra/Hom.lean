@@ -1,5 +1,4 @@
 import Mathlib.Algebra.Algebra.Hom
-import Mathlib.RingTheory.AlgebraTower
 
 section semialghom
 
@@ -67,6 +66,9 @@ lemma SemialgHom.commutes (ψ : A →ₛₐ[φ] B) (r : R) :
   rw [this, Algebra.smul_def, mul_one]
 
 theorem SemialgHom.toLinearMap_eq_coe (f : A →ₛₐ[φ] B) : f.toLinearMap = f :=
+  rfl
+
+theorem SemialgHom.toRingHom_eq_coe (f : A →ₛₐ[φ] B) : f.toRingHom = f :=
   rfl
 
 theorem SemialgHom.algebraMap_apply {A B : Type*} [CommSemiring A] [CommSemiring B]

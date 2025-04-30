@@ -1,3 +1,4 @@
+import Mathlib.Init -- run mathlib's syntax linters on this file
 /-
 
 Mazur's theorem (easy to state)
