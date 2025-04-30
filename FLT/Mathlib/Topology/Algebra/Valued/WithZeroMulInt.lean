@@ -58,9 +58,7 @@ theorem exists_pow_lt_of_le_neg_one {K : Type*} [Ring K] [Valued K ℤₘ₀]
 
 variable {K : Type*} [Field K] [Valued K ℤₘ₀]
 
-theorem irreducible_valuation_lt_one [IsDiscreteValuationRing 𝒪[K]] {ϖ : 𝒪[K]}
-    (h : Irreducible ϖ) :
-    v ϖ.1 < 1 := by
+theorem irreducible_valuation_lt_one {ϖ : 𝒪[K]} (h : Irreducible ϖ) : v ϖ.1 < 1 := by
   have := mt (Valuation.integer.integers _).isUnit_iff_valuation_eq_one.2 h.not_isUnit
   exact lt_of_le_of_ne (Valuation.mem_integer_iff _ _ |>.1 ϖ.2) this
 

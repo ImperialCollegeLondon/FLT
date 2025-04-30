@@ -11,8 +11,6 @@ theorem ValuationSubring.valued_eq_one_of_isUnit {K : Type*} [Field K] {Γ₀ : 
     [LinearOrderedCommGroupWithZero Γ₀] [hv : Valued K Γ₀] (x : hv.v.valuationSubring)
     (hx : IsUnit x) : Valued.v x.val = 1 := by
   obtain ⟨u, hu⟩ := hx
-  have := x.2
-  rw [Valuation.mem_valuationSubring_iff] at this
   apply le_antisymm ((hv.v.mem_valuationSubring_iff _).1 x.2)
   rw [← Valued.v.map_one (R := K), ← Submonoid.coe_one, ← u.mul_inv, hu,
     Submonoid.coe_mul, Valued.v.map_mul]
