@@ -402,7 +402,9 @@ def continuousAlgEquivOfAlgEquiv {A B R : Type*} [TopologicalSpace A]
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
 
-def t2Space {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Module.Free R M]
+/-- A free module with the module topology over a `T2Space` ring is a `T2Space`.
+-/
+theorem t2Space {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Module.Free R M]
     [TopologicalSpace R] [TopologicalSpace M] [T2Space R]
     [ContinuousAdd R] [ContinuousMul R] [IsModuleTopology R M]
     : T2Space M := by
@@ -422,7 +424,9 @@ def t2Space {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Module.Fre
   rw [← map_zero g, ← map_zero f]
   exact DFunLike.coe_injective.eq_iff.trans (Module.Free.repr R M).injective.eq_iff
 
-def t2Space' {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
+/-- A vector space with the module topology over a `T2Space` ring is a `T2Space`.
+-/
+theorem t2Space' {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
     [TopologicalSpace K] [TopologicalSpace V] [T2Space K]
     [ContinuousAdd K] [ContinuousMul K] [mt : IsModuleTopology K V]
     : T2Space V := by
