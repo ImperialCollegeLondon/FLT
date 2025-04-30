@@ -25,9 +25,11 @@ variable (v : HeightOneSpectrum (𝓞 K))
 open IsLocalRing
 
 instance NumberField.instFiniteResidueFieldAdicCompletionIntegers :
-    Finite (ResidueField (v.adicCompletionIntegers K)) := sorry -- Issue FLT#450
-  -- follows from IsDedekindDomain.HeightOneSpectrum.ResidueFieldEquivCompletionResidueField
-  -- and the above example.
+    Finite (ResidueField (v.adicCompletionIntegers K)) := by
+    apply (
+      IsDedekindDomain.HeightOneSpectrum.ResidueFieldEquivCompletionResidueField (v := v) (K  := K)
+    ).toEquiv.finite_iff.mp
+    apply Ideal.finiteQuotientOfFreeOfNeBot v.asIdeal v.ne_bot
 
 instance NumberField.instCompactSpaceAdicCompletionIntegers :
     CompactSpace (v.adicCompletionIntegers K) := sorry -- issue FLT#451
