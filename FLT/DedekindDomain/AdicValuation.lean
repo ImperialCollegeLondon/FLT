@@ -390,10 +390,6 @@ theorem denseRange_of_prodAlgebraMap {ι : Type*} [Fintype ι]
 
 namespace adicCompletion
 
-theorem valued_eq_intValuation (v : HeightOneSpectrum A) (a : A) :
-    Valued.v (algebraMap _ (v.adicCompletion K) a) = v.intValuation a := by
-  rw [v.valuedAdicCompletion_eq_valuation, valuation_eq_intValuationDef, intValuation_apply]
-
 open scoped algebraMap in
 theorem exists_uniformizer (v : HeightOneSpectrum A) :
     ∃ π : v.adicCompletionIntegers K, Valued.v π.1 = Multiplicative.ofAdd (- 1 : ℤ) := by

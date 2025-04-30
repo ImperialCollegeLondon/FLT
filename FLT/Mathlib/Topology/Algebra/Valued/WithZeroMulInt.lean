@@ -137,10 +137,10 @@ variable (K)
 field is compact, whenever `𝒪[K]` is a discrete valuation ring. -/
 theorem integer_compactSpace [CompleteSpace K] [IsDiscreteValuationRing 𝒪[K]] (h : Finite 𝓀[K]) :
     CompactSpace 𝒪[K] where
-  isCompact_univ := by
-    refine (isCompact_iff_isCompact_univ.1 <| ?_)
-    exact isCompact_iff_totallyBounded_isComplete.2
-      ⟨(hasBasis_uniformity _ _).totallyBounded_iff.2 <| fun _ hγ =>
-        finite_cover_of_uniformity_basis h, (integer_isClosed K).isComplete⟩
+  isCompact_univ :=
+    isCompact_iff_isCompact_univ.1 <|
+      isCompact_iff_totallyBounded_isComplete.2
+        ⟨(hasBasis_uniformity _ _).totallyBounded_iff.2 <| fun _ _ =>
+          finite_cover_of_uniformity_basis h, (integer_isClosed K).isComplete⟩
 
 end Valued.WithZeroMulInt
