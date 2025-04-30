@@ -42,6 +42,5 @@ Currently available at https://www.numdam.org/item/SDPP_1976-1977__18_1_A6_0/
 -/
 open Polynomial NumberField Module
 
-axiom Odlyzko_statement (K : Type*) [Field K] [NumberField K] [Normal ℚ K]
-  [IsTotallyComplex K]
+axiom Odlyzko_statement (K : Type*) [Field K] [NumberField K] [IsTotallyComplex K]
   (hBound : |(discr K : ℝ)| < 8.25 ^ finrank ℚ K) : finrank ℚ K ≤ 17
