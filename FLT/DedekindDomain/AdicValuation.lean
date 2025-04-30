@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Matthew Jasper. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Matthew Jasper
+-/
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Algebra.Order.GroupWithZero
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
@@ -8,9 +13,10 @@ import Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 If `A` is a valued ring with field of fractions `K` there are two different
 complete rings containing `A` one might define, the first is
-`𝒪_v = {x ∈ K_v | v x ≤ 1}` and the second is the `v-adic` completion of `A`.
-In the case when `A` is a Dedekind domain these definitions give isomorphic
-topological `A`-algebras. This file makes some progress towards this.
+`𝒪_v = {x ∈ K_v | v x ≤ 1}` (defined in Lean as `adicCompletionIntegers K v`)
+and the second is the `v-adic` completion of `A`. In the case when `A` is a
+Dedekind domain these definitions give isomorphic topological `A`-algebras.
+This file makes some progress towards this.
 
 ## Main theorems
 
@@ -211,6 +217,26 @@ theorem denseRange_of_integerAlgebraMap :
     exact Subtype.coe_prop x
   simp only [RingHom.coe_range, ← Set.range_comp']
   rfl
+
+open IsLocalRing in
+/-- The canonical ring homomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
+completion Kᵥ of the field of fractions of A. -/
+noncomputable def ResidueFieldToCompletionResidueField :
+    A ⧸ v.asIdeal →+* ResidueField (v.adicCompletionIntegers K) :=
+  Ideal.quotientMap _ (algebraMap _ _) <| by
+    intro x hx
+    simp only [Ideal.mem_comap, mem_maximalIdeal, mem_nonunits_iff]
+    rw [Valuation.Integer.not_isUnit_iff_valuation_lt_one]
+    change Valued.v (algebraMap A K _ : adicCompletion K v) < 1
+    simp [valuation_lt_one_iff_dvd, hx]
+
+open IsLocalRing in
+/-- The canonical isomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
+completion Kᵥ of the field of fractions K of A. -/
+noncomputable def ResidueFieldEquivCompletionResidueField :
+    A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) :=
+  RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
+  sorry -- issue FLT#449
 
 /-- An element of `𝒪_v` can be approximated by an element of `A`. -/
 theorem exists_adicValued_sub_lt_of_adicCompletionInteger ( x : v.adicCompletionIntegers K )

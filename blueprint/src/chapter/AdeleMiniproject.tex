@@ -157,15 +157,15 @@ The next lemma explains how these valuations are related.
 \end{definition}
 
 \begin{lemma}
-  \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom_valued}
-  \label{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom_valued}
+  \lean{IsDedekindDomain.HeightOneSpectrum.valued_adicCompletionComap}
+  \label{IsDedekindDomain.HeightOneSpectrum.valued_adicCompletionComap}
   \leanok
-   % \discussion{???} % **TODO** needs an issue
   If $i_v:K_v\to L_w$ denotes the map of the previous definition
   then for $x\in K_v$ we have
   $e\times w(i(k))=v(k)$, where $e$ is the ramification index of $w/v$.
 \end{lemma}
 \begin{proof}
+  \leanok
   Follows by continuity from lemma~\ref{IsDedekindDomain.HeightOneSpectrum.valuation_comap}.
 \end{proof}
 
@@ -178,7 +178,7 @@ The next lemma explains how these valuations are related.
 \begin{proof}
   \leanok
   The integer ring is defined by $v\geq0$ (or $v\leq 1$ in mathlib, which uses multiplicative
-  valuations) so the result follows from \ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom_valued}.
+  valuations) so the result follows from \ref{IsDedekindDomain.HeightOneSpectrum.valued_adicCompletionComap}.
 \end{proof}
 \begin{theorem}
   \lean{IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_isModuleTopology}
@@ -340,7 +340,7 @@ for the integers of $K_v$ and $B_w$ for the integers of $L_w$.
   is $\prod_{v\in S}A_v$ for $S$ a finite set of valuations (using the Chinese
   remainder theorem). Applying this to $B$ we get that the closure of $B$ in $\prod_{w|v}L_w$
   is $\prod_{w|v}B_w$. He then shows that this closure is the image of
-  $B\otimes_A\mathcal{O}_v$ (by showing that this image is closed becasue it's open),
+  $B\otimes_A\mathcal{O}_v$ (by showing that this image is closed because it's open),
   giving surjectivity; injectivity follows from the statement
   that $L\otimes_KK_v=\prod_{w|v}L_w$.
 \end{proof}
@@ -365,7 +365,7 @@ topology, indeed $\prod_v A_v$ is open in this topology). We
   \leanok
 \end{theorem}
 \begin{proof}
-  This follows immediately from the fact (ref?) that integesr map to integers
+  This follows immediately from the fact (ref?) that integers map to integers
   and general nonsense.
 \end{proof}
 

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Madison Crim. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Madison Crim
+-/
 import Mathlib.LinearAlgebra.DirectSum.Finsupp
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 
@@ -5,22 +10,28 @@ import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 
 # Tensor product commutes with direct product when tensoring with a finite free module
 
-If M is a finite free module and N i is an indexed collection of modules of a commutative ring
-R then there is an R-module isomorphsm between M ⊗ ∏ N i and ∏ M ⊗ N i.
+If `M` is a finite free module and `Nᵢ` is an indexed collection of modules of a commutative ring
+`R` then there is an `R`-module isomorphism between `M ⊗ ∏ᵢ Nᵢ` and `∏ᵢ (M ⊗ Nᵢ)`.
 
 ## Main definition
 
-* tensorPi_equiv_piTensor M ⊗[R] (∀ i, N i) ≃ₗ[R] ∀ i, (M ⊗[R] N i)
+* tensorPi_equiv_piTensor : M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i)
+
+## TODO
+
+Prove the same for finitely-presented modules.
 
 -/
 open DirectSum
 
 section
 
-variable {ι' : Type*} [Fintype ι'] [DecidableEq ι'] {R ι : Type*} [CommRing R]
-  {M N : ι → ι' → Type*} [∀ i i', AddCommGroup (M i i')] [∀ i i', AddCommGroup (N i i')]
+variable {ι' : Type*} [Fintype ι'] [DecidableEq ι'] {R ι : Type*} [Semiring R]
+  {M N : ι → ι' → Type*} [∀ i i', AddCommMonoid (M i i')] [∀ i i', AddCommMonoid (N i i')]
   [∀i i', Module R (M i i')] [∀i i', Module R (N i i')]
 
+/-- `⨁ⱼ(∏ᵢ Nᵢⱼ) ≅ ∏ᵢ(⨁ⱼNᵢⱼ)` if `j` ranges over a finite index set and `i` over an arbitrary
+index set. This variant is for `R`-modules and gives an `R`-module isomorphism. -/
 def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i, (⨁ i', N i i')) where
   toFun nm i := ∑ i', DirectSum.of (fun i' ↦ N i i') i' (nm i' i)
   map_add' x y := by
@@ -64,34 +75,49 @@ variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] [Module.Free R
 
 open TensorProduct
 
-noncomputable def finitefreeModule_tensorPiEquiv :
+/-- The isomorphism `M ⊗ ∏ᵢ Nᵢ ≅ (B →₀ R) ⊗ ∏ᵢ Nᵢ`, where `M` is assumed free and
+`B` is the basis of `M` given by Lean's global axiom-of-choice operator. This is an
+auxiliary definition. -/
+noncomputable def freeModule_tensorPiEquiv :
     M ⊗[R] (∀ i, N i) ≃ₗ[R] (Module.Free.ChooseBasisIndex R M →₀ R) ⊗[R] (∀ i, N i) :=
   TensorProduct.congr (Module.Free.repr R M) (LinearEquiv.refl R ((i : ι) → N i))
 
-noncomputable def finsuppLeft_TensorPi_equiv_piTensor :
-    (Module.Free.ChooseBasisIndex R M →₀ R) ⊗[R] (∀ i, N i) ≃ₗ[R]
-      ∀ i, ( Module.Free.ChooseBasisIndex R M →₀ R) ⊗[R] (N i) :=
-  finsuppScalarLeft R (∀i, N i) (Module.Free.ChooseBasisIndex R M) ≪≫ₗ
-    (finsuppLEquivDirectSum R (∀i, N i) (Module.Free.ChooseBasisIndex R M)) ≪≫ₗ
+/-- If `B` is finite then tensoring by the free module with basis `B` commutes with
+arbitrary products. -/
+noncomputable def finsuppLeft_TensorPi_equiv_piTensor (B : Type*) [Fintype B] [DecidableEq B] :
+    (B →₀ R) ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (B →₀ R) ⊗[R] (N i) :=
+  -- (B →₀ R) ⊗[R] (Π i, N i) ≃ₗ[R] B →₀ (Π i, N i)
+  finsuppScalarLeft R (∀i, N i) B ≪≫ₗ
+    -- ≃ₗ[R] ⨁_b (Π i, N i)
+    (finsuppLEquivDirectSum R (∀i, N i) B) ≪≫ₗ
+    -- ≃ₗ[R] Π i, (⨁_b N i) (this is where we assume B is finite)
     directSumPi_equiv_piSum  ≪≫ₗ
-    LinearEquiv.piCongrRight (fun i ↦(finsuppLEquivDirectSum R (N i)
-    (Module.Free.ChooseBasisIndex R M)).symm)
-    ≪≫ₗ  LinearEquiv.piCongrRight (fun i ↦
-     (finsuppScalarLeft R (N i) (Module.Free.ChooseBasisIndex R M)).symm)
+    -- ≃ₗ[R] Π i, (B →₀ N i)
+    LinearEquiv.piCongrRight (fun i ↦(finsuppLEquivDirectSum R (N i) B).symm) ≪≫ₗ
+    -- ≃ₗ[R] Π i, (B →₀ R) ⊗ N i
+    LinearEquiv.piCongrRight (fun i ↦ (finsuppScalarLeft R (N i) B).symm)
 
+/-- The isomorphism `Πᵢ ((B →₀ R) ⊗ Nᵢ) ≅ Πᵢ (M ⊗ Nᵢ)` where `M` is assumed free and
+`B` is the basis of `M` given by Lean's global axiom-of-choice operator. This is an
+auxiliary definition. -/
 noncomputable def tensorPiEquiv_finitefreeModule :
-    (∀ i, (Module.Free.ChooseBasisIndex R M →₀ R) ⊗[R] N i) ≃ₗ[R] ∀ i, (M ⊗[R] N i):=
+    (Π i, (Module.Free.ChooseBasisIndex R M →₀ R) ⊗[R] N i) ≃ₗ[R] Π i, (M ⊗[R] N i):=
   LinearEquiv.piCongrRight (fun i ↦ (LinearEquiv.rTensor (N i) (Module.Free.repr R M).symm))
 
+/-- Tensoring with a finite free module commutes with arbitrary products. -/
 noncomputable def tensorPi_equiv_piTensor :
-    M ⊗[R] (∀ i, N i) ≃ₗ[R] ∀ i, (M ⊗[R] N i) :=
-  (finitefreeModule_tensorPiEquiv R M N) ≪≫ₗ (finsuppLeft_TensorPi_equiv_piTensor R M N)
-    ≪≫ₗ (tensorPiEquiv_finitefreeModule R M N)
+    M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) :=
+  -- M ⊗ (Π i, N i) ≃ₗ[R] (B →₀ R) ⊗ (Π i, N i)
+  (freeModule_tensorPiEquiv R M N) ≪≫ₗ
+    -- ≃ₗ[R] Π i, ((B →₀ R) ⊗ N i)
+    (finsuppLeft_TensorPi_equiv_piTensor R N _) ≪≫ₗ
+    -- ≃ₗ[R] Π i, (M ⊗ N i)
+    (tensorPiEquiv_finitefreeModule R M N)
 
 lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
     tensorPi_equiv_piTensor R M N (m ⊗ₜ n) = fun i ↦ (m ⊗ₜ n i) := by
   unfold tensorPi_equiv_piTensor
-  simp only [finitefreeModule_tensorPiEquiv, LinearEquiv.trans_apply, congr_tmul,
+  simp only [freeModule_tensorPiEquiv, LinearEquiv.trans_apply, congr_tmul,
     LinearEquiv.refl_apply]
   let m' := (Module.Free.repr R M) m
   have hm' : (Module.Free.repr R M).symm m' = m := by simp [m']
