@@ -62,8 +62,7 @@ theorem irreducible_valuation_lt_one {ϖ : 𝒪[K]} (h : Irreducible ϖ) : v ϖ.
   have := mt (Valuation.integer.integers _).isUnit_iff_valuation_eq_one.2 h.not_isUnit
   exact lt_of_le_of_ne (Valuation.mem_integer_iff _ _ |>.1 ϖ.2) this
 
-theorem irreducible_valuation_le_ofAdd_neg_one [IsDiscreteValuationRing 𝒪[K]] {ϖ : 𝒪[K]}
-    (h : Irreducible ϖ) :
+theorem irreducible_valuation_le_ofAdd_neg_one {ϖ : 𝒪[K]} (h : Irreducible ϖ) :
     v ϖ.1 ≤ ofAdd (-1 : ℤ) := by
   letI := (lt_ofAdd_iff (show v ϖ.1 ≠ 0 by simp [h.ne_zero])).1 (irreducible_valuation_lt_one h)
   rw [le_ofAdd_iff (show v ϖ.1 ≠ 0 by simp [h.ne_zero])]
@@ -78,15 +77,6 @@ theorem mem_maximalIdeal_pow_valuation [IsDiscreteValuationRing 𝒪[K]]
     let ⟨y, hy⟩ := hx
     simp only [hy, Subring.coe_mul, SubmonoidClass.coe_pow, map_mul, map_pow, ge_iff_le]
     exact le_trans (mul_le_of_le_one_right' <| (Valuation.mem_integer_iff _ _).1 y.2) le_rfl
-
-theorem units_toAdd_le_of_le {α : Type*} [AddGroup α] [Preorder α]
-    {γ : (WithZero (Multiplicative α))ˣ} {m : (WithZero (Multiplicative α))} (hm : m ≠ 0)
-    (hγ : γ.val ≤ m) :
-    toAdd (unitsWithZeroEquiv γ) ≤ toAdd (m.unzero hm) := by
-  rw [← ofAdd_le, ofAdd_toAdd, ← coe_le_coe, unitsWithZeroEquiv, MulEquiv.coe_mk,
-    Equiv.coe_fn_mk, coe_unzero]
-  apply le_trans hγ
-  rw [ofAdd_toAdd, coe_unzero]
 
 /- Note: this is copied directly from the mathlib result
 `Valued.integer.finite_quotient_maximalIdeal_pow_of_finite_residueField` with a relaxation
