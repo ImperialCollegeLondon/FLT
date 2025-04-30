@@ -218,6 +218,24 @@ theorem denseRange_of_integerAlgebraMap :
   simp only [RingHom.coe_range, ← Set.range_comp']
   rfl
 
+open IsLocalRing in
+/-- The canonical ring homomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
+completion Kᵥ of the field of fractions of A. -/
+noncomputable def ResidueFieldToCompletionResidueField :
+    A ⧸ v.asIdeal →+* ResidueField (v.adicCompletionIntegers K) :=
+  Ideal.Quotient.lift v.asIdeal
+  ((Ideal.Quotient.mk (maximalIdeal (v.adicCompletionIntegers K))).comp
+    (algebraMap A (v.adicCompletionIntegers K)))
+  sorry -- issue FLT#448
+
+open IsLocalRing in
+/-- The canonical isomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
+completion Kᵥ of the field of fractions K of A. -/
+noncomputable def ResidueFieldEquivCompletionResidueField :
+    A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) :=
+  RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
+  sorry -- issue FLT#449
+
 /-- An element of `𝒪_v` can be approximated by an element of `A`. -/
 theorem exists_adicValued_sub_lt_of_adicCompletionInteger ( x : v.adicCompletionIntegers K )
     ( γ : (WithZero (Multiplicative ℤ))ˣ ) :
