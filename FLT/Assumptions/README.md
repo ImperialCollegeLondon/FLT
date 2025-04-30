@@ -23,7 +23,7 @@ literature where the theorem is proved.
 
 We give a brief summary of each file in this directory.
 
-* `Odlyzko.lean` : an "Odlyzko bound" for root discriminants.
+* `Odlyzko.lean` : an "Odlyzko bound" for root discriminants. Issue #458.
 
 ## Formalizable assumptions
 

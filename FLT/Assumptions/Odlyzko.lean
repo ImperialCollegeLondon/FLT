@@ -39,6 +39,8 @@ Fontaine's proof that there is no nontrivial abelian variety over ℤ.
 
 Currently available at https://www.numdam.org/item/SDPP_1976-1977__18_1_A6_0/
 
+The github tracking issue for this assumption is #458 on the FLT github repository.
+
 -/
 open Polynomial NumberField Module
 
