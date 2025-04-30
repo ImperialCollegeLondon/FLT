@@ -5,6 +5,7 @@ Authors: Kevin Buzzard
 -/
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.DedekindDomain.AdicValuation
+import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 /-!
 
 # Completion of a number field at a finite place
@@ -29,5 +30,10 @@ instance NumberField.instFiniteResidueFieldAdicCompletionIntegers :
   -- follows from IsDedekindDomain.HeightOneSpectrum.ResidueFieldEquivCompletionResidueField
   -- and the above example.
 
+open scoped Valued in
+instance : Finite (𝓀[v.adicCompletion K]) :=
+  inferInstanceAs (Finite (ResidueField (v.adicCompletionIntegers K)))
+
 instance NumberField.instCompactSpaceAdicCompletionIntegers :
-    CompactSpace (v.adicCompletionIntegers K) := sorry -- issue FLT#451
+    CompactSpace (v.adicCompletionIntegers K) :=
+  Valued.WithZeroMulInt.integer_compactSpace (v.adicCompletion K) inferInstance
