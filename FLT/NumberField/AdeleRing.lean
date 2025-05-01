@@ -68,8 +68,10 @@ def baseChangeEquiv :
 variable {L}
 
 theorem baseChangeEquiv_tsum_apply_right (l : L) :
-    baseChangeEquiv K L (l ⊗ₜ[K] 1) = algebraMap L (𝔸 L) l :=
-  sorry
+    baseChangeEquiv K L (l ⊗ₜ[K] 1) = algebraMap L (𝔸 L) l := by
+  have h : (l ⊗ₜ[K] (1 : 𝔸 K)) = l • 1 := by
+    simp [Algebra.TensorProduct.one_def, TensorProduct.smul_tmul']
+  simp [h, Algebra.algebraMap_eq_smul_one]
 
 variable (L)
 
