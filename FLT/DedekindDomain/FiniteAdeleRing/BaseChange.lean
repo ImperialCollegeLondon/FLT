@@ -526,11 +526,10 @@ lemma tensorAdicCompletionComapLinearMap_continuous_and_isOpenMap (v : HeightOne
     LinearMap.isOpenMap_of_finiteDimensional _ ?_⟩
   apply tensorAdicCompletionComapLinearMap_surjective
 
+-- TODO : this local instance should not be required, see mathlib PR #22488 for potential fix
 attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
   IsScalarTower.right Algebra.toSMul
 
--- TODO : this local instance should not be required, see mathlib PR #22488 for potential fix
--- attribute [local instance 9999]
 /-- The triangle A → 𝓞_v → K_v commutes. -/
 instance (R K : Type*) [CommRing R] [IsDedekindDomain R] [Field K]
     [Algebra R K] [IsFractionRing R K] (v : HeightOneSpectrum R) :
@@ -801,12 +800,8 @@ noncomputable def tensorAdicCompletionIntegersToLinearMap :
       (L ⊗[K] adicCompletion K v) where
   __ := tensorAdicCompletionIntegersTo A K L B v
   map_smul' x y := by
-    simp only [AlgHom.toRingHom_eq_coe, RingHom.toMonoidHom_eq_coe, AlgHom.toRingHom_toMonoidHom,
-      Algebra.smul_def, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe, MonoidHom.coe_coe, map_mul,
-      RingHom.id_apply]
-    congr
-    show Algebra.TensorProduct.lift _ _ _ (1 ⊗ₜ x) = 1 ⊗ₜ x.val
-    simp
+    simp [Algebra.smul_def, tensorAdicCompletionIntegersTo, RingHom.algebraMap_toAlgebra]
+    rfl
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [Algebra.IsSeparable K L] in
@@ -934,30 +929,19 @@ attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 noncomputable def adicCompletionComapRightAlgEquiv (v : HeightOneSpectrum A) :
     L ⊗[K] v.adicCompletion K ≃ₐ[v.adicCompletion K] (∀ w : v.Extension B, w.1.adicCompletion L)
   where
+    __ := SemialgHom.baseChangeRightOfAlgebraMap (adicCompletionComapSemialgHom' A K L B v)
     __ := adicCompletionComapAlgEquiv A K L B v
-    commutes' r := by
-      have hmap : (algebraMap (v.adicCompletion K) (L ⊗[K] v.adicCompletion K)) r = 1 ⊗ₜ r :=
-        rfl
-      simp [hmap, adicCompletionComapAlgEquiv,
-        tensorAdicCompletionComapAlgHom, SemialgHom.algebraMap_apply]
 
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- The continuous L-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
 noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A) :
     L ⊗[K] v.adicCompletion K ≃A[L] ∀ w : v.Extension B, w.1.adicCompletion L :=
-  let _ := comap_pi_algebra A K L B v |>.toModule
   let _ := comap_pi_algebra A K L B v |>.toSMul
-  let _ : Algebra (v.adicCompletion K) (L ⊗[K] v.adicCompletion K) :=
-    Algebra.TensorProduct.rightAlgebra
   have : IsModuleTopology (v.adicCompletion K) (∀ w : v.Extension B, w.1.adicCompletion L) :=
     prodAdicCompletionComap_isModuleTopology A K L B v
-  have := ModuleTopology.continuousAdd (v.adicCompletion K) (L ⊗[K] v.adicCompletion K)
-  let _ := fun (w : Extension B v) => comap_algebra A K L B w.2 |>.toSMul
   {
-    toAlgEquiv := adicCompletionComapAlgEquiv A K L B v
-    continuous_toFun := IsModuleTopology.continuous_of_linearMap
-          (adicCompletionComapRightAlgEquiv A K L B v).toLinearMap
-    continuous_invFun := IsModuleTopology.continuous_of_linearMap
-          (adicCompletionComapRightAlgEquiv A K L B v).symm.toLinearMap
+    __ := adicCompletionComapAlgEquiv A K L B v
+    __ := IsModuleTopology.continuousAlgEquivOfAlgEquiv (adicCompletionComapRightAlgEquiv A K L B v)
   }
 
 end IsDedekindDomain.HeightOneSpectrum

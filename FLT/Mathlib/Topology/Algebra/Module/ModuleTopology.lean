@@ -420,9 +420,8 @@ theorem t2Space {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Module
     apply IsClosed.preimage <| IsModuleTopology.continuous_of_linearMap (g.comp f)
     exact isClosed_singleton
   ext x
-  simp only [Set.mem_singleton_iff, LinearMap.coe_comp, Set.mem_preimage, Function.comp_apply]
-  rw [← map_zero g, ← map_zero f]
-  exact DFunLike.coe_injective.eq_iff.trans (Module.Free.repr R M).injective.eq_iff
+  simp [map_eq_zero_iff g DFunLike.coe_injective,
+    map_eq_zero_iff f (Module.Free.repr R M).injective]
 
 /-- A vector space with the module topology over a `T2Space` ring is a `T2Space`.
 -/
