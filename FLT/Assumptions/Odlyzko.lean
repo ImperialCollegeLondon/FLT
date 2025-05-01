@@ -12,7 +12,7 @@ was ramified at at least one prime.
 
 In the proof of FLT being formalized, we need stronger bounds which do not follow
 from Minkowski's elementary argument. By analysing the behaviour of the zeros
-of the zeta function of `K`, Odlyzko was able to give stronger bounds. These bounds
+of the zeta function of `K`, Odlyzko was able to give such stronger bounds. These bounds
 were improved by Poitou in his 1977 paper "Sur les petits discriminants".
 Equation 26 of the paper implies the below bound, and an explicit reference for
 it is the table on p17 of the paper (in fact 8.25 can be beefed up to 9.3, but
