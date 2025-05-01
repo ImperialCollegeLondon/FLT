@@ -94,7 +94,7 @@ jobs:
           fi
 
       - name: Build blueprint and copy to `docs/blueprint`
-        uses: xu-cheng/texlive-action@3586544d56723b23ab69aec1e9d73e7220d9c313 # v2
+        uses: xu-cheng/texlive-action@f886de8159e5952a131848a5fa9c3196a2132b5d # v2
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
           run: |
