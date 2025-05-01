@@ -5,9 +5,8 @@ import Mathlib.NumberTheory.NumberField.Embeddings
 
 # Bounds for root discriminants of number fields
 
-Let `K` be a number field of degree `n` over the rationals.
-Minkowski gave a lower bound (depending only on `n`) for the absolute value of
-the discriminant of `K`. Using this bound
+Let `K` be a number field of degree `n` over the rationals. Minkowski gave a lower bound
+(depending only on `n`) for the absolute value of the discriminant of `K`. Using this bound
 he was able to deduce that every number field was ramified at at least one prime.
 
 In the proof of FLT being formalized, we need stronger bounds which do not follow
@@ -44,5 +43,7 @@ The github tracking issue for this assumption is #458 on the FLT github reposito
 -/
 open Polynomial NumberField Module
 
+/-- An "Odlyzko bound" for the root discriminant of a totally complex number field
+of degree 18 and above. -/
 axiom Odlyzko_statement (K : Type*) [Field K] [NumberField K] [IsTotallyComplex K]
-  (hBound : |(discr K : ℝ)| < 8.25 ^ finrank ℚ K) : finrank ℚ K ≤ 17
+  (hdim : finrank ℚ K ≥ 18) : |(discr K : ℝ)| ≥ 8.25 ^ finrank ℚ K
