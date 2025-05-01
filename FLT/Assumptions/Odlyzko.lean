@@ -7,7 +7,8 @@ import Mathlib.NumberTheory.NumberField.Embeddings
 
 Let `K` be a number field of degree `n` over the rationals. Minkowski gave a lower bound
 (depending only on `n`) for the absolute value of the discriminant of `K`. Using this bound
-he was able to deduce that every number field was ramified at at least one prime.
+he was able to deduce that every number field other than the rationals
+was ramified at at least one prime.
 
 In the proof of FLT being formalized, we need stronger bounds which do not follow
 from Minkowski's elementary argument. By analysing the behaviour of the zeros
