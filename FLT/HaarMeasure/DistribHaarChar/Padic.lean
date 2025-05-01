@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Javier López-Contreras
 -/
 import FLT.Mathlib.MeasureTheory.Group.Action
-import FLT.HaarMeasure.DistribHaarChar.Basic
 import FLT.HaarMeasure.MeasurableSpacePadics
+import Mathlib.MeasureTheory.Measure.Haar.DistribChar
 
 /-!
 # The distributive Haar characters of the p-adics
