@@ -6,6 +6,7 @@ Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
+import FLT.Mathlib.NumberTheory.RamificationInertia.Basic
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.UniformRing
@@ -15,9 +16,9 @@ import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.RingTheory.Finiteness.Pi
 import Mathlib.Algebra.Algebra.Subalgebra.Pi
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.Data.Int.WithZero
-import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import Mathlib.Topology.Algebra.Module.ModuleTopology
@@ -903,29 +904,141 @@ theorem comap_integer_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpe
 
 end ModuleTopology
 
+section RamificationInertia
+
+/-- There are only finitely many nonzero primes of B above a nonzero prime of A. -/
+noncomputable def Extension.fintype : Fintype (Extension B v) :=
+  have := Extension.finite A K L B v
+  Fintype.ofFinite <| Extension B v
+
+omit [Algebra.IsSeparable K L] [IsIntegralClosure B A L] [FiniteDimensional K L] in
+/-- `Ideal.sum_ramification_inertia`, rewritten as a sum over extensions. -/
+lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
+    letI := Extension.fintype A K L B v
+    ∑ (w : Extension B v), Ideal.ramificationIdx (algebraMap A B) (v.asIdeal) (w.val.asIdeal)
+      * (v.asIdeal).inertiaDeg (w.val.asIdeal) = Module.finrank K L := by
+  have := v.isMaximal
+  have := noZeroSMulDivisors A K L B
+  -- Use Ideal.sum_ramification_inertia to make this an equivalence of two sums.
+  rw [← Ideal.sum_ramification_inertia B _ K L v.ne_bot]
+  -- Check that the sums match up via a bijection
+  apply Finset.sum_nbij (fun w ↦ w.val.asIdeal)
+  . rintro ⟨a, ha⟩ -
+    rw [← Finset.mem_coe, coe_primesOverFinset v.ne_bot]
+    exact ⟨a.isPrime, ⟨(congr_arg asIdeal ha).symm⟩⟩
+  . apply Function.Injective.injOn
+    exact fun _ _ hw ↦ Subtype.ext <| HeightOneSpectrum.ext hw
+  . intro y hy
+    rw [coe_primesOverFinset v.ne_bot B] at hy
+    obtain ⟨hprime, ⟨hyover⟩⟩ := hy
+    have hybot : y ≠ ⊥ := by
+      rw [Ideal.under_def] at hyover
+      intro hbot
+      apply v.ne_bot
+      rw [hyover, hbot]
+      exact Ideal.comap_bot_of_injective _ (FaithfulSMul.algebraMap_injective _ _)
+    let w' : HeightOneSpectrum B := ⟨y, hprime, hybot⟩
+    have wcomap : comap A w' = v := HeightOneSpectrum.ext hyover.symm
+    let w : Extension B v := ⟨w', wcomap⟩
+    exact ⟨w, by simp, rfl⟩
+  . exact fun _ _ ↦ rfl
+
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
+theorem ramificationIdx_eq_ramificationIdx (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
+    letI := comap_integer_algebra A K L B hvw
+    Ideal.ramificationIdx (algebraMap _ _) (v.completionIdeal K) (w.completionIdeal L)
+      = Ideal.ramificationIdx (algebraMap A B) v.asIdeal w.asIdeal := by
+  -- There's a few of options here:
+  -- 1. Show that the valuation from completing v and the valuations from the maximal ideal in the
+  --    completion are equal and use valued_adicCompletionComap and intValuation_comap to be able
+  --    to equate the ramification indexes.
+  -- 2. Apply Ideal.ramificationIdx_spec and do the calculation by hand
+  -- 3. Try to use the towers (compared to inertiaDeg this is harder and the alternatives are
+  --    easier)
+  sorry -- #231
+
+omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
+theorem inertiaDeg_eq_completion_inertiaDeg (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
+    letI := comap_integer_algebra A K L B hvw
+    v.asIdeal.inertiaDeg w.asIdeal = (v.completionIdeal K).inertiaDeg (w.completionIdeal L) :=
+  -- Either use towers or write some isomorphisms.
+  sorry
+
+-- We use Ideal.sum_ramification_inertia_of_isLocalRing here to show this, but we could make use
+-- of the more general results in BGR:
+-- - in general e * f <= degree (Prop 3.1.3.2 of BGR)
+-- - equality holds for L/K if L is K-cartesian (Prop 3.6.2.4)
+-- - so for example if K is complete and discretely-valued (Cor 2.4.3.11).
+attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
+theorem ramification_mul_inertia_eq_finrank_completion (w : HeightOneSpectrum B)
+    (hvw : w.comap A = v) :
+    letI := comap_algebra A K L B hvw |>.toModule
+    Ideal.ramificationIdx (algebraMap A B) v.asIdeal w.asIdeal * v.asIdeal.inertiaDeg w.asIdeal =
+    Module.finrank (adicCompletion K v) (adicCompletion L w) := by
+  letI := comap_algebra A K L B hvw
+  letI := comap_integer_algebra A K L B hvw
+  have := comap_integer_algebra_finite A K L B v w hvw
+  let hom : (adicCompletionIntegers K v) →+* (adicCompletion L w) :=
+    (algebraMap (adicCompletion K v) (adicCompletion L w)).comp
+      (algebraMap (adicCompletionIntegers K v) (adicCompletion K v))
+  let alg := RingHom.toAlgebra hom
+  letI := alg.toSMul
+  have : IsScalarTower (adicCompletionIntegers K v) (adicCompletionIntegers L w)
+      (adicCompletion L w) := by
+    apply IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
+  have : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v)
+      (adicCompletion L w) := by
+    apply IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
+  rw [← Ideal.sum_ramification_inertia_of_isLocalRing (adicCompletionIntegers L w)
+    (v.completionIdeal K) (adicCompletion K v) (adicCompletion L w) (v.completion_ne_bot K)]
+  rw [ramificationIdx_eq_ramificationIdx A K L B v w hvw,
+    inertiaDeg_eq_completion_inertiaDeg A K L B v w hvw]
+
+end RamificationInertia
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+attribute [local instance 9999] Algebra.toModule in
+/-- `L ⊗[K] K_v` and `∏_{w|v} L_w` have equal dimensions -/
+lemma finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion :
+    letI := comap_pi_algebra A K L B v
+    Module.finrank (adicCompletion K v) (L ⊗[K] adicCompletion K v) =
+    Module.finrank (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
+  letI := Extension.fintype A K L B v
+  letI (w : Extension B v) := comap_algebra A K L B w.prop
+  letI (w : Extension B v) : Module.Finite (adicCompletion K v) (adicCompletion L w.val) :=
+    comap_algebra_finite A K L B v w.val w.prop
+  letI (w : Extension B v) : Module.Free (adicCompletion K v) (adicCompletion L w.val) :=
+    inferInstance
+  have : Module.Finite A B :=
+    have := IsIntegralClosure.isNoetherian A K L B
+    Module.IsNoetherian.finite A B
+  calc Module.finrank (adicCompletion K v) (L ⊗[K] adicCompletion K v)
+    _ = Module.finrank K L := by rw [TensorProduct.finrank_rightAlgebra]
+    _ = ∑ (w : Extension B v), Ideal.ramificationIdx (algebraMap A B) v.asIdeal w.val.asIdeal *
+        Ideal.inertiaDeg v.asIdeal w.val.asIdeal := by
+        rw [Ideal.sum_ramification_inertia_extensions]
+    _ = ∑ (w : Extension B v), Module.finrank (adicCompletion K v) (adicCompletion L w.val) :=
+        Finset.sum_congr rfl fun w _ ↦
+          ramification_mul_inertia_eq_finrank_completion A K L B v w.val w.prop
+    _ = Module.finrank (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) := by
+        rw [Module.finrank_pi_fintype (adicCompletion K v)]
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- The canonical map `L ⊗[K] K_v → ∏_{w|v} L_w` is bijective. -/
 theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
     Function.Bijective (tensorAdicCompletionComapAlgHom A K L B v) := by
   show Function.Bijective (tensorAdicCompletionComapLinearMap A K L B v)
   have hsurj := tensorAdicCompletionComapLinearMap_surjective A K L B v
   refine ⟨?_, hsurj⟩
-  -- ⊢ Function.Injective ⇑(tensorAdicCompletionComapLinearMap_completion A K L B v)
-  -- issue FLT#231; one proof is proof in blueprint at
-  -- https://imperialcollegelondon.github.io/FLT/blueprint/Adele_miniproject.html#IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv
-  -- and another one might be deduce injectivity from a dimension count.
-  -- For that we'd need that local and global e's and f's match up
-  -- (e's we have and f's won't be so hard), and then the statement
-  -- that the local extension is e*f (in general e * f <= degree (Prop 3.1.3.2 of BGR)
-  -- and equality holds for L/K if L is K-cartesian (Prop 3.6.2.4) so for example if K
-  -- is complete and discretely-valued (Cor 2.4.3.11). 
-  sorry
+  have hfin := comap_pi_algebra_finite A K L B v
+  have hrank := finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion A K L B v
+  rwa [LinearMap.injective_iff_surjective_of_finrank_eq_finrank hrank]
 
 /-- The L-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
 noncomputable def adicCompletionComapAlgEquiv (v : HeightOneSpectrum A) :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] (∀ w : v.Extension B, w.1.adicCompletion L) :=
   AlgEquiv.ofBijective (tensorAdicCompletionComapAlgHom A K L B v) <|
     tensorAdicCompletionComapAlgHom_bijective A K L B v
-
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- The continuous K_v-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
@@ -1014,5 +1127,6 @@ noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
   continuous_toFun := sorry
   continuous_invFun := sorry
   -- TODO needs issue number
+
 
 end IsDedekindDomain

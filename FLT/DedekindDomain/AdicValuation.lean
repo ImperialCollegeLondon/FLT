@@ -9,6 +9,7 @@ import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 import FLT.Mathlib.Algebra.Order.GroupWithZero
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.Algebra.Group.Int.TypeTags
+import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.RingTheory.PrincipalIdealDomainOfPrime
 import Mathlib.RingTheory.DiscreteValuationRing.Basic
 
@@ -491,5 +492,22 @@ instance : IsDiscreteValuationRing (𝒪[v.adicCompletion K]) :=
   inferInstanceAs (IsDiscreteValuationRing (v.adicCompletionIntegers K))
 
 end adicCompletion
+
+section InertiaDegree
+
+/-- The maximal ideal of the integers of the completion of `v`. -/
+noncomputable abbrev completionIdeal : Ideal (v.adicCompletionIntegers K) :=
+  IsLocalRing.maximalIdeal (adicCompletionIntegers K v)
+
+lemma completion_ne_bot : completionIdeal K v ≠ ⊥ := IsDiscreteValuationRing.not_a_field _
+
+/-- The unique element of the HeightOneSpectrum of the integers of the completion of `v`. -/
+noncomputable abbrev to_completion :
+    HeightOneSpectrum (v.adicCompletionIntegers K) where
+  asIdeal := completionIdeal K v
+  isPrime := Ideal.IsMaximal.isPrime' _
+  ne_bot := completion_ne_bot K v
+
+end InertiaDegree
 
 end IsDedekindDomain.HeightOneSpectrum
