@@ -224,26 +224,6 @@ theorem denseRange_of_integerAlgebraMap :
   simp only [RingHom.coe_range, ← Set.range_comp']
   rfl
 
-open IsLocalRing in
-/-- The canonical ring homomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
-completion Kᵥ of the field of fractions of A. -/
-noncomputable def ResidueFieldToCompletionResidueField :
-    A ⧸ v.asIdeal →+* ResidueField (v.adicCompletionIntegers K) :=
-  Ideal.quotientMap _ (algebraMap _ _) <| by
-    intro x hx
-    simp only [Ideal.mem_comap, mem_maximalIdeal, mem_nonunits_iff]
-    rw [Valuation.Integer.not_isUnit_iff_valuation_lt_one]
-    change Valued.v (algebraMap A K _ : adicCompletion K v) < 1
-    simp [valuation_lt_one_iff_dvd, hx]
-
-open IsLocalRing in
-/-- The canonical isomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
-completion Kᵥ of the field of fractions K of A. -/
-noncomputable def ResidueFieldEquivCompletionResidueField :
-    A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) :=
-  RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
-  sorry -- issue FLT#449
-
 /-- An element of `𝒪_v` can be approximated by an element of `A`. -/
 theorem exists_adicValued_sub_lt_of_adicCompletionInteger ( x : v.adicCompletionIntegers K )
     ( γ : (WithZero (Multiplicative ℤ))ˣ ) :
@@ -260,6 +240,61 @@ theorem exists_adicValued_sub_lt_of_adicCompletionInteger ( x : v.adicCompletion
   use a
   rw [algebraMap_adicCompletion, Function.comp_apply] at ha
   rwa [ha]
+
+/-- The maximal ideal of the integers of the completion of `v`. -/
+noncomputable abbrev completionIdeal : Ideal (v.adicCompletionIntegers K) :=
+  IsLocalRing.maximalIdeal (adicCompletionIntegers K v)
+
+lemma mem_maximalIdeal_completion_iff (x : v.adicCompletionIntegers K) :
+    x ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers K v) ↔ Valued.v x.val < 1 :=
+  Valuation.mem_maximalIdeal_iff _ _
+
+lemma algebraMap_completionIntegers (x : A) :
+    (algebraMap A (v.adicCompletionIntegers K) x) = (algebraMap A (v.adicCompletion K) x) :=
+  rfl
+
+instance : (v.completionIdeal K).LiesOver v.asIdeal where
+  over := by
+    rw [Ideal.under_def]
+    ext x
+    simp only [Ideal.mem_comap, completionIdeal, mem_maximalIdeal_completion_iff,
+      algebraMap_completionIntegers, valuedAdicCompletion_eq_valuation,
+      valuation_eq_intValuationDef, intValuation_lt_one_iff_dvd, Ideal.dvd_span_singleton]
+
+open IsLocalRing in
+/-- The canonical ring homomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
+completion Kᵥ of the field of fractions of A. -/
+noncomputable def ResidueFieldToCompletionResidueField :
+    A ⧸ v.asIdeal →+* ResidueField (v.adicCompletionIntegers K) :=
+  Ideal.quotientMap _ (algebraMap _ _) <| le_of_eq Ideal.LiesOver.over
+
+open IsLocalRing in
+/-- The canonical isomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
+completion Kᵥ of the field of fractions K of A. -/
+noncomputable def ResidueFieldEquivCompletionResidueField :
+    A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) :=
+  RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
+  ⟨Ideal.quotientMap_injective' <| ge_of_eq Ideal.LiesOver.over,
+    by
+      rintro ⟨x⟩
+      obtain ⟨a, ha⟩ := exists_adicValued_sub_lt_of_adicCompletionInteger K v x 1
+      use a
+      apply Ideal.Quotient.eq.mpr
+      rwa [mem_maximalIdeal_completion_iff]⟩
+
+theorem inertiaDeg_asIdeal_completionIdeal :
+    Ideal.inertiaDeg v.asIdeal (v.completionIdeal K) = 1 := by
+  rw [Ideal.inertiaDeg_algebraMap]
+  have f : (A ⧸ v.asIdeal) ≃ₗ[A ⧸ v.asIdeal]
+      ((adicCompletionIntegers K v) ⧸ completionIdeal K v) := {
+    __ := ResidueFieldEquivCompletionResidueField K v
+    map_smul' := by
+      rintro ⟨x⟩ y
+      rw [Algebra.smul_def, Algebra.smul_def]
+      apply map_mul (ResidueFieldEquivCompletionResidueField K v)
+  }
+  rw [← LinearEquiv.finrank_eq f]
+  exact Module.finrank_self _
 
 /-- An element of `∏_{v ∈ s} 𝒪_v`, with `s` finite, can be approximated by an element of `A`.
 -/
@@ -493,11 +528,6 @@ instance : IsDiscreteValuationRing (𝒪[v.adicCompletion K]) :=
 
 end adicCompletion
 
-section InertiaDegree
-
-/-- The maximal ideal of the integers of the completion of `v`. -/
-noncomputable abbrev completionIdeal : Ideal (v.adicCompletionIntegers K) :=
-  IsLocalRing.maximalIdeal (adicCompletionIntegers K v)
 
 lemma completion_ne_bot : completionIdeal K v ≠ ⊥ := IsDiscreteValuationRing.not_a_field _
 
@@ -508,6 +538,5 @@ noncomputable abbrev to_completion :
   isPrime := Ideal.IsMaximal.isPrime' _
   ne_bot := completion_ne_bot K v
 
-end InertiaDegree
 
 end IsDedekindDomain.HeightOneSpectrum

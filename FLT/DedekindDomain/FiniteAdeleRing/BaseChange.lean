@@ -177,6 +177,12 @@ lemma mk_count_factors_map
         Ideal.dvd_iff_le, Ideal.map_le_iff_le_comap] at H
       apply hw (((Ideal.isPrime_of_prime hp).isMaximal hp_bot).eq_of_le (comap A w).2.ne_top H).symm
 
+lemma ramificationIdx_ne_zero (hAB : Function.Injective (algebraMap A B))
+    (w : HeightOneSpectrum B) :
+    Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal ≠ 0 :=
+  Ideal.IsDedekindDomain.ramificationIdx_ne_zero
+    ((Ideal.map_eq_bot_iff_of_injective hAB).not.mpr (comap A w).3) w.2 Ideal.map_comap_le
+
 /-- If w | v then for a ∈ A we have w(a)=v(a)^e where e is the ramification index. -/
 lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) (x : A) :
@@ -184,9 +190,7 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
     (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) =
     w.intValuation (algebraMap A B x) := by
   classical
-  have h_ne_zero : Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal ≠ 0 :=
-    Ideal.IsDedekindDomain.ramificationIdx_ne_zero
-      ((Ideal.map_eq_bot_iff_of_injective hAB).not.mpr (comap A w).3) w.2 Ideal.map_comap_le
+  have h_ne_zero := ramificationIdx_ne_zero A B hAB w
   by_cases hx : x = 0
   · simpa [hx]
   simp only [intValuation, Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk]
@@ -235,9 +239,8 @@ lemma _root_.IsDedekindDomain.HeightOneSpectrum.adicValued.continuous_algebraMap
   let e : ℤ ≃ ℤₘ₀ˣ := Multiplicative.ofAdd.trans OrderMonoidIso.unitsWithZero.symm.toEquiv
   have e_apply (a : ℤ) : e a = OrderMonoidIso.unitsWithZero.symm (Multiplicative.ofAdd a) := rfl
   have hm : m ≠ 0 := by
-    refine Ideal.IsDedekindDomain.ramificationIdx_ne_zero ?_ w.2 Ideal.map_comap_le
-    exact (Ideal.map_eq_bot_iff_of_injective
-      (algebraMap_injective_of_field_isFractionRing A B K L)).not.mpr (comap A w).3
+    refine ramificationIdx_ne_zero A B ?_ w
+    exact algebraMap_injective_of_field_isFractionRing A B K L
   refine ⟨a / m, fun x hx ↦ ?_⟩
   erw [← valuation_comap A]
   calc
@@ -288,7 +291,6 @@ lemma valued_adicCompletionComap
   subst hvw
   rw [← valuation_comap A K L B w a]
 
-variable [FaithfulSMul A B] in
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
 /-- The canonical map K_v → L_w sends 𝓞_v to 𝓞_w. -/
 lemma adicCompletionComapSemialgHom.mapadicCompletionIntegers (v : HeightOneSpectrum A)
@@ -299,11 +301,7 @@ lemma adicCompletionComapSemialgHom.mapadicCompletionIntegers (v : HeightOneSpec
   rw [SetLike.mem_coe, mem_adicCompletionIntegers] at hx ⊢
   rw [valued_adicCompletionComap A K L B v w hvw]
   rwa [pow_le_one_iff]
-  apply Ideal.IsDedekindDomain.ramificationIdx_ne_zero _ w.isPrime
-  · rw [Ideal.map_le_iff_le_comap]
-    rfl
-  · rw [hvw]
-    apply Ideal.map_ne_bot_of_ne_bot v.ne_bot
+  exact ramificationIdx_ne_zero A B (algebraMap_injective_of_field_isFractionRing A B K L) w
 
 include K L in
 omit [IsDedekindDomain A] [IsIntegralClosure B A L] [FiniteDimensional K L]
@@ -961,8 +959,36 @@ omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
 theorem inertiaDeg_eq_completion_inertiaDeg (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
     letI := comap_integer_algebra A K L B hvw
     v.asIdeal.inertiaDeg w.asIdeal = (v.completionIdeal K).inertiaDeg (w.completionIdeal L) :=
-  -- Either use towers or write some isomorphisms.
-  sorry
+  letI := Algebra.compHom (adicCompletionIntegers L w) (algebraMap A B)
+  letI := comap_integer_algebra A K L B hvw
+  have : IsScalarTower A B (adicCompletionIntegers L w) :=
+    IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
+  have : IsScalarTower A (adicCompletionIntegers K v) (adicCompletionIntegers L w) := by
+    apply IsScalarTower.of_algebraMap_eq
+    intro x
+    ext
+    rw [Algebra.compHom_algebraMap_eq, RingHom.coe_comp, Function.comp_apply,
+      algebraMap_completionIntegers, comap_integer_algebraMap, algebraMap_completionIntegers,
+      IsScalarTower.algebraMap_apply B L (adicCompletion L w),
+      ← IsScalarTower.algebraMap_apply A B L, IsScalarTower.algebraMap_apply A K L]
+    symm
+    apply SemialgHom.commutes
+  have : w.asIdeal.LiesOver v.asIdeal := ⟨hvw ▸ rfl⟩
+  have : (completionIdeal L w).LiesOver (completionIdeal K v) := {
+    over := by
+      rw [Ideal.under_def]
+      ext x
+      rw [Ideal.mem_comap, mem_maximalIdeal_completion_iff, mem_maximalIdeal_completion_iff,
+        comap_integer_algebraMap, valued_adicCompletionComap, pow_lt_one_iff]
+      exact ramificationIdx_ne_zero A B (algebraMap_injective_of_field_isFractionRing A B K L) w
+  }
+  calc v.asIdeal.inertiaDeg w.asIdeal
+      = v.asIdeal.inertiaDeg (w.completionIdeal L) := by
+        rw [Ideal.inertiaDeg_algebra_tower v.asIdeal w.asIdeal (w.completionIdeal L),
+          inertiaDeg_asIdeal_completionIdeal, mul_one]
+    _ = (v.completionIdeal K).inertiaDeg (w.completionIdeal L) := by
+        rw [Ideal.inertiaDeg_algebra_tower v.asIdeal (v.completionIdeal K) (w.completionIdeal L),
+          inertiaDeg_asIdeal_completionIdeal, one_mul]
 
 -- We use Ideal.sum_ramification_inertia_of_isLocalRing here to show this, but we could make use
 -- of the more general results in BGR:
