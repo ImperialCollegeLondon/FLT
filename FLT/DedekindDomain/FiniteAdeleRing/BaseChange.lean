@@ -511,9 +511,10 @@ instance : IsModuleTopology (adicCompletion K v) (L ⊗[K] adicCompletion K v) :
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [IsIntegralClosure B A L] [Algebra.IsSeparable K L] in
-lemma tensorAdicCompletionComapLinearMap_continuous_and_isOpenMap (v : HeightOneSpectrum A) :
-    Continuous (tensorAdicCompletionComapLinearMap A K L B v) ∧
-      IsOpenMap (tensorAdicCompletionComapLinearMap A K L B v) := by
+/-- `tensorAdicCompletionComapLinearMap` is continuous, open and surjective.
+  We later show that it's a homeomorphism. -/
+lemma tensorAdicCompletionComapLinearMap_isOpenQuotientMap (v : HeightOneSpectrum A) :
+    IsOpenQuotientMap (tensorAdicCompletionComapLinearMap A K L B v) := by
   have : T2Space (L ⊗[K] adicCompletion K v) :=
     IsModuleTopology.t2Space' (K := (adicCompletion K v))
   let _ (w : Extension B v) : SMul (adicCompletion K v) (adicCompletion L w.val) :=
@@ -522,9 +523,10 @@ lemma tensorAdicCompletionComapLinearMap_continuous_and_isOpenMap (v : HeightOne
     comap_algebra_continuousSmul A K L B v w.val w.prop
   have := IsModuleTopology.topologicalAddGroup (adicCompletion K v) (L ⊗[K] adicCompletion K v)
   have := comap_pi_algebra_finite A K L B v
-  refine ⟨LinearMap.continuous_of_finiteDimensional _,
-    LinearMap.isOpenMap_of_finiteDimensional _ ?_⟩
-  apply tensorAdicCompletionComapLinearMap_surjective
+  have hsurj := tensorAdicCompletionComapLinearMap_surjective A K L B v
+
+  exact ⟨hsurj, LinearMap.continuous_of_finiteDimensional _,
+    LinearMap.isOpenMap_of_finiteDimensional _ hsurj⟩
 
 -- TODO : this local instance should not be required, see mathlib PR #22488 for potential fix
 attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
@@ -715,7 +717,7 @@ lemma adicCompletionComapAlgHom_map_closure_is_closed :
       (tensorAdicCompletionIntegersTo A K L B v).range.toSubring.toAddSubgroup
   have hSclosed : IsClosed S.carrier := by
     apply AddSubgroup.isClosed_of_isOpen
-    apply (tensorAdicCompletionComapLinearMap_continuous_and_isOpenMap A K L B v).right
+    apply (tensorAdicCompletionComapLinearMap_isOpenQuotientMap A K L B v).isOpenMap
     apply (tensorAdicCompletionIsClopenRange A K L B v).isOpen
   suffices h : (tensorAdicCompletionComapAlgHom A K L B v) ''
     closure ↑(algebraMap B (L ⊗[K] adicCompletion K v)).range = S.carrier by
@@ -753,7 +755,7 @@ theorem adicCompletionComapAlgEquiv_integral :
   rw [AlgHom.range_comp, ← SetLike.coe_set_eq, Subalgebra.coe_map, AlgHom.coe_restrictScalars',
       hlhs, hrhs, hrange, ← IsClosed.closure_eq hrange']
   exact closure_image_closure
-    (tensorAdicCompletionComapLinearMap_continuous_and_isOpenMap A K L B v).left
+    (tensorAdicCompletionComapLinearMap_isOpenQuotientMap A K L B v).continuous
 
 attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
   IsScalarTower.right
@@ -779,8 +781,8 @@ def comap_integer_algebra {v : HeightOneSpectrum A} {w : HeightOneSpectrum B} (h
   (adicCompletionComapIntegerRingHom A K L B v w h).toAlgebra
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
-lemma comap_int_algebraMap {v : HeightOneSpectrum A} {w : HeightOneSpectrum B} (h : w.comap A = v)
-    (x : v.adicCompletionIntegers K) :
+lemma comap_integer_algebraMap {v : HeightOneSpectrum A} {w : HeightOneSpectrum B}
+    (h : w.comap A = v) (x : v.adicCompletionIntegers K) :
     letI := comap_integer_algebra A K L B h
     algebraMap (v.adicCompletionIntegers K) (w.adicCompletionIntegers L) x =
     (adicCompletionComapSemialgHom A K L B v w h) x.val :=
@@ -835,7 +837,7 @@ noncomputable def adicCompletionComapIntegerLinearMap (v : HeightOneSpectrum A)
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 omit [Algebra.IsSeparable K L] in
 /-- The range of `adicCompletionComapIntegerLinearMap` is `𝓞_w`. -/
-lemma adicCompletionComapIntLinearMap_range_eq_integers (v : HeightOneSpectrum A)
+lemma adicCompletionComapIntegerLinearMap_range_eq_integers (v : HeightOneSpectrum A)
     (w : HeightOneSpectrum B) (hvw : comap A w = v) :
     letI := comap_algebra A K L B hvw
     Set.range (adicCompletionComapIntegerLinearMap A K L B v w hvw) =
@@ -870,7 +872,7 @@ attribute [local instance 9999] Algebra.toModule Module.toDistribMulAction
 -- This can be proved for finite extensions of complete discretely valued fields without
 -- reference to underlying fields being completed, but this is sufficient for our
 -- purposes.
-theorem comap_int_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
+theorem comap_integer_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
     (hvw : comap A w = v) :
     letI := comap_integer_algebra A K L B hvw
     Module.Finite (adicCompletionIntegers K v) (adicCompletionIntegers L w) := by
@@ -891,7 +893,7 @@ theorem comap_int_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpectru
   have heq : (LinearMap.range (adicCompletionComapIntegerLinearMap A K L B v w hvw)) =
       integerSubmodule := by
     ext x
-    apply adicCompletionComapIntLinearMap_range_eq_integers A K L B v w hvw |> Set.ext_iff.mp
+    apply adicCompletionComapIntegerLinearMap_range_eq_integers A K L B v w hvw |> Set.ext_iff.mp
   have : Module.Finite A B :=
     have := IsIntegralClosure.isNoetherian A K L B
     Module.IsNoetherian.finite A B
@@ -925,23 +927,23 @@ noncomputable def adicCompletionComapAlgEquiv (v : HeightOneSpectrum A) :
 
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-/-- The K_v-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
-noncomputable def adicCompletionComapRightAlgEquiv (v : HeightOneSpectrum A) :
-    L ⊗[K] v.adicCompletion K ≃ₐ[v.adicCompletion K] (∀ w : v.Extension B, w.1.adicCompletion L)
-  where
-    __ := SemialgHom.baseChangeRightOfAlgebraMap (adicCompletionComapSemialgHom' A K L B v)
-    __ := adicCompletionComapAlgEquiv A K L B v
-
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-/-- The continuous L-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
-noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A) :
-    L ⊗[K] v.adicCompletion K ≃A[L] ∀ w : v.Extension B, w.1.adicCompletion L :=
+/-- The continuous K_v-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
+noncomputable def adicCompletionComapRightContinuousAlgEquiv (v : HeightOneSpectrum A) :
+    L ⊗[K] v.adicCompletion K ≃A[v.adicCompletion K] (∀ w : v.Extension B, w.1.adicCompletion L) :=
   let _ := comap_pi_algebra A K L B v |>.toSMul
   have : IsModuleTopology (v.adicCompletion K) (∀ w : v.Extension B, w.1.adicCompletion L) :=
     prodAdicCompletionComap_isModuleTopology A K L B v
+  IsModuleTopology.continuousAlgEquivOfAlgEquiv {
+    __ := SemialgHom.baseChangeRightOfAlgebraMap (adicCompletionComapSemialgHom' A K L B v)
+    __ := adicCompletionComapAlgEquiv A K L B v
+  }
+
+/-- The continuous L-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
+noncomputable def adicCompletionComapContinuousAlgEquiv (v : HeightOneSpectrum A) :
+    L ⊗[K] v.adicCompletion K ≃A[L] ∀ w : v.Extension B, w.1.adicCompletion L :=
   {
     __ := adicCompletionComapAlgEquiv A K L B v
-    __ := IsModuleTopology.continuousAlgEquivOfAlgEquiv (adicCompletionComapRightAlgEquiv A K L B v)
+    __ := adicCompletionComapRightContinuousAlgEquiv A K L B v
   }
 
 end IsDedekindDomain.HeightOneSpectrum
