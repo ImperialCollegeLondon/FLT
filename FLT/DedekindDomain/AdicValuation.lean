@@ -223,10 +223,12 @@ open IsLocalRing in
 completion Kᵥ of the field of fractions of A. -/
 noncomputable def ResidueFieldToCompletionResidueField :
     A ⧸ v.asIdeal →+* ResidueField (v.adicCompletionIntegers K) :=
-  Ideal.Quotient.lift v.asIdeal
-  ((Ideal.Quotient.mk (maximalIdeal (v.adicCompletionIntegers K))).comp
-    (algebraMap A (v.adicCompletionIntegers K)))
-  sorry -- issue FLT#448
+  Ideal.quotientMap _ (algebraMap _ _) <| by
+    intro x hx
+    simp only [Ideal.mem_comap, mem_maximalIdeal, mem_nonunits_iff]
+    rw [Valuation.Integer.not_isUnit_iff_valuation_lt_one]
+    change Valued.v (algebraMap A K _ : adicCompletion K v) < 1
+    simp [valuation_lt_one_iff_dvd, hx]
 
 open IsLocalRing in
 /-- The canonical isomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the

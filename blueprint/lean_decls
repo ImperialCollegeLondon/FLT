@@ -56,6 +56,7 @@ AutomorphicForm.GLn.IsSmooth
 AutomorphicForm.GLn.IsSlowlyIncreasing
 AutomorphicForm.GLn.Weight
 AutomorphicForm.GLn.AutomorphicFormForGLnOverQ
+NumberField.instCompactSpaceAdicCompletionIntegers
 NumberField.AdeleRing.locallyCompactSpace
 IsDedekindDomain.HeightOneSpectrum.valuation_comap
 IsDedekindDomain.HeightOneSpectrum.adicCompletionComapSemialgHom
@@ -70,6 +71,7 @@ IsDedekindDomain.HeightOneSpectrum.adicCompletionComapContinuousAlgEquiv
 IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral
 IsDedekindDomain.FiniteAdeleRing.mapSemialgHom
 IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv
+IsDedekindDomain.FiniteAdeleRing.baseChangeContinuousAlgEquiv
 NumberField.InfiniteAdeleRing.baseChangeEquiv
 NumberField.AdeleRing.baseChangeEquiv
 Rat.AdeleRing.zero_discrete

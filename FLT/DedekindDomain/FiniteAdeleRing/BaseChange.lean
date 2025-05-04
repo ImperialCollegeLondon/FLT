@@ -855,5 +855,6 @@ noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
   __ := FiniteAdeleRing.baseChangeAlgEquiv A K L B
   continuous_toFun := sorry
   continuous_invFun := sorry
+  -- TODO needs issue number
 
 end IsDedekindDomain
