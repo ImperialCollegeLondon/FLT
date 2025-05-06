@@ -168,13 +168,15 @@ variable (R : Type u) (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)] [Small.{v} R]
 
+
+
 /-- Tensoring with a finitly presented module commutes with arbitrary products. -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
    -- Module.Free R M := by
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
   have := Module.FinitePresentation.exists_fin R M
   choose n K iso fg using this -- why doesn't obtain work?
-  have equiv: (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R)  ⊗[R] N i):= by
+  have equiv: (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R) ⊗[R] N i):= by
     exact tensorPi_equiv_piTensor R (Fin n → R) N
 
   --constructing the exact sequence K → R^k → M
@@ -191,20 +193,17 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     refine (Function.Injective.comp_exact_iff_exact ?_).mpr ?_
     · exact LinearEquiv.injective iso.symm
     · exact LinearMap.exact_subtype_mkQ K
-  let K' : Submodule R ((Fin n → R) ⊗[R] (Π i, N i)) :=
-    LinearMap.range (LinearMap.rTensor ((i : ι) → N i) f)
-  let K'' : Submodule R (Π i, ((Fin n → R) ⊗[R] (N i))) :=
-    Submodule.pi Set.univ (fun i ↦ LinearMap.range (LinearMap.rTensor (N i) f))
   have := rTensor.equiv (Π i, N i) exact surj_g
 
-  --constructing a map from R^m → R^k
+  --constructing a map from R^m → R^n
   choose fin s using fg
   let m := fin.card
   let x := Finset.toList fin
+  --let a (i : Fin m) := fin i
   let gens : Fin m → (Fin n → R) :=
     fun i ↦ List.get x ⟨i.val, by rw [← Eq.symm (Finset.length_toList fin)]; exact i.isLt⟩
   let rel_map : (Fin m → R) →ₗ[R] (Fin n → R) :=
-    {toFun := fun f => ∑ i, f i • gens i,  -- define the action of the map
+    {toFun := fun f => ∑ i, f i • (gens) i,  -- define the action of the map
      map_add' x y := by
       simp only [Pi.add_apply]
       rw [← Finset.sum_add_distrib, Finset.sum_congr rfl]
@@ -216,13 +215,16 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
       intro j hj
       exact mul_smul r (x j) (gens j)
     }
-  have : LinearMap.range rel_map = K := by
-    have (f : Fin m → R) : ∑ i, f i • gens i ∈ K := by
-      rw [← s]
-      refine Submodule.mem_span_set'.mpr ?_
-      use m
-      use f
 
+  have : LinearMap.range rel_map = K := by
+    rw [← s]
+    have h₁ : LinearMap.range rel_map ≤ K := by
+      rintro g ⟨f, rfl⟩
+      dsimp [rel_map]
+      apply Submodule.sum_smul_mem
+      intro i _
+      simp only [gens, x]
+      rw [← s]
 
 
       sorry
@@ -239,6 +241,12 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   sorry
   #exit
 
+
+
+  let K' : Submodule R ((Fin n → R) ⊗[R] (Π i, N i)) :=
+    LinearMap.range (LinearMap.rTensor ((i : ι) → N i) f)
+  let K'' : Submodule R (Π i, ((Fin n → R) ⊗[R] (N i))) :=
+    Submodule.pi Set.univ (fun i ↦ LinearMap.range (LinearMap.rTensor (N i) f))
   --this I plan to delete later it's just to keep tracking easier for me
   have r : K' = LinearMap.range (LinearMap.rTensor ((i : ι) → N i) f)  := rfl
   rw [r.symm] at this
@@ -305,6 +313,17 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   -- let f' : (K ⊗[R] (Π i, N i)) →ₗ[R] ((Fin n → R) ⊗[R] (Π i, N i)) := by
   --   exact (TensorProduct.map f LinearMap.id)
   -- -- think I'll need this later to get my chain of isomorphisms
+
+
+  have : LinearMap.range rel_map = K := by
+    rw [← s]
+
+    have (f : Fin m → R) : ∑ i, f i • gens i ∈ (Submodule.span R ↑fin) := by
+
+      refine Submodule.mem_span_set'.mpr ?_
+      refine ⟨m, f, ?_⟩
+      simp only [gens]
+      rw [List.mem_toFinset]
 
 
 
