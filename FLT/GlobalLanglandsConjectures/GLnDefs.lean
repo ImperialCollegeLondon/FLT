@@ -196,7 +196,7 @@ def actionTensorCAlg'3 : Z G E →ₐ[ℂ] Module.End ℂ C^∞⟮𝓘(ℝ, E), 
 -- Step 3: induced action of centre
 
 variable {n : ℕ}
-structure IsSmooth (f : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ) : Prop where
+structure IsSmooth' (f : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ) : Prop where
   continuous : Continuous f
   loc_cst (y : GL (Fin n) ℝ) :
     IsLocallyConstant (fun x ↦ f (x, y))
@@ -208,7 +208,7 @@ open Matrix
 noncomputable abbrev s (M : Matrix (Fin n) (Fin n) ℝ) : ℝ :=
   (M * M.transpose).trace + (M⁻¹ * M⁻¹.transpose).trace
 
-structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop where
+structure IsSlowlyIncreasing' (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop where
   bounded_by : ∃ (C : ℝ) (N : ℕ),
     ∀ (M : GeneralLinearGroup (Fin n) ℝ),
     ‖f M‖ ≤ C * (s (M : Matrix (Fin n) (Fin n) ℝ)) ^ N
@@ -262,11 +262,11 @@ set_option synthInstance.maxHeartbeats 40000 in
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ
-  is_smooth : IsSmooth toFun
+  is_smooth : IsSmooth' toFun
   is_periodic : ∀ (g : GL (Fin n) ℚ) (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) (y : GL (Fin n) ℝ),
     toFun (RingHom.GL (algebraMap _ _) _ g * x, RingHom.GL (algebraMap _ _) _ g * y) = toFun (x, y)
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
-    IsSlowlyIncreasing (fun y ↦ toFun (x, y))
+    IsSlowlyIncreasing' (fun y ↦ toFun (x, y))
   has_finite_level : ∃ U, IsConstantOn U toFun
   is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     haveI f : C^∞⟮𝓘(ℝ, _), _; 𝓘(ℝ, ℂ), ℂ⟯ := ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩

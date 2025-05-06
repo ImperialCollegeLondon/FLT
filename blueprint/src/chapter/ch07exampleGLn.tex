@@ -29,8 +29,8 @@ topological group, where we are being a bit liberal with our use of the equality
 \section{Smooth functions}
 
 \begin{definition}
-  \label{AutomorphicForm.GLn.IsSmooth}
-  \lean{AutomorphicForm.GLn.IsSmooth}
+  \label{AutomorphicForm.GLn.IsSmooth'}
+  \lean{AutomorphicForm.GLn.IsSmooth'}
   A function $f:\GL_n(\A_{\Q}^f)\times\GL_n(\R)\to\bbC$ is \emph{smooth}
   if it has the following three properties.
 
@@ -56,8 +56,8 @@ $s(M)$ is always positive, and is large if $M$ has a very large or very small
 (in absolute value) eigenvalue.
 
 \begin{definition}
-  \label{AutomorphicForm.GLn.IsSlowlyIncreasing}
-  \lean{AutomorphicForm.GLn.IsSlowlyIncreasing}
+  \label{AutomorphicForm.GLn.IsSlowlyIncreasing'}
+  \lean{AutomorphicForm.GLn.IsSlowlyIncreasing'}
   \leanok
   We say that a function $f:\GL_n(\R)\to\bbC$ is \emph{slowly-increasing}
   if there's some real constant $C$ and positive integer $n$ such that $|f(M)|\leq Cs(M)^n$
@@ -128,7 +128,7 @@ From here on there is no more Lean right now, only LaTeX.
 \begin{definition}
   \label{AutomorphicForm.GLn.AutomorphicFormForGLnOverQ}
   \lean{AutomorphicForm.GLn.AutomorphicFormForGLnOverQ}
-  \uses{AutomorphicForm.GLn.IsSmooth, AutomorphicForm.GLn.IsSlowlyIncreasing,
+  \uses{AutomorphicForm.GLn.IsSmooth', AutomorphicForm.GLn.IsSlowlyIncreasing',
     AutomorphicForm.GLn.Weight, instCentreAction}
   A smooth function $f:\GL_n(\A_{\Q}^f)\times\GL_n(\R)\to\bbC$ is
   an $O_n(\R)$-\emph{automorphic form} on $\GL_n(\A_{\Q})$ if it satisfies the following

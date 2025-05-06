@@ -52,8 +52,8 @@ Hurwitz.quot_rem
 Hurwitz.left_ideal_princ
 Hurwitz.canonicalForm
 Hurwitz.completed_units
-AutomorphicForm.GLn.IsSmooth
-AutomorphicForm.GLn.IsSlowlyIncreasing
+AutomorphicForm.GLn.IsSmooth'
+AutomorphicForm.GLn.IsSlowlyIncreasing'
 AutomorphicForm.GLn.Weight
 AutomorphicForm.GLn.AutomorphicFormForGLnOverQ
 NumberField.instCompactSpaceAdicCompletionIntegers
