@@ -26,10 +26,8 @@ open IsLocalRing
 
 instance NumberField.instFiniteResidueFieldAdicCompletionIntegers :
     Finite (ResidueField (v.adicCompletionIntegers K)) := by
-    apply (
-      IsDedekindDomain.HeightOneSpectrum.ResidueFieldEquivCompletionResidueField (v := v) (K  := K)
-    ).toEquiv.finite_iff.mp
-    apply Ideal.finiteQuotientOfFreeOfNeBot v.asIdeal v.ne_bot
+  apply (HeightOneSpectrum.ResidueFieldEquivCompletionResidueField K v).toEquiv.finite_iff.mp
+  exact Ideal.finiteQuotientOfFreeOfNeBot v.asIdeal v.ne_bot
 
 instance NumberField.instCompactSpaceAdicCompletionIntegers :
     CompactSpace (v.adicCompletionIntegers K) := sorry -- issue FLT#451
