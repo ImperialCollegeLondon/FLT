@@ -7,7 +7,8 @@ import Mathlib.LinearAlgebra.DirectSum.Finsupp
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Algebra.Module.FinitePresentation
 import Mathlib.LinearAlgebra.Quotient.Pi
-
+import Mathlib.Algebra.FiveLemma
+import Mathlib.LinearAlgebra.TensorProduct.Pi
 /-!
 
 # Tensor product commutes with direct product when tensoring with a finite free module
@@ -24,7 +25,41 @@ If `M` is a finite free module and `Nᵢ` is an indexed collection of modules of
 Prove the same for finitely-presented modules.
 
 -/
-open DirectSum
+open DirectSum Function
+
+section test
+
+theorem Module.FinitePresentation.exists_fin_exact (R : Type*) (M : Type*)
+  [Ring R] [AddCommGroup M] [Module R M] [fp : Module.FinitePresentation R M] :
+  ∃ (n m : ℕ) (f : (Fin m → R) →ₗ[R] (Fin n → R)) (g : (Fin n → R) →ₗ[R] M),
+    Exact f g ∧ Surjective g := by
+
+  choose n K x KFG using Module.FinitePresentation.exists_fin R M
+
+  unfold Submodule.FG at KFG
+
+  choose S hS using KFG
+
+  let m : ℕ := S.card
+
+  let f : (Fin m → R) →ₗ[R] (Fin n → R) := by sorry
+
+  let g : (Fin n → R) →ₗ[R] M := by
+    sorry
+
+  have exact_fg : Exact f g := by
+    unfold Exact
+    sorry
+
+  have : Surjective g := by
+    unfold Surjective
+    sorry
+--  refine ⟨n, m, ?_, ?_⟩
+
+  sorry
+
+end test
+
 
 section
 
@@ -168,7 +203,72 @@ variable (R : Type u) (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)] [Small.{v} R]
 
+--Module.FinitePresentation.exists_fin_exact
 
+
+/-- Tensoring with a finitly presented module commutes with arbitrary products. -/
+noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
+   -- Module.Free R M := by
+    M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
+  choose n m f g exact surj using Module.FinitePresentation.exists_fin_exact R M
+
+  set M1 := (Fin m → R) ⊗[R] (Π i, N i)
+  set M2 := (Fin n → R) ⊗[R] (Π i, N i)
+  set M3 := M ⊗[R] (Π i, N i)
+  show M3 ≃ₗ[R] _
+  set M4 := (⊥ : Submodule R M) ⊗[R] (Π i, N i)
+  set M5 := (⊥ : Submodule R M) ⊗[R] (Π i, N i)
+
+  set N1 := Π i, ((Fin m → R) ⊗[R] N i)
+  set N2 := Π i, ((Fin n → R) ⊗[R] N i)
+  set N3 := Π i, (M ⊗[R] N i)
+  set N4 := Π i, (⊥ : Submodule R M) ⊗[R] N i
+  set N5 := Π i, (⊥ : Submodule R M) ⊗[R] N i
+
+  have equiv1 : (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R) ⊗[R] N i):=
+    tensorPi_equiv_piTensor R (Fin n → R) N
+  have equiv2 : (Fin m → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin m → R) ⊗[R] N i):=
+    tensorPi_equiv_piTensor R (Fin m → R) N
+
+  set i₁ : M1 →ₗ[R] N1 := equiv2.toLinearMap
+  set i₂ : M2 →ₗ[R] N2 := equiv1.toLinearMap
+  let i₃ : M3 →ₗ[R] N3 := TensorProduct.piRightHom R R M N
+  let i₄ : M4 →ₗ[R] N4 := by sorry  -- map to zero to zero
+  let i₅ : M5 →ₗ[R] N5 := by sorry  -- map to zero to zero
+
+  let f₁ : M1 →ₗ[R] M2 := f.rTensor (Π i, N i)
+  let f₂ : M2 →ₗ[R] M3 := g.rTensor (Π i, N i)
+  let f₃ : M3 →ₗ[R] M4 := sorry -- map to zero
+  let f₄ : M4 →ₗ[R] M5 := by sorry -- map to zero to zero
+
+  let g₁ : N1 →ₗ[R] N2 := sorry -- need to make map
+  let g₂ : N2 →ₗ[R] N3 := by sorry -- need to make map
+  let g₃ : N3 →ₗ[R] N4 := by sorry -- map to zero
+  let g₄ : N4 →ₗ[R] N5 := by sorry -- map to zero to zero
+
+  have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := sorry
+  have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := sorry
+  have hc₃ : g₃ ∘ₗ i₃ = i₄ ∘ₗ f₃ := sorry
+  have hc₄ : g₄ ∘ₗ i₄ = i₅ ∘ₗ f₄ := sorry
+
+  have hf₁ : Function.Exact ⇑f₁ ⇑f₂ := sorry
+  have hf₂ : Function.Exact ⇑f₂ ⇑f₃ := sorry
+  have hf₃ : Function.Exact ⇑f₃ ⇑f₄ := sorry
+  have hg₁ : Function.Exact ⇑g₁ ⇑g₂ := sorry
+  have hg₂ : Function.Exact ⇑g₂ ⇑g₃ := sorry
+  have hg₃ : Function.Exact ⇑g₃ ⇑g₄ := sorry
+  have hi₁ : Function.Surjective ⇑i₁ := sorry
+  have hi₂ : Function.Bijective ⇑i₂ := sorry
+  have hi₄ : Function.Bijective ⇑i₄ := sorry
+  have hi₅ : Function.Injective ⇑i₅ := sorry
+
+  have := LinearMap.bijective_of_surjective_of_bijective_of_bijective_of_injective
+    f₁ f₂ f₃ f₄ g₁ g₂ g₃ g₄ i₁ i₂ i₃ i₄ i₅
+    hc₁ hc₂ hc₃ hc₄ hf₁ hf₂ hf₃ hg₁ hg₂ hg₃ hi₁ hi₂ hi₄ hi₅
+
+  exact IsTensorProduct.equiv this
+
+#exit
 
 /-- Tensoring with a finitly presented module commutes with arbitrary products. -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
