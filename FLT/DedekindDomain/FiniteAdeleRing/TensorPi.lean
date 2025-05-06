@@ -6,6 +6,7 @@ Authors: Madison Crim
 import Mathlib.LinearAlgebra.DirectSum.Finsupp
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Algebra.Module.FinitePresentation
+import Mathlib.LinearAlgebra.Quotient.Pi
 
 /-!
 
@@ -167,45 +168,167 @@ variable (R : Type u) (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)] [Small.{v} R]
 
-
 /-- Tensoring with a finitly presented module commutes with arbitrary products. -/
-noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] [Small.{v} R]:
+noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
    -- Module.Free R M := by
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
   have := Module.FinitePresentation.exists_fin R M
   choose n K iso fg using this -- why doesn't obtain work?
-  have : (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R)  ⊗[R] N i):= by
+  have equiv: (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R)  ⊗[R] N i):= by
     exact tensorPi_equiv_piTensor R (Fin n → R) N
-  --constructing the exact sequence K ⊗ Π N i → R^n ⊗ Π N i → M ⊗ Π N i → 0
-  --first need the embedding from K → R ^ n
-  -- think we may need to construct a R^m s.t. R^m → R^k has image K
-  choose s hs using fg
-  let m := s.card
-  let φ : (Fin m → R) →ₗ[R] (Fin n → R) := sorry
 
-
+  --constructing the exact sequence K → R^k → M
   let f : K →ₗ[R] (Fin n → R) := K.subtype
   let π : (Fin n → R) →ₗ[R] (Fin n → R) ⧸ K := Submodule.mkQ K
   let g' := iso.symm.toLinearMap
   let g : (Fin n → R) →ₗ[R] M := g'.comp π
   have inj_f : Function.Injective f := Submodule.injective_subtype K
-  have surj_g : Function.Surjective g := sorry
+  have surj_g : Function.Surjective g := by
+    unfold g g'
+    simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, EquivLike.comp_surjective]
+    exact Submodule.mkQ_surjective K
   have exact : Function.Exact f g := by
     refine (Function.Injective.comp_exact_iff_exact ?_).mpr ?_
     · exact LinearEquiv.injective iso.symm
     · exact LinearMap.exact_subtype_mkQ K
+  let K' : Submodule R ((Fin n → R) ⊗[R] (Π i, N i)) :=
+    LinearMap.range (LinearMap.rTensor ((i : ι) → N i) f)
+  let K'' : Submodule R (Π i, ((Fin n → R) ⊗[R] (N i))) :=
+    Submodule.pi Set.univ (fun i ↦ LinearMap.range (LinearMap.rTensor (N i) f))
+  have := rTensor.equiv (Π i, N i) exact surj_g
 
-  --now tensor above with Π N i
-  let f' : (K ⊗[R] (Π i, N i)) →ₗ[R] ((Fin n → R) ⊗[R] (Π i, N i)) := by
-    exact (TensorProduct.map f LinearMap.id)
-  -- think I'll need this later to get my chain of isomorphisms
-  let K' : Submodule R ((Fin n → R) ⊗[R] (Π i, N i)) := LinearMap.range f'
+  --constructing a map from R^m → R^k
+  choose fin s using fg
+  let m := fin.card
+  let x := Finset.toList fin
+  let gens : Fin m → (Fin n → R) :=
+    fun i ↦ List.get x ⟨i.val, by rw [← Eq.symm (Finset.length_toList fin)]; exact i.isLt⟩
+  let rel_map : (Fin m → R) →ₗ[R] (Fin n → R) :=
+    {toFun := fun f => ∑ i, f i • gens i,  -- define the action of the map
+     map_add' x y := by
+      simp only [Pi.add_apply]
+      rw [← Finset.sum_add_distrib, Finset.sum_congr rfl]
+      intro j hj
+      exact add_smul (x j) (y j) (gens j)
+     map_smul' r x := by
+      simp only [Pi.smul_apply, smul_eq_mul, RingHom.id_apply]
+      rw [Finset.smul_sum, Finset.sum_congr rfl]
+      intro j hj
+      exact mul_smul r (x j) (gens j)
+    }
+  have : LinearMap.range rel_map = K := by
+    have (f : Fin m → R) : ∑ i, f i • gens i ∈ K := by
+      rw [← s]
+      refine Submodule.mem_span_set'.mpr ?_
+      use m
+      use f
 
 
+
+      sorry
+
+
+
+    sorry
+  have : LinearMap.ker g = K := by
+    unfold g g'
+    simp only [LinearEquiv.ker_comp]
+    exact Submodule.ker_mkQ K
+
+
+  sorry
+  #exit
+
+  --this I plan to delete later it's just to keep tracking easier for me
+  have r : K' = LinearMap.range (LinearMap.rTensor ((i : ι) → N i) f)  := rfl
+  rw [r.symm] at this
+
+  -- this next have isn't quite what I want, need to rework it
+  --have := LinearEquiv.piCongrRight (fun i ↦ rTensor.equiv (N i) exact surj_g)
+
+  -- iso' reworks my isomorphism so the product behaves with the quotient
+  -- how I want but seems like more code than what should be necessary
+  let surj' : (Π i, ((Fin n → R) ⊗[R] (N i))) →ₗ[R] Π i, M ⊗[R] N i :=
+    IsLinearMap.mk' (fun a i ↦ (LinearMap.rTensor (N i) g) (a i)) ({
+      map_add x y := by
+        simp only [Pi.add_apply, map_add]
+        rfl,
+      map_smul r x := by
+        simp only [Pi.smul_apply, map_smul]
+        rfl})
+  have surj_surj' : Function.Surjective surj' :=
+    Function.Surjective.piMap (fun i ↦ LinearMap.rTensor_surjective (N i) surj_g)
+  have iso' := LinearMap.quotKerEquivOfSurjective surj' surj_surj'
+
+  have equiv' := Submodule.Quotient.equiv K' (Submodule.map equiv K') equiv rfl
+  let map : (Π i, (K ⊗[R] (N i))) →ₗ[R] Π i, (Fin n → R) ⊗[R] N i :=
+    IsLinearMap.mk' (fun a i ↦ (LinearMap.rTensor (N i) f) (a i)) ({
+      map_add x y := by
+        simp only [Pi.add_apply, map_add]
+        rfl,
+      map_smul r x := by
+        simp only [Pi.smul_apply, map_smul]
+        rfl})
+  -- let map' : (Π i, (K ⊗[R] (N i))) →ₗ[R] Π i, (Fin n → R) ⊗[R] N i  := by
+  --   have (i: ι) := LinearMap.proj i (R:=R) (φ := (K ⊗[R] (N i)))
+  --   have (i : ι):= LinearMap.comp (LinearMap.rTensor (N i) f) this
+  have : LinearMap.ker surj' = ⨅(i : ι), LinearMap.ker (LinearMap.rTensor (N i) g) := by
+    unfold surj'
+    have :  (LinearMap.ker surj' = Πi,LinearMap.ker (LinearMap.rTensor (N i) g)) ↔
+      (x ∈ LinearMap.ker surj' ↔ x ∈  Πi, LinearMap.ker (LinearMap.rTensor (N i) g)) := sorry
+    simp only [LinearMap.mem_ker, IsLinearMap.mk'_apply]
+    have : (Πi,LinearMap.ker (LinearMap.rTensor (N i) g)) =
+      Πi, { x // ((LinearMap.rTensor (N i) g) (x)) = 0 } := rfl
+    rw [this]
+
+    sorry
+
+
+
+  have exact' : Function.Exact map surj' := by
+    refine LinearMap.exact_iff.mpr ?_
+    refine Submodule.ext_iff.mpr ?_
+    intro x
+    constructor
+    · intro h
+      have :  ∀i, x i ∈ LinearMap.ker (LinearMap.rTensor (N i) g) := by
+        intro i
+        apply?
+
+
+  -- have sub : introSubmodule.map equiv K' = LinearMap.ker surj' := by
+  --   apply?
+
+  -- ∏ (R^n ⊗ Ni)/ ∏ ranges this is what I want
+  --let ψ := Πi, LinearMap.rTensor (N i) f
+
+  -- let f' : (K ⊗[R] (Π i, N i)) →ₗ[R] ((Fin n → R) ⊗[R] (Π i, N i)) := by
+  --   exact (TensorProduct.map f LinearMap.id)
+  -- -- think I'll need this later to get my chain of isomorphisms
+
+
+
+
+
+    --Π i, LinearMap.range (LinearMap.rTensor (N i) f)
+  --have : (Π i, (Fin n → R) ⊗[R] N i) ⧸ K' ≃ₗ[R] (Π i, M ⊗[R] N i) := sorry
+  -- have h₁ : K' = LinearMap.range (LinearMap.rTensor ((i : ι) → N i) f) := sorry
+  -- --have h₂
+
+  -- let a := (Πi,  ((Fin n → R)⊗[R] (N i))) ⧸K''
+  -- let b :=
+  --   Π i, ((Fin n → R) ⊗[R] (N i) ⧸ LinearMap.range (LinearMap.rTensor (N i) f))
+  -- have : a ≃ₗ[R] b := by
+  --   unfold a b K''
+  --   apply?
+
+  sorry
+  -- have this (Fin n → R) ⊗[R] ((i : ι) → N i) ⧸ K') ≅ M ⊗ Π N i
+  -- want this Πi, (R^n ⊗ N i) / (Submodule.map equiv K) ≅ ∏ M ⊗ Ni
+  -- R^n ⊗ Ni / LinearMap.range (LinearMap.rTensor (N i) f) ≅ M ⊗ Ni
+  -- have this Π [(R^n ⊗ N i) / range] ≅ Π M ⊗ N i
 
   --have : M ⊗[R] (Π i, N i) ≃ₗ[R] ((Fin n → R) ⊗[R] (Π i, N i) ⧸ (K ⊗[R] (Π i, N i))) := sorry
 
 
   --obtain ⟨s, hs, hs'⟩ := h
-
-  sorry
