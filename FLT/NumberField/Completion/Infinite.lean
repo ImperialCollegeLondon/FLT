@@ -84,11 +84,12 @@ abbrev baseChangeRight :
 
 variable [NumberField L]
 
--- upstreaming this to mathlib instead
 theorem finrank_pi_eq_finrank_tensorProduct :
     Module.finrank v.Completion ((w : v.ExtensionPlace L) → w.1.Completion) =
       Module.finrank v.Completion (L ⊗[K] v.Completion) := by
   sorry
+  --rw [FiniteDimensional.finrank_tensorProduct, FiniteDimensional.finrank_self,
+    --finrank_prod_eq_finrank, one_mul]
 
 open scoped Classical in
 theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
