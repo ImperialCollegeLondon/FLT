@@ -35,6 +35,7 @@ variable (D : Type*) [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
 namespace NumberField.AdeleRing.DivisionAlgebra.Aux
 
 set_option quotPrecheck false in
+/-- `D_𝔸` is notation for `D ⊗[K] 𝔸_K`. -/
 notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
 
 instance : Algebra (AdeleRing (𝓞 K) K) D_𝔸 :=
@@ -43,6 +44,7 @@ instance : Algebra (AdeleRing (𝓞 K) K) D_𝔸 :=
 -- Ruben did this somewhere TODO
 instance : Module.Finite (AdeleRing (𝓞 K) K) D_𝔸 := sorry
 
+/-- The module topology on `D_𝔸`. -/
 local instance : TopologicalSpace D_𝔸 :=
   moduleTopology (AdeleRing (𝓞 K) K) _
 
@@ -61,6 +63,7 @@ lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   sorry
 
+/-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
 def E : Set D_𝔸 := (existsE K D).choose
 
 lemma E_compact : IsCompact (E K D) := (existsE K D).choose_spec.1
@@ -71,15 +74,18 @@ lemma E_noninjective : ∀ x ∈ distribHaarChar.ker D_𝔸,
   (existsE K D).choose_spec.2
 
 open scoped Pointwise in
+/-- An auxiliary set X used in the proof of Fukisaki's lemma. Defined as E - E. -/
 def X : Set D_𝔸 := E K D - E K D
 
 open scoped Pointwise in
+/-- An auxiliary set Y used in the proof of Fukisaki's lemma. Defined as X * X. -/
 def Y : Set D_𝔸 := X K D * X K D
 
 lemma X_compact : IsCompact (X K D) := sorry
 
 lemma Y_compact : IsCompact (Y K D) := sorry
 
+/-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
 noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
@@ -89,12 +95,14 @@ lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
 lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := sorry
 
+/-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
 
 lemma T_finite : Set.Finite (T K D) :=
   sorry
 
 open scoped Pointwise in
+/-- An auxiliary set C used in the proof of Fukisaki's lemma. Defined as T⁻¹X × X. -/
 def C : Set (D_𝔸 × D_𝔸) := ((((↑) : D_𝔸ˣ → D_𝔸) '' (T K D)⁻¹) * X K D) ×ˢ X K D
 
 lemma C_compact : IsCompact (C K D) :=
@@ -118,6 +126,7 @@ instance : Algebra (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 
 -- this is in FLT somewhere
 instance : Module.Finite (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := sorry
 
+/-- The 𝔸_K^∞-module topology on D ⊗ 𝔸_K^∞-/
 local instance : TopologicalSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
   moduleTopology (FiniteAdeleRing (𝓞 K) K) _
 
@@ -131,11 +140,14 @@ instance : IsTopologicalRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
 
 variable [Algebra.IsCentral K D]
 
+/-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
 abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 
+/-- The inclusion Dˣ → (D ⊗ 𝔸_K^∞)ˣ as a group homomorphism. -/
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
+/-- The inclusion 𝔸_K^∞ˣ → (D ⊗ 𝔸_K^∞)ˣ as a group homomorphism. -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 K) K)ˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeRight.toMonoidHom
 

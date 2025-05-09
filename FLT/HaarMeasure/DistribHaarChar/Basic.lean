@@ -34,6 +34,9 @@ variable {G A : Type*} [Group G] [AddCommGroup A] [DistribMulAction G A] [Measur
   {g : G} [μ.IsAddHaarMeasure] [ν.IsAddHaarMeasure]
 
 variable (μ A) in
+/-- `distribHaarChar A : G →* ℝ≥0` is the factor by which the action
+of `G` on the locally compact additive abelian group `A` scales
+Haar measure. -/
 @[simps -isSimp]
 noncomputable def distribHaarChar : G →* ℝ≥0 where
   toFun g := addHaarScalarFactor (DomMulAct.mk g • addHaar) (addHaar (G := A))
@@ -89,6 +92,8 @@ section ring
 variable (R : Type*) [Ring R] [MeasurableSpace R] [TopologicalSpace R] [BorelSpace R]
   [IsTopologicalAddGroup R] [LocallyCompactSpace R]
 
+/-- The σ-algebra on Rˣ coming from pulling back the σ-algebra on R × R along the usual
+embedding g ↦ (g,g⁻¹). -/
 local instance : MeasurableSpace Rˣ := MeasurableSpace.comap (Units.embedProduct R) inferInstance
 
 local instance : MeasurableSMul Rˣ R := sorry -- TODO need advice from measure theorists
