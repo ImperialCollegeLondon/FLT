@@ -286,7 +286,7 @@ theorem card_eq [NumberField L] :
       Fintype.card { ψ : L →+* ℂ // IsUnmixedExtension v.embedding ψ } := by
   rw [← Fintype.card_eq.2 ⟨equivIsUnmixedExtension L v⟩]
 
-instance (w : v.UnramifiedExtension L) [v.Real] [w.1.Real] :
+instance (w : v.UnramifiedExtension L) [v.Real] :
     IsLift L v w where
   isExtension' := by
     rw [← congrArg embedding w.comap_eq,
@@ -521,6 +521,7 @@ def algEquivComplex [w.1.Complex] [IsLift L v w] :
   w.1.Completion ≃ₐ[v.Completion] ℂ :=
   algEquivComplexOfComplex w.1 |>.restrictScalars v.Completion
 
+@[nolint unusedArguments]
 instance [IsConjugateLift L v w] : Algebra w.1.Completion ℂ :=
   algebraComplexStar w.1
 

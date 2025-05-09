@@ -287,9 +287,13 @@ abbrev UnramifiedExtension (v : InfinitePlace K) :=
 
 variable {L v}
 
+/-- Construct a `v.RamifiedExtension L` term from a `w : v.Extension L` such that
+`w.1.IsRamified K`. -/
 def Extension.toRamifiedExtension {w : v.Extension L} (h : w.1.IsRamified K) :
     v.RamifiedExtension L := ⟨w.1, ⟨w.2, h⟩⟩
 
+/-- Construct a `v.UnramifiedExtension L` term from a `w : v.Extension L` such that
+`w.1.IsUnramified K`. -/
 def Extension.toUnramifiedExtension {w : v.Extension L} (h : w.1.IsUnramified K) :
     v.UnramifiedExtension L := ⟨w.1, ⟨w.2, h⟩⟩
 
