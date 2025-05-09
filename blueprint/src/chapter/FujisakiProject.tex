@@ -248,13 +248,10 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
   We are done!
 \end{proof}
 
-We can now prove Fujisaki's theorem.
+We can now prove Fujisaki's theorem~\ref{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}.
 
-\begin{theorem}
-  \label{NumberField.AdeleRing.DivisionAlgebra.units_cocompact}
-  $D^\times\backslash D_{\A}^{(1)}$ is compact.
-\end{theorem}
 \begin{proof}
+  \proves{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
   \uses{DistribHaarChar.continuous, NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_K,
   Y_meet_units_D}
   Indeed, if $M$ is the preimage of $K$ under the map $D_{\A}^{(1)} \to D_{\A}\times D_{\A}$
@@ -269,12 +266,12 @@ We can now prove Fujisaki's theorem.
 We note here a useful consequence.
 
 \begin{theorem}
-  \label{NumberField.AdeleRing.DivisionAlgebra.units_cocompact'}
+  \label{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}
   $D^\times\backslash(D\otimes_K\A_K^\infty)^\times$ is compact.
 \end{theorem}
 \begin{proof}
-  \uses{NumberField.AdeleRing.DivisionAlgebra.units_cocompact}
-  There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
+  \uses{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
+There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
   $D^\times\backslash (D\otimes_K \A_K^\infty)^\times$. We claim that it's
   surjective. Granted this claim, we are home, because if we put the quotient
   topology on $D^\times\backslash (D\otimes_K \A_K^\infty)^\times$ coming from
