@@ -1,4 +1,5 @@
 import Mathlib.Algebra.Algebra.Bilinear
+import Mathlib.LinearAlgebra.Basis.VectorSpace
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Algebra.Equiv
@@ -400,3 +401,32 @@ def continuousAlgEquivOfAlgEquiv {A B R : Type*} [TopologicalSpace A]
   continuous_invFun :=
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
+
+/-- A free module with the module topology over a `T2Space` ring is a `T2Space`.
+-/
+theorem t2Space {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Module.Free R M]
+    [TopologicalSpace R] [TopologicalSpace M] [T2Space R]
+    [ContinuousAdd R] [ContinuousMul R] [IsModuleTopology R M]
+    : T2Space M := by
+  have := IsModuleTopology.topologicalAddGroup R M
+  rw [IsTopologicalAddGroup.t2Space_iff_zero_closed]
+  let f := Module.Free.repr R M |>.toLinearMap
+  let g : (Module.Free.ChooseBasisIndex R M →₀ R) →ₗ[R] (Module.Free.ChooseBasisIndex R M → R) := {
+    __ := Finsupp.coeFnAddHom
+    map_smul' _ _ := rfl
+  }
+  suffices hpre : (g.comp f) ⁻¹' {0} = {0}  by
+    rw [← hpre]
+    apply IsClosed.preimage <| IsModuleTopology.continuous_of_linearMap (g.comp f)
+    exact isClosed_singleton
+  ext x
+  simp [map_eq_zero_iff g DFunLike.coe_injective,
+    map_eq_zero_iff f (Module.Free.repr R M).injective]
+
+/-- A vector space with the module topology over a `T2Space` ring is a `T2Space`.
+-/
+theorem t2Space' {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
+    [TopologicalSpace K] [TopologicalSpace V] [T2Space K]
+    [ContinuousAdd K] [ContinuousMul K] [mt : IsModuleTopology K V]
+    : T2Space V := by
+  apply t2Space (R := K)
