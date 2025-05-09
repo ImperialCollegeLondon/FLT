@@ -435,7 +435,7 @@ theorem eq_pow_uniformizer_mul_unit {x : v.adicCompletionIntegers K} (hx : x ≠
 
 open scoped algebraMap in
 theorem maximalIdeal_eq_span_uniformizer {π : v.adicCompletionIntegers K}
-    (hπ : Valued.v π.1 = Multiplicative.ofAdd (-1 : ℤ)):
+    (hπ : Valued.v π.1 = Multiplicative.ofAdd (-1 : ℤ)) :
     IsLocalRing.maximalIdeal (v.adicCompletionIntegers K) =
       Ideal.span {(π : v.adicCompletionIntegers K)} := by
   refine (IsLocalRing.maximalIdeal.isMaximal _).eq_of_le
