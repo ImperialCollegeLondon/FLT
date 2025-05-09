@@ -987,6 +987,9 @@ noncomputable
 instance BaseChange.algebra : Algebra (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
   RingHom.toAlgebra (FiniteAdeleRing.mapRingHom A K L B)
 
+lemma FiniteAdeleRing.mapSemialgHom_continuous : Continuous (mapSemialgHom A K L B) :=
+  sorry
+
 attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
 -- otherwise
 -- #synth SMul (FiniteAdeleRing A K) (FiniteAdeleRing B L)
@@ -1014,5 +1017,16 @@ noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
   continuous_toFun := sorry
   continuous_invFun := sorry
   -- TODO needs issue number
+
+noncomputable instance baseChangeAlgebra : Algebra K (FiniteAdeleRing B L) :=
+  RingHom.toAlgebra <| (algebraMap L _).comp (algebraMap K L)
+
+noncomputable instance baseChangeScalarTower :
+    IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L) := by
+  apply IsScalarTower.of_algebraMap_eq
+  intro x
+  nth_rw 2 [RingHom.algebraMap_toAlgebra]
+  symm
+  exact SemialgHom.commutes (FiniteAdeleRing.mapSemialgHom A K L B) x
 
 end IsDedekindDomain
