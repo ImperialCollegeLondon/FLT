@@ -18,17 +18,6 @@ embeddings `w.embedding` and `v.embedding`:
   `w.embedding` extends `v.embedding`.
 - `v` and `w` are both complex, and `conjugate w.embedding` extends `v.embedding`.
 
-To navigate these cases this file provides:
-- predicates on extensions of complex embeddings which define extensions (`IsExtension`) and
-  analogues (`IsMixedExtension` and `IsUnmixedExtension`) of ramification for complex embeddings;
-- the type of infinite place extensions, and subtypes of ramified
-  and unramified extensions.
-- Class analogues (`Real` and `Complex`) of `InfinitePlace.IsReal` and `InfinitePlace.IsComplex`.
-  This is to aid type class resolution for various algebra instances in the above four cases.
-- For a supplied extension `w` of `v`, classes `IsLift` and `IsConjugateLift` that encode
-  whether the `w.embedding` extends `v.embedding` or `conjugate w.embedding` extends `v.embedding`.
-  This is to aid type class resolution for the last two cases in the unramified complex case.
-
 ## Main definitions
 - `ComplexEmbedding.IsExtension f g` : predicate determining whether `g : L →+* ℂ`
   extends `f : L →+* ℂ`.
