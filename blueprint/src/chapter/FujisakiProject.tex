@@ -97,6 +97,7 @@ We prove the theorem via a series of lemmas.
 
 \begin{lemma}
   \label{NumberField.AdeleRing.DivisionAlgebra.Aux.existsE}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.existsE}
   There's a compact subset $E$ of $D_{\A}$
   with the property that for all $x\in D_{\A}^{(1)}$,
   the obvious map $xE\to D\backslash D_{\A}$ is not injective.
@@ -124,24 +125,28 @@ We prove the theorem via a series of lemmas.
 
 \begin{definition}
   \label{NumberField.AdeleRing.DivisionAlgebra.Aux.E}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.E}
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.existsE}
   We let $E$ denote any compact set satisfying the hypothesis of the previous lemma.
 \end{definition}
 
 \begin{definition}
   \label{NumberField.AdeleRing.DivisionAlgebra.Aux.X}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.X}
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E}
 Define $X:=E-E:=\{e-f:e,f\in E\}\subseteq D_{\A}$.
 \end{definition}
 
 \begin{definition}
   \label{NumberField.AdeleRing.DivisionAlgebra.Aux.Y}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.Y}
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.X}
 Define $Y:=X.X:=\{xy:x,y\in X\}\subseteq D_{\A}$.
 \end{definition}
 
 \begin{lemma}
   \label{NumberField.AdeleRing.DivisionAlgebra.Aux.X_compact}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.X_compact}
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.X}
   $X$ is a compact subset of $D_{\A}$.
 \end{lemma}
@@ -151,6 +156,7 @@ Define $Y:=X.X:=\{xy:x,y\in X\}\subseteq D_{\A}$.
 
 \begin{lemma}
   \label{NumberField.AdeleRing.DivisionAlgebra.Aux.Y_compact}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.Y_compact}
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.Y}
   $Y$ is a compact subset of $D_{\A}$.
 \end{lemma}
@@ -160,6 +166,7 @@ Define $Y:=X.X:=\{xy:x,y\in X\}\subseteq D_{\A}$.
 
 \begin{lemma}
   \label{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel}
   If $\beta\in D_{\A}^{(1)}$ then
 $\beta X\cap D^\times\not=\emptyset$.
 \end{lemma}
@@ -176,6 +183,7 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
 
 \begin{lemma}
   \label{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel'}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel'}
   Similarly, if $\beta\in D_{\A}^{(1)}$ then
   $X\beta^{-1}\cap D^\times\not=\emptyset$.
 \end{lemma}
@@ -189,12 +197,19 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
   and then $(e_1-e_2)\beta^{-1}\in D^\times$.
 \end{proof}
 
+\begin{definition}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.T}
+  Let $T:=Y\cap D^\times$.
+\end{definition}
+
 \begin{lemma}
-  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.Y_meet_units_D}
-  $Y\cap D^\times$ is finite.
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.T_finite}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.T_finite}
+  $T$ is finite.
 \end{lemma}
 \begin{proof}
-  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E,
+  NumberField.AdeleRing.DivisionAlgebra.Aux.T}
   It suffices to prove that $Y\cap D$ is finite.
     But $D\subseteq D_{\A}$ is a discrete additive subgroup, and hence closed.
     And $Y\subseteq D_{\A}$ is compact.
@@ -202,35 +217,30 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
 \end{proof}
 
 \begin{definition}
-  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.T}
-  Let $T:=Y\cap D^\times$ be this finite subset $Y\cap D^\times\subseteq D_{\A}$.
-\end{definition}
-
-\begin{definition}
-  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.K}
-  Define $K:= (T^{-1}.X) \times X\subset D_{\A}\times D_{\A}$.
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.C}
+  Define $C:= (T^{-1}.X) \times X\subset D_{\A}\times D_{\A}$.
 \end{definition}
 
 \begin{lemma}
-  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.K_compact}
-  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.K, NumberField.AdeleRing.DivisionAlgebra.Aux.T,
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.C, NumberField.AdeleRing.DivisionAlgebra.Aux.T,
   NumberField.AdeleRing.DivisionAlgebra.Aux.X_compact}
-  $K$ is compact.
+  $C$ is compact.
 \end{lemma}
 \begin{proof}
-   $X$ is compact and $T$ is finite. {\bf TODO} do we use this?
+   $X$ is compact and $T$ is finite.
 \end{proof}
 
 \begin{lemma}
-  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_K}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C}
   For every $\beta\in D_{\A}^{(1)}$, there exists $b\in D^\times$
-  and $\nu\in D_{\A}^{(1)}$ such that $\beta=b\nu$ and $(\nu,\nu^{-1})\in K.$
+  and $\nu\in D_{\A}^{(1)}$ such that $\beta=b\nu$ and $(\nu,\nu^{-1})\in C.$
 \end{lemma}
 \begin{proof}
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E,
   NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel,
   NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel',
-  NumberField.AdeleRing.DivisionAlgebra.Aux.K}
+  NumberField.AdeleRing.DivisionAlgebra.Aux.C}
   By lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel},
   $\beta X\cap D^\times\not=\emptyset$,
   and lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel'},
@@ -244,7 +254,7 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
   rings and may be true more generally).
 
   Then $x_1^{-1}=t^{-1}x_2\in T^{-1}.X$, and $x_1\in X$, so if we set $\nu=x_1^{-1}$
-  and $b=b_1$ then we have $\beta=b\nu$ and $(\nu,\nu^{-1})\in K := (T^{-1}.X)\times X$.
+  and $b=b_1$ then we have $\beta=b\nu$ and $(\nu,\nu^{-1})\in C := (T^{-1}.X)\times X$.
   We are done!
 \end{proof}
 
@@ -252,18 +262,18 @@ We can now prove Fujisaki's theorem~\ref{NumberField.AdeleRing.DivisionAlgebra.c
 
 \begin{proof}
   \proves{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
-  \uses{DistribHaarChar.continuous, NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_K,
-  Y_meet_units_D}
-  Indeed, if $M$ is the preimage of $K$ under the map $D_{\A}^{(1)} \to D_{\A}\times D_{\A}$
+  \uses{DistribHaarChar.continuous, NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C,
+  NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
+  Indeed, if $M$ is the preimage of $K$ under the inclusion $D_{\A}^{(1)} \to D_{\A}\times D_{\A}$
   sending $\nu$ to $(\nu,\nu^{-1})$, then $M$ is a closed subspace
     of a compact
   space so it's compact (note that $\delta_{D_{\A}}$ is continuous,
   by theorem~\ref{DistribHaarChar.continuous}).
-  Lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_K} shows that $M$ surjects onto
+  Lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C} shows that $M$ surjects onto
   $D^\times\backslash D_{\A}^{(1)}$ which is thus also compact.
 \end{proof}
 
-We note here a useful consequence.
+We note here some useful consequences.
 
 \begin{theorem}
   \label{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}
@@ -292,3 +302,8 @@ There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
 \end{proof}
 \begin{remark} In this generality the quotient might not be Hausdorff.
 \end{remark}
+
+\begin{theorem} finiteness statement about double cosetsd
+\end{theorem}
+\begin{proof}
+\end{proof}
