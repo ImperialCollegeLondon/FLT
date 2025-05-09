@@ -39,6 +39,7 @@ import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Algebra.Order.GroupWithZero
+import FLT.Mathlib.Algebra.Order.GroupWithZero.Canonical
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
@@ -58,7 +59,9 @@ import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.Finiteness.Pi
 import FLT.Mathlib.RingTheory.Ideal.Operations
+import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 import FLT.Mathlib.RingTheory.LocalRing.Defs
+import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
@@ -75,6 +78,7 @@ import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
+import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
