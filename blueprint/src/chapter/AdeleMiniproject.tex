@@ -652,14 +652,14 @@ of being upstreamed to mathlib rather than to FLT.
 \subsubsection{Base change at infinite places}
 
 \begin{definition}
-  \label{NumberField.InfinitePlace.Completion.piExtensionPlace}
-  \lean{NumberField.InfinitePlace.Completion.piExtensionPlace}
+  \label{NumberField.InfinitePlace.Completion.piExtension}
+  \lean{NumberField.InfinitePlace.Completion.piExtension}
   Let $v$ be an infinite place of $K$. There is a continuous $K$-algebra homomorphism
   $K_v \to \prod_{w\mid v}L_w$, whose restriction to $K$ corresponds to the global embedding
   of $K$ into $(L_w)_w$.
 \end{definition}
 
-The map in~\ref{NumberField.InfinitePlace.Completion.piExtensionPlace} can be lifted to an
+The map in~\ref{NumberField.InfinitePlace.Completion.piExtension} can be lifted to an
 $L$-algebra homomorphism defined on $L\otimes_K K_v$.
 
 \begin{definition}
@@ -667,7 +667,7 @@ $L$-algebra homomorphism defined on $L\otimes_K K_v$.
   \lean{NumberField.InfinitePlace.Completion.baseChange}
   Let $v$ be an infinite place of $K$. There is a natural $L$-algebra homomorphism
   $L\otimes_K K_v \to \prod_{w\mid v}L_w$, whose restriction to $1\otimes_K K_v$ corresponds to
-  the map in~\ref{NumberField.InfinitePlace.Completion.piExtensionPlace}.
+  the map in~\ref{NumberField.InfinitePlace.Completion.piExtension}.
 \end{definition}
 
 \begin{theorem}
@@ -726,7 +726,7 @@ a $K_v$-algebra isomorphism, it is also a homeomorphism.
   \lean{NumberTheory.InfinitePlace.Completion.baseChangeEquiv}
   Let $v$ be an infinite place of $K$. There is a natural $L$-algebra homeomorphism
   $L\otimes_K K_v \to \prod_{w\mid v}L_w$, whose restriction to $1\otimes_K K_v$ corresponds to
-  the map in~\ref{NumberField.InfinitePlace.Completion.piExtensionPlace}.
+  the map in~\ref{NumberField.InfinitePlace.Completion.piExtension}.
 \end{definition}
 
 \subsubsection{Base change for the infinite adele ring}
