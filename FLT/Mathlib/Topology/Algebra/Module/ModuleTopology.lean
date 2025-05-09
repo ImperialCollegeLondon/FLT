@@ -429,4 +429,4 @@ theorem t2Space' {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
     [TopologicalSpace K] [TopologicalSpace V] [T2Space K]
     [ContinuousAdd K] [ContinuousMul K] [mt : IsModuleTopology K V]
     : T2Space V := by
-  apply t2Space (R:=K)
+  apply t2Space (R := K)
