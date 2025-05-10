@@ -135,6 +135,15 @@ local instance : IsModuleTopology (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] (Finite
 
 variable [FiniteDimensional K D]
 
+-- Instance to help speed up instance synthesis
+instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
+  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
+  r.toNonUnitalNonAssocRing
+
+-- Instance to help speed up instance synthesis
+instance : NonAssocSemiring (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
+  Algebra.TensorProduct.instRing.toNonAssocSemiring
+
 instance : IsTopologicalRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   IsModuleTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 K) K) _
 
