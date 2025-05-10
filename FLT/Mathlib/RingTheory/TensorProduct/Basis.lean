@@ -58,12 +58,12 @@ namespace TensorProduct
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra
 
-variable {R : Type*} (A : Type*) {B : Type*} [CommRing R] [Nontrivial R]
-variable [CommSemiring A] [Algebra R A]
-variable [CommRing B] [Algebra R B] [Nontrivial B]
+variable {R : Type*} (A : Type*) {B : Type*} [CommRing R]
+  [CommSemiring A] [Algebra R A] [CommRing B] [Algebra R B] [Nontrivial B]
 
 lemma finrank_rightAlgebra [Module.Finite R A] [Module.Free R A] :
     Module.finrank B (A ⊗[R] B) = Module.finrank R A := by
+  have : Nontrivial R := RingHom.domain_nontrivial (algebraMap R B)
   let b := Module.Free.chooseBasis R A
   let b' : Basis _ _ (A ⊗[R] B) := Basis.rightBaseChange A b
   rw [Module.finrank_eq_card_basis b, Module.finrank_eq_card_basis b']

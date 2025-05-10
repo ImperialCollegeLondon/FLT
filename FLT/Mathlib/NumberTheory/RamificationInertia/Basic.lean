@@ -4,8 +4,6 @@ namespace Ideal
 
 open IsDedekindDomain
 
--- variable
-
 /-- `Ideal.sum_ramification_inertia`, in the local (DVR) case. -/
 lemma sum_ramification_inertia_of_isLocalRing {R : Type*} [CommRing R]
   (S : Type*) [CommRing S] (p : Ideal R) [IsDedekindDomain S] [Algebra R S]

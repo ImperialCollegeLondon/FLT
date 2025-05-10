@@ -918,8 +918,8 @@ lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
   have := v.isMaximal
   have := noZeroSMulDivisors A K L B
   -- Use Ideal.sum_ramification_inertia to make this an equivalence of two sums.
-  rw [← Ideal.sum_ramification_inertia B _ K L v.ne_bot]
-  -- Check that the sums match up via a bijection
+  rw [← Ideal.sum_ramification_inertia B v.asIdeal K L v.ne_bot]
+  -- Check that the sums are equal via a bijection
   apply Finset.sum_nbij (fun w ↦ w.val.asIdeal)
   . rintro ⟨a, ha⟩ -
     rw [← Finset.mem_coe, coe_primesOverFinset v.ne_bot]
@@ -941,22 +941,39 @@ lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
     exact ⟨w, by simp, rfl⟩
   . exact fun _ _ ↦ rfl
 
+lemma WithZero.ofAdd_neg_ofNat_pow (n : ℕ) :
+    (WithZero.coe (Multiplicative.ofAdd (-n : ℤ))) = (Multiplicative.ofAdd (-1 : ℤ)) ^ n := by
+  congr
+  rw [← ofAdd_nsmul, nsmul_eq_mul, Int.mul_neg_one]
+
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
-theorem ramificationIdx_eq_ramificationIdx (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
+theorem adicCompletion.ramificationIdx_eq_ramificationIdx (w : HeightOneSpectrum B)
+    (hvw : w.comap A = v) :
     letI := comap_integer_algebra A K L B hvw
     Ideal.ramificationIdx (algebraMap _ _) (v.completionIdeal K) (w.completionIdeal L)
       = Ideal.ramificationIdx (algebraMap A B) v.asIdeal w.asIdeal := by
-  -- There's a few of options here:
-  -- 1. Show that the valuation from completing v and the valuations from the maximal ideal in the
-  --    completion are equal and use valued_adicCompletionComap and intValuation_comap to be able
-  --    to equate the ramification indexes.
-  -- 2. Apply Ideal.ramificationIdx_spec and do the calculation by hand
-  -- 3. Try to use the towers (compared to inertiaDeg this is harder and the alternatives are
-  --    easier)
-  sorry -- #231
+  apply Ideal.ramificationIdx_spec
+  . rw [Ideal.map_le_iff_le_comap]
+    intro x hx
+    rw [mem_completionIdeal_iff'] at hx
+    rw [Ideal.mem_comap, adicCompletion.mem_completionIdeal_pow, comap_integer_algebraMap,
+      valued_adicCompletionComap]
+    rw [WithZero.ofAdd_neg_ofNat_pow, hvw]
+    apply pow_le_pow_left' hx
+  . obtain ⟨ϖ, hϖ⟩ := adicCompletion.exists_uniformizer K v
+    have hϖ' : ϖ ∈ v.completionIdeal K := by
+      rw [mem_completionIdeal_iff, hϖ]
+      decide
+    rw [Ideal.map_le_iff_le_comap]
+    intro h
+    have hcomap := h hϖ'
+    rw [Ideal.mem_comap, adicCompletion.mem_completionIdeal_pow, comap_integer_algebraMap,
+      valued_adicCompletionComap, hϖ, ← WithZero.ofAdd_neg_ofNat_pow,
+      WithZero.coe_le_coe, Multiplicative.ofAdd_le, hvw] at hcomap
+    simp [add_le_iff_nonpos_right] at hcomap
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L] in
-theorem inertiaDeg_eq_completion_inertiaDeg (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
+theorem adicCompletion.inertiaDeg_eq_inertiaDeg (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
     letI := comap_integer_algebra A K L B hvw
     v.asIdeal.inertiaDeg w.asIdeal = (v.completionIdeal K).inertiaDeg (w.completionIdeal L) :=
   letI := Algebra.compHom (adicCompletionIntegers L w) (algebraMap A B)
@@ -978,7 +995,7 @@ theorem inertiaDeg_eq_completion_inertiaDeg (w : HeightOneSpectrum B) (hvw : w.c
     over := by
       rw [Ideal.under_def]
       ext x
-      rw [Ideal.mem_comap, mem_maximalIdeal_completion_iff, mem_maximalIdeal_completion_iff,
+      rw [Ideal.mem_comap, mem_completionIdeal_iff, mem_completionIdeal_iff,
         comap_integer_algebraMap, valued_adicCompletionComap, pow_lt_one_iff]
       exact ramificationIdx_ne_zero A B (algebraMap_injective_of_field_isFractionRing A B K L) w
   }
@@ -992,7 +1009,7 @@ theorem inertiaDeg_eq_completion_inertiaDeg (w : HeightOneSpectrum B) (hvw : w.c
 
 -- We use Ideal.sum_ramification_inertia_of_isLocalRing here to show this, but we could make use
 -- of the more general results in BGR:
--- - in general e * f <= degree (Prop 3.1.3.2 of BGR)
+-- - in general e * f <= degree (Prop 3.1.3.2)
 -- - equality holds for L/K if L is K-cartesian (Prop 3.6.2.4)
 -- - so for example if K is complete and discretely-valued (Cor 2.4.3.11).
 attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
@@ -1016,9 +1033,9 @@ theorem ramification_mul_inertia_eq_finrank_completion (w : HeightOneSpectrum B)
       (adicCompletion L w) := by
     apply IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
   rw [← Ideal.sum_ramification_inertia_of_isLocalRing (adicCompletionIntegers L w)
-    (v.completionIdeal K) (adicCompletion K v) (adicCompletion L w) (v.completion_ne_bot K)]
-  rw [ramificationIdx_eq_ramificationIdx A K L B v w hvw,
-    inertiaDeg_eq_completion_inertiaDeg A K L B v w hvw]
+    (v.completionIdeal K) (adicCompletion K v) (adicCompletion L w) (v.completionIdeal_ne_bot K),
+    adicCompletion.ramificationIdx_eq_ramificationIdx A K L B v w hvw,
+    adicCompletion.inertiaDeg_eq_inertiaDeg A K L B v w hvw]
 
 end RamificationInertia
 
@@ -1153,6 +1170,5 @@ noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
   continuous_toFun := sorry
   continuous_invFun := sorry
   -- TODO needs issue number
-
 
 end IsDedekindDomain
