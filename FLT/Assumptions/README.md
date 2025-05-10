@@ -4,13 +4,13 @@ The initial goal of this project (hopefully to be attained by September 2029,
 the period of the EPSRC funding) is to reduce Fermat's Last Theorem
 to various mathematical results which were known in the 1980s.
 This directory `FLT/Assumptions` contains formal statements of these
-assumptions. More assumptions will be added as the project progresses;
+assumptions. More will be added as the project progresses;
 some of the assumptions we need cannot even be stated until we formalize
 more definitions.
 
 Anybody (humans, AI) is welcome to work on formalizing the proofs of these
-assumptions; this task is not high priority for me at this point. For now,
-my focus is on proving FLT assuming these assumptions. To avoid duplication,
+assumptions; this task is not high priority for the project at this point. For now,
+my focus is on proving FLT modulo these assumptions. To avoid duplication,
 anyone proposing to work on an assumption should consider indicating this
 on the github issue associated to the assumption.
 
@@ -23,7 +23,7 @@ literature where the theorem is proved.
 
 We give a brief summary of each file in this directory.
 
-* `Odlyzko.lean` : an "Odlyzko bound" for root discriminants. Issue #458.
+* `Odlyzko.lean` : an "Odlyzko bound" for root discriminants. Issue [#458](https://github.com/ImperialCollegeLondon/FLT/issues/458).
 
 ## Formalizable assumptions
 
@@ -43,9 +43,9 @@ local properties).
 The assumptions below cannot yet be stated because of missing definitions.
 
 * The existence of a p-adic Galois representation attached to a weight 2 automorphic
-form over a totally definite quaternion algebra.
+  form over a totally definite quaternion algebra. This is work in progress; we need Hecke algebras.
 
-This is work in progress; we need Hecke algebras. The second two assumptions need a
+The next two assumptions need a
 definition of modularity, and thus also rely on Hecke algebras.
 
 * Automorphic induction from GL_1 to GL_2 (e.g. "CM elliptic curves are modular")
@@ -53,5 +53,6 @@ definition of modularity, and thus also rely on Hecke algebras.
 * Cyclic base change for GL_2 + classification of image.
 
 The next assumption can't be stated yet because we don't have Galois cohomology.
+This is work in progress by Livingston, Yang and Hill.
 
 * Poitou-Tate (aka the "Greenberg-Wiles long exact sequence")
