@@ -1,6 +1,6 @@
 # Assumptions
 
-The initial goal of this project (hopefully to be attained by 2029,
+The initial goal of this project (hopefully to be attained by September 2029,
 the period of the EPSRC funding) is to reduce Fermat's Last Theorem
 to various mathematical results which were known in the 1980s.
 This directory `FLT/Assumptions` contains formal statements of these
