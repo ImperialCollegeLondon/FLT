@@ -1,3 +1,4 @@
+import FLT.Assumptions.Mazur
 import FLT.Assumptions.Odlyzko
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
@@ -34,6 +35,7 @@ import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import FLT.Mathlib.Algebra.FixedPoints.Group
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
@@ -105,3 +107,6 @@ import FLT.Patching.Utils.TopologicallyFG
 import FLT.Patching.VanishingFilter
 import FLT.QuaternionAlgebra.NumberField
 import FLT.TateCurve.TateCurve
+import FLT.scratch.scratch1
+import FLT.scratch.scratch2
+import FLT.scratch.scratch3

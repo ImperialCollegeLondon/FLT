@@ -23,8 +23,8 @@ question in 1995 and they both seemed to believe it), but since then
 Poonen has given evidence that this might not be the case. Every now
 and then a new elliptic curve is discovered which breaks the world
 record for the highest known rank; at the time of writing, the current
-record-holder is Elkies with a curve of algebraic rank at least 28
-(and modulo GRH, rank exactly 28).
+record-holder is Elkies and Klagsbrun with a curve of algebraic rank
+at least 29 (and modulo GRH, rank exactly 29).
 
 However the status of the torsion subgroup `T` is very different;
 it is completely understood. Indeed a 1977 theorem of Mazur, proving a 1908
@@ -72,11 +72,11 @@ we are formalizing in this project. Historically the irreducibility was used
 in a different way; Wiles proved that the Frey curve was modular by arguing
 at 3 and 5 rather than at p, and this was known to imply FLT by earlier work
 of Ribet which relied on `E[p]` being irreducible. Our proof will avoid Ribet's
-work completely by applying Wiles' techniques at `p` rather than at small primes.
+work completely by applying Wiles's techniques at `p` rather than at small primes.
 
 ## References
 
-- [Barry Mazur, Modular curves and the Eisenstein idea][mazur_torsion]
+- [Barry Mazur, Modular curves and the Eisenstein ideal][mazur_torsion]
 
 At the time of writing, the article is available here
 https://www.numdam.org/item/?id=PMIHES_1977__47__33_0
