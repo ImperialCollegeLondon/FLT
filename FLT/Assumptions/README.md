@@ -25,12 +25,13 @@ We give a brief summary of each file in this directory.
 
 * `Odlyzko.lean` : an "Odlyzko bound" for root discriminants. Issue [#458](https://github.com/ImperialCollegeLondon/FLT/issues/458).
 
+* `Mazur.lean` : Mazur's bounds for the torsion of an elliptic curve over the rationals.
+  Issue [#477](https://github.com/ImperialCollegeLondon/FLT/issues/477).
+
 ## Formalizable assumptions
 
-The statements of the bassumptions below are probably formalizable,
-but nobody did them yet.
-
-* `Mazur.lean` : Mazur's bounds for the torsion of an elliptic curve over the rationals.
+The statements of the bassumptions below are probably formalizable with the definitions
+that we have, but nobody did them yet.
 
 * Existence of a solvable extension of a number field with prescribed behaviour
 at a finite set of places (the proof uses class field theory).
@@ -42,8 +43,10 @@ local properties).
 
 The assumptions below cannot yet be stated because of missing definitions.
 
+The next definition needs Hecke algebras.
+
 * The existence of a p-adic Galois representation attached to a weight 2 automorphic
-  form over a totally definite quaternion algebra. This is work in progress; we need Hecke algebras.
+  form over a totally definite quaternion algebra.
 
 The next two assumptions need a
 definition of modularity, and thus also rely on Hecke algebras.

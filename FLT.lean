@@ -1,3 +1,4 @@
+import FLT.Assumptions.Mazur
 import FLT.Assumptions.Odlyzko
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
