@@ -1,8 +1,5 @@
-import Mathlib
-import Mathlib.Algebra.Module.Torsion
 import Mathlib.AlgebraicGeometry.EllipticCurve.Group
-import Mathlib.FieldTheory.IsSepClosed
-import Mathlib.RepresentationTheory.Basic
+import Mathlib.GroupTheory.Torsion
 
 /-!
 
