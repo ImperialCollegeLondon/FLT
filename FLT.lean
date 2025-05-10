@@ -106,6 +106,3 @@ import FLT.Patching.Utils.TopologicallyFG
 import FLT.Patching.VanishingFilter
 import FLT.QuaternionAlgebra.NumberField
 import FLT.TateCurve.TateCurve
-import FLT.scratch.scratch1
-import FLT.scratch.scratch2
-import FLT.scratch.scratch3
