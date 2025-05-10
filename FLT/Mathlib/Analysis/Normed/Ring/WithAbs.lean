@@ -4,6 +4,18 @@ import FLT.Mathlib.Topology.Algebra.UniformRing
 
 namespace WithAbs
 
+variable {R S : Type*} [Semiring S] [Field R] [PartialOrder S] (v : AbsoluteValue R S)
+
+instance : Field (WithAbs v) := ‹Field R›
+
+variable {R' : Type*} [Field R'] [Module R R']
+
+instance [Module R R'] [FiniteDimensional R R'] : FiniteDimensional (WithAbs v) R' :=
+  ‹FiniteDimensional R R'›
+
+instance [Algebra R R'] [Algebra.IsSeparable R R'] : Algebra.IsSeparable (WithAbs v) R' :=
+  ‹Algebra.IsSeparable R R'›
+
 variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ}
   {L : Type*} [Field L] [Algebra K L] {w : AbsoluteValue L ℝ}
 
