@@ -26,7 +26,7 @@ theorem baseChange_cont : Continuous (baseChange K L) :=
 noncomputable instance : Algebra (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) :=
   Algebra.TensorProduct.rightAlgebra
 
-instance : TopologicalSpace (L ⊗[K] InfiniteAdeleRing K) :=
+noncomputable instance : TopologicalSpace (L ⊗[K] InfiniteAdeleRing K) :=
   moduleTopology (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K)
 
 instance : IsModuleTopology (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) := ⟨rfl⟩

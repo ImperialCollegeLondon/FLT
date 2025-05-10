@@ -1,8 +1,5 @@
 import Mathlib.Algebra.Module.LinearMap.Defs
 import Mathlib.Data.Rat.Cast.Defs
-import Mathlib.Order.DirectedInverseSystem
-import Mathlib.Tactic.SuppressCompilation
-import Mathlib.Order.CompletePartialOrder
 import Mathlib.Order.Defs.Unbundled
 import Mathlib.Algebra.Module.Submodule.Defs
 import Mathlib.Algebra.Module.Pi
@@ -82,7 +79,7 @@ instance [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T h) (G j) (G i)]
   change IsTopologicalRing S
   infer_instance
 
-instance {R : Type*} [Ring R] [TopologicalSpace R] 
+instance {R : Type*} [Ring R] [TopologicalSpace R]
     [∀ i, AddCommGroup (G i)] [∀ i, Module R (G i)]
     [∀ i j h, LinearMapClass (T h) R (G j) (G i)]
     [∀ i : ι, IsTopologicalModule R (G i)] : IsTopologicalModule R (InverseLimit G f) := by

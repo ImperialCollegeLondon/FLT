@@ -1,8 +1,5 @@
 import Mathlib.Algebra.Module.Submodule.Basic
 import Mathlib.Algebra.Ring.Subring.Basic
--- Once this alias is upstreamed, we can remove it from noshake.json
-
-@[gcongr] protected alias ⟨_, GCongr.Submodule.toAddSubgroup_le⟩ := Submodule.toAddSubgroup_le
 
 variable {R S : Type*} [CommRing R]
 

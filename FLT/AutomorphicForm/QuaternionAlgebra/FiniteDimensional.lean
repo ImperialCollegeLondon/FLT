@@ -1,4 +1,5 @@
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 namespace TotallyDefiniteQuaternionAlgebra
 

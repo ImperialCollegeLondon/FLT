@@ -1,4 +1,4 @@
-import Mathlib.NumberTheory.NumberField.Embeddings
+import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
 
 /-!
 # Embeddings of number fields

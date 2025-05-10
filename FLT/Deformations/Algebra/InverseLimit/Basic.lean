@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Javier López-Contreras
 -/
 import Mathlib.Algebra.Module.LinearMap.Defs
-import Mathlib.Data.Rat.Cast.Defs
-import Mathlib.Order.DirectedInverseSystem
-import Mathlib.Tactic.SuppressCompilation
+import Mathlib.Algebra.GroupWithZero.Units.Lemmas
 
 /-!
 # Inverse limit of algebraic structures
@@ -14,8 +12,6 @@ import Mathlib.Tactic.SuppressCompilation
 We introduce all kinds of algebraic instances on `InverseLimit`, and specialize to the cases
 of modules and rings, showing that they are indeed limits in the respective categories.
 -/
-
-suppress_compilation
 
 variable {R ι : Type*} [Preorder ι] {G : ι → Type*}
 variable {T : ∀ ⦃i j : ι⦄, i ≤ j → Type*} {f : ∀ _ _ h, T h}

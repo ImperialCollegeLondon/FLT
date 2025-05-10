@@ -13,7 +13,7 @@ lemma Valued.isUnit_valuationSubring_iff {Γ₀ : Type*} [LinearOrderedCommGroup
 theorem Valued.integer_isClosed ( R : Type* ) {Γ₀ : Type*} [Ring R]
     [LinearOrderedCommGroupWithZero Γ₀] [i : Valued R Γ₀] : IsClosed (i.v.integer : Set R) := by
   rw [← Subring.coe_toAddSubgroup]
-  exact AddSubgroup.isClosed_of_isOpen _ (integer_isOpen _)
+  exact AddSubgroup.isClosed_of_isOpen _ (isOpen_integer _)
 
 /-- The valuation subring of a valued field is closed. -/
 theorem Valued.valuationSubring_isClosed {Γ₀ : Type*} [LinearOrderedCommGroupWithZero Γ₀]

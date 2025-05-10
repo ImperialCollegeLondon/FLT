@@ -1,4 +1,6 @@
-import Mathlib.AlgebraicGeometry.EllipticCurve.Affine
+import Mathlib.Algebra.Polynomial.Bivariate
+import Mathlib.AlgebraicGeometry.EllipticCurve.Weierstrass
+import Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
 import Mathlib.Data.PNat.Basic
 import Mathlib.NumberTheory.FLT.Four
 import Mathlib.NumberTheory.FLT.Three

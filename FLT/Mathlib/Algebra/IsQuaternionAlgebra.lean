@@ -1,7 +1,7 @@
 import Mathlib.Algebra.Central.Defs
 import Mathlib.Algebra.Quaternion
-import Mathlib.NumberTheory.NumberField.Embeddings
 import Mathlib.Analysis.Quaternion -- for *notation* ℍ only!
+import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 
 class IsQuaternionAlgebra (F : Type*) [Field F] (D : Type*) [Ring D] [Algebra F D] : Prop where
   isSimpleRing : IsSimpleRing D

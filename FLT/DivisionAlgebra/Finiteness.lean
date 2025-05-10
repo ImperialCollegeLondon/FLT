@@ -10,7 +10,7 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.GroupTheory.DoubleCoset
 import Mathlib.Algebra.Central.Defs
 import FLT.NumberField.AdeleRing
-import FLT.HaarMeasure.DistribHaarChar.AdeleRing
+import FLT.HaarMeasure.DistribHaarChar.Basic
 
 /-
 
