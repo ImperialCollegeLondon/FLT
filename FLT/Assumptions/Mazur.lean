@@ -97,4 +97,4 @@ open scoped WeierstrassCurve.Affine -- E⟮ℚ⟯ notation
 /-- Mazur's bound for the size of the torsion subgroup of an elliptic curve
 over the rationals . -/
 axiom Mazur_statement (E : WeierstrassCurve ℚ) [E.IsElliptic] :
-    {P : E⟮ℚ⟯ | ∃ n ≥ 1, n • P = 0}.ncard ≤ 16
+    (AddCommGroup.torsion E⟮ℚ⟯ : Set E⟮ℚ⟯).ncard ≤ 16
