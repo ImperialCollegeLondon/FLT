@@ -50,7 +50,7 @@ open scoped TensorProduct
 noncomputable instance : Algebra (𝔸  K) (L ⊗[K] 𝔸 K) :=
   Algebra.TensorProduct.rightAlgebra
 
-instance : TopologicalSpace (L ⊗[K] 𝔸 K) :=
+noncomputable instance : TopologicalSpace (L ⊗[K] 𝔸 K) :=
   moduleTopology (𝔸 K) (L ⊗[K] 𝔸 K)
 
 instance : IsModuleTopology (𝔸 K) (L ⊗[K] 𝔸 K) := ⟨rfl⟩
@@ -168,7 +168,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       apply isOpen_iInter_of_finite
       intro v
       exact Metric.isOpen_ball.preimage (continuous_apply v)
-    . exact RestrictedProduct.isOpen_forall_mem fun v ↦ Valued.integer_isOpen _
+    . exact RestrictedProduct.isOpen_forall_mem fun v ↦ Valued.isOpen_integer _
   · apply subset_antisymm
     · intro x hx
       rw [Set.mem_preimage] at hx

@@ -1,4 +1,4 @@
-import Mathlib.RingTheory.Ideal.Quotient.Basic
+import Mathlib.RingTheory.Ideal.Quotient.Defs
 
 variable {R : Type*} [Ring R] (I : Ideal R) [I.IsTwoSided]
 

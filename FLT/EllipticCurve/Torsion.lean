@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import Mathlib.Algebra.Module.Torsion
-import Mathlib.AlgebraicGeometry.EllipticCurve.Group
+import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Basic
+import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Formula
+import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 import Mathlib.FieldTheory.IsSepClosed
 import Mathlib.RepresentationTheory.Basic
 
