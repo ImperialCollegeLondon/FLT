@@ -31,8 +31,6 @@ embeddings `w.embedding` and `v.embedding`:
   ramified extensions of `v : InfinitePlace K`.
 - `InfinitePlace.UnramifiedExtension L v` : the type of infinite places of `L` that are
   unramified extensions of `v : InfinitePlace K`.
-- `InfinitePlace.Real` (resp. `InfinitePlace.Complex`) : class version of `InfinitePlace.IsReal`
-  (resp. `InfinitePlace.IsComplex`).
 - `InfinitePlace.Extension.IsLift L v w`: class encoding the property that `w.embedding` extends
   `v.embedding`.
 - `InfinitePlace.Extension.IsConjugateLift L v w` : class encoding the property that
@@ -147,24 +145,6 @@ theorem comp_of_comap_eq {f : K →+* L} (h : w.comap f = v) (x : K) :
     w (f x) = v x := by
   simp [← h]
 
-/-- Class encoding the fact that an infinite place is real. -/
-class Real where
-  isReal' : v.IsReal
-
-theorem Real.isReal [v.Real] : v.IsReal := Real.isReal'
-
-/-- Class encoding the fact that an infinite place is complex. -/
-class Complex where
-  isComplex' : v.IsComplex
-
-theorem Complex.isComplex [v.Complex] : v.IsComplex := Complex.isComplex'
-
-theorem not_real_iff_complex : ¬v.Real ↔ v.Complex := by
-  refine ⟨fun h => ⟨?_⟩, fun ⟨hc⟩ ⟨hr⟩ => not_isReal_iff_isComplex.2 hc hr⟩
-  rw [← not_isReal_iff_isComplex]
-  contrapose! h
-  exact ⟨h⟩
-
 variable [Algebra K L]
 
 variable (K) in
@@ -214,9 +194,6 @@ theorem isReal_base (hw : w.1.IsReal) :
     v.IsReal := by
   simp_all only [← not_isComplex_iff_isReal]
   exact mt w.isComplex_of_isComplex hw
-
-instance [Algebra K L] {v : InfinitePlace K} {w : v.Extension L}
-    [v.Complex] : w.1.Complex := ⟨w.isComplex_of_isComplex (Complex.isComplex v)⟩
 
 theorem mk_embedding : mk (w.1.embedding.comp (algebraMap K L)) = v := by
   rw [← comap_mk, w.1.mk_embedding, w.2]
@@ -315,8 +292,6 @@ theorem isReal (w : v.RamifiedExtension L) : v.IsReal :=
 theorem isComplex (w : v.RamifiedExtension L) :
     (w.1 : InfinitePlace L).IsComplex :=
   (isRamified_iff.1 w.isRamified).1
-
-instance (w : v.RamifiedExtension L) : w.1.Complex := ⟨w.isComplex⟩
 
 end RamifiedExtension
 

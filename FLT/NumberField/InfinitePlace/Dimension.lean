@@ -24,15 +24,10 @@ open NumberField.ComplexEmbedding
 variable {K : Type*} {L : Type*} [Field K] [Field L]
 variable [Algebra K L] {v : InfinitePlace K} {w : InfinitePlace L}
 
-theorem comap_embedding_isReal : ComplexEmbedding.IsReal (w.comap (algebraMap K L)).embedding ↔
-    ComplexEmbedding.IsReal (w.embedding.comp (algebraMap K L)) := by
-  rw [← mk_embedding w, comap_mk, ← isReal_mk_iff, mk_embedding, isReal_mk_iff, mk_embedding]
-
-theorem comap_embedding_eq_of_isReal
-    (h : ComplexEmbedding.IsReal (w.comap (algebraMap K L)).embedding) :
+theorem comap_embedding_eq_of_isReal (h : (w.comap (algebraMap K L)).IsReal) :
     (w.comap (algebraMap K L)).embedding = w.embedding.comp (algebraMap K L) := by
-  rw [← mk_embedding w, comap_mk, mk_embedding,embedding_mk_eq_of_isReal]
-  exact comap_embedding_isReal.1 h
+  rw [← mk_embedding w, comap_mk, mk_embedding, embedding_mk_eq_of_isReal
+    (by rwa [← isReal_mk_iff, ← comap_mk, mk_embedding])]
 
 theorem comap_mk_of_isExtension {ψ : L →+* ℂ} (hψ : IsExtension v.embedding ψ) :
     (mk ψ).comap (algebraMap K L) = v := by
@@ -48,17 +43,16 @@ variable (w : v.RamifiedExtension L)
 
 theorem isExtension_embedding : IsExtension v.embedding w.1.embedding := by
   rw [IsExtension, ← congrArg embedding w.comap_eq,
-    ← comap_embedding_eq_of_isReal <| isReal_iff.1 <| w.isReal_comap]
+    ← comap_embedding_eq_of_isReal w.isReal_comap]
 
 instance : IsLift L v w := ⟨w.isExtension_embedding⟩
 
 theorem isExtension_conjugate_embedding : IsExtension v.embedding (conjugate w.1.embedding) := by
   rw [IsExtension, ← ComplexEmbedding.isReal_iff.1 <| isReal_iff.1 w.isReal,
     ← congrArg InfinitePlace.embedding w.comap_eq]
-  simp [comap_embedding_eq_of_isReal <| isReal_iff.1 <| w.isReal_comap]
+  simp [comap_embedding_eq_of_isReal w.isReal_comap]
 
-instance : IsConjugateLift L v w :=
-  ⟨w.isExtension_conjugate_embedding⟩
+instance : IsConjugateLift L v w := ⟨w.isExtension_conjugate_embedding⟩
 
 theorem isMixedExtension : IsMixedExtension v.embedding w.1.embedding :=
   ⟨w.isExtension_embedding, isReal_iff.1 w.isReal, isComplex_iff.1 w.isComplex⟩
@@ -286,11 +280,11 @@ theorem card_eq [NumberField L] :
       Fintype.card { ψ : L →+* ℂ // IsUnmixedExtension v.embedding ψ } := by
   rw [← Fintype.card_eq.2 ⟨equivIsUnmixedExtension L v⟩]
 
-instance (w : v.UnramifiedExtension L) [v.Real] :
+instance (w : v.UnramifiedExtension L) [h : Fact v.IsReal] :
     IsLift L v w where
   isExtension' := by
     rw [← congrArg embedding w.comap_eq,
-      comap_embedding_eq_of_isReal <| (isReal_iff.1 <| by apply w.comap_eq ▸ Real.isReal v)]
+      comap_embedding_eq_of_isReal <| by apply w.comap_eq ▸ h.elim]
 
 end UnramifiedExtension
 
@@ -366,14 +360,14 @@ variable {K : Type*} [Field K] {v : InfinitePlace K}
 variable {L : Type*} [Field L] [Algebra K L]
 
 open UniformSpace.Completion in
-theorem coe_extensionEmbeddingOfIsReal [v.Real] (x : v.Completion) :
-    extensionEmbeddingOfIsReal (Real.isReal v) x = extensionEmbedding v x := by
+theorem coe_extensionEmbeddingOfIsReal [hv : Fact v.IsReal] (x : v.Completion) :
+    extensionEmbeddingOfIsReal hv.elim x = extensionEmbedding v x := by
   induction x using induction_on
   · exact isClosed_eq (Continuous.comp' (by fun_prop) continuous_extension) continuous_extension
   · simp only [extensionEmbedding_of_isReal_coe, embedding_of_isReal_apply, extensionEmbedding_coe]
 
-instance algebraReal [v.Real] : Algebra v.Completion ℝ :=
-  (extensionEmbeddingOfIsReal (Real.isReal v)).toAlgebra
+instance algebraReal [hv : Fact v.IsReal] : Algebra v.Completion ℝ :=
+  (extensionEmbeddingOfIsReal hv.elim).toAlgebra
 
 /-- There are two choices for embedding `v.Completion` into `ℂ`, and therefore two choices
 for giving `ℂ` a `v.Completion` algebra. The canonical algebra is the one that aligns
@@ -390,25 +384,25 @@ def algebraComplexStar : Algebra v.Completion ℂ :=
 variable (v) in
 /-- If `v` is a real infinite place, then `v.Completion` is isomorphic to `ℝ` as `v.Completion`
 algebras. -/
-def algEquivRealOfReal [v.Real] :
+def algEquivRealOfReal [Fact v.IsReal] :
     v.Completion ≃ₐ[v.Completion] ℝ :=
-  AlgEquiv.ofRingEquiv (f := ringEquivRealOfIsReal (Real.isReal v)) (fun _ => rfl)
+  AlgEquiv.ofRingEquiv (f := ringEquivRealOfIsReal _) (fun _ => rfl)
 
 variable (v) in
 /-- If `v` is a complex infinite place, then `v.Completion` is isomorphic to `ℂ` as `v.Completion`
 algebras, using the canonical `v.Completion` algebra for `ℂ`. -/
-def algEquivComplexOfComplex [v.Complex] :
+def algEquivComplexOfComplex [hv : Fact v.IsComplex] :
     v.Completion ≃ₐ[v.Completion] ℂ :=
-  AlgEquiv.ofRingEquiv (f := ringEquivComplexOfIsComplex (Complex.isComplex v)) (fun _ => rfl)
+  AlgEquiv.ofRingEquiv (f := ringEquivComplexOfIsComplex hv.elim) (fun _ => rfl)
 
 variable (v) in
 /-- If `v` is a complex infinite place, then `v.Completion` is isomorphic to `ℂ` as `v.Completion`
 algebras, using the conjugate `v.Completion` algebra for `ℂ`. -/
-def algEquivComplexOfComplexStar [v.Complex] :
+def algEquivComplexOfComplexStar [hv : Fact v.IsComplex] :
     letI := algebraComplexStar v
     v.Completion ≃ₐ[v.Completion] ℂ :=
   letI := algebraComplexStar v
-  AlgEquiv.ofRingEquiv (f := (ringEquivComplexOfIsComplex (Complex.isComplex v)).trans starRingAut)
+  AlgEquiv.ofRingEquiv (f := (ringEquivComplexOfIsComplex hv.elim).trans starRingAut)
     (fun _ => rfl)
 
 instance {L : Type*} [Field L] [Algebra K L] (w : v.Extension L) :
@@ -431,7 +425,7 @@ theorem extensionEmbedding_algebraMap (x : v.Completion) :
   · simp only [RingHom.algebraMap_toAlgebra, SemialgHom.toRingHom_eq_coe,
       RingHom.coe_coe, extensionEmbedding_coe, semialgHomOfComp_coe _,
       ← congrArg InfinitePlace.embedding w.comap_eq,
-      comap_embedding_eq_of_isReal <| isReal_iff.1 <| w.isReal_comap]
+      comap_embedding_eq_of_isReal w.isReal_comap]
     rfl
 
 instance : IsScalarTower v.Completion w.1.Completion ℂ :=
@@ -439,9 +433,11 @@ instance : IsScalarTower v.Completion w.1.Completion ℂ :=
     rw [Algebra.smul_def, Algebra.smul_def, RingHom.algebraMap_toAlgebra,
       extensionEmbedding_algebraMap, RingHom.algebraMap_toAlgebra]
 
-instance [v.Real] : IsScalarTower v.Completion ℝ ℂ :=
+instance [Fact v.IsReal] : IsScalarTower v.Completion ℝ ℂ :=
   .of_algebraMap_smul fun r x => by
     simp [Algebra.smul_def, RingHom.algebraMap_toAlgebra, coe_extensionEmbeddingOfIsReal]
+
+instance (w : v.RamifiedExtension L) : Fact w.1.IsComplex := ⟨w.isComplex⟩
 
 /-- If `w` is a ramified extension of `v`, then `w.Completion` is isomorphic to `ℂ` as
 `v.Completion` algebras. -/
@@ -450,7 +446,7 @@ def algEquivComplex : w.1.Completion ≃ₐ[v.Completion] ℂ :=
 
 /-- If `w` is a ramified extension of `v`, then the `v.Completion`-dimension of `w.Completion`
 is `2`. -/
-theorem finrank_eq_two [v.Real] : Module.finrank v.Completion w.1.Completion = 2 := by
+theorem finrank_eq_two [Fact v.IsReal] : Module.finrank v.Completion w.1.Completion = 2 := by
   rw [algEquivComplex w |>.toLinearEquiv.finrank_eq, ← Module.finrank_mul_finrank v.Completion ℝ ℂ,
     ← algEquivRealOfReal v |>.toLinearEquiv.finrank_eq, Module.finrank_self,
     Complex.finrank_real_complex, one_mul]
@@ -478,20 +474,21 @@ theorem extensionEmbedding_algebraMap [IsLift L v w] (x : v.Completion) :
     rfl
 
 open UniformSpace.Completion in
-theorem extensionEmbeddingOfIsReal_algebraMap [v.Real] [w.1.Real] (x : v.Completion) :
-    extensionEmbeddingOfIsReal (Real.isReal w.1) (algebraMap v.Completion w.1.Completion x) =
-      extensionEmbeddingOfIsReal (Real.isReal v) x := by
+theorem extensionEmbeddingOfIsReal_algebraMap
+    [hv : Fact v.IsReal] [hw : Fact w.1.IsReal] (x : v.Completion) :
+    extensionEmbeddingOfIsReal hw.elim (algebraMap v.Completion w.1.Completion x) =
+      extensionEmbeddingOfIsReal hv.elim x := by
   apply_fun Complex.ofReal using Complex.ofReal_injective
   simp only [coe_extensionEmbeddingOfIsReal, extensionEmbedding_algebraMap]
 
-instance [v.Real] [w.1.Real] : IsScalarTower v.Completion w.1.Completion ℝ :=
+instance [Fact v.IsReal] [Fact w.1.IsReal] : IsScalarTower v.Completion w.1.Completion ℝ :=
   .of_algebraMap_smul fun r x => by
     rw [Algebra.smul_def, Algebra.smul_def, RingHom.algebraMap_toAlgebra,
       extensionEmbeddingOfIsReal_algebraMap, RingHom.algebraMap_toAlgebra]
 
 /-- If `w` is an unramified extension of `v`, and both infinite places are real, then
 `w.Completion` is isomorphic to `ℝ` as `v.Completion` algebras. -/
-def algEquivReal [v.Real] [w.1.Real] : w.1.Completion ≃ₐ[v.Completion] ℝ :=
+def algEquivReal [Fact v.IsReal] [Fact w.1.IsReal] : w.1.Completion ≃ₐ[v.Completion] ℝ :=
   algEquivRealOfReal w.1 |>.restrictScalars v.Completion
 
 instance [IsLift L v w] : IsScalarTower v.Completion w.1.Completion ℂ :=
@@ -500,8 +497,7 @@ instance [IsLift L v w] : IsScalarTower v.Completion w.1.Completion ℂ :=
       extensionEmbedding_algebraMap, RingHom.algebraMap_toAlgebra]
 
 open UniformSpace.Completion in
-theorem extensionEmbedding_algebraMap_star [IsConjugateLift L v w]
-   (x : v.Completion) :
+theorem extensionEmbedding_algebraMap_star [IsConjugateLift L v w] (x : v.Completion) :
    conjugate (extensionEmbedding w.1) (algebraMap v.Completion w.1.Completion x) =
       (extensionEmbedding v) x := by
   induction x using induction_on
@@ -517,7 +513,7 @@ theorem extensionEmbedding_algebraMap_star [IsConjugateLift L v w]
 /-- If `w` is an unramified extension of `v` such that both infinite places are complex
 and `w.embedding` extends `v.embedding` then `w.Completion` is isomorphic to `ℂ` as
 `v.Completion` algebras. This uses the canonical `w.Completion` algebra for `ℂ`. -/
-def algEquivComplex [w.1.Complex] [IsLift L v w] :
+def algEquivComplex [Fact w.1.IsComplex] [IsLift L v w] :
   w.1.Completion ≃ₐ[v.Completion] ℂ :=
   algEquivComplexOfComplex w.1 |>.restrictScalars v.Completion
 
@@ -533,22 +529,23 @@ instance [IsConjugateLift L v w] : IsScalarTower v.Completion w.1.Completion ℂ
 /-- If `w` is an unramified extension of `v` such that both infinite places are complex
 and `conjugate w.embedding` extends `v.embedding` then `w.Completion` is isomorphic to `ℂ` as
 `v.Completion` algebras. This uses the conjugate `w.Completion` algebra for `ℂ`. -/
-def algEquivComplexStar [w.1.Complex] [IsConjugateLift L v w] :
+def algEquivComplexStar [Fact w.1.IsComplex] [IsConjugateLift L v w] :
     w.1.Completion ≃ₐ[v.Completion] ℂ :=
   algEquivComplexOfComplexStar w.1 |>.restrictScalars v.Completion
 
-instance complex_of_complex [v.Complex] : w.1.Complex :=
-  inferInstanceAs (w : v.Extension L).1.Complex
+instance [hv : Fact v.IsReal] : Fact w.1.IsReal := ⟨w.isReal_of_isReal hv.elim⟩
 
-instance [v.Real] : w.1.Real := ⟨w.isReal_of_isReal (Real.isReal v)⟩
+instance [hv : Fact v.IsComplex] : Fact w.1.IsComplex :=
+  ⟨Extension.isComplex_of_isComplex (w : v.Extension L) hv.elim⟩
 
 /-- If `w` is an unramified extension of `v` and both infinite places are complex then
 the `v.Completion`-dimension of `w.Completion` is `1`. -/
 theorem finrank_eq_one : Module.finrank v.Completion w.1.Completion = 1 := by
-  by_cases hv : v.Real
-  · rw [algEquivReal w |>.toLinearEquiv.finrank_eq,
+  by_cases hv : v.IsReal
+  · have : Fact v.IsReal := ⟨hv⟩
+    rw [algEquivReal w |>.toLinearEquiv.finrank_eq,
       ← algEquivRealOfReal v |>.toLinearEquiv.finrank_eq, Module.finrank_self]
-  · rw [not_real_iff_complex] at hv
+  · have : Fact v.IsComplex := ⟨not_isReal_iff_isComplex.1 hv⟩
     cases isLift_or_isConjugateLift L v w with
     | inl hl =>
       rw [algEquivComplex w |>.toLinearEquiv.finrank_eq,
@@ -565,7 +562,7 @@ theorem finrank_eq_ramificationIdx :
     Module.finrank v.Completion w.1.Completion = ramificationIdx K w.1 := by
   by_cases h : w.1.IsRamified K
   · let w := w.toRamifiedExtension h
-    have : v.Real := ⟨w.isReal⟩
+    have : Fact v.IsReal := ⟨w.isReal⟩
     show Module.finrank v.Completion w.1.Completion = ramificationIdx K w.1
     simp [ramificationIdx, w.isRamified, RamifiedExtension.finrank_eq_two]
   · let w := w.toUnramifiedExtension (by simpa using h)
