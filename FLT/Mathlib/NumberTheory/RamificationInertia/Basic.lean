@@ -13,9 +13,7 @@ lemma sum_ramification_inertia_of_isLocalRing {R : Type*} [CommRing R]
   [IsScalarTower R K L] [Module.Finite R S] [p.IsMaximal] (hp0 : p ≠ ⊥)
     : ramificationIdx (algebraMap R S) p (IsLocalRing.maximalIdeal S) *
       p.inertiaDeg (IsLocalRing.maximalIdeal S) = Module.finrank K L := by
-  have : NoZeroSMulDivisors R S := by
-    have := FaithfulSMul.of_field_isFractionRing R S K L
-    infer_instance
+  have := FaithfulSMul.of_field_isFractionRing R S K L
   rw [← sum_ramification_inertia S p K L hp0]
   symm
   apply Finset.sum_eq_single_of_mem

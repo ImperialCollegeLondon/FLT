@@ -921,9 +921,9 @@ lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
   rw [← Ideal.sum_ramification_inertia B v.asIdeal K L v.ne_bot]
   -- Check that the sums are equal via a bijection
   apply Finset.sum_nbij (fun w ↦ w.val.asIdeal)
-  . rintro ⟨a, ha⟩ -
-    rw [← Finset.mem_coe, coe_primesOverFinset v.ne_bot]
-    exact ⟨a.isPrime, ⟨(congr_arg asIdeal ha).symm⟩⟩
+  . rintro ⟨a, rfl⟩ -
+    rw [← Finset.mem_coe, coe_primesOverFinset (comap A a).ne_bot]
+    exact ⟨a.isPrime, ⟨rfl⟩⟩
   . apply Function.Injective.injOn
     exact fun _ _ hw ↦ Subtype.ext <| HeightOneSpectrum.ext hw
   . intro y hy
