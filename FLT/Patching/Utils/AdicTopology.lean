@@ -80,24 +80,6 @@ lemma isCompact_of_isNoetherianRing [IsNoetherianRing R] [CompactSpace R] (I : I
     IsCompact (X := R) I := Ideal.isCompact_of_fg (IsNoetherian.noetherian _)
 
 variable {R} in
-omit [TopologicalSpace R] [IsTopologicalRing R] [IsAdicTopology R] in
-lemma exists_maximalIdeal_pow_le_of_finite_quotient' (I : Ideal R) [Finite (R ⧸ I)] :
-    ∃ n, (maximalIdeal R) ^ n ≤ I := by
-  by_cases hI : I = ⊤
-  · simp [hI]
-  have : Nontrivial (R ⧸ I) := Ideal.Quotient.nontrivial hI
-  have := IsLocalRing.of_surjective' (Ideal.Quotient.mk I) Ideal.Quotient.mk_surjective
-  have := IsLocalHom.of_surjective (Ideal.Quotient.mk I) Ideal.Quotient.mk_surjective
-  obtain ⟨n, hn⟩ := IsArtinianRing.isNilpotent_jacobson_bot (R := R ⧸ I)
-  have : (maximalIdeal R).map (Ideal.Quotient.mk I) = maximalIdeal (R ⧸ I) := by
-    ext x
-    obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
-    simp [sup_eq_left.mpr (le_maximalIdeal hI)]
-  rw [jacobson_eq_maximalIdeal _ bot_ne_top, ← this, ← Ideal.map_pow, Ideal.zero_eq_bot,
-    Ideal.map_eq_bot_iff_le_ker, Ideal.mk_ker] at hn
-  exact ⟨n, hn⟩
-
-variable {R} in
 lemma isOpen_iff_finite_quotient' [CompactSpace R] {I : Ideal R} :
     IsOpen (X := R) I ↔ Finite (R ⧸ I) := by
   constructor
