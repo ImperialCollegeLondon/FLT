@@ -18,7 +18,8 @@ structure Subrepresentation where
 
 namespace Subrepresentation
 
-lemma toSubmodule_injective : Function.Injective (toSubmodule : Subrepresentation ρ → Submodule A W) := by
+lemma toSubmodule_injective :
+    Function.Injective (toSubmodule : Subrepresentation ρ → Submodule A W) := by
   rintro ⟨_,_⟩
   congr!
 

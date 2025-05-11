@@ -1,3 +1,9 @@
+#!/usr/bin/env bash
+
+# Exit immediately if a command exits with a non-zero status,
+# treat unset variables as an error, and ensure errors in pipelines are not masked.
+set -euo pipefail
+
 # Build HTML documentation for FLT
 # The output will be located in docs/docs
 
@@ -29,22 +35,16 @@ template > docbuild/lakefile.toml
 # Substitute the toolchain from lean-toolchain into docbuild/lakefile.toml
 sed -i s/TOOLCHAIN/`grep -oP 'v4\..*' lean-toolchain`/ docbuild/lakefile.toml
 
-# Fetch the docs cache if it exists
-mkdir -p docs/docs
-mv docs/docs docbuild/.lake/build/doc
-
 # Initialise docbuild as a Lean project
 cd docbuild
-MATHLIB_NO_CACHE_ON_UPDATE=1 # Disable an error message due to a non-blocking bug. See Zulip
-~/.elan/bin/lake update FLT
-~/.elan/bin/lake exe cache get
+
+# Disable an error message due to a non-blocking bug. See Zulip
+MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
 
 # Build the docs
 ~/.elan/bin/lake build FLT:docs
 
-# Move them out of docbuild
+# Copy documentation to `docs/docs`
 cd ../
-mv docbuild/.lake/build/doc docs/docs
-
-# Clean up after ourselves
-rm -rf docbuild
+sudo chown -R runner docs
+cp -r docbuild/.lake/build/doc docs/docs

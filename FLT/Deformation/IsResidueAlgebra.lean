@@ -57,7 +57,8 @@ section Quotient
 
 variable {A} in
 omit [IsLocalRing A] in
-lemma Ideal.neq_top_of_nontrivial_quotient (I : Ideal A) [nontrivial : Nontrivial (A ⧸ I)] : I ≠ ⊤ :=
+lemma Ideal.neq_top_of_nontrivial_quotient (I : Ideal A) [nontrivial : Nontrivial (A ⧸ I)] :
+    I ≠ ⊤ :=
   Ideal.Quotient.zero_ne_one_iff.mp zero_ne_one
 
 variable {A} in
@@ -85,7 +86,8 @@ end Quotient
 section Relative
 
 variable {𝓞 A}
-  {B : Type*} [CommRing B] [Algebra 𝓞 B] [IsLocalRing B] [IsLocalHom (algebraMap 𝓞 B)] [IsResidueAlgebra 𝓞 B]
+  {B : Type*} [CommRing B] [Algebra 𝓞 B] [IsLocalRing B] [IsLocalHom (algebraMap 𝓞 B)]
+  [IsResidueAlgebra 𝓞 B]
 
 omit [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] [IsLocalHom (algebraMap 𝓞 B)] in
 lemma of_restrictScalars [Algebra A B] [isScalarTower : IsScalarTower 𝓞 A B]

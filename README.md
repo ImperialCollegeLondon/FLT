@@ -10,7 +10,7 @@ An ongoing multi-author open source project to formalise a proof of Fermat's Las
 
 # Information about the project
 
-The project is currently being led by Kevin Buzzard. From October 2024 it will be funded by [grant EP/Y022904/1](https://gow.epsrc.ukri.org/NGBOViewGrant.aspx?GrantRef=EP/Y022904/1), awarded by the EPSRC. The project is hosted at Imperial College London. Kevin would like to extend many many thanks to both of these institutions for their ongoing support of this nonstandard research.
+The project is currently being led by Kevin Buzzard. Until September 2029 it is being funded by [grant EP/Y022904/1](https://gtr.ukri.org/projects?ref=EP%2FY022904%2F1), awarded by the EPSRC. The project is hosted at Imperial College London. Kevin would like to extend many many thanks to both of these institutions for their ongoing support of this nonstandard research.
 
 General information ("What is Fermat's Last Theorem/Lean?" / "Why are you doing this?" etc) is [here](GENERAL.md).
 

@@ -1,8 +1,16 @@
 import Mathlib.Algebra.Algebra.Bilinear
+import Mathlib.LinearAlgebra.Basis.VectorSpace
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Topology.Algebra.Module.ModuleTopology
+import Mathlib.Topology.Algebra.Algebra.Equiv
+import Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
-import FLT.Mathlib.Topology.Algebra.Monoid
+import FLT.Mathlib.Algebra.Algebra.Tower
+
+theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
+    [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
+  __ := moduleTopology R S
+  eq_moduleTopology' := rfl
 
 namespace IsModuleTopology
 
@@ -64,7 +72,7 @@ theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Mod
     simp [bil']
   rw [foo]
   apply Continuous.comp this
-  apply Continuous.prod_mk
+  apply Continuous.prodMk
   · exact continuous_of_linearMap (elinear.toLinearMap ∘ₗ (LinearMap.fst R A B))
   · fun_prop
 
@@ -83,7 +91,6 @@ theorem Module.continuous_bilinear_of_finite [Module.Finite R A]
     (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   obtain ⟨m, f, hf⟩ := Module.Finite.exists_fin' R A
   let bil' : (Fin m → R) →ₗ[R] B →ₗ[R] C := bil.comp f
-  have := Module.continuous_bilinear_of_pi_finite (Fin m) bil'
   let φ := f.prodMap (LinearMap.id : B →ₗ[R] B)
   have foo : Function.Surjective (LinearMap.id : B →ₗ[R] B) :=
     Function.RightInverse.surjective (congrFun rfl)
@@ -108,7 +115,7 @@ open scoped TensorProduct
 
 -- these shouldn't be rings, they should be semirings
 variable (R) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D]
+variable (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D]
 variable [TopologicalSpace D] [IsModuleTopology R D]
 
 open scoped TensorProduct
@@ -116,11 +123,12 @@ open scoped TensorProduct
 @[continuity, fun_prop]
 theorem continuous_mul'
     (R : Type*) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [Module.Free R D] [TopologicalSpace D]
+    (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [TopologicalSpace D]
     [IsModuleTopology R D] : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) :=
   Module.continuous_bilinear_of_finite (LinearMap.mul R D)
 
-def topologicalSemiring : IsTopologicalSemiring D where
+include R in
+lemma topologicalSemiring : IsTopologicalSemiring D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul' R D
 
@@ -143,7 +151,8 @@ theorem continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := b
   haveI : IsModuleTopology R (D ⊗[R] D) := { eq_moduleTopology' := rfl }
   convert Module.continuous_bilinear_of_finite <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
-def Module.topologicalRing : IsTopologicalRing D where
+include R in
+lemma Module.topologicalRing : IsTopologicalRing D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul R D
   continuous_neg := continuous_neg R D
@@ -191,15 +200,75 @@ automatic.
 end trans
 
 section opensubring
-
 variable (R S : Type*)
   [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
   [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
     [Algebra R S]
 
-example (hcont : Continuous (algebraMap R S))
-    (hopen : IsOpenMap (algebraMap R S)) : IsModuleTopology R S := by
-  sorry
+-- Proved this thinking I could use it to prove `IsModuleTopology K_∞ L_∞`,
+-- which application failed, but may as well keep this proof
+open scoped Topology in
+/-- An `R`-algebra `S` has the `R`-module topology if the embedding `R →+* S` is continuous
+and open. -/
+theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
+    (hopen : IsOpenMap (algebraMap R S)) : IsModuleTopology R S where
+  eq_moduleTopology' := by
+    -- Let `τS` denote the topology on `S`, `τRS` denote the `R`-module topology on `S`,
+    -- `τR` denote the topology on `R`.. This proof consists of pushing fowards and pulling
+    -- back open sets between three topological spaces as follows:
+    -- ```
+    -- (S, τRS) <-[hcont_id]- (S, τS)
+    --       |                 ↗
+    -- [hcont_alg]      [hopen]
+    --       |          /
+    --       |        /
+    --       |   [hcont]
+    --       ↓   ↙
+    --     (R, τR)
+    -- ```
+    -- where the arrows indicate the direction in which open sets are moved, `hopen` and `hcont`
+    -- are given hypotheses, and `hcont_id` and `hcont_alg` are the continuity of the identity map
+    -- and the algebra map respectively, which are proved below.
+    -- • : R × S → S is continuous
+    have : ContinuousSMul R S := continuousSMul_of_algebraMap R S hcont
+    -- The identity map `(S, τRS) → (S, τS)` is continuous, by minimality of module topology.
+    have hcont_id : Continuous[moduleTopology R S, _] id :=
+      continuous_id_iff_le.2 <| moduleTopology_le _ _
+    -- The algebra map `(R, τR) →ₗ[R] (S, τRS)` from `R` is continuous, since `τR` is the
+    -- `R`-module topology on `R`, and any `R`-linear map on this domain is continuous.
+    have hcont_alg : Continuous[_, moduleTopology R S] (Algebra.linearMap R S) :=
+      -- Give `S` the `R`-module topology
+      letI := moduleTopology R S
+      letI : ContinuousAdd S := ModuleTopology.continuousAdd _ _
+      letI : ContinuousSMul R S := ModuleTopology.continuousSMul _ _
+      IsModuleTopology.continuous_of_linearMap _
+    -- If `U` is open in `(S, τS)`, then it is open in `(S, τRS)` by pullback along [hcont_id].
+    have hopen_mpr {U : Set S} (h : IsOpen U) : IsOpen[moduleTopology R S] U :=
+      @Continuous.isOpen_preimage S S (moduleTopology R S) _ id hcont_id U h
+    -- If `U` is open in `(S, τRS)` and is contained in the image of `R` inside `S`, then it is
+    -- open in `(S, τS)`, by pullback along [hcont_alg] and push forward along [hopen].
+    have hopen_mp {U : Set S} (h : IsOpen[moduleTopology R S] U)
+        (hUS : U ⊆ Set.range (algebraMap R S)) : IsOpen U :=
+      Set.image_preimage_eq_of_subset hUS ▸ hopen _ <|
+        @Continuous.isOpen_preimage R S _ (moduleTopology R S) _ hcont_alg U h
+    -- To finish the proof, we now show that the neighbourhoods of zero in `τS` and `τ_R_S` coincide
+    rw [IsTopologicalRing.to_topologicalAddGroup.ext_iff <|
+      -- `(S, τRS)` is a topological add group
+      @IsModuleTopology.topologicalAddGroup R _ _ S _ _ (moduleTopology R S) (isModuleTopology R S)]
+    -- It is enough to show that the basis of neighbourhoods of zero are contained within each other
+    apply (nhds_basis_opens 0).ext (@nhds_basis_opens S (moduleTopology R S) 0)
+    · -- Assume `U` is open in `(S, τS)`, then it is open in `(S, τRS)` by `hopen_mpr` above.
+      exact fun U hU => ⟨U, ⟨⟨hU.1, hopen_mpr hU.2⟩, by simp⟩⟩
+    · -- Assume `U` is open in `(S, τRS)`
+      intro U hU
+      -- Intersect `U` with the image of `R` in `(S, τRS)`.
+      refine ⟨Set.range (algebraMap R S) ∩ U, ⟨⟨⟨⟨0, by simp⟩, hU.1⟩, ?_⟩, by simp⟩⟩
+      -- `Set.range (algebraMap R S)` is open in `(S, τS)` by hopen, so too in `(S, τRS)`
+      -- by hopen_mpr.
+      let hopen_range := hopen_mpr hopen.isOpen_range
+      -- Therefore `U ∩ Set.range (algebraMap R S)` is open in `(S, τRS)`, so too in `(S, τS)`
+      -- by hopen_mp.
+      exact hopen_mp (@IsOpen.inter _ (moduleTopology R S) _ _ hopen_range hU.2) (by simp)
 
 /-
 Proof.
@@ -241,11 +310,16 @@ over a complete thing so I don't think there can be any other possibility
 (the argument is weak here)
 -/
 
+/-- Given a linear isomorphism between two topological modules with the module topology,
+upgrades it to a continuous linear isomorphism using the fact that linear maps between modules
+with the module topology are automatically continuous. -/
+@[simps!]
 def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
     [Module R A] [Module R B] [IsModuleTopology R A] [IsModuleTopology R B]
     (e : A ≃ₗ[R] B) :
     A ≃L[R] B where
+  toFun := e
   __ := e
   continuous_toFun :=
     letI := IsModuleTopology.toContinuousAdd
@@ -253,3 +327,106 @@ def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
   continuous_invFun :=
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
+
+/--
+Given the following
+```
+e : A <–––––––––> B
+     \     /\    /
+      \   /  \  /
+       \ /    \/
+        S₁    S₂
+         \   /
+          \ /
+           R
+```
+where `A` and `B` are both `S₁` and `S₂`-algebras, `S₁` and `S₂` are algebras
+over a common base ring `R`, and `A` and `B` both have the `S₁`-module topology. If the algebras
+form scalar towers and the algebra map from  `S₁` to `B` factors through `e`, and if `A` and `B`
+are equivalent as `S₂`-algebras, then they are topologically equivalent as `S₂`-algebras as well
+(even though they do not necessarily have the `S₂`-module topologies).
+
+In application this is used for a situation where we have
+```
+v.Completion    L
+         \    /
+          \  /
+           K
+```
+for an infinite place `v` of a number field `K`. We have an `L`-algebra equivalence
+`L ⊗[K] v.Completion ≃ₐ[L] Π (w : v.ExtensionPlace L), wv.1.Completion`
+between `v.Completion`-module topological spaces. And so this allows us to assert that this
+is a _continuous_ `L`-algebra equivalence as well.
+-/
+def continuousAlgEquivOfIsScalarTower {A B : Type*} (R S₁ : Type*) {S₂ : Type*} [TopologicalSpace A]
+    [CommRing S₁] [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A] [CommRing B]
+    [Algebra S₁ A] [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B] [IsTopologicalSemiring B]
+    [IsTopologicalSemiring A] [TopologicalSpace S₁] [Algebra R A] [Algebra R B]
+    [IsModuleTopology S₁ A] [IsModuleTopology S₁ B] [Algebra R S₁] [IsScalarTower R S₁ A]
+    [Algebra R S₂] [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₐ[S₂] B)
+    (he : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) :
+    A ≃A[S₂] B where
+  toAlgEquiv := e
+  continuous_toFun := by
+    -- switch the equivalence scalars of `e` from `S₂` over to `S₁`
+    show Continuous (e.changeScalars R S₁ he).toLinearEquiv
+    -- then this is an `S₁`-linear map on the `S₁`-module topology, so is continuous
+    exact IsModuleTopology.continuous_of_linearMap _
+  continuous_invFun := by
+    show Continuous (e.changeScalars R S₁ he).toLinearEquiv.symm
+    exact IsModuleTopology.continuous_of_linearMap _
+
+@[simp]
+theorem continuousAlgEquivOsIfScalarTower_apply {A B : Type*} (R S₁ : Type*) {S₂ : Type*}
+    [TopologicalSpace A] [CommRing S₁] [CommRing S₂] [TopologicalSpace B] [CommRing R] [CommRing A]
+    [CommRing B] [Algebra S₁ A] [Algebra S₁ B] [Algebra S₂ A] [Algebra S₂ B]
+    [IsTopologicalSemiring B] [IsTopologicalSemiring A] [TopologicalSpace S₁] [Algebra R A]
+    [Algebra R B] [IsModuleTopology S₁ A] [IsModuleTopology S₁ B] [Algebra R S₁]
+    [IsScalarTower R S₁ A] [Algebra R S₂] [IsScalarTower R S₂ A] [IsScalarTower R S₂ B]
+    (e : A ≃ₐ[S₂] B) (he: ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) (a : A) :
+    continuousAlgEquivOfIsScalarTower R S₁ e he a = e a :=
+  rfl
+
+/-- An algebra isomorphism between two topological algebras over `R` with the
+`R`-module topology is automatically an algebra homeomorphism. -/
+def continuousAlgEquivOfAlgEquiv {A B R : Type*} [TopologicalSpace A]
+    [TopologicalSpace B] [TopologicalSpace R] [CommSemiring R] [Semiring A] [Semiring B]
+    [Algebra R A] [Algebra R B] [IsModuleTopology R A] [IsModuleTopology R B]
+    (e : A ≃ₐ[R] B) :
+    A ≃A[R] B where
+  __ := e
+  continuous_toFun :=
+    letI := IsModuleTopology.toContinuousAdd
+    IsModuleTopology.continuous_of_linearMap e.toLinearMap
+  continuous_invFun :=
+    letI := IsModuleTopology.toContinuousAdd
+    IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
+
+/-- A free module with the module topology over a `T2Space` ring is a `T2Space`.
+-/
+theorem t2Space {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Module.Free R M]
+    [TopologicalSpace R] [TopologicalSpace M] [T2Space R]
+    [ContinuousAdd R] [ContinuousMul R] [IsModuleTopology R M]
+    : T2Space M := by
+  have := IsModuleTopology.topologicalAddGroup R M
+  rw [IsTopologicalAddGroup.t2Space_iff_zero_closed]
+  let f := Module.Free.repr R M |>.toLinearMap
+  let g : (Module.Free.ChooseBasisIndex R M →₀ R) →ₗ[R] (Module.Free.ChooseBasisIndex R M → R) := {
+    __ := Finsupp.coeFnAddHom
+    map_smul' _ _ := rfl
+  }
+  suffices hpre : (g.comp f) ⁻¹' {0} = {0}  by
+    rw [← hpre]
+    apply IsClosed.preimage <| IsModuleTopology.continuous_of_linearMap (g.comp f)
+    exact isClosed_singleton
+  ext x
+  simp [map_eq_zero_iff g DFunLike.coe_injective,
+    map_eq_zero_iff f (Module.Free.repr R M).injective]
+
+/-- A vector space with the module topology over a `T2Space` ring is a `T2Space`.
+-/
+theorem t2Space' {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
+    [TopologicalSpace K] [TopologicalSpace V] [T2Space K]
+    [ContinuousAdd K] [ContinuousMul K] [mt : IsModuleTopology K V]
+    : T2Space V := by
+  apply t2Space (R := K)

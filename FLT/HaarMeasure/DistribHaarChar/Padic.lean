@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Javier López-Contreras
 -/
 import FLT.Mathlib.MeasureTheory.Group.Action
-import FLT.HaarMeasure.DistribHaarChar.Basic
 import FLT.HaarMeasure.MeasurableSpacePadics
+import Mathlib.MeasureTheory.Measure.Haar.DistribChar
 
 /-!
 # The distributive Haar characters of the p-adics
@@ -45,10 +45,11 @@ private lemma distribHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
   have hHK : H ≤ K := by
     simpa [H, K, -Submodule.smul_le_self_of_tower]
       using (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
-  have : H.FiniteRelIndex K :=
-    PadicInt.smul_submodule_finiteRelIndex (p := p) (mem_nonZeroDivisors_iff_ne_zero.1 x.2) 1
+  have x_nonzero: x.val ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.1 x.property
+  have : H.IsFiniteRelIndex K :=
+    PadicInt.smul_submodule_one_isFiniteRelIndex (p := p) x_nonzero
   have H_relindex_Z : (H.relindex K : ℝ≥0∞) = ‖(x : ℚ_[p])‖₊⁻¹ :=
-    congr(ENNReal.ofNNReal $(PadicInt.smul_submodule_relindex (p := p) x 1))
+    congr(ENNReal.ofNNReal $(PadicInt.smul_submodule_one_relindex (p := p)))
   rw [← index_mul_addHaar_addSubgroup_eq_addHaar_addSubgroup hHK, H_relindex_Z, ENNReal.coe_inv,
     ENNReal.mul_inv_cancel_left]
   · simp
@@ -76,11 +77,9 @@ lemma distribHaarChar_padic (x : ℚ_[p]ˣ) : distribHaarChar ℚ_[p] x = ‖(x 
   -- `g` agree on `ℤ_[p]⁰`.
   refine MonoidHom.eq_of_eqOn_dense (PadicInt.closure_nonZeroDivisors_padicInt (p := p)) ?_
   -- But this is what we proved in `distribHaarChar_padic_padicInt`.
-  simp
+  simp only [eqOn_range, g]
   ext x
-  simp [g]
-  rw [distribHaarChar_padic_padicInt]
-  rfl
+  simp [distribHaarChar_padic_padicInt]
 
 @[simp]
 lemma Padic.volume_padic_smul (x : ℚ_[p]) (s : Set ℚ_[p]) : volume (x • s) = ‖x‖₊ * volume s := by

@@ -14,9 +14,9 @@ jobs:
       pull-requests: write # Grants permission to create or update pull requests
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Update project
-        uses: oliver-butterley/lean-update@v1-alpha
+        uses: leanprover-community/lean-update@7cc53aeb4bf53e98ebdc2c7220b541f9a0aa067f # v0.5.0
         with:
           on_update_succeeds: pr # Create a pull request if the update succeeds
           on_update_fails: issue # Create an issue if the update fails

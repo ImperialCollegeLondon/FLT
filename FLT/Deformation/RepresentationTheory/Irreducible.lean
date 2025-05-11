@@ -10,12 +10,13 @@ variable {k : Type*} [Field k]
 variable {W : Type*} [AddCommMonoid W] [Module k W]
 
 /-!
-  `IsIrreducible ρ` is the statement that a given Representation ρ is irreducible (also known as simple),
+  `IsIrreducible ρ` is the statement that a given Representation ρ is irreducible
+  (also known as simple),
   meaning that any subrepresentation must be either the full one (⊤) or zero (⊥)
 
-  This notion is only well behaved when the representation is over a field k. If it were defined over
-  a ring A with a nontrivial ideal J, the subrepresentation JW would often be a non trivial subrepresentation,
-  so ρ would rarely be irreducible.
+  This notion is only well behaved when the representation is over a field k. If it were defined
+  over a ring A with a nontrivial ideal J, the subrepresentation JW would often be a non trivial
+  subrepresentation, so ρ would rarely be irreducible.
 -/
 class IsIrreducible (ρ : Representation k G W) : Prop where
   irreducible : IsSimpleOrder (Subrepresentation ρ)

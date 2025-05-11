@@ -9,6 +9,7 @@ on:
       - '**/blueprint.yml'
       - 'blueprint/**'
       - 'docs/**'
+      - 'scripts/**'
       - 'lean-toolchain'
       - 'lakefile.toml'
       - 'lake-manifest.json'
@@ -20,6 +21,7 @@ on:
       - '**/blueprint.yml'
       - 'blueprint/**'
       - 'docs/**'
+      - 'scripts/**'
       - 'lean-toolchain'
       - 'lakefile.toml'
       - 'lake-manifest.json'
@@ -43,11 +45,6 @@ jobs:
     name: Lint style
     runs-on: ubuntu-latest
     steps:
-      - name: Check for long lines
-        if: always()
-        run: |
-          ! (find FLT -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
-
       - name: Don't 'import Mathlib', use precise imports
         if: always()
         run: |
@@ -58,7 +55,7 @@ jobs:
     name: Build project
     steps:
       - name: Checkout project
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
@@ -68,16 +65,28 @@ jobs:
       - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
 
+      - name: check that FLT.lean is up to date
+        run: ~/.elan/bin/lake exe mk_all --check
+
       - name: Build project
         run: ~/.elan/bin/lake build FLT
 
+      - name: Lint project
+        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter FLT
+
       - name: Cache Mathlib docs
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
-          path: docs/docs
-          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: |
-            MathlibDoc-
+          path: |
+            docbuild/.lake/build/doc/Aesop
+            docbuild/.lake/build/doc/Batteries
+            docbuild/.lake/build/doc/find
+            docbuild/.lake/build/doc/Init
+            docbuild/.lake/build/doc/Lake
+            docbuild/.lake/build/doc/Lean
+            docbuild/.lake/build/doc/Mathlib
+            docbuild/.lake/build/doc/Std
+          key: Docs-${{ hashFiles('lake-manifest.json') }}
 
       - name: Check for `docs` folder # this is meant to detect a Jekyll-based website
         id: check_docs
@@ -91,9 +100,9 @@ jobs:
           fi
 
       - name: Build blueprint and copy to `docs/blueprint`
-        uses: xu-cheng/texlive-action@v2
+        uses: xu-cheng/texlive-action@f886de8159e5952a131848a5fa9c3196a2132b5d # v2
         with:
-          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
+          docker_image: ghcr.io/xu-cheng/texlive-full:20250401
           run: |
             # Install necessary dependencies and build the blueprint
             apk update
@@ -112,15 +121,14 @@ jobs:
             cp -r blueprint/web docs/blueprint
 
       - name: Check declarations mentioned in the blueprint exist in Lean code
-        run: |
-            ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+        run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Build project API documentation
         run: scripts/build_docs.sh
 
       - name: Bundle dependencies
         if: github.event_name == 'push'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
         with:
           working-directory: docs
           ruby-version: "3.1"  # Specify Ruby version
@@ -129,15 +137,17 @@ jobs:
       - name: Build website using Jekyll
         if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
         working-directory: docs
+        env:
+            JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: JEKYLL_ENV=production bundle exec jekyll build  # Note this will also copy the blueprint and API doc into docs/_site
 
       - name: "Upload website (API documentation, blueprint and any home page)"
         if: github.event_name == 'push'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: ${{ env.DOCS_EXISTS == 'true' && 'docs/_site' || 'docs/' }}
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5

@@ -4,11 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Jonas Bayer
 -/
 import Mathlib.RingTheory.DedekindDomain.Ideal
-import Mathlib.RingTheory.IntegralClosure.IntegralRestrict
-import Mathlib.FieldTheory.Cardinality
 import FLT.GlobalLanglandsConjectures.GLnDefs
-/-
 
+/-!
 # Proof of a case of the global Langlands conjectures.
 
 Class Field Theory was one of the highlights of 19th century mathematics, linking
@@ -55,6 +53,7 @@ namespace GL0
 
 variable (ρ : Weight 0)
 
+set_option synthInstance.maxHeartbeats 50000 in
 def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
     toFun := fun _ => c,
     is_smooth := {
@@ -65,25 +64,17 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
       smooth := by simp [contMDiff_const]
     }
     is_periodic := by simp
-    is_slowly_increasing := by
-      intros x
-      exact {
-      bounded_by := by
-        simp
-        apply Exists.intro (Complex.abs c)
-        apply Exists.intro 0
-        simp
-    }
+    is_slowly_increasing x := ⟨‖c‖, 0, by simp⟩
     is_finite_cod := by
       intros x
       rw [FiniteDimensional]
       rw [annihilator]
-      simp
+      simp only [id_eq, eq_mpr_eq_cast, cast_eq]
       exact {
         fg_top := by sorry
       }
     has_finite_level := by
-      let U : Subgroup (GL (Fin 0) (DedekindDomain.FiniteAdeleRing ℤ ℚ)) := {
+      let U : Subgroup (GL (Fin 0) (IsDedekindDomain.FiniteAdeleRing ℤ ℚ)) := {
         carrier := {1},
         one_mem' := by simp,
         mul_mem' := by simp
@@ -103,7 +94,7 @@ noncomputable def classification: AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
   invFun := fun c ↦ ofComplex ρ c
   left_inv := by
     rw [Function.LeftInverse]
-    simp [ofComplex]
+    simp only [ofComplex]
     intro x
     have h: x.toFun = fun _ => x.toFun 1 := by
       exact funext fun g ↦ congrArg x.toFun <| Subsingleton.eq_one g

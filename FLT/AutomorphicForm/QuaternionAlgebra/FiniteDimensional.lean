@@ -2,25 +2,21 @@ import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 
 namespace TotallyDefiniteQuaternionAlgebra
 
-open DedekindDomain
-open scoped TensorProduct NumberField
+open IsDedekindDomain NumberField IsQuaternionAlgebra
+open scoped TensorProduct
 
-variable (F : Type*) [Field F] [NumberField F]
-    [NumberField.IsTotallyReal F]
-    (D : Type*) [Ring D] [Algebra F D]
-    -- D has to be totally definite
+variable {F : Type*} [Field F] [NumberField F] [IsTotallyReal F]
+    {D : Type*} [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
+    (hD : IsTotallyDefinite F D)
 
-variable  (R : Type*) [Field R]
-  -- weight
-  (W : Type*) [AddCommGroup W] [Module R W] [DistribMulAction Dˣ W] [SMulCommClass R Dˣ W]
-  -- level
-  (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
-  -- subgroup should be open (and in practice will be compact)
-  --(oU : IsOpen (U : Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ))
-  -- character
-  (χ : (FiniteAdeleRing (𝓞 F) F)ˣ →* R)
+variable (K : Type*) [Field K]
+    (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+    (hU : IsOpen (U : Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ))
 
-theorem AutomorphicForm.finiteDimensional [FiniteDimensional R W] :
-    FiniteDimensional R (AutomorphicForm F D R W U χ) := sorry
+open TotallyDefiniteQuaternionAlgebra
+
+theorem AutomorphicForm.finiteDimensional :
+    FiniteDimensional K (WeightTwoAutomorphicFormOfLevel U K) :=
+  sorry
 
 end TotallyDefiniteQuaternionAlgebra

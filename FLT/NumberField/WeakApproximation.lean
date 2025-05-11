@@ -5,13 +5,10 @@ Authors: Salvatore Mercuri
 -/
 import Mathlib.NumberTheory.NumberField.Embeddings
 import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib.Tactic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
-import FLT.Mathlib.Data.Finset.Lattice.Fold
 import FLT.Mathlib.Topology.Algebra.Order.Field
-import FLT.Mathlib.Topology.Constructions
 
 /-!
 # Weak approximation
@@ -184,14 +181,16 @@ theorem exists_one_lt_lt_one {n : ℕ} {v : Fin (n + 2) → AbsoluteValue K ℝ}
   induction n using Nat.case_strong_induction_on with
   | hz =>
     let ⟨a, ha⟩ := (v 0).exists_one_lt_lt_one_of_ne_rpow (h 0) (h 1) (hv zero_ne_one)
-    exact ⟨a, ha.1, by simp [Fin.forall_fin_two]; exact ha.2⟩
+    exact ⟨a, ha.1, by simp [Fin.forall_fin_two, ha.2]⟩
   | hi n ih =>
     -- Assume the result is true for all smaller collections of absolute values
     -- Let `a : K` be the value from the collection with the last absolute value removed
     let ⟨a, ha⟩ := ih n le_rfl (fun _ => h _) (hv.comp_of_injective <| Fin.castSucc_injective _)
     -- Let `b : K` be the value using then first and last absolute value
     let ⟨b, hb⟩ := ih 0 (by linarith) (fun _ => h _) <| Fin.pairwise_forall_two hv
-    simp [Fin.forall_fin_two] at hb
+    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.isValue, Matrix.cons_val_zero, ne_eq,
+      Fin.forall_fin_two, not_true_eq_false, IsEmpty.forall_iff, one_ne_zero, not_false_eq_true,
+      Matrix.cons_val_one, Matrix.head_cons, forall_const, true_and] at hb
     -- If `v last < 1` then `a` works.
     by_cases ha₀ : v (Fin.last _) a < 1
     · refine ⟨a, ha.1, fun j hj => ?_⟩
@@ -261,7 +260,7 @@ variable (v)
 /--
 Infinite places are represented by non-trivial absolute values.
 -/
-theorem exists_one_lt : v.1.IsNontrivial := by
+theorem isNontrivial : v.1.IsNontrivial := by
   refine isNontrivial_iff_exists_abv_gt_one.2 ⟨2, let ⟨φ, hφ⟩ := v.2; ?_⟩
   simp only [coe_apply, ← hφ, place_apply, map_ofNat, RCLike.norm_ofNat, Nat.one_lt_ofNat]
 
@@ -320,7 +319,7 @@ theorem exists_one_lt_lt_one [NumberField K] (h : 1 < Fintype.card (InfinitePlac
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' this
   let ⟨m, hm⟩ := e.symm.surjective v
   let e₀ := e.trans (Equiv.swap 0 m)
-  let ⟨x, hx⟩ := AbsoluteValue.exists_one_lt_lt_one (fun i => (e₀.symm i).exists_one_lt)
+  let ⟨x, hx⟩ := AbsoluteValue.exists_one_lt_lt_one (fun i => (e₀.symm i).isNontrivial)
       (fun i j hj => mt eq_of_eq_rpow <| e₀.symm.injective.ne hj)
   refine ⟨x, hm ▸ hx.1, fun w hw => ?_⟩
   have he₀ : e₀ v = 0 := by simp [e₀, e.symm_apply_eq.1 hm]

@@ -9,7 +9,6 @@ import Mathlib.Analysis.Complex.Basic
 import Mathlib.Analysis.Matrix
 import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import Mathlib.LinearAlgebra.UnitaryGroup
 import Mathlib.RepresentationTheory.FDRep
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
@@ -34,71 +33,13 @@ open scoped Manifold
 Later, replace with `open scoped ContDiff`. -/
 local notation "∞" => (⊤ : ℕ∞)
 
-namespace DedekindDomain
+namespace IsDedekindDomain
 
 open scoped algebraMap
 
-section PRs
-
-open IsDedekindDomain
-
-variable (R K : Type*) [CommRing R] [IsDedekindDomain R] [Field K] [Algebra R K]
-  [IsFractionRing R K] (v : HeightOneSpectrum R)
-
-local notation "K_hat" => ProdAdicCompletions
-local notation "R_hat" => FiniteIntegralAdeles
-
-section PR13705
-
-namespace ProdAdicCompletions.IsFiniteAdele
-
-open IsDedekindDomain.HeightOneSpectrum
-
-@[simp]
-lemma mem_FiniteAdeleRing (x : K_hat R K) : x ∈ (
-    { carrier := {x : K_hat R K | x.IsFiniteAdele}
-      mul_mem' := mul
-      one_mem' := one
-      add_mem' := add
-      zero_mem' := zero
-      algebraMap_mem' := algebraMap'
-    } : Subalgebra K (K_hat R K)) ↔ {v | x v ∉ adicCompletionIntegers K v}.Finite := Iff.rfl
-
-open Set
-
-/-- The finite adele ring is an algebra over the finite integral adeles. -/
-noncomputable instance : Algebra (R_hat R K) (FiniteAdeleRing R K) := inferInstance
-
-end ProdAdicCompletions.IsFiniteAdele -- namespace
-
-end PR13705 -- section
-
-section PR13703
-
-open scoped nonZeroDivisors
-
-noncomputable instance foobar37 : Algebra R (FiniteAdeleRing R K) :=
-  RingHom.toAlgebra ((algebraMap K (FiniteAdeleRing R K)).comp (algebraMap R K))
-
-@[deprecated mul_nonZeroDivisor_mem_finiteIntegralAdeles (since := "2024-08-11")]
-lemma FiniteAdeleRing.clear_denominator (a : FiniteAdeleRing R K) :
-    ∃ (b : R⁰) (c : R_hat R K), a * (b : R) = c := by
-  exact mul_nonZeroDivisor_mem_finiteIntegralAdeles a
-
---#check Classical.choose (v.valuation_exists_uniformizer K)
-
--- These instances are sorry-free in the PR.
-instance : TopologicalSpace (FiniteAdeleRing ℤ ℚ) := sorry
-
-
-instance instTopologicalRingFiniteAdeleRing : IsTopologicalRing (FiniteAdeleRing ℤ ℚ) := sorry
-
-end PR13703
-
-end PRs  -- section
-
 section
 
+/-- The action of a Lie `R`-algebra on a Lie `R`-module, as an `R`-bilinear map. -/
 @[simps!]
 def bracketBilin (R L M) [CommRing R] [LieRing L] [LieAlgebra R L] [AddCommGroup M] [Module R M]
     [LieRingModule L M] [LieModule R L M] :
@@ -111,8 +52,8 @@ attribute [ext] Bracket
 open scoped TensorProduct
 
 noncomputable instance instLieAlgebra'
-  (S R A L : Type*) [CommRing S] [CommRing R] [CommRing A] [Algebra R A] [LieRing L] [LieAlgebra R L]
-    [Algebra S A] [SMulCommClass R S A] :
+  (S R A L : Type*) [CommRing S] [CommRing R] [CommRing A] [Algebra R A] [LieRing L]
+    [LieAlgebra R L] [Algebra S A] [SMulCommClass R S A] :
     LieAlgebra S (A ⊗[R] L) where
   lie_smul a x y := by
     induction x using TensorProduct.induction_on generalizing y
@@ -132,7 +73,7 @@ theorem diamond_fix :
   conv_lhs => rw [← @bracketBilin_apply_apply R _ _ _ _]
   rw [← @bracketBilin_apply_apply R _ _ _ (_) (.ofAssociativeAlgebra) _ _ (_) (_) x y]
   rotate_left
-  exact @lieAlgebraSelfModule ..
+  · exact @lieAlgebraSelfModule ..
   refine LinearMap.congr_fun₂ ?_ x y
   ext xa xb ya yb
   change @Bracket.bracket _ _ _ (xa ⊗ₜ[R] xb) (ya ⊗ₜ[R] yb) = _
@@ -141,11 +82,11 @@ theorem diamond_fix :
 
 end
 
-end DedekindDomain
+end IsDedekindDomain
 
 namespace AutomorphicForm
 
-open DedekindDomain
+open IsDedekindDomain
 namespace GLn
 
 open Manifold
@@ -230,7 +171,8 @@ def actionTensorCAlg' :
   (LinearMap.tensorProductEnd ..).comp (actionTensorCAlg G E)
 
 def actionTensorCAlg'2 :
-  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)) →ₐ[ℂ]
+  Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ
+    (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)) →ₐ[ℂ]
     Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) :=
   (actionTensorCAlg' G E).comp (SubalgebraClass.val _)
 
@@ -284,16 +226,15 @@ open CategoryTheory
 noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
     FDRep ℂ (orthogonalGroup (Fin n) ℝ) where
   V := FGModuleCat.of ℂ (Fin w.d → ℂ)
-  ρ := MonCat.ofHom {
+  ρ := {
     toFun := fun A ↦ ModuleCat.ofHom {
       toFun := fun x ↦ (w.rho A).1 *ᵥ x
       map_add' := fun _ _ ↦ Matrix.mulVec_add ..
       map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul .. }
     map_one' := by aesop
     map_mul' := fun _ _ ↦ by
-      simp only [obj_carrier, MonCat.mul_of, _root_.map_mul, Units.val_mul, ← Matrix.mulVec_mulVec]
-      rfl
-  }
+      simp only [_root_.map_mul, Units.val_mul, ← mulVec_mulVec, End.mul_def]
+      rfl }
 
 structure Weight (n : ℕ) where
   w : preweight n
