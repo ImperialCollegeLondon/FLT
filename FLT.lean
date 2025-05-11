@@ -12,8 +12,6 @@ import FLT.Deformation.Algebra.Category.AlgebraCat.CommAlgebraCat
 import FLT.Deformation.Algebra.InverseLimit.InverseLimit.Basic
 import FLT.Deformation.Algebra.InverseLimit.InverseLimit.Topology
 import FLT.Deformation.Algebra.InverseLimit.TopologicalStructure
-import FLT.Deformation.Algebra.InverseLimit.Topology
-import FLT.Deformation.Algebra.Module.ExtendScalars
 import FLT.Deformation.BaseCat
 import FLT.Deformation.ContinuousRepresentation.IsTopologicalModule
 import FLT.Deformation.Deformation

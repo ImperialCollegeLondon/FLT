@@ -6,6 +6,8 @@ import FLT.Mathlib.Algebra.Category.Ring.Basic
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Deformation.Algebra.Category.AlgebraCat.CommAlgebraCat
 
+#exit
+
 open scoped TensorProduct Representation CategoryTheory
 
 namespace Deformation

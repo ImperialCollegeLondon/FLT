@@ -6,6 +6,8 @@ import FLT.Deformation.ContinuousRepresentation.IsTopologicalModule
 import FLT.Deformation.Lift
 import FLT.Deformation.Topology.Algebra.OpenIdeal
 
+#exit
+
 open CategoryTheory Function
 open scoped TensorProduct Deformation
 

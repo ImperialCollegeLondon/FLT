@@ -3,6 +3,7 @@
 import FLT.Deformation.BaseCat
 import Mathlib
 
+#exit
 universe u uO uF uG un
 
 open CategoryTheory IsLocalRing

@@ -3,6 +3,7 @@ import FLT.Deformation.Lift
 import FLT.Deformation.Deformation
 import FLT.Mathlib.Algebra.MvPolynomial.Eval
 
+#exit
 universe u
 
 open CategoryTheory Function Matrix Set MvPolynomial

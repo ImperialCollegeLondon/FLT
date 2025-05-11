@@ -5,6 +5,8 @@ import FLT.Deformation.Topology.Algebra.OpenIdeal
 
 universe v u
 
+#exit
+
 open CategoryTheory Function Limits IsLocalRing
 
 namespace Deformation

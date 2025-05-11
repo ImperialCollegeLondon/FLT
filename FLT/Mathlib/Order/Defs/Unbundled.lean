@@ -11,5 +11,5 @@ instance : LinearOrder ι where
   le_trans := instIsLinearOrder.trans
   le_antisymm := instIsLinearOrder.antisymm
   le_total := instIsLinearOrder.total
-  decidableLE := instDedidabeRel
+  toDecidableLE := instDedidabeRel
   lt_iff_le_not_le := instPreorder.lt_iff_le_not_le

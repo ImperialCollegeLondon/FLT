@@ -9,6 +9,8 @@ open scoped TensorProduct Deformation
 
 namespace Deformation
 
+#exit
+
 /-!
 # The Lift Functor
 - `G` is a topological group

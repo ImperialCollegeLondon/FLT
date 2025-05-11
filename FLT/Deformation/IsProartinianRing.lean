@@ -1,5 +1,5 @@
 import FLT.Deformation.Algebra.InverseLimit.InverseLimit.Basic
-import FLT.Deformation.Algebra.InverseLimit.Topology
+import FLT.Deformation.Algebra.InverseLimit.InverseLimit.Topology
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
 
 import Mathlib.Order.CompletePartialOrder
@@ -11,6 +11,7 @@ import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
 import Mathlib.RingTheory.AdicCompletion.Basic
 import Mathlib
 
+#exit
 open Topology TopologicalSpace
 namespace Deformation
 
@@ -50,18 +51,18 @@ def proartinianCompletion_map (h : a ≤ b)
 
 variable (A) in
 abbrev proartinianCompletion :=
-  Ring.InverseLimit
+  InverseLimit
     (fun (a : ArtinianQuotientIdeal A) => proartinianCompletion_obj a)
-    proartinianCompletion_map
+    (@proartinianCompletion_map _ _)
 
 variable (A) in
 noncomputable def diagonalMap : A →+* proartinianCompletion A :=
-  Ring.InverseLimit.map_of_maps'
-    proartinianCompletion_map
+  InverseLimit.liftRingHom
+    (fun (a : ArtinianQuotientIdeal A) => proartinianCompletion_obj a)
+    (@proartinianCompletion_map _ _)
     (fun a ↦ Ideal.Quotient.mk (a : Ideal A))
     (by
       rintro a b h
-      unfold proartinianCompletion_map
       aesop
     )
 
@@ -80,6 +81,8 @@ variable (A) in
 instance instIsInducing [IsProartinianRing A] : IsInducing (diagonalMap A) where
   eq_induced := rfl
 
+set_option maxHeartbeats 800000 in
+set_option synthInstance.maxHeartbeats 80000 in
 instance [IsProartinianRing A] : IsTopologicalRing A where
   continuous_add := (IsInducing.continuousAdd (diagonalMap A) (instIsInducing A)).continuous_add
   continuous_mul := (IsInducing.continuousMul (diagonalMap A) (instIsInducing A)).continuous_mul

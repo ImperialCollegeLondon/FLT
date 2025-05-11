@@ -1,6 +1,6 @@
 import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Basic
 import Mathlib.Topology.Algebra.OpenSubgroup
-import FLT.Deformation.Algebra.InverseLimit.Topology
+import FLT.Deformation.Algebra.InverseLimit.InverseLimit.Topology
 import FLT.Mathlib.GroupTheory.Coset.Basic
 
 import Mathlib -- TODO(jlcontreras): delete this via min imports
@@ -57,6 +57,8 @@ def func (h : Gi ≤ Gj) : obj G V Gj →* obj G V Gi := by
       simp only [Set.mem_setOf_eq]
       exact Subgroup.quotientMapOfLE_mul h x y
   }
+
+#exit
 
 def OpenAvoidingDecomposition : Type _ := Group.InverseLimit (obj G V) (func G V)
 
