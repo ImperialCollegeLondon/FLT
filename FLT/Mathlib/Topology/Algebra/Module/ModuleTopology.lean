@@ -166,7 +166,7 @@ variable (R S : Type*)
   [CommRing R] [TopologicalSpace R]
   [CommRing S] [TopologicalSpace S] [IsTopologicalRing S] [Algebra R S]
 
-lemma IsModuleTopology_iff_Continuous_algebraMap :
+lemma iff_Continuous_algebraMap :
     IsTopologicalModule R S ↔ Continuous (algebraMap R S) := by
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
   · have : Continuous (fun r ↦ r • 1 : R → S) := by fun_prop
@@ -182,8 +182,10 @@ section trans
 
 variable (R : Type*) [CommRing R] [TopologicalSpace R]
 
-instance (M : Type*) [AddCommGroup M] [TopologicalSpace M] [Module R M] [IsModuleTopology R M] :
-    IsTopologicalModule R M where
+-- making this into an instance causes timeouts in the BaseChange file :-/
+theorem isTopologicalModule
+    (M : Type*) [AddCommGroup M] [TopologicalSpace M] [Module R M]
+    [IsModuleTopology R M] : IsTopologicalModule R M where
       continuous_smul := eq_moduleTopology R M ▸ (continuousSMul R M).1
       continuous_add := eq_moduleTopology R M ▸ (continuousAdd R M).1
 
@@ -191,14 +193,14 @@ variable (S : Type*) [CommRing S] [TopologicalSpace S] [IsTopologicalRing S] [Al
 
 variable (M : Type*) [AddCommGroup M] [Module R M] [Module S M] [IsScalarTower R S M]
 
-lemma Algebra.moduleTopology_le [IsTopologicalModule R S] :
+lemma _root_.Algebra.moduleTopology_le [IsTopologicalModule R S] :
     moduleTopology R M ≤ moduleTopology S M := by
   letI : TopologicalSpace M := moduleTopology S M
   haveI : ContinuousAdd M := continuousAdd S M
   have ⟨cts_smul⟩ : ContinuousSMul S M := continuousSMul S M
   suffices ContinuousSMul R M from _root_.moduleTopology_le R M
   have cts_alg : Continuous (algebraMap R S) := by
-    rwa [← IsModuleTopology_iff_Continuous_algebraMap]
+    rwa [← iff_Continuous_algebraMap]
   constructor
   suffices Continuous (fun rm ↦ algebraMap R S rm.1 • rm.2 : R × M → M) by
     simpa [← algebra_compatible_smul S]
@@ -207,8 +209,9 @@ lemma Algebra.moduleTopology_le [IsTopologicalModule R S] :
 /-- If S is an R-algebra, finite as an R-module, with the module topology,
   then the S-module topology on an S-module coincides with the R-module topology.
 -/
-lemma moduleTopology.trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTopology R S] :
+lemma _root_.moduleTopology.trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTopology R S] :
     moduleTopology R M = moduleTopology S M := by
+  have := IsModuleTopology.isTopologicalModule
   refine le_antisymm (Algebra.moduleTopology_le _ _ _) ?_
   letI : TopologicalSpace M := moduleTopology R M
   haveI : IsModuleTopology R M := isModuleTopology R M
@@ -230,6 +233,15 @@ lemma moduleTopology.trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTo
       exact IsScalarTower.smul_assoc r s m
   }
   exact Module.continuous_bilinear_of_finite bil
+
+-- should be earlier and should be PRed like the rest of this file
+lemma iff [τ : TopologicalSpace M] : IsModuleTopology R M ↔ τ = moduleTopology R M :=
+  ⟨fun _ ↦ eq_moduleTopology', fun a ↦ { eq_moduleTopology' := a }⟩
+
+lemma trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTopology R S]
+    [τ : TopologicalSpace M] :
+    IsModuleTopology R M ↔ IsModuleTopology S M := by
+  simp [iff R M, iff S M, moduleTopology.trans R S]
 
 end trans
 
