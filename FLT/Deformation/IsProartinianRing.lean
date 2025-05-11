@@ -1,4 +1,4 @@
-import FLT.Deformation.Algebra.InverseLimit.Basic
+import FLT.Deformation.Algebra.InverseLimit.InverseLimit.Basic
 import FLT.Deformation.Algebra.InverseLimit.Topology
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Defs
 

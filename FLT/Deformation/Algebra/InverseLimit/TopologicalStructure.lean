@@ -1,7 +1,7 @@
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Order.Defs.Unbundled
 import FLT.Deformation.ContinuousRepresentation.IsTopologicalModule
-import FLT.Deformation.Algebra.InverseLimit.Basic
+import FLT.Deformation.Algebra.InverseLimit.InverseLimit.Basic
 import FLT.Deformation.Algebra.InverseLimit.Topology
 
 open TopologicalSpace
