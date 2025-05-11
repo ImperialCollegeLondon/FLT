@@ -19,7 +19,7 @@ embeddings `w.embedding` and `v.embedding`:
 - `v` and `w` are both complex, and `conjugate w.embedding` extends `v.embedding`.
 
 ## Main definitions
-- `ComplexEmbedding.IsExtension f g` : predicate determining whether `g : L →+* ℂ`
+- `ComplexEmbedding.IsExtension f g` : predicate asserting that `g : L →+* ℂ`
   extends `f : L →+* ℂ`.
 - `ComplexEmbedding.IsMixedExtension f g` : predicate determining whether `g : L →+* ℂ` extends
   `f : L →+* ℂ` and `g` is complex while `f` is real.
