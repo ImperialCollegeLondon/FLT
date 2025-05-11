@@ -19,12 +19,12 @@ embeddings `w.embedding` and `v.embedding`:
 - `v` and `w` are both complex, and `conjugate w.embedding` extends `v.embedding`.
 
 ## Main definitions
-- `ComplexEmbedding.IsExtension f g` : predicate determining whether `g : L →+* ℂ`
+- `ComplexEmbedding.IsExtension f g` : predicate asserting that `g : L →+* ℂ`
   extends `f : L →+* ℂ`.
-- `ComplexEmbedding.IsMixedExtension f g` : predicate determining whether `g : L →+* ℂ` extends
+- `ComplexEmbedding.IsMixedExtension f g` : predicate asserting that `g : L →+* ℂ` extends
   `f : L →+* ℂ` and `g` is complex while `f` is real.
-- `ComplexEmbedding.IsUnmixedExtension f g` : predicate determining whether `g : L →+* ℂ` extends
-  `f : L →+* ℂ` and `g` is real if and only if `f` is real.
+- `ComplexEmbedding.IsUnmixedExtension f g` : predicate asserting `g : L →+* ℂ` extends
+  `f : L →+* ℂ` and that `g` is real if and only if `f` is real.
 - `InfinitePlace.Extension L v` : the type of infinite places of `L` extending
   `v : InfinitePlace K` .
 - `InfinitePlace.RamifiedExtension L v` : the type of infinite places of `L` that are
