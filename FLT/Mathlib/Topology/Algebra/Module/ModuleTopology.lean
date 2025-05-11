@@ -168,13 +168,11 @@ variable (R S : Type*)
 
 lemma iff_Continuous_algebraMap :
     IsTopologicalModule R S ↔ Continuous (algebraMap R S) := by
-  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
-  · have : Continuous (fun r ↦ r • 1 : R → S) := by fun_prop
-    simpa [← Algebra.algebraMap_eq_smul_one]
-  · have : Continuous (fun rs ↦ algebraMap R S rs.1 • rs.2 : R × S → S) := by fun_prop
-    simp_rw [← algebra_compatible_smul S] at this
-    have : ContinuousSMul R S := ⟨this⟩
-    exact IsTopologicalModule.mk
+  refine ⟨fun _ ↦ continuous_algebraMap R S, fun h ↦ ?_⟩
+  have : Continuous (fun rs ↦ algebraMap R S rs.1 • rs.2 : R × S → S) := by fun_prop
+  simp_rw [← algebra_compatible_smul S] at this
+  have : ContinuousSMul R S := ⟨this⟩
+  exact IsTopologicalModule.mk
 
 end algebra
 
@@ -189,7 +187,7 @@ theorem isTopologicalModule
       continuous_smul := eq_moduleTopology R M ▸ (continuousSMul R M).1
       continuous_add := eq_moduleTopology R M ▸ (continuousAdd R M).1
 
-variable (S : Type*) [CommRing S] [TopologicalSpace S] [IsTopologicalRing S] [Algebra R S]
+variable (S : Type*) [CommRing S] [TopologicalSpace S] [Algebra R S]
 
 variable (M : Type*) [AddCommGroup M] [Module R M] [Module S M] [IsScalarTower R S M]
 
@@ -199,8 +197,6 @@ lemma _root_.Algebra.moduleTopology_le [IsTopologicalModule R S] :
   haveI : ContinuousAdd M := continuousAdd S M
   have ⟨cts_smul⟩ : ContinuousSMul S M := continuousSMul S M
   suffices ContinuousSMul R M from _root_.moduleTopology_le R M
-  have cts_alg : Continuous (algebraMap R S) := by
-    rwa [← iff_Continuous_algebraMap]
   constructor
   suffices Continuous (fun rm ↦ algebraMap R S rm.1 • rm.2 : R × M → M) by
     simpa [← algebra_compatible_smul S]
@@ -454,3 +450,4 @@ theorem t2Space' {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
     [ContinuousAdd K] [ContinuousMul K] [mt : IsModuleTopology K V]
     : T2Space V := by
   apply t2Space (R := K)
+#lint
