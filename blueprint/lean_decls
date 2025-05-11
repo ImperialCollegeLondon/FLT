@@ -82,6 +82,7 @@ NumberField.AdeleRing.cocompact
 distribHaarChar_real
 distribHaarChar_complex
 distribHaarChar_padic
+distribHaarCharacter_kernel_tensor_adeleRing
 NumberField.AdeleRing.DivisionAlgebra.Aux.existsE
 NumberField.AdeleRing.DivisionAlgebra.Aux.E
 NumberField.AdeleRing.DivisionAlgebra.Aux.X
