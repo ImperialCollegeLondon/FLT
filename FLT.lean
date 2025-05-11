@@ -31,7 +31,6 @@ import FLT.Deformation.Topology.Algebra.OpenIdeal
 import FLT.Deformation.Traces
 import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
-import FLT.FLT_files
 import FLT.GaloisRepresentation.Cyclotomic
 import FLT.GaloisRepresentation.HardlyRamified
 import FLT.GlobalLanglandsConjectures.GLnDefs

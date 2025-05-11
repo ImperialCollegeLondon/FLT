@@ -3,8 +3,6 @@ import FLT.Deformation.RepresentationTheory.RepresentationEquiv
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.Algebra.Module.Equiv.Defs
 import FLT.Deformation.ContinuousRepresentation.IsTopologicalModule
-import FLT.Deformation.ContinuousRepresentation.FreeFiniteModuleTopology
-import FLT.Deformation.ContinuousRepresentation.Basic
 
 open CategoryTheory Function
 open scoped TensorProduct Deformation

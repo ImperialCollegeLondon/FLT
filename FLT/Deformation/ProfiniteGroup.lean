@@ -3,7 +3,6 @@ import FLT.Deformation.BaseCat
 import FLT.Deformation.Lift
 import FLT.Deformation.Deformation
 import FLT.Deformation.Topology.Algebra.Category.ProfiniteGrp.Basic
-import FLT.Deformation.ContinuousRepresentation.Basic
 import FLT.Deformation.ContinuousRepresentation.IsTopologicalModule
 
 universe u
