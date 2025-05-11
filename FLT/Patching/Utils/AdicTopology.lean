@@ -163,7 +163,7 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
 omit [IsAdicTopology R] in
 lemma isOpen_maximalIdeal_pow' [IsNoetherianRing R] [CompactSpace R] [T2Space R] (n : ℕ) :
     IsOpen (X := R) ↑(maximalIdeal R ^ n) := by
-  have : IsClosed (X := R) (maximalIdeal R) := (isCompact_of_isNoetherianRing _).isClosed
+  -- have : IsClosed (X := R) (maximalIdeal R) := (isCompact_of_isNoetherianRing _).isClosed
   letI : Field (R ⧸ maximalIdeal R) := Ideal.Quotient.field (maximalIdeal R)
   have : Finite (R ⧸ maximalIdeal R ^ n) := Ideal.finite_quotient_pow (IsNoetherian.noetherian _) _
   have : (maximalIdeal R ^ n).toAddSubgroup.FiniteIndex :=
