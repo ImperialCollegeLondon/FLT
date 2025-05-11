@@ -1,3 +1,4 @@
+import FLT.Assumptions.Mazur
 import FLT.Assumptions.Odlyzko
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
@@ -7,7 +8,9 @@ import FLT.Basic.Reductions
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
-import FLT.Deformations.Algebra.InverseLimit
+import FLT.Deformations.Algebra.InverseLimit.Basic
+import FLT.Deformations.Algebra.InverseLimit.Topology
+import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
 import FLT.Deformations.IsResidueAlgebra
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
@@ -19,6 +22,7 @@ import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat
 import FLT.HIMExperiments.flatness
+import FLT.HaarMeasure.DistribHaarChar.AdeleRing
 import FLT.HaarMeasure.DistribHaarChar.Basic
 import FLT.HaarMeasure.DistribHaarChar.Padic
 import FLT.HaarMeasure.DistribHaarChar.RealComplex
@@ -36,6 +40,7 @@ import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Algebra.Order.GroupWithZero
+import FLT.Mathlib.Algebra.Order.GroupWithZero.Canonical
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
@@ -57,7 +62,9 @@ import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.Finiteness.Pi
 import FLT.Mathlib.RingTheory.Ideal.Operations
+import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 import FLT.Mathlib.RingTheory.LocalRing.Defs
+import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
@@ -74,6 +81,7 @@ import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
+import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix

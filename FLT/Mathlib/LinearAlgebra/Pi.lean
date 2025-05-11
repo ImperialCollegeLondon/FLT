@@ -38,8 +38,8 @@ def LinearEquiv.piScalarPiCongrFiberwise {α : Type*} {β : Type*} {R : β → T
 /-- Given `φ : α → β → Type*` and `R : α → Type*` such that `φ a b` is an `R a` module for all
 `a b`, this is the linear equivalence between `∀ a b, φ a b` and `∀ b a, φ a b` with
 product scalars. This is `Equiv.piComm` as a product-scalar `LinearEquiv`. -/
-def LinearEquiv.piScalarPiComm {α β : Type*} (R : α → Type*) (φ : α → β → Type*) [∀ a, Semiring (R a)]
-    [∀ a b, AddCommMonoid (φ a b)] [∀ a b, Module (R a) (φ a b)] :
+def LinearEquiv.piScalarPiComm {α β : Type*} (R : α → Type*) (φ : α → β → Type*)
+    [∀ a, Semiring (R a)] [∀ a b, AddCommMonoid (φ a b)] [∀ a b, Module (R a) (φ a b)] :
     ((a : α) → (b : β) → φ a b) ≃ₗ[∀ a, R a] ((b : β) → (a : α) → φ a b) where
   __ := Equiv.piComm φ
   map_add' _ _ := rfl

@@ -82,6 +82,15 @@ NumberField.AdeleRing.cocompact
 distribHaarChar_real
 distribHaarChar_complex
 distribHaarChar_padic
+NumberField.AdeleRing.DivisionAlgebra.Aux.existsE
+NumberField.AdeleRing.DivisionAlgebra.Aux.E
+NumberField.AdeleRing.DivisionAlgebra.Aux.X
+NumberField.AdeleRing.DivisionAlgebra.Aux.Y
+NumberField.AdeleRing.DivisionAlgebra.Aux.X_compact
+NumberField.AdeleRing.DivisionAlgebra.Aux.Y_compact
+NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel
+NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel'
+NumberField.AdeleRing.DivisionAlgebra.Aux.T_finite
 TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
 TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup
 TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module
