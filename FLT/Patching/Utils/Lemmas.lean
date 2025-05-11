@@ -6,6 +6,8 @@ import Mathlib.Topology.Algebra.OpenSubgroup
 import Mathlib.Topology.Algebra.Ring.Ideal
 import Mathlib.Topology.Separation.Profinite
 import Mathlib.RingTheory.Artinian.Module
+import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
+
 
 lemma IsUnit.pi_iff {ι} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i} :
     IsUnit x ↔ ∀ i, IsUnit (x i) := by
@@ -337,21 +339,6 @@ lemma IsModuleTopology.compactSpace
   letI : ContinuousAdd M := toContinuousAdd R M
   ⟨Submodule.isCompact_of_fg (Module.Finite.fg_top (R := R))⟩
 
-lemma ringKrullDim_quotient {R : Type*} [CommRing R] (I : Ideal R) :
-    ringKrullDim (R ⧸ I) = Order.krullDim (PrimeSpectrum.zeroLocus (R := R) I) := by
-  let e : PrimeSpectrum (R ⧸ I) ≃ (PrimeSpectrum.zeroLocus (R := R) I) :=
-    (Equiv.ofInjective _ (PrimeSpectrum.comap_injective_of_surjective _
-      Ideal.Quotient.mk_surjective)).trans (Equiv.setCongr
-      (by rw [PrimeSpectrum.range_comap_of_surjective _ _ Ideal.Quotient.mk_surjective,
-        Ideal.mk_ker]))
-  let e' : PrimeSpectrum (R ⧸ I) ≃o (PrimeSpectrum.zeroLocus (R := R) I) :=
-    { __ := e, map_rel_iff' := fun {a b} ↦ by
-        show a.asIdeal.comap _ ≤ b.asIdeal.comap _ ↔ a ≤ b
-        rw [← Ideal.map_le_iff_le_comap,
-          Ideal.map_comap_of_surjective _ Ideal.Quotient.mk_surjective]
-        rfl }
-  rw [ringKrullDim, Order.krullDim_eq_of_orderIso e']
-
 lemma disjoint_nonZeroDivisors_of_mem_minimalPrimes
     {R : Type*} [CommRing R] (p : Ideal R) (hp : p ∈ minimalPrimes R) :
     Disjoint (p : Set R) (nonZeroDivisors R) := by
@@ -381,28 +368,3 @@ lemma disjoint_nonZeroDivisors_of_mem_minimalPrimes
   · rw [mul_assoc, ← pow_succ, tsub_add_cancel_of_le, Nat.find_spec H]
     rwa [Nat.one_le_iff_ne_zero]
   · exact Nat.find_min H (Nat.sub_one_lt this)
-
-lemma ringKrullDim_quotient_succ_le_of_nonZeroDivisor
-    {R : Type*} [CommRing R] (r : R) (hr : r ∈ nonZeroDivisors R) :
-    ringKrullDim (R ⧸ Ideal.span {r}) + 1 ≤ ringKrullDim R := by
-  by_cases hr' : Ideal.span {r} = ⊤
-  · rw [hr', ringKrullDim_eq_bot_of_subsingleton]
-    simp
-  have : Nonempty (PrimeSpectrum.zeroLocus (R := R) (Ideal.span {r})) := by
-    rwa [Set.nonempty_coe_sort, Set.nonempty_iff_ne_empty, ne_eq,
-      PrimeSpectrum.zeroLocus_empty_iff_eq_top]
-  have := Ideal.Quotient.nontrivial hr'
-  have := (Ideal.Quotient.mk (Ideal.span {r})).domain_nontrivial
-  rw [ringKrullDim_quotient, Order.krullDim_eq_iSup_length, ringKrullDim,
-    Order.krullDim_eq_iSup_length, ← WithBot.coe_one, ← WithBot.coe_add,
-    ENat.iSup_add, WithBot.coe_le_coe, iSup_le_iff]
-  intros l
-  obtain ⟨p, hp, hp'⟩ := Ideal.exists_minimalPrimes_le (J := l.head.1.asIdeal) bot_le
-  let p' : PrimeSpectrum R := ⟨p, hp.1.1⟩
-  have hp' : p' < l.head := lt_of_le_of_ne hp' (by
-    intro h
-    have := disjoint_nonZeroDivisors_of_mem_minimalPrimes p hp
-    exact Set.disjoint_iff.mp this ⟨show r ∈ p by simpa [← h] using l.head.2, hr⟩)
-  refine le_trans ?_ (le_iSup _ ((l.map Subtype.val (fun _ _ ↦ id)).cons p' hp'))
-  show (l.length + 1 : ℕ∞) ≤ ↑(0 + l.length + 1)
-  simp
