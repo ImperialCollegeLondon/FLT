@@ -3,9 +3,10 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.DedekindDomain.AdicValuation
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
+
 /-!
 
 # Completion of a number field at a finite place

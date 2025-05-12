@@ -1,5 +1,5 @@
-import Mathlib.AlgebraicGeometry.EllipticCurve.Group
 import Mathlib.GroupTheory.Torsion
+import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 
 /-!
 
