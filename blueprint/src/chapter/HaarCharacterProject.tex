@@ -9,14 +9,12 @@ algebra over a number field~$K$, then $B^\times$ is in the kernel of the Haar ch
 of $B\otimes_K\A_K$, where $\A_K$ is the ring of adeles of~$K$. Most if not all of this
 should probably be in mathlib.
 
-KMB would like to heartily thank Sebastian Gouezel for the help he gave during the preparation
-of this material. TODO accents
+KMB would like to heartily thank S\'ebastian Gou\"ezel for the help he gave during the preparation
+of this material.
 
 \section{Initial definitions}
 
-\subsection{$d_A$}
-
-TODO is this subsection name problematic?
+\subsection{Scaling Haar measure on a group}
 
 Let $A$ be a locally compact topological additive abelian group. There's then a regular additive
 Haar measure $\mu$ on $A$, unique up to a positive scalar factor. If $\phi:(A,+)\cong(A,+)$ is a
@@ -31,6 +29,9 @@ There is a choice of normalization here between $d_A(\phi)$
 and $d_A(\phi)^{-1}$, so let us be more precise.
 
 \begin{definition}
+  \label{MeasureTheory.distribHaarChar}
+  %\lean{MeasureTheory.distribHaarChar} -- confused about what we should be pionting to
+  %\mathlibok
   If $A$ is a locally compact topological additive abelian group,
   if $\mu$ is a regular Haar measure on $A$, and if $\phi:A\to A$ is an
   additive homeomorphism, then we let $d_A(\phi)$ denote the unique positive
@@ -66,7 +67,7 @@ $\mu(X)=1$, in which case we have $d_A(\phi)=\mu(\phi(X))$ for all $\phi$.
 Similarly, if $f$ is a measurable function with $0<\int f(x)d\mu(x)<\infty$ then
 we can read off $d_A(\phi)$ by $d_A(\phi)=(\int f(x)d\mu(x))/(\int f(x)\phi^*\mu(x))$.
 
-\subsection{$\delta_R$}
+\subsection{Scaling Haar measure on a ring}
 
 Now let $R$ be a locally compact topological ring. The \emph{Haar character} of $R$,
 or more precisely the \emph{left Haar character} of $R$, is a group homomorphism
