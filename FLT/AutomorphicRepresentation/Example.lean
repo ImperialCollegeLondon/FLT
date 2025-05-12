@@ -450,7 +450,7 @@ lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
       rw [PNat.val_ofNat, Nat.cast_one, div_self one_ne_zero, this, ← h3, h1, h2]
     have cop1 : IsCoprime (b.toPNat bpos) ↑a := by
       rw [IsCoprime, ZHat.intCast_val, ← ZMod.isUnit_natAbs,
-        ZMod.isUnit_iff_coprime, Int.natAbs_sign_of_nonzero znez]
+        ZMod.isUnit_iff_coprime, Int.natAbs_sign_of_ne_zero znez]
       exact Nat.coprime_one_left _
     have cop2 : IsCoprime 1 ↑zinvZHat := by
       simp only [IsCoprime, PNat.val_ofNat, isUnit_of_subsingleton]

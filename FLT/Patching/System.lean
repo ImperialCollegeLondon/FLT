@@ -1,4 +1,3 @@
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Patching.Algebra
 import FLT.Patching.Over
 import FLT.Patching.Module

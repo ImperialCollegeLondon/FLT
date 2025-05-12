@@ -3,10 +3,13 @@ Copyright (c) 2025 Salvatore Mercuri. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
-import Mathlib.Topology.Algebra.Valued.LocallyCompact
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Algebra.Order.GroupWithZero.Canonical
+import Mathlib.RingTheory.DiscreteValuationRing.Basic
+import Mathlib.RingTheory.Ideal.IsPrincipalPowQuotient
+import Mathlib.Analysis.Normed.Ring.Lemmas
+import Mathlib.Topology.Algebra.Valued.ValuedField
 
 /-! # Topological results for integer-valued rings
 

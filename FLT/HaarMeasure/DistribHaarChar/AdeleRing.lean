@@ -19,7 +19,7 @@ noncomputable instance : Algebra (AdeleRing (𝓞 K) K) (B ⊗[K] AdeleRing (�
 -- Ruben did this somewhere TODO
 instance : Module.Finite (AdeleRing (𝓞 K) K) (B ⊗[K] AdeleRing (𝓞 K) K) := sorry
 
-instance : TopologicalSpace (B ⊗[K] AdeleRing (𝓞 K) K) :=
+noncomputable instance : TopologicalSpace (B ⊗[K] AdeleRing (𝓞 K) K) :=
   moduleTopology (AdeleRing (𝓞 K) K) _
 
 -- AdeleRing is locally compacy, B/K is finite
