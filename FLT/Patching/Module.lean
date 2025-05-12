@@ -49,15 +49,18 @@ lemma Module.UniformlyBoundedRank.exists_finsupp_surjective (i) :
     refine Ideal.Quotient.nontrivial ?_
     rw [ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
     exact top_ne_bot
-  refine ⟨((Module.Free.chooseBasis (R ⧸ Ann R (M i)) (M i)).repr.symm.restrictScalars R).toLinearMap ∘ₗ ?_, ?_⟩
-  · refine Finsupp.mapRange.linearMap (Algebra.linearMap R (R ⧸ Ann R (M i))) ∘ₗ Finsupp.lcomapDomain ?_ ?_
+  refine ⟨((Module.Free.chooseBasis (R ⧸ Ann R (M i))
+    (M i)).repr.symm.restrictScalars R).toLinearMap ∘ₗ ?_, ?_⟩
+  · refine Finsupp.mapRange.linearMap (Algebra.linearMap R (R ⧸ Ann R (M i))) ∘ₗ
+      Finsupp.lcomapDomain ?_ ?_
     · exact fun x ↦ Fin.castLE
         (by rw [← finrank_eq_card_chooseBasisIndex]; exact (finrank_lt_bound R M i).le)
         (Fintype.equivFin _ x)
     · exact (Fin.castLE_injective _).comp (Fintype.equivFin _).injective
   · simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, EquivLike.comp_surjective]
     refine (Finsupp.mapRange_surjective _ (map_zero _) Ideal.Quotient.mk_surjective).comp ?_
-    exact Finsupp.comapDomain_surjective _ ((Fin.castLE_injective _).comp (Fintype.equivFin _).injective)
+    exact Finsupp.comapDomain_surjective _ ((Fin.castLE_injective _).comp
+      (Fintype.equivFin _).injective)
 
 lemma Module.UniformlyBoundedRank.finite_quotient_smul (i) (I : Ideal R) [Finite (R ⧸ I)] :
     Finite (M i ⧸ (I • ⊤ : Submodule R (M i))) := by
@@ -152,7 +155,9 @@ open Submodule
 def PatchingModule.liftComponent (α : Ideal R) (f : ∀ i, M₀ →ₗ[R] M i) :
     M₀ ⧸ (α • ⊤ : Submodule R M₀) →ₗ[R] Component R M F α :=
   (UltraProduct.πₗ (fun _ ↦ R) _ _).restrictScalars R ∘ₗ LinearMap.pi fun i ↦
-    mapQ _ _ (f i) (by rw [← Submodule.map_le_iff_le_comap, map_smul'']; exact Submodule.smul_mono le_rfl le_top)
+    mapQ _ _ (f i) (by
+    rw [← Submodule.map_le_iff_le_comap, map_smul'']
+    exact Submodule.smul_mono le_rfl le_top)
 
 def OpenIdeals : Type _ := { α : Ideal R // IsOpen (X := R) α }
 
@@ -162,14 +167,16 @@ instance : SemilatticeInf (OpenIdeals R) :=
 instance : OrderTop (OpenIdeals R) :=
   Subtype.orderTop isOpen_univ
 
-abbrev PatchingModule.componentMap {α β : Ideal R} (h : α ≤ β) : Component R M F α →ₗ[R] Component R M F β :=
+abbrev PatchingModule.componentMap {α β : Ideal R} (h : α ≤ β) :
+    Component R M F α →ₗ[R] Component R M F β :=
   UltraProduct.map (R := fun _ ↦ R)
     (M := (fun i ↦ M i ⧸ (α • ⊤ : Submodule R (M i))))
     (N := (fun i ↦ M i ⧸ (β • ⊤ : Submodule R (M i)))) F
     (fun _ ↦ Submodule.mapQ _ _ LinearMap.id
     (Submodule.smul_mono h le_rfl))
 
-attribute [-instance] instIsScalarTowerUltraProduct in -- needs investigation why this slows everything
+attribute [-instance] instIsScalarTowerUltraProduct in
+-- needs investigation why this instance slows everything
 def PatchingModule.submodule : Submodule (ι → R) (Π α : OpenIdeals R, Component R M F α.1) where
   carrier := { x | ∀ (α β : OpenIdeals R) (h : α ≤ β), componentMap R M F h (x α) = x β }
   add_mem' {v w} hv hw α β h := by
@@ -324,9 +331,11 @@ def PatchingModule.map :
     (fun x hx α β h ↦ by
       obtain ⟨a, ha⟩ := UltraProduct.πₗ_surjective (fun _ ↦ R) (x α)
       simp only [LinearMap.coe_restrictScalars, LinearMap.piMap_apply,
-        ← hx α β h, ← ha, UltraProduct.map_πₗ, LinearMap.coe_restrictScalars, UltraProduct.πₗ_eq_iff]
+        ← hx α β h, ← ha, UltraProduct.map_πₗ, LinearMap.coe_restrictScalars,
+        UltraProduct.πₗ_eq_iff]
       filter_upwards with i
-      rw [← LinearMap.comp_apply, ← LinearMap.comp_apply, ← Submodule.mapQ_comp, ← Submodule.mapQ_comp]
+      rw [← LinearMap.comp_apply, ← LinearMap.comp_apply, ← Submodule.mapQ_comp,
+        ← Submodule.mapQ_comp]
       rfl)
 
 omit [IsTopologicalRing R] [CompactSpace R] in
@@ -400,7 +409,7 @@ lemma PatchingModule.map_surjective
       filter_upwards with i
       obtain ⟨b, hb⟩ := Submodule.Quotient.mk_surjective _ (a i)
       simp only [← hb, mapQ_apply, LinearMap.id_coe, id_eq])
-    (l := fun k ↦ ⟨maximalIdeal R ^ k, isOpen_maximalIdeal_pow R k⟩)
+    (l := fun k ↦ ⟨maximalIdeal R ^ k, isOpen_maximalIdeal_pow'' R k⟩)
     (fun i j ↦ Ideal.pow_le_pow_right)
     (fun α ↦ have : Finite (R ⧸ α.1) := AddSubgroup.quotient_finite_of_isOpen _ α.2
       exists_maximalIdeal_pow_le_of_finite_quotient _)
@@ -474,7 +483,8 @@ omit [TopologicalSpace R] [IsTopologicalRing R]
 lemma IsPatchingSystem.linearMap_compLeft (α : Ideal R) (i) (x) :
     linearMap R M F α i ((Algebra.linearMap R (R ⧸ α)).compLeft _ x) =
       Submodule.Quotient.mk (Module.UniformlyBoundedRank.linearMap R M F i x) := by
-  simp [linearMap, LinearMap.quotKerEquivOfSurjective, LinearEquiv.ofTop_symm_apply, Pi.liftQuotientₗ]
+  simp [linearMap, LinearMap.quotKerEquivOfSurjective, LinearEquiv.ofTop_symm_apply,
+    Pi.liftQuotientₗ]
 
 omit [IsTopologicalRing R] [CompactSpace R] in
 lemma IsPatchingSystem.linearMap_bijective (α : Ideal R) (hα : IsOpen (X := R) α) :
@@ -514,8 +524,7 @@ lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) 
 -- Compact + T2 actually implies NonarchimedeanRing.
 variable [NonarchimedeanRing R] [T2Space R]
 
-noncomputable
-def PatchingModule.mapOfIsPatchingSystem_bijective :
+lemma PatchingModule.mapOfIsPatchingSystem_bijective :
     Function.Bijective (mapOfIsPatchingSystem R M F) := by
   constructor
   · rw [injective_iff_map_eq_zero]

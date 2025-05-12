@@ -3,14 +3,11 @@ Copyright (c) 2024 Salvatore Mercuri. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
-import Mathlib.NumberTheory.NumberField.Embeddings
 import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib.Tactic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Topology.Algebra.Order.Field
-import FLT.Mathlib.Topology.Constructions
 
 /-!
 # Weak approximation
@@ -183,14 +180,16 @@ theorem exists_one_lt_lt_one {n : ℕ} {v : Fin (n + 2) → AbsoluteValue K ℝ}
   induction n using Nat.case_strong_induction_on with
   | hz =>
     let ⟨a, ha⟩ := (v 0).exists_one_lt_lt_one_of_ne_rpow (h 0) (h 1) (hv zero_ne_one)
-    exact ⟨a, ha.1, by simp [Fin.forall_fin_two]; exact ha.2⟩
+    exact ⟨a, ha.1, by simp [Fin.forall_fin_two, ha.2]⟩
   | hi n ih =>
     -- Assume the result is true for all smaller collections of absolute values
     -- Let `a : K` be the value from the collection with the last absolute value removed
     let ⟨a, ha⟩ := ih n le_rfl (fun _ => h _) (hv.comp_of_injective <| Fin.castSucc_injective _)
     -- Let `b : K` be the value using then first and last absolute value
     let ⟨b, hb⟩ := ih 0 (by linarith) (fun _ => h _) <| Fin.pairwise_forall_two hv
-    simp [Fin.forall_fin_two] at hb
+    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.isValue, Matrix.cons_val_zero, ne_eq,
+      Fin.forall_fin_two, not_true_eq_false, IsEmpty.forall_iff, one_ne_zero, not_false_eq_true,
+      Matrix.cons_val_one, Matrix.head_cons, forall_const, true_and] at hb
     -- If `v last < 1` then `a` works.
     by_cases ha₀ : v (Fin.last _) a < 1
     · refine ⟨a, ha.1, fun j hj => ?_⟩

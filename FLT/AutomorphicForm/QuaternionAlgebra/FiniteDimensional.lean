@@ -1,8 +1,9 @@
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 namespace TotallyDefiniteQuaternionAlgebra
 
-open DedekindDomain NumberField IsQuaternionAlgebra
+open IsDedekindDomain NumberField IsQuaternionAlgebra
 open scoped TensorProduct
 
 variable {F : Type*} [Field F] [NumberField F] [IsTotallyReal F]

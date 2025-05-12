@@ -39,20 +39,6 @@ has finite index.
 
 -/
 
-section move_these
-
--- not yet PRed
-lemma Set.Finite.of_injOn {α β : Type*} {f : α → β} {s : Set α} {t : Set β}
-    (hm : MapsTo f s t) (hi : InjOn f s) (ht : t.Finite) : s.Finite :=
-  Set.Finite.of_finite_image (ht.subset (image_subset_iff.mpr hm)) hi
-
--- not yet PRed
-lemma Set.BijOn.finite_iff_finite {α β : Type*} {f : α → β} {s : Set α}
-    {t : Set β} (h : BijOn f s t) : s.Finite ↔ t.Finite :=
-  ⟨fun h1 ↦ h1.of_surjOn _ h.2.2, fun h1 ↦ h1.of_injOn h.1 h.2.1⟩
-
-end move_these
-
 namespace FixedPoints
 
 open MulAction

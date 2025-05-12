@@ -1,4 +1,6 @@
-import Mathlib.AlgebraicGeometry.EllipticCurve.Affine
+import Mathlib.Algebra.Polynomial.Bivariate
+import Mathlib.AlgebraicGeometry.EllipticCurve.Weierstrass
+import Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
 import Mathlib.Data.PNat.Basic
 import Mathlib.NumberTheory.FLT.Four
 import Mathlib.NumberTheory.FLT.Three
@@ -144,7 +146,8 @@ lemma hgcdbc (P : FreyPackage) : gcd P.b P.c = 1 :=  by
 --     · simp [hc]
 --     · simp [Int.mul_ediv_cancel_left _ hc]
 
-/-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5, there exists a Frey package. -/
+/-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5,
+there exists a Frey package. -/
 lemma of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
     {p : ℕ} (pp : p.Prime) (hp5 : 5 ≤ p) (H : a^p + b^p = c^p) : Nonempty FreyPackage := by
   have p_odd := pp.odd_of_ne_two (by omega)

@@ -24,6 +24,8 @@ open scoped NNReal Pointwise ENNReal
 
 namespace MeasureTheory.Measure
 
+section group
+
 variable {G A : Type*} [Group G] [AddCommGroup A] [DistribMulAction G A] [MeasurableSpace A]
   -- We only need `MeasurableConstSMul G A` but we don't have this class. So we erroneously must
   -- assume `MeasurableSpace G` + `MeasurableSMul G A`
@@ -32,6 +34,9 @@ variable {G A : Type*} [Group G] [AddCommGroup A] [DistribMulAction G A] [Measur
   {g : G} [μ.IsAddHaarMeasure] [ν.IsAddHaarMeasure]
 
 variable (μ A) in
+/-- `distribHaarChar A : G →* ℝ≥0` is the factor by which the action
+of `G` on the locally compact additive abelian group `A` scales
+Haar measure. -/
 @[simps -isSimp]
 noncomputable def distribHaarChar : G →* ℝ≥0 where
   toFun g := addHaarScalarFactor (DomMulAct.mk g • addHaar) (addHaar (G := A))
@@ -79,3 +84,29 @@ lemma distribHaarChar_eq_of_measure_smul_eq_mul (hs₀ : μ s ≠ 0) (hs : μ s 
     (hμgs : μ (g • s) = r * μ s) : distribHaarChar A g = r := by
   refine ENNReal.coe_injective ?_
   rw [distribHaarChar_eq_div hs₀ hs, hμgs, ENNReal.mul_div_cancel_right] <;> simp [*]
+
+end group
+
+section ring
+
+variable (R : Type*) [Ring R] [MeasurableSpace R] [TopologicalSpace R] [BorelSpace R]
+  [IsTopologicalAddGroup R] [LocallyCompactSpace R]
+
+/-- The σ-algebra on Rˣ coming from pulling back the σ-algebra on R × R along the usual
+embedding g ↦ (g,g⁻¹). -/
+local instance : MeasurableSpace Rˣ := MeasurableSpace.comap (Units.embedProduct R) inferInstance
+
+local instance : MeasurableSMul Rˣ R := sorry -- TODO need advice from measure theorists
+
+local instance : ContinuousConstSMul Rˣ R := sorry -- TODO need advice from measure theorists
+
+noncomputable example : Rˣ → ℝ≥0 := distribHaarChar R
+
+/-- The subgroup R^(1) of the units Rˣ of a locally compact topological ring R
+consisting of the elements such that multiplication by them doesn't scale Haar measure.
+-/
+noncomputable def distribHaarChar.ker := MonoidHom.ker (distribHaarChar R : Rˣ →* ℝ≥0)
+
+end ring
+
+end MeasureTheory.Measure

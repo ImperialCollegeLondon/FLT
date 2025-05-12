@@ -27,12 +27,12 @@ lemma PatchingAlgebra.componentEquiv (k) : ∀ᶠ j in F,
     Nonempty (PatchingAlgebra.Component R F k ≃ₐ[Λ] R j ⧸ maximalIdeal (R j) ^ k) := by
   obtain ⟨n, hn⟩ := Algebra.UniformlyBoundedRank.cond (R := R) k
   refine UltraProduct.exists_algEquiv_of_bddAbove_card F n (.of_forall ?_) (.of_forall ?_)
-  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow _ _), hn _⟩
+  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow'' _ _), hn _⟩
   · exact fun i ↦ ((maximalIdeal (R i) ^ k).restrictScalars Λ).continuousSMul_quotient
 
 instance (k : ℕ) : Finite (PatchingAlgebra.Component R F k) :=
   (PatchingAlgebra.componentEquiv ℤ R F k).exists.choose_spec.some.finite_iff.mpr
-    (AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow _ _))
+    (AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow'' _ _))
 
 instance (k : ℕ) [NeZero k] : Nontrivial (PatchingAlgebra.Component R F k) := by
   obtain ⟨i, ⟨e⟩⟩ := (PatchingAlgebra.componentEquiv ℤ R F k).exists
@@ -49,9 +49,9 @@ instance : Subsingleton (PatchingAlgebra.Component R F 0) := by
   exact e.symm.toRingHom.codomain_trivial
 
 instance (k : ℕ) [NeZero k] : IsLocalRing (PatchingAlgebra.Component R F k) :=
-  .of_surjective' ((PatchingAlgebra.componentEquiv ℤ R F k).exists.choose_spec
-    |>.some.symm.toRingHom.comp (Ideal.Quotient.mk _))
-    ((AlgEquiv.surjective _).comp Ideal.Quotient.mk_surjective)
+  let ⟨i, ⟨e⟩⟩ := (PatchingAlgebra.componentEquiv ℤ R F k).exists
+  .of_surjective' (e.symm.toRingHom.comp (Ideal.Quotient.mk (maximalIdeal (R i) ^ k))) <|
+    e.symm.surjective.comp Ideal.Quotient.mk_surjective
 
 instance : Nontrivial (Π k, PatchingAlgebra.Component R F k) :=
   (Pi.evalRingHom _ 1).domain_nontrivial
@@ -60,7 +60,8 @@ abbrev PatchingAlgebra.componentMap (j k : ℕ) (hjk : k ≤ j) : Component R F 
   UltraProduct.mapRingHom (R := fun i ↦ R i ⧸ maximalIdeal (R i) ^ j) F fun _ ↦
     Ideal.quotientMap _ (.id _) (Ideal.pow_le_pow_right hjk)
 
-instance (j k : ℕ) (hjk : k ≤ j) [NeZero k] : IsLocalHom (PatchingAlgebra.componentMap R F j k hjk) := by
+instance (j k : ℕ) (hjk : k ≤ j) [NeZero k] :
+    IsLocalHom (PatchingAlgebra.componentMap R F j k hjk) := by
   suffices ∀ (i : ι), IsLocalHom (Ideal.quotientMap (maximalIdeal (R i) ^ k)
       (.id (R i)) (Ideal.pow_le_pow_right hjk)) by
     delta PatchingAlgebra.componentMap; infer_instance
@@ -117,7 +118,8 @@ instance : T2Space (PatchingAlgebra R F) :=
 instance : CompactSpace (PatchingAlgebra R F) :=
   (IsClosed.isClosedEmbedding_subtypeVal (PatchingAlgebra.isClosed_subring R F)).compactSpace
 
-instance : Nontrivial (PatchingAlgebra R F) := (PatchingAlgebra.subring R F).subtype.domain_nontrivial
+instance : Nontrivial (PatchingAlgebra R F) :=
+  (PatchingAlgebra.subring R F).subtype.domain_nontrivial
 
 instance : IsLocalHom (PatchingAlgebra.subring R F).subtype := by
   constructor
@@ -150,7 +152,8 @@ instance : IsLocalRing (PatchingAlgebra R F) := by
     exact (this ((add_comm b a).trans e) hb).symm
   exact .inl (IsUnit.of_map (PatchingAlgebra.subring R F).subtype _ (IsUnit.pi_iff.mpr H))
 
-instance (i) [NeZero i] : IsLocalHom ((Pi.evalRingHom _ i).comp (PatchingAlgebra.subring R F).subtype) := by
+instance (i) [NeZero i] : IsLocalHom ((Pi.evalRingHom _ i).comp
+    (PatchingAlgebra.subring R F).subtype) := by
   constructor
   intro a H
   apply isUnit_of_map_unit (PatchingAlgebra.subring R F).subtype
@@ -183,7 +186,7 @@ lemma PatchingAlgebra.continuous_lift : Continuous (lift R F f) := by
   refine continuous_pi fun k ↦ ?_
   obtain ⟨n, hn⟩ := Algebra.UniformlyBoundedRank.cond (R := R) k
   refine UltraProduct.continuous_of_bddAbove_card F n (.of_forall ?_) _ (.of_forall ?_)
-  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow _ _), hn _⟩
+  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow'' _ _), hn _⟩
   · exact fun i ↦ (continuous_algebraMap _ _).comp (hf i)
 
 variable [CompactSpace Rₒₒ]
@@ -197,8 +200,9 @@ lemma PatchingAlgebra.lift_surjective (hf' : ∀ i, Function.Surjective (f i)) :
   refine denseRange_inverseLimit (ι := ℕᵒᵈ) _ _ (fun _ _ _ ↦ continuous_of_discreteTopology) _ ?_
   refine fun i ↦ denseRange_discrete.mpr ?_
   obtain ⟨n, hn⟩ := Algebra.UniformlyBoundedRank.cond (R := R) i
-  refine UltraProduct.surjective_of_bddAbove_card F n (.of_forall ?_) _ (.of_forall ?_) (.of_forall ?_)
-  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow _ _), hn _⟩
+  refine UltraProduct.surjective_of_bddAbove_card F n (.of_forall ?_) _ (.of_forall ?_)
+      (.of_forall ?_)
+  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow'' _ _), hn _⟩
   · exact fun x ↦ (continuous_algebraMap _ _).comp (hf x)
   · exact fun x ↦ Ideal.Quotient.mk_surjective.comp (hf' x)
 
@@ -250,8 +254,10 @@ def PatchingAlgebra.incl :
 
 section Functorial
 
-variable {R' : ι → Type*} [∀ i, CommRing (R' i)] [∀ i, IsLocalRing (R' i)] --[∀ i, Module R' (N i)]
-variable {R'' : ι → Type*} [∀ i, CommRing (R'' i)] [∀ i, IsLocalRing (R'' i)] --[∀ i, Module R (N' i)]
+variable {R' : ι → Type*} [∀ i, CommRing (R' i)] [∀ i, IsLocalRing (R' i)]
+-- [∀ i, Module R' (N i)]
+variable {R'' : ι → Type*} [∀ i, CommRing (R'' i)] [∀ i, IsLocalRing (R'' i)]
+-- [∀ i, Module R (N' i)]
 variable (f : ∀ i, R i →+* R' i) (g : ∀ i, R' i →+* R'' i)
 variable [∀ i, IsLocalHom (f i)] [∀ i, IsLocalHom (g i)]
 
@@ -363,7 +369,7 @@ lemma RingHom.continuous_of_finite_of_compact {R H : Type*} [CommRing R] [Semiri
   have : (RingHom.ker f).toAddSubgroup.FiniteIndex := by
     have : _root_.Finite (R ⧸ (RingHom.ker f).toAddSubgroup) :=
       _root_.Finite.of_injective _ f.kerLift_injective
-    exact AddSubgroup.finiteIndex_of_finite_quotient _
+    exact AddSubgroup.finiteIndex_of_finite_quotient
   have := (isCompact_of_isNoetherianRing (RingHom.ker f)).isClosed
   exact AddSubgroup.isOpen_of_isClosed_of_finiteIndex (RingHom.ker f).toAddSubgroup this
 
