@@ -6,6 +6,7 @@ import Mathlib.Topology.Algebra.Algebra.Equiv
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Algebra.Tower
+import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
 
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
@@ -159,44 +160,85 @@ lemma Module.topologicalRing : IsTopologicalRing D where
 
 end ring_algebra
 
--- two other results (not needed for FLT but would be
--- independently interesting in the theory)
+section algebra
+
+variable (R S : Type*)
+  [CommRing R] [TopologicalSpace R]
+  [CommRing S] [TopologicalSpace S] [IsTopologicalRing S] [Algebra R S]
+
+lemma iff_Continuous_algebraMap :
+    IsTopologicalModule R S ↔ Continuous (algebraMap R S) := by
+  refine ⟨fun _ ↦ continuous_algebraMap R S, fun h ↦ ?_⟩
+  have : Continuous (fun rs ↦ algebraMap R S rs.1 • rs.2 : R × S → S) := by fun_prop
+  simp_rw [← algebra_compatible_smul S] at this
+  have : ContinuousSMul R S := ⟨this⟩
+  exact IsTopologicalModule.mk
+
+end algebra
+
 section trans
 
-variable (R S M : Type*)
-  [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-  [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
-    [Algebra R S] [Module.Finite R S] [IsModuleTopology R S]
-  [AddCommGroup M]
-    [Module R M]
-    [Module S M]
-      [IsScalarTower R S M]
+variable (R : Type*) [CommRing R] [TopologicalSpace R]
 
-example : moduleTopology R M = moduleTopology S M := by
-  sorry
+-- making this into an instance causes timeouts in the BaseChange file :-/
+theorem isTopologicalModule
+    (M : Type*) [AddCommGroup M] [TopologicalSpace M] [Module R M]
+    [IsModuleTopology R M] : IsTopologicalModule R M where
+      continuous_smul := eq_moduleTopology R M ▸ (continuousSMul R M).1
+      continuous_add := eq_moduleTopology R M ▸ (continuousAdd R M).1
 
-/-
+variable (S : Type*) [CommRing S] [TopologicalSpace S] [Algebra R S]
 
-Proof: First, it suffices to show that if M has the R-module topology
-τRM then it's a topological S-module, and that if M has the S-module
-topology τSM then it's a topological R-module. This is because the former
-claim shows τSM ≤ τRM and the latter shows τRM ≤ τSM.
+variable (M : Type*) [AddCommGroup M] [Module R M] [Module S M] [IsScalarTower R S M]
 
-If M has the S-module topology then it's clearly a topological R-module,
-because it's a topological S-module so (+ : M × M → M) is continuous
-and (• : S × M → M) are continuous, and the map R → S is continuous
-because it's R-linear and S has the R-module topology, so
-R × M → S × M is continuous and thus (• : R × M → M) is continuous.
+lemma _root_.Algebra.moduleTopology_le [IsTopologicalModule R S] :
+    moduleTopology R M ≤ moduleTopology S M := by
+  letI : TopologicalSpace M := moduleTopology S M
+  haveI : ContinuousAdd M := continuousAdd S M
+  have ⟨cts_smul⟩ : ContinuousSMul S M := continuousSMul S M
+  suffices ContinuousSMul R M from _root_.moduleTopology_le R M
+  constructor
+  suffices Continuous (fun rm ↦ algebraMap R S rm.1 • rm.2 : R × M → M) by
+    simpa [← algebra_compatible_smul S]
+  fun_prop
 
-The converse is more subtle and it's here where we need some finiteness
-assumptions. If M has the R-module topology then certainly (+ : M × M → M)
-is continuous, so it all rests on showing that (• : S × M → M) is
-continuous. But everything here is an R-module and • is R-bilinear,
-and thus if either S or M are module-finite over R the result is
-automatic.
+/-- If S is an R-algebra, finite as an R-module, with the module topology,
+  then the S-module topology on an S-module coincides with the R-module topology.
 -/
+lemma _root_.moduleTopology.trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTopology R S] :
+    moduleTopology R M = moduleTopology S M := by
+  have := IsModuleTopology.isTopologicalModule
+  refine le_antisymm (Algebra.moduleTopology_le _ _ _) ?_
+  letI : TopologicalSpace M := moduleTopology R M
+  haveI : IsModuleTopology R M := isModuleTopology R M
+  haveI : ContinuousAdd M := continuousAdd R M
+  have ⟨cts_smul⟩ : ContinuousSMul R M := continuousSMul R M
+  suffices ContinuousSMul S M from _root_.moduleTopology_le S M
+  constructor
+  let bil : S →ₗ[R] M →ₗ[R] M := {
+    toFun s := {
+      toFun m := s • m
+      map_add' := DistribSMul.smul_add s
+      map_smul' := smul_comm s
+    }
+    map_add' s t := by
+      ext m
+      exact Module.add_smul s t m
+    map_smul' r s := by
+      ext m
+      exact IsScalarTower.smul_assoc r s m
+  }
+  exact Module.continuous_bilinear_of_finite bil
 
--- maybe
+-- should be earlier and should be PRed like the rest of this file
+lemma iff [τ : TopologicalSpace M] : IsModuleTopology R M ↔ τ = moduleTopology R M :=
+  ⟨fun _ ↦ eq_moduleTopology', fun a ↦ { eq_moduleTopology' := a }⟩
+
+lemma trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTopology R S]
+    [τ : TopologicalSpace M] :
+    IsModuleTopology R M ↔ IsModuleTopology S M := by
+  simp [iff R M, iff S M, moduleTopology.trans R S]
+
 end trans
 
 section opensubring
@@ -270,28 +312,6 @@ theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
       -- by hopen_mp.
       exact hopen_mp (@IsOpen.inter _ (moduleTopology R S) _ _ hopen_range hU.2) (by simp)
 
-/-
-Proof.
-
-First note that `S` is a topological ring so addition and multiplication
-on `S` are continuous. Futhermore the hypothesis `Contiuous (algebraMap R S)`
-shows that • : R × S → S is continuous, so S is a topological R-module.
-In particular the identity map (S,R-module top) -> (S, given top) is continuous.
-
-The algebra map from R to (S,R-module top) is R-linear
-and hence also continuous. Furthermore, the composite is open
-and I claim that the two topologies on S thus "look the same near 0".
-More precisely, the image of R is open in S with the given topology
-and hence also with the module topology (by continuity of the identity map above),
-and if U ⊆ S is a subset of the image of R then we claim that it's open for
-the given topology iff it's open for the module topology. Firstly,
-continuity of the identity
-map shows that if U is open for the given topology it's open for the module
-topology. Secondly, if U is open for the module topology then its preimage
-in R is open for R's topology, and then the image of this in S is open for
-the given topology, and this is U again as U is a subset of the image of R.
-
--/
 end opensubring
 
 /-
