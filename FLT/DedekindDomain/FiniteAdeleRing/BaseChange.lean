@@ -53,8 +53,8 @@ is an isomorphism.
 variable (A K L B : Type*) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Field L]
     [Algebra A K] [IsFractionRing A K] [Algebra B L] [IsDedekindDomain A]
     [Algebra K L] [Algebra A L] [IsScalarTower A B L] [IsScalarTower A K L]
-    [IsIntegralClosure B A L] [FiniteDimensional K L] [Algebra.IsSeparable K L]
-    [IsDedekindDomain B] [IsFractionRing B L] [Algebra.IsIntegral A B]
+    [IsIntegralClosure B A L] [FiniteDimensional K L] [Module.Finite A B]
+    [IsDedekindDomain B] [IsFractionRing B L]
 
 namespace IsDedekindDomain
 
