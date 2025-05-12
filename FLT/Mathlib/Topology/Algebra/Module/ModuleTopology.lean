@@ -354,7 +354,7 @@ v.Completion    L
            K
 ```
 for an infinite place `v` of a number field `K`. We have an `L`-algebra equivalence
-`L ⊗[K] v.Completion ≃ₐ[L] Π (w : v.ExtensionPlace L), wv.1.Completion`
+`L ⊗[K] v.Completion ≃ₐ[L] Π (w : v.Extension L), wv.1.Completion`
 between `v.Completion`-module topological spaces. And so this allows us to assert that this
 is a _continuous_ `L`-algebra equivalence as well.
 -/

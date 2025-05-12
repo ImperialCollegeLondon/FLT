@@ -649,25 +649,25 @@ $L \otimes_K K_v$ is equal to the $K_v$-dimension of $\prod_{w\mid v}L_w$.
 \subsubsection{Base change at infinite places}
 
 \begin{definition}
-  \label{NumberField.InfinitePlace.Completion.piExtensionPlace}
-  \lean{NumberField.InfinitePlace.Completion.piExtensionPlace}
+  \label{NumberField.InfinitePlace.Completion.piExtension}
+  \lean{NumberField.InfinitePlace.Completion.piExtension}
   \leanok
   Let $v$ be an infinite place of $K$. There is a continuous $K$-algebra homomorphism
   $K_v \to \prod_{w\mid v}L_w$, whose restriction to $K$ corresponds to the global embedding
   of $K$ into $(L_w)_w$.
 \end{definition}
 
-The map in~\ref{NumberField.InfinitePlace.Completion.piExtensionPlace} can be lifted to an
+The map in~\ref{NumberField.InfinitePlace.Completion.piExtension} can be lifted to an
 $L$-algebra homomorphism defined on $L\otimes_K K_v$.
 
 \begin{definition}
   \label{NumberField.InfinitePlace.Completion.baseChange}
   \lean{NumberField.InfinitePlace.Completion.baseChange}
   \leanok
-  \uses{NumberField.InfinitePlace.Completion.piExtensionPlace}
+  \uses{NumberField.InfinitePlace.Completion.piExtension}
   Let $v$ be an infinite place of $K$. There is a natural $L$-algebra homomorphism
   $L\otimes_K K_v \to \prod_{w\mid v}L_w$, whose restriction to $1\otimes_K K_v$ corresponds to
-  the map in~\ref{NumberField.InfinitePlace.Completion.piExtensionPlace}.
+  the map in~\ref{NumberField.InfinitePlace.Completion.piExtension}.
 \end{definition}
 
 \begin{theorem}
@@ -734,7 +734,7 @@ has the $K_v$-module topology.
     NumberField.InfinitePlace.Completion.instIsModuleTopologyValEqComapAlgebraMap_fLT}
   Let $v$ be an infinite place of $K$. There is a natural $L$-algebra homeomorphism
   $L\otimes_K K_v \cong_L \prod_{w\mid v}L_w$, whose restriction to $1\otimes_K K_v$ corresponds to
-  the map in~\ref{NumberField.InfinitePlace.Completion.piExtensionPlace}.
+  the map in~\ref{NumberField.InfinitePlace.Completion.piExtension}.
 \end{theorem}
 \begin{proof}
   The map in~\ref{NumberField.InfinitePlace.Completion.baseChange} is an $L$-algebra
