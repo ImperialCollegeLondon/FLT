@@ -23,9 +23,9 @@ import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat
 import FLT.HIMExperiments.flatness
 import FLT.HaarMeasure.DistribHaarChar.AdeleRing
-import FLT.HaarMeasure.DistribHaarChar.Basic
 import FLT.HaarMeasure.DistribHaarChar.Padic
 import FLT.HaarMeasure.DistribHaarChar.RealComplex
+import FLT.HaarMeasure.DistribHaarChar.Ring
 import FLT.HaarMeasure.MeasurableSpacePadics
 import FLT.Hard.Results
 import FLT.Junk.Algebra

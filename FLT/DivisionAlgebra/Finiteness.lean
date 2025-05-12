@@ -10,7 +10,7 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.GroupTheory.DoubleCoset
 import Mathlib.Algebra.Central.Defs
 import FLT.NumberField.AdeleRing
-import FLT.HaarMeasure.DistribHaarChar.Basic
+import FLT.HaarMeasure.DistribHaarChar.Ring
 
 /-
 
@@ -25,7 +25,7 @@ space `Dˣ \ (D ⊗[K] 𝔸_K^infty)ˣ / U` is finite.
 
 suppress_compilation
 
-open IsDedekindDomain MeasureTheory.Measure
+open IsDedekindDomain MeasureTheory
 
 open scoped NumberField TensorProduct
 
