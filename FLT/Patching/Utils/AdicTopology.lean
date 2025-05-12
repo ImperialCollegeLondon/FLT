@@ -8,6 +8,7 @@ import Mathlib.Topology.Connected.Separation
 import FLT.Patching.Utils.InverseLimit
 import FLT.Patching.Utils.Lemmas
 import Mathlib.RingTheory.Artinian.Ring
+import Mathlib.Topology.Algebra.Ring.Compact
 
 variable (R) [CommRing R] [IsLocalRing R] [TopologicalSpace R] [IsTopologicalRing R]
 
@@ -23,11 +24,11 @@ instance (priority := 100) :
     NonarchimedeanRing R :=
   IsLocalRing.IsAdicTopology.isAdic (R := R) ▸ RingSubgroupsBasis.nonarchimedean _
 
-lemma isOpen_maximalIdeal_pow (n : ℕ) : IsOpen (X := R) ↑(maximalIdeal R ^ n) :=
+lemma isOpen_maximalIdeal_pow'' (n : ℕ) : IsOpen (X := R) ↑(maximalIdeal R ^ n) :=
   (isAdic_iff.mp IsLocalRing.IsAdicTopology.isAdic).1 _
 
-lemma isOpen_maximalIdeal : IsOpen (X := R) (maximalIdeal R) :=
-  pow_one (maximalIdeal R) ▸ isOpen_maximalIdeal_pow R 1
+lemma isOpen_maximalIdeal' : IsOpen (X := R) (maximalIdeal R) :=
+  pow_one (maximalIdeal R) ▸ isOpen_maximalIdeal_pow'' R 1
 
 open Filter Topology in
 lemma hasBasis_maximalIdeal_pow :
@@ -39,13 +40,13 @@ instance (priority := 100) [IsNoetherianRing R] : T2Space R := by
   rintro x (hx : x ∉ (⊥ : Ideal R))
   rw [← Ideal.iInf_pow_eq_bot_of_isLocalRing _ (IsLocalRing.maximalIdeal.isMaximal R).ne_top] at hx
   obtain ⟨n, hn⟩ : ∃ n, x ∉ maximalIdeal R ^ n := by simpa using hx
-  exact ⟨_, (isOpen_maximalIdeal_pow R n).mem_nhds (zero_mem _), hn⟩
+  exact ⟨_, (isOpen_maximalIdeal_pow'' R n).mem_nhds (zero_mem _), hn⟩
 
 -- This is actually an iff
 instance (priority := 100) [IsArtinianRing R] : DiscreteTopology R := by
   rw [discreteTopology_iff_isOpen_singleton_zero]
   obtain ⟨n, hn⟩ := IsArtinianRing.isNilpotent_jacobson_bot (R := R)
-  convert isOpen_maximalIdeal_pow R n
+  convert isOpen_maximalIdeal_pow'' R n
   rw [← jacobson_eq_maximalIdeal _ bot_ne_top, hn]
   rfl
 
@@ -79,25 +80,7 @@ lemma isCompact_of_isNoetherianRing [IsNoetherianRing R] [CompactSpace R] (I : I
     IsCompact (X := R) I := Ideal.isCompact_of_fg (IsNoetherian.noetherian _)
 
 variable {R} in
-omit [TopologicalSpace R] [IsTopologicalRing R] [IsAdicTopology R] in
-lemma exists_maximalIdeal_pow_le_of_finite_quotient (I : Ideal R) [Finite (R ⧸ I)] :
-    ∃ n, (maximalIdeal R) ^ n ≤ I := by
-  by_cases hI : I = ⊤
-  · simp [hI]
-  have : Nontrivial (R ⧸ I) := Ideal.Quotient.nontrivial hI
-  have := IsLocalRing.of_surjective' (Ideal.Quotient.mk I) Ideal.Quotient.mk_surjective
-  have := IsLocalHom.of_surjective (Ideal.Quotient.mk I) Ideal.Quotient.mk_surjective
-  obtain ⟨n, hn⟩ := IsArtinianRing.isNilpotent_jacobson_bot (R := R ⧸ I)
-  have : (maximalIdeal R).map (Ideal.Quotient.mk I) = maximalIdeal (R ⧸ I) := by
-    ext x
-    obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
-    simp [sup_eq_left.mpr (le_maximalIdeal hI)]
-  rw [jacobson_eq_maximalIdeal _ bot_ne_top, ← this, ← Ideal.map_pow, Ideal.zero_eq_bot,
-    Ideal.map_eq_bot_iff_le_ker, Ideal.mk_ker] at hn
-  exact ⟨n, hn⟩
-
-variable {R} in
-lemma isOpen_iff_finite_quotient [CompactSpace R] {I : Ideal R} :
+lemma isOpen_iff_finite_quotient' [CompactSpace R] {I : Ideal R} :
     IsOpen (X := R) I ↔ Finite (R ⧸ I) := by
   constructor
   · intro H
@@ -105,10 +88,10 @@ lemma isOpen_iff_finite_quotient [CompactSpace R] {I : Ideal R} :
   · intro H
     obtain ⟨n, hn⟩ := exists_maximalIdeal_pow_le_of_finite_quotient I
     exact AddSubgroup.isOpen_mono (H₁ := (maximalIdeal R ^ n).toAddSubgroup)
-      (H₂ := I.toAddSubgroup) hn (isOpen_maximalIdeal_pow R n)
+      (H₂ := I.toAddSubgroup) hn (isOpen_maximalIdeal_pow'' R n)
 
 instance (n : ℕ) : DiscreteTopology (R ⧸ maximalIdeal R ^ n) :=
-  AddSubgroup.discreteTopology _ (isOpen_maximalIdeal_pow R n)
+  AddSubgroup.discreteTopology _ (isOpen_maximalIdeal_pow'' R n)
 
 instance [IsNoetherianRing R] : IsHausdorff (maximalIdeal R) R where
   haus' x hx := show x ∈ (⊥ : Ideal R) by
@@ -180,7 +163,7 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
 omit [IsAdicTopology R] in
 lemma isOpen_maximalIdeal_pow' [IsNoetherianRing R] [CompactSpace R] [T2Space R] (n : ℕ) :
     IsOpen (X := R) ↑(maximalIdeal R ^ n) := by
-  have : IsClosed (X := R) (maximalIdeal R) := (isCompact_of_isNoetherianRing _).isClosed
+  -- have : IsClosed (X := R) (maximalIdeal R) := (isCompact_of_isNoetherianRing _).isClosed
   letI : Field (R ⧸ maximalIdeal R) := Ideal.Quotient.field (maximalIdeal R)
   have : Finite (R ⧸ maximalIdeal R ^ n) := Ideal.finite_quotient_pow (IsNoetherian.noetherian _) _
   have : (maximalIdeal R ^ n).toAddSubgroup.FiniteIndex :=

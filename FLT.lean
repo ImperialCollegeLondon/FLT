@@ -46,6 +46,7 @@ import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.Data.Set.Function
+import FLT.Mathlib.Data.Subtype
 import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
@@ -56,6 +57,7 @@ import FLT.Mathlib.Logic.Equiv.Basic
 import FLT.Mathlib.MeasureTheory.Group.Action
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
+import FLT.Mathlib.NumberTheory.NumberField.Embeddings
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.Finiteness.Pi
@@ -88,9 +90,10 @@ import FLT.NumberField.AdeleRing
 import FLT.NumberField.Completion.Finite
 import FLT.NumberField.Completion.Infinite
 import FLT.NumberField.DiscriminantBounds
-import FLT.NumberField.Embeddings
 import FLT.NumberField.InfiniteAdeleRing
-import FLT.NumberField.WeakApproximation
+import FLT.NumberField.InfinitePlace.Dimension
+import FLT.NumberField.InfinitePlace.Extension
+import FLT.NumberField.InfinitePlace.WeakApproximation
 import FLT.Patching.Algebra
 import FLT.Patching.Module
 import FLT.Patching.Over

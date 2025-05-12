@@ -27,12 +27,12 @@ lemma PatchingAlgebra.componentEquiv (k) : ∀ᶠ j in F,
     Nonempty (PatchingAlgebra.Component R F k ≃ₐ[Λ] R j ⧸ maximalIdeal (R j) ^ k) := by
   obtain ⟨n, hn⟩ := Algebra.UniformlyBoundedRank.cond (R := R) k
   refine UltraProduct.exists_algEquiv_of_bddAbove_card F n (.of_forall ?_) (.of_forall ?_)
-  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow _ _), hn _⟩
+  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow'' _ _), hn _⟩
   · exact fun i ↦ ((maximalIdeal (R i) ^ k).restrictScalars Λ).continuousSMul_quotient
 
 instance (k : ℕ) : Finite (PatchingAlgebra.Component R F k) :=
   (PatchingAlgebra.componentEquiv ℤ R F k).exists.choose_spec.some.finite_iff.mpr
-    (AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow _ _))
+    (AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow'' _ _))
 
 instance (k : ℕ) [NeZero k] : Nontrivial (PatchingAlgebra.Component R F k) := by
   obtain ⟨i, ⟨e⟩⟩ := (PatchingAlgebra.componentEquiv ℤ R F k).exists
@@ -186,7 +186,7 @@ lemma PatchingAlgebra.continuous_lift : Continuous (lift R F f) := by
   refine continuous_pi fun k ↦ ?_
   obtain ⟨n, hn⟩ := Algebra.UniformlyBoundedRank.cond (R := R) k
   refine UltraProduct.continuous_of_bddAbove_card F n (.of_forall ?_) _ (.of_forall ?_)
-  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow _ _), hn _⟩
+  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow'' _ _), hn _⟩
   · exact fun i ↦ (continuous_algebraMap _ _).comp (hf i)
 
 variable [CompactSpace Rₒₒ]
@@ -202,7 +202,7 @@ lemma PatchingAlgebra.lift_surjective (hf' : ∀ i, Function.Surjective (f i)) :
   obtain ⟨n, hn⟩ := Algebra.UniformlyBoundedRank.cond (R := R) i
   refine UltraProduct.surjective_of_bddAbove_card F n (.of_forall ?_) _ (.of_forall ?_)
       (.of_forall ?_)
-  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow _ _), hn _⟩
+  · exact fun x ↦ ⟨AddSubgroup.quotient_finite_of_isOpen _ (isOpen_maximalIdeal_pow'' _ _), hn _⟩
   · exact fun x ↦ (continuous_algebraMap _ _).comp (hf x)
   · exact fun x ↦ Ideal.Quotient.mk_surjective.comp (hf' x)
 
