@@ -1,8 +1,8 @@
 import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
 import Mathlib.RingTheory.Regular.RegularSequence
 import Mathlib.RingTheory.TensorProduct.Free
-import FLT.Patching.Utils.Lemmas
 import Mathlib.RingTheory.Support
+import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
 
 variable (R S M : Type*) [CommRing R] [CommRing S] [IsLocalRing R] [IsLocalRing S]
 variable [AddCommGroup M] [Module R M] [Module S M] [Algebra R S] [IsScalarTower R S M]
@@ -95,7 +95,7 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
       apply Ideal.Quotient.lift_surjective_of_surjective
       apply Ideal.Quotient.lift_surjective_of_surjective
       exact Ideal.Quotient.mk_surjective
-    have := ringKrullDim_quotient_succ_le_of_nonZeroDivisor (R := R ⧸ annihilator R M) x (by
+    have := ringKrullDim_quotient_succ_le_of_nonZeroDivisor (R := R ⧸ annihilator R M) (r := x) (by
       intro z hz
       obtain ⟨z, rfl⟩ := Ideal.Quotient.mk_surjective z
       simp only [← map_mul, Ideal.Quotient.eq_zero_iff_mem,

@@ -10,7 +10,7 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.GroupTheory.DoubleCoset
 import Mathlib.Algebra.Central.Defs
 import FLT.NumberField.AdeleRing
-import FLT.HaarMeasure.DistribHaarChar.AdeleRing
+import FLT.HaarMeasure.DistribHaarChar.Basic
 
 /-
 
@@ -32,7 +32,7 @@ open scoped NumberField TensorProduct
 variable (K : Type*) [Field K] [NumberField K]
 variable (D : Type*) [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
 
-namespace NumberField.AdeleRing.DivisionAlgebra.Aux
+namespace NumberField.AdeleRing.DivisionAlgebra
 
 set_option quotPrecheck false in
 /-- `D_𝔸` is notation for `D ⊗[K] 𝔸_K`. -/
@@ -56,6 +56,12 @@ local instance : IsTopologicalRing D_𝔸 :=
 local instance : LocallyCompactSpace D_𝔸 := sorry -- we have this (unfinished) elsewhere TODO
 
 variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+
+/-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
+noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
+  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
+
+namespace Aux
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ x ∈ distribHaarChar.ker D_𝔸,
@@ -85,10 +91,6 @@ lemma X_compact : IsCompact (X K D) := sorry
 
 lemma Y_compact : IsCompact (Y K D) := sorry
 
-/-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
-noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
-  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
-
 lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := sorry
 
@@ -114,10 +116,13 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
     β = b * ν ∧ ((ν : D_𝔸), ((ν⁻¹ : D_𝔸ˣ) : D_𝔸)) ∈ C K D :=
   sorry
 
-lemma compact_quotient : CompactSpace (distribHaarChar.ker D_𝔸 ⧸
-  (MonoidHom.range (incl K D)).comap (distribHaarChar.ker D_𝔸).subtype)  := sorry
+end Aux
 
-end NumberField.AdeleRing.DivisionAlgebra.Aux
+lemma compact_quotient : CompactSpace (distribHaarChar.ker D_𝔸 ⧸
+  (MonoidHom.range (incl K D)).comap (distribHaarChar.ker D_𝔸).subtype) := sorry
+
+end NumberField.AdeleRing.DivisionAlgebra
+
 section FiniteAdeleRing
 
 instance : Algebra (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
@@ -135,6 +140,15 @@ local instance : IsModuleTopology (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] (Finite
 
 variable [FiniteDimensional K D]
 
+-- Instance to help speed up instance synthesis
+instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
+  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
+  r.toNonUnitalNonAssocRing
+
+-- Instance to help speed up instance synthesis
+instance : NonAssocSemiring (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
+  Algebra.TensorProduct.instRing.toNonAssocSemiring
+
 instance : IsTopologicalRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   IsModuleTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 K) K) _
 
@@ -147,9 +161,9 @@ abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
-/-- The inclusion 𝔸_K^∞ˣ → (D ⊗ 𝔸_K^∞)ˣ as a group homomorphism. -/
-noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 K) K)ˣ →* Dfx K D :=
-  Units.map Algebra.TensorProduct.includeRight.toMonoidHom
+theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
+    CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
+  sorry
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
 /-!
@@ -157,7 +171,7 @@ If `D` is a finite-dimensional division algebra over a number field `K`
 then the double coset space `Dˣ \ (D ⊗ 𝔸_K^infty)ˣ / U` is finite for any compact open subgroup `U`
 of `(D ⊗ 𝔸_F^infty)ˣ`.
 -/
-theorem DivisionAlgebra.finiteDoubleCoset
+theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) :=
   sorry

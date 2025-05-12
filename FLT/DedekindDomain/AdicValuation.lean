@@ -194,7 +194,7 @@ theorem closureAlgebraMapIntegers_eq_integers :
         closure (algebraMap A (adicCompletion K v)).range by
       apply Set.Subset.trans _ h
       exact DenseRange.subset_closure_image_preimage_of_isOpen
-        UniformSpace.Completion.denseRange_coe (Valued.valuationSubring_isOpen _)
+        UniformSpace.Completion.denseRange_coe (Valued.isOpen_valuationSubring _)
     -- Unfold the topological definitions until we get the result from the previous lemma
     apply closure_minimal _ isClosed_closure
     rintro k ⟨x, hx, rfl⟩

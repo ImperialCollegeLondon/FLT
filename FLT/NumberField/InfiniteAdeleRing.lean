@@ -26,7 +26,7 @@ theorem baseChange_cont : Continuous (baseChange K L) :=
 noncomputable instance : Algebra (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) :=
   Algebra.TensorProduct.rightAlgebra
 
-instance : TopologicalSpace (L ⊗[K] InfiniteAdeleRing K) :=
+noncomputable instance : TopologicalSpace (L ⊗[K] InfiniteAdeleRing K) :=
   moduleTopology (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K)
 
 instance : IsModuleTopology (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) := ⟨rfl⟩
@@ -136,5 +136,12 @@ def baseChangeEquiv :
   -/
   IsModuleTopology.continuousAlgEquivOfIsScalarTower K _ (baseChangeEquivAux K L)
     (by simp_rw [baseChangeEquivAux_apply]; exact SemialgHom.baseChange_of_algebraMap_tmul_right _)
+
+instance : IsScalarTower K (InfiniteAdeleRing K) (InfiniteAdeleRing L) :=
+  IsScalarTower.of_algebraMap_eq (fun x ↦ by
+    apply funext
+    intro w
+    rw [IsScalarTower.algebraMap_apply K L, RingHom.algebraMap_toAlgebra,
+      SemialgHom.toRingHom_eq_coe, RingHom.coe_coe, SemialgHom.commutes])
 
 end NumberField.InfiniteAdeleRing

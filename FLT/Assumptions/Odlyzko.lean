@@ -1,5 +1,5 @@
 import Mathlib.NumberTheory.NumberField.Discriminant.Defs
-import Mathlib.NumberTheory.NumberField.Embeddings
+import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 /-!
 
