@@ -1,5 +1,6 @@
 import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 import Mathlib.Logic.Function.Defs
+import FLT.Mathlib.Algebra.Group.Units.Hom
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 
 open Function
@@ -34,17 +35,20 @@ lemma surjective : Surjective (algebraMap (𝓴 𝓞) (𝓴 A)) := by
   have hsurj2 := IsResidueAlgebra.isSurjective 𝓞 A
   exact (Function.Surjective.of_comp_iff (algebraMap (𝓴 𝓞) (𝓴 A)) hsurj1).mp hsurj2
 
+lemma bijective : Bijective (algebraMap (𝓴 𝓞) (𝓴 A)) :=
+  ⟨(algebraMap (𝓴 𝓞) (𝓴 A)).injective, surjective 𝓞 A⟩
+
 /--!
   Ring equivalence between the residue field of `𝓞` and `A`, when `[IsResidueAlgebra 𝓞 A]`
 --/
 noncomputable def ringEquiv : (𝓴 𝓞) ≃+* (𝓴 A) := RingEquiv.ofBijective
-  (algebraMap (𝓴 𝓞) (𝓴 A)) ⟨(algebraMap (𝓴 𝓞) (𝓴 A)).injective, surjective 𝓞 A⟩
+  (algebraMap (𝓴 𝓞) (𝓴 A)) (bijective 𝓞 A)
 
 noncomputable def algEquiv : (𝓴 𝓞) ≃ₐ[𝓞] (𝓴 A) where
   toFun := ringEquiv 𝓞 A
   invFun := (ringEquiv 𝓞 A).symm
   left_inv := by unfold LeftInverse; aesop
-  right_inv := by unfold RightInverse LeftInverse; aesop
+  right_inv := by unfold Function.RightInverse LeftInverse; aesop
   map_mul' := by aesop
   map_add' := by aesop
   commutes' := by aesop

@@ -1,4 +1,4 @@
-import FLT.Deformations.RepresentationTheory.Subrepresentation
+import FLT.Deformation.RepresentationTheory.Subrepresentation
 import FLT.Mathlib.RepresentationTheory.Basic
 
 namespace Representation
