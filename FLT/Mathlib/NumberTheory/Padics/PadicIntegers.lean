@@ -1,6 +1,5 @@
 import Mathlib.Algebra.CharZero.Infinite
 import Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.RingTheory.Ideal.Operations
 import Mathlib.NumberTheory.Padics.RingHoms
 
@@ -29,12 +28,6 @@ lemma coe_injective : Injective ((↑) : ℤ_[p] → ℚ_[p]) := Subtype.val_inj
 
 instance : Infinite ℤ_[p] := CharZero.infinite _
 
-@[simp]
-protected lemma nnnorm_mul (x y : ℤ_[p]) : ‖x * y‖₊ = ‖x‖₊ * ‖y‖₊ := by simp [nnnorm, NNReal]
-
-@[simp]
-protected lemma nnnorm_pow (x : ℤ_[p]) (n : ℕ) : ‖x ^ n‖₊ = ‖x‖₊ ^ n := by simp [nnnorm, NNReal]
-
 @[simp] lemma nnnorm_p : ‖(p : ℤ_[p])‖₊ = (p : ℝ≥0)⁻¹ := by simp [nnnorm]; rfl
 
 @[simp] protected lemma nnnorm_units (u : ℤ_[p]ˣ) : ‖(u : ℤ_[p])‖₊ = 1 := by simp [nnnorm, NNReal]
@@ -58,7 +51,9 @@ lemma _root_.AddSubgroup.comap_smul_one (R A : Type*) [CommRing R] [CommRing A] 
     (r : R) : AddSubgroup.comap (algebraMap R A) (r • (1 : Submodule R A).toAddSubgroup) =
     r • (1 : Submodule R R).toAddSubgroup := by
   ext s
-  simp [AddSubgroup.mem_smul_pointwise_iff_exists]
+  simp only [AddSubgroup.mem_comap, AddMonoidHom.coe_coe, AddSubgroup.mem_smul_pointwise_iff_exists,
+    Submodule.mem_toAddSubgroup, Submodule.mem_one, exists_exists_eq_and, Ideal.one_eq_top,
+    Submodule.top_toAddSubgroup, AddSubgroup.mem_top, smul_eq_mul, true_and]
   apply exists_congr (fun t ↦ ?_)
   rw [Algebra.smul_def, ← map_mul, Injective.eq_iff]
   rwa [← faithfulSMul_iff_algebraMap_injective R A]
@@ -79,7 +74,8 @@ lemma index_span_p_pow (hx: x ≠ 0):
   simp [AddSubgroup.index, quotients_defeq, card_eq_zmod, NNReal.eq_iff,
     norm_eq_zpow_neg_valuation hx]
 
-lemma smul_submodule_one_index : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := by
+lemma smul_submodule_one_index :
+    (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := by
   by_cases hx: x = 0
   . simp [hx]
   . have x_factor := PadicInt.unitCoeff_spec hx
@@ -89,26 +85,29 @@ lemma smul_submodule_one_index : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSu
 
 /-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
 lemma smul_submodule_one_relindex:
-    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
+    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex
+      (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
 
-  have relindex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := smul_submodule_one_index
+  have relindex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ :=
+    smul_submodule_one_index
   rw [← AddSubgroup.relindex_top_right] at relindex_in_z_p
 
-  -- Use the coercion from ℤ_[p] to ℚ_[p] and `AddSubgroup.relindex_comap` to convert our result about subgroups of `Z_[p]`
-  -- to a result about subgroups of `Q_[p]`.
+  -- Use the coercion from ℤ_[p] to ℚ_[p] and `AddSubgroup.relindex_comap` to convert
+  -- our result about subgroups of `Z_[p]` to a result about subgroups of `Q_[p]`.
   let z_q_coe: ℤ_[p] →+ ℚ_[p] := PadicInt.Coe.ringHom.toAddMonoidHom
   let K_Q : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
   let H_Q := (x : ℚ_[p]) • K_Q
-  have hHK_Q : H_Q ≤ K_Q := (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
 
-  have relindex_preserved := AddSubgroup.relindex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))
+  have relindex_preserved :=
+    AddSubgroup.relindex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))
   have map_top: (AddSubgroup.map z_q_coe ⊤) = K_Q := by
     ext a
     simp [z_q_coe, K_Q]
   have map_H_Q : (AddSubgroup.comap z_q_coe H_Q) =
     (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup := by
     simp only [z_q_coe, H_Q, K_Q, RingHom.toAddMonoidHom_eq_coe,
-      Submodule.pointwise_smul_toAddSubgroup, Submodule.top_toAddSubgroup, z_q_coe, K_Q, ← AddSubgroup.comap_smul_one ℤ_[p] ℚ_[p]]
+      Submodule.pointwise_smul_toAddSubgroup, Submodule.top_toAddSubgroup, z_q_coe, K_Q,
+      ← AddSubgroup.comap_smul_one ℤ_[p] ℚ_[p]]
     rfl
 
   rw [map_top, map_H_Q] at relindex_preserved
@@ -116,7 +115,8 @@ lemma smul_submodule_one_relindex:
 
 /-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
 lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0):
-    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
+    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex
+    (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
   relindex_ne_zero := by
     rw [← Nat.cast_ne_zero (R := ℝ≥0)]
     simp [smul_submodule_one_relindex, hx]

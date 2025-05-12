@@ -3,14 +3,11 @@ Copyright (c) 2024 Salvatore Mercuri. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
-import Mathlib.NumberTheory.NumberField.Embeddings
 import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib.Tactic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Topology.Algebra.Order.Field
-import FLT.Mathlib.Topology.Constructions
 
 /-!
 # Weak approximation

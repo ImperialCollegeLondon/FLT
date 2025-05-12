@@ -25,19 +25,23 @@ If $K=\bbC$ (or more generally if $K$ is algebraically closed)
 then matrix algebras are the only finite-dimensional examples
 up to isomorphism. There are other examples over the reals: for example Hamilton's quaternions
 $\bbH:=\R\oplus\R i\oplus\R j\oplus\R k$ with the usual rules $i^2=j^2=k^2=-1$,
-$ij=-ji=k$ are an example of a central simple $\R$-algebra (and a quaternion algebra), and
+$ij=-ji=k$ etc, are an example of a central simple $\R$-algebra (and a quaternion algebra), and
 matrix algebras over $\bbH$ are other central simple $\R$-algebras.
 For a general field $K$
 one can make an analogue of Hamilton's quaternions $K\oplus Ki\oplus Kj\oplus Kk$ with the
-same multiplication rules $i^2=-1$ etc to describe the multiplication, and if the characteristic
+same multiplication rules ($i^2=-1$ and so on) to describe the multiplication, and if the characteristic
 of~$K$ isn't 2
 then this is a quaternion algebra (which may or may not be isomorphic to $M_2(K)$ in this
 generality).
 
 Some central simple algebras~$B$ are \emph{division algebras}, meaning that they are division
 rings, or equivalently that every nonzero $b\in B$ has a two-sided inverse. For example
-Hamilton's quaternions are a division algebra over $\R$, but $2\times 2$ matrices are not
-(even over $\bbC$) because a nonzero matrix with determinant zero such as
+Hamilton's quaternions are a division algebra over $\R$,
+because $(x+yi+zj+tk)(x-yi-zj-tk)=x^2+y^2+z^2+t^2$, so the inverse
+of a nonzero $x+yi+zj+tk$ is $(x-yi-zj-tk)/(x^2+y^2+z^2+t^2)$.
+However $2\times 2$ matrices over a field~$K$, whilst being a central simple algebra
+over~$K$, are never a division algebra
+(even if $K=\bbC$) because a nonzero matrix with determinant zero such as
 $\begin{pmatrix}1&0\\0&0\end{pmatrix}$ has no inverse.
 
 \section{Enter the adeles}
@@ -47,30 +51,44 @@ in the adele miniproject \ref{Adele_miniproject}. We just recall here that if $K
 then there are two huge commutative topological $K$-algebras called the \emph{finite adeles}
 $\A_K^\infty$ and the \emph{adeles} $\A_K$ of $K$, and that they're both locally compact
 as topological spaces. We also know from theorem~\ref{NumberField.AdeleRing.baseChangeEquiv}
-that $\A_K\cong\A_{\Q}\otimes_{\Q}K$ (both topologically and algebraically), meaning
+that $\A_K\cong K\otimes_{\Q}\A_{\Q}K$ (both topologically and algebraically), meaning
 that if $R$ is a $K$-algebra then $R_{\A} := R\otimes_K\A_K$ is naturally isomorphic
 to $R\otimes_{\Q}\A_{\Q}$. One can
 furthermore check that if $R$ is a finite $K$-algebra then the $\A_K$-module topologies and $\A_{\Q}$-module
-topologies on $R_{\A}$ coincide ({\bf why?}).
+topologies on $R_{\A}$ coincide. Indeed, the topology on $\A_K$
+is the $\A_{\Q}$-module topology, as
+$\A_K=\A_{\Q}\otimes_{\Q}K$ as topological $\A_{\Q}$-algebras, where the right hand side
+has the $\A_{\Q}$-module topology by definition. So the claim follows from the
+fact that if $A$ is a topological ring, $B$ is a topological $A$-algebra
+finite as an $A$-module and with the $A$-module topology, and if
+$M$ is a topological $B$-module
+(and hence a topological $A$-module), then the $A$-module and $B$-module
+topologies on~$M$ coincide (this is {\tt moduleTopology.trans} in the repo,
+not yet PRed to mathlib).
 
 Let $K$ be a number field and let $D/K$ be a finite-dimensional central simple $K$-algebra
 (later on $D$ will be a division algebra (hence the name) but we do not need this yet).
 Then $D_{\A}:=D\otimes_K\A_K$ is an $\A_K$-algebra which
 is free of finite rank, and if we give $D_{\A}$ the $\A_K$-module topology then it is
-topological ring (this result is already formalized in the FLT repo and is on the way
-to mathlib). By the theory of Haar characters (see Chapter~\ref{Haar_char_project})
+a topological ring (by results in mathlib). Furthermore $D_{\A}$ is free of finite
+rank over the locally compact topological ring $\A_K$ and is thus also
+locally compact. So by the theory of Haar characters (see Chapter~\ref{Haar_char_project})
 there is a canonical character $\delta_{D_{\A}}:D_{\A}^\times\to\R_{>0}$ measuring
 how left multiplication by an element of $D_{\A}^\times$ changes the additive Haar
-measure on $D_{\A}$. Let $D_{\A}^{(1)}$ denote the kernel of $\delta_{D_{\A}}$.
+measure on $D_{\A}$. Let $D_{\A}^{(1)}$ denote the kernel of $\delta_{D_{\A}}$,
+and give it the subspace topology coming from $D_{\A}^\times$.
 Theorem~\ref{distribHaarCharacter_kernel_tensor_adeleRing} from the
 Haar character miniproject shows that $D^\times$ (regarded as a subgroup of $D_{\A}^\times$
-via the map $d\mapsto d\otimes 1$) is in $D_{\A}^{(1)}$, thus the below theorem typechecks.
+via the map $d\mapsto d\otimes 1$) is contained within $D_{\A}^{(1)}$,
+thus the below theorem typechecks.
 
 \begin{theorem}
-  \label{AdeleRing.DivisionAlgebra.compact_quotient} If $D$ is a division algebra then
+  \label{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
+  \leanok
+  If $D$ is a division algebra then
   the quotient $D^\times\backslash D_{\A}^{(1)}$
   with its quotient topology coming from $D_{\A}^{(1)}$, is compact.
-  \uses{DivisionAlgebra.units_cocompact}
 \end{theorem}
 
 The rest of this miniproject is devoted to a proof of this theorem.
@@ -80,7 +98,9 @@ The rest of this miniproject is devoted to a proof of this theorem.
 We prove the theorem via a series of lemmas.
 
 \begin{lemma}
-  \label{E}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.existsE}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.existsE}
+  \leanok
   There's a compact subset $E$ of $D_{\A}$
   with the property that for all $x\in D_{\A}^{(1)}$,
   the obvious map $xE\to D\backslash D_{\A}$ is not injective.
@@ -106,105 +126,195 @@ We prove the theorem via a series of lemmas.
     Then $\mu(xE)=\mu(E)>m$ so the map can't be injective.
 \end{proof}
 
-Define $X:=E-E:=\{e-f:e,f\in E\}\subseteq D_{\A}$ and $Y:=X.X:=\{xy:x,y\in X\}\subseteq D_{\A}$.
-  Then $X$ and $Y$ are
-  also compact subsets of $D_{\A}$ as they're continuous images
-  of compact sets.
+\begin{definition}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.E}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.E}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.existsE}
+  \leanok
+  We let $E$ denote any compact set satisfying the hypothesis of the previous lemma.
+\end{definition}
 
-  \begin{lemma}
-    \label{X_meets_kernel}
-    If $\beta\in D_{\A}^{(1)}$ then
-  $\beta X\cap D^\times\not=\emptyset$.
-  \end{lemma}
-  \begin{proof}
-    \uses{E}
-  Indeed by the previous lemma, the map $\beta E\to D\backslash D_{\A}$
-  isn't injective, so there are distinct
-  $\beta e_1,\beta e_2\in \beta E$ with $e_i\in E$ and
-  $\beta e_1-\beta e_2=b\in D$.
-  Now $b\not=0$ and $D$ is a division algebra, so $b\in D^\times$.
-  And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
+\begin{definition}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.X}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.X}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E}
+  \leanok
+Define $X:=E-E:=\{e-f:e,f\in E\}\subseteq D_{\A}$.
+\end{definition}
+
+\begin{definition}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.Y}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.Y}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.X}
+  \leanok
+Define $Y:=X.X:=\{xy:x,y\in X\}\subseteq D_{\A}$.
+\end{definition}
+
+\begin{lemma}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.X_compact}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.X_compact}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.X}
+  \leanok
+  $X$ is a compact subset of $D_{\A}$.
+\end{lemma}
+\begin{proof}
+  It's the continuous image of the compact set~$E\times E$.
 \end{proof}
 
 \begin{lemma}
-  \label{X_meets_kernel'}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.Y_compact}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.Y_compact}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.Y}
+  \leanok
+  $Y$ is a compact subset of $D_{\A}$.
+\end{lemma}
+\begin{proof}
+  It's the continuous image of the compact set~$X\times X$.
+\end{proof}
+
+\begin{lemma}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.X, NumberField.AdeleRing.DivisionAlgebra.Aux.E}
+  % TODO I used E in the statement of the lemma here
+  \leanok
+  If $\beta\in D_{\A}^{(1)}$ then
+$\beta X\cap D^\times\not=\emptyset$.
+\end{lemma}
+\begin{proof}
+Indeed by lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.existsE},
+the map $\beta E\to D\backslash D_{\A}$
+isn't injective, so there are distinct
+$\beta e_1,\beta e_2\in \beta E$ with $e_i\in E$ and
+$\beta e_1-\beta e_2=b\in D$.
+Now $b\not=0$ and $D$ is a division algebra, so $b\in D^\times$.
+And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
+\end{proof}
+
+\begin{lemma}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel'}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel'}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.X}
+  \leanok
   Similarly, if $\beta\in D_{\A}^{(1)}$ then
   $X\beta^{-1}\cap D^\times\not=\emptyset$.
 \end{lemma}
 \begin{proof}
-  \uses{E, addHaarScalarFactor.left_mul_eq_right_mul}
+  % TODO does this make the lines dottted? I used E in the proof here
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E}%, addHaarScalarFactor.left_mul_eq_right_mul}
   Indeed, $\beta^{-1}\in D_{\A}^{(1)}$, and so left multiplication by $\beta^{-1}$
   doesn't change Haar measure on $D_{\A}$, so neither does right multiplication
   (by theorem~\ref{addHaarScalarFactor.left_mul_eq_right_mul}).
   So the same argument works: $E\beta^{-1}\to D\backslash D_{\A}$ is not
   injective so choose $e_1\beta^{-1}\not=e_2\beta^{-1}$ with difference $b\in D$
-  and then $(e_1-e_2)\beta^{-1}\in D^\times$.
+  and then $(e_1-e_2)\beta^{-1}\in D-{0}=D^\times$.
 \end{proof}
 
+\begin{definition}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.T}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.T}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.Y}
+  \leanok
+  Let $T:=Y\cap D^\times$.
+\end{definition}
+
 \begin{lemma}
-  \label{Y_meet_units_D}
-  $Y\cap D^\times$ is finite.
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.T_finite}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.T_finite}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.T}
+  \leanok
+  $T$ is finite.
 \end{lemma}
 \begin{proof}
-  \uses{E}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.Y_compact}
+  % TODO I used T in both the theorem and proof this time!
   It suffices to prove that $Y\cap D$ is finite.
     But $D\subseteq D_{\A}$ is a discrete additive subgroup, and hence closed.
     And $Y\subseteq D_{\A}$ is compact.
     So $D\cap Y$ is compact and discrete, so finite.
 \end{proof}
 
-Now let $T:=Y\cap D^\times$ be this finite subset
-of $D_{\A}$, and define $K:= (T^{-1}.X) \times X\subset D_{\A}\times D_{\A}$,
-noting that $K$ is compact because $X$ is compact and $T$ is finite.
+\begin{definition}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.C}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.C}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.T,
+    NumberField.AdeleRing.DivisionAlgebra.Aux.X}
+  \leanok
+  Define $C:= (T^{-1}.X) \times X\subset D_{\A}\times D_{\A}$.
+\end{definition}
 
 \begin{lemma}
-  \label{exists_product}
-  For every $\beta\in D_{\A}^{(1)}$, there exists $b\in D^\times$
-  and $\nu\in D_{\A}^{(1)}$ such that $\beta=b\nu$ and $(\nu,\nu^{-1})\in K.$
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.C,
+    NumberField.AdeleRing.DivisionAlgebra.Aux.T_finite,
+    NumberField.AdeleRing.DivisionAlgebra.Aux.X_compact}
+  \leanok
+  $C$ is compact.
 \end{lemma}
 \begin{proof}
-  \uses{E, X_meets_kernel, X_meets_kernel'}
-  By lemma~\ref{X_meets_kernel}, $\beta X\cap D^\times\not=\emptyset$,
-  and lemma~\ref{X_meets_kernel'}, $X\beta^{-1}\cap D^\times\not=\emptyset$,
-  so we can write $\beta x_1=b_1$ and $x_2\beta^{-1}=b_2$ with obvious notation.
+   $X$ is compact and $T$ is finite.
+\end{proof}
 
-  Multiplying, $x_2x_1=b_2b_1\in Y\cap D^\times=T$ (recall that $Y=X*X$ and $T=Y\cap D^\times$
-  is finite); call this element $t$.
-  Note that $T\subset D^\times$ so $t$ is a unit, and thus $x_1,x_2$ are units
-  (a left or right divisor of a unit is a unit; this is a general fact about subrings of matrix
-  rings and may be true more generally).
+\begin{lemma}
+  \label{NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C}
+  \lean{NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.C}
+  \leanok
+  For every $\beta\in D_{\A}^{(1)}$, there exists $b\in D^\times$
+  and $\nu\in D_{\A}^{(1)}$ such that $\beta=b\nu$ and $(\nu,\nu^{-1})\in C.$
+\end{lemma}
+\begin{proof}
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E,
+    NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel,
+    NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel',
+    NumberField.AdeleRing.DivisionAlgebra.Aux.C}
+  By lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel},
+  $\beta X\cap D^\times\not=\emptyset$,
+  and lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel'},
+  $X\beta^{-1}\cap D^\times\not=\emptyset$,
+  so we can write $\beta x_1=b_1$ and $x_2\beta^{-1}=b_2$ with $b_i\in D^\times$ and $x_i\in X$.
+  Note that $\beta\in D_{\A}^{(1)}$ and $b_i\in D^{\times}\subseteq D_{\A}^{(1)}$ by
+  corollary~\ref{distribHaarCharacter_kernel_tensor_adeleRing}, so $x_i\in D_{\A}^{(1)}$
+  as well. In particular $x_i\in D_{\A}^\times$ so $x_1^{-1}$ makes sense.
 
-  Then $x_1^{-1}=t^{-1}x_2\in T^{-1}*X$, and $x_1\in X$, so if we set $\nu=x_1^{-1}$
-  and $b=b_1$ then we have $\beta=b\nu$ and $(\nu,\nu^{-1})\in K := (T^{-1}*X)\times X$.
+  Multiplying the equations defining the $x_i$ and $b_i$ we deduce that
+  $x_2x_1=b_2b_1\in Y\cap D^\times=T$ (recall that $Y=X.X$ and $T=Y\cap D^\times$
+  is finite); call this element $t$. Then $x_1^{-1}=t^{-1}x_2\in T^{-1}.X$,
+  and $x_1\in X$, so if we set $\nu=x_1^{-1}\in D_{\A}^{(1)}$
+  and $b=b_1\in D^\times$ then we have $\beta=b\nu$ and $(\nu,\nu^{-1})\in C := (T^{-1}.X)\times X$.
   We are done!
 \end{proof}
 
-We can now prove Fujisaki's theorem.
+We can now prove Fujisaki's theorem~\ref{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}.
 
-\begin{theorem}
-  \label{DivisionAlgebra.units_cocompact}
-  $D^\times\backslash D_{\A}^{(1)}$ is compact.
-\end{theorem}
 \begin{proof}
-  \uses{DistribHaarChar.continuous, exists_product, Y_meet_units_D}
-  Indeed, if $M$ is the preimage of $K$ under the map $D_{\A}^{(1)} \to D_{\A}\times D_{\A}$
+  \proves{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
+  \uses{
+    %DistribHaarChar.continuous,
+  NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C,
+  NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
+  Indeed, if $M$ is the preimage of $C$ under the inclusion $D_{\A}^{(1)} \to D_{\A}\times D_{\A}$
   sending $\nu$ to $(\nu,\nu^{-1})$, then $M$ is a closed subspace
     of a compact
   space so it's compact (note that $\delta_{D_{\A}}$ is continuous,
-  by theorem~\ref{DistribHaarChar.continuous}).
-  Lemma~\ref{exists_product} shows that $M$ surjects onto
+  by theorem~\ref{DistribHaarChar.continuous}, so $D_{\A}^{(1)}$ is a closed subset of
+  $D_{\A}^\times$ which is itself a closed subset of $D_{\A}\times D_{\A}$).
+  Lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C} shows that $M$ surjects onto
   $D^\times\backslash D_{\A}^{(1)}$ which is thus also compact.
 \end{proof}
 
-We note here a useful consequence.
+We note here some useful consequences.
 
 \begin{theorem}
-  \label{DivisionAlgebra.units_cocompact'}
+  \label{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}
+  \lean{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}
+  \leanok
   $D^\times\backslash(D\otimes_K\A_K^\infty)^\times$ is compact.
 \end{theorem}
 \begin{proof}
-  \uses{DivisionAlgebra.units_cocompact}
-  There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
+  \uses{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
+There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
   $D^\times\backslash (D\otimes_K \A_K^\infty)^\times$. We claim that it's
   surjective. Granted this claim, we are home, because if we put the quotient
   topology on $D^\times\backslash (D\otimes_K \A_K^\infty)^\times$ coming from
@@ -225,3 +335,17 @@ We note here a useful consequence.
 \end{proof}
 \begin{remark} In this generality the quotient might not be Hausdorff.
 \end{remark}
+
+\begin{theorem}
+  \label{NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset}
+  \lean{NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset}
+  \uses{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}
+  \leanok
+  If $U$ is an open subgroup of $(D\otimes_K \A_K^\infty)^\times$
+  then the double coset space $D^\times\backslash(D\otimes_K \A_K^\infty)^\times/U$ is finite.
+\end{theorem}
+\begin{proof} The double cosets give a disjoint open cover of $(D\otimes_K \A_K^\infty)$
+  which descends to a disjoint open cover of the quotient space
+  $D^\times\backslash(D\otimes_K \A_K^\infty)^\times$. However this space is compact
+  by theorem~\ref{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}.
+\end{proof}

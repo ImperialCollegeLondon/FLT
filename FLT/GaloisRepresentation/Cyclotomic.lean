@@ -1,7 +1,7 @@
 import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
-import Mathlib.NumberTheory.Cyclotomic.PrimitiveRoots
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import FLT.AutomorphicRepresentation.Example
+import Mathlib.NumberTheory.Cyclotomic.Basic
 
 variable (K : Type) [Field K]
 variable (L : Type) [Field L] [Algebra K L] [CharZero L] [IsAlgClosed L]
@@ -27,12 +27,12 @@ lemma PNat.castHom_val_modEq {D : ℕ} {N : ℕ+} (h : D ∣ N) (e : ZMod N) :
 
 /-- The cyclotomic character-/
 noncomputable def CyclotomicCharacter_aux : (L ≃+* L) →* ZHat where
-  toFun g := ⟨fun N ↦ ModularCyclotomicCharacter L (IsAlgClosed.card_rootsOfUnity L N) g, by
+  toFun g := ⟨fun N ↦ modularCyclotomicCharacter L (IsAlgClosed.card_rootsOfUnity L N) g, by
     intros D M h
-    apply ModularCyclotomicCharacter.unique
+    apply modularCyclotomicCharacter.unique
     intros t htD
 --    norm_cast at h
-    rw [ModularCyclotomicCharacter.spec L (IsAlgClosed.card_rootsOfUnity L M) g <|
+    rw [modularCyclotomicCharacter.spec L (IsAlgClosed.card_rootsOfUnity L M) g <|
           rootsOfUnity_le_of_dvd h htD]
     norm_cast
     apply rootsOfUnity.pow_eq_pow htD

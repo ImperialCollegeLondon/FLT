@@ -45,11 +45,6 @@ jobs:
     name: Lint style
     runs-on: ubuntu-latest
     steps:
-      - name: Check for long lines
-        if: always()
-        run: |
-          ! (find FLT -name "*.lean" -type f -exec grep -E -H -n '^.{101,}$' {} \; | grep -v -E 'https?://')
-
       - name: Don't 'import Mathlib', use precise imports
         if: always()
         run: |
@@ -70,16 +65,28 @@ jobs:
       - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
 
+      - name: check that FLT.lean is up to date
+        run: ~/.elan/bin/lake exe mk_all --check
+
       - name: Build project
         run: ~/.elan/bin/lake build FLT
+
+      - name: Lint project
+        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter FLT
 
       - name: Cache Mathlib docs
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
-          path: docbuild/.lake/build/doc
-          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: |
-            MathlibDoc-
+          path: |
+            docbuild/.lake/build/doc/Aesop
+            docbuild/.lake/build/doc/Batteries
+            docbuild/.lake/build/doc/find
+            docbuild/.lake/build/doc/Init
+            docbuild/.lake/build/doc/Lake
+            docbuild/.lake/build/doc/Lean
+            docbuild/.lake/build/doc/Mathlib
+            docbuild/.lake/build/doc/Std
+          key: Docs-${{ hashFiles('lake-manifest.json') }}
 
       - name: Check for `docs` folder # this is meant to detect a Jekyll-based website
         id: check_docs
@@ -93,9 +100,9 @@ jobs:
           fi
 
       - name: Build blueprint and copy to `docs/blueprint`
-        uses: xu-cheng/texlive-action@3586544d56723b23ab69aec1e9d73e7220d9c313 # v2
+        uses: xu-cheng/texlive-action@f886de8159e5952a131848a5fa9c3196a2132b5d # v2
         with:
-          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
+          docker_image: ghcr.io/xu-cheng/texlive-full:20250401
           run: |
             # Install necessary dependencies and build the blueprint
             apk update
@@ -121,7 +128,7 @@ jobs:
 
       - name: Bundle dependencies
         if: github.event_name == 'push'
-        uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1.229.0
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
         with:
           working-directory: docs
           ruby-version: "3.1"  # Specify Ruby version

@@ -10,7 +10,7 @@ linter.oldObtain = true # no "stream of consciousness `obtain`"
 linter.style.cases = true # no `cases'` tactic
 linter.style.refine = true # no `refine'` tactic
 linter.style.multiGoal = true # no multiple active goals
-weak.linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible tactic (e.g. `simp`)
+linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible tactic (e.g. `simp`)
 maxSynthPendingDepth = 3 # same as mathlib, changes behaviour of typeclass inference
 
 [[require]]
@@ -23,4 +23,4 @@ git = "https://github.com/PatrickMassot/checkdecls.git"
 
 [[lean_lib]]
 name = "FLT"
-globs = ["FLT.*", "FermatsLastTheorem"]
+globs = ["FLT", "FermatsLastTheorem"]

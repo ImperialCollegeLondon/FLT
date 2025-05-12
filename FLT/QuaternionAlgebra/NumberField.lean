@@ -1,5 +1,4 @@
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
@@ -154,6 +153,7 @@ end IsDedekindDomain
 
 open RestrictedProduct
 
+/-- The canonical map from `𝔸_F^∞` to the local component `F_v` for `v` a finite place. -/
 noncomputable
 def IsDedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
     FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v where
@@ -162,6 +162,8 @@ def IsDedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (�
 
 namespace IsDedekindDomain.FiniteAdeleRing
 
+/-- The canonical group homomorphism from `GL_2(𝔸_F^∞)` to the local component `GL_2(F_v)` for `v`
+a finite place. -/
 noncomputable def GL2.toAdicCompletion
     (v : HeightOneSpectrum (𝓞 F)) :
     GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) →*
