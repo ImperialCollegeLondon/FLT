@@ -1,4 +1,4 @@
-import FLT.HaarMeasure.DistribHaarChar.Basic
+import FLT.HaarMeasure.DistribHaarChar.Ring
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
@@ -8,7 +8,7 @@ variable (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
 
 open scoped TensorProduct
 
-open NumberField MeasureTheory.Measure
+open NumberField MeasureTheory
 
 -- boilerplate to make `B ⊗[K] AdeleRing (𝓞 K) K` a locally compact space
 -- TODO put this boilerplate into some scope?
