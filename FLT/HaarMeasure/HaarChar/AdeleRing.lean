@@ -1,4 +1,4 @@
-import FLT.HaarMeasure.DistribHaarChar.Ring
+import FLT.HaarMeasure.HaarChar.Ring
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
