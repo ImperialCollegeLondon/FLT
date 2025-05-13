@@ -12,10 +12,13 @@ namespace ContinuousAddEquiv
 
 variable {R : Type*} [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
 
+-- TODO move to Mathlib/Topology/Algebra/ContinuousMonoidHom.lean
+initialize_simps_projections ContinuousAddEquiv (toFun → apply, invFun → symm_apply)
+
 /-- The additive homeomorphism from a topological ring to itself,
 induced by left multiplication by a unit.
 -/
-@[simps]
+@[simps apply]
 def mulLeft (r : Rˣ) : R ≃ₜ+ R where
   toFun x := r * x
   invFun y := r⁻¹ * y
