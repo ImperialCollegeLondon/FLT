@@ -1,6 +1,8 @@
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract -- abstract Hecke ops
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs -- definitions of automorphic forms
 import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
+import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 /-
 
 # Concrete Hecke operators
@@ -42,12 +44,12 @@ open scoped TensorProduct
 variable {F D} in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- U1(S) -/
-noncomputable abbrev U1 : Subgroup (D ⊗[F] (DedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
+noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
   Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
 
 variable (R : Type*) [CommRing R]
 
 def HeckeOperatorT : WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
     WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
-  let g : (D ⊗[F] (DedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ := sorry
-  AbstractHeckeOperator.HeckeOperator _ (U1 r S) (U1 r S) sorry
+  let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ := sorry
+  sorry -- AbstractHeckeOperator.HeckeOperator _ (U1 r S) (U1 r S) sorry
