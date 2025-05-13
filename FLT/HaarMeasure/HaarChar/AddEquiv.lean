@@ -70,9 +70,10 @@ lemma mulEquivHaarChar_mul_volume (μ : Measure G) [IsHaarMeasure μ]
     -- apply previous lemma to char fn of X
     -- Is it true in Lean without the assumption of measurability?
 
+omit [MeasurableSpace G] [BorelSpace G] in
 @[to_additive]
 lemma mulEquivHaarChar_refl : mulEquivHaarChar (ContinuousMulEquiv.refl G) = 1 := by
-  sorry -- rfl
+  simp [mulEquivHaarChar, Function.id_def]
 
 @[to_additive]
 lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
