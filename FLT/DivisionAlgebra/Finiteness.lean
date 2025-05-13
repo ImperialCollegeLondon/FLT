@@ -87,9 +87,13 @@ open scoped Pointwise in
 /-- An auxiliary set Y used in the proof of Fukisaki's lemma. Defined as X * X. -/
 def Y : Set D_𝔸 := X K D * X K D
 
-lemma X_compact : IsCompact (X K D) := sorry
+lemma X_compact : IsCompact (X K D) := by
+  simpa only [Set.image_prod, Set.image2_sub] using (IsCompact.image_of_continuousOn
+    ((E_compact K D).prod (E_compact K D)) ((continuous_fst.sub continuous_snd).continuousOn))
 
-lemma Y_compact : IsCompact (Y K D) := sorry
+lemma Y_compact : IsCompact (Y K D) := by
+  simpa only [Set.image_prod, Set.image2_mul] using (IsCompact.image_of_continuousOn
+    ((X_compact K D).prod (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
 lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := sorry
@@ -107,8 +111,13 @@ open scoped Pointwise in
 /-- An auxiliary set C used in the proof of Fukisaki's lemma. Defined as T⁻¹X × X. -/
 def C : Set (D_𝔸 × D_𝔸) := ((((↑) : D_𝔸ˣ → D_𝔸) '' (T K D)⁻¹) * X K D) ×ˢ X K D
 
-lemma C_compact : IsCompact (C K D) :=
-  sorry
+lemma C_compact : IsCompact (C K D) := by
+  refine IsCompact.prod ?_ (X_compact K D)
+  simpa only [Set.image_prod, Set.image2_mul] using
+    (IsCompact.image_of_continuousOn (IsCompact.prod (IsCompact.image_of_continuousOn
+    (IsCompact.inv (Set.Finite.isCompact (T_finite K D))) (Continuous.comp_continuousOn'
+    (Units.continuous_val) (continuousOn_id' (T K D)⁻¹)))
+    (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
 lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
     ∃ b ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ),
