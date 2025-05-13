@@ -218,6 +218,7 @@ variable {R : Type*} (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
 open PUnit
 
 #check LinearMap.compLeft
+
 /-- Tensoring with a finitly presented module commutes with arbitrary products. -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
@@ -237,9 +238,9 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   let N4 : Type u_5 := PUnit
   let N5 : Type u_5 := PUnit
 
-  let equiv1 : (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R) ⊗[R] N i):=
+  let equiv1 : (Fin n → R) ⊗[R] (Π i, N i) ≃ₗ[R] Π i, ((Fin n → R) ⊗[R] N i):=
     tensorPi_equiv_piTensor R (Fin n → R) N
-  let equiv2 : (Fin m → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin m → R) ⊗[R] N i):=
+  let equiv2 : (Fin m → R) ⊗[R] (Π i, N i) ≃ₗ[R] Π i, ((Fin m → R) ⊗[R] N i):=
     tensorPi_equiv_piTensor R (Fin m → R) N
 
   set i₁ : M1 →ₗ[R] N1 := equiv2.toLinearMap
@@ -262,8 +263,7 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
 
   have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
     dsimp [g₁, i₁, i₂, f₁, equiv1, equiv2]
-    refine ext' ?_
-    intro x y
+    refine ext' fun x y ↦ ?_
     simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, f₁, i₁, g₁, N3, N2, N1,
       equiv2, equiv1]
     rw [LinearMap.rTensor_tmul] --why isn't simp catching this? similarly for other applies
@@ -273,8 +273,7 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
       LinearMap.rTensor_tmul]
   have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
     dsimp [g₂, i₂, i₃, f₂, equiv1]
-    refine ext' ?_
-    intro x y
+    refine ext' fun x y ↦ ?_
     simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, g₂, f₁, f₂, M1, i₁, g₁,
       N3, N2, N1, M2, i₃, equiv2, equiv1]
     rw [LinearMap.rTensor_tmul, piRightHom_tmul]
@@ -297,47 +296,23 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     dsimp [f₃, f₄]
     exact (LinearMap.exact_zero_iff_injective M3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
   have hg₁ : Function.Exact ⇑g₁ ⇑g₂ := by
-    dsimp [g₁, g₂, IsLinearMap.mk']
-    unfold Function.Exact N2 N1
+    dsimp [g₁, g₂]
+    unfold Function.Exact
     intro y
     have (i : ι) : Exact (LinearMap.rTensor (N i) f) (LinearMap.rTensor (N i) g)  := by
         exact rTensor_exact (N i) exact surj
     constructor
     · intro h
       refine Set.mem_range.mpr ?_
-      have h' (i : ι):= congr_fun h i
-      have (i: ι) : ∃ x, (LinearMap.rTensor (N i) f) x = y i := by
-        refine Set.mem_range.mp ?_
-        -- from Exact, get ker = range
-        have : LinearMap.ker (LinearMap.rTensor (N i) g) = LinearMap.range (LinearMap.rTensor (N i) f) :=
-          LinearMap.exact_iff.mp (this i)
-        have hyi_in_ker : y i ∈ LinearMap.ker (LinearMap.rTensor (N i) g) :=
-          LinearMap.mem_ker.mpr (h' i)
-        rw [this] at hyi_in_ker
-        exact hyi_in_ker
-      let y₁ := fun i ↦ Classical.choose (this i)
-      use y₁
-      have hy₁_spec : ∀ i, (LinearMap.rTensor (N i) f) (y₁ i) = y i :=
-        fun i ↦ Classical.choose_spec (this i)
+      use fun i ↦ Classical.choose (Set.mem_range.mp (((this i) (y i)).mp (congr_fun h i)))
       ext i
-      exact hy₁_spec i
+      exact (Classical.choose_spec (Set.mem_range.mp (((this i) (y i)).mp (congr_fun h i))))
     · intro h
-      have := Set.mem_range.mp h
-      obtain ⟨y₁, hy₁⟩ := this
-      have h' (i : ι):= congr_fun hy₁ i
+      obtain ⟨y₁, hy₁⟩ := LinearMap.mem_range.mp h
       ext i
-      simp only [i₂, g₂, f₁, N5, i₅, f₂, M1, g₃, M5, i₁, g₁, N4, N3, M3, f₃, i₄, g₄, N2, f₄, N1, M4,
-        M2, i₃, equiv2, equiv1]
-      have : LinearMap.ker (LinearMap.rTensor (N i) g) = LinearMap.range (LinearMap.rTensor (N i) f) :=
-          LinearMap.exact_iff.mp (this i)
-      have hyi_in_range : y i ∈ LinearMap.range (LinearMap.rTensor (N i) f) := by
-          refine LinearMap.mem_range.mpr ?_
-          use (y₁ i)
-          exact h' i
-      rw [← this] at hyi_in_range
-      exact hyi_in_range
+      exact ((this i) (y i)).mpr (LinearMap.mem_range.mpr ⟨y₁ i, congr_fun hy₁ i⟩)
   have hg₂ : Function.Exact ⇑g₂ ⇑g₃ := by
-    dsimp [g₂, g₃, IsLinearMap.mk]
+    dsimp [g₂, g₃]
     unfold Function.Exact N3 N2 N4
     intro y
     constructor
