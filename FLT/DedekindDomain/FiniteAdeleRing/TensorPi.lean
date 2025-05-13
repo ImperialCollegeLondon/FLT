@@ -238,9 +238,9 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   let N4 : Type u_5 := PUnit
   let N5 : Type u_5 := PUnit
 
-  have equiv1 : (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R) ⊗[R] N i):=
+  let equiv1 : (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R) ⊗[R] N i):=
     tensorPi_equiv_piTensor R (Fin n → R) N
-  have equiv2 : (Fin m → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin m → R) ⊗[R] N i):=
+  let equiv2 : (Fin m → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin m → R) ⊗[R] N i):=
     tensorPi_equiv_piTensor R (Fin m → R) N
 
   set i₁ : M1 →ₗ[R] N1 := equiv2.toLinearMap
@@ -273,22 +273,117 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   set g₃ : N3 →ₗ[R] N4 := 0 -- map to zero
   set g₄ : N4 →ₗ[R] N5 := LinearMap.id -- map to zero to zero
 
-  have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := sorry
-  have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := sorry
-  have hc₃ : g₃ ∘ₗ i₃ = i₄ ∘ₗ f₃ := sorry
-  have hc₄ : g₄ ∘ₗ i₄ = i₅ ∘ₗ f₄ := sorry
-
-  have hf₁ : Function.Exact ⇑f₁ ⇑f₂ := sorry
-  have hf₂ : Function.Exact ⇑f₂ ⇑f₃ := sorry
-  have hf₃ : Function.Exact ⇑f₃ ⇑f₄ := sorry
-  have hg₁ : Function.Exact ⇑g₁ ⇑g₂ := sorry
-  have hg₂ : Function.Exact ⇑g₂ ⇑g₃ := sorry
-  have hg₃ : Function.Exact ⇑g₃ ⇑g₄ := sorry
-  have hi₁ : Function.Surjective ⇑i₁ := sorry
-  have hi₂ : Function.Bijective ⇑i₂ := sorry
-  have hi₄ : Function.Bijective ⇑i₄ := sorry
-  have hi₅ : Function.Injective ⇑i₅ := sorry
-
+  have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
+    dsimp [g₁, i₁, i₂, f₁, equiv1, equiv2]
+    refine ext' ?_
+    intro x y
+    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, f₁, i₁, g₁, N3, N2, N1,
+      equiv2, equiv1]
+    rw [LinearMap.rTensor_tmul] --why isn't simp catching this? similarly for other applies
+    erw [tensorPi_equiv_piTensor_apply, tensorPi_equiv_piTensor_apply]
+    ext i
+    rw [LinearMap.rTensor_tmul]
+  have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
+    dsimp [g₂, i₂, i₃, f₂, equiv1]
+    refine ext' ?_
+    intro x y
+    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, g₂, f₁, f₂, M1, i₁, g₁,
+      N3, N2, N1, M2, i₃, equiv2, equiv1]
+    rw [LinearMap.rTensor_tmul, piRightHom_tmul]
+    erw [tensorPi_equiv_piTensor_apply]
+    ext i
+    rw [LinearMap.rTensor_tmul]
+  have hc₃ : g₃ ∘ₗ i₃ = i₄ ∘ₗ f₃ := by
+    dsimp [g₃, i₃, i₄, f₃]
+  have hc₄ : g₄ ∘ₗ i₄ = i₅ ∘ₗ f₄ := by
+    dsimp [g₄, i₄, i₅, f₄]
+  have hf₁ : Function.Exact ⇑f₁ ⇑f₂ := by
+    dsimp [f₁, f₂]
+    exact rTensor_exact ((i : ι) → N i) exact surj
+  have hf₂ : Function.Exact ⇑f₂ ⇑f₃ := by
+    dsimp [f₂, f₃]
+    refine (LinearMap.exact_zero_iff_surjective M4 (LinearMap.rTensor ((i : ι) → N i) g)).mpr ?_
+    exact LinearMap.rTensor_surjective _ surj
+  have hf₃ : Function.Exact ⇑f₃ ⇑f₄ := by
+    dsimp [f₃, f₄]
+    exact (LinearMap.exact_zero_iff_injective M3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
+  have hg₁ : Function.Exact ⇑g₁ ⇑g₂ := by
+    dsimp [g₁, g₂, IsLinearMap.mk']
+    unfold Function.Exact N2 N1
+    intro y
+    have (i : ι) : Exact (LinearMap.rTensor (N i) f) (LinearMap.rTensor (N i) g)  := by
+        exact rTensor_exact (N i) exact surj
+    constructor
+    · intro h
+      refine Set.mem_range.mpr ?_
+      have this':  (fun a i ↦ (LinearMap.rTensor (N i) g) (a i)) y =
+        (fun i ↦ (LinearMap.rTensor (N i) g) (y i)) := rfl
+      rw [this'] at h
+      have h' (i : ι):= congr_fun h i
+      have (i: ι) : ∃ x, (LinearMap.rTensor (N i) f) x = y i := by
+        refine Set.mem_range.mp ?_
+        -- from Exact, get ker = range
+        have : LinearMap.ker (LinearMap.rTensor (N i) g) = LinearMap.range (LinearMap.rTensor (N i) f) :=
+          LinearMap.exact_iff.mp (this i)
+        have hyi_in_ker : y i ∈ LinearMap.ker (LinearMap.rTensor (N i) g) :=
+          LinearMap.mem_ker.mpr (h' i)
+        rw [this] at hyi_in_ker
+        exact hyi_in_ker
+      let y₁ := fun i ↦ Classical.choose (this i)
+      use y₁
+      have hy₁_spec : ∀ i, (LinearMap.rTensor (N i) f) (y₁ i) = y i :=
+        fun i ↦ Classical.choose_spec (this i)
+      ext i
+      exact hy₁_spec i
+    · intro h
+      have := Set.mem_range.mp h
+      obtain ⟨y₁, hy₁⟩ := this
+      have h' (i : ι):= congr_fun hy₁ i
+      ext i
+      simp only [i₂, g₂, f₁, N5, i₅, f₂, M1, g₃, M5, i₁, g₁, N4, N3, M3, f₃, i₄, g₄, N2, f₄, N1, M4,
+        M2, i₃, equiv2, equiv1]
+      have : LinearMap.ker (LinearMap.rTensor (N i) g) = LinearMap.range (LinearMap.rTensor (N i) f) :=
+          LinearMap.exact_iff.mp (this i)
+      have hyi_in_range : y i ∈ LinearMap.range (LinearMap.rTensor (N i) f) := by
+          refine LinearMap.mem_range.mpr ?_
+          use (y₁ i)
+          exact h' i
+      rw [← this] at hyi_in_range
+      exact hyi_in_range
+  have hg₂ : Function.Exact ⇑g₂ ⇑g₃ := by
+    dsimp [g₂, g₃, IsLinearMap.mk]
+    unfold Function.Exact N3 N2 N4
+    intro y
+    constructor
+    · intro h
+      refine Set.mem_range.mpr ?_
+      have (i: ι) : ∃ x, (LinearMap.rTensor (N i) g) x = y i := by
+        refine Set.mem_range.mp ?_
+        refine LinearMap.mem_range.mpr ?_
+        exact LinearMap.rTensor_surjective (N i) surj (y i)
+      let y₁ := fun i ↦ Classical.choose (this i)
+      use y₁
+      have hy₁_spec : ∀ i, (LinearMap.rTensor (N i) g) (y₁ i) = y i :=
+        fun i ↦ Classical.choose_spec (this i)
+      ext i
+      exact hy₁_spec i
+    · intro h
+      rfl
+  have hg₃ : Function.Exact ⇑g₃ ⇑g₄ := by
+    dsimp [g₃, g₄]
+    exact (LinearMap.exact_zero_iff_injective N3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
+  have hi₁ : Function.Surjective ⇑i₁ := by
+    dsimp [i₁, equiv2]
+    exact (tensorPi_equiv_piTensor R (Fin m → R) N).surjective
+  have hi₂ : Function.Bijective ⇑i₂ := by
+    dsimp [i₂, equiv1, M2, N2]
+    exact ((tensorPi_equiv_piTensor R (Fin n → R) N)).bijective
+  have hi₄ : Function.Bijective ⇑i₄ := by
+    dsimp [i₄]
+    exact Function.bijective_id
+  have hi₅ : Function.Injective ⇑i₅ := by
+    dsimp [i₅]
+    exact Function.injective_id
   have := LinearMap.bijective_of_surjective_of_bijective_of_bijective_of_injective
     f₁ f₂ f₃ f₄ g₁ g₂ g₃ g₄ i₁ i₂ i₃ i₄ i₅
     hc₁ hc₂ hc₃ hc₄ hf₁ hf₂ hf₃ hg₁ hg₂ hg₃ hi₁ hi₂ hi₄ hi₅
