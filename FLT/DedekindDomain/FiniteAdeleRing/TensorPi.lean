@@ -216,9 +216,8 @@ variable {R : Type*} (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
 --Module.FinitePresentation.exists_fin_exact
 #check Module R PUnit
 open PUnit
-instance smul : SMul R PUnit :=
-  ⟨fun _ _ => unit⟩
 
+#check LinearMap.compLeft
 /-- Tensoring with a finitly presented module commutes with arbitrary products. -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
@@ -255,21 +254,9 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   set f₄ : M4 →ₗ[R] M5 := LinearMap.id -- map to zero to zero (should I change to zero map?)
 
   let g₁ : N1 →ₗ[R] N2 :=
-    IsLinearMap.mk' (fun a i ↦ (LinearMap.rTensor (N i) f) (a i)) ({
-      map_add x y := by
-        simp only [N1, N2, Pi.add_apply, map_add]
-        rfl,
-      map_smul r x := by
-        simp only [N1, N2, Pi.smul_apply, map_smul]
-        rfl}) -- need to make map
+    LinearMap.pi (fun i ↦ (LinearMap.rTensor (N i) f)  ∘ₗ LinearMap.proj i)
   let g₂ : N2 →ₗ[R] N3 :=
-    IsLinearMap.mk' (fun a i ↦ (LinearMap.rTensor (N i) g) (a i)) ({
-      map_add x y := by
-        simp only [N2, N3, Pi.add_apply, map_add]
-        rfl,
-      map_smul r x := by
-        simp only [N2, N3, Pi.smul_apply, map_smul]
-        rfl})
+    LinearMap.pi (fun i ↦ (LinearMap.rTensor (N i) g)  ∘ₗ LinearMap.proj i)
   set g₃ : N3 →ₗ[R] N4 := 0 -- map to zero
   set g₄ : N4 →ₗ[R] N5 := LinearMap.id -- map to zero to zero
 
@@ -282,7 +269,8 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     rw [LinearMap.rTensor_tmul] --why isn't simp catching this? similarly for other applies
     erw [tensorPi_equiv_piTensor_apply, tensorPi_equiv_piTensor_apply]
     ext i
-    rw [LinearMap.rTensor_tmul]
+    simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
+      LinearMap.rTensor_tmul]
   have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
     dsimp [g₂, i₂, i₃, f₂, equiv1]
     refine ext' ?_
@@ -290,9 +278,10 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, g₂, f₁, f₂, M1, i₁, g₁,
       N3, N2, N1, M2, i₃, equiv2, equiv1]
     rw [LinearMap.rTensor_tmul, piRightHom_tmul]
-    erw [tensorPi_equiv_piTensor_apply]
     ext i
-    rw [LinearMap.rTensor_tmul]
+    simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
+      LinearMap.rTensor_tmul]
+    erw [tensorPi_equiv_piTensor_apply, LinearMap.rTensor_tmul]
   have hc₃ : g₃ ∘ₗ i₃ = i₄ ∘ₗ f₃ := by
     dsimp [g₃, i₃, i₄, f₃]
   have hc₄ : g₄ ∘ₗ i₄ = i₅ ∘ₗ f₄ := by
@@ -316,9 +305,6 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     constructor
     · intro h
       refine Set.mem_range.mpr ?_
-      have this':  (fun a i ↦ (LinearMap.rTensor (N i) g) (a i)) y =
-        (fun i ↦ (LinearMap.rTensor (N i) g) (y i)) := rfl
-      rw [this'] at h
       have h' (i : ι):= congr_fun h i
       have (i: ι) : ∃ x, (LinearMap.rTensor (N i) f) x = y i := by
         refine Set.mem_range.mp ?_
