@@ -49,7 +49,12 @@ noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (
 
 variable (R : Type*) [CommRing R]
 
-def HeckeOperatorT : WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
+-- will this be too annoying?
+variable {F D R S} in
+/-- The Hecke operator T_v as an R-linear map from R-valued quaternionic weight 2
+automorphic forms of level U_1(S).
+-/
+def HeckeOperator.T (v : HeightOneSpectrum (𝓞 F)): WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
     WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
   let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ := sorry
   sorry -- AbstractHeckeOperator.HeckeOperator _ (U1 r S) (U1 r S) sorry
