@@ -1,6 +1,7 @@
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
+import FLT.Mathlib.Topology.Order
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.RingTheory.TensorProduct.Finite -- just for Module.Finite.base_change_right
 
@@ -40,12 +41,133 @@ open IsQuaternionAlgebra.NumberField IsDedekindDomain
 
 variable {F}
 
+section ToMathlib
+
+@[to_additive]
+lemma MulOpposite.isOpenMap_unop {M : Type*} [Monoid M] [TopologicalSpace M] :
+    IsOpenMap (MulOpposite.unop (α := M)) :=
+  isOpenMap_induced MulOpposite.unop_surjective
+
+@[to_additive]
+lemma MulOpposite.isOpenMap_op {M : Type*} [Monoid M] [TopologicalSpace M] :
+    IsOpenMap (MulOpposite.op (α := M)) := by
+  have h : Function.RightInverse (β := M) MulOpposite.op MulOpposite.unop := congrFun rfl
+  have h' : Function.RightInverse (α := M) MulOpposite.unop MulOpposite.op := congrFun rfl
+  intro
+  simp only [isOpen_induced_iff, subset_antisymm_iff]
+  intro hU
+  exact ⟨_, hU,
+    Set.preimage_subset_image_of_inverse h' _, Set.image_subset_preimage_of_inverse h _⟩
+
+open MulOpposite in
+@[to_additive]
+lemma IsOpenMap.monoidHom_op {M N : Type*} [Monoid M] [Monoid N] [TopologicalSpace M]
+    [TopologicalSpace N] {f : M →* N} (hf : IsOpenMap f) :
+    IsOpenMap f.op := by
+  simp only [MonoidHom.op, Equiv.coe_fn_mk, MonoidHom.coe_mk, OneHom.coe_mk]
+  exact isOpenMap_op.comp (hf.comp isOpenMap_unop)
+
+lemma Function.Injective.ringHom_mapMatrix {R S : Type*} [NonAssocSemiring R] [NonAssocSemiring S]
+    (ι : Type*) [Fintype ι] [DecidableEq ι]
+    {f : R →+* S} (hf : Function.Injective f) :
+    Function.Injective (RingHom.mapMatrix (m := ι) f) := by
+  intro x y hxy
+  ext i j
+  apply hf
+  simpa using congr_fun₂ hxy i j
+
+end ToMathlib
+
 namespace IsDedekindDomain
+
+section topology_experiments
+
+-- Units.map.{u, v} {M : Type u} {N : Type v} [Monoid M] [Monoid N] (f : M →* N) : Mˣ →* Nˣ
+
+#check RingHom.mapMatrix
+
+-- present already
+example {m α β : Type*} [Fintype m] [DecidableEq m] [NonAssocSemiring α]
+    [NonAssocSemiring β] [TopologicalSpace α] [TopologicalSpace β] (f : α →+* β)
+    (hf : Continuous f) :
+    Continuous (RingHom.mapMatrix f : Matrix m m α →+* Matrix m m β) :=
+  Continuous.matrix_map continuous_id' hf
+
+
+-- variable (M : Type*) [Monoid M] [TopologicalSpace M] in
+-- #synth TopologicalSpace Mˣ -- subspace of product topology, as it should be
+
+-- not there -- is it true?
+open MulOpposite in
+@[to_additive]
+lemma _root_.IsOpenMap.units_map {M N : Type*} [Monoid M] [Monoid N] [TopologicalSpace M]
+    [TopologicalSpace N] (f : M →* N) (hf : IsOpenMap f) (hf' : ∀ x, f x = 1 → x = 1) :
+    IsOpenMap (Units.map f : Mˣ →* Nˣ) := by
+  intro U hU
+  rw [isOpen_induced_iff] at hU ⊢
+  obtain ⟨U, hU, rfl⟩ := hU
+  suffices (Units.map f) '' (Units.embedProduct _ ⁻¹' U) =
+    Units.embedProduct _ ⁻¹' (Prod.map f f.op '' U) by
+    rw [this]
+    refine ⟨Prod.map _ _ '' U, ?_, rfl⟩
+    exact hf.prodMap hf.monoidHom_op U hU
+  ext x
+  simp only [Set.mem_image, Set.mem_preimage, Units.embedProduct_apply, Prod.exists,
+    Prod.map_apply, MonoidHom.op_apply_apply, Function.comp_apply, Prod.mk.injEq, op_inj,
+    «exists», unop_op]
+  constructor
+  · rintro ⟨y, hy, rfl⟩
+    refine ⟨_, _, hy, ?_⟩
+    simp
+  · rintro ⟨a, b, hab, ha, hb⟩
+    have hab' : a * b = 1 := by
+      apply hf'
+      simp [map_mul, ha, hb]
+    have hab'' : b * a = 1 := by
+      apply hf'
+      simp [map_mul, ha, hb]
+    let a' : Mˣ := ⟨a, b, hab', hab''⟩
+    replace hab' : a'⁻¹.val = b := rfl
+    refine ⟨a', ?_, by simp [a', Units.ext_iff, ha]⟩
+    simp [a', hab]
+
+variable (v : HeightOneSpectrum (𝓞 F))
+
+-- why can't fun_prop do this?
+example : Continuous (Units.map (RingHom.mapMatrix
+    (v.adicCompletionIntegers F).subtype).toMonoidHom :
+    GL (Fin 2) _ →* GL (Fin 2) (v.adicCompletion F)) := by
+  apply Continuous.units_map
+  suffices Continuous ((HeightOneSpectrum.adicCompletionIntegers F v).subtype) from
+    Continuous.matrix_map continuous_id' this
+  fun_prop
+
+lemma _root_.isOpenMap_ringHom_mapMatrix_of_isOpenEmbedding {m α β : Type*} [Fintype m]
+    [DecidableEq m] [NonAssocSemiring α] [NonAssocSemiring β]
+    [TopologicalSpace α] [TopologicalSpace β]
+    {f : α →+* β} (hf : Topology.IsOpenEmbedding f) :
+    IsOpenMap (RingHom.mapMatrix f : Matrix m m α →+* Matrix m m β) := by
+  sorry
+
+example : IsOpenMap (Units.map (RingHom.mapMatrix
+    (v.adicCompletionIntegers F).subtype).toMonoidHom :
+    GL (Fin 2) (v.adicCompletionIntegers F) →* GL (Fin 2) (v.adicCompletion F)) := by
+  apply IsOpenMap.units_map
+  · apply isOpenMap_ringHom_mapMatrix_of_isOpenEmbedding
+    simp only [ValuationSubring.coe_subtype]
+    refine IsOpen.isOpenEmbedding_subtypeVal ?_
+    exact Valued.valuationSubring_isOpen _
+  · intro x
+    apply (map_eq_one_iff ..).mp
+    exact (v.adicCompletionIntegers F).subtype_injective.ringHom_mapMatrix ..
+
+end topology_experiments
 
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
   MonoidHom.range (Units.map
     (RingHom.mapMatrix (v.adicCompletionIntegers F).subtype).toMonoidHom)
+
 
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localFullLevel v).carrier :=
