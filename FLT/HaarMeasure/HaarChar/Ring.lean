@@ -21,8 +21,8 @@ def mulLeft (r : Rˣ) : R ≃ₜ+ R where
   left_inv x := by simp [mul_assoc]
   right_inv y := by simp [mul_assoc]
   map_add' x₁ x₂ := left_distrib (↑r) x₁ x₂
-  continuous_toFun := sorry -- multiplication R × R -> R is cts
-  continuous_invFun := sorry -- multiplication R × R -> R is cts
+  continuous_toFun := continuous_mul_left _
+  continuous_invFun := continuous_mul_left _
 
 end ContinuousAddEquiv
 
