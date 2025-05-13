@@ -9,6 +9,7 @@ import Mathlib.Algebra.Module.FinitePresentation
 import Mathlib.LinearAlgebra.Quotient.Pi
 import Mathlib.Algebra.FiveLemma
 import Mathlib.LinearAlgebra.TensorProduct.Pi
+import Mathlib.Algebra.Module.PUnit
 /-!
 
 # Tensor product commutes with direct product when tensoring with a finite free module
@@ -34,7 +35,7 @@ theorem Module.FinitePresentation.exists_fin_exact (R : Type*) (M : Type*)
   ∃ (n m : ℕ) (f : (Fin m → R) →ₗ[R] (Fin n → R)) (g : (Fin n → R) →ₗ[R] M),
     Exact f g ∧ Surjective g := by
 
-  choose n K x KFG using Module.FinitePresentation.exists_fin R M
+  choose n K iso KFG using Module.FinitePresentation.exists_fin R M
 
   unfold Submodule.FG at KFG
 
@@ -42,21 +43,30 @@ theorem Module.FinitePresentation.exists_fin_exact (R : Type*) (M : Type*)
 
   let m : ℕ := S.card
 
-  let f : (Fin m → R) →ₗ[R] (Fin n → R) := by sorry
+  let gens : Fin m → (Fin n → R) := Subtype.val ∘ (Finset.equivFin S).symm
 
-  let g : (Fin n → R) →ₗ[R] M := by
-    sorry
+  let f : (Fin m → R) →ₗ[R] (Fin n → R) := Fintype.linearCombination R gens
 
-  have exact_fg : Exact f g := by
-    unfold Exact
-    sorry
+  let g : (Fin n → R) →ₗ[R] M := iso.symm.toLinearMap.comp (Submodule.mkQ K)
+
+  have h₁ : LinearMap.range f = K := by
+    rw [← hS]
+    simp only [f, Fintype.range_linearCombination, gens]
+    congr
+    exact (Function.Surjective.range_comp (Finset.equivFin S).symm.surjective Subtype.val).trans
+       Subtype.range_val_subtype
+
+  have h₂ : LinearMap.ker g = K := by
+    simp only [g, LinearEquiv.ker_comp]
+    exact Submodule.ker_mkQ K
+
+  have exact_fg : Exact f g := LinearMap.exact_iff.mpr (h₂.trans h₁.symm)
 
   have : Surjective g := by
-    unfold Surjective
-    sorry
---  refine ⟨n, m, ?_, ?_⟩
+    simp only [g, LinearMap.coe_comp, LinearEquiv.coe_coe, EquivLike.comp_surjective]
+    exact Submodule.mkQ_surjective K
 
-  sorry
+  exact ⟨n, m, f, g, exact_fg, this⟩
 
 end test
 
@@ -199,31 +209,34 @@ universe u v
 
 open TensorProduct
 
-variable (R : Type u) (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
+variable {R : Type*} (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)] [Small.{v} R]
 
 --Module.FinitePresentation.exists_fin_exact
-
+#check Module R PUnit
+open PUnit
+instance smul : SMul R PUnit :=
+  ⟨fun _ _ => unit⟩
 
 /-- Tensoring with a finitly presented module commutes with arbitrary products. -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
-   -- Module.Free R M := by
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
   choose n m f g exact surj using Module.FinitePresentation.exists_fin_exact R M
 
-  set M1 := (Fin m → R) ⊗[R] (Π i, N i)
-  set M2 := (Fin n → R) ⊗[R] (Π i, N i)
-  set M3 := M ⊗[R] (Π i, N i)
+  let M1 := (Fin m → R) ⊗[R] (Π i, N i)
+  let M2 := (Fin n → R) ⊗[R] (Π i, N i)
+  let M3 := M ⊗[R] (Π i, N i)
   show M3 ≃ₗ[R] _
-  set M4 := (⊥ : Submodule R M) ⊗[R] (Π i, N i)
-  set M5 := (⊥ : Submodule R M) ⊗[R] (Π i, N i)
+  let M4 : Type* := PUnit
+  let M5 : Type u_5 := PUnit
 
-  set N1 := Π i, ((Fin m → R) ⊗[R] N i)
-  set N2 := Π i, ((Fin n → R) ⊗[R] N i)
-  set N3 := Π i, (M ⊗[R] N i)
-  set N4 := Π i, (⊥ : Submodule R M) ⊗[R] N i
-  set N5 := Π i, (⊥ : Submodule R M) ⊗[R] N i
+  let N1 := Π i, ((Fin m → R) ⊗[R] N i)
+  let N2 := Π i, ((Fin n → R) ⊗[R] N i)
+  let N3 := Π i, (M ⊗[R] N i)
+
+  let N4 : Type u_5 := PUnit
+  let N5 : Type u_5 := PUnit
 
   have equiv1 : (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R) ⊗[R] N i):=
     tensorPi_equiv_piTensor R (Fin n → R) N
@@ -233,18 +246,32 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   set i₁ : M1 →ₗ[R] N1 := equiv2.toLinearMap
   set i₂ : M2 →ₗ[R] N2 := equiv1.toLinearMap
   let i₃ : M3 →ₗ[R] N3 := TensorProduct.piRightHom R R M N
-  let i₄ : M4 →ₗ[R] N4 := by sorry  -- map to zero to zero
-  let i₅ : M5 →ₗ[R] N5 := by sorry  -- map to zero to zero
+  set i₄ : M4 →ₗ[R] N4 := LinearMap.id   -- map to zero to zero
+  set i₅ : M5 →ₗ[R] N5 := LinearMap.id  -- map to zero to zero
 
   let f₁ : M1 →ₗ[R] M2 := f.rTensor (Π i, N i)
   let f₂ : M2 →ₗ[R] M3 := g.rTensor (Π i, N i)
-  let f₃ : M3 →ₗ[R] M4 := sorry -- map to zero
-  let f₄ : M4 →ₗ[R] M5 := by sorry -- map to zero to zero
+  set f₃ : M3 →ₗ[R] M4 := 0
+  set f₄ : M4 →ₗ[R] M5 := LinearMap.id -- map to zero to zero (should I change to zero map?)
 
-  let g₁ : N1 →ₗ[R] N2 := sorry -- need to make map
-  let g₂ : N2 →ₗ[R] N3 := by sorry -- need to make map
-  let g₃ : N3 →ₗ[R] N4 := by sorry -- map to zero
-  let g₄ : N4 →ₗ[R] N5 := by sorry -- map to zero to zero
+  let g₁ : N1 →ₗ[R] N2 :=
+    IsLinearMap.mk' (fun a i ↦ (LinearMap.rTensor (N i) f) (a i)) ({
+      map_add x y := by
+        simp only [N1, N2, Pi.add_apply, map_add]
+        rfl,
+      map_smul r x := by
+        simp only [N1, N2, Pi.smul_apply, map_smul]
+        rfl}) -- need to make map
+  let g₂ : N2 →ₗ[R] N3 :=
+    IsLinearMap.mk' (fun a i ↦ (LinearMap.rTensor (N i) g) (a i)) ({
+      map_add x y := by
+        simp only [N2, N3, Pi.add_apply, map_add]
+        rfl,
+      map_smul r x := by
+        simp only [N2, N3, Pi.smul_apply, map_smul]
+        rfl})
+  set g₃ : N3 →ₗ[R] N4 := 0 -- map to zero
+  set g₄ : N4 →ₗ[R] N5 := LinearMap.id -- map to zero to zero
 
   have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := sorry
   have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := sorry
@@ -268,10 +295,15 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
 
   exact IsTensorProduct.equiv this
 
-#exit
 
+#exit
+#check List.get_mem
+#check List.mem_iff_get
+#check List.mem_toFinset
+#check LinearMap.lsum
+#check Fintype.linearCombination
 /-- Tensoring with a finitly presented module commutes with arbitrary products. -/
-noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
+noncomputable def tensorPi_equiv_piTensor'' [Module.FinitePresentation R M] :
    -- Module.Free R M := by
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
   have := Module.FinitePresentation.exists_fin R M
@@ -279,7 +311,7 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   have equiv: (Fin n → R) ⊗[R] (Π i, N i)  ≃ₗ[R] Π i, ((Fin n → R) ⊗[R] N i):= by
     exact tensorPi_equiv_piTensor R (Fin n → R) N
 
-  --constructing the exact sequence K → R^k → M
+  --constructing the exact sequence K → R^n → M
   let f : K →ₗ[R] (Fin n → R) := K.subtype
   let π : (Fin n → R) →ₗ[R] (Fin n → R) ⧸ K := Submodule.mkQ K
   let g' := iso.symm.toLinearMap
@@ -295,36 +327,83 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     · exact LinearMap.exact_subtype_mkQ K
   have := rTensor.equiv (Π i, N i) exact surj_g
 
+
+  let surj' : (Π i, ((Fin n → R) ⊗[R] (N i))) →ₗ[R] Π i, M ⊗[R] N i :=
+    IsLinearMap.mk' (fun a i ↦ (LinearMap.rTensor (N i) g) (a i)) ({
+      map_add x y := by
+        simp only [Pi.add_apply, map_add]
+        rfl,
+      map_smul r x := by
+        simp only [Pi.smul_apply, map_smul]
+        rfl})
+  have surj_surj' : Function.Surjective surj' :=
+    Function.Surjective.piMap (fun i ↦ LinearMap.rTensor_surjective (N i) surj_g)
+  have iso' := LinearMap.quotKerEquivOfSurjective surj' surj_surj'
+
   --constructing a map from R^m → R^n
   choose fin s using fg
   let m := fin.card
-  let x := Finset.toList fin
-  --let a (i : Fin m) := fin i
-  let gens : Fin m → (Fin n → R) :=
-    fun i ↦ List.get x ⟨i.val, by rw [← Eq.symm (Finset.length_toList fin)]; exact i.isLt⟩
-  let rel_map : (Fin m → R) →ₗ[R] (Fin n → R) :=
-    {toFun := fun f => ∑ i, f i • (gens) i,  -- define the action of the map
-     map_add' x y := by
-      simp only [Pi.add_apply]
-      rw [← Finset.sum_add_distrib, Finset.sum_congr rfl]
-      intro j hj
-      exact add_smul (x j) (y j) (gens j)
-     map_smul' r x := by
-      simp only [Pi.smul_apply, smul_eq_mul, RingHom.id_apply]
-      rw [Finset.smul_sum, Finset.sum_congr rfl]
-      intro j hj
-      exact mul_smul r (x j) (gens j)
-    }
+  let gens' : Fin m → (Fin n → R) := Subtype.val ∘ (Finset.equivFin fin).symm
+  let rel_map : (Fin m → R) →ₗ[R] (Fin n → R) := Fintype.linearCombination R gens'
 
   have : LinearMap.range rel_map = K := by
     rw [← s]
-    have h₁ : LinearMap.range rel_map ≤ K := by
-      rintro g ⟨f, rfl⟩
+    simp only [rel_map, Fintype.range_linearCombination, gens']
+    congr
+    exact (Function.Surjective.range_comp (Finset.equivFin fin).symm.surjective Subtype.val).trans
+       Subtype.range_val_subtype
+
+  have : LinearMap.ker g = K := by
+    simp only [g, g', LinearEquiv.ker_comp]
+    exact Submodule.ker_mkQ K
+
+  sorry
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #exit
+
+
+  --let x := Finset.toList fin
+  --let a (i : Fin m) := fin i
+  let gens : Fin m → (Fin n → R) := fun i ↦ ((Finset.equivFin fin).symm i).1
+
+    apply le_antisymm
+    · rintro g ⟨f, rfl⟩
       dsimp [rel_map]
+      rw [Fintype.linearCombination_apply]
       apply Submodule.sum_smul_mem
       intro i _
-      simp only [gens, x]
+      simp only [gens]
       rw [← s]
+      have := Submodule.subset_span (Finset.coe_mem (fin.equivFin.symm i)) (R:=R) (s:= fin.toSet)
+      exact Submodule.mem_span.mpr fun p a ↦ a (Finset.coe_mem (fin.equivFin.symm i))
+    · rintro g hg
+      rw [← s] at hg
+      dsimp [rel_map]
+      simp only [Fintype.range_linearCombination, gens]
+      have : Set.range gens = fin := by
+        dsimp [gens]
+        refine Eq.symm (Set.Subset.antisymm ?_ ?_)
+        · intro x hx
+          use (Finset.equivFin fin) ⟨x, hx⟩
+          simp only [Equiv.symm_apply_apply]
+        · rintro x hx
+          obtain ⟨i, hi⟩ := hx
+          rw [← hi]
+          exact Subtype.coe_prop (fin.equivFin.symm i)
 
 
       sorry
@@ -337,6 +416,10 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     simp only [LinearEquiv.ker_comp]
     exact Submodule.ker_mkQ K
 
+
+
+  let map' : fin → fin :=  fun a ↦ a
+  let map'' := ∑ x ∈ fin, map' x
 
   sorry
   #exit
