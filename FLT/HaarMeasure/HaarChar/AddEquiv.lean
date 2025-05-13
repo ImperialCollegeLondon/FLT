@@ -11,6 +11,8 @@ lemma isHaarMeasure_comap {G H : Type*}
     [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
     (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) := sorry
 
+/-- If `φ : A ≃ₜ+ A` then `addEquivAddHaarChar φ` is the positive real factor by which
+`φ` scales Haar measure on `A`. -/
 noncomputable def addEquivAddHaarChar {A : Type*} [AddCommGroup A] [TopologicalSpace A]
     [IsTopologicalAddGroup A] [LocallyCompactSpace A]
     (φ : A ≃ₜ+ A): ℝ≥0 :=
@@ -27,6 +29,8 @@ variable {A : Type*} [AddCommGroup A] [TopologicalSpace A]
     [IsTopologicalAddGroup A] [LocallyCompactSpace A]
     (ρ : A ≃ₜ+ A)
 
+/-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
+`φ` scales Haar measure on `G`. -/
 @[to_additive existing]
 noncomputable def mulEquivHaarChar : ℝ≥0 :=
   letI := borel G

@@ -12,6 +12,9 @@ namespace ContinuousAddEquiv
 
 variable {R : Type*} [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
 
+/-- The additive homeomorphism from a topological ring to itself,
+induced by left multiplication by a unit.
+-/
 def mulLeft (r : Rˣ) : R ≃ₜ+ R where
   toFun x := r * x
   invFun y := r⁻¹ * y
@@ -46,6 +49,10 @@ lemma ringHaarChar_continuous :
    -/
   sorry
 
+/-- `ringHaarChar : Rˣ →ₜ* ℝ≥0` is the function sending a unit of
+a locally compact topological ring `R` to the positive real factor
+which left multiplication by the unit scales additive Haar measure by.
+-/
 noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
   toFun r := addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r)
   map_one' := sorry -- mulEquivHaarChar_refl
@@ -63,6 +70,10 @@ lemma ringHaarChar_mul_volume (μ : Measure R) [IsAddHaarMeasure μ]
     μ (u • X) = ringHaarChar u * μ X := sorry
 
 variable (R) in
+/-- The kernel of the `ringHaarChar : Rˣ → ℝ≥0`, namely the units
+of a locally compact topological ring such that left multiplication
+by them does not change additive Haar measure.
+-/
 noncomputable def ringHaarChar_ker := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
 
 end MeasureTheory
