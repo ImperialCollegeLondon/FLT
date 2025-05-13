@@ -32,6 +32,6 @@ local instance : IsTopologicalRing (B ⊗[K] AdeleRing (𝓞 K) K) :=
 
 variable [MeasurableSpace (B ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (B ⊗[K] AdeleRing (𝓞 K) K)]
 
-lemma distribHaarCharacter_kernel_tensor_adeleRing (b : Bˣ) :
+lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker (b : Bˣ) :
   (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
-    (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈ distribHaarChar.ker (B ⊗[K] AdeleRing (𝓞 K) K) := sorry
+    (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈ ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := sorry

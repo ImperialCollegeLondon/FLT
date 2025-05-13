@@ -92,6 +92,16 @@ NumberField.AdeleRing.zero_discrete
 NumberField.AdeleRing.discrete
 Rat.AdeleRing.cocompact
 NumberField.AdeleRing.cocompact
+MeasureTheory.addEquivAddHaarChar
+MeasureTheory.addEquivAddHaarChar_eq
+MeasureTheory.addEquivAddHaarChar_mul_volume
+MeasureTheory.addEquivAddHaarChar_mul_integral
+MeasureTheory.addEquivAddHaarChar_refl
+MeasureTheory.addEquivAddHaarChar_trans
+MeasureTheory.ringHaarChar
+MeasureTheory.ringHaarChar_mul_integral
+MeasureTheory.ringHaarChar_mul_volume
+MeasureTheory.ringHaarChar_continuous
 distribHaarChar_real
 distribHaarChar_complex
 distribHaarChar_padic

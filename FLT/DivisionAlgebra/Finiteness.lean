@@ -64,7 +64,7 @@ noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
 namespace Aux
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
-    ∀ x ∈ distribHaarChar.ker D_𝔸,
+    ∀ x ∈ ringHaarChar_ker D_𝔸,
     ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   sorry
@@ -74,7 +74,7 @@ def E : Set D_𝔸 := (existsE K D).choose
 
 lemma E_compact : IsCompact (E K D) := (existsE K D).choose_spec.1
 
-lemma E_noninjective : ∀ x ∈ distribHaarChar.ker D_𝔸,
+lemma E_noninjective : ∀ x ∈ ringHaarChar_ker D_𝔸,
     ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D,
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   (existsE K D).choose_spec.2
@@ -91,10 +91,10 @@ lemma X_compact : IsCompact (X K D) := sorry
 
 lemma Y_compact : IsCompact (Y K D) := sorry
 
-lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
+lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := sorry
 
-lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
+lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := sorry
 
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
@@ -110,16 +110,16 @@ def C : Set (D_𝔸 × D_𝔸) := ((((↑) : D_𝔸ˣ → D_𝔸) '' (T K D)⁻�
 lemma C_compact : IsCompact (C K D) :=
   sorry
 
-lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
+lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ b ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ),
-    ∃ ν ∈ distribHaarChar.ker D_𝔸,
+    ∃ ν ∈ ringHaarChar_ker D_𝔸,
     β = b * ν ∧ ((ν : D_𝔸), ((ν⁻¹ : D_𝔸ˣ) : D_𝔸)) ∈ C K D :=
   sorry
 
 end Aux
 
-lemma compact_quotient : CompactSpace (distribHaarChar.ker D_𝔸 ⧸
-  (MonoidHom.range (incl K D)).comap (distribHaarChar.ker D_𝔸).subtype) := sorry
+lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
+  (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := sorry
 
 end NumberField.AdeleRing.DivisionAlgebra
 
