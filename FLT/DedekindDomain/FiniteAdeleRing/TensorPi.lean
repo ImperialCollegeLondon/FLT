@@ -262,7 +262,6 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   set g₄ : N4 →ₗ[R] N5 := LinearMap.id -- map to zero to zero
 
   have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
-    dsimp [g₁, i₁, i₂, f₁, equiv1, equiv2]
     refine ext' fun x y ↦ ?_
     simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, f₁, i₁, g₁, N3, N2, N1,
       equiv2, equiv1]
@@ -272,7 +271,6 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
       LinearMap.rTensor_tmul]
   have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
-    dsimp [g₂, i₂, i₃, f₂, equiv1]
     refine ext' fun x y ↦ ?_
     simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, g₂, f₁, f₂, M1, i₁, g₁,
       N3, N2, N1, M2, i₃, equiv2, equiv1]
@@ -281,26 +279,19 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
       LinearMap.rTensor_tmul]
     erw [tensorPi_equiv_piTensor_apply, LinearMap.rTensor_tmul]
-  have hc₃ : g₃ ∘ₗ i₃ = i₄ ∘ₗ f₃ := by
-    dsimp [g₃, i₃, i₄, f₃]
-  have hc₄ : g₄ ∘ₗ i₄ = i₅ ∘ₗ f₄ := by
-    dsimp [g₄, i₄, i₅, f₄]
-  have hf₁ : Function.Exact ⇑f₁ ⇑f₂ := by
-    dsimp [f₁, f₂]
-    exact rTensor_exact ((i : ι) → N i) exact surj
-  have hf₂ : Function.Exact ⇑f₂ ⇑f₃ := by
-    dsimp [f₂, f₃]
+  have hc₃ : g₃ ∘ₗ i₃ = i₄ ∘ₗ f₃ := rfl
+  have hc₄ : g₄ ∘ₗ i₄ = i₅ ∘ₗ f₄ := rfl
+  have hf₁ : Function.Exact f₁ f₂ := rTensor_exact ((i : ι) → N i) exact surj
+  have hf₂ : Function.Exact f₂ f₃ := by
     refine (LinearMap.exact_zero_iff_surjective M4 (LinearMap.rTensor ((i : ι) → N i) g)).mpr ?_
     exact LinearMap.rTensor_surjective _ surj
-  have hf₃ : Function.Exact ⇑f₃ ⇑f₄ := by
-    dsimp [f₃, f₄]
-    exact (LinearMap.exact_zero_iff_injective M3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
-  have hg₁ : Function.Exact ⇑g₁ ⇑g₂ := by
-    dsimp [g₁, g₂]
+  have hf₃ : Function.Exact f₃ f₄ :=
+    (LinearMap.exact_zero_iff_injective M3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
+  have hg₁ : Function.Exact g₁ g₂ := by
     unfold Function.Exact
     intro y
-    have (i : ι) : Exact (LinearMap.rTensor (N i) f) (LinearMap.rTensor (N i) g)  := by
-        exact rTensor_exact (N i) exact surj
+    have (i : ι) : Exact (LinearMap.rTensor (N i) f) (LinearMap.rTensor (N i) g)  :=
+      rTensor_exact (N i) exact surj
     constructor
     · intro h
       refine Set.mem_range.mpr ?_
@@ -311,8 +302,7 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
       obtain ⟨y₁, hy₁⟩ := LinearMap.mem_range.mp h
       ext i
       exact ((this i) (y i)).mpr (LinearMap.mem_range.mpr ⟨y₁ i, congr_fun hy₁ i⟩)
-  have hg₂ : Function.Exact ⇑g₂ ⇑g₃ := by
-    dsimp [g₂, g₃]
+  have hg₂ : Function.Exact g₂ g₃ := by
     unfold Function.Exact N3 N2 N4
     intro y
     constructor
@@ -330,21 +320,12 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
       exact hy₁_spec i
     · intro h
       rfl
-  have hg₃ : Function.Exact ⇑g₃ ⇑g₄ := by
-    dsimp [g₃, g₄]
-    exact (LinearMap.exact_zero_iff_injective N3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
-  have hi₁ : Function.Surjective ⇑i₁ := by
-    dsimp [i₁, equiv2]
-    exact (tensorPi_equiv_piTensor R (Fin m → R) N).surjective
-  have hi₂ : Function.Bijective ⇑i₂ := by
-    dsimp [i₂, equiv1, M2, N2]
-    exact ((tensorPi_equiv_piTensor R (Fin n → R) N)).bijective
-  have hi₄ : Function.Bijective ⇑i₄ := by
-    dsimp [i₄]
-    exact Function.bijective_id
-  have hi₅ : Function.Injective ⇑i₅ := by
-    dsimp [i₅]
-    exact Function.injective_id
+  have hg₃ : Function.Exact g₃ g₄ :=
+    (LinearMap.exact_zero_iff_injective N3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
+  have hi₁ : Function.Surjective i₁ := (tensorPi_equiv_piTensor R (Fin m → R) N).surjective
+  have hi₂ : Function.Bijective i₂ := ((tensorPi_equiv_piTensor R (Fin n → R) N)).bijective
+  have hi₄ : Function.Bijective i₄ := Function.bijective_id
+  have hi₅ : Function.Injective i₅ := Function.injective_id
   have := LinearMap.bijective_of_surjective_of_bijective_of_bijective_of_injective
     f₁ f₂ f₃ f₄ g₁ g₂ g₃ g₄ i₁ i₂ i₃ i₄ i₅
     hc₁ hc₂ hc₃ hc₄ hf₁ hf₂ hf₃ hg₁ hg₂ hg₃ hi₁ hi₂ hi₄ hi₅
