@@ -29,36 +29,43 @@ There is a choice of normalization here between $d_A(\phi)$
 and $d_A(\phi)^{-1}$, so let us be more precise.
 
 \begin{definition}
-  \label{MeasureTheory.distribHaarChar}
-  %\lean{MeasureTheory.distribHaarChar} -- confused about what we should be pionting to
-  %\mathlibok
+  \label{MeasureTheory.mulEquivHaarChar}
+  \lean{MeasureTheory.mulEquivHaarChar}
   If $A$ is a locally compact topological additive abelian group,
   if $\mu$ is a regular Haar measure on $A$, and if $\phi:A\to A$ is an
   additive homeomorphism, then we let $d_A(\phi)$ denote the unique positive
   real number such that $\phi^*\mu(X)=d_A(\phi)\mu(X)$ for any Borel set~$X$.
 \end{definition}
 
+Here are some basic results about this construction.
+
 \begin{lemma}
+  \label{MeasureTheory.mulEquivHaarChar_eq}
+  \lean{MeasureTheory.mulEquivHaarChar_eq}
+  \mathlibok
   $d_A(\phi)$ is independent of choice of regular Haar measure.
 \end{lemma}
-\begin{proof} If $\mu'$ is a second choice then $\mu'=\lambda\mu$ for some
+\begin{proof}
+  \mathlibok
+  If $\mu'$ is a second choice then $\mu'=\lambda\mu$ for some
   positive real $\lambda$, and the $\lambda$s on each side of $\phi^*\mu'(X)=d_A(\phi)\mu'(X)$
   cancel.
 \end{proof}
 
-We list the two properties of $d_A(\phi)$ which we continually use.
-
 \begin{lemma}
-  If $X$ is a Borel set then $\mu(\phi(X))=d_A(\phi)\mu(X)$.
-\end{lemma}
-\begin{proof} This follows immediately from the definition.
-\end{proof}
-
-\begin{lemma}
+  \label{MeasureTheory.mulEquivHaarChar_mul_integral}
+  \lean{MeasureTheory.mulEquivHaarChar_mul_integral}
   If $f:A\to\R$ is a Borel measurable function then
   $d_A(\phi)\int f(x)d\phi^*\mu(x)=\int f(x)d\mu(x)$.
 \end{lemma}
 \begin{proof} This also follows immediately from the definition.
+\end{proof}
+
+\begin{lemma}
+  \label{MeasureTheory.distribHaarChar_mul_volume}
+  If $X$ is a Borel set then $\mu(\phi(X))=d_A(\phi)\mu(X)$.
+\end{lemma}
+\begin{proof} This follows immediately from the definition.
 \end{proof}
 
 Note that if $X$ is a Borel subset of $A$ with positive finite measure then we can read
