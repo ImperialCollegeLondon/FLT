@@ -6,8 +6,10 @@ import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
 import FLT.DedekindDomain.AdicValuation
+import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
+import FLT.DedekindDomain.IntegralClosure
 import FLT.Deformations.Algebra.InverseLimit.Basic
 import FLT.Deformations.Algebra.InverseLimit.Topology
 import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
