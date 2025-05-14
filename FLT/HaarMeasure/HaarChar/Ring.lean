@@ -12,9 +12,13 @@ namespace ContinuousAddEquiv
 
 variable {R : Type*} [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
 
+-- TODO move to Mathlib/Topology/Algebra/ContinuousMonoidHom.lean
+initialize_simps_projections ContinuousAddEquiv (toFun → apply, invFun → symm_apply)
+
 /-- The additive homeomorphism from a topological ring to itself,
 induced by left multiplication by a unit.
 -/
+@[simps apply]
 def mulLeft (r : Rˣ) : R ≃ₜ+ R where
   toFun x := r * x
   invFun y := r⁻¹ * y
@@ -53,10 +57,13 @@ lemma ringHaarChar_continuous :
 a locally compact topological ring `R` to the positive real factor
 which left multiplication by the unit scales additive Haar measure by.
 -/
+@[simps]
 noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
   toFun r := addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r)
-  map_one' := sorry -- mulEquivHaarChar_refl
-  map_mul' := sorry -- mulEquivHaarChar_comp
+  map_one' := by convert addEquivAddHaarChar_refl (G := R); ext; simp
+  map_mul' φ ψ := by
+    rw [mul_comm]
+    convert addEquivAddHaarChar_trans (G := R); ext; simp [mul_assoc]
   continuous_toFun := ringHaarChar_continuous R
 
 lemma ringHaarChar_mul_integral (μ : Measure R) [IsAddHaarMeasure μ]
