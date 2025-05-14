@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Measure.Haar.DistribChar
+import Mathlib.MeasureTheory.Measure.Haar.Unique
 
 open MeasureTheory.Measure
 open scoped NNReal Pointwise ENNReal
