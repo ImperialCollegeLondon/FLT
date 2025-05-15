@@ -149,7 +149,10 @@ theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := b
     rwa [← @HeightOneSpectrum.ext_iff] at hxy
 
 end BaseChange
-section TensorProduct
+
+end IsDedekindDomain.HeightOneSpectrum
+
+namespace IsDedekindDomain
 
 open scoped TensorProduct
 
@@ -210,6 +213,4 @@ lemma LinearEquivTensorProductModule_tmul (b : B) (m : M) :
     (LinearEquivTensorProductModule A K L B M) ((algebraMap B L b) ⊗ₜ m) = b ⊗ₜ m := by
   rw [← LinearEquiv.eq_symm_apply, LinearEquivTensorProductModule_symm_tmul]
 
-end TensorProduct
-
-end IsDedekindDomain.HeightOneSpectrum
+end IsDedekindDomain
