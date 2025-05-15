@@ -482,10 +482,14 @@ straightforward.
 \begin{corollary}
   \label{IsDedekindDomain.AKLB.tensorProduct_module_algEquiv}
   %%% \uses{IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv} -- uncomment to break leanblueprint
+  \lean{IsDedekindDomain.LinearEquivTensorProductModule}
+  \leanok
   If $M$ is any $K$-module then the canonical map $B\otimes_A M\to L\otimes_K M$
   is an isomorphism.
 \end{corollary}
-\begin{proof} We can factor this map as $B\otimes_AM\cong B\otimes_A(K\otimes_KM)\cong
+\begin{proof}
+  \leanok
+  We can factor this map as $B\otimes_AM\cong B\otimes_A(K\otimes_KM)\cong
   (B\otimes_A K)\cong_KM\to L\otimes_KM$ and we just showed that the latter map was an
   isomorphism.
 \end{proof}
@@ -933,12 +937,14 @@ $L\otimes_K\A_K\to \A_L$.
 \begin{theorem}
   \label{NumberField.AdeleRing.baseChangeEquiv}
   \lean{NumberField.AdeleRing.baseChangeEquiv}
+  \leanok
   \uses{NumberField.InfiniteAdeleRing.baseChangeEquiv,
   IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
   If $K\to L$ is a ring homomorphism between two number fields then there is a natural isomorphism
   (both topological and algebraic) $L\otimes_K\A_K\cong\A_L$.
 \end{theorem}
 \begin{proof}
+  \leanok
   Follows from the previous results.
 \end{proof}
 
@@ -946,12 +952,15 @@ Something else we shall need:
 
 \begin{theorem}
   \label{NumberField.AdeleRing.baseChange_moduleTopology}
+  \lean{NumberField.AdeleRing.instBaseChangeIsModuleTopology}
+  \leanok
   \uses{NumberField.AdeleRing.baseChangeEquiv}
   If $K\to L$ is a ring homomorphism between two number fields then the topology on $\A_L$
   is the $\A_K$-module topology, where the module structure comes from the
   natural map $\A_K\to\A_L$.
 \end{theorem}
 \begin{proof}
+  \leanok
   Indeed $\A_L\cong L\otimes_K\A_K$ is a homeomorphism, and
   the right hand side has the $\A_K$-module topology.
 \end{proof}
