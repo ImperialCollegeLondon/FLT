@@ -31,6 +31,7 @@ and $d_A(\phi)^{-1}$, so let us be more precise.
 \begin{definition}
   \label{MeasureTheory.addEquivAddHaarChar}
   \lean{MeasureTheory.addEquivAddHaarChar}
+  \discussion{task001}
   If $A$ is a locally compact topological additive abelian group,
   if $\mu$ is a regular Haar measure on $A$, and if $\phi:A\to A$ is an
   additive homeomorphism, then we let $d_A(\phi)$ denote the unique positive
@@ -42,6 +43,7 @@ Here are some basic results about this construction.
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_eq}
   \lean{MeasureTheory.addEquivAddHaarChar_eq}
+  \discussion{task002}
   \leanok
   $d_A(\phi)$ is independent of choice of regular Haar measure.
 \end{lemma}
@@ -57,6 +59,8 @@ Now let $\mu$ be any additive Haar measure on $A$.
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_mul_volume}
   \lean{MeasureTheory.addEquivAddHaarChar_mul_volume}
+  \discussion{task003}
+  \leanok
   If $X$ is a Borel set then $\mu(\phi(X))=d_A(\phi)\mu(X)$.
 \end{lemma}
 \begin{proof}
@@ -67,6 +71,7 @@ Now let $\mu$ be any additive Haar measure on $A$.
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_mul_integral}
   \lean{MeasureTheory.addEquivAddHaarChar_mul_integral}
+  \discussion{task004}
   \leanok
   If $f:A\to\R$ is a Borel measurable function then
   $d_A(\phi)\int f(x)d\phi^*\mu(x)=\int f(x)d\mu(x)$.
@@ -86,16 +91,20 @@ In particular, the following are straightforward:
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_refl}
   \lean{MeasureTheory.addEquivAddHaarChar_refl}
+  \leanok
   $d_A(id)=1.$
 \end{lemma}
 \begin{proof}
   \uses{MeasureTheory.addEquivAddHaarChar_eq}
+  \leanok
   Clear.
 \end{proof}
 
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_trans}
   \lean{MeasureTheory.addEquivAddHaarChar_trans}
+  \leanok
+  \discussion{task005}
   $d_A(\phi\circ\psi)=d_A(\phi)d_A(\psi).$
 \end{lemma}
 \begin{proof}
@@ -114,6 +123,7 @@ an additive automorphism of $(R,+)$, so the preceding theory applies to $\ell_u$
 \begin{definition}
   \label{MeasureTheory.ringHaarChar}
   \lean{MeasureTheory.ringHaarChar}
+  \leanok
   We define $\delta_R(u)$ (or just $\delta(u)$ when the ring $R$ is clear) to be $d_R(\ell_u)$.
 \end{definition}
 
@@ -122,6 +132,8 @@ The lemmas in the previous subsection immediately apply
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_mul_integral}
   \lean{MeasureTheory.ringHaarChar_mul_integral}
+  \leanok
+  \discussion{task006}
   If $f:R\to\R$ is a Borel measurable function and $u\in R^\times$ then
   $\delta_R(u)\int f(ux)d\mu(x)=\int f(x)d\mu(x)$.
 \end{lemma}
@@ -133,6 +145,8 @@ The lemmas in the previous subsection immediately apply
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_mul_volume}
   \lean{MeasureTheory.ringHaarChar_mul_volume}
+  \leanok
+  \discussion{task007}
   If $X$ is a Borel subset of $R$ and $r\in R^\times$ then $\mu(rX)=\delta_R(r)\mu(X)$.
 \end{lemma}
 \begin{proof}
@@ -140,11 +154,13 @@ The lemmas in the previous subsection immediately apply
    Immediate from lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_volume}.
 \end{proof}
 
-This lies a little deeper.
+The next result lies a little deeper.
 
 \begin{corollary}
   \label{MeasureTheory.ringHaarChar_continuous}
   \lean{MeasureTheory.ringHaarChar_continuous}
+  \leanok
+  \discussion{task008}
   The function $\delta_R:R^\times\to\R_{>0}$ is continuous.
 \end{corollary}
 \begin{proof}
@@ -209,12 +225,13 @@ and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
 \end{proof}
 
 \begin{remark}
-
 If $R$ is a finite extension of $\Q_p$ then $\delta_R(u)$
 is the norm on $R$ normalised in the following way:
 $\delta_R(\varpi)=q^{-1}$, where $\varpi$ is a uniformiser
-and $q$ is the size of the (finite) residue field. The proof is
-the same as for $\Q_p$, but we won't need this.
+and $q$ is the size of the (finite) residue field. In fact the same is true
+for any nonarchimedean local field. The proof is
+the same as for $\Q_p$. Right now this is difficult to state in Lean because
+there is still some discussion about the definition of a nonarchimedean local field.
 \end{remark}
 
 \section{Algebras}
@@ -228,8 +245,10 @@ the same as for $\Q_p$, but we won't need this.
   and our theory applies. The following lemma gives a formula for the scale factor $d_V(\phi)$.
 
 \begin{lemma}
-  \label{addHaarScalarFactor_eq_distribHaarChar_det}
-  %\lean{addHaarScalarFactor_eq_distribHaarChar_det}
+  \label{MeasureTheory.addEquivAddHaarChar_eq_distribHaarChar_det}
+  \lean{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
+  \leanok
+  \discussion{task009}
   $d_V(\phi)=\delta_F(\det(\phi))$, where $\det(\phi)\in F$ is the determinant of $\phi$ as an $F$-linear map.
 \end{lemma}
 \begin{proof}
@@ -238,7 +257,9 @@ which crucially uses the induction principle \href{https://leanprover-community.
 In short, one needs to check it for diagonal matrices and for matrices which are the identity
 except that one off-diagonal entry is non-zero, because these matrices generate $GL_n(F)$
 if $F$ is a field. Note that we only need the result for $F=\R$
-and $F=\mathbb{Q}_p$, so if it helps we can assume that $F$ is second countable.
+and $F=\mathbb{Q}_p$ (and possibly for finite extensions of these depending on
+details of direction), so if it helps we can assume that $F$ is second countable
+(but it shouldn't be necessary).
 \end{proof}
 
 Now say $F$ is still a locally compact topological field, and that $R$ is a (possibly
@@ -250,11 +271,14 @@ recall $\ell_u:R\to R$ is left multiplication by $u$. Then $\ell_u$ is easily ch
 an $F$-linear homeomorphism.
 
   \begin{corollary}
-  \label{distribHaarChar_algebra}
-  %\lean{distribHaarChar_algebra}
+  \label{ringAddHaarChar_eq_ringHaarChar_det}
+  \lean{ringAddHaarChar_eq_ringHaarChar_det}
+  \leanok
   If $u\in R^\times$ then $\delta_R(u)=\delta_F(\det(\ell_u))$.
 \end{corollary}
 \begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
+  \leanok
   Follows immediately from the preceding lemma.
 \end{proof}
 
@@ -281,10 +305,14 @@ are both $k$-linear endomorphisms of $B$, and I claim that they have
 the same determinant.
 
 \begin{lemma}
-  \label{left_det_eq_right_det}
-  %\lean{left_det_eq_right_det}
-  If $u\in B^\times$, if $\ell_u:B\to B$ sends $x$ to $ux$ and if $r_u:B\to B$
-  sends $x$ to $xu$ then $\det(\ell_u)=\det(r_u)$ as $k$-linear endomorphisms of $B$.
+  \label{IsSimpleRing.mulLeft_det_eq_mulRight_det}
+  \lean{IsSimpleRing.mulLeft_det_eq_mulRight_det}
+  \leanok
+  \discussion{task010}
+  Say $B$ is a finite-dimensional central simple algebra over a field~$k$,
+  and $u\in B^\times$. Let $\ell_u:B\to B$ be the $k$-linear maping $x$ to $ux$ and
+  let $r_u:B\to B$ be the $k$-linear map sending $x$ to $xu$. Then
+  $\det(\ell_u)=\det(r_u)$ as $k$-linear endomorphisms of $B$.
 \end{lemma}
 \begin{proof}
   Determinants are unchanged by base extension, so WLOG $k$ is algebraically closed.

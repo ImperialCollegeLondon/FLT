@@ -5,7 +5,7 @@ Authors: Kevin Buzzard
 -/
 import FLT.HaarMeasure.HaarChar.AddEquiv
 
-open scoped NNReal Pointwise ENNReal
+open scoped NNReal
 
 namespace ContinuousAddEquiv
 
@@ -50,7 +50,7 @@ lemma ringHaarChar_continuous :
    Hence $\delta_R$ is continuous, from `mulEquivHaarChar_mul_integral`
    in the AddEquiv file
    -/
-  sorry
+  sorry -- FLT#task008
 
 /-- `ringHaarChar : Rˣ →ₜ* ℝ≥0` is the function sending a unit of
 a locally compact topological ring `R` to the positive real factor
@@ -67,13 +67,13 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
 
 lemma ringHaarChar_mul_integral (μ : Measure R) [IsAddHaarMeasure μ]
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :
-    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := sorry
+    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := sorry -- FLT#task006
     -- addEquivAddHaarChar_mul_integral
 
 open Pointwise in
 lemma ringHaarChar_mul_volume (μ : Measure R) [IsAddHaarMeasure μ]
     {X : Set R} (hf : MeasurableSet X) (u : Rˣ) :
-    μ (u • X) = ringHaarChar u * μ X := sorry
+    μ (u • X) = ringHaarChar u * μ X := sorry -- FLT#task007
 
 variable (R) in
 /-- The kernel of the `ringHaarChar : Rˣ → ℝ≥0`, namely the units
