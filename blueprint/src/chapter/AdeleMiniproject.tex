@@ -545,15 +545,17 @@ that the natural map from $L\otimes_KK_v$ to $\prod_{w|v}L_w$ was also an isomor
 This isomorphism sends $B\otimes_A A_v$ to $\prod_{w|v}B_w$ (I thank Matthew Jasper for
 pointing out to me that this statement was true at all primes, not just at unramified primes).
 Finally, the set of $w$ of $B$ dividing a fixed place $v$ of $A$ is finite.
-Let's now formalize the abstract statement which we need.
+Let's now formalize the abstract statement which we need. Rather than following the
+notation for restricted product in the literature and writing $\A_K^\infty=\prod'_vK_v$
+with the $\mathcal{O}_v$ implicit, we will write $\prod'_v(K_v,\mathcal{O}_v)$ in the below.
 
 \begin{definition}
   \label{RestrictedProduct.relabelIso}
   Let $V$ and $W$ be index sets, and let $f:W\to V$ be a map with finite fibres.
-  Let $R_v$ be sets, with subsets $S_v$, let $L_w$ be sets with subsets $B_w$,
-  and say for all $v\in V$ we're given a bijection $R_v\to\prod_{w|v}L_w$,
-  sending $S_v$ to $\prod_{w|v}B_w$. Then there's an induced bijection between
-  the restricted products $\prod'_v R_v$ and $\prod'_w L_w$.
+  Let $X_v$ be sets, with subsets $C_v$, let $Y_w$ be sets with subsets $D_w$,
+  and say for all $v\in V$ we're given a bijection $X_v\to\prod_{w|f(w)=v}Y_w$,
+  identifying $C_v$ with $\prod_{w:f(w)=v}D_w$. Then there's an induced bijection between
+  the restricted products $\prod'_v(X_v,C_v)$ and $\prod'_w(Y_w,D_w)$.
 \end{definition}
 
 \begin{corollary}
@@ -564,7 +566,9 @@ Let's now formalize the abstract statement which we need.
   is isomorphic to $\mathbb{A}_L$.
 \end{corollary}
 \begin{proof} Let $V$ be the finite places of $K$ and $W$ the finite places of $L$,
-  and the result follows from the previous theorem.
+  let $X_v$ be $B\otimes_A K_v$, let $C_v$ be $B\otimes_A A_v$, let $Y_w$ be $L_w$,
+  let $D_w$ be $B_w$ and the result follows from the previous definition, given
+  theorem~\ref{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral}.
 \end{proof}
 From this, we can deduce the theorem we claimed earlier:
 
@@ -590,7 +594,83 @@ we can finally deduce that the natural map $L\otimes_K\A_K^\infty\to\A_L^\infty$
   and theorem~\ref{IsDedekindDomain.AKLB.tensorProduct_module_algEquiv}.
 \end{proof}
 
-We still need to talk about topologies though.
+We still need to talk about topologies though, so let's finish by doing this. Let's start with some trivialities, expressed as definitions rather than theorems
+because they're constructions.
+
+\begin{definition} If $X_v$ and $Y_v$ are families of topological spaces indexed by $v\in V$,
+  if $f_v:X_v\to Y_v$ is a continuous map sending the subset $C_v\subseteq X_v$ into
+  $D_v\subseteq Y_v$ then there's an induced continuous map $\prod'_v(X_v,C_v)\to\prod'_v(Y_v,D_v)$.
+\end{definition}
+
+\begin{definition} If all the $f_v$ are homeomorphisms identifying $C_v$ with $D_v$ then
+  the induced map on restricted products is also a homeomorphism (proof: apply the previous
+  construction to $f_v$ and their inverses)
+\end{definition}
+
+We now allow a slight change of index set. Unfortunately I don't think that we can deduce
+the results just stated above from this one, in Lean, because the product of $Y_w$ over a
+set of size 1 is not definitionally equal to $Y_w$.
+
+Recall definition~\ref{RestrictedProduct.relabelIso}, giving us a bijection between two restricted
+products.
+
+\begin{theorem} In the same setup as definition~\ref{RestrictedProduct.relabelIso}
+  ($V,W$ index sets, $f:W\to V$,
+  $C_v\subseteq X_v$ and $D_w\subseteq Y_w$, bijections $b_v:X_v\to\prod_{w:f(w)=v}Y_w$
+  identifying $C_v$ with $\prod_{w:f(w)=v}D_w$), if all the $X_v$ and $Y_w$ are furthermore
+  topological spaces, all the $C_v$ and $D_w$ are open, and all the $b_v$ are homeomorphisms,
+  then the induced
+  map $\prod'_v(X_v,C_v)\to\prod'_w(Y_w,D_w)$ is also a homeomorphism.
+\end{theorem}
+\begin{proof} I have only thought about the cofinite filter case, where this
+  should follow easily from the definition of the topology.
+\end{proof}
+
+\begin{corollary} $\mathbb{\A_L^\infty}$ is homeomorphic to $\prod_v(B\otimes_AK_v,B\otimes_AA_v)$.
+\end{corollary}
+\begin{proof} Follows from the previous theorem with $X_v=B\otimes_AK_v$ $D_w=L_w$ etc.
+\end{proof}
+
+Recall that if $$R$$ is a commutative ring, and two $$R$$-modules both have the $$R$$-module
+topology, then any $$R$$-linear morphism between them is automatically continuous. We know
+that $\A_L^\infty$ is $\A_K^\infty$-linearly isomorphic to $L\otimes_K\A_K^\infty$ and our claim is that
+if $L\otimes_K\A_K^\infty$ is given the $\A_K^\infty$-module topology then this isomorphism is also a
+homeomorphism; to prove this, we thus just need to check that $\A_L^\infty$ has the $\A_K^\infty$-module
+topology. Equivalently, by the previous result, we need to check that
+the restricted product topology on the $\A_K^\infty$-algebra $\prod'_v(B\otimes_AK_v,B\otimes_AA_v)$
+is the $\A_K^\infty$-module topology.
+
+We now need to make restricted products of modules into modules over restricted product of rings.
+The API, which should be straightforward so we don't give details here, is: if $R_v$ are rings
+with subrings $S_v$ and if $M_v$ are $R_v$-modules with $S_v$-stable submodules $N_v$, then
+$\prod'_v(M_v,N_v)$ is naturally a module over $\prod'_v(R_v,S_v)$, and that $R_v$-morphisms
+$M_v\to M_v'$ sending $N_v$ to $N_v'$ induce $\prod'_v(R_s,S_v)$-linear maps
+$\prod'_v(M_v,N_v)\to\prod'_v(M'_v,N'_v)$. From this one deduces that isomorphisms on the factors
+induce isomorphisms on the restricted products.
+
+
+Now $A_v$ is a PID, so $B\otimes_AA_v$ is free (as it is finitely-generated and torsion-free).
+This means that there is an isomorphism $B\otimes_AA_v\cong(A_v)^n$, which extends to an isomorphism
+$B\otimes_AK_v\cong K_v^n$. These isomorphisms are also homeomorphisms. If we fix such isomorphisms
+for all $v$ then we get an induced $\A_K^\infty$-module isomorphism + homeomorphism
+$\prod'_v(B\otimes_AK_v,B\otimes_AA_v)=\prod'_v(K_n^n,A_v^n)$. So it suffices to prove
+that the $\prod'_v(K_v,A_v)$-module $\prod'_v(K_v^n,A_v^n)$ has the $\prod'_v(K_v,A_v)$-module
+topology. This follows from the fact that the product topology on two modules with the
+module topology is the module topology (a fact in mathlib) and the following result.
+
+\begin{lemma}
+  If $X_v$ and $Y_v$ are topological spaces with open subspaces $C_v$ and $D_v$, then
+  the obvious bijection $\prod'_v(X_v \times Y_v,C_v\times D_v) \cong
+  \left(\prod'_v(X_v,C_v)\right)\times\left(\prod'_v(Y_v,D_v)\right)$ is a homeomorphism,
+  where the restricted products have the restricted product topology and the binary
+  product has the product topology.
+\end{lemma}
+\begin{proof} This should hopefully be straightforward using {\tt RestrictedProduct.continuous\_dom\_prod}
+\end{proof}
+
+As a corollary one can prove by induction on $n$ that the restricted product of $n$th powers
+is homeomorphic to the $n$th power of the restricted product and this is the result
+we require.
 
 \subsection{Base change for infinite adeles}
 
