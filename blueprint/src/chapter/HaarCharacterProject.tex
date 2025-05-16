@@ -341,10 +341,10 @@ the same determinant.
   then $\delta_B(u):=d_B(\ell_u)$ is equal to $d_B(r_u)$.
 \end{corollary}
 \begin{proof}
-  \uses{mulLeft_det_eq_mulRight_det, addHaarScalarFactor_eq_distribHaarChar_det}
+  \uses{IsSimpleRing.mulLeft_det_eq_mulRight_det, MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
   If $\ell_u$ and $r_u$ denote left and right multiplication by $u$ on $B$, then we have
-  seen in lemma~\ref{addHaarScalarFactor_eq_distribHaarChar_det} that $d_B(r_u)=\delta_F(\det(r_u))$.
-  Lemma~\ref{left_det_eq_right_det} tells
+  seen in lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det} that $d_B(r_u)=\delta_F(\det(r_u))$.
+  Lemma~\ref{IsSimpleRing.mulLeft_det_eq_mulRight_det} tells
   us that this is $\delta_F(\det(\ell_u))$ and this is $\delta_B(u)$ by
   corollary~\ref{distribHaarChar_algebra}.
 \end{proof}
@@ -514,7 +514,7 @@ We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic
     Thus $d_{V_{\A}}(\phi_{\A})=\prod_p d_{V_p}(\phi_p)\times d_{V_\infty}(\phi_\infty)=\prod_v d_{V_v}(\phi_v)$, where
     we note that all but finitely many of the $d_{V_p}(\phi_p)$ are 1.
 
-    By Lemma~\ref{addHaarScalarFactor_eq_distribHaarChar_det} we have that
+    By Lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det} we have that
     $d_{V_v}(\phi_v)=\delta_{\Q_v}(\det(\phi_v))$, hence $d_{V_{\A}}(\phi_{\A})=\prod_v\delta_{\Q_v}(\det(\phi_v))$.
     But $\det(\phi_v)$ is equal to the determinant of $\phi$ on $V$ as $\Q$-vector space (because
     base change does not change determinant),
