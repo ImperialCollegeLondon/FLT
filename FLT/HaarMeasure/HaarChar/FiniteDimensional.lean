@@ -1,6 +1,7 @@
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
+import FLT.Mathlib.LinearAlgebra.Determinant
 
 namespace MeasureTheory
 
@@ -28,6 +29,8 @@ end addequiv
 
 section ring
 
+variable (F)
+
 variable {A : Type*} [Ring A] [TopologicalSpace A]
     [Algebra F A] [FiniteDimensional F A] [IsModuleTopology F A]
     [IsTopologicalRing A] -- can be deduced from previous assumptions but only using F
@@ -35,21 +38,16 @@ variable {A : Type*} [Ring A] [TopologicalSpace A]
     [MeasurableSpace A] [BorelSpace A]
 
 -- needs PRing
-variable (F) in
-def _root_.LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[F] A where
-  toFun x := u * x
-  invFun y := u⁻¹ * y
-  left_inv x := by simp [mul_assoc]
-  right_inv y := by simp [mul_assoc]
-  map_add' x₁ x₂ := left_distrib ↑u x₁ x₂
-  map_smul' f x := by simp
-
--- needs PRing
-variable (F) in
 def _root_.ContinuousLinearEquiv.mulLeft (u : Aˣ) : A ≃L[F] A where
   __ := LinearEquiv.mulLeft F u
   continuous_toFun := continuous_mul_left _
   continuous_invFun := continuous_mul_left _
+
+-- needs PRing
+def _root_.ContinuousLinearEquiv.mulRight (u : Aˣ) : A ≃L[F] A where
+  __ := LinearEquiv.mulRight F u
+  continuous_toFun := continuous_mul_right _
+  continuous_invFun := continuous_mul_right _
 
 lemma ringAddHaarChar_eq_ringHaarChar_det (u : Aˣ) :
     ringHaarChar u = ringHaarChar (LinearEquiv.mulLeft F u).det :=
@@ -66,5 +64,14 @@ variable {D : Type*} [Ring D] [TopologicalSpace D]
     [LocallyCompactSpace D] -- can also be proved but only using F
     [MeasurableSpace D] [BorelSpace D]
 
--- state ringHaarChar u = addEquivHaarChar right_mul u
+#check ContinuousLinearEquiv.mulLeft
+
+include F in
+lemma _root_.IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (u : Dˣ) :
+    ringHaarChar u = addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
+  rw [ringAddHaarChar_eq_ringHaarChar_det F u]
+  rw [IsSimpleRing.mulLeft_det_eq_mulRight_det']
+  -- convert addEquivAddHaarChar_eq_ringHaarChar_det (ContinuousLinearEquiv.mulRight F u)
+  sorry -- this should be easy
+
 end issimplering

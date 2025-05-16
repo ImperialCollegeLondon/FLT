@@ -43,12 +43,12 @@ Here are some basic results about this construction.
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_eq}
   \lean{MeasureTheory.addEquivAddHaarChar_eq}
+  \uses{MeasureTheory.addEquivAddHaarChar}
   \discussion{task002}
   \leanok
   $d_A(\phi)$ is independent of choice of regular Haar measure.
 \end{lemma}
 \begin{proof}
-  \uses{MeasureTheory.addEquivAddHaarChar}
   If $\mu'$ is a second choice then $\mu'=\lambda\mu$ for some
   positive real $\lambda$, and the $\lambda$s on each side of $\phi^*\mu'(X)=d_A(\phi)\mu'(X)$
   cancel.
@@ -59,6 +59,7 @@ Now let $\mu$ be any additive Haar measure on $A$.
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_mul_volume}
   \lean{MeasureTheory.addEquivAddHaarChar_mul_volume}
+  \uses{MeasureTheory.addEquivAddHaarChar}
   \discussion{task003}
   \leanok
   If $X$ is a Borel set then $\mu(\phi(X))=d_A(\phi)\mu(X)$.
@@ -71,6 +72,7 @@ Now let $\mu$ be any additive Haar measure on $A$.
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_mul_integral}
   \lean{MeasureTheory.addEquivAddHaarChar_mul_integral}
+  \uses{MeasureTheory.addEquivAddHaarChar}
   \discussion{task004}
   \leanok
   If $f:A\to\R$ is a Borel measurable function then
@@ -91,6 +93,7 @@ In particular, the following are straightforward:
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_refl}
   \lean{MeasureTheory.addEquivAddHaarChar_refl}
+  \uses{MeasureTheory.addEquivAddHaarChar}
   \leanok
   $d_A(id)=1.$
 \end{lemma}
@@ -103,6 +106,7 @@ In particular, the following are straightforward:
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_trans}
   \lean{MeasureTheory.addEquivAddHaarChar_trans}
+  \uses{MeasureTheory.addEquivAddHaarChar}
   \leanok
   \discussion{task005}
   $d_A(\phi\circ\psi)=d_A(\phi)d_A(\psi).$
@@ -123,6 +127,7 @@ an additive automorphism of $(R,+)$, so the preceding theory applies to $\ell_u$
 \begin{definition}
   \label{MeasureTheory.ringHaarChar}
   \lean{MeasureTheory.ringHaarChar}
+  \uses{MeasureTheory.addEquivAddHaarChar}
   \leanok
   We define $\delta_R(u)$ (or just $\delta(u)$ when the ring $R$ is clear) to be $d_R(\ell_u)$.
 \end{definition}
@@ -132,6 +137,7 @@ The lemmas in the previous subsection immediately apply
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_mul_integral}
   \lean{MeasureTheory.ringHaarChar_mul_integral}
+  \uses{MeasureTheory.ringHaarChar}
   \leanok
   \discussion{task006}
   If $f:R\to\R$ is a Borel measurable function and $u\in R^\times$ then
@@ -145,6 +151,7 @@ The lemmas in the previous subsection immediately apply
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_mul_volume}
   \lean{MeasureTheory.ringHaarChar_mul_volume}
+  \uses{MeasureTheory.ringHaarChar}
   \leanok
   \discussion{task007}
   If $X$ is a Borel subset of $R$ and $r\in R^\times$ then $\mu(rX)=\delta_R(r)\mu(X)$.
@@ -159,6 +166,7 @@ The next result lies a little deeper.
 \begin{corollary}
   \label{MeasureTheory.ringHaarChar_continuous}
   \lean{MeasureTheory.ringHaarChar_continuous}
+  \uses{MeasureTheory.ringHaarChar}
   \leanok
   \discussion{task008}
   The function $\delta_R:R^\times\to\R_{>0}$ is continuous.
@@ -245,8 +253,10 @@ there is still some discussion about the definition of a nonarchimedean local fi
   and our theory applies. The following lemma gives a formula for the scale factor $d_V(\phi)$.
 
 \begin{lemma}
-  \label{MeasureTheory.addEquivAddHaarChar_eq_distribHaarChar_det}
+  \label{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
   \lean{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
+  \uses{MeasureTheory.ringHaarChar}
+  \uses{MeasureTheory.addEquivAddHaarChar}
   \leanok
   \discussion{task009}
   $d_V(\phi)=\delta_F(\det(\phi))$, where $\det(\phi)\in F$ is the determinant of $\phi$ as an $F$-linear map.
@@ -323,12 +333,15 @@ the same determinant.
 \end{proof}
 
 \begin{corollary}
-  \label{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
-  %\lean{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
+  \label{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
+  \lean{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
+  \discussion{task012}
+  \leanok
   If $B$ is a central simple algebra over a locally compact field $F$, and if $u\in B^\times$,
   then $\delta_B(u):=d_B(\ell_u)$ is equal to $d_B(r_u)$.
 \end{corollary}
 \begin{proof}
+  \uses{mulLeft_det_eq_mulRight_det, addHaarScalarFactor_eq_distribHaarChar_det}
   If $\ell_u$ and $r_u$ denote left and right multiplication by $u$ on $B$, then we have
   seen in lemma~\ref{addHaarScalarFactor_eq_distribHaarChar_det} that $d_B(r_u)=\delta_F(\det(r_u))$.
   Lemma~\ref{left_det_eq_right_det} tells
@@ -447,7 +460,7 @@ $K$-algebra. So fix such a $B$, and write $B_{\A}$ for $B\otimes_K\A_K$.
 \begin{proof} If $u=(u_v)$ as $v$ runs through the places of $K$ then
   $d_{B_{\A}}(\ell_u)=\prod_v d_{B_v}(\ell_{u_v})$ by
   theorem~\ref{addHaarScalarFactor_restricted_product} (and the product is finite).
-  By corollary~\ref{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
+  By corollary~\ref{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
   this equals $\prod_v d_{B_v}(r_{u_v})$, and again by
   theorem~\ref{addHaarScalarFactor_restricted_product} this is $d_{B_{\A}}(r_u)$.
 \end{proof}
