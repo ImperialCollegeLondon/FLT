@@ -27,6 +27,9 @@ def mulLeft (r : Rˣ) : R ≃ₜ+ R where
   continuous_toFun := continuous_mul_left _
   continuous_invFun := continuous_mul_left _
 
+/-- The additive homeomorphism from a topological ring to itself,
+induced by right multiplication by a unit.
+-/
 @[simps apply]
 def mulRight (r : Rˣ) : R ≃ₜ+ R where
   toFun x := x * r
@@ -93,3 +96,4 @@ by them does not change additive Haar measure.
 noncomputable def ringHaarChar_ker := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
 
 end MeasureTheory
+#lint

@@ -27,9 +27,37 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det (ρ : V ≃L[F] V) :
 
 end addequiv
 
-section ring
+section needs_PRing
 
-variable (F)
+variable (R : Type*) [CommSemiring R]
+
+variable {A : Type*} [Ring A] [TopologicalSpace A] [IsTopologicalRing A]
+
+variable [Algebra R A]
+
+-- needs PRing
+/--
+Multiplication on the left by a unit of an F-algebra which is a topological
+ring, is a continuous F-linear homeomorphism.
+-/
+def _root_.ContinuousLinearEquiv.mulLeft (u : Aˣ) : A ≃L[R] A where
+  __ := LinearEquiv.mulLeft R u
+  continuous_toFun := continuous_mul_left _
+  continuous_invFun := continuous_mul_left _
+
+-- needs PRing
+/--
+Multiplication on the right by a unit of an F-algebra which is a topological
+ring, is a continuous F-linear homeomorphism.
+-/
+def _root_.ContinuousLinearEquiv.mulRight (u : Aˣ) : A ≃L[R] A where
+  __ := LinearEquiv.mulRight R u
+  continuous_toFun := continuous_mul_right _
+  continuous_invFun := continuous_mul_right _
+
+end needs_PRing
+
+section ring
 
 variable {A : Type*} [Ring A] [TopologicalSpace A]
     [Algebra F A] [FiniteDimensional F A] [IsModuleTopology F A]
@@ -37,18 +65,7 @@ variable {A : Type*} [Ring A] [TopologicalSpace A]
     [LocallyCompactSpace A] -- can also be proved but only using F
     [MeasurableSpace A] [BorelSpace A]
 
--- needs PRing
-def _root_.ContinuousLinearEquiv.mulLeft (u : Aˣ) : A ≃L[F] A where
-  __ := LinearEquiv.mulLeft F u
-  continuous_toFun := continuous_mul_left _
-  continuous_invFun := continuous_mul_left _
-
--- needs PRing
-def _root_.ContinuousLinearEquiv.mulRight (u : Aˣ) : A ≃L[F] A where
-  __ := LinearEquiv.mulRight F u
-  continuous_toFun := continuous_mul_right _
-  continuous_invFun := continuous_mul_right _
-
+variable (F) in
 lemma ringAddHaarChar_eq_ringHaarChar_det (u : Aˣ) :
     ringHaarChar u = ringHaarChar (LinearEquiv.mulLeft F u).det :=
   addEquivAddHaarChar_eq_ringHaarChar_det (ContinuousLinearEquiv.mulLeft F u)
@@ -63,8 +80,6 @@ variable {D : Type*} [Ring D] [TopologicalSpace D]
     [IsTopologicalRing D] -- can be deduced from previous assumptions but only using F
     [LocallyCompactSpace D] -- can also be proved but only using F
     [MeasurableSpace D] [BorelSpace D]
-
-#check ContinuousLinearEquiv.mulLeft
 
 include F in
 lemma _root_.IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (u : Dˣ) :

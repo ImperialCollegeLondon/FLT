@@ -72,6 +72,9 @@ variable (F : Type*) [CommSemiring F] {A : Type*} [Ring A]
     [Algebra F A]
 
 -- needs PRing
+/-- The F-linear equivalence on an F-algebra induced by left multiplication
+by a unit
+-/
 def _root_.LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[F] A where
   toFun x := u * x
   invFun y := u⁻¹ * y
@@ -81,6 +84,9 @@ def _root_.LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[F] A where
   map_smul' f x := by simp
 
 -- needs PRing
+/-- The F-linear equivalence on an F-algebra induced by right multiplication
+by a unit
+-/
 def _root_.LinearEquiv.mulRight (u : Aˣ) : A ≃ₗ[F] A where
   toFun x := x * u
   invFun y := y * u⁻¹
