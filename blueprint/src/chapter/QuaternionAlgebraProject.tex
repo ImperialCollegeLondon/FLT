@@ -112,7 +112,7 @@ Three basic observations about $S^D(R)$ are
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
   \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup}
   \leanok
   If $R$ is a commutative ring then pointwise scalar multiplication $(r\cdot f)(g):= r\cdot(f(g))$ makes
@@ -122,7 +122,7 @@ Three basic observations about $S^D(R)$ are
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.distribMulAction}
   \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.distribMulAction}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
   \leanok
@@ -136,7 +136,7 @@ Now let $U$ be a level, that is, a compact open subgroup of $D_{\A^\infty}^\time
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
   \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.distribMulAction,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
@@ -158,17 +158,17 @@ proof of finite-dimensionality.
 
 
 \begin{theorem}
-  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
-  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.finiteDimensional}
+  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.finiteDimensional}
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
   Let $k$ be a field. Then the space $S^D(U;k)$ is a finite-dimensional $k$-vector space.
 \end{theorem}
 
 
 
 \begin{proof}
-  \proves{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
-  \uses{DivisionAlgebra.finiteDoubleCoset'}
+  \proves{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.finiteDimensional}
+  \uses{NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset}
   The finite-dimensionality theorem is in fact an easy consequence of Fujisaki's lemma,
   proved in the Fukisaki miniproject, chapter~\ref{Fujisaki_project}.
   Write $(D\otimes_F\A_F^\infty)^\times$ as a disjoint union of double cosets
