@@ -389,7 +389,7 @@ Our next goal in this section is the following two results. First the algebraic 
   \label{IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
   \lean{IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
   \uses{IsDedekindDomain.HeightOneSpectrum.adicCompletionComapAlgEquiv_integral,
-    RestrictedProduct.relabelIso,IsDedekindDomain.FiniteAdeleRing.tensorProductAlgEquiv,
+    RestrictedProduct.relabelIso,
     IsDedekindDomain.FiniteAdeleRing.baseChangeIntegralAlgEquiv,
     IsDedekindDomain.AKLB.tensorProduct_module_algEquiv}
   \leanok
@@ -459,7 +459,7 @@ conjugates of $b$ in some normal closure of $L$, and hence it is integral, and t
 \end{proof}
 
 \begin{corollary}
-  \label{IsDedekindDomain.AKLB.tensorProduct_algEquiv}
+  \label{IsDedekindDomain.FiniteAdeleRing.tensorProduct_algEquiv}
   \uses{IsDedekindDomain.dvd_norm}
   The natural map $B\otimes_AK\to L$ is a $B$-algebra isomorphism.
 \end{corollary}
@@ -481,7 +481,7 @@ straightforward.
 
 \begin{corollary}
   \label{IsDedekindDomain.AKLB.tensorProduct_module_algEquiv}
-  \uses{IsDedekindDomain.AKLB.tensorProduct_algEquiv}
+  %%% \uses{IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv} -- uncomment to break leanblueprint
   If $M$ is any $K$-module then the canonical map $B\otimes_A M\to L\otimes_K M$
   is an isomorphism.
 \end{corollary}
@@ -754,7 +754,7 @@ $L$-algebra homomorphism defined on $L\otimes_K K_v$.
   \label{NumberField.InfinitePlace.Completion.baseChange_surjective}
   \lean{NumberField.InfinitePlace.Completion.baseChange_surjective}
   \leanok
-  \uses{NumberField.InfinitePlace.denseRange_algebraMap_subtype_pi}
+  \uses{NumberField.InfinitePlace.Completion.denseRange_algebraMap_subtype_pi}
   For a fixed infinite place $v$ of $K$, the map $L\otimes_K K_v \to\prod_{w\mid v}L_w$ is
   surjective.
 \end{theorem}
