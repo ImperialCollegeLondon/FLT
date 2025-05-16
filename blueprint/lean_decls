@@ -105,6 +105,9 @@ MeasureTheory.ringHaarChar_continuous
 distribHaarChar_real
 distribHaarChar_complex
 distribHaarChar_padic
+MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det
+MeasureTheory.ringAddHaarChar_eq_ringHaarChar_det
+IsSimpleRing.mulLeft_det_eq_mulRight_det
 NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
 NumberField.AdeleRing.DivisionAlgebra.compact_quotient
 NumberField.AdeleRing.DivisionAlgebra.Aux.existsE

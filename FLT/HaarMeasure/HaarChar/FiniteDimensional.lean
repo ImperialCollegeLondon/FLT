@@ -1,5 +1,6 @@
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.Mathlib.Topology.Algebra.Module.Equiv
 
 namespace MeasureTheory
 
@@ -18,10 +19,6 @@ variable {V : Type*} [AddCommGroup V] [TopologicalSpace V] [MeasurableSpace V] [
                             -- but typeclass inference can't find it because it
                             -- can't find V
 
-
--- should be elsewhere
-def _root_.ContinuousLinearEquiv.toContinuousAddEquiv (ρ : V ≃L[F] V) : V ≃ₜ+ V where
-  __ := ρ
 
 lemma addEquivAddHaarChar_eq_ringHaarChar_det (ρ : V ≃L[F] V) :
     addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det :=
