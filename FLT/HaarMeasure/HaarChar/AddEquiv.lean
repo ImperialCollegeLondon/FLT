@@ -86,7 +86,10 @@ section prodCongr
 variable {A B C D : Type*} [Group A] [Group B] [Group C] [Group D]
     [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C] [TopologicalSpace D]
 
-@[to_additive ContinuousAddEquiv.prodCongr]
+/-- The product of two multiplication-preserving homeomorphisms is
+a multiplication-preserving homeomorphism. -/
+@[to_additive "The product of
+two addition-preserving homeomorphisms is an addition-preserving homeomorphism."]
 def _root_.ContinuousMulEquiv.prodCongr (φ : A ≃ₜ* B) (ψ : C ≃ₜ* D) : A × C ≃ₜ* B × D where
   __ := φ.toMulEquiv.prodCongr ψ
   continuous_toFun := sorry -- FLt#task013
@@ -114,7 +117,11 @@ variable {ι : Type*} {G H : ι → Type*}
     [Π i, CommGroup (H i)] [Π i, TopologicalSpace (H i)]
 
 -- should be in mathlib?
-@[to_additive ContinuousAddEquiv.piCongrRight]
+/-- An arbitrary product of multiplication-preserving homeomorphisms
+is a multiplication-preserving homeomorphism.
+-/
+@[to_additive ContinuousAddEquiv.piCongrRight "An arbitrary product of
+addition-preserving homeomorphisms is an addition-preserving homeomorphism."]
 def _root_.ContinuousMulEquiv.piCongrRight (ψ : Π i, (G i) ≃ₜ* (H i)) :
     (∀ i, G i) ≃ₜ* (∀ i, H i) where
   __ := MulEquiv.piCongrRight (fun i ↦ ψ i)
@@ -128,7 +135,7 @@ section pi
 variable {ι : Type*} {H : ι → Type*} [Π i, CommGroup (H i)] [Π i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
 
-@[to_additive MeasureTheory.addEquivAddHaarChar_piCongrRight]
+@[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   sorry -- FLT#task016 -- induction
