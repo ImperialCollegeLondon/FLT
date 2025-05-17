@@ -13,6 +13,7 @@ lemma exists_ideal_isMaximal_and_isOpen_of_isLinearTopology
   obtain ⟨J, hJ, hIJ⟩ := Ideal.exists_le_maximal I (by simpa [Ideal.eq_top_iff_one] using hI')
   exact ⟨J, hJ, AddSubgroup.isOpen_mono (H₁ := I.toAddSubgroup) (H₂ := J.toAddSubgroup) hIJ hI⟩
 
+/-- The continuous group homomorphism on units induced by a `ContinuousMonoidHom`. -/
 @[simps!]
 def Units.mapₜ {M N : Type*} [Monoid M] [Monoid N] [TopologicalSpace M] [TopologicalSpace N]
     (f : M →ₜ* N) : Mˣ →ₜ* Nˣ :=

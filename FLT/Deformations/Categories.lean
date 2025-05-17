@@ -118,7 +118,6 @@ def ofEquiv (e : X ≃A[𝓞] Y) : of 𝓞 X ≅ of 𝓞 Y where
   inv := ofHom (e.symm : Y →A[𝓞] X)
 
 /-- Build a `ContinuousAlgEquiv` from an isomorphism in the category `ProartinianCat R`. -/
-@[simps]
 def _root_.CategoryTheory.Iso.toContinuousAlgEquiv (i : A ≅ B) : A ≃A[𝓞] B where
   __ := i.hom.hom
   invFun := i.inv.hom
