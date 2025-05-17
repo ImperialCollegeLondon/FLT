@@ -23,8 +23,8 @@ lemma repnFunctor_map {R S : ProartinianCat 𝓞} (f : R ⟶ S) (ρ : G →ₜ* 
     DFunLike.coe (F := G →ₜ* GL n S) ((repnFunctor n G 𝓞).map f ρ) x =
       Matrix.GeneralLinearGroup.map (n := n) f.hom.toRingHom (ρ x) := rfl
 
-/-- Turn an element in `repnFunctor` into an actual `Representation`. -/
 variable {G 𝓞} in
+/-- Turn an element in `repnFunctor` into an actual `Representation`. -/
 def toRepresentation {R} (ρ : (repnFunctor n G 𝓞).obj R) :
     Representation R G (n → R) :=
   (Units.coeHom _).comp (Matrix.GeneralLinearGroup.toLin.toMonoidHom.comp ρ.toMonoidHom)
