@@ -20,6 +20,8 @@ def Units.mapₜ {M N : Type*} [Monoid M] [Monoid N] [TopologicalSpace M] [Topol
   continuous_induced_rng.mpr (continuous_prodMk.mpr ⟨f.2.comp Units.continuous_val,
     MulOpposite.continuous_op.comp (f.2.comp Units.continuous_coe_inv)⟩)⟩
 
+/-- The `ContinuousAlgHom` between spaces of square matrices induced by an `ContinuousAlgHom`
+between their coefficients. This is Matrix.map as an `ContinuousAlgHom`. -/
 @[simps!]
 def _root_.ContinuousAlgHom.mapMatrix
     {R A B n : Type*} [CommSemiring R] [Semiring A] [Semiring B] [TopologicalSpace A]
@@ -28,6 +30,7 @@ def _root_.ContinuousAlgHom.mapMatrix
     Matrix n n A →A[R] Matrix n n B :=
   ⟨f.1.mapMatrix, Continuous.matrix_map continuous_id' f.2⟩
 
+/-- Coerce a `ContinuousAlgHom` to `ContinuousMonoidHom`. -/
 def _root_.ContinuousAlgHom.toContinuousMonoidHom
     {R A B : Type*} [CommSemiring R] [Semiring A] [Semiring B] [TopologicalSpace A]
     [TopologicalSpace B] [Algebra R A] [Algebra R B] (f : A →A[R] B) : A →ₜ* B :=

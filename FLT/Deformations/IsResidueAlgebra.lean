@@ -33,6 +33,7 @@ lemma algebraMap_bijective : Bijective (algebraMap (𝓴 𝓞) (𝓴 A)) := by
   exact ⟨(algebraMap (𝓴 𝓞) (𝓴 A)).injective,
     (Function.Surjective.of_comp_iff (algebraMap (𝓴 𝓞) (𝓴 A)) hsurj1).mp hsurj2⟩
 
+/-- The isomorphism of residue fields for a residue algebra. -/
 noncomputable def algEquiv : 𝓴 𝓞 ≃ₐ[𝓞] 𝓴 A :=
   .ofBijective (IsScalarTower.toAlgHom _ _ _) (algebraMap_bijective _ _)
 
@@ -51,13 +52,10 @@ end Quotient
 section Relative
 
 variable {𝓞 A}
-  {B : Type*} [CommRing B] [Algebra 𝓞 B] [IsLocalRing B] [IsLocalHom (algebraMap 𝓞 B)]
-  [IsResidueAlgebra 𝓞 B]
+variable {B : Type*} [CommRing B] [Algebra 𝓞 B] [IsLocalRing B] [IsResidueAlgebra 𝓞 B]
 
-omit [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] [IsLocalHom (algebraMap 𝓞 B)] [IsLocalRing A]
-  [IsResidueAlgebra 𝓞 A] in
-lemma of_restrictScalars [Algebra A B] [IsScalarTower 𝓞 A B]
-    [IsLocalHom (algebraMap A B)] : IsResidueAlgebra A B where
+omit [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] [IsLocalRing A] [IsResidueAlgebra 𝓞 A] in
+lemma of_restrictScalars [Algebra A B] [IsScalarTower 𝓞 A B] : IsResidueAlgebra A B where
   isSurjective' := by
     refine .of_comp (g := algebraMap 𝓞 A) ?_
     rw [← RingHom.coe_comp, ← IsScalarTower.algebraMap_eq]
@@ -76,6 +74,7 @@ lemma exists_sub_mem_maximalIdeal (r : A) : ∃ a, r - algebraMap 𝓞 A a ∈ m
   rw [← Ideal.Quotient.eq]
   exact ha.symm
 
+/-- For an `r : A`, this is an arbitrary choice of `x : 𝓞` such that `r ≡ x (mod 𝔪_A)`. -/
 noncomputable
 def preimage (r : A) : 𝓞 := (exists_sub_mem_maximalIdeal 𝓞 r).choose
 

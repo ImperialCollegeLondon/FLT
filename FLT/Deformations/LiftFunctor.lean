@@ -23,6 +23,7 @@ lemma repnFunctor_map {R S : ProartinianCat 𝓞} (f : R ⟶ S) (ρ : G →ₜ* 
     DFunLike.coe (F := G →ₜ* GL n S) ((repnFunctor n G 𝓞).map f ρ) x =
       Matrix.GeneralLinearGroup.map (n := n) f.hom.toRingHom (ρ x) := rfl
 
+/-- Turn an element in `repnFunctor` into an actual `Representation`. -/
 variable {G 𝓞} in
 def toRepresentation {R} (ρ : (repnFunctor n G 𝓞).obj R) :
     Representation R G (n → R) :=
@@ -49,6 +50,7 @@ def repnQuotFunctor : ProartinianCat 𝓞 ⥤ Type u where
   map_id _ := by ext ⟨_⟩; rfl
   map_comp _ _ := by ext ⟨_⟩; rfl
 
+/-- The quotient map taking representations to "representations up to equivalence". -/
 noncomputable
 def toRepnQuot : repnFunctor n G 𝓞 ⟶ repnQuotFunctor n G 𝓞 where
   app _ := Quotient.mk''

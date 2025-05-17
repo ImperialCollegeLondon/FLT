@@ -6,6 +6,8 @@ variable {R S : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
   [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
 
 variable (R) in
+/-- A topological ring is proartinian if it is linearly topologized, complete hausdorff,
+and all its discrete quotients are artinian. -/
 class IsProartinian : Prop where
   toIsLinearTopology : IsLinearTopology R R
   toT0Space : T0Space R

@@ -10,20 +10,26 @@ namespace Deformation
 
 variable (𝓞 : Type u) [CommRing 𝓞]
 
+/-- A local proartinian algebra is a topological ring that is local and proartinian,
+and that the induced map on the residue fields is bijective. -/
 class IsLocalProartinianAlgebra
     (R : Type u) [CommRing R] [TopologicalSpace R] [Algebra 𝓞 R] : Prop extends
   IsTopologicalRing R, IsLocalRing R, IsProartinian R,
   IsLocalHom (algebraMap 𝓞 R), IsResidueAlgebra 𝓞 R
 
-/-- The category of proartinian local algebras over `𝓞` with fixed residue field `𝕜`. -/
+/-- The category of local proartinian algebras over `𝓞` with fixed residue field `𝕜`. -/
 structure ProartinianCat where
+  /-- Underlying set of a `ProartinianCat` -/
   carrier : Type u
+  /-- ring structure of a `ProartinianCat` -/
   [commRing : CommRing carrier]
+  /-- topological space structure of a `ProartinianCat` -/
   [topologicalSpace : TopologicalSpace carrier]
+  /-- algebra structure of a `ProartinianCat` -/
   [algebra : Algebra 𝓞 carrier]
   [isLocalProartinianAlgebra : IsLocalProartinianAlgebra 𝓞 carrier]
 
-scoped notation3:max "𝓒" 𝓞 => ProartinianCat 𝓞
+local notation3:max "𝓒" 𝓞 => ProartinianCat 𝓞
 
 namespace ProartinianCat
 
@@ -35,7 +41,8 @@ instance : CoeSort (ProartinianCat 𝓞) (Type u) := ⟨carrier⟩
 
 attribute [coe] ProartinianCat.carrier
 
-abbrev of (X : Type u) [CommRing X] [Algebra 𝓞 X] [IsLocalRing X]
+/-- Make a `ProartinianCat` from an unbundled algebra. -/
+abbrev of (X : Type u) [CommRing X] [Algebra 𝓞 X]
     [TopologicalSpace X] [IsLocalProartinianAlgebra 𝓞 X] :
     ProartinianCat 𝓞 :=
   ⟨X⟩
@@ -45,7 +52,7 @@ lemma coe_of (X : Type u) [CommRing X] [Algebra 𝓞 X] [TopologicalSpace X]
     of 𝓞 X = X := rfl
 
 variable {𝓞} in
-/-- The type of morphisms in `BaseCat 𝓞`. -/
+/-- The type of morphisms in `ProartinianCat 𝓞`. -/
 @[ext]
 structure Hom (A B : ProartinianCat 𝓞) where
   /-- The underlying algebra map. -/
@@ -60,7 +67,7 @@ instance : Category (ProartinianCat 𝓞) where
   comp f g := ⟨g.hom.comp f.hom⟩
 
 variable {𝓞} in
-/-- Typecheck an `ContinuousAlgHom` as a morphism in `BaseCat`. -/
+/-- Typecheck an `ContinuousAlgHom` as a morphism in `ProartinianCat`. -/
 abbrev ofHom {A B : Type u}
   [CommRing A] [Algebra 𝓞 A] [TopologicalSpace A] [IsLocalProartinianAlgebra 𝓞 A]
   [CommRing B] [Algebra 𝓞 B] [TopologicalSpace B] [IsLocalProartinianAlgebra 𝓞 B]
@@ -90,7 +97,6 @@ lemma comp_apply (f : A ⟶ B) (g : B ⟶ C) (x) : (f ≫ g).hom x = g.hom (f.ho
 lemma hom_ext {f g : A ⟶ B} (hf : f.hom = g.hom) : f = g :=
   Hom.ext hf
 
-@[simp]
 lemma hom_ofHom (f : X →A[𝓞] Y) [IsLocalHom f] : (ofHom f).hom = f := rfl
 
 @[simp]
@@ -107,12 +113,11 @@ lemma ofHom_comp (f : X →A[𝓞] Y) (g : Y →A[𝓞] Z) [IsLocalHom f] [IsLoc
 /-- Build an isomorphism in the category `ProartinianCat R` from a
   `ContinuousAlgEquiv` between `Algebra`s. -/
 @[simps]
-def _root_.ContinuousAlgEquiv.toContinuousAlgebraIso (e : X ≃A[𝓞] Y) :
-    of 𝓞 X ≅ of 𝓞 Y where
+def ofEquiv (e : X ≃A[𝓞] Y) : of 𝓞 X ≅ of 𝓞 Y where
   hom := ofHom (e : X →A[𝓞] Y)
   inv := ofHom (e.symm : Y →A[𝓞] X)
 
-/-- Build a `ContinuousAlgEquiv` from an isomorphism in the category `BaseCat R`. -/
+/-- Build a `ContinuousAlgEquiv` from an isomorphism in the category `ProartinianCat R`. -/
 @[simps]
 def _root_.CategoryTheory.Iso.toContinuousAlgEquiv (i : A ≅ B) : A ≃A[𝓞] B where
   __ := i.hom.hom
@@ -126,6 +131,7 @@ section self
 variable [IsLocalRing 𝓞] [IsNoetherianRing 𝓞]
   [Finite (ResidueField 𝓞)] [IsAdicComplete (maximalIdeal 𝓞) 𝓞]
 
+/-- `𝓞` as a proartinian local algebra. -/
 def self : 𝓒 𝓞 where
   carrier := 𝓞
   topologicalSpace := (maximalIdeal 𝓞).adicTopology
@@ -137,6 +143,7 @@ def self : 𝓒 𝓞 where
 
 instance : IsAdicTopology (self (𝓞 := 𝓞)) := ⟨rfl⟩
 
+/-- The structure map of a proartinian local algebra as a morphism in the category. -/
 def fromSelf (R : ProartinianCat 𝓞) : self ⟶ R where
   hom :=
     letI := (maximalIdeal 𝓞).adicTopology
@@ -153,6 +160,7 @@ instance (R : ProartinianCat 𝓞) : Unique (self ⟶ R) := by
   apply ContinuousAlgHom.coe_inj.mp
   ext
 
+/-- `𝓞` is initial in `ProartinianCat`. -/
 def isInitialSelf : IsInitial (self (𝓞 := 𝓞)) := .ofUnique _
 
 end self
@@ -161,6 +169,7 @@ section residueField
 
 variable [IsLocalRing 𝓞]
 
+/-- The residue field `𝕜` as a proartinian local algebra. -/
 def residueField : 𝓒 𝓞 where
   carrier := ResidueField 𝓞
   topologicalSpace := ⊥
@@ -175,6 +184,7 @@ instance : DiscreteTopology (residueField (𝓞 := 𝓞)) := ⟨rfl⟩
 noncomputable
 instance : Field (residueField (𝓞 := 𝓞)) := inferInstanceAs (Field (ResidueField 𝓞))
 
+/-- The quotient map of a `ProartinianCat` to the residue field. -/
 noncomputable
 def toResidueField (R : ProartinianCat 𝓞) : R ⟶ residueField where
   hom := ⟨(IsResidueAlgebra.algEquiv 𝓞 R).symm.toAlgHom.comp (IsScalarTower.toAlgHom 𝓞 R _), by
@@ -212,6 +222,7 @@ instance (R : ProartinianCat 𝓞) : Unique (R ⟶ residueField) := by
   ext
   simp [to_residueField_apply]
 
+/-- `𝕜` is initial in `ProartinianCat`. -/
 noncomputable
 def isTerminalResidueField : IsTerminal (residueField (𝓞 := 𝓞)) := .ofUnique _
 
