@@ -290,15 +290,14 @@ We can now prove Fujisaki's theorem~\ref{NumberField.AdeleRing.DivisionAlgebra.c
 
 \begin{proof}
   \proves{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
-  \uses{
-    %DistribHaarChar.continuous,
-  NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C,
-  NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
+  \uses{MeasureTheory.ringHaarChar_continuous,
+    NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C,
+    NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
   Indeed, if $M$ is the preimage of $C$ under the inclusion $D_{\A}^{(1)} \to D_{\A}\times D_{\A}$
   sending $\nu$ to $(\nu,\nu^{-1})$, then $M$ is a closed subspace
     of a compact
   space so it's compact (note that $\delta_{D_{\A}}$ is continuous,
-  by theorem~\ref{DistribHaarChar.continuous}, so $D_{\A}^{(1)}$ is a closed subset of
+  by theorem~\ref{MeasureTheory.ringHaarChar_continuous}, so $D_{\A}^{(1)}$ is a closed subset of
   $D_{\A}^\times$ which is itself a closed subset of $D_{\A}\times D_{\A}$).
   Lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C} shows that $M$ surjects onto
   $D^\times\backslash D_{\A}^{(1)}$ which is thus also compact.
