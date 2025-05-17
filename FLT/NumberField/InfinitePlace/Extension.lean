@@ -141,15 +141,6 @@ open NumberField.ComplexEmbedding
 
 variable {K : Type*} {L : Type*} [Field K] [Field L] (v : InfinitePlace K) (w : InfinitePlace L)
 
-@[simp]
-theorem comap_apply (f : K →+* L) (x : K) :
-    w.comap f x = w (f x) := rfl
-
-variable {v w} in
-theorem comp_of_comap_eq {f : K →+* L} (h : w.comap f = v) (x : K) :
-    w (f x) = v x := by
-  simp [← h]
-
 variable [Algebra K L]
 
 variable (K) in
