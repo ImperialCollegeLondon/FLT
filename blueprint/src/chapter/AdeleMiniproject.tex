@@ -933,6 +933,7 @@ $L\otimes_K\A_K\to \A_L$.
 \begin{theorem}
   \label{NumberField.AdeleRing.baseChangeEquiv}
   \lean{NumberField.AdeleRing.baseChangeEquiv}
+  \leanok
   \uses{NumberField.InfiniteAdeleRing.baseChangeEquiv,
   IsDedekindDomain.FiniteAdeleRing.baseChangeAlgEquiv}
   If $K\to L$ is a ring homomorphism between two number fields then there is a natural isomorphism
@@ -946,6 +947,8 @@ Something else we shall need:
 
 \begin{theorem}
   \label{NumberField.AdeleRing.baseChange_moduleTopology}
+  \lean{NumberField.AdeleRing.instBaseChangeIsModuleTopology}
+  \leanok
   \uses{NumberField.AdeleRing.baseChangeEquiv}
   If $K\to L$ is a ring homomorphism between two number fields then the topology on $\A_L$
   is the $\A_K$-module topology, where the module structure comes from the
