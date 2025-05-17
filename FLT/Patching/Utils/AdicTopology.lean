@@ -9,6 +9,7 @@ import FLT.Patching.Utils.InverseLimit
 import FLT.Patching.Utils.Lemmas
 import Mathlib.RingTheory.Artinian.Ring
 import Mathlib.Topology.Algebra.Ring.Compact
+import Mathlib.Topology.Algebra.LinearTopology
 
 variable (R) [CommRing R] [IsLocalRing R] [TopologicalSpace R] [IsTopologicalRing R]
 
@@ -34,6 +35,8 @@ open Filter Topology in
 lemma hasBasis_maximalIdeal_pow :
     Filter.HasBasis (𝓝 (0 : R)) (fun _ ↦ True) fun n ↦ ↑(maximalIdeal R ^ n) :=
   IsLocalRing.IsAdicTopology.isAdic (R := R) ▸ Ideal.hasBasis_nhds_zero_adic (maximalIdeal R)
+
+instance (priority := 100) : IsLinearTopology R R := .mk_of_hasBasis _ (hasBasis_maximalIdeal_pow R)
 
 instance (priority := 100) [IsNoetherianRing R] : T2Space R := by
   apply IsTopologicalAddGroup.t2Space_of_zero_sep
