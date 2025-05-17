@@ -354,8 +354,10 @@ the same determinant.
 Here are two facts which we will need about products.
 
 \begin{lemma}
-  \label{addHaarScalarFactor_prod}
-  %\lean{addHaarScalarFactor_prod}
+  \label{MeasureTheory.addEquivAddHaarChar_prodCongr}
+  \lean{MeasureTheory.addEquivAddHaarChar_prodCongr}
+  \leanok
+  \discussion{task014}
   If $(A,+)$ and $(B,+)$ are locally compact topological abelian groups,
   and if $\phi:A\to A$ and $\psi:B\to B$ are additive homeomorphisms,
   then $\phi\times\psi:A\times B\to A\times B$ is an additive homeomorphism (this is
@@ -371,8 +373,11 @@ Here are two facts which we will need about products.
 \end{proof}
 
 \begin{lemma}
-  \label{addHaarScalarFactor_pi_finite}
-  %\lean{addHaarScalarFactor_pi_finite}
+  \label{MeasureTheory.mulEquivHaarChar_piCongrRight}
+  \lean{MeasureTheory.mulEquivHaarChar_piCongrRight}
+  \leanok
+  \discussion{task016}
+  \uses{MeasureTheory.addEquivAddHaarChar_prodCongr}
   If $A_i$ are a finite collection of locally compact topological abelian groups,
   with $\phi_i:A_i\to A_i$ additive homeomorphisms, then $d_{\prod_i A_i}(\prod_i\phi_i)=\prod_i d_{A_i}(\phi_i)$.
 \end{lemma}
@@ -381,25 +386,34 @@ Here are two facts which we will need about products.
 \end{proof}
 
 \begin{lemma}
-  \label{distribHaarChar_prod}
-  %\lean{distribHaarChar_prod}
+  \label{MeasureTheory.ringHaarChar_prod}
+  \lean{MeasureTheory.ringHaarChar_prod}
+  \leanok
+  \uses{MeasureTheory.addEquivAddHaarChar_prodCongr}
   If $R$ and $S$ are locally compact topological rings, then $\delta_{R\times S}(r,s)=\delta_R(r)\times\delta_S(s)$.
 \end{lemma}
 \begin{proof}
-  Follows immediately from lemma~\ref{addHaarScalarFactor_prod}.
+  \leanok
+  Follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_prodCongr}.
 \end{proof}
 
 \begin{lemma}
-  \label{distribHaarChar_pi_finite}
-  %\lean{distribHaarChar_pi_finite}
+  \label{MeasureTheory.ringHaarChar_pi}
+  \lean{MeasureTheory.ringHaarChar_pi}
+  \leanok
+  \uses{MeasureTheory.addEquivAddHaarChar_piCongrRight}
   If $R_i$ are a finite collection of locally compact topological rings,
   and $u_i\in R_i^\times$ then $\delta_{\prod_i R_i}((u_i)_i)=\prod_i\delta_{R_i}(u_i)$.
 \end{lemma}
 \begin{proof}
-  Follows immediately from lemma~\ref{addHaarScalarFactor_pi_finite}.
+  \leanok
+  Follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_piCongrRight}.
 \end{proof}
 
 \section{Restricted products}
+
+Remark: there is essentially no Lean formalization of the rest of this miniproject;
+I (kmb) am actively working on writing this Lean code (2025-05-17).
 
 Now say $A=\prod'_i A_i$ is the restricted product of a collection of topological abelian additive groups $A_i$
   equipped with compact open subgroups $C_i$. Say $\phi_i:A_i\to A_i$ are additive homeomorphisms
@@ -533,7 +547,9 @@ We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic
     Follows immediately from the previous theorem.
   \end{proof}
 
-  \begin{corollary} If $B$ is a finite-dimensional $\Q$-algebra and
+  \begin{corollary}
+    \label{NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one}
+    If $B$ is a finite-dimensional $\Q$-algebra and
     if $b\in B^\times$ then right multiplication by $b$
     does not change Haar measure on $B_{\A}$.
   \end{corollary}
