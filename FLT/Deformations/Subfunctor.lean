@@ -132,6 +132,7 @@ instance : Nonempty (Subfunctor F) :=
   inferInstance
 
 variable (F) in
+/-- The subfunctor defined by pulling back a subset of the terminal component. -/
 def ofIsTerminal {X : C} (hX : Limits.IsTerminal X) (s : Set (F.obj X)) :
     Subfunctor F where
   obj U := F.map (hX.from U) ⁻¹' s
