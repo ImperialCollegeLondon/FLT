@@ -5,7 +5,7 @@ Authors: Kevin Buzzard
 -/
 import FLT.HaarMeasure.HaarChar.AddEquiv
 
-open scoped NNReal Pointwise ENNReal
+open scoped NNReal
 
 namespace ContinuousAddEquiv
 
@@ -23,9 +23,22 @@ def mulLeft (r : Rˣ) : R ≃ₜ+ R where
   invFun y := r⁻¹ * y
   left_inv x := by simp [mul_assoc]
   right_inv y := by simp [mul_assoc]
-  map_add' x₁ x₂ := left_distrib (↑r) x₁ x₂
+  map_add' x₁ x₂ := left_distrib ↑r x₁ x₂
   continuous_toFun := continuous_mul_left _
   continuous_invFun := continuous_mul_left _
+
+/-- The additive homeomorphism from a topological ring to itself,
+induced by right multiplication by a unit.
+-/
+@[simps apply]
+def mulRight (r : Rˣ) : R ≃ₜ+ R where
+  toFun x := x * r
+  invFun y := y * r⁻¹
+  left_inv x := by simp [mul_assoc]
+  right_inv y := by simp [mul_assoc]
+  map_add' x₁ x₂ := right_distrib x₁ x₂ r
+  continuous_toFun := continuous_mul_right _
+  continuous_invFun := continuous_mul_right _
 
 end ContinuousAddEquiv
 
@@ -50,7 +63,7 @@ lemma ringHaarChar_continuous :
    Hence $\delta_R$ is continuous, from `mulEquivHaarChar_mul_integral`
    in the AddEquiv file
    -/
-  sorry
+  sorry -- FLT#task008
 
 /-- `ringHaarChar : Rˣ →ₜ* ℝ≥0` is the function sending a unit of
 a locally compact topological ring `R` to the positive real factor
@@ -67,13 +80,13 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
 
 lemma ringHaarChar_mul_integral (μ : Measure R) [IsAddHaarMeasure μ]
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :
-    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := sorry
+    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := sorry -- FLT#task006
     -- addEquivAddHaarChar_mul_integral
 
 open Pointwise in
 lemma ringHaarChar_mul_volume (μ : Measure R) [IsAddHaarMeasure μ]
     {X : Set R} (hf : MeasurableSet X) (u : Rˣ) :
-    μ (u • X) = ringHaarChar u * μ X := sorry
+    μ (u • X) = ringHaarChar u * μ X := sorry -- FLT#task007
 
 variable (R) in
 /-- The kernel of the `ringHaarChar : Rˣ → ℝ≥0`, namely the units
@@ -83,3 +96,4 @@ by them does not change additive Haar measure.
 noncomputable def ringHaarChar_ker := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
 
 end MeasureTheory
+#lint

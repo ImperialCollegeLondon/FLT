@@ -1,7 +1,7 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
 
 open MeasureTheory.Measure
-open scoped NNReal Pointwise ENNReal
+open scoped NNReal
 
 namespace MeasureTheory
 
@@ -9,7 +9,8 @@ namespace MeasureTheory
 lemma isHaarMeasure_comap {G H : Type*}
     [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
     [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) := sorry
+    (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) :=
+  sorry -- issue FLT#task001
 
 /-- If `φ : A ≃ₜ+ A` then `addEquivAddHaarChar φ` is the positive real factor by which
 `φ` scales Haar measure on `A`. -/
@@ -45,28 +46,30 @@ variable [MeasurableSpace A] [BorelSpace A]
 lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ] :
     haveI : IsHaarMeasure (comap φ μ) := isHaarMeasure_comap φ μ
     mulEquivHaarChar φ = haarScalarFactor (comap φ μ) μ :=
-  sorry -- MeasureTheory.Measure.haarScalarFactor_eq_mul
+  sorry -- FLT#task002
+  -- use MeasureTheory.Measure.haarScalarFactor_eq_mul?
 
 lemma addEquivAddHaarChar_mul_integral (μ : Measure A) [IsAddHaarMeasure μ]
     {f : A → ℝ} (hf : Measurable f) :
-    (addEquivAddHaarChar ρ) * ∫ (a : A), f a ∂(comap ρ μ) = ∫ a, f a ∂μ := sorry
+    (addEquivAddHaarChar ρ) * ∫ (a : A), f a ∂(comap ρ μ) = ∫ a, f a ∂μ := sorry -- FLT#task004
+    -- integral_isMulLeftInvariant_eq_smul_of_hasCompactSupport
 
 @[to_additive existing "addEquivAddHaarChar_mul_integral"]
 lemma mulEquivHaarChar_mul_integral (μ : Measure G) [IsHaarMeasure μ]
     {f : G → ℝ} (hf : Measurable f) :
-    (mulEquivHaarChar φ) * ∫ (a : G), f a ∂(comap φ μ) = ∫ a, f a ∂μ := sorry
+    (mulEquivHaarChar φ) * ∫ (a : G), f a ∂(comap φ μ) = ∫ a, f a ∂μ := sorry -- FLT#task004
     -- integral_isMulLeftInvariant_eq_smul_of_hasCompactSupport
 
 lemma addEquivAddHaarChar_mul_volume (μ : Measure A) [IsAddHaarMeasure μ]
     {X : Set A} (hX : MeasurableSet X) :
-    μ (ρ '' X) = (addEquivAddHaarChar ρ) * μ X := sorry
+    μ (ρ '' X) = (addEquivAddHaarChar ρ) * μ X := sorry -- FLT#task003
     -- apply previous lemma to char fn of X
     -- Is it true in Lean without the assumption of measurability?
 
 @[to_additive existing "addEquivAddHaarChar_mul_volume"]
 lemma mulEquivHaarChar_mul_volume (μ : Measure G) [IsHaarMeasure μ]
     {X : Set G} (hX : MeasurableSet X) :
-    μ (φ '' X) = (mulEquivHaarChar φ) * μ X := sorry
+    μ (φ '' X) = (mulEquivHaarChar φ) * μ X := sorry -- FLT#task003
     -- apply previous lemma to char fn of X
     -- Is it true in Lean without the assumption of measurability?
 
@@ -78,4 +81,5 @@ lemma mulEquivHaarChar_refl : mulEquivHaarChar (ContinuousMulEquiv.refl G) = 1 :
 @[to_additive]
 lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
     mulEquivHaarChar (ψ.trans φ) = mulEquivHaarChar ψ * mulEquivHaarChar φ :=
-  sorry -- MeasureTheory.Measure.haarScalarFactor_eq_mul
+  sorry -- FLT#task005
+  -- MeasureTheory.Measure.haarScalarFactor_eq_mul

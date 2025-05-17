@@ -67,3 +67,30 @@ theorem SemialgHom.baseChangeRightOfAlgebraMap_coe [Algebra R S] [CommSemiring A
     (ψ : A →ₛₐ[algebraMap R S] B) :
     ⇑ψ.baseChangeRightOfAlgebraMap = ⇑ψ.baseChange_of_algebraMap :=
   funext_iff.2 <| ψ.baseChangeRightOfAlgebraMap_apply
+
+variable (F : Type*) [CommSemiring F] {A : Type*} [Ring A]
+    [Algebra F A]
+
+-- needs PRing
+/-- The F-linear equivalence on an F-algebra induced by left multiplication
+by a unit
+-/
+def _root_.LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[F] A where
+  toFun x := u * x
+  invFun y := u⁻¹ * y
+  left_inv x := by simp [mul_assoc]
+  right_inv y := by simp [mul_assoc]
+  map_add' x₁ x₂ := left_distrib ↑u x₁ x₂
+  map_smul' f x := by simp
+
+-- needs PRing
+/-- The F-linear equivalence on an F-algebra induced by right multiplication
+by a unit
+-/
+def _root_.LinearEquiv.mulRight (u : Aˣ) : A ≃ₗ[F] A where
+  toFun x := x * u
+  invFun y := y * u⁻¹
+  left_inv x := by simp [mul_assoc]
+  right_inv y := by simp [mul_assoc]
+  map_add' x₁ x₂ := right_distrib x₁ x₂ u
+  map_smul' f x := by simp
