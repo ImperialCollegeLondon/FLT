@@ -54,7 +54,7 @@ Here are some basic results about this construction.
   cancel.
 \end{proof}
 
-Now let $\mu$ be any additive Haar measure on $A$.
+Now let $\mu$ be any regular additive Haar measure on $A$.
 
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_mul_volume}
@@ -83,10 +83,12 @@ Now let $\mu$ be any additive Haar measure on $A$.
   This also follows immediately from the definition.
 \end{proof}
 
-Note that if $X$ is a Borel subset of $A$ with positive finite measure then we can read
+Note that as a consequence of lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_volume},
+if $X$ is a Borel subset of $A$ with positive finite measure then we can read
 off $d_A(\phi)$ by $d_A(\phi):=\mu(\phi(X))/\mu(X)$. A nice special case is when
 $\mu(X)=1$, in which case we have $d_A(\phi)=\mu(\phi(X))$ for all $\phi$.
-Similarly, if $f$ is a measurable function with $0<\int f(x)d\mu(x)<\infty$ then
+Similarly, by lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_integral},
+if $f$ is a measurable function with $0<\int f(x)d\mu(x)<\infty$ then
 we can read off $d_A(\phi)$ by $d_A(\phi)=(\int f(x)d\mu(x))/(\int f(x)\phi^*\mu(x))$.
 In particular, the following are straightforward:
 
@@ -127,12 +129,16 @@ an additive automorphism of $(R,+)$, so the preceding theory applies to $\ell_u$
 \begin{definition}
   \label{MeasureTheory.ringHaarChar}
   \lean{MeasureTheory.ringHaarChar}
-  \uses{MeasureTheory.addEquivAddHaarChar}
+  \uses{MeasureTheory.addEquivAddHaarChar,MeasureTheory.addEquivAddHaarChar_refl,
+  MeasureTheory.addEquivAddHaarChar_trans}
   \leanok
   We define $\delta_R(u)$ (or just $\delta(u)$ when the ring $R$ is clear) to be $d_R(\ell_u)$.
 \end{definition}
 
-The lemmas in the previous subsection immediately apply
+Lemmas~\ref{MeasureTheory.addEquivAddHaarChar_refl}
+and~\ref{MeasureTheory.addEquivAddHaarChar_trans} immediately imply that $\delta_R$ is a group
+homomorphism from $R^\times$ to $\R_{>0}$.
+Also immediate from previous lemmas is
 
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_mul_integral}
@@ -151,7 +157,7 @@ The lemmas in the previous subsection immediately apply
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_mul_volume}
   \lean{MeasureTheory.ringHaarChar_mul_volume}
-  \uses{MeasureTheory.ringHaarChar}
+  \uses{MeasureTheory.ringHaarChar,MeasureTheory.addEquivAddHaarChar_mul_volume}
   \leanok
   \discussion{task007}
   If $X$ is a Borel subset of $R$ and $r\in R^\times$ then $\mu(rX)=\delta_R(r)\mu(X)$.
@@ -256,12 +262,12 @@ there is still some discussion about the definition of a nonarchimedean local fi
   \label{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
   \lean{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
   \uses{MeasureTheory.ringHaarChar}
-  \uses{MeasureTheory.addEquivAddHaarChar}
   \leanok
   \discussion{task009}
   $d_V(\phi)=\delta_F(\det(\phi))$, where $\det(\phi)\in F$ is the determinant of $\phi$ as an $F$-linear map.
 \end{lemma}
 \begin{proof}
+\uses{MeasureTheory.addEquivAddHaarChar}
 The proof should be inspired by \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/MeasureTheory/Measure/Lebesgue/Basic.html\#Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi}{\tt Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi},
 which crucially uses the induction principle \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/LinearAlgebra/Matrix/Transvection.html\#Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}{\tt Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}.
 In short, one needs to check it for diagonal matrices and for matrices which are the identity
@@ -281,8 +287,8 @@ recall $\ell_u:R\to R$ is left multiplication by $u$. Then $\ell_u$ is easily ch
 an $F$-linear homeomorphism.
 
   \begin{corollary}
-  \label{MeasureTheory.ringAddHaarChar_eq_ringHaarChar_det}
-  \lean{MeasureTheory.ringAddHaarChar_eq_ringHaarChar_det}
+  \label{MeasureTheory.algebra_ringHaarChar_eq_ringHaarChar_det}
+  \lean{MeasureTheory.algebra_ringHaarChar_eq_ringHaarChar_det}
   \leanok
   If $u\in R^\times$ then $\delta_R(u)=\delta_F(\det(\ell_u))$.
 \end{corollary}
@@ -345,8 +351,8 @@ the same determinant.
   If $\ell_u$ and $r_u$ denote left and right multiplication by $u$ on $B$, then we have
   seen in lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det} that $d_B(r_u)=\delta_F(\det(r_u))$.
   Lemma~\ref{IsSimpleRing.mulLeft_det_eq_mulRight_det} tells
-  us that this is $\delta_F(\det(\ell_u))$ and this is $\delta_B(u)$ by
-  corollary~\ref{distribHaarChar_algebra}.
+  us that this is $\delta_F(\det(\ell_u))$ and this is $\delta_B(u)$ again by
+  corollary~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}.
 \end{proof}
 
 \section{Finite Products}
@@ -369,12 +375,13 @@ Here are two facts which we will need about products.
   {\tt Prod.borelSpace} can be used to show that Haar measure on $A\times B$ is the product of
   Haar measures on $A$ and $B$, and in this case the result follows easily. Without this assumption,
   the product of these measures may not even be a Borel measure and one has to be more careful.
-  The proof in this case is explained \href{https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Product.20of.20Borel.20spaces/near/487257981}{here}.
+  The proof in this case is explained by Gou\"{e}zel
+  \href{https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Product.20of.20Borel.20spaces/near/487257981}{here}.
 \end{proof}
 
 \begin{lemma}
-  \label{MeasureTheory.mulEquivHaarChar_piCongrRight}
-  \lean{MeasureTheory.mulEquivHaarChar_piCongrRight}
+  \label{MeasureTheory.addEquivAddHaarChar_piCongrRight}
+  \lean{MeasureTheory.addEquivAddHaarChar_piCongrRight}
   \leanok
   \discussion{task016}
   \uses{MeasureTheory.addEquivAddHaarChar_prodCongr}

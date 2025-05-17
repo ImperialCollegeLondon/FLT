@@ -66,7 +66,7 @@ variable {A : Type*} [Ring A] [TopologicalSpace A]
     [MeasurableSpace A] [BorelSpace A]
 
 variable (F) in
-lemma ringAddHaarChar_eq_ringHaarChar_det (u : Aˣ) :
+lemma algebra_ringHaarChar_eq_ringHaarChar_det (u : Aˣ) :
     ringHaarChar u = ringHaarChar (LinearEquiv.mulLeft F u).det :=
   addEquivAddHaarChar_eq_ringHaarChar_det (ContinuousLinearEquiv.mulLeft F u)
 
@@ -84,7 +84,7 @@ variable {D : Type*} [Ring D] [TopologicalSpace D]
 include F in
 lemma _root_.IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (u : Dˣ) :
     ringHaarChar u = addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
-  rw [ringAddHaarChar_eq_ringHaarChar_det F u]
+  rw [algebra_ringHaarChar_eq_ringHaarChar_det F u]
   rw [IsSimpleRing.mulLeft_det_eq_mulRight_det']
   -- convert addEquivAddHaarChar_eq_ringHaarChar_det (ContinuousLinearEquiv.mulRight F u)
   sorry -- this should hopefully be easy -- FLT#task012
