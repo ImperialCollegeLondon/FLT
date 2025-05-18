@@ -63,7 +63,7 @@ lemma ringHaarChar_continuous :
    Hence $\delta_R$ is continuous, from `mulEquivHaarChar_mul_integral`
    in the AddEquiv file
    -/
-  sorry -- FLT#task008
+  sorry -- FLT#516
 
 /-- `ringHaarChar : Rˣ →ₜ* ℝ≥0` is the function sending a unit of
 a locally compact topological ring `R` to the positive real factor
@@ -83,14 +83,16 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
 lemma ringHaarChar_mul_integral [MeasurableSpace R] [BorelSpace R]
     (μ : Measure R) [IsAddHaarMeasure μ]
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :
-    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := sorry -- FLT#task006
-    -- addEquivAddHaarChar_mul_integral
+    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := sorry -- FLT#514
+    -- use addEquivAddHaarChar_mul_integral applied to the function `r ↦ f (u * r)`.
+    -- Do we need that f is measurable? Not that it matters, it always will be.
 
 open Pointwise in
 lemma ringHaarChar_mul_volume [MeasurableSpace R] [BorelSpace R]
     (μ : Measure R) [IsAddHaarMeasure μ]
     {X : Set R} (hf : MeasurableSet X) (u : Rˣ) :
-    μ (u • X) = ringHaarChar u * μ X := sorry -- FLT#task007
+    μ (u • X) = ringHaarChar u * μ X := sorry -- FLT#515
+    -- use addEquivAddHaarChar_mul_volume
 
 variable (R) in
 /-- The kernel of the `ringHaarChar : Rˣ → ℝ≥0`, namely the units

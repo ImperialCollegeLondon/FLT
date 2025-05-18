@@ -23,7 +23,7 @@ variable {V : Type*} [AddCommGroup V] [TopologicalSpace V] [MeasurableSpace V] [
 
 lemma addEquivAddHaarChar_eq_ringHaarChar_det (ρ : V ≃L[F] V) :
     addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det :=
-  sorry -- FLT#task009
+  sorry -- FLT#517
 
 end addequiv
 
@@ -86,7 +86,7 @@ lemma _root_.IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (u : Dˣ)
     ringHaarChar u = addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   rw [algebra_ringHaarChar_eq_ringHaarChar_det F u]
   rw [IsSimpleRing.mulLeft_det_eq_mulRight_det']
-  -- convert addEquivAddHaarChar_eq_ringHaarChar_det (ContinuousLinearEquiv.mulRight F u)
-  sorry -- this should hopefully be easy -- FLT#task012
+  symm
+  exact addEquivAddHaarChar_eq_ringHaarChar_det (ContinuousLinearEquiv.mulRight F u)
 
 end issimplering

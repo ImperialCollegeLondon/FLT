@@ -14,10 +14,9 @@ variable [IsSimpleRing D] [FiniteDimensional k D]
 
 lemma IsSimpleRing.mulLeft_det_eq_mulRight_det (d : D) :
     (LinearMap.mulLeft k d).det = (LinearMap.mulRight k d).det :=
-  sorry --FLT#task010
+  sorry --FLT#518 -- this is a little tricky. Proof in blueprint.
 
 lemma IsSimpleRing.mulLeft_det_eq_mulRight_det' (d : Dˣ) :
     (LinearEquiv.mulLeft k d).det = (LinearEquiv.mulRight k d).det := by
-  --ext
-  --convert mulLeft_det_eq_mulRight_det k (d : D)
-  sorry --FLT#task011
+  sorry --FLT#519 -- this is a simple corollary, you can
+  -- use `mulLeft_det_eq_mulRight_det` here.

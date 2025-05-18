@@ -31,7 +31,7 @@ and $d_A(\phi)^{-1}$, so let us be more precise.
 \begin{definition}
   \label{MeasureTheory.addEquivAddHaarChar}
   \lean{MeasureTheory.addEquivAddHaarChar}
-  \discussion{task001}
+  \discussion{507}
   If $A$ is a locally compact topological additive abelian group,
   if $\mu$ is a regular Haar measure on $A$, and if $\phi:A\to A$ is an
   additive homeomorphism, then we let $d_A(\phi)$ denote the unique positive
@@ -44,7 +44,7 @@ Here are some basic results about this construction.
   \label{MeasureTheory.addEquivAddHaarChar_eq}
   \lean{MeasureTheory.addEquivAddHaarChar_eq}
   \uses{MeasureTheory.addEquivAddHaarChar}
-  \discussion{task002}
+  \discussion{508}
   \leanok
   $d_A(\phi)$ is independent of choice of regular Haar measure.
 \end{lemma}
@@ -60,7 +60,7 @@ Now let $\mu$ be any regular additive Haar measure on $A$.
   \label{MeasureTheory.addEquivAddHaarChar_mul_volume}
   \lean{MeasureTheory.addEquivAddHaarChar_mul_volume}
   \uses{MeasureTheory.addEquivAddHaarChar}
-  \discussion{task003}
+  \discussion{509}
   \leanok
   If $X$ is a Borel set then $\mu(\phi(X))=d_A(\phi)\mu(X)$.
 \end{lemma}
@@ -73,7 +73,7 @@ Now let $\mu$ be any regular additive Haar measure on $A$.
   \label{MeasureTheory.addEquivAddHaarChar_mul_integral}
   \lean{MeasureTheory.addEquivAddHaarChar_mul_integral}
   \uses{MeasureTheory.addEquivAddHaarChar}
-  \discussion{task004}
+  \discussion{510}
   \leanok
   If $f:A\to\R$ is a Borel measurable function then
   $d_A(\phi)\int f(x)d\phi^*\mu(x)=\int f(x)d\mu(x)$.
@@ -110,7 +110,7 @@ In particular, the following are straightforward:
   \lean{MeasureTheory.addEquivAddHaarChar_trans}
   \uses{MeasureTheory.addEquivAddHaarChar}
   \leanok
-  \discussion{task005}
+  \discussion{511}
   $d_A(\phi\circ\psi)=d_A(\phi)d_A(\psi).$
 \end{lemma}
 \begin{proof}
@@ -145,13 +145,13 @@ Also immediate from previous lemmas is
   \lean{MeasureTheory.ringHaarChar_mul_integral}
   \uses{MeasureTheory.ringHaarChar}
   \leanok
-  \discussion{task006}
+  \discussion{514}
   If $f:R\to\R$ is a Borel measurable function and $u\in R^\times$ then
   $\delta_R(u)\int f(ux)d\mu(x)=\int f(x)d\mu(x)$.
 \end{lemma}
 \begin{proof}
   \uses{MeasureTheory.addEquivAddHaarChar_mul_integral}
-  Immediate from lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_integral}.
+  A short calculation using lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_integral}.
 \end{proof}
 
 \begin{lemma}
@@ -159,7 +159,7 @@ Also immediate from previous lemmas is
   \lean{MeasureTheory.ringHaarChar_mul_volume}
   \uses{MeasureTheory.ringHaarChar,MeasureTheory.addEquivAddHaarChar_mul_volume}
   \leanok
-  \discussion{task007}
+  \discussion{515}
   If $X$ is a Borel subset of $R$ and $r\in R^\times$ then $\mu(rX)=\delta_R(r)\mu(X)$.
 \end{lemma}
 \begin{proof}
@@ -174,7 +174,7 @@ The next result lies a little deeper.
   \lean{MeasureTheory.ringHaarChar_continuous}
   \uses{MeasureTheory.ringHaarChar}
   \leanok
-  \discussion{task008}
+  \discussion{516}
   The function $\delta_R:R^\times\to\R_{>0}$ is continuous.
 \end{corollary}
 \begin{proof}
@@ -263,7 +263,7 @@ there is still some discussion about the definition of a nonarchimedean local fi
   \lean{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
   \uses{MeasureTheory.ringHaarChar}
   \leanok
-  \discussion{task009}
+  \discussion{517}
   $d_V(\phi)=\delta_F(\det(\phi))$, where $\det(\phi)\in F$ is the determinant of $\phi$ as an $F$-linear map.
 \end{lemma}
 \begin{proof}
@@ -324,7 +324,7 @@ the same determinant.
   \label{IsSimpleRing.mulLeft_det_eq_mulRight_det}
   \lean{IsSimpleRing.mulLeft_det_eq_mulRight_det}
   \leanok
-  \discussion{task010}
+  \discussion{518}
   Say $B$ is a finite-dimensional central simple algebra over a field~$k$,
   and $u\in B^\times$. Let $\ell_u:B\to B$ be the $k$-linear maping $x$ to $ux$ and
   let $r_u:B\to B$ be the $k$-linear map sending $x$ to $xu$. Then
@@ -341,12 +341,12 @@ the same determinant.
 \begin{corollary}
   \label{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
   \lean{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
-  \discussion{task012}
   \leanok
   If $B$ is a central simple algebra over a locally compact field $F$, and if $u\in B^\times$,
   then $\delta_B(u):=d_B(\ell_u)$ is equal to $d_B(r_u)$.
 \end{corollary}
 \begin{proof}
+  \leanok
   \uses{IsSimpleRing.mulLeft_det_eq_mulRight_det, MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
   If $\ell_u$ and $r_u$ denote left and right multiplication by $u$ on $B$, then we have
   seen in lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det} that $d_B(r_u)=\delta_F(\det(r_u))$.
@@ -363,7 +363,7 @@ Here are two facts which we will need about products.
   \label{MeasureTheory.addEquivAddHaarChar_prodCongr}
   \lean{MeasureTheory.addEquivAddHaarChar_prodCongr}
   \leanok
-  \discussion{task014}
+  \discussion{520}
   If $(A,+)$ and $(B,+)$ are locally compact topological abelian groups,
   and if $\phi:A\to A$ and $\psi:B\to B$ are additive homeomorphisms,
   then $\phi\times\psi:A\times B\to A\times B$ is an additive homeomorphism (this is
@@ -377,13 +377,23 @@ Here are two facts which we will need about products.
   the product of these measures may not even be a Borel measure and one has to be more careful.
   The proof in this case is explained by Gou\"{e}zel
   \href{https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Product.20of.20Borel.20spaces/near/487257981}{here}.
+  Here is the idea. Let $\rho$ be a Haar measure on $A\times B$. Fix sets $X\subseteq A$ and
+  $Y\subseteq B$ which are compact with nonempty interior. We can now pull back $\rho$
+  to a measure $\nu$ on the Borel sigma-algebra of $A$ defined as $\nu(s)=\rho(s\times Y)$
+  and this is easily checked to be a Haar measure on $A$. Then
+  $\delta_{A\times B}(a,0)\nu(X)=
+  \delta_{A\times B}(a,0)\rho(X\times Y)=\rho((a,0)(X\times Y))=
+  \rho(aX\times Y)=\nu(aX)=\delta_A(a)\nu(X)$
+  , so $\delta_{A\times B}(a,0)=\delta_A(a)$.
+  Similarly $\delta_{A\times B}(0,b)=\delta_B(b)$ and because $\delta_{A\times B}$ is a group
+  homomorphism we're home.
 \end{proof}
 
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_piCongrRight}
   \lean{MeasureTheory.addEquivAddHaarChar_piCongrRight}
   \leanok
-  \discussion{task016}
+  \discussion{521}
   \uses{MeasureTheory.addEquivAddHaarChar_prodCongr}
   If $A_i$ are a finite collection of locally compact topological abelian groups,
   with $\phi_i:A_i\to A_i$ additive homeomorphisms, then $d_{\prod_i A_i}(\prod_i\phi_i)=\prod_i d_{A_i}(\phi_i)$.
@@ -493,7 +503,7 @@ We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic
   that if $v$ is a place of $\Q$ (i.e., a prime
   number or $+\infty$) then $\delta_{\Q_v}=|\cdot|_v$.
   We can deduce from this, lemma~\ref{distribHaarChar_restricted_product} (at the finite places)
-  and lemma~\ref{distribHaarChar_prod} (to include the infinite place) that if $(x_v)_v\in\A_{\Q}^\times$
+  and lemma~\ref{MeasureTheory.ringHaarChar_prod} (to include the infinite place) that if $(x_v)_v\in\A_{\Q}^\times$
   then $\delta_{\A_{\Q}}((x_v)_v)=\prod_v|x_v|_v$, where the product
   runs over all places of $\Q$.
   The \emph{product formula for $\Q$} (which we have in mathlib) says
