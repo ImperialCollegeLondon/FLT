@@ -5,7 +5,7 @@ Authors: Kevin Buzzard
 -/
 import FLT.HaarMeasure.HaarChar.AddEquiv
 
-open scoped NNReal Pointwise ENNReal
+open scoped NNReal
 
 namespace ContinuousAddEquiv
 
@@ -23,9 +23,22 @@ def mulLeft (r : Rˣ) : R ≃ₜ+ R where
   invFun y := r⁻¹ * y
   left_inv x := by simp [mul_assoc]
   right_inv y := by simp [mul_assoc]
-  map_add' x₁ x₂ := left_distrib (↑r) x₁ x₂
+  map_add' x₁ x₂ := left_distrib ↑r x₁ x₂
   continuous_toFun := continuous_mul_left _
   continuous_invFun := continuous_mul_left _
+
+/-- The additive homeomorphism from a topological ring to itself,
+induced by right multiplication by a unit.
+-/
+@[simps apply]
+def mulRight (r : Rˣ) : R ≃ₜ+ R where
+  toFun x := x * r
+  invFun y := y * r⁻¹
+  left_inv x := by simp [mul_assoc]
+  right_inv y := by simp [mul_assoc]
+  map_add' x₁ x₂ := right_distrib x₁ x₂ r
+  continuous_toFun := continuous_mul_right _
+  continuous_invFun := continuous_mul_right _
 
 end ContinuousAddEquiv
 
@@ -33,7 +46,7 @@ namespace MeasureTheory
 
 open Measure
 
-variable {R : Type*} [Ring R] [MeasurableSpace R] [TopologicalSpace R] [BorelSpace R]
+variable {R : Type*} [Ring R] [TopologicalSpace R]
   [IsTopologicalRing R] [LocallyCompactSpace R]
 
 variable (R) in
@@ -50,7 +63,7 @@ lemma ringHaarChar_continuous :
    Hence $\delta_R$ is continuous, from `mulEquivHaarChar_mul_integral`
    in the AddEquiv file
    -/
-  sorry
+  sorry -- FLT#516
 
 /-- `ringHaarChar : Rˣ →ₜ* ℝ≥0` is the function sending a unit of
 a locally compact topological ring `R` to the positive real factor
@@ -61,19 +74,25 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
   toFun r := addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r)
   map_one' := by convert addEquivAddHaarChar_refl (G := R); ext; simp
   map_mul' φ ψ := by
+    letI : MeasurableSpace R := borel R
+    haveI : BorelSpace R := ⟨rfl⟩
     rw [mul_comm]
     convert addEquivAddHaarChar_trans (G := R); ext; simp [mul_assoc]
   continuous_toFun := ringHaarChar_continuous R
 
-lemma ringHaarChar_mul_integral (μ : Measure R) [IsAddHaarMeasure μ]
+lemma ringHaarChar_mul_integral [MeasurableSpace R] [BorelSpace R]
+    (μ : Measure R) [IsAddHaarMeasure μ]
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :
-    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := sorry
-    -- addEquivAddHaarChar_mul_integral
+    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := sorry -- FLT#514
+    -- use addEquivAddHaarChar_mul_integral applied to the function `r ↦ f (u * r)`.
+    -- Do we need that f is measurable? Not that it matters, it always will be.
 
 open Pointwise in
-lemma ringHaarChar_mul_volume (μ : Measure R) [IsAddHaarMeasure μ]
+lemma ringHaarChar_mul_volume [MeasurableSpace R] [BorelSpace R]
+    (μ : Measure R) [IsAddHaarMeasure μ]
     {X : Set R} (hf : MeasurableSet X) (u : Rˣ) :
-    μ (u • X) = ringHaarChar u * μ X := sorry
+    μ (u • X) = ringHaarChar u * μ X := sorry -- FLT#515
+    -- use addEquivAddHaarChar_mul_volume
 
 variable (R) in
 /-- The kernel of the `ringHaarChar : Rˣ → ℝ≥0`, namely the units
@@ -81,5 +100,64 @@ of a locally compact topological ring such that left multiplication
 by them does not change additive Haar measure.
 -/
 noncomputable def ringHaarChar_ker := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
+
+section units
+
+variable {R S : Type*} [Monoid R] [Monoid S]
+
+-- do we want these next three definitions?
+/-- The canonical map `Rˣ → Sˣ → (R × S)ˣ`. -/
+def _root_.Units.prod (u : Rˣ) (v : Sˣ) : (R × S)ˣ where
+  val := (u, v)
+  inv := ((u⁻¹ : Rˣ), (v⁻¹ : Sˣ))
+  val_inv := by simp
+  inv_val := by simp
+
+/-- The canonical projection (R × S)ˣ → Rˣ as a group homomorphism. -/
+def _root_.Units.fst : (R × S)ˣ →* Rˣ :=  Units.map (MonoidHom.fst R S)
+
+/-- The canonical projection (R × S)ˣ → Sˣ as a group homomorphism. -/
+def _root_.Units.snd : (R × S)ˣ →* Sˣ :=  Units.map (MonoidHom.snd R S)
+
+end units
+section prod
+
+variable {S : Type*} [Ring S] [TopologicalSpace S]
+  [IsTopologicalRing S] [LocallyCompactSpace S]
+
+-- this is true in general, but the proof is easier if we assume
+-- `SecondCountableTopologyEither R S` because then if R and S are equipped with the Borel
+-- sigma algebra, the product sigma algebra on R × S is also the Borel sigma algebra.
+lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) :
+    ringHaarChar (u.prod v) = ringHaarChar u * ringHaarChar v :=
+  addEquivAddHaarChar_prodCongr (ContinuousAddEquiv.mulLeft u) (ContinuousAddEquiv.mulLeft v)
+
+lemma ringHaarChar_prod' (uv : (R × S)ˣ) :
+    ringHaarChar uv = ringHaarChar uv.fst * ringHaarChar uv.snd :=
+  ringHaarChar_prod uv.fst uv.snd
+
+-- right now I think we're supposed to state them like this :-/
+example (u : Rˣ) (v : Sˣ) :
+    ringHaarChar (MulEquiv.prodUnits.symm (u, v)) = ringHaarChar u * ringHaarChar v :=
+  ringHaarChar_prod u v
+
+-- right now I think we're supposed to state them like this :-/
+example (uv : (R × S)ˣ) :
+    ringHaarChar uv =
+    ringHaarChar (MulEquiv.prodUnits uv).1 * ringHaarChar (MulEquiv.prodUnits uv).2 :=
+  ringHaarChar_prod' uv
+
+end prod
+
+section pi
+
+variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSpace (A i)]
+    [∀ i, IsTopologicalRing (A i)] [∀ i, LocallyCompactSpace (A i)]
+
+lemma ringHaarChar_pi [Fintype ι] (u : Π i, (A i)ˣ) :
+    ringHaarChar (MulEquiv.piUnits.symm u) = ∏ i, ringHaarChar (u i) :=
+  addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (u i))
+
+end pi
 
 end MeasureTheory
