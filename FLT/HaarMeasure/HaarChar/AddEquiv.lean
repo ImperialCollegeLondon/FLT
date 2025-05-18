@@ -19,7 +19,9 @@ lemma regular_comap {G H : Type*}
     (φ : G ≃ₜ H) (μ : Measure H) [Regular μ] : Regular (comap φ μ) := by
   sorry -- issue FLT#513
 
-variable {G : Type*} [CommGroup G] [TopologicalSpace G]
+section basic
+
+variable {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] [LocallyCompactSpace G]
 
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
@@ -71,6 +73,8 @@ lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
   sorry -- FLT#511
   -- use `MeasureTheory.Measure.haarScalarFactor_eq_mul`?
 
+end basic
+
 section prodCongr
 
 variable {A B C D : Type*} [Group A] [Group B] [Group C] [Group D]
@@ -91,12 +95,13 @@ end prodCongr
 
 section prod
 
-variable {H : Type*} [CommGroup H] [TopologicalSpace H]
+variable {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [LocallyCompactSpace G]
+    {H : Type*} [Group H] [TopologicalSpace H]
     [IsTopologicalGroup H] [LocallyCompactSpace H]
-    (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H)
 
 @[to_additive MeasureTheory.addEquivAddHaarChar_prodCongr]
-lemma mulEquivHaarChar_prodCongr :
+lemma mulEquivHaarChar_prodCongr (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H) :
     mulEquivHaarChar (φ.prodCongr ψ) = mulEquivHaarChar φ * mulEquivHaarChar ψ := by
   sorry -- FLT#520
 
@@ -105,8 +110,8 @@ end prod
 section piCongrRight
 
 variable {ι : Type*} {G H : ι → Type*}
-    [Π i, CommGroup (G i)] [Π i, TopologicalSpace (G i)]
-    [Π i, CommGroup (H i)] [Π i, TopologicalSpace (H i)]
+    [Π i, Group (G i)] [Π i, TopologicalSpace (G i)]
+    [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
 
 -- should be in mathlib?
 /-- An arbitrary product of multiplication-preserving homeomorphisms
@@ -124,7 +129,7 @@ end piCongrRight
 
 section pi
 
-variable {ι : Type*} {H : ι → Type*} [Π i, CommGroup (H i)] [Π i, TopologicalSpace (H i)]
+variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
 
 @[to_additive]
