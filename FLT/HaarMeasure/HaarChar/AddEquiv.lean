@@ -41,8 +41,9 @@ lemma mulEquivHaarChar_eq [MeasurableSpace G] [BorelSpace G] (μ : Measure G) [I
   -- use MeasureTheory.Measure.haarScalarFactor_eq_mul
   -- and haarScalarFactor_pos_of_isHaarMeasure
 
+-- do we need G locally compact? Feel free to add it if we do, but the linter was complaining.
 lemma mulEquivHaarChar_comap [MeasurableSpace G] [BorelSpace G] (μ : Measure G)
-    [IsHaarMeasure μ] [LocallyCompactSpace G] [Regular μ] (φ : G ≃ₜ* G) :
+    [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
     comap φ μ = (mulEquivHaarChar φ) • μ := by
   haveI : Regular (comap φ μ) := regular_comap φ.toHomeomorph μ
   haveI : IsHaarMeasure (comap φ μ) := isHaarMeasure_comap φ μ
