@@ -19,7 +19,9 @@ lemma regular_comap {G H : Type*}
     (φ : G ≃ₜ H) (μ : Measure H) [Regular μ] : Regular (comap φ μ) := by
   sorry -- issue FLT#513
 
-variable {G : Type*} [CommGroup G] [TopologicalSpace G]
+section basic
+
+variable {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] [LocallyCompactSpace G]
 
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
@@ -71,6 +73,8 @@ lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
   sorry -- FLT#511
   -- use `MeasureTheory.Measure.haarScalarFactor_eq_mul`?
 
+end basic
+
 section prodCongr
 
 variable {A B C D : Type*} [Group A] [Group B] [Group C] [Group D]
@@ -91,12 +95,15 @@ end prodCongr
 
 section prod
 
+variable {G : Type*} [CommGroup G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [LocallyCompactSpace G]
+
 variable {H : Type*} [CommGroup H] [TopologicalSpace H]
     [IsTopologicalGroup H] [LocallyCompactSpace H]
-    (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H)
+
 
 @[to_additive MeasureTheory.addEquivAddHaarChar_prodCongr]
-lemma mulEquivHaarChar_prodCongr :
+lemma mulEquivHaarChar_prodCongr (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H) :
     mulEquivHaarChar (φ.prodCongr ψ) = mulEquivHaarChar φ * mulEquivHaarChar ψ := by
   sorry -- FLT#520
 
@@ -133,3 +140,55 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   sorry -- FLT#521 -- induction
 
 end pi
+
+section restrictedproduct
+
+open ENNReal
+
+example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
+    [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
+    [IsHaarMeasure μ] [Regular μ] (C : Set X) [Nonempty C]
+    (hCopen : IsOpen C) (hCcompact : IsCompact C) :
+    0 < μ C ∧ μ C < ∞ := by
+  constructor
+  · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
+  · exact IsCompact.measure_lt_top hCcompact
+
+variable
+    -- let ι be an index set.
+    {ι : Type*}
+    -- Let Gᵢ be a family of locally compact abelian groups
+    {G : ι → Type*} [Π i, CommGroup (G i)] [Π i, TopologicalSpace (G i)]
+    [∀ i, IsTopologicalGroup (G i)] [∀ i, LocallyCompactSpace (G i)]
+    -- Let Cᵢ ⊆ Gᵢ be a compact open subgroup for all i
+    {C : (i : ι) → Subgroup (G i)} [Fact (∀ i, IsOpen (C i : Set (G i)))]
+    (hCcompact : ∀ i, CompactSpace (C i))
+    -- Let φᵢ : Gᵢ → Gᵢ be a multiplication-preserving homeomorphism
+    (φ : (i : ι) → G i ≃ₜ* G i)
+    -- and assume φᵢ(Cᵢ) = Cᵢ for all but finitely many i
+    (hφ : ∀ᶠ i in Filter.cofinite, φ i ⁻¹' (C i : Set (G i)) = (C i : Set (G i)))
+
+open RestrictedProduct
+
+#check MulEquiv
+
+set_option linter.flexible false in
+def ContinuousMulEquiv.restrictedProductCongrRight :
+    (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) where
+  toFun x := ⟨fun i ↦ φ i (x i), sorry⟩
+  invFun y := ⟨fun i ↦ (φ i).symm (y i), sorry⟩
+  left_inv x := by
+    refine RestrictedProduct.ext G (fun i ↦ ↑(C i)) fun i ↦ ?_
+    simp
+    dsimp
+    change (φ i).symm (φ i (x i)) = x i
+    exact ContinuousMulEquiv.symm_apply_apply (φ i) (x i)
+  right_inv := sorry
+  map_mul' := sorry
+  continuous_toFun := sorry
+  continuous_invFun := sorry
+
+@[to_additive]
+lemma mulEquivHaarChar_piCongrRightthing :
+    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
+  sorry -- FLT#521 -- induction
