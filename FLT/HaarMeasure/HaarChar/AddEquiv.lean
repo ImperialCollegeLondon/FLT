@@ -138,3 +138,76 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   sorry -- FLT#521 -- induction
 
 end pi
+
+section restrictedproductapi
+
+open RestrictedProduct
+
+variable {ι : Type*}
+variable (R : ι → Type*) (A : (i : ι) → Set (R i))
+variable {𝓕 : Filter ι}
+
+lemma _root_.RestrictedProduct.coe_mk (x : Π i, R i) (hx : ∀ᶠ i in 𝓕, x i ∈ A i) (i : ι) :
+    (id ⟨x, hx⟩ : Πʳ i, [R i, A i]_[𝓕]) i = x i := rfl
+
+/-
+
+@[to_additive (attr := simp)]
+theorem coe_mk (f : M ≃ N) (hf : ∀ x y, f (x * y) = f x * f y) : (mk f hf : M → N) = f := rfl
+
+-/
+
+
+end restrictedproductapi
+
+section restrictedproduct
+
+open ENNReal
+
+example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
+    [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
+    [IsHaarMeasure μ] [Regular μ] (C : Set X) [Nonempty C]
+    (hCopen : IsOpen C) (hCcompact : IsCompact C) :
+    0 < μ C ∧ μ C < ∞ := by
+  constructor
+  · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
+  · exact IsCompact.measure_lt_top hCcompact
+
+variable
+    -- let ι be an index set.
+    {ι : Type*}
+    -- Let Gᵢ be a family of locally compact abelian groups
+    {G : ι → Type*} [Π i, Group (G i)] [Π i, TopologicalSpace (G i)]
+    [∀ i, IsTopologicalGroup (G i)] [∀ i, LocallyCompactSpace (G i)]
+    -- Let Cᵢ ⊆ Gᵢ be a compact open subgroup for all i
+    {C : (i : ι) → Subgroup (G i)} [Fact (∀ i, IsOpen (C i : Set (G i)))]
+    (hCcompact : ∀ i, CompactSpace (C i))
+    -- Let φᵢ : Gᵢ → Gᵢ be a multiplication-preserving homeomorphism
+    (φ : (i : ι) → G i ≃ₜ* G i)
+    -- and assume φᵢ(Cᵢ) = Cᵢ for all but finitely many i
+    (hφ : ∀ᶠ i in Filter.cofinite, φ i ⁻¹' (C i : Set (G i)) = (C i : Set (G i)))
+
+open RestrictedProduct
+
+set_option linter.flexible false in
+def ContinuousMulEquiv.restrictedProductCongrRight :
+    (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) where
+  toFun x := ⟨fun i ↦ φ i (x i), sorry⟩
+  invFun y := ⟨fun i ↦ (φ i).symm (y i), sorry⟩
+  left_inv x := by
+    ext i
+    --refine RestrictedProduct.ext G (fun i ↦ ↑(C i)) fun i ↦ ?_
+    simp only
+    dsimp only
+    change (φ i).symm (φ i (x i)) = x i
+    exact ContinuousMulEquiv.symm_apply_apply (φ i) (x i)
+  right_inv := sorry
+  map_mul' := sorry
+  continuous_toFun := sorry
+  continuous_invFun := sorry
+
+open ContinuousMulEquiv in
+lemma mulEquivHaarChar_restrictedProductCongrRight :
+    mulEquivHaarChar (restrictedProductCongrRight φ :(Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
+    ∏ᶠ i, mulEquivHaarChar (φ i) := by
+  sorry
