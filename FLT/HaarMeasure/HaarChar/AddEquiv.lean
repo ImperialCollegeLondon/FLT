@@ -139,26 +139,33 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
 
 end pi
 
+end MeasureTheory
+
 section restrictedproductapi
 
-open RestrictedProduct
+namespace RestrictedProduct
 
 variable {ι : Type*}
-variable (R : ι → Type*) (A : (i : ι) → Set (R i))
+variable {R : ι → Type*} {A : (i : ι) → Set (R i)}
 variable {𝓕 : Filter ι}
 
-lemma _root_.RestrictedProduct.coe_mk (x : Π i, R i) (hx : ∀ᶠ i in 𝓕, x i ∈ A i) (i : ι) :
-    (id ⟨x, hx⟩ : Πʳ i, [R i, A i]_[𝓕]) i = x i := rfl
+abbrev mk (x : Π i, R i) (hx : ∀ᶠ i in 𝓕, x i ∈ A i) : Πʳ i, [R i, A i]_[𝓕] :=
+  ⟨x, hx⟩
 
-/-
+@[simp]
+lemma mk_apply (x : Π i, R i) (hx : ∀ᶠ i in 𝓕, x i ∈ A i) (i : ι) :
+    (mk x hx) i = x i := rfl
 
-@[to_additive (attr := simp)]
-theorem coe_mk (f : M ≃ N) (hf : ∀ x y, f (x * y) = f x * f y) : (mk f hf : M → N) = f := rfl
+@[simp]
+lemma mul_apply {S : ι → Type*} [(i : ι) → SetLike (S i) (R i)] {B : (i : ι) → S i}
+    [(i : ι) → Mul (R i)] [∀ (i : ι), MulMemClass (S i) (R i)]
+    (x y : Πʳ (i : ι), [R i, ↑(B i)]_[𝓕]) (i : ι) : (x * y) i = x i * y i := rfl
 
--/
-
+end RestrictedProduct
 
 end restrictedproductapi
+
+namespace MeasureTheory
 
 section restrictedproduct
 
@@ -194,20 +201,43 @@ def ContinuousMulEquiv.restrictedProductCongrRight :
     (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) where
   toFun x := ⟨fun i ↦ φ i (x i), sorry⟩
   invFun y := ⟨fun i ↦ (φ i).symm (y i), sorry⟩
-  left_inv x := by
-    ext i
-    --refine RestrictedProduct.ext G (fun i ↦ ↑(C i)) fun i ↦ ?_
-    simp only
-    dsimp only
-    change (φ i).symm (φ i (x i)) = x i
-    exact ContinuousMulEquiv.symm_apply_apply (φ i) (x i)
-  right_inv := sorry
-  map_mul' := sorry
+  left_inv _ := by ext; simp
+  right_inv _ := by ext; simp
+  map_mul' x₁ x₂ := by ext; simp
   continuous_toFun := sorry
   continuous_invFun := sorry
+
+#check Topology.IsOpenEmbedding.isOpen_range
+
+open Topology in
+lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
+    [TopologicalSpace X] [Group X] [IsTopologicalGroup X] [LocallyCompactSpace X]
+    [TopologicalSpace Y] [Group Y] [IsTopologicalGroup Y] [LocallyCompactSpace Y]
+    {f : X →* Y} (hf : IsOpenEmbedding f) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y)
+    (hComm : ∀ x, f (α x) = β (f x)) : mulEquivHaarChar α = mulEquivHaarChar β := by
+
+  sorry
 
 open ContinuousMulEquiv in
 lemma mulEquivHaarChar_restrictedProductCongrRight :
     mulEquivHaarChar (restrictedProductCongrRight φ :(Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
+  letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
+  haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
+  set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
+  have := isOpenEmbedding_structureMap (R := G) (A := fun i ↦ (C i : Set (G i))) Fact.out
+  have isOpenEmbedding := this
+  apply Topology.IsOpenEmbedding.isOpen_range at this
+  rw [range_structureMap] at this
+  have hXopen : IsOpen X := this
+  have hXnonempty : Nonempty X := Nonempty.intro ⟨⟨fun x ↦ 1, Filter.Eventually.of_forall <|
+    fun _ ↦ one_mem _⟩, fun _ ↦ one_mem _⟩
+  have hXμpos : 0 < haar X := IsOpen.measure_pos haar hXopen Set.Nonempty.of_subtype
+  have hXcompact : IsCompact X := by
+    have := isCompact_range isOpenEmbedding.continuous
+    rw [range_structureMap] at this
+    apply this
+  have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
   sorry
+
+#check Set.pi
