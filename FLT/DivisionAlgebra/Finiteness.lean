@@ -63,15 +63,8 @@ noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
 
 namespace Aux
 
-lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
-<<<<<<< HEAD
-    ∀ x ∈ distribHaarChar.ker D_𝔸,
-    ∃ e₁ ∈ E, ∃ e₂ ∈ E, e₁ ≠ e₂ ∧ -- added e₁ ≠ e₂ as not injective so want non-zero
-=======
-    ∀ x ∈ ringHaarChar_ker D_𝔸,
-    ∃ e₁ ∈ E, ∃ e₂ ∈ E,
->>>>>>> ee9b4ad10521a5ef076f5d69929117d451df83b4
-    x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
+lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧ ∀ x ∈ ringHaarChar_ker D_𝔸, ∃ e₁ ∈ E, ∃ e₂ ∈ E,
+    e₁ ≠ e₂ ∧ x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   sorry
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
@@ -79,13 +72,8 @@ def E : Set D_𝔸 := (existsE K D).choose
 
 lemma E_compact : IsCompact (E K D) := (existsE K D).choose_spec.1
 
-<<<<<<< HEAD
-lemma E_noninjective_left : ∀ x ∈ distribHaarChar.ker D_𝔸,
-    ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
-=======
 lemma E_noninjective : ∀ x ∈ ringHaarChar_ker D_𝔸,
-    ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D,
->>>>>>> ee9b4ad10521a5ef076f5d69929117d451df83b4
+    ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   (existsE K D).choose_spec.2
 
@@ -110,8 +98,7 @@ lemma Y_compact : IsCompact (Y K D) := by
   simpa only [Set.image_prod, Set.image2_mul] using (IsCompact.image_of_continuousOn
     ((X_compact K D).prod (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
-<<<<<<< HEAD
-lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
+lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := by
   obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_left K D β hβ
   use (e1 - e2)
@@ -135,7 +122,7 @@ lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
     simp only [mul_sub_left_distrib, (Eq.symm hb), Algebra.TensorProduct.includeLeft_apply, hb1,
       Algebra.TensorProduct.includeLeftRingHom_apply]
 
-lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
+lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := by
   obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_right K D β hβ
   use (e1 - e2)
@@ -158,13 +145,6 @@ lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) 
     use b1
     simp only [mul_sub_right_distrib, (Eq.symm hb), Algebra.TensorProduct.includeLeft_apply, hb1,
       Algebra.TensorProduct.includeLeftRingHom_apply]
-=======
-lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
-    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := sorry
-
-lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
-    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := sorry
->>>>>>> ee9b4ad10521a5ef076f5d69929117d451df83b4
 
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
@@ -223,13 +203,8 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 
 end Aux
 
-<<<<<<< HEAD
-lemma compact_quotient : CompactSpace (distribHaarChar.ker D_𝔸 ⧸
-    (MonoidHom.range (incl K D)).comap (distribHaarChar.ker D_𝔸).subtype) := sorry
-=======
 lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
   (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := sorry
->>>>>>> ee9b4ad10521a5ef076f5d69929117d451df83b4
 
 end NumberField.AdeleRing.DivisionAlgebra
 
