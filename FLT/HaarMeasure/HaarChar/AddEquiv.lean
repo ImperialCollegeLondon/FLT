@@ -1,6 +1,5 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib
-import FLT.Mathlib.MeasureTheory.Measure.Comap
+import Mathlib.Topology.Algebra.RestrictedProduct
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -317,3 +316,4 @@ lemma mulEquivHaarChar_restrictedProductCongrRight :
   sorry
 
 -- #check Set.pi
+#min_imports
