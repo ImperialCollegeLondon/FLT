@@ -216,6 +216,8 @@ section restrictedproductapi
 
 namespace RestrictedProduct
 
+-- TODO this is WIP, the sorries need to be either closed or assigned as tasks
+
 variable {ι : Type*}
 variable {R : ι → Type*} {A : (i : ι) → Set (R i)}
 variable {𝓕 : Filter ι}
