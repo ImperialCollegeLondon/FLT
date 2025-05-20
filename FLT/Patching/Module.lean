@@ -409,7 +409,7 @@ lemma PatchingModule.map_surjective
       filter_upwards with i
       obtain ⟨b, hb⟩ := Submodule.Quotient.mk_surjective _ (a i)
       simp only [← hb, mapQ_apply, LinearMap.id_coe, id_eq])
-    (l := fun k ↦ ⟨maximalIdeal R ^ k, isOpen_maximalIdeal_pow R k⟩)
+    (l := fun k ↦ ⟨maximalIdeal R ^ k, isOpen_maximalIdeal_pow'' R k⟩)
     (fun i j ↦ Ideal.pow_le_pow_right)
     (fun α ↦ have : Finite (R ⧸ α.1) := AddSubgroup.quotient_finite_of_isOpen _ α.2
       exists_maximalIdeal_pow_le_of_finite_quotient _)

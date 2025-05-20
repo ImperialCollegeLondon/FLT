@@ -2,6 +2,10 @@ import Mathlib.LinearAlgebra.Basis.Basic
 import Mathlib.LinearAlgebra.TensorProduct.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
 import Mathlib.RingTheory.TensorProduct.Basic
+import Mathlib.RingTheory.Finiteness.Defs
+import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
+import Mathlib.RingTheory.FiniteType
 
 section Basis
 
@@ -47,3 +51,23 @@ lemma Basis.rightBaseChange_apply [DecidableEq ι] (b : Basis ι R A) (i) :
   exact rightBaseChange_repr A b i 1
 
 end Basis
+
+section Finrank
+
+namespace TensorProduct
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra
+
+variable {R : Type*} (A : Type*) {B : Type*} [CommRing R]
+  [CommSemiring A] [Algebra R A] [CommRing B] [Algebra R B] [Nontrivial B]
+
+lemma finrank_rightAlgebra [Module.Finite R A] [Module.Free R A] :
+    Module.finrank B (A ⊗[R] B) = Module.finrank R A := by
+  have : Nontrivial R := RingHom.domain_nontrivial (algebraMap R B)
+  let b := Module.Free.chooseBasis R A
+  let b' : Basis _ _ (A ⊗[R] B) := Basis.rightBaseChange A b
+  rw [Module.finrank_eq_card_basis b, Module.finrank_eq_card_basis b']
+
+end TensorProduct
+
+end Finrank

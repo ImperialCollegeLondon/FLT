@@ -154,7 +154,7 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
       Submodule.comap_bot, Submodule.ker_mkQ]
 
 omit  [Algebra.TopologicallyFG ℤ Λ]
-  [IsPatchingSystem Λ M F] in
+  [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
 lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
     x ∈ (𝔫 • ⊤ : Submodule Λ (PatchingModule Λ M F)) ↔
       ∀ (α : OpenIdeals Λ), x.1 α ∈ (𝔫 • ⊤ : Submodule Λ (Component Λ M F α.1)) := by
@@ -236,7 +236,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
       (by rw [← hs]; exact Submodule.subset_span x.2) trivial
 
 omit  [Algebra.TopologicallyFG ℤ Λ]
-  [IsPatchingSystem Λ M F] in
+  [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
 lemma PatchingModule.ker_map_mkQ :
     LinearMap.ker ((PatchingModule.map Λ F fun i ↦
       (𝔫 • ⊤ : Submodule Λ (M i)).mkQ).restrictScalars Λ) = 𝔫 • ⊤ := by

@@ -1,4 +1,5 @@
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 namespace TotallyDefiniteQuaternionAlgebra
 
@@ -15,7 +16,7 @@ variable (K : Type*) [Field K]
 
 open TotallyDefiniteQuaternionAlgebra
 
-theorem AutomorphicForm.finiteDimensional :
+theorem WeightTwoAutomorphicForm.finiteDimensional :
     FiniteDimensional K (WeightTwoAutomorphicFormOfLevel U K) :=
   sorry
 

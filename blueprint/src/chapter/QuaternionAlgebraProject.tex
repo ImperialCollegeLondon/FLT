@@ -29,7 +29,7 @@ homomorphism $F\to\bbC$ is a subset of $\R$. We fix once and for all a totally r
 quaternion algebra $D$ over $F$. We furthermore assume that $D$ is \emph{totally definite}, that is,
 that for all field embeddings $\tau:F\to\R$ we have $D\otimes_{F,\tau}\R\cong\bbH$. Because $F$
 has at least one real place, the totally definite hypothesis is enough to show that $D$
-is not a matrix algebra and thus must be a division algebra. Thus Fujisaki's theorem (theorem~\ref{DivisionAlgebra.units_cocompact}
+is not a matrix algebra and thus must be a division algebra. Thus Fujisaki's theorem (theorem~\ref{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}
 from the Fujisaki miniproject) applies, and we know that $D^\times\backslash (D\otimes_F\A_F)^{(1)}$
 is compact.
 
@@ -42,7 +42,7 @@ $\Q$, and the definition of a modular form involves holomorphic functions, which
 the Cauchy--Riemann equations). However under the assumption that $F$ is totally real and $D/F$ is
 totally definite, the ``associated symmetric space is a 0-dimensional manifold'', meaning in practice that
 the part of the definition of an automorphic form involving differential equations is vacuously satisfied in this setting.
-As a consequence, the definitions we're about to give have a far more algebaic flavour. Crucially, in stark
+As a consequence, the definitions we're about to give have a far more algebraic flavour. Crucially, in stark
 contrast to the general theory, the fact that we do not need to talk about differential equations at all means that one does
 not need to assume that our automorphic forms are $\bbC$-valued; our definition makes sense for forms valued in an arbitrary additive commutative group.
 In particular, it is possible to talk about mod $p^n$ and $p$-adic automorphic forms in this setting without doing any complicated algebraic geometry.
@@ -112,7 +112,7 @@ Three basic observations about $S^D(R)$ are
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
   \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup}
   \leanok
   If $R$ is a commutative ring then pointwise scalar multiplication $(r\cdot f)(g):= r\cdot(f(g))$ makes
@@ -122,11 +122,11 @@ Three basic observations about $S^D(R)$ are
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.distribMulAction}
   \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.distribMulAction}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
   \leanok
-  The group $D_{\A^f}^\times$ acts on the addive abelian group $S^D(R)$ by $(g\cdot f)(x)=f(xg)$.
+  The group $D_{\A^f}^\times$ acts on the additive abelian group $S^D(R)$ by $(g\cdot f)(x)=f(xg)$.
 \end{definition}
 
 If $R$ is a commutative ring then the action of $D_{\A^\infty}^\times$ commutes with the $R$-action.
@@ -136,7 +136,7 @@ Now let $U$ be a level, that is, a compact open subgroup of $D_{\A^\infty}^\time
 \begin{definition}
   \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
   \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm,
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.addCommGroup,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.distribMulAction,
     TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
@@ -158,23 +158,24 @@ proof of finite-dimensionality.
 
 
 \begin{theorem}
-  \lean{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
-  \label{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
-  \uses{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.module}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.finiteDimensional}
+  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.finiteDimensional}
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.module}
   Let $k$ be a field. Then the space $S^D(U;k)$ is a finite-dimensional $k$-vector space.
 \end{theorem}
 
 
 
 \begin{proof}
-  \proves{TotallyDefiniteQuaternionAlgebra.AutomorphicForm.finiteDimensional}
-  \uses{DivisionAlgebra.finiteDoubleCoset'}
+  \proves{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.finiteDimensional}
+  \uses{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact,
+  NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset}
   The finite-dimensionality theorem is in fact an easy consequence of Fujisaki's lemma,
   proved in the Fukisaki miniproject, chapter~\ref{Fujisaki_project}.
   Write $(D\otimes_F\A_F^\infty)^\times$ as a disjoint union of double cosets
   $\coprod_i D^\times g_i U$. This open cover descends to a disjoint open
   cover of $D^\times\backslash (D\otimes_F\A_F^\infty)^\times$,
-  and this latter space is compact by theorem~\ref{DivisionAlgebra.units_cocompact'}.
+  and this latter space is compact by theorem~\ref{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}.
   Hence the cover is finite; write the double coset representatives
   as $g_1,g_2,\ldots,g_n$. We claim that
   the function $S^D(U;k)\to W^n$ sending $f$ to $(f(g_1),f(g_2),\ldots,f(g_n))$
