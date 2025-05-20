@@ -84,7 +84,9 @@ instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank
   IsModuleTopology.instPi
 
 instance instBaseChangeIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) := by
-  sorry
+  have := BaseChange.isModuleTopology (𝓞 K) K L (𝓞 L)
+  exact IsModuleTopology.instProd' (A := InfiniteAdeleRing K)
+    (B := FiniteAdeleRing (𝓞 K) K) (M := InfiniteAdeleRing L) (N := FiniteAdeleRing (𝓞 L) L)
 
 /-- The canonical `𝔸 K`-algebra homomorphism `(L ⊗_K 𝔸 K) → 𝔸 L` induced
 by the maps from `L` and `𝔸 K` into `𝔸 L`. -/

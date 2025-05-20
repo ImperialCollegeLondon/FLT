@@ -450,3 +450,62 @@ theorem t2Space' {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
     [ContinuousAdd K] [ContinuousMul K] [mt : IsModuleTopology K V]
     : T2Space V := by
   apply t2Space (R := K)
+
+section Prod
+
+variable {A B M N : Type*} [CommRing A] [CommRing B] [AddCommGroup M] [AddCommGroup N]
+  [Module A M] [Module B N]
+
+/-- `A` can be viewed as an `(A × B)`-algebra by having `B` act trivially. -/
+local instance _root_.Prod.leftAlgebra : Algebra (A × B) A :=
+  RingHom.toAlgebra <| RingHom.fst A B
+
+/-- `B` can be viewed as an `(A × B)`-algebra by having `A` act trivially. -/
+local instance _root_.Prod.rightAlgebra : Algebra (A × B) B :=
+  RingHom.toAlgebra <| RingHom.snd A B
+
+/-- An `A` module can be viewed as an `(A × B)`-module by having `B` act trivially. -/
+local instance _root_.Prod.leftModule : Module (A × B) M :=
+  Module.compHom M (RingHom.fst A B)
+
+/-- A `B` module can be viewed as an `(A × B)`-module by having `A` act trivially. -/
+local instance _root_.Prod.rightModule : Module (A × B) N :=
+  Module.compHom N (RingHom.snd A B)
+
+/-- `A` is a finite `(A × B)`-module. -/
+instance _root_.Prod.instFinite_leftAlgebra : Module.Finite (A × B) A :=
+  Module.Finite.of_surjective (LinearMap.fst (A × B) A B) LinearMap.fst_surjective
+
+/-- `B` is a finite `(A × B)`-module. -/
+instance _root_.Prod.instFinite_rightAlgebra : Module.Finite (A × B) B :=
+  Module.Finite.of_surjective (LinearMap.snd (A × B) A B) LinearMap.snd_surjective
+
+variable  [τA : TopologicalSpace A] [τB : TopologicalSpace B] [TopologicalSpace M]
+  [TopologicalSpace N] [IsModuleTopology A M] [IsModuleTopology B N] [IsTopologicalRing A]
+  [IsTopologicalRing B]
+
+/-- `A` has the `(A × B)`-module topology. -/
+instance Prod.instLeftAlgebra : IsModuleTopology (A × B) A :=
+  of_continuous_isOpenMap_algebraMap _ _ continuous_fst isOpenMap_fst
+
+/-- `B` has the `(A × B)`-module topology. -/
+instance Prod.instRightAlgebra : IsModuleTopology (A × B) B :=
+  of_continuous_isOpenMap_algebraMap _ _ continuous_snd isOpenMap_snd
+
+/-- If `M` has the `A`-module topology, then it also has the `(A × B)`-module topology. -/
+instance Prod.instLeftModule : IsModuleTopology (A × B) M := by
+  have : IsScalarTower (A × B) A M := IsScalarTower.of_algebraMap_smul fun (a, b) m ↦ rfl
+  rw [IsModuleTopology.trans (A × B) A M]
+  infer_instance
+
+/-- If `N` has the `B`-module topology, then it also has the `(A × B)`-module topology. -/
+instance Prod.instRightModule : IsModuleTopology (A × B) N := by
+  have : IsScalarTower (A × B) B N := IsScalarTower.of_algebraMap_smul fun (a, b) m ↦ rfl
+  rw [IsModuleTopology.trans (A × B) B N]
+  infer_instance
+
+/-- If `M` has the `A`-module topology and `N` has the `B`-module topology
+  then `M × N` has the `(A × B)`-module topology. -/
+instance instProd' : IsModuleTopology (A × B) (M × N) := inferInstance
+
+end Prod

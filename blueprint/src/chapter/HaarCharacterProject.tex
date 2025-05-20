@@ -9,29 +9,185 @@ algebra over a number field~$K$, then $B^\times$ is in the kernel of the Haar ch
 of $B\otimes_K\A_K$, where $\A_K$ is the ring of adeles of~$K$. Most if not all of this
 should probably be in mathlib.
 
+KMB would like to heartily thank S\'ebastian Gou\"ezel for the help he gave during the preparation
+of this material.
+
 \section{Initial definitions}
 
-Let $A$ be a locally compact topological abelian group. There's then a regular Haar measure $\mu$
-on $A$, unique up to a positive scalar factor. If $\phi:(A,+)\cong(A,+)$ is a homeomorphism
-and an additive automorphism of $A$, then we can pull back $\mu$
-to get a second measure $\phi^*\mu$ on $A$, which is translation-invariant and regular,
-and hence also a Haar measure on $A$. It must thus differ from $\mu$ by a positive scalar
-factor, which we call $d_A(\phi)$. There is a choice of normalization here between $d_A(\phi)$
-and $d_A(\phi)^{-1}$; we normalize in such that way that
-if $X$ is Borel measurable then $\mu(\phi(X))=d_A(\phi)\mu(X)$.
-It is easily checked that the definition of $d_A(\phi)$ is independent of the initial choice
-$\mu$ of regular Haar measure.
+\subsection{Scaling Haar measure on a group}
 
-Note that if $X$ is a Borel subset of $A$ with positive finite measure then we can read
+Let $A$ be a locally compact topological additive abelian group. There's then a regular additive
+Haar measure $\mu$ on $A$, unique up to a positive scalar factor. If $\phi:(A,+)\cong(A,+)$ is a
+homeomorphism and an additive automorphism of $A$, then we can pull back $\mu$
+to get a second measure $\phi^*\mu$ on $A$, with the property that
+$\phi^*\mu(X)=\mu(\phi(X))$ for any Borel subset $X$ of $A$.
+
+Now $\phi^*\mu$ is a translation-invariant and regular measure,
+and hence also a Haar measure on $A.$ It must thus differ from
+$\mu$ by a positive scalar factor, which we call $d_A(\phi)$.
+There is a choice of normalization here between $d_A(\phi)$
+and $d_A(\phi)^{-1}$, so let us be more precise.
+
+\begin{definition}
+  \label{MeasureTheory.addEquivAddHaarChar}
+  \lean{MeasureTheory.addEquivAddHaarChar}
+  \discussion{507}
+  If $A$ is a locally compact topological additive abelian group,
+  if $\mu$ is a regular Haar measure on $A$, and if $\phi:A\to A$ is an
+  additive homeomorphism, then we let $d_A(\phi)$ denote the unique positive
+  real number such that $\phi^*\mu(X)=d_A(\phi)\mu(X)$ for any Borel set~$X$.
+\end{definition}
+
+Here are some basic results about this construction.
+
+\begin{lemma}
+  \label{MeasureTheory.addEquivAddHaarChar_eq}
+  \lean{MeasureTheory.addEquivAddHaarChar_eq}
+  \uses{MeasureTheory.addEquivAddHaarChar}
+  \discussion{508}
+  \leanok
+  $d_A(\phi)$ is independent of choice of regular Haar measure.
+\end{lemma}
+\begin{proof}
+  If $\mu'$ is a second choice then $\mu'=\lambda\mu$ for some
+  positive real $\lambda$, and the $\lambda$s on each side of $\phi^*\mu'(X)=d_A(\phi)\mu'(X)$
+  cancel.
+\end{proof}
+
+Now let $\mu$ be any regular additive Haar measure on $A$.
+
+\begin{lemma}
+  \label{MeasureTheory.addEquivAddHaarChar_mul_volume}
+  \lean{MeasureTheory.addEquivAddHaarChar_mul_volume}
+  \uses{MeasureTheory.addEquivAddHaarChar}
+  \discussion{509}
+  \leanok
+  If $X$ is a Borel set then $\mu(\phi(X))=d_A(\phi)\mu(X)$.
+\end{lemma}
+\begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_eq}
+  This follows immediately from the definition.
+\end{proof}
+
+\begin{lemma}
+  \label{MeasureTheory.addEquivAddHaarChar_mul_integral}
+  \lean{MeasureTheory.addEquivAddHaarChar_mul_integral}
+  \uses{MeasureTheory.addEquivAddHaarChar}
+  \discussion{510}
+  \leanok
+  If $f:A\to\R$ is a Borel measurable function then
+  $d_A(\phi)\int f(x)d\phi^*\mu(x)=\int f(x)d\mu(x)$.
+\end{lemma}
+\begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_eq}
+  This also follows immediately from the definition.
+\end{proof}
+
+Note that as a consequence of lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_volume},
+if $X$ is a Borel subset of $A$ with positive finite measure then we can read
 off $d_A(\phi)$ by $d_A(\phi):=\mu(\phi(X))/\mu(X)$. A nice special case is when
 $\mu(X)=1$, in which case we have $d_A(\phi)=\mu(\phi(X))$ for all $\phi$.
+Similarly, by lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_integral},
+if $f$ is a measurable function with $0<\int f(x)d\mu(x)<\infty$ then
+we can read off $d_A(\phi)$ by $d_A(\phi)=(\int f(x)d\mu(x))/(\int f(x)\phi^*\mu(x))$.
+In particular, the following are straightforward:
+
+\begin{lemma}
+  \label{MeasureTheory.addEquivAddHaarChar_refl}
+  \lean{MeasureTheory.addEquivAddHaarChar_refl}
+  \uses{MeasureTheory.addEquivAddHaarChar}
+  \leanok
+  $d_A(id)=1.$
+\end{lemma}
+\begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_eq}
+  \leanok
+  Clear.
+\end{proof}
+
+\begin{lemma}
+  \label{MeasureTheory.addEquivAddHaarChar_trans}
+  \lean{MeasureTheory.addEquivAddHaarChar_trans}
+  \uses{MeasureTheory.addEquivAddHaarChar}
+  \leanok
+  \discussion{511}
+  $d_A(\phi\circ\psi)=d_A(\phi)d_A(\psi).$
+\end{lemma}
+\begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_mul_volume}
+  $d_A(\phi\circ\psi)=\mu(\phi(\psi(X)))/\mu(X)=(\mu(\phi(\psi(X)))/\mu(\psi(X)))(\mu(\psi(X))/\mu(X))=d_A(\phi)d_A(\psi).$
+\end{proof}
+
+\subsection{Scaling Haar measure on a ring}
 
 Now let $R$ be a locally compact topological ring. The \emph{Haar character} of $R$,
 or more precisely the \emph{left Haar character} of $R$, is a group homomorphism
 $R^\times\to\R^\times$ defined in the following way. If $u\in R^\times$ then left multiplication
 by $u$, namely the map $\ell_u:(R,+)\to(R,+)$ defined by $\ell_u(r)=ur$, is a homeomorphism and
-an additive automorphism of $(R,+)$, and we define $\delta_R(u)$ (or just $\delta(u)$ when
-the ring $R$ is clear) to be $d_R(\ell_u)$.
+an additive automorphism of $(R,+)$, so the preceding theory applies to $\ell_u$.
+
+\begin{definition}
+  \label{MeasureTheory.ringHaarChar}
+  \lean{MeasureTheory.ringHaarChar}
+  \uses{MeasureTheory.addEquivAddHaarChar,MeasureTheory.addEquivAddHaarChar_refl,
+  MeasureTheory.addEquivAddHaarChar_trans}
+  \leanok
+  We define $\delta_R(u)$ (or just $\delta(u)$ when the ring $R$ is clear) to be $d_R(\ell_u)$.
+\end{definition}
+
+Lemmas~\ref{MeasureTheory.addEquivAddHaarChar_refl}
+and~\ref{MeasureTheory.addEquivAddHaarChar_trans} immediately imply that $\delta_R$ is a group
+homomorphism from $R^\times$ to $\R_{>0}$.
+Also immediate from previous lemmas is
+
+\begin{lemma}
+  \label{MeasureTheory.ringHaarChar_mul_integral}
+  \lean{MeasureTheory.ringHaarChar_mul_integral}
+  \uses{MeasureTheory.ringHaarChar}
+  \leanok
+  \discussion{514}
+  If $f:R\to\R$ is a Borel measurable function and $u\in R^\times$ then
+  $\delta_R(u)\int f(ux)d\mu(x)=\int f(x)d\mu(x)$.
+\end{lemma}
+\begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_mul_integral}
+  A short calculation using lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_integral}.
+\end{proof}
+
+\begin{lemma}
+  \label{MeasureTheory.ringHaarChar_mul_volume}
+  \lean{MeasureTheory.ringHaarChar_mul_volume}
+  \uses{MeasureTheory.ringHaarChar,MeasureTheory.addEquivAddHaarChar_mul_volume}
+  \leanok
+  \discussion{515}
+  If $X$ is a Borel subset of $R$ and $r\in R^\times$ then $\mu(rX)=\delta_R(r)\mu(X)$.
+\end{lemma}
+\begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_mul_volume}
+   Immediate from lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_volume}.
+\end{proof}
+
+The next result lies a little deeper.
+
+\begin{corollary}
+  \label{MeasureTheory.ringHaarChar_continuous}
+  \lean{MeasureTheory.ringHaarChar_continuous}
+  \uses{MeasureTheory.ringHaarChar}
+  \leanok
+  \discussion{516}
+  The function $\delta_R:R^\times\to\R_{>0}$ is continuous.
+\end{corollary}
+\begin{proof}
+  \uses{MeasureTheory.ringHaarChar_mul_integral}
+  Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function
+  on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
+  Then $u \mapsto \int f(ux) d\mu(x)$ is a continuous function
+  of $R\to\R$ (because a continuous function with compact support is uniformly
+   continuous) and thus gives a continuous function $R^\times\to\R$.
+   Thus the function $u\mapsto (\int f(ux) d\mu(x))/(\int f(x)d\mu(x))$ is
+   a continuous function from $R^\times$ to $\R$ taking values in $\R_{>0}$.
+   Hence $\delta_R$ is continuous, from lemma~\ref{MeasureTheory.ringHaarChar_mul_integral}.
+\end{proof}
 
 \section{Examples}
 
@@ -43,7 +199,10 @@ We discuss some examples of Haar characters.
   If $R=\R$ then $\delta_R(u)=|u|$.
   \leanok
 \end{lemma}
-\begin{proof}\leanok Take $\mu$ to be Lebesgue measure and $X=[0,1]$.
+\begin{proof}
+  \uses{MeasureTheory.ringHaarChar_mul_volume}
+  \leanok
+  Take $\mu$ to be Lebesgue measure and $X=[0,1]$.
 We have $\delta(u)=\mu(uX)$. If $u>0$ then $u[0,1]=[0,u]$ which has measure $u=|u|$,
 and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
 \end{proof}
@@ -55,6 +214,7 @@ and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
   If $R=\bbC$ then $\delta_R(u)=|u|^2$.
 \end{lemma}
 \begin{proof}
+  \uses{MeasureTheory.ringHaarChar_mul_volume}
   \leanok
   Multiplication by a positive real $r$ sends a unit square to a square of area $r^2=|r|^2$.
   Multiplication by $e^{i\theta}$ is a rotation and thus does not change area.
@@ -68,6 +228,7 @@ and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
   If $R=\Q_p$ then $\delta_R(u)=|u|_p$, the usual $p$-adic norm.
 \end{lemma}
 \begin{proof}
+  \uses{MeasureTheory.ringHaarChar_mul_volume}
   \leanok
   Normalise Haar measure so that $\mu(\Z_p)=1$.
   If $u$ is a $p$-adic unit then $u\Z_p=\Z_p$ so multiplication by $u$ didn't change
@@ -78,39 +239,14 @@ and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
 \end{proof}
 
 \begin{remark}
-
 If $R$ is a finite extension of $\Q_p$ then $\delta_R(u)$
 is the norm on $R$ normalised in the following way:
 $\delta_R(\varpi)=q^{-1}$, where $\varpi$ is a uniformiser
-and $q$ is the size of the (finite) residue field. The proof is
-the same as for $\Q_p$, but we won't need this.
+and $q$ is the size of the (finite) residue field. In fact the same is true
+for any nonarchimedean local field. The proof is
+the same as for $\Q_p$. Right now this is difficult to state in Lean because
+there is still some discussion about the definition of a nonarchimedean local field.
 \end{remark}
-
-\section{Continuity}
-
-\begin{theorem}
-  \label{DistribHaarChar.continuous}
-  If $R$ is a locally compact topological ring then
-  $\delta_R:R\to\R_{>0}$ is continuous.
-\end{theorem}
-\begin{proof} (Taken from Sebastien Gouezel's proof \href{https://leanprover.zulipchat.com/#narrow/channel/217875-Is-there-code-for-X.3F/topic/.22Haar.20measure.20is.20continuous.22/near/487299979}{Zulip}).
-  Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function
-  on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
-  Then $$u \mapsto \int f(ux) d\mu(x)$$ is obviously a continuous function
-  of $u$ (because a continuous function with compact support is uniformly
-   continuous). And you can read the value of $\delta(u)$ on how $u$
-   rescales the integral of continuous functions, so continuity of $\delta$
-   follows.
-\end{proof}
-
-% Note that if $R$ is non-commutative then there is also a right Haar character $\delta'(u)$
-% defined as $\delta'(u)=d_R(\psi)$ where $\psi(r)=ru$. In general these characters do not
-% coincide; for example if $R$ is the ring of upper-triangular $2\times 2$ matrices with
-% real coefficients then left multiplication by $\begin{pmatrix}2&0\\0&1\end{pmatrix}$ sends $\begin{pmatrix}a&b\\0&c\end{pmatrix}$
-% to $\begin{pmatrix}2a&2b\\0&c\end{pmatrix}$ and thus scales Haar measure by a factor of 4, but right multiplication
-% by $\begin{pmatrix}2&0\\0&1\end{pmatrix}$ sends it to $\begin{pmatrix}2a&&b\\0&&c\end{pmatrix}$ and thus only scales Haar measure
-% by a factor of 2. We will see later on that for (inner forms of) matrix algebras this phenomenon
-% does not occur.
 
 \section{Algebras}
 
@@ -123,39 +259,49 @@ the same as for $\Q_p$, but we won't need this.
   and our theory applies. The following lemma gives a formula for the scale factor $d_V(\phi)$.
 
 \begin{lemma}
-  \label{addHaarScalarFactor_eq_distribHaarChar_det}
-  %\lean{addHaarScalarFactor_eq_distribHaarChar_det}
+  \label{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
+  \lean{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
+  \uses{MeasureTheory.ringHaarChar}
+  \leanok
+  \discussion{517}
   $d_V(\phi)=\delta_F(\det(\phi))$, where $\det(\phi)\in F$ is the determinant of $\phi$ as an $F$-linear map.
 \end{lemma}
 \begin{proof}
+\uses{MeasureTheory.addEquivAddHaarChar}
 The proof should be inspired by \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/MeasureTheory/Measure/Lebesgue/Basic.html\#Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi}{\tt Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi},
 which crucially uses the induction principle \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/LinearAlgebra/Matrix/Transvection.html\#Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}{\tt Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}.
 In short, one needs to check it for diagonal matrices and for matrices which are the identity
-except that one off-diagonal entry is non-zero. Note that we only need the result for $F=\R$
-and $F=\mathbb{Q}_p$, so if it helps we can assume that $F$ is second countable.
+except that one off-diagonal entry is non-zero, because these matrices generate $GL_n(F)$
+if $F$ is a field. Note that we only need the result for $F=\R$
+and $F=\mathbb{Q}_p$ (and possibly for finite extensions of these depending on
+details of direction), so if it helps we can assume that $F$ is second countable
+(but it shouldn't be necessary).
 \end{proof}
 
-  Now say $F$ is a locally compact topological field, and $R$ is a (possibly non-commutative)
-  $F$-algebra, finite-dimensional as an $F$-vector space. Then both left and right multiplication
-  by a fixed element of $R$ are $F$-linear. We used left multiplication in our definition
-  of the Haar character. If $u\in R^\times$ then let us denote by $\ell_u:R\to R$
-  the function $r\mapsto ur$. This is an $F$-linear automorphism of $R$, and hence has a
-  determinant $\det(\ell_u)\in F^\times$.
-  The preceding lemma then immediately implies
+Now say $F$ is still a locally compact topological field, and that $R$ is a (possibly
+non-commutative) $F$-algebra. Recall that this means that $F$ lies in the centre of $R$.
+Assume that $R$ is finite-dimensional as an $F$-vector space. Then if we give $R$ the
+$F$-module topology (which is just the product topology if we pick a basis) then it is known
+that $R$ becomes a topological ring. Now say $u\in R^\times$, and
+recall $\ell_u:R\to R$ is left multiplication by $u$. Then $\ell_u$ is easily checked to be
+an $F$-linear homeomorphism.
 
   \begin{corollary}
-  \label{distribHaarChar_algebra}
-  %\lean{distribHaarChar_algebra}
+  \label{MeasureTheory.algebra_ringHaarChar_eq_ringHaarChar_det}
+  \lean{MeasureTheory.algebra_ringHaarChar_eq_ringHaarChar_det}
+  \leanok
   If $u\in R^\times$ then $\delta_R(u)=\delta_F(\det(\ell_u))$.
 \end{corollary}
 \begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
+  \leanok
   Follows immediately from the preceding lemma.
 \end{proof}
 
-\section{Left and right Haar characters}
+\section{Left and right multiplication}
 
-If $R$ is a non-commutative ring, then left and right multiplication by an element
-can scale Haar measure in different ways.
+If $R$ is a locally compact topological ring, and if multiplication on $R$ is not commutative,
+then left and right multiplication by an element of~$R$ can scale Haar measure in different ways.
 For example if $R$ is the upper-triangular $2\times 2$ matrices with real
 entries, then left multiplication by $\begin{pmatrix}a&0\\0&1\end{pmatrix}$
 sends $\begin{pmatrix}x&y\\0&z\end{pmatrix}$ to $\begin{pmatrix}ax&ay\\0&z\end{pmatrix}$
@@ -175,10 +321,14 @@ are both $k$-linear endomorphisms of $B$, and I claim that they have
 the same determinant.
 
 \begin{lemma}
-  \label{left_det_eq_right_det}
-  %\lean{left_det_eq_right_det}
-  If $u\in B^\times$, if $\ell_u:B\to B$ sends $x$ to $ux$ and if $r_u:B\to B$
-  sends $x$ to $xu$ then $\det(\ell_u)=\det(r_u)$ as $k$-linear endomorphisms of $B$.
+  \label{IsSimpleRing.mulLeft_det_eq_mulRight_det}
+  \lean{IsSimpleRing.mulLeft_det_eq_mulRight_det}
+  \leanok
+  \discussion{518}
+  Say $B$ is a finite-dimensional central simple algebra over a field~$k$,
+  and $u\in B^\times$. Let $\ell_u:B\to B$ be the $k$-linear maping $x$ to $ux$ and
+  let $r_u:B\to B$ be the $k$-linear map sending $x$ to $xu$. Then
+  $\det(\ell_u)=\det(r_u)$ as $k$-linear endomorphisms of $B$.
 \end{lemma}
 \begin{proof}
   Determinants are unchanged by base extension, so WLOG $k$ is algebraically closed.
@@ -189,26 +339,31 @@ the same determinant.
 \end{proof}
 
 \begin{corollary}
-  \label{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
-  %\lean{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
+  \label{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
+  \lean{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
+  \leanok
   If $B$ is a central simple algebra over a locally compact field $F$, and if $u\in B^\times$,
   then $\delta_B(u):=d_B(\ell_u)$ is equal to $d_B(r_u)$.
 \end{corollary}
 \begin{proof}
+  \leanok
+  \uses{IsSimpleRing.mulLeft_det_eq_mulRight_det, MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
   If $\ell_u$ and $r_u$ denote left and right multiplication by $u$ on $B$, then we have
-  seen in lemma~\ref{addHaarScalarFactor_eq_distribHaarChar_det} that $d_B(r_u)=\delta_F(\det(r_u))$.
-  Lemma~\ref{left_det_eq_right_det} tells
-  us that this is $\delta_F(\det(\ell_u))$ and this is $\delta_B(u)$ by
-  corollary~\ref{distribHaarChar_algebra}.
+  seen in lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det} that $d_B(r_u)=\delta_F(\det(r_u))$.
+  Lemma~\ref{IsSimpleRing.mulLeft_det_eq_mulRight_det} tells
+  us that this is $\delta_F(\det(\ell_u))$ and this is $\delta_B(u)$ again by
+  corollary~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}.
 \end{proof}
 
-\section{Products}
+\section{Finite Products}
 
 Here are two facts which we will need about products.
 
 \begin{lemma}
-  \label{addHaarScalarFactor_prod}
-  %\lean{addHaarScalarFactor_prod}
+  \label{MeasureTheory.addEquivAddHaarChar_prodCongr}
+  \lean{MeasureTheory.addEquivAddHaarChar_prodCongr}
+  \leanok
+  \discussion{520}
   If $(A,+)$ and $(B,+)$ are locally compact topological abelian groups,
   and if $\phi:A\to A$ and $\psi:B\to B$ are additive homeomorphisms,
   then $\phi\times\psi:A\times B\to A\times B$ is an additive homeomorphism (this is
@@ -220,12 +375,26 @@ Here are two facts which we will need about products.
   {\tt Prod.borelSpace} can be used to show that Haar measure on $A\times B$ is the product of
   Haar measures on $A$ and $B$, and in this case the result follows easily. Without this assumption,
   the product of these measures may not even be a Borel measure and one has to be more careful.
-  The proof in this case is explained \href{https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Product.20of.20Borel.20spaces/near/487257981}{here}.
+  The proof in this case is explained by Gou\"{e}zel
+  \href{https://leanprover.zulipchat.com/#narrow/channel/116395-maths/topic/Product.20of.20Borel.20spaces/near/487257981}{here}.
+  Here is the idea. Let $\rho$ be a Haar measure on $A\times B$. Fix sets $X\subseteq A$ and
+  $Y\subseteq B$ which are compact with nonempty interior. We can now pull back $\rho$
+  to a measure $\nu$ on the Borel sigma-algebra of $A$ defined as $\nu(s)=\rho(s\times Y)$
+  and this is easily checked to be a Haar measure on $A$. Then
+  $\delta_{A\times B}(a,0)\nu(X)=
+  \delta_{A\times B}(a,0)\rho(X\times Y)=\rho((a,0)(X\times Y))=
+  \rho(aX\times Y)=\nu(aX)=\delta_A(a)\nu(X)$
+  , so $\delta_{A\times B}(a,0)=\delta_A(a)$.
+  Similarly $\delta_{A\times B}(0,b)=\delta_B(b)$ and because $\delta_{A\times B}$ is a group
+  homomorphism we're home.
 \end{proof}
 
 \begin{lemma}
-  \label{addHaarScalarFactor_pi_finite}
-  %\lean{addHaarScalarFactor_pi_finite}
+  \label{MeasureTheory.addEquivAddHaarChar_piCongrRight}
+  \lean{MeasureTheory.addEquivAddHaarChar_piCongrRight}
+  \leanok
+  \discussion{521}
+  \uses{MeasureTheory.addEquivAddHaarChar_prodCongr}
   If $A_i$ are a finite collection of locally compact topological abelian groups,
   with $\phi_i:A_i\to A_i$ additive homeomorphisms, then $d_{\prod_i A_i}(\prod_i\phi_i)=\prod_i d_{A_i}(\phi_i)$.
 \end{lemma}
@@ -234,23 +403,34 @@ Here are two facts which we will need about products.
 \end{proof}
 
 \begin{lemma}
-  \label{distribHaarChar_prod}
-  %\lean{distribHaarChar_prod}
+  \label{MeasureTheory.ringHaarChar_prod}
+  \lean{MeasureTheory.ringHaarChar_prod}
+  \leanok
+  \uses{MeasureTheory.addEquivAddHaarChar_prodCongr}
   If $R$ and $S$ are locally compact topological rings, then $\delta_{R\times S}(r,s)=\delta_R(r)\times\delta_S(s)$.
 \end{lemma}
 \begin{proof}
-  Follows immediately from lemma~\ref{addHaarScalarFactor_prod}.
+  \leanok
+  Follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_prodCongr}.
 \end{proof}
 
 \begin{lemma}
-  \label{distribHaarChar_pi_finite}
-  %\lean{distribHaarChar_pi_finite}
+  \label{MeasureTheory.ringHaarChar_pi}
+  \lean{MeasureTheory.ringHaarChar_pi}
+  \leanok
+  \uses{MeasureTheory.addEquivAddHaarChar_piCongrRight}
   If $R_i$ are a finite collection of locally compact topological rings,
   and $u_i\in R_i^\times$ then $\delta_{\prod_i R_i}((u_i)_i)=\prod_i\delta_{R_i}(u_i)$.
 \end{lemma}
 \begin{proof}
-  Follows immediately from lemma~\ref{addHaarScalarFactor_pi_finite}.
+  \leanok
+  Follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_piCongrRight}.
 \end{proof}
+
+\section{Restricted products}
+
+Remark: there is essentially no Lean formalization of the rest of this miniproject;
+I (kmb) am actively working on writing this Lean code (2025-05-17).
 
 Now say $A=\prod'_i A_i$ is the restricted product of a collection of topological abelian additive groups $A_i$
   equipped with compact open subgroups $C_i$. Say $\phi_i:A_i\to A_i$ are additive homeomorphisms
@@ -311,7 +491,7 @@ $K$-algebra. So fix such a $B$, and write $B_{\A}$ for $B\otimes_K\A_K$.
 \begin{proof} If $u=(u_v)$ as $v$ runs through the places of $K$ then
   $d_{B_{\A}}(\ell_u)=\prod_v d_{B_v}(\ell_{u_v})$ by
   theorem~\ref{addHaarScalarFactor_restricted_product} (and the product is finite).
-  By corollary~\ref{distribHaarChar_eq_addHaarScalarFactor_right_of_isCentralSimple}
+  By corollary~\ref{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
   this equals $\prod_v d_{B_v}(r_{u_v})$, and again by
   theorem~\ref{addHaarScalarFactor_restricted_product} this is $d_{B_{\A}}(r_u)$.
 \end{proof}
@@ -323,7 +503,7 @@ We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic
   that if $v$ is a place of $\Q$ (i.e., a prime
   number or $+\infty$) then $\delta_{\Q_v}=|\cdot|_v$.
   We can deduce from this, lemma~\ref{distribHaarChar_restricted_product} (at the finite places)
-  and lemma~\ref{distribHaarChar_prod} (to include the infinite place) that if $(x_v)_v\in\A_{\Q}^\times$
+  and lemma~\ref{MeasureTheory.ringHaarChar_prod} (to include the infinite place) that if $(x_v)_v\in\A_{\Q}^\times$
   then $\delta_{\A_{\Q}}((x_v)_v)=\prod_v|x_v|_v$, where the product
   runs over all places of $\Q$.
   The \emph{product formula for $\Q$} (which we have in mathlib) says
@@ -365,7 +545,7 @@ We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic
     Thus $d_{V_{\A}}(\phi_{\A})=\prod_p d_{V_p}(\phi_p)\times d_{V_\infty}(\phi_\infty)=\prod_v d_{V_v}(\phi_v)$, where
     we note that all but finitely many of the $d_{V_p}(\phi_p)$ are 1.
 
-    By Lemma~\ref{addHaarScalarFactor_eq_distribHaarChar_det} we have that
+    By Lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det} we have that
     $d_{V_v}(\phi_v)=\delta_{\Q_v}(\det(\phi_v))$, hence $d_{V_{\A}}(\phi_{\A})=\prod_v\delta_{\Q_v}(\det(\phi_v))$.
     But $\det(\phi_v)$ is equal to the determinant of $\phi$ on $V$ as $\Q$-vector space (because
     base change does not change determinant),
@@ -374,8 +554,8 @@ We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic
   \end{proof}
 
   \begin{corollary}
-    \label{distribHaarCharacter_kernel_tensor_adeleRing}
-    \lean{distribHaarCharacter_kernel_tensor_adeleRing}
+    \label{NumberField.AdeleRing.units_mem_ringHaarCharacter_ker}
+    \lean{NumberField.AdeleRing.units_mem_ringHaarCharacter_ker}
     If $B$ is a finite-dimensional $\Q$-algebra (for example a number field, or a quaternion algebra over a number field),
     if $B_{\A}$ denotes the ring $B\otimes_{\Q}\A_{\Q}$, and if $b\in B^\times$,
     then $\delta_{B_{\A}}(b)=1$.
@@ -384,7 +564,9 @@ We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic
     Follows immediately from the previous theorem.
   \end{proof}
 
-  \begin{corollary} If $B$ is a finite-dimensional $\Q$-algebra and
+  \begin{corollary}
+    \label{NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one}
+    If $B$ is a finite-dimensional $\Q$-algebra and
     if $b\in B^\times$ then right multiplication by $b$
     does not change Haar measure on $B_{\A}$.
   \end{corollary}

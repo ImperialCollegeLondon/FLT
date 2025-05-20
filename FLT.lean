@@ -6,8 +6,10 @@ import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
 import FLT.DedekindDomain.AdicValuation
+import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
+import FLT.DedekindDomain.IntegralClosure
 import FLT.Deformations.Algebra.InverseLimit.Basic
 import FLT.Deformations.Algebra.InverseLimit.Topology
 import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
@@ -22,10 +24,12 @@ import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat
 import FLT.HIMExperiments.flatness
-import FLT.HaarMeasure.DistribHaarChar.AdeleRing
-import FLT.HaarMeasure.DistribHaarChar.Basic
-import FLT.HaarMeasure.DistribHaarChar.Padic
-import FLT.HaarMeasure.DistribHaarChar.RealComplex
+import FLT.HaarMeasure.HaarChar.AddEquiv
+import FLT.HaarMeasure.HaarChar.AdeleRing
+import FLT.HaarMeasure.HaarChar.FiniteDimensional
+import FLT.HaarMeasure.HaarChar.Padic
+import FLT.HaarMeasure.HaarChar.RealComplex
+import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.MeasurableSpacePadics
 import FLT.Hard.Results
 import FLT.Junk.Algebra
@@ -50,6 +54,7 @@ import FLT.Mathlib.Data.Subtype
 import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
+import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.LinearAlgebra.Span.Defs
