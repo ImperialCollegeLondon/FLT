@@ -65,7 +65,7 @@ namespace Aux
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ x ∈ distribHaarChar.ker D_𝔸,
-    ∃ e₁ ∈ E, ∃ e₂ ∈ E,
+    ∃ e₁ ∈ E, ∃ e₂ ∈ E, e₁ ≠ e₂ ∧ -- added e₁ ≠ e₂ as not injective so want non-zero
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   sorry
 
@@ -74,10 +74,15 @@ def E : Set D_𝔸 := (existsE K D).choose
 
 lemma E_compact : IsCompact (E K D) := (existsE K D).choose_spec.1
 
-lemma E_noninjective : ∀ x ∈ distribHaarChar.ker D_𝔸,
-    ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D,
+lemma E_noninjective_left : ∀ x ∈ distribHaarChar.ker D_𝔸,
+    ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   (existsE K D).choose_spec.2
+
+lemma E_noninjective_right : ∀ x ∈ distribHaarChar.ker D_𝔸,
+    ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
+    e₁ * x⁻¹ - e₂ * x⁻¹  ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
+  sorry
 
 open scoped Pointwise in
 /-- An auxiliary set X used in the proof of Fukisaki's lemma. Defined as E - E. -/
@@ -96,16 +101,89 @@ lemma Y_compact : IsCompact (Y K D) := by
     ((X_compact K D).prod (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
 lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
-    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := sorry
+    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := by
+  obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_left K D β hβ
+  use (e1 - e2)
+  constructor
+  · simpa only using (Set.sub_mem_sub he1 he2)
+  · have : IsUnit b := by
+      simp_rw [← mul_sub_left_distrib, Algebra.TensorProduct.includeLeft_apply] at hb
+      have h1 : ↑β * (e1 - e2) ≠ 0 := by
+        simpa only [ne_eq, not_not, Units.mul_right_eq_zero] using (sub_ne_zero_of_ne noteq)
+      simp only [isUnit_iff_ne_zero, ne_eq]
+      have h2 : b ⊗ₜ[K] (1 : AdeleRing (𝓞 K) K) ≠ 0 → b ≠ 0 := by
+        intro h
+        contrapose h
+        simp only [ne_eq, not_not] at h ⊢
+        simp only [h, TensorProduct.zero_tmul]
+      simpa only [ne_eq] using h2 (Ne.symm (Lean.Grind.ne_of_ne_of_eq_right hb (id (Ne.symm h1))))
+    obtain ⟨b1 , hb1⟩ := this
+    simp only [Set.mem_range, exists_exists_eq_and, Units.coe_map, RingHom.toMonoidHom_eq_coe,
+      MonoidHom.coe_coe]
+    use b1
+    simp only [mul_sub_left_distrib, (Eq.symm hb), Algebra.TensorProduct.includeLeft_apply, hb1,
+      Algebra.TensorProduct.includeLeftRingHom_apply]
 
 lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
-    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := sorry
+    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := by
+  obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_right K D β hβ
+  use (e1 - e2)
+  constructor
+  · simpa only using (Set.sub_mem_sub he1 he2)
+  · have : IsUnit b := by
+      simp_rw [← mul_sub_right_distrib, Algebra.TensorProduct.includeLeft_apply] at hb
+      have h1 : (e1 - e2) * ↑β⁻¹ ≠ 0 := by
+        simpa only [ne_eq, Units.mul_left_eq_zero] using (sub_ne_zero_of_ne noteq)
+      simp only [isUnit_iff_ne_zero, ne_eq]
+      have h2 : b ⊗ₜ[K] (1 : AdeleRing (𝓞 K) K) ≠ 0 → b ≠ 0 := by
+        intro h
+        contrapose h
+        simp only [ne_eq, not_not] at h ⊢
+        simp only [h, TensorProduct.zero_tmul]
+      simpa only [ne_eq] using h2 (Ne.symm (Lean.Grind.ne_of_ne_of_eq_right hb (id (Ne.symm h1))))
+    obtain ⟨b1 , hb1⟩ := this
+    simp only [Set.mem_range, exists_exists_eq_and, Units.coe_map, RingHom.toMonoidHom_eq_coe,
+      MonoidHom.coe_coe]
+    use b1
+    simp only [mul_sub_right_distrib, (Eq.symm hb), Algebra.TensorProduct.includeLeft_apply, hb1,
+      Algebra.TensorProduct.includeLeftRingHom_apply]
 
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
 
-lemma T_finite : Set.Finite (T K D) :=
-  sorry
+-- Need something saying D ⊆ D_𝔸 is discrete
+
+lemma T_finite : Set.Finite (T K D) := by
+  have h : Set.Finite ((Y K D) ∩ (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)))
+      := by
+    apply IsCompact.finite
+    · refine IsCompact.inter_right (Y_compact K D) ?_
+
+      -- Subgroup.isClosed_of_discrete
+      sorry
+    · -- follows form D being discrete
+
+      sorry
+  have h1 : Units.val '' T K D ⊆ (Y K D) ∩
+      (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
+    simp only [Set.subset_inter_iff, Set.image_subset_iff]
+    constructor
+    · simp only [T, Set.inter_subset_left]
+    · refine Set.image_subset_iff.mp ?_
+      rw [T]
+      have h2 : Units.val '' (Set.range (incl K D : Dˣ → D_𝔸ˣ)) ⊆
+          (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
+        simp only [Set.image_subset_iff]
+        refine Set.range_subset_iff.mpr ?_
+        intro y
+        simp only [Set.mem_preimage, Units.coe_map, RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe,
+          Algebra.TensorProduct.includeLeftRingHom_apply, Set.mem_range,
+          Algebra.TensorProduct.includeLeft_apply, exists_apply_eq_apply]
+      simp only [Set.image_inter Units.ext]
+      exact (Set.Subset.trans Set.inter_subset_right h2)
+  exact Set.Finite.of_finite_image (Set.Finite.subset h h1) (Function.Injective.injOn Units.ext)
+
+
 
 open scoped Pointwise in
 /-- An auxiliary set C used in the proof of Fukisaki's lemma. Defined as T⁻¹X × X. -/
@@ -128,7 +206,7 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ distribHaarChar.ker D_𝔸) :
 end Aux
 
 lemma compact_quotient : CompactSpace (distribHaarChar.ker D_𝔸 ⧸
-  (MonoidHom.range (incl K D)).comap (distribHaarChar.ker D_𝔸).subtype) := sorry
+    (MonoidHom.range (incl K D)).comap (distribHaarChar.ker D_𝔸).subtype) := sorry
 
 end NumberField.AdeleRing.DivisionAlgebra
 
@@ -182,7 +260,7 @@ of `(D ⊗ 𝔸_F^infty)ˣ`.
 -/
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
-    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) :=
+    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
   sorry
 
 end FiniteAdeleRing
