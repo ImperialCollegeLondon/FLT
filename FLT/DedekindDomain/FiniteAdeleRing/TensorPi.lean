@@ -263,8 +263,7 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
       N3, N2, N1, M2, i₃, equiv2, equiv1]
     rw [LinearMap.rTensor_tmul, piRightHom_tmul]
     ext i
-    simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
-      LinearMap.rTensor_tmul]
+    simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply]
     erw [tensorPi_equiv_piTensor_apply, LinearMap.rTensor_tmul]
   have hc₃ : g₃ ∘ₗ i₃ = i₄ ∘ₗ f₃ := rfl
   have hc₄ : g₄ ∘ₗ i₄ = i₅ ∘ₗ f₄ := rfl
