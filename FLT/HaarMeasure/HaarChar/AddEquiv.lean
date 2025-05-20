@@ -36,10 +36,12 @@ lemma _root_.Homeomorph.regular_comap {G H : Type*}
     [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
     (φ : G ≃ₜ H) (μ : Measure H) [Regular μ] : Regular (comap φ μ) :=
   regular_comap_of_isOpenEmbedding φ φ.isOpenEmbedding μ
+
 section basic
 
 variable {G : Type*} [Group G] [TopologicalSpace G]
 
+@[to_additive]
 lemma IsHaarMeasure.nnreal_smul [MeasurableSpace G] [BorelSpace G] {μ : Measure G}
     [h : IsHaarMeasure μ] {c : ℝ≥0} (hc : 0 < c) : IsHaarMeasure (c • μ) :=
   h.smul _ (by simp [hc.ne']) (not_eq_of_beq_eq_false rfl)
@@ -51,9 +53,9 @@ variable [IsTopologicalGroup G] [LocallyCompactSpace G]
 @[to_additive "If `φ : A ≃ₜ+ A` then `addEquivAddHaarChar φ` is the positive
 real factor by which `φ` scales Haar measure on `A`."]
 noncomputable def mulEquivHaarChar [MeasurableSpace G] [BorelSpace G] (φ : G ≃ₜ* G) : ℝ≥0 :=
-  haveI : IsHaarMeasure (comap φ haar) := φ.isHaarMeasure_comap haar
-  haarScalarFactor (comap φ haar) haar
+  haarScalarFactor haar (map φ haar)
 
+@[to_additive]
 lemma smul_haarScalarFactor_smul [MeasurableSpace G] [BorelSpace G] (μ' μ : Measure G)
     [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
     (hc : 0 < c) :
@@ -77,31 +79,29 @@ lemma smul_haarScalarFactor_smul [MeasurableSpace G] [BorelSpace G] (μ' μ : Me
 
 @[to_additive]
 lemma mulEquivHaarChar_eq [MeasurableSpace G] [BorelSpace G] (μ : Measure G) [IsHaarMeasure μ]
-    [LocallyCompactSpace G] [Regular μ] (φ : G ≃ₜ* G) :
-    haveI : IsHaarMeasure (comap φ μ) := φ.isHaarMeasure_comap μ
-    mulEquivHaarChar φ = haarScalarFactor (comap φ μ) μ := by
+    [Regular μ] (φ : G ≃ₜ* G) :
+    mulEquivHaarChar φ = haarScalarFactor μ (map φ μ) := by
   have smul := isMulLeftInvariant_eq_smul_of_regular haar μ
   unfold mulEquivHaarChar
   conv =>
-    enter [1, 1, 2]
+    enter [1, 1]
     rw [smul]
   conv =>
-    enter [1, 2]
+    enter [1, 2, 2]
     rw [smul]
   have := haarScalarFactor_pos_of_isHaarMeasure haar μ
-  simp_rw [comap_smul]
-
-  sorry -- FLT#508
-  -- use MeasureTheory.Measure.haarScalarFactor_eq_mul
-  -- and haarScalarFactor_pos_of_isHaarMeasure
+  simp_rw [MeasureTheory.Measure.map_smul]
+  apply smul_haarScalarFactor_smul
+  exact this
 
 -- do we need G locally compact? Feel free to add it if we do, but the linter was complaining.
 lemma mulEquivHaarChar_comap [MeasurableSpace G] [BorelSpace G] (μ : Measure G)
     [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
-    comap φ μ = (mulEquivHaarChar φ) • μ := by
-  haveI : Regular (comap φ μ) := φ.toHomeomorph.regular_comap μ
+    (mulEquivHaarChar φ) • map φ μ = μ := by
+  haveI : Regular (map φ μ) := sorry
   haveI : IsHaarMeasure (comap φ μ) := φ.isHaarMeasure_comap μ
-  rw [isMulLeftInvariant_eq_smul_of_regular (comap φ μ) μ, mulEquivHaarChar_eq μ φ]
+  rw [mulEquivHaarChar_eq μ φ]
+  exact (isMulLeftInvariant_eq_smul_of_regular μ (map φ μ)).symm
 
 @[to_additive addEquivAddHaarChar_mul_integral]
 lemma mulEquivHaarChar_mul_integral [MeasurableSpace G] [BorelSpace G] (μ : Measure G)
