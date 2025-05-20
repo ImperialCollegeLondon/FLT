@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.HaarMeasure.HaarChar.AddEquiv
+import Mathlib.Algebra.Group.Pi.Units
 
 open scoped NNReal
 
