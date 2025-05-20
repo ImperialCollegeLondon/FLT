@@ -98,6 +98,7 @@ MeasureTheory.addEquivAddHaarChar_mul_volume
 MeasureTheory.addEquivAddHaarChar_mul_integral
 MeasureTheory.addEquivAddHaarChar_refl
 MeasureTheory.addEquivAddHaarChar_trans
+MeasureTheory.addEquivAddHaarChar_mul_volume
 MeasureTheory.ringHaarChar
 MeasureTheory.ringHaarChar_mul_integral
 MeasureTheory.ringHaarChar_mul_volume

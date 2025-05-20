@@ -47,7 +47,7 @@ namespace MeasureTheory
 open Measure
 
 variable {R : Type*} [Ring R] [TopologicalSpace R]
-  [IsTopologicalRing R] [LocallyCompactSpace R]
+  [IsTopologicalRing R] [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
 
 variable (R) in
 lemma ringHaarChar_continuous :
@@ -74,8 +74,6 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
   toFun r := addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r)
   map_one' := by convert addEquivAddHaarChar_refl (G := R); ext; simp
   map_mul' φ ψ := by
-    letI : MeasurableSpace R := borel R
-    haveI : BorelSpace R := ⟨rfl⟩
     rw [mul_comm]
     convert addEquivAddHaarChar_trans (G := R); ext; simp [mul_assoc]
   continuous_toFun := ringHaarChar_continuous R
@@ -123,26 +121,34 @@ end units
 section prod
 
 variable {S : Type*} [Ring S] [TopologicalSpace S]
-  [IsTopologicalRing S] [LocallyCompactSpace S]
+  [IsTopologicalRing S] [LocallyCompactSpace S] [MeasurableSpace S] [BorelSpace S]
 
 -- this is true in general, but the proof is easier if we assume
 -- `SecondCountableTopologyEither R S` because then if R and S are equipped with the Borel
 -- sigma algebra, the product sigma algebra on R × S is also the Borel sigma algebra.
 lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) :
+    letI : MeasurableSpace (R × S) := borel (R × S)
+    haveI : BorelSpace (R × S) := ⟨rfl⟩
     ringHaarChar (u.prod v) = ringHaarChar u * ringHaarChar v :=
   addEquivAddHaarChar_prodCongr (ContinuousAddEquiv.mulLeft u) (ContinuousAddEquiv.mulLeft v)
 
 lemma ringHaarChar_prod' (uv : (R × S)ˣ) :
+    letI : MeasurableSpace (R × S) := borel (R × S)
+    haveI : BorelSpace (R × S) := ⟨rfl⟩
     ringHaarChar uv = ringHaarChar uv.fst * ringHaarChar uv.snd :=
   ringHaarChar_prod uv.fst uv.snd
 
 -- right now I think we're supposed to state them like this :-/
 example (u : Rˣ) (v : Sˣ) :
+    letI : MeasurableSpace (R × S) := borel (R × S)
+    haveI : BorelSpace (R × S) := ⟨rfl⟩
     ringHaarChar (MulEquiv.prodUnits.symm (u, v)) = ringHaarChar u * ringHaarChar v :=
   ringHaarChar_prod u v
 
 -- right now I think we're supposed to state them like this :-/
 example (uv : (R × S)ˣ) :
+    letI : MeasurableSpace (R × S) := borel (R × S)
+    haveI : BorelSpace (R × S) := ⟨rfl⟩
     ringHaarChar uv =
     ringHaarChar (MulEquiv.prodUnits uv).1 * ringHaarChar (MulEquiv.prodUnits uv).2 :=
   ringHaarChar_prod' uv
@@ -153,8 +159,11 @@ section pi
 
 variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSpace (A i)]
     [∀ i, IsTopologicalRing (A i)] [∀ i, LocallyCompactSpace (A i)]
+    [∀ i, MeasurableSpace (A i)] [∀ i, BorelSpace (A i)]
 
 lemma ringHaarChar_pi [Fintype ι] (u : Π i, (A i)ˣ) :
+    letI : MeasurableSpace (Π i, A i) := borel _
+    haveI : BorelSpace (Π i, A i) := ⟨rfl⟩
     ringHaarChar (MulEquiv.piUnits.symm u) = ∏ i, ringHaarChar (u i) :=
   addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (u i))
 
