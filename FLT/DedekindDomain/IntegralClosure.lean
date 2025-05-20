@@ -3,6 +3,7 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
+import FLT.Mathlib.RingTheory.Localization.BaseChange
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
@@ -15,13 +16,15 @@ The general "AKLB" set-up. `K` is the field of fractions of the Dedekind domain 
 
 -/
 
+namespace IsDedekindDomain.HeightOneSpectrum
+
+section BaseChange
+
 variable (A K L B : Type*) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Field L]
     [Algebra A K] [IsFractionRing A K] [Algebra B L] [IsDedekindDomain A]
     [Algebra K L] [Algebra A L] [IsScalarTower A B L] [IsScalarTower A K L]
     [IsIntegralClosure B A L] [Algebra.IsIntegral A B] [IsDedekindDomain B]
     [IsFractionRing B L]
-
-namespace IsDedekindDomain.HeightOneSpectrum
 
 variable (v : HeightOneSpectrum A)
 
@@ -145,4 +148,69 @@ theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := b
   · intro x hx y hy hxy
     rwa [← @HeightOneSpectrum.ext_iff] at hxy
 
+end BaseChange
+
 end IsDedekindDomain.HeightOneSpectrum
+
+namespace IsDedekindDomain
+
+open scoped TensorProduct
+
+variable (A K L B : Type*) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Field L]
+    [Algebra A K] [IsFractionRing A K] [Algebra B L] [IsDedekindDomain A]
+    [Algebra K L] [Algebra A L] [IsScalarTower A B L] [IsScalarTower A K L]
+    [IsIntegralClosure B A L] [Algebra.IsAlgebraic K L]
+
+/-- The canonical `K`-linear isomorphism `L ≅ K ⊗ B`. -/
+noncomputable def LinearEquivTensorProduct :
+    L ≃ₗ[K] K ⊗[A] B :=
+  let f := LocalizedModule.equivTensorProduct (nonZeroDivisors A) B
+  have := IsIntegralClosure.isLocalization A K L B
+  have : IsLocalizedModule (nonZeroDivisors A) (IsScalarTower.toAlgHom A B L).toLinearMap :=
+    inferInstance
+  let g : LocalizedModule (nonZeroDivisors A) B ≃ₗ[A] L := @IsLocalizedModule.iso
+      _ _ (nonZeroDivisors A) _ _ _ _ _ _ (IsScalarTower.toAlgHom A B L) this
+  let h := TensorProduct.congr (Localization.algEquiv (nonZeroDivisors A) K) (LinearEquiv.refl A B)
+  LinearEquiv.extendScalarsOfIsLocalization (nonZeroDivisors A) K
+    <| g.symm.trans (f.restrictScalars A) |>.trans h
+
+lemma LinearEquivTensorProduct_symm_one_tmul (b : B) :
+    (LinearEquivTensorProduct A K L B).symm (1 ⊗ₜ b) =
+    (algebraMap _ _ b) := by
+  have : (SemilinearEquivClass.semilinearEquiv (Localization.algEquiv (nonZeroDivisors A) K)).symm
+      1 = 1 :=
+    map_one (Localization.algEquiv (nonZeroDivisors A) K).symm
+  simp [LinearEquivTensorProduct, this]
+
+lemma LinearEquivTensorProduct_symm_tmul (k : K) (b : B) :
+    (LinearEquivTensorProduct A K L B).symm (k ⊗ₜ b) =
+    k • (algebraMap _ _ b) := by
+  have : k ⊗ₜ b = k • (1 ⊗ₜ b : K ⊗[A] B) := by
+    simp [TensorProduct.smul_tmul']
+  rw [this, LinearEquiv.map_smul, LinearEquivTensorProduct_symm_one_tmul]
+
+variable (M : Type*) [AddCommGroup M] [Module K M] [Module A M] [IsScalarTower A K M]
+
+/-- The canonical `A`-linear isomorphism `L ⊗ M ≅ B ⊗ M` for any `K`-module `M`. -/
+noncomputable def LinearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A] M :=
+  let f₁ : L ⊗[K] M ≃ₗ[A] L ⊗[A] M := IsLocalization.moduleTensorEquiv (nonZeroDivisors A) K L M
+    |>.restrictScalars A
+  let f₂ : L ≃ₗ[A] B ⊗[A] K := LinearEquivTensorProduct A K L B
+    |>.restrictScalars A
+    |>.trans (TensorProduct.comm A K B)
+  let f₃ : L ⊗[A] M ≃ₗ[A] (B ⊗[A] K) ⊗[A] M := TensorProduct.congr f₂ (LinearEquiv.refl A M)
+  let f₄ : (B ⊗[A] K) ⊗[A] M ≃ₗ[A] B ⊗[A] (K ⊗[A] M) :=
+    TensorProduct.assoc A B K M
+  let f₅ : B ⊗[A] (K ⊗[A] M) ≃ₗ[A] B ⊗[A] M := TensorProduct.congr (LinearEquiv.refl A B)
+    (IsLocalization.moduleLid (nonZeroDivisors A) K M |>.restrictScalars A)
+  f₁.trans f₃ |>.trans f₄ |>.trans f₅
+
+lemma LinearEquivTensorProductModule_symm_tmul (b : B) (m : M) :
+    (LinearEquivTensorProductModule A K L B M).symm (b ⊗ₜ m) = (algebraMap B L b) ⊗ₜ m := by
+  simp [LinearEquivTensorProductModule, LinearEquivTensorProduct_symm_one_tmul]
+
+lemma LinearEquivTensorProductModule_tmul (b : B) (m : M) :
+    (LinearEquivTensorProductModule A K L B M) ((algebraMap B L b) ⊗ₜ m) = b ⊗ₜ m := by
+  rw [← LinearEquiv.eq_symm_apply, LinearEquivTensorProductModule_symm_tmul]
+
+end IsDedekindDomain
