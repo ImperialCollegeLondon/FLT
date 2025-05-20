@@ -28,20 +28,16 @@ Prove the same for finitely-presented modules.
 -/
 open DirectSum Function
 
-section test
+section
 
 theorem Module.FinitePresentation.exists_fin_exact (R : Type*) (M : Type*)
   [Ring R] [AddCommGroup M] [Module R M] [fp : Module.FinitePresentation R M] :
   ∃ (n m : ℕ) (f : (Fin m → R) →ₗ[R] (Fin n → R)) (g : (Fin n → R) →ₗ[R] M),
     Exact f g ∧ Surjective g := by
 
-  choose n K iso KFG using Module.FinitePresentation.exists_fin R M
+  choose n K iso S hS using Module.FinitePresentation.exists_fin R M
 
-  unfold Submodule.FG at KFG
-
-  choose S hS using KFG
-
-  let m : ℕ := S.card
+  let m := S.card
 
   let gens : Fin m → (Fin n → R) := Subtype.val ∘ (Finset.equivFin S).symm
 
@@ -68,7 +64,7 @@ theorem Module.FinitePresentation.exists_fin_exact (R : Type*) (M : Type*)
 
   exact ⟨n, m, f, g, exact_fg, this⟩
 
-end test
+end
 
 
 section
@@ -226,13 +222,8 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   set N4 : Type u_5 := PUnit
   set N5 : Type u_5 := PUnit
 
-  set equiv1 : (Fin n → R) ⊗[R] (Π i, N i) ≃ₗ[R] Π i, ((Fin n → R) ⊗[R] N i):=
-    tensorPi_equiv_piTensor R (Fin n → R) N
-  set equiv2 : (Fin m → R) ⊗[R] (Π i, N i) ≃ₗ[R] Π i, ((Fin m → R) ⊗[R] N i):=
-    tensorPi_equiv_piTensor R (Fin m → R) N
-
-  set i₁ : M1 →ₗ[R] N1 := equiv2.toLinearMap
-  set i₂ : M2 →ₗ[R] N2 := equiv1.toLinearMap
+  set i₁ : M1 →ₗ[R] N1 := (tensorPi_equiv_piTensor R (Fin m → R) N).toLinearMap
+  set i₂ : M2 →ₗ[R] N2 := (tensorPi_equiv_piTensor R (Fin n → R) N).toLinearMap
   set i₃ : M3 →ₗ[R] N3 := TensorProduct.piRightHom R R M N
   set i₄ : M4 →ₗ[R] N4 := LinearMap.id   -- map to zero to zero
   set i₅ : M5 →ₗ[R] N5 := LinearMap.id  -- map to zero to zero
@@ -251,16 +242,15 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
 
   have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
     refine ext' fun x y ↦ ?_
-    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, f₁, i₁, g₁, N3, N2, N1]
-    rw [LinearMap.rTensor_tmul]
+    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, i₁, g₁, N2, N1]
+    rw [LinearMap.rTensor_tmul] --why is simp not catching this along with other simp lemmas?
     erw [tensorPi_equiv_piTensor_apply, tensorPi_equiv_piTensor_apply]
     ext i
     simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
       LinearMap.rTensor_tmul]
   have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
     refine ext' fun x y ↦ ?_
-    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, g₂, f₁, f₂, M1, i₁, g₁,
-      N3, N2, N1, M2, i₃, equiv2, equiv1]
+    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, g₂, N3, N2, i₃]
     rw [LinearMap.rTensor_tmul, piRightHom_tmul]
     ext i
     simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply]
@@ -269,35 +259,30 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   have hc₄ : g₄ ∘ₗ i₄ = i₅ ∘ₗ f₄ := rfl
 
   have hf₁ : Function.Exact f₁ f₂ := rTensor_exact ((i : ι) → N i) exact surj
-  have hf₂ : Function.Exact f₂ f₃ := by
-    refine (LinearMap.exact_zero_iff_surjective M4 (LinearMap.rTensor ((i : ι) → N i) g)).mpr ?_
-    exact LinearMap.rTensor_surjective _ surj
+  have hf₂ : Function.Exact f₂ f₃ :=
+    (LinearMap.exact_zero_iff_surjective _ _).mpr (LinearMap.rTensor_surjective _ surj)
   have hf₃ : Function.Exact f₃ f₄ :=
     (LinearMap.exact_zero_iff_injective M3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
   have hg₁ : Function.Exact g₁ g₂ := by
-    unfold Function.Exact
     intro y
     have (i : ι) : Exact (LinearMap.rTensor (N i) f) (LinearMap.rTensor (N i) g) :=
       rTensor_exact (N i) exact surj
     constructor
     · intro h
+      -- here and below wonder if theres a better way to prove then go back and forth with mem_range
       refine Set.mem_range.mpr ⟨fun i ↦ Classical.choose
         (Set.mem_range.mp (((this i) (y i)).mp (congr_fun h i))), funext (fun i ↦ ?_)⟩
       exact (Classical.choose_spec (Set.mem_range.mp (((this i) (y i)).mp (congr_fun h i))))
     · intro h
-      obtain ⟨y₁, hy₁⟩ := LinearMap.mem_range.mp h
       ext i
+      obtain ⟨y₁, hy₁⟩ := LinearMap.mem_range.mp h
       exact ((this i) (y i)).mpr (LinearMap.mem_range.mpr ⟨y₁ i, congr_fun hy₁ i⟩)
   have hg₂ : Function.Exact g₂ g₃ := by
-    unfold Function.Exact N3 N2 N4
+    apply (LinearMap.exact_zero_iff_surjective _ g₂).mpr
     intro y
-    constructor
-    · intro h
-      refine Set.mem_range.mpr ⟨fun i ↦
+    refine ⟨fun i ↦
         Classical.choose (LinearMap.rTensor_surjective (N i) surj (y i)), funext fun i ↦ ?_⟩
-      exact Classical.choose_spec (LinearMap.rTensor_surjective (N i) surj (y i))
-    · intro h
-      rfl
+    exact Classical.choose_spec (LinearMap.rTensor_surjective (N i) surj (y i))
   have hg₃ : Function.Exact g₃ g₄ :=
     (LinearMap.exact_zero_iff_injective N3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
 
