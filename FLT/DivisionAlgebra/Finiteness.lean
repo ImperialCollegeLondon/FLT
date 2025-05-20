@@ -72,12 +72,12 @@ def E : Set D_𝔸 := (existsE K D).choose
 
 lemma E_compact : IsCompact (E K D) := (existsE K D).choose_spec.1
 
-lemma E_noninjective : ∀ x ∈ ringHaarChar_ker D_𝔸,
+lemma E_noninjective_left : ∀ x ∈ ringHaarChar_ker D_𝔸,
     ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   (existsE K D).choose_spec.2
 
-lemma E_noninjective_right : ∀ x ∈ distribHaarChar.ker D_𝔸,
+lemma E_noninjective_right : ∀ x ∈ ringHaarChar_ker D_𝔸,
     ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     e₁ * x⁻¹ - e₂ * x⁻¹  ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
   sorry
