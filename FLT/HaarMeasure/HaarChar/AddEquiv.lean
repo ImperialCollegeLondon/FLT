@@ -222,6 +222,7 @@ variable {ι : Type*}
 variable {R : ι → Type*} {A : (i : ι) → Set (R i)}
 variable {𝓕 : Filter ι}
 
+/-- Constructor for `RestrictedProduct`. -/
 abbrev mk (x : Π i, R i) (hx : ∀ᶠ i in 𝓕, x i ∈ A i) : Πʳ i, [R i, A i]_[𝓕] :=
   ⟨x, hx⟩
 
@@ -270,6 +271,8 @@ variable
 
 open RestrictedProduct
 
+/-- A restricted product of topological group isomorphisms is a topological
+group isomorphism. -/
 def ContinuousMulEquiv.restrictedProductCongrRight :
     (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) where
   toFun x := ⟨fun i ↦ φ i (x i), sorry⟩
@@ -318,4 +321,3 @@ lemma mulEquivHaarChar_restrictedProductCongrRight :
   sorry
 
 -- #check Set.pi
-#min_imports
