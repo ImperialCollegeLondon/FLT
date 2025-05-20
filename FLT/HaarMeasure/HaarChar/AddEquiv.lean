@@ -37,26 +37,37 @@ lemma _root_.Homeomorph.regular_comap {G H : Type*}
     (φ : G ≃ₜ H) (μ : Measure H) [Regular μ] : Regular (comap φ μ) :=
   regular_comap_of_isOpenEmbedding φ φ.isOpenEmbedding μ
 
+lemma _root_.Homeomorph.regular_map {G H : Type*}
+    [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
+    [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
+    (φ : G ≃ₜ H) (μ : Measure G) [Regular μ] : Regular (map φ μ) :=
+  (Regular.map_iff φ).mpr inferInstance
+
 section basic
 
-variable {G : Type*} [Group G] [TopologicalSpace G]
+variable {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
 
 @[to_additive]
-lemma IsHaarMeasure.nnreal_smul [MeasurableSpace G] [BorelSpace G] {μ : Measure G}
+lemma IsHaarMeasure.nnreal_smul {μ : Measure G}
     [h : IsHaarMeasure μ] {c : ℝ≥0} (hc : 0 < c) : IsHaarMeasure (c • μ) :=
-  h.smul _ (by simp [hc.ne']) (not_eq_of_beq_eq_false rfl)
+  h.smul _ (by simp [hc.ne']) (not_eq_of_beq_eq_false rfl) -- beq??
 
-variable [IsTopologicalGroup G] [LocallyCompactSpace G]
+variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
 `φ` scales Haar measure on `G`. -/
 @[to_additive "If `φ : A ≃ₜ+ A` then `addEquivAddHaarChar φ` is the positive
 real factor by which `φ` scales Haar measure on `A`."]
-noncomputable def mulEquivHaarChar [MeasurableSpace G] [BorelSpace G] (φ : G ≃ₜ* G) : ℝ≥0 :=
+noncomputable def mulEquivHaarChar (φ : G ≃ₜ* G) : ℝ≥0 :=
   haarScalarFactor haar (map φ haar)
 
 @[to_additive]
-lemma smul_haarScalarFactor_smul [MeasurableSpace G] [BorelSpace G] (μ' μ : Measure G)
+lemma mulEquivHaarChar_pos (φ : G ≃ₜ* G) : 0 < mulEquivHaarChar φ :=
+  haarScalarFactor_pos_of_isHaarMeasure _ _
+
+-- should be in haarScalarFactor API
+@[to_additive]
+lemma smul_haarScalarFactor_smul (μ' μ : Measure G)
     [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
     (hc : 0 < c) :
     letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
@@ -78,7 +89,7 @@ lemma smul_haarScalarFactor_smul [MeasurableSpace G] [BorelSpace G] (μ' μ : Me
       (haarScalarFactor_eq_integral_div _ _ g_cont g_comp int_g_ne_zero).symm
 
 @[to_additive]
-lemma mulEquivHaarChar_eq [MeasurableSpace G] [BorelSpace G] (μ : Measure G) [IsHaarMeasure μ]
+lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ]
     [Regular μ] (φ : G ≃ₜ* G) :
     mulEquivHaarChar φ = haarScalarFactor μ (map φ μ) := by
   have smul := isMulLeftInvariant_eq_smul_of_regular haar μ
@@ -89,39 +100,41 @@ lemma mulEquivHaarChar_eq [MeasurableSpace G] [BorelSpace G] (μ : Measure G) [I
   conv =>
     enter [1, 2, 2]
     rw [smul]
-  have := haarScalarFactor_pos_of_isHaarMeasure haar μ
   simp_rw [MeasureTheory.Measure.map_smul]
-  apply smul_haarScalarFactor_smul
-  exact this
-
--- do we need G locally compact? Feel free to add it if we do, but the linter was complaining.
-lemma mulEquivHaarChar_comap [MeasurableSpace G] [BorelSpace G] (μ : Measure G)
-    [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
-    (mulEquivHaarChar φ) • map φ μ = μ := by
-  haveI : Regular (map φ μ) := sorry
-  haveI : IsHaarMeasure (comap φ μ) := φ.isHaarMeasure_comap μ
-  rw [mulEquivHaarChar_eq μ φ]
-  exact (isMulLeftInvariant_eq_smul_of_regular μ (map φ μ)).symm
-
-@[to_additive addEquivAddHaarChar_mul_integral]
-lemma mulEquivHaarChar_mul_integral [MeasurableSpace G] [BorelSpace G] (μ : Measure G)
-    [IsHaarMeasure μ] {f : G → ℝ} (hf : Measurable f) (φ : G ≃ₜ* G) :
-    ∫ (a : G), f a ∂(comap φ μ) = (mulEquivHaarChar φ) * ∫ a, f a ∂μ := sorry -- FLT#510
-  -- use mulEquivHaarChar_comap. Is measurability needed?
-
-@[to_additive addEquivAddHaarChar_mul_volume]
-lemma mulEquivHaarChar_mul_volume [MeasurableSpace G] [BorelSpace G]
-    (μ : Measure G) [IsHaarMeasure μ] {X : Set G} (hX : MeasurableSet X) (φ : G ≃ₜ* G) :
-    μ (φ '' X) = (mulEquivHaarChar φ) * μ X := sorry -- FLT#509,
-    -- use MeasureTheory.Measure.comap_apply. Is measurability of X needed?
+  exact smul_haarScalarFactor_smul _ _ (haarScalarFactor_pos_of_isHaarMeasure haar μ)
 
 @[to_additive]
-lemma mulEquivHaarChar_refl [MeasurableSpace G] [BorelSpace G] :
+lemma mulEquivHaarChar_map (μ : Measure G)
+    [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
+    (mulEquivHaarChar φ) • map φ μ = μ := by
+  rw [mulEquivHaarChar_eq μ φ]
+  haveI : Regular (map φ μ) := (Regular.map_iff φ.toHomeomorph).mpr inferInstance
+  exact (isMulLeftInvariant_eq_smul_of_regular μ (map φ μ)).symm
+
+@[to_additive addEquivAddHaarChar_smul_integral_map]
+lemma mulEquivHaarChar_smul_integral_map (μ : Measure G)
+    [IsHaarMeasure μ] [Regular μ] {f : G → ℝ} (φ : G ≃ₜ* G) :
+    ∫ (a : G), f a ∂μ = (mulEquivHaarChar φ) • ∫ a, f a ∂(map φ μ) := by
+  nth_rw 1 [← mulEquivHaarChar_map μ φ]
+  simp
+
+@[to_additive addEquivAddHaarChar_smul_preimage]
+lemma mulEquivHaarChar_smul_preimage
+    (μ : Measure G) [IsHaarMeasure μ] [Regular μ] {X : Set G} (hX : MeasurableSet X) (φ : G ≃ₜ* G) :
+    μ X = (mulEquivHaarChar φ) • μ (φ ⁻¹' X) := by
+  nth_rw 1 [← mulEquivHaarChar_map μ φ]
+  simp only [smul_apply, nnreal_smul_coe_apply]
+  rw [map_apply₀]
+  · exact φ.toHomeomorph.measurable.aemeasurable
+  · exact MeasurableSet.nullMeasurableSet hX
+
+@[to_additive]
+lemma mulEquivHaarChar_refl :
     mulEquivHaarChar (ContinuousMulEquiv.refl G) = 1 := by
   simp [mulEquivHaarChar, Function.id_def]
 
 @[to_additive]
-lemma mulEquivHaarChar_trans [MeasurableSpace G] [BorelSpace G] {φ ψ : G ≃ₜ* G} :
+lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
     mulEquivHaarChar (ψ.trans φ) = mulEquivHaarChar ψ * mulEquivHaarChar φ :=
   sorry -- FLT#511
   -- use `MeasureTheory.Measure.haarScalarFactor_eq_mul`?
@@ -173,7 +186,7 @@ variable {ι : Type*} {G H : ι → Type*}
 /-- An arbitrary product of multiplication-preserving homeomorphisms
 is a multiplication-preserving homeomorphism.
 -/
-@[to_additive ContinuousAddEquiv.piCongrRight "An arbitrary product of
+@[to_additive "An arbitrary product of
 addition-preserving homeomorphisms is an addition-preserving homeomorphism."]
 def _root_.ContinuousMulEquiv.piCongrRight (ψ : Π i, (G i) ≃ₜ* (H i)) :
     (∀ i, G i) ≃ₜ* (∀ i, H i) where

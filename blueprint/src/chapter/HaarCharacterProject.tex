@@ -18,11 +18,11 @@ of this material.
 
 Let $A$ be a locally compact topological additive abelian group. There's then a regular additive
 Haar measure $\mu$ on $A$, unique up to a positive scalar factor. If $\phi:(A,+)\cong(A,+)$ is a
-homeomorphism and an additive automorphism of $A$, then we can pull back $\mu$
-to get a second measure $\phi^*\mu$ on $A$, with the property that
-$\phi^*\mu(X)=\mu(\phi(X))$ for any Borel subset $X$ of $A$.
+homeomorphism and an additive automorphism of $A$, then we can push forward $\mu$
+to get a second measure $\phi_*\mu$ on $A$, with the property that
+$\mu(\phi^{-1}X)=\phi_*\mu(X)$ for any Borel subset $X$ of $A$.
 
-Now $\phi^*\mu$ is a translation-invariant and regular measure,
+Now $\phi_*\mu$ is a translation-invariant and regular measure,
 and hence also a Haar measure on $A.$ It must thus differ from
 $\mu$ by a positive scalar factor, which we call $d_A(\phi)$.
 There is a choice of normalization here between $d_A(\phi)$
@@ -35,10 +35,16 @@ and $d_A(\phi)^{-1}$, so let us be more precise.
   If $A$ is a locally compact topological additive abelian group,
   if $\mu$ is a regular Haar measure on $A$, and if $\phi:A\to A$ is an
   additive homeomorphism, then we let $d_A(\phi)$ denote the unique positive
-  real number such that $\phi^*\mu(X)=d_A(\phi)\mu(X)$ for any Borel set~$X$.
+  real number such that $\mu(X)=d_A(\phi)\phi_*\mu(X)$ for any Borel set~$X$.
 \end{definition}
 
-Note that {\tt mathlib} offers a fixed Borel regular Haar measure
+To give an example, if $\phi$ is multiplication by $2$ on the real numbers,
+if $X=[0,1]$, and if $\mu$ is Lebesgue measure on the Borel subsets of $\R$,
+we have that $\phi_*\mu(X)=\mu(\phi^{-1}(X))=\mu([0,1/2])=1/2$,
+so $1=d_A(\phi)/2$ meaning that $d_A(\phi)=2$.
+
+Strictly speaking our definition depends on the choice of regular Haar
+measure $\mu$. Note that {\tt mathlib} offers a fixed Borel regular Haar measure
 {\tt MeasureTheory.Measure.haar} on any locally compact topological group
 and the actual definition of $d_A$ in the code uses this definition.
 Note also that the code defines everything for multiplicative groups
@@ -57,52 +63,65 @@ the definition is indeed independent of the choice of Haar measure.
   $d_A(\phi)$ is independent of choice of regular Haar measure.
 \end{lemma}
 \begin{proof}
+  \leanok
   If $\mu'$ is a second choice then $\mu'=\lambda\mu$ for some
   positive real $\lambda$, and the $\lambda$s on each side of
-  $\phi^*\mu'(X)=d_A(\phi)\mu'(X)$
-  cancel.
+  $\mu'(X)=d_A(\phi)\phi_*\mu'(X)$ cancel.
+\end{proof}
+
+\begin{lemma}
+  \lean{MeasureTheory.addEquivAddHaarChar_map}
+  \label{MeasureTheory.addEquivAddHaarChar_map}
+  \uses{MeasureTheory.addEquivAddHaarChar_eq}
+  \leanok
+  If $\mu$ is any regular Haar measure on $G$ then
+  $d_A(\phi)(\phi_*\mu) = \mu.$
+\end{lemma}
+\begin{proof}
+  This is a restatement of the previous result.
 \end{proof}
 
 Now let $\mu$ be any regular additive Haar measure on $A$.
-Recall that if $\phi$ is a homeomorphism then the pullback measure
-$\phi^*(\mu)$ is defined by $\phi^*(\mu)(X)=\mu(\phi(X))$.
 
 \begin{lemma}
-  \label{MeasureTheory.addEquivAddHaarChar_mul_volume}
-  \lean{MeasureTheory.addEquivAddHaarChar_mul_volume}
+  \label{MeasureTheory.addEquivAddHaarChar_smul_preimage}
+  \lean{MeasureTheory.addEquivAddHaarChar_smul_preimage}
   \uses{MeasureTheory.addEquivAddHaarChar}
   \discussion{509}
   \leanok
-  If $X$ is a Borel set then $\mu(\phi(X))=d_A(\phi)\mu(X)$,
-  or equivalently $\phi^*\mu(X)=d_A(\phi)\mu(X)$.
+  If $X$ is a Borel set then $\mu(X)=d_A(\phi)\mu(\phi^{-1}X)$.
 \end{lemma}
 \begin{proof}
-  \uses{MeasureTheory.addEquivAddHaarChar_eq}
-  This follows immediately from the definition.
+  \uses{MeasureTheory.addEquivAddHaarChar_map}
+  This follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
+  and the definition of the pushforward of a measure.
 \end{proof}
 
 \begin{lemma}
-  \label{MeasureTheory.addEquivAddHaarChar_mul_integral}
-  \lean{MeasureTheory.addEquivAddHaarChar_mul_integral}
+  \label{MeasureTheory.addEquivAddHaarChar_smul_integral_map}
+  \lean{MeasureTheory.addEquivAddHaarChar_smul_integral_map}
   \uses{MeasureTheory.addEquivAddHaarChar}
   \discussion{510}
   \leanok
   If $f:A\to\R$ is a Borel measurable function then
-  $d_A(\phi)\int f(x)d\phi^*\mu(x)=\int f(x)d\mu(x)$.
+  $d_A(\phi)\int f(x)d\phi_*\mu(x)=\int f(x)d\mu(x)$.
 \end{lemma}
 \begin{proof}
-  \uses{MeasureTheory.addEquivAddHaarChar_eq}
-  This also follows immediately from the definition.
+  \uses{MeasureTheory.addEquivAddHaarChar_map}
+  This also follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}.
 \end{proof}
 
-Note that as a consequence of lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_volume},
+Note that as a consequence of lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_preimage},
 if $X$ is a Borel subset of $A$ with positive finite measure then we can read
-off $d_A(\phi)$ by $d_A(\phi):=\mu(\phi(X))/\mu(X)$. A nice special case is when
-$\mu(X)=1$, in which case we have $d_A(\phi)=\mu(\phi(X))$ for all $\phi$.
-Similarly, by lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_integral},
+off $d_A(\phi)$ by $d_A(\phi)=\mu(X)/\mu(\phi^{-1}(X))$, and hence also by
+$d_A(\phi)=\mu(\phi(X))/\mu(X)$. A nice special case is when
+$\mu(X)=1$, in which case we have $d_A(\phi)=\mu(\phi(X))$ for all $\phi$,
+or $d_A(\phi)=1/\mu(\phi^{-1}(X))$.
+Similarly, by lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_integral_map},
 if $f$ is a measurable function with $0<\int f(x)d\mu(x)<\infty$ then
-we can read off $d_A(\phi)$ by $d_A(\phi)=(\int f(x)d\mu(x))/(\int f(x)\phi^*\mu(x))$.
-In particular, the following are straightforward:
+we can read off $d_A(\phi)$ by $d_A(\phi)=(\int f(x)d\mu(x))/(\int f(x)\phi_*\mu(x))$.
+Note that {\tt mathlib} supplies such $f$ with the function {\tt exists\_continuous\_nonneg\_pos}.
+The following are also straightforward.
 
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_refl}
@@ -126,40 +145,12 @@ In particular, the following are straightforward:
   $d_A(\phi\circ\psi)=d_A(\phi)d_A(\psi).$
 \end{lemma}
 \begin{proof}
-  \uses{MeasureTheory.addEquivAddHaarChar_mul_volume}
-  Choose a compact set $X$ containing an open neighbourhood of the identity
-  (possible because $G$ is locally compact). Then $X$ has measure
-  $0<\mu(X)<\infty$. Now we can calculate:
-  $d_A(\phi\circ\psi)=\mu(\phi(\psi(X)))/\mu(X)=(\mu(\phi(\psi(X)))/\mu(\psi(X)))(\mu(\psi(X))/\mu(X))=d_A(\phi)d_A(\psi).$
+  \uses{MeasureTheory.addEquivAddHaarChar_smul_preimage}
+  It suffices to prove that $d_A(\phi\circ\psi)(\phi\circ\psi)_*\mu=d_A(\phi)d_A(\psi)(\phi\circ\psi)_*\mu$
+  and this follows from an easy calculation using lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
+  and the fact that $(\phi\circ\psi)_*\mu=\phi_*(\psi_*\mu)$.
 \end{proof}
 
-Instead of pulling back measures along isomorphisms, we can push them
-forwards. Let $\phi_*\mu$ denote the pushforward of the Borel measure $\mu$
-along a homeomorphism.
-
-\begin{theorem}
-  \lean{MeasureTheory.addEquivAddHaarChar_mul_volume}
-  \uses{MeasureTheory.addEquivAddHaarChar_mul_volume}
-  If $\phi:A\to A$ is an additive homeomorphism and $\mu$
-  is a regular Haar measure on $A$ and $X\subseteq A$ is a Borel subset
-  then $d_A(\phi)\phi_*\mu(X)=\mu(X)$.
-\end{theorem}
-\begin{proof}
-  Set $Y=\phi^{-1}(X)$. Then $\mu(X)=\mu(\phi(Y))=d_A(\phi)\mu(Y)=d_A(\phi)\phi_*\mu(X)$
-  by lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_volume}
-\end{proof}
-
-\begin{theorem}
-  \uses{MeasureTheory.addEquivAddHaarChar_mul_integral}
-  If $\phi:A\to A$ is an additive homeomorphism and $\mu$
-  is a regular Haar measure on $A$ and $f:A\to\R$ is a Borel measurable
-  function
-  then $\int f(x)d\phi_*\mu(x)=d_A(\phi)\int f(x)d\mu(x).$
-\end{theorem}
-\begin{proof} Apply lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_integral}
-  to the measure $\phi_*\mu$ to deduce $\int f(x)d\phi_*\mu(x)=d_A(\phi)\int f(d)d\phi^*\phi_*\mu(x)$
-  and then observe that $\phi^*\phi_*\mu=\mu$.
-\end{proof}
 \subsection{Scaling Haar measure on a ring}
 
 Now let $R$ be a locally compact topological ring. The \emph{Haar character} of $R$,
@@ -192,21 +183,21 @@ Also immediate from previous lemmas is
   $\delta_R(u)\int f(ux)d\mu(x)=\int f(x)d\mu(x)$.
 \end{lemma}
 \begin{proof}
-  \uses{MeasureTheory.addEquivAddHaarChar_mul_integral}
-  A short calculation using lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_integral}.
+  \uses{MeasureTheory.addEquivAddHaarChar_smul_integral_map}
+  A short calculation using lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_integral_map}.
 \end{proof}
 
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_mul_volume}
   \lean{MeasureTheory.ringHaarChar_mul_volume}
-  \uses{MeasureTheory.ringHaarChar,MeasureTheory.addEquivAddHaarChar_mul_volume}
+  \uses{MeasureTheory.ringHaarChar,MeasureTheory.addEquivAddHaarChar_smul_preimage}
   \leanok
   \discussion{515}
   If $X$ is a Borel subset of $R$ and $r\in R^\times$ then $\mu(rX)=\delta_R(r)\mu(X)$.
 \end{lemma}
 \begin{proof}
-  \uses{MeasureTheory.addEquivAddHaarChar_mul_volume}
-   Immediate from lemma~\ref{MeasureTheory.addEquivAddHaarChar_mul_volume}.
+  \uses{MeasureTheory.addEquivAddHaarChar_smul_preimage}
+   Immediate from lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_preimage}.
 \end{proof}
 
 The next result lies a little deeper.
