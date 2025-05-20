@@ -79,12 +79,18 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
     convert addEquivAddHaarChar_trans (G := R); ext; simp [mul_assoc]
   continuous_toFun := ringHaarChar_continuous R
 
-lemma ringHaarChar_mul_integral [MeasurableSpace R] [BorelSpace R]
-    (μ : Measure R) [IsAddHaarMeasure μ]
+lemma ringHaarChar_mul_integral
+    (μ : Measure R) [IsAddHaarMeasure μ] [μ.Regular]
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :
-    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := sorry -- FLT#514
-    -- use addEquivAddHaarChar_mul_integral applied to the function `r ↦ f (u * r)`.
-    -- Do we need that f is measurable? Not that it matters, it always will be.
+    (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := by
+  symm
+  convert addEquivAddHaarChar_smul_integral_map μ (ContinuousAddEquiv.mulLeft u) (f := f) using 1
+  simp only [ringHaarChar_toFun, NNReal.smul_def, smul_eq_mul, mul_eq_mul_left_iff,
+    NNReal.coe_eq_zero]
+  rw [MeasureTheory.integral_map]
+  · simp
+  · simp [ContinuousAddEquiv.mulLeft, (measurable_const_mul _).aemeasurable]
+  · exact Measurable.aestronglyMeasurable hf
 
 open Pointwise in
 lemma ringHaarChar_mul_volume [MeasurableSpace R] [BorelSpace R]
