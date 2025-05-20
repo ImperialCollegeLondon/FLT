@@ -1,7 +1,6 @@
 -- thanks to Remy Degenne for the golf
 import Mathlib.MeasureTheory.Measure.Comap
-
-import Mathlib
+import Mathlib.MeasureTheory.Measure.QuasiMeasurePreserving
 
 open scoped NNReal ENNReal
 
