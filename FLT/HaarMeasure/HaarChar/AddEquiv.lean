@@ -66,6 +66,7 @@ lemma mulEquivHaarChar_pos (φ : G ≃ₜ* G) : 0 < mulEquivHaarChar φ :=
   haarScalarFactor_pos_of_isHaarMeasure _ _
 
 -- should be in haarScalarFactor API
+-- should say c • haarScalarFactor μ' (c • μ) = haarScalarFactor μ' μ
 @[to_additive]
 lemma smul_haarScalarFactor_smul (μ' μ : Measure G)
     [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
@@ -140,6 +141,7 @@ lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
   -- use `MeasureTheory.Measure.haarScalarFactor_eq_mul`?
 
 open ENNReal in
+@[nolint unusedHavesSuffices] -- this can be removed when the proof is done
 lemma mulEquivHaarChar_eq_one_of_CompactSpace [CompactSpace G] (φ : G ≃ₜ* G) :
     mulEquivHaarChar φ = 1 := by
   set m := haar (.univ : Set G) with hm
@@ -288,13 +290,12 @@ open RestrictedProduct
 -- sets
 
 variable
-    -- let ι be an index types.
-    {ι : Type*}
+    -- let ι be an index type and let ℱ be a filter on ι.
+    {ι : Type*} {ℱ : Filter ι}
     -- Let Gᵢ and Hᵢ be families of types.
     {G H : ι → Type*}
     -- Let Cᵢ ⊆ Gᵢ and Dᵢ ⊆ Hᵢ be subsets for all i
     {C : (i : ι) → Set (G i)}
-
     {D : (i : ι) → Set (H i)}
 
 
@@ -312,20 +313,50 @@ variable
     -- {D : (i : ι) → Subgroup (H i)} [Fact (∀ i, IsOpen (D i : Set (H i)))]
     -- [∀ i, CompactSpace (D i)]
 
+/-- The maps between restricted products over a fixed index type,
+given maps on the factors. -/
+@[nolint unusedArguments] -- this can be removed when the FLT#530 proof is done
 def _root_.RestrictedProduct.congrRight (φ : (i : ι) → G i → H i)
-    (hφ : ∀ᶠ i in Filter.cofinite, Set.MapsTo (φ i) (C i) (D i))
-    (x : Πʳ i, [G i, C i]) : (Πʳ i, [H i, D i]) :=
+    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
+    (x : Πʳ i, [G i, C i]_[ℱ]) : (Πʳ i, [H i, D i]_[ℱ]) :=
   ⟨fun i ↦ φ i (x i), sorry⟩ -- FLT#530
 
 -- Now let's add continuity.
 
-variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)]
-
-theorem _root_.Continuous.restrictedProductcongrRight (φ : (i : ι) → G i → H i)
-    (hφ : ∀ᶠ i in Filter.cofinite, Set.MapsTo (φ i) (C i) (D i))
+variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
+theorem _root_.Continuous.restrictedProductcongrRight {φ : (i : ι) → G i → H i}
+    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
     Continuous (RestrictedProduct.congrRight φ hφ) := by
-  sorry -- FLT#531
+  sorry -- FLT#531 (feel free to add any of : ℱ is cofinite, Cᵢ are open/compact,
+  -- but only add if necessary. I don't immediately see that we need them)
+
+-- now let's add groups.
+/-
+variable {S : ι → Type*} -- subobject type
+variable [Π i, SetLike (S i) (R i)]
+variable {B : Π i, S i}
+
+@[to_additive]
+instance [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] : One (Πʳ i, [R i, B i]_[𝓕]) where
+  one := ⟨fun _ ↦ 1, .of_forall fun _ ↦ one_mem _⟩
+-/
+
+variable {S T : ι → Type*} -- subobject types
+variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
+variable {A : Π i, S i} {B : Π i, T i}
+
+variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
+    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
+/-- The maps between restricted products over a fixed index type,
+given maps on the factors. -/
+@[nolint unusedArguments] -- this can be removed when the FLT#530 proof is done
+def _root_.MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
+    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
+    Πʳ i, [G i, A i]_[ℱ] →* Πʳ i, [H i, B i]_[ℱ] where
+      toFun := RestrictedProduct.congrRight (fun i ↦ φ i) hφ
+      map_one' := by ext; simp [RestrictedProduct.congrRight]; sorry
+      map_mul' := sorry
 
 #exit
 
