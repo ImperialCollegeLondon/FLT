@@ -4,6 +4,8 @@
 # treat unset variables as an error, and ensure errors in pipelines are not masked.
 set -euo pipefail
 
+cp scripts/DocGenHack.lean doc-gen4/DocGen4/Process/DefinitionInfo.lean
+
 # Build HTML documentation for FLT
 # The output will be located in docs/docs
 
@@ -25,13 +27,14 @@ path = "../"
 scope = "leanprover"
 name = "doc-gen4"
 rev = "$(< lean-toolchain cut -f 2 -d: )"
+path = "../doc-gen4"
 EOF
 
 # Initialise docbuild as a Lean project
 cd docbuild
 
 # Disable an error message due to a non-blocking bug. See Zulip
-MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
+MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update
 
 # Build the docs
 ~/.elan/bin/lake build FLT:docs
