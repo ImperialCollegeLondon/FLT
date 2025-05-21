@@ -9,8 +9,10 @@ import Mathlib.Algebra.Group.Subgroup.Pointwise
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.GroupTheory.DoubleCoset
 import Mathlib.Algebra.Central.Defs
+import Mathlib.Tactic.LinearCombination'
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
+import FLT.HaarMeasure.HaarChar.AdeleRing
 
 /-
 
@@ -164,8 +166,62 @@ lemma C_compact : IsCompact (C K D) := by
 lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ b ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ),
     ∃ ν ∈ ringHaarChar_ker D_𝔸,
-    β = b * ν ∧ ((ν : D_𝔸), ((ν⁻¹ : D_𝔸ˣ) : D_𝔸)) ∈ C K D :=
-  sorry
+    β = b * ν ∧ ((ν : D_𝔸), ((ν⁻¹ : D_𝔸ˣ) : D_𝔸)) ∈ C K D := by
+  obtain ⟨x1, hx1, b1, hb1, eq1⟩ := X_meets_kernel K D hβ
+  obtain ⟨x2, hx2, b2, hb2, eq2⟩ := X_meets_kernel' K D hβ
+  have h1 : b1 ∈ ringHaarChar_ker D_𝔸 := by
+    obtain ⟨b1, rfl⟩ := hb1
+    exact NumberField.AdeleRing.units_mem_ringHaarCharacter_ker K D b1
+  have h2 : b2 ∈ ringHaarChar_ker D_𝔸 := by
+    obtain ⟨b2, rfl⟩ := hb2
+    exact NumberField.AdeleRing.units_mem_ringHaarCharacter_ker K D b2
+  have h5 : x2 * x1 = b2 * b1 := by
+
+    simpa [mul_assoc] using (Mathlib.Tactic.LinearCombination'.mul_pf eq2 eq1)
+  have h3 : IsUnit x1 := by
+    have : x1 = ↑β⁻¹ * ↑b1 := by
+      have eq1 := Mathlib.Tactic.LinearCombination.mul_const_eq eq1 ↑β⁻¹
+      (expose_names; exact (Units.eq_inv_mul_iff_mul_eq β).mpr eq1_1)
+    refine ⟨↑β⁻¹ * b1, Eq.symm this⟩
+  obtain ⟨x1, rfl⟩ := h3
+  have h4 : IsUnit x2 := by
+    have : x2 = ↑b2 * ↑β := by
+      have eq2 := Mathlib.Tactic.LinearCombination.mul_eq_const eq2 (β : D ⊗[K] AdeleRing (𝓞 K) K)
+      (expose_names; exact (Units.mul_inv_eq_iff_eq_mul β).mp eq2_1)
+    refine ⟨b2 * β, Eq.symm this⟩
+  obtain ⟨x2, rfl⟩ := h4
+  have h6 : x2 * x1 ∈ T K D := by
+    simp_rw [T]
+    simp only [Set.mem_inter_iff]
+    constructor
+    · simp_rw [Y]
+      exact Set.mul_mem_mul hx2 hx1
+    · simp only [Set.mem_range]
+      obtain ⟨b1', hb1'⟩ := hb1
+      obtain ⟨b2', hb2'⟩ := hb2
+      use b2' * b1'
+      simp only [map_mul]
+      rw [hb1', hb2']
+      exact Units.eq_iff.mp (id (Eq.symm h5))
+  refine ⟨b1, hb1, x1⁻¹, ?_⟩
+  constructor
+  · have : x1⁻¹ = b1⁻¹ * β := by
+      exact (Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq (Units.eq_iff.mp eq1))))
+    rw [this]
+    have : b1⁻¹ ∈ ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K) := by
+      exact (Subgroup.inv_mem_iff (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))).mpr h1
+    exact (Subgroup.mul_mem_cancel_right (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)) hβ).mpr this
+  · constructor
+    · exact eq_mul_inv_of_mul_eq (Units.eq_iff.mp eq1)
+    · simp_rw [C]
+      simp only [inv_inv, Set.mem_prod]
+      constructor
+      · obtain ⟨t, ht, ht1⟩ := exists_eq_right'.mpr h6
+        have : x1⁻¹ = t⁻¹ * x2 := by
+          exact (Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq ht1)))
+        simp_rw [this]
+        refine Set.mem_mul.mpr ⟨↑t⁻¹, by exact Set.mem_image_of_mem Units.val ht, x2, hx2, rfl⟩
+      · exact hx1
 
 end Aux
 
