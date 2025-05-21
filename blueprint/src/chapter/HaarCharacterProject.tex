@@ -31,7 +31,7 @@ and $d_A(\phi)^{-1}$, so let us be more precise.
 \begin{definition}
   \label{MeasureTheory.addEquivAddHaarChar}
   \lean{MeasureTheory.addEquivAddHaarChar}
-  \discussion{507}
+  \leanok
   If $A$ is a locally compact topological additive abelian group,
   if $\mu$ is a regular Haar measure on $A$, and if $\phi:A\to A$ is an
   additive homeomorphism, then we let $d_A(\phi)$ denote the unique positive
@@ -112,6 +112,22 @@ Now let $\mu$ be any regular additive Haar measure on $A$.
   \leanok
   \uses{MeasureTheory.addEquivAddHaarChar_map}
   This also follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}.
+\end{proof}
+
+We also have the following variant:
+
+\begin{lemma}
+  \label{MeasureTheory.addEquivAddHaarChar_smul_integral_comap}
+  \lean{MeasureTheory.addEquivAddHaarChar_smul_integral_comap}
+  \uses{MeasureTheory.addEquivAddHaarChar_smul_integral_map}
+  \leanok
+  If $f:A\to\R$ is a Borel measurable function then
+  $d_A(\phi)\int f(x)d\mu(x)=\int f(x)d\phi^*\mu(x)$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  This is immediate from the previous lemma applied to the pullback $\phi^*\mu$,
+  because $\phi$ is a measurable isomorphism so $\phi_*\phi^*\mu=\mu$.
 \end{proof}
 
 Note that as a consequence of lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_preimage},
@@ -469,7 +485,35 @@ Here are two facts which we will need about products.
   Follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_piCongrRight}.
 \end{proof}
 
-\section{Some topological preliminaries}
+\section{Some measure-theoretic preliminaries}
+
+\begin{lemma}
+  \label{MeasureTheory.isHaarMeasure_comap_of_isOpenEmbedding}
+  \lean{MeasureTheory.isHaarMeasure_comap_of_isOpenEmbedding}
+  \leanok
+  \discussion{507}
+  Let $A$ and $B$ be locally compact topological groups
+  and let $f:A\to B$ be both a group homomorphism and open embedding.
+  The pullback along $f$ of a Haar measure on $B$ is a Haar measure on $A$.
+\end{lemma}
+\begin{proof}
+  (sketch) Translation-invariance is easy, compact sets are finite because continuous
+  image of compact is compact, open sets are bounded because image of open is open.
+\end{proof}
+
+\begin{lemma}
+  \label{MeasureTheory.regular_comap_of_isOpenEmbedding}
+  \lean{MeasureTheory.regular_comap_of_isOpenEmbedding}
+  \leanok
+  \discussion{513}
+  The pullback of a regular Borel measure along an open
+  embedding is a regular Borel measure.
+\end{lemma}
+\begin{proof}
+  (sketch) Again this is because the image of compact is compact and the
+  image of open is open, so all the properties of being a regular measure
+  are easily checked.
+\end{proof}
 
 \begin{lemma}
   \label{MeasureTheory.mulEquivHaarChar_eq_one_of_compactSpace}
@@ -494,7 +538,10 @@ Then $d_G(\phi)=1.$
   homeomorphisms such that the square commutes (i.e., $f\circ\alpha=\beta\circ f$)
   then $d_A(\alpha)=d_B(\beta)$.
 \end{lemma}
-\begin{proof} Choose a Haar measure $\mu_B$ on $B$. Its pullback $\mu_A:=f^*\mu_B$ to $A$ is also a Haar
+\begin{proof} Choose a regular Haar measure $\mu_B$ on $B$. We just saw
+  in lemmas~\ref{MeasureTheory.isHaarMeasure_comap_of_isOpenEmbedding}
+  and~\ref{MeasureTheory.regular_comap_of_isOpenEmbedding} that its pullback
+  $\mu_A:=f^*\mu_B$ to $A$ is also a regular Haar
   measure. Now fix a continuous compactly-supported function $g$ on $A$ with
   $0<\int g(a)d\mu(a)<\infty$. Then $d_A(\alpha)\int g(a)d\mu_A(a)=\int g(a)d(\alpha^*\mu_A)(a)$
   which is $\int g(a)d(\alpha^* f^*\mu_B)(a)$ which is $\int g(a)d(f^*\beta^*\mu_B)(a)$

@@ -66,13 +66,12 @@ lemma mulEquivHaarChar_pos (φ : G ≃ₜ* G) : 0 < mulEquivHaarChar φ :=
   haarScalarFactor_pos_of_isHaarMeasure _ _
 
 -- should be in haarScalarFactor API
--- should say c • haarScalarFactor μ' (c • μ) = haarScalarFactor μ' μ
 @[to_additive]
 lemma smul_haarScalarFactor_smul (μ' μ : Measure G)
     [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
     (hc : 0 < c) :
     letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
-    haarScalarFactor (c • μ') (c • μ) = haarScalarFactor μ' μ := by
+    c * haarScalarFactor μ' (c • μ) = haarScalarFactor μ' μ := by
   letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
   obtain ⟨⟨g, g_cont⟩, g_comp, g_nonneg, g_one⟩ :
     ∃ g : C(G, ℝ), HasCompactSupport g ∧ 0 ≤ g ∧ g 1 ≠ 0 := exists_continuous_nonneg_pos 1
@@ -80,14 +79,23 @@ lemma smul_haarScalarFactor_smul (μ' μ : Measure G)
     ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
   apply NNReal.coe_injective
   calc
-    ((c • μ').haarScalarFactor (c • μ)) = (∫ x, g x ∂(c • μ')) / ∫ x, g x ∂(c • μ) :=
-      haarScalarFactor_eq_integral_div _ _ g_cont g_comp (by simp [int_g_ne_zero, hc.ne'])
-    _ = (c • (∫ x, g x ∂μ')) / (c • ∫ x, g x ∂μ) := by simp
+    c * haarScalarFactor μ' (c • μ) = c * ((∫ x, g x ∂μ') / ∫ x, g x ∂(c • μ)) :=
+      by rw [haarScalarFactor_eq_integral_div _ _ g_cont g_comp (by simp [int_g_ne_zero, hc.ne'])]
+    _ = c * ((∫ x, g x ∂μ') / (c • ∫ x, g x ∂μ)) := by simp
     _ = (∫ x, g x ∂μ') / (∫ x, g x ∂μ) := by
-      rw [NNReal.smul_def, NNReal.smul_def, smul_eq_mul, smul_eq_mul]
+      rw [NNReal.smul_def, smul_eq_mul, ← mul_div_assoc]
       exact mul_div_mul_left (∫ (x : G), g x ∂μ') (∫ (x : G), g x ∂μ) (by simp [hc.ne'])
     _ = μ'.haarScalarFactor μ :=
       (haarScalarFactor_eq_integral_div _ _ g_cont g_comp int_g_ne_zero).symm
+
+-- should be in haarScalarFactor API
+@[to_additive]
+lemma smul_haarScalarFactor_smul' (μ' μ : Measure G)
+    [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
+    (hc : 0 < c) :
+    letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
+    haarScalarFactor (c • μ') (c • μ) = haarScalarFactor μ' μ := by
+  rw [haarScalarFactor_smul, smul_eq_mul, smul_haarScalarFactor_smul _ _ hc]
 
 @[to_additive]
 lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ]
@@ -102,7 +110,7 @@ lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ]
     enter [1, 2, 2]
     rw [smul]
   simp_rw [MeasureTheory.Measure.map_smul]
-  exact smul_haarScalarFactor_smul _ _ (haarScalarFactor_pos_of_isHaarMeasure haar μ)
+  exact smul_haarScalarFactor_smul' _ _ (haarScalarFactor_pos_of_isHaarMeasure haar μ)
 
 @[to_additive]
 lemma mulEquivHaarChar_map (μ : Measure G)
@@ -118,6 +126,20 @@ lemma mulEquivHaarChar_smul_integral_map (μ : Measure G)
     ∫ (a : G), f a ∂μ = (mulEquivHaarChar φ) • ∫ a, f a ∂(map φ μ) := by
   nth_rw 1 [← mulEquivHaarChar_map μ φ]
   simp
+
+-- @[to_additive addEquivAddHaarChar_smul_integral_comap] -- TODO fix this
+lemma mulEquivHaarChar_smul_integral_comap (μ : Measure G)
+    [IsHaarMeasure μ] [Regular μ] {f : G → ℝ} (φ : G ≃ₜ* G) :
+    ∫ (a : G), f a ∂(comap φ μ) = (mulEquivHaarChar φ) • ∫ a, f a ∂μ := by
+  let e := φ.toHomeomorph.toMeasurableEquiv
+  change ∫ (a : G), f a ∂(comap e μ) = (mulEquivHaarChar φ) • ∫ a, f a ∂μ
+  haveI : (map (e.symm) μ).IsHaarMeasure := φ.symm.isHaarMeasure_map μ
+  haveI : (map (e.symm) μ).Regular := φ.symm.toHomeomorph.regular_map μ
+  rw [← e.map_symm, mulEquivHaarChar_smul_integral_map (map e.symm μ) φ,
+    map_map (by exact φ.toHomeomorph.toMeasurableEquiv.measurable) e.symm.measurable]
+  congr
+  convert map_id
+  ext; simp [e]
 
 @[to_additive addEquivAddHaarChar_smul_preimage]
 lemma mulEquivHaarChar_smul_preimage
