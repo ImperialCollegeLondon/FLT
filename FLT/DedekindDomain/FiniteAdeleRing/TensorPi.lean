@@ -205,7 +205,7 @@ variable {R : Type*} (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)]
 
-/-- Tensoring with a finitly presented module commutes with arbitrary products. -/
+/-- Tensoring with a finitely-presented module commutes with arbitrary products. -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
   choose n m f g exact surj using Module.FinitePresentation.exists_fin_exact R M
