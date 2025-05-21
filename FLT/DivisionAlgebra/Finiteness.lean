@@ -64,9 +64,8 @@ noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
 namespace Aux
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
-    ∀ x ∈ ringHaarChar_ker D_𝔸,
-    ∃ e₁ ∈ E, ∃ e₂ ∈ E,
-    x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
+    ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
+    e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   sorry
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
@@ -74,10 +73,17 @@ def E : Set D_𝔸 := (existsE K D).choose
 
 lemma E_compact : IsCompact (E K D) := (existsE K D).choose_spec.1
 
-lemma E_noninjective : ∀ x ∈ ringHaarChar_ker D_𝔸,
-    ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D,
+lemma E_noninjective_left {x : D_𝔸ˣ} (h : x ∈ ringHaarChar_ker D_𝔸) :
+    ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
-  (existsE K D).choose_spec.2
+  (existsE K D).choose_spec.2 (ContinuousAddEquiv.mulLeft x) h
+
+lemma E_noninjective_right {x : D_𝔸ˣ} (h : x ∈ ringHaarChar_ker D_𝔸) :
+    ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
+    e₁ * x⁻¹ - e₂ * x⁻¹  ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
+  let φ : D_𝔸 ≃ₜ+ D_𝔸 := ContinuousAddEquiv.mulRight x⁻¹
+  have hφ : addEquivAddHaarChar φ = 1 := sorry
+  exact (existsE K D).choose_spec.2 φ hφ
 
 open scoped Pointwise in
 /-- An auxiliary set X used in the proof of Fukisaki's lemma. Defined as E - E. -/
@@ -96,16 +102,52 @@ lemma Y_compact : IsCompact (Y K D) := by
     ((X_compact K D).prod (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
 lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
-    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := sorry
+    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := by
+  obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_left K D hβ
+  refine ⟨e1 - e2, by simpa only using (Set.sub_mem_sub he1 he2), ?_⟩
+  obtain ⟨b1, rfl⟩ : IsUnit b := by
+    simp_rw [← mul_sub_left_distrib, Algebra.TensorProduct.includeLeft_apply] at hb
+    have h1 : ↑β * (e1 - e2) ≠ 0 := by
+      simpa only [ne_eq, not_not, Units.mul_right_eq_zero] using (sub_ne_zero_of_ne noteq)
+    simp only [isUnit_iff_ne_zero, ne_eq]
+    rintro rfl
+    simp only [← hb, TensorProduct.zero_tmul, ne_eq, not_true_eq_false] at h1
+  exact ⟨incl K D b1, ⟨b1, rfl⟩, by simpa [mul_sub] using hb.symm⟩
 
 lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
-    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := sorry
+    ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := by
+  obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_right K D hβ
+  refine ⟨e1 - e2, by simpa only using (Set.sub_mem_sub he1 he2), ?_⟩
+  obtain ⟨b1, rfl⟩ : IsUnit b := by
+    simp_rw [← mul_sub_right_distrib, Algebra.TensorProduct.includeLeft_apply] at hb
+    have h1 : (e1 - e2) * ↑β⁻¹ ≠ 0 := by
+      simpa only [ne_eq, Units.mul_left_eq_zero] using (sub_ne_zero_of_ne noteq)
+    simp only [isUnit_iff_ne_zero, ne_eq]
+    rintro rfl
+    simp only [← hb, TensorProduct.zero_tmul, ne_eq, not_true_eq_false] at h1
+  exact ⟨incl K D b1, ⟨b1, rfl⟩, by simpa [sub_mul] using hb.symm⟩
 
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
 
-lemma T_finite : Set.Finite (T K D) :=
-  sorry
+-- Need something saying D ⊆ D_𝔸 is discrete
+
+lemma T_finite : Set.Finite (T K D) := by
+  have h : Set.Finite ((Y K D) ∩ (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)))
+      := by
+    apply IsCompact.finite
+    · refine IsCompact.inter_right (Y_compact K D) ?_
+
+      -- Subgroup.isClosed_of_discrete
+      sorry
+    · -- follows form D being discrete
+
+      sorry
+  have h1 : Units.val '' T K D ⊆ (Y K D) ∩
+      (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
+    rintro _ ⟨t, ⟨ht1, d, rfl⟩, rfl⟩
+    exact ⟨ht1, d, rfl⟩
+  exact Set.Finite.of_finite_image (Set.Finite.subset h h1) (Function.Injective.injOn Units.ext)
 
 open scoped Pointwise in
 /-- An auxiliary set C used in the proof of Fukisaki's lemma. Defined as T⁻¹X × X. -/
@@ -182,7 +224,7 @@ of `(D ⊗ 𝔸_F^infty)ˣ`.
 -/
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
-    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) :=
+    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
   sorry
 
 end FiniteAdeleRing
