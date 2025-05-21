@@ -134,9 +134,19 @@ lemma mulEquivHaarChar_refl :
 
 @[to_additive]
 lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
-    mulEquivHaarChar (ψ.trans φ) = mulEquivHaarChar ψ * mulEquivHaarChar φ :=
-  sorry -- FLT#511
-  -- use `MeasureTheory.Measure.haarScalarFactor_eq_mul`?
+    mulEquivHaarChar (ψ.trans φ) = mulEquivHaarChar ψ * mulEquivHaarChar φ := by
+  obtain ⟨⟨g, g_cont⟩, g_comp, g_nonneg, g_one⟩ :
+    ∃ g : C(G, ℝ), HasCompactSupport g ∧ 0 ≤ g ∧ g 1 ≠ 0 := exists_continuous_nonneg_pos 1
+  have int_g_ne_zero : ∫ x, g x ∂(map (⇑φ) (map (⇑ψ) haar)) ≠ 0 :=
+    ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
+  have : Regular (map (⇑ψ) haar) := MeasureTheory.Measure.Regular.map ψ.toHomeomorph
+  have : Regular (map (⇑φ) (map (⇑ψ) haar)) := MeasureTheory.Measure.Regular.map φ.toHomeomorph
+  have hφ : Measurable φ := φ.toHomeomorph.measurable
+  have hψ : Measurable ψ := ψ.toHomeomorph.measurable
+  have := mulEquivHaarChar_smul_integral_map (G := G) haar (f := g) (ψ.trans φ)
+  rw [ContinuousMulEquiv.coe_trans, ← MeasureTheory.Measure.map_map hφ hψ,
+    mulEquivHaarChar_smul_integral_map _ ψ, mulEquivHaarChar_smul_integral_map _ φ] at this
+  simpa [NNReal.smul_def, ← mul_assoc, int_g_ne_zero, ← NNReal.coe_mul, eq_comm] using this
 
 end basic
 
