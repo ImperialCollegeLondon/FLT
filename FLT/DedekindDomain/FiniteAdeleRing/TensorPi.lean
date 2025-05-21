@@ -226,15 +226,14 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   set g₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id -- map to zero to zero
   have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
     refine ext' fun x y ↦ ?_
-    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, i₁, g₁,
-      LinearEquiv.coe_coe]
+    simp only [LinearMap.coe_comp, comp_apply, i₂, i₁, g₁, LinearEquiv.coe_coe]
     rw [LinearMap.rTensor_tmul, tensorPi_equiv_piTensor_apply, tensorPi_equiv_piTensor_apply]
     ext i
     simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
       LinearMap.rTensor_tmul]
   have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
     refine ext' fun x y ↦ ?_
-    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, g₂, i₃]
+    simp only [LinearMap.coe_comp, comp_apply, i₂, g₂, i₃]
     rw [LinearMap.rTensor_tmul, piRightHom_tmul]
     ext i
     simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
