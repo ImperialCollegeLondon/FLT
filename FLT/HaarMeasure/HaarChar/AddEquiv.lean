@@ -142,7 +142,7 @@ lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
 
 open ENNReal in
 @[nolint unusedHavesSuffices] -- this can be removed when the proof is done
-lemma mulEquivHaarChar_eq_one_of_CompactSpace [CompactSpace G] (φ : G ≃ₜ* G) :
+lemma mulEquivHaarChar_eq_one_of_compactSpace [CompactSpace G] (φ : G ≃ₜ* G) :
     mulEquivHaarChar φ = 1 := by
   set m := haar (.univ : Set G) with hm
   have hfinite : m < ∞ := IsCompact.measure_lt_top isCompact_univ
