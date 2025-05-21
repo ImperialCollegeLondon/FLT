@@ -324,7 +324,7 @@ def _root_.RestrictedProduct.congrRight (φ : (i : ι) → G i → H i)
 -- Now let's add continuity.
 
 variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
-theorem _root_.Continuous.restrictedProductcongrRight {φ : (i : ι) → G i → H i}
+theorem _root_.Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
     Continuous (RestrictedProduct.congrRight φ hφ) := by
