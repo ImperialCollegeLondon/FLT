@@ -140,7 +140,6 @@ lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
   have int_g_ne_zero : ∫ x, g x ∂(map (⇑φ) (map (⇑ψ) haar)) ≠ 0 :=
     ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
   have : Regular (map (⇑ψ) haar) := MeasureTheory.Measure.Regular.map ψ.toHomeomorph
-  have : Regular (map (⇑φ) (map (⇑ψ) haar)) := MeasureTheory.Measure.Regular.map φ.toHomeomorph
   have hφ : Measurable φ := φ.toHomeomorph.measurable
   have hψ : Measurable ψ := ψ.toHomeomorph.measurable
   have := mulEquivHaarChar_smul_integral_map (G := G) haar (f := g) (ψ.trans φ)
