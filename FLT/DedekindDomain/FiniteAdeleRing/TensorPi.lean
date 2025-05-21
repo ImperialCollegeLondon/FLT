@@ -193,7 +193,7 @@ variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)]
 
-/-- Tensoring with a finitely presented module commutes with arbitrary products.
+/-- Tensoring with a finitely-presented module commutes with arbitrary products.
 To prove this, we consider the following commutative diagram. The goal is to show
 that `i₃` is an isomorphism, which we do using the five lemma:
 
