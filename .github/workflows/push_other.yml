@@ -1,0 +1,87 @@
+name: Build project
+
+on:
+  push:
+    branches-ignore:
+      - master
+    paths:
+      - '**/*.lean'
+      - '**/blueprint.yml'
+      - 'blueprint/**'
+      - 'docs/**'
+      - 'scripts/**'
+      - 'lean-toolchain'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+  workflow_dispatch: # Allow manual triggering of the workflow from the GitHub Actions interface
+
+# Cancel previous runs if a new commit is pushed to the same PR or branch
+concurrency:
+  group: ${{ github.ref }}  # Group runs by the ref (branch or PR)
+  cancel-in-progress: true  # Cancel any ongoing runs in the same group
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and modify PR labels
+permissions:
+  contents: read          # Read access to repository contents
+  pages: write            # Write access to GitHub Pages
+  id-token: write         # Write access to ID tokens
+  issues: write           # Write access to issues
+  pull-requests: write    # Write access to pull requests
+
+jobs:
+  style_lint:
+    name: Lint style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Don't 'import Mathlib', use precise imports
+        if: always()
+        run: |
+          ! (find FLT -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
+
+  build_project:
+    runs-on: ubuntu-latest
+    name: Build project
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0 # Fetch all history for all branches and tags
+
+      - name: Install elan
+        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+
+      - name: Get Mathlib cache
+        run: ~/.elan/bin/lake exe cache get || true
+
+      - name: check that FLT.lean is up to date
+        run: ~/.elan/bin/lake exe mk_all --check
+
+      - name: Build project
+        run: ~/.elan/bin/lake build FLT
+
+      - name: Lint project
+        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter FLT
+
+      - name: Build blueprint and copy to `docs/blueprint`
+        uses: xu-cheng/texlive-action@f886de8159e5952a131848a5fa9c3196a2132b5d # v2
+        with:
+          docker_image: ghcr.io/xu-cheng/texlive-full:20250401
+          run: |
+            # Install necessary dependencies and build the blueprint
+            apk update
+            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            git config --global --add safe.directory `pwd`
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            mkdir -p docs
+            cp blueprint/print/print.pdf docs/blueprint.pdf
+            leanblueprint web
+            cp -r blueprint/web docs/blueprint
+
+      - name: Check declarations mentioned in the blueprint exist in Lean code
+        run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls

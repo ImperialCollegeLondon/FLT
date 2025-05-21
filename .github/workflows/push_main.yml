@@ -1,4 +1,4 @@
-name: Compile blueprint
+name: Build project
 
 on:
   push:
@@ -13,24 +13,10 @@ on:
       - 'lean-toolchain'
       - 'lakefile.toml'
       - 'lake-manifest.json'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - '**/*.lean'
-      - '**/blueprint.yml'
-      - 'blueprint/**'
-      - 'docs/**'
-      - 'scripts/**'
-      - 'lean-toolchain'
-      - 'lakefile.toml'
-      - 'lake-manifest.json'
   workflow_dispatch: # Allow manual triggering of the workflow from the GitHub Actions interface
 
-# Cancel previous runs if a new commit is pushed to the same PR or branch
-concurrency:
-  group: ${{ github.ref }}  # Group runs by the ref (branch or PR)
-  cancel-in-progress: true  # Cancel any ongoing runs in the same group
+# We do not cancel CI on main so as to keep all commits green (cancelling CI on a commit makes it
+# red).
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and modify PR labels
 permissions:
