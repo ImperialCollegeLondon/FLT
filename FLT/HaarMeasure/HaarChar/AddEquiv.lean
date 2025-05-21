@@ -135,13 +135,13 @@ lemma mulEquivHaarChar_refl :
 @[to_additive]
 lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
     mulEquivHaarChar (ψ.trans φ) = mulEquivHaarChar ψ * mulEquivHaarChar φ := by
-  let μ := haar (G := G)
-  rw [mulEquivHaarChar_eq μ ψ, mulEquivHaarChar_eq μ (ψ.trans φ)]
+  rw [mulEquivHaarChar_eq haar ψ, mulEquivHaarChar_eq haar (ψ.trans φ)]
   have hφ : Measurable φ := φ.toHomeomorph.measurable
   have hψ : Measurable ψ := ψ.toHomeomorph.measurable
   simp_rw [ContinuousMulEquiv.coe_trans, ← map_map hφ hψ]
-  have h_reg : (μ.map ψ).Regular := Regular.map ψ.toHomeomorph
-  rw [MeasureTheory.Measure.haarScalarFactor_eq_mul μ (μ.map ψ), ← mulEquivHaarChar_eq (μ.map ψ)]
+  have h_reg : (haar.map ψ).Regular := Regular.map ψ.toHomeomorph
+  rw [MeasureTheory.Measure.haarScalarFactor_eq_mul haar (haar.map ψ),
+    ← mulEquivHaarChar_eq (haar.map ψ)]
 
 end basic
 
