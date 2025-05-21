@@ -9,16 +9,44 @@ namespace MeasureTheory
 open Topology in
 @[to_additive]
 lemma isHaarMeasure_comap_of_isOpenEmbedding {G H : Type*}
-    [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [MeasurableSpace G] [BorelSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [MeasurableSpace H] [BorelSpace H]
     {φ : G →* H} (hφ : IsOpenEmbedding φ) (μ : Measure H) [IsHaarMeasure μ] :
-    IsHaarMeasure (comap φ μ) := by
-  sorry -- issue FLT#507
+    IsHaarMeasure (comap φ μ) :=
+  { map_mul_left_eq_self := by
+      intro g
+      ext s hs
+      rw [map_apply (by fun_prop) hs]
+      repeat rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]
+      have : ⇑φ '' ((fun x ↦ g * x) ⁻¹' s) = (fun x ↦ φ g * x) ⁻¹' (⇑φ '' s) := by
+        ext
+        constructor
+        · intro h
+          obtain ⟨y, hy, rfl⟩ := h
+          use g * y, hy
+          simp
+        · intro h
+          obtain ⟨y, yins, hy⟩ := h
+          use g⁻¹ * y
+          constructor
+          · simp [yins]
+          · simp [hy]
+      rw [this, ← map_apply (by fun_prop), map_mul_left_eq_self]
+      exact hφ.measurableEmbedding.measurableSet_image.mpr hs
+    lt_top_of_isCompact := by
+      intro K hK
+      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]
+      exact IsFiniteMeasureOnCompacts.lt_top_of_isCompact (hK.image hφ.continuous)
+    open_pos := by
+      intro U hU Une
+      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]
+      exact IsOpenPosMeasure.open_pos _ (hφ.isOpen_iff_image_isOpen.mp hU) (Une.image φ)
+  }
 
 @[to_additive]
 lemma _root_.ContinuousMulEquiv.isHaarMeasure_comap {G H : Type*}
-    [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
+    [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [MeasurableSpace G] [BorelSpace G]
+    [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [MeasurableSpace H] [BorelSpace H]
     (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) :=
   isHaarMeasure_comap_of_isOpenEmbedding (φ := φ.toMulEquiv.toMonoidHom)
   (φ.toHomeomorph.isOpenEmbedding) μ
