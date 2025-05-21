@@ -285,10 +285,8 @@ noncomputable def ResidueFieldEquivCompletionResidueField :
   rw [← hx, Ideal.Quotient.mk_eq_mk]
   suffices ∃ a : A, (ResidueFieldToCompletionResidueField K v) a = Ideal.Quotient.mk _ x by
     obtain ⟨a, ha⟩ := this
-    refine ⟨a, ?_⟩
-    rw [← ha]
-    rfl
-  change ∃ a, Ideal.Quotient.mk (maximalIdeal ((v.adicCompletionIntegers K))) _ = _
+    refine ⟨a, ha⟩
+  change ∃ a, Ideal.Quotient.mk (maximalIdeal (v.adicCompletionIntegers K)) _ = _
   simp_rw [Ideal.Quotient.mk_eq_mk_iff_sub_mem, mem_maximalIdeal, mem_nonunits_iff]
   -- TODO - figure out why this can't be 'simp_rw/simp'
   conv =>
