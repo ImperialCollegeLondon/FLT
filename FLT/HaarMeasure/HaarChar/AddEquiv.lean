@@ -1,5 +1,6 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
 import Mathlib.Topology.Algebra.RestrictedProduct
+import Mathlib
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -138,6 +139,31 @@ lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
   sorry -- FLT#511
   -- use `MeasureTheory.Measure.haarScalarFactor_eq_mul`?
 
+open ENNReal in
+lemma mulEquivHaarChar_eq_one_of_CompactSpace [CompactSpace G] (φ : G ≃ₜ* G) :
+    mulEquivHaarChar φ = 1 := by
+  set m := haar (.univ : Set G) with hm
+  have hfinite : m < ∞ := IsCompact.measure_lt_top isCompact_univ
+  have hpos : 0 < m := IsOpen.measure_pos haar isOpen_univ ⟨1, trivial⟩
+  let m₀ : ℝ≥0 := m.toNNReal
+  have hm₀ : 0 < m₀ := by sorry -- FLT#532 part 1 -- because 0 < m
+  suffices m₀ * mulEquivHaarChar φ = m₀ by sorry -- FLT#532 part 2 -- because I can cancel m₀
+  have := mulEquivHaarChar_smul_preimage (haar : Measure G) (X := .univ) MeasurableSet.univ φ
+  simp [← hm] at this
+  symm
+  sorry -- FLT#532 part 3 -- because it's `this`
+
+open Topology in
+@[to_additive]
+lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
+    [TopologicalSpace X] [Group X] [IsTopologicalGroup X] [LocallyCompactSpace X]
+    [MeasurableSpace X] [BorelSpace X]
+    [TopologicalSpace Y] [Group Y] [IsTopologicalGroup Y] [LocallyCompactSpace Y]
+    [MeasurableSpace Y] [BorelSpace Y]
+    {f : X →* Y} (hf : IsOpenEmbedding f) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y)
+    (hComm : ∀ x, f (α x) = β (f x)) : mulEquivHaarChar α = mulEquivHaarChar β := by
+  sorry
+
 end basic
 
 section prodCongr
@@ -206,7 +232,7 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
     letI : MeasurableSpace (Π i, H i) := borel _
     haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  sorry -- FLT#521 -- induction
+  sorry -- FLT#521 -- induction on size of ι
 
 end pi
 
@@ -245,54 +271,80 @@ section restrictedproduct
 
 open ENNReal
 
+-- some sample code to show how why a nonempty compact open has
+-- positive finite Haar measure
 example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
     [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
-    [IsHaarMeasure μ] [Regular μ] (C : Set X) [Nonempty C]
+    -- IsHaarMeasure gives "positive on opens" and "finite on compacts"
+    [IsHaarMeasure μ] (C : Set X) [Nonempty C]
     (hCopen : IsOpen C) (hCcompact : IsCompact C) :
     0 < μ C ∧ μ C < ∞ := by
   constructor
   · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
   · exact IsCompact.measure_lt_top hCcompact
 
-variable
-    -- let ι be an index set.
-    {ι : Type*}
-    -- Let Gᵢ be a family of locally compact abelian groups
-    {G : ι → Type*} [Π i, Group (G i)] [Π i, TopologicalSpace (G i)]
-    [∀ i, IsTopologicalGroup (G i)] [∀ i, LocallyCompactSpace (G i)]
-    [∀ i, MeasurableSpace (G i)] [∀ i, BorelSpace (G i)]
-    -- Let Cᵢ ⊆ Gᵢ be a compact open subgroup for all i
-    {C : (i : ι) → Subgroup (G i)} [Fact (∀ i, IsOpen (C i : Set (G i)))]
-    (hCcompact : ∀ i, CompactSpace (C i))
-    -- Let φᵢ : Gᵢ → Gᵢ be a multiplication-preserving homeomorphism
-    (φ : (i : ι) → G i ≃ₜ* G i)
-    -- and assume φᵢ(Cᵢ) = Cᵢ for all but finitely many i
-    (hφ : ∀ᶠ i in Filter.cofinite, φ i ⁻¹' (C i : Set (G i)) = (C i : Set (G i)))
-
 open RestrictedProduct
 
-/-- A restricted product of topological group isomorphisms is a topological
-group isomorphism. -/
-def ContinuousMulEquiv.restrictedProductCongrRight :
-    (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) where
-  toFun x := ⟨fun i ↦ φ i (x i), sorry⟩
-  invFun y := ⟨fun i ↦ (φ i).symm (y i), sorry⟩
-  left_inv _ := by ext; simp
-  right_inv _ := by ext; simp
-  map_mul' x₁ x₂ := by ext; simp
-  continuous_toFun := sorry
-  continuous_invFun := sorry
+-- sets
 
-open Topology in
-@[to_additive]
-lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
-    [TopologicalSpace X] [Group X] [IsTopologicalGroup X] [LocallyCompactSpace X]
-    [MeasurableSpace X] [BorelSpace X]
-    [TopologicalSpace Y] [Group Y] [IsTopologicalGroup Y] [LocallyCompactSpace Y]
-    [MeasurableSpace Y] [BorelSpace Y]
-    {f : X →* Y} (hf : IsOpenEmbedding f) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y)
-    (hComm : ∀ x, f (α x) = β (f x)) : mulEquivHaarChar α = mulEquivHaarChar β := by
-  sorry
+variable
+    -- let ι be an index types.
+    {ι : Type*}
+    -- Let Gᵢ and Hᵢ be families of types.
+    {G H : ι → Type*}
+    -- Let Cᵢ ⊆ Gᵢ and Dᵢ ⊆ Hᵢ be subsets for all i
+    {C : (i : ι) → Set (G i)}
+
+    {D : (i : ι) → Set (H i)}
+
+
+    -- [Fact (∀ i, IsOpen (C i : Set (G i)))]
+    -- [∀ i, CompactSpace (C i)]
+    -- [Fact (∀ i, IsOpen (D i : Set (H i)))]
+    -- [Π i, Group (G i)]
+    -- [∀ i, IsTopologicalGroup (G i)] [∀ i, LocallyCompactSpace (G i)]
+    -- [∀ i, MeasurableSpace (G i)] [∀ i, BorelSpace (G i)]
+    -- [Π i, Group (H i)]
+    -- [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
+    -- [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+    -- {C : (i : ι) → Subgroup (G i)} [Fact (∀ i, IsOpen (C i : Set (G i)))]
+    -- [∀ i, CompactSpace (C i)]
+    -- {D : (i : ι) → Subgroup (H i)} [Fact (∀ i, IsOpen (D i : Set (H i)))]
+    -- [∀ i, CompactSpace (D i)]
+
+def _root_.RestrictedProduct.congrRight (φ : (i : ι) → G i → H i)
+    (hφ : ∀ᶠ i in Filter.cofinite, Set.MapsTo (φ i) (C i) (D i))
+    (x : Πʳ i, [G i, C i]) : (Πʳ i, [H i, D i]) :=
+  ⟨fun i ↦ φ i (x i), sorry⟩ -- FLT#530
+
+-- Now let's add continuity.
+
+variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)]
+
+theorem _root_.Continuous.restrictedProductcongrRight (φ : (i : ι) → G i → H i)
+    (hφ : ∀ᶠ i in Filter.cofinite, Set.MapsTo (φ i) (C i) (D i))
+    (hφcont : ∀ i, Continuous (φ i)) :
+    Continuous (RestrictedProduct.congrRight φ hφ) := by
+  sorry -- FLT#531
+
+#exit
+
+-- /-- A restricted product of topological group isomorphisms is a topological
+-- group isomorphism. -/
+-- @[to_additive]
+    -- Let φᵢ : Gᵢ → Hᵢ be a multiplication-preserving homeomorphism
+    -- and assume φᵢ(Cᵢ) = Dᵢ for all but finitely many i
+-- def _root_.ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
+--     (hφ : ∀ᶠ i in Filter.cofinite, Set.BijOn (φ i) (C i) (D i)) :
+--     (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [H i, D i]) where
+--   toFun x := ⟨fun i ↦ φ i (x i), sorry⟩ -- FLT#530
+--   invFun y := ⟨fun i ↦ (φ i).symm (y i), sorry⟩ -- FLT#530
+--   left_inv _ := by ext; simp
+--   right_inv _ := by ext; simp
+--   map_mul' x₁ x₂ := by ext; simp
+--   continuous_toFun := sorry -- FLT#531
+--   continuous_invFun := sorry -- FLT#531
+
 
 open ContinuousMulEquiv in
 lemma mulEquivHaarChar_restrictedProductCongrRight :

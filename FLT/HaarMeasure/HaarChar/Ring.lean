@@ -54,16 +54,22 @@ variable (R) in
 lemma ringHaarChar_continuous :
     Continuous (fun (u : Rˣ) ↦ addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)) := by
   /-
-    Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function
+    Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function f
   on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
-  Then $u \mapsto \int f(ux) d\mu(x)$ is a continuous function
+   -/
+  obtain ⟨⟨f, f_cont⟩, f_comp, f_nonneg, f_one⟩ :
+    ∃ f : C(R, ℝ), HasCompactSupport f ∧ 0 ≤ f ∧ f 1 ≠ 0 := exists_continuous_nonneg_pos 1
+  have int_f_ne_zero : ∫ x, f x ∂addHaar ≠ 0 :=
+    ne_of_gt (f_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero f_comp f_nonneg f_one)
+  /-
+    Then $u \mapsto \int f(ux) d\mu(x)$ is a continuous function
   of $R\to\R$ (because a continuous function with compact support is uniformly
    continuous) and thus gives a continuous function $R^\times\to\R$.
    Thus the function $u\mapsto (\int f(ux) d\mu(x))/(\int f(x)d\mu(x))$ is
    a continuous function from $R^\times$ to $\R$ taking values in $\R_{>0}$.
    Hence $\delta_R$ is continuous, from `mulEquivHaarChar_mul_integral`
    in the AddEquiv file
-   -/
+  -/
   sorry -- FLT#516
 
 /-- `ringHaarChar : Rˣ →ₜ* ℝ≥0` is the function sending a unit of
@@ -97,7 +103,7 @@ lemma ringHaarChar_mul_volume [MeasurableSpace R] [BorelSpace R]
     (μ : Measure R) [IsAddHaarMeasure μ]
     {X : Set R} (hf : MeasurableSet X) (u : Rˣ) :
     μ (u • X) = ringHaarChar u * μ X := sorry -- FLT#515
-    -- use addEquivAddHaarChar_mul_volume
+    -- use addEquivAddHaarChar_smul_preimage
 
 variable (R) in
 /-- The kernel of the `ringHaarChar : Rˣ → ℝ≥0`, namely the units

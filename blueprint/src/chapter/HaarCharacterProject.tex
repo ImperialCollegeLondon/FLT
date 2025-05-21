@@ -20,7 +20,7 @@ Let $A$ be a locally compact topological additive abelian group. There's then a 
 Haar measure $\mu$ on $A$, unique up to a positive scalar factor. If $\phi:(A,+)\cong(A,+)$ is a
 homeomorphism and an additive automorphism of $A$, then we can push forward $\mu$
 to get a second measure $\phi_*\mu$ on $A$, with the property that
-$\mu(\phi^{-1}X)=\phi_*\mu(X)$ for any Borel subset $X$ of $A$.
+$\mu(\phi^{-1}X)=(\phi_*\mu)(X)$ for any Borel subset $X$ of $A$.
 
 Now $\phi_*\mu$ is a translation-invariant and regular measure,
 and hence also a Haar measure on $A.$ It must thus differ from
@@ -35,7 +35,7 @@ and $d_A(\phi)^{-1}$, so let us be more precise.
   If $A$ is a locally compact topological additive abelian group,
   if $\mu$ is a regular Haar measure on $A$, and if $\phi:A\to A$ is an
   additive homeomorphism, then we let $d_A(\phi)$ denote the unique positive
-  real number such that $\mu(X)=d_A(\phi)\phi_*\mu(X)$ for any Borel set~$X$.
+  real number such that $\mu(X)=d_A(\phi)(\phi_*\mu)(X)$ for any Borel set~$X$.
 \end{definition}
 
 To give an example, if $\phi$ is multiplication by $2$ on the real numbers,
@@ -43,7 +43,7 @@ if $X=[0,1]$, and if $\mu$ is Lebesgue measure on the Borel subsets of $\R$,
 we have that $\phi_*\mu(X)=\mu(\phi^{-1}(X))=\mu([0,1/2])=1/2$,
 so $1=d_A(\phi)/2$ meaning that $d_A(\phi)=2$.
 
-Strictly speaking our definition depends on the choice of regular Haar
+Strictly speaking our definition of $d_A(\phi)$ depends on the choice of regular Haar
 measure $\mu$. Note that {\tt mathlib} offers a fixed Borel regular Haar measure
 {\tt MeasureTheory.Measure.haar} on any locally compact topological group
 and the actual definition of $d_A$ in the code uses this definition.
@@ -66,7 +66,7 @@ the definition is indeed independent of the choice of Haar measure.
   \leanok
   If $\mu'$ is a second choice then $\mu'=\lambda\mu$ for some
   positive real $\lambda$, and the $\lambda$s on each side of
-  $\mu'(X)=d_A(\phi)\phi_*\mu'(X)$ cancel.
+  $\mu'(X)=d_A(\phi)(\phi_*\mu')(X)$ cancel.
 \end{proof}
 
 \begin{lemma}
@@ -78,6 +78,7 @@ the definition is indeed independent of the choice of Haar measure.
   $d_A(\phi)(\phi_*\mu) = \mu.$
 \end{lemma}
 \begin{proof}
+  \leanok
   This is a restatement of the previous result.
 \end{proof}
 
@@ -92,6 +93,7 @@ Now let $\mu$ be any regular additive Haar measure on $A$.
   If $X$ is a Borel set then $\mu(X)=d_A(\phi)\mu(\phi^{-1}X)$.
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{MeasureTheory.addEquivAddHaarChar_map}
   This follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
   and the definition of the pushforward of a measure.
@@ -107,6 +109,7 @@ Now let $\mu$ be any regular additive Haar measure on $A$.
   $d_A(\phi)\int f(x)d\phi_*\mu(x)=\int f(x)d\mu(x)$.
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{MeasureTheory.addEquivAddHaarChar_map}
   This also follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}.
 \end{proof}
@@ -146,9 +149,12 @@ The following are also straightforward.
 \end{lemma}
 \begin{proof}
   \uses{MeasureTheory.addEquivAddHaarChar_smul_preimage}
-  It suffices to prove that $d_A(\phi\circ\psi)(\phi\circ\psi)_*\mu=d_A(\phi)d_A(\psi)(\phi\circ\psi)_*\mu$
-  and this follows from an easy calculation using lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
-  and the fact that $(\phi\circ\psi)_*\mu=\phi_*(\psi_*\mu)$.
+  Here's one way: it suffices to prove that
+  $d_A(\phi\circ\psi)(\phi\circ\psi)_*\mu=d_A(\phi)d_A(\psi)(\phi\circ\psi)_*\mu$
+  (because there exists a compact set with positive finite measure)
+  and using lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
+  and the fact that $(\phi\circ\psi)_*\mu=\phi_*(\psi_*\mu)$
+  one can simplify both sides to $\mu$.
 \end{proof}
 
 \subsection{Scaling Haar measure on a ring}
@@ -214,13 +220,15 @@ The next result lies a little deeper.
 \begin{proof}
   \uses{MeasureTheory.ringHaarChar_mul_integral}
   Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function
-  on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
-  Then $u \mapsto \int f(ux) d\mu(x)$ is a continuous function
-  of $R\to\R$ (because a continuous function with compact support is uniformly
+  $f$ on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
+  Then $r \mapsto \int f(rx) d\mu(x)$ is a continuous function
+  from $R\to\R$ (because a continuous function with compact support is uniformly
    continuous) and thus gives a continuous function $R^\times\to\R$.
    Thus the function $u\mapsto (\int f(ux) d\mu(x))/(\int f(x)d\mu(x))$ is
    a continuous function from $R^\times$ to $\R$ taking values in $\R_{>0}$.
-   Hence $\delta_R$ is continuous, from lemma~\ref{MeasureTheory.ringHaarChar_mul_integral}.
+   Hence $\delta_R^{-1}$ is continuous,
+   from lemma~\ref{MeasureTheory.ringHaarChar_mul_integral},
+   and thus $\delta_R$ is too.
 \end{proof}
 
 \section{Examples}
@@ -461,19 +469,80 @@ Here are two facts which we will need about products.
   Follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_piCongrRight}.
 \end{proof}
 
+\section{Some topological preliminaries}
+
+\begin{lemma}
+  \label{MeasureTheory.mulEquivHaarChar_eq_one_of_CompactSpace}
+  \lean{MeasureTheory.mulEquivHaarChar_eq_one_of_CompactSpace}
+  \leanok
+  \discussion{532}
+  Say $A$ is a compact topological additive group and $\phi:G\to G$ is an additive isomorphism.
+Then $d_G(\phi)=1.$
+\end{lemma}
+\begin{proof}
+  \uses{MeasureTheory.mulEquivHaarChar_smul_preimage}
+  We have $d_A(\phi)\mu(G)=\mu(G)$
+  from lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_preimage}
+  and $\mu(G)$ is positive and finite because $G$ is open and compact.
+\end{proof}
+
+\begin{lemma}
+  \label{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding}
+  \lean{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding}
+  If $f:A\to B$ is a group homomorphism and open embedding between locally compact
+  topological additive groups and if $\alpha:A\to A$ and $\beta:B\to B$ are additive
+  homeomorphisms such that the square commutes (i.e., $f\circ\alpha=\beta\circ f$)
+  then $d_A(\alpha)=d_B(\beta)$.
+\end{lemma}
+\begin{proof} Choose a Haar measure $\mu_B$ on $B$. Its pullback $\mu_A:=f^*\mu_B$ to $A$ is also a Haar
+  measure. Now fix a continuous compactly-supported function $g$ on $A$ with
+  $0<\int g(a)d\mu(a)<\infty$. Then $d_A(\alpha)\int g(a)d\mu_A(a)=\int g(a)d(\alpha^*\mu_A)(a)$
+  which is $\int g(a)d(\alpha^* f^*\mu_B)(a)$ which is $\int g(a)d(f^*\beta^*\mu_B)(a)$
+  which is $d_B(\beta)\int g(a) d(f^*\mu_B)(a)$ which is $d_B(\beta)\int g(a)d\mu_A(a)$
+  and so $d_A(\alpha)=d_B(\beta)$ as required.
+\end{proof}
+
 \section{Restricted products}
 
-Remark: there is essentially no Lean formalization of the rest of this miniproject;
-I (kmb) am actively working on writing this Lean code (2025-05-17).
+Now say $A=\prod'_i A_i$ is the restricted product of a collection of types $A_i$
+  equipped with subsets $C_i$. Say $B=\prod'_i B_i$ is the restricted
+  product of types $B_i$ over the same index set, with respect to
+  subsets $D_i$. Say $\phi_i:A_i\to B_i$ are functions
+  with the property that $\phi_i(C_i)\subseteq D_i$ for all but finitely many $i$.
+It is easily checked that the $\phi_i$ induce a function $\phi:=\prod'_i\phi_i:A\to B$. It is also easily
+check that if all the $A_i$ and $B_i$ are groups or rings, the $C_i$ and $D_i$ are subgroups
+or subrings,
+and the $\phi_i$ are group or ring homomorphisms, then $\phi$ is a group or ring homomorphism.
+However topological facts lie a little deeper.
 
-Now say $A=\prod'_i A_i$ is the restricted product of a collection of topological abelian additive groups $A_i$
-  equipped with compact open subgroups $C_i$. Say $\phi_i:A_i\to A_i$ are additive homeomorphisms
-  with the property that $\phi_i(C_i)=C_i$ for all but finitely many $i$. Then the restricted
-  product $\prod'_i\phi_i$ is an additive homeomorphism $\phi:A\to A$. Note also that
+\begin{lemma}
+  \lean{Continuous.restrictedProductCongrRight}
+  \label{Continuous.restrictedProductCongrRight}
+  \leanok
+  \discussion{531}
+  If the $A_i$ and $B_i$ are topological spaces and the $\phi_i$ are continuous functions,
+  then the restricted product $\phi = \prod'_i\phi_i$ is a continuous function.
+\end{lemma}
+\begin{proof}
+  We use the universal property {\tt RestrictedProduct.continuous\_dom} of the
+  topology in mathlib to reduce to the claim that for all finite $S$,
+  the induced map $A_S:=\prod_{i\in S}A_i\times\prod_{i\notin S}C_i\to B$ is continuous.
+  Because the inclusion $A_S\to A_T$ is continuous for $S\subseteq T$ we are reduced
+  to checking this claim for $S$ sufficiently large that it contains all of the $i$
+  for which $\phi(C_i)\not=D_i$. For such $S$, this map $A_S\to B$ factors as $A_S\to B_S\to B$
+  and $B_S\to B$ is continuous, so it suffices to prove that $A_S\to B_S$ is continuous, but
+  this is just a product of continuous maps.
+\end{proof}
+
+We now focus on the case that $B_i=A_i$ and $D_i=C_i$.
+
+\begin{lemma}
+ Note also that
   $d_{A_i}(\phi_i)=1$ for all the $i$ such that $\phi_i(C_i)=C_i$, as $d_{A_i}(\phi_i)$ can be
   computed as $\mu(\phi_i(C_i))/\mu(C_i)$ and $\mu(C_i)$ is guaranteed to have positive finite measure
   as it is open and compact. Thus the product $\prod_i\delta(\phi_i)$ is a finite product (and in
   particular cannot diverge to $0$). Moreover, we have
+\end{lemma}
 
 \begin{lemma}
   \label{addHaarScalarFactor_restricted_product}
