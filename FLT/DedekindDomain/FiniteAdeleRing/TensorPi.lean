@@ -34,32 +34,20 @@ theorem Module.FinitePresentation.exists_fin_exact (R : Type*) (M : Type*)
   [Ring R] [AddCommGroup M] [Module R M] [fp : Module.FinitePresentation R M] :
   ∃ (n m : ℕ) (f : (Fin m → R) →ₗ[R] (Fin n → R)) (g : (Fin n → R) →ₗ[R] M),
     Exact f g ∧ Surjective g := by
-
-  choose n K iso S hS using Module.FinitePresentation.exists_fin R M
-
+  obtain ⟨n, K, iso, S, hS⟩ := Module.FinitePresentation.exists_fin R M
   let m := S.card
-
   let gens : Fin m → (Fin n → R) := Subtype.val ∘ (Finset.equivFin S).symm
-
   let f : (Fin m → R) →ₗ[R] (Fin n → R) := Fintype.linearCombination R gens
-
   let g : (Fin n → R) →ₗ[R] M := iso.symm.toLinearMap.comp (Submodule.mkQ K)
-
   have h₁ : LinearMap.range f = K := by
-    rw [← hS]
-    simp only [f, Fintype.range_linearCombination, gens, (Function.Surjective.range_comp
-      (Finset.equivFin S).symm.surjective Subtype.val).trans Subtype.range_val_subtype]
-    rfl
-
+    simp only [← hS, f, Fintype.range_linearCombination, gens, (Surjective.range_comp
+    (Finset.equivFin S).symm.surjective Subtype.val), Subtype.range_val_subtype, Finset.setOf_mem]
   have h₂ : LinearMap.ker g = K := by
     simp only [g, LinearEquiv.ker_comp, Submodule.ker_mkQ]
-
   have exact_fg : Exact f g := LinearMap.exact_iff.mpr (h₂.trans h₁.symm)
-
   have : Surjective g := by
     simp only [g, LinearMap.coe_comp, LinearEquiv.coe_coe, EquivLike.comp_surjective,
       Submodule.mkQ_surjective]
-
   exact ⟨n, m, f, g, exact_fg, this⟩
 
 end
@@ -201,68 +189,64 @@ universe u
 
 open TensorProduct
 
-variable {R : Type*} (M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
+variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)]
 
-/-- Tensoring with a finitly presented module commutes with arbitrary products. -/
+/-- Tensoring with a finitely presented module commutes with arbitrary products.
+To prove this, we consider the following commutative diagram. The goal is to show
+that `i₃` is an isomorphism, which we do using the five lemma:
+
+Rᵐ ⊗[R] (Π i, N i) --f₁--> Rⁿ ⊗[R] (Π i, N i) --f₂--> M ⊗[R] (Π i, N i) --f₃--> 0 --f₄--> 0
+        |                         |                         |                      |        |
+        i₁                        i₂                        i₃                     i₄       i₅
+        |                         |                         |                      |        |
+        v                         v                         v                      v        v
+Π i, (Rᵐ ⊗[R] N i) --g₁--> Π i, (Rⁿ ⊗[R] N i) --g₂--> Π i, (M ⊗[R] N i) --g₃--> 0 --g₄--> 0
+-/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
-    M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := by
-  choose n m f g exact surj using Module.FinitePresentation.exists_fin_exact R M
-
-  set M1 := (Fin m → R) ⊗[R] (Π i, N i)
-  set M2 := (Fin n → R) ⊗[R] (Π i, N i)
-  set M3 := M ⊗[R] (Π i, N i)
-  set M4 : Type u := PUnit
-  set M5 : Type u := PUnit
-
-  set N1 := Π i, ((Fin m → R) ⊗[R] N i)
-  set N2 := Π i, ((Fin n → R) ⊗[R] N i)
-  set N3 := Π i, (M ⊗[R] N i)
-  set N4 : Type u := PUnit
-  set N5 : Type u := PUnit
-
-  set i₁ : M1 →ₗ[R] N1 := (tensorPi_equiv_piTensor R (Fin m → R) N).toLinearMap
-  set i₂ : M2 →ₗ[R] N2 := (tensorPi_equiv_piTensor R (Fin n → R) N).toLinearMap
-  set i₃ : M3 →ₗ[R] N3 := TensorProduct.piRightHom R R M N
-  set i₄ : M4 →ₗ[R] N4 := LinearMap.id   -- map to zero to zero
-  set i₅ : M5 →ₗ[R] N5 := LinearMap.id  -- map to zero to zero
-
-  set f₁ : M1 →ₗ[R] M2 := f.rTensor (Π i, N i)
-  set f₂ : M2 →ₗ[R] M3 := g.rTensor (Π i, N i)
-  set f₃ : M3 →ₗ[R] M4 := 0
-  set f₄ : M4 →ₗ[R] M5 := LinearMap.id -- map to zero to zero
-
-  set g₁ : N1 →ₗ[R] N2 :=
+    M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := IsTensorProduct.equiv <| by
+  obtain ⟨n, m, f, g, exact, surj⟩ := Module.FinitePresentation.exists_fin_exact R M
+  set i₁ : (Fin m → R) ⊗[R] (Π i, N i) →ₗ[R] Π i, ((Fin m → R) ⊗[R] N i) :=
+    (tensorPi_equiv_piTensor R (Fin m → R) N).toLinearMap
+  set i₂ : (Fin n → R) ⊗[R] (Π i, N i) →ₗ[R] Π i, ((Fin n → R) ⊗[R] N i) :=
+    (tensorPi_equiv_piTensor R (Fin n → R) N).toLinearMap
+  set i₃ : M ⊗[R] (Π i, N i) →ₗ[R] Π i, (M ⊗[R] N i) := TensorProduct.piRightHom R R M N
+  set i₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id   -- map to zero to zero
+  set i₅ : (PUnit : Type u)  →ₗ[R] (PUnit : Type u)  := LinearMap.id  -- map to zero to zero
+  set f₁ : (Fin m → R) ⊗[R] (Π i, N i) →ₗ[R] (Fin n → R) ⊗[R] (Π i, N i) := f.rTensor (Π i, N i)
+  set f₂ : (Fin n → R) ⊗[R] (Π i, N i) →ₗ[R] M ⊗[R] (Π i, N i) := g.rTensor (Π i, N i)
+  set f₃ : M ⊗[R] (Π i, N i) →ₗ[R] (PUnit : Type u) := 0
+  set f₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id -- map to zero to zero
+  set g₁ : (Π i, ((Fin m → R) ⊗[R] N i)) →ₗ[R] Π i, ((Fin n → R) ⊗[R] N i) :=
     LinearMap.pi (fun i ↦ (LinearMap.rTensor (N i) f)  ∘ₗ LinearMap.proj i)
-  set g₂ : N2 →ₗ[R] N3 :=
+  set g₂ : (Π i, ((Fin n → R) ⊗[R] N i)) →ₗ[R] Π i, (M ⊗[R] N i) :=
     LinearMap.pi (fun i ↦ (LinearMap.rTensor (N i) g)  ∘ₗ LinearMap.proj i)
-  set g₃ : N3 →ₗ[R] N4 := 0 -- map to zero
-  set g₄ : N4 →ₗ[R] N5 := LinearMap.id -- map to zero to zero
-
+  set g₃ : (Π i, (M ⊗[R] N i)) →ₗ[R] (PUnit : Type u) := 0 -- map to zero
+  set g₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id -- map to zero to zero
   have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
     refine ext' fun x y ↦ ?_
-    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, i₁, g₁, N2, N1]
-    rw [LinearMap.rTensor_tmul]
-    erw [tensorPi_equiv_piTensor_apply, tensorPi_equiv_piTensor_apply]
+    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, i₁, g₁,
+      LinearEquiv.coe_coe]
+    rw [LinearMap.rTensor_tmul, tensorPi_equiv_piTensor_apply, tensorPi_equiv_piTensor_apply]
     ext i
     simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
       LinearMap.rTensor_tmul]
   have hc₂ : g₂ ∘ₗ i₂ = i₃ ∘ₗ f₂ := by
     refine ext' fun x y ↦ ?_
-    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, g₂, N3, N2, i₃]
+    simp only [LinearMap.coe_comp, comp_apply, IsLinearMap.mk'_apply, i₂, g₂, i₃]
     rw [LinearMap.rTensor_tmul, piRightHom_tmul]
     ext i
-    simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply]
-    erw [tensorPi_equiv_piTensor_apply, LinearMap.rTensor_tmul]
+    simp only [LinearMap.pi_apply, LinearMap.coe_comp, Function.comp_apply, LinearMap.proj_apply,
+      LinearEquiv.coe_coe]
+    rw [tensorPi_equiv_piTensor_apply, LinearMap.rTensor_tmul]
   have hc₃ : g₃ ∘ₗ i₃ = i₄ ∘ₗ f₃ := rfl
   have hc₄ : g₄ ∘ₗ i₄ = i₅ ∘ₗ f₄ := rfl
-
   have hf₁ : Function.Exact f₁ f₂ := rTensor_exact ((i : ι) → N i) exact surj
   have hf₂ : Function.Exact f₂ f₃ :=
     (LinearMap.exact_zero_iff_surjective _ _).mpr (LinearMap.rTensor_surjective _ surj)
   have hf₃ : Function.Exact f₃ f₄ :=
-    (LinearMap.exact_zero_iff_injective M3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
+    (LinearMap.exact_zero_iff_injective _ LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
   have hg₁ : Function.Exact g₁ g₂ := by
     intro y
     rw [Set.mem_range]
@@ -283,8 +267,7 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
         Classical.choose (LinearMap.rTensor_surjective (N i) surj (y i)), funext fun i ↦ ?_⟩
     exact Classical.choose_spec (LinearMap.rTensor_surjective (N i) surj (y i))
   have hg₃ : Function.Exact g₃ g₄ :=
-    (LinearMap.exact_zero_iff_injective N3 LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
-
+    (LinearMap.exact_zero_iff_injective _ LinearMap.id).mpr fun ⦃a₁ a₂⦄ ↦ congrFun rfl
   have hi₁ : Function.Surjective i₁ := (tensorPi_equiv_piTensor R (Fin m → R) N).surjective
   have hi₂ : Function.Bijective i₂ := ((tensorPi_equiv_piTensor R (Fin n → R) N)).bijective
   have hi₄ : Function.Bijective i₄ := Function.bijective_id
@@ -292,5 +275,7 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   have := LinearMap.bijective_of_surjective_of_bijective_of_bijective_of_injective
     f₁ f₂ f₃ f₄ g₁ g₂ g₃ g₄ i₁ i₂ i₃ i₄ i₅
     hc₁ hc₂ hc₃ hc₄ hf₁ hf₂ hf₃ hg₁ hg₂ hg₃ hi₁ hi₂ hi₄ hi₅
+  exact this
 
-  exact IsTensorProduct.equiv this
+lemma tensorPi_equiv_piTensor'_apply (m : M) (n : ∀ i, N i) :
+    tensorPi_equiv_piTensor' R M N (m ⊗ₜ n) = fun i ↦ (m ⊗ₜ n i) := rfl
