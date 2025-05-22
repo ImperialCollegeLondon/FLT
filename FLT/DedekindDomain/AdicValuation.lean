@@ -132,8 +132,8 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.mp hz
   use y
   -- And again prove the result about valuations by turning into one about ideals.
-  rwa [hy, ← hxz, sub_add_cancel_right, intValuation_apply,
-      intValuation_le_pow_iff_dvd, Ideal.dvd_span_singleton, neg_mem_iff]
+  rwa [hy, ← hxz, sub_add_cancel_right, intValuation_le_pow_iff_dvd, Ideal.dvd_span_singleton,
+    neg_mem_iff]
 
 lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K))}
     (γ : (WithZero (Multiplicative ℤ))ˣ) (hx : Valued.v x ≤ 1) :
@@ -261,7 +261,7 @@ instance : (v.completionIdeal K).LiesOver v.asIdeal where
     rw [Ideal.under_def]
     ext x
     simp only [Ideal.mem_comap, mem_completionIdeal_iff, algebraMap_completionIntegers,
-      valuedAdicCompletion_eq_valuation, valuation_eq_intValuationDef, intValuation_lt_one_iff_dvd,
+      valuedAdicCompletion_eq_valuation, valuation_of_algebraMap, intValuation_lt_one_iff_dvd,
       Ideal.dvd_span_singleton]
 
 open IsLocalRing in
@@ -323,9 +323,8 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
   intro i hi
   specialize ha i hi
   specialize hf ⟨i, hi⟩
-  rw [← Ideal.dvd_span_singleton, ← intValuation_le_pow_iff_dvd,
-      ← intValuation_apply, ← valuation_of_algebraMap (K := K),
-      ← valuedAdicCompletion_eq_valuation, algebraMap.coe_sub] at ha
+  rw [← Ideal.dvd_span_singleton, ← intValuation_le_pow_iff_dvd, ← valuation_of_algebraMap (K := K),
+  ← valuedAdicCompletion_eq_valuation, algebraMap.coe_sub] at ha
   refine lt_of_le_of_lt ?_ (Valuation.map_add_lt _ (ha.trans_lt (he' i)) hf)
   apply le_of_eq
   congr
@@ -432,7 +431,7 @@ theorem exists_uniformizer (v : HeightOneSpectrum A) :
   obtain ⟨π, hπ⟩ := v.intValuation_exists_uniformizer
   use π
   rw [← hπ, ← ValuationSubring.algebraMap_apply, ← IsScalarTower.algebraMap_apply,
-    v.valuedAdicCompletion_eq_valuation, v.valuation_eq_intValuationDef]
+    v.valuedAdicCompletion_eq_valuation, v.valuation_of_algebraMap]
 
 variable {K} in
 theorem uniformizer_ne_zero {v : HeightOneSpectrum A}
