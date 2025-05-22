@@ -127,7 +127,7 @@ lemma mulEquivHaarChar_smul_integral_map (μ : Measure G)
   nth_rw 1 [← mulEquivHaarChar_map μ φ]
   simp
 
--- @[to_additive addEquivAddHaarChar_smul_integral_comap] -- TODO fix this
+@[to_additive addEquivAddHaarChar_smul_integral_comap]
 lemma mulEquivHaarChar_smul_integral_comap (μ : Measure G)
     [IsHaarMeasure μ] [Regular μ] {f : G → ℝ} (φ : G ≃ₜ* G) :
     ∫ (a : G), f a ∂(comap φ μ) = (mulEquivHaarChar φ) • ∫ a, f a ∂μ := by
@@ -137,9 +137,9 @@ lemma mulEquivHaarChar_smul_integral_comap (μ : Measure G)
   haveI : (map (e.symm) μ).Regular := φ.symm.toHomeomorph.regular_map μ
   rw [← e.map_symm, mulEquivHaarChar_smul_integral_map (map e.symm μ) φ,
     map_map (by exact φ.toHomeomorph.toMeasurableEquiv.measurable) e.symm.measurable]
-  congr
-  convert map_id
-  ext; simp [e]
+  -- congr -- breaks to_additive -- TODO minimise and report?
+  rw [show ⇑φ ∘ ⇑e.symm = id by ext; simp [e]]
+  simp
 
 @[to_additive addEquivAddHaarChar_smul_preimage]
 lemma mulEquivHaarChar_smul_preimage
