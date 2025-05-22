@@ -83,6 +83,11 @@ def _root_.LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[F] A where
   map_add' x₁ x₂ := left_distrib ↑u x₁ x₂
   map_smul' f x := by simp
 
+@[simp]
+theorem LinearEquiv.coe_mulLeft (u : Aˣ) :
+    (LinearEquiv.mulLeft F u : A →ₗ[F] A) = LinearMap.mulLeft F (u : A) :=
+  rfl
+
 -- needs PRing
 /-- The F-linear equivalence on an F-algebra induced by right multiplication
 by a unit
@@ -94,3 +99,8 @@ def _root_.LinearEquiv.mulRight (u : Aˣ) : A ≃ₗ[F] A where
   right_inv y := by simp [mul_assoc]
   map_add' x₁ x₂ := right_distrib x₁ x₂ u
   map_smul' f x := by simp
+
+@[simp]
+theorem LinearEquiv.coe_mulRight (u : Aˣ) :
+    (LinearEquiv.mulRight F u : A →ₗ[F] A) = LinearMap.mulRight F (u : A) :=
+  rfl
