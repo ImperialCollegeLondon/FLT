@@ -169,8 +169,49 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 
 end Aux
 
+def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸 :=
+  fun i => (i.1, i⁻¹.1)
+
+def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D) (Aux.C K D)
+
+def MtoQuot : (ringHaarChar_ker D_𝔸) → (ringHaarChar_ker D_𝔸 ⧸
+    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) :=
+  fun a => Quot.mk _ a
+
+lemma rinHaarChar_ker_isCompact : IsCompact (ringHaarChar_ker D_𝔸) := by
+  -- this is true since this is a closed subset of D_𝔸ˣ, which is a closed subset of D_𝔸 x D_𝔸
+  -- which is compact by product of compact spaces
+  sorry
+
 lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
-  (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := sorry
+    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := by
+  have h1 : IsClosed (M K D) := by
+    have h11 : Continuous (incl₂ K D) := by
+      -- inclusion? so should be trivial by product topology (and subspace topology)
+      sorry
+    have h12 : IsClosed (Aux.C K D) := by
+      -- I think this is what I need?
+      sorry
+    rw [M]
+    exact IsClosed.preimage h11 h12
+  have h2 : IsCompact (M K D) := by
+    -- exact IsClosed.isCompact h1
+    sorry
+  refine isCompact_univ_iff.mp ?_
+  have h3 : Set.SurjOn (MtoQuot K D) (M K D) Set.univ := by
+    sorry
+  have h4 : Continuous (MtoQuot K D) := by
+    exact { isOpen_preimage := fun s a ↦ a }
+  have h5 : IsClosed (Set.preimage (MtoQuot K D) (Set.univ)) := by
+    exact closure_subset_iff_isClosed.mp fun ⦃a⦄ a ↦ trivial
+  have h6 : IsCompact (Set.preimage (MtoQuot K D) (Set.univ)) := by
+    -- exact IsClosed.isCompact h5
+    sorry
+  have h7 := IsCompact.image h6 h4
+  have h8 : (MtoQuot K D '' (MtoQuot K D ⁻¹' Set.univ)) = Set.univ := by
+    exact Set.SurjOn.image_preimage h3 fun ⦃a⦄ a ↦ a
+  rw [h8] at h7
+  exact h7
 
 end NumberField.AdeleRing.DivisionAlgebra
 
