@@ -19,8 +19,8 @@ of this material.
 Let $A$ be a locally compact topological additive abelian group. There's then a regular additive
 Haar measure $\mu$ on $A$, unique up to a positive scalar factor. If $\phi:(A,+)\cong(A,+)$ is a
 homeomorphism and an additive automorphism of $A$, then we can push forward $\mu$
-to get a second measure $\phi_*\mu$ on $A$, with the property that
-$\mu(\phi^{-1}X)=(\phi_*\mu)(X)$ for any Borel subset $X$ of $A$.
+along $\phi$ to get a second measure $\phi_*\mu$ on $A$, with the property that
+$(\phi_*\mu)(X)=\mu(\phi^{-1}X)$ for any Borel subset $X$ of $A$.
 
 Now $\phi_*\mu$ is a translation-invariant and regular measure,
 and hence also a Haar measure on $A.$ It must thus differ from
@@ -84,6 +84,9 @@ the definition of $d_A(\phi)$ is indeed independent of the choice of Haar measur
   This is a restatement of the previous result.
 \end{proof}
 
+We can of course also pull a Haar measure $\mu$ back along a homeomorphism $\phi$,
+giving a measure $\phi^*\mu$ such that $\phi^*\mu(X)=\mu(\phi(X))$.
+
 \begin{corollary}
   \lean{MeasureTheory.addEquivAddHaarChar_comap}
   \label{MeasureTheory.addEquivAddHaarChar_comap}
@@ -95,8 +98,7 @@ the definition of $d_A(\phi)$ is indeed independent of the choice of Haar measur
 \begin{proof}
   \leanok
   This follows from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
-  applied to $\phi^*\mu$ and the fact that $\phi_*\phi^*\mu=\mu$ as
-  $\phi$ is a measurable isomorphism for the Borel sigma-algebra.
+  applied to the regular Haar measure $\phi^*\mu$ and the fact that $\phi_*\phi^*\mu=\mu$.
 \end{proof}
 
 Now let $\mu$ be any regular additive Haar measure on $A$.
@@ -403,7 +405,7 @@ the same determinant.
   Say $B$ is a finite-dimensional central simple algebra over a field~$k$,
   and $u\in B^\times$. Let $\ell_u:B\to B$ be the $k$-linear maping $x$ to $ux$ and
   let $r_u:B\to B$ be the $k$-linear map sending $x$ to $xu$. Then
-  $\det(\ell_u)=\det(r_u)$ as $k$-linear endomorphisms of $B$.
+  $\det(\ell_u)=\det(r_u)$.
 \end{lemma}
 \begin{proof}
   Determinants are unchanged by base extension, so WLOG $k$ is algebraically closed.
@@ -418,7 +420,7 @@ the same determinant.
   \lean{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
   \leanok
   If $B$ is a central simple algebra over a locally compact field $F$, and if $u\in B^\times$,
-  then $\delta_B(u):=d_B(\ell_u)$ is equal to $d_B(r_u)$.
+  then $d_B(r_u)-\delta_B(u)$ (recall that the latter is defined to mean $d_B(\ell_u)$).
 \end{corollary}
 \begin{proof}
   \leanok
@@ -604,6 +606,7 @@ However topological facts lie a little deeper.
 
 We now focus on the case that $B_i=A_i$ and $D_i=C_i$.
 
+***************************All fine up to here**************************
 \begin{lemma}
  Note also that
   $d_{A_i}(\phi_i)=1$ for all the $i$ such that $\phi_i(C_i)=C_i$, as $d_{A_i}(\phi_i)$ can be
