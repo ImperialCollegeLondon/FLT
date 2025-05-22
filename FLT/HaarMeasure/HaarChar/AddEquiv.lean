@@ -310,6 +310,7 @@ variable {ι : Type*}
 
 open Pointwise in
 include C in
+variable (C) in
 lemma wlc : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦ .mk fun x ↦
     ⟨x • (C i : Set (G i)), .smul _ (isCompact_iff_compactSpace.mpr inferInstance),
       hCopen.out i |>.smul _ |>.mem_nhds <| by
@@ -324,26 +325,27 @@ lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G 
     (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
     letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
     haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-    haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := wlc (C := C)
+    haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := wlc C
     mulEquivHaarChar
       (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
   letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
   haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-  -- the below code creates a compact open in the restricted product and shows
-  -- it has Haar measure 0 < μ < ∞ but I'm not sure I want to go this way
-  set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
-  have := isOpenEmbedding_structureMap (R := G) (A := fun i ↦ (C i : Set (G i))) Fact.out
-  have isOpenEmbedding := this
-  apply Topology.IsOpenEmbedding.isOpen_range at this
-  rw [range_structureMap] at this
-  have hXopen : IsOpen X := this
-  have hXnonempty : Nonempty X := Nonempty.intro ⟨⟨fun x ↦ 1, Filter.Eventually.of_forall <|
-    fun _ ↦ one_mem _⟩, fun _ ↦ one_mem _⟩
-  have hXμpos : 0 < haar X := IsOpen.measure_pos haar hXopen Set.Nonempty.of_subtype
-  have hXcompact : IsCompact X := by
-    have := isCompact_range isOpenEmbedding.continuous
-    rw [range_structureMap] at this
-    apply this
-  have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
+  -- -- the below code creates a compact open in the restricted product and shows
+  -- -- it has Haar measure 0 < μ < ∞ but I've realised I don't know what to do next.
+  -- -- The blueprint has a proof which I can make work.
+  -- set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
+  -- have := isOpenEmbedding_structureMap (R := G) (A := fun i ↦ (C i : Set (G i))) Fact.out
+  -- have isOpenEmbedding := this
+  -- apply Topology.IsOpenEmbedding.isOpen_range at this
+  -- rw [range_structureMap] at this
+  -- have hXopen : IsOpen X := this
+  -- have hXnonempty : Nonempty X := Nonempty.intro ⟨⟨fun x ↦ 1, Filter.Eventually.of_forall <|
+  --   fun _ ↦ one_mem _⟩, fun _ ↦ one_mem _⟩
+  -- have hXμpos : 0 < haar X := IsOpen.measure_pos haar hXopen Set.Nonempty.of_subtype
+  -- have hXcompact : IsCompact X := by
+  --   have := isCompact_range isOpenEmbedding.continuous
+  --   rw [range_structureMap] at this
+  --   apply this
+  -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
   sorry
