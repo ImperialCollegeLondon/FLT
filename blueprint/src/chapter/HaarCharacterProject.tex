@@ -604,18 +604,20 @@ However topological facts lie a little deeper.
   this is just a product of continuous maps.
 \end{proof}
 
-We now focus on the case that $B_i=A_i$ and $D_i=C_i$.
+We now focus on the case that $B_i=A_i$ are locally compact groups, $D_i=C_i$ are compact
+open subgroups, and $\phi_i:A_i\to A_i$ are group isomorphisms and homeomorphisms sending
+$C_i$ to $C_i$ for all but finitely many $i$. Then the restricted product $A:=\prod'A_i$
+of the $A_i$ with respect to the $C_i$ is also a locally compact topological group, and the
+restricted product $\phi=\prod'\phi_i$ of the $\phi_i$ is a group isomorphism and homeomorphism,
+so we can ask how $d_A(\phi)$ compares to the $d_{A_i}(\phi_i)$.
 
-***************************All fine up to here**************************
-\begin{lemma}
- Note also that
-  $d_{A_i}(\phi_i)=1$ for all the $i$ such that $\phi_i(C_i)=C_i$, as $d_{A_i}(\phi_i)$ can be
-  computed as $\mu(\phi_i(C_i))/\mu(C_i)$ and $\mu(C_i)$ is guaranteed to have positive finite measure
-  as it is open and compact. Thus the product $\prod_i\delta(\phi_i)$ is a finite product (and in
-  particular cannot diverge to $0$). Moreover, we have
-\end{lemma}
+First note that $d_{A_i}(\phi_i)=1$ for all the $i$ such that $\phi_i(C_i)=C_i$, as
+$d_{A_i}(\phi_i)$ can be computed as $\mu(\phi_i(C_i))/\mu(C_i)$ and $\mu(C_i)$ is
+guaranteed to have positive finite measure as it is open and compact. Hence the product
+$\prod_id_{A_i}\phi_i$ is a finite product, in the sense that all but finitely many terms are 1.
+The following theorem shows that the value of this product is $d(\phi)$.
 
-\begin{lemma}
+\begin{theorem}
   \label{addHaarScalarFactor_restricted_product}
   %\lean{addHaarScalarFactor_restricted_product}
   With $A$, $A_i$, $C_i$, $\phi_i$, $\phi$ defined as above, we have
@@ -623,11 +625,15 @@ We now focus on the case that $B_i=A_i$ and $D_i=C_i$.
 \end{lemma}
 \begin{proof}
   Assume $\phi_i(C_i)=C_i$ for all $i\not\in S$, a finite set, and work in the
-  open subgroup $\prod_{i\in S}A_i\times\prod_{i\not\in S}C_i$. Then $\phi$ is an automorphism of
-  this open subgroup of $A$, and in particular we can compute $\delta(\phi)$ using
-  this group instead. Because $\prod_{i\not\in S}\phi_i$ is an automorphism of a compact
-  group we must have $\delta(\phi_{i\not\in S}\phi_i)=1$. Finally
-  $\delta(\prod_{i\in S}\phi_i)=\prod_{i\in S}\delta(\phi_i)$ by the previous result.
+  open subgroup $U:=\prod_{i\in S}A_i\times\prod_{i\not\in S}C_i$. Then $\phi$ induces
+  an automorphism of this open subgroup $U$ of $A$, and in particular
+  lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding} tells us
+  that we can compute $\delta(\phi)$ using this group~$U$ instead.
+  Because $\prod_{i\not\in S}\phi_i$ is an automorphism of the compact
+  group $\prod_{i\not\in S}C_i$ we must have $\delta(\phi_{i\not\in S}\phi_i)=1$
+  by lemma~\ref{MeasureTheory.mulEquivHaarChar_eq_one_of_compactSpace}. Finally
+  $\delta(\prod_{i\in S}\phi_i)=\prod_{i\in S}\delta(\phi_i)$ by
+  lemma~\ref{MeasureTheory.addEquivAddHaarChar_piCongrRight} and we are home.
 \end{proof}
 
 As a special case, if $R$ is the restricted product of a collection of topological rings $R_i$
