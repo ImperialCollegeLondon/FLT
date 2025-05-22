@@ -51,8 +51,10 @@ Note also that the code defines everything for multiplicative groups
 and uses {\tt @[to\_additive]} to deduce the corresponding results
 for additive groups.
 
-Here are some basic results about this construction. The first shows that
-the definition is indeed independent of the choice of Haar measure.
+Here are some basic results about this construction. In all of them,
+$A$ is a locally compact topological group and $\phi:A\to A$ is
+a group isomorphism and a homeomorphism. The first lemma shows that
+the definition of $d_A(\phi)$ is indeed independent of the choice of Haar measure.
 
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_eq}
@@ -74,12 +76,27 @@ the definition is indeed independent of the choice of Haar measure.
   \label{MeasureTheory.addEquivAddHaarChar_map}
   \uses{MeasureTheory.addEquivAddHaarChar_eq}
   \leanok
-  If $\mu$ is any regular Haar measure on $G$ then
+  If $\mu$ is any regular Haar measure on $A$ then
   $d_A(\phi)(\phi_*\mu) = \mu.$
 \end{lemma}
 \begin{proof}
   \leanok
   This is a restatement of the previous result.
+\end{proof}
+
+\begin{corollary}
+  \lean{MeasureTheory.addEquivAddHaarChar_comap}
+  \label{MeasureTheory.addEquivAddHaarChar_comap}
+  \uses{MeasureTheory.addEquivAddHaarChar_map}
+  \leanok
+  If $\mu$ is any regular Haar measure on $A$ then
+  $d_A(\phi)\mu = \phi^*\mu.$
+\end{corollary}
+\begin{proof}
+  \leanok
+  This follows from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
+  applied to $\phi^*\mu$ and the fact that $\phi_*\phi^*\mu=\mu$ as
+  $\phi$ is a measurable isomorphism for the Borel sigma-algebra.
 \end{proof}
 
 Now let $\mu$ be any regular additive Haar measure on $A$.
@@ -119,15 +136,14 @@ We also have the following variant:
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_smul_integral_comap}
   \lean{MeasureTheory.addEquivAddHaarChar_smul_integral_comap}
-  \uses{MeasureTheory.addEquivAddHaarChar_smul_integral_map}
+  \uses{MeasureTheory.addEquivAddHaarChar_comap}
   \leanok
   If $f:A\to\R$ is a Borel measurable function then
   $d_A(\phi)\int f(x)d\mu(x)=\int f(x)d\phi^*\mu(x)$.
 \end{lemma}
 \begin{proof}
   \leanok
-  This is immediate from the previous lemma applied to the pullback $\phi^*\mu$,
-  because $\phi$ is a measurable isomorphism so $\phi_*\phi^*\mu=\mu$.
+  This is immediate from corollary~\ref{MeasureTheory.addEquivAddHaarChar_comap}.
 \end{proof}
 
 Note that as a consequence of lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_preimage},
@@ -219,6 +235,7 @@ Also immediate from previous lemmas is
   If $X$ is a Borel subset of $R$ and $r\in R^\times$ then $\mu(rX)=\delta_R(r)\mu(X)$.
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{MeasureTheory.addEquivAddHaarChar_smul_preimage}
    Immediate from lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_preimage}.
 \end{proof}
@@ -544,8 +561,12 @@ Then $d_G(\phi)=1.$
   $\mu_A:=f^*\mu_B$ to $A$ is also a regular Haar
   measure. Now fix a continuous compactly-supported function $g$ on $A$ with
   $0<\int g(a)d\mu(a)<\infty$. Then $d_A(\alpha)\int g(a)d\mu_A(a)=\int g(a)d(\alpha^*\mu_A)(a)$
-  which is $\int g(a)d(\alpha^* f^*\mu_B)(a)$ which is $\int g(a)d(f^*\beta^*\mu_B)(a)$
-  which is $d_B(\beta)\int g(a) d(f^*\mu_B)(a)$ which is $d_B(\beta)\int g(a)d\mu_A(a)$
+  by lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_integral_comap}.
+  This equals $\int g(a)d(\alpha^* f^*\mu_B)(a)$ by definition,
+  which is $\int g(a)d(f^*\beta^*\mu_B)(a)$ because pullback of pullback is pullback.
+  This equals $d_B(\beta)\int g(a) d(f^*\mu_B)(a)$ by
+  corollary~\ref{MeasureTheory.addEquivAddHaarChar_comap}
+  which is $d_B(\beta)\int g(a)d\mu_A(a)$ by definition,
   and so $d_A(\alpha)=d_B(\beta)$ as required.
 \end{proof}
 

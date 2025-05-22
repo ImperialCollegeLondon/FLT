@@ -120,6 +120,18 @@ lemma mulEquivHaarChar_map (μ : Measure G)
   haveI : Regular (map φ μ) := (Regular.map_iff φ.toHomeomorph).mpr inferInstance
   exact (isMulLeftInvariant_eq_smul_of_regular μ (map φ μ)).symm
 
+@[to_additive]
+lemma mulEquivHaarChar_comap (μ : Measure G)
+    [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
+    (mulEquivHaarChar φ) • μ = comap φ μ := by
+  let e := φ.toHomeomorph.toMeasurableEquiv
+  rw [show ⇑φ = ⇑e from rfl, ← e.map_symm, show ⇑e.symm = ⇑φ.symm from rfl]
+  have : (map (⇑φ.symm) μ).Regular := φ.symm.toHomeomorph.regular_map μ
+  rw [← mulEquivHaarChar_map (map φ.symm μ) φ, map_map]
+  · simp
+  · exact φ.toHomeomorph.toMeasurableEquiv.measurable
+  · exact e.symm.measurable
+
 @[to_additive addEquivAddHaarChar_smul_integral_map]
 lemma mulEquivHaarChar_smul_integral_map (μ : Measure G)
     [IsHaarMeasure μ] [Regular μ] {f : G → ℝ} (φ : G ≃ₜ* G) :
