@@ -254,8 +254,25 @@ abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
+-- its breaking?? not sure what the difference to above is
+-- NumbeField.AdeleRing vs FiniteAdeleRing
+def α : (ringHaarChar_ker D_𝔸 ⧸ (MonoidHom.range
+    (NumberField.AdeleRing.DivisionAlgebra.incl K D)).comap (ringHaarChar_ker D_𝔸).subtype)
+    → (Dfx K D ⧸ (incl₁ K D).range) :=
+  fun a => a -- not sure if this is correct
+
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
+  have h1 : Continuous α := by
+    -- need to give quotient topology on RHS, then 'readily verified'
+    sorry
+  have h2 : IsSurjective α := by
+    -- main part of the proof, may need to be seperate lemma
+    sorry
+  have h3 : Set.preimage α Set.univ = Set.univ := by
+    -- surjective
+    sorry
+  -- exact IsCompact.image α (compact_quotient K D) h1 -- should work?
   sorry
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
