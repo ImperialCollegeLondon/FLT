@@ -169,16 +169,10 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     β = b * ν ∧ ((ν : D_𝔸), ((ν⁻¹ : D_𝔸ˣ) : D_𝔸)) ∈ C K D := by
   obtain ⟨x1, hx1, b1, ⟨b1, rfl⟩, eq1⟩ := X_meets_kernel K D hβ
   obtain ⟨x2, hx2, b2, ⟨b2, rfl⟩, eq2⟩ := X_meets_kernel' K D hβ
-  obtain ⟨x1,rfl⟩ : IsUnit x1 := by
-    have : x1 = ↑β⁻¹ * incl K D b1 := by
-      have eq1 := Mathlib.Tactic.LinearCombination.mul_const_eq eq1 ↑β⁻¹
-      (expose_names; exact (Units.eq_inv_mul_iff_mul_eq β).mpr eq1_1)
-    refine ⟨↑β⁻¹ * incl K D b1, Eq.symm this⟩
-  obtain ⟨x2, rfl⟩ : IsUnit x2 := by
-    have : x2 = incl K D b2 * ↑β := by
-      have eq2 := Mathlib.Tactic.LinearCombination.mul_eq_const eq2 (β : D ⊗[K] AdeleRing (𝓞 K) K)
-      (expose_names; exact (Units.mul_inv_eq_iff_eq_mul β).mp eq2_1)
-    refine ⟨incl K D b2 * β, Eq.symm this⟩
+  obtain ⟨x1, rfl⟩ : IsUnit x1 := ⟨↑β⁻¹ * incl K D b1,
+    Eq.symm ((Units.eq_inv_mul_iff_mul_eq β).mpr eq1)⟩
+  obtain ⟨x2, rfl⟩ : IsUnit x2 := ⟨incl K D b2 * β,
+    Eq.symm ((Units.mul_inv_eq_iff_eq_mul β).mp eq2)⟩
   have h : x2 * x1 ∈ T K D := ⟨by simpa only [Y] using (Set.mul_mem_mul hx2 hx1), b2 * b1,
     by simpa using Units.eq_iff.mp (id (Eq.symm (by simpa [mul_assoc] using
     (Mathlib.Tactic.LinearCombination'.mul_pf eq2 eq1))))⟩
