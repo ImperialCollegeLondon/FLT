@@ -5,6 +5,7 @@ Authors: Kevin Buzzard
 -/
 import FLT.HaarMeasure.HaarChar.AddEquiv
 import Mathlib.Algebra.Group.Pi.Units
+import Mathlib.MeasureTheory.Group.Pointwise
 
 open scoped NNReal
 
@@ -40,6 +41,11 @@ def mulRight (r : Rˣ) : R ≃ₜ+ R where
   map_add' x₁ x₂ := right_distrib x₁ x₂ r
   continuous_toFun := continuous_mul_right _
   continuous_invFun := continuous_mul_right _
+
+open Pointwise in
+@[simp]
+lemma preimage_mulLeft_smul (r : Rˣ) (s : Set R) :
+    ContinuousAddEquiv.mulLeft r ⁻¹' (r • s) = s := by ext; simp [Set.mem_smul_set, Units.smul_def]
 
 end ContinuousAddEquiv
 
@@ -94,17 +100,15 @@ lemma ringHaarChar_mul_integral
   convert addEquivAddHaarChar_smul_integral_map μ (ContinuousAddEquiv.mulLeft u) (f := f) using 1
   simp only [ringHaarChar_toFun, NNReal.smul_def, smul_eq_mul, mul_eq_mul_left_iff,
     NNReal.coe_eq_zero]
-  rw [MeasureTheory.integral_map]
-  · simp
-  · simp [ContinuousAddEquiv.mulLeft, (measurable_const_mul _).aemeasurable]
-  · exact Measurable.aestronglyMeasurable hf
+  rw [MeasureTheory.integral_map (by fun_prop) (by fun_prop)]
+  simp
 
 open Pointwise in
-lemma ringHaarChar_mul_volume [MeasurableSpace R] [BorelSpace R]
-    (μ : Measure R) [IsAddHaarMeasure μ]
+lemma ringHaarChar_mul_volume (μ : Measure R) [IsAddHaarMeasure μ] [μ.Regular]
     {X : Set R} (hf : MeasurableSet X) (u : Rˣ) :
-    μ (u • X) = ringHaarChar u * μ X := sorry -- FLT#515
-    -- use addEquivAddHaarChar_smul_preimage
+    μ (u • X) = ringHaarChar u * μ X := by
+  simp [ringHaarChar_toFun,
+    addEquivAddHaarChar_smul_preimage _ (hf.const_smul _) (ContinuousAddEquiv.mulLeft u)]
 
 variable (R) in
 /-- The kernel of the `ringHaarChar : Rˣ → ℝ≥0`, namely the units
