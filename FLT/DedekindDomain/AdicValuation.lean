@@ -324,7 +324,7 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
   specialize ha i hi
   specialize hf ⟨i, hi⟩
   rw [← Ideal.dvd_span_singleton, ← intValuation_le_pow_iff_dvd, ← valuation_of_algebraMap (K := K),
-  ← valuedAdicCompletion_eq_valuation, algebraMap.coe_sub] at ha
+    ← valuedAdicCompletion_eq_valuation, algebraMap.coe_sub] at ha
   refine lt_of_le_of_lt ?_ (Valuation.map_add_lt _ (ha.trans_lt (he' i)) hf)
   apply le_of_eq
   congr
