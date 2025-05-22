@@ -205,6 +205,7 @@ lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
   have h5 : IsClosed (Set.preimage (MtoQuot K D) (Set.univ)) := by
     exact closure_subset_iff_isClosed.mp fun ⦃a⦄ a ↦ trivial
   have h6 : IsCompact (Set.preimage (MtoQuot K D) (Set.univ)) := by
+    rw [IsCompact]
     -- exact IsClosed.isCompact h5
     sorry
   have h7 := IsCompact.image h6 h4
@@ -266,6 +267,26 @@ of `(D ⊗ 𝔸_F^infty)ˣ`.
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
+  have ToFinCover := isCompact_univ_iff.mpr
+    (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
+  apply isCompact_iff_finite_subcover.mp at ToFinCover
+  have openCover :  (Doset.Quotient (Set.range (incl₁ K D)) U) = ⋃ (q : Dfx K D),
+      Doset.doset q (Set.range (incl₁ K D)) U := by
+    -- this should be true by definition (if I am reading them right)
+    -- if not I still want something like this; as this is the open cover we will consider
+    sorry
+  rw [openCover]
+  refine Set.finite_coe_iff.mpr ?_
+  have := Doset.doset_union_rightCoset (incl₁ K D).range U
+  simp only [MulOpposite.op_mul, MonoidHom.coe_range] at this
+  simp_rw [← this]
+  -- The hope is I can show the inner union is finite (by reducing open cover)
+  -- need to work out if it is rightCoset or leftCoset I want though...
+  -- there may be a better way to be doing this though
+
+  -- e.g constructing map from doset to single (left or rights, IDK the naming convention) cosets
+  -- then show the set of these are finite (reducing cover)
+  -- then push this back up and show it covers
   sorry
 
 end FiniteAdeleRing
