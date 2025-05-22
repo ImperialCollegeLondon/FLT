@@ -24,7 +24,7 @@ Contributions to the project are made through GitHub pull requests (PRs) from fo
 
 ### 3. Working on the Task
 
-Once you are assigned to an issue, begin working on the corresponding task. You should fork the project and also create a new branch from the `main` branch to develop your solution. 
+Once you are assigned to an issue, begin working on the corresponding task. You should fork the project and also create a new branch from the `main` branch to develop your solution. Please try and avoid making PRs from `main` because apparently it confuses CI.
 
 > [!WARNING]
 > Before pushing any changes, you have the following options:
