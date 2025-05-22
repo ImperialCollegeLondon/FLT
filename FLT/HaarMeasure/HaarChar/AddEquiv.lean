@@ -27,8 +27,33 @@ open Topology in
 lemma regular_comap_of_isOpenEmbedding {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
     [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    (φ : G → H) (hφ : IsOpenEmbedding φ) (μ : Measure H) [Regular μ] : Regular (comap φ μ) := by
-  sorry -- issue FLT#513
+    (φ : G → H) (hφ : IsOpenEmbedding φ) (μ : Measure H) [Regular μ] : Regular (comap φ μ) :=
+  { lt_top_of_isCompact := by
+      intro K hK
+      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]
+      exact IsFiniteMeasureOnCompacts.lt_top_of_isCompact (hK.image hφ.continuous)
+    outerRegular := by
+      intro A hA r hr
+      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding] at hr
+      obtain ⟨U, hUA, Uopen, hμU⟩ :=
+        OuterRegular.outerRegular (hφ.measurableEmbedding.measurableSet_image' hA) r hr
+      use φ ⁻¹' U
+      refine ⟨by rwa [Superset, ← Set.image_subset_iff], Uopen.preimage hφ.continuous, ?_⟩
+      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]
+      apply lt_of_le_of_lt (measure_mono (Set.image_preimage_subset _ _)) hμU
+    innerRegular := by
+      intro A hA r hr
+      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding] at hr
+      obtain ⟨K, hKA, Kcompact, hμK⟩ :=
+        Regular.innerRegular (μ := μ) (hφ.isOpen_iff_image_isOpen.mp hA) r hr
+      have hK := subset_trans hKA (Set.image_subset_range _ _)
+      use φ ⁻¹' K
+      refine ⟨?_, hφ.isInducing.isCompact_preimage' Kcompact hK, ?_⟩
+      · rw [← hφ.injective.preimage_image A]; exact Set.preimage_mono hKA
+      · rwa [MeasurableEmbedding.comap_apply hφ.measurableEmbedding,
+          Set.image_preimage_eq_iff.mpr hK]
+  }
+
 
 lemma _root_.Homeomorph.regular_comap {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
