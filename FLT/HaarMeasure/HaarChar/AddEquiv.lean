@@ -1,5 +1,5 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib
 
 open MeasureTheory.Measure
@@ -182,12 +182,19 @@ lemma mulEquivHaarChar_eq_one_of_compactSpace [CompactSpace G] (φ : G ≃ₜ* G
   have hfinite : m < ∞ := IsCompact.measure_lt_top isCompact_univ
   have hpos : 0 < m := IsOpen.measure_pos haar isOpen_univ ⟨1, trivial⟩
   let m₀ : ℝ≥0 := m.toNNReal
-  have hm₀ : 0 < m₀ := by sorry -- FLT#532 part 1 -- because 0 < m
-  suffices m₀ * mulEquivHaarChar φ = m₀ by sorry -- FLT#532 part 2 -- because I can cancel m₀
+  have hm₀ : 0 < m₀ := by
+    unfold m₀
+    refine toNNReal_pos hpos.ne' hfinite.ne -- email Heather
+  suffices m₀ * mulEquivHaarChar φ = m₀ by
+    have : m₀ * mulEquivHaarChar φ = m₀ * 1 := by simpa using this
+    rwa [NNReal.mul_eq_mul_left hm₀.ne'] at this
   have := mulEquivHaarChar_smul_preimage (haar : Measure G) (X := .univ) MeasurableSet.univ φ
-  simp [← hm] at this
+  simp only [← hm, Set.preimage_univ] at this
   symm
-  sorry -- FLT#532 part 3 -- because it's `this`
+  have := congr(ENNReal.toNNReal $this)
+  simp only [smul_toNNReal] at this
+  rw [mul_comm]
+  exact this
 
 open Topology in
 @[to_additive]
@@ -274,167 +281,69 @@ end pi
 
 end MeasureTheory
 
-section restrictedproductapi
-
-namespace RestrictedProduct
-
--- TODO this is WIP, the sorries need to be either closed or assigned as tasks
-
-variable {ι : Type*}
-variable {R : ι → Type*} {A : (i : ι) → Set (R i)}
-variable {𝓕 : Filter ι}
-
-/-- Constructor for `RestrictedProduct`. -/
-abbrev mk (x : Π i, R i) (hx : ∀ᶠ i in 𝓕, x i ∈ A i) : Πʳ i, [R i, A i]_[𝓕] :=
-  ⟨x, hx⟩
-
-@[simp]
-lemma mk_apply (x : Π i, R i) (hx : ∀ᶠ i in 𝓕, x i ∈ A i) (i : ι) :
-    (mk x hx) i = x i := rfl
-
-@[simp]
-lemma mul_apply {S : ι → Type*} [(i : ι) → SetLike (S i) (R i)] {B : (i : ι) → S i}
-    [(i : ι) → Mul (R i)] [∀ (i : ι), MulMemClass (S i) (R i)]
-    (x y : Πʳ (i : ι), [R i, ↑(B i)]_[𝓕]) (i : ι) : (x * y) i = x i * y i := rfl
-
-end RestrictedProduct
-
-end restrictedproductapi
-
 namespace MeasureTheory
 
 section restrictedproduct
 
 open ENNReal
 
--- some sample code to show how why a nonempty compact open has
--- positive finite Haar measure
-example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
-    [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
-    -- IsHaarMeasure gives "positive on opens" and "finite on compacts"
-    [IsHaarMeasure μ] (C : Set X) [Nonempty C]
-    (hCopen : IsOpen C) (hCcompact : IsCompact C) :
-    0 < μ C ∧ μ C < ∞ := by
-  constructor
-  · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
-  · exact IsCompact.measure_lt_top hCcompact
+-- -- some sample code to show how why a nonempty compact open has
+-- -- positive finite Haar measure
+-- example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
+--     [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
+--     -- IsHaarMeasure gives "positive on opens" and "finite on compacts"
+--     [IsHaarMeasure μ] (C : Set X) [Nonempty C]
+--     (hCopen : IsOpen C) (hCcompact : IsCompact C) :
+--     0 < μ C ∧ μ C < ∞ := by
+--   constructor
+--   · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
+--   · exact IsCompact.measure_lt_top hCcompact
 
 open RestrictedProduct
 
--- sets
+variable {ι : Type*}
+    {G : ι → Type*}
+    [Π i, Group (G i)] [Π i, TopologicalSpace (G i)] [∀ i, IsTopologicalGroup (G i)]
+    {C : (i : ι) → Subgroup (G i)}
+    [hCopen : Fact (∀ (i : ι), IsOpen (C i : Set (G i)))]
+    [hCcompact : ∀ i, CompactSpace (C i)]
+
+open Pointwise in
+include C in
+lemma wlc : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦ .mk fun x ↦
+    ⟨x • (C i : Set (G i)), .smul _ (isCompact_iff_compactSpace.mpr inferInstance),
+      hCopen.out i |>.smul _ |>.mem_nhds <| by
+      simpa using Set.smul_mem_smul_set (a := x) (one_mem (C i))⟩
 
 variable
-    -- let ι be an index type and let ℱ be a filter on ι.
-    {ι : Type*} {ℱ : Filter ι}
-    -- Let Gᵢ and Hᵢ be families of types.
-    {G H : ι → Type*}
-    -- Let Cᵢ ⊆ Gᵢ and Dᵢ ⊆ Hᵢ be subsets for all i
-    {C : (i : ι) → Set (G i)}
-    {D : (i : ι) → Set (H i)}
-
-
-    -- [Fact (∀ i, IsOpen (C i : Set (G i)))]
-    -- [∀ i, CompactSpace (C i)]
-    -- [Fact (∀ i, IsOpen (D i : Set (H i)))]
-    -- [Π i, Group (G i)]
-    -- [∀ i, IsTopologicalGroup (G i)] [∀ i, LocallyCompactSpace (G i)]
-    -- [∀ i, MeasurableSpace (G i)] [∀ i, BorelSpace (G i)]
-    -- [Π i, Group (H i)]
-    -- [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-    -- [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
-    -- {C : (i : ι) → Subgroup (G i)} [Fact (∀ i, IsOpen (C i : Set (G i)))]
-    -- [∀ i, CompactSpace (C i)]
-    -- {D : (i : ι) → Subgroup (H i)} [Fact (∀ i, IsOpen (D i : Set (H i)))]
-    -- [∀ i, CompactSpace (D i)]
-
-/-- The maps between restricted products over a fixed index type,
-given maps on the factors. -/
-@[nolint unusedArguments] -- this can be removed when the FLT#530 proof is done
-def _root_.RestrictedProduct.congrRight (φ : (i : ι) → G i → H i)
-    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
-    (x : Πʳ i, [G i, C i]_[ℱ]) : (Πʳ i, [H i, D i]_[ℱ]) :=
-  ⟨fun i ↦ φ i (x i), sorry⟩ -- FLT#530
-
--- Now let's add continuity.
-
-variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
-theorem _root_.Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
-    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
-    (hφcont : ∀ i, Continuous (φ i)) :
-    Continuous (RestrictedProduct.congrRight φ hφ) := by
-  sorry -- FLT#531 (feel free to add any of : ℱ is cofinite, Cᵢ are open/compact,
-  -- but only add if necessary. I don't immediately see that we need them)
-
--- now let's add groups.
-/-
-variable {S : ι → Type*} -- subobject type
-variable [Π i, SetLike (S i) (R i)]
-variable {B : Π i, S i}
-
-@[to_additive]
-instance [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] : One (Πʳ i, [R i, B i]_[𝓕]) where
-  one := ⟨fun _ ↦ 1, .of_forall fun _ ↦ one_mem _⟩
--/
-
-variable {S T : ι → Type*} -- subobject types
-variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
-variable {A : Π i, S i} {B : Π i, T i}
-
-variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
-    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
-/-- The maps between restricted products over a fixed index type,
-given maps on the factors. -/
-@[nolint unusedArguments] -- this can be removed when the FLT#530 proof is done
-def _root_.MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
-    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
-    Πʳ i, [G i, A i]_[ℱ] →* Πʳ i, [H i, B i]_[ℱ] where
-      toFun := RestrictedProduct.congrRight (fun i ↦ φ i) hφ
-      map_one' := by ext; simp [RestrictedProduct.congrRight]; sorry
-      map_mul' := sorry
-
-#exit
-
--- /-- A restricted product of topological group isomorphisms is a topological
--- group isomorphism. -/
--- @[to_additive]
-    -- Let φᵢ : Gᵢ → Hᵢ be a multiplication-preserving homeomorphism
-    -- and assume φᵢ(Cᵢ) = Dᵢ for all but finitely many i
--- def _root_.ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
---     (hφ : ∀ᶠ i in Filter.cofinite, Set.BijOn (φ i) (C i) (D i)) :
---     (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [H i, D i]) where
---   toFun x := ⟨fun i ↦ φ i (x i), sorry⟩ -- FLT#530
---   invFun y := ⟨fun i ↦ (φ i).symm (y i), sorry⟩ -- FLT#530
---   left_inv _ := by ext; simp
---   right_inv _ := by ext; simp
---   map_mul' x₁ x₂ := by ext; simp
---   continuous_toFun := sorry -- FLT#531
---   continuous_invFun := sorry -- FLT#531
-
+    [∀ i, MeasurableSpace (G i)]
+    [∀ i, BorelSpace (G i)]
 
 open ContinuousMulEquiv in
-lemma mulEquivHaarChar_restrictedProductCongrRight :
+lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
+    (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
     letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
     haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-    mulEquivHaarChar (restrictedProductCongrRight φ :(Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
+    haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := wlc (C := C)
+    mulEquivHaarChar
+      (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
   letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
   haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-  -- -- the below code creates a compact open in the restricted product and shows
+  -- the below code creates a compact open in the restricted product and shows
   -- it has Haar measure 0 < μ < ∞ but I'm not sure I want to go this way
-  -- set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
-  -- have := isOpenEmbedding_structureMap (R := G) (A := fun i ↦ (C i : Set (G i))) Fact.out
-  -- have isOpenEmbedding := this
-  -- apply Topology.IsOpenEmbedding.isOpen_range at this
-  -- rw [range_structureMap] at this
-  -- have hXopen : IsOpen X := this
-  -- have hXnonempty : Nonempty X := Nonempty.intro ⟨⟨fun x ↦ 1, Filter.Eventually.of_forall <|
-  --   fun _ ↦ one_mem _⟩, fun _ ↦ one_mem _⟩
-  -- have hXμpos : 0 < haar X := IsOpen.measure_pos haar hXopen Set.Nonempty.of_subtype
-  -- have hXcompact : IsCompact X := by
-  --   have := isCompact_range isOpenEmbedding.continuous
-  --   rw [range_structureMap] at this
-  --   apply this
-  -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
+  set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
+  have := isOpenEmbedding_structureMap (R := G) (A := fun i ↦ (C i : Set (G i))) Fact.out
+  have isOpenEmbedding := this
+  apply Topology.IsOpenEmbedding.isOpen_range at this
+  rw [range_structureMap] at this
+  have hXopen : IsOpen X := this
+  have hXnonempty : Nonempty X := Nonempty.intro ⟨⟨fun x ↦ 1, Filter.Eventually.of_forall <|
+    fun _ ↦ one_mem _⟩, fun _ ↦ one_mem _⟩
+  have hXμpos : 0 < haar X := IsOpen.measure_pos haar hXopen Set.Nonempty.of_subtype
+  have hXcompact : IsCompact X := by
+    have := isCompact_range isOpenEmbedding.continuous
+    rw [range_structureMap] at this
+    apply this
+  have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
   sorry
-
--- #check Set.pi
