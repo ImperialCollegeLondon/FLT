@@ -278,7 +278,6 @@ noncomputable def ResidueFieldEquivCompletionResidueField :
     A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) := by
   apply RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
     ⟨Ideal.quotientMap_injective' <| ge_of_eq Ideal.LiesOver.over, ?_⟩
-
   intro z
   obtain ⟨x, hx⟩ :=
     Submodule.Quotient.mk_surjective (p := maximalIdeal ↥(adicCompletionIntegers K v)) z
