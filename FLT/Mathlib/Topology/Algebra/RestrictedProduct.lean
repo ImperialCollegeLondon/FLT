@@ -73,9 +73,10 @@ variable {A : Π i, S i} {B : Π i, T i}
 
 variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
-/-- The maps between restricted products over a fixed index type,
-given maps on the factors. -/
-@[to_additive] -- this can be removed when the FLT#530 proof is done
+/-- The monoid homomorphism between restricted products over a fixed index type,
+given monoid homomorphisms on the factors. -/
+@[to_additive "The additive monoid homomorphism between restricted products over a fixed index type,
+given additive monoid homomorphisms on the factors."]
 def MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
     Πʳ i, [G i, A i]_[ℱ] →* Πʳ i, [H i, B i]_[ℱ] where
@@ -89,7 +90,8 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, TopologicalSpace (H i)] in
 /-- The continuous monoid homomorphism between restricted products built from
 continuous monoid homomorphisms on the factors. -/
-@[to_additive (attr := simps!)]
+@[to_additive (attr := simps!) "The continuous additive monoid homomorphism between restricted
+products, built from continuous monoid homomorphisms on the factors."]
 def ContinuousMonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
     Πʳ i, [G i, A i]_[ℱ] →ₜ* Πʳ i, [H i, B i]_[ℱ] where
@@ -103,7 +105,8 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, TopologicalSpace (H i)] in
 /-- The `ContinuousMulEquiv` (that is, group isomorphism and homeomorphism) between restricted
 products built from `ContinuousMulEquiv`s on the factors. -/
-@[to_additive]
+@[to_additive "The `ContinuousAddEquiv` (that is, additive group isomorphism and homeomorphism)
+between restricted products built from `ContinuousAddEquiv`s on the factors."]
 def ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
     (Πʳ i, [G i, A i]_[ℱ]) ≃ₜ* (Πʳ i, [H i, B i]_[ℱ]) where
