@@ -15,7 +15,7 @@ abbrev mk (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) : Πʳ i, [R i, A 
 lemma mk_apply (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) (i : ι) :
     (mk x hx) i = x i := rfl
 
-@[simp]
+@[to_additive (attr := simp)]
 lemma mul_apply {S : ι → Type*} [(i : ι) → SetLike (S i) (R i)] {B : (i : ι) → S i}
     [(i : ι) → Mul (R i)] [∀ (i : ι), MulMemClass (S i) (R i)]
     (x y : Πʳ (i : ι), [R i, ↑(B i)]_[ℱ]) (i : ι) : (x * y) i = x i * y i := rfl
@@ -55,7 +55,7 @@ variable {ℱ : Filter ι}
     {D : (i : ι) → Set (H i)}
 
 variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
-theorem _root_.Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
+theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
     Continuous (RestrictedProduct.congrRight φ hφ) := by
@@ -72,8 +72,8 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
 /-- The maps between restricted products over a fixed index type,
 given maps on the factors. -/
-@[nolint unusedArguments] -- this can be removed when the FLT#530 proof is done
-def _root_.MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
+@[to_additive] -- this can be removed when the FLT#530 proof is done
+def MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
     Πʳ i, [G i, A i]_[ℱ] →* Πʳ i, [H i, B i]_[ℱ] where
       toFun := congrRight (fun i ↦ φ i) hφ
@@ -86,8 +86,8 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, TopologicalSpace (H i)] in
 /-- The continuous monoid homomorphism between restricted products built from
 continuous monoid homomorphisms on the factors. -/
-@[simps!]
-def _root_.ContinuousMonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →ₜ* H i)
+@[to_additive (attr := simps!)]
+def ContinuousMonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
     Πʳ i, [G i, A i]_[ℱ] →ₜ* Πʳ i, [H i, B i]_[ℱ] where
   __ := MonoidHom.restrictedProductCongrRight (fun i ↦ φ i) hφ
@@ -100,7 +100,8 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, TopologicalSpace (H i)] in
 /-- The `ContinuousMulEquiv` (that is, group isomorphism and homeomorphism) between restricted
 products built from `ContinuousMulEquiv`s on the factors. -/
-def _root_.ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
+@[to_additive]
+def ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
     (Πʳ i, [G i, A i]_[ℱ]) ≃ₜ* (Πʳ i, [H i, B i]_[ℱ]) where
   __ := ContinuousMonoidHom.restrictedProductCongrRight (fun i ↦ φ i)
@@ -113,3 +114,19 @@ def _root_.ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i
   right_inv x := by
     ext i
     exact ContinuousMulEquiv.apply_symm_apply _ _
+
+#exit
+/-
+variable {S T : ι → Type*} -- subobject types
+variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
+variable {A : Π i, S i} {B : Π i, T i}
+
+variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
+    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
+-/
+def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
+    {M : ι → Type*} [(i : ι) → Monoid (M i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
+    {A : Π i, S i} :
+    (Πʳ i, [M i, A i])ˣ ≃* Πʳ i, [(M i)ˣ, {x : (M i)ˣ | x.1 ∈ A i}] := by
+  sorry

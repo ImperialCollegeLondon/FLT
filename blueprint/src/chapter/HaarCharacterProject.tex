@@ -552,6 +552,8 @@ Then $d_G(\phi)=1.$
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding}
   \lean{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding}
+  \leanok
+  \discussion{551}
   If $f:A\to B$ is a group homomorphism and open embedding between locally compact
   topological additive groups and if $\alpha:A\to A$ and $\beta:B\to B$ are additive
   homeomorphisms such that the square commutes (i.e., $f\circ\alpha=\beta\circ f$)
@@ -619,12 +621,17 @@ $\prod_id_{A_i}\phi_i$ is a finite product, in the sense that all but finitely m
 The following theorem shows that the value of this product is $d(\phi)$.
 
 \begin{theorem}
-  \label{addHaarScalarFactor_restricted_product}
-  %\lean{addHaarScalarFactor_restricted_product}
+  \label{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight}
+  \lean{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight}
+  \leanok
+  \discussion{552}
   With $A$, $A_i$, $C_i$, $\phi_i$, $\phi$ defined as above, we have
   $\delta_A(\phi)=\prod_i\delta_{A_i}(\phi_i)$.
 \end{theorem}
 \begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding,
+  MeasureTheory.mulEquivHaarChar_eq_one_of_compactSpace,
+  MeasureTheory.addEquivAddHaarChar_piCongrRight}
   Assume $\phi_i(C_i)=C_i$ for all $i\not\in S$, a finite set, and work in the
   open subgroup $U:=\prod_{i\in S}A_i\times\prod_{i\not\in S}C_i$. Then $\phi$ induces
   an automorphism of this open subgroup $U$ of $A$, and in particular

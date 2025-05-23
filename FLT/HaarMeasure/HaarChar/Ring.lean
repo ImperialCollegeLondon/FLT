@@ -187,4 +187,23 @@ lemma ringHaarChar_pi [Fintype ι] (u : Π i, (A i)ˣ) :
 
 end pi
 
+section restrictedproduct
+
+open scoped RestrictedProduct
+
+variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSpace (A i)]
+    [∀ i, IsTopologicalRing (A i)] [∀ i, LocallyCompactSpace (A i)]
+    [∀ i, MeasurableSpace (A i)] [∀ i, BorelSpace (A i)]
+    {C : (i : ι) → Subring (A i)}
+    [hCopen : Fact (∀ (i : ι), IsOpen (C i : Set (A i)))]
+    [hCcompact : ∀ i, CompactSpace (C i)]
+
+lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
+    letI : MeasurableSpace (Πʳ i, [A i, C i]) := borel _
+    haveI : BorelSpace (Πʳ i, [A i, C i]) := ⟨rfl⟩
+    ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits i) := by
+  sorry
+
+end restrictedproduct
+
 end MeasureTheory

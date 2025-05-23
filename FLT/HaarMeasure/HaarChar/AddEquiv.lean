@@ -175,7 +175,7 @@ lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
   -- use `MeasureTheory.Measure.haarScalarFactor_eq_mul`?
 
 open ENNReal in
-@[nolint unusedHavesSuffices] -- this can be removed when the proof is done
+@[to_additive addEquivAddHaarChar_eq_one_of_compactSpace]
 lemma mulEquivHaarChar_eq_one_of_compactSpace [CompactSpace G] (φ : G ≃ₜ* G) :
     mulEquivHaarChar φ = 1 := by
   set m := haar (.univ : Set G) with hm
@@ -205,7 +205,7 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
     [MeasurableSpace Y] [BorelSpace Y]
     {f : X →* Y} (hf : IsOpenEmbedding f) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y)
     (hComm : ∀ x, f (α x) = β (f x)) : mulEquivHaarChar α = mulEquivHaarChar β := by
-  sorry
+  sorry -- FLT#551
 
 end basic
 
@@ -214,8 +214,6 @@ section prodCongr
 variable {A B C D : Type*} [Group A] [Group B] [Group C] [Group D]
     [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C] [TopologicalSpace D]
 
-example (f : A → B) (g : C → D) (hf : Continuous f) (hg : Continuous g) :
-  Continuous (Prod.map f g) := by exact Continuous.prodMap hf hg
 /-- The product of two multiplication-preserving homeomorphisms is
 a multiplication-preserving homeomorphism. -/
 @[to_additive "The product of
@@ -279,10 +277,6 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
 
 end pi
 
-end MeasureTheory
-
-namespace MeasureTheory
-
 section restrictedproduct
 
 open ENNReal
@@ -301,37 +295,42 @@ open ENNReal
 
 open RestrictedProduct
 
+open Pointwise in
+@[to_additive]
+lemma _root_.WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup
+    {A : Type*} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
+    (C : Subgroup A) [hCopen : Fact (IsOpen (C : Set A))] [CompactSpace C] :
+    WeaklyLocallyCompactSpace A := .mk fun x ↦
+    ⟨x • (C : Set A), .smul _ (isCompact_iff_compactSpace.mpr inferInstance),
+      hCopen.out |>.smul _ |>.mem_nhds <| by
+      simpa using Set.smul_mem_smul_set (a := x) (one_mem C)⟩
+
 variable {ι : Type*}
     {G : ι → Type*}
     [Π i, Group (G i)] [Π i, TopologicalSpace (G i)] [∀ i, IsTopologicalGroup (G i)]
     {C : (i : ι) → Subgroup (G i)}
     [hCopen : Fact (∀ (i : ι), IsOpen (C i : Set (G i)))]
     [hCcompact : ∀ i, CompactSpace (C i)]
-
-open Pointwise in
-include C in
-variable (C) in
-lemma wlc : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦ .mk fun x ↦
-    ⟨x • (C i : Set (G i)), .smul _ (isCompact_iff_compactSpace.mpr inferInstance),
-      hCopen.out i |>.smul _ |>.mem_nhds <| by
-      simpa using Set.smul_mem_smul_set (a := x) (one_mem (C i))⟩
-
-variable
     [∀ i, MeasurableSpace (G i)]
     [∀ i, BorelSpace (G i)]
 
 open ContinuousMulEquiv in
+@[to_additive]
 lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
     (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
+    -- typeclass stuff
     letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
     haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-    haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := wlc C
+    haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
+      haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
+      WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
+    -- lemma statement starts here
     mulEquivHaarChar
       (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
   letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
   haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-  -- -- the below code creates a compact open in the restricted product and shows
+  -- -- the below code created a compact open in the restricted product and shows
   -- -- it has Haar measure 0 < μ < ∞ but I've realised I don't know what to do next.
   -- -- The blueprint has a proof which I can make work.
   -- set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
