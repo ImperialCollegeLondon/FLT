@@ -57,6 +57,8 @@ variable {R : Type*} [Ring R] [TopologicalSpace R]
   [IsTopologicalRing R] [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
 
 variable (R) in
+@[nolint unusedHavesSuffices] -- this can be removed when the proof is complete;
+-- if you remove it beforehand, check the linter is happy!
 lemma ringHaarChar_continuous :
     Continuous (fun (u : Rˣ) ↦ addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)) := by
   /-
