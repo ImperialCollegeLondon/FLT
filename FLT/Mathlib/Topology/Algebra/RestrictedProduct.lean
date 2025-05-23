@@ -1,5 +1,6 @@
 import Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
+import Mathlib
 
 namespace RestrictedProduct
 
@@ -115,18 +116,16 @@ def ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ
     ext i
     exact ContinuousMulEquiv.apply_symm_apply _ _
 
-#exit
-/-
-variable {S T : ι → Type*} -- subobject types
-variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
-variable {A : Π i, S i} {B : Π i, T i}
-
-variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
-    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
--/
+/-- The isomorphism between the units of a restricted product of monoids,
+and the restricted product of the units of the monoids. -/
 def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
     {M : ι → Type*} [(i : ι) → Monoid (M i)]
     {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
-    {A : Π i, S i} :
-    (Πʳ i, [M i, A i])ˣ ≃* Πʳ i, [(M i)ˣ, {x : (M i)ˣ | x.1 ∈ A i}] := by
-  sorry
+    (A : Π i, S i) :
+    (Πʳ i, [M i, A i]_[ℱ])ˣ ≃*
+      Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]_[ℱ] where
+        toFun u := ⟨fun i ↦ ⟨u.1 i, u⁻¹.1 i, sorry, sorry⟩, sorry⟩
+        invFun ui := ⟨⟨fun i ↦ ui i, sorry⟩, ⟨fun i ↦ ui⁻¹ i, sorry⟩, sorry, sorry⟩
+        left_inv := sorry
+        right_inv := sorry
+        map_mul' := sorry -- all of these are FLT#553

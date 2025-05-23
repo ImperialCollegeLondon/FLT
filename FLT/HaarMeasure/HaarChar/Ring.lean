@@ -117,25 +117,6 @@ by them does not change additive Haar measure.
 -/
 noncomputable def ringHaarChar_ker := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
 
-section units
-
-variable {R S : Type*} [Monoid R] [Monoid S]
-
--- do we want these next three definitions?
-/-- The canonical map `Rˣ → Sˣ → (R × S)ˣ`. -/
-def _root_.Units.prod (u : Rˣ) (v : Sˣ) : (R × S)ˣ where
-  val := (u, v)
-  inv := ((u⁻¹ : Rˣ), (v⁻¹ : Sˣ))
-  val_inv := by simp
-  inv_val := by simp
-
-/-- The canonical projection (R × S)ˣ → Rˣ as a group homomorphism. -/
-def _root_.Units.fst : (R × S)ˣ →* Rˣ :=  Units.map (MonoidHom.fst R S)
-
-/-- The canonical projection (R × S)ˣ → Sˣ as a group homomorphism. -/
-def _root_.Units.snd : (R × S)ˣ →* Sˣ :=  Units.map (MonoidHom.snd R S)
-
-end units
 section prod
 
 variable {S : Type*} [Ring S] [TopologicalSpace S]
@@ -147,29 +128,15 @@ variable {S : Type*} [Ring S] [TopologicalSpace S]
 lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) :
     letI : MeasurableSpace (R × S) := borel (R × S)
     haveI : BorelSpace (R × S) := ⟨rfl⟩
-    ringHaarChar (u.prod v) = ringHaarChar u * ringHaarChar v :=
+    ringHaarChar (MulEquiv.prodUnits.symm (u, v)) = ringHaarChar u * ringHaarChar v :=
   addEquivAddHaarChar_prodCongr (ContinuousAddEquiv.mulLeft u) (ContinuousAddEquiv.mulLeft v)
 
 lemma ringHaarChar_prod' (uv : (R × S)ˣ) :
     letI : MeasurableSpace (R × S) := borel (R × S)
     haveI : BorelSpace (R × S) := ⟨rfl⟩
-    ringHaarChar uv = ringHaarChar uv.fst * ringHaarChar uv.snd :=
-  ringHaarChar_prod uv.fst uv.snd
-
--- right now I think we're supposed to state them like this :-/
-example (u : Rˣ) (v : Sˣ) :
-    letI : MeasurableSpace (R × S) := borel (R × S)
-    haveI : BorelSpace (R × S) := ⟨rfl⟩
-    ringHaarChar (MulEquiv.prodUnits.symm (u, v)) = ringHaarChar u * ringHaarChar v :=
-  ringHaarChar_prod u v
-
--- right now I think we're supposed to state them like this :-/
-example (uv : (R × S)ˣ) :
-    letI : MeasurableSpace (R × S) := borel (R × S)
-    haveI : BorelSpace (R × S) := ⟨rfl⟩
     ringHaarChar uv =
     ringHaarChar (MulEquiv.prodUnits uv).1 * ringHaarChar (MulEquiv.prodUnits uv).2 :=
-  ringHaarChar_prod' uv
+  ringHaarChar_prod (MulEquiv.prodUnits uv).1 (MulEquiv.prodUnits uv).2
 
 end prod
 
@@ -201,8 +168,8 @@ variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSp
 lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
     letI : MeasurableSpace (Πʳ i, [A i, C i]) := borel _
     haveI : BorelSpace (Πʳ i, [A i, C i]) := ⟨rfl⟩
-    ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits i) := by
-  sorry
+    ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits C u i) := by
+  sorry -- FLT#554
 
 end restrictedproduct
 

@@ -347,4 +347,4 @@ lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G 
   --   rw [range_structureMap] at this
   --   apply this
   -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
-  sorry
+  sorry -- FLT#552
