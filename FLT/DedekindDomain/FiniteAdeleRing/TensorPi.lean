@@ -49,7 +49,6 @@ theorem Module.FinitePresentation.exists_fin_exact (R : Type*) (M : Type*)
     simp only [g, LinearMap.coe_comp, LinearEquiv.coe_coe, EquivLike.comp_surjective,
       Submodule.mkQ_surjective]
   exact ⟨n, m, f, g, exact_fg, this⟩
-
 end
 
 
