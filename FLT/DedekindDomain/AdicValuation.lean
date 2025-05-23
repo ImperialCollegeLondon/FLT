@@ -275,10 +275,23 @@ open IsLocalRing in
 /-- The canonical isomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
 completion Kᵥ of the field of fractions K of A. -/
 noncomputable def ResidueFieldEquivCompletionResidueField :
-    A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) :=
-  RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
-  -- issue FLT#449
-    ⟨Ideal.quotientMap_injective' <| ge_of_eq Ideal.LiesOver.over, sorry⟩
+    A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) := by
+  apply RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
+    ⟨Ideal.quotientMap_injective' <| ge_of_eq Ideal.LiesOver.over, ?_⟩
+  intro z
+  obtain ⟨x, hx⟩ :=
+    Submodule.Quotient.mk_surjective (p := maximalIdeal ↥(adicCompletionIntegers K v)) z
+  rw [← hx, Ideal.Quotient.mk_eq_mk]
+  suffices ∃ a : A, (ResidueFieldToCompletionResidueField K v) a = Ideal.Quotient.mk _ x by
+    obtain ⟨a, ha⟩ := this
+    refine ⟨a, ha⟩
+  change ∃ a, Ideal.Quotient.mk (maximalIdeal (v.adicCompletionIntegers K)) _ = _
+  simp_rw [Ideal.Quotient.mk_eq_mk_iff_sub_mem, mem_maximalIdeal, mem_nonunits_iff]
+  -- TODO - figure out why this can't be 'simp_rw/simp'
+  conv =>
+    pattern ¬(IsUnit _)
+    rw [Valuation.Integer.not_isUnit_iff_valuation_lt_one]
+  exact exists_adicValued_sub_lt_of_adicCompletionInteger K v x 1
 
 theorem inertiaDeg_asIdeal_completionIdeal :
     Ideal.inertiaDeg v.asIdeal (v.completionIdeal K) = 1 := by
