@@ -84,6 +84,8 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)]
     [Π i, TopologicalSpace (G i)]
     [Π i, TopologicalSpace (H i)] in
+/-- The continuous monoid homomorphism between restricted products built from
+continuous monoid homomorphisms on the factors. -/
 @[simps!]
 def _root_.ContinuousMonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
@@ -96,6 +98,8 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)]
     [Π i, TopologicalSpace (G i)]
     [Π i, TopologicalSpace (H i)] in
+/-- The `ContinuousMulEquiv` (that is, group isomorphism and homeomorphism) between restricted
+products built from `ContinuousMulEquiv`s on the factors. -/
 def _root_.ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
     (Πʳ i, [G i, A i]_[ℱ]) ≃ₜ* (Πʳ i, [H i, B i]_[ℱ]) where
