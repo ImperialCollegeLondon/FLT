@@ -170,9 +170,8 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
   obtain ⟨x1, hx1, b1, ⟨b1, rfl⟩, eq1⟩ := X_meets_kernel K D hβ
   obtain ⟨x2, hx2, b2, ⟨b2, rfl⟩, eq2⟩ := X_meets_kernel' K D hβ
   obtain ⟨x1, rfl⟩ : IsUnit x1 := ⟨↑β⁻¹ * incl K D b1,
-    Eq.symm ((Units.eq_inv_mul_iff_mul_eq β).mpr eq1)⟩
-  obtain ⟨x2, rfl⟩ : IsUnit x2 := ⟨incl K D b2 * β,
-    Eq.symm ((Units.mul_inv_eq_iff_eq_mul β).mp eq2)⟩
+    ((Units.eq_inv_mul_iff_mul_eq β).mpr eq1).symm⟩
+  obtain ⟨x2, rfl⟩ : IsUnit x2 := ⟨incl K D b2 * β, ((Units.mul_inv_eq_iff_eq_mul β).mp eq2).symm⟩
   have h : x2 * x1 ∈ T K D := ⟨by simpa only [Y] using (Set.mul_mem_mul hx2 hx1), b2 * b1,
     by simpa using Units.eq_iff.mp (id (Eq.symm (by simpa [mul_assoc] using
     (Mathlib.Tactic.LinearCombination'.mul_pf eq2 eq1))))⟩
