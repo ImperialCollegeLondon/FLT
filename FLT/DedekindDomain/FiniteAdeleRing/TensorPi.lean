@@ -197,10 +197,10 @@ To prove this, we consider the following commutative diagram. The goal is to sho
 that `i₃` is an isomorphism, which we do using the five lemma:
 
 Rᵐ ⊗[R] (Π i, N i) --f₁--> Rⁿ ⊗[R] (Π i, N i) --f₂--> M ⊗[R] (Π i, N i) --f₃--> 0 --f₄--> 0
-        |                         |                         |                      |        |
-        i₁                        i₂                        i₃                     i₄       i₅
-        |                         |                         |                      |        |
-        v                         v                         v                      v        v
+        |                         |                         |                   |         |
+        i₁                        i₂                        i₃                  i₄        i₅
+        |                         |                         |                   |         |
+        v                         v                         v                   v         v
 Π i, (Rᵐ ⊗[R] N i) --g₁--> Π i, (Rⁿ ⊗[R] N i) --g₂--> Π i, (M ⊗[R] N i) --g₃--> 0 --g₄--> 0
 -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
