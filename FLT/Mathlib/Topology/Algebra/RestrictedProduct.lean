@@ -1,6 +1,8 @@
 import Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
-import Mathlib
+import Mathlib.Algebra.Group.Submonoid.Units
+
+
 
 namespace RestrictedProduct
 

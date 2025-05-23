@@ -1,6 +1,5 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
-import Mathlib
 
 open MeasureTheory.Measure
 open scoped NNReal
