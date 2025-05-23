@@ -143,26 +143,6 @@ variable {K : Type*} {L : Type*} [Field K] [Field L] (v : InfinitePlace K) (w : 
 
 variable [Algebra K L]
 
-variable (K) in
-/-- An infinite place `w` of `L` is ramified over `K` if it is not unramified. In other words,
-`w` is complex while the restriction `w.comap (algebraMap K L)` to `K` is real. -/
-abbrev IsRamified := ¬w.IsUnramified K
-
-variable {w} in
-theorem isRamified_iff : w.IsRamified K ↔ w.IsComplex ∧ (w.comap (algebraMap K L)).IsReal :=
-  not_isUnramified_iff
-
-variable {w} in
-theorem IsRamified.ne_conjugate {w₁ w₂ : InfinitePlace L} (h₂ : IsRamified K w₂) :
-    w₁.embedding ≠ conjugate w₂.embedding := by
-  rw [ne_eq]
-  by_cases h : w₁ = w₂
-  · rw [h]
-    rw [isRamified_iff, isComplex_iff, ComplexEmbedding.isReal_iff] at h₂
-    exact Ne.symm h₂.1
-  · contrapose! h
-    rw [← mk_embedding w₁, h, mk_conjugate_eq, mk_embedding]
-
 variable (L) in
 /--
 If `L / K` are fields and `v` is an infinite place of `K`, then we say an infinite place `w`

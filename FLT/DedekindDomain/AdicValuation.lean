@@ -132,8 +132,8 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.mp hz
   use y
   -- And again prove the result about valuations by turning into one about ideals.
-  rwa [hy, ← hxz, sub_add_cancel_right, intValuation_apply,
-      intValuation_le_pow_iff_dvd, Ideal.dvd_span_singleton, neg_mem_iff]
+  rwa [hy, ← hxz, sub_add_cancel_right, intValuation_le_pow_iff_dvd, Ideal.dvd_span_singleton,
+    neg_mem_iff]
 
 lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K))}
     (γ : (WithZero (Multiplicative ℤ))ˣ) (hx : Valued.v x ≤ 1) :
@@ -261,7 +261,7 @@ instance : (v.completionIdeal K).LiesOver v.asIdeal where
     rw [Ideal.under_def]
     ext x
     simp only [Ideal.mem_comap, mem_completionIdeal_iff, algebraMap_completionIntegers,
-      valuedAdicCompletion_eq_valuation, valuation_eq_intValuationDef, intValuation_lt_one_iff_dvd,
+      valuedAdicCompletion_eq_valuation, valuation_of_algebraMap, intValuation_lt_one_iff_dvd,
       Ideal.dvd_span_singleton]
 
 open IsLocalRing in
@@ -275,10 +275,23 @@ open IsLocalRing in
 /-- The canonical isomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
 completion Kᵥ of the field of fractions K of A. -/
 noncomputable def ResidueFieldEquivCompletionResidueField :
-    A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) :=
-  RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
-  -- issue FLT#449
-    ⟨Ideal.quotientMap_injective' <| ge_of_eq Ideal.LiesOver.over, sorry⟩
+    A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) := by
+  apply RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
+    ⟨Ideal.quotientMap_injective' <| ge_of_eq Ideal.LiesOver.over, ?_⟩
+  intro z
+  obtain ⟨x, hx⟩ :=
+    Submodule.Quotient.mk_surjective (p := maximalIdeal ↥(adicCompletionIntegers K v)) z
+  rw [← hx, Ideal.Quotient.mk_eq_mk]
+  suffices ∃ a : A, (ResidueFieldToCompletionResidueField K v) a = Ideal.Quotient.mk _ x by
+    obtain ⟨a, ha⟩ := this
+    refine ⟨a, ha⟩
+  change ∃ a, Ideal.Quotient.mk (maximalIdeal (v.adicCompletionIntegers K)) _ = _
+  simp_rw [Ideal.Quotient.mk_eq_mk_iff_sub_mem, mem_maximalIdeal, mem_nonunits_iff]
+  -- TODO - figure out why this can't be 'simp_rw/simp'
+  conv =>
+    pattern ¬(IsUnit _)
+    rw [Valuation.Integer.not_isUnit_iff_valuation_lt_one]
+  exact exists_adicValued_sub_lt_of_adicCompletionInteger K v x 1
 
 theorem inertiaDeg_asIdeal_completionIdeal :
     Ideal.inertiaDeg v.asIdeal (v.completionIdeal K) = 1 := by
@@ -323,9 +336,8 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
   intro i hi
   specialize ha i hi
   specialize hf ⟨i, hi⟩
-  rw [← Ideal.dvd_span_singleton, ← intValuation_le_pow_iff_dvd,
-      ← intValuation_apply, ← valuation_of_algebraMap (K := K),
-      ← valuedAdicCompletion_eq_valuation, algebraMap.coe_sub] at ha
+  rw [← Ideal.dvd_span_singleton, ← intValuation_le_pow_iff_dvd, ← valuation_of_algebraMap (K := K),
+    ← valuedAdicCompletion_eq_valuation, algebraMap.coe_sub] at ha
   refine lt_of_le_of_lt ?_ (Valuation.map_add_lt _ (ha.trans_lt (he' i)) hf)
   apply le_of_eq
   congr
@@ -432,7 +444,7 @@ theorem exists_uniformizer (v : HeightOneSpectrum A) :
   obtain ⟨π, hπ⟩ := v.intValuation_exists_uniformizer
   use π
   rw [← hπ, ← ValuationSubring.algebraMap_apply, ← IsScalarTower.algebraMap_apply,
-    v.valuedAdicCompletion_eq_valuation, v.valuation_eq_intValuationDef]
+    v.valuedAdicCompletion_eq_valuation, v.valuation_of_algebraMap]
 
 variable {K} in
 theorem uniformizer_ne_zero {v : HeightOneSpectrum A}

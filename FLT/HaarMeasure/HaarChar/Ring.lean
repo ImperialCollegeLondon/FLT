@@ -57,19 +57,27 @@ variable {R : Type*} [Ring R] [TopologicalSpace R]
   [IsTopologicalRing R] [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
 
 variable (R) in
+@[nolint unusedHavesSuffices] -- this can be removed when the proof is complete;
+-- if you remove it beforehand, check the linter is happy!
 lemma ringHaarChar_continuous :
     Continuous (fun (u : Rˣ) ↦ addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)) := by
   /-
-    Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function
+    Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function f
   on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
-  Then $u \mapsto \int f(ux) d\mu(x)$ is a continuous function
+   -/
+  obtain ⟨⟨f, f_cont⟩, f_comp, f_nonneg, f_one⟩ :
+    ∃ f : C(R, ℝ), HasCompactSupport f ∧ 0 ≤ f ∧ f 1 ≠ 0 := exists_continuous_nonneg_pos 1
+  have int_f_ne_zero : ∫ x, f x ∂addHaar ≠ 0 :=
+    ne_of_gt (f_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero f_comp f_nonneg f_one)
+  /-
+    Then $u \mapsto \int f(ux) d\mu(x)$ is a continuous function
   of $R\to\R$ (because a continuous function with compact support is uniformly
    continuous) and thus gives a continuous function $R^\times\to\R$.
    Thus the function $u\mapsto (\int f(ux) d\mu(x))/(\int f(x)d\mu(x))$ is
    a continuous function from $R^\times$ to $\R$ taking values in $\R_{>0}$.
    Hence $\delta_R$ is continuous, from `mulEquivHaarChar_mul_integral`
    in the AddEquiv file
-   -/
+  -/
   sorry -- FLT#516
 
 /-- `ringHaarChar : Rˣ →ₜ* ℝ≥0` is the function sending a unit of
@@ -110,25 +118,6 @@ by them does not change additive Haar measure.
 -/
 noncomputable def ringHaarChar_ker := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
 
-section units
-
-variable {R S : Type*} [Monoid R] [Monoid S]
-
--- do we want these next three definitions?
-/-- The canonical map `Rˣ → Sˣ → (R × S)ˣ`. -/
-def _root_.Units.prod (u : Rˣ) (v : Sˣ) : (R × S)ˣ where
-  val := (u, v)
-  inv := ((u⁻¹ : Rˣ), (v⁻¹ : Sˣ))
-  val_inv := by simp
-  inv_val := by simp
-
-/-- The canonical projection (R × S)ˣ → Rˣ as a group homomorphism. -/
-def _root_.Units.fst : (R × S)ˣ →* Rˣ :=  Units.map (MonoidHom.fst R S)
-
-/-- The canonical projection (R × S)ˣ → Sˣ as a group homomorphism. -/
-def _root_.Units.snd : (R × S)ˣ →* Sˣ :=  Units.map (MonoidHom.snd R S)
-
-end units
 section prod
 
 variable {S : Type*} [Ring S] [TopologicalSpace S]
@@ -140,29 +129,15 @@ variable {S : Type*} [Ring S] [TopologicalSpace S]
 lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) :
     letI : MeasurableSpace (R × S) := borel (R × S)
     haveI : BorelSpace (R × S) := ⟨rfl⟩
-    ringHaarChar (u.prod v) = ringHaarChar u * ringHaarChar v :=
+    ringHaarChar (MulEquiv.prodUnits.symm (u, v)) = ringHaarChar u * ringHaarChar v :=
   addEquivAddHaarChar_prodCongr (ContinuousAddEquiv.mulLeft u) (ContinuousAddEquiv.mulLeft v)
 
 lemma ringHaarChar_prod' (uv : (R × S)ˣ) :
     letI : MeasurableSpace (R × S) := borel (R × S)
     haveI : BorelSpace (R × S) := ⟨rfl⟩
-    ringHaarChar uv = ringHaarChar uv.fst * ringHaarChar uv.snd :=
-  ringHaarChar_prod uv.fst uv.snd
-
--- right now I think we're supposed to state them like this :-/
-example (u : Rˣ) (v : Sˣ) :
-    letI : MeasurableSpace (R × S) := borel (R × S)
-    haveI : BorelSpace (R × S) := ⟨rfl⟩
-    ringHaarChar (MulEquiv.prodUnits.symm (u, v)) = ringHaarChar u * ringHaarChar v :=
-  ringHaarChar_prod u v
-
--- right now I think we're supposed to state them like this :-/
-example (uv : (R × S)ˣ) :
-    letI : MeasurableSpace (R × S) := borel (R × S)
-    haveI : BorelSpace (R × S) := ⟨rfl⟩
     ringHaarChar uv =
     ringHaarChar (MulEquiv.prodUnits uv).1 * ringHaarChar (MulEquiv.prodUnits uv).2 :=
-  ringHaarChar_prod' uv
+  ringHaarChar_prod (MulEquiv.prodUnits uv).1 (MulEquiv.prodUnits uv).2
 
 end prod
 
@@ -179,5 +154,24 @@ lemma ringHaarChar_pi [Fintype ι] (u : Π i, (A i)ˣ) :
   addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (u i))
 
 end pi
+
+section restrictedproduct
+
+open scoped RestrictedProduct
+
+variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSpace (A i)]
+    [∀ i, IsTopologicalRing (A i)] [∀ i, LocallyCompactSpace (A i)]
+    [∀ i, MeasurableSpace (A i)] [∀ i, BorelSpace (A i)]
+    {C : (i : ι) → Subring (A i)}
+    [hCopen : Fact (∀ (i : ι), IsOpen (C i : Set (A i)))]
+    [hCcompact : ∀ i, CompactSpace (C i)]
+
+lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
+    letI : MeasurableSpace (Πʳ i, [A i, C i]) := borel _
+    haveI : BorelSpace (Πʳ i, [A i, C i]) := ⟨rfl⟩
+    ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits C u i) := by
+  sorry -- FLT#554
+
+end restrictedproduct
 
 end MeasureTheory
