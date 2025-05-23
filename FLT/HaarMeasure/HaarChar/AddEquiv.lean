@@ -295,6 +295,7 @@ open ENNReal
 open RestrictedProduct
 
 open Pointwise in
+-- TODO this should be elsewhere
 @[to_additive]
 lemma _root_.WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup
     {A : Type*} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
