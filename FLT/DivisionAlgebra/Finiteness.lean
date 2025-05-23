@@ -9,8 +9,10 @@ import Mathlib.Algebra.Group.Subgroup.Pointwise
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.GroupTheory.DoubleCoset
 import Mathlib.Algebra.Central.Defs
+import Mathlib.Tactic.LinearCombination'
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
+import FLT.HaarMeasure.HaarChar.AdeleRing
 
 /-
 
@@ -164,8 +166,24 @@ lemma C_compact : IsCompact (C K D) := by
 lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ b ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ),
     ∃ ν ∈ ringHaarChar_ker D_𝔸,
-    β = b * ν ∧ ((ν : D_𝔸), ((ν⁻¹ : D_𝔸ˣ) : D_𝔸)) ∈ C K D :=
-  sorry
+    β = b * ν ∧ ((ν : D_𝔸), ((ν⁻¹ : D_𝔸ˣ) : D_𝔸)) ∈ C K D := by
+  obtain ⟨x1, hx1, b1, ⟨b1, rfl⟩, eq1⟩ := X_meets_kernel K D hβ
+  obtain ⟨x2, hx2, b2, ⟨b2, rfl⟩, eq2⟩ := X_meets_kernel' K D hβ
+  obtain ⟨x1, rfl⟩ : IsUnit x1 := ⟨↑β⁻¹ * incl K D b1,
+    ((Units.eq_inv_mul_iff_mul_eq β).mpr eq1).symm⟩
+  obtain ⟨x2, rfl⟩ : IsUnit x2 := ⟨incl K D b2 * β, ((Units.mul_inv_eq_iff_eq_mul β).mp eq2).symm⟩
+  have h : x2 * x1 ∈ T K D := ⟨by simpa only [Y] using (Set.mul_mem_mul hx2 hx1), b2 * b1,
+    by simpa using Units.eq_iff.mp (id (Eq.symm (by simpa [mul_assoc] using
+    (Mathlib.Tactic.LinearCombination'.mul_pf eq2 eq1))))⟩
+  refine ⟨incl K D b1, by simp only [Set.mem_range, exists_apply_eq_apply],  x1⁻¹, ?_,
+    eq_mul_inv_of_mul_eq (Units.eq_iff.mp eq1), ?_, hx1⟩
+  · rw [(Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq (Units.eq_iff.mp eq1))))]
+    exact (Subgroup.mul_mem_cancel_right (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)) hβ).mpr
+      ((Subgroup.inv_mem_iff (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))).mpr
+      (NumberField.AdeleRing.units_mem_ringHaarCharacter_ker K D b1))
+  · obtain ⟨t, ht, ht1⟩ := exists_eq_right'.mpr h
+    simp_rw [(Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq ht1)))]
+    exact Set.mem_mul.mpr ⟨↑t⁻¹, Set.mem_image_of_mem Units.val ht, x2, hx2, rfl⟩
 
 end Aux
 
