@@ -187,8 +187,50 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 
 end Aux
 
+def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸 :=
+  fun i => (i.1, i⁻¹.1)
+
+def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D) (Aux.C K D)
+
+def MtoQuot : (ringHaarChar_ker D_𝔸) → (ringHaarChar_ker D_𝔸 ⧸
+    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) :=
+  fun a => Quot.mk _ a
+
+lemma rinHaarChar_ker_isCompact : IsCompact (ringHaarChar_ker D_𝔸) := by
+  -- this is true since this is a closed subset of D_𝔸ˣ, which is a closed subset of D_𝔸 x D_𝔸
+  -- which is compact by product of compact spaces
+  sorry
+
 lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
-  (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := sorry
+    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := by
+  have h1 : IsClosed (M K D) := by
+    have h11 : Continuous (incl₂ K D) := by
+      -- inclusion? so should be trivial by product topology (and subspace topology)
+      sorry
+    have h12 : IsClosed (Aux.C K D) := by
+      -- I think this is what I need?
+      sorry
+    rw [M]
+    exact IsClosed.preimage h11 h12
+  have h2 : IsCompact (M K D) := by
+    -- exact IsClosed.isCompact h1
+    sorry
+  refine isCompact_univ_iff.mp ?_
+  have h3 : Set.SurjOn (MtoQuot K D) (M K D) Set.univ := by
+    sorry
+  have h4 : Continuous (MtoQuot K D) := by
+    exact { isOpen_preimage := fun s a ↦ a }
+  have h5 : IsClosed (Set.preimage (MtoQuot K D) (Set.univ)) := by
+    exact closure_subset_iff_isClosed.mp fun ⦃a⦄ a ↦ trivial
+  have h6 : IsCompact (Set.preimage (MtoQuot K D) (Set.univ)) := by
+    rw [IsCompact]
+    -- exact IsClosed.isCompact h5
+    sorry
+  have h7 := IsCompact.image h6 h4
+  have h8 : (MtoQuot K D '' (MtoQuot K D ⁻¹' Set.univ)) = Set.univ := by
+    exact Set.SurjOn.image_preimage h3 fun ⦃a⦄ a ↦ a
+  rw [h8] at h7
+  exact h7
 
 end NumberField.AdeleRing.DivisionAlgebra
 
@@ -230,8 +272,25 @@ abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
+-- its breaking?? not sure what the difference to above is
+-- NumbeField.AdeleRing vs FiniteAdeleRing
+def α : (ringHaarChar_ker D_𝔸 ⧸ (MonoidHom.range
+    (NumberField.AdeleRing.DivisionAlgebra.incl K D)).comap (ringHaarChar_ker D_𝔸).subtype)
+    → (Dfx K D ⧸ (incl₁ K D).range) :=
+  fun a => a -- not sure if this is correct
+
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
+  have h1 : Continuous α := by
+    -- need to give quotient topology on RHS, then 'readily verified'
+    sorry
+  have h2 : IsSurjective α := by
+    -- main part of the proof, may need to be seperate lemma
+    sorry
+  have h3 : Set.preimage α Set.univ = Set.univ := by
+    -- surjective
+    sorry
+  -- exact IsCompact.image α (compact_quotient K D) h1 -- should work?
   sorry
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
@@ -243,6 +302,26 @@ of `(D ⊗ 𝔸_F^infty)ˣ`.
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
+  have ToFinCover := isCompact_univ_iff.mpr
+    (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
+  apply isCompact_iff_finite_subcover.mp at ToFinCover
+  have openCover :  (Doset.Quotient (Set.range (incl₁ K D)) U) = ⋃ (q : Dfx K D),
+      Doset.doset q (Set.range (incl₁ K D)) U := by
+    -- this should be true by definition (if I am reading them right)
+    -- if not I still want something like this; as this is the open cover we will consider
+    sorry
+  rw [openCover]
+  refine Set.finite_coe_iff.mpr ?_
+  have := Doset.doset_union_rightCoset (incl₁ K D).range U
+  simp only [MulOpposite.op_mul, MonoidHom.coe_range] at this
+  simp_rw [← this]
+  -- The hope is I can show the inner union is finite (by reducing open cover)
+  -- need to work out if it is rightCoset or leftCoset I want though...
+  -- there may be a better way to be doing this though
+
+  -- e.g constructing map from doset to single (left or rights, IDK the naming convention) cosets
+  -- then show the set of these are finite (reducing cover)
+  -- then push this back up and show it covers
   sorry
 
 end FiniteAdeleRing
