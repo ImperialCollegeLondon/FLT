@@ -24,14 +24,14 @@ path = "../"
 [[require]]
 scope = "leanprover"
 name = "doc-gen4"
-rev = "$(< lean-toolchain cut -f 2 -d: )"
+rev = "38a4f87cadd82f16d4c3e89dcc7140b8512b0bf2"
 EOF
 
 # Initialise docbuild as a Lean project
 cd docbuild
 
 # Disable an error message due to a non-blocking bug. See Zulip
-MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
+MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update
 
 # Build the docs
 ~/.elan/bin/lake build FLT:docs
