@@ -9,8 +9,7 @@ lemma Topology.IsOpenEmbedding.IsOpenPosMeasure_comap {X Y: Type*}
     [TopologicalSpace Y] [MeasurableSpace Y] [BorelSpace Y]
     {φ : X → Y} (hφ : IsOpenEmbedding φ) (μ : Measure Y) [IsOpenPosMeasure μ] :
     IsOpenPosMeasure (comap φ μ) where
-  open_pos := by
-    intro U hU Une
+  open_pos U hU Une := by
     rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]
     exact IsOpenPosMeasure.open_pos _ (hφ.isOpen_iff_image_isOpen.mp hU) (Une.image φ)
 
