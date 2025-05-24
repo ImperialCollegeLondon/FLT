@@ -665,13 +665,67 @@ As a special case, if $R$ is the restricted product of a collection of topologic
 
 \section{Adeles}
 
-We finish this miniproject by proving two results about Haar characters for
-adelic rings. So let $K$ be a field and let $\A_K$ be the adeles of $K$.
+We finish this miniproject by proving some results about Haar characters for
+adelic rings. So let $K$ be a number field and let $\A_K$ be the adeles of $K$.
 We will prove some theorems about $\A_K$-algebras $R$ which are finite
 and free as $\A_K$-modules. Such algebras can be given the $\A_K$-module topology
-and this makes them into topological rings. In fact we shall only be concerned
-with algebras of the form $B\otimes_K\A_K$ where $B$ is a finite-dimensional
-$K$-algebra. So fix such a $B$, and write $B_{\A}$ for $B\otimes_K\A_K$.
+and this makes them into locally compact topological rings. In fact we shall only be concerned
+in applications with algebras of the form $B\otimes_K\A_K$ where $B$ is a finite-dimensional
+$K$-algebra. So fix such a $B$, and write $B_{\A}$ for $B\otimes_K\A_K$. Let us first
+deal with a subtlety. Recall that if $K\subseteq L$ are number fields, then $\A_L$ is a
+module-finite $\A_K$-algebra and hence an $\A_K$-module, and
+theorem~\ref{NumberField.AdeleRing.baseChange_moduleTopology}
+tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies.
+
+\begin{lemma}
+  \label{IsModuleTopology.Module.continuous_bilinear_of_finite}
+  \lean{IsModuleTopology.Module.continuous_bilinear_of_finite}
+  \leanok
+  Say $R$ and $S$ are topological rings, and $S$ is an $R$-algebra, finite as an $R$-module.
+  Assume that the topology
+  on $S$ is the $R$-module topology. Now say $M$ is an $S$-module, and give it the induced
+  $R$-module structure. Then the $R$-module topology and $S$-module topology on~$M$ coincide.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Let $i:R\to S$ denote the structure map. First observe that $S$ has the $R$-module topology
+  so the $R$-action map $R\times S\to S$ (explicitly defined by $(r,s)\mapsto i(r)s$)
+  is continuous, and restricting to $s=1$ we deduce that $i$ is continuous.
+
+  Now let $M_R$ and $M_S$ denote $M$ with the $R$-module and $S$-module topologies respectively.
+  It suffices to prove that the identity maps $M_R\to M_S$ and $M_S\to M_R$ are continuous.
+  Equivalently, because the $A$-module topology on an $A$-module is the finest topology
+  making it into a topological module, we need to prove that $M_R$ is a topological $S$-module
+  and that $M_S$ is a topological $R$-module. We start with the latter claim.
+
+  First observe that $M_S$ is a topological $S$-module, so addition is continuous.
+  Next note that the map $R\times M_S\to M_S$ factors through $S\times M_S$ and is hence the
+  composite of two continuous maps and thus continuous. Hence $M_S$ is a topological $R$-module
+  and.
+
+  It thus remains to check that $M_R$ is a topological $S$-module, or equivalently
+  that the map $S\times M_R\to M_R$ is continuous. But this map is $R$-bilinear, and
+  by the result {\tt Module.continuous\_bilinear\_of\_finite} in {\tt mathlib}, any
+  $R$-bilinear map between modules with the $R$-module topology is automatically continuous
+  if one of the source modules is finitely-generated. The result applies because $S$ is
+  assumed to be a finite $R$-module and the proof is complete.
+\end{proof}
+
+\begin{corollary}
+  \label{needslabel2}
+  If $K\subseteq L$ are number fields and $V$ is an $L$-module, then
+  the natural isomorphism $V\otimes_L\A_L=V\otimes_K\A_K$ induced by the natural
+  isomorphism $\A_L=L\otimes_K\A_K$ is a homeomorphism if the left hand side has the $\A_L$-module
+  topology and the right hand side has the $\A_K$-module topology.
+\end{corollary}
+\begin{proof}
+  \uses{IsModuleTopology.Module.continuous_bilinear_of_finite}
+  Immediate from lemma~\ref{IsModuleTopology.Module.continuous_bilinear_of_finite}.
+\end{proof}
+
+As a consequence, if $B$ is a $K$-algebra then we can think of $B_{\A}$ as either $B\otimes_K\A_K$
+with the $\A_K$-module topology or as $B\otimes_{\Q}\A_{\Q}$ with the $\A_{\Q}$-module
+topology.
 
 \begin{theorem}
   \label{addHaarScalarFactor.left_mul_eq_right_mul}
@@ -681,13 +735,13 @@ $K$-algebra. So fix such a $B$, and write $B_{\A}$ for $B\otimes_K\A_K$.
 \end{theorem}
 \begin{proof} If $u=(u_v)$ as $v$ runs through the places of $K$ then
   $d_{B_{\A}}(\ell_u)=\prod_v d_{B_v}(\ell_{u_v})$ by
-  theorem~\ref{addHaarScalarFactor_restricted_product} (and the product is finite).
+  theorem~\ref{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight} (and the product is finite).
   By corollary~\ref{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
   this equals $\prod_v d_{B_v}(r_{u_v})$, and again by
-  theorem~\ref{addHaarScalarFactor_restricted_product} this is $d_{B_{\A}}(r_u)$.
+  theorem~\ref{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight} this is $d_{B_{\A}}(r_u)$.
 \end{proof}
 
-That theorem only works for inner forms of matrix algebras, but the below theorem,
+That theorem only applies to inner forms of matrix algebras, but the below theorem,
 a generalization of the adelic product formula, is valid for any finite-dimensional
 $K$-algebra.
 We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic}
