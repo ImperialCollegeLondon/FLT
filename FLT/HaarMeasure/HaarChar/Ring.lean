@@ -84,7 +84,7 @@ lemma ringHaarChar_continuous :
 a locally compact topological ring `R` to the positive real factor
 which left multiplication by the unit scales additive Haar measure by.
 -/
-@[simps]
+@[simps (isSimp := false)]
 noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
   toFun r := addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r)
   map_one' := by convert addEquivAddHaarChar_refl (G := R); ext; simp
