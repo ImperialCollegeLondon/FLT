@@ -10,6 +10,39 @@ import FLT.Mathlib.Data.Set.Card -- shake says remove this but it breaks a simp 
 * Rename `SMulInvariantMeasure` to `Measure.IsSMulInvariant`
 -/
 
+section MeasurableEmbeddingComap
+
+open MeasureTheory Measure
+
+@[to_additive]
+lemma _root_.MeasurableEmbedding.IsMulLeftInvariant_comap {G H : Type*}
+    [Group G] [MeasurableSpace G] [MeasurableMul G]
+    [Group H] [MeasurableSpace H] [MeasurableMul H]
+    {φ : G →* H} (hφ : MeasurableEmbedding φ) (μ : Measure H) [IsMulLeftInvariant μ] :
+    IsMulLeftInvariant (comap φ μ) where
+  map_mul_left_eq_self := by
+    intro g
+    ext s hs
+    rw [map_apply (by fun_prop) hs]
+    repeat rw [MeasurableEmbedding.comap_apply hφ]
+    have : φ '' ((fun x ↦ g * x) ⁻¹' s) = (fun x ↦ φ g * x) ⁻¹' (φ '' s) := by
+      ext
+      constructor
+      · intro h
+        obtain ⟨y, hy, rfl⟩ := h
+        use g * y, hy
+        simp
+      · intro h
+        obtain ⟨y, yins, hy⟩ := h
+        use g⁻¹ * y
+        constructor
+        · simp [yins]
+        · simp [hy]
+    rw [this, ← map_apply (by fun_prop), IsMulLeftInvariant.map_mul_left_eq_self]
+    exact hφ.measurableSet_image.mpr hs
+
+end MeasurableEmbeddingComap
+
 open Subgroup Set
 open scoped Pointwise
 

@@ -1,65 +1,26 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct
+import Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Mathlib.MeasureTheory.Measure.Regular
+import FLT.Mathlib.MeasureTheory.Group.Measure
 
 open MeasureTheory.Measure
 open scoped NNReal
 
 namespace MeasureTheory
 
-open Topology in
-@[to_additive]
-lemma isHaarMeasure_comap_of_isOpenEmbedding {G H : Type*}
-    [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    {φ : G →* H} (hφ : IsOpenEmbedding φ) (μ : Measure H) [IsHaarMeasure μ] :
-    IsHaarMeasure (comap φ μ) := by
-  sorry -- issue FLT#507
-
 @[to_additive]
 lemma _root_.ContinuousMulEquiv.isHaarMeasure_comap {G H : Type*}
-    [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
+    [Group G] [TopologicalSpace G] [MeasurableSpace G] [MeasurableMul G] [BorelSpace G]
+    [Group H] [TopologicalSpace H] [MeasurableSpace H] [MeasurableMul H] [BorelSpace H]
     (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) :=
   isHaarMeasure_comap_of_isOpenEmbedding (φ := φ.toMulEquiv.toMonoidHom)
   (φ.toHomeomorph.isOpenEmbedding) μ
-
-open Topology in
-lemma regular_comap_of_isOpenEmbedding {G H : Type*}
-    [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    (φ : G → H) (hφ : IsOpenEmbedding φ) (μ : Measure H) [Regular μ] : Regular (comap φ μ) :=
-  { lt_top_of_isCompact := by
-      intro K hK
-      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]
-      exact IsFiniteMeasureOnCompacts.lt_top_of_isCompact (hK.image hφ.continuous)
-    outerRegular := by
-      intro A hA r hr
-      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding] at hr
-      obtain ⟨U, hUA, Uopen, hμU⟩ :=
-        OuterRegular.outerRegular (hφ.measurableEmbedding.measurableSet_image' hA) r hr
-      use φ ⁻¹' U
-      refine ⟨by rwa [Superset, ← Set.image_subset_iff], Uopen.preimage hφ.continuous, ?_⟩
-      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]
-      apply lt_of_le_of_lt (measure_mono (Set.image_preimage_subset _ _)) hμU
-    innerRegular := by
-      intro A hA r hr
-      rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding] at hr
-      obtain ⟨K, hKA, Kcompact, hμK⟩ :=
-        Regular.innerRegular (μ := μ) (hφ.isOpen_iff_image_isOpen.mp hA) r hr
-      have hK := subset_trans hKA (Set.image_subset_range _ _)
-      use φ ⁻¹' K
-      refine ⟨?_, hφ.isInducing.isCompact_preimage' Kcompact hK, ?_⟩
-      · rw [← hφ.injective.preimage_image A]; exact Set.preimage_mono hKA
-      · rwa [MeasurableEmbedding.comap_apply hφ.measurableEmbedding,
-          Set.image_preimage_eq_iff.mpr hK]
-  }
-
 
 lemma _root_.Homeomorph.regular_comap {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
     [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
     (φ : G ≃ₜ H) (μ : Measure H) [Regular μ] : Regular (comap φ μ) :=
-  regular_comap_of_isOpenEmbedding φ φ.isOpenEmbedding μ
+  φ.isOpenEmbedding.regular_comap_of_isOpenEmbedding φ μ
 
 lemma _root_.Homeomorph.regular_map {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
@@ -95,7 +56,7 @@ lemma smul_haarScalarFactor_smul (μ' μ : Measure G)
     [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
     (hc : 0 < c) :
     letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
-    c * haarScalarFactor μ' (c • μ) = haarScalarFactor μ' μ := by
+    haarScalarFactor (c • μ') (c • μ) = haarScalarFactor μ' μ := by
   letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
   obtain ⟨⟨g, g_cont⟩, g_comp, g_nonneg, g_one⟩ :
     ∃ g : C(G, ℝ), HasCompactSupport g ∧ 0 ≤ g ∧ g 1 ≠ 0 := exists_continuous_nonneg_pos 1
@@ -103,23 +64,14 @@ lemma smul_haarScalarFactor_smul (μ' μ : Measure G)
     ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
   apply NNReal.coe_injective
   calc
-    c * haarScalarFactor μ' (c • μ) = c * ((∫ x, g x ∂μ') / ∫ x, g x ∂(c • μ)) :=
-      by rw [haarScalarFactor_eq_integral_div _ _ g_cont g_comp (by simp [int_g_ne_zero, hc.ne'])]
-    _ = c * ((∫ x, g x ∂μ') / (c • ∫ x, g x ∂μ)) := by simp
+    ((c • μ').haarScalarFactor (c • μ)) = (∫ x, g x ∂(c • μ')) / ∫ x, g x ∂(c • μ) :=
+      haarScalarFactor_eq_integral_div _ _ g_cont g_comp (by simp [int_g_ne_zero, hc.ne'])
+    _ = (c • (∫ x, g x ∂μ')) / (c • ∫ x, g x ∂μ) := by simp
     _ = (∫ x, g x ∂μ') / (∫ x, g x ∂μ) := by
-      rw [NNReal.smul_def, smul_eq_mul, ← mul_div_assoc]
+      rw [NNReal.smul_def, NNReal.smul_def, smul_eq_mul, smul_eq_mul]
       exact mul_div_mul_left (∫ (x : G), g x ∂μ') (∫ (x : G), g x ∂μ) (by simp [hc.ne'])
     _ = μ'.haarScalarFactor μ :=
       (haarScalarFactor_eq_integral_div _ _ g_cont g_comp int_g_ne_zero).symm
-
--- should be in haarScalarFactor API
-@[to_additive]
-lemma smul_haarScalarFactor_smul' (μ' μ : Measure G)
-    [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
-    (hc : 0 < c) :
-    letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
-    haarScalarFactor (c • μ') (c • μ) = haarScalarFactor μ' μ := by
-  rw [haarScalarFactor_smul, smul_eq_mul, smul_haarScalarFactor_smul _ _ hc]
 
 @[to_additive]
 lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ]
@@ -134,7 +86,7 @@ lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ]
     enter [1, 2, 2]
     rw [smul]
   simp_rw [MeasureTheory.Measure.map_smul]
-  exact smul_haarScalarFactor_smul' _ _ (haarScalarFactor_pos_of_isHaarMeasure haar μ)
+  exact smul_haarScalarFactor_smul _ _ (haarScalarFactor_pos_of_isHaarMeasure haar μ)
 
 @[to_additive]
 lemma mulEquivHaarChar_map (μ : Measure G)
@@ -144,37 +96,11 @@ lemma mulEquivHaarChar_map (μ : Measure G)
   haveI : Regular (map φ μ) := (Regular.map_iff φ.toHomeomorph).mpr inferInstance
   exact (isMulLeftInvariant_eq_smul_of_regular μ (map φ μ)).symm
 
-@[to_additive]
-lemma mulEquivHaarChar_comap (μ : Measure G)
-    [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
-    (mulEquivHaarChar φ) • μ = comap φ μ := by
-  let e := φ.toHomeomorph.toMeasurableEquiv
-  rw [show ⇑φ = ⇑e from rfl, ← e.map_symm, show ⇑e.symm = ⇑φ.symm from rfl]
-  have : (map (⇑φ.symm) μ).Regular := φ.symm.toHomeomorph.regular_map μ
-  rw [← mulEquivHaarChar_map (map φ.symm μ) φ, map_map]
-  · simp
-  · exact φ.toHomeomorph.toMeasurableEquiv.measurable
-  · exact e.symm.measurable
-
 @[to_additive addEquivAddHaarChar_smul_integral_map]
 lemma mulEquivHaarChar_smul_integral_map (μ : Measure G)
     [IsHaarMeasure μ] [Regular μ] {f : G → ℝ} (φ : G ≃ₜ* G) :
     ∫ (a : G), f a ∂μ = (mulEquivHaarChar φ) • ∫ a, f a ∂(map φ μ) := by
   nth_rw 1 [← mulEquivHaarChar_map μ φ]
-  simp
-
-@[to_additive addEquivAddHaarChar_smul_integral_comap]
-lemma mulEquivHaarChar_smul_integral_comap (μ : Measure G)
-    [IsHaarMeasure μ] [Regular μ] {f : G → ℝ} (φ : G ≃ₜ* G) :
-    ∫ (a : G), f a ∂(comap φ μ) = (mulEquivHaarChar φ) • ∫ a, f a ∂μ := by
-  let e := φ.toHomeomorph.toMeasurableEquiv
-  change ∫ (a : G), f a ∂(comap e μ) = (mulEquivHaarChar φ) • ∫ a, f a ∂μ
-  haveI : (map (e.symm) μ).IsHaarMeasure := φ.symm.isHaarMeasure_map μ
-  haveI : (map (e.symm) μ).Regular := φ.symm.toHomeomorph.regular_map μ
-  rw [← e.map_symm, mulEquivHaarChar_smul_integral_map (map e.symm μ) φ,
-    map_map (by exact φ.toHomeomorph.toMeasurableEquiv.measurable) e.symm.measurable]
-  -- congr -- breaks to_additive -- TODO minimise and report?
-  rw [show ⇑φ ∘ ⇑e.symm = id by ext; simp [e]]
   simp
 
 @[to_additive addEquivAddHaarChar_smul_preimage]
@@ -198,39 +124,6 @@ lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
   sorry -- FLT#511
   -- use `MeasureTheory.Measure.haarScalarFactor_eq_mul`?
 
-open ENNReal in
-@[to_additive addEquivAddHaarChar_eq_one_of_compactSpace]
-lemma mulEquivHaarChar_eq_one_of_compactSpace [CompactSpace G] (φ : G ≃ₜ* G) :
-    mulEquivHaarChar φ = 1 := by
-  set m := haar (.univ : Set G) with hm
-  have hfinite : m < ∞ := IsCompact.measure_lt_top isCompact_univ
-  have hpos : 0 < m := IsOpen.measure_pos haar isOpen_univ ⟨1, trivial⟩
-  let m₀ : ℝ≥0 := m.toNNReal
-  have hm₀ : 0 < m₀ := by
-    unfold m₀
-    refine toNNReal_pos hpos.ne' hfinite.ne -- email Heather
-  suffices m₀ * mulEquivHaarChar φ = m₀ by
-    have : m₀ * mulEquivHaarChar φ = m₀ * 1 := by simpa using this
-    rwa [NNReal.mul_eq_mul_left hm₀.ne'] at this
-  have := mulEquivHaarChar_smul_preimage (haar : Measure G) (X := .univ) MeasurableSet.univ φ
-  simp only [← hm, Set.preimage_univ] at this
-  symm
-  have := congr(ENNReal.toNNReal $this)
-  simp only [smul_toNNReal] at this
-  rw [mul_comm]
-  exact this
-
-open Topology in
-@[to_additive]
-lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
-    [TopologicalSpace X] [Group X] [IsTopologicalGroup X] [LocallyCompactSpace X]
-    [MeasurableSpace X] [BorelSpace X]
-    [TopologicalSpace Y] [Group Y] [IsTopologicalGroup Y] [LocallyCompactSpace Y]
-    [MeasurableSpace Y] [BorelSpace Y]
-    {f : X →* Y} (hf : IsOpenEmbedding f) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y)
-    (hComm : ∀ x, f (α x) = β (f x)) : mulEquivHaarChar α = mulEquivHaarChar β := by
-  sorry -- FLT#551
-
 end basic
 
 section prodCongr
@@ -238,6 +131,8 @@ section prodCongr
 variable {A B C D : Type*} [Group A] [Group B] [Group C] [Group D]
     [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C] [TopologicalSpace D]
 
+example (f : A → B) (g : C → D) (hf : Continuous f) (hg : Continuous g) :
+  Continuous (Prod.map f g) := by exact Continuous.prodMap hf hg
 /-- The product of two multiplication-preserving homeomorphisms is
 a multiplication-preserving homeomorphism. -/
 @[to_additive "The product of
@@ -297,67 +192,104 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
     letI : MeasurableSpace (Π i, H i) := borel _
     haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  sorry -- FLT#521 -- induction on size of ι
+  sorry -- FLT#521 -- induction
 
 end pi
+
+end MeasureTheory
+
+section restrictedproductapi
+
+namespace RestrictedProduct
+
+-- TODO this is WIP, the sorries need to be either closed or assigned as tasks
+
+variable {ι : Type*}
+variable {R : ι → Type*} {A : (i : ι) → Set (R i)}
+variable {𝓕 : Filter ι}
+
+/-- Constructor for `RestrictedProduct`. -/
+abbrev mk (x : Π i, R i) (hx : ∀ᶠ i in 𝓕, x i ∈ A i) : Πʳ i, [R i, A i]_[𝓕] :=
+  ⟨x, hx⟩
+
+@[simp]
+lemma mk_apply (x : Π i, R i) (hx : ∀ᶠ i in 𝓕, x i ∈ A i) (i : ι) :
+    (mk x hx) i = x i := rfl
+
+@[simp]
+lemma mul_apply {S : ι → Type*} [(i : ι) → SetLike (S i) (R i)] {B : (i : ι) → S i}
+    [(i : ι) → Mul (R i)] [∀ (i : ι), MulMemClass (S i) (R i)]
+    (x y : Πʳ (i : ι), [R i, ↑(B i)]_[𝓕]) (i : ι) : (x * y) i = x i * y i := rfl
+
+end RestrictedProduct
+
+end restrictedproductapi
+
+namespace MeasureTheory
 
 section restrictedproduct
 
 open ENNReal
 
--- -- some sample code to show how why a nonempty compact open has
--- -- positive finite Haar measure
--- example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
---     [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
---     -- IsHaarMeasure gives "positive on opens" and "finite on compacts"
---     [IsHaarMeasure μ] (C : Set X) [Nonempty C]
---     (hCopen : IsOpen C) (hCcompact : IsCompact C) :
---     0 < μ C ∧ μ C < ∞ := by
---   constructor
---   · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
---   · exact IsCompact.measure_lt_top hCcompact
+example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
+    [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
+    [IsHaarMeasure μ] [Regular μ] (C : Set X) [Nonempty C]
+    (hCopen : IsOpen C) (hCcompact : IsCompact C) :
+    0 < μ C ∧ μ C < ∞ := by
+  constructor
+  · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
+  · exact IsCompact.measure_lt_top hCcompact
+
+variable
+    -- let ι be an index set.
+    {ι : Type*}
+    -- Let Gᵢ be a family of locally compact abelian groups
+    {G : ι → Type*} [Π i, Group (G i)] [Π i, TopologicalSpace (G i)]
+    [∀ i, IsTopologicalGroup (G i)] [∀ i, LocallyCompactSpace (G i)]
+    [∀ i, MeasurableSpace (G i)] [∀ i, BorelSpace (G i)]
+    -- Let Cᵢ ⊆ Gᵢ be a compact open subgroup for all i
+    {C : (i : ι) → Subgroup (G i)} [Fact (∀ i, IsOpen (C i : Set (G i)))]
+    (hCcompact : ∀ i, CompactSpace (C i))
+    -- Let φᵢ : Gᵢ → Gᵢ be a multiplication-preserving homeomorphism
+    (φ : (i : ι) → G i ≃ₜ* G i)
+    -- and assume φᵢ(Cᵢ) = Cᵢ for all but finitely many i
+    (hφ : ∀ᶠ i in Filter.cofinite, φ i ⁻¹' (C i : Set (G i)) = (C i : Set (G i)))
 
 open RestrictedProduct
 
-open Pointwise in
--- TODO this should be elsewhere
-@[to_additive]
-lemma _root_.WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup
-    {A : Type*} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
-    (C : Subgroup A) [hCopen : Fact (IsOpen (C : Set A))] [CompactSpace C] :
-    WeaklyLocallyCompactSpace A := .mk fun x ↦
-    ⟨x • (C : Set A), .smul _ (isCompact_iff_compactSpace.mpr inferInstance),
-      hCopen.out |>.smul _ |>.mem_nhds <| by
-      simpa using Set.smul_mem_smul_set (a := x) (one_mem C)⟩
+/-- A restricted product of topological group isomorphisms is a topological
+group isomorphism. -/
+def ContinuousMulEquiv.restrictedProductCongrRight :
+    (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) where
+  toFun x := ⟨fun i ↦ φ i (x i), sorry⟩
+  invFun y := ⟨fun i ↦ (φ i).symm (y i), sorry⟩
+  left_inv _ := by ext; simp
+  right_inv _ := by ext; simp
+  map_mul' x₁ x₂ := by ext; simp
+  continuous_toFun := sorry
+  continuous_invFun := sorry
 
-variable {ι : Type*}
-    {G : ι → Type*}
-    [Π i, Group (G i)] [Π i, TopologicalSpace (G i)] [∀ i, IsTopologicalGroup (G i)]
-    {C : (i : ι) → Subgroup (G i)}
-    [hCopen : Fact (∀ (i : ι), IsOpen (C i : Set (G i)))]
-    [hCcompact : ∀ i, CompactSpace (C i)]
-    [∀ i, MeasurableSpace (G i)]
-    [∀ i, BorelSpace (G i)]
+open Topology in
+@[to_additive]
+lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
+    [TopologicalSpace X] [Group X] [IsTopologicalGroup X] [LocallyCompactSpace X]
+    [MeasurableSpace X] [BorelSpace X]
+    [TopologicalSpace Y] [Group Y] [IsTopologicalGroup Y] [LocallyCompactSpace Y]
+    [MeasurableSpace Y] [BorelSpace Y]
+    {f : X →* Y} (hf : IsOpenEmbedding f) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y)
+    (hComm : ∀ x, f (α x) = β (f x)) : mulEquivHaarChar α = mulEquivHaarChar β := by
+  sorry
 
 open ContinuousMulEquiv in
-@[to_additive]
-lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
-    (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
-    -- typeclass stuff
+lemma mulEquivHaarChar_restrictedProductCongrRight :
     letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
     haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-    haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
-      haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
-      WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
-    -- lemma statement starts here
-    mulEquivHaarChar
-      (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
+    mulEquivHaarChar (restrictedProductCongrRight φ :(Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
   letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
   haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-  -- -- the below code created a compact open in the restricted product and shows
-  -- -- it has Haar measure 0 < μ < ∞ but I've realised I don't know what to do next.
-  -- -- The blueprint has a proof which I can make work.
+  -- -- the below code creates a compact open in the restricted product and shows
+  -- it has Haar measure 0 < μ < ∞ but I'm not sure I want to go this way
   -- set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
   -- have := isOpenEmbedding_structureMap (R := G) (A := fun i ↦ (C i : Set (G i))) Fact.out
   -- have isOpenEmbedding := this
@@ -372,4 +304,6 @@ lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G 
   --   rw [range_structureMap] at this
   --   apply this
   -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
-  sorry -- FLT#552
+  sorry
+
+-- #check Set.pi
