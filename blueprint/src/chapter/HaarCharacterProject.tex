@@ -507,8 +507,8 @@ Here are two facts which we will need about products.
 \section{Some measure-theoretic preliminaries}
 
 \begin{lemma}
-  \label{MeasureTheory.isHaarMeasure_comap_of_isOpenEmbedding}
-  \lean{MeasureTheory.isHaarMeasure_comap_of_isOpenEmbedding}
+  \label{Topology.IsOpenEmbedding.isHaarMeasure_comap}
+  \lean{Topology.IsOpenEmbedding.isHaarMeasure_comap}
   \leanok
   \discussion{507}
   Let $A$ and $B$ be locally compact topological groups
@@ -516,19 +516,21 @@ Here are two facts which we will need about products.
   The pullback along $f$ of a Haar measure on $B$ is a Haar measure on $A$.
 \end{lemma}
 \begin{proof}
+  \leanok
   (sketch) Translation-invariance is easy, compact sets are finite because continuous
   image of compact is compact, open sets are bounded because image of open is open.
 \end{proof}
 
 \begin{lemma}
-  \label{MeasureTheory.regular_comap_of_isOpenEmbedding}
-  \lean{MeasureTheory.regular_comap_of_isOpenEmbedding}
+  \label{Topology.IsOpenEmbedding.regular_comap_of_isOpenEmbedding}
+  \lean{Topology.IsOpenEmbedding.regular_comap_of_isOpenEmbedding}
   \leanok
   \discussion{513}
   The pullback of a regular Borel measure along an open
   embedding is a regular Borel measure.
 \end{lemma}
 \begin{proof}
+  \leanok
   (sketch) Again this is because the image of compact is compact and the
   image of open is open, so all the properties of being a regular measure
   are easily checked.
