@@ -27,16 +27,10 @@ lemma _root_.MeasurableEmbedding.IsMulLeftInvariant_comap {G H : Type*}
     have : φ '' ((fun x ↦ g * x) ⁻¹' s) = (fun x ↦ φ g * x) ⁻¹' (φ '' s) := by
       ext
       constructor
-      · intro h
-        obtain ⟨y, hy, rfl⟩ := h
-        use g * y, hy
-        simp
-      · intro h
-        obtain ⟨y, yins, hy⟩ := h
-        use g⁻¹ * y
-        constructor
-        · simp [yins]
-        · simp [hy]
+      · rintro ⟨y, hy, rfl⟩
+        exact ⟨g * y, hy, by simp⟩
+      · intro ⟨y, yins, hy⟩
+        exact ⟨g⁻¹ * y, by simp [yins], by simp [hy]⟩
     rw [this, ← map_apply (by fun_prop), IsMulLeftInvariant.map_mul_left_eq_self]
     exact hφ.measurableSet_image.mpr hs
 
