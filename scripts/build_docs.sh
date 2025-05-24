@@ -4,8 +4,6 @@
 # treat unset variables as an error, and ensure errors in pipelines are not masked.
 set -euo pipefail
 
-cp scripts/DocGenHack.lean doc-gen4/DocGen4/Process/DefinitionInfo.lean
-
 # Build HTML documentation for FLT
 # The output will be located in docs/docs
 
@@ -26,8 +24,7 @@ path = "../"
 [[require]]
 scope = "leanprover"
 name = "doc-gen4"
-rev = "$(< lean-toolchain cut -f 2 -d: )"
-path = "../doc-gen4"
+rev = "38a4f87cadd82f16d4c3e89dcc7140b8512b0bf2"
 EOF
 
 # Initialise docbuild as a Lean project
