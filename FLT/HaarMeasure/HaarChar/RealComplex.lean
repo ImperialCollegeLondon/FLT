@@ -4,23 +4,23 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Javier López-Contreras
 -/
 import Mathlib.Analysis.Complex.ReImTopology
-import Mathlib.MeasureTheory.Measure.Haar.DistribChar
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.RingTheory.Complex
 import Mathlib.RingTheory.Norm.Transitivity
+import FLT.HaarMeasure.HaarChar.Ring
 
 /-!
 # The distributive Haar characters of `ℝ` and `ℂ`
 
-This file computes `distribHaarChar` in the case of the actions of `ℝˣ` on `ℝ` and of `ℂˣ` on `ℂ`.
+This file computes `ringHaarChar` for `ℝ` and `ℂ`.
 
 This lets us know what `volume (x • s)` is in terms of `‖x‖` and `volume s`, when `x` is a
-real/complex number and `s` is a set of reals/complex numbers.
+nonzero real/complex number and `s` is a set of reals/complex numbers.
 
 ## Main declarations
 
-* `distribHaarChar_real`: `distribHaarChar ℝ` is the usual norm on `ℝ`.
-* `distribHaarChar_complex`: `distribHaarChar ℂ` is the usual norm on `ℂ` squared.
+* `ringHaarChar_real`: `ringHaarChar` is the usual norm on `ℝ`.
+* `ringHaarChar_complex`: `ringHaarChar` is the usual norm on `ℂ` squared.
 * `Real.volume_real_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℝ` and `s : Set ℝ`.
 * `Complex.volume_complex_smul`: `volume (z • s) = ‖z‖₊ ^ 2 * volume s` for all `z : ℂ` and
   `s : Set ℂ`.
@@ -36,9 +36,9 @@ lemma Real.volume_real_smul (x : ℝ) (s : Set ℝ) : volume (x • s) = ‖x‖
 
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℝ` and `s : Set ℝ`.
 See `Real.volume_real_smul`. -/
-lemma distribHaarChar_real (x : ℝˣ) : distribHaarChar ℝ x = ‖(x : ℝ)‖₊ :=
+lemma ringHaarChar_real (x : ℝˣ) : ringHaarChar x = ‖(x : ℝ)‖₊ :=
   -- We compute that `volume (x • [0, 1]) = ‖x‖₊ * volume [0, 1]`.
-  distribHaarChar_eq_of_measure_smul_eq_mul (s := Icc 0 1) (μ := volume)
+  ringHaarChar_eq_of_measure_smul_eq_mul (s := Icc 0 1) (μ := volume)
     (measure_pos_of_nonempty_interior _ <| by simp).ne' isCompact_Icc.measure_ne_top
       (Real.volume_real_smul ..)
 
@@ -46,9 +46,9 @@ lemma distribHaarChar_real (x : ℝˣ) : distribHaarChar ℝ x = ‖(x : ℝ)‖
 
 This means that `volume (z • s) = ‖z‖ ^ 2 * volume s` for all `z : ℂ` and `s : Set ℂ`.
 See `Complex.volume_complex_smul`. -/
-lemma distribHaarChar_complex (z : ℂˣ) : distribHaarChar ℂ z = ‖(z : ℂ)‖₊ ^ 2 := by
+lemma ringHaarChar_complex (z : ℂˣ) : ringHaarChar z = ‖(z : ℂ)‖₊ ^ 2 := by
   -- We compute that `volume (x • ([0, 1] × [0, 1])) = ‖x‖₊ ^ 2 * volume ([0, 1] × [0, 1])`.
-  refine distribHaarChar_eq_of_measure_smul_eq_mul (s := Icc 0 1 ×ℂ Icc 0 1) (μ := volume)
+  refine ringHaarChar_eq_of_measure_smul_eq_mul (s := Icc 0 1 ×ℂ Icc 0 1) (μ := volume)
     (measure_pos_of_nonempty_interior _ <| by simp [interior_reProdIm]).ne'
     (isCompact_Icc.reProdIm isCompact_Icc).measure_ne_top ?_
   -- The determinant of left multiplication by `z⁻¹` as a `ℝ`-linear map is `‖z‖₊ ^ (-2)`.
@@ -68,4 +68,4 @@ lemma Complex.volume_complex_smul (z : ℂ) (s : Set ℂ) : volume (z • s) = �
   obtain rfl | hz := eq_or_ne z 0
   · simp [(finite_zero.subset s.zero_smul_set_subset).measure_zero]
   · lift z to ℂˣ using hz.isUnit
-    rw [← ENNReal.coe_pow, ← distribHaarChar_complex, distribHaarChar_mul, Units.smul_def]
+    rw [← ENNReal.coe_pow, ← ringHaarChar_complex, ← Units.smul_def, ringHaarChar_mul_volume]

@@ -140,13 +140,11 @@ lemma mulEquivHaarChar_smul_integral_comap (μ : Measure G)
 
 @[to_additive addEquivAddHaarChar_smul_preimage]
 lemma mulEquivHaarChar_smul_preimage
-    (μ : Measure G) [IsHaarMeasure μ] [Regular μ] {X : Set G} (hX : MeasurableSet X) (φ : G ≃ₜ* G) :
+    (μ : Measure G) [IsHaarMeasure μ] [Regular μ] {X : Set G} (φ : G ≃ₜ* G) :
     μ X = (mulEquivHaarChar φ) • μ (φ ⁻¹' X) := by
   nth_rw 1 [← mulEquivHaarChar_map μ φ]
   simp only [smul_apply, nnreal_smul_coe_apply]
-  rw [map_apply₀]
-  · exact φ.toHomeomorph.measurable.aemeasurable
-  · exact MeasurableSet.nullMeasurableSet hX
+  exact congr_arg _ <| MeasurableEquiv.map_apply φ.toMeasurableEquiv X
 
 @[to_additive]
 lemma mulEquivHaarChar_refl :
@@ -173,7 +171,7 @@ lemma mulEquivHaarChar_eq_one_of_compactSpace [CompactSpace G] (φ : G ≃ₜ* G
   suffices m₀ * mulEquivHaarChar φ = m₀ by
     have : m₀ * mulEquivHaarChar φ = m₀ * 1 := by simpa using this
     rwa [NNReal.mul_eq_mul_left hm₀.ne'] at this
-  have := mulEquivHaarChar_smul_preimage (haar : Measure G) (X := .univ) MeasurableSet.univ φ
+  have := mulEquivHaarChar_smul_preimage (haar : Measure G) (X := .univ) φ
   simp only [← hm, Set.preimage_univ] at this
   symm
   have := congr(ENNReal.toNNReal $this)
