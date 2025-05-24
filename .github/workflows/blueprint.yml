@@ -79,19 +79,19 @@ jobs:
       - name: Lint project
         run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter FLT
 
-      - name: Cache Mathlib docs
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: |
-            docbuild/.lake/build/doc/Aesop
-            docbuild/.lake/build/doc/Batteries
-            docbuild/.lake/build/doc/find
-            docbuild/.lake/build/doc/Init
-            docbuild/.lake/build/doc/Lake
-            docbuild/.lake/build/doc/Lean
-            docbuild/.lake/build/doc/Mathlib
-            docbuild/.lake/build/doc/Std
-          key: Docs-${{ hashFiles('lake-manifest.json') }}
+      # - name: Cache Mathlib docs
+      #   uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      #   with:
+      #     path: |
+      #       docbuild/.lake/build/doc/Aesop
+      #       docbuild/.lake/build/doc/Batteries
+      #       docbuild/.lake/build/doc/find
+      #       docbuild/.lake/build/doc/Init
+      #       docbuild/.lake/build/doc/Lake
+      #       docbuild/.lake/build/doc/Lean
+      #       docbuild/.lake/build/doc/Mathlib
+      #       docbuild/.lake/build/doc/Std
+      #     key: Docs-${{ hashFiles('lake-manifest.json') }}
 
       - name: Check for `docs` folder # this is meant to detect a Jekyll-based website
         id: check_docs
@@ -128,8 +128,8 @@ jobs:
       - name: Check declarations mentioned in the blueprint exist in Lean code
         run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
-      - name: Build project API documentation
-        run: scripts/build_docs.sh
+      # - name: Build project API documentation
+      #   run: scripts/build_docs.sh
 
       - name: Bundle dependencies
         if: github.event_name == 'push'
@@ -146,7 +146,7 @@ jobs:
             JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: JEKYLL_ENV=production bundle exec jekyll build  # Note this will also copy the blueprint and API doc into docs/_site
 
-      - name: "Upload website (API documentation, blueprint and any home page)"
+      - name: "Upload website (blueprint and home page)"
         if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
