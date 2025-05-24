@@ -24,7 +24,7 @@ path = "../"
 [[require]]
 scope = "leanprover"
 name = "doc-gen4"
-rev = "38a4f87cadd82f16d4c3e89dcc7140b8512b0bf2"
+rev = "e23a86e721fd18baa5c11e9b65aa508a8f9aa136"
 EOF
 
 # Initialise docbuild as a Lean project
