@@ -20,8 +20,7 @@ lemma _root_.MeasurableEmbedding.IsMulLeftInvariant_comap {G H : Type*}
     [Group H] [MeasurableSpace H] [MeasurableMul H]
     {φ : G →* H} (hφ : MeasurableEmbedding φ) (μ : Measure H) [IsMulLeftInvariant μ] :
     IsMulLeftInvariant (comap φ μ) where
-  map_mul_left_eq_self := by
-    intro g
+  map_mul_left_eq_self g := by
     ext s hs
     rw [map_apply (by fun_prop) hs]
     repeat rw [MeasurableEmbedding.comap_apply hφ]
