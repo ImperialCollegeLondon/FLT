@@ -10,16 +10,15 @@ import FLT.HaarMeasure.HaarChar.Ring
 /-!
 # The distributive Haar characters of the p-adics
 
-This file computes `distribHaarChar` in the case of the actions of `ℤ_[p]ˣ` on `ℤ_[p]` and of
-`ℚ_[p]ˣ` on `ℚ_[p]`.
+This file computes `ringHaarChar` for `ℤ_[p]` and `ℚ_[p]`.
 
 This lets us know what `volume (x • s)` is in terms of `‖x‖` and `volume s`, when `x` is a
 p-adic/p-adic integer and `s` is a set of p-adics/p-adic integers.
 
 ## Main declarations
 
-* `ringHaarChar_padic`: `distribHaarChar ℚ_[p]` is the usual p-adic norm on `ℚ_[p]ˣ`.
-* `ringHaarChar_padicInt`: `distribHaarChar ℤ_[p]` is constantly `1` on `ℤ_[p]ˣ`.
+* `ringHaarChar_padic`: `ringHaarChar` is the usual p-adic norm on `ℚ_[p]ˣ`.
+* `ringHaarChar_padicInt`: `ringHaarChar` is constantly `1` on `ℤ_[p]ˣ`.
 * `Padic.volume_padic_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℚ_[p]` and
   `s : Set ℚ_[p]`.
 * `PadicInt.volume_padicInt_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℤ_[p]` and
@@ -74,7 +73,7 @@ lemma ringHaarChar_padic (x : ℚ_[p]ˣ) : ringHaarChar x = ‖(x : ℚ_[p])‖�
   change ringHaarChar.toMulHom x = _
   revert x
   suffices ringHaarChar (R := ℚ_[p]) = g by simp [this, g]
-  -- By density of `ℤ_[p]⁰` inside `ℚ_[p]ˣ`, it's enough to check that `distribHaarChar ℚ_[p]` and
+  -- By density of `ℤ_[p]⁰` inside `ℚ_[p]ˣ`, it's enough to check that `ringHaarChar ℚ_[p]` and
   -- `g` agree on `ℤ_[p]⁰`.
   refine MonoidHom.eq_of_eqOn_dense (PadicInt.closure_nonZeroDivisors_padicInt (p := p)) ?_
   -- But this is what we proved in `ringHaarChar_padic_padicInt`.
@@ -104,6 +103,6 @@ This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℤ_[p]` an
 See `PadicInt.volume_padicInt_smul` -/
 @[simp]
 lemma ringHaarChar_padicInt (x : ℤ_[p]ˣ) : ringHaarChar x = 1 :=
-  -- We compute `distribHaarChar ℤ_[p]` by lifting everything to `ℚ_[p]`.
+  -- We compute `ringHaarChar ℤ_[p]` by lifting everything to `ℚ_[p]`.
   ringHaarChar_eq_of_measure_smul_eq_mul (s := univ) (μ := volume) (by simp) (measure_ne_top _ _)
     (by simp [PadicInt.volume_padicInt_smul])

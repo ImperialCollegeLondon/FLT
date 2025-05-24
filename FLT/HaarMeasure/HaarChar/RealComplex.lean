@@ -12,15 +12,15 @@ import FLT.HaarMeasure.HaarChar.Ring
 /-!
 # The distributive Haar characters of `ℝ` and `ℂ`
 
-This file computes `distribHaarChar` in the case of the actions of `ℝˣ` on `ℝ` and of `ℂˣ` on `ℂ`.
+This file computes `ringHaarChar` for `ℝ` and `ℂ`.
 
 This lets us know what `volume (x • s)` is in terms of `‖x‖` and `volume s`, when `x` is a
-real/complex number and `s` is a set of reals/complex numbers.
+nonzero real/complex number and `s` is a set of reals/complex numbers.
 
 ## Main declarations
 
-* `ringHaarChar_real`: `distribHaarChar ℝ` is the usual norm on `ℝ`.
-* `ringHaarChar_complex`: `distribHaarChar ℂ` is the usual norm on `ℂ` squared.
+* `ringHaarChar_real`: `ringHaarChar` is the usual norm on `ℝ`.
+* `ringHaarChar_complex`: `ringHaarChar` is the usual norm on `ℂ` squared.
 * `Real.volume_real_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℝ` and `s : Set ℝ`.
 * `Complex.volume_complex_smul`: `volume (z • s) = ‖z‖₊ ^ 2 * volume s` for all `z : ℂ` and
   `s : Set ℂ`.
