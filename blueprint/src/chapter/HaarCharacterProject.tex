@@ -749,18 +749,32 @@ But Lean is picky about these things so we'll have to be careful.
 
 The previous theorem only applies to inner forms of matrix algebras, but the below theorem,
 a generalization of the adelic product formula, is valid for any finite-dimensional
-$K$-algebra.
-We have seen in lemmas~\ref{ringHaarChar_real} and~\ref{ringHaarChar_padic}
-  that if $v$ is a place of $\Q$ (i.e., a prime
-  number or $+\infty$) then $\delta_{\Q_v}=|\cdot|_v$.
-  We can deduce from this, lemma~\ref{ringHaarChar_restricted_product} (at the finite places)
-  and lemma~\ref{MeasureTheory.ringHaarChar_prod} (to include the infinite place) that if $(x_v)_v\in\A_{\Q}^\times$
-  then $\delta_{\A_{\Q}}((x_v)_v)=\prod_v|x_v|_v$, where the product
-  runs over all places of $\Q$.
-  The \emph{product formula for $\Q$} (which we have in mathlib) says
-  that if $x\in\Q^\times\subseteq\A_{\Q}^\times$ then $\prod_v|x|_v=1.$
+$K$-algebra. Before we state it let's remind ourselves of the product formula for $\Q$,
+and restate it in the language of these Haar characters.
+
+\begin{lemma}
+  \label{adeledelta} If $x\in\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=\prod_v|x_v|_v.$
+\end{lemma}
+\begin{proof} By theorem~\ref{MeasureTheory.addEquivAddHaarChar_prodCongr}
+  we have $\delta_{\A_{\Q}}(x)=\delta_{\A_{\Q}^\infty}(x^\infty)\times\delta_{\R}(x_\infty)$.
+  By lemma~\ref{ringHaarChar_real} we have $\delta_{\R}(x_\infty)=|x|_\infty$, and by
+  theorem~\ref{ringHaarChar_restricted_product} we have
+  $\delta_{\A_{\Q}^\infty}=\prod_p\delta_{\Q_p}(x_p)$. By lemma~\ref{ringHaarChar_padic}
+  we have $\delta_{\Q_p}(x_p)=|x_p|_p$ and putting everything together we get the result.
+\end{proof}
+
+Now $\A_{\Q}$ is nonzero a $\Q$-algebra and hence we have an inclusion $\Q^\times\to\A_{\Q}^\times$.
+Here is our reinterpretation of the product formula.
+
+\begin{lemma}
+  \label{productformula} If $x\in\Q^\times\subseteq\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=1.$
+\end{lemma}
+\begin{proof}
+  By lemma~\ref{adeledelta} we have $\delta_{\A_{\Q}}(x)=\prod_v|x|_v$. But the product
+  formula says that this is 1.
   A quick proof: if $x=\pm\prod_pp^{e_p}$ then $\prod_p|x|_p=\prod_pp^{-e_p}$
-  and $|x|_\infty=\prod_pp^{e_p}$ so they cancel. We conclude that $\delta_{\A_{\Q}}(\Q^\times)=\{1\}$.
+  and $|x|_\infty=\prod_pp^{e_p}$ so they cancel.
+\end{proof}
 
   Next we generalize this to finite-dimensional $\Q$-vector spaces.
 
@@ -775,26 +789,24 @@ We have seen in lemmas~\ref{ringHaarChar_real} and~\ref{ringHaarChar_padic}
 
   \begin{theorem}
     \label{addHaarScalarFactor_eq_one}
-    %\lean{addHaarScalarFactor_eq_one}
     In the above situation ($V$ a finite-dimensional $\Q$-vector space, $\phi:V\to V$ is $\Q$-linear,
     $\phi_{\A}$ the base extension to $V_{\A}:=V\otimes_{\Q}{\A_{\Q}}$, a continuous linear
     endomorphism of $V_{\A}$ with the $\A_{\Q}$-module topology), we have $d_{V_{\A}}(\phi_{\A})=1.$
   \end{theorem}
   \begin{proof}
-    Notation: write $\A_{\Q}=\A_{\Q}^\infty\times\R$, where $\A_{\Q}^\infty$ is the finite adeles of $\Q$.
-    Define $V_f:= V\otimes_{\Q}\A_{\Q}^\infty$ and for $v$ a place of $\Q$ (that is either $v=p$ prime
-    or $v=\infty$) write $V_v:=V\otimes_{\Q}\Q_v$, so for example $V_\infty=V\otimes_{\Q}\R$.
-    Then $V_{\A}=V_f\times V_\infty$. Fix once and for all a $\Z$-lattice $L\subseteq V$
-    (that is, a spanning $\Z^N$ in the $\Q^N$).
-    For $p$ a prime, define $C_p:=L\otimes_{\Z}\Z_p\subseteq V_p$. It can be checked that
-    as a topological abelian group $V_f$ is the restricted product $\prod'_p V_p$ over the
-    subgroups $C_p$.
+    Fix once and for all a $\Z$-lattice $L\subseteq V$
+    (that is, a spanning $\Z^N$ in the $\Q^N$). Then $V\otimes_{\Q}\A_{\Q}=L\otimes_{\Z}\A_{\Q}$
+    which is $L\otimes_{\Z}(\A_{\Q}^\infty\times\R)$.
+    Because tensoring by a finitely presented module commute with restricted products and binary
+    products this equals $\prod'_p(L\otimes_{\Z}\Q_p)\times(L\otimes_{\Q}\R)$, the restricted
+    product being over $L\otimes_{\Z}\Z_p$, and this is $\prod'_p(V\otimes_{\Q}\Q_p)\times(V\otimes_{\Q}\R)$.
+    If $V_v$ denotes $V\otimes_{\Q}\Q_v$ then the endomorphism $\phi_{\A}$ is the product of
+    $\phi_p$ for all $p$ and $\phi_\infty$,
+    where $\phi_v$ is a $\Q_v$-linear and and hence continuous automorphism of $V_v$.
 
-    We have $\phi:V\to V$. For $v$ a place of $\Q$, let $\phi_v:V_v\to V_v$ denote the $\Q_v$-linear
-    base extension of $\phi$ to $V_v$. We have $d_{V_{\A}}(\phi_{\A})=d_{V_f}(\prod'_p \phi_p)\times d_{V_\infty}(\phi_\infty)$,
-    where $\prod'_p \phi_p$ is the restricted product of the $\phi_p$ as an endomorphism of $V_f$.
-    Thus $d_{V_{\A}}(\phi_{\A})=\prod_p d_{V_p}(\phi_p)\times d_{V_\infty}(\phi_\infty)=\prod_v d_{V_v}(\phi_v)$, where
-    we note that all but finitely many of the $d_{V_p}(\phi_p)$ are 1.
+    Hence by theorem~\ref{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight}
+    we have $d_{V_{\A}}(\phi_{\A})=\prod_p d_{V_p}(\phi_p)\times d_{V_\infty}(\phi_\infty)$,
+    where we note that all but finitely many of the $d_{V_p}(\phi_p)$ are 1.
 
     By Lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det} we have that
     $d_{V_v}(\phi_v)=\delta_{\Q_v}(\det(\phi_v))$, hence $d_{V_{\A}}(\phi_{\A})=\prod_v\delta_{\Q_v}(\det(\phi_v))$.
