@@ -5,15 +5,15 @@ section IsOpenEmbeddingComap
 
 open MeasureTheory Measure
 
-variable {G H : Type*}
-    [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    {φ : G → H}
+variable {X Y : Type*}
+    [TopologicalSpace X] [MeasurableSpace X] [BorelSpace X]
+    [TopologicalSpace Y] [MeasurableSpace Y] [BorelSpace Y]
+    {φ : X → Y}
 
 namespace Topology.IsOpenEmbedding
 
 lemma outerRegular_comap
-    (hφ : IsOpenEmbedding φ) (μ : Measure H) [OuterRegular μ] :
+    (hφ : IsOpenEmbedding φ) (μ : Measure Y) [OuterRegular μ] :
     OuterRegular (comap φ μ) where
   outerRegular A hA r hr := by
     rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding] at hr
@@ -25,7 +25,7 @@ lemma outerRegular_comap
     apply lt_of_le_of_lt (measure_mono (Set.image_preimage_subset _ _)) hμU
 
 lemma innerRegularWRT_comap
-    (hφ : IsOpenEmbedding φ) {μ : Measure H} (hμ : InnerRegularWRT μ IsCompact IsOpen) :
+    (hφ : IsOpenEmbedding φ) {μ : Measure Y} (hμ : InnerRegularWRT μ IsCompact IsOpen) :
     InnerRegularWRT (comap φ μ) IsCompact IsOpen := by
   intro A hA r hr
   rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding] at hr
@@ -39,7 +39,7 @@ lemma innerRegularWRT_comap
 
 
 lemma regular_comap_of_isOpenEmbedding
-    (φ : G → H) (hφ : IsOpenEmbedding φ) (μ : Measure H) [Regular μ] :
+    (φ : X → Y) (hφ : IsOpenEmbedding φ) (μ : Measure Y) [Regular μ] :
     Regular (comap φ μ) where
   lt_top_of_isCompact := (hφ.isFiniteMeasureOnCompacts_comap μ).lt_top_of_isCompact
   outerRegular := (hφ.outerRegular_comap μ).outerRegular

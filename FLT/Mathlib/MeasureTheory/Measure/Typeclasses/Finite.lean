@@ -5,10 +5,10 @@ section IsOpenEmbeddingComap
 
 open MeasureTheory Measure
 
-lemma Topology.IsOpenEmbedding.isFiniteMeasureOnCompacts_comap {G H : Type*}
-    [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    {φ : G → H} (hφ : IsOpenEmbedding φ) (μ : Measure H) [IsFiniteMeasureOnCompacts μ] :
+lemma Topology.IsOpenEmbedding.isFiniteMeasureOnCompacts_comap {X Y : Type*}
+    [TopologicalSpace X] [MeasurableSpace X] [BorelSpace X]
+    [TopologicalSpace Y] [MeasurableSpace Y] [BorelSpace Y]
+    {φ : X → Y} (hφ : IsOpenEmbedding φ) (μ : Measure Y) [IsFiniteMeasureOnCompacts μ] :
     IsFiniteMeasureOnCompacts (comap φ μ) where
   lt_top_of_isCompact K hK := by
     rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]

@@ -1,14 +1,13 @@
 import Mathlib.MeasureTheory.Measure.OpenPos
 
-
 section IsOpenEmbeddingComap
 
 open MeasureTheory Measure
 
-lemma Topology.IsOpenEmbedding.IsOpenPosMeasure_comap {G H : Type*}
-    [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    {φ : G → H} (hφ : IsOpenEmbedding φ) (μ : Measure H) [IsOpenPosMeasure μ] :
+lemma Topology.IsOpenEmbedding.IsOpenPosMeasure_comap {X Y: Type*}
+    [TopologicalSpace X] [MeasurableSpace X] [BorelSpace X]
+    [TopologicalSpace Y] [MeasurableSpace Y] [BorelSpace Y]
+    {φ : X → Y} (hφ : IsOpenEmbedding φ) (μ : Measure Y) [IsOpenPosMeasure μ] :
     IsOpenPosMeasure (comap φ μ) where
   open_pos := by
     intro U hU Une
