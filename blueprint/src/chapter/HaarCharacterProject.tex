@@ -182,6 +182,7 @@ The following are also straightforward.
   $d_A(\phi\circ\psi)=d_A(\phi)d_A(\psi).$
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{MeasureTheory.addEquivAddHaarChar_smul_preimage}
   Here's one way: it suffices to prove that
   $d_A(\phi\circ\psi)(\phi\circ\psi)_*\mu=d_A(\phi)d_A(\psi)(\phi\circ\psi)_*\mu$
@@ -271,8 +272,8 @@ The next result lies a little deeper.
 We discuss some examples of Haar characters.
 
 \begin{lemma}
-  \label{distribHaarChar_real}
-  \lean{distribHaarChar_real}
+  \label{ringHaarChar_real}
+  \lean{ringHaarChar_real}
   If $R=\R$ then $\delta_R(u)=|u|$.
   \leanok
 \end{lemma}
@@ -285,8 +286,8 @@ and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
 \end{proof}
 
 \begin{lemma}
-  \label{distribHaarChar_complex}
-  \lean{distribHaarChar_complex}
+  \label{ringHaarChar_complex}
+  \lean{ringHaarChar_complex}
   \leanok
   If $R=\bbC$ then $\delta_R(u)=|u|^2$.
 \end{lemma}
@@ -299,8 +300,8 @@ and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
 \end{proof}
 
 \begin{lemma}
-  \label{distribHaarChar_padic}
-  \lean{distribHaarChar_padic}
+  \label{ringHaarChar_padic}
+  \lean{ringHaarChar_padic}
   \leanok
   If $R=\Q_p$ then $\delta_R(u)=|u|_p$, the usual $p$-adic norm.
 \end{lemma}
@@ -507,8 +508,8 @@ Here are two facts which we will need about products.
 \section{Some measure-theoretic preliminaries}
 
 \begin{lemma}
-  \label{MeasureTheory.isHaarMeasure_comap_of_isOpenEmbedding}
-  \lean{MeasureTheory.isHaarMeasure_comap_of_isOpenEmbedding}
+  \label{Topology.IsOpenEmbedding.isHaarMeasure_comap}
+  \lean{Topology.IsOpenEmbedding.isHaarMeasure_comap}
   \leanok
   \discussion{507}
   Let $A$ and $B$ be locally compact topological groups
@@ -516,19 +517,21 @@ Here are two facts which we will need about products.
   The pullback along $f$ of a Haar measure on $B$ is a Haar measure on $A$.
 \end{lemma}
 \begin{proof}
+  \leanok
   (sketch) Translation-invariance is easy, compact sets are finite because continuous
   image of compact is compact, open sets are bounded because image of open is open.
 \end{proof}
 
 \begin{lemma}
-  \label{MeasureTheory.regular_comap_of_isOpenEmbedding}
-  \lean{MeasureTheory.regular_comap_of_isOpenEmbedding}
+  \label{Topology.IsOpenEmbedding.regular_comap}
+  \lean{Topology.IsOpenEmbedding.regular_comap}
   \leanok
   \discussion{513}
   The pullback of a regular Borel measure along an open
   embedding is a regular Borel measure.
 \end{lemma}
 \begin{proof}
+  \leanok
   (sketch) Again this is because the image of compact is compact and the
   image of open is open, so all the properties of being a regular measure
   are easily checked.
@@ -560,8 +563,8 @@ Then $d_G(\phi)=1.$
   then $d_A(\alpha)=d_B(\beta)$.
 \end{lemma}
 \begin{proof} Choose a regular Haar measure $\mu_B$ on $B$. We just saw
-  in lemmas~\ref{MeasureTheory.isHaarMeasure_comap_of_isOpenEmbedding}
-  and~\ref{MeasureTheory.regular_comap_of_isOpenEmbedding} that its pullback
+  in lemmas~\ref{Topology.IsOpenEmbedding.isHaarMeasure_comap}
+  and~\ref{Topology.IsOpenEmbedding.regular_comap} that its pullback
   $\mu_A:=f^*\mu_B$ to $A$ is also a regular Haar
   measure. Now fix a continuous compactly-supported function $g$ on $A$ with
   $0<\int g(a)d\mu(a)<\infty$. Then $d_A(\alpha)\int g(a)d\mu_A(a)=\int g(a)d(\alpha^*\mu_A)(a)$
@@ -597,6 +600,7 @@ However topological facts lie a little deeper.
   then the restricted product $\phi = \prod'_i\phi_i$ is a continuous function.
 \end{lemma}
 \begin{proof}
+  \leanok
   We use the universal property {\tt RestrictedProduct.continuous\_dom} of the
   topology in mathlib to reduce to the claim that for all finite $S$,
   the induced map $A_S:=\prod_{i\in S}A_i\times\prod_{i\notin S}C_i\to B$ is continuous.
@@ -746,10 +750,10 @@ But Lean is picky about these things so we'll have to be careful.
 The previous theorem only applies to inner forms of matrix algebras, but the below theorem,
 a generalization of the adelic product formula, is valid for any finite-dimensional
 $K$-algebra.
-We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic}
+We have seen in lemmas~\ref{ringHaarChar_real} and~\ref{ringHaarChar_padic}
   that if $v$ is a place of $\Q$ (i.e., a prime
   number or $+\infty$) then $\delta_{\Q_v}=|\cdot|_v$.
-  We can deduce from this, lemma~\ref{distribHaarChar_restricted_product} (at the finite places)
+  We can deduce from this, lemma~\ref{ringHaarChar_restricted_product} (at the finite places)
   and lemma~\ref{MeasureTheory.ringHaarChar_prod} (to include the infinite place) that if $(x_v)_v\in\A_{\Q}^\times$
   then $\delta_{\A_{\Q}}((x_v)_v)=\prod_v|x_v|_v$, where the product
   runs over all places of $\Q$.

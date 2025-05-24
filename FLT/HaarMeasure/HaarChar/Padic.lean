@@ -5,21 +5,20 @@ Authors: Yaël Dillies, Javier López-Contreras
 -/
 import FLT.Mathlib.MeasureTheory.Group.Action
 import FLT.HaarMeasure.MeasurableSpacePadics
-import Mathlib.MeasureTheory.Measure.Haar.DistribChar
+import FLT.HaarMeasure.HaarChar.Ring
 
 /-!
 # The distributive Haar characters of the p-adics
 
-This file computes `distribHaarChar` in the case of the actions of `ℤ_[p]ˣ` on `ℤ_[p]` and of
-`ℚ_[p]ˣ` on `ℚ_[p]`.
+This file computes `ringHaarChar` for `ℤ_[p]` and `ℚ_[p]`.
 
 This lets us know what `volume (x • s)` is in terms of `‖x‖` and `volume s`, when `x` is a
 p-adic/p-adic integer and `s` is a set of p-adics/p-adic integers.
 
 ## Main declarations
 
-* `distribHaarChar_padic`: `distribHaarChar ℚ_[p]` is the usual p-adic norm on `ℚ_[p]ˣ`.
-* `distribHaarChar_padicInt`: `distribHaarChar ℤ_[p]` is constantly `1` on `ℤ_[p]ˣ`.
+* `ringHaarChar_padic`: `ringHaarChar` is the usual p-adic norm on `ℚ_[p]ˣ`.
+* `ringHaarChar_padicInt`: `ringHaarChar` is constantly `1` on `ℤ_[p]ˣ`.
 * `Padic.volume_padic_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℚ_[p]` and
   `s : Set ℚ_[p]`.
 * `PadicInt.volume_padicInt_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℤ_[p]` and
@@ -31,13 +30,13 @@ open scoped Pointwise ENNReal NNReal nonZeroDivisors
 
 variable {p : ℕ} [Fact p.Prime]
 
-private lemma distribHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
-    distribHaarChar ℚ_[p] (x : ℚ_[p]ˣ) = ‖(x : ℚ_[p])‖₊ := by
+private lemma ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
+    ringHaarChar (x : ℚ_[p]ˣ) = ‖(x : ℚ_[p])‖₊ := by
   -- Let `K` be the copy of `ℤ_[p]` inside `ℚ_[p]` and `H` be `xK`.
   let K : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
   let H := (x : ℚ_[p]) • K
   -- We compute that `volume H = ‖x‖₊ * volume K`.
-  refine distribHaarChar_eq_of_measure_smul_eq_mul (s := K) (μ := volume) (G := ℚ_[p]ˣ)
+  refine ringHaarChar_eq_of_measure_smul_eq_mul (s := K) (μ := volume) (R := ℚ_[p])
     (by simp [K, Padic.submodule_one_eq_closedBall, closedBall, Padic.volume_closedBall_one])
     (by simp [K, Padic.submodule_one_eq_closedBall, closedBall, Padic.volume_closedBall_one]) ?_
   change volume (H : Set ℚ_[p]) = ‖(x : ℚ_[p])‖₊ * volume (K : Set ℚ_[p])
@@ -64,29 +63,32 @@ private lemma distribHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℚ_[p]` and `s : Set ℚ_[p]`.
 See `Padic.volume_padic_smul` -/
 @[simp]
-lemma distribHaarChar_padic (x : ℚ_[p]ˣ) : distribHaarChar ℚ_[p] x = ‖(x : ℚ_[p])‖₊ := by
+lemma ringHaarChar_padic (x : ℚ_[p]ˣ) : ringHaarChar x = ‖(x : ℚ_[p])‖₊ := by
   -- Write the RHS as the application of a monoid hom `g`.
   let g : ℚ_[p]ˣ →* ℝ≥0 := {
     toFun := fun x => ‖(x : ℚ_[p])‖₊
     map_one' := by simp
     map_mul' := by simp
   }
+  change ringHaarChar.toMulHom x = _
   revert x
-  suffices distribHaarChar ℚ_[p] = g by simp [this, g]
-  -- By density of `ℤ_[p]⁰` inside `ℚ_[p]ˣ`, it's enough to check that `distribHaarChar ℚ_[p]` and
+  suffices ringHaarChar (R := ℚ_[p]) = g by simp [this, g]
+  -- By density of `ℤ_[p]⁰` inside `ℚ_[p]ˣ`, it's enough to check that `ringHaarChar ℚ_[p]` and
   -- `g` agree on `ℤ_[p]⁰`.
   refine MonoidHom.eq_of_eqOn_dense (PadicInt.closure_nonZeroDivisors_padicInt (p := p)) ?_
-  -- But this is what we proved in `distribHaarChar_padic_padicInt`.
+  -- But this is what we proved in `ringHaarChar_padic_padicInt`.
   simp only [eqOn_range, g]
   ext x
-  simp [distribHaarChar_padic_padicInt]
+  simp only [MonoidHom.coe_coe, Function.comp_apply, MonoidHom.coe_mk,
+    OneHom.coe_mk, Units.val_mk0, coe_nnnorm, PadicInt.padic_norm_e_of_padicInt, g,
+    ringHaarChar_padic_padicInt]
 
 @[simp]
 lemma Padic.volume_padic_smul (x : ℚ_[p]) (s : Set ℚ_[p]) : volume (x • s) = ‖x‖₊ * volume s := by
   obtain rfl | hx := eq_or_ne x 0
   · simp [(finite_zero.subset s.zero_smul_set_subset).measure_zero]
   · lift x to ℚ_[p]ˣ using hx.isUnit
-    rw [← distribHaarChar_padic, distribHaarChar_mul, Units.smul_def]
+    rw [← ringHaarChar_padic, ← Units.smul_def, ringHaarChar_mul_volume]
 
 @[simp] lemma Padic.volume_padicInt_smul (x : ℤ_[p]) (s : Set ℚ_[p]) :
     volume (x • s) = ‖x‖₊ * volume s := by simpa [-volume_padic_smul] using volume_padic_smul x s
@@ -100,7 +102,7 @@ lemma Padic.volume_padic_smul (x : ℚ_[p]) (s : Set ℚ_[p]) : volume (x • s)
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℤ_[p]` and `s : Set ℤ_[p]`.
 See `PadicInt.volume_padicInt_smul` -/
 @[simp]
-lemma distribHaarChar_padicInt (x : ℤ_[p]ˣ) : distribHaarChar ℤ_[p] x = 1 :=
-  -- We compute `distribHaarChar ℤ_[p]` by lifting everything to `ℚ_[p]`.
-  distribHaarChar_eq_of_measure_smul_eq_mul (s := univ) (μ := volume) (by simp) (measure_ne_top _ _)
+lemma ringHaarChar_padicInt (x : ℤ_[p]ˣ) : ringHaarChar x = 1 :=
+  -- We compute `ringHaarChar ℤ_[p]` by lifting everything to `ℚ_[p]`.
+  ringHaarChar_eq_of_measure_smul_eq_mul (s := univ) (μ := volume) (by simp) (measure_ne_top _ _)
     (by simp [PadicInt.volume_padicInt_smul])

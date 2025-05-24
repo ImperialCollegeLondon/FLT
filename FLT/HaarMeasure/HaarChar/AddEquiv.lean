@@ -1,40 +1,26 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
+import Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Mathlib.MeasureTheory.Measure.Regular
+import FLT.Mathlib.MeasureTheory.Group.Measure
 
 open MeasureTheory.Measure
 open scoped NNReal
 
 namespace MeasureTheory
 
-open Topology in
-@[to_additive]
-lemma isHaarMeasure_comap_of_isOpenEmbedding {G H : Type*}
-    [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    {φ : G →* H} (hφ : IsOpenEmbedding φ) (μ : Measure H) [IsHaarMeasure μ] :
-    IsHaarMeasure (comap φ μ) := by
-  sorry -- issue FLT#507
-
 @[to_additive]
 lemma _root_.ContinuousMulEquiv.isHaarMeasure_comap {G H : Type*}
-    [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
+    [Group G] [TopologicalSpace G] [MeasurableSpace G] [MeasurableMul G] [BorelSpace G]
+    [Group H] [TopologicalSpace H] [MeasurableSpace H] [MeasurableMul H] [BorelSpace H]
     (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) :=
-  isHaarMeasure_comap_of_isOpenEmbedding (φ := φ.toMulEquiv.toMonoidHom)
-  (φ.toHomeomorph.isOpenEmbedding) μ
-
-open Topology in
-lemma regular_comap_of_isOpenEmbedding {G H : Type*}
-    [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    (φ : G → H) (hφ : IsOpenEmbedding φ) (μ : Measure H) [Regular μ] : Regular (comap φ μ) := by
-  sorry -- issue FLT#513
+    φ.toHomeomorph.isOpenEmbedding.isHaarMeasure_comap (φ := φ.toMulEquiv.toMonoidHom) μ
 
 lemma _root_.Homeomorph.regular_comap {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
     [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
     (φ : G ≃ₜ H) (μ : Measure H) [Regular μ] : Regular (comap φ μ) :=
-  regular_comap_of_isOpenEmbedding φ φ.isOpenEmbedding μ
+  φ.isOpenEmbedding.regular_comap φ μ
 
 lemma _root_.Homeomorph.regular_map {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
@@ -154,13 +140,11 @@ lemma mulEquivHaarChar_smul_integral_comap (μ : Measure G)
 
 @[to_additive addEquivAddHaarChar_smul_preimage]
 lemma mulEquivHaarChar_smul_preimage
-    (μ : Measure G) [IsHaarMeasure μ] [Regular μ] {X : Set G} (hX : MeasurableSet X) (φ : G ≃ₜ* G) :
+    (μ : Measure G) [IsHaarMeasure μ] [Regular μ] {X : Set G} (φ : G ≃ₜ* G) :
     μ X = (mulEquivHaarChar φ) • μ (φ ⁻¹' X) := by
   nth_rw 1 [← mulEquivHaarChar_map μ φ]
   simp only [smul_apply, nnreal_smul_coe_apply]
-  rw [map_apply₀]
-  · exact φ.toHomeomorph.measurable.aemeasurable
-  · exact MeasurableSet.nullMeasurableSet hX
+  exact congr_arg _ <| MeasurableEquiv.map_apply φ.toMeasurableEquiv X
 
 @[to_additive]
 lemma mulEquivHaarChar_refl :
@@ -169,9 +153,14 @@ lemma mulEquivHaarChar_refl :
 
 @[to_additive]
 lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
-    mulEquivHaarChar (ψ.trans φ) = mulEquivHaarChar ψ * mulEquivHaarChar φ :=
-  sorry -- FLT#511
-  -- use `MeasureTheory.Measure.haarScalarFactor_eq_mul`?
+    mulEquivHaarChar (ψ.trans φ) = mulEquivHaarChar ψ * mulEquivHaarChar φ := by
+  rw [mulEquivHaarChar_eq haar ψ, mulEquivHaarChar_eq haar (ψ.trans φ)]
+  have hφ : Measurable φ := φ.toHomeomorph.measurable
+  have hψ : Measurable ψ := ψ.toHomeomorph.measurable
+  simp_rw [ContinuousMulEquiv.coe_trans, ← map_map hφ hψ]
+  have h_reg : (haar.map ψ).Regular := Regular.map ψ.toHomeomorph
+  rw [MeasureTheory.Measure.haarScalarFactor_eq_mul haar (haar.map ψ),
+    ← mulEquivHaarChar_eq (haar.map ψ)]
 
 open ENNReal in
 @[to_additive addEquivAddHaarChar_eq_one_of_compactSpace]
@@ -187,7 +176,7 @@ lemma mulEquivHaarChar_eq_one_of_compactSpace [CompactSpace G] (φ : G ≃ₜ* G
   suffices m₀ * mulEquivHaarChar φ = m₀ by
     have : m₀ * mulEquivHaarChar φ = m₀ * 1 := by simpa using this
     rwa [NNReal.mul_eq_mul_left hm₀.ne'] at this
-  have := mulEquivHaarChar_smul_preimage (haar : Measure G) (X := .univ) MeasurableSet.univ φ
+  have := mulEquivHaarChar_smul_preimage (haar : Measure G) (X := .univ) φ
   simp only [← hm, Set.preimage_univ] at this
   symm
   have := congr(ENNReal.toNNReal $this)
