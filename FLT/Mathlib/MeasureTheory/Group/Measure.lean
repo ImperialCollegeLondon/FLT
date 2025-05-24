@@ -4,8 +4,9 @@ import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.MeasureTheory.Measure.OpenPos
 
 open Topology MeasureTheory Measure
+
 @[to_additive]
-lemma isHaarMeasure_comap_of_isOpenEmbedding {G H : Type*}
+lemma Topology.IsOpenEmbedding.isHaarMeasure_comap {G H : Type*}
     [Group G] [TopologicalSpace G] [MeasurableSpace G] [MeasurableMul G] [BorelSpace G]
     [Group H] [TopologicalSpace H] [MeasurableSpace H] [MeasurableMul H] [BorelSpace H]
     {φ : G →* H} (hφ : IsOpenEmbedding φ) (μ : Measure H) [IsHaarMeasure μ] :

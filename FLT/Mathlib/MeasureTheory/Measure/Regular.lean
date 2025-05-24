@@ -38,7 +38,7 @@ lemma innerRegularWRT_comap
       Set.image_preimage_eq_iff.mpr hK]
 
 
-lemma regular_comap_of_isOpenEmbedding
+lemma regular_comap
     (φ : X → Y) (hφ : IsOpenEmbedding φ) (μ : Measure Y) [Regular μ] :
     Regular (comap φ μ) where
   lt_top_of_isCompact := (hφ.isFiniteMeasureOnCompacts_comap μ).lt_top_of_isCompact

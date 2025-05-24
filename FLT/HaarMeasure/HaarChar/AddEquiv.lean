@@ -14,14 +14,13 @@ lemma _root_.ContinuousMulEquiv.isHaarMeasure_comap {G H : Type*}
     [Group G] [TopologicalSpace G] [MeasurableSpace G] [MeasurableMul G] [BorelSpace G]
     [Group H] [TopologicalSpace H] [MeasurableSpace H] [MeasurableMul H] [BorelSpace H]
     (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) :=
-  isHaarMeasure_comap_of_isOpenEmbedding (φ := φ.toMulEquiv.toMonoidHom)
-  (φ.toHomeomorph.isOpenEmbedding) μ
+    φ.toHomeomorph.isOpenEmbedding.isHaarMeasure_comap (φ := φ.toMulEquiv.toMonoidHom) μ
 
 lemma _root_.Homeomorph.regular_comap {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
     [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
     (φ : G ≃ₜ H) (μ : Measure H) [Regular μ] : Regular (comap φ μ) :=
-  φ.isOpenEmbedding.regular_comap_of_isOpenEmbedding φ μ
+  φ.isOpenEmbedding.regular_comap φ μ
 
 lemma _root_.Homeomorph.regular_map {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
