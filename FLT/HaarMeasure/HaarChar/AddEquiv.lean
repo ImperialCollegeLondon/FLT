@@ -1,40 +1,26 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
+import Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Mathlib.MeasureTheory.Measure.Regular
+import FLT.Mathlib.MeasureTheory.Group.Measure
 
 open MeasureTheory.Measure
 open scoped NNReal
 
 namespace MeasureTheory
 
-open Topology in
-@[to_additive]
-lemma isHaarMeasure_comap_of_isOpenEmbedding {G H : Type*}
-    [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    {φ : G →* H} (hφ : IsOpenEmbedding φ) (μ : Measure H) [IsHaarMeasure μ] :
-    IsHaarMeasure (comap φ μ) := by
-  sorry -- issue FLT#507
-
 @[to_additive]
 lemma _root_.ContinuousMulEquiv.isHaarMeasure_comap {G H : Type*}
-    [Group G] [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [Group H] [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
+    [Group G] [TopologicalSpace G] [MeasurableSpace G] [MeasurableMul G] [BorelSpace G]
+    [Group H] [TopologicalSpace H] [MeasurableSpace H] [MeasurableMul H] [BorelSpace H]
     (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) :=
-  isHaarMeasure_comap_of_isOpenEmbedding (φ := φ.toMulEquiv.toMonoidHom)
-  (φ.toHomeomorph.isOpenEmbedding) μ
-
-open Topology in
-lemma regular_comap_of_isOpenEmbedding {G H : Type*}
-    [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    (φ : G → H) (hφ : IsOpenEmbedding φ) (μ : Measure H) [Regular μ] : Regular (comap φ μ) := by
-  sorry -- issue FLT#513
+    φ.toHomeomorph.isOpenEmbedding.isHaarMeasure_comap (φ := φ.toMulEquiv.toMonoidHom) μ
 
 lemma _root_.Homeomorph.regular_comap {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
     [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
     (φ : G ≃ₜ H) (μ : Measure H) [Regular μ] : Regular (comap φ μ) :=
-  regular_comap_of_isOpenEmbedding φ φ.isOpenEmbedding μ
+  φ.isOpenEmbedding.regular_comap φ μ
 
 lemma _root_.Homeomorph.regular_map {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]

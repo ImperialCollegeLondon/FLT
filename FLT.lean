@@ -60,6 +60,10 @@ import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.Logic.Equiv.Basic
 import FLT.Mathlib.MeasureTheory.Group.Action
+import FLT.Mathlib.MeasureTheory.Group.Measure
+import FLT.Mathlib.MeasureTheory.Measure.OpenPos
+import FLT.Mathlib.MeasureTheory.Measure.Regular
+import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.NumberField.Embeddings
