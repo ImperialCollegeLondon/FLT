@@ -109,7 +109,7 @@ MeasureTheory.ringHaarChar_mul_volume
 MeasureTheory.ringHaarChar_continuous
 ringHaarChar_real
 ringHaarChar_complex
-distribHaarChar_padic
+ringHaarChar_padic
 MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det
 MeasureTheory.algebra_ringHaarChar_eq_ringHaarChar_det
 IsSimpleRing.mulLeft_det_eq_mulRight_det

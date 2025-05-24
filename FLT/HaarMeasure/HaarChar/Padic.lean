@@ -18,8 +18,8 @@ p-adic/p-adic integer and `s` is a set of p-adics/p-adic integers.
 
 ## Main declarations
 
-* `distribHaarChar_padic`: `distribHaarChar ℚ_[p]` is the usual p-adic norm on `ℚ_[p]ˣ`.
-* `distribHaarChar_padicInt`: `distribHaarChar ℤ_[p]` is constantly `1` on `ℤ_[p]ˣ`.
+* `ringHaarChar_padic`: `distribHaarChar ℚ_[p]` is the usual p-adic norm on `ℚ_[p]ˣ`.
+* `ringHaarChar_padicInt`: `distribHaarChar ℤ_[p]` is constantly `1` on `ℤ_[p]ˣ`.
 * `Padic.volume_padic_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℚ_[p]` and
   `s : Set ℚ_[p]`.
 * `PadicInt.volume_padicInt_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℤ_[p]` and
@@ -64,7 +64,7 @@ private lemma ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℚ_[p]` and `s : Set ℚ_[p]`.
 See `Padic.volume_padic_smul` -/
 @[simp]
-lemma distribHaarChar_padic (x : ℚ_[p]ˣ) : ringHaarChar x = ‖(x : ℚ_[p])‖₊ := by
+lemma ringHaarChar_padic (x : ℚ_[p]ˣ) : ringHaarChar x = ‖(x : ℚ_[p])‖₊ := by
   -- Write the RHS as the application of a monoid hom `g`.
   let g : ℚ_[p]ˣ →* ℝ≥0 := {
     toFun := fun x => ‖(x : ℚ_[p])‖₊
@@ -77,7 +77,7 @@ lemma distribHaarChar_padic (x : ℚ_[p]ˣ) : ringHaarChar x = ‖(x : ℚ_[p])�
   -- By density of `ℤ_[p]⁰` inside `ℚ_[p]ˣ`, it's enough to check that `distribHaarChar ℚ_[p]` and
   -- `g` agree on `ℤ_[p]⁰`.
   refine MonoidHom.eq_of_eqOn_dense (PadicInt.closure_nonZeroDivisors_padicInt (p := p)) ?_
-  -- But this is what we proved in `distribHaarChar_padic_padicInt`.
+  -- But this is what we proved in `ringHaarChar_padic_padicInt`.
   simp only [eqOn_range, g]
   ext x
   simp only [MonoidHom.coe_coe, Function.comp_apply, MonoidHom.coe_mk,
@@ -89,7 +89,7 @@ lemma Padic.volume_padic_smul (x : ℚ_[p]) (s : Set ℚ_[p]) : volume (x • s)
   obtain rfl | hx := eq_or_ne x 0
   · simp [(finite_zero.subset s.zero_smul_set_subset).measure_zero]
   · lift x to ℚ_[p]ˣ using hx.isUnit
-    rw [← distribHaarChar_padic, ← Units.smul_def, ringHaarChar_mul_volume]
+    rw [← ringHaarChar_padic, ← Units.smul_def, ringHaarChar_mul_volume]
 
 @[simp] lemma Padic.volume_padicInt_smul (x : ℤ_[p]) (s : Set ℚ_[p]) :
     volume (x • s) = ‖x‖₊ * volume s := by simpa [-volume_padic_smul] using volume_padic_smul x s
@@ -103,7 +103,7 @@ lemma Padic.volume_padic_smul (x : ℚ_[p]) (s : Set ℚ_[p]) : volume (x • s)
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℤ_[p]` and `s : Set ℤ_[p]`.
 See `PadicInt.volume_padicInt_smul` -/
 @[simp]
-lemma distribHaarChar_padicInt (x : ℤ_[p]ˣ) : ringHaarChar x = 1 :=
+lemma ringHaarChar_padicInt (x : ℤ_[p]ˣ) : ringHaarChar x = 1 :=
   -- We compute `distribHaarChar ℤ_[p]` by lifting everything to `ℚ_[p]`.
   ringHaarChar_eq_of_measure_smul_eq_mul (s := univ) (μ := volume) (by simp) (measure_ne_top _ _)
     (by simp [PadicInt.volume_padicInt_smul])
