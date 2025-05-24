@@ -34,7 +34,7 @@ cd docbuild
 MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update
 
 # Build the docs
-~/.elan/bin/lake build FLT:docs
+DISABLE_EQUATIONS=1 ~/.elan/bin/lake build FLT:docs
 
 # Copy documentation to `docs/docs`
 cd ../
