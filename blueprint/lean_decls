@@ -107,8 +107,8 @@ MeasureTheory.ringHaarChar
 MeasureTheory.ringHaarChar_mul_integral
 MeasureTheory.ringHaarChar_mul_volume
 MeasureTheory.ringHaarChar_continuous
-distribHaarChar_real
-distribHaarChar_complex
+ringHaarChar_real
+ringHaarChar_complex
 distribHaarChar_padic
 MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det
 MeasureTheory.algebra_ringHaarChar_eq_ringHaarChar_det

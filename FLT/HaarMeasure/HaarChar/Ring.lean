@@ -106,16 +106,17 @@ lemma ringHaarChar_mul_integral
 
 open Pointwise in
 lemma ringHaarChar_mul_volume (μ : Measure R) [IsAddHaarMeasure μ] [μ.Regular]
-    {X : Set R} (hX : MeasurableSet X) (u : Rˣ) :
+    {X : Set R} (u : Rˣ) :
     μ (u • X) = ringHaarChar u * μ X := by
-  simp [ringHaarChar_toFun,
-    addEquivAddHaarChar_smul_preimage _ (hX.const_smul _) (ContinuousAddEquiv.mulLeft u)]
+  rw [ringHaarChar_toFun, addEquivAddHaarChar_smul_preimage _ (ContinuousAddEquiv.mulLeft u)]
+  simp
+
 
 open Pointwise ENNReal in
 lemma ringHaarChar_eq_of_measure_smul_eq_mul {μ : Measure R} [IsAddHaarMeasure μ] [μ.Regular]
-   {s : Set R} (hsMeas : MeasurableSet s) (hs₀ : μ s ≠ 0) (hs : μ s ≠ ∞) {r : ℝ≥0} {u : Rˣ}
-   (hμgs : μ (u • s) = r * μ s) : ringHaarChar u = r := by
-  rw [ringHaarChar_mul_volume μ hsMeas u, ENNReal.mul_left_inj hs₀ hs] at hμgs
+    {s : Set R} (hs₀ : μ s ≠ 0) (hs : μ s ≠ ∞) {r : ℝ≥0} {u : Rˣ}
+    (hμgs : μ (u • s) = r * μ s) : ringHaarChar u = r := by
+  rw [ringHaarChar_mul_volume μ u, ENNReal.mul_left_inj hs₀ hs] at hμgs
   assumption_mod_cast
 
 variable (R) in
