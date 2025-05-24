@@ -37,11 +37,10 @@ variable
 
 /-- The maps between restricted products over a fixed index type,
 given maps on the factors. -/
-@[nolint unusedArguments] -- this can be removed when the FLT#530 proof is done
 def congrRight (φ : (i : ι) → G i → H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (x : Πʳ i, [G i, C i]_[ℱ]) : (Πʳ i, [H i, D i]_[ℱ]) :=
-  ⟨fun i ↦ φ i (x i), sorry⟩ -- FLT#530
+  map G H id Filter.tendsto_id φ hφ x
 
 end RestrictedProduct
 
@@ -55,13 +54,39 @@ variable {ℱ : Filter ι}
     {C : (i : ι) → Set (G i)}
     {D : (i : ι) → Set (H i)}
 
+variable {ι₂ : Type*} {𝒢 : Filter ι₂} {G₂ : ι₂ → Type*}
+    {C₂ : (i : ι₂) → Set (G₂ i)} {f : ι₂ → ι} (hf : Filter.Tendsto f 𝒢 ℱ)
+    [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (G₂ i)] in
+theorem Continuous.restrictedProduct_map {φ : (j : ι₂) → G (f j) → G₂ j}
+    (hφ : ∀ᶠ j in 𝒢, Set.MapsTo (φ j) (C (f j)) (C₂ j))
+    (hφcont : ∀ i, Continuous (φ i)) :
+    Continuous (map G G₂ f hf φ hφ) := by
+  rw [continuous_dom]
+  intro S hS
+  rw [Filter.le_principal_iff] at hS
+  set T := {x | Set.MapsTo (φ x) (C (f x)) (C₂ x)}
+  have hT : 𝒢 ≤ Filter.principal ((f ⁻¹' S) ∩ T) := by
+    rw [Filter.le_principal_iff]
+    apply Filter.inter_mem _ hφ
+    exact hf hS
+  have hST : Filter.Tendsto f (Filter.principal ((f ⁻¹' S) ∩ T)) (Filter.principal S) := by
+    rw [Filter.tendsto_principal_principal]
+    exact fun a ⟨ha, _⟩ ↦ ha
+  have hφ' : ∀ᶠ (j : ι₂) in Filter.principal ((f ⁻¹' S) ∩ T), Set.MapsTo (φ j) (C (f j)) (C₂ j) :=
+    Filter.mem_principal.mpr Set.inter_subset_right
+  have hc : Continuous (map G G₂ f hST φ hφ') := by
+    rw [continuous_rng_of_principal]
+    apply continuous_pi
+    intro i
+    apply (hφcont i).comp <| (continuous_apply (f i)).comp continuous_coe
+  exact (continuous_inclusion hT).comp hc
+
 variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
 theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
-    Continuous (RestrictedProduct.congrRight φ hφ) := by
-  sorry -- FLT#531 (feel free to add any of : ℱ is cofinite, Cᵢ are open/compact,
-  -- but only add if necessary. I don't immediately see that we need them)
+    Continuous (congrRight φ hφ) :=
+  Continuous.restrictedProduct_map Filter.tendsto_id hφ hφcont
 
 -- now let's add groups
 
