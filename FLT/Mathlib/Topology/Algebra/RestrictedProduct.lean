@@ -37,11 +37,10 @@ variable
 
 /-- The maps between restricted products over a fixed index type,
 given maps on the factors. -/
-@[nolint unusedArguments] -- this can be removed when the FLT#530 proof is done
 def congrRight (φ : (i : ι) → G i → H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (x : Πʳ i, [G i, C i]_[ℱ]) : (Πʳ i, [H i, D i]_[ℱ]) :=
-  ⟨fun i ↦ φ i (x i), sorry⟩ -- FLT#530
+  RestrictedProduct.map G H id Filter.tendsto_id φ hφ x
 
 end RestrictedProduct
 
@@ -55,13 +54,29 @@ variable {ℱ : Filter ι}
     {C : (i : ι) → Set (G i)}
     {D : (i : ι) → Set (H i)}
 
+-- Can probably be generalized to RestrictedProduct.map
 variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
 theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
-    Continuous (RestrictedProduct.congrRight φ hφ) := by
-  sorry -- FLT#531 (feel free to add any of : ℱ is cofinite, Cᵢ are open/compact,
-  -- but only add if necessary. I don't immediately see that we need them)
+    Continuous (congrRight φ hφ) := by
+  rw [continuous_dom]
+  intro S hS
+  set T := {x | Set.MapsTo (φ x) (C x) (D x)}
+  have hT : ℱ ≤ Filter.principal (S ∩ T) := by
+    rw [Filter.le_principal_iff]
+    exact Filter.inter_mem (Filter.le_principal_iff.mp hS) hφ
+  have hST : Filter.Tendsto id (Filter.principal (S ∩ T)) (Filter.principal S) := by
+    rw [Filter.tendsto_id', Filter.principal_mono]
+    exact Set.inter_subset_left
+  have hφ' : ∀ᶠ (i : ι) in Filter.principal (S ∩ T), Set.MapsTo (φ i) (C i) (D i) :=
+    Filter.mem_principal.mpr Set.inter_subset_right
+  have hc : Continuous (map G H id hST φ hφ') := by
+    rw [continuous_rng_of_principal]
+    apply continuous_pi
+    intro i
+    apply (hφcont i).comp <| (continuous_apply i).comp continuous_coe
+  exact (continuous_inclusion hT).comp hc
 
 -- now let's add groups
 
