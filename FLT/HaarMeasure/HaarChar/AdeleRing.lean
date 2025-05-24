@@ -36,3 +36,5 @@ variable [MeasurableSpace (B ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (B ⊗[K]
 lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker (b : Bˣ) :
   (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
     (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈ ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := sorry
+
+#synth Algebra ℚ K

@@ -666,7 +666,8 @@ As a special case, if $R$ is the restricted product of a collection of topologic
 \section{Adeles}
 
 We finish this miniproject by proving some results about Haar characters for
-adelic rings. So let $K$ be a number field and let $\A_K$ be the adeles of $K$.
+algebras over adele rings.
+So let $K$ be a number field and let $\A_K$ be the adeles of $K$.
 We will prove some theorems about $\A_K$-algebras $R$ which are finite
 and free as $\A_K$-modules. Such algebras can be given the $\A_K$-module topology
 and this makes them into locally compact topological rings. In fact we shall only be concerned
@@ -700,8 +701,7 @@ tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies
 
   First observe that $M_S$ is a topological $S$-module, so addition is continuous.
   Next note that the map $R\times M_S\to M_S$ factors through $S\times M_S$ and is hence the
-  composite of two continuous maps and thus continuous. Hence $M_S$ is a topological $R$-module
-  and.
+  composite of two continuous maps and thus continuous. Hence $M_S$ is a topological $R$-module.
 
   It thus remains to check that $M_R$ is a topological $S$-module, or equivalently
   that the map $S\times M_R\to M_R$ is continuous. But this map is $R$-bilinear, and
@@ -713,10 +713,10 @@ tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies
 
 \begin{corollary}
   \label{needslabel2}
-  If $K\subseteq L$ are number fields and $V$ is an $L$-module, then
-  the natural isomorphism $V\otimes_L\A_L=V\otimes_K\A_K$ induced by the natural
-  isomorphism $\A_L=L\otimes_K\A_K$ is a homeomorphism if the left hand side has the $\A_L$-module
-  topology and the right hand side has the $\A_K$-module topology.
+  If $K$ is a number field and $V$ is an $K$-module, then
+  the natural isomorphism $V\otimes_K\A_K=V\otimes_{\Q}\A_{\Q}$ induced by the natural
+  isomorphism $\A_K=K\otimes_K\A_{\Q}$ is a homeomorphism if the left hand side has the $\A_K$-module
+  topology and the right hand side has the $\A_{\Q}$-module topology.
 \end{corollary}
 \begin{proof}
   \uses{IsModuleTopology.Module.continuous_bilinear_of_finite}
@@ -725,7 +725,8 @@ tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies
 
 As a consequence, if $B$ is a $K$-algebra then we can think of $B_{\A}$ as either $B\otimes_K\A_K$
 with the $\A_K$-module topology or as $B\otimes_{\Q}\A_{\Q}$ with the $\A_{\Q}$-module
-topology.
+topology. Note that this isomorphism commutes with the inclusions from $B$ into these rings.
+But Lean is picky about these things so we'll have to be careful.
 
 \begin{theorem}
   \label{addHaarScalarFactor.left_mul_eq_right_mul}
@@ -733,7 +734,8 @@ topology.
   Say $u\in B_{\A}^\times$, and define $\ell_u$ and $r_u:B_{\A}\to B_{\A}$ by
   $\ell_u(x)=ux$ and $r_u(x)=xu$. Then $d_{B_{\A}}(\ell_u)=d_{B_{\A}}(r_u)$.
 \end{theorem}
-\begin{proof} If $u=(u_v)$ as $v$ runs through the places of $K$ then
+\begin{proof} We think of $B_{\A}$ as $B\otimes_K\A_K$.
+  If $u=(u_v)$ as $v$ runs through the places of $K$ then
   $d_{B_{\A}}(\ell_u)=\prod_v d_{B_v}(\ell_{u_v})$ by
   theorem~\ref{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight} (and the product is finite).
   By corollary~\ref{IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
@@ -741,7 +743,7 @@ topology.
   theorem~\ref{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight} this is $d_{B_{\A}}(r_u)$.
 \end{proof}
 
-That theorem only applies to inner forms of matrix algebras, but the below theorem,
+The previous theorem only applies to inner forms of matrix algebras, but the below theorem,
 a generalization of the adelic product formula, is valid for any finite-dimensional
 $K$-algebra.
 We have seen in lemmas~\ref{distribHaarChar_real} and~\ref{distribHaarChar_padic}
