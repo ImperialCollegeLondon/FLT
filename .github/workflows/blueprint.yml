@@ -115,6 +115,7 @@ jobs:
         run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Build project API documentation
+        if: github.event_name == 'push'
         run: scripts/build_docs.sh
 
       - name: Bundle dependencies
