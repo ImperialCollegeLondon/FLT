@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Javier López-Contreras
 -/
 import Mathlib.Analysis.Complex.ReImTopology
-import Mathlib.MeasureTheory.Measure.Haar.DistribChar
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.RingTheory.Complex
 import Mathlib.RingTheory.Norm.Transitivity
+import FLT.HaarMeasure.HaarChar.Ring
 
 /-!
 # The distributive Haar characters of `ℝ` and `ℂ`
@@ -36,9 +36,9 @@ lemma Real.volume_real_smul (x : ℝ) (s : Set ℝ) : volume (x • s) = ‖x‖
 
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℝ` and `s : Set ℝ`.
 See `Real.volume_real_smul`. -/
-lemma distribHaarChar_real (x : ℝˣ) : distribHaarChar ℝ x = ‖(x : ℝ)‖₊ :=
+lemma ringHaarChar_real (x : ℝˣ) : ringHaarChar x = ‖(x : ℝ)‖₊ :=
   -- We compute that `volume (x • [0, 1]) = ‖x‖₊ * volume [0, 1]`.
-  distribHaarChar_eq_of_measure_smul_eq_mul (s := Icc 0 1) (μ := volume)
+  ringHaarChar_eq_of_measure_smul_eq_mul (s := Icc 0 1) (μ := volume) (measurableSet_Icc)
     (measure_pos_of_nonempty_interior _ <| by simp).ne' isCompact_Icc.measure_ne_top
       (Real.volume_real_smul ..)
 
