@@ -127,6 +127,7 @@ MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight
 MeasureTheory.ringHaarChar_restrictedProduct
 IsModuleTopology.Module.continuous_bilinear_of_finite
 NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
+NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one
 NumberField.AdeleRing.DivisionAlgebra.compact_quotient
 NumberField.AdeleRing.DivisionAlgebra.Aux.existsE
 NumberField.AdeleRing.DivisionAlgebra.Aux.E

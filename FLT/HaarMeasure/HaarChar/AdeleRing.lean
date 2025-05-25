@@ -23,7 +23,8 @@ instance : Module.Finite (AdeleRing (𝓞 K) K) (B ⊗[K] AdeleRing (𝓞 K) K) 
 noncomputable instance : TopologicalSpace (B ⊗[K] AdeleRing (𝓞 K) K) :=
   moduleTopology (AdeleRing (𝓞 K) K) _
 
--- AdeleRing is locally compact, B/K is finite
+-- AdeleRing is locally compact, B/K is finite so B ⊗ 𝔸 is B-finite,
+-- tensor product has module topology so done
 instance : LocallyCompactSpace (B ⊗[K] AdeleRing (𝓞 K) K) := sorry
 
 local instance : IsModuleTopology (AdeleRing (𝓞 K) K) (B ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
