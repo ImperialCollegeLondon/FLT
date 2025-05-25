@@ -193,7 +193,27 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
     [MeasurableSpace Y] [BorelSpace Y]
     {f : X →* Y} (hf : IsOpenEmbedding f) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y)
     (hComm : ∀ x, f (α x) = β (f x)) : mulEquivHaarChar α = mulEquivHaarChar β := by
-  sorry -- FLT#551
+  let μY : Measure Y := haar
+  let μX := comap f μY
+  have hμX : IsHaarMeasure μX := hf.isHaarMeasure_comap μY
+  have : μX.Regular := hf.regular_comap _ μY
+  obtain ⟨⟨g, g_cont⟩, g_comp, g_nonneg, g_one⟩ :
+    ∃ g : C(X, ℝ), HasCompactSupport g ∧ 0 ≤ g ∧ g 1 ≠ 0 := exists_continuous_nonneg_pos 1
+  have int_g_ne_zero : ∫ x, g x ∂μX ≠ 0 :=
+    ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
+  refine NNReal.coe_injective <| Or.resolve_right (mul_eq_mul_right_iff.mp ?_) int_g_ne_zero
+  calc mulEquivHaarChar α • ∫ a, g a ∂μX
+    _ = ∫ a, g a ∂(comap α μX) := (mulEquivHaarChar_smul_integral_comap μX α).symm
+    _ = ∫ a, g a ∂(comap (f ∘ α) μY) := by
+      rw [comap_comap ?_ hf.injective hf.measurableEmbedding.measurableSet_image']
+      exact α.measurableEmbedding.measurableSet_image'
+    _ = ∫ a, g a ∂(comap (β ∘ f) μY) := by congr; exact funext hComm
+    _ = ∫ a, g a ∂(comap f (comap β μY)) := by
+      rw [comap_comap hf.measurableEmbedding.measurableSet_image' β.injective ?_]
+      exact β.measurableEmbedding.measurableSet_image'
+    _ = ∫ a, g a ∂(comap f (mulEquivHaarChar β • μY)) := by rw [← mulEquivHaarChar_comap]
+    _ = ∫ a, g a ∂(comap f ((mulEquivHaarChar β : ENNReal) • μY)) := rfl
+    _ = mulEquivHaarChar β • ∫ a, g a ∂μX := by rw [comap_smul, integral_smul_measure]; rfl
 
 end basic
 
