@@ -7,6 +7,7 @@ import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.Mathlib.Algebra.FixedPoints.Basic -- this import makes this file suddenly crazy slow
 
 /-
 
@@ -33,8 +34,10 @@ abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 $D^\times\to(D\otimes_F\mathbb{A}_F^\infty)^\times.$ Remark: I wrote the `incl₁`
 docstring in LaTeX and the `incl₂` one in unicode. Which is better?-/
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
-  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
+  Units.map (Algebra.TensorProduct.includeLeftRingHom.toMonoidHom :
+    D →* (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))) -- FLT.Mathlib.Algebra.FixedPoints.Basic did that
 
+set_option synthInstance.maxHeartbeats 40000 in -- FLT.Mathlib.Algebra.FixedPoints.Basic did this
 /-- `incl₂` is he inclusion `𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ)`. Remark: I wrote the `incl₁`
 docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
@@ -44,6 +47,7 @@ noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
   sorry
 
+set_option synthInstance.maxHeartbeats 40000 in -- FLT.Mathlib.Algebra.FixedPoints.Basic did this
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   moduleTopology (FiniteAdeleRing (𝓞 F) F) _
@@ -203,7 +207,8 @@ lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (g • φ) x = φ (x * g) := rfl
 
-set_option synthInstance.maxHeartbeats 40000 in
+set_option synthInstance.maxHeartbeats 80000 in
+  -- it was already 40000 and then the bad import made it worse
 instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
     (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
@@ -278,7 +283,7 @@ Weight 2 automorphic forms of a fixed level for a totally definite quaternion al
 over a totally real field.
 -/
 def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
-    (R : Type*) [CommRing R] : Type _ := WeightTwoAutomorphicFormOfLevel_aux U R
+    (R : Type*) [CommRing R] : Type _ := MulAction.FixedPoints U R
 
 variable (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (R : Type*) [CommRing R]
 

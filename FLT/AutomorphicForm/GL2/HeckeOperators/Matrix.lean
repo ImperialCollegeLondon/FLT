@@ -17,12 +17,12 @@ def diagonal (d : n → Rˣ) : GL n R :=
 
 end Matrix.GeneralLinearGroup
 
-namespace IsDedekindDomain.HeightOneSpectrum
-
-open IsDedekindDomain
+namespace IsDedekindDomain
 
 variable {A : Type*} [CommRing A] [IsDedekindDomain A] (K : Type*) [Field K] [Algebra A K]
     [IsFractionRing A K]
+
+namespace HeightOneSpectrum
 
 noncomputable def adicCompletionIntegersUniformizer (v : HeightOneSpectrum A) :
     v.adicCompletionIntegers K :=
@@ -46,6 +46,10 @@ lemma adicCompletionUniformizer_ne_zero (v : HeightOneSpectrum A) :
   rw [adicCompletionUniformizer_spec] at h
   simp at h
 
+noncomputable def adicCompletionUniformizerUnit (v : HeightOneSpectrum A) :
+    (v.adicCompletion K)ˣ :=
+  .mk0 (v.adicCompletionUniformizer K) <| v.adicCompletionUniformizer_ne_zero K
+
 /--
 The diagonal matrix `(ϖ 0; 0 1)` as a 2x2 matrix in `M_2(𝓞ᵥ)`. Do we even want this?
 -/
@@ -58,3 +62,23 @@ noncomputable def pi_zero_zero_one (v : HeightOneSpectrum A) :
     GL (Fin 2) (v.adicCompletion K) :=
   .diagonal
   ![.mk0 (v.adicCompletionUniformizer K) <| v.adicCompletionUniformizer_ne_zero K, 1]
+
+end HeightOneSpectrum
+
+namespace FiniteAdeleRing
+
+/-- `localUniformiser v` is an adele which is 1 at all finite places except `v`, where
+it is a uniformiser. -/
+noncomputable def localUniformiser (v : HeightOneSpectrum A) [DecidableEq (HeightOneSpectrum A)] :
+    FiniteAdeleRing A K :=
+  ⟨fun i ↦ if i = v then i.adicCompletionUniformizer K else 1, sorry⟩
+
+/-- `localUniformiser v` is an idele which is 1 at all finite places except `v`, where
+it is a uniformiser. -/
+noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
+    [DecidableEq (HeightOneSpectrum A)] :
+    (FiniteAdeleRing A K)ˣ :=
+  ⟨localUniformiser K v,
+    ⟨fun i ↦ if i = v then (i.adicCompletionUniformizer K)⁻¹ else 1, sorry⟩,
+    sorry,
+    sorry⟩

@@ -117,8 +117,21 @@ instance addGroup [AddGroup A] [DistribSMul M A] : AddGroup (FixedPoints M A) wh
     ext
     simp [zero_def, coe_add]
 
+variable (M A) in
 instance addCommGroup [AddCommGroup A] [DistribSMul M A] : AddCommGroup (FixedPoints M A) where
   __ := addGroup
   add_comm a b := by
     ext
     simp [coe_add, add_comm]
+
+variable (R : Type*) [CommRing R] in
+instance module [AddCommGroup A] [Module R A] [DistribSMul M A] [SMulCommClass R M A] :
+    Module R (FixedPoints M A) where
+      __ := addCommGroup M A
+      smul r a := ⟨r • a.1, sorry⟩
+      one_smul := sorry
+      mul_smul := sorry
+      smul_zero := sorry
+      smul_add := sorry
+      add_smul := sorry
+      zero_smul := sorry

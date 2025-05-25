@@ -62,9 +62,11 @@ automorphic forms of level U_1(S).
 def HeckeOperator.T (v : HeightOneSpectrum (𝓞 F)) :
     WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
     WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
+  letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
   let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
-    Units.map r.symm.toMonoidHom sorry -- need element of GL_2(A_F)
-  sorry
+    Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
+    ![FiniteAdeleRing.localUniformiserUnit F v, 1])
+  AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S) sorry
   -- classical
   -- let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
   --   Units.map r.symm.toMonoidHom _
