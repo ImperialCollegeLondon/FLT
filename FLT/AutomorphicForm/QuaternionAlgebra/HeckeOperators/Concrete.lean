@@ -3,6 +3,8 @@ import FLT.AutomorphicForm.QuaternionAlgebra.Defs -- definitions of automorphic 
 import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
 import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.AutomorphicForm.GL2.HeckeOperators.Matrix -- for (π 0; 0 1)
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 /-
 
 # Concrete Hecke operators
@@ -49,12 +51,29 @@ noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (
 
 variable (R : Type*) [CommRing R]
 
--- will this be too annoying?
+variable (v : HeightOneSpectrum (𝓞 F)) in
+example : (adicCompletion F v) →* FiniteAdeleRing (𝓞 F) F := sorry
+
 variable {F D R S} in
+attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- The Hecke operator T_v as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S).
 -/
-def HeckeOperator.T (v : HeightOneSpectrum (𝓞 F)): WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
+def HeckeOperator.T (v : HeightOneSpectrum (𝓞 F)) :
+    WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
     WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
-  let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ := sorry
-  sorry -- AbstractHeckeOperator.HeckeOperator _ (U1 r S) (U1 r S) sorry
+  let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
+    Units.map r.symm.toMonoidHom sorry -- need element of GL_2(A_F)
+  sorry
+  -- classical
+  -- let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
+  --   Units.map r.symm.toMonoidHom _
+      --(Units.map
+      --(Matrix.mapRingHom (RestrictedProduct.mulSingleMonoidHom v)) (v.pi_zero_zero_one F))
+      --(fun w ↦ w.adicCompletion F) (fun w ↦ w.adicCompletionIntegers F)
+--  sorry -- AbstractHeckeOperator.HeckeOperator _ (U1 r S) (U1 r S) sorry
+/-
+
+Need an element of GL_2(A_f)
+have an element of GL_2(F_v)
+-/

@@ -30,6 +30,16 @@ variable {ℱ : Filter ι}
 lemma one_apply [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] {i : ι} :
   (1 : Πʳ i, [R i, B i]_[ℱ]) i = 1 := rfl
 
+-- def mulSingle [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] [DecidableEq ι] (j : ι) (x : R j) :
+--     Πʳ i, [R i, B i] :=
+--   ⟨Pi.mulSingle j x, sorry⟩ -- {i} is finite
+
+-- def mulSingleMonoidHom [Π i, Monoid (R i)] [∀ i, SubmonoidClass (S i) (R i)] [DecidableEq ι]
+--     (j : ι) : R j →* Πʳ i, [R i, B i] where
+--       toFun := mulSingle j
+--       map_one' := sorry -- should be easy
+--       map_mul' := sorry -- should be easy
+
 variable
     {G H : ι → Type*}
     {C : (i : ι) → Set (G i)}
