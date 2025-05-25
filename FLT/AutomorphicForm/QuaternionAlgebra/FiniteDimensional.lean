@@ -16,7 +16,7 @@ variable (K : Type*) [Field K]
 
 open TotallyDefiniteQuaternionAlgebra
 
-theorem AutomorphicForm.finiteDimensional :
+theorem WeightTwoAutomorphicForm.finiteDimensional :
     FiniteDimensional K (WeightTwoAutomorphicFormOfLevel U K) :=
   sorry
 

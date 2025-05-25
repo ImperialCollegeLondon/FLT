@@ -9,8 +9,7 @@ The project is managed using a [GitHub project dashboard](https://github.com/org
 
 ## How to Contribute
 
-Contributions to the project are made through GitHub pull requests (PRs) that correspond to specific tasks outlined in the project's issues.
-The following instructions detail the process for claiming and completing tasks.
+Contributions to the project are made through GitHub pull requests (PRs) from forks. PRs correspond to specific tasks outlined in the project's issues. The following instructions detail the process for claiming and completing tasks.
 
 ### 1. Task Identification
 
@@ -21,11 +20,11 @@ The following instructions detail the process for claiming and completing tasks.
 
 - To claim a task, comment the single word `claim` on the relevant GitHub issue.
 - If no other user is assigned, you will automatically be assigned to the task, and the issue will move to the `Claimed` column.
-- You may only claim one task at a time. If you decide not to work on a task after claiming it, comment the single word `disclaim` on the issue. This will unassign you and return the issue to the `Unclaimed` column, making it available for others to claim.
+- If you decide not to work on a task after claiming it, comment the single word `disclaim` on the issue. This will unassign you and return the issue to the `Unclaimed` column, making it available for others to claim.
 
 ### 3. Working on the Task
 
-Once you are assigned to an issue, begin working on the corresponding task. You should create a new branch from the `main` branch to develop your solution.
+Once you are assigned to an issue, begin working on the corresponding task. You should fork the project and also create a new branch from the `main` branch to develop your solution. Please try and avoid making PRs from `main` as for technical reasons this makes them slightly harder to review.
 
 > [!WARNING]
 > Before pushing any changes, you have the following options:
@@ -48,7 +47,7 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 
 ### 4. Submitting a Pull Request
 
-- When you are ready to submit your solution, create a PR from your working branch to the project’s `main` branch.
+- When you are ready to submit your solution, create a PR from the working branch of your fork to the project’s `main` branch.
 - After submitting the PR, comment `propose #PR_NUMBER` on the original issue. This links your PR to the task, and the task will move to the `In Progress` column on the dashboard.
 - A task can only move to `In Progress` if it has been claimed by the user proposing the PR.
 

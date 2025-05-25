@@ -63,8 +63,8 @@ fact that if $A$ is a topological ring, $B$ is a topological $A$-algebra
 finite as an $A$-module and with the $A$-module topology, and if
 $M$ is a topological $B$-module
 (and hence a topological $A$-module), then the $A$-module and $B$-module
-topologies on~$M$ coincide (this is not yet in mathlib; an informal proof
-is sketched in the FLT repo in {\tt ModuleTopology.lean}).
+topologies on~$M$ coincide (this is {\tt moduleTopology.trans} in the repo,
+not yet PRed to mathlib).
 
 Let $K$ be a number field and let $D/K$ be a finite-dimensional central simple $K$-algebra
 (later on $D$ will be a division algebra (hence the name) but we do not need this yet).
@@ -77,7 +77,7 @@ there is a canonical character $\delta_{D_{\A}}:D_{\A}^\times\to\R_{>0}$ measuri
 how left multiplication by an element of $D_{\A}^\times$ changes the additive Haar
 measure on $D_{\A}$. Let $D_{\A}^{(1)}$ denote the kernel of $\delta_{D_{\A}}$,
 and give it the subspace topology coming from $D_{\A}^\times$.
-Theorem~\ref{distribHaarCharacter_kernel_tensor_adeleRing} from the
+Corollary~\ref{NumberField.AdeleRing.units_mem_ringHaarCharacter_ker} from the
 Haar character miniproject shows that $D^\times$ (regarded as a subgroup of $D_{\A}^\times$
 via the map $d\mapsto d\otimes 1$) is contained within $D_{\A}^{(1)}$,
 thus the below theorem typechecks.
@@ -158,6 +158,7 @@ Define $Y:=X.X:=\{xy:x,y\in X\}\subseteq D_{\A}$.
   $X$ is a compact subset of $D_{\A}$.
 \end{lemma}
 \begin{proof}
+  \leanok
   It's the continuous image of the compact set~$E\times E$.
 \end{proof}
 
@@ -169,6 +170,7 @@ Define $Y:=X.X:=\{xy:x,y\in X\}\subseteq D_{\A}$.
   $Y$ is a compact subset of $D_{\A}$.
 \end{lemma}
 \begin{proof}
+  \leanok
   It's the continuous image of the compact set~$X\times X$.
 \end{proof}
 
@@ -182,6 +184,7 @@ Define $Y:=X.X:=\{xy:x,y\in X\}\subseteq D_{\A}$.
 $\beta X\cap D^\times\not=\emptyset$.
 \end{lemma}
 \begin{proof}
+  \leanok
 Indeed by lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.existsE},
 the map $\beta E\to D\backslash D_{\A}$
 isn't injective, so there are distinct
@@ -200,6 +203,7 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
   $X\beta^{-1}\cap D^\times\not=\emptyset$.
 \end{lemma}
 \begin{proof}
+  \leanok
   % TODO does this make the lines dottted? I used E in the proof here
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E}%, addHaarScalarFactor.left_mul_eq_right_mul}
   Indeed, $\beta^{-1}\in D_{\A}^{(1)}$, and so left multiplication by $\beta^{-1}$
@@ -207,7 +211,7 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
   (by theorem~\ref{addHaarScalarFactor.left_mul_eq_right_mul}).
   So the same argument works: $E\beta^{-1}\to D\backslash D_{\A}$ is not
   injective so choose $e_1\beta^{-1}\not=e_2\beta^{-1}$ with difference $b\in D$
-  and then $(e_1-e_2)\beta^{-1}\in D^\times$.
+  and then $(e_1-e_2)\beta^{-1}\in D-{0}=D^\times$.
 \end{proof}
 
 \begin{definition}
@@ -253,6 +257,7 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
   $C$ is compact.
 \end{lemma}
 \begin{proof}
+  \leanok
    $X$ is compact and $T$ is finite.
 \end{proof}
 
@@ -273,16 +278,16 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
   $\beta X\cap D^\times\not=\emptyset$,
   and lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel'},
   $X\beta^{-1}\cap D^\times\not=\emptyset$,
-  so we can write $\beta x_1=b_1$ and $x_2\beta^{-1}=b_2$ with obvious notation.
+  so we can write $\beta x_1=b_1$ and $x_2\beta^{-1}=b_2$ with $b_i\in D^\times$ and $x_i\in X$.
+  Note that $\beta\in D_{\A}^{(1)}$ and $b_i\in D^{\times}\subseteq D_{\A}^{(1)}$ by
+  corollary~\ref{NumberField.AdeleRing.units_mem_ringHaarCharacter_ker}, so $x_i\in D_{\A}^{(1)}$
+  as well. In particular $x_i\in D_{\A}^\times$ so $x_1^{-1}$ makes sense.
 
-  Multiplying, $x_2x_1=b_2b_1\in Y\cap D^\times=T$ (recall that $Y=X.X$ and $T=Y\cap D^\times$
-  is finite); call this element $t$.
-  Note that $T\subset D^\times$ so $t$ is a unit, and thus $x_1,x_2$ are units
-  (a left or right divisor of a unit is a unit; this is a general fact about subrings of matrix
-  rings and may be true more generally).
-
-  Then $x_1^{-1}=t^{-1}x_2\in T^{-1}.X$, and $x_1\in X$, so if we set $\nu=x_1^{-1}$
-  and $b=b_1$ then we have $\beta=b\nu$ and $(\nu,\nu^{-1})\in C := (T^{-1}.X)\times X$.
+  Multiplying the equations defining the $x_i$ and $b_i$ we deduce that
+  $x_2x_1=b_2b_1\in Y\cap D^\times=T$ (recall that $Y=X.X$ and $T=Y\cap D^\times$
+  is finite); call this element $t$. Then $x_1^{-1}=t^{-1}x_2\in T^{-1}.X$,
+  and $x_1\in X$, so if we set $\nu=x_1^{-1}\in D_{\A}^{(1)}$
+  and $b=b_1\in D^\times$ then we have $\beta=b\nu$ and $(\nu,\nu^{-1})\in C := (T^{-1}.X)\times X$.
   We are done!
 \end{proof}
 
@@ -290,15 +295,15 @@ We can now prove Fujisaki's theorem~\ref{NumberField.AdeleRing.DivisionAlgebra.c
 
 \begin{proof}
   \proves{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
-  \uses{
-    %DistribHaarChar.continuous,
-  NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C,
-  NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
-  Indeed, if $M$ is the preimage of $K$ under the inclusion $D_{\A}^{(1)} \to D_{\A}\times D_{\A}$
+  \uses{MeasureTheory.ringHaarChar_continuous,
+    NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C,
+    NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
+  Indeed, if $M$ is the preimage of $C$ under the inclusion $D_{\A}^{(1)} \to D_{\A}\times D_{\A}$
   sending $\nu$ to $(\nu,\nu^{-1})$, then $M$ is a closed subspace
     of a compact
   space so it's compact (note that $\delta_{D_{\A}}$ is continuous,
-  by theorem~\ref{DistribHaarChar.continuous}).
+  by theorem~\ref{MeasureTheory.ringHaarChar_continuous}, so $D_{\A}^{(1)}$ is a closed subset of
+  $D_{\A}^\times$ which is itself a closed subset of $D_{\A}\times D_{\A}$).
   Lemma~\ref{NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C} shows that $M$ surjects onto
   $D^\times\backslash D_{\A}^{(1)}$ which is thus also compact.
 \end{proof}

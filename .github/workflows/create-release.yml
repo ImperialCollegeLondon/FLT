@@ -3,66 +3,22 @@ name: Create Release
 on:
   push:
     branches:
-      - main
+      - 'main'
+      - 'master'
     paths:
       - 'lean-toolchain'
 
 jobs:
-  create_release:
+  lean-release-tag:
+    name: Add Lean release tag
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 2  # Fetch the last two commits for comparison
-
-      - name: Check if lean-toolchain has changed
-        id: check_file_change
-        run: |
-          # Check if the lean-toolchain file was modified in the last commit
-          if git diff --name-only HEAD~1 HEAD | grep -q "^lean-toolchain$"; then
-            echo "CHANGED=true" >> $GITHUB_ENV
-          else
-            echo "CHANGED=false" >> $GITHUB_ENV
-          fi
-
-      - name: Exit if lean-toolchain did not change
-        if: env.CHANGED != 'true'
-        run: echo "No changes in lean-toolchain. Skipping release."
-
-      - name: Read Lean version from lean-toolchain
-        if: env.CHANGED == 'true'
-        id: get_version
-        run: |
-          # Extract the version from the lean-toolchain file (everything after the colon)
-          LEAN_VERSION=$(cut -d ':' -f2 < lean-toolchain | tr -d '[:space:]')
-          echo "tag_name=${LEAN_VERSION}" >> $GITHUB_ENV
-
-      - name: Create Git tag
-        if: env.CHANGED == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a ${{ env.tag_name }} -m "Release ${{ env.tag_name }}"
-          git push origin ${{ env.tag_name }}
-
-      - name: Create GitHub Release
-        if: env.CHANGED == 'true'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        env:
-            tag_name: ${{ env.tag_name }}
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          script: |
-            const tagName = process.env.tag_name;
-            const releaseName = `${tagName}`;
-            await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: tagName,
-              name: releaseName,
-              body: `Automated release for Lean version ${tagName}`,
-              draft: false,
-              prerelease: false
-            });
+    - name: lean-release-tag action
+      uses: leanprover-community/lean-release-tag@e6d4745e870786071d26b44bc80424c1c242378e # 2025-05-22
+      with:
+        before: ${{ github.event.before }}
+        after: ${{ github.event.after }}
+        do-release: true
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
