@@ -86,11 +86,11 @@ instance module [Ring R] [Module R A] [SMulCommClass G R A] : Module R (fixedPoi
   one_smul a := by
     ext
     push_cast
-    simp
+    simp only [one_smul]
   mul_smul r s a := by
     ext
     push_cast
-    simp [mul_smul]
+    simp only [← mul_smul]
   smul_zero a := by
     ext
     push_cast
@@ -182,6 +182,7 @@ noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
 
 variable {R : Type*} [Ring R] [Module R A] [SMulCommClass G R A]
 
+#synth Module R (fixedPoints V A)
 variable (g U V) in
 noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A where
   toFun := HeckeOperator_toFun h

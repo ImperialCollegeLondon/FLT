@@ -38,8 +38,8 @@ namespace TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
 
 open IsDedekindDomain.HeightOneSpectrum
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-#check Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
+-- attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+-- #check Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
 
 open scoped TensorProduct
 
@@ -51,15 +51,13 @@ noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (
 
 variable (R : Type*) [CommRing R]
 
-variable (v : HeightOneSpectrum (𝓞 F)) in
-example : (adicCompletion F v) →* FiniteAdeleRing (𝓞 F) F := sorry
-
 variable {F D R S} in
+set_option maxSynthPendingDepth 1 in
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- The Hecke operator T_v as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S).
 -/
-def HeckeOperator.T (v : HeightOneSpectrum (𝓞 F)) :
+noncomputable def HeckeOperator.T (v : HeightOneSpectrum (𝓞 F)) :
     WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
     WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
   letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
@@ -67,15 +65,3 @@ def HeckeOperator.T (v : HeightOneSpectrum (𝓞 F)) :
     Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
     ![FiniteAdeleRing.localUniformiserUnit F v, 1])
   AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S) sorry
-  -- classical
-  -- let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
-  --   Units.map r.symm.toMonoidHom _
-      --(Units.map
-      --(Matrix.mapRingHom (RestrictedProduct.mulSingleMonoidHom v)) (v.pi_zero_zero_one F))
-      --(fun w ↦ w.adicCompletion F) (fun w ↦ w.adicCompletionIntegers F)
---  sorry -- AbstractHeckeOperator.HeckeOperator _ (U1 r S) (U1 r S) sorry
-/-
-
-Need an element of GL_2(A_f)
-have an element of GL_2(F_v)
--/

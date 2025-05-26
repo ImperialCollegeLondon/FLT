@@ -262,7 +262,7 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
 
 variable [IsQuaternionAlgebra F D]
 
-instance : SMulCommClass R (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
+instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R
     (WeightTwoAutomorphicForm F D R) where
   smul_comm r g φ := by
     ext x
