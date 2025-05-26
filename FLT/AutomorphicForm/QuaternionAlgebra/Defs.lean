@@ -8,6 +8,7 @@ import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.FixedPoints.Basic -- this import makes this file suddenly crazy slow
+import Mathlib
 
 /-
 
@@ -16,6 +17,8 @@ import FLT.Mathlib.Algebra.FixedPoints.Basic -- this import makes this file sudd
 -/
 
 suppress_compilation
+
+set_option maxSynthPendingDepth 1
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
@@ -26,6 +29,9 @@ namespace TotallyDefiniteQuaternionAlgebra
 open scoped TensorProduct NumberField
 
 open IsDedekindDomain
+
+instance : CommRing (FiniteAdeleRing (𝓞 F) F) := inferInstance
+instance : Ring (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := inferInstance
 
 /-- `Dfx` is an abbreviation for $(D\otimes_F\mathbb{A}_F^\infty)^\times.$ -/
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
@@ -47,7 +53,6 @@ noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
   sorry
 
-set_option synthInstance.maxHeartbeats 40000 in -- FLT.Mathlib.Algebra.FixedPoints.Basic did this
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
   moduleTopology (FiniteAdeleRing (𝓞 F) F) _
@@ -254,9 +259,9 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
 
 variable [IsQuaternionAlgebra F D]
 
-instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R
+instance : SMulCommClass R (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
     (WeightTwoAutomorphicForm F D R) where
-  smul_comm g r φ := by
+  smul_comm r g φ := by
     ext x
     simp [smul_apply]
 
@@ -268,30 +273,31 @@ section finite_level
 
 variable [IsQuaternionAlgebra F D]
 
-/-- An auxiliary definition: weight 2 automorphic forms of a fixed level, but given as
-a submodule of the space of all weight 2 automorphic forms. For the type, see
-`TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel`. -/
-def WeightTwoAutomorphicFormOfLevel_aux (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
-    (R : Type*) [CommRing R] : Submodule R (WeightTwoAutomorphicForm F D R) where
-  carrier := {φ | ∀ u ∈ U, u • φ = φ}
-  add_mem' {a b} ha hb := by simp_all
-  zero_mem' := by simp_all
-  smul_mem' c {x} hx := by simp_all [smul_comm]
+-- set_option synthInstance.maxHeartbeats 40000 in
+-- /-- An auxiliary definition: weight 2 automorphic forms of a fixed level, but given as
+-- a submodule of the space of all weight 2 automorphic forms. For the type, see
+-- `TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel`. -/
+-- def WeightTwoAutomorphicFormOfLevel_aux (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+--     (R : Type*) [CommRing R] : Submodule R (WeightTwoAutomorphicForm F D R) where
+--   carrier := {φ | ∀ u ∈ U, u • φ = φ}
+--   add_mem' {a b} ha hb := by simp_all
+--   zero_mem' := by simp_all
+--   smul_mem' c {x} hx := by simp_all [smul_comm]
 
 /--
 Weight 2 automorphic forms of a fixed level for a totally definite quaternion algebra
 over a totally real field.
 -/
 def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
-    (R : Type*) [CommRing R] : Type _ := MulAction.FixedPoints U R
+    (R : Type*) [CommRing R] : Type _ := MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R)
 
 variable (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (R : Type*) [CommRing R]
 
-instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) :=
-  AddSubgroup.toAddCommGroup (WeightTwoAutomorphicFormOfLevel_aux U R).toAddSubgroup
+instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
+  AddCommGroup (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
 
-instance : Module R (WeightTwoAutomorphicFormOfLevel U R) :=
-  SMulMemClass.toModule (WeightTwoAutomorphicFormOfLevel_aux U R)
+instance : Module R (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
+  Module R (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
 
 end finite_level
 
