@@ -128,7 +128,7 @@ variable (R : Type*) [CommRing R] in
 instance module [AddCommGroup A] [Module R A] [DistribSMul M A] [SMulCommClass R M A] :
     Module R (FixedPoints M A) where
       __ := addCommGroup M A
-      smul r a := ⟨r • a.1, sorry⟩
+      smul r a := ⟨r • a.1, fun m ↦ by rw [← smul_comm, a.2]⟩
       one_smul := sorry
       mul_smul := sorry
       smul_zero := sorry
