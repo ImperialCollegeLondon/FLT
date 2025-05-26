@@ -7,13 +7,14 @@ import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Algebra.FixedPoints.Basic -- this import makes this file suddenly crazy slow
+import FLT.Mathlib.Algebra.FixedPoints.Basic
 import Mathlib
 
 /-
 
 # Definition of automorphic forms on a totally definite quaternion algebra
 
+TODO: why is this file so woefully slow in places?
 -/
 
 suppress_compilation
@@ -212,17 +213,19 @@ lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (g • φ) x = φ (x * g) := rfl
 
-set_option synthInstance.maxHeartbeats 80000 in
-  -- it was already 40000 and then the bad import made it worse
+attribute [instance low] Units.instMulAction
+
+instance mulAction :
+    MulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+  smul := group_smul
+  one_smul φ := by ext; simp only [group_smul_apply, mul_one]
+  mul_smul g h φ := by ext; simp only [group_smul_apply, mul_assoc]
+
 instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
     (WeightTwoAutomorphicForm F D R) where
-  smul := group_smul
-  one_smul φ := by ext; simp
-  mul_smul g h φ := by ext; simp [mul_assoc]
-  smul_zero g := by ext; simp -- at 20K heartbeats we get
-  -- failed to synthesize
-  -- SMulZeroClass (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ (WeightTwoAutomorphicForm F D R)
-  smul_add g φ ψ := by ext; simp
+  __ := mulAction
+  smul_zero g := by ext; simp only [group_smul_apply, zero_apply]
+  smul_add g φ ψ := by ext; simp only [group_smul_apply, add_apply]
 
 end add_comm_group
 
