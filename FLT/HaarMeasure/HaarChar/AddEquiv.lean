@@ -323,7 +323,7 @@ variable {ι : Type*}
     [∀ i, MeasurableSpace (G i)]
     [∀ i, BorelSpace (G i)]
 
-open ContinuousMulEquiv in
+open ContinuousMulEquiv Filter in
 @[to_additive]
 lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
     (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
@@ -337,8 +337,19 @@ lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G 
     mulEquivHaarChar
       (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
-  letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
-  haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
+  haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
+      haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
+      WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
+  letI {𝓕 : Filter ι} : MeasurableSpace (Πʳ i, [G i, C i]_[𝓕]) := borel _
+  haveI {𝓕 : Filter ι} : BorelSpace (Πʳ i, [G i, C i]_[𝓕]) := ⟨rfl⟩
+  set S := {i : ι | Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)}
+  have S_cof : Fact (Filter.cofinite ≤ 𝓟 S) := ⟨by simpa only [le_principal_iff] using hφ⟩
+  have hφS : ∀ᶠ i in 𝓟 S, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i) := by aesop
+  set Φ : (Πʳ i, [G i, C i]_[𝓟 S]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 S]) :=
+    .restrictedProductCongrRight φ hφS
+
+  rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding
+    (RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen.out S_cof.out) Φ]
   -- -- the below code created a compact open in the restricted product and shows
   -- -- it has Haar measure 0 < μ < ∞ but I've realised I don't know what to do next.
   -- -- The blueprint has a proof which I can make work.
