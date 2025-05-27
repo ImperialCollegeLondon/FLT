@@ -8,7 +8,6 @@ import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.FixedPoints.Basic
-import Mathlib
 
 /-
 
