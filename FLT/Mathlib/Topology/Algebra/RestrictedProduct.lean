@@ -152,8 +152,12 @@ def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
     (A : Π i, S i) :
     (Πʳ i, [M i, A i]_[ℱ])ˣ ≃*
       Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]_[ℱ] where
-        toFun u := ⟨fun i ↦ ⟨u.1 i, u⁻¹.1 i, sorry, sorry⟩, sorry⟩
-        invFun ui := ⟨⟨fun i ↦ ui i, sorry⟩, ⟨fun i ↦ ui⁻¹ i, sorry⟩, sorry, sorry⟩
-        left_inv := sorry
-        right_inv := sorry
-        map_mul' := sorry -- all of these are FLT#553
+        toFun u := ⟨fun i ↦ ⟨u.1 i, u⁻¹.1 i, congr($u.mul_inv i), congr($u.inv_mul i)⟩,
+          by filter_upwards [u.val.2, u⁻¹.val.2] using fun i hi hi' ↦ ⟨hi, hi'⟩⟩
+        invFun ui := ⟨⟨fun i ↦ ui i, by filter_upwards [ui.2] using fun i hi ↦ hi.1⟩,
+          ⟨fun i ↦ ui⁻¹ i, by filter_upwards [ui⁻¹.2] using fun i hi ↦ hi.1⟩,
+          by ext i; exact (ui i).mul_inv,
+          by ext i; exact (ui i).inv_mul⟩
+        left_inv u := by ext; rfl
+        right_inv ui := by ext; rfl
+        map_mul' u v := by ext; rfl
