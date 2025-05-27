@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
+-/
 import Mathlib.Algebra.BigOperators.GroupWithZero.Action
 import Mathlib.Algebra.Module.LinearMap.Defs
 import Mathlib.Algebra.Ring.Action.Submonoid
@@ -83,30 +88,20 @@ instance [Monoid R] [MulAction R A] [SMulCommClass G R A] :
 
 -- Probably this should be a submodule instance and then get module instance for free
 instance module [Ring R] [Module R A] [SMulCommClass G R A] : Module R (fixedPoints G A) where
-  one_smul a := by
-    ext
-    push_cast
-    simp only [one_smul]
-  mul_smul r s a := by
-    ext
-    push_cast
-    simp only [← mul_smul]
+  one_smul a := one_smul _ _
+  mul_smul r s a := mul_smul _ _ _
   smul_zero a := by
     ext
-    push_cast
-    simp
+    exact smul_zero _
   smul_add r s a := by
     ext
-    push_cast
-    simp
+    exact smul_add _ _ _
   add_smul r s a := by
     ext
-    push_cast
-    simp [add_smul]
+    exact add_smul _ _ _
   zero_smul a := by
     ext
-    push_cast
-    simp
+    exact zero_smul _ _
 
 end FixedPoints
 
@@ -182,7 +177,6 @@ noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
 
 variable {R : Type*} [Ring R] [Module R A] [SMulCommClass G R A]
 
-#synth Module R (fixedPoints V A)
 variable (g U V) in
 noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A where
   toFun := HeckeOperator_toFun h
