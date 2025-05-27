@@ -40,6 +40,31 @@ as matrices.
 
 -/
 
+/-
+
+## A finiteness result
+
+The existence of abstract Hecke operators relies on a certain double coset space being
+a finite union of single cosets. In our situation we can supply this finiteness proof
+via a topological argument, which we abstract here.
+
+-/
+
+section finiteness
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {g : G} {U V : Subgroup G}
+
+
+open scoped Pointwise in
+lemma QuotientGroup.mk_image_finite_of_compact_of_open (hU : IsCompact (U : Set G))
+    (hV : IsCompact (V : Set G)) (hVopen : IsOpen (V : Set G)) :
+    (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)).Finite := by
+  sorry --FLT#563
+
+end finiteness
+
+
 open NumberField IsQuaternionAlgebra.NumberField IsDedekindDomain
 
 -- let F be a totally real number field
@@ -76,6 +101,14 @@ attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
   Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
 
+variable {F D} in
+lemma U1_compact : IsCompact (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
+  sorry
+
+variable {F D} in
+lemma U1_open : IsOpen (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
+  sorry
+
 variable (R : Type*) [CommRing R]
 
 namespace HeckeOperator
@@ -93,7 +126,8 @@ noncomputable def T (v : HeightOneSpectrum (𝓞 F)) :
   let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
     Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
     ![FiniteAdeleRing.localUniformiserUnit F v, 1])
-  AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S) sorry
+  AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S)
+  (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_compact r S) (U1_open r S))
 
 variable {F D} in
 set_option maxSynthPendingDepth 1 in
@@ -114,9 +148,13 @@ noncomputable def U {v : HeightOneSpectrum (𝓞 F)}
   let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
     Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
     ![FiniteAdeleRing.localUnit F ⟨(α : v.adicCompletion F),
-    (α : v.adicCompletion F)⁻¹,
-    sorry, sorry⟩, 1])
-  AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S) sorry
+    (α : v.adicCompletion F)⁻¹, by
+      rw [mul_inv_cancel₀]
+      exact_mod_cast hα, by
+      rw [inv_mul_cancel₀]
+      exact_mod_cast hα⟩, 1])
+  AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S)
+  (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_compact r S) (U1_open r S))
 
 lemma _root_.Ne.mul {M₀ : Type*} [Mul M₀] [Zero M₀] [NoZeroDivisors M₀] {a b : M₀}
   (ha : a ≠ 0) (hb : b ≠ 0) : a * b ≠ 0 := mul_ne_zero ha hb
