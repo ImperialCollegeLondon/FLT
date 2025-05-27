@@ -12,6 +12,8 @@ import Mathlib.Algebra.Central.Defs
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 
+set_option maxHeartbeats 1000000
+
 /-
 
 # Fujisaki's lemma
@@ -45,15 +47,15 @@ instance : Algebra (AdeleRing (𝓞 K) K) D_𝔸 :=
 instance : Module.Finite (AdeleRing (𝓞 K) K) D_𝔸 := sorry
 
 /-- The module topology on `D_𝔸`. -/
-local instance : TopologicalSpace D_𝔸 :=
+instance : TopologicalSpace D_𝔸 :=
   moduleTopology (AdeleRing (𝓞 K) K) _
 
-local instance : IsModuleTopology (AdeleRing (𝓞 K) K) D_𝔸 := ⟨rfl⟩
+instance : IsModuleTopology (AdeleRing (𝓞 K) K) D_𝔸 := ⟨rfl⟩
 
-local instance : IsTopologicalRing D_𝔸 :=
+instance : IsTopologicalRing D_𝔸 :=
   IsModuleTopology.Module.topologicalRing (AdeleRing (𝓞 K) K) _
 
-local instance : LocallyCompactSpace D_𝔸 := sorry -- we have this (unfinished) elsewhere TODO
+instance : LocallyCompactSpace D_𝔸 := sorry -- we have this (unfinished) elsewhere TODO
 
 variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
@@ -170,49 +172,39 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 end Aux
 
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸 :=
-  fun i => (i.1, i⁻¹.1)
+  (fun i => (i.1, i⁻¹.1)).comp (Subgroup.subtype (ringHaarChar_ker D_𝔸))
 
 def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D) (Aux.C K D)
 
-def MtoQuot : (ringHaarChar_ker D_𝔸) → (ringHaarChar_ker D_𝔸 ⧸
-    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) :=
-  fun a => Quot.mk _ a
-
-lemma rinHaarChar_ker_isCompact : IsCompact (ringHaarChar_ker D_𝔸) := by
-  -- this is true since this is a closed subset of D_𝔸ˣ, which is a closed subset of D_𝔸 x D_𝔸
-  -- which is compact by product of compact spaces
-  sorry
+abbrev MtoQuot : (ringHaarChar_ker D_𝔸) → (ringHaarChar_ker D_𝔸 ⧸
+    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := Quot.mk _
 
 lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
     (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := by
-  have h1 : IsClosed (M K D) := by
-    have h11 : Continuous (incl₂ K D) := by
-      -- inclusion? so should be trivial by product topology (and subspace topology)
-      sorry
-    have h12 : IsClosed (Aux.C K D) := by
-      -- I think this is what I need?
-      sorry
-    rw [M]
-    exact IsClosed.preimage h11 h12
-  have h2 : IsCompact (M K D) := by
-    -- exact IsClosed.isCompact h1
-    sorry
-  refine isCompact_univ_iff.mp ?_
-  have h3 : Set.SurjOn (MtoQuot K D) (M K D) Set.univ := by
-    sorry
   have h4 : Continuous (MtoQuot K D) := by
     exact { isOpen_preimage := fun s a ↦ a }
-  have h5 : IsClosed (Set.preimage (MtoQuot K D) (Set.univ)) := by
-    exact closure_subset_iff_isClosed.mp fun ⦃a⦄ a ↦ trivial
-  have h6 : IsCompact (Set.preimage (MtoQuot K D) (Set.univ)) := by
-    rw [IsCompact]
-    -- exact IsClosed.isCompact h5
-    sorry
-  have h7 := IsCompact.image h6 h4
-  have h8 : (MtoQuot K D '' (MtoQuot K D ⁻¹' Set.univ)) = Set.univ := by
-    exact Set.SurjOn.image_preimage h3 fun ⦃a⦄ a ↦ a
-  rw [h8] at h7
-  exact h7
+  have h2 : IsCompact (M K D) := by
+    apply Topology.IsClosedEmbedding.isCompact_preimage
+    · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap ?_ ?_ ?_
+      · -- need to show continuity
+        sorry
+      · -- need to show injectivity
+        sorry
+      · -- not sure if this is the same as closed immersion?
+        sorry
+    · exact Aux.C_compact K D
+  have h3 : (MtoQuot K D) '' (M K D) = Set.univ := by
+    ext x
+    refine ⟨by intro hx; simp, ?_ ⟩
+    · intro hx
+      obtain ⟨a, ha⟩ := x
+      obtain ⟨c, hc, ν, hν, eq, h31⟩ := Aux.antidiag_mem_C K D ha
+      simp only [Subgroup.comap_subtype, Set.mem_image, Subtype.exists]
+      refine ⟨ν, hν, h31, ?_ ⟩
+      simp_rw [MtoQuot, Subgroup.comap_subtype, eq]
+        -- should be true by pulling out c... but not sure how to do this; probably overcomplicated
+      sorry
+  exact isCompact_univ_iff.mp (by simpa only [←h3] using IsCompact.image h2 h4)
 
 end NumberField.AdeleRing.DivisionAlgebra
 
@@ -254,26 +246,33 @@ abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
--- its breaking?? not sure what the difference to above is
--- NumbeField.AdeleRing vs FiniteAdeleRing
+variable [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
+  [BorelSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)] -- not sure why I need to restate these from
+  -- the start of the file?
+
+def rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
+  -- this should just be the restriction after removing infinite places
+  sorry
+
 def α : (ringHaarChar_ker D_𝔸 ⧸ (MonoidHom.range
     (NumberField.AdeleRing.DivisionAlgebra.incl K D)).comap (ringHaarChar_ker D_𝔸).subtype)
     → (Dfx K D ⧸ (incl₁ K D).range) :=
-  fun a => a -- not sure if this is correct
+  fun a => Quot.mk _  (rest₁ K D a.out)
 
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
-  have h1 : Continuous α := by
+  have h1 : Continuous (α K D) := by
     -- need to give quotient topology on RHS, then 'readily verified'
     sorry
-  have h2 : IsSurjective α := by
-    -- main part of the proof, may need to be seperate lemma
+  have h3 : (α K D) '' Set.univ = Set.univ := by
+    ext a
+    simp only [Subgroup.comap_subtype, Set.image_univ, Set.mem_range, Set.mem_univ, iff_true]
+    -- surjective; the main hard part of the theorem
+    -- also not convinced I have the right setup
     sorry
-  have h3 : Set.preimage α Set.univ = Set.univ := by
-    -- surjective
-    sorry
-  -- exact IsCompact.image α (compact_quotient K D) h1 -- should work?
-  sorry
+  have := isCompact_univ_iff.mpr (NumberField.AdeleRing.DivisionAlgebra.compact_quotient K D)
+  apply isCompact_univ_iff.mp
+  simpa [← h3] using IsCompact.image this h1
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
 /-!
@@ -281,29 +280,48 @@ If `D` is a finite-dimensional division algebra over a number field `K`
 then the double coset space `Dˣ \ (D ⊗ 𝔸_K^infty)ˣ / U` is finite for any compact open subgroup `U`
 of `(D ⊗ 𝔸_F^infty)ˣ`.
 -/
+
+-- not sure if I really need to show this instance or if I can infer it from somewhere else;
+-- I would like to be using it as a subgroup later though? perhaps better way to phrase this all...
+instance units : Subgroup (Dfx K D) where
+  carrier := Set.range (incl₁ K D)
+  one_mem' := by
+    simp only [Set.mem_range, Units.ext_iff, Algebra.TensorProduct.includeLeft_apply,
+      Units.val_one]
+    use 1
+    simp only [map_one, Units.val_one]
+  mul_mem' := by
+    intro a b ha hb
+    simp only [Set.mem_range]
+    obtain ⟨a1, rfl⟩ := ha
+    obtain ⟨b1, rfl⟩ := hb
+    use a1 * b1
+    exact MonoidHom.map_mul (incl₁ K D) a1 b1
+  inv_mem' := by
+    intro a ha
+    simp only [Set.mem_range]
+    obtain ⟨a1, rfl⟩ := ha
+    use a1⁻¹
+    exact MonoidHom.map_inv (incl₁ K D) a1
+
+namespace Doset
+
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
-    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
-  have ToFinCover := isCompact_univ_iff.mpr
-    (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
-  apply isCompact_iff_finite_subcover.mp at ToFinCover
-  have openCover :  (Doset.Quotient (Set.range (incl₁ K D)) U) = ⋃ (q : Dfx K D),
-      Doset.doset q (Set.range (incl₁ K D)) U := by
-    -- this should be true by definition (if I am reading them right)
-    -- if not I still want something like this; as this is the open cover we will consider
-    sorry
-  rw [openCover]
-  refine Set.finite_coe_iff.mpr ?_
-  have := Doset.doset_union_rightCoset (incl₁ K D).range U
-  simp only [MulOpposite.op_mul, MonoidHom.coe_range] at this
-  simp_rw [← this]
-  -- The hope is I can show the inner union is finite (by reducing open cover)
-  -- need to work out if it is rightCoset or leftCoset I want though...
-  -- there may be a better way to be doing this though
+    Finite (Quotient (Set.range (incl₁ K D)) (U : Set (Dfx K D))) := by
+  refine Set.finite_univ_iff.mp ?_
+  have openCover := union_quotToDoset (units K D) (U)
+  have descendedCover : ⋃ q, quotToDoset (units K D) U q = ((Dfx K D ⧸ (incl₁ K D).range)) := by
 
-  -- e.g constructing map from doset to single (left or rights, IDK the naming convention) cosets
-  -- then show the set of these are finite (reducing cover)
-  -- then push this back up and show it covers
+    sorry
+  have ToFinCover := isCompact_univ_iff.mpr
+      (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
+  apply isCompact_iff_finite_subcover.mp at ToFinCover
+  -- want to apply LHS of descended cover has finite subcover (i.e. finite disjoint union)
+  -- and imply this means finite?
+
   sorry
+
+end Doset
 
 end FiniteAdeleRing
