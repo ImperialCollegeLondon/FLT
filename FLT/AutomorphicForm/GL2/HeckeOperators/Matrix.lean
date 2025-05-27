@@ -1,5 +1,6 @@
 import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 /-
 
 # Matrix-related stuff for Hecke operators for adelic GL_2
@@ -87,3 +88,22 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
     ⟨fun i ↦ if i = v then (i.adicCompletionUniformizer K)⁻¹ else 1, sorry⟩,
     sorry,
     sorry⟩
+
+-- these should not be in a file called Matrix
+noncomputable def localUnit {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)
+    [DecidableEq (HeightOneSpectrum A)] :
+    (FiniteAdeleRing A K)ˣ :=
+  ⟨⟨fun i ↦ if h : i = v then h ▸ α else 1, sorry⟩,
+  ⟨fun i ↦ if h : i = v then h ▸ α⁻¹ else 1, sorry⟩,
+  sorry,
+  sorry⟩
+
+lemma localUnit_eval_of_eq {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)
+    [DecidableEq (HeightOneSpectrum A)] :
+    (localUnit K α).1 v = α := by
+  simp [localUnit]
+
+lemma localUnit_eval_of_ne {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)
+    [DecidableEq (HeightOneSpectrum A)] (w : HeightOneSpectrum A) (hw : w ≠ v) :
+    (localUnit K α).1 w = 1 := by
+  simp [localUnit, hw]
