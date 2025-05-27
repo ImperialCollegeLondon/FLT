@@ -152,8 +152,38 @@ def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
     (A : Π i, S i) :
     (Πʳ i, [M i, A i]_[ℱ])ˣ ≃*
       Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]_[ℱ] where
-        toFun u := ⟨fun i ↦ ⟨u.1 i, u⁻¹.1 i, sorry, sorry⟩, sorry⟩
-        invFun ui := ⟨⟨fun i ↦ ui i, sorry⟩, ⟨fun i ↦ ui⁻¹ i, sorry⟩, sorry, sorry⟩
-        left_inv := sorry
-        right_inv := sorry
-        map_mul' := sorry -- all of these are FLT#553
+        toFun u := ⟨fun i ↦ ⟨u.1 i, u⁻¹.1 i, congr($u.mul_inv i), congr($u.inv_mul i)⟩,
+          by filter_upwards [u.val.2, u⁻¹.val.2] using fun i hi hi' ↦ ⟨hi, hi'⟩⟩
+        invFun ui := ⟨⟨fun i ↦ ui i, by filter_upwards [ui.2] using fun i hi ↦ hi.1⟩,
+          ⟨fun i ↦ ui⁻¹ i, by filter_upwards [ui⁻¹.2] using fun i hi ↦ hi.1⟩,
+          by ext i; exact (ui i).mul_inv,
+          by ext i; exact (ui i).inv_mul⟩
+        left_inv u := by ext; rfl
+        right_inv ui := by ext; rfl
+        map_mul' u v := by ext; rfl
+
+lemma MulEquiv.congrRight_embedProduct_comp_restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
+    {M : ι → Type*} [(i : ι) → Monoid (M i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
+    (A : Π i, S i) :
+    congrRight (fun i ↦ Units.embedProduct (M i)) sorry ∘ MulEquiv.restrictedProductUnits A =
+      (Prod.map
+        (MulEquiv.restrictedProductUnits A)
+        (MulEquiv.restrictedProductUnits (fun i ↦ (Submonoid.ofClass (A i)).op)))
+      ∘ Units.embedProduct (Πʳ i, [M i, A i]_[ℱ]) :=
+    sorry
+
+/-- The isomorphism between the units of a restricted product of monoids,
+and the restricted product of the units of the monoids. -/
+def ContinuousMulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
+    {M : ι → Type*} [(i : ι) → Monoid (M i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
+    (A : Π i, S i) [∀ i, TopologicalSpace (M i)] :
+    (Πʳ i, [M i, A i]_[ℱ])ˣ ≃ₜ*
+      Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]_[ℱ] where
+        toMulEquiv := MulEquiv.restrictedProductUnits A
+        continuous_toFun := by
+
+          rw [continuous_rng_of_bot]
+          sorry
+        continuous_invFun := sorry
