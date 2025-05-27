@@ -90,6 +90,8 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
     sorry⟩
 
 -- these should not be in a file called Matrix
+/-- `localUnit K α` for `α : (v.adicCompletion K)ˣ`, is the finite idele which is `α` at
+`v` and `1` elsewhere. -/
 noncomputable def localUnit {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)
     [DecidableEq (HeightOneSpectrum A)] :
     (FiniteAdeleRing A K)ˣ :=
@@ -107,3 +109,4 @@ lemma localUnit_eval_of_ne {v : HeightOneSpectrum A} (α : (v.adicCompletion K)�
     [DecidableEq (HeightOneSpectrum A)] (w : HeightOneSpectrum A) (hw : w ≠ v) :
     (localUnit K α).1 w = 1 := by
   simp [localUnit, hw]
+#lint

@@ -140,19 +140,38 @@ def HeckeAlgebra : Type _ :=
     Subalgebra R (WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
       WeightTwoAutomorphicFormOfLevel (U1 r S) R))
 
-noncomputable instance HeckeAlgebra.instRing :
+namespace HeckeAlgebra
+
+noncomputable instance instRing :
     Ring (HeckeAlgebra F D r S R) := inferInstanceAs <|
   Ring (Algebra.adjoin R _ : Subalgebra R (WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
       WeightTwoAutomorphicFormOfLevel (U1 r S) R))
 
-noncomputable instance HeckeAlgebra.instAlgebra :
+noncomputable instance instAlgebra :
     Algebra R (HeckeAlgebra F D r S R) := inferInstanceAs <|
   Algebra R (Algebra.adjoin R _ : Subalgebra R (WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
       WeightTwoAutomorphicFormOfLevel (U1 r S) R))
 
-noncomputable instance HeckeAlgebera.instCommRing :
+noncomputable instance instCommRing :
     CommRing (HeckeAlgebra F D r S R) where
-  __ := HeckeAlgebra.instRing F D r S R
+  __ := instRing F D r S R
   mul_comm := sorry
+
+/-- The Hecke operator Tᵥ as an element of the Hecke algebra. -/
+noncomputable def T (v : HeightOneSpectrum (𝓞 F)) (hv : v ∉ S) : HeckeAlgebra F D r S R :=
+  ⟨HeckeOperator.T r R v, by
+    apply Algebra.subset_adjoin
+    left
+    use v⟩
+
+/-- The Hecke operator Uᵥ,ₐ as an element of the Hecke algebra. -/
+noncomputable def U (v : HeightOneSpectrum (𝓞 F)) (hv : v ∈ S) (α : v.adicCompletionIntegers F)
+    (hα : α ≠ 0) : HeckeAlgebra F D r S R :=
+  ⟨HeckeOperator.U r S R α hα, by
+    apply Algebra.subset_adjoin
+    right
+    use v, hv, α, hα⟩
+
+end HeckeAlgebra
 
 end TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
