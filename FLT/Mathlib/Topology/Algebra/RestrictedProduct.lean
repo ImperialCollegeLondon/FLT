@@ -24,7 +24,19 @@ lemma mul_apply {S : ι → Type*} [(i : ι) → SetLike (S i) (R i)] {B : (i : 
 variable {S : ι → Type*} -- subobject type
 variable [Π i, SetLike (S i) (R i)]
 variable {B : Π i, S i}
-variable {ℱ : Filter ι}
+variable {ℱ 𝒢 : Filter ι}
+
+variable (R B) in
+/-- If `𝓕 ≤ 𝓖`, the restricted product `Πʳ i, [R i, A i]_[𝓖]` is naturally included in
+`Πʳ i, [R i, A i]_[𝓕]`. This is the corresponding map. -/
+@[to_additive]
+def _root_.MonoidHom.restrictedProductInclusion
+    [∀ i, Monoid (R i)] [∀ i, SubmonoidClass (S i) (R i)] (h : ℱ ≤ 𝒢) :
+    (Πʳ i, [R i, B i]_[𝒢]) →* (Πʳ i, [R i, B i]_[ℱ]) where
+  toFun := RestrictedProduct.inclusion _ _ h
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
 
 @[simp]
 lemma one_apply [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] {i : ι} :
@@ -187,6 +199,7 @@ noncomputable def Homeomorph.restrictedProductPrincipal {ι : Type*}
       fun_prop
 
 open Filter in
+@[to_additive]
 noncomputable def ContinuousMulEquiv.restrictedProductPrincipal {ι : Type*}
     {R : ι → Type*} [∀ i, Monoid (R i)] [∀ i, TopologicalSpace (R i)]
     {S : ι → Type*} [∀ i, SetLike (S i) (R i)] [∀ i, SubmonoidClass (S i) (R i)] {A : Π i, S i}

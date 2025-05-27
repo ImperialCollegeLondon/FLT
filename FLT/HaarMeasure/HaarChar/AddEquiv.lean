@@ -39,6 +39,8 @@ lemma IsHaarMeasure.nnreal_smul {μ : Measure G}
 
 variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 
+-- Note: since local compactness of restricted products is a bit painful to setup as instances,
+-- it might be worth considering junk values if `G` is not locally compact.
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
 `φ` scales Haar measure on `G`. -/
 @[to_additive "If `φ : A ≃ₜ+ A` then `addEquivAddHaarChar φ` is the positive
@@ -303,6 +305,29 @@ open ENNReal
 
 open RestrictedProduct
 
+section MeasurableSpace
+-- Define ad-hoc (scoped) instances for the borel sigma-algebra on restricted products
+
+-- Some extra hypotheses to prevent this triggering in surprising situations
+-- (but I don't think it would)
+@[nolint unusedArguments]
+def _root_.RestrictedProduct.borelMeasurableSpace {ι : Type*} {𝓕 : Filter ι} {X : ι → Type*}
+    {S : ∀ i, Set (X i)} [∀ i, TopologicalSpace (X i)] [∀ i, MeasurableSpace (X i)]
+    [∀ i, BorelSpace (X i)] : MeasurableSpace (Πʳ i, [X i, S i]_[𝓕]) :=
+  borel _
+
+@[nolint unusedArguments]
+def _root_.RestrictedProduct.borelSpace_borelMeasurableSpace {ι : Type*} {𝓕 : Filter ι}
+    {X : ι → Type*} {S : ∀ i, Set (X i)} [∀ i, TopologicalSpace (X i)] [∀ i, MeasurableSpace (X i)]
+    [∀ i, BorelSpace (X i)] : @BorelSpace (Πʳ i, [X i, S i]_[𝓕]) _ borelMeasurableSpace :=
+  @BorelSpace.mk _ _ borelMeasurableSpace rfl
+
+scoped [RestrictedProduct.Borel] attribute [instance] RestrictedProduct.borelMeasurableSpace
+scoped [RestrictedProduct.Borel] attribute [instance]
+  RestrictedProduct.borelSpace_borelMeasurableSpace
+
+end MeasurableSpace
+
 open Pointwise in
 -- TODO this should be elsewhere
 @[to_additive]
@@ -322,49 +347,58 @@ variable {ι : Type*}
     [hCcompact : ∀ i, CompactSpace (C i)]
     [∀ i, MeasurableSpace (G i)]
     [∀ i, BorelSpace (G i)]
+    [∀ i, LocallyCompactSpace (G i)] -- follows from the hypotheses, but needed for *statement*
 
+open scoped RestrictedProduct.Borel in
 open ContinuousMulEquiv Filter in
+@[to_additive]
+lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
+    [J_cof : Fact (Filter.cofinite ≤ 𝓟 J)]
+    (φ : Π i, (G i) ≃ₜ* (G i))
+    (hφ : ∀ i ∈ J, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
+    mulEquivHaarChar
+      (.restrictedProductCongrRight φ (eventually_principal.mpr hφ) :
+        (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J])) =
+    ∏ᶠ i, mulEquivHaarChar (φ i) := by
+  have hφ' : ∀ i, i ∈ J → Set.BijOn (φ i).symm (C i) (C i) := sorry
+  -- This **has** to exist...
+  set φ_C : ∀ i : J, C i ≃ₜ* C i := fun i ↦
+  { toFun := hφ i i.2 |>.mapsTo.restrict
+    invFun := hφ' i i.2 |>.mapsTo.restrict
+    left_inv := sorry
+    right_inv := sorry
+    map_mul' _ _ := by ext; exact map_mul (φ i) _ _
+    continuous_toFun := sorry
+    continuous_invFun := sorry }
+  set Φ : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
+    .restrictedProductCongrRight φ (eventually_principal.mpr hφ)
+  set Ψ : (Π i : (Jᶜ : Set ι), G i) × (Π i : (J : Set ι), C i)
+      ≃ₜ* (Π i : (Jᶜ : Set ι), G i) × (Π i : (J : Set ι), C i) :=
+    .prodCongr (.piCongrRight fun i ↦ φ i) (.piCongrRight φ_C)
+  set I : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* _ := .restrictedProductPrincipal J
+  have : Finite (Jᶜ : Set ι) := sorry
+  have Ψ_I_eq (x) : Ψ (I x) = I (Φ x) := rfl
+  -- rw [← mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding I.isOpenEmbedding Φ Ψ Ψ_I_eq]
+  sorry
+
+open scoped RestrictedProduct.Borel in
+open ContinuousMulEquiv Filter Topology in
 @[to_additive]
 lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
     (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
-    -- typeclass stuff
-    letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
-    haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-    haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
-      haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
-      WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
-    -- lemma statement starts here
     mulEquivHaarChar
       (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
-  haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
-      haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
-      WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
-  letI {𝓕 : Filter ι} : MeasurableSpace (Πʳ i, [G i, C i]_[𝓕]) := borel _
-  haveI {𝓕 : Filter ι} : BorelSpace (Πʳ i, [G i, C i]_[𝓕]) := ⟨rfl⟩
-  set S := {i : ι | Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)}
-  have S_cof : Fact (Filter.cofinite ≤ 𝓟 S) := ⟨by simpa only [le_principal_iff] using hφ⟩
-  have hφS : ∀ᶠ i in 𝓟 S, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i) := by aesop
-  set Φ : (Πʳ i, [G i, C i]_[𝓟 S]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 S]) :=
-    .restrictedProductCongrRight φ hφS
-
-  rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding
-    (RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen.out S_cof.out) Φ]
-  -- -- the below code created a compact open in the restricted product and shows
-  -- -- it has Haar measure 0 < μ < ∞ but I've realised I don't know what to do next.
-  -- -- The blueprint has a proof which I can make work.
-  -- set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
-  -- have := isOpenEmbedding_structureMap (R := G) (A := fun i ↦ (C i : Set (G i))) Fact.out
-  -- have isOpenEmbedding := this
-  -- apply Topology.IsOpenEmbedding.isOpen_range at this
-  -- rw [range_structureMap] at this
-  -- have hXopen : IsOpen X := this
-  -- have hXnonempty : Nonempty X := Nonempty.intro ⟨⟨fun x ↦ 1, Filter.Eventually.of_forall <|
-  --   fun _ ↦ one_mem _⟩, fun _ ↦ one_mem _⟩
-  -- have hXμpos : 0 < haar X := IsOpen.measure_pos haar hXopen Set.Nonempty.of_subtype
-  -- have hXcompact : IsCompact X := by
-  --   have := isCompact_range isOpenEmbedding.continuous
-  --   rw [range_structureMap] at this
-  --   apply this
-  -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
-  sorry -- FLT#552
+  set Φ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) := .restrictedProductCongrRight φ hφ
+  set J := {i : ι | Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)}
+  have J_cof : Fact (Filter.cofinite ≤ 𝓟 J) := ⟨by simpa only [le_principal_iff] using hφ⟩
+  have hφ_J : ∀ i ∈ J, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i) := fun _ ↦ id
+  set Φ_J : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
+    .restrictedProductCongrRight φ (eventually_principal.mpr hφ_J)
+  set ι_J : (Πʳ i, [G i, C i]_[𝓟 J]) →* (Πʳ i, [G i, C i]) :=
+    .restrictedProductInclusion _ _ J_cof.out
+  have ι_J_emb : IsOpenEmbedding ι_J :=
+    RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen.out J_cof.out
+  have Φ_ι_J_eq (x) : Φ (ι_J x) = ι_J (Φ_J x) := rfl
+  rw [← mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding ι_J_emb Φ_J Φ Φ_ι_J_eq]
+  exact mulEquivHaarChar_restrictedProductCongrRight_of_principal _ hφ_J
