@@ -161,29 +161,3 @@ def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
         left_inv u := by ext; rfl
         right_inv ui := by ext; rfl
         map_mul' u v := by ext; rfl
-
-lemma MulEquiv.congrRight_embedProduct_comp_restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
-    {M : ι → Type*} [(i : ι) → Monoid (M i)]
-    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
-    (A : Π i, S i) :
-    congrRight (fun i ↦ Units.embedProduct (M i)) sorry ∘ MulEquiv.restrictedProductUnits A =
-      (Prod.map
-        (MulEquiv.restrictedProductUnits A)
-        (MulEquiv.restrictedProductUnits (fun i ↦ (Submonoid.ofClass (A i)).op)))
-      ∘ Units.embedProduct (Πʳ i, [M i, A i]_[ℱ]) :=
-    sorry
-
-/-- The isomorphism between the units of a restricted product of monoids,
-and the restricted product of the units of the monoids. -/
-def ContinuousMulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
-    {M : ι → Type*} [(i : ι) → Monoid (M i)]
-    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
-    (A : Π i, S i) [∀ i, TopologicalSpace (M i)] :
-    (Πʳ i, [M i, A i]_[ℱ])ˣ ≃ₜ*
-      Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]_[ℱ] where
-        toMulEquiv := MulEquiv.restrictedProductUnits A
-        continuous_toFun := by
-
-          rw [continuous_rng_of_bot]
-          sorry
-        continuous_invFun := sorry
