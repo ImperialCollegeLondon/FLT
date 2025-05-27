@@ -1,6 +1,5 @@
 import FLT.Assumptions.Mazur
 import FLT.Assumptions.Odlyzko
-import FLT.AutomorphicForm.GL2.HeckeOperators.Matrix
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
@@ -10,6 +9,7 @@ import FLT.Basic.Reductions
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 import FLT.DedekindDomain.IntegralClosure
 import FLT.Deformations.Algebra.InverseLimit.Basic

@@ -1,8 +1,15 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct -- needed for RestrictedProduct.mk
 /-
 
-# Matrix-related stuff for Hecke operators for adelic GL_2
+# Constructions of various "local" elements of adelic groups
+
+For example ideles which are uniformisers at one finite place.
 
 -/
 
@@ -54,19 +61,6 @@ lemma adicCompletionUniformizer_ne_zero (v : HeightOneSpectrum A) :
 noncomputable def adicCompletionUniformizerUnit (v : HeightOneSpectrum A) :
     (v.adicCompletion K)ˣ :=
   .mk0 (v.adicCompletionUniformizer K) <| v.adicCompletionUniformizer_ne_zero K
-
--- /--
--- The diagonal matrix `(ϖ 0; 0 1)` as a 2x2 matrix in `M_2(𝓞ᵥ)`. Do we even want this?
--- -/
--- noncomputable def pi_zero_zero_one_int (v : HeightOneSpectrum A) :
---     Matrix (Fin 2) (Fin 2) (v.adicCompletionIntegers K) :=
---   .diagonal
---   ![algebraMap A (v.adicCompletionIntegers K) v.intValuation_exists_uniformizer.choose, 1]
-
--- noncomputable def pi_zero_zero_one (v : HeightOneSpectrum A) :
---     GL (Fin 2) (v.adicCompletion K) :=
---   .diagonal
---   ![.mk0 (v.adicCompletionUniformizer K) <| v.adicCompletionUniformizer_ne_zero K, 1]
 
 end HeightOneSpectrum
 
