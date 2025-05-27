@@ -1,7 +1,7 @@
 import FLT.HaarMeasure.HaarChar.Ring
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.LinearAlgebra.Determinant
+import Mathlib.Topology.Algebra.Module.ModuleTopology
 
 namespace MeasureTheory
 

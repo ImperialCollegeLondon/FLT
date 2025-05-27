@@ -1,4 +1,4 @@
-import Mathlib
+import Mathlib.Analysis.Normed.Ring.Lemmas
 
 /-!
 # Fixed points of actions

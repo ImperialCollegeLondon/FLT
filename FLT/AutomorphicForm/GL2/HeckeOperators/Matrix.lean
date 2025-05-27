@@ -1,6 +1,5 @@
-import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct -- needed for RestrictedProduct.mk
 /-
 
 # Matrix-related stuff for Hecke operators for adelic GL_2
@@ -109,4 +108,3 @@ lemma localUnit_eval_of_ne {v : HeightOneSpectrum A} (α : (v.adicCompletion K)�
     [DecidableEq (HeightOneSpectrum A)] (w : HeightOneSpectrum A) (hw : w ≠ v) :
     (localUnit K α).1 w = 1 := by
   simp [localUnit, hw]
-#lint
