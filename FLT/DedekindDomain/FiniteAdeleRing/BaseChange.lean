@@ -12,6 +12,7 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.RingTheory.Finiteness.Pi
@@ -27,6 +28,7 @@ import Mathlib.RingTheory.Valuation.RankOne
 import Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
+import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 
 /-!
 
@@ -60,7 +62,20 @@ namespace IsDedekindDomain
 
 open IsDedekindDomain HeightOneSpectrum
 
-open scoped TensorProduct -- ⊗ notation for tensor product
+open scoped TensorProduct RestrictedProduct -- ⊗ notation for tensor product
+
+section
+variable {R : Type*} [CommRing R]
+variable {ι : Type*} {M : Type*} [AddCommGroup M] [Module R M] [Module.FinitePresentation R M]
+variable {K : ι → Type*} [∀ i, AddCommGroup (K i)] [∀ i, Module R (K i)]
+variable {A : ∀ i, Submodule R (K i)}
+
+def tensor_restrictedProduct_iso :
+  M ⊗[R] (Πʳ i, [K i, A i]) ≃ₗ[R]
+  (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
+  sorry
+--noncomputable def
+end
 
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields.-/
 noncomputable def FiniteAdeleRing.mapRingHom :

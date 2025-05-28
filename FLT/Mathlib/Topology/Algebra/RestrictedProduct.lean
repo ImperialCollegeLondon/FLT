@@ -1,6 +1,7 @@
 import Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
 import Mathlib.Algebra.Group.Submonoid.Units
+import Mathlib.Algebra.Module.Pi
 
 namespace RestrictedProduct
 
@@ -161,3 +162,49 @@ def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
         left_inv u := by ext; rfl
         right_inv ui := by ext; rfl
         map_mul' u v := by ext; rfl
+
+-- The obvious map from the restricted product of (A i) to the (normal) product of (A i)
+-- is an additive monoid homomorphism
+@[to_additive]
+def coeMonoidHom {ι : Type*} {𝓕 : Filter ι} {A : ι → Type*} [∀ i, Monoid (A i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (A i)] [∀ i, SubmonoidClass (S i) (A i)]
+    {B : Π i, S i} : Πʳ i, [A i, B i]_[𝓕] →* Π i, A i where
+  toFun := (↑)
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+section AddCommMonoid
+
+variable {ι : Type*}
+variable {𝓕 : Filter ι}
+variable {A : ι → Type*} [∀ i, AddCommMonoid (A i)]
+variable {S : ι → Type*} -- the idea: pretend `S i = Submonoid (A i)`
+variable [∀ i, SetLike (S i) (A i)] -- `S i` behaves like a type of subsets of `A i`
+  [∀ i, AddSubmonoidClass (S i) (A i)] -- and like a type of submonoids
+variable {B : Π i, S i} -- let `B` be a collection of `S i`'s, so e.g. AddSubmonoids would
+ -- work, but the point is that AddSubgroups, Subrings, Submodule etc etc would also work.
+
+-- restricted product of additive commutative monoids is an additive commutative monoid
+instance : AddCommMonoid (Πʳ i, [A i, B i]_[𝓕]) :=
+  DFunLike.coe_injective.addCommMonoid _ rfl (fun _ _ ↦ rfl) (fun _ _ ↦ rfl)
+
+end AddCommMonoid
+
+section Module
+
+variable {ι : Type*}
+variable {𝓕 : Filter ι}
+variable {R : Type*} [Semiring R] -- modules don't need subtraction or commutativity so use semirings
+variable {A : ι → Type*} [∀ i, AddCommMonoid (A i)] [∀ i, Module R (A i)] -- let Aᵢ be a family of R-modules
+variable {S : ι → Type*} -- the idea: pretend `S i = Submodule R (A i)`
+variable [∀ i, SetLike (S i) (A i)] -- `S i` behaves like a type of subsets of `A i`
+  [∀ i, AddSubmonoidClass (S i) (A i)] [∀ i, SMulMemClass (S i) R (A i)] -- `S i` behaves like
+  -- a type of additive submonoids of `A i` which are closed under the action of `R`
+  -- We can now say that `S` is an "R-submodule class".
+variable {B : Π i, S i} -- let `B` be a collection of `S i`'s, so e.g. R-submodules would work
+ -- but the point is that `R`-subalgebras would also work.
+
+instance : Module R (Πʳ i, [A i, B i]_[𝓕]) :=
+  DFunLike.coe_injective.module R (M := Π i, A i) coeAddMonoidHom (fun _ _ ↦ rfl)
+
+end Module
