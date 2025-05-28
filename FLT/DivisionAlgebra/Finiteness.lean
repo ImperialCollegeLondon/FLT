@@ -132,8 +132,6 @@ lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
 
--- Need something saying D ⊆ D_𝔸 is discrete
-
 lemma T_finite : Set.Finite (T K D) := by
   have h : Set.Finite ((Y K D) ∩ (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)))
       := by
@@ -142,8 +140,8 @@ lemma T_finite : Set.Finite (T K D) := by
 
       -- Subgroup.isClosed_of_discrete
       sorry
-    · -- follows form D being discrete
-
+    ·
+      -- follows form D being discrete
       sorry
   have h1 : Units.val '' T K D ⊆ (Y K D) ∩
       (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
@@ -186,12 +184,22 @@ lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
   have h2 : IsCompact (M K D) := by
     apply Topology.IsClosedEmbedding.isCompact_preimage
     · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap ?_ ?_ ?_
-      · -- need to show continuity
+      · rw [incl₂]
+        refine continuous_induced_rng.mp ?_
+        have := MeasureTheory.ringHaarChar_continuous D_𝔸
+        -- think it is an application of this somewhere?
         sorry
-      · -- need to show injectivity
-        sorry
-      · -- not sure if this is the same as closed immersion?
-        sorry
+      · intro a b eq
+        simp_rw [incl₂] at eq
+        aesop
+      · refine Topology.IsInducing.isClosedMap ?_ ?_
+        · -- true by definition?
+          sorry
+        · -- true as ringHaarChar_ker is closed... so their inclusions i, i⁻¹ are closed
+          simp_rw [incl₂]
+          simp only [Subgroup.coe_subtype]
+
+          sorry
     · exact Aux.C_compact K D
   have h3 : (MtoQuot K D) '' (M K D) = Set.univ := by
     ext x
@@ -247,11 +255,13 @@ noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 variable [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)] -- not sure why I need to restate these from
-  -- the start of the file?
+  [BorelSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
 
 def rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
-  -- this should just be the restriction after removing infinite places
+  fun a => --((Subgroup.subtype (ringHaarChar_ker D_𝔸)) a)
+
+           -- the RHS is tensoring over all places; just need to work out how to remove the infinite
+           -- ones... this should be a .2 somewhere; not sure how to do this restriction in Lean
   sorry
 
 def α : (ringHaarChar_ker D_𝔸 ⧸ (MonoidHom.range
@@ -259,16 +269,27 @@ def α : (ringHaarChar_ker D_𝔸 ⧸ (MonoidHom.range
     → (Dfx K D ⧸ (incl₁ K D).range) :=
   fun a => Quot.mk _  (rest₁ K D a.out)
 
+local instance : TopologicalSpace (Dfx K D ⧸ (incl₁ K D).range) :=
+  QuotientGroup.instTopologicalSpace _
+
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
   have h1 : Continuous (α K D) := by
-    -- need to give quotient topology on RHS, then 'readily verified'
+    refine continuous_iff_isClosed.mpr ?_
+    intro S hS
+    -- this will be true as you only need to adjoin infinite places which will also be closed
+    -- (maybe?...)
+
     sorry
   have h3 : (α K D) '' Set.univ = Set.univ := by
     ext a
     simp only [Subgroup.comap_subtype, Set.image_univ, Set.mem_range, Set.mem_univ, iff_true]
-    -- surjective; the main hard part of the theorem
-    -- also not convinced I have the right setup
+     -- need y to be Quot.mk _ (a.out ⊕ infinite places such that in kernel)
+     -- so need a have statement saying that for a ∃ t in the infinite places with
+     -- haar measure δ(1,t) = r
+     -- then can show haar measure of (a.out, t) = 1
+     -- this will by definition have exactly as wanted by construction
+     -- may need to ask for help writing this as a statement; not used to Haar character stuff
     sorry
   have := isCompact_univ_iff.mpr (NumberField.AdeleRing.DivisionAlgebra.compact_quotient K D)
   apply isCompact_univ_iff.mp
@@ -304,24 +325,53 @@ instance units : Subgroup (Dfx K D) where
     use a1⁻¹
     exact MonoidHom.map_inv (incl₁ K D) a1
 
-namespace Doset
+open Doset
+
+theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
+    Finite (Quotient (H : Set G) K) ↔ ∃ I : Finset (Quotient (H : Set G) K), Set.univ = ⋃ i : I,
+    quotToDoset H K i.1 := by
+  constructor
+  · intro I
+    use I -- not sure how to coerce this to what I want right now
+    -- then apply union_quotToDoset
+    sorry
+  · intro ⟨I, hI⟩
+    -- need to create a surjection based on I; should be doable?
+    sorry
 
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Quotient (Set.range (incl₁ K D)) (U : Set (Dfx K D))) := by
   refine Set.finite_univ_iff.mp ?_
+  apply (Iff.symm Set.finite_univ_iff).mp
+  apply (Doset.finite (units K D) U).mpr
   have openCover := union_quotToDoset (units K D) (U)
-  have descendedCover : ⋃ q, quotToDoset (units K D) U q = ((Dfx K D ⧸ (incl₁ K D).range)) := by
+  simp_rw [quotToDoset] at openCover
+  simp_rw [← (doset_union_rightCoset (units K D) U)] at openCover -- maybe need left instead??
 
-    sorry
+
+
   have ToFinCover := isCompact_univ_iff.mpr
       (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
   apply isCompact_iff_finite_subcover.mp at ToFinCover
-  -- want to apply LHS of descended cover has finite subcover (i.e. finite disjoint union)
-  -- and imply this means finite?
+
+  -- some how want to push openCover down to an openCover of the left quotient
+  -- then apply ToFinCover
+  -- then push this cover up??
+
+/-
+  -- Just realised ToFinCover requires the wrong Set.univ... :/ may need something to transfer
+  -- between the two. Or need to actually do this all myself?
+
+  have ToFinCover := isCompact_univ_iff.mpr
+      (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
+  apply isCompact_iff_finite_subcover.mp at ToFinCover
+
+
+  -- Need to apply FinCover with found statements to get our final claim
+-/
 
   sorry
 
-end Doset
 
 end FiniteAdeleRing
