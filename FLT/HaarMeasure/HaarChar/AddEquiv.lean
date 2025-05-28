@@ -244,8 +244,8 @@ open scoped Pointwise in
 /-- Any compact subset `K` of a locally compact group is contained in an open set `U` which is
 itself contained in a compact set `C`. -/
 @[to_additive]
-lemma _root_.IsTopologicalGroup.compact_subset_open_subset_compact [MeasurableSpace G] {K : Set G}
-    (hK : IsCompact K) : ∃ (U : Set G) (C : Set G), IsOpen U ∧ IsCompact C ∧ K ⊆ U ∧ U ⊆ C := by
+lemma _root_.IsTopologicalGroup.compact_subset_open_subset_compact {K : Set G} (hK : IsCompact K) :
+    ∃ (U : Set G) (C : Set G), IsOpen U ∧ IsCompact C ∧ K ⊆ U ∧ U ⊆ C := by
   have ⟨C₀, hC₀1, _, hC₀⟩ := local_compact_nhds (x := (1 : G)) Filter.univ_mem -- Compact nhd of 1
   have ⟨U₀, hU₀, hU₀open, one_mem_U₀⟩ := mem_nhds_iff.mp hC₀1
   have h : ∀ g, g ∈ g • U₀ := fun _ ↦ ⟨1, one_mem_U₀, by simp⟩
