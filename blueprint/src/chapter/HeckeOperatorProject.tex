@@ -1,0 +1,163 @@
+\chapter{Miniproject: Hecke Operators}\label{HeckeOperator_project}
+
+\section{Status}
+
+This is an active miniproject. The abstract theory is completely formalized;
+at the time of writing the concrete theory has no sorried definitions
+but it does have some sorried proofs.
+
+\section{The goal}
+
+The goal of this project is to get sorry-free definitions of Hecke operators
+acting on spaces of automorphic forms. The theory comes in two parts;
+the ``abstract'' theory, which is pure algebra, and the ``concrete'' theory
+where we apply the abstract constructions to produce endomorphisms of
+spaces of automorphic forms.
+
+\section{The abstract theory}
+
+\subsection{Introduction}
+
+The set-up: we have a commutative ring $R$, the coefficient ring, and
+all of our spaces which the operators act on will be $R$-modules.
+
+We have a group $G$ acting $R$-linearly on an $R$-module $A$.
+
+We have subgroups $U$ and $V$ of $G$
+We will be particularly interested in the $R$-modules $A^U$ and $A^V$
+of invariant elements.
+
+Given an element $g\in G$, then under a certain finiteness hypothesis
+we will be able to define an $R$-linear map $T_g$ or $[UgV]$
+from $A^V$ to $A^U$. The finiteness hypothesis is that the
+double coset $UgV$ can be written as a finite union of single
+cosets $g_iV$.
+
+\begin{definition}
+  \lean{AbstractHeckeOperator.HeckeOperator_toFun}
+  \label{AbstractHeckeOperator.HeckeOperator_toFun}
+  \leanok
+  Assuming $UgV$ is a finite union of cosets $g_iV$,
+  we define $[UgV]:A^V\to A^U$ to be the map sending $a\in A^V$
+  to $\sum_i g_ia.$
+\end{definition}
+
+\begin{lemma}
+  \lean{AbstractHeckeOperator.HeckeOperator}
+  \label{AbstractHeckeOperator.HeckeOperator}
+  \uses{AbstractHeckeOperator.HeckeOperator_toFun}
+  \leanok
+  This function is well-defined (that is, independent of the
+  choice of $g_i$), has image in $A^U$ and is $R$-linear.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Well-definedness is because if we change $g_i$ to $g'_i:=g_iv$
+  for some $v\in V$ then $g_ia=g_i'a$ because $a\in A^V$.
+
+  The image lands in $A^U$ because left multiplication by $u$
+  fixes $UgV$ and hence permutes the cosets $g_iV$.
+
+  Finally $R$-linearity is because the $G$-action is $R$-linear.
+\end{proof}
+
+The group $G$ is not in general commutative, and hence if $U=V$
+the Hecke operators in this generality do not in general commute
+as endomorphisms of $A^U$. Here is a criterion for
+them to commute.
+
+\begin{lemma}
+  \lean{AbstractHeckeOperator.comm}
+  \label{AbstractHeckeOperator.comm}
+  \uses{AbstractHeckeOperator.HeckeOperator}
+  \leanok
+  Say $g,h\in G$ and we have $UgU=\coprod_i g_iU$
+  and $UhU=\coprod_j h_j$ and we have $g_ih_j=h_jg_i$ for all $i,j$.
+  Then $[UgU][UhU]=[UhU][UgU]$, that is, the Hecke operators
+  acting on $A^U$ commute.
+\end{lemma}
+\begin{proof}
+  \leanok
+  We have $[UgU][UhU]a=\sum_ig_i(\sum_jh_ja)=\sum_{i,j}g_ih_ja$
+  and $[UhU][UgU]a=\sum_jh_j\sum_ig_ia=\sum_{j,i}h_jg_ia$ and these
+  sums are equal because $g_ih_j=h_jg_i$.
+\end{proof}
+
+\section{The concrete theory}
+
+Note that the abstract theory relies on this finiteness hypothesis that $UgV$
+is a finite union of cosets $g_iV$. In our application of this theory our group
+$G$ has a topology, and $U$ and $V$ will always be open and compact subgroups.
+The following lemma gives us the hypothesis for free.
+
+\begin{lemma}
+  \lean{QuotientGroup.mk_image_finite_of_compact_of_open}
+  \label{QuotientGroup.mk_image_finite_of_compact_of_open}
+  \discussion{563}
+  \leanok
+  If $U$ and $V$ are compact subgroups of a topological group~$G$,
+  if $V$ is also open, and if $g\in G$, then the double coset space $UgV$
+  is a finite union of left cosets $g_iV$.
+\end{lemma}
+\begin{proof}
+  The subset $UgV$ of $G$ is a continuous image of the compact set $U\times V$
+  and is hence compact, and it is covered by the disjoint left cosets $g_iV$;
+  this cover must thus be finite.
+\end{proof}
+
+In the concrete theory, we will need to do various computations with the
+group $G$ which we are interested in, so we discuss this next. The group $G$
+can be described as a restricted product, so we briefly review that theory
+first.
+
+\subsection{Restricted products}
+
+If $I$ is an index set, if $X_i$ are sets indexed by $i\in I$ and if $Y_i$
+are subsets, then the \emph{restricted product} $\prod_i'X_i$ is defined
+to be the subset of the full product $\prod_i X_i$ consisting of those
+tuples $(x_i)$ such that $x_i\in Y_i$ for all but finitely many~$i$. We suppress
+the $Y_i$ from the notation in this document, although in Lean we cannot do this and
+the restricted product is written as {\tt Πʳ i, [X i, Y i]}.
+
+It is straightforward to check that if the $X_i$ are groups or rings or $R$-modules,
+and the $Y_i$ are subgroups or subrings or submodules, then the restricted product
+is a group, ring or $R$-module; indeed the structure is inherited via the
+inclusion $\prod'_iX_i\subseteq\prod_iX_i$.
+
+More subtle is the theory of topological space structures. If the $X_i$
+are topological spaces then we do \emph{not} give $\prod'_iX_i$ the subspace
+topology coming from the product topology on $\prod_iX_i$; instead we give
+it the finest topology making all of the
+natural maps $\prod_{i\in S}X_i\times\prod_{i\notin S}Y_i\to \prod'_iX_i$ continuous,
+as $S$ runs through all finite subsets of~$I$; here product of $X_i$ and $Y_i$ has
+the product topology. For example if all of the $Y_i$ are nonempty, open and strictly
+contained within $X_i$, then one can check that $\prod_iY_i$ is an open subset of
+$\prod'_iX_i$ (this is \tt{RestrictedProduct.isOpen\_forall\_mem} in mathlib),
+whereas it is not of the form $\prod'_iX_i\cap U$ for any open subset of $\prod_iX_i$.
+
+Here are some basic facts we need about restricted products.
+
+\begin{lemma} If $X_i$ are topological rings and the $Y_i$ are open subrings,
+  then $M_n(\prod'_iX_i)\cong \prod'_iM_n(X_i)$, with restricted product
+  on the right being over the subrings $M_n(Y_i)\subseteq M_n(X_i)$. The isomorphism
+  is both algebraic and topological.
+\end{lemma}
+\begin{proof} The algebraic isomorphism is straightforward -- just follow your nose.
+  The topological claim perhaps needs more explanation. We check that the obvious
+  maps in each direction are continuous.
+
+  The universal property of the topology on the restricted product (which is in
+  mathlib) tells us that
+  the map from the restricted product to the product is continuous iff it is continuous
+  when restricted to $\prod_{i\in S}M_n(X_i)\times\prod_{i\notin S}M_n(Y_i)$.
+  The topology on $M_n(\prod'_iX_i)$
+  is the product topology, coming from the identification $M_n(R)\cong R^{n^2}$.
+  A map to a product is continuous iff the projection to each factor is continuous.
+  A product of continuous functions is continuous, and the map from $M_n(R)$ to $R$
+  sending a matrix to its $(i,j)$th factor is continuous. Finally, the map from
+  $\prod_{i\in S}X_i\times\prod_{i\notin S}Y_i$ to $\prod'_i X_i$ is continuous
+  (this is in mathlib).
+
+  To go the other way we seem to need a bit more of the structure, unless I am
+  missing something.
+\end{proof}
