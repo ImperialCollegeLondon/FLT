@@ -4,7 +4,7 @@ import Mathlib.Topology.Algebra.LinearTopology
 import Mathlib.Topology.Instances.Matrix
 import Mathlib.Topology.UniformSpace.DiscreteUniformity
 
-lemma exists_ideal_isMaximal_and_isOpen_of_isLinearTopology
+lemma IsLinearTopology.exists_ideal_isMaximal_and_isOpen
     (R : Type*) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
     [IsLinearTopology R R] [Nontrivial R] [T0Space R] :
     ∃ I : Ideal R, I.IsMaximal ∧ IsOpen (X := R) I := by
@@ -24,7 +24,7 @@ def Units.mapₜ {M N : Type*} [Monoid M] [Monoid N] [TopologicalSpace M] [Topol
 /-- The `ContinuousAlgHom` between spaces of square matrices induced by an `ContinuousAlgHom`
 between their coefficients. This is Matrix.map as an `ContinuousAlgHom`. -/
 @[simps!]
-def _root_.ContinuousAlgHom.mapMatrix
+def ContinuousAlgHom.mapMatrix
     {R A B n : Type*} [CommSemiring R] [Semiring A] [Semiring B] [TopologicalSpace A]
     [TopologicalSpace B] [Algebra R A] [Algebra R B] (f : A →A[R] B)
     [Fintype n] [DecidableEq n] :
@@ -32,13 +32,13 @@ def _root_.ContinuousAlgHom.mapMatrix
   ⟨f.1.mapMatrix, Continuous.matrix_map continuous_id' f.2⟩
 
 /-- Coerce a `ContinuousAlgHom` to `ContinuousMonoidHom`. -/
-def _root_.ContinuousAlgHom.toContinuousMonoidHom
+def ContinuousAlgHom.toContinuousMonoidHom
     {R A B : Type*} [CommSemiring R] [Semiring A] [Semiring B] [TopologicalSpace A]
     [TopologicalSpace B] [Algebra R A] [Algebra R B] (f : A →A[R] B) : A →ₜ* B :=
   ⟨f.1.toMonoidHom, f.2⟩
 
 @[simp]
-lemma _root_.ContinuousAlgHom.coe_toContinuousMonoidHom
+lemma ContinuousAlgHom.coe_toContinuousMonoidHom
     {R A B : Type*} [CommSemiring R] [Semiring A] [Semiring B] [TopologicalSpace A]
     [TopologicalSpace B] [Algebra R A] [Algebra R B] (f : A →A[R] B) :
     (f.toContinuousMonoidHom : A → B) = f := rfl

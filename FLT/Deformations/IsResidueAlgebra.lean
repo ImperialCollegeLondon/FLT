@@ -5,12 +5,11 @@ import FLT.Deformations.Lemmas
 
 open Function IsLocalRing
 
-variable (𝓞 : Type*)
-  [CommRing 𝓞] [IsLocalRing 𝓞]
+variable (𝓞 : Type*) [CommRing 𝓞]
 
 local notation3:max "𝓴" 𝓞:max => (IsLocalRing.ResidueField 𝓞)
 
-variable (A : Type*) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A] [IsLocalHom (algebraMap 𝓞 A)]
+variable (A : Type*) [CommRing A] [Algebra 𝓞 A] [IsLocalRing A]
 
 /--
 `IsResidueAlgebra 𝓞` indicates that `A` `[Algebra 𝓞 A]` has the same residue field as `𝓞`.
@@ -24,20 +23,21 @@ namespace IsResidueAlgebra
 
 variable [IsResidueAlgebra 𝓞 A]
 
-omit [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] in
 lemma algebraMap_surjective : Surjective (algebraMap 𝓞 (𝓴 A)) := isSurjective'
 
+variable [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] in
 lemma algebraMap_bijective : Bijective (algebraMap (𝓴 𝓞) (𝓴 A)) := by
   have hsurj1 := IsLocalRing.residue_surjective (R := 𝓞)
   have hsurj2 := IsResidueAlgebra.algebraMap_surjective 𝓞 A
   exact ⟨(algebraMap (𝓴 𝓞) (𝓴 A)).injective,
     (Function.Surjective.of_comp_iff (algebraMap (𝓴 𝓞) (𝓴 A)) hsurj1).mp hsurj2⟩
 
+variable [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] in
 /-- The isomorphism of residue fields for a residue algebra. -/
 noncomputable def algEquiv : 𝓴 𝓞 ≃ₐ[𝓞] 𝓴 A :=
   .ofBijective (IsScalarTower.toAlgHom _ _ _) (algebraMap_bijective _ _)
 
-instance : IsResidueAlgebra 𝓞 𝓞 := ⟨IsLocalRing.residue_surjective⟩
+instance [IsLocalRing 𝓞] : IsResidueAlgebra 𝓞 𝓞 := ⟨IsLocalRing.residue_surjective⟩
 
 section Quotient
 
@@ -54,7 +54,7 @@ section Relative
 variable {𝓞 A}
 variable {B : Type*} [CommRing B] [Algebra 𝓞 B] [IsLocalRing B] [IsResidueAlgebra 𝓞 B]
 
-omit [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] [IsLocalRing A] [IsResidueAlgebra 𝓞 A] in
+omit [IsLocalRing A] [IsResidueAlgebra 𝓞 A] in
 lemma of_restrictScalars [Algebra A B] [IsScalarTower 𝓞 A B] : IsResidueAlgebra A B where
   isSurjective' := by
     refine .of_comp (g := algebraMap 𝓞 A) ?_
@@ -67,7 +67,6 @@ open IsLocalRing
 
 variable {A}
 
-omit [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] in
 lemma exists_sub_mem_maximalIdeal (r : A) : ∃ a, r - algebraMap 𝓞 A a ∈ maximalIdeal _ := by
   obtain ⟨a, ha⟩ := IsResidueAlgebra.algebraMap_surjective 𝓞 _ (residue _ r)
   refine ⟨a, ?_⟩
@@ -78,14 +77,13 @@ lemma exists_sub_mem_maximalIdeal (r : A) : ∃ a, r - algebraMap 𝓞 A a ∈ m
 noncomputable
 def preimage (r : A) : 𝓞 := (exists_sub_mem_maximalIdeal 𝓞 r).choose
 
-omit [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] in
 lemma preimage_spec (r : A) : r - algebraMap 𝓞 A (preimage 𝓞 r) ∈ maximalIdeal _ :=
   (exists_sub_mem_maximalIdeal 𝓞 r).choose_spec
 
-omit [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] in
 lemma residue_preimage (r : A) : residue _ (algebraMap _ _ (preimage 𝓞 r)) = residue _ r :=
   (Ideal.Quotient.eq.mpr (preimage_spec 𝓞 r)).symm
 
+variable [IsLocalRing 𝓞] [IsLocalHom (algebraMap 𝓞 A)] in
 lemma residue_preimage_eq_iff {r : A} {a} :
     residue _ (preimage 𝓞 r) = a ↔ residue _ r = ResidueField.map (algebraMap 𝓞 A) a := by
   rw [← (IsResidueAlgebra.algebraMap_bijective 𝓞 A).1.eq_iff]

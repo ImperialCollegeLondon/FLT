@@ -69,9 +69,9 @@ instance : Category (ProartinianCat 𝓞) where
 variable {𝓞} in
 /-- Typecheck an `ContinuousAlgHom` as a morphism in `ProartinianCat`. -/
 abbrev ofHom {A B : Type u}
-  [CommRing A] [Algebra 𝓞 A] [TopologicalSpace A] [IsLocalProartinianAlgebra 𝓞 A]
-  [CommRing B] [Algebra 𝓞 B] [TopologicalSpace B] [IsLocalProartinianAlgebra 𝓞 B]
-  (f : A →A[𝓞] B) [IsLocalHom f]:
+    [CommRing A] [Algebra 𝓞 A] [TopologicalSpace A] [IsLocalProartinianAlgebra 𝓞 A]
+    [CommRing B] [Algebra 𝓞 B] [TopologicalSpace B] [IsLocalProartinianAlgebra 𝓞 B]
+    (f : A →A[𝓞] B) [IsLocalHom f] :
     of 𝓞 A ⟶ of 𝓞 B := ⟨f⟩
 
 variable {𝓞}

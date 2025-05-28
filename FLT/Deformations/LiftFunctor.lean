@@ -32,7 +32,7 @@ def toRepresentation {R} (ρ : (repnFunctor n G 𝓞).obj R) :
 variable (n)
 
 /-- `repnQuotFunctor n G 𝓞` is the functor taking `R` to continuous reps `G → GLₙ(R)` up to
-conjucation by some `γ` in the kernel of `GLₙ(R) → GLₙ(𝕜)`. -/
+conjugation by some `γ` in the kernel of `GLₙ(R) → GLₙ(𝕜)`. -/
 noncomputable
 def repnQuotFunctor : ProartinianCat 𝓞 ⥤ Type u where
   obj R := MulAction.orbitRel.Quotient ((Matrix.GeneralLinearGroup.map (n := n)
@@ -62,7 +62,7 @@ def liftFunctor (ρ : (repnFunctor n G 𝓞).obj .residueField) : Subfunctor (re
   .ofIsTerminal _ ProartinianCat.isTerminalResidueField {ρ}
 
 /-- `deformationFunctor n G 𝓞` is the functor taking `R` to lifts `G → GLₙ(R)` of `ρ : G → GLₙ(𝕜)`,
-up to conjucation by some `γ` in the kernel of `GLₙ(R) → GLₙ(𝕜)`. -/
+up to conjugation by some `γ` in the kernel of `GLₙ(R) → GLₙ(𝕜)`. -/
 noncomputable
 def deformationFunctor (ρ : (repnFunctor n G 𝓞).obj .residueField) :
     Subfunctor (repnQuotFunctor n G 𝓞) :=

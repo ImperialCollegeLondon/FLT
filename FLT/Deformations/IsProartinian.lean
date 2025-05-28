@@ -7,37 +7,31 @@ variable {R S : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
 
 variable (R) in
 /-- A topological ring is proartinian if it is linearly topologized, complete hausdorff,
-and all its discrete quotients are artinian. -/
-class IsProartinian : Prop where
-  toIsLinearTopology : IsLinearTopology R R
-  toT0Space : T0Space R
-  toCompleteSpace : letI := IsTopologicalAddGroup.toUniformSpace R; CompleteSpace R
-  isArtinianRing_quotient : ∀ I : Ideal R, IsOpen (X := R) I → IsArtinianRing (R ⧸ I)
+and all its discrete quotients are artinian.
+
+This is also called the category of "pseudo-compact" rings in section 0 of Exp VII_B of SGA3. -/
+class IsProartinian : Prop extends IsLinearTopology R R, T0Space R,
+    letI := IsTopologicalAddGroup.toUniformSpace R; CompleteSpace R where
+  isArtinianRing_quotient (I : Ideal R) : IsOpen (X := R) I → IsArtinianRing (R ⧸ I)
 
 attribute [instance low] IsProartinian.toIsLinearTopology
   IsProartinian.toT0Space IsProartinian.toCompleteSpace
 
 lemma isProartinian_iff_isArtinianRing [DiscreteTopology R] :
     IsProartinian R ↔ IsArtinianRing R := by
-  constructor
-  · intro _
-    have := IsProartinian.isArtinianRing_quotient (⊥ : Ideal R) (isOpen_discrete _)
+  constructor <;> intro
+  · have := IsProartinian.isArtinianRing_quotient (⊥ : Ideal R) (isOpen_discrete _)
     exact (RingEquiv.quotientBot R).surjective.isArtinianRing
-  · intro _
-    exact ⟨inferInstance, inferInstance, inferInstance, fun I _ ↦ inferInstance⟩
+  · exact ⟨fun I _ ↦ inferInstance⟩
 
 instance [DiscreteTopology R] [IsArtinianRing R] : IsProartinian R := by
   rwa [isProartinian_iff_isArtinianRing]
 
 instance [IsLocalRing R] [IsLocalRing.IsAdicTopology R] [IsNoetherianRing R] [CompactSpace R] :
-    IsProartinian R := by
-  constructor
-  · infer_instance
-  · infer_instance
-  · infer_instance
-  · intro I hI
+    IsProartinian R where
+  isArtinianRing_quotient I hI :=
     have : Finite (R ⧸ I) := AddSubgroup.quotient_finite_of_isOpen _ hI
-    infer_instance
+    inferInstance
 
 section IsLocalRing
 
@@ -47,7 +41,7 @@ variable [IsLocalRing R] [IsLocalRing S]
 
 lemma isOpen_maximalIdeal_of_isProartinian [IsProartinian R] :
     IsOpen (X := R) (maximalIdeal R) := by
-  obtain ⟨I, hI, hI'⟩ := exists_ideal_isMaximal_and_isOpen_of_isLinearTopology R
+  obtain ⟨I, hI, hI'⟩ := IsLinearTopology.exists_ideal_isMaximal_and_isOpen R
   exact (isMaximal_iff _).mp hI ▸ hI'
 
 lemma exists_maximalIdeal_pow_le_of_isProartinian [IsProartinian R]
