@@ -23,7 +23,8 @@ instance : Module.Finite (AdeleRing (𝓞 K) K) (B ⊗[K] AdeleRing (𝓞 K) K) 
 noncomputable instance : TopologicalSpace (B ⊗[K] AdeleRing (𝓞 K) K) :=
   moduleTopology (AdeleRing (𝓞 K) K) _
 
--- AdeleRing is locally compacy, B/K is finite
+-- AdeleRing is locally compact, B/K is finite so B ⊗ 𝔸 is B-finite,
+-- tensor product has module topology so done
 instance : LocallyCompactSpace (B ⊗[K] AdeleRing (𝓞 K) K) := sorry
 
 local instance : IsModuleTopology (AdeleRing (𝓞 K) K) (B ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
@@ -36,3 +37,5 @@ variable [MeasurableSpace (B ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (B ⊗[K]
 lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker (b : Bˣ) :
   (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
     (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈ ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := sorry
+
+#synth Algebra ℚ K
