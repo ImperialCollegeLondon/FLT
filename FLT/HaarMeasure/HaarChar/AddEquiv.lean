@@ -240,13 +240,95 @@ variable {G : Type*} [Group G] [TopologicalSpace G]
     {H : Type*} [Group H] [TopologicalSpace H]
     [IsTopologicalGroup H] [LocallyCompactSpace H]
 
+open scoped Pointwise in
+/-- Any compact subset `K` of a locally compact group is contained in an open set `U` which is
+itself contained in a compact set `C`. -/
+@[to_additive]
+lemma _root_.IsTopologicalGroup.compact_subset_open_subset_compact [MeasurableSpace G] {K : Set G}
+    (hK : IsCompact K) : ∃ (U : Set G) (C : Set G), IsOpen U ∧ IsCompact C ∧ K ⊆ U ∧ U ⊆ C := by
+  have ⟨C₀, hC₀1, _, hC₀⟩ := local_compact_nhds (x := (1 : G)) Filter.univ_mem -- Compact nhd of 1
+  have ⟨U₀, hU₀, hU₀open, one_mem_U₀⟩ := mem_nhds_iff.mp hC₀1
+  have h : ∀ g, g ∈ g • U₀ := fun _ ↦ ⟨1, one_mem_U₀, by simp⟩
+  have ⟨I, hI⟩ := hK.elim_finite_subcover (· • U₀) hU₀open.smul fun x _ ↦ Set.mem_iUnion.2 ⟨x, h x⟩
+  refine ⟨(⋃ i ∈ I, i • U₀), (⋃ i ∈ I, i • C₀), isOpen_biUnion (fun i _ ↦ hU₀open.smul i),
+    I.isCompact_biUnion (fun i _ ↦ hC₀.smul i), hI, fun x hx ↦ ?_⟩
+  simp only [Set.mem_iUnion, exists_prop] at hx
+  have ⟨i₀, hi₀⟩ := hx
+  exact Set.mem_iUnion.mpr ⟨i₀, by simpa [hi₀] using Set.smul_set_mono hU₀ hi₀.2⟩
+
+open scoped Pointwise in
 @[to_additive MeasureTheory.addEquivAddHaarChar_prodCongr]
 lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     [MeasurableSpace H] [BorelSpace H] (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H) :
     letI : MeasurableSpace (G × H) := borel _
     haveI : BorelSpace (G × H) := ⟨rfl⟩
     mulEquivHaarChar (φ.prodCongr ψ) = mulEquivHaarChar φ * mulEquivHaarChar ψ := by
-  sorry -- FLT#520
+  letI : MeasurableSpace (G × H) := borel _
+  have : BorelSpace (G × H) := ⟨rfl⟩
+  have ⟨K, hK, _, hKcomp⟩ := local_compact_nhds (x := (1 : H)) Filter.univ_mem
+  have ⟨Y, hY, hYopen, one_mem_Y⟩ := mem_nhds_iff.mp hK
+  have hY0 : haar Y ≠ 0 :=
+    (isHaarMeasure_haarMeasure _).open_pos Y hYopen ⟨1, one_mem_Y⟩
+  -- Define the measure `ν`
+  let f (s : Set G) (hs : MeasurableSet s) := haar (s ×ˢ Y)
+  let m : OuterMeasure G := inducedOuterMeasure f (by simp) (by simp [f])
+  have h ⦃S : ℕ → Set G⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i))
+      (hS' : Pairwise (Function.onFun Disjoint S)) :
+      haar ((⋃ i, S i) ×ˢ Y) = ∑' (i : ℕ), haar (S i ×ˢ Y) := by
+    rw [Set.iUnion_prod_const]
+    exact haar.m_iUnion (prod_le_borel_prod _ <| hS ·|>.prod hYopen.measurableSet)
+      (fun _ _ neq ↦ by simp [hS' neq])
+  let ν : Measure G := {
+    toOuterMeasure := m
+    m_iUnion S hS hS' := by
+      convert h hS hS'
+      · exact inducedOuterMeasure_eq _ h (MeasurableSet.iUnion hS)
+      · exact inducedOuterMeasure_eq _ h (hS _)
+    trim_le S := by
+      apply le_inducedOuterMeasure.mpr fun s hs ↦ by
+        rwa [← inducedOuterMeasure_eq (m := f) _ h hs, OuterMeasure.trim_eq]
+  }
+  -- Prove ν is a Haar Measure
+  have hν : IsHaarMeasure ν := {
+    lt_top_of_isCompact C hC := by
+      change m C < _
+      have ⦃S : ℕ → Set G⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i)) :
+          haar ((⋃ i, S i) ×ˢ Y) ≤ ∑' (i : ℕ), haar (S i ×ˢ Y) := by
+        rw [Set.iUnion_prod_const]
+        exact measure_iUnion_le _
+      rw [inducedOuterMeasure_eq_iInf _ this, iInf_lt_top]
+      · have ⟨U, C', hU, hC', hKU, hUC'⟩ := IsTopologicalGroup.compact_subset_open_subset_compact hC
+        refine ⟨U, iInf_lt_iff.mpr ⟨hU.measurableSet, iInf_lt_iff.mpr ⟨hKU, ?_⟩⟩⟩
+        apply lt_of_le_of_lt (measure_mono <| Set.prod_mono hUC' hY)
+        exact (hC'.prod hKcomp).measure_ne_top.symm.lt_top'
+      · exact fun s₁ s₂ _ _ sub ↦ measure_mono <| Set.prod_mono sub (subset_refl _)
+      · exact fun S hS ↦ MeasurableSet.iUnion hS
+    map_mul_left_eq_self g := by
+      ext S hS
+      rw [map_apply (measurable_const_mul g) hS]
+      change m _ = m S
+      have hS' : MeasurableSet ((fun x ↦ g * x) ⁻¹' S) := by
+        convert MeasurableSet.const_smul hS g⁻¹ using 1
+        refine subset_antisymm (fun x hx ↦ ?_) (fun x hx ↦ ?_)
+        · use g * x, Set.mem_preimage.mp hx, by simp
+        · have ⟨s, ⟨_, hs⟩⟩ := hx; simpa [← hs]
+      rw [inducedOuterMeasure_eq _ h hS, inducedOuterMeasure_eq _ h hS']
+      unfold f
+      suffices ((g * ·) ⁻¹' S) ×ˢ Y = (g⁻¹, (1 : H)) • (S ×ˢ Y) from this ▸ measure_smul haar _ _
+      refine subset_antisymm (fun ⟨x, y⟩ hxy ↦ ?_) (fun ⟨x, y⟩ hxy ↦ ?_)
+      · have ⟨⟨x', y'⟩, h₁, h₂⟩ := hxy
+        have ⟨_, _⟩ := Set.mem_prod.mp h₁
+        simp only [smul_eq_mul, Prod.mk_mul_mk, one_mul, Prod.mk.injEq] at h₂
+        constructor <;> simpa [← h₂.1, ← h₂.2]
+      · use ⟨g • x, y⟩, hxy, by simp
+    open_pos U hUopen hU := by
+      change m U ≠ 0
+      rw [inducedOuterMeasure_eq _ h hUopen.measurableSet]
+      apply (isHaarMeasure_haarMeasure _).open_pos _ (hUopen.prod hYopen)
+      exact Set.Nonempty.prod hU <| nonempty_of_measure_ne_zero hY0
+  }
+
+  sorry
 
 end prod
 
