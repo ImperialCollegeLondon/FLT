@@ -1,6 +1,7 @@
-import FLT.Deformations.Subfunctor
-import Mathlib
 import FLT.Deformations.Categories
+import FLT.Deformations.Subfunctor
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+import Mathlib.RepresentationTheory.Basic
 
 open CategoryTheory IsLocalRing
 
