@@ -192,8 +192,8 @@ def Homeomorph.restrictedProductProd {ι : Type*}
     {D : (i : ι) → Set (B i)} (hCopen : ∀ (i : ι), IsOpen (D i)) :
     Πʳ i, [A i × B i, C i ×ˢ D i] ≃ₜ (Πʳ i, [A i, C i]) × (Πʳ i, [B i, D i]) where
       __ := Equiv.restrictedProductProd
-      continuous_toFun := sorry
-      continuous_invFun := sorry
+      continuous_toFun := sorry -- FLT#568
+      continuous_invFun := sorry -- FLT#568
 
 -- Is there a mathlibism for {f | ∀ j, f j ∈ C j i}?
 def Equiv.restrictedProductPi {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintype n]
@@ -201,7 +201,7 @@ def Equiv.restrictedProductPi {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintyp
     {C : (j : n) → (i : ι) → Set (A j i)} :
     Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}]_[ℱ] ≃ Π j, Πʳ i, [A j i, C j i]_[ℱ] where
       toFun x j := ⟨fun i ↦ x i j, by filter_upwards [x.2] with i h; exact h j⟩
-      invFun y := ⟨fun i j ↦ y j i, by sorry⟩
+      invFun y := ⟨fun i j ↦ y j i, by sorry⟩ -- FLT#569
       left_inv x := by ext; rfl
       right_inv y := by ext; rfl
 
@@ -210,5 +210,22 @@ def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
     {C : (j : n) → (i : ι) → Set (A j i)} (hCopen : ∀ j i, IsOpen (C j i)) :
     Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}] ≃ₜ Π j, (Πʳ i, [A j i, C j i]) where
       __ := Equiv.restrictedProductPi
-      continuous_toFun := sorry
-      continuous_invFun := sorry
+      continuous_toFun := sorry -- #570
+      continuous_invFun := sorry -- #570
+
+def Equiv.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
+    {A : ι → Type*}
+    {C : (i : ι) → Set (A i)} :
+    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ Matrix m n (Πʳ i, [A i, C i])  where
+      toFun x a b := ⟨fun i ↦ x i a b, by filter_upwards [x.2] with i h; exact h a b⟩
+      invFun y := ⟨fun i a b ↦ y a b i, by sorry⟩ -- FLT#569
+      left_inv x := by ext; rfl
+      right_inv y := by ext; rfl
+
+def Homeomorph.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
+    {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i)) :
+    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ₜ Matrix m n (Πʳ i, [A i, C i])  where
+      __ := Equiv.restrictedProductMatrix
+      continuous_toFun := sorry  --#571
+      continuous_invFun := sorry --#571

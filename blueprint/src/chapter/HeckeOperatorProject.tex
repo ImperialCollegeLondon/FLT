@@ -113,14 +113,13 @@ The following lemma then gives us the hypothesis for free.
 \end{proof}
 
 In the concrete theory, we will need to do various computations with the
-group $G$ which we are interested in, so we discuss this next. The group $G$
-can be described as a restricted product, so we briefly review that theory
-first.
+specific groups $G$ which we are interested in, and they are restricted products.
+So we briefly review that theory first and explain some of the results we'll need.
 
 \subsection{Restricted products}
 
 If $I$ is an index set, if $X_i$ are sets indexed by $i\in I$ and if $Y_i$
-are subsets, then the \emph{restricted product} $\prod_i'X_i$ is defined
+are subsets, then the \emph{restricted product} $\prod_i'X_i$ (note the dash) is defined
 to be the subset of the full product $\prod_i X_i$ consisting of those
 tuples $(x_i)$ such that $x_i\in Y_i$ for all but finitely many~$i$. We suppress
 the $Y_i$ from the notation in this document, although in Lean we cannot do this and
@@ -142,11 +141,17 @@ has the product topology. For example if all of the $Y_i$ are open
 then one can check that $\prod_iY_i$ is an open subset of
 $\prod'_iX_i$ (this is {\tt RestrictedProduct.isOpen\_forall\_mem} in mathlib),
 whereas it is not of the form $\left(\prod'_iX_i\right)\cap U$ for any open subset~$U$
-of $\prod_iX_i$ in general.
+of $\prod_iX_i$ in general; the map from $\prod'_i X_i$ to $\prod_i X_i$ is continuous
+but is not in general an embedding.
 
 Here are some basic facts we need about restricted products.
 
-\begin{lemma} If $A_i$ is a family of topological spaces equipped with open
+\begin{lemma}
+  \lean{Homeomorph.restrictedProductProd}
+  \label{Homeomorph.restrictedProductProd}
+  \leanok
+  \discussion{568}
+  If $A_i$ is a family of topological spaces equipped with open
   subsets $B_i$, and if $C_i$ is a family of topological spaces equipped
   with open subsets $D_i$, and if we equip $A_i\times C_i$ with the open
   subset $B_i\times D_i$, then the natural bijection
@@ -155,7 +160,7 @@ Here are some basic facts we need about restricted products.
 \end{lemma}
 \begin{remark} This may well not be true if $B_i$ and $D_i$ are not open, because
   filtered colimits and binary products do not appear in general to commute
-  in the category of topological spaces.
+  in the category of topological spaces. I don't know an explicit counterexample though.
 \end{remark}
 \begin{proof} We need to check continuity in both directions. The easy way is
   continuity of the map from the restricted product to the map from the binary
@@ -184,27 +189,50 @@ Here are some basic facts we need about restricted products.
   by definition of the topology on a restricted product.
 \end{proof}
 
-\begin{lemma} If $X_i$ are topological rings and the $Y_i$ are open subrings,
-  then $M_n(\prod'_iX_i)\cong \prod'_iM_n(X_i)$, with restricted product
-  on the right being over the subrings $M_n(Y_i)\subseteq M_n(X_i)$. The isomorphism
-  is both algebraic and topological.
+\begin{corollary}
+  \lean{Homeomorph.restrictedProductPi}
+  \label{Homeomorph.restrictedProductPi}
+  \leanok
+  \discussion{570}
+  Restricted products (with respect to open subspaces) commute with finite products.
+  In other words, if $j$ runs through a finite set $J$ and $i$ runs through an arbitrary
+  set $I$, and if $X_{ji}$ are topological spaces equipped with open subspaces $Y_{ji}$,
+  then the obvious bijection $\prod'_i(\prod_j X_{ji})=\prod_j\left(\prod'_i X_{ji}\right)$
+  is a homeomorphism.
+\end{corollary}
+\begin{proof}
+  \uses{Homeomorph.restrictedProductProd}
+  Induction on the size of the finite set.
+\end{proof}
+
+ Let $n$ be a natural and let $M_n(X)$ for a set $X$ denote ``$n\times n$
+  matrices with coefficient in $X$'', i.e. $X^{n^2}$. If $X$ is a topological
+  spaces then give $M_n(X)$ the product topology.
+
+\begin{corollary}
+  If $X_i$ are topological spaces and the $Y_i$ are open subspaces,
+  then the obvious map $M_n(\prod'_iX_i)=\prod'_iM_n(X_i)$ is a homeomorphism.
+\end{corollary}
+\begin{proof}
+  \uses{Homeomorph.restrictedProductPi}
+  Immediate from the previous corollary.
+\end{proof}
+
+We now want to move from matrices to invertible matrices whilst keeping track of topology,
+so we need to understand units of topological monoids. Openness of the subobject was
+crucial in the above arguments, so we need the next lemma before we can get anywhere.
+
+\begin{lemma} If $M$ is a topological monoid and $U$ is an open submonoid, then
+  the units $U^\times$ of $U$ are naturally an open submonoid of $M^\times$.
 \end{lemma}
-\begin{proof} The algebraic isomorphism is straightforward -- just follow your nose.
-  The topological claim perhaps needs more explanation. We check that the obvious
-  maps in each direction are continuous.
-
-  The universal property of the topology on the restricted product (which is in
-  mathlib) tells us that
-  the map from the restricted product to the product is continuous iff it is continuous
-  when restricted to $\prod_{i\in S}M_n(X_i)\times\prod_{i\notin S}M_n(Y_i)$.
-  The topology on $M_n(\prod'_iX_i)$
-  is the product topology, coming from the identification $M_n(R)\cong R^{n^2}$.
-  A map to a product is continuous iff the projection to each factor is continuous.
-  A product of continuous functions is continuous, and the map from $M_n(R)$ to $R$
-  sending a matrix to its $(i,j)$th factor is continuous. Finally, the map from
-  $\prod_{i\in S}X_i\times\prod_{i\notin S}Y_i$ to $\prod'_i X_i$ is continuous
-  (this is in mathlib).
-
-  To go the other way we seem to need a bit more of the structure, unless I am
-  missing something.
+\begin{remark} Note that $M^\times$ doesn't get the subspace topology from~$M$,
+  it is embedded into $M\times M$ via $g\mapsto (g,g^{-1})$ and gets the subspace
+  topology from the product. This makes it into a topological group.
+\end{remark}
+\begin{proof}
+  We have $U\times U$ is an open subset of $M\times M$, and if we imagine $M^\times$
+  embedded in $M\times M$ as explained in the remark above, then the intersection
+  of this subgroup with $U\times U$ is open in $M^\times$ and consists of the elements
+  of $M^\times$ which are in $U$ and whose inverse is also in $U$, which is easily
+  checked to be the copy of $U^\times$ we're talking about.
 \end{proof}
