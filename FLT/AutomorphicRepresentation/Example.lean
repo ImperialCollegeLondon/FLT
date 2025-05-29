@@ -1065,7 +1065,7 @@ lemma injective_hRat :
     Function.Injective j₁ := sorry -- flatness
 
 noncomputable abbrev j₂ : 𝓞^ →ₐ[ℤ] D^ :=
-  ((Algebra.TensorProduct.assoc ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗ 𝓞^ ≃ₐ[ℤ] D ⊗ ZHat).toAlgHom.comp
+  ((Algebra.TensorProduct.assoc ℤ ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗ 𝓞^ ≃ₐ[ℤ] D ⊗ ZHat).toAlgHom.comp
   (Algebra.TensorProduct.includeRight : 𝓞^ →ₐ[ℤ] ℚ ⊗ 𝓞^)
 
 lemma injective_zHat :
