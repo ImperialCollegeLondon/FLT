@@ -90,7 +90,7 @@ them to commute.
   sums are equal because $g_ih_j=h_jg_i$.
 \end{proof}
 
-\section{The concrete theory}
+\section{The concrete theory I : introduction}
 
 Note that the abstract theory relies on this finiteness hypothesis that $UgV$
 is a finite union of cosets $g_iV$. In our application of this theory our group
@@ -114,7 +114,9 @@ The following lemma then gives us the hypothesis for free.
 
 In the concrete theory, we will need to do various computations with the
 specific groups $G$ which we are interested in, and they are restricted products.
-So we briefly review that theory first and explain some of the results we'll need.
+For example, $G$ could be $GL_2(\A_{\Q}^\infty)$ (we will say more about
+what this is later). So we now develop some theory for restricted products,
+starting with recalling the definition.
 
 \subsection{Restricted products}
 
@@ -210,6 +212,10 @@ Here are some basic facts we need about restricted products.
   spaces then give $M_n(X)$ the product topology.
 
 \begin{corollary}
+  \label{Homeomorph.restrictedProductMatrix}
+  \lean{Homeomorph.restrictedProductMatrix}
+  \leanok
+  \discussion{571}
   If $X_i$ are topological spaces and the $Y_i$ are open subspaces,
   then the obvious map $M_n(\prod'_iX_i)=\prod'_iM_n(X_i)$ is a homeomorphism.
 \end{corollary}
@@ -222,7 +228,11 @@ We now want to move from matrices to invertible matrices whilst keeping track of
 so we need to understand units of topological monoids. Openness of the subobject was
 crucial in the above arguments, so we need the next lemma before we can get anywhere.
 
-\begin{lemma} If $M$ is a topological monoid and $U$ is an open submonoid, then
+\begin{lemma}
+  \lean{Submonoid.units_isOpen}
+  \label{Submonoid.units_isOpen}
+  \leanok
+  If $M$ is a topological monoid and $U$ is an open submonoid, then
   the units $U^\times$ of $U$ are naturally an open submonoid of $M^\times$.
 \end{lemma}
 \begin{remark} Note that $M^\times$ doesn't get the subspace topology from~$M$,
@@ -240,12 +250,14 @@ crucial in the above arguments, so we need the next lemma before we can get anyw
 Later on, compactness will be key for us, so we record the analogous result
 for compactness.
 
-\begin{lemma} If $M$ is a Hausdorff topological monoid and $U$ is a compact submonoid,
+\begin{lemma}
+  \lean{Submonoid.units_isCompact}
+  \label{Submonoid.units_isCompact}
+  \leanok
+  If $M$ is a Hausdorff topological monoid and $U$ is a compact submonoid,
   then the units $U^\times$ of $U$ are naturally a compact submonoid of $M^\times$.
 \end{lemma}
-\begin{remark} Hausdorffness is necessary -- for example the reals with the
-  indiscrete topology is a topological monoid under addition, and the diagonal
-  in $\R^2$ is not closed with the indiscrete topology.
+\begin{remark} Is Hausdorffness necessary?
 \end{remark}
 \begin{proof}
   First I claim that $M^\times$ embedded in $M\times M$ via $g\mapsto (g,g^{-1})$
@@ -257,4 +269,49 @@ for compactness.
   We have $U\times U$ is a compact subset of $M\times M$, and so
   $U^\times=M^\times\cap U\times U$ is a closed subspace of a compact space
   and is thus compact.
+\end{proof}
+
+\begin{lemma} If $U_i$ are topological monoids then the canonical
+  group isomorphism $(\prod_i U_i)^\times=\prod_i(U_i^\times)$ is a homeomorphisn.
+\end{lemma}
+\begin{proof} We prove that the maps in both directions are continuous. Let's start
+  with the map from left to right.
+
+  A map into a product is continuous when the maps to the factors
+  are continuous. A map into the units of a monoid is continuous when the
+  two projection maps to the monoid (the inclusion and the map $u\mapsto u^{-1}$)
+  are continuous (because $M^\times$ has the topology induced from $M\times M$).
+  This reduces us to checking that the maps $(\prod_i U_i)^\times\to U_j$
+  sending $(u_i)$ to $u_j$ resp $u_j^{-1}$ are continuous. But the former map
+  is the continuous inclusion $(\prod_i U_i)^\times\to\prod_i U_i$ followed
+  by the conintuous projection to $U_j$, and the latter map is the continuous
+  inclusion $(\prod_i U_i)^\times\to\prod_i U_i$ sending $x$ to $x^{-1}$
+  followed by the projection.
+
+  To go the other way: because the units have the induced topology it suffices
+  to check that the two maps $\prod_i(U_i^\times)\to\prod_i U_i$
+  sending $(u_i)$ to $(u_i)$ resp $(u_i^{-1})$ are continuous. A map
+  to a product is continuous when the induced maps to the factors are.
+  A projection from a project is continuous, and the identity and inverse are
+  continuous maps $U_j^\times\to U_j$, and the maps we're concerned with are composites
+  of these maps and are hence continuous.
+\end{proof}
+
+\begin{theorem}
+  \lean{ContinuousMulEquiv.restrictedProductUnits}
+  \label{ContinuousMulEquiv.restrictedProductUnits}
+  \leanok
+  If $M_i$ are a family of topological monoids equipped with open
+  submonoids $U_i$, then the canonical map $(\prod'_iM_i)^\times\to\prod'_i(M_i^\times)$
+  is a homeomorphism.
+\end{theorem}
+\begin{proof}
+  I don't know a clean way of showing that the map from left to right is continuous,
+  so here is a ``direct'' proof that the map is a homeomorphism. It is certainly an abstract group
+  isomorphism between topological groups. So to prove that it is a homeomorphism it suffices
+  to prove that it is a homeomorphism near the identity, or equivalently that there are open
+  neighbourhoods $X$ and $Y$ of the identity elements on each side such that the map induces a
+  homeomorphism from $X$ to $Y$. We choose $(\prod_i U_i)^\times$ and $\prod_i (U_i^\times)$.
+  Note that the former is open because of lemma~\ref{Submonoid.units_isOpen}.
+  The result now follows from the previous lemma.
 \end{proof}
