@@ -72,7 +72,7 @@ variable {𝓞} in
 abbrev ofHom {A B : Type u}
     [CommRing A] [Algebra 𝓞 A] [TopologicalSpace A] [IsLocalProartinianAlgebra 𝓞 A]
     [CommRing B] [Algebra 𝓞 B] [TopologicalSpace B] [IsLocalProartinianAlgebra 𝓞 B]
-    (f : A →A[𝓞] B) [IsLocalHom f] :
+    (f : A →A[𝓞] B) :
     of 𝓞 A ⟶ of 𝓞 B := ⟨f⟩
 
 variable {𝓞}
