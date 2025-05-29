@@ -98,7 +98,7 @@ lemma comp_apply (f : A ⟶ B) (g : B ⟶ C) (x) : (f ≫ g).hom x = g.hom (f.ho
 lemma hom_ext {f g : A ⟶ B} (hf : f.hom = g.hom) : f = g :=
   Hom.ext hf
 
-lemma hom_ofHom (f : X →A[𝓞] Y) [IsLocalHom f] : (ofHom f).hom = f := rfl
+lemma hom_ofHom (f : X →A[𝓞] Y) : (ofHom f).hom = f := rfl
 
 @[simp]
 lemma ofHom_hom (f : A ⟶ B) : ofHom (Hom.hom f) = f := rfl
@@ -107,7 +107,7 @@ lemma ofHom_hom (f : A ⟶ B) : ofHom (Hom.hom f) = f := rfl
 lemma ofHom_id : ofHom (ContinuousAlgHom.id 𝓞 X) = 𝟙 (of 𝓞 X) := rfl
 
 @[simp]
-lemma ofHom_comp (f : X →A[𝓞] Y) (g : Y →A[𝓞] Z) [IsLocalHom f] [IsLocalHom g]:
+lemma ofHom_comp (f : X →A[𝓞] Y) (g : Y →A[𝓞] Z) :
     ofHom (g.comp f) = ofHom f ≫ ofHom g :=
   rfl
 
