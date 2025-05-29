@@ -14,10 +14,16 @@ import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 import FLT.DedekindDomain.IntegralClosure
 import FLT.Deformations.Algebra.InverseLimit.Basic
 import FLT.Deformations.Algebra.InverseLimit.Topology
+import FLT.Deformations.Categories
 import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
+import FLT.Deformations.IsProartinian
 import FLT.Deformations.IsResidueAlgebra
+import FLT.Deformations.Lemmas
+import FLT.Deformations.LiftFunctor
+import FLT.Deformations.Representable
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
+import FLT.Deformations.Subfunctor
 import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
 import FLT.GaloisRepresentation.Cyclotomic
