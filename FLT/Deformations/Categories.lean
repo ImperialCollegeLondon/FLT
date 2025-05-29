@@ -57,14 +57,16 @@ variable {𝓞} in
 structure Hom (A B : ProartinianCat 𝓞) where
   /-- The underlying algebra map. -/
   hom : A →A[𝓞] B
-  [isLocalHom : IsLocalHom hom]
-
-attribute [instance] Hom.isLocalHom
+  -- [isLocalHom : IsLocalHom hom]
 
 instance : Category (ProartinianCat 𝓞) where
   Hom A B := Hom A B
   id A := ⟨ContinuousAlgHom.id 𝓞 A⟩
   comp f g := ⟨g.hom.comp f.hom⟩
+
+instance (A B : ProartinianCat 𝓞) (f : A ⟶ B) : IsLocalHom f.hom := by
+  convert isLocalHom_of_isContinuous_of_isProartinian f.hom.toRingHom f.hom.cont
+  exact ⟨fun ⟨H⟩ ↦ ⟨H⟩, fun ⟨H⟩ ↦ ⟨H⟩⟩
 
 variable {𝓞} in
 /-- Typecheck an `ContinuousAlgHom` as a morphism in `ProartinianCat`. -/
@@ -148,10 +150,7 @@ def fromSelf (R : ProartinianCat 𝓞) : self ⟶ R where
     letI := (maximalIdeal 𝓞).adicTopology
     letI : IsTopologicalRing 𝓞 := (RingSubgroupsBasis.toRingFilterBasis _).isTopologicalRing
     letI : IsAdicTopology 𝓞 := ⟨rfl⟩
-    ⟨Algebra.ofId _ _, (isContinuous_of_isProartinian_of_isLocalHom (algebraMap 𝓞 R):)⟩
-  isLocalHom := by
-    convert (inferInstanceAs (IsLocalHom (algebraMap 𝓞 R)))
-    exact ⟨fun ⟨H⟩ ↦ ⟨H⟩, fun ⟨H⟩ ↦ ⟨H⟩⟩
+    ⟨Algebra.ofId _ _, isContinuous_of_isProartinian_of_isLocalHom (algebraMap 𝓞 R)⟩
 
 instance (R : ProartinianCat 𝓞) : Unique (self ⟶ R) := by
   refine ⟨⟨fromSelf R⟩, fun f ↦ ?_⟩
@@ -194,7 +193,6 @@ def toResidueField (R : ProartinianCat 𝓞) : R ⟶ residueField where
       rw [Ideal.mk_ker]
       exact isOpen_maximalIdeal_of_isProartinian
     · exact (IsResidueAlgebra.algEquiv 𝓞 R).symm.injective⟩
-  isLocalHom := ⟨by simp [residueField]⟩
 
 lemma toResidueField_surjective (R : ProartinianCat 𝓞) :
     Function.Surjective (toResidueField R).hom :=

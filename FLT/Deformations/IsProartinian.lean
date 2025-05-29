@@ -71,3 +71,12 @@ lemma isContinuous_of_isProartinian_of_isLocalHom
   replace hn := (Ideal.pow_right_mono (((local_hom_TFAE f).out 0 2).mp ‹_›) n).trans hn
   rw [← Ideal.map_pow, Ideal.map_le_iff_le_comap] at hn
   exact ⟨n, trivial, hn⟩
+
+lemma isLocalHom_of_isContinuous_of_isProartinian
+    [IsProartinian R] (f : R →+* S) [IsProartinian S] (h : Continuous f) : IsLocalHom f := by
+  constructor
+  intro a ha
+  by_contra ha'
+  obtain ⟨n, hn⟩ := exists_maximalIdeal_pow_le_of_isProartinian ((maximalIdeal S).comap f)
+    (isOpen_maximalIdeal_of_isProartinian.preimage h)
+  refine hn (Ideal.pow_mem_pow ha' n) (by simpa using ha.pow n)
