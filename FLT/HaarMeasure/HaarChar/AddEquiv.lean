@@ -328,6 +328,11 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
       exact Set.Nonempty.prod hU <| nonempty_of_measure_ne_zero hY0
   }
 
+  -- Garbage (use of hν to make the linter shut up about hν being unused)
+  suffices IsHaarMeasure ν →
+      mulEquivHaarChar (φ.prodCongr ψ) = mulEquivHaarChar φ * mulEquivHaarChar ψ from
+    this hν
+
   sorry
 
 end prod
