@@ -160,7 +160,7 @@ and the restricted product of the units of the monoids. -/
 def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
     {M : ι → Type*} [(i : ι) → Monoid (M i)]
     {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
-    (A : Π i, S i) :
+    {A : Π i, S i} :
     (Πʳ i, [M i, A i]_[ℱ])ˣ ≃*
       Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]_[ℱ] where
         toFun u := ⟨fun i ↦ ⟨u.1 i, u⁻¹.1 i, congr($u.mul_inv i), congr($u.inv_mul i)⟩,
@@ -178,11 +178,10 @@ def Equiv.restrictedProductProd {ι : Type*} {ℱ : Filter ι}
     {C : (i : ι) → Set (A i)}
     {D : (i : ι) → Set (B i)} :
     Πʳ i, [A i × B i, C i ×ˢ D i]_[ℱ] ≃ (Πʳ i, [A i, C i]_[ℱ]) × (Πʳ i, [B i, D i]_[ℱ]) where
-      toFun x := (⟨fun i ↦ (x i).1, by filter_upwards [x.2] with i; exact And.left⟩,
-                  ⟨fun i ↦ (x i).2, by filter_upwards [x.2] with i; exact And.right⟩)
+      toFun x := (⟨fun i ↦ (x i).1, by filter_upwards [x.2] with i using And.left⟩,
+                  ⟨fun i ↦ (x i).2, by filter_upwards [x.2] with i using And.right⟩)
       invFun yz := ⟨fun i ↦ (yz.1 i, yz.2 i), by
-        filter_upwards [yz.1.2, yz.2.2] with i
-        exact Set.mk_mem_prod⟩
+        filter_upwards [yz.1.2, yz.2.2] with i using Set.mk_mem_prod⟩
       left_inv x := by ext <;> rfl
       right_inv y := by ext <;> rfl
 
@@ -192,16 +191,16 @@ def Homeomorph.restrictedProductProd {ι : Type*}
     {D : (i : ι) → Set (B i)} (hCopen : ∀ (i : ι), IsOpen (D i)) :
     Πʳ i, [A i × B i, C i ×ˢ D i] ≃ₜ (Πʳ i, [A i, C i]) × (Πʳ i, [B i, D i]) where
       __ := Equiv.restrictedProductProd
-      continuous_toFun := sorry
-      continuous_invFun := sorry
+      continuous_toFun := sorry -- FLT#568
+      continuous_invFun := sorry -- FLT#568
 
 -- Is there a mathlibism for {f | ∀ j, f j ∈ C j i}?
 def Equiv.restrictedProductPi {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintype n]
     {A : n → ι → Type*}
     {C : (j : n) → (i : ι) → Set (A j i)} :
     Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}]_[ℱ] ≃ Π j, Πʳ i, [A j i, C j i]_[ℱ] where
-      toFun x j := ⟨fun i ↦ x i j, by filter_upwards [x.2] with i h; exact h j⟩
-      invFun y := ⟨fun i j ↦ y j i, by sorry⟩
+      toFun x j := ⟨fun i ↦ x i j, by filter_upwards [x.2] with i h using h j⟩
+      invFun y := ⟨fun i j ↦ y j i, by sorry⟩ -- FLT#569
       left_inv x := by ext; rfl
       right_inv y := by ext; rfl
 
@@ -210,5 +209,33 @@ def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
     {C : (j : n) → (i : ι) → Set (A j i)} (hCopen : ∀ j i, IsOpen (C j i)) :
     Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}] ≃ₜ Π j, (Πʳ i, [A j i, C j i]) where
       __ := Equiv.restrictedProductPi
-      continuous_toFun := sorry
-      continuous_invFun := sorry
+      continuous_toFun := sorry -- #570
+      continuous_invFun := sorry -- #570
+
+def Equiv.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
+    {A : ι → Type*}
+    {C : (i : ι) → Set (A i)} :
+    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ Matrix m n (Πʳ i, [A i, C i])  where
+      toFun x a b := ⟨fun i ↦ x i a b, by filter_upwards [x.2] with i h using h a b⟩
+      invFun y := ⟨fun i a b ↦ y a b i, by sorry⟩ -- FLT#569
+      left_inv x := by ext; rfl
+      right_inv y := by ext; rfl
+
+def Homeomorph.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
+    {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i)) :
+    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ₜ Matrix m n (Πʳ i, [A i, C i])  where
+      __ := Equiv.restrictedProductMatrix
+      continuous_toFun := sorry  --#571
+      continuous_invFun := sorry --#571
+
+def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
+    {M : ι → Type*} [(i : ι) → Monoid (M i)] [(i : ι) → TopologicalSpace (M i)]
+    [(i : ι) → ContinuousMul (M i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
+    (A : Π i, S i) (hA : ∀ i, IsOpen (A i : Set (M i))):
+    (Πʳ i, [M i, A i])ˣ ≃ₜ*
+      Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units] where
+  __ := MulEquiv.restrictedProductUnits
+  continuous_toFun := sorry -- needs number
+  continuous_invFun := sorry -- needs number

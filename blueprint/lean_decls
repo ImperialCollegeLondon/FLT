@@ -152,3 +152,5 @@ AbstractHeckeOperator.HeckeOperator_toFun
 AbstractHeckeOperator.HeckeOperator
 AbstractHeckeOperator.comm
 QuotientGroup.mk_image_finite_of_compact_of_open
+Homeomorph.restrictedProductProd
+Homeomorph.restrictedProductPi
