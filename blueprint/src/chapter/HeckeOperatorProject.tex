@@ -236,3 +236,25 @@ crucial in the above arguments, so we need the next lemma before we can get anyw
   of $M^\times$ which are in $U$ and whose inverse is also in $U$, which is easily
   checked to be the copy of $U^\times$ we're talking about.
 \end{proof}
+
+Later on, compactness will be key for us, so we record the analogous result
+for compactness.
+
+\begin{lemma} If $M$ is a Hausdorff topological monoid and $U$ is a compact submonoid,
+  then the units $U^\times$ of $U$ are naturally a compact submonoid of $M^\times$.
+\end{lemma}
+\begin{remark} Hausdorffness is necessary -- for example the reals with the
+  indiscrete topology is a topological monoid under addition, and the diagonal
+  in $\R^2$ is not closed with the indiscrete topology.
+\end{remark}
+\begin{proof}
+  First I claim that $M^\times$ embedded in $M\times M$ via $g\mapsto (g,g^{-1})$
+  is a closed subset of $M\times M$. Indeed, if $p:M\times M\to M$ is $(a,b)\mapsto ab$
+  and $q:M\times M\to M$ is $(a,b)\mapsto ba$, then $p$ and $q$ are continuous,
+  $M^\times\subseteq M\times M$ is the intersection
+  $p^{-1}\{1\}\cap q^{-1}\{1\}$, and $\{1\}$ is closed because $M$ is Hausdorff.
+
+  We have $U\times U$ is a compact subset of $M\times M$, and so
+  $U^\times=M^\times\cap U\times U$ is a closed subspace of a compact space
+  and is thus compact.
+\end{proof}
