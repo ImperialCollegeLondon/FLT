@@ -95,7 +95,7 @@ them to commute.
 Note that the abstract theory relies on this finiteness hypothesis that $UgV$
 is a finite union of cosets $g_iV$. In our application of this theory our group
 $G$ has a topology, and $U$ and $V$ will always be open and compact subgroups.
-The following lemma gives us the hypothesis for free.
+The following lemma then gives us the hypothesis for free.
 
 \begin{lemma}
   \lean{QuotientGroup.mk_image_finite_of_compact_of_open}
@@ -129,20 +129,60 @@ the restricted product is written as {\tt Πʳ i, [X i, Y i]}.
 It is straightforward to check that if the $X_i$ are groups or rings or $R$-modules,
 and the $Y_i$ are subgroups or subrings or submodules, then the restricted product
 is a group, ring or $R$-module; indeed the structure is inherited via the
-inclusion $\prod'_iX_i\subseteq\prod_iX_i$.
+inclusion $\prod'_iX_i\subseteq\prod_iX_i$ (and the fact that arbitrary products
+of groups/rings/modules are groups/rings/modules).
 
 More subtle is the theory of topological space structures. If the $X_i$
 are topological spaces then we do \emph{not} give $\prod'_iX_i$ the subspace
 topology coming from the product topology on $\prod_iX_i$; instead we give
 it the finest topology making all of the
 natural maps $\prod_{i\in S}X_i\times\prod_{i\notin S}Y_i\to \prod'_iX_i$ continuous,
-as $S$ runs through all finite subsets of~$I$; here product of $X_i$ and $Y_i$ has
-the product topology. For example if all of the $Y_i$ are nonempty, open and strictly
-contained within $X_i$, then one can check that $\prod_iY_i$ is an open subset of
-$\prod'_iX_i$ (this is \tt{RestrictedProduct.isOpen\_forall\_mem} in mathlib),
-whereas it is not of the form $\prod'_iX_i\cap U$ for any open subset of $\prod_iX_i$.
+as $S$ runs through all finite subsets of~$I$; here the product of $X_i$s and $Y_i$s
+has the product topology. For example if all of the $Y_i$ are open
+then one can check that $\prod_iY_i$ is an open subset of
+$\prod'_iX_i$ (this is {\tt RestrictedProduct.isOpen\_forall\_mem} in mathlib),
+whereas it is not of the form $\left(\prod'_iX_i\right)\cap U$ for any open subset~$U$
+of $\prod_iX_i$ in general.
 
 Here are some basic facts we need about restricted products.
+
+\begin{lemma} If $A_i$ is a family of topological spaces equipped with open
+  subsets $B_i$, and if $C_i$ is a family of topological spaces equipped
+  with open subsets $D_i$, and if we equip $A_i\times C_i$ with the open
+  subset $B_i\times D_i$, then the natural bijection
+  $\prod'_i(A_i\times C_i)=\left(\prod'_iA_i\right)\times\left(\prod'_iB_i\right)$
+  is a homeomorphism.
+\end{lemma}
+\begin{remark} This may well not be true if $B_i$ and $D_i$ are not open, because
+  filtered colimits and binary products do not appear in general to commute
+  in the category of topological spaces.
+\end{remark}
+\begin{proof} We need to check continuity in both directions. The easy way is
+  continuity of the map from the restricted product to the map from the binary
+  product; the lemma {\tt RestrictedProduct.continuous\_dom} in mathlib
+  tells us that a map from a restricted product is continuous when its restriction
+  to $\left(\prod_{i\in S}(A_i\times C_i)\right)\times\left(\prod_{i\notin S}(B_i\times D_i)\right)$
+  is continuous for all finite $S\subseteq I$; the universal property of the binary
+  product tells us that the map into the binary product is continuous iff the maps into
+  the factors are continuous, but the map into $\prod'_iX_i$ is a product of the
+  natural maps from $\left(\prod_{i\in S}(A_i\times C_i)\right)\times\left(\prod_{i\notin S}(B_i\times D_i)\right)$
+  to $\left(\prod_{i\in S}A_i\right)\times\left(\prod_{i\notin S}B_i\right)$
+  and the inclusion, and both are known to be continuous (an arbitrary product of continuous
+  maps is continuous, and the other claim is in the restricted product API in mathlib).
+
+  The harder direction is the other way, because we are working against both universal
+  properties. The trick is {\tt RestrictedProduct.continuous\_dom\_prod} in mathlib
+  (this is where we assume $B_i$ and $D_i$ are open), which tells us that a map out of
+  a binary product of restricted products is continuous when its restriction to
+  $\left(\left(\prod_{i\in S}A_i\right)\times\left(\prod_{i\notin S}B_i\right)\right)\times
+  \left(\left(\prod_{i\in S}C_i\right)\times\left(\prod_{i\notin S}D_i\right)\right)$
+  is, for all finite $S$ (note that the $S$ in the mathlib lemma is actually our $I-S$).
+  The map from this to the restricted product factors through
+  $\left(\prod_{i\in S}(A_i\times C_i)\right)\times\left(\prod_{i\notin S}(B_i\times D_i)\right)$;
+  the first map is a homeomorphism (use the fact that $\prod_iX_i\times Y_i$ is homeomorphic
+  to $\left(\prod_iX_i\right)\times\left(\prod_iY_i\right)$), and the second is continuous
+  by definition of the topology on a restricted product.
+\end{proof}
 
 \begin{lemma} If $X_i$ are topological rings and the $Y_i$ are open subrings,
   then $M_n(\prod'_iX_i)\cong \prod'_iM_n(X_i)$, with restricted product

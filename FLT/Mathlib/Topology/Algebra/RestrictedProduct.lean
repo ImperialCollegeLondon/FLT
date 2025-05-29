@@ -1,6 +1,7 @@
 import Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
 import Mathlib.Algebra.Group.Submonoid.Units
+import Mathlib
 
 namespace RestrictedProduct
 
@@ -89,7 +90,7 @@ theorem Continuous.restrictedProduct_map {φ : (j : ι₂) → G (f j) → G₂ 
     apply continuous_pi
     intro i
     apply (hφcont i).comp <| (continuous_apply (f i)).comp continuous_coe
-  exact (continuous_inclusion hT).comp hc
+  exact (RestrictedProduct.continuous_inclusion hT).comp hc
 
 variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
 theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
@@ -171,3 +172,43 @@ def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
         left_inv u := by ext; rfl
         right_inv ui := by ext; rfl
         map_mul' u v := by ext; rfl
+
+def Equiv.restrictedProductProd {ι : Type*} {ℱ : Filter ι}
+    {A B : ι → Type*}
+    {C : (i : ι) → Set (A i)}
+    {D : (i : ι) → Set (B i)} :
+    Πʳ i, [A i × B i, C i ×ˢ D i]_[ℱ] ≃ (Πʳ i, [A i, C i]_[ℱ]) × (Πʳ i, [B i, D i]_[ℱ]) where
+      toFun x := (⟨fun i ↦ (x i).1, by filter_upwards [x.2] with i; exact And.left⟩,
+                  ⟨fun i ↦ (x i).2, by filter_upwards [x.2] with i; exact And.right⟩)
+      invFun yz := ⟨fun i ↦ (yz.1 i, yz.2 i), by
+        filter_upwards [yz.1.2, yz.2.2] with i
+        exact Set.mk_mem_prod⟩
+      left_inv x := by ext <;> rfl
+      right_inv y := by ext <;> rfl
+
+def Homeomorph.restrictedProductProd {ι : Type*}
+    {A B : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)]
+    {C : (i : ι) → Set (A i)} (hCopen : ∀ (i : ι), IsOpen (C i))
+    {D : (i : ι) → Set (B i)} (hCopen : ∀ (i : ι), IsOpen (D i)) :
+    Πʳ i, [A i × B i, C i ×ˢ D i] ≃ₜ (Πʳ i, [A i, C i]) × (Πʳ i, [B i, D i]) where
+      __ := Equiv.restrictedProductProd
+      continuous_toFun := sorry
+      continuous_invFun := sorry
+
+-- Is there a mathlibism for {f | ∀ j, f j ∈ C j i}?
+def Equiv.restrictedProductPi {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintype n]
+    {A : n → ι → Type*}
+    {C : (j : n) → (i : ι) → Set (A j i)} :
+    Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}]_[ℱ] ≃ Π j, Πʳ i, [A j i, C j i]_[ℱ] where
+      toFun x j := ⟨fun i ↦ x i j, by filter_upwards [x.2] with i h; exact h j⟩
+      invFun y := ⟨fun i j ↦ y j i, by sorry⟩
+      left_inv x := by ext; rfl
+      right_inv y := by ext; rfl
+
+def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
+    {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)]
+    {C : (j : n) → (i : ι) → Set (A j i)} (hCopen : ∀ j i, IsOpen (C j i)) :
+    Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}] ≃ₜ Π j, (Πʳ i, [A j i, C j i]) where
+      __ := Equiv.restrictedProductPi
+      continuous_toFun := sorry
+      continuous_invFun := sorry
