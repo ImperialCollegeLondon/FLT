@@ -57,7 +57,6 @@ variable {𝓞} in
 structure Hom (A B : ProartinianCat 𝓞) where
   /-- The underlying algebra map. -/
   hom : A →A[𝓞] B
-  -- [isLocalHom : IsLocalHom hom]
 
 instance : Category (ProartinianCat 𝓞) where
   Hom A B := Hom A B
