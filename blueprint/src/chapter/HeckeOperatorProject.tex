@@ -344,7 +344,7 @@ maximal ideal $(\varpi)$, and a residue field $k_v:=\calO_v/(\varpi)$.
 \end{lemma}
 \begin{proof} Openness is already in mathlib; compactness lies a little deeper because it
   assumes that the residue field of $K_v$ is finite.
-\end{proof}.
+\end{proof}
 
 \begin{lemma} $M_2(\calO_v)$ is a compact open subring of $M_2(K_v)$.
 \end{lemma}
@@ -363,14 +363,38 @@ field of~$v$, a finite field. This induces a ring homomorphism $M_2(\calO_v)\to 
 with kernel $M_2(\varpi\calO_v)$, an ideal~$I$ of $M_2(\calO_v)$ isomorphic to $(\varpi\calO_v)^4$
 and hence also compact and open.
 
-Say $\Gamma$ is a subgroup of $GL_2(k_v)$. Then $\Gamma$ is finite. Consider it as a submonoid of
-the multiplicative monoid $M_2(k_v)$. Its preimage~$\tilde{\Gamma}$ in $M_2(\calO_v)$
+Say $\Gamma_v$ is a subgroup of $GL_2(k_v)$. Then $\Gamma_v$ is finite. Consider it as a submonoid of
+the multiplicative monoid $M_2(k_v)$. Its preimage~$\tilde{\Gamma}_v$ in $M_2(\calO_v)$
 is easily checked to be a submonoid of $M_2(\calO_v)$; furthermore it is a finite union of
 cosets of $I$ and is hence compact and open as a submonoid of $M_2(\calO_v)$ and hence of $M_2(K_v)$.
-Note that $\Gamma$ is actually a group, so $\Gamma=\Gamma^\times$, which is hence a compact
-open subgroup of $\GL_2(K_v)$, again by lemmas~\ref{Submonoid.units_isOpen}
+Note that $\tilde\Gamma_v$ is actually a group, so $\tilde\Gamma_v=\tilde\Gamma_v^\times$, which is
+hence a compact open subgroup of $\GL_2(K_v)$, again by lemmas~\ref{Submonoid.units_isOpen}
 and~\ref{Submonoid.units_isCompact}.
 
+Say now $\begin{pmatrix}1&*\\0&1\end{pmatrix}\subseteq\Gamma_v\subseteq\begin{pmatrix}*&*\\0&*\end{pmatrix}$
+and let $U:=\tilde\Gamma_v^\times$ be the corresponding compact open subgroup of $GL_2(K_v)$.
+Choose $0\not=\alpha\in\calO_v$ and define $g=\begin{pmatrix}\alpha&0\\0&1\end{pmatrix}\in GL_2(K_v)$.
+Let's do an explicit double coset decomposition in preparation for a calculation with Hecke operators.
+
+\begin{lemma} The double coset space $UgU$ is the disjoint union of $g_tU$ as $t$ ranges
+  through $\calO_v/\alpha\calO_v$ and $g_t:=\begin{pmatrix}\alpha&\tilde{t}\\0&1\end{pmatrix}$,
+  where $\tilde{t}$ is any lift of $t$ to $\calO_v$.
+\end{lemma}
+\begin{proof} We first manipulate the statement into a statement about finite groups.
+  We have $UgU=\coprod_t g_tU\iff UgUg^{-1}=\coprod_t g_tUg^{-1}=\coprod_t g_tg^{-1}(gUg^{-1})$.
+  By the second isomorphism theorem this is true if
+  $U/(gUg^{-1}\cap U)=\coprod_t g_tg^{-1}(gUg^{-1}\cap U)$. So when is an element of $U$
+  in $gUg^{-1}$? Equivalently, if $x\in U$, when is $g^{-1}xg\in U$? An explicit calculation
+  of matrices shows us that this is true iff $g=\begin{pmatrix} a&b\\c&d\end{pmatrix}$ with
+  $\alpha\mid b$. Define $U^\alpha$ to be this subgroup of~$U$. We have reduced the question
+  to showing that the matrices $h_t:=\begin{pmatrix}1&\tilde{t}\\0&1\end{pmatrix}$
+  are a set of left coset representatives for the subgroup $U^\alpha$ of $U$.
+
+  It thus suffices to show that if $u=\begin{pmatrix} a&b\\c&d\end{pmatrix}\in U$
+  then $u\in h_tU^\alpha$ iff $c\in\calO_v$ reduces mod $\alpha$ to $t\in\calO_v/\alpha$.
+  We do this by computing $h_t^{-1}u=\begin{pmatrix} a-\tilde{t}c&b-\tilde{t}d\\c&d\end{pmatrix}$
+  and observing that its top right hand entry mod~$\alpha$ is zero iff $b$ mod $\alpha$ is $t$.
+\end{proof}
 
 \section{Adelic groups}
 
@@ -504,7 +528,11 @@ and is 1 elsewhere, then the double coset space $UgU$ can again be written as $\
 with the $g_i$ supported only at~$v$.
 
 We deduce immediately from lemma~\ref{AbstractHeckeOperator.comm} that two Hecke operators
-associated to different finite places of~$F$ commute.
+associated to different finite places of~$F$ commute. In fact in Lean the deduction is probably
+not immediate at all; perhaps we need to make some API for ideas of the form ``this subgroup
+of a product (or restricted product) is actually of the form $U_v \times U^v$'' and then
+theorems of the form ``if $g$ is supported at $v$ and $U$ decomposes in this way then
+the single cosets reps can all be chosen to be supported at $v$''.
 
 What remains is to check that $U_{\alpha,v}$ and $U_{\beta,v}$ commute. In fact we claim
 more, namely that $U_{\alpha,v}U_{\beta,v}=U_{\alpha\beta,v}$. This will suffice
@@ -513,7 +541,7 @@ because $\alpha\beta=\beta\alpha$.
 \begin{lemma} If $v\in S$ and $\begin{pmatrix}1&*\\0&1\end{pmatrix}\subseteq\Gamma_v\subseteq\begin{pmatrix}*&*\\0&*\end{pmatrix}$
   then $U_{\alpha,v}U_{\beta,v}=U_{\alpha\beta,v}$.
 \end{lemma}
-\begin{proof} TODO
+\begin{proof} Follows easily from the explicit double coset decomposition proved above.
 \end{proof}
 
 The reason that the Hecke algebra is Noetherian is that the main theorem of the Fujisaki
