@@ -229,6 +229,15 @@ def Homeomorph.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [F
       continuous_toFun := sorry  --#571
       continuous_invFun := sorry --#571
 
+-- shouldn't be here
+def ContinuousMulEquiv.piUnits {ι : Type*}
+    {M : ι → Type*} [(i : ι) → Monoid (M i)] [(i : ι) → TopologicalSpace (M i)]
+    [(i : ι) → ContinuousMul (M i)] :
+    (Π i, M i)ˣ ≃ₜ* Π i, (M i)ˣ where
+  __ := MulEquiv.piUnits
+  continuous_toFun := sorry
+  continuous_invFun := sorry
+
 def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
     {M : ι → Type*} [(i : ι) → Monoid (M i)] [(i : ι) → TopologicalSpace (M i)]
     [(i : ι) → ContinuousMul (M i)]

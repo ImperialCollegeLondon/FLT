@@ -118,7 +118,7 @@ For example, $G$ could be $GL_2(\A_{\Q}^\infty)$ (we will say more about
 what this is later). So we now develop some theory for restricted products,
 starting with recalling the definition.
 
-\subsection{Restricted products}
+\section{Restricted products}
 
 If $I$ is an index set, if $X_i$ are sets indexed by $i\in I$ and if $Y_i$
 are subsets, then the \emph{restricted product} $\prod_i'X_i$ (note the dash) is defined
@@ -152,6 +152,8 @@ completions $F_v$ with respect to the integer rings $\mathcal{O}_v$, then
 $GL_2(\mathbb{A}_F)$ is obviously topologically a restricted product of
 $GL_2(F_v)$ with respect to $GL_2(\mathcal{O}_v)$. We now spend some time justifying
 this claim, which is a little more intricate than it sounds.
+
+\subsection{Products}
 
 Here are some basic facts we need about restricted products.
 
@@ -231,6 +233,8 @@ Here are some basic facts we need about restricted products.
   Immediate from the previous corollary.
 \end{proof}
 
+\subsection{Units}
+
 We now want to move from matrices to invertible matrices whilst keeping track of topology,
 so we need to understand units of topological monoids. Openness of the subobject was
 crucial in the above arguments, so we need the next lemma before we can get anywhere.
@@ -278,7 +282,11 @@ for compactness.
   and is thus compact.
 \end{proof}
 
-\begin{lemma} If $U_i$ are topological monoids then the canonical
+\begin{lemma}
+  \lean{ContinuousMulEquiv.piUnits}
+  \label{ContinuousMulEquiv.piUnits}
+  \leanok
+  If $U_i$ are topological monoids then the canonical
   group isomorphism $(\prod_i U_i)^\times=\prod_i(U_i^\times)$ is a homeomorphisn.
 \end{lemma}
 \begin{proof} We prove that the maps in both directions are continuous. Let's start
@@ -313,6 +321,7 @@ for compactness.
   is a homeomorphism.
 \end{theorem}
 \begin{proof}
+  \uses{ContinuousMulEquiv.piUnits, Submonoid.units_isOpen}
   I don't know a clean way of showing that the map from left to right is continuous,
   so here is a ``direct'' proof that the map is a homeomorphism. It is certainly an abstract group
   isomorphism between topological groups. So to prove that it is a homeomorphism it suffices
@@ -320,5 +329,195 @@ for compactness.
   neighbourhoods $X$ and $Y$ of the identity elements on each side such that the map induces a
   homeomorphism from $X$ to $Y$. We choose $(\prod_i U_i)^\times$ and $\prod_i (U_i^\times)$.
   Note that the former is open because of lemma~\ref{Submonoid.units_isOpen}.
-  The result now follows from the previous lemma.
+  The result now follows from the previous lemma~\ref{ContinuousMulEquiv.piUnits}.
 \end{proof}
+
+\section{Some local theory}
+
+We could work over a general nonarchimedean normed field but we still do not have them
+in mathlib, so we stick to the case of interest which is the completion of a number
+field~$K$ at a finite place~$v$. Such a completion is a topological field~$K_v$
+equipped with a discrete valuation, a ring of integers $\calO_v$ having a principal
+maximal ideal $(\varpi)$, and a residue field $k_v:=\calO_v/(\varpi)$.
+
+\begin{lemma} $\calO_v$ is a compact open subring of $K_v$.
+\end{lemma}
+\begin{proof} Openness is already in mathlib; compactness lies a little deeper because it
+  assumes that the residue field of $K_v$ is finite.
+\end{proof}.
+
+\begin{lemma} $M_2(\calO_v)$ is a compact open subring of $M_2(K_v)$.
+\end{lemma}
+\begin{proof} Topologically $M_2(\calO_v)\cong \calO_v^4$ as a subset of $K_v^4$ so this
+  follows because a product of compacts is compact and a product of opens is open.
+\end{proof}
+
+\begin{lemma} $GL_2(\calO_v)$ is a compact open subgroup of $GL_2(K_v)$.
+\end{lemma}
+\begin{proof} $K_v$ is known to be Hausdorff, so $M_2(K_v)$ is Hausdorff and the
+  results follow from lemmas~\ref{Submonoid.units_isOpen} and~\ref{Submonoid.units_isCompact}.
+\end{proof}
+
+Recall that there is a projection $\calO_v\to k_v$ where $k_v$ is the residue
+field of~$v$, a finite field. This induces a ring homomorphism $M_2(\calO_v)\to M_2(k_v)$
+with kernel $M_2(\varpi\calO_v)$, an ideal~$I$ of $M_2(\calO_v)$ isomorphic to $(\varpi\calO_v)^4$
+and hence also compact and open.
+
+Say $\Gamma$ is a subgroup of $GL_2(k_v)$. Then $\Gamma$ is finite. Consider it as a submonoid of
+the multiplicative monoid $M_2(k_v)$. Its preimage~$\tilde{\Gamma}$ in $M_2(\calO_v)$
+is easily checked to be a submonoid of $M_2(\calO_v)$; furthermore it is a finite union of
+cosets of $I$ and is hence compact and open as a submonoid of $M_2(\calO_v)$ and hence of $M_2(K_v)$.
+Note that $\Gamma$ is actually a group, so $\Gamma=\Gamma^\times$, which is hence a compact
+open subgroup of $\GL_2(K_v)$, again by lemmas~\ref{Submonoid.units_isOpen}
+and~\ref{Submonoid.units_isCompact}.
+
+
+\section{Adelic groups}
+
+We are finally ready to discuss the group~$G$ and the subgroups~$U$ which we will be
+using to define our Hecke operators. Let~$K$ be a number field, let~$D$ a quaternion algebra
+over~$K$ and let $\A_K^\infty$ be the finite adeles of~$K$; recall that this is a commutative
+topological ring, defined to be the restricted
+product of the commutative topological fields~$K_v$ as $v$ runs through the finite places
+of~$K$, with respect to the compact open subrings $\calO_v$.
+
+The group~$G$ we are intersted in for the rest of this miniproject is the group
+$(D\otimes_K\A_K^\infty)^\times$. We want to write down compact open subgroups of this group,
+but the first thing we need to do is to find a way of talking about elements of the group.
+
+We will assume that there exists an $\A_K^\infty$-algebra isomorphism
+$D\otimes_K\A_K^\infty=M_2(\A_K^\infty)$ and we will fix such an isomorphism $r$
+(called a \emph{rigidification} in the Lean code). We give both of these $\A_K^\infty$-algebras
+the $\A_K^\infty$-module topology, which is a fancy way of saying the product topology
+(they are both free of rank 4 as $\A_K^\infty$-modules); the rigidification is then
+a homeomorphism (because all $\A_K^\infty$-module maps between modules with the $\A_K^\infty$-module
+topology are continuous).
+
+This means that our group~$G$ is isomorphic to $GL_2(\A_K^\infty)$. Before we go any further,
+let say something about matrix rings over complete fields.
+
+\begin{theorem} $G$ is isomorphic and homeomorphic
+  to the restricted product of $GL_2(K_v)$ with respect
+  to the compact open subgroups $GL_2(\calO_v)$.
+\end{theorem}
+\begin{proof} This follows from lemma~\ref{ContinuousMulEquiv.restrictedProductUnits}
+  and lemma~\ref{Homeomorph.restrictedProductMatrix}.
+\end{proof}
+
+If~$S$ is a finite set of finite places of~$K$, and for each $v\in S$ we choose
+a subgroup $\Gamma_v$ of $GL_2(k_v)$ then we saw in the previous section how to
+create a compact open subgroup $\tilde{\Gamma}_v$ of $GL_2(K_v)$. For $v\notin S$
+define $\tilde{\Gamma}_v=GL_2(\calO_v)$. Then $\prod_v\tilde{\Gamma}_v$ is a compact
+open subgroup of $\prod_vGL_2(\calO_v)$. It is compact subgroups of this form
+which we shall be using.
+
+\section{Automorphic forms}
+
+We briefly describe the spaces of automorphic forms we shall be interested in, although
+they will play no role in this miniproject. We fix a totally real field~$F$, a
+totally definite quaternion algebra~$D/F$, and a coefficient (additive abelian) group~$R$.
+Set $G=(D\otimes_F\A_F^\infty)^\times$ as in the previous section. Note that $G$
+naturally contains copies of $D^\times$ and $(\A_F^\infty)^\times$.
+
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
+  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
+  \leanok
+  We define the abelian group of $R$-valued weight~2 automorphic forms
+to be the functions $f:G\to R$ satisfying the following axioms:
+\begin{enumerate}
+  \item $f(dg)=f(g)$ for all $d\in D^\times\subseteq(D\otimes_F\A_F^\times)$;
+  \item There exists a compact open subgroup of~$U$ (the \emph{level} of~$f$)
+    such that $f(gu)=f(g)$ for all $g\in G$ and $u\in U$;
+  \item $f(gz)=f(g)$ for all $z\in(\A_F^\infty)^\times$.
+\end{enumerate}
+\end{definition}
+
+It can be checked that this is an additive abelian group, and if~$R$ is a ring
+then it is naturally an~$R$-module. Let's call this group~$A$ for short.
+Then~$A$ has a left action of $G$, with $g\cdot f$
+defined via $(g\cdot f)(x):=f(xg)$.
+
+\begin{definition}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
+  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
+  \leanok
+  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
+  If~$U$ is a compact open subgroup of~$G$ then the space of~$R$-valued weight~2
+  automorphic forms of level~$U$ is just the fixed points $A^U$ of this action.
+\end{definition}
+
+In other words, the forms of level~$U$ are the forms satisfying the three axioms
+defining an automorphic form but with the compact open subgroup in the second
+axiom being~$U$.
+
+\section{Concrete Hecke operators}
+
+We keep the definitions in the previous sections, so $D$ is a totally definite
+quaternion algebra over a totally real field~$F$, $S$ is a finite set of finite
+places of~$F$, $\Gamma_v$ is a subgroup of $GL_2(k_v)$ for all $v\in S$,
+$\tilde{\Gamma}_v$ is its preimage in $GL_2(\calO_v)$ for $v\in S$ and
+the full subgroup $GL_2(\calO_v)$ for $v\notin S$, $U=\prod_v\tilde{\Gamma}_v$
+is a compact open subgroup of $GL_2(\A_F^\infty)$, $r$ is a rigidification
+which induces an isomorphism $GL_2(\A_F^\infty)=(D\otimes_F\A_F^\infty)^\times$
+and we identify~$U$ with its image in $(D\otimes_F\A_F^\infty)$.
+
+We introduce Hecke operators of two types.
+
+First, for $v$ any place not in~$S$ we choose a uniformiser $\varpi_v\in F_v$,
+form the invertible $2\times 2$ matrix $\begin{pmatrix}\varpi_v&0\\0&1\end{pmatrix}\in GL_2(F_v)$
+and extend this element to an element $g\in G$ by letting its component at all finite places
+$w\not=v$ be the identity. We define the Hecke operator $T_v:A^U\to A^U$ to be $[UgU]$, using the
+notation defined at the beginning of this section.
+
+For the second kind of Hecke operator we assume that $\Gamma_v$ satisfies
+$\begin{pmatrix}1&*\\0&1\end{pmatrix}\subseteq\Gamma_v\subseteq\begin{pmatrix}*&*\\0&*\end{pmatrix}$.
+For $0\not=\alpha\in\calO_v$ we consider the $2\times 2$ matrix in $GL_2(\A_K^\infty)$
+which is $\begin{pmatrix}\alpha&0\\0&1\end{pmatrix}$ at~$v$ and 1 at all other local components.
+Via the rigidification~$r$ we obtain an element $g\in G$.
+We define the Hecke operator $U_{v,\alpha}$ to be $[UgU]$.
+
+The Hecke algebra of interest to us will be generated by the Hecke operators $T_v$ for $v\notin S$
+and $U_{v,\alpha}$ for $v\in S$. We shall always assume that
+$\begin{pmatrix}1&*\\01\end{pmatrix}\subseteq\Gamma_v\subseteq\begin{pmatrix}*&*\\0&*\end{pmatrix}$
+for all $v\in S$, so the $U_{v,\alpha}$ makes sense.
+
+The big theorem we want in this section is
+
+\begin{theorem} Say~$R$ is a Noetherian ring. Then the subalgebra of the $R$-linear endomorphisms
+  of $A^U$ generated by the Hecke operators $T_v$ for $v\notin S$ and $U_{v,\alpha}$ for $v\in S$
+  is a Noetherian commutative ring.
+\end{theorem}
+
+\section{Analysis of the Hecke algebra}
+
+First we discuss commutativity of the Hecke operators. First, assume that $v\not\in S$.
+Then $U=GL_2(\calO_v)\times U'$ where $U'$ is a subgroup of the restricted product
+of $GL_2(F_w)$ for $w\not=v$. If $g$ is the element of $G$ used to make $T_v$ then
+$g$ is also supported at $w$, so the double coset space $UgU$ is just
+$(GL_2(\calO_v)\begin{pmatrix}\varpi&0\\0&1\end{pmatrix}GL_2(\calO_v))\times U'$
+and in particular can be decomposed into single left $U$-cosets of the form $g_iU$
+where $g_i$ is also supported at~$v$.
+
+Similarly if $v\in S$, if $0\not=\alpha\in\calO_v$ and if $g_v=\begin{pmatrix}\alpha&0\\0&1\end{pmatrix}$
+and is 1 elsewhere, then the double coset space $UgU$ can again be written as $\coprod_i g_iU$
+with the $g_i$ supported only at~$v$.
+
+We deduce immediately from lemma~\ref{AbstractHeckeOperator.comm} that two Hecke operators
+associated to different finite places of~$F$ commute.
+
+What remains is to check that $U_{\alpha,v}$ and $U_{\beta,v}$ commute. In fact we claim
+more, namely that $U_{\alpha,v}U_{\beta,v}=U_{\alpha\beta,v}$. This will suffice
+because $\alpha\beta=\beta\alpha$.
+
+\begin{lemma} If $v\in S$ and $\begin{pmatrix}1&*\\0&1\end{pmatrix}\subseteq\Gamma_v\subseteq\begin{pmatrix}*&*\\0&*\end{pmatrix}$
+  then $U_{\alpha,v}U_{\beta,v}=U_{\alpha\beta,v}$.
+\end{lemma}
+\begin{proof} TODO
+\end{proof}
+
+The reason that the Hecke algebra is Noetherian is that the main theorem of the Fujisaki
+miniproject immediately implies that $A^G$ is a submodule of a finite free $R$-module
+and is hence Noetherian. Its endomorphism algebra is hence a Noetherian $R$-module,
+so the sub-$R$-algebra generated by the Hecke operators is also a Noetherian $R$-module
+and thus a Noetherian ring.
