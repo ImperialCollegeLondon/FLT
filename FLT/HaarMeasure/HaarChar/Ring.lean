@@ -7,7 +7,7 @@ import FLT.HaarMeasure.HaarChar.AddEquiv
 import Mathlib.Algebra.Group.Pi.Units
 import Mathlib.MeasureTheory.Group.Pointwise
 
-open scoped NNReal
+open scoped NNReal Pointwise
 
 namespace ContinuousAddEquiv
 
@@ -56,12 +56,16 @@ open Measure
 variable {R : Type*} [Ring R] [TopologicalSpace R]
   [IsTopologicalRing R] [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
 
+-- TODO: Move to a Mathlib folder
+attribute [fun_prop] Units.continuous_val
+attribute [fun_prop] Units.continuous_coe_inv
+
 variable (R) in
 @[nolint unusedHavesSuffices] -- this can be removed when the proof is complete;
 -- if you remove it beforehand, check the linter is happy!
 lemma ringHaarChar_continuous :
     Continuous (fun (u : Rˣ) ↦ addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)) := by
-  /-
+ /-
     Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function f
   on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
    -/
@@ -78,7 +82,21 @@ lemma ringHaarChar_continuous :
    Hence $\delta_R$ is continuous, from `mulEquivHaarChar_mul_integral`
    in the AddEquiv file
   -/
-  sorry -- FLT#516
+  rw[continuous_iff_continuousAt]
+  intro u₀
+  obtain ⟨K, hK, hu₀⟩ := exists_compact_mem_nhds (↑u₀⁻¹ : R)
+  let g (u : Rˣ) (x : R) := f (u * x)
+  let s := (fun (u : Rˣ) ↦ (↑u⁻¹ : R)) ⁻¹' K
+  have hs : s ∈ nhds u₀ := ContinuousAt.preimage_mem_nhds (by fun_prop) (by exact hu₀)
+  have h_comp : IsCompact (K * (tsupport f)) := by exact hK.mul f_comp
+  have : ContinuousOn (fun u : Rˣ ↦ ∫ x, g u x ∂addHaar) s := by
+    apply continuousOn_integral_of_compact_support h_comp (by fun_prop)
+    intro p x hps hx
+    unfold g
+    apply image_eq_zero_of_notMem_tsupport
+    contrapose! hx
+    refine ⟨(↑p⁻¹ : R) , hps, p * x, hx, by simp⟩
+  refine ContinuousOn.continuousAt ?_ hs
 
 /-- `ringHaarChar : Rˣ →ₜ* ℝ≥0` is the function sending a unit of
 a locally compact topological ring `R` to the positive real factor
