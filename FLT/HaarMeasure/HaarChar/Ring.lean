@@ -65,7 +65,7 @@ variable (R) in
 -- if you remove it beforehand, check the linter is happy!
 lemma ringHaarChar_continuous :
     Continuous (fun (u : Rˣ) ↦ addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)) := by
- /-
+  /-
     Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function f
   on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
    -/
