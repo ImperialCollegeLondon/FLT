@@ -5,11 +5,11 @@ import Mathlib.Topology.Algebra.ContinuousMonoidHom
 
 lemma Submonoid.units_isOpen {M : Type*} [TopologicalSpace M] [Monoid M] [ContinuousMul M]
     {U : Submonoid M} (hU : IsOpen (U : Set M)) : IsOpen (U.units : Set Mˣ) := by
-  sorry -- needs FLT#
+  sorry -- FLT#587
 
 lemma Submonoid.units_isCompact {M : Type*} [TopologicalSpace M] [Monoid M] [ContinuousMul M]
     [T2Space M] {U : Submonoid M} (hU : IsCompact (U : Set M)) : IsCompact (U.units : Set Mˣ) := by
-  sorry -- needs FLT#
+  sorry -- FLT#588
 
 /-- The monoid homeomorphism between the units of a product of topological monoids
 and the product of the units of the monoids.
