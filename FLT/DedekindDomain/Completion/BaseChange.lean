@@ -271,7 +271,7 @@ noncomputable local instance adicCompletion_RkOne :
     constructor
     · simpa only [ne_eq, map_eq_zero, FaithfulSMul.algebraMap_eq_zero_iff]
     · apply ne_of_lt
-      rwa [valuation_of_algebraMap, intValuation_lt_one_iff_dvd, Ideal.dvd_span_singleton]
+      rwa [valuation_of_algebraMap, intValuation_lt_one_iff_mem]
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] in
 /-- The map K_v → L_w is continuous. -/
