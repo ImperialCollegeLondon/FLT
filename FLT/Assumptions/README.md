@@ -48,12 +48,19 @@ The next definition needs Hecke algebras.
 * The existence of a p-adic Galois representation attached to a weight 2 automorphic
   form over a totally definite quaternion algebra.
 
-The next two assumptions need a
-definition of modularity, and thus also rely on Hecke algebras.
+The next three assumptions need definitions of automorphic representations.
+Note that to do the classification of image for cyclic base change we might well also
+need multiplicity 1 for GL_2, which could be a separate project.
 
 * Automorphic induction from GL_1 to GL_2 (e.g. "CM elliptic curves are modular")
 
-* Cyclic base change for GL_2 + classification of image.
+* Cyclic base change for GL_2 and classification of image
+
+* The Jacquet-Langlands correspondence between GL_2 and automorphic forms on totally definite
+  quaternion algebras.
+
+I will probably rephrase all of these goals in terms of Galois representations which will
+avoid us having to define automorphic forms for GL_2 directly.
 
 The next assumption can't be stated yet because we don't have Galois cohomology.
 This is work in progress by Livingston, Yang and Hill.
