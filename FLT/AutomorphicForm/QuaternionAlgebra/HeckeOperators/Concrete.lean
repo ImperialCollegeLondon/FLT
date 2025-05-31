@@ -103,11 +103,11 @@ noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (
 
 variable {F D} in
 lemma U1_compact : IsCompact (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
-  sorry
+  sorry -- #583, long
 
 variable {F D} in
 lemma U1_open : IsOpen (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
-  sorry
+  sorry -- #583, long
 
 variable (R : Type*) [CommRing R]
 
@@ -163,7 +163,7 @@ lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
     (U r S R α hα ∘ₗ U r S R β hβ) =
     U r S R (α * β) (hα.mul hβ) := by
-  sorry
+  sorry -- #584, long
 
 lemma U_comm {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
@@ -220,7 +220,7 @@ noncomputable instance instAlgebra :
 noncomputable instance instCommRing :
     CommRing (HeckeAlgebra F D r S R) where
   __ := instRing F D r S R
-  mul_comm := sorry
+  mul_comm := sorry -- #585 -- check on generators
 
 variable {F S} in
 /-- The Hecke operator Tᵥ as an element of the Hecke algebra. -/
