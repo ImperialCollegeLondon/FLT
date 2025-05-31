@@ -76,8 +76,7 @@ lemma intValuation_eq_coe_neg_multiplicity {a : A} (hnz : a ≠ 0) :
   classical
   have hnb : Ideal.span {a} ≠ ⊥ := by
     rwa [ne_eq, Ideal.span_singleton_eq_bot]
-  rw [intValuation_apply, intValuationDef_if_neg _ hnz,
-    count_associates_factors_eq hnb v.isPrime v.ne_bot]
+  rw [intValuation_if_neg _ hnz, count_associates_factors_eq hnb v.isPrime v.ne_bot]
   nth_rw 1 [← normalize_eq v.asIdeal]
   congr
   symm
@@ -91,9 +90,8 @@ lemma emultiplicity_eq_of_valuation_eq_ofAdd {a : A} {k : ℕ}
   have hnz : a ≠ 0 := ne_zero_of_some_le_intValuation _ (le_of_eq hv.symm)
   have hnb : Ideal.span {a} ≠ ⊥ := by
     rwa [ne_eq, Ideal.span_singleton_eq_bot]
-  simp only [intValuation_apply,  intValuationDef_if_neg _ hnz,
-    ofAdd_neg, WithZero.coe_inv, inv_inj, WithZero.coe_inj, EmbeddingLike.apply_eq_iff_eq,
-    Nat.cast_inj] at hv
+  simp only [intValuation_if_neg _ hnz, ofAdd_neg, WithZero.coe_inv, inv_inj, WithZero.coe_inj,
+    EmbeddingLike.apply_eq_iff_eq, Nat.cast_inj] at hv
   rw [← hv, UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb,
     count_associates_factors_eq hnb v.isPrime v.ne_bot, normalize_eq]
 
@@ -106,7 +104,6 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   -- Find `n` such that `γ = Multiplicative.ofAdd (-(n : ℤ))`
   have hγ' : γ ≤ 1 := by
     apply hle.trans
-    rw [intValuation_apply]
     apply intValuation_le_one
   obtain ⟨n, hn⟩ := exists_ofAdd_natCast_of_le_one hγ hγ'
   rw [← hn] at hle ⊢
@@ -121,8 +118,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
       (emultiplicity_eq_of_valuation_eq_ofAdd v <| intValuation_eq_coe_neg_multiplicity v hnz)
       (ENat.coe_le_coe.mpr hle)
   have hb : b ∈ v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) := by
-    rwa [← Ideal.dvd_span_singleton, ← intValuation_le_pow_iff_dvd,
-        ← intValuation_eq_coe_neg_multiplicity _ hnz]
+    rwa [← intValuation_le_pow_iff_mem, ← intValuation_eq_coe_neg_multiplicity _ hnz]
   -- Now make use of
   -- `v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) = v.asIdeal ^ n ⊔ Ideal.span {a}`
   -- (this is where we need `IsDedekindDomain A`)
@@ -132,8 +128,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.mp hz
   use y
   -- And again prove the result about valuations by turning into one about ideals.
-  rwa [hy, ← hxz, sub_add_cancel_right, intValuation_le_pow_iff_dvd, Ideal.dvd_span_singleton,
-    neg_mem_iff]
+  rwa [hy, ← hxz, sub_add_cancel_right, intValuation_le_pow_iff_mem, neg_mem_iff]
 
 lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K))}
     (γ : (WithZero (Multiplicative ℤ))ˣ) (hx : Valued.v x ≤ 1) :
@@ -164,8 +159,7 @@ lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K
     rw [mul_ne_zero_iff]
     exact ⟨hv, γ.ne_zero⟩
   obtain ⟨γ', hγ, hγu, hγv⟩ := WithZero.exists_ne_zero_and_lt_and_lt hu hv
-  simp only [WithVal, adicValued_apply,
-    valuation_of_algebraMap, intValuation_apply] at hγv
+  simp only [WithVal, adicValued_apply, valuation_of_algebraMap] at hγv
   -- Now can apply `exists_adicValued_mul_sub_le` to get the approximation of `x`.
   obtain ⟨a, hval⟩ := exists_adicValued_mul_sub_le v hγ hγv.le hge
   use a
@@ -175,8 +169,7 @@ lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K
       hnd, sub_div' hdz, map_div₀]
   unfold WithVal at hdz ⊢
   rw [← Valuation.pos_iff (valuation K v)] at hdz
-  rw [← map_mul, ← map_sub, div_lt_iff₀' hdz, valuation_of_algebraMap,
-      intValuation_apply]
+  rw [← map_mul, ← map_sub, div_lt_iff₀' hdz, valuation_of_algebraMap]
   exact lt_of_le_of_lt hval hγu
 
 /-- The closure of `A` in `K_v` is `𝒪_v`. -/
@@ -185,7 +178,7 @@ theorem closureAlgebraMapIntegers_eq_integers :
     SetLike.coe (v.adicCompletionIntegers K) := by
   apply subset_antisymm
   -- We know `closure A ⊆ 𝒪_v` because `𝒪_v` is closed and `A ⊆ 𝒪_v`
-  . apply closure_minimal _ Valued.valuationSubring_isClosed
+  . apply closure_minimal _ (Valued.isClosed_valuationSubring _)
     rintro b ⟨a, rfl⟩
     exact coe_mem_adicCompletionIntegers v a
   -- Show `𝒪_v ⊆ closure A` from `𝒪_v ⊆ closure O_[K]` and `closure O_[K] ⊆ closure A`
@@ -261,8 +254,7 @@ instance : (v.completionIdeal K).LiesOver v.asIdeal where
     rw [Ideal.under_def]
     ext x
     simp only [Ideal.mem_comap, mem_completionIdeal_iff, algebraMap_completionIntegers,
-      valuedAdicCompletion_eq_valuation, valuation_of_algebraMap, intValuation_lt_one_iff_dvd,
-      Ideal.dvd_span_singleton]
+      valuedAdicCompletion_eq_valuation, valuation_lt_one_iff_mem]
 
 open IsLocalRing in
 /-- The canonical ring homomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
@@ -336,7 +328,7 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
   intro i hi
   specialize ha i hi
   specialize hf ⟨i, hi⟩
-  rw [← Ideal.dvd_span_singleton, ← intValuation_le_pow_iff_dvd, ← valuation_of_algebraMap (K := K),
+  rw [← intValuation_le_pow_iff_mem, ← valuation_of_algebraMap (K := K),
     ← valuedAdicCompletion_eq_valuation, algebraMap.coe_sub] at ha
   refine lt_of_le_of_lt ?_ (Valuation.map_add_lt _ (ha.trans_lt (he' i)) hf)
   apply le_of_eq
@@ -358,7 +350,7 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
       exact coe_mem_adicCompletionIntegers (valuation i) a
     . apply isClosed_set_pi
       rintro w -
-      exact Valued.valuationSubring_isClosed
+      apply Valued.isClosed_valuationSubring
   . intro f hf
     rw [mem_closure_iff_nhds_zero]
     intro U hU
