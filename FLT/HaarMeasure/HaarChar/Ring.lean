@@ -177,7 +177,7 @@ variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSp
 lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
     letI : MeasurableSpace (Πʳ i, [A i, C i]) := borel _
     haveI : BorelSpace (Πʳ i, [A i, C i]) := ⟨rfl⟩
-    ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits C u i) := by
+    ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits u i) := by
   sorry -- FLT#554
 
 end restrictedproduct

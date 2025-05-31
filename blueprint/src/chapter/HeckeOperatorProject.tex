@@ -125,7 +125,7 @@ are subsets, then the \emph{restricted product} $\prod_i'X_i$ (note the dash) is
 to be the subset of the full product $\prod_i X_i$ consisting of those
 tuples $(x_i)$ such that $x_i\in Y_i$ for all but finitely many~$i$. We suppress
 the $Y_i$ from the notation in this document, although in Lean we cannot do this and
-the restricted product is written as {\tt Πʳ i, [X i, Y i]}.
+the restricted product looks something like $\prod{}^{r} i,[X\ i, Y\ i]$.
 
 It is straightforward to check that if the $X_i$ are groups or rings or $R$-modules,
 and the $Y_i$ are subgroups or subrings or submodules, then the restricted product
@@ -286,6 +286,7 @@ for compactness.
   \lean{ContinuousMulEquiv.piUnits}
   \label{ContinuousMulEquiv.piUnits}
   \leanok
+  \discussion{581}
   If $U_i$ are topological monoids then the canonical
   group isomorphism $(\prod_i U_i)^\times=\prod_i(U_i^\times)$ is a homeomorphisn.
 \end{lemma}
@@ -316,6 +317,7 @@ for compactness.
   \lean{ContinuousMulEquiv.restrictedProductUnits}
   \label{ContinuousMulEquiv.restrictedProductUnits}
   \leanok
+  \discussion{582}
   If $M_i$ are a family of topological monoids equipped with open
   submonoids $U_i$, then the canonical map $(\prod'_iM_i)^\times\to\prod'_i(M_i^\times)$
   is a homeomorphism.
