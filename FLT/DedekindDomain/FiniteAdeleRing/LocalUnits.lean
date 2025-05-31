@@ -70,7 +70,17 @@ namespace FiniteAdeleRing
 it is a uniformiser. -/
 noncomputable def localUniformiser (v : HeightOneSpectrum A) [DecidableEq (HeightOneSpectrum A)] :
     FiniteAdeleRing A K :=
-  ⟨fun i ↦ if i = v then i.adicCompletionUniformizer K else 1, sorry⟩
+  ⟨fun i ↦ if i = v then i.adicCompletionUniformizer K else 1, by
+    apply Set.Finite.subset (Set.finite_singleton v)
+    simp only [SetLike.mem_coe, Set.subset_singleton_iff, Set.mem_compl_iff, Set.mem_setOf_eq]
+    intro w hw
+    contrapose! hw
+    rw [if_neg hw]
+    exact ValuationSubring.one_mem (HeightOneSpectrum.adicCompletionIntegers K w)⟩
+
+@[simp] lemma localUniformiser_eval (v : HeightOneSpectrum A)
+    [DecidableEq (HeightOneSpectrum A)] (w : HeightOneSpectrum A) :
+    localUniformiser K v w = if w = v then w.adicCompletionUniformizer K else 1 := rfl
 
 /-- `localUniformiser v` is an idele which is 1 at all finite places except `v`, where
 it is a uniformiser. -/
@@ -78,9 +88,29 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
     [DecidableEq (HeightOneSpectrum A)] :
     (FiniteAdeleRing A K)ˣ :=
   ⟨localUniformiser K v,
-    ⟨fun i ↦ if i = v then (i.adicCompletionUniformizer K)⁻¹ else 1, sorry⟩,
-    sorry,
-    sorry⟩
+    ⟨fun i ↦ if i = v then (i.adicCompletionUniformizer K)⁻¹ else 1, by
+      apply Set.Finite.subset (Set.finite_singleton v)
+      simp only [SetLike.mem_coe, Set.subset_singleton_iff, Set.mem_compl_iff, Set.mem_setOf_eq]
+      intro w hw
+      contrapose! hw
+      rw [if_neg hw]
+      exact ValuationSubring.one_mem (HeightOneSpectrum.adicCompletionIntegers K w)⟩,
+    by
+      ext w
+      by_cases hw : w = v
+      · simp only [RestrictedProduct.mul_apply, localUniformiser_eval, hw, ↓reduceIte,
+        RestrictedProduct.mk_apply, RestrictedProduct.one_apply]
+        apply mul_inv_cancel₀
+        exact HeightOneSpectrum.adicCompletionUniformizer_ne_zero K w
+      · simp [hw],
+    by
+      ext w
+      by_cases hw : w = v
+      · simp only [RestrictedProduct.mul_apply, localUniformiser_eval, hw, ↓reduceIte,
+        RestrictedProduct.mk_apply, RestrictedProduct.one_apply]
+        apply inv_mul_cancel₀
+        exact HeightOneSpectrum.adicCompletionUniformizer_ne_zero K w
+      · simp [hw]⟩
 
 -- these should not be in a file called Matrix
 /-- `localUnit K α` for `α : (v.adicCompletion K)ˣ`, is the finite idele which is `α` at
@@ -88,10 +118,32 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
 noncomputable def localUnit {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)
     [DecidableEq (HeightOneSpectrum A)] :
     (FiniteAdeleRing A K)ˣ :=
-  ⟨⟨fun i ↦ if h : i = v then h ▸ α else 1, sorry⟩,
-  ⟨fun i ↦ if h : i = v then h ▸ α⁻¹ else 1, sorry⟩,
-  sorry,
-  sorry⟩
+  ⟨⟨fun i ↦ if h : i = v then h ▸ α else 1, by
+      apply Set.Finite.subset (Set.finite_singleton v)
+      simp only [SetLike.mem_coe, Set.subset_singleton_iff, Set.mem_compl_iff, Set.mem_setOf_eq]
+      intro w hw
+      contrapose! hw
+      rw [dif_neg hw]
+      exact ValuationSubring.one_mem (HeightOneSpectrum.adicCompletionIntegers K w)⟩,
+  ⟨fun i ↦ if h : i = v then h ▸ α⁻¹ else 1, by
+      apply Set.Finite.subset (Set.finite_singleton v)
+      simp only [SetLike.mem_coe, Set.subset_singleton_iff, Set.mem_compl_iff, Set.mem_setOf_eq]
+      intro w hw
+      contrapose! hw
+      rw [dif_neg hw]
+      exact ValuationSubring.one_mem (HeightOneSpectrum.adicCompletionIntegers K w)⟩,
+    by
+      ext w
+      by_cases hw : w = v
+      · subst hw
+        simp
+      · simp [hw],
+    by
+      ext w
+      by_cases hw : w = v
+      · subst hw
+        simp
+      · simp [hw]⟩
 
 lemma localUnit_eval_of_eq {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)
     [DecidableEq (HeightOneSpectrum A)] :
