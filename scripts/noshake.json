@@ -4,4 +4,8 @@
   "FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic": ["Mathlib.Tactic.Linarith"],
   "FLT.Mathlib.Algebra.Module.Submodule.Basic":
   ["Mathlib.Algebra.Module.Submodule.Basic"],
-  "FLT.Mathlib.Algebra.IsQuaternionAlgebra": ["Mathlib.Analysis.Quaternion"]}}
+  "FLT.Mathlib.Algebra.IsQuaternionAlgebra": ["Mathlib.Analysis.Quaternion"],
+  "FLT.DedekindDomain.IntegralClosure":
+  ["FLT.Mathlib.RingTheory.Localization.BaseChange"],
+  "FLT.AutomorphicForm.GL2.HeckeOperators.Matrix":
+  ["FLT.Mathlib.Topology.Algebra.RestrictedProduct"]}}

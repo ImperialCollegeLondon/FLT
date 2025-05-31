@@ -1,6 +1,7 @@
 import Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
 import Mathlib.Algebra.Group.Submonoid.Units
+import Mathlib
 
 namespace RestrictedProduct
 
@@ -29,6 +30,16 @@ variable {ℱ : Filter ι}
 @[simp]
 lemma one_apply [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] {i : ι} :
   (1 : Πʳ i, [R i, B i]_[ℱ]) i = 1 := rfl
+
+-- def mulSingle [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] [DecidableEq ι] (j : ι) (x : R j) :
+--     Πʳ i, [R i, B i] :=
+--   ⟨Pi.mulSingle j x, sorry⟩ -- {i} is finite
+
+-- def mulSingleMonoidHom [Π i, Monoid (R i)] [∀ i, SubmonoidClass (S i) (R i)] [DecidableEq ι]
+--     (j : ι) : R j →* Πʳ i, [R i, B i] where
+--       toFun := mulSingle j
+--       map_one' := sorry -- should be easy
+--       map_mul' := sorry -- should be easy
 
 variable
     {G H : ι → Type*}
@@ -79,7 +90,7 @@ theorem Continuous.restrictedProduct_map {φ : (j : ι₂) → G (f j) → G₂ 
     apply continuous_pi
     intro i
     apply (hφcont i).comp <| (continuous_apply (f i)).comp continuous_coe
-  exact (continuous_inclusion hT).comp hc
+  exact (RestrictedProduct.continuous_inclusion hT).comp hc
 
 variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
 theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
@@ -149,7 +160,7 @@ and the restricted product of the units of the monoids. -/
 def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
     {M : ι → Type*} [(i : ι) → Monoid (M i)]
     {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
-    (A : Π i, S i) :
+    {A : Π i, S i} :
     (Πʳ i, [M i, A i]_[ℱ])ˣ ≃*
       Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]_[ℱ] where
         toFun u := ⟨fun i ↦ ⟨u.1 i, u⁻¹.1 i, congr($u.mul_inv i), congr($u.inv_mul i)⟩,
@@ -161,3 +172,156 @@ def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
         left_inv u := by ext; rfl
         right_inv ui := by ext; rfl
         map_mul' u v := by ext; rfl
+
+def Equiv.restrictedProductProd {ι : Type*} {ℱ : Filter ι}
+    {A B : ι → Type*}
+    {C : (i : ι) → Set (A i)}
+    {D : (i : ι) → Set (B i)} :
+    Πʳ i, [A i × B i, C i ×ˢ D i]_[ℱ] ≃ (Πʳ i, [A i, C i]_[ℱ]) × (Πʳ i, [B i, D i]_[ℱ]) where
+      toFun x := (⟨fun i ↦ (x i).1, by filter_upwards [x.2] with i using And.left⟩,
+                  ⟨fun i ↦ (x i).2, by filter_upwards [x.2] with i using And.right⟩)
+      invFun yz := ⟨fun i ↦ (yz.1 i, yz.2 i), by
+        filter_upwards [yz.1.2, yz.2.2] with i using Set.mk_mem_prod⟩
+      left_inv x := by ext <;> rfl
+      right_inv y := by ext <;> rfl
+
+def Homeomorph.restrictedProductProd {ι : Type*}
+    {A B : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)]
+    {C : (i : ι) → Set (A i)} (hCopen : ∀ (i : ι), IsOpen (C i))
+    {D : (i : ι) → Set (B i)} (hCopen : ∀ (i : ι), IsOpen (D i)) :
+    Πʳ i, [A i × B i, C i ×ˢ D i] ≃ₜ (Πʳ i, [A i, C i]) × (Πʳ i, [B i, D i]) where
+      __ := Equiv.restrictedProductProd
+      continuous_toFun := sorry -- FLT#568
+      continuous_invFun := sorry -- FLT#568
+
+-- Is there a mathlibism for {f | ∀ j, f j ∈ C j i}?
+def Equiv.restrictedProductPi {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintype n]
+    {A : n → ι → Type*}
+    {C : (j : n) → (i : ι) → Set (A j i)} :
+    Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}]_[ℱ] ≃ Π j, Πʳ i, [A j i, C j i]_[ℱ] where
+      toFun x j := ⟨fun i ↦ x i j, by filter_upwards [x.2] with i h using h j⟩
+      invFun y := ⟨fun i j ↦ y j i, by sorry⟩ -- FLT#569
+      left_inv x := by ext; rfl
+      right_inv y := by ext; rfl
+
+def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
+    {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)]
+    {C : (j : n) → (i : ι) → Set (A j i)} (hCopen : ∀ j i, IsOpen (C j i)) :
+    Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}] ≃ₜ Π j, (Πʳ i, [A j i, C j i]) where
+      __ := Equiv.restrictedProductPi
+      continuous_toFun := sorry -- #570
+      continuous_invFun := sorry -- #570
+
+def Equiv.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
+    {A : ι → Type*}
+    {C : (i : ι) → Set (A i)} :
+    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ Matrix m n (Πʳ i, [A i, C i])  where
+      toFun x a b := ⟨fun i ↦ x i a b, by filter_upwards [x.2] with i h using h a b⟩
+      invFun y := ⟨fun i a b ↦ y a b i, by sorry⟩ -- FLT#569
+      left_inv x := by ext; rfl
+      right_inv y := by ext; rfl
+
+def Homeomorph.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
+    {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i)) :
+    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ₜ Matrix m n (Πʳ i, [A i, C i])  where
+      __ := Equiv.restrictedProductMatrix
+      continuous_toFun := sorry  --#571
+      continuous_invFun := sorry --#571
+
+-- shouldn't be here
+def ContinuousMulEquiv.piUnits {ι : Type*}
+    {M : ι → Type*} [(i : ι) → Monoid (M i)] [(i : ι) → TopologicalSpace (M i)]
+    [(i : ι) → ContinuousMul (M i)] :
+    (Π i, M i)ˣ ≃ₜ* Π i, (M i)ˣ where
+  __ := MulEquiv.piUnits
+  continuous_toFun := sorry
+  continuous_invFun := sorry
+
+def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
+    {M : ι → Type*} [(i : ι) → Monoid (M i)] [(i : ι) → TopologicalSpace (M i)]
+    [(i : ι) → ContinuousMul (M i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
+    (A : Π i, S i) (hA : ∀ i, IsOpen (A i : Set (M i))):
+    (Πʳ i, [M i, A i])ˣ ≃ₜ*
+      Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units] where
+  __ := MulEquiv.restrictedProductUnits
+  continuous_toFun := sorry -- needs number
+  continuous_invFun := sorry -- needs number
+
+section supports
+
+namespace RestrictedProduct
+
+variable [(i : ι) → One (G i)] in
+def mulSupport (u : Πʳ i, [G i, A i]) : Set ι :=
+  {i : ι | u i ≠ 1}
+
+variable [(i : ι) → One (G i)] in
+@[simp]
+lemma not_mem_mulSupport {u : Πʳ i, [G i, A i]} (i : ι) :
+  i ∉ mulSupport u ↔ u i = 1 := by simp [mulSupport]
+
+variable [(i : ι) → Monoid (G i)] [∀ i, SubmonoidClass (S i) (G i)] in
+lemma mul_comm_of_disjoint_mulSupport {u v : Πʳ i, [G i, A i]}
+    (h : mulSupport u ∩ mulSupport v = ∅) : u * v = v * u := by
+  ext i
+  obtain hi | hi : i ∉ u.mulSupport ∨ i ∉ v.mulSupport := by
+    rw [Set.ext_iff] at h
+    specialize h i
+    tauto
+  · rw [not_mem_mulSupport] at hi
+    simp [hi]
+  · rw [not_mem_mulSupport] at hi
+    simp [hi]
+
+variable [(i : ι) → Monoid (G i)] [∀ i, SubmonoidClass (S i) (G i)] in
+lemma mulSupport_mul_subset {u v : Πʳ i, [G i, A i]} {J : Set ι} (hu : mulSupport u ⊆ J)
+    (hv : mulSupport v ⊆ J) : mulSupport (u * v) ⊆ J := by
+  intro i hi
+  contrapose! hi
+  simp [not_mem_mulSupport, (not_mem_mulSupport i).1 (fun a ↦ hi (hu a)),
+    (not_mem_mulSupport i).1 (fun a ↦ hi (hv a))]
+
+variable [(i : ι) → Group (G i)] [∀ i, SubgroupClass (S i) (G i)] in
+@[simp] lemma mulSupport_inv {u : Πʳ i, [G i, A i]} : mulSupport u⁻¹ = mulSupport u := by
+  ext i
+  simp only [mulSupport]
+  exact inv_ne_one
+
+variable [(i : ι) → Monoid (G i)] [∀ i, SubmonoidClass (S i) (G i)]
+    {T : Type*} [SetLike T (Πʳ i, [G i, A i])]
+    [SubmonoidClass T (Πʳ i, [G i, A i])] in
+/-- A submonoid `U` of a resticted product of monoids is a product at `i` if
+`U` can be written as Uᵢ × Uⁱ with Uᵢ supported at the i'th component and Uⁱ supported
+away from `i`.
+-/
+def SubmonoidClass.isProductAt (U : T) (i : ι) : Prop :=
+  ∀ u ∈ U, ∃ uᵢ, uᵢ ∈ U ∧ ∃ uᵢ', uᵢ' ∈ U ∧ u = uᵢ * uᵢ' ∧ mulSupport uᵢ ⊆ {i} ∧ i ∉ mulSupport uᵢ'
+
+variable [(i : ι) → Group (G i)] [∀ i, SubgroupClass (S i) (G i)]
+    {T : Type*} [SetLike T (Πʳ i, [G i, A i])]
+    [SubgroupClass T (Πʳ i, [G i, A i])] in
+open scoped Pointwise in
+/--
+If `U` is a product at `i` and `g` is supported at `i` then `UgU` can be written as
+a disjoint union of cosets `gᵢU` with the `gᵢ` supported at `i`.
+-/
+lemma RestrictedProduct.mem_coset_and_mulSupport_subset_of_isProductAt
+    {U : T} (i : ι) (g : Πʳ i, [G i, A i])
+    (hU : SubmonoidClass.isProductAt U i) (hg : mulSupport g ⊆ {i}) (γ :  Πʳ i, [G i, A i])
+    (hγ : γ ∈ U * g • (U : Set (Πʳ i, [G i, A i]))) :
+    ∃ δ, δ ∈ γ • (U : Set (Πʳ i, [G i, A i])) ∧ mulSupport δ ⊆ {i} := by
+  obtain ⟨u, hu, _, ⟨v, hv, rfl⟩, rfl⟩ := hγ
+  obtain ⟨uᵢ, huᵢU, uᵢ', huᵢ'U, rfl, huᵢ, huᵢ'⟩ := hU u hu
+  refine ⟨uᵢ * g, ⟨v⁻¹ * uᵢ'⁻¹, mul_mem (inv_mem hv) (inv_mem huᵢ'U), by
+    have hcomm : g * uᵢ'⁻¹ = uᵢ'⁻¹ * g := mul_comm_of_disjoint_mulSupport <| by
+      rw [mulSupport_inv]
+      -- X ⊆ {i}, i ∉ Y => X ∩ Y = ∅
+      rw [Set.eq_empty_iff_forall_notMem]
+      intro j ⟨hj1, hj2⟩
+      apply huᵢ'
+      apply hg at hj1
+      simp_all
+    simp only [smul_eq_mul, mul_assoc, mul_inv_cancel_left, mul_right_inj, hcomm]⟩,
+    mulSupport_mul_subset huᵢ hg⟩

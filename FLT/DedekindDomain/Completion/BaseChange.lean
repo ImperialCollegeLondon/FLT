@@ -19,7 +19,6 @@ import Mathlib.Algebra.Algebra.Subalgebra.Pi
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.Data.Int.WithZero
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Valued.NormedValued

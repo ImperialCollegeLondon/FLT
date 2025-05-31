@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
+-/
 import Mathlib.Algebra.BigOperators.GroupWithZero.Action
 import Mathlib.Algebra.Module.LinearMap.Defs
 import Mathlib.Algebra.Ring.Action.Submonoid
@@ -83,30 +88,20 @@ instance [Monoid R] [MulAction R A] [SMulCommClass G R A] :
 
 -- Probably this should be a submodule instance and then get module instance for free
 instance module [Ring R] [Module R A] [SMulCommClass G R A] : Module R (fixedPoints G A) where
-  one_smul a := by
-    ext
-    push_cast
-    simp
-  mul_smul r s a := by
-    ext
-    push_cast
-    simp [mul_smul]
+  one_smul a := one_smul _ _
+  mul_smul r s a := mul_smul _ _ _
   smul_zero a := by
     ext
-    push_cast
-    simp
+    exact smul_zero _
   smul_add r s a := by
     ext
-    push_cast
-    simp
+    exact smul_add _ _ _
   add_smul r s a := by
     ext
-    push_cast
-    simp [add_smul]
+    exact add_smul _ _ _
   zero_smul a := by
     ext
-    push_cast
-    simp
+    exact zero_smul _ _
 
 end FixedPoints
 
@@ -182,6 +177,7 @@ noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
 
 variable {R : Type*} [Ring R] [Module R A] [SMulCommClass G R A]
 
+variable (g U V) in
 noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A where
   toFun := HeckeOperator_toFun h
   map_add' a b := by
@@ -192,7 +188,7 @@ noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A wher
     simp [-Set.mem_image, HeckeOperator_toFun, smul_comm, smul_finsum_mem (h.image Quotient.out)]
 
 lemma HeckeOperator_apply (a : fixedPoints V A) :
-    (HeckeOperator (R := R) h a : A) =
+    (HeckeOperator (R := R) g U V h a : A) =
     ∑ᶠ (gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * g • ↑V) : Set (G ⧸ V))), gᵢ • (a : A) :=
   rfl
 
@@ -202,8 +198,8 @@ theorem comm {g₁ g₂ : G} (h₁ : (QuotientGroup.mk '' (U * g₁ • U) : Set
       Set.BijOn QuotientGroup.mk s₁ (QuotientGroup.mk '' (U * g₁ • U) : Set (G ⧸ U)) ∧
       Set.BijOn QuotientGroup.mk s₂ (QuotientGroup.mk '' (U * g₂ • U) : Set (G ⧸ U)) ∧
       ∀ a ∈ s₁, ∀ b ∈ s₂, a * b = b * a) :
-    (HeckeOperator h₁ ∘ₗ HeckeOperator h₂ : fixedPoints U A →ₗ[R] fixedPoints U A) =
-    HeckeOperator h₂ ∘ₗ HeckeOperator h₁ := by
+    (HeckeOperator g₁ U U h₁ ∘ₗ HeckeOperator g₂ U U h₂ : fixedPoints U A →ₗ[R] fixedPoints U A) =
+    HeckeOperator g₂ U U h₂ ∘ₗ HeckeOperator g₁ U U h₁ := by
   ext a
   rcases hcomm with ⟨s₁, s₂, hs₁, hs₂, hcomm⟩
   simp only [LinearMap.coe_comp, Function.comp_apply]

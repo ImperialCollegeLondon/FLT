@@ -6,7 +6,6 @@ Authors: Madison Crim
 import Mathlib.LinearAlgebra.DirectSum.Finsupp
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Algebra.Module.FinitePresentation
-import Mathlib.LinearAlgebra.Quotient.Pi
 import Mathlib.Algebra.FiveLemma
 import Mathlib.LinearAlgebra.TensorProduct.Pi
 import Mathlib.Algebra.Module.PUnit
