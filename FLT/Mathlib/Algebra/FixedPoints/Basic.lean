@@ -129,7 +129,7 @@ instance module [AddCommGroup A] [Module R A] [DistribSMul M A] [SMulCommClass M
     Module R (FixedPoints M A) where
       __ := addCommGroup M A
       smul r a := ⟨r • a.1, fun m ↦ by rw [smul_comm, a.2]⟩
-      one_smul := sorry
+      one_smul := sorry -- all these are #586
       mul_smul := sorry
       smul_zero := sorry
       smul_add := sorry
