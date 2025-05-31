@@ -178,7 +178,13 @@ lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
     letI : MeasurableSpace (Πʳ i, [A i, C i]) := borel _
     haveI : BorelSpace (Πʳ i, [A i, C i]) := ⟨rfl⟩
     ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits u i) := by
-  sorry -- FLT#554
+  set u := MulEquiv.restrictedProductUnits u
+  apply addEquivAddHaarChar_restrictedProductCongrRight (C := (C · |>.toAddSubgroup))
+    (ContinuousAddEquiv.mulLeft <| u ·)
+  refine Filter.Eventually.and u.coe_prop u⁻¹.coe_prop |>.mono fun i ⟨hu, hv⟩ ↦ ⟨?_, ?_, ?_⟩
+  · exact fun _ ↦ (C i).mul_mem ((C i).mem_units_iff _ |>.mp hu).1
+  · exact Set.injOn_of_injective (ContinuousAddEquiv.injective _)
+  · exact fun c hc ↦ ⟨(u i)⁻¹ * c, (C i).mul_mem ((C i).mem_units_iff _ |>.mp hv).1 hc, by simp⟩
 
 end restrictedproduct
 
