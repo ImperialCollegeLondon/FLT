@@ -1,7 +1,9 @@
 import Mathlib.Tactic.Peel
 import Mathlib.Analysis.Quaternion
 import Mathlib.RingTheory.Flat.Basic
-import FLT.HIMExperiments.flatness
+import Mathlib.Algebra.Module.Torsion
+import Mathlib.RingTheory.Flat.Basic
+--import FLT.HIMExperiments.flatness
 /-
 
 # Example of a space of automorphic forms
@@ -200,6 +202,14 @@ lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
   intro a ha
   rw [AddMonoidHom.coe_mulLeft] at ha
   exact eq_zero_of_mul_eq_zero N a ha
+
+-- Mathlib PR https://github.com/leanprover-community/mathlib4/pull/25334
+-- contains this next result.
+open Module Submodule in
+/-- If `R` is a PID then an `R`-module is flat iff it has no torsion. -/
+theorem Module.Flat.flat_iff_torsion_eq_bot {R : Type*} [CommRing R]
+    {M : Type*} [AddCommGroup M] [Module R M] [IsPrincipalIdealRing R] [IsDomain R] :
+    Flat R M ↔ torsion R M = ⊥ := sorry
 
 instance ZHat_flat : Module.Flat ℤ ZHat := by
   rw [Module.Flat.flat_iff_torsion_eq_bot]
