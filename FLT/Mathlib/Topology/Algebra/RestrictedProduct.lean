@@ -355,24 +355,29 @@ of restricted products.
 def Equiv.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
     {A : ι → Type*}
     {C : (i : ι) → Set (A i)} :
-    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ Matrix m n (Πʳ i, [A i, C i])  where
-      toFun x a b := ⟨fun i ↦ x i a b, by filter_upwards [x.2] with i h using h a b⟩
-      invFun y := ⟨fun i a b ↦ y a b i, (by simp [- Filter.eventually_cofinite])⟩
-      left_inv x := by ext; rfl
-      right_inv y := by ext; rfl
+    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ Matrix m n (Πʳ i, [A i, C i]) :=
+  (Equiv.restrictedProductPi (C := fun _ i ↦ {f : n → A i | ∀ a, f a ∈ C i})).trans
+    (Equiv.piCongrRight fun _ ↦ Equiv.restrictedProductPi)
+
+theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Fintype n] {A : ι → Type*}
+    [(i : ι) → TopologicalSpace (A i)] {C : (i : ι) → Set (A i)}
+    (i : ι) (hCopen : ∀ (i : ι), IsOpen (C i)) :
+    IsOpen {f : n → A i | ∀ (a : n), f a ∈ C i} := by
+  convert isOpen_set_pi (s := fun _ : n ↦ C i) (Set.toFinite .univ) (fun _ _ ↦ hCopen i)
+  ext f
+  simp
 
 /-- The homeomorphism between a restricted product of m x n matrices, and m x n matrices
 of restricted products, when the products are with respect to open sets.
 -/
-@[nolint unusedArguments] -- openness will be used when #571 sorry is filled in
--- and then this can be removed
 def Homeomorph.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
     {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
     {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i)) :
-    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ₜ Matrix m n (Πʳ i, [A i, C i])  where
-      __ := Equiv.restrictedProductMatrix
-      continuous_toFun := sorry  --#571
-      continuous_invFun := sorry --#571
+    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ₜ Matrix m n (Πʳ i, [A i, C i]) :=
+  (Homeomorph.restrictedProductPi
+    (C := fun _ i ↦ {f : n → A i | ∀ a, f a ∈ C i})
+    (fun _ _ ↦ restrictedProductMatrix_aux _ hCopen)).trans
+  (Homeomorph.piCongrRight fun _ ↦ Homeomorph.restrictedProductPi (fun _ ↦ hCopen))
 
 /-- The monoid homeomorphism between the units of a restricted product of topological monoids
 and the restricted product of the units of the monoids, when the products are with
