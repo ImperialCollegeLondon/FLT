@@ -562,7 +562,9 @@ Then $d_G(\phi)=1.$
   homeomorphisms such that the square commutes (i.e., $f\circ\alpha=\beta\circ f$)
   then $d_A(\alpha)=d_B(\beta)$.
 \end{lemma}
-\begin{proof} Choose a regular Haar measure $\mu_B$ on $B$. We just saw
+\begin{proof}
+  \leanok
+  Choose a regular Haar measure $\mu_B$ on $B$. We just saw
   in lemmas~\ref{Topology.IsOpenEmbedding.isHaarMeasure_comap}
   and~\ref{Topology.IsOpenEmbedding.regular_comap} that its pullback
   $\mu_A:=f^*\mu_B$ to $A$ is also a regular Haar
@@ -660,6 +662,7 @@ As a special case, if $R$ is the restricted product of a collection of topologic
   If $u=(u_i)_i\in R^\times$ then $\delta_R(u)=\prod_i\delta_{R_i}(u_i)$.
 \end{corollary}
 \begin{proof}
+  \leanok
   \uses{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight}
   By definition of restricted product we have $u_i\in C_i$ for all but finitely many $i$.
   Note also that $u$ has an inverse $v=(v_i)_i$ with $v_i\in C_i$ for all but finitely many $i$.

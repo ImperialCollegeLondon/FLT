@@ -14,7 +14,7 @@ lemma _root_.ContinuousMulEquiv.isHaarMeasure_comap {G H : Type*}
     [Group G] [TopologicalSpace G] [MeasurableSpace G] [MeasurableMul G] [BorelSpace G]
     [Group H] [TopologicalSpace H] [MeasurableSpace H] [MeasurableMul H] [BorelSpace H]
     (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) :=
-    φ.toHomeomorph.isOpenEmbedding.isHaarMeasure_comap (φ := φ.toMulEquiv.toMonoidHom) μ
+  φ.toHomeomorph.isOpenEmbedding.isHaarMeasure_comap (φ := φ.toMulEquiv.toMonoidHom) μ
 
 lemma _root_.Homeomorph.regular_comap {G H : Type*}
     [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
@@ -162,27 +162,21 @@ lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
   rw [MeasureTheory.Measure.haarScalarFactor_eq_mul haar (haar.map ψ),
     ← mulEquivHaarChar_eq (haar.map ψ)]
 
-open ENNReal in
+open ENNReal TopologicalSpace Set in
 @[to_additive addEquivAddHaarChar_eq_one_of_compactSpace]
 lemma mulEquivHaarChar_eq_one_of_compactSpace [CompactSpace G] (φ : G ≃ₜ* G) :
     mulEquivHaarChar φ = 1 := by
-  set m := haar (.univ : Set G) with hm
-  have hfinite : m < ∞ := IsCompact.measure_lt_top isCompact_univ
-  have hpos : 0 < m := IsOpen.measure_pos haar isOpen_univ ⟨1, trivial⟩
-  let m₀ : ℝ≥0 := m.toNNReal
-  have hm₀ : 0 < m₀ := by
-    unfold m₀
-    refine toNNReal_pos hpos.ne' hfinite.ne -- email Heather
-  suffices m₀ * mulEquivHaarChar φ = m₀ by
-    have : m₀ * mulEquivHaarChar φ = m₀ * 1 := by simpa using this
-    rwa [NNReal.mul_eq_mul_left hm₀.ne'] at this
-  have := mulEquivHaarChar_smul_preimage (haar : Measure G) (X := .univ) φ
-  simp only [← hm, Set.preimage_univ] at this
-  symm
-  have := congr(ENNReal.toNNReal $this)
-  simp only [smul_toNNReal] at this
-  rw [mul_comm]
-  exact this
+  set μ := haarMeasure (⟨⟨univ, isCompact_univ⟩, by simp⟩ : PositiveCompacts G)
+  have hμ : μ univ = 1 := haarMeasure_self
+  rw [mulEquivHaarChar_eq μ]
+  suffices (μ.haarScalarFactor (map φ μ) : ℝ≥0∞) = 1 by exact_mod_cast this
+  calc
+    _ = μ.haarScalarFactor (map φ μ) • (1 : ℝ≥0∞) := by rw [ENNReal.smul_def, smul_eq_mul, mul_one]
+    _ = μ.haarScalarFactor (map φ μ) • (map φ μ univ) := by
+          rw [map_apply (map_continuous φ).measurable .univ, Set.preimage_univ, hμ]
+    _ = μ univ := by
+          conv_rhs => rw [isMulInvariant_eq_smul_of_compactSpace μ (map φ μ), Measure.smul_apply]
+    _ = 1 := hμ
 
 open Topology in
 @[to_additive]
@@ -193,7 +187,27 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
     [MeasurableSpace Y] [BorelSpace Y]
     {f : X →* Y} (hf : IsOpenEmbedding f) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y)
     (hComm : ∀ x, f (α x) = β (f x)) : mulEquivHaarChar α = mulEquivHaarChar β := by
-  sorry -- FLT#551
+  let μY : Measure Y := haar
+  let μX := comap f μY
+  have hμX : IsHaarMeasure μX := hf.isHaarMeasure_comap μY
+  have : μX.Regular := hf.regular_comap _ μY
+  obtain ⟨⟨g, g_cont⟩, g_comp, g_nonneg, g_one⟩ :
+    ∃ g : C(X, ℝ), HasCompactSupport g ∧ 0 ≤ g ∧ g 1 ≠ 0 := exists_continuous_nonneg_pos 1
+  have int_g_ne_zero : ∫ x, g x ∂μX ≠ 0 :=
+    ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
+  refine NNReal.coe_injective <| Or.resolve_right (mul_eq_mul_right_iff.mp ?_) int_g_ne_zero
+  calc mulEquivHaarChar α • ∫ a, g a ∂μX
+    _ = ∫ a, g a ∂(comap α μX) := (mulEquivHaarChar_smul_integral_comap μX α).symm
+    _ = ∫ a, g a ∂(comap (f ∘ α) μY) := by
+      rw [comap_comap ?_ hf.injective hf.measurableEmbedding.measurableSet_image']
+      exact α.measurableEmbedding.measurableSet_image'
+    _ = ∫ a, g a ∂(comap (β ∘ f) μY) := by congr; exact funext hComm
+    _ = ∫ a, g a ∂(comap f (comap β μY)) := by
+      rw [comap_comap hf.measurableEmbedding.measurableSet_image' β.injective ?_]
+      exact β.measurableEmbedding.measurableSet_image'
+    _ = ∫ a, g a ∂(comap f (mulEquivHaarChar β • μY)) := by rw [← mulEquivHaarChar_comap]
+    _ = ∫ a, g a ∂(comap f ((mulEquivHaarChar β : ENNReal) • μY)) := rfl
+    _ = mulEquivHaarChar β • ∫ a, g a ∂μX := by rw [comap_smul, integral_smul_measure]; rfl
 
 end basic
 

@@ -92,7 +92,7 @@ theorem exists_subgroup_isOpen_and_subset {α : Type*} [TopologicalSpace α]
     ∃ G : Subgroup α, IsOpen (X := α) G ∧ (G : Set α) ⊆ U := by
   obtain ⟨V, hVU, hV, h1V⟩ := mem_nhds_iff.mp hU
   obtain ⟨K, hK, hxK, hKU⟩ := compact_exists_isClopen_in_isOpen hV h1V
-  obtain ⟨⟨G, hG⟩, hG'⟩ := IsTopologicalGroup.exist_openSubgroup_sub_clopen_nhd_of_one hK hxK
+  obtain ⟨⟨G, hG⟩, hG'⟩ := IsTopologicalGroup.exist_openSubgroup_sub_clopen_nhds_of_one hK hxK
   exact ⟨G, hG, (hG'.trans hKU).trans hVU⟩
 
 @[simp]
