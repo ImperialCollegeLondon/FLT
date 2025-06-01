@@ -97,7 +97,11 @@ theorem Continuous.restrictedProduct_map {φ : (j : ι₂) → G (f j) → G₂ 
     apply (hφcont i).comp <| (continuous_apply (f i)).comp continuous_coe
   exact (RestrictedProduct.continuous_inclusion hT).comp hc
 
+-- TODO: this attribute should be in mathlib
+attribute [fun_prop] RestrictedProduct.continuous_inclusion
+
 variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
+@[fun_prop]
 theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
@@ -105,6 +109,8 @@ theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
   Continuous.restrictedProduct_map Filter.tendsto_id hφ hφcont
 
 -- now let's add groups
+
+section groups
 
 variable {S T : ι → Type*} -- subobject types
 variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
@@ -178,33 +184,77 @@ def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
         right_inv ui := by ext; rfl
         map_mul' u v := by ext; rfl
 
-/-- The bijection between a restricted product of binary products, and the binary projuct
+end groups
+
+section binary
+
+variable {ι : Type*} {ℱ : Filter ι} {A B : ι → Type*}
+  {C : (i : ι) → Set (A i)} {D : (i : ι) → Set (B i)}
+
+
+/-- The bijection between a restricted product of binary products, and the binary product
 of the restricted products. -/
-def Equiv.restrictedProductProd {ι : Type*} {ℱ : Filter ι}
-    {A B : ι → Type*}
-    {C : (i : ι) → Set (A i)}
-    {D : (i : ι) → Set (B i)} :
+@[simps]
+def Equiv.restrictedProductProd :
     Πʳ i, [A i × B i, C i ×ˢ D i]_[ℱ] ≃ (Πʳ i, [A i, C i]_[ℱ]) × (Πʳ i, [B i, D i]_[ℱ]) where
-      toFun x := (⟨fun i ↦ (x i).1, by filter_upwards [x.2] with i using And.left⟩,
-                  ⟨fun i ↦ (x i).2, by filter_upwards [x.2] with i using And.right⟩)
-      invFun yz := ⟨fun i ↦ (yz.1 i, yz.2 i), by
+      toFun x := (congrRight (fun i (t : A i × B i) ↦ t.1) (by simp +contextual [Set.MapsTo]) x,
+                  congrRight (fun i (t : A i × B i) ↦ t.2) (by simp +contextual [Set.MapsTo]) x)
+      invFun yz :=
+        ⟨fun i ↦ (yz.1 i, yz.2 i), by
         filter_upwards [yz.1.2, yz.2.2] with i using Set.mk_mem_prod⟩
       left_inv x := by ext <;> rfl
       right_inv y := by ext <;> rfl
 
+lemma Equiv.restrictedProductProd_symm_comp_inclusion {ℱ₁ ℱ₂ : Filter ι} (hℱ : ℱ₁ ≤ ℱ₂) :
+    Equiv.restrictedProductProd.symm ∘ Prod.map (inclusion _ _ hℱ) (inclusion _ _ hℱ) =
+      inclusion (fun i ↦ A i × B i) (fun i ↦ C i ×ˢ D i) hℱ ∘ Equiv.restrictedProductProd.symm :=
+  rfl
+
+/--
+The forward direction of `Equiv.restrictedProductProd` is continuous with any filter, not just the
+cofinite one
+-/
+lemma Equiv.continuous_restrictedProductProd
+    [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)] :
+    Continuous (Equiv.restrictedProductProd (C := C) (D := D) (ℱ := ℱ)) := by
+  simp only [Equiv.restrictedProductProd, coe_fn_mk]
+  fun_prop
+
+@[fun_prop]
+lemma Equiv.continuous_restrictedProductProd_symm {S : Set ι}
+    [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)] :
+    Continuous (Equiv.restrictedProductProd (C := C) (D := D) (ℱ := .principal S)).symm := by
+  simp only [restrictedProductProd, coe_fn_symm_mk]
+  rw [continuous_rng_of_principal]
+  -- this proof is doing something a little suspicious, but it's not clear what
+  -- I'm relying on the topological properties of the restricted product on a principal filter
+  -- so maybe we need more lemmas about that
+  -- eg each projection `Πʳ i, [A i, C i]_[.principal S] → A i` is continuous
+  change Continuous (fun i ↦ fun j ↦ (_, _))
+  rw [continuous_pi_iff]
+  intro i
+  rw [continuous_prodMk]
+  constructor
+  · exact ((continuous_apply i).comp isEmbedding_coe_of_principal.continuous).comp continuous_fst
+  · exact ((continuous_apply i).comp isEmbedding_coe_of_principal.continuous).comp continuous_snd
+
 /-- The homeomorphism between restricted product of binary products, and the binary projuct
 of the restricted products, when the products are with respect to open subsets.
 -/
-@[nolint unusedArguments] -- they'll be used when the sorries are filled in;
--- don't remove this until the declaration is sorry-free or else linting will fail.
-def Homeomorph.restrictedProductProd {ι : Type*}
-    {A B : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)]
-    {C : (i : ι) → Set (A i)} (hCopen : ∀ (i : ι), IsOpen (C i))
-    {D : (i : ι) → Set (B i)} (hCopen : ∀ (i : ι), IsOpen (D i)) :
+def Homeomorph.restrictedProductProd [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)]
+    (hCopen : ∀ (i : ι), IsOpen (C i)) (hDopen : ∀ (i : ι), IsOpen (D i)) :
     Πʳ i, [A i × B i, C i ×ˢ D i] ≃ₜ (Πʳ i, [A i, C i]) × (Πʳ i, [B i, D i]) where
-      __ := Equiv.restrictedProductProd
-      continuous_toFun := sorry -- FLT#568
-      continuous_invFun := sorry -- FLT#568
+  __ := Equiv.restrictedProductProd
+  continuous_toFun := Equiv.continuous_restrictedProductProd
+  continuous_invFun := by
+    rw [RestrictedProduct.continuous_dom_prod hCopen hDopen]
+    intro S hS
+    rw [Equiv.invFun_as_coe, Equiv.restrictedProductProd_symm_comp_inclusion]
+    fun_prop
+
+end binary
+
+section pi
 
 -- Is there a mathlibism for {f | ∀ j, f j ∈ C j i}?
 -- Yes: Set.pi Set.univ
@@ -216,8 +266,8 @@ def Equiv.restrictedProductPi {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintyp
     {A : n → ι → Type*}
     {C : (j : n) → (i : ι) → Set (A j i)} :
     Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}]_[ℱ] ≃ Π j, Πʳ i, [A j i, C j i]_[ℱ] where
-      toFun x j := ⟨fun i ↦ x i j, by filter_upwards [x.2] with i h using h j⟩
-      invFun y := ⟨fun i j ↦ y j i, by simp⟩
+      toFun x j := .mk (fun i ↦ x i j) (by filter_upwards [x.2] with i h using h j)
+      invFun y := .mk (fun i j ↦ y j i) (by simp)
       left_inv x := by ext; rfl
       right_inv y := by ext; rfl
 
@@ -230,9 +280,18 @@ def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
     {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)]
     {C : (j : n) → (i : ι) → Set (A j i)} (hCopen : ∀ j i, IsOpen (C j i)) :
     Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}] ≃ₜ Π j, (Πʳ i, [A j i, C j i]) where
-      __ := Equiv.restrictedProductPi
-      continuous_toFun := sorry -- #570
-      continuous_invFun := sorry -- #570
+  __ := Equiv.restrictedProductPi
+  continuous_toFun := by
+    simp only [Equiv.restrictedProductPi, Set.mem_setOf_eq, Equiv.toFun_as_coe, Equiv.coe_fn_mk,
+      continuous_pi_iff]
+    simp +singlePass only [RestrictedProduct.continuous_dom]
+    intro i S hS
+    let f : Πʳ i, [(j : n) → A j i, {f | ∀ j, f j ∈ C j i}]_[.principal S] → _ :=
+      inclusion (A i) (C i) hS ∘ congrRight (fun j t ↦ t i) (by simp +contextual [Set.MapsTo])
+    convert_to Continuous f
+    fun_prop
+  continuous_invFun := by
+    sorry
 
 /-- The bijection between a restricted product of m x n matrices, and m x n matrices
 of restricted products.
@@ -286,9 +345,16 @@ def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
       continuous_of_continuousAt_one MulEquiv.restrictedProductUnits.symm this
     sorry -- #582
       }
+
+end pi
+
 section supports
 
 namespace RestrictedProduct
+
+variable {S T : ι → Type*} -- subobject types
+variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
+variable {A : Π i, S i} {B : Π i, T i}
 
 -- this should all be for dependent functions
 
