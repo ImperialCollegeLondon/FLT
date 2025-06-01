@@ -2,6 +2,19 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.GroupTheory.MonoidLocalization.Basic
 import Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.TensorProduct.Free
+/-
+
+# Right algebra instances
+
+This file enables you to write `open scoped RightAlgebra` and magically `A ⊗[R] B`
+becomes a `B`-algebra as well as an `A`-algebra, and you get instances like
+`[Module.Finite R A] → [Module.Finite B (A ⊗[R] B)]`.
+
+Mathlib would not have this hack because `A ⊗[R] A` is now an `A`-algebra in two
+different ways. But this situation will not arise in the cases where we use this,
+and it's very convenient to open the scope temporarily in order to prove theorems
+which can be used without the scope open.
+-/
 
 scoped[RightAlgebra] attribute [instance] Algebra.TensorProduct.rightAlgebra
 
