@@ -274,9 +274,7 @@ variable {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintype n]
 /-- The bijection between a restricted product of finite products, and a finite product
 of restricted products.
 -/
-def Equiv.restrictedProductPi {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintype n]
-    {A : n → ι → Type*}
-    {C : (j : n) → (i : ι) → Set (A j i)} :
+def Equiv.restrictedProductPi :
     Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}]_[ℱ] ≃ Π j, Πʳ i, [A j i, C j i]_[ℱ] where
   toFun x j := congrRight (fun i t ↦ t _) (by simp +contextual [Set.MapsTo]) x
   invFun y := .mk (fun i j ↦ y j i) (by simp)
