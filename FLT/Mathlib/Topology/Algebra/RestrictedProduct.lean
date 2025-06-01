@@ -207,7 +207,7 @@ def Homeomorph.restrictedProductProd {ι : Type*}
       continuous_invFun := sorry -- FLT#568
 
 -- Is there a mathlibism for {f | ∀ j, f j ∈ C j i}?
--- Yes: Set.pi Set.univ
+-- Yes: Set.pi Set.univ, except that that is defeq to `{f | ∀ j ∈ univ, f j ∈ C j i}`
 
 /-- The bijection between a restricted product of finite products, and a finite product
 of restricted products.
