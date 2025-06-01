@@ -31,7 +31,6 @@ import FLT.GaloisRepresentation.HardlyRamified
 import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat
-import FLT.HIMExperiments.flatness
 import FLT.HaarMeasure.HaarChar.AddEquiv
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.HaarMeasure.HaarChar.FiniteDimensional
