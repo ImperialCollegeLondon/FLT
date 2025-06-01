@@ -356,8 +356,7 @@ def Equiv.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintyp
     {A : ι → Type*}
     {C : (i : ι) → Set (A i)} :
     Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ Matrix m n (Πʳ i, [A i, C i]) :=
-  (Equiv.restrictedProductPi (C := fun _ i ↦ {f : n → A i | ∀ a, f a ∈ C i})).trans
-    (Equiv.piCongrRight fun _ ↦ Equiv.restrictedProductPi)
+  Equiv.restrictedProductPi.trans (Equiv.piCongrRight fun _ ↦ Equiv.restrictedProductPi)
 
 theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Fintype n] {A : ι → Type*}
     [(i : ι) → TopologicalSpace (A i)] {C : (i : ι) → Set (A i)}
@@ -374,10 +373,15 @@ def Homeomorph.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [F
     {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
     {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i)) :
     Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ₜ Matrix m n (Πʳ i, [A i, C i]) :=
-  (Homeomorph.restrictedProductPi
-    (C := fun _ i ↦ {f : n → A i | ∀ a, f a ∈ C i})
-    (fun _ _ ↦ restrictedProductMatrix_aux _ hCopen)).trans
-  (Homeomorph.piCongrRight fun _ ↦ Homeomorph.restrictedProductPi (fun _ ↦ hCopen))
+  (Homeomorph.restrictedProductPi (fun _ _ ↦ restrictedProductMatrix_aux _ hCopen)).trans
+    (Homeomorph.piCongrRight fun _ ↦ Homeomorph.restrictedProductPi (fun _ ↦ hCopen))
+
+lemma Homeomorph.restrictedProductMatrix_toEquiv {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
+    {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i)) :
+    (restrictedProductMatrix hCopen).toEquiv =
+      Equiv.restrictedProductMatrix (m := m) (n := n) :=
+  rfl
 
 /-- The monoid homeomorphism between the units of a restricted product of topological monoids
 and the restricted product of the units of the monoids, when the products are with
