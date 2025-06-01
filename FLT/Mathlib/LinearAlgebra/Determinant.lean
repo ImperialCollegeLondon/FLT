@@ -3,8 +3,15 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Yunzhou Xie
 -/
-import Mathlib
 import FLT.Mathlib.Algebra.Algebra.Bilinear
+import Mathlib.Algebra.Azumaya.Basic
+import Mathlib.Algebra.Central.Defs
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+import Mathlib.LinearAlgebra.Charpoly.BaseChange
+import Mathlib.LinearAlgebra.FreeModule.PID
+import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.SimpleModule.IsAlgClosed
 
 variable (k : Type*) [Field k] {D : Type*} [Ring D] [Algebra k D]
 open scoped TensorProduct
