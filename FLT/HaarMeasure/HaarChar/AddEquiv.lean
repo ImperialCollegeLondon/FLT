@@ -276,6 +276,37 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
     haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   sorry -- FLT#521 -- induction on size of ι
+  /-
+
+  The above comment suggests using induction on the size of the index type ι.
+  Since ι is a Fintype, we can use the fact that any finite type is either
+  empty or has one element removed from a smaller finite type.
+  Here's the proof strategy:
+
+  * Handle the empty case (when ι is empty)
+  * Use induction to reduce to the case where we add one element
+  * Use the product formula for two groups (which should be available
+      from mulEquivHaarChar_prodCongr)
+
+  The proof uses the following key steps:
+
+  1. Base case: When ι is empty, the product type Π i, H i
+      is isomorphic to the unit group. Both sides equal 1.
+
+  2. Inductive step:
+
+    * `Pick` an element j : ι and decompose Π i, H i ≃ₗₜ* H j × Π i : ι',
+      H i where ι' = ι \ {j}
+    * `Show` that piCongrRight ψ decomposes as ψ j × piCongrRight (ψ|ι')
+    * `Apply` mulEquivHaarChar_prodCongr to get the product formula
+    * `Use` the induction hypothesis on the smaller index set ι'
+    * `Rearrange` the finite product to complete the proof
+
+  The key insight is that the Haar characteristic is multiplicative
+  with respect to products, allowing us to reduce the finite product
+  to a binary product and use induction.
+
+  -/
 
 end pi
 
