@@ -52,15 +52,24 @@ via a topological argument, which we abstract here.
 
 section finiteness
 
+open Topology Set
+
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     {g : G} {U V : Subgroup G}
-
 
 open scoped Pointwise in
 lemma QuotientGroup.mk_image_finite_of_compact_of_open (hU : IsCompact (U : Set G))
     (hV : IsCompact (V : Set G)) (hVopen : IsOpen (V : Set G)) :
     (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)).Finite := by
-  sorry --FLT#563
+  have : DiscreteTopology (G ⧸ V) := by
+    rw [← forall_open_iff_discrete]
+    intro s
+    rw [← (isQuotientMap_mk V).isOpen_preimage, ← (QuotientGroup.mk_surjective).image_preimage s,
+      preimage_image_mk_eq_iUnion_image, iUnion_subtype]
+    conv in ⋃ x ∈ _, _ => change ⋃ x ∈ (V : Set G), _
+    rw [iUnion_mul_right_image]
+    exact IsOpen.mul_left hVopen
+  exact ((hU.mul <| hV.image (by fun_prop)).image continuous_mk).finite_of_discrete
 
 end finiteness
 
