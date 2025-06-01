@@ -246,39 +246,6 @@ lemma Equiv.continuous_restrictedProductProd_symm {S : Set ι}
   · exact (RestrictedProduct.continuous_apply i).comp continuous_fst
   · exact (RestrictedProduct.continuous_apply i).comp continuous_snd
 
-lemma Equiv.restrictedProductProd_symm_comp_inclusion {ℱ₁ ℱ₂ : Filter ι} (hℱ : ℱ₁ ≤ ℱ₂) :
-    Equiv.restrictedProductProd.symm ∘ Prod.map (inclusion _ _ hℱ) (inclusion _ _ hℱ) =
-      inclusion (fun i ↦ A i × B i) (fun i ↦ C i ×ˢ D i) hℱ ∘ Equiv.restrictedProductProd.symm :=
-  rfl
-
-/--
-The forward direction of `Equiv.restrictedProductProd` is continuous with any filter, not just the
-cofinite one
--/
-lemma Equiv.continuous_restrictedProductProd
-    [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)] :
-    Continuous (Equiv.restrictedProductProd (C := C) (D := D) (ℱ := ℱ)) := by
-  simp only [Equiv.restrictedProductProd, coe_fn_mk]
-  fun_prop
-
-@[fun_prop]
-lemma Equiv.continuous_restrictedProductProd_symm {S : Set ι}
-    [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)] :
-    Continuous (Equiv.restrictedProductProd (C := C) (D := D) (ℱ := .principal S)).symm := by
-  simp only [restrictedProductProd, coe_fn_symm_mk]
-  rw [continuous_rng_of_principal]
-  -- this proof is doing something a little suspicious, but it's not clear what
-  -- I'm relying on the topological properties of the restricted product on a principal filter
-  -- so maybe we need more lemmas about that
-  -- eg each projection `Πʳ i, [A i, C i]_[.principal S] → A i` is continuous
-  change Continuous (fun i ↦ fun j ↦ (_, _))
-  rw [continuous_pi_iff]
-  intro i
-  rw [continuous_prodMk]
-  constructor
-  · exact ((continuous_apply i).comp isEmbedding_coe_of_principal.continuous).comp continuous_fst
-  · exact ((continuous_apply i).comp isEmbedding_coe_of_principal.continuous).comp continuous_snd
-
 /-- The homeomorphism between restricted product of binary products, and the binary projuct
 of the restricted products, when the products are with respect to open subsets.
 -/
@@ -370,8 +337,6 @@ lemma Equiv.continuous_restrictedProductPi_symm {S : Set ι}
 /-- The homeomorphism between a restricted product of finite products, and a finite product
 of restricted products, when the products are with respect to open subsets.
 -/
-@[nolint unusedArguments] -- finiteness will be used when #569 sorry is filled in
--- and then this can be removed
 def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
     {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)]
     {C : (j : n) → (i : ι) → Set (A j i)} (hCopen : ∀ j i, IsOpen (C j i)) :
