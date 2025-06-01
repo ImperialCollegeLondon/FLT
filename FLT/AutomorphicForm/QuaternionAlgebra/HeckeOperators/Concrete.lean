@@ -52,12 +52,11 @@ via a topological argument, which we abstract here.
 
 section finiteness
 
-open Set
+open Topology Set
 
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     {g : G} {U V : Subgroup G}
 
-open Topology in
 open scoped Pointwise in
 lemma QuotientGroup.mk_image_finite_of_compact_of_open (hU : IsCompact (U : Set G))
     (hV : IsCompact (V : Set G)) (hVopen : IsOpen (V : Set G)) :
