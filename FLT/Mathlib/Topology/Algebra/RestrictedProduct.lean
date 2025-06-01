@@ -23,6 +23,8 @@ lemma mul_apply {S : ι → Type*} [(i : ι) → SetLike (S i) (R i)] {B : (i : 
     [(i : ι) → Mul (R i)] [∀ (i : ι), MulMemClass (S i) (R i)]
     (x y : Πʳ (i : ι), [R i, ↑(B i)]_[ℱ]) (i : ι) : (x * y) i = x i * y i := rfl
 
+@[simp] lemma eventually (x : Πʳ i, [R i, A i]_[ℱ]) : ∀ᶠ i in ℱ, x i ∈ A i := x.2
+
 variable {S : ι → Type*} -- subobject type
 variable [Π i, SetLike (S i) (R i)]
 variable {B : Π i, S i}
@@ -205,6 +207,8 @@ def Homeomorph.restrictedProductProd {ι : Type*}
       continuous_invFun := sorry -- FLT#568
 
 -- Is there a mathlibism for {f | ∀ j, f j ∈ C j i}?
+-- Yes: Set.pi Set.univ
+
 /-- The bijection between a restricted product of finite products, and a finite product
 of restricted products.
 -/
@@ -215,7 +219,7 @@ def Equiv.restrictedProductPi {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintyp
     {C : (j : n) → (i : ι) → Set (A j i)} :
     Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}]_[ℱ] ≃ Π j, Πʳ i, [A j i, C j i]_[ℱ] where
       toFun x j := ⟨fun i ↦ x i j, by filter_upwards [x.2] with i h using h j⟩
-      invFun y := ⟨fun i j ↦ y j i, by sorry⟩ -- FLT#569
+      invFun y := ⟨fun i j ↦ y j i, by simp⟩
       left_inv x := by ext; rfl
       right_inv y := by ext; rfl
 
@@ -242,7 +246,7 @@ def Equiv.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintyp
     {C : (i : ι) → Set (A i)} :
     Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ Matrix m n (Πʳ i, [A i, C i])  where
       toFun x a b := ⟨fun i ↦ x i a b, by filter_upwards [x.2] with i h using h a b⟩
-      invFun y := ⟨fun i a b ↦ y a b i, by sorry⟩ -- FLT#569
+      invFun y := ⟨fun i a b ↦ y a b i, (by simp [- Filter.eventually_cofinite])⟩
       left_inv x := by ext; rfl
       right_inv y := by ext; rfl
 
