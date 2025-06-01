@@ -275,7 +275,8 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
     letI : MeasurableSpace (Π i, H i) := borel _
     haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  sorry -- FLT#521 -- induction on size of ι
+  -- sorry -- FLT#521 -- induction on size of ι
+
   /-
 
   The above comment suggests using induction on the size of the index type ι.
@@ -307,6 +308,110 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   to a binary product and use induction.
 
   -/
+
+  letI : MeasurableSpace (Π i, H i) := borel _
+  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+  -- Induction on the cardinality of ι
+  induction' h : Fintype.card ι with n IH generalizing ι
+  · -- Base case: ι is empty
+    have : IsEmpty ι := Fintype.card_eq_zero_iff.mp h
+    simp only [Fintype.prod_empty, eq_self_iff_true]
+    -- The pi type over empty index is isomorphic to Unit
+    have : (Π i, H i) ≃ₜ* Unit := by
+      refine ⟨⟨⟨fun _ => (), fun _ => isEmptyElim, ?_, ?_⟩, ?_, ?_⟩, ?_, ?_⟩
+      · intro x; ext i; exact isEmptyElim i
+      · intro x; ext
+      · intro x y; ext
+      · intro x y; ext i; exact isEmptyElim i
+      · exact continuous_const
+      · exact continuous_of_isEmpty_domain
+    have : ContinuousMulEquiv.piCongrRight ψ =
+      (this.symm.trans (ContinuousMulEquiv.refl Unit)).trans this := by
+      ext x i; exact isEmptyElim i
+    rw [this, mulEquivHaarChar_trans, mulEquivHaarChar_trans]
+    simp only [mulEquivHaarChar_refl, mul_one, one_mul]
+    rw [mulEquivHaarChar_eq_one_of_compactSpace]
+
+  · -- Inductive step: ι has n+1 elements
+    -- Choose an element j : ι
+    have : Nonempty ι := Fintype.card_pos_iff.mp (h ▸ Nat.succ_pos n)
+    obtain ⟨j⟩ := this
+    -- Split ι into {j} and ι \ {j}
+    let ι' := {i : ι | i ≠ j}
+    have hcard : Fintype.card ι' = n := by
+      rw [Fintype.card_of_subtype]
+      simp only [Set.mem_setOf_eq, ne_eq]
+      rw [← Fintype.card_compl_eq_card_sub_one, Set.compl_setOf_eq_setOf_not, Set.setOf_not]
+      simp only [Classical.not_not]
+      rw [Fintype.card_eq_one_iff]
+      use j
+      intro i
+      simp only [Set.mem_singleton_iff]
+      exact h
+    -- The product over ι is homeomorphic to H j × (product over ι')
+    let e : (Π i, H i) ≃ₜ* H j × (Π i : ι', H i) := by
+      refine ⟨⟨⟨fun f => (f j, fun i => f i), fun p i => if h : i = j then h ▸ p.1 else p.2 ⟨i, h⟩, ?_, ?_⟩, ?_, ?_⟩, ?_, ?_⟩
+      · intro f; ext i; split_ifs with h; exact h ▸ rfl; rfl
+      · intro ⟨x, f⟩; ext <;> simp only [eq_self_iff_true, if_true, Prod.mk.eta]
+        ext ⟨i, hi⟩; simp only [dif_neg hi]
+      · intro f g; ext <;> simp only [Pi.mul_apply, Prod.mk_mul_mk]
+        · rfl
+        · ext ⟨i, hi⟩; simp only [Pi.mul_apply, dif_neg hi]
+      · intro ⟨x, f⟩ ⟨y, g⟩; ext i
+        simp only [Pi.mul_apply, Prod.mk_mul_mk]
+        split_ifs with h
+        · exact h ▸ rfl
+        · rfl
+      · exact continuous_pi fun i => by
+          split_ifs with h
+          · exact h ▸ continuous_fst
+          · exact (continuous_apply ⟨i, h⟩).comp continuous_snd
+      · exact Continuous.prod_mk continuous_apply (continuous_pi fun i => continuous_apply i)
+    -- Similarly for the transformed version
+    let e' : (Π i, H i) ≃ₜ* H j × (Π i : ι', H i) := by
+      refine ⟨⟨⟨fun f => (f j, fun i => f i), fun p i => if h : i = j then h ▸ p.1 else p.2 ⟨i, h⟩, ?_, ?_⟩, ?_, ?_⟩, ?_, ?_⟩
+      · intro f; ext i; split_ifs with h; exact h ▸ rfl; rfl
+      · intro ⟨x, f⟩; ext <;> simp only [eq_self_iff_true, if_true, Prod.mk.eta]
+        ext ⟨i, hi⟩; simp only [dif_neg hi]
+      · intro f g; ext <;> simp only [Pi.mul_apply, Prod.mk_mul_mk]
+        · rfl
+        · ext ⟨i, hi⟩; simp only [Pi.mul_apply, dif_neg hi]
+      · intro ⟨x, f⟩ ⟨y, g⟩; ext i
+        simp only [Pi.mul_apply, Prod.mk_mul_mk]
+        split_ifs with h
+        · exact h ▸ rfl
+        · rfl
+      · exact continuous_pi fun i => by
+          split_ifs with h
+          · exact h ▸ continuous_fst
+          · exact (continuous_apply ⟨i, h⟩).comp continuous_snd
+      · exact Continuous.prod_mk continuous_apply (continuous_pi fun i => continuous_apply i)
+    -- The piCongrRight commutes with this decomposition
+    have : e'.symm.trans ((ContinuousMulEquiv.piCongrRight ψ).trans e) =
+      (ψ j).prodCongr (ContinuousMulEquiv.piCongrRight (fun i : ι' => ψ i)) := by
+      ext ⟨x, f⟩ <;> simp only [ContinuousMulEquiv.trans_apply, ContinuousMulEquiv.symm_apply_apply]
+      · simp only [ContinuousMulEquiv.piCongrRight_apply, e, e']
+        dsimp only [ContinuousMulEquiv.prodCongr_apply]
+        simp only [eq_self_iff_true, if_true]
+      · ext ⟨i, hi⟩
+        simp only [ContinuousMulEquiv.piCongrRight_apply, e, e']
+        dsimp only [ContinuousMulEquiv.prodCongr_apply]
+        simp only [dif_neg hi, ContinuousMulEquiv.piCongrRight_apply]
+    -- Apply the product formula
+    rw [← mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding
+      (isOpenEmbedding_subtype_val) (e'.symm.trans ((ContinuousMulEquiv.piCongrRight ψ).trans e))
+      ((ψ j).prodCongr (ContinuousMulEquiv.piCongrRight (fun i : ι' => ψ i))) (fun _ => rfl)]
+    rw [this, mulEquivHaarChar_prodCongr]
+    -- Use the induction hypothesis
+    rw [IH (fun i : ι' => ψ i) hcard]
+    -- Convert the product over ι' to a product over ι
+    rw [← Fintype.prod_subset (s := {j}ᶜ)]
+    · congr 1
+      simp only [Set.mem_compl_iff, Set.mem_singleton_iff, Finset.mem_singleton]
+      exact Finset.prod_singleton
+    · intro i _ hi
+      simp only [Set.mem_compl_iff, Set.mem_singleton_iff] at hi
+      exact one_mem _
 
 end pi
 
