@@ -256,8 +256,9 @@ end binary
 
 section pi
 
--- Is there a mathlibism for {f | ∀ j, f j ∈ C j i}?
--- Yes: Set.pi Set.univ
+
+-- Q: Is there a mathlibism for `{f | ∀ j, f j ∈ C j i}`?
+-- A: Yes, `Set.pi Set.univ`, except that it's defeq to `{f | ∀ j ∈ univ, f j ∈ C j i}`
 
 /-- The bijection between a restricted product of finite products, and a finite product
 of restricted products.

@@ -104,6 +104,7 @@ group then here is a criterion which gives the finiteness hypothesis for free.
   is a finite union of left cosets $g_iV$.
 \end{lemma}
 \begin{proof}
+  \leanok
   The subset $UgV$ of $G$ is a continuous image of the compact set $U\times V$
   and is hence compact, and it is covered by the disjoint left cosets $g_iV$;
   this cover must thus be finite.
@@ -255,6 +256,7 @@ crucial in the above arguments, so we need the next lemma before we can get anyw
   topology from the product. This makes it into a topological group.
 \end{remark}
 \begin{proof}
+  \leanok
   \proves{Submonoid.units_isOpen}
   We have $U\times U$ is an open subset of $M\times M$, and if we imagine $M^\times$
   embedded in $M\times M$ as explained in the remark above, then the intersection
@@ -297,7 +299,9 @@ for compactness.
   If $U_i$ are topological monoids then the canonical
   group isomorphism $(\prod_i U_i)^\times=\prod_i(U_i^\times)$ is a homeomorphisn.
 \end{lemma}
-\begin{proof} We prove that the maps in both directions are continuous. Let's start
+\begin{proof}
+  \leanok
+  We prove that the maps in both directions are continuous. Let's start
   with the map from left to right.
 
   A map into a product is continuous when the maps to the factors
