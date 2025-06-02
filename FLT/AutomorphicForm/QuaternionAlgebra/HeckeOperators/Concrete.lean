@@ -99,13 +99,14 @@ namespace TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
 
 open IsDedekindDomain.HeightOneSpectrum
 
+open scoped RightAlgebra
+
 -- attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 -- #check Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
 
 open scoped TensorProduct
 
 variable {F D} in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- U1(S) -/
 noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
   Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
@@ -124,7 +125,6 @@ namespace HeckeOperator
 
 variable {F D S} in
 set_option maxSynthPendingDepth 1 in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- The Hecke operator T_v as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S).
 -/
@@ -140,15 +140,12 @@ noncomputable def T (v : HeightOneSpectrum (𝓞 F)) :
 
 variable {F D} in
 set_option maxSynthPendingDepth 1 in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
 considered as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S). Here α is a nonzero element of 𝓞ᵥ.
 We do not demand the condition v ∈ S, the bad primes, but this operator
 should only be used in this setting. See also `T r v` for the good primes.
 -/
-@[nolint unusedArguments] -- this can be removed when the sorries are filled in
--- but not before because it breaks linting
 noncomputable def U {v : HeightOneSpectrum (𝓞 F)}
     (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
     WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
