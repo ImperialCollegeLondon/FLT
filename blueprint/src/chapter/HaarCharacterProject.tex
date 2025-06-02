@@ -565,6 +565,9 @@ Then $d_A(\phi)=1.$
   then $d_A(\alpha)=d_B(\beta)$.
 \end{lemma}
 \begin{proof}
+  \uses{Topology.IsOpenEmbedding.isHaarMeasure_comap,
+    Topology.IsOpenEmbedding.regular_comap,
+    MeasureTheory.addEquivAddHaarChar_smul_integral_comap}
   \leanok
   Choose a regular Haar measure $\mu_B$ on $B$. We just saw
   in lemmas~\ref{Topology.IsOpenEmbedding.isHaarMeasure_comap}
@@ -639,7 +642,7 @@ The following theorem shows that the value of this product is $d(\phi)$.
 \begin{proof}
   \uses{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding,
   MeasureTheory.mulEquivHaarChar_eq_one_of_compactSpace,
-  MeasureTheory.addEquivAddHaarChar_piCongrRight}
+  MeasureTheory.addEquivAddHaarChar_piCongrRight,Continuous.restrictedProduct_congrRight}
   Assume $\phi_i(C_i)=C_i$ for all $i\not\in S$, a finite set, and work in the
   open subgroup $U:=\prod_{i\in S}A_i\times\prod_{i\not\in S}C_i$. Then $\phi$ induces
   an automorphism $\phi_S$ of this open subgroup $U$ of $A$, and in particular
@@ -811,7 +814,8 @@ Here is our reinterpretation of the product formula.
   \end{theorem}
   \begin{proof}
     \uses{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det,
-      MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight}
+      MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight,
+      NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv}
     Fix once and for all a $\Z$-lattice $L\subseteq V$
     (that is, a spanning $\Z^N$ in the $\Q^N$). Then $V\otimes_{\Q}\A_{\Q}=L\otimes_{\Z}\A_{\Q}$
     which is $L\otimes_{\Z}(\A_{\Q}^\infty\times\R)$.
