@@ -41,7 +41,9 @@ and $d_A(\phi)^{-1}$, so let us be more precise.
 To give an example, if $\phi$ is multiplication by $2$ on the real numbers,
 if $X=[0,1]$, and if $\mu$ is Lebesgue measure on the Borel subsets of $\R$,
 we have that $\phi_*\mu(X)=\mu(\phi^{-1}(X))=\mu([0,1/2])=1/2$,
-so $1=d_A(\phi)/2$ meaning that $d_A(\phi)=2$.
+so $1=d_A(\phi)/2$ meaning that $d_A(\phi)=2$. Similarly if $\phi$ is multiplication
+by $-2$ and $X=[0,1]$ then $\phi^{-1}(X)=[-1/2,0]$ which again has measure $1/2$,
+so $d_A(\phi)$ is 2 again.
 
 Strictly speaking our definition of $d_A(\phi)$ depends on the choice of regular Haar
 measure $\mu$. Note that {\tt mathlib} offers a fixed Borel regular Haar measure
@@ -272,8 +274,8 @@ The next result lies a little deeper.
 We discuss some examples of Haar characters.
 
 \begin{lemma}
-  \label{ringHaarChar_real}
-  \lean{ringHaarChar_real}
+  \label{MeasureTheory.ringHaarChar_real}
+  \lean{MeasureTheory.ringHaarChar_real}
   If $R=\R$ then $\delta_R(u)=|u|$.
   \leanok
 \end{lemma}
@@ -286,8 +288,8 @@ and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
 \end{proof}
 
 \begin{lemma}
-  \label{ringHaarChar_complex}
-  \lean{ringHaarChar_complex}
+  \label{MeasureTheory.ringHaarChar_complex}
+  \lean{MeasureTheory.ringHaarChar_complex}
   \leanok
   If $R=\bbC$ then $\delta_R(u)=|u|^2$.
 \end{lemma}
@@ -300,8 +302,8 @@ and if $u<0$ then $u*[0,1]=[u,0]$ which has measure $-u=|u|$.
 \end{proof}
 
 \begin{lemma}
-  \label{ringHaarChar_padic}
-  \lean{ringHaarChar_padic}
+  \label{MeasureTheory.ringHaarChar_padic}
+  \lean{MeasureTheory.ringHaarChar_padic}
   \leanok
   If $R=\Q_p$ then $\delta_R(u)=|u|_p$, the usual $p$-adic norm.
 \end{lemma}
@@ -351,13 +353,13 @@ which crucially uses the induction principle \href{https://leanprover-community.
 In short, one needs to check it for diagonal matrices and for matrices which are the identity
 except that one off-diagonal entry is non-zero, because these matrices generate $GL_n(F)$
 if $F$ is a field. Note that we only need the result for $F=\R$
-and $F=\mathbb{Q}_p$ (and possibly for finite extensions of these depending on
-details of direction), so if it helps we can assume that $F$ is second countable
+and $F=\mathbb{Q}_p$ (and possibly for finite extensions of these depending on which route
+we go for some intermediate results), so if it helps we can assume that $F$ is second countable
 (but it shouldn't be necessary).
 \end{proof}
 
 Now say $F$ is still a locally compact topological field, and that $R$ is a (possibly
-non-commutative) $F$-algebra. Recall that this means that $F$ lies in the centre of $R$.
+non-commutative) $F$-algebra. Recall that this means that ($R=0$ or) $F$ lies in the centre of $R$.
 Assume that $R$ is finite-dimensional as an $F$-vector space. Then if we give $R$ the
 $F$-module topology (which is just the product topology if we pick a basis) then it is known
 that $R$ becomes a topological ring. Now say $u\in R^\times$, and
@@ -518,7 +520,7 @@ Here are two facts which we will need about products.
 \end{lemma}
 \begin{proof}
   \leanok
-  (sketch) Translation-invariance is easy, compact sets are finite because continuous
+  Translation-invariance is easy, compact sets are finite because continuous
   image of compact is compact, open sets are bounded because image of open is open.
 \end{proof}
 
@@ -532,7 +534,7 @@ Here are two facts which we will need about products.
 \end{lemma}
 \begin{proof}
   \leanok
-  (sketch) Again this is because the image of compact is compact and the
+  Again this is because the image of compact is compact and the
   image of open is open, so all the properties of being a regular measure
   are easily checked.
 \end{proof}
@@ -542,14 +544,14 @@ Here are two facts which we will need about products.
   \lean{MeasureTheory.mulEquivHaarChar_eq_one_of_compactSpace}
   \leanok
   \discussion{532}
-  Say $A$ is a compact topological additive group and $\phi:G\to G$ is an additive isomorphism.
-Then $d_G(\phi)=1.$
+  Say $A$ is a compact topological additive group and $\phi:A\to A$ is an additive isomorphism.
+Then $d_A(\phi)=1.$
 \end{lemma}
 \begin{proof}
   \uses{MeasureTheory.mulEquivHaarChar_smul_preimage}
-  We have $d_A(\phi)\mu(G)=\mu(G)$
+  We have $d_A(\phi)\mu(A)=\mu(A)$
   from lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_preimage}
-  and $\mu(G)$ is positive and finite because $G$ is open and compact.
+  and $\mu(A)$ is positive and finite because $A$ is open and compact.
 \end{proof}
 
 \begin{lemma}
@@ -588,10 +590,10 @@ Now say $A=\prod'_i A_i$ is the restricted product of a collection of types $A_i
   subsets $D_i$. Say $\phi_i:A_i\to B_i$ are functions
   with the property that $\phi_i(C_i)\subseteq D_i$ for all but finitely many $i$.
 It is easily checked that the $\phi_i$ induce a function $\phi:=\prod'_i\phi_i:A\to B$. It is also easily
-check that if all the $A_i$ and $B_i$ are groups or rings, the $C_i$ and $D_i$ are subgroups
-or subrings,
-and the $\phi_i$ are group or ring homomorphisms, then $\phi$ is a group or ring homomorphism.
-However topological facts lie a little deeper.
+checked that if all the $A_i$ and $B_i$ are groups or rings or $R$-modules, the $C_i$ and $D_i$
+are subgroups or subrings or submodules,
+and the $\phi_i$ are group or ring or module homomorphisms, then $\phi$ is a group or ring or
+module homomorphism. However topological facts lie a little deeper.
 
 \begin{lemma}
   \lean{Continuous.restrictedProduct_congrRight}
@@ -640,11 +642,13 @@ The following theorem shows that the value of this product is $d(\phi)$.
   MeasureTheory.addEquivAddHaarChar_piCongrRight}
   Assume $\phi_i(C_i)=C_i$ for all $i\not\in S$, a finite set, and work in the
   open subgroup $U:=\prod_{i\in S}A_i\times\prod_{i\not\in S}C_i$. Then $\phi$ induces
-  an automorphism of this open subgroup $U$ of $A$, and in particular
+  an automorphism $\phi_S$ of this open subgroup $U$ of $A$, and in particular
   lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding} tells us
-  that we can compute $\delta(\phi)$ using this group~$U$ instead.
-  Because $\prod_{i\not\in S}\phi_i$ is an automorphism of the compact
-  group $\prod_{i\not\in S}C_i$ we must have $\delta(\phi_{i\not\in S}\phi_i)=1$
+  that $\delta(\phi)=\delta_U(\phi_S)$.
+  Next note that $\phi_S:U\to U$ can be written as a product of the automorphisms
+  $\prod_{i\not\in S}\phi_i|_{C_i}$ of $\prod_{i\not\in S}C_i$ and
+  $\prod_{i\in S}\phi_i$ of $\prod_{i\in S}A_i$. Because $\prod_{i\not\in S}C_i$ is a compact
+  group we must have $\delta(\phi_{i\not\in S}\phi_i|_{C_i})=1$
   by lemma~\ref{MeasureTheory.mulEquivHaarChar_eq_one_of_compactSpace}. Finally
   $\delta(\prod_{i\in S}\phi_i)=\prod_{i\in S}\delta(\phi_i)$ by
   lemma~\ref{MeasureTheory.addEquivAddHaarChar_piCongrRight} and we are home.
@@ -719,7 +723,7 @@ tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies
 \end{proof}
 
 \begin{corollary}
-  \label{needslabel2}
+  \label{NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv}
   If $K$ is a number field and $V$ is an $K$-module, then
   the natural isomorphism $V\otimes_K\A_K=V\otimes_{\Q}\A_{\Q}$ induced by the natural
   isomorphism $\A_K=K\otimes_K\A_{\Q}$ is a homeomorphism if the left hand side has the $\A_K$-module
@@ -736,12 +740,15 @@ topology. Note that this isomorphism commutes with the inclusions from $B$ into 
 But Lean is picky about these things so we'll have to be careful.
 
 \begin{theorem}
-  \label{addHaarScalarFactor.left_mul_eq_right_mul}
+  \label{NumberField.AdeleRing.isSentralSimple_addHaarScalarFactor_left_mul_eq_right_mul}
   Let $B$ be a finite-dimensional central simple $K$-algebra.
   Say $u\in B_{\A}^\times$, and define $\ell_u$ and $r_u:B_{\A}\to B_{\A}$ by
   $\ell_u(x)=ux$ and $r_u(x)=xu$. Then $d_{B_{\A}}(\ell_u)=d_{B_{\A}}(r_u)$.
 \end{theorem}
-\begin{proof} We think of $B_{\A}$ as $B\otimes_K\A_K$.
+\begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight,
+    IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight}
+  We think of $B_{\A}$ as $B\otimes_K\A_K$.
   If $u=(u_v)$ as $v$ runs through the places of $K$ then
   $d_{B_{\A}}(\ell_u)=\prod_v d_{B_v}(\ell_{u_v})$ by
   theorem~\ref{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight} (and the product is finite).
@@ -756,12 +763,16 @@ $K$-algebra. Before we state it let's remind ourselves of the product formula fo
 and restate it in the language of these Haar characters.
 
 \begin{lemma}
-  \label{adeledelta} If $x\in\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=\prod_v|x_v|_v.$
+  \label{MeasureTheory.ringHaarChar_adeles_rat}
+  If $x\in\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=\prod_v|x_v|_v.$
 \end{lemma}
-\begin{proof} By theorem~\ref{MeasureTheory.addEquivAddHaarChar_prodCongr}
+\begin{proof}
+  \uses{MeasureTheory.addEquivAddHaarChar_prodCongr,MeasureTheory.ringHaarChar_real,
+    MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight,MeasureTheory.ringHaarChar_padic}
+  By theorem~\ref{MeasureTheory.addEquivAddHaarChar_prodCongr}
   we have $\delta_{\A_{\Q}}(x)=\delta_{\A_{\Q}^\infty}(x^\infty)\times\delta_{\R}(x_\infty)$.
   By lemma~\ref{ringHaarChar_real} we have $\delta_{\R}(x_\infty)=|x|_\infty$, and by
-  theorem~\ref{ringHaarChar_restricted_product} we have
+  theorem~\ref{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight} we have
   $\delta_{\A_{\Q}^\infty}=\prod_p\delta_{\Q_p}(x_p)$. By lemma~\ref{ringHaarChar_padic}
   we have $\delta_{\Q_p}(x_p)=|x_p|_p$ and putting everything together we get the result.
 \end{proof}
@@ -770,11 +781,13 @@ Now $\A_{\Q}$ is nonzero a $\Q$-algebra and hence we have an inclusion $\Q^\time
 Here is our reinterpretation of the product formula.
 
 \begin{lemma}
-  \label{productformula} If $x\in\Q^\times\subseteq\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=1.$
+  \label{MeasureTheory.ringHaarChar_adeles_units_rat_eq_one}
+  If $x\in\Q^\times\subseteq\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=1.$
 \end{lemma}
 \begin{proof}
-  By lemma~\ref{adeledelta} we have $\delta_{\A_{\Q}}(x)=\prod_v|x|_v$. But the product
-  formula says that this is 1.
+  \uses{MeasureTheory.ringHaarChar_adeles_rat}
+  By lemma~\ref{MeasureTheory.ringHaarChar_adeles_rat} we have $\delta_{\A_{\Q}}(x)=\prod_v|x|_v$.
+  But the product formula says that this is 1.
   A quick proof: if $x=\pm\prod_pp^{e_p}$ then $\prod_p|x|_p=\prod_pp^{-e_p}$
   and $|x|_\infty=\prod_pp^{e_p}$ so they cancel.
 \end{proof}
@@ -791,12 +804,14 @@ Here is our reinterpretation of the product formula.
   if $V_{\A}$ is given the module topology as an $\A_{\Q}$-module. Our goal is
 
   \begin{theorem}
-    \label{addHaarScalarFactor_eq_one}
-    In the above situation ($V$ a finite-dimensional $\Q$-vector space, $\phi:V\to V$ is $\Q$-linear,
-    $\phi_{\A}$ the base extension to $V_{\A}:=V\otimes_{\Q}{\A_{\Q}}$, a continuous linear
+    \label{MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one}
+    In the above situation ($V$ a finite-dimensional $\Q$-vector space, $\phi:V\cong V$ is
+    $\Q$-linear, $\phi_{\A}$ the base extension to $V_{\A}:=V\otimes_{\Q}{\A_{\Q}}$, a continuous linear
     endomorphism of $V_{\A}$ with the $\A_{\Q}$-module topology), we have $d_{V_{\A}}(\phi_{\A})=1.$
   \end{theorem}
   \begin{proof}
+    \uses{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det,
+      MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight}
     Fix once and for all a $\Z$-lattice $L\subseteq V$
     (that is, a spanning $\Z^N$ in the $\Q^N$). Then $V\otimes_{\Q}\A_{\Q}=L\otimes_{\Z}\A_{\Q}$
     which is $L\otimes_{\Z}(\A_{\Q}^\infty\times\R)$.
@@ -827,6 +842,7 @@ Here is our reinterpretation of the product formula.
     then $\delta_{B_{\A}}(b)=1$.
   \end{corollary}
   \begin{proof}
+    \uses{MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one}
     Follows immediately from the previous theorem.
   \end{proof}
 
@@ -838,5 +854,6 @@ Here is our reinterpretation of the product formula.
     does not change Haar measure on $B_{\A}$.
   \end{corollary}
   \begin{proof}
+    \uses{MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one}
     Follows immediately from the previous theorem.
   \end{proof}
