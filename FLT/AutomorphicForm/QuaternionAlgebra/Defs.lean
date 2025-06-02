@@ -11,6 +11,7 @@ import FLT.Mathlib.Algebra.FixedPoints.Basic
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.NumberField.FinitePlaces
+import FLT.Hacks.RightAlgebraInstances
 
 /-
 
@@ -75,23 +76,7 @@ noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
   sorry
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  moduleTopology (FiniteAdeleRing (𝓞 F) F) _
-
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  ⟨rfl⟩
-
-variable [IsQuaternionAlgebra F D] in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : Module.Finite (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
-  Module.Finite.base_change_right
-
-variable [IsQuaternionAlgebra F D] in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) _
+open scoped RightAlgebra
 
 /--
 This definition is made in mathlib-generality but is *not* the definition of a
