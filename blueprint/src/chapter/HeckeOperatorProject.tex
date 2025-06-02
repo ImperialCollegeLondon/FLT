@@ -174,6 +174,7 @@ Here are some basic facts we need about restricted products.
   in the category of topological spaces. I don't know an explicit counterexample though.
 \end{remark}
 \begin{proof}
+  \leanok
   \proves{Homeomorph.restrictedProductProd}
   We need to check continuity in both directions. The easy way is
   continuity of the map from the restricted product to the map from the binary
@@ -214,6 +215,7 @@ Here are some basic facts we need about restricted products.
   is a homeomorphism.
 \end{corollary}
 \begin{proof}
+  \leanok
   \uses{Homeomorph.restrictedProductProd}
   Induction on the size of the finite set, using lemma~\ref{Homeomorph.restrictedProductProd}
   to get you started.
@@ -232,6 +234,7 @@ Here are some basic facts we need about restricted products.
   then the obvious map $M_n(\prod'_iX_i)=\prod'_iM_n(X_i)$ is a homeomorphism.
 \end{corollary}
 \begin{proof}
+  \leanok
   \uses{Homeomorph.restrictedProductPi}
   Immediate from the previous corollary~\ref{Homeomorph.restrictedProductPi}.
 \end{proof}
@@ -298,7 +301,9 @@ for compactness.
   If $U_i$ are topological monoids then the canonical
   group isomorphism $(\prod_i U_i)^\times=\prod_i(U_i^\times)$ is a homeomorphisn.
 \end{lemma}
-\begin{proof} We prove that the maps in both directions are continuous. Let's start
+\begin{proof}
+  \leanok
+  We prove that the maps in both directions are continuous. Let's start
   with the map from left to right.
 
   A map into a product is continuous when the maps to the factors
