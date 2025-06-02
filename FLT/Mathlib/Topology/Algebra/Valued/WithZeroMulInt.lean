@@ -132,6 +132,6 @@ theorem integer_compactSpace [CompleteSpace K] [IsDiscreteValuationRing 𝒪[K]]
     isCompact_iff_isCompact_univ.1 <|
       isCompact_iff_totallyBounded_isComplete.2
         ⟨(hasBasis_uniformity _ _).totallyBounded_iff.2 <| fun _ _ =>
-          finite_cover_of_uniformity_basis h, (integer_isClosed K).isComplete⟩
+          finite_cover_of_uniformity_basis h, (isClosed_integer K).isComplete⟩
 
 end Valued.WithZeroMulInt
