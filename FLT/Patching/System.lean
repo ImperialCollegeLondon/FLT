@@ -269,12 +269,6 @@ lemma Ultrafilter.eventually_eventually_eq_of_finite
   filter_upwards [ha] with j hj
   rw [hi, hj]
 
-lemma IsLocalRing.map_maximalIdeal {R S} [CommRing R] [CommRing S]
-    [IsLocalRing R] [IsLocalRing S] (f : R →+* S) (hf : Function.Surjective f) :
-    (maximalIdeal R).map f = maximalIdeal S := by
-  have := (IsLocalRing.local_hom_TFAE f).out 0 4
-  rw [← this.mp (by exact .of_surjective f hf), Ideal.map_comap_of_surjective f hf]
-
 omit
   [∀ (i : ι), TopologicalSpace (R i)]
   [∀ (i : ι), IsTopologicalRing (R i)]

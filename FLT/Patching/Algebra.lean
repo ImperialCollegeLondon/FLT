@@ -1,5 +1,6 @@
 import FLT.Patching.Utils.AdicTopology
 import FLT.Patching.Ultraproduct
+import FLT.Deformations.Lemmas
 
 variable (Λ : Type*) {ι : Type*} [CommRing Λ] (R : ι → Type*)
 variable [∀ i, CommRing (R i)] [∀ i, IsLocalRing (R i)] [∀ i, Algebra Λ (R i)]
