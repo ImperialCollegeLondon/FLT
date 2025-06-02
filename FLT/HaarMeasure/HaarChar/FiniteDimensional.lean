@@ -76,7 +76,10 @@ section issimplering
 
 variable {D : Type*} [Ring D] [TopologicalSpace D]
     [Algebra F D] [FiniteDimensional F D] [IsSimpleRing D]
-    [IsModuleTopology F D] [Algebra.IsCentral F D]
+    [IsModuleTopology F D]
+    [Algebra.IsCentral F D] -- could be removed if necessary by proving
+    -- `IsSimpleRing.mulLeft_det_eq_mulRight_det` with tensoring over the center of `D`
+    -- instead of `k`.
     [IsTopologicalRing D] -- can be deduced from previous assumptions but only using F
     [LocallyCompactSpace D] -- can also be proved but only using F
     [MeasurableSpace D] [BorelSpace D]
