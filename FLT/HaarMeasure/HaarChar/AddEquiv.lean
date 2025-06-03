@@ -480,27 +480,17 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   letI : MeasurableSpace (Π i, H i) := borel _
   haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-  -- We proceed by strong induction on the cardinality of ι
+  -- We proceed by induction on the cardinality of ι
   classical
-  suffices ∀ (n : ℕ), ∀ (ι : Type*) (H : ι → Type*) [Fintype ι],
-    Fintype.card ι = n →
-    [∀ i, Group (H i)] → [∀ i, TopologicalSpace (H i)] →
-    [∀ i, IsTopologicalGroup (H i)] → [∀ i, LocallyCompactSpace (H i)] →
-    [∀ i, MeasurableSpace (H i)] → [∀ i, BorelSpace (H i)] →
-    ∀ (ψ : Π i, (H i) ≃ₜ* (H i)),
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i)
-  from this (Fintype.card ι) ι H inferInstance rfl _ _ _ _ _ _ ψ
-  intro n
+  let n := Fintype.card ι
+  have hn : Fintype.card ι = n := rfl
+  revert ι
   induction n with
   | zero =>
-    intro ι H _ hcard _ _ _ _ _ _ ψ
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    intro ι _ _ _ _ _ _ _ _ hn ψ
     -- When card ι = 0, ι is empty
-    rw [Fintype.card_eq_zero_iff] at hcard
-    haveI : IsEmpty ι := hcard
+    rw [Fintype.card_eq_zero_iff] at hn
+    haveI : IsEmpty ι := hn
     -- The product over empty index is 1
     simp only [Finset.prod_empty]
     -- The pi type over empty index is isomorphic to Unit
@@ -522,17 +512,15 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
     rw [mulEquivHaarChar_eq_one_of_compactSpace]
 
   | succ n ih =>
-    intro ι H _ hcard _ _ _ _ _ _ ψ
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    intro ι _ _ _ _ _ _ _ _ hn ψ
     -- When card ι = n + 1, pick an element and split
-    obtain ⟨j⟩ := Fintype.card_pos_iff.mp (hcard ▸ Nat.zero_lt_succ n)
+    obtain ⟨j⟩ := Fintype.card_pos_iff.mp (hn ▸ Nat.zero_lt_succ n)
     let ι' := {i // i ≠ j}
     have card_ι' : Fintype.card ι' = n := by
       rw [Fintype.card_subtype_eq]
       simp only [Finset.filter_ne']
       rw [Finset.card_erase_of_mem (Finset.mem_univ j), Fintype.card_of_finset]
-      simp [hcard]
+      simp [hn]
 
     -- Set up the isomorphism (Π i, H i) ≃ₜ* (H j × Π i : ι', H i)
     let φ : (Π i, H i) ≃ₜ* (H j × Π i : ι', H (i : ι)) := {
@@ -570,11 +558,7 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
     rw [key, mulEquivHaarChar_prodCongr]
     congr 1
     -- Apply induction hypothesis
-    haveI : MeasurableSpace (Π i : ι', H (i : ι)) := borel _
-    haveI : BorelSpace (Π i : ι', H (i : ι)) := ⟨rfl⟩
-    have ih_applied := ih ι' inferInstance card_ι' (fun i => H (i : ι)) _ _ _ _ _ _
-      (fun i => ψ (i : ι))
-    convert ih_applied using 1
+    convert ih (fun i => ψ i) card_ι'
     exact Finset.prod_bij
       (fun i _ => i.val)
       (fun i _ => by simp [Finset.mem_erase])
