@@ -78,7 +78,7 @@ instance : MeasurableMul H where
   measurable_const_mul c := Measurable.subtype_mk (by measurability)
 
 @[to_additive]
-lemma isMulLeftInvariant_subtype_coe (μ : Measure G) [μ.IsMulLeftInvariant]
+lemma isMulLeftInvariant_subtypeVal (μ : Measure G) [μ.IsMulLeftInvariant]
   (hH : MeasurableSet (H : Set G)) : (μ.comap Subtype.val : Measure H).IsMulLeftInvariant :=
   have hφ : MeasurableEmbedding H.subtype := MeasurableEmbedding.subtype_coe hH
   hφ.IsMulLeftInvariant_comap μ
