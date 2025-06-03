@@ -3,13 +3,6 @@ import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
-import Mathlib.Algebra.BigOperators.Finprod
-import Mathlib.Data.Fintype.BigOperators
-import Mathlib.MeasureTheory.Measure.Prod
-import Mathlib.Topology.Algebra.InfiniteSum.Group
---import Mathlib.MeasureTheory.Group.Haar
---import Mathlib.Topology.Instances.Pi
-import Mathlib.Topology.Algebra.Algebra
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -476,31 +469,16 @@ set_option maxHeartbeats 20000000
 
 section pi
 
-open scoped BigOperators MeasureTheory
-
 variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
-lemma mulEquivHaarChar_piCongrRight
-    [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
-  mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ)
-    = ∏ i, mulEquivHaarChar (ψ i) := by
-  classical
-  -- 1. Package data in a Finset to ease induction
-  let ψF : (Finset ι) → (Π i, H i) ≃ₜ* (Π i, H i) := by
-    intro s
-    exact ContinuousMulEquiv.piCongrRight fun i ↦ if h : i ∈ s then ψ i else ContinuousMulEquiv.refl _
-  -- 2. Induction over `Finset.card`
-  refine Fintype.induction_subsingleton_or_nontrivial _ ?_ ?_
-  · simp  -- empty product ⇒ identity character
-  · intro i hi IH
-    -- split off factor `i`, rewrite product as binary, apply existing lemma
-    have : mulEquivHaarChar (ψF _) = _ := by
-      simpa using
-        mulEquivHaarChar_prodCongr
-          (_ : (H i) × (Π j : {j // j ≠ i}, H j) ≃ₜ* _)
-    simpa [Finset.prod_insert hi, IH]
+@[to_additive]
+lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
+  letI : MeasurableSpace (Π i, H i) := borel _
+  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+  mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
+  sorry
 
 end pi
 
@@ -565,4 +543,4 @@ lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G 
   -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
   sorry -- FLT#552
 
-#lint
+  #lint
