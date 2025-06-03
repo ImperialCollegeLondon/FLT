@@ -14,8 +14,6 @@ section MeasurableEmbeddingComap
 
 open MeasureTheory Measure
 
-example {a b c : ℝ} (h : a = b) : c * a = c * b := by exact congrArg (HMul.hMul c) h
-
 @[to_additive]
 lemma _root_.MeasurableEmbedding.isMulLeftInvariant_comap {G H : Type*}
     [Group G] [MeasurableSpace G] [MeasurableMul G]
