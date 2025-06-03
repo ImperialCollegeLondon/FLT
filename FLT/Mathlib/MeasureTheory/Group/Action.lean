@@ -35,7 +35,7 @@ lemma _root_.MeasurableEmbedding.IsMulLeftInvariant_comap {G H : Type*}
     exact hφ.measurableSet_image.mpr hs
 
 @[to_additive]
-lemma _root_.MeasurableEmbedding.IsMulRightInvariant_comap {G H : Type*}
+lemma _root_.MeasurableEmbedding.isMulRightInvariant_comap {G H : Type*}
     [Group G] [MeasurableSpace G] [MeasurableMul G]
     [Group H] [MeasurableSpace H] [MeasurableMul H]
     {φ : G →* H} (hφ : MeasurableEmbedding φ) (μ : Measure H) [IsMulRightInvariant μ] :
