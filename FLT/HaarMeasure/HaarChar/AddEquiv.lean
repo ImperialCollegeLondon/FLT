@@ -474,83 +474,74 @@ variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalS
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
 @[to_additive]
-lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
-  letI : MeasurableSpace (Π i, H i) := borel _
-  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-  mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  letI : MeasurableSpace (Π i, H i) := borel _
-  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-  -- We use induction on finite types
-  classical
-  apply Fintype.induction_empty_option
-  -- Base case: empty type
-  · -- ι ≃ Empty
-    simp only [Finset.univ_eq_empty, Finset.prod_empty]
-    -- The pi type over empty index is isomorphic to Unit
-    have h_empty : IsEmpty ι := inferInstance
-    have : (Π i : ι, H i) ≃ₜ* Unit := {
-      toFun := fun _ => ()
-      invFun := fun _ => isEmptyElim
-      left_inv := fun f => funext isEmptyElim
-      right_inv := fun _ => rfl
-      map_mul' := fun _ _ => rfl
-      continuous_toFun := continuous_const
-      continuous_invFun := continuous_of_discreteTopology
+lemma mulEquivHaarChar_piCongrRight {ι : Type*} [fintype ι]
+  {H : ι → Type*} [∀ i, group (H i)] [∀ i, topological_space (H i)]
+  [∀ i, topological_group (H i)] [∀ i, locally_compact_space (H i)]
+  (φ : Π i, H i ≃ₜ* H i) :
+  mulEquivHaarChar (piCongrRight φ) = ∏ i, mulEquivHaarChar (φ i) :=
+begin
+  classical  -- for choosing an element from ι if needed
+  -- Handle the base case: for empty or singleton index set
+  casesI (is_empty_or_nonempty ι) with hι hι,
+  {
+    -- If ι is empty, the product group is trivial, so both sides are 1
+    -- (Haar measure on a trivial group is delta at identity, scaling factor is 1)
+    rw [@mulEquivHaarChar _ _ _ _ (piCongrRight φ)],
+    simp only [finset.prod_empty],
+  },
+  {
+    -- Now assume ι is nonempty. We perform induction on the finite set of indices.
+    revert φ,  -- prepare to do induction on the structure of ι
+    refine fintype.induction_subsingleton_or_nontrivial _ _,
+    { -- Case: ι has exactly one element
+      intros φ,
+      -- If ι is a singleton, then piCongrRight φ is just φ i on that single group
+      simp only [finset.prod_singleton],
+      refl,   -- trivially true: mulEquivHaarChar (φ i) = mulEquivHaarChar (φ i)
+    },
+    { -- Inductive step: assume the result for a smaller index set
+      intros ι₁ i₀ hι₀ nι₁ IH φ,
+      -- Split the index set ι into {i₀} and the rest ι₁ = ι \ {i₀}
+      let φ_rest : Π j : ι₁, H j ≃ₜ* H j := λ j, φ j,
+      -- By induction hypothesis, the product iso on the remaining factors has the expected Haar char
+      have IH_char : mulEquivHaarChar (piCongrRight φ_rest) = ∏ (j : ι₁), mulEquivHaarChar (φ j),
+        from IH φ_rest,
+      -- Consider the product isomorphism that applies φ₀ on H_{i₀} and piCongrRight φ_rest on the rest
+      let ψ := (φ i₀).prodCongr (piCongrRight φ_rest),
+      -- Use the binary product lemma: scaling for φᵢ₀ × (Π_{j≠i₀} φ_j) equals product of scalings
+      have prod_char : mulEquivHaarChar ψ = mulEquivHaarChar (φ i₀) * mulEquivHaarChar (piCongrRight φ_rest),
+        from mulEquivHaarChar_prodCongr (φ i₀) (piCongrRight φ_rest),
+      -- Use functoriality (composition) with the canonical re-ordering equiv between ∏ ι H and H_{i₀} × ∏ ι₁ H
+      let reindex : (Π i, H i) ≃ₜ* (H i₀ × Π (j : ι₁), H j) :=
+        (Homeomorph.setProdEquivPi i₀ H).symm,  -- homeomorphism reordering factors
+      -- Pushing forward Haar measure through `reindex` doesn’t change it, so its mulEquivHaarChar is 1
+      have reindex_char : mulEquivHaarChar reindex = 1,
+      {
+        -- `reindex` is essentially just a re-indexing of the product, preserving Haar measure
+        apply mulEquivHaarChar_trans _ _,
+        { exact reindex },
+        {
+          -- Because `reindex` sends the Haar measure of ∏ H to itself, it scales by 1
+          rw MeasureTheory.Measure.map_measure_prod,
+          -- map_measure_prod gives: map reindex (∏ Haar) = (haar H_{i₀}) × (∏ haar on ι₁) which is the same as original order
+          exact measure_theory.measure.map_equiv_self _ (haar_measure _)
+        }
+      },
+      -- Now combine everything: the full product φ on ∏ ι H equals reindex.symm ◦ ψ ◦ reindex
+      -- Use mulEquivHaarChar_trans to compose these pieces
+      calc mulEquivHaarChar (piCongrRight φ)
+          = mulEquivHaarChar (reindex.symm.trans (ψ.trans reindex))     : by rw [piCongrRight, ←Equiv.trans_assoc]
+      ... = mulEquivHaarChar (reindex.symm) * mulEquivHaarChar (ψ.trans reindex)   : mulEquivHaarChar_trans _ _
+      ... = mulEquivHaarChar (reindex.symm) * (mulEquivHaarChar ψ * mulEquivHaarChar reindex)
+                                                                    : mulEquivHaarChar_trans _ _
+      ... = (mulEquivHaarChar (reindex.symm) * mulEquivHaarChar reindex) *
+            (mulEquivHaarChar (φ i₀) * mulEquivHaarChar (piCongrRight φ_rest))   : by rw prod_char
+      ... = 1 * (mulEquivHaarChar (φ i₀) * ∏ (j : ι₁), mulEquivHaarChar (φ j))   : by rw [mulEquivHaarChar_trans reindex.symm reindex, IH_char]
+      ... = ∏ (i : ι), mulEquivHaarChar (φ i),  -- this is the desired result
     }
-    have : ContinuousMulEquiv.piCongrRight ψ =
-        (this.symm.trans (ContinuousMulEquiv.piCongrRight ψ)).trans this := by
-      ext x; exact isEmptyElim x
-    rw [this, mulEquivHaarChar_trans, mulEquivHaarChar_trans]
-    simp [mulEquivHaarChar_eq_one_of_compactSpace]
+  }
+end
 
-  -- Inductive case: ι ≃ Option ι' for some ι'
-  · intro ι' ih
-    -- We have ι ≃ Option ι', so (Π i : ι, H i) ≃ H none × (Π i : ι', H (some i))
-    let e : ι ≃ Option ι' := Fintype.equivOfCardEq (by simp)
-    let φ : (Π i : ι, H i) ≃ₜ* (H (e.symm none) × Π i : ι', H (e.symm (some i))) := {
-      toFun := fun f => (f (e.symm none), fun i => f (e.symm (some i)))
-      invFun := fun p i => e i |>.casesOn p.1 (fun j => p.2 j)
-      left_inv := fun f => by
-        ext i
-        simp only [Option.casesOn_none, Option.casesOn_some, Equiv.symm_apply_apply]
-      right_inv := fun ⟨x, g⟩ => by
-        ext <;> simp [Equiv.apply_symm_apply]
-      map_mul' := fun f g => by simp [Pi.mul_def]
-      continuous_toFun := by
-        apply Continuous.prod_mk
-        · exact continuous_apply _
-        · exact continuous_pi fun i => continuous_apply _
-      continuous_invFun := by
-        apply continuous_pi
-        intro i
-        cases' h : e i with j
-        · simp only [← h, Option.casesOn_none]
-          exact continuous_fst
-        · simp only [← h, Option.casesOn_some]
-          exact (continuous_apply j).comp continuous_snd
-    }
-
-    -- Show that φ intertwines with the homeomorphisms
-    have comm : φ ∘ ContinuousMulEquiv.piCongrRight ψ =
-        (ψ (e.symm none)).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (e.symm (some i))) ∘ φ := by
-      ext f
-      · simp [φ, ContinuousMulEquiv.piCongrRight, ContinuousMulEquiv.prodCongr]
-      · simp [φ, ContinuousMulEquiv.piCongrRight, ContinuousMulEquiv.prodCongr]
-
-    -- Apply the key lemma
-    have key := mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding
-      (f := φ.toMulEquiv.toMonoidHom) φ.toHomeomorph.isOpenEmbedding
-      (ContinuousMulEquiv.piCongrRight ψ)
-      ((ψ (e.symm none)).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (e.symm (some i))))
-      (congr_fun comm)
-
-    rw [key, mulEquivHaarChar_prodCongr]
-    -- Use the induction hypothesis
-    haveI : MeasurableSpace (Π i : ι', H (e.symm (some i))) := borel _
-    haveI : BorelSpace (Π i : ι', H (e.symm (some i))) := ⟨rfl⟩
-    rw [ih]
-    -- Show the products are equal
-    simp only [Finset.prod_option, e.symm.surjective.prod_comp]
 
 end pi
 
