@@ -7,7 +7,7 @@ import FLT.HaarMeasure.HaarChar.AddEquiv
 import Mathlib.Algebra.Group.Pi.Units
 import Mathlib.MeasureTheory.Group.Pointwise
 
-open scoped NNReal Set
+open scoped NNReal
 
 namespace ContinuousAddEquiv
 
@@ -51,13 +51,7 @@ end ContinuousAddEquiv
 
 namespace MeasureTheory
 
-variable {G : Type*} [Group G] (A B : Set G)
-
 open Measure
-
---set_option trace.Meta.Tactic.fun_prop true
-attribute [fun_prop] Units.continuous_val
-attribute [fun_prop] Units.continuous_coe_inv
 
 variable {R : Type*} [Ring R] [TopologicalSpace R]
   [IsTopologicalRing R] [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
