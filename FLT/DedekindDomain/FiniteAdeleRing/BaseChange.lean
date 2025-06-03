@@ -65,14 +65,23 @@ open IsDedekindDomain HeightOneSpectrum
 open scoped TensorProduct RestrictedProduct -- ⊗ notation for tensor product
 
 section
+universe u
 variable {R : Type*} [CommRing R]
 variable {ι : Type*} {M : Type*} [AddCommGroup M] [Module R M] [Module.FinitePresentation R M]
 variable {K : ι → Type*} [∀ i, AddCommGroup (K i)] [∀ i, Module R (K i)]
-variable {A : ∀ i, Submodule R (K i)}
+variable {A : ∀ i, Submodule R (K i)} [∀ i, TopologicalSpace (K i)]
+variable {X Y: Type u} [TopologicalSpace X] [TopologicalSpace Y]
+
+
+
 
 def tensor_restrictedProduct_iso :
   M ⊗[R] (Πʳ i, [K i, A i]) ≃ₗ[R]
   (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
+  letI := RestrictedProduct.topologicalSpace K (fun i ↦ (A i : Set (K i))) Filter.cofinite
+  haveI := @RestrictedProduct.topologicalSpace_eq_iSup _ K (fun i ↦ (A i : Set (K i))) Filter.cofinite _
+  rw [TopologicalSpace.Opens.iSup_def] at this
+
   sorry
 --noncomputable def
 end
