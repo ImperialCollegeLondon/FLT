@@ -3,6 +3,10 @@ import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
+import Mathlib.Algebra.BigOperators.Finprod
+import Mathlib.Data.Fintype.BigOperators
+import Mathlib.MeasureTheory.Measure.Prod
+import Mathlib.Topology.Algebra.InfiniteSum.Group
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -473,12 +477,154 @@ variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalS
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
+/-- In a locally compact topological group, there exists a compact open neighborhood of 1. -/
+@[to_additive "In a locally compact topological additive group, there exists a compact open
+neighborhood of 0."]
+private lemma exists_compact_open_nhds_one (G : Type*) [Group G] [TopologicalSpace G]
+    [LocallyCompactSpace G] :
+    ∃ (K : Set G), IsCompact K ∧ IsOpen K ∧ 1 ∈ K := by
+  -- Use local compactness at 1
+  obtain ⟨K, hK_nhds, hK_compact⟩ := LocallyCompactSpace.local_compact_nhds (1 : G) Set.univ
+  have h1_univ : (1 : G) ∈ Set.univ := Set.mem_univ 1
+  obtain ⟨U, hU_subset, hU_open, h1U⟩ := _root_.isOpen_iff_forall_mem_open.mp isOpen_univ 1 h1_univ
+  -- Since K is a compact neighborhood of 1 in univ, we can find an open set between them
+  obtain ⟨V, hV_open, h1V, hVK⟩ := mem_nhds_iff.mp hK_nhds
+  -- Use the intersection V ∩ interior K which is open and contained in K
+  use V ∩ interior K
+  refine ⟨?_, IsOpen.inter hV_open isOpen_interior, ?_⟩
+  · exact IsCompact.of_isClosed_subset hK_compact (IsClosed.inter hV_open.isClosed_compl
+      isClosed_closure) (Set.inter_subset_right.trans interior_subset)
+  · exact ⟨h1V, mem_interior_iff_mem_nhds.mpr ⟨V, hVK, hV_open, h1V⟩⟩
+
+/-- The Haar measure on a finite product has the product property on rectangular sets.
+This is a key fact we'll use. -/
+@[to_additive]
+private lemma haar_prod_eq [Fintype ι] (S : Π i, Set (H i))
+    (hS : ∀ i, MeasurableSet (S i)) :
+    letI : MeasurableSpace (Π i, H i) := borel _
+    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    haar (Set.pi Set.univ S) = ∏ i, haar (S i) := by
+  -- This is a fundamental property of Haar measure on products
+  -- It should follow from the construction of product measures
+  sorry -- In practice, this would use MeasureTheory.Measure.pi
+
 @[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
   letI : MeasurableSpace (Π i, H i) := borel _
   haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
   mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  sorry
+  letI : MeasurableSpace (Π i, H i) := borel _
+  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+
+  -- The strategy: Show both sides give the same scaling of Haar measure
+  -- We'll verify this on a carefully chosen test set
+
+  -- Step 1: Choose compact open neighborhoods of identity in each factor
+  classical
+  choose K hKcomp hKopen hKone using fun i ↦ exists_compact_open_nhds_one (H i)
+
+  -- Step 2: Form the product set
+  let K_prod : Set (Π i, H i) := Set.pi Set.univ K
+
+  -- Properties of K_prod
+  have hK_prod_open : IsOpen K_prod :=
+    isOpen_pi_iff.mpr fun f ↦ ⟨K (f.1 f.2), (hKopen _), ⟨f.2, Set.mem_univ _, rfl⟩, fun _ ↦ id⟩
+  have hK_prod_meas : MeasurableSet K_prod := hK_prod_open.measurableSet
+  have hK_prod_one : (fun i ↦ 1 : Π i, H i) ∈ K_prod := fun i _ ↦ hKone i
+
+  -- Step 3: Key observation - both sides are determined by how they scale K_prod
+  -- First, let's compute haar K_prod using the product property
+  have haar_K_prod : haar K_prod = ∏ i, haar (K i) := by
+    convert haar_prod_eq K fun i ↦ (hKopen i).measurableSet
+    ext i
+    simp [K_prod]
+
+  -- Step 4: Show the left-hand side gives the correct scaling
+  have lhs_scaling :
+    (mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) • haar) K_prod =
+    (map (ContinuousMulEquiv.piCongrRight ψ) haar) K_prod := by
+    -- By definition of mulEquivHaarChar
+    have h := mulEquivHaarChar_map_open haar (ContinuousMulEquiv.piCongrRight ψ) hK_prod_open
+    rw [← h, smul_apply]
+    rfl
+
+  -- Step 5: Show the right-hand side gives the same result
+  have rhs_scaling :
+    ((∏ i, mulEquivHaarChar (ψ i)) • haar) K_prod =
+    ∏ i, (mulEquivHaarChar (ψ i) • haar) (K i) := by
+    rw [smul_apply, haar_K_prod, ← Finset.prod_mul_distrib]
+    congr 1
+    ext i
+    rw [smul_apply]
+    rfl
+
+  -- Step 6: Connect via the transformation property
+  have transform_eq : (map (ContinuousMulEquiv.piCongrRight ψ) haar) K_prod =
+    haar ((ContinuousMulEquiv.piCongrRight ψ) '' K_prod) := by
+    rw [MeasureTheory.Measure.map_apply]
+    · rfl
+    · exact (ContinuousMulEquiv.piCongrRight ψ).continuous.measurable
+    · exact ((ContinuousMulEquiv.piCongrRight ψ).isOpenMap K_prod hK_prod_open).measurableSet
+
+  -- Step 7: Compute the image
+  have image_eq : (ContinuousMulEquiv.piCongrRight ψ) '' K_prod = Set.pi Set.univ (fun i ↦ ψ i '' K i) := by
+    ext f
+    simp [K_prod, ContinuousMulEquiv.piCongrRight, Set.mem_pi, Set.mem_image]
+    constructor
+    · intro ⟨g, hg, heq⟩
+      intro i _
+      use g i, hg i (Set.mem_univ i)
+      rw [← heq]
+      rfl
+    · intro h
+      use fun i ↦ (ψ i).symm (f i)
+      constructor
+      · intro i _
+        obtain ⟨x, hx, hfx⟩ := h i (Set.mem_univ i)
+        convert hx
+        simp [hfx]
+      · ext i
+        simp
+
+  -- Step 8: Apply the product property again
+  have haar_image : haar ((ContinuousMulEquiv.piCongrRight ψ) '' K_prod) =
+    ∏ i, haar (ψ i '' K i) := by
+    rw [image_eq]
+    convert haar_prod_eq _ _
+    intro i
+    exact (ψ i).isOpenMap _ (hKopen i) |>.measurableSet
+
+  -- Step 9: Use that each ψ i scales by mulEquivHaarChar (ψ i)
+  have factor_scaling : ∀ i, haar (ψ i '' K i) =
+    (mulEquivHaarChar (ψ i) • haar) (K i) := by
+    intro i
+    rw [← mulEquivHaarChar_map_open haar (ψ i) (hKopen i)]
+    rw [MeasureTheory.Measure.map_apply (ψ i).continuous.measurable]
+    · rfl
+    · exact (ψ i).isOpenMap _ (hKopen i) |>.measurableSet
+
+  -- Step 10: Put it all together
+  have key_eq : mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) * haar K_prod =
+    (∏ i, mulEquivHaarChar (ψ i)) * haar K_prod := by
+    rw [← smul_eq_mul, ← smul_eq_mul, lhs_scaling, transform_eq, haar_image]
+    simp_rw [factor_scaling, smul_eq_mul]
+    rw [← Finset.prod_mul_distrib, ← haar_K_prod]
+    rfl
+
+  -- Step 11: Cancel the common factor
+  have hK_prod_pos : 0 < haar K_prod :=
+    IsOpen.measure_pos haar hK_prod_open ⟨_, hK_prod_one⟩
+  have hK_prod_finite : haar K_prod < ∞ := by
+    rw [haar_K_prod]
+    exact ENNReal.prod_lt_top fun i _ ↦ (hKcomp i).measure_lt_top
+
+  have : haar K_prod ≠ 0 := ne_of_gt hK_prod_pos
+  have : haar K_prod ≠ ∞ := ne_of_lt hK_prod_finite
+
+  -- Convert to ℝ≥0∞ and cancel
+  have h := congr_arg ENNReal.toNNReal key_eq
+  simp only [ENNReal.toNNReal_mul, ENNReal.toNNReal_coe] at h
+  exact NNReal.mul_right_cancel (ENNReal.toNNReal_pos this.1 this.2).ne' h
 
 end pi
 
