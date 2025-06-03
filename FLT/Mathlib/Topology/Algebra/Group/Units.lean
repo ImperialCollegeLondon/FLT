@@ -2,6 +2,7 @@ import Mathlib.Algebra.Group.Pi.Units
 import Mathlib.Algebra.Group.Submonoid.Units
 import Mathlib.Topology.Algebra.Constructions
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
+import FLT.Init
 
 lemma Submonoid.units_isOpen {M : Type*} [TopologicalSpace M] [Monoid M]
   {U : Submonoid M} (hU : IsOpen (U : Set M)) : IsOpen (U.units : Set Mˣ) :=
