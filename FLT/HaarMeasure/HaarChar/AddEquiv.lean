@@ -483,18 +483,21 @@ neighborhood of 0."]
 private lemma exists_compact_open_nhds_one (G : Type*) [Group G] [TopologicalSpace G]
     [LocallyCompactSpace G] :
     ∃ (K : Set G), IsCompact K ∧ IsOpen K ∧ 1 ∈ K := by
-  -- Use local compactness at 1
-  obtain ⟨K, hK_nhds, hK_compact⟩ := LocallyCompactSpace.local_compact_nhds (1 : G) Set.univ
-  have h1_univ : (1 : G) ∈ Set.univ := Set.mem_univ 1
-  obtain ⟨U, hU_subset, hU_open, h1U⟩ := _root_.isOpen_iff_forall_mem_open.mp isOpen_univ 1 h1_univ
-  -- Since K is a compact neighborhood of 1 in univ, we can find an open set between them
-  obtain ⟨V, hV_open, h1V, hVK⟩ := mem_nhds_iff.mp hK_nhds
-  -- Use the intersection V ∩ interior K which is open and contained in K
-  use V ∩ interior K
-  refine ⟨?_, IsOpen.inter hV_open isOpen_interior, ?_⟩
-  · exact IsCompact.of_isClosed_subset hK_compact (IsClosed.inter hV_open.isClosed_compl
-      isClosed_closure) (Set.inter_subset_right.trans interior_subset)
-  · exact ⟨h1V, mem_interior_iff_mem_nhds.mpr ⟨V, hVK, hV_open, h1V⟩⟩
+  -- In a locally compact Hausdorff space, every point has a compact neighborhood
+  -- and we can find an open set inside it
+  rcases local_compact_nhds (x := (1 : G)) with ⟨K, hK_mem, hK_compact⟩
+  -- K is in the neighborhood filter of 1, so there's an open U with 1 ∈ U ⊆ K
+  rcases mem_nhds_iff.mp hK_mem with ⟨U, hU_sub, hU_open, h1_U⟩
+  -- Now U is open, 1 ∈ U, and U ⊆ K where K is compact
+  -- So the closure of U is compact (as a closed subset of compact K)
+  have hU_closure_compact : IsCompact (closure U) :=
+    isCompact_of_isClosed_subset hK_compact isClosed_closure (closure_mono hU_sub)
+  -- The interior of closure U is open, and since U is open, U ⊆ interior (closure U)
+  use interior (closure U)
+  refine ⟨?_, isOpen_interior, ?_⟩
+  · exact isCompact_of_isClosed_subset hU_closure_compact isClosed_closure
+      (interior_subset.trans subset_closure)
+  · exact interior_mem_nhds.mpr ⟨U, subset_closure, hU_open, h1_U⟩
 
 /-- The Haar measure on a finite product has the product property on rectangular sets.
 This is a key fact we'll use. -/
