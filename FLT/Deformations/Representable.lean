@@ -1,3 +1,4 @@
+import FLT.Init
 import FLT.Deformations.LiftFunctor
 import FLT.Deformations.RepresentationTheory.Irreducible
 

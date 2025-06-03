@@ -9,6 +9,7 @@ import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Formula
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 import Mathlib.FieldTheory.IsSepClosed
 import Mathlib.RepresentationTheory.Basic
+import FLT.Init
 
 /-!
 

@@ -1,5 +1,6 @@
 import Mathlib.Algebra.Algebra.Tower
 import Mathlib.RingTheory.AlgebraTower
+import FLT.Init
 
 @[simps! apply symm_apply]
 def AlgEquiv.extendScalars {A C D : Type*} (B : Type*) [CommSemiring A] [CommSemiring C]

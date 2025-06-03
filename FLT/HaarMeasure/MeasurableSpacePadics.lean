@@ -6,6 +6,7 @@ Authors: Yaël Dillies, David Loeffler
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.NumberTheory.Padics.ProperSpace
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
+import FLT.Init
 
 /-!
 # Measurability and measures on the p-adics
