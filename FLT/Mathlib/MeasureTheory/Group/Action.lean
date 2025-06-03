@@ -91,7 +91,7 @@ lemma isMulRightInvariant_subtype_coe (μ : Measure G) [μ.IsMulRightInvariant]
 
 @[to_additive index_mul_addHaar_addSubgroup]
 lemma index_mul_haar_subgroup [H.FiniteIndex] (hH : MeasurableSet (H : Set G)) (μ : Measure G)
-    [hμ : μ.IsMulLeftInvariant] : H.index * μ H = μ univ := by
+    [μ.IsMulLeftInvariant] : H.index * μ H = μ univ := by
   obtain ⟨s, hs, -⟩ := H.exists_isComplement_left 1
   have hs' : Finite s := hs.finite_left_iff.mpr inferInstance
   calc
@@ -106,8 +106,8 @@ lemma index_mul_haar_subgroup_eq_haar_subgroup [H.IsFiniteRelIndex K] (hHK : H �
     (hH : MeasurableSet (H : Set G)) (hK : MeasurableSet (K : Set G)) (μ : Measure G)
     [μ.IsMulLeftInvariant] :
     H.relindex K * μ H = μ K := by
-  haveI := isMulLeftInvariant_subtype_coe μ hK
-  have := index_mul_haar_subgroup (H := H.subgroupOf K) (measurable_subtype_coe hH) (hμ := this)
+  have := isMulLeftInvariant_subtype_coe μ hK
+  have := index_mul_haar_subgroup (H := H.subgroupOf K) (measurable_subtype_coe hH)
     (μ.comap Subtype.val)
   simp only at this
   rw [MeasurableEmbedding.comap_apply, MeasurableEmbedding.comap_apply] at this
