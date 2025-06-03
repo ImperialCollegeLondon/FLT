@@ -8,6 +8,7 @@ import Mathlib.Algebra.Group.Pi.Units
 import Mathlib.MeasureTheory.Group.Pointwise
 
 open scoped NNReal Pointwise
+open scoped NNReal Pointwise
 
 namespace ContinuousAddEquiv
 
