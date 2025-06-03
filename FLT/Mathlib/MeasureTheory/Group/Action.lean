@@ -84,7 +84,7 @@ lemma isMulLeftInvariant_subtype_coe (μ : Measure G) [μ.IsMulLeftInvariant]
   hφ.IsMulLeftInvariant_comap μ
 
 @[to_additive]
-lemma isMulRightInvariant_subtype_coe (μ : Measure G) [μ.IsMulRightInvariant]
+lemma isMulRightInvariant_subtypeVal (μ : Measure G) [μ.IsMulRightInvariant]
     (hH : MeasurableSet (H : Set G)) : (μ.comap Subtype.val : Measure H).IsMulRightInvariant :=
   have hφ : MeasurableEmbedding H.subtype := MeasurableEmbedding.subtype_coe hH
   MeasurableEmbedding.IsMulRightInvariant_comap hφ μ
