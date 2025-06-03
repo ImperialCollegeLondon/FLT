@@ -478,71 +478,85 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   letI : MeasurableSpace (Π i, H i) := borel _
   haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
   mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
--- sorry -- FLT#521 -- induction on size of ι
-  apply Fintype.induction_empty_option (P := fun ι => ∀ (H : ι → Type*)
-    [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
-    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
-    (ψ : Π i, (H i) ≃ₜ* (H i)),
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i))
-  · -- Base case: empty type
-    intro H _ _ _ _ _ _ ψ
-    letI : MeasurableSpace (Π i : Empty, H i) := borel _
-    haveI : BorelSpace (Π i : Empty, H i) := ⟨rfl⟩
-    simp only [Fintype.prod_empty]
-    -- The pi type over Empty is isomorphic to Unit
-    have piEmpty : (Π i : Empty, H i) ≃ₜ* Unit :=
-      ⟨⟨MulEquiv.piEmpty H, continuous_const, continuous_of_isEmpty_domain⟩⟩
-    have : ContinuousMulEquiv.piCongrRight ψ = piEmpty.symm.trans piEmpty := by
-      ext x i
-      exact Empty.elim i
-    rw [this, mulEquivHaarChar_trans]
+  letI : MeasurableSpace (Π i, H i) := borel _
+  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+  -- We use induction on finite types
+  classical
+  apply Fintype.induction_empty_option
+  -- Base case: empty type
+  · -- ι ≃ Empty
+    simp only [Finset.univ_eq_empty, Finset.prod_empty]
+    -- The pi type over empty index is isomorphic to Unit
+    have h_empty : IsEmpty ι := inferInstance
+    have : (Π i : ι, H i) ≃ₜ* Unit := {
+      toFun := fun _ => ()
+      invFun := fun _ => isEmptyElim
+      left_inv := fun f => funext isEmptyElim
+      right_inv := fun _ => rfl
+      map_mul' := fun _ _ => rfl
+      continuous_toFun := continuous_const
+      continuous_invFun := continuous_of_discreteTopology
+    }
+    have : ContinuousMulEquiv.piCongrRight ψ =
+        (this.symm.trans (ContinuousMulEquiv.piCongrRight ψ)).trans this := by
+      ext x; exact isEmptyElim x
+    rw [this, mulEquivHaarChar_trans, mulEquivHaarChar_trans]
     simp [mulEquivHaarChar_eq_one_of_compactSpace]
 
-  · -- Inductive case: Option ι
-    intro ι _ IH H _ _ _ _ _ _ ψ
-    letI : MeasurableSpace (Π i : Option ι, H i) := borel _
-    haveI : BorelSpace (Π i : Option ι, H i) := ⟨rfl⟩
-    -- Split the product as H none × (Π i : ι, H (some i))
-    let e : (Π i : Option ι, H i) ≃ₜ* H none × (Π i : ι, H (some i)) :=
-      ⟨⟨MulEquiv.piOptionEquivProd H,
-        continuous_prod_mk.mpr ⟨continuous_apply none, continuous_pi fun i => continuous_apply (some i)⟩,
-        continuous_pi fun i => i.casesOn continuous_fst (fun j => (continuous_apply j).comp continuous_snd)⟩⟩
-    -- Show that piCongrRight commutes with this splitting
-    have comm : e.trans ((ψ none).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (some i))).trans e.symm =
-                ContinuousMulEquiv.piCongrRight ψ := by
-      ext x i
-      cases i with
-      | none => simp [e, MulEquiv.piOptionEquivProd]
-      | some j => simp [e, MulEquiv.piOptionEquivProd]
-    -- Apply the product formula
-    rw [← comm, mulEquivHaarChar_trans, mulEquivHaarChar_trans]
-    rw [mulEquivHaarChar_prodCongr]
+  -- Inductive case: ι ≃ Option ι' for some ι'
+  · intro ι' ih
+    -- We have ι ≃ Option ι', so (Π i : ι, H i) ≃ H none × (Π i : ι', H (some i))
+    let e : ι ≃ Option ι' := Fintype.equivOfCardEq (by simp)
+    let φ : (Π i : ι, H i) ≃ₜ* (H (e.symm none) × Π i : ι', H (e.symm (some i))) := {
+      toFun := fun f => (f (e.symm none), fun i => f (e.symm (some i)))
+      invFun := fun p i => e i |>.casesOn p.1 (fun j => p.2 j)
+      left_inv := fun f => by
+        ext i
+        simp only [Option.casesOn_none, Option.casesOn_some, Equiv.symm_apply_apply]
+      right_inv := fun ⟨x, g⟩ => by
+        ext <;> simp [Equiv.apply_symm_apply]
+      map_mul' := fun f g => by simp [Pi.mul_def]
+      continuous_toFun := by
+        apply Continuous.prod_mk
+        · exact continuous_apply _
+        · exact continuous_pi fun i => continuous_apply _
+      continuous_invFun := by
+        apply continuous_pi
+        intro i
+        cases' h : e i with j
+        · simp only [← h, Option.casesOn_none]
+          exact continuous_fst
+        · simp only [← h, Option.casesOn_some]
+          exact (continuous_apply j).comp continuous_snd
+    }
+
+    -- Show that φ intertwines with the homeomorphisms
+    have comm : φ ∘ ContinuousMulEquiv.piCongrRight ψ =
+        (ψ (e.symm none)).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (e.symm (some i))) ∘ φ := by
+      ext f
+      · simp [φ, ContinuousMulEquiv.piCongrRight, ContinuousMulEquiv.prodCongr]
+      · simp [φ, ContinuousMulEquiv.piCongrRight, ContinuousMulEquiv.prodCongr]
+
+    -- Apply the key lemma
+    have key := mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding
+      (f := φ.toMulEquiv.toMonoidHom) φ.toHomeomorph.isOpenEmbedding
+      (ContinuousMulEquiv.piCongrRight ψ)
+      ((ψ (e.symm none)).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (e.symm (some i))))
+      (congr_fun comm)
+
+    rw [key, mulEquivHaarChar_prodCongr]
     -- Use the induction hypothesis
-    rw [IH (fun i => H (some i)) (fun i => ψ (some i))]
-    -- Rearrange the product
-    rw [Fintype.prod_option]
-    rfl
+    haveI : MeasurableSpace (Π i : ι', H (e.symm (some i))) := borel _
+    haveI : BorelSpace (Π i : ι', H (e.symm (some i))) := ⟨rfl⟩
+    rw [ih]
+    -- Show the products are equal
+    simp only [Finset.prod_option, e.symm.surjective.prod_comp]
 
 end pi
 
 section restrictedproduct
 
 open ENNReal
-
--- -- some sample code to show how why a nonempty compact open has
--- -- positive finite Haar measure
--- example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
---     [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
---     -- IsHaarMeasure gives "positive on opens" and "finite on compacts"
---     [IsHaarMeasure μ] (C : Set X) [Nonempty C]
---     (hCopen : IsOpen C) (hCcompact : IsCompact C) :
---     0 < μ C ∧ μ C < ∞ := by
---   constructor
---   · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
---   · exact IsCompact.measure_lt_top hCcompact
 
 open RestrictedProduct
 
