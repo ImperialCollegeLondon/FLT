@@ -270,22 +270,6 @@ variable {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup H] [LocallyCompactSpace H]
 
 open scoped Pointwise in
-/-- Any compact subset `K` of a locally compact group is contained in an open set `U` which is
-itself contained in a compact set `C`. -/
-@[to_additive]
-lemma _root_.IsTopologicalGroup.compact_subset_open_subset_compact {K : Set G} (hK : IsCompact K) :
-    ∃ (U : Set G) (C : Set G), IsOpen U ∧ IsCompact C ∧ K ⊆ U ∧ U ⊆ C := by
-  have ⟨C₀, hC₀1, _, hC₀⟩ := local_compact_nhds (x := (1 : G)) Filter.univ_mem -- Compact nhd of 1
-  have ⟨U₀, hU₀, hU₀open, one_mem_U₀⟩ := mem_nhds_iff.mp hC₀1
-  have h : ∀ g, g ∈ g • U₀ := fun _ ↦ ⟨1, one_mem_U₀, by simp⟩
-  have ⟨I, hI⟩ := hK.elim_finite_subcover (· • U₀) hU₀open.smul fun x _ ↦ Set.mem_iUnion.2 ⟨x, h x⟩
-  refine ⟨(⋃ i ∈ I, i • U₀), (⋃ i ∈ I, i • C₀), isOpen_biUnion (fun i _ ↦ hU₀open.smul i),
-    I.isCompact_biUnion (fun i _ ↦ hC₀.smul i), hI, fun x hx ↦ ?_⟩
-  simp only [Set.mem_iUnion, exists_prop] at hx
-  have ⟨i₀, hi₀⟩ := hx
-  exact Set.mem_iUnion.mpr ⟨i₀, by simpa [hi₀] using Set.smul_set_mono hU₀ hi₀.2⟩
-
-open scoped Pointwise in
 @[to_additive MeasureTheory.addEquivAddHaarChar_prodCongr]
 lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     [MeasurableSpace H] [BorelSpace H] (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H) :
@@ -333,9 +317,10 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
         exact measure_iUnion_le _
       change m C < _
       rw [inducedOuterMeasure_eq_iInf _ this, iInf_lt_top]
-      · have ⟨U, C', hU, hC', hKU, hUC'⟩ := IsTopologicalGroup.compact_subset_open_subset_compact hC
-        refine ⟨U, iInf_lt_iff.mpr ⟨hU.measurableSet, iInf_lt_iff.mpr ⟨hKU, ?_⟩⟩⟩
-        apply lt_of_le_of_lt (measure_mono <| Set.prod_mono hUC' (Set.image_mono hY))
+      · have ⟨C', hC', hCC'⟩ := exists_compact_superset hC
+        use interior C'
+        refine iInf_lt_iff.mpr ⟨isOpen_interior.measurableSet, iInf_lt_iff.mpr ⟨hCC', ?_⟩⟩
+        apply lt_of_le_of_lt (measure_mono <| Set.prod_mono interior_subset (Set.image_mono hY))
         exact (hC'.prod <| ψ.isCompact_image.mpr hKcomp).measure_ne_top.symm.lt_top'
       · exact fun s₁ s₂ _ _ sub ↦ measure_mono <| Set.prod_mono sub subset_rfl
       · exact fun S hS ↦ MeasurableSet.iUnion hS
@@ -393,9 +378,11 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
         exact measure_iUnion_le _
       change m' C < _
       rw [inducedOuterMeasure_eq_iInf _ this, iInf_lt_top]
-      · have ⟨U, C', hU, hC', hKU, hUC'⟩ := IsTopologicalGroup.compact_subset_open_subset_compact hC
-        refine ⟨U, iInf_lt_iff.mpr ⟨hU.measurableSet, iInf_lt_iff.mpr ⟨hKU, ?_⟩⟩⟩
-        apply lt_of_le_of_lt (measure_mono <| Set.prod_mono hX hUC')
+      · have ⟨C', hC', hCC'⟩ := exists_compact_superset hC
+        use interior C'
+        refine iInf_lt_iff.mpr ⟨isOpen_interior.measurableSet, iInf_lt_iff.mpr ⟨hCC', ?_⟩⟩
+        unfold f'
+        apply lt_of_le_of_lt (measure_mono <| Set.prod_mono hX interior_subset)
         exact (hK'comp.prod hC').measure_ne_top.symm.lt_top'
       · exact fun s₁ s₂ _ _ sub ↦ measure_mono <| Set.prod_mono subset_rfl sub
       · exact fun S hS ↦ MeasurableSet.iUnion hS
