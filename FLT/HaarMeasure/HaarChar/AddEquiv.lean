@@ -480,91 +480,77 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   letI : MeasurableSpace (Π i, H i) := borel _
   haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-  -- We proceed by induction on the cardinality of ι
+  -- We use induction on finite types
   classical
-  let n := Fintype.card ι
-  have hn : Fintype.card ι = n := rfl
-  revert ι
-  induction n with
-  | zero =>
-    intro ι _ _ _ _ _ _ _ _ hn ψ
-    -- When card ι = 0, ι is empty
-    rw [Fintype.card_eq_zero_iff] at hn
-    haveI : IsEmpty ι := hn
-    -- The product over empty index is 1
-    simp only [Finset.prod_empty]
+  apply Fintype.induction_empty_option
+  -- Base case: empty type
+  · -- ι ≃ Empty
+    simp only [Finset.univ_eq_empty, Finset.prod_empty]
     -- The pi type over empty index is isomorphic to Unit
-    have : Nonempty ((Π i, H i) ≃ₜ* Unit) := by
-      refine ⟨{
-        toFun := fun _ => ()
-        invFun := fun _ => isEmptyElim
-        left_inv := fun f => funext isEmptyElim
-        right_inv := fun _ => rfl
-        map_mul' := fun _ _ => rfl
-        continuous_toFun := continuous_const
-        continuous_invFun := continuous_of_discreteTopology
-      }⟩
-    have h_unit : CompactSpace Unit := inferInstance
-    have h_pi : CompactSpace (Π i, H i) := by
-      rw [← Function.IsEmpty.eq_iff_eq_empty] at *
-      exact compactSpace_of_finite_discrete
-    -- Both sides equal 1 for compact spaces
-    rw [mulEquivHaarChar_eq_one_of_compactSpace]
+    have h_empty : IsEmpty ι := inferInstance
+    have : (Π i : ι, H i) ≃ₜ* Unit := {
+      toFun := fun _ => ()
+      invFun := fun _ => isEmptyElim
+      left_inv := fun f => funext isEmptyElim
+      right_inv := fun _ => rfl
+      map_mul' := fun _ _ => rfl
+      continuous_toFun := continuous_const
+      continuous_invFun := continuous_of_discreteTopology
+    }
+    have : ContinuousMulEquiv.piCongrRight ψ =
+        (this.symm.trans (ContinuousMulEquiv.piCongrRight ψ)).trans this := by
+      ext x; exact isEmptyElim x
+    rw [this, mulEquivHaarChar_trans, mulEquivHaarChar_trans]
+    simp [mulEquivHaarChar_eq_one_of_compactSpace]
 
-  | succ n ih =>
-    intro ι _ _ _ _ _ _ _ _ hn ψ
-    -- When card ι = n + 1, pick an element and split
-    obtain ⟨j⟩ := Fintype.card_pos_iff.mp (hn ▸ Nat.zero_lt_succ n)
-    let ι' := {i // i ≠ j}
-    have card_ι' : Fintype.card ι' = n := by
-      rw [Fintype.card_subtype_eq]
-      simp only [Finset.filter_ne']
-      rw [Finset.card_erase_of_mem (Finset.mem_univ j), Fintype.card_of_finset]
-      simp [hn]
-
-    -- Set up the isomorphism (Π i, H i) ≃ₜ* (H j × Π i : ι', H i)
-    let φ : (Π i, H i) ≃ₜ* (H j × Π i : ι', H (i : ι)) := {
-      toFun := fun f => (f j, fun i => f i)
-      invFun := fun p i => if h : i = j then h ▸ p.1 else p.2 ⟨i, h⟩
-      left_inv := fun f => funext fun i => by simp [dif_pos rfl]
+  -- Inductive case: ι ≃ Option ι' for some ι'
+  · intro ι' ih
+    -- We have ι ≃ Option ι', so (Π i : ι, H i) ≃ H none × (Π i : ι', H (some i))
+    let e : ι ≃ Option ι' := Fintype.equivOfCardEq (by simp)
+    let φ : (Π i : ι, H i) ≃ₜ* (H (e.symm none) × Π i : ι', H (e.symm (some i))) := {
+      toFun := fun f => (f (e.symm none), fun i => f (e.symm (some i)))
+      invFun := fun p i => e i |>.casesOn p.1 (fun j => p.2 j)
+      left_inv := fun f => by
+        ext i
+        simp only [Option.casesOn_none, Option.casesOn_some, Equiv.symm_apply_apply]
       right_inv := fun ⟨x, g⟩ => by
-        simp only [Prod.mk.injEq]
-        constructor
-        · simp [dif_pos rfl]
-        · ext ⟨i, hi⟩; simp [dif_neg hi]
+        ext <;> simp [Equiv.apply_symm_apply]
       map_mul' := fun f g => by simp [Pi.mul_def]
-      continuous_toFun := Continuous.prod_mk (continuous_apply j) continuous_pi
-      continuous_invFun := continuous_pi fun i => by
-        split_ifs with h
-        · subst h; exact continuous_fst
-        · exact (continuous_apply ⟨i, h⟩).comp continuous_snd
+      continuous_toFun := by
+        apply Continuous.prod_mk
+        · exact continuous_apply _
+        · exact continuous_pi fun i => continuous_apply _
+      continuous_invFun := by
+        apply continuous_pi
+        intro i
+        cases' h : e i with j
+        · simp only [← h, Option.casesOn_none]
+          exact continuous_fst
+        · simp only [← h, Option.casesOn_some]
+          exact (continuous_apply j).comp continuous_snd
     }
 
-    -- The homeomorphism commutes with ψ in the appropriate way
+    -- Show that φ intertwines with the homeomorphisms
     have comm : φ ∘ ContinuousMulEquiv.piCongrRight ψ =
-        (ψ j).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ i) ∘ φ := by
+        (ψ (e.symm none)).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (e.symm (some i))) ∘ φ := by
       ext f
       · simp [φ, ContinuousMulEquiv.piCongrRight, ContinuousMulEquiv.prodCongr]
-      · ext ⟨i, hi⟩
-        simp [φ, ContinuousMulEquiv.piCongrRight, ContinuousMulEquiv.prodCongr, dif_neg hi]
+      · simp [φ, ContinuousMulEquiv.piCongrRight, ContinuousMulEquiv.prodCongr]
 
-    -- Apply the key lemma relating Haar characters under open embeddings
+    -- Apply the key lemma
     have key := mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding
       (f := φ.toMulEquiv.toMonoidHom) φ.toHomeomorph.isOpenEmbedding
       (ContinuousMulEquiv.piCongrRight ψ)
-      ((ψ j).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ i))
+      ((ψ (e.symm none)).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (e.symm (some i))))
       (congr_fun comm)
 
     rw [key, mulEquivHaarChar_prodCongr]
-    congr 1
-    -- Apply induction hypothesis
-    convert ih (fun i => ψ i) card_ι'
-    exact Finset.prod_bij
-      (fun i _ => i.val)
-      (fun i _ => by simp [Finset.mem_erase])
-      (fun _ _ => rfl)
-      (fun _ _ _ _ h => Subtype.eq h)
-      (fun i hi => ⟨⟨i, Finset.mem_erase.mp hi |>.1⟩, by simp, rfl⟩)
+    -- Use the induction hypothesis
+    haveI : MeasurableSpace (Π i : ι', H (e.symm (some i))) := borel _
+    haveI : BorelSpace (Π i : ι', H (e.symm (some i))) := ⟨rfl⟩
+    rw [ih]
+    -- Show the products are equal
+    simp only [Finset.prod_option, e.symm.surjective.prod_comp]
 
 end pi
 
