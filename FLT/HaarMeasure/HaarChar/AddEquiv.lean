@@ -465,6 +465,8 @@ def _root_.ContinuousMulEquiv.piCongrRight (ψ : Π i, (G i) ≃ₜ* (H i)) :
 
 end piCongrRight
 
+set_option maxHeartbeats 20000000
+
 section pi
 
 variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
