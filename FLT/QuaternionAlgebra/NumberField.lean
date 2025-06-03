@@ -17,7 +17,7 @@ namespace IsQuaternionAlgebra.NumberField
 attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /--
 A rigidification of a quaternion algebra D over a number field F
-is a fixed choice of isomorphism D ⊗[F] 𝔸_F^∞ = M₂(𝔸_F^∞). In other
+is a fixed choice of `𝔸_F^∞`-algebra isomorphism `D ⊗[F] 𝔸_F^∞ = M₂(𝔸_F^∞)`. In other
 words, it is a choice of splitting of `D ⊗[F] Fᵥ` (i.e. an isomorphism to `M₂(Fᵥ)`)
 for all finite places `v` together with a guarantee that the isomorphism works
 on the integral level at all but finitely many places. Such a rigidification exists

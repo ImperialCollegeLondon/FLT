@@ -7,9 +7,9 @@ variable (K : Type) [Field K]
 variable (L : Type) [Field L] [Algebra K L] [CharZero L] [IsAlgClosed L]
   -- not even sure if i need it to be the alg closure at this point
 
-lemma IsAlgClosed.card_rootsOfUnity (N : ℕ+) : Fintype.card (rootsOfUnity N L) = N := by
+lemma IsAlgClosed.card_rootsOfUnity (N : ℕ) [NeZero N] : Fintype.card (rootsOfUnity N L) = N := by
   obtain ⟨z, hz⟩ : ∃ z : L, IsPrimitiveRoot z N :=
-    IsCyclotomicExtension.exists_isPrimitiveRoot L _ (show _ ∈ ⊤ by simp)
+    IsCyclotomicExtension.exists_isPrimitiveRoot L _ (show _ ∈ ⊤ by simp) (NeZero.ne N)
   exact IsPrimitiveRoot.card_rootsOfUnity hz
 
 @[norm_cast]
