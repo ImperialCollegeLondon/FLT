@@ -14,10 +14,12 @@ section MeasurableEmbeddingComap
 
 open MeasureTheory Measure
 
+example {a b c : ℝ} (h : a = b) : c * a = c * b := by exact congrArg (HMul.hMul c) h
+
 @[to_additive]
-lemma _root_.MeasurableEmbedding.IsMulLeftInvariant_comap {G H : Type*}
+lemma _root_.MeasurableEmbedding.isMulLeftInvariant_comap {G H : Type*}
     [Group G] [MeasurableSpace G] [MeasurableMul G]
-    [Group H] [MeasurableSpace H] [MeasurableMul H]
+    [Monoid H] [MeasurableSpace H] [MeasurableMul H]
     {φ : G →* H} (hφ : MeasurableEmbedding φ) (μ : Measure H) [IsMulLeftInvariant μ] :
     IsMulLeftInvariant (comap φ μ) where
   map_mul_left_eq_self g := by
@@ -30,14 +32,17 @@ lemma _root_.MeasurableEmbedding.IsMulLeftInvariant_comap {G H : Type*}
       · rintro ⟨y, hy, rfl⟩
         exact ⟨g * y, hy, by simp⟩
       · intro ⟨y, yins, hy⟩
-        exact ⟨g⁻¹ * y, by simp [yins], by simp [hy]⟩
+        refine ⟨g⁻¹ * y, by simp [yins], ?_⟩
+        apply congrArg (φ g⁻¹ * ·) at hy
+        simp_rw [← mul_assoc, ← φ.map_mul, inv_mul_cancel, map_one, one_mul] at hy
+        exact hy
     rw [this, ← map_apply (by fun_prop), IsMulLeftInvariant.map_mul_left_eq_self]
     exact hφ.measurableSet_image.mpr hs
 
 @[to_additive]
 lemma _root_.MeasurableEmbedding.isMulRightInvariant_comap {G H : Type*}
     [Group G] [MeasurableSpace G] [MeasurableMul G]
-    [Group H] [MeasurableSpace H] [MeasurableMul H]
+    [Monoid H] [MeasurableSpace H] [MeasurableMul H]
     {φ : G →* H} (hφ : MeasurableEmbedding φ) (μ : Measure H) [IsMulRightInvariant μ] :
     IsMulRightInvariant (comap φ μ) where
   map_mul_right_eq_self g := by
@@ -50,7 +55,10 @@ lemma _root_.MeasurableEmbedding.isMulRightInvariant_comap {G H : Type*}
       · rintro ⟨y, hy, rfl⟩
         exact ⟨y * g, hy, by simp⟩
       · intro ⟨y, yins, hy⟩
-        exact ⟨y * g⁻¹, by simp [yins], by simp [hy]⟩
+        refine ⟨y * g⁻¹, by simp [yins], ?_⟩
+        apply congrArg (· * φ g⁻¹) at hy
+        simp_rw [mul_assoc, ← φ.map_mul, mul_inv_cancel, map_one, mul_one] at hy
+        exact hy
     rw [this, ← map_apply (by fun_prop), IsMulRightInvariant.map_mul_right_eq_self]
     exact hφ.measurableSet_image.mpr hs
 
@@ -81,13 +89,13 @@ instance : MeasurableMul H where
 lemma isMulLeftInvariant_subtypeVal (μ : Measure G) [μ.IsMulLeftInvariant]
   (hH : MeasurableSet (H : Set G)) : (μ.comap Subtype.val : Measure H).IsMulLeftInvariant :=
   have hφ : MeasurableEmbedding H.subtype := MeasurableEmbedding.subtype_coe hH
-  hφ.IsMulLeftInvariant_comap μ
+  hφ.isMulLeftInvariant_comap μ
 
 @[to_additive]
 lemma isMulRightInvariant_subtypeVal (μ : Measure G) [μ.IsMulRightInvariant]
     (hH : MeasurableSet (H : Set G)) : (μ.comap Subtype.val : Measure H).IsMulRightInvariant :=
   have hφ : MeasurableEmbedding H.subtype := MeasurableEmbedding.subtype_coe hH
-  MeasurableEmbedding.IsMulRightInvariant_comap hφ μ
+  hφ.isMulRightInvariant_comap μ
 
 @[to_additive index_mul_addHaar_addSubgroup]
 lemma index_mul_haar_subgroup [H.FiniteIndex] (hH : MeasurableSet (H : Set G)) (μ : Measure G)
@@ -105,7 +113,7 @@ lemma index_mul_haar_subgroup [H.FiniteIndex] (hH : MeasurableSet (H : Set G)) (
 lemma index_mul_haar_subgroup_eq_haar_subgroup [H.IsFiniteRelIndex K] (hHK : H ≤ K)
     (hH : MeasurableSet (H : Set G)) (hK : MeasurableSet (K : Set G)) (μ : Measure G)
     [μ.IsMulLeftInvariant] : H.relindex K * μ H = μ K := by
-  have := isMulLeftInvariant_subtype_coe μ hK
+  have := isMulLeftInvariant_subtypeVal μ hK
   have := index_mul_haar_subgroup (H := H.subgroupOf K) (measurable_subtype_coe hH)
     (μ.comap Subtype.val)
   simp only at this
