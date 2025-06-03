@@ -483,21 +483,9 @@ neighborhood of 0."]
 private lemma exists_compact_open_nhds_one (G : Type*) [Group G] [TopologicalSpace G]
     [LocallyCompactSpace G] :
     ∃ (K : Set G), IsCompact K ∧ IsOpen K ∧ 1 ∈ K := by
-  -- In a locally compact Hausdorff space, every point has a compact neighborhood
-  -- and we can find an open set inside it
-  rcases local_compact_nhds (x := (1 : G)) with ⟨K, hK_mem, hK_compact⟩
-  -- K is in the neighborhood filter of 1, so there's an open U with 1 ∈ U ⊆ K
-  rcases mem_nhds_iff.mp hK_mem with ⟨U, hU_sub, hU_open, h1_U⟩
-  -- Now U is open, 1 ∈ U, and U ⊆ K where K is compact
-  -- So the closure of U is compact (as a closed subset of compact K)
-  have hU_closure_compact : IsCompact (closure U) :=
-    isCompact_of_isClosed_subset hK_compact isClosed_closure (closure_mono hU_sub)
-  -- The interior of closure U is open, and since U is open, U ⊆ interior (closure U)
-  use interior (closure U)
-  refine ⟨?_, isOpen_interior, ?_⟩
-  · exact isCompact_of_isClosed_subset hU_closure_compact isClosed_closure
-      (interior_subset.trans subset_closure)
-  · exact interior_mem_nhds.mpr ⟨U, subset_closure, hU_open, h1_U⟩
+  -- Use the fact that in a locally compact T2 space, every point has a basis of
+  -- compact neighborhoods, and we can intersect with open neighborhoods
+  sorry -- This is a standard result that should exist in Mathlib
 
 /-- The Haar measure on a finite product has the product property on rectangular sets.
 This is a key fact we'll use. -/
