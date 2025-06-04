@@ -473,12 +473,74 @@ variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalS
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
-@[to_additive]
+
+@[to_additive ""]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
   letI : MeasurableSpace (Π i, H i) := borel _
   haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
   mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  sorry
+    refine Fintype.induction_subsingleton_or_nontrivial ?_ ?_ ι
+    · -- Base case: empty type
+      simp only [Fintype.univ_of_isEmpty, Finset.prod_empty]
+      have : (Π i : Empty, H i) ≃ₜ* Unit := by
+        refine ⟨⟨⟨fun _ => (), fun _ _ => rfl⟩, ?_, ?_, ?_⟩, ?_, ?_⟩
+        · intro; ext i; exact i.elim
+        · intro; ext i; exact i.elim
+        · intro; ext i; exact i.elim
+        · exact continuous_const
+        · exact continuous_of_isEmpty_domain
+      have : ContinuousMulEquiv.piCongrRight (fun i : Empty => i.elim : Π i, H i ≃ₜ* H i) = this := by
+        ext x
+        exact Subsingleton.elim _ _
+      rw [this, mulEquivHaarChar_eq_one_of_compactSpace]
+    · -- Inductive step: add one element
+      intro α _ ih j
+      haveI : MeasurableSpace (Π i : Option α, H i) := borel _
+      haveI : BorelSpace (Π i : Option α, H i) := ⟨rfl⟩
+      haveI : MeasurableSpace (H j × Π i : α, H i) := Prod.instMeasurableSpace
+      haveI : BorelSpace (H j × Π i : α, H i) := Prod.instBorelSpace
+      -- Define the isomorphism between Π i : Option α, H i and H j × Π i : α, H i
+      let e : (Π i : Option α, H i) ≃ₜ* (H j × Π i : α, H i) := {
+        toFun := fun f => (f (some j), fun i => f (some i))
+        invFun := fun p i => match i with
+          | none => p.1
+          | some i => p.2 i
+        left_inv := fun f => by
+          ext i
+          cases i <;> simp
+        right_inv := fun p => by simp
+        map_mul' := fun f g => by simp [Pi.mul_def]
+        continuous_toFun := by
+          apply Continuous.prod_mk
+          · exact continuous_apply (some j)
+          · exact continuous_pi fun i => continuous_apply (some i)
+        continuous_invFun := by
+          apply continuous_pi
+          intro i
+          cases i
+          · exact continuous_fst
+          · exact (continuous_apply _).comp continuous_snd
+      }
+      -- Use the isomorphism to relate the two sides
+      calc mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ)
+        _ = mulEquivHaarChar (e.symm.trans ((ContinuousMulEquiv.piCongrRight ψ).trans e)) := by
+          rw [← mulEquivHaarChar_trans, ← mulEquivHaarChar_trans]
+          simp
+        _ = mulEquivHaarChar ((ψ (some j)).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (some i))) := by
+          congr 1
+          ext ⟨x, f⟩ i
+          cases i <;> simp
+        _ = mulEquivHaarChar (ψ (some j)) * mulEquivHaarChar (ContinuousMulEquiv.piCongrRight fun i => ψ (some i)) := by
+          haveI : MeasurableSpace (H j) := inferInstance
+          haveI : BorelSpace (H j) := inferInstance
+          haveI : MeasurableSpace (Π i : α, H i) := borel _
+          haveI : BorelSpace (Π i : α, H i) := ⟨rfl⟩
+          exact mulEquivHaarChar_prodCongr _ _
+        _ = mulEquivHaarChar (ψ (some j)) * ∏ i : α, mulEquivHaarChar (ψ (some i)) := by
+          rw [ih]
+        _ = ∏ i : Option α, mulEquivHaarChar (ψ i) := by
+          rw [Fintype.prod_option]
+          simp
 
 end pi
 
