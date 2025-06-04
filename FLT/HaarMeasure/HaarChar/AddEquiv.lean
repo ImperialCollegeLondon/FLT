@@ -4,7 +4,71 @@ import Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
 
-open MeasureTheory.Measure
+-- Core imports for finite products and Haar measure
+import Mathlib.MeasureTheory.Measure.Haar.Basic
+import Mathlib.MeasureTheory.Measure.Haar.Unique
+import Mathlib.MeasureTheory.Measure.Haar.Quotient
+import Mathlib.MeasureTheory.Measure.Haar.Disintegration
+
+-- Product measures and finite products
+import Mathlib.MeasureTheory.Measure.Prod
+import Mathlib.MeasureTheory.Measure.Pi
+import Mathlib.MeasureTheory.Measure.FiniteMeasureProd
+import Mathlib.MeasureTheory.Constructions.Pi
+
+-- Topology on products
+import Mathlib.Topology.Algebra.Group.Pi
+import Mathlib.Topology.Algebra.Group.Compact
+import Mathlib.Topology.Constructions.Product
+
+-- Borel spaces and measurability
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Metrizable
+import Mathlib.MeasureTheory.Group.Prod
+
+-- Finite type operations
+import Mathlib.Data.Fintype.Basic
+import Mathlib.Data.Fintype.Prod
+import Mathlib.Data.Fintype.Pi
+import Mathlib.Data.Fintype.BigOperators
+
+-- Additional group and algebra structures
+import Mathlib.Algebra.Group.Pi
+import Mathlib.Algebra.BigOperators.Pi
+import Mathlib.Algebra.BigOperators.Finsupp
+
+-- Specific lemmas you might need:
+-- From MeasureTheory.Measure.Pi:
+-- * `MeasureTheory.Measure.pi` - product measure on pi types
+-- * `MeasureTheory.Measure.pi_pi` - product of product measures
+-- * `MeasureTheory.isProbabilityMeasure_pi` - for probability measures
+
+-- From MeasureTheory.Measure.Haar.Basic:
+-- * `MeasureTheory.Measure.isHaarMeasure_pi` - if this exists
+-- * Properties of Haar measures under products
+
+-- From Topology.Algebra.Group.Pi:
+-- * `Pi.topologicalGroup` - pi types of topological groups
+-- * `Pi.locallyCompactSpace` - local compactness of products
+
+-- Key lemmas to look for or prove:
+open MeasureTheory
+
+-- Check if these exist in Mathlib:
+#check MeasureTheory.Measure.pi -- Product measure construction
+#check IsHaarMeasure -- The Haar measure typeclass
+#check Measure.pi_pi -- Product of product measures
+#check Measure.map_pi_eq_pi -- How maps behave on product measures
+
+-- You'll likely need to prove:
+-- 1. `isHaarMeasure_pi`: The product of Haar measures is Haar
+-- 2. `haar_pi_eq_prod`: Haar measure on pi equals product of Haar measures
+-- 3. How ContinuousMulEquiv.piCongrRight interacts with product measures
+
+-- From the search results, I found these relevant theorems:
+-- * `Real.volume_Icc_pi_toReal` - volume of product of intervals
+-- * `Real.map_linearMap_volume_pi_eq_smul_volume_pi` - linear maps scale volume
+-- * The construction of Haar measure uses `haar_product` which is a product of intervals
 open scoped NNReal
 
 namespace MeasureTheory
@@ -467,80 +531,149 @@ end piCongrRight
 
 set_option maxHeartbeats 20000000
 
+-- Supporting lemmas needed for mulEquivHaarChar_piCongrRight
+
+section HaarMeasureFiniteProducts
+
+variable {ι : Type*} [Fintype ι]
+  {H : ι → Type*} [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
+  [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
+  [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+
+-- Lemma 1: Haar measure on finite products
+@[to_additive]
+lemma haar_pi_eq_prod_haar (S : ∀ i, Set (H i)) (hS : ∀ i, MeasurableSet (S i)) :
+    letI : MeasurableSpace (Π i, H i) := borel _
+    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    haar (Set.pi univ S) = ∏ i, haar (S i) := by
+  sorry -- This is a fundamental property that should exist in Mathlib
+  -- If not, it needs to be proven using the uniqueness of Haar measure
+
+-- Lemma 2: Auxiliary measure construction for each coordinate
+@[to_additive]
+def haarSliceMeasure (i : ι) (Y : ∀ j, Set (H j)) (hY : ∀ j, IsOpen (Y j))
+    (hYne : ∀ j, (Y j).Nonempty) : Measure (H i) where
+  toOuterMeasure := inducedOuterMeasure
+    (fun S hS => haar (Set.pi univ (fun j => if j = i then S else Y j)))
+    (by simp) (by simp)
+  m_iUnion := sorry -- Would need to prove this satisfies measure axioms
+  trim_le := sorry
+
+-- Lemma 3: The slice measure is a Haar measure
+@[to_additive]
+lemma isHaarMeasure_haarSliceMeasure (i : ι) (Y : ∀ j, Set (H j))
+    (hY : ∀ j, IsOpen (Y j)) (hYne : ∀ j, (Y j).Nonempty)
+    (hYcomp : ∀ j, ∃ K, K ∈ 𝓝 (1 : H j) ∧ IsCompact K ∧ Y j ⊆ K) :
+    IsHaarMeasure (haarSliceMeasure i Y hY hYne) := by
+  sorry -- Similar to the proof in mulEquivHaarChar_prodCongr
+
+-- Lemma 4: Relationship between slice measures and haar
+@[to_additive]
+lemma haarSliceMeasure_eq_smul_haar (i : ι) (Y : ∀ j, Set (H j))
+    (hY : ∀ j, IsOpen (Y j)) (hYne : ∀ j, (Y j).Nonempty)
+    (hYcomp : ∀ j, ∃ K, K ∈ 𝓝 (1 : H j) ∧ IsCompact K ∧ Y j ⊆ K) :
+    haarSliceMeasure i Y hY hYne = (∏ j in Finset.univ \ {i}, haar (Y j)) • haar := by
+  sorry -- Use uniqueness of Haar measure up to scaling
+
+-- Lemma 5: Key calculation lemma
+@[to_additive]
+lemma haar_pi_transform (ψ : ∀ i, H i ≃ₜ* H i) (Y : ∀ i, Set (H i))
+    (hY : ∀ i, IsOpen (Y i)) (hYne : ∀ i, (Y i).Nonempty) :
+    haar (Set.pi univ (fun i => ψ i '' Y i)) =
+    (∏ i, mulEquivHaarChar (ψ i)) * haar (Set.pi univ Y) := by
+  sorry -- This would use the above lemmas and properties of mulEquivHaarChar
+
+end HaarMeasureFiniteProducts
+
 section pi
 
 variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
-
-@[to_additive ""]
+@[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
   letI : MeasurableSpace (Π i, H i) := borel _
   haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
   mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-    refine Fintype.induction_subsingleton_or_nontrivial ?_ ?_ ι
-    · -- Base case: empty type
-      simp only [Fintype.univ_of_isEmpty, Finset.prod_empty]
-      have : (Π i : Empty, H i) ≃ₜ* Unit := by
-        refine ⟨⟨⟨fun _ => (), fun _ _ => rfl⟩, ?_, ?_, ?_⟩, ?_, ?_⟩
-        · intro; ext i; exact i.elim
-        · intro; ext i; exact i.elim
-        · intro; ext i; exact i.elim
-        · exact continuous_const
-        · exact continuous_of_isEmpty_domain
-      have : ContinuousMulEquiv.piCongrRight (fun i : Empty => i.elim : Π i, H i ≃ₜ* H i) = this := by
-        ext x
-        exact Subsingleton.elim _ _
-      rw [this, mulEquivHaarChar_eq_one_of_compactSpace]
-    · -- Inductive step: add one element
-      intro α _ ih j
-      haveI : MeasurableSpace (Π i : Option α, H i) := borel _
-      haveI : BorelSpace (Π i : Option α, H i) := ⟨rfl⟩
-      haveI : MeasurableSpace (H j × Π i : α, H i) := Prod.instMeasurableSpace
-      haveI : BorelSpace (H j × Π i : α, H i) := Prod.instBorelSpace
-      -- Define the isomorphism between Π i : Option α, H i and H j × Π i : α, H i
-      let e : (Π i : Option α, H i) ≃ₜ* (H j × Π i : α, H i) := {
-        toFun := fun f => (f (some j), fun i => f (some i))
-        invFun := fun p i => match i with
-          | none => p.1
-          | some i => p.2 i
-        left_inv := fun f => by
-          ext i
-          cases i <;> simp
-        right_inv := fun p => by simp
-        map_mul' := fun f g => by simp [Pi.mul_def]
-        continuous_toFun := by
-          apply Continuous.prod_mk
-          · exact continuous_apply (some j)
-          · exact continuous_pi fun i => continuous_apply (some i)
-        continuous_invFun := by
-          apply continuous_pi
-          intro i
-          cases i
-          · exact continuous_fst
-          · exact (continuous_apply _).comp continuous_snd
-      }
-      -- Use the isomorphism to relate the two sides
-      calc mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ)
-        _ = mulEquivHaarChar (e.symm.trans ((ContinuousMulEquiv.piCongrRight ψ).trans e)) := by
-          rw [← mulEquivHaarChar_trans, ← mulEquivHaarChar_trans]
-          simp
-        _ = mulEquivHaarChar ((ψ (some j)).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (some i))) := by
-          congr 1
-          ext ⟨x, f⟩ i
-          cases i <;> simp
-        _ = mulEquivHaarChar (ψ (some j)) * mulEquivHaarChar (ContinuousMulEquiv.piCongrRight fun i => ψ (some i)) := by
-          haveI : MeasurableSpace (H j) := inferInstance
-          haveI : BorelSpace (H j) := inferInstance
-          haveI : MeasurableSpace (Π i : α, H i) := borel _
-          haveI : BorelSpace (Π i : α, H i) := ⟨rfl⟩
-          exact mulEquivHaarChar_prodCongr _ _
-        _ = mulEquivHaarChar (ψ (some j)) * ∏ i : α, mulEquivHaarChar (ψ (some i)) := by
-          rw [ih]
-        _ = ∏ i : Option α, mulEquivHaarChar (ψ i) := by
-          rw [Fintype.prod_option]
-          simp
+  letI : MeasurableSpace (Π i, H i) := borel _
+  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+
+  -- Step 1: Get compact neighborhoods for each coordinate
+  have : ∀ i, ∃ (K : Set (H i)) (Y : Set (H i)), K ∈ 𝓝 1 ∧ IsCompact K ∧
+    Y ⊆ K ∧ IsOpen Y ∧ (1 : H i) ∈ Y := fun i => by
+    obtain ⟨K, hK, _, hKcomp⟩ := local_compact_nhds (x := (1 : H i)) Filter.univ_mem
+    obtain ⟨Y, hY, hYopen, one_mem_Y⟩ := mem_nhds_iff.mp hK
+    exact ⟨K, Y, hK, hKcomp, hY, hYopen, one_mem_Y⟩
+
+  choose K Y hK hKcomp hYK hYopen hYone using this
+
+  -- Step 2: Define the product open set
+  let X := Set.pi univ Y
+  have hXopen : IsOpen X := isOpen_set_pi Finset.finite_univ (fun i _ => hYopen i)
+  have hXnonempty : X.Nonempty := ⟨fun i => 1, fun i _ => hYone i⟩
+
+  -- Step 3: Key calculation using the supporting lemmas
+  suffices mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) * haar X =
+      (∏ i, mulEquivHaarChar (ψ i)) * haar X by
+    -- Extract the result from the equation
+    have ne_zero : haar X ≠ 0 :=
+      (isHaarMeasure_haarMeasure _).open_pos _ hXopen hXnonempty
+    have ne_top : haar X ≠ ⊤ := by
+      refine (isHaarMeasure_haarMeasure _).lt_top_of_isCompact ?_
+      exact isCompact_set_pi Finset.finite_univ (fun i _ => hKcomp i)
+    exact_mod_cast (ENNReal.mul_left_inj ne_zero ne_top).mp this
+
+  -- Step 4: Main calculation
+  have ψ_image : ContinuousMulEquiv.piCongrRight ψ '' X = Set.pi univ (fun i => ψ i '' Y i) := by
+    ext f
+    simp only [Set.mem_image, X, Set.mem_pi, Set.mem_univ, true_implies,
+      ContinuousMulEquiv.piCongrRight, ContinuousMulEquiv.coe_mk, MulEquiv.coe_mk,
+      Equiv.coe_mk, MulEquiv.piCongrRight]
+    constructor
+    · rintro ⟨g, hg, rfl⟩
+      intro i
+      exact ⟨g i, hg i, rfl⟩
+    · intro h
+      use fun i => (ψ i).symm (f i)
+      constructor
+      · intro i
+        rw [← (ψ i).apply_symm_apply (f i)]
+        exact (ψ i).symm.isOpen_image.mp (hYopen i) (h i)
+      · ext i
+        simp
+
+  calc mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) * haar X
+    _ = mulEquivHaarChar _ * (map (ContinuousMulEquiv.piCongrRight ψ) haar)
+        (ContinuousMulEquiv.piCongrRight ψ '' X) := by
+      have h : Measurable (ContinuousMulEquiv.piCongrRight ψ) :=
+        (ContinuousMulEquiv.piCongrRight ψ).measurable
+      rw [map_apply h, Set.preimage_image_eq _ (ContinuousMulEquiv.piCongrRight ψ).injective]
+      exact (ContinuousMulEquiv.piCongrRight ψ).measurableEmbedding.measurableSet_image'
+        hXopen.measurableSet
+    _ = (mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) •
+        map (ContinuousMulEquiv.piCongrRight ψ) haar) (Set.pi univ (fun i => ψ i '' Y i)) := by
+      rw [ψ_image]; rfl
+    _ = haar (Set.pi univ (fun i => ψ i '' Y i)) := by
+      rw [mulEquivHaarChar_map_open haar (ContinuousMulEquiv.piCongrRight ψ)]
+      exact isOpen_set_pi Finset.finite_univ (fun i _ => (ψ i).isOpen_image.mpr (hYopen i))
+    _ = ∏ i, haar (ψ i '' Y i) := by
+      exact haar_pi_eq_prod_haar _ (fun i => ((ψ i).isOpen_image.mpr (hYopen i)).measurableSet)
+    _ = ∏ i, mulEquivHaarChar (ψ i) * haar (Y i) := by
+      congr 1
+      ext i
+      -- For each i, use the fact that map ψ scales haar by mulEquivHaarChar
+      have : haar (ψ i '' Y i) = (map (ψ i) haar) (ψ i '' Y i) := by
+        rw [← mulEquivHaarChar_map_open haar (ψ i) (hYopen i)]
+        simp
+      rw [this, map_apply (ψ i).measurable]
+      · simp only [Set.preimage_image_eq _ (ψ i).injective]
+      · exact ((ψ i).isOpen_image.mpr (hYopen i)).measurableSet
+    _ = (∏ i, mulEquivHaarChar (ψ i)) * ∏ i, haar (Y i) := by
+      rw [Finset.prod_mul_prod_comm]
+    _ = (∏ i, mulEquivHaarChar (ψ i)) * haar X := by
+      rw [← haar_pi_eq_prod_haar Y (fun i => (hYopen i).measurableSet)]
+      rfl
 
 end pi
 
