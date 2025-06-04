@@ -2,7 +2,7 @@ import FLT.HaarMeasure.HaarChar.Ring
 import FLT.NumberField.AdeleRing
 import FLT.Hacks.RightAlgebraInstances
 import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib
+import Mathlib.Algebra.Central.Defs
 
 open NumberField
 
@@ -15,6 +15,7 @@ variable (A K L B : Type*) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Fi
     [IsDedekindDomain B] [IsFractionRing B L] [NumberField K] [NumberField L]
 
 -- this should be in an adele file
+/-- The ring homomorphism 𝔸_K → 𝔸_L associated to a morphism K → L of number fields. -/
 noncomputable def NumberField.AdeleRing.mapRingHom :
     NumberField.AdeleRing A K →+* NumberField.AdeleRing B L := RingHom.prodMap
   (algebraMap _ _)
@@ -30,18 +31,21 @@ noncomputable local instance : Algebra (NumberField.AdeleRing A K) (NumberField.
 
 variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
 
+/-
+
 #check TensorProduct.lid
 #check TensorProduct.rid
 #check TensorProduct.AlgebraTensorModule.rid
 #check LinearEquiv.restrictScalars
 
 #synth Algebra (AdeleRing A K) (AdeleRing B L)
+-/
 instance : SMulCommClass L (AdeleRing A K) (AdeleRing B L) := sorry
 
-#synth Module (AdeleRing A K) (AdeleRing B L ⊗[L] V)
-
 --- need open scoped RightModule
-attribute [instance high] Localization.instSMulCommClassOfIsScalarTower in
+attribute [local instance high] Localization.instSMulCommClassOfIsScalarTower
+
+/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv :
     AdeleRing A K ⊗[K] V ≃ₗ[AdeleRing A K] (AdeleRing B L ⊗[L] V) :=
   let foo : V ≃ₗ[L] L ⊗[L] V := (TensorProduct.lid L V).symm
@@ -55,6 +59,7 @@ noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv :
   --let foo4 : AdeleRing A K ⊗[K] (L ⊗[L] V) ≃ₗ[K] (AdeleRing A K ⊗[K] L) ⊗[L] V := by exact?
 --  sorry
 
+/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv
     [TopologicalSpace (AdeleRing A K ⊗[K] V)]
     [IsModuleTopology (AdeleRing A K) (AdeleRing A K ⊗[K] V)]
@@ -95,7 +100,6 @@ variable [MeasurableSpace (AdeleRing ℤ ℚ)] [BorelSpace (AdeleRing ℤ ℚ)]
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (AdeleRing ℤ ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
     (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := sorry
---  If $x\in\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=\prod_v|x_v|_v.$
 
 lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ)
     [MeasurableSpace ((AdeleRing ℤ ℚ))] [BorelSpace (AdeleRing ℤ ℚ)] :
@@ -105,6 +109,9 @@ instance : LocallyCompactSpace (AdeleRing A K) := sorry
 variable [TopologicalSpace (AdeleRing A K ⊗[K] V)]
   [IsModuleTopology (AdeleRing A K) (AdeleRing A K ⊗[K] V)]
 
+/-- The continuous A-linear map (A a topological ring, tensor products have the module
+topology) A ⊗[R] M ≃ A ⊗[R] N associated to an abstract R-linear isomorphism M ≃ N. -/
+@[nolint unusedArguments] -- they will be used when the sorries are filled
 noncomputable def ContinuousLinearEquiv.baseChange (R : Type*) [CommRing R]
     (A : Type*) [CommRing A] [Algebra R A] [TopologicalSpace A] [IsTopologicalRing A]
     (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
