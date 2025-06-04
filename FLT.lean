@@ -19,6 +19,12 @@ import FLT.Deformations.IsResidueAlgebra
 import FLT.Deformations.Lemmas
 import FLT.Deformations.LiftFunctor
 import FLT.Deformations.Representable
+import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
+import FLT.Deformations.RepresentationTheory.Basic
+import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+import FLT.Deformations.RepresentationTheory.Etale
+import FLT.Deformations.RepresentationTheory.Frobenius
+import FLT.Deformations.RepresentationTheory.IntegralClosure
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor

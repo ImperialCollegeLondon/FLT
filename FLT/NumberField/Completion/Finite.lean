@@ -13,7 +13,7 @@ import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
 
 -/
 
-variable (K : Type) [Field K] [NumberField K]
+variable (K : Type*) [Field K] [NumberField K]
 
 open NumberField
 
