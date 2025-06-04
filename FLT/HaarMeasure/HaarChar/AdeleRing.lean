@@ -23,6 +23,7 @@ noncomputable def NumberField.AdeleRing.mapRingHom :
 
 section module
 
+/-- If K ⊆ L are number fields then 𝔸_L is an 𝔸_K-algebra. -/
 noncomputable local instance : Algebra (NumberField.AdeleRing A K) (NumberField.AdeleRing B L) :=
   RingHom.toAlgebra (NumberField.AdeleRing.mapRingHom A K L B)
 
