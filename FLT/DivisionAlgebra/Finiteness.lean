@@ -42,6 +42,8 @@ notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
 
 open scoped RightAlgebra
 
+-- hack to help typeclass inference in the next declaration
+-- TODO figure out why it's needed
 attribute [local instance high] Localization.instSMulCommClassOfIsScalarTower
 
 local instance : IsTopologicalRing D_𝔸 :=
