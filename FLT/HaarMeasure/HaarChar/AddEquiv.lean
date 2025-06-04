@@ -591,6 +591,32 @@ variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalS
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
+-- Concrete implementation using induction on Fintype
+
+-- First, we need the isomorphism between pi types and binary products
+@[to_additive]
+def piOptionEquiv {α : Type*} [Fintype α] {H : Option α → Type*}
+    [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)] :
+    (Π i : Option α, H i) ≃ₜ* (H none × Π i : α, H (some i)) where
+  toFun f := (f none, fun i => f (some i))
+  invFun p i := match i with
+    | none => p.1
+    | some i => p.2 i
+  left_inv f := by ext i; cases i <;> simp
+  right_inv p := by simp
+  map_mul' f g := by simp [Pi.mul_def, Prod.mul_def]
+  continuous_toFun := by
+    apply Continuous.prod_mk
+    · exact continuous_apply none
+    · exact continuous_pi fun i => continuous_apply (some i)
+  continuous_invFun := by
+    apply continuous_pi
+    intro i
+    cases i
+    · exact continuous_fst
+    · exact (continuous_apply _).comp continuous_snd
+
+-- Now the main proof using induction
 @[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
   letI : MeasurableSpace (Π i, H i) := borel _
@@ -599,81 +625,64 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   letI : MeasurableSpace (Π i, H i) := borel _
   haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
 
-  -- Step 1: Get compact neighborhoods for each coordinate
-  have : ∀ i, ∃ (K : Set (H i)) (Y : Set (H i)), K ∈ 𝓝 1 ∧ IsCompact K ∧
-    Y ⊆ K ∧ IsOpen Y ∧ (1 : H i) ∈ Y := fun i => by
-    obtain ⟨K, hK, _, hKcomp⟩ := local_compact_nhds (x := (1 : H i)) Filter.univ_mem
-    obtain ⟨Y, hY, hYopen, one_mem_Y⟩ := mem_nhds_iff.mp hK
-    exact ⟨K, Y, hK, hKcomp, hY, hYopen, one_mem_Y⟩
+  -- Use induction on the finite type
+  refine Fintype.induction_empty_option (P := fun α => ∀ (H : α → Type*)
+    [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)] [∀ i, IsTopologicalGroup (H i)]
+    [∀ i, LocallyCompactSpace (H i)] [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+    (ψ : Π i, (H i) ≃ₜ* (H i)),
+    letI : MeasurableSpace (Π i, H i) := borel _
+    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i))
+    ?_ ?_ ι H
 
-  choose K Y hK hKcomp hYK hYopen hYone using this
+  -- Base case: empty type
+  · intro H _ _ _ _ _ _ ψ
+    letI : MeasurableSpace (Π i : Empty, H i) := borel _
+    haveI : BorelSpace (Π i : Empty, H i) := ⟨rfl⟩
+    simp only [Fintype.univ_of_isEmpty, Finset.prod_empty]
+    -- The empty product is isomorphic to Unit
+    have h : (Π i : Empty, H i) ≃ₜ* Unit := {
+      toFun := fun _ => ()
+      invFun := fun _ i => i.elim
+      left_inv := fun f => funext fun i => i.elim
+      right_inv := fun _ => rfl
+      map_mul' := fun _ _ => rfl
+      continuous_toFun := continuous_const
+      continuous_invFun := continuous_of_isEmpty_domain
+    }
+    have : ContinuousMulEquiv.piCongrRight ψ = h.trans h.symm := by
+      ext f i
+      exact i.elim
+    rw [this, ContinuousMulEquiv.trans_symm, mulEquivHaarChar_refl]
 
-  -- Step 2: Define the product open set
-  let X := Set.pi univ Y
-  have hXopen : IsOpen X := isOpen_set_pi Finset.finite_univ (fun i _ => hYopen i)
-  have hXnonempty : X.Nonempty := ⟨fun i => 1, fun i _ => hYone i⟩
+  -- Inductive step
+  · intro α _ ih j H _ _ _ _ _ _ ψ
+    letI : MeasurableSpace (Π i : Option α, H i) := borel _
+    haveI : BorelSpace (Π i : Option α, H i) := ⟨rfl⟩
 
-  -- Step 3: Key calculation using the supporting lemmas
-  suffices mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) * haar X =
-      (∏ i, mulEquivHaarChar (ψ i)) * haar X by
-    -- Extract the result from the equation
-    have ne_zero : haar X ≠ 0 :=
-      (isHaarMeasure_haarMeasure _).open_pos _ hXopen hXnonempty
-    have ne_top : haar X ≠ ⊤ := by
-      refine (isHaarMeasure_haarMeasure _).lt_top_of_isCompact ?_
-      exact isCompact_set_pi Finset.finite_univ (fun i _ => hKcomp i)
-    exact_mod_cast (ENNReal.mul_left_inj ne_zero ne_top).mp this
+    -- Set up the isomorphism
+    let e := @piOptionEquiv α _ H _ _
+    haveI : MeasurableSpace (H none × Π i : α, H (some i)) := Prod.instMeasurableSpace
+    haveI : BorelSpace (H none × Π i : α, H (some i)) := Prod.instBorelSpace
 
-  -- Step 4: Main calculation
-  have ψ_image : ContinuousMulEquiv.piCongrRight ψ '' X = Set.pi univ (fun i => ψ i '' Y i) := by
-    ext f
-    simp only [Set.mem_image, X, Set.mem_pi, Set.mem_univ, true_implies,
-      ContinuousMulEquiv.piCongrRight, ContinuousMulEquiv.coe_mk, MulEquiv.coe_mk,
-      Equiv.coe_mk, MulEquiv.piCongrRight]
-    constructor
-    · rintro ⟨g, hg, rfl⟩
-      intro i
-      exact ⟨g i, hg i, rfl⟩
-    · intro h
-      use fun i => (ψ i).symm (f i)
-      constructor
-      · intro i
-        rw [← (ψ i).apply_symm_apply (f i)]
-        exact (ψ i).symm.isOpen_image.mp (hYopen i) (h i)
-      · ext i
+    -- Key calculation
+    calc mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ)
+      _ = mulEquivHaarChar (e.symm.trans ((ContinuousMulEquiv.piCongrRight ψ).trans e)) := by
+        rw [← mulEquivHaarChar_trans, ← mulEquivHaarChar_trans]
         simp
-
-  calc mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) * haar X
-    _ = mulEquivHaarChar _ * (map (ContinuousMulEquiv.piCongrRight ψ) haar)
-        (ContinuousMulEquiv.piCongrRight ψ '' X) := by
-      have h : Measurable (ContinuousMulEquiv.piCongrRight ψ) :=
-        (ContinuousMulEquiv.piCongrRight ψ).measurable
-      rw [map_apply h, Set.preimage_image_eq _ (ContinuousMulEquiv.piCongrRight ψ).injective]
-      exact (ContinuousMulEquiv.piCongrRight ψ).measurableEmbedding.measurableSet_image'
-        hXopen.measurableSet
-    _ = (mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) •
-        map (ContinuousMulEquiv.piCongrRight ψ) haar) (Set.pi univ (fun i => ψ i '' Y i)) := by
-      rw [ψ_image]; rfl
-    _ = haar (Set.pi univ (fun i => ψ i '' Y i)) := by
-      rw [mulEquivHaarChar_map_open haar (ContinuousMulEquiv.piCongrRight ψ)]
-      exact isOpen_set_pi Finset.finite_univ (fun i _ => (ψ i).isOpen_image.mpr (hYopen i))
-    _ = ∏ i, haar (ψ i '' Y i) := by
-      exact haar_pi_eq_prod_haar _ (fun i => ((ψ i).isOpen_image.mpr (hYopen i)).measurableSet)
-    _ = ∏ i, mulEquivHaarChar (ψ i) * haar (Y i) := by
-      congr 1
-      ext i
-      -- For each i, use the fact that map ψ scales haar by mulEquivHaarChar
-      have : haar (ψ i '' Y i) = (map (ψ i) haar) (ψ i '' Y i) := by
-        rw [← mulEquivHaarChar_map_open haar (ψ i) (hYopen i)]
+      _ = mulEquivHaarChar ((ψ none).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (some i))) := by
+        -- Show that the composition equals prodCongr
+        congr 1
+        ext ⟨x, f⟩ i
+        cases i <;> simp [e, piOptionEquiv]
+      _ = mulEquivHaarChar (ψ none) * mulEquivHaarChar (ContinuousMulEquiv.piCongrRight fun i => ψ (some i)) := by
+        apply mulEquivHaarChar_prodCongr
+      _ = mulEquivHaarChar (ψ none) * ∏ i : α, mulEquivHaarChar (ψ (some i)) := by
+        congr 1
+        exact ih _ (fun i => ψ (some i))
+      _ = ∏ i : Option α, mulEquivHaarChar (ψ i) := by
+        rw [Fintype.prod_option]
         simp
-      rw [this, map_apply (ψ i).measurable]
-      · simp only [Set.preimage_image_eq _ (ψ i).injective]
-      · exact ((ψ i).isOpen_image.mpr (hYopen i)).measurableSet
-    _ = (∏ i, mulEquivHaarChar (ψ i)) * ∏ i, haar (Y i) := by
-      rw [Finset.prod_mul_prod_comm]
-    _ = (∏ i, mulEquivHaarChar (ψ i)) * haar X := by
-      rw [← haar_pi_eq_prod_haar Y (fun i => (hYopen i).measurableSet)]
-      rfl
 
 end pi
 
