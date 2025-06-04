@@ -169,10 +169,17 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 
 end Aux
 
+def incl₂3 : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸 :=
+  fun u => (unitsEquivProdSubtype D_𝔸) (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
+
+def incl₂2 : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸 :=
+  fun u => let p := (Units.embedProduct D_𝔸) (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
+           (p.1, MulOpposite.unop p.2)
+
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸 :=
   (fun i => (i.1, i⁻¹.1)).comp (Subgroup.subtype (ringHaarChar_ker D_𝔸))
 
-def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D) (Aux.C K D)
+def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂3 K D) (Aux.C K D)
 
 abbrev MtoQuot : (ringHaarChar_ker D_𝔸) → (ringHaarChar_ker D_𝔸 ⧸
     (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := Quot.mk _
@@ -184,21 +191,66 @@ lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
   have h2 : IsCompact (M K D) := by
     apply Topology.IsClosedEmbedding.isCompact_preimage
     · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap ?_ ?_ ?_
-      · rw [incl₂]
-        refine continuous_induced_rng.mp ?_
-        have := MeasureTheory.ringHaarChar_continuous D_𝔸
-        -- think it is an application of this somewhere?
-        sorry
+      · unfold incl₂3
+        simp only [Subgroup.subtype_apply, unitsEquivProdSubtype_apply_coe, continuous_prodMk]
+        constructor
+        · refine Continuous.comp' ?_ ?_
+          · exact Units.continuous_val
+          · exact continuous_subtype_val
+        · refine Continuous.comp' ?_ ?_
+          · exact Units.continuous_val
+          · refine Continuous.comp' ?_ ?_
+            · exact continuous_inv
+            · exact continuous_subtype_val
       · intro a b eq
-        simp_rw [incl₂] at eq
+        unfold incl₂3 at eq
         aesop
       · refine Topology.IsInducing.isClosedMap ?_ ?_
-        · -- true by definition?
-          sorry
-        · -- true as ringHaarChar_ker is closed... so their inclusions i, i⁻¹ are closed
-          simp_rw [incl₂]
-          simp only [Subgroup.coe_subtype]
+        · unfold incl₂3
+          simp only [Subgroup.subtype_apply, unitsEquivProdSubtype_apply_coe]
+          refine { eq_induced := ?_ }
+          refine Eq.symm (TopologicalSpace.ext ?_)
+          ext a
+          constructor
+          · intro ha
+            refine isOpen_mk.mpr ?_
+            obtain ⟨b, hb1, hb2⟩ := ha
+            use (Subgroup.subtype (ringHaarChar_ker D_𝔸)) '' ((incl₂3 K D) ⁻¹' b)
+            constructor
+            · unfold incl₂3
+              simp only [Subgroup.subtype_apply, unitsEquivProdSubtype_apply_coe]
+              have : IsOpen ((incl₂2 K D) ⁻¹' b) := by
+                refine Continuous.isOpen_preimage ?_ b hb1
+                -- done before
+                sorry
+              refine isOpen_mk.mpr ?_
+              use Set.image (Prod.map id MulOpposite.op) b
+              constructor
+              · -- probably true?
+                sorry
+              · simp_rw [hb2]
+                refine Set.ext ?_
+                intro x
+                simp only [Set.mem_preimage, Units.embedProduct_apply, Set.mem_image, Prod.exists,
+                  Prod.map_apply, id_eq, Prod.mk.injEq, MulOpposite.op_inj, exists_eq_right_right,
+                  exists_eq_right, Subtype.exists, exists_and_right]
+                constructor
+                · intro hx
 
+                  sorry
+                ·
+                  sorry
+            · simp only [Subgroup.subtype_apply, Subtype.val_injective, Set.preimage_image_eq]
+              unfold incl₂3
+              simp only [Subgroup.subtype_apply, unitsEquivProdSubtype_apply_coe]
+              exact hb2
+          · intro ha
+            refine isOpen_mk.mpr ?_
+            obtain ⟨b, hb1, hb2⟩ := ha
+
+            sorry
+        · unfold incl₂3
+          simp only [Subgroup.subtype_apply, unitsEquivProdSubtype_apply_coe]
           sorry
     · exact Aux.C_compact K D
   have h3 : (MtoQuot K D) '' (M K D) = Set.univ := by
@@ -210,7 +262,10 @@ lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
       simp only [Subgroup.comap_subtype, Set.mem_image, Subtype.exists]
       refine ⟨ν, hν, h31, ?_ ⟩
       simp_rw [MtoQuot, Subgroup.comap_subtype, eq]
-        -- should be true by pulling out c... but not sure how to do this; probably overcomplicated
+      rw [Quot.eq]
+      unfold QuotientGroup.leftRel
+
+
       sorry
   exact isCompact_univ_iff.mp (by simpa only [←h3] using IsCompact.image h2 h4)
 
@@ -257,17 +312,26 @@ noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
 variable [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
   [BorelSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
 
-def rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
-  fun a => --((Subgroup.subtype (ringHaarChar_ker D_𝔸)) a)
+def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃*
+    Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
+  simp_rw [NumberField.AdeleRing, Dfx]
+  have h1 : D ⊗[K] (NumberField.InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K) ≃
+      (D ⊗[K] (NumberField.InfiniteAdeleRing K)) × (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+    -- DirectSum.addEquivProd
+    -- TensorProduct.directSumRight
 
-           -- the RHS is tensoring over all places; just need to work out how to remove the infinite
-           -- ones... this should be a .2 somewhere; not sure how to do this restriction in Lean
+    sorry
+  have := Units.mapEquiv h1
+  apply MulEquiv.prodUnits at this
   sorry
+
+def rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
+  fun a => (iso₁ K D) a.val |>.2
 
 def α : (ringHaarChar_ker D_𝔸 ⧸ (MonoidHom.range
     (NumberField.AdeleRing.DivisionAlgebra.incl K D)).comap (ringHaarChar_ker D_𝔸).subtype)
     → (Dfx K D ⧸ (incl₁ K D).range) :=
-  fun a => Quot.mk _  (rest₁ K D a.out)
+  fun a => Quot.mk _ (rest₁ K D a.out)
 
 local instance : TopologicalSpace (Dfx K D ⧸ (incl₁ K D).range) :=
   QuotientGroup.instTopologicalSpace _
@@ -275,21 +339,55 @@ local instance : TopologicalSpace (Dfx K D ⧸ (incl₁ K D).range) :=
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
   have h1 : Continuous (α K D) := by
-    refine continuous_iff_isClosed.mpr ?_
-    intro S hS
-    -- this will be true as you only need to adjoin infinite places which will also be closed
-    -- (maybe?...)
-
-    sorry
-  have h3 : (α K D) '' Set.univ = Set.univ := by
+    unfold α rest₁
+    refine Continuous.comp' ?_ ?_
+    · exact { isOpen_preimage := fun s a ↦ a }
+    ·
+      -- this is certainly true by isomorphism and topology on RHS -- may need to explicitely show?
+      sorry
+  have h2 : (rest₁ K D) '' Set.univ = Set.univ := by
     ext a
     simp only [Subgroup.comap_subtype, Set.image_univ, Set.mem_range, Set.mem_univ, iff_true]
-     -- need y to be Quot.mk _ (a.out ⊕ infinite places such that in kernel)
-     -- so need a have statement saying that for a ∃ t in the infinite places with
-     -- haar measure δ(1,t) = r
-     -- then can show haar measure of (a.out, t) = 1
-     -- this will by definition have exactly as wanted by construction
-     -- may need to ask for help writing this as a statement; not used to Haar character stuff
+    have h21 : ∃ r : ℝ, r > 0 ∧ ringHaarChar
+        ((iso₁ K D).symm ((1 : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ), a)) = r := by
+      simpa only [gt_iff_lt, ringHaarChar_toFun, exists_eq_right', NNReal.coe_pos] using
+        addEquivAddHaarChar_pos (ContinuousAddEquiv.mulLeft ((iso₁ K D).symm (1, a)))
+    obtain ⟨r, hr1, hr2⟩ := h21
+    have h22 : ∃ b : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ,
+        ringHaarChar ((iso₁ K D).symm (b, (1 : Dfx K D))) = r := by
+
+      sorry
+    obtain ⟨b, hb⟩ := h22
+    unfold rest₁
+    have : ((iso₁ K D).symm (b, a)) ∈ ringHaarChar_ker D_𝔸 := by
+      ext
+      have : (iso₁ K D).symm (b, a) = (iso₁ K D).symm (1, a) * (iso₁ K D).symm (b, 1) := by
+        -- homomorphism property?
+
+        sorry
+      rw [this]
+      simp only [ContinuousMonoidHom.coe_toMonoidHom, MonoidHom.coe_coe]
+
+      sorry
+    use ⟨(iso₁ K D).symm (b, a), this⟩
+    simp only [MulEquiv.apply_symm_apply]
+  have h3 : (α K D) '' Set.univ = Set.univ := by
+    unfold α
+    ext x
+    simp only [Subgroup.comap_subtype, Set.image_univ, Set.mem_range, Set.mem_univ, iff_true]
+    have h31 : ∃ t : ↥(ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)), rest₁ K D t = x.out := by
+      -- immediate from h2?
+      sorry
+    obtain ⟨t, ht⟩ := h31
+    have h32 : ∃ y : ↥(ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)) ⧸
+        (AdeleRing.DivisionAlgebra.incl K D).range.subgroupOf
+        (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)), y.out = t := by
+      -- should just be a choice function?
+      sorry
+    obtain ⟨y ,hy⟩ := h32
+    use y
+    simp_rw [hy, ht]
+    -- is this not just trivial now??
     sorry
   have := isCompact_univ_iff.mpr (NumberField.AdeleRing.DivisionAlgebra.compact_quotient K D)
   apply isCompact_univ_iff.mp
@@ -332,6 +430,7 @@ theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
     quotToDoset H K i.1 := by
   constructor
   · intro I
+
     use I -- not sure how to coerce this to what I want right now
     -- then apply union_quotToDoset
     sorry
@@ -339,10 +438,18 @@ theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
     -- need to create a surjection based on I; should be doable?
     sorry
 
+
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Quotient (Set.range (incl₁ K D)) (U : Set (Dfx K D))) := by
-  refine Set.finite_univ_iff.mp ?_
+
+  /-
+  have openCover' : Set.univ  =
+      ⋃ (q : Quotient (Set.range (incl₁ K D)) (U : Set (Dfx K D))), {q} := by
+    exact Eq.symm (Set.iUnion_of_singleton (Doset.Quotient (Set.range ⇑(incl₁ K D)) ↑U))
+  -/
+
+  /-refine Set.finite_univ_iff.mp ?_
   apply (Iff.symm Set.finite_univ_iff).mp
   apply (Doset.finite (units K D) U).mpr
   have openCover := union_quotToDoset (units K D) (U)
@@ -354,22 +461,21 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
   have ToFinCover := isCompact_univ_iff.mpr
       (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
   apply isCompact_iff_finite_subcover.mp at ToFinCover
-
-  -- some how want to push openCover down to an openCover of the left quotient
-  -- then apply ToFinCover
-  -- then push this cover up??
-
-/-
-  -- Just realised ToFinCover requires the wrong Set.univ... :/ may need something to transfer
-  -- between the two. Or need to actually do this all myself?
-
-  have ToFinCover := isCompact_univ_iff.mpr
-      (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
-  apply isCompact_iff_finite_subcover.mp at ToFinCover
+  -/
 
 
-  -- Need to apply FinCover with found statements to get our final claim
--/
+  /-
+  New idea is to show the left quotient space is finite, so certainly the double coset space is
+  finite
+  We have the LHS is finite since it is compact
+  -/
+  /-
+  have start : Finite (Dfx K D ⧸ (incl₁ K D).range) := by
+    sorry
+  have interim : (Quotient (Set.range (incl₁ K D)) (U : Set (Dfx K D))) ≃
+      (Dfx K D ⧸ (incl₁ K D).range) ⧸ (U : Set (Dfx K D)) := by
+    sorry
+  -/
 
   sorry
 
