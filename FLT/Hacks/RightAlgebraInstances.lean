@@ -31,6 +31,7 @@ variable (B : Type*) [Semiring B] [Algebra R B]
 --noncomputable example : A ⊗[R] B ≃ₗ[R] B ⊗[R] A := TensorProduct.comm R A B
 --noncomputable example : A ⊗[R] B ≃ₐ[R] B ⊗[R] A := Algebra.TensorProduct.comm R A B
 
+/-- The A-algebra isomorphism A ⊗ B = B ⊗ A, available in the `RightAlgebra` scope. -/
 noncomputable def TensorProduct.comm : A ⊗[R] B ≃ₐ[A] B ⊗[R] A where
   __ := Algebra.TensorProduct.comm R A B
   commutes' _ := rfl
@@ -41,6 +42,7 @@ scoped instance [Module.Finite R B] : Module.Finite A (B ⊗[R] A) :=
 scoped instance [Module.Free R B] : Module.Free A (B ⊗[R] A) :=
   Module.Free.of_equiv (TensorProduct.comm R A B).toLinearEquiv
 
+/-- The module topology on a right algebra. -/
 noncomputable scoped instance [TopologicalSpace A] : TopologicalSpace (B ⊗[R] A) :=
   moduleTopology A (B ⊗[R] A)
 
