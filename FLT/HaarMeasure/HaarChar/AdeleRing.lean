@@ -40,17 +40,28 @@ instance : SMulCommClass L (AdeleRing A K) (AdeleRing B L) := sorry
 
 #synth Module (AdeleRing A K) (AdeleRing B L ⊗[L] V)
 
+--- need open scoped RightModule
 attribute [instance high] Localization.instSMulCommClassOfIsScalarTower in
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv :
     AdeleRing A K ⊗[K] V ≃ₗ[AdeleRing A K] (AdeleRing B L ⊗[L] V) :=
   let foo : V ≃ₗ[L] L ⊗[L] V := (TensorProduct.lid L V).symm
   let foo2 : V ≃ₗ[K] L ⊗[L] V := foo.restrictScalars K
-  let foo3 : AdeleRing A K ⊗[K] V ≃ₗ[K] AdeleRing A K ⊗[K] (L ⊗[L] V) := LinearEquiv.lTensor (AdeleRing A K) foo2
-  let foo4 : AdeleRing A K ⊗[K] (L ⊗[L] V) ≃ₗ[K] (AdeleRing A K ⊗[K] L) ⊗[L] V := by exact?
+  let foo3 : AdeleRing A K ⊗[K] V ≃ₗ[AdeleRing A K] AdeleRing A K ⊗[K] (L ⊗[L] V) :=
+    LinearEquiv.baseChange K (AdeleRing A K) V (L ⊗[L] V) foo2
+  foo3 ≪≫ₗ
+  --let foo4 : AdeleRing A K ⊗[K] L ⊗[L] V ≃ₗ[AdeleRing A K] (AdeleRing A K ⊗[K] L) ⊗[L] V := sorry
   sorry
+--    LinearEquiv.lTensor (AdeleRing A K) foo2
+  --let foo4 : AdeleRing A K ⊗[K] (L ⊗[L] V) ≃ₗ[K] (AdeleRing A K ⊗[K] L) ⊗[L] V := by exact?
+--  sorry
 
--- Cor 9.34 is called
--- NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv
+noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv
+    [TopologicalSpace (AdeleRing A K ⊗[K] V)]
+    [IsModuleTopology (AdeleRing A K) (AdeleRing A K ⊗[K] V)]
+    [TopologicalSpace (AdeleRing B L ⊗[L] V)]
+    [IsModuleTopology (AdeleRing B L) (AdeleRing B L ⊗[L] V)] :
+    AdeleRing A K ⊗[K] V ≃L[AdeleRing A K] (AdeleRing B L ⊗[L] V) :=
+  sorry
 
 variable (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
 
@@ -58,7 +69,60 @@ open scoped TensorProduct
 
 open NumberField MeasureTheory
 
+open scoped RightAlgebra in
+variable [TopologicalSpace (B ⊗[K] AdeleRing A K)]
+  [IsModuleTopology (AdeleRing A K) (B ⊗[K] AdeleRing A K)]
+  [MeasurableSpace (B ⊗[K] AdeleRing A K)]
+  [BorelSpace (B ⊗[K] AdeleRing A K)] in
+lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
+    [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (AdeleRing A K))ˣ) :
+    haveI : IsTopologicalRing (B ⊗[K] (AdeleRing A K)) := sorry
+    haveI : LocallyCompactSpace (B ⊗[K] (AdeleRing A K)) := sorry
+    addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
+    addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
+  sorry
 
+instance : LocallyCompactSpace (AdeleRing ℤ ℚ) := sorry
+instance (p : IsDedekindDomain.HeightOneSpectrum ℤ) :
+  LocallyCompactSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) := sorry
+
+variable [MeasurableSpace (AdeleRing ℤ ℚ)] [BorelSpace (AdeleRing ℤ ℚ)]
+  [MeasurableSpace (InfiniteAdeleRing ℚ)] [BorelSpace (InfiniteAdeleRing ℚ)]
+  [∀ (p : IsDedekindDomain.HeightOneSpectrum ℤ),
+    MeasurableSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)]
+  [∀ (p : IsDedekindDomain.HeightOneSpectrum ℤ),
+    BorelSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)] in
+lemma MeasureTheory.ringHaarChar_adeles_rat (x : (AdeleRing ℤ ℚ)ˣ) :
+  ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
+    (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := sorry
+--  If $x\in\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=\prod_v|x_v|_v.$
+
+lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ)
+    [MeasurableSpace ((AdeleRing ℤ ℚ))] [BorelSpace (AdeleRing ℤ ℚ)] :
+  ringHaarChar (Units.map (algebraMap ℚ (AdeleRing ℤ ℚ)) x : (AdeleRing ℤ ℚ)ˣ) = 1 := sorry
+
+instance : LocallyCompactSpace (AdeleRing A K) := sorry
+variable [TopologicalSpace (AdeleRing A K ⊗[K] V)]
+  [IsModuleTopology (AdeleRing A K) (AdeleRing A K ⊗[K] V)]
+
+noncomputable def ContinuousLinearEquiv.baseChange (R : Type*) [CommRing R]
+    (A : Type*) [CommRing A] [Algebra R A] [TopologicalSpace A] [IsTopologicalRing A]
+    (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+    [TopologicalSpace (A ⊗[R] M)] [IsModuleTopology A (A ⊗[R] M)]
+    [TopologicalSpace (A ⊗[R] N)] [IsModuleTopology A (A ⊗[R] N)]
+    (φ : M ≃ₗ[R] N) : (A ⊗[R] M) ≃L[A] (A ⊗[R] N) where
+      __ := LinearEquiv.baseChange _ _ _ _ φ
+      continuous_toFun := sorry -- linear => continuous
+      continuous_invFun := sorry
+
+instance : IsTopologicalAddGroup (AdeleRing A K ⊗[K] V) := sorry
+instance : LocallyCompactSpace (AdeleRing A K ⊗[K] V) := sorry
+
+lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
+    [MeasurableSpace (AdeleRing A K ⊗[K] V)] [BorelSpace (AdeleRing A K ⊗[K] V)] :
+    addEquivAddHaarChar
+      (ContinuousLinearEquiv.baseChange K (AdeleRing A K) V V φ).toContinuousAddEquiv = 1 := by
+  sorry
 
 open scoped RightAlgebra in
 /-- Left multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive

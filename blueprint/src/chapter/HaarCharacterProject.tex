@@ -727,6 +727,7 @@ tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies
 
 \begin{corollary}
   \label{NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv}
+  \lean{NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv}
   If $K$ is a number field and $V$ is an $K$-module, then
   the natural isomorphism $V\otimes_K\A_K=V\otimes_{\Q}\A_{\Q}$ induced by the natural
   isomorphism $\A_K=K\otimes_K\A_{\Q}$ is a homeomorphism if the left hand side has the $\A_K$-module
@@ -744,6 +745,7 @@ But Lean is picky about these things so we'll have to be careful.
 
 \begin{theorem}
   \label{NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul}
+  \lean{NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul}
   Let $B$ be a finite-dimensional central simple $K$-algebra.
   Say $u\in B_{\A}^\times$, and define $\ell_u$ and $r_u:B_{\A}\to B_{\A}$ by
   $\ell_u(x)=ux$ and $r_u(x)=xu$. Then $d_{B_{\A}}(\ell_u)=d_{B_{\A}}(r_u)$.
@@ -767,6 +769,7 @@ and restate it in the language of these Haar characters.
 
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_adeles_rat}
+  \lean{MeasureTheory.ringHaarChar_adeles_rat}
   If $x\in\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=\prod_v|x_v|_v.$
 \end{lemma}
 \begin{proof}
@@ -785,6 +788,7 @@ Here is our reinterpretation of the product formula.
 
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_adeles_units_rat_eq_one}
+  \lean{MeasureTheory.ringHaarChar_adeles_units_rat_eq_one}
   If $x\in\Q^\times\subseteq\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=1.$
 \end{lemma}
 \begin{proof}
@@ -808,6 +812,7 @@ Here is our reinterpretation of the product formula.
 
   \begin{theorem}
     \label{MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one}
+    \lean{MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one}
     In the above situation ($V$ a finite-dimensional $\Q$-vector space, $\phi:V\cong V$ is
     $\Q$-linear, $\phi_{\A}$ the base extension to $V_{\A}:=V\otimes_{\Q}{\A_{\Q}}$, a continuous linear
     endomorphism of $V_{\A}$ with the $\A_{\Q}$-module topology), we have $d_{V_{\A}}(\phi_{\A})=1.$
