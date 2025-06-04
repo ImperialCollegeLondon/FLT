@@ -132,7 +132,6 @@ instance module [AddCommGroup A] [Module R A] [DistribSMul M A] [SMulCommClass M
       one_smul a := by
         ext
         exact one_smul R (a : A)
-      -- all these are #586
       mul_smul r s a:= by
         ext
         exact mul_smul r s (a : A)
