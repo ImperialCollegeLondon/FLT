@@ -4,71 +4,7 @@ import Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
 
--- Core imports for finite products and Haar measure
-import Mathlib.MeasureTheory.Measure.Haar.Basic
-import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib.MeasureTheory.Measure.Haar.Quotient
-import Mathlib.MeasureTheory.Measure.Haar.Disintegration
-
--- Product measures and finite products
-import Mathlib.MeasureTheory.Measure.Prod
-import Mathlib.MeasureTheory.Measure.Pi
-import Mathlib.MeasureTheory.Measure.FiniteMeasureProd
-import Mathlib.MeasureTheory.Constructions.Pi
-
--- Topology on products
-import Mathlib.Topology.Algebra.Group.Pi
-import Mathlib.Topology.Algebra.Group.Compact
-import Mathlib.Topology.Constructions.Product
-
--- Borel spaces and measurability
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Metrizable
-import Mathlib.MeasureTheory.Group.Prod
-
--- Finite type operations
-import Mathlib.Data.Fintype.Basic
-import Mathlib.Data.Fintype.Prod
-import Mathlib.Data.Fintype.Pi
-import Mathlib.Data.Fintype.BigOperators
-
--- Additional group and algebra structures
-import Mathlib.Algebra.Group.Pi
-import Mathlib.Algebra.BigOperators.Pi
-import Mathlib.Algebra.BigOperators.Finsupp
-
--- Specific lemmas you might need:
--- From MeasureTheory.Measure.Pi:
--- * `MeasureTheory.Measure.pi` - product measure on pi types
--- * `MeasureTheory.Measure.pi_pi` - product of product measures
--- * `MeasureTheory.isProbabilityMeasure_pi` - for probability measures
-
--- From MeasureTheory.Measure.Haar.Basic:
--- * `MeasureTheory.Measure.isHaarMeasure_pi` - if this exists
--- * Properties of Haar measures under products
-
--- From Topology.Algebra.Group.Pi:
--- * `Pi.topologicalGroup` - pi types of topological groups
--- * `Pi.locallyCompactSpace` - local compactness of products
-
--- Key lemmas to look for or prove:
-open MeasureTheory
-
--- Check if these exist in Mathlib:
-#check MeasureTheory.Measure.pi -- Product measure construction
-#check IsHaarMeasure -- The Haar measure typeclass
-#check Measure.pi_pi -- Product of product measures
-#check Measure.map_pi_eq_pi -- How maps behave on product measures
-
--- You'll likely need to prove:
--- 1. `isHaarMeasure_pi`: The product of Haar measures is Haar
--- 2. `haar_pi_eq_prod`: Haar measure on pi equals product of Haar measures
--- 3. How ContinuousMulEquiv.piCongrRight interacts with product measures
-
--- From the search results, I found these relevant theorems:
--- * `Real.volume_Icc_pi_toReal` - volume of product of intervals
--- * `Real.map_linearMap_volume_pi_eq_smul_volume_pi` - linear maps scale volume
--- * The construction of Haar measure uses `haar_product` which is a product of intervals
+open MeasureTheory.Measure
 open scoped NNReal
 
 namespace MeasureTheory
@@ -531,158 +467,18 @@ end piCongrRight
 
 set_option maxHeartbeats 20000000
 
--- Supporting lemmas needed for mulEquivHaarChar_piCongrRight
-
-section HaarMeasureFiniteProducts
-
-variable {ι : Type*} [Fintype ι]
-  {H : ι → Type*} [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
-  [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-  [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
-
--- Lemma 1: Haar measure on finite products
-@[to_additive]
-lemma haar_pi_eq_prod_haar (S : ∀ i, Set (H i)) (hS : ∀ i, MeasurableSet (S i)) :
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-    haar (Set.pi univ S) = ∏ i, haar (S i) := by
-  sorry -- This is a fundamental property that should exist in Mathlib
-  -- If not, it needs to be proven using the uniqueness of Haar measure
-
--- Lemma 2: Auxiliary measure construction for each coordinate
-@[to_additive]
-def haarSliceMeasure (i : ι) (Y : ∀ j, Set (H j)) (hY : ∀ j, IsOpen (Y j))
-    (hYne : ∀ j, (Y j).Nonempty) : Measure (H i) where
-  toOuterMeasure := inducedOuterMeasure
-    (fun S hS => haar (Set.pi univ (fun j => if j = i then S else Y j)))
-    (by simp) (by simp)
-  m_iUnion := sorry -- Would need to prove this satisfies measure axioms
-  trim_le := sorry
-
--- Lemma 3: The slice measure is a Haar measure
-@[to_additive]
-lemma isHaarMeasure_haarSliceMeasure (i : ι) (Y : ∀ j, Set (H j))
-    (hY : ∀ j, IsOpen (Y j)) (hYne : ∀ j, (Y j).Nonempty)
-    (hYcomp : ∀ j, ∃ K, K ∈ 𝓝 (1 : H j) ∧ IsCompact K ∧ Y j ⊆ K) :
-    IsHaarMeasure (haarSliceMeasure i Y hY hYne) := by
-  sorry -- Similar to the proof in mulEquivHaarChar_prodCongr
-
--- Lemma 4: Relationship between slice measures and haar
-@[to_additive]
-lemma haarSliceMeasure_eq_smul_haar (i : ι) (Y : ∀ j, Set (H j))
-    (hY : ∀ j, IsOpen (Y j)) (hYne : ∀ j, (Y j).Nonempty)
-    (hYcomp : ∀ j, ∃ K, K ∈ 𝓝 (1 : H j) ∧ IsCompact K ∧ Y j ⊆ K) :
-    haarSliceMeasure i Y hY hYne = (∏ j in Finset.univ \ {i}, haar (Y j)) • haar := by
-  sorry -- Use uniqueness of Haar measure up to scaling
-
--- Lemma 5: Key calculation lemma
-@[to_additive]
-lemma haar_pi_transform (ψ : ∀ i, H i ≃ₜ* H i) (Y : ∀ i, Set (H i))
-    (hY : ∀ i, IsOpen (Y i)) (hYne : ∀ i, (Y i).Nonempty) :
-    haar (Set.pi univ (fun i => ψ i '' Y i)) =
-    (∏ i, mulEquivHaarChar (ψ i)) * haar (Set.pi univ Y) := by
-  sorry -- This would use the above lemmas and properties of mulEquivHaarChar
-
-end HaarMeasureFiniteProducts
-
 section pi
 
 variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
--- Concrete implementation using induction on Fintype
-
--- First, we need the isomorphism between pi types and binary products
-@[to_additive]
-def piOptionEquiv {α : Type*} [Fintype α] {H : Option α → Type*}
-    [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)] :
-    (Π i : Option α, H i) ≃ₜ* (H none × Π i : α, H (some i)) where
-  toFun f := (f none, fun i => f (some i))
-  invFun p i := match i with
-    | none => p.1
-    | some i => p.2 i
-  left_inv f := by ext i; cases i <;> simp
-  right_inv p := by simp
-  map_mul' f g := by simp [Pi.mul_def, Prod.mul_def]
-  continuous_toFun := by
-    apply Continuous.prod_mk
-    · exact continuous_apply none
-    · exact continuous_pi fun i => continuous_apply (some i)
-  continuous_invFun := by
-    apply continuous_pi
-    intro i
-    cases i
-    · exact continuous_fst
-    · exact (continuous_apply _).comp continuous_snd
-
--- Now the main proof using induction
 @[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
   letI : MeasurableSpace (Π i, H i) := borel _
   haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
   mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  letI : MeasurableSpace (Π i, H i) := borel _
-  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-
-  -- Use induction on the finite type
-  refine Fintype.induction_empty_option (P := fun α => ∀ (H : α → Type*)
-    [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)] [∀ i, IsTopologicalGroup (H i)]
-    [∀ i, LocallyCompactSpace (H i)] [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
-    (ψ : Π i, (H i) ≃ₜ* (H i)),
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i))
-    ?_ ?_ ι H
-
-  -- Base case: empty type
-  · intro H _ _ _ _ _ _ ψ
-    letI : MeasurableSpace (Π i : Empty, H i) := borel _
-    haveI : BorelSpace (Π i : Empty, H i) := ⟨rfl⟩
-    simp only [Fintype.univ_of_isEmpty, Finset.prod_empty]
-    -- The empty product is isomorphic to Unit
-    have h : (Π i : Empty, H i) ≃ₜ* Unit := {
-      toFun := fun _ => ()
-      invFun := fun _ i => i.elim
-      left_inv := fun f => funext fun i => i.elim
-      right_inv := fun _ => rfl
-      map_mul' := fun _ _ => rfl
-      continuous_toFun := continuous_const
-      continuous_invFun := continuous_of_isEmpty_domain
-    }
-    have : ContinuousMulEquiv.piCongrRight ψ = h.trans h.symm := by
-      ext f i
-      exact i.elim
-    rw [this, ContinuousMulEquiv.trans_symm, mulEquivHaarChar_refl]
-
-  -- Inductive step
-  · intro α _ ih j H _ _ _ _ _ _ ψ
-    letI : MeasurableSpace (Π i : Option α, H i) := borel _
-    haveI : BorelSpace (Π i : Option α, H i) := ⟨rfl⟩
-
-    -- Set up the isomorphism
-    let e := @piOptionEquiv α _ H _ _
-    haveI : MeasurableSpace (H none × Π i : α, H (some i)) := Prod.instMeasurableSpace
-    haveI : BorelSpace (H none × Π i : α, H (some i)) := Prod.instBorelSpace
-
-    -- Key calculation
-    calc mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ)
-      _ = mulEquivHaarChar (e.symm.trans ((ContinuousMulEquiv.piCongrRight ψ).trans e)) := by
-        rw [← mulEquivHaarChar_trans, ← mulEquivHaarChar_trans]
-        simp
-      _ = mulEquivHaarChar ((ψ none).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (some i))) := by
-        -- Show that the composition equals prodCongr
-        congr 1
-        ext ⟨x, f⟩ i
-        cases i <;> simp [e, piOptionEquiv]
-      _ = mulEquivHaarChar (ψ none) * mulEquivHaarChar (ContinuousMulEquiv.piCongrRight fun i => ψ (some i)) := by
-        apply mulEquivHaarChar_prodCongr
-      _ = mulEquivHaarChar (ψ none) * ∏ i : α, mulEquivHaarChar (ψ (some i)) := by
-        congr 1
-        exact ih _ (fun i => ψ (some i))
-      _ = ∏ i : Option α, mulEquivHaarChar (ψ i) := by
-        rw [Fintype.prod_option]
-        simp
+  sorry
 
 end pi
 
