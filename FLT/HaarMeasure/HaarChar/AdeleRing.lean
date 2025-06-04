@@ -40,7 +40,7 @@ variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K
 
 #synth Algebra (AdeleRing A K) (AdeleRing B L)
 -/
-instance : SMulCommClass L (AdeleRing A K) (AdeleRing B L) := sorry
+local instance : SMulCommClass L (AdeleRing A K) (AdeleRing B L) := sorry
 
 --- need open scoped RightModule
 attribute [local instance high] Localization.instSMulCommClassOfIsScalarTower

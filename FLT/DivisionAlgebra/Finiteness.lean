@@ -40,17 +40,9 @@ set_option quotPrecheck false in
 /-- `D_𝔸` is notation for `D ⊗[K] 𝔸_K`. -/
 notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
 
-instance : Algebra (AdeleRing (𝓞 K) K) D_𝔸 :=
-  Algebra.TensorProduct.rightAlgebra
+open scoped RightAlgebra
 
--- Ruben did this somewhere TODO
-instance : Module.Finite (AdeleRing (𝓞 K) K) D_𝔸 := sorry
-
-/-- The module topology on `D_𝔸`. -/
-local instance : TopologicalSpace D_𝔸 :=
-  moduleTopology (AdeleRing (𝓞 K) K) _
-
-local instance : IsModuleTopology (AdeleRing (𝓞 K) K) D_𝔸 := ⟨rfl⟩
+attribute [local instance high] Localization.instSMulCommClassOfIsScalarTower
 
 local instance : IsTopologicalRing D_𝔸 :=
   IsModuleTopology.Module.topologicalRing (AdeleRing (𝓞 K) K) _
