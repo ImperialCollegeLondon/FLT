@@ -61,7 +61,7 @@ def SLiftFunctor : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) :=
   liftFunctor (Fin 2) _ 𝓞 ρ ⊓
   detConditionFunctor (Fin 2) 𝓞 l ⊓
   (⨅ (v : Ω K) (_ : ↑l ∉ v.asIdeal) (_ : v ∉ S), unramifiedFunctor (Fin 2) 𝓞 v) ⊓
-  (⨅ (v : Ω K) (_ : v ∈ S), traceConditionFunctor (Fin 2) 𝓞 v) ⊓
+  (⨅ (v : Ω K) (_ : v ∈ S), traceConditionFunctor 𝓞 v) ⊓
   (⨅ (v : Ω K) (_ : ↑l ∉ v.asIdeal), flatFunctor (Fin 2) 𝓞 v)
 
 /--
@@ -76,7 +76,7 @@ def narrowSLiftFunctor : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) :=
   liftFunctor (Fin 2) _ 𝓞 ρ ⊓
   detConditionFunctor (Fin 2) 𝓞 l ⊓
   (⨅ (v : Ω K) (_ : ↑l ∉ v.asIdeal) (_ : v ∉ S), unramifiedFunctor (Fin 2) 𝓞 v) ⊓
-  (⨅ (v : Ω K) (_ : v ∈ S), narrowTraceConditionFunctor (Fin 2) 𝓞 v) ⊓
+  (⨅ (v : Ω K) (_ : v ∈ S), narrowTraceConditionFunctor 𝓞 v) ⊓
   (⨅ (v : Ω K) (_ : ↑l ∉ v.asIdeal), flatFunctor (Fin 2) 𝓞 v)
 
 variable (hρ : ρ ∈ (narrowSLiftFunctor 𝓞 l S ρ).obj _)
