@@ -240,10 +240,7 @@ lemma M_compact : IsCompact (M K D) := by
           exact { isOpen_preimage := fun s a ↦ a }
         · exact continuous_snd
 
-lemma MtoQuot_surjective : Function.Surjective (MtoQuot K D) := by
-  exact QuotientGroup.mk_surjective
-
-lemma MtoQuot_surjective' :
+lemma MtoQuot_surjective :
     (MtoQuot K D) '' (M K D) = Set.univ := by
   rw [Set.eq_univ_iff_forall]
   rintro ⟨a, ha⟩
@@ -253,14 +250,17 @@ lemma MtoQuot_surjective' :
   refine ⟨ν, hν, ?_, ?_ ⟩
   · rw [M]
     simp only [Set.mem_preimage, Set.mem_image, Prod.exists]
-    -- this is just ν and ν⁻¹
-    sorry
-  · -- should be wanting the right relation!
+    use ν
+    use Units.val (ν⁻¹)
+    exact And.symm ⟨rfl, h31⟩
+  · apply QuotientGroup.eq
+
+    -- should be wanting the right relation!
     sorry
 
 lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
     (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) :=
-  isCompact_univ_iff.mp (by simpa only [MtoQuot_surjective'] using
+  isCompact_univ_iff.mp (by simpa only [MtoQuot_surjective] using
     (IsCompact.image (M_compact K D) (MtoQuot_cont K D)))
 
 end NumberField.AdeleRing.DivisionAlgebra
