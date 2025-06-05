@@ -10,7 +10,7 @@ variable {F : Type*} [Field F] [NumberField F] [IsTotallyReal F]
     {D : Type*} [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
     (hD : IsTotallyDefinite F D)
 
-open scoped RightAlgebra
+open scoped TensorProduct.RightActions
 
 variable (K : Type*) [Field K]
     (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)

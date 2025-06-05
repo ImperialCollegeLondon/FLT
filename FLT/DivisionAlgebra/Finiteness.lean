@@ -40,7 +40,7 @@ set_option quotPrecheck false in
 /-- `D_𝔸` is notation for `D ⊗[K] 𝔸_K`. -/
 notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
 
-open scoped RightAlgebra
+open scoped TensorProduct.RightActions
 
 -- hack to help typeclass inference in the next declaration
 -- TODO figure out why it's needed

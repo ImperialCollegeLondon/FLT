@@ -87,9 +87,6 @@ noncomputable def FiniteAdeleRing.mapSemialgHom :
         simpa only [Algebra.smul_def'] using
           (adicCompletionComapSemialgHom A K L B (comap A w) w rfl).map_smul' k (a (comap A w))
 
-noncomputable instance : Algebra (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K) :=
-  Algebra.TensorProduct.rightAlgebra
-
 noncomputable
 instance BaseChange.algebra : Algebra (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
   RingHom.toAlgebra (FiniteAdeleRing.mapRingHom A K L B)

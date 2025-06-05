@@ -21,11 +21,12 @@ which can be used without the scope open.
 
 namespace TensorProduct.RightActions
 
-noncomputable section
+noncomputable section semiring
 
-variable (R S A B M : Type*) [CommRing R] [CommRing S] [AddCommGroup M] [Algebra R S] [Module R M]
-  [CommRing A] [Algebra R A]
-  [Ring B] [Algebra R B] -- new
+variable (R S A B M : Type*) [CommSemiring R] [CommSemiring S] [AddCommMonoid M]
+    [Algebra R S] [Module R M]
+    [CommSemiring A] [Algebra R A]
+    [Semiring B] [Algebra R B]
 
 scoped instance : SMul S (M ⊗[R] S) where
   smul s e := TensorProduct.comm _ _ _ (s • (TensorProduct.comm _ _ _ e))
@@ -101,26 +102,21 @@ variable {A N} in
 
 @[simp] lemma Module.TensorProduct.comm_symm_apply_tmul (m : M) (a : A) :
     (Module.TensorProduct.comm R A M).symm (m ⊗ₜ a) = a ⊗ₜ m := rfl
+
 scoped instance [Module.Finite R M] : Module.Finite A (M ⊗[R] A) :=
-  have : Module.Finite A (A ⊗[R] M) := inferInstance
-  Module.Finite.equiv (Module.TensorProduct.comm R A M) -- arrgh
+  Module.Finite.equiv (Module.TensorProduct.comm R A M)
 
 scoped instance [Module.Free R M] : Module.Free A (M ⊗[R] A) :=
   Module.Free.of_equiv (Module.TensorProduct.comm R A M)
+
+instance : IsScalarTower R A (M ⊗[R] A) where
+  smul_assoc r a ma := by simp
 
 /-- The module topology on a right algebra. -/
 scoped instance [TopologicalSpace A] : TopologicalSpace (B ⊗[R] A) :=
   moduleTopology A (B ⊗[R] A)
 
 scoped instance [TopologicalSpace A] : IsModuleTopology A (B ⊗[R] A) := ⟨rfl⟩
-
-scoped instance [TopologicalSpace A] [IsTopologicalRing A] [Module.Finite R B] :
-    IsTopologicalRing (B ⊗[R] A) :=
-  IsModuleTopology.Module.topologicalRing A _
-
-scoped instance [TopologicalSpace A] [IsTopologicalRing A]
-    [LocallyCompactSpace A] [Module.Finite R B] :
-    LocallyCompactSpace (B ⊗[R] A) := IsModuleTopology.locallyCompactSpaceOfFinite A
 
 noncomputable abbrev LinearMap.baseChange (R : Type*) [CommRing R]
     (V W : Type*) [AddCommGroup V] [Module R V] [AddCommGroup W] [Module R W]
@@ -145,6 +141,22 @@ noncomputable def AlgebraMap.baseChange (R : Type*) [CommRing R]
   map_zero' := sorry
   commutes' := sorry
 
-end -- section
+end semiring
+
+noncomputable section ring
+
+variable (R A B : Type*) [CommRing R]
+    [CommRing A] [Algebra R A]
+    [Ring B] [Algebra R B]
+
+scoped instance [TopologicalSpace A] [IsTopologicalRing A] [Module.Finite R B] :
+    IsTopologicalRing (B ⊗[R] A) :=
+  IsModuleTopology.Module.topologicalRing A _
+
+scoped instance [TopologicalSpace A] [IsTopologicalRing A]
+    [LocallyCompactSpace A] [Module.Finite R B] :
+    LocallyCompactSpace (B ⊗[R] A) := IsModuleTopology.locallyCompactSpaceOfFinite A
+
+end ring -- section
 
 end TensorProduct.RightActions

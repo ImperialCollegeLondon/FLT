@@ -76,7 +76,7 @@ noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
   sorry
 
-open scoped RightAlgebra
+open scoped TensorProduct.RightActions
 
 /--
 This definition is made in mathlib-generality but is *not* the definition of a

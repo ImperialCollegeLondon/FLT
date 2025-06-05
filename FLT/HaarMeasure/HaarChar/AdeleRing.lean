@@ -75,7 +75,7 @@ open scoped TensorProduct
 
 open NumberField MeasureTheory
 
-open scoped RightAlgebra in
+open scoped TensorProduct.RightActions in
 variable [TopologicalSpace (B ⊗[K] AdeleRing A K)]
   [IsModuleTopology (AdeleRing A K) (B ⊗[K] AdeleRing A K)]
   [MeasurableSpace (B ⊗[K] AdeleRing A K)]
@@ -132,7 +132,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
       (ContinuousLinearEquiv.baseChange K (AdeleRing A K) V V φ).toContinuousAddEquiv = 1 := by
   sorry
 
-open scoped RightAlgebra in
+open scoped TensorProduct.RightActions in
 /-- Left multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure. In other words, Bˣ is in the kernel of the `ringHaarChar` of `B ⊗ 𝔸_K`.
 -/
@@ -143,7 +143,7 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈
     ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := sorry
 
-open scoped RightAlgebra in
+open scoped TensorProduct.RightActions in
 /-- Right multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure.
 -/

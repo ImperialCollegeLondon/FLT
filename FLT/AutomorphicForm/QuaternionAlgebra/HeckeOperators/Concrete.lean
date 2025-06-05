@@ -10,6 +10,7 @@ import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits -- for (π 0; 0 1)
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Hacks.RightActionInstances
 /-
 
 # Concrete Hecke operators
@@ -99,9 +100,8 @@ namespace TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
 
 open IsDedekindDomain.HeightOneSpectrum
 
-open scoped RightAlgebra
+open scoped TensorProduct.RightActions
 
--- attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 -- #check Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
 
 open scoped TensorProduct

@@ -15,7 +15,7 @@ open scoped NumberField TensorProduct
 
 namespace IsQuaternionAlgebra.NumberField
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+open scoped TensorProduct.RightActions in
 /--
 A rigidification of a quaternion algebra D over a number field F
 is a fixed choice of `𝔸_F^∞`-algebra isomorphism `D ⊗[F] 𝔸_F^∞ = M₂(𝔸_F^∞)`. In other
@@ -193,13 +193,39 @@ theorem GL2.TameLevel.isOpen : IsOpen (GL2.TameLevel S).carrier :=
 theorem GL2.TameLevel.isCompact : IsCompact (GL2.TameLevel S).carrier :=
   sorry
 
-open scoped RightAlgebra
+open scoped TensorProduct.RightActions
+
+/-
+
+@MulZeroOneClass.toMulOneClass R
+  (@NonAssocSemiring.toMulZeroOneClass R (@Semiring.toNonAssocSemiring R (@Ring.toSemiring R inst✝)))
+
+-/
+
+attribute [-instance] ENormedAddCommMonoid.toAddCommMonoid
+attribute [instance high] NonUnitalNonAssocSemiring.toAddCommMonoid
+set_option pp.explicit true in
+variable (R : Type) [Ring R] in
+#synth MulOneClass R
+noncomputable instance : Ring (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := inferInstance
+noncomputable instance : Semiring (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := inferInstance
+noncomputable instance : CommRing (FiniteAdeleRing (𝓞 F) F) := inferInstance
+set_option trace.profiler true in
+set_option trace.Meta.synthInstance true in
+#synth NonAssocSemiring (D ⊗[F] FiniteAdeleRing (𝓞 F) F)
+
+noncomputable instance : NonAssocSemiring (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := Semiring.toNonAssocSemiring
+set_option maxSynthPendingDepth 4 in
+noncomputable instance : MulOneClass (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := inferInstance
 
 noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
     Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
 
+noncomputable instance (priority := high) : Module (FiniteAdeleRing (𝓞 F) F) (FiniteAdeleRing (𝓞 F) F) := inferInstance
+
 omit [IsQuaternionAlgebra F D] in
+set_option synthInstance.maxHeartbeats 40000 in
 theorem Rigidification.continuous_toFun (r : Rigidification F D) :
     Continuous r :=
   letI : ∀ (i : HeightOneSpectrum (𝓞 F)),
