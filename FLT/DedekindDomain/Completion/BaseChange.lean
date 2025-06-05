@@ -342,7 +342,6 @@ theorem comap_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
   Module.Finite.of_pi (fun (w : Extension B v) => w.1.adicCompletion L) ⟨w, hvw⟩
 
 omit [IsIntegralClosure B A L] in
-set_option synthInstance.maxHeartbeats 40000 in
 /-- L_w has the K_v-module topology. -/
 lemma adicCompletionComap_isModuleTopology
     (v : HeightOneSpectrum A) (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
@@ -377,7 +376,6 @@ lemma prodAdicCompletionComap_isModuleTopology (v : HeightOneSpectrum A) :
   exact IsModuleTopology.instPi
 
 open scoped TensorProduct.RightActions in
-set_option synthInstance.maxHeartbeats 80000 in
 omit [IsIntegralClosure B A L] in
 /-- `tensorAdicCompletionComapLinearMap` is continuous, open and surjective.
   We later show that it's a homeomorphism. -/
@@ -425,7 +423,6 @@ omit [IsIntegralClosure B A L] [FiniteDimensional K L]
     [Algebra.IsIntegral A B] [IsDedekindDomain B]
     [IsFractionRing B L] in
 open scoped TensorProduct.RightActions in
-set_option synthInstance.maxHeartbeats 160000 in
 /-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is contained in the closure of the image of `B`. -/
 lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
   (tensorAdicCompletionIntegersTo A K L B v).range.carrier ⊆
@@ -457,8 +454,8 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
               (y : adicCompletion K v) • (Algebra.ofId B (L ⊗[K] adicCompletion K v)) b := by
           ext y
           unfold f
-          sorry
-          --exact mul_comm _ _
+          rw [Algebra.smul_def]
+          exact mul_comm _ _
         have hcf : ContinuousAt f a' := by
           apply Continuous.continuousAt
           rw [hfval]
@@ -481,8 +478,6 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
 
 open TensorProduct.AlgebraTensorModule in
 open scoped TensorProduct.RightActions in
-set_option maxHeartbeats 400000 in
-set_option synthInstance.maxHeartbeats 40000 in
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L]  in
 /-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is clopen. -/
 lemma tensorAdicCompletionIsClopenRange :
@@ -663,15 +658,21 @@ noncomputable def comap_integer_algebra' {w : HeightOneSpectrum B} (hvw : comap 
     (algebraMap (adicCompletionIntegers K v) (adicCompletion K v))
 
 open scoped TensorProduct.RightActions in
-set_option synthInstance.maxHeartbeats 40000 in
 /-- `tensorAdicCompletionIntegersTo` as an 𝓞_v-linear map. -/
 noncomputable def tensorAdicCompletionIntegersToLinearMap :
     (B ⊗[A] adicCompletionIntegers K v) →ₗ[adicCompletionIntegers K v]
       (L ⊗[K] adicCompletion K v) where
   __ := tensorAdicCompletionIntegersTo A K L B v
   map_smul' x y := by
-    simp [Algebra.smul_def, tensorAdicCompletionIntegersTo, RingHom.algebraMap_toAlgebra]
-    sorry
+    simp only [tensorAdicCompletionIntegersTo, Algebra.comp_ofId, AlgHom.toRingHom_eq_coe,
+      RingHom.toMonoidHom_eq_coe, AlgHom.toRingHom_toMonoidHom, Algebra.smul_def,
+      TensorProduct.RightActions.algebraMap_eval, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
+      MonoidHom.coe_coe, map_mul, Algebra.TensorProduct.lift_tmul, map_one, AlgHom.coe_comp,
+      AlgHom.coe_restrictScalars', IsScalarTower.coe_toAlgHom', RingHom.algebraMap_toAlgebra,
+      Algebra.id.map_eq_id, RingHomCompTriple.comp_eq, Function.comp_apply,
+      Algebra.TensorProduct.includeRight_apply, one_mul, RingHom.id_apply]
+    rw [Subsemiring.smul_def, Algebra.smul_def]
+    rfl
 
 open scoped TensorProduct.RightActions in
 /-- The map `B ⊗ 𝓞_v → L_w` for `w` an extension of `v` given by the algebra maps. -/
@@ -890,8 +891,7 @@ theorem ramification_mul_inertia_eq_finrank_completion [Module.Finite A B] (w : 
   letI := alg.toSMul
   have : IsScalarTower (adicCompletionIntegers K v) (adicCompletionIntegers L w)
       (adicCompletion L w) := by
-    convert IsScalarTower.of_algebraMap_smul fun _ _ ↦ ?_
-    rfl
+    exact IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
   have : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v)
       (adicCompletion L w) := by
     apply IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
