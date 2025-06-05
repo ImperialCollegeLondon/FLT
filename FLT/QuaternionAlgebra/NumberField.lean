@@ -2,7 +2,6 @@ import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.RingTheory.TensorProduct.Finite -- just for Module.Finite.base_change_right
 import FLT.Hacks.RightActionInstances
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
@@ -193,37 +192,12 @@ theorem GL2.TameLevel.isOpen : IsOpen (GL2.TameLevel S).carrier :=
 theorem GL2.TameLevel.isCompact : IsCompact (GL2.TameLevel S).carrier :=
   sorry
 
-open scoped TensorProduct.RightActions
-
-/-
-
-@MulZeroOneClass.toMulOneClass R
-  (@NonAssocSemiring.toMulZeroOneClass R (@Semiring.toNonAssocSemiring R (@Ring.toSemiring R inst✝)))
-
--/
-
-attribute [-instance] ENormedAddCommMonoid.toAddCommMonoid
-attribute [instance high] NonUnitalNonAssocSemiring.toAddCommMonoid
-set_option pp.explicit true in
-variable (R : Type) [Ring R] in
-#synth MulOneClass R
-noncomputable instance : Ring (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := inferInstance
-noncomputable instance : Semiring (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := inferInstance
-noncomputable instance : CommRing (FiniteAdeleRing (𝓞 F) F) := inferInstance
-set_option trace.profiler true in
-set_option trace.Meta.synthInstance true in
-#synth NonAssocSemiring (D ⊗[F] FiniteAdeleRing (𝓞 F) F)
-
-noncomputable instance : NonAssocSemiring (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := Semiring.toNonAssocSemiring
-set_option maxSynthPendingDepth 4 in
-noncomputable instance : MulOneClass (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := inferInstance
-
+open scoped TensorProduct.RightActions in
 noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
     Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
 
-noncomputable instance (priority := high) : Module (FiniteAdeleRing (𝓞 F) F) (FiniteAdeleRing (𝓞 F) F) := inferInstance
-
+open scoped TensorProduct.RightActions in
 omit [IsQuaternionAlgebra F D] in
 set_option synthInstance.maxHeartbeats 40000 in
 theorem Rigidification.continuous_toFun (r : Rigidification F D) :
@@ -233,6 +207,7 @@ theorem Rigidification.continuous_toFun (r : Rigidification F D) :
     fun i ↦ (RestrictedProduct.evalRingHom _ i).toAlgebra
   IsModuleTopology.continuous_of_linearMap r.toLinearMap
 
+open scoped TensorProduct.RightActions in
 omit [IsQuaternionAlgebra F D] in
 theorem Rigidification.continuous_invFun (r : Rigidification F D) :
     Continuous r.symm := by

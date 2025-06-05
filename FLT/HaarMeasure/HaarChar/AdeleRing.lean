@@ -3,6 +3,7 @@ import FLT.NumberField.AdeleRing
 import FLT.Hacks.RightActionInstances
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.Algebra.Central.Defs
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 
 open NumberField
 
@@ -125,6 +126,8 @@ noncomputable def ContinuousLinearEquiv.baseChange (R : Type*) [CommRing R]
 
 instance : IsTopologicalAddGroup (AdeleRing A K ⊗[K] V) := sorry
 instance : LocallyCompactSpace (AdeleRing A K ⊗[K] V) := sorry
+
+open scoped TensorProduct.RightActions
 
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
     [MeasurableSpace (AdeleRing A K ⊗[K] V)] [BorelSpace (AdeleRing A K ⊗[K] V)] :

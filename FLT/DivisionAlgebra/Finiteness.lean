@@ -42,15 +42,6 @@ notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
 
 open scoped TensorProduct.RightActions
 
--- hack to help typeclass inference in the next declaration
--- TODO figure out why it's needed
-attribute [local instance high] Localization.instSMulCommClassOfIsScalarTower
-
-local instance : IsTopologicalRing D_𝔸 :=
-  IsModuleTopology.Module.topologicalRing (AdeleRing (𝓞 K) K) _
-
-local instance : LocallyCompactSpace D_𝔸 := sorry -- we have this (unfinished) elsewhere TODO
-
 variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
 /-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
@@ -188,19 +179,6 @@ end NumberField.AdeleRing.DivisionAlgebra
 
 section FiniteAdeleRing
 
-instance : Algebra (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
-  Algebra.TensorProduct.rightAlgebra
-
--- this is in FLT somewhere
-instance : Module.Finite (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := sorry
-
-/-- The 𝔸_K^∞-module topology on D ⊗ 𝔸_K^∞-/
-local instance : TopologicalSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
-  moduleTopology (FiniteAdeleRing (𝓞 K) K) _
-
-local instance : IsModuleTopology (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
-  ⟨rfl⟩
-
 variable [FiniteDimensional K D]
 
 -- Instance to help speed up instance synthesis
@@ -212,9 +190,6 @@ instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
 instance : NonAssocSemiring (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   Algebra.TensorProduct.instRing.toNonAssocSemiring
 
-instance : IsTopologicalRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
-  IsModuleTopology.Module.topologicalRing (FiniteAdeleRing (𝓞 K) K) _
-
 variable [Algebra.IsCentral K D]
 
 /-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
@@ -224,6 +199,7 @@ abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
+open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
   sorry
@@ -234,6 +210,7 @@ If `D` is a finite-dimensional division algebra over a number field `K`
 then the double coset space `Dˣ \ (D ⊗ 𝔸_K^infty)ˣ / U` is finite for any compact open subgroup `U`
 of `(D ⊗ 𝔸_F^infty)ˣ`.
 -/
+open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by

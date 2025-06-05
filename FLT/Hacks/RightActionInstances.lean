@@ -1,6 +1,7 @@
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib
-
+import Mathlib.GroupTheory.MonoidLocalization.Basic
+import Mathlib.RingTheory.TensorProduct.Finite
+import Mathlib.RingTheory.TensorProduct.Free
 
 /-
 
@@ -28,6 +29,8 @@ variable (R S A B M : Type*) [CommSemiring R] [CommSemiring S] [AddCommMonoid M]
     [CommSemiring A] [Algebra R A]
     [Semiring B] [Algebra R B]
 
+/-- Right action of a commutative semiring `S` on `M ⊗ S`. An instance only when
+the `TensorProduct.RightActions` scope is open. -/
 scoped instance : SMul S (M ⊗[R] S) where
   smul s e := TensorProduct.comm _ _ _ (s • (TensorProduct.comm _ _ _ e))
 
@@ -35,6 +38,8 @@ scoped instance : SMul S (M ⊗[R] S) where
 lemma smul_def (r : S) (m : M ⊗[R] S) :
     r • m = (TensorProduct.comm _ _ _).symm (r • (TensorProduct.comm _ _ _ m)) := rfl
 
+/-- The `S`-module structure on `M ⊗ S`, when `S` is a commutative semiring.
+An instance only when the `TensorProduct.RightActions` scope is open. -/
 scoped instance : Module S (M ⊗[R] S) where
   one_smul _ := by simp
   mul_smul := by simp [mul_smul]
@@ -43,6 +48,8 @@ scoped instance : Module S (M ⊗[R] S) where
   add_smul := by simp [add_smul]
   zero_smul := by simp
 
+/-- The `S`-algebra structure on `B ⊗ S`, when `S` is a commutative semiring
+and `B` is a semiring. An instance only when the `TensorProduct.RightActions` scope is open. -/
 scoped instance : Algebra S (B ⊗[R] S) where
   algebraMap := Algebra.TensorProduct.includeRight.toRingHom
   commutes' s bs := by
@@ -58,8 +65,9 @@ scoped instance : Algebra S (B ⊗[R] S) where
           Algebra.TensorProduct.includeRight_apply, mul_add, add_mul]
   smul_def' s bs := by
     induction bs with
-    | zero => simp
-    | tmul x y =>
+    | zero => simp only [smul_zero, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+      Algebra.TensorProduct.includeRight_apply, mul_zero]
+    | tmul b s =>
         simp only [smul_def, TensorProduct.comm_tmul, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
           Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.tmul_mul_tmul, one_mul]
         rw [TensorProduct.smul_tmul']
@@ -68,21 +76,22 @@ scoped instance : Algebra S (B ⊗[R] S) where
         simp_all only [smul_def, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
           Algebra.TensorProduct.includeRight_apply, smul_add, ← hx, ← hy, mul_add]
 
+@[simp] lemma algebraMap_eval (s : S) : algebraMap S (B ⊗[R] S) s = 1 ⊗ₜ s := rfl
+
 /-- The A-algebra isomorphism A ⊗ B = B ⊗ A, available in the `TensorProduct.RightActions` scope. -/
-@[simps! apply symm_apply]
 def Algebra.TensorProduct.comm : A ⊗[R] B ≃ₐ[A] B ⊗[R] A where
   __ := _root_.Algebra.TensorProduct.comm R A B
   commutes' _ := rfl
 
 variable {A B} in
 @[simp] lemma Algebra.TensorProduct.comm_apply_tmul (a : A) (b : B) :
-    Algebra.TensorProduct.comm R A B (a ⊗ₜ b) = b ⊗ₜ a := rfl
+    Algebra.TensorProduct.comm R A B (a ⊗ₜ b) = b ⊗ₜ a := by
+  rfl
 
 @[simp] lemma Algebra.TensorProduct.comm_symm_apply_tmul (b : B) (a : A) :
     (Algebra.TensorProduct.comm R A B).symm (b ⊗ₜ a) = a ⊗ₜ b := rfl
 
 /-- The A-module isomorphism A ⊗ M = M ⊗ A, available in the `TensorProduct.RightActions` scope. -/
-@[simps! apply symm_apply]
 def Module.TensorProduct.comm : A ⊗[R] M ≃ₗ[A] M ⊗[R] A where
   __ := (_root_.TensorProduct.comm R A M).toAddEquiv
   map_smul' a am := by
@@ -109,7 +118,7 @@ scoped instance [Module.Finite R M] : Module.Finite A (M ⊗[R] A) :=
 scoped instance [Module.Free R M] : Module.Free A (M ⊗[R] A) :=
   Module.Free.of_equiv (Module.TensorProduct.comm R A M)
 
-instance : IsScalarTower R A (M ⊗[R] A) where
+scoped instance : IsScalarTower R A (M ⊗[R] A) where
   smul_assoc r a ma := by simp
 
 /-- The module topology on a right algebra. -/
@@ -118,6 +127,8 @@ scoped instance [TopologicalSpace A] : TopologicalSpace (B ⊗[R] A) :=
 
 scoped instance [TopologicalSpace A] : IsModuleTopology A (B ⊗[R] A) := ⟨rfl⟩
 
+/-- Base extension of an `R`-linear map `V → W` to an `A`-linear
+map `V ⊗ A → W ⊗ A`. Available in the `TensorProduct.RightActions` scope. -/
 noncomputable abbrev LinearMap.baseChange (R : Type*) [CommRing R]
     (V W : Type*) [AddCommGroup V] [Module R V] [AddCommGroup W] [Module R W]
     (A : Type*) [CommRing A] [Algebra R A]
@@ -126,20 +137,18 @@ noncomputable abbrev LinearMap.baseChange (R : Type*) [CommRing R]
     (_root_.LinearMap.baseChange A φ) ∘ₗ
     (Module.TensorProduct.comm R A V).symm
 
+-- this should be in mathlib
+-- theorem foo (R M N : Type*) [Semiring R] [AddCommMonoid M] [AddCommMonoid N]
+--     [Module R M] [Module R N] (e : M ≃ₗ[R] N) : (e : M ≃+ N).symm = (e.symm: N ≃+ M) := rfl
+
+/-- Base extension of an `R`-algebra map `B → C` to an `A`-linear
+map `B ⊗ A → C ⊗ A`. Available in the `TensorProduct.RightActions` scope.-/
 noncomputable def AlgebraMap.baseChange (R : Type*) [CommRing R]
     (B C : Type*) [Ring B] [Algebra R B] [Ring C] [Algebra R C]
     (A : Type*) [CommRing A] [Algebra R A]
     (φ : B →ₐ[R] C) : B ⊗[R] A →ₐ[A] C ⊗[R] A where
-  __ := LinearMap.baseChange R B C A φ
-  map_one' := by
-    change LinearMap.baseChange R B C A φ ((1 : B) ⊗ₜ (1 : A)) = 1 ⊗ₜ 1
-    simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply,
-      Module.TensorProduct.comm_symm_apply, Module.TensorProduct.comm_apply]
-    --rw [comm_symm_tmul]
-    sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  commutes' := sorry
+  __ := Algebra.TensorProduct.map φ (.id R A)
+  commutes' a := by simp
 
 end semiring
 

@@ -1,6 +1,5 @@
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
@@ -56,7 +55,7 @@ def piExtension :
 theorem piExtension_apply (x : v.Completion) :
     piExtension L v x = fun wv : v.Extension L => comapHom wv.2 x := rfl
 
-local instance : Algebra v.Completion (L ⊗[K] v.Completion) := Algebra.TensorProduct.rightAlgebra
+open scoped TensorProduct.RightActions
 
 instance : TopologicalSpace (L ⊗[K] v.Completion) := moduleTopology v.Completion _
 
@@ -92,12 +91,12 @@ theorem finrank_prod_eq_finrank [NumberField K] :
   rw [Module.finrank_pi_fintype v.Completion, ← Extension.sum_ramificationIdx_eq L v]
   exact Finset.sum_congr rfl (fun w _ => finrank_eq_ramificationIdx w)
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 theorem finrank_pi_eq_finrank_tensorProduct [NumberField K] :
     Module.finrank v.Completion ((w : v.Extension L) → w.1.Completion) =
       Module.finrank v.Completion (L ⊗[K] v.Completion) := by
-  rw [← (Algebra.TensorProduct.comm K v.Completion L).extendScalars v.Completion
-      |>.toLinearEquiv.finrank_eq, Module.finrank_tensorProduct, Module.finrank_self, one_mul,
+  rw [(TensorProduct.RightActions.Algebra.TensorProduct.comm
+       K v.Completion L).symm.toLinearEquiv.finrank_eq,
+      Module.finrank_tensorProduct, Module.finrank_self, one_mul,
     finrank_prod_eq_finrank]
 
 theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
@@ -129,11 +128,9 @@ instance : IsModuleTopology v.Completion wv.1.Completion :=
     (Module.finrank_fin_fun v.Completion)).some
 
 attribute [local instance 10000] Module.Free.of_divisionRing in -- hack to make it quicker
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 instance : IsTopologicalSemiring (L ⊗[K] v.Completion) :=
   IsModuleTopology.topologicalSemiring v.Completion _
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- The `L`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
 of `L` lying above `v`. -/
 def baseChangeEquiv :
@@ -163,8 +160,8 @@ def piEquiv :
     (Fin (Module.finrank K L) → v.Completion) ≃L[v.Completion]
       (wv : v.Extension L) → wv.1.Completion := by
   -- `L ⊗ Kᵥ ≃ₗ[Kᵥ] Kᵥ ⊗ L`
-  let e₁ := (Algebra.TensorProduct.comm K v.Completion L).extendScalars
-    v.Completion |>.toLinearEquiv.symm
+  let e₁ := (TensorProduct.RightActions.Algebra.TensorProduct.comm K v.Completion L).symm
+     |>.toLinearEquiv
   -- `Kᵥ ⊗ L ≃ₗ[Kᵥ] Kᵥ^d`
   let e₂ := finiteEquivPi K L v.Completion
   -- Compose and apply module topologies to get the `Kᵥ`-linear homeomorphism

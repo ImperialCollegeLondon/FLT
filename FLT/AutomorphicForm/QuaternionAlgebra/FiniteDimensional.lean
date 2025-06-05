@@ -4,7 +4,7 @@ import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 namespace TotallyDefiniteQuaternionAlgebra
 
 open IsDedekindDomain NumberField IsQuaternionAlgebra
-open scoped TensorProduct
+open scoped TensorProduct TensorProduct.RightActions
 
 variable {F : Type*} [Field F] [NumberField F] [IsTotallyReal F]
     {D : Type*} [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]

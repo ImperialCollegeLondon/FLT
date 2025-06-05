@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.FixedPoints.Basic
@@ -67,17 +66,17 @@ docstring in LaTeX and the `incl₂` one in unicode. Which is better?-/
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map (Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
 
+open scoped TensorProduct.RightActions in
 /-- `incl₂` is he inclusion `𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ)`. Remark: I wrote the `incl₁`
 docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
-  Units.map Algebra.TensorProduct.rightAlgebra.algebraMap.toMonoidHom
+  Units.map (algebraMap (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))).toMonoidHom
 
 -- it's actually equal but ⊆ is all we need, and equality is harder
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
   sorry
 
-open scoped TensorProduct.RightActions
-
+open scoped TensorProduct.RightActions in
 /--
 This definition is made in mathlib-generality but is *not* the definition of a
 weight 2 automorphic form unless `Dˣ` is compact mod centre at infinity.
@@ -191,6 +190,7 @@ open ConjAct
 
 variable [IsQuaternionAlgebra F D]
 
+open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
 quaternion algebra. -/
 def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAutomorphicForm F D R) :
