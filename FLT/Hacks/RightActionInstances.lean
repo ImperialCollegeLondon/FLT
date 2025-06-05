@@ -130,20 +130,16 @@ noncomputable abbrev LinearMap.baseChange (R : Type*) [CommRing R]
     (_root_.LinearMap.baseChange A φ) ∘ₗ
     (Module.TensorProduct.comm R A V).symm
 
+-- this should be in mathlib
+-- theorem foo (R M N : Type*) [Semiring R] [AddCommMonoid M] [AddCommMonoid N]
+--     [Module R M] [Module R N] (e : M ≃ₗ[R] N) : (e : M ≃+ N).symm = (e.symm: N ≃+ M) := rfl
+
 noncomputable def AlgebraMap.baseChange (R : Type*) [CommRing R]
     (B C : Type*) [Ring B] [Algebra R B] [Ring C] [Algebra R C]
     (A : Type*) [CommRing A] [Algebra R A]
     (φ : B →ₐ[R] C) : B ⊗[R] A →ₐ[A] C ⊗[R] A where
-  __ := LinearMap.baseChange R B C A φ
-  map_one' := by
-    change LinearMap.baseChange R B C A φ ((1 : B) ⊗ₜ (1 : A)) = 1 ⊗ₜ 1
-    simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply,
-      Module.TensorProduct.comm_symm_apply, Module.TensorProduct.comm_apply]
-    --rw [comm_symm_tmul]
-    sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  commutes' := sorry
+  __ := Algebra.TensorProduct.map φ (.id R A)
+  commutes' a := by simp
 
 end semiring
 
