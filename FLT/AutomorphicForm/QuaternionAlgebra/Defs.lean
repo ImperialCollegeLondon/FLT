@@ -11,7 +11,7 @@ import FLT.Mathlib.Algebra.FixedPoints.Basic
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.NumberField.FinitePlaces
-import FLT.Hacks.RightAlgebraInstances
+import FLT.Hacks.RightActionInstances
 
 /-
 

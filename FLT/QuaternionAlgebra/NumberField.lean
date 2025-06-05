@@ -3,7 +3,7 @@ import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.RingTheory.TensorProduct.Finite -- just for Module.Finite.base_change_right
-import FLT.Hacks.RightAlgebraInstances
+import FLT.Hacks.RightActionInstances
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 

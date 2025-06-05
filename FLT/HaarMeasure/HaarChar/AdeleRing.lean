@@ -1,6 +1,6 @@
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.NumberField.AdeleRing
-import FLT.Hacks.RightAlgebraInstances
+import FLT.Hacks.RightActionInstances
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.Algebra.Central.Defs
 

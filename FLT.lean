@@ -38,7 +38,7 @@ import FLT.HaarMeasure.HaarChar.Padic
 import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.MeasurableSpacePadics
-import FLT.Hacks.RightAlgebraInstances
+import FLT.Hacks.RightActionInstances
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
