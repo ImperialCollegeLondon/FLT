@@ -224,8 +224,33 @@ lemma q_cont : Continuous (q K D) := by
 
 lemma renameME : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K))) =
     Set.preimage (p K D) {1} ∩ Set.preimage (q K D) {1} := by
-
-  sorry
+  ext x
+  simp only [Set.mem_range, Units.embedProduct_apply, Set.mem_inter_iff, Set.mem_preimage,
+    Set.mem_singleton_iff]
+  constructor
+  · rintro ⟨y, hy⟩
+    obtain ⟨x1, x2⟩ := hy
+    constructor
+    · rw [p]
+      simp only [MulOpposite.unop_op, Units.mul_inv]
+    · rw [q]
+      simp only [MulOpposite.unop_op, Units.inv_mul]
+  · rw [p,q]
+    rintro ⟨hp, hq⟩
+    have : IsUnit x.1 := by
+      refine isUnit_iff_exists_and_exists.mpr ?_
+      constructor
+      · refine ⟨MulOpposite.unop x.2, hp⟩
+      · refine ⟨MulOpposite.unop x.2, hq⟩
+    obtain ⟨x1, hx1⟩ := this
+    use x1
+    rw [hx1]
+    have : MulOpposite.op ↑x1⁻¹ = x.2 := by
+      refine MulOpposite.unop_inj.mp ?_
+      simp only [MulOpposite.unop_op]
+      rw [← hx1] at hp
+      exact Units.inv_eq_of_mul_eq_one_right hp
+    simp [this]
 
 lemma embedProduct_closed : IsClosed (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K)))
     := by
