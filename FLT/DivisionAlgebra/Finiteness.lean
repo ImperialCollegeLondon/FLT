@@ -204,16 +204,49 @@ abbrev MtoQuot (a : ringHaarChar_ker D_𝔸) : (ringHaarChar_ker D_𝔸 ⧸
 
 lemma MtoQuot_cont : Continuous (MtoQuot K D) := QuotientGroup.continuous_mk
 
+def p : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
+  fun p => p.1 * MulOpposite.unop p.2
+
+def q : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
+  fun p => MulOpposite.unop p.2 * p.1
+
+lemma p_cont : Continuous (p K D) := by
+  unfold p
+  apply Continuous.mul
+  · exact continuous_fst
+  · exact Continuous.comp (MulOpposite.continuous_unop) continuous_snd
+
+lemma q_cont : Continuous (q K D) := by
+  unfold q
+  apply Continuous.mul
+  · exact Continuous.comp (MulOpposite.continuous_unop) continuous_snd
+  · exact continuous_fst
+
+lemma renameME : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K))) =
+    Set.preimage (p K D) {1} ∩ Set.preimage (q K D) {1} := by
+
+  sorry
+
+lemma embedProduct_closed : IsClosed (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K)))
+    := by
+  rw [renameME]
+  apply IsClosed.inter
+  · refine IsClosed.preimage ?_ ?_
+    · exact p_cont K D
+    · -- Hausdorff
+      sorry
+  · refine IsClosed.preimage ?_ ?_
+    · exact q_cont K D
+    · -- Hausdorff
+      sorry
+
 lemma M_compact : IsCompact (M K D) := by
   apply Topology.IsClosedEmbedding.isCompact_preimage
   · unfold incl₂
     apply Topology.IsClosedEmbedding.comp
     · refine { toIsEmbedding := ?_, isClosed_range := ?_ }
       · exact Units.isEmbedding_embedProduct
-      ·
-        -- true for a Hausdorf one
-        -- merged recently by Kevin?
-        sorry
+      · exact embedProduct_closed K D
     ·
 
 
