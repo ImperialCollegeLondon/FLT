@@ -187,8 +187,32 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 
 end Aux
 
+def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸 :=
+  fun u => (unitsEquivProdSubtype D_𝔸) (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
+
+def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D) (Aux.C K D)
+
+abbrev MtoQuot (a : ringHaarChar_ker D_𝔸) : (ringHaarChar_ker D_𝔸 ⧸
+    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := a
+
+lemma MtoQuot_cont : Continuous (MtoQuot K D) := QuotientGroup.continuous_mk
+
+lemma M_compact : IsCompact (M K D) := by
+
+  sorry
+
+lemma MtoQuot_surjective : Function.Surjective (MtoQuot K D) := by
+  exact QuotientGroup.mk_surjective
+
+lemma MtoQuot_surjective' :
+    (MtoQuot K D) '' (M K D) = Set.univ := by
+
+  sorry
+
 lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
-  (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := sorry
+    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) :=
+  isCompact_univ_iff.mp (by simpa only [MtoQuot_surjective'] using
+    (IsCompact.image (M_compact K D) (MtoQuot_cont K D)))
 
 end NumberField.AdeleRing.DivisionAlgebra
 
