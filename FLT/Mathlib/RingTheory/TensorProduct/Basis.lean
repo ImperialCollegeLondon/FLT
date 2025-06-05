@@ -45,7 +45,6 @@ lemma Basis.rightBaseChange_repr [DecidableEq ι] (b : Basis ι R A) (i) (x : B)
     simp
   rw [← LinearEquiv.eq_symm_apply]
   simp [rightBaseChange, this]
-  rfl
 
 @[simp]
 lemma Basis.rightBaseChange_apply [DecidableEq ι] (b : Basis ι R A) (i) :

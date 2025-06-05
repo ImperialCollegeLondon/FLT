@@ -161,7 +161,6 @@ theorem piEquiv_apply_of_algebraMap
   rw [LinearEquiv.trans_symm, LinearEquiv.trans_apply, finiteEquivPi_symm_apply]
   simp [AlgEquiv.extendScalars, ContinuousAlgEquiv.toContinuousLinearEquiv_apply,
     baseChangeEquiv_tsum_apply_right]
-  sorry
 
 theorem piEquiv_mem_principalSubgroup
     {x : Fin (Module.finrank K L) → 𝔸 K}
