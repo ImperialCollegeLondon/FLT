@@ -2,7 +2,6 @@ import FLT.HaarMeasure.HaarChar.Ring
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Hacks.RightActionInstances
 import FLT.NumberField.AdeleRing
 

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.FixedPoints.Basic

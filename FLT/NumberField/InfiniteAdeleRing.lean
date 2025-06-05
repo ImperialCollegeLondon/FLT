@@ -1,5 +1,4 @@
 import FLT.NumberField.Completion.Infinite
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.Topology.Constructions

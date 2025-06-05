@@ -1,6 +1,5 @@
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
