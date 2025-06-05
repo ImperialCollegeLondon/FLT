@@ -14,6 +14,8 @@ import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
 
+set_option maxHeartbeats 1000000
+
 /-
 
 # Fujisaki's lemma
@@ -187,10 +189,15 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 
 end Aux
 
-def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸 :=
-  fun u => (unitsEquivProdSubtype D_𝔸) (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
+-- the ᵐᵒᵖ is required to use Units.embedProduct
+def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
+  fun u => Units.embedProduct D_𝔸 (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
 
-def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D) (Aux.C K D)
+-- this is required to have M be the preimage of C under incl₂
+def map1 : Prod D_𝔸 D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
+  fun p => (p.1, MulOpposite.op p.2)
+
+def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D) (Set.image (map1 K D) (Aux.C K D))
 
 abbrev MtoQuot (a : ringHaarChar_ker D_𝔸) : (ringHaarChar_ker D_𝔸 ⧸
     (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := a
@@ -198,16 +205,58 @@ abbrev MtoQuot (a : ringHaarChar_ker D_𝔸) : (ringHaarChar_ker D_𝔸 ⧸
 lemma MtoQuot_cont : Continuous (MtoQuot K D) := QuotientGroup.continuous_mk
 
 lemma M_compact : IsCompact (M K D) := by
+  apply Topology.IsClosedEmbedding.isCompact_preimage
+  · unfold incl₂
+    apply Topology.IsClosedEmbedding.comp
+    · refine { toIsEmbedding := ?_, isClosed_range := ?_ }
+      · exact Units.isEmbedding_embedProduct
+      ·
+        -- true for a Hausdorf one
+        -- merged recently by Kevin?
+        sorry
+    ·
 
-  sorry
+
+      sorry
+      /-
+      refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap ?_ ?_ ?_
+      · exact continuous_iff_le_induced.mpr fun U a ↦ a
+      · exact Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))
+      · simp only [Subgroup.coe_subtype]
+        refine Topology.IsInducing.isClosedMap ?_ ?_
+        · exact { eq_induced := rfl }
+        · simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
+
+          -- have ringHaarChar_ker is closed
+          sorry
+        -/
+  · refine IsCompact.image ?_ ?_
+    · exact Aux.C_compact K D
+    · unfold map1
+      apply Continuous.prodMk
+      · exact continuous_fst
+      · apply Continuous.comp
+        · rw [@continuous_induced_rng]
+          exact { isOpen_preimage := fun s a ↦ a }
+        · exact continuous_snd
 
 lemma MtoQuot_surjective : Function.Surjective (MtoQuot K D) := by
   exact QuotientGroup.mk_surjective
 
 lemma MtoQuot_surjective' :
     (MtoQuot K D) '' (M K D) = Set.univ := by
-
-  sorry
+  rw [Set.eq_univ_iff_forall]
+  rintro ⟨a, ha⟩
+  obtain ⟨c, hc, ν, hν, rfl, h31⟩ := Aux.antidiag_mem_C K D ha
+  simp_rw [MtoQuot]
+  simp only [Subgroup.comap_subtype, Set.mem_image, Subtype.exists]
+  refine ⟨ν, hν, ?_, ?_ ⟩
+  · rw [M]
+    simp only [Set.mem_preimage, Set.mem_image, Prod.exists]
+    -- this is just ν and ν⁻¹
+    sorry
+  · -- should be wanting the right relation!
+    sorry
 
 lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
     (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) :=
