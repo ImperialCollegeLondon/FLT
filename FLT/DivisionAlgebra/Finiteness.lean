@@ -14,8 +14,6 @@ import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
 
-set_option maxHeartbeats 1000000
-
 /-
 
 # Fujisaki's lemma
@@ -193,16 +191,23 @@ end Aux
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
   fun u => Units.embedProduct D_𝔸 (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
 
+/- incorporated into definition of M -- but left for clarity until merged
 -- this is required to have M be the preimage of C under incl₂
 def map1 : Prod D_𝔸 D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
   fun p => (p.1, MulOpposite.op p.2)
+-/
 
-def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D) (Set.image (map1 K D) (Aux.C K D))
+def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D)
+  (Set.image (fun p => (p.1, MulOpposite.op p.2)) (Aux.C K D))
 
 abbrev MtoQuot (a : ringHaarChar_ker D_𝔸) : (ringHaarChar_ker D_𝔸 ⧸
     (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := a
 
 lemma MtoQuot_cont : Continuous (MtoQuot K D) := QuotientGroup.continuous_mk
+
+/- The following is part of the proof of 12.11 on the blueprint - perhaps this can be moved there
+  in more generality later
+-/
 
 def p : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
   fun p => p.1 * MulOpposite.unop p.2
@@ -210,17 +215,11 @@ def p : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
 def q : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
   fun p => MulOpposite.unop p.2 * p.1
 
-lemma p_cont : Continuous (p K D) := by
-  unfold p
-  apply Continuous.mul
-  · exact continuous_fst
-  · exact Continuous.comp (MulOpposite.continuous_unop) continuous_snd
+lemma p_cont : Continuous (p K D) := Continuous.mul (continuous_fst)
+  (Continuous.comp (MulOpposite.continuous_unop) continuous_snd)
 
-lemma q_cont : Continuous (q K D) := by
-  unfold q
-  apply Continuous.mul
-  · exact Continuous.comp (MulOpposite.continuous_unop) continuous_snd
-  · exact continuous_fst
+lemma q_cont : Continuous (q K D) := Continuous.mul (Continuous.comp (MulOpposite.continuous_unop)
+  continuous_snd) (continuous_fst)
 
 lemma renameME : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K))) =
     Set.preimage (p K D) {1} ∩ Set.preimage (q K D) {1} := by
@@ -228,54 +227,39 @@ lemma renameME : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) 
   simp only [Set.mem_range, Units.embedProduct_apply, Set.mem_inter_iff, Set.mem_preimage,
     Set.mem_singleton_iff]
   constructor
-  · rintro ⟨y, hy⟩
-    obtain ⟨x1, x2⟩ := hy
-    constructor
-    · rw [p]
-      simp only [MulOpposite.unop_op, Units.mul_inv]
-    · rw [q]
-      simp only [MulOpposite.unop_op, Units.inv_mul]
+  · rintro ⟨y, ⟨x1, x2⟩⟩
+    exact ⟨by simp only [p,MulOpposite.unop_op, Units.mul_inv],
+      by simp only [q, MulOpposite.unop_op, Units.inv_mul]⟩
   · rw [p,q]
     rintro ⟨hp, hq⟩
-    have : IsUnit x.1 := by
-      refine isUnit_iff_exists_and_exists.mpr ?_
-      constructor
-      · refine ⟨MulOpposite.unop x.2, hp⟩
-      · refine ⟨MulOpposite.unop x.2, hq⟩
-    obtain ⟨x1, hx1⟩ := this
+    obtain ⟨x1, hx1⟩ : IsUnit x.1 := isUnit_iff_exists_and_exists.mpr
+      ⟨⟨MulOpposite.unop x.2, hp⟩, ⟨MulOpposite.unop x.2, hq⟩⟩
     use x1
     rw [hx1]
     have : MulOpposite.op ↑x1⁻¹ = x.2 := by
       refine MulOpposite.unop_inj.mp ?_
-      simp only [MulOpposite.unop_op]
       rw [← hx1] at hp
       exact Units.inv_eq_of_mul_eq_one_right hp
-    simp [this]
+    simp only [this]
+
+local instance : T1Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
+  -- is this true? Does this mean Hausdorff - Frechet space is different no??
+  sorry
 
 lemma embedProduct_closed : IsClosed (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K)))
     := by
   rw [renameME]
-  apply IsClosed.inter
-  · refine IsClosed.preimage ?_ ?_
-    · exact p_cont K D
-    · -- Hausdorff
-      sorry
-  · refine IsClosed.preimage ?_ ?_
-    · exact q_cont K D
-    · -- Hausdorff
-      sorry
+  exact IsClosed.inter (IsClosed.preimage (p_cont K D) (isClosed_singleton))
+    (IsClosed.preimage (q_cont K D) (isClosed_singleton))
 
 lemma M_compact : IsCompact (M K D) := by
   apply Topology.IsClosedEmbedding.isCompact_preimage
   · unfold incl₂
     apply Topology.IsClosedEmbedding.comp
-    · refine { toIsEmbedding := ?_, isClosed_range := ?_ }
-      · exact Units.isEmbedding_embedProduct
-      · exact embedProduct_closed K D
+    · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
+        embedProduct_closed K D }
     ·
 
-
-      sorry
       /-
       refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap ?_ ?_ ?_
       · exact continuous_iff_le_induced.mpr fun U a ↦ a
@@ -284,33 +268,26 @@ lemma M_compact : IsCompact (M K D) := by
         refine Topology.IsInducing.isClosedMap ?_ ?_
         · exact { eq_induced := rfl }
         · simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
-
-          -- have ringHaarChar_ker is closed
+          -- ringHaarChar is closed since it is the primage of a closed set under a continuous map
+          -- {1} is closed since it is a singleton in a Hausdorff (T1?) space
+          -- problem is we want to show the image of this is closed... so maybe I need to rework
+          -- this section of the proof
+      -/
           sorry
-        -/
-  · refine IsCompact.image ?_ ?_
-    · exact Aux.C_compact K D
-    · unfold map1
-      apply Continuous.prodMk
-      · exact continuous_fst
-      · apply Continuous.comp
-        · rw [@continuous_induced_rng]
-          exact { isOpen_preimage := fun s a ↦ a }
-        · exact continuous_snd
+  · refine IsCompact.image (Aux.C_compact K D) (Continuous.prodMk (continuous_fst) ?_)
+    refine Continuous.comp ?_ (continuous_snd)
+    · rw [@continuous_induced_rng]
+      exact { isOpen_preimage := fun s a ↦ a }
 
 lemma MtoQuot_surjective :
     (MtoQuot K D) '' (M K D) = Set.univ := by
   rw [Set.eq_univ_iff_forall]
   rintro ⟨a, ha⟩
   obtain ⟨c, hc, ν, hν, rfl, h31⟩ := Aux.antidiag_mem_C K D ha
-  simp_rw [MtoQuot]
-  simp only [Subgroup.comap_subtype, Set.mem_image, Subtype.exists]
+  simp only [MtoQuot, Subgroup.comap_subtype, Set.mem_image, Subtype.exists]
   refine ⟨ν, hν, ?_, ?_ ⟩
-  · rw [M]
-    simp only [Set.mem_preimage, Set.mem_image, Prod.exists]
-    use ν
-    use Units.val (ν⁻¹)
-    exact And.symm ⟨rfl, h31⟩
+  · simp only [M, Set.mem_preimage, Set.mem_image, Prod.exists]
+    refine ⟨ν, Units.val (ν⁻¹), h31, rfl⟩
   · apply QuotientGroup.eq
 
     -- should be wanting the right relation!
