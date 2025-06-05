@@ -11,6 +11,7 @@ import FLT.Mathlib.Algebra.FixedPoints.Basic
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.NumberField.FinitePlaces
+import FLT.Hacks.RightActionInstances
 
 /-
 
@@ -66,33 +67,17 @@ docstring in LaTeX and the `incl₂` one in unicode. Which is better?-/
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map (Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
 
+open scoped TensorProduct.RightActions in
 /-- `incl₂` is he inclusion `𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ)`. Remark: I wrote the `incl₁`
 docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
-  Units.map Algebra.TensorProduct.rightAlgebra.algebraMap.toMonoidHom
+  Units.map (algebraMap (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))).toMonoidHom
 
 -- it's actually equal but ⊆ is all we need, and equality is harder
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
   sorry
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  moduleTopology (FiniteAdeleRing (𝓞 F) F) _
-
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  ⟨rfl⟩
-
-variable [IsQuaternionAlgebra F D] in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : Module.Finite (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
-  Module.Finite.base_change_right
-
-variable [IsQuaternionAlgebra F D] in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) _
-
+open scoped TensorProduct.RightActions in
 /--
 This definition is made in mathlib-generality but is *not* the definition of a
 weight 2 automorphic form unless `Dˣ` is compact mod centre at infinity.
@@ -206,6 +191,7 @@ open ConjAct
 
 variable [IsQuaternionAlgebra F D]
 
+open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
 quaternion algebra. -/
 def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAutomorphicForm F D R) :

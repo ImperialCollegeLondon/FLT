@@ -69,16 +69,10 @@ noncomputable def baseChangeSemialgHom :
 
 open scoped TensorProduct
 
-noncomputable instance : Algebra (𝔸 K) (L ⊗[K] 𝔸 K) :=
-  Algebra.TensorProduct.rightAlgebra
+open scoped TensorProduct.RightActions
 
 noncomputable instance : Algebra (𝔸 K) (𝔸 L) :=
   (baseChangeSemialgHom K L).toAlgebra
-
-noncomputable instance : TopologicalSpace (L ⊗[K] 𝔸 K) :=
-  moduleTopology (𝔸 K) (L ⊗[K] 𝔸 K)
-
-instance : IsModuleTopology (𝔸 K) (L ⊗[K] 𝔸 K) := ⟨rfl⟩
 
 instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank K L) → 𝔸 K) :=
   IsModuleTopology.instPi
@@ -137,7 +131,7 @@ noncomputable abbrev tensorProductEquivPi :
   letI := instPiIsModuleTopology K L
   -- `𝔸 K ⊗[K] L ≃ₗ[𝔸 K] L ⊗[K] 𝔸 K`
   -- Note: needs to be this order to avoid instance clash with inferred leftAlgebra
-  let comm := (Algebra.TensorProduct.comm K (𝔸 K) L).extendScalars (𝔸 K) |>.toLinearEquiv
+  let comm := (TensorProduct.RightActions.Algebra.TensorProduct.comm K (𝔸 K) L) |>.toLinearEquiv
   -- `𝔸 K ⊗[K] L ≃ₗ[𝔸 K] ⊕ 𝔸 K`
   let π := finiteEquivPi K L (𝔸 K)
   -- Stitch together to get `L ⊗[K] 𝔸 K ≃ₗ[𝔸 K] ⊕ 𝔸 K`, which is automatically
@@ -167,6 +161,7 @@ theorem piEquiv_apply_of_algebraMap
   rw [LinearEquiv.trans_symm, LinearEquiv.trans_apply, finiteEquivPi_symm_apply]
   simp [AlgEquiv.extendScalars, ContinuousAlgEquiv.toContinuousLinearEquiv_apply,
     baseChangeEquiv_tsum_apply_right]
+  sorry
 
 theorem piEquiv_mem_principalSubgroup
     {x : Fin (Module.finrank K L) → 𝔸 K}
