@@ -789,6 +789,7 @@ Here is our reinterpretation of the product formula.
 \begin{lemma}
   \label{MeasureTheory.ringHaarChar_adeles_units_rat_eq_one}
   \lean{MeasureTheory.ringHaarChar_adeles_units_rat_eq_one}
+  \leanok
   If $x\in\Q^\times\subseteq\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=1.$
 \end{lemma}
 \begin{proof}
@@ -813,14 +814,17 @@ Here is our reinterpretation of the product formula.
   \begin{theorem}
     \label{MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one}
     \lean{MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one}
+    \leanok
     In the above situation ($V$ a finite-dimensional $\Q$-vector space, $\phi:V\cong V$ is
     $\Q$-linear, $\phi_{\A}$ the base extension to $V_{\A}:=V\otimes_{\Q}{\A_{\Q}}$, a continuous linear
     endomorphism of $V_{\A}$ with the $\A_{\Q}$-module topology), we have $d_{V_{\A}}(\phi_{\A})=1.$
   \end{theorem}
   \begin{proof}
-    \uses{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det,
+    \uses{
+      MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det,
       MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight,
-      NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv}
+      NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv
+    }
     Fix once and for all a $\Z$-lattice $L\subseteq V$
     (that is, a spanning $\Z^N$ in the $\Q^N$). Then $V\otimes_{\Q}\A_{\Q}=L\otimes_{\Z}\A_{\Q}$
     which is $L\otimes_{\Z}(\A_{\Q}^\infty\times\R)$.

@@ -71,8 +71,6 @@ noncomputable def baseChangeSemialgHom :
 
 open scoped TensorProduct
 
-open scoped TensorProduct.RightActions
-
 noncomputable instance : Algebra (𝔸 K) (𝔸 L) :=
   (baseChangeSemialgHom K L).toAlgebra
 
@@ -84,11 +82,40 @@ instance instBaseChangeIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) := 
   exact IsModuleTopology.instProd' (A := InfiniteAdeleRing K)
     (B := FiniteAdeleRing (𝓞 K) K) (M := InfiniteAdeleRing L) (N := FiniteAdeleRing (𝓞 L) L)
 
+open scoped TensorProduct.RightActions in
 /-- The canonical `𝔸 K`-algebra homomorphism `(L ⊗_K 𝔸 K) → 𝔸 L` induced
 by the maps from `L` and `𝔸 K` into `𝔸 L`. -/
 noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] 𝔸 K) →ₐ[𝔸 K] 𝔸 L :=
   (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap
 
+-- do we not have this??
+def _root_.AlgEquiv.prodCongr {R M M₂ M₃ M₄ : Type*} [CommSemiring R]
+    [Semiring M] [Semiring M₂] [Semiring M₃] [Semiring M₄] {module_M : Algebra R M}
+    {module_M₂ : Algebra R M₂} {module_M₃ : Algebra R M₃} {module_M₄ : Algebra R M₄}
+    (e₁ : M ≃ₐ[R] M₂) (e₂ : M₃ ≃ₐ[R] M₄) :
+    (M × M₃) ≃ₐ[R] (M₂ × M₄) where
+  __ := LinearEquiv.prodCongr e₁.toLinearEquiv e₂.toLinearEquiv
+  map_mul' := by simp
+  commutes' := by simp
+
+noncomputable def _root_.Algebra.TensorProduct.prodRight (R S M₁ M₂ M₃ : Type*)
+    [CommSemiring R] [CommSemiring S] [Semiring M₁] [Semiring M₂] [Semiring M₃] [Algebra R S]
+    [Algebra R M₁] [Algebra S M₁] [IsScalarTower R S M₁] [Algebra R M₂] [Algebra R M₃] :
+    M₁ ⊗[R] (M₂ × M₃) ≃ₐ[S] M₁ ⊗[R] M₂ × M₁ ⊗[R] M₃ where
+  __ := TensorProduct.prodRight R S M₁ M₂ M₃
+  map_mul' abc deg := by
+    sorry
+  commutes' s := rfl
+
+noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
+  let tensor :=
+    Algebra.TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
+  let prod := AlgEquiv.prodCongr
+    (NumberField.InfiniteAdeleRing.baseChangeEquivAux K L)
+    (FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L))
+  tensor.trans prod
+
+open scoped TensorProduct.RightActions in
 lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHom K L) := by
   -- There's a linear equivlance `(L ⊗_K 𝔸 K) ≅ 𝔸 L`
   let linearEquiv : (L ⊗[K] 𝔸 K) ≃ₗ[L] 𝔸 L :=
@@ -104,18 +131,22 @@ lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHo
   rw [eqEquiv]
   exact linearEquiv.bijective
 
+open scoped TensorProduct.RightActions in
 /-- The canonical `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
 base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :=
   IsModuleTopology.continuousAlgEquivOfAlgEquiv <|
     AlgEquiv.ofBijective (baseChangeAdeleAlgHom K L) (baseChangeAdeleAlgHom_bijective K L)
 
+open scoped TensorProduct.RightActions in
 /-- The canonical `L`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
 `K`-algebra base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeEquiv :
     (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L where
   __ := (baseChangeSemialgHom K L).baseChange_of_algebraMap
   __ := baseChangeAdeleEquiv K L
+
+#check (baseChangeSemialgHom K L).baseChange_of_algebraMap
 
 variable {L}
 
@@ -127,6 +158,7 @@ theorem baseChangeEquiv_tsum_apply_right (l : L) :
 
 variable (L)
 
+open scoped TensorProduct.RightActions in
 open TensorProduct.AlgebraTensorModule in
 /-- A continuous `K`-linear isomorphism `L ⊗[K] 𝔸_K = (𝔸_K)ⁿ` for `n = [L:K]`  -/
 noncomputable abbrev tensorProductEquivPi :
@@ -141,6 +173,7 @@ noncomputable abbrev tensorProductEquivPi :
   -- continuous due to `𝔸 K` module topologies on both sides, then restrict scalars to `K`
   IsModuleTopology.continuousLinearEquiv (comm.symm.trans π) |>.restrictScalars K
 
+open scoped TensorProduct.RightActions in
 /-- A continuous `K`-linear isomorphism `(𝔸_K)ⁿ ≃ 𝔸_L` for `n = [L:K]`  -/
 noncomputable abbrev piEquiv :
     (Fin (Module.finrank K L) → 𝔸 K) ≃L[K] 𝔸 L :=

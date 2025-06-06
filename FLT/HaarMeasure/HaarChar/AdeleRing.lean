@@ -27,20 +27,24 @@ variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K
 
 #synth Algebra (𝔸 K) (AdeleRing B L)
 -/
-local instance : SMulCommClass L (𝔸 K) (𝔸 L) := sorry
+local instance : SMulCommClass L (𝔸 K) (𝔸 L) :=
+  SMulCommClass.of_commMonoid L (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L)
 
 attribute [local instance high] Localization.instSMulCommClassOfIsScalarTower
 
 /-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv :
     V ⊗[K] (𝔸 K) ≃ₗ[L] (V ⊗[L] (𝔸 L)) :=
-  let foo : V ≃ₗ[L] L ⊗[L] V := (TensorProduct.lid L V).symm
-  let foo2 : V ≃ₗ[K] L ⊗[L] V := foo.restrictScalars K
-  let foo3 : (𝔸 K) ⊗[K] V ≃ₗ[𝔸 K] (𝔸 K) ⊗[K] (L ⊗[L] V) :=
-    LinearEquiv.baseChange K (𝔸 K) V (L ⊗[L] V) foo2
-  --foo3 ≪≫ₗ
+  TensorProduct.AlgebraTensorModule.congr ((TensorProduct.rid L V).symm) (.refl _ _) ≪≫ₗ
+  TensorProduct.AlgebraTensorModule.assoc K L L V L (𝔸 K) ≪≫ₗ-- calc
+  open scoped TensorProduct.RightActions in
+  let foo8 : V ⊗[L] (L ⊗[K] (𝔸 K)) ≃ₗ[L] V ⊗[L] (𝔸 L) :=
+    (LinearEquiv.lTensor V ((NumberField.AdeleRing.baseChangeEquiv K L).toLinearEquiv.symm)).symm
+  foo8
+
+
+  -- foo3 ≪≫ₗ
   --let foo4 : 𝔸 K ⊗[K] L ⊗[L] V ≃ₗ[𝔸K] (𝔸 K ⊗[K] L) ⊗[L] V := sorry
-  sorry
 --    LinearEquiv.lTensor (𝔸 K) foo2
   --let foo4 : 𝔸 K ⊗[K] (L ⊗[L] V) ≃ₗ[K] (𝔸 K ⊗[K] L) ⊗[L] V := by exact?
 --  sorry
