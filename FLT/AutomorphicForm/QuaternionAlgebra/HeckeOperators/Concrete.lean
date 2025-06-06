@@ -99,22 +99,21 @@ namespace TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
 
 open IsDedekindDomain.HeightOneSpectrum
 
--- attribute [local instance] Algebra.TensorProduct.rightAlgebra in
--- #check Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
-
 open scoped TensorProduct
 
 variable {F D} in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+open scoped TensorProduct.RightActions in
 /-- U1(S) -/
 noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
   Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
 
 variable {F D} in
+open scoped TensorProduct.RightActions in
 lemma U1_compact : IsCompact (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
   sorry -- #583, long
 
 variable {F D} in
+open scoped TensorProduct.RightActions in
 lemma U1_open : IsOpen (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
   sorry -- #583, long
 
@@ -124,7 +123,7 @@ namespace HeckeOperator
 
 variable {F D S} in
 set_option maxSynthPendingDepth 1 in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+open scoped TensorProduct.RightActions in
 /-- The Hecke operator T_v as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S).
 -/
@@ -140,7 +139,7 @@ noncomputable def T (v : HeightOneSpectrum (𝓞 F)) :
 
 variable {F D} in
 set_option maxSynthPendingDepth 1 in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+open scoped TensorProduct.RightActions in
 /-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
 considered as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S). Here α is a nonzero element of 𝓞ᵥ.
