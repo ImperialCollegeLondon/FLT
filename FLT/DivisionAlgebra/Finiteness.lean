@@ -260,22 +260,17 @@ lemma M_compact : IsCompact (M K D) := by
     apply Topology.IsClosedEmbedding.comp
     · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
         embedProduct_closed K D }
-    · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap ?_ ?_ ?_
-      · exact continuous_iff_le_induced.mpr fun U a ↦ a
-      · exact Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))
-      · simp only [Subgroup.coe_subtype]
-        refine Topology.IsInducing.isClosedMap ?_ ?_
-        · exact { eq_induced := rfl }
-        · simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
-          apply IsClosed.preimage
-          · exact continuous_id'
-          · apply IsClosed.preimage
-            · simp only [ContinuousMonoidHom.coe_toMonoidHom, MonoidHom.coe_coe]
-              exact map_continuous ringHaarChar
-            · simp only [Submonoid.coe_bot, Set.finite_singleton, Set.Finite.isClosed]
+    · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
+        (continuous_iff_le_induced.mpr fun U a ↦ a)
+        (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
+      simp only [Subgroup.coe_subtype]
+      refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
+      simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
+      exact IsClosed.preimage (continuous_id')
+        (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
   · refine IsCompact.image (Aux.C_compact K D) (Continuous.prodMk (continuous_fst) ?_)
     refine Continuous.comp ?_ (continuous_snd)
-    · rw [@continuous_induced_rng]
+    · rw [continuous_induced_rng]
       exact { isOpen_preimage := fun s a ↦ a }
 
 lemma MtoQuot_surjective :
@@ -286,22 +281,17 @@ lemma MtoQuot_surjective :
   simp only [MtoQuot, Subgroup.comap_subtype, Set.mem_image, Subtype.exists]
   refine ⟨ν, hν, ?_, ?_ ⟩
   · simp only [M, Set.mem_preimage, Set.mem_image, Prod.exists]
-    refine ⟨ν, Units.val (ν⁻¹), h31, rfl⟩
+    exact ⟨ν, Units.val (ν⁻¹), h31, rfl⟩
   · have : Quot.mk ⇑(QuotientGroup.rightRel ((incl K D).range.subgroupOf
         (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)))) ⟨c * ν, ha⟩ =
         Quot.mk ⇑(QuotientGroup.rightRel ((incl K D).range.subgroupOf
         (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))))
         ⟨ν, hν⟩ := by
-      refine Quot.eq.mpr ?_
-      rw [@Relation.eqvGen_iff]
-      left
+      refine Quot.sound ?_
       rw [@QuotientGroup.rightRel_apply]
       refine Subgroup.mem_subgroupOf.mpr ?_
-      have h1 : ν * (c * ν)⁻¹ = c⁻¹ := by
-        simp only [mul_inv_rev, mul_inv_cancel_left]
-      rw [@Subgroup.coe_mul]
-      simp only [InvMemClass.coe_inv, mul_inv_rev, mul_inv_cancel_left, inv_mem_iff,
-        MonoidHom.mem_range]
+      simp only [@Subgroup.coe_mul, InvMemClass.coe_inv, mul_inv_rev, mul_inv_cancel_left,
+        inv_mem_iff, MonoidHom.mem_range]
       obtain ⟨x, hx⟩ := hc
       use x
     rw [this]
