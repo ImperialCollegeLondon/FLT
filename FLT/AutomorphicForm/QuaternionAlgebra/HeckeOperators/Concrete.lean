@@ -146,8 +146,6 @@ automorphic forms of level U_1(S). Here α is a nonzero element of 𝓞ᵥ.
 We do not demand the condition v ∈ S, the bad primes, but this operator
 should only be used in this setting. See also `T r v` for the good primes.
 -/
-@[nolint unusedArguments] -- this can be removed when the sorries are filled in
--- but not before because it breaks linting
 noncomputable def U {v : HeightOneSpectrum (𝓞 F)}
     (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
     WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]

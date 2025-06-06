@@ -45,8 +45,9 @@ set_option maxSynthPendingDepth 1 -- otherwise things are even slower, for some 
 variable (F : Type*) [Field F] [NumberField F] -- if F isn't totally real all the definitions
 -- below are garbage mathematically but they typecheck.
 
-variable (D : Type*) [Ring D] [Algebra F D] -- If D isn't totally definite then all the
--- definitions below are garbage mathematically but they typecheck.
+variable (D : Type*) [Ring D] [Algebra F D] [FiniteDimensional F D]
+  -- If D isn't totally definite then all the
+  -- definitions below are garbage mathematically but they typecheck.
 
 namespace TotallyDefiniteQuaternionAlgebra
 
@@ -215,6 +216,7 @@ def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAu
 instance : SMul (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
 
+omit [IsQuaternionAlgebra F D] in
 @[simp]
 lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :

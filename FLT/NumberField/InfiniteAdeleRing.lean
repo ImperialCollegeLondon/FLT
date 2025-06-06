@@ -75,9 +75,9 @@ noncomputable def baseChangeEquivAux :
 -- Then we show that this lift is the same as the lift of `baseChange : K_∞ → L_∞` coming from
 -- `SemialgHom.baseChange_of_algebraMap`
 
-open scoped Classical in
 theorem baseChangeEquivAux_tmul (l : L) (x : InfiniteAdeleRing K) :
     baseChangeEquivAux K L (l ⊗ₜ[K] x) = algebraMap _ _ l * baseChange K L x := by
+  classical
   simp only [baseChangeEquivAux, AlgEquiv.trans_apply]
   funext
   -- erw are needed here because cannot unify InfiniteAdeleRing K with
@@ -107,7 +107,6 @@ instance : Module.Free (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) := b
 -- `IsModuleTopology.continuousAlgEquivOfIsScalarTower` is then applicable in the same
 -- way it was for `baseChangeEquiv` in `InfinitePlace.Completion`
 
-open scoped Classical in
 /-- The canonical `L`-algebra homeomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
 noncomputable

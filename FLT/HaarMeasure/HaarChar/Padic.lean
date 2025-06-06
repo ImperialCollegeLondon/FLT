@@ -30,7 +30,7 @@ open scoped Pointwise ENNReal NNReal nonZeroDivisors
 
 variable {p : ℕ} [Fact p.Prime]
 
-private lemma ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
+private lemma MeasureTheory.ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
     ringHaarChar (x : ℚ_[p]ˣ) = ‖(x : ℚ_[p])‖₊ := by
   -- Let `K` be the copy of `ℤ_[p]` inside `ℚ_[p]` and `H` be `xK`.
   let K : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
@@ -63,7 +63,7 @@ private lemma ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℚ_[p]` and `s : Set ℚ_[p]`.
 See `Padic.volume_padic_smul` -/
 @[simp]
-lemma ringHaarChar_padic (x : ℚ_[p]ˣ) : ringHaarChar x = ‖(x : ℚ_[p])‖₊ := by
+lemma MeasureTheory.ringHaarChar_padic (x : ℚ_[p]ˣ) : ringHaarChar x = ‖(x : ℚ_[p])‖₊ := by
   -- Write the RHS as the application of a monoid hom `g`.
   let g : ℚ_[p]ˣ →* ℝ≥0 := {
     toFun := fun x => ‖(x : ℚ_[p])‖₊
@@ -102,7 +102,7 @@ lemma Padic.volume_padic_smul (x : ℚ_[p]) (s : Set ℚ_[p]) : volume (x • s)
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℤ_[p]` and `s : Set ℤ_[p]`.
 See `PadicInt.volume_padicInt_smul` -/
 @[simp]
-lemma ringHaarChar_padicInt (x : ℤ_[p]ˣ) : ringHaarChar x = 1 :=
+lemma MeasureTheory.ringHaarChar_padicInt (x : ℤ_[p]ˣ) : ringHaarChar x = 1 :=
   -- We compute `ringHaarChar ℤ_[p]` by lifting everything to `ℚ_[p]`.
   ringHaarChar_eq_of_measure_smul_eq_mul (s := univ) (μ := volume) (by simp) (measure_ne_top _ _)
     (by simp [PadicInt.volume_padicInt_smul])

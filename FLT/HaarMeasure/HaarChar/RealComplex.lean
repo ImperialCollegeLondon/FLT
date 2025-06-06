@@ -36,7 +36,7 @@ lemma Real.volume_real_smul (x : ℝ) (s : Set ℝ) : volume (x • s) = ‖x‖
 
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℝ` and `s : Set ℝ`.
 See `Real.volume_real_smul`. -/
-lemma ringHaarChar_real (x : ℝˣ) : ringHaarChar x = ‖(x : ℝ)‖₊ :=
+lemma MeasureTheory.ringHaarChar_real (x : ℝˣ) : ringHaarChar x = ‖(x : ℝ)‖₊ :=
   -- We compute that `volume (x • [0, 1]) = ‖x‖₊ * volume [0, 1]`.
   ringHaarChar_eq_of_measure_smul_eq_mul (s := Icc 0 1) (μ := volume)
     (measure_pos_of_nonempty_interior _ <| by simp).ne' isCompact_Icc.measure_ne_top
@@ -46,7 +46,7 @@ lemma ringHaarChar_real (x : ℝˣ) : ringHaarChar x = ‖(x : ℝ)‖₊ :=
 
 This means that `volume (z • s) = ‖z‖ ^ 2 * volume s` for all `z : ℂ` and `s : Set ℂ`.
 See `Complex.volume_complex_smul`. -/
-lemma ringHaarChar_complex (z : ℂˣ) : ringHaarChar z = ‖(z : ℂ)‖₊ ^ 2 := by
+lemma MeasureTheory.ringHaarChar_complex (z : ℂˣ) : ringHaarChar z = ‖(z : ℂ)‖₊ ^ 2 := by
   -- We compute that `volume (x • ([0, 1] × [0, 1])) = ‖x‖₊ ^ 2 * volume ([0, 1] × [0, 1])`.
   refine ringHaarChar_eq_of_measure_smul_eq_mul (s := Icc 0 1 ×ℂ Icc 0 1) (μ := volume)
     (measure_pos_of_nonempty_interior _ <| by simp [interior_reProdIm]).ne'
