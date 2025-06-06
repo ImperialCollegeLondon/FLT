@@ -501,3 +501,141 @@ lemma mem_coset_and_mulSupport_subset_of_isProductAt
       simp_all
     simp only [smul_eq_mul, mul_assoc, mul_inv_cancel_left, mul_right_inj, hcomm]⟩,
     mulSupport_mul_subset huᵢ hg⟩
+
+section flatten
+
+variable {ι₂ : Type*} {𝒢 : Filter ι₂} {f : ι → ι₂} (C)
+
+variable (hf : Filter.Tendsto f ℱ 𝒢) in
+/-- The canonical map from a restricted product of products over fibres of a map on indexing sets
+to the restricted product over the original indexing set. -/
+def flatten : Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[𝒢] →
+    Πʳ i, [G i, C i]_[ℱ] :=
+  map _ G f hf (fun i x ↦ x ⟨i, rfl⟩) (by filter_upwards with x y hy using hy ⟨x, rfl⟩ trivial)
+
+@[simp]
+lemma flatten_apply (hf : Filter.Tendsto f ℱ 𝒢) (x) (i : ι) :
+    flatten C hf x i = x (f i) ⟨i, rfl⟩ :=
+  rfl
+
+variable (hf : Filter.comap f 𝒢 = ℱ)
+
+/-- The canonical bijection from a restricted product of products over fibres of a map on indexing
+sets to the restricted product over the original indexing set. -/
+def flatten_equiv :
+    Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[𝒢] ≃
+    Πʳ i, [G i, C i]_[ℱ] where
+  toFun := flatten C (by rw [Filter.tendsto_iff_comap]; exact hf.ge)
+  invFun := fun ⟨x, hx⟩ ↦ ⟨fun _ i ↦ x i, by
+    rw [← hf, Filter.eventually_comap] at hx
+    filter_upwards [hx] with j hj ⟨i, hi⟩ _ using hj i hi⟩
+  left_inv := by
+    intro ⟨x, hx⟩
+    ext _ ⟨i, rfl⟩
+    rfl
+  right_inv x := by ext i; rfl
+
+@[simp]
+lemma flatten_equiv_apply (x) (i : ι) :
+    flatten_equiv C hf x i = x (f i) ⟨i, rfl⟩ :=
+  rfl
+
+@[simp]
+lemma flatten_equiv_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
+    (flatten_equiv C hf).symm x i j = x j.1 :=
+  rfl
+
+variable [Π i, TopologicalSpace (G i)]
+
+/-- The canonical homeomorphism from a restricted product of products over fibres of a map on
+indexing sets to the restricted product over the original indexing set. -/
+def flatten_homeomorph :
+    Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[𝒢] ≃ₜ
+    Πʳ i, [G i, C i]_[ℱ] where
+  __ := flatten_equiv C hf
+  continuous_toFun := by
+    dsimp only [flatten_equiv]
+    apply Continuous.restrictedProduct_map
+    fun_prop
+  continuous_invFun := by
+    dsimp only [flatten_equiv]
+    rw [continuous_dom]
+    intro S hS
+    set T := (f '' Sᶜ)ᶜ with hTval
+    have hT : 𝒢 ≤ Filter.principal T := by
+      rwa [Filter.le_principal_iff, hTval, ← Filter.mem_comap_iff_compl, hf,
+        ← Filter.le_principal_iff]
+    let g : Πʳ i, [G i, C i]_[Filter.principal S] → Πʳ j, [Π (i : f ⁻¹' {j}), G i,
+        Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[Filter.principal T] :=
+      fun ⟨x, hx⟩ ↦ ⟨fun j i ↦ x i, by
+        have : Filter.comap f (Filter.principal T) ≤ Filter.principal S := by
+          rw [Filter.le_principal_iff, Filter.mem_comap]
+          use T
+          refine ⟨Filter.mem_principal_self T, ?_⟩
+          rw [hTval, Set.preimage_compl, Set.compl_subset_comm]
+          apply Set.subset_preimage_image
+        have hx := Filter.Eventually.filter_mono this hx
+        rw [Filter.eventually_comap] at hx
+        filter_upwards [hx] with j hj ⟨i, hi⟩ _ using hj i hi⟩
+    let hc : Continuous g := by
+      rw [continuous_rng_of_principal]
+      apply continuous_pi
+      intro j
+      apply continuous_pi
+      rintro ⟨i, rfl⟩
+      exact continuous_apply i
+    apply (continuous_inclusion hT).comp hc
+
+@[simp]
+lemma flatten_homeomorph_apply (x) (i : ι) :
+    flatten_homeomorph C hf x i = x (f i) ⟨i, rfl⟩ :=
+  rfl
+
+@[simp]
+lemma flatten_homeomorph_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
+    (flatten_homeomorph C hf).symm x i j = x j.1 :=
+  rfl
+
+variable (hf : Filter.Tendsto f Filter.cofinite Filter.cofinite)
+
+/-- The equivalence given by `flatten` when both restricted products are over the cofinite
+filter. -/
+def flatten_equiv' :
+    Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)] ≃
+    Πʳ i, [G i, C i] :=
+  have hf : Filter.comap f Filter.cofinite = Filter.cofinite := by
+    apply le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
+  flatten_equiv C hf
+
+omit [(i : ι) → TopologicalSpace (G i)] in
+@[simp]
+lemma flatten_equiv'_apply (x) (i : ι) :
+    flatten_equiv' C hf x i = x (f i) ⟨i, rfl⟩ :=
+  rfl
+
+omit [(i : ι) → TopologicalSpace (G i)] in
+@[simp]
+lemma flatten_equiv'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
+    (flatten_equiv' C hf).symm x i j = x j.1 :=
+  rfl
+
+/-- The homeomorphism given by `flatten` when both restricted products are over the cofinite
+filter and there's a topology on the factors. -/
+def flatten_homeomorph' :
+    Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)] ≃ₜ
+    Πʳ i, [G i, C i] :=
+  have hf : Filter.comap f Filter.cofinite = Filter.cofinite := by
+    apply le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
+  flatten_homeomorph C hf
+
+@[simp]
+lemma flatten_homeomorph'_apply (x) (i : ι) :
+    flatten_homeomorph' C hf x i = x (f i) ⟨i, rfl⟩ :=
+  rfl
+
+@[simp]
+lemma flatten_homeomorph'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
+    (flatten_homeomorph' C hf).symm x i j = x j.1 :=
+  rfl
+
+end flatten
