@@ -121,6 +121,7 @@ noncomputable def Algebra.TensorProduct.prodRight (R S A₁ A₂ A₃ : Type*)
     | add x y _ _ => simp_all [add_mul, mul_add]
   commutes' s := by simp
 
+/-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
 noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
   let tensor :=
     Algebra.TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
@@ -128,6 +129,10 @@ noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :
     (NumberField.InfiniteAdeleRing.baseChangeEquivAux K L)
     (FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L))
   tensor.trans prod
+
+@[simp] lemma baseChangeAdeleAlgEquiv_apply (l : L) (a : 𝔸 K) :
+    baseChangeAdeleAlgEquiv K L (l ⊗ₜ a) = algebraMap _ _ l * algebraMap _ _ a := by
+  rfl
 
 open scoped TensorProduct.RightActions in
 lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHom K L) := by

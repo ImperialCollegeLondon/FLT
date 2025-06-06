@@ -18,15 +18,7 @@ open scoped NumberField.AdeleRing -- for 𝔸 K notation
 variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
   [FiniteDimensional L V] [FiniteDimensional K V] -- the latter can be proved but
   -- can't be an instance as it uses L
-/-
 
-#check TensorProduct.lid
-#check TensorProduct.rid
-#check TensorProduct.AlgebraTensorModule.rid
-#check LinearEquiv.restrictScalars
-
-#synth Algebra (𝔸 K) (AdeleRing B L)
--/
 local instance : SMulCommClass L (𝔸 K) (𝔸 L) :=
   SMulCommClass.of_commMonoid L (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L)
 
@@ -36,25 +28,25 @@ attribute [local instance high] Localization.instSMulCommClassOfIsScalarTower
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv :
     V ⊗[K] (𝔸 K) ≃ₗ[L] (V ⊗[L] (𝔸 L)) :=
   TensorProduct.AlgebraTensorModule.congr ((TensorProduct.rid L V).symm) (.refl _ _) ≪≫ₗ
-  TensorProduct.AlgebraTensorModule.assoc K L L V L (𝔸 K) ≪≫ₗ-- calc
-  open scoped TensorProduct.RightActions in
-  let foo8 : V ⊗[L] (L ⊗[K] (𝔸 K)) ≃ₗ[L] V ⊗[L] (𝔸 L) :=
-    (LinearEquiv.lTensor V ((NumberField.AdeleRing.baseChangeEquiv K L).toLinearEquiv.symm)).symm
-  foo8
+  TensorProduct.AlgebraTensorModule.assoc K L L V L (𝔸 K) ≪≫ₗ
+  (LinearEquiv.lTensor V
+    ((NumberField.AdeleRing.baseChangeAdeleAlgEquiv K L).toLinearEquiv.symm)).symm
 
-
-  -- foo3 ≪≫ₗ
-  --let foo4 : 𝔸 K ⊗[K] L ⊗[L] V ≃ₗ[𝔸K] (𝔸 K ⊗[K] L) ⊗[L] V := sorry
---    LinearEquiv.lTensor (𝔸 K) foo2
-  --let foo4 : 𝔸 K ⊗[K] (L ⊗[L] V) ≃ₗ[K] (𝔸 K ⊗[K] L) ⊗[L] V := by exact?
---  sorry
+omit [FiniteDimensional L V] [FiniteDimensional K V] in
+@[simp] lemma NumberField.AdeleRing.ModuleBaseChangeAddEquiv_apply
+    (v : V) (a : 𝔸 K) : ModuleBaseChangeAddEquiv K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
+  simp [ModuleBaseChangeAddEquiv]
 
 open scoped TensorProduct.RightActions in
 /-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousSemilinearMap :
     V ⊗[K] (𝔸 K) →ₛₗ[algebraMap (𝔸 K) (𝔸 L)] V ⊗[L] 𝔸 L where
   __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddMonoidHom
-  map_smul' := sorry
+  map_smul' a bc := by
+    induction bc with
+    | zero => simp
+    | tmul x y => simp [TensorProduct.smul_tmul', Algebra.smul_def]
+    | add x y _ _ => simp_all
 
 open scoped TensorProduct.RightActions in
 /-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
@@ -81,6 +73,7 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   sorry
 
+-- should be elsewhere TODO
 instance (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
   LocallyCompactSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) := sorry
 
