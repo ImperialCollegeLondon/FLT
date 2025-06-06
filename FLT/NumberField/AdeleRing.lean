@@ -89,38 +89,37 @@ noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] 𝔸 K) →ₐ[𝔸 K] 𝔸 
   (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap
 
 -- do we not have this?? Move! PR! TODO
-def _root_.AlgEquiv.prodCongr {R M M₂ M₃ M₄ : Type*} [CommSemiring R]
-    [Semiring M] [Semiring M₂] [Semiring M₃] [Semiring M₄] {module_M : Algebra R M}
-    {module_M₂ : Algebra R M₂} {module_M₃ : Algebra R M₃} {module_M₄ : Algebra R M₄}
-    (e₁ : M ≃ₐ[R] M₂) (e₂ : M₃ ≃ₐ[R] M₄) :
-    (M × M₃) ≃ₐ[R] (M₂ × M₄) where
+/-- Product of algebra equivalences; the maps come from Equiv.prodCongr.
+ -/
+def AlgEquiv.prodCongr {R A A₂ A₃ A₄ : Type*} [CommSemiring R]
+    [Semiring A] [Semiring A₂] [Semiring A₃] [Semiring A₄] [Algebra R A]
+    [Algebra R A₂] [Algebra R A₃] [Algebra R A₄]
+    (e₁ : A ≃ₐ[R] A₂) (e₂ : A₃ ≃ₐ[R] A₄) :
+    (A × A₃) ≃ₐ[R] (A₂ × A₄) where
   __ := LinearEquiv.prodCongr e₁.toLinearEquiv e₂.toLinearEquiv
   map_mul' := by simp
   commutes' := by simp
 
 -- move! PR? TODO
-noncomputable def _root_.Algebra.TensorProduct.prodRight (R S M₁ M₂ M₃ : Type*)
-    [CommSemiring R] [CommSemiring S] [Semiring M₁] [Semiring M₂] [Semiring M₃] [Algebra R S]
-    [Algebra R M₁] [Algebra S M₁] [IsScalarTower R S M₁] [Algebra R M₂] [Algebra R M₃] :
-    M₁ ⊗[R] (M₂ × M₃) ≃ₐ[S] M₁ ⊗[R] M₂ × M₁ ⊗[R] M₃ where
-  __ := TensorProduct.prodRight R S M₁ M₂ M₃
+/-- Tensor products of algebras distribute over a product on the right.
+-/
+noncomputable def Algebra.TensorProduct.prodRight (R S A₁ A₂ A₃ : Type*)
+    [CommSemiring R] [CommSemiring S] [Semiring A₁] [Semiring A₂] [Semiring A₃] [Algebra R S]
+    [Algebra R A₁] [Algebra S A₁] [IsScalarTower R S A₁] [Algebra R A₂] [Algebra R A₃] :
+    A₁ ⊗[R] (A₂ × A₃) ≃ₐ[S] A₁ ⊗[R] A₂ × A₁ ⊗[R] A₃ where
+  __ := _root_.TensorProduct.prodRight R S A₁ A₂ A₃
   map_mul' abc := by
     induction abc with
-    | zero => simp only [zero_mul, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearEquiv.coe_coe,
-      map_zero, implies_true]
+    | zero => simp
     | tmul x yz =>
-        obtain ⟨y, z⟩ := yz
-        simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearEquiv.coe_coe,
-          TensorProduct.prodRight_tmul]
-        intro a
-        induction a with
-        | zero => simp only [mul_zero, map_zero]
-        | tmul x y => simp only [Algebra.TensorProduct.tmul_mul_tmul, TensorProduct.prodRight_tmul,
-          Prod.fst_mul, Prod.snd_mul, Prod.mk_mul_mk]
-        | add a b ha hb =>
-          simp_all [mul_add]
+      obtain ⟨y, z⟩ := yz
+      intro abc
+      induction abc with
+      | zero => simp
+      | tmul x y => simp
+      | add x y _ _ => simp_all [add_mul, mul_add]
     | add x y _ _ => simp_all [add_mul, mul_add]
-  commutes' s := rfl
+  commutes' s := by simp
 
 noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
   let tensor :=
