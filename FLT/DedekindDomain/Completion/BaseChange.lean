@@ -420,8 +420,8 @@ noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
     (fun _ _ ↦ .all _ _)
 
 omit [IsIntegralClosure B A L]
-     [Algebra.IsIntegral A B] [IsDedekindDomain B]
-     [IsFractionRing B L] in
+    [Algebra.IsIntegral A B] [IsDedekindDomain B]
+    [IsFractionRing B L] in
 open scoped TensorProduct.RightActions in
 /-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is contained in the closure of the image of `B`. -/
 lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
