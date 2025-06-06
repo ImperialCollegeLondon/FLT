@@ -735,7 +735,11 @@ tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies
 \end{corollary}
 \begin{proof}
   \uses{IsModuleTopology.Module.continuous_bilinear_of_finite}
-  Immediate from lemma~\ref{IsModuleTopology.Module.continuous_bilinear_of_finite}.
+  Lemma~\ref{IsModuleTopology.Module.continuous_bilinear_of_finite} tells us that $V\otimes_K\A_K$
+  has the $\A_{\Q}$-module topology, and it is easily checked that the isomorphism is
+  $\A_{\Q}$-linear and hence automatically continuous.
+
+  Note that in the Lean we prove this for a general extension $L/K$ rather than $K/\Q$.
 \end{proof}
 
 As a consequence, if $B$ is a $K$-algebra then we can think of $B_{\A}$ as either $B\otimes_K\A_K$
@@ -746,6 +750,7 @@ But Lean is picky about these things so we'll have to be careful.
 \begin{theorem}
   \label{NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul}
   \lean{NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul}
+  \leanok
   Let $B$ be a finite-dimensional central simple $K$-algebra.
   Say $u\in B_{\A}^\times$, and define $\ell_u$ and $r_u:B_{\A}\to B_{\A}$ by
   $\ell_u(x)=ux$ and $r_u(x)=xu$. Then $d_{B_{\A}}(\ell_u)=d_{B_{\A}}(r_u)$.

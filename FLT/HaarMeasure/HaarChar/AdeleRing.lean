@@ -6,6 +6,7 @@ import Mathlib.Algebra.Central.Defs
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Hacks.RightActionInstances
 import FLT.NumberField.AdeleRing
+import Mathlib
 
 open NumberField
 
@@ -38,6 +39,29 @@ omit [FiniteDimensional L V] [FiniteDimensional K V] in
   simp [ModuleBaseChangeAddEquiv]
 
 open scoped TensorProduct.RightActions in
+/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
+noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv' [Module (𝔸 K) (V ⊗[L] 𝔸 L)]
+    [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)]:
+    V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L)) where
+  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
+  map_smul' a vb := by
+    induction vb with
+    | zero => simp
+    | tmul x y =>
+        simp only [TensorProduct.RightActions.smul_def, TensorProduct.comm_tmul,
+          TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul, AddHom.toFun_eq_coe,
+          LinearMap.coe_toAddHom, LinearEquiv.coe_coe, ModuleBaseChangeAddEquiv_apply, map_mul,
+          RingHom.id_apply]
+        rw [algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
+        rw [TensorProduct.RightActions.smul_def]
+        simp only [TensorProduct.comm_tmul, algebraMap_smul]
+        rw [algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
+        rw [TensorProduct.smul_tmul']
+        rw [smul_eq_mul]
+        simp
+    | add x y _ _ => simp_all [mul_add, add_mul]
+
+open scoped TensorProduct.RightActions in
 /-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousSemilinearMap :
     V ⊗[K] (𝔸 K) →ₛₗ[algebraMap (𝔸 K) (𝔸 L)] V ⊗[L] 𝔸 L where
@@ -48,14 +72,23 @@ noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousSemilinearMap 
     | tmul x y => simp [TensorProduct.smul_tmul', Algebra.smul_def]
     | add x y _ _ => simp_all
 
+omit [FiniteDimensional L V] [FiniteDimensional K V] in
+lemma NumberField.AdeleRing.ModuleBaseChangeContinuousSemilinearMap_apply
+    (v : V) (a : 𝔸 K) :
+    ModuleBaseChangeContinuousSemilinearMap K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
+  simp [ModuleBaseChangeContinuousSemilinearMap]
+
 open scoped TensorProduct.RightActions in
 /-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
 for V an L-module and K ⊆ L number fields. -/
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv :
-    V ⊗[K] (𝔸 K) ≃ₜ+ (V ⊗[L] (𝔸 L)) where
+    V ⊗[K] (𝔸 K) ≃ₜ+ (V ⊗[L] (𝔸 L)) :=
+
+  {
   __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
   continuous_toFun := sorry
   continuous_invFun := sorry
+  }
 
 variable (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
 
