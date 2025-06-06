@@ -41,7 +41,7 @@ variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Alge
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
 scoped notation:100 "𝔸" K => AdeleRing (𝓞 K) K
 
--- I am not mad keen on this instance. Maybe we should just make continuous semialgebra maps?
+-- I am not mad keen on this instance. But we don't have continuous semialgebra maps I don't think.
 noncomputable instance : Algebra K (𝔸 L) :=
   inferInstanceAs (Algebra K (InfiniteAdeleRing L × FiniteAdeleRing (𝓞 L) L))
 
@@ -88,7 +88,7 @@ by the maps from `L` and `𝔸 K` into `𝔸 L`. -/
 noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] 𝔸 K) →ₐ[𝔸 K] 𝔸 L :=
   (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap
 
--- do we not have this??
+-- do we not have this?? Move! PR! TODO
 def _root_.AlgEquiv.prodCongr {R M M₂ M₃ M₄ : Type*} [CommSemiring R]
     [Semiring M] [Semiring M₂] [Semiring M₃] [Semiring M₄] {module_M : Algebra R M}
     {module_M₂ : Algebra R M₂} {module_M₃ : Algebra R M₃} {module_M₄ : Algebra R M₄}
@@ -98,13 +98,28 @@ def _root_.AlgEquiv.prodCongr {R M M₂ M₃ M₄ : Type*} [CommSemiring R]
   map_mul' := by simp
   commutes' := by simp
 
+-- move! PR? TODO
 noncomputable def _root_.Algebra.TensorProduct.prodRight (R S M₁ M₂ M₃ : Type*)
     [CommSemiring R] [CommSemiring S] [Semiring M₁] [Semiring M₂] [Semiring M₃] [Algebra R S]
     [Algebra R M₁] [Algebra S M₁] [IsScalarTower R S M₁] [Algebra R M₂] [Algebra R M₃] :
     M₁ ⊗[R] (M₂ × M₃) ≃ₐ[S] M₁ ⊗[R] M₂ × M₁ ⊗[R] M₃ where
   __ := TensorProduct.prodRight R S M₁ M₂ M₃
-  map_mul' abc deg := by
-    sorry
+  map_mul' abc := by
+    induction abc with
+    | zero => simp only [zero_mul, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearEquiv.coe_coe,
+      map_zero, implies_true]
+    | tmul x yz =>
+        obtain ⟨y, z⟩ := yz
+        simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearEquiv.coe_coe,
+          TensorProduct.prodRight_tmul]
+        intro a
+        induction a with
+        | zero => simp only [mul_zero, map_zero]
+        | tmul x y => simp only [Algebra.TensorProduct.tmul_mul_tmul, TensorProduct.prodRight_tmul,
+          Prod.fst_mul, Prod.snd_mul, Prod.mk_mul_mk]
+        | add a b ha hb =>
+          simp_all [mul_add]
+    | add x y _ _ => simp_all [add_mul, mul_add]
   commutes' s := rfl
 
 noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
@@ -146,7 +161,12 @@ noncomputable def baseChangeEquiv :
   __ := (baseChangeSemialgHom K L).baseChange_of_algebraMap
   __ := baseChangeAdeleEquiv K L
 
-#check (baseChangeSemialgHom K L).baseChange_of_algebraMap
+-- this isn't rfl. TODO fix?
+example (x : L ⊗[K] 𝔸 K) : baseChangeEquiv K L x = baseChangeAdeleAlgEquiv K L x := by
+  induction x with
+  | zero => rfl
+  | tmul x y => rfl
+  | add x y _ _ => simp_all
 
 variable {L}
 
