@@ -122,6 +122,8 @@ scoped instance : IsScalarTower R A (M ⊗[R] A) where
   smul_assoc r a ma := by simp
 
 /-- We equip `M ⊗[R] A` with the `A`-module topology if `M` is finite over `R`. -/
+@[nolint unusedArguments] -- we don't need that M is a finite R-module to make this
+-- definition, but I don't think I want the instance to be there in general.
 scoped instance [TopologicalSpace A] [Module.Finite R M] :
     TopologicalSpace (M ⊗[R] A) :=
   moduleTopology A (M ⊗[R] A)
@@ -172,7 +174,7 @@ variable (R A B M : Type*) [CommRing R]
     [Ring B] [Algebra R B]
     [AddCommGroup M] [Module R M]
 
-scoped instance [TopologicalSpace A] [IsTopologicalRing A] [Module.Finite R M] :
+scoped instance [TopologicalSpace A] [Module.Finite R M] :
     IsTopologicalAddGroup (M ⊗[R] A) := IsModuleTopology.topologicalAddGroup A (M ⊗[R] A)
 
 scoped instance [TopologicalSpace A] [IsTopologicalRing A] [Module.Finite R B] :
@@ -190,3 +192,4 @@ scoped instance [TopologicalSpace A] [IsTopologicalRing A]
 end ring -- section
 
 end TensorProduct.RightActions
+#lint
