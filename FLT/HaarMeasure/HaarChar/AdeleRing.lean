@@ -45,15 +45,21 @@ noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv :
   --let foo4 : 𝔸 K ⊗[K] (L ⊗[L] V) ≃ₗ[K] (𝔸 K ⊗[K] L) ⊗[L] V := by exact?
 --  sorry
 
--- I am unable to say "continuous semilinear isomorphism" because 𝔸_K → 𝔸_L isn't an iso!
 open scoped TensorProduct.RightActions in
 /-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousSemilinearMap :
-    V ⊗[K] (𝔸 K) →SL[algebraMap (𝔸 K) (𝔸 L)] V ⊗[L] 𝔸 L where
+    V ⊗[K] (𝔸 K) →ₛₗ[algebraMap (𝔸 K) (𝔸 L)] V ⊗[L] 𝔸 L where
   __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddMonoidHom
   map_smul' := sorry
-  cont := sorry
 
+open scoped TensorProduct.RightActions in
+/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
+for V an L-module and K ⊆ L number fields. -/
+noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv :
+    V ⊗[K] (𝔸 K) ≃ₜ+ (V ⊗[L] (𝔸 L)) where
+  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
+  continuous_toFun := sorry
+  continuous_invFun := sorry
 
 variable (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
 
