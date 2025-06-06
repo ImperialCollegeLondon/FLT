@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Matthew Jasper. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Matthew Jasper
+-/
 import Mathlib.LinearAlgebra.Basis.Basic
 import Mathlib.LinearAlgebra.TensorProduct.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
@@ -6,6 +11,17 @@ import Mathlib.RingTheory.Finiteness.Defs
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
 import Mathlib.RingTheory.FiniteType
+/-!
+
+# API for base change of free modules
+
+We (presumably) have all this in mathlib for base change on the other side; this
+is all about: if `A` is a free `R`-algebra then `A ⊗[R] B` is a free `B`-algebra.
+
+Note: when we have `open scoped TensorProduct.RightActions` merged, all of this
+can be downgraded to `A` being a free `R`-module.
+
+-/
 
 section Basis
 

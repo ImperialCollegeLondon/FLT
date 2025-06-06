@@ -3,7 +3,16 @@ import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.RingTheory.TensorProduct.Finite -- just for Module.Finite.base_change_right
+/-!
 
+# Definitions of various compact open subgrups of Dˣ and GL₂(𝔸_F^∞)
+
+We define U₁(v) as a subgroup of GL₂(Fᵥ), and U₁(S) as a subgroup
+of GL₂(𝔸_F^∞). We introduce the concept
+of a rigidification `r : (D ⊗[F] 𝔸_F^∞) ≅ M₂(𝔸_F^∞)` in order
+to push U₁(S) over to a subgroup of `(D ⊗[F] 𝔸_F^∞)ˣ`.
+
+-/
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
 variable (D : Type*) [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
