@@ -198,7 +198,6 @@ noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
 
 open scoped TensorProduct.RightActions in
-set_option synthInstance.maxHeartbeats 40000 in
 theorem Rigidification.continuous_toFun (r : Rigidification F D) :
     Continuous r :=
   letI : ∀ (i : HeightOneSpectrum (𝓞 F)),
