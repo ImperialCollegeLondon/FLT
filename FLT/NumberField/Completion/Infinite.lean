@@ -127,10 +127,6 @@ instance : IsModuleTopology v.Completion wv.1.Completion :=
   IsModuleTopology.iso (FiniteDimensional.nonempty_continuousLinearEquiv_of_finrank_eq
     (Module.finrank_fin_fun v.Completion)).some
 
-attribute [local instance 10000] Module.Free.of_divisionRing in -- hack to make it quicker
-instance : IsTopologicalSemiring (L ⊗[K] v.Completion) :=
-  IsModuleTopology.topologicalSemiring v.Completion _
-
 /-- The `L`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
 of `L` lying above `v`. -/
 def baseChangeEquiv :

@@ -169,4 +169,3 @@ scoped instance [TopologicalSpace A] [IsTopologicalRing A]
 end ring -- section
 
 end TensorProduct.RightActions
-#min_imports

@@ -70,7 +70,7 @@ open scoped TensorProduct.RightActions in
 /-- `incl₂` is he inclusion `𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ)`. Remark: I wrote the `incl₁`
 docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
-  Units.map (algebraMap (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))).toMonoidHom
+  Units.map (algebraMap _ _).toMonoidHom
 
 -- it's actually equal but ⊆ is all we need, and equality is harder
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
