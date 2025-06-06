@@ -200,10 +200,12 @@ def map1 : Prod D_𝔸 D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
 def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D)
   (Set.image (fun p => (p.1, MulOpposite.op p.2)) (Aux.C K D))
 
-abbrev MtoQuot (a : ringHaarChar_ker D_𝔸) : (ringHaarChar_ker D_𝔸 ⧸
-    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := a
+abbrev MtoQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.rightRel
+    ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
+  (Quotient.mk (QuotientGroup.rightRel ((MonoidHom.range (incl K D)).comap
+  (ringHaarChar_ker D_𝔸).subtype)) a)
 
-lemma MtoQuot_cont : Continuous (MtoQuot K D) := QuotientGroup.continuous_mk
+lemma MtoQuot_cont : Continuous (MtoQuot K D) := { isOpen_preimage := fun s a ↦ a }
 
 /- The following is part of the proof of 12.11 on the blueprint - perhaps this can be moved there
   in more generality later
@@ -243,7 +245,7 @@ lemma renameME : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) 
     simp only [this]
 
 local instance : T1Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
-  -- is this true? Does this mean Hausdorff - Frechet space is different no??
+  -- or T2
   sorry
 
 lemma embedProduct_closed : IsClosed (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K)))
@@ -258,22 +260,19 @@ lemma M_compact : IsCompact (M K D) := by
     apply Topology.IsClosedEmbedding.comp
     · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
         embedProduct_closed K D }
-    ·
-
-      /-
-      refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap ?_ ?_ ?_
+    · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap ?_ ?_ ?_
       · exact continuous_iff_le_induced.mpr fun U a ↦ a
       · exact Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))
       · simp only [Subgroup.coe_subtype]
         refine Topology.IsInducing.isClosedMap ?_ ?_
         · exact { eq_induced := rfl }
         · simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
-          -- ringHaarChar is closed since it is the primage of a closed set under a continuous map
-          -- {1} is closed since it is a singleton in a Hausdorff (T1?) space
-          -- problem is we want to show the image of this is closed... so maybe I need to rework
-          -- this section of the proof
-      -/
-          sorry
+          apply IsClosed.preimage
+          · exact continuous_id'
+          · apply IsClosed.preimage
+            · simp only [ContinuousMonoidHom.coe_toMonoidHom, MonoidHom.coe_coe]
+              exact map_continuous ringHaarChar
+            · simp only [Submonoid.coe_bot, Set.finite_singleton, Set.Finite.isClosed]
   · refine IsCompact.image (Aux.C_compact K D) (Continuous.prodMk (continuous_fst) ?_)
     refine Continuous.comp ?_ (continuous_snd)
     · rw [@continuous_induced_rng]
@@ -288,15 +287,14 @@ lemma MtoQuot_surjective :
   refine ⟨ν, hν, ?_, ?_ ⟩
   · simp only [M, Set.mem_preimage, Set.mem_image, Prod.exists]
     refine ⟨ν, Units.val (ν⁻¹), h31, rfl⟩
-  · apply QuotientGroup.eq
-
-    -- should be wanting the right relation!
+  ·
     sorry
 
-lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
-    (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) :=
-  isCompact_univ_iff.mp (by simpa only [MtoQuot_surjective] using
-    (IsCompact.image (M_compact K D) (MtoQuot_cont K D)))
+
+lemma compact_quotient' : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
+    ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
+  isCompact_univ_iff.mp (by simpa only [MtoQuot_surjective, Set.image_univ] using
+    (((IsCompact.image (M_compact K D) (MtoQuot_cont K D)))))
 
 end NumberField.AdeleRing.DivisionAlgebra
 
@@ -352,5 +350,6 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
   sorry
+
 
 end FiniteAdeleRing
