@@ -1,8 +1,9 @@
 import Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
+import Mathlib.Algebra.Group.Submonoid.Units
+import Mathlib.Algebra.Module.Pi -- product of modules is a module
 import Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.Algebra.Group.Units
-
 
 namespace RestrictedProduct
 
@@ -23,6 +24,54 @@ lemma mul_apply {S : ι → Type*} [(i : ι) → SetLike (S i) (R i)] {B : (i : 
     [(i : ι) → Mul (R i)] [∀ (i : ι), MulMemClass (S i) (R i)]
     (x y : Πʳ (i : ι), [R i, ↑(B i)]_[ℱ]) (i : ι) : (x * y) i = x i * y i := rfl
 
+/-- The coercion from the restricted product of monoids `A i` to the (normal) product
+is a monoid homomorphism. -/
+@[to_additive "The coercion from the restricted product of additive monoids `A i` to the
+(normal) product is an additive monoid homomorphism."]
+def coeMonoidHom {ι : Type*} {𝓕 : Filter ι} {A : ι → Type*} [∀ i, Monoid (A i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (A i)] [∀ i, SubmonoidClass (S i) (A i)]
+    {B : Π i, S i} : Πʳ i, [A i, B i]_[𝓕] →* Π i, A i where
+  toFun := (↑)
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+section CommMonoid
+
+-- toAdditive broken because no toAdditive here
+/-
+instance [Π i, Monoid (R i)] [∀ i, SubmonoidClass (S i) (R i)] :
+    Pow (Πʳ i, [R i, B i]_[𝓕]) ℕ where
+  pow x n := ⟨fun i ↦ x i ^ n, x.2.mono fun _ hi ↦ pow_mem hi n⟩
+-/
+variable {ι : Type*} {𝓕 : Filter ι} {A : ι → Type*} [∀ i, CommMonoid (A i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (A i)] [∀ i, SubmonoidClass (S i) (A i)]
+    {B : Π i, S i} in
+/-- restricted product of additive commutative monoids is an additive commutative monoid -/
+--@[to_additive]
+instance instCommMonoid: CommMonoid (Πʳ i, [A i, B i]_[𝓕]) :=
+  DFunLike.coe_injective.commMonoid _ rfl (fun _ _ ↦ rfl) (fun _ _ ↦ rfl)
+
+variable {ι : Type*} {𝓕 : Filter ι} {A : ι → Type*} [∀ i, AddCommMonoid (A i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (A i)] [∀ i, AddSubmonoidClass (S i) (A i)]
+    {B : Π i, S i} in
+/-- restricted product of additive commutative monoids is an additive commutative monoid -/
+instance instAddCommMonoid: AddCommMonoid (Πʳ i, [A i, B i]_[𝓕]) :=
+  DFunLike.coe_injective.addCommMonoid _ rfl (fun _ _ ↦ rfl) (fun _ _ ↦ rfl)
+
+end CommMonoid
+
+section Module
+
+variable {ι : Type*} {𝓕 : Filter ι} {R : Type*} [Semiring R]
+{A : ι → Type*} [∀ i, AddCommMonoid (A i)] [∀ i, Module R (A i)]
+variable {S : ι → Type*}
+variable [∀ i, SetLike (S i) (A i)]
+  [∀ i, AddSubmonoidClass (S i) (A i)] [∀ i, SMulMemClass (S i) R (A i)]
+variable {B : Π i, S i}
+instance : Module R (Πʳ i, [A i, B i]_[𝓕]) :=
+  DFunLike.coe_injective.module R (M := Π i, A i) coeAddMonoidHom (fun _ _ ↦ rfl)
+
+end Module
 @[simp] lemma eventually (x : Πʳ i, [R i, A i]_[ℱ]) : ∀ᶠ i in ℱ, x i ∈ A i := x.2
 
 variable {S : ι → Type*} -- subobject type
