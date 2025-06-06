@@ -52,10 +52,8 @@ def SemialgHom.baseChangeRightOfAlgebraMap [Algebra R S] [CommSemiring A] [Algeb
     letI := ψ.toAlgebra
     S ⊗[R] A →ₐ[A] B :=
   letI := ψ.toAlgebra
-  AlgHom.changeScalars R A ψ.baseChange_of_algebraMap <| by
-    intro a
-    rw [show (algebraMap A (S ⊗[R] A)) a = 1 ⊗ₜ a from rfl]
-    simp [RingHom.algebraMap_toAlgebra, SemialgHom.toLinearMap_eq_coe]
+  AlgHom.changeScalars R A ψ.baseChange_of_algebraMap
+    (by simp [RingHom.algebraMap_toAlgebra, SemialgHom.toLinearMap_eq_coe])
 
 @[simp]
 theorem SemialgHom.baseChangeRightOfAlgebraMap_apply [Algebra R S] [CommSemiring A] [Algebra R A]
