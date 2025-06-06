@@ -40,6 +40,7 @@ variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Alge
 
 scoped notation:100 "𝔸" K => AdeleRing (𝓞 K) K
 
+-- I am not mad keen on this instance. Maybe we should just make continuous semialgebra maps?
 noncomputable instance : Algebra K (𝔸 L) :=
   inferInstanceAs (Algebra K (InfiniteAdeleRing L × FiniteAdeleRing (𝓞 L) L))
 

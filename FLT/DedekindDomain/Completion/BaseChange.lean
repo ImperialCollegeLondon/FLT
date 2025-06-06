@@ -341,7 +341,6 @@ theorem comap_algebra_finite (v : HeightOneSpectrum A) (w : HeightOneSpectrum B)
   let _ (w : Extension B v) := comap_algebra A K L B w.prop |>.toModule
   Module.Finite.of_pi (fun (w : Extension B v) => w.1.adicCompletion L) ⟨w, hvw⟩
 
-set_option synthInstance.maxHeartbeats 40000 in
 omit [IsIntegralClosure B A L] in
 /-- L_w has the K_v-module topology. -/
 lemma adicCompletionComap_isModuleTopology
@@ -420,10 +419,9 @@ noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
     ((Algebra.TensorProduct.includeRight.restrictScalars A).comp (IsScalarTower.toAlgHom _ _ _))
     (fun _ _ ↦ .all _ _)
 
-set_option synthInstance.maxHeartbeats 40000 in
-omit [IsIntegralClosure B A L] [FiniteDimensional K L]
-    [Algebra.IsIntegral A B] [IsDedekindDomain B]
-    [IsFractionRing B L] in
+omit [IsIntegralClosure B A L]
+     [Algebra.IsIntegral A B] [IsDedekindDomain B]
+     [IsFractionRing B L] in
 open scoped TensorProduct.RightActions in
 /-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is contained in the closure of the image of `B`. -/
 lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
@@ -461,7 +459,6 @@ lemma tensorAdicCompletionIntegersToRange_subset_closureIntegers :
         have hcf : ContinuousAt f a' := by
           apply Continuous.continuousAt
           rw [hfval]
-          haveI : ContinuousSMul (adicCompletion K v) (L ⊗[K] adicCompletion K v) := sorry
           apply Continuous.smul continuous_subtype_val continuous_const
         -- So, because `A` is dense in `𝒪_v`, `b • (1 ⊗ₜ a') ∈ f '' closure A ⊆ closure f '' A`
         have hy : a' ∈ closure (Set.range (algebraMap A _)) := by

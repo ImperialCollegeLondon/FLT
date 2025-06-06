@@ -121,11 +121,13 @@ scoped instance [Module.Free R M] : Module.Free A (M ⊗[R] A) :=
 scoped instance : IsScalarTower R A (M ⊗[R] A) where
   smul_assoc r a ma := by simp
 
-/-- The module topology on a right algebra. -/
-scoped instance [TopologicalSpace A] : TopologicalSpace (B ⊗[R] A) :=
-  moduleTopology A (B ⊗[R] A)
+/-- We equip `M ⊗[R] A` with the `A`-module topology if `M` is finite over `R`. -/
+scoped instance [TopologicalSpace A] [Module.Finite R M] :
+    TopologicalSpace (M ⊗[R] A) :=
+  moduleTopology A (M ⊗[R] A)
 
-scoped instance [TopologicalSpace A] : IsModuleTopology A (B ⊗[R] A) := ⟨rfl⟩
+scoped instance [TopologicalSpace A] [Module.Finite R M] :
+  IsModuleTopology A (M ⊗[R] A) := ⟨rfl⟩
 
 /-- Base extension of an `R`-linear map `V → W` to an `A`-linear
 map `V ⊗ A → W ⊗ A`. Available in the `TensorProduct.RightActions` scope. -/
@@ -136,6 +138,17 @@ noncomputable abbrev LinearMap.baseChange (R : Type*) [CommRing R]
   (Module.TensorProduct.comm R A W) ∘ₗ
     (_root_.LinearMap.baseChange A φ) ∘ₗ
     (Module.TensorProduct.comm R A V).symm
+
+/-- Base extension of an `R`-linear iso `V → W` to an `A`-linear
+iso `V ⊗ A → W ⊗ A`. Available in the `TensorProduct.RightActions` scope. -/
+noncomputable abbrev LinearEquiv.baseChange (R : Type*) [CommRing R]
+    (V W : Type*) [AddCommGroup V] [Module R V] [AddCommGroup W] [Module R W]
+    (A : Type*) [CommRing A] [Algebra R A]
+    (φ : V ≃ₗ[R] W) : V ⊗[R] A ≃ₗ[A] W ⊗[R] A where
+  __ := LinearMap.baseChange _ _ _ _ φ.toLinearMap
+  invFun := LinearMap.baseChange _ _ _ _ φ.symm.toLinearMap
+  left_inv := sorry -- I should prove id and comp for LinearMap.baseChange
+  right_inv := sorry
 
 -- this should be in mathlib
 -- theorem foo (R M N : Type*) [Semiring R] [AddCommMonoid M] [AddCommMonoid N]
@@ -154,17 +167,25 @@ end semiring
 
 noncomputable section ring
 
-variable (R A B : Type*) [CommRing R]
+variable (R A B M : Type*) [CommRing R]
     [CommRing A] [Algebra R A]
     [Ring B] [Algebra R B]
+    [AddCommGroup M] [Module R M]
+
+scoped instance [TopologicalSpace A] [IsTopologicalRing A] [Module.Finite R M] :
+    IsTopologicalAddGroup (M ⊗[R] A) := IsModuleTopology.topologicalAddGroup A (M ⊗[R] A)
+
+scoped instance [TopologicalSpace A] [IsTopologicalRing A] [Module.Finite R B] :
+    IsTopologicalRing (B ⊗[R] A) :=
+  IsModuleTopology.Module.topologicalRing A _
 
 scoped instance [TopologicalSpace A] [IsTopologicalRing A] [Module.Finite R B] :
     IsTopologicalRing (B ⊗[R] A) :=
   IsModuleTopology.Module.topologicalRing A _
 
 scoped instance [TopologicalSpace A] [IsTopologicalRing A]
-    [LocallyCompactSpace A] [Module.Finite R B] :
-    LocallyCompactSpace (B ⊗[R] A) := IsModuleTopology.locallyCompactSpaceOfFinite A
+    [LocallyCompactSpace A] [Module.Finite R M] :
+    LocallyCompactSpace (M ⊗[R] A) := IsModuleTopology.locallyCompactSpaceOfFinite A
 
 end ring -- section
 
