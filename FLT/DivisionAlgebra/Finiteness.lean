@@ -191,7 +191,7 @@ end Aux
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
   fun u => Units.embedProduct D_𝔸 (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
 
-/- incorporated into definition of M -- but left for clarity until merged
+/- incorporated into definition of M -- but left for clarity until reviewed
 -- this is required to have M be the preimage of C under incl₂
 def map1 : Prod D_𝔸 D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
   fun p => (p.1, MulOpposite.op p.2)
@@ -287,9 +287,25 @@ lemma MtoQuot_surjective :
   refine ⟨ν, hν, ?_, ?_ ⟩
   · simp only [M, Set.mem_preimage, Set.mem_image, Prod.exists]
     refine ⟨ν, Units.val (ν⁻¹), h31, rfl⟩
-  ·
-    sorry
-
+  · have : Quot.mk ⇑(QuotientGroup.rightRel ((incl K D).range.subgroupOf
+        (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)))) ⟨c * ν, ha⟩ =
+        Quot.mk ⇑(QuotientGroup.rightRel ((incl K D).range.subgroupOf
+        (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))))
+        ⟨ν, hν⟩ := by
+      refine Quot.eq.mpr ?_
+      rw [@Relation.eqvGen_iff]
+      left
+      rw [@QuotientGroup.rightRel_apply]
+      refine Subgroup.mem_subgroupOf.mpr ?_
+      have h1 : ν * (c * ν)⁻¹ = c⁻¹ := by
+        simp only [mul_inv_rev, mul_inv_cancel_left]
+      rw [@Subgroup.coe_mul]
+      simp only [InvMemClass.coe_inv, mul_inv_rev, mul_inv_cancel_left, inv_mem_iff,
+        MonoidHom.mem_range]
+      obtain ⟨x, hx⟩ := hc
+      use x
+    rw [this]
+    rfl
 
 lemma compact_quotient' : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
