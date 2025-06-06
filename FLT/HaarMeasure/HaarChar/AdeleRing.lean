@@ -6,7 +6,6 @@ import Mathlib.Algebra.Central.Defs
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Hacks.RightActionInstances
 import FLT.NumberField.AdeleRing
-import Mathlib
 
 open NumberField
 

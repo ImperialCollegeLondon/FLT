@@ -38,6 +38,7 @@ open IsDedekindDomain
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
+/-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
 scoped notation:100 "𝔸" K => AdeleRing (𝓞 K) K
 
 -- I am not mad keen on this instance. Maybe we should just make continuous semialgebra maps?
@@ -127,6 +128,7 @@ theorem baseChangeEquiv_tsum_apply_right (l : L) :
 variable (L)
 
 open TensorProduct.AlgebraTensorModule in
+/-- A continuous `K`-linear isomorphism `L ⊗[K] 𝔸_K = (𝔸_K)ⁿ` for `n = [L:K]`  -/
 noncomputable abbrev tensorProductEquivPi :
     L ⊗[K] (𝔸 K) ≃L[K] (Fin (Module.finrank K L) → 𝔸 K) :=
   letI := instPiIsModuleTopology K L
@@ -139,6 +141,7 @@ noncomputable abbrev tensorProductEquivPi :
   -- continuous due to `𝔸 K` module topologies on both sides, then restrict scalars to `K`
   IsModuleTopology.continuousLinearEquiv (comm.symm.trans π) |>.restrictScalars K
 
+/-- A continuous `K`-linear isomorphism `(𝔸_K)ⁿ ≃ 𝔸_L` for `n = [L:K]`  -/
 noncomputable abbrev piEquiv :
     (Fin (Module.finrank K L) → 𝔸 K) ≃L[K] 𝔸 L :=
   -- `⊕ 𝔸 K ≃L[K] L ⊗[K] 𝔸 K` from previous def
@@ -192,6 +195,7 @@ theorem comap_piEquiv_principalSubgroup :
   rw [← piEquiv_map_principalSubgroup K L,
     AddSubgroup.comap_map_eq_self_of_injective (piEquiv K L).injective]
 
+/-- A continuous additive isomorphism `(𝔸_K / K)ⁿ = 𝔸_L / L` where `n = [L:K]`. -/
 noncomputable def piQuotientEquiv :
     (Fin (Module.finrank K L) → (𝔸 K) ⧸ principalSubgroup (𝓞 K) K) ≃ₜ+
       (𝔸 L) ⧸ principalSubgroup (𝓞 L) L :=
@@ -334,3 +338,4 @@ theorem NumberField.AdeleRing.cocompact :
   (piQuotientEquiv ℚ K).compactSpace
 
 end Compact
+#lint
