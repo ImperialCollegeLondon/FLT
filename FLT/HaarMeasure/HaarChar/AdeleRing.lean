@@ -4,6 +4,8 @@ import FLT.Hacks.RightActionInstances
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.Algebra.Central.Defs
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.Hacks.RightActionInstances
+import FLT.NumberField.AdeleRing
 
 open NumberField
 
