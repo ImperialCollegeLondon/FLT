@@ -18,19 +18,10 @@ abbrev mk (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) : Πʳ i, [R i, A 
 lemma mk_apply (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) (i : ι) :
     (mk x hx) i = x i := rfl
 
-@[to_additive (attr := simp)]
-lemma mul_apply {S : ι → Type*} [(i : ι) → SetLike (S i) (R i)] {B : (i : ι) → S i}
-    [(i : ι) → Mul (R i)] [∀ (i : ι), MulMemClass (S i) (R i)]
-    (x y : Πʳ (i : ι), [R i, ↑(B i)]_[ℱ]) (i : ι) : (x * y) i = x i * y i := rfl
-
 variable {S : ι → Type*} -- subobject type
 variable [Π i, SetLike (S i) (R i)]
 variable {B : Π i, S i}
 variable {ℱ : Filter ι}
-
-@[simp]
-lemma one_apply [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] {i : ι} :
-  (1 : Πʳ i, [R i, B i]_[ℱ]) i = 1 := rfl
 
 -- I'm avoiding using these if possible
 
