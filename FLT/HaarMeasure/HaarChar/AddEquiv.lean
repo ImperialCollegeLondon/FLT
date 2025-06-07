@@ -464,7 +464,7 @@ def _root_.ContinuousMulEquiv.piCongrRight (ψ : Π i, (G i) ≃ₜ* (H i)) :
   continuous_invFun := Continuous.piMap (fun i ↦ (ψ i).continuous_invFun)
 
 end piCongrRight
-
+/-
 set_option maxHeartbeats 20000000
 
 section pi
@@ -480,7 +480,7 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   sorry
 
-end pi
+end pi -/
 
 section restrictedproduct
 
