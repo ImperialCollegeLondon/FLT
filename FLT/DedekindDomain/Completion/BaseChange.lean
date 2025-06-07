@@ -419,7 +419,7 @@ noncomputable def tensorAdicCompletionIntegersTo (v : HeightOneSpectrum A) :
     ((Algebra.TensorProduct.includeRight.restrictScalars A).comp (IsScalarTower.toAlgHom _ _ _))
     (fun _ _ ↦ .all _ _)
 
-omit [IsIntegralClosure B A L] [FiniteDimensional K L]
+omit [IsIntegralClosure B A L]
     [Algebra.IsIntegral A B] [IsDedekindDomain B]
     [IsFractionRing B L] in
 open scoped TensorProduct.RightActions in
