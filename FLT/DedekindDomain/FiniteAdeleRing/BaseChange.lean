@@ -12,7 +12,6 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.RingTheory.Finiteness.Pi
 import Mathlib.Algebra.Algebra.Subalgebra.Pi
@@ -87,8 +86,7 @@ noncomputable def FiniteAdeleRing.mapSemialgHom :
         simpa only [Algebra.smul_def'] using
           (adicCompletionComapSemialgHom A K L B (comap A w) w rfl).map_smul' k (a (comap A w))
 
-noncomputable instance : Algebra (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K) :=
-  Algebra.TensorProduct.rightAlgebra
+open scoped TensorProduct.RightActions
 
 noncomputable
 instance BaseChange.algebra : Algebra (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=

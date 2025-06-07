@@ -6,12 +6,13 @@ import Mathlib.RingTheory.Finiteness.Defs
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
 import Mathlib.RingTheory.FiniteType
+import FLT.Hacks.RightActionInstances
 
 section Basis
 
 open scoped TensorProduct
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra
+open scoped TensorProduct.RightActions
 
 variable {R : Type*} (A : Type*) {B : Type*} {ι : Type*} [CommSemiring R]
 variable [CommSemiring A] [Algebra R A] [Fintype ι]
@@ -22,7 +23,8 @@ variable [CommSemiring B] [Algebra R B]
 noncomputable
 def Basis.rightBaseChange [DecidableEq ι] (b : Basis ι R A) : Basis ι B (A ⊗[R] B) where
   repr :=
-    let comm := (Algebra.TensorProduct.comm R B A).extendScalars B |>.toLinearEquiv
+    let comm : B ⊗[R] A ≃ₗ[B] A ⊗[R] B :=
+      TensorProduct.RightActions.Algebra.TensorProduct.comm R B A
     let π : B ⊗[R] A ≃ₗ[B] (ι → B) :=
       (TensorProduct.AlgebraTensorModule.congr
         (LinearEquiv.refl B B)
@@ -56,7 +58,7 @@ section Finrank
 
 namespace TensorProduct
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra
+open scoped TensorProduct.RightActions
 
 variable {R : Type*} (A : Type*) {B : Type*} [CommRing R]
   [CommSemiring A] [Algebra R A] [CommRing B] [Algebra R B] [Nontrivial B]
