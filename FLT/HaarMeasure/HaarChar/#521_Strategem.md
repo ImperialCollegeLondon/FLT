@@ -1,5 +1,165 @@
 #521 Strategem
 
+### **Hybrid Proof Strategy — `mulEquivHaarChar_piCongrRight` (Finite Π-Product)**
+
+> **Objective** For a finite family of locally-compact groups `(H i)`, prove
+>
+> ```lean
+> @[to_additive]
+> lemma mulEquivHaarChar_piCongrRight
+>     [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
+>   mulEquivHaarChar (piCongrRight ψ)
+>     = (∏ i, mulEquivHaarChar (ψ i))
+> ```
+>
+> The additive analogue follows automatically from `@[to_additive]`.
+
+---
+
+## 0 Imports & Namespace Skeleton
+
+```lean
+import Mathlib.Topology.Algebra.Group
+import Mathlib.MeasureTheory.Group.Haar
+import Mathlib.Topology.Algebra.Pi
+import Mathlib.MeasureTheory.Measure.Pi
+
+open scoped BigOperators Topology MeasureTheory
+namespace MeasureTheory
+namespace HaarChar
+```
+
+---
+
+## 1 Backbone — Finite-Index **Induction**
+
+1. **Base case `card ι = 0`**
+
+   * `Π i, H i` is definitionally `PUnit`; Haar character is `1`.
+   * Use `mul_one` to match the right-hand product (`∏ i, …`) which defaults to `1` on empty types.
+
+2. **Base case `card ι = 1`**
+
+   * Lean has `Pi.single` equivalence; transport the known unary lemma
+     `mulEquivHaarChar_self : … → …`.
+   * Result reduces to `mulEquivHaarChar` for a single component.
+
+3. **Induction step** `|ι| = n + 1`
+
+   * Choose an index `i₀ : ι`.
+   * **Type decomposition**
+
+     ```lean
+     def ι'  := {j : ι // j ≠ i₀}
+     def decomp :
+       (Π j : ι, H j) ≃ₜ* ((Π j : ι', H j.val) × H i₀) := …
+     ```
+   * Transport `piCongrRight ψ` along `decomp` to a map
+     `(Π ι', H _) × H i₀ → (Π ι', H _) × H i₀`.
+   * Apply the already-proved binary lemma
+     `mulEquivHaarChar_prodCongr`.
+   * Combine with the **induction hypothesis** on `ι'`.
+   * Re-package the scalar factor using
+
+     ```lean
+     simp [Finset.mul_prod_erase, Finset.card_subtype]   -- bookkeeping
+     ```
+
+---
+
+## 2 Analytic Support — Single **Change-of-Variables** Lemma
+
+> *Borrowed from Strategy 2 to avoid scalar algebra explosion.*
+
+```lean
+/-- Push-forward of the product Haar measure under a component-wise
+    automorphism multiplies the scalar factors. -/
+lemma map_haar_pi {ι : Type*} [Fintype ι]
+    (ψ : Π i, (H i) ≃ₜ* (H i)) :
+  Measure.map (piCongrRight ψ)
+      (Measure.pi fun i ↦ haarMeasure (H i)) =
+    (∏ i, mulEquivHaarChar (ψ i)) •
+      Measure.pi fun i ↦ haarMeasure (H i)
+```
+
+* **Proof outline**
+
+  1. `Measure.map_pi` + `map_prod` (already in Mathlib for binary).
+  2. Induct over `Finset ι` to lift binary to finite product.
+  3. At each step, use `haar_eq_smul_haar` to identify the scalar.
+
+* **Usage inside the induction step**
+  The lemma supplies the exact product of scalars, so each induction layer only needs to *re-associate* products, not recompute them.
+
+---
+
+## 3 Conceptual Annotation — **Universal-Property** Insight
+
+*Document rather than mechanise.*
+
+* The equality of Haar characters is forced because Haar measure on a finite product is uniquely characterised by:
+
+  * Invariance under left translation, and
+  * Projection compatibility with each factor (`π_i` continuous group hom).
+* The push-forward identity obtained in §2 satisfies those same two axioms and coincides on rectangles (`∏ A_i`) that generate the Borel σ-algebra.
+* Hence the two measures differ by a scalar; scalar computed in §2 → equality of characters.
+
+Add a module-wide comment block citing this argument; Lean proof relies on §1 + §2, but the universal-property narrative clarifies *why* the induction works.
+
+---
+
+## 4 Implementation Checklist (from *Actionable Steps*)
+
+| **Step**             | **Lean artefact**                                                         | **Status / To-do**                  |
+| -------------------- | ------------------------------------------------------------------------- | ----------------------------------- |
+| Reconnaissance       | Locate `piCongrRight`, `piEquivSubtypeProd`, `mulEquivHaarChar_prodCongr` | ✅ All in Mathlib as of *2025-06-07* |
+| Prototype `card = 2` | `mulEquivHaarChar_prodCongr` already covers                               | ✅                                   |
+| Build `map_haar_pi`  | New lemma in `MeasureTheory.HaarChar.Pi`                                  | ☐ implement                         |
+| Custom tactic        | `simp_pi_decomp` to rearrange `Finset.prod` scalars                       | ☐ implement                         |
+| General induction    | `Finset.induction` proof of main lemma                                    | ☐ implement                         |
+| Tests                | Example on `Fin 3` with `(ℝ)` additive groups                             | ☐ write `example`                   |
+| Docs                 | Add narrative from §3 at top of file                                      | ☐ write                             |
+
+**Expected PR timeline:** ≈ 4 programmer-days.
+
+---
+
+## 5 Risk-Mitigation Notes
+
+* **Universe levels** Use `universe u` headers; avoid explicit `max` where possible.
+* **Scalar factor coercions** Insert helper lemma
+
+  ```lean
+  lemma smul_comm_scalar {α} [IsMulAction α (Measure _)] …
+  ```
+
+  to keep `simp` manageable.
+* **Performance** Restrict `simp` sets; prefer `simp?` over `simp` on large contexts.
+
+---
+
+## 6 Module Footer
+
+```lean
+end HaarChar
+end MeasureTheory
+```
+
+---
+
+### **Deliverable**
+
+A single Lean module `HaarChar/Pi.lean` containing:
+
+1. `map_haar_pi` (analytic lemma).
+2. Inductive proof of `mulEquivHaarChar_piCongrRight`.
+3. Additive counterpart via `@[to_additive]`.
+4. High-level comments explaining the universal-property view.
+
+This hybrid approach minimises duplicated measure-theory plumbing, leverages Mathlib’s binary lemma, and embeds the conceptual justification for future extensions (e.g., profinite limits).
+
+// Evaluation //
+
 This hybrid approach is **excellent** and demonstrates sophisticated mathematical insight. Here's my evaluation:
 
 ## Strengths
