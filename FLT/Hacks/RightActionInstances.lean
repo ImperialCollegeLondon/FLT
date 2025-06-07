@@ -141,6 +141,26 @@ noncomputable abbrev LinearMap.baseChange (R : Type*) [CommRing R]
     (_root_.LinearMap.baseChange A φ) ∘ₗ
     (Module.TensorProduct.comm R A V).symm
 
+@[simp]
+lemma LinearMap.baseChange_id (R : Type*) [CommRing R]
+    (V : Type*) [AddCommGroup V] [Module R V]
+    (A : Type*) [CommRing A] [Algebra R A] :
+    LinearMap.baseChange R V V A .id = .id := by
+  ext
+  simp
+
+theorem LinearMap.baseChange_comp (R : Type*) [CommRing R]
+    (U V W : Type*) [AddCommGroup U] [Module R U] [AddCommGroup V] [Module R V]
+    [AddCommGroup W] [Module R W] (A : Type*) [CommRing A] [Algebra R A]
+    (φ : U →ₗ[R] V) (ψ : V →ₗ[R] W) :
+    LinearMap.baseChange R V W A ψ ∘ₗ LinearMap.baseChange R U V A φ =
+    LinearMap.baseChange R U W A (ψ ∘ₗ φ) := by
+  ext
+  simp [_root_.LinearMap.baseChange_comp]
+
+example (X Y) (f : X → Y) (g : Y → X) : Function.LeftInverse f g ↔ f ∘ g = id := by
+  exact Function.leftInverse_iff_comp
+
 /-- Base extension of an `R`-linear iso `V → W` to an `A`-linear
 iso `V ⊗ A → W ⊗ A`. Available in the `TensorProduct.RightActions` scope. -/
 noncomputable abbrev LinearEquiv.baseChange (R : Type*) [CommRing R]
@@ -149,12 +169,15 @@ noncomputable abbrev LinearEquiv.baseChange (R : Type*) [CommRing R]
     (φ : V ≃ₗ[R] W) : V ⊗[R] A ≃ₗ[A] W ⊗[R] A where
   __ := LinearMap.baseChange _ _ _ _ φ.toLinearMap
   invFun := LinearMap.baseChange _ _ _ _ φ.symm.toLinearMap
-  left_inv := sorry -- I should prove id and comp for LinearMap.baseChange
-  right_inv := sorry
-
--- this should be in mathlib
--- theorem foo (R M N : Type*) [Semiring R] [AddCommMonoid M] [AddCommMonoid N]
---     [Module R M] [Module R N] (e : M ≃ₗ[R] N) : (e : M ≃+ N).symm = (e.symm: N ≃+ M) := rfl
+  left_inv := by
+    intro x
+    calc
+    _ = (LinearMap.baseChange R W V A φ.symm ∘ₗ LinearMap.baseChange R V W A φ) x := rfl
+    _ = _ := by simp [LinearMap.baseChange_comp]
+  right_inv := by
+    intro y
+    change ((LinearMap.baseChange R V W A φ) ∘ₗ (LinearMap.baseChange R W V A φ.symm)) y = _
+    simp [LinearMap.baseChange_comp]
 
 /-- Base extension of an `R`-algebra map `B → C` to an `A`-linear
 map `B ⊗ A → C ⊗ A`. Available in the `TensorProduct.RightActions` scope.-/

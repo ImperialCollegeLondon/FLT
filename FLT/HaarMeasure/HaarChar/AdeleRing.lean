@@ -48,17 +48,8 @@ noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv' [Module (𝔸 
     induction vb with
     | zero => simp
     | tmul x y =>
-        simp only [TensorProduct.RightActions.smul_def, TensorProduct.comm_tmul,
-          TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul, AddHom.toFun_eq_coe,
-          LinearMap.coe_toAddHom, LinearEquiv.coe_coe, ModuleBaseChangeAddEquiv_apply, map_mul,
-          RingHom.id_apply]
-        rw [algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
-        rw [TensorProduct.RightActions.smul_def]
-        simp only [TensorProduct.comm_tmul, algebraMap_smul]
-        rw [algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
-        rw [TensorProduct.smul_tmul']
-        rw [smul_eq_mul]
-        simp
+        simp [TensorProduct.smul_tmul', -algebraMap_smul,
+          algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
     | add x y _ _ => simp_all [mul_add, add_mul]
 
 open scoped TensorProduct.RightActions in
