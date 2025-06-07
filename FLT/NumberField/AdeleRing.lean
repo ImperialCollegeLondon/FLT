@@ -18,18 +18,6 @@ universe u
 
 open NumberField
 
-section LocallyCompact
-
--- see https://github.com/smmercuri/adele-ring_locally-compact
--- for a proof of this
-
-variable (K : Type*) [Field K] [NumberField K]
-
-instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing (𝓞 K) K) :=
-  sorry -- issue #253
-
-end LocallyCompact
-
 section BaseChange
 
 namespace NumberField.AdeleRing
@@ -91,7 +79,7 @@ noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] 𝔸 K) →ₐ[𝔸 K] 𝔸 
 -- do we not have this?? Move! PR! TODO
 /-- Product of algebra equivalences; the maps come from Equiv.prodCongr.
  -/
-def AlgEquiv.prodCongr {R A A₂ A₃ A₄ : Type*} [CommSemiring R]
+def _root_.AlgEquiv.prodCongr {R A A₂ A₃ A₄ : Type*} [CommSemiring R]
     [Semiring A] [Semiring A₂] [Semiring A₃] [Semiring A₄] [Algebra R A]
     [Algebra R A₂] [Algebra R A₃] [Algebra R A₄]
     (e₁ : A ≃ₐ[R] A₂) (e₂ : A₃ ≃ₐ[R] A₄) :
@@ -99,27 +87,6 @@ def AlgEquiv.prodCongr {R A A₂ A₃ A₄ : Type*} [CommSemiring R]
   __ := LinearEquiv.prodCongr e₁.toLinearEquiv e₂.toLinearEquiv
   map_mul' := by simp
   commutes' := by simp
-
--- move! PR? TODO
-/-- Tensor products of algebras distribute over a product on the right.
--/
-noncomputable def Algebra.TensorProduct.prodRight (R S A₁ A₂ A₃ : Type*)
-    [CommSemiring R] [CommSemiring S] [Semiring A₁] [Semiring A₂] [Semiring A₃] [Algebra R S]
-    [Algebra R A₁] [Algebra S A₁] [IsScalarTower R S A₁] [Algebra R A₂] [Algebra R A₃] :
-    A₁ ⊗[R] (A₂ × A₃) ≃ₐ[S] A₁ ⊗[R] A₂ × A₁ ⊗[R] A₃ where
-  __ := _root_.TensorProduct.prodRight R S A₁ A₂ A₃
-  map_mul' abc := by
-    induction abc with
-    | zero => simp
-    | tmul x yz =>
-      obtain ⟨y, z⟩ := yz
-      intro abc
-      induction abc with
-      | zero => simp
-      | tmul x y => simp
-      | add x y _ _ => simp_all [add_mul, mul_add]
-    | add x y _ _ => simp_all [add_mul, mul_add]
-  commutes' s := by simp
 
 /-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
 noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
@@ -165,12 +132,39 @@ noncomputable def baseChangeEquiv :
   __ := (baseChangeSemialgHom K L).baseChange_of_algebraMap
   __ := baseChangeAdeleEquiv K L
 
--- this isn't rfl. TODO fix?
+-- this isn't rfl. Explanation below
 example (x : L ⊗[K] 𝔸 K) : baseChangeEquiv K L x = baseChangeAdeleAlgEquiv K L x := by
   induction x with
   | zero => rfl
   | tmul x y => rfl
   | add x y _ _ => simp_all
+
+/-
+
+We have two isomorphisms `(L ⊗[K] 𝔸 K) = 𝔸 L`.
+
+1)
+`baseChangeEquiv` is
+  `(baseChangeSemialgHom K L).baseChange_of_algebraMap` *and
+  `baseChangeAdeleEquiv`. The latter is `baseChangeAdeleAlgHom` which is
+  `(baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap`
+
+Note:
+```
+example (x : L ⊗[K] 𝔸 K) :
+    (baseChangeSemialgHom K L).baseChange_of_algebraMap x =
+    (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap x := by
+  rfl
+```
+
+This map is defined as "there is a commutative square `K → L → 𝔸 L` and `K → 𝔸 K → 𝔸 L`
+so there's an induced map `L ⊗[K] 𝔸 K → 𝔸 L`; this is a bijection"
+
+But `baseChangeAdeleAlgEquiv` is `tensor.trans prod` i.e.
+
+`(L ⊗[K] 𝔸 K) = L ⊗[K] (𝔸^∞ x A_∞) ≅ (L ⊗[K] 𝔸^∞) x (L ⊗[K] 𝔸_∞) ≅ 𝔸_L^∞ x 𝔸_L_∞
+
+-/
 
 variable {L}
 
@@ -264,6 +258,18 @@ noncomputable def piQuotientEquiv :
 end NumberField.AdeleRing
 
 end BaseChange
+
+section LocallyCompact
+
+-- see https://github.com/smmercuri/adele-ring_locally-compact
+-- for a proof of this
+
+variable (K : Type*) [Field K] [NumberField K]
+
+instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing (𝓞 K) K) :=
+  sorry -- issue #253
+
+end LocallyCompact
 
 section Discrete
 
