@@ -2,6 +2,8 @@ name: Build project
 
 on:
   push:
+    branches:
+      - main
     paths:
       - '**/*.lean'
       - '**/blueprint.yml'
@@ -12,6 +14,8 @@ on:
       - 'lakefile.toml'
       - 'lake-manifest.json'
   pull_request:
+    branches:
+      - main
     paths:
       - '**/*.lean'
       - '**/blueprint.yml'
