@@ -1,4 +1,3 @@
-import Mathlib
 import FLT
 
 set_option maxHeartbeats 20000000
