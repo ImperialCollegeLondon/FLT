@@ -408,7 +408,7 @@ def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
   continuous_toFun := by
     apply continuous_of_continuousAt_one MulEquiv.restrictedProductUnits
     intro N hN
-    have hN' : (f.trans g) ⁻¹' (sMx ⁻¹' N) ∈ nhds 1 := (map_continuous _).continuousAt
+    have hN' : (f.trans g) ⁻¹' (sMx ⁻¹' N) ∈ nhds 1 := (f.trans g).continuous.continuousAt
       |>.preimage_mem_nhds <| isEmbedding_structureMap.continuous.continuousAt.preimage_mem_nhds hN
     apply mem_of_superset <| Units.isOpenMap_map (f := sM) isEmbedding_structureMap.injective
       (isOpenEmbedding_structureMap hA).isOpenMap |>.image_mem_nhds hN'
@@ -517,3 +517,6 @@ lemma mem_coset_and_mulSupport_subset_of_isProductAt
       simp_all
     simp only [smul_eq_mul, mul_assoc, mul_inv_cancel_left, mul_right_inj, hcomm]⟩,
     mulSupport_mul_subset huᵢ hg⟩
+
+end RestrictedProduct
+end supports
