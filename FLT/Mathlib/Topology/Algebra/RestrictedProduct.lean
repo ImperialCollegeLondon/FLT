@@ -17,21 +17,10 @@ abbrev mk (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) : Πʳ i, [R i, A 
 lemma mk_apply (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) (i : ι) :
     (mk x hx) i = x i := rfl
 
-@[to_additive (attr := simp)]
-lemma mul_apply {S : ι → Type*} [(i : ι) → SetLike (S i) (R i)] {B : (i : ι) → S i}
-    [(i : ι) → Mul (R i)] [∀ (i : ι), MulMemClass (S i) (R i)]
-    (x y : Πʳ (i : ι), [R i, ↑(B i)]_[ℱ]) (i : ι) : (x * y) i = x i * y i := rfl
-
-@[simp] lemma eventually (x : Πʳ i, [R i, A i]_[ℱ]) : ∀ᶠ i in ℱ, x i ∈ A i := x.2
-
 variable {S : ι → Type*} -- subobject type
 variable [Π i, SetLike (S i) (R i)]
 variable {B : Π i, S i}
 variable {ℱ : Filter ι}
-
-@[simp]
-lemma one_apply [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] {i : ι} :
-  (1 : Πʳ i, [R i, B i]_[ℱ]) i = 1 := rfl
 
 -- I'm avoiding using these if possible
 
@@ -295,30 +284,6 @@ lemma Equiv.continuous_restrictedProductPi [∀ j i, TopologicalSpace (A j i)] :
     Continuous (Equiv.restrictedProductPi (C := C) (ℱ := ℱ)) := by
   simp only [Equiv.restrictedProductPi, coe_fn_mk]
   fun_prop
-
-/-- A finitary (instead of binary) version of `continuous_dom_prod`. -/
-theorem RestrictedProduct.continuous_dom_pi {n : Type*} [Fintype n] {X : Type*}
-    [TopologicalSpace X] {A : n → ι → Type*}
-    [∀ j i, TopologicalSpace (A j i)]
-    {C : (j : n) → (i : ι) → Set (A j i)}
-    (hCopen : ∀ j i, IsOpen (C j i))
-    {f : (Π j : n, Πʳ i : ι, [A j i, C j i]) → X} :
-    Continuous f ↔
-      ∀ (S : Set ι) (hS : cofinite ≤ 𝓟 S), Continuous (f ∘ Pi.map fun _ ↦ inclusion _ _ hS) := by
-  refine ⟨by fun_prop, ?_⟩
-  intro H
-  simp_rw [continuous_iff_continuousAt, ContinuousAt]
-  intro x
-  set S : Set ι := {i | ∀ j, x j i ∈ C j i}
-  have hS : cofinite ≤ 𝓟 S := by
-    rw [le_principal_iff]
-    change ∀ᶠ i in cofinite, ∀ j : n, x j i ∈ C j i
-    simp [- eventually_cofinite]
-  let x' : (j : n) → Πʳ i : ι, [A j i, C j i]_[𝓟 S] := fun j ↦ mk (fun i ↦ x j i) (fun i hi ↦ hi _)
-  have hxx' : Pi.map (fun j ↦ inclusion _ _ hS) x' = x := rfl
-  simp_rw [← hxx', nhds_pi, Pi.map_apply, nhds_eq_map_inclusion (hCopen _),
-    ← map_piMap_pi_finite, tendsto_map'_iff, ← nhds_pi]
-  exact (H _ _).tendsto _
 
 @[fun_prop]
 lemma Equiv.continuous_restrictedProductPi_symm {S : Set ι}
