@@ -1,7 +1,9 @@
 import Mathlib.Tactic.Peel
 import Mathlib.Analysis.Quaternion
 import Mathlib.RingTheory.Flat.Basic
-import FLT.HIMExperiments.flatness
+import Mathlib.Algebra.Module.Torsion
+import Mathlib.RingTheory.Flat.Basic
+--import FLT.HIMExperiments.flatness
 /-
 
 # Example of a space of automorphic forms
@@ -200,6 +202,14 @@ lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
   intro a ha
   rw [AddMonoidHom.coe_mulLeft] at ha
   exact eq_zero_of_mul_eq_zero N a ha
+
+-- Mathlib PR https://github.com/leanprover-community/mathlib4/pull/25334
+-- contains this next result.
+open Module Submodule in
+/-- If `R` is a PID then an `R`-module is flat iff it has no torsion. -/
+theorem Module.Flat.flat_iff_torsion_eq_bot {R : Type*} [CommRing R]
+    {M : Type*} [AddCommGroup M] [Module R M] [IsPrincipalIdealRing R] [IsDomain R] :
+    Flat R M ↔ torsion R M = ⊥ := sorry
 
 instance ZHat_flat : Module.Flat ℤ ZHat := by
   rw [Module.Flat.flat_iff_torsion_eq_bot]
@@ -1032,7 +1042,7 @@ lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.s
     have hr : r = 0 := by
       by_contra hr
       lift r to S using ⟨hrI, hr⟩
-      apply (ciInf_le hbdd r).not_lt hqr.2
+      apply (ciInf_le hbdd r).not_gt hqr.2
     rw [hr, add_zero] at hqr
     refine ⟨q, hqr.1.symm⟩
   · rw [Submodule.span_singleton_le_iff_mem]
@@ -1065,7 +1075,7 @@ lemma injective_hRat :
     Function.Injective j₁ := sorry -- flatness
 
 noncomputable abbrev j₂ : 𝓞^ →ₐ[ℤ] D^ :=
-  ((Algebra.TensorProduct.assoc ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗ 𝓞^ ≃ₐ[ℤ] D ⊗ ZHat).toAlgHom.comp
+  ((Algebra.TensorProduct.assoc ℤ ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗ 𝓞^ ≃ₐ[ℤ] D ⊗ ZHat).toAlgHom.comp
   (Algebra.TensorProduct.includeRight : 𝓞^ →ₐ[ℤ] ℚ ⊗ 𝓞^)
 
 lemma injective_zHat :

@@ -48,7 +48,7 @@ theorem tendsto_zero_pow_of_le_neg_one {K : Type*} [Ring K] [Valued K ℤₘ₀]
     exact zero_lt_one
   · refine ⟨1, fun b hb => lt_of_le_of_lt
       (pow_le_pow_of_le_one zero_le' (le_trans hx <| le_of_lt h_lt) hb) ?_⟩
-    apply pow_one (v x) ▸ lt_trans (lt_of_le_of_lt hx h_lt) (lt_of_not_le hγ)
+    apply pow_one (v x) ▸ lt_trans (lt_of_le_of_lt hx h_lt) (lt_of_not_ge hγ)
 
 open Filter in
 theorem exists_pow_lt_of_le_neg_one {K : Type*} [Ring K] [Valued K ℤₘ₀]
@@ -132,6 +132,6 @@ theorem integer_compactSpace [CompleteSpace K] [IsDiscreteValuationRing 𝒪[K]]
     isCompact_iff_isCompact_univ.1 <|
       isCompact_iff_totallyBounded_isComplete.2
         ⟨(hasBasis_uniformity _ _).totallyBounded_iff.2 <| fun _ _ =>
-          finite_cover_of_uniformity_basis h, (integer_isClosed K).isComplete⟩
+          finite_cover_of_uniformity_basis h, (isClosed_integer K).isComplete⟩
 
 end Valued.WithZeroMulInt

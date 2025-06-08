@@ -4,27 +4,59 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.Mathlib.Algebra.FixedPoints.Basic
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.NumberTheory.NumberField.FinitePlaces
+import FLT.Hacks.RightActionInstances
 
 /-
 
 # Definition of automorphic forms on a totally definite quaternion algebra
 
+## Main definitions
+
+In the `TotallyDefiniteQuaternionAlgebra` namespace:
+
+* `WeightTwoAutomorphicForm F D R` -- weight 2
+  R-valued automorphic forms for the totally definite quaternion algebra `D` over
+  the totally real field `F`. Defined as locally-constant functions
+  `φ : Dˣ \ (D ⊗ 𝔸_F^∞)ˣ → R` which are right-invariant by some compact open subgroup
+  (i.e. ∃ U_φ such that `φ(gu)=φ(g)` for all `u ∈ U`) and have trivial central character
+  (i.e. `φ(zg)=φ(g)` for all `z ∈ (𝔸_F^∞)ˣ`).
+
+* `WeightTwoAutomorphicFormOfLevel U R` -- weight 2 R-valued automorphic forms of
+  level `U`, i.e. `U`-invariant elements of `WeightTwoAutomorphicForm F D R`.
+  It is a nontrivial theorem that if `U` is open and `R` is Noetherian then this space
+  is a finitely-generated `R`-module; this follows from Fujisaki's lemma.
+
+## Implementation notes
+
+This file is slow, for reasons I don't understand properly.
 -/
 
 suppress_compilation
 
-variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
+set_option maxSynthPendingDepth 1 -- otherwise things are even slower, for some reason which
+-- I never quite got to the bottom of
 
-variable (D : Type*) [Ring D] [Algebra F D]
+variable (F : Type*) [Field F] [NumberField F] -- if F isn't totally real all the definitions
+-- below are garbage mathematically but they typecheck.
+
+variable (D : Type*) [Ring D] [Algebra F D] [FiniteDimensional F D]
+  -- If D isn't totally definite then all the
+  -- definitions below are garbage mathematically but they typecheck.
 
 namespace TotallyDefiniteQuaternionAlgebra
 
 open scoped TensorProduct NumberField
 
 open IsDedekindDomain
+
+instance : CommRing (FiniteAdeleRing (𝓞 F) F) := inferInstance
+instance : Ring (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := inferInstance
 
 /-- `Dfx` is an abbreviation for $(D\otimes_F\mathbb{A}_F^\infty)^\times.$ -/
 abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
@@ -33,38 +65,24 @@ abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 $D^\times\to(D\otimes_F\mathbb{A}_F^\infty)^\times.$ Remark: I wrote the `incl₁`
 docstring in LaTeX and the `incl₂` one in unicode. Which is better?-/
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
-  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
+  Units.map (Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
 
+open scoped TensorProduct.RightActions in
 /-- `incl₂` is he inclusion `𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ)`. Remark: I wrote the `incl₁`
 docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
-  Units.map Algebra.TensorProduct.rightAlgebra.algebraMap.toMonoidHom
+  Units.map (algebraMap _ _).toMonoidHom
 
 -- it's actually equal but ⊆ is all we need, and equality is harder
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
   sorry
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  moduleTopology (FiniteAdeleRing (𝓞 F) F) _
-
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  ⟨rfl⟩
-
-variable [IsQuaternionAlgebra F D] in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : Module.Finite (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
-  Module.Finite.base_change_right
-
-variable [IsQuaternionAlgebra F D] in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) _
+open scoped TensorProduct.RightActions in
 /--
 This definition is made in mathlib-generality but is *not* the definition of a
 weight 2 automorphic form unless `Dˣ` is compact mod centre at infinity.
-This hypothesis will be true if `D` is a totally definite quaternion algebra.
+This hypothesis will be true if `D` is a totally definite quaternion algebra
+over a totally real field.
 -/
 structure WeightTwoAutomorphicForm
   -- defined over R
@@ -73,7 +91,6 @@ structure WeightTwoAutomorphicForm
   toFun : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ → R
   left_invt : ∀ (δ : Dˣ) (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
     toFun (incl₁ F D δ * g) = (toFun g)
---  (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
   right_invt : ∃ (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
     IsOpen (U : Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) ∧
     ∀ (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
@@ -174,6 +191,7 @@ open ConjAct
 
 variable [IsQuaternionAlgebra F D]
 
+open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
 quaternion algebra. -/
 def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAutomorphicForm F D R) :
@@ -198,21 +216,25 @@ def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAu
 instance : SMul (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
 
+omit [IsQuaternionAlgebra F D] in
 @[simp]
 lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
     (g • φ) x = φ (x * g) := rfl
 
-set_option synthInstance.maxHeartbeats 40000 in
+attribute [instance low] Units.instMulAction
+
+instance mulAction :
+    MulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+  smul := group_smul
+  one_smul φ := by ext; simp only [group_smul_apply, mul_one]
+  mul_smul g h φ := by ext; simp only [group_smul_apply, mul_assoc]
+
 instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
     (WeightTwoAutomorphicForm F D R) where
-  smul := group_smul
-  one_smul φ := by ext; simp
-  mul_smul g h φ := by ext; simp [mul_assoc]
-  smul_zero g := by ext; simp -- at 20K heartbeats we get
-  -- failed to synthesize
-  -- SMulZeroClass (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ (WeightTwoAutomorphicForm F D R)
-  smul_add g φ ψ := by ext; simp
+  __ := mulAction
+  smul_zero g := by ext; simp only [group_smul_apply, zero_apply]
+  smul_add g φ ψ := by ext; simp only [group_smul_apply, add_apply]
 
 end add_comm_group
 
@@ -251,7 +273,7 @@ variable [IsQuaternionAlgebra F D]
 
 instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R
     (WeightTwoAutomorphicForm F D R) where
-  smul_comm g r φ := by
+  smul_comm r g φ := by
     ext x
     simp [smul_apply]
 
@@ -263,30 +285,20 @@ section finite_level
 
 variable [IsQuaternionAlgebra F D]
 
-/-- An auxiliary definition: weight 2 automorphic forms of a fixed level, but given as
-a submodule of the space of all weight 2 automorphic forms. For the type, see
-`TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel`. -/
-def WeightTwoAutomorphicFormOfLevel_aux (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
-    (R : Type*) [CommRing R] : Submodule R (WeightTwoAutomorphicForm F D R) where
-  carrier := {φ | ∀ u ∈ U, u • φ = φ}
-  add_mem' {a b} ha hb := by simp_all
-  zero_mem' := by simp_all
-  smul_mem' c {x} hx := by simp_all [smul_comm]
-
 /--
-Weight 2 automorphic forms of a fixed level for a totally definite quaternion algebra
-over a totally real field.
+`WeightTwoAutomorphicFormOfLevel U R` is the `R`-valued weight 2 automorphic forms of a fixed
+level `U` for a totally definite quaternion algebra over a totally real field.
 -/
 def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
-    (R : Type*) [CommRing R] : Type _ := WeightTwoAutomorphicFormOfLevel_aux U R
+    (R : Type*) [CommRing R] : Type _ := MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R)
 
 variable (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (R : Type*) [CommRing R]
 
-instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) :=
-  AddSubgroup.toAddCommGroup (WeightTwoAutomorphicFormOfLevel_aux U R).toAddSubgroup
+instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
+  AddCommGroup (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
 
-instance : Module R (WeightTwoAutomorphicFormOfLevel U R) :=
-  SMulMemClass.toModule (WeightTwoAutomorphicFormOfLevel_aux U R)
+instance : Module R (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
+  Module R (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
 
 end finite_level
 

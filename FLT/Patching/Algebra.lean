@@ -1,5 +1,6 @@
 import FLT.Patching.Utils.AdicTopology
 import FLT.Patching.Ultraproduct
+import FLT.Deformations.Lemmas
 
 variable (Λ : Type*) {ι : Type*} [CommRing Λ] (R : ι → Type*)
 variable [∀ i, CommRing (R i)] [∀ i, IsLocalRing (R i)] [∀ i, Algebra Λ (R i)]
@@ -147,7 +148,7 @@ instance : IsLocalRing (PatchingAlgebra R F) := by
       intro j
       by_cases hij : i < j
       · exact hb j hij
-      rw [← b.2 _ _ ((le_of_not_lt hij).trans i.le_succ)]
+      rw [← b.2 _ _ ((le_of_not_gt hij).trans i.le_succ)]
       exact (hb _ i.lt_succ_self).map _
     exact (this ((add_comm b a).trans e) hb).symm
   exact .inl (IsUnit.of_map (PatchingAlgebra.subring R F).subtype _ (IsUnit.pi_iff.mpr H))

@@ -2,7 +2,7 @@ import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.RingTheory.TensorProduct.Finite -- just for Module.Finite.base_change_right
+import FLT.Hacks.RightActionInstances
 
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
@@ -14,10 +14,10 @@ open scoped NumberField TensorProduct
 
 namespace IsQuaternionAlgebra.NumberField
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+open scoped TensorProduct.RightActions in
 /--
 A rigidification of a quaternion algebra D over a number field F
-is a fixed choice of isomorphism D ⊗[F] 𝔸_F^∞ = M₂(𝔸_F^∞). In other
+is a fixed choice of `𝔸_F^∞`-algebra isomorphism `D ⊗[F] 𝔸_F^∞ = M₂(𝔸_F^∞)`. In other
 words, it is a choice of splitting of `D ⊗[F] Fᵥ` (i.e. an isomorphism to `M₂(Fᵥ)`)
 for all finite places `v` together with a guarantee that the isomorphism works
 on the integral level at all but finitely many places. Such a rigidification exists
@@ -192,25 +192,12 @@ theorem GL2.TameLevel.isOpen : IsOpen (GL2.TameLevel S).carrier :=
 theorem GL2.TameLevel.isCompact : IsCompact (GL2.TameLevel S).carrier :=
   sorry
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+open scoped TensorProduct.RightActions in
 noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
     Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-noncomputable instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  moduleTopology (FiniteAdeleRing (𝓞 F) F) _
-
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  ⟨rfl⟩
-
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
-
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-omit [IsQuaternionAlgebra F D] in
+open scoped TensorProduct.RightActions in
 theorem Rigidification.continuous_toFun (r : Rigidification F D) :
     Continuous r :=
   letI : ∀ (i : HeightOneSpectrum (𝓞 F)),
@@ -218,8 +205,7 @@ theorem Rigidification.continuous_toFun (r : Rigidification F D) :
     fun i ↦ (RestrictedProduct.evalRingHom _ i).toAlgebra
   IsModuleTopology.continuous_of_linearMap r.toLinearMap
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-omit [IsQuaternionAlgebra F D] in
+open scoped TensorProduct.RightActions in
 theorem Rigidification.continuous_invFun (r : Rigidification F D) :
     Continuous r.symm := by
   haveI : ContinuousAdd (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
