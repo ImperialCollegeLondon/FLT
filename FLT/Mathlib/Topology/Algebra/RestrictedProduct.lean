@@ -345,7 +345,8 @@ lemma Homeomorph.restrictedProductMatrix_toEquiv {ι : Type*} {m n : Type*} [Fin
       Equiv.restrictedProductMatrix (m := m) (n := n) :=
   rfl
 
-@[to_additive]
+/-- The structure map for a restricted product of monoids is a `MonoidHom`. -/
+@[to_additive "The structure map for a restricted product of AddMonoids is an `AddMonoidHom`."]
 def RestrictedProduct.structureMapMonoidHom {ι : Type*} (M : ι → Type*) [(i : ι) → Monoid (M i)]
     {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)] (A : Π i, S i)
     (𝓕 : Filter ι) : ((i : ι) → (A i)) →* Πʳ (i : ι), [M i, Submonoid.ofClass (A i)]_[𝓕] where
