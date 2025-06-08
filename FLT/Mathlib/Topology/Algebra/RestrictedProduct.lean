@@ -382,11 +382,11 @@ lemma Homeomorph.restrictedProductMatrix_toEquiv {ι : Type*} {m n : Type*} [Fin
 
 @[to_additive]
 def RestrictedProduct.structureMapMonoidHom {ι : Type*} (M : ι → Type*) [(i : ι) → Monoid (M i)]
-  {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)] (A : Π i, S i)
-  (𝓕 : Filter ι) : ((i : ι) → (A i)) →* Πʳ (i : ι), [M i, Submonoid.ofClass (A i)]_[𝓕] where
-    toFun := structureMap M (A ·) 𝓕
-    map_one' := rfl
-    map_mul' := by intros; rfl
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)] (A : Π i, S i)
+    (𝓕 : Filter ι) : ((i : ι) → (A i)) →* Πʳ (i : ι), [M i, Submonoid.ofClass (A i)]_[𝓕] where
+  toFun := structureMap M (A ·) 𝓕
+  map_one' := rfl
+  map_mul' := by intros; rfl
 
 open MulOpposite MonoidHom Units Equiv Set in
 /-- The equivalence `Submonoid.unitsEquivUnitsType`, for monoids equipped with a topology. -/
