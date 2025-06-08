@@ -198,7 +198,6 @@ noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
 
 open scoped TensorProduct.RightActions in
-omit [IsQuaternionAlgebra F D] in
 theorem Rigidification.continuous_toFun (r : Rigidification F D) :
     Continuous r :=
   letI : ∀ (i : HeightOneSpectrum (𝓞 F)),
@@ -207,7 +206,6 @@ theorem Rigidification.continuous_toFun (r : Rigidification F D) :
   IsModuleTopology.continuous_of_linearMap r.toLinearMap
 
 open scoped TensorProduct.RightActions in
-omit [IsQuaternionAlgebra F D] in
 theorem Rigidification.continuous_invFun (r : Rigidification F D) :
     Continuous r.symm := by
   haveI : ContinuousAdd (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
