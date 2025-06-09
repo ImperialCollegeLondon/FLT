@@ -7,10 +7,10 @@ import Mathlib.RingTheory.HopfAlgebra.Basic
 
 open NumberField
 
-universe uA
+universe uK
 
-variable {K L : Type*} [Field K] [Field L]
-variable {A : Type uA} [CommRing A] [TopologicalSpace A]
+variable {K : Type uK} {L : Type*} [Field K] [Field L]
+variable {A : Type*} [CommRing A] [TopologicalSpace A]
 variable {B : Type*} [CommRing B] [TopologicalSpace B]
 variable {M N : Type*} [AddCommGroup M] [Module A M] [AddCommGroup N] [Module A N]
 variable {n : Type*} [Fintype n] [DecidableEq n]
@@ -365,7 +365,7 @@ open TensorProduct in
 there exists an finite flat hopf algebra over `𝒪ᵥ` whose generic fiber is isomorphic to it.
 In particular this requires `M` (and by extension `A`) to have finite cardinality. -/
 def GaloisRep.HasFlatProlongationAt (ρ : GaloisRep K A M) : Prop :=
-  ∃ (G : Type uA) (_ : CommRing G) (_ : HopfAlgebra 𝒪ᵥ G)
+  ∃ (G : Type uK) (_ : CommRing G) (_ : HopfAlgebra 𝒪ᵥ G)
     (_ : Module.Flat 𝒪ᵥ G) (_ : Module.Finite 𝒪ᵥ G) (_ : Algebra.Etale Kᵥ (Kᵥ ⊗[𝒪ᵥ] G))
     (f : Additive (Kᵥ ⊗[𝒪ᵥ] G →ₐ[Kᵥ] Kᵥᵃˡᵍ) →+[Γ Kᵥ] (ρ.adic v).Space),
     Function.Bijective f
