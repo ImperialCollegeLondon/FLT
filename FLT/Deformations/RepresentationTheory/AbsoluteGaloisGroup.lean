@@ -25,6 +25,8 @@ local notation "Ω" K => IsDedekindDomain.HeightOneSpectrum (𝓞 K)
 local notation "Kᵥ" => IsDedekindDomain.HeightOneSpectrum.adicCompletion K v
 local notation "𝒪ᵥ" => IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers K v
 
+/-- Given a field extension, this is a map between its absolute galois group.
+Note that this relies on an arbitrarily chosen embedding of the algebraic closures -/
 noncomputable
 def Field.absoluteGaloisGroup.mapAux (f : K →+* L) : Γ L →* Γ K where
   toFun σ :=
@@ -47,6 +49,8 @@ def Field.absoluteGaloisGroup.mapAux (f : K →+* L) : Γ L →* Γ K where
     refine ((AlgHom.restrictNormal_commutes _ _ _).trans ?_).symm
     simpa [absoluteGaloisGroup] using AlgHom.restrictNormal_commutes _ _ _
 
+/-- Given a field extension, this is a continuous map between its absolute galois group.
+Note that this relies on an arbitrarily chosen embedding of the algebraic closures -/
 noncomputable
 def Field.absoluteGaloisGroup.map (f : K →+* L) : Γ L →ₜ* Γ K where
   __ := Field.absoluteGaloisGroup.mapAux f
@@ -237,11 +241,19 @@ instance valuationRing_integralClosure
     rw [← spectralNorm_inv] at this
     exact .inr (isIntegral_of_spectralNorm_le_one this)
 
+/-- The local inertia subgroup of a number field at a prime, defined as a subgroup
+of the local galois group. -/
 noncomputable
 def localInertiaGroup : Subgroup (Γ Kᵥ) :=
   (𝔪 (IntegralClosure 𝒪ᵥ (Kᵥᵃˡᵍ))).toAddSubgroup.inertia (Γ Kᵥ)
 
 open IntermediateField in
+/-- The subgroup of the local galois group which is the kernel of the canonical map `Iᵥ → k(v)ˣ`.
+Note that this definition is somewhat cheating, abusing the fact that the field corresponding
+to this subgroup is `Kᵘʳ(ᵖ⁻¹√ϖ)` (where `p` is `#k(v)` and not the characteristic)
+and that all units in `Kᵘʳ` have `p-1`-th roots.
+
+TODO: show that this is indeed the right group. -/
 noncomputable
 def localTameAbelianInertiaGroup : Subgroup (Γ Kᵥ) where
   carrier := { σ | ∀ x, x ^ (Nat.card (κ 𝒪ᵥ) - 1) ∈ fixedField (localInertiaGroup v) → σ x = x }
@@ -276,6 +288,7 @@ instance neZero_maximalIdeal_integralClosure :
   exact ⟨(Ideal.bot_lt_of_maximal (𝔪 _)
     (not_isField_integralClosure (L := Kᵥᵃˡᵍ) _ this)).ne'⟩
 
+/-- An arbitrary choice of an (arithmetic) frobenious element of a local galois group. -/
 noncomputable
 def Field.AbsoluteGaloisGroup.adicArithFrob : Γ Kᵥ :=
   arithFrobAt' 𝒪ᵥ (Γ Kᵥ) (𝔪 (IntegralClosure 𝒪ᵥ (Kᵥᵃˡᵍ)))

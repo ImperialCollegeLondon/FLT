@@ -170,13 +170,7 @@ instance {R : Type*} [CommRing R] [IsLocalRing R] :
     IsLocalHom (algebraMap R (ResidueField R)) :=
   isLocalHom_residue
 
--- variable {K L : Type*} [Field K] [Field L]
--- variable {A : Type*} [CommRing A] [TopologicalSpace A]
--- variable {M : Type*} [AddCommGroup M] [Module A M]
-
--- local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
--- local notation3 K:max "ᵃˡᵍ" => AlgebraicClosure K
-
+/-- Given a field extension, this is an arbitrarily chosen map between their `AlgebraicClosure`s. -/
 noncomputable
 def AlgebraicClosure.map {K L : Type*} [Field K] [Field L] (f : K →+* L) :
     AlgebraicClosure K →+* AlgebraicClosure L :=
@@ -188,7 +182,7 @@ lemma AlgebraicClosure.map_algebraMap {K L : Type*} [Field K] [Field L] (f : K �
     letI := f.toAlgebra
     (IsAlgClosed.lift : AlgebraicClosure K →ₐ[K] AlgebraicClosure L).commutes _
 
-def IntermediateField.adjoin_adjoin_right
+lemma IntermediateField.adjoin_adjoin_right
     {K L E : Type*} [Field K] [Field L] [Field E] [Algebra K L] [Algebra L E] [Algebra K E]
     [IsScalarTower K L E] (s : Set E) : adjoin L (adjoin K s : Set E) = adjoin L s := by
   apply le_antisymm
@@ -217,15 +211,19 @@ lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace
   rw [LinearMap.det, dif_neg H]
   exact continuous_of_const fun x ↦ congrFun rfl
 
+/-- `End_A(A) ≃ A`. -/
 def Module.endSelf {A : Type*} [CommSemiring A] : Module.End A A ≃ₐ[A] A :=
   AlgEquiv.ofLinearEquiv (LinearMap.ringLmapEquivSelf A A A) (by simp) (by simp)
 
+/-- Given a `ContinuousMonoidHom` from a group to a monoid, we may lift it to map into the group
+of units of the monoid. -/
 @[simps!]
 def ContinuousMonoidHom.toHomUnits {G M : Type*} [Group G] [Monoid M] [TopologicalSpace G]
-    [IsTopologicalGroup G] [TopologicalSpace M] [ContinuousMul M] (f : G →ₜ* M) : G →ₜ* Mˣ :=
+    [IsTopologicalGroup G] [TopologicalSpace M] (f : G →ₜ* M) : G →ₜ* Mˣ :=
   ⟨MonoidHom.toHomUnits f, continuous_induced_rng.mpr (continuous_prodMk.mpr ⟨f.continuous, by
     simpa [← map_inv] using MulOpposite.continuous_op.comp (f.continuous.comp continuous_inv)⟩)⟩
 
+/-- `Units.val` as a `ContinuousMonoidHom`. -/
 @[simps!]
 def Units.coeHomₜ (M : Type*) [Monoid M] [TopologicalSpace M] : Mˣ →ₜ* M :=
   ⟨coeHom M, Units.continuous_val⟩
@@ -234,6 +232,8 @@ instance {A n m : Type*} [CommRing A] [TopologicalSpace A]
     [Finite n] [Finite m] [IsTopologicalRing A] :
     IsModuleTopology A (Matrix n m A) := IsModuleTopology.instPi
 
+/-- We can upgrade an `AlgEquiv` between algebras with the module topology
+into a `ContinuousAlgEquiv`. -/
 def ContinuousAlgEquiv.ofIsModuleTopology {R A B : Type*} [CommSemiring R] [Semiring A]
     [Semiring B] [Algebra R A] [Algebra R B] [TopologicalSpace A] [TopologicalSpace B]
     [TopologicalSpace R] [IsModuleTopology R A] [IsModuleTopology R B] (e : A ≃ₐ[R] B) :
@@ -268,7 +268,7 @@ instance {G K L : Type*} [Field K] [Field L] [Algebra K L] [Monoid G] [MulSemiri
   smul_mul _ _ _ := Subtype.ext (MulSemiringAction.smul_mul _ _ _)
 
 open NumberField in
-instance {G K : Type*} [Field K] [NumberField K] [Monoid G] [MulSemiringAction G K] :
+instance {G K : Type*} [Field K] [Monoid G] [MulSemiringAction G K] :
     MulSemiringAction G (𝓞 K) where
   smul σ x := ⟨σ • x, x.2.map (MulSemiringAction.toAlgHom ℤ K σ)⟩
   one_smul _ := Subtype.ext (one_smul _ _)

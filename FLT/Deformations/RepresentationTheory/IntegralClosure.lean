@@ -8,6 +8,8 @@ section
 
 variable (R A : Type*) [CommRing R] [CommRing A] [Algebra R A]
 
+/-- `IntegralClosure R A` is the integral closure of `R` in `A` as a type.
+We don't use the subring directly to avoid horrendous timeouts. -/
 def IntegralClosure : Type _ := integralClosure R A
 
 instance : CommRing (IntegralClosure R A) := (integralClosure R A).toCommRing
@@ -50,7 +52,6 @@ lemma not_isField_integralClosure
     {K L : Type*} [Field K] [Field L] [Algebra K L] (R : ValuationSubring K) (hR : R ≠ ⊤) :
     ¬ IsField (IntegralClosure R L) := by
   have : FaithfulSMul K L := inferInstance
-  have : FaithfulSMul R K := Subsemiring.instFaithfulSMulSubtypeMem R
   contrapose! hR
   letI := hR.toField
   let F := IsFractionRing.liftAlgHom (K := K) (g := Algebra.ofId R (IntegralClosure R L))

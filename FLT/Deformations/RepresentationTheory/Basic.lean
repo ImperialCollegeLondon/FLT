@@ -37,6 +37,7 @@ attribute [local instance 100000]
   CommRing.toCommSemiring
   Valued.toIsUniformAddGroup
 
+/-- `GaloisRep K A M` are the `A`-linear galois reps of a field `K` on the `A`-module `M`. -/
 variable (K A M) in
 def GaloisRep :=
   letI := moduleTopology A (Module.End A M)
@@ -56,11 +57,14 @@ lemma GaloisRep.ext {ρ ρ' : GaloisRep K A M} (H : ∀ σ, ρ σ = ρ' σ) : ρ
   letI := moduleTopology A (Module.End A M)
   ContinuousMonoidHom.ext H
 
+/-- The kernel of a galois rep. -/
 nonrec
 abbrev GaloisRep.ker (ρ : GaloisRep K A M) : Subgroup (Γ K) :=
   letI := moduleTopology A (Module.End A M)
   ρ.ker
 
+/-- A field extension induces a map between galois reps.
+Note that this relies on an arbitrarily chosen embedding of the algebraic closures. -/
 noncomputable
 def GaloisRep.map (ρ : GaloisRep K A M) (f : K →+* L) : GaloisRep L A M :=
   letI := moduleTopology A (Module.End A M)
@@ -70,13 +74,18 @@ def GaloisRep.map (ρ : GaloisRep K A M) (f : K →+* L) : GaloisRep L A M :=
 lemma GaloisRep.ker_map (ρ : GaloisRep K A M) (f : K →+* L) :
     (ρ.map f).ker = ρ.ker.comap (Field.absoluteGaloisGroup.map f) := rfl
 
+/-- A framed galois rep is a galois rep with a distinguished basis.
+We implement it by via a galois rep on `Aⁿ`. -/
 variable (K A n) in
 abbrev FramedGaloisRep := GaloisRep K A (n → A)
 
+/-- A field extension induces a map between framed galois reps.
+Note that this relies on an arbitrarily chosen embedding of the algebraic closures. -/
 noncomputable
 abbrev FramedGaloisRep.map (ρ : FramedGaloisRep K A n) (f : K →+* L) : FramedGaloisRep L A n :=
   GaloisRep.map ρ f
 
+/-- We can conjugate a galois rep by a linear isomorphism on the space. -/
 noncomputable
 def GaloisRep.conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) : GaloisRep K A N :=
   letI := moduleTopology A (Module.End A M)
@@ -105,6 +114,7 @@ lemma GaloisRep.ker_conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) :
   letI := moduleTopology A (Module.End A N)
   ext; simp [conj]
 
+/-- Equivalent modules have equivalent set of galois reps. -/
 noncomputable
 def GaloisRep.conjEquiv (e : M ≃ₗ[A] N) : GaloisRep K A M ≃ GaloisRep K A N where
   toFun := (conj · e)
@@ -112,10 +122,12 @@ def GaloisRep.conjEquiv (e : M ≃ₗ[A] N) : GaloisRep K A M ≃ GaloisRep K A 
   left_inv _ := by ext; simp
   right_inv _ := by ext; simp
 
+/-- Given a basis, we may frame a galois rep into a framed galois rep. -/
 noncomputable
 def GaloisRep.frame (ρ : GaloisRep K A M) (b : Basis n A M) : FramedGaloisRep K A n :=
   ρ.conj (b.repr ≪≫ₗ Finsupp.linearEquivFunOnFinite A A n)
 
+/-- Given a basis of `M`, we may realize a framed galois rep as a galois rep on `M`. -/
 noncomputable
 def FramedGaloisRep.unframe (ρ : FramedGaloisRep K A n) (b : Basis n A M) : GaloisRep K A M :=
   ρ.conj (b.repr ≪≫ₗ Finsupp.linearEquivFunOnFinite A A n).symm
@@ -134,6 +146,7 @@ lemma FramedGaloisRep.unframe_frame (ρ : FramedGaloisRep K A n) (b : Basis n A 
 
 variable [IsTopologicalRing A]
 
+/-- `A`-linear framed galois reps are equivalent to continuous homomorphisms into `GLₙ(A)`. -/
 def FramedGaloisRep.GL : FramedGaloisRep K A n ≃ (Γ K →ₜ* GL n A) :=
   letI := moduleTopology A (Module.End A (n → A))
   letI : ContinuousMul _ := ⟨IsModuleTopology.continuous_mul_of_finite A (Module.End A (n → A))⟩
@@ -148,6 +161,7 @@ omit [NumberField K] in
 @[simp]
 lemma FramedGaloisRep.GL_apply (ρ : FramedGaloisRep K A n) (σ) : (ρ.GL σ).1 = (ρ σ).toMatrix' := rfl
 
+/-- Make an `A`-linear framed galois reps from a continuous hom into `GLₙ(A)`. -/
 abbrev FramedGaloisRep.ofGL := FramedGaloisRep.GL (K := K) (A := A) (n := n).symm
 
 omit [NumberField K] in
@@ -158,6 +172,7 @@ omit [NumberField K] in
 @[simp]
 lemma FramedGaloisRep.ofGL_apply (ρ : Γ K →ₜ* GL n A) (σ) : ofGL ρ σ = (ρ σ).toLin := rfl
 
+/-- `1`-dimensional framed galois reps are equivalent to (continuous) characters.  -/
 def FramedGaloisRep.equivChar {n : Type*} [Unique n] : FramedGaloisRep K A n ≃ (Γ K →ₜ* A) :=
   letI := moduleTopology A (Module.End A (n → A))
   letI : ContinuousMul _ := ⟨IsModuleTopology.continuous_mul_of_finite A (Module.End A (n → A))⟩
@@ -169,11 +184,13 @@ def FramedGaloisRep.equivChar {n : Type*} [Unique n] : FramedGaloisRep K A n ≃
     left_inv _ := by ext; simp [GaloisRep]
     right_inv _ := by ext; simp }
 
+/-- The determinant of a galois rep. -/
 noncomputable
 def GaloisRep.det [IsTopologicalRing A] (ρ : GaloisRep K A M) : Γ K →ₜ* A :=
   letI := moduleTopology A (Module.End A M)
   .comp ⟨LinearMap.det, IsModuleTopology.continuous_det⟩ ρ
 
+/-- Make a `A`-linear galois rep on `M` into a `B`-linear rep on `B ⊗ M`. -/
 open TensorProduct in
 variable (B) in
 noncomputable
@@ -211,6 +228,8 @@ lemma GaloisRep.baseChange_map [IsTopologicalRing B] [Algebra A B] [ContinuousSM
     [Module.Finite A M] [Module.Free A M]
     (ρ : GaloisRep K A M) (f : K →+* L) : (ρ.baseChange B).map f = (ρ.map f).baseChange B := rfl
 
+/-- Make a framed `n` dimensional `A`-linear galois rep into a `B`-linear rep by composing with
+`GLₙ(A) → GLₙ(B)`. -/
 noncomputable
 def FramedGaloisRep.baseChange [IsTopologicalRing B]
     (ρ : FramedGaloisRep K A n) (f : A →+* B) (hf : Continuous f) : FramedGaloisRep K B n :=
@@ -277,8 +296,9 @@ lemma FramedGaloisRep.det_baseChange [IsTopologicalRing B]
   dsimp [← Matrix.toLin'_apply']
   rw [LinearMap.det_toLin', Matrix.map_det, LinearMap.det_toMatrix']
 
--- Note: this fixes an arbitrary embedding `Kᵃˡᵍ → Kᵥᵃˡᵍ`, or equivalently,
--- an arbitrary choice of valuation on `Kᵃˡᵍ` extending `v`.
+/-- Given a (global) galois rep, this is the local galois rep at a finite prime `v`.
+Note: this fixes an arbitrary embedding `Kᵃˡᵍ → Kᵥᵃˡᵍ`, or equivalently,
+an arbitrary choice of valuation on `Kᵃˡᵍ` extending `v`. -/
 noncomputable
 abbrev GaloisRep.adic (ρ : GaloisRep K A M) (v : Ω K) : GaloisRep (v.adicCompletion K) A M :=
   ρ.map (algebraMap _ _)
@@ -286,6 +306,7 @@ abbrev GaloisRep.adic (ρ : GaloisRep K A M) (v : Ω K) : GaloisRep (v.adicCompl
 universe v u
 variable {R : Type u} [CommRing R]
 
+/-- The class of galois reps unramified at `v`. -/
 class GaloisRep.IsUnramifiedAt (ρ : GaloisRep K A M) (v : Ω K) : Prop where
   localInertiaGroup_le :
     letI := moduleTopology A (Module.End A M)
@@ -303,6 +324,7 @@ instance [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
 
 variable [Module.Free A M] [Module.Finite A M] [Module.Free A N] [Module.Finite A N]
 
+/-- The character polynomial of the frobenious conjugacy class at `v` under `ρ`. -/
 noncomputable
 def GaloisRep.charFrob (ρ : GaloisRep K A M) : Polynomial A := (ρ.adic v Frobᵥ).charpoly
 
@@ -319,6 +341,8 @@ lemma GaloisRep.charFrob_eq (ρ : GaloisRep K A M) [ρ.IsUnramifiedAt v] (σ : �
 
 section Flat
 
+/-- The underlying space of a galois rep. This is a type class synonym that allows `G` to act
+on it via `ρ`. -/
 set_option linter.unusedVariables false in
 @[nolint unusedArguments]
 abbrev GaloisRep.Space (ρ : GaloisRep K A M) : Type _ := M
@@ -335,14 +359,21 @@ attribute [instance 10000]
   DistribMulAction.toMulAction
   MulAction.toSMul
 
+/-- A galois rep `ρ : Γ K → Aut_A(M)` has a flat prolongation at `v` if `M` (when viewed as a
+`Γ Kᵥ`) module is isomorphic to the geometric points of a finite etale hopf algebra over `Kᵥ`, and
+there exists an finite flat hopf algebra over `𝒪ᵥ` whose generic fiber is isomorphic to it.
+In particular this requires `M` (and by extension `A`) to have finite cardinality. -/
 open TensorProduct in
-def GaloisRep.IsFlatFiberAt (ρ : GaloisRep K A M) : Prop :=
+def GaloisRep.HasFlatProlongationAt (ρ : GaloisRep K A M) : Prop :=
   ∃ (G : Type uA) (_ : CommRing G) (_ : HopfAlgebra 𝒪ᵥ G)
+    (_ : Module.Flat 𝒪ᵥ G) (_ : Module.Finite 𝒪ᵥ G) (_ : Algebra.Etale Kᵥ (Kᵥ ⊗[𝒪ᵥ] G))
     (f : Additive (Kᵥ ⊗[𝒪ᵥ] G →ₐ[Kᵥ] Kᵥᵃˡᵍ) →+[Γ Kᵥ] (ρ.adic v).Space),
     Function.Bijective f
 
+/-- A galois rep `ρ : Γ K → Aut_A(M)` is flat at `v` if `A/mⁿ ⊗ M` has a flat prolongation at `v`
+for all `n`. -/
 class GaloisRep.IsFlatAt [IsLocalRing A] (ρ : GaloisRep K A M) : Prop where
-  cond : ∀ n : ℕ, n ≠ 0 → (ρ.baseChange (A ⧸ IsLocalRing.maximalIdeal A ^ n)).IsFlatFiberAt v
+  cond : ∀ n : ℕ, n ≠ 0 →
+    (ρ.baseChange (A ⧸ IsLocalRing.maximalIdeal A ^ n)).HasFlatProlongationAt v
 
 end Flat
-#min_imports

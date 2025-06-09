@@ -58,6 +58,7 @@ instance {G H X Y : Type*} [Monoid G] [MulAction G X] [Semiring Y] [MulSemiringA
 
 open TensorProduct
 
+/-- Composing `MulActionHom` on the left as an `AlgHom`. -/
 def MulActionHom.compLeftAlgHom (G R Y : Type*) {X X' : Type*}
     [Monoid G] [MulAction G X] [MulAction G X'] [Semiring Y] [MulSemiringAction G Y]
     [CommSemiring R] [Algebra R Y] [SMulCommClass G R Y] (f : X →[G] X') :
@@ -69,6 +70,7 @@ def MulActionHom.compLeftAlgHom (G R Y : Type*) {X X' : Type*}
   map_add' _ _ := rfl
   commutes' _ := rfl
 
+/-- The coercion from `MulActionHom` to functions as an `AlgHom`. -/
 def MulActionHom.toFunAlgHom
     {G H X Y : Type*} [Monoid G] [MulAction G X] [Semiring Y] [MulSemiringAction G Y]
     [CommSemiring H] [Algebra H Y] [SMulCommClass G H Y] :
@@ -84,6 +86,9 @@ def MulActionHom.toFunAlgHom
 lemma MulAction.orbitRel.Quotient.mk_smul {G X : Type*} [Group G] [MulAction G X] (g : G) (x : X) :
   (⟦g • x⟧ : orbitRel.Quotient G X) = ⟦x⟧ := Quotient.sound ⟨g, rfl⟩
 
+/-- Given a representative for each orbit of `X` under `G`, and for each `x : X` a choice of `σ`
+that sends `x` to the representative, we obtain a bijection between `G`-equivariant homs from `X`
+and the product of `Stab(x)`-fixed points over each orbit representative `x`.  -/
 @[simps]
 def MulAction.homEquivProdFixedPoints {G X Y : Type*} [Group G] [MulAction G X] [MulAction G Y]
     (σ : X → G) (hσ : ∀ a b, orbitRel G X a b → σ a • a = σ b • b) :
@@ -105,6 +110,10 @@ def MulAction.homEquivProdFixedPoints {G X Y : Type*} [Group G] [MulAction G X] 
     congr 2 <;> simp [this]
 
 open IntermediateField in
+/-- Given a representative for each orbit of `X` under `G := Gal(L/K)`,
+and for each `x : X` a choice of `σ` that sends `x` to the representative,
+we obtain a `K`-algebra isomorphism between `G`-equivariant homs from `X`
+and the product of `Stab(x)`-fixed points over each orbit representative `x`.  -/
 def MulAction.etaleSubalgebraEquiv
     (σ : X → L ≃ₐ[K] L) (hσ : ∀ a b, orbitRel (L ≃ₐ[K] L) X a b → σ a • a = σ b • b) :
     (X →[L ≃ₐ[K] L] L) ≃ₐ[K]
@@ -122,6 +131,8 @@ lemma RingHom.exists_map_single_ne_zero
   by_contra! H
   simpa [H] using DFunLike.congr_arg f (Finset.univ_sum_single 1)
 
+/-- Given a map from a product of rings to a nontrivial ring, this is an arbitrary index whose
+corresponding component is not sent to zero. -/
 noncomputable
 def RingHom.piIndex {ι S : Type*} {R : ι → Type*} [_root_.Finite ι] [DecidableEq ι]
     [∀ i, Semiring (R i)] [Semiring S] [Nontrivial S] (f : (Π i, R i) →+* S) : ι :=
@@ -145,6 +156,7 @@ lemma RingHom.single_piIndex {ι S : Type*} {R : ι → Type*} [_root_.Finite ι
   conv_rhs => rw [← one_mul (f x), ← f.single_piIndex_one, ← f.map_mul]
   rw [← Pi.single_mul_left, one_mul]
 
+/-- `Pi.single` as a `NonUnitalRingHom`. -/
 noncomputable
 def NonUnitalRingHom.single {ι : Type*} (R : ι → Type*) [DecidableEq ι]
     [∀ i, NonUnitalNonAssocSemiring (R i)] (i) : R i →ₙ+* Π i, R i where
@@ -159,6 +171,8 @@ lemma NonUnitalRingHom.single_apply {ι : Type*} {R : ι → Type*} [DecidableEq
 lemma RingHom.toNonUnitalRingHom_apply {R S : Type*} [NonAssocSemiring R] [NonAssocSemiring S]
     (f : R →+* S) (x : R) : f.toNonUnitalRingHom x = f x := rfl
 
+/-- A map from a product of rings to a domain must factor through one of the components.
+This is the factor map. -/
 @[simps!]
 noncomputable
 def RingHom.projPiIndex {ι S : Type*} {R : ι → Type*} [_root_.Finite ι] [DecidableEq ι]
@@ -167,6 +181,7 @@ def RingHom.projPiIndex {ι S : Type*} {R : ι → Type*} [_root_.Finite ι] [De
   __ := f.toNonUnitalRingHom.comp (NonUnitalRingHom.single R f.piIndex)
   map_one' := by simp
 
+/-- `Hom(∏ Rᵢ, S) ≃ ∐ Hom(Rᵢ, S)` when `S` is a domain. -/
 @[simps! apply_fst apply_snd symm_apply_apply]
 noncomputable
 def Pi.ringHomEquivOfIsDomain {ι S : Type*} {R : ι → Type*} [Finite ι] [DecidableEq ι]
@@ -185,7 +200,9 @@ def Pi.ringHomEquivOfIsDomain {ι S : Type*} {R : ι → Type*} [Finite ι] [Dec
       simpa using DFunLike.congr_fun e (Pi.single i₁ x)
     exact this (by ext; simp)
 
-@[simps! apply_fst apply_snd_apply symm_apply_apply]
+/-- `Hom(∏ Rᵢ, S) ≃ ∐ Hom(Rᵢ, S)` when `S` is a domain.
+This is the `AlgHom` version of `Pi.ringHomEquivOfIsDomain`. -/
+@[simps! apply_fst symm_apply_apply, simps! -isSimp apply_snd_apply]
 noncomputable
 def Pi.algHomEquivOfIsDomain {ι R₀ S : Type*} {R : ι → Type*} [Finite ι] [DecidableEq ι]
     [CommSemiring R₀]
@@ -202,6 +219,10 @@ def Pi.algHomEquivOfIsDomain {ι R₀ S : Type*} {R : ι → Type*} [Finite ι] 
     exact Pi.ringHomEquivOfIsDomain.apply_symm_apply ⟨f.1, f.2.toRingHom⟩
 
 open MulAction IntermediateField in
+/-- If `G` is a closed subgroup of the galois group `Γ := Gal(L/K)`, then
+`Γ/G` is in bijection with the `K`-linear embeddings of `Lᴳ` into `L`.
+
+Note that `G` is not necessarily normal here. -/
 noncomputable
 def InfiniteGalois.quotientEquivFixedFieldEmb [IsGalois K L] (G : ClosedSubgroup (L ≃ₐ[K] L)) :
     ((L ≃ₐ[K] L) ⧸ G.1) ≃ (fixedField G.1 →ₐ[K] L) where
@@ -225,6 +246,7 @@ instance {R S T G : Type*} [CommSemiring R] [Semiring S] [Semiring T] [Algebra R
   one_smul f := by ext x; exact one_smul G (f x)
   mul_smul g g' f := by ext x; exact mul_smul g g' (f x)
 
+/-- Evaluating a `MulActionHom` is an `AlgHom`, bundled as a `MulActionHom`. -/
 def MulActionHom.evalAlgHom (G R X Y : Type*) [CommSemiring R] [Semiring Y] [Algebra R Y]
     [Monoid G] [MulAction G X] [MulSemiringAction G Y] [SMulCommClass G R Y] :
     X →[G] ((X →[G] Y) →ₐ[R] Y) where
@@ -236,6 +258,9 @@ lemma MulActionHom.evalAlgHom_apply {G R X Y : Type*} [CommSemiring R] [Semiring
     [Monoid G] [MulAction G X] [MulSemiringAction G Y] [SMulCommClass G R Y] (x f) :
     evalAlgHom G R X Y x f = f x := rfl
 
+/-- Given a representative for each orbit of `X` under `G`, and for each `x : X` a choice of `σ`
+that sends `x` to the representative, we obtain a bijection between `X` and `∐ G/stab(x)` where
+the disjoint union runs through the representatives. -/
 @[simps]
 def MulAction.sigmaRangeQuotientStabilizer
     {G X : Type*} [Group G] [MulAction G X]
@@ -280,8 +305,7 @@ lemma InfiniteGalois.evalAlgHom_bijective [IsGalois K L] [Finite X]
   rw [map_smul, inv_smul_smul]
 
 open MulAction IntermediateField in
-instance [IsGalois K L] [Finite X] [ContinuousSMulDiscrete (L ≃ₐ[K] L) X] :
-    Algebra.FormallyEtale K (X →[L ≃ₐ[K] L] L) := by
+instance [IsGalois K L] [Finite X] : Algebra.FormallyEtale K (X →[L ≃ₐ[K] L] L) := by
   classical
   choose φ hφ using Quotient.mk_surjective (s := orbitRel (L ≃ₐ[K] L) X)
   choose σ hσ using fun x ↦ Quotient.eq''.mp (hφ ⟦x⟧)
@@ -310,6 +334,7 @@ instance [IsGalois K L] [Finite X] [ContinuousSMulDiscrete (L ≃ₐ[K] L) X] :
     Algebra.Etale K (X →[L ≃ₐ[K] L] L) where
   finitePresentation := by rw [← Algebra.FinitePresentation.of_finiteType]; infer_instance
 
+/-- Evaluating a `AlgHom` is an `MulActionHom`, bundled as a `AlgHom`. -/
 def AlgHom.evalMulActionHom (G R A Y : Type*) [CommSemiring R] [Semiring Y] [Algebra R Y]
     [Monoid G] [Semiring A] [Algebra R A] [MulSemiringAction G Y] [SMulCommClass G R Y]  :
     A →ₐ[R] ((A →ₐ[R] Y) →[G] Y) where
