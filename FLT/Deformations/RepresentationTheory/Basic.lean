@@ -37,8 +37,8 @@ attribute [local instance 100000]
   CommRing.toCommSemiring
   Valued.toIsUniformAddGroup
 
-/-- `GaloisRep K A M` are the `A`-linear galois reps of a field `K` on the `A`-module `M`. -/
 variable (K A M) in
+/-- `GaloisRep K A M` are the `A`-linear galois reps of a field `K` on the `A`-module `M`. -/
 def GaloisRep :=
   letI := moduleTopology A (Module.End A M)
   Γ K →ₜ* Module.End A M
@@ -74,9 +74,9 @@ def GaloisRep.map (ρ : GaloisRep K A M) (f : K →+* L) : GaloisRep L A M :=
 lemma GaloisRep.ker_map (ρ : GaloisRep K A M) (f : K →+* L) :
     (ρ.map f).ker = ρ.ker.comap (Field.absoluteGaloisGroup.map f) := rfl
 
+variable (K A n) in
 /-- A framed galois rep is a galois rep with a distinguished basis.
 We implement it by via a galois rep on `Aⁿ`. -/
-variable (K A n) in
 abbrev FramedGaloisRep := GaloisRep K A (n → A)
 
 /-- A field extension induces a map between framed galois reps.
@@ -190,9 +190,9 @@ def GaloisRep.det [IsTopologicalRing A] (ρ : GaloisRep K A M) : Γ K →ₜ* A 
   letI := moduleTopology A (Module.End A M)
   .comp ⟨LinearMap.det, IsModuleTopology.continuous_det⟩ ρ
 
-/-- Make a `A`-linear galois rep on `M` into a `B`-linear rep on `B ⊗ M`. -/
 open TensorProduct in
 variable (B) in
+/-- Make a `A`-linear galois rep on `M` into a `B`-linear rep on `B ⊗ M`. -/
 noncomputable
 def GaloisRep.baseChange [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
     [Module.Finite A M] [Module.Free A M]
@@ -341,9 +341,9 @@ lemma GaloisRep.charFrob_eq (ρ : GaloisRep K A M) [ρ.IsUnramifiedAt v] (σ : �
 
 section Flat
 
+set_option linter.unusedVariables false in
 /-- The underlying space of a galois rep. This is a type class synonym that allows `G` to act
 on it via `ρ`. -/
-set_option linter.unusedVariables false in
 @[nolint unusedArguments]
 abbrev GaloisRep.Space (ρ : GaloisRep K A M) : Type _ := M
 
@@ -359,11 +359,11 @@ attribute [instance 10000]
   DistribMulAction.toMulAction
   MulAction.toSMul
 
+open TensorProduct in
 /-- A galois rep `ρ : Γ K → Aut_A(M)` has a flat prolongation at `v` if `M` (when viewed as a
 `Γ Kᵥ`) module is isomorphic to the geometric points of a finite etale hopf algebra over `Kᵥ`, and
 there exists an finite flat hopf algebra over `𝒪ᵥ` whose generic fiber is isomorphic to it.
 In particular this requires `M` (and by extension `A`) to have finite cardinality. -/
-open TensorProduct in
 def GaloisRep.HasFlatProlongationAt (ρ : GaloisRep K A M) : Prop :=
   ∃ (G : Type uA) (_ : CommRing G) (_ : HopfAlgebra 𝒪ᵥ G)
     (_ : Module.Flat 𝒪ᵥ G) (_ : Module.Finite 𝒪ᵥ G) (_ : Algebra.Etale Kᵥ (Kᵥ ⊗[𝒪ᵥ] G))
