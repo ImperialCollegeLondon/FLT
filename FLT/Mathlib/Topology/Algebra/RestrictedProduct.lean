@@ -59,43 +59,13 @@ variable {ℱ : Filter ι}
     {C : (i : ι) → Set (G i)}
     {D : (i : ι) → Set (H i)}
 
-variable {ι₂ : Type*} {𝒢 : Filter ι₂} {G₂ : ι₂ → Type*}
-    {C₂ : (i : ι₂) → Set (G₂ i)} {f : ι₂ → ι} (hf : Filter.Tendsto f 𝒢 ℱ)
-    [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (G₂ i)] in
-theorem Continuous.restrictedProduct_map {φ : (j : ι₂) → G (f j) → G₂ j}
-    (hφ : ∀ᶠ j in 𝒢, Set.MapsTo (φ j) (C (f j)) (C₂ j))
-    (hφcont : ∀ i, Continuous (φ i)) :
-    Continuous (map G G₂ f hf φ hφ) := by
-  rw [continuous_dom]
-  intro S hS
-  rw [Filter.le_principal_iff] at hS
-  set T := {x | Set.MapsTo (φ x) (C (f x)) (C₂ x)}
-  have hT : 𝒢 ≤ Filter.principal ((f ⁻¹' S) ∩ T) := by
-    rw [Filter.le_principal_iff]
-    apply Filter.inter_mem _ hφ
-    exact hf hS
-  have hST : Filter.Tendsto f (Filter.principal ((f ⁻¹' S) ∩ T)) (Filter.principal S) := by
-    rw [Filter.tendsto_principal_principal]
-    exact fun a ⟨ha, _⟩ ↦ ha
-  have hφ' : ∀ᶠ (j : ι₂) in Filter.principal ((f ⁻¹' S) ∩ T), Set.MapsTo (φ j) (C (f j)) (C₂ j) :=
-    Filter.mem_principal.mpr Set.inter_subset_right
-  have hc : Continuous (map G G₂ f hST φ hφ') := by
-    rw [continuous_rng_of_principal]
-    apply continuous_pi
-    intro i
-    apply (hφcont i).comp <| (continuous_apply (f i)).comp continuous_coe
-  exact (RestrictedProduct.continuous_inclusion hT).comp hc
-
--- TODO: this attribute should be in mathlib
-attribute [fun_prop] RestrictedProduct.continuous_inclusion
-
 variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
 @[fun_prop]
 theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
     Continuous (congrRight φ hφ) :=
-  Continuous.restrictedProduct_map Filter.tendsto_id hφ hφcont
+  map_continuous G H id Filter.tendsto_id φ hφ hφcont
 
 -- now let's add groups
 
@@ -526,7 +496,7 @@ def flatten_homeomorph :
   __ := flatten_equiv C hf
   continuous_toFun := by
     dsimp only [flatten_equiv]
-    apply Continuous.restrictedProduct_map
+    apply map_continuous
     fun_prop
   continuous_invFun := by
     dsimp only [flatten_equiv]
@@ -538,24 +508,21 @@ def flatten_homeomorph :
         ← Filter.le_principal_iff]
     let g : Πʳ i, [G i, C i]_[Filter.principal S] → Πʳ j, [Π (i : f ⁻¹' {j}), G i,
         Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[Filter.principal T] :=
-      fun ⟨x, hx⟩ ↦ ⟨fun j i ↦ x i, by
+      fun x ↦ ⟨fun _ i ↦ x i, by
         have : Filter.comap f (Filter.principal T) ≤ Filter.principal S := by
           rw [Filter.le_principal_iff, Filter.mem_comap]
           use T
           refine ⟨Filter.mem_principal_self T, ?_⟩
           rw [hTval, Set.preimage_compl, Set.compl_subset_comm]
           apply Set.subset_preimage_image
-        have hx := Filter.Eventually.filter_mono this hx
+        have hx := Filter.Eventually.filter_mono this x.prop
         rw [Filter.eventually_comap] at hx
         filter_upwards [hx] with j hj ⟨i, hi⟩ _ using hj i hi⟩
-    let hc : Continuous g := by
+    let hg: Continuous g := by
       rw [continuous_rng_of_principal]
-      apply continuous_pi
-      intro j
-      apply continuous_pi
-      rintro ⟨i, rfl⟩
-      exact continuous_apply i
-    apply (continuous_inclusion hT).comp hc
+      unfold g
+      fun_prop
+    apply (continuous_inclusion hT).comp hg
 
 @[simp]
 lemma flatten_homeomorph_apply (x) (i : ι) :
@@ -574,9 +541,7 @@ filter. -/
 def flatten_equiv' :
     Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)] ≃
     Πʳ i, [G i, C i] :=
-  have hf : Filter.comap f Filter.cofinite = Filter.cofinite := by
-    apply le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
-  flatten_equiv C hf
+  flatten_equiv C <| le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
 
 omit [(i : ι) → TopologicalSpace (G i)] in
 @[simp]
@@ -595,9 +560,8 @@ filter and there's a topology on the factors. -/
 def flatten_homeomorph' :
     Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)] ≃ₜ
     Πʳ i, [G i, C i] :=
-  have hf : Filter.comap f Filter.cofinite = Filter.cofinite := by
-    apply le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
-  flatten_homeomorph C hf
+  flatten_homeomorph C <|
+    le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
 
 @[simp]
 lemma flatten_homeomorph'_apply (x) (i : ι) :
