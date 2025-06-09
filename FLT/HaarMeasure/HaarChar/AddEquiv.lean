@@ -282,42 +282,20 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
   have hφXopen : IsOpen (φ '' X) := φ.toHomeomorph.isOpen_image.mpr hXopen
 
   -- Define the measure `ν`
-  let f (s : Set G) (hs : MeasurableSet s) := haar (s ×ˢ (ψ '' Y))
-  let m : OuterMeasure G := inducedOuterMeasure f (by simp) (by simp [f])
-  have h ⦃S : ℕ → Set G⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i))
-      (hS' : Pairwise (Function.onFun Disjoint S)) :
-      haar ((⋃ i, S i) ×ˢ (ψ '' Y)) = ∑' (i : ℕ), haar (S i ×ˢ (ψ '' Y)) := by
-    rw [Set.iUnion_prod_const]
-    exact haar.m_iUnion (prod_le_borel_prod _ <| hS ·|>.prod hψYopen.measurableSet)
-      (fun _ _ neq ↦ by simp [hS' neq])
-  let ν : Measure G := {
-    toOuterMeasure := m
-    m_iUnion S hS hS' := by
-      convert h hS hS'
-      · exact inducedOuterMeasure_eq _ h (MeasurableSet.iUnion hS)
-      · exact inducedOuterMeasure_eq _ h (hS _)
-    trim_le S := by
-      apply le_inducedOuterMeasure.mpr fun s hs ↦ by
-        rwa [← inducedOuterMeasure_eq (m := f) _ h hs, OuterMeasure.trim_eq]
-  }
+  let ρ₁ : Measure (G × H) := haar.restrict (Set.univ ×ˢ (ψ '' Y))
+  let ν := ρ₁.map Prod.fst
   have ν_apply {S : Set G} (hS : MeasurableSet S) : ν S = haar (S ×ˢ (ψ '' Y)) := by
-    change m S = _; rw [inducedOuterMeasure_eq _ h hS]
-  -- Prove `ν` is a Haar measure
+    rw [Measure.map_apply _ hS, ← Set.prod_univ, Measure.restrict_apply]
+    · congr 1; ext; simp
+    · exact prod_le_borel_prod _ <| hS.prod MeasurableSet.univ
+    · exact fun _ ↦ (prod_le_borel_prod _ <| measurable_fst ·)
   have hν : IsHaarMeasure ν := {
     lt_top_of_isCompact C hC := by
-      have ⦃S : ℕ → Set G⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i)) :
-          haar ((⋃ i, S i) ×ˢ (ψ '' Y)) ≤ ∑' (i : ℕ), haar (S i ×ˢ (ψ '' Y)) := by
-        rw [Set.iUnion_prod_const]
-        exact measure_iUnion_le _
-      change m C < _
-      rw [inducedOuterMeasure_eq_iInf _ this, iInf_lt_top]
-      · have ⟨C', hC', hCC'⟩ := exists_compact_superset hC
-        use interior C'
-        refine iInf_lt_iff.mpr ⟨isOpen_interior.measurableSet, iInf_lt_iff.mpr ⟨hCC', ?_⟩⟩
-        apply lt_of_le_of_lt (measure_mono <| Set.prod_mono interior_subset (Set.image_mono hY))
-        exact (hC'.prod <| ψ.isCompact_image.mpr hKcomp).measure_ne_top.symm.lt_top'
-      · exact fun s₁ s₂ _ _ sub ↦ measure_mono <| Set.prod_mono sub subset_rfl
-      · exact fun S hS ↦ MeasurableSet.iUnion hS
+      have ⟨C', hC', hCC'⟩ := exists_compact_superset hC
+      apply lt_of_le_of_lt (measure_mono hCC')
+      rw [ν_apply measurableSet_interior]
+      apply lt_of_le_of_lt <| measure_mono <| Set.prod_mono interior_subset (Set.image_mono hY)
+      exact hC'.prod (ψ.isCompact_image.mpr hKcomp) |>.measure_ne_top.symm.lt_top'
     map_mul_left_eq_self g := by
       ext S hS
       rw [map_apply (measurable_const_mul g) hS]
@@ -342,55 +320,29 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
   }
 
   -- Define the measure `μ`
-  let f' (s : Set H) (hs : MeasurableSet s) := haar (X ×ˢ s)
-  let m' : OuterMeasure H := inducedOuterMeasure f' (by simp) (by simp [f'])
-  have h' ⦃S : ℕ → Set H⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i))
-      (hS' : Pairwise (Function.onFun Disjoint S)) :
-      haar (X ×ˢ (⋃ i, S i)) = ∑' (i : ℕ), haar (X ×ˢ S i) := by
-    rw [Set.prod_iUnion]
-    apply haar.m_iUnion
-    · exact (prod_le_borel_prod _ <| hXopen.measurableSet.prod <| hS ·)
-    · exact (fun _ _ neq ↦ by simp [hS' neq])
-  let μ : Measure H := {
-    toOuterMeasure := m'
-    m_iUnion S hS hS' := by
-      convert h' hS hS'
-      · exact inducedOuterMeasure_eq _ h' (MeasurableSet.iUnion hS)
-      · exact inducedOuterMeasure_eq _ h' (hS _)
-    trim_le S := by
-      apply le_inducedOuterMeasure.mpr fun s hs ↦ by
-        rwa [← inducedOuterMeasure_eq (m := f') _ h' hs, OuterMeasure.trim_eq]
-  }
+  let ρ₂ : Measure (G × H) := haar.restrict (X ×ˢ Set.univ)
+  let μ := ρ₂.map Prod.snd
   have μ_apply {S : Set H} (hS : MeasurableSet S) : μ S = haar (X ×ˢ S) := by
-    change m' S = _; rw [inducedOuterMeasure_eq _ h' hS]
-  -- Prove `μ` is a Haar measure
+    rw [Measure.map_apply _ hS, ← Set.univ_prod, Measure.restrict_apply]
+    · congr 1; ext; simp [and_comm]
+    · exact prod_le_borel_prod _ <| MeasurableSet.univ.prod hS
+    · exact fun _ ↦ (prod_le_borel_prod _ <| measurable_snd ·)
   have hμ : IsHaarMeasure μ := {
     lt_top_of_isCompact C hC := by
-      have ⦃S : ℕ → Set H⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i)) :
-          haar (X ×ˢ (⋃ i, S i)) ≤ ∑' (i : ℕ), haar (X ×ˢ S i) := by
-        rw [Set.prod_iUnion]
-        exact measure_iUnion_le _
-      change m' C < _
-      rw [inducedOuterMeasure_eq_iInf _ this, iInf_lt_top]
-      · have ⟨C', hC', hCC'⟩ := exists_compact_superset hC
-        use interior C'
-        refine iInf_lt_iff.mpr ⟨isOpen_interior.measurableSet, iInf_lt_iff.mpr ⟨hCC', ?_⟩⟩
-        unfold f'
-        apply lt_of_le_of_lt (measure_mono <| Set.prod_mono hX interior_subset)
-        exact (hK'comp.prod hC').measure_ne_top.symm.lt_top'
-      · exact fun s₁ s₂ _ _ sub ↦ measure_mono <| Set.prod_mono subset_rfl sub
-      · exact fun S hS ↦ MeasurableSet.iUnion hS
+      have ⟨C', hC', hCC'⟩ := exists_compact_superset hC
+      apply lt_of_le_of_lt (measure_mono hCC')
+      rw [μ_apply measurableSet_interior]
+      apply lt_of_le_of_lt <| measure_mono <| Set.prod_mono hX interior_subset
+      exact hK'comp.prod hC' |>.measure_ne_top.symm.lt_top'
     map_mul_left_eq_self g := by
       ext S hS
       rw [map_apply (measurable_const_mul g) hS]
-      change m' _ = m' S
       have hS' : MeasurableSet ((fun x ↦ g * x) ⁻¹' S) := by
         convert MeasurableSet.const_smul hS g⁻¹ using 1
         refine subset_antisymm (fun x hx ↦ ?_) (fun x hx ↦ ?_)
         · use g * x, Set.mem_preimage.mp hx, by simp
         · have ⟨s, ⟨_, hs⟩⟩ := hx; simpa [← hs]
-      rw [inducedOuterMeasure_eq _ h' hS, inducedOuterMeasure_eq _ h' hS']
-      unfold f'
+      rw [μ_apply hS, μ_apply hS']
       suffices X ×ˢ ((g * ·) ⁻¹' S) = ((1 : G), g⁻¹) • (X ×ˢ S) from
         this ▸ measure_smul haar _ _
       refine subset_antisymm (fun ⟨x, y⟩ hxy ↦ ?_) (fun ⟨x, y⟩ hxy ↦ ?_)
