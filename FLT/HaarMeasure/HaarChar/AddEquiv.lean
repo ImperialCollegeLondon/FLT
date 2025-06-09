@@ -285,7 +285,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     rw [Measure.map_apply _ hS, ← Set.prod_univ, Measure.restrict_apply]
     · congr 1; ext; simp
     · exact prod_le_borel_prod _ <| hS.prod MeasurableSet.univ
-    · exact fun _ ↦ (prod_le_borel_prod _ <| measurable_fst ·)
+    · intro; exact (prod_le_borel_prod _ <| measurable_fst ·)
   have : IsMulLeftInvariant ν := by
     refine (forall_measure_preimage_mul_iff ν).mp fun g s hs ↦ ?_
     rw [ν_apply hs, ν_apply (hs.preimage (measurable_const_mul g))]
