@@ -1,9 +1,10 @@
 import FLT.Mathlib.MeasureTheory.Measure.Haar.Unique
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
-import FLT.Mathlib.Topology.Algebra.Group
+import FLT.Mathlib.Topology.Algebra.Group.Basic
+import FLT.Mathlib.Topology.Algebra.Group.Defs
+import FLT.Mathlib.Topology.Algebra.Group.Units
 import FLT.Mathlib.MeasureTheory.Group.Haar
 import FLT.Mathlib.Topology.Algebra.Pi
 import FLT.Mathlib.MeasureTheory.Measure.Pi
