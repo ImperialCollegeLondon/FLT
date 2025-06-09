@@ -205,7 +205,8 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
 \begin{proof}
   \leanok
   % TODO does this make the lines dottted? I used E in the proof here
-  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E}%, addHaarScalarFactor.left_mul_eq_right_mul}
+  % TODO does \uses a theorem from another project mess up the colouring?
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E, addHaarScalarFactor.left_mul_eq_right_mul}
   Indeed, $\beta^{-1}\in D_{\A}^{(1)}$, and so left multiplication by $\beta^{-1}$
   doesn't change Haar measure on $D_{\A}$, so neither does right multiplication
   (by theorem~\ref{addHaarScalarFactor.left_mul_eq_right_mul}).
