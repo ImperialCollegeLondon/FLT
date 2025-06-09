@@ -5,7 +5,7 @@ Authors: Salvatore Mercuri
 -/
 import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
 
-open scoped Classical
+open Classical in
 
 /-!
 # Extensions of complex embeddings and infinite places of a number field
