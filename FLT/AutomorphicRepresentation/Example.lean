@@ -483,7 +483,37 @@ lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
       simp
 
 -- this needs that ℤ is a PID.
-lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := sorry
+lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
+  apply le_antisymm
+  · intro x _
+    exact Subgroup.mem_top x
+  · intro y _
+    -- use lowestTerms for y = x/N
+    obtain ⟨⟨N, x, cop, hy⟩, unique_y⟩ := lowestTerms y
+    -- show x is invertible
+    let yinv := y⁻¹
+    obtain ⟨⟨N2, x2, cop2, hy2⟩, _⟩ := lowestTerms yinv
+    have h : 1 = (1 / N * (1 / N2) : ℚ) ⊗ₜ[ℤ] (x * x2) := by
+      rw [← Units.val_one, ← mul_inv_cancel y, Units.val_mul, hy, hy2]
+      dsimp
+    have : x * x2 = 1 := by
+      rw [Algebra.TensorProduct.one_def] at h
+      specialize unique_y 1 (N * N2) 1 (x * x2)
+      simp only [PNat.val_ofNat, Nat.cast_one, ne_eq, one_ne_zero, not_false_eq_true, div_self,
+        PNat.mul_coe, Nat.cast_mul, one_div, mul_inv_rev, and_imp] at unique_y
+      specialize unique_y (by simp only [IsCoprime, PNat.val_ofNat, isUnit_of_subsingleton])
+      nth_rewrite 3 [mul_comm] at unique_y
+      rw [← one_div, ← one_div] at unique_y
+      symm
+      apply And.right
+      refine unique_y ?_ h
+      unfold IsCoprime IsUnit
+      -- proving the wrong thing?
+      sorry
+    -- we need to show that x is in QHatˣ
+    -- show that it suffices to prove it for x
+
+    sorry
 
 end multiplicative_structure_of_QHat
 
