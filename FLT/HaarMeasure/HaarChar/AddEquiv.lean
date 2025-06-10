@@ -2,10 +2,10 @@ import Mathlib.MeasureTheory.Measure.Haar.Unique
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
-import FLT.Mathlib.Topology.Algebra.Group
 import FLT.Mathlib.MeasureTheory.Group.Haar
-import FLT.Mathlib.Topology.Algebra.Pi
 import FLT.Mathlib.MeasureTheory.Measure.Pi
+import FLT.Mathlib.Topology.Algebra.Group
+import FLT.Mathlib.Topology.Algebra.Pi
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -468,7 +468,7 @@ def _root_.ContinuousMulEquiv.piCongrRight (ψ : Π i, (G i) ≃ₜ* (H i)) :
 
 end piCongrRight
 
-set_option maxHeartbeats 20000000
+--set_option maxHeartbeats 20000000
 
 /-
 Copyright (c) 2025 . All rights reserved.
@@ -545,7 +545,7 @@ section MeasureComputation
 
 /-- Helper lemma for scalar type coercion between ℝ≥0 and ℝ≥0∞ -/
 lemma ennreal_prod_coe {α : Type*} [Fintype α] (f : α → ℝ≥0) :
-    ↑(∏ i, f i) = (∏ i, (f i : ℝ≥0∞)) := by
+    ↑(∏ i, f i) = (∏ i, (f i : ℝ≥∞)) := by
   simp [ENNReal.coe_finset_prod]
 
 /-- Pushforward of the product Haar measure under a componentwise automorphism
