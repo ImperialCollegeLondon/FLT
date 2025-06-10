@@ -22,5 +22,5 @@ git = "https://github.com/PatrickMassot/checkdecls.git"
 name = "FLT"
 globs = ["FLT", "FermatsLastTheorem"]
 
-[[dependancies.FLT]]
+[[dependencies.FLT]]
 path="FLT"
