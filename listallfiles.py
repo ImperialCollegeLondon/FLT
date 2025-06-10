@@ -23,4 +23,4 @@ if __name__ == "__main__":
     root_directory = "FLT"  # Replace with your target directory
     output_log_file = "lean_files.log"
     list_lean_files_alphabetically(root_directory, output_log_file)
-    print(f"output: FLT >> {output_log_file}")
+    print(f"output: FLT/... >> {output_log_file}")
