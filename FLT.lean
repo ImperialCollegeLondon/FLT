@@ -1056,6 +1056,7 @@ import FLT.Mathlib.Algebra.Ring.Associated
 import FLT.Mathlib.Algebra.Ring.Associator
 import FLT.Mathlib.Algebra.Ring.Aut
 import FLT.Mathlib.Algebra.Ring.Basic
+import FLT.Mathlib.Algebra.Ring.BooleanRing
 import FLT.Mathlib.Algebra.Ring.BoRing
 import FLT.Mathlib.Algebra.Ring.Center
 import FLT.Mathlib.Algebra.Ring.Centralizer
@@ -2853,6 +2854,7 @@ import FLT.Mathlib.Control.Traversable.Instances
 import FLT.Mathlib.Control.Traversable.Lemmas
 import FLT.Mathlib.Control.ULift
 import FLT.Mathlib.Control.ULiftable
+import FLT.Mathlib.CoreM
 import FLT.Mathlib.Data.Analysis.Filter
 import FLT.Mathlib.Data.Analysis.Topology
 import FLT.Mathlib.Data.Array.Defs
@@ -2945,6 +2947,7 @@ import FLT.Mathlib.Data.Finset.Attach
 import FLT.Mathlib.Data.Finset.Attr
 import FLT.Mathlib.Data.Finset.Basic
 import FLT.Mathlib.Data.Finset.BoAlgebra
+import FLT.Mathlib.Data.Finset.BooleanAlgebra
 import FLT.Mathlib.Data.Finset.Card
 import FLT.Mathlib.Data.Finset.CastCard
 import FLT.Mathlib.Data.Finset.Dedup
@@ -3401,6 +3404,7 @@ import FLT.Mathlib.Data.Seq.WSeq
 import FLT.Mathlib.Data.Set.Accumulate
 import FLT.Mathlib.Data.Set.Basic
 import FLT.Mathlib.Data.Set.BoAlgebra
+import FLT.Mathlib.Data.Set.BooleanAlgebra
 import FLT.Mathlib.Data.Set.BoolIndicator
 import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.Data.Set.Card.Arithmetic
@@ -3544,6 +3548,15 @@ import FLT.Mathlib.Dynamics.TopologicalEntropy.DynamicalEntourage
 import FLT.Mathlib.Dynamics.TopologicalEntropy.NetEntropy
 import FLT.Mathlib.Dynamics.TopologicalEntropy.Semiconj
 import FLT.Mathlib.Dynamics.TopologicalEntropy.Subset
+import FLT.Mathlib.Elab.Tactic.Basic
+import FLT.Mathlib.Elab.Term
+import FLT.Mathlib.EnvExtension
+import FLT.Mathlib.Exception
+import FLT.Mathlib.Expr
+import FLT.Mathlib.Expr.Basic
+import FLT.Mathlib.Expr.ExtraRecognizers
+import FLT.Mathlib.Expr.Rat
+import FLT.Mathlib.Expr.ReplaceRec
 import FLT.Mathlib.FieldTheory.AbelRuffini
 import FLT.Mathlib.FieldTheory.AbsoluteGaloisGroup
 import FLT.Mathlib.FieldTheory.AlgebraicClosure
@@ -3708,6 +3721,7 @@ import FLT.Mathlib.Geometry.RingedSpace.PresheafedSpace.Gluing
 import FLT.Mathlib.Geometry.RingedSpace.PresheafedSpace.HasColimits
 import FLT.Mathlib.Geometry.RingedSpace.SheafedSpace
 import FLT.Mathlib.Geometry.RingedSpace.Stalks
+import FLT.Mathlib.GoalsLocation
 import FLT.Mathlib.GroupTheory.Abelianization
 import FLT.Mathlib.GroupTheory.Archimedean
 import FLT.Mathlib.GroupTheory.ArchimedeanDensely
@@ -3846,6 +3860,7 @@ import FLT.Mathlib.InformationTheory.Hamming
 import FLT.Mathlib.InformationTheory.KullbackLeibler.Basic
 import FLT.Mathlib.InformationTheory.KullbackLeibler.KLFun
 import FLT.Mathlib.Init
+import FLT.Mathlib.Json
 import FLT.Mathlib.CoreM
 import FLT.Mathlib.Elab.Tactic.Basic
 import FLT.Mathlib.Elab.Term
@@ -4156,6 +4171,7 @@ import FLT.Mathlib.LinearAlgebra.TensorProduct.Vanishing
 import FLT.Mathlib.LinearAlgebra.Trace
 import FLT.Mathlib.LinearAlgebra.UnitaryGroup
 import FLT.Mathlib.LinearAlgebra.Vandermonde
+import FLT.Mathlib.LocalContext
 import FLT.Mathlib.Logic.Basic
 import FLT.Mathlib.Logic.Denumerable
 import FLT.Mathlib.Logic.Embedding.Basic
@@ -4472,6 +4488,18 @@ import FLT.Mathlib.MeasureTheory.VectorMeasure.Decomposition.Jordan
 import FLT.Mathlib.MeasureTheory.VectorMeasure.Decomposition.Lebesgue
 import FLT.Mathlib.MeasureTheory.VectorMeasure.Decomposition.RadonNikodym
 import FLT.Mathlib.MeasureTheory.VectorMeasure.WithDensity
+import FLT.Mathlib.Message
+import FLT.Mathlib.Meta
+import FLT.Mathlib.Meta.Basic
+import FLT.Mathlib.Meta.CongrTheorems
+import FLT.Mathlib.Meta.DiscrTree
+import FLT.Mathlib.Meta.KAbstractPositions
+import FLT.Mathlib.Meta.RefinedDiscrTree
+import FLT.Mathlib.Meta.RefinedDiscrTree.Basic
+import FLT.Mathlib.Meta.RefinedDiscrTree.Encode
+import FLT.Mathlib.Meta.RefinedDiscrTree.Lookup
+import FLT.Mathlib.Meta.RefinedDiscrTree.Pi
+import FLT.Mathlib.Meta.Simp
 import FLT.Mathlib.ModelTheory.Algebra.Field.Basic
 import FLT.Mathlib.ModelTheory.Algebra.Field.CharP
 import FLT.Mathlib.ModelTheory.Algebra.Field.IsAlgClosed
@@ -4501,6 +4529,7 @@ import FLT.Mathlib.ModelTheory.Substructures
 import FLT.Mathlib.ModelTheory.Syntax
 import FLT.Mathlib.ModelTheory.Types
 import FLT.Mathlib.ModelTheory.Ultraproducts
+import FLT.Mathlib.Name
 import FLT.Mathlib.NumberTheory.AbelSummation
 import FLT.Mathlib.NumberTheory.ADEInequality
 import FLT.Mathlib.NumberTheory.ArithmeticFunction
@@ -4679,10 +4708,10 @@ import FLT.Mathlib.Order.Atoms
 import FLT.Mathlib.Order.Atoms.Finite
 import FLT.Mathlib.Order.Basic
 import FLT.Mathlib.Order.Birkhoff
-import FLT.Mathlib.Order.BoAlgebra
-import FLT.Mathlib.Order.BoGenerators
-import FLT.Mathlib.Order.Boisation
-import FLT.Mathlib.Order.BoSubalgebra
+import FLT.Mathlib.Order.BooleanAlgebra
+import FLT.Mathlib.Order.BooleanGenerators
+import FLT.Mathlib.Order.Booleanisation
+import FLT.Mathlib.Order.BooleanSubalgebra
 import FLT.Mathlib.Order.Bounded
 import FLT.Mathlib.Order.BoundedOrder.Basic
 import FLT.Mathlib.Order.BoundedOrder.Lattice
@@ -4718,7 +4747,7 @@ import FLT.Mathlib.Order.CompactlyGenerated.Basic
 import FLT.Mathlib.Order.CompactlyGenerated.Intervals
 import FLT.Mathlib.Order.Comparable
 import FLT.Mathlib.Order.Compare
-import FLT.Mathlib.Order.CompleteBoAlgebra
+import FLT.Mathlib.Order.CompleteBooleanAlgebra
 import FLT.Mathlib.Order.CompleteLattice.Basic
 import FLT.Mathlib.Order.CompleteLattice.Chain
 import FLT.Mathlib.Order.CompleteLattice.Defs
@@ -4943,6 +4972,7 @@ import FLT.Mathlib.Order.WellQuasiOrder
 import FLT.Mathlib.Order.WithBot
 import FLT.Mathlib.Order.Zorn
 import FLT.Mathlib.Order.ZornAtoms
+import FLT.Mathlib.PrettyPrinter.Delaborator
 import FLT.Mathlib.Probability.BorelCantelli
 import FLT.Mathlib.Probability.CDF
 import FLT.Mathlib.Probability.ConditionalExpectation
@@ -5685,7 +5715,7 @@ import FLT.Mathlib.Tactic.CC.MkProof
 import FLT.Mathlib.Tactic.Change
 import FLT.Mathlib.Tactic.Check
 import FLT.Mathlib.Tactic.Choose
-import FLT.Mathlib.Tactic.
+import FLT.Mathlib.Tactic.Clean
 import FLT.Mathlib.Tactic.Clear_
 import FLT.Mathlib.Tactic.ClearExcept
 import FLT.Mathlib.Tactic.ClearExclamation
@@ -5923,6 +5953,7 @@ import FLT.Mathlib.Tactic.Zify
 import FLT.Mathlib.Testing.Plausible.Functions
 import FLT.Mathlib.Testing.Plausible.Sampleable
 import FLT.Mathlib.Testing.Plausible.Testable
+import FLT.Mathlib.Thunk
 import FLT.Mathlib.Topology.AlexandrovDiscrete
 import FLT.Mathlib.Topology.Algebra.Affine
 import FLT.Mathlib.Topology.Algebra.AffineSubspace
@@ -6523,4 +6554,3 @@ import FLT.Patching.Utils.TopologicallyFG
 import FLT.Patching.VanishingFilter
 import FLT.QuaternionAlgebra.NumberField
 import FLT.TateCurve.TateCurve
-import FLT.
