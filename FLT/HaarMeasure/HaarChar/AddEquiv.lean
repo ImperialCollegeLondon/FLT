@@ -1,4 +1,4 @@
-import Mathlib.MeasureTheory.Measure.Haar.Unique
+--import Mathlib.MeasureTheory.Measure.Haar.Unique
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
@@ -13,6 +13,44 @@ import Lean.Meta.Tactic.Simp.RegisterCommand
 import Lean.LabelAttribute
 import Mathlib.Lean.Meta
 import Mathlib.Lean.Meta.Simp
+import Mathlib.Data.Finite.Defs
+
+import Mathlib.Data.Fintype.Basic
+import Mathlib.Data.Fintype.BigOperators
+import Mathlib.Data.Fintype.Card
+import Mathlib.Data.Fintype.CardEmbedding
+import Mathlib.Data.Fintype.Defs
+import Mathlib.Data.Fintype.EquivFin
+import Mathlib.Data.Fintype.Fin
+import Mathlib.Data.Fintype.Inv
+import Mathlib.Data.Fintype.Lattice
+import Mathlib.Data.Fintype.List
+import Mathlib.Data.Fintype.OfMap
+import Mathlib.Data.Fintype.Option
+import Mathlib.Data.Fintype.Order
+import Mathlib.Data.Fintype.Parity
+import Mathlib.Data.Fintype.Perm
+import Mathlib.Data.Fintype.Pi
+import Mathlib.Data.Fintype.Pigeonhole
+import Mathlib.Data.Fintype.Powerset
+import Mathlib.Data.Fintype.Prod
+import Mathlib.Data.Fintype.Quotient
+import Mathlib.Data.Fintype.Sets
+import Mathlib.Data.Fintype.Shrink
+import Mathlib.Data.Fintype.Sigma
+import Mathlib.Data.Fintype.Sort
+import Mathlib.Data.Fintype.Sum
+import Mathlib.Data.Fintype.Units
+import Mathlib.Data.Fintype.Vector
+
+import Mathlib.MeasureTheory.Measure.Haar.Basic
+import Mathlib.MeasureTheory.Measure.Haar.Disintegration
+import Mathlib.MeasureTheory.Measure.Haar.DistribChar
+import Mathlib.MeasureTheory.Measure.Haar.InnerProductSpace
+import Mathlib.MeasureTheory.Measure.Haar.NormedSpace
+import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+import Mathlib.MeasureTheory.Measure.Haar.Quotient
+import Mathlib.MeasureTheory.Measure.Haar.Unique
 
 import Lean.Meta
 import Lean.Meta.Tactic.Simp.SimpTheorems  -- For Lean.Meta.registerSimpAttr
@@ -518,7 +556,7 @@ variable {ι : Type u} {H : ι → Type v}
   [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
   [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
   [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
-  
+
 /-! ## Regularity Preservation -/
 
 section Regularity
@@ -558,16 +596,30 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       (Measure.pi fun i ↦ haar) =
     (∏ i, mulEquivHaarChar (ψ i)) •
       Measure.pi fun i ↦ haar := by
+  let n := Fintype.card ι
+  let hn : ι ≃ Fin n := Fintype.equivFin ι
+
+  -- Now revert ι to make it an explicit argument to the induction.
+  -- This makes the induction hypothesis more general.
+  -- Also revert the Fintype instance and the equivalence to make them part of the induction
+  revert ι hn
+
   -- The proof uses induction on the finite index set
   -- Base case: empty product
-  obtain ⟨n, hn⟩ := Fintype.card_eq ι
-  revert ι
-  induction n with
+  induction n using Nat.rec with
   | zero =>
-    intro ι _ _ _ _ _ _ _ _ ψ hn
+    -- Intro the reverted variables and all the typeclass instances (`_`)
+    intro ι hn -- hn is now `ι ≃ Fin 0`
+      _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel _inst_fintype ψ
+
+    -- Crucial step: Prove `Fintype.card ι = 0`
+    have h_card_ι_zero : Fintype.card ι = 0 := by
+      -- Fintype.card_eq hn gives `Fintype.card ι = Fintype.card (Fin 0)`
+      -- Fintype.card_fin (without argument) applies to `Fintype.card (Fin 0)` to yield `0`
+      rw [Fintype.ofEquiv_card hn, Fintype.card_fin]
     -- Empty index type
-    have : IsEmpty ι := Fintype.card_eq_zero_iff.mp hn
-    subsingleton [this]
+    have : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_card_ι_zero
+    --have : Subsingleton ι := IsEmpty.to_subsingleton
     simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
   | succ n ih =>
     intro ι _ _ _ _ _ _ _ _ ψ hn
