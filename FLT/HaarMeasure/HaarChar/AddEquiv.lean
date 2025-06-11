@@ -670,8 +670,15 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
   | zero =>
     intro ι _inst_fintype h_eq H _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
     -- h_eq : Fintype.card ι = 0
-    have : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_eq
+    have h_empty : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_eq
     simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
+
+    haveI : IsEmpty ι := h_empty
+    -- On empty product, piCongrRight is the identity homeomorphism
+    have : (MulEquiv.piCongrRight fun i ↦ ↑(ψ i)) = MulEquiv.refl _ := by
+      ext x i
+      exact h_empty.elim i
+    rw [this, MulEquiv.coe_refl, Measure.map_id]
   | succ n ih =>
     intro ι _ _ _ _ _ _ _ _ ψ hn
     -- Pick an element and decompose
