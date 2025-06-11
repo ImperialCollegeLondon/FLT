@@ -55,7 +55,66 @@ import Mathlib.MeasureTheory.Measure.Haar.Unique
 import Lean.Meta
 import Lean.Meta.Tactic.Simp.SimpTheorems  -- For Lean.Meta.registerSimpAttr
 --import Mathlib.Algebra.BigOperators.Group.Finset.Defs  -- For Finset.prod_bij
-import Mathlib.Data.Finset.Basic -- For Finset.prod_bij
+
+-- For Finset.prod_bij
+
+import Mathlib.Data.Finset.Attach
+import Mathlib.Data.Finset.Attr
+import Mathlib.Data.Finset.Basic
+--import Mathlib.Data.Finset.BoAlgebra
+import Mathlib.Data.Finset.BooleanAlgebra
+import Mathlib.Data.Finset.Card
+import Mathlib.Data.Finset.CastCard
+import Mathlib.Data.Finset.Dedup
+import Mathlib.Data.Finset.Defs
+import Mathlib.Data.Finset.Density
+import Mathlib.Data.Finset.Disjoint
+import Mathlib.Data.Finset.Empty
+import Mathlib.Data.Finset.Erase
+import Mathlib.Data.Finset.Filter
+import Mathlib.Data.Finset.Fin
+import Mathlib.Data.Finset.Finsupp
+import Mathlib.Data.Finset.Fold
+import Mathlib.Data.Finset.Functor
+import Mathlib.Data.Finset.Grade
+import Mathlib.Data.Finset.Image
+import Mathlib.Data.Finset.Insert
+import Mathlib.Data.Finset.Interval
+import Mathlib.Data.Finset.Lattice.Basic
+import Mathlib.Data.Finset.Lattice.Fold
+import Mathlib.Data.Finset.Lattice.Lemmas
+import Mathlib.Data.Finset.Lattice.Pi
+import Mathlib.Data.Finset.Lattice.Prod
+import Mathlib.Data.Finset.Lattice.Union
+import Mathlib.Data.Finset.Max
+import Mathlib.Data.Finset.MulAntidiagonal
+import Mathlib.Data.Finset.NAry
+import Mathlib.Data.Finset.NatAntidiagonal
+import Mathlib.Data.Finset.NatDivisors
+import Mathlib.Data.Finset.NoncommProd
+import Mathlib.Data.Finset.Option
+import Mathlib.Data.Finset.Order
+import Mathlib.Data.Finset.Pairwise
+import Mathlib.Data.Finset.Pi
+import Mathlib.Data.Finset.Piecewise
+import Mathlib.Data.Finset.PiInduction
+import Mathlib.Data.Finset.PImage
+import Mathlib.Data.Finset.Powerset
+import Mathlib.Data.Finset.Preimage
+import Mathlib.Data.Finset.Prod
+import Mathlib.Data.Finset.Range
+import Mathlib.Data.Finset.SDiff
+import Mathlib.Data.Finset.Sigma
+import Mathlib.Data.Finset.Slice
+import Mathlib.Data.Finset.SMulAntidiagonal
+import Mathlib.Data.Finset.Sort
+import Mathlib.Data.Finset.Sum
+import Mathlib.Data.Finset.Sups
+import Mathlib.Data.Finset.Sym
+import Mathlib.Data.Finset.SymmDiff
+import Mathlib.Data.Finset.Union
+import Mathlib.Data.Finset.Update
+
 import Mathlib.Algebra.Group.Basic -- For mul_one, one_mul, mul_comm, mul_assoc
 
 open MeasureTheory.Measure
@@ -611,16 +670,10 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
     -- Intro the reverted variables and all the typeclass instances (`_`)
     intro ι hn -- hn is now `ι ≃ Fin 0`
       _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel _inst_fintype ψ
-
+    let n_val := Fintype.card ι
+    let hn_val : ι ≃ Fin n_val := Fintype.equivFin ι
     -- Crucial step: Prove `Fintype.card ι = 0`
-    have h_card_ι_zero : Fintype.card ι = 0 := by
-      -- Fintype.card_eq hn gives `Fintype.card ι = Fintype.card (Fin 0)`
-      -- Fintype.card_fin (without argument) applies to `Fintype.card (Fin 0)` to yield `0`
-      rw [Fintype.ofEquiv_card hn, Fintype.card_fin]
-    -- Empty index type
-    have : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_card_ι_zero
-    --have : Subsingleton ι := IsEmpty.to_subsingleton
-    simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
+    have : IsEmpty ι := Fintype.card_eq_zero_iff.mp (Fintype.card_congr hn_val ▸ rfl)
   | succ n ih =>
     intro ι _ _ _ _ _ _ _ _ ψ hn
     -- Pick an element and decompose
