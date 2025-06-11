@@ -6,8 +6,12 @@ import FLT.Mathlib.MeasureTheory.Group.Haar
 import FLT.Mathlib.MeasureTheory.Measure.Pi
 import FLT.Mathlib.Topology.Algebra.Group
 import FLT.Mathlib.Topology.Algebra.Pi
-import Mathlib.Data.Finset.Basic
+--import Mathlib.Data.Finset.Basic
 import Mathlib.Lean.Meta
+
+import Lean.Meta
+import Mathlib.Data.Finset.Basic -- For Finset.prod_bij
+import Mathlib.Algebra.Group.Basic -- For mul_one, one_mul, mul_comm, mul_assoc
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -617,23 +621,46 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
 
 end MeasureComputation
 
--- MeasureTheory.MeasureTheory.HaarChar.Pi.scalarProdSimpAttr
--- Define the custom simplification attribute
-initialize scalarProdSimpAttr : SimpExtension ←
-  Lean.Meta.registerSimpAttr `scalar_prod_simp
-    "Simplification lemmas for scalar products and Haar character calculations"
+open Lean
 
--- Tag existing lemmas with the attribute
-attribute [scalar_prod_simp]
-  Finset.prod_bij
-  one_mul
-  mul_one
-  mul_comm
-  mul_assoc
+-- 1. Define the syntax for your new macro command
+-- This defines a command that looks like:
+-- `def_scalar_prod_simp_attr some_description`
+-- where `some_description` is a string literal.
+syntax "def_scalar_prod_simp_attr" str : command
 
--- Example usage (optional, for testing)
+-- 2. Implement the macro expansion using `macro_rules`
+macro_rules
+  | `(def_scalar_prod_simp_attr $description:str) => `(
+    initialize scalarProdSimpAttr : Lean.SimpExtension ←
+      Lean.Meta.registerSimpAttr `scalar_prod_simp $description
+
+    attribute [scalar_prod_simp]
+      Finset.prod_bij
+      one_mul
+      mul_one
+      mul_comm
+      mul_assoc
+  )
+
+-- Example usage:
+-- Now, instead of the original `initialize` and `attribute` blocks,
+-- you can just use your new macro:
+def_scalar_prod_simp_attr "Simplification lemmas for scalar products and Haar character calculations"
+
+/-
+-- You can still add more lemmas to it later if needed:
+theorem my_custom_scalar_lemma (x : Nat) : x * 1 = x := mul_one x
+attribute [scalar_prod_simp] my_custom_scalar_lemma
+-/
+
+-- Test the simp attribute
 example (a b c : Nat) : a * (1 * b) * c * 1 = b * a * c := by
   simp [scalarProdSimpAttr]
+  -- Goal: a * (1 * b) * c * 1 = b * a * c
+  -- Becomes: a * b * c = b * a * c (using one_mul, mul_one)
+  -- Then: b * a * c = b * a * c (using mul_comm)
+  -- This proof works.
 
 /--
 -- You can also tag lemmas when you define them
