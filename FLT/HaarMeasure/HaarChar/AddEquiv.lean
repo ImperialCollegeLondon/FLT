@@ -645,8 +645,12 @@ lemma ennreal_prod_coe {α : Type*} [Fintype α] (f : α → ℝ≥0) :
     ↑(∏ i, f i) = (∏ i, (f i : ENNReal)) := by
   simp [ENNReal.coe_finset_prod]
 
-/-- Pushforward of the product Haar measure under a componentwise automorphism
-    multiplies by the product of scalar factors. -/
+/-- I'm working on completing a Lean 4 proof for a lemma called `map_haar_pi`.
+    This lemma deals with the `Measure.map` of a product Haar measure under
+    a continuous multiplicative equivalence. The goal is to show
+    that this pushforward measure is equal to a scalar multiple
+    of the original product Haar measure, where the scalar is a product
+    of `mulEquivHaarChar` values for each component of the equivalence. -/
 -- import Mathlib.MeasureTheory.MeasureTheory.HaarChar.Pi.map_addHaar_pi
 @[to_additive "Pushforward of the product Haar measure under a componentwise automorphism
     multiplies by the product of scalar factors."]
@@ -672,13 +676,12 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
     -- h_eq : Fintype.card ι = 0
     have h_empty : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_eq
     simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
-
     haveI : IsEmpty ι := h_empty
-    -- On empty product, piCongrRight is the identity homeomorphism
-    have : (MulEquiv.piCongrRight fun i ↦ ↑(ψ i)) = MulEquiv.refl _ := by
-      ext x i
-      exact h_empty.elim i
-    rw [this, MulEquiv.coe_refl, Measure.map_id]
+    convert Measure.map_id
+    -- Show that piCongrRight on empty index is the identity function
+    ext x i
+    -- i : ι, but ι is empty
+    exact h_empty.elim i
   | succ n ih =>
     intro ι _ _ _ _ _ _ _ _ ψ hn
     -- Pick an element and decompose
