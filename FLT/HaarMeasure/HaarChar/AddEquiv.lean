@@ -518,6 +518,7 @@ variable {ι : Type u} {H : ι → Type v}
   [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
   [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
   [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+  
 /-! ## Regularity Preservation -/
 
 section Regularity
@@ -546,6 +547,7 @@ section MeasureComputation
 lemma ennreal_prod_coe {α : Type*} [Fintype α] (f : α → ℝ≥0) :
     ↑(∏ i, f i) = (∏ i, (f i : ENNReal)) := by
   simp [ENNReal.coe_finset_prod]
+
 /-- Pushforward of the product Haar measure under a componentwise automorphism
     multiplies by the product of scalar factors. -/
 -- import Mathlib.MeasureTheory.MeasureTheory.HaarChar.Pi.map_addHaar_pi
@@ -606,152 +608,6 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
 
 end MeasureComputation
 
-open Lean Meta
-
-register_simp_attr scalar_prod_simp
-/-
--- You can still add more lemmas to it later if needed:
-theorem my_custom_scalar_lemma (x : Nat) : x * 1 = x := mul_one x
-attribute [scalar_prod_simp] my_custom_scalar_lemma
--/
-
-attribute [scalar_prod_simp] Finset.prod_bij one_mul mul_one mul_comm mul_assoc
-
--- Test the simp attribute
-example (a b c : Nat) : a * (1 * b) * c * 1 = b * a * c := by
-  simp [scalar_prod_simp]
-  -- Goal: a * (1 * b) * c * 1 = b * a * c
-  -- Becomes: a * b * c = b * a * c (using one_mul, mul_one)
-  -- Then: b * a * c = b * a * c (using mul_comm)
-  -- This proof works.
-/--
--- You can also tag lemmas when you define them
-@[scalar_prod_simp]
-lemma mulEquivHaarChar_id {G : Type*} [Group G] [TopologicalSpace G]
-    [LocallyCompactSpace G] [MeasurableSpace G] [BorelSpace G] [IsTopologicalGroup G] :
-    mulEquivHaarChar (ContinuousMulEquiv.refl G) = 1 :=
-  mulEquivHaarChar_refl
-
--- Tag multiple lemmas at once after definition
-attribute [scalar_prod_simp]
-  mulEquivHaarChar_trans
-  mulEquivHaarChar_refl
-  mulEquivHaarChar_eq_one_of_compactSpace
-
--- Example 1: Basic usage in a proof
-example {G : Type*} [Group G] [TopologicalSpace G] [LocallyCompactSpace G]
-    [MeasurableSpace G] [BorelSpace G] [IsTopologicalGroup G]
-    (φ : G ≃ₜ* G) :
-    mulEquivHaarChar φ * 1 = mulEquivHaarChar φ := by
-  simp only with scalar_prod_simp
-
--- Example 2: Using with additional lemmas
-example {G : Type*} [Group G] [TopologicalSpace G] [LocallyCompactSpace G]
-    [MeasurableSpace G] [BorelSpace G] [IsTopologicalGroup G]
-    (φ ψ : G ≃ₜ* G) :
-    mulEquivHaarChar (φ.trans ψ) * mulEquivHaarChar (ContinuousMulEquiv.refl G) =
-    mulEquivHaarChar ψ * mulEquivHaarChar φ := by
-  simp only with scalar_prod_simp
-  -- or combine with other simp sets/lemmas
-  -- simp only [some_other_lemma] with scalar_prod_simp
-
--- Example 3: More complex proof using the attribute
-example {G H : Type*}
-    [Group G] [TopologicalSpace G] [LocallyCompactSpace G]
-    [MeasurableSpace G] [BorelSpace G] [IsTopologicalGroup G]
-    [Group H] [TopologicalSpace H] [LocallyCompactSpace H]
-    [MeasurableSpace H] [BorelSpace H] [IsTopologicalGroup H]
-    (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H) (χ : G ≃ₜ* G) :
-    mulEquivHaarChar (φ.trans χ) * mulEquivHaarChar ψ * 1 =
-    mulEquivHaarChar χ * mulEquivHaarChar φ * mulEquivHaarChar ψ := by
-  -- First simplify with our custom simp set
-  simp only with scalar_prod_simp
-  -- The proof might need additional steps
-  ring
-
--- Example 4: Using in term mode with simp
-def simplifiedHaarChar {G : Type*} [Group G] [TopologicalSpace G]
-    [LocallyCompactSpace G] [MeasurableSpace G] [BorelSpace G] [IsTopologicalGroup G]
-    (φ : G ≃ₜ* G) : ℝ≥0 :=
-  -- Use simp with the attribute in term mode
-  mulEquivHaarChar φ * 1 |>.simp (config := {}) (simpAttr := #[`scalar_prod_simp])
--- Example 5: Conditional attribute tagging
-section CompactCase
-variable [CompactSpace G]
--- Tag lemmas conditionally for compact spaces
-attribute [local scalar_prod_simp] mulEquivHaarChar_eq_one_of_compactSpace
-
-example {G : Type*} [Group G] [TopologicalSpace G] [LocallyCompactSpace G]
-    [MeasurableSpace G] [BorelSpace G] [IsTopologicalGroup G] [CompactSpace G]
-    (φ : G ≃ₜ* G) :
-    mulEquivHaarChar φ = 1 := by
-  simp only with scalar_prod_simp
-
-end CompactCase
-
--- Example 6: Creating derived simp sets
-initialize registerSimpAttr `scalar_prod_simp_aggressive
-  "Aggressive simplification for scalar products (includes AC lemmas)"
--- Include everything from scalar_prod_simp plus more
-attribute [scalar_prod_simp_aggressive]
-  mul_left_comm
-  mul_right_comm
-  -- all lemmas from scalar_prod_simp are NOT automatically included,
-  -- you need to tag them again
-  mulEquivHaarChar_trans
-  mulEquivHaarChar_refl
-  one_mul
-  mul_one
-
--- Example 7: Using multiple simp attributes together
-example {G : Type*} [Group G] [TopologicalSpace G] [LocallyCompactSpace G]
-    [MeasurableSpace G] [BorelSpace G] [IsTopologicalGroup G]
-    (φ ψ χ : G ≃ₜ* G) :
-    mulEquivHaarChar ψ * mulEquivHaarChar φ * mulEquivHaarChar χ =
-    mulEquivHaarChar φ * mulEquivHaarChar ψ * mulEquivHaarChar χ := by
-  simp only with scalar_prod_simp, scalar_prod_simp_aggressive
-
--- Example 8: Removing lemmas from the simp set
-attribute [-scalar_prod_simp] mul_comm  -- Remove mul_comm from the set
-
--- Example 9: Checking what's in your simp set (for debugging)
-#check @scalar_prod_simp.lemmas  -- Shows the lemmas in the set
-
--- Example 10: Pattern for organizing simp attributes in a large project
-namespace HaarCharSimp
-
--- Core simplification lemmas
-initialize registerSimpAttr `haar_core
-
--- Lemmas specific to products
-initialize registerSimpAttr `haar_prod
-
--- Lemmas for the compact case
-initialize registerSimpAttr `haar_compact
-
--- Combine all
-initialize registerSimpAttr `haar_all
-
-end HaarCharSimp
-
--- Tag lemmas appropriately
-attribute [HaarCharSimp.haar_core]
-  mulEquivHaarChar_trans
-  mulEquivHaarChar_refl
-
-attribute [HaarCharSimp.haar_prod]
-  mulEquivHaarChar_prodCongr
-
-attribute [HaarCharSimp.haar_compact]
-  mulEquivHaarChar_eq_one_of_compactSpace
-
--- Use specialized sets
-example {G : Type*} [Group G] [TopologicalSpace G] [LocallyCompactSpace G]
-    [MeasurableSpace G] [BorelSpace G] [IsTopologicalGroup G] [CompactSpace G]
-    (φ : G ≃ₜ* G) : mulEquivHaarChar φ = 1 := by
-  simp only with HaarCharSimp.haar_compact, HaarCharSimp.haar_core
-
--/
 /-! ## Main Theorem -/
 
 section MainTheorem
@@ -802,7 +658,9 @@ example [Fintype ι] (ψ φ : ∀ i, (H i) ≃ₜ* (H i)) :
     (∏ i, mulEquivHaarChar (ψ i)) * (∏ i, mulEquivHaarChar (φ i)) := by
   simp [mulEquivHaarChar_piCongrRight, mulEquivHaarChar_trans, Finset.prod_mul_distrib]
 -- Example 4: Non-uniform product (different groups)
+
 section NonUniform
+
 variable {G₁ G₂ : Type*}
   [Group G₁] [TopologicalSpace G₁] [IsTopologicalGroup G₁] [LocallyCompactSpace G₁]
   [MeasurableSpace G₁] [BorelSpace G₁]
