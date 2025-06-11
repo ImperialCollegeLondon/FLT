@@ -676,12 +676,7 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
     -- h_eq : Fintype.card ι = 0
     have h_empty : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_eq
     simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
-    haveI : IsEmpty ι := h_empty
     convert Measure.map_id
-    -- Show that piCongrRight on empty index is the identity function
-    ext x i
-    -- i : ι, but ι is empty
-    exact h_empty.elim i
   | succ n ih =>
     intro ι _ _ _ _ _ _ _ _ ψ hn
     -- Pick an element and decompose
