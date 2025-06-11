@@ -7,9 +7,14 @@ import FLT.Mathlib.MeasureTheory.Measure.Pi
 import FLT.Mathlib.Topology.Algebra.Group
 import FLT.Mathlib.Topology.Algebra.Pi
 --import Mathlib.Data.Finset.Basic
+
+import Lean.Meta.Tactic.Simp.SimpTheorems
 import Mathlib.Lean.Meta
+import Mathlib.Lean.Meta.Simp
 
 import Lean.Meta
+import Lean.Meta.Tactic.Simp.SimpTheorems  -- For Lean.Meta.registerSimpAttr
+--import Mathlib.Algebra.BigOperators.Group.Finset.Defs  -- For Finset.prod_bij
 import Mathlib.Data.Finset.Basic -- For Finset.prod_bij
 import Mathlib.Algebra.Group.Basic -- For mul_one, one_mul, mul_comm, mul_assoc
 
@@ -621,7 +626,7 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
 
 end MeasureComputation
 
-open Lean
+open Lean Meta
 
 -- 1. Define the syntax for your new macro command
 -- This defines a command that looks like:
@@ -632,8 +637,8 @@ syntax "def_scalar_prod_simp_attr" str : command
 -- 2. Implement the macro expansion using `macro_rules`
 macro_rules
   | `(def_scalar_prod_simp_attr $description:str) => `(
-    initialize scalarProdSimpAttr : Lean.SimpExtension ←
-      Lean.Meta.registerSimpAttr `scalar_prod_simp $description
+    initialize scalarProdSimpAttr : SimpExtension ←
+      registerSimpAttr `scalar_prod_simp $description
 
     attribute [scalar_prod_simp]
       Finset.prod_bij
@@ -931,4 +936,8 @@ lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G 
   -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
   sorry -- FLT#552
 
-  #lint
+end restrictedproduct
+
+end MeasureTheory
+
+#lint
