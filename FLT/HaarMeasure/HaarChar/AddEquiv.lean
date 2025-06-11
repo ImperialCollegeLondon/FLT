@@ -47,21 +47,18 @@ lemma _root_.Homeomorph.regular_map {G H : Type*}
 section basic
 
 variable {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
-
 @[to_additive]
 lemma IsHaarMeasure.nnreal_smul {μ : Measure G}
     [h : IsHaarMeasure μ] {c : ℝ≥0} (hc : 0 < c) : IsHaarMeasure (c • μ) :=
   h.smul _ (by simp [hc.ne']) (not_eq_of_beq_eq_false rfl) -- beq??
 
 variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
-
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
 `φ` scales Haar measure on `G`. -/
 @[to_additive "If `φ : A ≃ₜ+ A` then `addEquivAddHaarChar φ` is the positive
 real factor by which `φ` scales Haar measure on `A`."]
 noncomputable def mulEquivHaarChar (φ : G ≃ₜ* G) : ℝ≥0 :=
   haarScalarFactor haar (map φ haar)
-
 @[to_additive]
 lemma mulEquivHaarChar_pos (φ : G ≃ₜ* G) : 0 < mulEquivHaarChar φ :=
   haarScalarFactor_pos_of_isHaarMeasure _ _
@@ -97,7 +94,6 @@ lemma smul_haarScalarFactor_smul' (μ' μ : Measure G)
     letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
     haarScalarFactor (c • μ') (c • μ) = haarScalarFactor μ' μ := by
   rw [haarScalarFactor_smul, smul_eq_mul, smul_haarScalarFactor_smul _ _ hc]
-
 -- should be in haarScalarFactor API
 @[to_additive]
 lemma haarScalarFactor_map (μ' μ : Measure G) [IsHaarMeasure μ] [IsHaarMeasure μ'] (φ : G ≃ₜ* G) :
@@ -115,7 +111,6 @@ lemma haarScalarFactor_map (μ' μ : Measure G) [IsHaarMeasure μ] [IsHaarMeasur
   · exact f_comp.comp_homeomorph φ.toHomeomorph
   · change ∫ x, f (φ x) ∂μ ≠ 0
     rwa [← integral_map hφ f_cont.aestronglyMeasurable]
-
 @[to_additive]
 lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ]
     [Regular μ] (φ : G ≃ₜ* G) :
@@ -130,7 +125,6 @@ lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ]
     rw [smul]
   simp_rw [MeasureTheory.Measure.map_smul]
   exact smul_haarScalarFactor_smul' _ _ (haarScalarFactor_pos_of_isHaarMeasure haar μ)
-
 @[to_additive]
 lemma mulEquivHaarChar_map (μ : Measure G)
     [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
@@ -149,7 +143,6 @@ lemma mulEquivHaarChar_map_open (μ : Measure G)
     mul_smul, ← measure_isHaarMeasure_eq_smul_of_isOpen haar _ hs,
     measure_isHaarMeasure_eq_smul_of_isOpen haar μ hs, ← mul_smul, haarScalarFactor_map,
     ← haarScalarFactor_eq_mul, haarScalarFactor_self, one_smul]
-
 @[to_additive]
 lemma mulEquivHaarChar_comap (μ : Measure G)
     [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
@@ -195,7 +188,6 @@ lemma mulEquivHaarChar_smul_preimage
 lemma mulEquivHaarChar_refl :
     mulEquivHaarChar (ContinuousMulEquiv.refl G) = 1 := by
   simp [mulEquivHaarChar, Function.id_def]
-
 @[to_additive]
 lemma mulEquivHaarChar_trans {φ ψ : G ≃ₜ* G} :
     mulEquivHaarChar (ψ.trans φ) = mulEquivHaarChar ψ * mulEquivHaarChar φ := by
@@ -266,7 +258,6 @@ section prodCongr
 
 variable {A B C D : Type*} [Group A] [Group B] [Group C] [Group D]
     [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C] [TopologicalSpace D]
-
 /-- The product of two multiplication-preserving homeomorphisms is
 a multiplication-preserving homeomorphism. -/
 @[to_additive "The product of
@@ -362,7 +353,6 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
       apply (isHaarMeasure_haarMeasure _).open_pos _ (hUopen.prod hψYopen)
       exact Set.Nonempty.prod hU ⟨ψ 1, Set.mem_image_of_mem ψ one_mem_Y⟩
   }
-
   -- Define the measure `μ`
   let f' (s : Set H) (hs : MeasurableSet s) := haar (X ×ˢ s)
   let m' : OuterMeasure H := inducedOuterMeasure f' (by simp) (by simp [f'])
@@ -426,7 +416,6 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
       exact (isHaarMeasure_haarMeasure _).open_pos _ (hXopen.prod hUopen) <|
         Set.Nonempty.prod ⟨1, one_mem_X⟩ hU
   }
-
   suffices mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y) =
       mulEquivHaarChar φ * mulEquivHaarChar ψ * haar (X ×ˢ Y) by
     have ne_zero : haar (X ×ˢ Y) ≠ 0 :=
@@ -466,7 +455,6 @@ section piCongrRight
 variable {ι : Type*} {G H : ι → Type*}
     [Π i, Group (G i)] [Π i, TopologicalSpace (G i)]
     [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
-
 -- should be in mathlib?
 /-- An arbitrary product of multiplication-preserving homeomorphisms
 is a multiplication-preserving homeomorphism.
@@ -493,7 +481,6 @@ import Mathlib.MeasureTheory.Group.Haar
 import Mathlib.Topology.Algebra.Pi
 import Mathlib.MeasureTheory.Measure.Pi
 -/
-
 /-!
 # Haar Character for Finite Products
 
@@ -531,7 +518,6 @@ variable {ι : Type u} {H : ι → Type v}
   [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
   [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
   [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
-
 /-! ## Regularity Preservation -/
 
 section Regularity
@@ -551,7 +537,6 @@ section IndexDecomposition
 
 end IndexDecomposition
 
-
 /-! ## Measure Computation -/
 
 section MeasureComputation
@@ -561,7 +546,6 @@ section MeasureComputation
 lemma ennreal_prod_coe {α : Type*} [Fintype α] (f : α → ℝ≥0) :
     ↑(∏ i, f i) = (∏ i, (f i : ENNReal)) := by
   simp [ENNReal.coe_finset_prod]
-
 /-- Pushforward of the product Haar measure under a componentwise automorphism
     multiplies by the product of scalar factors. -/
 -- import Mathlib.MeasureTheory.MeasureTheory.HaarChar.Pi.map_addHaar_pi
@@ -600,11 +584,9 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
         e.symm.trans ((ContinuousMulEquiv.piCongrRight (fun i : ι' ↦ ψ i)).prodCongr (ψ i₀)).trans e := by
       ext x
       simp [e, piEquivPiSubtypeProd]
-
     -- Now use the binary product formula and induction hypothesis
     rw [map_decomp]
     simp only [Measure.map_map, measurable_equiv]
-
     -- The measure decomposes as a product
     have pi_decomp : (Measure.pi fun i ↦ (haar : Measure (H i))) =
         Measure.map e.symm (Measure.prod (Measure.pi fun i : ι' ↦ haar) haar) := by
@@ -613,11 +595,9 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
 
     rw [pi_decomp]
     simp only [Measure.map_map, measurable_equiv]
-
     -- Apply the binary product formula
     have binary := mulEquivHaarChar_prodCongr
       (ContinuousMulEquiv.piCongrRight (fun i : ι' ↦ ψ i)) (ψ i₀)
-
     -- Apply induction hypothesis
     have ih_applied := ih (fun i : ι' ↦ ψ i) card_ι'
 
@@ -644,7 +624,6 @@ example (a b c : Nat) : a * (1 * b) * c * 1 = b * a * c := by
   -- Becomes: a * b * c = b * a * c (using one_mul, mul_one)
   -- Then: b * a * c = b * a * c (using mul_comm)
   -- This proof works.
-
 /--
 -- You can also tag lemmas when you define them
 @[scalar_prod_simp]
@@ -696,11 +675,9 @@ def simplifiedHaarChar {G : Type*} [Group G] [TopologicalSpace G]
     (φ : G ≃ₜ* G) : ℝ≥0 :=
   -- Use simp with the attribute in term mode
   mulEquivHaarChar φ * 1 |>.simp (config := {}) (simpAttr := #[`scalar_prod_simp])
-
 -- Example 5: Conditional attribute tagging
 section CompactCase
 variable [CompactSpace G]
-
 -- Tag lemmas conditionally for compact spaces
 attribute [local scalar_prod_simp] mulEquivHaarChar_eq_one_of_compactSpace
 
@@ -715,7 +692,6 @@ end CompactCase
 -- Example 6: Creating derived simp sets
 initialize registerSimpAttr `scalar_prod_simp_aggressive
   "Aggressive simplification for scalar products (includes AC lemmas)"
-
 -- Include everything from scalar_prod_simp plus more
 attribute [scalar_prod_simp_aggressive]
   mul_left_comm
@@ -776,7 +752,6 @@ example {G : Type*} [Group G] [TopologicalSpace G] [LocallyCompactSpace G]
   simp only with HaarCharSimp.haar_compact, HaarCharSimp.haar_core
 
 -/
-
 /-! ## Main Theorem -/
 
 section MainTheorem
@@ -793,21 +768,18 @@ theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H
 
   -- Haar character is defined as the scaling factor
   rw [mulEquivHaarChar_eq]
-
   -- The product measure is Haar
   have prod_haar : IsHaarMeasure (Measure.pi fun i ↦ (haar : Measure (H i))) :=
     MeasureTheory.isPiHaarMeasure
 
   -- Apply the key lemma
   rw [key]
-
   -- Extract the scalar factor
   have : haarScalarFactor (Measure.pi fun i ↦ haar)
       ((∏ i, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar) =
       ∏ i, mulEquivHaarChar (ψ i) := by
     rw [haarScalarFactor_smul]
     simp [ennreal_prod_coe]
-
   exact this
 
 end MainTheorem
@@ -820,18 +792,15 @@ section Tests
 example : addEquivAddHaarChar (ContinuousAddEquiv.piCongrRight
     (fun i : Fin 3 ↦ ContinuousAddEquiv.refl ℝ)) = 1 := by
   simp [addEquivAddHaarChar_piCongrRight, addEquivAddHaarChar_refl]
-
 -- Example 2: Empty product edge case
 example [IsEmpty ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = 1 := by
   simp [mulEquivHaarChar_piCongrRight, Finset.prod_empty]
-
 -- Example 3: Composition test
 example [Fintype ι] (ψ φ : ∀ i, (H i) ≃ₜ* (H i)) :
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight (fun i ↦ (ψ i).trans (φ i))) =
     (∏ i, mulEquivHaarChar (ψ i)) * (∏ i, mulEquivHaarChar (φ i)) := by
   simp [mulEquivHaarChar_piCongrRight, mulEquivHaarChar_trans, Finset.prod_mul_distrib]
-
 -- Example 4: Non-uniform product (different groups)
 section NonUniform
 variable {G₁ G₂ : Type*}
