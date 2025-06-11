@@ -9,6 +9,8 @@ import FLT.Mathlib.Topology.Algebra.Pi
 --import Mathlib.Data.Finset.Basic
 
 import Lean.Meta.Tactic.Simp.SimpTheorems
+import Lean.Meta.Tactic.Simp.RegisterCommand
+import Lean.LabelAttribute
 import Mathlib.Lean.Meta
 import Mathlib.Lean.Meta.Simp
 
@@ -518,10 +520,8 @@ implies triviality of the product modular function.
 * See also: `Haar.lean`, `Pi.lean`, `PontryaginDual.lean`
 -/
 
-open scoped BigOperators Topology MeasureTheory
-open MeasureTheory
+open scoped BigOperators Topology
 
-namespace MeasureTheory
 namespace HaarChar
 namespace Pi
 
@@ -628,40 +628,18 @@ end MeasureComputation
 
 open Lean Meta
 
--- 1. Define the syntax for your new macro command
--- This defines a command that looks like:
--- `def_scalar_prod_simp_attr some_description`
--- where `some_description` is a string literal.
-syntax "def_scalar_prod_simp_attr" str : command
-
--- 2. Implement the macro expansion using `macro_rules`
-macro_rules
-  | `(def_scalar_prod_simp_attr $description:str) => `(
-    initialize scalarProdSimpAttr : SimpExtension ←
-      registerSimpAttr `scalar_prod_simp $description
-
-    attribute [scalar_prod_simp]
-      Finset.prod_bij
-      one_mul
-      mul_one
-      mul_comm
-      mul_assoc
-  )
-
--- Example usage:
--- Now, instead of the original `initialize` and `attribute` blocks,
--- you can just use your new macro:
-def_scalar_prod_simp_attr "Simplification lemmas for scalar products and Haar character calculations"
-
+register_simp_attr scalar_prod_simp
 /-
 -- You can still add more lemmas to it later if needed:
 theorem my_custom_scalar_lemma (x : Nat) : x * 1 = x := mul_one x
 attribute [scalar_prod_simp] my_custom_scalar_lemma
 -/
 
+attribute [scalar_prod_simp] Finset.prod_bij one_mul mul_one mul_comm mul_assoc
+
 -- Test the simp attribute
 example (a b c : Nat) : a * (1 * b) * c * 1 = b * a * c := by
-  simp [scalarProdSimpAttr]
+  simp [scalar_prod_simp]
   -- Goal: a * (1 * b) * c * 1 = b * a * c
   -- Becomes: a * b * c = b * a * c (using one_mul, mul_one)
   -- Then: b * a * c = b * a * c (using mul_comm)
@@ -871,10 +849,6 @@ end NonUniform
 
 end Tests
 
-end Pi
-end HaarChar
-end MeasureTheory
-
 section restrictedproduct
 
 open ENNReal
@@ -938,6 +912,6 @@ lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G 
 
 end restrictedproduct
 
+end Pi
+end HaarChar
 end MeasureTheory
-
-#lint
