@@ -655,25 +655,23 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       (Measure.pi fun i ↦ haar) =
     (∏ i, mulEquivHaarChar (ψ i)) •
       Measure.pi fun i ↦ haar := by
-  let n := Fintype.card ι
-  let hn : ι ≃ Fin n := Fintype.equivFin ι
+  -- Work with a general statement
+  suffices ∀ n, ∀ (ι : Type u) [Fintype ι], Fintype.card ι = n →
+    ∀ (H : ι → Type v) [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
+    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+    (ψ : ∀ i, (H i) ≃ₜ* (H i)),
+    Measure.map (ContinuousMulEquiv.piCongrRight ψ) (Measure.pi fun i ↦ haar) =
+    (∏ i, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar by
+    apply this (Fintype.card ι) ι rfl H ψ
 
-  -- Now revert ι to make it an explicit argument to the induction.
-  -- This makes the induction hypothesis more general.
-  -- Also revert the Fintype instance and the equivalence to make them part of the induction
-  revert ι hn
-
-  -- The proof uses induction on the finite index set
-  -- Base case: empty product
+  intro n
   induction n using Nat.rec with
   | zero =>
-    -- Intro the reverted variables and all the typeclass instances (`_`)
-    intro ι hn -- hn is now `ι ≃ Fin 0`
-      _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel _inst_fintype ψ
-    let n_val := Fintype.card ι
-    let hn_val : ι ≃ Fin n_val := Fintype.equivFin ι
-    -- Crucial step: Prove `Fintype.card ι = 0`
-    have : IsEmpty ι := Fintype.card_eq_zero_iff.mp (Fintype.card_congr hn_val ▸ rfl)
+    intro ι _inst_fintype h_eq H _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
+    -- h_eq : Fintype.card ι = 0
+    have : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_eq
+    simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
   | succ n ih =>
     intro ι _ _ _ _ _ _ _ _ ψ hn
     -- Pick an element and decompose
