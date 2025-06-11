@@ -489,30 +489,43 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     exact Subgroup.mem_top x
   · intro y _
     -- use lowestTerms for y = x/N
-    obtain ⟨⟨N, x, cop, hy⟩, unique_y⟩ := lowestTerms y
+    rcases lowestTerms y with ⟨⟨N, x, cop, hy⟩, unique_y⟩
     -- show x is invertible
     let yinv := y⁻¹
-    obtain ⟨⟨N2, x2, cop2, hy2⟩, _⟩ := lowestTerms yinv
-    have h : 1 = (1 / N * (1 / N2) : ℚ) ⊗ₜ[ℤ] (x * x2) := by
-      rw [← Units.val_one, ← mul_inv_cancel y, Units.val_mul, hy, hy2]
-      dsimp
-    have : x * x2 = 1 := by
-      rw [Algebra.TensorProduct.one_def] at h
-      specialize unique_y 1 (N * N2) 1 (x * x2)
-      simp only [PNat.val_ofNat, Nat.cast_one, ne_eq, one_ne_zero, not_false_eq_true, div_self,
-        PNat.mul_coe, Nat.cast_mul, one_div, mul_inv_rev, and_imp] at unique_y
-      specialize unique_y (by simp only [IsCoprime, PNat.val_ofNat, isUnit_of_subsingleton])
-      nth_rewrite 3 [mul_comm] at unique_y
-      rw [← one_div, ← one_div] at unique_y
-      symm
-      apply And.right
-      refine unique_y ?_ h
-      unfold IsCoprime IsUnit
-      -- proving the wrong thing?
-      sorry
+    rcases lowestTerms yinv with ⟨⟨N2, x2, cop2, hy2⟩, _⟩
     -- we need to show that x is in QHatˣ
+    let xinv := (1 / (N * N2) : ℚ) ⊗ₜ[ℤ] x2
+    have : (i₂ x) * xinv = 1 := by
+      unfold xinv
+      rw [Algebra.TensorProduct.includeRight_apply, one_div, mul_inv_rev,
+        Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_comm,
+        ← Algebra.TensorProduct.tmul_mul_tmul, ← one_div, ← one_div, ← hy, ← hy2]
+      unfold yinv
+      rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+    let xunit : QHatˣ := ⟨i₂ x, xinv, this, by rw [mul_comm]; exact this⟩
     -- show that it suffices to prove it for x
+    suffices h : xunit ∈ unitsratsub ⊔ unitszHatsub by
+      have : y = xunit * (i₁ (1 / N : ℚ)) := by
+        unfold xunit
+        simp only [Algebra.TensorProduct.includeRight_apply, one_mul, mul_one, hy,
+          Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.tmul_mul_tmul]
+      rw [Subgroup.mem_sup] at *
+      rcases h with ⟨w, wh, z, zh, wzx⟩
+      rw [MonoidHom.mem_range] at wh
+      rcases wh with ⟨v, hv⟩
+      let n : ℚˣ := ⟨(N : ℚ), (1 / N : ℚ), by field_simp, by field_simp⟩
+      use ((Units.map ↑i₁) (v / n))
+      simp only [map_div, MonoidHom.mem_range, exists_exists_eq_and]
+      constructor
+      use (v / n)
+      rw [map_div]
+      rcases zh with ⟨t, ht⟩
+      use t
+      rw [hv, ht, div_eq_mul_inv, mul_comm w, mul_assoc, wzx, mul_comm,
+        ← Units.eq_iff, Units.val_mul, this]
+      congr
 
+    -- now the harder part which uses that ℤ is a PID
     sorry
 
 end multiplicative_structure_of_QHat
