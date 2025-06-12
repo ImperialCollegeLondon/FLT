@@ -943,9 +943,7 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       Measure.pi fun i ↦ haar := by
   -- Work with a general statement
   suffices ∀ n, ∀ (ι : Type u) [Fintype ι], Fintype.card ι = n →
-    ∀ (H : ι → Type v) [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
-    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+    ∀ (H : ι → Type v) [∀ i, Group (H i)]
     (ψ : ∀ i, (H i) ≃ₜ* (H i)),
     Measure.map (ContinuousMulEquiv.piCongrRight ψ) (Measure.pi fun i ↦ haar) =
     (∏ i, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar by
@@ -958,7 +956,7 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
         _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
       -- h_eq : Fintype.card ι = 0
       have h_empty : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_eq
-      simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
+      simp
       convert Measure.map_id
   | succ n ih =>
       -- Introduce the universally quantified variables
@@ -980,7 +978,7 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       let ι' : Type _ := { i : ι // i ≠ i₀ }
 
       -- Get the equivalence ι ≃ Option ι'
-      let e : ι ≃ Option ι' := ι_equiv_option_subtype i₀
+      let e : ι ≃ Option ι' := Equiv.piEquivOptionSubtype i₀
 
       -- We have card ι' = n
       have h_card' : Fintype.card ι' = n := by
@@ -996,28 +994,14 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
           congr 1
           -- The product over ι \ {i₀} equals the product over ι'
           apply Finset.prod_bij (fun i hi => ⟨i, by simp at hi; exact hi⟩)
-          · -- Injectivity
-            intros a b ha hb hab
-            exact Subtype.coe_injective hab
-          · -- Surjectivity
-            intros b hb
-            use b.val
-            simp
-            exact ⟨b.property, Subtype.coe_eta b⟩
-          · -- Values match
-            intros a ha
-            rfl
-        · intros x hx
-          simp at hx
-          exact hx
+          · intros a b ha hb hab; exact Subtype.coe_injective hab -- Injectivity
+          · intros b hb; use b.val; simp; exact ⟨b.property, Subtype.coe_eta b⟩ -- Surjectivity
+          · intros a ha; rfl -- Values match
+        · intros x hx; simp at hx; exact hx
         · simp
 
-      -- Now we need to relate the measures
-      -- The hard part is showing how the pi measure and piCongrRight interact
-      -- with our decomposition
-
       -- Apply the inductive hypothesis to ι'
-      have ih_ι' := ih ι' inferInstance h_card' H
+      have ih_ι' := ih ι' inferInstance h_card' (fun i' => H (i' : ι))
         (fun i' => inst_1 (i' : ι))
         (fun i' => inst_2 (i' : ι))
         (fun i' => inst_3 (i' : ι))
@@ -1026,11 +1010,44 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
         (fun i' => inst_6 (i' : ι))
         (fun i' => ψ (i' : ι))
 
-      -- The rest of the proof would show:
-      -- 1. How to decompose the pi measure on ι into measures on {i₀} and ι'
-      -- 2. How piCongrRight ψ decomposes correspondingly
-      -- 3. How the scalar factors combine correctly
-      sorry
+      -- Let F be the main transformation
+      let F_univ := ContinuousMulEquiv.piCongrRight ψ
+      -- Let μ_univ be the product Haar measure on the full space
+      let μ_univ_fn := fun i : ι => haar (H i)
+      -- Let C₀ be the Haar characteristic for the i₀ component
+      let C₀ := mulEquivHaarChar (ψ i₀)
+      -- Let C' be the product of Haar characteristics for the ι' components
+      let C'_prod := ∏ i' : ι', mulEquivHaarChar (ψ (i' : ι))
+
+      -- Let me be the measurable equivalence induced by e
+      let me := MeasurableEquiv.piEquivOptionSubtype i₀
+
+      -- Let F₀ be the transform on H i₀
+      let F₀ := ψ i₀
+      -- Let F' be the product transform on the ι' components
+      let F' := ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι))
+      -- F_prod is the product of F₀ and F'
+      let F_prod := ContinuousMulEquiv.prodCongr F₀ F'
+
+      -- μ₀ is the Haar measure on H i₀
+      let μ₀ := haar (H i₀)
+      -- μ' is the product Haar measure on the ι' components
+      let μ'_univ := Measure.pi (fun i' : ι' => haar (H (i' : ι)))
+
+      rw -- Moves scalar mult inside map e.symm on RHS
+      -- Goal: map F_univ (map me.symm (μ₀.prod μ'_univ)) = map me.symm ((C₀ * C'_prod) • (μ₀.prod μ'_univ))
+      rw
+      -- Goal: map (F_univ ∘ me.symm) (μ₀.prod μ'_univ) = map me.symm ((C₀ * C'_prod) • (μ₀.prod μ'_univ))
+      rw
+      -- Goal: map (me.symm ∘ F_prod) (μ₀.prod μ'_univ) = map me.symm ((C₀ * C'_prod) • (μ₀.prod μ'_univ))
+      rw
+      -- Goal: map me.symm (map F_prod (μ₀.prod μ'_univ)) = map me.symm ((C₀ * C'_prod) • (μ₀.prod μ'_univ))
+
+      -- Since me.symm is a MeasurableEquiv, map me.symm is injective-like
+      apply (Measure.map_equiv_inj me.symm).mpr
+
+      -- Goal: map F_prod (μ₀.prod μ'_univ) = (C₀ * C'_prod) • (μ₀.prod μ'_univ)
+      rw -- Combine scalar multiples
 
 end HaarProductMeasure -- First prove the fundamental identity
 
