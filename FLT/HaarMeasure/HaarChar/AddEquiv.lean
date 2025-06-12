@@ -961,24 +961,16 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
       convert Measure.map_id
   | succ n ih =>
-      -- Set up the instance requirements
-      let ι := ι
-      let _inst_fintype : Fintype ι := inst
-      have h_eq : Fintype.card ι = n.succ := rfl
-      let H := H
-      let _inst_group : (i : ι) → Group (H i) := inst_1
-      let _inst_top : (i : ι) → TopologicalSpace (H i) := inst_2
-      let _inst_istop : ∀ i, IsTopologicalGroup (H i) := inst_3
-      let _inst_loccomp : ∀ i, LocallyCompactSpace (H i) := inst_4
-      let _inst_meas : (i : ι) → MeasurableSpace (H i) := inst_5
-      let _inst_borel : ∀ i, BorelSpace (H i) := inst_6
-      let ψ := ψ
+      -- Introduce the universally quantified variables
+      intro ι inst h_card H inst_1 inst_2 inst_3 inst_4 inst_5 inst_6 ψ
+
+      -- Now we have h_card : Fintype.card ι = n.succ
 
       -- We need decidable equality on ι for the decomposition
       haveI : DecidableEq ι := Classical.decEq ι
 
       -- ι is nonempty since card ι = n.succ > 0
-      have h_pos : 0 < Fintype.card ι := by rw [h_eq]; exact Nat.zero_lt_succ n
+      have h_pos : 0 < Fintype.card ι := by rw [h_card]; exact Nat.zero_lt_succ n
       have h_nonempty : Nonempty ι := Fintype.card_pos_iff.mp h_pos
 
       -- Pick an arbitrary element i₀
@@ -990,78 +982,55 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       -- Get the equivalence ι ≃ Option ι'
       let e : ι ≃ Option ι' := ι_equiv_option_subtype i₀
 
+      -- We have card ι' = n
+      have h_card' : Fintype.card ι' = n := by
+        rw [Fintype.card_subtype_ne i₀, h_card]
+        simp [Nat.succ_sub_one]
+
       -- Key observation: we can decompose the product
       have h_prod_decomp : ∏ i : ι, mulEquivHaarChar (ψ i) =
           mulEquivHaarChar (ψ i₀) * ∏ i' : ι', mulEquivHaarChar (ψ (i' : ι)) := by
-        -- Rewrite using the bijection e
-        conv_lhs => rw [← Finset.prod_bij (fun i _ => e i) _ _ _ _]
-        · -- The product over Option ι' splits into none and some cases
-          rw [Finset.prod_option]
+        -- Use the decomposition of the finite product
+        rw [← Finset.prod_subset (s := {i₀}) (t := Finset.univ)]
+        · simp only [Finset.prod_singleton]
           congr 1
-          · -- The none case
-            simp only [Finset.prod_singleton]
-            congr
-            -- e.symm none = i₀ by construction
+          -- The product over ι \ {i₀} equals the product over ι'
+          apply Finset.prod_bij (fun i hi => ⟨i, by simp at hi; exact hi⟩)
+          · -- Injectivity
+            intros a b ha hb hab
+            exact Subtype.coe_injective hab
+          · -- Surjectivity
+            intros b hb
+            use b.val
+            simp
+            exact ⟨b.property, Subtype.coe_eta b⟩
+          · -- Values match
+            intros a ha
             rfl
-          · -- The some cases
-            apply Finset.prod_bij (fun i' _ => (i' : ι))
-            · -- Injectivity on the relevant finset
-              intros a b ha hb hab
-              exact Subtype.ext hab
-            · -- Range covers all elements ≠ i₀
-              intros b hb
-              have h_ne : b ≠ i₀ := by
-                intro h_eq
-                simp [h_eq] at hb
-              use ⟨b, h_ne⟩
-              simp
-              constructor
-              · -- some ⟨b, h_ne⟩ is in the image of e
-                use b
-                simp [e, ι_equiv_option_subtype]
-                exact ⟨Finset.mem_univ b, h_ne⟩
-              · rfl
-            · -- The function values match
-              intros a ha
-              rfl
-        · -- Show e is injective on Finset.univ
-          intros; exact e.injective
-        · -- Show e is surjective onto Option ι'
-          intros b _
-          obtain ⟨a, ha⟩ := e.surjective b
-          exact ⟨a, Finset.mem_univ a, ha⟩
-        · -- The values match
-          intros a _
-          congr
-          exact (e.apply_symm_apply _).symm
+        · intros x hx
+          simp at hx
+          exact hx
+        · simp
 
-      -- Now we relate the measures
-      -- The key is that map on pi measures can be decomposed
-      have h_meas_decomp : Measure.pi (fun i : ι => haar) =
-          (map some)⁻¹ (Measure.pi (fun i : Option ι' =>
-            match i with
-            | none => haar
-            | some i' => haar)) := by
-        -- This uses properties of pi measures and the equivalence
-        sorry -- This would require showing how pi measures transform under reindexing
+      -- Now we need to relate the measures
+      -- The hard part is showing how the pi measure and piCongrRight interact
+      -- with our decomposition
 
-      -- Apply the map to both sides
-      calc map (⇑(ContinuousMulEquiv.piCongrRight ψ)) (Measure.pi fun i => haar)
-          = map (⇑(ContinuousMulEquiv.piCongrRight ψ)) ((map some)⁻¹ (Measure.pi _)) := by
-            rw [h_meas_decomp]
-          _ = (map some)⁻¹ (map _ (Measure.pi _)) := by
-            -- This step requires showing how piCongrRight interacts with the decomposition
-            sorry
-          _ = (map some)⁻¹ ((mulEquivHaarChar (ψ i₀) * ∏ i' : ι', mulEquivHaarChar (ψ (i' : ι))) •
-              Measure.pi (fun i : Option ι' => match i with | none => haar | some i' => haar)) := by
-            -- Apply IH to the smaller index type ι'
-            -- Plus handle the i₀ component separately
-            sorry
-          _ = (∏ i : ι, mulEquivHaarChar (ψ i)) • Measure.pi (fun i => haar) := by
-            -- Reassemble using h_prod_decomp
-            rw [← h_prod_decomp]
-            -- And reverse the measure decomposition
-            sorry
+      -- Apply the inductive hypothesis to ι'
+      have ih_ι' := ih ι' inferInstance h_card' H
+        (fun i' => inst_1 (i' : ι))
+        (fun i' => inst_2 (i' : ι))
+        (fun i' => inst_3 (i' : ι))
+        (fun i' => inst_4 (i' : ι))
+        (fun i' => inst_5 (i' : ι))
+        (fun i' => inst_6 (i' : ι))
+        (fun i' => ψ (i' : ι))
+
+      -- The rest of the proof would show:
+      -- 1. How to decompose the pi measure on ι into measures on {i₀} and ι'
+      -- 2. How piCongrRight ψ decomposes correspondingly
+      -- 3. How the scalar factors combine correctly
+      sorry
 
 end HaarProductMeasure -- First prove the fundamental identity
 
