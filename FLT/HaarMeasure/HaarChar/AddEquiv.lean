@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Simp.RegisterCommand
 import Lean.LabelAttribute
 import Mathlib.Lean.Meta
 import Mathlib.Lean.Meta.Simp
+
 import Mathlib.Data.Finite.Defs
 
 import Mathlib.Data.Fintype.Basic
@@ -46,6 +47,10 @@ import Mathlib.Data.Fintype.Vector
 import Mathlib.Logic.Equiv.Defs -- For Equiv
 
 import Mathlib.MeasureTheory.MeasurableSpace.Defs
+import Mathlib.MeasureTheory.MeasurableSpace.Basic
+
+--import Mathlib.MeasureTheory.Measure.MeasurableEquiv
+import Mathlib.Data.Prod.TProd
 
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Measure.Haar.Disintegration
@@ -818,8 +823,7 @@ lemma map_comp_equiv_eq_map {α β γ : Type*}
   · exact hf hs
   · exact hs
 
-/-- Any equivalence between finite types is a measurable equivalence,
-    provided their measurable space structures make singletons measurable.
+/-- Any equivalence between finite types is a measurable equivalence.
 
     TODO: This should be added in Mathlib.
     Proposed location: `Mathlib.MeasureTheory.MeasurableSpace.Finite`
@@ -829,18 +833,16 @@ lemma map_comp_equiv_eq_map {α β γ : Type*}
 
     Any equivalence between finite types is a measurable equivalence. -/
 def equivToMeasurableEquivOfFintype {α β : Type*}
-   [Fintype α][Fintype β]
-    -- Added these instances
+    [Fintype α] [Fintype β]
+    [MeasurableSpace α] [MeasurableSpace β]
+    [MeasurableSingletonClass α] [MeasurableSingletonClass β]
     (e : α ≃ β) : α ≃ᵐ β where
   toEquiv := e
   measurable_toFun := by
-    -- e.toFun : α → β
-    -- Measurable.of_finite requires [Fintype α] and
-    apply Measurable.of_finite
+    -- Any function from a finite type with measurable singletons is measurable
+    apply measurable_of_countable
   measurable_invFun := by
-    -- e.invFun : β → α
-    -- Measurable.of_finite requires [Fintype β] and
-    apply Measurable.of_finite
+    apply measurable_of_countable
 
 -- We should also add library notes
 library_note "Fintype measurable equivalences"
