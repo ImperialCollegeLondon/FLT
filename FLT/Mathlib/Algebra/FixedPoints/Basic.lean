@@ -135,3 +135,7 @@ instance module [AddCommGroup A] [Module R A] [DistribSMul M A] [SMulCommClass M
       smul_add := sorry
       add_smul := sorry
       zero_smul := sorry
+
+end FixedPoints
+
+end MulAction

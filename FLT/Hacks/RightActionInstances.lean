@@ -180,7 +180,7 @@ noncomputable abbrev LinearEquiv.baseChange (R : Type*) [CommRing R]
     simp [LinearMap.baseChange_comp]
 
 /-- Base extension of an `R`-algebra map `B → C` to an `A`-linear
-map `B ⊗ A → C ⊗ A`. Available in the `TensorProduct.RightActions` scope.-/
+map `B ⊗ A → C ⊗ A`. Available in the `TensorProduct.RightActions` scope. -/
 noncomputable def AlgebraMap.baseChange (R : Type*) [CommRing R]
     (B C : Type*) [Ring B] [Algebra R B] [Ring C] [Algebra R C]
     (A : Type*) [CommRing A] [Algebra R A]

@@ -28,3 +28,5 @@ for all ring homomorphisms) `F → ℝ`). -/
 def IsTotallyDefinite : Prop := ∀ (v : InfinitePlace F) (hv : v.IsReal),
   letI : Algebra F ℝ := (embedding_of_isReal hv).toAlgebra
   Nonempty (ℝ ⊗[F] D ≃ₐ[ℝ] ℍ)
+
+end IsQuaternionAlgebra

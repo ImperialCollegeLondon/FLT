@@ -276,3 +276,5 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
 
 lemma tensorPi_equiv_piTensor'_apply (m : M) (n : ∀ i, N i) :
     tensorPi_equiv_piTensor' R M N (m ⊗ₜ n) = fun i ↦ (m ⊗ₜ n i) := rfl
+
+end

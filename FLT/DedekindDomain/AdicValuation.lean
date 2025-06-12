@@ -178,11 +178,11 @@ theorem closureAlgebraMapIntegers_eq_integers :
     SetLike.coe (v.adicCompletionIntegers K) := by
   apply subset_antisymm
   -- We know `closure A ⊆ 𝒪_v` because `𝒪_v` is closed and `A ⊆ 𝒪_v`
-  . apply closure_minimal _ (Valued.isClosed_valuationSubring _)
+  · apply closure_minimal _ (Valued.isClosed_valuationSubring _)
     rintro b ⟨a, rfl⟩
     exact coe_mem_adicCompletionIntegers v a
   -- Show `𝒪_v ⊆ closure A` from `𝒪_v ⊆ closure O_[K]` and `closure O_[K] ⊆ closure A`
-  . let f := fun (k : WithVal (v.valuation K)) => (k : v.adicCompletion K)
+  · let f := fun (k : WithVal (v.valuation K)) => (k : v.adicCompletion K)
     suffices h : closure (f '' (f ⁻¹' (adicCompletionIntegers K v))) ⊆
         closure (algebraMap A (adicCompletion K v)).range by
       apply Set.Subset.trans _ h
@@ -201,9 +201,9 @@ theorem closureAlgebraMapIntegers_eq_integers :
     obtain ⟨a, ha⟩ := exists_adicValued_sub_lt_of_adicValued_le_one K v γ hx
     use algebraMap A K a
     constructor
-    . use a
+    · use a
       rfl
-    . apply hγ
+    · apply hγ
       simpa
 
 /-- `A` is dense in `𝒪_v`. -/
@@ -343,15 +343,15 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
     closure (SetLike.coe (algebraMap A ((i : ι) → (valuation i).adicCompletion K)).range) =
     (Set.pi Set.univ (fun (i : ι) ↦ ((valuation i).adicCompletionIntegers K).carrier)) := by
   apply Set.Subset.antisymm
-  . apply closure_minimal
-    . rintro c ⟨a, ha⟩ i -
+  · apply closure_minimal
+    · rintro c ⟨a, ha⟩ i -
       rw [← ha]
       simp only [Pi.algebraMap_apply, SetLike.mem_coe]
       exact coe_mem_adicCompletionIntegers (valuation i) a
-    . apply isClosed_set_pi
+    · apply isClosed_set_pi
       rintro w -
       apply Valued.isClosed_valuationSubring
-  . intro f hf
+  · intro f hf
     rw [mem_closure_iff_nhds_zero]
     intro U hU
     rw [Pi.zero_def, nhds_pi, Filter.mem_pi'] at hU
@@ -361,9 +361,9 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
       exists_forall_adicValued_sub_lt K I g valuation injective (fun w => ⟨f w, hf w ⟨⟩⟩)
     use algebraMap A _ a
     constructor
-    . rw [RingHom.coe_range]
+    · rw [RingHom.coe_range]
       exact Set.mem_range_self a
-    . exact hts fun w hw ↦ hg w <| ha w hw
+    · exact hts fun w hw ↦ hg w <| ha w hw
 
 lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : HeightOneSpectrum A)
     (x : v.adicCompletion K) :
@@ -372,8 +372,8 @@ lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : Heigh
     adicCompletion.mul_nonZeroDivisor_mem_adicCompletionIntegers v x
   use a, hz, (algebraMap A K a) • x
   constructor
-  . rwa [Algebra.smul_def, ← IsScalarTower.algebraMap_apply, mul_comm]
-  . rw [smul_smul, inv_mul_cancel₀, one_smul]
+  · rwa [Algebra.smul_def, ← IsScalarTower.algebraMap_apply, mul_comm]
+  · rw [smul_smul, inv_mul_cancel₀, one_smul]
     exact IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors K (fun _ ↦ id) hz
 
 lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
@@ -387,7 +387,7 @@ lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
   have hz : ∀ (i : ι), (algebraMap A K) (f i) ≠ 0 := fun i =>
     IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors K (fun _ ↦ id) (hf i).left
   constructor
-  . rintro i -
+  · rintro i -
     obtain ⟨b, hb, hx⟩ := (hf i).right
     beta_reduce
     rw [Pi.smul_apply, algebraMap_smul, Subsemiring.coe_carrier_toSubmonoid,
@@ -396,7 +396,7 @@ lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
         ← IsScalarTower.smul_assoc (f i), Algebra.smul_def (f i), mul_inv_cancel₀ (hz i), one_smul,
         Algebra.smul_def]
     apply mul_mem (coe_mem_adicCompletionIntegers _ _) hb
-  . rw [smul_smul, inv_mul_cancel₀, one_smul]
+  · rw [smul_smul, inv_mul_cancel₀, one_smul]
     simp [Finset.prod_ne_zero_iff, hz]
 
 /-- If `s` is finite then `K` in dense in `∏_{v ∈ s} K_v`. -/
@@ -539,11 +539,11 @@ lemma mem_completionIdeal_pow {n : ℕ} (x : v.adicCompletionIntegers K) :
     norm_cast
     rw [← ofAdd_nsmul, Nat.smul_one_eq_cast]
   constructor
-  . rintro ⟨a, rfl⟩
+  · rintro ⟨a, rfl⟩
     simp only [MulMemClass.coe_mul, SubmonoidClass.coe_pow, map_mul, map_pow, ofAdd_neg,
       WithZero.coe_inv, ge_iff_le]
     apply mul_le_of_le_one_of_le a.prop <| le_of_eq hvalπ_pow
-  . intro hx
+  · intro hx
     set a := x.val / (π ^ n) with ha'
     have ha : Valued.v a ≤ 1 := by
       rwa [ha', Valuation.map_div, Valuation.map_pow, hvalπ_pow,

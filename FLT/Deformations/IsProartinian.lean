@@ -80,3 +80,5 @@ lemma isLocalHom_of_isContinuous_of_isProartinian
   obtain ⟨n, hn⟩ := exists_maximalIdeal_pow_le_of_isProartinian ((maximalIdeal S).comap f)
     (isOpen_maximalIdeal_of_isProartinian.preimage h)
   refine hn (Ideal.pow_mem_pow ha' n) (by simpa using ha.pow n)
+
+end IsLocalRing

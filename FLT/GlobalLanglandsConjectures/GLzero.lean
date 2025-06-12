@@ -128,3 +128,7 @@ noncomputable def classification (ρ : Weight 0) : AutomorphicFormForGLnOverQ 0 
 
 -- Can this be beefed up to an isomorphism of complex
 -- vector spaces?
+
+end GLn
+
+end AutomorphicForm
