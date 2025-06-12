@@ -635,25 +635,141 @@ section IndexDecomposition
 
 end IndexDecomposition
 
+-- Helper definition for the Option-product homeomorphism
+def option_prod_homeomorph {ι' : Type u} [Fintype ι']
+  {G₀ : Type v} {G : ι' → Type v}
+  [TopologicalSpace G₀] [∀ i, TopologicalSpace (G i)] :
+  (∀ opt : Option ι', Option.elim G₀ G opt) ≃ₜ (G₀ × ∀ i : ι', G i) where
+  toFun := fun f => (f none, fun i => f (some i))
+  invFun := fun p opt =>
+    match opt with
+    | none => p.1
+    | some i => p.2 i
+  continuous_toFun := by
+    apply Continuous.prod_mk
+    · exact continuous_pi_apply none
+    · exact continuous_pi fun i => continuous_pi_apply (some i)
+  continuous_invFun := by
+    apply continuous_pi
+    intro opt
+    cases opt
+    · exact continuous_fst
+    · exact continuous_pi_apply _ ∘ continuous_snd
+
 -- Lemma 1: Decomposition of pi measure under equivalence
-lemma MeasureTheory.Measure.pi_equiv {ι ι' : Type*} [Fintype ι] [Fintype ι']
-    (e : ι ≃ ι') (μ : ι → Measure _) :
-    Measure.pi μ = (Measure.pi (μ ∘ e.symm)).map (Equiv.piCongrLeft' _ e) := sorry
+lemma MeasureTheory.Measure.pi_equiv {ι κ : Type u} [Fintype ι] [Fintype κ]
+  {α : ι → Type v} [∀ i, MeasurableSpace (α i)]
+  (e : ι ≃ κ) (μ : ∀ i : ι, Measure (α i)) :
+  Measure.map (Equiv.piCongrLeft' α e) (Measure.pi μ) =
+  Measure.pi (fun (k : κ) => μ (e.symm k)) := by
+  -- First show measurability
+  have h_meas : Measurable (Equiv.piCongrLeft' α e) := by
+    apply Measurable.pi_equiv
+  -- Use measure transport properties
+  rw [← Measure.pi_map_equiv e μ]
+  -- The rest follows from functoriality
+  congr 1
+  ext s hs
+  simp only [Measure.map_apply h_meas hs]
+  rfl
 
 -- Lemma 2: Product decomposition for Option
-lemma MeasureTheory.Measure.pi_option {ι : Type*} [Fintype ι] (μ₀ : Measure _) (μ : ι → Measure _) :
-    Measure.pi (Option.elim μ₀ μ) = μ₀.prod (Measure.pi μ) := sorry
+lemma MeasureTheory.Measure.pi_option {ι' : Type u} [Fintype ι']
+  {α₀ : Type v} {α' : ι' → Type v}
+  [MeasurableSpace α₀] [∀ i, MeasurableSpace (α' i)]
+  (μ₀ : Measure α₀) (μ' : ∀ i : ι', Measure (α' i)) :
+  Measure.pi (fun (opt : Option ι') =>
+    match opt with
+    | none => μ₀
+    | some i => μ' i : ∀ opt : Option ι', Measure (Option.elim α₀ α' opt)) =
+  μ₀.prod (Measure.pi μ') := by
+  -- First establish the type equivalence
+  let e : (∀ opt : Option ι', Option.elim α₀ α' opt) ≃ᵐ (α₀ × ∀ i : ι', α' i) := {
+    toFun := fun f => (f none, fun i => f (some i))
+    invFun := fun p opt =>
+      match opt with
+      | none => p.1
+      | some i => p.2 i
+    measurable_toFun := Measurable.prod_mk (measurable_pi_apply none)
+      (Measurable.pi fun i => measurable_pi_apply (some i))
+    measurable_invFun := Measurable.pi fun opt => by
+      cases opt
+      · exact measurable_fst
+      · exact measurable_pi_apply _ ∘ measurable_snd
+  }
+  -- Apply the equivalence
+  rw [← Measure.map_symm_eq e]
+  rw [Measure.pi_map_measurableEquiv]
+  -- Show equality of measures
+  ext s hs
+  simp only [Measure.prod_apply hs]
+  rfl
 
 -- Lemma 3: How piCongrRight behaves with Option decomposition
-lemma ContinuousMulEquiv.piCongrRight_option {ι : Type*} [Fintype ι]
-    (ψ₀ : G ≃ₜ* G) (ψ : ι → H _ ≃ₜ* H _) :
-    piCongrRight (Option.elim ψ₀ ψ) =
-    (ψ₀.prod (piCongrRight ψ)).trans someEquivProd.symm := sorry
+lemma ContinuousMulEquiv.piCongrRight_option {ι' : Type u} [Fintype ι']
+  {G₀ : Type v} {G : ι' → Type v}
+  [Group G₀] [∀ i, Group (G i)]
+  [TopologicalSpace G₀] [∀ i, TopologicalSpace (G i)]
+  (ψ₀ : G₀ ≃ₜ* G₀) (ψ : ∀ i : ι', G i ≃ₜ* G i) :
+  (piCongrRight (fun (opt : Option ι') =>
+    match opt with
+    | none => ψ₀
+    | some i => ψ i : ∀ opt : Option ι', Option.elim G₀ G opt ≃ₜ* Option.elim G₀ G opt)) =
+  (ψ₀.prodCongr (piCongrRight ψ)).trans option_prod_homeomorph.symm := by
+  -- Define the equivalence explicitly
+  apply ContinuousMulEquiv.ext
+  intro (f : ∀ opt : Option ι', Option.elim G₀ G opt)
+  -- Show equality by function extensionality
+  funext opt
+  cases opt with
+  | none =>
+    simp only [piCongrRight, ContinuousMulEquiv.coe_trans, Function.comp_apply]
+    rfl
+  | some i =>
+    simp only [piCongrRight, ContinuousMulEquiv.coe_trans, Function.comp_apply]
+    rfl
 
 -- Lemma 4: Product formula for scalar
-lemma mulEquivHaarChar_prod {ι : Type*} [Fintype ι] (ψ : ι → G ≃ₜ* G) :
-    ∏ i, mulEquivHaarChar (ψ i) =
-    mulEquivHaarChar (piCongrRight ψ) := sorry
+lemma mulEquivHaarChar_prod {ι' : Type u} [Fintype ι']
+  {G₀ : Type v} {G : ι' → Type v}
+  [Group G₀] [∀ i, Group (G i)]
+  [TopologicalSpace G₀] [∀ i, TopologicalSpace (G i)]
+  [LocallyCompactSpace G₀] [∀ i, LocallyCompactSpace (G i)]
+  [MeasurableSpace G₀] [∀ i, MeasurableSpace (G i)]
+  [BorelSpace G₀] [∀ i, BorelSpace (G i)]
+  (ψ₀ : G₀ ≃ₜ* G₀) (ψ : ∀ i : ι', G i ≃ₜ* G i) :
+  mulEquivHaarChar (ψ₀.prodCongr (piCongrRight ψ)) =
+  mulEquivHaarChar ψ₀ * ∏ i : ι', mulEquivHaarChar (ψ i) := by
+  -- Use the fact that Haar measure on product is product of Haar measures
+  rw [mulEquivHaarChar_def]
+  rw [mulEquivHaarChar_def]
+  -- Apply product formula for Haar measure scaling
+  rw [← Measure.map_prod_eq_prod_map]
+  rw [← Measure.pi_prod]
+  -- Show the scaling factors multiply
+  simp only [ENNReal.toReal_mul]
+  rw [Finset.prod_mul_distrib]
+  congr 1
+  · -- For the G₀ component
+    exact mulEquivHaarChar_def ψ₀
+  · -- For the product component
+    ext i
+    exact mulEquivHaarChar_def (ψ i)
+
+-- Alternative formulation for Option type directly
+lemma mulEquivHaarChar_option {ι' : Type u} [Fintype ι']
+  {G₀ : Type v} {G : ι' → Type v}
+  [Group G₀] [∀ i, Group (G i)]
+  [TopologicalSpace G₀] [∀ i, TopologicalSpace (G i)]
+  [LocallyCompactSpace G₀] [∀ i, LocallyCompactSpace (G i)]
+  [MeasurableSpace G₀] [∀ i, MeasurableSpace (G i)]
+  [BorelSpace G₀] [∀ i, BorelSpace (G i)]
+  (ψ : ∀ opt : Option ι', Option.elim G₀ G opt ≃ₜ* Option.elim G₀ G opt) :
+  ∏ opt : Option ι', mulEquivHaarChar (ψ opt) =
+  mulEquivHaarChar (ψ none) * ∏ i : ι', mulEquivHaarChar (ψ (some i)) := by
+  rw [Finset.prod_option]
+  simp only [Finset.prod_singleton]
+  rfl
 
 /-! ## HaarProductMeasure Theorem -/
 
@@ -699,39 +815,36 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
       convert Measure.map_id
   | succ n ih =>
-      intro ι _inst_fintype h_eq H _inst_group _inst_top
-        _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
-      -- h_eq : Fintype.card ι = n + 1
+      -- Choose an arbitrary element i₀ : ι
+      obtain ⟨i₀, _⟩ : ∃ i : ι, True := Fintype.card_pos_iff.mp (by simp)
 
-      -- Since card ι = n + 1 > 0, ι is nonempty
-      have h_nonempty : Nonempty ι := by
-        rw [← Fintype.card_pos_iff]
-        rw [h_eq]
-        exact Nat.succ_pos n
-
-      -- Choose an element from ι
-      obtain ⟨i₀⟩ := h_nonempty
-
-      -- Split ι into {i₀} and the rest
-      -- We need an equivalence: ι ≃ Option ι' where ι' = {i : ι | i ≠ i₀}
+      -- Define the subtype and equivalence
       let ι' := {i : ι // i ≠ i₀}
+      let e : ι ≃ Option ι' := ι_equiv_option_subtype i₀
 
-      -- Add the Fintype instance for ι'
-      haveI : Fintype ι' := by exact Fintype.ofFinite ι'
+      -- Rewrite using the equivalence
+      rw [← Measure.map_comp_equiv_eq_map e]
 
-      -- We have a decomposition ι ≃ Option ι'
-      have e : ι ≃ Option ι' := by
-        sorry -- construct this equivalence
+      -- Apply the first supporting lemma
+      rw [MeasureTheory.Measure.pi_equiv e]
 
-      -- This gives us (Π i : ι, H i) ≃ (H i₀ × Π i : ι', H (e.symm (some i)))
-      -- and similarly for the transformed version
+      -- Decompose using Option structure
+      rw [MeasureTheory.Measure.pi_option]
 
-      -- The key is to show:
-      -- 1. The product measure decomposes accordingly
-      -- 2. The scalar factor also decomposes as a product
-      -- 3. Apply the induction hypothesis to ι'
+      -- Apply induction hypothesis to ι'
+      have ih_applied : Measure.map (piCongrRight (fun i : ι' => f (i : ι)))
+        (Measure.pi (fun i : ι' => μ (i : ι))) =
+        (∏ i : ι', mulEquivHaarChar (f (i : ι))) • Measure.pi (fun i : ι' => μ (i : ι)) :=
+        ih (fun i => f (i : ι)) (fun i => μ (i : ι))
 
-      sorry -- complete the proof
+      -- Combine with the i₀ component
+      rw [← ih_applied]
+      rw [ContinuousMulEquiv.piCongrRight_option]
+      rw [mulEquivHaarChar_prod]
+
+      -- Final algebraic manipulation
+      simp_rw [Finset.prod_option]
+      ring
 
 end HaarProductMeasure -- First prove the fundamental identity
 
