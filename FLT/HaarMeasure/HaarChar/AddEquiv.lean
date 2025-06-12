@@ -815,8 +815,18 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
       convert Measure.map_id
   | succ n ih =>
+      intro ι _inst_fintype h_eq H _inst_group _inst_top
+        _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
+      -- h_eq : Fintype.card ι = n + 1
+
       -- Choose an arbitrary element i₀ : ι
-      obtain ⟨i₀, _⟩ : ∃ i : ι, True := Fintype.card_pos_iff.mp (by simp)
+      -- First prove ι is nonempty
+      have h_pos : 0 < Fintype.card ι := by
+        rw [h_eq]
+        exact Nat.succ_pos n
+      have h_nonempty : Nonempty ι := Fintype.card_pos_iff.mp h_pos
+      -- Now get a concrete element
+      let i₀ : ι := h_nonempty.some
 
       -- Define the subtype and equivalence
       let ι' := {i : ι // i ≠ i₀}
