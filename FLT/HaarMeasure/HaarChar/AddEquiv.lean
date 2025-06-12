@@ -672,13 +672,15 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
   intro n
   induction n using Nat.rec with
   | zero =>
-      intro ι _inst_fintype h_eq H _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
+      intro ι _inst_fintype h_eq H _inst_group _inst_top
+        _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
       -- h_eq : Fintype.card ι = 0
       have h_empty : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_eq
       simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
       convert Measure.map_id
   | succ n ih =>
-      intro ι _inst_fintype h_eq H _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
+      intro ι _inst_fintype h_eq H _inst_group _inst_top
+        _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
       -- h_eq : Fintype.card ι = n + 1
 
       -- Since card ι = n + 1 > 0, ι is nonempty
