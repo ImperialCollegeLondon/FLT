@@ -635,9 +635,9 @@ section IndexDecomposition
 
 end IndexDecomposition
 
-/-! ## Measure Computation -/
+/-! ## HaarProductMeasure Theorem -/
 
-section MeasureComputation
+section HaarProductMeasure
 
 /-- Helper lemma for scalar type coercion between ℝ≥0 and ℝ≥0∞ -/
 -- import MeasureTheory.MeasureTheory.HaarChar.Pi.ennreal_prod_coe or
@@ -654,7 +654,7 @@ lemma ennreal_prod_coe {α : Type*} [Fintype α] (f : α → ℝ≥0) :
 -- import Mathlib.MeasureTheory.MeasureTheory.HaarChar.Pi.map_addHaar_pi
 @[to_additive "Pushforward of the product Haar measure under a componentwise automorphism
     multiplies by the product of scalar factors."]
-lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
+theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
     Measure.map (ContinuousMulEquiv.piCongrRight ψ)
       (Measure.pi fun i ↦ haar) =
     (∏ i, mulEquivHaarChar (ψ i)) •
@@ -713,11 +713,11 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
 
       sorry -- complete the proof
 
-end MeasureComputation
+end HaarProductMeasure -- First prove the fundamental identity
 
-/-! ## Main Theorem -/
+/-! ## HaarProductCharacter Theorem -/
 
-section MainTheorem
+section HaarProductCharacter
 
 /-- The Haar character of a product of topological group automorphisms
     equals the product of individual Haar characters. -/
@@ -745,7 +745,7 @@ theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H
     simp [ennreal_prod_coe]
   exact this
 
-end MainTheorem
+end HaarProductCharacter
 
 /-! ## Test Examples -/
 
