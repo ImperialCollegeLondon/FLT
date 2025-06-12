@@ -672,47 +672,45 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
   intro n
   induction n using Nat.rec with
   | zero =>
-    intro ι _inst_fintype h_eq H _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
-    -- h_eq : Fintype.card ι = 0
-    have h_empty : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_eq
-    simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
-    convert Measure.map_id
+      intro ι _inst_fintype h_eq H _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
+      -- h_eq : Fintype.card ι = 0
+      have h_empty : IsEmpty ι := Fintype.card_eq_zero_iff.mp h_eq
+      simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
+      convert Measure.map_id
   | succ n ih =>
-    intro ι _ _ _ _ _ _ _ _ ψ hn
-    -- Pick an element and decompose
-    obtain ⟨i₀, _⟩ := Fintype.card_pos_iff.mp (hn ▸ Nat.zero_lt_succ n)
-    let ι' := {j : ι // j ≠ i₀}
-    have card_ι' : Fintype.card ι' = n := by
-      rw [Fintype.card_subtype_compl, hn]
-      simp
+      intro ι _inst_fintype h_eq H _inst_group _inst_top _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
+      -- h_eq : Fintype.card ι = n + 1
 
-    -- Use the equivalence to decompose the product
-    let e := piEquivPiSubtypeProd (· ≠ i₀) H
+      -- Since card ι = n + 1 > 0, ι is nonempty
+      have h_nonempty : Nonempty ι := by
+        rw [← Fintype.card_pos_iff]
+        rw [h_eq]
+        exact Nat.succ_pos n
 
-    -- The key is that the map decomposes as a product
-    have map_decomp : ContinuousMulEquiv.piCongrRight ψ =
-        e.symm.trans ((ContinuousMulEquiv.piCongrRight (fun i : ι' ↦ ψ i)).prodCongr (ψ i₀)).trans e := by
-      ext x
-      simp [e, piEquivPiSubtypeProd]
-    -- Now use the binary product formula and induction hypothesis
-    rw [map_decomp]
-    simp only [Measure.map_map, measurable_equiv]
-    -- The measure decomposes as a product
-    have pi_decomp : (Measure.pi fun i ↦ (haar : Measure (H i))) =
-        Measure.map e.symm (Measure.prod (Measure.pi fun i : ι' ↦ haar) haar) := by
-      ext s hs
-      sorry -- Measure theory computation
+      -- Choose an element from ι
+      obtain ⟨i₀⟩ := h_nonempty
 
-    rw [pi_decomp]
-    simp only [Measure.map_map, measurable_equiv]
-    -- Apply the binary product formula
-    have binary := mulEquivHaarChar_prodCongr
-      (ContinuousMulEquiv.piCongrRight (fun i : ι' ↦ ψ i)) (ψ i₀)
-    -- Apply induction hypothesis
-    have ih_applied := ih (fun i : ι' ↦ ψ i) card_ι'
+      -- Split ι into {i₀} and the rest
+      -- We need an equivalence: ι ≃ Option ι' where ι' = {i : ι | i ≠ i₀}
+      let ι' := {i : ι // i ≠ i₀}
 
-    -- Combine everything
-    sorry -- Algebraic manipulation
+      -- ι' has cardinality n
+      have h_card' : Fintype.card ι' = n := by
+        sorry -- prove this using h_eq
+
+      -- We have a decomposition ι ≃ Option ι'
+      have e : ι ≃ Option ι' := by
+        sorry -- construct this equivalence
+
+      -- This gives us (Π i : ι, H i) ≃ (H i₀ × Π i : ι', H (e.symm (some i)))
+      -- and similarly for the transformed version
+
+      -- The key is to show:
+      -- 1. The product measure decomposes accordingly
+      -- 2. The scalar factor also decomposes as a product
+      -- 3. Apply the induction hypothesis to ι'
+
+      sorry -- complete the proof
 
 end MeasureComputation
 
