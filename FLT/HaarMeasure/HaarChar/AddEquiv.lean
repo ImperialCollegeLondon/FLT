@@ -843,6 +843,9 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
         _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
       -- h_eq : Fintype.card ι = n + 1
 
+      -- Make equality decidable classically
+      letI : DecidableEq ι := Classical.decEq ι
+
       -- Choose an arbitrary element i₀ : ι
       -- First prove ι is nonempty
       have h_pos : 0 < Fintype.card ι := by
