@@ -11,12 +11,23 @@ import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.LinearAlgebra.TensorProduct.Prod
+import FLT.NumberField.FiniteAdeleRing
 
 open scoped TensorProduct
 
 universe u
 
 open NumberField
+
+section LocallyCompact
+
+variable (K : Type*) [Field K] [NumberField K]
+
+open IsDedekindDomain.HeightOneSpectrum in
+instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing (𝓞 K) K) :=
+  Prod.locallyCompactSpace _ _
+
+end LocallyCompact
 
 section BaseChange
 
