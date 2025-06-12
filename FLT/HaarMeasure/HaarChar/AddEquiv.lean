@@ -43,6 +43,8 @@ import Mathlib.Data.Fintype.Sum
 import Mathlib.Data.Fintype.Units
 import Mathlib.Data.Fintype.Vector
 
+import Mathlib.Logic.Equiv.Defs -- For Equiv
+
 import Mathlib.MeasureTheory.MeasurableSpace.Defs
 
 import Mathlib.MeasureTheory.Measure.Haar.Basic
@@ -816,7 +818,8 @@ lemma map_comp_equiv_eq_map {α β γ : Type*}
   · exact hf hs
   · exact hs
 
-/-- Any equivalence between finite types is a measurable equivalence.
+/-- Any equivalence between finite types is a measurable equivalence,
+    provided their measurable space structures make singletons measurable.
 
     TODO: This should be added in Mathlib.
     Proposed location: `Mathlib.MeasureTheory.MeasurableSpace.Finite`
@@ -826,13 +829,17 @@ lemma map_comp_equiv_eq_map {α β γ : Type*}
 
     Any equivalence between finite types is a measurable equivalence. -/
 def equivToMeasurableEquivOfFintype {α β : Type*}
-    [MeasurableSpace α] [MeasurableSpace β] [Fintype α] [Fintype β]
+   [Fintype α][Fintype β]
+    -- Added these instances
     (e : α ≃ β) : α ≃ᵐ β where
   toEquiv := e
   measurable_toFun := by
-    -- Every function between finite types is measurable
+    -- e.toFun : α → β
+    -- Measurable.of_finite requires [Fintype α] and
     apply Measurable.of_finite
   measurable_invFun := by
+    -- e.invFun : β → α
+    -- Measurable.of_finite requires [Fintype β] and
     apply Measurable.of_finite
 
 -- We should also add library notes
