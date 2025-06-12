@@ -635,6 +635,26 @@ section IndexDecomposition
 
 end IndexDecomposition
 
+-- Lemma 1: Decomposition of pi measure under equivalence
+lemma MeasureTheory.Measure.pi_equiv {ι ι' : Type*} [Fintype ι] [Fintype ι']
+    (e : ι ≃ ι') (μ : ι → Measure _) :
+    Measure.pi μ = (Measure.pi (μ ∘ e.symm)).map (Equiv.piCongrLeft' _ e) := sorry
+
+-- Lemma 2: Product decomposition for Option
+lemma MeasureTheory.Measure.pi_option {ι : Type*} [Fintype ι] (μ₀ : Measure _) (μ : ι → Measure _) :
+    Measure.pi (Option.elim μ₀ μ) = μ₀.prod (Measure.pi μ) := sorry
+
+-- Lemma 3: How piCongrRight behaves with Option decomposition
+lemma ContinuousMulEquiv.piCongrRight_option {ι : Type*} [Fintype ι]
+    (ψ₀ : G ≃ₜ* G) (ψ : ι → H _ ≃ₜ* H _) :
+    piCongrRight (Option.elim ψ₀ ψ) =
+    (ψ₀.prod (piCongrRight ψ)).trans someEquivProd.symm := sorry
+
+-- Lemma 4: Product formula for scalar
+lemma mulEquivHaarChar_prod {ι : Type*} [Fintype ι] (ψ : ι → G ≃ₜ* G) :
+    ∏ i, mulEquivHaarChar (ψ i) =
+    mulEquivHaarChar (piCongrRight ψ) := sorry
+
 /-! ## HaarProductMeasure Theorem -/
 
 section HaarProductMeasure
