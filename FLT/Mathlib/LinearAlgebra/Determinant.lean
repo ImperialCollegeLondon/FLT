@@ -12,15 +12,15 @@ import Mathlib.RingTheory.SimpleModule.IsAlgClosed
 variable (k : Type*) [Field k] {D : Type*} [Ring D] [Algebra k D]
 open scoped TensorProduct
 
-lemma mulLeft_conj (K : Type*) [Field K] [Algebra k K] (n : ℕ) (d : D)
+lemma mulLeft_conj (K : Type*) [Field K] [Algebra k K] (n : ℕ) (x : K ⊗[k] D)
     (e : K ⊗[k] D ≃ₐ[K] Matrix (Fin n) (Fin n) K) :
-    LinearMap.mulLeft K (e (1 ⊗ₜ d)) = e ∘ₗ LinearMap.mulLeft K ((1 : K) ⊗ₜ[k] d) ∘ₗ e.symm := by
+    LinearMap.mulLeft K (e x) = e ∘ₗ LinearMap.mulLeft K x ∘ₗ e.symm := by
   apply LinearMap.ext
   simp
 
-lemma mulRight_conj (K : Type*) [Field K] [Algebra k K] (n : ℕ) (d : D)
+lemma mulRight_conj (K : Type*) [Field K] [Algebra k K] (n : ℕ) (x : K ⊗[k] D)
     (e : K ⊗[k] D ≃ₐ[K] Matrix (Fin n) (Fin n) K) :
-    LinearMap.mulRight K (e (1 ⊗ₜ d)) = e ∘ₗ LinearMap.mulRight K ((1 : K) ⊗ₜ[k] d) ∘ₗ e.symm := by
+    LinearMap.mulRight K (e x) = e ∘ₗ LinearMap.mulRight K x ∘ₗ e.symm := by
   apply LinearMap.ext
   simp
 
@@ -42,7 +42,8 @@ lemma mulRight_conj_ofLinear (K : Type*) [Field K] (n : ℕ) (N : Matrix (Fin n)
 
 variable [Algebra.IsCentral k D] [IsSimpleRing D] [FiniteDimensional k D]
 
-/-- this is instance is in a repo on brauergroup which will soon be PRed into mathlib. -/
+/-- This is instance is in a repo on brauergroup which will soon be PRed into mathlib,
+  the associated issue task is #631. -/
 instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
     [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B]: IsSimpleRing (A ⊗[k] B) := sorry
 
