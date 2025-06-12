@@ -936,13 +936,13 @@ lemma ennreal_prod_coe {α : Type*} [Fintype α] (f : α → ℝ≥0) :
     ↑(∏ i, f i) = (∏ i, (f i : ENNReal)) := by
   simp [ENNReal.coe_finset_prod]
 
-/-- I'm working on completing a Lean 4 proof for a lemma called `map_haar_pi`.
-    This lemma deals with the `Measure.map` of a product Haar measure under
+/-- This lemma deals with the `Measure.map` of a product Haar measure under
     a continuous multiplicative equivalence. The goal is to show
     that this pushforward measure is equal to a scalar multiple
     of the original product Haar measure, where the scalar is a product
-    of `mulEquivHaarChar` values for each component of the equivalence. -/
--- import Mathlib.MeasureTheory.MeasureTheory.HaarChar.Pi.map_addHaar_pi
+    of `mulEquivHaarChar` values for each component of the equivalence.
+
+    import Mathlib.MeasureTheory.MeasureTheory.HaarChar.Pi.map_addHaar_pi -/
 @[to_additive "Pushforward of the product Haar measure under a componentwise automorphism
     multiplies by the product of scalar factors."]
 theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
@@ -952,7 +952,9 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       Measure.pi fun i ↦ haar := by
   -- Work with a general statement
   suffices ∀ n, ∀ (ι : Type u) [Fintype ι], Fintype.card ι = n →
-    ∀ (H : ι → Type v) [∀ i, Group (H i)]
+    ∀ (H : ι → Type v) [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
+    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
     (ψ : ∀ i, (H i) ≃ₜ* (H i)),
     Measure.map (ContinuousMulEquiv.piCongrRight ψ) (Measure.pi fun i ↦ haar) =
     (∏ i, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar by
@@ -1019,44 +1021,70 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
         (fun i' => inst_6 (i' : ι))
         (fun i' => ψ (i' : ι))
 
-      -- Let F be the main transformation
-      let F_univ := ContinuousMulEquiv.piCongrRight ψ
-      -- Let μ_univ be the product Haar measure on the full space
-      let μ_univ_fn := fun i : ι => haar (H i)
-      -- Let C₀ be the Haar characteristic for the i₀ component
-      let C₀ := mulEquivHaarChar (ψ i₀)
-      -- Let C' be the product of Haar characteristics for the ι' components
-      let C'_prod := ∏ i' : ι', mulEquivHaarChar (ψ (i' : ι))
+      -- Convert measures through the equivalence
+      have me : (∀ i : ι, H i) ≃ᵐ ((H i₀) × (∀ i' : ι', H (i' : ι))) :=
+        (MeasurableEquiv.piEquivPiSubtypeProd (fun i : ι => H i) i₀).symm
 
-      -- Let me be the measurable equivalence induced by e
-      let me := MeasurableEquiv.piEquivOptionSubtype i₀
+      -- Show the measure decomposition
+      have measure_decomp : Measure.pi (fun i : ι => haar) =
+          Measure.map me.symm (haar.prod (Measure.pi fun i' : ι' => haar)) := by
+        ext s hs
+        rw [Measure.map_apply me.symm.measurable hs]
+        rw [Measure.pi_pi_aux]
+        congr
 
-      -- Let F₀ be the transform on H i₀
-      let F₀ := ψ i₀
-      -- Let F' be the product transform on the ι' components
-      let F' := ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι))
-      -- F_prod is the product of F₀ and F'
-      let F_prod := ContinuousMulEquiv.prodCongr F₀ F'
+      -- Show the transformation decomposition
+      have transform_decomp : ContinuousMulEquiv.piCongrRight ψ =
+          me.symm.toContinuousEquiv.toContinuousMulEquiv.trans
+            ((ContinuousMulEquiv.prodCongr (ψ i₀)
+              (ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι)))).trans
+                me.toContinuousEquiv.toContinuousMulEquiv) := by
+        ext f
+        simp [me, MeasurableEquiv.piEquivPiSubtypeProd]
+        ext i
+        by_cases h : i = i₀
+        · subst h; simp
+        · simp [h]
 
-      -- μ₀ is the Haar measure on H i₀
-      let μ₀ := haar (H i₀)
-      -- μ' is the product Haar measure on the ι' components
-      let μ'_univ := Measure.pi (fun i' : ι' => haar (H (i' : ι)))
-
-      rw -- Moves scalar mult inside map e.symm on RHS
-      -- Goal: map F_univ (map me.symm (μ₀.prod μ'_univ)) = map me.symm ((C₀ * C'_prod) • (μ₀.prod μ'_univ))
-      rw
-      -- Goal: map (F_univ ∘ me.symm) (μ₀.prod μ'_univ) = map me.symm ((C₀ * C'_prod) • (μ₀.prod μ'_univ))
-      rw
-      -- Goal: map (me.symm ∘ F_prod) (μ₀.prod μ'_univ) = map me.symm ((C₀ * C'_prod) • (μ₀.prod μ'_univ))
-      rw
-      -- Goal: map me.symm (map F_prod (μ₀.prod μ'_univ)) = map me.symm ((C₀ * C'_prod) • (μ₀.prod μ'_univ))
-
-      -- Since me.symm is a MeasurableEquiv, map me.symm is injective-like
-      apply (Measure.map_equiv_inj me.symm).mpr
-
-      -- Goal: map F_prod (μ₀.prod μ'_univ) = (C₀ * C'_prod) • (μ₀.prod μ'_univ)
-      rw -- Combine scalar multiples
+      -- Main calculation
+      calc Measure.map (ContinuousMulEquiv.piCongrRight ψ) (Measure.pi fun i ↦ haar)
+        _ = Measure.map (ContinuousMulEquiv.piCongrRight ψ)
+              (Measure.map me.symm (haar.prod (Measure.pi fun i' : ι' => haar))) := by
+          rw [← measure_decomp]
+        _ = Measure.map (ContinuousMulEquiv.piCongrRight ψ ∘ me.symm)
+              (haar.prod (Measure.pi fun i' : ι' => haar)) := by
+          rw [← Measure.map_map me.symm.measurable (ContinuousMulEquiv.piCongrRight ψ).measurable]
+        _ = Measure.map (me.symm ∘
+              (ContinuousMulEquiv.prodCongr (ψ i₀)
+                (ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι)))))
+              (haar.prod (Measure.pi fun i' : ι' => haar)) := by
+          congr 1
+          ext x
+          simp [transform_decomp]
+        _ = Measure.map me.symm
+              (Measure.map (ContinuousMulEquiv.prodCongr (ψ i₀)
+                (ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι))))
+                (haar.prod (Measure.pi fun i' : ι' => haar))) := by
+          rw [Measure.map_map]
+          · exact (ContinuousMulEquiv.prodCongr (ψ i₀)
+              (ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι)))).measurable
+          · exact me.symm.measurable
+        _ = Measure.map me.symm
+              ((mulEquivHaarChar (ψ i₀) * ∏ i', mulEquivHaarChar (ψ (i' : ι))) •
+                (haar.prod (Measure.pi fun i' : ι' => haar))) := by
+          congr 1
+          -- Use the product formula for Haar characters
+          rw [← mulEquivHaarChar_prodCongr]
+          -- Apply inductive hypothesis
+          rw [mulEquivHaarChar_map haar, ← Measure.map_smul, ih_ι']
+          rw [Measure.smul_prod, smul_smul]
+          congr 1
+          ring
+        _ = (mulEquivHaarChar (ψ i₀) * ∏ i', mulEquivHaarChar (ψ (i' : ι))) •
+              Measure.map me.symm (haar.prod (Measure.pi fun i' : ι' => haar)) := by
+          rw [Measure.map_smul]
+        _ = (∏ i : ι, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar := by
+          rw [← h_prod_decomp, measure_decomp]
 
 end HaarProductMeasure -- First prove the fundamental identity
 
