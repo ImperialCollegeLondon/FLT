@@ -694,9 +694,8 @@ lemma map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       -- We need an equivalence: ι ≃ Option ι' where ι' = {i : ι | i ≠ i₀}
       let ι' := {i : ι // i ≠ i₀}
 
-      -- ι' has cardinality n
-      have h_card' : Fintype.card ι' = n := by
-        sorry -- prove this using h_eq
+      -- Add the Fintype instance for ι'
+      haveI : Fintype ι' := by exact Fintype.ofFinite ι'
 
       -- We have a decomposition ι ≃ Option ι'
       have e : ι ≃ Option ι' := by
