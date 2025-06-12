@@ -28,13 +28,7 @@ lemma mulLeft_conj_ofLinear (K : Type*) [Field K] (n : ℕ) (N : Matrix (Fin n) 
     (((Matrix.ofLinearEquiv K ≪≫ₗ Matrix.transposeLinearEquiv (Fin n) (Fin n) K K).symm.toLinearMap
     ∘ₗ (LinearMap.mulLeft K N) ∘ₗ ((Matrix.ofLinearEquiv K) ≪≫ₗ Matrix.transposeLinearEquiv
     (Fin n) (Fin n) K K).toLinearMap)) = LinearMap.pi fun i ↦ ((fun _ ↦ Matrix.toLin' N) i).comp
-    (LinearMap.proj i) := by
-  apply LinearMap.ext
-  intro M
-  ext i j
-  simp only [LinearMap.pi_apply, LinearMap.coe_comp, LinearMap.coe_proj, Function.comp_apply,
-    Function.eval, Matrix.toLin'_apply]
-  rfl
+    (LinearMap.proj i) := rfl
 
 lemma mulRight_conj_ofLinear (K : Type*) [Field K] (n : ℕ) (N : Matrix (Fin n) (Fin n) K) :
     ((Matrix.ofLinearEquiv K).symm.toLinearMap ∘ₗ
