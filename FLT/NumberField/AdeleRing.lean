@@ -21,9 +21,6 @@ open NumberField
 
 section LocallyCompact
 
--- see https://github.com/smmercuri/adele-ring_locally-compact
--- for a proof of this
-
 variable (K : Type*) [Field K] [NumberField K]
 
 open IsDedekindDomain.HeightOneSpectrum in
