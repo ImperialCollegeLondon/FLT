@@ -43,6 +43,8 @@ import Mathlib.Data.Fintype.Sum
 import Mathlib.Data.Fintype.Units
 import Mathlib.Data.Fintype.Vector
 
+import Mathlib.MeasureTheory.MeasurableSpace.Defs
+
 import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Measure.Haar.Disintegration
 import Mathlib.MeasureTheory.Measure.Haar.DistribChar
@@ -795,6 +797,50 @@ def ι_equiv_option_subtype {ι : Type*} [DecidableEq ι] (i₀ : ι) :
         · exact absurd h hi
         · congr
 
+/- TODO: The following lemma is general and should be upstreamed to Mathlib.
+   It belongs in `MeasureTheory.Measure.Basic` or similar, not in a file
+   specific to Haar measures on products. Distilled here for convenience.
+
+   Proposed location: Mathlib.MeasureTheory.Measure.Basic
+   Proposed name: MeasureTheory.Measure.map_comp_measurableEquiv -/
+
+/-- Composing measure map with equivalence equals map of composed functions -/
+lemma map_comp_equiv_eq_map {α β γ : Type*}
+    [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ]
+    (e : α ≃ᵐ β) (f : β → γ) (hf : Measurable f) (μ : Measure α) :
+    map (f ∘ e) μ = map f (map e μ) := by
+  ext s hs
+  rw [map_apply (hf.comp e.measurable) hs]
+  rw [map_apply hf, map_apply e.measurable]
+  · rfl
+  · exact hf hs
+  · exact hs
+
+/-- Any equivalence between finite types is a measurable equivalence.
+
+    TODO: This should be added in Mathlib.
+    Proposed location: `Mathlib.MeasureTheory.MeasurableSpace.Finite`
+    Proposed name: `Fintype.toMeasurableEquiv` or `MeasurableEquiv.ofFintype`
+
+    See also: `measurable_of_finite`, `MeasurableSet.finite`
+
+    Any equivalence between finite types is a measurable equivalence. -/
+def equivToMeasurableEquivOfFintype {α β : Type*}
+    [MeasurableSpace α] [MeasurableSpace β] [Fintype α] [Fintype β]
+    (e : α ≃ β) : α ≃ᵐ β where
+  toEquiv := e
+  measurable_toFun := by
+    -- Every function between finite types is measurable
+    apply Measurable.of_finite
+  measurable_invFun := by
+    apply Measurable.of_finite
+
+-- You can also add library notes
+library_note "Fintype measurable equivalences"
+/-- When working with finite types, any equivalence can be upgraded to a measurable
+equivalence since all sets are finite and hence measurable. This is used throughout
+the theory of Haar measures on finite products. -/
+
 /-! ## HaarProductMeasure Theorem -/
 
 section HaarProductMeasure
@@ -858,9 +904,10 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       -- Define the subtype and equivalence
       let ι' := {i : ι // i ≠ i₀}
       let e : ι ≃ Option ι' := ι_equiv_option_subtype i₀
+      let e' := equivToMeasurableEquivOfFinite e
 
       -- Rewrite using the equivalence
-      rw [← Measure.map_comp_equiv_eq_map e]
+      rw [← map_comp_equiv_eq_map e']
 
       -- Apply the first supporting lemma
       rw [MeasureTheory.Measure.pi_equiv e]
