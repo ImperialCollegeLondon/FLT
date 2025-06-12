@@ -115,6 +115,8 @@ import Mathlib.Data.Finset.SymmDiff
 import Mathlib.Data.Finset.Union
 import Mathlib.Data.Finset.Update
 
+import Init.Prelude
+
 import Mathlib.Algebra.Group.Basic -- For mul_one, one_mul, mul_comm, mul_assoc
 
 open MeasureTheory.Measure
@@ -770,6 +772,28 @@ lemma mulEquivHaarChar_option {ι' : Type u} [Fintype ι']
   rw [Finset.prod_option]
   simp only [Finset.prod_singleton]
   rfl
+
+/-- Given an element `i₀ : ι`, construct an equivalence between `ι` and
+    `Option {i : ι // i ≠ i₀}`. The element `i₀` maps to `none` and
+    other elements map to `some` of themselves. -/
+def ι_equiv_option_subtype {ι : Type*} [DecidableEq ι] (i₀ : ι) :
+    ι ≃ Option {i : ι // i ≠ i₀} where
+  toFun i := if h : i = i₀ then none else some ⟨i, h⟩
+  invFun := fun
+    | none => i₀
+    | some ⟨i, _⟩ => i
+  left_inv i := by
+    simp only
+    split_ifs with h
+    · exact (h).symm
+    · rfl
+  right_inv := fun
+    | none => by simp
+    | some ⟨i, hi⟩ => by
+        simp only
+        split_ifs with h
+        · exact absurd h hi
+        · congr
 
 /-! ## HaarProductMeasure Theorem -/
 
