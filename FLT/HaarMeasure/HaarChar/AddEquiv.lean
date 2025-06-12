@@ -835,11 +835,87 @@ def equivToMeasurableEquivOfFintype {α β : Type*}
   measurable_invFun := by
     apply Measurable.of_finite
 
--- You can also add library notes
+-- We should also add library notes
 library_note "Fintype measurable equivalences"
-/-- When working with finite types, any equivalence can be upgraded to a measurable
+/-- When working with (above) finite types, any equivalence can be upgraded to a measurable
 equivalence since all sets are finite and hence measurable. This is used throughout
 the theory of Haar measures on finite products. -/
+
+/-- Given homeomorphisms for each component, construct a homeomorphism of pi types
+    indexed by `Option ι'` using option elimination. -/
+private def optionElimCongrRight {ι' : Type*} {H : Option ι' → Type*}
+    [(i : Option ι') → TopologicalSpace (H i)]
+    [(i : Option ι') → Group (H i)]
+    (ψ_none : H none ≃ₜ* H none)
+    (ψ_some : (i' : ι') → H (some i') ≃ₜ* H (some i')) :
+    ((i : Option ι') → H i) ≃ₜ* ((i : Option ι') → H i) where
+  toFun f i := match i with
+    | none => ψ_none (f none)
+    | some i' => ψ_some i' (f (some i'))
+  invFun f i := match i with
+    | none => ψ_none.symm (f none)
+    | some i' => (ψ_some i').symm (f (some i'))
+  left_inv f := by
+    ext i
+    cases i <;> simp
+  right_inv f := by
+    ext i
+    cases i <;> simp
+  map_mul' := by
+    intro f g
+    ext i
+    cases i
+    · exact map_mul ψ_none (f none) (g none)
+    · exact map_mul (ψ_some _) (f (some _)) (g (some _))
+  continuous_toFun := by
+    apply continuous_pi
+    intro i
+    cases i
+    · exact (ψ_none).continuous.comp (continuous_apply _)
+    · exact (ψ_some _).continuous.comp (continuous_apply _)
+  continuous_invFun := by
+    apply continuous_pi
+    intro i
+    cases i
+    · exact (ψ_none).symm.continuous.comp (continuous_apply _)
+    · exact (ψ_some _).symm.continuous.comp (continuous_apply _)
+
+/-- Reindex a pi type homeomorphism using an equivalence of index types -/
+private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
+    {H : ι → Type*} [(i : ι) → TopologicalSpace (H i)] [(i : ι) → Group (H i)]
+    (ψ : (i : ι) → H i ≃ₜ* H i) :
+    ((i : ι) → H i) ≃ₜ* ((i' : ι') → H (e.symm i')) where
+  toMulEquiv := {
+    toFun := fun f i' => ψ (e.symm i') (f (e.symm i'))
+    invFun := fun f i => (ψ i).symm (f (e i))
+    left_inv := by
+      intro f; ext i
+      simp only [Equiv.symm_apply_apply]
+      -- After simplification, we need to show: (ψ i).symm ((ψ i) (f i)) = f i
+      exact ContinuousMulEquiv.symm_apply_apply (ψ i) (f i)
+    right_inv := by
+      intro f; ext i'
+      simp only [Equiv.apply_symm_apply]
+      -- We need to handle the type transport
+      have h : e (e.symm i') = i' := Equiv.apply_symm_apply e i'
+      -- After transport, we get: ψ (e.symm i') ((ψ (e.symm i')).symm (f i')) = f i'
+      convert ContinuousMulEquiv.apply_symm_apply (ψ (e.symm i')) (f i')
+    map_mul' := by
+      intro f g
+      ext i'
+      -- Need to show: ψ (e.symm i') ((f * g) (e.symm i')) =
+      --               ψ (e.symm i') (f (e.symm i')) * ψ (e.symm i') (g (e.symm i'))
+      simp only [Pi.mul_apply]
+      exact map_mul (ψ (e.symm i')) (f (e.symm i')) (g (e.symm i'))
+  }
+  continuous_toFun := by
+    apply continuous_pi
+    intro i'
+    exact (ψ (e.symm i')).continuous.comp (continuous_apply _)
+  continuous_invFun := by
+    apply continuous_pi
+    intro i
+    exact (ψ i).symm.continuous.comp (continuous_apply _)
 
 /-! ## HaarProductMeasure Theorem -/
 
@@ -885,50 +961,107 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       simp [Measure.pi_of_empty, ContinuousMulEquiv.piCongrRight]
       convert Measure.map_id
   | succ n ih =>
-      intro ι _inst_fintype h_eq H _inst_group _inst_top
-        _inst_istop _inst_loccomp _inst_meas _inst_borel ψ
-      -- h_eq : Fintype.card ι = n + 1
+      -- Set up the instance requirements
+      let ι := ι
+      let _inst_fintype : Fintype ι := inst
+      have h_eq : Fintype.card ι = n.succ := rfl
+      let H := H
+      let _inst_group : (i : ι) → Group (H i) := inst_1
+      let _inst_top : (i : ι) → TopologicalSpace (H i) := inst_2
+      let _inst_istop : ∀ i, IsTopologicalGroup (H i) := inst_3
+      let _inst_loccomp : ∀ i, LocallyCompactSpace (H i) := inst_4
+      let _inst_meas : (i : ι) → MeasurableSpace (H i) := inst_5
+      let _inst_borel : ∀ i, BorelSpace (H i) := inst_6
+      let ψ := ψ
 
-      -- Make equality decidable classically
-      letI : DecidableEq ι := Classical.decEq ι
+      -- We need decidable equality on ι for the decomposition
+      haveI : DecidableEq ι := Classical.decEq ι
 
-      -- Choose an arbitrary element i₀ : ι
-      -- First prove ι is nonempty
-      have h_pos : 0 < Fintype.card ι := by
-        rw [h_eq]
-        exact Nat.succ_pos n
+      -- ι is nonempty since card ι = n.succ > 0
+      have h_pos : 0 < Fintype.card ι := by rw [h_eq]; exact Nat.zero_lt_succ n
       have h_nonempty : Nonempty ι := Fintype.card_pos_iff.mp h_pos
-      -- Now get a concrete element
+
+      -- Pick an arbitrary element i₀
       let i₀ : ι := h_nonempty.some
 
-      -- Define the subtype and equivalence
-      let ι' := {i : ι // i ≠ i₀}
+      -- Define ι' as the type of elements different from i₀
+      let ι' : Type _ := { i : ι // i ≠ i₀ }
+
+      -- Get the equivalence ι ≃ Option ι'
       let e : ι ≃ Option ι' := ι_equiv_option_subtype i₀
-      let e' := equivToMeasurableEquivOfFinite e
 
-      -- Rewrite using the equivalence
-      rw [← map_comp_equiv_eq_map e']
+      -- Key observation: we can decompose the product
+      have h_prod_decomp : ∏ i : ι, mulEquivHaarChar (ψ i) =
+          mulEquivHaarChar (ψ i₀) * ∏ i' : ι', mulEquivHaarChar (ψ (i' : ι)) := by
+        -- Rewrite using the bijection e
+        conv_lhs => rw [← Finset.prod_bij (fun i _ => e i) _ _ _ _]
+        · -- The product over Option ι' splits into none and some cases
+          rw [Finset.prod_option]
+          congr 1
+          · -- The none case
+            simp only [Finset.prod_singleton]
+            congr
+            -- e.symm none = i₀ by construction
+            rfl
+          · -- The some cases
+            apply Finset.prod_bij (fun i' _ => (i' : ι))
+            · -- Injectivity on the relevant finset
+              intros a b ha hb hab
+              exact Subtype.ext hab
+            · -- Range covers all elements ≠ i₀
+              intros b hb
+              have h_ne : b ≠ i₀ := by
+                intro h_eq
+                simp [h_eq] at hb
+              use ⟨b, h_ne⟩
+              simp
+              constructor
+              · -- some ⟨b, h_ne⟩ is in the image of e
+                use b
+                simp [e, ι_equiv_option_subtype]
+                exact ⟨Finset.mem_univ b, h_ne⟩
+              · rfl
+            · -- The function values match
+              intros a ha
+              rfl
+        · -- Show e is injective on Finset.univ
+          intros; exact e.injective
+        · -- Show e is surjective onto Option ι'
+          intros b _
+          obtain ⟨a, ha⟩ := e.surjective b
+          exact ⟨a, Finset.mem_univ a, ha⟩
+        · -- The values match
+          intros a _
+          congr
+          exact (e.apply_symm_apply _).symm
 
-      -- Apply the first supporting lemma
-      rw [MeasureTheory.Measure.pi_equiv e]
+      -- Now we relate the measures
+      -- The key is that map on pi measures can be decomposed
+      have h_meas_decomp : Measure.pi (fun i : ι => haar) =
+          (map some)⁻¹ (Measure.pi (fun i : Option ι' =>
+            match i with
+            | none => haar
+            | some i' => haar)) := by
+        -- This uses properties of pi measures and the equivalence
+        sorry -- This would require showing how pi measures transform under reindexing
 
-      -- Decompose using Option structure
-      rw [MeasureTheory.Measure.pi_option]
-
-      -- Apply induction hypothesis to ι'
-      have ih_applied : Measure.map (piCongrRight (fun i : ι' => f (i : ι)))
-        (Measure.pi (fun i : ι' => μ (i : ι))) =
-        (∏ i : ι', mulEquivHaarChar (f (i : ι))) • Measure.pi (fun i : ι' => μ (i : ι)) :=
-        ih (fun i => f (i : ι)) (fun i => μ (i : ι))
-
-      -- Combine with the i₀ component
-      rw [← ih_applied]
-      rw [ContinuousMulEquiv.piCongrRight_option]
-      rw [mulEquivHaarChar_prod]
-
-      -- Final algebraic manipulation
-      simp_rw [Finset.prod_option]
-      ring
+      -- Apply the map to both sides
+      calc map (⇑(ContinuousMulEquiv.piCongrRight ψ)) (Measure.pi fun i => haar)
+          = map (⇑(ContinuousMulEquiv.piCongrRight ψ)) ((map some)⁻¹ (Measure.pi _)) := by
+            rw [h_meas_decomp]
+          _ = (map some)⁻¹ (map _ (Measure.pi _)) := by
+            -- This step requires showing how piCongrRight interacts with the decomposition
+            sorry
+          _ = (map some)⁻¹ ((mulEquivHaarChar (ψ i₀) * ∏ i' : ι', mulEquivHaarChar (ψ (i' : ι))) •
+              Measure.pi (fun i : Option ι' => match i with | none => haar | some i' => haar)) := by
+            -- Apply IH to the smaller index type ι'
+            -- Plus handle the i₀ component separately
+            sorry
+          _ = (∏ i : ι, mulEquivHaarChar (ψ i)) • Measure.pi (fun i => haar) := by
+            -- Reassemble using h_prod_decomp
+            rw [← h_prod_decomp]
+            -- And reverse the measure decomposition
+            sorry
 
 end HaarProductMeasure -- First prove the fundamental identity
 
