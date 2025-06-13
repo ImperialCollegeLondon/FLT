@@ -1027,13 +1027,7 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
           mulEquivHaarChar (ψ i₀) * ∏ i' : ι', mulEquivHaarChar (ψ (i' : ι)) :=
         prod_decompose_singleton _ i₀
 
-      have ih_ι' := ih ι' inferInstance h_card' (fun i' => H (i' : ι))
-        (fun i' => inst_1 (i' : ι))
-        (fun i' => inst_2 (i' : ι))
-        (fun i' => inst_3 (i' : ι))
-        (fun i' => inst_4 (i' : ι))
-        (fun i' => inst_5 (i' : ι))
-        (fun i' => inst_6 (i' : ι))
+      have ih_ι' := ih ι' h_card' (fun i' => H (i' : ι))
         (fun i' => ψ (i' : ι))
 
       -- Now we need to relate the measures through the Option decomposition
@@ -1041,8 +1035,9 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
 
       -- First, let's work with the measures
       let μ_haar_pi := Measure.pi (fun i : ι => haar : ∀ i, Measure (H i))
-      let μ_haar_i₀ := haar : Measure (H i₀)
-      let μ_haar_pi' := Measure.pi (fun i' : ι' => haar : ∀ i', Measure (H (i' : ι)))
+      let μ_haar_i₀ := (haar : Measure (H i₀))
+      let μ_haar_pi' : Measure (∀ i' : ι', H (i' : ι)) :=
+        Measure.pi (fun i' : ι' => (haar : Measure (H (i' : ι))))
 
       -- The equivalence e : ι ≃ Option ι' induces a measurable equivalence on the product spaces
       -- We'll use the fact that Π i : ι, H i ≃ H i₀ × Π i' : ι', H (i' : ι)
