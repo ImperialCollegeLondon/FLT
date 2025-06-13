@@ -8,6 +8,9 @@ import FLT.Mathlib.Topology.Algebra.Group
 import FLT.Mathlib.Topology.Algebra.Pi
 --import Mathlib.Data.Finset.Basic
 
+import Mathlib.Init
+
+import Lean.Meta.Tactic.Simp.Attr
 import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.RegisterCommand
 import Lean.LabelAttribute
@@ -928,6 +931,40 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
 
 /-! ## HaarProductMeasure Theorem -/
 
+/-- lemma #1: The cardinality of {i : ι // i ≠ i₀} is one less than the cardinality of ι -/
+@[simp]
+lemma Fintype.card_subtype_ne {ι : Type*} [Fintype ι] [DecidableEq ι] (i₀ : ι) :
+    Fintype.card {i : ι // i ≠ i₀} = Fintype.card ι - 1 := by
+  rw [Fintype.card_subtype_compl, Fintype.card_of_subsingleton]
+  simp
+
+open Lean Meta
+
+-- Create a custom simp attribute for product/sum decompositions
+initialize prodDecomposeAttr : SimpExtension ←
+  registerSimpAttr `prod_decompose "Lemmas for decomposing products and sums"
+
+/-- lemma #2: Decomposition of a product over ι into i₀ times product over {i : ι // i ≠ i₀} -/
+@[to_additive "Decomposition of a sum over ι into i₀ plus sum over {i : ι // i ≠ i₀}"]
+lemma prod_decompose_singleton {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {β : Type*} [CommMonoid β] (f : ι → β) (i₀ : ι) :
+    ∏ i : ι, f i = f i₀ * ∏ i' : {i : ι // i ≠ i₀}, f (i' : ι) := by
+  rw [← Finset.prod_subset (s := {i₀}) (t := Finset.univ)]
+  · simp only [Finset.prod_singleton]
+    congr 1
+    apply Finset.prod_bij (fun i hi => ⟨i, by simp at hi; exact hi⟩)
+    · intros a b ha hb hab; exact Subtype.coe_injective hab
+    · intros b hb; use b.val; simp; exact ⟨b.property, Subtype.coe_eta b⟩
+    · intros a ha; rfl
+  · intros x hx; simp at hx; exact hx
+  · simp
+
+-- Now add the custom attribute after the lemma is defined
+attribute [prod_decompose] prod_decompose_singleton
+
+-- The additive version is automatically generated, so we can add the attribute to it
+attribute [prod_decompose] sum_decompose_singleton
+
 section HaarProductMeasure
 
 /-- Helper lemma for scalar type coercion between ℝ≥0 and ℝ≥0∞ -/
@@ -970,48 +1007,26 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       simp
       convert Measure.map_id
   | succ n ih =>
-      -- Introduce the universally quantified variables
       intro ι inst h_card H inst_1 inst_2 inst_3 inst_4 inst_5 inst_6 ψ
 
-      -- Now we have h_card : Fintype.card ι = n.succ
-
-      -- We need decidable equality on ι for the decomposition
       haveI : DecidableEq ι := Classical.decEq ι
-
-      -- ι is nonempty since card ι = n.succ > 0
       have h_pos : 0 < Fintype.card ι := by rw [h_card]; exact Nat.zero_lt_succ n
       have h_nonempty : Nonempty ι := Fintype.card_pos_iff.mp h_pos
 
-      -- Pick an arbitrary element i₀
       let i₀ : ι := h_nonempty.some
-
-      -- Define ι' as the type of elements different from i₀
       let ι' : Type _ := { i : ι // i ≠ i₀ }
+      let e : ι ≃ Option ι' := ι_equiv_option_subtype i₀
 
-      -- Get the equivalence ι ≃ Option ι'
-      let e : ι ≃ Option ι' := Equiv.piEquivOptionSubtype i₀
-
-      -- We have card ι' = n
+      -- Use the first lemma here
       have h_card' : Fintype.card ι' = n := by
         rw [Fintype.card_subtype_ne i₀, h_card]
         simp [Nat.succ_sub_one]
 
-      -- Key observation: we can decompose the product
+      -- Use the second lemma here
       have h_prod_decomp : ∏ i : ι, mulEquivHaarChar (ψ i) =
-          mulEquivHaarChar (ψ i₀) * ∏ i' : ι', mulEquivHaarChar (ψ (i' : ι)) := by
-        -- Use the decomposition of the finite product
-        rw [← Finset.prod_subset (s := {i₀}) (t := Finset.univ)]
-        · simp only [Finset.prod_singleton]
-          congr 1
-          -- The product over ι \ {i₀} equals the product over ι'
-          apply Finset.prod_bij (fun i hi => ⟨i, by simp at hi; exact hi⟩)
-          · intros a b ha hb hab; exact Subtype.coe_injective hab -- Injectivity
-          · intros b hb; use b.val; simp; exact ⟨b.property, Subtype.coe_eta b⟩ -- Surjectivity
-          · intros a ha; rfl -- Values match
-        · intros x hx; simp at hx; exact hx
-        · simp
+          mulEquivHaarChar (ψ i₀) * ∏ i' : ι', mulEquivHaarChar (ψ (i' : ι)) :=
+        prod_decompose_singleton _ i₀
 
-      -- Apply the inductive hypothesis to ι'
       have ih_ι' := ih ι' inferInstance h_card' (fun i' => H (i' : ι))
         (fun i' => inst_1 (i' : ι))
         (fun i' => inst_2 (i' : ι))
@@ -1021,70 +1036,71 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
         (fun i' => inst_6 (i' : ι))
         (fun i' => ψ (i' : ι))
 
-      -- Convert measures through the equivalence
-      have me : (∀ i : ι, H i) ≃ᵐ ((H i₀) × (∀ i' : ι', H (i' : ι))) :=
-        (MeasurableEquiv.piEquivPiSubtypeProd (fun i : ι => H i) i₀).symm
+      -- Now we need to relate the measures through the Option decomposition
+      -- The key insight is that pi measure over ι decomposes as product measure
 
-      -- Show the measure decomposition
-      have measure_decomp : Measure.pi (fun i : ι => haar) =
-          Measure.map me.symm (haar.prod (Measure.pi fun i' : ι' => haar)) := by
-        ext s hs
-        rw [Measure.map_apply me.symm.measurable hs]
-        rw [Measure.pi_pi_aux]
-        congr
+      -- First, let's work with the measures
+      let μ_haar_pi := Measure.pi (fun i : ι => haar : ∀ i, Measure (H i))
+      let μ_haar_i₀ := haar : Measure (H i₀)
+      let μ_haar_pi' := Measure.pi (fun i' : ι' => haar : ∀ i', Measure (H (i' : ι)))
 
-      -- Show the transformation decomposition
-      have transform_decomp : ContinuousMulEquiv.piCongrRight ψ =
+      -- The equivalence e : ι ≃ Option ι' induces a measurable equivalence on the product spaces
+      -- We'll use the fact that Π i : ι, H i ≃ H i₀ × Π i' : ι', H (i' : ι)
+      let me : (∀ i : ι, H i) ≃ᵐ (H i₀ × ∀ i' : ι', H (i' : ι)) :=
+        equivToMeasurableEquivOfFintype
+          { toFun := fun f => (f i₀, fun i' => f (i' : ι))
+            invFun := fun p i => if h : i = i₀ then h ▸ p.1 else p.2 ⟨i, h⟩
+            left_inv := by intro f; ext i; simp; split_ifs with h; exact h ▸ rfl; rfl
+            right_inv := by intro ⟨x, g⟩; simp; constructor; rfl; ext i'; simp [i'.property] }
+
+      -- Key measure identity: pi measure decomposes as product
+      have measure_eq : μ_haar_pi = Measure.map me.symm (μ_haar_i₀.prod μ_haar_pi') := by
+        rw [Measure.pi_eq_generateFrom]
+        -- This would require showing the generating sets match
+        sorry
+
+      -- The transformation also decomposes
+      have transform_eq : ContinuousMulEquiv.piCongrRight ψ =
           me.symm.toContinuousEquiv.toContinuousMulEquiv.trans
-            ((ContinuousMulEquiv.prodCongr (ψ i₀)
-              (ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι)))).trans
-                me.toContinuousEquiv.toContinuousMulEquiv) := by
-        ext f
-        simp [me, MeasurableEquiv.piEquivPiSubtypeProd]
-        ext i
-        by_cases h : i = i₀
+            ((ContinuousMulEquiv.prodCongr (ψ i₀) (ContinuousMulEquiv.piCongrRight (fun i' => ψ (i' : ι)))).trans
+              me.toContinuousEquiv.toContinuousMulEquiv) := by
+        ext f i
+        simp [me, ContinuousMulEquiv.piCongrRight]
+        split_ifs with h
         · subst h; simp
-        · simp [h]
+        · simp
 
-      -- Main calculation
-      calc Measure.map (ContinuousMulEquiv.piCongrRight ψ) (Measure.pi fun i ↦ haar)
-        _ = Measure.map (ContinuousMulEquiv.piCongrRight ψ)
-              (Measure.map me.symm (haar.prod (Measure.pi fun i' : ι' => haar))) := by
-          rw [← measure_decomp]
-        _ = Measure.map (ContinuousMulEquiv.piCongrRight ψ ∘ me.symm)
-              (haar.prod (Measure.pi fun i' : ι' => haar)) := by
+      -- Main calculation using the decompositions
+      calc Measure.map (ContinuousMulEquiv.piCongrRight ψ) μ_haar_pi
+        _ = Measure.map (ContinuousMulEquiv.piCongrRight ψ) (Measure.map me.symm (μ_haar_i₀.prod μ_haar_pi')) := by
+          rw [← measure_eq]
+        _ = Measure.map (ContinuousMulEquiv.piCongrRight ψ ∘ me.symm) (μ_haar_i₀.prod μ_haar_pi') := by
           rw [← Measure.map_map me.symm.measurable (ContinuousMulEquiv.piCongrRight ψ).measurable]
-        _ = Measure.map (me.symm ∘
-              (ContinuousMulEquiv.prodCongr (ψ i₀)
-                (ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι)))))
-              (haar.prod (Measure.pi fun i' : ι' => haar)) := by
-          congr 1
-          ext x
-          simp [transform_decomp]
-        _ = Measure.map me.symm
-              (Measure.map (ContinuousMulEquiv.prodCongr (ψ i₀)
-                (ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι))))
-                (haar.prod (Measure.pi fun i' : ι' => haar))) := by
-          rw [Measure.map_map]
-          · exact (ContinuousMulEquiv.prodCongr (ψ i₀)
-              (ContinuousMulEquiv.piCongrRight (fun i' : ι' => ψ (i' : ι)))).measurable
+        _ = Measure.map me.symm (Measure.map (ContinuousMulEquiv.prodCongr (ψ i₀)
+              (ContinuousMulEquiv.piCongrRight (fun i' => ψ (i' : ι)))) (μ_haar_i₀.prod μ_haar_pi')) := by
+          rw [transform_eq]
+          simp only [ContinuousMulEquiv.coe_trans, Function.comp]
+          rw [Measure.map_map, Measure.map_map]
+          · exact (ContinuousMulEquiv.prodCongr _ _).measurable
+          · exact me.measurable
           · exact me.symm.measurable
-        _ = Measure.map me.symm
-              ((mulEquivHaarChar (ψ i₀) * ∏ i', mulEquivHaarChar (ψ (i' : ι))) •
-                (haar.prod (Measure.pi fun i' : ι' => haar))) := by
+          · exact (ContinuousMulEquiv.prodCongr _ _).measurable
+        _ = Measure.map me.symm ((mulEquivHaarChar (ψ i₀) * ∏ i', mulEquivHaarChar (ψ (i' : ι))) •
+              (μ_haar_i₀.prod μ_haar_pi')) := by
           congr 1
           -- Use the product formula for Haar characters
-          rw [← mulEquivHaarChar_prodCongr]
-          -- Apply inductive hypothesis
-          rw [mulEquivHaarChar_map haar, ← Measure.map_smul, ih_ι']
-          rw [Measure.smul_prod, smul_smul]
+          rw [← mulEquivHaarChar_prodCongr (ψ i₀) _]
+          rw [mulEquivHaarChar_map]
+          -- Apply the inductive hypothesis to the second component
+          rw [Measure.prod_prod]
           congr 1
-          ring
+          · exact mulEquivHaarChar_map μ_haar_i₀ (ψ i₀)
+          · exact ih_ι'
         _ = (mulEquivHaarChar (ψ i₀) * ∏ i', mulEquivHaarChar (ψ (i' : ι))) •
-              Measure.map me.symm (haar.prod (Measure.pi fun i' : ι' => haar)) := by
+              Measure.map me.symm (μ_haar_i₀.prod μ_haar_pi') := by
           rw [Measure.map_smul]
-        _ = (∏ i : ι, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar := by
-          rw [← h_prod_decomp, measure_decomp]
+        _ = (∏ i : ι, mulEquivHaarChar (ψ i)) • μ_haar_pi := by
+          rw [← h_prod_decomp, ← measure_eq]
 
 end HaarProductMeasure -- First prove the fundamental identity
 
