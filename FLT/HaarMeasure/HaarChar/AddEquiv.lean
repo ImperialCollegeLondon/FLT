@@ -1041,18 +1041,33 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
 
       -- The equivalence e : ι ≃ Option ι' induces a measurable equivalence on the product spaces
       -- We'll use the fact that Π i : ι, H i ≃ H i₀ × Π i' : ι', H (i' : ι)
+      -- In Lean 4, use Pi.instFintype instead of Pi.fintype
+      instance : Fintype ((i : ι) → H i) := Pi.instFintype
+      instance : Fintype ((i' : ι') → H (i' : ι)) := Pi.instFintype
+
       let me : (∀ i : ι, H i) ≃ᵐ (H i₀ × ∀ i' : ι', H (i' : ι)) :=
         equivToMeasurableEquivOfFintype
           { toFun := fun f => (f i₀, fun i' => f (i' : ι))
             invFun := fun p i => if h : i = i₀ then h ▸ p.1 else p.2 ⟨i, h⟩
-            left_inv := by intro f; ext i; simp; split_ifs with h; exact h ▸ rfl; rfl
-            right_inv := by intro ⟨x, g⟩; simp; constructor; rfl; ext i'; simp [i'.property] }
+            left_inv := by
+              intro f
+              ext i
+              simp only [Equiv.coe_fn_mk]
+              split_ifs with h
+              · exact h ▸ rfl
+              · rfl
+            right_inv := by
+              intro ⟨x, g⟩
+              ext
+              · simp
+              · ext i'
+                simp only [Equiv.coe_fn_mk]
+                have : (i' : ι) ≠ i₀ := i'.property
+                simp [this] }
 
       -- Key measure identity: pi measure decomposes as product
-      have measure_eq : μ_haar_pi = Measure.map me.symm (μ_haar_i₀.prod μ_haar_pi') := by
-        rw [Measure.pi_eq_generateFrom]
-        -- This would require showing the generating sets match
-        sorry
+      have measure_eq : μ_haar_pi = Measure.map me.symm (μ_haar_i₀.prod μ_haar_pi') :=
+        (Measure.pi_prod_pi (fun i => (haar : Measure (H i))) i₀).symm
 
       -- The transformation also decomposes
       have transform_eq : ContinuousMulEquiv.piCongrRight ψ =
