@@ -504,8 +504,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     -- show that it suffices to prove it for x
     suffices h : ∀ (u : QHatˣ), (u : QHat) ∈ zHatsub → u ∈ unitsratsub ⊔ unitszHatsub by
       have : y = xunit * (i₁ (1 / N : ℚ)) := by
-        unfold xunit
-        simp only [Algebra.TensorProduct.includeRight_apply, one_mul, mul_one, hy,
+        simp only [xunit, Algebra.TensorProduct.includeRight_apply, one_mul, mul_one, hy,
           Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.tmul_mul_tmul]
       rw [Subgroup.mem_sup] at *
       specialize h xunit
@@ -537,6 +536,19 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       rw [hxinv, h, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_div, inv_mul_cancel₀,
         Algebra.TensorProduct.includeRight_apply]
       simp only [ne_eq, Rat.natCast_eq_zero, PNat.ne_zero, not_false_eq_true]
+    rcases hx with ⟨X, hX⟩
+    let I := Ideal.span {X}
+    let J : Set ℤ := (Int.castRingHom ZHat) ⁻¹' I -- this needs to be an ideal
+    have Jnonzero : (M : ℤ) ∈ J := by
+      simp only [Int.coe_castRingHom, Set.mem_preimage, Int.cast_natCast, SetLike.mem_coe, J, I]
+      rw [Ideal.mem_span_singleton']
+      use y
+      rw [mul_comm]
+      apply injective_zHat
+      simp only [← hX, AddMonoidHom.coe_coe, Algebra.TensorProduct.includeRight_apply,
+        Algebra.TensorProduct.tmul_mul_tmul, mul_one, I, J] at this
+      simp only [Algebra.TensorProduct.includeRight_apply, this, map_natCast, I, J]
+
     sorry
 
 end multiplicative_structure_of_QHat
