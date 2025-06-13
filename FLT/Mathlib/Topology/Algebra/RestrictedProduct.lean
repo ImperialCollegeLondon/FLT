@@ -1,8 +1,7 @@
 import Mathlib.Topology.Algebra.RestrictedProduct
-import Mathlib.Topology.Algebra.ContinuousMonoidHom
 import Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.Algebra.Group.Units
-
+import FLT.Mathlib.Topology.Algebra.Constructions
 
 namespace RestrictedProduct
 
@@ -346,6 +345,42 @@ lemma Homeomorph.restrictedProductMatrix_toEquiv {ι : Type*} {m n : Type*} [Fin
       Equiv.restrictedProductMatrix (m := m) (n := n) :=
   rfl
 
+/-- The structure map for a restricted product of monoids is a `MonoidHom`. -/
+@[to_additive "The structure map for a restricted product of AddMonoids is an `AddMonoidHom`."]
+def RestrictedProduct.structureMapMonoidHom {ι : Type*} (M : ι → Type*) [(i : ι) → Monoid (M i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)] (A : Π i, S i)
+    (𝓕 : Filter ι) : ((i : ι) → (A i)) →* Πʳ (i : ι), [M i, Submonoid.ofClass (A i)]_[𝓕] where
+  toFun := structureMap M (A ·) 𝓕
+  map_one' := rfl
+  map_mul' := by intros; rfl
+
+open MulOpposite MonoidHom Units Equiv Set in
+/-- The equivalence `Submonoid.unitsEquivUnitsType`, for monoids equipped with a topology. -/
+@[to_additive "The equivalence `AddSubmonoid.addUnitsAddEquivUnitsType`, for monoids equipped with
+a topology."]
+def Submonoid.unitsContinuousMulEquivUnitsType {M : Type*} [TopologicalSpace M] [Monoid M]
+    {S : Submonoid M} (hS : IsOpen (S : Set M)) : S.units ≃ₜ* Sˣ where
+  toMulEquiv := S.unitsEquivUnitsType
+  continuous_toFun := {
+    isOpen_preimage U hU := by
+      obtain ⟨t, ht, rfl⟩ := isInducing_embedProduct.isOpen_iff.mpr hU
+      let g : Sˣ →* Mˣ := Units.map S.subtype
+      have hg : IsOpenMap g := isOpenMap_map (by simp) hS.isOpenMap_subtype_val
+      refine ⟨g '' (embedProduct S ⁻¹' t), hg _ (isOpen_induced ht), Set.ext fun s ↦ ?_⟩
+      simp only [inv_eq_val_inv, mem_preimage, mem_image, embedProduct_apply, inv_mk, coeHom_apply,
+        EquivLike.coe_coe, g, unitsEquivUnitsType, MulEquiv.coe_mk, Equiv.coe_fn_mk]
+      exact ⟨fun ⟨_, ⟨h₁, h₂⟩⟩ ↦ by simp [← h₂, h₁],
+        fun h ↦ ⟨S.unitsEquivUnitsType s, by simp [unitsEquivUnitsType, h]⟩⟩
+  }
+  continuous_invFun := {
+    isOpen_preimage U hU := by
+      obtain ⟨t, ⟨V, hV, rfl⟩, rfl⟩ := Topology.IsInducing.subtypeVal.isOpen_iff.mpr hU
+      let f : S × Sᵐᵒᵖ → M × Mᵐᵒᵖ := Prod.map Subtype.val (op ∘ Subtype.val ∘ unop)
+      have hf : Continuous f := continuous_subtype_val.fst'.prodMk <| continuous_op.comp' <|
+        continuous_subtype_val.comp' <| continuous_unop.comp' continuous_snd
+      exact ⟨f ⁻¹' V, hf.isOpen_preimage V hV, rfl⟩
+  }
+
 /-- The monoid homeomorphism between the units of a restricted product of topological monoids
 and the restricted product of the units of the monoids, when the products are with
 respect to open submonoids.
@@ -358,20 +393,37 @@ def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
     (Πʳ i, [M i, A i])ˣ ≃ₜ*
       Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units] :=
     have : Fact (∀ i, IsOpen (A i : Set (M i))) := Fact.mk hA
-    have : Fact (∀ i, IsOpen ((Submonoid.ofClass (A i)).units : Set (M i)ˣ)) := Fact.mk <|
+    have hA' : ∀ i, IsOpen ((Submonoid.ofClass (A i)).units : Set (M i)ˣ) :=
       fun i ↦ Submonoid.units_isOpen (hA i)
+    have : Fact (∀ i, IsOpen ((Submonoid.ofClass (A i)).units : Set (M i)ˣ)) := Fact.mk hA'
+    -- The key idea is that `MulEquiv.restrictedProductUnits ∘ (Units.map sM) = sMx ∘ g ∘ f`,
+    -- where `Units.map sM`, `sMx`, `g`, and `f` are all local homeomorphisms.
+    let sM := structureMapMonoidHom M A cofinite
+    let f : ((i : ι) → (A i))ˣ ≃ₜ ((i : ι) → (A i)ˣ) := ContinuousMulEquiv.piUnits.toHomeomorph
+    let g : ((i : ι) → (Submonoid.ofClass (A i))ˣ) ≃ₜ ((i : ι) → (Submonoid.ofClass (A i)).units) :=
+      Homeomorph.piCongrRight fun i ↦
+        (Submonoid.unitsContinuousMulEquivUnitsType (hA i)).symm.toHomeomorph
+    let sMx := structureMap (fun i ↦ (M i)ˣ) (fun i ↦ (Submonoid.ofClass (A i)).units) cofinite
   {
   __ := MulEquiv.restrictedProductUnits
   continuous_toFun := by
-    suffices ContinuousAt (MulEquiv.restrictedProductUnits : (Πʳ i, [M i, A i])ˣ ≃*
-      Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]).toMonoidHom 1 from
-      continuous_of_continuousAt_one MulEquiv.restrictedProductUnits this
-    sorry -- #582
+    apply continuous_of_continuousAt_one MulEquiv.restrictedProductUnits
+    intro N hN
+    have hN' : (f.trans g) ⁻¹' (sMx ⁻¹' N) ∈ nhds 1 := (f.trans g).continuous.continuousAt
+      |>.preimage_mem_nhds <| isEmbedding_structureMap.continuous.continuousAt.preimage_mem_nhds hN
+    apply mem_of_superset <| Units.isOpenMap_map (f := sM) isEmbedding_structureMap.injective
+      (isOpenEmbedding_structureMap hA).isOpenMap |>.image_mem_nhds hN'
+    rintro _ ⟨x, hx, rfl⟩
+    exact hx
   continuous_invFun := by
-    suffices ContinuousAt (MulEquiv.restrictedProductUnits : (Πʳ i, [M i, A i])ˣ ≃*
-      Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]).symm.toMonoidHom 1 from
-      continuous_of_continuousAt_one MulEquiv.restrictedProductUnits.symm this
-    sorry -- #582
+    apply continuous_of_continuousAt_one MulEquiv.restrictedProductUnits.symm
+    intro N hN
+    have hN' : (Units.map sM) ⁻¹' N ∈ nhds 1 :=
+      Units.continuous_map isEmbedding_structureMap.continuous |>.continuousAt.preimage_mem_nhds hN
+    apply mem_of_superset <| (isOpenEmbedding_structureMap hA').isOpenMap.image_mem_nhds <|
+      (f.trans g).isOpenMap.image_mem_nhds hN'
+    rintro _ ⟨_, ⟨x, hx, rfl⟩, rfl⟩
+    exact hx
       }
 
 end pi
@@ -466,3 +518,6 @@ lemma mem_coset_and_mulSupport_subset_of_isProductAt
       simp_all
     simp only [smul_eq_mul, mul_assoc, mul_inv_cancel_left, mul_right_inj, hcomm]⟩,
     mulSupport_mul_subset huᵢ hg⟩
+
+end RestrictedProduct
+end supports
