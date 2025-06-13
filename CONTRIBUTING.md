@@ -59,7 +59,7 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 ### 6. Review Process
 
 - After finishing the task and ensuring your PR is ready for review, comment `awaiting-review` on the PR. This will add the `awaiting-review` label to your PR and move the task from `In Progress` to the `In Review` column of the dashboard.
-- The project maintainers will review the PR. They may request changes, approve the PR, or provide feedback. If they comment `awaiting-author` this will add the `awaiting-author` label to your PR. When you've responded comment `awaiting-review` again.
+- The project maintainers will review the PR. They may request changes, approve the PR, or provide feedback. If they comment `awaiting-author` this will add the `awaiting-author` label to your PR. When you've responded comment `awaiting-review` again to remove it and add the `awaiting-review` tag agian.
 
 ### 7. Task Completion
 
