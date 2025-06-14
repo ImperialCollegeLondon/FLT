@@ -548,7 +548,19 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       simp only [← hX, AddMonoidHom.coe_coe, Algebra.TensorProduct.includeRight_apply,
         Algebra.TensorProduct.tmul_mul_tmul, mul_one, I, J] at this
       simp only [Algebra.TensorProduct.includeRight_apply, this, map_natCast, I, J]
-
+    let IdealJ : Ideal ℤ := by -- make this construction into a lemma?
+      refine ⟨⟨⟨J, ?_⟩, ?_⟩, ?_⟩
+      intro a b
+      simp only [Int.coe_castRingHom, Set.mem_preimage, SetLike.mem_coe, Int.cast_add, J]
+      exact Ideal.add_mem I
+      simp only [Int.coe_castRingHom, Set.mem_preimage, Int.cast_zero, SetLike.mem_coe,
+        Submodule.zero_mem, J, I]
+      simp only [smul_eq_mul, I, J, Set.mem_preimage, Int.coe_castRingHom, Int.cast_mul]
+      intro c x
+      apply Ideal.mul_mem_left I
+    -- #check EuclideanDomain.to_principal_ideal_domain (R := ℤ)
+    -- #check IsPrincipalIdealRing.principal (R := ℤ) IdealJ
+    -- #check Submodule.IsPrincipal.principal IdealJ
     sorry
 
 end multiplicative_structure_of_QHat
