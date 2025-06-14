@@ -986,18 +986,35 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
     invFun := fun f i => (ψ i).symm ((Equiv.symm_apply_apply e i) ▸ f (e i))
     left_inv := by
       intro f; ext i
-      -- dsimp is not strictly necessary but helps to see the goal clearly.
       dsimp
-      -- The goal is (ψ i).symm ((Equiv.symm_apply_apply e i) ▸ (ψ (e.symm (e i))) (f (e.symm (e i)))) = f i
 
-      -- We use `simp_rw` to rewrite `e.symm (e i)` to `i`.
-      -- This is powerful enough to see through the dependent functions `ψ` and `f`.
-      simp_rw [Equiv.symm_apply_apply]
+      -- The tactic-based approaches (`simp_rw`, `subst`, `induction` on the main goal) fail
+      -- because of a subtle dependency on `i`. We solve this by proving a more general
+      -- lemma inside this proof, where the dependency is made explicit.
 
-      -- After the rewrite, the goal simplifies to:
-      -- (ψ i).symm (ψ i (f i)) = f i
-      -- This is true by the properties of the inverse of an equivalence.
-      exact ContinuousMulEquiv.symm_apply_apply (ψ i) (f i)
+      -- We state a generalized version of our goal as a helper lemma.
+      have generalized_proof : ∀ (i' : ι) (h_eq : e.symm (e i) = i'),
+          (ψ i').symm (h_eq ▸ (ψ (e.symm (e i)) (f (e.symm (e i))))) = f i' := by
+
+        -- Now we prove this generalized lemma.
+        -- We can introduce the generalized variables `i'` and `h_eq`.
+        intro i_generalized h_eq_generalized
+
+        -- Inside THIS proof, induction on the equality `h_eq_generalized` is safe.
+        -- The motive is now easy for Lean to generate because the goal's dependency
+        -- on `i_generalized` is clear.
+        induction h_eq_generalized
+
+        -- After induction, the goal is the simplified "reflexive" case.
+        -- The transport `▸` becomes trivial and disappears.
+        dsimp
+
+        -- The goal is now a straightforward `symm_apply_apply` identity.
+        exact ContinuousMulEquiv.symm_apply_apply _ _
+
+      -- Finally, we apply our proven helper lemma to the original goal.
+      -- The original goal is the specific case where `i'` is `i`.
+      exact generalized_proof i (Equiv.symm_apply_apply e i)
     right_inv := by
       intro f; ext i'
       -- With the fix, this proof also needs to account for the transport.
