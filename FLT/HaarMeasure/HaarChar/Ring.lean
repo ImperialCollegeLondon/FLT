@@ -76,7 +76,7 @@ lemma ringHaarChar_continuous :
     simpa [g, hu]
   rw [← funext (fun u ↦ div_eq_of_eq_mul (int_g_ne_zero u) (h u))]
   refine Continuous.div continuous_const ?_ (fun u ↦ int_g_ne_zero u)
-  rw[continuous_iff_continuousAt]
+  rw [continuous_iff_continuousAt]
   intro u₀
   obtain ⟨K, hK, hu₀⟩ := exists_compact_mem_nhds (↑u₀⁻¹ : R)
   let s := (fun (u : Rˣ) ↦ (↑u⁻¹ : R)) ⁻¹' K
