@@ -74,7 +74,7 @@ lemma ringHaarChar_continuous :
     have hu := h u
     contrapose! hu
     simpa [g, hu]
-  rw[← funext (fun u ↦ div_eq_of_eq_mul (int_g_ne_zero u) (h u))]
+  rw [← funext (fun u ↦ div_eq_of_eq_mul (int_g_ne_zero u) (h u))]
   refine Continuous.div continuous_const ?_ (fun u ↦ int_g_ne_zero u)
   rw[continuous_iff_continuousAt]
   intro u₀
