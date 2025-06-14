@@ -671,6 +671,7 @@ def option_prod_homeomorph {ι' : Type u} [Fintype ι']
     · exact continuous_pi_apply _ ∘ continuous_snd
 
 -- Lemma 1: Decomposition of pi measure under equivalence
+@[simp]
 lemma MeasureTheory.Measure.pi_equiv {ι κ : Type u} [Fintype ι] [Fintype κ]
   {α : ι → Type v} [∀ i, MeasurableSpace (α i)]
   (e : ι ≃ κ) (μ : ∀ i : ι, Measure (α i)) :
@@ -688,6 +689,7 @@ lemma MeasureTheory.Measure.pi_equiv {ι κ : Type u} [Fintype ι] [Fintype κ]
   rfl
 
 -- Lemma 2: Product decomposition for Option
+@[simp]
 lemma MeasureTheory.Measure.pi_option {ι' : Type u} [Fintype ι']
   {α₀ : Type v} {α' : ι' → Type v}
   [MeasurableSpace α₀] [∀ i, MeasurableSpace (α' i)]
@@ -720,6 +722,7 @@ lemma MeasureTheory.Measure.pi_option {ι' : Type u} [Fintype ι']
   rfl
 
 -- Lemma 3: How piCongrRight behaves with Option decomposition
+@[simp]
 lemma ContinuousMulEquiv.piCongrRight_option {ι' : Type u} [Fintype ι']
   {G₀ : Type v} {G : ι' → Type v}
   [Group G₀] [∀ i, Group (G i)]
@@ -744,6 +747,7 @@ lemma ContinuousMulEquiv.piCongrRight_option {ι' : Type u} [Fintype ι']
     rfl
 
 -- Lemma 4: Product formula for scalar
+@[simp]
 lemma mulEquivHaarChar_prod {ι' : Type u} [Fintype ι']
   {G₀ : Type v} {G : ι' → Type v}
   [Group G₀] [∀ i, Group (G i)]
@@ -771,6 +775,7 @@ lemma mulEquivHaarChar_prod {ι' : Type u} [Fintype ι']
     exact mulEquivHaarChar_def (ψ i)
 
 -- Alternative formulation for Option type directly
+@[simp]
 lemma mulEquivHaarChar_option {ι' : Type u} [Fintype ι']
   {G₀ : Type v} {G : ι' → Type v}
   [Group G₀] [∀ i, Group (G i)]
