@@ -278,8 +278,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
   have hXYopen : IsOpen (X ×ˢ Y) := hXopen.prod hYopen
   have hψYopen : IsOpen (ψ '' Y) := ψ.isOpen_image.mpr hYopen
   have hφXopen : IsOpen (φ '' X) := φ.isOpen_image.mpr hXopen
-
-  -- Define the measure `ν`
+  -- Define the Haar measure `ν` on `G`
   let ν := (haar (G := G × H)).restrict (Set.univ ×ˢ (ψ '' Y)) |>.map Prod.fst
   have ν_apply {S : Set G} (hS : MeasurableSet S) : ν S = haar (S ×ˢ (ψ '' Y)) := by
     rw [Measure.map_apply _ hS, ← Set.prod_univ, Measure.restrict_apply]
@@ -305,8 +304,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
       rw [ν_apply measurableSet_interior]
       apply lt_of_le_of_lt <| measure_mono <| Set.prod_mono interior_subset (Set.image_mono hY)
       exact hCcomp.prod (ψ.isCompact_image.mpr hKcomp) |>.measure_ne_top.symm.lt_top'
-
-  -- Define the measure `μ`
+  -- Define the measure `μ` on `H`
   let μ := (haar (G := G × H)).restrict (X ×ˢ Set.univ) |>.map Prod.snd
   have μ_apply {S : Set H} (hS : MeasurableSet S) : μ S = haar (X ×ˢ S) := by
     rw [Measure.map_apply _ hS, ← Set.univ_prod, Measure.restrict_apply]
@@ -332,7 +330,8 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
       rw [μ_apply measurableSet_interior]
       apply lt_of_le_of_lt <| measure_mono <| Set.prod_mono hX interior_subset
       exact hK'comp.prod hCcomp |>.measure_ne_top.symm.lt_top'
-
+  -- Prove the lemma by showing that both `mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y)` and
+  -- `mulEquivHaarChar φ * mulEquivHaarChar ψ * haar (X ×ˢ Y)` equal `haar ((φ '' X) ×ˢ (ψ '' Y))`
   suffices mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y) =
       mulEquivHaarChar φ * mulEquivHaarChar ψ * haar (X ×ˢ Y) by
     have ne_zero : haar (X ×ˢ Y) ≠ 0 :=
@@ -341,7 +340,6 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
       refine (lt_of_le_of_lt (measure_mono <| Set.prod_mono hX hY) ?_).ne
       exact (isHaarMeasure_haarMeasure _).lt_top_of_isCompact <| hK'comp.prod hKcomp
     exact_mod_cast (ENNReal.mul_left_inj ne_zero ne_top).mp this
-
   calc mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y)
     _ = mulEquivHaarChar _ * (map (φ.prodCongr ψ) haar) ((φ.prodCongr ψ) '' (X ×ˢ Y)) := by
       have hφψ : Measurable (φ.prodCongr ψ) := (φ.prodCongr ψ).measurable
