@@ -304,7 +304,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
       rw [ν_apply measurableSet_interior]
       apply lt_of_le_of_lt <| measure_mono <| Set.prod_mono interior_subset (Set.image_mono hY)
       exact hCcomp.prod (ψ.isCompact_image.mpr hKcomp) |>.measure_ne_top.symm.lt_top'
-  -- Define the measure `μ` on `H`
+  -- Define the Haar measure `μ` on `H`
   let μ := (haar (G := G × H)).restrict (X ×ˢ Set.univ) |>.map Prod.snd
   have μ_apply {S : Set H} (hS : MeasurableSet S) : μ S = haar (X ×ˢ S) := by
     rw [Measure.map_apply _ hS, ← Set.univ_prod, Measure.restrict_apply]
