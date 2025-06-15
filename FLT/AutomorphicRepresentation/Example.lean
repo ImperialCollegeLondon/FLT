@@ -528,11 +528,12 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     -- now the harder part which uses that ℤ is a PID
     intro x hx
     rcases lowestTerms (x⁻¹.val) with ⟨⟨M, y, cop, hxinv⟩, unique⟩
+    clear cop unique
     have : x * (i₂ y) = M := by
-      have h : (M : QHat) = (M : ℚ) ⊗ₜ[ℤ] 1 := by
-        rw [← Algebra.TensorProduct.includeLeft_apply (S := ℚ) (M : ℚ), map_natCast]
       rw [← one_mul (M : QHat), ← Units.val_one, ← mul_inv_cancel x, Units.val_mul, mul_assoc]
       congr!
+      have h : (M : QHat) = (M : ℚ) ⊗ₜ[ℤ] 1 := by
+        rw [← Algebra.TensorProduct.includeLeft_apply (S := ℚ) (M : ℚ), map_natCast]
       rw [hxinv, h, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_div, inv_mul_cancel₀,
         Algebra.TensorProduct.includeRight_apply]
       simp only [ne_eq, Rat.natCast_eq_zero, PNat.ne_zero, not_false_eq_true]
@@ -543,11 +544,10 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       simp only [Int.coe_castRingHom, Set.mem_preimage, Int.cast_natCast, SetLike.mem_coe, J, I]
       rw [Ideal.mem_span_singleton']
       use y
-      rw [mul_comm]
       apply injective_zHat
-      simp only [← hX, AddMonoidHom.coe_coe, Algebra.TensorProduct.includeRight_apply,
+      simp only [mul_comm, ← hX, AddMonoidHom.coe_coe, Algebra.TensorProduct.includeRight_apply,
         Algebra.TensorProduct.tmul_mul_tmul, mul_one, I, J] at this
-      simp only [Algebra.TensorProduct.includeRight_apply, this, map_natCast, I, J]
+      rw [Algebra.TensorProduct.includeRight_apply, this, map_natCast]
     let IdealJ : Ideal ℤ := by -- make this construction into a lemma?
       refine ⟨⟨⟨J, ?_⟩, ?_⟩, ?_⟩
       intro a b
@@ -558,9 +558,19 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       simp only [smul_eq_mul, I, J, Set.mem_preimage, Int.coe_castRingHom, Int.cast_mul]
       intro c x
       apply Ideal.mul_mem_left I
-    -- #check EuclideanDomain.to_principal_ideal_domain (R := ℤ)
-    -- #check IsPrincipalIdealRing.principal (R := ℤ) IdealJ
-    -- #check Submodule.IsPrincipal.principal IdealJ
+    obtain ⟨g, hg⟩ : Submodule.IsPrincipal IdealJ := by
+      exact IsPrincipalIdealRing.principal (R := ℤ) IdealJ
+    wlog gpos : 0 < g with H
+    · specialize H x M y hxinv this X hX Jnonzero (-g)
+      apply H (by rw [← Set.neg_singleton, Submodule.span_neg, ← hg])
+      rw [Int.neg_pos, Int.lt_iff_le_and_ne, ← Int.not_gt_eq]
+      refine ⟨gpos, ?_⟩
+      intro h
+      rw [h, Submodule.span_zero_singleton, Submodule.eq_bot_iff] at hg
+      specialize hg (M : ℤ) Jnonzero
+      simp only [Int.natCast_eq_zero, PNat.ne_zero] at hg
+    suffices h : Ideal.span {X} = Ideal.span {(g : ZHat)} by
+      sorry
     sorry
 
 end multiplicative_structure_of_QHat
