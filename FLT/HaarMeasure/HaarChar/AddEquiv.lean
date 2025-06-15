@@ -8,6 +8,11 @@ import FLT.Mathlib.Topology.Algebra.Group
 import FLT.Mathlib.Topology.Algebra.Pi
 --import Mathlib.Data.Finset.Basic
 
+import Mathlib.Topology.Basic
+
+import Mathlib.Data.Set.Image
+--import Mathlib.Data.Set.NAry
+
 import Mathlib.Init
 
 import Lean.Meta.Tactic.Simp.Attr
@@ -18,6 +23,8 @@ import Mathlib.Lean.Meta
 import Mathlib.Lean.Meta.Simp
 
 import Mathlib.Data.Finite.Defs
+
+import Mathlib.Combinatorics.Enumerative.Composition
 
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Fintype.BigOperators
@@ -976,6 +983,48 @@ private def optionElimCongrRight {ι' : Type*} {H : Option ι' → Type*}
     · exact (ψ_none).symm.continuous.comp (continuous_apply _)
     · exact (ψ_some _).symm.continuous.comp (continuous_apply _)
 
+open Set Composition -- preimage_id, cast_rfl
+
+def TopologicalSpace.cast {α β : Type u} (h : α = β) :
+    TopologicalSpace α → TopologicalSpace β :=
+  fun t => h ▸ t
+
+lemma continuous_cast {α β : Type u} [TopologicalSpace α] [TopologicalSpace β] (h : α = β) :
+    Continuous (cast h) := by
+  -- First, perform the substitution that creates the two instances.
+  subst h
+  -- Tactic state has `inst✝, inst✝¹ : TopologicalSpace α`
+  -- and the goal is `Continuous (cast h)` where `h : α = α`
+
+  -- Simplify the `cast` to `id`.
+  simp only [cast_rfl]
+  -- Goal is now `Continuous id`. This is where automation gets stuck.
+
+  -- HINT: We will prove it manually by unfolding the definition.
+  rw [continuous_def]
+  -- Goal: `∀ s, IsOpen s → IsOpen (id ⁻¹' s)`
+
+  -- The preimage of `id` is trivial.
+  simp only [preimage_id]
+  -- Goal: `∀ s, IsOpen s → IsOpen s`
+
+  -- This looks trivial, but it's not! The first `IsOpen` might use one
+  -- instance and the second might use the other. Let's make it explicit.
+  intro s h_s_is_open
+
+  -- `h_s_is_open` is a proof of `IsOpen s` using one topology (e.g., inst✝¹).
+  -- The goal is to prove `IsOpen s` using the other topology (e.g., inst✝).
+
+  -- We bridge the gap by proving the two topologies are equal.
+  have h_topo_eq : inst✝ = inst✝¹ := Subsingleton.elim inst✝ inst✝¹
+
+  -- Now, we rewrite our hypothesis using this equality.
+  -- This changes the topology used in `h_s_is_open` to match the goal's topology.
+  rw [h_topo_eq] at h_s_is_open
+
+  -- Now the hypothesis is exactly the goal.
+  exact h_s_is_open
+
 /-- Reindex a pi type homeomorphism using an equivalence of index types -/
 private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
     {H : ι → Type*} [(i : ι) → TopologicalSpace (H i)] [(i : ι) → Group (H i)]
@@ -1035,7 +1084,11 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
   continuous_invFun := by
     apply continuous_pi
     intro i
-    exact (ψ i).symm.continuous.comp (continuous_apply _)
+    -- The function is `f ↦ (ψ i).symm (cast _ (f (e i)))`.
+    -- We must compose the continuity proofs for evaluation, casting, and applying `ψ⁻¹`.
+    exact ((ψ i).symm.continuous).comp <|
+      (continuous_cast (congrArg H (Equiv.symm_apply_apply e i))).comp
+        (continuous_apply (e i))
 
 /-! ## HaarProductMeasure Theorem -/
 
