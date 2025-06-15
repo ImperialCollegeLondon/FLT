@@ -351,3 +351,7 @@ lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G 
   --   apply this
   -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
   sorry -- FLT#552
+
+end restrictedproduct
+
+end MeasureTheory

@@ -93,3 +93,5 @@ lemma _root_.IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (u : Dˣ)
   exact addEquivAddHaarChar_eq_ringHaarChar_det (ContinuousLinearEquiv.mulRight F u)
 
 end issimplering
+
+end MeasureTheory
