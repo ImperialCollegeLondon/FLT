@@ -63,7 +63,7 @@ abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
 /-- incl₁ is an abbreviation for the inclusion
 $D^\times\to(D\otimes_F\mathbb{A}_F^\infty)^\times.$ Remark: I wrote the `incl₁`
-docstring in LaTeX and the `incl₂` one in unicode. Which is better?-/
+docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map (Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
 

@@ -76,7 +76,7 @@ instance charZero : CharZero ZHat := ⟨ fun a b h ↦ by
 
 open BigOperators Nat Finset in
 /-- A nonarchimedean analogue `0! + 1! + 2! + ⋯` of `e = 1/0! + 1/1! + 1/2! + ⋯`.
-It is defined as the function whose value at `ZMod n` is the sum of `i!` for `0 ≤ i < n`.-/
+It is defined as the function whose value at `ZMod n` is the sum of `i!` for `0 ≤ i < n`. -/
 def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i ∈ range (n : ℕ), i !, by
   intros D N hDN
   dsimp only
