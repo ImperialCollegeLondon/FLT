@@ -986,8 +986,8 @@ private def optionElimCongrRight {ι' : Type*} {H : Option ι' → Type*}
 open Set Composition -- preimage_id, cast_rfl
 
 @[simp]
-theorem continuous_cast
-    -- STEP 1: Give explicit names to the instances.
+lemma continuous_cast
+    -- Give explicit names to the TopologicalSpace instances.
     {α β : Type u} [inst_α : TopologicalSpace α] [inst_β : TopologicalSpace β]
     (h : α = β) :
     Continuous (cast h) := by
