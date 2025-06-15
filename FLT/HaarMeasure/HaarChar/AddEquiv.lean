@@ -985,35 +985,45 @@ private def optionElimCongrRight {ι' : Type*} {H : Option ι' → Type*}
 
 open Set Composition -- preimage_id, cast_rfl
 
-def TopologicalSpace.cast {α β : Type u} (h : α = β) :
-    TopologicalSpace α → TopologicalSpace β :=
-  fun t => h ▸ t
-
 @[simp]
-theorem continuous_cast_explicit
+theorem continuous_cast
     -- STEP 1: Give explicit names to the instances.
     {α β : Type u} [inst_α : TopologicalSpace α] [inst_β : TopologicalSpace β]
     (h : α = β) :
     Continuous (cast h) := by
-  -- STEP 2: The substitution must come first!
-  -- This replaces `β` with `α` everywhere. Now `inst_β` is a term of type `TopologicalSpace α`.
+  -- First, perform the substitution that creates the two instances.
   subst h
-  -- Tactic state now has:
-  -- inst_α : TopologicalSpace α
-  -- inst_β : TopologicalSpace α
+  -- Tactic state has `inst✝, inst✝¹ : TopologicalSpace α`
+  -- and the goal is `Continuous (cast h)` where `h : α = α`
 
-  -- STEP 3: Now that they are on the same type, we can prove they are equal.
-  have h_topo_eq : inst_α = inst_β := Subsingleton.elim _ _
+  -- Simplify the `cast` to `id`.
+  simp only [cast_rfl]
+  -- Goal is now `Continuous id`. This is where automation gets stuck.
 
-  -- Let's finish the proof by being explicit.
-  rw [continuous_def, cast_rfl, preimage_id]
+  -- HINT: We will prove it manually by unfolding the definition.
+  rw [continuous_def]
+  -- Goal: `∀ s, IsOpen s → IsOpen (id ⁻¹' s)`
+
+  -- The preimage of `id` is trivial.
+  simp only [preimage_id]
   -- Goal: `∀ s, IsOpen s → IsOpen s`
 
-  intro s hs
-  -- The hypothesis `hs` uses `inst_β`, while the goal `IsOpen s` implicitly uses `inst_α`.
-  -- We use our equality to make them match.
-  rw [← h_topo_eq] -- Rewrites `inst_α` in the goal to `inst_β`.
-  exact hs
+  -- This looks trivial, but it's not! The first `IsOpen` might use one
+  -- instance and the second might use the other. Let's make it explicit.
+  intro s h_s_is_open
+
+  -- `h_s_is_open` is a proof of `IsOpen s` using one topology (e.g., inst_β).
+  -- The goal is to prove `IsOpen s` using the other topology (e.g., inst_α).
+
+  -- We bridge the gap by proving the two topologies are equal.
+  have h_topo_eq : inst_α = inst_β := Subsingleton.elim inst_α inst_β
+
+  -- Now, we rewrite our hypothesis using this equality.
+  -- This changes the topology used in `h_s_is_open` to match the goal's topology.
+  rw [h_topo_eq] at h_s_is_open
+
+  -- Now the hypothesis is exactly the goal.
+  exact h_s_is_open
 
 /-- Reindex a pi type homeomorphism using an equivalence of index types -/
 private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
