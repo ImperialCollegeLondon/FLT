@@ -1051,11 +1051,22 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
   continuous_invFun := by
     apply continuous_pi
     intro i
-    -- The function is `f ↦ (ψ i).symm (cast _ (f (e i)))`.
-    -- We must compose the continuity proofs for evaluation, casting, and applying `ψ⁻¹`.
-    exact ((ψ i).symm.continuous).comp <|
-      (continuous_cast (congrArg H (Equiv.symm_apply_apply e i))).comp
-        (continuous_apply (e i))
+
+    -- We need continuity of: (f : (i' : ι') → H (e.symm i')) ↦ (ψ i).symm (h_eq ▸ f (e i))
+    -- where h_eq : H (e.symm (e i)) = H i
+
+    have h_eq : H (e.symm (e i)) = H i := congrArg H (Equiv.symm_apply_apply e i)
+
+    -- The function is the composition of:
+    -- 1. Evaluation at (e i) : ((i' : ι') → H (e.symm i')) → H (e.symm (e i))
+    -- 2. Cast along h_eq : H (e.symm (e i)) → H i
+    -- 3. Apply (ψ i).symm : H i → H i
+
+    apply Continuous.comp
+    · exact (ψ i).symm.continuous
+    · apply Continuous.comp
+      · exact continuous_cast h_eq
+      · exact continuous_apply (e i)
 
 /-! ## HaarProductMeasure Theorem -/
 
