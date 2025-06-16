@@ -217,3 +217,5 @@ theorem comm {g₁ g₂ : G} (h₁ : (QuotientGroup.mk '' (U * g₁ • U) : Set
   -- I'm sure there's a better way to do this!
   congr; ext g₂; congr; ext hg₂; congr; ext g₁; congr; ext hg₁;
   rw [smul_smul, smul_smul, hcomm _ hg₁ _ hg₂]
+
+end AbstractHeckeOperator

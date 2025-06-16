@@ -147,3 +147,7 @@ instance module [AddCommGroup A] [Module R A] [DistribSMul M A] [SMulCommClass M
       zero_smul a := by
         ext
         exact zero_smul R (a : A)
+
+end FixedPoints
+
+end MulAction
