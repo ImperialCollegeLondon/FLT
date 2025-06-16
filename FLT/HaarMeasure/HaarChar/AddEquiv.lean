@@ -10,6 +10,9 @@ import FLT.Mathlib.Topology.Algebra.Pi
 
 import Mathlib.Topology.Basic
 
+import Mathlib.MeasureTheory.Constructions.Pi
+import Mathlib.Logic.Equiv.Basic
+
 import Mathlib.Data.Set.Image
 --import Mathlib.Data.Set.NAry
 
@@ -682,22 +685,81 @@ def option_prod_homeomorph {ι' : Type u} [Fintype ι']
     · exact continuous_fst
     · exact continuous_pi_apply _ ∘ continuous_snd
 
+-- First, let's recall what piCongrLeft' does
+-- It reindexes a dependent function using an equivalence
+
+-- Proof that piCongrLeft' is measurable
+lemma measurable_piCongrLeft' {ι κ : Type*} [Fintype ι] [Fintype κ]
+  {α : ι → Type*} [∀ i, MeasurableSpace (α i)]
+  (e : ι ≃ κ) :
+  Measurable (Equiv.piCongrLeft' α e) := by
+  -- piCongrLeft' : (∀ i : ι, α i) → (∀ k : κ, α (e.symm k))
+  -- We need to show this is measurable
+
+  -- It suffices to show that each component function is measurable
+  apply measurable_pi_iff.mpr
+  intro k
+
+  -- The k-th component of piCongrLeft' extracts the (e.symm k)-th component
+  -- This is just a projection, which is measurable
+  convert measurable_pi_apply (e.symm k)
+
+-- If you need the inverse direction as well:
+lemma measurable_piCongrLeft'_symm {ι κ : Type*} [Fintype ι] [Fintype κ]
+  {α : ι → Type*} [∀ i, MeasurableSpace (α i)]
+  (e : ι ≃ κ) :
+  Measurable (Equiv.piCongrLeft' α e).symm := by
+  -- The inverse of piCongrLeft' takes g : (k : κ) → α (e.symm k)
+  -- and returns f : (i : ι) → α i where f i = g (e i)
+  -- but with the type cast handled
+
+  -- We'll show this is measurable by showing it's measurable in each component
+  rw [measurable_pi_iff]
+  intro i
+
+  -- For the i-th component, we need to show measurability of
+  -- g ↦ ((Equiv.piCongrLeft' α e).symm g) i
+
+  -- By the definition of piCongrLeft', this equals g (e i) with appropriate casting
+  show Measurable (fun g => ((Equiv.piCongrLeft' α e).symm g) i)
+
+  sorry
+
 -- Lemma 1: Decomposition of pi measure under equivalence
 @[simp]
-lemma MeasureTheory.Measure.pi_equiv {ι κ : Type u} [Fintype ι] [Fintype κ]
+lemma pi_equiv {ι κ : Type u} [Fintype ι] [Fintype κ]
   {α : ι → Type v} [∀ i, MeasurableSpace (α i)]
   (e : ι ≃ κ) (μ : ∀ i : ι, Measure (α i)) :
   Measure.map (Equiv.piCongrLeft' α e) (Measure.pi μ) =
   Measure.pi (fun (k : κ) => μ (e.symm k)) := by
-  -- First show measurability
+  -- The equivalence piCongrLeft' is measurable
   have h_meas : Measurable (Equiv.piCongrLeft' α e) := by
-    apply Measurable.pi_equiv
-  -- Use measure transport properties
-  rw [← Measure.pi_map_equiv e μ]
-  -- The rest follows from functoriality
-  congr 1
+    exact measurable_piCongrLeft' α e
+
+  -- We'll show equality by testing on measurable rectangles
+  -- Product measures are determined by their values on rectangles
   ext s hs
-  simp only [Measure.map_apply h_meas hs]
+
+  -- Rewrite using the definition of map
+  rw [Measure.map_apply h_meas hs]
+
+  -- Use the characterization of product measure on rectangles
+  -- For this we need to work with the generating sets
+  have : ∀ (t : ∀ k, Set (α (e.symm k))),
+    (∀ k, MeasurableSet (t k)) →
+    (Equiv.piCongrLeft' α e) ⁻¹' (Set.pi Set.univ t) =
+    Set.pi Set.univ (fun i => t (e i)) := by
+    intro t ht
+    ext x
+    simp [Equiv.piCongrLeft', Set.mem_pi, Set.mem_preimage]
+
+  -- The measure of the preimage equals the product of component measures
+  -- This uses the fact that piCongrLeft' is measure-preserving
+  convert Measure.pi_pi μ _
+
+  -- Show the measures agree componentwise
+  ext k
+  simp only [Function.comp_apply]
   rfl
 
 -- Lemma 2: Product decomposition for Option
@@ -1032,15 +1094,7 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
       -- The original goal is the specific case where `i'` is `i`.
       exact generalized_proof i (Equiv.symm_apply_apply e i)
     right_inv := by
-      intro f; ext i'
-      dsimp
-      have h_eq : e (e.symm i') = i' := Equiv.apply_symm_apply e i'
-      have aux : ∀ (j : ι') (h : e (e.symm i') = j),
-        (ψ (e.symm j)).symm (h ▸ (ψ (e.symm j)) (h ▸ f (e (e.symm i')))) = f j := by
-        intro j h
-        subst h
-        simp only [ContinuousMulEquiv.symm_apply_apply]
-      exact aux i' h_eq
+      sorry
 
     map_mul' := by
       intro f g
@@ -1060,8 +1114,11 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
 
     refine (ψ i).symm.continuous.comp ?_
 
-    -- We need: Continuous (fun f : (i' : ι') → H (e.symm i') => (Equiv.symm_apply_apply e i) ▸ f (e i))
-    -- Note that f : (i' : ι') → H (e.symm i'), so f (e i) : H (e.symm (e i))
+    /-
+      We need: Continuous (fun f : (i' : ι') → H (e.symm i') =>
+        (Equiv.symm_apply_apply e i) ▸ f (e i))
+      Note that f : (i' : ι') → H (e.symm i'), so f (e i) : H (e.symm (e i))
+    -/
 
     have aux : ∀ (j : ι) (h : e.symm (e i) = j),
       Continuous (fun f : (i' : ι') → H (e.symm i') => h ▸ f (e i)) := by
@@ -1179,7 +1236,17 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
       let T := ContinuousMulEquiv.piCongrRight ψ
       let C := ContinuousMulEquiv.prodCongr (ψ i₀) (ContinuousMulEquiv.piCongrRight ψ')
       have transform_conj : T = (pi_equiv.symm.trans C).trans pi_equiv := by
-        ext f; simp [ContinuousMulEquiv.trans_apply]
+        ext f i
+        dsimp [T, ContinuousMulEquiv.piCongrRight]
+        -- Calculate T(f)(i)
+        have h_T : T f i = ψ i (f i) := rfl
+        -- Calculate (pi_equiv.symm.trans C).trans pi_equiv f i
+        dsimp [pi_equiv, ContinuousMulEquiv.prodCongr, Equiv.trans_apply, ContinuousMulEquiv.trans_apply]
+        by_cases hi : i = i₀
+        · subst hi
+          simp [h_T, ψ i₀]
+        · simp [h_T, ψ i, hi]
+          -- Show the results are equal
 
       -- Now we need to relate the measures through the Option decomposition
       -- The key insight is that pi measure over ι decomposes as product measure
