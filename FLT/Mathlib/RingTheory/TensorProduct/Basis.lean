@@ -19,8 +19,8 @@ import FLT.Hacks.RightActionInstances
 We (presumably) have all this in mathlib for base change on the other side; this
 is all about: if `A` is a free `R`-algebra then `A ⊗[R] B` is a free `B`-algebra.
 
-Note: when we have `open scoped TensorProduct.RightActions` merged, all of this
-can be downgraded to `A` being a free `R`-module.
+This can probably all be moved into `FLT.Hacks.RightActionInstances? The entire
+file has `open scoped TensorProduct.RightActions`.
 
 -/
 
