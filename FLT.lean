@@ -38,6 +38,7 @@ import FLT.HaarMeasure.HaarChar.Padic
 import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.MeasurableSpacePadics
+import FLT.Hacks.RightActionInstances
 import FLT.Init
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Hom
@@ -83,7 +84,6 @@ import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 import FLT.Mathlib.RingTheory.Localization.BaseChange
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv

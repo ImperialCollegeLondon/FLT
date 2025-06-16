@@ -17,3 +17,5 @@ variable (ρ : (repnFunctor n G 𝓞).obj .residueField) [(toRepresentation ρ).
 lemma isCorepresentable_deformationFunctor :
     (deformationFunctor n G 𝓞 ρ).toFunctor.IsCorepresentable := by
   sorry -- de Smit and Lenstra, Proposition 2.3 (1).
+
+end Deformation

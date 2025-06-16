@@ -1,5 +1,4 @@
 import FLT.NumberField.Completion.Infinite
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.Topology.Constructions
@@ -23,13 +22,7 @@ omit [NumberField K] [NumberField L] in
 theorem baseChange_cont : Continuous (baseChange K L) :=
   Continuous.piSemialgHomPi Completion Completion _ fun _ => Completion.comapHom_cont rfl
 
-noncomputable instance : Algebra (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) :=
-  Algebra.TensorProduct.rightAlgebra
-
-noncomputable instance : TopologicalSpace (L ⊗[K] InfiniteAdeleRing K) :=
-  moduleTopology (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K)
-
-instance : IsModuleTopology (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) := ⟨rfl⟩
+open scoped TensorProduct.RightActions
 
 noncomputable instance : Algebra (InfiniteAdeleRing K) (InfiniteAdeleRing L) :=
   (baseChange K L).toAlgebra
@@ -82,9 +75,9 @@ noncomputable def baseChangeEquivAux :
 -- Then we show that this lift is the same as the lift of `baseChange : K_∞ → L_∞` coming from
 -- `SemialgHom.baseChange_of_algebraMap`
 
-open scoped Classical in
 theorem baseChangeEquivAux_tmul (l : L) (x : InfiniteAdeleRing K) :
     baseChangeEquivAux K L (l ⊗ₜ[K] x) = algebraMap _ _ l * baseChange K L x := by
+  classical
   simp only [baseChangeEquivAux, AlgEquiv.trans_apply]
   funext
   -- erw are needed here because cannot unify InfiniteAdeleRing K with
@@ -104,22 +97,16 @@ theorem baseChangeEquivAux_apply (x : L ⊗[K] InfiniteAdeleRing K) :
 open TensorProduct.AlgebraTensorModule in
 instance : Module.Free (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) := by
   --  L ⊗ K_∞ ≃ₗ[K_∞] K_∞ ⊗ L
-  let e₁ := (Algebra.TensorProduct.comm K (InfiniteAdeleRing K) L).extendScalars
-    (InfiniteAdeleRing K) |>.toLinearEquiv.symm
+  let e₁ := (TensorProduct.RightActions.Algebra.TensorProduct.comm K (InfiniteAdeleRing K) L)
+    |>.toLinearEquiv.symm
   --  K_∞ ⊗ L ≃ₗ[K_∞] ∏ v, K_v ⊗ L
   let e₂ := finiteEquivPi K L (InfiniteAdeleRing K)
   -- Compose to transfer freeness of ∏ v, K_v ⊗ L to L ⊗ K_∞
   exact Module.Free.of_equiv (e₁.trans e₂).symm
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsTopologicalSemiring (L ⊗[K] InfiniteAdeleRing K) :=
-  IsModuleTopology.topologicalSemiring (InfiniteAdeleRing K) _
-
 -- `IsModuleTopology.continuousAlgEquivOfIsScalarTower` is then applicable in the same
 -- way it was for `baseChangeEquiv` in `InfinitePlace.Completion`
 
-open scoped Classical in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
 /-- The canonical `L`-algebra homeomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
 noncomputable

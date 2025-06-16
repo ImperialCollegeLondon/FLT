@@ -357,3 +357,5 @@ theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
   refine of_p_ge_5 fun p hp5 pp a b c ha hb _ h ↦  Nonempty.elim ?_ FreyPackage.false
   apply FreyPackage.of_not_FermatLastTheorem_p_ge_5 (a := a) (b := b) (c := c)
     <;> assumption_mod_cast
+
+end FLT

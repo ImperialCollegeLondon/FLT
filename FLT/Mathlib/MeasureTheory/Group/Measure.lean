@@ -11,6 +11,6 @@ lemma Topology.IsOpenEmbedding.isHaarMeasure_comap {G H : Type*}
     [Group H] [TopologicalSpace H] [MeasurableSpace H] [MeasurableMul H] [BorelSpace H]
     {φ : G →* H} (hφ : IsOpenEmbedding φ) (μ : Measure H) [IsHaarMeasure μ] :
     IsHaarMeasure (comap φ μ) where
-  map_mul_left_eq_self := (hφ.measurableEmbedding.IsMulLeftInvariant_comap μ).map_mul_left_eq_self
+  map_mul_left_eq_self := (hφ.measurableEmbedding.isMulLeftInvariant_comap μ).map_mul_left_eq_self
   lt_top_of_isCompact := (hφ.isFiniteMeasureOnCompacts_comap μ).lt_top_of_isCompact
   open_pos := (hφ.IsOpenPosMeasure_comap μ).open_pos
