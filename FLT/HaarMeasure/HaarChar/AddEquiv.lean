@@ -1071,15 +1071,19 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
     apply continuous_pi
     intro i
 
-    -- The function is: f ↦ (ψ i).symm ((Equiv.symm_apply_apply e i) ▸ f (e i))
-    -- This is (ψ i).symm composed with (f ↦ transport(f(e i)))
-
     refine (ψ i).symm.continuous.comp ?_
 
-    -- Now we need: Continuous (fun f => (Equiv.symm_apply_apply e i) ▸ f (e i))
-    -- This should follow from continuity of evaluation and the fact that transport is continuous
+    -- We need: Continuous (fun f : (i' : ι') → H (e.symm i') => (Equiv.symm_apply_apply e i) ▸ f (e i))
+    -- Note that f : (i' : ι') → H (e.symm i'), so f (e i) : H (e.symm (e i))
 
-    exact continuous_cast (e i)
+    have aux : ∀ (j : ι) (h : e.symm (e i) = j),
+      Continuous (fun f : (i' : ι') → H (e.symm i') => h ▸ f (e i)) := by
+      intro j h
+      subst h  -- Now the transport disappears
+      -- We need: Continuous (fun f : (i' : ι') → H (e.symm i') => f (e i))
+      exact continuous_apply (e i)
+
+    exact aux i (Equiv.symm_apply_apply e i)
 
 /-! ## HaarProductMeasure Theorem -/
 
