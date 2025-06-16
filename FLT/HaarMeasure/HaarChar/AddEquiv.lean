@@ -726,7 +726,7 @@ lemma measurable_piCongrLeft'_symm {ι κ : Type*} [Fintype ι] [Fintype κ]
   sorry
 
 -- Lemma 1: Decomposition of pi measure under equivalence
-@[simp]
+@[simp] 
 lemma pi_equiv {ι κ : Type u} [Fintype ι] [Fintype κ]
   {α : ι → Type v} [∀ i, MeasurableSpace (α i)]
   (e : ι ≃ κ) (μ : ∀ i : ι, Measure (α i)) :
