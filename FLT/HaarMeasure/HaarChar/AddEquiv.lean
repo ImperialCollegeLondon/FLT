@@ -82,6 +82,24 @@ lemma smul_haarScalarFactor_smul' (μ' μ : Measure G)
     haarScalarFactor (c • μ') (c • μ) = haarScalarFactor μ' μ := by
   rw [haarScalarFactor_smul, smul_eq_mul, smul_haarScalarFactor_smul _ _ hc]
 
+-- should be in haarScalarFactor API
+@[to_additive]
+lemma haarScalarFactor_map (μ' μ : Measure G) [IsHaarMeasure μ] [IsHaarMeasure μ'] (φ : G ≃ₜ* G) :
+    (map φ μ').haarScalarFactor (map φ μ) = μ'.haarScalarFactor μ := by
+  obtain ⟨⟨f, f_cont⟩, f_comp, f_nonneg, f_one⟩ :
+    ∃ f : C(G, ℝ), HasCompactSupport f ∧ 0 ≤ f ∧ f 1 ≠ 0 := exists_continuous_nonneg_pos 1
+  have int_f_ne_zero : ∫ (x : G), f x ∂(map φ μ) ≠ 0 :=
+    ne_of_gt (f_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero f_comp f_nonneg f_one)
+  have hφ : AEMeasurable φ μ := φ.continuous.aemeasurable
+  rw [← NNReal.coe_inj, haarScalarFactor_eq_integral_div _ _ f_cont f_comp int_f_ne_zero,
+    haarScalarFactor_eq_integral_div μ' μ (f_cont.comp φ.continuous),
+    integral_map hφ f_cont.aestronglyMeasurable, integral_map ?_ f_cont.aestronglyMeasurable]
+  · rfl
+  · exact φ.continuous.aemeasurable
+  · exact f_comp.comp_homeomorph φ.toHomeomorph
+  · change ∫ x, f (φ x) ∂μ ≠ 0
+    rwa [← integral_map hφ f_cont.aestronglyMeasurable]
+
 @[to_additive]
 lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ]
     [Regular μ] (φ : G ≃ₜ* G) :
@@ -104,6 +122,17 @@ lemma mulEquivHaarChar_map (μ : Measure G)
   rw [mulEquivHaarChar_eq μ φ]
   haveI : Regular (map φ μ) := (Regular.map_iff φ.toHomeomorph).mpr inferInstance
   exact (isMulLeftInvariant_eq_smul_of_regular μ (map φ μ)).symm
+
+-- Version of `mulEquivHaarChar_map` without the regularity assumption
+-- In this case, the measures need only be equal on open sets
+@[to_additive]
+lemma mulEquivHaarChar_map_open (μ : Measure G)
+    [IsHaarMeasure μ] (φ : G ≃ₜ* G) {s : Set G} (hs : IsOpen s) :
+    ((mulEquivHaarChar φ) • map φ μ) s = μ s := by
+  rw [mulEquivHaarChar, smul_apply, haarScalarFactor_eq_mul haar (map φ μ) (map φ haar), mul_comm,
+    mul_smul, ← measure_isHaarMeasure_eq_smul_of_isOpen haar _ hs,
+    measure_isHaarMeasure_eq_smul_of_isOpen haar μ hs, ← mul_smul, haarScalarFactor_map,
+    ← haarScalarFactor_eq_mul, haarScalarFactor_self, one_smul]
 
 @[to_additive]
 lemma mulEquivHaarChar_comap (μ : Measure G)
@@ -240,7 +269,99 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     letI : MeasurableSpace (G × H) := borel _
     haveI : BorelSpace (G × H) := ⟨rfl⟩
     mulEquivHaarChar (φ.prodCongr ψ) = mulEquivHaarChar φ * mulEquivHaarChar ψ := by
-  sorry -- FLT#520
+  letI : MeasurableSpace (G × H) := borel _
+  have : BorelSpace (G × H) := ⟨rfl⟩
+  have ⟨K, hK, _, hKcomp⟩ := local_compact_nhds (x := (1 : H)) Filter.univ_mem
+  have ⟨Y, hY, hYopen, one_mem_Y⟩ := mem_nhds_iff.mp hK
+  have ⟨K', hK', _, hK'comp⟩ := local_compact_nhds (x := (1 : G)) Filter.univ_mem
+  have ⟨X, hX, hXopen, one_mem_X⟩ := mem_nhds_iff.mp hK'
+  have hXYopen : IsOpen (X ×ˢ Y) := hXopen.prod hYopen
+  have hψYopen : IsOpen (ψ '' Y) := ψ.isOpen_image.mpr hYopen
+  have hφXopen : IsOpen (φ '' X) := φ.isOpen_image.mpr hXopen
+  -- Define the Haar measure `ν` on `G`
+  let ν := (haar (G := G × H)).restrict (Set.univ ×ˢ (ψ '' Y)) |>.map Prod.fst
+  have ν_apply {S : Set G} (hS : MeasurableSet S) : ν S = haar (S ×ˢ (ψ '' Y)) := by
+    rw [Measure.map_apply _ hS, ← Set.prod_univ, Measure.restrict_apply]
+    · congr 1; ext; simp
+    · exact prod_le_borel_prod _ <| hS.prod MeasurableSet.univ
+    · intro; exact (prod_le_borel_prod _ <| measurable_fst ·)
+  have : IsMulLeftInvariant ν := by
+    refine (forall_measure_preimage_mul_iff ν).mp fun g s hs ↦ ?_
+    rw [ν_apply hs, ν_apply (hs.preimage (measurable_const_mul g))]
+    nth_rw 2 [← map_mul_left_eq_self haar ⟨g, 1⟩]
+    conv in fun x ↦ (g, 1) * x => change fun x ↦ ((g * ·) x.1, (1 * ·) x.2)
+    simp_rw [one_mul]
+    rw [map_apply (by fun_prop), ← Set.prod_preimage_left]
+    exact prod_le_borel_prod _ (hs.prod hψYopen.measurableSet)
+  have hν : IsHaarMeasure ν := by
+    apply isHaarMeasure_of_isCompact_nonempty_interior ν K' hK'comp
+    · exact ⟨1, hXopen.subset_interior_iff.mpr hX one_mem_X⟩
+    · refine ne_of_gt (lt_of_lt_of_le ?_ (measure_mono hX))
+      rw [ν_apply hXopen.measurableSet]
+      exact (hXopen.prod hψYopen).measure_pos haar ⟨⟨1, ψ 1⟩, by simp [one_mem_X, one_mem_Y]⟩
+    · have ⟨C, hCcomp, hC⟩ := exists_compact_superset hK'comp
+      refine lt_top_iff_ne_top.mp <| lt_of_le_of_lt (measure_mono hC) ?_
+      rw [ν_apply measurableSet_interior]
+      apply lt_of_le_of_lt <| measure_mono <| Set.prod_mono interior_subset (Set.image_mono hY)
+      exact hCcomp.prod (ψ.isCompact_image.mpr hKcomp) |>.measure_ne_top.symm.lt_top'
+  -- Define the Haar measure `μ` on `H`
+  let μ := (haar (G := G × H)).restrict (X ×ˢ Set.univ) |>.map Prod.snd
+  have μ_apply {S : Set H} (hS : MeasurableSet S) : μ S = haar (X ×ˢ S) := by
+    rw [Measure.map_apply _ hS, ← Set.univ_prod, Measure.restrict_apply]
+    · congr 1; ext; simp [and_comm]
+    · exact prod_le_borel_prod _ <| MeasurableSet.univ.prod hS
+    · intro; exact (prod_le_borel_prod _ <| measurable_snd ·)
+  have : IsMulLeftInvariant μ := by
+    refine (forall_measure_preimage_mul_iff μ).mp fun h s hs ↦ ?_
+    rw [μ_apply hs, μ_apply (hs.preimage (measurable_const_mul h))]
+    nth_rw 2 [← map_mul_left_eq_self haar ⟨1, h⟩]
+    conv in fun x ↦ (1, h) * x => change fun x ↦ ((1 * ·) x.1, (h * ·) x.2)
+    simp_rw [one_mul]
+    rw [map_apply (by fun_prop), ← Set.prod_preimage_right]
+    exact prod_le_borel_prod _ (hXopen.measurableSet.prod hs)
+  have hμ : IsHaarMeasure μ := by
+    apply isHaarMeasure_of_isCompact_nonempty_interior μ K hKcomp
+    · exact ⟨1, hYopen.subset_interior_iff.mpr hY one_mem_Y⟩
+    · refine ne_of_gt (lt_of_lt_of_le ?_ (measure_mono hY))
+      rw [μ_apply hYopen.measurableSet]
+      exact (hXopen.prod hYopen).measure_pos haar ⟨⟨1, 1⟩, by simp [one_mem_X, one_mem_Y]⟩
+    · have ⟨C, hCcomp, hC⟩ := exists_compact_superset hKcomp
+      refine lt_top_iff_ne_top.mp <| lt_of_le_of_lt (measure_mono hC) ?_
+      rw [μ_apply measurableSet_interior]
+      apply lt_of_le_of_lt <| measure_mono <| Set.prod_mono hX interior_subset
+      exact hK'comp.prod hCcomp |>.measure_ne_top.symm.lt_top'
+  -- Prove the lemma by showing that both `mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y)` and
+  -- `mulEquivHaarChar φ * mulEquivHaarChar ψ * haar (X ×ˢ Y)` equal `haar ((φ '' X) ×ˢ (ψ '' Y))`
+  suffices mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y) =
+      mulEquivHaarChar φ * mulEquivHaarChar ψ * haar (X ×ˢ Y) by
+    have ne_zero : haar (X ×ˢ Y) ≠ 0 :=
+      (isHaarMeasure_haarMeasure _).open_pos _ hXYopen ⟨⟨1, 1⟩, ⟨one_mem_X, one_mem_Y⟩⟩
+    have ne_top : haar (X ×ˢ Y) ≠ ⊤ := by
+      refine (lt_of_le_of_lt (measure_mono <| Set.prod_mono hX hY) ?_).ne
+      exact (isHaarMeasure_haarMeasure _).lt_top_of_isCompact <| hK'comp.prod hKcomp
+    exact_mod_cast (ENNReal.mul_left_inj ne_zero ne_top).mp this
+  calc mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y)
+    _ = mulEquivHaarChar _ * (map (φ.prodCongr ψ) haar) ((φ.prodCongr ψ) '' (X ×ˢ Y)) := by
+      have hφψ : Measurable (φ.prodCongr ψ) := (φ.prodCongr ψ).measurable
+      rw [map_apply hφψ, Set.preimage_image_eq _ (φ.prodCongr ψ).injective]
+      exact (φ.prodCongr ψ).measurableEmbedding.measurableSet_image' hXYopen.measurableSet
+    _ = (mulEquivHaarChar (φ.prodCongr ψ) • (map (φ.prodCongr ψ) haar)) ((φ '' X) ×ˢ (ψ '' Y)) := by
+      rw [← Set.prodMap_image_prod]; rfl
+    _ = haar ((φ '' X) ×ˢ (ψ '' Y)) := by
+      rw [mulEquivHaarChar_map_open haar (φ.prodCongr ψ) (hφXopen.prod hψYopen)]
+    _ = ν (φ '' X) := ν_apply hφXopen.measurableSet |>.symm
+    _ = ((mulEquivHaarChar φ) • (map φ ν)) (φ '' X) := by rw [mulEquivHaarChar_map_open ν φ hφXopen]
+    _ = (mulEquivHaarChar φ) * (map φ ν) (φ '' X) := rfl
+    _ = (mulEquivHaarChar φ) * ν X := by
+      rw [map_apply (show Measurable φ from φ.measurable) hφXopen.measurableSet]
+      rw [show φ ⁻¹' (φ '' X) = X from φ.preimage_image X]
+    _ = (mulEquivHaarChar φ) * haar (X ×ˢ (ψ '' Y)) := by rw [ν_apply hXopen.measurableSet]
+    _ = (mulEquivHaarChar φ) * μ (ψ '' Y) := by rw [μ_apply hψYopen.measurableSet]
+    _ = (mulEquivHaarChar φ) * (mulEquivHaarChar ψ) * haar (X ×ˢ Y) := by
+      nth_rw 1 [← mulEquivHaarChar_map_open μ ψ hψYopen]
+      have hψ : Measurable ψ := ψ.measurable
+      rw [smul_apply, nnreal_smul_coe_apply, mul_assoc, map_apply hψ hψYopen.measurableSet,
+        Set.preimage_image_eq _ ψ.injective, μ_apply hYopen.measurableSet]
 
 end prod
 
