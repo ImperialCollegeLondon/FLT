@@ -1033,27 +1033,14 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
       exact generalized_proof i (Equiv.symm_apply_apply e i)
     right_inv := by
       intro f; ext i'
-      -- Goal: ⋯ ▸ f (e (e.symm i')) = f i'
-
-      -- f (e (e.symm i')) has type H (e.symm (e (e.symm i')))
-      -- We need to transport it to type H (e.symm i')
-
-      -- The equality we need is: H (e.symm (e (e.symm i'))) = H (e.symm i')
-      -- This comes from applying congrArg to e (e.symm i') = i'
-
+      dsimp
       have h_eq : e (e.symm i') = i' := Equiv.apply_symm_apply e i'
-      have h_type : H (e.symm (e (e.symm i'))) = H (e.symm i') :=
-        congrArg (fun x => H (e.symm x)) h_eq
-
-      -- Now prove the transported value equals f i'
       have aux : ∀ (j : ι') (h : e (e.symm i') = j),
-        (congrArg (fun x => H (e.symm x)) h ▸ f (e (e.symm i'))) = f j := by
+        (ψ (e.symm j)).symm (h ▸ (ψ (e.symm j)) (h ▸ f (e (e.symm i')))) = f j := by
         intro j h
         subst h
-        rfl
-
-      convert aux i' h_eq
-      simp only [ContinuousMulEquiv.apply_symm_apply]
+        simp only [ContinuousMulEquiv.symm_apply_apply]
+      exact aux i' h_eq
 
     map_mul' := by
       intro f g
