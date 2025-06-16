@@ -1,8 +1,9 @@
 import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
-import Mathlib.RingTheory.Regular.RegularSequence
-import Mathlib.RingTheory.TensorProduct.Free
-import Mathlib.RingTheory.Support
 import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
+import Mathlib.RingTheory.Regular.RegularSequence
+import Mathlib.RingTheory.Spectrum.Prime.Topology
+import Mathlib.RingTheory.Support
+import Mathlib.RingTheory.TensorProduct.Free
 
 variable (R S M : Type*) [CommRing R] [CommRing S] [IsLocalRing R] [IsLocalRing S]
 variable [AddCommGroup M] [Module R M] [Module S M] [Algebra R S] [IsScalarTower R S M]
@@ -117,7 +118,7 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     cases m with
     | top =>
       have : (⊤ : ℕ∞) ≤ (n : ℕ) := by apply WithBot.coe_le_coe.mp; simpa only [h] using this
-      cases (ENat.coe_lt_top n).not_le this
+      cases (ENat.coe_lt_top n).not_ge this
     | coe m =>
     rw [h] at this
     replace this : m + 1 ≤ n := WithTop.coe_le_coe.mp (WithBot.coe_le_coe.mp this)
@@ -209,7 +210,7 @@ lemma Module.faithfulSMul_of_depth_eq_ringKrullDim [IsDomain R] [Nontrivial M] [
         exact top_ne_bot)
   rw [← Module.annihilator_eq_bot]
   by_contra H''
-  apply (le_refl ((.some (Module.depth R M)) : WithBot ℕ∞)).not_lt
+  apply (le_refl ((.some (Module.depth R M)) : WithBot ℕ∞)).not_gt
   calc
     _ ≤ ringKrullDim (R ⧸ annihilator R M) := Module.depth_le_dim_annihilator _ _
     _ < ringKrullDim R := by
@@ -224,7 +225,7 @@ lemma Module.faithfulSMul_of_depth_eq_ringKrullDim [IsDomain R] [Nontrivial M] [
           simp
         · intros I J
           show I < J → I.asIdeal.comap _ < J.asIdeal.comap _
-          simp [lt_iff_le_not_le, ← Ideal.map_le_iff_le_comap,
+          simp [lt_iff_le_not_ge, ← Ideal.map_le_iff_le_comap,
             Ideal.map_comap_of_surjective _ Ideal.Quotient.mk_surjective]
         · refine (bot_lt_iff_ne_bot.mpr H'').trans_le ?_
           conv_lhs => rw [← Ideal.mk_ker (I := annihilator R M), RingHom.ker]

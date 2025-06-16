@@ -67,9 +67,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
     is_slowly_increasing x := ⟨‖c‖, 0, by simp⟩
     is_finite_cod := by
       intros x
-      rw [FiniteDimensional]
-      rw [annihilator]
-      simp only [id_eq, eq_mpr_eq_cast, cast_eq]
+      rw [FiniteDimensional, annihilator]
       exact {
         fg_top := by sorry
       }
@@ -130,3 +128,7 @@ noncomputable def classification (ρ : Weight 0) : AutomorphicFormForGLnOverQ 0 
 
 -- Can this be beefed up to an isomorphism of complex
 -- vector spaces?
+
+end GLn
+
+end AutomorphicForm

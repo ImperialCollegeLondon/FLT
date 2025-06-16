@@ -77,13 +77,13 @@ lemma index_span_p_pow (hx: x ≠ 0):
 lemma smul_submodule_one_index :
     (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := by
   by_cases hx: x = 0
-  . simp [hx]
-  . have x_factor := PadicInt.unitCoeff_spec hx
+  · simp [hx]
+  · have x_factor := PadicInt.unitCoeff_spec hx
     nth_rw 1 [x_factor]
     rw [Submodule.smul_one_eq_span, Ideal.span_singleton_mul_left_unit (Units.isUnit _)]
     exact index_span_p_pow hx
 
-/-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
+/-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
 lemma smul_submodule_one_relindex:
     (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex
       (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
@@ -113,7 +113,7 @@ lemma smul_submodule_one_relindex:
   rw [map_top, map_H_Q] at relindex_preserved
   rwa [relindex_preserved] at relindex_in_z_p
 
-/-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
+/-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
 lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0):
     (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex
     (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
