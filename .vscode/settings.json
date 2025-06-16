@@ -137,5 +137,6 @@
       "env": {}
     }
   ],
-  "latex-workshop.latex.outDir": "%WORKSPACE_FOLDER%/blueprint/print"
+  "latex-workshop.latex.outDir": "%WORKSPACE_FOLDER%/blueprint/print",
+  "lean4.goalsAccomplishedDecorationKind": "Double Checkmark"
 }

@@ -1033,9 +1033,28 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
       exact generalized_proof i (Equiv.symm_apply_apply e i)
     right_inv := by
       intro f; ext i'
-      -- With the fix, this proof also needs to account for the transport.
-      -- The transport happens over `rfl`, which simplifies away.
-      simp only [Equiv.apply_symm_apply, ContinuousMulEquiv.apply_symm_apply]
+      -- Goal: ⋯ ▸ f (e (e.symm i')) = f i'
+
+      -- f (e (e.symm i')) has type H (e.symm (e (e.symm i')))
+      -- We need to transport it to type H (e.symm i')
+
+      -- The equality we need is: H (e.symm (e (e.symm i'))) = H (e.symm i')
+      -- This comes from applying congrArg to e (e.symm i') = i'
+
+      have h_eq : e (e.symm i') = i' := Equiv.apply_symm_apply e i'
+      have h_type : H (e.symm (e (e.symm i'))) = H (e.symm i') :=
+        congrArg (fun x => H (e.symm x)) h_eq
+
+      -- Now prove the transported value equals f i'
+      have aux : ∀ (j : ι') (h : e (e.symm i') = j),
+        (congrArg (fun x => H (e.symm x)) h ▸ f (e (e.symm i'))) = f j := by
+        intro j h
+        subst h
+        rfl
+
+      convert aux i' h_eq
+      simp only [ContinuousMulEquiv.apply_symm_apply]
+
     map_mul' := by
       intro f g
       ext i'
@@ -1052,21 +1071,15 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
     apply continuous_pi
     intro i
 
-    -- We need continuity of: (f : (i' : ι') → H (e.symm i')) ↦ (ψ i).symm (h_eq ▸ f (e i))
-    -- where h_eq : H (e.symm (e i)) = H i
+    -- The function is: f ↦ (ψ i).symm ((Equiv.symm_apply_apply e i) ▸ f (e i))
+    -- This is (ψ i).symm composed with (f ↦ transport(f(e i)))
 
-    have h_eq : H (e.symm (e i)) = H i := congrArg H (Equiv.symm_apply_apply e i)
+    refine (ψ i).symm.continuous.comp ?_
 
-    -- The function is the composition of:
-    -- 1. Evaluation at (e i) : ((i' : ι') → H (e.symm i')) → H (e.symm (e i))
-    -- 2. Cast along h_eq : H (e.symm (e i)) → H i
-    -- 3. Apply (ψ i).symm : H i → H i
+    -- Now we need: Continuous (fun f => (Equiv.symm_apply_apply e i) ▸ f (e i))
+    -- This should follow from continuity of evaluation and the fact that transport is continuous
 
-    apply Continuous.comp
-    · exact (ψ i).symm.continuous
-    · apply Continuous.comp
-      · exact continuous_cast h_eq
-      · exact continuous_apply (e i)
+    exact continuous_cast (e i)
 
 /-! ## HaarProductMeasure Theorem -/
 
