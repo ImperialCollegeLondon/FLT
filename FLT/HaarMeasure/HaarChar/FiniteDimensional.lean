@@ -1,7 +1,7 @@
 import FLT.HaarMeasure.HaarChar.Ring
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.LinearAlgebra.Determinant
+import Mathlib.Topology.Algebra.Module.ModuleTopology
 
 namespace MeasureTheory
 
@@ -77,6 +77,9 @@ section issimplering
 variable {D : Type*} [Ring D] [TopologicalSpace D]
     [Algebra F D] [FiniteDimensional F D] [IsSimpleRing D]
     [IsModuleTopology F D]
+    [Algebra.IsCentral F D] -- could be removed if necessary by proving
+    -- `IsSimpleRing.mulLeft_det_eq_mulRight_det` with tensoring over the center of `D`
+    -- instead of `k`.
     [IsTopologicalRing D] -- can be deduced from previous assumptions but only using F
     [LocallyCompactSpace D] -- can also be proved but only using F
     [MeasurableSpace D] [BorelSpace D]
@@ -90,3 +93,5 @@ lemma _root_.IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (u : Dˣ)
   exact addEquivAddHaarChar_eq_ringHaarChar_det (ContinuousLinearEquiv.mulRight F u)
 
 end issimplering
+
+end MeasureTheory

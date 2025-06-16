@@ -7,9 +7,9 @@ variable (K : Type) [Field K]
 variable (L : Type) [Field L] [Algebra K L] [CharZero L] [IsAlgClosed L]
   -- not even sure if i need it to be the alg closure at this point
 
-lemma IsAlgClosed.card_rootsOfUnity (N : ℕ+) : Fintype.card (rootsOfUnity N L) = N := by
+lemma IsAlgClosed.card_rootsOfUnity (N : ℕ) [NeZero N] : Fintype.card (rootsOfUnity N L) = N := by
   obtain ⟨z, hz⟩ : ∃ z : L, IsPrimitiveRoot z N :=
-    IsCyclotomicExtension.exists_isPrimitiveRoot L _ (show _ ∈ ⊤ by simp)
+    IsCyclotomicExtension.exists_isPrimitiveRoot L _ (show _ ∈ ⊤ by simp) (NeZero.ne N)
   exact IsPrimitiveRoot.card_rootsOfUnity hz
 
 @[norm_cast]
@@ -25,7 +25,7 @@ lemma PNat.castHom_val_modEq {D : ℕ} {N : ℕ+} (h : D ∣ N) (e : ZMod N) :
   rw [ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.val_natCast]
   exact Nat.mod_modEq e.val D
 
-/-- The cyclotomic character-/
+/-- The cyclotomic character -/
 noncomputable def CyclotomicCharacter_aux : (L ≃+* L) →* ZHat where
   toFun g := ⟨fun N ↦ modularCyclotomicCharacter L (IsAlgClosed.card_rootsOfUnity L N) g, by
     intros D M h

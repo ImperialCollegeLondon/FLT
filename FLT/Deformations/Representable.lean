@@ -97,3 +97,5 @@ def narrowSLiftUniversalRingCorepresentableBy :
   (isCorepresentable_narrowSLiftFunctor 𝓞 hK l hl S hS ρ hρ).has_corepresentation.choose_spec.some
 
 end
+
+end Deformation

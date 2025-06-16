@@ -6,7 +6,6 @@ Authors: Madison Crim
 import Mathlib.LinearAlgebra.DirectSum.Finsupp
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 import Mathlib.Algebra.Module.FinitePresentation
-import Mathlib.LinearAlgebra.Quotient.Pi
 import Mathlib.Algebra.FiveLemma
 import Mathlib.LinearAlgebra.TensorProduct.Pi
 import Mathlib.Algebra.Module.PUnit
@@ -277,3 +276,5 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
 
 lemma tensorPi_equiv_piTensor'_apply (m : M) (n : ∀ i, N i) :
     tensorPi_equiv_piTensor' R M N (m ⊗ₜ n) = fun i ↦ (m ⊗ₜ n i) := rfl
+
+end
