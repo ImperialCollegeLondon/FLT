@@ -187,43 +187,48 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 
 end Aux
 
--- the ᵐᵒᵖ is required to use Units.embedProduct
+/-- The inclusion of `ringHaarChar_ker D_𝔸` into the product space `D_𝔸 × D_𝔸ᵐᵒᵖ`. -/
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
   fun u => Units.embedProduct D_𝔸 (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
 
-/- incorporated into definition of M -- but left for clarity until reviewed
--- this is required to have M be the preimage of C under incl₂
-def map1 : Prod D_𝔸 D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
-  fun p => (p.1, MulOpposite.op p.2)
--/
-
+/-- An auxillary set used in the proof of compact_quotient'. -/
 def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D)
   (Set.image (fun p => (p.1, MulOpposite.op p.2)) (Aux.C K D))
 
-abbrev MtoQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.rightRel
+/-- The map of `ringHaarChar_ker D_𝔸` to the wanted right quotient. -/
+abbrev toQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
   (Quotient.mk (QuotientGroup.rightRel ((MonoidHom.range (incl K D)).comap
   (ringHaarChar_ker D_𝔸).subtype)) a)
 
-lemma MtoQuot_cont : Continuous (MtoQuot K D) := { isOpen_preimage := fun s a ↦ a }
+omit [FiniteDimensional K D] in
+lemma toQuot_cont : Continuous (toQuot K D) := { isOpen_preimage := fun s a ↦ a }
 
 /- The following is part of the proof of 12.11 on the blueprint - perhaps this can be moved there
   in more generality later
 -/
 
+/-- Auxillary map used in `embedProduct_preimageOf`. -/
 def p : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
   fun p => p.1 * MulOpposite.unop p.2
 
+/-- Auxillary map used in `embedProduct_preimageOf`. -/
 def q : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
   fun p => MulOpposite.unop p.2 * p.1
 
+omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 lemma p_cont : Continuous (p K D) := Continuous.mul (continuous_fst)
   (Continuous.comp (MulOpposite.continuous_unop) continuous_snd)
 
+omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 lemma q_cont : Continuous (q K D) := Continuous.mul (Continuous.comp (MulOpposite.continuous_unop)
   continuous_snd) (continuous_fst)
 
-lemma renameME : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K))) =
+omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+lemma embedProduct_preimageOf : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K))) =
     Set.preimage (p K D) {1} ∩ Set.preimage (q K D) {1} := by
   ext x
   simp only [Set.mem_range, Units.embedProduct_apply, Set.mem_inter_iff, Set.mem_preimage,
@@ -244,13 +249,14 @@ lemma renameME : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) 
       exact Units.inv_eq_of_mul_eq_one_right hp
     simp only [this]
 
-local instance : T1Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
-  -- or T2
+local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
   sorry
 
+omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 lemma embedProduct_closed : IsClosed (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K)))
     := by
-  rw [renameME]
+  rw [embedProduct_preimageOf]
   exact IsClosed.inter (IsClosed.preimage (p_cont K D) (isClosed_singleton))
     (IsClosed.preimage (q_cont K D) (isClosed_singleton))
 
@@ -273,12 +279,12 @@ lemma M_compact : IsCompact (M K D) := by
     · rw [continuous_induced_rng]
       exact { isOpen_preimage := fun s a ↦ a }
 
-lemma MtoQuot_surjective :
-    (MtoQuot K D) '' (M K D) = Set.univ := by
+lemma toQuot_surjective :
+    (toQuot K D) '' (M K D) = Set.univ := by
   rw [Set.eq_univ_iff_forall]
   rintro ⟨a, ha⟩
   obtain ⟨c, hc, ν, hν, rfl, h31⟩ := Aux.antidiag_mem_C K D ha
-  simp only [MtoQuot, Subgroup.comap_subtype, Set.mem_image, Subtype.exists]
+  simp only [toQuot, Subgroup.comap_subtype, Set.mem_image, Subtype.exists]
   refine ⟨ν, hν, ?_, ?_ ⟩
   · simp only [M, Set.mem_preimage, Set.mem_image, Prod.exists]
     exact ⟨ν, Units.val (ν⁻¹), h31, rfl⟩
@@ -299,8 +305,8 @@ lemma MtoQuot_surjective :
 
 lemma compact_quotient' : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
-  isCompact_univ_iff.mp (by simpa only [MtoQuot_surjective, Set.image_univ] using
-    (((IsCompact.image (M_compact K D) (MtoQuot_cont K D)))))
+  isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
+    (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
 
 end NumberField.AdeleRing.DivisionAlgebra
 
