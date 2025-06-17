@@ -300,7 +300,7 @@ noncomputable def tensor_restrictedProduct_iso :
 
 end
 
-/-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields.-/
+/-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields. -/
 noncomputable def FiniteAdeleRing.mapRingHom :
     FiniteAdeleRing A K →+* FiniteAdeleRing B L := RestrictedProduct.mapRingHom
   (fun (v : HeightOneSpectrum A) ↦ v.adicCompletion K)

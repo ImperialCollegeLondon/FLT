@@ -211,3 +211,7 @@ theorem Rigidification.continuous_invFun (r : Rigidification F D) :
   haveI : ContinuousAdd (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
     IsModuleTopology.toContinuousAdd (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))
   exact IsModuleTopology.continuous_of_linearMap r.symm.toLinearMap
+
+end HeightOneSpectrum
+
+end IsDedekindDomain
