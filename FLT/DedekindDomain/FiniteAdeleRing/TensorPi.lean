@@ -187,8 +187,8 @@ universe u
 
 open TensorProduct
 
-variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
-  [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
+variable (R M : Type u) [CommRing R] [AddCommGroup M] [Module R M]
+  [h : Module.FinitePresentation R M] {ι : Type u} (N : ι → Type u) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)]
 
 /-- Tensoring with a finitely-presented module commutes with arbitrary products.
