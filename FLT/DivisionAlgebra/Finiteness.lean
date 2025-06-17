@@ -201,8 +201,7 @@ abbrev toQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.ri
   (Quotient.mk (QuotientGroup.rightRel ((MonoidHom.range (incl K D)).comap
   (ringHaarChar_ker D_𝔸).subtype)) a)
 
-omit [FiniteDimensional K D] in
-lemma toQuot_cont : Continuous (toQuot K D) := { isOpen_preimage := fun s a ↦ a }
+lemma toQuot_cont : Continuous (toQuot K D) := by exact { isOpen_preimage := fun s a ↦ a }
 
 /- The following is part of the proof of 12.11 on the blueprint - perhaps this can be moved there
   in more generality later
@@ -216,18 +215,12 @@ def p : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
 def q : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
   fun p => MulOpposite.unop p.2 * p.1
 
-omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 lemma p_cont : Continuous (p K D) := Continuous.mul (continuous_fst)
   (Continuous.comp (MulOpposite.continuous_unop) continuous_snd)
 
-omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 lemma q_cont : Continuous (q K D) := Continuous.mul (Continuous.comp (MulOpposite.continuous_unop)
   continuous_snd) (continuous_fst)
 
-omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 lemma embedProduct_preimageOf : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K))) =
     Set.preimage (p K D) {1} ∩ Set.preimage (q K D) {1} := by
   ext x
@@ -252,8 +245,6 @@ lemma embedProduct_preimageOf : (Set.range ⇑(Units.embedProduct (D ⊗[K] Adel
 local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
   sorry
 
-omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 lemma embedProduct_closed : IsClosed (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K)))
     := by
   rw [embedProduct_preimageOf]
@@ -279,8 +270,7 @@ lemma M_compact : IsCompact (M K D) := by
     · rw [continuous_induced_rng]
       exact { isOpen_preimage := fun s a ↦ a }
 
-lemma toQuot_surjective :
-    (toQuot K D) '' (M K D) = Set.univ := by
+lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
   rw [Set.eq_univ_iff_forall]
   rintro ⟨a, ha⟩
   obtain ⟨c, hc, ν, hν, rfl, h31⟩ := Aux.antidiag_mem_C K D ha
