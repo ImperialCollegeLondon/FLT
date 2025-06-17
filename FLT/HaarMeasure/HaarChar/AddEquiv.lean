@@ -673,25 +673,25 @@ lemma equiv_symm_apply_transport_set {ι : Type u} {α : ι → Type v}
 
 -- Assume the context is similar to the original problem
 universe uu vv
-variable {ι ι' : Type uu} {H : ι → Type vv}
+variable {ιι ιι' : Type uu} {HH : ι → Type vv}
 
 /-
 -- Assuming ContinuousMulEquiv is defined elsewhere, we use a simplified version for this example
  -/
-abbrev ContinuousMulEquiv (G H : Type*)
-[TopologicalSpace G] [Group G] [TopologicalSpace H] [Group H] := G ≃* H
+abbrev ContinuousMulEquiv (GG HH : Type*)
+[TopologicalSpace GG] [Group GG] [TopologicalSpace HH] [Group HH] := GG ≃* HH
 
 -- Corrected helper lemma
-private lemma transport_in_equiv_apply_combo {ι ι' : Type*} {H : ι → Type*}
+private lemma transport_in_equiv_apply_combo {ιι ιι' : Type*} {HH : ιι → Type*}
     -- Assumptions from the main definition
-    [(i : ι) → TopologicalSpace (H i)] [(i : ι) → Group (H i)]
+    [(i : ιι) → TopologicalSpace (HH i)] [(i : ιι) → Group (HH i)]
     -- The equivalence between the two index types
-    (e : ι ≃ ι')
+    (e : ιι ≃ ιι')
     -- The rest of the arguments
-    (ψ : (i : ι) → ContinuousMulEquiv (H i) (H i))
-    (f : (i : ι) → H i)
-    (i : ι)
-    (j : ι)
+    (ψ : (i : ιι) → ContinuousMulEquiv (HH i) (HH i))
+    (f : (i : ιι) → HH i)
+    (i : ιι)
+    (j : ιι)
     (h_eq : e.symm (e i) = j) :
     (ψ j).symm (h_eq ▸ (ψ (e.symm (e i)) (f (e.symm (e i))))) = f j := by
   -- The proof remains the same: induction on the equality is the key.
