@@ -248,14 +248,15 @@ variable [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
 
 -- end of copying of instances
 
-def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃*
+def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃* -- I need this map to be multiplicative later
     Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
   simp_rw [NumberField.AdeleRing, Dfx]
   have start := TensorProduct.prodRight K D D (NumberField.InfiniteAdeleRing K)
     (FiniteAdeleRing (𝓞 K) K)
   have interim := Units.mapEquiv (M := D ⊗[K] (NumberField.InfiniteAdeleRing K × FiniteAdeleRing
-    (𝓞 K) K)) (N := D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K) start
-    -- I am unsure if I am using the right equivalences throughout...
+    (𝓞 K) K)) (N := D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+    start.toMulEquiv
+    -- need to get a mul equiv
   have final := MulEquiv.prodUnits (M := D ⊗[K] NumberField.InfiniteAdeleRing K)
     (N := D ⊗[K] FiniteAdeleRing (𝓞 K) K)
   exact interim.trans final
