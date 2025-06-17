@@ -273,41 +273,52 @@ local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ :
 local instance : TopologicalSpace (Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D)) := by
   exact instTopologicalSpaceProd
 
+lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker (D ⊗[K] NumberField.AdeleRing (𝓞 K) K))),
+    (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker
+    (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)).subtype
+    (NumberField.AdeleRing.DivisionAlgebra.incl K D).range)) a b →
+    (Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a) =
+     Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D b)) := by
+  intros a b hab
+  refine Quotient.eq''.mpr ?_
+  unfold rest₁
+  obtain ⟨h, rfl⟩ := hab
+  simp_rw [QuotientGroup.rightRel, MulAction.orbitRel, MulAction.orbit, Set.mem_range,
+    Subtype.exists, Subgroup.mk_smul, smul_eq_mul, MonoidHom.mem_range, exists_prop,
+    exists_exists_eq_and]
+  obtain ⟨t, t', ht⟩ := h
+  use t'
+  have : incl₁ K D t' = ((iso₁ K D) (NumberField.AdeleRing.DivisionAlgebra.incl K D t')).2 := by
+
+    -- this is certainly true by definition
+    sorry
+  simp_rw [this, ht, ← Prod.snd_mul, Subgroup.subtype_apply, Subgroup.comap_subtype, ← map_mul]
+  rfl
+
 def α : Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (NumberField.AdeleRing.DivisionAlgebra.incl K D)).comap
     (ringHaarChar_ker D_𝔸).subtype)) →
     Quotient (QuotientGroup.rightRel (incl₁ K D).range) :=
   Quot.lift
     (fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a))
-    (by
-      intros a b hab
-      simp only [Quotient.eq]
-      obtain ⟨h, h2⟩ := hab
-      refine Quotient.eq''.mp ?_
-      refine Quotient.sound ?_
-      simp_rw [← h2]
-
-      -- maybe on the right path?
-      sorry)
-
-
--- may need to rewrite this map -- I can show the maps D(1) to Dfx is continuous
--- and then get a map built from this... which will also be continuous... equivariant
--- or continuous section from quotient to D(1)
+    (α_equivariant K D)
 
 local instance : TopologicalSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) :=
   instTopologicalSpaceQuotient
 
 lemma rest₁_continuous : Continuous (rest₁ K D) := by
   unfold rest₁
-  refine Continuous.comp' ?_ ?_
-  · exact continuous_snd
-  · refine Continuous.comp' ?_ ?_
-    · -- either need to adjust iso₁ to be continuous, infer instances of topologies,
-      -- or do it by hand
-      -- this should certainly be true by definition though
-      sorry
-    · exact continuous_subtype_val
+  refine Continuous.comp' continuous_snd ?_
+  refine Continuous.comp' ?_ continuous_subtype_val
+  -- this should probably be immediate from definition :/
+  sorry
+
+-- we should be able to infer instances of Borel etc of LHS from iso.. at least that is what I hope
+
+lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) (b : Dfx K D) :
+    ringHaarChar (a, b) = ringHaarChar ((iso₁ K D).symm (a, b)) := by
+  -- again hopefully should follow from however I set up iso₁ up
+  sorry
 
 lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
@@ -317,18 +328,13 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   obtain ⟨r, hx⟩ : ∃ r, ringHaarChar ((iso₁ K D).symm (1,x)) = r := exists_eq'
   have hr : r ≠ 0 := by
     rw [←hx]
-
+    -- not sure why this is true right now
     sorry
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
-    obtain ⟨d, hd⟩ : ∃ d, Module.rank K D = d := by
-      apply exists_eq'
-    have : Cardinal.toNat d ≠ 0 := by
-      refine Cardinal.toNat_ne_zero.mpr ?_
-      -- there may be a better way to get the dimension of the module out...
-
-      sorry
-    let d' := NNReal.rpow r (1 / ( Cardinal.toNat d))
-
+    -- will want to rewrite this as ringHaarChar y
+    -- Dfx K D = (D ⨂ℚ ℝ)ˣ .. specifically ℝ ⊆ Dfx K D
+    -- for z ∈ ℝ, ringHaarChar z = |z|^d where d = dim of D over ℚ
+    -- so set y = z^{1/d}
     sorry
   use (iso₁ K D).symm (y⁻¹, x)
   constructor
@@ -343,21 +349,21 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
     simp_rw [this, map_mul]
     have : ringHaarChar ((iso₁ K D).symm (y⁻¹, 1)) = r⁻¹ := by
       rw [← hy]
-      -- may need to rewrite ringHaarChar as in blueprint
+      -- this requires our lemma above and using product properties
       sorry
     rw [this, hx]
     exact inv_mul_cancel₀ hr
 
 lemma α_continuous : Continuous (α K D) := by
   rw [α]
-  refine Continuous.quotient_lift ?_ (α._proof_26 K D)
+  refine Continuous.quotient_lift ?_ (α_equivariant K D)
   refine Continuous.comp' ?_ ?_
   · exact { isOpen_preimage := fun s a ↦ a }
   · exact rest₁_continuous K D
 
 lemma α_surjective  : Function.Surjective (α K D) := by
   refine (Quot.surjective_lift (f := fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range)
-    (rest₁ K D a)) (α._proof_26 K D)).mpr ?_
+    (rest₁ K D a)) (α_equivariant K D)).mpr ?_
   refine Set.range_eq_univ.mp ?_
   ext x
   simp only [Set.mem_range, Subtype.exists, Set.mem_univ, iff_true]
