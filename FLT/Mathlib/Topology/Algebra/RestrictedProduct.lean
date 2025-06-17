@@ -520,4 +520,5 @@ lemma mem_coset_and_mulSupport_subset_of_isProductAt
     mulSupport_mul_subset huᵢ hg⟩
 
 end RestrictedProduct
+
 end supports
