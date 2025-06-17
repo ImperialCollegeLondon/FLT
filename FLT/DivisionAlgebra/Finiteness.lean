@@ -321,6 +321,16 @@ lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)�
   -- again hopefully should follow from however I set up iso₁ up
   sorry
 
+def InfAdele_equiv : NumberField.InfiniteAdeleRing K ≃ K ⊗[ℚ] ℝ := by
+
+  sorry
+
+variable [Module ℚ D]
+
+def Name : D ⊗[K] (NumberField.InfiniteAdeleRing K) ≃ D ⊗[K] (K ⊗[ℚ] ℝ) := by
+
+  sorry
+
 lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
   refine Eq.symm (Set.ext ?_)
