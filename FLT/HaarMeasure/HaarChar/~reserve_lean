@@ -157,3 +157,35 @@ example {G : Type*} [Group G] [TopologicalSpace G] [LocallyCompactSpace G]
   simp only with HaarCharSimp.haar_compact, HaarCharSimp.haar_core
 
 -/
+
+/- map_haar_pi -/
+calc Measure.map T μ_haar_pi
+  _ = Measure.map T (Measure.map me.symm (μ_haar_i₀.prod μ_haar_pi')) := by rw [← measure_eq]
+  _ = Measure.map (T ∘ me.symm) (μ_haar_i₀.prod μ_haar_pi') := by
+    rw [← Measure.map_map me.symm.measurable T.continuous.measurable]
+  _ = Measure.map (me.symm ∘ C) (μ_haar_i₀.prod μ_haar_pi') := by
+    congr 1
+    ext ⟨x, g⟩
+    simp only [Function.comp_apply]
+    have : T (me.symm ⟨x, g⟩) = me.symm (C ⟨x, g⟩) := by
+      rw [transform_conj]
+      simp [ContinuousMulEquiv.trans_apply]
+    exact this
+  _ = Measure.map me.symm (Measure.map C (μ_haar_i₀.prod μ_haar_pi')) := by
+    rw [Measure.map_map C.continuous.measurable me.symm.measurable]
+  _ = Measure.map me.symm ((Measure.map T_i₀ μ_haar_i₀).prod (Measure.map T_pi' μ_haar_pi')) := by
+    rw [Measure.map_prod_map T_i₀.continuous.measurable T_pi'.continuous.measurable]
+  _ = Measure.map me.symm ((mulEquivHaarChar T_i₀ • μ_haar_i₀).prod ((∏ i', mulEquivHaarChar (ψ' i')) • μ_haar_pi')) := by
+    congr 1
+    constructor
+    · exact mulEquivHaarChar_map μ_haar_i₀ T_i₀
+    · exact ih_ι'
+  _ = Measure.map me.symm ((mulEquivHaarChar T_i₀ * ∏ i', mulEquivHaarChar (ψ' i')) • (μ_haar_i₀.prod μ_haar_pi')) := by
+    rw [Measure.prod_smul]
+  _ = (mulEquivHaarChar T_i₀ * ∏ i', mulEquivHaarChar (ψ' i')) • Measure.map me.symm (μ_haar_i₀.prod μ_haar_pi') := by
+    rw [Measure.map_smul]
+  _ = (mulEquivHaarChar (ψ i₀) * ∏ i', mulEquivHaarChar (ψ (i' : ι))) • μ_haar_pi := by
+    simp only [T_i₀, ψ']
+    rw [measure_eq]
+  _ = (∏ i : ι, mulEquivHaarChar (ψ i)) • μ_haar_pi := by
+    rw [← h_prod_decomp]

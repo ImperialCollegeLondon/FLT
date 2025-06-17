@@ -725,42 +725,103 @@ lemma measurable_piCongrLeft'_symm {ι κ : Type*} [Fintype ι] [Fintype κ]
 
   sorry
 
+-- General lemma for handling type transports with equivalences
+lemma equiv_transport_set {ι : Type u} {α : ι → Type v}
+  (e : ι ≃ ι) (S : ∀ i : ι, Set (α i)) (i : ι) :
+  ∀ (i' : ι) (h_eq : e.symm (e i) = i'),
+    (h_eq ▸ S (e.symm (e i)) : Set (α i')) = S i' := by
+  intro i' h_eq
+  -- Induction on the equality to reduce to the reflexive case
+  induction h_eq
+  -- Now the goal is simplified: the transport disappears
+  rfl
+
+-- Version for the specific case we need
+lemma equiv_symm_apply_transport_set {ι : Type u} {α : ι → Type v}
+  (e : ι ≃ ι) (S : ∀ i : ι, Set (α i)) (i : ι) :
+  (Equiv.symm_apply_apply e i ▸ S (e.symm (e i)) : Set (α i)) = S i :=
+  equiv_transport_set e S i i (Equiv.symm_apply_apply e i)
+
+-- Assume the context is similar to the original problem
+universe uu vv
+variable {ι ι' : Type uu} {H : ι → Type vv}
+
+/-
+-- Assuming ContinuousMulEquiv is defined elsewhere, we use a simplified version for this example
+ -/
+abbrev ContinuousMulEquiv (G H : Type*)
+[TopologicalSpace G] [Group G] [TopologicalSpace H] [Group H] := G ≃* H
+
+-- Corrected helper lemma
+private lemma transport_in_equiv_apply_combo {ι ι' : Type*} {H : ι → Type*}
+    -- Assumptions from the main definition
+    [(i : ι) → TopologicalSpace (H i)] [(i : ι) → Group (H i)]
+    -- The equivalence between the two index types
+    (e : ι ≃ ι')
+    -- The rest of the arguments
+    (ψ : (i : ι) → ContinuousMulEquiv (H i) (H i))
+    (f : (i : ι) → H i)
+    (i : ι)
+    (j : ι)
+    (h_eq : e.symm (e i) = j) :
+    (ψ j).symm (h_eq ▸ (ψ (e.symm (e i)) (f (e.symm (e i))))) = f j := by
+  -- The proof remains the same: induction on the equality is the key.
+  induction h_eq
+  -- After induction, the goal simplifies to `(ψ i).symm (ψ i (f i)) = f i`.
+  -- `simp` can solve this automatically using `MulEquiv.symm_apply_apply`.
+  simp
+
 -- Lemma 1: Decomposition of pi measure under equivalence
 @[simp]
-lemma pi_equiv {ι κ : Type u} [Fintype ι] [Fintype κ]
+lemma pi_equiv {ι : Type u} [Fintype ι]
   {α : ι → Type v} [∀ i, MeasurableSpace (α i)]
-  (e : ι ≃ κ) (μ : ∀ i : ι, Measure (α i)) :
+  (e : ι ≃ ι) (μ : ∀ i : ι, Measure (α i)) :
   Measure.map (Equiv.piCongrLeft' α e) (Measure.pi μ) =
-  Measure.pi (fun (k : κ) => μ (e.symm k)) := by
-  -- The equivalence piCongrLeft' is measurable
-  have h_meas : Measurable (Equiv.piCongrLeft' α e) := by
-    exact measurable_piCongrLeft' α e
+  Measure.pi (fun i => μ (e.symm i)) := by
+  -- Now piCongrLeft' : (∀ i : ι, α i) ≃ (∀ i : ι, α (e.symm i))
+  -- This avoids the separate type κ
 
-  -- We'll show equality by testing on measurable rectangles
-  -- Product measures are determined by their values on rectangles
-  ext s hs
+  have h_meas : Measurable (Equiv.piCongrLeft' α e) :=
+    measurable_piCongrLeft' e
 
-  -- Rewrite using the definition of map
-  rw [Measure.map_apply h_meas hs]
+  -- Key lemma: preimage of rectangles
+  have rectangle_preimage : ∀ (S : ∀ i : ι, Set (α (e.symm i))),
+    (Equiv.piCongrLeft' α e)⁻¹' (Set.pi Set.univ S) =
+    Set.pi Set.univ (fun i => S (e i)) := by
+    intro S
+    ext f
+    simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, true_implies]
+    simp [Equiv.piCongrLeft']
+    -- Now both sides have the same type naturally
 
-  -- Use the characterization of product measure on rectangles
-  -- For this we need to work with the generating sets
-  have : ∀ (t : ∀ k, Set (α (e.symm k))),
-    (∀ k, MeasurableSet (t k)) →
-    (Equiv.piCongrLeft' α e) ⁻¹' (Set.pi Set.univ t) =
-    Set.pi Set.univ (fun i => t (e i)) := by
-    intro t ht
-    ext x
-    simp [Equiv.piCongrLeft', Set.mem_pi, Set.mem_preimage]
+  -- Show equality on rectangles (which generate the σ-algebra)
+  suffices ∀ (S : ∀ i : ι, Set (α (e.symm i))), (∀ i, MeasurableSet (S i)) →
+    (Measure.map (Equiv.piCongrLeft' α e) (Measure.pi μ)) (Set.pi Set.univ S) =
+    (Measure.pi (fun i => μ (e.symm i))) (Set.pi Set.univ S) by
+    -- This suffices by π-λ theorem since rectangles generate the product σ-algebra
+    sorry
 
-  -- The measure of the preimage equals the product of component measures
-  -- This uses the fact that piCongrLeft' is measure-preserving
-  convert Measure.pi_pi μ _
+  intro S hS
 
-  -- Show the measures agree componentwise
-  ext k
-  simp only [Function.comp_apply]
-  rfl
+  -- Left side
+  rw [Measure.map_apply h_meas (MeasurableSet.pi (fun _ => Set.univ) (fun _ => hS _))]
+  rw [rectangle_preimage S]
+  rw [Measure.pi_pi μ _]
+
+  -- Right side
+  rw [Measure.pi_pi (fun i => μ (e.symm i)) _]
+
+  -- Show the products are equal
+  -- ∏ i : ι, μ i (S (e i)) = ∏ i : ι, μ (e.symm i) (S i)
+  rw [← Finset.prod_bij (fun i _ => e i) _ _ _ _]
+  · simp only [Finset.mem_univ, forall_true_left]
+  · simp only [Finset.mem_univ, true_implies]
+    exact Equiv.injective e
+  · simp only [Finset.mem_univ, exists_prop, true_and]
+    exact Equiv.surjective e
+  · simp only [Finset.mem_univ, true_implies]
+    intro i
+    simp
 
 -- Lemma 2: Product decomposition for Option
 @[simp]
@@ -1071,28 +1132,7 @@ private def reindexCongrRight {ι ι' : Type*} (e : ι ≃ ι')
       -- lemma inside this proof, where the dependency is made explicit.
 
       -- We state a generalized version of our goal as a helper lemma.
-      have generalized_proof : ∀ (i' : ι) (h_eq : e.symm (e i) = i'),
-          (ψ i').symm (h_eq ▸ (ψ (e.symm (e i)) (f (e.symm (e i))))) = f i' := by
-
-        -- Now we prove this generalized lemma.
-        -- We can introduce the generalized variables `i'` and `h_eq`.
-        intro i_generalized h_eq_generalized
-
-        -- Inside THIS proof, induction on the equality `h_eq_generalized` is safe.
-        -- The motive is now easy for Lean to generate because the goal's dependency
-        -- on `i_generalized` is clear.
-        induction h_eq_generalized
-
-        -- After induction, the goal is the simplified "reflexive" case.
-        -- The transport `▸` becomes trivial and disappears.
-        dsimp
-
-        -- The goal is now a straightforward `symm_apply_apply` identity.
-        exact ContinuousMulEquiv.symm_apply_apply _ _
-
-      -- Finally, we apply our proven helper lemma to the original goal.
-      -- The original goal is the specific case where `i'` is `i`.
-      exact generalized_proof i (Equiv.symm_apply_apply e i)
+      exact transport_in_equiv_apply_combo e ψ f i i (Equiv.symm_apply_apply e i)
     right_inv := by
       sorry
 
