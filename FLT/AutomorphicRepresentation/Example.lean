@@ -488,11 +488,9 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
   · intro x _
     exact Subgroup.mem_top x
   · intro y _
-    -- use lowestTerms for y = x/N
-    rcases lowestTerms y with ⟨⟨N, x, _, hy⟩, _⟩
-    -- show x is invertible
-    rcases lowestTerms (y⁻¹.val) with ⟨⟨N2, x2, _, hy2⟩, _⟩
-    -- we need to show that x is in QHatˣ
+    rcases canonicalForm y.val with ⟨N, x, hy⟩
+    rcases canonicalForm (y⁻¹.val) with ⟨N2, x2, hy2⟩
+    -- we need to show that x is invertible in QHat
     let xinv := (1 / (N * N2) : ℚ) ⊗ₜ[ℤ] x2
     have : (i₂ x) * xinv = 1 := by
       unfold xinv
@@ -503,32 +501,30 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     let xunit : QHatˣ := ⟨i₂ x, xinv, this, by rw [mul_comm]; exact this⟩
     -- show that it suffices to prove it for x
     suffices h : ∀ (u : QHatˣ), (u : QHat) ∈ zHatsub → u ∈ unitsratsub ⊔ unitszHatsub by
-      have : y = xunit * (i₁ (1 / N : ℚ)) := by
-        simp only [xunit, Algebra.TensorProduct.includeRight_apply, one_mul, mul_one, hy,
-          Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.tmul_mul_tmul]
-      rw [Subgroup.mem_sup] at *
       specialize h xunit
       simp only [Algebra.TensorProduct.includeRight_apply, AddMonoidHom.mem_range,
         AddMonoidHom.coe_coe, exists_apply_eq_apply, forall_const, Subgroup.mem_sup, xunit] at h
-      rcases h with ⟨w, wh, z, zh, wzx⟩
-      rw [MonoidHom.mem_range] at wh
-      rcases wh with ⟨v, hv⟩
-      let n : ℚˣ := ⟨(N : ℚ), (1 / N : ℚ), by field_simp, by field_simp⟩
-      use ((Units.map ↑i₁) (v / n))
-      simp only [map_div, MonoidHom.mem_range, exists_exists_eq_and]
+      rcases h with ⟨w, ⟨v, hv⟩, z, ⟨t, ht⟩, wzx⟩
+      rw [Subgroup.mem_sup]
+      let q : ℚˣ := ⟨(v / N : ℚ), (N / v : ℚ), by field_simp, by field_simp⟩
+      use ((Units.map ↑i₁) q)
+      simp only [MonoidHom.mem_range, exists_exists_eq_and]
       constructor
-      use (v / n)
-      rw [map_div]
-      rcases zh with ⟨t, ht⟩
+      use q
       use t
-      rw [hv, ht, div_eq_mul_inv, mul_comm w, mul_assoc, wzx, mul_comm,
-        ← Units.eq_iff, Units.val_mul, this]
+      rw [← Units.eq_iff, hy, ht]
+      simp only [Units.map_mk, MonoidHom.coe_coe, Algebra.TensorProduct.includeLeft_apply,
+        Units.val_mul, one_div, q, xunit]
+      rw [← mul_one (N⁻¹ : ℚ), ← one_mul x, ← Algebra.TensorProduct.tmul_mul_tmul, div_eq_mul_inv,
+        mul_comm (v : ℚ), ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_assoc, mul_one]
       congr
+      simp only [← hv, ← Units.eq_iff, Units.val_mul, Units.coe_map, MonoidHom.coe_coe,
+        Algebra.TensorProduct.includeLeft_apply, xunit, q] at wzx
+      exact wzx
     clear * -
     -- now the harder part which uses that ℤ is a PID
     intro x hx
-    rcases lowestTerms (x⁻¹.val) with ⟨⟨M, y, cop, hxinv⟩, unique⟩
-    clear cop unique
+    rcases canonicalForm (x⁻¹.val) with ⟨M, y, hxinv⟩
     have : x * (i₂ y) = M := by
       rw [← one_mul (M : QHat), ← Units.val_one, ← mul_inv_cancel x, Units.val_mul, mul_assoc]
       congr!
