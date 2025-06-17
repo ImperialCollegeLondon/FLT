@@ -1,4 +1,5 @@
 import Mathlib.Analysis.Normed.Ring.Lemmas
+import FLT.Init
 
 /-!
 # Fixed points of actions

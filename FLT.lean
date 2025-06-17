@@ -39,6 +39,7 @@ import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.MeasurableSpacePadics
 import FLT.Hacks.RightActionInstances
+import FLT.Init
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
@@ -126,4 +127,5 @@ import FLT.Patching.Utils.StructureFiniteness
 import FLT.Patching.Utils.TopologicallyFG
 import FLT.Patching.VanishingFilter
 import FLT.QuaternionAlgebra.NumberField
+import FLT.Tactic.SuppressSorry
 import FLT.TateCurve.TateCurve

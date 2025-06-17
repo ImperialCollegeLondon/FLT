@@ -1,4 +1,5 @@
 import Mathlib.Algebra.Algebra.Hom
+import FLT.Init
 
 section semialghom
 
