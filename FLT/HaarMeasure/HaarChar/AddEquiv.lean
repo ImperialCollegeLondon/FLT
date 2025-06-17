@@ -415,133 +415,63 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
   have ⟨Y, hY, hYopen, one_mem_Y⟩ := mem_nhds_iff.mp hK
   have ⟨K', hK', _, hK'comp⟩ := local_compact_nhds (x := (1 : G)) Filter.univ_mem
   have ⟨X, hX, hXopen, one_mem_X⟩ := mem_nhds_iff.mp hK'
-  have hψYopen : IsOpen (ψ '' Y) := ψ.isOpen_image.mpr hYopen
   have hXYopen : IsOpen (X ×ˢ Y) := hXopen.prod hYopen
-  have hφXmeas : MeasurableSet (φ '' X) := (φ.isOpen_image.mpr hXopen).measurableSet
-  have hφXopen : IsOpen (φ '' X) := φ.toHomeomorph.isOpen_image.mpr hXopen
-
-  -- Define the measure `ν`
-  let f (s : Set G) (hs : MeasurableSet s) := haar (s ×ˢ (ψ '' Y))
-  let m : OuterMeasure G := inducedOuterMeasure f (by simp) (by simp [f])
-  have h ⦃S : ℕ → Set G⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i))
-      (hS' : Pairwise (Function.onFun Disjoint S)) :
-      haar ((⋃ i, S i) ×ˢ (ψ '' Y)) = ∑' (i : ℕ), haar (S i ×ˢ (ψ '' Y)) := by
-    rw [Set.iUnion_prod_const]
-    exact haar.m_iUnion (prod_le_borel_prod _ <| hS ·|>.prod hψYopen.measurableSet)
-      (fun _ _ neq ↦ by simp [hS' neq])
-  let ν : Measure G := {
-    toOuterMeasure := m
-    m_iUnion S hS hS' := by
-      convert h hS hS'
-      · exact inducedOuterMeasure_eq _ h (MeasurableSet.iUnion hS)
-      · exact inducedOuterMeasure_eq _ h (hS _)
-    trim_le S := by
-      apply le_inducedOuterMeasure.mpr fun s hs ↦ by
-        rwa [← inducedOuterMeasure_eq (m := f) _ h hs, OuterMeasure.trim_eq]
-  }
+  have hψYopen : IsOpen (ψ '' Y) := ψ.isOpen_image.mpr hYopen
+  have hφXopen : IsOpen (φ '' X) := φ.isOpen_image.mpr hXopen
+  -- Define the Haar measure `ν` on `G`
+  let ν := (haar (G := G × H)).restrict (Set.univ ×ˢ (ψ '' Y)) |>.map Prod.fst
   have ν_apply {S : Set G} (hS : MeasurableSet S) : ν S = haar (S ×ˢ (ψ '' Y)) := by
-    change m S = _; rw [inducedOuterMeasure_eq _ h hS]
-  -- Prove `ν` is a Haar measure
-  have hν : IsHaarMeasure ν := {
-    lt_top_of_isCompact C hC := by
-      have ⦃S : ℕ → Set G⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i)) :
-          haar ((⋃ i, S i) ×ˢ (ψ '' Y)) ≤ ∑' (i : ℕ), haar (S i ×ˢ (ψ '' Y)) := by
-        rw [Set.iUnion_prod_const]
-        exact measure_iUnion_le _
-      change m C < _
-      rw [inducedOuterMeasure_eq_iInf _ this, iInf_lt_top]
-      · have ⟨C', hC', hCC'⟩ := exists_compact_superset hC
-        use interior C'
-        refine iInf_lt_iff.mpr ⟨isOpen_interior.measurableSet, iInf_lt_iff.mpr ⟨hCC', ?_⟩⟩
-        apply lt_of_le_of_lt (measure_mono <| Set.prod_mono interior_subset (Set.image_mono hY))
-        exact (hC'.prod <| ψ.isCompact_image.mpr hKcomp).measure_ne_top.symm.lt_top'
-      · exact fun s₁ s₂ _ _ sub ↦ measure_mono <| Set.prod_mono sub subset_rfl
-      · exact fun S hS ↦ MeasurableSet.iUnion hS
-    map_mul_left_eq_self g := by
-      ext S hS
-      rw [map_apply (measurable_const_mul g) hS]
-      have hS' : MeasurableSet ((fun x ↦ g * x) ⁻¹' S) := by
-        convert MeasurableSet.const_smul hS g⁻¹ using 1
-        refine subset_antisymm (fun x hx ↦ ?_) (fun x hx ↦ ?_)
-        · use g * x, Set.mem_preimage.mp hx, by simp
-        · have ⟨s, ⟨_, hs⟩⟩ := hx; simpa [← hs]
-      rw [ν_apply hS, ν_apply hS']
-      suffices ((g * ·) ⁻¹' S) ×ˢ (ψ '' Y) = (g⁻¹, (1 : H)) • (S ×ˢ (ψ '' Y)) from
-        this ▸ measure_smul haar _ _
-      refine subset_antisymm (fun ⟨x, y⟩ hxy ↦ ?_) (fun ⟨x, y⟩ hxy ↦ ?_)
-      · have ⟨⟨x', y'⟩, h₁, h₂⟩ := hxy
-        have ⟨_, _⟩ := Set.mem_prod.mp h₁
-        simp only [smul_eq_mul, Prod.mk_mul_mk, one_mul, Prod.mk.injEq] at h₂
-        constructor <;> simpa [← h₂.1, ← h₂.2]
-      · use ⟨g • x, y⟩, hxy, by simp
-    open_pos U hUopen hU := by
-      rw [ν_apply hUopen.measurableSet]
-      apply (isHaarMeasure_haarMeasure _).open_pos _ (hUopen.prod hψYopen)
-      exact Set.Nonempty.prod hU ⟨ψ 1, Set.mem_image_of_mem ψ one_mem_Y⟩
-  }
-  -- Define the measure `μ`
-  let f' (s : Set H) (hs : MeasurableSet s) := haar (X ×ˢ s)
-  let m' : OuterMeasure H := inducedOuterMeasure f' (by simp) (by simp [f'])
-  have h' ⦃S : ℕ → Set H⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i))
-      (hS' : Pairwise (Function.onFun Disjoint S)) :
-      haar (X ×ˢ (⋃ i, S i)) = ∑' (i : ℕ), haar (X ×ˢ S i) := by
-    rw [Set.prod_iUnion]
-    apply haar.m_iUnion
-    · exact (prod_le_borel_prod _ <| hXopen.measurableSet.prod <| hS ·)
-    · exact (fun _ _ neq ↦ by simp [hS' neq])
-  let μ : Measure H := {
-    toOuterMeasure := m'
-    m_iUnion S hS hS' := by
-      convert h' hS hS'
-      · exact inducedOuterMeasure_eq _ h' (MeasurableSet.iUnion hS)
-      · exact inducedOuterMeasure_eq _ h' (hS _)
-    trim_le S := by
-      apply le_inducedOuterMeasure.mpr fun s hs ↦ by
-        rwa [← inducedOuterMeasure_eq (m := f') _ h' hs, OuterMeasure.trim_eq]
-  }
+    rw [Measure.map_apply _ hS, ← Set.prod_univ, Measure.restrict_apply]
+    · congr 1; ext; simp
+    · exact prod_le_borel_prod _ <| hS.prod MeasurableSet.univ
+    · intro; exact (prod_le_borel_prod _ <| measurable_fst ·)
+  have : IsMulLeftInvariant ν := by
+    refine (forall_measure_preimage_mul_iff ν).mp fun g s hs ↦ ?_
+    rw [ν_apply hs, ν_apply (hs.preimage (measurable_const_mul g))]
+    nth_rw 2 [← map_mul_left_eq_self haar ⟨g, 1⟩]
+    conv in fun x ↦ (g, 1) * x => change fun x ↦ ((g * ·) x.1, (1 * ·) x.2)
+    simp_rw [one_mul]
+    rw [map_apply (by fun_prop), ← Set.prod_preimage_left]
+    exact prod_le_borel_prod _ (hs.prod hψYopen.measurableSet)
+  have hν : IsHaarMeasure ν := by
+    apply isHaarMeasure_of_isCompact_nonempty_interior ν K' hK'comp
+    · exact ⟨1, hXopen.subset_interior_iff.mpr hX one_mem_X⟩
+    · refine ne_of_gt (lt_of_lt_of_le ?_ (measure_mono hX))
+      rw [ν_apply hXopen.measurableSet]
+      exact (hXopen.prod hψYopen).measure_pos haar ⟨⟨1, ψ 1⟩, by simp [one_mem_X, one_mem_Y]⟩
+    · have ⟨C, hCcomp, hC⟩ := exists_compact_superset hK'comp
+      refine lt_top_iff_ne_top.mp <| lt_of_le_of_lt (measure_mono hC) ?_
+      rw [ν_apply measurableSet_interior]
+      apply lt_of_le_of_lt <| measure_mono <| Set.prod_mono interior_subset (Set.image_mono hY)
+      exact hCcomp.prod (ψ.isCompact_image.mpr hKcomp) |>.measure_ne_top.symm.lt_top'
+  -- Define the Haar measure `μ` on `H`
+  let μ := (haar (G := G × H)).restrict (X ×ˢ Set.univ) |>.map Prod.snd
   have μ_apply {S : Set H} (hS : MeasurableSet S) : μ S = haar (X ×ˢ S) := by
-    change m' S = _; rw [inducedOuterMeasure_eq _ h' hS]
-  -- Prove `μ` is a Haar measure
-  have hμ : IsHaarMeasure μ := {
-    lt_top_of_isCompact C hC := by
-      have ⦃S : ℕ → Set H⦄ (hS : ∀ (i : ℕ), MeasurableSet (S i)) :
-          haar (X ×ˢ (⋃ i, S i)) ≤ ∑' (i : ℕ), haar (X ×ˢ S i) := by
-        rw [Set.prod_iUnion]
-        exact measure_iUnion_le _
-      change m' C < _
-      rw [inducedOuterMeasure_eq_iInf _ this, iInf_lt_top]
-      · have ⟨C', hC', hCC'⟩ := exists_compact_superset hC
-        use interior C'
-        refine iInf_lt_iff.mpr ⟨isOpen_interior.measurableSet, iInf_lt_iff.mpr ⟨hCC', ?_⟩⟩
-        unfold f'
-        apply lt_of_le_of_lt (measure_mono <| Set.prod_mono hX interior_subset)
-        exact (hK'comp.prod hC').measure_ne_top.symm.lt_top'
-      · exact fun s₁ s₂ _ _ sub ↦ measure_mono <| Set.prod_mono subset_rfl sub
-      · exact fun S hS ↦ MeasurableSet.iUnion hS
-    map_mul_left_eq_self g := by
-      ext S hS
-      rw [map_apply (measurable_const_mul g) hS]
-      change m' _ = m' S
-      have hS' : MeasurableSet ((fun x ↦ g * x) ⁻¹' S) := by
-        convert MeasurableSet.const_smul hS g⁻¹ using 1
-        refine subset_antisymm (fun x hx ↦ ?_) (fun x hx ↦ ?_)
-        · use g * x, Set.mem_preimage.mp hx, by simp
-        · have ⟨s, ⟨_, hs⟩⟩ := hx; simpa [← hs]
-      rw [inducedOuterMeasure_eq _ h' hS, inducedOuterMeasure_eq _ h' hS']
-      unfold f'
-      suffices X ×ˢ ((g * ·) ⁻¹' S) = ((1 : G), g⁻¹) • (X ×ˢ S) from
-        this ▸ measure_smul haar _ _
-      refine subset_antisymm (fun ⟨x, y⟩ hxy ↦ ?_) (fun ⟨x, y⟩ hxy ↦ ?_)
-      · have ⟨⟨x', y'⟩, h₁, h₂⟩ := hxy
-        have ⟨_, _⟩ := Set.mem_prod.mp h₁
-        simp only [smul_eq_mul, Prod.mk_mul_mk, one_mul, Prod.mk.injEq] at h₂
-        constructor <;> simpa [← h₂.1, ← h₂.2]
-      · use ⟨x, g • y⟩, hxy, by simp
-    open_pos U hUopen hU := by
-      rw [μ_apply hUopen.measurableSet]
-      exact (isHaarMeasure_haarMeasure _).open_pos _ (hXopen.prod hUopen) <|
-        Set.Nonempty.prod ⟨1, one_mem_X⟩ hU
-  }
+    rw [Measure.map_apply _ hS, ← Set.univ_prod, Measure.restrict_apply]
+    · congr 1; ext; simp [and_comm]
+    · exact prod_le_borel_prod _ <| MeasurableSet.univ.prod hS
+    · intro; exact (prod_le_borel_prod _ <| measurable_snd ·)
+  have : IsMulLeftInvariant μ := by
+    refine (forall_measure_preimage_mul_iff μ).mp fun h s hs ↦ ?_
+    rw [μ_apply hs, μ_apply (hs.preimage (measurable_const_mul h))]
+    nth_rw 2 [← map_mul_left_eq_self haar ⟨1, h⟩]
+    conv in fun x ↦ (1, h) * x => change fun x ↦ ((1 * ·) x.1, (h * ·) x.2)
+    simp_rw [one_mul]
+    rw [map_apply (by fun_prop), ← Set.prod_preimage_right]
+    exact prod_le_borel_prod _ (hXopen.measurableSet.prod hs)
+  have hμ : IsHaarMeasure μ := by
+    apply isHaarMeasure_of_isCompact_nonempty_interior μ K hKcomp
+    · exact ⟨1, hYopen.subset_interior_iff.mpr hY one_mem_Y⟩
+    · refine ne_of_gt (lt_of_lt_of_le ?_ (measure_mono hY))
+      rw [μ_apply hYopen.measurableSet]
+      exact (hXopen.prod hYopen).measure_pos haar ⟨⟨1, 1⟩, by simp [one_mem_X, one_mem_Y]⟩
+    · have ⟨C, hCcomp, hC⟩ := exists_compact_superset hKcomp
+      refine lt_top_iff_ne_top.mp <| lt_of_le_of_lt (measure_mono hC) ?_
+      rw [μ_apply measurableSet_interior]
+      apply lt_of_le_of_lt <| measure_mono <| Set.prod_mono hX interior_subset
+      exact hK'comp.prod hCcomp |>.measure_ne_top.symm.lt_top'
+  -- Prove the lemma by showing that both `mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y)` and
+  -- `mulEquivHaarChar φ * mulEquivHaarChar ψ * haar (X ×ˢ Y)` equal `haar ((φ '' X) ×ˢ (ψ '' Y))`
   suffices mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y) =
       mulEquivHaarChar φ * mulEquivHaarChar ψ * haar (X ×ˢ Y) by
     have ne_zero : haar (X ×ˢ Y) ≠ 0 :=
@@ -550,7 +480,6 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
       refine (lt_of_le_of_lt (measure_mono <| Set.prod_mono hX hY) ?_).ne
       exact (isHaarMeasure_haarMeasure _).lt_top_of_isCompact <| hK'comp.prod hKcomp
     exact_mod_cast (ENNReal.mul_left_inj ne_zero ne_top).mp this
-
   calc mulEquivHaarChar (φ.prodCongr ψ) * haar (X ×ˢ Y)
     _ = mulEquivHaarChar _ * (map (φ.prodCongr ψ) haar) ((φ.prodCongr ψ) '' (X ×ˢ Y)) := by
       have hφψ : Measurable (φ.prodCongr ψ) := (φ.prodCongr ψ).measurable
@@ -560,11 +489,11 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
       rw [← Set.prodMap_image_prod]; rfl
     _ = haar ((φ '' X) ×ˢ (ψ '' Y)) := by
       rw [mulEquivHaarChar_map_open haar (φ.prodCongr ψ) (hφXopen.prod hψYopen)]
-    _ = ν (φ '' X) := ν_apply hφXmeas |>.symm
+    _ = ν (φ '' X) := ν_apply hφXopen.measurableSet |>.symm
     _ = ((mulEquivHaarChar φ) • (map φ ν)) (φ '' X) := by rw [mulEquivHaarChar_map_open ν φ hφXopen]
     _ = (mulEquivHaarChar φ) * (map φ ν) (φ '' X) := rfl
     _ = (mulEquivHaarChar φ) * ν X := by
-      rw [map_apply (show Measurable φ from φ.measurable) hφXmeas]
+      rw [map_apply (show Measurable φ from φ.measurable) hφXopen.measurableSet]
       rw [show φ ⁻¹' (φ '' X) = X from φ.preimage_image X]
     _ = (mulEquivHaarChar φ) * haar (X ×ˢ (ψ '' Y)) := by rw [ν_apply hXopen.measurableSet]
     _ = (mulEquivHaarChar φ) * μ (ψ '' Y) := by rw [μ_apply hψYopen.measurableSet]
