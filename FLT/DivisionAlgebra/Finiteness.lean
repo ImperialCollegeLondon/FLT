@@ -219,35 +219,18 @@ local instance : Mul (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] Finit
 
   sorry
 
-def iso₁' : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K) ≃*
-    Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) := by
-  -- have := Algebra.TensorProduct.piRight K K D -- depends on my PR #26092
-  sorry
-
-def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃* -- I need this map to be multiplicative later
-    Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
-  have := iso₁' K D
-  simp_rw [NumberField.AdeleRing] at this
-  have interim := Units.mapEquiv (M := D ⊗[K] (NumberField.InfiniteAdeleRing K × FiniteAdeleRing
-    (𝓞 K) K)) (N := D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-    this
-  exact interim.trans (MulEquiv.prodUnits (M := D ⊗[K] NumberField.InfiniteAdeleRing K)
-    (N := D ⊗[K] FiniteAdeleRing (𝓞 K) K))
-
-/-
-def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃* -- I need this map to be multiplicative later
+def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃*
     Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
   simp_rw [NumberField.AdeleRing, Dfx]
-  have start := TensorProduct.prodRight K D D (NumberField.InfiniteAdeleRing K)
-    (FiniteAdeleRing (𝓞 K) K)
+  have start' := Algebra.TensorProduct.prodRight K D D (NumberField.InfiniteAdeleRing K)
+    (FiniteAdeleRing (𝓞 K) K) -- #26092 should fix this
   have interim := Units.mapEquiv (M := D ⊗[K] (NumberField.InfiniteAdeleRing K × FiniteAdeleRing
     (𝓞 K) K)) (N := D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-    start -- RingTheory.TensorProduct.Pi
-    -- need to get a mul equiv
+    start'
   have final := MulEquiv.prodUnits (M := D ⊗[K] NumberField.InfiniteAdeleRing K)
     (N := D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-  exact interim.trans final -- break apart so I can have continuity of whole space then units
--/
+  exact interim.trans final
+
 
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (iso₁ K D) a.val |>.2
@@ -314,17 +297,18 @@ local instance : TopologicalSpace (_root_.Quotient (QuotientGroup.rightRel (incl
 
 lemma rest₁_continuous : Continuous (rest₁ K D) := by
   unfold rest₁ iso₁
-  simp only [Function.const_apply, MulEquiv.trans_apply]
-  refine Continuous.comp' continuous_snd ?_
-  refine Continuous.comp' ?_ ?_
-  · rw [@continuous_def]
-    intro S hs
-    refine isOpen_mk.mpr ?_
-    -- do I really need to do this myself?
+  simp only [Function.const_apply, id_eq, MulEquiv.trans_apply]
+  refine Continuous.comp continuous_snd ?_
+  refine Continuous.comp ?_ ?_
+  -- the following will work when iso₁ is working (relient on mathlib PR)
+  · -- general statement is true no?
     sorry
-  · refine Continuous.comp' ?_ continuous_subtype_val
+  · refine Continuous.comp ?_ (continuous_subtype_val)
+    -- will
 
     sorry
+
+
 
 -- following two are need for below lemma (which still is not working anyway)
 
@@ -332,24 +316,21 @@ local instance : NonUnitalNonAssocRing (D ⊗[K] NumberField.InfiniteAdeleRing K
 
   sorry
 
-local instance : IsTopologicalRing (D ⊗[K] NumberField.InfiniteAdeleRing K ×
-    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+local instance : IsTopologicalRing (Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)
+  (D ⊗[K] FiniteAdeleRing (𝓞 K) K)) := by
 
   sorry
+
+-- its just not picking the above up...
 
 lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
   (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
   ringHaarChar (R := Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K]
   (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
+
+
   -- again hopefully should follow from however I set up iso₁ up
-  sorry
-
--- the following two are needed for mulEquivHaarChar_pos (maybe there is a way around this...?)
-
-local instance : AddGroup D_𝔸 := TensorProduct.addCommGroup.toAddGroup
-
-local instance : IsTopologicalAddGroup D_𝔸 :=
-  TensorProduct.RightActions.instIsTopologicalAddGroup_fLT K (NumberField.AdeleRing (𝓞 K) K) D
+  sorry -- this allows us to use ringHaarChar_prod
 
 def InfiniteAdeleEquiv : NumberField.InfiniteAdeleRing K ≃ K ⊗[ℚ] ℝ := by
 
@@ -379,9 +360,9 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   obtain ⟨r, hx⟩ : ∃ r, ringHaarChar ((iso₁ K D).symm (1,x)) = r := exists_eq'
   have hr : r ≠ 0 := by
     rw [←hx]
-    -- have := mulEquivHaarChar_pos (G := D_𝔸) -- need the additive version
-
-    sorry
+    have (a : (D_𝔸)ˣ): 0 < ringHaarChar a := by
+      exact addEquivAddHaarChar_pos _
+    exact Ne.symm (ne_of_lt ((this) _))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
     -- will want to rewrite this as ringHaarChar y
     -- Dfx K D = (D ⨂ℚ ℝ)ˣ .. specifically ℝ ⊆ Dfx K D
@@ -401,11 +382,14 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
     simp_rw [this, map_mul]
     have : ringHaarChar ((iso₁ K D).symm (y⁻¹, 1)) = r⁻¹ := by
       rw [← hy]
-
-      -- this requires our lemma above and using product properties
-      sorry
-    rw [this, hx]
-    exact inv_mul_cancel₀ hr
+      have : ringHaarChar ((iso₁ K D).symm (y⁻¹, 1)) * (ringHaarChar ((iso₁ K D).symm (y, 1))) = 1
+          := by
+        simp_rw [← map_mul, Prod.mk_mul_mk, inv_mul_cancel, mul_one]
+        have : (iso₁ K D).symm (1, 1) = 1 := by
+          exact (MulEquiv.map_eq_one_iff (iso₁ K D).symm).mpr rfl
+        simp only [this, map_one]
+      exact Eq.symm (inv_eq_of_mul_eq_one_left this)
+    simpa [this, hx] using (inv_mul_cancel₀ hr)
 
 lemma α_continuous : Continuous (α K D) := by
   rw [α]
