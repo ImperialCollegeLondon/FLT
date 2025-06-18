@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.NumberField.FinitePlaces
+import FLT.Hacks.RightActionInstances
 
 /-
 
@@ -45,8 +45,9 @@ set_option maxSynthPendingDepth 1 -- otherwise things are even slower, for some 
 variable (F : Type*) [Field F] [NumberField F] -- if F isn't totally real all the definitions
 -- below are garbage mathematically but they typecheck.
 
-variable (D : Type*) [Ring D] [Algebra F D] -- If D isn't totally definite then all the
--- definitions below are garbage mathematically but they typecheck.
+variable (D : Type*) [Ring D] [Algebra F D] [FiniteDimensional F D]
+  -- If D isn't totally definite then all the
+  -- definitions below are garbage mathematically but they typecheck.
 
 namespace TotallyDefiniteQuaternionAlgebra
 
@@ -62,37 +63,21 @@ abbrev Dfx := (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
 
 /-- incl₁ is an abbreviation for the inclusion
 $D^\times\to(D\otimes_F\mathbb{A}_F^\infty)^\times.$ Remark: I wrote the `incl₁`
-docstring in LaTeX and the `incl₂` one in unicode. Which is better?-/
+docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map (Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
 
+open scoped TensorProduct.RightActions in
 /-- `incl₂` is he inclusion `𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ)`. Remark: I wrote the `incl₁`
 docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
-  Units.map Algebra.TensorProduct.rightAlgebra.algebraMap.toMonoidHom
+  Units.map (algebraMap _ _).toMonoidHom
 
 -- it's actually equal but ⊆ is all we need, and equality is harder
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
   sorry
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : TopologicalSpace (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  moduleTopology (FiniteAdeleRing (𝓞 F) F) _
-
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  ⟨rfl⟩
-
-variable [IsQuaternionAlgebra F D] in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : Module.Finite (FiniteAdeleRing (𝓞 F) F) (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
-  Module.Finite.base_change_right
-
-variable [IsQuaternionAlgebra F D] in
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
-instance : IsTopologicalRing (D ⊗[F] (FiniteAdeleRing (𝓞 F) F)) :=
-  IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) _
-
+open scoped TensorProduct.RightActions in
 /--
 This definition is made in mathlib-generality but is *not* the definition of a
 weight 2 automorphic form unless `Dˣ` is compact mod centre at infinity.
@@ -206,6 +191,7 @@ open ConjAct
 
 variable [IsQuaternionAlgebra F D]
 
+open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
 quaternion algebra. -/
 def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAutomorphicForm F D R) :
@@ -230,6 +216,7 @@ def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAu
 instance : SMul (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
 
+omit [IsQuaternionAlgebra F D] in
 @[simp]
 lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
