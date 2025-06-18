@@ -14,6 +14,9 @@ import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
 
+
+set_option maxHeartbeats 0
+
 /-
 
 # Fujisaki's lemma
@@ -199,23 +202,18 @@ abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
--- The following are local instance from earlier -- need to work out where to move them
--- copying them here for now
+-- The following are local instance from earlier (now gone) -- but still need them
 
 local instance : TopologicalSpace D_𝔸 :=
-  moduleTopology (NumberField.AdeleRing (𝓞 K) K) _
-
-local instance : IsModuleTopology (NumberField.AdeleRing (𝓞 K) K) D_𝔸 := ⟨rfl⟩
+  TensorProduct.RightActions.instTopologicalSpaceOfFinite_fLT K (NumberField.AdeleRing (𝓞 K) K) D
 
 local instance : IsTopologicalRing D_𝔸 :=
-  IsModuleTopology.Module.topologicalRing (NumberField.AdeleRing (𝓞 K) K) _
+  TensorProduct.RightActions.instIsTopologicalRing_fLT K (NumberField.AdeleRing (𝓞 K) K) D
 
 local instance : LocallyCompactSpace D_𝔸 := sorry -- we have this (unfinished) elsewhere TODO
 
 variable [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
   [BorelSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
-
--- end of copying of instances
 
 local instance : Mul (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
 
@@ -223,12 +221,20 @@ local instance : Mul (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] Finit
 
 def iso₁' : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K) ≃*
     Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) := by
-
-
+  -- have := Algebra.TensorProduct.piRight K K D -- depends on my PR #26092
   sorry
 
+def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃* -- I need this map to be multiplicative later
+    Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
+  have := iso₁' K D
+  simp_rw [NumberField.AdeleRing] at this
+  have interim := Units.mapEquiv (M := D ⊗[K] (NumberField.InfiniteAdeleRing K × FiniteAdeleRing
+    (𝓞 K) K)) (N := D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+    this
+  exact interim.trans (MulEquiv.prodUnits (M := D ⊗[K] NumberField.InfiniteAdeleRing K)
+    (N := D ⊗[K] FiniteAdeleRing (𝓞 K) K))
 
-
+/-
 def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃* -- I need this map to be multiplicative later
     Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
   simp_rw [NumberField.AdeleRing, Dfx]
@@ -241,18 +247,31 @@ def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃* -- I need this m
   have final := MulEquiv.prodUnits (M := D ⊗[K] NumberField.InfiniteAdeleRing K)
     (N := D ⊗[K] FiniteAdeleRing (𝓞 K) K)
   exact interim.trans final -- break apart so I can have continuity of whole space then units
+-/
 
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (iso₁ K D) a.val |>.2
 
-instance : Algebra (NumberField.InfiniteAdeleRing K) (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
-  Algebra.TensorProduct.rightAlgebra
+local instance : Algebra (NumberField.InfiniteAdeleRing K) (D ⊗[K] NumberField.InfiniteAdeleRing K)
+  := Algebra.TensorProduct.rightAlgebra
 
 instance : Module.Finite (NumberField.InfiniteAdeleRing K) (D ⊗[K] NumberField.InfiniteAdeleRing K)
   := sorry
 
 local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
   moduleTopology (NumberField.InfiniteAdeleRing K) _
+
+local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ := by
+  exact Units.instTopologicalSpaceUnits
+
+local instance : Algebra (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : Module.Finite (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))
+  := sorry
+
+local instance : TopologicalSpace (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
+  TensorProduct.RightActions.instTopologicalSpaceOfFinite_fLT K (FiniteAdeleRing (𝓞 K) K) D
 
 local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ := by
   exact Units.instTopologicalSpaceUnits
@@ -294,17 +313,29 @@ local instance : TopologicalSpace (_root_.Quotient (QuotientGroup.rightRel (incl
   instTopologicalSpaceQuotient
 
 lemma rest₁_continuous : Continuous (rest₁ K D) := by
-  unfold rest₁
-
+  unfold rest₁ iso₁
+  simp only [Function.const_apply, MulEquiv.trans_apply]
   refine Continuous.comp' continuous_snd ?_
-  refine Continuous.comp' ?_ continuous_subtype_val
-  --apply Continuous.prodMk
+  refine Continuous.comp' ?_ ?_
+  · rw [@continuous_def]
+    intro S hs
+    refine isOpen_mk.mpr ?_
+    -- do I really need to do this myself?
+    sorry
+  · refine Continuous.comp' ?_ continuous_subtype_val
 
-  -- this should probably be immediate from definition :/
-  -- requires knowing the topology on the RHS which I do not have
+    sorry
+
+-- following two are need for below lemma (which still is not working anyway)
+
+local instance : NonUnitalNonAssocRing (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+
   sorry
 
--- we should be able to infer instances from iso.. at least that is what I hope
+local instance : IsTopologicalRing (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+
+  sorry
 
 lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
   (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
@@ -312,6 +343,8 @@ lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)�
   (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
   -- again hopefully should follow from however I set up iso₁ up
   sorry
+
+-- the following two are needed for mulEquivHaarChar_pos (maybe there is a way around this...?)
 
 local instance : Group D_𝔸 := by
 
