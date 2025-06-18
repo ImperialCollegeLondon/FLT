@@ -248,6 +248,18 @@ variable [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
 
 -- end of copying of instances
 
+local instance : Mul (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+
+  sorry
+
+def iso₁' : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K) ≃*
+    Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) := by
+
+
+  sorry
+
+
+
 def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃* -- I need this map to be multiplicative later
     Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
   simp_rw [NumberField.AdeleRing, Dfx]
@@ -255,18 +267,23 @@ def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃* -- I need this m
     (FiniteAdeleRing (𝓞 K) K)
   have interim := Units.mapEquiv (M := D ⊗[K] (NumberField.InfiniteAdeleRing K × FiniteAdeleRing
     (𝓞 K) K)) (N := D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-    start.toMulEquiv
+    start -- RingTheory.TensorProduct.Pi
     -- need to get a mul equiv
   have final := MulEquiv.prodUnits (M := D ⊗[K] NumberField.InfiniteAdeleRing K)
     (N := D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-  exact interim.trans final
+  exact interim.trans final -- break apart so I can have continuity of whole space then units
 
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (iso₁ K D) a.val |>.2
 
-local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
-  -- not sure how to put the wanted topology on this
-  sorry
+instance : Algebra (NumberField.InfiniteAdeleRing K) (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  Algebra.TensorProduct.rightAlgebra
+
+instance : Module.Finite (NumberField.InfiniteAdeleRing K) (D ⊗[K] NumberField.InfiniteAdeleRing K)
+  := sorry
+
+local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  moduleTopology (NumberField.InfiniteAdeleRing K) _
 
 local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ := by
   exact Units.instTopologicalSpaceUnits
@@ -309,25 +326,29 @@ local instance : TopologicalSpace (_root_.Quotient (QuotientGroup.rightRel (incl
 
 lemma rest₁_continuous : Continuous (rest₁ K D) := by
   unfold rest₁
+
   refine Continuous.comp' continuous_snd ?_
   refine Continuous.comp' ?_ continuous_subtype_val
+  --apply Continuous.prodMk
+
   -- this should probably be immediate from definition :/
+  -- requires knowing the topology on the RHS which I do not have
   sorry
 
--- we should be able to infer instances of Borel etc of LHS from iso.. at least that is what I hope
+-- we should be able to infer instances from iso.. at least that is what I hope
 
-lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) (b : Dfx K D) :
-    ringHaarChar (a, b) = ringHaarChar ((iso₁ K D).symm (a, b)) := by
+lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
+  (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
+  ringHaarChar (R := Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K]
+  (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
   -- again hopefully should follow from however I set up iso₁ up
   sorry
 
-def InfAdele_equiv : NumberField.InfiniteAdeleRing K ≃ K ⊗[ℚ] ℝ := by
+local instance : Group D_𝔸 := by
 
   sorry
 
-variable [Module ℚ D]
-
-def Name : D ⊗[K] (NumberField.InfiniteAdeleRing K) ≃ D ⊗[K] (K ⊗[ℚ] ℝ) := by
+local instance : IsTopologicalGroup D_𝔸 := by
 
   sorry
 
@@ -339,7 +360,8 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   obtain ⟨r, hx⟩ : ∃ r, ringHaarChar ((iso₁ K D).symm (1,x)) = r := exists_eq'
   have hr : r ≠ 0 := by
     rw [←hx]
-    -- not sure why this is true right now
+    have := mulEquivHaarChar_pos (G := D_𝔸)
+
     sorry
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
     -- will want to rewrite this as ringHaarChar y
@@ -360,6 +382,7 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
     simp_rw [this, map_mul]
     have : ringHaarChar ((iso₁ K D).symm (y⁻¹, 1)) = r⁻¹ := by
       rw [← hy]
+
       -- this requires our lemma above and using product properties
       sorry
     rw [this, hx]
