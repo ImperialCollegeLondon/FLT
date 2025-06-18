@@ -346,12 +346,29 @@ lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)�
 
 -- the following two are needed for mulEquivHaarChar_pos (maybe there is a way around this...?)
 
-local instance : Group D_𝔸 := by
+local instance : AddGroup D_𝔸 := TensorProduct.addCommGroup.toAddGroup
+
+local instance : IsTopologicalAddGroup D_𝔸 :=
+  TensorProduct.RightActions.instIsTopologicalAddGroup_fLT K (NumberField.AdeleRing (𝓞 K) K) D
+
+def InfiniteAdeleEquiv : NumberField.InfiniteAdeleRing K ≃ K ⊗[ℚ] ℝ := by
 
   sorry
 
-local instance : IsTopologicalGroup D_𝔸 := by
+instance : Module ℚ D := by
 
+  sorry
+
+def Equiv₁ : (D ⊗[K] NumberField.InfiniteAdeleRing K) ≃ (D ⊗[ℚ] ℝ) := by
+
+  sorry
+
+instance : Monoid (D ⊗[ℚ] ℝ) := by
+
+  sorry
+
+def Equiv₂ : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ ≃ (D ⊗[ℚ] ℝ)ˣ := by
+  -- exact Units.mapEquiv (Equiv₁ K D) -- this is probably what I want to use; but will need * above
   sorry
 
 lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
@@ -362,7 +379,7 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   obtain ⟨r, hx⟩ : ∃ r, ringHaarChar ((iso₁ K D).symm (1,x)) = r := exists_eq'
   have hr : r ≠ 0 := by
     rw [←hx]
-    have := mulEquivHaarChar_pos (G := D_𝔸)
+    -- have := mulEquivHaarChar_pos (G := D_𝔸) -- need the additive version
 
     sorry
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
