@@ -16,6 +16,7 @@ import FLT.HaarMeasure.HaarChar.AdeleRing
 
 
 set_option maxHeartbeats 0
+set_option synthInstance.maxHeartbeats 0
 
 /-
 
@@ -195,6 +196,38 @@ instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
 instance : NonAssocSemiring (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   Algebra.TensorProduct.instRing.toNonAssocSemiring
 
+-- all the below instances are needed and are not being found
+
+local instance : IsTopologicalRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
+  TensorProduct.RightActions.instIsTopologicalRing_fLT K (FiniteAdeleRing (𝓞 K) K) D
+
+local instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K) := by
+
+  sorry
+
+local instance :  LocallyCompactSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact TensorProduct.RightActions.instLocallyCompactSpaceOfIsTopologicalRing_fLT K
+    (FiniteAdeleRing (𝓞 K) K) D
+
+local instance : NonUnitalNonAssocRing (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
+  r.toNonUnitalNonAssocRing
+
+local instance : NonAssocSemiring (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  Algebra.TensorProduct.instSemiring.toNonAssocSemiring
+
+local instance : IsTopologicalRing (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+  D ⊗[K] FiniteAdeleRing (𝓞 K) K) := instIsTopologicalRingProd
+
+local instance : LocallyCompactSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  TensorProduct.RightActions.instLocallyCompactSpaceOfIsTopologicalRing_fLT K
+  (NumberField.InfiniteAdeleRing K) D
+
+local instance :  LocallyCompactSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact Prod.locallyCompactSpace (D ⊗[K] NumberField.InfiniteAdeleRing K)
+    (D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+
 variable [Algebra.IsCentral K D]
 
 /-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
@@ -225,10 +258,6 @@ def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃*
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (iso₁ K D) a.val |>.2
 
--- was not being found
-local instance : NonAssocSemiring (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
-  Algebra.TensorProduct.instSemiring.toNonAssocSemiring
-
 lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker (D ⊗[K] NumberField.AdeleRing (𝓞 K) K))),
     (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker
     (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)).subtype
@@ -250,8 +279,11 @@ lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker (D ⊗[K] NumberField.Ade
       exact (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
     have : (iso₁ K D) ((NumberField.AdeleRing.DivisionAlgebra.incl K D) t') =
         (incl₂ t', incl₁ K D t') := by
-      -- probably requires unfolding iso now... which depends on Mathlib PR
-      sorry
+      refine Prod.ext ?_ ?_
+      · simp only
+        sorry
+      · simp only
+        sorry
     simp_rw [this]
   simp_rw [this, ht, ← Prod.snd_mul, Subgroup.subtype_apply, Subgroup.comap_subtype, ← map_mul]
   rfl
@@ -279,23 +311,17 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
 
     sorry
 
+local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := borel (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+  D ⊗[K] FiniteAdeleRing (𝓞 K) K)
 
-
--- following two are need for below lemma (which still is not working anyway)
-
-local instance : NonUnitalNonAssocRing (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
-
-  sorry
-
-local instance : IsTopologicalRing (Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)
-  (D ⊗[K] FiniteAdeleRing (𝓞 K) K)) := by
-
-  sorry
+local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+  D ⊗[K] FiniteAdeleRing (𝓞 K) K) := { measurable_eq := rfl }
 
 lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
-  (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
-  ringHaarChar (R := Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K]
-  (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
+    (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
+    ringHaarChar (R := Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K]
+    (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
 
   sorry -- this allows us to use ringHaarChar_prod
 
@@ -319,6 +345,25 @@ def Equiv₂ : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ ≃ (D ⊗[ℚ] ℝ)
   -- exact Units.mapEquiv (Equiv₁ K D) -- this is probably what I want to use; but will need * above
   sorry
 
+-- okay all of the above is really because I need ℝ ⊆ (D ⨂[ℚ] ℝ)
+
+-- probably will have to construct some inclusions to get this
+-- the y we choose in the below theorem will be in the ℝ and so we can do some nice calculations
+-- with it
+
+
+local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
+
+local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact { measurable_eq := rfl }
+
+local instance : MeasurableSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact borel (D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+
+local instance : BorelSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact { measurable_eq := rfl }
+
 lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
   refine Eq.symm (Set.ext ?_)
@@ -331,10 +376,19 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
       exact addEquivAddHaarChar_pos _
     exact Ne.symm (ne_of_lt ((this) _))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
+    simp_rw [iso₁_ringHaarChar_equiv]
+    have (y : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) :
+        ringHaarChar (MulEquiv.prodUnits.symm (y, (1 : Dfx K D))) = ringHaarChar y *
+        ringHaarChar (R := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))) 1 := by
+      exact ringHaarChar_prod y 1
+    simp_rw [this, map_one, mul_one]
+
+
     -- will want to rewrite this as ringHaarChar y
     -- Dfx K D = (D ⨂ℚ ℝ)ˣ .. specifically ℝ ⊆ Dfx K D
     -- for z ∈ ℝ, ringHaarChar z = |z|^d where d = dim of D over ℚ
     -- so set y = z^{1/d}
+
     sorry
   use (iso₁ K D).symm (y⁻¹, x)
   constructor
