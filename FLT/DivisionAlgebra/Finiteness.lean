@@ -182,6 +182,8 @@ end NumberField.AdeleRing.DivisionAlgebra
 
 section FiniteAdeleRing
 
+open scoped TensorProduct.RightActions
+
 variable [FiniteDimensional K D]
 
 -- Instance to help speed up instance synthesis
@@ -202,65 +204,30 @@ abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
--- The following are local instance from earlier (now gone) -- but still need them
-
-local instance : TopologicalSpace D_𝔸 :=
-  TensorProduct.RightActions.instTopologicalSpaceOfFinite_fLT K (NumberField.AdeleRing (𝓞 K) K) D
-
-local instance : IsTopologicalRing D_𝔸 :=
-  TensorProduct.RightActions.instIsTopologicalRing_fLT K (NumberField.AdeleRing (𝓞 K) K) D
-
-local instance : LocallyCompactSpace D_𝔸 := sorry -- we have this (unfinished) elsewhere TODO
-
 variable [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
   [BorelSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
-
-local instance : Mul (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-
-  sorry
 
 def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃*
     Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
   simp_rw [NumberField.AdeleRing, Dfx]
-  have start' := Algebra.TensorProduct.prodRight K D D (NumberField.InfiniteAdeleRing K)
-    (FiniteAdeleRing (𝓞 K) K) -- #26092 should fix this
+  /-
+  have start' := Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
+    (FiniteAdeleRing (𝓞 K) K) -- #26092 should fix this (switch CommSemiring to Semiring)
+  -/
   have interim := Units.mapEquiv (M := D ⊗[K] (NumberField.InfiniteAdeleRing K × FiniteAdeleRing
     (𝓞 K) K)) (N := D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-    start'
+    sorry
+    --(AlgEquiv.toMulEquiv (R := K) start') -- may need to rewrite this after PR, not sure
   have final := MulEquiv.prodUnits (M := D ⊗[K] NumberField.InfiniteAdeleRing K)
     (N := D ⊗[K] FiniteAdeleRing (𝓞 K) K)
   exact interim.trans final
 
-
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (iso₁ K D) a.val |>.2
 
-local instance : Algebra (NumberField.InfiniteAdeleRing K) (D ⊗[K] NumberField.InfiniteAdeleRing K)
-  := Algebra.TensorProduct.rightAlgebra
-
-instance : Module.Finite (NumberField.InfiniteAdeleRing K) (D ⊗[K] NumberField.InfiniteAdeleRing K)
-  := sorry
-
-local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
-  moduleTopology (NumberField.InfiniteAdeleRing K) _
-
-local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ := by
-  exact Units.instTopologicalSpaceUnits
-
-local instance : Algebra (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
-  Algebra.TensorProduct.rightAlgebra
-
-instance : Module.Finite (FiniteAdeleRing (𝓞 K) K) (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))
-  := sorry
-
-local instance : TopologicalSpace (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
-  TensorProduct.RightActions.instTopologicalSpaceOfFinite_fLT K (FiniteAdeleRing (𝓞 K) K) D
-
-local instance : TopologicalSpace (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ := by
-  exact Units.instTopologicalSpaceUnits
-
-local instance : TopologicalSpace (Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D)) := by
-  exact instTopologicalSpaceProd
+-- was not being found
+local instance : NonAssocSemiring (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  Algebra.TensorProduct.instSemiring.toNonAssocSemiring
 
 lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker (D ⊗[K] NumberField.AdeleRing (𝓞 K) K))),
     (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker
@@ -278,9 +245,14 @@ lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker (D ⊗[K] NumberField.Ade
   obtain ⟨t, t', ht⟩ := h
   use t'
   have : incl₁ K D t' = ((iso₁ K D) (NumberField.AdeleRing.DivisionAlgebra.incl K D t')).2 := by
-
-    -- this is certainly true by definition
-    sorry
+    simp_rw [incl₁, NumberField.AdeleRing.DivisionAlgebra.incl]
+    let incl₂ : Dˣ →* (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ := by
+      exact (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
+    have : (iso₁ K D) ((NumberField.AdeleRing.DivisionAlgebra.incl K D) t') =
+        (incl₂ t', incl₁ K D t') := by
+      -- probably requires unfolding iso now... which depends on Mathlib PR
+      sorry
+    simp_rw [this]
   simp_rw [this, ht, ← Prod.snd_mul, Subgroup.subtype_apply, Subgroup.comap_subtype, ← map_mul]
   rfl
 
@@ -304,7 +276,6 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
   · -- general statement is true no?
     sorry
   · refine Continuous.comp ?_ (continuous_subtype_val)
-    -- will
 
     sorry
 
@@ -321,15 +292,11 @@ local instance : IsTopologicalRing (Prod (D ⊗[K] NumberField.InfiniteAdeleRing
 
   sorry
 
--- its just not picking the above up...
-
 lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
   (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
   ringHaarChar (R := Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K]
   (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
 
-
-  -- again hopefully should follow from however I set up iso₁ up
   sorry -- this allows us to use ringHaarChar_prod
 
 def InfiniteAdeleEquiv : NumberField.InfiniteAdeleRing K ≃ K ⊗[ℚ] ℝ := by
