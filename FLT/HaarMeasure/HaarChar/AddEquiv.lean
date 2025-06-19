@@ -1439,3 +1439,5 @@ end restrictedproduct
 end Pi
 end HaarChar
 end MeasureTheory
+
+-- Notes: v3 has full Mathlib (supported)
