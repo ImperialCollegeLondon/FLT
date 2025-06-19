@@ -1307,62 +1307,31 @@ end HaarProductMeasure -- First prove the fundamental identity
 
 section HaarProductCharacter
 
-variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
-    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+/-- The Haar character of a product of topological group automorphisms
+    equals the product of individual Haar characters. -/
+@[to_additive "The Haar character of a product of topological group automorphisms
+    equals the product of individual Haar characters."]
+theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
+    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) =
+    ∏ i, mulEquivHaarChar (ψ i) := by
+  -- The key is the measure computation lemma
+  have key := map_haar_pi ψ
 
---set_option maxHeartbeats 0 in -- 20000000
-@[to_additive]
-lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
-  letI : MeasurableSpace (Π i, H i) := borel _
-  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-  mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  -- Use Fintype.induction_empty_option for cleaner induction
-  apply Fintype.induction_empty_option (P := fun ι => ∀ (H : ι → Type*)
-    [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
-    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
-    (ψ : Π i, (H i) ≃ₜ* (H i)),
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
-    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i))
-  · -- Base case: empty type
-    intro H _ _ _ _ _ _ ψ
-    letI : MeasurableSpace (Π i : Empty, H i) := borel _
-    haveI : BorelSpace (Π i : Empty, H i) := ⟨rfl⟩
-    simp only [Fintype.prod_empty]
-    -- The pi type over Empty is isomorphic to Unit
-    have piEmpty : (Π i : Empty, H i) ≃ₜ* Unit :=
-      ⟨⟨MulEquiv.piEmpty H, continuous_const, continuous_of_isEmpty_domain⟩⟩
-    have : ContinuousMulEquiv.piCongrRight ψ = piEmpty.symm.trans piEmpty := by
-      ext x i
-      exact Empty.elim i
-    rw [this, mulEquivHaarChar_trans]
-    simp [mulEquivHaarChar_eq_one_of_compactSpace]
-  · -- Inductive case: Option ι
-    intro ι _ IH H _ _ _ _ _ _ ψ
-    letI : MeasurableSpace (Π i : Option ι, H i) := borel _
-    haveI : BorelSpace (Π i : Option ι, H i) := ⟨rfl⟩
-    -- Split the product as H none × (Π i : ι, H (some i))
-    let e : (Π i : Option ι, H i) ≃ₜ* H none × (Π i : ι, H (some i)) :=
-      ⟨⟨MulEquiv.piOptionEquivProd H,
-        continuous_prod_mk.mpr ⟨continuous_apply none, continuous_pi fun i => continuous_apply (some i)⟩,
-        continuous_pi fun i => i.casesOn continuous_fst (fun j => (continuous_apply j).comp continuous_snd)⟩⟩
-    -- Show that piCongrRight commutes with this splitting
-    have comm : e.trans ((ψ none).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (some i))).trans e.symm =
-                ContinuousMulEquiv.piCongrRight ψ := by
-      ext x i
-      cases i with
-      | none => simp [e, MulEquiv.piOptionEquivProd]
-      | some j => simp [e, MulEquiv.piOptionEquivProd]
-    -- Apply the product formula
-    rw [← comm, mulEquivHaarChar_trans, mulEquivHaarChar_trans]
-    rw [mulEquivHaarChar_prodCongr]
-    -- Use the induction hypothesis
-    rw [IH (fun i => H (some i)) (fun i => ψ (some i))]
-    -- Rearrange the product
-    rw [Fintype.prod_option]
-    rfl
+  -- Haar character is defined as the scaling factor
+  rw [mulEquivHaarChar_eq]
+  -- The product measure is Haar
+  have prod_haar : IsHaarMeasure (Measure.pi fun i ↦ (haar : Measure (H i))) :=
+    MeasureTheory.isPiHaarMeasure
+
+  -- Apply the key lemma
+  rw [key]
+  -- Extract the scalar factor
+  have : haarScalarFactor (Measure.pi fun i ↦ haar)
+      ((∏ i, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar) =
+      ∏ i, mulEquivHaarChar (ψ i) := by
+    rw [haarScalarFactor_smul]
+    simp [ennreal_prod_coe]
+  exact this
 
 end HaarProductCharacter
 
