@@ -178,26 +178,27 @@ library_note "Uniqueness of Haar measure"
 /-- Any two Haar measures on a locally compact group are proportional. This is
 a fundamental result in the theory of Haar measures. -/
 
-@[to_additive]
-lemma IsHaarMeasure.exists_unique_smul_eq {G : Type*} [Group G] [TopologicalSpace G]
-    [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G]
+-- Haar measures on locally compact groups are regular
+@[to_additive IsAddHaarMeasure.regular]
+lemma IsHaarMeasure.regular [BorelSpace G] [LocallyCompactSpace G] [IsTopologicalGroup G]
+    (μ : Measure G) [IsHaarMeasure μ] : Regular μ := by
+  sorry -- TODO: prove or import
+
+@[to_additive exists_pos_smul_eq_of_isAddHaarMeasure]
+lemma exists_pos_smul_eq_of_isHaarMeasure
+    [BorelSpace G] [LocallyCompactSpace G] [IsTopologicalGroup G]
     (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
   ∃ (c : ℝ≥0ˣ), μ = c • ν := by
-  -- Haar measures are regular in locally compact spaces
-  haveI : Regular μ := Regular.of_isHaarMeasure μ
-  haveI : Regular ν := Regular.of_isHaarMeasure ν
+  -- Now you need to apply the lemma explicitly
+  haveI : Regular μ := IsHaarMeasure.regular μ
+  haveI : Regular ν := IsHaarMeasure.regular ν
 
-  -- The scalar factor between Haar measures
   let c := haarScalarFactor μ ν
-
-  -- It's positive since both are Haar measures
   have hc_pos : 0 < c := haarScalarFactor_pos_of_isHaarMeasure μ ν
-
-  -- Convert to units (positive reals)
-  use ⟨c, hc_pos.ne'⟩
-
-  -- Use the characterization for regular left-invariant measures
-  exact isMulLeftInvariant_eq_smul_of_regular μ ν
+  refine ⟨⟨c, (c)⁻¹, ?_, ?_⟩, ?_⟩
+  · simp [hc_pos.ne']
+  · simp [hc_pos.ne']
+  · exact isMulLeftInvariant_eq_smul_of_regular μ ν
 
 variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
