@@ -1305,35 +1305,126 @@ theorem map_haar_pi [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
 
 end HaarProductMeasure -- First prove the fundamental identity
 
-/-! ## HaarProductCharacter Theorem -/
+/-! ## HaarProductCharacter Lemma -/
 
 section HaarProductCharacter
 
 /-- The Haar character of a product of topological group automorphisms
-    equals the product of individual Haar characters. -/
-@[to_additive "The Haar character of a product of topological group automorphisms
-    equals the product of individual Haar characters."]
-theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
-    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) =
-    ∏ i, mulEquivHaarChar (ψ i) := by
-  -- The key is the measure computation lemma
-  have key := map_haar_pi ψ
+    equals the product of individual Haar characters:
 
-  -- Haar character is defined as the scaling factor
-  rw [mulEquivHaarChar_eq]
-  -- The product measure is Haar
-  have prod_haar : IsHaarMeasure (Measure.pi fun i ↦ (haar : Measure (H i))) :=
-    MeasureTheory.isPiHaarMeasure
+  theorem mulEquivHaarChar_piCongrRight
+  -- sorry -- FLT#521 -- induction on size of ι
 
-  -- Apply the key lemma
-  rw [key]
-  -- Extract the scalar factor
-  have : haarScalarFactor (Measure.pi fun i ↦ haar)
-      ((∏ i, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar) =
-      ∏ i, mulEquivHaarChar (ψ i) := by
-    rw [haarScalarFactor_smul]
-    simp [ennreal_prod_coe]
-  exact this
+  The above signature suggests using induction on the size of the index type ι.
+  Since ι is a Fintype, we can use the fact that any finite type is either
+  empty or has one element removed from a smaller finite type.
+  Here's the proof strategy:
+
+  * Handle the empty case (when ι is empty)
+  * Use induction to reduce to the case where we add one element
+  * Use the product formula for two groups (which should be available
+      from mulEquivHaarChar_prodCongr)
+
+  The proof uses the following key steps:
+
+  1. Base case: When ι is empty, the product type Π i, H i
+      is isomorphic to the unit group. Both sides equal 1.
+
+  2. (LEAN 3) Inductive step:
+
+    * `Pick` an element j : ι and decompose Π i, H i ≃ₗₜ* H j × Π i : ι',
+      H i where ι' = ι \ {j}
+    * `Show` that piCongrRight ψ decomposes as ψ j × piCongrRight (ψ|ι')
+    * `Apply` mulEquivHaarChar_prodCongr to get the product formula
+    * `Use` the induction hypothesis on the smaller index set ι'
+    * `Rearrange` the finite product to complete the proof
+
+  The key insight is that the Haar characteristic is multiplicative
+  with respect to products, allowing us to reduce the finite product
+  to a binary product and use induction.
+
+  The key differences in the Lean 4 approach:
+
+  1. (LEAN 4) No induction': Lean 4 doesn't have the induction' tactic
+  from Mathlib3. Instead, we use:
+
+  Standard induction on natural numbers with a Fintype.induction_empty_option
+  which is specifically designed for induction on finite types
+
+  2. Fintype.induction_empty_option: This is a specialized induction
+  principle for finite types that says:
+
+  Prove the property for the empty type
+  Prove that if the property holds for ι, then it holds for Option ι
+  Then the property holds for all finite types
+
+
+  3. Cleaner structure: The second approach using
+  Fintype.induction_empty_option is cleaner because:
+
+    * It directly handles the structure we need (empty base case, adding one element)
+    * It uses the standard MulEquiv.piOptionEquivProd to split products
+    * It avoids manual cardinality calculations
+
+  The proof strategy remains the same: show that the Haar characteristic is multiplicative with respect to products, then use induction to reduce the finite product to the base cases.
+
+  -/
+
+variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
+    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+
+@[to_additive]
+lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
+  letI : MeasurableSpace (Π i, H i) := borel _
+  haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+  mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
+  -- Use Fintype.induction_empty_option for cleaner induction
+  apply Fintype.induction_empty_option (P := fun ι => ∀ (H : ι → Type*)
+    [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
+    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+    (ψ : Π i, (H i) ≃ₜ* (H i)),
+    letI : MeasurableSpace (Π i, H i) := borel _
+    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i))
+  · -- Base case: empty type
+    intro H _ _ _ _ _ _ ψ
+    letI : MeasurableSpace (Π i : Empty, H i) := borel _
+    haveI : BorelSpace (Π i : Empty, H i) := ⟨rfl⟩
+    simp only [Fintype.prod_empty]
+    -- The pi type over Empty is isomorphic to Unit
+    have piEmpty : (Π i : Empty, H i) ≃ₜ* Unit :=
+      ⟨⟨MulEquiv.piEmpty H, continuous_const, continuous_of_isEmpty_domain⟩⟩
+    have : ContinuousMulEquiv.piCongrRight ψ = piEmpty.symm.trans piEmpty := by
+      ext x i
+      exact Empty.elim i
+    rw [this, mulEquivHaarChar_trans]
+    simp [mulEquivHaarChar_eq_one_of_compactSpace]
+  · -- Inductive case: Option ι
+    intro ι _ IH H _ _ _ _ _ _ ψ
+    letI : MeasurableSpace (Π i : Option ι, H i) := borel _
+    haveI : BorelSpace (Π i : Option ι, H i) := ⟨rfl⟩
+    -- Split the product as H none × (Π i : ι, H (some i))
+    let e : (Π i : Option ι, H i) ≃ₜ* H none × (Π i : ι, H (some i)) :=
+      ⟨⟨MulEquiv.piOptionEquivProd H,
+        continuous_prod_mk.mpr ⟨continuous_apply none, continuous_pi fun i => continuous_apply (some i)⟩,
+        continuous_pi fun i => i.casesOn continuous_fst (fun j => (continuous_apply j).comp continuous_snd)⟩⟩
+    -- Show that piCongrRight commutes with this splitting
+    have comm : e.trans ((ψ none).prodCongr (ContinuousMulEquiv.piCongrRight fun i => ψ (some i))).trans e.symm =
+                ContinuousMulEquiv.piCongrRight ψ := by
+      ext x i
+      cases i with
+      | none => simp [e, MulEquiv.piOptionEquivProd]
+      | some j => simp [e, MulEquiv.piOptionEquivProd]
+    -- Apply the product formula
+    rw [← comm, mulEquivHaarChar_trans, mulEquivHaarChar_trans]
+    rw [mulEquivHaarChar_prodCongr]
+    -- Use the induction hypothesis
+    rw [IH (fun i => H (some i)) (fun i => ψ (some i))]
+    -- Rearrange the product
+    rw [Fintype.prod_option]
+    rfl
 
 end HaarProductCharacter
 
