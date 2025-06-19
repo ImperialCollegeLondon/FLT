@@ -182,7 +182,17 @@ a fundamental result in the theory of Haar measures. -/
 @[to_additive IsAddHaarMeasure.regular]
 lemma IsHaarMeasure.regular [BorelSpace G] [LocallyCompactSpace G] [IsTopologicalGroup G]
     (μ : Measure G) [IsHaarMeasure μ] : Regular μ := by
-  sorry -- TODO: prove or import
+  -- The default Haar measure is regular
+  have haar_reg : Regular (haar : Measure G) := haar_regular G
+
+  -- Any Haar measure is a scalar multiple of the default Haar measure
+  obtain ⟨c, hc⟩ := exists_isHaarMeasure_eq_smul_isHaarMeasure μ haar
+
+  -- Rewrite μ as a scalar multiple of haar
+  rw [hc]
+
+  -- Scalar multiples of regular measures are regular
+  exact Regular.smul haar_reg c
 
 @[to_additive exists_pos_smul_eq_of_isAddHaarMeasure]
 lemma exists_pos_smul_eq_of_isHaarMeasure
@@ -897,11 +907,47 @@ variable {G : Type*} [AddCommGroup G] [TopologicalSpace G] [IsTopologicalAddGrou
 /--
 For an additive character ψ and an additive Haar measure μ,
 pushing forward μ along ψ scales it by the factor mulEquivHaarChar ψ.
+
+The specification of `mulEquivHaarChar`: `μ.map ψ = mulEquivHaarChar ψ • μ` for an
+additive Haar measure `μ`.
 -/
-theorem map_haar_mulEquiv_eq_mulEquivHaarChar_smul
-    (ψ : AddChar G ℝ) (μ : Measure G) [IsAddHaarMeasure μ] :
-    map (⇑ψ) μ = mulEquivHaarChar ψ • μ := by
-  sorry  -- The actual proof would go here
+
+-- Lemma: Haar measure transformation
+@[to_additive (attr := simp)]
+lemma mulEquivHaarChar_map {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [LocallyCompactSpace G] [MeasurableSpace G]
+    [BorelSpace G] (ψ : G ≃ₜ* G) :
+    Measure.map ψ haar = mulEquivHaarChar ψ • haar := by
+      -- This follows directly from the definition of `mulEquivHaarChar`.
+      exact (mulEquivHaarChar_spec ψ).2
+
+-- Alternative formulation for Option type directly
+@[simp]
+lemma mulEquivHaarChar_option {ι' : Type u} [Fintype ι']
+  {G₀ : Type v} {G : ι' → Type v}
+  [Group G₀] [∀ i, Group (G i)]
+  [TopologicalSpace G₀] [∀ i, TopologicalSpace (G i)]
+  [LocallyCompactSpace G₀] [∀ i, LocallyCompactSpace (G i)]
+  [MeasurableSpace G₀] [∀ i, MeasurableSpace (G i)]
+  [BorelSpace G₀] [∀ i, BorelSpace (G i)]
+  (ψ : ∀ opt : Option ι', Option.elim G₀ G opt ≃ₜ* Option.elim G₀ G opt) :
+  ∏ opt : Option ι', mulEquivHaarChar (ψ opt) =
+  mulEquivHaarChar (ψ none) * ∏ i : ι', mulEquivHaarChar (ψ (some i)) := by
+    rw [Finset.prod_option]
+    simp only [Finset.prod_singleton]
+    rfl
+  -- The goal is a conjunction, so we prove each part.
+  constructor
+  -- 1. Prove that the mapped measure is also a Haar measure.
+  · -- We rewrite using our equality `h_eq`.
+    rw [h_eq]
+    -- A non-zero scalar multiple of a Haar measure is a Haar measure.
+    apply IsAddHaarMeasure.smul_of_ne_zero
+    -- The constant `mulEquivHaarChar` is always positive, hence non-zero.
+    exact (mulEquivHaarChar_pos ψ).ne'
+
+  -- 2. Prove the equality itself.
+  · exact h_eq
 
 /--
 The specification of `mulEquivHaarChar`: `μ.map ψ = mulEquivHaarChar ψ • μ` for an
@@ -927,31 +973,6 @@ theorem mulEquivHaarChar_spec (ψ : AddChar G ℝ) (μ : Measure G) [IsAddHaarMe
 
   -- 2. Prove the equality itself.
   · exact h_eq
-
--- Lemma: Haar measure transformation
-@[simp]
-lemma mulEquivHaarChar_map {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [LocallyCompactSpace G] [MeasurableSpace G]
-    [BorelSpace G] (ψ : G ≃ₜ* G) :
-    Measure.map ψ haar = mulEquivHaarChar ψ • haar := by
-      -- This follows directly from the definition of `mulEquivHaarChar`.
-      exact (mulEquivHaarChar_spec ψ).2
-
--- Alternative formulation for Option type directly
-@[simp]
-lemma mulEquivHaarChar_option {ι' : Type u} [Fintype ι']
-  {G₀ : Type v} {G : ι' → Type v}
-  [Group G₀] [∀ i, Group (G i)]
-  [TopologicalSpace G₀] [∀ i, TopologicalSpace (G i)]
-  [LocallyCompactSpace G₀] [∀ i, LocallyCompactSpace (G i)]
-  [MeasurableSpace G₀] [∀ i, MeasurableSpace (G i)]
-  [BorelSpace G₀] [∀ i, BorelSpace (G i)]
-  (ψ : ∀ opt : Option ι', Option.elim G₀ G opt ≃ₜ* Option.elim G₀ G opt) :
-  ∏ opt : Option ι', mulEquivHaarChar (ψ opt) =
-  mulEquivHaarChar (ψ none) * ∏ i : ι', mulEquivHaarChar (ψ (some i)) := by
-    rw [Finset.prod_option]
-    simp only [Finset.prod_singleton]
-    rfl
 
 /-- Given an element `i₀ : ι`, construct an equivalence between `ι` and
     `Option {i : ι // i ≠ i₀}`. The element `i₀` maps to `none` and
