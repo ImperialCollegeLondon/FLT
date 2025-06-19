@@ -7,7 +7,7 @@ import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 import FLT.NumberField.InfinitePlace.Dimension
 import FLT.NumberField.InfinitePlace.WeakApproximation
 
-open scoped TensorProduct Classical
+open scoped TensorProduct
 
 /-!
 # The completion of a number field at an infinite place
@@ -85,6 +85,8 @@ instance : Module.Free v.Completion wv.1.Completion :=
   Module.free_of_finite_type_torsion_free'
 
 variable (L v)
+
+open Classical in
 theorem finrank_prod_eq_finrank [NumberField K] :
     Module.finrank v.Completion ((wv : Extension L v) → wv.1.Completion) =
       Module.finrank K L := by
@@ -99,6 +101,7 @@ theorem finrank_pi_eq_finrank_tensorProduct [NumberField K] :
       Module.finrank_tensorProduct, Module.finrank_self, one_mul,
     finrank_prod_eq_finrank]
 
+open Classical in
 theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
   -- Let `Bw` be a `K_v` basis of `Π v | w, L_w`
   let Bw := Module.finBasis v.Completion ((w : v.Extension L) → w.1.Completion)
@@ -142,7 +145,7 @@ theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
   rfl
 
 /-- The `Kᵥ`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
-of `L` lying above `v`.-/
+of `L` lying above `v`. -/
 def baseChangeEquivRight :
     L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.Extension L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩

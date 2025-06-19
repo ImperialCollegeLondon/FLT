@@ -29,7 +29,7 @@ This can be equivalently stated by asserting that the appropriate `algebraMap` h
   some infinite place `v` of `K`).
 -/
 
-open scoped Topology Classical
+open scoped Topology
 
 open NumberField
 
@@ -89,6 +89,7 @@ theorem exists_tendsto_zero_tendsto_atTop_tendsto_const
   rw [← zero_mul <| v j b]
   exact Tendsto.mul_const _ <| tendsto_pow_atTop_nhds_zero_of_lt_one ((v j).nonneg _) (haj j hj)
 
+open Classical in
 /--
 Let `a, b ∈ K`, and let `v₁, ..., vₖ` be absolute values with some `1 < vᵢ a` while all other
 `vⱼ a < 1`. Suppose `1 < vᵢ b`. Let `w` be another absolute value on `K` such that `w a = 1`,
@@ -137,6 +138,7 @@ theorem exists_tendsto_const_tendsto_zero_tendsto_const
   replace haj := map_inv₀ (v j) _ ▸ (one_lt_inv₀ (pos_of_pos (v j) (by linarith))).2 (haj j hj)
   exact zero_mul (v j b) ▸ Tendsto.mul_const _ (tendsto_pow_div_one_add_pow_zero haj)
 
+open Classical in
 /--
 Let `a, b ∈ K`, and let `v₁, ..., vₖ` be absolute values with some `1 < vᵢ a` while all other
 `vⱼ a < 1`. Suppose `1 < vᵢ b`. Let `w` be another absolute value on `K` such that `1 < w a`,
@@ -326,7 +328,7 @@ theorem exists_one_lt_lt_one [NumberField K] (h : 1 < Fintype.card (InfinitePlac
 
 variable (K)
 
-open Filter in
+open Filter Classical in
 /--
 *Weak approximation for infinite places*: this is the result that `K` is dense in `Π v, K`, where
 `v` ranges over all infinite places of `K` and at the `v`th place we consider `K` to have the

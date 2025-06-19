@@ -145,3 +145,5 @@ theorem exists_one_lt_lt_one_of_ne_rpow {v w : AbsoluteValue F ℝ}
   simp only [map_div₀]
   exact ⟨one_lt_div (pos_of_pos v (by linarith)) |>.2 (by linarith),
     div_lt_one (by linarith) |>.2 (by linarith)⟩
+
+end AbsoluteValue

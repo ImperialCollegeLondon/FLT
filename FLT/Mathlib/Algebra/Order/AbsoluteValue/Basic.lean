@@ -37,7 +37,7 @@ theorem mul_one_div_pow_lt_iff {n : ℕ} {y : F} (x : F) (h : 0 < v y) :
     v (x * (1 / y ^ n)) < 1 ↔ v x < v y ^ n :=
   map_pow v _ _ ▸ mul_one_div_lt_iff x (map_pow v _ _ ▸ pow_pos h n)
 
-theorem one_lt_of_lt_one  (h : ∀ x, v x < 1 → w x < 1) {x : F} (hv : 1 < v x) : 1 < w x :=
+theorem one_lt_of_lt_one (h : ∀ x, v x < 1 → w x < 1) {x : F} (hv : 1 < v x) : 1 < w x :=
   (inv_lt_one_iff.1 <| h _ <| map_inv₀ v _ ▸ inv_lt_one_of_one_lt₀ hv).resolve_left <|
     ne_zero_of_lt_one hv
 

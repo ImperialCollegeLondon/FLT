@@ -55,7 +55,7 @@ section
 
 variable {ι' : Type*} [Fintype ι'] [DecidableEq ι'] {R ι : Type*} [Semiring R]
   {M N : ι → ι' → Type*} [∀ i i', AddCommMonoid (M i i')] [∀ i i', AddCommMonoid (N i i')]
-  [∀i i', Module R (M i i')] [∀i i', Module R (N i i')]
+  [∀ i i', Module R (M i i')] [∀ i i', Module R (N i i')]
 
 /-- `⨁ⱼ(∏ᵢ Nᵢⱼ) ≅ ∏ᵢ(⨁ⱼNᵢⱼ)` if `j` ranges over a finite index set and `i` over an arbitrary
 index set. This variant is for `R`-modules and gives an `R`-module isomorphism. -/
