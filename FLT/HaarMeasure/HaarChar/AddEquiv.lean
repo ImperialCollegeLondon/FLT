@@ -1311,7 +1311,7 @@ variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalS
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
-set_option maxHeartbeats 0 in -- 20000000
+--set_option maxHeartbeats 0 in -- 20000000
 @[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
   letI : MeasurableSpace (Π i, H i) := borel _
