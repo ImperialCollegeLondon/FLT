@@ -91,7 +91,7 @@ lemma Module.UniformlyBoundedRank.exists_rank :
   rw [← Ultrafilter.eventually_exists_iff]
   refine .of_forall fun i ↦ ?_
   cases subsingleton_or_nontrivial (M i)
-  · refine ⟨0, by simpa using ⟨LinearEquiv.ofSubsingleton _ _⟩⟩
+  · exact ⟨⟨0, Nat.zero_lt_succ n⟩, instNonemptyOfInhabited⟩
   have : Nontrivial (R ⧸ Ann R (M i)) := by
     refine Ideal.Quotient.nontrivial ?_
     rw [ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]

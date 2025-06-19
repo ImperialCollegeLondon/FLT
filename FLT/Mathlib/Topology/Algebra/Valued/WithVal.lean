@@ -4,7 +4,7 @@ variable {A K L B Γ₀ : Type*} [Ring L] [CommRing K] [LinearOrderedCommGroupWi
   [Semiring A] [Module A K] [Module A L] [Semiring B] [Module A B] [Module B L]
   (v : Valuation K Γ₀) (w : Valuation L Γ₀)
 
-instance [Algebra K L]  : Algebra (WithVal v) L := ‹Algebra K L›
+instance [Algebra K L] : Algebra (WithVal v) L := ‹Algebra K L›
 
 instance [Algebra K L] : Algebra K (WithVal w) := ‹Algebra K L›
 
