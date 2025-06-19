@@ -524,8 +524,6 @@ def _root_.ContinuousMulEquiv.piCongrRight (ψ : Π i, (G i) ≃ₜ* (H i)) :
 
 end piCongrRight
 
-set_option maxHeartbeats 0 -- 20000000
-
 /-
 Copyright (c) 2025 . All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -1309,71 +1307,11 @@ end HaarProductMeasure -- First prove the fundamental identity
 
 section HaarProductCharacter
 
-/-- The Haar character of a product of topological group automorphisms
-    equals the product of individual Haar characters:
-
-  theorem mulEquivHaarChar_piCongrRight
-  -- sorry -- FLT#521 -- induction on size of ι
-
-  The above signature suggests using induction on the size of the index type ι.
-  Since ι is a Fintype, we can use the fact that any finite type is either
-  empty or has one element removed from a smaller finite type.
-  Here's the proof strategy:
-
-  * Handle the empty case (when ι is empty)
-  * Use induction to reduce to the case where we add one element
-  * Use the product formula for two groups (which should be available
-      from mulEquivHaarChar_prodCongr)
-
-  The proof uses the following key steps:
-
-  1. Base case: When ι is empty, the product type Π i, H i
-      is isomorphic to the unit group. Both sides equal 1.
-
-  2. (LEAN 3) Inductive step:
-
-    * `Pick` an element j : ι and decompose Π i, H i ≃ₗₜ* H j × Π i : ι',
-      H i where ι' = ι \ {j}
-    * `Show` that piCongrRight ψ decomposes as ψ j × piCongrRight (ψ|ι')
-    * `Apply` mulEquivHaarChar_prodCongr to get the product formula
-    * `Use` the induction hypothesis on the smaller index set ι'
-    * `Rearrange` the finite product to complete the proof
-
-  The key insight is that the Haar characteristic is multiplicative
-  with respect to products, allowing us to reduce the finite product
-  to a binary product and use induction.
-
-  The key differences in the Lean 4 approach:
-
-  1. (LEAN 4) No induction': Lean 4 doesn't have the induction' tactic
-  from Mathlib3. Instead, we use:
-
-  Standard induction on natural numbers with a Fintype.induction_empty_option
-  which is specifically designed for induction on finite types
-
-  2. Fintype.induction_empty_option: This is a specialized induction
-  principle for finite types that says:
-
-  Prove the property for the empty type
-  Prove that if the property holds for ι, then it holds for Option ι
-  Then the property holds for all finite types
-
-
-  3. Cleaner structure: The second approach using
-  Fintype.induction_empty_option is cleaner because:
-
-    * It directly handles the structure we need (empty base case, adding one element)
-    * It uses the standard MulEquiv.piOptionEquivProd to split products
-    * It avoids manual cardinality calculations
-
-  The proof strategy remains the same: show that the Haar characteristic is multiplicative with respect to products, then use induction to reduce the finite product to the base cases.
-
-  -/
-
 variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
+set_option maxHeartbeats 0 in -- 20000000
 @[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
   letI : MeasurableSpace (Π i, H i) := borel _
