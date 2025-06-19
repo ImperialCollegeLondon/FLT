@@ -281,6 +281,7 @@ lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker (D ⊗[K] NumberField.Ade
         (incl₂ t', incl₁ K D t') := by
       refine Prod.ext ?_ ?_
       · simp only
+
         sorry
       · simp only
         sorry
@@ -318,38 +319,62 @@ local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
 local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
   D ⊗[K] FiniteAdeleRing (𝓞 K) K) := { measurable_eq := rfl }
 
-lemma iso₁_ringHaarChar_equiv (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
+lemma iso₁_ringHaarChar_eq (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
     (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
     ringHaarChar (R := Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K]
     (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
-
+  -- probably requires rw'ing iso₁
   sorry -- this allows us to use ringHaarChar_prod
 
-def InfiniteAdeleEquiv : NumberField.InfiniteAdeleRing K ≃ K ⊗[ℚ] ℝ := by
+def InfiniteAdeleEquiv : NumberField.InfiniteAdeleRing K ≃* K ⊗[ℚ] ℝ := by
 
   sorry
 
 instance : Module ℚ D := by
-
+  -- K is a ℚ module and D is a module over K
   sorry
 
-def Equiv₁ : (D ⊗[K] NumberField.InfiniteAdeleRing K) ≃ (D ⊗[ℚ] ℝ) := by
-
+def Equiv₁ : (D ⊗[K] NumberField.InfiniteAdeleRing K) ≃* (D ⊗[ℚ] ℝ) := by
+  -- need to apply InfiniteAdeleEquiv then combine tensors
   sorry
 
 instance : Monoid (D ⊗[ℚ] ℝ) := by
 
   sorry
 
-def Equiv₂ : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ ≃ (D ⊗[ℚ] ℝ)ˣ := by
-  -- exact Units.mapEquiv (Equiv₁ K D) -- this is probably what I want to use; but will need * above
+local instance : Ring (D ⊗[ℚ] ℝ) := by
+
   sorry
 
--- okay all of the above is really because I need ℝ ⊆ (D ⨂[ℚ] ℝ)
+local instance : TopologicalSpace (D ⊗[ℚ] ℝ) := by
 
--- probably will have to construct some inclusions to get this
--- the y we choose in the below theorem will be in the ℝ and so we can do some nice calculations
--- with it
+  sorry
+
+local instance : IsTopologicalRing (D ⊗[ℚ] ℝ) := by
+  -- Equiv₂_ringHaarChar is not picking this up...
+  sorry
+
+def Equiv₂ : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ ≃* (D ⊗[ℚ] ℝ)ˣ := by
+  -- exact Units.mapEquiv (M := (D ⊗[K] NumberField.InfiniteAdeleRing K))
+  --  (N := (D ⊗[ℚ] ℝ)) (Equiv₁ K D)
+  -- why??
+  sorry
+
+def incl₃ : ℝˣ → (D ⊗[ℚ] ℝ)ˣ := by
+  -- will need this, true since ℚ ⊆ D (ℚ ⊆ K ⊆ D) then take tensor
+  sorry
+
+local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
+
+local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact { measurable_eq := rfl }
+
+lemma Equiv₂_ringHaarChar_eq (x : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) :
+    ringHaarChar (R := (D ⊗[K] NumberField.InfiniteAdeleRing K)) x = ringHaarChar (R := D ⊗[ℚ] ℝ)
+    (Equiv₂ K D x) := by
+  -- why is this breaking??
+  sorry
 
 
 local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
@@ -370,25 +395,28 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   intro x
   simp only [Set.mem_univ, Set.mem_range, Subtype.exists, true_iff]
   obtain ⟨r, hx⟩ : ∃ r, ringHaarChar ((iso₁ K D).symm (1,x)) = r := exists_eq'
-  have hr : r ≠ 0 := by
+  have hr : r > 0 := by
     rw [←hx]
     have (a : (D_𝔸)ˣ): 0 < ringHaarChar a := by
       exact addEquivAddHaarChar_pos _
-    exact Ne.symm (ne_of_lt ((this) _))
+    exact this ((iso₁ K D).symm (1, x))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
-    simp_rw [iso₁_ringHaarChar_equiv]
+    simp_rw [iso₁_ringHaarChar_eq]
     have (y : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) :
         ringHaarChar (MulEquiv.prodUnits.symm (y, (1 : Dfx K D))) = ringHaarChar y *
         ringHaarChar (R := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))) 1 := by
       exact ringHaarChar_prod y 1
     simp_rw [this, map_one, mul_one]
+    let d := Module.finrank ℚ D
+    have : d ≠ 0 := by
 
-
-    -- will want to rewrite this as ringHaarChar y
-    -- Dfx K D = (D ⨂ℚ ℝ)ˣ .. specifically ℝ ⊆ Dfx K D
-    -- for z ∈ ℝ, ringHaarChar z = |z|^d where d = dim of D over ℚ
-    -- so set y = z^{1/d}
-
+      -- this is true by FiniteDimensional K D combined with K number field
+      sorry
+    have h_pos : r.toReal ^ (1/(d : ℝ)) > 0 := by
+      exact Real.rpow_pos_of_pos (NNReal.coe_pos.mpr hr) _
+    use (Equiv₂ K D).symm (incl₃ D (Units.mk0 (r.toReal ^ (1/(d : ℝ))) h_pos.ne'))
+    -- want to use Equiv₂_ringHaarChar_eq as this removes Equiv₂ K D
+    -- then somehow want to conclude using the fact the ringHaarChar r = r^d
     sorry
   use (iso₁ K D).symm (y⁻¹, x)
   constructor
@@ -410,7 +438,7 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
           exact (MulEquiv.map_eq_one_iff (iso₁ K D).symm).mpr rfl
         simp only [this, map_one]
       exact Eq.symm (inv_eq_of_mul_eq_one_left this)
-    simpa [this, hx] using (inv_mul_cancel₀ hr)
+    simpa [this, hx] using (inv_mul_cancel₀ hr.ne')
 
 lemma α_continuous : Continuous (α K D) := by
   rw [α]
