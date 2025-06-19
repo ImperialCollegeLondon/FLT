@@ -1307,6 +1307,19 @@ end HaarProductMeasure -- First prove the fundamental identity
 /-! ## HaarProductCharacter Lemma -/
 
 section HaarProductCharacter
+
+theorem exists_pos_smul_eq_of_isHaarMeasure {G : Type*} [Group G] [TopologicalSpace G]
+    [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G]
+    (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
+  ∃ (c : ℝ≥0ˣ), μ = c • ν := by
+    sorry
+
+theorem exists_isHaarMeasure_eq_smul_isHaarMeasure {G : Type*} [Group G] [TopologicalSpace G]
+    [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G]
+    (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
+  ∃ (c : ℝ≥0ˣ), μ = c • ν := by
+    sorry
+
 /-
 instance [Fintype ι] : Regular (haar : Measure (∀ i, H i)) := by
   letI : MeasurableSpace (∀ i, H i) := borel _
@@ -1324,17 +1337,23 @@ theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H
     ∏ i, mulEquivHaarChar (ψ i) := by
   letI : MeasurableSpace (∀ i, H i) := borel _
   haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
-  -- The product measure is Haar. Work with the definition using map_haar_pi
-  have := map_haar_pi ψ
+  obtain ⟨c, hc_pos, hc_eq⟩ := exists_isHaarMeasure_eq_smul_isHaarMeasure
+    (haar : Measure (∀ i, H i)) (Measure.pi fun i ↦ haar)
+  -- pushforward of product Haar equals product-scaled product Haar
+  have key := map_haar_pi ψ
+  -- mulEquivHaarChar is defined as the scalar factor
+  unfold mulEquivHaarChar
+  -- Use hc_eq to rewrite haar in terms of Measure.pi
+  rw [hc_eq]
+  -- Refactor haarScalarFactor (c • π) (c • (∏ᵢ φᵢ) • π) = haarScalarFactor (c • π) ((c * ∏ᵢ φᵢ) • π)
+  rw [← mul_smul]
+  -- Now we have haarScalarFactor (c • Measure.pi ...) (map ... (c • Measure.pi ...))
+  rw [Measure.map_smul]
   -- Apply the key lemma
   rw [key]
   -- Extract the scalar factor
-  have : haarScalarFactor (Measure.pi fun i ↦ haar)
-      ((∏ i, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar) =
-      ∏ i, mulEquivHaarChar (ψ i) := by
-    rw [haarScalarFactor_smul]
-    simp [ennreal_prod_coe]
-  exact this
+  rw [haarScalarFactor_smul]
+  simp [ennreal_prod_coe]
 
 end HaarProductCharacter
 
