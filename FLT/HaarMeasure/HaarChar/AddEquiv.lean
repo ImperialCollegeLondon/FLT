@@ -183,12 +183,21 @@ lemma IsHaarMeasure.exists_unique_smul_eq {G : Type*} [Group G] [TopologicalSpac
     [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G]
     (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
   ∃ (c : ℝ≥0ˣ), μ = c • ν := by
-  -- First show the scalar factor is positive
-  have h_pos : 0 < haarScalarFactor μ ν := haarScalarFactor_pos_of_isHaarMeasure μ ν
-  -- Convert to units
-  use ⟨haarScalarFactor μ ν, h_pos.ne'⟩
-  -- The scalar factor equation
-  exact haarScalarFactor_eq_mul μ ν
+  -- Haar measures are regular in locally compact spaces
+  haveI : Regular μ := Regular.of_isHaarMeasure μ
+  haveI : Regular ν := Regular.of_isHaarMeasure ν
+
+  -- The scalar factor between Haar measures
+  let c := haarScalarFactor μ ν
+
+  -- It's positive since both are Haar measures
+  have hc_pos : 0 < c := haarScalarFactor_pos_of_isHaarMeasure μ ν
+
+  -- Convert to units (positive reals)
+  use ⟨c, hc_pos.ne'⟩
+
+  -- Use the characterization for regular left-invariant measures
+  exact isMulLeftInvariant_eq_smul_of_regular μ ν
 
 variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
