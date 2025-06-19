@@ -225,6 +225,14 @@ lemma map₁_surjective (U : Subgroup (Dfx K D)) : Function.Surjective (map₁ K
     refine Set.mem_range.mpr ?_
     refine Quotient.exists.mpr ?_
     simp_rw [map₁]
+    obtain ⟨a, ha⟩ := Quot.exists_rep x
+    use a
+    have : Quot.mk (⇑(Doset.setoid (Set.range ⇑(incl₁ K D)) ↑U)) a = Quotient.mk'' a := by rfl
+    simp_rw [←ha, this]
+    -- so tedious
+
+    sorry
+    /-
     obtain ⟨b, hb⟩ := Quot.exists_rep x
     have : ∃ a : Dfx K D, (⟦a⟧ : Quotient (QuotientGroup.rightRel (incl₁ K D).range)).out = b := by
       -- this may not be true??... .out is really messing with me here
@@ -233,6 +241,7 @@ lemma map₁_surjective (U : Subgroup (Dfx K D)) : Function.Surjective (map₁ K
     use a
     simp_rw [ha]
     exact hb
+    -/
 
   -- I think I need to adapt map₁ so that I am not use a choice function
 
@@ -245,13 +254,19 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     (U := fun (x : _root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) => {x})
     (by
       intro x
+
+
       simp only
+      rw [@mem_nhds_iff]
+      use {x}
+      refine ⟨(fun ⦃a⦄ ↦ congrArg fun ⦃a⦄ ↦ a), ?_, rfl⟩
+      -- I dont remember if this is the discrete side or not
       -- maybe? not sure if I have the correct set up for the map U
       sorry
     )
   obtain ⟨t, ht⟩ := this
-  have finite1 : Finite (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
-    refine Set.finite_univ_iff.mp (by simpa only [← ht] using Set.toFinite (⋃ x ∈ t, {x}))
+  haveI : Finite (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
+    exact Set.finite_univ_iff.mp (by simpa only [← ht] using Set.toFinite (⋃ x ∈ t, {x}))
   exact Finite.of_surjective (map₁ K D U) (map₁_surjective K D U)
 
 end FiniteAdeleRing
