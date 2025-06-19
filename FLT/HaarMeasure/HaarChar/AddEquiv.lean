@@ -996,12 +996,39 @@ def ι_equiv_option_subtype {ι : Type*} [DecidableEq ι] (i₀ : ι) :
         · exact absurd h hi
         · congr
 
+
+
 /- TODO: The following lemma is general and should be upstreamed to Mathlib.
    It belongs in `MeasureTheory.Measure.Basic` or similar, not in a file
    specific to Haar measures on products. Distilled here for convenience.
 
    Proposed location: Mathlib.MeasureTheory.Measure.Basic
    Proposed name: MeasureTheory.Measure.map_comp_measurableEquiv -/
+
+@[to_additive map_haar_addEquiv_eq_addEquivAddHaarChar_smul]
+theorem map_haar_mulEquiv_eq_mulEquivHaarChar_smul
+    {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
+    [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
+    (φ : G ≃ₜ* G) (μ : Measure G) [IsHaarMeasure μ] [Regular μ] :
+    map φ μ = mulEquivHaarChar φ • μ :=
+  (mulEquivHaarChar_map μ φ).symm
+  -- By uniqueness of Haar measure, map φ μ is also Haar
+  haveI : IsHaarMeasure (map φ μ) := φ.isHaarMeasure_map μ
+
+  -- By the characterization of mulEquivHaarChar
+  have h1 := mulEquivHaarChar_map μ φ
+
+  -- h1 says: (mulEquivHaarChar φ) • map φ μ = μ
+  -- We want: map φ μ = mulEquivHaarChar φ • μ
+
+  -- Multiply both sides by mulEquivHaarChar φ
+  have h2 : map φ μ = (mulEquivHaarChar φ) • (mulEquivHaarChar φ) • map φ μ := by
+    conv_lhs => rw [← one_smul ℝ≥0 (map φ μ)]
+    rw [← mul_smul]
+    congr 1
+    rw [one_mul]
+
+  rw [h2, h1]
 
 /-- Composing measure map with equivalence equals map of composed functions -/
 lemma map_comp_equiv_eq_map {α β γ : Type*}
