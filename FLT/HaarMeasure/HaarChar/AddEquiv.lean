@@ -1339,7 +1339,7 @@ theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H
   haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
   obtain ⟨c, hc_pos, hc_eq⟩ := exists_isHaarMeasure_eq_smul_isHaarMeasure
     (haar : Measure (∀ i, H i)) (Measure.pi fun i ↦ haar)
-  -- pushforward of product Haar equals product-scaled product Haar
+  -- product Haar pushforward equals product-scaled product Haar
   have key := map_haar_pi ψ
   -- mulEquivHaarChar is defined as the scalar factor
   unfold mulEquivHaarChar
@@ -1351,9 +1351,10 @@ theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H
   rw [Measure.map_smul]
   -- Apply the key lemma
   rw [key]
-  -- Extract the scalar factor
-  rw [haarScalarFactor_smul]
-  simp [ennreal_prod_coe]
+  -- Extract the scalar factor. Use that haarScalarFactor (c • μ) (c • d • μ) = d
+  rw [haarScalarFactor_smul']
+  -- Finally: haarScalarFactor π ((∏ᵢ φᵢ) • π) = ∏ᵢ φᵢ
+  exact haarScalarFactor_smul _ _
 
 end HaarProductCharacter
 
