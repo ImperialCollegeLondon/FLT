@@ -172,8 +172,8 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 
 end Aux
 
-lemma compact_quotient : CompactSpace (ringHaarChar_ker D_𝔸 ⧸
-  (MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype) := sorry
+lemma compact_quotient : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
+      ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) := sorry
 
 end NumberField.AdeleRing.DivisionAlgebra
 
@@ -201,7 +201,7 @@ noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
 
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
-    CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
+    CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
   sorry
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
@@ -210,10 +210,48 @@ If `D` is a finite-dimensional division algebra over a number field `K`
 then the double coset space `Dˣ \ (D ⊗ 𝔸_K^infty)ˣ / U` is finite for any compact open subgroup `U`
 of `(D ⊗ 𝔸_F^infty)ˣ`.
 -/
+
+open scoped TensorProduct.RightActions in
+def map₁ (U : Subgroup (Dfx K D)) : (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) →
+    (Doset.Quotient (Set.range (incl₁ K D)) U) :=
+  fun x => Quotient.mk'' x.out
+
+lemma map₁_surjective (U : Subgroup (Dfx K D)) : Function.Surjective (map₁ K D U) := by
+  refine Set.range_eq_univ.mp ?_
+  ext x
+  constructor
+  · exact fun a ↦ trivial
+  · intro hx
+    refine Set.mem_range.mpr ?_
+    refine Quotient.exists.mpr ?_
+    simp_rw [map₁]
+    obtain ⟨b, hb⟩ := Quot.exists_rep x
+    have : ∃ a : Dfx K D, (⟦a⟧ : Quotient (QuotientGroup.rightRel (incl₁ K D).range)).out = b := by
+      -- this may not be true??... .out is really messing with me here
+      sorry
+    obtain ⟨a, ha⟩ := this
+    use a
+    simp_rw [ha]
+    exact hb
+
+  -- I think I need to adapt map₁ so that I am not use a choice function
+
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
-  sorry
+  haveI := NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D
+  have := finite_cover_nhds (X := _root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range))
+    (U := fun (x : _root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) => {x})
+    (by
+      intro x
+      simp only
+      -- maybe? not sure if I have the correct set up for the map U
+      sorry
+    )
+  obtain ⟨t, ht⟩ := this
+  have finite1 : Finite (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
+    refine Set.finite_univ_iff.mp (by simpa only [← ht] using Set.toFinite (⋃ x ∈ t, {x}))
+  exact Finite.of_surjective (map₁ K D U) (map₁_surjective K D U)
 
 end FiniteAdeleRing
