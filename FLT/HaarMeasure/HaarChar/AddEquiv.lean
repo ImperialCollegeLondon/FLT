@@ -11,6 +11,7 @@ import FLT.Mathlib.Topology.Algebra.Pi
 import Mathlib.Topology.Basic
 
 import Mathlib.MeasureTheory.Constructions.Pi
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 import Mathlib.Logic.Equiv.Basic
 
 import Mathlib.Data.Set.Image
@@ -1306,25 +1307,27 @@ end HaarProductMeasure -- First prove the fundamental identity
 /-! ## HaarProductCharacter Lemma -/
 
 section HaarProductCharacter
-
+/-
+instance [Fintype ι] : Regular (haar : Measure (∀ i, H i)) := by
+  letI : MeasurableSpace (∀ i, H i) := borel _
+  haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
+  exact MeasureTheory.Pi.regular _ (fun i => haar_regular i)
+ -/
 /-- The Haar character of a product of topological group automorphisms
     equals the product of individual Haar characters. -/
 @[to_additive "The Haar character of a product of topological group automorphisms
     equals the product of individual Haar characters."]
 theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
+    letI : MeasurableSpace (∀ i, H i) := borel _
+    haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) =
     ∏ i, mulEquivHaarChar (ψ i) := by
-  -- The key is the measure computation lemma
-  have key := map_haar_pi ψ
-
-  -- Haar character is defined as the scaling factor
-  rw [mulEquivHaarChar_eq]
-  -- The product measure is Haar
-  have prod_haar : IsHaarMeasure (Measure.pi fun i ↦ (haar : Measure (H i))) :=
-    MeasureTheory.isPiHaarMeasure
-
+  letI : MeasurableSpace (∀ i, H i) := borel _
+  haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
+  -- The product measure is Haar. Work with the definition using map_haar_pi
+  have := map_haar_pi ψ
   -- Apply the key lemma
-  rw [key]
+  rw [_]
   -- Extract the scalar factor
   have : haarScalarFactor (Measure.pi fun i ↦ haar)
       ((∏ i, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar) =
