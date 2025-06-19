@@ -174,6 +174,22 @@ lemma IsHaarMeasure.nnreal_smul {μ : Measure G}
     [h : IsHaarMeasure μ] {c : ℝ≥0} (hc : 0 < c) : IsHaarMeasure (c • μ) :=
   h.smul _ (by simp [hc.ne']) (not_eq_of_beq_eq_false rfl) -- beq??
 
+library_note "Uniqueness of Haar measure"
+/-- Any two Haar measures on a locally compact group are proportional. This is
+a fundamental result in the theory of Haar measures. -/
+
+@[to_additive]
+lemma IsHaarMeasure.exists_unique_smul_eq {G : Type*} [Group G] [TopologicalSpace G]
+    [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G]
+    (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
+  ∃ (c : ℝ≥0ˣ), μ = c • ν := by
+  -- First show the scalar factor is positive
+  have h_pos : 0 < haarScalarFactor μ ν := haarScalarFactor_pos_of_isHaarMeasure μ ν
+  -- Convert to units
+  use ⟨haarScalarFactor μ ν, h_pos.ne'⟩
+  -- The scalar factor equation
+  exact haarScalarFactor_eq_mul μ ν
+
 variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
 `φ` scales Haar measure on `G`. -/
@@ -1312,13 +1328,13 @@ theorem exists_pos_smul_eq_of_isHaarMeasure {G : Type*} [Group G] [TopologicalSp
     [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G]
     (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
   ∃ (c : ℝ≥0ˣ), μ = c • ν := by
-    sorry
+  exact IsHaarMeasure.exists_unique_smul_eq  μ ν
 
 theorem exists_isHaarMeasure_eq_smul_isHaarMeasure {G : Type*} [Group G] [TopologicalSpace G]
     [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G]
     (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
-  ∃ (c : ℝ≥0ˣ), μ = c • ν := by
-    sorry
+  ∃ (c : ℝ≥0ˣ), μ = c • ν :=
+    exists_pos_smul_eq_of_isHaarMeasure μ ν
 
 /-
 instance [Fintype ι] : Regular (haar : Measure (∀ i, H i)) := by
