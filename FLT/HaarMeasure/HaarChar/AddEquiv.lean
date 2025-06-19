@@ -1327,7 +1327,7 @@ theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H
   -- The product measure is Haar. Work with the definition using map_haar_pi
   have := map_haar_pi ψ
   -- Apply the key lemma
-  rw [_]
+  rw [key]
   -- Extract the scalar factor
   have : haarScalarFactor (Measure.pi fun i ↦ haar)
       ((∏ i, mulEquivHaarChar (ψ i)) • Measure.pi fun i ↦ haar) =
