@@ -524,7 +524,7 @@ def _root_.ContinuousMulEquiv.piCongrRight (ψ : Π i, (G i) ≃ₜ* (H i)) :
 
 end piCongrRight
 
---set_option maxHeartbeats 20000000
+set_option maxHeartbeats 0 -- 20000000
 
 /-
 Copyright (c) 2025 . All rights reserved.
