@@ -1027,7 +1027,7 @@ theorem exists_unique_smul_of_isHaarMeasure
   -- We need to find a suitable set to define the ratio of the measures.
   -- Since `ν` is a Haar measure on a locally compact group, there exists a compact set `K`
   -- with non-empty interior, which will have positive and finite measure under both `μ` and `ν`.
-  obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior -- G
+  obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior -- G is inferred from the context.
 
   -- The measures of this set are positive and finite.
   have hμK_pos : 0 < μ K := measure_pos_of_isCompact_of_nonempty_interior hK_compact hK_interior
