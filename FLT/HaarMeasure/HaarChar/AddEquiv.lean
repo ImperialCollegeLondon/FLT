@@ -1007,28 +1007,24 @@ def ι_equiv_option_subtype {ι : Type*} [DecidableEq ι] (i₀ : ι) :
 
 @[to_additive map_haar_addEquiv_eq_addEquivAddHaarChar_smul]
 theorem map_haar_mulEquiv_eq_mulEquivHaarChar_smul
-    {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
-    [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
-    (φ : G ≃ₜ* G) (μ : Measure G) [IsHaarMeasure μ] [Regular μ] :
-    map φ μ = mulEquivHaarChar φ • μ :=
-  (mulEquivHaarChar_map μ φ).symm
-  -- By uniqueness of Haar measure, map φ μ is also Haar
-  haveI : IsHaarMeasure (map φ μ) := φ.isHaarMeasure_map μ
+  {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G] [T2Space G]
+    (φ : G ≃ₜ* G) (μ : Measure G) [IsHaarMeasure μ] :
+    Measure.map φ μ = mulEquivHaarChar φ • μ := by
+  -- By uniqueness of Haar measure, any Haar measure `μ` is a scalar multiple of the
+  -- canonical `haarMeasure G`.
+  obtain ⟨c, _, hμ⟩ := IsHaarMeasure.exists_unique_smul_eq μ (haarMeasure G)
 
-  -- By the characterization of mulEquivHaarChar
-  have h1 := mulEquivHaarChar_map μ φ
+  -- We substitute `μ = c • haarMeasure G` on both sides of the goal.
+  rw [hμ, hμ, Measure.map_smul]
 
-  -- h1 says: (mulEquivHaarChar φ) • map φ μ = μ
-  -- We want: map φ μ = mulEquivHaarChar φ • μ
+  -- The definition of `mulEquivHaarChar` states that `map φ (haarMeasure G) = (mulEquivHaarChar φ) • (haarMeasure G)`.
+  -- This is captured by the lemma `mulEquivHaarChar_spec`.
+  rw [mulEquivHaarChar_spec]
 
-  -- Multiply both sides by mulEquivHaarChar φ
-  have h2 : map φ μ = (mulEquivHaarChar φ) • (mulEquivHaarChar φ) • map φ μ := by
-    conv_lhs => rw [← one_smul ℝ≥0 (map φ μ)]
-    rw [← mul_smul]
-    congr 1
-    rw [one_mul]
-
-  rw [h2, h1]
+  -- The goal is now to show `c • (mulEquivHaarChar φ • haarMeasure G) = mulEquivHaarChar φ • (c • haarMeasure G)`.
+  -- This is true by the commutativity of scalar multiplication.
+  rw [smul_comm c]
 
 /-- Composing measure map with equivalence equals map of composed functions -/
 lemma map_comp_equiv_eq_map {α β γ : Type*}
