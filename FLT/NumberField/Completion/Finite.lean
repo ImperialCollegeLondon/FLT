@@ -13,7 +13,7 @@ import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
 
 -/
 
-variable (K : Type) [Field K] [NumberField K]
+variable (K : Type*) [Field K] [NumberField K]
 
 open NumberField
 
@@ -38,3 +38,7 @@ instance : Finite (𝓀[v.adicCompletion K]) :=
 instance NumberField.instCompactSpaceAdicCompletionIntegers :
     CompactSpace (v.adicCompletionIntegers K) :=
   Valued.WithZeroMulInt.integer_compactSpace (v.adicCompletion K) inferInstance
+
+lemma NumberField.isOpenAdicCompletionIntegers :
+    IsOpen (v.adicCompletionIntegers K : Set (v.adicCompletion K)) :=
+  Valued.isOpen_valuationSubring _
