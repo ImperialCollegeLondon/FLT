@@ -1006,39 +1006,55 @@ def ι_equiv_option_subtype {ι : Type*} [DecidableEq ι] (i₀ : ι) :
         · exact absurd h hi
         · congr
 
-/-- In a locally compact space, for every neighborhood `n` of `x`, there exists a compact
-neighborhood `s` of `x` that is a subset of `n`. This shows that the compact neighborhoods
-form a basis for the neighborhood filter. -/
-theorem local_compact_nhds_haar_pi {X : Type*} [TopologicalSpace X] [LocallyCompactSpace X] (x : X) (n : Set X) (hn : n ∈ 𝓝 x) :
-    ∃ s, s ∈ 𝓝 x ∧ s ⊆ n ∧ IsCompact s := by
-  -- From the definition of `LocallyCompactSpace`, we know there exists at least one
-  -- compact neighborhood `K` of `x`.
-  obtain ⟨K, hK_compact, hK_mem_nhds⟩ := exists_compact_mem_nhds x
+/--
+**Uniqueness of Right Haar Measure**
+If `μ` and `ν` are two right-invariant Haar measures on a locally compact Hausdorff group `G`,
+then `μ` is a scalar multiple of `ν`. The scalar is a positive, finite number.
+-/
+theorem exists_unique_smul_of_isRightHaarMeasure :
+    ∃! c : ENNReal, c ≠ 0 ∧ c ≠ ⊤ ∧ μ = c • ν := by
+  -- The proof is identical in structure to the left-invariant case.
+  -- We first obtain a compact set with non-empty interior.
+  obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior
 
-  -- Since the intersection of two neighborhoods is a neighborhood, `n ∩ K` is a neighborhood of `x`.
-  have h_inter_nhds : n ∩ K ∈ 𝓝 x := by exact Filter.inter_mem hn hK_mem_nhds
+  -- The measures of this set under `μ` and `ν` are positive and finite.
+  have hμK_pos : 0 < μ K :=
+    measure_pos_of_isCompact_of_nonempty_interior hK_compact hK_interior
+  have hνK_pos : 0 < ν K :=
+    measure_pos_of_isCompact_of_nonempty_interior hK_compact hK_interior
+  have hμK_finite : μ K < ⊤ := IsCompact.measure_lt_top hK_compact
+  have hνK_finite : ν K < ⊤ := IsCompact.measure_lt_top hK_compact
 
-  -- A key property of locally compact Hausdorff spaces is that they are regular (T3).
-  -- A regular space has a basis of closed neighborhoods for each point.
-  -- We use this to find a closed neighborhood `s` contained in `n ∩ K`.
-  -- (This requires the space to be T3, which is implied by `LocallyCompact` and `T2Space`)
-  haveI : T3Space X := T3Space.of_locallyCompact_t2Space
-  obtain ⟨s, hs_mem_nhds, hs_subset, hs_closed⟩ := closed_nhds_basis x (n ∩ K) h_inter_nhds
+  -- We define our candidate scalar `c` as the ratio of the measures of `K`.
+  let c : ENNReal := μ K / ν K
 
-  -- We now have our candidate set `s`. We must prove its properties.
-  -- 1. `s` is a neighborhood of `x`.
-  -- 2. `s` is a subset of `n`.
-  -- 3. `s` is compact.
-  refine ⟨s, hs_mem_nhds, ?_⟩
+  -- We now prove that this `c` exists and is unique.
+  refine exists_unique.intro c ?_ ?_
 
-  -- The proof of the final conjunction `s ⊆ n ∧ IsCompact s`.
-  constructor
-  · -- `s ⊆ n` follows from `s ⊆ n ∩ K`.
-    exact Set.Subset.trans hs_subset (Set.inter_subset_left n K)
-  · -- `IsCompact s`: `s` is a closed subset of the compact set `K`.
-    -- A closed subset of a compact set is compact.
-    have hs_sub_K : s ⊆ K := Set.Subset.trans hs_subset (Set.inter_subset_right n K)
-    exact hK_compact.of_isClosed_subset hs_closed hs_sub_K
+  -- Existence part:
+  case existence =>
+    constructor
+    · -- Prove `c` is non-zero and finite, which follows from `μ K` and `ν K` being so.
+      exact ⟨(ENNReal.div_pos_iff.mpr (Or.inl ⟨hμK_pos, hνK_finite⟩)).ne.symm,
+             ENNReal.div_lt_top_iff.mpr (Or.inl ⟨hμK_finite.ne, hνK_pos⟩)⟩
+    · -- Prove `μ = c • ν`. This is the content of the corresponding ratio theorem
+      -- for right Haar measures.
+      exact measure_eq_div_smul_of_isRightHaarMeasure μ ν hK_compact hνK_pos hνK_finite
+
+  -- Uniqueness part:
+  case uniqueness =>
+    intro c' h_c'
+    -- Assume `μ = c' • ν`. Evaluating on `K` gives `μ K = c' * ν K`.
+    have h_eq : μ K = (c' • ν) K := by rw [h_c'.2]
+    rw [smul_apply_of_singleton_ne_zero _ (hK_compact.ne_empty hK_interior)] at h_eq
+
+    -- From the definition of `c`, we have `μ K = c * ν K`.
+    have h_def_c : μ K = c * ν K := by
+      rw [ENNReal.div_eq_iff_mul_eq (ne_of_gt hνK_pos) hνK_finite.ne]
+
+    -- Equating the two expressions for `μ K` and cancelling `ν K` proves `c = c'`.
+    rw [h_def_c, mul_eq_mul_right (ne_of_gt hνK_pos) hνK_finite.ne] at h_eq
+    exact h_eq.symm
 
 open Set Filter in
 /-- A non-empty locally compact group has a compact subset with non-empty interior.
@@ -1050,7 +1066,7 @@ theorem exists_compact_with_nonempty_interior [Nonempty G] :
   let g : G := Classical.arbitrary G
   have h_univ_nhds : univ ∈ 𝓝 g := univ_mem
   -- Since `G` is a locally compact space, `g` has a compact neighborhood `K`.
-  obtain ⟨K, hK_nhds, hK_compact⟩ := local_compact_nhds_haar_pi -- g h_univ_nhds
+  obtain ⟨K, hK_nhds, hK_compact⟩ := exists_unique_smul_of_isRightHaarMeasure  -- g h_univ_nhds
   -- A neighborhood of `g` by definition contains an open set `U` that also contains `g`.
   obtain ⟨U, hUK, hU_open, hgU⟩ := mem_nhds_iff.mp hK_nhds
   -- We propose this compact set `K` as our candidate.
