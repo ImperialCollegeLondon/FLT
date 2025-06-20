@@ -221,7 +221,7 @@ lemma p_cont : Continuous (p K D) := Continuous.mul (continuous_fst)
 lemma q_cont : Continuous (q K D) := Continuous.mul (Continuous.comp (MulOpposite.continuous_unop)
   continuous_snd) (continuous_fst)
 
-lemma embedProduct_preimageOf : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K))) =
+lemma embedProduct_preimageOf : (Set.range ⇑(Units.embedProduct D_𝔸)) =
     Set.preimage (p K D) {1} ∩ Set.preimage (q K D) {1} := by
   ext x
   simp only [Set.mem_range, Units.embedProduct_apply, Set.mem_inter_iff, Set.mem_preimage,
