@@ -512,9 +512,8 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       constructor
       use q
       use t
-      rw [← Units.eq_iff, hy, ht]
-      simp only [Units.map_mk, MonoidHom.coe_coe, Algebra.TensorProduct.includeLeft_apply,
-        Units.val_mul, one_div, q, xunit]
+      simp only [← Units.eq_iff, hy, ht, Units.map_mk, MonoidHom.coe_coe,
+        Algebra.TensorProduct.includeLeft_apply, Units.val_mul, one_div, q, xunit]
       rw [← mul_one (N⁻¹ : ℚ), ← one_mul x, ← Algebra.TensorProduct.tmul_mul_tmul, div_eq_mul_inv,
         mul_comm (v : ℚ), ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_assoc, mul_one]
       congr
@@ -529,9 +528,9 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       rw [← one_mul (M : QHat), ← Units.val_one, ← mul_inv_cancel x, Units.val_mul, mul_assoc]
       congr!
       have h : (M : QHat) = (M : ℚ) ⊗ₜ[ℤ] 1 := by
-        rw [← Algebra.TensorProduct.includeLeft_apply (S := ℚ) (M : ℚ), map_natCast]
-      rw [hxinv, h, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_div, inv_mul_cancel₀,
-        Algebra.TensorProduct.includeRight_apply]
+        rw [← Algebra.TensorProduct.includeLeft_apply (S := ℚ) (M : ℚ), map_natCast ]
+      rw [Algebra.TensorProduct.includeRight_apply, hxinv, h, Algebra.TensorProduct.tmul_mul_tmul,
+        mul_one, one_div, inv_mul_cancel₀]
       simp only [ne_eq, Rat.natCast_eq_zero, PNat.ne_zero, not_false_eq_true]
     rcases hx with ⟨X, hX⟩
     let I := Ideal.span {X}
@@ -565,8 +564,34 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       rw [h, Submodule.span_zero_singleton, Submodule.eq_bot_iff] at hg
       specialize hg (M : ℤ) Jnonzero
       simp only [Int.natCast_eq_zero, PNat.ne_zero] at hg
+    clear this hxinv y
     suffices h : Ideal.span {X} = Ideal.span {(g : ZHat)} by
-      sorry
+      --#check Ideal.mem_span_singleton'.1 (Ideal.mem_span_singleton_self X)
+      have hy : ∃ y, y * X = g := by rw [← Ideal.mem_span_singleton', h, Ideal.mem_span_singleton]
+      have hz : ∃ z, z * g = X := by rw [← Ideal.mem_span_singleton', ← h, Ideal.mem_span_singleton]
+      rcases hy with ⟨y, hy⟩
+      rcases hz with ⟨z, hz⟩
+      rw [← hz, ← mul_assoc, mul_comm, mul_comm y, ← sub_right_inj (a := (g : ZHat) * 1), ← mul_sub,
+        mul_one, sub_self] at hy
+      have : y * z = 1 := by
+        sorry
+      let Z : ZHatˣ := ⟨z, y, by rw[mul_comm]; exact this, this⟩
+      simp only [Subgroup.mem_sup, MonoidHom.mem_range, exists_exists_eq_and]
+      set G : ℚ := 1 / g with G_def
+      have gG : g * G = 1 := by
+        rw [G_def, one_div, mul_inv_cancel₀]
+        rw [ne_eq, Rat.intCast_eq_zero]
+        intro h
+        rw [h, lt_self_iff_false] at gpos
+        exact gpos
+      let gunit : ℚˣ := ⟨(g : ℚ), G, gG, by rw [mul_comm]; exact gG⟩
+      use gunit
+      use Z
+      simp only [← Units.eq_iff, ← hX, Units.map_mk, MonoidHom.coe_coe, map_intCast,
+        Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.includeRight_apply,
+        Units.val_mul, AddMonoidHom.coe_coe, gunit, Z]
+      rw [← hz, ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_one, mul_comm,
+        Algebra.TensorProduct.one_tmul_intCast]
     sorry
 
 end multiplicative_structure_of_QHat
