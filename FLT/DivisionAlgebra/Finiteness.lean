@@ -195,7 +195,7 @@ def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
 def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D)
   (Set.image (fun p => (p.1, MulOpposite.op p.2)) (Aux.C K D))
 
-/-- The map of `ringHaarChar_ker D_𝔸` to the wanted right quotient. -/
+/-- The map from `ringHaarChar_ker D_𝔸` to the quotient `Dˣ \ ringHaarChar_ker D_𝔸`. -/
 abbrev toQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
   (Quotient.mk (QuotientGroup.rightRel ((MonoidHom.range (incl K D)).comap
