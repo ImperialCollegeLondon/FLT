@@ -1016,9 +1016,6 @@ theorem exists_compact_mem_nhds_of_locally_compact {G : Type u}
     [TopologicalSpace G] [LocallyCompactSpace G] [T2Space G] (g : G) :
     ∃ (K : Set G), IsCompact K ∧ K ∈ 𝓝 g := by
 
-  -- 1. Register T3Space instance
-  --haveI : T3Space G := T3Space.of_locallyCompact_t2Space
-
   -- 2. Use the compact neighborhood basis from LocallyCompactSpace
   obtain ⟨C, hC_nhds, hC_compact⟩ := (compact_basis_nhds g).ex_mem
 
@@ -1038,7 +1035,7 @@ theorem exists_compact_with_nonempty_interior [Nonempty G] :
   let g : G := Classical.arbitrary G
   have h_univ_nhds : univ ∈ 𝓝 g := univ_mem
   -- Since `G` is a locally compact space, `g` has a compact neighborhood `K`.
-  obtain ⟨K, hK_compact, hK_nhds⟩ := exists_compact_mem_nhds_of_locally_compact -- g h_univ_nhds
+  obtain ⟨K, hK_compact, hK_nhds⟩ := exists_compact_mem_nhds_of_locally_compact g -- h_univ_nhds
   -- A neighborhood of `g` by definition contains an open set `U` that also contains `g`.
   obtain ⟨U, hUK, hU_open, hgU⟩ := mem_nhds_iff.mp hK_nhds
   -- We propose this compact set `K` as our candidate.
