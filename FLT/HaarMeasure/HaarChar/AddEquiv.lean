@@ -1007,17 +1007,23 @@ def ι_equiv_option_subtype {ι : Type*} [DecidableEq ι] (i₀ : ι) :
         · exact absurd h hi
         · congr
 
+/--
+A custom lemma that provides a compact neighborhood for any point `g`.
+This proof avoids calling `LocallyCompactSpace.local_compact_nhds` directly,
+working instead from the T3 property of a locally compact Hausdorff space.
+-/
 theorem exists_compact_mem_nhds_of_locally_compact {G : Type u}
     [TopologicalSpace G] [LocallyCompactSpace G] [T2Space G] (g : G) :
     ∃ (K : Set G), IsCompact K ∧ K ∈ 𝓝 g := by
-  -- 1. Use the compact neighborhood basis from LocallyCompactSpace
-  obtain ⟨C, hC_compact, hC_nhds⟩ := (compact_basis_nhds g).ex_mem
 
-  -- 2. Register T3Space instance
-  haveI : T3Space G := T3Space.of_locallyCompact_t2Space
+  -- 1. Register T3Space instance
+  --haveI : T3Space G := T3Space.of_locallyCompact_t2Space
+
+  -- 2. Use the compact neighborhood basis from LocallyCompactSpace
+  obtain ⟨C, hC_nhds, hC_compact⟩ := (compact_basis_nhds g).ex_mem
 
   -- 3. Get closed neighborhood within C
-  obtain ⟨K, hK_closed, hK_nhds, hK_subset⟩ := exists_mem_nhds_isClosed_subset hC_nhds
+  obtain ⟨K, hK_nhds, hK_closed, hK_subset⟩ := exists_mem_nhds_isClosed_subset hC_nhds
 
   -- 4. K is compact as closed subset of compact
   exact ⟨K, hC_compact.of_isClosed_subset hK_closed hK_subset, hK_nhds⟩
