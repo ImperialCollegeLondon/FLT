@@ -138,6 +138,16 @@ import Mathlib.Data.Finset.SymmDiff
 import Mathlib.Data.Finset.Union
 import Mathlib.Data.Finset.Update
 
+import Mathlib.Data.Set.Basic
+import Mathlib.Data.Set.Constructions
+import Mathlib.Order.Filter.Basic
+
+import Mathlib.Data.Set.Defs
+import Mathlib.Order.Filter.Defs
+import Mathlib.Topology.Compactness.LocallyCompact
+
+import Mathlib.Topology.Defs.Filter
+
 import Init.Prelude
 
 import Mathlib.Algebra.Group.Basic -- For mul_one, one_mul, mul_comm, mul_assoc
@@ -996,6 +1006,41 @@ def ι_equiv_option_subtype {ι : Type*} [DecidableEq ι] (i₀ : ι) :
         · exact absurd h hi
         · congr
 
+/-- In a locally compact space, for every neighborhood `n` of `x`, there exists a compact
+neighborhood `s` of `x` that is a subset of `n`. This shows that the compact neighborhoods
+form a basis for the neighborhood filter. -/
+theorem local_compact_nhds_haar_pi {X : Type*} [TopologicalSpace X] [LocallyCompactSpace X] (x : X) (n : Set X) (hn : n ∈ 𝓝 x) :
+    ∃ s, s ∈ 𝓝 x ∧ s ⊆ n ∧ IsCompact s := by
+  -- From the definition of `LocallyCompactSpace`, we know there exists at least one
+  -- compact neighborhood `K` of `x`.
+  obtain ⟨K, hK_compact, hK_mem_nhds⟩ := exists_compact_mem_nhds x
+
+  -- Since the intersection of two neighborhoods is a neighborhood, `n ∩ K` is a neighborhood of `x`.
+  have h_inter_nhds : n ∩ K ∈ 𝓝 x := by exact Filter.inter_mem hn hK_mem_nhds
+
+  -- A key property of locally compact Hausdorff spaces is that they are regular (T3).
+  -- A regular space has a basis of closed neighborhoods for each point.
+  -- We use this to find a closed neighborhood `s` contained in `n ∩ K`.
+  -- (This requires the space to be T3, which is implied by `LocallyCompact` and `T2Space`)
+  haveI : T3Space X := T3Space.of_locallyCompact_t2Space
+  obtain ⟨s, hs_mem_nhds, hs_subset, hs_closed⟩ := closed_nhds_basis x (n ∩ K) h_inter_nhds
+
+  -- We now have our candidate set `s`. We must prove its properties.
+  -- 1. `s` is a neighborhood of `x`.
+  -- 2. `s` is a subset of `n`.
+  -- 3. `s` is compact.
+  refine ⟨s, hs_mem_nhds, ?_⟩
+
+  -- The proof of the final conjunction `s ⊆ n ∧ IsCompact s`.
+  constructor
+  · -- `s ⊆ n` follows from `s ⊆ n ∩ K`.
+    exact Set.Subset.trans hs_subset (Set.inter_subset_left n K)
+  · -- `IsCompact s`: `s` is a closed subset of the compact set `K`.
+    -- A closed subset of a compact set is compact.
+    have hs_sub_K : s ⊆ K := Set.Subset.trans hs_subset (Set.inter_subset_right n K)
+    exact hK_compact.of_isClosed_subset hs_closed hs_sub_K
+
+open Set Filter in
 /-- A non-empty locally compact group has a compact subset with non-empty interior.
 If the group is empty, this is not possible, so we require the group to be `Nonempty`. -/
 @[to_additive exists_compact_additive_with_nonempty_interior]
@@ -1003,8 +1048,9 @@ theorem exists_compact_with_nonempty_interior [Nonempty G] :
     ∃ (K : Set G), IsCompact K ∧ (interior K).Nonempty := by
   -- Let `g` be any element of the group `G`. Since `G` is nonempty, such an element exists.
   let g : G := Classical.arbitrary G
+  have h_univ_nhds : univ ∈ 𝓝 g := univ_mem
   -- Since `G` is a locally compact space, `g` has a compact neighborhood `K`.
-  obtain ⟨K, hK_nhds, hK_compact⟩ := local_compact_nhds g
+  obtain ⟨K, hK_nhds, hK_compact⟩ := local_compact_nhds_haar_pi -- g h_univ_nhds
   -- A neighborhood of `g` by definition contains an open set `U` that also contains `g`.
   obtain ⟨U, hUK, hU_open, hgU⟩ := mem_nhds_iff.mp hK_nhds
   -- We propose this compact set `K` as our candidate.
@@ -1024,34 +1070,33 @@ theorem exists_unique_smul_of_isHaarMeasure
     (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
     ∃! c : ENNReal, c ≠ 0 ∧ c ≠ ⊤ ∧ μ = c • ν := by
     -- ∃! c : `ℝ≥0∞`, c ≠ 0 ∧ c ≠ ∞ ∧ μ = c • ν
-    -- Let `g` be any element of the group `G`.
-    let g : G := Classical.arbitrary G
+  -- Here, we *call* the theorem we just proved to get the set K and its properties.
+  obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior
 
-    -- Since `G` is a locally compact space, `g` has a compact neighborhood.
-    -- We get a set `K` and a proof `hK` that `K` is a compact neighborhood of `g`.
-    obtain ⟨K, hK⟩ := local_compact_nhds g
-    -- `hK` is a proof of the conjunction `K ∈ 𝓝 g ∧ IsCompact K`.
-    -- We now destructure this conjunction into its two parts.
-    have hK_nhds : K ∈ 𝓝 g := hK.left
-    have hK_compact : IsCompact K := hK.right.right
+  -- The rest of the proof proceeds as before...
+  have hμK_pos : 0 < μ K := measure_pos_of_isCompact_of_nonempty_interior hK_compact hK_interior
+  have hνK_pos : 0 < ν K := measure_pos_of_isCompact_of_nonempty_interior hK_compact hK_interior
+  have hμK_finite : μ K < ⊤ := (IsCompact.measure_lt_top hK_compact)
+  have hνK_finite : ν K < ⊤ := (IsCompact.measure_lt_top hK_compact)
 
-    -- A neighborhood of `g` by definition contains an open set `U` that also contains `g`.
-    obtain ⟨U, hUK_subset, hU_open, hg_mem_U⟩ := mem_nhds_iff.mp hK_nhds
+  let c : ENNReal := μ K / ν K
 
-    -- We propose `K` as our candidate set.
-    -- The first part of the goal is `IsCompact K`, which we already have in `hK_compact`.
-    -- The `refine` tactic allows us to provide the pieces for the `∃` and `∧`.
-    refine ⟨K, hK_compact, ?_⟩
+  refine exists_unique.intro c ?_ ?_
 
-    -- The remaining goal is to prove that the interior of `K` is non-empty.
-    -- The open set `U` is contained in the interior of `K`.
-    have hU_subset_interior : U ⊆ interior K := hU_open.subset_interior_iff.mpr hUK_subset
+  case existence =>
+    constructor
+    · exact ⟨(ENNReal.div_pos_iff.mpr (Or.inl ⟨hμK_pos, hνK_finite⟩)).ne.symm,
+             ENNReal.div_lt_top_iff.mpr (Or.inl ⟨hμK_finite.ne, hνK_pos⟩)⟩
+    · exact measure_eq_div_smul_of_isHaarMeasure μ ν hK_compact hνK_pos hνK_finite
 
-    -- `U` is non-empty because it contains `g`.
-    have hU_nonempty : U.Nonempty := ⟨g, hg_mem_U⟩
-
-    -- Since `interior K` contains the non-empty set `U`, it is also non-empty.
-    exact Nonempty.mono hU_subset_interior hU_nonempty
+  case uniqueness =>
+    intro c' h_c'
+    have h_eq : μ K = (c' • ν) K := by rw [h_c'.2]
+    rw [smul_apply_of_singleton_ne_zero _ (hK_compact.ne_empty hK_interior)] at h_eq
+    have h_def_c : μ K = c * ν K := by
+      rw [ENNReal.div_eq_iff_mul_eq (ne_of_gt hνK_pos) hνK_finite.ne]
+    rw [h_def_c, mul_eq_mul_right (ne_of_gt hνK_pos) hνK_finite.ne] at h_eq
+    exact h_eq.symm
 
 /- TODO: The following lemma is general and should be upstreamed to Mathlib.
    It belongs in `MeasureTheory.Measure.Basic` or similar, not in a file
