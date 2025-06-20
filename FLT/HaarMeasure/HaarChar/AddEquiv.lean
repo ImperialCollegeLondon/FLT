@@ -145,6 +145,7 @@ import Mathlib.Order.Filter.Basic
 import Mathlib.Data.Set.Defs
 import Mathlib.Order.Filter.Defs
 import Mathlib.Topology.Compactness.LocallyCompact
+import Mathlib.Topology.Separation.Regular
 
 import Mathlib.Topology.Defs.Filter
 
@@ -1006,55 +1007,20 @@ def ι_equiv_option_subtype {ι : Type*} [DecidableEq ι] (i₀ : ι) :
         · exact absurd h hi
         · congr
 
-/--
-**Uniqueness of Right Haar Measure**
-If `μ` and `ν` are two right-invariant Haar measures on a locally compact Hausdorff group `G`,
-then `μ` is a scalar multiple of `ν`. The scalar is a positive, finite number.
--/
-theorem exists_unique_smul_of_isRightHaarMeasure :
-    ∃! c : ENNReal, c ≠ 0 ∧ c ≠ ⊤ ∧ μ = c • ν := by
-  -- The proof is identical in structure to the left-invariant case.
-  -- We first obtain a compact set with non-empty interior.
-  obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior
+theorem exists_compact_mem_nhds_of_locally_compact {G : Type u}
+    [TopologicalSpace G] [LocallyCompactSpace G] [T2Space G] (g : G) :
+    ∃ (K : Set G), IsCompact K ∧ K ∈ 𝓝 g := by
+  -- 1. Use the compact neighborhood basis from LocallyCompactSpace
+  obtain ⟨C, hC_compact, hC_nhds⟩ := (compact_basis_nhds g).ex_mem
 
-  -- The measures of this set under `μ` and `ν` are positive and finite.
-  have hμK_pos : 0 < μ K :=
-    measure_pos_of_isCompact_of_nonempty_interior hK_compact hK_interior
-  have hνK_pos : 0 < ν K :=
-    measure_pos_of_isCompact_of_nonempty_interior hK_compact hK_interior
-  have hμK_finite : μ K < ⊤ := IsCompact.measure_lt_top hK_compact
-  have hνK_finite : ν K < ⊤ := IsCompact.measure_lt_top hK_compact
+  -- 2. Register T3Space instance
+  haveI : T3Space G := T3Space.of_locallyCompact_t2Space
 
-  -- We define our candidate scalar `c` as the ratio of the measures of `K`.
-  let c : ENNReal := μ K / ν K
+  -- 3. Get closed neighborhood within C
+  obtain ⟨K, hK_closed, hK_nhds, hK_subset⟩ := exists_mem_nhds_isClosed_subset hC_nhds
 
-  -- We now prove that this `c` exists and is unique.
-  refine exists_unique.intro c ?_ ?_
-
-  -- Existence part:
-  case existence =>
-    constructor
-    · -- Prove `c` is non-zero and finite, which follows from `μ K` and `ν K` being so.
-      exact ⟨(ENNReal.div_pos_iff.mpr (Or.inl ⟨hμK_pos, hνK_finite⟩)).ne.symm,
-             ENNReal.div_lt_top_iff.mpr (Or.inl ⟨hμK_finite.ne, hνK_pos⟩)⟩
-    · -- Prove `μ = c • ν`. This is the content of the corresponding ratio theorem
-      -- for right Haar measures.
-      exact measure_eq_div_smul_of_isRightHaarMeasure μ ν hK_compact hνK_pos hνK_finite
-
-  -- Uniqueness part:
-  case uniqueness =>
-    intro c' h_c'
-    -- Assume `μ = c' • ν`. Evaluating on `K` gives `μ K = c' * ν K`.
-    have h_eq : μ K = (c' • ν) K := by rw [h_c'.2]
-    rw [smul_apply_of_singleton_ne_zero _ (hK_compact.ne_empty hK_interior)] at h_eq
-
-    -- From the definition of `c`, we have `μ K = c * ν K`.
-    have h_def_c : μ K = c * ν K := by
-      rw [ENNReal.div_eq_iff_mul_eq (ne_of_gt hνK_pos) hνK_finite.ne]
-
-    -- Equating the two expressions for `μ K` and cancelling `ν K` proves `c = c'`.
-    rw [h_def_c, mul_eq_mul_right (ne_of_gt hνK_pos) hνK_finite.ne] at h_eq
-    exact h_eq.symm
+  -- 4. K is compact as closed subset of compact
+  exact ⟨K, hC_compact.of_isClosed_subset hK_closed hK_subset, hK_nhds⟩
 
 open Set Filter in
 /-- A non-empty locally compact group has a compact subset with non-empty interior.
@@ -1066,7 +1032,7 @@ theorem exists_compact_with_nonempty_interior [Nonempty G] :
   let g : G := Classical.arbitrary G
   have h_univ_nhds : univ ∈ 𝓝 g := univ_mem
   -- Since `G` is a locally compact space, `g` has a compact neighborhood `K`.
-  obtain ⟨K, hK_nhds, hK_compact⟩ := exists_unique_smul_of_isRightHaarMeasure  -- g h_univ_nhds
+  obtain ⟨K, hK_nhds, hK_compact⟩ := exists_compact_mem_nhds_of_locally_compact -- g h_univ_nhds
   -- A neighborhood of `g` by definition contains an open set `U` that also contains `g`.
   obtain ⟨U, hUK, hU_open, hgU⟩ := mem_nhds_iff.mp hK_nhds
   -- We propose this compact set `K` as our candidate.
