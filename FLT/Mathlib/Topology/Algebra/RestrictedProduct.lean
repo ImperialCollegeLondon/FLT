@@ -397,7 +397,7 @@ def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
       fun i ↦ Submonoid.units_isOpen (hA i)
     have : Fact (∀ i, IsOpen ((Submonoid.ofClass (A i)).units : Set (M i)ˣ)) := Fact.mk hA'
     -- The key idea is that `MulEquiv.restrictedProductUnits ∘ (Units.map sM) = sMx ∘ g ∘ f`,
-    -- where `Units.map sM`, `sMx`, `g`, and `f` are all local homeomorphisms.
+    -- where `Units.map sM`, `sMx`, `g`, and `f` (defined below) are all local homeomorphisms.
     let sM := structureMapMonoidHom M A cofinite
     let f : ((i : ι) → (A i))ˣ ≃ₜ ((i : ι) → (A i)ˣ) := ContinuousMulEquiv.piUnits.toHomeomorph
     let g : ((i : ι) → (Submonoid.ofClass (A i))ˣ) ≃ₜ ((i : ι) → (Submonoid.ofClass (A i)).units) :=
