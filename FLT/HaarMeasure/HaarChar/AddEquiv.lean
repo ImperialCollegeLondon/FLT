@@ -1023,52 +1023,35 @@ theorem exists_unique_smul_of_isHaarMeasure
     [BorelSpace G] [LocallyCompactSpace G] [T2Space G]
     (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
     ∃! c : ENNReal, c ≠ 0 ∧ c ≠ ⊤ ∧ μ = c • ν := by
-    -- ∃! c : `ℝ≥0∞`, c ≠ 0 ∧ c ≠ ∞ ∧ μ = c • νby
-  -- We need to find a suitable set to define the ratio of the measures.
-  -- Since `ν` is a Haar measure on a locally compact group, there exists a compact set `K`
-  -- with non-empty interior, which will have positive and finite measure under both `μ` and `ν`.
-  obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior -- G is inferred from the context.
+    -- ∃! c : `ℝ≥0∞`, c ≠ 0 ∧ c ≠ ∞ ∧ μ = c • ν
+    -- Let `g` be any element of the group `G`.
+    let g : G := Classical.arbitrary G
 
-  -- The measures of this set are positive and finite.
-  have hμK_pos : 0 < μ K := measure_pos_of_isCompact_of_nonempty_interior hK_compact hK_interior
-  have hνK_pos : 0 < ν K := measure_pos_of_isCompact_of_nonempty_interior hK_compact hK_interior
-  have hμK_finite : μ K < ⊤ := (IsCompact.measure_lt_top hK_compact)
-  have hνK_finite : ν K < ⊤ := (IsCompact.measure_lt_top hK_compact)
+    -- Since `G` is a locally compact space, `g` has a compact neighborhood.
+    -- We get a set `K` and a proof `hK` that `K` is a compact neighborhood of `g`.
+    obtain ⟨K, hK⟩ := local_compact_nhds g
+    -- `hK` is a proof of the conjunction `K ∈ 𝓝 g ∧ IsCompact K`.
+    -- We now destructure this conjunction into its two parts.
+    have hK_nhds : K ∈ 𝓝 g := hK.1
+    have hK_compact : IsCompact K := hK.2
 
-  -- Define the candidate for the unique scalar `c`.
-  let c : ENNReal := μ K / ν K
+    -- A neighborhood of `g` by definition contains an open set `U` that also contains `g`.
+    obtain ⟨U, hUK_subset, hU_open, hg_mem_U⟩ := mem_nhds_iff.mp hK_nhds
 
-  -- The proof of `∃!` has two parts: existence (`exists`) and uniqueness (`unique`).
-  -- We use `exists_unique.intro` to provide the candidate `c` and then prove the two parts.
-  refine exists_unique.intro c ?_ ?_
+    -- We propose `K` as our candidate set.
+    -- The first part of the goal is `IsCompact K`, which we already have in `hK_compact`.
+    -- The `refine` tactic allows us to provide the pieces for the `∃` and `∧`.
+    refine ⟨K, hK_compact, ?_⟩
 
-  -- Part 1: Existence. We prove that `c` has the required properties and that `μ = c • ν`.
-  case existence =>
-    constructor
-    · -- First, show that `c` is non-zero and finite.
-      -- This follows directly from the properties of `μ K` and `ν K`.
-      exact ⟨(ENNReal.div_pos_iff.mpr (Or.inl ⟨hμK_pos, hνK_finite⟩)).ne.symm,
-             ENNReal.div_lt_top_iff.mpr (Or.inl ⟨hμK_finite.ne, hνK_pos⟩)⟩
-    · -- Second, show that `μ = c • ν`.
-      -- The core mathematical fact is that the ratio of two Haar measures is constant.
-      -- In Mathlib, this is captured by `measure_eq_div_smul_of_is_haar_measure`.
-      exact measure_eq_div_smul_of_isHaarMeasure μ ν hK_compact hνK_pos hνK_finite
+    -- The remaining goal is to prove that the interior of `K` is non-empty.
+    -- The open set `U` is contained in the interior of `K`.
+    have hU_subset_interior : U ⊆ interior K := hU_open.subset_interior_iff.mpr hUK_subset
 
-  -- Part 2: Uniqueness. We assume `c'` is another scalar with the same properties and show `c' = c`.
-  case uniqueness =>
-    intro c' h_c'
-    -- `h_c'.2` is the hypothesis `μ = c' • ν`.
-    -- We can evaluate both sides of this equality on our chosen set `K`.
-    have h_eq : μ K = (c' • ν) K := by rw [h_c'.2]
-    rw [smul_apply_of_singleton_ne_zero _ (hK_compact.ne_empty hK_interior)] at h_eq
+    -- `U` is non-empty because it contains `g`.
+    have hU_nonempty : U.Nonempty := ⟨g, hg_mem_U⟩
 
-    -- Now we have `μ K = c' * ν K`. By definition of `c`, we also have `μ K = c * ν K`.
-    have h_def_c : μ K = c * ν K := by
-      rw [ENNReal.div_eq_iff_mul_eq (ne_of_gt hνK_pos) hνK_finite.ne]
-
-    -- So `c * ν K = c' * ν K`. We can cancel `ν K` because it's positive and finite.
-    rw [h_def_c, mul_eq_mul_right (ne_of_gt hνK_pos) hνK_finite.ne] at h_eq
-    exact h_eq.symm
+    -- Since `interior K` contains the non-empty set `U`, it is also non-empty.
+    exact Nonempty.mono hU_subset_interior hU_nonempty
 
 /- TODO: The following lemma is general and should be upstreamed to Mathlib.
    It belongs in `MeasureTheory.Measure.Basic` or similar, not in a file
