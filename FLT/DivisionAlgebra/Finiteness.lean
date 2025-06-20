@@ -221,15 +221,33 @@ theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
     -- then apply union_quotToDoset
     sorry
   · intro ⟨I, hI⟩
-    -- need to create a surjection based on I; should be doable?
-    sorry
+    refine Set.finite_univ_iff.mp ?_
+    have : ⋃ (i : I), {i.1} = Set.univ := by
+      contrapose hI
+      rw [eq_comm, ← ne_eq,]
+      rw [← ne_eq] at hI
+      apply (Set.ne_univ_iff_exists_notMem (⋃ (i : I), {i.1})).mp at hI
+      obtain ⟨i, hi⟩ := hI
+      refine (Set.ne_univ_iff_exists_notMem (⋃ i : I, quotToDoset H K i.1)).mpr ?_
+      use i.out
+      simp only [Set.mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and]
+      contrapose hi
+      simp only [Set.iUnion_singleton_eq_range, Subtype.range_coe_subtype, Finset.setOf_mem,
+        Finset.mem_coe, not_not]
+      simp only [not_forall, Classical.not_imp, not_not, exists_prop] at hi
+      obtain ⟨x, hx1, hx2⟩ := hi
+      have := doset_eq_of_mem hx2
+
+
+      sorry
+    simp only [← this, Set.iUnion_singleton_eq_range, Subtype.range_coe_subtype, Finset.setOf_mem,
+      Finset.finite_toSet]
 
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
   have Cover_Dfx := Doset.union_quotToDoset ((incl₁ K D).range) U
-  simp_rw [Doset.quotToDoset] at Cover_Dfx
   have Cover_descended : ⋃ (q : Doset.Quotient ↑(incl₁ K D).range ↑U),
       Quot.mk (α := Dfx K D) ((QuotientGroup.rightRel (incl₁ K D).range)) ''
       (Doset.doset (Quotient.out q : Dfx K D) (Set.range (incl₁ K D)) (U : Set (Dfx K D))) =
@@ -238,25 +256,23 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     intro x hx
     simp only [MonoidHom.coe_range, Set.mem_iUnion, Set.mem_image]
     obtain ⟨y, hy⟩ := Quot.exists_rep x
-    have : ∃ i : Doset.Quotient ↑(incl₁ K D).range ↑U,
+    have ⟨i, hi⟩ : ∃ i : Doset.Quotient ↑(incl₁ K D).range ↑U,
        y ∈ Doset.doset (Quotient.out i) (Set.range ⇑(incl₁ K D)) ↑U  := by
       contrapose Cover_Dfx
       refine (Set.ne_univ_iff_exists_notMem (⋃ q, Doset.doset (Quotient.out q)
         (Set.range ⇑(incl₁ K D)) ↑U)).mpr ?_
-      use y
-      simpa using Cover_Dfx
-    obtain ⟨i, hi⟩ := this
-    refine ⟨i, y, hi, hy⟩
+      exact ⟨y, by simpa using Cover_Dfx⟩
+    exact ⟨i, y, hi, hy⟩
   have ToFinCover := isCompact_univ_iff.mpr
     (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
+  apply isCompact_iff_finite_subcover.mp (ι := (Doset.Quotient (Set.range (incl₁ K D)) U))
+    (U := fun q ↦ Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
+    Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) at ToFinCover
   have Open : (∀ (i : Doset.Quotient (Set.range ⇑(incl₁ K D)) ↑U), IsOpen (Quot.mk
       ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
       (Set.range ⇑(incl₁ K D)) ↑U)) := by
     -- should be true via the blueprint
     sorry
-  apply isCompact_iff_finite_subcover.mp (ι := (Doset.Quotient (Set.range (incl₁ K D)) U))
-    (U := fun q ↦ Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
-      Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) at ToFinCover
   have ⟨t, FinCover_descended⟩ := ToFinCover Open (Cover_descended ▸ Set.Subset.rfl)
   have FinCover_ascended : ⋃ q : t, Doset.doset (Quotient.out q.1) (Set.range ⇑(incl₁ K D)) ↑U =
       Set.univ := by
