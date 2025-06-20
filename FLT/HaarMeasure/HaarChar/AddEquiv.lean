@@ -1038,7 +1038,7 @@ theorem exists_compact_with_nonempty_interior [Nonempty G] :
   let g : G := Classical.arbitrary G
   have h_univ_nhds : univ ∈ 𝓝 g := univ_mem
   -- Since `G` is a locally compact space, `g` has a compact neighborhood `K`.
-  obtain ⟨K, hK_nhds, hK_compact⟩ := exists_compact_mem_nhds_of_locally_compact -- g h_univ_nhds
+  obtain ⟨K, hK_compact, hK_nhds⟩ := exists_compact_mem_nhds_of_locally_compact -- g h_univ_nhds
   -- A neighborhood of `g` by definition contains an open set `U` that also contains `g`.
   obtain ⟨U, hUK, hU_open, hgU⟩ := mem_nhds_iff.mp hK_nhds
   -- We propose this compact set `K` as our candidate.
