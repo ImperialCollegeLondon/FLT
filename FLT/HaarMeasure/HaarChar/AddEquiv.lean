@@ -1032,8 +1032,8 @@ theorem exists_unique_smul_of_isHaarMeasure
     obtain ⟨K, hK⟩ := local_compact_nhds g
     -- `hK` is a proof of the conjunction `K ∈ 𝓝 g ∧ IsCompact K`.
     -- We now destructure this conjunction into its two parts.
-    have hK_nhds : K ∈ 𝓝 g := hK.1
-    have hK_compact : IsCompact K := hK.2
+    have hK_nhds : K ∈ 𝓝 g := hK.left
+    have hK_compact : IsCompact K := hK.right.right
 
     -- A neighborhood of `g` by definition contains an open set `U` that also contains `g`.
     obtain ⟨U, hUK_subset, hU_open, hg_mem_U⟩ := mem_nhds_iff.mp hK_nhds
