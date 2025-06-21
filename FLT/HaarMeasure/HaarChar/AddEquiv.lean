@@ -1041,7 +1041,7 @@ open Set Filter in
 If the group is empty, this is not possible, so we require the group to be `Nonempty`. -/
 @[to_additive exists_compact_additive_with_nonempty_interior
 "A non-empty locally compact additive group has a compact subset with non-empty interior."]
-theorem exists_compact_with_nonempty_interior [Nonempty G] :
+theorem exists_compact_with_nonempty_interior [Nonempty G] [LocallyCompactSpace G] :
     ∃ (K : Set G), IsCompact K ∧ (interior K).Nonempty := by
   -- Let `g` be any element of the group `G`. Since `G` is nonempty, such an element exists.
   let g : G := Classical.arbitrary G
@@ -1507,15 +1507,32 @@ theorem mulEquivHaarChar_piCongrRight  {ι : Type*} {H : ι → Type*} [Fintype 
     haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) =
     ∏ i, mulEquivHaarChar (ψ i) := by
-  letI : MeasurableSpace (∀ i, H i) := borel _
+  -- First introduce the instances from the goal
+  --intro
+  --letI : MeasurableSpace (∀ i, H i) := borel _
   haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
-  haveI K : Nonempty (∀ i, H i) := inferInstance
-  obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior (G := ∀ i, H i)
+  --haveI K : Nonempty (∀ i, H i) := inferInstance
+  --haveI G : IsTopologicalGroup (∀ i, H i) := inferInstance
+  --obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior (G := ∀ i, H i)
   -- First, we must explicitly state that the product of Haar measures is a Haar measure.
-  haveI : IsHaarMeasure (Measure.pi fun i ↦ haarMeasure (H i)) := (Measure.pi).isHaarMeasure
-  obtain ⟨c, hc_pos, hc_eq⟩ := exists_isHaarMeasure_eq_smul_isHaarMeasure
-    (haar : Measure (∀ i, H i)) (Measure.pi fun i ↦ haar)
-  -- product Haar pushforward equals product-scaled product Haar
+  -- Remove the custom MeasurableSpace instance, use the default product one
+  -- Ensure we have the right instances
+  --haveI : ∀ i, IsHaarMeasure (haar : Measure (H i)) := fun i => inferInstance
+  --haveI : IsHaarMeasure (Measure.pi fun i ↦ (haar : Measure (H i))) := by
+  --  apply MeasureTheory.Measure.IsHaarMeasure.pi
+  --haveI : IsHaarMeasure (Measure.pi fun i ↦ (haar : Measure (H i))) := Pi.isHaarMeasure _
+  --obtain ⟨c, hc_eq⟩ := exists_pos_smul_eq_of_isHaarMeasure
+  --  (μ := haar)
+  --  (ν := Measure.pi fun i ↦ haar)
+  -- product Haar pushforward equals product-scaled product Haar-- The Haar measure on a product is proportional to the product of Haar measures
+  have hc_eq : ∃ (c : ℝ≥0ˣ), (haar : Measure (∀ i, H i)) = c • (Measure.pi fun i ↦ (haar : Measure (H i))) := by
+    -- Both are Haar measures, so they're proportional
+    apply IsHaarMeasure.exists_unique_smul_eq
+    -- haar is a Haar measure by definition
+    · exact inferInstance
+    -- Product of Haar measures is a Haar measure
+    · exact MeasureTheory.Measure.IsHaarMeasure.pi _
+  obtain ⟨c, hc_eq⟩ := hc_eq
   have key := map_haar_pi ψ
   -- mulEquivHaarChar is defined as the scalar factor
   unfold mulEquivHaarChar
