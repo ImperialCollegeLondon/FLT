@@ -14,6 +14,8 @@ import Mathlib.MeasureTheory.Constructions.Pi
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 import Mathlib.Logic.Equiv.Basic
 
+import Mathlib.Logic.Nonempty
+
 import Mathlib.Data.Set.Image
 --import Mathlib.Data.Set.NAry
 
@@ -148,6 +150,8 @@ import Mathlib.Topology.Compactness.LocallyCompact
 import Mathlib.Topology.Separation.Regular
 
 import Mathlib.Topology.Defs.Filter
+
+import Mathlib.Topology.Sets.Compacts
 
 import Init.Prelude
 
@@ -1035,7 +1039,8 @@ theorem exists_compact_mem_nhds_of_locally_compact {G : Type u}
 open Set Filter in
 /-- A non-empty locally compact group has a compact subset with non-empty interior.
 If the group is empty, this is not possible, so we require the group to be `Nonempty`. -/
-@[to_additive exists_compact_additive_with_nonempty_interior]
+@[to_additive exists_compact_additive_with_nonempty_interior
+"A non-empty locally compact additive group has a compact subset with non-empty interior."]
 theorem exists_compact_with_nonempty_interior [Nonempty G] :
     ∃ (K : Set G), IsCompact K ∧ (interior K).Nonempty := by
   -- Let `g` be any element of the group `G`. Since `G` is nonempty, such an element exists.
@@ -1482,6 +1487,7 @@ theorem exists_isHaarMeasure_eq_smul_isHaarMeasure [Group G] [TopologicalSpace G
   ∃ (c : ℝ≥0ˣ), μ = c • ν := by
   exact IsHaarMeasure.exists_unique_smul_eq μ ν
 
+open TopologicalSpace NonemptyCompacts PositiveCompacts in
 /-
 instance [Fintype ι] : Regular (haar : Measure (∀ i, H i)) := by
   letI : MeasurableSpace (∀ i, H i) := borel _
@@ -1492,13 +1498,21 @@ instance [Fintype ι] : Regular (haar : Measure (∀ i, H i)) := by
     equals the product of individual Haar characters. -/
 @[to_additive "The Haar character of a product of topological group automorphisms
     equals the product of individual Haar characters."]
-theorem mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
+theorem mulEquivHaarChar_piCongrRight  {ι : Type*} {H : ι → Type*} [Fintype ι]
+  [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)] [∀ i, Nonempty (H i)]
+  /-[∀ i, PositiveCompacts (H i)]-/ [∀ i, IsTopologicalGroup (H i)] [∀ i, MeasurableSpace (H i)]
+  [∀ i, BorelSpace (H i)] [∀ i, LocallyCompactSpace (H i)] [∀ i, T2Space (H i)]
+  (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
     letI : MeasurableSpace (∀ i, H i) := borel _
     haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) =
     ∏ i, mulEquivHaarChar (ψ i) := by
   letI : MeasurableSpace (∀ i, H i) := borel _
   haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
+  haveI K : Nonempty (∀ i, H i) := inferInstance
+  obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior (G := ∀ i, H i)
+  -- First, we must explicitly state that the product of Haar measures is a Haar measure.
+  haveI : IsHaarMeasure (Measure.pi fun i ↦ haarMeasure (H i)) := (Measure.pi).isHaarMeasure
   obtain ⟨c, hc_pos, hc_eq⟩ := exists_isHaarMeasure_eq_smul_isHaarMeasure
     (haar : Measure (∀ i, H i)) (Measure.pi fun i ↦ haar)
   -- product Haar pushforward equals product-scaled product Haar
