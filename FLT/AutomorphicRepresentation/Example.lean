@@ -3,6 +3,7 @@ import Mathlib.Analysis.Quaternion
 import Mathlib.RingTheory.Flat.Basic
 import Mathlib.Algebra.Module.Torsion
 import Mathlib.RingTheory.Flat.Basic
+import FLT.Init
 --import FLT.HIMExperiments.flatness
 /-
 

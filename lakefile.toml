@@ -1,6 +1,10 @@
 name = "FLT"
 defaultTargets = ["FLT"]
 
+weakLeanArgs = [ # options that only take effect at `lake build`, not interactively
+  "-Dweak.suppressSorry=true" # suppress 'declaration uses sorry' warnings
+]
+
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 autoImplicit = false # no "assume a typo is a new variable"

@@ -13,6 +13,7 @@ import Mathlib.LinearAlgebra.UnitaryGroup
 import Mathlib.RepresentationTheory.FDRep
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.LocallyConstant.Basic
+import FLT.Init
 
 suppress_compilation
 
