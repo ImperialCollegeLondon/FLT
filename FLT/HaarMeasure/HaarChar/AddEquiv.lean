@@ -221,6 +221,13 @@ lemma exists_pos_smul_eq_of_isHaarMeasure
   · simp [hc_pos.ne']
   · exact isMulLeftInvariant_eq_smul_of_regular μ ν
 
+@[to_additive]
+theorem IsHaarMeasure.exists_unique_smul_eq
+    [BorelSpace G] [LocallyCompactSpace G] [IsTopologicalGroup G]
+    (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
+  ∃ (c : ℝ≥0ˣ), μ = c • ν := by
+  exact exists_pos_smul_eq_of_isHaarMeasure μ ν
+
 variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
 `φ` scales Haar measure on `G`. -/
@@ -1463,24 +1470,24 @@ end HaarProductMeasure -- First prove the fundamental identity
 
 section HaarProductCharacter
 
-theorem exists_pos_smul_eq_of_isHaarMeasure {G : Type*} [Group G] [TopologicalSpace G]
-    [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G]
+theorem exists_pos_smul_eq_of_isHaarMeasure [Group G] [TopologicalSpace G]
+  [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G] [IsTopologicalGroup G]
+  (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
+  ∃ (c : ℝ≥0ˣ), μ = c • ν := by
+  exact IsHaarMeasure.exists_unique_smul_eq μ ν
+
+theorem exists_isHaarMeasure_eq_smul_isHaarMeasure [Group G] [TopologicalSpace G]
+    [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G] [IsTopologicalGroup G]
     (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
   ∃ (c : ℝ≥0ˣ), μ = c • ν := by
-  exact IsHaarMeasure.exists_unique_smul_eq  μ ν
-
-theorem exists_isHaarMeasure_eq_smul_isHaarMeasure {G : Type*} [Group G] [TopologicalSpace G]
-    [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G]
-    (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
-  ∃ (c : ℝ≥0ˣ), μ = c • ν :=
-    exists_pos_smul_eq_of_isHaarMeasure μ ν
+  exact IsHaarMeasure.exists_unique_smul_eq μ ν
 
 /-
 instance [Fintype ι] : Regular (haar : Measure (∀ i, H i)) := by
   letI : MeasurableSpace (∀ i, H i) := borel _
   haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
   exact MeasureTheory.Pi.regular _ (fun i => haar_regular i)
- -/
+-/
 /-- The Haar character of a product of topological group automorphisms
     equals the product of individual Haar characters. -/
 @[to_additive "The Haar character of a product of topological group automorphisms
