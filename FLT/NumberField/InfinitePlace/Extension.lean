@@ -116,7 +116,7 @@ theorem IsUnmixedExtension.isReal_of_isReal (h : IsUnmixedExtension f g)
   simp only [IsUnmixedExtension, not_and, not_not] at h
   exact h.2 h.1 hf
 
-open Classical in
+open scoped Classical in
 /--
 The extensions `g : L →+* ℂ` of `f : K →+* ℂ` are the direct sum of the mixed and the unmixed
 extensions.
