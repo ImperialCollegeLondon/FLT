@@ -61,37 +61,31 @@ namespace IsDedekindDomain
 
 open IsDedekindDomain HeightOneSpectrum
 
-open scoped TensorProduct -- ⊗ notation for tensor product
+open scoped TensorProduct RestrictedProduct -- ⊗ notation for tensor product
 
 
 section
 universe u
-variable {R : Type*} [CommRing R]
-variable {ι : Type*} {M : Type*} [AddCommGroup M] [Module R M] [Module.FinitePresentation R M]Add commentMore actions
-variable {K : ι → Type*} [∀ i, AddCommGroup (K i)] [∀ i, Module R (K i)]
+variable {R : Type u} [CommRing R]
+variable {ι : Type u} {M : Type u} [AddCommGroup M] [Module R M] [Module.FinitePresentation R M]
+variable {K : ι → Type u} [∀ i, AddCommGroup (K i)] [∀ i, Module R (K i)]
 variable {A : ∀ i, Submodule R (K i)} [∀ i, TopologicalSpace (K i)]
 variable {X Y: Type u} [TopologicalSpace X] [TopologicalSpace Y]
 variable {S : Set ι}
+
+
+
 
 noncomputable def tensor_restrictedProduct_iso :
   M ⊗[R] (Πʳ i, [K i, A i]) ≃ₗ[R]
   (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
   letI := RestrictedProduct.topologicalSpace K (fun i ↦ (A i : Set (K i))) Filter.cofinite
-  haveI := @RestrictedProduct.topologicalSpace_eq_iSup _ K (fun i ↦ (A i : Set (K i))) Filter.cofinite _
+  haveI :=
+    @RestrictedProduct.topologicalSpace_eq_iSup _ K (fun i ↦ (A i : Set (K i))) Filter.cofinite _
 
   --rw [TopologicalSpace.Opens.iSup_def] at this
   have forward : M ⊗[R] (Πʳ i, [K i, A i]) →ₗ[R]
     (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
-    apply LinearMap.codRestrict
-    (LinearMap.comp
-      (LinearMap.pi fun i => LinearMap.rangeRestrict (LinearMap.lTensor M (A i).subtype))
-      (LinearMap.comp tensorPi_equiv_piTensor'.toLinearMap
-        (LinearMap.lTensor M (LinearMap.pi fun i => (A i).subtype))))
-    _
-    (fun x => by
-      -- Show that the result satisfies the restricted product condition
-      sorry
-    )
 
     let embed_source : (Πʳ i, [K i, A i]) →ₗ[R] (Π i, K i) :=
      {toFun := (↑), map_add' x y := rfl, map_smul' k x := rfl}
@@ -102,7 +96,8 @@ noncomputable def tensor_restrictedProduct_iso :
     -- let q := LinearMap.range embed_source'
     -- have hf : ∀ x ∈ p, (tensorPi_equiv_piTensor' R M K) x ∈ q  := sorry
     -- have p' : p =  M ⊗[R] (Πʳ i, [K i, A i]) := sorry
-    -- have q' : q = (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := sorry
+    -- have q' : q = (Πʳ i, [M ⊗[R] (K i),
+    --  LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := sorry
 
     -- let a := LinearMap.restrict (tensorPi_equiv_piTensor' R M K).toLinearMap hf/
     apply TensorProduct.lift
@@ -117,10 +112,21 @@ noncomputable def tensor_restrictedProduct_iso :
       simp only [LinearMap.lTensor_tmul, Submodule.subtype_apply]
       rfl
     · -- Linearity in first argument
-      intro m₁ m₂ x; ext i; simp [TensorProduct.add_tmul]
-    · intro m x₁ x₂; ext i; simp [TensorProduct.tmul_add]; rfl
-    · intro r m x; ext i; simp [TensorProduct.smul_tmul]; rfl
-    · intro r m x; ext i; simp [TensorProduct.tmul_smul]; rfl
+      intro m₁ m₂ x
+      ext i
+      simp [TensorProduct.add_tmul]
+    · intro m x₁ x₂
+      ext i
+      simp [TensorProduct.tmul_add]
+      rfl
+    · intro r m x
+      ext i
+      simp only [RestrictedProduct.mk_apply, RestrictedProduct.add_apply]
+      apply TensorProduct.tmul_add
+    · intro r m x
+      ext i
+      simp only [RestrictedProduct.mk_apply, RestrictedProduct.smul_apply]
+      apply TensorProduct.tmul_smul
 
 
 
@@ -129,13 +135,17 @@ noncomputable def tensor_restrictedProduct_iso :
     -- This should be the natural inclusion
     exact {toFun := (↑), map_add' x y := rfl, map_smul' k x := rfl}
 
-  let embed_target : (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) →ₗ[R] (Π i, M ⊗[R] (K i)) := by
+  let embed_target : (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)])
+    →ₗ[R] (Π i, M ⊗[R] (K i)) := by
     -- Natural inclusion of restricted product into full product
-    exact {toFun := fun y => y.val, map_add' := by sorry, map_smul' := by sorry}
+    exact {toFun := fun y => y.val, map_add' x y := rfl , map_smul' r x:=  rfl}
 
   let f1 := (tensorPi_equiv_piTensor' R M K).toLinearMap
   let f2 := (LinearMap.lTensor M embed_source)
   let f₃ := f1.comp f2
+  let f₄ := (tensorPi_equiv_piTensor' R M K).symm.toLinearMap
+  let f₅ := (f₄.comp embed_target).rangeRestrict
+  have : LinearMap.range (f₄.comp embed_target) = (Πʳ i, [K i, A i]) := sorry
 
 
   -- The key lemma: tensorPi_equiv_piTensor' maps the source submodule to target submodule
@@ -154,7 +164,8 @@ noncomputable def tensor_restrictedProduct_iso :
     -- · -- Pure tensor case: m ⊗ₜ x
     --   intro m x
     --   -- Key insight: tensorPi_equiv_piTensor'_apply gives us the formula
-    --   have h_formula : (tensorPi_equiv_piTensor' R M K) (LinearMap.lTensor M embed_source (m ⊗ₜ x)) =
+    --   have h_formula : (tensorPi_equiv_piTensor' R M K)
+    --  (LinearMap.lTensor M embed_source (m ⊗ₜ x)) =
     --     fun i => m ⊗ₜ[R] x.val i := by
     --     simp [LinearMap.lTensor_tmul, tensorPi_equiv_piTensor'_apply, embed_source]
 
@@ -178,7 +189,8 @@ noncomputable def tensor_restrictedProduct_iso :
     --   simp [← hy₁, ← hy₂]
 
   -- Similarly for the reverse direction
-  have maps_back : ∀ (s : Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]),
+  have maps_back : ∀ (s : Πʳ i, [M ⊗[R] (K i),
+    LinearMap.range (LinearMap.lTensor M (A i).subtype)]),
     (tensorPi_equiv_piTensor' R M K).symm (embed_target s) ∈
     LinearMap.range (LinearMap.lTensor M embed_source) := by
     intro s
@@ -189,7 +201,8 @@ noncomputable def tensor_restrictedProduct_iso :
   have forward : M ⊗[R] (Πʳ i, [K i, A i]) →ₗ[R]
     (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
 
-      -- have' := (embed_target.comp (tensorPi_equiv_piTensor' R M K).toLinearMap).comp (LinearMap.lTensor M embed_source)
+      -- have' := (embed_target.comp (tensorPi_equiv_piTensor' R M K).toLinearMap).comp
+      --  (LinearMap.lTensor M embed_source)
       sorry
 --  have backward := sorry -- Construct using maps_back
 
