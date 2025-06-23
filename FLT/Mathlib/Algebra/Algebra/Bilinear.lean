@@ -1,7 +1,22 @@
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Tower
 import Mathlib.RingTheory.TensorProduct.Basic
+import FLT.Hacks.RightActionInstances
 
+/-!
+
+# API for basic constructions not in mathlib
+
+## Main definitions
+
+* `SemialgHom.baseChange_of_algebraMap ψ` : if `ψ : A →ₛₐ[algebraMap R S] B`
+  then this is the induced map `S ⊗[R] A →ₐ[S] B` (A,B rings, R,S commutative rings).
+* `SemialgHom.baseChangeRightOfAlgebraMap ψ` : if `ψ : A →ₛₐ[algebraMap R S] B` then
+  this is the induced map `S ⊗[R] A →ₐ[A] B` (all rings are commutative).
+* `LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[R] A` and `LinearEquiv.mulRight` are
+  the `R`-linear equivs induced on an `R`-algebra `A` via left and right multiplication
+  by a unit.
+-/
 open scoped TensorProduct
 variable {R S : Type*} [CommSemiring R] [CommSemiring S] {φ : R →+* S}
     {A B : Type*}
@@ -39,11 +54,11 @@ theorem SemialgHom.baseChange_of_algebraMap_tmul_left [Semiring A] [Algebra R S]
     ψ.baseChange_of_algebraMap (s ⊗ₜ[R] 1) = algebraMap _ _ s := by
   simp [baseChange_of_algebraMap, SemialgHom.toLinearMap_eq_coe, Algebra.ofId_apply]
 
-attribute [local instance] Algebra.TensorProduct.rightAlgebra in
+open scoped TensorProduct.RightActions in
 /-- Let `S` be an `R`-algebra and `ψ` a ring homomorphism from an `R`-algebra `A` to an
 `S`-algebra `B` compatible with the algebra map `R → S`. If, in addition, `B` is
 an `R`-algebra and the scalar action of `R` on `B` factors through `S`, then
-`baseChangeRightOfAlgebraMap ψ` is the induced `A`-algebra map `S ⊗[R] A → B`.-/
+`baseChangeRightOfAlgebraMap ψ` is the induced `A`-algebra map `S ⊗[R] A → B`. -/
 noncomputable
 def SemialgHom.baseChangeRightOfAlgebraMap [Algebra R S] [CommSemiring A] [Algebra R A]
     [CommSemiring B] [Algebra R B] [Algebra S B] [IsScalarTower R S B]
