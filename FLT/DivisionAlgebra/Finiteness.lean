@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard, Ludwig Monnerjahn, Hannah Scholz
+Authors: Kevin Buzzard, William Coram
 -/
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
@@ -203,73 +203,6 @@ abbrev toQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.ri
 
 lemma toQuot_cont : Continuous (toQuot K D) := by exact { isOpen_preimage := fun s a ↦ a }
 
-/- The following is part of the proof of 12.11 on the blueprint - perhaps this can be moved there
-  in more generality later
--/
-
-/-- Auxillary map used in `embedProduct_preimageOf`. -/
-def p : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
-  fun p => p.1 * MulOpposite.unop p.2
-
-/-- Auxillary map used in `embedProduct_preimageOf`. -/
-def q : Prod D_𝔸 D_𝔸ᵐᵒᵖ → D_𝔸 :=
-  fun p => MulOpposite.unop p.2 * p.1
-
-lemma p_cont : Continuous (p K D) := Continuous.mul (continuous_fst)
-  (Continuous.comp (MulOpposite.continuous_unop) continuous_snd)
-
-lemma q_cont : Continuous (q K D) := Continuous.mul (Continuous.comp (MulOpposite.continuous_unop)
-  continuous_snd) (continuous_fst)
-
-lemma embedProduct_preimageOf : (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K))) =
-    Set.preimage (p K D) {1} ∩ Set.preimage (q K D) {1} := by
-  ext x
-  simp only [Set.mem_range, Units.embedProduct_apply, Set.mem_inter_iff, Set.mem_preimage,
-    Set.mem_singleton_iff]
-  constructor
-  · rintro ⟨y, ⟨x1, x2⟩⟩
-    exact ⟨by simp only [p,MulOpposite.unop_op, Units.mul_inv],
-      by simp only [q, MulOpposite.unop_op, Units.inv_mul]⟩
-  · rw [p,q]
-    rintro ⟨hp, hq⟩
-    obtain ⟨x1, hx1⟩ : IsUnit x.1 := isUnit_iff_exists_and_exists.mpr
-      ⟨⟨MulOpposite.unop x.2, hp⟩, ⟨MulOpposite.unop x.2, hq⟩⟩
-    use x1
-    rw [hx1]
-    have : MulOpposite.op ↑x1⁻¹ = x.2 := by
-      refine MulOpposite.unop_inj.mp ?_
-      rw [← hx1] at hp
-      exact Units.inv_eq_of_mul_eq_one_right hp
-    simp only [this]
-
-local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
-  sorry
-
-lemma embedProduct_closed : IsClosed (Set.range ⇑(Units.embedProduct (D ⊗[K] AdeleRing (𝓞 K) K)))
-    := by
-  rw [embedProduct_preimageOf]
-  exact IsClosed.inter (IsClosed.preimage (p_cont K D) (isClosed_singleton))
-    (IsClosed.preimage (q_cont K D) (isClosed_singleton))
-
-lemma M_compact : IsCompact (M K D) := by
-  apply Topology.IsClosedEmbedding.isCompact_preimage
-  · unfold incl₂
-    apply Topology.IsClosedEmbedding.comp
-    · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
-        embedProduct_closed K D }
-    · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
-        (continuous_iff_le_induced.mpr fun U a ↦ a)
-        (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
-      simp only [Subgroup.coe_subtype]
-      refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
-      simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
-      exact IsClosed.preimage (continuous_id')
-        (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
-  · refine IsCompact.image (Aux.C_compact K D) (Continuous.prodMk (continuous_fst) ?_)
-    refine Continuous.comp ?_ (continuous_snd)
-    · rw [continuous_induced_rng]
-      exact { isOpen_preimage := fun s a ↦ a }
-
 lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
   rw [Set.eq_univ_iff_forall]
   rintro ⟨a, ha⟩
@@ -288,10 +221,76 @@ lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
       refine Subgroup.mem_subgroupOf.mpr ?_
       simp only [@Subgroup.coe_mul, InvMemClass.coe_inv, mul_inv_rev, mul_inv_cancel_left,
         inv_mem_iff, MonoidHom.mem_range]
-      obtain ⟨x, hx⟩ := hc
-      use x
+      exact hc
     rw [this]
     rfl
+
+/- The following is part of the proof of 12.11 on the blueprint - perhaps this can be moved there
+  in more generality later
+-/
+
+variable (L : Type*) [Monoid L] [TopologicalSpace L] [ContinuousMul L]
+
+/-- Auxillary map used in `embedProduct_preimageOf`. -/
+def p : Prod L Lᵐᵒᵖ → L :=
+  fun p => p.1 * MulOpposite.unop p.2
+
+/-- Auxillary map used in `embedProduct_preimageOf`. -/
+def q : Prod L Lᵐᵒᵖ → L :=
+  fun p => MulOpposite.unop p.2 * p.1
+
+lemma p_cont : Continuous (p L) := Continuous.mul (continuous_fst)
+  (Continuous.comp (MulOpposite.continuous_unop) continuous_snd)
+
+lemma q_cont : Continuous (q L) := Continuous.mul (Continuous.comp (MulOpposite.continuous_unop)
+  continuous_snd) (continuous_fst)
+
+lemma embedProduct_preimageOf : (Set.range ⇑(Units.embedProduct L)) =
+    Set.preimage (p L) {1} ∩ Set.preimage (q L) {1} := by
+  ext x
+  simp only [Set.mem_range, Units.embedProduct_apply, Set.mem_inter_iff, Set.mem_preimage,
+    Set.mem_singleton_iff]
+  constructor
+  · rintro ⟨y, ⟨x1, x2⟩⟩
+    exact ⟨by simp only [p , MulOpposite.unop_op, Units.mul_inv],
+      by simp only [q, MulOpposite.unop_op, Units.inv_mul]⟩
+  · rintro ⟨hp, hq⟩
+    use ⟨x.1, MulOpposite.unop x.2, hp, hq⟩
+    rfl
+
+variable [T1Space L]
+
+lemma embedProduct_closed : IsClosed (Set.range ⇑(Units.embedProduct L))
+    := by
+  rw [embedProduct_preimageOf]
+  exact IsClosed.inter (IsClosed.preimage (p_cont L) (isClosed_singleton))
+    (IsClosed.preimage (q_cont L) (isClosed_singleton))
+
+local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
+
+  sorry
+
+lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
+  · apply Topology.IsClosedEmbedding.comp
+    · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
+        embedProduct_closed D_𝔸}
+    · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
+        (continuous_iff_le_induced.mpr fun U a ↦ a)
+        (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
+      simp only [Subgroup.coe_subtype]
+      refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
+      simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
+      exact IsClosed.preimage (continuous_id')
+        (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
+
+lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.C K D) := by
+  refine IsCompact.image (Aux.C_compact K D) (Continuous.prodMk (continuous_fst) ?_)
+  refine Continuous.comp ?_ (continuous_snd)
+  rw [continuous_induced_rng]
+  exact { isOpen_preimage := fun s a ↦ a }
+
+lemma M_compact : IsCompact (M K D) := Topology.IsClosedEmbedding.isCompact_preimage
+  (incl₂_isClosedEmbedding K D) (ImAux_isCompact K D)
 
 lemma compact_quotient' : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
