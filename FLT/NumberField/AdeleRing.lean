@@ -269,18 +269,6 @@ end NumberField.AdeleRing
 
 end BaseChange
 
-section LocallyCompact
-
--- see https://github.com/smmercuri/adele-ring_locally-compact
--- for a proof of this
-
-variable (K : Type*) [Field K] [NumberField K]
-
-instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing (𝓞 K) K) :=
-  sorry -- issue #253
-
-end LocallyCompact
-
 section Discrete
 
 open IsDedekindDomain
