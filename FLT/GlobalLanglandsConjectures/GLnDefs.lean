@@ -258,7 +258,6 @@ def annihilator {R} [CommSemiring R]
     (a : M) : Submodule R (M →ₗ[R] N) :=
   Submodule.compatibleMaps (Submodule.span R {a}) ⊥
 
-set_option synthInstance.maxHeartbeats 40000 in
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ

@@ -7,7 +7,7 @@ import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 import FLT.NumberField.InfinitePlace.Dimension
 import FLT.NumberField.InfinitePlace.WeakApproximation
 
-open scoped TensorProduct Classical
+open scoped TensorProduct
 
 /-!
 # The completion of a number field at an infinite place
@@ -88,6 +88,7 @@ variable (L v)
 theorem finrank_prod_eq_finrank [NumberField K] :
     Module.finrank v.Completion ((wv : Extension L v) → wv.1.Completion) =
       Module.finrank K L := by
+  classical
   rw [Module.finrank_pi_fintype v.Completion, ← Extension.sum_ramificationIdx_eq L v]
   exact Finset.sum_congr rfl (fun w _ => finrank_eq_ramificationIdx w)
 
@@ -105,6 +106,7 @@ theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
   -- `L` is dense inside Π v | w, L_w
   have := denseRange_algebraMap_subtype_pi _ fun w : InfinitePlace L => w.comap (algebraMap K L) = v
   -- So there exists a vector `α ∈ L^d` whose matrix wrt `Bw` gets close to `1` (has non-zero det)
+  classical
   let ⟨α, h⟩ := (DenseRange.piMap fun _ => this).exists_matrix_det_ne_zero
     (Basis.toMatrix_continuous Bw) Bw.toMatrix_self
   -- Therefore `α` is a basis under the image of `piExtension L v`, hence it's surjective
@@ -142,7 +144,7 @@ theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
   rfl
 
 /-- The `Kᵥ`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
-of `L` lying above `v`.-/
+of `L` lying above `v`. -/
 def baseChangeEquivRight :
     L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.Extension L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
@@ -167,7 +169,6 @@ def piEquiv :
   -- `Kᵥ^d ≃L[Kᵥ] ∏ w | v, L_w`
   exact e₃.trans <| baseChangeEquivRight L v |>.toContinuousLinearEquiv
 
-set_option synthInstance.maxHeartbeats 40000 in
 theorem piEquiv_smul (x : v.Completion) (y : Fin (Module.finrank K L) → v.Completion)
     (wv : v.Extension L) :
     piEquiv L v (x • y) wv = comapHom wv.2 x * piEquiv L v y wv := by
