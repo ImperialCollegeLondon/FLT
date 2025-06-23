@@ -216,10 +216,14 @@ theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
     quotToDoset H K i.1 := by
   constructor
   · intro I
-
-    --use I -- not sure how to coerce this to what I want right now
-    -- then apply union_quotToDoset
-    sorry
+    apply Finset.exists.mpr ⟨Set.univ, Set.finite_univ, ?_⟩
+    ext x
+    simp only [Set.mem_univ, Set.mem_iUnion, Subtype.exists, Set.Finite.mem_toFinset, exists_const,
+      true_iff]
+    have : x ∈ ⋃ q, quotToDoset H K q := by
+      rw [(Doset.union_quotToDoset H K)]
+      exact trivial
+    exact Set.mem_iUnion.mp this
   · intro ⟨I, hI⟩
     refine Set.finite_univ_iff.mp ?_
     have : ⋃ (i : I), {i.1} = Set.univ := by
@@ -237,9 +241,13 @@ theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
       simp only [not_forall, Classical.not_imp, not_not, exists_prop] at hi
       obtain ⟨x, hx1, hx2⟩ := hi
       have := doset_eq_of_mem hx2
-
-
-      sorry
+      have : i = x := by
+        have : mk H K i.out = mk H K x.out := by
+          exact mk_eq_of_doset_eq this
+        simp_rw [Doset.out_eq'] at this
+        exact this
+      rw [this]
+      exact hx1
     simp only [← this, Set.iUnion_singleton_eq_range, Subtype.range_coe_subtype, Finset.setOf_mem,
       Finset.finite_toSet]
 
@@ -276,6 +284,7 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
   have ⟨t, FinCover_descended⟩ := ToFinCover Open (Cover_descended ▸ Set.Subset.rfl)
   have FinCover_ascended : ⋃ q : t, Doset.doset (Quotient.out q.1) (Set.range ⇑(incl₁ K D)) ↑U =
       Set.univ := by
+
     -- I think this is maybe what I want to do?
     sorry
   apply (Doset.finite ((incl₁ K D).range) U).mpr
