@@ -256,6 +256,7 @@ The next result lies a little deeper.
   The function $\delta_R:R^\times\to\R_{>0}$ is continuous.
 \end{corollary}
 \begin{proof}
+  \leanok
   \uses{MeasureTheory.ringHaarChar_mul_integral}
   Fix a Haar measure $\mu$ on $R$ and a continuous real-valued function
   $f$ on $R$ with compact support and such that $\int f(x) d\mu(x)\not=0$.
@@ -411,6 +412,7 @@ the same determinant.
   $\det(\ell_u)=\det(r_u)$.
 \end{lemma}
 \begin{proof}
+  \leanok
   Determinants are unchanged by base extension, so WLOG $k$ is algebraically closed.
   Then it's known that $B$ must be a matrix algebra, say $M_n(k)$. Now $u$ can be thought
   of as a matrix which has its own intrinsic determinant $d$, and $B$ as a left $B$-module
@@ -451,6 +453,7 @@ Here are two facts which we will need about products.
   $d_{A\times B}(\phi\times\psi)=d_A(\phi)d_B(\psi)$.
 \end{lemma}
 \begin{proof}
+  \leanok
   We only need this result in the case where both $A$ and $B$ are second-countable, in which case
   {\tt Prod.borelSpace} can be used to show that Haar measure on $A\times B$ is the product of
   Haar measures on $A$ and $B$, and in this case the result follows easily. Without this assumption,
