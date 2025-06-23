@@ -140,8 +140,6 @@ instance [PatchingAlgebra.smulData Λ R M] : SMul (PatchingAlgebra R F) (Patchin
     obtain rfl := funext hm
     rfl⟩
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
 noncomputable
 instance [PatchingAlgebra.smulData Λ R M] : Module (PatchingAlgebra R F)
     (PatchingModule Λ M F) where

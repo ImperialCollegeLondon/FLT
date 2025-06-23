@@ -88,8 +88,7 @@ noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] 𝔸 K) →ₐ[𝔸 K] 𝔸 
   (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap
 
 -- do we not have this?? Move! PR! TODO
-/-- Product of algebra equivalences; the maps come from Equiv.prodCongr.
- -/
+/-- Product of algebra equivalences; the maps come from Equiv.prodCongr. -/
 def _root_.AlgEquiv.prodCongr {R A A₂ A₃ A₄ : Type*} [CommSemiring R]
     [Semiring A] [Semiring A₂] [Semiring A₃] [Semiring A₄] [Algebra R A]
     [Algebra R A₂] [Algebra R A₃] [Algebra R A₄]
@@ -189,7 +188,7 @@ variable (L)
 
 open scoped TensorProduct.RightActions in
 open TensorProduct.AlgebraTensorModule in
-/-- A continuous `K`-linear isomorphism `L ⊗[K] 𝔸_K = (𝔸_K)ⁿ` for `n = [L:K]`  -/
+/-- A continuous `K`-linear isomorphism `L ⊗[K] 𝔸_K = (𝔸_K)ⁿ` for `n = [L:K]` -/
 noncomputable abbrev tensorProductEquivPi :
     L ⊗[K] (𝔸 K) ≃L[K] (Fin (Module.finrank K L) → 𝔸 K) :=
   letI := instPiIsModuleTopology K L
@@ -203,7 +202,7 @@ noncomputable abbrev tensorProductEquivPi :
   IsModuleTopology.continuousLinearEquiv (comm.symm.trans π) |>.restrictScalars K
 
 open scoped TensorProduct.RightActions in
-/-- A continuous `K`-linear isomorphism `(𝔸_K)ⁿ ≃ 𝔸_L` for `n = [L:K]`  -/
+/-- A continuous `K`-linear isomorphism `(𝔸_K)ⁿ ≃ 𝔸_L` for `n = [L:K]` -/
 noncomputable abbrev piEquiv :
     (Fin (Module.finrank K L) → 𝔸 K) ≃L[K] 𝔸 L :=
   -- `⊕ 𝔸 K ≃L[K] L ⊗[K] 𝔸 K` from previous def
@@ -293,11 +292,11 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
   use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ integralAdeles
   refine ⟨?_, ?_⟩
   · apply IsOpen.prod
-    . rw [Set.setOf_forall]
+    · rw [Set.setOf_forall]
       apply isOpen_iInter_of_finite
       intro v
       exact Metric.isOpen_ball.preimage (continuous_apply v)
-    . exact RestrictedProduct.isOpen_forall_mem fun v ↦ Valued.isOpen_integer _
+    · exact RestrictedProduct.isOpen_forall_mem fun v ↦ Valued.isOpen_integer _
   · apply subset_antisymm
     · intro x hx
       rw [Set.mem_preimage] at hx
@@ -356,13 +355,13 @@ theorem NumberField.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 K) K)
   obtain ⟨V, hV, hV0⟩ := Rat.AdeleRing.zero_discrete
   use (piEquiv ℚ K) '' {f | ∀i, f i ∈ V }
   constructor
-  . rw [← (piEquiv ℚ K).coe_toHomeomorph, Homeomorph.isOpen_image, Set.setOf_forall]
+  · rw [← (piEquiv ℚ K).coe_toHomeomorph, Homeomorph.isOpen_image, Set.setOf_forall]
     apply isOpen_iInter_of_finite
     intro i
     exact hV.preimage (continuous_apply i)
   rw [Set.eq_singleton_iff_unique_mem]
   constructor
-  . rw [Set.eq_singleton_iff_unique_mem, Set.mem_preimage, map_zero] at hV0
+  · rw [Set.eq_singleton_iff_unique_mem, Set.mem_preimage, map_zero] at hV0
     simp only [Set.mem_preimage, map_zero, Set.mem_image,
       EmbeddingLike.map_eq_zero_iff, exists_eq_right, Pi.zero_apply]
     exact fun _ => hV0.left

@@ -85,7 +85,6 @@ omit [IsNoetherianRing Λ]
   [IsPatchingSystem Λ M F]
   [IsLocalRing Λ] in
 -- attribute [local instance] UltraProduct.instIsScalarTower in
-set_option maxHeartbeats 0 in
 lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
     LinearMap.ker ((componentMapModule Λ F (fun i ↦
       (𝔫 • ⊤ : Submodule Λ (M i)).mkQ) α.1).restrictScalars Λ) = 𝔫 • ⊤ := by
