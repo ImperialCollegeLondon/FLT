@@ -6,6 +6,16 @@ import Mathlib.Algebra.Central.Defs
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Hacks.RightActionInstances
 import FLT.NumberField.AdeleRing
+/-!
+
+# Global units are in the determinant of the adelic Haar character
+
+If `K` is a number field and `B` is a finite-dimensional `K`-algebra
+then `B ⊗ 𝔸_K` is a locally compact topological ring, so it admits
+a Haar character `(B ⊗ 𝔸_K)ˣ → ℝ>0`. In this file we show
+that the global units `Bˣ` are in the kernel of this character.
+
+-/
 
 open NumberField
 
