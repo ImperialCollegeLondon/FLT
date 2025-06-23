@@ -225,3 +225,5 @@ def isTerminalResidueField : IsTerminal (residueField (𝓞 := 𝓞)) := .ofUniq
 end residueField
 
 end ProartinianCat
+
+end Deformation

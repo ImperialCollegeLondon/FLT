@@ -101,9 +101,9 @@ instance addGroup [AddGroup A] [DistribSMul M A] : AddGroup (FixedPoints M A) wh
     rw [smul_neg, a.prop]⟩
   zsmul n a := ⟨SubNegMonoid.zsmul n a.1, fun m ↦ by
   induction n with
-  | hz => simp
-  | hp n _ => simp_all [add_zsmul, a.prop]
-  | hn i IH => simp_all [sub_zsmul, smul_neg, a.prop]⟩
+  | zero => simp
+  | succ n _ => simp_all [add_zsmul, a.prop]
+  | pred i IH => simp_all [sub_zsmul, smul_neg, a.prop]⟩
   zsmul_zero' a := by
     ext
     simp [zero_def]
@@ -129,9 +129,25 @@ instance module [AddCommGroup A] [Module R A] [DistribSMul M A] [SMulCommClass M
     Module R (FixedPoints M A) where
       __ := addCommGroup M A
       smul r a := ⟨r • a.1, fun m ↦ by rw [smul_comm, a.2]⟩
-      one_smul := sorry -- all these are #586
-      mul_smul := sorry
-      smul_zero := sorry
-      smul_add := sorry
-      add_smul := sorry
-      zero_smul := sorry
+      one_smul a := by
+        ext
+        exact one_smul R (a : A)
+      mul_smul r s a:= by
+        ext
+        exact mul_smul r s (a : A)
+      smul_zero r := by
+        ext
+        exact smul_zero (r : R)
+      smul_add r a b := by
+        ext
+        exact smul_add r (a : A) (b : A)
+      add_smul r s a := by
+        ext
+        exact add_smul r s (a : A)
+      zero_smul a := by
+        ext
+        exact zero_smul R (a : A)
+
+end FixedPoints
+
+end MulAction
