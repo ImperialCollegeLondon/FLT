@@ -217,7 +217,6 @@ lemma exists_pos_smul_eq_of_isHaarMeasure
   -- Now you need to apply the lemma explicitly
   haveI : Regular μ := IsHaarMeasure.regular μ
   haveI : Regular ν := IsHaarMeasure.regular ν
-
   let c := haarScalarFactor μ ν
   have hc_pos : 0 < c := haarScalarFactor_pos_of_isHaarMeasure μ ν
   refine ⟨⟨c, (c)⁻¹, ?_, ?_⟩, ?_⟩
@@ -1475,62 +1474,49 @@ end HaarProductMeasure -- First prove the fundamental identity
 
 section HaarProductCharacter
 
+@[to_additive]
 theorem exists_pos_smul_eq_of_isHaarMeasure [Group G] [TopologicalSpace G]
   [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G] [IsTopologicalGroup G]
   (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
   ∃ (c : ℝ≥0ˣ), μ = c • ν := by
   exact IsHaarMeasure.exists_unique_smul_eq μ ν
 
+@[to_additive]
 theorem exists_isHaarMeasure_eq_smul_isHaarMeasure [Group G] [TopologicalSpace G]
     [MeasurableSpace G] [BorelSpace G] [LocallyCompactSpace G] [IsTopologicalGroup G]
     (μ ν : Measure G) [IsHaarMeasure μ] [IsHaarMeasure ν] :
   ∃ (c : ℝ≥0ˣ), μ = c • ν := by
   exact IsHaarMeasure.exists_unique_smul_eq μ ν
 
-open TopologicalSpace NonemptyCompacts PositiveCompacts in
-/-
-instance [Fintype ι] : Regular (haar : Measure (∀ i, H i)) := by
-  letI : MeasurableSpace (∀ i, H i) := borel _
-  haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
-  exact MeasureTheory.Pi.regular _ (fun i => haar_regular i)
--/
-/-- The Haar character of a product of topological group automorphisms
-    equals the product of individual Haar characters. -/
 @[to_additive "The Haar character of a product of topological group automorphisms
     equals the product of individual Haar characters."]
-theorem mulEquivHaarChar_piCongrRight  {ι : Type*} {H : ι → Type*} [Fintype ι]
-  [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)] [∀ i, Nonempty (H i)]
-  /-[∀ i, PositiveCompacts (H i)]-/ [∀ i, IsTopologicalGroup (H i)] [∀ i, MeasurableSpace (H i)]
-  [∀ i, BorelSpace (H i)] [∀ i, LocallyCompactSpace (H i)] [∀ i, T2Space (H i)]
-  (ψ : ∀ i, (H i) ≃ₜ* (H i)) :
-    letI : MeasurableSpace (∀ i, H i) := borel _
-    haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
-    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) =
-    ∏ i, mulEquivHaarChar (ψ i) := by
+theorem mulEquivHaarChar_piCongrRight [Fintype ι]
+  [∀ i, CompactSpace (H i)]
+  [∀ i, T2Space (H i)]
+  [∀ i, Nonempty (H i)] (ψ : Π i, (H i) ≃ₜ* (H i)) :
+    letI : MeasurableSpace (Π i, H i) := borel _
+    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   letI : MeasurableSpace (∀ i, H i) := borel _
   haveI : BorelSpace (∀ i, H i) := BorelSpace.mk rfl
-  haveI K : Nonempty (∀ i, H i) := inferInstance
-  --obtain ⟨K, hK_compact, hK_interior⟩ := exists_compact_with_nonempty_interior (G := ∀ i, H i)
-  -- First, we must explicitly state that the product of Haar measures is a Haar measure.
-  --haveI : IsHaarMeasure (Measure.pi fun i ↦ haarMeasure (H i)) := (Measure.pi).isHaarMeasure
-  obtain ⟨c, hc_pos, hc_eq⟩ := exists_isHaarMeasure_eq_smul_isHaarMeasure
-    (haar : Measure (∀ i, H i)) (Measure.pi fun i ↦ haar)
-  obtain ⟨c, hc_eq⟩ := hc_eq
-  have key := map_haar_pi ψ
-  -- mulEquivHaarChar is defined as the scalar factor
-  unfold mulEquivHaarChar
-  -- Use hc_eq to rewrite haar in terms of Measure.pi
-  rw [hc_eq]
-  -- Refactor haarScalarFactor (c • π) (c • (∏ᵢ φᵢ) • π) = haarScalarFactor (c • π) ((c * ∏ᵢ φᵢ) • π)
-  rw [← mul_smul]
-  -- Now we have haarScalarFactor (c • Measure.pi ...) (map ... (c • Measure.pi ...))
-  rw [Measure.map_smul]
-  -- Apply the key lemma
-  rw [key]
-  -- Extract the scalar factor. Use that haarScalarFactor (c • μ) (c • d • μ) = d
-  rw [haarScalarFactor_smul']
-  -- Finally: haarScalarFactor π ((∏ᵢ φᵢ) • π) = ∏ᵢ φᵢ
-  exact haarScalarFactor_smul _ _
+  -- Manually build the instances for the product space
+  haveI : T2Space (∀ i, H i) := Pi.t2Space
+  haveI : LocallyCompactSpace (∀ i, H i) := by
+    haveI : ∀ i, LocallyCompactSpace (H i) := fun i => inferInstance
+    exact Pi.locallyCompactSpace
+  haveI : Nonempty (∀ i, H i) := inferInstance
+  -- Key observation: each component has Haar character 1
+  have h_comp : ∀ i, mulEquivHaarChar (ψ i) = 1 := fun i =>
+    mulEquivHaarChar_eq_one_of_compactSpace (ψ i)
+
+  -- So the product is 1
+  simp [h_comp, Finset.prod_eq_one]
+
+  -- And the product space is also compact
+  haveI : CompactSpace (∀ i, H i) := Pi.compactSpace
+
+  -- So its Haar character is also 1
+  exact mulEquivHaarChar_eq_one_of_compactSpace _
 
 end HaarProductCharacter
 
