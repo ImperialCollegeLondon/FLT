@@ -261,6 +261,7 @@ theorem toIsUnmixedExtension_ofIsUnmixedExtension {ψ : L →+* ℂ}
       Subtype.mk.injEq]
     rw [← hr.2, ofIsUnmixedExtension_embedding, mk_conjugate_eq, mk_embedding]
 
+open scoped Classical in
 theorem toIsUnmixedExtension_injective : (toIsUnmixedExtension L v).Injective := by
   classical
   apply Function.Injective.dite _

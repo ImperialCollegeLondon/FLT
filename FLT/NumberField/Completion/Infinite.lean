@@ -85,6 +85,8 @@ instance : Module.Free v.Completion wv.1.Completion :=
   Module.free_of_finite_type_torsion_free'
 
 variable (L v)
+
+open scoped Classical in
 theorem finrank_prod_eq_finrank [NumberField K] :
     Module.finrank v.Completion ((wv : Extension L v) → wv.1.Completion) =
       Module.finrank K L := by
@@ -100,6 +102,7 @@ theorem finrank_pi_eq_finrank_tensorProduct [NumberField K] :
       Module.finrank_tensorProduct, Module.finrank_self, one_mul,
     finrank_prod_eq_finrank]
 
+open scoped Classical in
 theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
   -- Let `Bw` be a `K_v` basis of `Π v | w, L_w`
   let Bw := Module.finBasis v.Completion ((w : v.Extension L) → w.1.Completion)

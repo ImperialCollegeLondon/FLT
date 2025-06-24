@@ -62,7 +62,7 @@ lemma exists_ofAdd_natCast_lt {x : ℤₘ₀} (hx : x ≠ 0) :
 
 end Multiplicative
 
-variable { A : Type* } ( K : Type* ) [CommRing A] [Field K] [Algebra A K] [IsFractionRing A K]
+variable {A : Type*} (K : Type*) [CommRing A] [Field K] [Algebra A K] [IsFractionRing A K]
     [IsDedekindDomain A] (v : HeightOneSpectrum A)
 
 lemma ne_zero_of_some_le_intValuation {a : A} {m : Multiplicative ℤ} (h : m ≤ v.intValuation a)
@@ -221,8 +221,8 @@ theorem denseRange_of_integerAlgebraMap :
   rfl
 
 /-- An element of `𝒪_v` can be approximated by an element of `A`. -/
-theorem exists_adicValued_sub_lt_of_adicCompletionInteger ( x : v.adicCompletionIntegers K )
-    ( γ : (WithZero (Multiplicative ℤ))ˣ ) :
+theorem exists_adicValued_sub_lt_of_adicCompletionInteger (x : v.adicCompletionIntegers K)
+    (γ : (WithZero (Multiplicative ℤ))ˣ) :
     ∃a, Valued.v ((algebraMap A K a) - (x : v.adicCompletion K)) < γ.val := by
   have h := closureAlgebraMapIntegers_eq_integers K v
   rw [Set.ext_iff] at h
@@ -302,7 +302,7 @@ theorem inertiaDeg_asIdeal_completionIdeal :
 /-- An element of `∏_{v ∈ s} 𝒪_v`, with `s` finite, can be approximated by an element of `A`.
 -/
 theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
-    (e : ι → (WithZero (Multiplicative ℤ))ˣ ) (valuation : ι → HeightOneSpectrum A)
+    (e : ι → (WithZero (Multiplicative ℤ))ˣ) (valuation : ι → HeightOneSpectrum A)
     (injective : Function.Injective valuation)
     (x : (i : ι) → (valuation i).adicCompletionIntegers K) :
     ∃ a, ∀ i ∈ s, Valued.v ((algebraMap A K a) - (x i).val) < (e i).val := by
