@@ -60,7 +60,8 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
-https://leanprover.zulipchat.com/#narrow/channel/416277-FLT.
+https://leanprover.zulipchat.com/#narrow/channel/416277-FLT
+or directly to Kevin Buzzard via Zulip DM.
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
