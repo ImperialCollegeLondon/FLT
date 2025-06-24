@@ -183,7 +183,8 @@ lemma _root_.Homeomorph.regular_map {G H : Type*}
 
 section basic
 
-variable {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
+variable {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G] [T2Space G]
+
 @[to_additive]
 lemma IsHaarMeasure.nnreal_smul {μ : Measure G}
     [h : IsHaarMeasure μ] {c : ℝ≥0} (hc : 0 < c) : IsHaarMeasure (c • μ) :=
@@ -195,19 +196,29 @@ a fundamental result in the theory of Haar measures. -/
 
 -- Haar measures on locally compact groups are regular
 @[to_additive IsAddHaarMeasure.regular]
-lemma IsHaarMeasure.regular [BorelSpace G] [LocallyCompactSpace G] [IsTopologicalGroup G]
+lemma IsHaarMeasure.regular [BorelSpace G] [Nonempty G]
+  [LocallyCompactSpace G] [IsTopologicalGroup G]
     (μ : Measure G) [IsHaarMeasure μ] : Regular μ := by
+  let ν_haar := (Measure.haar : Measure G)
+  have exists_pos_smul_eq_of_isHaarMeasure :
+    ∃ (c : ℝ≥0ˣ), μ = c • ν_haar := by
+    -- Now you need to apply the lemma explicitly
+    let ν := (Measure.haar : Measure G)
   -- The default Haar measure is regular
-  have haar_reg : Regular (haar : Measure G) := haar_regular G
-
-  -- Any Haar measure is a scalar multiple of the default Haar measure
-  obtain ⟨c, hc⟩ := exists_isHaarMeasure_eq_smul_isHaarMeasure μ haar
-
+    haveI : Regular (Measure.haar : Measure G) := inferInstance
+    haveI : ν.Regular := inferInstance -- ν_haar_reg
+    let c := haarScalarFactor μ ν
+    have hc_pos : 0 < c := haarScalarFactor_pos_of_isHaarMeasure μ ν
+    refine ⟨⟨c, (c)⁻¹, ?_, ?_⟩, ?_⟩
+    · simp [hc_pos.ne']
+    · simp [hc_pos.ne']
+    · sorry -- exact isMulLeftInvariant_eq_smul_of_regular μ ν
+  -- The default Haar measure is regular
+  obtain ⟨c,hc⟩ := exists_pos_smul_eq_of_isHaarMeasure -- μ ν_haar_reg
   -- Rewrite μ as a scalar multiple of haar
   rw [hc]
-
   -- Scalar multiples of regular measures are regular
-  exact Regular.smul haar_reg c
+  sorry -- exact Regular.smul c_ne_top
 
 @[to_additive exists_pos_smul_eq_of_isAddHaarMeasure]
 lemma exists_pos_smul_eq_of_isHaarMeasure
