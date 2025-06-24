@@ -220,34 +220,24 @@ theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
     ext x
     simp only [Set.mem_univ, Set.mem_iUnion, Subtype.exists, Set.Finite.mem_toFinset, exists_const,
       true_iff]
-    have : x ∈ ⋃ q, quotToDoset H K q := by
-      rw [(Doset.union_quotToDoset H K)]
-      exact trivial
-    exact Set.mem_iUnion.mp this
+    exact Set.mem_iUnion.mp (by rw [(Doset.union_quotToDoset H K)]; exact trivial)
   · intro ⟨I, hI⟩
     refine Set.finite_univ_iff.mp ?_
     have : ⋃ (i : I), {i.1} = Set.univ := by
       contrapose hI
-      rw [eq_comm, ← ne_eq,]
-      rw [← ne_eq] at hI
+      rw [eq_comm, ← ne_eq]
       apply (Set.ne_univ_iff_exists_notMem (⋃ (i : I), {i.1})).mp at hI
       obtain ⟨i, hi⟩ := hI
-      refine (Set.ne_univ_iff_exists_notMem (⋃ i : I, quotToDoset H K i.1)).mpr ?_
-      use i.out
+      refine (Set.ne_univ_iff_exists_notMem (⋃ i : I, quotToDoset H K i.1)).mpr ⟨i.out, ?_⟩
       simp only [Set.mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and]
       contrapose hi
       simp only [Set.iUnion_singleton_eq_range, Subtype.range_coe_subtype, Finset.setOf_mem,
         Finset.mem_coe, not_not]
       simp only [not_forall, Classical.not_imp, not_not, exists_prop] at hi
       obtain ⟨x, hx1, hx2⟩ := hi
-      have := doset_eq_of_mem hx2
       have : i = x := by
-        have : mk H K i.out = mk H K x.out := by
-          exact mk_eq_of_doset_eq this
-        simp_rw [Doset.out_eq'] at this
-        exact this
-      rw [this]
-      exact hx1
+        simpa using (mk_eq_of_doset_eq (doset_eq_of_mem hx2))
+      simpa only [this] using hx1
     simp only [← this, Set.iUnion_singleton_eq_range, Subtype.range_coe_subtype, Finset.setOf_mem,
       Finset.finite_toSet]
 
@@ -279,14 +269,48 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
   have Open : (∀ (i : Doset.Quotient (Set.range ⇑(incl₁ K D)) ↑U), IsOpen (Quot.mk
       ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
       (Set.range ⇑(incl₁ K D)) ↑U)) := by
-    -- should be true via the blueprint
+    intro i
+    -- blueprint says this should be true
     sorry
   have ⟨t, FinCover_descended⟩ := ToFinCover Open (Cover_descended ▸ Set.Subset.rfl)
   have FinCover_ascended : ⋃ q : t, Doset.doset (Quotient.out q.1) (Set.range ⇑(incl₁ K D)) ↑U =
       Set.univ := by
-
-    -- I think this is maybe what I want to do?
-    sorry
+    contrapose FinCover_descended
+    simp only [Set.univ_subset_iff, ← ne_eq] at ⊢ FinCover_descended
+    obtain ⟨x, hx⟩ := (Set.ne_univ_iff_exists_notMem (⋃ q : { x // x ∈ t },
+      Doset.doset (Quotient.out q.1) (Set.range ⇑(incl₁ K D)) ↑U)).mp FinCover_descended
+    refine (Set.ne_univ_iff_exists_notMem (⋃ i ∈ t,
+      Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
+      (Set.range ⇑(incl₁ K D)) ↑U)).mpr ?_
+    use Quot.mk (⇑(QuotientGroup.rightRel (incl₁ K D).range)) x
+    simp only [Set.mem_iUnion, Set.mem_image, exists_prop, not_exists, not_and, ne_eq]
+    intro y hy q hq
+    rw [← ne_eq]
+    contrapose hx
+    simp only [Set.mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, not_forall,
+      Classical.not_imp, not_not]
+    simp only [ne_eq, not_not] at hx
+    refine ⟨y, hy, ?_⟩
+    have : Doset.doset q (Set.range (incl₁ K D)) U =
+        Doset.doset (Quotient.out y) (Set.range ⇑(incl₁ K D)) ↑U := by
+      exact Doset.doset_eq_of_mem (H := (incl₁ K D).range) (K := U) hq
+    rw [← this]
+    apply Doset.mem_doset.mpr
+    have : ∃ a : Set.range ⇑(incl₁ K D), x = a * q := by
+      have : ∃ a, (incl₁ K D) a * x = q := by
+        apply (Quotient.eq).mp at hx
+        obtain ⟨⟨a', ⟨a, ha⟩⟩, ha'⟩ := hx
+        use a
+        simp only [← ha] at ha'
+        exact ha'
+      obtain ⟨a, ha⟩ := this
+      refine ⟨⟨(incl₁ K D) a⁻¹, ⟨a⁻¹, rfl⟩⟩, ?_⟩
+      simp only [map_inv]
+      exact eq_inv_mul_of_mul_eq ha
+    obtain ⟨a, ha⟩ := this
+    refine ⟨a.1, ?_⟩
+    simp only [Subtype.coe_prop, SetLike.mem_coe, true_and]
+    refine ⟨1, Subgroup.one_mem U, by simpa using ha⟩
   apply (Doset.finite ((incl₁ K D).range) U).mpr
   use t
   exact (Eq.symm FinCover_ascended)
