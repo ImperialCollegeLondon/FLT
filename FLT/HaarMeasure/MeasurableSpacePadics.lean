@@ -51,7 +51,6 @@ instance instBorelSpace : BorelSpace ℤ_[p] := Subtype.borelSpace _
 
 lemma isMeasurableEmbedding_coe : MeasurableEmbedding ((↑) : ℤ_[p] → ℚ_[p]) := by
   convert isOpenEmbedding_coe.measurableEmbedding
-  exact inferInstanceAs (BorelSpace ℤ_[p])
 
 noncomputable instance instMeasureSpace : MeasureSpace ℤ_[p] := ⟨addHaarMeasure ⊤⟩
 

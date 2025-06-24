@@ -2,14 +2,11 @@ import Mathlib.Algebra.Group.Pi.Units
 import Mathlib.Algebra.Group.Submonoid.Units
 import Mathlib.Topology.Algebra.Constructions
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
+import Mathlib.Topology.Algebra.Group.Basic
 
 lemma Submonoid.units_isOpen {M : Type*} [TopologicalSpace M] [Monoid M]
   {U : Submonoid M} (hU : IsOpen (U : Set M)) : IsOpen (U.units : Set Mˣ) :=
   (hU.preimage Units.continuous_val).inter (hU.preimage Units.continuous_coe_inv)
-
-lemma Submonoid.units_isCompact {M : Type*} [TopologicalSpace M] [Monoid M] [ContinuousMul M]
-    [T2Space M] {U : Submonoid M} (hU : IsCompact (U : Set M)) : IsCompact (U.units : Set Mˣ) := by
-  sorry -- FLT#588
 
 /-- The monoid homeomorphism between the units of a product of topological monoids
 and the product of the units of the monoids.
