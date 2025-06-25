@@ -29,7 +29,7 @@ This can be equivalently stated by asserting that the appropriate `algebraMap` h
   some infinite place `v` of `K`).
 -/
 
-open scoped Topology Classical
+open scoped Topology
 
 open NumberField
 
@@ -89,6 +89,7 @@ theorem exists_tendsto_zero_tendsto_atTop_tendsto_const
   rw [← zero_mul <| v j b]
   exact Tendsto.mul_const _ <| tendsto_pow_atTop_nhds_zero_of_lt_one ((v j).nonneg _) (haj j hj)
 
+open scoped Classical in
 /--
 Let `a, b ∈ K`, and let `v₁, ..., vₖ` be absolute values with some `1 < vᵢ a` while all other
 `vⱼ a < 1`. Suppose `1 < vᵢ b`. Let `w` be another absolute value on `K` such that `w a = 1`,
@@ -102,6 +103,7 @@ theorem exists_one_lt_lt_one_lt_one_of_eq_one
     {ι : Type*} [Fintype ι] {v : ι → AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ} {a b : K} {i : ι}
     (ha : 1 < v i a) (haj : ∀ j ≠ i, v j a < 1) (haw : w a = 1) (hb : 1 < v i b) (hbw : w b < 1) :
     ∃ k : K, 1 < v i k ∧ (∀ j ≠ i, v j k < 1) ∧ w k < 1 := by
+  classical
   let ⟨c, hc⟩ := exists_tendsto_zero_tendsto_atTop_tendsto_const ha haj haw hb hbw
   simp_rw [Metric.tendsto_nhds, Filter.tendsto_atTop_atTop, Filter.eventually_atTop,
     dist_zero_right, ← WithAbs.norm_eq_abs, norm_norm] at hc
@@ -137,6 +139,7 @@ theorem exists_tendsto_const_tendsto_zero_tendsto_const
   replace haj := map_inv₀ (v j) _ ▸ (one_lt_inv₀ (pos_of_pos (v j) (by linarith))).2 (haj j hj)
   exact zero_mul (v j b) ▸ Tendsto.mul_const _ (tendsto_pow_div_one_add_pow_zero haj)
 
+open scoped Classical in
 /--
 Let `a, b ∈ K`, and let `v₁, ..., vₖ` be absolute values with some `1 < vᵢ a` while all other
 `vⱼ a < 1`. Suppose `1 < vᵢ b`. Let `w` be another absolute value on `K` such that `1 < w a`,
@@ -153,6 +156,7 @@ theorem exists_one_lt_lt_one_lt_one_of_one_lt
     {ι : Type*} [Fintype ι] {v : ι → AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ} {a b : K} {i : ι}
     (ha : 1 < v i a) (haj : ∀ j ≠ i, v j a < 1) (haw : 1 < w a) (hb : 1 < v i b) (hbw : w b < 1) :
     ∃ k : K, 1 < v i k ∧ (∀ j ≠ i, v j k < 1) ∧ w k < 1 := by
+  classical
   let ⟨c, hc⟩ := exists_tendsto_const_tendsto_zero_tendsto_const b ha haj haw
   have hₙ := fun j hj => Metric.tendsto_nhds.1 <| hc.2.1 j hj
   simp_rw [Filter.eventually_atTop, dist_zero_right] at hₙ
@@ -326,7 +330,7 @@ theorem exists_one_lt_lt_one [NumberField K] (h : 1 < Fintype.card (InfinitePlac
 
 variable (K)
 
-open Filter in
+open Filter Classical in
 /--
 *Weak approximation for infinite places*: this is the result that `K` is dense in `Π v, K`, where
 `v` ranges over all infinite places of `K` and at the `v`th place we consider `K` to have the
@@ -358,6 +362,7 @@ theorem denseRange_algebraMap_pi [NumberField K] :
   -- At each place `w` the limit of `y` with respect to `w`'s topology is `z w`.
   have : Tendsto (fun n w => ((∑ v, x v n * z v) : WithAbs w.1)) atTop (𝓝 z) := by
     refine tendsto_pi_nhds.2 fun w => ?_
+    classical
     simp_rw [← Finset.sum_ite_eq_of_mem _ _ _ (Finset.mem_univ w)]
     -- In `w`'s topology we have that `x v n * z v → z v`  if `v = w` else `→ 0`
     refine tendsto_finset_sum _ fun v _ => ?_

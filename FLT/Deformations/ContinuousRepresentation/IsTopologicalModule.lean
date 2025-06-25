@@ -6,7 +6,7 @@ import Mathlib.Topology.Algebra.Module.LinearMap
 
 open Topology
 
-variable  (R : Type*) [Ring R] [TopologicalSpace R]
+variable (R : Type*) [Ring R] [TopologicalSpace R]
   (M : Type*) [AddCommGroup M] [Module R M] [TopologicalSpace M]
 
 /--
@@ -30,7 +30,7 @@ instance Submodule.instIsTopologicalModuleSubtypeMem (S : Submodule R M) : IsTop
     := IsInducing.subtypeVal.topologicalModule R S.subtypeL
 
 instance Pi.instTopologicalModule {ι : Type*} (R : Type*) [Ring R] [TopologicalSpace R]
-    {M : ι →  Type*} [∀ i, AddCommGroup (M i)] [∀ i, Module R (M i)]
+    {M : ι → Type*} [∀ i, AddCommGroup (M i)] [∀ i, Module R (M i)]
     [∀ i, TopologicalSpace (M i)] [∀ i, IsTopologicalModule R (M i)] :
     IsTopologicalModule R ((i : ι) → M i) where
   continuous_smul := by apply continuous_smul

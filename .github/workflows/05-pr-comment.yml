@@ -5,16 +5,32 @@ on:
     types: [created]
 
 jobs:
+  awaiting_author:
+    if: github.event.issue.pull_request != null && contains(github.event.comment.body, 'awaiting-author')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Add 'awaiting-author; and remove any 'awaiting-review'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { owner, repo, number: issue_number } = context.issue;
+          await github.rest.issues.addLabels({ owner, repo, issue_number, labels: ['awaiting-author'] });
+          await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'awaiting-review' }).catch(() => {});
+
   awaiting_review:
     if: github.event.issue.pull_request != null && contains(github.event.comment.body, 'awaiting-review')
     runs-on: ubuntu-latest
 
     steps:
-    - name: Add "awaiting-review" label to the PR
-      run: |
-        curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-        -d '{"labels":["awaiting-review"]}' \
-        https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/labels
+    - name: Add 'awaiting-review; and remove any 'awaiting-author'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { owner, repo, number: issue_number } = context.issue;
+          await github.rest.issues.addLabels({ owner, repo, issue_number, labels: ['awaiting-review'] });
+          await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'awaiting-author' }).catch(() => {});
 
     - name: Retrieve project ID
       id: get_project_id
