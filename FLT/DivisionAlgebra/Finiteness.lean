@@ -13,7 +13,7 @@ import Mathlib.Tactic.LinearCombination'
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
-
+import FLT.Hacks.RightActionInstances
 
 set_option maxHeartbeats 0
 set_option synthInstance.maxHeartbeats 0
@@ -196,38 +196,6 @@ instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
 instance : NonAssocSemiring (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   Algebra.TensorProduct.instRing.toNonAssocSemiring
 
--- all the below instances are needed and are not being found
-
-local instance : IsTopologicalRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
-  TensorProduct.RightActions.instIsTopologicalRing_fLT K (FiniteAdeleRing (𝓞 K) K) D
-
-local instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K) := by
-
-  sorry
-
-local instance :  LocallyCompactSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  exact TensorProduct.RightActions.instLocallyCompactSpaceOfIsTopologicalRing_fLT K
-    (FiniteAdeleRing (𝓞 K) K) D
-
-local instance : NonUnitalNonAssocRing (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
-  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
-  r.toNonUnitalNonAssocRing
-
-local instance : NonAssocSemiring (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
-  Algebra.TensorProduct.instSemiring.toNonAssocSemiring
-
-local instance : IsTopologicalRing (D ⊗[K] NumberField.InfiniteAdeleRing K ×
-  D ⊗[K] FiniteAdeleRing (𝓞 K) K) := instIsTopologicalRingProd
-
-local instance : LocallyCompactSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
-  TensorProduct.RightActions.instLocallyCompactSpaceOfIsTopologicalRing_fLT K
-  (NumberField.InfiniteAdeleRing K) D
-
-local instance :  LocallyCompactSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
-    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  exact Prod.locallyCompactSpace (D ⊗[K] NumberField.InfiniteAdeleRing K)
-    (D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-
 variable [Algebra.IsCentral K D]
 
 /-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
@@ -242,7 +210,6 @@ variable [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
 
 def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃*
     Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
-  simp_rw [NumberField.AdeleRing, Dfx]
   /-
   have start' := Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
     (FiniteAdeleRing (𝓞 K) K) -- #26092 should fix this (switch CommSemiring to Semiring)
@@ -297,9 +264,6 @@ def α : Quotient (QuotientGroup.rightRel
     (fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a))
     (α_equivariant K D)
 
-local instance : TopologicalSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) :=
-  instTopologicalSpaceQuotient
-
 lemma rest₁_continuous : Continuous (rest₁ K D) := by
   unfold rest₁ iso₁
   simp only [Function.const_apply, id_eq, MulEquiv.trans_apply]
@@ -318,6 +282,15 @@ local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
 
 local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
   D ⊗[K] FiniteAdeleRing (𝓞 K) K) := { measurable_eq := rfl }
+
+local instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K) := by
+  -- done on main, need to find or bump again
+  sorry
+
+local instance :  LocallyCompactSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := inferInstance
+
+local instance :  LocallyCompactSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := inferInstance
 
 lemma iso₁_ringHaarChar_eq (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
     (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
