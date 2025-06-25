@@ -14,6 +14,7 @@ import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Hacks.RightActionInstances
+import FLT.NumberField.FiniteAdeleRing
 
 set_option maxHeartbeats 0
 set_option synthInstance.maxHeartbeats 0
@@ -282,15 +283,6 @@ local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
 
 local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
   D ⊗[K] FiniteAdeleRing (𝓞 K) K) := { measurable_eq := rfl }
-
-local instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K) := by
-  -- done on main, need to find or bump again
-  sorry
-
-local instance :  LocallyCompactSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := inferInstance
-
-local instance :  LocallyCompactSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
-    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := inferInstance
 
 lemma iso₁_ringHaarChar_eq (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
     (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
