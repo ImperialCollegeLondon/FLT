@@ -226,6 +226,14 @@ def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃*
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (iso₁ K D) a.val |>.2
 
+abbrev incl₂ : Dˣ →* (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ := by
+      exact (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
+
+abbrev incl₃ : Dˣ →*  Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) where
+  toFun := fun x => (incl₂ K D x, incl₁ K D x)
+  map_one' := rfl
+  map_mul' x y := by simp only [map_mul, Prod.mk_mul_mk]
+
 lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker (D ⊗[K] NumberField.AdeleRing (𝓞 K) K))),
     (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker
     (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)).subtype
@@ -243,16 +251,13 @@ lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker (D ⊗[K] NumberField.Ade
   use t'
   have : incl₁ K D t' = ((iso₁ K D) (NumberField.AdeleRing.DivisionAlgebra.incl K D t')).2 := by
     simp_rw [incl₁, NumberField.AdeleRing.DivisionAlgebra.incl]
-    let incl₂ : Dˣ →* (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ := by
-      exact (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
     have : (iso₁ K D) ((NumberField.AdeleRing.DivisionAlgebra.incl K D) t') =
-        (incl₂ t', incl₁ K D t') := by
-      refine Prod.ext ?_ ?_
-      · simp only
+        (incl₂ K D t', incl₁ K D t') := by
+      simp_rw [incl₂, incl₁, NumberField.AdeleRing.DivisionAlgebra.incl]
+      simp_rw [iso₁]
+      simp only [RingHom.toMonoidHom_eq_coe, MulEquiv.trans_apply]
 
-        sorry
-      · simp only
-        sorry
+      sorry
     simp_rw [this]
   simp_rw [this, ht, ← Prod.snd_mul, Subgroup.subtype_apply, Subgroup.comap_subtype, ← map_mul]
   rfl
