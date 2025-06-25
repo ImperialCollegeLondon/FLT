@@ -364,6 +364,11 @@ lemma Equiv₂_ringHaarChar_eq (x : (D ⊗[ℚ] ℝ)ˣ) : ringHaarChar ((Equiv�
   -- why is this breaking??
   sorry
 
+def Equiv₃ (d : ℕ) (h : d = Module.finrank ℚ D) : (D ⊗[ℚ] ℝ) ≃ (Fin d → ℝ) := by
+  sorry
+
+-- then want a lemma saying that the the ringHaarChar on the RHS is the abs value to the power d
+
 local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
   exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
 
