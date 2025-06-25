@@ -3,6 +3,20 @@ import FLT.Mathlib.Algebra.Algebra.Tower
 import Mathlib.RingTheory.TensorProduct.Basic
 import FLT.Hacks.RightActionInstances
 
+/-!
+
+# API for basic constructions not in mathlib
+
+## Main definitions
+
+* `SemialgHom.baseChange_of_algebraMap ψ` : if `ψ : A →ₛₐ[algebraMap R S] B`
+  then this is the induced map `S ⊗[R] A →ₐ[S] B` (A,B rings, R,S commutative rings).
+* `SemialgHom.baseChangeRightOfAlgebraMap ψ` : if `ψ : A →ₛₐ[algebraMap R S] B` then
+  this is the induced map `S ⊗[R] A →ₐ[A] B` (all rings are commutative).
+* `LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[R] A` and `LinearEquiv.mulRight` are
+  the `R`-linear equivs induced on an `R`-algebra `A` via left and right multiplication
+  by a unit.
+-/
 open scoped TensorProduct
 variable {R S : Type*} [CommSemiring R] [CommSemiring S] {φ : R →+* S}
     {A B : Type*}
