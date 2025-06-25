@@ -211,14 +211,11 @@ variable [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
 
 def iso₁ : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ ≃*
     Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) := by
-  /-
   have start' := Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
-    (FiniteAdeleRing (𝓞 K) K) -- #26092 should fix this (switch CommSemiring to Semiring)
-  -/
+    (FiniteAdeleRing (𝓞 K) K)
   have interim := Units.mapEquiv (M := D ⊗[K] (NumberField.InfiniteAdeleRing K × FiniteAdeleRing
     (𝓞 K) K)) (N := D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-    sorry
-    --(AlgEquiv.toMulEquiv (R := K) start') -- may need to rewrite this after PR, not sure
+    (AlgEquiv.toMulEquiv (R := K) start')
   have final := MulEquiv.prodUnits (M := D ⊗[K] NumberField.InfiniteAdeleRing K)
     (N := D ⊗[K] FiniteAdeleRing (𝓞 K) K)
   exact interim.trans final
@@ -227,7 +224,7 @@ abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (iso₁ K D) a.val |>.2
 
 abbrev incl₂ : Dˣ →* (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ := by
-      exact (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
+  exact (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
 
 abbrev incl₃ : Dˣ →*  Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) where
   toFun := fun x => (incl₂ K D x, incl₁ K D x)
@@ -250,15 +247,7 @@ lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker (D ⊗[K] NumberField.Ade
   obtain ⟨t, t', ht⟩ := h
   use t'
   have : incl₁ K D t' = ((iso₁ K D) (NumberField.AdeleRing.DivisionAlgebra.incl K D t')).2 := by
-    simp_rw [incl₁, NumberField.AdeleRing.DivisionAlgebra.incl]
-    have : (iso₁ K D) ((NumberField.AdeleRing.DivisionAlgebra.incl K D) t') =
-        (incl₂ K D t', incl₁ K D t') := by
-      simp_rw [incl₂, incl₁, NumberField.AdeleRing.DivisionAlgebra.incl]
-      simp_rw [iso₁]
-      simp only [RingHom.toMonoidHom_eq_coe, MulEquiv.trans_apply]
-
-      sorry
-    simp_rw [this]
+    rfl
   simp_rw [this, ht, ← Prod.snd_mul, Subgroup.subtype_apply, Subgroup.comap_subtype, ← map_mul]
   rfl
 
@@ -275,7 +264,6 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
   simp only [Function.const_apply, id_eq, MulEquiv.trans_apply]
   refine Continuous.comp continuous_snd ?_
   refine Continuous.comp ?_ ?_
-  -- the following will work when iso₁ is working (relient on mathlib PR)
   · -- general statement is true no?
     sorry
   · refine Continuous.comp ?_ (continuous_subtype_val)
@@ -293,7 +281,9 @@ lemma iso₁_ringHaarChar_eq (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
     (b : Dfx K D) : ringHaarChar ((iso₁ K D).symm (a, b)) =
     ringHaarChar (R := Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K]
     (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
-  -- probably requires rw'ing iso₁
+  simp_rw [iso₁]
+  simp only [MulEquiv.symm_trans_apply, Units.mapEquiv_symm]
+
   sorry -- this allows us to use ringHaarChar_prod
 
 def InfiniteAdeleEquiv : NumberField.InfiniteAdeleRing K ≃* K ⊗[ℚ] ℝ := by
