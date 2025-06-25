@@ -40,7 +40,7 @@ private lemma log_approx {x : ℝ} (hx : 0 < x) : (1 + x)⁻¹ ≤ log (1 + x⁻
 private lemma rootDiscrBound_strictMono_aux3 {x : ℝ} (hx : 1 ≤ x) :
     -0.5 ≤ log x / 2 - x / (x + 1) := by
   suffices h : StrictMonoOn (fun x ↦ log x / 2 - x / (x + 1)) (Set.Ioi 0) by
-    convert h.monotoneOn (by simp) (by simp; linarith) hx using 1
+    convert h.monotoneOn (by simp) (by simp only [Set.mem_Ioi]; linarith) hx using 1
     norm_num
   apply strictMonoOn_of_hasDerivWithinAt_pos (convex_Ioi _)
     (f' := fun x ↦ (x ^ 2 + 1) / (2 * x * (x + 1) ^ 2))
