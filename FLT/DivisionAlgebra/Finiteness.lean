@@ -16,9 +16,6 @@ import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Hacks.RightActionInstances
 import FLT.NumberField.FiniteAdeleRing
 
-set_option maxHeartbeats 0
-set_option synthInstance.maxHeartbeats 0
-
 /-
 
 # Fujisaki's lemma
@@ -197,6 +194,15 @@ instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
 instance : NonAssocSemiring (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   Algebra.TensorProduct.instRing.toNonAssocSemiring
 
+-- Instance to help speed up instance synthesis
+local instance : NonUnitalNonAssocRing (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
+  r.toNonUnitalNonAssocRing
+
+-- Instance to help speed up instance synthesis
+local instance : NonAssocSemiring (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  Algebra.TensorProduct.instRing.toNonAssocSemiring
+
 variable [Algebra.IsCentral K D]
 
 /-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
@@ -264,8 +270,13 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
   simp only [Function.const_apply, id_eq, MulEquiv.trans_apply]
   refine Continuous.comp continuous_snd ?_
   refine Continuous.comp ?_ ?_
-  · -- general statement is true no?
-    sorry
+  · simp_rw [MulEquiv.prodUnits]
+    simp only [MulEquiv.coe_mk, Equiv.coe_fn_mk]
+    apply Continuous.prodMk
+    ·
+      sorry
+    ·
+      sorry
   · refine Continuous.comp ?_ (continuous_subtype_val)
 
     sorry
@@ -286,17 +297,35 @@ lemma iso₁_ringHaarChar_eq (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ)
 
   sorry -- this allows us to use ringHaarChar_prod
 
-def InfiniteAdeleEquiv : NumberField.InfiniteAdeleRing K ≃* K ⊗[ℚ] ℝ := by
+-- The following mess is so that I can write in terms of the ringHaarChar over (D ⊗[ℚ] ℝ)
+-- Perhaps there is a better way to do all of this
+
+def InfiniteAdeleEquiv : NumberField.InfiniteAdeleRing K ≃ K ⊗[ℚ] ℝ := by
+
+  sorry
+
+local instance : Module ℚ K := by
+  exact Algebra.toModule
+
+local instance : Module K D := by
+  exact Algebra.toModule
+
+local instance : IsScalarTower ℚ K D := by
 
   sorry
 
 instance : Module ℚ D := by
-  -- K is a ℚ module and D is a module over K
+  -- should be combination of the above instances
   sorry
 
-def Equiv₁ : (D ⊗[K] NumberField.InfiniteAdeleRing K) ≃* (D ⊗[ℚ] ℝ) := by
-  -- need to apply InfiniteAdeleEquiv then combine tensors
-  sorry
+-- not sure if this is the correct type of equivalence I need
+def Equiv₁ : (D ⊗[K] NumberField.InfiniteAdeleRing K) ≃ₗ[ℚ] (D ⊗[ℚ] ℝ) := by
+  have := InfiniteAdeleEquiv K
+  have h1 : D ⊗[K] NumberField.InfiniteAdeleRing K ≃ₗ[ℚ]  D ⊗[K] (K ⊗[ℚ] ℝ) := by
+    sorry
+  have h2 : D ⊗[K] K ⊗[ℚ] ℝ ≃ₗ[ℚ] D ⊗[ℚ] ℝ := by
+    exact TensorProduct.AlgebraTensorModule.cancelBaseChange ℚ K ℚ D ℝ
+  exact h1.trans h2
 
 instance : Monoid (D ⊗[ℚ] ℝ) := by
 
@@ -311,7 +340,7 @@ local instance : TopologicalSpace (D ⊗[ℚ] ℝ) := by
   sorry
 
 local instance : IsTopologicalRing (D ⊗[ℚ] ℝ) := by
-  -- Equiv₂_ringHaarChar is not picking this up...
+
   sorry
 
 def Equiv₂ : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ ≃* (D ⊗[ℚ] ℝ)ˣ := by
@@ -320,7 +349,7 @@ def Equiv₂ : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ ≃* (D ⊗[ℚ] ℝ
   -- why??
   sorry
 
-def incl₃ : ℝˣ → (D ⊗[ℚ] ℝ)ˣ := by
+def incl₄ : ℝˣ → (D ⊗[ℚ] ℝ)ˣ := by
   -- will need this, true since ℚ ⊆ D (ℚ ⊆ K ⊆ D) then take tensor
   sorry
 
@@ -330,12 +359,10 @@ local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := b
 local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
   exact { measurable_eq := rfl }
 
-lemma Equiv₂_ringHaarChar_eq (x : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) :
-    ringHaarChar (R := (D ⊗[K] NumberField.InfiniteAdeleRing K)) x = ringHaarChar (R := D ⊗[ℚ] ℝ)
-    (Equiv₂ K D x) := by
+lemma Equiv₂_ringHaarChar_eq (x : (D ⊗[ℚ] ℝ)ˣ) : ringHaarChar ((Equiv₂ K D).symm x) =
+    ringHaarChar (R := D ⊗[ℚ] ℝ) x := by
   -- why is this breaking??
   sorry
-
 
 local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
   exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
@@ -348,6 +375,7 @@ local instance : MeasurableSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
 
 local instance : BorelSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
   exact { measurable_eq := rfl }
+
 
 lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
@@ -374,7 +402,8 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
       sorry
     have h_pos : r.toReal ^ (1/(d : ℝ)) > 0 := by
       exact Real.rpow_pos_of_pos (NNReal.coe_pos.mpr hr) _
-    use (Equiv₂ K D).symm (incl₃ D (Units.mk0 (r.toReal ^ (1/(d : ℝ))) h_pos.ne'))
+    use (Equiv₂ K D).symm (incl₄ D ((Units.mk0 (r.toReal ^ (1/(d : ℝ)))) h_pos.ne'))
+    --rw [Equiv₂_ringHaarChar_eq]
     -- want to use Equiv₂_ringHaarChar_eq as this removes Equiv₂ K D
     -- then somehow want to conclude using the fact the ringHaarChar r = r^d
     sorry
