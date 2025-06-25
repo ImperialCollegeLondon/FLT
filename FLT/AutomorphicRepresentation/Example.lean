@@ -602,19 +602,51 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
         Units.val_mul, AddMonoidHom.coe_coe, gunit, Z]
       rw [← hz, ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_one, mul_comm,
         Algebra.TensorProduct.one_tmul_intCast]
+    have hgx : Ideal.span {(g : ZHat)} ≤ Ideal.span {X} := by
+      rw [Ideal.span_singleton_le_iff_mem]
+      have : g ∈ IdealJ := by
+        rw [hg, Ideal.submodule_span_eq]
+        apply Ideal.mem_span_singleton_self
+      have huh : g ∈ J := by
+        simp only [Submodule.mem_mk, AddSubmonoid.mem_mk, AddSubsemigroup.mem_mk, IdealJ] at this
+        exact this
+      simp only [Int.coe_castRingHom, Set.mem_preimage, SetLike.mem_coe, J, IdealJ, I] at huh
+      exact huh
     apply le_antisymm
     · suffices h : X N = 0 by
-        sorry
+        rw [Ideal.span_singleton_le_span_singleton, dvd_def]
+        rcases (ZHat.multiples N X).2 h with ⟨y, hy⟩
+        use y
+        rw [← hy]
+        congr
+        simp only [PNat.mk_coe, N]
+        rw [← Int.cast_natCast, Int.natCast_toNat_eq_self.2 (le_of_lt gpos)]
+      apply not_not.1
+      intro hxN
+      let xg := (X N).val
+      have : (xg - X) N = 0 := by
+        simp only [ZHat, ZMod.castHom_apply, ZHat.instDFunLikePNatZModVal,
+          AddSubgroupClass.coe_sub, SubringClass.coe_natCast, Pi.sub_apply, Pi.natCast_apply, xg]
+        simp only [ZMod.natCast_val, ZMod.cast_id', id_eq, sub_self]
+      rcases (ZHat.multiples N _).2 this with ⟨y, hy⟩
+      have : (xg : ZHat) ∈ Ideal.span {X} := by
+        rw [← sub_add_cancel (xg : ZHat) X]
+        apply Ideal.add_mem
+        · apply hgx
+          rw [Ideal.mem_span_singleton', ← hy]
+          use y
+          simp only [PNat.mk_coe, N]
+          rw [← Int.cast_natCast, Int.natCast_toNat_eq_self.2 (le_of_lt gpos), mul_comm]
+        apply Ideal.mem_span_singleton_self
+      have hxg : (xg : ℤ) ∈ IdealJ := by
+        simp only [Int.coe_castRingHom, Submodule.mem_mk, AddSubmonoid.mem_mk,
+          AddSubsemigroup.mem_mk, Set.mem_preimage, Int.cast_natCast, SetLike.mem_coe, this, IdealJ,
+          J, I, xg, N]
+      rw [hg, Submodule.mem_span_singleton] at hxg
+      rcases hxg with ⟨a, ha⟩
+      rw [smul_eq_mul] at ha
       sorry
-    rw [Ideal.span_singleton_le_iff_mem]
-    have : g ∈ IdealJ := by
-      rw [hg, Ideal.submodule_span_eq]
-      apply Ideal.mem_span_singleton_self
-    have huh : g ∈ J := by
-      simp only [Submodule.mem_mk, AddSubmonoid.mem_mk, AddSubsemigroup.mem_mk, IdealJ] at this
-      exact this
-    simp only [Int.coe_castRingHom, Set.mem_preimage, SetLike.mem_coe, J, IdealJ, I] at huh
-    exact huh
+    exact hgx
 
 end multiplicative_structure_of_QHat
 
