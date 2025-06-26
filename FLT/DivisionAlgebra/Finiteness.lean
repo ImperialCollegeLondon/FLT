@@ -216,7 +216,7 @@ theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
     quotToDoset H K i.1 := by
   constructor
   · intro I
-    apply Finset.exists.mpr ⟨Set.univ, Set.finite_univ, ?_⟩
+    refine Finset.exists.mpr ⟨Set.univ, Set.finite_univ, ?_⟩
     ext x
     simp only [Set.mem_univ, Set.mem_iUnion, Subtype.exists, Set.Finite.mem_toFinset, exists_const,
       true_iff]
@@ -261,11 +261,11 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
         (Set.range ⇑(incl₁ K D)) ↑U)).mpr ?_
       exact ⟨y, by simpa using Cover_Dfx⟩
     exact ⟨i, y, hi, hy⟩
-  have ToFinCover := isCompact_univ_iff.mpr
-    (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D)
-  apply isCompact_iff_finite_subcover.mp (ι := (Doset.Quotient (Set.range (incl₁ K D)) U))
+  have ToFinCover :=  isCompact_iff_finite_subcover.mp
+    (ι := (Doset.Quotient (Set.range (incl₁ K D)) U))
     (U := fun q ↦ Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
-    Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) at ToFinCover
+    Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) (isCompact_univ_iff.mpr
+    (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D))
   have Open : (∀ (i : Doset.Quotient (Set.range ⇑(incl₁ K D)) ↑U), IsOpen (Quot.mk
       ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
       (Set.range ⇑(incl₁ K D)) ↑U)) := by
@@ -285,7 +285,6 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     use Quot.mk (⇑(QuotientGroup.rightRel (incl₁ K D).range)) x
     simp only [Set.mem_iUnion, Set.mem_image, exists_prop, not_exists, not_and, ne_eq]
     intro y hy q hq
-    rw [← ne_eq]
     contrapose hx
     simp only [Set.mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, not_forall,
       Classical.not_imp, not_not]
@@ -296,23 +295,16 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
       exact Doset.doset_eq_of_mem (H := (incl₁ K D).range) (K := U) hq
     rw [← this]
     apply Doset.mem_doset.mpr
-    have : ∃ a : Set.range ⇑(incl₁ K D), x = a * q := by
-      have : ∃ a, (incl₁ K D) a * x = q := by
+    obtain ⟨a, ha⟩ : ∃ a : Set.range ⇑(incl₁ K D), x = a * q := by
+      obtain ⟨a, ha⟩  : ∃ a, (incl₁ K D) a * x = q := by
         apply (Quotient.eq).mp at hx
         obtain ⟨⟨a', ⟨a, ha⟩⟩, ha'⟩ := hx
-        use a
-        simp only [← ha] at ha'
-        exact ha'
-      obtain ⟨a, ha⟩ := this
-      refine ⟨⟨(incl₁ K D) a⁻¹, ⟨a⁻¹, rfl⟩⟩, ?_⟩
-      simp only [map_inv]
-      exact eq_inv_mul_of_mul_eq ha
-    obtain ⟨a, ha⟩ := this
+        refine ⟨a, by simpa [ha] using ha'⟩
+      refine ⟨⟨(incl₁ K D) a⁻¹, ⟨a⁻¹, rfl⟩⟩, eq_inv_mul_of_mul_eq ha⟩
     refine ⟨a.1, ?_⟩
     simp only [Subtype.coe_prop, SetLike.mem_coe, true_and]
-    refine ⟨1, Subgroup.one_mem U, by simpa using ha⟩
+    exact ⟨1, Subgroup.one_mem U, by simpa using ha⟩
   apply (Doset.finite ((incl₁ K D).range) U).mpr
-  use t
-  exact (Eq.symm FinCover_ascended)
+  refine ⟨t, Eq.symm FinCover_ascended⟩
 
 end FiniteAdeleRing
