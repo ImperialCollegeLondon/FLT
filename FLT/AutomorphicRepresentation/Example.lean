@@ -583,9 +583,8 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       have : y * z = 1 := by
         rw [mul_comm, ← sub_right_inj (a := (1 : ZHat)), sub_self]
         apply ZHat.eq_zero_of_mul_eq_zero N
-        simp only [PNat.mk_coe, N]
+        simp only [N, PNat.mk_coe]
         rwa [← Int.cast_natCast, Int.natCast_toNat_eq_self.2 (le_of_lt gpos)]
-      let Z : ZHatˣ := ⟨z, y, by rw[mul_comm]; exact this, this⟩
       simp only [Subgroup.mem_sup, MonoidHom.mem_range, exists_exists_eq_and]
       set G : ℚ := 1 / g with G_def
       have gG : g * G = 1 := by
@@ -596,6 +595,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
         exact gpos
       let gunit : ℚˣ := ⟨(g : ℚ), G, gG, by rw [mul_comm]; exact gG⟩
       use gunit
+      let Z : ZHatˣ := ⟨z, y, by rw[mul_comm]; exact this, this⟩
       use Z
       simp only [← Units.eq_iff, ← hX, Units.map_mk, MonoidHom.coe_coe, map_intCast,
         Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.includeRight_apply,
@@ -614,15 +614,13 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       exact huh
     apply le_antisymm
     · suffices h : X N = 0 by
-        rw [Ideal.span_singleton_le_span_singleton, dvd_def]
         rcases (ZHat.multiples N X).2 h with ⟨y, hy⟩
+        rw [Ideal.span_singleton_le_span_singleton]
         use y
         rw [← hy]
         congr
-        simp only [PNat.mk_coe, N]
+        simp only [N, PNat.mk_coe]
         rw [← Int.cast_natCast, Int.natCast_toNat_eq_self.2 (le_of_lt gpos)]
-      apply not_not.1
-      intro hxN
       let xg := (X N).val
       have : (xg - X) N = 0 := by
         simp only [ZHat, ZMod.castHom_apply, ZHat.instDFunLikePNatZModVal,
@@ -635,7 +633,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
         · apply hgx
           rw [Ideal.mem_span_singleton', ← hy]
           use y
-          simp only [PNat.mk_coe, N]
+          simp only [N, PNat.mk_coe]
           rw [← Int.cast_natCast, Int.natCast_toNat_eq_self.2 (le_of_lt gpos), mul_comm]
         apply Ideal.mem_span_singleton_self
       have hxg : (xg : ℤ) ∈ IdealJ := by
@@ -644,8 +642,15 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
           J, I, xg, N]
       rw [hg, Submodule.mem_span_singleton] at hxg
       rcases hxg with ⟨a, ha⟩
-      rw [smul_eq_mul] at ha
-      sorry
+      simp only [smul_eq_mul, xg] at ha
+      rw [← ZMod.val_eq_zero, ← Int.natCast_eq_zero]
+      apply Int.eq_zero_of_dvd_of_nonneg_of_lt (n := g)
+      · apply Int.natCast_nonneg
+      · apply Int.lt_of_toNat_lt
+        rw [Int.toNat_natCast]
+        apply ZMod.val_lt (X N)
+      use a
+      rw [mul_comm, ha]
     exact hgx
 
 end multiplicative_structure_of_QHat
