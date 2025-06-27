@@ -242,24 +242,13 @@ theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
     simp only [← this, Set.iUnion_singleton_eq_range, Subtype.range_coe_subtype, Finset.setOf_mem,
       Finset.finite_toSet]
 
-local instance : SMul (Dfx K D) (Dfx K D) where
-  smul := HMul.hMul
-
-open scoped TensorProduct.RightActions
-local instance : ContinuousConstSMul (Dfx K D) (Dfx K D) where
-  continuous_const_smul a := by
-    simp only [smul_eq_mul]
-    exact continuous_mul_left a
-
+-- I guess I could generalise this?
 open scoped TensorProduct.RightActions in
-theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
-    {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
-    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
-  have Cover_Dfx := Doset.union_quotToDoset ((incl₁ K D).range) U
-  have Cover_descended : ⋃ (q : Doset.Quotient ↑(incl₁ K D).range ↑U),
+lemma Cover_descended (U : Subgroup (Dfx K D)) : ⋃ (q : Doset.Quotient ↑(incl₁ K D).range ↑U),
       Quot.mk (α := Dfx K D) ((QuotientGroup.rightRel (incl₁ K D).range)) ''
       (Doset.doset (Quotient.out q : Dfx K D) (Set.range (incl₁ K D)) (U : Set (Dfx K D))) =
       Set.univ := by
+    have Cover_Dfx := Doset.union_quotToDoset ((incl₁ K D).range) U
     refine Eq.symm (Set.Subset.antisymm ?_ fun ⦃a⦄ a ↦ trivial)
     intro x hx
     simp only [MonoidHom.coe_range, Set.mem_iUnion, Set.mem_image]
@@ -271,83 +260,96 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
         (Set.range ⇑(incl₁ K D)) ↑U)).mpr ?_
       exact ⟨y, by simpa using Cover_Dfx⟩
     exact ⟨i, y, hi, hy⟩
+
+local instance : SMul (Dfx K D) (Dfx K D) where
+  smul := HMul.hMul
+
+open scoped TensorProduct.RightActions
+local instance : ContinuousConstSMul (Dfx K D) (Dfx K D) where
+  continuous_const_smul a := by
+    simp only [smul_eq_mul]
+    exact continuous_mul_left a
+
+-- this can definitely be generalised
+lemma doset_isOpen (U : Subgroup (Dfx K D)) (hU : IsOpen (U : Set (Dfx K D))) :
+    (∀ (i : Doset.Quotient (Set.range ⇑(incl₁ K D)) ↑U), IsOpen (Quot.mk
+      ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
+      (Set.range ⇑(incl₁ K D)) ↑U)) := by
+  intro i
+  rw [isOpen_coinduced]
+  have : (Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ⁻¹'
+      (Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
+      Doset.doset (Quotient.out i) (Set.range ⇑(incl₁ K D)) ↑U)) =
+      (Doset.doset (Quotient.out i) (Set.range ⇑(incl₁ K D)) ↑U) := by
+    ext x
+    constructor
+    · intro ⟨a, ha1, ha2⟩
+      simp_rw [Doset.mem_doset] at ⊢ ha1
+      obtain ⟨m, ⟨m', hm'⟩, n, hn, eq⟩ := ha1
+      -- from here
+      obtain ⟨⟨q, q', hq'⟩, hq⟩ : ∃ q : Set.range ⇑(incl₁ K D), x = q * a := by
+        obtain ⟨q, hq⟩  : ∃ q, (incl₁ K D) q * x = a := by
+          obtain ⟨⟨o', ⟨o, ho⟩⟩, ho'⟩ := Quotient.eq.mp ha2
+          exact ⟨o, by simpa [ho] using ho'⟩
+        refine ⟨⟨(incl₁ K D) q⁻¹, ⟨q⁻¹, rfl⟩⟩, eq_inv_mul_of_mul_eq hq⟩
+      -- to here
+      -- is repeated below (marked again)... this is either a result in mathlib I could not find
+      -- or is something I can generalise and pull out
+      refine ⟨q * m, ⟨q' * m', by simp only [map_mul, hm', hq']⟩, n, hn, ?_⟩
+      simp_rw [mul_assoc, hq, eq]
+      nth_rw 3 [← mul_assoc]
+    · intro hx
+      use x
+  simpa only [this] using (IsOpen.mul_left hU)
+
+lemma FinCover_ascended (U : Subgroup (Dfx K D))
+    (t : Finset (Doset.Quotient (Set.range ⇑(incl₁ K D)) ↑U)) (ht : Set.univ ⊆ ⋃ i ∈ t,
+    Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
+    (Set.range ⇑(incl₁ K D)) ↑U) : ⋃ q : t, Doset.doset (Quotient.out q.1)
+    (Set.range ⇑(incl₁ K D)) ↑U =
+    Set.univ := by
+  contrapose ht
+  simp only [Set.univ_subset_iff, ← ne_eq] at ⊢ ht
+  obtain ⟨x, hx⟩ := (Set.ne_univ_iff_exists_notMem (⋃ q : { x // x ∈ t },
+    Doset.doset (Quotient.out q.1) (Set.range ⇑(incl₁ K D)) ↑U)).mp ht
+  refine (Set.ne_univ_iff_exists_notMem (⋃ i ∈ t,
+    Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
+    (Set.range ⇑(incl₁ K D)) ↑U)).mpr ⟨Quot.mk (⇑(QuotientGroup.rightRel (incl₁ K D).range)) x, ?_⟩
+  simp only [Set.mem_iUnion, Set.mem_image, exists_prop, not_exists, not_and, ne_eq]
+  intro y hy q hq
+  contrapose hx
+  simp only [Set.mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, not_forall,
+    Classical.not_imp, not_not]
+  simp only [ne_eq, not_not] at hx
+  refine ⟨y, hy, ?_⟩
+  have : Doset.doset q (Set.range (incl₁ K D)) U =
+      Doset.doset (Quotient.out y) (Set.range ⇑(incl₁ K D)) ↑U := by
+    exact Doset.doset_eq_of_mem (H := (incl₁ K D).range) (K := U) hq
+  rw [← this]
+  apply Doset.mem_doset.mpr
+  -- from here 2
+  obtain ⟨a, ha⟩ : ∃ a : Set.range ⇑(incl₁ K D), x = a * q := by
+    obtain ⟨a, ha⟩  : ∃ a, (incl₁ K D) a * x = q := by
+      obtain ⟨⟨a', ⟨a, ha⟩⟩, ha'⟩ := (Quotient.eq).mp hx
+      refine ⟨a, by simpa [ha] using ha'⟩
+    refine ⟨⟨(incl₁ K D) a⁻¹, ⟨a⁻¹, rfl⟩⟩, eq_inv_mul_of_mul_eq ha⟩
+  -- to here 2
+  refine ⟨a.1, ?_⟩
+  simp only [Subtype.coe_prop, SetLike.mem_coe, true_and]
+  exact ⟨1, Subgroup.one_mem U, by simpa using ha⟩
+
+open scoped TensorProduct.RightActions in
+theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
+    {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
+    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
   have ToFinCover :=  isCompact_iff_finite_subcover.mp
     (ι := (Doset.Quotient (Set.range (incl₁ K D)) U))
     (U := fun q ↦ Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
     Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) (isCompact_univ_iff.mpr
     (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D))
-  have Open : (∀ (i : Doset.Quotient (Set.range ⇑(incl₁ K D)) ↑U), IsOpen (Quot.mk
-      ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
-      (Set.range ⇑(incl₁ K D)) ↑U)) := by
-    intro i
-    have h : IsOpen (Doset.doset (Quotient.out i) (Set.range ⇑(incl₁ K D)) ↑U) := by
-      exact IsOpen.mul_left hU
-    rw [isOpen_coinduced]
-    have : (Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ⁻¹'
-        (Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
-        Doset.doset (Quotient.out i) (Set.range ⇑(incl₁ K D)) ↑U)) =
-        (Doset.doset (Quotient.out i) (Set.range ⇑(incl₁ K D)) ↑U) := by
-      ext x
-      simp only [Set.mem_preimage, Set.mem_image]
-      constructor
-      · intro ⟨a, ha1, ha2⟩
-        simp_rw [Doset.mem_doset] at ⊢ ha1
-        obtain ⟨m, hm, n, hn, eq⟩ := ha1
-        -- from here
-        obtain ⟨q, hq⟩ : ∃ q : Set.range ⇑(incl₁ K D), x = q * a := by
-          obtain ⟨q, hq⟩  : ∃ q, (incl₁ K D) q * x = a := by
-            obtain ⟨⟨o', ⟨o, ho⟩⟩, ho'⟩ := Quotient.eq.mp ha2
-            exact ⟨o, by simpa [ho] using ho'⟩
-          refine ⟨⟨(incl₁ K D) q⁻¹, ⟨q⁻¹, rfl⟩⟩, eq_inv_mul_of_mul_eq hq⟩
-        -- to here
-        -- is repeated below (marked again)... this is either a result in mathlib I could not find
-        -- or is something I can generalise and pull out
-        rw [hq]
-        refine ⟨q * m, ?_, n, hn, ?_⟩
-        · rw [Set.mem_range]
-          obtain ⟨m', hm'⟩ := hm
-          obtain ⟨q, q', hq'⟩ := q
-          exact ⟨q' * m', by simp only [map_mul, hm', hq']⟩
-        · simp_rw [mul_assoc, eq]
-          nth_rw 3 [← mul_assoc]
-      · intro hx
-        use x
-    rw [this]
-    exact h
-  have ⟨t, FinCover_descended⟩ := ToFinCover Open (Cover_descended ▸ Set.Subset.rfl)
-  have FinCover_ascended : ⋃ q : t, Doset.doset (Quotient.out q.1) (Set.range ⇑(incl₁ K D)) ↑U =
-      Set.univ := by
-    contrapose FinCover_descended
-    simp only [Set.univ_subset_iff, ← ne_eq] at ⊢ FinCover_descended
-    obtain ⟨x, hx⟩ := (Set.ne_univ_iff_exists_notMem (⋃ q : { x // x ∈ t },
-      Doset.doset (Quotient.out q.1) (Set.range ⇑(incl₁ K D)) ↑U)).mp FinCover_descended
-    refine (Set.ne_univ_iff_exists_notMem (⋃ i ∈ t,
-      Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
-      (Set.range ⇑(incl₁ K D)) ↑U)).mpr ?_
-    use Quot.mk (⇑(QuotientGroup.rightRel (incl₁ K D).range)) x
-    simp only [Set.mem_iUnion, Set.mem_image, exists_prop, not_exists, not_and, ne_eq]
-    intro y hy q hq
-    contrapose hx
-    simp only [Set.mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, not_forall,
-      Classical.not_imp, not_not]
-    simp only [ne_eq, not_not] at hx
-    refine ⟨y, hy, ?_⟩
-    have : Doset.doset q (Set.range (incl₁ K D)) U =
-        Doset.doset (Quotient.out y) (Set.range ⇑(incl₁ K D)) ↑U := by
-      exact Doset.doset_eq_of_mem (H := (incl₁ K D).range) (K := U) hq
-    rw [← this]
-    apply Doset.mem_doset.mpr
-    -- from here 2
-    obtain ⟨a, ha⟩ : ∃ a : Set.range ⇑(incl₁ K D), x = a * q := by
-      obtain ⟨a, ha⟩  : ∃ a, (incl₁ K D) a * x = q := by
-        obtain ⟨⟨a', ⟨a, ha⟩⟩, ha'⟩ := (Quotient.eq).mp hx
-        refine ⟨a, by simpa [ha] using ha'⟩
-      refine ⟨⟨(incl₁ K D) a⁻¹, ⟨a⁻¹, rfl⟩⟩, eq_inv_mul_of_mul_eq ha⟩
-    -- to here 2
-    refine ⟨a.1, ?_⟩
-    simp only [Subtype.coe_prop, SetLike.mem_coe, true_and]
-    exact ⟨1, Subgroup.one_mem U, by simpa using ha⟩
+  have ⟨t, FinCover_descended⟩ := ToFinCover (doset_isOpen K D U hU)
+    (Cover_descended K D U ▸ Set.Subset.rfl)
   apply (Doset.finite ((incl₁ K D).range) U).mpr
-  refine ⟨t, Eq.symm FinCover_ascended⟩
+  exact ⟨t, Eq.symm (FinCover_ascended K D U t FinCover_descended)⟩
 
 end FiniteAdeleRing
