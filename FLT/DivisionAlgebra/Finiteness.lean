@@ -273,11 +273,16 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
   · simp_rw [MulEquiv.prodUnits]
     simp only [MulEquiv.coe_mk, Equiv.coe_fn_mk]
     apply Continuous.prodMk
-    ·
-      sorry
-    ·
-      sorry
+    · apply Continuous.units_map
+      simp only [MonoidHom.coe_fst]
+      exact continuous_fst
+    · apply Continuous.units_map
+      simpa using continuous_snd
   · refine Continuous.comp ?_ (continuous_subtype_val)
+    apply Continuous.units_map
+    simp only [MulEquiv.toMonoidHom_eq_coe, MonoidHom.coe_coe, MulEquiv.coe_mk,
+      AlgEquiv.toEquiv_eq_coe, EquivLike.coe_coe]
+    -- test of unwinding cont def
 
     sorry
 
@@ -315,6 +320,7 @@ local instance : IsScalarTower ℚ K D := by
   sorry
 
 instance : Module ℚ D := by
+
   -- should be combination of the above instances
   sorry
 
