@@ -76,7 +76,7 @@ jobs:
       - name: Lint project
         run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter FLT
 
-      - uses: leanprover-community/docgen-action@b210116d3e6096c0c7146f7a96a6d56b6884fef5 # 2025-06-12
+      - uses: leanprover-community/docgen-action@f78d5a9a1a728288aef64bde6f133d30a8511cb7 # 2025-06-27
         with:
           blueprint: true
           homepage: docs
