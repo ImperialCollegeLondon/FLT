@@ -1071,8 +1071,17 @@ noncomputable instance : Ring D^ := Algebra.TensorProduct.instRing
 noncomputable abbrev j₁ : D →ₐ[ℤ] D^ := Algebra.TensorProduct.includeLeft
 -- (Algebra.TensorProduct.assoc ℤ ℚ 𝓞 ZHat).symm.trans Algebra.TensorProduct.includeLeft
 
-lemma injective_hRat :
-    Function.Injective j₁ := sorry -- flatness
+lemma injective_hRat : -- flatness
+    Function.Injective j₁ := by
+      refine (injective_iff_map_eq_zero' j₁).mpr ?_
+      intros a
+      constructor
+      · intro ha₀
+        contrapose! ha₀
+        sorry
+      · intro ha₀
+        rw [ha₀]
+        field_simp
 
 noncomputable abbrev j₂ : 𝓞^ →ₐ[ℤ] D^ :=
   ((Algebra.TensorProduct.assoc ℤ ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗ 𝓞^ ≃ₐ[ℤ] D ⊗ ZHat).toAlgHom.comp
@@ -1083,6 +1092,8 @@ lemma injective_zHat :
 
 -- should I rearrange tensors? Not sure if D^ should be (ℚ ⊗ 𝓞) ⊗ ℤhat or ℚ ⊗ (𝓞 ⊗ Zhat)
 lemma canonicalForm (z : D^) : ∃ (N : ℕ+) (z' : 𝓞^), z = j₁ ((N⁻¹ : ℚ) ⊗ₜ 1 : D) * j₂ z' := by
+  field_simp
+
   sorry
 
 lemma completed_units (z : D^ˣ) : ∃ (u : Dˣ) (v : 𝓞^ˣ), (z : D^) = j₁ u * j₂ v := sorry
