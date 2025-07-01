@@ -832,7 +832,7 @@ theorem adicCompletion.ramificationIdx_eq_ramificationIdx (w : HeightOneSpectrum
     rw [Ideal.mem_comap, adicCompletion.mem_completionIdeal_pow, comap_integer_algebraMap,
       valued_adicCompletionComap, hϖ, ← WithZero.ofAdd_neg_ofNat_pow,
       WithZero.coe_le_coe, Multiplicative.ofAdd_le, hvw] at hcomap
-    simp [add_le_iff_nonpos_right] at hcomap
+    simp at hcomap
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] in
 theorem adicCompletion.inertiaDeg_eq_inertiaDeg (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
