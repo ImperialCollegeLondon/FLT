@@ -64,7 +64,7 @@ theorem tendsto_pow_div_one_add_pow_zero {a : K} (ha : 1 < v a) :
   apply Filter.tendsto_atTop_mono (fun n => v.le_add _ _)
   simp_rw [map_one, map_pow v]
   apply Filter.tendsto_atTop_add_right_of_le _ _ _ (fun _ => le_rfl)
-  refine tendsto_atTop_of_geom_le (by simp only [pow_zero, inv_one, zero_lt_one]) ha fun n => ?_
+  refine tendsto_atTop_of_geom_le (by simp only [pow_zero, zero_lt_one]) ha fun n => ?_
   rw [← map_pow, ← map_pow, ← map_mul, pow_succ']
 
 open Filter in
@@ -193,7 +193,7 @@ theorem exists_one_lt_lt_one {n : ℕ} {v : Fin (n + 2) → AbsoluteValue K ℝ}
     let ⟨b, hb⟩ := ih 0 (by linarith) (fun _ => h _) <| Fin.pairwise_forall_two hv
     simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.isValue, Matrix.cons_val_zero, ne_eq,
       Fin.forall_fin_two, not_true_eq_false, IsEmpty.forall_iff, one_ne_zero, not_false_eq_true,
-      Matrix.cons_val_one, Matrix.head_cons, forall_const, true_and] at hb
+      Matrix.cons_val_one, forall_const, true_and] at hb
     -- If `v last < 1` then `a` works.
     by_cases ha₀ : v (Fin.last _) a < 1
     · refine ⟨a, ha.1, fun j hj => ?_⟩
@@ -265,7 +265,7 @@ Infinite places are represented by non-trivial absolute values.
 -/
 theorem isNontrivial : v.1.IsNontrivial := by
   refine isNontrivial_iff_exists_abv_gt_one.2 ⟨2, let ⟨φ, hφ⟩ := v.2; ?_⟩
-  simp only [coe_apply, ← hφ, place_apply, map_ofNat, RCLike.norm_ofNat, Nat.one_lt_ofNat]
+  simp only [← hφ, place_apply, map_ofNat, RCLike.norm_ofNat, Nat.one_lt_ofNat]
 
 variable {v}
 

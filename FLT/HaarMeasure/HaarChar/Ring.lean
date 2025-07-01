@@ -23,8 +23,8 @@ induced by left multiplication by a unit.
 def mulLeft (r : Rˣ) : R ≃ₜ+ R where
   toFun x := r * x
   invFun y := r⁻¹ * y
-  left_inv x := by simp [mul_assoc]
-  right_inv y := by simp [mul_assoc]
+  left_inv x := by simp
+  right_inv y := by simp
   map_add' x₁ x₂ := left_distrib ↑r x₁ x₂
   continuous_toFun := continuous_mul_left _
   continuous_invFun := continuous_mul_left _

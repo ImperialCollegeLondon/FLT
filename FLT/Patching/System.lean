@@ -338,7 +338,7 @@ lemma smul_lemma₀
   refine (Submodule.Quotient.eq _).mpr ?_
   dsimp
   rw [HCompat, ← sub_smul, ← map_sub, ← map_sub]
-  show F (m n₁ i - m n₀ i) • sM i _ ∈ _
+  change F (m n₁ i - m n₀ i) • sM i _ ∈ _
   apply H
   refine Submodule.smul_mem_smul ?_ trivial
   rw [← Ideal.mem_comap]
