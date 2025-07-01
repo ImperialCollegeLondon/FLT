@@ -857,7 +857,8 @@ def norm (z : 𝓞) : ℤ :=
   - z.re * (z.im_o + z.im_oi) + z.im_i * (z.im_o - z.im_oi)
 
 lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := by
-  ext <;> simp [norm] <;> ring
+  ext <;> simp only [norm, intCast_re, intCast_im_o, intCast_im_i, intCast_im_oi,
+    mul_re, mul_im_o, mul_im_i, mul_im_oi, star_re, star_im_o, star_im_i, star_im_oi] <;> ring
 
 lemma coe_norm (z : 𝓞) :
     (norm z : ℝ) =
