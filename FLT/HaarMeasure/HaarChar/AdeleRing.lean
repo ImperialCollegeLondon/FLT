@@ -59,7 +59,7 @@ noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv' [Module (𝔸 
     | tmul x y =>
         simp [TensorProduct.smul_tmul', -algebraMap_smul,
           algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
-    | add x y _ _ => simp_all [mul_add, add_mul]
+    | add x y _ _ => simp_all
 
 open scoped TensorProduct.RightActions in
 /-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/

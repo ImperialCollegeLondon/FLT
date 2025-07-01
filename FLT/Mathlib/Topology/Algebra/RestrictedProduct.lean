@@ -291,7 +291,6 @@ lemma Equiv.continuous_restrictedProductPi [∀ j i, TopologicalSpace (A j i)] :
 lemma Equiv.continuous_restrictedProductPi_symm {S : Set ι}
     [∀ j i, TopologicalSpace (A j i)] :
     Continuous (Equiv.restrictedProductPi (C := C) (ℱ := .principal S)).symm := by
-  simp only [restrictedProductProd, coe_fn_symm_mk]
   rw [continuous_rng_of_principal_pi]
   intro i
   rw [continuous_pi_iff]
@@ -369,8 +368,8 @@ def Submonoid.unitsContinuousMulEquivUnitsType {M : Type*} [TopologicalSpace M] 
       let g : Sˣ →* Mˣ := Units.map S.subtype
       have hg : IsOpenMap g := isOpenMap_map (by simp) hS.isOpenMap_subtype_val
       refine ⟨g '' (embedProduct S ⁻¹' t), hg _ (isOpen_induced ht), Set.ext fun s ↦ ?_⟩
-      simp only [inv_eq_val_inv, mem_preimage, mem_image, embedProduct_apply, inv_mk, coeHom_apply,
-        EquivLike.coe_coe, g, unitsEquivUnitsType, MulEquiv.coe_mk, Equiv.coe_fn_mk]
+      simp only [mem_preimage, mem_image, embedProduct_apply, inv_mk, coeHom_apply, g,
+        unitsEquivUnitsType]
       exact ⟨fun ⟨_, ⟨h₁, h₂⟩⟩ ↦ by simp [← h₂, h₁],
         fun h ↦ ⟨S.unitsEquivUnitsType s, by simp [unitsEquivUnitsType, h]⟩⟩
   }
