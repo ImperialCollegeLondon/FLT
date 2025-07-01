@@ -59,7 +59,7 @@ lemma mk_count_factors_map
       associates_irreducible (comap A w), Associates.bcount]
   | h₂ I hI =>
     obtain rfl : I = ⊤ := by simpa using hI
-    simp only [Submodule.zero_eq_bot, ne_eq, top_ne_bot, not_false_eq_true, Ideal.map_top]
+    simp only [Ideal.map_top]
     simp only [← Ideal.one_eq_top, Associates.mk_one, Associates.factors_one]
     rw [Associates.count_zero (associates_irreducible _),
       Associates.count_zero (associates_irreducible _), mul_zero]
@@ -76,8 +76,8 @@ lemma mk_count_factors_map
     by_cases hw : (w.comap A).asIdeal = p
     · have : Irreducible (Associates.mk p) := Associates.irreducible_mk.mpr hp.irreducible
       rw [hw, Associates.factors_self this, Associates.count_some this]
-      simp only [UniqueFactorizationMonoid.factors_eq_normalizedFactors, Multiset.nodup_singleton,
-        Multiset.mem_singleton, Multiset.count_eq_one_of_mem, mul_one]
+      simp only [Multiset.nodup_singleton, Multiset.mem_singleton, Multiset.count_eq_one_of_mem,
+        mul_one]
       rw [count_associates_factors_eq hp_bot' w.2 w.3,
         Ideal.IsDedekindDomain.ramificationIdx_eq_normalizedFactors_count hp_bot' w.2 w.3]
     · have : (Associates.mk (comap A w).asIdeal).count (Associates.mk p).factors = 0 :=
@@ -107,7 +107,7 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
   by_cases hx : x = 0
   · simpa [hx]
   simp only [intValuation, Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk]
-  show (ite _ _ _) ^ _ = ite _ _ _
+  change (ite _ _ _) ^ _ = ite _ _ _
   rw [map_eq_zero_iff _ hAB, if_neg hx, if_neg hx, ← Set.image_singleton, ← Ideal.map_span,
     mk_count_factors_map _ _ hAB, mul_comm]
   simp

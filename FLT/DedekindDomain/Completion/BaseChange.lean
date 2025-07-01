@@ -561,7 +561,7 @@ lemma prodAdicCompletionsIntegers_eq_closureIntegers :
   rw [Subalgebra.coe_pi]
   let _ (w : Extension B v) : Module B (adicCompletion L w.val) :=
     UniformSpace.Completion.instModule
-  show SetLike.coe (Submodule.pi _ _) = _
+  change SetLike.coe (Submodule.pi _ _) = _
   rw [Submodule.coe_pi]
   let val := (fun (w : Extension B v) ↦ w.1)
   have hinj : Function.Injective val :=
@@ -612,7 +612,7 @@ theorem adicCompletionComapAlgEquiv_integral :
       (tensorAdicCompletionComapAlgHom A K L B v) ''
       SetLike.coe (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
     ext x
-    simp [Algebra.algebraMap_eq_smul_one, AlgHom.map_smul_of_tower]
+    simp [Algebra.algebraMap_eq_smul_one]
   have hrange' := adicCompletionComapAlgHom_map_closure_is_closed A K L B v
   rw [AlgHom.range_comp, ← SetLike.coe_set_eq, Subalgebra.coe_map, AlgHom.coe_restrictScalars',
       hlhs, hrhs, hrange, ← IsClosed.closure_eq hrange']
@@ -669,8 +669,7 @@ noncomputable def tensorAdicCompletionIntegersToLinearMap :
       TensorProduct.RightActions.algebraMap_eval, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe, map_mul, Algebra.TensorProduct.lift_tmul, map_one, AlgHom.coe_comp,
       AlgHom.coe_restrictScalars', IsScalarTower.coe_toAlgHom', RingHom.algebraMap_toAlgebra,
-      Algebra.id.map_eq_id, RingHomCompTriple.comp_eq, Function.comp_apply,
-      Algebra.TensorProduct.includeRight_apply, one_mul, RingHom.id_apply]
+      Function.comp_apply, Algebra.TensorProduct.includeRight_apply, one_mul, RingHom.id_apply]
     rw [Subsemiring.smul_def, Algebra.smul_def]
     rfl
 
@@ -932,7 +931,7 @@ open scoped TensorProduct.RightActions in
 /-- The canonical map `L ⊗[K] K_v → ∏_{w|v} L_w` is bijective. -/
 theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
     Function.Bijective (tensorAdicCompletionComapAlgHom A K L B v) := by
-  show Function.Bijective (tensorAdicCompletionComapLinearMap A K L B v)
+  change Function.Bijective (tensorAdicCompletionComapLinearMap A K L B v)
   have hsurj := tensorAdicCompletionComapLinearMap_surjective A K L B v
   refine ⟨?_, hsurj⟩
   have hfin := comap_pi_algebra_finite A K L B v
