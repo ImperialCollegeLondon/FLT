@@ -74,7 +74,7 @@ scoped instance : Algebra S (B ⊗[R] S) where
         simp only [smul_eq_mul, TensorProduct.comm_symm_tmul]
     | add x y hx hy =>
         simp_all only [smul_def, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
-          Algebra.TensorProduct.includeRight_apply, smul_add, ← hx, ← hy, mul_add]
+          Algebra.TensorProduct.includeRight_apply, smul_add, mul_add]
 
 @[simp] lemma algebraMap_eval (s : S) : algebraMap S (B ⊗[R] S) s = 1 ⊗ₜ s := rfl
 
@@ -97,7 +97,7 @@ def Module.TensorProduct.comm : A ⊗[R] M ≃ₗ[A] M ⊗[R] A where
   map_smul' a am := by
     induction am with
     | zero => simp only [smul_zero, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom,
-      LinearEquiv.coe_coe, map_zero, RingHom.id_apply]
+      map_zero, RingHom.id_apply]
     | tmul x y =>
         simp only [smul_tmul', smul_eq_mul, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom,
           LinearEquiv.coe_coe, comm_tmul, RingHom.id_apply, smul_def, comm_symm_tmul]
