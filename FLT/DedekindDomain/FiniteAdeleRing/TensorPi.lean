@@ -183,8 +183,6 @@ end
 
 section
 
-universe u
-
 open TensorProduct
 
 variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
@@ -210,18 +208,18 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   set i₂ : (Fin n → R) ⊗[R] (Π i, N i) →ₗ[R] Π i, ((Fin n → R) ⊗[R] N i) :=
     (tensorPi_equiv_piTensor R (Fin n → R) N).toLinearMap
   set i₃ : M ⊗[R] (Π i, N i) →ₗ[R] Π i, (M ⊗[R] N i) := TensorProduct.piRightHom R R M N
-  set i₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id   -- map to zero to zero
-  set i₅ : (PUnit : Type u)  →ₗ[R] (PUnit : Type u)  := LinearMap.id  -- map to zero to zero
+  set i₄ : (PUnit : Type) →ₗ[R] (PUnit : Type) := LinearMap.id   -- map to zero to zero
+  set i₅ : (PUnit : Type)  →ₗ[R] (PUnit : Type)  := LinearMap.id  -- map to zero to zero
   set f₁ : (Fin m → R) ⊗[R] (Π i, N i) →ₗ[R] (Fin n → R) ⊗[R] (Π i, N i) := f.rTensor (Π i, N i)
   set f₂ : (Fin n → R) ⊗[R] (Π i, N i) →ₗ[R] M ⊗[R] (Π i, N i) := g.rTensor (Π i, N i)
-  set f₃ : M ⊗[R] (Π i, N i) →ₗ[R] (PUnit : Type u) := 0
-  set f₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id -- map to zero to zero
+  set f₃ : M ⊗[R] (Π i, N i) →ₗ[R] (PUnit : Type) := 0
+  set f₄ : (PUnit : Type) →ₗ[R] (PUnit : Type) := LinearMap.id -- map to zero to zero
   set g₁ : (Π i, ((Fin m → R) ⊗[R] N i)) →ₗ[R] Π i, ((Fin n → R) ⊗[R] N i) :=
     LinearMap.pi (fun i ↦ (LinearMap.rTensor (N i) f)  ∘ₗ LinearMap.proj i)
   set g₂ : (Π i, ((Fin n → R) ⊗[R] N i)) →ₗ[R] Π i, (M ⊗[R] N i) :=
     LinearMap.pi (fun i ↦ (LinearMap.rTensor (N i) g)  ∘ₗ LinearMap.proj i)
-  set g₃ : (Π i, (M ⊗[R] N i)) →ₗ[R] (PUnit : Type u) := 0 -- map to zero
-  set g₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id -- map to zero to zero
+  set g₃ : (Π i, (M ⊗[R] N i)) →ₗ[R] (PUnit : Type) := 0 -- map to zero
+  set g₄ : (PUnit : Type) →ₗ[R] (PUnit : Type) := LinearMap.id -- map to zero to zero
   have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
     refine ext' fun x y ↦ ?_
     simp only [LinearMap.coe_comp, comp_apply, i₂, i₁, g₁, LinearEquiv.coe_coe]
