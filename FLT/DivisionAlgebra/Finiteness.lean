@@ -205,42 +205,32 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
   sorry
 
--- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
-/-!
-If `D` is a finite-dimensional division algebra over a number field `K`
-then the double coset space `Dˣ \ (D ⊗ 𝔸_K^infty)ˣ / U` is finite for any compact open subgroup `U`
-of `(D ⊗ 𝔸_F^infty)ˣ`.
--/
-
-theorem Doset.finite {G : Type*} [Group G] (H K : Subgroup G) :
-    Finite (Quotient (H : Set G) K) ↔ ∃ I : Finset (Quotient (H : Set G) K), Set.univ = ⋃ i : I,
-    quotToDoset H K i.1 := by
+lemma Doset.mem_quotToDoset_iff {G : Type*} [Group G] (H K : Subgroup G)
+    (i : Quotient (H : Set G) K) (g : G) : g ∈ quotToDoset H K i ↔ mk H K g = i := by
   constructor
-  · intro I
-    refine Finset.exists.mpr ⟨Set.univ, Set.finite_univ, ?_⟩
-    ext x
-    simp only [Set.mem_univ, Set.mem_iUnion, Subtype.exists, Set.Finite.mem_toFinset, exists_const,
-      true_iff]
-    exact Set.mem_iUnion.mp (by rw [(Doset.union_quotToDoset H K)]; exact trivial)
+  · intro hg
+    simp_rw [mk_eq_of_doset_eq (doset_eq_of_mem hg), Quotient.out_eq]
+  · intro hg
+    rw [← out_eq' _ _ i] at hg
+    exact mem_doset.mpr ((eq _ _ _ g).mp hg.symm)
+
+theorem Doset.iUnion_finset_quotToDoset {G : Type*} [Group G] (H K : Subgroup G) :
+    (∃ I : Finset (Quotient (H : Set G) K), ⋃ i ∈ I, quotToDoset H K i = .univ) ↔
+    Finite (Quotient (H : Set G) K) := by
+  constructor
   · intro ⟨I, hI⟩
-    refine Set.finite_univ_iff.mp ?_
-    have : ⋃ (i : I), {i.1} = Set.univ := by
-      contrapose hI
-      rw [eq_comm, ← ne_eq]
-      apply (Set.ne_univ_iff_exists_notMem (⋃ (i : I), {i.1})).mp at hI
-      obtain ⟨i, hi⟩ := hI
-      refine (Set.ne_univ_iff_exists_notMem (⋃ i : I, quotToDoset H K i.1)).mpr ⟨i.out, ?_⟩
-      simp only [Set.mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and]
-      contrapose hi
-      simp only [Set.iUnion_singleton_eq_range, Subtype.range_coe_subtype, Finset.setOf_mem,
-        Finset.mem_coe, not_not]
-      simp only [not_forall, Classical.not_imp, not_not, exists_prop] at hi
-      obtain ⟨x, hx1, hx2⟩ := hi
-      have : i = x := by
-        simpa using (mk_eq_of_doset_eq (doset_eq_of_mem hx2))
-      simpa only [this] using hx1
-    simp only [← this, Set.iUnion_singleton_eq_range, Subtype.range_coe_subtype, Finset.setOf_mem,
-      Finset.finite_toSet]
+    suffices (I : Set (Quotient (H : Set G) K)) = Set.univ by
+      rw [← Set.finite_univ_iff, ← this]
+      exact I.finite_toSet
+    rw [Set.eq_univ_iff_forall] at hI ⊢
+    rintro ⟨g⟩
+    obtain ⟨_, ⟨i, _, rfl⟩, T, ⟨hi, rfl⟩, hT : g ∈ quotToDoset H K i⟩ := hI g
+    rw [Doset.mem_quotToDoset_iff] at hT
+    simpa [← hT] using hi
+  · intro _
+    cases nonempty_fintype (Quotient (H : Set G) K)
+    use Finset.univ
+    simpa using Doset.union_quotToDoset H K
 
 -- I guess I could generalise this?
 open scoped TensorProduct.RightActions in
@@ -305,26 +295,25 @@ lemma doset_isOpen (U : Subgroup (Dfx K D)) (hU : IsOpen (U : Set (Dfx K D))) :
 lemma FinCover_ascended (U : Subgroup (Dfx K D))
     (t : Finset (Doset.Quotient (Set.range ⇑(incl₁ K D)) ↑U)) (ht : Set.univ ⊆ ⋃ i ∈ t,
     Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
-    (Set.range ⇑(incl₁ K D)) ↑U) : ⋃ q : t, Doset.doset (Quotient.out q.1)
+    (Set.range ⇑(incl₁ K D)) ↑U) : ⋃ q ∈ t, Doset.doset (Quotient.out q)
     (Set.range ⇑(incl₁ K D)) ↑U =
     Set.univ := by
   contrapose ht
   simp only [Set.univ_subset_iff, ← ne_eq] at ⊢ ht
-  obtain ⟨x, hx⟩ := (Set.ne_univ_iff_exists_notMem (⋃ q : { x // x ∈ t },
-    Doset.doset (Quotient.out q.1) (Set.range ⇑(incl₁ K D)) ↑U)).mp ht
+  obtain ⟨x, hx⟩ := (Set.ne_univ_iff_exists_notMem (⋃ q ∈ t,
+    Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) ↑U)).mp ht
   refine (Set.ne_univ_iff_exists_notMem (⋃ i ∈ t,
     Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) '' Doset.doset (Quotient.out i)
     (Set.range ⇑(incl₁ K D)) ↑U)).mpr ⟨Quot.mk (⇑(QuotientGroup.rightRel (incl₁ K D).range)) x, ?_⟩
   simp only [Set.mem_iUnion, Set.mem_image, exists_prop, not_exists, not_and, ne_eq]
   intro y hy q hq
   contrapose hx
-  simp only [Set.mem_iUnion, Subtype.exists, exists_prop, not_exists, not_and, not_forall,
-    Classical.not_imp, not_not]
-  simp only [ne_eq, not_not] at hx
+  simp only [Set.mem_iUnion, exists_prop, not_exists, not_and, not_forall, not_not]
+  simp only [not_not] at hx
   refine ⟨y, hy, ?_⟩
   have : Doset.doset q (Set.range (incl₁ K D)) U =
-      Doset.doset (Quotient.out y) (Set.range ⇑(incl₁ K D)) ↑U := by
-    exact Doset.doset_eq_of_mem (H := (incl₁ K D).range) (K := U) hq
+      Doset.doset (Quotient.out y) (Set.range ⇑(incl₁ K D)) ↑U :=
+    Doset.doset_eq_of_mem (H := (incl₁ K D).range) (K := U) hq
   rw [← this]
   apply Doset.mem_doset.mpr
   -- from here 2
@@ -338,6 +327,12 @@ lemma FinCover_ascended (U : Subgroup (Dfx K D))
   simp only [Subtype.coe_prop, SetLike.mem_coe, true_and]
   exact ⟨1, Subgroup.one_mem U, by simpa using ha⟩
 
+-- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
+/-!
+If `D` is a finite-dimensional division algebra over a number field `K`
+then the double coset space `Dˣ \ (D ⊗ 𝔸_K^infty)ˣ / U` is finite for any compact open subgroup `U`
+of `(D ⊗ 𝔸_F^infty)ˣ`.
+-/
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
@@ -349,7 +344,10 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D))
   have ⟨t, FinCover_descended⟩ := ToFinCover (doset_isOpen K D U hU)
     (Cover_descended K D U ▸ Set.Subset.rfl)
-  apply (Doset.finite ((incl₁ K D).range) U).mpr
-  exact ⟨t, Eq.symm (FinCover_ascended K D U t FinCover_descended)⟩
+  apply (Doset.iUnion_finset_quotToDoset ((incl₁ K D).range) U).mp
+  use t
+  exact FinCover_ascended K D U t FinCover_descended
+
+  --exact ⟨t, Eq.symm (FinCover_ascended K D U t FinCover_descended)⟩
 
 end FiniteAdeleRing
