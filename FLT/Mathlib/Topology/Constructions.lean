@@ -22,5 +22,5 @@ theorem Continuous.piSemialgHomPi {I J : Type*} {R S : Type*} (f : I → Type*)
     (p : (i : I) → g (r i) →ₛₐ[φ] f i)
     (h : ∀ i, Continuous (p i)) :
     Continuous (Pi.semialgHomPi f g p) := by
-  show Continuous (fun (x : (j : J) → g j) w ↦ (p w) (x (r w)))
+  change Continuous (fun (x : (j : J) → g j) w ↦ (p w) (x (r w)))
   fun_prop

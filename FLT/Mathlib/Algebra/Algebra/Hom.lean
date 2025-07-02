@@ -17,7 +17,7 @@ infixr:25 " →ₛₐ " => SemialgHom _
 notation:25 A " →ₛₐ[" φ:25 "] " B:0 => SemialgHom φ A B
 
 variable {R S : Type*} [CommSemiring R] [CommSemiring S] (φ : R →+* S)
-    (A B : Type*)  [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
+    (A B : Type*) [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
 
 instance instFunLike : FunLike (A →ₛₐ[φ] B) A B where
   coe f := f.toFun
@@ -57,7 +57,7 @@ end semialghomclass
 section semialghom
 
 variable {R S : Type*} [CommSemiring R] [CommSemiring S] {φ : R →+* S}
-    {A B : Type*}  [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
+    {A B : Type*} [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
 
 lemma SemialgHom.commutes (ψ : A →ₛₐ[φ] B) (r : R) :
     ψ (algebraMap R A r) = algebraMap S B (φ r) := by

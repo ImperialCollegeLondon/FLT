@@ -243,7 +243,7 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
   · intro ⟨y, hy⟩
     rw [← hy]
     change N * (y N) = 0
-    simp [ZMod.natCast_self]
+    simp
   · intro h
     let y : ZHat := {
       val := fun j ↦ (z (N * j)).val / (N : ℕ)
@@ -255,7 +255,7 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
         rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hk
         have hNjk := z.prop (N * j) (N * k) (mul_dvd_mul (dvd_refl _) hjk)
         rw [ZMod.castHom_apply, ZMod.cast_eq_val] at hNjk
-        simp only [PNat.mul_coe, map_natCast, ZMod.natCast_val, ZMod.eq_iff_modEq_nat]
+        simp only [PNat.mul_coe, map_natCast, ZMod.eq_iff_modEq_nat]
         apply Nat.ModEq.mul_right_cancel' (c := N) (by simp)
         rw [Nat.div_mul_cancel hj, Nat.div_mul_cancel hk,
           mul_comm (j : ℕ) (N : ℕ), ← ZMod.eq_iff_modEq_nat, hNjk]
@@ -294,9 +294,9 @@ lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) �
     refine ⟨⟨q.den, q.den_pos ⟩, q.num * z, ?_⟩
     simp_rw [← zsmul_eq_mul, TensorProduct.tmul_smul, TensorProduct.smul_tmul']
     simp only [PNat.mk_coe, zsmul_eq_mul]
-    simp only [← q.mul_den_eq_num, LinearMap.mul_apply', mul_assoc,
+    simp only [← q.mul_den_eq_num, mul_assoc,
       one_div, ne_eq, Nat.cast_eq_zero, Rat.den_ne_zero, not_false_eq_true,
-      mul_inv_cancel, mul_one, mul_inv_cancel₀]
+        mul_one, mul_inv_cancel₀]
   | add x y hx hy =>
     obtain ⟨N₁, z₁, rfl⟩ := hx
     obtain ⟨N₂, z₂, rfl⟩ := hy
@@ -857,7 +857,8 @@ def norm (z : 𝓞) : ℤ :=
   - z.re * (z.im_o + z.im_oi) + z.im_i * (z.im_o - z.im_oi)
 
 lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := by
-  ext <;> simp [norm, ← Int.cast_add] <;> ring
+  ext <;> simp only [norm, intCast_re, intCast_im_o, intCast_im_i, intCast_im_oi,
+    mul_re, mul_im_o, mul_im_i, mul_im_oi, star_re, star_im_o, star_im_i, star_im_oi] <;> ring
 
 lemma coe_norm (z : 𝓞) :
     (norm z : ℝ) =

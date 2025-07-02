@@ -55,7 +55,7 @@ section
 
 variable {ι' : Type*} [Fintype ι'] [DecidableEq ι'] {R ι : Type*} [Semiring R]
   {M N : ι → ι' → Type*} [∀ i i', AddCommMonoid (M i i')] [∀ i i', AddCommMonoid (N i i')]
-  [∀i i', Module R (M i i')] [∀i i', Module R (N i i')]
+  [∀ i i', Module R (M i i')] [∀ i i', Module R (N i i')]
 
 /-- `⨁ⱼ(∏ᵢ Nᵢⱼ) ≅ ∏ᵢ(⨁ⱼNᵢⱼ)` if `j` ranges over a finite index set and `i` over an arbitrary
 index set. This variant is for `R`-modules and gives an `R`-module isomorphism. -/
@@ -158,7 +158,7 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
     simp only [tensorPiEquiv_finitefreeModule, LinearEquiv.piCongrRight_symm]
     ext i
     simp only [LinearEquiv.piCongrRight_apply, LinearEquiv.rTensor_symm_tmul, LinearEquiv.symm_symm,
-      LinearEquiv.apply_symm_apply, m']
+      LinearEquiv.apply_symm_apply]
     rw [finsuppLeft_TensorPi_equiv_piTensor]
     simp only [LinearEquiv.trans_apply, LinearEquiv.piCongrRight_apply]
     rw [LinearEquiv.symm_apply_eq]

@@ -3,7 +3,16 @@ import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Hacks.RightActionInstances
+/-!
 
+# Definitions of various compact open subgrups of Dˣ and GL₂(𝔸_F^∞)
+
+We define U₁(v) as a subgroup of GL₂(Fᵥ), and U₁(S) as a subgroup
+of GL₂(𝔸_F^∞). We introduce the concept
+of a rigidification `r : (D ⊗[F] 𝔸_F^∞) ≅ M₂(𝔸_F^∞)` in order
+to push U₁(S) over to a subgroup of `(D ⊗[F] 𝔸_F^∞)ˣ`.
+
+-/
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
 variable (D : Type*) [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
@@ -136,8 +145,8 @@ noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
     simp_all only [Set.mem_setOf_eq, inv_mem_iff, Matrix.coe_units_inv, true_and,
       Matrix.inv_def, Ring.inverse_eq_inv', Matrix.adjugate_fin_two,
       Matrix.smul_apply, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
-      Matrix.cons_val_fin_one, smul_eq_mul, Matrix.cons_val_one, Matrix.head_cons,
-      Matrix.head_fin_const, ← mul_sub, map_mul, map_inv₀, mul_neg, Valuation.map_neg]
+      Matrix.cons_val_fin_one, smul_eq_mul, Matrix.cons_val_one,
+      ← mul_sub, map_mul, map_inv₀, mul_neg, Valuation.map_neg]
     rw [Valuation.map_sub_swap, v_det_val_mem_localFullLevel_eq_one ha.1]
     simp [ha.2]
 

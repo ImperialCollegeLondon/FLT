@@ -91,7 +91,7 @@ lemma Module.UniformlyBoundedRank.exists_rank :
   rw [← Ultrafilter.eventually_exists_iff]
   refine .of_forall fun i ↦ ?_
   cases subsingleton_or_nontrivial (M i)
-  · refine ⟨0, by simpa using ⟨LinearEquiv.ofSubsingleton _ _⟩⟩
+  · exact ⟨⟨0, Nat.zero_lt_succ n⟩, instNonemptyOfInhabited⟩
   have : Nontrivial (R ⧸ Ann R (M i)) := by
     refine Ideal.Quotient.nontrivial ?_
     rw [ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
@@ -392,7 +392,7 @@ lemma PatchingModule.map_surjective
       filter_upwards with i
       obtain ⟨b, hb⟩ := Submodule.Quotient.mk_surjective _ (a i)
       simp only [← hb, mapQ_apply, LinearMap.id_coe, id_eq]⟩
-  have (α) : Nonempty (s α) := by
+  have (α : OpenIdeals R) : Nonempty (s α) := by
     simp only [nonempty_subtype, Set.mem_preimage, Set.mem_singleton_iff, s]
     exact PatchingModule.componentMapModule_surjective R F f hf α.1 (x.1 α)
   obtain ⟨v, hv⟩ := nonempty_inverseLimit_of_finite (s ·) fs (by
@@ -516,7 +516,7 @@ lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) 
   refine continuous_induced_rng.mpr ?_
   refine continuous_pi fun α ↦ ?_
   have : DiscreteTopology (R ⧸ α.1) := AddSubgroup.discreteTopology _ α.2
-  show Continuous ((equivComponent R M F α.1 α.2) ∘ _)
+  change Continuous ((equivComponent R M F α.1 α.2) ∘ _)
   refine continuous_of_discreteTopology.comp ?_
   refine continuous_pi fun i ↦
     (continuous_algebraMap R (R ⧸ α.1)).comp (continuous_apply i)
