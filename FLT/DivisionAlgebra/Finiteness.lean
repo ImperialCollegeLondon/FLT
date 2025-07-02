@@ -232,24 +232,20 @@ theorem Doset.iUnion_finset_quotToDoset {G : Type*} [Group G] (H K : Subgroup G)
     use Finset.univ
     simpa using Doset.union_quotToDoset H K
 
--- I guess I could generalise this?
-open scoped TensorProduct.RightActions in
-lemma Cover_descended (U : Subgroup (Dfx K D)) : ⋃ (q : Doset.Quotient ↑(incl₁ K D).range ↑U),
-      Quot.mk (α := Dfx K D) ((QuotientGroup.rightRel (incl₁ K D).range)) ''
-      (Doset.doset (Quotient.out q : Dfx K D) (Set.range (incl₁ K D)) (U : Set (Dfx K D))) =
-      Set.univ := by
-    have Cover_Dfx := Doset.union_quotToDoset ((incl₁ K D).range) U
-    refine Eq.symm (Set.Subset.antisymm ?_ fun ⦃a⦄ a ↦ trivial)
-    intro x hx
-    simp only [MonoidHom.coe_range, Set.mem_iUnion, Set.mem_image]
-    obtain ⟨y, hy⟩ := Quot.exists_rep x
-    have ⟨i, hi⟩ : ∃ i : Doset.Quotient ↑(incl₁ K D).range ↑U,
-       y ∈ Doset.doset (Quotient.out i) (Set.range ⇑(incl₁ K D)) ↑U  := by
-      contrapose Cover_Dfx
-      refine (Set.ne_univ_iff_exists_notMem (⋃ q, Doset.doset (Quotient.out q)
-        (Set.range ⇑(incl₁ K D)) ↑U)).mpr ?_
-      exact ⟨y, by simpa using Cover_Dfx⟩
-    exact ⟨i, y, hi, hy⟩
+theorem Doset.descended_cover {G : Type*} [Group G] (H K : Subgroup G) :
+    ⋃ (q : Doset.Quotient H K), Quot.mk (QuotientGroup.rightRel H) ''
+    (Doset.doset (Quotient.out q : G) H K) = Set.univ := by
+  have Cover_Dfx := Doset.union_quotToDoset H K
+  refine Eq.symm (Set.Subset.antisymm ?_ fun ⦃a⦄ a ↦ trivial)
+  intro x hx
+  simp only [Set.mem_iUnion, Set.mem_image]
+  obtain ⟨y, hy⟩ := Quot.exists_rep x
+  have ⟨i, hi⟩ : ∃ i : Doset.Quotient H K,
+      y ∈ Doset.doset (Quotient.out i) H K  := by
+    contrapose Cover_Dfx
+    refine (Set.ne_univ_iff_exists_notMem (⋃ q, quotToDoset H K q)).mpr ?_
+    exact ⟨y, by simpa using Cover_Dfx⟩
+  exact ⟨i, y, hi, hy⟩
 
 local instance : SMul (Dfx K D) (Dfx K D) where
   smul := HMul.hMul
@@ -343,7 +339,7 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) (isCompact_univ_iff.mpr
     (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D))
   have ⟨t, FinCover_descended⟩ := ToFinCover (doset_isOpen K D U hU)
-    (Cover_descended K D U ▸ Set.Subset.rfl)
+    (Doset.descended_cover (G := Dfx K D) (incl₁ K D).range U  ▸ Set.Subset.rfl)
   apply (Doset.iUnion_finset_quotToDoset ((incl₁ K D).range) U).mp
   use t
   exact FinCover_ascended K D U t FinCover_descended
