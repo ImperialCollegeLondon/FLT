@@ -1,8 +1,10 @@
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Hacks.RightActionInstances
+import FLT.NumberField.Completion.Finite
 /-!
 
 # Definitions of various compact open subgrups of Dˣ and GL₂(𝔸_F^∞)
@@ -51,10 +53,22 @@ variable {F}
 
 namespace IsDedekindDomain
 
+noncomputable def M2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
+  Subring (Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) :=
+    RingHom.range (RingHom.mapMatrix (v.adicCompletionIntegers F).subtype)
+
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
   MonoidHom.range (Units.map
     (RingHom.mapMatrix (v.adicCompletionIntegers F).subtype).toMonoidHom)
+
+theorem M2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
+    IsOpen (M2.localFullLevel v).carrier :=
+  sorry
+
+theorem M2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
+    IsCompact (M2.localFullLevel v).carrier :=
+  sorry
 
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localFullLevel v).carrier :=
@@ -178,6 +192,54 @@ noncomputable def GL2.toAdicCompletion
     GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) →*
     GL (Fin 2) (v.adicCompletion F) :=
   Units.map (RingHom.mapMatrix (FiniteAdeleRing.toAdicCompletion v)).toMonoidHom
+
+/-- `GL_2(𝔸_F^∞)` is isomorphic and homeomorphic to the
+restricted product of the local components `GL_2(F_v)`. -/
+def GL2.restrictedProduct :
+  GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
+  Πʳ (v : HeightOneSpectrum (𝓞 F)),
+  [(GL (Fin 2) (v.adicCompletion F)), ↑(GL2.localFullLevel v)] :=
+
+  let M2.localFullLevel2 (v : HeightOneSpectrum (𝓞 F)) :
+    Set (Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) :=
+    {f | ∀ a b, f a b ∈ v.adicCompletionIntegers F}
+
+  let restrictedProductMatrix :
+    Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ
+    Πʳ (v : HeightOneSpectrum (𝓞 F)),
+      [Matrix (Fin 2) (Fin 2) (v.adicCompletion F),
+        M2.localFullLevel2 v] :=
+      Homeomorph.symm
+      (Homeomorph.restrictedProductMatrix (NumberField.isOpenAdicCompletionIntegers F))
+
+  have restrictedProductMatrixMonoid :
+    Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
+    Πʳ (v : HeightOneSpectrum (𝓞 F)),
+      [Matrix (Fin 2) (Fin 2) (v.adicCompletion F),
+        M2.localFullLevel v] := by
+
+    sorry
+    /-{
+    __ := restrictedProductMatrix
+
+    }-/
+
+  let restrictedProductUnits :
+    Πʳ (v : HeightOneSpectrum (𝓞 F)),
+      [Matrix (Fin 2) (Fin 2) (v.adicCompletion F),
+        M2.localFullLevel v]ˣ ≃ₜ*
+    Πʳ (v : HeightOneSpectrum (𝓞 F)),
+      [GL (Fin 2) (v.adicCompletion F),
+        (M2.localFullLevel v).units] :=
+          ContinuousMulEquiv.restrictedProductUnits (M2.localFullLevel) (M2.localFullLevel.isOpen)
+
+  let test := 1
+
+
+
+  sorry
+
+
 
 end IsDedekindDomain.FiniteAdeleRing
 
