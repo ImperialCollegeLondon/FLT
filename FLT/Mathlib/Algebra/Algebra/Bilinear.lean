@@ -93,8 +93,8 @@ by a unit
 def _root_.LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[F] A where
   toFun x := u * x
   invFun y := u⁻¹ * y
-  left_inv x := by simp [mul_assoc]
-  right_inv y := by simp [mul_assoc]
+  left_inv x := by simp
+  right_inv y := by simp
   map_add' x₁ x₂ := left_distrib ↑u x₁ x₂
   map_smul' f x := by simp
 

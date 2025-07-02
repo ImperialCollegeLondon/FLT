@@ -38,7 +38,7 @@ def ContinuousLinearEquiv.piScalarPiCongrFiberwise {α : Type*} {β : Type*} {R 
     ((a : α) → γ₁ a) ≃L[∀ b, R b] ((b : β) → γ₂ b) where
   __ := LinearEquiv.piScalarPiCongrFiberwise fun b => (e b).toLinearEquiv
   continuous_invFun := by
-    show Continuous (fun (g : (b : β) → γ₂ b) a => (e (f a)).symm (g (f a)) ⟨a, rfl⟩)
+    change Continuous (fun (g : (b : β) → γ₂ b) a => (e (f a)).symm (g (f a)) ⟨a, rfl⟩)
     fun_prop
 
 /-- Given `φ : α → β → Type*` and `R : α → Type*` such that `φ a b` is an `R a` module for all
