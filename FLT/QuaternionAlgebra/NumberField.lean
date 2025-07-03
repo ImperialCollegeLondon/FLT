@@ -245,12 +245,9 @@ noncomputable def GL2.restrictedProduct :
     {
       __ := restrictedProductMatrix
       map_mul' := by
-        unfold restrictedProductMatrix
-        unfold Homeomorph.restrictedProductMatrix
-        unfold Homeomorph.restrictedProductPi
-        unfold Homeomorph.piCongrRight
-        unfold Equiv.restrictedProductPi
-        unfold Equiv.piCongrRight
+        unfold restrictedProductMatrix; unfold Homeomorph.restrictedProductMatrix
+        unfold Homeomorph.restrictedProductPi; unfold Homeomorph.piCongrRight
+        unfold Equiv.restrictedProductPi; unfold Equiv.piCongrRight
         intro x y; ext v i j
         simp only [Set.mem_setOf_eq, Equiv.coe_fn_mk, Equiv.coe_fn_symm_mk, Equiv.toFun_as_coe,
           Homeomorph.coe_toEquiv, Homeomorph.symm_trans_apply, Homeomorph.homeomorph_mk_coe_symm,
