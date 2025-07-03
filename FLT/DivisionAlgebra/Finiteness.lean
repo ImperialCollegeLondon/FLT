@@ -117,17 +117,48 @@ lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
 
--- Need something saying D ⊆ D_𝔸 is discrete
+def D_iso : ∃ n : ℕ, Nonempty (D ≃ₗ[K] (Fin n → K)) := by
+  -- not sure if the set up is correct
+  sorry
+
+def D_𝔸_iso : ∃ n : ℕ, Nonempty (D_𝔸 ≃ₗ[K] (Fin n → AdeleRing (𝓞 K) K)) := by
+
+  sorry
+
+theorem Kn_discrete (n : ℕ) : ∀ x : Fin n → K, ∃ U : Set (Fin n → AdeleRing (𝓞 K) K),
+    IsOpen U ∧ (Algebra.TensorProduct.includeLeft : (Fin n → K) →ₐ[K] (Fin n → AdeleRing (𝓞 K) K)) ⁻¹' U = {x} := by
+  -- as before not sure if the set up is correct
+  -- this should just follow from using products of sets from NumberField.AdeleRing.discrete
+  sorry
+
+theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
+    IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
+  -- this should follow from the isomorphisms and Kn_discrete
+  sorry
+
+local instance : DiscreteTopology (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸))
+    := by
+  -- by definition of D_discrete
+  sorry
 
 lemma T_finite : Set.Finite (T K D) := by
   have h : Set.Finite ((Y K D) ∩ (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)))
       := by
     apply IsCompact.finite
     · refine IsCompact.inter_right (Y_compact K D) ?_
-
-      -- Subgroup.isClosed_of_discrete
+      --exact Subgroup.isClosed_of_discrete (G := D_𝔸) (H := (Algebra.TensorProduct.includeLeft :
+      --D →ₐ[K] D_𝔸).range)
       sorry
-    · -- follows form D being discrete
+    · refine singletons_open_iff_discrete.mp ?_
+      intro a
+      obtain ⟨a, ha1, ha2⟩ := a
+      have : IsOpen (({a} : Set (D_𝔸)) ∩
+          Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
+        have : ({a} : Set (D_𝔸)) ∩ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
+            = {a} := by
+
+          sorry
+      refine isOpen_induced_eq.mpr ?_
 
       sorry
   have h1 : Units.val '' T K D ⊆ (Y K D) ∩
