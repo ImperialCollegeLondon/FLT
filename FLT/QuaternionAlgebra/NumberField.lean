@@ -3,6 +3,8 @@ import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Topology.Homeomorph.Defs
+import Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Hacks.RightActionInstances
 import FLT.NumberField.Completion.Finite
 /-!
@@ -199,11 +201,12 @@ noncomputable def GL2.restrictedProduct :
   GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
   Πʳ (v : HeightOneSpectrum (𝓞 F)),
   [(GL (Fin 2) (v.adicCompletion F)), ↑(GL2.localFullLevel v)] :=
-
+  -- Alternate definition of M_2(O_v), as used in `Homeomorph.restrictedProductMatrix`.
   let M2.localFullLevel2 (v : HeightOneSpectrum (𝓞 F)) :
     Set (Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) :=
     {f | ∀ a b, f a b ∈ v.adicCompletionIntegers F}
 
+  -- Show that the above alternate definition is equal to the earlier definition of M_2(O_v) as subring of M_2(F_v).
   have h : (fun (v : HeightOneSpectrum (𝓞 F)) ↦
     (M2.localFullLevel v : Set (Matrix (Fin 2) (Fin 2) (v.adicCompletion F))))
     = (fun v ↦ M2.localFullLevel2 v) := by
@@ -232,7 +235,12 @@ noncomputable def GL2.restrictedProduct :
         M2.localFullLevel2 v]) := by congr
     {
       __ := hrt ▸ restrictedProductMatrix
-      map_mul' := by sorry
+      map_mul' := by
+        intro x y
+        simp only [Equiv.toFun_as_coe, Homeomorph.coe_toEquiv]
+        unfold restrictedProductMatrix
+        
+        sorry
     }
     -- Show multiplicativity of matrix map
 
@@ -243,15 +251,21 @@ noncomputable def GL2.restrictedProduct :
         M2.localFullLevel v]ˣ :=
     {
       __ := Units.mapEquiv restrictedProductMatrixMonoid
-      continuous_toFun := sorry
-      continuous_invFun := sorry
-    }
-    -- Show restriction to units is continuous
+      continuous_toFun := by
+        rw[Units.mapEquiv]; apply Continuous.units_map;
+        apply restrictedProductMatrixMonoid.continuous_toFun
+      continuous_invFun := by
+        rw[Units.mapEquiv]; apply Continuous.units_map;
+        apply restrictedProductMatrixMonoid.continuous_invFun
+      }
 
+  -- Show that the units of M_2(O_v) are GL_2(O_v).
+  -- I would be happy if this can be simplified or removed, but for now it seems necessary.
   have hu1 : (fun (v : HeightOneSpectrum (𝓞 F)) ↦
     ((M2.localFullLevel v).units : Subgroup (GL (Fin 2) (v.adicCompletion F))))
     = (fun (v : HeightOneSpectrum (𝓞 F)) ↦
       (GL2.localFullLevel v : Subgroup (GL (Fin 2) (v.adicCompletion F)))) := by
+    ext v u
     sorry
 
   have hu2 : (fun (v : HeightOneSpectrum (𝓞 F)) ↦
