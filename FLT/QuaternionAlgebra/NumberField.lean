@@ -227,8 +227,7 @@ restricted product of the local components `GL_2(F_v)`. -/
 noncomputable def GL2.restrictedProduct :
   GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
   Πʳ (v : HeightOneSpectrum (𝓞 F)),
-  [(GL (Fin 2) (v.adicCompletion F)), (M2.localFullLevel v).units] :=
-
+    [(GL (Fin 2) (v.adicCompletion F)), (M2.localFullLevel v).units] :=
   let restrictedProductMatrix :
     Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ
     Πʳ (v : HeightOneSpectrum (𝓞 F)),
@@ -236,7 +235,6 @@ noncomputable def GL2.restrictedProduct :
         M2.localFullLevel v] :=
       Homeomorph.symm
       (Homeomorph.restrictedProductMatrix (NumberField.isOpenAdicCompletionIntegers F))
-
   let restrictedProductMatrixMonoid :
     Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
     Πʳ (v : HeightOneSpectrum (𝓞 F)),
@@ -253,8 +251,7 @@ noncomputable def GL2.restrictedProduct :
           Homeomorph.coe_toEquiv, Homeomorph.symm_trans_apply, Homeomorph.homeomorph_mk_coe_symm,
           Pi.map_apply, mk_apply]
         exact rfl
-    }
-
+      }
   let restrictedProductMatrixMonoidUnits :
     GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
     Πʳ (v : HeightOneSpectrum (𝓞 F)),
@@ -269,7 +266,6 @@ noncomputable def GL2.restrictedProduct :
         rw[Units.mapEquiv]; apply Continuous.units_map
         apply restrictedProductMatrixMonoid.continuous_invFun
       }
-
   let restrictedProductUnits :
     Πʳ (v : HeightOneSpectrum (𝓞 F)),
       [Matrix (Fin 2) (Fin 2) (v.adicCompletion F),
@@ -278,7 +274,6 @@ noncomputable def GL2.restrictedProduct :
       [GL (Fin 2) (v.adicCompletion F),
         (M2.localFullLevel v).units] :=
     ContinuousMulEquiv.restrictedProductUnits (M2.localFullLevel) (M2.localFullLevel.isOpen)
-
   ContinuousMulEquiv.trans restrictedProductMatrixMonoidUnits restrictedProductUnits
 
 end IsDedekindDomain.FiniteAdeleRing
