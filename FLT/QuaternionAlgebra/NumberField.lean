@@ -84,7 +84,7 @@ noncomputable def M2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
       neg_mem' := by
         intro x hx i j; rw[Matrix.neg_apply];
         apply (v.adicCompletionIntegers F).neg_mem; exact hx i j
-    }
+      }
 
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
