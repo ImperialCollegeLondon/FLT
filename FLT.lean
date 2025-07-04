@@ -4,6 +4,7 @@ import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
+import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
 import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.Reductions
 import FLT.DedekindDomain.AdicValuation
