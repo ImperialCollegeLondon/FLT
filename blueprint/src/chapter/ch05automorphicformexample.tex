@@ -511,7 +511,8 @@ subgroups $\Q^\times$, $\Z^\times$ and $\Zhat^\times$.
 \end{lemma}
 Note that by the previous lemma, this representation will be unique up to sign.
 \begin{proof}
-    \uses{QHat.lowestTerms}
+    \uses{ZHat.multiples,ZHat.eq_zero_of_mul_eq_zero,QHat.canonicalForm}
+    \leanok
   We already know that a general element of $\Qhat^\times$ can be written as $x/N$ with $N$
   positive, so this reduces us to proving that a general element $x\in\Zhat$ which is invertible
   in $\Qhat^\times$ can be written as $qz$ with $q\in\Q^\times$ and $z\in\Zhat^\times$.
