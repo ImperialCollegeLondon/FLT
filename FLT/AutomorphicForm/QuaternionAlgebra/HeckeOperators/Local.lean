@@ -47,9 +47,11 @@ variable (α : v.adicCompletionIntegers F)
 variable (hα : α ≠ 0)
 
 variable {F α hα} in
+/-- The subgroup `U1 = GL2.localTameLevel`. -/
 noncomputable abbrev U1v : Subgroup (GL (Fin 2) (adicCompletion F v)) := (GL2.localTameLevel v)
 
 variable {F v} in
+/-- The matrix element `g = diag[α, 1]`. -/
 noncomputable def g : (GL (Fin 2) (adicCompletion F v)) :=
   Matrix.GeneralLinearGroup.diagonal (![⟨(α : v.adicCompletion F),
     (α : v.adicCompletion F)⁻¹, by
@@ -61,11 +63,13 @@ noncomputable def g : (GL (Fin 2) (adicCompletion F v)) :=
 set_option synthInstance.maxHeartbeats 0 in
 -- double coset space
 variable {F v} in
+/-- The double coset space `U1 g U1` as a set of left cosets. -/
 noncomputable def U1gU1 :
   Set ((GL (Fin 2) (adicCompletion F v)) ⧸ ↑(U1v v)) :=
   (QuotientGroup.mk '' ((U1v v) * g α hα • ↑(U1v v) ))
 
 variable {F v} in
+/-- The matrix element `gt = !![α, t; 0, 1]`. -/
 noncomputable def gt (t : v.adicCompletionIntegers F) :
   (GL (Fin 2) (adicCompletion F v)) := by
   let gtInv : Invertible !![(α : v.adicCompletion F), t; 0, 1].det :=
@@ -79,6 +83,8 @@ noncomputable def gt (t : v.adicCompletionIntegers F) :
   exact Matrix.unitOfDetInvertible !![(α : v.adicCompletion F), t; 0, 1]
 
 variable {F v} in
+/-- For each `t ∈ O_v / αO_v`, the left coset `gt U1`
+for a lift of t to `O_v`. -/
 noncomputable def gtU1
   (t : ↑(adicCompletionIntegers F v) ⧸ (AddSubgroup.map (AddMonoidHom.mulLeft α)
     (⊤ : AddSubgroup ↑(adicCompletionIntegers F v)))) :
