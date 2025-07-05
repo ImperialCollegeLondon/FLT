@@ -292,16 +292,17 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   · let mup : GL (Fin 2) (adicCompletion F v) := (gt α hα (Quotient.out t))⁻¹ * (co₁ * g α hα)
     have hmup : mup = (gt α hα (Quotient.out t))⁻¹ * (co₁ * g α hα) := rfl
     let muMatrix : Matrix (Fin 2) (Fin 2) (adicCompletion F v) :=
-      !![a-(Quotient.out t)*c, (α : adicCompletion F v)⁻¹ * (b-(Quotient.out t)*d); c*α, d]
+      !![a - (Quotient.out t) * c, (α : adicCompletion F v)⁻¹ * (b - (Quotient.out t) * d);
+        c * α, d]
     have m : mup = muMatrix := by
       have hp1 : (gt α hα (Quotient.out t))⁻¹
-        = !![(α : adicCompletion F v)⁻¹, -(α : adicCompletion F v)⁻¹*(Quotient.out t);0,1] := by
+        = !![(α : adicCompletion F v)⁻¹, -(α : adicCompletion F v)⁻¹ * (Quotient.out t); 0, 1] := by
         rw[gt]; push_cast; rw[r, Matrix.inv_def]
         simp only [Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero, Ring.inverse_eq_inv',
           Matrix.adjugate_fin_two_of, neg_zero, Matrix.smul_of, Matrix.smul_cons, smul_eq_mul,
           mul_neg, Matrix.smul_empty, neg_mul, EmbeddingLike.apply_eq_iff_eq]
         rw [inv_mul_cancel₀]; exact_mod_cast hα
-      have hp2 : co₁ = !![(a : adicCompletion F v),b;c,d] := by
+      have hp2 : co₁ = !![(a : adicCompletion F v), b; c, d] := by
         rw[← y]; ext i j
         simp only [RingHom.toMonoidHom_eq_coe, Units.map_mk, MonoidHom.coe_coe,
           RingHom.mapMatrix_apply, ValuationSubring.coe_subtype, Matrix.map_apply, Matrix.of_apply,
@@ -313,7 +314,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         fin_cases j
         · simp; rfl
         simp; rfl
-      have hp3 : g α hα = !![(α : adicCompletion F v), 0;0,1] := by
+      have hp3 : g α hα = !![(α : adicCompletion F v), 0; 0, 1] := by
         rw[g]; ext i j
         simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_fin_one]
         fin_cases i
@@ -349,7 +350,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
     -- as even `g` itself need not be in `GL_2(O_v)`
     -- (`α` need not be a unit).
     let muMatrixInt : Matrix (Fin 2) (Fin 2) (adicCompletionIntegers F v) :=
-      !![a-(Quotient.out t)*c, q*d; c*α, d]
+      !![a - (Quotient.out t) * c, q * d; c * α, d]
     have intdet : muMatrixInt.det = val_x₁.det := by
       unfold muMatrixInt
       rw[Matrix.det_fin_two_of, hq₁]; ring_nf
@@ -416,7 +417,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         rw[va, vd]
         apply z.left
       norm_cast at valad
-      have maxad : (a-d) ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) := by
+      have maxad : (a - d) ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) := by
         apply (ValuationSubring.valuation_lt_one_iff (adicCompletionIntegers F v) (a-d)).mpr
         apply (Valuation.isEquiv_iff_val_lt_one.mp valEquiv).mp
         exact valad
@@ -429,7 +430,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         assumption
       apply (Valuation.isEquiv_iff_val_lt_one.mp valEquiv).mpr
       exact (ValuationSubring.valuation_lt_one_iff (adicCompletionIntegers F v) _).mp maxadc
-    have maxcα : c*α ∈ IsLocalRing.maximalIdeal ↥(adicCompletionIntegers F v) := by
+    have maxcα : c * α ∈ IsLocalRing.maximalIdeal ↥(adicCompletionIntegers F v) := by
       exact Ideal.mul_mem_right α (IsLocalRing.maximalIdeal ↥(adicCompletionIntegers F v)) maxc
     apply (Valuation.isEquiv_iff_val_lt_one.mp valEquiv).mpr
     exact (ValuationSubring.valuation_lt_one_iff (adicCompletionIntegers F v) (c*α)).mp maxcα
