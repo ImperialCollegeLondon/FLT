@@ -55,6 +55,7 @@ variable {F}
 
 namespace IsDedekindDomain
 
+/-- `M_2(O_v)` as a subring of `M_2(F_v)`. -/
 noncomputable def M2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subring (Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) :=
     {
