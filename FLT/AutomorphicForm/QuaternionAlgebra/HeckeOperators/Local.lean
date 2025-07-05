@@ -222,7 +222,11 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   -- Each element of `U1gU1` can be written as
   -- `val_x₁ * gU1`, where `val_x₁ = !![a,b;c,d]`
   -- is viewed as a matrix over `O_v`.
-  obtain ⟨ ⟨ ⟨ val_x₁, inv_x₁, val_inv_x₁, inv_val_x₁ ⟩ , y ⟩ , z ⟩ := h₁
+  obtain ⟨ ⟨ val_x₁_unit , y ⟩ , z ⟩ := h₁
+  have val_x₁_det_unit :
+      IsUnit (val_x₁_unit : Matrix (Fin 2) (Fin 2) ↥(adicCompletionIntegers F v)).det :=
+      Matrix.isUnits_det_units val_x₁_unit
+  obtain ⟨ val_x₁, inv_x₁, val_inv_x₁, inv_val_x₁ ⟩ := val_x₁_unit
   let a : (adicCompletionIntegers F v) := (val_x₁ 0 0)
   let b : (adicCompletionIntegers F v) := (val_x₁ 0 1)
   let c : (adicCompletionIntegers F v) := (val_x₁ 1 0)
@@ -346,37 +350,23 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
     -- (`α` need not be a unit).
     let muMatrixInt : Matrix (Fin 2) (Fin 2) (adicCompletionIntegers F v) :=
       !![a-(Quotient.out t)*c, q*d; c*α, d]
-    have intdet : muMatrixInt.det = a*d-b*c := by
+    have intdet : muMatrixInt.det = val_x₁.det := by
       unfold muMatrixInt
-      rw[Matrix.det_fin_two_of, hq₁]
-      ring_nf
-      rw[mul_assoc b dinv c, mul_comm dinv c, mul_assoc, mul_assoc, dinvval]
-      ring
-    let val_x₁_unit : (Matrix (Fin 2) (Fin 2) ↥(adicCompletionIntegers F v))ˣ :=
-      { val := val_x₁, inv := inv_x₁, val_inv := val_inv_x₁, inv_val := inv_val_x₁ }
-    have val_x₁_det_unit :
-      IsUnit (val_x₁_unit : Matrix (Fin 2) (Fin 2) ↥(adicCompletionIntegers F v)).det :=
-      Matrix.isUnits_det_units val_x₁_unit
-    have val_x₁_det :
-      (val_x₁_unit : Matrix (Fin 2) (Fin 2) ↥(adicCompletionIntegers F v)).det = a*d-b*c := by
-      unfold val_x₁_unit a b c d
-      push_cast
-      apply Matrix.det_fin_two_of
-    rw[val_x₁_det, ← intdet] at val_x₁_det_unit
+      rw[Matrix.det_fin_two_of, hq₁]; ring_nf
+      rw[mul_assoc b dinv c, mul_comm dinv c, mul_assoc, mul_assoc, dinvval]; ring
+      rw[Matrix.det_fin_two]
+    rw[← intdet] at val_x₁_det_unit
     have muMatrixIntUnit : IsUnit muMatrixInt :=
       (Matrix.isUnit_iff_isUnit_det muMatrixInt).mpr val_x₁_det_unit
     obtain ⟨ muMatrixIntUnitval , hmuMatrixIntUnitval ⟩ := muMatrixIntUnit
     have inteq : (Units.map (RingHom.mapMatrix ((v.adicCompletionIntegers F).subtype)).toMonoidHom)
       muMatrixIntUnitval = mup := by
       simp only [RingHom.toMonoidHom_eq_coe]
-      ext i j
-      rw[m]
-      unfold muMatrix
+      ext i j; rw[m]; unfold muMatrix
       simp only [Units.coe_map, MonoidHom.coe_coe, RingHom.mapMatrix_apply,
         ValuationSubring.coe_subtype, Matrix.map_apply, Matrix.of_apply, Matrix.cons_val',
         Matrix.cons_val_fin_one]
-      rw[hmuMatrixIntUnitval]
-      unfold muMatrixInt
+      rw[hmuMatrixIntUnitval]; unfold muMatrixInt
       fin_cases i
       · fin_cases j
         · simp
