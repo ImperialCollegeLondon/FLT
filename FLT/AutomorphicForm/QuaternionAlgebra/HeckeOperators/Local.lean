@@ -353,7 +353,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
     have intdet : muMatrixInt.det = val_x₁.det := by
       unfold muMatrixInt
       rw[Matrix.det_fin_two_of, hq₁]; ring_nf
-      rw[mul_assoc b dinv c, mul_comm dinv c, mul_assoc, mul_assoc, dinvval]; ring
+      rw[mul_assoc b dinv c, mul_comm dinv c, mul_assoc, mul_assoc, dinvval]; ring_nf
       rw[Matrix.det_fin_two]
     rw[← intdet] at val_x₁_det_unit
     have muMatrixIntUnit : IsUnit muMatrixInt :=
