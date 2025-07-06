@@ -391,12 +391,44 @@ variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalS
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
-@[to_additive]
+--@[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
     letI : MeasurableSpace (Π i, H i) := borel _
     haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  sorry -- FLT#521 -- induction on size of ι
+  let P : (α : Type u_1) → [Fintype α] → Prop := fun ι _ ↦
+    ∀ (H : ι → Type u_2) [(i : ι) → Group (H i)] [(i : ι) → TopologicalSpace (H i)]
+    [∀ (i : ι), IsTopologicalGroup (H i)] [∀ (i : ι), LocallyCompactSpace (H i)]
+    [(i : ι) → MeasurableSpace (H i)] [∀ (i : ι), BorelSpace (H i)] (ψ : (i : ι) → H i ≃ₜ* H i),
+    letI : MeasurableSpace (Π i, H i) := borel _
+    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i)
+  refine Fintype.induction_subsingleton_or_nontrivial (P := P) ι ?_ ?_ H ψ
+  · intro α fintype_α subsingleton_α H h1 h2 h3 h4 h5 h6 ψ
+    by_cases hα : Nonempty α
+    · --have a := Classical.choice hα
+      --have : Unique α := @Unique.mk' α (Classical.inhabited_of_nonempty hα) subsingleton_α
+      rw [Fintype.prod_subsingleton]
+      · sorry
+
+
+
+      sorry
+    · rw [not_nonempty_iff] at hα -- IsEmpty α
+      rw [Finset.univ_eq_empty, Finset.prod_empty]
+      convert mulEquivHaarChar_eq_one_of_compactSpace (ContinuousMulEquiv.piCongrRight ψ)
+      exact BorelSpace.measurable_eq.symm
+  · sorry
+
+/-   refine Fintype.induction_empty_option (P := P) ?_ ?_ ?_ ι H ψ
+  · intro α β _ e hα
+    intro H h1 h2 h3 h4 h5 h6 ψ
+    convert hα (H <| e ·) (ψ <| e ·)
+    ·
+      sorry
+    · sorry
+  · sorry
+  · sorry  -/
 
 end pi
 
