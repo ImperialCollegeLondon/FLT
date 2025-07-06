@@ -153,8 +153,8 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
               by simp only [Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero] }
             exact Matrix.unitOfDetInvertible !![1, (Quotient.out t); 0, 1]
           use htInt; refine Units.eq_iff.mp ?_; rw[r]
-          have ho : (htInt = !![1, (Quotient.out t); 0, 1]) := rfl
-          rw[Units.coe_map, ho]
+          have hr : (htInt = !![1, (Quotient.out t); 0, 1]) := rfl
+          rw[Units.coe_map, hr]
           simp only [RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, RingHom.mapMatrix_apply,
             ValuationSubring.coe_subtype]
           ext i j
@@ -226,27 +226,25 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   have hp : co₀ = co₁ * (g α hα) * co₂ := by
     rw[← hl, ← z]; simp only [smul_eq_mul]; rw[mul_assoc]
   -- Each element of `U1gU1` can be written as
-  -- `val_x₁ * gU1`, where `val_x₁ = !![a,b;c,d]`
+  -- `x * gU1`, where `x = !![a,b;c,d]`
   -- is viewed as a matrix over `O_v`.
-  obtain ⟨ ⟨ val_x₁_unit , y ⟩ , z ⟩ := h₁
-  have val_x₁_det_unit :
-      IsUnit (val_x₁_unit : Matrix (Fin 2) (Fin 2) ↥(adicCompletionIntegers F v)).det :=
-      Matrix.isUnits_det_units val_x₁_unit
-  obtain ⟨ val_x₁, inv_x₁, val_inv_x₁, inv_val_x₁ ⟩ := val_x₁_unit
-  let a : (adicCompletionIntegers F v) := (val_x₁ 0 0)
-  let b : (adicCompletionIntegers F v) := (val_x₁ 0 1)
-  let c : (adicCompletionIntegers F v) := (val_x₁ 1 0)
-  let d : (adicCompletionIntegers F v) := (val_x₁ 1 1)
-  have h11 : c * (inv_x₁ 0 1) + d * (inv_x₁ 1 1) = 1 := by calc
-    _ = (val_x₁ 1 0) * (inv_x₁ 0 1) + (val_x₁ 1 1) * (inv_x₁ 1 1) := rfl
-    _ = (val_x₁ * inv_x₁) 1 1 := by rw[Matrix.mul_apply]; simp
-    _ = 1 := by rw[val_inv_x₁]; simp
+  obtain ⟨ ⟨ x , y ⟩ , z ⟩ := h₁
+  have xdetunit :
+      IsUnit (x : Matrix (Fin 2) (Fin 2) ↥(adicCompletionIntegers F v)).det :=
+      Matrix.isUnits_det_units x
+  let a : (adicCompletionIntegers F v) := (x 0 0)
+  let b : (adicCompletionIntegers F v) := (x 0 1)
+  let c : (adicCompletionIntegers F v) := (x 1 0)
+  let d : (adicCompletionIntegers F v) := (x 1 1)
+  have h11 : c * (x.inv 0 1) + d * (x.inv 1 1) = 1 := by calc
+    _ = (x 1 0) * (x.inv 0 1) + (x 1 1) * (x.inv 1 1) := rfl
+    _ = (x * x.inv) 1 1 := by rw[Matrix.mul_apply]; simp
+    _ = 1 := by rw[x.val_inv]; simp
   have valc : Valued.v (c : adicCompletion F v) < 1 := by
-    have hc : c = (val_x₁ 1 0) := rfl
-    rw[hc]
+    unfold c
     apply_fun (fun (A : (Matrix (Fin 2) (Fin 2) (adicCompletion F v))ˣ) ↦ A 1 0) at y
-    simp only [RingHom.toMonoidHom_eq_coe, Units.map_mk, MonoidHom.coe_coe, RingHom.mapMatrix_apply,
-      ValuationSubring.coe_subtype, Fin.isValue, Matrix.map_apply] at y
+    simp only [RingHom.toMonoidHom_eq_coe, Fin.isValue, Units.coe_map, MonoidHom.coe_coe,
+      RingHom.mapMatrix_apply, ValuationSubring.coe_subtype, Matrix.map_apply] at y
     rw[y]
     apply z.right
   have maxc : c ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) := by
@@ -255,7 +253,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
     exact valc
   have maxd : d ∉ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) := by
     by_contra maxd₁
-    have max1 : c * (inv_x₁ 0 1) + d * (inv_x₁ 1 1)
+    have max1 : c * (x.inv 0 1) + d * (x.inv 1 1)
       ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) := by
       apply Ideal.add_mem
       repeat
@@ -271,14 +269,14 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
     have dmax : d ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) :=
       (IsLocalRing.mem_maximalIdeal d).mpr dnonunit
     exact maxd dmax
-  obtain ⟨ dinv, dvalinv, dinvval ⟩ := isUnit_iff_exists.mp dunit
+  obtain ⟨ dinv, dval_inv, dinv_val ⟩ := isUnit_iff_exists.mp dunit
   /- In the above, we show that d is a unit,
   because c is a non-unit (by assumption on U).
   This is necessary because the desired t
   is `b * d⁻¹`.
   The rest of the proof is devoted to showing
   that this t works.
-  This means showing that `gt⁻¹ * val_x₁ * g` is in U,
+  This means showing that `gt⁻¹ * x * g` is in U,
   which boils down to explicit matrix computations.
   -/
   let t : ↥(adicCompletionIntegers F v) ⧸ AddSubgroup.map (AddMonoidHom.mulLeft α) ⊤ := b * dinv
@@ -292,15 +290,15 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   simp only [AddSubgroup.coe_top, Set.mem_univ, AddMonoidHom.coe_mulLeft, true_and] at hq
   have hq₁ : Quotient.out t = b * dinv - α * q := by rw[hq]; ring
   -- We have `t = b * dinv - α * q` for some `q ∈ O_v`.
-  -- Now we compute `mup := gt⁻¹ * val_x₁ * g` explicitly,
-  -- and denote the resulting matrix by `muMatrix`.
+  -- Now we compute `m := gt⁻¹ * x * g` explicitly,
+  -- and denote the resulting matrix by `mMatrix`.
   apply Subgroup.mul_mem
-  · let mup : GL (Fin 2) (adicCompletion F v) := (gt α hα (Quotient.out t))⁻¹ * (co₁ * g α hα)
-    have hmup : mup = (gt α hα (Quotient.out t))⁻¹ * (co₁ * g α hα) := rfl
-    let muMatrix : Matrix (Fin 2) (Fin 2) (adicCompletion F v) :=
+  · let m : GL (Fin 2) (adicCompletion F v) := (gt α hα (Quotient.out t))⁻¹ * (co₁ * g α hα)
+    have hmr : m = (gt α hα (Quotient.out t))⁻¹ * (co₁ * g α hα) := rfl
+    let mMatrix : Matrix (Fin 2) (Fin 2) (adicCompletion F v) :=
       !![a - (Quotient.out t) * c, (α : adicCompletion F v)⁻¹ * (b - (Quotient.out t) * d);
         c * α, d]
-    have m : mup = muMatrix := by
+    have hm : m = mMatrix := by
       have hp1 : (gt α hα (Quotient.out t))⁻¹
         = !![(α : adicCompletion F v)⁻¹, -(α : adicCompletion F v)⁻¹ * (Quotient.out t); 0, 1] := by
         rw[gt]; push_cast; rw[r, Matrix.inv_def]
@@ -310,9 +308,8 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         rw [inv_mul_cancel₀]; exact_mod_cast hα
       have hp2 : co₁ = !![(a : adicCompletion F v), b; c, d] := by
         rw[← y]; ext i j
-        simp only [RingHom.toMonoidHom_eq_coe, Units.map_mk, MonoidHom.coe_coe,
-          RingHom.mapMatrix_apply, ValuationSubring.coe_subtype, Matrix.map_apply, Matrix.of_apply,
-          Matrix.cons_val', Matrix.cons_val_fin_one]
+        simp only [RingHom.toMonoidHom_eq_coe, Matrix.of_apply, Matrix.cons_val',
+          Matrix.cons_val_fin_one]
         fin_cases i
         · fin_cases j
           · simp; rfl
@@ -330,8 +327,8 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         fin_cases j
         · simp; rfl
         simp; rfl
-      rw[hmup]; push_cast; rw[hp2, hp3]; norm_cast; rw[hp1]
-      unfold muMatrix
+      rw[hmr]; push_cast; rw[hp2, hp3]; norm_cast; rw[hp1]
+      unfold mMatrix
       simp only [neg_mul, Matrix.cons_mul, Nat.succ_eq_add_one, Nat.reduceAdd, Matrix.vecMul_cons,
         Matrix.head_cons, Matrix.smul_cons, smul_eq_mul, mul_zero, Matrix.smul_empty,
         Matrix.tail_cons, mul_one, Matrix.empty_vecMul, add_zero, Matrix.add_cons, zero_add,
@@ -350,30 +347,30 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
       fin_cases j
       · simp
       simp
-    rw[← hmup]
-    -- First we show that `mup = muMatrix` is in `GL_2(O_v)`.
+    rw[← hmr]
+    -- First we show that `m = mMatrix` is in `GL_2(O_v)`.
     -- Note this is not a priori obvious,
     -- as even `g` itself need not be in `GL_2(O_v)`
     -- (`α` need not be a unit).
-    let muMatrixInt : Matrix (Fin 2) (Fin 2) (adicCompletionIntegers F v) :=
+    let mMatrixInt : Matrix (Fin 2) (Fin 2) (adicCompletionIntegers F v) :=
       !![a - (Quotient.out t) * c, q * d; c * α, d]
-    have intdet : muMatrixInt.det = val_x₁.det := by
-      unfold muMatrixInt
+    have intdet : mMatrixInt.det = x.val.det := by
+      unfold mMatrixInt
       rw[Matrix.det_fin_two_of, hq₁]; ring_nf
-      rw[mul_assoc b dinv c, mul_comm dinv c, mul_assoc, mul_assoc, dinvval]; ring_nf
+      rw[mul_assoc b dinv c, mul_comm dinv c, mul_assoc, mul_assoc, dinv_val]; ring_nf
       rw[Matrix.det_fin_two]
-    rw[← intdet] at val_x₁_det_unit
-    have muMatrixIntUnit : IsUnit muMatrixInt :=
-      (Matrix.isUnit_iff_isUnit_det muMatrixInt).mpr val_x₁_det_unit
-    obtain ⟨ muMatrixIntUnitval , hmuMatrixIntUnitval ⟩ := muMatrixIntUnit
+    rw[← intdet] at xdetunit
+    have mMatrixIntUnit : IsUnit mMatrixInt :=
+      (Matrix.isUnit_iff_isUnit_det mMatrixInt).mpr xdetunit
+    obtain ⟨ mMatrixIntUnitval , hmMatrixIntUnitval ⟩ := mMatrixIntUnit
     have inteq : (Units.map (RingHom.mapMatrix ((v.adicCompletionIntegers F).subtype)).toMonoidHom)
-      muMatrixIntUnitval = mup := by
+      mMatrixIntUnitval = m := by
       simp only [RingHom.toMonoidHom_eq_coe]
-      ext i j; rw[m]; unfold muMatrix
+      ext i j; rw[hm]; unfold mMatrix
       simp only [Units.coe_map, MonoidHom.coe_coe, RingHom.mapMatrix_apply,
         ValuationSubring.coe_subtype, Matrix.map_apply, Matrix.of_apply, Matrix.cons_val',
         Matrix.cons_val_fin_one]
-      rw[hmuMatrixIntUnitval]; unfold muMatrixInt
+      rw[hmMatrixIntUnitval]; unfold mMatrixInt
       fin_cases i
       · fin_cases j
         · simp
@@ -390,35 +387,29 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
           rw[mul_comm (b : adicCompletion F v) (dinv : adicCompletion F v)]
           rw[mul_assoc, ← mul_assoc
             (d : adicCompletion F v) (dinv : adicCompletion F v) (b : adicCompletion F v)]
-          norm_cast; rw[dvalinv]
+          norm_cast; rw[dval_inv]
           push_cast; ring_nf
         exact_mod_cast hα
       fin_cases j
       · simp
       simp
     constructor
-    · use muMatrixIntUnitval
-    -- Next we show that `mup = muMatrix` is in `GL2.localTameLevel`.
-    rw[m]; unfold muMatrix
+    · use mMatrixIntUnitval
+    -- Next we show that `m = mMatrix` is in `GL2.localTameLevel`.
+    rw[hm]; unfold mMatrix
     simp only [Fin.isValue, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
       Matrix.cons_val_fin_one, Matrix.cons_val_one]
     norm_cast
     constructor
     · have valad : Valued.v ((a - d) : adicCompletion F v) < 1 := by
-        have ha : a = (val_x₁ 0 0) := rfl
-        have hd : d = (val_x₁ 1 1) := rfl
-        rw[ha, hd]
-        have va : (val_x₁ 0 0) = co₁ 0 0 := by
+        unfold a d
+        have va : (x 0 0) = co₁ 0 0 := by
           apply_fun (fun (A : (Matrix (Fin 2) (Fin 2) (adicCompletion F v))ˣ) ↦ A 0 0) at y
-          simp only [RingHom.toMonoidHom_eq_coe, Units.map_mk,
-            MonoidHom.coe_coe, RingHom.mapMatrix_apply,
-            ValuationSubring.coe_subtype, Fin.isValue, Matrix.map_apply] at y
+          simp only [RingHom.toMonoidHom_eq_coe, Fin.isValue] at y
           exact y
-        have vd : (val_x₁ 1 1) = co₁ 1 1 := by
+        have vd : (x 1 1) = co₁ 1 1 := by
           apply_fun (fun (A : (Matrix (Fin 2) (Fin 2) (adicCompletion F v))ˣ) ↦ A 1 1) at y
-          simp only [RingHom.toMonoidHom_eq_coe, Units.map_mk,
-            MonoidHom.coe_coe, RingHom.mapMatrix_apply,
-            ValuationSubring.coe_subtype, Fin.isValue, Matrix.map_apply] at y
+          simp only [RingHom.toMonoidHom_eq_coe, Fin.isValue] at y
           exact y
         rw[va, vd]
         apply z.left
