@@ -88,7 +88,7 @@ lemma MulAction.orbitRel.Quotient.mk_smul {G X : Type*} [Group G] [MulAction G X
 
 /-- Given a representative for each orbit of `X` under `G`, and for each `x : X` a choice of `σ`
 that sends `x` to the representative, we obtain a bijection between `G`-equivariant homs from `X`
-and the product of `Stab(x)`-fixed points over each orbit representative `x`.  -/
+and the product of `Stab(x)`-fixed points over each orbit representative `x`. -/
 @[simps]
 def MulAction.homEquivProdFixedPoints {G X Y : Type*} [Group G] [MulAction G X] [MulAction G Y]
     (σ : X → G) (hσ : ∀ a b, orbitRel G X a b → σ a • a = σ b • b) :
