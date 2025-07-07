@@ -7,9 +7,10 @@ import Mathlib.RingTheory.HopkinsLevitzki
 /-!
 # Equivalence between continuous `G`-finite sets and `k`-etale algebras
 
-Given a group `G`, fields `L/K`, such that `G` acts on `L` by `k`-algebra homomorphisms.
+Given a group `G`, fields `L/K` with `L` separably closed,
+such that `G` acts on `L` by `K`-algebra homomorphisms.
 We have a contravariant adjunction
-`G`-set ↔ `k`-algebra
+`G`-set ↔ `K`-algebra
 `X → Hom_G(X, L)`,
 `Hom_K(A, L) ← A`
 with unit and counits:
