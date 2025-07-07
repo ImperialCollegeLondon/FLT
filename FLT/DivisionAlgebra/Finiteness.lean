@@ -50,9 +50,18 @@ noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
 
 namespace Aux
 
+-- the first part of this requires the discreteness of D ⊆ D_𝔸; this is being worked on below
+
+-- surely this is known?
+lemma D_cocompact : Quotient (QuotientGroup.rightRel (α := D_𝔸)
+    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸).range) := by
+  -- follows from
+  sorry
+
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
+  -- MeasureTheory.QuotientMeasureEqMeasurePreimage.haarMeasure_quotient
   sorry
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
@@ -117,27 +126,60 @@ lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
 
-def D_iso : ∃ n : ℕ, Nonempty (D ≃ₗ[K] (Fin n → K)) := by
-  -- not sure if the set up is correct
-  sorry
+abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := by
+  exact Module.Finite.equivPi K D
 
-def D_𝔸_iso : ∃ n : ℕ, Nonempty (D_𝔸 ≃ₗ[K] (Fin n → AdeleRing (𝓞 K) K)) := by
+def D𝔸_iso : (D_𝔸 ≃ₗ[K] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) := by
+  have h1 : D_𝔸 ≃ₗ[K] ((Fin (Module.finrank K D) → K)) ⊗[K] AdeleRing (𝓞 K) K := by
+    exact LinearEquiv.rTensor (AdeleRing (𝓞 K) K) (D_iso K D)
+  have h2 : ((Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[K]
+      (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) := by
+    have h2_1 : ((Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[K]
+        (Fin (Module.finrank K D) → (K ⊗[K] AdeleRing (𝓞 K) K)) := by
 
-  sorry
+      sorry
+    have h2_2 : (Fin (Module.finrank K D) → (K ⊗[K] AdeleRing (𝓞 K) K)) ≃ₗ[K]
+        (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) := by
+      have : (K ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[K] AdeleRing (𝓞 K) K := by
+        exact TensorProduct.lid K (AdeleRing (𝓞 K) K)
+      exact LinearEquiv.piCongrRight fun i ↦ this
+    exact h2_1.trans h2_2
+  exact h1.trans h2
 
-theorem Kn_discrete (n : ℕ) : ∀ x : Fin n → K, ∃ U : Set (Fin n → AdeleRing (𝓞 K) K),
-    IsOpen U ∧ (Algebra.TensorProduct.includeLeft : (Fin n → K) →ₐ[K] (Fin n → AdeleRing (𝓞 K) K)) ⁻¹' U = {x} := by
-  -- as before not sure if the set up is correct
-  -- this should just follow from using products of sets from NumberField.AdeleRing.discrete
+abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) → (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)
+    := fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
+
+theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
+    ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
+    IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
+  intro x
+  have h := NumberField.AdeleRing.discrete K
+
+  -- want to specify h at each part of x
+  -- then take the product of all of those U (how to do this??)
+  -- open via product space
+  -- hopefully by construction the inverse will be exactly as wanted using the second part of h
   sorry
 
 theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
-  -- this should follow from the isomorphisms and Kn_discrete
-  sorry
+  intro x
+  obtain ⟨U, Uopen, Ueq⟩ := Kn_discrete K D (D_iso K D x)
+  use Set.image ((D𝔸_iso K D).symm) U
+  constructor
+  · --rw .symm as inverse (unless they are def eq?) and then change the D𝔸_iso to a
+    --topological map; which should be reasonalbe as its just module topology on adele side?
+
+    sorry
+  ·
+    sorry
 
 local instance : DiscreteTopology (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸))
     := by
+  have := D_discrete K D
+  apply (singletons_open_iff_discrete).mp
+  intro a
+
   -- by definition of D_discrete
   sorry
 
