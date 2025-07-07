@@ -137,14 +137,14 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
       · -- Show that `ht` is in `U1`.
         unfold ht
         constructor
-        · let htInt : ((Matrix (Fin 2) (Fin 2) ↥(adicCompletionIntegers F v))ˣ) := by
+        · let htInt : ((Matrix (Fin 2) (Fin 2) ↥(adicCompletionIntegers F v))ˣ) :=
             let htInv : Invertible !![1, (Quotient.out t); 0, 1].det :=
             { invOf := 1,
               invOf_mul_self :=
               by simp only [Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero],
               mul_invOf_self :=
               by simp only [Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero] }
-            exact Matrix.unitOfDetInvertible !![1, (Quotient.out t); 0, 1]
+            Matrix.unitOfDetInvertible !![1, (Quotient.out t); 0, 1]
           use htInt; refine Units.eq_iff.mp ?_; rw[r]
           have hr : (htInt = !![1, (Quotient.out t); 0, 1]) := rfl
           rw[Units.coe_map, hr]
@@ -338,12 +338,12 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         ((α : adicCompletion F v) * (q : adicCompletion F v))]
       rw[← mul_assoc (α : adicCompletion F v)⁻¹ (α : adicCompletion F v) (q : adicCompletion F v)]
       rw[inv_mul_cancel₀]
-      · rw[mul_comm (d : adicCompletion F v) (α : adicCompletion F v)⁻¹]
-        rw[mul_comm (b : adicCompletion F v) (dinv : adicCompletion F v)]
-        rw[mul_assoc, ← mul_assoc
-          (d : adicCompletion F v) (dinv : adicCompletion F v) (b : adicCompletion F v)]
-        norm_cast; rw[dval_inv]
-        push_cast; ring_nf
+      rw[mul_comm (d : adicCompletion F v) (α : adicCompletion F v)⁻¹]
+      rw[mul_comm (b : adicCompletion F v) (dinv : adicCompletion F v)]
+      rw[mul_assoc, ← mul_assoc
+        (d : adicCompletion F v) (dinv : adicCompletion F v) (b : adicCompletion F v)]
+      norm_cast; rw[dval_inv]
+      push_cast; ring_nf
       exact_mod_cast hα
     constructor
     · use mMatrixIntUnitval
