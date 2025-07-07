@@ -292,11 +292,6 @@ noncomputable example : QHat := (22 / 7) ⊗ₜ ZHat.e
 
 namespace QHat
 
-lemma mul_swap (z : ℤ) (b : ℚ) (x : ZHat) : ((z * b) ⊗ₜ x : QHat) = b ⊗ₜ ((z) • x) := by
-  rw [@TensorProduct.tmul_smul]
-  rw [@TensorProduct.smul_tmul']
-  simp only [zsmul_eq_mul]
-
 lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) ⊗ₜ z' := by
   induction z using TensorProduct.induction_on with
   | zero =>
