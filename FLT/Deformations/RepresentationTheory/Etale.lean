@@ -458,7 +458,7 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] : Monoid (A →ₐ[K] L) where
       | zero => simp only [map_zero]
       | add x y _ _ => simp only [map_add, *]
       | tmul x y =>
-        simp only [Algebra.TensorProduct.lift_tmul, LinearMap.rTensor_tmul]
+        simp only [Algebra.TensorProduct.lift_tmul]
         rfl
     · simp
 
