@@ -18,7 +18,7 @@ with unit and counits:
 
 Suppose `L/K` is galois with galois group `G`:
 
-* If `X` is finite discrete with continuous `G` action, then `X →[G] L` is finte etale.
+* If `X` is finite discrete with continuous `G` action, then `X →[G] L` is finite etale.
 
 * `InfiniteGalois.evalAlgHom_bijective`:
   If `X` is finite discrete with continuous `G` action, then `MulActionHom.evalAlgHom` is bijective.
