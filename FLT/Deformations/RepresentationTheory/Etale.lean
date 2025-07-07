@@ -337,7 +337,7 @@ instance [IsGalois K L] [Finite X] [ContinuousSMulDiscrete (L ≃ₐ[K] L) X] :
 
 /-- Evaluating a `AlgHom` is an `MulActionHom`, bundled as a `AlgHom`. -/
 def AlgHom.evalMulActionHom (G R A Y : Type*) [CommSemiring R] [Semiring Y] [Algebra R Y]
-    [Monoid G] [Semiring A] [Algebra R A] [MulSemiringAction G Y] [SMulCommClass G R Y]  :
+    [Monoid G] [Semiring A] [Algebra R A] [MulSemiringAction G Y] [SMulCommClass G R Y] :
     A →ₐ[R] ((A →ₐ[R] Y) →[G] Y) where
   toFun a := ⟨fun f ↦ f a, fun g f ↦ rfl⟩
   map_one' := by ext f; exact map_one f
