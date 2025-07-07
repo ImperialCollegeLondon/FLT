@@ -389,11 +389,11 @@ def continuousAlgEquivOfIsScalarTower {A B : Type*} (R S₁ : Type*) {S₂ : Typ
   toAlgEquiv := e
   continuous_toFun := by
     -- switch the equivalence scalars of `e` from `S₂` over to `S₁`
-    show Continuous (e.changeScalars R S₁ he).toLinearEquiv
+    change Continuous (e.changeScalars R S₁ he).toLinearEquiv
     -- then this is an `S₁`-linear map on the `S₁`-module topology, so is continuous
     exact IsModuleTopology.continuous_of_linearMap _
   continuous_invFun := by
-    show Continuous (e.changeScalars R S₁ he).toLinearEquiv.symm
+    change Continuous (e.changeScalars R S₁ he).toLinearEquiv.symm
     exact IsModuleTopology.continuous_of_linearMap _
 
 @[simp]

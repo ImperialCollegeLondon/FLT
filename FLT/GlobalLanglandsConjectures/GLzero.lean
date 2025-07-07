@@ -61,7 +61,7 @@ failed to synthesize
         ((Submodule.span ℂ {⟨fun y ↦ c, ⋯⟩}).compatibleMaps ⊥))
 if we don't bump maxHeartbeats here
 -/
-set_option synthInstance.maxHeartbeats 40000 in
+set_option synthInstance.maxHeartbeats 45000 in
 -- see above
 def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
     toFun := fun _ => c,

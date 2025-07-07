@@ -67,8 +67,7 @@ instance : CompleteLattice (Subfunctor F) where
     { obj U := sSup (Set.image (fun T ↦ T.obj U) S)
       map f x hx := by
         obtain ⟨_, ⟨F, h, rfl⟩, h'⟩ := hx
-        simp only [Set.sSup_eq_sUnion, Set.sUnion_image, Set.preimage_iUnion,
-          Set.mem_iUnion, Set.mem_preimage, exists_prop]
+        simp only [Set.sSup_eq_sUnion, Set.sUnion_image, Set.mem_iUnion, exists_prop]
         exact ⟨_, h, F.map f h'⟩ }
   le_sSup _ _ _ _ _ := by aesop
   sSup_le _ _ _ _ _ := by aesop
