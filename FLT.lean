@@ -45,6 +45,7 @@ import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import FLT.Mathlib.Algebra.FixedPoints.Basic
+import FLT.Mathlib.Algebra.Group.Prod
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
