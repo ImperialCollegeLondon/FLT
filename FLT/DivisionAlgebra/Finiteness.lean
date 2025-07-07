@@ -277,7 +277,7 @@ lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.
 lemma M_compact : IsCompact (M K D) := Topology.IsClosedEmbedding.isCompact_preimage
   (incl₂_isClosedEmbedding K D) (ImAux_isCompact K D)
 
-lemma compact_quotient' : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
+lemma compact_quotient : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
   isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
     (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
