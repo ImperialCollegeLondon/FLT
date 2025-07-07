@@ -108,10 +108,10 @@ def unramifiedFunctor (v : Ω K) : Subfunctor (repnFunctor n (Γ K) 𝓞) where
 /-- The subfunctor of representations whose trace is `2` on `ker(Iᵥ → k(v)ˣ)`. -/
 def traceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) where
   obj R := { ρ | ∀ σ ∈ localTameAbelianInertiaGroup v,
-    LinearMap.trace _ _ ((toFramedGaloisRep ρ).adic v σ) = 2 }
+    LinearMap.trace _ _ ((toFramedGaloisRep ρ).toLocal v σ) = 2 }
   map {R S} f ρ hρ σ hσ := by
     have := hρ σ hσ
-    simp only [GaloisRep.adic, toFramedGaloisRep_map, FramedGaloisRep.baseChange_map] at this ⊢
+    simp only [GaloisRep.toLocal, toFramedGaloisRep_map, FramedGaloisRep.baseChange_map] at this ⊢
     dsimp [FramedGaloisRep.baseChange, FramedGaloisRep.ofGL, ← Matrix.toLin'_apply']
     rw [LinearMap.trace_toLin', Matrix.map_trace, ← LinearMap.toMatrix_eq_toMatrix',
       ← LinearMap.trace_eq_matrix_trace, this, map_ofNat]
@@ -119,10 +119,10 @@ def traceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ K) �
 /-- The subfunctor of representations whose trace is `2` on `Iᵥ`. -/
 def narrowTraceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) where
   obj R := { ρ | ∀ σ ∈ localInertiaGroup v,
-    LinearMap.trace _ _ ((toFramedGaloisRep ρ).adic v σ) = 2 }
+    LinearMap.trace _ _ ((toFramedGaloisRep ρ).toLocal v σ) = 2 }
   map {R S} f ρ hρ σ hσ := by
     have := hρ σ hσ
-    simp only [GaloisRep.adic, toFramedGaloisRep_map, FramedGaloisRep.baseChange_map] at this ⊢
+    simp only [GaloisRep.toLocal, toFramedGaloisRep_map, FramedGaloisRep.baseChange_map] at this ⊢
     dsimp [FramedGaloisRep.baseChange, FramedGaloisRep.ofGL, ← Matrix.toLin'_apply']
     rw [LinearMap.trace_toLin', Matrix.map_trace, ← LinearMap.toMatrix_eq_toMatrix',
       ← LinearMap.trace_eq_matrix_trace, this, map_ofNat]

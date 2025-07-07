@@ -37,6 +37,8 @@ variable (𝓞 : Type u) [CommRing 𝓞] [IsLocalRing 𝓞] [IsNoetherianRing �
   [Finite (ResidueField 𝓞)] [IsAdicComplete (maximalIdeal 𝓞) 𝓞]
 variable {K : Type u} [Field K] [NumberField K]
 variable [NumberField.IsTotallyReal K] (hK : Even (Module.finrank ℚ K))
+-- There's a glitch when `l = 3` when trying to find auxiliary primes when the rep is induced from a
+-- character of `F(√-3)`. Hence the assumption `3 < l`.
 variable (l : ℕ) [Fact l.Prime] (hl : 3 < l) [Algebra ℤ_[l] 𝓞]
 
 /-!
@@ -62,7 +64,7 @@ def SLiftFunctor : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) :=
   detConditionFunctor (Fin 2) 𝓞 l ⊓
   (⨅ (v : Ω K) (_ : ↑l ∉ v.asIdeal) (_ : v ∉ S), unramifiedFunctor (Fin 2) 𝓞 v) ⊓
   (⨅ (v : Ω K) (_ : v ∈ S), traceConditionFunctor 𝓞 v) ⊓
-  (⨅ (v : Ω K) (_ : ↑l ∉ v.asIdeal), flatFunctor (Fin 2) 𝓞 v)
+  (⨅ (v : Ω K) (_ : ↑l ∈ v.asIdeal), flatFunctor (Fin 2) 𝓞 v)
 
 /--
 The functor of narrow `S`-lifts of `ρ`, consisting of representations of `GL₂` satisfying:
@@ -77,7 +79,7 @@ def narrowSLiftFunctor : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) :=
   detConditionFunctor (Fin 2) 𝓞 l ⊓
   (⨅ (v : Ω K) (_ : ↑l ∉ v.asIdeal) (_ : v ∉ S), unramifiedFunctor (Fin 2) 𝓞 v) ⊓
   (⨅ (v : Ω K) (_ : v ∈ S), narrowTraceConditionFunctor 𝓞 v) ⊓
-  (⨅ (v : Ω K) (_ : ↑l ∉ v.asIdeal), flatFunctor (Fin 2) 𝓞 v)
+  (⨅ (v : Ω K) (_ : ↑l ∈ v.asIdeal), flatFunctor (Fin 2) 𝓞 v)
 
 variable (hρ : ρ ∈ (narrowSLiftFunctor 𝓞 l S ρ).obj _)
 

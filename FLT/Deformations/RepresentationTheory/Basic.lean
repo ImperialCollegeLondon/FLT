@@ -26,17 +26,6 @@ local notation "Kᵥ" => IsDedekindDomain.HeightOneSpectrum.adicCompletion K v
 local notation "𝒪ᵥ" => IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers K v
 local notation "Frobᵥ" => Field.AbsoluteGaloisGroup.adicArithFrob v
 
-attribute [local instance 100000]
-  instAlgebraSubtypeMemValuationSubring_fLT IntermediateField.algebra'
-  Algebra.toSMul Subalgebra.toCommRing Algebra.toModule
-  Subalgebra.toRing Ring.toAddCommGroup AddCommGroup.toAddGroup
-  ValuationSubring.smulCommClass IntermediateField.toAlgebra
-  IntermediateField.smulCommClass_of_normal
-  mulSemiringActionIntegralClosure
-  Subalgebra.algebra
-  CommRing.toCommSemiring
-  Valued.toIsUniformAddGroup
-
 variable (K A M) in
 /-- `GaloisRep K A M` are the `A`-linear galois reps of a field `K` on the `A`-module `M`. -/
 def GaloisRep :=
@@ -172,11 +161,10 @@ omit [NumberField K] in
 @[simp]
 lemma FramedGaloisRep.ofGL_apply (ρ : Γ K →ₜ* GL n A) (σ) : ofGL ρ σ = (ρ σ).toLin := rfl
 
-/-- `1`-dimensional framed galois reps are equivalent to (continuous) characters.  -/
+/-- `1`-dimensional framed galois reps are equivalent to (continuous) characters. -/
 def FramedGaloisRep.equivChar {n : Type*} [Unique n] : FramedGaloisRep K A n ≃ (Γ K →ₜ* A) :=
   letI := moduleTopology A (Module.End A (n → A))
   letI : ContinuousMul _ := ⟨IsModuleTopology.continuous_mul_of_finite A (Module.End A (n → A))⟩
-  letI e : A ≃ₐ[A] Matrix n n A := (Matrix.uniqueAlgEquiv).symm
   letI e : Module.End A (n → A) ≃A[A] A :=
     .ofIsModuleTopology (LinearMap.toMatrixAlgEquiv'.trans Matrix.uniqueAlgEquiv)
   { toFun ρ := e.toContinuousAlgHom.toContinuousMonoidHom.comp ρ
@@ -300,7 +288,7 @@ lemma FramedGaloisRep.det_baseChange [IsTopologicalRing B]
 Note: this fixes an arbitrary embedding `Kᵃˡᵍ → Kᵥᵃˡᵍ`, or equivalently,
 an arbitrary choice of valuation on `Kᵃˡᵍ` extending `v`. -/
 noncomputable
-abbrev GaloisRep.adic (ρ : GaloisRep K A M) (v : Ω K) : GaloisRep (v.adicCompletion K) A M :=
+abbrev GaloisRep.toLocal (ρ : GaloisRep K A M) (v : Ω K) : GaloisRep (v.adicCompletion K) A M :=
   ρ.map (algebraMap _ _)
 
 universe v u
@@ -310,7 +298,7 @@ variable {R : Type u} [CommRing R]
 class GaloisRep.IsUnramifiedAt (ρ : GaloisRep K A M) (v : Ω K) : Prop where
   localInertiaGroup_le :
     letI := moduleTopology A (Module.End A M)
-    localInertiaGroup v ≤ (ρ.adic v).ker
+    localInertiaGroup v ≤ (ρ.toLocal v).ker
 
 instance (ρ : GaloisRep K A M) (v : Ω K) [ρ.IsUnramifiedAt v] (e : M ≃ₗ[A] N) :
     (ρ.conj e).IsUnramifiedAt v where
@@ -320,21 +308,21 @@ instance [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
     [Module.Finite A M] [Module.Free A M] (ρ : GaloisRep K A M) (v : Ω K) [ρ.IsUnramifiedAt v] :
     (ρ.baseChange B).IsUnramifiedAt v :=
   ⟨(GaloisRep.IsUnramifiedAt.localInertiaGroup_le (ρ := ρ)).trans
-    (((ρ.adic v).ker_baseChange (B := B)))⟩
+    (((ρ.toLocal v).ker_baseChange (B := B)))⟩
 
 variable [Module.Free A M] [Module.Finite A M] [Module.Free A N] [Module.Finite A N]
 
-/-- The character polynomial of the frobenious conjugacy class at `v` under `ρ`. -/
+/-- The characteristic polynomial of the frobenious conjugacy class at `v` under `ρ`. -/
 noncomputable
-def GaloisRep.charFrob (ρ : GaloisRep K A M) : Polynomial A := (ρ.adic v Frobᵥ).charpoly
+def GaloisRep.charFrob (ρ : GaloisRep K A M) : Polynomial A := (ρ.toLocal v Frobᵥ).charpoly
 
 omit [IsTopologicalRing A] in
 lemma GaloisRep.charFrob_eq (ρ : GaloisRep K A M) [ρ.IsUnramifiedAt v] (σ : Γ Kᵥ)
     (hσ : IsArithFrobAt 𝒪ᵥ σ (𝔪 (IntegralClosure 𝒪ᵥ (Kᵥᵃˡᵍ)))) :
-    (ρ.adic v σ).charpoly = ρ.charFrob v := by
+    (ρ.toLocal v σ).charpoly = ρ.charFrob v := by
   have := IsUnramifiedAt.localInertiaGroup_le (ρ := ρ)
     (hσ.mul_inv_mem_inertia (Field.AbsoluteGaloisGroup.isArithFrobAt_adicArithFrob v))
-  replace this := congr($this * ρ.adic v Frobᵥ)
+  replace this := congr($this * ρ.toLocal v Frobᵥ)
   simp only [ContinuousMonoidHom.coe_toMonoidHom, ← map_mul, MonoidHom.coe_coe, one_mul,
     inv_mul_cancel_right] at this
   rw [this, charFrob]
@@ -354,20 +342,22 @@ instance (ρ : GaloisRep K A M) : DistribMulAction (Γ K) ρ.Space where
   smul_zero := by simp [instHSMul]
   smul_add := by simp [instHSMul]
 
-attribute [instance 10000]
-  MulSemiringAction.toDistribMulAction
-  DistribMulAction.toMulAction
-  MulAction.toSMul
-
 open TensorProduct in
 /-- A galois rep `ρ : Γ K → Aut_A(M)` has a flat prolongation at `v` if `M` (when viewed as a
 `Γ Kᵥ`) module is isomorphic to the geometric points of a finite etale hopf algebra over `Kᵥ`, and
 there exists an finite flat hopf algebra over `𝒪ᵥ` whose generic fiber is isomorphic to it.
-In particular this requires `M` (and by extension `A`) to have finite cardinality. -/
+In particular this requires `M` (and by extension `A`) to have finite cardinality.
+
+Note that the `Algebra.Etale Kᵥ (Kᵥ ⊗[𝒪ᵥ] G)` condition is redundant because `Kᵥ` has char 0
+and all finite flat group schemes over `Kᵥ` are etale.
+But this would be hard to prove in general, while in the applications they would come from
+finite groups so it would be easy to show that they are etale. If this turns out to not be the case,
+we can remove this condition and state the aformentioned result as a sorry.
+-/
 def GaloisRep.HasFlatProlongationAt (ρ : GaloisRep K A M) : Prop :=
   ∃ (G : Type uK) (_ : CommRing G) (_ : HopfAlgebra 𝒪ᵥ G)
     (_ : Module.Flat 𝒪ᵥ G) (_ : Module.Finite 𝒪ᵥ G) (_ : Algebra.Etale Kᵥ (Kᵥ ⊗[𝒪ᵥ] G))
-    (f : Additive (Kᵥ ⊗[𝒪ᵥ] G →ₐ[Kᵥ] Kᵥᵃˡᵍ) →+[Γ Kᵥ] (ρ.adic v).Space),
+    (f : Additive (Kᵥ ⊗[𝒪ᵥ] G →ₐ[Kᵥ] Kᵥᵃˡᵍ) →+[Γ Kᵥ] (ρ.toLocal v).Space),
     Function.Bijective f
 
 /-- A galois rep `ρ : Γ K → Aut_A(M)` is flat at `v` if `A/mⁿ ⊗ M` has a flat prolongation at `v`
