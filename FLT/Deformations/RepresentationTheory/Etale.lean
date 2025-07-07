@@ -102,7 +102,7 @@ def MulAction.homEquivProdFixedPoints {G X Y : Type*} [Group G] [MulAction G X] 
     · congr 2 <;> simp [hσ (τ • x) x ⟨τ, rfl⟩]
     simp only [← mul_smul]
     refine ((v ⟨_, x, rfl⟩).2 ⟨_ * _, ?_⟩).symm
-    simp [mul_smul, inv_smul_eq_iff, hσ (τ • x) x ⟨τ, rfl⟩]⟩
+    simp [mul_smul, hσ (τ • x) x ⟨τ, rfl⟩]⟩
   left_inv f := by ext; simp; rfl
   right_inv v := by
     ext x
@@ -114,7 +114,7 @@ open IntermediateField in
 /-- Given a representative for each orbit of `X` under `G := Gal(L/K)`,
 and for each `x : X` a choice of `σ` that sends `x` to the representative,
 we obtain a `K`-algebra isomorphism between `G`-equivariant homs from `X`
-and the product of `Stab(x)`-fixed points over each orbit representative `x`.  -/
+and the product of `Stab(x)`-fixed points over each orbit representative `x`. -/
 def MulAction.etaleSubalgebraEquiv
     (σ : X → L ≃ₐ[K] L) (hσ : ∀ a b, orbitRel (L ≃ₐ[K] L) X a b → σ a • a = σ b • b) :
     (X →[L ≃ₐ[K] L] L) ≃ₐ[K]
@@ -230,7 +230,7 @@ def InfiniteGalois.quotientEquivFixedFieldEmb [IsGalois K L] (G : ClosedSubgroup
   toFun := Quotient.lift (fun σ ↦ σ.toAlgHom.comp (IntermediateField.val _)) (by
     rintro _ σ ⟨τ, rfl⟩
     ext x
-    show σ _ = σ _
+    change σ _ = σ _
     simpa using x.2 ⟨_, τ.2⟩)
   invFun f := QuotientGroup.mk (.ofBijective (f.liftNormal L) (AlgHom.normal_bijective K L L _))
   left_inv := Quotient.ind fun σ ↦ show _ = QuotientGroup.mk σ by
@@ -302,7 +302,7 @@ lemma InfiniteGalois.evalAlgHom_bijective [IsGalois K L] [Finite X]
     exact MulAction.sigmaRangeQuotientStabilizer σ hσ
   convert e.symm.bijective
   ext x f
-  show f x = (σ x)⁻¹ • (f (σ x • x))
+  change f x = (σ x)⁻¹ • (f (σ x • x))
   rw [map_smul, inv_smul_smul]
 
 open MulAction IntermediateField in
@@ -420,18 +420,18 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] : Monoid (A →ₐ[K] L) where
     ext x
     convert congr(Algebra.TensorProduct.lift a (Algebra.TensorProduct.lift b c (fun _ _ ↦ .all _ _))
       (fun _ _ ↦ .all _ _) $(Coalgebra.coassoc_apply (R := K) x))
-    · show Algebra.TensorProduct.lift _ c (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
+    · change Algebra.TensorProduct.lift _ c (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
       induction Coalgebra.comul (R := K) x with
       | zero => simp only [map_zero]
       | add x y _ _ => simp only [map_add, *]
       | tmul x y =>
-        show (Algebra.TensorProduct.lift a b (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) * _ = _
+        change (Algebra.TensorProduct.lift a b (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) * _ = _
         dsimp
         induction Coalgebra.comul (R := K) x with
         | zero => simp only [map_zero, zero_mul, TensorProduct.zero_tmul]
         | add x y _ _ => simp only [map_add, add_mul, TensorProduct.add_tmul, *]
         | tmul x z => exact mul_assoc _ _ _
-    · show Algebra.TensorProduct.lift a _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
+    · change Algebra.TensorProduct.lift a _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
       induction Coalgebra.comul (R := K) x with
       | zero => simp only [map_zero]
       | add x y _ _ => simp only [map_add, *]
@@ -439,7 +439,7 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] : Monoid (A →ₐ[K] L) where
   one := (Algebra.ofId K L).comp (Bialgebra.counitAlgHom K A)
   one_mul f := by
     ext x
-    show Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
+    change Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
     convert congr(Algebra.TensorProduct.lift (Algebra.ofId K L)
       f (fun _ _ ↦ .all _ _) $(Coalgebra.rTensor_counit_comul (R := K) x))
     · induction Coalgebra.comul (R := K) x with
@@ -451,7 +451,7 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] : Monoid (A →ₐ[K] L) where
     · simp
   mul_one f := by
     ext x
-    show Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
+    change Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
     convert congr(Algebra.TensorProduct.lift f (Algebra.ofId K L) (fun _ _ ↦ .all _ _)
       $(Coalgebra.lTensor_counit_comul (R := K) x))
     · induction Coalgebra.comul (R := K) x with
@@ -467,7 +467,7 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] :
     MulDistribMulAction (L ≃ₐ[K] L) (A →ₐ[K] L) where
   smul_mul r f g := by
     ext x
-    show r (Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) =
+    change r (Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) =
       Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)
     induction Coalgebra.comul (R := K) x with
     | zero => simp only [map_zero]
@@ -475,7 +475,7 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] :
     | tmul x y => simp; rfl
   smul_one r := by
     ext x
-    show r (algebraMap _ _ _) = _
+    change r (algebraMap _ _ _) = _
     simp
     rfl
 
@@ -484,7 +484,7 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] :
     MulDistribMulAction (L ≃ₐ[K] L) (A →ₐ[K] L) where
   smul_mul r f g := by
     ext x
-    show r (Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) =
+    change r (Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) =
       Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)
     induction Coalgebra.comul (R := K) x with
     | zero => simp only [map_zero]
@@ -492,7 +492,7 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] :
     | tmul x y => simp; rfl
   smul_one r := by
     ext x
-    show r (algebraMap _ _ _) = _
+    change r (algebraMap _ _ _) = _
     simp
     rfl
 
@@ -501,7 +501,7 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] :
     MulDistribMulAction (L ≃ₐ[K] L) (A →ₐ[K] L) where
   smul_mul r f g := by
     ext x
-    show r (Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) =
+    change r (Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) =
       Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)
     induction Coalgebra.comul (R := K) x with
     | zero => simp only [map_zero]
@@ -509,6 +509,6 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] :
     | tmul x y => simp; rfl
   smul_one r := by
     ext x
-    show r (algebraMap _ _ _) = _
+    change r (algebraMap _ _ _) = _
     simp
     rfl

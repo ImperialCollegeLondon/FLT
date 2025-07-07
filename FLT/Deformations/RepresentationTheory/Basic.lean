@@ -136,6 +136,7 @@ lemma FramedGaloisRep.unframe_frame (ρ : FramedGaloisRep K A n) (b : Basis n A 
 variable [IsTopologicalRing A]
 
 /-- `A`-linear framed galois reps are equivalent to continuous homomorphisms into `GLₙ(A)`. -/
+noncomputable
 def FramedGaloisRep.GL : FramedGaloisRep K A n ≃ (Γ K →ₜ* GL n A) :=
   letI := moduleTopology A (Module.End A (n → A))
   letI : ContinuousMul _ := ⟨IsModuleTopology.continuous_mul_of_finite A (Module.End A (n → A))⟩
@@ -151,6 +152,7 @@ omit [NumberField K] in
 lemma FramedGaloisRep.GL_apply (ρ : FramedGaloisRep K A n) (σ) : (ρ.GL σ).1 = (ρ σ).toMatrix' := rfl
 
 /-- Make an `A`-linear framed galois reps from a continuous hom into `GLₙ(A)`. -/
+noncomputable
 abbrev FramedGaloisRep.ofGL := FramedGaloisRep.GL (K := K) (A := A) (n := n).symm
 
 omit [NumberField K] in
