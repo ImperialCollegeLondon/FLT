@@ -153,7 +153,7 @@ instance {K L : Type*} [Field K] [Field L] [Algebra K L] [Algebra.IsAlgebraic K 
     have ⟨s, hs⟩ := E.toSubmodule.fg_iff_finiteDimensional.mpr hE
     refine f.mem_of_superset ((Filter.biInter_finset_mem s).mpr fun i _ ↦ htf i) ?_
     rintro σ hσ ⟨x, hx⟩
-    show F.symm (σ x) = x
+    change F.symm (σ x) = x
     induction hs.ge hx using Submodule.span_induction with
     | zero | add | smul => simp_all
     | mem x h =>
