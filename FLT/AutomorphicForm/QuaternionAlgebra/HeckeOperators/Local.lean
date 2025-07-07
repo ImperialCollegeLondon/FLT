@@ -71,7 +71,7 @@ noncomputable def U1gU1 :
 variable {F v} in
 /-- The matrix element `gt = !![α, t; 0, 1]`. -/
 noncomputable def gt (t : v.adicCompletionIntegers F) :
-  (GL (Fin 2) (adicCompletion F v)) := by
+  (GL (Fin 2) (adicCompletion F v)) :=
   let gtInv : Invertible !![(α : v.adicCompletion F), t; 0, 1].det :=
   { invOf := (α : v.adicCompletion F)⁻¹,
     invOf_mul_self :=
@@ -80,7 +80,7 @@ noncomputable def gt (t : v.adicCompletionIntegers F) :
     mul_invOf_self :=
       by simp only [Matrix.det_fin_two_of,
         mul_one, mul_zero, sub_zero]; rw [mul_inv_cancel₀]; exact_mod_cast hα }
-  exact Matrix.unitOfDetInvertible !![(α : v.adicCompletion F), t; 0, 1]
+  Matrix.unitOfDetInvertible !![(α : v.adicCompletion F), t; 0, 1]
 
 variable {F v} in
 /-- For each `t ∈ O_v / αO_v`, the left coset `gt U1`
@@ -88,9 +88,9 @@ for a lift of t to `O_v`. -/
 noncomputable def gtU1
   (t : ↑(adicCompletionIntegers F v) ⧸ (AddSubgroup.map (AddMonoidHom.mulLeft α)
     (⊤ : AddSubgroup ↑(adicCompletionIntegers F v)))) :
-  ((GL (Fin 2) (adicCompletion F v)) ⧸ ↑(U1v v)) := by
+  ((GL (Fin 2) (adicCompletion F v)) ⧸ ↑(U1v v)) :=
   let tLift : ↑(adicCompletionIntegers F v) := Quotient.out t
-  exact QuotientGroup.mk (gt α hα tLift)
+  QuotientGroup.mk (gt α hα tLift)
 
 set_option maxHeartbeats 600000 in
 -- long explicit matrix coset computations
@@ -103,6 +103,13 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
     (↑(A.unitOfDetInvertible) : Matrix (Fin 2) (Fin 2) (adicCompletion F v)) = A := rfl
   have valEquiv : Valued.v.IsEquiv (adicCompletionIntegers F v).valuation := by
     apply Valuation.isEquiv_valuation_valuationSubring
+  have gr : (g α hα : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
+    = !![↑α, 0; 0, 1] := by
+      rw[g]; ext i j
+      rw[Matrix.GeneralLinearGroup.diagonal]
+      fin_cases i; all_goals fin_cases j
+      all_goals simp
+
   let ht (t : v.adicCompletion F) : (GL (Fin 2) (adicCompletion F v)) := by
     let htInv : Invertible !![1, t; 0, 1].det :=
     { invOf := 1,
@@ -117,25 +124,11 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
     intro t h
     -- We have `gt = ht * g`.
     have m : (gt α hα (Quotient.out t)) =  ht ↑(Quotient.out t) * g α hα := by
-        have r₁ : (g α hα : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
-          = !![↑α, 0; 0, 1] := by
-          rw[g]; ext i j
-          rw[Matrix.GeneralLinearGroup.diagonal]
-          fin_cases i
-          · fin_cases j
-            · simp
-            simp
-          fin_cases j
-          · simp
-          simp
         ext i j; push_cast
-        rw[gt]; unfold ht; rw[r₁, r, r, Matrix.mul_apply]
+        rw[gt]; unfold ht; rw[gr, r, r, Matrix.mul_apply]
         simp only [Fin.sum_univ_two, Fin.isValue]
-        fin_cases i
-        · fin_cases j
-          · simp
-          simp
-        simp
+        fin_cases i; all_goals fin_cases j
+        all_goals simp
     rw[gtU1, m, U1gU1]
     use (ht ↑(Quotient.out t) * g α hα)
     constructor
@@ -158,13 +151,8 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
           simp only [RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, RingHom.mapMatrix_apply,
             ValuationSubring.coe_subtype]
           ext i j
-          fin_cases i
-          · fin_cases j
-            · simp
-            simp
-          fin_cases j
-          · simp
-          simp
+          fin_cases i; all_goals fin_cases j
+          all_goals simp
         rw[r]; simp
       use g α hα
       simp only [and_true]
@@ -177,7 +165,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   · -- Show that distinct t give distinct `gtU1`, i.e. we have a disjoint union.
     intro t₁ h₁ t₂ h₂ h
     rw[gtU1, gtU1] at h
-    have h₀ := QuotientGroup.eq.mp h
+    let h₀ := QuotientGroup.eq.mp h
     -- If `gtU1 t₁ = gtU1 t₂`, then `(gt t₁)⁻¹ * (gt t₂)` is in `U1v`.
     have m : (gt α hα (Quotient.out t₁))⁻¹ * gt α hα (Quotient.out t₂)
       = ht ((α : v.adicCompletion F)⁻¹ *
@@ -187,25 +175,22 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         ext i j; push_cast
         rw[r, r, r, Matrix.mul_apply]
         simp only [Fin.sum_univ_two, Fin.isValue]
-        fin_cases i
-        · fin_cases j
-          · simp
-          simp only [Fin.zero_eta, Fin.isValue, Fin.mk_one, Matrix.of_apply, Matrix.cons_val',
-            Matrix.cons_val_one, Matrix.cons_val_fin_one, Matrix.cons_val_zero, mul_one]
-          rw[← mul_assoc, mul_inv_cancel₀, one_mul]; ring
-          exact (Subtype.coe_ne_coe.mpr hα)
-        simp
+        fin_cases i; all_goals fin_cases j
+        all_goals simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta, Matrix.of_apply,
+          Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_fin_one, Matrix.cons_val_one,
+          mul_one, mul_zero, add_zero]
+        rw[← mul_assoc, mul_inv_cancel₀, one_mul]
+        any_goals ring_nf
+        exact (Subtype.coe_ne_coe.mpr hα)
     rw[m] at h₀
     obtain ⟨ ⟨ x, y ⟩ , z ⟩ := h₀
     -- But inspecting the top-right entry of `(gt t₁)⁻¹ * (gt t₂)`
     -- gives us `t₁ = t₂`.
     apply_fun (fun (A : (Matrix (Fin 2) (Fin 2) (adicCompletion F v))ˣ) ↦ A 0 1) at y
-    unfold ht at y
+    unfold ht at y; rw[r] at y
     simp only [RingHom.toMonoidHom_eq_coe, Fin.isValue, Units.coe_map, MonoidHom.coe_coe,
-      RingHom.mapMatrix_apply, ValuationSubring.coe_subtype, Matrix.map_apply] at y
-    have w : ((x 0 1) : adicCompletion F v) = (α : v.adicCompletion F)⁻¹ *
-        (( - (Quotient.out t₁) + (Quotient.out t₂)) : adicCompletion F v ) := by
-        rw[y]; rfl
+      RingHom.mapMatrix_apply, ValuationSubring.coe_subtype, Matrix.map_apply, Matrix.of_apply,
+      Matrix.cons_val', Matrix.cons_val_one, Matrix.cons_val_fin_one, Matrix.cons_val_zero] at y
     conv_lhs =>
       apply Eq.symm (QuotientAddGroup.out_eq' t₁)
     conv_rhs =>
@@ -216,7 +201,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
     · simp
     simp only [Fin.isValue, AddMonoidHom.coe_mulLeft]
     apply (Subtype.coe_inj).mp; push_cast
-    rw[w, ← mul_assoc, mul_inv_cancel₀, one_mul]
+    rw[y, ← mul_assoc, mul_inv_cancel₀, one_mul]
     exact (Subtype.coe_ne_coe.mpr hα)
 
   -- Show that each coset in `U1gU1` is of the form `gtU1` for some t.
@@ -229,9 +214,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   -- `x * gU1`, where `x = !![a,b;c,d]`
   -- is viewed as a matrix over `O_v`.
   obtain ⟨ ⟨ x , y ⟩ , z ⟩ := h₁
-  have xdetunit :
-      IsUnit (x : Matrix (Fin 2) (Fin 2) ↥(adicCompletionIntegers F v)).det :=
-      Matrix.isUnits_det_units x
+  let xdetunit := Matrix.isUnits_det_units x
   let a : (adicCompletionIntegers F v) := (x 0 0)
   let b : (adicCompletionIntegers F v) := (x 0 1)
   let c : (adicCompletionIntegers F v) := (x 1 0)
@@ -260,15 +243,10 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         apply Ideal.mul_mem_right
         assumption
     rw[h11] at max1
-    have nonunit : 1 ∈ nonunits ↥(adicCompletionIntegers F v) :=
-      (IsLocalRing.mem_maximalIdeal 1).mp max1
-    exact one_notMem_nonunits nonunit
+    exact one_notMem_nonunits ((IsLocalRing.mem_maximalIdeal 1).mp max1)
   have dunit : IsUnit d := by
     by_contra dnotunit
-    have dnonunit : d ∈ nonunits ↥(adicCompletionIntegers F v) := mem_nonunits_iff.mpr dnotunit
-    have dmax : d ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) :=
-      (IsLocalRing.mem_maximalIdeal d).mpr dnonunit
-    exact maxd dmax
+    exact maxd ((IsLocalRing.mem_maximalIdeal d).mpr (mem_nonunits_iff.mpr dnotunit))
   obtain ⟨ dinv, dval_inv, dinv_val ⟩ := isUnit_iff_exists.mp dunit
   /- In the above, we show that d is a unit,
   because c is a non-unit (by assumption on U).
@@ -285,8 +263,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   apply QuotientGroup.eq.mpr; rw[hp, ← mul_assoc]
   have ht : t = b * dinv := rfl
   rw[← QuotientAddGroup.out_eq' t] at ht
-  have ht₁ := QuotientAddGroup.eq.mp ht
-  obtain ⟨q, hq⟩ := ht₁
+  obtain ⟨q, hq⟩ := (QuotientAddGroup.eq.mp ht)
   simp only [AddSubgroup.coe_top, Set.mem_univ, AddMonoidHom.coe_mulLeft, true_and] at hq
   have hq₁ : Quotient.out t = b * dinv - α * q := by rw[hq]; ring
   -- We have `t = b * dinv - α * q` for some `q ∈ O_v`.
@@ -310,24 +287,9 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         rw[← y]; ext i j
         simp only [RingHom.toMonoidHom_eq_coe, Matrix.of_apply, Matrix.cons_val',
           Matrix.cons_val_fin_one]
-        fin_cases i
-        · fin_cases j
-          · simp; rfl
-          simp; rfl
-        fin_cases j
-        · simp; rfl
-        simp; rfl
-      have hp3 : g α hα = !![(α : adicCompletion F v), 0; 0, 1] := by
-        rw[g]; ext i j
-        simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_fin_one]
-        fin_cases i
-        · fin_cases j
-          · simp; rfl
-          simp; rfl
-        fin_cases j
-        · simp; rfl
-        simp; rfl
-      rw[hmr]; push_cast; rw[hp2, hp3]; norm_cast; rw[hp1]
+        fin_cases i; all_goals fin_cases j
+        all_goals simp; rfl
+      rw[hmr]; push_cast; rw[hp2, gr]; norm_cast; rw[hp1]
       unfold mMatrix
       simp only [neg_mul, Matrix.cons_mul, Nat.succ_eq_add_one, Nat.reduceAdd, Matrix.vecMul_cons,
         Matrix.head_cons, Matrix.smul_cons, smul_eq_mul, mul_zero, Matrix.smul_empty,
@@ -336,17 +298,12 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         Matrix.neg_empty, zero_smul, one_smul, EmbeddingLike.apply_eq_iff_eq]
       ring_nf
       ext i j
-      fin_cases i
-      · fin_cases j
-        · simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
-          Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_fin_one]
-          rw [mul_inv_cancel₀]
-          · simp
-          exact_mod_cast hα
-        simp
-      fin_cases j
-      · simp
-      simp
+      fin_cases i; all_goals fin_cases j
+      all_goals simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
+        Fin.mk_one, Matrix.cons_val', Matrix.cons_val_one, Matrix.cons_val_fin_one,
+        Matrix.cons_val_zero]
+      rw [mul_inv_cancel₀, one_mul, one_mul]
+      exact_mod_cast hα
     rw[← hmr]
     -- First we show that `m = mMatrix` is in `GL_2(O_v)`.
     -- Note this is not a priori obvious,
@@ -360,9 +317,8 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
       rw[mul_assoc b dinv c, mul_comm dinv c, mul_assoc, mul_assoc, dinv_val]; ring_nf
       rw[Matrix.det_fin_two]
     rw[← intdet] at xdetunit
-    have mMatrixIntUnit : IsUnit mMatrixInt :=
-      (Matrix.isUnit_iff_isUnit_det mMatrixInt).mpr xdetunit
-    obtain ⟨ mMatrixIntUnitval , hmMatrixIntUnitval ⟩ := mMatrixIntUnit
+    obtain ⟨ mMatrixIntUnitval , hmMatrixIntUnitval ⟩ :=
+      ((Matrix.isUnit_iff_isUnit_det mMatrixInt).mpr xdetunit)
     have inteq : (Units.map (RingHom.mapMatrix ((v.adicCompletionIntegers F).subtype)).toMonoidHom)
       mMatrixIntUnitval = m := by
       simp only [RingHom.toMonoidHom_eq_coe]
@@ -371,28 +327,24 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         ValuationSubring.coe_subtype, Matrix.map_apply, Matrix.of_apply, Matrix.cons_val',
         Matrix.cons_val_fin_one]
       rw[hmMatrixIntUnitval]; unfold mMatrixInt
-      fin_cases i
-      · fin_cases j
-        · simp
-        simp only [Fin.zero_eta, Fin.isValue, Fin.mk_one, Matrix.of_apply, Matrix.cons_val',
-          Matrix.cons_val_one, Matrix.cons_val_fin_one, Matrix.cons_val_zero, MulMemClass.coe_mul]
-        rw[hq₁]
-        ring_nf; push_cast
-        rw[mul_sub_left_distrib]
-        rw[mul_assoc (d : adicCompletion F v) (α : adicCompletion F v)⁻¹
-          ((α : adicCompletion F v) * (q : adicCompletion F v))]
-        rw[← mul_assoc (α : adicCompletion F v)⁻¹ (α : adicCompletion F v) (q : adicCompletion F v)]
-        rw[inv_mul_cancel₀]
-        · rw[mul_comm (d : adicCompletion F v) (α : adicCompletion F v)⁻¹]
-          rw[mul_comm (b : adicCompletion F v) (dinv : adicCompletion F v)]
-          rw[mul_assoc, ← mul_assoc
-            (d : adicCompletion F v) (dinv : adicCompletion F v) (b : adicCompletion F v)]
-          norm_cast; rw[dval_inv]
-          push_cast; ring_nf
-        exact_mod_cast hα
-      fin_cases j
-      · simp
-      simp
+      fin_cases i; all_goals fin_cases j
+      all_goals simp only [Fin.zero_eta, Fin.isValue, Matrix.of_apply, Matrix.cons_val',
+        Matrix.cons_val_zero, Matrix.cons_val_fin_one, AddSubgroupClass.coe_sub,
+        MulMemClass.coe_mul, Fin.mk_one, Matrix.cons_val_one, Matrix.cons_val_fin_one]
+      rw[hq₁]
+      ring_nf; push_cast
+      rw[mul_sub_left_distrib]
+      rw[mul_assoc (d : adicCompletion F v) (α : adicCompletion F v)⁻¹
+        ((α : adicCompletion F v) * (q : adicCompletion F v))]
+      rw[← mul_assoc (α : adicCompletion F v)⁻¹ (α : adicCompletion F v) (q : adicCompletion F v)]
+      rw[inv_mul_cancel₀]
+      · rw[mul_comm (d : adicCompletion F v) (α : adicCompletion F v)⁻¹]
+        rw[mul_comm (b : adicCompletion F v) (dinv : adicCompletion F v)]
+        rw[mul_assoc, ← mul_assoc
+          (d : adicCompletion F v) (dinv : adicCompletion F v) (b : adicCompletion F v)]
+        norm_cast; rw[dval_inv]
+        push_cast; ring_nf
+      exact_mod_cast hα
     constructor
     · use mMatrixIntUnitval
     -- Next we show that `m = mMatrix` is in `GL2.localTameLevel`.
