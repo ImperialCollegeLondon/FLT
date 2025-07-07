@@ -39,6 +39,7 @@ def toRepresentation {R} (ρ : (repnFunctor n G 𝓞).obj R) :
 
 variable {G 𝓞} in
 /-- Turn an element in `repnFunctor` into an actual `GaloisRep`. -/
+noncomputable
 def toFramedGaloisRep {R} (ρ : (repnFunctor n (Γ K) 𝓞).obj R) :
     FramedGaloisRep K R n :=
   FramedGaloisRep.GL.symm ρ
