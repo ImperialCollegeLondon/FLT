@@ -214,7 +214,7 @@ lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
   in more generality later
 -/
 
-variable (L : Type*) [Monoid L] [TopologicalSpace L] [ContinuousMul L]
+variable (L : Type*) [Monoid L]
 
 /-- Auxillary map used in `embedProduct_preimageOf`. -/
 def p : Prod L Lᵐᵒᵖ → L :=
@@ -224,11 +224,11 @@ def p : Prod L Lᵐᵒᵖ → L :=
 def q : Prod L Lᵐᵒᵖ → L :=
   fun p => MulOpposite.unop p.2 * p.1
 
-lemma p_cont : Continuous (p L) := Continuous.mul (continuous_fst)
-  (Continuous.comp (MulOpposite.continuous_unop) continuous_snd)
+lemma p_cont [TopologicalSpace L] [ContinuousMul L] : Continuous (p L) :=
+    Continuous.mul (continuous_fst) (Continuous.comp (MulOpposite.continuous_unop) continuous_snd)
 
-lemma q_cont : Continuous (q L) := Continuous.mul (Continuous.comp (MulOpposite.continuous_unop)
-  continuous_snd) (continuous_fst)
+lemma q_cont [TopologicalSpace L] [ContinuousMul L] : Continuous (q L) :=
+    Continuous.mul (Continuous.comp (MulOpposite.continuous_unop) continuous_snd) (continuous_fst)
 
 lemma embedProduct_preimageOf : (Set.range ⇑(Units.embedProduct L)) =
     Set.preimage (p L) {1} ∩ Set.preimage (q L) {1} := by
@@ -243,14 +243,14 @@ lemma embedProduct_preimageOf : (Set.range ⇑(Units.embedProduct L)) =
     use ⟨x.1, MulOpposite.unop x.2, hp, hq⟩
     rfl
 
-variable [T1Space L]
-
-lemma embedProduct_closed : IsClosed (Set.range ⇑(Units.embedProduct L))
+lemma embedProduct_closed [TopologicalSpace L] [ContinuousMul L] [T1Space L] :
+    IsClosed (Set.range ⇑(Units.embedProduct L))
     := by
   rw [embedProduct_preimageOf]
   exact IsClosed.inter (IsClosed.preimage (p_cont L) (isClosed_singleton))
     (IsClosed.preimage (q_cont L) (isClosed_singleton))
 
+-- elsewhere
 local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
 
   sorry
