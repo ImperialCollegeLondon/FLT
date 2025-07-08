@@ -284,5 +284,4 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
   sorry
 
-
 end FiniteAdeleRing
