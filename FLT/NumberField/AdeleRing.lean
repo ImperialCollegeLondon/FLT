@@ -87,17 +87,6 @@ by the maps from `L` and `𝔸 K` into `𝔸 L`. -/
 noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] 𝔸 K) →ₐ[𝔸 K] 𝔸 L :=
   (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap
 
--- do we not have this?? Move! PR! TODO
-/-- Product of algebra equivalences; the maps come from Equiv.prodCongr. -/
-def _root_.AlgEquiv.prodCongr {R A A₂ A₃ A₄ : Type*} [CommSemiring R]
-    [Semiring A] [Semiring A₂] [Semiring A₃] [Semiring A₄] [Algebra R A]
-    [Algebra R A₂] [Algebra R A₃] [Algebra R A₄]
-    (e₁ : A ≃ₐ[R] A₂) (e₂ : A₃ ≃ₐ[R] A₄) :
-    (A × A₃) ≃ₐ[R] (A₂ × A₄) where
-  __ := LinearEquiv.prodCongr e₁.toLinearEquiv e₂.toLinearEquiv
-  map_mul' := by simp
-  commutes' := by simp
-
 /-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
 noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
   let tensor :=

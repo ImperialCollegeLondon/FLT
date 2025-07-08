@@ -55,7 +55,7 @@ map is continuous, `K_v`-linear and restricts to an isomorphism `B ⊗_A 𝓞_v 
 
 -/
 
-open scoped Multiplicative Valued
+open scoped WithZero Valued
 
 /-!
 
@@ -140,7 +140,7 @@ lemma adicValued.continuous_algebraMap
   intro a
   rw [WithZero.unitsWithZeroEquiv.exists_congr_left, Multiplicative.exists]
   let m := Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal
-  let e : ℤ ≃ ℤₘ₀ˣ := Multiplicative.ofAdd.trans OrderMonoidIso.unitsWithZero.symm.toEquiv
+  let e : ℤ ≃ ℤᵐ⁰ˣ := Multiplicative.ofAdd.trans OrderMonoidIso.unitsWithZero.symm.toEquiv
   have e_apply (a : ℤ) : e a = OrderMonoidIso.unitsWithZero.symm (Multiplicative.ofAdd a) := rfl
   have hm : m ≠ 0 := by
     refine ramificationIdx_ne_zero A B ?_ w
@@ -151,6 +151,7 @@ lemma adicValued.continuous_algebraMap
     (comap A w).valuation K x ^ m < e (a / ↑m) ^ m := by gcongr; exacts [zero_le', hx]
   _ = e (m • (a / ↑m)) := by
     dsimp [e]
+    rfl
   _ ≤ e a := by
     simp only [nsmul_eq_mul, e_apply, Units.val_le_val, OrderIsoClass.map_le_map_iff]
     rw [mul_comm]
@@ -255,7 +256,7 @@ open WithZeroMulInt Valued
 -- v.asIdeal.absNorm may be 0, so just use 2 as the base for the norm.
 /-- The data of a rank 1 (ℝ-valued) valuation on K_v. -/
 noncomputable local instance adicCompletion_RkOne :
-    Valuation.RankOne (Valued.v : Valuation (adicCompletion K v) ℤₘ₀) where
+    Valuation.RankOne (Valued.v : Valuation (adicCompletion K v) ℤᵐ⁰) where
   hom := {
     toFun := toNNReal (by norm_num : (2 : NNReal) ≠ 0)
     map_zero' := rfl
