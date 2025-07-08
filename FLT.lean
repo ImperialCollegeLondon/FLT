@@ -45,7 +45,6 @@ import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import FLT.Mathlib.Algebra.FixedPoints.Basic
-import FLT.Mathlib.Algebra.Group.Prod
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
@@ -89,6 +88,7 @@ import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.Constructions
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+import FLT.Mathlib.Topology.Algebra.Group.Basic
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Group.Units
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
