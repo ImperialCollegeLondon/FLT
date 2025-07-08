@@ -511,17 +511,14 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       let q : ℚˣ := ⟨v / N, N / v, by field_simp, by field_simp⟩
       use ((Units.map ↑i₁) q)
       simp only [MonoidHom.mem_range, exists_exists_eq_and]
-      constructor
-      use q
-      use t
+      refine ⟨⟨q, rfl⟩, t, ?_⟩
       simp only [← Units.eq_iff, hy, ht, Units.map_mk, MonoidHom.coe_coe,
         Algebra.TensorProduct.includeLeft_apply, Units.val_mul, one_div, q, xunit]
       rw [← mul_one (N⁻¹ : ℚ), ← one_mul x, ← Algebra.TensorProduct.tmul_mul_tmul, div_eq_mul_inv,
         mul_comm (v : ℚ), ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_assoc, mul_one]
       congr
-      simp only [← hv, ← Units.eq_iff, Units.val_mul, Units.coe_map, MonoidHom.coe_coe,
-        Algebra.TensorProduct.includeLeft_apply, xunit, q] at wzx
-      exact wzx
+      simpa only [← hv, ← Units.eq_iff, Units.val_mul, Units.coe_map, MonoidHom.coe_coe,
+        Algebra.TensorProduct.includeLeft_apply, xunit, q] using wzx
     clear * -
     intro x hx
     rcases canonicalForm (x⁻¹.val) with ⟨M, y, hxinv⟩
@@ -545,8 +542,8 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       rw [Algebra.TensorProduct.includeRight_apply, this, map_natCast]
     let IdealJ : Ideal ℤ := by -- make this construction into a function (for Mathlib)?
       refine ⟨⟨⟨J, ?_⟩, ?_⟩, ?_⟩
-      simp only [Int.coe_castRingHom, Set.mem_preimage, SetLike.mem_coe, Int.cast_add, J]
-      exact (fun {a b} ↦ Ideal.add_mem I)
+      · simp only [Int.coe_castRingHom, Set.mem_preimage, SetLike.mem_coe, Int.cast_add, J]
+        exact (fun {a b} ↦ Ideal.add_mem I)
       simp only [Int.coe_castRingHom, Set.mem_preimage, Int.cast_zero, SetLike.mem_coe,
         Submodule.zero_mem, J, I]
       simp only [smul_eq_mul, I, J, Set.mem_preimage, Int.coe_castRingHom, Int.cast_mul]
@@ -564,7 +561,8 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     clear this hxinv y Jnonzero M
     let N : ℕ+ := ⟨g.toNat, Int.pos_iff_toNat_pos.1 gpos⟩
     suffices h : Ideal.span {X} = Ideal.span {(g : ZHat)} by
-      obtain ⟨y,hy⟩ : ∃ y,y*X=g := by rw [← Ideal.mem_span_singleton',h,Ideal.mem_span_singleton]
+      obtain ⟨y, hy⟩ : ∃ y, y * X = g := by 
+        rw [← Ideal.mem_span_singleton',h,Ideal.mem_span_singleton]
       obtain ⟨z,hz⟩ : ∃ z,z*g=X := by rw [← Ideal.mem_span_singleton',← h,Ideal.mem_span_singleton]
       have : y * z = 1 := by
         rw [mul_comm, ← sub_right_inj (a := (1 : ZHat)), sub_self]
@@ -576,7 +574,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       have gG : g * G = 1 := by
         rw [G_def, one_div, mul_inv_cancel₀]
         simp only [ne_eq, Rat.intCast_eq_zero, Int.ne_of_gt gpos, not_false_eq_true]
-      use ⟨g, G, gG, by rw [mul_comm]; exact gG⟩
+      use ⟨g, G, gG, mul_comm _ G ▸ gG⟩ 
       use ⟨z, y, by rw[mul_comm]; exact this, this⟩
       simp only [← Units.eq_iff, ← hX, Units.map_mk, MonoidHom.coe_coe, map_intCast,
         Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.includeRight_apply,
@@ -590,7 +588,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       simp only [Submodule.mem_mk, AddSubmonoid.mem_mk, AddSubsemigroup.mem_mk,
         Int.coe_castRingHom, Set.mem_preimage, SetLike.mem_coe, J, IdealJ, I] at this
       exact (Ideal.span_singleton_le_iff_mem _).2 this
-    apply le_antisymm
+    refine le_antisymm ?_ hgx
     · suffices h : X N = 0 by
         rcases (ZHat.multiples N X).2 h with ⟨y, hy⟩
         rw [Ideal.span_singleton_le_span_singleton, ← hy, PNat.mk_coe]
