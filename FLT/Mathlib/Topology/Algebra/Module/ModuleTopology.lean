@@ -424,7 +424,7 @@ def continuousAlgEquivOfAlgEquiv {A B R : Type*} [TopologicalSpace A]
 
 /-- A free module with the module topology over a `T2Space` ring is a `T2Space`.
 -/
-theorem t2Space {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Module.Free R M]
+theorem t2Space {R M : Type*} [Semiring R] [AddCommGroup M] [Module R M] [Module.Free R M]
     [TopologicalSpace R] [TopologicalSpace M] [T2Space R]
     [ContinuousAdd R] [ContinuousMul R] [IsModuleTopology R M]
     : T2Space M := by
