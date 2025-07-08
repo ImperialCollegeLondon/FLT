@@ -29,6 +29,16 @@ instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleR
 
 end LocallyCompact
 
+section T2
+
+variable (K : Type*) [Field K] [NumberField K]
+
+instance : T2Space (AdeleRing (𝓞 K) K) := by
+  unfold AdeleRing
+  infer_instance
+
+end T2
+
 section BaseChange
 
 namespace NumberField.AdeleRing
