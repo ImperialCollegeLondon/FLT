@@ -380,7 +380,7 @@ lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗
       have hDN : D ∣ N := PNat.dvd_iff.mpr (Nat.gcd_dvd_left N (z N).val)
       have := z.prop D N (PNat.dvd_iff.mp hDN)
       have : z D = 0 := by
-        rw [← this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd]
+        rw [← this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff]
         exact Nat.gcd_dvd_right N (z N).val
 
       -- By lemma 5.9 (ZHat.multiples) we deduce that z = Dy is a multiple of D,
@@ -430,7 +430,7 @@ lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗
     -- then y_L is a multiple of both M and N and is hence zero,
     have : y L = 0 := by
       suffices (L : ℕ) ∣ (y L).val by
-        simpa [← ZMod.natCast_zmod_eq_zero_iff_dvd]
+        simpa [← ZMod.natCast_eq_zero_iff]
       apply lcm_dvd <;> [rw [hy₂]; rw [hy₁]] <;>
       · simp only [ZHat.pnat_mul_apply, ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod]
         refine (Nat.dvd_mod_iff ?_).mpr (Nat.dvd_mul_right _ _)
