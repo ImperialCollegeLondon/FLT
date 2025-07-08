@@ -442,7 +442,7 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   let ψ₁ : Π (i : β₁), H i ≃ₜ* H i := fun i ↦ ψ i
   let ψ₂ : Π (i : β₂), H i ≃ₜ* H i := fun i ↦ ψ i
   rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piEquivPiSubtypeProd (· = a) H),
-    mulEquivHaarChar_prodCongr _ _, ih β₁ (fintype_α.card_subtype_lt ne.symm) (H ·) ψ₁,
+    mulEquivHaarChar_prodCongr, ih β₁ (fintype_α.card_subtype_lt ne.symm) (H ·) ψ₁,
     ih β₂ (fintype_α.card_subtype_lt (· rfl)) (H ·) ψ₂, Fintype.prod_eq_mul_prod_subtype_ne _ a,
     Finset.univ_unique, Finset.prod_singleton]
   · rfl
