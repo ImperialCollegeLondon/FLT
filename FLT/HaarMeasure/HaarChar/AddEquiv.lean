@@ -420,8 +420,7 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i)
   refine Fintype.induction_subsingleton_or_nontrivial (P := P) ι ?_ ?_ H ψ
   · intro α _ subsingleton_α H _ _ _ _ _ _ ψ
-    let : MeasurableSpace (Π i, H i) := borel _
-    have : BorelSpace (Π i, H i) := ⟨rfl⟩
+    borelize (Π i, H i)
     by_cases hα : Nonempty α; swap
     · rw [not_nonempty_iff] at hα; simp [mulEquivHaarChar_eq_one_of_compactSpace]
     have : Unique α := @Unique.mk' α (Classical.inhabited_of_nonempty hα) subsingleton_α
@@ -431,14 +430,7 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   have ⟨a, b, ne⟩ := nontrivial_α
   let β₁ := {i : α // i = a}
   let β₂ := {i : α // i ≠ a}
-  let : MeasurableSpace (Π i, H i) := borel _
-  let : MeasurableSpace (Π (i : β₁), H i) := borel _
-  let : MeasurableSpace (Π (i : β₂), H i) := borel _
-  let : MeasurableSpace ((Π (i : β₁), H i) × (Π (i : β₂), H i)) := borel _
-  have : BorelSpace (Π i, H i) := ⟨rfl⟩
-  have : BorelSpace (Π (i : β₁), H i) := ⟨rfl⟩
-  have : BorelSpace (Π (i : β₂), H i) := ⟨rfl⟩
-  have : BorelSpace ((Π (i : β₁), H i) × (Π (i : β₂), H i)) := ⟨rfl⟩
+  borelize (Π i, H i) (Π (i : β₁), H i) (Π (i : β₂), H i) ((Π (i : β₁), H i) × (Π (i : β₂), H i))
   let ψ₁ : Π (i : β₁), H i ≃ₜ* H i := fun i ↦ ψ i
   let ψ₂ : Π (i : β₂), H i ≃ₜ* H i := fun i ↦ ψ i
   rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piEquivPiSubtypeProd (· = a) H),
