@@ -544,10 +544,10 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       refine ⟨⟨⟨J, ?_⟩, ?_⟩, ?_⟩
       · simp only [Int.coe_castRingHom, Set.mem_preimage, SetLike.mem_coe, Int.cast_add, J]
         exact (fun {a b} ↦ Ideal.add_mem I)
-      simp only [Int.coe_castRingHom, Set.mem_preimage, Int.cast_zero, SetLike.mem_coe,
-        Submodule.zero_mem, J, I]
-      simp only [smul_eq_mul, I, J, Set.mem_preimage, Int.coe_castRingHom, Int.cast_mul]
-      exact (fun c {x} ↦ by apply Ideal.mul_mem_left I)
+      · simp only [Int.coe_castRingHom, Set.mem_preimage, Int.cast_zero, SetLike.mem_coe,
+          Submodule.zero_mem, J, I]
+      · simp only [smul_eq_mul, I, J, Set.mem_preimage, Int.coe_castRingHom, Int.cast_mul]
+        exact (fun c {x} ↦ by apply Ideal.mul_mem_left I)
     obtain ⟨g, hg⟩ := IsPrincipalIdealRing.principal (R := ℤ) IdealJ
     wlog gpos : 0 < g with H
     · specialize H x M y hxinv this X hX Jnonzero (-g)
