@@ -615,7 +615,6 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       apply Int.eq_zero_of_dvd_of_nonneg_of_lt (n := g) (Int.natCast_nonneg _)
       · exact Int.lt_of_toNat_lt (ZMod.val_lt (X N))
       exact ⟨a, by rw [mul_comm, ← smul_eq_mul, ha]⟩
-    exact hgx
 
 end multiplicative_structure_of_QHat
 
