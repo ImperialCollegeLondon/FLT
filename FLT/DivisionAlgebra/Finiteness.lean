@@ -13,7 +13,7 @@ import Mathlib.Tactic.LinearCombination'
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
-import FLT.Mathlib.Algebra.Group.Prod
+import FLT.Mathlib.Topology.Algebra.Group.Basic
 
 /-
 
@@ -217,23 +217,20 @@ local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
   sorry
 
 lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
-  · apply Topology.IsClosedEmbedding.comp
-    · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
-        embedProduct_closed D_𝔸}
-    · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
-        (continuous_iff_le_induced.mpr fun U a ↦ a)
-        (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
-      simp only [Subgroup.coe_subtype]
-      refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
-      simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
-      exact IsClosed.preimage (continuous_id')
-        (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
+  apply Topology.IsClosedEmbedding.comp
+  · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
+      embedProduct_closed D_𝔸}
+  · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
+      (continuous_iff_le_induced.mpr fun U a ↦ a)
+      (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
+    simp only [Subgroup.coe_subtype]
+    refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
+    simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
+    exact IsClosed.preimage (continuous_id')
+      (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
 
-lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.C K D) := by
-  refine IsCompact.image (Aux.C_compact K D) (Continuous.prodMk (continuous_fst) ?_)
-  refine Continuous.comp ?_ (continuous_snd)
-  rw [continuous_induced_rng]
-  exact { isOpen_preimage := fun s a ↦ a }
+lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.C K D) :=
+  IsCompact.image (Aux.C_compact K D) <| by fun_prop
 
 lemma M_compact : IsCompact (M K D) := Topology.IsClosedEmbedding.isCompact_preimage
   (incl₂_isClosedEmbedding K D) (ImAux_isCompact K D)
