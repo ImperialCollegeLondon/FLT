@@ -360,7 +360,7 @@ def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
     {M : ι → Type*} [(i : ι) → Monoid (M i)] [(i : ι) → TopologicalSpace (M i)]
     [(i : ι) → ContinuousMul (M i)]
     {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
-    (A : Π i, S i) (hA : ∀ i, IsOpen (A i : Set (M i))):
+    (A : Π i, S i) (hA : ∀ i, IsOpen (A i : Set (M i))) :
     (Πʳ i, [M i, A i])ˣ ≃ₜ*
       Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units] :=
     have : Fact (∀ i, IsOpen (A i : Set (M i))) := Fact.mk hA

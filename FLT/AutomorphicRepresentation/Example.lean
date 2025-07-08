@@ -83,7 +83,7 @@ def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i ∈ range (n : ℕ), i !, by
   obtain ⟨k, hk⟩ := exists_add_of_le <| le_of_dvd N.pos hDN
   simp_rw [map_sum, map_natCast, hk, sum_range_add, add_eq_left]
   refine sum_eq_zero (fun i _ => ?_)
-  rw [ZMod.natCast_zmod_eq_zero_iff_dvd]
+  rw [ZMod.natCast_eq_zero_iff]
   exact Nat.dvd_factorial D.pos le_self_add
 ⟩
 
@@ -119,7 +119,7 @@ lemma e_factorial_succ (j : ℕ) :
   obtain ⟨k, hk⟩ := exists_add_of_le <| self_le_factorial (j + 1)
   rw [hk, sum_range_add, add_eq_left]
   refine sum_eq_zero (fun i _ => ?_)
-  rw [ZMod.natCast_zmod_eq_zero_iff_dvd, ← hk]
+  rw [ZMod.natCast_eq_zero_iff, ← hk]
   exact factorial_dvd_factorial (Nat.le_add_right _ _)
 
 /-- Nonarchimedean $e$ is not an integer. -/
@@ -171,7 +171,7 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := by
     · have : a + 1 < N := lt_of_le_of_lt (Nat.le_add_right _ _) hj
       rw [ha, intCast_val, Int.cast_negSucc, ZMod.neg_val, ZMod.val_natCast, if_neg,
         mod_eq_of_lt this]
-      rw [ZMod.natCast_zmod_eq_zero_iff_dvd]
+      rw [ZMod.natCast_eq_zero_iff]
       contrapose! this
       apply le_of_dvd (zero_lt_succ a) this
 -- This isn't necessary but isn't too hard to prove.
@@ -231,7 +231,7 @@ instance ZHat_flat : Module.Flat ℤ ZHat := by
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
     N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
   have hhj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
-  rw [hz, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hhj
+  rw [hz, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff] at hhj
   rw [← Nat.cast_mul, mul_comm, Nat.div_mul_cancel hhj]
   have hhj' := z.prop j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
   rw [← hhj']
@@ -251,8 +251,8 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
         intro j k hjk
         have hj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
         have hk := z.prop N (N * k) (by simp only [PNat.mul_coe, dvd_mul_right])
-        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hj
-        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hk
+        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff] at hj
+        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff] at hk
         have hNjk := z.prop (N * j) (N * k) (mul_dvd_mul (dvd_refl _) hjk)
         rw [ZMod.castHom_apply, ZMod.cast_eq_val] at hNjk
         simp only [PNat.mul_coe, map_natCast, ZMod.eq_iff_modEq_nat]
