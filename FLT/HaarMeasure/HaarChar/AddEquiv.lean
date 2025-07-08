@@ -1,4 +1,5 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
+import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
 import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import FLT.Mathlib.MeasureTheory.Measure.Regular
@@ -238,6 +239,19 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
     _ = ∫ a, g a ∂(comap f ((mulEquivHaarChar β : ENNReal) • μY)) := rfl
     _ = mulEquivHaarChar β • ∫ a, g a ∂μX := by rw [comap_smul, integral_smul_measure]; rfl
 
+/-- A version of `mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding` with the stronger
+assumption that `f` is a `ContinuousMulEquiv`, for convenience. -/
+@[to_additive "A version of `addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding`
+with the stronger assumption that `f` is a `ContinuousAddEquiv`, for convenience."]
+lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv {X Y : Type*}
+    [TopologicalSpace X] [Group X] [IsTopologicalGroup X] [LocallyCompactSpace X]
+    [MeasurableSpace X] [BorelSpace X]
+    [TopologicalSpace Y] [Group Y] [IsTopologicalGroup Y] [LocallyCompactSpace Y]
+    [MeasurableSpace Y] [BorelSpace Y]
+    (f : X ≃ₜ* Y) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y) (hComm : ∀ x, f (α x) = β (f x)) :
+    mulEquivHaarChar α = mulEquivHaarChar β :=
+  mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := f) f.isOpenEmbedding α β hComm
+
 end basic
 
 section prodCongr
@@ -391,44 +405,51 @@ variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalS
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
---@[to_additive]
+open Classical ContinuousMulEquiv in
+@[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
     letI : MeasurableSpace (Π i, H i) := borel _
     haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   let P : (α : Type u_1) → [Fintype α] → Prop := fun ι _ ↦
-    ∀ (H : ι → Type u_2) [(i : ι) → Group (H i)] [(i : ι) → TopologicalSpace (H i)]
-    [∀ (i : ι), IsTopologicalGroup (H i)] [∀ (i : ι), LocallyCompactSpace (H i)]
-    [(i : ι) → MeasurableSpace (H i)] [∀ (i : ι), BorelSpace (H i)] (ψ : (i : ι) → H i ≃ₜ* H i),
+    ∀ (H : ι → Type u_2) [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
+    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)] (ψ : (i : ι) → H i ≃ₜ* H i),
     letI : MeasurableSpace (Π i, H i) := borel _
     haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i)
   refine Fintype.induction_subsingleton_or_nontrivial (P := P) ι ?_ ?_ H ψ
-  · intro α fintype_α subsingleton_α H h1 h2 h3 h4 h5 h6 ψ
-    by_cases hα : Nonempty α
-    · --have a := Classical.choice hα
-      --have : Unique α := @Unique.mk' α (Classical.inhabited_of_nonempty hα) subsingleton_α
-      rw [Fintype.prod_subsingleton]
-      · sorry
-
-
-
-      sorry
-    · rw [not_nonempty_iff] at hα -- IsEmpty α
-      rw [Finset.univ_eq_empty, Finset.prod_empty]
-      convert mulEquivHaarChar_eq_one_of_compactSpace (ContinuousMulEquiv.piCongrRight ψ)
-      exact BorelSpace.measurable_eq.symm
-  · sorry
-
-/-   refine Fintype.induction_empty_option (P := P) ?_ ?_ ?_ ι H ψ
-  · intro α β _ e hα
-    intro H h1 h2 h3 h4 h5 h6 ψ
-    convert hα (H <| e ·) (ψ <| e ·)
-    ·
-      sorry
-    · sorry
-  · sorry
-  · sorry  -/
+  · intro α _ subsingleton_α H _ _ _ _ _ _ ψ
+    let : MeasurableSpace (Π i, H i) := borel _
+    have : BorelSpace (Π i, H i) := ⟨rfl⟩
+    by_cases hα : Nonempty α; swap
+    · rw [not_nonempty_iff] at hα; simp [mulEquivHaarChar_eq_one_of_compactSpace]
+    have : Unique α := @Unique.mk' α (Classical.inhabited_of_nonempty hα) subsingleton_α
+    rw [Fintype.prod_subsingleton _ default]
+    exact mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piUnique H) _ _ (fun _ ↦ rfl)
+  intro α hα nontrivial_α ih H _ _ _ _ _ _ ψ
+  have ⟨a, b, ne⟩ := nontrivial_α
+  let β₁ := {i : α // i = a}
+  let β₂ := {i : α // i ≠ a}
+  let : MeasurableSpace (Π i, H i) := borel _
+  let : MeasurableSpace (Π (i : β₁), H i) := borel _
+  let : MeasurableSpace (Π (i : β₂), H i) := borel _
+  let : MeasurableSpace ((Π (i : β₁), H i) × (Π (i : β₂), H i)) := borel _
+  have : BorelSpace (Π i, H i) := ⟨rfl⟩
+  have : BorelSpace (Π (i : β₁), H i) := ⟨rfl⟩
+  have : BorelSpace (Π (i : β₂), H i) := ⟨rfl⟩
+  have : BorelSpace ((Π (i : β₁), H i) × (Π (i : β₂), H i)) := ⟨rfl⟩
+  let ψ₁ : Π (i : β₁), H i ≃ₜ* H i := (ψ ·)
+  let ψ₂ : Π (i : β₂), H i ≃ₜ* H i := (ψ ·)
+  calc
+    _ = mulEquivHaarChar ((piCongrRight ψ₁).prodCongr (piCongrRight ψ₂)) :=
+      let f := ContinuousMulEquiv.piEquivPiSubtypeProd (· = a) H
+      mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv f _ _ (fun _ ↦ rfl)
+    _ = mulEquivHaarChar _ * mulEquivHaarChar _ := mulEquivHaarChar_prodCongr _ _
+    _ = (∏ i, mulEquivHaarChar (ψ₁ i)) * (∏ i, mulEquivHaarChar (ψ₂ i)) := by
+      rw [ih β₁ (hα.card_subtype_lt ne.symm) (H ·) ψ₁, ih β₂ (hα.card_subtype_lt (· rfl)) (H ·) ψ₂]
+    _ = mulEquivHaarChar (ψ a) * ∏ (i : β₂), mulEquivHaarChar (ψ i) := by simp; rfl
+    _ = _ := Fintype.prod_eq_mul_prod_subtype_ne (mulEquivHaarChar <| ψ ·) a |>.symm
 
 end pi
 
