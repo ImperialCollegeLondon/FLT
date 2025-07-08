@@ -427,7 +427,7 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
     have : Unique α := @Unique.mk' α (Classical.inhabited_of_nonempty hα) subsingleton_α
     rw [Fintype.prod_subsingleton _ default]
     exact mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piUnique H) _ _ (fun _ ↦ rfl)
-  intro α hα nontrivial_α ih H _ _ _ _ _ _ ψ
+  intro α fintype_α nontrivial_α ih H _ _ _ _ _ _ ψ
   have ⟨a, b, ne⟩ := nontrivial_α
   let β₁ := {i : α // i = a}
   let β₂ := {i : α // i ≠ a}
@@ -439,17 +439,14 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   have : BorelSpace (Π (i : β₁), H i) := ⟨rfl⟩
   have : BorelSpace (Π (i : β₂), H i) := ⟨rfl⟩
   have : BorelSpace ((Π (i : β₁), H i) × (Π (i : β₂), H i)) := ⟨rfl⟩
-  let ψ₁ : Π (i : β₁), H i ≃ₜ* H i := (ψ ·)
-  let ψ₂ : Π (i : β₂), H i ≃ₜ* H i := (ψ ·)
-  calc
-    _ = mulEquivHaarChar ((piCongrRight ψ₁).prodCongr (piCongrRight ψ₂)) :=
-      let f := ContinuousMulEquiv.piEquivPiSubtypeProd (· = a) H
-      mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv f _ _ (fun _ ↦ rfl)
-    _ = mulEquivHaarChar _ * mulEquivHaarChar _ := mulEquivHaarChar_prodCongr _ _
-    _ = (∏ i, mulEquivHaarChar (ψ₁ i)) * (∏ i, mulEquivHaarChar (ψ₂ i)) := by
-      rw [ih β₁ (hα.card_subtype_lt ne.symm) (H ·) ψ₁, ih β₂ (hα.card_subtype_lt (· rfl)) (H ·) ψ₂]
-    _ = mulEquivHaarChar (ψ a) * ∏ (i : β₂), mulEquivHaarChar (ψ i) := by simp; rfl
-    _ = _ := Fintype.prod_eq_mul_prod_subtype_ne (mulEquivHaarChar <| ψ ·) a |>.symm
+  let ψ₁ : Π (i : β₁), H i ≃ₜ* H i := fun i ↦ ψ i
+  let ψ₂ : Π (i : β₂), H i ≃ₜ* H i := fun i ↦ ψ i
+  rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piEquivPiSubtypeProd (· = a) H),
+    mulEquivHaarChar_prodCongr _ _, ih β₁ (fintype_α.card_subtype_lt ne.symm) (H ·) ψ₁,
+    ih β₂ (fintype_α.card_subtype_lt (· rfl)) (H ·) ψ₂, Fintype.prod_eq_mul_prod_subtype_ne _ a,
+    Finset.univ_unique, Finset.prod_singleton]
+  · rfl
+  · intro; rfl
 
 end pi
 
