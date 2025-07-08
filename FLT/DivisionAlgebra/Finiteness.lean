@@ -211,10 +211,7 @@ lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
     rw [this]
     rfl
 
--- elsewhere
-local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
-
-  sorry
+local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
 
 lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
   apply Topology.IsClosedEmbedding.comp
