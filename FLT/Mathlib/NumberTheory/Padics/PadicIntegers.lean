@@ -106,7 +106,7 @@ lemma smul_submodule_one_relindex:
   have map_H_Q : (AddSubgroup.comap z_q_coe H_Q) =
     (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup := by
     simp only [z_q_coe, H_Q, K_Q, RingHom.toAddMonoidHom_eq_coe,
-      Submodule.pointwise_smul_toAddSubgroup, Submodule.top_toAddSubgroup, z_q_coe, K_Q,
+      Submodule.pointwise_smul_toAddSubgroup, z_q_coe, K_Q,
       ← AddSubgroup.comap_smul_one ℤ_[p] ℚ_[p]]
     rfl
 

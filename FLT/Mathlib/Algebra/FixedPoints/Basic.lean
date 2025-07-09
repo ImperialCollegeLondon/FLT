@@ -103,7 +103,7 @@ instance addGroup [AddGroup A] [DistribSMul M A] : AddGroup (FixedPoints M A) wh
   induction n with
   | zero => simp
   | succ n _ => simp_all [add_zsmul, a.prop]
-  | pred i IH => simp_all [sub_zsmul, smul_neg, a.prop]⟩
+  | pred i IH => simp_all [sub_zsmul, a.prop]⟩
   zsmul_zero' a := by
     ext
     simp [zero_def]

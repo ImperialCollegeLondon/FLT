@@ -80,7 +80,7 @@ lemma MeasureTheory.ringHaarChar_padic (x : ℚ_[p]ˣ) : ringHaarChar x = ‖(x 
   simp only [eqOn_range, g]
   ext x
   simp only [MonoidHom.coe_coe, Function.comp_apply, MonoidHom.coe_mk,
-    OneHom.coe_mk, Units.val_mk0, coe_nnnorm, PadicInt.padic_norm_e_of_padicInt, g,
+    OneHom.coe_mk, Units.val_mk0, coe_nnnorm, PadicInt.padic_norm_e_of_padicInt,
     ringHaarChar_padic_padicInt]
 
 @[simp]
@@ -105,4 +105,4 @@ See `PadicInt.volume_padicInt_smul` -/
 lemma MeasureTheory.ringHaarChar_padicInt (x : ℤ_[p]ˣ) : ringHaarChar x = 1 :=
   -- We compute `ringHaarChar ℤ_[p]` by lifting everything to `ℚ_[p]`.
   ringHaarChar_eq_of_measure_smul_eq_mul (s := univ) (μ := volume) (by simp) (measure_ne_top _ _)
-    (by simp [PadicInt.volume_padicInt_smul])
+    (by simp)

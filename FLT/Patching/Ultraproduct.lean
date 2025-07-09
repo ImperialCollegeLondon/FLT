@@ -100,7 +100,7 @@ instance : Algebra (Π i, R i) (UltraProduct A F) where
   smul_def' r x := by
     obtain ⟨x, rfl⟩ := UltraProduct.πₗ_surjective R x
     rw [← map_smul, Algebra.smul_def]
-    show UltraProduct.π A F _ = _
+    change UltraProduct.π A F _ = _
     simp only [map_mul, RingHom.coe_comp, Function.comp_apply]
     rfl
 
@@ -124,7 +124,7 @@ instance : IsScalarTower R₀ (Π i, R i) (UltraProduct M F) := by
   apply IsScalarTower.of_algebraMap_smul
   intro r m
   obtain ⟨m, rfl⟩ := UltraProduct.πₗ_surjective R m
-  show _ = _ • Submodule.mkQ (eventuallyProd (R := fun _ ↦ R₀) (M := M) ⊥ F) m
+  change _ = _ • Submodule.mkQ (eventuallyProd (R := fun _ ↦ R₀) (M := M) ⊥ F) m
   rw [← map_smul, ← LinearMap.map_smul_of_tower, algebraMap_smul]
   rfl
 
@@ -147,7 +147,7 @@ lemma UltraProduct.π_eq_zero_iff {x} : π R F x = 0 ↔ ∀ᶠ i in F, x i = 0 
 instance : SMul (UltraProduct R F) (UltraProduct M F) where
   smul := Quotient.lift₂ (UltraProduct.πₗ R M F <| · • ·) fun r₁ m₁ r₂ m₂ e₁ e₂ ↦ by
     rw [← sub_eq_zero]
-    simp only [← map_smul, ← map_sub, UltraProduct.πₗ_eq_zero]
+    simp only [← map_sub, UltraProduct.πₗ_eq_zero]
     simp only at e₁
     filter_upwards [(Submodule.quotientRel_def _).mp e₁,
       (Submodule.quotientRel_def _).mp e₂] with i h₁ h₂
@@ -316,7 +316,7 @@ lemma UltraProduct.exists_algEquiv_of_bddAbove_card
       simp only [g, LinearMap.pi_apply, Pi.one_apply, dif_pos (Nonempty.intro (hi.choose)),
         AlgEquiv.toLinearMap_apply, map_one]
     · intro x y
-      show _ = π R F _ * π R F _
+      change _ = π R F _ * π R F _
       rw [← map_mul]
       refine UltraProduct.πₗ_eq_iff.mpr ?_
       filter_upwards [ha] with i hi

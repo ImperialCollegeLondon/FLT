@@ -55,7 +55,7 @@ map is continuous, `K_v`-linear and restricts to an isomorphism `B ⊗_A 𝓞_v 
 
 -/
 
-open scoped Multiplicative Valued
+open scoped WithZero Valued
 
 /-!
 
@@ -140,7 +140,7 @@ lemma adicValued.continuous_algebraMap
   intro a
   rw [WithZero.unitsWithZeroEquiv.exists_congr_left, Multiplicative.exists]
   let m := Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal
-  let e : ℤ ≃ ℤₘ₀ˣ := Multiplicative.ofAdd.trans OrderMonoidIso.unitsWithZero.symm.toEquiv
+  let e : ℤ ≃ ℤᵐ⁰ˣ := Multiplicative.ofAdd.trans OrderMonoidIso.unitsWithZero.symm.toEquiv
   have e_apply (a : ℤ) : e a = OrderMonoidIso.unitsWithZero.symm (Multiplicative.ofAdd a) := rfl
   have hm : m ≠ 0 := by
     refine ramificationIdx_ne_zero A B ?_ w
@@ -151,6 +151,7 @@ lemma adicValued.continuous_algebraMap
     (comap A w).valuation K x ^ m < e (a / ↑m) ^ m := by gcongr; exacts [zero_le', hx]
   _ = e (m • (a / ↑m)) := by
     dsimp [e]
+    rfl
   _ ≤ e a := by
     simp only [nsmul_eq_mul, e_apply, Units.val_le_val, OrderIsoClass.map_le_map_iff]
     rw [mul_comm]
@@ -255,7 +256,7 @@ open WithZeroMulInt Valued
 -- v.asIdeal.absNorm may be 0, so just use 2 as the base for the norm.
 /-- The data of a rank 1 (ℝ-valued) valuation on K_v. -/
 noncomputable local instance adicCompletion_RkOne :
-    Valuation.RankOne (Valued.v : Valuation (adicCompletion K v) ℤₘ₀) where
+    Valuation.RankOne (Valued.v : Valuation (adicCompletion K v) ℤᵐ⁰) where
   hom := {
     toFun := toNNReal (by norm_num : (2 : NNReal) ≠ 0)
     map_zero' := rfl
@@ -561,7 +562,7 @@ lemma prodAdicCompletionsIntegers_eq_closureIntegers :
   rw [Subalgebra.coe_pi]
   let _ (w : Extension B v) : Module B (adicCompletion L w.val) :=
     UniformSpace.Completion.instModule
-  show SetLike.coe (Submodule.pi _ _) = _
+  change SetLike.coe (Submodule.pi _ _) = _
   rw [Submodule.coe_pi]
   let val := (fun (w : Extension B v) ↦ w.1)
   have hinj : Function.Injective val :=
@@ -612,7 +613,7 @@ theorem adicCompletionComapAlgEquiv_integral :
       (tensorAdicCompletionComapAlgHom A K L B v) ''
       SetLike.coe (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
     ext x
-    simp [Algebra.algebraMap_eq_smul_one, AlgHom.map_smul_of_tower]
+    simp [Algebra.algebraMap_eq_smul_one]
   have hrange' := adicCompletionComapAlgHom_map_closure_is_closed A K L B v
   rw [AlgHom.range_comp, ← SetLike.coe_set_eq, Subalgebra.coe_map, AlgHom.coe_restrictScalars',
       hlhs, hrhs, hrange, ← IsClosed.closure_eq hrange']
@@ -669,8 +670,7 @@ noncomputable def tensorAdicCompletionIntegersToLinearMap :
       TensorProduct.RightActions.algebraMap_eval, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe, map_mul, Algebra.TensorProduct.lift_tmul, map_one, AlgHom.coe_comp,
       AlgHom.coe_restrictScalars', IsScalarTower.coe_toAlgHom', RingHom.algebraMap_toAlgebra,
-      Algebra.id.map_eq_id, RingHomCompTriple.comp_eq, Function.comp_apply,
-      Algebra.TensorProduct.includeRight_apply, one_mul, RingHom.id_apply]
+      Function.comp_apply, Algebra.TensorProduct.includeRight_apply, one_mul, RingHom.id_apply]
     rw [Subsemiring.smul_def, Algebra.smul_def]
     rfl
 
@@ -833,7 +833,7 @@ theorem adicCompletion.ramificationIdx_eq_ramificationIdx (w : HeightOneSpectrum
     rw [Ideal.mem_comap, adicCompletion.mem_completionIdeal_pow, comap_integer_algebraMap,
       valued_adicCompletionComap, hϖ, ← WithZero.ofAdd_neg_ofNat_pow,
       WithZero.coe_le_coe, Multiplicative.ofAdd_le, hvw] at hcomap
-    simp [add_le_iff_nonpos_right] at hcomap
+    simp at hcomap
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] in
 theorem adicCompletion.inertiaDeg_eq_inertiaDeg (w : HeightOneSpectrum B) (hvw : w.comap A = v) :
@@ -932,7 +932,7 @@ open scoped TensorProduct.RightActions in
 /-- The canonical map `L ⊗[K] K_v → ∏_{w|v} L_w` is bijective. -/
 theorem tensorAdicCompletionComapAlgHom_bijective (v : HeightOneSpectrum A) :
     Function.Bijective (tensorAdicCompletionComapAlgHom A K L B v) := by
-  show Function.Bijective (tensorAdicCompletionComapLinearMap A K L B v)
+  change Function.Bijective (tensorAdicCompletionComapLinearMap A K L B v)
   have hsurj := tensorAdicCompletionComapLinearMap_surjective A K L B v
   refine ⟨?_, hsurj⟩
   have hfin := comap_pi_algebra_finite A K L B v

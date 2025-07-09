@@ -18,11 +18,12 @@ If `M` is a finite free module and `Nᵢ` is an indexed collection of modules of
 
 ## Main definition
 
-* tensorPi_equiv_piTensor : M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i)
+* `tensorPi_equiv_piTensor` : `M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i)` for finite free modules
+* `tensorPi_equiv_piTensor'` : the same but for finitely-presented modules.
 
 ## TODO
 
-Prove the same for finitely-presented modules.
+Switch the names around because the primed version is more general hence better.
 
 -/
 open DirectSum Function
@@ -158,7 +159,7 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
     simp only [tensorPiEquiv_finitefreeModule, LinearEquiv.piCongrRight_symm]
     ext i
     simp only [LinearEquiv.piCongrRight_apply, LinearEquiv.rTensor_symm_tmul, LinearEquiv.symm_symm,
-      LinearEquiv.apply_symm_apply, m']
+      LinearEquiv.apply_symm_apply]
     rw [finsuppLeft_TensorPi_equiv_piTensor]
     simp only [LinearEquiv.trans_apply, LinearEquiv.piCongrRight_apply]
     rw [LinearEquiv.symm_apply_eq]
@@ -183,8 +184,6 @@ end
 
 section
 
-universe u
-
 open TensorProduct
 
 variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
@@ -195,12 +194,14 @@ variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
 To prove this, we consider the following commutative diagram. The goal is to show
 that `i₃` is an isomorphism, which we do using the five lemma:
 
+```
 Rᵐ ⊗[R] (Π i, N i) --f₁--> Rⁿ ⊗[R] (Π i, N i) --f₂--> M ⊗[R] (Π i, N i) --f₃--> 0 --f₄--> 0
         |                         |                         |                   |         |
         i₁                        i₂                        i₃                  i₄        i₅
         |                         |                         |                   |         |
         v                         v                         v                   v         v
 Π i, (Rᵐ ⊗[R] N i) --g₁--> Π i, (Rⁿ ⊗[R] N i) --g₂--> Π i, (M ⊗[R] N i) --g₃--> 0 --g₄--> 0
+```
 -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := IsTensorProduct.equiv <| by
@@ -210,18 +211,18 @@ noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
   set i₂ : (Fin n → R) ⊗[R] (Π i, N i) →ₗ[R] Π i, ((Fin n → R) ⊗[R] N i) :=
     (tensorPi_equiv_piTensor R (Fin n → R) N).toLinearMap
   set i₃ : M ⊗[R] (Π i, N i) →ₗ[R] Π i, (M ⊗[R] N i) := TensorProduct.piRightHom R R M N
-  set i₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id   -- map to zero to zero
-  set i₅ : (PUnit : Type u)  →ₗ[R] (PUnit : Type u)  := LinearMap.id  -- map to zero to zero
+  set i₄ : (PUnit : Type) →ₗ[R] (PUnit : Type) := LinearMap.id   -- map to zero to zero
+  set i₅ : (PUnit : Type)  →ₗ[R] (PUnit : Type)  := LinearMap.id  -- map to zero to zero
   set f₁ : (Fin m → R) ⊗[R] (Π i, N i) →ₗ[R] (Fin n → R) ⊗[R] (Π i, N i) := f.rTensor (Π i, N i)
   set f₂ : (Fin n → R) ⊗[R] (Π i, N i) →ₗ[R] M ⊗[R] (Π i, N i) := g.rTensor (Π i, N i)
-  set f₃ : M ⊗[R] (Π i, N i) →ₗ[R] (PUnit : Type u) := 0
-  set f₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id -- map to zero to zero
+  set f₃ : M ⊗[R] (Π i, N i) →ₗ[R] (PUnit : Type) := 0
+  set f₄ : (PUnit : Type) →ₗ[R] (PUnit : Type) := LinearMap.id -- map to zero to zero
   set g₁ : (Π i, ((Fin m → R) ⊗[R] N i)) →ₗ[R] Π i, ((Fin n → R) ⊗[R] N i) :=
     LinearMap.pi (fun i ↦ (LinearMap.rTensor (N i) f)  ∘ₗ LinearMap.proj i)
   set g₂ : (Π i, ((Fin n → R) ⊗[R] N i)) →ₗ[R] Π i, (M ⊗[R] N i) :=
     LinearMap.pi (fun i ↦ (LinearMap.rTensor (N i) g)  ∘ₗ LinearMap.proj i)
-  set g₃ : (Π i, (M ⊗[R] N i)) →ₗ[R] (PUnit : Type u) := 0 -- map to zero
-  set g₄ : (PUnit : Type u) →ₗ[R] (PUnit : Type u) := LinearMap.id -- map to zero to zero
+  set g₃ : (Π i, (M ⊗[R] N i)) →ₗ[R] (PUnit : Type) := 0 -- map to zero
+  set g₄ : (PUnit : Type) →ₗ[R] (PUnit : Type) := LinearMap.id -- map to zero to zero
   have hc₁ : g₁ ∘ₗ i₁ = i₂ ∘ₗ f₁ := by
     refine ext' fun x y ↦ ?_
     simp only [LinearMap.coe_comp, comp_apply, i₂, i₁, g₁, LinearEquiv.coe_coe]

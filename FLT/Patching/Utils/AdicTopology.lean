@@ -60,10 +60,10 @@ lemma Submodule.isCompact_of_fg {R M : Type*} [CommRing R] [TopologicalSpace R] 
   have := IsModuleTopology.toContinuousAdd R M
   obtain ⟨s, hs⟩ := hN
   have : LinearMap.range (Fintype.linearCombination R (α := s) Subtype.val) = N := by
-    simp [Finsupp.range_linearCombination, hs]
+    simp [hs]
   rw [← this]
   refine isCompact_range ?_
-  simp only [Fintype.linearCombination, Finset.univ_eq_attach, smul_eq_mul, LinearMap.coe_mk,
+  simp only [Fintype.linearCombination, Finset.univ_eq_attach, LinearMap.coe_mk,
     AddHom.coe_mk]
   continuity
 
@@ -133,10 +133,10 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
       rintro i -
       exact ⟨Set.pi {i} fun i ↦ {0}, set_pi_mem_nhds (Set.finite_singleton i) (by simp),
         by simp [Set.subset_def, f, Ideal.Quotient.eq_zero_iff_mem]⟩
-    · show Function.Injective (Pi.ringHom _)
+    · change Function.Injective (Pi.ringHom _)
       rw [injective_iff_map_eq_zero]
       intro a ha
-      show a ∈ (⊥ : Ideal R)
+      change a ∈ (⊥ : Ideal R)
       rw [← Ideal.iInf_pow_eq_bot_of_isLocalRing _ (IsLocalRing.maximalIdeal.isMaximal R).ne_top]
       simpa [Pi.ringHom, funext_iff, Ideal.Quotient.eq_zero_iff_mem] using ha
     · rw [← isOpen_compl_iff, isOpen_iff_forall_mem_open]

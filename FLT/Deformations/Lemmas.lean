@@ -47,7 +47,7 @@ instance {α M G : Type*} [Monoid M] [Monoid G] [Monoid α] [MulDistribMulAction
     MulAction α (M →* G) where
   smul a f := ⟨⟨a • f, by simp⟩, by simp⟩
   one_smul _ := by ext; exact one_smul _ _
-  mul_smul a b f := by ext x; show (a * b) • (f x) = a • b • (f x); simp [mul_smul]
+  mul_smul a b f := by ext x; change (a * b) • (f x) = a • b • (f x); simp [mul_smul]
 
 @[simp]
 lemma MonoidHom.coe_smul
@@ -60,7 +60,7 @@ instance {α M G : Type*} [Monoid M] [Monoid G] [Monoid α] [MulDistribMulAction
     MulAction α (M →ₜ* G) where
   smul a f := ⟨a • f, .const_smul f.2 _⟩
   one_smul _ := by ext; exact one_smul _ _
-  mul_smul a b f := by ext x; show (a * b) • (f x) = a • b • (f x); simp [mul_smul]
+  mul_smul a b f := by ext x; change (a * b) • (f x) = a • b • (f x); simp [mul_smul]
 
 @[simp]
 lemma ContinuousMonoidHom.coe_smul
@@ -78,8 +78,7 @@ instance IsTopologicalGroup.discreteUniformity
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [DiscreteTopology G] :
     letI := IsTopologicalGroup.toUniformSpace G
     DiscreteUniformity G := by
-  simp only [discreteUniformity_iff_idRel_mem_uniformity, uniformity_eq_comap_nhds_zero',
-    nhds_discrete, Filter.pure_zero, Filter.mem_comap, Filter.mem_zero]
+  simp only [discreteUniformity_iff_idRel_mem_uniformity]
   exact ⟨{1}, by simp [Set.subset_def, div_eq_one]⟩
 
 lemma IsLocalRing.map_maximalIdeal {R S} [CommRing R] [CommRing S]

@@ -100,7 +100,7 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
     rw [← Submodule.map_le_iff_le_comap, Submodule.map_smul'']
     exact Submodule.smul_mono le_rfl le_top
   let π (j) : M₁ j →ₗ[Λ] M₂ j := Submodule.mapQ _ _ (Submodule.mkQ _) (h₀ j)
-  have (i) : Finite (M₂ i) := by
+  have (i : ι) : Finite (M₂ i) := by
     have := Module.UniformlyBoundedRank.finite_quotient_smul Λ M i α
     refine Finite.of_surjective (π i) ?_
     simp only [Submodule.mapQ, ← LinearMap.range_eq_top, Submodule.range_liftQ, M₁, M₂, π,
@@ -133,7 +133,7 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
     ext x
     obtain ⟨x, rfl⟩ := e₁.surjective x
     obtain ⟨x, rfl⟩ := Submodule.mkQ_surjective _ x
-    show _ = e₂ ((α • ⊤ : Submodule Λ (M i)).mapQ (α • ⊤) (𝔫 • ⊤ : Submodule Λ (M i)).mkQ h₀
+    change _ = e₂ ((α • ⊤ : Submodule Λ (M i)).mapQ (α • ⊤) (𝔫 • ⊤ : Submodule Λ (M i)).mkQ h₀
       (e₁.symm (e₁ _)))
     rw [e₁.symm_apply_apply]
     rfl
@@ -141,11 +141,11 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
   simp only [LinearMap.ker_comp, LinearEquiv.ker, Submodule.comap_bot]
   apply Submodule.map_injective_of_injective (f := e₁.symm.toLinearMap) e₁.symm.injective
   rw [Submodule.map_smul'', Submodule.map_top, Submodule.map_comap_eq]
-  simp only [LinearEquiv.range, le_top, inf_of_le_right, LinearMap.ker_restrictScalars, M₁]
+  simp only [LinearEquiv.range, le_top, inf_of_le_right, M₁]
   rw [Submodule.mapQ, Submodule.ker_liftQ, LinearMap.ker_comp, Submodule.ker_mkQ,
     Submodule.comap_smul_of_surjective _ _ (Submodule.mkQ_surjective _)]
   simp only [Submodule.comap_top, Submodule.ker_mkQ, Submodule.map_sup, Submodule.map_smul'',
-    Submodule.map_top, Submodule.range_mkQ, Submodule.sup_smul]
+    Submodule.map_top, Submodule.range_mkQ]
   simp only [sup_eq_right]
   refine le_trans ?_ bot_le
   rw [← LinearMap.range_eq_top.mpr (Submodule.mkQ_surjective _),
@@ -174,8 +174,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
     let t {α β} (h : α ≤ β) (a : s α) : s β :=
       ⟨Finsupp.mapRange.linearMap (componentMap Λ M F h) a.1, by
         obtain ⟨a, ha⟩ := a
-        simp only [LinearMap.coe_restrictScalars,
-          Set.mem_preimage, Set.mem_singleton_iff, s] at ha ⊢
+        simp only [Set.mem_preimage, Set.mem_singleton_iff, s] at ha ⊢
         rw [← x.2 _ _ h, ← ha, ← LinearMap.comp_apply, ← LinearMap.comp_apply]
         congr 1
         ext
@@ -198,7 +197,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
       filter_upwards with i
       obtain ⟨d, hd⟩ := Submodule.Quotient.mk_surjective _ (c i)
       simp only [← hd, Submodule.mapQ_apply, LinearMap.id_coe, id_eq]
-    have (α) : Nonempty (s α) := by
+    have (α : OpenIdeals Λ) : Nonempty (s α) := by
       simp only [nonempty_subtype, Set.mem_preimage, Set.mem_singleton_iff, s]
       suffices 𝔫 • ⊤ ≤ LinearMap.range (f α) from this (H α)
       refine Submodule.smul_le.mpr fun r hr m hm ↦ ?_
@@ -295,7 +294,7 @@ def PatchingAlgebra.quotientTo
   letI : ∀ (i : ι), IsLocalHom ((fun i ↦ Ideal.Quotient.mk (𝔫.map (algebraMap Λ (R i)))) i) :=
     fun i ↦ .of_surjective _ Ideal.Quotient.mk_surjective
   Ideal.Quotient.lift _ (map F (fun i ↦ Ideal.Quotient.mk (𝔫.map (algebraMap Λ (R i))))) <| by
-    show 𝔫.map (algebraMap Λ (PatchingAlgebra R F)) ≤ RingHom.ker _
+    change 𝔫.map (algebraMap Λ (PatchingAlgebra R F)) ≤ RingHom.ker _
     rw [Ideal.map_le_iff_le_comap]
     intro x hx
     simp only [Ideal.mem_comap, RingHom.mem_ker]
@@ -310,9 +309,9 @@ def PatchingAlgebra.quotientTo
 noncomputable
 def PatchingAlgebra.quotientToOver :
     (PatchingAlgebra R F ⧸ 𝔫.map (algebraMap Λ (PatchingAlgebra R F))) →+* R₀ :=
-  haveI (i) : Nontrivial (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
+  have (i : ι) : Nontrivial (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
     (sR i).toRingHom.domain_nontrivial
-  haveI (i) : IsLocalRing (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
+  have (i : ι) : IsLocalRing (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
     .of_surjective' (sR i).symm.toRingHom (sR i).symm.surjective
   ((constEquiv F R₀).symm.toRingHom.comp
     (mapEquiv _ _ (fun i ↦ (sR i).toRingEquiv)).toRingHom).comp (quotientTo Λ R F 𝔫)
@@ -329,11 +328,11 @@ omit
   [CompactSpace Λ] in
 lemma PatchingAlgebra.surjective_quotientToOver :
     Function.Surjective (quotientToOver Λ R F 𝔫 sR) := by
-  haveI (i) : Nontrivial (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
+  have (i : ι) : Nontrivial (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
     (sR i).toRingHom.domain_nontrivial
-  haveI (i) : IsLocalRing (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
+  have (i : ι) : IsLocalRing (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
     .of_surjective' (sR i).symm.toRingHom (sR i).symm.surjective
-  letI : ∀ (i : ι), IsLocalHom ((fun i ↦ Ideal.Quotient.mk (𝔫.map (algebraMap Λ (R i)))) i) :=
+  let : ∀ (i : ι), IsLocalHom ((fun i ↦ Ideal.Quotient.mk (𝔫.map (algebraMap Λ (R i)))) i) :=
     fun i ↦ .of_surjective _ Ideal.Quotient.mk_surjective
   refine (constEquiv F R₀).symm.surjective.comp ?_
   refine (mapEquiv _ _ (fun i ↦ (sR i).toRingEquiv)).surjective.comp ?_
