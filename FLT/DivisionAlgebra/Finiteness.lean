@@ -371,9 +371,7 @@ theorem Doset.coverOfLeftcosets_ascended {G : Type*} [Group G] (H K : Subgroup G
   simp only [Subtype.coe_prop, SetLike.mem_coe, true_and]
   exact ⟨1, Subgroup.one_mem K, by simpa using ha⟩
 
-/-
-Documentation strings needed for CI... not sure what to write here
--/
+-- for CI purposes this needs docustring
 local instance : SMul (Dfx K D) (Dfx K D) where
   smul := HMul.hMul
 
