@@ -52,7 +52,7 @@ noncomputable abbrev U1v : Subgroup (GL (Fin 2) (adicCompletion F v)) := (GL2.lo
 
 variable {F v} in
 /-- The matrix element `g = diag[α, 1]`. -/
-noncomputable def g : (GL (Fin 2) (adicCompletion F v)) :=
+noncomputable abbrev g : (GL (Fin 2) (adicCompletion F v)) :=
   Matrix.GeneralLinearGroup.diagonal (![⟨(α : v.adicCompletion F),
     (α : v.adicCompletion F)⁻¹, by
       rw [mul_inv_cancel₀]
@@ -64,13 +64,13 @@ set_option synthInstance.maxHeartbeats 0 in
 -- double coset space
 variable {F v} in
 /-- The double coset space `U1 g U1` as a set of left cosets. -/
-noncomputable def U1gU1 :
+noncomputable abbrev U1gU1 :
   Set ((GL (Fin 2) (adicCompletion F v)) ⧸ ↑(U1v v)) :=
   (QuotientGroup.mk '' ((U1v v) * g α hα • ↑(U1v v) ))
 
 variable {F v} in
 /-- The matrix element `gt = !![α, t; 0, 1]`. -/
-noncomputable def gt (t : v.adicCompletionIntegers F) :
+noncomputable abbrev gt (t : v.adicCompletionIntegers F) :
   (GL (Fin 2) (adicCompletion F v)) :=
   let gtInv : Invertible !![(α : v.adicCompletion F), t; 0, 1].det :=
   { invOf := (α : v.adicCompletion F)⁻¹,
@@ -85,7 +85,7 @@ noncomputable def gt (t : v.adicCompletionIntegers F) :
 variable {F v} in
 /-- For each `t ∈ O_v / αO_v`, the left coset `gt U1`
 for a lift of t to `O_v`. -/
-noncomputable def gtU1
+noncomputable abbrev gtU1
   (t : ↑(adicCompletionIntegers F v) ⧸ (AddSubgroup.map (AddMonoidHom.mulLeft α)
     (⊤ : AddSubgroup ↑(adicCompletionIntegers F v)))) :
   ((GL (Fin 2) (adicCompletion F v)) ⧸ ↑(U1v v)) :=
@@ -101,8 +101,6 @@ as t ranges over `O_v / αO_v`. -/
 lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := by
   have r (A : Matrix (Fin 2) (Fin 2) (adicCompletion F v)) [Invertible A.det] :
     (↑(A.unitOfDetInvertible) : Matrix (Fin 2) (Fin 2) (adicCompletion F v)) = A := rfl
-  have valEquiv : Valued.v.IsEquiv (adicCompletionIntegers F v).valuation := by
-    apply Valuation.isEquiv_valuation_valuationSubring
   have gr : (g α hα : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
     = !![↑α, 0; 0, 1] := by
       rw[g]; ext i j
@@ -110,14 +108,14 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
       fin_cases i; all_goals fin_cases j
       all_goals simp
 
-  let ht (t : v.adicCompletion F) : (GL (Fin 2) (adicCompletion F v)) := by
+  let ht (t : v.adicCompletion F) : (GL (Fin 2) (adicCompletion F v)) :=
     let htInv : Invertible !![1, t; 0, 1].det :=
     { invOf := 1,
       invOf_mul_self :=
         by simp only [Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero],
       mul_invOf_self :=
         by simp only [Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero] }
-    exact Matrix.unitOfDetInvertible !![1, t; 0, 1]
+    Matrix.unitOfDetInvertible !![1, t; 0, 1]
 
   constructor
   · -- Show that `gtU1` is contained in `U1gU1` for all t.
@@ -145,14 +143,13 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
               mul_invOf_self :=
               by simp only [Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero] }
             Matrix.unitOfDetInvertible !![1, (Quotient.out t); 0, 1]
-          use htInt; refine Units.eq_iff.mp ?_; rw[r]
-          have hr : (htInt = !![1, (Quotient.out t); 0, 1]) := rfl
-          rw[Units.coe_map, hr]
+          use htInt; refine Units.eq_iff.mp ?_
+          rw[Units.coe_map]; unfold htInt
           simp only [RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, RingHom.mapMatrix_apply,
             ValuationSubring.coe_subtype]
           ext i j
           fin_cases i; all_goals fin_cases j
-          all_goals simp
+          all_goals simp; rfl
         rw[r]; simp
       use g α hα
       simp only [and_true]
@@ -232,7 +229,8 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
     apply z.right
   have maxc : c ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) := by
     apply (ValuationSubring.valuation_lt_one_iff (adicCompletionIntegers F v) c).mpr
-    apply (Valuation.isEquiv_iff_val_lt_one.mp valEquiv).mp
+    apply (Valuation.isEquiv_iff_val_lt_one.mp
+      (Valuation.isEquiv_valuation_valuationSubring Valued.v)).mp
     exact valc
   have maxd : d ∉ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) := by
     by_contra maxd₁
@@ -271,7 +269,6 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   -- and denote the resulting matrix by `mMatrix`.
   apply Subgroup.mul_mem
   · let m : GL (Fin 2) (adicCompletion F v) := (gt α hα (Quotient.out t))⁻¹ * (co₁ * g α hα)
-    have hmr : m = (gt α hα (Quotient.out t))⁻¹ * (co₁ * g α hα) := rfl
     let mMatrix : Matrix (Fin 2) (Fin 2) (adicCompletion F v) :=
       !![a - (Quotient.out t) * c, (α : adicCompletion F v)⁻¹ * (b - (Quotient.out t) * d);
         c * α, d]
@@ -289,7 +286,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
           Matrix.cons_val_fin_one]
         fin_cases i; all_goals fin_cases j
         all_goals simp; rfl
-      rw[hmr]; push_cast; rw[hp2, gr]; norm_cast; rw[hp1]
+      unfold m; push_cast; rw[hp2, gr]; norm_cast; rw[hp1]
       unfold mMatrix
       simp only [neg_mul, Matrix.cons_mul, Nat.succ_eq_add_one, Nat.reduceAdd, Matrix.vecMul_cons,
         Matrix.head_cons, Matrix.smul_cons, smul_eq_mul, mul_zero, Matrix.smul_empty,
@@ -304,7 +301,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         Matrix.cons_val_zero]
       rw [mul_inv_cancel₀, one_mul, one_mul]
       exact_mod_cast hα
-    rw[← hmr]
+    convert_to m ∈ U1v v
     -- First we show that `m = mMatrix` is in `GL_2(O_v)`.
     -- Note this is not a priori obvious,
     -- as even `g` itself need not be in `GL_2(O_v)`
@@ -368,7 +365,8 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
       norm_cast at valad
       have maxad : (a - d) ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) := by
         apply (ValuationSubring.valuation_lt_one_iff (adicCompletionIntegers F v) (a-d)).mpr
-        apply (Valuation.isEquiv_iff_val_lt_one.mp valEquiv).mp
+        apply (Valuation.isEquiv_iff_val_lt_one.mp
+          (Valuation.isEquiv_valuation_valuationSubring Valued.v)).mp
         exact valad
       rw[sub_right_comm]
       have maxadc : (a - d - Quotient.out t * c)
@@ -377,11 +375,13 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         · assumption
         apply Ideal.mul_mem_left
         assumption
-      apply (Valuation.isEquiv_iff_val_lt_one.mp valEquiv).mpr
+      apply (Valuation.isEquiv_iff_val_lt_one.mp
+        (Valuation.isEquiv_valuation_valuationSubring Valued.v)).mpr
       exact (ValuationSubring.valuation_lt_one_iff (adicCompletionIntegers F v) _).mp maxadc
     have maxcα : c * α ∈ IsLocalRing.maximalIdeal ↥(adicCompletionIntegers F v) := by
       exact Ideal.mul_mem_right α (IsLocalRing.maximalIdeal ↥(adicCompletionIntegers F v)) maxc
-    apply (Valuation.isEquiv_iff_val_lt_one.mp valEquiv).mpr
+    apply (Valuation.isEquiv_iff_val_lt_one.mp
+      (Valuation.isEquiv_valuation_valuationSubring Valued.v)).mpr
     exact (ValuationSubring.valuation_lt_one_iff (adicCompletionIntegers F v) (c*α)).mp maxcα
   assumption
 
