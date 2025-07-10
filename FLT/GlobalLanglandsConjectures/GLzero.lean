@@ -97,7 +97,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
   }
 
 -- the weakest form of the classification theorem
-noncomputable def classification: AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
+noncomputable def classification : AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
   toFun := fun f ↦ f 1
   invFun := fun c ↦ ofComplex ρ c
   left_inv := by

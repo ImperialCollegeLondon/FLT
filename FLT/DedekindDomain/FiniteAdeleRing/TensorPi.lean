@@ -18,11 +18,12 @@ If `M` is a finite free module and `Nᵢ` is an indexed collection of modules of
 
 ## Main definition
 
-* tensorPi_equiv_piTensor : M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i)
+* `tensorPi_equiv_piTensor` : `M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i)` for finite free modules
+* `tensorPi_equiv_piTensor'` : the same but for finitely-presented modules.
 
 ## TODO
 
-Prove the same for finitely-presented modules.
+Switch the names around because the primed version is more general hence better.
 
 -/
 open DirectSum Function
@@ -193,12 +194,14 @@ variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
 To prove this, we consider the following commutative diagram. The goal is to show
 that `i₃` is an isomorphism, which we do using the five lemma:
 
+```
 Rᵐ ⊗[R] (Π i, N i) --f₁--> Rⁿ ⊗[R] (Π i, N i) --f₂--> M ⊗[R] (Π i, N i) --f₃--> 0 --f₄--> 0
         |                         |                         |                   |         |
         i₁                        i₂                        i₃                  i₄        i₅
         |                         |                         |                   |         |
         v                         v                         v                   v         v
 Π i, (Rᵐ ⊗[R] N i) --g₁--> Π i, (Rⁿ ⊗[R] N i) --g₂--> Π i, (M ⊗[R] N i) --g₃--> 0 --g₄--> 0
+```
 -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := IsTensorProduct.equiv <| by
