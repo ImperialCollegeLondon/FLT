@@ -9,6 +9,11 @@ variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Alge
 
 open NumberField InfinitePlace SemialgHom
 
+-- should be in mathlib
+instance : T2Space (InfiniteAdeleRing K) := by
+  unfold InfiniteAdeleRing
+  infer_instance
+
 open scoped TensorProduct
 
 namespace NumberField.InfiniteAdeleRing

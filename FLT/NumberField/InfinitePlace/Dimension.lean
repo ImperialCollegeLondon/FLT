@@ -147,13 +147,13 @@ namespace IsUnramified
 
 variable {w}
 
-theorem not_isMixedExtension (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v):
+theorem not_isMixedExtension (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v) :
     ¬IsMixedExtension v.embedding w.embedding := by
   contrapose! h
   rw [not_isUnramified_iff, isComplex_iff, isReal_iff]
   aesop
 
-theorem not_isMixedExtension_conjugate (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v):
+theorem not_isMixedExtension_conjugate (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v) :
     ¬IsMixedExtension v.embedding (conjugate w.embedding) := by
   contrapose! h
   rw [not_isUnramified_iff, isComplex_iff, isReal_iff]

@@ -45,7 +45,7 @@ variable [Algebra.IsCentral k D] [IsSimpleRing D] [FiniteDimensional k D]
 /-- This is instance is in a repo on brauergroup which will soon be PRed into mathlib,
   the associated issue task is #631. -/
 instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
-    [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B]: IsSimpleRing (A ⊗[k] B) := sorry
+    [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (A ⊗[k] B) := sorry
 
 lemma IsSimpleRing.mulLeft_det_eq_mulRight_det (d : D) :
     (LinearMap.mulLeft k d).det = (LinearMap.mulRight k d).det := by
