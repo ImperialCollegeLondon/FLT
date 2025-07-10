@@ -162,7 +162,6 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   · -- Show that distinct t give distinct `gtU1`, i.e. we have a disjoint union.
     intro t₁ h₁ t₂ h₂ h
     rw[gtU1, gtU1] at h
-    let h₀ := QuotientGroup.eq.mp h
     -- If `gtU1 t₁ = gtU1 t₂`, then `(gt t₁)⁻¹ * (gt t₂)` is in `U1v`.
     have m : (gt α hα (Quotient.out t₁))⁻¹ * gt α hα (Quotient.out t₂)
       = ht ((α : v.adicCompletion F)⁻¹ *
@@ -179,8 +178,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
         rw[← mul_assoc, mul_inv_cancel₀, one_mul]
         any_goals ring_nf
         exact (Subtype.coe_ne_coe.mpr hα)
-    rw[m] at h₀
-    obtain ⟨ ⟨ x, y ⟩ , z ⟩ := h₀
+    obtain ⟨ ⟨ x, y ⟩ , z ⟩ := m ▸ (QuotientGroup.eq.mp h)
     -- But inspecting the top-right entry of `(gt t₁)⁻¹ * (gt t₂)`
     -- gives us `t₁ = t₂`.
     apply_fun (fun (A : (Matrix (Fin 2) (Fin 2) (adicCompletion F v))ˣ) ↦ A 0 1) at y
@@ -208,10 +206,9 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   have hp : co₀ = co₁ * (g α hα) * co₂ := by
     rw[← hl, ← z]; simp only [smul_eq_mul]; rw[mul_assoc]
   -- Each element of `U1gU1` can be written as
-  -- `x * gU1`, where `x = !![a,b;c,d]`
+  -- `x * g U1`, where `x = !![a,b;c,d]`
   -- is viewed as a matrix over `O_v`.
   obtain ⟨ ⟨ x , y ⟩ , z ⟩ := h₁
-  let xdetunit := Matrix.isUnits_det_units x
   let a : (adicCompletionIntegers F v) := (x 0 0)
   let b : (adicCompletionIntegers F v) := (x 0 1)
   let c : (adicCompletionIntegers F v) := (x 1 0)
@@ -259,13 +256,7 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
   use t
   simp only [Set.top_eq_univ, Set.mem_univ, true_and]; rw[gtU1, ← h₀]
   apply QuotientGroup.eq.mpr; rw[hp, ← mul_assoc]
-  have ht : t = b * dinv := rfl
-  rw[← QuotientAddGroup.out_eq' t] at ht
-  obtain ⟨q, hq⟩ := (QuotientAddGroup.eq.mp ht)
-  simp only [AddSubgroup.coe_top, Set.mem_univ, AddMonoidHom.coe_mulLeft, true_and] at hq
-  have hq₁ : Quotient.out t = b * dinv - α * q := by rw[hq]; ring
-  -- We have `t = b * dinv - α * q` for some `q ∈ O_v`.
-  -- Now we compute `m := gt⁻¹ * x * g` explicitly,
+  -- We first compute `m := gt⁻¹ * x * g` explicitly,
   -- and denote the resulting matrix by `mMatrix`.
   apply Subgroup.mul_mem
   · let m : GL (Fin 2) (adicCompletion F v) := (gt α hα (Quotient.out t))⁻¹ * (co₁ * g α hα)
@@ -302,6 +293,12 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
       rw [mul_inv_cancel₀, one_mul, one_mul]
       exact_mod_cast hα
     convert_to m ∈ U1v v
+    -- We have `tLift = b * dinv - α * q` for some `q ∈ O_v`.
+    have ht : t = b * dinv := rfl
+    rw[← QuotientAddGroup.out_eq' t] at ht
+    obtain ⟨q, hq⟩ := (QuotientAddGroup.eq.mp ht)
+    simp only [AddSubgroup.coe_top, Set.mem_univ, AddMonoidHom.coe_mulLeft, true_and] at hq
+    have hq₁ : Quotient.out t = b * dinv - α * q := by rw[hq]; ring
     -- First we show that `m = mMatrix` is in `GL_2(O_v)`.
     -- Note this is not a priori obvious,
     -- as even `g` itself need not be in `GL_2(O_v)`
@@ -313,9 +310,8 @@ lemma U1gU1_cosetDecomposition : Set.BijOn (gtU1 α hα) ⊤ (U1gU1 α hα) := b
       rw[Matrix.det_fin_two_of, hq₁]; ring_nf
       rw[mul_assoc b dinv c, mul_comm dinv c, mul_assoc, mul_assoc, dinv_val]; ring_nf
       rw[Matrix.det_fin_two]
-    rw[← intdet] at xdetunit
     obtain ⟨ mMatrixIntUnitval , hmMatrixIntUnitval ⟩ :=
-      ((Matrix.isUnit_iff_isUnit_det mMatrixInt).mpr xdetunit)
+      ((Matrix.isUnit_iff_isUnit_det mMatrixInt).mpr (intdet ▸ (Matrix.isUnits_det_units x)))
     have inteq : (Units.map (RingHom.mapMatrix ((v.adicCompletionIntegers F).subtype)).toMonoidHom)
       mMatrixIntUnitval = m := by
       simp only [RingHom.toMonoidHom_eq_coe]
