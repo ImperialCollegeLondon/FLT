@@ -242,7 +242,9 @@ end NumberField.AdeleRing.DivisionAlgebra
 
 section FiniteAdeleRing
 
-variable [FiniteDimensional K D]
+/- removing this variable for now so that CI works; will need to be readded for the proof of
+   units_cocompact -/
+-- variable [FiniteDimensional K D]
 
 -- Instance to help speed up instance synthesis
 instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
@@ -369,6 +371,9 @@ theorem Doset.coverOfLeftcosets_ascended {G : Type*} [Group G] (H K : Subgroup G
   simp only [Subtype.coe_prop, SetLike.mem_coe, true_and]
   exact ⟨1, Subgroup.one_mem K, by simpa using ha⟩
 
+/-
+Documentation strings needed for CI... not sure what to write here
+-/
 local instance : SMul (Dfx K D) (Dfx K D) where
   smul := HMul.hMul
 
