@@ -491,9 +491,8 @@ lemma _root_.Algebra.TensorProduct.intCast_tmul_one {R : Type*} {A : Type*} {B :
 
 -- this needs that ℤ is a PID.
 lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
-  apply le_antisymm
-  · apply le_top
-  · intro y _
+  rw [eq_top_iff]
+  rintro y -
     rcases canonicalForm y.val with ⟨N, x, hy⟩
     rcases canonicalForm (y⁻¹.val) with ⟨N2, x2, hy2⟩
     set xinv := (1 / (N * N2) : ℚ) ⊗ₜ[ℤ] x2 with xinv_def
@@ -506,7 +505,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       specialize h xunit
       simp only [Algebra.TensorProduct.includeRight_apply, AddMonoidHom.mem_range,
         AddMonoidHom.coe_coe, exists_apply_eq_apply, forall_const, Subgroup.mem_sup, xunit] at h
-      rcases h with ⟨w, ⟨v, hv⟩, z, ⟨t, ht⟩, wzx⟩
+      rcases h with ⟨w, ⟨v, rfl⟩, z, ⟨t, rfl⟩, wzx⟩
       rw [Subgroup.mem_sup]
       let q : ℚˣ := ⟨v / N, N / v, by field_simp, by field_simp⟩
       use ((Units.map ↑i₁) q)
