@@ -113,6 +113,25 @@ lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
   obtain ⟨x', hx'⟩ := hx
   simp only [← hx', ← HeightOneSpectrum.mem_adicCompletionIntegers, SetLike.coe_mem]
 
+lemma GL2.mem_localFullLevel_iff_v_le_one_and_v_det_eq_one {v : HeightOneSpectrum (𝓞 F)}
+    {x : GL (Fin 2) (v.adicCompletion F)} :
+    x ∈ localFullLevel v
+    ↔ (∀ (i j), Valued.v (x i j) ≤ 1) ∧ Valued.v x.val.det = 1 :=
+  ⟨ fun h => ⟨GL2.v_le_one_of_mem_localFullLevel _ h,
+    GL2.v_det_val_mem_localFullLevel_eq_one h⟩
+    , by
+    intro ⟨ h₁, h₂ ⟩
+    let M : Matrix (Fin 2) (Fin 2) (v.adicCompletionIntegers F) :=
+      Matrix.of fun i j => ⟨x i j, h₁ i j⟩
+    have det_eq : M.det = x.val.det := by
+      rw [Matrix.det_fin_two, Matrix.det_fin_two]; simp [M]
+    have isUnit_M :=
+      ((Matrix.isUnit_iff_isUnit_det _).mpr (Valued.isUnit_valuationSubring_iff.mpr (det_eq ▸ h₂)))
+    use isUnit_M.unit
+    ext i j; fin_cases i; all_goals fin_cases j
+    all_goals simp [M]
+  ⟩
+
 open Valued
 
 /-- local U_1(v), defined as matrices congruent to (a *;0 a) mod v. -/
