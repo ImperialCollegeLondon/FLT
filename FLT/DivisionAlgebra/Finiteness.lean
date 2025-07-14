@@ -15,6 +15,8 @@ import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.Topology.Algebra.Group.Basic
+import FLT.Mathlib.GroupTheory.DoubleCoset
+import FLT.Mathlib.Topology.Algebra.Group.Quotient
 
 /-
 
@@ -242,10 +244,6 @@ end NumberField.AdeleRing.DivisionAlgebra
 
 section FiniteAdeleRing
 
-/- removing this variable for now so that CI works; will need to be readded for the proof of
-   units_cocompact -/
--- variable [FiniteDimensional K D]
-
 -- Instance to help speed up instance synthesis
 instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   let r := Algebra.TensorProduct.instRing.toNonUnitalRing
@@ -269,119 +267,6 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
   sorry
 
-lemma Doset.mem_quotToDoset_iff {G : Type*} [Group G] (H K : Subgroup G)
-    (i : Quotient (H : Set G) K) (g : G) : g ∈ quotToDoset H K i ↔ mk H K g = i := by
-  constructor
-  · intro hg
-    simp_rw [mk_eq_of_doset_eq (doset_eq_of_mem hg), Quotient.out_eq]
-  · intro hg
-    rw [← out_eq' _ _ i] at hg
-    exact mem_doset.mpr ((eq _ _ _ g).mp hg.symm)
-
-theorem Doset.iUnion_finset_quotToDoset {G : Type*} [Group G] (H K : Subgroup G) :
-    (∃ I : Finset (Quotient (H : Set G) K), ⋃ i ∈ I, quotToDoset H K i = .univ) ↔
-    Finite (Quotient (H : Set G) K) := by
-  constructor
-  · intro ⟨I, hI⟩
-    suffices (I : Set (Quotient (H : Set G) K)) = Set.univ by
-      rw [← Set.finite_univ_iff, ← this]
-      exact I.finite_toSet
-    rw [Set.eq_univ_iff_forall] at hI ⊢
-    rintro ⟨g⟩
-    obtain ⟨_, ⟨i, _, rfl⟩, T, ⟨hi, rfl⟩, hT : g ∈ quotToDoset H K i⟩ := hI g
-    rw [Doset.mem_quotToDoset_iff] at hT
-    simpa [← hT] using hi
-  · intro _
-    cases nonempty_fintype (Quotient (H : Set G) K)
-    use Finset.univ
-    simpa using Doset.union_quotToDoset H K
-
--- dosets of elements of the double cosets H\G/K descends to a cover of H\G
--- no idea what this should be called
-theorem Doset.descended_cover {G : Type*} [Group G] (H K : Subgroup G) :
-    ⋃ (q : Doset.Quotient H K), Quot.mk (QuotientGroup.rightRel H) ''
-    (Doset.doset (Quotient.out q : G) H K) = Set.univ := by
-  have Cover_Dfx := Doset.union_quotToDoset H K
-  refine Eq.symm (Set.Subset.antisymm ?_ fun ⦃a⦄ a ↦ trivial)
-  intro x hx
-  simp only [Set.mem_iUnion, Set.mem_image]
-  obtain ⟨y, hy⟩ := Quot.exists_rep x
-  have ⟨i, hi⟩ : ∃ i : Doset.Quotient H K,
-      y ∈ Doset.doset (Quotient.out i) H K  := by
-    contrapose Cover_Dfx
-    refine (Set.ne_univ_iff_exists_notMem (⋃ q, quotToDoset H K q)).mpr ?_
-    exact ⟨y, by simpa using Cover_Dfx⟩
-  exact ⟨i, y, hi, hy⟩
-
--- no idea what to name this
--- If U is open, all images of dosets of elements of H\G/K into H\G are open
-theorem Doset.leftcoset_isOpen {G : Type*} [Group G] [TopologicalSpace G] [ContinuousConstSMul G G]
-    (H K : Subgroup G) (hK : IsOpen (K : Set G)) : (∀ (i : Doset.Quotient H K), IsOpen (Quot.mk
-    ⇑(QuotientGroup.rightRel H) '' Doset.doset (Quotient.out i) H K)) := by
-  intro i
-  rw [isOpen_coinduced]
-  have : (Quot.mk ⇑(QuotientGroup.rightRel H) ⁻¹' (Quot.mk ⇑(QuotientGroup.rightRel H) ''
-      Doset.doset (Quotient.out i) H K)) = (Doset.doset (Quotient.out i) H K) := by
-    ext x
-    constructor
-    · intro ⟨a, ha1, ha2⟩
-      simp_rw [Doset.mem_doset] at ⊢ ha1
-      obtain ⟨m, hm, n, hn, eq⟩ := ha1
-      obtain ⟨q, hq⟩ : ∃ q : H, x = q * a := by -- this could maybe be extracted?
-        obtain ⟨q, hq⟩  : ∃ q : H, q * x = a := by
-          obtain ⟨o', ho'⟩ := Quotient.eq.mp ha2 -- this seems messy; I must be missing something
-          exact ⟨o', by simpa using ho'⟩
-        exact ⟨q⁻¹, eq_inv_mul_of_mul_eq hq⟩
-      refine ⟨q * m,?_, n, hn, ?_⟩
-      · exact (Subgroup.mul_mem_cancel_left H (SetLike.coe_mem q)).mpr hm
-      · simp_rw [mul_assoc, hq, eq]
-        nth_rw 3 [← mul_assoc]
-    · intro hx
-      use x
-  simpa only [this] using (IsOpen.mul_left hK)
-
--- definitely need to rename this
--- a finite cover of H\G by dosets of elements of H\G/K ascends to a cover H\G/K
-theorem Doset.coverOfLeftcosets_ascended {G : Type*} [Group G] (H K : Subgroup G)
-    (t : Finset (Doset.Quotient H K)) (ht : Set.univ ⊆ ⋃ i ∈ t,
-    Quot.mk ⇑(QuotientGroup.rightRel H) '' Doset.doset (Quotient.out i)
-    H K) : ⋃ q ∈ t, Doset.doset (Quotient.out q) H K = Set.univ := by
-  contrapose ht
-  simp only [Set.univ_subset_iff, ← ne_eq] at ⊢ ht
-  obtain ⟨x, hx⟩ := (Set.ne_univ_iff_exists_notMem (⋃ q ∈ t,
-    Doset.doset (Quotient.out q) H K)).mp ht
-  refine (Set.ne_univ_iff_exists_notMem (⋃ i ∈ t,
-    Quot.mk ⇑(QuotientGroup.rightRel H) '' Doset.doset (Quotient.out i)
-    H K)).mpr ⟨Quot.mk (⇑(QuotientGroup.rightRel H)) x, ?_⟩
-  simp only [Set.mem_iUnion, Set.mem_image, exists_prop, not_exists, not_and, ne_eq]
-  intro y hy q hq
-  contrapose hx
-  simp only [Set.mem_iUnion, exists_prop, not_exists, not_and, not_forall, not_not]
-  simp only [not_not] at hx
-  refine ⟨y, hy, ?_⟩
-  have : Doset.doset q H K = Doset.doset (Quotient.out y) H K := Doset.doset_eq_of_mem  hq
-  rw [← this]
-  apply Doset.mem_doset.mpr
-  obtain ⟨a, ha⟩ : ∃ a : H, x = a * q := by -- same comments as in prev theorem
-    obtain ⟨a, ha⟩  : ∃ a : H, a * x = q := by
-      obtain ⟨a', ha'⟩ := (Quotient.eq).mp hx
-      refine ⟨a', by simpa using ha'⟩
-    refine ⟨⟨ a⁻¹, by simp only [inv_mem_iff, SetLike.coe_mem]⟩, eq_inv_mul_of_mul_eq ha⟩
-  refine ⟨a.1, ?_⟩
-  simp only [Subtype.coe_prop, SetLike.mem_coe, true_and]
-  exact ⟨1, Subgroup.one_mem K, by simpa using ha⟩
-
-
-/-- CI. -/
-local instance : SMul (Dfx K D) (Dfx K D) where
-  smul := HMul.hMul
-
-open scoped TensorProduct.RightActions
-local instance : ContinuousConstSMul (Dfx K D) (Dfx K D) where
-  continuous_const_smul a := by
-    simp only [smul_eq_mul]
-    exact continuous_mul_left a
-
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
 /-!
 If `D` is a finite-dimensional division algebra over a number field `K`
@@ -392,14 +277,14 @@ open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
-  have ToFinCover :=  isCompact_iff_finite_subcover.mp
+  have ToFinCover := IsCompact.elim_finite_subcover
     (ι := (Doset.Quotient (Set.range (incl₁ K D)) U))
     (U := fun q ↦ Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
     Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) (isCompact_univ_iff.mpr
     (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D))
-  have ⟨t, FinCover_descended⟩ := ToFinCover (Doset.leftcoset_isOpen ((incl₁ K D).range) U hU)
-    (Doset.descended_cover (incl₁ K D).range U  ▸ Set.Subset.rfl)
+  have ⟨t, FinCover_descended⟩ := ToFinCover (Doset.isOpen_doset_rightrel_mk ((incl₁ K D).range)
+    U hU) (Doset.union_image_mk_rightRel (incl₁ K D).range U  ▸ Set.Subset.rfl)
   apply (Doset.iUnion_finset_quotToDoset ((incl₁ K D).range) U).mp
-  exact ⟨t, Doset.coverOfLeftcosets_ascended ((incl₁ K D).range) U t FinCover_descended⟩
+  exact ⟨t, Doset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
 
 end FiniteAdeleRing
