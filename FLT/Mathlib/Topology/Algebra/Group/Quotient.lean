@@ -17,3 +17,8 @@ def QuotientGroup.continuousMulEquiv {G H : Type*} [Group G] (N : Subgroup G)
     apply continuous_quot_lift
     simp only [MonoidHom.coe_comp, coe_mk', MonoidHom.coe_coe]
     exact Continuous.comp continuous_quot_mk e.symm.continuous
+
+theorem QuotientGroup.isOpenQuotientMap_rightrel_mk {G : Type*} [Group G] [TopologicalSpace G]
+  [ContinuousMul G] (H : Subgroup G) : IsOpenQuotientMap (Quot.mk ⇑(QuotientGroup.rightRel H))
+  := {surjective := Quot.mk_surjective, continuous := continuous_quot_mk,
+      isOpenMap := isOpenMap_quotient_mk'_mul}

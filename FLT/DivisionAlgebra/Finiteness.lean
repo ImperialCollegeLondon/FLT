@@ -3,6 +3,7 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, William Coram
 -/
+
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Algebra.Group.Subgroup.Pointwise
@@ -14,6 +15,8 @@ import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.Topology.Algebra.Group.Basic
+import FLT.Mathlib.GroupTheory.DoubleCoset
+import FLT.Mathlib.Topology.Algebra.Group.Quotient
 
 /-
 
@@ -241,8 +244,6 @@ end NumberField.AdeleRing.DivisionAlgebra
 
 section FiniteAdeleRing
 
-variable [FiniteDimensional K D]
-
 -- Instance to help speed up instance synthesis
 instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   let r := Algebra.TensorProduct.instRing.toNonUnitalRing
@@ -263,7 +264,7 @@ noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
 
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
-    CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
+    CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
   sorry
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
@@ -276,6 +277,14 @@ open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
-  sorry
+  have ToFinCover := IsCompact.elim_finite_subcover
+    (ι := (Doset.Quotient (Set.range (incl₁ K D)) U))
+    (U := fun q ↦ Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
+    Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) (isCompact_univ_iff.mpr
+    (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D))
+  have ⟨t, FinCover_descended⟩ := ToFinCover (Doset.isOpen_doset_rightrel_mk ((incl₁ K D).range)
+    U hU) (Doset.union_image_mk_rightRel (incl₁ K D).range U  ▸ Set.Subset.rfl)
+  apply (Doset.iUnion_finset_quotToDoset ((incl₁ K D).range) U).mp
+  exact ⟨t, Doset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
 
 end FiniteAdeleRing
