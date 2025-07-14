@@ -13,6 +13,9 @@ import Mathlib.Tactic.LinearCombination'
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
+import Mathlib
+
+set_option maxHeartbeats 0
 
 /-
 
@@ -130,21 +133,17 @@ abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := by
   exact Module.Finite.equivPi K D
 
 def D𝔸_iso : (D_𝔸 ≃ₗ[K] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) := by
-  have h1 : D_𝔸 ≃ₗ[K] ((Fin (Module.finrank K D) → K)) ⊗[K] AdeleRing (𝓞 K) K := by
-    exact LinearEquiv.rTensor (AdeleRing (𝓞 K) K) (D_iso K D)
-  have h2 : ((Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[K]
-      (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) := by
-    have h2_1 : ((Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[K]
-        (Fin (Module.finrank K D) → (K ⊗[K] AdeleRing (𝓞 K) K)) := by
+  suffices h : ((Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[K]
+      (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) by
+    exact (LinearEquiv.rTensor (AdeleRing (𝓞 K) K) (D_iso K D)).trans h
+  exact (TensorProduct.comm _ _ _).trans (TensorProduct.piScalarRight K K (AdeleRing (𝓞 K) K)
+    (Fin (Module.finrank K D)))
 
-      sorry
-    have h2_2 : (Fin (Module.finrank K D) → (K ⊗[K] AdeleRing (𝓞 K) K)) ≃ₗ[K]
-        (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) := by
-      have : (K ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[K] AdeleRing (𝓞 K) K := by
-        exact TensorProduct.lid K (AdeleRing (𝓞 K) K)
-      exact LinearEquiv.piCongrRight fun i ↦ this
-    exact h2_1.trans h2_2
-  exact h1.trans h2
+
+-- I think I should be able to use the below but not sure why this is wrong?
+def D𝔸_iso_top : (D_𝔸 ≃L[K] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) := by
+  refine (IsModuleTopology.continuousLinearEquiv ?_).symm
+  sorry
 
 abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) → (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)
     := fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
@@ -165,13 +164,12 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
   intro x
   obtain ⟨U, Uopen, Ueq⟩ := Kn_discrete K D (D_iso K D x)
-  use Set.image ((D𝔸_iso K D).symm) U
+  use Set.image ((D𝔸_iso_top K D).symm) U
   constructor
-  · --rw .symm as inverse (unless they are def eq?) and then change the D𝔸_iso to a
-    --topological map; which should be reasonalbe as its just module topology on adele side?
-
+  · -- its a topological linear equivalence so this should just be true?
+    -- maybe I have not set everything up correct though
     sorry
-  ·
+  · -- I hate doing this topology stuff
     sorry
 
 local instance : DiscreteTopology (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸))
@@ -200,6 +198,8 @@ lemma T_finite : Set.Finite (T K D) := by
             = {a} := by
 
           sorry
+
+        sorry
       refine isOpen_induced_eq.mpr ?_
 
       sorry
