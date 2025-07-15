@@ -18,22 +18,19 @@ abbrev mk (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) : Πʳ i, [R i, A 
 lemma mk_apply (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) (i : ι) :
     (mk x hx) i = x i := rfl
 
+@[simp]
+lemma inclusion_apply {𝒢 : Filter ι} (h : ℱ ≤ 𝒢) {x : Πʳ i, [R i, A i]_[𝒢]} (i : ι) :
+    inclusion R A h x i = x i :=
+  rfl
+
+@[simp]
+lemma coe_comp_inclusion {𝒢 : Filter ι} (h : ℱ ≤ 𝒢) :
+    DFunLike.coe ∘ inclusion R A h = DFunLike.coe :=
+  rfl
+
 variable {S : ι → Type*} -- subobject type
 variable [Π i, SetLike (S i) (R i)]
 variable {B : Π i, S i}
-variable {ℱ : Filter ι}
-
--- I'm avoiding using these if possible
-
--- def mulSingle [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] [DecidableEq ι] (j : ι) (x : R j) :
---     Πʳ i, [R i, B i] :=
---   ⟨Pi.mulSingle j x, sorry⟩ -- {i} is finite
-
--- def mulSingleMonoidHom [Π i, Monoid (R i)] [∀ i, SubmonoidClass (S i) (R i)] [DecidableEq ι]
---     (j : ι) : R j →* Πʳ i, [R i, B i] where
---       toFun := mulSingle j
---       map_one' := sorry -- should be easy
---       map_mul' := sorry -- should be easy
 
 variable
     {G H : ι → Type*}
@@ -320,3 +317,109 @@ lemma flatten_equiv'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
 end RestrictedProduct
 
 end flatten
+
+section single
+
+namespace RestrictedProduct
+
+variable {S : ι → Type*}
+variable [Π i, SetLike (S i) (G i)]
+variable (A : (i : ι) → (S i))
+variable [DecidableEq ι]
+
+/-- The function supported at `i`, with value `x` there, and `1` elsewhere. -/
+@[to_additive "The function supported at `i`, with value `x` there, and `0` elsewhere."]
+def mulSingle [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) (x : G i) :
+    Πʳ i, [G i, A i] where
+  val := Pi.mulSingle i x
+  property := by
+    rw [Filter.eventually_cofinite]
+    apply Set.Subsingleton.finite
+    apply Set.subsingleton_of_subset_singleton (a := i)
+    apply Set.Subset.trans _ (Pi.mulSupport_mulSingle_subset (b := x))
+    intro j hj
+    rw [Function.mem_mulSupport]
+    contrapose! hj
+    rw [Set.mem_setOf, Set.not_notMem]
+    convert one_mem (A j)
+    by_cases hi : i = j
+    · obtain rfl := hi
+      exact hj
+    · rw [Pi.mulSingle_eq_of_ne' hi]
+
+@[to_additive]
+lemma mulSingle_injective [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) :
+    Function.Injective (mulSingle A i) := by
+  intro a b h
+  rw [Subtype.ext_iff] at h
+  exact Pi.mulSingle_injective i h
+
+@[to_additive]
+lemma mulSingle_inj [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) {x y : G i} :
+    mulSingle A i x = mulSingle A i y ↔ x = y := by
+  rw [Subtype.ext_iff]
+  exact Pi.mulSingle_inj i
+
+@[to_additive (attr := simp)]
+lemma mulSingle_eq_same [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) (r : G i) :
+    mulSingle A i r i = r :=
+  Pi.mulSingle_eq_same i r
+
+@[to_additive (attr := simp)]
+lemma mulSingle_eq_of_ne [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] {i j : ι} (r : G i)
+    (h : j ≠ i) : mulSingle A i r j = 1 :=
+  Pi.mulSingle_eq_of_ne h r
+
+@[to_additive (attr := simp)]
+lemma mulSingle_eq_of_ne' [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] {i j : ι} (r : G i)
+    (h : i ≠ j) : mulSingle A i r j = 1 :=
+  Pi.mulSingle_eq_of_ne' h r
+
+@[to_additive (attr := simp)]
+lemma mulSingle_one [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) :
+    mulSingle A i 1 = 1 := by
+  apply Subtype.ext
+  exact Pi.mulSingle_one i
+
+@[to_additive (attr := simp)]
+lemma mulSingle_eq_one_iff [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) {x : G i} :
+    mulSingle A i x = 1 ↔ x = 1 := by
+  rw [Subtype.ext_iff]
+  exact Pi.mulSingle_eq_one_iff
+
+@[to_additive]
+lemma mulSingle_ne_one_iff [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) {x : G i} :
+    mulSingle A i x ≠ 1 ↔ x ≠ 1 := by
+  rw [← Subtype.coe_ne_coe]
+  exact Pi.mulSingle_ne_one_iff
+
+@[to_additive (attr := simp)]
+lemma mulSingle_mul [∀ i, MulOneClass (G i)] [∀ i, OneMemClass (S i) (G i)]
+    [∀ i, MulMemClass (S i) (G i)] (i : ι) (r s : G i) :
+    mulSingle A i r * mulSingle A i s = mulSingle A i (r * s) := by
+  ext j
+  obtain (rfl | hne) := em (i = j)
+  · simp
+  · simp [mulSingle_eq_of_ne' A _ hne]
+
+@[simp]
+lemma mul_single [∀ i, MulZeroClass (G i)] [∀ i, ZeroMemClass (S i) (G i)]
+    [∀ i, MulMemClass (S i) (G i)] (i : ι) (r : G i) (x : Πʳ i, [G i, A i]) :
+    x * single A i r = single A i ((x i) * r) := by
+  ext j
+  obtain (rfl | hne) := em (i = j)
+  · simp
+  · simp [single_eq_of_ne' A _ hne]
+
+@[simp]
+lemma single_mul [∀ i, MulZeroClass (G i)] [∀ i, ZeroMemClass (S i) (G i)]
+    [∀ i, MulMemClass (S i) (G i)] (i : ι) (r : G i) (x : Πʳ i, [G i, A i]) :
+    single A i r * x = single A i (r * (x i)) := by
+  ext j
+  obtain (rfl | hne) := em (i = j)
+  · simp
+  · simp [single_eq_of_ne' A _ hne]
+
+end RestrictedProduct
+
+end single
