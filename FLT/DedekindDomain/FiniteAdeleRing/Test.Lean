@@ -21,12 +21,54 @@ import Mathlib.RingTheory.Valuation.RankOne
 import Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
-import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 import Mathlib.LinearAlgebra.TensorProduct.Prod
 import Mathlib.Algebra.Colimit.Module
 import Mathlib.RingTheory.Flat.Basic
+import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 
+variable {ι : Type*} (R : ι → Type*) (S : Set ι) [∀ i, Decidable (i ∈ S)]
+
+open scoped Filter
+
+namespace RestrictedProduct
+
+section type
+
+variable (A : (i : ι) → Set (R i))
+
+def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
+    (Π i : {i // i ∈ S}, A i) × (Π i : {i // i ∉ S}, R i) where
+  toFun x := (fun i ↦ ⟨x i, x.property i.property⟩, fun i ↦ x i)
+  invFun y := ⟨fun i ↦ if hi : i ∈ S then y.1 ⟨i, hi⟩ else y.2 ⟨i, hi⟩,
+  Filter.eventually_principal.mpr (fun i hi ↦ by simp only [hi]; exact (y.1 ⟨i, hi⟩).2)⟩
+  left_inv x := by
+    simp only [dite_eq_ite, ite_self]
+    rfl
+  right_inv x := by
+    simp only [mk_apply, Subtype.coe_prop, ↓reduceDIte, Subtype.coe_eta]
+    ext i
+    · rfl
+    · simp only [dif_neg i.property]
+
+end type
+
+variable {T : ι → Type*} -- subobject type
+variable [Π i, SetLike (T i) (R i)]
+variable {A : Π i, T i}
+
+section monoid
+
+@[to_additive]
+def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
+    Πʳ i, [R i, A i]_[𝓟 S] ≃* (Π i : {i // i ∈ S}, A i) × (Π i : {i // i ∉ S}, R i) where
+  __ := principalEquivProd R S _
+  map_mul' := sorry
+
+end monoid
+
+
+end RestrictedProduct
 variable {ι : Type*}
 variable {R : ι → Type*}
 variable {ℱ : Filter ι}
@@ -55,12 +97,14 @@ instance [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)]
     Module A (Πʳ i, [R i, B i]_[ℱ]) where
       smul a x := ⟨fun i ↦ a • x i, Filter.Eventually.mono x.property (fun _ hi ↦
      SMulMemClass.smul_mem a hi)⟩
-      one_smul := one_smul _
-      mul_smul := mul_smul
-      smul_zero := smul_zero
-      smul_add := smul_add
-      add_smul := add_smul
-      zero_smul := zero_smul _
+      one_smul b := by ext; simp
+      mul_smul x y b := by ext; simp [mul_smul]
+      smul_zero b := by ext; simp
+      smul_add x a b := by ext; simp
+      add_smul a b x := by
+        ext
+        simp only [RestrictedProduct.smul_apply, RestrictedProduct.add_apply, add_smul]
+      zero_smul b := by ext; simp
 
 noncomputable def Submodule.lTensor (M : Type*) {N : Type*} [AddCommGroup M] [Module A M]
     [AddCommGroup N] [Module A N] (P : Submodule A N) : Submodule A (M ⊗[A] N) :=
@@ -75,7 +119,7 @@ noncomputable def RestrictedProduct.principal [Π i, AddCommGroup (R i)]
 
 noncomputable def RestrictedProduct.principal_tensor_comm' [Π i, AddCommGroup (R i)]
     [∀ i, Module A (R i)] {C : Π i, Submodule A (R i)} {M : Type*} [AddCommGroup M] [Module A M]
-    [Module.FinitePresentation A M]{S: Set ι}:
+    [Module.FinitePresentation A M] {S : Set ι} :
    M ⊗[A] (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] (Πʳ i, [M ⊗[A] R i, (C i).lTensor M]_[𝓟 S]) := sorry
 
 
@@ -116,10 +160,10 @@ noncomputable def RestrictedProduct.tensor_comm' [Π i, AddCommGroup (R i)]
     -- `Πʳ (i : ι), [M ⊗[A] R i, ↑(Submodule.lTensor M (C i))]_[ℱ]` is injective,
     -- and `a` and `b` have become equal after the composite of those two injections,
     -- so they are equal.
-    have h_finite : ∃ (S : Finset ι), S.toSet ∈ ℱ ∧
-    (∀ x ∈ {a, b}, ∃ (f : ι → A), Set.finite {i | f i ≠ 0} ∧
-     ∀ i ∉ S, (TensorProduct.lift _ x : _) i ∈ Submodule.lTensor M (C i)) := by
-      sorry
+    -- have h_finite : ∃ (S : Finset ι), S.toSet ∈ ℱ ∧
+    -- (∀ x ∈ {a, b}, ∃ (f : ι → A), Set.finite {i | f i ≠ 0} ∧
+    --  ∀ i ∉ S, (TensorProduct.lift _ x : _) i ∈ Submodule.lTensor M (C i)) := by
+    --   sorry
 
 
     -- haveI {S: Set ι} {h: S ∈ ℱ} : AddCommMonoid ((Π i ∈ S, C i) × (Π i ∉ S, R i)) := sorry
