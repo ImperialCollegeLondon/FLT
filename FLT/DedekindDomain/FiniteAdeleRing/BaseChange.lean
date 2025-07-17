@@ -28,7 +28,7 @@ import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct
-
+import Mathlib.LinearAlgebra.TensorProduct.Prod
 /-!
 
 # Base change of adele rings.
@@ -57,57 +57,41 @@ variable (A K L B : Type*) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Fi
     [IsIntegralClosure B A L] [FiniteDimensional K L] [Module.Finite A B]
     [IsDedekindDomain B] [IsFractionRing B L]
 
+
 namespace IsDedekindDomain
 
 open IsDedekindDomain HeightOneSpectrum
 
 open scoped TensorProduct RestrictedProduct -- ⊗ notation for tensor product
 
+#exit
+variable {M : Type u_1} [AddCommGroup M] [Module A M] [Module.FinitePresentation A M]
+variable (S : Finset (HeightOneSpectrum A))
 
-section
-universe u
-variable {R : Type u} [CommRing R]
-variable {ι : Type u} {M : Type u} [AddCommGroup M] [Module R M] [Module.FinitePresentation R M]
-variable {K : ι → Type u} [∀ i, AddCommGroup (K i)] [∀ i, Module R (K i)]
-variable {A : ∀ i, Submodule R (K i)} [∀ i, TopologicalSpace (K i)]
-variable {X Y: Type u} [TopologicalSpace X] [TopologicalSpace Y]
-variable {S : Set ι}
+noncomputable def tensor_iso :
+  (M ⊗[A]((Π v : S, v.1.adicCompletion K) ×
+  (Π v : (Set.compl (Finset.toSet S)), (adicCompletionIntegers K v.1))))
+  ≃ₗ[A] ((Π v : S, M ⊗[A] v.1.adicCompletion K) ×
+  (Π v : (Set.compl (Finset.toSet S)), M ⊗[A] (adicCompletionIntegers K v.1))) :=
+  TensorProduct.prodRight _ _ M
+    (Π v : S, v.1.adicCompletion K) (Π v : (Set.compl (Finset.toSet S)),
+    (adicCompletionIntegers K v.1)) ≪≫ₗ LinearEquiv.prodCongr
+    (tensorPi_equiv_piTensor' A M _) (tensorPi_equiv_piTensor' A M _)
+
+lemma tensor_iso_apply (m : M) (k : (Π v : S, v.1.adicCompletion K))
+  (a :  (Π v : (Set.compl (Finset.toSet S)), (adicCompletionIntegers K v.1))) :
+  tensor_iso  A K S (m ⊗ₜ (k, a)) = (fun v ↦ (m ⊗ₜ k v), fun v ↦ (m ⊗ₜ a v)) := rfl
 
 
 
-
-noncomputable def tensor_restrictedProduct_iso :
-  M ⊗[R] (Πʳ i, [K i, A i]) ≃ₗ[R]
-  (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
-  letI := RestrictedProduct.topologicalSpace K (fun i ↦ (A i : Set (K i))) Filter.cofinite
-  haveI :=
-    @RestrictedProduct.topologicalSpace_eq_iSup _ K (fun i ↦ (A i : Set (K i))) Filter.cofinite _
-
-  --rw [TopologicalSpace.Opens.iSup_def] at this
-  have forward : M ⊗[R] (Πʳ i, [K i, A i]) →ₗ[R]
-    (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
-
-    let embed_source : (Πʳ i, [K i, A i]) →ₗ[R] (Π i, K i) :=
-     {toFun := (↑), map_add' x y := rfl, map_smul' k x := rfl}
-    let embed_source' : (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)])
-       →ₗ[R] (Π i, M ⊗[R] (K i)) :=
-      {toFun := (↑), map_add' x y := rfl, map_smul' k x := rfl}
-    -- def K_restricted : Submodule R (Π i, K i) := (Πʳ i, [K i, A i])
-    -- let q := LinearMap.range embed_source'
-    -- have hf : ∀ x ∈ p, (tensorPi_equiv_piTensor' R M K) x ∈ q  := sorry
-    -- have p' : p =  M ⊗[R] (Πʳ i, [K i, A i]) := sorry
-    -- have q' : q = (Πʳ i, [M ⊗[R] (K i),
-    --  LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := sorry
-
-    -- let a := LinearMap.restrict (tensorPi_equiv_piTensor' R M K).toLinearMap hf/
-    apply TensorProduct.lift
-    refine LinearMap.mk₂ R ?_ ?_ ?_ ?_ ?_
-    · -- The bilinear map m × x ↦ restricted product
-      intro m x
-      use tensorPi_equiv_piTensor' R M K (m ⊗ₜ[R] x.val)
+noncomputable def forward : M ⊗[A] (Πʳ i, [K i, A i]) →ₗ[A]
+    (Πʳ i, [M ⊗[R] (C i), LinearMap.range (LinearMap.lTensor M (D i).subtype)]) :=
+    TensorProduct.lift <| by
+    refine LinearMap.mk₂ R (fun m x ↦ ?_) ?_ ?_ ?_ ?_
+    · refine RestrictedProduct.mk (tensorPi_equiv_piTensor' R M C (m ⊗ₜ[R] x.val)) ?_
       filter_upwards [x.property] with i hi
       simp only [SetLike.mem_coe, LinearMap.mem_range]
-      let ai : A i := ⟨x.val i, hi⟩
+      let ai : D i := ⟨x.val i, hi⟩
       use m ⊗ₜ[R] ai
       simp only [LinearMap.lTensor_tmul, Submodule.subtype_apply]
       rfl
@@ -129,189 +113,15 @@ noncomputable def tensor_restrictedProduct_iso :
       apply TensorProduct.tmul_smul
 
 
+-- noncomputable def tensor_restrictedProduct_iso :
+--   M ⊗[R] (Πʳ i, [C i, D i]) ≃ₗ[R]
+--   (Πʳ i, [M ⊗[R] (C i), LinearMap.range (LinearMap.lTensor M (D i).subtype)]) := by
+--   refine LinearEquiv.ofBijective forward ⟨?_, ?_⟩
+--   · dsimp [forward]
+--     intro a b hab
+--     sorry
+--   · sorry
 
-  -- First, we need embeddings of restricted products into full products
-  let embed_source : (Πʳ i, [K i, A i]) →ₗ[R] (Π i, K i) := by
-    -- This should be the natural inclusion
-    exact {toFun := (↑), map_add' x y := rfl, map_smul' k x := rfl}
-
-  let embed_target : (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)])
-    →ₗ[R] (Π i, M ⊗[R] (K i)) := by
-    -- Natural inclusion of restricted product into full product
-    exact {toFun := fun y => y.val, map_add' x y := rfl , map_smul' r x:=  rfl}
-
-  let f1 := (tensorPi_equiv_piTensor' R M K).toLinearMap
-  let f2 := (LinearMap.lTensor M embed_source)
-  let f₃ := f1.comp f2
-  let f₄ := (tensorPi_equiv_piTensor' R M K).symm.toLinearMap
-  let f₅ := (f₄.comp embed_target).rangeRestrict
-  have : LinearMap.range (f₄.comp embed_target) = (Πʳ i, [K i, A i]) := sorry
-
-
-  -- The key lemma: tensorPi_equiv_piTensor' maps the source submodule to target submodule
-  have maps_correctly : ∀ (t : M ⊗[R] (Πʳ i, [K i, A i])),
-    (tensorPi_equiv_piTensor' R M K) (LinearMap.lTensor M embed_source t) ∈
-    LinearMap.range embed_target := by
-    intro t
-    sorry
-    -- -- We need to show the image lands in the restricted product
-    -- -- Use the fact that tensor products preserve the restricted product structure
-    -- apply TensorProduct.induction_on t
-    -- · -- Base case: 0
-    --   simp [LinearMap.map_zero]
-    --   use 0
-    --   simp
-    -- · -- Pure tensor case: m ⊗ₜ x
-    --   intro m x
-    --   -- Key insight: tensorPi_equiv_piTensor'_apply gives us the formula
-    --   have h_formula : (tensorPi_equiv_piTensor' R M K)
-    --  (LinearMap.lTensor M embed_source (m ⊗ₜ x)) =
-    --     fun i => m ⊗ₜ[R] x.val i := by
-    --     simp [LinearMap.lTensor_tmul, tensorPi_equiv_piTensor'_apply, embed_source]
-
-    --   -- Now show this function is in the restricted product
-    --   use ⟨fun i => m ⊗ₜ[R] x.val i, ?_⟩
-    --   · -- Show it equals the formula
-    --     ext i
-    --     rw [h_formula]
-    --     rfl
-    --   · -- Show the support condition
-    --     filter_upwards [x.property] with i hi
-    --     -- x.val i ∈ A i, so m ⊗ₜ x.val i is in the range
-    --     use m ⊗ₜ[R] ⟨x.val i, hi⟩
-    --     simp [LinearMap.lTensor_tmul, Submodule.subtype_apply]
-    -- · -- Additivity
-    --   intro t₁ t₂ h₁ h₂
-    --   simp [LinearMap.map_add]
-    --   obtain ⟨y₁, hy₁⟩ := h₁
-    --   obtain ⟨y₂, hy₂⟩ := h₂
-    --   use y₁ + y₂
-    --   simp [← hy₁, ← hy₂]
-
-  -- Similarly for the reverse direction
-  have maps_back : ∀ (s : Πʳ i, [M ⊗[R] (K i),
-    LinearMap.range (LinearMap.lTensor M (A i).subtype)]),
-    (tensorPi_equiv_piTensor' R M K).symm (embed_target s) ∈
-    LinearMap.range (LinearMap.lTensor M embed_source) := by
-    intro s
-    -- This uses finite presentation of M and the structure of the ranges
-    sorry
-
-  -- Construct the isomorphism using these embeddings
-  have forward : M ⊗[R] (Πʳ i, [K i, A i]) →ₗ[R]
-    (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
-
-      -- have' := (embed_target.comp (tensorPi_equiv_piTensor' R M K).toLinearMap).comp
-      --  (LinearMap.lTensor M embed_source)
-      sorry
---  have backward := sorry -- Construct using maps_back
-
-  sorry
---  use forward, backward
-
-
-
-
-
-#exit
-
--- The key insight: we can view this as a restriction of the full product case
-  -- M ⊗[R] (Π i, K i) ≃ₗ[R] Π i, (M ⊗[R] K i)
-
-  -- Forward direction: M ⊗[R] (Πʳ i, [K i, A i]) → target
-  have forward : M ⊗[R] (Πʳ i, [K i, A i]) →ₗ[R]
-    (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
-    -- have := RestrictedProduct.mk
-
-
-    -- #exit
-    --apply TensorProduct.lift
-
-    apply LinearMap.mk
-
-    #exit
-    refine LinearMap.mk₂ R ?_ ?_ ?_ ?_ ?_
-    · -- The bilinear map m × x ↦ restricted product
-      intro m x
-      use tensorPi_equiv_piTensor' R M K (m ⊗ₜ[R] x.val)
-      filter_upwards [x.property] with i hi
-      simp only [SetLike.mem_coe, LinearMap.mem_range]
-      let ai : A i := ⟨x.val i, hi⟩
-      use m ⊗ₜ[R] ai
-      simp only [LinearMap.lTensor_tmul, Submodule.subtype_apply]
-      rfl
-    · -- Linearity in first argument
-      intro m₁ m₂ x; ext i; simp [TensorProduct.add_tmul]
-    · -- Linearity in second argument
-      intro m x₁ x₂; ext i; simp [TensorProduct.tmul_add]
-    · -- Scalar action in first argument
-      intro r m x; ext i; simp [TensorProduct.smul_tmul]
-    · -- Scalar action in second argument
-      intro r m x; ext i; simp [TensorProduct.tmul_smul]
-
-
-#exit
--- Forward map: M ⊗[R] (Πʳ i, [K i, A i]) → (Πʳ i, [M ⊗[R] (K i), ...])
-  let forward : M ⊗[R] (Πʳ i, [K i, A i]) →ₗ[R]
-    (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) := by
-    -- Use TensorProduct.lift to define the map
-    apply TensorProduct.lift
-    -- Define the bilinear map M × (Πʳ i, [K i, A i]) → target
-    exact {
-      toFun := fun m => {
-        toFun := fun x => by
-          -- For each component i, we need (M ⊗[R] K i) in the range of lTensor M (A i).subtype
-          refine RestrictedProduct.mk (fun i => m ⊗ₜ[R] x.val i) ?_
-          -- Use filter_upwards from x's restricted product property
-          filter_upwards [x.property] with i hi
-          simp?
-          sorry
-          -- Need to show this is eventually in the submodule
-          -- apply Filter.eventually_of_forall
-          -- intro i
-          -- -- Show m ⊗ₜ[R] x.val i is in LinearMap.range (LinearMap.lTensor M (A i).subtype)
-          -- use m ⊗ₜ[R] ⟨x.val i, x.property i⟩
-          -- simp [LinearMap.lTensor_tmul]
-        map_add' := by
-          intro x y
-          ext i
-          --simp [RestrictedProduct.mk_val, TensorProduct.tmul_add]
-          sorry
-        map_smul' := by
-          intro r x
-          ext i
-          --simp [RestrictedProduct.mk_val, TensorProduct.tmul_smul]
-          sorry
-      }
-      map_add' := by
-        intro m₁ m₂
-        ext x i
-        --simp [RestrictedProduct.mk_val, TensorProduct.add_tmul]
-        sorry
-      map_smul' := by
-        intro r m
-        ext x i
-        --simp [RestrictedProduct.mk_val, TensorProduct.smul_tmul]
-        sorry
-    }
-
-  -- Backward map: construct the inverse
-  let backward : (Πʳ i, [M ⊗[R] (K i), LinearMap.range (LinearMap.lTensor M (A i).subtype)]) →ₗ[R]
-    M ⊗[R] (Πʳ i, [K i, A i]) := by
-    -- This is more complex - we need to use the finite support property
-    -- and the fact that elements in the range come from tensor products
-    sorry -- This direction requires more careful construction
-
-  -- Show these are inverses
-  use forward, backward
-  · -- forward ∘ backward = id
-    intro x
-    sorry
-  · -- backward ∘ forward = id
-    intro m
-    sorry
-
-end
 
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields. -/
 noncomputable def FiniteAdeleRing.mapRingHom :
