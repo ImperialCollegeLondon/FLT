@@ -145,8 +145,8 @@ noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
     simp_all only [Set.mem_setOf_eq, inv_mem_iff, Matrix.coe_units_inv, true_and,
       Matrix.inv_def, Ring.inverse_eq_inv', Matrix.adjugate_fin_two,
       Matrix.smul_apply, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
-      Matrix.cons_val_fin_one, smul_eq_mul, Matrix.cons_val_one, Matrix.head_cons,
-      Matrix.head_fin_const, ← mul_sub, map_mul, map_inv₀, mul_neg, Valuation.map_neg]
+      Matrix.cons_val_fin_one, smul_eq_mul, Matrix.cons_val_one,
+      ← mul_sub, map_mul, map_inv₀, mul_neg, Valuation.map_neg]
     rw [Valuation.map_sub_swap, v_det_val_mem_localFullLevel_eq_one ha.1]
     simp [ha.2]
 

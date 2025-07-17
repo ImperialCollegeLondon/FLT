@@ -53,7 +53,16 @@ namespace GL0
 
 variable (ρ : Weight 0)
 
-set_option synthInstance.maxHeartbeats 50000 in
+/-
+failed to synthesize
+  AddCommMonoid
+    (↥(Z (GL (Fin 0) ℝ) (Matrix (Fin 0) (Fin 0) ℝ)) ⧸
+      Submodule.comap (actionTensorCAlg'3 (GL (Fin 0) ℝ) (Matrix (Fin 0) (Fin 0) ℝ)).toLinearMap
+        ((Submodule.span ℂ {⟨fun y ↦ c, ⋯⟩}).compatibleMaps ⊥))
+if we don't bump maxHeartbeats here
+-/
+set_option synthInstance.maxHeartbeats 45000 in
+-- see above
 def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
     toFun := fun _ => c,
     is_smooth := {
@@ -69,7 +78,8 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
       intros x
       rw [FiniteDimensional, annihilator]
       exact {
-        fg_top := by sorry
+        fg_top := by
+          sorry
       }
     has_finite_level := by
       let U : Subgroup (GL (Fin 0) (IsDedekindDomain.FiniteAdeleRing ℤ ℚ)) := {
@@ -87,7 +97,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
   }
 
 -- the weakest form of the classification theorem
-noncomputable def classification: AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
+noncomputable def classification : AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
   toFun := fun f ↦ f 1
   invFun := fun c ↦ ofComplex ρ c
   left_inv := by

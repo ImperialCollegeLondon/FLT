@@ -1,6 +1,6 @@
 import Mathlib.MeasureTheory.Measure.Haar.Unique
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct
-import Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
 
@@ -35,7 +35,7 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
 @[to_additive]
 lemma IsHaarMeasure.nnreal_smul {μ : Measure G}
     [h : IsHaarMeasure μ] {c : ℝ≥0} (hc : 0 < c) : IsHaarMeasure (c • μ) :=
-  h.smul _ (by simp [hc.ne']) (not_eq_of_beq_eq_false rfl) -- beq??
+  h.smul _ (by simp [hc.ne']) (Option.some_ne_none _)
 
 variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 
@@ -52,12 +52,12 @@ lemma mulEquivHaarChar_pos (φ : G ≃ₜ* G) : 0 < mulEquivHaarChar φ :=
 
 -- should be in haarScalarFactor API
 @[to_additive]
-lemma smul_haarScalarFactor_smul (μ' μ : Measure G)
+lemma mul_haarScalarFactor_smul (μ' μ : Measure G)
     [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
     (hc : 0 < c) :
-    letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
+    haveI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
     c * haarScalarFactor μ' (c • μ) = haarScalarFactor μ' μ := by
-  letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
+  haveI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
   obtain ⟨⟨g, g_cont⟩, g_comp, g_nonneg, g_one⟩ :
     ∃ g : C(G, ℝ), HasCompactSupport g ∧ 0 ≤ g ∧ g 1 ≠ 0 := exists_continuous_nonneg_pos 1
   have int_g_ne_zero : ∫ x, g x ∂μ ≠ 0 :=
@@ -75,12 +75,12 @@ lemma smul_haarScalarFactor_smul (μ' μ : Measure G)
 
 -- should be in haarScalarFactor API
 @[to_additive]
-lemma smul_haarScalarFactor_smul' (μ' μ : Measure G)
+lemma haarScalarFactor_smul_smul (μ' μ : Measure G)
     [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
     (hc : 0 < c) :
-    letI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
+    haveI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
     haarScalarFactor (c • μ') (c • μ) = haarScalarFactor μ' μ := by
-  rw [haarScalarFactor_smul, smul_eq_mul, smul_haarScalarFactor_smul _ _ hc]
+  rw [haarScalarFactor_smul, smul_eq_mul, mul_haarScalarFactor_smul _ _ hc]
 
 -- should be in haarScalarFactor API
 @[to_additive]
@@ -113,7 +113,7 @@ lemma mulEquivHaarChar_eq (μ : Measure G) [IsHaarMeasure μ]
     enter [1, 2, 2]
     rw [smul]
   simp_rw [MeasureTheory.Measure.map_smul]
-  exact smul_haarScalarFactor_smul' _ _ (haarScalarFactor_pos_of_isHaarMeasure haar μ)
+  exact haarScalarFactor_smul_smul _ _ (haarScalarFactor_pos_of_isHaarMeasure haar μ)
 
 @[to_additive]
 lemma mulEquivHaarChar_map (μ : Measure G)
@@ -237,6 +237,19 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
     _ = ∫ a, g a ∂(comap f (mulEquivHaarChar β • μY)) := by rw [← mulEquivHaarChar_comap]
     _ = ∫ a, g a ∂(comap f ((mulEquivHaarChar β : ENNReal) • μY)) := rfl
     _ = mulEquivHaarChar β • ∫ a, g a ∂μX := by rw [comap_smul, integral_smul_measure]; rfl
+
+/-- A version of `mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding` with the stronger
+assumption that `f` is a `ContinuousMulEquiv`, for convenience. -/
+@[to_additive "A version of `addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding`
+with the stronger assumption that `f` is a `ContinuousAddEquiv`, for convenience."]
+lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv {X Y : Type*}
+    [TopologicalSpace X] [Group X] [IsTopologicalGroup X] [LocallyCompactSpace X]
+    [MeasurableSpace X] [BorelSpace X]
+    [TopologicalSpace Y] [Group Y] [IsTopologicalGroup Y] [LocallyCompactSpace Y]
+    [MeasurableSpace Y] [BorelSpace Y]
+    (f : X ≃ₜ* Y) (α : X ≃ₜ* X) (β : Y ≃ₜ* Y) (hComm : ∀ x, f (α x) = β (f x)) :
+    mulEquivHaarChar α = mulEquivHaarChar β :=
+  mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := f) f.isOpenEmbedding α β hComm
 
 end basic
 
@@ -391,12 +404,40 @@ variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalS
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
     [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
 
+open Classical ContinuousMulEquiv in
 @[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
     letI : MeasurableSpace (Π i, H i) := borel _
     haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  sorry -- FLT#521 -- induction on size of ι
+  let P : (α : Type u_1) → [Fintype α] → Prop := fun ι _ ↦
+    ∀ (H : ι → Type u_2) [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
+    [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)] (ψ : (i : ι) → H i ≃ₜ* H i),
+    letI : MeasurableSpace (Π i, H i) := borel _
+    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i)
+  refine Fintype.induction_subsingleton_or_nontrivial (P := P) ι ?_ ?_ H ψ
+  · intro α _ subsingleton_α H _ _ _ _ _ _ ψ
+    borelize (Π i, H i)
+    by_cases hα : Nonempty α; swap
+    · rw [not_nonempty_iff] at hα; simp [mulEquivHaarChar_eq_one_of_compactSpace]
+    have : Unique α := @Unique.mk' α (Classical.inhabited_of_nonempty hα) subsingleton_α
+    rw [Fintype.prod_subsingleton _ default]
+    exact mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piUnique H) _ _ (fun _ ↦ rfl)
+  intro α fintype_α nontrivial_α ih H _ _ _ _ _ _ ψ
+  have ⟨a, b, ne⟩ := nontrivial_α
+  let β₁ := {i : α // i = a}
+  let β₂ := {i : α // i ≠ a}
+  borelize (Π i, H i) (Π (i : β₁), H i) (Π (i : β₂), H i) ((Π (i : β₁), H i) × (Π (i : β₂), H i))
+  let ψ₁ : Π (i : β₁), H i ≃ₜ* H i := fun i ↦ ψ i
+  let ψ₂ : Π (i : β₂), H i ≃ₜ* H i := fun i ↦ ψ i
+  rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piEquivPiSubtypeProd (· = a) H),
+    mulEquivHaarChar_prodCongr, ih β₁ (fintype_α.card_subtype_lt ne.symm) (H ·) ψ₁,
+    ih β₂ (fintype_α.card_subtype_lt (· rfl)) (H ·) ψ₂, Fintype.prod_eq_mul_prod_subtype_ne _ a,
+    Finset.univ_unique, Finset.prod_singleton]
+  · rfl
+  · intro; rfl
 
 end pi
 

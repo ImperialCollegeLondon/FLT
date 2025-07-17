@@ -3,7 +3,7 @@ import Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.LinearAlgebra.Pi
 
 def ContinuousLinearEquiv.toContinuousAddEquiv
-    {R₁ R₂ : Type*} [Semiring R₁] [Semiring R₂] {σ₁₂ : R₁ →+* R₂}  {σ₂₁ : R₂ →+* R₁}
+    {R₁ R₂ : Type*} [Semiring R₁] [Semiring R₂] {σ₁₂ : R₁ →+* R₂} {σ₂₁ : R₂ →+* R₁}
     [RingHomInvPair σ₁₂ σ₂₁] [RingHomInvPair σ₂₁ σ₁₂] {M₁ M₂ : Type*} [TopologicalSpace M₁]
     [AddCommMonoid M₁] [TopologicalSpace M₂] [AddCommMonoid M₂] [Module R₁ M₁] [Module R₂ M₂]
     (e : M₁ ≃SL[σ₁₂] M₂) :
@@ -38,7 +38,7 @@ def ContinuousLinearEquiv.piScalarPiCongrFiberwise {α : Type*} {β : Type*} {R 
     ((a : α) → γ₁ a) ≃L[∀ b, R b] ((b : β) → γ₂ b) where
   __ := LinearEquiv.piScalarPiCongrFiberwise fun b => (e b).toLinearEquiv
   continuous_invFun := by
-    show Continuous (fun (g : (b : β) → γ₂ b) a => (e (f a)).symm (g (f a)) ⟨a, rfl⟩)
+    change Continuous (fun (g : (b : β) → γ₂ b) a => (e (f a)).symm (g (f a)) ⟨a, rfl⟩)
     fun_prop
 
 /-- Given `φ : α → β → Type*` and `R : α → Type*` such that `φ a b` is an `R a` module for all

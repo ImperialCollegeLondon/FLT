@@ -122,8 +122,8 @@ def ofEquiv (e : X ≃A[𝓞] Y) : of 𝓞 X ≅ of 𝓞 Y where
 def _root_.CategoryTheory.Iso.toContinuousAlgEquiv (i : A ≅ B) : A ≃A[𝓞] B where
   __ := i.hom.hom
   invFun := i.inv.hom
-  left_inv _ := by simp [← hom_comp, ← comp_apply]
-  right_inv _ := by simp [← hom_comp, ← comp_apply]
+  left_inv _ := by simp [← comp_apply]
+  right_inv _ := by simp [← comp_apply]
   continuous_invFun := i.inv.hom.2
 
 section self

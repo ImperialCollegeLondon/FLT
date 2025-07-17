@@ -15,11 +15,11 @@ def vanishingFilter (p : Ideal (Π i, R i)) : Filter ι where
   sets := { s | (if · ∈ s then 0 else 1) ∈ p }
   univ_sets := by simpa [-Submodule.zero_mem] using zero_mem p
   sets_of_superset {s t} hs hst := by
-    show _ ∈ p
+    change _ ∈ p
     convert p.smul_mem (fun i ↦ if i ∈ t then 0 else 1) hs with i
     simp [← ite_or, or_iff_right_of_imp (@hst _)]
   inter_sets {s t} hs ht := by
-    show _ ∈ p
+    change _ ∈ p
     convert add_mem ht (sub_mem hs (mul_mem (s := p) hs ht)) with i
     simp only [Set.mem_inter_iff, ite_and, Pi.add_apply,
       Pi.sub_apply, Pi.mul_apply, mul_ite, mul_zero, mul_one]
@@ -40,7 +40,7 @@ def vanishingUltrafilter (p : Ideal (Π i, R i)) [p.IsPrime] : Ultrafilter ι :=
     · intro H
       refine (Ideal.IsPrime.mem_or_mem_of_mul_eq_zero ‹p.IsPrime› ?_).resolve_left H
       ext i
-      simp only [Set.mem_compl_iff, ite_not, Pi.mul_apply, mul_ite, mul_zero, mul_one,
+      simp only [ite_not, Pi.mul_apply, mul_ite, mul_zero, mul_one,
         Pi.zero_apply, ite_eq_left_iff, ite_eq_right_iff]
       exact fun a b ↦ (a b).elim
     · intro h₁ h₂
@@ -63,8 +63,7 @@ lemma eventually_vanishingFilter_not_isUnit
   have : (fun i ↦ if IsUnit (x i) then 1 else 0) ∈ p := by
     convert p.mul_mem_left (fun i ↦ if h : IsUnit (x i) then (h.unit⁻¹ : _) else 0) hx with i
     aesop
-  simp only [Filter.Eventually, Ultrafilter.mem_coe,
-    mem_vanishingFilter, Set.mem_setOf_eq, Classical.ite_not]
+  simp only [Filter.Eventually, mem_vanishingFilter, Set.mem_setOf_eq, Classical.ite_not]
   convert this
 
 lemma vanishingFilter_le {p : Ideal (Π i, R i)} {F : Filter ι} :
@@ -89,7 +88,7 @@ lemma vanishingFilter_gc :
   fun _ _ ↦ vanishingFilter_le
 
 open OrderDual in
-def vanishingFilterGI [∀ i, Nontrivial (R i)]:
+def vanishingFilterGI [∀ i, Nontrivial (R i)] :
     GaloisInsertion (vanishingFilter ∘ ofDual)
       (toDual ∘ eventuallyProd (⊥ : ∀ i, Ideal (R i))) where
   gc := vanishingFilter_gc

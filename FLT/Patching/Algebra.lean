@@ -94,7 +94,8 @@ omit [∀ i, TopologicalSpace (R i)] [∀ i, IsTopologicalRing (R i)]
   [Algebra.UniformlyBoundedRank R] in
 lemma PatchingAlgebra.isClosed_subring :
     IsClosed (X := Π i, Component R F i) (subring R F) := by
-  have (j k h) : IsClosed { v : Π i, Component R F i | componentMap R F j k h (v j) = v k } := by
+  have (j k) (h) :
+      IsClosed { v : Π i, Component R F i | componentMap R F j k h (v j) = v k } := by
     exact isClosed_eq (by continuity) (by continuity)
   convert isClosed_iInter fun j ↦ isClosed_iInter fun k ↦ isClosed_iInter (this j k)
   ext; simp; rfl
@@ -231,7 +232,7 @@ lemma PatchingAlgebra.ofPi_surjective :
   choose z hz using fun k i ↦ Ideal.Quotient.mk_surjective (y k i)
   refine ⟨z, funext fun k ↦ ?_⟩
   rw [← hy]
-  show Ideal.Quotient.mk _ _ = _
+  change Ideal.Quotient.mk _ _ = _
   congr 1
   ext i
   simp only [Pi.evalRingHom_apply, Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, hz]
@@ -386,28 +387,25 @@ lemma PatchingAlgebra.map_surjective
       have : _ = _ := a.2
       simp only [Set.mem_preimage, Set.mem_singleton_iff, s, ← x.2 _ _ h, ← this]
       obtain ⟨b, hb⟩ := UltraProduct.π_surjective a.1
-      simp only [Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
-        ← hb, UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff]
+      simp only [← hb, UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff]
       filter_upwards with k
       obtain ⟨c, hc⟩ := Ideal.Quotient.mk_surjective (b k)
       simp only [← hc, Ideal.quotientMap_mk, RingHomCompTriple.comp_apply, RingHom.id_apply]⟩
-  have (k) : Nonempty (s k) := by
+  have (k : ℕ) : Nonempty (s k) := by
     simp only [nonempty_subtype, Set.mem_preimage, Set.mem_singleton_iff, s]
     exact PatchingAlgebra.componentMapRingHom_surjective R F f hf k (x.1 k)
   obtain ⟨v, hv⟩ := nonempty_inverseLimit_of_finite (ι := ℕᵒᵈ) (s ·) fs (by
       intro i
       ext ⟨x, hx⟩
       obtain ⟨x, rfl⟩ := UltraProduct.π_surjective x
-      simp only [Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
-         UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff, id_eq, fs]
+      simp only [UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff, id_eq, fs]
       filter_upwards with k
       obtain ⟨b, hb⟩ := Ideal.Quotient.mk_surjective (x k)
       simp only [← hb, Ideal.quotientMap_mk, RingHom.id_apply]) (by
       intro i j k hij hjk
       ext ⟨x, hx⟩
       obtain ⟨x, rfl⟩ := UltraProduct.π_surjective x
-      simp only [Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
-         UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff, id_eq, fs]
+      simp only [Function.comp_apply, UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff, fs]
       filter_upwards with k
       obtain ⟨b, hb⟩ := Ideal.Quotient.mk_surjective (x k)
       simp only [← hb, Ideal.quotientMap_mk, RingHom.id_apply])

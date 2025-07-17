@@ -124,7 +124,7 @@ def LieModuleHom.baseChange
     [LieRing L] [LieAlgebra R L]
     [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
     [AddCommGroup N] [Module R N] [LieRingModule L N] [LieModule R L N]
-    (f : M →ₗ⁅R, L⁆ N) : A ⊗[R] M →ₗ⁅A, A ⊗[R] L⁆ A ⊗[R] N where
+    (f : M →ₗ⁅R,L⁆ N) : A ⊗[R] M →ₗ⁅A, A ⊗[R] L⁆ A ⊗[R] N where
       __ := (LinearMap.baseChange A f : A ⊗[R] M →ₗ[A] A ⊗[R] N)
       map_lie' := by
         simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
@@ -258,7 +258,6 @@ def annihilator {R} [CommSemiring R]
     (a : M) : Submodule R (M →ₗ[R] N) :=
   Submodule.compatibleMaps (Submodule.span R {a}) ⊥
 
-set_option synthInstance.maxHeartbeats 40000 in
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ
