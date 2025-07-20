@@ -289,16 +289,38 @@ variable [IsQuaternionAlgebra F D]
 `WeightTwoAutomorphicFormOfLevel U R` is the `R`-valued weight 2 automorphic forms of a fixed
 level `U` for a totally definite quaternion algebra over a totally real field.
 -/
+
 def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (R : Type*) [CommRing R] : Type _ := MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R)
 
-variable (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (R : Type*) [CommRing R]
+namespace WeightTwoAutomorphicFormOfLevel
+
+variable {U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ} {R : Type*} [CommRing R]
+
+@[coe]
+def toFun (f : WeightTwoAutomorphicFormOfLevel U R)
+    (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) : R := f.1.toFun x
+
+instance : CoeFun (WeightTwoAutomorphicFormOfLevel U R) (fun _ ↦ Dfx F D → R) where
+  coe := toFun
+
+omit [IsQuaternionAlgebra F D] in
+@[ext]
+lemma ext ⦃f g : WeightTwoAutomorphicFormOfLevel U R⦄ (h : ∀ x, f x = g x) : f = g :=
+  Subtype.ext <| WeightTwoAutomorphicForm.ext _ _ h
+
+omit [IsQuaternionAlgebra F D] in
+lemma left_invt (f : WeightTwoAutomorphicFormOfLevel U R) (δ : Dˣ)
+    (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
+    f ((incl₁ F D) δ * g) = f g := f.1.left_invt δ g
 
 instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
   AddCommGroup (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
 
 instance : Module R (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
   Module R (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
+
+end WeightTwoAutomorphicFormOfLevel
 
 end finite_level
 
