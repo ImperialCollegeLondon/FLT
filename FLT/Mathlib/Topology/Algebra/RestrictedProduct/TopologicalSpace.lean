@@ -178,7 +178,7 @@ of restricted products, when the products are with respect to open sets.
 def Homeomorph.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
     {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
     {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i)) :
-    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ₜ Matrix m n (Πʳ i, [A i, C i]) :=
+    Πʳ i, [Matrix m n (A i), (C i).matrix] ≃ₜ Matrix m n (Πʳ i, [A i, C i]) :=
   (Homeomorph.restrictedProductPi (fun _ _ ↦ restrictedProductMatrix_aux _ hCopen)).trans
     (Homeomorph.piCongrRight fun _ ↦ Homeomorph.restrictedProductPi (fun _ ↦ hCopen))
 
@@ -269,6 +269,52 @@ def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
     rintro _ ⟨_, ⟨x, hx, rfl⟩, rfl⟩
     exact hx
       }
+
+/-- The monoid homeomorphism between a restricted product of n x n matrices, and n x n matrices
+of restricted products, when the products are with respect to open sets.
+-/
+def ContinuousMulEquiv.restrictedProductMatrix {ι : Type*}
+    {n : Type*} [Fintype n] [DecidableEq n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, Ring (A i)]
+    {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i))) :
+    Matrix n n (Πʳ i, [A i, C i]) ≃ₜ*
+      Πʳ i, [Matrix n n (A i), ((C i).matrix : Subring (Matrix n n (A i)))] :=
+    let restrictedProductMatrix :
+        Matrix n n (Πʳ i, [A i, C i]) ≃ₜ
+          Πʳ i, [Matrix n n (A i), ((C i).matrix : Subring (Matrix n n (A i)))] :=
+      Homeomorph.symm (Homeomorph.restrictedProductMatrix hCopen)
+  {
+  __ := restrictedProductMatrix
+  map_mul' x y := by
+    ext i j k
+    rw[mul_apply, Matrix.mul_apply]
+    have h {x : Matrix n n Πʳ (i : ι), [A i, ↑(C i)]} {i : ι} {j k : n} :
+        (restrictedProductMatrix.toFun x) i j k = (x j k) i := by
+      simp only [restrictedProductMatrix, Homeomorph.restrictedProductMatrix,
+        Homeomorph.restrictedProductPi, Homeomorph.piCongrRight, Equiv.restrictedProductPi,
+        Equiv.piCongrRight, AddSubmonoid.coe_set_mk, Subsemiring.coe_carrier_toSubmonoid,
+        Subring.coe_toSubsemiring, AddSubsemigroup.coe_set_mk, Set.mem_setOf_eq, Equiv.coe_fn_mk,
+        Equiv.coe_fn_symm_mk, Equiv.toFun_as_coe, Homeomorph.coe_toEquiv,
+        Homeomorph.symm_trans_apply, Homeomorph.homeomorph_mk_coe_symm, Pi.map_apply, mk_apply]
+      exact rfl
+    simp only [h]
+    rw[Matrix.mul_apply]
+    conv_rhs => arg 2; intro x_1; rw[← mul_apply]
+    apply map_sum (RestrictedProduct.evalAddMonoidHom _ _) _ _
+      }
+
+/-- The monoid homeomorphism between the matrix units over a restricted product
+and the restricted product of the matrix units over the factors,
+when the products are with respect to open submonoids.
+-/
+def ContinuousMulEquiv.restrictedProductMatrixUnits {ι : Type*}
+    {n : Type*} [Fintype n] [DecidableEq n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, Ring (A i)] [∀ i, IsTopologicalRing (A i)]
+    {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i))) :
+    (Matrix n n (Πʳ i, [A i, C i]))ˣ ≃ₜ*
+      Πʳ i, [(Matrix n n (A i))ˣ, ((C i).matrix.units : Subgroup (Matrix n n (A i))ˣ)] :=
+  (ContinuousMulEquiv.restrictedProductMatrix hCopen).units_map.trans
+    (ContinuousMulEquiv.restrictedProductUnits (fun i => (C i).matrix) (fun i => (hCopen i).matrix))
 
 end pi
 
