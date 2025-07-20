@@ -314,6 +314,15 @@ lemma left_invt (f : WeightTwoAutomorphicFormOfLevel U R) (δ : Dˣ)
     (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
     f ((incl₁ F D) δ * g) = f g := f.1.left_invt δ g
 
+omit [IsQuaternionAlgebra F D] in
+lemma right_invt (f : WeightTwoAutomorphicFormOfLevel U R)
+    (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) (u : U) :
+    f (g * ↑u) = f g := by
+      have h := f.prop
+      have h_u := h u
+      apply_fun (fun f ↦ f g) at h_u
+      exact h_u
+
 instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
   AddCommGroup (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
 
