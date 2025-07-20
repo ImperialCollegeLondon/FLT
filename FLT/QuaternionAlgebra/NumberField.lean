@@ -58,34 +58,7 @@ namespace IsDedekindDomain
 /-- `M_2(O_v)` as a subring of `M_2(F_v)`. -/
 noncomputable def M2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subring (Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) :=
-    {
-      carrier :=
-        {(f : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) |
-          ∀ a b, f a b ∈ v.adicCompletionIntegers F}
-      mul_mem' := by
-        intro a b ha hb i j; rw[Matrix.mul_apply]
-        apply Subring.sum_mem; intro k hk
-        apply (v.adicCompletionIntegers F).mul_mem
-        · exact ha i k
-        exact hb k j
-      one_mem' := by
-        intro i j; rw[Matrix.one_apply]
-        if h : i = j then
-          rw[if_pos h]; exact (v.adicCompletionIntegers F).one_mem
-        else
-          rw[if_neg h]; exact (v.adicCompletionIntegers F).zero_mem
-      add_mem' := by
-        intro a b ha hb i j; rw[Matrix.add_apply]
-        apply (v.adicCompletionIntegers F).add_mem
-        · exact ha i j
-        exact hb i j
-      zero_mem' := by
-        intro i j; rw[Matrix.zero_apply]
-        exact (v.adicCompletionIntegers F).zero_mem
-      neg_mem' := by
-        intro x hx i j; rw[Matrix.neg_apply];
-        apply (v.adicCompletionIntegers F).neg_mem; exact hx i j
-      }
+    (v.adicCompletionIntegers F).matrix
 
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
