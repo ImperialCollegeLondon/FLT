@@ -58,34 +58,7 @@ namespace IsDedekindDomain
 /-- `M_2(O_v)` as a subring of `M_2(F_v)`. -/
 noncomputable def M2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subring (Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) :=
-    {
-      carrier :=
-        {(f : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) |
-          ∀ a b, f a b ∈ v.adicCompletionIntegers F}
-      mul_mem' := by
-        intro a b ha hb i j; rw[Matrix.mul_apply]
-        apply Subring.sum_mem; intro k hk
-        apply (v.adicCompletionIntegers F).mul_mem
-        · exact ha i k
-        exact hb k j
-      one_mem' := by
-        intro i j; rw[Matrix.one_apply]
-        if h : i = j then
-          rw[if_pos h]; exact (v.adicCompletionIntegers F).one_mem
-        else
-          rw[if_neg h]; exact (v.adicCompletionIntegers F).zero_mem
-      add_mem' := by
-        intro a b ha hb i j; rw[Matrix.add_apply]
-        apply (v.adicCompletionIntegers F).add_mem
-        · exact ha i j
-        exact hb i j
-      zero_mem' := by
-        intro i j; rw[Matrix.zero_apply]
-        exact (v.adicCompletionIntegers F).zero_mem
-      neg_mem' := by
-        intro x hx i j; rw[Matrix.neg_apply];
-        apply (v.adicCompletionIntegers F).neg_mem; exact hx i j
-      }
+  (v.adicCompletionIntegers F).matrix
 
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
@@ -94,7 +67,7 @@ noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
 
 theorem M2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (M2.localFullLevel v).carrier :=
-  sorry
+  (NumberField.isOpenAdicCompletionIntegers F v).matrix
 
 theorem M2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (M2.localFullLevel v).carrier :=
@@ -226,56 +199,10 @@ noncomputable def GL2.toAdicCompletion
 /-- `GL_2(𝔸_F^∞)` is isomorphic and homeomorphic to the
 restricted product of the local components `GL_2(F_v)`. -/
 noncomputable def GL2.restrictedProduct :
-  GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
-  Πʳ (v : HeightOneSpectrum (𝓞 F)),
-    [(GL (Fin 2) (v.adicCompletion F)), (M2.localFullLevel v).units] :=
-  let restrictedProductMatrix :
-    Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ
-    Πʳ (v : HeightOneSpectrum (𝓞 F)),
-      [Matrix (Fin 2) (Fin 2) (v.adicCompletion F),
-        M2.localFullLevel v] :=
-      Homeomorph.symm
-      (Homeomorph.restrictedProductMatrix (NumberField.isOpenAdicCompletionIntegers F))
-  let restrictedProductMatrixMonoid :
-    Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
-    Πʳ (v : HeightOneSpectrum (𝓞 F)),
-      [Matrix (Fin 2) (Fin 2) (v.adicCompletion F),
-        M2.localFullLevel v] :=
-    {
-      __ := restrictedProductMatrix
-      map_mul' := by
-        unfold restrictedProductMatrix; unfold Homeomorph.restrictedProductMatrix
-        unfold Homeomorph.restrictedProductPi; unfold Homeomorph.piCongrRight
-        unfold Equiv.restrictedProductPi; unfold Equiv.piCongrRight
-        intro x y; ext v i j
-        simp only [Set.mem_setOf_eq, Equiv.coe_fn_mk, Equiv.coe_fn_symm_mk, Equiv.toFun_as_coe,
-          Homeomorph.coe_toEquiv, Homeomorph.symm_trans_apply, Homeomorph.homeomorph_mk_coe_symm,
-          Pi.map_apply, mk_apply]
-        exact rfl
-      }
-  let restrictedProductMatrixMonoidUnits :
     GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
     Πʳ (v : HeightOneSpectrum (𝓞 F)),
-      [Matrix (Fin 2) (Fin 2) (v.adicCompletion F),
-        M2.localFullLevel v]ˣ :=
-    {
-      __ := Units.mapEquiv restrictedProductMatrixMonoid
-      continuous_toFun := by
-        rw[Units.mapEquiv]; apply Continuous.units_map
-        apply restrictedProductMatrixMonoid.continuous_toFun
-      continuous_invFun := by
-        rw[Units.mapEquiv]; apply Continuous.units_map
-        apply restrictedProductMatrixMonoid.continuous_invFun
-      }
-  let restrictedProductUnits :
-    Πʳ (v : HeightOneSpectrum (𝓞 F)),
-      [Matrix (Fin 2) (Fin 2) (v.adicCompletion F),
-        M2.localFullLevel v]ˣ ≃ₜ*
-    Πʳ (v : HeightOneSpectrum (𝓞 F)),
-      [GL (Fin 2) (v.adicCompletion F),
-        (M2.localFullLevel v).units] :=
-    ContinuousMulEquiv.restrictedProductUnits (M2.localFullLevel) (M2.localFullLevel.isOpen)
-  ContinuousMulEquiv.trans restrictedProductMatrixMonoidUnits restrictedProductUnits
+      [(GL (Fin 2) (v.adicCompletion F)), (M2.localFullLevel v).units] :=
+  ContinuousMulEquiv.restrictedProductMatrixUnits (NumberField.isOpenAdicCompletionIntegers F)
 
 end IsDedekindDomain.FiniteAdeleRing
 
