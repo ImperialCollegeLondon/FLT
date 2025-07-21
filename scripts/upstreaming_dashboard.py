@@ -14,11 +14,10 @@ from typing import Any
 
 # To customize
 MODULE = "FLT"
-ORGANISATION = "ImperialCollegeLondon"
+REPOSITORY = "ImperialCollegeLondon/FLT"
 BRANCH = "main"
 FOLDER_PATH = "./docs/_includes"
 
-REPOSITORY = f"{ORGANISATION}/{MODULE}"
 QUEUEBOARD = (
     "https://raw.githubusercontent.com/leanprover-community/queueboard/refs/"
     "heads/master/processed_data/open_pr_data.json")
