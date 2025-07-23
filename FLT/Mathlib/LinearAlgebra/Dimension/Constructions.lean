@@ -1,6 +1,6 @@
+import Mathlib.Algebra.BigOperators.Pi
 import Mathlib.LinearAlgebra.Dimension.Constructions
 import Mathlib.LinearAlgebra.TensorProduct.Pi
-import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import Mathlib.GroupTheory.MonoidLocalization.Basic
 
@@ -24,4 +24,4 @@ theorem TensorProduct.AlgebraTensorModule.finiteEquivPi_symm_apply (R M N : Type
     (x : Fin (Module.finrank R M) → R) :
     (finiteEquivPi R M N).symm (fun i => algebraMap R N (x i)) =
       1 ⊗ₜ[R] (Module.Finite.equivPi R M).symm x := by
-  simp [Algebra.TensorProduct.piScalarRight_symm_apply_of_algebraMap, Fintype.sum_pi_single_pi]
+  simp [Algebra.TensorProduct.piScalarRight_symm_apply_of_algebraMap, Finset.univ_sum_single]
