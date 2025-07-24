@@ -56,6 +56,7 @@ import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.Data.Set.Function
+import FLT.Mathlib.Data.Set.Prod
 import FLT.Mathlib.Data.Subtype
 import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
@@ -95,8 +96,10 @@ import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.Module.Quotient
 import FLT.Mathlib.Topology.Algebra.Monoid
+import FLT.Mathlib.Topology.Algebra.MulAction
 import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
