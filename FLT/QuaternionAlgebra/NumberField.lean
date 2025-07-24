@@ -71,7 +71,7 @@ theorem M2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
 
 theorem M2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (M2.localFullLevel v).carrier :=
-  sorry
+  (isCompact_iff_compactSpace.mpr (NumberField.instCompactSpaceAdicCompletionIntegers F v)).matrix
 
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localFullLevel v).carrier :=
