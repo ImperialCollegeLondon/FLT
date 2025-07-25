@@ -63,7 +63,7 @@ section monoid
 def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
     Πʳ i, [R i, A i]_[𝓟 S] ≃* (Π i : {i // i ∈ S}, A i) × (Π i : {i // i ∉ S}, R i) where
   __ := principalEquivProd R S _
-  map_mul' := sorry
+  map_mul' _ _ := rfl
 
 end monoid
 
@@ -73,9 +73,9 @@ variable {ι : Type*}
 variable {R : ι → Type*}
 variable {ℱ : Filter ι}
 
-variable {S : ι → Type*} -- subobject type
-variable [Π i, SetLike (S i) (R i)]
-variable {B : Π i, S i}
+variable {T : ι → Type*} -- subobject type
+variable [Π i, SetLike (T i) (R i)]
+variable {B : Π i, T i}
 
 open scoped RestrictedProduct TensorProduct
 
@@ -84,7 +84,7 @@ variable {A : Type*} [CommRing A]
 
 -- In open PR #25715
 -- restricted product of addcommgroups is an addcommgroup
-instance [Π i, AddCommGroup (R i)] [∀ i, AddSubgroupClass (S i) (R i)]:
+instance [Π i, AddCommGroup (R i)] [∀ i, AddSubgroupClass (T i) (R i)] :
     AddCommGroup (Πʳ i, [R i, B i]_[ℱ]) where
   __ := inferInstanceAs (AddGroup (Πʳ i, [R i, B i]_[ℱ]))
   add_comm a b := by ext i; simp [add_comm]
@@ -93,7 +93,7 @@ instance [Π i, AddCommGroup (R i)] [∀ i, AddSubgroupClass (S i) (R i)]:
 -- restricted product of A-modules is an A-module
 instance [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)]
     -- next line is how we do "SubmoduleClass"
-    [∀ i, AddSubgroupClass (S i) (R i)] [∀ i, SMulMemClass (S i) A (R i)] :
+    [∀ i, AddSubgroupClass (T i) (R i)] [∀ i, SMulMemClass (T i) A (R i)] :
     Module A (Πʳ i, [R i, B i]_[ℱ]) where
       smul a x := ⟨fun i ↦ a • x i, Filter.Eventually.mono x.property (fun _ hi ↦
      SMulMemClass.smul_mem a hi)⟩
@@ -112,10 +112,20 @@ noncomputable def Submodule.lTensor (M : Type*) {N : Type*} [AddCommGroup M] [Mo
 
 open Filter
 
+
 noncomputable def RestrictedProduct.principal [Π i, AddCommGroup (R i)]
-    [∀ i, Module A (R i)] {C : Π i, Submodule A (R i)} {S: Set ι}:
-   (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] ((Π v : S, R v) ×
-  (Π v : {v // v ∉ S}, R v)) := sorry
+    [∀ i, Module A (R i)] {C : Π i, Submodule A (R i)}
+    (S : Set ι) [∀ i, Decidable (i ∈ S)] :
+   (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] ((Π i : {i // i ∈ S}, C i) ×
+  (Π i : {i // i ∉ S}, R i)) where
+    __ := principalAddEquivSum R S (A := C)
+    map_smul' m x := by
+      simp only [AddEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe, RingHom.id_apply]
+      dsimp [principalAddEquivSum, principalEquivProd]
+      ext i
+      · simp only [Pi.smul_apply, SetLike.coe_sort_coe, SetLike.val_smul]
+      · simp only [Pi.smul_apply]
+
 
 noncomputable def RestrictedProduct.principal_tensor_comm' [Π i, AddCommGroup (R i)]
     [∀ i, Module A (R i)] {C : Π i, Submodule A (R i)} {M : Type*} [AddCommGroup M] [Module A M]
