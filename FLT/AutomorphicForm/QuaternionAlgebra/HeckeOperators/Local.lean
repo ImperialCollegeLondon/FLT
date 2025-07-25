@@ -134,6 +134,8 @@ end GL2
 
 open GL2
 
+/- We could use `TameLevel` instead of `U1` in the naming,
+but not sure if we might want to generalise to more general `U_Δ` at some point. -/
 namespace U1
 
 variable {α hα}
