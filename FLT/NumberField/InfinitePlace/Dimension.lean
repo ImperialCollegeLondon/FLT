@@ -6,7 +6,6 @@ Authors: Salvatore Mercuri
 import Mathlib.NumberTheory.NumberField.Completion
 import FLT.NumberField.InfinitePlace.Extension
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
-import FLT.Mathlib.Data.Subtype
 import FLT.Mathlib.NumberTheory.NumberField.Embeddings
 
 /-!

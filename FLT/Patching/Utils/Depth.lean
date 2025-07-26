@@ -97,6 +97,7 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
       apply Ideal.Quotient.lift_surjective_of_surjective
       exact Ideal.Quotient.mk_surjective
     have := ringKrullDim_quotient_succ_le_of_nonZeroDivisor (R := R ⧸ annihilator R M) (r := x) (by
+      rw [← nonZeroDivisorsLeft_eq_nonZeroDivisors]
       intro z hz
       obtain ⟨z, rfl⟩ := Ideal.Quotient.mk_surjective z
       simp only [← map_mul, Ideal.Quotient.eq_zero_iff_mem,
@@ -143,7 +144,7 @@ lemma isSMulRegular_iff_of_free {R M : Type*} [CommRing R] [AddCommGroup M] [Mod
     [Module.Free R M] [Nontrivial M] {r : R} :
     IsSMulRegular M r ↔ IsSMulRegular R r := by
   let I := Module.Free.ChooseBasisIndex R M
-  let b : Basis I R M := Module.Free.chooseBasis R M
+  let b : Module.Basis I R M := Module.Free.chooseBasis R M
   constructor
   · intro H m n h
     have i := Nonempty.some (inferInstanceAs (Nonempty I))
