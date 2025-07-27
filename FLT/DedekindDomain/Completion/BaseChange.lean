@@ -505,7 +505,7 @@ lemma tensorAdicCompletionIsClopenRange :
 
   -- Use the preimage of `∏ 𝒪_v` as the open neighbourhood.
   use equiv.symm '' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v)))
-  refine ⟨?_, ?_, by simp [ValuationSubring.zero_mem]⟩
+  refine ⟨?_, ?_, by simp⟩
   · intro t ⟨g, hg, ht⟩
     -- We have `t = equiv g = ∑ i, b i ⊗ g i`, since `g in ∏ 𝒪_v` and
     -- `b i ∈ (algebraMap B L).range`, this is `tensorAdicCompletionIntegersTo`

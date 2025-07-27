@@ -24,7 +24,7 @@ lemma mulRight_conj (K : Type*) [Field K] [Algebra k K] (n : ℕ) (x : K ⊗[k] 
   apply LinearMap.ext
   simp
 
-lemma mulLeft_conj_ofLinear (K : Type*) [Field K] (n : ℕ) (N : Matrix (Fin n) (Fin n) K):
+lemma mulLeft_conj_ofLinear (K : Type*) [Field K] (n : ℕ) (N : Matrix (Fin n) (Fin n) K) :
     (((Matrix.ofLinearEquiv K ≪≫ₗ Matrix.transposeLinearEquiv (Fin n) (Fin n) K K).symm.toLinearMap
     ∘ₗ (LinearMap.mulLeft K N) ∘ₗ ((Matrix.ofLinearEquiv K) ≪≫ₗ Matrix.transposeLinearEquiv
     (Fin n) (Fin n) K K).toLinearMap)) = LinearMap.pi fun i ↦ ((fun _ ↦ Matrix.toLin' N) i).comp
