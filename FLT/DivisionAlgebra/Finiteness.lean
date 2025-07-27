@@ -135,7 +135,8 @@ lemma T_finite : Set.Finite (T K D) := by
       (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
     rintro _ ⟨t, ⟨ht1, d, rfl⟩, rfl⟩
     exact ⟨ht1, d, rfl⟩
-  exact Set.Finite.of_finite_image (Set.Finite.subset h h1) (Function.Injective.injOn Units.ext)
+  exact Set.Finite.of_finite_image (Set.Finite.subset h h1)
+    (Function.Injective.injOn Units.val_injective)
 
 open scoped Pointwise in
 /-- An auxiliary set C used in the proof of Fukisaki's lemma. Defined as T⁻¹X × X. -/

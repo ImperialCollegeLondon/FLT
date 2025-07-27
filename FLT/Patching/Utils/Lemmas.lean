@@ -344,7 +344,7 @@ lemma disjoint_nonZeroDivisors_of_mem_minimalPrimes
     Disjoint (p : Set R) (nonZeroDivisors R) := by
   classical
   rw [← Set.subset_compl_iff_disjoint_right, Set.subset_def]
-  simp only [SetLike.mem_coe, Set.mem_compl_iff, mem_nonZeroDivisors_iff, not_forall]
+  simp only [SetLike.mem_coe, Set.mem_compl_iff, mem_nonZeroDivisors_iff_right, not_forall]
   intro x hxp
   have := hp.1.1
   have : p.map (algebraMap R (Localization.AtPrime p)) ≤ nilradical _ := by

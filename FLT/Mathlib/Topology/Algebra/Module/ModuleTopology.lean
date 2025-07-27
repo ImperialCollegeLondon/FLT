@@ -63,7 +63,7 @@ theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Mod
     Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
   let hι : Fintype ι := Module.Free.ChooseBasisIndex.fintype R A
-  let b : Basis ι R A := Module.Free.chooseBasis R A
+  let b : Module.Basis ι R A := Module.Free.chooseBasis R A
   let elinear : A ≃ₗ[R] (ι → R) := b.equivFun
   let bil' : (ι → R) →ₗ[R] B →ₗ[R] C := bil.comp elinear.symm.toLinearMap
   have := Module.continuous_bilinear_of_pi_finite ι bil'
