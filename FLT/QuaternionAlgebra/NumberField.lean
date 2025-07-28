@@ -1,7 +1,7 @@
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Homeomorph.Defs
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
