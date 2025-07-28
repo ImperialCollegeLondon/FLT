@@ -67,11 +67,13 @@ noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
 
 theorem M2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (M2.localFullLevel v).carrier :=
-  (NumberField.isOpenAdicCompletionIntegers F v).matrix
+  sorry
+  -- (NumberField.isOpenAdicCompletionIntegers F v).matrix
 
 theorem M2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (M2.localFullLevel v).carrier :=
-  (isCompact_iff_compactSpace.mpr (NumberField.instCompactSpaceAdicCompletionIntegers F v)).matrix
+  sorry
+  -- (isCompact_iff_compactSpace.mpr (NumberField.instCompactSpaceAdicCompletionIntegers F v)).matrix
 
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localFullLevel v).carrier :=

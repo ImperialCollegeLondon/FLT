@@ -314,7 +314,8 @@ def ContinuousMulEquiv.restrictedProductMatrixUnits {ι : Type*}
     (Matrix n n (Πʳ i, [A i, C i]))ˣ ≃ₜ*
       Πʳ i, [(Matrix n n (A i))ˣ, ((C i).matrix.units : Subgroup (Matrix n n (A i))ˣ)] :=
   (ContinuousMulEquiv.restrictedProductMatrix hCopen).units_map.trans
-    (ContinuousMulEquiv.restrictedProductUnits (fun i => (C i).matrix) (fun i => (hCopen i).matrix))
+    (ContinuousMulEquiv.restrictedProductUnits (fun i => (C i).matrix) (fun i => sorry))
+  -- The above sorry should be replaced by `(hCopen i).matrix` after bumping mathlib
 
 end pi
 
