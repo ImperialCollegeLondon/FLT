@@ -369,10 +369,11 @@ lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗
     obtain ⟨N, z, h⟩ := canonicalForm x
     -- let D be the greatest common divisor of N and z_N (lifted to a natural).
     let D : PNat := ⟨Nat.gcd N (z N).val, Nat.gcd_pos_of_pos_left _ N.pos⟩
-    cases D.one_le.eq_or_gt with
+    cases D.one_le.eq_or_lt with
     | inl hD =>
       -- If D = 1 then the fraction is by definition in lowest terms.
       use N, z, ?_, h
+      symm at hD
       simp_rw [D, ← PNat.coe_eq_one_iff, PNat.mk_coe] at hD
       rwa [isCoprime_iff_coprime, Nat.coprime_iff_gcd_eq_one]
     | inr hD =>
@@ -827,7 +828,7 @@ instance : SMul ℤ 𝓞 where
 
 lemma preserves_zsmul {G H : Type*} [Zero G] [Add G] [Neg G] [SMul ℕ G] [SubNegMonoid H]
     (f : G → H) (nsmul : ∀ (g : G) (n : ℕ), f (n • g) = n • f g)
-    (neg : ∀ x, f (-x) = - f x)
+    (neg : ∀ x, f (-x) = -f x)
     (z : ℤ) (g : G) :
     f (zsmulRec (· • ·) z g) = z • f g := by
   cases z with

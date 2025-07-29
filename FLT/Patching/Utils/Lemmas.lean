@@ -14,7 +14,7 @@ lemma IsUnit.pi_iff {ι} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i
   simp_rw [isUnit_iff_exists, funext_iff, ← forall_and]
   exact Classical.skolem (p := fun i y ↦ x i * y = 1 ∧ y * x i = 1).symm
 
-lemma forall_prod_iff {ι} {β : ι → Type*} (P : ∀ i, β i → Prop) [∀ i, Nonempty (β i)]:
+lemma forall_prod_iff {ι} {β : ι → Type*} (P : ∀ i, β i → Prop) [∀ i, Nonempty (β i)] :
     (∀ i : ι, ∀ (y : Π i, β i), P i (y i)) ↔ (∀ i y, P i y) :=
   letI := Classical.decEq
   ⟨fun H i y ↦ by simpa using H i (fun j ↦ if h : i = j then h ▸ y else

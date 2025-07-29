@@ -172,7 +172,7 @@ a disjoint union of cosets `gᵢU` with the `gᵢ` supported at `i`.
 -/
 lemma mem_coset_and_mulSupport_subset_of_isProductAt
     {U : T} (i : ι) (g : Πʳ i, [G i, A i])
-    (hU : SubmonoidClass.isProductAt U i) (hg : mulSupport g ⊆ {i}) (γ :  Πʳ i, [G i, A i])
+    (hU : SubmonoidClass.isProductAt U i) (hg : mulSupport g ⊆ {i}) (γ : Πʳ i, [G i, A i])
     (hγ : γ ∈ U * g • (U : Set (Πʳ i, [G i, A i]))) :
     ∃ δ, δ ∈ γ • (U : Set (Πʳ i, [G i, A i])) ∧ mulSupport δ ⊆ {i} := by
   obtain ⟨u, hu, _, ⟨v, hv, rfl⟩, rfl⟩ := hγ
