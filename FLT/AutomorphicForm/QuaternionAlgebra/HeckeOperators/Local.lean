@@ -266,13 +266,15 @@ lemma mapsTo_unipotent_mul_diagU1_U1diagU1 :
 lemma injOn_unipotent_mul_diagU1 :
     Set.InjOn (unipotent_mul_diagU1 v α hα) ⊤ := by
   intro t₁ h₁ t₂ h₂ h
-  -- If `unipotent_mul_diagU1 t₁ = unipotent_mul_diagU1 t₂`,
-  -- then `(unipotent_mul_diag t₁)⁻¹ * (unipotent_mul_diag t₂)` is in `U1 v`.
+  /- If `unipotent_mul_diagU1 t₁ = unipotent_mul_diagU1 t₂`,
+  then `(unipotent_mul_diag t₁)⁻¹ * (unipotent_mul_diag t₂)` is in `U1 v`.
+  Note `unipotent_mul_diag_inv_mul_unipotent_mul_diag` tells us that
+  `(unipotent_mul_diag t₁)⁻¹ * (unipotent_mul_diag t₂)` is `unipotent`. -/
   have unipotent_mem_U1 :=
     (unipotent_mul_diag_inv_mul_unipotent_mul_diag α hα (Quotient.out t₁) (Quotient.out t₂)) ▸
       (QuotientGroup.eq.mp h)
-  -- But inspecting the top-right entry of `(unipotent_mul_diag t₁)⁻¹ * (unipotent_mul_diag t₂)`
-  -- gives us `t₁ = t₂`.
+  /- Then inspecting the top-right entry of `(unipotent_mul_diag t₁)⁻¹ * (unipotent_mul_diag t₂)`
+  gives us `t₁ = t₂`. -/
   have unipotent_apply_zero_one_mem_integer := apply_mem_integer unipotent_mem_U1 0 1
   simp only [unipotent, Matrix.unitOfDetInvertible, Fin.isValue, val_unitOfInvertible,
     Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_one, Matrix.cons_val_fin_one,
@@ -287,8 +289,8 @@ lemma injOn_unipotent_mul_diagU1 :
 lemma surjOn_unipotent_mul_diagU1_U1diagU1 :
     Set.SurjOn (unipotent_mul_diagU1 v α hα) ⊤ (U1diagU1 v α hα) := by
   rintro _ ⟨ _, ⟨ x, hx, _, rfl, rfl ⟩ , rfl ⟩
-  -- Each element of `U1diagU1` can be written as `x * diag`,
-  -- where `x = !![a,b;c,d]` is viewed as a matrix over `O_v`.
+  /- Each element of `U1diagU1` can be written as `x * diag`,
+  where `x = !![a,b;c,d]` is viewed as a matrix over `O_v`. -/
   let a : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 0 0 ⟩
   let b : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 0 1 ⟩
   let c : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 1 0 ⟩
@@ -308,14 +310,14 @@ lemma surjOn_unipotent_mul_diagU1_U1diagU1 :
     use - d * q
     rw[mul_assoc, hq]; ring_nf; simp
   /- The rest of the proof is devoted to showing that this t works.
-  This means showing that `unipotent_mul_diag⁻¹ * x * diag` is in U.
-  -/
+  This means showing that `unipotent_mul_diag⁻¹ * x * diag` is in U. -/
   simp only [unipotent_mul_diagU1, Set.top_eq_univ, Set.mem_univ, true_and]
   apply QuotientGroup.eq.mpr
   unfold unipotent_mul_diag; rw[mul_inv_rev, ← mul_assoc, mul_assoc _ _ x]
   /- But `unipotent_mul_diag⁻¹ * x * diag = diag⁻¹ * (unipotent⁻¹ * x) * diag`,
-  so it suffices to show `(unipotent⁻¹ * x) 0 1 ∈ (Ideal.span {α})`.
-  -/
+  so we can apply `conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal`,
+  and it suffices to show `(unipotent⁻¹ * x) 0 1 ∈ (Ideal.span {α})`.
+  The choice of t guarantees this. -/
   apply (conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal
     (Subgroup.mul_mem _ (Subgroup.inv_mem _ (unipotent_mem_U1 _)) hx)).mpr
   simp only [Fin.isValue, Units.val_mul, Matrix.coe_units_inv, unipotent_def, Matrix.inv_def,
