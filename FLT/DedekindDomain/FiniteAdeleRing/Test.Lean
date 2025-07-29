@@ -138,7 +138,7 @@ instance [Π i, AddCommGroup (R i)] [∀ i, AddSubgroupClass (T i) (R i)] :
 
 -- when #25715 lands we'll be able to change these to AddCommMonoid
 -- restricted product of A-modules is an A-module
-instance [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)]
+instance module [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)]
     -- next line is how we do "SubmoduleClass"
     [∀ i, AddSubgroupClass (T i) (R i)] [∀ i, SMulMemClass (T i) A (R i)] :
     Module A (Πʳ i, [R i, B i]_[ℱ]) where
@@ -171,35 +171,81 @@ variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] {C : ∀ i, Submodul
 open Set Filter RestrictedProduct
 
 instance add (S : ℱ.complement) :
-  AddCommMonoid (mem_A_away_from_S (R:=R) (fun i ↦ (C i : Set (R i))) S) := by
+  AddCommMonoid (mem_A_away_from_S (fun i ↦ (C i : Set (R i))) S) := by
   dsimp [mem_A_away_from_S]
   exact AddCommGroup.toDivisionAddCommMonoid.toAddCommMonoid
 
-instance module (S : ℱ.complement) :
-  Module A (mem_A_away_from_S (R:=R) (fun i ↦ (C i : Set (R i))) S) := by
+instance module' (S : ℱ.complement) :
+  Module A (mem_A_away_from_S (fun i ↦ (C i : Set (R i))) S) := by
   dsimp [mem_A_away_from_S]
-  exact
-    «instModuleRestrictedProductCoeOfSMulMemClass_external:file:///c%3A/Users/Maddy/Documents/Github/FLT/FLT/DedekindDomain/FiniteAdeleRing/Test.Lean»
-
+  exact module
 
 
 def inclusion_module (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) :
     mem_A_away_from_S (fun i ↦ (C i : Set (R i))) S₁ →ₗ[A]
       mem_A_away_from_S ((fun i ↦ (C i : Set (R i)))) S₂ where
-  __ := RestrictedProduct.inclusion R _ (principal_filter_order h)
-  map_mul' _ _ := rfl
+  toFun := inclusion S₁ S₂ h
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
 
 
+def inclusion_to_restricted_product_module (S : ℱ.complement) :
+  mem_A_away_from_S (fun i ↦ (C i : Set (R i))) S →ₗ[A] Πʳ i, [R i, C i]_[ℱ] where
+  toFun := inclusion_to_restrictedProduct S
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
 
 
+instance directed : IsDirected (ℱ.complement) (· ≤ ·) := by
+  refine { directed := ?_ }
+  intro Si Sj
+  obtain ⟨Si, hi⟩ := Si
+  obtain ⟨Sj, hj⟩ := Sj
+  let c := Si ∪ Sj
+  have : c ∈ ℱ.complement := by
+    unfold Filter.complement at hi hj ⊢
+    simp only [mem_image, Filter.mem_sets] at hi hj ⊢
+    obtain ⟨si, hsi⟩ := hi
+    obtain ⟨sj, hsj⟩ := hj
+    use si ∩ sj
+    constructor
+    · exact ℱ.inter_sets hsi.1 hsj.1
+    · unfold c
+      rw [compl_inter, hsi.2, hsj.2]
+  use ⟨c, this⟩
+  constructor <;>
+  simp [c]
 
-#check _root_.inclusion (𝓕 := ℱ) (A:= (fun i ↦ (C i : Set (R i))))
-
-#check Module.IsDirectLimit (mem_A_away_from_S (𝓕 := ℱ) (fun i ↦ (C i : Set (R i))))
-  Πʳ i, [R i, C i]_[ℱ] --(_root_.inclusion (𝓕 := ℱ) (A:= (fun i ↦ (C i : Set (R i)))))
-
+open Set
 instance RestrictedProductIsDirectLimit :
-  Module.IsDirectLimit R Πʳ i, [R i, C i]_[ℱ] (inclusion_to_restrictedProduct C S) := sorry
+  Module.IsDirectLimit (mem_A_away_from_S  (fun i ↦ (C i : Set (R i))))
+  Πʳ i, [R i, C i]_[ℱ] (inclusion_module (ℱ := ℱ))
+  (inclusion_to_restricted_product_module ) where
+  inj Sᵢ Sⱼ mi mj hmij := by
+    obtain ⟨Sₖ, hik, hjk⟩ := @directed_of _ (· ≤ ·) directed Sᵢ Sⱼ
+    refine ⟨Sₖ, hik, hjk, ?_⟩
+    dsimp [inclusion_module,_root_.inclusion, RestrictedProduct.inclusion]
+    dsimp [inclusion_to_restricted_product_module, inclusion_to_restrictedProduct,
+      RestrictedProduct.inclusion] at hmij
+    apply Subtype.ext
+    simp only
+    injection hmij
+  surj r := by
+    dsimp [inclusion_to_restricted_product_module, inclusion_to_restrictedProduct]
+    have : ∅ ∈ ℱ.complement := by
+      rw [complement]
+      simp only [mem_image, Filter.mem_sets, compl_empty_iff, exists_eq_right, univ_mem]
+    let b:= r.property
+    let c:= r.1
+    have : { i : ι | r.1 i ∈ (C i : Set (R i)) }ᶜ ∈ ℱ.complement := by
+      rw [complement]
+      simp only [mem_image, Filter.mem_sets]
+      refine ⟨{ i : ι | r.1 i ∈ (C i : Set (R i)) }, r.property, ?_⟩
+      rfl
+    use ⟨{ i : ι | r.1 i ∈ (C i : Set (R i)) }ᶜ, this⟩
+    apply RestrictedProduct.exists_inclusion_eq_of_eventually
+    simp only [SetLike.mem_coe, compl_compl, eventually_principal, mem_setOf_eq]
+    exact fun x a ↦ a
 
 
 
