@@ -3,12 +3,20 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Topology.Instances.Matrix
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Hacks.RightActionInstances
-import Mathlib
+-- import FLT.Mathlib.Algebra.IsQuaternionAlgebra
+-- import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
+-- import FLT.Mathlib.Topology.Instances.Matrix
+-- import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+-- import FLT.Hacks.RightActionInstances
+-- import Mathlib
+import Mathlib.Algebra.Group.Submonoid.Units
+import Mathlib.LinearAlgebra.Matrix.Block
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.Valuation.ValuationRing
+import Mathlib.RingTheory.Valuation.ValuativeRel
+import Mathlib.Topology.Algebra.Valued.ValuativeRel
 /-!
 
 # Definitions of various compact open subgrups of M₂ or GL₂
@@ -43,6 +51,23 @@ example (A : Type*) [Ring A] (R : Subring A) (n : Type*) [Fintype n] [DecidableE
 
 example : 𝒪[K] →+* K := 𝒪[K].subtype
 example : 𝒪[K] →+* 𝓀[K] := IsLocalRing.residue ↥𝒪[K]
+
+namespace M2
+
+def UpperTriangular (k : Type*) [CommRing k] : Subring (Matrix (Fin 2) (Fin 2) k) where
+  carrier := {M | M.BlockTriangular id}
+  mul_mem' := sorry
+  one_mem' := sorry
+  add_mem' := sorry
+  zero_mem' := sorry
+  neg_mem' := sorry
+
+def UpperTriangularToProd {k : Type*} [CommRing k] : UpperTriangular k →+* k × k where
+  toFun M := (M.1 0 0, M.1 1 1)
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
 
 /-- Submonoid of M_2(k) consisting of matrices (d*r q; 0 r) with d ∈ Δ -/
 def R_Δ {k : Type*} [CommRing k] (Δ : Submonoid k) :
