@@ -13,7 +13,6 @@ import Mathlib.Tactic.LinearCombination'
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
-import Mathlib
 
 /-
 
