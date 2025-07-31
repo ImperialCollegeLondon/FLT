@@ -295,24 +295,6 @@ local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
 
   sorry
 
-local instance : AddSubgroup D_𝔸 where
-  carrier := Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
-  add_mem' := by
-    intro a b ha hb
-    obtain ⟨a1, rfl⟩ := ha
-    obtain ⟨b1, rfl⟩ := hb
-    use a1 + b1
-    exact map_add Algebra.TensorProduct.includeLeft a1 b1
-  zero_mem' := by
-    use 0
-    exact map_zero Algebra.TensorProduct.includeLeft
-  neg_mem' := by
-    intro a ha
-    obtain ⟨a1, ha1⟩ := ha
-    use -a1
-    rw [← ha1]
-    rfl
-
 lemma T_finite : Set.Finite (T K D) := by
   have h : Set.Finite ((Y K D) ∩ (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)))
       := by
