@@ -51,6 +51,7 @@ variable {F}
 
 namespace IsDedekindDomain
 
+/-- The subgroup `GL₂(𝓞ᵥ) ⊆ GL₂(Fᵥ)`. -/
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
   MonoidHom.range (Units.map

@@ -25,7 +25,7 @@ open scoped TensorProduct Quaternion
 /-- A quaternion algebra `D` over a number field `F` is totally definite if
 `D ⊗[F, v] ℝ` is isomorphic to the Hamilton quaternions ℍ for all real places `v` (that is,
 for all ring homomorphisms) `F → ℝ`). -/
-def IsTotallyDefinite : Prop := ∀ (v : InfinitePlace F) (hv : v.IsReal),
+def NumberField.IsTotallyDefinite : Prop := ∀ (v : InfinitePlace F) (hv : v.IsReal),
   letI : Algebra F ℝ := (embedding_of_isReal hv).toAlgebra
   Nonempty (ℝ ⊗[F] D ≃ₐ[ℝ] ℍ)
 
