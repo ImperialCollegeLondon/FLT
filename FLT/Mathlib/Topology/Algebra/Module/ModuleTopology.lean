@@ -63,7 +63,7 @@ theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Mod
     Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
   let ι := Module.Free.ChooseBasisIndex R A
   let hι : Fintype ι := Module.Free.ChooseBasisIndex.fintype R A
-  let b : Basis ι R A := Module.Free.chooseBasis R A
+  let b : Module.Basis ι R A := Module.Free.chooseBasis R A
   let elinear : A ≃ₗ[R] (ι → R) := b.equivFun
   let bil' : (ι → R) →ₗ[R] B →ₗ[R] C := bil.comp elinear.symm.toLinearMap
   have := Module.continuous_bilinear_of_pi_finite ι bil'
@@ -389,11 +389,11 @@ def continuousAlgEquivOfIsScalarTower {A B : Type*} (R S₁ : Type*) {S₂ : Typ
   toAlgEquiv := e
   continuous_toFun := by
     -- switch the equivalence scalars of `e` from `S₂` over to `S₁`
-    show Continuous (e.changeScalars R S₁ he).toLinearEquiv
+    change Continuous (e.changeScalars R S₁ he).toLinearEquiv
     -- then this is an `S₁`-linear map on the `S₁`-module topology, so is continuous
     exact IsModuleTopology.continuous_of_linearMap _
   continuous_invFun := by
-    show Continuous (e.changeScalars R S₁ he).toLinearEquiv.symm
+    change Continuous (e.changeScalars R S₁ he).toLinearEquiv.symm
     exact IsModuleTopology.continuous_of_linearMap _
 
 @[simp]
@@ -424,7 +424,7 @@ def continuousAlgEquivOfAlgEquiv {A B R : Type*} [TopologicalSpace A]
 
 /-- A free module with the module topology over a `T2Space` ring is a `T2Space`.
 -/
-theorem t2Space {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Module.Free R M]
+theorem t2Space (R : Type*) {M : Type*} [Semiring R] [AddCommGroup M] [Module R M] [Module.Free R M]
     [TopologicalSpace R] [TopologicalSpace M] [T2Space R]
     [ContinuousAdd R] [ContinuousMul R] [IsModuleTopology R M]
     : T2Space M := by

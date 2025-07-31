@@ -14,7 +14,7 @@ lemma IsUnit.pi_iff {ι} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i
   simp_rw [isUnit_iff_exists, funext_iff, ← forall_and]
   exact Classical.skolem (p := fun i y ↦ x i * y = 1 ∧ y * x i = 1).symm
 
-lemma forall_prod_iff {ι} {β : ι → Type*} (P : ∀ i, β i → Prop) [∀ i, Nonempty (β i)]:
+lemma forall_prod_iff {ι} {β : ι → Type*} (P : ∀ i, β i → Prop) [∀ i, Nonempty (β i)] :
     (∀ i : ι, ∀ (y : Π i, β i), P i (y i)) ↔ (∀ i y, P i y) :=
   letI := Classical.decEq
   ⟨fun H i y ↦ by simpa using H i (fun j ↦ if h : i = j then h ▸ y else
@@ -238,7 +238,7 @@ lemma IsLocalRing.maximalIdeal_pow_card_smul_top_le {R M}
     have := Ideal.iInf_pow_smul_eq_bot_of_isLocalRing (R := R) (M := M ⧸ N) _
       (maximalIdeal.isMaximal R).ne_top
     exact ⟨i, by simpa [f, this] using hi⟩
-  have (i) : Set.ncard (α := M ⧸ N) (f i) ≤ Nat.card (M ⧸ N) - i + 1 := by
+  have (i : ℕ) : Set.ncard (α := M ⧸ N) (f i) ≤ Nat.card (M ⧸ N) - i + 1 := by
     induction i with
     | zero =>
       refine (Set.ncard_mono (Set.subset_univ _)).trans ?_
@@ -250,7 +250,7 @@ lemma IsLocalRing.maximalIdeal_pow_card_smul_top_le {R M}
         refine (Nat.le_sub_one_of_lt <| (Set.ncard_strictMono h).trans_le IH).trans ?_
         omega
       | inr h =>
-        have (i) : f (i + n) = f n := by
+        have (i : ℕ) : f (i + n) = f n := by
           induction i with
           | zero => simp
           | succ m IH =>
@@ -263,7 +263,7 @@ lemma IsLocalRing.maximalIdeal_pow_card_smul_top_le {R M}
         simp [hf]
   have : f (Nat.card (M ⧸ N)) = ⊥ := by
     rw [← le_bot_iff]
-    show (f (Nat.card (M ⧸ N)) : Set (M ⧸ N)) ⊆ {0}
+    change (f (Nat.card (M ⧸ N)) : Set (M ⧸ N)) ⊆ {0}
     exact (Set.eq_of_subset_of_ncard_le (by simp) ((this _).trans (by simp))).ge
   simpa only [f, ← LinearMap.range_eq_top.mpr N.mkQ_surjective, ← Submodule.map_top,
     ← Submodule.map_smul'', ← le_bot_iff, Submodule.map_le_iff_le_comap, Submodule.comap_bot,
@@ -344,8 +344,7 @@ lemma disjoint_nonZeroDivisors_of_mem_minimalPrimes
     Disjoint (p : Set R) (nonZeroDivisors R) := by
   classical
   rw [← Set.subset_compl_iff_disjoint_right, Set.subset_def]
-  simp only [SetLike.mem_coe, Set.mem_compl_iff, mem_nonZeroDivisors_iff, not_forall,
-    Classical.not_imp]
+  simp only [SetLike.mem_coe, Set.mem_compl_iff, mem_nonZeroDivisors_iff_right, not_forall]
   intro x hxp
   have := hp.1.1
   have : p.map (algebraMap R (Localization.AtPrime p)) ≤ nilradical _ := by

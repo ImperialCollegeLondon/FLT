@@ -97,6 +97,7 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
       apply Ideal.Quotient.lift_surjective_of_surjective
       exact Ideal.Quotient.mk_surjective
     have := ringKrullDim_quotient_succ_le_of_nonZeroDivisor (R := R ⧸ annihilator R M) (r := x) (by
+      rw [← nonZeroDivisorsLeft_eq_nonZeroDivisors]
       intro z hz
       obtain ⟨z, rfl⟩ := Ideal.Quotient.mk_surjective z
       simp only [← map_mul, Ideal.Quotient.eq_zero_iff_mem,
@@ -126,7 +127,7 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
       (by rwa [Module.support_eq_zeroLocus, ← ringKrullDim_quotient])
     replace IH := WithTop.coe_le_coe.mp
       ((Module.length_le_depth _ _ l hl.2 (by simp_all)).trans IH)
-    · simp only [List.length_cons, Nat.cast_add, Nat.cast_one, ge_iff_le]
+    · simp only [List.length_cons, ge_iff_le]
       linarith
 
 lemma Module.depth_le_dim_annihilator
@@ -143,7 +144,7 @@ lemma isSMulRegular_iff_of_free {R M : Type*} [CommRing R] [AddCommGroup M] [Mod
     [Module.Free R M] [Nontrivial M] {r : R} :
     IsSMulRegular M r ↔ IsSMulRegular R r := by
   let I := Module.Free.ChooseBasisIndex R M
-  let b : Basis I R M := Module.Free.chooseBasis R M
+  let b : Module.Basis I R M := Module.Free.chooseBasis R M
   constructor
   · intro H m n h
     have i := Nonempty.some (inferInstanceAs (Nonempty I))
@@ -221,10 +222,10 @@ lemma Module.faithfulSMul_of_depth_eq_ringKrullDim [IsDomain R] [Nontrivial M] [
         let l' : LTSeries (PrimeSpectrum R) := (l.map
           (PrimeSpectrum.comap (Ideal.Quotient.mk _)) ?_).cons ⊥ ?_
         · refine le_trans ?_ (le_iSup _ l')
-          show _ ≤ ((0 + l.length + 1 : ℕ) : ℕ∞)
+          change _ ≤ ((0 + l.length + 1 : ℕ) : ℕ∞)
           simp
         · intros I J
-          show I < J → I.asIdeal.comap _ < J.asIdeal.comap _
+          change I < J → I.asIdeal.comap _ < J.asIdeal.comap _
           simp [lt_iff_le_not_ge, ← Ideal.map_le_iff_le_comap,
             Ideal.map_comap_of_surjective _ Ideal.Quotient.mk_surjective]
         · refine (bot_lt_iff_ne_bot.mpr H'').trans_le ?_

@@ -1,6 +1,9 @@
-import Mathlib.RingTheory.LocalRing.ResidueField.Basic
+import Mathlib.Algebra.CharP.IntermediateField
+import Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.RingTheory.Valuation.ValuationSubring
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import Mathlib.Topology.Algebra.LinearTopology
+import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Instances.Matrix
 import Mathlib.Topology.UniformSpace.DiscreteUniformity
 
@@ -47,7 +50,7 @@ instance {α M G : Type*} [Monoid M] [Monoid G] [Monoid α] [MulDistribMulAction
     MulAction α (M →* G) where
   smul a f := ⟨⟨a • f, by simp⟩, by simp⟩
   one_smul _ := by ext; exact one_smul _ _
-  mul_smul a b f := by ext x; show (a * b) • (f x) = a • b • (f x); simp [mul_smul]
+  mul_smul a b f := by ext x; change (a * b) • (f x) = a • b • (f x); simp [mul_smul]
 
 @[simp]
 lemma MonoidHom.coe_smul
@@ -60,7 +63,7 @@ instance {α M G : Type*} [Monoid M] [Monoid G] [Monoid α] [MulDistribMulAction
     MulAction α (M →ₜ* G) where
   smul a f := ⟨a • f, .const_smul f.2 _⟩
   one_smul _ := by ext; exact one_smul _ _
-  mul_smul a b f := by ext x; show (a * b) • (f x) = a • b • (f x); simp [mul_smul]
+  mul_smul a b f := by ext x; change (a * b) • (f x) = a • b • (f x); simp [mul_smul]
 
 @[simp]
 lemma ContinuousMonoidHom.coe_smul
@@ -78,8 +81,7 @@ instance IsTopologicalGroup.discreteUniformity
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [DiscreteTopology G] :
     letI := IsTopologicalGroup.toUniformSpace G
     DiscreteUniformity G := by
-  simp only [discreteUniformity_iff_idRel_mem_uniformity, uniformity_eq_comap_nhds_zero',
-    nhds_discrete, Filter.pure_zero, Filter.mem_comap, Filter.mem_zero]
+  simp only [discreteUniformity_iff_idRel_mem_uniformity]
   exact ⟨{1}, by simp [Set.subset_def, div_eq_one]⟩
 
 lemma IsLocalRing.map_maximalIdeal {R S} [CommRing R] [CommRing S]
@@ -166,3 +168,177 @@ open IsLocalRing in
 instance {R : Type*} [CommRing R] [IsLocalRing R] :
     IsLocalHom (algebraMap R (ResidueField R)) :=
   isLocalHom_residue
+
+/-- Given a field extension, this is an arbitrarily chosen map between their `AlgebraicClosure`s. -/
+noncomputable
+def AlgebraicClosure.map {K L : Type*} [Field K] [Field L] (f : K →+* L) :
+    AlgebraicClosure K →+* AlgebraicClosure L :=
+  letI := f.toAlgebra
+  (IsAlgClosed.lift : AlgebraicClosure K →ₐ[K] AlgebraicClosure L).toRingHom
+
+lemma AlgebraicClosure.map_algebraMap {K L : Type*} [Field K] [Field L] (f : K →+* L) (x) :
+    map f (algebraMap K _ x) = algebraMap _ _ (f x) :=
+    letI := f.toAlgebra
+    (IsAlgClosed.lift : AlgebraicClosure K →ₐ[K] AlgebraicClosure L).commutes _
+
+lemma IntermediateField.adjoin_adjoin_right
+    {K L E : Type*} [Field K] [Field L] [Field E] [Algebra K L] [Algebra L E] [Algebra K E]
+    [IsScalarTower K L E] (s : Set E) : adjoin L (adjoin K s : Set E) = adjoin L s := by
+  apply le_antisymm
+  · exact adjoin_le_iff.mpr (adjoin_le_iff (T := (adjoin L s).restrictScalars K).mpr
+      (subset_adjoin _ _))
+  · exact adjoin.mono _ _ _ (subset_adjoin _ _)
+
+nonrec
+lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace A]
+    [IsTopologicalRing A] {M : Type*} [AddCommGroup M] [Module A M]
+    [TopologicalSpace (Module.End A M)] [IsModuleTopology A (Module.End A M)] :
+    Continuous (LinearMap.det : Module.End A M →* A) := by
+  classical
+  by_cases H : ∃ s : Finset M, Nonempty (Basis s A M)
+  · obtain ⟨s, ⟨b⟩⟩ := H
+    have : IsModuleTopology A (Matrix s s A) := IsModuleTopology.instPi
+    have : ContinuousAdd (Module.End A M) := IsModuleTopology.toContinuousAdd A _
+    letI e : Module.End A M ≃A[A] Matrix s s A :=
+    { __ := algEquivMatrix b,
+      continuous_toFun := continuous_of_linearMap (algEquivMatrix b).toLinearMap,
+      continuous_invFun := continuous_of_linearMap (algEquivMatrix b).symm.toLinearMap }
+    rw [e.symm.isQuotientMap.continuous_iff]
+    convert continuous_id.matrix_det (R := A) (n := s)
+    ext M
+    exact LinearMap.det_toLin b M
+  rw [LinearMap.det, dif_neg H]
+  exact continuous_of_const fun x ↦ congrFun rfl
+
+/-- `End_A(A) ≃ A`. -/
+def Module.endSelf {A : Type*} [CommSemiring A] : Module.End A A ≃ₐ[A] A :=
+  AlgEquiv.ofLinearEquiv (LinearMap.ringLmapEquivSelf A A A) (by simp) (by simp)
+
+/-- Given a `ContinuousMonoidHom` from a group to a monoid, we may lift it to map into the group
+of units of the monoid. -/
+@[simps!]
+def ContinuousMonoidHom.toHomUnits {G M : Type*} [Group G] [Monoid M] [TopologicalSpace G]
+    [IsTopologicalGroup G] [TopologicalSpace M] (f : G →ₜ* M) : G →ₜ* Mˣ :=
+  ⟨MonoidHom.toHomUnits f, continuous_induced_rng.mpr (continuous_prodMk.mpr ⟨f.continuous, by
+    simpa [← map_inv] using MulOpposite.continuous_op.comp (f.continuous.comp continuous_inv)⟩)⟩
+
+/-- `Units.val` as a `ContinuousMonoidHom`. -/
+@[simps!]
+def Units.coeHomₜ (M : Type*) [Monoid M] [TopologicalSpace M] : Mˣ →ₜ* M :=
+  ⟨coeHom M, Units.continuous_val⟩
+
+instance {A n m : Type*} [CommRing A] [TopologicalSpace A]
+    [Finite n] [Finite m] [IsTopologicalRing A] :
+    IsModuleTopology A (Matrix n m A) := IsModuleTopology.instPi
+
+/-- We can upgrade an `AlgEquiv` between algebras with the module topology
+into a `ContinuousAlgEquiv`. -/
+def ContinuousAlgEquiv.ofIsModuleTopology {R A B : Type*} [CommSemiring R] [Semiring A]
+    [Semiring B] [Algebra R A] [Algebra R B] [TopologicalSpace A] [TopologicalSpace B]
+    [TopologicalSpace R] [IsModuleTopology R A] [IsModuleTopology R B] (e : A ≃ₐ[R] B) :
+    A ≃A[R] B where
+  __ := e
+  continuous_toFun :=
+    letI := IsModuleTopology.toContinuousAdd R B
+    IsModuleTopology.continuous_of_linearMap e.toLinearMap
+  continuous_invFun :=
+    letI := IsModuleTopology.toContinuousAdd R A
+    IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
+
+@[simp]
+lemma ContinuousMonoidHom.mk_toMonoidHom {M N : Type*} [Monoid M] [Monoid N] [TopologicalSpace M]
+  [TopologicalSpace N] (f : M →* N) (hf : Continuous f) : (ContinuousMonoidHom.mk f hf) = f := rfl
+
+@[simp]
+lemma ContinuousMonoidHom.coe_mk {M N : Type*} [Monoid M] [Monoid N] [TopologicalSpace M]
+  [TopologicalSpace N] (f : M →* N) (hf : Continuous f) : ⇑(ContinuousMonoidHom.mk f hf) = f := rfl
+
+instance {G K L : Type*} [Field K] [Field L] [Algebra K L] [Monoid G] [MulSemiringAction G L]
+    [SMulCommClass G K L]
+    (E : IntermediateField K L) [Normal K E] : MulSemiringAction G E where
+  smul σ x := ⟨σ • x, by
+    convert ((MulSemiringAction.toAlgHom K L σ).restrictNormal E x).2
+    exact ((MulSemiringAction.toAlgHom K L σ).restrictNormal_commutes E x).symm⟩
+  one_smul _ := Subtype.ext (one_smul _ _)
+  mul_smul _ _ _ := Subtype.ext (mul_smul _ _ _)
+  smul_zero _ := Subtype.ext (smul_zero _)
+  smul_add _ _ _ := Subtype.ext (smul_add _ _ _)
+  smul_one _ := Subtype.ext (smul_one _)
+  smul_mul _ _ _ := Subtype.ext (MulSemiringAction.smul_mul _ _ _)
+
+open NumberField in
+instance {G K : Type*} [Field K] [Monoid G] [MulSemiringAction G K] :
+    MulSemiringAction G (𝓞 K) where
+  smul σ x := ⟨σ • x, x.2.map (MulSemiringAction.toAlgHom ℤ K σ)⟩
+  one_smul _ := Subtype.ext (one_smul _ _)
+  mul_smul _ _ _ := Subtype.ext (mul_smul _ _ _)
+  smul_zero _ := Subtype.ext (smul_zero _)
+  smul_add _ _ _ := Subtype.ext (smul_add _ _ _)
+  smul_one _ := Subtype.ext (smul_one _)
+  smul_mul _ _ _ := Subtype.ext (MulSemiringAction.smul_mul _ _ _)
+
+lemma Subring.algebraMap_def {R : Type*} [CommRing R] (S : Subring R) :
+    algebraMap S R = S.subtype := rfl
+
+instance {K A : Type*} [Field K] [CommRing A] [Algebra K A] (R : ValuationSubring K)
+    [FaithfulSMul K A] : FaithfulSMul R A :=
+  Subsemiring.instFaithfulSMulSubtypeMem R
+
+instance {K L : Type*} [Field K] [Field L] [Algebra K L] [NumberField K]
+    (E : IntermediateField K L) [FiniteDimensional K E] : NumberField E where
+  to_finiteDimensional := .trans ℚ K E
+
+instance {K L : Type*} [Field K] [Semiring L] (O : ValuationSubring K) [Algebra K L] :
+    Algebra O L where
+  smul r x := r.1 • x
+  algebraMap := (algebraMap K L).comp (algebraMap O K)
+  commutes' _ _ := by simp [Algebra.commutes]
+  smul_def' _ _ := by simp [← Algebra.smul_def]; rfl
+
+instance IntermediateField.smulCommClass_of_normal
+    {K L G : Type*} [Field K] [Field L] [Algebra K L] (E : IntermediateField K L)
+    [Monoid G] [MulSemiringAction G L] [SMulCommClass G K L] [Normal K E] :
+    SMulCommClass G K E where
+  smul_comm g k e := Subtype.ext <| smul_comm g k e.1
+
+instance ValuationSubring.smulCommClass
+    (K L G : Type*) [Field K] [Semiring L] (O : ValuationSubring K) [Algebra K L]
+    [Monoid G] [MulSemiringAction G L] [SMulCommClass G K L] :
+    SMulCommClass G O L where
+  smul_comm g o l := smul_comm g o.1 l
+
+theorem Subgroup.index_op {G : Type*} [Group G] (H : Subgroup G) :
+    H.op.index = H.index := by
+  trans (H.comap (MulEquiv.inv' G).symm.toMonoidHom).index
+  · congr 1
+    ext; simp
+  · exact Subgroup.index_comap_of_surjective _ (MulEquiv.inv' G).symm.surjective
+
+instance {G : Type*} [Group G] (H : Subgroup G) [H.FiniteIndex] :
+    H.op.FiniteIndex := ⟨by rw [Subgroup.index_op]; exact Subgroup.FiniteIndex.index_ne_zero⟩
+
+lemma IsTopologicalGroup.totallyBounded {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (H : ∀ s ∈ nhds (1 : G), ∃ H : Subgroup G, H.FiniteIndex ∧ ↑H ⊆ s) :
+    letI := IsTopologicalGroup.toUniformSpace G
+    TotallyBounded (Set.univ : Set G) := by
+  letI := IsTopologicalGroup.toUniformSpace G
+  rintro s ⟨t, ht1, hts⟩
+  obtain ⟨H, hH, hHs⟩ := H _ ht1
+  have : Finite (Gᵐᵒᵖ ⧸ H.op) := Subgroup.finite_quotient_of_finiteIndex
+  refine ⟨Set.range (MulOpposite.unop ∘ Quotient.out : Gᵐᵒᵖ ⧸ H.op → G),
+    Set.finite_range _, fun x _ ↦
+      Set.mem_iUnion₂_of_mem ⟨QuotientGroup.mk (.op x), rfl⟩ (hts (hHs ?_))⟩
+  dsimp only
+  rw [Function.comp_apply, SetLike.mem_coe, div_eq_mul_inv, ← MulOpposite.unop_op (x⁻¹),
+    ← MulOpposite.unop_mul, ← Subgroup.mem_op, MulOpposite.op_inv, ← QuotientGroup.eq]
+  simp
+
+noncomputable
+instance Additive.instDistrbMulAction
+    {G M : Type*} [Monoid G] [Monoid M] [MulDistribMulAction G M] :
+    DistribMulAction G (Additive M) where
+  smul g m := .ofMul (g • m.toMul)
+  one_smul m := one_smul _ m.toMul
+  mul_smul g h m := mul_smul g h m.toMul
+  smul_zero g := smul_one (N := M) g
+  smul_add g m n := MulDistribMulAction.smul_mul g m.toMul n.toMul

@@ -58,7 +58,7 @@ lemma _root_.AddSubgroup.comap_smul_one (R A : Type*) [CommRing R] [CommRing A] 
   rw [Algebra.smul_def, ← map_mul, Injective.eq_iff]
   rwa [← faithfulSMul_iff_algebraMap_injective R A]
 
-lemma index_span_p_pow (hx: x ≠ 0):
+lemma index_span_p_pow (hx : x ≠ 0) :
     (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation})).index = ‖↑x‖₊⁻¹ := by
   have quotient_equiv_zmod := RingHom.quotientKerEquivOfSurjective
     (f := PadicInt.toZModPow (x.valuation) (p := p)) (R := ℤ_[p])
@@ -84,7 +84,7 @@ lemma smul_submodule_one_index :
     exact index_span_p_pow hx
 
 /-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
-lemma smul_submodule_one_relindex:
+lemma smul_submodule_one_relindex :
     (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex
       (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
 
@@ -106,7 +106,7 @@ lemma smul_submodule_one_relindex:
   have map_H_Q : (AddSubgroup.comap z_q_coe H_Q) =
     (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup := by
     simp only [z_q_coe, H_Q, K_Q, RingHom.toAddMonoidHom_eq_coe,
-      Submodule.pointwise_smul_toAddSubgroup, Submodule.top_toAddSubgroup, z_q_coe, K_Q,
+      Submodule.pointwise_smul_toAddSubgroup, z_q_coe, K_Q,
       ← AddSubgroup.comap_smul_one ℤ_[p] ℚ_[p]]
     rfl
 
@@ -114,7 +114,7 @@ lemma smul_submodule_one_relindex:
   rwa [relindex_preserved] at relindex_in_z_p
 
 /-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
-lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0):
+lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0) :
     (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex
     (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
   relindex_ne_zero := by

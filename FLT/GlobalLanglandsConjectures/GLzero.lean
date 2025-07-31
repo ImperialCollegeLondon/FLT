@@ -61,7 +61,7 @@ failed to synthesize
         ((Submodule.span ℂ {⟨fun y ↦ c, ⋯⟩}).compatibleMaps ⊥))
 if we don't bump maxHeartbeats here
 -/
-set_option synthInstance.maxHeartbeats 40000 in
+set_option synthInstance.maxHeartbeats 45000 in
 -- see above
 def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
     toFun := fun _ => c,
@@ -97,7 +97,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
   }
 
 -- the weakest form of the classification theorem
-noncomputable def classification: AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
+noncomputable def classification : AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
   toFun := fun f ↦ f 1
   invFun := fun c ↦ ofComplex ρ c
   left_inv := by

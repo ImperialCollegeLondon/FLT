@@ -6,7 +6,6 @@ Authors: Salvatore Mercuri
 import Mathlib.NumberTheory.NumberField.Completion
 import FLT.NumberField.InfinitePlace.Extension
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
-import FLT.Mathlib.Data.Subtype
 import FLT.Mathlib.NumberTheory.NumberField.Embeddings
 
 /-!
@@ -113,9 +112,9 @@ def toIsMixedExtension (w : v.RamifiedExtension L ⊕ v.RamifiedExtension L) :
 theorem toIsMixedExtension_injective : (toIsMixedExtension L v).Injective := by
   apply Subtype.map_injective _ (embedding_injective _) |>.sumElim
     (Subtype.map_injective _ (conjugate_embedding_injective _))
-  exact Subtype.map_ne _ _ (fun w h => isMixedExtension ⟨w, h⟩)
-    (fun w h => isMixedExtension_conjugate ⟨w, h⟩)
-    (fun _ _ _ h₂ => h₂.2.ne_conjugate)
+  intro a b
+  rw [Subtype.map_ne]
+  exact b.prop.2.ne_conjugate
 
 theorem toIsMixedExtension_surjective : (toIsMixedExtension L v).Surjective := by
   intro ⟨ψ, h⟩
@@ -147,13 +146,13 @@ namespace IsUnramified
 
 variable {w}
 
-theorem not_isMixedExtension (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v):
+theorem not_isMixedExtension (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v) :
     ¬IsMixedExtension v.embedding w.embedding := by
   contrapose! h
   rw [not_isUnramified_iff, isComplex_iff, isReal_iff]
   aesop
 
-theorem not_isMixedExtension_conjugate (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v):
+theorem not_isMixedExtension_conjugate (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v) :
     ¬IsMixedExtension v.embedding (conjugate w.embedding) := by
   contrapose! h
   rw [not_isUnramified_iff, isComplex_iff, isReal_iff]
@@ -321,7 +320,7 @@ theorem isExtension_algHom (φ : L →ₐ[WithAbs v.1] ℂ) : IsExtension v.embe
   simp only [AlgHom.toRingHom_eq_coe, RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe,
     MonoidHom.toOneHom_coe, MonoidHom.coe_coe, RingHom.coe_coe, AlgHom.commutes,
     DFunLike.coe_fn_eq] at this
-  show φ.toRingHom.comp (algebraMap (WithAbs v.1) L) = v.embedding
+  change φ.toRingHom.comp (algebraMap (WithAbs v.1) L) = v.embedding
   rwa [AlgHom.toRingHom_eq_coe, AlgHom.comp_algebraMap_of_tower]
 
 variable (L v)
@@ -338,7 +337,7 @@ open scoped Classical in
 theorem card_isUnramified_add_two_mul_card_isRamified [NumberField K] [NumberField L] :
     Fintype.card (v.UnramifiedExtension L) + 2 * Fintype.card (v.RamifiedExtension L) =
       Module.finrank K L := by
-  show _ = Module.finrank (WithAbs v.1) L
+  change _ = Module.finrank (WithAbs v.1) L
   rw [← AlgHom.card (WithAbs v.1) L ℂ, Fintype.card_eq.2 ⟨algHomEquivIsExtension L v⟩,
     Fintype.card_eq.2 ⟨isExtensionEquivSum v.embedding⟩, Fintype.card_sum,
     RamifiedExtension.two_mul_card_eq, UnramifiedExtension.card_eq]
@@ -480,8 +479,7 @@ theorem extensionEmbedding_algebraMap [IsLift L v w] (x : v.Completion) :
   induction x using induction_on
   · exact isClosed_eq (Continuous.comp continuous_extension continuous_map) continuous_extension
   · simp only [RingHom.algebraMap_toAlgebra, SemialgHom.toRingHom_eq_coe,
-      RingHom.coe_coe, extensionEmbedding_coe, semialgHomOfComp_coe _,
-      embedding_of_isReal_apply, ← IsLift.isExtension L v w]
+      RingHom.coe_coe, extensionEmbedding_coe, semialgHomOfComp_coe _, ← IsLift.isExtension L v w]
     rfl
 
 open UniformSpace.Completion in
@@ -513,12 +511,12 @@ theorem extensionEmbedding_algebraMap_star [IsConjugateLift L v w] (x : v.Comple
       (extensionEmbedding v) x := by
   induction x using induction_on
   · exact isClosed_eq (Continuous.comp (by
-        show Continuous (starRingEnd ℂ ∘ extensionEmbedding w.1);
+        change Continuous (starRingEnd ℂ ∘ extensionEmbedding w.1);
         exact Continuous.comp Complex.continuous_conj continuous_extension) continuous_map)
       continuous_extension
   · simp only [RingHom.algebraMap_toAlgebra, SemialgHom.toRingHom_eq_coe,
       RingHom.coe_coe, extensionEmbedding_coe, semialgHomOfComp_coe _, conjugate_coe_eq,
-      embedding_of_isReal_apply, ← IsConjugateLift.isExtension L v w]
+        ← IsConjugateLift.isExtension L v w]
     rfl
 
 /-- If `w` is an unramified extension of `v` such that both infinite places are complex
@@ -574,10 +572,10 @@ theorem finrank_eq_ramificationIdx :
   by_cases h : w.1.IsRamified K
   · let w := w.toRamifiedExtension h
     have : Fact v.IsReal := ⟨w.isReal⟩
-    show Module.finrank v.Completion w.1.Completion = ramificationIdx K w.1
+    change Module.finrank v.Completion w.1.Completion = ramificationIdx K w.1
     simp [ramificationIdx, w.isRamified, RamifiedExtension.finrank_eq_two]
   · let w := w.toUnramifiedExtension (by simpa using h)
-    show Module.finrank v.Completion w.1.Completion = ramificationIdx K w.1
+    change Module.finrank v.Completion w.1.Completion = ramificationIdx K w.1
     simp [ramificationIdx, w.isUnramified, UnramifiedExtension.finrank_eq_one]
 
 end NumberField.InfinitePlace.Completion

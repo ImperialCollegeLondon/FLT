@@ -1,3 +1,4 @@
+import Mathlib.Data.PNat.Prime
 import Mathlib.Tactic.Peel
 import Mathlib.Analysis.Quaternion
 import Mathlib.RingTheory.Flat.Basic
@@ -83,7 +84,7 @@ def e : ZHat := ⟨fun (n : ℕ+) ↦ ∑ i ∈ range (n : ℕ), i !, by
   obtain ⟨k, hk⟩ := exists_add_of_le <| le_of_dvd N.pos hDN
   simp_rw [map_sum, map_natCast, hk, sum_range_add, add_eq_left]
   refine sum_eq_zero (fun i _ => ?_)
-  rw [ZMod.natCast_zmod_eq_zero_iff_dvd]
+  rw [ZMod.natCast_eq_zero_iff]
   exact Nat.dvd_factorial D.pos le_self_add
 ⟩
 
@@ -119,7 +120,7 @@ lemma e_factorial_succ (j : ℕ) :
   obtain ⟨k, hk⟩ := exists_add_of_le <| self_le_factorial (j + 1)
   rw [hk, sum_range_add, add_eq_left]
   refine sum_eq_zero (fun i _ => ?_)
-  rw [ZMod.natCast_zmod_eq_zero_iff_dvd, ← hk]
+  rw [ZMod.natCast_eq_zero_iff, ← hk]
   exact factorial_dvd_factorial (Nat.le_add_right _ _)
 
 /-- Nonarchimedean $e$ is not an integer. -/
@@ -171,7 +172,7 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := by
     · have : a + 1 < N := lt_of_le_of_lt (Nat.le_add_right _ _) hj
       rw [ha, intCast_val, Int.cast_negSucc, ZMod.neg_val, ZMod.val_natCast, if_neg,
         mod_eq_of_lt this]
-      rw [ZMod.natCast_zmod_eq_zero_iff_dvd]
+      rw [ZMod.natCast_eq_zero_iff]
       contrapose! this
       apply le_of_dvd (zero_lt_succ a) this
 -- This isn't necessary but isn't too hard to prove.
@@ -183,6 +184,12 @@ lemma torsionfree_aux (a b : ℕ) [NeZero b] (h : a ∣ b) (x : ZMod b) (hx : a 
   rw [hy]
   simp
 
+@[simp]
+lemma nat_mul_apply (N : ℕ) (z : ZHat) (k : ℕ+) : (N * z) k = N * (z k) := rfl
+
+@[simp]
+lemma pnat_mul_apply (N : ℕ+) (z : ZHat) (k : ℕ+) : (N * z) k = N * (z k) := rfl
+
 theorem eq_zero_of_mul_eq_zero (N : ℕ+) (a : ZHat) (ha : N * a = 0) : a = 0 := by
   ext j
   rw [zero_val, ← a.prop j (N * j) (by simp)]
@@ -191,8 +198,8 @@ theorem eq_zero_of_mul_eq_zero (N : ℕ+) (a : ZHat) (ha : N * a = 0) : a = 0 :=
   rw [← PNat.mul_coe]
   apply Nat.dvd_of_mod_eq_zero
   have : N * a (N * j) = 0 := by
-    have : ((N : ZHat) * a) (N * j) = 0 := by simp [ha]
-    exact this -- missing lemma
+    rw [← pnat_mul_apply]
+    simp [ha]
   simpa only [ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod, ZMod.val_zero]
     using congrArg ZMod.val this
 
@@ -203,7 +210,7 @@ lemma torsionfree (N : ℕ+) : Function.Injective (fun z : ZHat ↦ N * z) := by
   rw [AddMonoidHom.coe_mulLeft] at ha
   exact eq_zero_of_mul_eq_zero N a ha
 
--- Mathlib PR https://github.com/leanprover-community/mathlib4/pull/25334
+-- Mathlib PR https://github.com/leanprover-community/mathlib4/pull/26783
 -- contains this next result.
 open Module Submodule in
 /-- If `R` is a PID then an `R`-module is flat iff it has no torsion. -/
@@ -231,7 +238,7 @@ instance ZHat_flat : Module.Flat ℤ ZHat := by
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
     N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
   have hhj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
-  rw [hz, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hhj
+  rw [hz, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff] at hhj
   rw [← Nat.cast_mul, mul_comm, Nat.div_mul_cancel hhj]
   have hhj' := z.prop j (N * j) (by simp only [PNat.mul_coe, dvd_mul_left])
   rw [← hhj']
@@ -243,7 +250,7 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
   · intro ⟨y, hy⟩
     rw [← hy]
     change N * (y N) = 0
-    simp [ZMod.natCast_self]
+    simp
   · intro h
     let y : ZHat := {
       val := fun j ↦ (z (N * j)).val / (N : ℕ)
@@ -251,11 +258,11 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
         intro j k hjk
         have hj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])
         have hk := z.prop N (N * k) (by simp only [PNat.mul_coe, dvd_mul_right])
-        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hj
-        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_zmod_eq_zero_iff_dvd] at hk
+        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff] at hj
+        rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff] at hk
         have hNjk := z.prop (N * j) (N * k) (mul_dvd_mul (dvd_refl _) hjk)
         rw [ZMod.castHom_apply, ZMod.cast_eq_val] at hNjk
-        simp only [PNat.mul_coe, map_natCast, ZMod.natCast_val, ZMod.eq_iff_modEq_nat]
+        simp only [PNat.mul_coe, map_natCast, ZMod.eq_iff_modEq_nat]
         apply Nat.ModEq.mul_right_cancel' (c := N) (by simp)
         rw [Nat.div_mul_cancel hj, Nat.div_mul_cancel hk,
           mul_comm (j : ℕ) (N : ℕ), ← ZMod.eq_iff_modEq_nat, hNjk]
@@ -294,9 +301,9 @@ lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) �
     refine ⟨⟨q.den, q.den_pos ⟩, q.num * z, ?_⟩
     simp_rw [← zsmul_eq_mul, TensorProduct.tmul_smul, TensorProduct.smul_tmul']
     simp only [PNat.mk_coe, zsmul_eq_mul]
-    simp only [← q.mul_den_eq_num, LinearMap.mul_apply', mul_assoc,
+    simp only [← q.mul_den_eq_num, mul_assoc,
       one_div, ne_eq, Nat.cast_eq_zero, Rat.den_ne_zero, not_false_eq_true,
-      mul_inv_cancel, mul_one, mul_inv_cancel₀]
+        mul_one, mul_inv_cancel₀]
   | add x y hx hy =>
     obtain ⟨N₁, z₁, rfl⟩ := hx
     obtain ⟨N₂, z₂, rfl⟩ := hy
@@ -311,10 +318,22 @@ lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) �
 
 def IsCoprime (N : ℕ+) (z : ZHat) : Prop := IsUnit (z N)
 
-lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗ₜ z) ∧
-    (∀ N₁ N₂ z₁ z₂,
-    IsCoprime N₁ z₁ ∧ IsCoprime N₂ z₂ ∧ (1 / N₁ : ℚ) ⊗ₜ z₁ = (1 / N₂ : ℚ) ⊗ₜ[ℤ] z₂ →
-      N₁ = N₂ ∧ z₁ = z₂) := sorry
+open ZMod in
+lemma isUnit_iff_coprime (n : ℕ) (m : ZMod n) : IsUnit m ↔ m.val.Coprime n := by
+  refine ⟨fun H ↦ ?_, fun H ↦ ?_⟩
+  · have H' := val_coe_unit_coprime H.unit
+    rwa [IsUnit.unit_spec] at H'
+  let m' : (ZMod n)ˣ := {
+    val := m
+    inv := m⁻¹
+    val_inv := by rw [mul_inv_eq_gcd, H.gcd_eq_one, Nat.cast_one]
+    inv_val := by rw [mul_comm, mul_inv_eq_gcd, H.gcd_eq_one, Nat.cast_one]
+  }
+  use m'
+
+lemma isCoprime_iff_coprime (N : ℕ+) (z : ZHat) : IsCoprime N z ↔ Nat.Coprime N (z N).val := by
+  unfold IsCoprime
+  rw [isUnit_iff_coprime, Nat.coprime_comm]
 
 noncomputable abbrev i₂ : ZHat →ₐ[ℤ] QHat := Algebra.TensorProduct.includeRight
 lemma injective_zHat :
@@ -337,6 +356,154 @@ instance nontrivial_QHat : Nontrivial QHat where
 noncomputable abbrev i₁ : ℚ →ₐ[ℤ] QHat := Algebra.TensorProduct.includeLeft
 lemma injective_rat :
     Function.Injective i₁ := RingHom.injective i₁.toRingHom
+
+theorem PNat.lcm_comm (m n : ℕ+) : PNat.lcm m n = PNat.lcm n m := PNat.eq <| by
+  simp [Nat.lcm_comm]
+
+lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗ₜ z) ∧
+    (∀ N₁ N₂ z₁ z₂,
+    IsCoprime N₁ z₁ ∧ IsCoprime N₂ z₂ ∧ (1 / N₁ : ℚ) ⊗ₜ z₁ = (1 / N₂ : ℚ) ⊗ₜ[ℤ] z₂ →
+      N₁ = N₂ ∧ z₁ = z₂) := by
+  constructor
+  · -- Existence: by the previous lemma, an arbitrary element [x] can be written as z/N;
+    obtain ⟨N, z, h⟩ := canonicalForm x
+    -- let D be the greatest common divisor of N and z_N (lifted to a natural).
+    let D : PNat := ⟨Nat.gcd N (z N).val, Nat.gcd_pos_of_pos_left _ N.pos⟩
+    cases D.one_le.eq_or_lt with
+    | inl hD =>
+      -- If D = 1 then the fraction is by definition in lowest terms.
+      use N, z, ?_, h
+      symm at hD
+      simp_rw [D, ← PNat.coe_eq_one_iff, PNat.mk_coe] at hD
+      rwa [isCoprime_iff_coprime, Nat.coprime_iff_gcd_eq_one]
+    | inr hD =>
+      -- However if 1 < D ∣ N then z_D is the reduction of z_N and is hence 0.
+      have hDN : D ∣ N := PNat.dvd_iff.mpr (Nat.gcd_dvd_left N (z N).val)
+      have := z.prop D N (PNat.dvd_iff.mp hDN)
+      have : z D = 0 := by
+        rw [← this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff]
+        exact Nat.gcd_dvd_right N (z N).val
+
+      -- By lemma 5.9 (ZHat.multiples) we deduce that z = Dy is a multiple of D,
+      obtain ⟨y, hy⟩ : ∃ y, D * y = z := by rwa [ZHat.multiples]
+
+      obtain ⟨E, hE⟩ := hDN
+      use E, y, ?_, ?_
+      swap
+      · -- and hence [x = ] z / N = 1/N ⨂ₜ Dy = 1/E ⨂ y, where E = N / D.
+        rw [h, hE, ← hy]
+        have : (D : ZHat) • y = (D : ℤ) • y := by simp
+        simp_rw [PNat.mul_coe, Nat.cast_mul, one_div, mul_inv, ← smul_eq_mul, this,
+          ← TensorProduct.smul_tmul]
+        simp
+      · -- Now if a natural divided both y_E and E
+        rw [isCoprime_iff_coprime]
+        apply Nat.coprime_of_dvd fun k hk hk1 hk2 => ?_
+        -- then this natural would divide both z_N/D [ = z_ED/D = y_N = y_ED] and N/D [ = E],
+        -- contradicting the fact that D is the greatest common divisors
+        suffices k ∣ (z N).val / D ∧ k ∣ N / D by
+          have := Nat.dvd_gcd this.2 this.1
+          simp [D, Nat.gcd_div_gcd_div_gcd_of_pos_left, hk.ne_one] at this
+        constructor
+        swap
+        · simp [hE, hk1]
+        simp only [← hy, ZHat.nat_mul_apply, ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod]
+        nth_rw 3 [hE]
+        have := y.prop E N (by simp [hE])
+        simp only [ZMod.castHom_apply, ZMod.cast_eq_val] at this
+        rwa [PNat.mul_coe, Nat.mul_mod_mul_left, Nat.mul_div_cancel_left _ (by simp),
+          ← ZMod.val_natCast, this]
+  · -- Uniqueness:
+    rintro N M z w ⟨hcpz, hcpw, h⟩
+    -- if z/N = w/M, we deduce 1 ⨂ₜ Mz = 1 ⨂ₜ Nw
+    have : i₂ (M * z) = i₂ (N * w) := by
+      apply_fun ((M * N : ℤ) • ·) at h
+      conv_lhs at h => rw [mul_comm]
+      simpa [← TensorProduct.smul_tmul_smul] using h
+    let y := M * z
+    -- and by injectivity of ZHat → QHat
+    have hNz := injective_zHat this
+    -- we deduce that Mz = Nw = y.
+    have hy₁ : y = M * z := rfl
+    have hy₂ : y = N * w := by rw [← hNz]
+    -- In particular, if L is the lowest common multiple of M and N
+    let L : ℕ+ := PNat.lcm N M
+    -- then y_L is a multiple of both M and N and is hence zero,
+    have : y L = 0 := by
+      suffices (L : ℕ) ∣ (y L).val by
+        simpa [← ZMod.natCast_eq_zero_iff]
+      apply lcm_dvd <;> [rw [hy₂]; rw [hy₁]] <;>
+      · simp only [ZHat.pnat_mul_apply, ZMod.val_mul, ZMod.val_natCast, Nat.mod_mul_mod]
+        refine (Nat.dvd_mod_iff ?_).mpr (Nat.dvd_mul_right _ _)
+        simp only [PNat.lcm_coe, Nat.dvd_lcm_left, Nat.dvd_lcm_right, L]
+    -- so y = Lx is a multiple of L by 5.9 (ZHat.multiples),
+    obtain ⟨x, hx⟩ := (ZHat.multiples _ _).mpr this
+    -- and we deduce from torsionfreeness that z = (L/M)x [ = M'x] and w = (L/N)x [ = N'x].
+    obtain ⟨N', hN'⟩ : N ∣ L := PNat.dvd_lcm_left N M
+    have hN'' : (N' : ℕ) = L / N := by simp [hN']
+    obtain ⟨M', hM'⟩ : M ∣ L := PNat.dvd_lcm_right N M
+    have hM'' : (M' : ℕ) = L / M := by simp [hM']
+    have hz : z = M' * x := by
+      apply ZHat.torsionfree M
+      dsimp
+      rw [← hy₁, ← hx, ← mul_assoc, ← Nat.cast_mul, ← PNat.mul_coe, ← hM']
+    have hw : w = N' * x :=  by
+      apply ZHat.torsionfree N
+      dsimp
+      rw [← hy₂, ← hx, ← mul_assoc, ← Nat.cast_mul, ← PNat.mul_coe, ← hN']
+    -- If some prime divided L/M [ = M'] then it would have to divide N
+    -- which means that z is not in lowest terms;
+    -- similarly if some prime divided L/N [ = N'] then w/M would not be in lowest terms.
+    have dvd (n m p : Nat) (hm : 0 < m) : p ∣ (n.lcm m / m) → p ∣ n := by
+      intro h
+      rw [Nat.lcm_eq_mul_div] at h
+      rw [Nat.div_div_eq_div_mul] at h
+      rw [Nat.mul_div_mul_right _ _ hm] at h
+      apply h.trans
+      refine Nat.div_dvd_of_dvd ?_
+      exact Nat.gcd_dvd_left n m
+
+    -- We deduce that L = M = N and hence z = w by torsionfreeness.
+    have {n m : ℕ+} {Z : ZHat} (hcp : IsCoprime m Z) (hZ : ((n.lcm m / n : ℕ) : ZHat) ∣ Z) :
+        n.lcm m = n := by
+      rw [isCoprime_iff_coprime] at *
+      apply PNat.eq
+      symm
+      apply Nat.eq_of_dvd_of_div_eq_one
+      · refine PNat.dvd_iff.mp ?_
+        exact PNat.dvd_lcm_left n m
+      contrapose! hcp
+      let f := Nat.minFac (n.lcm m / n : ℕ)
+      have hf : f ∣ _ := Nat.minFac_dvd (n.lcm m / n : ℕ)
+      have hfprime : Nat.Prime f := Nat.minFac_prime <| by simpa
+      have := dvd m n f (by simp) (by simpa [← PNat.lcm_coe, Nat.lcm_comm] using hf)
+      apply Nat.not_coprime_of_dvd_of_dvd hfprime.one_lt this
+      obtain ⟨g, hg⟩ : (f : ZHat) ∣ Z := by
+        apply dvd_trans ?_ hZ
+        obtain ⟨g, hg⟩ := hf
+        simp only [PNat.lcm_coe] at hg
+        simp [hg]
+      rw [hg]
+      simp only [ZHat.nat_mul_apply, ZMod.val_mul, Nat.dvd_mod_iff this]
+      apply dvd_mul_of_dvd_left
+      simp only [ZMod.val_natCast]
+      rw [Nat.dvd_mod_iff this]
+    have hw' : ((L / N : ℕ) : ZHat) ∣ w := by
+      rw [hw, hN'']
+      exact dvd_mul_right _ _
+    have hz' : ((M.lcm N / M : ℕ) : ZHat) ∣ z := by
+      rw [hz, hM'', PNat.lcm_comm]
+      exact dvd_mul_right _ _
+    have hN : L = N := this hcpw hw'
+    have hM : L = M := PNat.lcm_comm _ _ |>.trans <| this hcpz hz'
+    have hNM' : N' = M' := by
+      apply mul_left_cancel (a := L)
+      conv_lhs =>
+        rw [hN, ← hN']
+      conv_rhs =>
+        rw [hM, ← hM']
+    rw [hz, hw, ← hN, ← hM, hNM']
+    exact ⟨rfl, rfl⟩
 
 section additive_structure_of_QHat
 
@@ -661,7 +828,7 @@ instance : SMul ℤ 𝓞 where
 
 lemma preserves_zsmul {G H : Type*} [Zero G] [Add G] [Neg G] [SMul ℕ G] [SubNegMonoid H]
     (f : G → H) (nsmul : ∀ (g : G) (n : ℕ), f (n • g) = n • f g)
-    (neg : ∀ x, f (-x) = - f x)
+    (neg : ∀ x, f (-x) = -f x)
     (z : ℤ) (g : G) :
     f (zsmulRec (· • ·) z g) = z • f g := by
   cases z with
@@ -857,7 +1024,8 @@ def norm (z : 𝓞) : ℤ :=
   - z.re * (z.im_o + z.im_oi) + z.im_i * (z.im_o - z.im_oi)
 
 lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := by
-  ext <;> simp [norm, ← Int.cast_add] <;> ring
+  ext <;> simp only [norm, intCast_re, intCast_im_o, intCast_im_i, intCast_im_oi,
+    mul_re, mul_im_o, mul_im_i, mul_im_oi, star_re, star_im_o, star_im_i, star_im_oi] <;> ring
 
 lemma coe_norm (z : 𝓞) :
     (norm z : ℝ) =

@@ -21,6 +21,12 @@ import FLT.Deformations.IsResidueAlgebra
 import FLT.Deformations.Lemmas
 import FLT.Deformations.LiftFunctor
 import FLT.Deformations.Representable
+import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
+import FLT.Deformations.RepresentationTheory.Basic
+import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+import FLT.Deformations.RepresentationTheory.Etale
+import FLT.Deformations.RepresentationTheory.Frobenius
+import FLT.Deformations.RepresentationTheory.IntegralClosure
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor
@@ -43,7 +49,6 @@ import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
-import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
@@ -56,8 +61,6 @@ import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.Data.Set.Function
-import FLT.Mathlib.Data.Subtype
-import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
 import FLT.Mathlib.LinearAlgebra.Determinant
@@ -70,7 +73,6 @@ import FLT.Mathlib.MeasureTheory.Group.Measure
 import FLT.Mathlib.MeasureTheory.Measure.OpenPos
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
-import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.NumberField.Embeddings
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
@@ -88,6 +90,7 @@ import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.Constructions
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+import FLT.Mathlib.Topology.Algebra.Group.Basic
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Group.Units
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
@@ -96,7 +99,8 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.Module.Quotient
 import FLT.Mathlib.Topology.Algebra.Monoid
 import FLT.Mathlib.Topology.Algebra.Order.Field
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal

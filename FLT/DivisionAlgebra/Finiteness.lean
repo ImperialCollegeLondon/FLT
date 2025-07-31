@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard, Ludwig Monnerjahn, Hannah Scholz
+Authors: Kevin Buzzard, William Coram
 -/
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
@@ -15,6 +15,8 @@ import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Hacks.RightActionInstances
 import FLT.NumberField.FiniteAdeleRing
+import FLT.Mathlib.Topology.Algebra.Group.Basic
+
 
 /-
 
@@ -136,7 +138,8 @@ lemma T_finite : Set.Finite (T K D) := by
       (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
     rintro _ ⟨t, ⟨ht1, d, rfl⟩, rfl⟩
     exact ⟨ht1, d, rfl⟩
-  exact Set.Finite.of_finite_image (Set.Finite.subset h h1) (Function.Injective.injOn Units.ext)
+  exact Set.Finite.of_finite_image (Set.Finite.subset h h1)
+    (Function.Injective.injOn Units.val_injective)
 
 open scoped Pointwise in
 /-- An auxiliary set C used in the proof of Fukisaki's lemma. Defined as T⁻¹X × X. -/
@@ -160,11 +163,11 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ((Units.eq_inv_mul_iff_mul_eq β).mpr eq1).symm⟩
   obtain ⟨x2, rfl⟩ : IsUnit x2 := ⟨incl K D b2 * β, ((Units.mul_inv_eq_iff_eq_mul β).mp eq2).symm⟩
   have h : x2 * x1 ∈ T K D := ⟨by simpa only [Y] using (Set.mul_mem_mul hx2 hx1), b2 * b1,
-    by simpa using Units.eq_iff.mp (id (Eq.symm (by simpa [mul_assoc] using
+    by simpa using Units.val_inj.mp (id (Eq.symm (by simpa [mul_assoc] using
     (Mathlib.Tactic.LinearCombination'.mul_pf eq2 eq1))))⟩
   refine ⟨incl K D b1, by simp only [Set.mem_range, exists_apply_eq_apply],  x1⁻¹, ?_,
-    eq_mul_inv_of_mul_eq (Units.eq_iff.mp eq1), ?_, hx1⟩
-  · rw [(Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq (Units.eq_iff.mp eq1))))]
+    eq_mul_inv_of_mul_eq (Units.val_inj.mp eq1), ?_, hx1⟩
+  · rw [(Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq (Units.val_inj.mp eq1))))]
     exact (Subgroup.mul_mem_cancel_right (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)) hβ).mpr
       ((Subgroup.inv_mem_iff (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))).mpr
       (NumberField.AdeleRing.units_mem_ringHaarCharacter_ker K D b1))
@@ -174,8 +177,69 @@ lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 
 end Aux
 
+/-- The inclusion of `ringHaarChar_ker D_𝔸` into the product space `D_𝔸 × D_𝔸ᵐᵒᵖ`. -/
+def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
+  fun u => Units.embedProduct D_𝔸 (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
+
+/-- An auxillary set used in the proof of compact_quotient'. -/
+def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D)
+  (Set.image (fun p => (p.1, MulOpposite.op p.2)) (Aux.C K D))
+
+/-- The map from `ringHaarChar_ker D_𝔸` to the quotient `Dˣ \ ringHaarChar_ker D_𝔸`. -/
+abbrev toQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.rightRel
+    ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
+  (Quotient.mk (QuotientGroup.rightRel ((MonoidHom.range (incl K D)).comap
+  (ringHaarChar_ker D_𝔸).subtype)) a)
+
+lemma toQuot_cont : Continuous (toQuot K D) := by exact { isOpen_preimage := fun s a ↦ a }
+
+lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
+  rw [Set.eq_univ_iff_forall]
+  rintro ⟨a, ha⟩
+  obtain ⟨c, hc, ν, hν, rfl, h31⟩ := Aux.antidiag_mem_C K D ha
+  simp only [toQuot, Subgroup.comap_subtype, Set.mem_image, Subtype.exists]
+  refine ⟨ν, hν, ?_, ?_ ⟩
+  · simp only [M, Set.mem_preimage, Set.mem_image, Prod.exists]
+    exact ⟨ν, Units.val (ν⁻¹), h31, rfl⟩
+  · have : Quot.mk ⇑(QuotientGroup.rightRel ((incl K D).range.subgroupOf
+        (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)))) ⟨c * ν, ha⟩ =
+        Quot.mk ⇑(QuotientGroup.rightRel ((incl K D).range.subgroupOf
+        (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))))
+        ⟨ν, hν⟩ := by
+      refine Quot.sound ?_
+      rw [@QuotientGroup.rightRel_apply]
+      refine Subgroup.mem_subgroupOf.mpr ?_
+      simp only [@Subgroup.coe_mul, InvMemClass.coe_inv, mul_inv_rev, mul_inv_cancel_left,
+        inv_mem_iff, MonoidHom.mem_range]
+      exact hc
+    rw [this]
+    rfl
+
+local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
+
+lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
+  apply Topology.IsClosedEmbedding.comp
+  · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
+      embedProduct_closed D_𝔸}
+  · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
+      (continuous_iff_le_induced.mpr fun U a ↦ a)
+      (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
+    simp only [Subgroup.coe_subtype]
+    refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
+    simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
+    exact IsClosed.preimage (continuous_id')
+      (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
+
+lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.C K D) :=
+  IsCompact.image (Aux.C_compact K D) <| by fun_prop
+
+lemma M_compact : IsCompact (M K D) := Topology.IsClosedEmbedding.isCompact_preimage
+  (incl₂_isClosedEmbedding K D) (ImAux_isCompact K D)
+
 lemma compact_quotient : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
-     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) := sorry
+    ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
+  isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
+    (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
 
 end NumberField.AdeleRing.DivisionAlgebra
 
