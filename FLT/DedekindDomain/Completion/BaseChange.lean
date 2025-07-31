@@ -55,7 +55,7 @@ map is continuous, `K_v`-linear and restricts to an isomorphism `B ⊗_A 𝓞_v 
 
 -/
 
-open scoped Multiplicative Valued
+open scoped WithZero Valued
 
 /-!
 
@@ -140,7 +140,7 @@ lemma adicValued.continuous_algebraMap
   intro a
   rw [WithZero.unitsWithZeroEquiv.exists_congr_left, Multiplicative.exists]
   let m := Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal
-  let e : ℤ ≃ ℤₘ₀ˣ := Multiplicative.ofAdd.trans OrderMonoidIso.unitsWithZero.symm.toEquiv
+  let e : ℤ ≃ ℤᵐ⁰ˣ := Multiplicative.ofAdd.trans OrderMonoidIso.unitsWithZero.symm.toEquiv
   have e_apply (a : ℤ) : e a = OrderMonoidIso.unitsWithZero.symm (Multiplicative.ofAdd a) := rfl
   have hm : m ≠ 0 := by
     refine ramificationIdx_ne_zero A B ?_ w
@@ -151,6 +151,7 @@ lemma adicValued.continuous_algebraMap
     (comap A w).valuation K x ^ m < e (a / ↑m) ^ m := by gcongr; exacts [zero_le', hx]
   _ = e (m • (a / ↑m)) := by
     dsimp [e]
+    rfl
   _ ≤ e a := by
     simp only [nsmul_eq_mul, e_apply, Units.val_le_val, OrderIsoClass.map_le_map_iff]
     rw [mul_comm]
@@ -255,7 +256,7 @@ open WithZeroMulInt Valued
 -- v.asIdeal.absNorm may be 0, so just use 2 as the base for the norm.
 /-- The data of a rank 1 (ℝ-valued) valuation on K_v. -/
 noncomputable local instance adicCompletion_RkOne :
-    Valuation.RankOne (Valued.v : Valuation (adicCompletion K v) ℤₘ₀) where
+    Valuation.RankOne (Valued.v : Valuation (adicCompletion K v) ℤᵐ⁰) where
   hom := {
     toFun := toNNReal (by norm_num : (2 : NNReal) ≠ 0)
     map_zero' := rfl
@@ -263,7 +264,7 @@ noncomputable local instance adicCompletion_RkOne :
     map_mul' := MonoidWithZeroHom.map_mul (toNNReal (by norm_num))
   }
   strictMono' := toNNReal_strictMono (by norm_num)
-  nontrivial' := by
+  exists_val_nontrivial := by
     obtain ⟨x, hx1, hx2⟩ := Submodule.exists_mem_ne_zero_of_ne_bot v.ne_bot
     use algebraMap A K x
     rw [valuedAdicCompletion_eq_valuation' v (algebraMap A K x)]
@@ -495,16 +496,16 @@ lemma tensorAdicCompletionIsClopenRange :
   -- Take a basis `b` of `L` over `K` with elements in `B` and use it to
   -- get a basis `b'` of `L ⊗[K] K_v` over `K_v`.
   obtain ⟨ι, b, hb⟩ := FiniteDimensional.exists_is_basis_integral A K L
-  let b' : Basis ι (adicCompletion K v) (L ⊗[K] (adicCompletion K v)) := by
+  let b' : Module.Basis ι (adicCompletion K v) (L ⊗[K] (adicCompletion K v)) := by
     classical
-    exact Basis.rightBaseChange L b
+    exact b.rightBaseChange L
   -- Use the basis to get a continuous equivalence from `L ⊗[K] K_v` to `ι → K_v`.
   let equiv : L ⊗[K] (adicCompletion K v) ≃L[K] (ι → adicCompletion K v) :=
     IsModuleTopology.continuousLinearEquiv (b'.equivFun) |>.restrictScalars K
 
   -- Use the preimage of `∏ 𝒪_v` as the open neighbourhood.
   use equiv.symm '' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v)))
-  refine ⟨?_, ?_, by simp [ValuationSubring.zero_mem]⟩
+  refine ⟨?_, ?_, by simp⟩
   · intro t ⟨g, hg, ht⟩
     -- We have `t = equiv g = ∑ i, b i ⊗ g i`, since `g in ∏ 𝒪_v` and
     -- `b i ∈ (algebraMap B L).range`, this is `tensorAdicCompletionIntegersTo`
@@ -526,7 +527,7 @@ lemma tensorAdicCompletionIsClopenRange :
     unfold equiv
     rw [ContinuousLinearEquiv.restrictScalars_symm_apply,
       IsModuleTopology.continuousLinearEquiv_symm_apply,
-      Basis.equivFun_symm_apply]
+      Module.Basis.equivFun_symm_apply]
     apply Finset.sum_congr rfl
     intro x
     have : (algebraMap _ (L ⊗[K] adicCompletion K v)) (g x) = 1 ⊗ₜ[K] (g x) := rfl

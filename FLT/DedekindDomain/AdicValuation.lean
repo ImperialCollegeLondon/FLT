@@ -41,8 +41,8 @@ namespace IsDedekindDomain.HeightOneSpectrum
 
 section Multiplicative
 
-open scoped Multiplicative
-lemma exists_ofAdd_natCast_of_le_one {x : ℤₘ₀} (hx : x ≠ 0) (hx' : x ≤ 1):
+open scoped WithZero
+lemma exists_ofAdd_natCast_of_le_one {x : ℤᵐ⁰} (hx : x ≠ 0) (hx' : x ≤ 1) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) = x := by
   lift x to Multiplicative ℤ using hx
   norm_cast at hx'
@@ -51,7 +51,7 @@ lemma exists_ofAdd_natCast_of_le_one {x : ℤₘ₀} (hx : x ≠ 0) (hx' : x ≤
   rw [← hk, Int.neg_neg]
   rfl
 
-lemma exists_ofAdd_natCast_lt {x : ℤₘ₀} (hx : x ≠ 0) :
+lemma exists_ofAdd_natCast_lt {x : ℤᵐ⁰} (hx : x ≠ 0) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) < x := by
   obtain ⟨y, hnz, hyx⟩ := WithZero.exists_ne_zero_and_lt hx
   lift y to Multiplicative ℤ using hnz

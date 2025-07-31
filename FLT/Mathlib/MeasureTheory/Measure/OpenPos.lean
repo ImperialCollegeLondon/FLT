@@ -4,7 +4,7 @@ section IsOpenEmbeddingComap
 
 open MeasureTheory Measure
 
-lemma Topology.IsOpenEmbedding.IsOpenPosMeasure_comap {X Y: Type*}
+lemma Topology.IsOpenEmbedding.IsOpenPosMeasure_comap {X Y : Type*}
     [TopologicalSpace X] [MeasurableSpace X] [BorelSpace X]
     [TopologicalSpace Y] [MeasurableSpace Y] [BorelSpace Y]
     {φ : X → Y} (hφ : IsOpenEmbedding φ) (μ : Measure Y) [IsOpenPosMeasure μ] :

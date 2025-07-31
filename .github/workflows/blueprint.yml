@@ -76,7 +76,10 @@ jobs:
       - name: Lint project
         run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter FLT
 
-      - uses: leanprover-community/docgen-action@f78d5a9a1a728288aef64bde6f133d30a8511cb7 # 2025-06-27
+      - name: Upstreaming dashboard
+        run: python3 scripts/upstreaming_dashboard.py
+
+      - uses: leanprover-community/docgen-action@095763bcfa35bef9c6a3eb8ae778c5e6c7727df2 # 2025-07-03
         with:
           blueprint: true
           homepage: docs

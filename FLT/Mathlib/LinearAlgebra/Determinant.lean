@@ -24,7 +24,7 @@ lemma mulRight_conj (K : Type*) [Field K] [Algebra k K] (n : ℕ) (x : K ⊗[k] 
   apply LinearMap.ext
   simp
 
-lemma mulLeft_conj_ofLinear (K : Type*) [Field K] (n : ℕ) (N : Matrix (Fin n) (Fin n) K):
+lemma mulLeft_conj_ofLinear (K : Type*) [Field K] (n : ℕ) (N : Matrix (Fin n) (Fin n) K) :
     (((Matrix.ofLinearEquiv K ≪≫ₗ Matrix.transposeLinearEquiv (Fin n) (Fin n) K K).symm.toLinearMap
     ∘ₗ (LinearMap.mulLeft K N) ∘ₗ ((Matrix.ofLinearEquiv K) ≪≫ₗ Matrix.transposeLinearEquiv
     (Fin n) (Fin n) K K).toLinearMap)) = LinearMap.pi fun i ↦ ((fun _ ↦ Matrix.toLin' N) i).comp
@@ -45,7 +45,7 @@ variable [Algebra.IsCentral k D] [IsSimpleRing D] [FiniteDimensional k D]
 /-- This is instance is in a repo on brauergroup which will soon be PRed into mathlib,
   the associated issue task is #631. -/
 instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
-    [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B]: IsSimpleRing (A ⊗[k] B) := sorry
+    [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (A ⊗[k] B) := sorry
 
 lemma IsSimpleRing.mulLeft_det_eq_mulRight_det (d : D) :
     (LinearMap.mulLeft k d).det = (LinearMap.mulRight k d).det := by
