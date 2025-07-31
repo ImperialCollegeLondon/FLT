@@ -180,6 +180,7 @@ theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
       aesop
 
 -- this can definitely be golfed (and extracted for smaller lemmas)
+omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
   intro t
