@@ -120,9 +120,11 @@ lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
 
+/-- The K-algebra equivalence of D and K^n. -/
 abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := by
   exact Module.Finite.equivPi K D
 
+/-- The 𝔸-algebra equivalence of D_𝔸 and 𝔸^d. -/
 def D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) := by
   suffices h : ((Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[(AdeleRing (𝓞 K) K)]
       (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) by
@@ -146,9 +148,11 @@ local instance : IsModuleTopology (AdeleRing (𝓞 K) K)
     -- no idea how to get this to work
   sorry
 
+/-- The topoligical equivalence via D𝔸_iso. -/
 def D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := by
   exact (IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D).symm).symm
 
+/-- The inclusion of K^n into 𝔸^n. -/
 abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) → (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)
     := fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
 
@@ -244,6 +248,7 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
       simp_rw [eq, ← h2, h1]
       rfl
 
+/-- The addsubgroud with carrier Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸). -/
 abbrev includeLeft_addsub : AddSubgroup D_𝔸 :=
   { carrier := Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸),
     add_mem' a b := by
