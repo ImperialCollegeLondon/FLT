@@ -15,8 +15,6 @@ import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import Mathlib
 
-set_option maxHeartbeats 0
-
 /-
 
 # Fujisaki's lemma
@@ -52,14 +50,6 @@ noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 namespace Aux
-
--- the first part of this requires the discreteness of D ⊆ D_𝔸; this is being worked on below
-
--- surely this is known?
-lemma D_cocompact : Quotient (QuotientGroup.rightRel (α := D_𝔸)
-    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸).range) := by
-  -- follows from
-  sorry
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
@@ -132,18 +122,31 @@ def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.ran
 abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := by
   exact Module.Finite.equivPi K D
 
-def D𝔸_iso : (D_𝔸 ≃ₗ[K] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) := by
-  suffices h : ((Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[K]
+def D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) := by
+  suffices h : ((Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[(AdeleRing (𝓞 K) K)]
       (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) by
-    exact (LinearEquiv.rTensor (AdeleRing (𝓞 K) K) (D_iso K D)).trans h
-  exact (TensorProduct.comm _ _ _).trans (TensorProduct.piScalarRight K K (AdeleRing (𝓞 K) K)
+    have H1 := TensorProduct.AlgebraTensorModule.finiteEquivPi (R := K) (M := D)
+      (N := AdeleRing (𝓞 K) K)
+    have H2 : D ⊗[K] AdeleRing (𝓞 K) K ≃ₗ[AdeleRing (𝓞 K) K] (AdeleRing (𝓞 K) K) ⊗[K] D :=
+      (TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm
+    exact H2.trans H1
+  have h1 := (TensorProduct.piScalarRight K (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 K) K)
     (Fin (Module.finrank K D)))
+  have h2 : (Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K ≃ₗ[(AdeleRing (𝓞 K) K)]
+      AdeleRing (𝓞 K) K ⊗[K] (Fin (Module.finrank K D) → K) := by
+    exact (TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm
+  exact h2.trans h1
 
+local instance : IsModuleTopology (AdeleRing (𝓞 K) K)
+    ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := by
+  have := IsModuleTopology.instPi (R := AdeleRing (𝓞 K) K) (ι := Fin (Module.finrank K D))
+    (A := Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)
 
--- I think I should be able to use the below but not sure why this is wrong?
-def D𝔸_iso_top : (D_𝔸 ≃L[K] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) := by
-  refine (IsModuleTopology.continuousLinearEquiv ?_).symm
+    -- no idea how to get this to work
   sorry
+
+def D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := by
+  exact (IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D).symm).symm
 
 abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) → (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)
     := fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
@@ -152,57 +155,195 @@ theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
     ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
     IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
   intro x
-  have h := NumberField.AdeleRing.discrete K
+  have h (i : Fin (Module.finrank K D)) := (NumberField.AdeleRing.discrete K) (x i)
+  use Set.pi (Set.univ) (fun (i : Fin (Module.finrank K D)) => Classical.choose (h i))
+  constructor
+  · have (i : Fin (Module.finrank K D)) := (Classical.choose_spec (h i)).1
+    refine isOpen_set_pi ?_ fun a a_1 ↦ this a
+    exact Set.finite_univ
+  · unfold incl_Kn_𝔸Kn
+    have H (i : Fin (Module.finrank K D)) := (Classical.choose_spec (h i)).2
+    ext y
+    simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, forall_const, Set.mem_singleton_iff]
+    constructor
+    · intro hy
+      ext t
+      have hy := hy t
+      have H := H t
+      rw [← Set.mem_preimage] at hy
+      aesop
+    · intro eq i
+      refine Set.mem_preimage.mp ?_
+      aesop
 
-  -- want to specify h at each part of x
-  -- then take the product of all of those U (how to do this??)
-  -- open via product space
-  -- hopefully by construction the inverse will be exactly as wanted using the second part of h
-  sorry
-
+-- this can definitely be golfed (and extracted for smaller lemmas)
 theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
-  intro x
-  obtain ⟨U, Uopen, Ueq⟩ := Kn_discrete K D (D_iso K D x)
+  intro t
+  obtain ⟨U, Uopen, Ueq⟩ := Kn_discrete K D (D_iso K D t)
   use Set.image ((D𝔸_iso_top K D).symm) U
   constructor
-  · -- its a topological linear equivalence so this should just be true?
-    -- maybe I have not set everything up correct though
-    sorry
-  · -- I hate doing this topology stuff
-    sorry
+  · exact (ContinuousLinearEquiv.isOpenMap (D𝔸_iso_top K D).symm) U Uopen
+  · unfold incl_Kn_𝔸Kn at Ueq
+    ext y
+    simp only [Set.mem_singleton_iff]
+    have h1 : (D_iso K D).symm '' ((fun (x : Fin (Module.finrank K D) → K)
+        (i : Fin (Module.finrank K D)) ↦ (algebraMap K (AdeleRing (𝓞 K) K)) (x i)) ⁻¹' U)
+        = {t} := by
+      simp_all only [Set.image_singleton, LinearEquiv.symm_apply_apply]
+    have h2 : (D_iso K D).symm '' ((fun (x : Fin (Module.finrank K D) → K)
+        (i : Fin (Module.finrank K D)) ↦ (algebraMap K (AdeleRing (𝓞 K) K)) (x i)) ⁻¹' U) =
+        (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' (⇑(D𝔸_iso_top K D).symm '' U) := by
+      ext x
+      constructor
+      · intro hx
+        obtain ⟨a, ⟨ha1, ha2⟩⟩ := hx
+        use (fun x i ↦ (algebraMap K (AdeleRing (𝓞 K) K)) (x i)) a
+        simp only [Algebra.TensorProduct.includeLeft_apply]
+        constructor
+        · exact ha1
+        · refine (ContinuousLinearEquiv.symm_apply_eq (D𝔸_iso_top K D)).mpr ?_
+          subst ha2
+          simp_all only [Set.image_singleton, LinearEquiv.symm_apply_apply, Set.mem_singleton_iff]
+          subst ha1
+          unfold D𝔸_iso_top D𝔸_iso D_iso
+          simp only [LinearEquiv.trans_symm, LinearEquiv.symm_symm,
+            IsModuleTopology.continuousLinearEquiv_symm_apply, LinearEquiv.trans_apply,
+            TensorProduct.RightActions.Module.TensorProduct.comm_symm_apply_tmul,
+            TensorProduct.AlgebraTensorModule.congr_tmul, LinearEquiv.refl_apply,
+            TensorProduct.piScalarRight_apply, TensorProduct.piScalarRightHom_tmul]
+          ext i
+          exact Algebra.algebraMap_eq_smul_one ((Module.Finite.equivPi K D) t i)
+      · intro hx
+        obtain ⟨a, ⟨ha1, ha2⟩⟩ := hx
+        simp only [Set.mem_image, Set.mem_preimage]
+        use (D_iso K D) x
+        simp only [LinearEquiv.symm_apply_apply, and_true]
+        have : a = (D𝔸_iso_top K D) ((Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) x) := by
+          exact (ContinuousLinearEquiv.symm_apply_eq (D𝔸_iso_top K D)).mp ha2
+        rw [this] at ha1
+        unfold D_iso
+        unfold D𝔸_iso_top D𝔸_iso at ha1
+        simp only [LinearEquiv.trans_symm, LinearEquiv.symm_symm,
+          Algebra.TensorProduct.includeLeft_apply,
+          IsModuleTopology.continuousLinearEquiv_symm_apply, LinearEquiv.trans_apply,
+          TensorProduct.RightActions.Module.TensorProduct.comm_symm_apply_tmul,
+          TensorProduct.AlgebraTensorModule.congr_tmul, LinearEquiv.refl_apply,
+          TensorProduct.piScalarRight_apply, TensorProduct.piScalarRightHom_tmul] at ha1
+        simp_rw [Algebra.algebraMap_eq_smul_one]
+        exact ha1
+    constructor
+    · intro hy
+      rw [← h2, h1] at hy
+      exact hy
+    · intro eq
+      simp_rw [eq, ← h2, h1]
+      rfl
+
+abbrev includeLeft_addsub : AddSubgroup D_𝔸 :=
+  { carrier := Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸),
+    add_mem' a b := by
+      obtain ⟨a, rfl⟩ := a
+      obtain ⟨b, rfl⟩ := b
+      use a + b
+      exact map_add Algebra.TensorProduct.includeLeft a b,
+    zero_mem' := by
+      use 0
+      exact map_zero Algebra.TensorProduct.includeLeft,
+    neg_mem' a := by
+      obtain ⟨a, rfl⟩ := a
+      exact ⟨-a, rfl⟩
+  }
 
 local instance : DiscreteTopology (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸))
     := by
-  have := D_discrete K D
   apply (singletons_open_iff_discrete).mp
   intro a
+  obtain ⟨a, a', ha⟩ := a
+  obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
+  refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
+  simp only [Subtype.image_preimage_coe, Set.image_singleton]
+  ext d
+  constructor
+  · intro hd
+    obtain ⟨hd1, hd2⟩ := hd
+    apply Set.mem_range.mp at hd1
+    obtain ⟨c, hc⟩ := hd1
+    refine Set.mem_singleton_of_eq ?_
+    rw [← hc] at hd2
+    apply Set.mem_preimage.mpr at hd2
+    simp only [hUeq, Set.mem_singleton_iff] at hd2
+    simp_rw [← hc, hd2, ha]
+  · intro hd
+    constructor
+    · refine Set.mem_range.mpr ⟨a', ?_⟩
+      rw [hd]
+      exact ha
+    · rw [hd, ← ha]
+      exact Set.mem_preimage.mp (by simp [hUeq])
 
-  -- by definition of D_discrete
+
+local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
+  -- done elsewhere, need to look in other file (or PR)
   sorry
+
+local instance : AddSubgroup D_𝔸 where
+  carrier := Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
+  add_mem' := by
+    intro a b ha hb
+    obtain ⟨a1, rfl⟩ := ha
+    obtain ⟨b1, rfl⟩ := hb
+    use a1 + b1
+    exact map_add Algebra.TensorProduct.includeLeft a1 b1
+  zero_mem' := by
+    use 0
+    exact map_zero Algebra.TensorProduct.includeLeft
+  neg_mem' := by
+    intro a ha
+    obtain ⟨a1, ha1⟩ := ha
+    use -a1
+    rw [← ha1]
+    rfl
 
 lemma T_finite : Set.Finite (T K D) := by
   have h : Set.Finite ((Y K D) ∩ (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)))
       := by
     apply IsCompact.finite
     · refine IsCompact.inter_right (Y_compact K D) ?_
-      --exact Subgroup.isClosed_of_discrete (G := D_𝔸) (H := (Algebra.TensorProduct.includeLeft :
-      --D →ₐ[K] D_𝔸).range)
-      sorry
+      have : DiscreteTopology (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
+        infer_instance
+      have := AddSubgroup.isClosed_of_discrete (G := D_𝔸) (H := includeLeft_addsub K D)
+      infer_instance
     · refine singletons_open_iff_discrete.mp ?_
-      intro a
-      obtain ⟨a, ha1, ha2⟩ := a
-      have : IsOpen (({a} : Set (D_𝔸)) ∩
-          Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
-        have : ({a} : Set (D_𝔸)) ∩ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
-            = {a} := by
-
-          sorry
-
-        sorry
-      refine isOpen_induced_eq.mpr ?_
-
-      sorry
+      intro ⟨a, ha1, ⟨a', ha'⟩⟩
+      refine isOpen_mk.mpr ?_
+      obtain ⟨U, Uopen, Ueq⟩ := D_discrete K D a'
+      use U
+      refine ⟨Uopen, ?_⟩
+      refine Set.image_val_inj.mp ?_
+      simp only [Subtype.image_preimage_coe, Set.image_singleton]
+      have : (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) ∩ U = {a} := by
+        refine Set.eq_singleton_iff_unique_mem.mpr ?_
+        constructor
+        · rw [← ha']
+          simp only [Algebra.TensorProduct.includeLeft_apply, Set.mem_inter_iff, Set.mem_range,
+            exists_apply_eq_apply, true_and]
+          have : (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) a' ∈ U := by
+            refine Set.mem_preimage.mp ?_
+            rw [Ueq]
+            rfl
+          exact this
+        · simp only [Set.mem_inter_iff, Set.mem_range, Algebra.TensorProduct.includeLeft_apply,
+            and_imp, forall_exists_index, forall_apply_eq_imp_iff]
+          intro c hc
+          have (b : D) : (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) b ∈ U → b = a' := by
+            intro hb
+            contrapose Ueq
+            exact ne_of_mem_of_not_mem' hb Ueq
+          have := this c hc
+          simp_all only [Algebra.TensorProduct.includeLeft_apply]
+      rw [Set.inter_assoc, this]
+      simpa using ha1
   have h1 : Units.val '' T K D ⊆ (Y K D) ∩
       (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
     rintro _ ⟨t, ⟨ht1, d, rfl⟩, rfl⟩
