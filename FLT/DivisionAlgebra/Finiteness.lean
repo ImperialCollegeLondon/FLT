@@ -140,8 +140,8 @@ def D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D
 
 local instance : IsModuleTopology (AdeleRing (𝓞 K) K)
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := by
-  have := IsModuleTopology.instPi (R := AdeleRing (𝓞 K) K) (ι := Fin (Module.finrank K D))
-    (A := Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)
+  --have := IsModuleTopology.instPi (R := AdeleRing (𝓞 K) K) (ι := Fin (Module.finrank K D))
+  --  (A := Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)
 
     -- no idea how to get this to work
   sorry
@@ -152,6 +152,8 @@ def D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K 
 abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) → (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)
     := fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
 
+omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
     ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
     IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
@@ -283,9 +285,8 @@ local instance : DiscreteTopology (Set.range (Algebra.TensorProduct.includeLeft 
     · rw [hd, ← ha]
       exact Set.mem_preimage.mp (by simp [hUeq])
 
-
 local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
-  -- done elsewhere, need to look in other file (or PR)
+
   sorry
 
 local instance : AddSubgroup D_𝔸 where
