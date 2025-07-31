@@ -6,7 +6,6 @@ Authors: Salvatore Mercuri
 import Mathlib.NumberTheory.NumberField.Completion
 import FLT.NumberField.InfinitePlace.Extension
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
-import FLT.Mathlib.Data.Subtype
 import FLT.Mathlib.NumberTheory.NumberField.Embeddings
 
 /-!
@@ -113,9 +112,9 @@ def toIsMixedExtension (w : v.RamifiedExtension L ⊕ v.RamifiedExtension L) :
 theorem toIsMixedExtension_injective : (toIsMixedExtension L v).Injective := by
   apply Subtype.map_injective _ (embedding_injective _) |>.sumElim
     (Subtype.map_injective _ (conjugate_embedding_injective _))
-  exact Subtype.map_ne _ _ (fun w h => isMixedExtension ⟨w, h⟩)
-    (fun w h => isMixedExtension_conjugate ⟨w, h⟩)
-    (fun _ _ _ h₂ => h₂.2.ne_conjugate)
+  intro a b
+  rw [Subtype.map_ne]
+  exact b.prop.2.ne_conjugate
 
 theorem toIsMixedExtension_surjective : (toIsMixedExtension L v).Surjective := by
   intro ⟨ψ, h⟩
@@ -147,13 +146,13 @@ namespace IsUnramified
 
 variable {w}
 
-theorem not_isMixedExtension (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v):
+theorem not_isMixedExtension (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v) :
     ¬IsMixedExtension v.embedding w.embedding := by
   contrapose! h
   rw [not_isUnramified_iff, isComplex_iff, isReal_iff]
   aesop
 
-theorem not_isMixedExtension_conjugate (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v):
+theorem not_isMixedExtension_conjugate (h : w.IsUnramified K) (hw : w.comap (algebraMap K L) = v) :
     ¬IsMixedExtension v.embedding (conjugate w.embedding) := by
   contrapose! h
   rw [not_isUnramified_iff, isComplex_iff, isReal_iff]

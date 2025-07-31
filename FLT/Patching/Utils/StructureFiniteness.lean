@@ -1,6 +1,9 @@
 import FLT.Patching.Utils.TopologicallyFG
 import Mathlib.Algebra.Ring.Ext
 import Mathlib.Topology.Algebra.Module.Equiv
+import Mathlib.Algebra.Ring.TransferInstance
+import Mathlib.Algebra.Algebra.TransferInstance
+
 
 @[to_additive]
 instance {α : Type*} [Finite α] : Finite (Monoid α) :=

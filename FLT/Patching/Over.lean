@@ -152,7 +152,7 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
       ← Submodule.map_top, ← Submodule.map_smul'', Submodule.map_le_iff_le_comap,
       Submodule.comap_bot, Submodule.ker_mkQ]
 
-omit  [Algebra.TopologicallyFG ℤ Λ]
+omit [Algebra.TopologicallyFG ℤ Λ]
   [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
 lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
     x ∈ (𝔫 • ⊤ : Submodule Λ (PatchingModule Λ M F)) ↔
@@ -233,7 +233,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
     exact sum_mem fun x _ ↦ Submodule.smul_mem_smul
       (by rw [← hs]; exact Submodule.subset_span x.2) trivial
 
-omit  [Algebra.TopologicallyFG ℤ Λ]
+omit [Algebra.TopologicallyFG ℤ Λ]
   [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
 lemma PatchingModule.ker_map_mkQ :
     LinearMap.ker ((PatchingModule.map Λ F fun i ↦

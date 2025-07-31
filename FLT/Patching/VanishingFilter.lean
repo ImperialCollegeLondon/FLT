@@ -13,7 +13,7 @@ open Filter
 open scoped Classical in
 def vanishingFilter (p : Ideal (Π i, R i)) : Filter ι where
   sets := { s | (if · ∈ s then 0 else 1) ∈ p }
-  univ_sets := by simpa [-Submodule.zero_mem] using zero_mem p
+  univ_sets := by simpa [-zero_mem] using zero_mem p
   sets_of_superset {s t} hs hst := by
     change _ ∈ p
     convert p.smul_mem (fun i ↦ if i ∈ t then 0 else 1) hs with i
@@ -88,7 +88,7 @@ lemma vanishingFilter_gc :
   fun _ _ ↦ vanishingFilter_le
 
 open OrderDual in
-def vanishingFilterGI [∀ i, Nontrivial (R i)]:
+def vanishingFilterGI [∀ i, Nontrivial (R i)] :
     GaloisInsertion (vanishingFilter ∘ ofDual)
       (toDual ∘ eventuallyProd (⊥ : ∀ i, Ideal (R i))) where
   gc := vanishingFilter_gc

@@ -2,7 +2,6 @@ import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
@@ -10,6 +9,7 @@ import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.NumberTheory.NumberField.AdeleRing
+import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.LinearAlgebra.TensorProduct.Prod
 import FLT.NumberField.FiniteAdeleRing
 
@@ -28,6 +28,16 @@ instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleR
   Prod.locallyCompactSpace _ _
 
 end LocallyCompact
+
+section T2
+
+variable (K : Type*) [Field K] [NumberField K]
+
+instance : T2Space (AdeleRing (𝓞 K) K) := by
+  unfold AdeleRing
+  infer_instance
+
+end T2
 
 section BaseChange
 
@@ -86,17 +96,6 @@ open scoped TensorProduct.RightActions in
 by the maps from `L` and `𝔸 K` into `𝔸 L`. -/
 noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] 𝔸 K) →ₐ[𝔸 K] 𝔸 L :=
   (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap
-
--- do we not have this?? Move! PR! TODO
-/-- Product of algebra equivalences; the maps come from Equiv.prodCongr. -/
-def _root_.AlgEquiv.prodCongr {R A A₂ A₃ A₄ : Type*} [CommSemiring R]
-    [Semiring A] [Semiring A₂] [Semiring A₃] [Semiring A₄] [Algebra R A]
-    [Algebra R A₂] [Algebra R A₃] [Algebra R A₄]
-    (e₁ : A ≃ₐ[R] A₂) (e₂ : A₃ ≃ₐ[R] A₄) :
-    (A × A₃) ≃ₐ[R] (A₂ × A₄) where
-  __ := LinearEquiv.prodCongr e₁.toLinearEquiv e₂.toLinearEquiv
-  map_mul' := by simp
-  commutes' := by simp
 
 /-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
 noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
@@ -308,7 +307,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
           rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
         use Rat.ringOfIntegersEquiv z
         rw [← hz]
-        apply Rat.ringOfIntegersEquiv_eq_algebraMap
+        apply Rat.coe_ringOfIntegersEquiv
       obtain ⟨y, rfl⟩ := intx
       simp only [abs_lt] at h1
       norm_cast at h1 ⊢

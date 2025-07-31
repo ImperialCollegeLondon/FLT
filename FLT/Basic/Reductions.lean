@@ -149,7 +149,7 @@ lemma hgcdbc (P : FreyPackage) : gcd P.b P.c = 1 :=  by
 /-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5,
 there exists a Frey package. -/
 lemma of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
-    {p : ℕ} (pp : p.Prime) (hp5 : 5 ≤ p) (H : a^p + b^p = c^p) : Nonempty FreyPackage := by
+    {p : ℕ} (pp : p.Prime) (hp5 : 5 ≤ p) (H : a ^ p + b ^ p = c ^ p) : Nonempty FreyPackage := by
   have p_odd := pp.odd_of_ne_two (by omega)
   -- First, show that we can make a,b coprime by dividing through by gcd a b
   have ⟨a, b, c, a0, b0, c0, ab, H⟩ :
