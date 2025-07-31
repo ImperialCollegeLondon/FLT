@@ -56,6 +56,7 @@ import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Algebra.Order.GroupWithZero
 import FLT.Mathlib.Algebra.Order.GroupWithZero.Canonical
+import FLT.Mathlib.AlgebraicGeometry.ProjectiveSpace
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
