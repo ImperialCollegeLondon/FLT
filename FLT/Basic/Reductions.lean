@@ -208,7 +208,7 @@ upon a Frey package guarantee that the running hypotheses in
 Section 4.1 of [Serre] all hold. We put the curve into the form where the
 equation is semistable at 2, rather than the usual `Y^2=X(X-a^p)(X+b^p)` form.
 The change of variables is `X=4x` and `Y=8y+4x`, and then divide through by 64. -/
-def FreyCurve (P : FreyPackage) : WeierstrassCurve ℚ where
+def freyCurveInt (P : FreyPackage) : WeierstrassCurve ℤ where
   a₁ := 1
   -- a₂ is (or should be) an integer because of the congruences assumed e.g. P.ha4
   a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
@@ -216,16 +216,54 @@ def FreyCurve (P : FreyPackage) : WeierstrassCurve ℚ where
   a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this should also be an integer
   a₆ := 0
 
-lemma FreyCurve.Δ (P : FreyPackage) : P.FreyCurve.Δ = (P.a*P.b*P.c)^(2*P.p) / 2 ^ 8 := by
+def freyCurve (P : FreyPackage) : WeierstrassCurve ℚ where
+  a₁ := 1
+  -- a₂ is (or should be) an integer because of the congruences assumed e.g. P.ha4
+  a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
+  a₃ := 0
+  a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this should also be an integer
+  a₆ := 0
+
+theorem freyCurve_map (P : FreyPackage) : (freyCurveInt P).map (algebraMap ℤ ℚ) = freyCurve P := by
+  have two_dvd_b : 2 ∣ P.b := (ZMod.intCast_zmod_eq_zero_iff_dvd P.b 2).1 P.hb2
+  ext
+  · rfl
+  · change (((P.b ^ P.p - 1 - P.a ^ P.p) / 4 : ℤ) : ℚ) = (P.b ^ P.p - 1 - P.a ^ P.p) / 4
+    rw [Rat.intCast_div]
+    · norm_cast
+    · rw [sub_sub]
+      apply Int.dvd_sub
+      · calc
+          (4 : ℤ) = 2 ^ 2     := by norm_num
+          _       ∣ P.b ^ 2   := pow_dvd_pow_of_dvd two_dvd_b 2
+          _       ∣ P.b ^ P.p := pow_dvd_pow P.b (by linarith [P.hp5])
+      · apply (ZMod.intCast_zmod_eq_zero_iff_dvd _ 4).1
+        push_cast
+        rw [P.ha4, show (3 : ZMod 4) = -1 from rfl, neg_one_pow_eq_ite, if_neg]
+        · norm_num
+        · rw [Nat.Prime.even_iff P.pp]
+          linarith [P.hp5]
+  · rfl
+  · change ((-(P.a ^ P.p) * (P.b ^ P.p) / 16 : ℤ) : ℚ) = -(P.a ^ P.p) * (P.b ^ P.p) / 16
+    rw [Rat.intCast_div]
+    · norm_cast
+    · calc
+        (16 : ℤ) = 2 ^ 4     := by norm_num
+        _        ∣ P.b ^ 4   := pow_dvd_pow_of_dvd two_dvd_b 4
+        _        ∣ P.b ^ P.p := pow_dvd_pow P.b (by linarith [P.hp5])
+        _        ∣ _         := Int.dvd_mul_left _ _
+  · rfl
+
+lemma FreyCurve.Δ (P : FreyPackage) : P.freyCurve.Δ = (P.a*P.b*P.c)^(2*P.p) / 2 ^ 8 := by
   trans (P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8
   · field_simp
     norm_cast
-    simp [← P.hFLT, WeierstrassCurve.Δ, FreyCurve, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
+    simp [← P.hFLT, WeierstrassCurve.Δ, freyCurve, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
       WeierstrassCurve.b₆, WeierstrassCurve.b₈]
     ring
   · simp [← mul_pow, ← pow_mul, mul_comm 2]
 
-instance (P : FreyPackage) : WeierstrassCurve.IsElliptic (FreyCurve P) where
+instance (P : FreyPackage) : WeierstrassCurve.IsElliptic (freyCurve P) where
   isUnit := by
     rw [FreyCurve.Δ, isUnit_iff_ne_zero]
     apply div_ne_zero
@@ -234,32 +272,32 @@ instance (P : FreyPackage) : WeierstrassCurve.IsElliptic (FreyCurve P) where
     · norm_num
 
 lemma FreyCurve.b₂ (P : FreyPackage) :
-    P.FreyCurve.b₂ = P.b ^ P.p - P.a ^ P.p := by
-  simp [FreyCurve, WeierstrassCurve.b₂]
+    P.freyCurve.b₂ = P.b ^ P.p - P.a ^ P.p := by
+  simp [freyCurve, WeierstrassCurve.b₂]
   ring
 
 lemma FreyCurve.b₄ (P : FreyPackage) :
-    P.FreyCurve.b₄ = - (P.a * P.b) ^ P.p / 8 := by
-  simp [FreyCurve, WeierstrassCurve.b₄]
+    P.freyCurve.b₄ = - (P.a * P.b) ^ P.p / 8 := by
+  simp [freyCurve, WeierstrassCurve.b₄]
   ring
 
 lemma FreyCurve.c₄ (P : FreyPackage) :
-    P.FreyCurve.c₄ = (P.a ^ P.p) ^ 2 + P.a ^ P.p * P.b ^ P.p + (P.b ^ P.p) ^ 2 := by
+    P.freyCurve.c₄ = (P.a ^ P.p) ^ 2 + P.a ^ P.p * P.b ^ P.p + (P.b ^ P.p) ^ 2 := by
   simp [FreyCurve.b₂, FreyCurve.b₄, WeierstrassCurve.c₄]
   ring
 
 lemma FreyCurve.c₄' (P : FreyPackage) :
-    P.FreyCurve.c₄ = P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p := by
+    P.freyCurve.c₄ = P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p := by
   rw [FreyCurve.c₄]
   rw_mod_cast [pow_mul', ← hFLT]
   ring
 
 lemma FreyCurve.Δ'inv (P : FreyPackage) :
-    (↑(P.FreyCurve.Δ'⁻¹) : ℚ) = 2 ^ 8 / (P.a*P.b*P.c)^(2*P.p) := by
+    (↑(P.freyCurve.Δ'⁻¹) : ℚ) = 2 ^ 8 / (P.a*P.b*P.c)^(2*P.p) := by
   simp [FreyCurve.Δ]
 
 lemma FreyCurve.j (P : FreyPackage) :
-    P.FreyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 /(P.a*P.b*P.c)^(2*P.p) := by
+    P.freyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 /(P.a*P.b*P.c)^(2*P.p) := by
   rw [mul_div_right_comm, WeierstrassCurve.j, FreyCurve.Δ'inv, FreyCurve.c₄']
 
 private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := by
@@ -272,7 +310,7 @@ private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := 
 a prime of bad reduction. -/
 lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : q.Prime)
     (hqbad : (q : ℤ) ∣ P.a * P.b * P.c) (hqodd : 2 < q) :
-    (P.p : ℤ) ∣ padicValRat q P.FreyCurve.j := by
+    (P.p : ℤ) ∣ padicValRat q P.freyCurve.j := by
   have := Fact.mk hqPrime
   have hqPrime' := Nat.prime_iff_prime_int.mp hqPrime
   have h₀ : ((P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p) ^ 3 : ℚ) ≠ 0 := by
@@ -324,7 +362,7 @@ abbrev Qbar := AlgebraicClosure ℚ
 
 open WeierstrassCurve
 theorem Mazur_Frey (P : FreyPackage) :
-    IsSimpleModule (ZMod P.p) (P.FreyCurve.torsionGaloisRepresentation P.p Qbar).asModule := sorry
+    IsSimpleModule (ZMod P.p) (P.freyCurve.torsionGaloisRepresentation P.p Qbar).asModule := sorry
 
 /-!
 
@@ -334,7 +372,7 @@ But it follows from a profound theorem of Ribet, and the even more profound theo
 -/
 
 theorem Wiles_Frey (P : FreyPackage) :
-    ¬ IsSimpleModule (ZMod P.p) (P.FreyCurve.torsionGaloisRepresentation P.p Qbar).asModule := sorry
+    ¬ IsSimpleModule (ZMod P.p) (P.freyCurve.torsionGaloisRepresentation P.p Qbar).asModule := sorry
 
 /-!
 
