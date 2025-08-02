@@ -16,7 +16,7 @@ theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
     Continuous (congrRight φ hφ) :=
-  map_continuous G H id Filter.tendsto_id φ hφ hφcont
+  mapAlong_continuous G H id Filter.tendsto_id φ hφ hφcont
 
 -- now let's add groups
 
@@ -289,7 +289,7 @@ def flatten_homeomorph :
   __ := flatten_equiv C hf
   continuous_toFun := by
     dsimp only [flatten_equiv]
-    apply map_continuous
+    apply mapAlong_continuous
     fun_prop
   continuous_invFun := by
     dsimp only [flatten_equiv]
