@@ -430,7 +430,7 @@ theorem t2Space (R : Type*) {M : Type*} [Semiring R] [AddCommGroup M] [Module R 
     : T2Space M := by
   have := IsModuleTopology.topologicalAddGroup R M
   rw [IsTopologicalAddGroup.t2Space_iff_zero_closed]
-  let f := Module.Free.repr R M |>.toLinearMap
+  let f := (Module.Free.chooseBasis R M).repr |>.toLinearMap
   let g : (Module.Free.ChooseBasisIndex R M →₀ R) →ₗ[R] (Module.Free.ChooseBasisIndex R M → R) := {
     __ := Finsupp.coeFnAddHom
     map_smul' _ _ := rfl
@@ -441,7 +441,7 @@ theorem t2Space (R : Type*) {M : Type*} [Semiring R] [AddCommGroup M] [Module R 
     exact isClosed_singleton
   ext x
   simp [map_eq_zero_iff g DFunLike.coe_injective,
-    map_eq_zero_iff f (Module.Free.repr R M).injective]
+    map_eq_zero_iff f (Module.Free.chooseBasis R M).repr.injective]
 
 /-- A vector space with the module topology over a `T2Space` ring is a `T2Space`.
 -/
