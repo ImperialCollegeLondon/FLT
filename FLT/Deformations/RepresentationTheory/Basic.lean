@@ -113,23 +113,24 @@ def GaloisRep.conjEquiv (e : M ≃ₗ[A] N) : GaloisRep K A M ≃ GaloisRep K A 
 
 /-- Given a basis, we may frame a galois rep into a framed galois rep. -/
 noncomputable
-def GaloisRep.frame (ρ : GaloisRep K A M) (b : Basis n A M) : FramedGaloisRep K A n :=
+def GaloisRep.frame (ρ : GaloisRep K A M) (b : Module.Basis n A M) : FramedGaloisRep K A n :=
   ρ.conj (b.repr ≪≫ₗ Finsupp.linearEquivFunOnFinite A A n)
 
 /-- Given a basis of `M`, we may realize a framed galois rep as a galois rep on `M`. -/
 noncomputable
-def FramedGaloisRep.unframe (ρ : FramedGaloisRep K A n) (b : Basis n A M) : GaloisRep K A M :=
+def FramedGaloisRep.unframe (ρ : FramedGaloisRep K A n) (b : Module.Basis n A M) :
+    GaloisRep K A M :=
   ρ.conj (b.repr ≪≫ₗ Finsupp.linearEquivFunOnFinite A A n).symm
 
 omit [DecidableEq n] [NumberField K] in
 @[simp]
-lemma GaloisRep.unframe_frame (ρ : GaloisRep K A M) (b : Basis n A M) :
+lemma GaloisRep.unframe_frame (ρ : GaloisRep K A M) (b : Module.Basis n A M) :
     (ρ.frame b).unframe b = ρ := by
   ext; simp [frame, FramedGaloisRep.unframe]
 
 omit [DecidableEq n] [NumberField K] in
 @[simp]
-lemma FramedGaloisRep.unframe_frame (ρ : FramedGaloisRep K A n) (b : Basis n A M) :
+lemma FramedGaloisRep.unframe_frame (ρ : FramedGaloisRep K A n) (b : Module.Basis n A M) :
     (ρ.unframe b).frame b = ρ := by
   ext; simp [unframe, GaloisRep.frame]; rfl
 
@@ -236,7 +237,7 @@ omit [NumberField K] in
 variable (B) in
 lemma GaloisRep.frame_baseChange [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
     [Module.Finite A M] [Module.Free A M]
-    (ρ : GaloisRep K A M) (b : Basis n A M) :
+    (ρ : GaloisRep K A M) (b : Module.Basis n A M) :
     (ρ.baseChange B).frame (b.baseChange B) =
       (ρ.frame b).baseChange _ (continuous_algebraMap A B) := by
   apply FramedGaloisRep.GL.injective

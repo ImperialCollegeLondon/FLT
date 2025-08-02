@@ -195,7 +195,7 @@ lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace
     [TopologicalSpace (Module.End A M)] [IsModuleTopology A (Module.End A M)] :
     Continuous (LinearMap.det : Module.End A M →* A) := by
   classical
-  by_cases H : ∃ s : Finset M, Nonempty (Basis s A M)
+  by_cases H : ∃ s : Finset M, Nonempty (Module.Basis s A M)
   · obtain ⟨s, ⟨b⟩⟩ := H
     have : IsModuleTopology A (Matrix s s A) := IsModuleTopology.instPi
     have : ContinuousAdd (Module.End A M) := IsModuleTopology.toContinuousAdd A _
