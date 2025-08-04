@@ -292,16 +292,8 @@ lemma iso₁_continuous : Continuous (iso₁ K D) := by
   · apply Continuous.units_map
     simp only [MulEquiv.toMonoidHom_eq_coe, MonoidHom.coe_coe, MulEquiv.coe_mk,
       AlgEquiv.toEquiv_eq_coe, EquivLike.coe_coe]
-    rw [continuous_def]
-    intro s hs
-    obtain ⟨t, t', ht⟩ : ∃ t : Set (D ⊗[K] NumberField.InfiniteAdeleRing K),
-        ∃ t' : Set (D ⊗[K] FiniteAdeleRing (𝓞 K) K), s = Prod t t' := by
-      -- by definition
-      sorry
-    have t_open : IsOpen t ∧ IsOpen t' := by
-      -- product topology
-      sorry
-    -- all the individual parts have the module topology, RHS has the product topology
+
+    -- Kevin has an outline of the proof of the continuity of this.
     sorry
 
 /-- The restriction of ringHaarChar_ker D_𝔸 to Dfx K D. -/
@@ -312,7 +304,35 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
   refine Continuous.comp continuous_snd (Continuous.comp
     (iso₁_continuous K D) continuous_subtype_val)
 
--- t will be deg_ℚ D
+local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+
+local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := { measurable_eq := rfl }
+
+lemma ringHaarChar_eq₁ (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) (b : Dfx K D) :
+    ringHaarChar ((iso₁ K D).symm (a, b)) =
+    ringHaarChar (R := Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K]
+    (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
+  apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+  -- will need to first define this continuous additive equivalence
+  -- should be similar/the same as the sorry in iso₁_continuous
+  all_goals sorry -- this lemma is needed so that we can use ringHaarChar_prod
+
+local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
+
+local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact { measurable_eq := rfl }
+
+local instance : MeasurableSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact borel (D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+
+local instance : BorelSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact { measurable_eq := rfl }
+
+
 
 lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
@@ -326,6 +346,9 @@ lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
       exact addEquivAddHaarChar_pos _
     exact this ((iso₁ K D).symm (1, x))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
+    simp_rw [ringHaarChar_eq₁, ringHaarChar_prod, map_one, mul_one]
+
+
 
     sorry
   use (iso₁ K D).symm (y⁻¹, x)
@@ -393,11 +416,12 @@ lemma α_surjective  : Function.Surjective (α K D) := by
   simp only [Set.mem_range, Subtype.exists, Set.mem_univ, iff_true]
   have h := rest₁_surjective K D
   have : ∃ a : (ringHaarChar_ker (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)),
-    (rest₁ K D) a = x.out := by
+      (rest₁ K D) a = x.out := by
     refine Set.mem_range.mp ?_
     simp only [Set.image_univ] at h
     rw [h]
-    exact trivial
+    · exact trivial
+    · exact USize.size -- not sure why this goal has appeared.
   obtain ⟨a, ha⟩ := this
   use a
   simp only [Subtype.coe_eta, SetLike.coe_mem, exists_const, ha]
