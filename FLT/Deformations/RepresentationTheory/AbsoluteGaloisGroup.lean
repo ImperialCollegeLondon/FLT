@@ -203,7 +203,7 @@ lemma isIntegral_of_spectralNorm_le_one
     · conv_rhs at this => rw [← Real.one_rpow (1 / (↑(minpoly K x).natDegree - ↑i) : ℝ)]
       rw [Real.rpow_le_rpow_iff (by positivity) (by positivity) (by aesop)] at this
       simpa [Valuation.mem_integer_iff] using this
-    obtain h | h := (le_of_not_lt h).eq_or_lt
+    obtain h | h := (le_of_not_gt h).eq_or_lt
     · simp [← h, minpoly.monic (Algebra.IsAlgebraic.isAlgebraic x).isIntegral, one_mem]
     · simp [Polynomial.coeff_eq_zero_of_natDegree_lt h, zero_mem]
   obtain ⟨P, hP, _, hP'⟩ := Polynomial.lifts_and_degree_eq_and_monic this
@@ -211,12 +211,6 @@ lemma isIntegral_of_spectralNorm_le_one
   refine ⟨P, hP', ?_⟩
   rw [← Polynomial.aeval_def, ← Polynomial.aeval_map_algebraMap K,
     Subring.algebraMap_def, hP, minpoly.aeval]
-
-lemma spectralAlgNorm_mul {K : Type*} [NontriviallyNormedField K]
-    {L : Type*} [Field L] [Algebra K L]
-    [Algebra.IsAlgebraic K L] [CompleteSpace K] [IsUltrametricDist K] (x y : L) :
-    spectralAlgNorm K L (x * y) = spectralAlgNorm K L x * spectralAlgNorm K L y := by
-  sorry -- This is proved in https://github.com/leanprover-community/mathlib4/pull/23333
 
 lemma spectralNorm_inv
     {K L : Type*} [NontriviallyNormedField K] [Field L] [Algebra K L] [IsUltrametricDist K]
