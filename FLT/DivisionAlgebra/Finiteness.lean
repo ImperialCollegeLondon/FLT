@@ -513,7 +513,7 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
     --rw [Equiv₂_ringHaarChar_eq]
     -- want to use Equiv₂_ringHaarChar_eq as this removes Equiv₂ K D
     -- then need to use the iso to ℝ^d
-    -- and then apply product of ringHaarChar (hopefully)
+    -- and then apply ringHaarChar_pi (hopefully)
     sorry
   use (iso₁ K D).symm (y⁻¹, x)
   constructor
