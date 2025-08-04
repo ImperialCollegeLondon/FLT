@@ -6,7 +6,6 @@ Authors: Salvatore Mercuri
 import Mathlib.NumberTheory.NumberField.Completion
 import FLT.NumberField.InfinitePlace.Extension
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
-import FLT.Mathlib.Data.Subtype
 import FLT.Mathlib.NumberTheory.NumberField.Embeddings
 
 /-!
@@ -113,9 +112,9 @@ def toIsMixedExtension (w : v.RamifiedExtension L ⊕ v.RamifiedExtension L) :
 theorem toIsMixedExtension_injective : (toIsMixedExtension L v).Injective := by
   apply Subtype.map_injective _ (embedding_injective _) |>.sumElim
     (Subtype.map_injective _ (conjugate_embedding_injective _))
-  exact Subtype.map_ne _ _ (fun w h => isMixedExtension ⟨w, h⟩)
-    (fun w h => isMixedExtension_conjugate ⟨w, h⟩)
-    (fun _ _ _ h₂ => h₂.2.ne_conjugate)
+  intro a b
+  rw [Subtype.map_ne]
+  exact b.prop.2.ne_conjugate
 
 theorem toIsMixedExtension_surjective : (toIsMixedExtension L v).Surjective := by
   intro ⟨ψ, h⟩

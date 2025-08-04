@@ -299,7 +299,7 @@ for compactness.
   \leanok
   \discussion{581}
   If $U_i$ are topological monoids then the canonical
-  group isomorphism $(\prod_i U_i)^\times=\prod_i(U_i^\times)$ is a homeomorphisn.
+  group isomorphism $(\prod_i U_i)^\times=\prod_i(U_i^\times)$ is a homeomorphism.
 \end{lemma}
 \begin{proof}
   \leanok
@@ -313,7 +313,7 @@ for compactness.
   This reduces us to checking that the maps $(\prod_i U_i)^\times\to U_j$
   sending $(u_i)$ to $u_j$ resp $u_j^{-1}$ are continuous. But the former map
   is the continuous inclusion $(\prod_i U_i)^\times\to\prod_i U_i$ followed
-  by the conintuous projection to $U_j$, and the latter map is the continuous
+  by the continuous projection to $U_j$, and the latter map is the continuous
   inclusion $(\prod_i U_i)^\times\to\prod_i U_i$ sending $x$ to $x^{-1}$
   followed by the projection.
 
@@ -397,7 +397,7 @@ is easily checked to be a submonoid of $M_2(\calO_v)$; furthermore it is a finit
 cosets of $I$ and is hence compact and open as a submonoid of $M_2(\calO_v)$ and hence of $M_2(K_v)$.
 
 \begin{lemma}
-  \label{nolean-compactopen-U1p} $U_v$ is a compact open subgoup of $GL_2(K_v)$.
+  \label{nolean-compactopen-U1p} $U_v$ is a compact open subgroup of $GL_2(K_v)$.
 \end{lemma}
 \begin{proof}
   \uses{Submonoid.units_isOpen, Submonoid.units_isCompact}
@@ -421,7 +421,7 @@ Let's do an explicit double coset decomposition in preparation for a calculation
 \begin{proof} We first manipulate the statement into a statement about finite groups.
   We have $UgU=\coprod_t g_tU\iff UgUg^{-1}=\coprod_t g_tUg^{-1}=\coprod_t g_tg^{-1}(gUg^{-1})$.
   By the second isomorphism theorem this is true if
-  $U/(gUg^{-1}\cap U)=\coprod_t g_tg^{-1}(gUg^{-1}\cap U)$. So when is an element of $U$
+  $U=\coprod_t g_tg^{-1}(gUg^{-1}\cap U)$. So when is an element of $U$
   in $gUg^{-1}$? Equivalently, if $x\in U$, when is $g^{-1}xg\in U$? An explicit calculation
   of matrices shows us that this is true iff $g=\begin{pmatrix} a&b\\c&d\end{pmatrix}$ with
   $\alpha\mid b$. Define $U^\alpha$ to be this subgroup of~$U$. We have reduced the question
@@ -429,7 +429,7 @@ Let's do an explicit double coset decomposition in preparation for a calculation
   are a set of left coset representatives for the subgroup $U^\alpha$ of $U$.
 
   It thus suffices to show that if $u=\begin{pmatrix} a&b\\c&d\end{pmatrix}\in U$
-  then $u\in h_tU^\alpha$ iff $c\in\calO_v$ reduces mod $\alpha$ to $t\in\calO_v/\alpha$.
+  then $u\in h_tU^\alpha$ iff $b\in\calO_v$ reduces mod $\alpha$ to $t\in\calO_v/\alpha$.
   We do this by computing $h_t^{-1}u=\begin{pmatrix} a-\tilde{t}c&b-\tilde{t}d\\c&d\end{pmatrix}$
   and observing that its top right hand entry mod~$\alpha$ is zero iff $b$ mod $\alpha$ is $t$.
 \end{proof}
@@ -481,41 +481,30 @@ which we shall be using.
 
 \section{Automorphic forms}
 
-We briefly describe the spaces of automorphic forms we shall be interested in, although
-they will play no role in this miniproject. We fix a totally real field~$F$, a
+We recall some of the definitions of spaces of automorphic forms, from
+the quaternion algebra project, section~\ref{Quat_alg_project}.
+
+We fix a totally real field~$F$, a
 totally definite quaternion algebra~$D/F$, and a coefficient (additive abelian) group~$R$.
 Set $G=(D\otimes_F\A_F^\infty)^\times$ as in the previous section. Note that $G$
-naturally contains copies of $D^\times$ and $(\A_F^\infty)^\times$.
-
-\begin{definition}
-  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
-  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
-  \leanok
-  We define the abelian group of $R$-valued weight~2 automorphic forms
-to be the functions $f:G\to R$ satisfying the following axioms:
+naturally contains copies of $D^\times$ and $(\A_F^\infty)^\times$. Recall from
+definition~\ref{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
+that an $R$-valued weight~2 automorphic form
+is a function $f:G\to R$ satisfying the following axioms:
 \begin{enumerate}
   \item $f(dg)=f(g)$ for all $d\in D^\times\subseteq(D\otimes_F\A_F^\times)$;
   \item There exists a compact open subgroup of~$U$ (the \emph{level} of~$f$)
     such that $f(gu)=f(g)$ for all $g\in G$ and $u\in U$;
   \item $f(gz)=f(g)$ for all $z\in(\A_F^\infty)^\times$.
 \end{enumerate}
-\end{definition}
 
-It can be checked that this is an additive abelian group, and if~$R$ is a ring
-then it is naturally an~$R$-module. Let's call this group~$A$ for short.
+It can be checked that the collection of all such forms is an additive abelian group,
+and if~$R$ is a ring then it is naturally an~$R$-module. Let's call this group~$A$ for short.
 Then~$A$ has a left action of $G$, with $g\cdot f$
-defined via $(g\cdot f)(x):=f(xg)$.
-
-\begin{definition}
-  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
-  \label{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
-  \leanok
-  \uses{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm}
-  If~$U$ is a compact open subgroup of~$G$ then the space of~$R$-valued weight~2
-  automorphic forms of level~$U$ is just the fixed points $A^U$ of this action.
-\end{definition}
-
-In other words, the forms of level~$U$ are the forms satisfying the three axioms
+defined via $(g\cdot f)(x):=f(xg)$. Recall from
+definition~\ref{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel}
+that a weight 2 automorphic form of level~$U$ is simply an element of the
+fixed points $A^U$. In other words, the forms of level~$U$ are the forms satisfying the three axioms
 defining an automorphic form but with the compact open subgroup in the second
 axiom being~$U$.
 

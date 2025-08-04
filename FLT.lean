@@ -21,6 +21,12 @@ import FLT.Deformations.IsResidueAlgebra
 import FLT.Deformations.Lemmas
 import FLT.Deformations.LiftFunctor
 import FLT.Deformations.Representable
+import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
+import FLT.Deformations.RepresentationTheory.Basic
+import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+import FLT.Deformations.RepresentationTheory.Etale
+import FLT.Deformations.RepresentationTheory.Frobenius
+import FLT.Deformations.RepresentationTheory.IntegralClosure
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor
@@ -43,7 +49,6 @@ import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
-import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
@@ -71,7 +76,6 @@ import FLT.Mathlib.MeasureTheory.Group.Measure
 import FLT.Mathlib.MeasureTheory.Measure.OpenPos
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
-import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.NumberField.Embeddings
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers

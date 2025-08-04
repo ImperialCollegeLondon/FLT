@@ -264,7 +264,7 @@ noncomputable local instance adicCompletion_RkOne :
     map_mul' := MonoidWithZeroHom.map_mul (toNNReal (by norm_num))
   }
   strictMono' := toNNReal_strictMono (by norm_num)
-  nontrivial' := by
+  exists_val_nontrivial := by
     obtain ⟨x, hx1, hx2⟩ := Submodule.exists_mem_ne_zero_of_ne_bot v.ne_bot
     use algebraMap A K x
     rw [valuedAdicCompletion_eq_valuation' v (algebraMap A K x)]
@@ -496,16 +496,16 @@ lemma tensorAdicCompletionIsClopenRange :
   -- Take a basis `b` of `L` over `K` with elements in `B` and use it to
   -- get a basis `b'` of `L ⊗[K] K_v` over `K_v`.
   obtain ⟨ι, b, hb⟩ := FiniteDimensional.exists_is_basis_integral A K L
-  let b' : Basis ι (adicCompletion K v) (L ⊗[K] (adicCompletion K v)) := by
+  let b' : Module.Basis ι (adicCompletion K v) (L ⊗[K] (adicCompletion K v)) := by
     classical
-    exact Basis.rightBaseChange L b
+    exact b.rightBaseChange L
   -- Use the basis to get a continuous equivalence from `L ⊗[K] K_v` to `ι → K_v`.
   let equiv : L ⊗[K] (adicCompletion K v) ≃L[K] (ι → adicCompletion K v) :=
     IsModuleTopology.continuousLinearEquiv (b'.equivFun) |>.restrictScalars K
 
   -- Use the preimage of `∏ 𝒪_v` as the open neighbourhood.
   use equiv.symm '' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v)))
-  refine ⟨?_, ?_, by simp [ValuationSubring.zero_mem]⟩
+  refine ⟨?_, ?_, by simp⟩
   · intro t ⟨g, hg, ht⟩
     -- We have `t = equiv g = ∑ i, b i ⊗ g i`, since `g in ∏ 𝒪_v` and
     -- `b i ∈ (algebraMap B L).range`, this is `tensorAdicCompletionIntegersTo`
@@ -527,7 +527,7 @@ lemma tensorAdicCompletionIsClopenRange :
     unfold equiv
     rw [ContinuousLinearEquiv.restrictScalars_symm_apply,
       IsModuleTopology.continuousLinearEquiv_symm_apply,
-      Basis.equivFun_symm_apply]
+      Module.Basis.equivFun_symm_apply]
     apply Finset.sum_congr rfl
     intro x
     have : (algebraMap _ (L ⊗[K] adicCompletion K v)) (g x) = 1 ⊗ₜ[K] (g x) := rfl
