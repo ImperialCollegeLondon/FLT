@@ -9,15 +9,6 @@ namespace RestrictedProduct
 variable {ι : Type*}
 variable {R : ι → Type*} {A : (i : ι) → Set (R i)}
 variable {ℱ : Filter ι}
-
-/-- Constructor for `RestrictedProduct`. -/
-abbrev mk (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) : Πʳ i, [R i, A i]_[ℱ] :=
-  ⟨x, hx⟩
-
-@[simp]
-lemma mk_apply (x : Π i, R i) (hx : ∀ᶠ i in ℱ, x i ∈ A i) (i : ι) :
-    (mk x hx) i = x i := rfl
-
 variable {S : ι → Type*} -- subobject type
 variable [Π i, SetLike (S i) (R i)]
 variable {B : Π i, S i}
@@ -45,7 +36,7 @@ given maps on the factors. -/
 def congrRight (φ : (i : ι) → G i → H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (x : Πʳ i, [G i, C i]_[ℱ]) : (Πʳ i, [H i, D i]_[ℱ]) :=
-  map G H id Filter.tendsto_id φ hφ x
+  map φ hφ x
 
 end RestrictedProduct
 
@@ -264,7 +255,7 @@ variable (hf : Filter.Tendsto f ℱ 𝒢) in
 to the restricted product over the original indexing set. -/
 def flatten : Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[𝒢] →
     Πʳ i, [G i, C i]_[ℱ] :=
-  map _ G f hf (fun i x ↦ x ⟨i, rfl⟩) (by filter_upwards with x y hy using hy ⟨x, rfl⟩ trivial)
+  mapAlong _ G f hf (fun i x ↦ x ⟨i, rfl⟩) (by filter_upwards with x y hy using hy ⟨x, rfl⟩ trivial)
 
 @[simp]
 lemma flatten_apply (hf : Filter.Tendsto f ℱ 𝒢) (x) (i : ι) :

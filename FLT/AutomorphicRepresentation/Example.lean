@@ -518,7 +518,7 @@ noncomputable abbrev zsub : AddSubgroup QHat :=
 
 lemma ZMod.isUnit_natAbs {z : ℤ} {N : ℕ} : IsUnit (z.natAbs : ZMod N) ↔ IsUnit (z : ZMod N) := by
   cases z.natAbs_eq with
-  | inl h | inr h => rw [h]; simp [-Int.natCast_natAbs]
+  | inl h | inr h => rw [h]; simp
 
 @[simp]
 lemma _root_.Algebra.TensorProduct.one_tmul_intCast {R : Type*} {A : Type*} {B : Type*}

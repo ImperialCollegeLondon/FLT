@@ -63,7 +63,7 @@ open scoped TensorProduct -- ⊗ notation for tensor product
 
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields. -/
 noncomputable def FiniteAdeleRing.mapRingHom :
-    FiniteAdeleRing A K →+* FiniteAdeleRing B L := RestrictedProduct.mapRingHom
+    FiniteAdeleRing A K →+* FiniteAdeleRing B L := RestrictedProduct.mapAlongRingHom
   (fun (v : HeightOneSpectrum A) ↦ v.adicCompletion K)
   (fun (w : HeightOneSpectrum B) ↦ w.adicCompletion L)
   (HeightOneSpectrum.comap A)
