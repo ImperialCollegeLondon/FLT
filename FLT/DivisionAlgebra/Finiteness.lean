@@ -126,19 +126,8 @@ abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := by
 
 /-- The 𝔸-algebra equivalence of D_𝔸 and 𝔸^d. -/
 def D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) := by
-  suffices h : ((Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K) ≃ₗ[(AdeleRing (𝓞 K) K)]
-      (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) by
-    have H1 := TensorProduct.AlgebraTensorModule.finiteEquivPi (R := K) (M := D)
-      (N := AdeleRing (𝓞 K) K)
-    have H2 : D ⊗[K] AdeleRing (𝓞 K) K ≃ₗ[AdeleRing (𝓞 K) K] (AdeleRing (𝓞 K) K) ⊗[K] D :=
-      (TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm
-    exact H2.trans H1
-  have h1 := (TensorProduct.piScalarRight K (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 K) K)
-    (Fin (Module.finrank K D)))
-  have h2 : (Fin (Module.finrank K D) → K) ⊗[K] AdeleRing (𝓞 K) K ≃ₗ[(AdeleRing (𝓞 K) K)]
-      AdeleRing (𝓞 K) K ⊗[K] (Fin (Module.finrank K D) → K) := by
-    exact (TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm
-  exact h2.trans h1
+  exact ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
+      (TensorProduct.AlgebraTensorModule.finiteEquivPi (R := K) (M := D) (N := AdeleRing (𝓞 K) K))
 
 local instance : IsModuleTopology (AdeleRing (𝓞 K) K)
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := by
