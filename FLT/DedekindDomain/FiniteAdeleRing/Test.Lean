@@ -46,6 +46,12 @@ variable [DecidableEq ι] [IsDirected ι (· ≤ ·)] [Nonempty ι] [DirectedSys
   inj :  ∀ i j, ∀ mi : M i, ∀ mj : M j, g i mi = g j mj → ∃ (k : ι) (hik : i ≤ k) (hjk : j ≤ k),
       f i k hik mi = f j k hjk mj
 
+variable [IsDirectLimit M P f g]
+
+include f in
+theorem IsDirectLimit.surj' : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m :=
+  IsDirectLimit.surj f
+
 instance isDirectLimit : IsDirectLimit M (Module.DirectLimit M f) f
   (Module.DirectLimit.of R ι M f) where
   surj := Module.DirectLimit.exists_of
@@ -55,9 +61,52 @@ instance isDirectLimit : IsDirectLimit M (Module.DirectLimit M f) f
     have ⟨k, hi, hj, hij⟩ := Quotient.exact h
     exact ⟨k, hi, hj, hij⟩
 
+
+noncomputable def iso : Module.DirectLimit M f ≃ₗ[R] P where
+  __ := Module.DirectLimit.lift R ι M f g Hg
+  invFun p :=
+    Module.DirectLimit.of R ι M f (Classical.choose (IsDirectLimit.surj' M P f g p))
+       (Classical.choose (Classical.choose_spec (IsDirectLimit.surj' M P f g p)))
+  left_inv x := by
+    simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+
+
+
+    sorry
+  right_inv := sorry
+
 end Module
 
 end IsDirectLimit
+
+section TensorProduct
+
+open scoped TensorProduct
+open Module
+
+variable {R : Type*} [CommSemiring R] {ι : Type*} [Preorder ι] (M : ι → Type*) (P : Type*)
+variable [AddCommMonoid P] [Module R P]
+variable [∀ i, AddCommMonoid (M i)] [∀ i, Module R (M i)] (f : ∀ i j, i ≤ j → M i →ₗ[R] M j)
+variable (g : ∀ i, M i →ₗ[R] P) (Hg : ∀ i j hij x, g j (f i j hij x) = g i x)
+variable [DecidableEq ι] [IsDirected ι (· ≤ ·)] [Nonempty ι] [DirectedSystem M (f · · ·)]
+variable (N : Type*) [AddCommMonoid N] [Module R N] [IsDirectLimit M P f g]
+
+def incTensorMap (i j : ι) (h : i ≤ j) : M i ⊗[R] N →ₗ[R] M j ⊗[R] N :=
+   TensorProduct.map (f i j h) (LinearMap.id)
+
+def tensorMap (i : ι) : M i ⊗[R] N →ₗ[R] P ⊗[R] N :=
+  TensorProduct.map (g i) (LinearMap.id)
+
+instance : IsDirectLimit (fun i ↦ (M i ⊗[R] N)) (P ⊗[R] N) (incTensorMap M f N)
+  (tensorMap M P g N) := sorry
+
+
+
+
+
+
+end TensorProduct
+
 
 
 section RestrictedProduct
