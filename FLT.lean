@@ -21,6 +21,12 @@ import FLT.Deformations.IsResidueAlgebra
 import FLT.Deformations.Lemmas
 import FLT.Deformations.LiftFunctor
 import FLT.Deformations.Representable
+import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
+import FLT.Deformations.RepresentationTheory.Basic
+import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+import FLT.Deformations.RepresentationTheory.Etale
+import FLT.Deformations.RepresentationTheory.Frobenius
+import FLT.Deformations.RepresentationTheory.IntegralClosure
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor
@@ -43,7 +49,6 @@ import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
-import FLT.Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
@@ -56,8 +61,6 @@ import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.Data.Set.Function
-import FLT.Mathlib.Data.Subtype
-import FLT.Mathlib.GroupTheory.Complement
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
 import FLT.Mathlib.LinearAlgebra.Determinant
@@ -76,7 +79,6 @@ import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.NumberTheory.RamificationInertia.Basic
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.Finiteness.Pi
-import FLT.Mathlib.RingTheory.Ideal.Operations
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
