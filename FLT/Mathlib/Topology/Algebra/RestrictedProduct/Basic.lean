@@ -333,19 +333,8 @@ def mulSingle [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) (x : 
     Πʳ i, [G i, A i] where
   val := Pi.mulSingle i x
   property := by
-    rw [Filter.eventually_cofinite]
-    apply Set.Subsingleton.finite
-    apply Set.subsingleton_of_subset_singleton (a := i)
-    apply Set.Subset.trans _ (Pi.mulSupport_mulSingle_subset (b := x))
-    intro j hj
-    rw [Function.mem_mulSupport]
-    contrapose! hj
-    rw [Set.mem_setOf, Set.not_notMem]
-    convert one_mem (A j)
-    by_cases hi : i = j
-    · obtain rfl := hi
-      exact hj
-    · rw [Pi.mulSingle_eq_of_ne' hi]
+    filter_upwards [show {i}ᶜ ∈ Filter.cofinite by simp]
+    aesop
 
 @[to_additive]
 lemma mulSingle_injective [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) :
@@ -442,20 +431,16 @@ lemma components_comp_coe_eq_coe_apply : (fun a j ↦ g j (a (f j))) ∘ (⇑) =
 
 lemma exists_update (x : Πʳ i, [G i, C i]_[ℱ]) (i : ι) (a : G i)
     (h : {i}ᶜ ∈ ℱ) : ∃ y : Πʳ i, [G i, C i]_[ℱ], y i = a ∧ ∀ j ≠ i, y j = x j := by
-  have hy' (j : ι) : ∃ y : G j, (j = i → y ≍ a) ∧ (j ≠ i → y = x j) := by
-    obtain (rfl | hne) := em (j = i)
-    · exact ⟨a, fun _ ↦ HEq.rfl, nofun⟩
-    · exact ⟨x j, fun heq ↦ absurd heq hne, fun _ ↦ rfl⟩
-  choose y hy using hy'
-  refine ⟨⟨y, ?_⟩, eq_of_heq ((hy i).left rfl), fun j ↦ (hy j).right⟩
-  rw [← Filter.eventually_mem_set] at h
-  filter_upwards [h, x.eventually] with j hj hx
-  rwa [(hy j).right hj]
+  classical
+  exact ⟨⟨fun j ↦ if hj : j = i then hj ▸ a else x j, by
+    filter_upwards [h, x.2] with j (hj : j ≠ i)
+    aesop⟩, by
+    aesop⟩
 
 variable (C) in
 lemma exists_apply_eq [∀ i, Nonempty (C i)] (i : ι) (a : G i) (h : {i}ᶜ ∈ ℱ) :
     ∃ x : Πʳ i, [G i, C i]_[ℱ], x i = a := by
-  let y : Πʳ i, [G i, C i]_[ℱ] := ⟨fun i ↦ (Classical.choice inferInstance : C i),
+  let y : Πʳ i, [G i, C i]_[ℱ] := ⟨fun i ↦ (Classical.ofNonempty : C i),
     Filter.Eventually.of_forall (fun x ↦ Subtype.coe_prop _)⟩
   obtain ⟨x, hx, -⟩ := exists_update y i a h
   exact ⟨x, hx⟩

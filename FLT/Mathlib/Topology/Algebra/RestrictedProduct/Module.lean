@@ -62,7 +62,7 @@ lemma smul_apply' (r : Πʳ i, [R i, B i]_[ℱ]) (m : Πʳ i, [M i, C i]_[ℱ]) 
     (r • m) i = r i • m i :=
   rfl
 
-instance module' : Module (Πʳ i, [R i, B i]_[ℱ]) (Πʳ i, [M i, C i]_[ℱ]) where
+instance : Module (Πʳ i, [R i, B i]_[ℱ]) (Πʳ i, [M i, C i]_[ℱ]) where
   zero_smul m := by ext; simp
   smul_zero r := by ext; simp
   one_smul m := by ext; simp

@@ -45,8 +45,7 @@ is an isomorphism.
 
 ## Main theorems
 
-* `BaseChange.isModuleTopology` : `FiniteAdeleRing B L` has the
-  `FiniteAdeleRing A K`-module topology.
+* `FiniteAdeleRing B L` has the `FiniteAdeleRing A K`-module topology, shown as an instance.
 
 -/
 
@@ -62,7 +61,7 @@ open IsDedekindDomain HeightOneSpectrum
 
 open scoped TensorProduct -- ⊗ notation for tensor product
 
-lemma tendsTo_comap_confinite [FaithfulSMul A B] :
+lemma tendsTo_comap_cofinite [FaithfulSMul A B] :
     Filter.Tendsto (comap A (B:=B)) Filter.cofinite Filter.cofinite :=
   have : FaithfulSMul A (FractionRing B) := FractionRing.instFaithfulSMul A B
   letI : Algebra (FractionRing A) (FractionRing B) :=
@@ -71,7 +70,7 @@ lemma tendsTo_comap_confinite [FaithfulSMul A B] :
     Extension.finite A (FractionRing A) (FractionRing B) B)
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] in
-lemma confinite_mapsTo_adicCompletionComapSemialgHom :
+lemma cofinite_mapsTo_adicCompletionComapSemialgHom :
     ∀ᶠ (w : HeightOneSpectrum B) in Filter.cofinite,
     Set.MapsTo (adicCompletionComapSemialgHom A K L B (comap A w) w rfl)
       (adicCompletionIntegers K (comap A w)) (adicCompletionIntegers L w) := by
@@ -88,9 +87,9 @@ noncomputable def FiniteAdeleRing.mapRingHom :
     (fun (v : HeightOneSpectrum A) ↦ v.adicCompletion K)
     (fun (w : HeightOneSpectrum B) ↦ w.adicCompletion L)
     (HeightOneSpectrum.comap A)
-    (tendsTo_comap_confinite A B)
+    (tendsTo_comap_cofinite A B)
     (fun w ↦ adicCompletionComapSemialgHom A K L B (w.comap A) w rfl)
-    (confinite_mapsTo_adicCompletionComapSemialgHom A K L B)
+    (cofinite_mapsTo_adicCompletionComapSemialgHom A K L B)
 
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields,
 as a morphism lying over the canonical map `K → L`. -/
@@ -120,8 +119,7 @@ instance : IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L) := by
   apply IsScalarTower.of_algebraMap_eq
   intro x
   nth_rw 2 [RingHom.algebraMap_toAlgebra]
-  symm
-  exact SemialgHom.commutes (FiniteAdeleRing.mapSemialgHom A K L B) x
+  exact SemialgHom.commutes (FiniteAdeleRing.mapSemialgHom A K L B) x |>.symm
 
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] in
 lemma BaseChange.algebraMap_apply (w : HeightOneSpectrum B) (x : FiniteAdeleRing A K) :
@@ -132,8 +130,8 @@ lemma BaseChange.algebraMap_apply (w : HeightOneSpectrum B) (x : FiniteAdeleRing
 omit [IsIntegralClosure B A L] [FiniteDimensional K L] in
 lemma FiniteAdeleRing.mapSemialgHom_continuous : Continuous (mapSemialgHom A K L B) :=
   have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
-  RestrictedProduct.mapAlong_continuous _ _ _ (tendsTo_comap_confinite A B) _
-    (confinite_mapsTo_adicCompletionComapSemialgHom A K L B)
+  RestrictedProduct.mapAlong_continuous _ _ _ (tendsTo_comap_cofinite A B) _
+    (cofinite_mapsTo_adicCompletionComapSemialgHom A K L B)
     fun w ↦ adicCompletionComapSemialgHom_continuous A K L B _ w rfl
 
 attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
@@ -202,7 +200,7 @@ noncomputable def FiniteAdeleRing.restrictedProduct_pi_equiv :
       piAdicIntegerSubmodule A K L B v] ≃L[FiniteAdeleRing A K] FiniteAdeleRing B L :=
   have := FaithfulSMul.of_field_isFractionRing A B K L
   let f : _ ≃ₜ (FiniteAdeleRing B L) := RestrictedProduct.flatten_homeomorph'
-    (G := adicCompletion L) (fun w ↦ adicCompletionIntegers L w) (tendsTo_comap_confinite A B)
+    (G := adicCompletion L) (fun w ↦ adicCompletionIntegers L w) (tendsTo_comap_cofinite A B)
   {
     __ := f
     map_add' x y := rfl
@@ -230,7 +228,7 @@ lemma FiniteAdeleRing.restrictedProduct_pi_isModuleTopology : IsModuleTopology (
     exact Extension.finite A K L B v
 
 omit [IsIntegralClosure B A L] in
-lemma BaseChange.isModuleTopology : IsModuleTopology (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
+instance : IsModuleTopology (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
   have := FiniteAdeleRing.restrictedProduct_pi_isModuleTopology A K L B
   IsModuleTopology.iso (FiniteAdeleRing.restrictedProduct_pi_equiv A K L B)
 
@@ -242,7 +240,6 @@ noncomputable instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
 /-- The continuous `𝔸_K^∞`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞` -/
 noncomputable def FiniteAdeleRing.baseChangeAdeleContinuousAlgEquiv :
     L ⊗[K] FiniteAdeleRing A K ≃A[FiniteAdeleRing A K] FiniteAdeleRing B L :=
-  have := BaseChange.isModuleTopology A K L B
   IsModuleTopology.continuousAlgEquivOfAlgEquiv <| baseChangeAdeleAlgEquiv A K L B
 
 /-- The continuous `L`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞` -/
