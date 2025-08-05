@@ -15,7 +15,6 @@ import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.Topology.Algebra.Group.Basic
 
-
 /-
 
 # Fujisaki's lemma
@@ -145,20 +144,18 @@ def D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K 
 abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) → (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)
     := fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
 
-omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
-theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
-    ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
-    IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
-  intro x
-  have h (i : Fin (Module.finrank K D)) := (NumberField.AdeleRing.discrete K) (x i)
-  use Set.pi (Set.univ) (fun (i : Fin (Module.finrank K D)) => Classical.choose (h i))
+theorem DiscreteXinY_to_DiscreteXninYn {X Y : Type*} [TopologicalSpace Y] (f : X → Y) (n : ℕ) :
+    (∀ x : X, ∃ U : Set Y, IsOpen U ∧  f⁻¹' U = {x}) →
+    (∀ x' : Fin n → X, ∃ U' : Set (Fin n → Y), IsOpen U' ∧
+    (fun (t : Fin n → X) (i : Fin n) ↦ f (t i))⁻¹' U' = {x'}) := by
+  intro h x'
+  have h (i : Fin n) := h (x' i)
+  use Set.pi (Set.univ) (fun (i : Fin n) => Classical.choose (h i))
   constructor
-  · have (i : Fin (Module.finrank K D)) := (Classical.choose_spec (h i)).1
+  · have (i : Fin n) := (Classical.choose_spec (h i)).1
     refine isOpen_set_pi ?_ fun a a_1 ↦ this a
     exact Set.finite_univ
-  · unfold incl_Kn_𝔸Kn
-    have H (i : Fin (Module.finrank K D)) := (Classical.choose_spec (h i)).2
+  · have H (i : Fin n) := (Classical.choose_spec (h i)).2
     ext y
     simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, forall_const, Set.mem_singleton_iff]
     constructor
@@ -172,70 +169,112 @@ theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
       refine Set.mem_preimage.mp ?_
       aesop
 
--- this can definitely be golfed (and extracted for smaller lemmas)
+omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
+    ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
+    IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
+  exact (DiscreteXinY_to_DiscreteXninYn (algebraMap K (AdeleRing (𝓞 K) K)) (Module.finrank K D))
+    (NumberField.AdeleRing.discrete K)
+
+theorem XdiscreteHomeoY_if_XdiscreteY {X Y Y' : Type*} [TopologicalSpace Y] [TopologicalSpace Y']
+    (f : X → Y) (h : Y ≃ₜ Y') : (∀ x : X, ∃ U : Set Y, IsOpen U ∧  f⁻¹' U = {x}) →
+    (∀ x : X, ∃ U' : Set Y', IsOpen U' ∧ (h ∘ f)⁻¹' U' = {x}) := by
+  intro H x
+  obtain ⟨U, Uopen, Ueq⟩ := H x
+  use h '' U
+  refine ⟨(Homeomorph.isOpen_image h).mpr Uopen, ?_⟩
+  ext y
+  simp only [Set.mem_preimage, Function.comp_apply, Set.mem_image, EmbeddingLike.apply_eq_iff_eq,
+    exists_eq_right, Set.mem_singleton_iff]
+  constructor
+  · intro incl
+    simpa [← Set.mem_preimage, Ueq] using incl
+  · intro eq
+    simp [eq, ← Set.mem_preimage, Ueq]
+
+theorem XdiscreteY_if_XdiscreteHomeoY {X Y Y' : Type*} [TopologicalSpace Y] [TopologicalSpace Y']
+    (f : X → Y) (h : Y ≃ₜ Y') : (∀ x : X, ∃ U' : Set Y', IsOpen U' ∧ (h ∘ f)⁻¹' U' = {x}) →
+    (∀ x : X, ∃ U : Set Y, IsOpen U ∧  f⁻¹' U = {x}) := by
+  intro H x
+  obtain ⟨U, Uopen, Ueq⟩ := H x
+  use h.symm '' U
+  refine ⟨(Homeomorph.isOpen_image h.symm).mpr Uopen, ?_⟩
+  ext y
+  simp only [Set.mem_preimage, Set.mem_image, Set.mem_singleton_iff]
+  constructor
+  · intro ⟨t, ⟨ht1, ht2⟩⟩
+    suffices y ∈  ⇑h ∘ f ⁻¹' U by
+      simpa [Ueq] using this
+    simpa [← ht2] using ht1
+  · intro eq
+    use h (f x)
+    constructor
+    · have : f ⁻¹' (⇑h ⁻¹' U) = ⇑h ∘ f ⁻¹' U := by
+        rfl
+      simp [← Set.mem_preimage, this, Ueq]
+    · simpa using congrArg f (id (Eq.symm eq))
+
+theorem XdiscreteY_iff_XdiscreteHomeoY {X Y Y' : Type*} [TopologicalSpace Y]
+    [TopologicalSpace Y'] (f : X → Y) (h : Y ≃ₜ Y') :
+    (∀ x : X, ∃ U : Set Y, IsOpen U ∧  f⁻¹' U = {x}) ↔
+    (∀ x : X, ∃ U' : Set Y', IsOpen U' ∧ (h ∘ f)⁻¹' U' = {x}) := by
+  exact ⟨XdiscreteHomeoY_if_XdiscreteY f h, XdiscreteY_if_XdiscreteHomeoY f h⟩
+
+theorem HomoXdiscreteY_if_XdiscreteY {X X' Y : Type*} [TopologicalSpace Y] (f : X → Y)
+    (h : X ≃ X') : (∀ x : X, ∃ U : Set Y, IsOpen U ∧  f⁻¹' U = {x}) →
+    (∀ x' : X', ∃ U' : Set Y, IsOpen U' ∧ h '' (f ⁻¹' U') = {x'}):= by
+  intro H x
+  obtain ⟨U, Uopen, Ueq⟩ := H (h.symm x)
+  exact ⟨U, Uopen, by simp [Ueq]⟩
+
+theorem XdiscreteY_if_HomoXdiscreteY {X X' Y : Type*} [TopologicalSpace Y] (f : X → Y)
+    (h : X ≃ X') : (∀ x' : X', ∃ U' : Set Y, IsOpen U' ∧ h '' (f ⁻¹' U') = {x'}) →
+    (∀ x : X, ∃ U : Set Y, IsOpen U ∧  f⁻¹' U = {x}) := by
+  intro H x
+  obtain ⟨U, Uopen, Ueq⟩ := H (h x)
+  refine ⟨U, Uopen, ?_⟩
+  simp_rw [(Equiv.eq_preimage_iff_image_eq h (f ⁻¹' U) {h x}).mpr Ueq,
+    Equiv.preimage_eq_iff_eq_image, Set.image_singleton]
+
+theorem DiscreteXinY_iff_DiscreteHomoXinY {X X' Y : Type*} [TopologicalSpace Y] (f : X → Y)
+    (h : X ≃ X') : (∀ x' : X', ∃ U' : Set Y, IsOpen U' ∧ h '' (f ⁻¹' U') = {x'}) ↔
+    (∀ x : X, ∃ U : Set Y, IsOpen U ∧  f⁻¹' U = {x}) := by
+  exact ⟨XdiscreteY_if_HomoXdiscreteY f h, HomoXdiscreteY_if_XdiscreteY f h⟩
+
+omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+theorem D_discrete_extracted (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
+    incl_Kn_𝔸Kn K D ⁻¹' U  = (D_iso K D) ''
+    (⇑(D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
+  ext x
+  simp only [Set.mem_preimage, Set.mem_image]
+  constructor
+  · intro hx
+    use (D_iso K D).symm x
+    unfold D𝔸_iso_top D𝔸_iso D_iso
+    simpa [← Algebra.algebraMap_eq_smul_one] using hx
+  · intro ⟨y, hy1, hy2⟩
+    have : (D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) =
+        (incl_Kn_𝔸Kn K D) ∘ (D_iso K D) := by
+      ext d n
+      unfold incl_Kn_𝔸Kn D_iso D𝔸_iso_top D𝔸_iso
+      simp [← Algebra.algebraMap_eq_smul_one]
+    rw [this] at hy1
+    simpa [← hy2] using hy1
+
 omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
-  intro t
-  obtain ⟨U, Uopen, Ueq⟩ := Kn_discrete K D (D_iso K D t)
-  use Set.image ((D𝔸_iso_top K D).symm) U
-  constructor
-  · exact (ContinuousLinearEquiv.isOpenMap (D𝔸_iso_top K D).symm) U Uopen
-  · unfold incl_Kn_𝔸Kn at Ueq
-    ext y
-    simp only [Set.mem_singleton_iff]
-    have h1 : (D_iso K D).symm '' ((fun (x : Fin (Module.finrank K D) → K)
-        (i : Fin (Module.finrank K D)) ↦ (algebraMap K (AdeleRing (𝓞 K) K)) (x i)) ⁻¹' U)
-        = {t} := by
-      simp_all only [Set.image_singleton, LinearEquiv.symm_apply_apply]
-    have h2 : (D_iso K D).symm '' ((fun (x : Fin (Module.finrank K D) → K)
-        (i : Fin (Module.finrank K D)) ↦ (algebraMap K (AdeleRing (𝓞 K) K)) (x i)) ⁻¹' U) =
-        (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' (⇑(D𝔸_iso_top K D).symm '' U) := by
-      ext x
-      constructor
-      · intro hx
-        obtain ⟨a, ⟨ha1, ha2⟩⟩ := hx
-        use (fun x i ↦ (algebraMap K (AdeleRing (𝓞 K) K)) (x i)) a
-        simp only [Algebra.TensorProduct.includeLeft_apply]
-        constructor
-        · exact ha1
-        · refine (ContinuousLinearEquiv.symm_apply_eq (D𝔸_iso_top K D)).mpr ?_
-          subst ha2
-          simp_all only [Set.image_singleton, LinearEquiv.symm_apply_apply, Set.mem_singleton_iff]
-          subst ha1
-          unfold D𝔸_iso_top D𝔸_iso D_iso
-          simp only [LinearEquiv.trans_symm, LinearEquiv.symm_symm,
-            IsModuleTopology.continuousLinearEquiv_symm_apply, LinearEquiv.trans_apply,
-            TensorProduct.RightActions.Module.TensorProduct.comm_symm_apply_tmul,
-            TensorProduct.AlgebraTensorModule.congr_tmul, LinearEquiv.refl_apply,
-            TensorProduct.piScalarRight_apply, TensorProduct.piScalarRightHom_tmul]
-          ext i
-          exact Algebra.algebraMap_eq_smul_one ((Module.Finite.equivPi K D) t i)
-      · intro hx
-        obtain ⟨a, ⟨ha1, ha2⟩⟩ := hx
-        simp only [Set.mem_image, Set.mem_preimage]
-        use (D_iso K D) x
-        simp only [LinearEquiv.symm_apply_apply, and_true]
-        have : a = (D𝔸_iso_top K D) ((Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) x) := by
-          exact (ContinuousLinearEquiv.symm_apply_eq (D𝔸_iso_top K D)).mp ha2
-        rw [this] at ha1
-        unfold D_iso
-        unfold D𝔸_iso_top D𝔸_iso at ha1
-        simp only [LinearEquiv.trans_symm, LinearEquiv.symm_symm,
-          Algebra.TensorProduct.includeLeft_apply,
-          IsModuleTopology.continuousLinearEquiv_symm_apply, LinearEquiv.trans_apply,
-          TensorProduct.RightActions.Module.TensorProduct.comm_symm_apply_tmul,
-          TensorProduct.AlgebraTensorModule.congr_tmul, LinearEquiv.refl_apply,
-          TensorProduct.piScalarRight_apply, TensorProduct.piScalarRightHom_tmul] at ha1
-        simp_rw [Algebra.algebraMap_eq_smul_one]
-        exact ha1
-    constructor
-    · intro hy
-      rw [← h2, h1] at hy
-      exact hy
-    · intro eq
-      simp_rw [eq, ← h2, h1]
-      rfl
+  apply XdiscreteY_if_XdiscreteHomeoY (Y' := ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)))
+    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) (D𝔸_iso_top K D)
+  apply XdiscreteY_if_HomoXdiscreteY (X' := Fin (Module.finrank K D) → K)
+    ((D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (D_iso K D)
+  simpa [D_discrete_extracted] using Kn_discrete K D
+
+/-
+local instance help : AddSubgroup D_𝔸 := by
+  exact AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
+-/
 
 /-- The addsubgroud with carrier Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸). -/
 abbrev includeLeft_addsub : AddSubgroup D_𝔸 :=
