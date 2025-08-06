@@ -267,6 +267,7 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     ((D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (D_iso K D)
   simpa [D_discrete_extracted] using Kn_discrete K D
 
+/-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
 local instance includeLeft_subgroup : AddSubgroup D_𝔸 := by
   exact AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
 
