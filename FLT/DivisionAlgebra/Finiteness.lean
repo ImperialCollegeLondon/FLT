@@ -277,7 +277,7 @@ of `(D ⊗ 𝔸_F^infty)ˣ`.
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
-    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
+    Finite (DoubleCoset.Quotient (Set.range (incl₁ K D)) U) := by
   have ToFinCover := IsCompact.elim_finite_subcover
     (ι := (Doset.Quotient (Set.range (incl₁ K D)) U))
     (U := fun q ↦ Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
