@@ -279,13 +279,14 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (DoubleCoset.Quotient (Set.range (incl₁ K D)) U) := by
   have ToFinCover := IsCompact.elim_finite_subcover
-    (ι := (Doset.Quotient (Set.range (incl₁ K D)) U))
+    (ι := (DoubleCoset.Quotient (Set.range (incl₁ K D)) U))
     (U := fun q ↦ Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
-    Doset.doset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) (isCompact_univ_iff.mpr
+    DoubleCoset.doubleCoset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) (isCompact_univ_iff.mpr
     (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D))
-  have ⟨t, FinCover_descended⟩ := ToFinCover (Doset.isOpen_doset_rightrel_mk ((incl₁ K D).range)
-    U hU) (Doset.union_image_mk_rightRel (incl₁ K D).range U  ▸ Set.Subset.rfl)
-  apply (Doset.iUnion_finset_quotToDoset ((incl₁ K D).range) U).mp
-  exact ⟨t, Doset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
+  have ⟨t, FinCover_descended⟩ := ToFinCover (DoubleCoset.isOpen_doubleCoset_rightrel_mk
+    ((incl₁ K D).range) U hU) (DoubleCoset.union_image_mk_rightRel (incl₁ K D).range U
+    ▸ Set.Subset.rfl)
+  apply (DoubleCoset.iUnion_finset_quotTodoubleCoset ((incl₁ K D).range) U).mp
+  exact ⟨t, DoubleCoset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
 
 end FiniteAdeleRing
