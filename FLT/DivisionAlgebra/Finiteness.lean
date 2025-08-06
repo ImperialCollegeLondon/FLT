@@ -297,9 +297,7 @@ local instance : DiscreteTopology (includeLeft_subgroup K D).carrier := by
     · rw [hd, ← ha]
       exact Set.mem_preimage.mp (by simp [hUeq])
 
-local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
-
-  sorry
+instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
 
 lemma T_finite_extracted1 : IsCompact (Y K D ∩
     Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
@@ -309,8 +307,8 @@ lemma T_finite_extracted1 : IsCompact (Y K D ∩
   simpa [includeLeft_subgroup] using AddSubgroup.isClosed_of_discrete
     (H := includeLeft_subgroup K D)
 
-lemma gen1 {A : Type*} [TopologicalSpace A] (X Y : Set A) [DiscreteTopology X] :
-    DiscreteTopology ↑(Y ∩ X) := by
+lemma IntersectionOfDiscreteOnRight_isDiscrete {A : Type*} [TopologicalSpace A] (X Y : Set A)
+    [DiscreteTopology X] : DiscreteTopology ↑(Y ∩ X) := by
   refine singletons_open_iff_discrete.mp ?_
   intro ⟨a, InY, InX⟩
   refine isOpen_mk.mpr ?_
@@ -318,24 +316,19 @@ lemma gen1 {A : Type*} [TopologicalSpace A] (X Y : Set A) [DiscreteTopology X] :
   apply (singletons_open_iff_discrete).mpr at h
   obtain ⟨U, Uopen, Ueq⟩ : ∃ U : Set A, IsOpen U ∧ (Subtype.val : X → A) ⁻¹' U = {⟨a, InX⟩} := by
     exact h ⟨a, InX⟩
-  use U
-  refine ⟨Uopen, ?_⟩
+  refine ⟨U, Uopen, ?_⟩
   ext y
-  simp only [Set.mem_preimage, Set.mem_singleton_iff]
-  constructor
-  · intro hY
-    obtain ⟨y, hy1, hy2⟩ := y
-    simp_all only [isOpen_discrete, implies_true, Subtype.mk.injEq]
-    -- should be inferable from hY at Ueq
-    sorry
-  · intro yEq
-    simp_rw [yEq]
-    -- Ueq ... struggling to get this inferred
-    sorry
+  rw [Set.eq_singleton_iff_unique_mem] at Ueq
+  aesop
+
+lemma IntersectionOfDiscreteOnLeft_isDiscrete {A : Type*} [TopologicalSpace A] (X Y : Set A)
+    [DiscreteTopology X] : DiscreteTopology ↑(X ∩ Y) := by
+  rw [Set.inter_comm]
+  exact IntersectionOfDiscreteOnRight_isDiscrete X Y
 
 lemma T_finite : Set.Finite (T K D) := by
   have h := IsCompact.finite (T_finite_extracted1 K D)
-    (gen1 (includeLeft_subgroup K D).carrier (Y K D))
+    (IntersectionOfDiscreteOnRight_isDiscrete (includeLeft_subgroup K D).carrier (Y K D))
   have h1 : Units.val '' T K D ⊆ (Y K D) ∩
       (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
     rintro _ ⟨t, ⟨ht1, d, rfl⟩, rfl⟩
@@ -416,8 +409,6 @@ lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
       exact hc
     rw [this]
     rfl
-
-local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
 
 lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
   apply Topology.IsClosedEmbedding.comp
