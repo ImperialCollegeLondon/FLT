@@ -304,22 +304,6 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
   refine Continuous.comp continuous_snd (Continuous.comp
     (iso₁_continuous K D) continuous_subtype_val)
 
-local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
-    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-
-local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
-    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := { measurable_eq := rfl }
-
-lemma ringHaarChar_eq₁ (a : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) (b : Dfx K D) :
-    ringHaarChar ((iso₁ K D).symm (a, b)) =
-    ringHaarChar (R := Prod (D ⊗[K] NumberField.InfiniteAdeleRing K) (D ⊗[K]
-    (FiniteAdeleRing (𝓞 K) K))) (MulEquiv.prodUnits.symm (a, b)) := by
-  apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
-  -- will need to first define this continuous additive equivalence
-  -- should be similar/the same as the sorry in iso₁_continuous
-  all_goals sorry -- this lemma is needed so that we can use ringHaarChar_prod
-
 local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
   exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
 
@@ -332,7 +316,91 @@ local instance : MeasurableSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
 local instance : BorelSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
   exact { measurable_eq := rfl }
 
+abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(NumberField.AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) →
+    NumberField.AdeleRing (𝓞 K) K))) :=
+  ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
+    (TensorProduct.AlgebraTensorModule.finiteEquivPi (R := K) (M := D)
+    (N := NumberField.AdeleRing (𝓞 K) K))
 
+ local instance : IsModuleTopology (NumberField.AdeleRing (𝓞 K) K)
+     ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)) := by
+   -- its back!
+   sorry
+
+abbrev D𝔸_iso_top : D_𝔸 ≃L[(NumberField.AdeleRing (𝓞 K) K)]
+    ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)) :=
+  IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
+
+-- so can go D_𝔸 → 𝔸_K^d (d = dim_K D)
+
+abbrev D𝔸_iso_top' : D_𝔸ˣ → ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))ˣ :=
+  fun x => sorry
+  -- need to work out a nice way to write this
+
+abbrev test2 : NumberField.AdeleRing (𝓞 K) K ≃L[ℚ]
+    (Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+  exact (NumberField.AdeleRing.piEquiv ℚ K).symm
+
+-- gives 𝔸_K → 𝔸_ℚ^m (m = dim_ℚ K)
+
+abbrev test3 : ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)) ≃L[ℚ]
+   Fin (Module.finrank K D) →  (Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+  -- should be immediate from test2
+  sorry
+
+-- need to work out the best way to write this
+def hmm : Fin (Module.finrank K D) → (Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ)
+    ≃ₗ[ℚ] Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ := by
+  -- this is true mathematically, just not sure if Lean knows this?
+  sorry
+
+abbrev test4 : ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)) ≃L[ℚ]
+    Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ := by
+  --combination of test and hmm
+  have := test3 K D
+
+  sorry
+
+-- so can go 𝔸_K^d → A_ℚ^{md}
+
+abbrev test4' : ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))ˣ →
+    (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ)ˣ := by
+  -- will need to also think of a nice way to write this using test4 (which isnt done)
+  sorry
+
+local instance : MeasurableSpace (Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K) := by
+  exact borel (Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)
+
+local instance : BorelSpace (Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K) := by
+  exact { measurable_eq := rfl }
+
+lemma ringHaarChar_eq1 (a : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ) : ringHaarChar a =
+    ringHaarChar (R := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)))
+    (D𝔸_iso_top' K D a) := by
+  apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (X := D_𝔸)
+    (Y := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)))
+    (D𝔸_iso_top K D).toContinuousAddEquiv
+  -- need to prove this
+  sorry
+
+local instance : MeasurableSpace (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) →
+    NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+  exact borel (Fin (Module.finrank K D * Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ)
+
+local instance : BorelSpace (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) →
+    NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+  exact { measurable_eq := rfl }
+
+lemma ringHaarChar_eq2 (a : ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))ˣ) :
+    ringHaarChar (R := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))) a =
+    ringHaarChar (R := (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) →
+    NumberField.AdeleRing (𝓞 ℚ) ℚ)) (test4' K D a) := by
+  apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    (X := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)))
+    (Y := (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ))
+    (test4 K D).toContinuousAddEquiv
+  -- will need to prove this
+  sorry
 
 lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
@@ -346,9 +414,30 @@ lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
       exact addEquivAddHaarChar_pos _
     exact this ((iso₁ K D).symm (1, x))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
-    simp_rw [ringHaarChar_eq₁, ringHaarChar_prod, map_one, mul_one]
-
-
+    simp_rw [ringHaarChar_eq1]
+    suffices (∃ a, (ringHaarChar (R := (Fin (Module.finrank K D) →
+        NumberField.AdeleRing (𝓞 K) K)) a = r ∧ ∃ y,
+        a = (D𝔸_iso_top' K D ((iso₁ K D).symm (y, 1))))) by
+      obtain ⟨a, ⟨ha, ⟨y, hay⟩⟩⟩ := this
+      use y
+      simp_rw [← hay]
+      exact ha
+    simp_rw [ringHaarChar_eq2]
+    suffices (∃ b, ringHaarChar (R := (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) →
+        NumberField.AdeleRing (𝓞 ℚ) ℚ)) b = r ∧ ∃ a, test4' K D a = b ∧
+        ∃ y,  a = (D𝔸_iso_top' K D ((iso₁ K D).symm (y, 1)))) by
+      obtain ⟨b, hb, a, ha, y, hy⟩ := this
+      use a
+      simp_rw [ha]
+      refine ⟨hb, by use y⟩
+    /- there almost certainly is a nice way to be proving this...
+       but it is now enough to choose b with :
+        ⬝ 1 in the finite adele places
+        ⬝ r^{1/(Fin (Module.finrank K D * Module.finrank ℚ K))} in the infinite places
+       the first part of the proof will be to do with products
+       the second parts will be simply chooising nice elements such that they match
+       ... no idea how hard this second part will be, but it at least sounds reasonable
+    -/
 
     sorry
   use (iso₁ K D).symm (y⁻¹, x)
