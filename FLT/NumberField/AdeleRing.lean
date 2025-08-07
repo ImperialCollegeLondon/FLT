@@ -87,7 +87,6 @@ instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank
   IsModuleTopology.instPi
 
 instance instBaseChangeIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) := by
-  have := BaseChange.isModuleTopology (𝓞 K) K L (𝓞 L)
   exact IsModuleTopology.instProd' (A := InfiniteAdeleRing K)
     (B := FiniteAdeleRing (𝓞 K) K) (M := InfiniteAdeleRing L) (N := FiniteAdeleRing (𝓞 L) L)
 
