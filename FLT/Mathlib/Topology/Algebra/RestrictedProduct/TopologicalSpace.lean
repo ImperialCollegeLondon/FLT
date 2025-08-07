@@ -298,8 +298,8 @@ def ContinuousMulEquiv.restrictedProductMatrix {ι : Type*}
         Homeomorph.symm_trans_apply, Homeomorph.homeomorph_mk_coe_symm, Pi.map_apply, mk_apply]
       rfl
     simp only [h]
-    rw[Matrix.mul_apply]
-    conv_rhs => arg 2; intro _; rw[← mul_apply]
+    rw [Matrix.mul_apply]
+    conv_rhs => arg 2; intro _; rw [← mul_apply]
     apply map_sum (RestrictedProduct.evalAddMonoidHom _ _) _ _
       }
 
