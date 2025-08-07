@@ -296,7 +296,7 @@ def ContinuousMulEquiv.restrictedProductMatrix {ι : Type*}
         Subring.coe_toSubsemiring, AddSubsemigroup.coe_set_mk, Set.mem_setOf_eq, Equiv.coe_fn_mk,
         Equiv.coe_fn_symm_mk, Equiv.toFun_as_coe, Homeomorph.coe_toEquiv,
         Homeomorph.symm_trans_apply, Homeomorph.homeomorph_mk_coe_symm, Pi.map_apply, mk_apply]
-      exact rfl
+      rfl
     simp only [h]
     rw[Matrix.mul_apply]
     conv_rhs => arg 2; intro _; rw[← mul_apply]
