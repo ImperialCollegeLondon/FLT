@@ -685,12 +685,12 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     use ((Units.map ↑i₁) q)
     simp only [MonoidHom.mem_range, exists_exists_eq_and]
     refine ⟨⟨q, rfl⟩, t, ?_⟩
-    simp only [← Units.eq_iff, hy, Units.map_mk, MonoidHom.coe_coe,
-      Algebra.TensorProduct.includeLeft_apply, Units.val_mul, one_div, q, xunit]
+    simp only [← Units.val_inj, hy, Units.map_mk, MonoidHom.coe_coe,
+      Algebra.TensorProduct.includeLeft_apply, Units.val_mul, one_div, q]
     rw [← mul_one (N⁻¹ : ℚ), ← one_mul x, ← Algebra.TensorProduct.tmul_mul_tmul, div_eq_mul_inv,
       mul_comm (v : ℚ), ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_assoc, mul_one]
     congr
-    simpa only [← Units.eq_iff, Units.val_mul, Units.coe_map, MonoidHom.coe_coe,
+    simpa only [← Units.val_inj, Units.val_mul, Units.coe_map, MonoidHom.coe_coe,
       Algebra.TensorProduct.includeLeft_apply, xunit, q] using wzx
   clear * -
   intro x hx
@@ -727,7 +727,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
   clear this hxinv y Jnonzero M
   let N : ℕ+ := ⟨g.toNat, Int.pos_iff_toNat_pos.1 gpos⟩
   suffices h : Ideal.span {X} = Ideal.span {(g : ZHat)} by
-    obtain ⟨y, hy⟩ : ∃ y, y * X = g := by 
+    obtain ⟨y, hy⟩ : ∃ y, y * X = g := by
       rw [← Ideal.mem_span_singleton', h, Ideal.mem_span_singleton]
     obtain ⟨z, hz⟩ : ∃ z, z * g = X := by
       rw [← Ideal.mem_span_singleton', ← h, Ideal.mem_span_singleton]
@@ -743,7 +743,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       simp only [ne_eq, Rat.intCast_eq_zero, Int.ne_of_gt gpos, not_false_eq_true]
     use ⟨g, G, gG, mul_comm _ G ▸ gG⟩
     use ⟨z, y, by rw[mul_comm]; exact this, this⟩
-    simp only [← Units.eq_iff, ← hX, Units.map_mk, MonoidHom.coe_coe, map_intCast,
+    simp only [← Units.val_inj, ← hX, Units.map_mk, MonoidHom.coe_coe, map_intCast,
       Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.includeRight_apply,
       Units.val_mul, AddMonoidHom.coe_coe]
     rw [← hz, ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_one, mul_comm,
@@ -752,8 +752,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     have : g ∈ J := by
       rw [hg, Ideal.submodule_span_eq]
       apply Ideal.mem_span_singleton_self
-    simp only [Submodule.mem_mk, AddSubmonoid.mem_mk, AddSubsemigroup.mem_mk,
-      Int.coe_castRingHom, Set.mem_preimage, SetLike.mem_coe, J, I] at this
+    simp only [J, I] at this
     exact (Ideal.span_singleton_le_iff_mem _).2 this
   refine le_antisymm ?_ hgx
   suffices h : X N = 0 by
