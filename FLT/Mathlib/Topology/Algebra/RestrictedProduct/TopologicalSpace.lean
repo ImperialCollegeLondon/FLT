@@ -287,7 +287,7 @@ def ContinuousMulEquiv.restrictedProductMatrix {ι : Type*}
   __ := restrictedProductMatrix
   map_mul' x y := by
     ext i j k
-    rw[mul_apply, Matrix.mul_apply]
+    rw [mul_apply, Matrix.mul_apply]
     have h {x : Matrix n n Πʳ (i : ι), [A i, ↑(C i)]} {i : ι} {j k : n} :
         (restrictedProductMatrix.toFun x) i j k = (x j k) i := by
       simp only [restrictedProductMatrix, Homeomorph.restrictedProductMatrix,
