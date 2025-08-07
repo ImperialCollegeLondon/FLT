@@ -332,10 +332,20 @@ abbrev D𝔸_iso_top : D_𝔸 ≃L[(NumberField.AdeleRing (𝓞 K) K)]
   IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
 
 -- so can go D_𝔸 → 𝔸_K^d (d = dim_K D)
+lemma help (x : D_𝔸ˣ) : IsUnit (D𝔸_iso_top K D x) := by
+  refine isUnit_iff_exists_inv.mpr ?_
+  obtain ⟨x, x', h1, h2⟩ := x
+  use D𝔸_iso_top K D x'
+  simp only [IsModuleTopology.continuousLinearEquiv_apply]
+
+
+
+  sorry
 
 abbrev D𝔸_iso_top' : D_𝔸ˣ → ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))ˣ :=
-  fun x => sorry
+  fun x => Units.mk (D𝔸_iso_top K D x)
   -- need to work out a nice way to write this
+
 
 abbrev test2 : NumberField.AdeleRing (𝓞 K) K ≃L[ℚ]
     (Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
@@ -381,6 +391,7 @@ lemma ringHaarChar_eq1 (a : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ) : rin
     (Y := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)))
     (D𝔸_iso_top K D).toContinuousAddEquiv
   -- need to prove this
+
   sorry
 
 local instance : MeasurableSpace (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) →
