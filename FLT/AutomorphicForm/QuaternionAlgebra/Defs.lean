@@ -297,7 +297,6 @@ variable [IsQuaternionAlgebra F D]
 `WeightTwoAutomorphicFormOfLevel U R` is the `R`-valued weight 2 automorphic forms of a fixed
 level `U` for a totally definite quaternion algebra over a totally real field.
 -/
-
 def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (R : Type*) [CommRing R] : Type _ := MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R)
 
@@ -305,6 +304,9 @@ namespace WeightTwoAutomorphicFormOfLevel
 
 variable {U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ} {R : Type*} [CommRing R]
 
+/--
+Enables coercion of an automorphic forms to a function.
+-/
 @[coe]
 def toFun (f : WeightTwoAutomorphicFormOfLevel U R)
     (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) : R := f.1.toFun x

@@ -52,7 +52,6 @@ theorem WeightTwoAutomorphicForm.finiteDimensional
     -- Since we have a linear map φ from V to W and W is finite-dimensional,
     -- it's enough to check that φ is injective.
     apply FiniteDimensional.of_injective φ
-
     intro v₁ v₂ h
     ext d
     -- Show v₁ = v₂ because they agree on reps and the
@@ -64,8 +63,7 @@ theorem WeightTwoAutomorphicForm.finiteDimensional
             exact Quotient.exact (Quotient.out_eq ⟦d⟧)
         -- Apply Doset.rel_iff to extract the witnesses
         rw [Doset.rel_iff] at h_rel
-        obtain ⟨h, hh, k, hk, h_eq⟩ := h_rel
-        obtain ⟨γ, hγ⟩ := hh
+        obtain ⟨h, ⟨γ, hγ⟩, k, hk, h_eq⟩ := h_rel
         use γ, k, hk
         rw [← hγ] at h_eq
         exact h_eq
