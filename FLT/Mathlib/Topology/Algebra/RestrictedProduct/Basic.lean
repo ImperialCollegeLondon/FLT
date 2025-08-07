@@ -9,22 +9,28 @@ namespace RestrictedProduct
 variable {ι : Type*}
 variable {R : ι → Type*} {A : (i : ι) → Set (R i)}
 variable {ℱ : Filter ι}
+
+section inclusion
+
+@[simp]
+lemma coe_comp_inclusion {𝒢 : Filter ι} (h : ℱ ≤ 𝒢) :
+    DFunLike.coe ∘ inclusion R A h = DFunLike.coe :=
+  rfl
+
+@[simp]
+lemma inclusion_apply {𝒢 : Filter ι} (h : ℱ ≤ 𝒢) {x : Πʳ i, [R i, A i]_[𝒢]} (i : ι) :
+    inclusion R A h x i = x i :=
+  rfl
+
+lemma image_coe_preimage_inclusion_subset {𝒢 : Filter ι} (h : ℱ ≤ 𝒢)
+    (U : Set Πʳ i, [R i, A i]_[ℱ]) : (⇑) '' (inclusion R A h ⁻¹' U) ⊆ (⇑) '' U :=
+  fun _ ⟨x, hx, hx'⟩ ↦ ⟨inclusion R A h x, hx, hx'⟩
+
+end inclusion
+
 variable {S : ι → Type*} -- subobject type
 variable [Π i, SetLike (S i) (R i)]
 variable {B : Π i, S i}
-variable {ℱ : Filter ι}
-
--- I'm avoiding using these if possible
-
--- def mulSingle [Π i, One (R i)] [∀ i, OneMemClass (S i) (R i)] [DecidableEq ι] (j : ι) (x : R j) :
---     Πʳ i, [R i, B i] :=
---   ⟨Pi.mulSingle j x, sorry⟩ -- {i} is finite
-
--- def mulSingleMonoidHom [Π i, Monoid (R i)] [∀ i, SubmonoidClass (S i) (R i)] [DecidableEq ι]
---     (j : ι) : R j →* Πʳ i, [R i, B i] where
---       toFun := mulSingle j
---       map_one' := sorry -- should be easy
---       map_mul' := sorry -- should be easy
 
 variable
     {G H : ι → Type*}
@@ -311,3 +317,167 @@ lemma flatten_equiv'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
 end RestrictedProduct
 
 end flatten
+
+section single
+
+namespace RestrictedProduct
+
+variable {S : ι → Type*}
+variable [Π i, SetLike (S i) (G i)]
+variable (A : (i : ι) → (S i))
+variable [DecidableEq ι]
+
+/-- The function supported at `i`, with value `x` there, and `1` elsewhere. -/
+@[to_additive "The function supported at `i`, with value `x` there, and `0` elsewhere."]
+def mulSingle [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) (x : G i) :
+    Πʳ i, [G i, A i] where
+  val := Pi.mulSingle i x
+  property := by
+    filter_upwards [show {i}ᶜ ∈ Filter.cofinite by simp]
+    aesop
+
+@[to_additive]
+lemma mulSingle_injective [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) :
+    Function.Injective (mulSingle A i) := by
+  intro a b h
+  rw [Subtype.ext_iff] at h
+  exact Pi.mulSingle_injective i h
+
+@[to_additive]
+lemma mulSingle_inj [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) {x y : G i} :
+    mulSingle A i x = mulSingle A i y ↔ x = y := by
+  rw [Subtype.ext_iff]
+  exact Pi.mulSingle_inj i
+
+@[to_additive (attr := simp)]
+lemma mulSingle_eq_same [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) (r : G i) :
+    mulSingle A i r i = r :=
+  Pi.mulSingle_eq_same i r
+
+@[to_additive (attr := simp)]
+lemma mulSingle_eq_of_ne [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] {i j : ι} (r : G i)
+    (h : j ≠ i) : mulSingle A i r j = 1 :=
+  Pi.mulSingle_eq_of_ne h r
+
+@[to_additive (attr := simp)]
+lemma mulSingle_eq_of_ne' [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] {i j : ι} (r : G i)
+    (h : i ≠ j) : mulSingle A i r j = 1 :=
+  Pi.mulSingle_eq_of_ne' h r
+
+@[to_additive (attr := simp)]
+lemma mulSingle_one [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) :
+    mulSingle A i 1 = 1 := by
+  apply Subtype.ext
+  exact Pi.mulSingle_one i
+
+@[to_additive (attr := simp)]
+lemma mulSingle_eq_one_iff [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) {x : G i} :
+    mulSingle A i x = 1 ↔ x = 1 := by
+  rw [Subtype.ext_iff]
+  exact Pi.mulSingle_eq_one_iff
+
+@[to_additive]
+lemma mulSingle_ne_one_iff [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) {x : G i} :
+    mulSingle A i x ≠ 1 ↔ x ≠ 1 := by
+  rw [← Subtype.coe_ne_coe]
+  exact Pi.mulSingle_ne_one_iff
+
+@[to_additive (attr := simp)]
+lemma mulSingle_mul [∀ i, MulOneClass (G i)] [∀ i, OneMemClass (S i) (G i)]
+    [∀ i, MulMemClass (S i) (G i)] (i : ι) (r s : G i) :
+    mulSingle A i r * mulSingle A i s = mulSingle A i (r * s) := by
+  ext j
+  obtain (rfl | hne) := em (i = j)
+  · simp
+  · simp [mulSingle_eq_of_ne' A _ hne]
+
+@[simp]
+lemma mul_single [∀ i, MulZeroClass (G i)] [∀ i, ZeroMemClass (S i) (G i)]
+    [∀ i, MulMemClass (S i) (G i)] (i : ι) (r : G i) (x : Πʳ i, [G i, A i]) :
+    x * single A i r = single A i ((x i) * r) := by
+  ext j
+  obtain (rfl | hne) := em (i = j)
+  · simp
+  · simp [single_eq_of_ne' A _ hne]
+
+@[simp]
+lemma single_mul [∀ i, MulZeroClass (G i)] [∀ i, ZeroMemClass (S i) (G i)]
+    [∀ i, MulMemClass (S i) (G i)] (i : ι) (r : G i) (x : Πʳ i, [G i, A i]) :
+    single A i r * x = single A i (r * (x i)) := by
+  ext j
+  obtain (rfl | hne) := em (i = j)
+  · simp
+  · simp [single_eq_of_ne' A _ hne]
+
+end RestrictedProduct
+
+end single
+
+section components
+
+namespace RestrictedProduct
+
+variable {ι₂ : Type*} {f : ι₂ → ι} {𝒢 : Filter ι₂}
+variable {G₂ : ι₂ → Type*} {C₂ : (i : ι₂) → Set (G₂ i)}
+variable (hf : 𝒢 = Filter.comap f ℱ)
+variable (φ : Πʳ i, [G i, C i]_[ℱ] → Πʳ i, [G₂ i, C₂ i]_[𝒢])
+variable (g : (j : ι₂) → G (f j) → G₂ j) (hcomponent : ∀ x j, φ x j = g j (x (f j)))
+
+include hcomponent in
+variable {φ} {g} in
+lemma components_comp_coe_eq_coe_apply : (fun a j ↦ g j (a (f j))) ∘ (⇑) = (⇑) ∘ φ := by
+  ext x i
+  simp [hcomponent]
+
+lemma exists_update (x : Πʳ i, [G i, C i]_[ℱ]) (i : ι) (a : G i)
+    (h : {i}ᶜ ∈ ℱ) : ∃ y : Πʳ i, [G i, C i]_[ℱ], y i = a ∧ ∀ j ≠ i, y j = x j := by
+  classical
+  exact ⟨⟨fun j ↦ if hj : j = i then hj ▸ a else x j, by
+    filter_upwards [h, x.2] with j (hj : j ≠ i)
+    aesop⟩, by
+    aesop⟩
+
+variable (C) in
+lemma exists_apply_eq [∀ i, Nonempty (C i)] (i : ι) (a : G i) (h : {i}ᶜ ∈ ℱ) :
+    ∃ x : Πʳ i, [G i, C i]_[ℱ], x i = a := by
+  let y : Πʳ i, [G i, C i]_[ℱ] := ⟨fun i ↦ (Classical.ofNonempty : C i),
+    Filter.Eventually.of_forall (fun x ↦ Subtype.coe_prop _)⟩
+  obtain ⟨x, hx, -⟩ := exists_update y i a h
+  exact ⟨x, hx⟩
+
+variable [∀ j, Nonempty (C₂ j)]
+
+include hcomponent in
+lemma surjective_components_of_surjective (hφ : Function.Surjective φ) (j : ι₂) (hj : {j}ᶜ ∈ 𝒢) :
+    Function.Surjective (g j) := by
+  intro y
+  obtain ⟨y', hy'⟩ := exists_apply_eq C₂ j y hj
+  obtain ⟨x, hx⟩ := hφ y'
+  use (x (f j))
+  rw [← hcomponent, hx, hy']
+
+include hf hcomponent in
+lemma eventually_surjOn_of_surjective (hφ : Function.Surjective φ) :
+    ∀ᶠ (j : ι₂) in 𝒢, Set.SurjOn (g j) (C (f j)) (C₂ j) := by
+  classical
+  have p (j : ι₂) : ∃ (y : C₂ j), (∃ (x : C (f j)), g j x = y)
+       → Set.SurjOn (g j) (C (f j)) (C₂ j) := by
+    by_cases hsurj : Set.SurjOn (g j) (C (f j)) (C₂ j)
+    · exact ⟨Classical.choice inferInstance, fun _ ↦ hsurj⟩
+    · rw [Set.SurjOn, Set.not_subset_iff_exists_mem_notMem] at hsurj
+      obtain ⟨y, hy, hne⟩ := hsurj
+      exact ⟨⟨y, hy⟩, fun ⟨⟨x, hx⟩, hxy⟩ ↦ absurd ⟨x, hx, hxy⟩ hne⟩
+  choose y' hy' using p
+  set y : Πʳ i, [G₂ i, C₂ i]_[𝒢] :=
+    ⟨fun i ↦ y' i, Filter.Eventually.of_forall (fun i ↦ (y' i).prop)⟩ with hy
+  obtain ⟨x, hx⟩ := hφ y
+  rw [hf, Filter.eventually_comap]
+  filter_upwards [x.eventually]
+  rintro - hx' j rfl
+  apply hy'
+  use ⟨x (f j), hx'⟩
+  rw [← hcomponent, hx, hy, mk_apply]
+
+end RestrictedProduct
+
+end components

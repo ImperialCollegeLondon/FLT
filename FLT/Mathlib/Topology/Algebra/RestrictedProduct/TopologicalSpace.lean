@@ -88,13 +88,6 @@ lemma continuous_rng_of_principal_pi
   rfl
 
 @[fun_prop]
-lemma RestrictedProduct.continuous_apply
-    [(i : ι) → TopologicalSpace (A i)] {S : Set ι}
-    (i : ι) :
-    Continuous (fun x : Πʳ i : ι, [A i, C i]_[Filter.principal S] ↦ x i) :=
-  (_root_.continuous_apply i).comp isEmbedding_coe_of_principal.continuous
-
-@[fun_prop]
 lemma Equiv.continuous_restrictedProductProd_symm {S : Set ι}
     [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)] :
     Continuous (Equiv.restrictedProductProd (C := C) (D := D) (ℱ := .principal S)).symm := by
@@ -103,8 +96,8 @@ lemma Equiv.continuous_restrictedProductProd_symm {S : Set ι}
   intro i
   rw [continuous_prodMk]
   constructor
-  · exact (RestrictedProduct.continuous_apply i).comp continuous_fst
-  · exact (RestrictedProduct.continuous_apply i).comp continuous_snd
+  · exact (RestrictedProduct.continuous_eval i).comp continuous_fst
+  · exact (RestrictedProduct.continuous_eval i).comp continuous_snd
 
 /-- The homeomorphism between restricted product of binary products, and the binary projuct
 of the restricted products, when the products are with respect to open subsets.
@@ -147,7 +140,7 @@ lemma Equiv.continuous_restrictedProductPi_symm {S : Set ι}
   intro i
   rw [continuous_pi_iff]
   intro j
-  exact (RestrictedProduct.continuous_apply i).comp (_root_.continuous_apply _)
+  exact (RestrictedProduct.continuous_eval i).comp (continuous_apply _)
 
 /-- The homeomorphism between a restricted product of finite products, and a finite product
 of restricted products, when the products are with respect to open subsets.
@@ -350,3 +343,100 @@ lemma flatten_homeomorph'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
 end RestrictedProduct
 
 end flatten
+
+section nhds
+
+open scoped Filter
+
+variable [Π i, TopologicalSpace (G i)]
+
+/-- An explicit condition for a set to be in the neighborhood of `x : Πʳ i, [G i, C i]_[𝓟 T]`
+in terms of a product of neighbourhoods on the factors. -/
+lemma RestrictedProduct.mem_nhds_iff_of_principal {T : Set ι} {x : Πʳ i, [G i, C i]_[𝓟 T]}
+    (U : Set Πʳ i, [G i, C i]_[𝓟 T]) :
+    U ∈ nhds x ↔ ∃ (I : Set ι) (s : (i : ι) → Set (G i)), I.Finite ∧ (∀ i, s i ∈ nhds (x i)) ∧
+    (↑) ⁻¹' I.pi s ⊆ U := by
+  rw [isEmbedding_coe_of_principal.nhds_eq_comap, Filter.mem_comap, nhds_pi]
+  simp_rw [Filter.mem_pi]
+  exact ⟨fun ⟨t, ⟨I, hIf, s, hs, ht⟩, htU⟩ ↦ ⟨I, s, hIf, hs, by grw [ht, htU]⟩,
+    fun ⟨I, s, hIf, hs, hU⟩ ↦ ⟨I.pi s, ⟨I, hIf, s, hs, subset_rfl⟩, hU⟩⟩
+
+
+/-- A condition for a set to be a neighborhood in `Πʳ i, [G i, C i]`, slightly weaker than the
+condition in `mem_nhds_iff_of_cofinite`. -/
+lemma RestrictedProduct.mem_nhds_of_exists_nhds_of_cofinite {x : Πʳ i, [G i, C i]}
+    {U : Set Πʳ i, [G i, C i]} (hCopen : ∀ i, IsOpen (C i : Set (G i))) (s : (i : ι) → Set (G i))
+    (hs : ∀ i, s i ∈ nhds (x i)) (hf : ∀ᶠ i in Filter.cofinite, C i ⊆ s i)
+    (hU : (↑) ⁻¹' Set.univ.pi s ⊆ U) : U ∈ nhds x := by
+  set I := {i | ¬C i ⊆ s i} with hIval
+  set T := {i | x i ∉ C i} with hTval
+  have hT : Filter.cofinite ≤ Filter.principal Tᶜ := by simpa using x.eventually
+  have hT' : ∀ᶠ (i : ι) in Filter.principal Tᶜ, x i ∈ C i := by simp [hTval]
+  obtain ⟨x', hx⟩ := RestrictedProduct.exists_inclusion_eq_of_eventually G C hT hT'
+  have hs' : ∀ i, s i ∈ nhds (x' i) := by simpa [← hx] using hs
+  rw [← hx, nhds_eq_map_inclusion hCopen hT, Filter.mem_map, mem_nhds_iff_of_principal]
+  refine ⟨I ∪ T, s, Set.Finite.union hf x.eventually, hs', ?_⟩
+  grw [← hU, ← Set.preimage_comp, coe_comp_inclusion, ← Set.image_subset_iff,
+      Set.image_preimage_eq_inter_range, range_coe_principal]
+  rintro y hy i -
+  simp only [Set.mem_inter_iff, Set.mem_pi] at hy
+  by_cases h : i ∈ I ∪ T
+  · apply hy.left i h
+  · simp only [Set.mem_union, not_or] at h
+    have hy' : y i ∈ C i := hy.right i h.right
+    simp only [hIval, Set.mem_setOf_eq, not_not] at h
+    exact h.left hy'
+
+/-- The classical condition for a set to be a neighborhood in the restricted product. -/
+lemma RestrictedProduct.mem_nhds_iff_of_cofinite {x : Πʳ i, [G i, C i]} {U : Set Πʳ i, [G i, C i]}
+    (hCopen : ∀ i, IsOpen (C i : Set (G i))) :
+    U ∈ nhds x ↔ ∃ (s : (i : ι) → Set (G i)), (∀ i, s i ∈ nhds (x i)) ∧
+    (∀ᶠ i in Filter.cofinite, s i = C i) ∧ Set.univ.pi s ⊆ (↑) '' U := by
+  refine ⟨fun hn ↦ ?_, fun ⟨s, hs, hsf, hsU⟩ ↦ ?_⟩
+  · set T := {i | x i ∉ C i} with hTval
+    have hT : Filter.cofinite ≤ Filter.principal Tᶜ := by simpa using x.eventually
+    have hT' : ∀ᶠ (i : ι) in Filter.principal Tᶜ, x i ∈ C i := by simp [hTval]
+    obtain ⟨x', hx⟩ := RestrictedProduct.exists_inclusion_eq_of_eventually G C hT hT'
+    rw [← hx, nhds_eq_map_inclusion hCopen hT, Filter.mem_map, mem_nhds_iff_of_principal] at hn
+    obtain ⟨I, s, hIf, hs, hU⟩ := hn
+    refine ⟨fun i ↦ (s i ∪ {x | i ∉ I}) ∩ (C i ∪ {x | i ∈ T}), ?_, ?_, ?_⟩
+    · intro i
+      rw [← hx]
+      apply Filter.inter_mem (Filter.mem_of_superset (hs i) Set.subset_union_left)
+      apply IsOpen.mem_nhds (IsOpen.union (hCopen i) isOpen_const)
+      rw [Set.mem_union, Set.mem_setOf_eq, or_iff_not_imp_right]
+      apply x'.eventually
+    · filter_upwards [hIf.compl_mem_cofinite, x.eventually] with i (hI : i ∉ I) hC
+      simp [hI, hC, hTval]
+    · grw [← image_coe_preimage_inclusion_subset, ← hU, Set.image_preimage_eq_inter_range,
+        range_coe_principal]
+      simp [Set.subset_def, or_iff_not_imp_right, forall_and]
+  · apply mem_nhds_of_exists_nhds_of_cofinite hCopen s hs
+    · filter_upwards [hsf] with _ using superset_of_eq
+    · exact Set.preimage_subset hsU DFunLike.coe_injective.injOn
+
+end nhds
+
+section openmap
+
+variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)]
+
+lemma RestrictedProduct.isOpenMap_of_open_components
+    (hCopen : ∀ i, IsOpen (C i : Set (G i))) (hDopen : ∀ i, IsOpen (D i : Set (H i)))
+    (f : Πʳ i, [G i, C i] → Πʳ i, [H i, D i]) (g : (i : ι) → G i → H i)
+    (hcomponent : ∀ x i, f x i = g i (x i)) (hg : ∀ i, IsOpenMap (g i))
+    (hsurj : ∀ᶠ i in Filter.cofinite, Set.SurjOn (g i) (C i) (D i)) :
+    IsOpenMap f := by
+  refine IsOpenMap.of_nhds_le fun x ↦ Filter.le_map fun U hU ↦ ?_
+  obtain ⟨s, hf, hs, hU⟩ := (mem_nhds_iff_of_cofinite hCopen).mp hU
+  apply mem_nhds_of_exists_nhds_of_cofinite hDopen fun i ↦ (g i) '' (s i)
+  · intro i
+    rw [hcomponent]
+    exact IsOpenMap.image_mem_nhds (hg i) (hf i)
+  · filter_upwards [hsurj, hs] with i hsurj' heq using heq ▸ hsurj'
+  · apply Set.preimage_subset _ DFunLike.coe_injective.injOn
+    grw [← Set.piMap_image_univ_pi, hU, ← Set.image_comp,
+      ← Set.image_comp, ← components_comp_coe_eq_coe_apply hcomponent]
+    rfl
+
+end openmap
