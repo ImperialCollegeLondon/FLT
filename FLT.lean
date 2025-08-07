@@ -61,8 +61,8 @@ import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.Data.Set.Function
-import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Data.Set.Prod
+import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
 import FLT.Mathlib.LinearAlgebra.Determinant
