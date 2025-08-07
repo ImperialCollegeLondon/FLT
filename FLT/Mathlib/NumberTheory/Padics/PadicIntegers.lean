@@ -1,6 +1,6 @@
+import Mathlib.Algebra.Algebra.Operations
 import Mathlib.Algebra.CharZero.Infinite
 import Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.RingTheory.Ideal.Operations
 import Mathlib.NumberTheory.Padics.RingHoms
 
 /-!
@@ -59,7 +59,8 @@ lemma _root_.AddSubgroup.comap_smul_one (R A : Type*) [CommRing R] [CommRing A] 
   rwa [← faithfulSMul_iff_algebraMap_injective R A]
 
 lemma index_span_p_pow (hx : x ≠ 0) :
-    (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation})).index = ‖↑x‖₊⁻¹ := by
+    (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation})).index =
+      ‖(x : ℚ_[p])‖₊⁻¹ := by
   have quotient_equiv_zmod := RingHom.quotientKerEquivOfSurjective
     (f := PadicInt.toZModPow (x.valuation) (p := p)) (R := ℤ_[p])
     (ZMod.ringHom_surjective (PadicInt.toZModPow x.valuation))
@@ -80,8 +81,9 @@ lemma smul_submodule_one_index :
   · simp [hx]
   · have x_factor := PadicInt.unitCoeff_spec hx
     nth_rw 1 [x_factor]
-    rw [Submodule.smul_one_eq_span, Ideal.span_singleton_mul_left_unit (Units.isUnit _)]
-    exact index_span_p_pow hx
+    rw [Submodule.smul_one_eq_span, ← smul_eq_mul,
+      Submodule.span_singleton_smul_eq (Units.isUnit _),
+      Ideal.submodule_span_eq, index_span_p_pow hx]
 
 /-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
 lemma smul_submodule_one_relindex :
