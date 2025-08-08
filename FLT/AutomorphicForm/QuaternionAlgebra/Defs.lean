@@ -74,8 +74,65 @@ noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
   Units.map (algebraMap _ _).toMonoidHom
 
 -- it's actually equal but ⊆ is all we need, and equality is harder
-lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
-  sorry
+
+/- Start of proof attempt -/
+lemma round1_h1 (F : Type*) [Field F] [NumberField F]
+  (D : Type*) [Ring D] [Algebra F D] [FiniteDimensional F D] :
+  ∀ (r : FiniteAdeleRing (𝓞 F) F), ∀ (x : D ⊗[F] FiniteAdeleRing (𝓞 F) F),
+    ((1 : D) ⊗ₜ[F] r) * x = x * ((1 : D) ⊗ₜ[F] r) := by
+  intro r x
+  have h2 : ∀ (d : D) (s : FiniteAdeleRing (𝓞 F) F),
+    ((1 : D) ⊗ₜ[F] r) * (d ⊗ₜ[F] s) = (d ⊗ₜ[F] s) * ((1 : D) ⊗ₜ[F] r) := by
+    intro d s
+    have h21 : r * s = s * r := by ring
+    have h22 : ((1 : D) ⊗ₜ[F] r) * (d ⊗ₜ[F] s) = d ⊗ₜ[F] (r * s) := by
+      simp [mul_one, one_mul]
+      <;> ring
+    have h23 : (d ⊗ₜ[F] s) * ((1 : D) ⊗ₜ[F] r) = d ⊗ₜ[F] (s * r) := by
+      simp [mul_one, one_mul]
+      <;> ring
+    rw [h22, h23]
+    rw [h21]
+  have h3 : ∀ (x : D ⊗[F] FiniteAdeleRing (𝓞 F) F), ((1 : D) ⊗ₜ[F] r) * x = x * ((1 : D) ⊗ₜ[F] r) := by
+    intro x
+    induction x using TensorProduct.induction_on with
+    | zero =>
+      simp
+    | tmul d s =>
+      exact h2 d s
+    | add x y hx hy =>
+      simp [mul_add, add_mul, hx, hy] <;> ring
+  exact h3 x
+
+lemma round1_incl₂_mem_center (F : Type*) [Field F] [NumberField F]
+  (D : Type*) [Ring D] [Algebra F D] [FiniteDimensional F D] :
+  ∀ (y : (FiniteAdeleRing (𝓞 F) F)ˣ), (incl₂ F D y) ∈ Subgroup.center (Dfx F D) := by
+  intro y
+  have h1 := round1_h1 F D
+  have h4 : ∀ (g : Dfx F D), (incl₂ F D y) * g = g * (incl₂ F D y) := by
+    intro g
+    have h5 : ((incl₂ F D y).val : D ⊗[F] FiniteAdeleRing (𝓞 F) F) * g.val = g.val * ((incl₂ F D y).val : D ⊗[F] FiniteAdeleRing (𝓞 F) F) := by
+      have h51 : ((incl₂ F D y).val : D ⊗[F] FiniteAdeleRing (𝓞 F) F) = (1 : D) ⊗ₜ[F] (y : FiniteAdeleRing (𝓞 F) F) := by
+        simp [incl₂]
+        <;> aesop
+      rw [h51]
+      have h52 := h1 (y : FiniteAdeleRing (𝓞 F) F) g.val
+      exact h52
+    have h6 : (incl₂ F D y) * g = g * (incl₂ F D y) := by
+      apply Units.ext
+      simpa only using h5
+    exact h6
+  simp only [Subgroup.mem_center_iff]
+  intro g
+  have h4' : (incl₂ F D y) * g = g * (incl₂ F D y) := h4 g
+  exact Eq.symm h4'
+
+theorem range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D)  := by
+
+  have h3 := round1_incl₂_mem_center F D
+  intro x hx
+  rcases hx with ⟨y, rfl⟩
+  exact h3 y
 
 open scoped TensorProduct.RightActions in
 /--
@@ -182,10 +239,103 @@ instance addCommGroup : AddCommGroup (WeightTwoAutomorphicForm F D R) where
 open scoped Pointwise
 
 -- this should be in mathlib
-lemma _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
+
+/- Start of proof attempt -/
+lemma round1_h1 (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (g : ConjAct G) :
+  ∃ (x : G), ∀ (u : G), g • u = x * u * x⁻¹ := by
+  exact?
+
+lemma round1_h2 (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  (U : Subgroup G) (g : ConjAct G) (x : G) (hx : ∀ (u : G), g • u = x * u * x⁻¹) :
+  (g • U : Set G) = (fun y => x * y * x⁻¹) '' (U : Set G) := by
+  ext y
+  simp only [Set.mem_setOf_eq, Set.mem_image, SetLike.mem_coe]
+  constructor
+  · -- Assume y ∈ (g • U)
+    rintro ⟨u, hu, rfl⟩
+    refine ⟨u, hu, ?_⟩
+    have h22 : g • u = x * u * x⁻¹ := hx u
+    exact h22.symm
+  · -- Assume y ∈ (fun y => x * y * x⁻¹) '' (U : Set G)
+    rintro ⟨a, ha, rfl⟩
+    refine ⟨a, ha, ?_⟩
+    have h23 : g • a = x * a * x⁻¹ := hx a
+    exact h23
+
+lemma round1_h3 (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] (x : G) :
+  ∃ (f : G ≃ₜ G), ∀ (y : G), f y = x * y * x⁻¹ := by
+  use {
+    toFun := fun y => x * y * x⁻¹
+    invFun := fun y => x⁻¹ * y * x
+    left_inv := by
+      intro y
+      simp [mul_assoc]
+      <;> group
+    right_inv := by
+      intro y
+      simp [mul_assoc]
+      <;> group
+    continuous_toFun := by
+      apply Continuous.mul
+      · apply Continuous.mul
+        · exact continuous_const
+        · exact continuous_id
+      · exact continuous_const
+    continuous_invFun := by
+      apply Continuous.mul
+      · apply Continuous.mul
+        · exact continuous_const
+        · exact continuous_id
+      · exact continuous_const
+  }
+  <;> aesop
+
+lemma round1_h5 (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  (U : Subgroup G) (x : G) (g : ConjAct G) (hx : ∀ (u : G), g • u = x * u * x⁻¹)
+  (f : G ≃ₜ G) (hf : ∀ (y : G), f y = x * y * x⁻¹) :
+  (g • U : Set G) = f '' (U : Set G) := by
+  have h51 : (g • U : Set G) = (fun y => x * y * x⁻¹) '' (U : Set G) := by
+    exact round1_h2 G U g x hx
+  have h52 : (fun y => x * y * x⁻¹) = f := by
+    funext y
+    have h521 : f y = x * y * x⁻¹ := hf y
+    simp [h521]
+  rw [h51, h52]
+  <;> rfl
+
+theorem _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] {U : Subgroup G} (hU : IsOpen (U : Set G)) (g : ConjAct G) :
-    IsOpen ((g • U : Subgroup G) : Set G) := by
-  sorry
+    IsOpen ((g • U : Subgroup G) : Set G)  := by
+
+
+  have h1 : ∃ (x : G), ∀ (u : G), g • u = x * u * x⁻¹ := by
+    exact round1_h1 G g
+
+  obtain ⟨x, hx⟩ := h1
+
+  have h2 : (g • U : Set G) = (fun y => x * y * x⁻¹) '' (U : Set G) := by
+    exact round1_h2 G U g x hx
+
+  have h3 : ∃ (f : G ≃ₜ G), ∀ (y : G), f y = x * y * x⁻¹ := by
+    exact round1_h3 G x
+
+  obtain ⟨f, hf⟩ := h3
+
+  have h5 : (g • U : Set G) = f '' (U : Set G) := by
+    exact round1_h5 G U x g hx f hf
+
+  have h6 : IsOpen (f '' (U : Set G)) := by
+    have h61 : IsOpen (U : Set G) := hU
+    exact?
+
+  have h7 : ((g • U : Subgroup G) : Set G) = (g • U : Set G) := by
+    ext y
+    <;> simp
+    <;> aesop
+
+  rw [h7]
+  rw [h5]
+  exact h6
 
 open ConjAct
 

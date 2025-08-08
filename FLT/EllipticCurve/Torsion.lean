@@ -52,8 +52,85 @@ theorem group_theory_lemma {A : Type*} [AddCommGroup A] {n : ℕ} (hn : 0 < n) (
 -- I only need this if n is prime but there's no harm thinking about it in general I guess.
 -- It follows from the previous theorem using pure group theory (possibly including the
 -- structure theorem for finite abelian groups)
+
+/- Start of proof attempt -/
+lemma round1_h1 (k : Type u) [Field k] (E : WeierstrassCurve k) (n : ℕ) (hn : (n : k) ≠ 0) : 0 < n := by
+  by_contra h2
+  push_neg at h2
+  have h21 : n = 0 := by linarith
+  have h22 : (n : k) = 0 := by
+    rw [h21]
+    <;> simp
+  contradiction
+
+lemma round1_h6 (k : Type u) [Field k] (E : WeierstrassCurve k) (n : ℕ) (hn : (n : k) ≠ 0) (h1 : 0 < n) : ∀ (d : ℕ), d ∣ n → (d : k) ≠ 0 := by
+  intro d hd
+  intro h9
+  have h91 : ∃ c, n = d * c := by
+    exact?
+  rcases h91 with ⟨c, hc⟩
+  have h92 : (n : k) = (d : k) * (c : k) := by
+    rw [hc]
+    simp [mul_comm]
+    <;> ring
+  have h93 : (n : k) = 0 := by
+    rw [h9] at h92
+    ring_nf at h92 ⊢
+    <;> simpa using h92
+  contradiction
+
+lemma round1_h11 (k : Type u) [Field k] [IsSepClosed k] [DecidableEq k] (E : WeierstrassCurve k) [E.IsElliptic] (n : ℕ) (hn : (n : k) ≠ 0) (h1 : 0 < n) (h6 : ∀ (d : ℕ), d ∣ n → (d : k) ≠ 0) : ∀ d : ℕ, d ∣ n → Nat.card (E.n_torsion d) = d ^ 2 := by
+  intro d hd
+  have h12 : (d : k) ≠ 0 := h6 d hd
+  have h121 : Nat.card (E.n_torsion d) = d ^ 2 := by
+    exact E.n_torsion_card h12
+  exact h121
+
+lemma round1_h13 (k : Type u) [Field k] [DecidableEq k] (E : WeierstrassCurve k) (n : ℕ) (h1 : 0 < n) (h11 : ∀ d : ℕ, d ∣ n → Nat.card (E.n_torsion d) = d ^ 2) : ∃ φ : (E.n_torsion n) ≃+ (Fin 2 → (ZMod n)), True := by
+  exact group_theory_lemma h1 2 h11
+
+lemma round1_h15 (k : Type u) [Field k] (E : WeierstrassCurve k) (n : ℕ) : ∃ (φ2 : (Fin 2 → (ZMod n)) ≃+ ((ZMod n) × (ZMod n))), True := by
+  have h152 : ∃ (φ2 : (Fin 2 → (ZMod n)) ≃+ ((ZMod n) × (ZMod n))), True := by
+    refine ⟨{ toFun := fun f => (f 0, f 1),
+              invFun := fun p => fun i => if i = 0 then p.1 else p.2,
+              left_inv := by
+                intro f
+                ext i
+                fin_cases i <;> simp
+              ,
+              right_inv := by
+                intro p
+                ext
+                <;> simp
+              ,
+              map_add' := by
+                intro f g
+                simp [Prod.ext_iff]
+                <;> aesop
+            }, by trivial⟩
+  exact h152
+
 theorem WeierstrassCurve.n_torsion_dimension [IsSepClosed k] {n : ℕ} (hn : (n : k) ≠ 0) :
-    ∃ φ : E.n_torsion n ≃+ (ZMod n) × (ZMod n), True := sorry
+    ∃ φ : E.n_torsion n ≃+ (ZMod n) × (ZMod n), True  := by
+
+  have h1 : 0 < n := by
+    exact round1_h1 k E n hn
+
+  have h6 : ∀ (d : ℕ), d ∣ n → (d : k) ≠ 0 := by
+    exact round1_h6 k E n hn h1
+
+  have h11 : ∀ d : ℕ, d ∣ n → Nat.card (E.n_torsion d) = d ^ 2 := by
+    exact round1_h11 k E n hn h1 h6
+
+  have h13 : ∃ φ : (E.n_torsion n) ≃+ (Fin 2 → (ZMod n)), True := by
+    exact round1_h13 k E n h1 h11
+
+  have h15 : ∃ (φ2 : (Fin 2 → (ZMod n)) ≃+ ((ZMod n) × (ZMod n))), True := by
+    exact round1_h15 k E n
+
+  obtain ⟨φ1, _⟩ := h13
+  obtain ⟨φ2, _⟩ := h15
+  refine ⟨φ1.trans φ2, by trivial⟩
 
 -- This should be a straightforward but perhaps long unravelling of the definition
 /-- The map on points for an elliptic curve over `k` induced by a morphism of `k`-algebras
