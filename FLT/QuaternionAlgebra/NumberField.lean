@@ -1,8 +1,12 @@
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Topology.Homeomorph.Defs
+import Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Hacks.RightActionInstances
+import FLT.NumberField.Completion.Finite
 /-!
 
 # Definitions of various compact open subgrups of Dˣ and GL₂(𝔸_F^∞)
@@ -51,10 +55,23 @@ variable {F}
 
 namespace IsDedekindDomain
 
+/-- `M_2(O_v)` as a subring of `M_2(F_v)`. -/
+noncomputable def M2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
+    Subring (Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) :=
+  (v.adicCompletionIntegers F).matrix
+
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
   MonoidHom.range (Units.map
     (RingHom.mapMatrix (v.adicCompletionIntegers F).subtype).toMonoidHom)
+
+theorem M2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
+    IsOpen (M2.localFullLevel v).carrier :=
+  (NumberField.isOpenAdicCompletionIntegers F v).matrix
+
+theorem M2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
+    IsCompact (M2.localFullLevel v).carrier :=
+  (isCompact_iff_compactSpace.mpr (NumberField.instCompactSpaceAdicCompletionIntegers F v)).matrix
 
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localFullLevel v).carrier :=
@@ -178,6 +195,14 @@ noncomputable def GL2.toAdicCompletion
     GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) →*
     GL (Fin 2) (v.adicCompletion F) :=
   Units.map (RingHom.mapMatrix (FiniteAdeleRing.toAdicCompletion v)).toMonoidHom
+
+/-- `GL_2(𝔸_F^∞)` is isomorphic and homeomorphic to the
+restricted product of the local components `GL_2(F_v)`. -/
+noncomputable def GL2.restrictedProduct :
+    GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
+    Πʳ (v : HeightOneSpectrum (𝓞 F)),
+      [(GL (Fin 2) (v.adicCompletion F)), (M2.localFullLevel v).units] :=
+  ContinuousMulEquiv.restrictedProductMatrixUnits (NumberField.isOpenAdicCompletionIntegers F)
 
 end IsDedekindDomain.FiniteAdeleRing
 
