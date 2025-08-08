@@ -47,7 +47,7 @@ theorem DoubleCoset.union_image_mk_rightRel {G : Type*} [Group G] (H K : Subgrou
 
 theorem DoubleCoset.isOpen_doubleCoset {G : Type*} [Group G] [tG : TopologicalSpace G]
     [ContinuousMul G] (H K : Subgroup G) (hK : IsOpen (K : Set G)) (i : DoubleCoset.Quotient H K) :
-    @IsOpen G tG (doubleCoset (Quotient.out i) H K) := by
+    IsOpen (X := G) (doubleCoset (Quotient.out i) H K) := by
   simpa only [doubleCoset] using (IsOpen.mul_left hK)
 
 theorem DoubleCoset.isOpen_doubleCoset_rightrel_mk {G : Type*} [Group G] [TopologicalSpace G]
