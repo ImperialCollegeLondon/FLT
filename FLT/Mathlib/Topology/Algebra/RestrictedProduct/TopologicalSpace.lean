@@ -290,15 +290,9 @@ def ContinuousMulEquiv.restrictedProductMatrix {ι : Type*}
     rw [mul_apply, Matrix.mul_apply]
     have h {x : Matrix n n Πʳ (i : ι), [A i, ↑(C i)]} {i : ι} {j k : n} :
         (restrictedProductMatrix.toFun x) i j k = (x j k) i := by
-      simp only [restrictedProductMatrix, Homeomorph.restrictedProductMatrix,
-        Homeomorph.restrictedProductPi, Homeomorph.piCongrRight, Equiv.restrictedProductPi,
-        Equiv.piCongrRight, AddSubmonoid.coe_set_mk, Subsemiring.coe_carrier_toSubmonoid,
-        Subring.coe_toSubsemiring, AddSubsemigroup.coe_set_mk, Set.mem_setOf_eq, Equiv.coe_fn_mk,
-        Equiv.coe_fn_symm_mk, Equiv.toFun_as_coe, Homeomorph.coe_toEquiv,
-        Homeomorph.symm_trans_apply, Homeomorph.homeomorph_mk_coe_symm, Pi.map_apply, mk_apply]
-      rfl
-    simp only [h]
-    rw [Matrix.mul_apply]
+      simp [restrictedProductMatrix, Homeomorph.restrictedProductMatrix,
+        Homeomorph.restrictedProductPi, Equiv.restrictedProductPi, Matrix]
+    simp only [h, Matrix.mul_apply]
     conv_rhs => arg 2; intro _; rw [← mul_apply]
     apply map_sum (RestrictedProduct.evalAddMonoidHom _ _) _ _
       }
