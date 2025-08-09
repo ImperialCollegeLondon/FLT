@@ -64,10 +64,10 @@ def UpperTriangular (k : Type*) [CommRing k] : Subring (Matrix (Fin 2) (Fin 2) k
     rw [ha (lt_of_le_of_lt (Fin.zero_le j) hij), hb (lt_of_lt_of_le hij
       (StrictMono.maximal_preimage_top (fun ⦃a b⦄ a ↦ a) rfl i) : j < 1)]
     ring
-  one_mem' := by intro i j hij; exact Matrix.one_apply_ne' (id (ne_of_lt hij))
-  add_mem' := by intro a b ha hb i j hij; simp [ha hij,hb hij]
-  zero_mem' := by intro i j hij; rfl
-  neg_mem' := by intro x hx i j hij; simp [hx hij]
+  one_mem' i j hij := Matrix.one_apply_ne' (id (ne_of_lt hij))
+  add_mem' ha hb i j hij:= by simp [ha hij,hb hij]
+  zero_mem' i j hij := rfl
+  neg_mem' hx i j hij:= by simp [hx hij]
 
 lemma mem_upperTriangular_iff {k : Type*} [CommRing k] (M : Matrix (Fin 2) (Fin 2) k) :
     M ∈ UpperTriangular k ↔ M 1 0 = 0 := by
@@ -155,7 +155,8 @@ def R_Δ {k : Type*} [CommRing k] (Δ : Submonoid k) :
 -- sends R_Delta to Delta
 -- needs stating
 
-lemma thing3 {k : Type*} [CommRing k] (Δ : Submonoid k) : R_Δ Δ ≤ GL2.UpperTriangular k := by
+lemma R_Δ_le_UpperTriangular {k : Type*} [CommRing k] (Δ : Submonoid k) :
+    R_Δ Δ ≤ GL2.UpperTriangular k := by
   intro x hx; exact ⟨hx.1.1,hx.2.1⟩
 
 end GL2
@@ -169,44 +170,44 @@ variable {K}
 /-- The subgroup of GL_2(K) consisting of matrices with integer entries and which are
   congruent modulo the maximal ideal to something of the form (d*a b; 0 a) with d ∈ Δ -/
 noncomputable def U_Δ_Int (Δ : Submonoid 𝓀[K]) : Subgroup (GL (Fin 2) 𝒪[K]) :=
-  -- let foo := (RingHom.mapMatrix (m := Fin 2) 𝒪[K].subtype)
-  -- let bar := Units.map foo.toMonoidHom
-  -- refine Subgroup.map bar ?_
-  -- let baz := (RingHom.mapMatrix (m := Fin 2) (IsLocalRing.residue 𝒪[K]))
-  -- refine Subgroup.comap (Units.map baz.toMonoidHom) ?_
-  -- exact GL2.R_Δ Δ
-  --Subgroup.map (Units.map (RingHom.mapMatrix (m := Fin 2) 𝒪[K].subtype).toMonoidHom) <|
+
   Subgroup.comap (Units.map
     (RingHom.mapMatrix (m := Fin 2) (IsLocalRing.residue 𝒪[K])).toMonoidHom) (GL2.R_Δ Δ)
 
 def MonoidHom.restrict' {G H : Type*} [Monoid G] [Monoid H] (φ : G →* H)
   (S : Submonoid H) : S.comap φ →* S :=(φ.comp ((S.comap φ).subtype)).codRestrict _ (by aesop)
 
-noncomputable def thing (Δ : Submonoid 𝓀[K]) : U_Δ_Int Δ →* 𝓀[K]ˣ × 𝓀[K]ˣ :=
-  GL2.UpperTriangularToProd.comp ((Subgroup.inclusion (GL2.thing3 Δ)).comp ((Units.map
-    (RingHom.mapMatrix (m := Fin 2) (IsLocalRing.residue 𝒪[K])).toMonoidHom).restrict' _))
+noncomputable def U_Delta_Int_to_prod_units_residueField (Δ : Submonoid 𝓀[K]) :
+    U_Δ_Int Δ →* 𝓀[K]ˣ × 𝓀[K]ˣ :=
+  GL2.UpperTriangularToProd.comp ((Subgroup.inclusion (GL2.R_Δ_le_UpperTriangular Δ)).comp
+  ((Units.map (RingHom.mapMatrix (m := Fin 2) (IsLocalRing.residue 𝒪[K])).toMonoidHom).restrict' _))
 
-noncomputable def thing4 (Δ : Submonoid 𝓀[K]) :
-    U_Δ_Int Δ →* 𝓀[K]ˣ := (divMonoidHom.comp (thing Δ))
+noncomputable def U_Δ_Int_ratio (Δ : Submonoid 𝓀[K]) :
+    U_Δ_Int Δ →* 𝓀[K]ˣ := (divMonoidHom.comp (U_Delta_Int_to_prod_units_residueField Δ))
 
-lemma thing_fact2 (Δ : Submonoid 𝓀[K]) (g : U_Δ_Int Δ) : (thing4 Δ g).1 ∈ Δ :=
+lemma U_Δ_Int_ratio_mem_Δ (Δ : Submonoid 𝓀[K]) (g : U_Δ_Int Δ) : (U_Δ_Int_ratio Δ g).1 ∈ Δ :=
   by
     obtain ⟨d,hd⟩ := g.2.1.2
     simp only [RingHom.toMonoidHom_eq_coe, Fin.isValue, Units.coeHom_apply, Units.coe_map,
       MonoidHom.coe_coe, RingHom.mapMatrix_apply, Matrix.map_apply] at hd
-    rw [←IsUnit.div_eq_of_eq_mul (Units.isUnit ((thing Δ) g).2) hd.2] at hd
-    simp only [thing4, MonoidHom.coe_comp, Function.comp_apply, divMonoidHom_apply,
+    rw [←IsUnit.div_eq_of_eq_mul (Units.isUnit ((U_Delta_Int_to_prod_units_residueField Δ) g).2)
+    hd.2] at hd
+    simp only [U_Δ_Int_ratio, MonoidHom.coe_comp, Function.comp_apply, divMonoidHom_apply,
       Units.val_div_eq_div_val]
     exact hd.1
 
-lemma thing_fact (Δ : Submonoid 𝓀[K]) (g : U_Δ_Int Δ) : ((thing Δ g).1 / (thing Δ g).2) ∈ Δ.units :=
+lemma U_Δ_Int_ratio_mem_Δ_units (Δ : Submonoid 𝓀[K]) (g : U_Δ_Int Δ) :
+    ((U_Delta_Int_to_prod_units_residueField Δ g).1 / (U_Delta_Int_to_prod_units_residueField Δ
+    g).2) ∈ Δ.units :=
   by
   constructor
-  <;> rw [(by rfl : ((thing Δ g).1 / (thing Δ g).2) = (thing4 Δ g))]
+  <;> rw [(by rfl : ((U_Delta_Int_to_prod_units_residueField Δ g).1 /
+  (U_Delta_Int_to_prod_units_residueField Δ g).2) = (U_Δ_Int_ratio Δ g))]
   <;> simp only [Submonoid.coe_comap, Set.mem_preimage, Units.coeHom_apply, SetLike.mem_coe]
-  · exact thing_fact2 Δ g
-  · convert thing_fact2 Δ g⁻¹
+  · exact U_Δ_Int_ratio_mem_Δ Δ g
+  · convert U_Δ_Int_ratio_mem_Δ Δ g⁻¹
     aesop
 
 noncomputable def U_Δ_Int_to_Δ (Δ : Submonoid 𝓀[K]) :
-    U_Δ_Int Δ →* Δ.units := (divMonoidHom.comp (thing Δ)).codRestrict _ (thing_fact Δ)
+    U_Δ_Int Δ →* Δ.units := (divMonoidHom.comp (U_Delta_Int_to_prod_units_residueField
+    Δ)).codRestrict _ (U_Δ_Int_ratio_mem_Δ_units Δ)
