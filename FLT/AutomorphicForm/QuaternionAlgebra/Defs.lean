@@ -74,12 +74,8 @@ noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
   Units.map (algebraMap _ _).toMonoidHom
 
 -- it's actually equal but ⊆ is all we need, and equality is harder
-open scoped TensorProduct.RightActions in
-omit [FiniteDimensional F D] in
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
-  rintro x ⟨y, rfl⟩
-  refine Subgroup.mem_center_iff.mpr fun g ↦ Units.ext ?_
-  exact (Algebra.commutes _ _).symm
+  sorry
 
 open scoped TensorProduct.RightActions in
 /--
@@ -186,14 +182,10 @@ instance addCommGroup : AddCommGroup (WeightTwoAutomorphicForm F D R) where
 open scoped Pointwise
 
 -- this should be in mathlib
-instance {G} [TopologicalSpace G] [DivInvMonoid G] [ContinuousMul G] :
-    ContinuousConstSMul (ConjAct G) G where
-  continuous_const_smul _ := IsTopologicalGroup.continuous_conj _
-
-theorem _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
+lemma _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] {U : Subgroup G} (hU : IsOpen (U : Set G)) (g : ConjAct G) :
-    IsOpen ((g • U : Subgroup G) : Set G) :=
-  (Homeomorph.smul g).isOpen_image.mpr hU
+    IsOpen ((g • U : Subgroup G) : Set G) := by
+  sorry
 
 open ConjAct
 
