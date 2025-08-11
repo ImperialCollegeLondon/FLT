@@ -190,7 +190,7 @@ instance {G} [TopologicalSpace G] [DivInvMonoid G] [ContinuousMul G] :
     ContinuousConstSMul (ConjAct G) G where
   continuous_const_smul _ := IsTopologicalGroup.continuous_conj _
 
-theorem _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
+lemma _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] {U : Subgroup G} (hU : IsOpen (U : Set G)) (g : ConjAct G) :
     IsOpen ((g • U : Subgroup G) : Set G) :=
   (Homeomorph.smul g).isOpen_image.mpr hU
