@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Copyright (c) 2025 Bryan Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Bryan Wang
 -/
@@ -86,7 +86,7 @@ noncomputable def unipotent (t : v.adicCompletion F) : (GL (Fin 2) (adicCompleti
 lemma unipotent_def (t : v.adicCompletion F) :
     (unipotent t : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
     = !![1, t; 0, 1] := by
-  rw[unipotent]; rfl
+  rw [unipotent]; rfl
 
 lemma unipotent_inv (t : v.adicCompletion F) :
     (unipotent t)⁻¹ = unipotent (-t) := by
@@ -182,13 +182,12 @@ lemma isUnit_apply_one_one :
 lemma conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal :
     (diag α hα)⁻¹ * x * diag α hα ∈ U1 v
     ↔ ⟨(x 0 1), apply_mem_integer hx _ _⟩ ∈ (Ideal.span {α}) := by
-  let a : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 0 0 ⟩
-  let b : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 0 1 ⟩
-  let c : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 1 0 ⟩
-  let d : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 1 1 ⟩
+  let a : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 0 0⟩
+  let b : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 0 1⟩
+  let c : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 1 0 ⟩
+  let d : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 1 1⟩
   have hx₁ : x = !![(a : adicCompletion F v), b; c, d] :=
     (Matrix.etaExpand_eq (x : Matrix (Fin 2) (Fin 2) (adicCompletion F v))).symm
-
   constructor
   · /- If `(diag α hα)⁻¹ * x * diag α hα ∈ U1 v`,
     then we have `((diag α hα)⁻¹ * x * diag α hα) 0 1 ∈ adicCompletionIntegers F v`,
@@ -198,12 +197,11 @@ lemma conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal :
     simp only [Fin.isValue, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_one,
       Matrix.cons_val_fin_one, Matrix.cons_val_zero] at h₁
     apply Ideal.mem_span_singleton'.mpr
-    use ⟨ _ , h₁ ⟩
+    use ⟨_, h₁⟩
     apply (Subtype.coe_inj).mp; push_cast
     ring_nf; rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul]
-
   /- Conversely, we show that `(diag α hα)⁻¹ * x * diag α hα ∈ U1 v`. -/
-  intro h; obtain ⟨ q, hq ⟩ := Ideal.mem_span_singleton'.mp h
+  intro h; obtain ⟨q, hq⟩ := Ideal.mem_span_singleton'.mp h
   constructor
   /- We first show that `(diag α hα)⁻¹ * x * diag α hα` is in `GL_2(O_v)`. -/
   · apply GL2.mem_localFullLevel_iff_v_le_one_and_v_det_eq_one.mpr
@@ -232,9 +230,9 @@ lemma conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal :
   simp only [Fin.isValue, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
     Matrix.cons_val_fin_one, Matrix.cons_val_one]
   norm_cast
-  exact ⟨ hx.right.left ,
+  exact ⟨hx.right.left ,
     (valuation_lt_one_iff_mem_maximalIdeal v).mpr
-    (Ideal.mul_mem_right _ _ (apply_one_zero_mem_maximalIdeal hx)) ⟩
+    (Ideal.mul_mem_right _ _ (apply_one_zero_mem_maximalIdeal hx))⟩
 
 end U1
 
@@ -281,20 +279,20 @@ lemma injOn_unipotent_mul_diagU1 :
     Matrix.cons_val_zero] at unipotent_apply_zero_one_mem_integer
   rw[← (QuotientAddGroup.out_eq' t₁), ← (QuotientAddGroup.out_eq' t₂)]
   apply QuotientAddGroup.eq.mpr; apply Ideal.mem_span_singleton'.mpr
-  use ⟨ _ , unipotent_apply_zero_one_mem_integer ⟩
+  use ⟨_, unipotent_apply_zero_one_mem_integer⟩
   apply (Subtype.coe_inj).mp; push_cast
   ring_nf; rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul, one_mul]
 
 /-- Each coset in `U1diagU1` is of the form `unipotent_mul_diagU1` for some `t ∈ O_v`. -/
 lemma surjOn_unipotent_mul_diagU1_U1diagU1 :
     Set.SurjOn (unipotent_mul_diagU1 v α hα) ⊤ (U1diagU1 v α hα) := by
-  rintro _ ⟨ _, ⟨ x, hx, _, rfl, rfl ⟩ , rfl ⟩
+  rintro _ ⟨_, ⟨x, hx, _, rfl, rfl⟩, rfl⟩
   /- Each element of `U1diagU1` can be written as `x * diag`,
   where `x = !![a,b;c,d]` is viewed as a matrix over `O_v`. -/
-  let a : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 0 0 ⟩
-  let b : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 0 1 ⟩
-  let c : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 1 0 ⟩
-  let d : (adicCompletionIntegers F v) := ⟨ _ , apply_mem_integer hx 1 1 ⟩
+  let a : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 0 0⟩
+  let b : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 0 1⟩
+  let c : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 1 0⟩
+  let d : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 1 1⟩
   have hx₁ : x = !![(a : adicCompletion F v), b; c, d] :=
     (Matrix.etaExpand_eq (x : Matrix (Fin 2) (Fin 2) (adicCompletion F v))).symm
   -- The desired t is `⅟d * b`.
@@ -305,7 +303,7 @@ lemma surjOn_unipotent_mul_diagU1_U1diagU1 :
     apply Ideal.mem_span_singleton'.mpr
     have t_def : (Ideal.Quotient.mk (Ideal.span {α})) (Quotient.out t) = (⅟d * b) := by
       simp only [Ideal.Quotient.mk_out]; rfl
-    obtain ⟨ q, hq ⟩ :=
+    obtain ⟨q, hq⟩ :=
       Ideal.mem_span_singleton'.mp (Ideal.Quotient.eq.mp t_def)
     use - d * q
     rw[mul_assoc, hq]; ring_nf; simp
@@ -332,9 +330,9 @@ variable (v) in
 `unipotent_mul_diagU1` as t ranges over `O_v / αO_v`. -/
 theorem bijOn_unipotent_mul_diagU1_U1diagU1 :
     Set.BijOn (unipotent_mul_diagU1 v α hα) ⊤ (U1diagU1 v α hα) :=
-  ⟨ mapsTo_unipotent_mul_diagU1_U1diagU1 α hα,
+  ⟨mapsTo_unipotent_mul_diagU1_U1diagU1 α hα,
     injOn_unipotent_mul_diagU1 α hα,
-    surjOn_unipotent_mul_diagU1_U1diagU1 α hα ⟩
+    surjOn_unipotent_mul_diagU1_U1diagU1 α hα⟩
 
 end CosetDecomposition
 
