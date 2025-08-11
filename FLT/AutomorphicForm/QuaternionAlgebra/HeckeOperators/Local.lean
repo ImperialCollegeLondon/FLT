@@ -86,7 +86,7 @@ noncomputable def unipotent (t : v.adicCompletion F) : (GL (Fin 2) (adicCompleti
 lemma unipotent_def (t : v.adicCompletion F) :
     (unipotent t : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
     = !![1, t; 0, 1] := by
-  rw [unipotent]; rfl
+  simp [unipotent, Matrix.unitOfDetInvertible]
 
 lemma unipotent_inv (t : v.adicCompletion F) :
     (unipotent t)⁻¹ = unipotent (-t) := by
