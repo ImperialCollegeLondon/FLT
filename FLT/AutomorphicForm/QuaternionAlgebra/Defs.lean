@@ -185,7 +185,7 @@ instance addCommGroup : AddCommGroup (WeightTwoAutomorphicForm F D R) where
 
 open scoped Pointwise
 
--- this should be in mathlib
+-- these two should be in mathlib
 instance {G} [TopologicalSpace G] [DivInvMonoid G] [ContinuousMul G] :
     ContinuousConstSMul (ConjAct G) G where
   continuous_const_smul _ := IsTopologicalGroup.continuous_conj _
