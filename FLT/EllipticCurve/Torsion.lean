@@ -53,8 +53,7 @@ theorem group_theory_lemma {A : Type*} [AddCommGroup A] {n : ℕ} (hn : 0 < n) (
 -- It follows from the previous theorem using pure group theory (possibly including the
 -- structure theorem for finite abelian groups)
 theorem WeierstrassCurve.n_torsion_dimension [IsSepClosed k] {n : ℕ} (hn : (n : k) ≠ 0) :
-    ∃ φ : E.n_torsion n ≃+ (ZMod n) × (ZMod n), True := by
-  sorry
+    ∃ φ : E.n_torsion n ≃+ (ZMod n) × (ZMod n), True := sorry
 
 -- This should be a straightforward but perhaps long unravelling of the definition
 /-- The map on points for an elliptic curve over `k` induced by a morphism of `k`-algebras
