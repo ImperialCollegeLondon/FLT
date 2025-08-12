@@ -42,6 +42,54 @@ variable (g : ∀ i, M i →ₗ[R] P) (Hg : ∀ i j hij x, g j (f i j hij x) = g
 variable [DecidableEq ι] [IsDirected ι (· ≤ ·)] [Nonempty ι] [DirectedSystem M (f · · ·)]
 
 @[mk_iff] class IsDirectLimit : Prop where
+  compatibility : ∀ i j hij x, g j (f i j hij x) = g i x
+  universal_property :
+    ∀ {X : Type*} [AddCommMonoid X] [Module R X],
+    ∀ gX : ∀ i, M i →ₗ[R] X, ∀ HgX : ∀ i j hij x, gX j (f i j hij x) = gX i x,
+    ∃! φ : P →ₗ[R] X, ∀ i x, φ (g i x) = gX i x
+
+instance isDirectLimit :
+    IsDirectLimit M (Module.DirectLimit M f) f
+    (Module.DirectLimit.of R ι M f) where
+  compatibility i j hij x := Module.DirectLimit.of_f
+  universal_property gX HgX :=
+    ⟨Module.DirectLimit.lift R ι M f gX HgX,
+      by simp,
+      by intro y hy; sorry⟩
+      -- this last part is the uniqueness;
+      -- shouldn't be too hard to use Module.DirectLimit.lift_unique here
+
+section Iso
+
+variable (P₁ P₂ : Type*) [AddCommMonoid P₁] [Module R P₁] [AddCommMonoid P₂] [Module R P₂]
+variable (g₁ : ∀ i, M i →ₗ[R] P₁)
+variable (g₂ : ∀ i, M i →ₗ[R] P₂)
+
+noncomputable def iso_of_isDirectLimit
+    [h₁ : IsDirectLimit M P₁ f g₁] [h₂ : IsDirectLimit M P₂ f g₂] :
+    P₁ ≃ₗ[R] P₂ where
+  __ := (h₁.universal_property g₂ h₂.compatibility).exists.choose
+  invFun := sorry
+  left_inv := sorry
+  right_inv := sorry
+
+end Iso
+
+end Module
+
+end IsDirectLimit
+
+section IsDirectLimit
+
+namespace Module
+
+variable {R : Type*} [Semiring R] {ι : Type*} [Preorder ι] (M : ι → Type*) (P : Type*)
+variable [AddCommMonoid P] [Module R P]
+variable [∀ i, AddCommMonoid (M i)] [∀ i, Module R (M i)] (f : ∀ i j, i ≤ j → M i →ₗ[R] M j)
+variable (g : ∀ i, M i →ₗ[R] P) (Hg : ∀ i j hij x, g j (f i j hij x) = g i x)
+variable [DecidableEq ι] [IsDirected ι (· ≤ ·)] [Nonempty ι] [DirectedSystem M (f · · ·)]
+
+@[mk_iff] class IsDirectLimit : Prop where
   surj : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m
   inj :  ∀ i j, ∀ mi : M i, ∀ mj : M j, g i mi = g j mj → ∃ (k : ι) (hik : i ≤ k) (hjk : j ≤ k),
       f i k hik mi = f j k hjk mj
