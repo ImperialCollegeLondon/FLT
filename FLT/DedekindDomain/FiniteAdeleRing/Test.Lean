@@ -69,10 +69,12 @@ instance isDirectLimit :
 
 section Iso
 
-variable [IsDirectLimit M P f g]
 
-theorem IsDirectLimit.surj' : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m := by
+theorem IsDirectLimit.surj' [h : IsDirectLimit M P f g] : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m := by
   intro m
+  let Q : Submodule R P := Submodule.span R (⋃ i, Set.range (g i))
+  --have := (h.universal_property (X:= P) g h.compatibility).exists.choose
+
 
   sorry
 
@@ -88,12 +90,12 @@ noncomputable def iso_of_isDirectLimit
   invFun := (h₂.universal_property g₁ h₁.compatibility).exists.choose
   left_inv x := by
     simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
-    obtain ⟨i, xi, hxi⟩ := IsDirectLimit.surj' M P₁ g₁ x
+    obtain ⟨i, xi, hxi⟩ := IsDirectLimit.surj' M P₁ f g₁ x
     rw [← hxi, (h₁.universal_property g₂ h₂.compatibility).exists.choose_spec i xi,
       (h₂.universal_property g₁ h₁.compatibility).exists.choose_spec i xi]
   right_inv x := by
     simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
-    obtain ⟨i, xi, hxi⟩ := IsDirectLimit.surj' M P₂ g₂ x
+    obtain ⟨i, xi, hxi⟩ := IsDirectLimit.surj' M P₂ f g₂ x
     rw [← hxi, (h₂.universal_property g₁ h₁.compatibility).exists.choose_spec i xi,
       (h₁.universal_property g₂ h₂.compatibility).exists.choose_spec i xi]
 
