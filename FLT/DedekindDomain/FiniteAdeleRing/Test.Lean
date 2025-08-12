@@ -64,8 +64,6 @@ instance isDirectLimit :
         ext x'
         simp only [LinearMap.coe_comp, Function.comp_apply]
         exact (hy i x').symm⟩
-      -- this last part is the uniqueness;
-      -- shouldn't be too hard to use Module.DirectLimit.lift_unique here
 
 section Iso
 
@@ -115,18 +113,15 @@ variable [∀ i, AddCommMonoid (M i)] [∀ i, Module R (M i)] (f : ∀ i j, i �
 variable (g : ∀ i, M i →ₗ[R] P) (Hg : ∀ i j hij x, g j (f i j hij x) = g i x)
 variable [DecidableEq ι] [IsDirected ι (· ≤ ·)] [Nonempty ι] [DirectedSystem M (f · · ·)]
 
-@[mk_iff] class IsDirectLimit : Prop where
+@[mk_iff] class IsDirectLimit' : Prop where
   surj : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m
   inj :  ∀ i j, ∀ mi : M i, ∀ mj : M j, g i mi = g j mj → ∃ (k : ι) (hik : i ≤ k) (hjk : j ≤ k),
       f i k hik mi = f j k hjk mj
 
 variable [IsDirectLimit M P f g]
 
-include f in
-theorem IsDirectLimit.surj' : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m :=
-  IsDirectLimit.surj f
 
-instance isDirectLimit : IsDirectLimit M (Module.DirectLimit M f) f
+instance isDirectLimit' : IsDirectLimit' M (Module.DirectLimit M f) f
   (Module.DirectLimit.of R ι M f) where
   surj := Module.DirectLimit.exists_of
   inj i j mi mj h := by
@@ -136,10 +131,6 @@ instance isDirectLimit : IsDirectLimit M (Module.DirectLimit M f) f
     have ⟨k, hi, hj, hij⟩ := Quotient.exact h
     exact ⟨k, hi, hj, hij⟩
 
-theorem mk (p : P) : Module.DirectLimit M f := by
-
-
-  sorry
 
 
 
@@ -153,7 +144,7 @@ noncomputable def iso : Module.DirectLimit M f ≃ₗ[R] P where
   left_inv x := by
     simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
 
-    obtain ⟨i, mi, hmi⟩ := IsDirectLimit.surj f (g := (Module.DirectLimit.of R ι M f)) x
+    obtain ⟨i, mi, hmi⟩ := IsDirectLimit'.surj f (g := (Module.DirectLimit.of R ι M f)) x
     rw [← hmi]
     simp only [DirectLimit.lift_of]
     apply_fun Module.DirectLimit.linearEquiv _ _
