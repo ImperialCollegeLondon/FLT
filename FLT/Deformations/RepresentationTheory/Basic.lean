@@ -271,11 +271,9 @@ lemma Matrix.map_det {F α β n : Type*} [CommRing β] [CommRing α] [Fintype n]
     (M.map f).det = f M.det :=
   (RingHom.map_det (f : α →+* β) M).symm
 
-@[simp]
 lemma LinearMap.trace_toLin' {R n : Type*} [CommSemiring R] [DecidableEq n]
     [Fintype n] (M : Matrix n n R) : LinearMap.trace _ _ M.toLin' = M.trace := by
-  rw [LinearMap.trace_eq_matrix_trace _ (Pi.basisFun ..), LinearMap.toMatrix_eq_toMatrix',
-      LinearMap.toMatrix'_toLin']
+  simp
 
 omit [NumberField K] in
 lemma FramedGaloisRep.det_baseChange [IsTopologicalRing B]

@@ -6,7 +6,7 @@ Authors: Matthew Jasper
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
-import FLT.Mathlib.Algebra.Order.GroupWithZero
+import Mathlib.Algebra.Order.GroupWithZero.Canonical
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.NumberTheory.RamificationInertia.Basic
