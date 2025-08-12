@@ -58,22 +58,43 @@ instance isDirectLimit : IsDirectLimit M (Module.DirectLimit M f) f
   inj i j mi mj h := by
     apply_fun Module.DirectLimit.linearEquiv _ _ at h
     simp_rw [Module.DirectLimit.linearEquiv_of] at h
+
     have ⟨k, hi, hj, hij⟩ := Quotient.exact h
     exact ⟨k, hi, hj, hij⟩
 
+theorem mk (p : P) : Module.DirectLimit M f := by
 
+
+  sorry
+
+
+
+set_option pp.proofs true in
 noncomputable def iso : Module.DirectLimit M f ≃ₗ[R] P where
   __ := Module.DirectLimit.lift R ι M f g Hg
-  invFun p :=
-    Module.DirectLimit.of R ι M f (Classical.choose (IsDirectLimit.surj' M P f g p))
-       (Classical.choose (Classical.choose_spec (IsDirectLimit.surj' M P f g p)))
+  invFun p := by
+    set j := Classical.choose (IsDirectLimit.surj' M P f g p)
+    set mj := (Classical.choose (Classical.choose_spec (IsDirectLimit.surj' M P f g p)))
+    exact Module.DirectLimit.of R ι M f j mj
   left_inv x := by
     simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+
+    obtain ⟨i, mi, hmi⟩ := IsDirectLimit.surj f (g := (Module.DirectLimit.of R ι M f)) x
+    rw [← hmi]
+    simp only [DirectLimit.lift_of]
+    apply_fun Module.DirectLimit.linearEquiv _ _
+    simp_rw [Module.DirectLimit.linearEquiv_of]
+    simp only [Quotient.eq]
+
+
 
 
 
     sorry
-  right_inv := sorry
+  right_inv p := by
+    simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, DirectLimit.lift_of]
+    exact Classical.choose_spec (Classical.choose_spec (IsDirectLimit.surj' M P f g p))
+
 
 end Module
 
