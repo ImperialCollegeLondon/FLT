@@ -48,6 +48,8 @@ variable [DecidableEq ι] [IsDirected ι (· ≤ ·)] [Nonempty ι] [DirectedSys
     ∀ gX : ∀ i, M i →ₗ[R] X, ∀ HgX : ∀ i j hij x, gX j (f i j hij x) = gX i x,
     ∃! φ : P →ₗ[R] X, ∀ i x, φ (g i x) = gX i x
 
+
+
 instance isDirectLimit :
     IsDirectLimit M (Module.DirectLimit M f) f
     (Module.DirectLimit.of R ι M f) where
@@ -55,23 +57,45 @@ instance isDirectLimit :
   universal_property gX HgX :=
     ⟨Module.DirectLimit.lift R ι M f gX HgX,
       by simp,
-      by intro y hy; sorry⟩
+      by
+        intro y hy
+        ext x
+        convert Module.DirectLimit.lift_unique y x with i
+        ext x'
+        simp only [LinearMap.coe_comp, Function.comp_apply]
+        exact (hy i x').symm⟩
       -- this last part is the uniqueness;
       -- shouldn't be too hard to use Module.DirectLimit.lift_unique here
 
 section Iso
 
+variable [IsDirectLimit M P f g]
+
+theorem IsDirectLimit.surj' : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m := by
+  intro m
+
+  sorry
+
 variable (P₁ P₂ : Type*) [AddCommMonoid P₁] [Module R P₁] [AddCommMonoid P₂] [Module R P₂]
 variable (g₁ : ∀ i, M i →ₗ[R] P₁)
 variable (g₂ : ∀ i, M i →ₗ[R] P₂)
 
+set_option pp.proofs true in
 noncomputable def iso_of_isDirectLimit
     [h₁ : IsDirectLimit M P₁ f g₁] [h₂ : IsDirectLimit M P₂ f g₂] :
     P₁ ≃ₗ[R] P₂ where
   __ := (h₁.universal_property g₂ h₂.compatibility).exists.choose
-  invFun := sorry
-  left_inv := sorry
-  right_inv := sorry
+  invFun := (h₂.universal_property g₁ h₁.compatibility).exists.choose
+  left_inv x := by
+    simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+    obtain ⟨i, xi, hxi⟩ := IsDirectLimit.surj' M P₁ g₁ x
+    rw [← hxi, (h₁.universal_property g₂ h₂.compatibility).exists.choose_spec i xi,
+      (h₂.universal_property g₁ h₁.compatibility).exists.choose_spec i xi]
+  right_inv x := by
+    simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+    obtain ⟨i, xi, hxi⟩ := IsDirectLimit.surj' M P₂ g₂ x
+    rw [← hxi, (h₂.universal_property g₁ h₁.compatibility).exists.choose_spec i xi,
+      (h₁.universal_property g₂ h₂.compatibility).exists.choose_spec i xi]
 
 end Iso
 
