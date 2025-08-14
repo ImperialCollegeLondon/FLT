@@ -56,7 +56,8 @@ namespace Aux
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
-    e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
+    e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
+
   sorry
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
@@ -364,12 +365,46 @@ abbrev test3 : ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))
    Fin (Module.finrank K D) →  Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ := by
   exact ContinuousLinearEquiv.piCongrRight fun i ↦ test2 K
 
+lemma arr (x y : ℕ) (hx : x ≠ 0) (hy : y ≠ 0) : ∀ (a : Fin (x * y)), ∃ b : Fin x, ∃ c : Fin y,
+    a.1 = b.1 * y + c.1 := by
+  -- this has to be in the library as this is just modulo arithmetic
+  intro a
+  obtain ⟨a, ha⟩ := a
+  simp only
+  cases a
+  · have hx1 : (0 < x) := by
+      exact Nat.zero_lt_of_ne_zero hx
+    have hy1 : (0 < y) := by
+     exact Nat.zero_lt_of_ne_zero hy
+    use ⟨0, hx1⟩
+    use ⟨0, hy1⟩
+    simp only [zero_mul, add_zero]
+  · -- not sure if I want to be doing this...
+    sorry
+
 /-- ((𝔸_ℚ)^[ℚ:K])^[K:D] = (𝔸_ℚ)^([ℚ:K]*[K:D]). -/
 def hmm1 : (Fin (Module.finrank K D) → Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ)
-    ≃ₗ[ℚ] (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+    ≃ₗ[ℚ] (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ) where
   -- this is true mathematically, just not sure if Lean knows this?
+  toFun := fun (a i) => a (Classical.choose ((arr (Module.finrank K D) (Module.finrank ℚ K)) i))
+    -- this seems a mess... I need to work out how to take two elements from a classical choose
+    -- and I need to work out if ayy has the correct assumptions
+  map_add' := by
+    sorry
+  map_smul' := by
+    sorry
+  invFun := fun (a i j) =>
+     -- want to use the following equality
+     -- a = (b : Fin ((Module.finrank K D)) * (Module.finrank ℚ K) + (c : Fin (Module.finrank ℚ K))
 
-  sorry
+    sorry
+  left_inv := by
+    sorry
+  right_inv := by
+    sorry
+  -- could look in the matrics section... for this?
+  -- feel like this should be obvious?
+
 
 /-- As in above... but a topological equivalence. -/
 def hmm2 : (Fin (Module.finrank K D) → Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ)
@@ -432,9 +467,43 @@ lemma ringHaarChar_eq2 (a : ((Fin (Module.finrank K D) → NumberField.AdeleRing
   -- once again everything is only linear... this gives me a slight worry
   sorry
 
+/-
+
+def why? : NumberField.InfiniteAdeleRing ℚ ≃+* ℝ := by
+  simp_rw [NumberField.InfiniteAdeleRing]
+  --have := NumberField.IsTotallyReal ℚ
+
+  --exact NumberField.InfinitePlace.Completion.ringEquivRealOfIsReal (K := ℚ)
+  sorry
+
+
+def dream : NumberField.InfiniteAdeleRing ℚ = ℝ := by
+  sorry
+
+-/
+
+
 def maybe : ℝˣ → (NumberField.InfiniteAdeleRing ℚ)ˣ:=
   -- this has to be the obvious inclusion
   -- slight worry how I can do this
+
+  sorry
+
+def stupid {T : Type*} [Monoid T] [GroupWithZero T] (d : ℕ) : (Fin d → Tˣ) ≃ (Fin d → T)ˣ := by
+  refine (Equiv.ofBijective ?_ ?_).symm
+  · use fun x => (fun y => Units.mk0 (x.val y)
+      (by
+
+        sorry))
+  ·
+    sorry
+-- there has to be a better way to be doing this
+-- really I need this to be an equality NOT an equivalence... else I need more theorems saying I can
+-- across ringHaarChars of these
+
+
+local instance : GroupWithZero (NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+
   sorry
 
 lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
@@ -470,7 +539,17 @@ lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
       ((maybe (Units.mk0 (NNReal.toReal (r ^ ((1 / (Module.finrank K D * Module.finrank ℚ K)))))
       (by aesop)),
       (1 : (FiniteAdeleRing (𝓞 ℚ) ℚ)ˣ)))
-    --use f
+    use (stupid (T := (NumberField.AdeleRing (𝓞 ℚ) ℚ)) (Module.finrank K D * Module.finrank ℚ K) f)
+    constructor
+    · unfold f
+      simp only [MulEquiv.toEquiv_eq_coe, NNReal.coe_pow, Equiv.invFun_as_coe,
+        MulEquiv.coe_toEquiv_symm]
+      -- the problem is now I cannot use lemma on ringhaarchar of Mulequiv_prod_units
+      sorry
+    · -- everything is messed up... its always RHS of stupid
+
+      sorry
+    --use f -- why is this not definitionally the same
 
 
     /- there almost certainly is a nicer way to be proving this...
@@ -481,7 +560,6 @@ lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
        the second part will be simply chooising nice elements such that they match
        ... no idea how hard this second part will be, but it at least sounds reasonable
     -/
-    sorry
   use (iso₁ K D).symm (y⁻¹, x)
   constructor
   · rw [rest₁]
