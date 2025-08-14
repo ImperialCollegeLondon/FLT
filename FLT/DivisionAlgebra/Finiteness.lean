@@ -13,7 +13,10 @@ import Mathlib.Tactic.LinearCombination'
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
+import FLT.Hacks.RightActionInstances
+import FLT.NumberField.FiniteAdeleRing
 import FLT.Mathlib.Topology.Algebra.Group.Basic
+
 
 /-
 
@@ -53,7 +56,8 @@ namespace Aux
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
-    e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
+    e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
+
   sorry
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
@@ -242,6 +246,8 @@ end NumberField.AdeleRing.DivisionAlgebra
 
 section FiniteAdeleRing
 
+open scoped TensorProduct.RightActions
+
 variable [FiniteDimensional K D]
 
 -- Instance to help speed up instance synthesis
@@ -253,7 +259,17 @@ instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
 instance : NonAssocSemiring (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
   Algebra.TensorProduct.instRing.toNonAssocSemiring
 
-variable [Algebra.IsCentral K D]
+-- Instance to help speed up instance synthesis
+local instance : NonUnitalNonAssocRing (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
+  r.toNonUnitalNonAssocRing
+
+-- Instance to help speed up instance synthesis
+local instance : NonAssocSemiring (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  Algebra.TensorProduct.instRing.toNonAssocSemiring
+
+variable [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
+  [BorelSpace (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)]
 
 /-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
 abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
@@ -262,10 +278,372 @@ abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
-open scoped TensorProduct.RightActions in
-theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
-    CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
+/-- The equivalence of the units of D_𝔸 and the Prod of units of (D ⊗ 𝔸_K^f) (D ⊗ 𝔸_K^∞). -/
+def iso₁ : D_𝔸ˣ ≃* Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Dfx K D) :=
+  (Units.mapEquiv (AlgEquiv.toMulEquiv (Algebra.TensorProduct.prodRight K K D _ _))).trans
+  (MulEquiv.prodUnits)
+
+lemma iso₁_continuous : Continuous (iso₁ K D) := by
+  rw [iso₁, MulEquiv.coe_trans]
+  apply Continuous.comp ?_ ?_
+  · apply Continuous.prodMk
+    · apply Continuous.units_map
+      exact continuous_fst
+    · apply Continuous.units_map
+      exact continuous_snd
+  · apply Continuous.units_map
+    simp only [MulEquiv.toMonoidHom_eq_coe, MonoidHom.coe_coe, MulEquiv.coe_mk,
+      AlgEquiv.toEquiv_eq_coe, EquivLike.coe_coe]
+
+    -- Kevin has an outline of the proof of the continuity of this.
+    sorry
+
+/-- The restriction of ringHaarChar_ker D_𝔸 to Dfx K D. -/
+abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
+  fun a => (iso₁ K D) a.val |>.2
+
+lemma rest₁_continuous : Continuous (rest₁ K D) := by
+  refine Continuous.comp continuous_snd (Continuous.comp
+    (iso₁_continuous K D) continuous_subtype_val)
+
+local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
+
+local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact { measurable_eq := rfl }
+
+local instance : MeasurableSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact borel (D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+
+local instance : BorelSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact { measurable_eq := rfl }
+
+/-- The 𝔸_K-module equivalence of D_𝔸 and (𝔸_K)^[K:D]. -/
+abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(NumberField.AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) →
+    NumberField.AdeleRing (𝓞 K) K))) :=
+  ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
+    (TensorProduct.AlgebraTensorModule.finiteEquivPi (R := K) (M := D)
+    (N := NumberField.AdeleRing (𝓞 K) K))
+
+local instance : IsModuleTopology (NumberField.AdeleRing (𝓞 K) K)
+     ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)) := by
+   -- the return of the diamond
+   sorry
+
+/-- The topological equivalence arising from D𝔸-iso. -/
+abbrev D𝔸_iso_top : D_𝔸 ≃L[(NumberField.AdeleRing (𝓞 K) K)]
+    ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)) :=
+  IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
+
+
+-- so can go D_𝔸 → 𝔸_K^d (d = dim_K D)
+lemma help (x : D_𝔸ˣ) : IsUnit (D𝔸_iso_top K D x) := by
+  refine isUnit_iff_exists_inv.mpr ?_
+  obtain ⟨x, x', h1, h2⟩ := x
+  use D𝔸_iso_top K D x'
+  simp only [IsModuleTopology.continuousLinearEquiv_apply]
+
+  -- surely a better way
   sorry
+
+/-- The map coming from D𝔸_iso on the units. -/
+abbrev D𝔸_iso_units : D_𝔸ˣ → ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))ˣ :=
+  fun x => Classical.choose (help K D x)
+  -- this seems stupid and there must be a better way
+  -- if the map was multiplicative we could use Units.map.. but we do not have multiplicativity
+  -- which is a recurring problem right now
+
+/-- The topological equivalence of 𝔸_K and (𝔸_ℚ)^[ℚ:K] -/
+abbrev test2 : NumberField.AdeleRing (𝓞 K) K ≃L[ℚ]
+    (Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+  exact (NumberField.AdeleRing.piEquiv ℚ K).symm
+
+-- gives 𝔸_K → 𝔸_ℚ^m (m = dim_ℚ K)
+
+/-- The topological equivalence of (𝔸_K)^[K:D] and ((𝔸_ℚ)^[ℚ:K])^[K:D]. -/
+abbrev test3 : ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)) ≃L[ℚ]
+   Fin (Module.finrank K D) →  Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ := by
+  exact ContinuousLinearEquiv.piCongrRight fun i ↦ test2 K
+
+lemma arr (x y : ℕ) (hx : x ≠ 0) (hy : y ≠ 0) : ∀ (a : Fin (x * y)), ∃ b : Fin x, ∃ c : Fin y,
+    a.1 = b.1 * y + c.1 := by
+  -- this has to be in the library as this is just modulo arithmetic
+  intro a
+  obtain ⟨a, ha⟩ := a
+  simp only
+  cases a
+  · have hx1 : (0 < x) := by
+      exact Nat.zero_lt_of_ne_zero hx
+    have hy1 : (0 < y) := by
+     exact Nat.zero_lt_of_ne_zero hy
+    use ⟨0, hx1⟩
+    use ⟨0, hy1⟩
+    simp only [zero_mul, add_zero]
+  · -- not sure if I want to be doing this...
+    sorry
+
+/-- ((𝔸_ℚ)^[ℚ:K])^[K:D] = (𝔸_ℚ)^([ℚ:K]*[K:D]). -/
+def hmm1 : (Fin (Module.finrank K D) → Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ)
+    ≃ₗ[ℚ] (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ) where
+  -- this is true mathematically, just not sure if Lean knows this?
+  toFun := fun (a i) => a (Classical.choose ((arr (Module.finrank K D) (Module.finrank ℚ K)) i))
+    -- this seems a mess... I need to work out how to take two elements from a classical choose
+    -- and I need to work out if ayy has the correct assumptions
+  map_add' := by
+    sorry
+  map_smul' := by
+    sorry
+  invFun := fun (a i j) =>
+     -- want to use the following equality
+     -- a = (b : Fin ((Module.finrank K D)) * (Module.finrank ℚ K) + (c : Fin (Module.finrank ℚ K))
+
+    sorry
+  left_inv := by
+    sorry
+  right_inv := by
+    sorry
+  -- could look in the matrics section... for this?
+  -- feel like this should be obvious?
+
+
+/-- As in above... but a topological equivalence. -/
+def hmm2 : (Fin (Module.finrank K D) → Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ)
+    ≃L[ℚ] (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+  -- this is true mathematically, just not sure if Lean knows this?
+
+  sorry
+
+/-- The topological equivalence of (𝔸_K)^[K:D] and (𝔸_ℚ)^([ℚ:K]*[K:D]). -/
+abbrev test4 : ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)) ≃L[ℚ]
+    Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ := by
+  have h1 := test3 K D
+  have h2 := hmm2 K D
+  exact h1.trans h2
+
+-- so can go 𝔸_K^d → A_ℚ^{md}
+
+/-- The map from test4 defined on the units. -/
+abbrev test4' : ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))ˣ →
+    (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ)ˣ := by
+  -- will need to also think of a nice way to write this
+  sorry
+
+local instance : MeasurableSpace (Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K) := by
+  exact borel (Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)
+
+local instance : BorelSpace (Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K) := by
+  exact { measurable_eq := rfl }
+
+/- We now need lemmas saying we can pass across ringHaarChars -/
+
+lemma ringHaarChar_eq1 (a : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ) : ringHaarChar a =
+    ringHaarChar (R := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)))
+    (D𝔸_iso_units K D a) := by
+  apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (X := D_𝔸)
+    (Y := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)))
+    (D𝔸_iso_top K D).toContinuousAddEquiv
+  intro x
+
+  -- I have not shown the map is multiplicative, so I need to this here... or before
+  sorry
+
+local instance : MeasurableSpace (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) →
+    NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+  exact borel (Fin (Module.finrank K D * Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ)
+
+local instance : BorelSpace (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) →
+    NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+  exact { measurable_eq := rfl }
+
+lemma ringHaarChar_eq2 (a : ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))ˣ) :
+    ringHaarChar (R := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K))) a =
+    ringHaarChar (R := (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) →
+    NumberField.AdeleRing (𝓞 ℚ) ℚ)) (test4' K D a) := by
+  apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    (X := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)))
+    (Y := (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ))
+    (test4 K D).toContinuousAddEquiv
+  -- will need to prove this
+  -- once again everything is only linear... this gives me a slight worry
+  sorry
+
+/-
+
+def why? : NumberField.InfiniteAdeleRing ℚ ≃+* ℝ := by
+  simp_rw [NumberField.InfiniteAdeleRing]
+  --have := NumberField.IsTotallyReal ℚ
+
+  --exact NumberField.InfinitePlace.Completion.ringEquivRealOfIsReal (K := ℚ)
+  sorry
+
+
+def dream : NumberField.InfiniteAdeleRing ℚ = ℝ := by
+  sorry
+
+-/
+
+
+def maybe : ℝˣ → (NumberField.InfiniteAdeleRing ℚ)ˣ:=
+  -- this has to be the obvious inclusion
+  -- slight worry how I can do this
+
+  sorry
+
+def stupid {T : Type*} [Monoid T] [GroupWithZero T] (d : ℕ) : (Fin d → Tˣ) ≃ (Fin d → T)ˣ := by
+  refine (Equiv.ofBijective ?_ ?_).symm
+  · use fun x => (fun y => Units.mk0 (x.val y)
+      (by
+
+        sorry))
+  ·
+    sorry
+-- there has to be a better way to be doing this
+-- really I need this to be an equality NOT an equivalence... else I need more theorems saying I can
+-- across ringHaarChars of these
+
+
+local instance : GroupWithZero (NumberField.AdeleRing (𝓞 ℚ) ℚ) := by
+
+  sorry
+
+lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
+  simp only [Set.image_univ]
+  refine Eq.symm (Set.ext ?_)
+  intro x
+  simp only [Set.mem_univ, Set.mem_range, Subtype.exists, true_iff]
+  obtain ⟨r, hx⟩ : ∃ r, ringHaarChar ((iso₁ K D).symm (1,x)) = r := exists_eq'
+  have hr : r > 0 := by
+    rw [←hx]
+    have (a : (D_𝔸)ˣ): 0 < ringHaarChar a := by
+      exact addEquivAddHaarChar_pos _
+    exact this ((iso₁ K D).symm (1, x))
+  obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
+    simp_rw [ringHaarChar_eq1]
+    suffices (∃ a, (ringHaarChar (R := (Fin (Module.finrank K D) →
+        NumberField.AdeleRing (𝓞 K) K)) a = r ∧ ∃ y,
+        a = (D𝔸_iso_units K D ((iso₁ K D).symm (y, 1))))) by
+      obtain ⟨a, ⟨ha, ⟨y, hay⟩⟩⟩ := this
+      use y
+      simp_rw [← hay]
+      exact ha
+    simp_rw [ringHaarChar_eq2]
+    suffices (∃ b, ringHaarChar (R := (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) →
+        NumberField.AdeleRing (𝓞 ℚ) ℚ)) b = r ∧ ∃ a, test4' K D a = b ∧
+        ∃ y,  a = (D𝔸_iso_units K D ((iso₁ K D).symm (y, 1)))) by
+      obtain ⟨b, hb, a, ha, y, hy⟩ := this
+      use a
+      simp_rw [ha]
+      refine ⟨hb, by use y⟩
+    let f := fun (i : Fin (Module.finrank K D * Module.finrank ℚ K)) => (MulEquiv.prodUnits
+      (M := NumberField.InfiniteAdeleRing ℚ) (N := FiniteAdeleRing (𝓞 ℚ) ℚ)).invFun
+      ((maybe (Units.mk0 (NNReal.toReal (r ^ ((1 / (Module.finrank K D * Module.finrank ℚ K)))))
+      (by aesop)),
+      (1 : (FiniteAdeleRing (𝓞 ℚ) ℚ)ˣ)))
+    use (stupid (T := (NumberField.AdeleRing (𝓞 ℚ) ℚ)) (Module.finrank K D * Module.finrank ℚ K) f)
+    constructor
+    · unfold f
+      simp only [MulEquiv.toEquiv_eq_coe, NNReal.coe_pow, Equiv.invFun_as_coe,
+        MulEquiv.coe_toEquiv_symm]
+      -- the problem is now I cannot use lemma on ringhaarchar of Mulequiv_prod_units
+      sorry
+    · -- everything is messed up... its always RHS of stupid
+
+      sorry
+    --use f -- why is this not definitionally the same
+
+
+    /- there almost certainly is a nicer way to be proving this...
+       but it is now enough to choose b with :
+        ⬝ 1 in the finite adele places
+        ⬝ r^{1/(Fin (Module.finrank K D * Module.finrank ℚ K))} in the infinite places
+       the first part of the proof will be to do with products
+       the second part will be simply chooising nice elements such that they match
+       ... no idea how hard this second part will be, but it at least sounds reasonable
+    -/
+  use (iso₁ K D).symm (y⁻¹, x)
+  constructor
+  · rw [rest₁]
+    refine Units.val_inj.mp ?_
+    simp only [MulEquiv.apply_symm_apply]
+  · ext
+    simp only [ContinuousMonoidHom.coe_toMonoidHom, MonoidHom.coe_coe, NNReal.coe_one,
+      NNReal.coe_eq_one]
+    have : (y⁻¹, x) = (y⁻¹, 1) * (1, x) := by
+      simp only [Prod.mk_mul_mk, one_mul, mul_one]
+    simp_rw [this, map_mul]
+    have : ringHaarChar ((iso₁ K D).symm (y⁻¹, 1)) = r⁻¹ := by
+      rw [← hy]
+      have : ringHaarChar ((iso₁ K D).symm (y⁻¹, 1)) * (ringHaarChar ((iso₁ K D).symm (y, 1))) = 1
+          := by
+        simp_rw [← map_mul, Prod.mk_mul_mk, inv_mul_cancel, mul_one]
+        have : (iso₁ K D).symm (1, 1) = 1 := by
+          exact (MulEquiv.map_eq_one_iff (iso₁ K D).symm).mpr rfl
+        simp only [this, map_one]
+      exact Eq.symm (inv_eq_of_mul_eq_one_left this)
+    simpa [this, hx] using (inv_mul_cancel₀ hr.ne')
+
+omit [Algebra.IsCentral K D] in
+lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
+    (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker D_𝔸).subtype
+    (NumberField.AdeleRing.DivisionAlgebra.incl K D).range)) a b →
+    (Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a) =
+     Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D b)) := by
+  intros a b hab
+  refine Quotient.eq''.mpr ?_
+  unfold rest₁
+  obtain ⟨h, rfl⟩ := hab
+  simp_rw [QuotientGroup.rightRel, MulAction.orbitRel, MulAction.orbit, Set.mem_range,
+    Subtype.exists, Subgroup.mk_smul, smul_eq_mul, MonoidHom.mem_range, exists_prop,
+    exists_exists_eq_and]
+  obtain ⟨t, t', ht⟩ := h
+  use t'
+  have : incl₁ K D t' = ((iso₁ K D) (NumberField.AdeleRing.DivisionAlgebra.incl K D t')).2 := by
+    rfl
+  simp_rw [this, ht, ← Prod.snd_mul, Subgroup.subtype_apply, Subgroup.comap_subtype, ← map_mul]
+  rfl
+
+/-- The obvious map Dˣ \ D_𝔸^(1) to Dˣ \ (Dfx K D). -/
+def α : Quotient (QuotientGroup.rightRel
+    ((MonoidHom.range (NumberField.AdeleRing.DivisionAlgebra.incl K D)).comap
+    (ringHaarChar_ker D_𝔸).subtype)) →
+    Quotient (QuotientGroup.rightRel (incl₁ K D).range) :=
+  Quot.lift
+    (fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a))
+    (α_equivariant K D)
+
+lemma α_continuous : Continuous (α K D) := by
+  rw [α]
+  refine Continuous.quotient_lift ?_ (α_equivariant K D)
+  refine Continuous.comp' ?_ ?_
+  · exact { isOpen_preimage := fun s a ↦ a }
+  · exact rest₁_continuous K D
+
+lemma α_surjective  : Function.Surjective (α K D) := by
+  refine (Quot.surjective_lift (f := fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range)
+    (rest₁ K D a)) (α_equivariant K D)).mpr ?_
+  refine Set.range_eq_univ.mp ?_
+  ext x
+  simp only [Set.mem_range, Subtype.exists, Set.mem_univ, iff_true]
+  have h := rest₁_surjective K D
+  have : ∃ a : (ringHaarChar_ker (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)),
+      (rest₁ K D) a = x.out := by
+    refine Set.mem_range.mp ?_
+    simp only [Set.image_univ] at h
+    rw [h]
+    · exact trivial
+    · exact USize.size -- not sure why this goal has appeared.
+  obtain ⟨a, ha⟩ := this
+  use a
+  simp only [Subtype.coe_eta, SetLike.coe_mem, exists_const, ha]
+  exact Quotient.out_eq x
+
+theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
+    CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
+  have := isCompact_univ_iff.mpr (NumberField.AdeleRing.DivisionAlgebra.compact_quotient K D)
+  apply isCompact_univ_iff.mp
+  have := IsCompact.image (this) (α_continuous K D)
+  rw [Set.image_univ_of_surjective (α_surjective K D)] at this
+  exact this
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
 /-!

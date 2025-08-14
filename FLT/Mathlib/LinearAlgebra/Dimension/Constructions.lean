@@ -12,14 +12,14 @@ noncomputable def Module.Finite.equivPi (R M : Type*) [Ring R] [StrongRankCondit
   LinearEquiv.ofFinrankEq _ _ <| by rw [Module.finrank_pi, Fintype.card_fin]
 
 noncomputable abbrev TensorProduct.AlgebraTensorModule.finiteEquivPi (R M N : Type*) [CommRing R]
-    [CommSemiring N] [CommRing M] [Algebra R N] [Module R M] [Module.Free R M] [Module.Finite R M]
+    [CommSemiring N] [Ring M] [Algebra R N] [Module R M] [Module.Free R M] [Module.Finite R M]
     [StrongRankCondition R] :
     N ⊗[R] M ≃ₗ[N] Fin (Module.finrank R M) → N :=
   (TensorProduct.AlgebraTensorModule.congr (LinearEquiv.refl N N) (Module.Finite.equivPi _ _)).trans
     (TensorProduct.piScalarRight _ _ _ _)
 
 theorem TensorProduct.AlgebraTensorModule.finiteEquivPi_symm_apply (R M N : Type*) [Field R]
-    [CommSemiring N] [CommRing M] [Algebra R N] [Module R M] [Module.Free R M] [Module.Finite R M]
+    [CommSemiring N] [Ring M] [Algebra R N] [Module R M] [Module.Free R M] [Module.Finite R M]
     [StrongRankCondition R]
     (x : Fin (Module.finrank R M) → R) :
     (finiteEquivPi R M N).symm (fun i => algebraMap R N (x i)) =
