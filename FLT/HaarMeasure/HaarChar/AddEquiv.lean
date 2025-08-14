@@ -41,8 +41,9 @@ variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 
 /-- If `φ : G ≃ₜ* G` then `mulEquivHaarChar φ` is the positive real factor by which
 `φ` scales Haar measure on `G`. -/
-@[to_additive "If `φ : A ≃ₜ+ A` then `addEquivAddHaarChar φ` is the positive
-real factor by which `φ` scales Haar measure on `A`."]
+@[to_additive
+/-- If `φ : A ≃ₜ+ A` then `addEquivAddHaarChar φ` is the positive real factor by which
+`φ` scales Haar measure on `A`. -/]
 noncomputable def mulEquivHaarChar (φ : G ≃ₜ* G) : ℝ≥0 :=
   haarScalarFactor haar (map φ haar)
 
@@ -240,8 +241,9 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
 
 /-- A version of `mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding` with the stronger
 assumption that `f` is a `ContinuousMulEquiv`, for convenience. -/
-@[to_additive "A version of `addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding`
-with the stronger assumption that `f` is a `ContinuousAddEquiv`, for convenience."]
+@[to_additive
+/-- A version of `addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding` with the stronger
+assumption that `f` is a `ContinuousAddEquiv`, for convenience. -/]
 lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv {X Y : Type*}
     [TopologicalSpace X] [Group X] [IsTopologicalGroup X] [LocallyCompactSpace X]
     [MeasurableSpace X] [BorelSpace X]
@@ -260,8 +262,9 @@ variable {A B C D : Type*} [Group A] [Group B] [Group C] [Group D]
 
 /-- The product of two multiplication-preserving homeomorphisms is
 a multiplication-preserving homeomorphism. -/
-@[to_additive "The product of
-two addition-preserving homeomorphisms is an addition-preserving homeomorphism."]
+@[to_additive
+/-- The product of two addition-preserving homeomorphisms is
+an addition-preserving homeomorphism. -/]
 def _root_.ContinuousMulEquiv.prodCongr (φ : A ≃ₜ* B) (ψ : C ≃ₜ* D) : A × C ≃ₜ* B × D where
   __ := φ.toMulEquiv.prodCongr ψ
   continuous_toFun := Continuous.prodMap φ.continuous_toFun ψ.continuous_toFun
@@ -388,8 +391,9 @@ variable {ι : Type*} {G H : ι → Type*}
 /-- An arbitrary product of multiplication-preserving homeomorphisms
 is a multiplication-preserving homeomorphism.
 -/
-@[to_additive "An arbitrary product of
-addition-preserving homeomorphisms is an addition-preserving homeomorphism."]
+@[to_additive
+/-- An arbitrary product of addition-preserving homeomorphisms
+is an addition-preserving homeomorphism. -/]
 def _root_.ContinuousMulEquiv.piCongrRight (ψ : Π i, (G i) ≃ₜ* (H i)) :
     (∀ i, G i) ≃ₜ* (∀ i, H i) where
   __ := MulEquiv.piCongrRight (fun i ↦ ψ i)
