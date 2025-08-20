@@ -50,20 +50,20 @@ variable [DecidableEq ι] [IsDirected ι (· ≤ ·)] [Nonempty ι] [DirectedSys
     ∀ gX : ∀ i, M i →ₗ[R] X, ∀ _ : ∀ i j hij x, gX j (f i j hij x) = gX i x,
     ∃! φ : P →ₗ[R] X, ∀ i x, φ (g i x) = gX i x
 
-instance isDirectLimit :
-    IsDirectLimit M (Module.DirectLimit M f) f
-    (Module.DirectLimit.of R ι M f) where
-  compatibility i j hij x := Module.DirectLimit.of_f
-  universal_property gX HgX :=
-    ⟨Module.DirectLimit.lift R ι M f gX HgX,
-      by simp,
-      by
-        intro y hy
-        ext x
-        convert Module.DirectLimit.lift_unique y x with i
-        ext x'
-        simp only [LinearMap.coe_comp, Function.comp_apply]
-        exact (hy i x').symm⟩
+-- instance isDirectLimit :
+--     IsDirectLimit M (Module.DirectLimit M f) f
+--     (Module.DirectLimit.of R ι M f) where
+--   compatibility i j hij x := Module.DirectLimit.of_f
+--   universal_property gX HgX :=
+--     ⟨Module.DirectLimit.lift R ι M f gX HgX,
+--       by simp,
+--       by
+--         intro y hy
+--         ext x
+--         convert Module.DirectLimit.lift_unique y x with i
+--         ext x'
+--         simp only [LinearMap.coe_comp, Function.comp_apply]
+--         exact (hy i x').symm⟩
 
 section Iso
 
@@ -73,7 +73,6 @@ theorem universal_prop_identity [h : IsDirectLimit M P f g] :
   · exact (h.universal_property g h.compatibility).exists.choose_spec
   · simp only [LinearMap.id_coe, id_eq, implies_true]
 
-#check Submodule.mkQ
 theorem IsDirectLimit.surj' [h : IsDirectLimit M P f g] : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m := by
   intro m
   let Q : Submodule R P := Submodule.span R (⋃ i, Set.range (g i))
@@ -129,13 +128,14 @@ namespace Module
 variable {R : Type*} [Semiring R] {ι : Type*} [Preorder ι] (M : ι → Type*) (P : Type*)
 variable [AddCommMonoid P] [Module R P]
 variable [∀ i, AddCommMonoid (M i)] [∀ i, Module R (M i)] (f : ∀ i j, i ≤ j → M i →ₗ[R] M j)
-variable (g : ∀ i, M i →ₗ[R] P) (Hg : ∀ i j hij x, g j (f i j hij x) = g i x)
+variable (g : ∀ i, M i →ₗ[R] P)
 variable [DecidableEq ι] [IsDirected ι (· ≤ ·)] [Nonempty ι] [DirectedSystem M (f · · ·)]
 
 @[mk_iff] class IsDirectLimit' : Prop where
   surj : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m
   inj :  ∀ i j, ∀ mi : M i, ∀ mj : M j, g i mi = g j mj → ∃ (k : ι) (hik : i ≤ k) (hjk : j ≤ k),
       f i k hik mi = f j k hjk mj
+  compatibility : ∀ i j hij x, g j (f i j hij x) = g i x
 
 variable [IsDirectLimit M P f g]
 
@@ -146,38 +146,141 @@ instance isDirectLimit' : IsDirectLimit' M (Module.DirectLimit M f) f
   inj i j mi mj h := by
     apply_fun Module.DirectLimit.linearEquiv _ _ at h
     simp_rw [Module.DirectLimit.linearEquiv_of] at h
-
     have ⟨k, hi, hj, hij⟩ := Quotient.exact h
     exact ⟨k, hi, hj, hij⟩
+  compatibility i j hij x := DirectLimit.of_f
+
+variable (P₁ P₂ : Type*) [AddCommMonoid P₁] [Module R P₁] [AddCommMonoid P₂] [Module R P₂]
+variable (g₁ : ∀ i, M i →ₗ[R] P₁)
+variable (g₂ : ∀ i, M i →ₗ[R] P₂)
 
 
+-- this is a nightmare. need to clean up and fully understand
+set_option pp.proofs true in
+noncomputable def lift [IsDirectLimit' M P₁ f g₁] (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) :
+  P₁ →ₗ[R] P₂ where
+    toFun p :=
+      g₂ (Classical.choose (IsDirectLimit'.surj f p))
+                   (Classical.choose (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) p)))
+    map_add' x y := by
+      have hx := Classical.choose_spec (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) x))
+      have hy := Classical.choose_spec (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) y))
+      have hxy := Classical.choose_spec (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) (x + y)))
+      set ix := Classical.choose (IsDirectLimit'.surj f (g:= g₁) x)
+      set mx := Classical.choose (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) x))
+      set iy := Classical.choose (IsDirectLimit'.surj f (g:= g₁) y)
+      set my := Classical.choose (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) y))
+      set ixy := Classical.choose (IsDirectLimit'.surj f (g:= g₁) (x + y))
+      set mxy := Classical.choose (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) (x + y)))
+
+      obtain ⟨k, hxk, hyk⟩ := IsDirected.directed (r := (· ≤ ·)) ix iy
+      obtain ⟨k', hxyk', hkk'⟩ := IsDirected.directed (r := (· ≤ ·)) ixy k
+      have sum_eq : g₁ k' (f ix k' (le_trans hxk hkk') mx + f iy k' (le_trans hyk hkk') my) =
+                    g₁ ixy mxy := by
+        rw [LinearMap.map_add]
+        rw [IsDirectLimit'.compatibility ix k' (le_trans hxk hkk') mx]
+        rw [IsDirectLimit'.compatibility iy k' (le_trans hyk hkk') my]
+        rw [hx, hy, hxy]
+
+      obtain ⟨k'', hk'k'', hxyk'', h'''⟩ := IsDirectLimit'.inj (f:= f) k' ixy
+                                        (f ix k' (le_trans hxk hkk') mx + f iy k' (le_trans hyk hkk') my)
+                                        mxy sum_eq
+      rw [← Hg ixy k'' hxyk'' mxy]
+      have key_eq := congr_arg (g₂ k'') h'''
+      have g2_applied := congr_arg (g₂ k'') h'''
+      rw [ Hg k' k'' hk'k''] at g2_applied
+      rw [LinearMap.map_add] at g2_applied
+      rw [Hg ix k' (le_trans hxk hkk') mx, Hg iy k' (le_trans hyk hkk') my] at g2_applied
+      rw [Hg ixy k'' hxyk'' mxy] at g2_applied
+      rw [ Hg ixy k'' hxyk'' mxy]
+      exact g2_applied.symm
+
+    map_smul' r x := by
+      have hx := Classical.choose_spec (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) x))
+      have hrx := Classical.choose_spec (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) (r • x)))
+      set ix := Classical.choose (IsDirectLimit'.surj f (g:= g₁) x)
+      set mx := Classical.choose (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) x))
+      set irx := Classical.choose (IsDirectLimit'.surj f (g:= g₁) (r • x))
+      set mrx := Classical.choose (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) (r • x)))
+      -- Step 1: Simplify RingHom.id R
+      simp only [RingHom.id_apply]
+      -- Goal becomes: (g₂ irx) mrx = r • (g₂ ix) mx
+
+      -- Step 2: We have hrx : g₁ irx mrx = r • x and hx : g₁ ix mx = x
+      -- So: g₁ irx mrx = r • (g₁ ix mx)
+      -- By linearity of g₁ ix: r • (g₁ ix mx) = g₁ ix (r • mx)
+
+      -- We need to show: g₁ irx mrx = g₁ ix (r • mx)
+      have smul_eq : g₁ irx mrx = g₁ ix (r • mx) := by
+        rw [hrx, LinearMap.map_smul, hx]
+
+      -- Step 3: By injectivity of the direct limit
+      obtain ⟨k, hixk, hirxk, h_smul⟩ := IsDirectLimit'.inj (f := f) ix irx (r • mx) mrx smul_eq.symm
+
+      -- Step 4: Now we have: f ix k hixk (r • mx) = f irx k hirxk mrx
+      -- Apply g₂ k to both sides and use compatibility
+      have g2_eq : (g₂ k) (f ix k hixk (r • mx)) = (g₂ k) (f irx k hirxk mrx) :=
+        congr_arg (g₂ k) h_smul
+
+      -- Step 5: Use compatibility to simplify both sides
+      rw [ Hg ix k hixk (r • mx), Hg irx k hirxk mrx] at g2_eq
+      -- Now: (g₂ ix) (r • mx) = (g₂ irx) mrx
+
+      -- Step 6: Use linearity of g₂ ix
+      rw [LinearMap.map_smul] at g2_eq
+      -- Now: r • (g₂ ix) mx = (g₂ irx) mrx
+
+      -- Step 7: This gives us exactly what we need!
+      exact g2_eq.symm
+
+set_option pp.proofs true in
+@[simp] theorem lift_of [IsDirectLimit' M P₁ f g₁] (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) {i} (x) :
+  (lift M f P₁ P₂ g₁ g₂ Hg) (g₁ i x) = g₂ i x := by
+  dsimp [lift]
+  have := (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) (g₁ i x))).choose_spec
+  have h_spec := Classical.choose_spec
+    (Classical.choose_spec (IsDirectLimit'.surj f (g := g₁) (g₁ i x)))
+-- h_spec : g₁ (Classical.choose (IsDirectLimit'.surj (g₁ i x)))
+--              (Classical.choose (lift._proof_1 M f P₁ g₁ ((g₁ i) x))) = g₁ i x
+
+-- Now you have two equal elements in P₁: both equal g₁ i x
+-- By injectivity of the direct limit:
+  have ⟨k, hik, hjk, h_eq⟩ := IsDirectLimit'.inj (f:=f) i
+    (Classical.choose (IsDirectLimit'.surj f (g := g₁) (g₁ i x)))
+    x (Classical.choose (lift._proof_1 M f P₁ g₁ ((g₁ i) x))) (h_spec.symm)
+-- h_eq : f i k hik x = f (Classical.choose (IsDirectLimit'.surj (g₁ i x))) k hjk
+--                      (Classical.choose (lift._proof_1 M f P₁ g₁ ((g₁ i) x)))
+
+-- Now use compatibility (your hypothesis Hg):
+  rw [← Hg i k hik x]
+  rw [← Hg (Classical.choose (IsDirectLimit'.surj f (g := g₁) (g₁ i x))) k hjk
+         (Classical.choose (lift._proof_1 M f P₁ g₁ ((g₁ i) x)))]
+  rw [h_eq]
 
 
--- set_option pp.proofs true in
--- noncomputable def iso : Module.DirectLimit M f ≃ₗ[R] P where
---   __ := Module.DirectLimit.lift R ι M f g Hg
---   invFun p := by
---     set j := Classical.choose (IsDirectLimit.surj' M P f g p)
---     set mj := (Classical.choose (Classical.choose_spec (IsDirectLimit.surj' M P f g p)))
---     exact Module.DirectLimit.of R ι M f j mj
---   left_inv x := by
---     simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+theorem lift_unique [IsDirectLimit' M P₁ f g₁]
+  (F : P₁ →ₗ[R] P₂) (x) : F x = (lift M f P₁ P₂ g₁ (fun i ↦ F.comp <| g₁ i)
+  (fun i j hij x ↦ by
+    simp only [LinearMap.coe_comp, Function.comp_apply]
+    exact LinearMap.congr_arg (IsDirectLimit'.compatibility i j hij x))) x := by
+    dsimp [lift]
+    rw [Classical.choose_spec (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) x))]
 
---     obtain ⟨i, mi, hmi⟩ := IsDirectLimit'.surj f (g := (Module.DirectLimit.of R ι M f)) x
---     rw [← hmi]
---     simp only [DirectLimit.lift_of]
---     apply_fun Module.DirectLimit.linearEquiv _ _
---     simp_rw [Module.DirectLimit.linearEquiv_of]
---     simp only [Quotient.eq]
-
-
-
-
-
---     sorry
---   right_inv p := by
---     simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, DirectLimit.lift_of]
---     exact Classical.choose_spec (Classical.choose_spec (IsDirectLimit.surj' M P f g p))
+noncomputable def iso_of_isDirectLimit'
+    [h₁ : IsDirectLimit' M P₁ f g₁] [h₂ : IsDirectLimit' M P₂ f g₂] :
+    P₁ ≃ₗ[R] P₂ where
+  __ := (lift M f P₁ P₂ g₁ g₂ h₂.compatibility)
+  invFun := (lift M f P₂ P₁ g₂ g₁ h₁.compatibility)
+  left_inv x := by
+    simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+    obtain ⟨i, mi, hmi⟩ := h₁.surj x
+    rw [← hmi]
+    simp only [lift_of]
+  right_inv x := by
+    simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
+    obtain ⟨i, mi, hmi⟩ := h₂.surj x
+    rw [← hmi]
+    simp only [lift_of]
 
 
 end Module
@@ -192,23 +295,89 @@ open Module
 variable {R : Type*} [CommSemiring R] {ι : Type*} [Preorder ι] (M : ι → Type*) (P : Type*)
 variable [AddCommMonoid P] [Module R P]
 variable [∀ i, AddCommMonoid (M i)] [∀ i, Module R (M i)] (f : ∀ i j, i ≤ j → M i →ₗ[R] M j)
-variable (g : ∀ i, M i →ₗ[R] P) (Hg : ∀ i j hij x, g j (f i j hij x) = g i x)
+variable (g : ∀ i, M i →ₗ[R] P)
 variable [DecidableEq ι] [IsDirected ι (· ≤ ·)] [Nonempty ι] [DirectedSystem M (f · · ·)]
-variable (N : Type*) [AddCommMonoid N] [Module R N] [IsDirectLimit M P f g]
+variable (N : Type*) [AddCommMonoid N] [Module R N] [h : IsDirectLimit' M P f g]
 
 def incTensorMap (i j : ι) (h : i ≤ j) : M i ⊗[R] N →ₗ[R] M j ⊗[R] N :=
-   TensorProduct.map (f i j h) (LinearMap.id)
+   LinearMap.rTensor N (f i j h)
 
 def tensorMap (i : ι) : M i ⊗[R] N →ₗ[R] P ⊗[R] N :=
-  TensorProduct.map (g i) (LinearMap.id)
-
-instance : IsDirectLimit (fun i ↦ (M i ⊗[R] N)) (P ⊗[R] N) (incTensorMap M f N)
-  (tensorMap M P g N) := sorry
+  LinearMap.rTensor N (g i)
 
 instance : DirectedSystem (fun i ↦ M i ⊗[R] N) fun x1 x2 x3 ↦ ⇑(incTensorMap M f N x1 x2 x3) :=
   sorry
 
-#check (Module.iso_of_isDirectLimit (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N)
+lemma comp (i k) (hik : i ≤ k) :
+  (tensorMap M P g N k).comp (incTensorMap M f N i k hik)
+    = tensorMap M P g N i := by
+    dsimp [tensorMap, incTensorMap]
+    ext u v
+    simp [h.compatibility i k hik u]
+
+
+theorem universal_property_inj {X : Type*} [AddCommMonoid X] [Module R X]
+  (gX : ∀ i, M i →ₗ[R] X) (HgX : ∀ i j hij x, gX j (f i j hij x) = gX i x)
+  (unique : ∃! φ : X →ₗ[R] P, ∀ i x, φ (gX i x) = g i x) {i j mi mj} (hij : i≤j)
+  (hmij : gX i mi = gX j (mj)) :
+    ∃ k, ∃ (hik : i ≤ k) (hjk : j ≤ k), (f i k hik) mi = (f j k hjk) mj := by
+    obtain ⟨φ, hφ, unique⟩ := unique
+    have hφi := hφ i mi
+    have hφj := hφ j mj
+    rw [hmij] at hφi
+    rw [hφi] at hφj
+    obtain ⟨k, hik, hjk, fijk⟩ := h.inj i j mi mj hφj
+    exact ⟨k, hik, hjk, fijk⟩
+
+
+theorem universal_property {X : Type*} [AddCommMonoid X] [Module R X]
+  (gX : ∀ i, M i →ₗ[R] X) (HgX : ∀ i j hij x, gX j (f i j hij x) = gX i x)
+  (unique : ∃! φ : X →ₗ[R] P, ∀ i x, φ (gX i x) = g i x) :
+  IsDirectLimit' M X f gX where
+  surj m := by
+
+    sorry
+  inj i j mi mj hmij := by
+    obtain ⟨φ, hφ, unique⟩ := unique
+    have hφi := hφ i mi
+    have hφj := hφ j mj
+    rw [hmij] at hφi
+    rw [hφi] at hφj
+    obtain ⟨k, hik, hjk, fijk⟩ := h.inj i j mi mj hφj
+    exact ⟨k, hik, hjk, fijk⟩
+
+  compatibility := by
+
+    sorry
+
+
+instance : IsDirectLimit' (fun i ↦ (M i ⊗[R] N)) (P ⊗[R] N) (incTensorMap M f N)
+  (tensorMap M P g N) where
+    surj m := by
+      induction m --using TensorProduct.induction_on
+      case zero =>
+        obtain ⟨i, mi, hmi⟩ := h.surj (0 : P)
+        exact ⟨i, mi ⊗ₜ[R] 0, by simp [tensorMap]⟩
+      case tmul x y =>
+        obtain ⟨i, mi, hmi⟩ := h.surj x
+        exact ⟨i, mi ⊗ₜ[R] y, by dsimp [tensorMap]; rw [hmi]⟩
+      case add x y hx hy =>
+        obtain ⟨i, mi, hmi⟩ := hx
+        obtain ⟨j, mj, hmj⟩ := hy
+        have ⟨k, hik, hjk⟩ := IsDirected.directed (r := (· ≤ ·)) i j
+        let mik := (incTensorMap M f N i k hik) mi
+        let mjk := (incTensorMap M f N j k hjk) mj
+        use k, mik + mjk
+        simp only [mik, mjk, LinearMap.map_add]
+        rw [← LinearMap.comp_apply, ← LinearMap.comp_apply, comp, comp, hmi, hmj]
+    inj i j mi mj hmij := by
+      sorry
+    compatibility := sorry
+
+instance : DirectedSystem (fun i ↦ M i ⊗[R] N) fun x1 x2 x3 ↦ ⇑(incTensorMap M f N x1 x2 x3) :=
+  sorry
+
+#check (Module.iso_of_isDirectLimit' (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N)
  (Module.DirectLimit (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N)) (P ⊗[R] N)
  (Module.DirectLimit.of R ι (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N)) (tensorMap M P g N))
 
@@ -216,15 +385,9 @@ include g in
 noncomputable def iso' :
   (Module.DirectLimit (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N)) ≃ₗ[R] (P ⊗[R] N) := by
   haveI : DirectedSystem (fun i ↦ M i ⊗[R] N) fun x1 x2 x3 ↦ ⇑(incTensorMap M f N x1 x2 x3) := sorry
-  apply (Module.iso_of_isDirectLimit (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N)
+  apply (Module.iso_of_isDirectLimit' (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N)
     (Module.DirectLimit (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N)) (P ⊗[R] N)
     (Module.DirectLimit.of R ι (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N)) (tensorMap M P g N))
-
-
-
-instance : IsDirectLimit (fun i ↦ (M i ⊗[R] N))
-  (Module.DirectLimit (fun i ↦ (M i ⊗[R] N)) (incTensorMap M f N))
-  (incTensorMap M f N) (Module.DirectLimit.of R ι M f) := sorry
 
 
 
@@ -391,7 +554,7 @@ instance directed : IsDirected (ℱ.complement) (· ≤ ·) := by
 
 open Set
 instance RestrictedProductIsDirectLimit :
-  Module.IsDirectLimit (mem_A_away_from_S  (fun i ↦ (C i : Set (R i))))
+  Module.IsDirectLimit' (mem_A_away_from_S  (fun i ↦ (C i : Set (R i))))
   Πʳ i, [R i, C i]_[ℱ] (inclusion_module (ℱ := ℱ))
   (inclusion_to_restricted_product_module ) where
   inj Sᵢ Sⱼ mi mj hmij := by
@@ -419,9 +582,13 @@ instance RestrictedProductIsDirectLimit :
     apply RestrictedProduct.exists_inclusion_eq_of_eventually
     simp only [SetLike.mem_coe, compl_compl, eventually_principal, mem_setOf_eq]
     exact fun x a ↦ a
+  compatibility i j hij x := by
+    dsimp [inclusion_to_restricted_product_module, inclusion_to_restrictedProduct,
+    inclusion_module,_root_.inclusion, inclusion_module,RestrictedProduct.inclusion]
+    exact Subtype.ext rfl
 
 
-
+#check TensorProduct.directLimitRight
 
 
 variable {ι : Type*} (R : ι → Type*) (S : Set ι) [∀ i, Decidable (i ∈ S)]
@@ -505,14 +672,54 @@ noncomputable def RestrictedProduct.principal_tensor_comm' [Π i, AddCommGroup (
     [Module.FinitePresentation A M] {S : Set ι} :
    M ⊗[A] (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] (Πʳ i, [M ⊗[A] R i, (C i).lTensor M]_[𝓟 S]) := sorry
 
+variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)]  {C : ∀ i, Submodule A (R i)}
+instance : DecidableEq ℱ.complement := sorry
+instance : Nonempty ℱ.complement := sorry
+instance : DirectedSystem (mem_A_away_from_S fun i ↦ (C i : Set (R i)))
+      fun x1 x2 x3 ↦ ⇑(inclusion_module (ℱ := ℱ) (C:= C) x1 x2 x3) := directed_system
+
+#check Module.DirectLimit (mem_A_away_from_S fun i ↦ (C i : Set (R i)))
+  (f := inclusion_module (C:=C) (ℱ := ℱ))
 
 
+#check Module.iso_of_isDirectLimit' (mem_A_away_from_S  (fun i ↦ (C i : Set (R i))))
+       (inclusion_module (ℱ := ℱ)) (Πʳ i, [R i, C i]_[ℱ])
+       (Module.DirectLimit (mem_A_away_from_S fun i ↦ (C i : Set (R i)))
+       (inclusion_module (ℱ := ℱ)) )
 
 -- this now compiles
 noncomputable def RestrictedProduct.tensor_comm' [Π i, AddCommGroup (R i)]
-    [∀ i, Module A (R i)] {C : Π i, Submodule A (R i)}
+    [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)} [Preorder ι]
     {M : Type*} [AddCommGroup M] [Module A M] [Module.FinitePresentation A M] [Module.Flat A M] :
-    M ⊗[A] (Πʳ i, [R i, C i]_[ℱ]) ≃ₗ[A] Πʳ i, [M ⊗[A] R i, (C i).lTensor M]_[ℱ] :=
+    M ⊗[A] (Πʳ i, [R i, C i]_[ℱ]) ≃ₗ[A] Πʳ i, [M ⊗[A] R i, (C i).lTensor M]_[ℱ] := by
+    haveI : Nonempty ℱ.complement := sorry
+    haveI :  DirectedSystem (mem_A_away_from_S (fun i ↦ ((C i).lTensor M : Set (M ⊗[A] R i))))
+      fun x1 x2 x3 ↦ ⇑(inclusion_module (ℱ := ℱ)  x1 x2 x3) := directed_system
+    let comp1 := TensorProduct.directLimitRight (inclusion_module (C:=C) (ℱ := ℱ)) M (R:=A)
+    let comp := Module.iso_of_isDirectLimit' (mem_A_away_from_S  (fun i ↦ (C i : Set (R i))))
+       (inclusion_module (ℱ := ℱ)) (Πʳ i, [R i, C i]_[ℱ])
+       (Module.DirectLimit (mem_A_away_from_S fun i ↦ (C i : Set (R i))) (inclusion_module (C:=C) (ℱ := ℱ)))
+      (inclusion_to_restricted_product_module) (Module.DirectLimit.of A _
+      (mem_A_away_from_S fun i ↦ (C i : Set (R i))) (inclusion_module (ℱ := ℱ)))
+    let comp2 := Module.iso_of_isDirectLimit' (mem_A_away_from_S
+      (fun i ↦ ((C i).lTensor M : Set (M ⊗[A] R i))))
+       (inclusion_module (ℱ := ℱ)) Πʳ i, [M ⊗[A] R i, (C i).lTensor M]_[ℱ]
+       (Module.DirectLimit (mem_A_away_from_S
+      (fun i ↦ ((C i).lTensor M : Set (M ⊗[A] R i)))) (inclusion_module (ℱ := ℱ)))
+      (inclusion_to_restricted_product_module) (Module.DirectLimit.of A _
+    (mem_A_away_from_S
+      (fun i ↦ ((C i).lTensor M : Set (M ⊗[A] R i)))) (inclusion_module (ℱ := ℱ)))
+    -- haveI (i : ι) : Submodule A (M ⊗[A] C i) := Module.jacobson A (M ⊗[A] ↥(C i))
+    let comp3 : M ⊗[A] (Πʳ i, [R i, C i]_[ℱ]) ≃ₗ[A]
+      M ⊗[A] Module.DirectLimit (mem_A_away_from_S fun i ↦ (C i : Set (R i))) inclusion_module :=
+      LinearEquiv.lTensor M comp
+    let comp4 :=  comp3 ≪≫ₗ comp1
+    let comp5 := comp4 ≪≫ₗ comp2.symm
+    let (i : ι ) : Set (M ⊗[A] R i) := M ⊗[A] C i
+
+
+  #exit
+
   LinearEquiv.ofBijective (TensorProduct.lift {
     toFun m := {
       toFun x := ⟨fun i ↦ m ⊗ₜ (x i), Filter.Eventually.mono x.property (fun i hi ↦
