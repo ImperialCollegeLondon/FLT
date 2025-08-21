@@ -210,18 +210,18 @@ equation is semistable at 2, rather than the usual `Y^2=X(X-a^p)(X+b^p)` form.
 The change of variables is `X=4x` and `Y=8y+4x`, and then divide through by 64. -/
 def freyCurveInt (P : FreyPackage) : WeierstrassCurve ℤ where
   a₁ := 1
-  -- a₂ is (or should be) an integer because of the congruences assumed e.g. P.ha4
+  -- Note that the numerator of a₂ is a multiple of 4
   a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
   a₃ := 0
-  a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this should also be an integer
+  a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- Note: numerator is multiple of 16
   a₆ := 0
 
 def freyCurve (P : FreyPackage) : WeierstrassCurve ℚ where
   a₁ := 1
-  -- a₂ is (or should be) an integer because of the congruences assumed e.g. P.ha4
+  -- a₂ is an integer because of the congruences assumed e.g. P.ha4
   a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
   a₃ := 0
-  a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this should also be an integer
+  a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this is also an integer
   a₆ := 0
 
 theorem freyCurve_map (P : FreyPackage) : (freyCurveInt P).map (algebraMap ℤ ℚ) = freyCurve P := by
