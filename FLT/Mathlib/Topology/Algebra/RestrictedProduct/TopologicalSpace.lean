@@ -444,4 +444,3 @@ lemma RestrictedProduct.isOpenMap_of_open_components
     rfl
 
 end openmap
-#lint
