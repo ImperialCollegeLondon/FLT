@@ -30,10 +30,11 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)]
     [Π i, TopologicalSpace (G i)]
     [Π i, TopologicalSpace (H i)] in
-/-- The continuous monoid homomorphism between restricted products built from
+/-- The continuous monoid homomorphism between restricted products, built from
 continuous monoid homomorphisms on the factors. -/
-@[to_additive (attr := simps!) "The continuous additive monoid homomorphism between restricted
-products, built from continuous monoid homomorphisms on the factors."]
+@[to_additive (attr := simps!)
+/-- The continuous additive monoid homomorphism between restricted products, built from
+continuous monoid homomorphisms on the factors. -/]
 def ContinuousMonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
     Πʳ i, [G i, A i]_[ℱ] →ₜ* Πʳ i, [H i, B i]_[ℱ] where
@@ -47,8 +48,9 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, TopologicalSpace (H i)] in
 /-- The `ContinuousMulEquiv` (that is, group isomorphism and homeomorphism) between restricted
 products built from `ContinuousMulEquiv`s on the factors. -/
-@[to_additive "The `ContinuousAddEquiv` (that is, additive group isomorphism and homeomorphism)
-between restricted products built from `ContinuousAddEquiv`s on the factors."]
+@[to_additive
+/-- The `ContinuousAddEquiv` (that is, additive group isomorphism and homeomorphism)
+between restricted products built from `ContinuousAddEquiv`s on the factors. -/]
 def ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
     (Πʳ i, [G i, A i]_[ℱ]) ≃ₜ* (Πʳ i, [H i, B i]_[ℱ]) where
@@ -183,7 +185,8 @@ lemma Homeomorph.restrictedProductMatrix_toEquiv {ι : Type*} {m n : Type*} [Fin
   rfl
 
 /-- The structure map for a restricted product of monoids is a `MonoidHom`. -/
-@[to_additive "The structure map for a restricted product of AddMonoids is an `AddMonoidHom`."]
+@[to_additive
+/-- The structure map for a restricted product of AddMonoids is an `AddMonoidHom`. -/]
 def RestrictedProduct.structureMapMonoidHom {ι : Type*} (M : ι → Type*) [(i : ι) → Monoid (M i)]
     {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)] (A : Π i, S i)
     (𝓕 : Filter ι) : ((i : ι) → (A i)) →* Πʳ (i : ι), [M i, Submonoid.ofClass (A i)]_[𝓕] where
@@ -193,8 +196,9 @@ def RestrictedProduct.structureMapMonoidHom {ι : Type*} (M : ι → Type*) [(i 
 
 open MulOpposite MonoidHom Units Equiv Set in
 /-- The equivalence `Submonoid.unitsEquivUnitsType`, for monoids equipped with a topology. -/
-@[to_additive "The equivalence `AddSubmonoid.addUnitsAddEquivUnitsType`, for monoids equipped with
-a topology."]
+@[to_additive
+/-- The equivalence `AddSubmonoid.addUnitsAddEquivUnitsType`, for monoids equipped with
+a topology. -/]
 def Submonoid.unitsContinuousMulEquivUnitsType {M : Type*} [TopologicalSpace M] [Monoid M]
     {S : Submonoid M} (hS : IsOpen (S : Set M)) : S.units ≃ₜ* Sˣ where
   toMulEquiv := S.unitsEquivUnitsType

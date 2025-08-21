@@ -262,10 +262,10 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
         rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff] at hk
         have hNjk := z.prop (N * j) (N * k) (mul_dvd_mul (dvd_refl _) hjk)
         rw [ZMod.castHom_apply, ZMod.cast_eq_val] at hNjk
-        simp only [PNat.mul_coe, map_natCast, ZMod.eq_iff_modEq_nat]
+        simp only [PNat.mul_coe, map_natCast, ZMod.natCast_eq_natCast_iff]
         apply Nat.ModEq.mul_right_cancel' (c := N) (by simp)
         rw [Nat.div_mul_cancel hj, Nat.div_mul_cancel hk,
-          mul_comm (j : ℕ) (N : ℕ), ← ZMod.eq_iff_modEq_nat, hNjk]
+          mul_comm (j : ℕ) (N : ℕ), ← ZMod.natCast_eq_natCast_iff, hNjk]
         simp
     }
     refine ⟨y, ?_⟩

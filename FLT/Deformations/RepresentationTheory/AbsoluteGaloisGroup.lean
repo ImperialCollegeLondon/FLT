@@ -278,7 +278,7 @@ instance neZero_maximalIdeal_integralClosure :
     NeZero (𝔪 (IntegralClosure 𝒪ᵥ (Kᵥᵃˡᵍ))) := by
   have : 𝒪ᵥ ≠ ⊤ := by
     refine fun h ↦ IsDiscreteValuationRing.not_isField 𝒪ᵥ (h ▸ ?_)
-    exact (Subring.topEquiv (R := Kᵥ)).isField _ (Semifield.toIsField Kᵥ)
+    exact (Subring.topEquiv (R := Kᵥ)).isField (Semifield.toIsField Kᵥ)
   exact ⟨(Ideal.bot_lt_of_maximal (𝔪 _)
     (not_isField_integralClosure (L := Kᵥᵃˡᵍ) _ this)).ne'⟩
 

@@ -66,8 +66,9 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
 /-- The monoid homomorphism between restricted products over a fixed index type,
 given monoid homomorphisms on the factors. -/
-@[to_additive "The additive monoid homomorphism between restricted products over a fixed index type,
-given additive monoid homomorphisms on the factors."]
+@[to_additive
+/-- The additive monoid homomorphism between restricted products over a fixed index type,
+given additive monoid homomorphisms on the factors. -/]
 def MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
     Πʳ i, [G i, A i]_[ℱ] →* Πʳ i, [H i, B i]_[ℱ] where
@@ -109,8 +110,9 @@ variable [(i : ι) → One (G i)] in
 /-- The support of an element of a restricted product of monoids (or more generally,
 objects with a 1. The support is the components which aren't 1.)
 -/
-@[to_additive "The support of an element of a restricted product of additive monoids
-(or more generally, objects with a 0. The support is the components which aren't 0."]
+@[to_additive
+/-- The support of an element of a restricted product of additive monoids (or more generally,
+objects with a 0. The support is the components which aren't 0. -/]
 def mulSupport (u : Πʳ i, [G i, A i]) : Set ι :=
   {i : ι | u i ≠ 1}
 
@@ -328,7 +330,8 @@ variable (A : (i : ι) → (S i))
 variable [DecidableEq ι]
 
 /-- The function supported at `i`, with value `x` there, and `1` elsewhere. -/
-@[to_additive "The function supported at `i`, with value `x` there, and `0` elsewhere."]
+@[to_additive
+/-- The function supported at `i`, with value `x` there, and `0` elsewhere. -/]
 def mulSingle [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) (x : G i) :
     Πʳ i, [G i, A i] where
   val := Pi.mulSingle i x
