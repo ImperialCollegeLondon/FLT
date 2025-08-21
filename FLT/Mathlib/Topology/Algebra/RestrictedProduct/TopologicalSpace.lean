@@ -49,7 +49,7 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
 /-- The `ContinuousMulEquiv` (that is, group isomorphism and homeomorphism) between restricted
 products built from `ContinuousMulEquiv`s on the factors. -/
 @[to_additive
-/- The `ContinuousAddEquiv` (that is, additive group isomorphism and homeomorphism)
+/-- The `ContinuousAddEquiv` (that is, additive group isomorphism and homeomorphism)
 between restricted products built from `ContinuousAddEquiv`s on the factors. -/]
 def ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
@@ -444,3 +444,4 @@ lemma RestrictedProduct.isOpenMap_of_open_components
     rfl
 
 end openmap
+#lint
