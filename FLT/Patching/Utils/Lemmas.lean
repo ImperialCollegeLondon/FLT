@@ -6,7 +6,7 @@ import Mathlib.Topology.Algebra.Ring.Ideal
 import Mathlib.Topology.Separation.Profinite
 import Mathlib.RingTheory.Artinian.Module
 import Mathlib.Data.Set.Card
-import Mathlib.RingTheory.Localization.AtPrime
+import Mathlib.RingTheory.Localization.AtPrime.Basic
 
 
 lemma IsUnit.pi_iff {ι} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i} :

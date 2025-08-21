@@ -108,7 +108,7 @@ open TensorProduct
 auxiliary definition. -/
 noncomputable def freeModule_tensorPiEquiv :
     M ⊗[R] (∀ i, N i) ≃ₗ[R] (Module.Free.ChooseBasisIndex R M →₀ R) ⊗[R] (∀ i, N i) :=
-  TensorProduct.congr (Module.Free.repr R M) (LinearEquiv.refl R ((i : ι) → N i))
+  TensorProduct.congr (Module.Free.chooseBasis R M).repr (LinearEquiv.refl R ((i : ι) → N i))
 
 /-- If `B` is finite then tensoring by the free module with basis `B` commutes with
 arbitrary products. -/
@@ -129,8 +129,9 @@ noncomputable def finsuppLeft_TensorPi_equiv_piTensor (B : Type*) [Fintype B] [D
 `B` is the basis of `M` given by Lean's global axiom-of-choice operator. This is an
 auxiliary definition. -/
 noncomputable def tensorPiEquiv_finitefreeModule :
-    (Π i, (Module.Free.ChooseBasisIndex R M →₀ R) ⊗[R] N i) ≃ₗ[R] Π i, (M ⊗[R] N i):=
-  LinearEquiv.piCongrRight (fun i ↦ (LinearEquiv.rTensor (N i) (Module.Free.repr R M).symm))
+    (Π i, (Module.Free.ChooseBasisIndex R M →₀ R) ⊗[R] N i) ≃ₗ[R] Π i, (M ⊗[R] N i) :=
+  LinearEquiv.piCongrRight
+    (fun i ↦ (LinearEquiv.rTensor (N i) (Module.Free.chooseBasis R M).repr.symm))
 
 /-- Tensoring with a finite free module commutes with arbitrary products. -/
 noncomputable def tensorPi_equiv_piTensor :
@@ -147,8 +148,8 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
   unfold tensorPi_equiv_piTensor
   simp only [freeModule_tensorPiEquiv, LinearEquiv.trans_apply, congr_tmul,
     LinearEquiv.refl_apply]
-  let m' := (Module.Free.repr R M) m
-  have hm' : (Module.Free.repr R M).symm m' = m := by simp [m']
+  let m' := (Module.Free.chooseBasis R M).repr m
+  have hm' : (Module.Free.chooseBasis R M).repr.symm m' = m := by simp [m']
   rw [← hm', LinearEquiv.apply_symm_apply]
   induction m' using Finsupp.induction_linear
   · ext

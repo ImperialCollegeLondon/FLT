@@ -276,7 +276,7 @@ of `(D ⊗ 𝔸_F^infty)ˣ`.
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
-    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
+    Finite (DoubleCoset.Quotient (Set.range (incl₁ K D)) U) := by
   sorry
 
 end FiniteAdeleRing

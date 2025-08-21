@@ -48,7 +48,7 @@ open IsDedekindDomain
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
-scoped notation:100 "𝔸" K => AdeleRing (𝓞 K) K
+scoped notation:101 "𝔸" K => AdeleRing (𝓞 K) K
 
 -- I am not mad keen on this instance. But we don't have continuous semialgebra maps I don't think.
 noncomputable instance : Algebra K (𝔸 L) :=
@@ -87,14 +87,13 @@ instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank
   IsModuleTopology.instPi
 
 instance instBaseChangeIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) := by
-  have := BaseChange.isModuleTopology (𝓞 K) K L (𝓞 L)
   exact IsModuleTopology.instProd' (A := InfiniteAdeleRing K)
     (B := FiniteAdeleRing (𝓞 K) K) (M := InfiniteAdeleRing L) (N := FiniteAdeleRing (𝓞 L) L)
 
 open scoped TensorProduct.RightActions in
 /-- The canonical `𝔸 K`-algebra homomorphism `(L ⊗_K 𝔸 K) → 𝔸 L` induced
 by the maps from `L` and `𝔸 K` into `𝔸 L`. -/
-noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] 𝔸 K) →ₐ[𝔸 K] 𝔸 L :=
+noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] (𝔸 K)) →ₐ[𝔸 K] 𝔸 L :=
   (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap
 
 /-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
