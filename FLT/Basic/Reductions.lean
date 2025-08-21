@@ -203,7 +203,7 @@ lemma of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0
     hb2 := (ZMod.intCast_zmod_eq_zero_iff_dvd ..).2 (even_iff_two_dvd.1 eb)
   }⟩
 
-/-- The elliptic curve associated to a Frey package. The conditions imposed
+/-- The Weierstrass curve over `ℤ` associated to a Frey package. The conditions imposed
 upon a Frey package guarantee that the running hypotheses in
 Section 4.1 of [Serre] all hold. We put the curve into the form where the
 equation is semistable at 2, rather than the usual `Y^2=X(X-a^p)(X+b^p)` form.
@@ -216,6 +216,11 @@ def freyCurveInt (P : FreyPackage) : WeierstrassCurve ℤ where
   a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- Note: numerator is multiple of 16
   a₆ := 0
 
+/-- The elliptic curve over `ℚ` associated to a Frey package. The conditions imposed
+upon a Frey package guarantee that the running hypotheses in
+Section 4.1 of [Serre] all hold. We put the curve into the form where the
+equation is semistable at 2, rather than the usual `Y^2=X(X-a^p)(X+b^p)` form.
+The change of variables is `X=4x` and `Y=8y+4x`, and then divide through by 64. -/
 def freyCurve (P : FreyPackage) : WeierstrassCurve ℚ where
   a₁ := 1
   -- a₂ is an integer because of the congruences assumed e.g. P.ha4
