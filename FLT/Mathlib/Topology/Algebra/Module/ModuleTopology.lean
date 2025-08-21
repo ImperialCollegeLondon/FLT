@@ -337,23 +337,6 @@ theorem of_inverse (f : N →ₗ[R] M) (g : M → N) (hc : Continuous g) (hi : F
   apply of_isQuotientMap N f
   exact Topology.IsQuotientMap.of_inverse hc (continuous_of_linearMap f) hi
 
-omit [ContinuousAdd M] [ContinuousSMul R M] in
-/-- A linear surjection between modules with the module topology is an open quotient map. -/
-theorem isOpenQuotientMap_of_surjective [IsModuleTopology R M] {φ : M →ₗ[R] N}
-    (hφ : Function.Surjective φ) : IsOpenQuotientMap φ :=
-  have := toContinuousAdd R M
-  AddMonoidHom.isOpenQuotientMap_of_isQuotientMap <| isQuotientMap_of_surjective hφ
-
-/-- A linear surjection to a module with the module topology is open. -/
-theorem isOpenMap_of_surjective {φ : M →ₗ[R] N} (hφ : Function.Surjective φ) :
-    IsOpenMap φ := by
-  have hOpenMap :=
-    letI : TopologicalSpace M := moduleTopology R M
-    have : IsModuleTopology R M := isModuleTopology R M
-    isOpenQuotientMap_of_surjective N hφ |>.isOpenMap
-  intro U hU
-  exact hOpenMap U <| moduleTopology_le R M U hU
-
 end quotientMap
 
 /-

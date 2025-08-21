@@ -73,7 +73,6 @@ import FLT.Mathlib.MeasureTheory.Measure.OpenPos
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.NumberTheory.NumberField.Completion
-import FLT.Mathlib.NumberTheory.NumberField.Embeddings
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.NumberTheory.RamificationInertia.Basic
 import FLT.Mathlib.RepresentationTheory.Basic
