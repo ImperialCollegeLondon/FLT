@@ -373,7 +373,7 @@ and we don't have a definition of nonarchimedean local field yet.
 \end{proof}
 
 \begin{lemma} $M_2(\calO_v)$ is a compact open subring of $M_2(K_v)$.
-  \lean{M2.localFullLevel.isOpen, M2.localFullLevel.isCompact}
+  \lean{IsDedekindDomain.M2.localFullLevel.isOpen, IsDedekindDomain.M2.localFullLevel.isCompact}
   \label{M2.localFullLevel.isOpen, M2.localFullLevel.isCompact}
   \leanok
 \end{lemma}
@@ -420,7 +420,7 @@ Choose $0\not=\alpha\in\calO_v$ and define $g=\begin{pmatrix}\alpha&0\\0&1\end{p
 Let's do an explicit double coset decomposition in preparation for a calculation with Hecke operators.
 
 \begin{lemma}
-  \lean{bijOn_unipotent_mul_diagU1_U1diagU1}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.HeckeOperator.Local.bijOn_unipotent_mul_diagU1_U1diagU1}
   \label{bijOn_unipotent_mul_diagU1_U1diagU1}
   \leanok
   The double coset space $UgU$ is the disjoint union of $g_tU$ as $t$ ranges
@@ -471,7 +471,7 @@ to $GL_2(\A_K^\infty)$. Before we go any further,
 let say something about matrix rings over complete fields.
 
 \begin{theorem}
-  \lean{GL2.restrictedProduct}
+  \lean{IsDedekindDomain.FiniteAdeleRing.GL2.restrictedProduct}
   \label{GL2.restrictedProduct}
   \leanok
   $G$ is isomorphic and homeomorphic
