@@ -133,7 +133,7 @@ then a Frey package exists.
   \uses{FLT.FreyPackage}\discussion{21}
   \leanok
   Given a Frey package $(a,b,c,p)$, the corresponding \emph{Frey curve} (considered by Frey and,
-  before him, Hellegouarch) is the elliptic curve $E$ defined by the equation
+  before him, Hellegouarch) is the elliptic curve over $\Q$ defined by the equation
   $Y^2=X(X-a^p)(X+b^p).$
 \end{definition}
 
@@ -154,7 +154,8 @@ The representation is said to be \emph{reducible} otherwise.
 
 Now say $(a,b,c,p)$ is a Frey package.
 Consider the mod $p$ representation of $\GQ$ coming from the $p$-torsion in the Frey
-curve $Y^2=X(x-a^p)(X+b^p)$ associated to the package. Let's call this representation $\rho$.
+curve $Y^2=X(x-a^p)(X+b^p)$ associated to the package. Let's call this representation $\rho$,
+and say that $\rho$ is the mod $p$ representation associated to the Frey package $(a,b,c,p)$.
 Is it irreducible or not?
 
 \begin{theorem}[Mazur]
@@ -162,26 +163,32 @@ Is it irreducible or not?
   \lean{FLT.Mazur_Frey}
   \uses{FLT.FreyCurve}
   \leanok
+  If $\rho$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
   $\rho$ is irreducible.
 \end{theorem}
 \begin{proof}
   \uses{Frey_curve_irreducible}
   \notready
-  This follows from a profound result of Mazur \cite{mazur-torsion} from 1979, namely the fact
-  that the torsion subgroup of an elliptic curve over $\Q$ can have size at most~16.
-  In fact a fair amount of work still needs to be done to deduce the theorem from Mazur's result.
-  A pre-1990 reference for the proof of this claim is Proposition 6 in~\S4.1 of~\cite{serreconj}.
+  This follows from a profound and long result of Mazur \cite{mazur-torsion} from 1977,
+  namely the fact that the torsion subgroup of an elliptic curve over $\Q$ can have size at most~16.
+  In fact there is still a little more work which needs to be done to deduce the theorem from
+  Mazur's result. A pre-1990 reference for the full proof of this claim is Proposition~6
+  in~\S4.1 of~\cite{serreconj}.
 \end{proof}
+
+Note that in the first (pre-2029) phase of the FLT project, we will not be working on
+a formalization of Mazur's 1977 result.
 
 \begin{theorem}[Wiles,Taylor--Wiles, Ribet,\ldots]
   \label{FLT.Wiles_Frey}
   \lean{FLT.Wiles_Frey}
   \uses{FLT.FreyCurve}
   \leanok
-  $\rho$ is not irreducible.\end{theorem}
+  If $\rho$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
+  $\rho$ is not irreducible.
+\end{theorem}
 \begin{proof}
-  \uses{modularity_lifting_theorem,frey_curve_hardly_ramified,moret-bailly}
-  \notready
+%  \uses{modularity_lifting_theorem,frey_curve_hardly_ramified,moret-bailly}
   This is the main content of Wiles' magnum opus.
   We omit the argument for now, although later on in this project
   we will have a lot to say about a proof of this.
@@ -204,7 +211,8 @@ We deduce
   \label{FLT}
   \lean{FLT.Wiles_Taylor_Wiles}
   \leanok
-  Fermat's Last Theorem is true.
+  Fermat's Last Theorem is true. In other words, there are no positive integers $a,b,c$ and
+  natural $n\geq3$ such that $a^n+b^n=c^n$.
 \end{corollary}
 \begin{proof}
   \uses{FLT.of_p_ge_5, FLT.FreyPackage.false, FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}
