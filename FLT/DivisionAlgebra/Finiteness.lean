@@ -303,7 +303,7 @@ abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (iso₁ K D) a.val |>.2
 
 lemma rest₁_continuous : Continuous (rest₁ K D) := by
-  refine Continuous.comp continuous_snd (Continuous.comp
+  exact Continuous.comp continuous_snd (Continuous.comp
     (iso₁_continuous K D) continuous_subtype_val)
 
 local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
@@ -334,7 +334,6 @@ local instance : IsModuleTopology (NumberField.AdeleRing (𝓞 K) K)
 abbrev D𝔸_iso_top : D_𝔸 ≃L[(NumberField.AdeleRing (𝓞 K) K)]
     ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)) :=
   IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
-
 
 -- so can go D_𝔸 → 𝔸_K^d (d = dim_K D)
 lemma help (x : D_𝔸ˣ) : IsUnit (D𝔸_iso_top K D x) := by
@@ -382,7 +381,10 @@ lemma arr (x y : ℕ) (hx : x ≠ 0) (hy : y ≠ 0) : ∀ (a : Fin (x * y)), ∃
   · -- not sure if I want to be doing this...
     sorry
 
-/-- ((𝔸_ℚ)^[ℚ:K])^[K:D] = (𝔸_ℚ)^([ℚ:K]*[K:D]). -/
+
+-- tower law?
+
+/-- ((𝔸_ℚ)^[ℚ:K])^[K:D] ≃ (𝔸_ℚ)^([ℚ:K]*[K:D]). -/
 def hmm1 : (Fin (Module.finrank K D) → Fin (Module.finrank ℚ K) → NumberField.AdeleRing (𝓞 ℚ) ℚ)
     ≃ₗ[ℚ] (Fin ((Module.finrank K D) * (Module.finrank ℚ K)) → NumberField.AdeleRing (𝓞 ℚ) ℚ) where
   -- this is true mathematically, just not sure if Lean knows this?
@@ -435,6 +437,11 @@ local instance : BorelSpace (Fin (Module.finrank K D) → NumberField.AdeleRing 
   exact { measurable_eq := rfl }
 
 /- We now need lemmas saying we can pass across ringHaarChars -/
+
+/-
+R = A^d.  x ∈ D ⊗ A. φ : (D ⊗ A) → R
+ringHaarChar x = r.  rinHaarChar (φ x) = r.
+-/
 
 lemma ringHaarChar_eq1 (a : (D ⊗[K] NumberField.AdeleRing (𝓞 K) K)ˣ) : ringHaarChar a =
     ringHaarChar (R := ((Fin (Module.finrank K D) → NumberField.AdeleRing (𝓞 K) K)))
@@ -518,6 +525,7 @@ lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
       exact addEquivAddHaarChar_pos _
     exact this ((iso₁ K D).symm (1, x))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
+    ---
     simp_rw [ringHaarChar_eq1]
     suffices (∃ a, (ringHaarChar (R := (Fin (Module.finrank K D) →
         NumberField.AdeleRing (𝓞 K) K)) a = r ∧ ∃ y,
