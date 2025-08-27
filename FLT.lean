@@ -11,6 +11,7 @@ import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
+import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
 import FLT.DedekindDomain.IntegralClosure
 import FLT.Deformations.Algebra.InverseLimit.Basic
 import FLT.Deformations.Algebra.InverseLimit.Topology
