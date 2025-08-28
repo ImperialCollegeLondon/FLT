@@ -13,6 +13,7 @@ import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.LinearAlgebra.TensorProduct.Prod
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.RingTheory.Ideal.NatInt
 import FLT.NumberField.FiniteAdeleRing
 
 open scoped TensorProduct
@@ -385,15 +386,15 @@ section Compact
 
 open NumberField
 
-variable (K : Type*) [Field K] [NumberField K]
-
 open IsDedekindDomain in
-theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 K) K) :
-  ∃ x : K,
-    ∀ v, (a - algebraMap K (FiniteAdeleRing (𝓞 K) K) x) v
-    ∈ HeightOneSpectrum.adicCompletionIntegers K v := by
-  let S := {v | a v ∉ HeightOneSpectrum.adicCompletionIntegers K v}
+theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 ℚ) ℚ) :
+  ∃ x : ℚ,
+    ∀ v, (a - algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) x) v
+    ∈ HeightOneSpectrum.adicCompletionIntegers ℚ v := by
+  let S := {v | a v ∉ HeightOneSpectrum.adicCompletionIntegers ℚ v}
   have h_S_finite : S.Finite := Filter.eventually_cofinite.mp a.eventually
+  let π (v : HeightOneSpectrum (𝓞 ℚ)) : ℚ :=
+    (HeightOneSpectrum.valuation_exists_uniformizer ℚ v).choose
 
   sorry
 
@@ -418,14 +419,14 @@ theorem Rat.AdeleRing.cocompact :
       apply isCompact_range; exact RestrictedProduct.isEmbedding_structureMap.continuous)
     letI : ProperSpace v.Completion := ProperSpace.of_locallyCompactSpace v.Completion
     exact isCompact_iff_isClosed_bounded.2 <| ⟨isClosed_closedBall, isBounded_closedBall⟩
-  let f : AdeleRing (𝓞 ℚ) ℚ → AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ :=
+  let q : AdeleRing (𝓞 ℚ) ℚ → AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ :=
     QuotientAddGroup.mk' _
-  have h_W_image : f '' W = Set.univ := by
-    simp only [f, Set.eq_univ_iff_forall]
+  have h_W_image : q '' W = Set.univ := by
+    simp only [q, Set.eq_univ_iff_forall]
     intro x
     let a := Quotient.out x
     rw [Set.mem_image]
-    choose xf hf using FiniteAdeleRing.sub_mem_finiteIntegralAdeles ℚ a.2
+    choose xf hf using FiniteAdeleRing.sub_mem_finiteIntegralAdeles a.2
     choose xi hi using InfiniteAdeleRing.sub_mem_closedBalls (a.1 - algebraMap _ _ xf)
     let c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf
     let b := a - c
