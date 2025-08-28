@@ -392,6 +392,8 @@ theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 
   ∃ x : K,
     ∀ v, (a - algebraMap K (FiniteAdeleRing (𝓞 K) K) x) v
     ∈ HeightOneSpectrum.adicCompletionIntegers K v := by
+  let S := {v | a v ∉ HeightOneSpectrum.adicCompletionIntegers K v}
+  have h_S_finite : S.Finite := Filter.eventually_cofinite.mp a.eventually
 
   sorry
 
