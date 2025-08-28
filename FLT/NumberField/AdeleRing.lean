@@ -390,8 +390,14 @@ variable (K : Type*) [Field K] [NumberField K]
 open IsDedekindDomain in
 theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 K) K) :
   ∃ x : K,
-    a - algebraMap K (FiniteAdeleRing (𝓞 K) K) x
-    ∈ Set.range (RestrictedProduct.structureMap _ _ _) := by
+    ∀ v, (a - algebraMap K (FiniteAdeleRing (𝓞 K) K) x) v
+    ∈ HeightOneSpectrum.adicCompletionIntegers K v := by
+
+  sorry
+
+open Metric NumberField.InfinitePlace in
+theorem InfiniteAdeleRing.sub_mem_closedBalls (a : InfiniteAdeleRing ℚ) :
+    ∃ (x : 𝓞 ℚ), ∀ v, norm ((a - algebraMap ℚ _ x) v) ≤ 1 := by
   sorry
 
 open IsDedekindDomain Metric in
@@ -402,8 +408,6 @@ theorem Rat.AdeleRing.cocompact :
   let W_fin : Set (FiniteAdeleRing (𝓞 ℚ) ℚ) :=
     Set.range (RestrictedProduct.structureMap _ _ _)
   let W : Set (AdeleRing (𝓞 ℚ) ℚ) := W_inf.prod W_fin
-  let f : AdeleRing (𝓞 ℚ) ℚ → AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ :=
-    QuotientAddGroup.mk' _
   have h_W_compact : IsCompact W := by
     refine IsCompact.prod (isCompact_univ_pi (fun v => ?_))
       (by
@@ -412,35 +416,36 @@ theorem Rat.AdeleRing.cocompact :
       apply isCompact_range; exact RestrictedProduct.isEmbedding_structureMap.continuous)
     letI : ProperSpace v.Completion := ProperSpace.of_locallyCompactSpace v.Completion
     exact isCompact_iff_isClosed_bounded.2 <| ⟨isClosed_closedBall, isBounded_closedBall⟩
+  let f : AdeleRing (𝓞 ℚ) ℚ → AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ :=
+    QuotientAddGroup.mk' _
   have h_W_image : f '' W = Set.univ := by
     simp only [f, Set.eq_univ_iff_forall]
     intro x
     let a := Quotient.out x
     rw [Set.mem_image]
-    #check a.2
-    /- choose xf yf hf using FiniteAdeleRing.sub_mem_finiteIntegralAdeles ℚ a.2
+    choose xf hf using FiniteAdeleRing.sub_mem_finiteIntegralAdeles ℚ a.2
     choose xi hi using InfiniteAdeleRing.sub_mem_closedBalls (a.1 - algebraMap _ _ xf)
-    let c := algebraMap ℚ (AdeleRing ℚ) <| xi + xf
+    let c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf
     let b := a - c
     have hb : b ∈ W := by
       simp only [W, Set.prod, W_inf, W_fin]
       refine ⟨Set.mem_univ_pi.2 fun v => ?_, ?_⟩
-      · simp only [b, map_add, mem_closedBall, dist_zero_right, c,
-          add_comm, Prod.fst_sub, Prod.fst_add, ← sub_sub]
+      · simp only [b, map_add, mem_closedBall, dist_zero_right, c, add_comm, ← sub_sub]
         exact hi v
-      · simp only [Set.image_univ, Set.mem_range, Eq.comm,
-          FiniteAdeleRing.exists_finiteIntegralAdele_iff]
+      · apply RestrictedProduct.exists_structureMap_eq_of_forall
+        simp only [map_add, SetLike.mem_coe, b, c]
+        rw [Prod.snd_sub, Prod.snd_add, sub_add_eq_sub_sub, sub_right_comm]
         intro v
-        simp only [b, c, map_add, add_comm, ← sub_sub]
-        exact (v.adicCompletionIntegers _).sub_mem
-          ((FiniteAdeleRing.exists_finiteIntegralAdele_iff _).1 ⟨_, hf⟩ v)
-            (v.coe_mem_adicCompletionIntegers _)
+        refine sub_mem (hf v) ?_
+        simp only [AdeleRing.algebraMap_snd_apply]
+        exact HeightOneSpectrum.coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
     refine ⟨b, hb, ?_⟩
-    rw [← QuotientAddGroup.out_eq' x, QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_iff_sub_mem]
-    simp only [b, sub_sub_cancel_left, neg_mem_iff, principalSubgroup, AddSubgroup.mem_mk,
-      Subsemiring.coe_carrier_toSubmonoid, Subring.coe_toSubsemiring, RingHom.coe_range,
-      Set.mem_range, exists_apply_eq_apply] -/
-    sorry
+    unfold b; unfold a
+    simp only [QuotientAddGroup.mk'_apply, QuotientAddGroup.mk_sub, Quotient.out_eq, sub_eq_self,
+      QuotientAddGroup.eq_zero_iff, AddSubgroup.mem_mk, Subsemiring.coe_carrier_toSubmonoid,
+      Subring.coe_toSubsemiring, RingHom.coe_range, AddSubmonoid.mem_mk, AddSubsemigroup.mem_mk,
+      Set.mem_range]
+    use xi + xf
   exact { isCompact_univ := h_W_image ▸ IsCompact.image h_W_compact continuous_quot_mk }
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
