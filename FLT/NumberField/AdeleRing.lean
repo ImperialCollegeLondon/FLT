@@ -412,21 +412,17 @@ lemma finiteIntegralAdeles_equiv_zHatsub :
 
 open FiniteAdeleRing in
 theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 ℚ) ℚ) :
-  ∃ x : principalSubgroup ℚ,
-    a - x ∈ finiteIntegralAdeles ℚ := by
+  ∃ x : principalSubgroup ℚ, a - x ∈ finiteIntegralAdeles ℚ := by
   have h :=
     AddSubgroup.mem_sup.mp
     (QHat.rat_join_zHat ▸ AddSubgroup.mem_top (finiteAdeleRing_equiv_qHat a))
   choose y hy z hz h' using h
-
   have hy' : y ∈ (QHat.ratsub : Set QHat) := hy
   rw [← principalSubgroup_equiv_ratsub] at hy'
   choose x hx hxy using (Set.mem_image _ _ _).mp hy'
-
   have hz' : z ∈ (QHat.zHatsub : Set QHat) := hz
   rw [← finiteIntegralAdeles_equiv_zHatsub] at hz'
   choose w hw hwz using (Set.mem_image _ _ _).mp hz'
-
   use ⟨x, hx⟩
   rw [← hxy, ← hwz, ← map_add] at h'
   apply finiteAdeleRing_equiv_qHat.injective at h'
