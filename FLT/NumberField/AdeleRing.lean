@@ -461,22 +461,16 @@ theorem Rat.AdeleRing.cocompact :
     have hb : b ∈ W := by
       simp only [W, Set.prod, W_inf, FiniteAdeleRing.finiteIntegralAdeles]
       refine ⟨Set.mem_univ_pi.2 fun v => ?_, ?_⟩
-      · simp only [b, map_add, mem_closedBall, dist_zero_right, c, add_comm, ← sub_sub]
-        exact hi v
+      · simpa [b, c, add_comm, ← sub_sub] using hi v
       · apply RestrictedProduct.exists_structureMap_eq_of_forall
         simp only [map_add, SetLike.mem_coe, b, c]
         rw [Prod.snd_sub, Prod.snd_add, sub_add_eq_sub_sub, sub_right_comm]
         intro v
         refine sub_mem (hf v) ?_
-        simp only [AdeleRing.algebraMap_snd_apply]
-        exact HeightOneSpectrum.coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
+        simpa using HeightOneSpectrum.coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
     refine ⟨b, hb, ?_⟩
     unfold b; unfold a
-    simp only [QuotientAddGroup.mk'_apply, QuotientAddGroup.mk_sub, Quotient.out_eq, sub_eq_self,
-      QuotientAddGroup.eq_zero_iff, AddSubgroup.mem_mk, Subsemiring.coe_carrier_toSubmonoid,
-      Subring.coe_toSubsemiring, RingHom.coe_range, AddSubmonoid.mem_mk, AddSubsemigroup.mem_mk,
-      Set.mem_range]
-    use xi + xf
+    simp [c]
   { isCompact_univ := h_W_image ▸ IsCompact.image h_W_compact continuous_quot_mk }
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
