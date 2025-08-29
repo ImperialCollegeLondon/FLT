@@ -389,6 +389,7 @@ open NumberField IsDedekindDomain
 
 variable (K : Type*) [Field K] [NumberField K]
 
+/-- The integral adeles in the finite adele ring. -/
 def FiniteAdeleRing.finiteIntegralAdeles : Set (FiniteAdeleRing (𝓞 K) K) :=
   Set.range (RestrictedProduct.structureMap _ _ _)
 
@@ -402,6 +403,7 @@ theorem FiniteAdeleRing.isCompact_finiteIntegralAdeles :
 noncomputable def FiniteAdeleRing.principalSubgroup : AddSubgroup (FiniteAdeleRing (𝓞 K) K) :=
   (algebraMap K _).range.toAddSubgroup
 
+/-- The equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and `QHat`. -/
 def finiteAdeleRing_equiv_qHat : FiniteAdeleRing (𝓞 ℚ) ℚ ≃+ QHat := sorry
 
 lemma principalSubgroup_equiv_ratsub :
