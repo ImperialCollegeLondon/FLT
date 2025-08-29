@@ -413,8 +413,7 @@ lemma finiteIntegralAdeles_equiv_zHatsub :
 open FiniteAdeleRing in
 theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 ℚ) ℚ) :
   ∃ x : principalSubgroup ℚ, a - x ∈ finiteIntegralAdeles ℚ := by
-  have h :=
-    AddSubgroup.mem_sup.mp
+  have h := AddSubgroup.mem_sup.mp
     (QHat.rat_join_zHat ▸ AddSubgroup.mem_top (finiteAdeleRing_equiv_qHat a))
   choose y hy z hz h' using h
   have hy' : y ∈ (QHat.ratsub : Set QHat) := hy
@@ -426,8 +425,7 @@ theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 
   use ⟨x, hx⟩
   rw [← hxy, ← hwz, ← map_add] at h'
   apply finiteAdeleRing_equiv_qHat.injective at h'
-  rw [← h']
-  simpa
+  simpa [← h']
 
 open Metric NumberField.InfinitePlace in
 theorem InfiniteAdeleRing.sub_mem_closedBalls (a : InfiniteAdeleRing ℚ) :
