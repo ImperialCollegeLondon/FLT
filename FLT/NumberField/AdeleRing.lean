@@ -404,17 +404,34 @@ noncomputable def FiniteAdeleRing.principalSubgroup : AddSubgroup (FiniteAdeleRi
 
 def finiteAdeleRing_equiv_qHat : FiniteAdeleRing (𝓞 ℚ) ℚ ≃+ QHat := sorry
 
+lemma principalSubgroup_equiv_ratsub :
+    finiteAdeleRing_equiv_qHat '' (FiniteAdeleRing.principalSubgroup ℚ) = QHat.ratsub := sorry
+
+lemma finiteIntegralAdeles_equiv_zHatsub :
+    finiteAdeleRing_equiv_qHat '' (FiniteAdeleRing.finiteIntegralAdeles ℚ) = QHat.zHatsub := sorry
 
 open FiniteAdeleRing in
 theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 ℚ) ℚ) :
   ∃ x : principalSubgroup ℚ,
     a - x ∈ finiteIntegralAdeles ℚ := by
-  /- let S := {v | a v ∉ HeightOneSpectrum.adicCompletionIntegers ℚ v}
-  have h_S_finite : S.Finite := Filter.eventually_cofinite.mp a.eventually
-  let π (v : HeightOneSpectrum (𝓞 ℚ)) : ℚ :=
-    (HeightOneSpectrum.valuation_exists_uniformizer ℚ v).choose -/
+  have h :=
+    AddSubgroup.mem_sup.mp
+    (QHat.rat_join_zHat ▸ AddSubgroup.mem_top (finiteAdeleRing_equiv_qHat a))
+  choose y hy z hz h' using h
 
-  sorry
+  have hy' : y ∈ (QHat.ratsub : Set QHat) := hy
+  rw [← principalSubgroup_equiv_ratsub] at hy'
+  choose x hx hxy using (Set.mem_image _ _ _).mp hy'
+
+  have hz' : z ∈ (QHat.zHatsub : Set QHat) := hz
+  rw [← finiteIntegralAdeles_equiv_zHatsub] at hz'
+  choose w hw hwz using (Set.mem_image _ _ _).mp hz'
+
+  use ⟨x, hx⟩
+  rw [← hxy, ← hwz, ← map_add] at h'
+  apply finiteAdeleRing_equiv_qHat.injective at h'
+  rw [← h']
+  simpa
 
 open Metric NumberField.InfinitePlace in
 theorem InfiniteAdeleRing.sub_mem_closedBalls (a : InfiniteAdeleRing ℚ) :
