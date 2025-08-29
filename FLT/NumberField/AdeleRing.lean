@@ -398,18 +398,21 @@ theorem FiniteAdeleRing.isCompact_finiteIntegralAdeles :
   HeightOneSpectrum.adicCompletionIntegers K v) := Pi.compactSpace
   apply isCompact_range; exact RestrictedProduct.isEmbedding_structureMap.continuous
 
+/-- The subgroup of principal adeles `(x)ᵥ` where `x ∈ K`. -/
+noncomputable def FiniteAdeleRing.principalSubgroup : AddSubgroup (FiniteAdeleRing (𝓞 K) K) :=
+  (algebraMap K _).range.toAddSubgroup
+
 def finiteAdeleRing_equiv_qHat : FiniteAdeleRing (𝓞 ℚ) ℚ ≃+ QHat := sorry
 
 
-
+open FiniteAdeleRing in
 theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 ℚ) ℚ) :
-  ∃ x : ℚ,
-    ∀ v, (a - algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ) x) v
-    ∈ HeightOneSpectrum.adicCompletionIntegers ℚ v := by
-  let S := {v | a v ∉ HeightOneSpectrum.adicCompletionIntegers ℚ v}
+  ∃ x : principalSubgroup ℚ,
+    a - x ∈ finiteIntegralAdeles ℚ := by
+  /- let S := {v | a v ∉ HeightOneSpectrum.adicCompletionIntegers ℚ v}
   have h_S_finite : S.Finite := Filter.eventually_cofinite.mp a.eventually
   let π (v : HeightOneSpectrum (𝓞 ℚ)) : ℚ :=
-    (HeightOneSpectrum.valuation_exists_uniformizer ℚ v).choose
+    (HeightOneSpectrum.valuation_exists_uniformizer ℚ v).choose -/
 
   sorry
 
@@ -417,6 +420,7 @@ open Metric NumberField.InfinitePlace in
 theorem InfiniteAdeleRing.sub_mem_closedBalls (a : InfiniteAdeleRing ℚ) :
     ∃ (x : 𝓞 ℚ), ∀ v, norm ((a - algebraMap ℚ _ x) v) ≤ 1 := by
   sorry
+  -- https://github.com/smmercuri/adele-ring_locally-compact/blob/55396f8e8de5c45780a615ee1684f510b02b4e1f/AdeleRingLocallyCompact/NumberTheory/NumberField/AdeleRing.lean#L228
 
 open Metric in
 theorem Rat.AdeleRing.cocompact :
@@ -433,10 +437,11 @@ theorem Rat.AdeleRing.cocompact :
     QuotientAddGroup.mk' _
   have h_W_image : q '' W = Set.univ := by
     simp only [q, Set.eq_univ_iff_forall]
-    intro x
-    let a := Quotient.out x
+    intro x; let a := Quotient.out x
     rw [Set.mem_image]
-    choose xf hf using FiniteAdeleRing.sub_mem_finiteIntegralAdeles a.2
+    choose xf hf using
+      Set.exists_subtype_range_iff.mp (FiniteAdeleRing.sub_mem_finiteIntegralAdeles a.2)
+    rw [FiniteAdeleRing.finiteIntegralAdeles, RestrictedProduct.range_structureMap] at hf
     choose xi hi using InfiniteAdeleRing.sub_mem_closedBalls (a.1 - algebraMap _ _ xf)
     let c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf
     let b := a - c
