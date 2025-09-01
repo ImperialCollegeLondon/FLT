@@ -115,7 +115,8 @@ def MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
 variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
 /-- The `MulEquiv` between restricted products built from `MulEquiv`s on the factors. -/
-@[to_additive "The `AddEquiv` between restricted products built from `AddEquiv`s on the factors."]
+@[to_additive /-- The `AddEquiv` between restricted products built from `AddEquiv`s
+  on the factors. -/]
 def MulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
     (Πʳ i, [G i, A i]_[ℱ]) ≃* (Πʳ i, [H i, B i]_[ℱ]) where
