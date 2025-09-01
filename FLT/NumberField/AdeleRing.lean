@@ -1,5 +1,7 @@
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.NumberField.InfiniteAdeleRing
+import FLT.NumberField.Completion.Finite
+import FLT.AutomorphicRepresentation.Example
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
@@ -11,6 +13,8 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.LinearAlgebra.TensorProduct.Prod
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.RingTheory.Ideal.NatInt
 import FLT.NumberField.FiniteAdeleRing
 
 open scoped TensorProduct
@@ -381,11 +385,93 @@ end Discrete
 
 section Compact
 
-open NumberField
+open NumberField IsDedekindDomain
 
+variable (K : Type*) [Field K] [NumberField K]
+
+/-- The integral adeles in the finite adele ring. -/
+def FiniteAdeleRing.finiteIntegralAdeles : Set (FiniteAdeleRing (𝓞 K) K) :=
+  Set.range (RestrictedProduct.structureMap _ _ _)
+
+theorem FiniteAdeleRing.isCompact_finiteIntegralAdeles :
+    IsCompact (FiniteAdeleRing.finiteIntegralAdeles K) := by
+  letI : CompactSpace ((v : HeightOneSpectrum (𝓞 K)) →
+  HeightOneSpectrum.adicCompletionIntegers K v) := Pi.compactSpace
+  apply isCompact_range; exact RestrictedProduct.isEmbedding_structureMap.continuous
+
+/-- The subgroup of principal adeles `(x)ᵥ` where `x ∈ K`. -/
+noncomputable def FiniteAdeleRing.principalSubgroup : AddSubgroup (FiniteAdeleRing (𝓞 K) K) :=
+  (algebraMap K _).range.toAddSubgroup
+
+/-- The equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and `QHat`. -/
+def finiteAdeleRing_equiv_qHat : FiniteAdeleRing (𝓞 ℚ) ℚ ≃+ QHat := sorry
+
+lemma principalSubgroup_equiv_ratsub :
+    finiteAdeleRing_equiv_qHat '' (FiniteAdeleRing.principalSubgroup ℚ) = QHat.ratsub := sorry
+
+lemma finiteIntegralAdeles_equiv_zHatsub :
+    finiteAdeleRing_equiv_qHat '' (FiniteAdeleRing.finiteIntegralAdeles ℚ) = QHat.zHatsub := sorry
+
+open FiniteAdeleRing in
+theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 ℚ) ℚ) :
+    ∃ x : principalSubgroup ℚ, a - x ∈ finiteIntegralAdeles ℚ := by
+  have h := AddSubgroup.mem_sup.mp
+    (QHat.rat_join_zHat ▸ AddSubgroup.mem_top (finiteAdeleRing_equiv_qHat a))
+  choose y hy z hz h' using h
+  have hy' : y ∈ (QHat.ratsub : Set QHat) := hy
+  rw [← principalSubgroup_equiv_ratsub] at hy'
+  choose x hx hxy using (Set.mem_image _ _ _).mp hy'
+  have hz' : z ∈ (QHat.zHatsub : Set QHat) := hz
+  rw [← finiteIntegralAdeles_equiv_zHatsub] at hz'
+  choose w hw hwz using (Set.mem_image _ _ _).mp hz'
+  use ⟨x, hx⟩
+  rw [← hxy, ← hwz, ← map_add] at h'
+  apply finiteAdeleRing_equiv_qHat.injective at h'
+  simpa [← h']
+
+open Metric NumberField.InfinitePlace in
+theorem InfiniteAdeleRing.sub_mem_closedBalls (a : InfiniteAdeleRing ℚ) :
+    ∃ (x : 𝓞 ℚ), ∀ v, norm ((a - algebraMap ℚ _ x) v) ≤ 1 := by
+  sorry
+  -- https://github.com/smmercuri/adele-ring_locally-compact/blob/55396f8e8de5c45780a615ee1684f510b02b4e1f/AdeleRingLocallyCompact/NumberTheory/NumberField/AdeleRing.lean#L228
+
+open Metric in
 theorem Rat.AdeleRing.cocompact :
     CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) :=
-  sorry -- issue #258
+  let W_inf : Set (InfiniteAdeleRing ℚ) := Set.pi Set.univ <|
+    fun (v : InfinitePlace ℚ) => closedBall 0 1
+  let W : Set (AdeleRing (𝓞 ℚ) ℚ) := W_inf.prod (FiniteAdeleRing.finiteIntegralAdeles ℚ)
+  have h_W_compact : IsCompact W := by
+    refine IsCompact.prod (isCompact_univ_pi (fun v => ?_))
+      (FiniteAdeleRing.isCompact_finiteIntegralAdeles ℚ)
+    letI : ProperSpace v.Completion := ProperSpace.of_locallyCompactSpace v.Completion
+    exact isCompact_iff_isClosed_bounded.2 <| ⟨isClosed_closedBall, isBounded_closedBall⟩
+  let q : AdeleRing (𝓞 ℚ) ℚ → AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ :=
+    QuotientAddGroup.mk' _
+  have h_W_image : q '' W = Set.univ := by
+    simp only [q, Set.eq_univ_iff_forall]
+    intro x; let a := Quotient.out x
+    rw [Set.mem_image]
+    choose xf hf using
+      Set.exists_subtype_range_iff.mp (FiniteAdeleRing.sub_mem_finiteIntegralAdeles a.2)
+    rw [FiniteAdeleRing.finiteIntegralAdeles, RestrictedProduct.range_structureMap] at hf
+    choose xi hi using InfiniteAdeleRing.sub_mem_closedBalls (a.1 - algebraMap _ _ xf)
+    let c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf
+    let b := a - c
+    have hb : b ∈ W := by
+      simp only [W, Set.prod, W_inf, FiniteAdeleRing.finiteIntegralAdeles]
+      refine ⟨Set.mem_univ_pi.2 fun v => ?_, ?_⟩
+      · simpa [b, c, add_comm, ← sub_sub] using hi v
+      · apply RestrictedProduct.exists_structureMap_eq_of_forall
+        simp only [map_add, SetLike.mem_coe, b, c]
+        rw [Prod.snd_sub, Prod.snd_add, sub_add_eq_sub_sub, sub_right_comm]
+        intro v
+        refine sub_mem (hf v) ?_
+        simpa using HeightOneSpectrum.coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
+    refine ⟨b, hb, ?_⟩
+    unfold b; unfold a
+    simp [c]
+  { isCompact_univ := h_W_image ▸ IsCompact.image h_W_compact continuous_quot_mk }
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
