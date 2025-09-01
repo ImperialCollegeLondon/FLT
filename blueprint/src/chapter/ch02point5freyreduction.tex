@@ -1,0 +1,104 @@
+\chapter{Proving irreducibility}\label{ch_freyreduction}
+
+\section{Goal}
+
+In this chapter, we reduce the claim that the $p$-torsion in the Frey
+curve is reducible to three hard theorems, two of which were not known
+in the 1980s.
+
+\section{Overview}
+
+In Chapter~\ref{ch_reductions} we reduced FLT to the
+following two claims: if $\rho$ is the $p$-torsion in the Frey curve
+associated to a Frey package $(a,b,c,p)$, then $\rho$ is both
+irreducible (by Mazur) and reducible (by Wiles). Mazur's 1977 theorem
+is currently out of scope for this project, as it is ``too old''.
+We thus focus on how to prove Wiles' theorem, which was still an open problem
+in the 1980s (although it had been conjectured by Serre in~\cite{serreconj}
+in 1987). In this section we state three difficult theorems and
+show how Wiles' theorem follows easily from them.
+
+\section{Facts about the Frey curve}
+
+Let $(a,b,c,p)$ be a Frey package (so in particular $p\geq5$ is prime and $a^p+b^p=c^p$),
+let $E$ be the corresponding Frey curve over $\Q$, and let $\rho:\GQ\to\Aut(E(\Qbar)[p])$
+be the 2-dimensional Galois representation on the $p$-torsion of~$E$. Recall that our goal
+is to prove that $\rho$ is reducible.
+
+What we need to leverage is the fact that $\rho$ has very little ramification. To give
+a toy example before we start: if $K$ is a number field (i.e., a finite extension of $\Q$)
+and if the extension $K/\Q$ is unramified at all primes, then an old theorem of
+Minkowski tells us that $K=\Q$. We want to prove a theorem in the same vein; if
+something is hardly ramified, then it is somehow trivial. Let us make a precise
+definition of what it means for a 2-dimensional representation to be \emph{hardly ramified}.
+
+\begin{definition} A \emph{coefficient ring} is a local ring $R$ with maximal ideal $\m$ and
+  finite residue field $k$, such that the natural map from $R$ to the projective
+  limit $\lim_{n\in\N} R/\m^n$ is an isomorphism of rings.
+\end{definition}
+
+If $R$ is a coefficient ring then we topologise it by giving $R/\m^n$ the discrete
+topology and $R=\lim_n R/\m^n$ the projective limit topology.
+
+Examples of coefficient rings include finite fields, and integer rings of finite extensions
+of $\Q_p$. There are also non-Noetherian examples, which are convenient to include
+for technical reasons. If $R$ is a coefficient ring with maximal ideal $\m$
+and residue field $k$ of characteristic~$\ell$, then there are ring homomorphisms
+$\Z/\ell^n\Z\to R/\m^n$ for all naturals $n$ and thus a continuous ring homomorphism
+$\Z_{\ell}\to R$. The $\ell$-adic cyclotomic character is a continuous
+representation $\GQ\to\Z_{\ell}^\times$ and it thus induces a continuous
+representation $\GQ\to R^\times$ which we also refer to as the cyclotomic character.
+
+\begin{definition}
+  \label{hardly_ramified}
+  Let $R$ be a coefficient ring with finite residue field of characteristic $\ell\geq3$.
+  Let $V$ be a finite free $R$-module of rank~2, equipped with the product topology. A
+  continuous representation $\rho: \GQ\to \GL_R(V)$ is said to be \emph{hardly ramified} if it
+  satisfies the following four conditions:
+  \begin{enumerate}
+  \item $\det(\rho):\GQ\to R^\times$ is the mod $\ell$ cyclotomic character;
+  \item $\rho$ is unramified outside $2\ell$;
+  \item There is a short exact sequence $0\to R\to V\to R\to 0$ restriction of $\rho$ to $\Gal(\Qbar_2/\Q)$ is reducible and has a
+    1-dimensional quotient which is an unramified representation whose square is trivial;
+  \item The restriction of $\rho$ to $\GQl$ comes from a finite flat group scheme.
+  \end{enumerate}
+\end{definition}
+
+A well-known result, which basically goes back to Frey, is the following:
+
+\begin{theorem}
+  \label{Frey_curve_hardly_ramified}
+  The $\ell$-torsion in the Frey curve associated to a Frey package $(a,b,c,\ell)$
+  is hardly ramified.
+\end{theorem}
+\begin{proof}
+  First note that $\ell\geq5>3$ by definition of a Frey package. Let $\rho$
+  denote the Galois representation on the $\ell$-torsion of the Frey curve.
+  The fact that $\rho$ is 2-dimensional is~Corollary
+  III.6.4(b) of~\cite{silverman1}, and the fact that its determinant is
+  cyclotomic is Proposition~III.8.3. These results hold for elliptic curves
+  in general. The remaining claims are specific to the Frey curve and lie
+  deeper. The fact that $\rho$ is unramified outside $2\ell$ is a consequence
+  of (4.1.12) and (4.1.13) of~\cite{serreconj}. The fact that $\rho$ at 2
+  has an unramified 1-dimensional quotient of order at most 2 follows from
+  the fact that the Frey curve is semistable at~2 (see (4.1.5) of~\cite{serreconj})
+  and the theory of the Tate curve. Finally, the claim that $\rho$ is flat at $\ell$
+  is Proposition~5 and (4.1.13) of~\cite{serreconj}.
+\end{proof}
+
+Our job then becomes to prove that a hardly ramified representation is reducible.
+Note that this claim is a consequence of Serre's conjecture~\cite{serreconj},
+now a theorem of Khare and Wintenberger {\bf TODO cite KW}, and we shall use
+methods introduced by Khare and Wintenberger to prove this special case of
+Serre's conjecture.
+
+More precisely, we will take the following approach. Assume $\rho$ is irreducible
+and hardly-ramified. We will first lift $\rho$ to an $\ell$-adic representation
+which is also hardly-ramified
+This claim follows from the following three theorems.
+
+{\bf TODO}
+
+1) Lift rhobar to char 0
+2) Put in a family
+3) 3-adic hardly-ramified rep is extn of 1 by cyclo
