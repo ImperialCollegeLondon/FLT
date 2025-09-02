@@ -115,12 +115,9 @@ lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
 
 lemma GL2.mem_localFullLevel_iff_v_le_one_and_v_det_eq_one {v : HeightOneSpectrum (𝓞 F)}
     {x : GL (Fin 2) (v.adicCompletion F)} :
-    x ∈ localFullLevel v
-    ↔ (∀ (i j), Valued.v (x i j) ≤ 1) ∧ Valued.v x.val.det = 1 :=
-  ⟨ fun h => ⟨GL2.v_le_one_of_mem_localFullLevel _ h,
-    GL2.v_det_val_mem_localFullLevel_eq_one h⟩
-    , by
-    intro ⟨ h₁, h₂ ⟩
+    x ∈ localFullLevel v ↔ (∀ (i j), Valued.v (x i j) ≤ 1) ∧ Valued.v x.val.det = 1 :=
+  ⟨fun h ↦ ⟨GL2.v_le_one_of_mem_localFullLevel _ h, GL2.v_det_val_mem_localFullLevel_eq_one h⟩, by
+    intro ⟨h₁, h₂⟩
     let M : Matrix (Fin 2) (Fin 2) (v.adicCompletionIntegers F) :=
       Matrix.of fun i j => ⟨x i j, h₁ i j⟩
     have det_eq : M.det = x.val.det := by

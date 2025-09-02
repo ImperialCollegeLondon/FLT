@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Bryan Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard, Bryan Wang
+Authors: Bryan Wang
 -/
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract -- abstract Hecke ops
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs -- definitions of automorphic forms
@@ -33,9 +33,8 @@ variable (v) {α hα} in
 lemma valuation_lt_one_iff_mem_maximalIdeal {t : adicCompletionIntegers F v} :
     Valued.v (t : adicCompletion F v) < 1
     ↔ t ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) :=
-  Iff.trans
   (Valuation.isEquiv_iff_val_lt_one.mp
-    (Valuation.isEquiv_valuation_valuationSubring Valued.v))
+    (Valuation.isEquiv_valuation_valuationSubring Valued.v)).trans
   (ValuationSubring.valuation_lt_one_iff (adicCompletionIntegers F v) _).symm
 
 variable (v) {α hα} in
@@ -127,8 +126,7 @@ lemma unipotent_mul_diag_inv_mul_unipotent_mul_diag (t₁ t₂ : v.adicCompletio
   rw [← mul_assoc]; nth_rw 2 [mul_assoc]
   rw_mod_cast [unipotent_mul]; push_cast [unipotent_def]
   rw_mod_cast [conjBy_diag]
-  fin_cases i; all_goals fin_cases j
-  all_goals simp
+  simp
 
 end GL2
 
@@ -277,7 +275,7 @@ lemma injOn_unipotent_mul_diagU1 :
   simp only [unipotent, Matrix.unitOfDetInvertible, Fin.isValue, val_unitOfInvertible,
     Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_one, Matrix.cons_val_fin_one,
     Matrix.cons_val_zero] at unipotent_apply_zero_one_mem_integer
-  rw[← (QuotientAddGroup.out_eq' t₁), ← (QuotientAddGroup.out_eq' t₂)]
+  rw [← (QuotientAddGroup.out_eq' t₁), ← (QuotientAddGroup.out_eq' t₂)]
   apply QuotientAddGroup.eq.mpr; apply Ideal.mem_span_singleton'.mpr
   use ⟨_, unipotent_apply_zero_one_mem_integer⟩
   apply (Subtype.coe_inj).mp; push_cast
