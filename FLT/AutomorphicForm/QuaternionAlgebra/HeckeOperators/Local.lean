@@ -41,6 +41,8 @@ variable (v) {α hα} in
 /-- The subgroup `U1 v = GL2.localTameLevel v`. -/
 noncomputable abbrev U1 : Subgroup (GL (Fin 2) (adicCompletion F v)) := (GL2.localTameLevel v)
 
+open Matrix.GeneralLinearGroup.GL2
+
 /- Some lemmas in this section could be placed somewhere else in greater generality. -/
 namespace GL2
 
@@ -71,30 +73,6 @@ lemma conjBy_diag {a b c d : adicCompletion F v} :
     Matrix.add_cons, Matrix.empty_add_empty, EmbeddingLike.apply_eq_iff_eq]
   rw[inv_mul_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul, one_mul]
   ring_nf; rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul]
-
-/-- The unipotent matrix element `!![1, t; 0, 1]`. -/
-noncomputable def unipotent (t : v.adicCompletion F) : (GL (Fin 2) (adicCompletion F v)) :=
-  letI detInv : Invertible !![1, t; 0, 1].det :=
-  { invOf := 1,
-    invOf_mul_self :=
-      by simp only [Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero],
-    mul_invOf_self :=
-      by simp only [Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero] }
-  Matrix.unitOfDetInvertible !![1, t; 0, 1]
-
-lemma unipotent_def (t : v.adicCompletion F) :
-    (unipotent t : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
-    = !![1, t; 0, 1] := by
-  simp [unipotent, Matrix.unitOfDetInvertible]
-
-lemma unipotent_inv (t : v.adicCompletion F) :
-    (unipotent t)⁻¹ = unipotent (-t) := by
-  ext; simp [unipotent_def, Matrix.inv_def]
-
-lemma unipotent_mul (t₁ t₂ : v.adicCompletion F) :
-    (unipotent t₂) * (unipotent t₁) = unipotent (t₁ + t₂) := by
-  ext i j; fin_cases i; all_goals fin_cases j
-  all_goals simp [unipotent_def]
 
 -- Show that `unipotent t` is in `U1 v` for `t ∈ O_v`.
 lemma unipotent_mem_U1 (t : v.adicCompletionIntegers F) :
