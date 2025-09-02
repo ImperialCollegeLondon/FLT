@@ -361,25 +361,48 @@ feet because it would seem more sensible to prove them in the right generality,
 and we don't have a definition of nonarchimedean local field yet.
 
 \begin{lemma}
-  \lean{NumberField.isOpenAdicCompletionIntegers, NumberField.instCompactSpaceAdicCompletionIntegers}
-  \label{NumberField.isOpenAdicCompletionIntegers, NumberField.instCompactSpaceAdicCompletionIntegers}
+  \lean{NumberField.isOpenAdicCompletionIntegers}
+  \label{NumberField.isOpenAdicCompletionIntegers}
   \leanok
-  $\calO_v$ is a compact open subring of $K_v$.
+  $\calO_v$ is an open subring of $K_v$.
 \end{lemma}
 \begin{proof}
   \leanok
-  Openness is already in mathlib; compactness lies a little deeper because it
+  Openness is already in mathlib.
+\end{proof}
+
+\begin{lemma}
+  \lean{NumberField.instCompactSpaceAdicCompletionIntegers}
+  \label{NumberField.instCompactSpaceAdicCompletionIntegers}
+  \leanok
+  $\calO_v$ is a compact subring of $K_v$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Compactness lies a little deeper because it
   assumes that the residue field of $K_v$ is finite.
 \end{proof}
 
-\begin{lemma} $M_2(\calO_v)$ is a compact open subring of $M_2(K_v)$.
-  \lean{IsDedekindDomain.M2.localFullLevel.isOpen, IsDedekindDomain.M2.localFullLevel.isCompact}
-  \label{M2.localFullLevel.isOpen, M2.localFullLevel.isCompact}
+\begin{lemma} $M_2(\calO_v)$ is an open subring of $M_2(K_v)$.
+  \lean{IsDedekindDomain.M2.localFullLevel.isOpen}
+  \label{M2.localFullLevel.isOpen}
   \leanok
 \end{lemma}
 \begin{proof}
   \leanok
-  \uses{nolean-compactopen}
+  \uses{NumberField.isOpenAdicCompletionIntegers}
+  Topologically $M_2(\calO_v)\cong \calO_v^4$ as a subset of $K_v^4$ so this
+  follows because a product of compacts is compact and a product of opens is open.
+\end{proof}
+
+\begin{lemma} $M_2(\calO_v)$ is a compact subring of $M_2(K_v)$.
+  \lean{IsDedekindDomain.M2.localFullLevel.isCompact}
+  \label{M2.localFullLevel.isCompact}
+  \leanok
+\end{lemma}
+\begin{proof}
+  \leanok
+  \uses{NumberField.instCompactSpaceAdicCompletionIntegers}
   Topologically $M_2(\calO_v)\cong \calO_v^4$ as a subset of $K_v^4$ so this
   follows because a product of compacts is compact and a product of opens is open.
 \end{proof}
