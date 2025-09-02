@@ -10,8 +10,8 @@ import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.LinearAlgebra.TensorProduct.Prod
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.RingTheory.Ideal.NatInt
@@ -429,11 +429,21 @@ theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 
   apply finiteAdeleRing_equiv_qHat.injective at h'
   simpa [← h']
 
-open Metric NumberField.InfinitePlace in
-theorem InfiniteAdeleRing.sub_mem_closedBalls (a : InfiniteAdeleRing ℚ) :
-    ∃ (x : 𝓞 ℚ), ∀ v, norm ((a - algebraMap ℚ _ x) v) ≤ 1 := by
-  sorry
-  -- https://github.com/smmercuri/adele-ring_locally-compact/blob/55396f8e8de5c45780a615ee1684f510b02b4e1f/AdeleRingLocallyCompact/NumberTheory/NumberField/AdeleRing.lean#L228
+open NumberField.InfinitePlace.Completion in
+theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ) :
+    ∃ (x : 𝓞 ℚ), ∀ v, ‖a v - algebraMap ℚ (InfiniteAdeleRing ℚ) x v‖ ≤ 1 := by
+  let v₀ : InfinitePlace ℚ := Rat.infinitePlace
+  let σ : v₀.Completion →+* ℝ := extensionEmbeddingOfIsReal Rat.isReal_infinitePlace
+  let x : ℤ := ⌊σ (a v₀)⌋
+  refine ⟨ringOfIntegersEquiv.symm x, fun v ↦ ?_⟩
+  rw [Subsingleton.elim v v₀, InfiniteAdeleRing.algebraMap_apply,
+    ← (isometry_extensionEmbedding_of_isReal isReal_infinitePlace).norm_map_of_map_zero
+      (map_zero _), ringOfIntegersEquiv_symm_coe, map_sub, extensionEmbedding_of_isReal_coe,
+    map_intCast, Real.norm_eq_abs, Int.self_sub_floor, Int.abs_fract]
+  exact le_of_lt (Int.fract_lt_one _)
+
+instance (v : InfinitePlace K) : ProperSpace v.Completion :=
+  ProperSpace.of_locallyCompactSpace v.Completion
 
 open Metric in
 theorem Rat.AdeleRing.cocompact :
@@ -444,7 +454,6 @@ theorem Rat.AdeleRing.cocompact :
   have h_W_compact : IsCompact W := by
     refine IsCompact.prod (isCompact_univ_pi (fun v => ?_))
       (FiniteAdeleRing.isCompact_finiteIntegralAdeles ℚ)
-    letI : ProperSpace v.Completion := ProperSpace.of_locallyCompactSpace v.Completion
     exact isCompact_iff_isClosed_bounded.2 <| ⟨isClosed_closedBall, isBounded_closedBall⟩
   let q : AdeleRing (𝓞 ℚ) ℚ → AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ :=
     QuotientAddGroup.mk' _
@@ -455,7 +464,7 @@ theorem Rat.AdeleRing.cocompact :
     choose xf hf using
       Set.exists_subtype_range_iff.mp (FiniteAdeleRing.sub_mem_finiteIntegralAdeles a.2)
     rw [FiniteAdeleRing.finiteIntegralAdeles, RestrictedProduct.range_structureMap] at hf
-    choose xi hi using InfiniteAdeleRing.sub_mem_closedBalls (a.1 - algebraMap _ _ xf)
+    choose xi hi using InfiniteAdeleRing.exists_sub_norm_le_one (a.1 - algebraMap _ _ xf)
     let c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf
     let b := a - c
     have hb : b ∈ W := by
