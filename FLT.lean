@@ -66,6 +66,7 @@ import FLT.Mathlib.GroupTheory.Index
 import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
+import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.Logic.Equiv.Basic

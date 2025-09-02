@@ -5,6 +5,7 @@ Authors: Kevin Buzzard
 -/
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic -- needed for RestrictedProduct.mk
+import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 /-
 
 # Constructions of various "local" elements of adelic groups
@@ -12,19 +13,6 @@ import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic -- needed for Restri
 For example ideles which are uniformisers at one finite place.
 
 -/
-
--- should be elsewhere
-namespace Matrix.GeneralLinearGroup
-
-variable {n R : Type*} [DecidableEq n] [Fintype n] [CommRing R]
-
-/-- The invertible diagonal matrix associated to a vector of units (the diagonal entries).
--/
-def diagonal (d : n → Rˣ) : GL n R :=
-  ⟨.diagonal <| fun i ↦ d i, .diagonal <| fun i ↦ ((d i)⁻¹ : Rˣ),
-    by simp, by simp⟩
-
-end Matrix.GeneralLinearGroup
 
 namespace IsDedekindDomain
 
