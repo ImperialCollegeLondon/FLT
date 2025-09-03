@@ -302,6 +302,54 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
   exact Continuous.comp continuous_snd (Continuous.comp
     (iso₁_continuous K D) continuous_subtype_val)
 
+
+-- From here is where I need to show equivalences of D ⊗ 𝔸_K and D ⊗ A_ℚ
+
+
+def foo (L M N O : Type*) [Semiring L] [Field O] [Ring M] [Ring N] [Algebra O M] [Algebra O N]
+    [Algebra O L] [TopologicalSpace M] [TopologicalSpace N]
+    [TopologicalSpace (L ⊗[O] M)] [TopologicalSpace (L ⊗[O] N)] (h : M ≃A[O] N) :
+    L ⊗[O] M ≃A[O] L ⊗[O] N := by
+  -- this may be the correct generalisation?
+  sorry
+
+def D𝔸_iso1 : D_𝔸 ≃A[K] (D ⊗[K] (K ⊗[ℚ] (NumberField.AdeleRing (𝓞 ℚ) ℚ))) := by
+  have := NumberField.AdeleRing.baseChangeEquiv ℚ K
+
+  sorry
+
+instance : Module ℚ K := by
+  exact Algebra.toModule
+
+instance : Module K D := by
+  exact Algebra.toModule
+
+instance : Module ℚ D := by
+-- will need explicit information (avoid diamond)
+  sorry
+
+def D𝔸_iso2 : D ⊗[K] (K ⊗[ℚ] (NumberField.AdeleRing (𝓞 ℚ) ℚ)) ≃A[ℚ]
+    (D ⊗[ℚ] (NumberField.AdeleRing (𝓞 ℚ) ℚ)) := by
+
+  sorry
+
+abbrev inclℝ : ℝ → D ⊗[ℚ] ℝ :=
+  fun x => TensorProduct.tmul ℚ (1 : D) x
+
+local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+
+local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact { measurable_eq := rfl }
+
+lemma ringHaarChar_eq1 (y : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) :
+    ringHaarChar ((iso₁ K D).symm (y, 1)) =
+    ringHaarChar (MulEquiv.prodUnits.symm (y, (1 : Dfx K D))) := by
+
+  sorry
+
 lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
   refine Eq.symm (Set.ext ?_)
@@ -314,6 +362,11 @@ lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
       exact addEquivAddHaarChar_pos _
     exact this ((iso₁ K D).symm (1, x))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
+    simp_rw [ringHaarChar_eq1]
+    simp_rw [MeasureTheory.ringHaarChar_prod]
+
+    -- MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+
 
     -- the remaining sorry of this file.
     sorry
