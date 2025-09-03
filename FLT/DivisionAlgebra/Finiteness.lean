@@ -135,7 +135,7 @@ local instance : IsModuleTopology (AdeleRing (𝓞 K) K)
     -- no idea how to get this to work
   sorry
 
-/-- The topoligical equivalence via D𝔸_iso. -/
+/-- The topological equivalence via D𝔸_iso. -/
 abbrev D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)]
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :=
   IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
