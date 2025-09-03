@@ -35,45 +35,46 @@ Thus, currently, formalization can be a very time-consuming process.
 
 \section{Which proof is being formalised?}
 
-At the time of writing, these notes do not contain anywhere near a proof of FLT, or even a sketch proof.
-Over the next few years, we will be building parts of the argument, following a strategy
-constructed by Taylor, taking into account Buzzard's comments on what would be easy or hard to do
-in Lean. The proof uses refinements of the original Taylor--Wiles method by Diamond/Fujiwara,
-Khare--Wintenberger, Skinner--Wiles, Kisin, Taylor and others -- one could call it a 21st century
-proof of the theorem. We shall furthermore be assuming many nontrivial theorems without proof,
-at least initially. For example we shall be assuming the existence of Galois representations
-attached to weight~2 Hilbert modular forms, we will assume Langlands' cyclic base change theorem for $\GL_2$,
-Mazur's theorem bounding the torsion subgroup of an elliptic curve over the rationals, and
-several other nontrivial results which were known by the end of the 1980s. The first main goal
-of the project is to state, and then prove, a modularity lifting theorem; the proof of such a theorem
-was the key breakthrough introduced in Wiles' 1994 paper which (together with the follow-up Taylor--Wiles paper)
-historically completed the proof
-of FLT. We will not be proving the original Wiles--Taylor--Wiles modularity lifting theorem, but
-instead will prove a more general and powerful result (which applies to Hilbert modular forms
-as well as classical modular forms).
+At the time of writing, these notes do not contain anywhere near a proof of FLT, or even a sketch proof,
+although we are currently actively working on fixing this.
 
-We shall say more about the exact path we're taking in
-Chapter~\ref{ch_overview}.
+From 2024 to 2029 we will be building a proof of FLT, following a strategy
+constructed by Taylor, taking into account Buzzard's comments on what would be easy or hard to do
+in Lean. Our proof uses refinements of the original Taylor--Wiles method by Diamond/Fujiwara,
+Khare--Wintenberger, Skinner--Wiles, Kisin, Taylor and others -- one could call it a 21st century
+proof of the theorem. During this initial phase of the project, we shall also be \emph{assuming}
+many nontrivial theorems without proof, as long as they were published by 31st December 1989.
+To get technical for just a second -- we shall for example be assuming the existence of Galois
+representations attached to weight~2 Hilbert modular forms, we will assume Langlands' cyclic base
+change theorem for $\GL_2$, Mazur's theorem bounding the torsion subgroup of an elliptic curve over
+the rationals, and several other nontrivial results which were known by the end of the 1980s.
+
+The upshot of this is that, by 2029, this project should contain a complete proof that FLT
+follows from results that were known to humanity in the 1980s. In particular, one naive
+way of understanding the goal is that it is a ``formalization of the papers of Wiles and Taylor--Wiles,
+assuming the results in the references of those papers''. However, as noted above, we will actually
+be taking a slightly different path.
 
 \section{The structure of this blueprint}
 
-This blueprint is a \emph{nonlinear} document, and the chapters are not designed to be read
-in order. The next chapter of the blueprint, chapter~\ref{ch_reductions}, explains how to reduce FLT
+This blueprint is a \emph{nonlinear} document, comprising many chapters. The chapters
+are not designed to be read in order. Each chapter is self-contained and has a well-defined goal,
+stated at the top of the chapter.
+
+After this chapter, you should next read chapter~\ref{ch_reductions}, which explains how to reduce FLT
 to two highly nontrivial statements about the $p$-torsion in a certain elliptic curve (the Frey curve).
-It mostly comprises of some basic reductions and the introduction of the Frey curve. The arguments
-here have been well-known for decades (and sometimes centuries).
+One of these statements was proved in the 1970s by Mazur, and we shall not be concentrating on
+it until the end of the first phase. The other is a theorem of Wiles, and this is what we will
+be concentrating on in the remainder of the blueprint.
 
-The chapter after that, chapter~\ref{ch_frey}, goes into more details about elliptic curves,
-however we need so much material here that somehow the top-down approach felt quite overwhelming
-at this point. For example even the basic claim that the $p$-torsion in the Frey curve curve is
-a 2-dimensional mod $p$ Galois representation feels like quite a battle to formalise,
-and proving that it is semistable and unramified outside $2p$ is even harder.
-Several people are working on the basic theory of elliptic curves, and hopefully
-we will be able to make more progress on this ``top-down'' approach later.
+\section{Remarks}
 
-The next chapter, chapter~\ref{ch_overview}, is an \emph{extremely} sketchy overview of how
-the rest of the proof goes. There is so much to do here that I felt that there was little
-point continuing with this; definition after definition is missing.
+The actual blueprint currently also contains a lot of disorganised ideas. Currently these
+should be disregarded.
+
+For example there is chapter~\ref{ch_frey}, which goes into more details about elliptic curves.
+Chapter~\ref{ch_overview} is an \emph{extremely} sketchy overview of how
+the rest of the proof goes. Neither of these should be read right now.
 
 All of the remaining chapters are experiments, and most of them are what I am currently
 calling ``mini-projects''. A mini-project is a bottom-up project, typically at early graduate
@@ -84,7 +85,8 @@ going into running mini-projects, with the two most active ones currently being 
 mini-project and the quaternion algebra mini-project. These projects do not logically depend
 on each other for the most part, and one can pick and choose how one reads them.
 
-We finish with an appendix, which is again very sketchy, and comprises mostly of a big
+There is also an appendix, which is again very sketchy, and comprises mostly of a big
 list of nontrivial theorems many of which we will be assuming without proof in the FLT
-project, or at least not prioritising until we have proved the modularity lifting
-theorem assuming them.
+project.
+
+The next chapter to read, where the proof begins, is chapter~\ref{ch_reductions}.
