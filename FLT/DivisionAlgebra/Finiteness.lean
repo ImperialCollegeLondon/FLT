@@ -125,7 +125,7 @@ abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := Module.Finite
 /-- The 𝔸-algebra equivalence of D_𝔸 and 𝔸^d. -/
 abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) :=
   ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
-    (TensorProduct.AlgebraTensorModule.finiteEquivPi (R := K) (M := D) (N := AdeleRing (𝓞 K) K))
+    (TensorProduct.AlgebraTensorModule.finiteEquivPi K D (AdeleRing (𝓞 K) K))
 
 local instance : IsModuleTopology (AdeleRing (𝓞 K) K)
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := by
