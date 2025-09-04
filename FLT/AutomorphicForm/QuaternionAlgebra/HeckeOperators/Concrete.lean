@@ -147,6 +147,7 @@ open scoped Pointwise
 noncomputable instance : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
 
 variable {F D} in
+/-- The (global) matrix element `diag[α, 1]`. -/
 noncomputable abbrev diag :
     (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   Units.map r.symm.toMonoidHom
@@ -158,6 +159,10 @@ variable {F D} in
 noncomputable def U1diagU1 :
     Set ((D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ ⧸ (U1 r S)) :=
   (QuotientGroup.mk '' ((U1 r S) * {diag r α hα}))
+
+noncomputable def local_cosets_equiv_global_cosets :
+    (Local.U1diagU1 v α hα) ≃ (U1diagU1 r S α hα) :=
+  sorry
 
 variable {F D} in
 set_option maxSynthPendingDepth 1 in
