@@ -181,6 +181,11 @@ noncomputable def U :
 lemma _root_.Ne.mul {M₀ : Type*} [Mul M₀] [Zero M₀] [NoZeroDivisors M₀] {a b : M₀}
   (ha : a ≠ 0) (hb : b ≠ 0) : a * b ≠ 0 := mul_ne_zero ha hb
 
+noncomputable instance :
+    DistribSMul (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ (WeightTwoAutomorphicForm F D R) :=
+  distribMulAction.toDistribSMul
+
+open AbstractHeckeOperator in
 lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
     (U r S R α hα ∘ₗ U r S R β hβ) =
@@ -190,16 +195,22 @@ lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
   simp only [U, LinearMap.coe_comp, Function.comp_apply]
   apply (Subtype.coe_inj).mp
   conv_rhs =>
-    apply AbstractHeckeOperator.HeckeOperator_apply
+    apply HeckeOperator_apply
   conv_lhs =>
-    apply AbstractHeckeOperator.HeckeOperator_apply
+    apply HeckeOperator_apply
   conv_lhs =>
     arg 1; ext; arg 1; ext; arg 2;
-    apply AbstractHeckeOperator.HeckeOperator_apply
-  rw [← U1diagU1]
-  -- simp [← finsum_comp (Units.mapEquiv r.toMulEquiv).symm (by apply Equiv.bijective)]
+    apply HeckeOperator_apply
+  conv_lhs =>
+    arg 1; ext; arg 1; ext;
+    rw [smul_finsum_mem (by
+      apply Set.Finite.image Quotient.out
+      exact (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S)))]
+  repeat rw [← U1diagU1]
 
-  sorry -- #584, long
+  -- repeat rw [← eq_finsum_quotient_out_of_bijOn']
+  -- simp [← finsum_comp (Units.mapEquiv r.toMulEquiv).symm (by apply Equiv.bijective)]
+  all_goals sorry -- #584, long
 
 lemma U_comm {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
