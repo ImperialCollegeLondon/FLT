@@ -139,6 +139,8 @@ noncomputable def T (v : HeightOneSpectrum (𝓞 F)) :
 
 section U
 
+variable {F D}
+
 variable {v : HeightOneSpectrum (𝓞 F)} (α : v.adicCompletionIntegers F) (hα : α ≠ 0)
 
 open scoped TensorProduct.RightActions
@@ -146,7 +148,6 @@ open scoped Pointwise
 
 noncomputable instance : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
 
-variable {F D} in
 /-- The (global) matrix element `diag[α, 1]`. -/
 noncomputable abbrev diag :
     (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
@@ -154,7 +155,13 @@ noncomputable abbrev diag :
     (FiniteAdeleRing.GL2.restrictedProduct.symm
     (RestrictedProduct.mulSingle _ _ (Local.GL2.diag α hα)))
 
-variable {F D} in
+/-- The (global) matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`. -/
+noncomputable def unipotent_mul_diag (t : v.adicCompletionIntegers F) :
+    (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+  Units.map r.symm.toMonoidHom
+    (FiniteAdeleRing.GL2.restrictedProduct.symm
+    (RestrictedProduct.mulSingle _ _ (Local.GL2.unipotent_mul_diag α hα t)))
+
 /-- The double coset space `U1 diag U1` as a set of left cosets. -/
 noncomputable def U1diagU1 :
     Set ((D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ ⧸ (U1 r S)) :=
@@ -164,7 +171,6 @@ noncomputable def local_cosets_equiv_global_cosets :
     (Local.U1diagU1 v α hα) ≃ (U1diagU1 r S α hα) :=
   sorry
 
-variable {F D} in
 set_option maxSynthPendingDepth 1 in
 /-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
 considered as an R-linear map from R-valued quaternionic weight 2
@@ -185,32 +191,27 @@ noncomputable instance :
     DistribSMul (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ (WeightTwoAutomorphicForm F D R) :=
   distribMulAction.toDistribSMul
 
+lemma U_apply (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
+    ((U r S R α hα) a).1 =
+    ∑ᶠ (gᵢ : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) (_ : gᵢ ∈ Quotient.out '' (U1diagU1 r S α hα)),
+      gᵢ • a.1 :=
+  rfl
+
 open AbstractHeckeOperator in
 lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
     (U r S R α hα ∘ₗ U r S R β hβ) =
     U r S R (α * β) (hα.mul hβ) := by
-  let hγ := (hα.mul hβ)
+  -- let hγ := (hα.mul hβ)
   ext a
-  simp only [U, LinearMap.coe_comp, Function.comp_apply]
   apply (Subtype.coe_inj).mp
-  conv_rhs =>
-    apply HeckeOperator_apply
-  conv_lhs =>
-    apply HeckeOperator_apply
-  conv_lhs =>
-    arg 1; ext; arg 1; ext; arg 2;
-    apply HeckeOperator_apply
-  conv_lhs =>
-    arg 1; ext; arg 1; ext;
-    rw [smul_finsum_mem (by
+  simp only [LinearMap.coe_comp, Function.comp_apply, U_apply]
+  rw [finsum_mem_congr rfl
+    (fun _ _ => smul_finsum_mem (by
       apply Set.Finite.image Quotient.out
-      exact (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S)))]
-  repeat rw [← U1diagU1]
+      exact (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))))]
 
-  -- repeat rw [← eq_finsum_quotient_out_of_bijOn']
-  -- simp [← finsum_comp (Units.mapEquiv r.toMulEquiv).symm (by apply Equiv.bijective)]
-  all_goals sorry -- #584, long
+  sorry -- #584, long
 
 lemma U_comm {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
