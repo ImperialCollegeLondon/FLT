@@ -3,7 +3,7 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
-import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract -- abstract Hecke ops
+import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local -- abstract Hecke ops
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs -- definitions of automorphic forms
 import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
 import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
@@ -137,29 +137,43 @@ noncomputable def T (v : HeightOneSpectrum (𝓞 F)) :
   AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S)
   (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_compact r S) (U1_open r S))
 
+section U
+
+variable {v : HeightOneSpectrum (𝓞 F)} (α : v.adicCompletionIntegers F) (hα : α ≠ 0)
+
+open scoped TensorProduct.RightActions
+open scoped Pointwise
+
 variable {F D} in
-set_option maxSynthPendingDepth 1 in
-open scoped TensorProduct.RightActions in
-/-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
-considered as an R-linear map from R-valued quaternionic weight 2
-automorphic forms of level U_1(S). Here α is a nonzero element of 𝓞ᵥ.
-We do not demand the condition v ∈ S, the bad primes, but this operator
-should only be used in this setting. See also `T r v` for the good primes.
--/
-noncomputable def U {v : HeightOneSpectrum (𝓞 F)}
-    (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
-    WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
-    WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
+noncomputable abbrev diag :
+    (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
-  let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
-    Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
+  Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
     ![FiniteAdeleRing.localUnit F ⟨(α : v.adicCompletion F),
     (α : v.adicCompletion F)⁻¹, by
       rw [mul_inv_cancel₀]
       exact_mod_cast hα, by
       rw [inv_mul_cancel₀]
       exact_mod_cast hα⟩, 1])
-  AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S)
+
+variable {F D} in
+/-- The double coset space `U1 diag U1` as a set of left cosets. -/
+noncomputable def U1diagU1 :
+    Set ((D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ ⧸ (U1 r S)) :=
+  (QuotientGroup.mk '' ((U1 r S) * {diag r α hα}))
+
+variable {F D} in
+set_option maxSynthPendingDepth 1 in
+/-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
+considered as an R-linear map from R-valued quaternionic weight 2
+automorphic forms of level U_1(S). Here α is a nonzero element of 𝓞ᵥ.
+We do not demand the condition v ∈ S, the bad primes, but this operator
+should only be used in this setting. See also `T r v` for the good primes.
+-/
+noncomputable def U :
+    WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
+    WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
+  AbstractHeckeOperator.HeckeOperator (R := R) (diag r α hα) (U1 r S) (U1 r S)
   (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_compact r S) (U1_open r S))
 
 lemma _root_.Ne.mul {M₀ : Type*} [Mul M₀] [Zero M₀] [NoZeroDivisors M₀] {a b : M₀}
@@ -169,6 +183,19 @@ lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
     (U r S R α hα ∘ₗ U r S R β hβ) =
     U r S R (α * β) (hα.mul hβ) := by
+  let hγ := (hα.mul hβ)
+  ext a
+  simp only [U, LinearMap.coe_comp, Function.comp_apply]
+  apply (Subtype.coe_inj).mp
+  conv_rhs =>
+    apply AbstractHeckeOperator.HeckeOperator_apply
+  conv_lhs =>
+    apply AbstractHeckeOperator.HeckeOperator_apply
+  conv_lhs =>
+    arg 1; ext; arg 1; ext; arg 2;
+    apply AbstractHeckeOperator.HeckeOperator_apply
+  simp [← finsum_comp (Units.mapEquiv r.toMulEquiv).symm (by apply Equiv.bijective)]
+
   sorry -- #584, long
 
 lemma U_comm {v : HeightOneSpectrum (𝓞 F)}
@@ -178,6 +205,8 @@ lemma U_comm {v : HeightOneSpectrum (𝓞 F)}
   rw [U_mul, U_mul]
   congr 1
   rw [mul_comm]
+
+end U
 
 end HeckeOperator
 
