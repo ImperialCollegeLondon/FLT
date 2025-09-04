@@ -144,17 +144,14 @@ variable {v : HeightOneSpectrum (𝓞 F)} (α : v.adicCompletionIntegers F) (hα
 open scoped TensorProduct.RightActions
 open scoped Pointwise
 
+noncomputable instance : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
+
 variable {F D} in
 noncomputable abbrev diag :
     (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
-  letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
-  Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
-    ![FiniteAdeleRing.localUnit F ⟨(α : v.adicCompletion F),
-    (α : v.adicCompletion F)⁻¹, by
-      rw [mul_inv_cancel₀]
-      exact_mod_cast hα, by
-      rw [inv_mul_cancel₀]
-      exact_mod_cast hα⟩, 1])
+  Units.map r.symm.toMonoidHom
+    (FiniteAdeleRing.GL2.restrictedProduct.symm
+    (RestrictedProduct.mulSingle _ _ (Local.GL2.diag α hα)))
 
 variable {F D} in
 /-- The double coset space `U1 diag U1` as a set of left cosets. -/
