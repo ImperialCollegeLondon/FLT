@@ -58,9 +58,9 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     {g : G} {U V : Subgroup G}
 
 open scoped Pointwise in
-lemma QuotientGroup.mk_image_finite_of_compact_of_open (hU : IsCompact (U : Set G))
-    (hV : IsCompact (V : Set G)) (hVopen : IsOpen (V : Set G)) :
-    (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)).Finite := by
+lemma QuotientGroup.mk_image_finite_of_compact_of_open
+    (hU : IsCompact (U : Set G)) (hVopen : IsOpen (V : Set G)) :
+    (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ V)).Finite := by
   have : DiscreteTopology (G ⧸ V) := by
     rw [← forall_open_iff_discrete]
     intro s
@@ -69,7 +69,7 @@ lemma QuotientGroup.mk_image_finite_of_compact_of_open (hU : IsCompact (U : Set 
     conv in ⋃ x ∈ _, _ => change ⋃ x ∈ (V : Set G), _
     rw [iUnion_mul_right_image]
     exact IsOpen.mul_left hVopen
-  exact ((hU.mul <| hV.image (by fun_prop)).image continuous_mk).finite_of_discrete
+  exact ((hU.mul <| isCompact_singleton).image continuous_mk).finite_of_discrete
 
 end finiteness
 
@@ -135,7 +135,7 @@ noncomputable def T (v : HeightOneSpectrum (𝓞 F)) :
     Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
     ![FiniteAdeleRing.localUniformiserUnit F v, 1])
   AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S)
-  (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_compact r S) (U1_open r S))
+  (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
 
 section U
 
@@ -158,7 +158,7 @@ variable {F D} in
 /-- The double coset space `U1 diag U1` as a set of left cosets. -/
 noncomputable def U1diagU1 :
     Set ((D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ ⧸ (U1 r S)) :=
-  (QuotientGroup.mk '' ((U1 r S) * {diag r α hα}))
+  QuotientGroup.mk '' ((U1 r S) * {diag r α hα})
 
 noncomputable def local_cosets_equiv_global_cosets :
     (Local.U1diagU1 v α hα) ≃ (U1diagU1 r S α hα) :=
@@ -176,7 +176,7 @@ noncomputable def U :
     WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
     WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
   AbstractHeckeOperator.HeckeOperator (R := R) (diag r α hα) (U1 r S) (U1 r S)
-  (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_compact r S) (U1_open r S))
+  (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
 
 lemma _root_.Ne.mul {M₀ : Type*} [Mul M₀] [Zero M₀] [NoZeroDivisors M₀] {a b : M₀}
   (ha : a ≠ 0) (hb : b ≠ 0) : a * b ≠ 0 := mul_ne_zero ha hb
@@ -196,7 +196,8 @@ lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
   conv_lhs =>
     arg 1; ext; arg 1; ext; arg 2;
     apply AbstractHeckeOperator.HeckeOperator_apply
-  simp [← finsum_comp (Units.mapEquiv r.toMulEquiv).symm (by apply Equiv.bijective)]
+  rw [← U1diagU1]
+  -- simp [← finsum_comp (Units.mapEquiv r.toMulEquiv).symm (by apply Equiv.bijective)]
 
   sorry -- #584, long
 
