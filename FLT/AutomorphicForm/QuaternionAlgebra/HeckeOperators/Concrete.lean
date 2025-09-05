@@ -187,7 +187,7 @@ noncomputable def U1diagU1 :
 
 theorem bijOn_unipotent_mul_diagU1_U1diagU1 :
     (unipotent_mul_diag_image r α hα).BijOn QuotientGroup.mk (U1diagU1 r S α hα) :=
-  sorry
+  sorry -- global double coset decomposition
 
 lemma unipotent_mul_diag_image_finite :
     (unipotent_mul_diag_image r α hα).Finite := by
@@ -237,8 +237,8 @@ lemma U_apply_eq_finsum_unipotent_mul_diag_image (a : WeightTwoAutomorphicFormOf
 lemma U_mul_aux {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0)
     (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
-    ∑ᶠ (j : (adicCompletionIntegers F v) ⧸ Ideal.span {β})
-      (i : (adicCompletionIntegers F v) ⧸ Ideal.span {α}),
+    ∑ᶠ (i : (adicCompletionIntegers F v) ⧸ Ideal.span {α})
+      (j : (adicCompletionIntegers F v) ⧸ Ideal.span {β}),
       unipotent_mul_diag r α hα i • unipotent_mul_diag r β hβ j • a.1 =
     ∑ᶠ (k : (adicCompletionIntegers F v) ⧸ Ideal.span {α * β}),
       unipotent_mul_diag r (α * β) (hα.mul hβ) k • a.1 :=
@@ -252,15 +252,11 @@ lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
   ext a
   apply (Subtype.coe_inj).mp
   simp only [U_apply_eq_finsum_unipotent_mul_diag_image,
-    LinearMap.coe_comp, Function.comp_apply]
-  rw [finsum_mem_congr rfl
-    (fun _ _ => smul_finsum_mem (unipotent_mul_diag_image_finite r β hβ))]
+    LinearMap.coe_comp, Function.comp_apply,
+    smul_finsum_mem (unipotent_mul_diag_image_finite r β hβ)]
   unfold unipotent_mul_diag_image
-  repeat rw [finsum_mem_image (unipotent_mul_diag_inj _ _ _)]
-  rw [finsum_mem_comm _ (quot_top_finite r α hα) (by apply unipotent_mul_diag_image_finite r β hβ)]
-  rw [finsum_mem_image (unipotent_mul_diag_inj _ _ _)]
-  simp only [Set.top_eq_univ, Set.mem_univ, finsum_true]
-  apply U_mul_aux
+  simp only [finsum_mem_image (unipotent_mul_diag_inj _ _ _)]
+  simpa using U_mul_aux r S R hα hβ a
 
 lemma U_comm {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
