@@ -100,6 +100,7 @@ import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.Mathlib.Topology.Constructions
+import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
