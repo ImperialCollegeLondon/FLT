@@ -3,12 +3,7 @@ fermatLastTheoremThree
 FLT.of_p_ge_5
 FLT.FreyPackage
 FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5
-WeierstrassCurve.Points.map
-WeierstrassCurve.Points.map_id
-WeierstrassCurve.Points.map_comp
-WeierstrassCurve.galoisRepresentation
-WeierstrassCurve.torsionGaloisRepresentation
-FLT.FreyPackage.FreyCurve
+FLT.FreyPackage.freyCurve
 FLT.Mazur_Frey
 FLT.Wiles_Frey
 FLT.FreyPackage.false
@@ -166,5 +161,3 @@ Submonoid.units_isOpen
 Submonoid.units_isCompact
 ContinuousMulEquiv.piUnits
 ContinuousMulEquiv.restrictedProductUnits
-TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
-TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicFormOfLevel

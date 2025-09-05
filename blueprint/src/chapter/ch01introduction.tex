@@ -1,8 +1,9 @@
 \chapter{Introduction}
 
 Fermat's Last Theorem is the statement that if $a,b,c,n$ are positive whole numbers with $n\geq 3$,
-then $a^n+b^n\not=c^n$. It is thus a statement about a family of \emph{Diophantine equations}
-($a^3+b^3=c^3, a^4+b^4=c^4,\ldots$). Diophantus was a Greek mathematician who lived around 1800
+then $a^n+b^n\not=c^n$. It is thus the claim that a family of \emph{Diophantine equations}
+($a^3+b^3=c^3, a^4+b^4=c^4,\ldots$) has no positive integer solutions.
+Diophantus was a Greek mathematician who lived around 1800
 years ago, and he would have been able to understand the statement of the theorem (he knew about
 positive integers, addition and multiplication).
 
@@ -10,13 +11,14 @@ Fermat's Last Theorem was explicitly raised by Fermat in 1637, and was proved by
 proof completed in joint work with Taylor) in 1994. There are now several proofs but all of them
 go broadly in the same direction, using elliptic curves and modular forms.
 
+Lean is an interactive theorem prover; it checks mathematical arguments with super-human accuracy.
 Explaining a proof of Fermat's Last Theorem to Lean is in some sense like explaining the proof to
 Diophantus; for example, the proof starts by observing that before we go any further it's convenient
 to first invent/discover zero and negative numbers, and one can point explicitly at places in Lean's
 source code \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Prelude.lean#L1049}{here}
 and \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Data/Int/Basic.lean#L45}{here}
 where these things happen. However we will adopt a more efficient approach: we will assume all of
-the theorems both in Lean and in its mathematics library
+the theorems both in core Lean and in its mathematics library
 \href{https://github.com/leanprover-community/mathlib4}{\tt mathlib}, and proceed from there.
 To give some idea of what this entails: {\tt mathlib} at the time of writing contains most of an
 undergraduate mathematics degree and parts of several relevant Masters level courses (for example,
@@ -24,7 +26,12 @@ the definitions and basic properties of
 \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/AlgebraicGeometry/EllipticCurve/Weierstrass.html}{elliptic curves}
 and \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/ModularForms/Basic.html}{modular forms}
 are in {\tt mathlib}). Thus our task can be likened to teaching a graduate level course on
-Fermat's Last Theorem to a computer.
+Fermat's Last Theorem to a computer. The computer is quite a challenging audience member -- it
+will insist on being given all technical details of all arguments, and it will not accept proof by
+intimidation or by appeal to higher authority. Most mathematicians know humans who also behave
+in this manner. However, it is worse than this; in 2025 at least, the computer will only start filling
+in details of arguments by itself once the arguments are mathematically utterly obvious.
+Thus, currently, formalization can be a very time-consuming process.
 
 \section{Which proof is being formalised?}
 
@@ -35,22 +42,26 @@ in Lean. The proof uses refinements of the original Taylor--Wiles method by Diam
 Khare--Wintenberger, Skinner--Wiles, Kisin, Taylor and others -- one could call it a 21st century
 proof of the theorem. We shall furthermore be assuming many nontrivial theorems without proof,
 at least initially. For example we shall be assuming the existence of Galois representations
-attached to weight~2 Hilbert modular forms, Langlands' cyclic base change theorem for $\GL_2$,
+attached to weight~2 Hilbert modular forms, we will assume Langlands' cyclic base change theorem for $\GL_2$,
 Mazur's theorem bounding the torsion subgroup of an elliptic curve over the rationals, and
 several other nontrivial results which were known by the end of the 1980s. The first main goal
 of the project is to state, and then prove, a modularity lifting theorem; the proof of such a theorem
-was the key breakthrough introduced in Wiles' 1994 paper which historically completed the proof
+was the key breakthrough introduced in Wiles' 1994 paper which (together with the follow-up Taylor--Wiles paper)
+historically completed the proof
 of FLT. We will not be proving the original Wiles--Taylor--Wiles modularity lifting theorem, but
-instead will prove a more general result which works for Hilbert modular forms.
+instead will prove a more general and powerful result (which applies to Hilbert modular forms
+as well as classical modular forms).
 
 We shall say more about the exact path we're taking in
 Chapter~\ref{ch_overview}.
 
 \section{The structure of this blueprint}
 
-The following chapter of the blueprint, chapter~\ref{ch_reductions}, explains how to reduce FLT
+This blueprint is a \emph{nonlinear} document, and the chapters are not designed to be read
+in order. The next chapter of the blueprint, chapter~\ref{ch_reductions}, explains how to reduce FLT
 to two highly nontrivial statements about the $p$-torsion in a certain elliptic curve (the Frey curve).
-It mostly comprises of some basic reductions and the introduction of the Frey curve.
+It mostly comprises of some basic reductions and the introduction of the Frey curve. The arguments
+here have been well-known for decades (and sometimes centuries).
 
 The chapter after that, chapter~\ref{ch_frey}, goes into more details about elliptic curves,
 however we need so much material here that somehow the top-down approach felt quite overwhelming

@@ -1,6 +1,7 @@
 import Mathlib.Algebra.Algebra.Bilinear
 import Mathlib.LinearAlgebra.Basis.VectorSpace
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+import Mathlib.RingTheory.Finiteness.Projective
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import Mathlib.Topology.Algebra.Algebra.Equiv
@@ -12,6 +13,11 @@ theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Ty
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
   __ := moduleTopology R S
   eq_moduleTopology' := rfl
+
+-- should be in Mathlib
+lemma ModuleTopology.iff (R M : Type*) [Add M] [SMul R M] [TopologicalSpace R]
+    [τ : TopologicalSpace M] : IsModuleTopology R M ↔ τ = moduleTopology R M :=
+  ⟨fun m ↦ m.eq_moduleTopology', fun a ↦ { eq_moduleTopology' := a }⟩
 
 namespace IsModuleTopology
 
@@ -230,10 +236,6 @@ lemma _root_.moduleTopology.trans [IsTopologicalRing R] [Module.Finite R S] [IsM
   }
   exact Module.continuous_bilinear_of_finite bil
 
--- should be earlier and should be PRed like the rest of this file
-lemma iff [τ : TopologicalSpace M] : IsModuleTopology R M ↔ τ = moduleTopology R M :=
-  ⟨fun _ ↦ eq_moduleTopology', fun a ↦ { eq_moduleTopology' := a }⟩
-
 lemma trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTopology R S]
     [τ : TopologicalSpace M] :
     IsModuleTopology R M ↔ IsModuleTopology S M := by
@@ -313,6 +315,29 @@ theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
       exact hopen_mp (@IsOpen.inter _ (moduleTopology R S) _ _ hopen_range hU.2) (by simp)
 
 end opensubring
+
+section quotientMap
+
+variable {R M : Type*} [Ring R] [TopologicalSpace R]
+  [AddCommGroup M] [Module R M] [TopologicalSpace M]
+  (N : Type*) [AddCommGroup N] [Module R N] [TopologicalSpace N] [IsModuleTopology R N]
+
+theorem of_isQuotientMap (f : N →ₗ[R] M) (h : Topology.IsQuotientMap f) : IsModuleTopology R M := by
+  rw [iff, eq_coinduced_of_surjective h.surjective, h.eq_coinduced]
+
+variable [ContinuousAdd M] [ContinuousSMul R M]
+
+theorem of_isOpenMap_surjective (f : N →ₗ[R] M) (h : IsOpenMap f) (hsurj : Function.Surjective f)
+    : IsModuleTopology R M := by
+  apply of_isQuotientMap N f
+  refine IsOpenQuotientMap.isQuotientMap ⟨hsurj, continuous_of_linearMap f, h⟩
+
+theorem of_inverse (f : N →ₗ[R] M) (g : M → N) (hc : Continuous g) (hi : Function.LeftInverse f g)
+    : IsModuleTopology R M := by
+  apply of_isQuotientMap N f
+  exact Topology.IsQuotientMap.of_inverse hc (continuous_of_linearMap f) hi
+
+end quotientMap
 
 /-
 
@@ -430,7 +455,7 @@ theorem t2Space (R : Type*) {M : Type*} [Semiring R] [AddCommGroup M] [Module R 
     : T2Space M := by
   have := IsModuleTopology.topologicalAddGroup R M
   rw [IsTopologicalAddGroup.t2Space_iff_zero_closed]
-  let f := Module.Free.repr R M |>.toLinearMap
+  let f := (Module.Free.chooseBasis R M).repr |>.toLinearMap
   let g : (Module.Free.ChooseBasisIndex R M →₀ R) →ₗ[R] (Module.Free.ChooseBasisIndex R M → R) := {
     __ := Finsupp.coeFnAddHom
     map_smul' _ _ := rfl
@@ -441,7 +466,7 @@ theorem t2Space (R : Type*) {M : Type*} [Semiring R] [AddCommGroup M] [Module R 
     exact isClosed_singleton
   ext x
   simp [map_eq_zero_iff g DFunLike.coe_injective,
-    map_eq_zero_iff f (Module.Free.repr R M).injective]
+    map_eq_zero_iff f (Module.Free.chooseBasis R M).repr.injective]
 
 /-- A vector space with the module topology over a `T2Space` ring is a `T2Space`.
 -/
@@ -480,7 +505,7 @@ instance _root_.Prod.instFinite_leftAlgebra : Module.Finite (A × B) A :=
 instance _root_.Prod.instFinite_rightAlgebra : Module.Finite (A × B) B :=
   Module.Finite.of_surjective (LinearMap.snd (A × B) A B) LinearMap.snd_surjective
 
-variable [τA : TopologicalSpace A] [τB : TopologicalSpace B] [TopologicalSpace M]
+variable [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace M]
   [TopologicalSpace N] [IsModuleTopology A M] [IsModuleTopology B N] [IsTopologicalRing A]
   [IsTopologicalRing B]
 

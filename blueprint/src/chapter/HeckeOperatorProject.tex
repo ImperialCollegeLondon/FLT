@@ -361,18 +361,48 @@ feet because it would seem more sensible to prove them in the right generality,
 and we don't have a definition of nonarchimedean local field yet.
 
 \begin{lemma}
-  \label{nolean-compactopen}
-  $\calO_v$ is a compact open subring of $K_v$.
+  \lean{NumberField.isOpenAdicCompletionIntegers}
+  \label{NumberField.isOpenAdicCompletionIntegers}
+  \leanok
+  $\calO_v$ is an open subring of $K_v$.
 \end{lemma}
-\begin{proof} Openness is already in mathlib; compactness lies a little deeper because it
+\begin{proof}
+  \leanok
+  Openness is already in mathlib.
+\end{proof}
+
+\begin{lemma}
+  \lean{NumberField.instCompactSpaceAdicCompletionIntegers}
+  \label{NumberField.instCompactSpaceAdicCompletionIntegers}
+  \leanok
+  $\calO_v$ is a compact subring of $K_v$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Compactness lies a little deeper because it
   assumes that the residue field of $K_v$ is finite.
 \end{proof}
 
-\begin{lemma} $M_2(\calO_v)$ is a compact open subring of $M_2(K_v)$.
-  \label{nolean-compactopen-matrix}
+\begin{lemma} $M_2(\calO_v)$ is an open subring of $M_2(K_v)$.
+  \lean{IsDedekindDomain.M2.localFullLevel.isOpen}
+  \label{M2.localFullLevel.isOpen}
+  \leanok
 \end{lemma}
 \begin{proof}
-  \uses{nolean-compactopen}
+  \leanok
+  \uses{NumberField.isOpenAdicCompletionIntegers}
+  Topologically $M_2(\calO_v)\cong \calO_v^4$ as a subset of $K_v^4$ so this
+  follows because a product of compacts is compact and a product of opens is open.
+\end{proof}
+
+\begin{lemma} $M_2(\calO_v)$ is a compact subring of $M_2(K_v)$.
+  \lean{IsDedekindDomain.M2.localFullLevel.isCompact}
+  \label{M2.localFullLevel.isCompact}
+  \leanok
+\end{lemma}
+\begin{proof}
+  \leanok
+  \uses{NumberField.instCompactSpaceAdicCompletionIntegers}
   Topologically $M_2(\calO_v)\cong \calO_v^4$ as a subset of $K_v^4$ so this
   follows because a product of compacts is compact and a product of opens is open.
 \end{proof}
@@ -413,12 +443,16 @@ Choose $0\not=\alpha\in\calO_v$ and define $g=\begin{pmatrix}\alpha&0\\0&1\end{p
 Let's do an explicit double coset decomposition in preparation for a calculation with Hecke operators.
 
 \begin{lemma}
-  \label{nolean-U1-coset-decomposition}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.HeckeOperator.Local.bijOn_unipotent_mul_diagU1_U1diagU1}
+  \label{bijOn_unipotent_mul_diagU1_U1diagU1}
+  \leanok
   The double coset space $UgU$ is the disjoint union of $g_tU$ as $t$ ranges
   through $\calO_v/\alpha\calO_v$ and $g_t:=\begin{pmatrix}\alpha&\tilde{t}\\0&1\end{pmatrix}$,
   where $\tilde{t}$ is any lift of $t$ to $\calO_v$.
 \end{lemma}
-\begin{proof} We first manipulate the statement into a statement about finite groups.
+\begin{proof}
+  \leanok
+  We first manipulate the statement into a statement about finite groups.
   We have $UgU=\coprod_t g_tU\iff UgUg^{-1}=\coprod_t g_tUg^{-1}=\coprod_t g_tg^{-1}(gUg^{-1})$.
   By the second isomorphism theorem this is true if
   $U=\coprod_t g_tg^{-1}(gUg^{-1}\cap U)$. So when is an element of $U$
@@ -460,14 +494,17 @@ to $GL_2(\A_K^\infty)$. Before we go any further,
 let say something about matrix rings over complete fields.
 
 \begin{theorem}
-  \label{nolean-GL2-finite-adeles}
+  \lean{IsDedekindDomain.FiniteAdeleRing.GL2.restrictedProduct}
+  \label{GL2.restrictedProduct}
+  \leanok
   $G$ is isomorphic and homeomorphic
   to the restricted product of $GL_2(K_v)$ with respect
   to the compact open subgroups $GL_2(\calO_v)$.
 \end{theorem}
 \begin{proof}
-  \uses{ontinuousMulEquiv.restrictedProductUnits,
-    Homeomorph.restrictedProductMatrix}
+  \leanok
+  \uses{ContinuousMulEquiv.restrictedProductUnits,
+    Homeomorph.restrictedProductMatrix, ContinuousMulEquiv.restrictedProductMatrixUnits}
   This follows from lemma~\ref{ContinuousMulEquiv.restrictedProductUnits}
   and lemma~\ref{Homeomorph.restrictedProductMatrix}.
 \end{proof}
