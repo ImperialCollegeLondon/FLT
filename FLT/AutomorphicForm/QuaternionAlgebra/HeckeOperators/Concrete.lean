@@ -151,25 +151,54 @@ noncomputable instance : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.t
 /-- The (global) matrix element `diag[α, 1]`. -/
 noncomputable abbrev diag :
     (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
-  Units.map r.symm.toMonoidHom
+  Units.mapEquiv r.symm.toMulEquiv
     (FiniteAdeleRing.GL2.restrictedProduct.symm
     (RestrictedProduct.mulSingle _ _ (Local.GL2.diag α hα)))
 
 /-- The (global) matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`. -/
-noncomputable def unipotent_mul_diag (t : v.adicCompletionIntegers F) :
+noncomputable def unipotent_mul_diag (t : ↑(adicCompletionIntegers F v) ⧸ (Ideal.span {α})) :
     (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
-  Units.map r.symm.toMonoidHom
+  Units.mapEquiv r.symm.toMulEquiv
     (FiniteAdeleRing.GL2.restrictedProduct.symm
-    (RestrictedProduct.mulSingle _ _ (Local.GL2.unipotent_mul_diag α hα t)))
+    (RestrictedProduct.mulSingle _ _
+      (Local.GL2.unipotent_mul_diag α hα (Quotient.out t : adicCompletionIntegers F v))))
+
+/-- The set of elements `unipotent_mul_diag`,
+which will form the set of coset representatives for `U1 diag U1`. -/
+noncomputable def unipotent_mul_diag_image :
+    Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+  (unipotent_mul_diag r α hα) '' ⊤
+
+omit [IsTotallyReal F] [IsQuaternionAlgebra F D] in
+lemma unipotent_mul_diag_inj :
+    Set.InjOn (unipotent_mul_diag r α hα) ⊤ := by
+  intro t₁ h₁ t₂ h₂ h
+  simp only [unipotent_mul_diag, EmbeddingLike.apply_eq_iff_eq, RestrictedProduct.ext_iff] at h
+  let h' := h v; simp only [RestrictedProduct.mulSingle_eq_same, Units.ext_iff] at h'
+  rw [← Matrix.ext_iff] at h'
+  let h'' := h' 0 1
+  simpa [Local.GL2.unipotent_mul_diag, Matrix.GeneralLinearGroup.GL2.unipotent, Local.GL2.diag,
+    Matrix.unitOfDetInvertible, Matrix.GeneralLinearGroup.diagonal] using h''
 
 /-- The double coset space `U1 diag U1` as a set of left cosets. -/
 noncomputable def U1diagU1 :
     Set ((D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ ⧸ (U1 r S)) :=
   QuotientGroup.mk '' ((U1 r S) * {diag r α hα})
 
-noncomputable def local_cosets_equiv_global_cosets :
-    (Local.U1diagU1 v α hα) ≃ (U1diagU1 r S α hα) :=
+theorem bijOn_unipotent_mul_diagU1_U1diagU1 :
+    (unipotent_mul_diag_image r α hα).BijOn QuotientGroup.mk (U1diagU1 r S α hα) :=
   sorry
+
+lemma unipotent_mul_diag_image_finite :
+    (unipotent_mul_diag_image r α hα).Finite := by
+  apply (Set.BijOn.finite_iff_finite (bijOn_unipotent_mul_diagU1_U1diagU1 r {v} α hα)).mpr
+  unfold U1diagU1
+  exact (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r {v}) (U1_open r {v}))
+
+lemma quot_top_finite (r : Rigidification F D) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
+    (⊤ : Set ((adicCompletionIntegers F v) ⧸ (Ideal.span {α}))).Finite := by
+  apply Set.Finite.of_finite_image _ (unipotent_mul_diag_inj r α hα)
+  apply unipotent_mul_diag_image_finite
 
 set_option maxSynthPendingDepth 1 in
 /-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
@@ -198,20 +227,40 @@ lemma U_apply (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
   rfl
 
 open AbstractHeckeOperator in
+lemma U_apply_eq_finsum_unipotent_mul_diag_image (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
+    ((U r S R α hα) a).1 =
+    ∑ᶠ (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) (_ : g ∈ unipotent_mul_diag_image r α hα),
+      g • a.1 :=
+  (eq_finsum_quotient_out_of_bijOn' a (bijOn_unipotent_mul_diagU1_U1diagU1 r S α hα)) ▸
+    U_apply r S R α hα a
+
+lemma U_mul_aux {v : HeightOneSpectrum (𝓞 F)}
+    {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0)
+    (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
+    ∑ᶠ (j : (adicCompletionIntegers F v) ⧸ Ideal.span {β})
+      (i : (adicCompletionIntegers F v) ⧸ Ideal.span {α}),
+      unipotent_mul_diag r α hα i • unipotent_mul_diag r β hβ j • a.1 =
+    ∑ᶠ (k : (adicCompletionIntegers F v) ⧸ Ideal.span {α * β}),
+      unipotent_mul_diag r (α * β) (hα.mul hβ) k • a.1 :=
+  sorry
+
+open AbstractHeckeOperator in
 lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
     (U r S R α hα ∘ₗ U r S R β hβ) =
     U r S R (α * β) (hα.mul hβ) := by
-  -- let hγ := (hα.mul hβ)
   ext a
   apply (Subtype.coe_inj).mp
-  simp only [LinearMap.coe_comp, Function.comp_apply, U_apply]
+  simp only [U_apply_eq_finsum_unipotent_mul_diag_image,
+    LinearMap.coe_comp, Function.comp_apply]
   rw [finsum_mem_congr rfl
-    (fun _ _ => smul_finsum_mem (by
-      apply Set.Finite.image Quotient.out
-      exact (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))))]
-
-  sorry -- #584, long
+    (fun _ _ => smul_finsum_mem (unipotent_mul_diag_image_finite r β hβ))]
+  unfold unipotent_mul_diag_image
+  repeat rw [finsum_mem_image (unipotent_mul_diag_inj _ _ _)]
+  rw [finsum_mem_comm _ (quot_top_finite r α hα) (by apply unipotent_mul_diag_image_finite r β hβ)]
+  rw [finsum_mem_image (unipotent_mul_diag_inj _ _ _)]
+  simp only [Set.top_eq_univ, Set.mem_univ, finsum_true]
+  apply U_mul_aux
 
 lemma U_comm {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
