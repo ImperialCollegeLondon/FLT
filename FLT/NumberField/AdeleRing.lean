@@ -84,6 +84,8 @@ noncomputable def baseChangeSemialgHom :
 
 open scoped TensorProduct
 
+-- Note that this creates a diamond if K = L; however `Algebra.id` has a higher-than-default
+-- priority so hopefully most of the time it won't cause problems.
 noncomputable instance : Algebra (𝔸 K) (𝔸 L) :=
   (baseChangeSemialgHom K L).toAlgebra
 
