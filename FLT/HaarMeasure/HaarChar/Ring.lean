@@ -70,8 +70,8 @@ lemma ringHaarChar_continuous :
   have int_g_ne_zero (u : Rˣ) : ∫ (x : R), g u x ∂addHaar ≠ 0 := by
     have hu := h u
     contrapose! hu
-    simpa [g, hu]
-  rw [← funext (fun u ↦ div_eq_of_eq_mul (int_g_ne_zero u) (h u))]
+    simp [g, hu, int_f_ne_zero.symm]
+  rw [← funext (fun u ↦ div_eq_of_eq_mul (int_g_ne_zero u) (h u).symm)]
   refine Continuous.div continuous_const ?_ (fun u ↦ int_g_ne_zero u)
   rw [continuous_iff_continuousAt]
   intro u₀
@@ -104,7 +104,8 @@ lemma ringHaarChar_mul_integral
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :
     (ringHaarChar u) * ∫ (r : R), f (u * r) ∂μ = ∫ a, f a ∂μ := by
   symm
-  convert addEquivAddHaarChar_smul_integral_map μ (ContinuousAddEquiv.mulLeft u) (f := f) using 1
+  convert (addEquivAddHaarChar_smul_integral_map μ (ContinuousAddEquiv.mulLeft u) (f := f)).symm
+    using 1
   simp only [ringHaarChar_toFun, NNReal.smul_def, smul_eq_mul, mul_eq_mul_left_iff,
     NNReal.coe_eq_zero]
   rw [MeasureTheory.integral_map (by fun_prop) (by fun_prop)]
@@ -114,7 +115,7 @@ open Pointwise in
 lemma ringHaarChar_mul_volume (μ : Measure R) [IsAddHaarMeasure μ] [μ.Regular]
     {X : Set R} (u : Rˣ) :
     μ (u • X) = ringHaarChar u * μ X := by
-  rw [ringHaarChar_toFun, addEquivAddHaarChar_smul_preimage _ (ContinuousAddEquiv.mulLeft u)]
+  rw [ringHaarChar_toFun, (addEquivAddHaarChar_smul_preimage _ (ContinuousAddEquiv.mulLeft u)).symm]
   simp
 
 

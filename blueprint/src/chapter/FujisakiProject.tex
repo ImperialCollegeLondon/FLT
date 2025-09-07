@@ -271,6 +271,7 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
   and $\nu\in D_{\A}^{(1)}$ such that $\beta=b\nu$ and $(\nu,\nu^{-1})\in C.$
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E,
     NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel,
     NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel',
@@ -296,6 +297,7 @@ We can now prove Fujisaki's theorem~\ref{NumberField.AdeleRing.DivisionAlgebra.c
 
 \begin{proof}
   \proves{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
+  \leanok
   \uses{MeasureTheory.ringHaarChar_continuous,
     NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C,
     NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
@@ -349,7 +351,9 @@ There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
   If $U$ is an open subgroup of $(D\otimes_K \A_K^\infty)^\times$
   then the double coset space $D^\times\backslash(D\otimes_K \A_K^\infty)^\times/U$ is finite.
 \end{theorem}
-\begin{proof} The double cosets give a disjoint open cover of $(D\otimes_K \A_K^\infty)$
+\begin{proof}
+  \leanok
+  The double cosets give a disjoint open cover of $(D\otimes_K \A_K^\infty)$
   which descends to a disjoint open cover of the quotient space
   $D^\times\backslash(D\otimes_K \A_K^\infty)^\times$. However this space is compact
   by theorem~\ref{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}.

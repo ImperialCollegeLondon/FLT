@@ -833,6 +833,7 @@ lemma leftInvOn_toQuaternion_fromQuaternion :
   ext <;>
   simp only [h₀, add_sub_add_right_eq_sub, Int.floor_sub_intCast, Int.floor_intCast, Int.cast_sub,
     Int.cast_add, Int.cast_one, Int.floor_add_one, Int.floor_sub_intCast] <;>
+  simp only [Int.floor_add_intCast, Int.floor_intCast, Int.cast_add] <;>
   field_simp <;>
   norm_cast <;>
   ring
@@ -1137,7 +1138,7 @@ instance starRing : StarRing 𝓞 where
 lemma toQuaternion_star (z : 𝓞) : toQuaternion (star z) = star (toQuaternion z) := by
   ext <;>
   simp only [star_re, star_im_o, star_im_i, star_im_oi, toQuaternion,
-    Quaternion.star_re, Quaternion.star_imI, Quaternion.star_imJ, Quaternion.star_imK] <;>
+    Quaternion.re_star, Quaternion.imI_star, Quaternion.imJ_star, Quaternion.imK_star] <;>
   field_simp <;>
   norm_cast <;>
   ring
@@ -1201,8 +1202,8 @@ lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := by
     at h1
   have h2 := eq_zero_of_add_nonpos_right (by positivity) (by positivity) h1.le
   simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, pow_eq_zero_iff, mul_eq_zero,
-    or_false] at h2
-  simp only [h2, zero_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero,
+    false_or] at h2
+  simp only [h2, mul_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero,
     pow_eq_zero_iff, mul_eq_zero, or_false] at h1
   ext <;> assumption
 
@@ -1254,7 +1255,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
-    simp_rw [and_assoc, sq_eq_zero_iff, sub_re, sub_imI, sub_imJ, sub_imK, sub_eq_zero,
+    simp_rw [and_assoc, sq_eq_zero_iff, re_sub, imI_sub, imJ_sub, imK_sub, sub_eq_zero,
       ← Quaternion.ext_iff]
     symm
     apply leftInvOn_toQuaternion_fromQuaternion
@@ -1276,7 +1277,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
   rw [NormedRing.dist_eq, ← sq_lt_one_iff₀ (_root_.norm_nonneg _), sq,
     ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
 
-  simp only [sub_re, sub_imI, sub_imJ, sub_imK]
+  simp only [re_sub, imI_sub, imJ_sub, imK_sub]
 
   apply aux2 <;> try apply this
   contrapose! H
