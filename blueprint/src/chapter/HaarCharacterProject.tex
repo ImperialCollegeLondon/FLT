@@ -697,8 +697,8 @@ theorem~\ref{NumberField.AdeleRing.baseChange_moduleTopology}
 tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies.
 
 \begin{lemma}
-  \label{IsModuleTopology.Module.continuous_bilinear_of_finite}
-  \lean{IsModuleTopology.Module.continuous_bilinear_of_finite}
+  \label{IsModuleTopology.continuous_bilinear_of_finite_left}
+  \lean{IsModuleTopology.continuous_bilinear_of_finite_left}
   \leanok
   Say $R$ and $S$ are topological rings, and $S$ is an $R$-algebra, finite as an $R$-module.
   Assume that the topology
@@ -739,8 +739,8 @@ tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies
   topology and the right hand side has the $\A_{\Q}$-module topology.
 \end{corollary}
 \begin{proof}
-  \uses{IsModuleTopology.Module.continuous_bilinear_of_finite}
-  Lemma~\ref{IsModuleTopology.Module.continuous_bilinear_of_finite} tells us that $V\otimes_K\A_K$
+  \uses{IsModuleTopology.continuous_bilinear_of_finite_left}
+  Lemma~\ref{IsModuleTopology.continuous_bilinear_of_finite_left} tells us that $V\otimes_K\A_K$
   has the $\A_{\Q}$-module topology, and it is easily checked that the isomorphism is
   $\A_{\Q}$-linear and hence automatically continuous.
 
