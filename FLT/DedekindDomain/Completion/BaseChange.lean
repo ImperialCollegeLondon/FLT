@@ -86,7 +86,7 @@ Lean 4's typeclass system. We thus introduce them as variables when needed.
 
 -/
 example : IsDomain B := by
-  have foo : Function.Injective (algebraMap B L) := IsIntegralClosure.algebraMap_injective' A
+  have foo : Function.Injective (algebraMap B L) := IsIntegralClosure.algebraMap_injective B A _
   have bar : IsDomain L := inferInstance
   exact Function.Injective.isDomain _ foo -- exact? failed
 
@@ -974,7 +974,7 @@ theorem adicCompletionComapIntegerLinearEquiv_bijOn (v : HeightOneSpectrum A) :
       (fun (w : Extension B v) ↦ (integerSubmodule B L w.val).restrictScalars A) from
     h ▸ Equiv.bijOn_image (adicCompletionComapIntegerLinearEquiv A K L B v).toEquiv
   apply Eq.trans _ congr(SetLike.coe $(adicCompletionComapAlgEquiv_integral A K L B v))
-  rw [LinearMap.range_coe, ← Set.range_comp, AlgHom.coe_range,
+  rw [LinearMap.coe_range, ← Set.range_comp, AlgHom.coe_range,
     ← AlgHom.coe_restrictScalars' (R:=A), ← AlgHom.coe_toLinearMap,
     LinearEquiv.coe_toEquiv, ← LinearEquiv.coe_toLinearMap, ← LinearMap.coe_comp]
   congr
