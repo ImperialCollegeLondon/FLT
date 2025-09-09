@@ -29,23 +29,36 @@ What we need to leverage is the fact that $\rho$ has very little ramification. T
 a toy example before we start: if $K$ is a number field (i.e., a finite extension of $\Q$)
 and if the extension $K/\Q$ is unramified at all primes, then an old theorem of
 Minkowski tells us that $K=\Q$. We want to prove a theorem in the same vein; if
-something is hardly ramified, then it is somehow trivial. Let us make a precise
-definition of what it means for a 2-dimensional representation to be \emph{hardly ramified}.
+a 2-dimensional Galois representation is hardly-ramified, then it is reducible.
+Below, we give a precise
+definition of what it means for a 2-dimensional representation $\GQ\to\GL_2(R)$
+to be \emph{hardly ramified}. Before that, we need to say precisely which rings~$R$
+we will allow. We recall the following definition, due to Grothendieck:
 
-\begin{definition} A \emph{coefficient ring} is a local ring $R$ with maximal ideal $\m$ and
-  finite residue field $k$, such that the natural map from $R$ to the projective
-  limit $\lim_{n\in\N} R/\m^n$ is an isomorphism of rings.
+\begin{definition} A commutative topological ring~$R$ is \emph{pseudocompact} if it satisfies
+  the following properties:
+  \begin{itemize}
+    \item If $U\subseteq R$ is any open set containing 0, then there's an open ideal $I\subseteq U$.
+    \item If $I\subseteq R$ is open, then $R/I$ is Artinian.
+    \item The natural map $R\to\lim R/I$ is a topological and algebraic isomorphism, where $I$ runs
+      over the open ideals of $R$. Here $R/I$ has the discrete topology and the projective
+      limit has the projective limit topology.
+  \end{itemize}
 \end{definition}
 
-If $R$ is a coefficient ring then we topologise it by giving $R/\m^n$ the discrete
-topology and $R=\lim_n R/\m^n$ the projective limit topology.
+\begin{definition} A \emph{coefficient ring} is a local pseudocompact topological ring $R$ with
+  finite residue field.
+\end{definition}
 
 Examples of coefficient rings include finite fields, and integer rings of finite extensions
-of $\Q_p$. There are also non-Noetherian examples, which are convenient to include
+of $\Q_p$. There are also non-Noetherian examples, for example the projective limit of
+the rings $\Z/p\Z[\eps_1,\ldots,\eps_n]/(\forall i,j,\eps_i\eps_j=0)$
+which are convenient to include
 for technical reasons. If $R$ is a coefficient ring with maximal ideal $\m$
-and residue field $k$ of characteristic~$\ell$, then there are ring homomorphisms
-$\Z/\ell^n\Z\to R/\m^n$ for all naturals $n$ and thus a continuous ring homomorphism
-$\Z_{\ell}\to R$. The $\ell$-adic cyclotomic character is a continuous
+and residue field $k$ of characteristic~$\ell$, then for any open ideal~$I$ there is
+a ring homomorphism $\Z/\ell^n\Z\to R/I$ for all sufficiently large naturals $n$,
+and thus a continuous ring homomorphism $\Z_{\ell}\to R$. The $\ell$-adic cyclotomic character
+is a continuous
 representation $\GQ\to\Z_{\ell}^\times$ and it thus induces a continuous
 representation $\GQ\to R^\times$ which we also refer to as the cyclotomic character.
 
@@ -68,8 +81,8 @@ A well-known result, which basically goes back to Frey, is the following:
 
 \begin{theorem}
   \label{Frey_curve_hardly_ramified}
-  The $\ell$-torsion in the Frey curve associated to a Frey package $(a,b,c,\ell)$
-  is hardly ramified.
+  The $\ell$-torsion $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ in the Frey curve associated to a Frey
+  package $(a,b,c,\ell)$ is hardly ramified.
 \end{theorem}
 \begin{proof}
   First note that $\ell\geq5>3$ by definition of a Frey package. Let $\rho$
@@ -88,17 +101,77 @@ A well-known result, which basically goes back to Frey, is the following:
 
 Our job then becomes to prove that a hardly ramified representation is reducible.
 Note that this claim is a consequence of Serre's conjecture~\cite{serreconj},
-now a theorem of Khare and Wintenberger {\bf TODO cite KW}, and we shall use
+now a theorem of Khare and Wintenberger {\bf TODO cite KW}, and indeed we shall use
 methods introduced by Khare and Wintenberger to prove this special case of
 Serre's conjecture.
 
-More precisely, we will take the following approach. Assume $\rho$ is irreducible
-and hardly-ramified. We will first lift $\rho$ to an $\ell$-adic representation
-which is also hardly-ramified
-This claim follows from the following three theorems.
+More precisely, we will prove the following three theorems. Firstly, we show that
+an irreducible hardly ramified mod $\ell$ representation lifts to an $\ell$-adic representation.
 
-{\bf TODO}
+\begin{theorem} If $\ell\geq3$ is prime and $\overline{\rho}:\GQ\to\GL_2(\Z/\ell\Z)$
+  \label{hardly-ramified-lifts}
+  is hardly ramified and irreducible, then there exists a finite extension~$K$ of $\Q_\ell$
+  with integer ring~$\mathcal{O}$ and maximal ideal $\mathfrak{m}$
+  and a hardly ramified representation
+  $\rho:\GQ\to\GL_2(\mathcal{O})$ whose reduction modulo~$\m$ is isomorphic to $\rho$.
+\end{theorem}
 
-1) Lift rhobar to char 0
-2) Put in a family
-3) 3-adic hardly-ramified rep is extn of 1 by cyclo
+Next we show that a hardly ramified $\ell$-adic representation ``spreads out'' to a compatible
+family of hardly ramified $q$-adic representations for all primes $q$.
+
+\begin{theorem}
+  \label{hardly-ramified-spreads-out}
+  If $\ell\geq3$ is prime, $K$ is a finite extension of $\Q_\ell$
+  with integers $\O$ and if $\rho:\GQ\to\GL_2(\O)$ is a hardly ramified representation,
+  then there exists a number field $M$ and, for each finite place $\mu$ of $M$
+  of characteristic prime to 2, with completion $M_\mu$ having integer ring $R_\mu$,
+  a hardly representation $\rho_\mu:\GQ\to\GL_2(R_\mu)$, with the following properties:
+  \begin{itemize}
+    \item There is some $\lambda\mid\ell$ of $M$ such that $\rho_\lambda\cong\rho$,
+      the isomorphism happening over some appropriate finite extension of $M_\lambda$;
+    \item If $\mu_1$ and $\mu_2$ are two finite places of $M$ with odd characteristics $m_1$
+      and $m_2$, and if $p\nmid 2m_1m_2$ is prime, then $\rho_{\mu_1}$ and $\rho_{\mu_2}$
+      are both unramified at~$p$ and the characteristic polynomials $\rho_{\mu_1}(\Frob_p)$
+      and $\rho_{\mu_2}(\Frob_p)$ lie in $M[X]$ and are equal.
+  \end{itemize}
+\end{theorem}
+
+(note: do we need $\rho$ mod $\ell$ is irreducible in this theorem?)
+
+In particular, we can ``move'' $\rho$ to a 3-adic representation
+However, we can prove a very strong theorem about hardly ramified 3-adic Galois representations.
+
+\begin{theorem}
+  \label{hardly-ramified-3adic-reducible}
+  Suppose $L/\Q_3$ is a finite extension, with integer ring $\O_L$, and suppose
+  $\rho_3:\GQ\to\GL_2(\O_L)$ is hardly ramified. Then $\rho_3^{ss}=1\oplus\chi_3$
+  where $1$ is the trivial character and $\chi_3$ is the 3-adic cyclotomic character.
+\end{theorem}
+
+Assuming all of these theorems, we can get what we want.
+
+\begin{theorem}[Wiles,Taylor--Wiles, Ribet,\ldots]
+  \label{FLT.Wiles_Frey'}
+  \lean{FLT.Wiles_Frey}
+  \uses{FLT.FreyCurve}
+  \leanok
+  If $\overline{\rho}$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
+  $\overline{\rho}$ is not irreducible.
+\end{theorem}
+\begin{proof}
+  Assume for a contradiction that $\overline{\rho}$ is irreducible. By theorem~\ref{hardly-ramified-lifts},
+  $\overline{\rho}$ lifts to a hardly ramified $\ell$-adic reprepresentation $\rho$. By
+  theorem~\ref{hardly-ramified-spreads-out}, $\rho$ is part of a compatible family of
+  $q$-adic Galois representations. By theorem~\ref{hardly-ramified-3adic-reducible},
+  any 3-adic member $\rho_3$ of this family has semisimplification $1\oplus\chi_3$ and in particular
+  for $p\nmid 6$ we have that the characteristic polynomial of $\rho_3(\Frob_p)=(X-p)(X-1).$
+  But by compatibility of the family we know that for $p\nmid 6\ell$ the characteristic
+  polynomial of $\rho(\Frob_p)$ is $(X-p)(X-1)$, and thus the characteristic polynomial
+  of $\overline{\rho}(\Frob_p)$ is $(X-p)(X-1)$. By the Brauer-Nesbitt theorem, $\overline{\rho}$
+  is reducible, the contradiction we seek.
+\end{proof}
+
+We now must prove these three theorems. By far the easiest is the third theorem; this follows
+from old estimates of Fontaine, originally developed by him to prove that there was no
+nontrivial abelian scheme over $\Z$. The other two theorems are deeper, and both use
+modern variants of Wiles' $R=T$ machinery.
