@@ -38,9 +38,9 @@ Thus, currently, formalization can be a very time-consuming process.
 At the time of writing, these notes do not contain anywhere near a proof of FLT, or even a sketch proof,
 although we are currently actively working on fixing this.
 
-From 2024 to 2029 we will be building a proof of FLT, following a strategy
+From 2024 to 2029 we will be beginning to build a proof of FLT, following a strategy
 constructed by Taylor, taking into account Buzzard's comments on what would be easy or hard to do
-in Lean. Our proof uses refinements of the original Taylor--Wiles method by Diamond/Fujiwara,
+in Lean. Our strategy uses refinements of the original Taylor--Wiles method by Diamond/Fujiwara,
 Khare--Wintenberger, Skinner--Wiles, Kisin, Taylor and others -- one could call it a 21st century
 proof of the theorem. During this initial phase of the project, we shall also be \emph{assuming}
 many nontrivial theorems without proof, as long as they were published by 31st December 1989.
@@ -49,22 +49,22 @@ representations attached to weight~2 Hilbert modular forms, we will assume Langl
 change theorem for $\GL_2$, Mazur's theorem bounding the torsion subgroup of an elliptic curve over
 the rationals, and several other nontrivial results which were known by the end of the 1980s.
 
-The upshot of this is that, by 2029, this project should contain a complete proof that FLT
-follows from results that were known to humanity in the 1980s. In particular, one naive
-way of understanding the goal is that it is a ``formalization of the papers of Wiles and Taylor--Wiles,
-assuming the results in the references of those papers''. However, as noted above, we will actually
-be taking a slightly different path.
+The upshot of this is that, by 2029 at the end of this first phase, the project should contain a
+complete proof that FLT follows from results that were known to humanity in the 1980s. In
+particular, one naive way of understanding the goal is that it is a ``formalization of the papers
+of Wiles and Taylor--Wiles, assuming the results in the references of those papers''. However,
+as noted above, we will actually be taking a slightly different path.
 
 \section{The structure of this blueprint}
 
 This blueprint is a \emph{nonlinear} document, comprising many chapters. The chapters
 are not designed to be read in order. Each chapter is self-contained and has a well-defined goal,
-stated at the top of the chapter.
+typically stated at the top of the chapter.
 
 After this chapter, you should next read chapter~\ref{ch_reductions}, which explains how to reduce FLT
 to two highly nontrivial statements about the $p$-torsion in a certain elliptic curve (the Frey curve).
 One of these statements was proved in the 1970s by Mazur, and we shall not be concentrating on
-it until the end of the first phase. The other is a theorem of Wiles, and this is what we will
+it until after the first phase is complete. The other is a theorem of Wiles, and this is what we will
 be concentrating on in the remainder of the blueprint.
 
 \section{Remarks}

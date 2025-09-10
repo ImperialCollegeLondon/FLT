@@ -3,8 +3,8 @@
 \section{Overview}
 
 In chapter~\ref{ch_reductions} we reduced FLT, modulo a hard theorem from the 1970s,
-to Theorem~\ref{FLT.Wiles_Frey}, the claim that $p$-torsion in the Frey
-curve is reducible. In this chapter we reduce this claim to three claims
+to Theorem~\ref{FLT.Wiles_Frey}, the assertion that $p$-torsion in the Frey
+curve is reducible. In this chapter we deduce this assertion from three more complex claims
 about ``hardly ramified'' Galois representations. It is relatively straightforward
 to reduce one of these claims to a result of Fontaine proved in the 1980s in his
 paper on the nonexistence of nontrivial abelian schemes over $\Z$. The other two
@@ -71,12 +71,12 @@ representation $\GQ\to R^\times$ which we also refer to as the cyclotomic charac
   \begin{enumerate}
   \item $\det(\rho):\GQ\to R^\times$ is the cyclotomic character;
   \item $\rho$ is unramified outside $2\ell$;
-  \item The restriction of $\rho$ to $\Gal(\Qbar_2/\Q)$ is reducible (more precisely,
+  \item The restriction of $\rho$ to $\Gal(\Qbar_2/\Q_2)$ is reducible (more precisely,
   there is a short exact sequence $0\to R\to V\to R\to 0$ which is stable
-  under the action of $\Gal(\Qbar_2/\Q)$) and the Galois action on the 1-dimensional
-  quotient is an unramified representation of $\Gal(\Qbar_2/\Q)$ whose square is trivial;
+  under the action of $\Gal(\Qbar_2/\Q_2)$) and the Galois action on the 1-dimensional
+  quotient is an unramified representation of $\Gal(\Qbar_2/\Q_2)$ whose square is trivial;
   \item The restriction of $\rho$ to $\GQl$ is flat, by which we mean that for all open
-  ideals $I$ of $R$, the (finite image) representation $\rho$ mod $I$ to $\GL_(R/I)(V/I)$
+  ideals $I$ of $R$, the (finite image) representation $\rho$ mod $I:\GQl\to \GL_{R/I}(V/I)$
   comes from a finite flat group scheme.
   \end{enumerate}
 \end{definition}
@@ -124,7 +124,7 @@ Serre's conjecture. Given this result, we can deduce Theorem~\ref{FLT.Wiles_Frey
   \lean{FLT.Wiles_Frey}
   \leanok
   If $\overline{\rho}$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
-  $\overline{\rho}$ is not irreducible.
+  $\overline{\rho}$ is reducible.
 \end{theorem}
 \begin{proof}
   \uses{Frey_curve_hardly_ramified,hardly_ramified_reducible}
@@ -132,7 +132,8 @@ Serre's conjecture. Given this result, we can deduce Theorem~\ref{FLT.Wiles_Frey
   and thus reducible by theorem~\ref{hardly_ramified_reducible}.
 \end{proof}
 
-It thus remains to prove Theorem~\ref{hardly_ramified_reducible}.
+Our job, in the first phase of this project, is hence reduced to proving
+Theorem~\ref{hardly_ramified_reducible}.
 
 \subsection{Hardly ramified mod $p$ representations are reducible}
 
@@ -177,7 +178,7 @@ family of hardly ramified $q$-adic representations for all primes $q$.
 
 In particular, we can ``move'' from an irreducible hardly ramified mod $\ell$ representation
 to a hardly ramified 3-adic representation.
-However, we can essentially classify the hardly ramified 3-adic Galois representations.
+However, we can essentially completely classify the hardly ramified 3-adic Galois representations.
 
 \begin{theorem}
   \label{hardly-ramified-3adic-reducible}
@@ -208,9 +209,15 @@ as we now show.
   is reducible, the contradiction we seek.
 \end{proof}
 
-What remains then, is to prove the three theorems~\ref{hardly-ramified-lifts},
+What remains then (modulo several results which were known in the 1980s),
+is to prove the three theorems~\ref{hardly-ramified-lifts},
 \ref{hardly-ramified-spreads-out} and~\ref{hardly-ramified-3adic-reducible}.
 By far the easiest is theorem~\ref{hardly-ramified-3adic-reducible}; this follows
-from old estimates of Fontaine, originally developed by him to prove that there was no
+from old estimates of Fontaine (ultimately relying on bounds for root discriminants due to
+Odlyzko and Poitou), originally developed to prove that there was no
 nontrivial abelian scheme over $\Z$. The other two theorems are deeper, and both use
 modern variants of Wiles' $R=T$ machinery.
+
+The story stops here for now; as we write more LaTeX it will become clear that here
+the proof basically bifurcates, with different techniques used to prove
+these three theorems.
