@@ -8,11 +8,7 @@ FLT.Mazur_Frey
 FLT.Wiles_Frey
 FLT.FreyPackage.false
 FLT.Wiles_Taylor_Wiles
-WeierstrassCurve.n_torsion_card
-group_theory_lemma
-WeierstrassCurve.n_torsion_dimension
-FLT.FreyPackage.FreyCurve.j
-FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime
+FLT.Wiles_Frey
 ZHat
 ZHat.commRing
 ZHat.nontrivial
@@ -161,3 +157,9 @@ Submonoid.units_isOpen
 Submonoid.units_isCompact
 ContinuousMulEquiv.piUnits
 ContinuousMulEquiv.restrictedProductUnits
+NumberField.isOpenAdicCompletionIntegers
+NumberField.instCompactSpaceAdicCompletionIntegers
+IsDedekindDomain.M2.localFullLevel.isOpen
+IsDedekindDomain.M2.localFullLevel.isCompact
+TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.HeckeOperator.Local.bijOn_unipotent_mul_diagU1_U1diagU1
+IsDedekindDomain.FiniteAdeleRing.GL2.restrictedProduct

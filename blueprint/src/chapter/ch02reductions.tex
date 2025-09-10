@@ -1,5 +1,10 @@
 \chapter{First reductions of the problem}\label{ch_reductions}
 
+\section{Goal}
+
+The goal of this chapter is to reduce FLT to a deep theorem of Mazur and a deep theorem of Wiles
+about a Galois representation.
+
 \section{Overview}
 The proof of Fermat's Last Theorem is by contradiction. We assume that we have a counterexample
 $a^n+b^n=c^n$, and manipulate it until it satisfies the axioms of a ``Frey package'', a basic
@@ -7,7 +12,7 @@ concept which we will explain below. From the
 Frey package we build a Frey curve -- an elliptic curve defined over the rationals. We then look at
 a certain representation of a Galois group coming from this elliptic curve, and finally using two
 very deep and independent theorems (one due to Mazur, the other due to Wiles) we show that this
-representation is neither reducible or irreducible, the contradiction we seek.
+representation is both reducible and irreducible, the contradiction we seek.
 
 \section{Reduction to \texorpdfstring{$n\geq5$}{ngeq5} and prime}
 
@@ -114,16 +119,18 @@ isomorphisms $\Qbar\to\Qbar$, then for any elliptic curve $E$ over $\Q$ we have 
 of $\GQ$ on the additive abelian group $E(\Qbar)$, and hence on its $n$-torsion subgroup
 $E(\Qbar)[n]$.
 
-If furthermore $n=p$ is prime, then $E(\Qbar)[p]$ is naturally a vector space over the field $\Z/p\Z$,
-and thus it inherits the structure of a mod $p$ representation of $\GQ$.
+If furthermore $n=p$ is prime, then $E(\Qbar)[p]$ is naturally a vector space over the
+field $\Z/p\Z$, and thus it inherits the structure of a mod $p$ representation of $\GQ$.
 This is the \emph{mod $p$ Galois representation} attached to the elliptic curve $E$.
+It is well-known to be 2-dimensional. We call this representation $\rho_{E,p}$.
 
-In the next section we apply this theory to an elliptic curve coming from a counterexample to Fermat's Last theorem.
+In the next section we apply this theory to an elliptic curve coming from a counterexample to
+Fermat's Last theorem.
 
 \section{The Frey curve}
 
-Recall that a \emph{Frey package} $(a,b,c,p)$ is simply a prime $p\geq5$ and nonzero pairwise-coprime
-integers $a,b,c$ satisfying $a^p+b^p=c^p$ and satisfying the congruences
+Recall that a \emph{Frey package} $(a,b,c,p)$ is simply a prime $p\geq5$ and nonzero
+pairwise-coprime integers $a,b,c$ satisfying $a^p+b^p=c^p$ and satisfying the congruences
 $a\equiv3\pmod4$ and $b\equiv0\pmod2$. We have shown above that if Fermat's Last Theorem is false,
 then a Frey package exists.
 
@@ -141,10 +148,10 @@ Note that the roots of the cubic $X(X-a^p)(X+b^p)$ are distinct because $a,b,c$ 
 $a^p+b^p=c^p$.
 
 Given a Frey package $(a,b,c,p)$ with corresponding Frey curve $E$, the mod $p$ Galois
-representation associated to this package is the representation of $\GQ$ on $E(\Qbar)[p]$
-described above. Frey's observation is that this mod $p$ Galois representation has some very
-surprising properties. We will make this remark more explicit in the next chapter.
-Here we shall show how these properties can be used to finish the job.
+representation $\rho_{E,p}$ associated to this package is the 2-dimensional representation of
+$\GQ$ on $E(\Qbar)[p]$ described above. Frey's observation is that this mod $p$ Galois
+representation has some very surprising properties. We will make this remark more explicit
+in the next chapter. Here we shall show how these properties can be used to finish the job.
 
 \section{Reduction to two big theorems.}
 
@@ -155,7 +162,7 @@ The representation is said to be \emph{reducible} otherwise.
 Now say $(a,b,c,p)$ is a Frey package.
 Consider the mod $p$ representation of $\GQ$ coming from the $p$-torsion in the Frey
 curve $Y^2=X(x-a^p)(X+b^p)$ associated to the package. Let's call this representation $\rho$,
-and say that $\rho$ is the mod $p$ representation associated to the Frey package $(a,b,c,p)$.
+and we say that $\rho$ is the mod $p$ representation associated to the Frey package $(a,b,c,p)$.
 Is it irreducible or not?
 
 \begin{theorem}[Mazur]
@@ -177,7 +184,8 @@ Is it irreducible or not?
 \end{proof}
 
 Note that in the first (pre-2029) phase of the FLT project, we will not be working on
-a formalization of Mazur's 1977 result.
+a formalization of this result, as it was known in the 1980s. We will however be thinking
+a lot about the next result, which says the exact opposite.
 
 \begin{theorem}[Wiles,Taylor--Wiles, Ribet,\ldots]
   \label{FLT.Wiles_Frey}
@@ -185,7 +193,7 @@ a formalization of Mazur's 1977 result.
   \uses{FLT.FreyCurve}
   \leanok
   If $\rho$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
-  $\rho$ is not irreducible.
+  $\rho$ is reducible.
 \end{theorem}
 \begin{proof}
 %  \uses{modularity_lifting_theorem,frey_curve_hardly_ramified,moret-bailly}
@@ -223,3 +231,6 @@ We deduce
   Then there is a Frey package $(a,b,c,p)$ by~\ref{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5},
   contradicting Corollary~\ref{FLT.FreyPackage.false}.
 \end{proof}
+
+Because we are (for now at least) assuming Mazur's theorem, we now need to turn our attention
+to a proof of theorem~\ref{FLT.Wiles_Frey}. We start on this proof in Chapter~\ref{ch_freyreduction}.
