@@ -16,6 +16,7 @@ import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.Topology.Algebra.Group.Basic
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
+import FLT.HaarMeasure.HaarChar.RealComplex
 
 /-
 
@@ -279,6 +280,11 @@ def iso₁ : D_𝔸ˣ ≃* Prod (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ (Df
   (Units.mapEquiv (AlgEquiv.toMulEquiv (Algebra.TensorProduct.prodRight K K D _ _))).trans
   (MulEquiv.prodUnits)
 
+lemma iso₁_cont_extracted : Continuous (Algebra.TensorProduct.prodRight K K D
+    (NumberField.InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)) := by
+  -- Kevin has an outline of the proof of the continuity of this (see Zulip messages).
+  sorry
+
 lemma iso₁_continuous : Continuous (iso₁ K D) := by
   rw [iso₁, MulEquiv.coe_trans]
   apply Continuous.comp ?_ ?_
@@ -290,9 +296,7 @@ lemma iso₁_continuous : Continuous (iso₁ K D) := by
   · apply Continuous.units_map
     simp only [MulEquiv.toMonoidHom_eq_coe, MonoidHom.coe_coe, MulEquiv.coe_mk,
       AlgEquiv.toEquiv_eq_coe, EquivLike.coe_coe]
-
-    -- Kevin has an outline of the proof of the continuity of this (see Zulip messages).
-    sorry
+    exact iso₁_cont_extracted K D
 
 /-- The restriction of ringHaarChar_ker D_𝔸 to Dfx K D. -/
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
@@ -302,40 +306,6 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
   exact Continuous.comp continuous_snd (Continuous.comp
     (iso₁_continuous K D) continuous_subtype_val)
 
-
--- From here is where I need to show equivalences of D ⊗ 𝔸_K and D ⊗ A_ℚ
-
-
-def foo (L M N O : Type*) [Semiring L] [Field O] [Ring M] [Ring N] [Algebra O M] [Algebra O N]
-    [Algebra O L] [TopologicalSpace M] [TopologicalSpace N]
-    [TopologicalSpace (L ⊗[O] M)] [TopologicalSpace (L ⊗[O] N)] (h : M ≃A[O] N) :
-    L ⊗[O] M ≃A[O] L ⊗[O] N := by
-  -- this may be the correct generalisation?
-  sorry
-
-def D𝔸_iso1 : D_𝔸 ≃A[K] (D ⊗[K] (K ⊗[ℚ] (NumberField.AdeleRing (𝓞 ℚ) ℚ))) := by
-  have := NumberField.AdeleRing.baseChangeEquiv ℚ K
-
-  sorry
-
-instance : Module ℚ K := by
-  exact Algebra.toModule
-
-instance : Module K D := by
-  exact Algebra.toModule
-
-instance : Module ℚ D := by
--- will need explicit information (avoid diamond)
-  sorry
-
-def D𝔸_iso2 : D ⊗[K] (K ⊗[ℚ] (NumberField.AdeleRing (𝓞 ℚ) ℚ)) ≃A[ℚ]
-    (D ⊗[ℚ] (NumberField.AdeleRing (𝓞 ℚ) ℚ)) := by
-
-  sorry
-
-abbrev inclℝ : ℝ → D ⊗[ℚ] ℝ :=
-  fun x => TensorProduct.tmul ℚ (1 : D) x
-
 local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
     D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
   exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
@@ -344,11 +314,83 @@ local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
     D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
   exact { measurable_eq := rfl }
 
+def foo : D ⊗[K] NumberField.AdeleRing (𝓞 K) K ≃ₜ+
+    D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K := by
+  simp_rw [NumberField.AdeleRing]
+  use Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
+    (FiniteAdeleRing (𝓞 K) K)
+  · exact iso₁_cont_extracted K D
+  · -- can I get the invFun from the same exact?
+    sorry
+
 lemma ringHaarChar_eq1 (y : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) :
     ringHaarChar ((iso₁ K D).symm (y, 1)) =
     ringHaarChar (MulEquiv.prodUnits.symm (y, (1 : Dfx K D))) := by
+  unfold iso₁
+  apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (foo K D)
+  · intro x
+    simp_rw [foo]
+
+    sorry
+
+local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
+
+local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact { measurable_eq := rfl }
+
+local instance : MeasurableSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact borel (D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+
+local instance : BorelSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  exact { measurable_eq := rfl }
+
+lemma Step1 (r : ℝ) (hr : r > 0) (d : ℕ) : ∃ m : ℝˣ, ringHaarChar m = r^(1/d) := by
+  simp_rw [MeasureTheory.ringHaarChar_real]
+  have : IsUnit (r^(1/d)) := by
+    aesop
+  use (Units.mk0 (r^(1/d))) (by simpa)
+  simp only [Units.val_mk0, nnnorm_pow, NNReal.coe_pow, coe_nnnorm, Real.norm_eq_abs]
+  rw [pow_eq_pow_iff_cases]
+  right
+  left
+  exact abs_of_pos hr
+
+lemma Step2 (r : ℝ) (hr : r > 0) (d : ℕ) : ∃ m : (Fin d → ℝ)ˣ, ringHaarChar m = r := by
+  obtain ⟨m', hm'⟩ := Step1 r hr d
+  use (MulEquiv.piUnits (ι := Fin d) (M := fun _ => ℝ)).symm (fun (i : Fin d) => m')
+  have : ringHaarChar (MulEquiv.piUnits.symm (fun (i : Fin d) ↦ m')) = ∏ (i : Fin d),
+      ringHaarChar ((fun i ↦ m') i) := by
+    have := MeasureTheory.ringHaarChar_pi (ι := Fin d) (A := fun _ : Fin d => ℝ) (fun (i : Fin d) ↦ m')
+    simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
+    simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin] at this
+    exact this -- why :((
+  -- this seems to work I just need to work out how to solve the problem of measureable spaces not being aligned
+  sorry
+
+local instance : Module ℚ D := by
 
   sorry
+
+local instance : Ring (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) := by
+
+  sorry
+
+local instance : TopologicalSpace (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) := by
+
+  sorry
+
+local instance : IsTopologicalRing (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) := by
+
+  sorry
+
+
+lemma Step3 (r : ℝ) (hr : r > 0) (d : ℕ) : ∃ m : (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ)ˣ,
+    ringHaarChar (R := (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ)) m = r := by
+
+  sorry
+
+-- t will be the dimension of D as a ℚ module...
 
 lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
@@ -362,12 +404,11 @@ lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
       exact addEquivAddHaarChar_pos _
     exact this ((iso₁ K D).symm (1, x))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
-    simp_rw [ringHaarChar_eq1]
-    simp_rw [MeasureTheory.ringHaarChar_prod]
-
-    -- MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    obtain ⟨m, hm⟩ := Step2 r hr t
+    -- rw [ringHaarChar_prod] (after using our wanted value)
 
 
+    --MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
     -- the remaining sorry of this file.
     sorry
   use (iso₁ K D).symm (y⁻¹, x)
