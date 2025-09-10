@@ -157,11 +157,12 @@ variable (g₂ : ∀ i, M i →ₗ[R] P₂)
 
 -- this is a nightmare. need to clean up and fully understand
 set_option pp.proofs true in
+open Classical in
 noncomputable def lift [IsDirectLimit' M P₁ f g₁] (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) :
   P₁ →ₗ[R] P₂ where
     toFun p :=
-      g₂ (Classical.choose (IsDirectLimit'.surj f p))
-                   (Classical.choose (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) p)))
+      g₂ (choose (IsDirectLimit'.surj f p))
+                   (choose (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) p)))
     map_add' x y := by
       have hx := Classical.choose_spec (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) x))
       have hy := Classical.choose_spec (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) y))
@@ -237,7 +238,7 @@ set_option pp.proofs true in
 @[simp] theorem lift_of [IsDirectLimit' M P₁ f g₁] (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) {i} (x) :
   (lift M f P₁ P₂ g₁ g₂ Hg) (g₁ i x) = g₂ i x := by
   dsimp [lift]
-  have := (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) (g₁ i x))).choose_spec
+  -- have := (Classical.choose_spec (IsDirectLimit'.surj f (g:= g₁) (g₁ i x))).choose_spec
   have h_spec := Classical.choose_spec
     (Classical.choose_spec (IsDirectLimit'.surj f (g := g₁) (g₁ i x)))
 -- h_spec : g₁ (Classical.choose (IsDirectLimit'.surj (g₁ i x)))
@@ -451,6 +452,21 @@ def inclusion_to_restrictedProduct (S : 𝓕.complement) :
 -- ....
 
 
+def inclusion' (S₁ S₂ : 𝓕.complement) (h : S₁ ≤ S₂) :
+    Πʳ i, [R i, A i]_[𝓟 S₁ᶜ] → Πʳ i, [R i, A i]_[𝓟 S₂ᶜ] :=
+  RestrictedProduct.inclusion _ _ (principal_filter_order h)
+
+instance directed_system' :
+    @DirectedSystem (𝓕.complement) _ (mem_A_away_from_S A) (inclusion') where
+  map_self _ _ := rfl
+  map_map _ _ _ _ _ _ := rfl
+
+/-- The maps from the directed system to the actual restricted product. -/
+def inclusion_to_restrictedProduct' (S : 𝓕.complement) :
+    Πʳ i, [R i, A i]_[𝓟 Sᶜ] → Πʳ i, [R i, A i]_[𝓕] :=
+  RestrictedProduct.inclusion _ _ (filter_bot S)
+
+
 end RestrictedProduct
 
 
@@ -524,6 +540,13 @@ def inclusion_module (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) :
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
+def inclusion_module' (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) :
+    Πʳ i, [R i, C i]_[𝓟 S₁ᶜ]  →ₗ[A]
+      Πʳ i, [R i, C i]_[𝓟 S₂ᶜ]  where
+  toFun := inclusion' S₁ S₂ h
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
 
 def inclusion_to_restricted_product_module (S : ℱ.complement) :
   mem_A_away_from_S (fun i ↦ (C i : Set (R i))) S →ₗ[A] Πʳ i, [R i, C i]_[ℱ] where
@@ -531,6 +554,11 @@ def inclusion_to_restricted_product_module (S : ℱ.complement) :
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
+def inclusion_to_restricted_product_module' (S : ℱ.complement) :
+  Πʳ i, [R i, C i]_[𝓟 Sᶜ] →ₗ[A] Πʳ i, [R i, C i]_[ℱ] where
+  toFun := inclusion_to_restrictedProduct S
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
 
 instance directed : IsDirected (ℱ.complement) (· ≤ ·) := by
   refine { directed := ?_ }
@@ -615,6 +643,23 @@ def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
     · rfl
     · simp only [dif_neg i.property]
 
+def principalEquivProd' : Πʳ i, [R i, A i]_[𝓟 Sᶜ] ≃
+    (Π i : {i // i ∉ S}, A i) × (Π i : {i // i ∈ S}, R i) where
+  toFun x := (fun i ↦ ⟨x i, x.property i.property⟩, fun i ↦ x i)
+  invFun y := ⟨fun i ↦ if hi : i ∉ S then y.1 ⟨i, hi⟩ else y.2 ⟨i, by simpa using hi⟩,
+  Filter.eventually_principal.mpr (fun i hi ↦ by
+    simp only [mem_compl_iff] at hi
+    simp only [hi]
+    exact (y.1 ⟨i, hi⟩).2)⟩
+  left_inv x := by
+    simp only [dite_eq_ite, ite_self]
+    rfl
+  right_inv x := by
+    simp only [dite_not, mk_apply, Subtype.coe_prop, ↓reduceDIte]
+    ext i <;> simp only [i.property, ↓reduceDIte]
+
+
+
 end type
 
 
@@ -666,13 +711,18 @@ noncomputable def RestrictedProduct.principal [Π i, AddCommGroup (R i)]
       · simp only [Pi.smul_apply, SetLike.coe_sort_coe, SetLike.val_smul]
       · simp only [Pi.smul_apply]
 
+noncomputable def RestrictedProduct.princpal' [Π i, AddCommGroup (R i)]
+    [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
+    (S : Set ι) [∀ i, Decidable (i ∈ S)] : Πʳ i, [R i, C i]_[𝓟 Sᶜ] ≃
+    (Π i : {i // i ∉ S}, C i) × (Π i : {i // i ∈ S}, R i) := sorry
+
 
 noncomputable def RestrictedProduct.principal_tensor_comm' [Π i, AddCommGroup (R i)]
     [∀ i, Module A (R i)] {C : Π i, Submodule A (R i)} {M : Type*} [AddCommGroup M] [Module A M]
     [Module.FinitePresentation A M] {S : Set ι} :
    M ⊗[A] (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] (Πʳ i, [M ⊗[A] R i, (C i).lTensor M]_[𝓟 S]) := sorry
 
-variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)]  {C : ∀ i, Submodule A (R i)}
+variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
 instance : DecidableEq ℱ.complement := sorry
 instance : Nonempty ℱ.complement := sorry
 instance : DirectedSystem (mem_A_away_from_S fun i ↦ (C i : Set (R i)))
@@ -686,6 +736,7 @@ instance : DirectedSystem (mem_A_away_from_S fun i ↦ (C i : Set (R i)))
        (inclusion_module (ℱ := ℱ)) (Πʳ i, [R i, C i]_[ℱ])
        (Module.DirectLimit (mem_A_away_from_S fun i ↦ (C i : Set (R i)))
        (inclusion_module (ℱ := ℱ)) )
+
 
 -- this now compiles
 noncomputable def RestrictedProduct.tensor_comm' [Π i, AddCommGroup (R i)]
@@ -714,8 +765,16 @@ noncomputable def RestrictedProduct.tensor_comm' [Π i, AddCommGroup (R i)]
       M ⊗[A] Module.DirectLimit (mem_A_away_from_S fun i ↦ (C i : Set (R i))) inclusion_module :=
       LinearEquiv.lTensor M comp
     let comp4 :=  comp3 ≪≫ₗ comp1
-    let comp5 := comp4 ≪≫ₗ comp2.symm
-    let (i : ι ) : Set (M ⊗[A] R i) := M ⊗[A] C i
+   -- let comp5 := comp4 ≪≫ₗ comp2.symm
+    let comp5 (S : Set ι) : M ⊗[A] ((Π i : {i // i ∈ S}, R i) × (Π i : {i // i ∉ S}, C i)) ≃ₗ[A]
+      (M ⊗[A] Π i : {i // i ∈ S}, R i) × (M ⊗[A] Π i : {i // i ∉ S}, C i)  :=
+        TensorProduct.prodRight A A M ((i : { i // i ∈ S }) → R ↑i) ((i : { i // i ∉ S }) → ↥(C ↑i))
+    have (i : ι):= (M ⊗[A] C i)
+    unfold mem_A_away_from_S at comp
+    simp at comp
+    let comp6 : Module.DirectLimit (fun (S: ℱ.complement) ↦ Πʳ i, [R i, C i]_[𝓟 Sᶜ]) inclusion_module'
+     ≃ₗ[A] Module.DirectLimit (fun (S:ℱ.complement) ↦ ((Π i : {i // i ∉ (S : Set ι)}, C i.1) ×
+  (Π i : {i // i ∈ (S : Set ι) }, R i.1))) (inclusion_module')  := RestrictedProduct.principal'
 
 
   #exit
