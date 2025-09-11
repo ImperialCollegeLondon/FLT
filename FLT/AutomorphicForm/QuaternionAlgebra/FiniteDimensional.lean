@@ -2,6 +2,8 @@ import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.Data.Set.Finite.Basic
 import FLT.DivisionAlgebra.Finiteness
+import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 
 namespace TotallyDefiniteQuaternionAlgebra
 
@@ -32,7 +34,7 @@ theorem WeightTwoAutomorphicForm.finiteDimensional
     -- We define a free K-module W with a basis indexed by
     -- the elements of a double coset space which (in the totally
     -- definite case) is finite)
-    let X := Doset.Quotient (Set.range (incl₁ F D)) U
+    let X := DoubleCoset.Quotient (Set.range (incl₁ F D)) U
     have h : Finite X :=
         NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset (K:=F) (D:=D) hU
 
@@ -59,10 +61,10 @@ theorem WeightTwoAutomorphicForm.finiteDimensional
     let d' := rep (Quot.mk _ d)
     -- Because d' is a representative for the double coset containing d
     obtain ⟨γ, u, hu, hd⟩ : ∃ γ : Dˣ, ∃ u ∈ U, d = (incl₁ F D γ) * d' * u := by
-        have h_rel : (Doset.setoid H' U) d' d := by
+        have h_rel : (DoubleCoset.setoid H' U) d' d := by
             exact Quotient.exact (Quotient.out_eq ⟦d⟧)
-        -- Apply Doset.rel_iff to extract the witnesses
-        rw [Doset.rel_iff] at h_rel
+        -- Apply DoubleCoset.rel_iff to extract the witnesses
+        rw [DoubleCoset.rel_iff] at h_rel
         obtain ⟨h, ⟨γ, hγ⟩, k, hk, h_eq⟩ := h_rel
         use γ, k, hk
         rw [← hγ] at h_eq

@@ -11,6 +11,7 @@ import Mathlib.Order.CompletePartialOrder
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.NumberField.FinitePlaces
 import FLT.Hacks.RightActionInstances
+import Mathlib.GroupTheory.GroupAction.Defs
 
 /-
 
@@ -92,15 +93,15 @@ structure WeightTwoAutomorphicForm
   -- defined over R
   (R : Type*) [AddCommMonoid R] where
   /-- The function underlying an automorphic form. -/
-  toFun : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ → R
-  left_invt : ∀ (δ : Dˣ) (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
+  toFun : (Dfx F D) → R
+  left_invt : ∀ (δ : Dˣ) (g : Dfx F D),
     toFun (incl₁ F D δ * g) = (toFun g)
-  right_invt : ∃ (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
-    IsOpen (U : Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) ∧
-    ∀ (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ),
+  right_invt : ∃ (U : Subgroup (Dfx F D)),
+    IsOpen (U : Set (Dfx F D)) ∧
+    ∀ (g : (Dfx F D)),
     ∀ u ∈ U, toFun (g * u) = toFun g
   trivial_central_char (z : (FiniteAdeleRing (𝓞 F) F)ˣ)
-      (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+      (g : (Dfx F D)) :
       toFun (g * incl₂ F D z) = toFun g
 
 variable {F D}
@@ -134,7 +135,7 @@ instance : Zero (WeightTwoAutomorphicForm F D R) where
   zero := zero
 
 @[simp]
-theorem zero_apply (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+theorem zero_apply (x : Dfx F D) :
     (0 : WeightTwoAutomorphicForm F D R) x = 0 := rfl
 
 /-- Negation on the space of automorphic forms over a totally definite quaternion algebra. -/
@@ -150,7 +151,7 @@ instance : Neg (WeightTwoAutomorphicForm F D R) where
   neg := neg
 
 @[simp, norm_cast]
-theorem neg_apply (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+theorem neg_apply (φ : WeightTwoAutomorphicForm F D R) (x : Dfx F D) :
     (-φ : WeightTwoAutomorphicForm F D R) x = -(φ x) := rfl
 
 /-- Addition on the space of automorphic forms over a totally definite quaternion algebra. -/
@@ -168,7 +169,7 @@ instance : Add (WeightTwoAutomorphicForm F D R) where
   add := add
 
 @[simp, norm_cast]
-theorem add_apply (φ ψ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+theorem add_apply (φ ψ : WeightTwoAutomorphicForm F D R) (x : Dfx F D) :
     (φ + ψ) x = (φ x) + (ψ x) := rfl
 
 instance addCommGroup : AddCommGroup (WeightTwoAutomorphicForm F D R) where
@@ -202,7 +203,7 @@ variable [IsQuaternionAlgebra F D]
 open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
 quaternion algebra. -/
-def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAutomorphicForm F D R) :
+def group_smul (g : Dfx F D) (φ : WeightTwoAutomorphicForm F D R) :
     WeightTwoAutomorphicForm F D R where
   toFun x := φ (x * g)
   left_invt δ x := by simp [left_invt, mul_assoc]
@@ -221,24 +222,24 @@ def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAu
     rw [Subgroup.mem_center_iff] at this
     rw [← this, ← mul_assoc, trivial_central_char]
 
-instance : SMul (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+instance : SMul (Dfx F D) (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
 
 omit [IsQuaternionAlgebra F D] in
 @[simp]
-lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
-    (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
+lemma group_smul_apply (g : Dfx F D)
+    (φ : WeightTwoAutomorphicForm F D R) (x : Dfx F D) :
     (g • φ) x = φ (x * g) := rfl
 
 attribute [instance low] Units.instMulAction
 
 instance mulAction :
-    MulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
+    MulAction (Dfx F D) (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
   one_smul φ := by ext; simp only [group_smul_apply, mul_one]
   mul_smul g h φ := by ext; simp only [group_smul_apply, mul_assoc]
 
-instance distribMulAction : DistribMulAction (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
+instance distribMulAction : DistribMulAction (Dfx F D)
     (WeightTwoAutomorphicForm F D R) where
   __ := mulAction
   smul_zero g := by ext; simp only [group_smul_apply, zero_apply]
@@ -266,7 +267,7 @@ instance : SMul R (WeightTwoAutomorphicForm F D R) where
   smul := ring_smul
 
 lemma smul_apply (r : R) (φ : WeightTwoAutomorphicForm F D R)
-    (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
+    (g : Dfx F D) :
     (r • φ) g = r • (φ g) := rfl
 
 instance module : Module R (WeightTwoAutomorphicForm F D R) where
@@ -279,7 +280,7 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
 
 variable [IsQuaternionAlgebra F D]
 
-instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R
+instance : SMulCommClass (Dfx F D) R
     (WeightTwoAutomorphicForm F D R) where
   smul_comm r g φ := by
     ext x
@@ -297,19 +298,19 @@ variable [IsQuaternionAlgebra F D]
 `WeightTwoAutomorphicFormOfLevel U R` is the `R`-valued weight 2 automorphic forms of a fixed
 level `U` for a totally definite quaternion algebra over a totally real field.
 -/
-def WeightTwoAutomorphicFormOfLevel (U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+def WeightTwoAutomorphicFormOfLevel (U : Subgroup (Dfx F D))
     (R : Type*) [CommRing R] : Type _ := MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R)
 
 namespace WeightTwoAutomorphicFormOfLevel
 
-variable {U : Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ} {R : Type*} [CommRing R]
+variable {U : Subgroup (Dfx F D)} {R : Type*} [CommRing R]
 
 /--
 Enables coercion of an automorphic forms to a function.
 -/
 @[coe]
 def toFun (f : WeightTwoAutomorphicFormOfLevel U R)
-    (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) : R := f.1.toFun x
+    (x : Dfx F D) : R := f.1.toFun x
 
 instance : CoeFun (WeightTwoAutomorphicFormOfLevel U R) (fun _ ↦ Dfx F D → R) where
   coe := toFun
@@ -321,8 +322,13 @@ lemma ext ⦃f g : WeightTwoAutomorphicFormOfLevel U R⦄ (h : ∀ x, f x = g x)
 
 omit [IsQuaternionAlgebra F D] in
 lemma left_invt (f : WeightTwoAutomorphicFormOfLevel U R) (δ : Dˣ)
-    (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) :
+    (g : Dfx F D) :
     f ((incl₁ F D) δ * g) = f g := f.1.left_invt δ g
+
+omit [IsQuaternionAlgebra F D] in
+lemma right_invt (f : WeightTwoAutomorphicFormOfLevel U R) (g : Dfx F D)
+  (u : U) : f (g * u) = f g := by
+    sorry
 
 instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
   AddCommGroup (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
