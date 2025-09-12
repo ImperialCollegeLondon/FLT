@@ -24,42 +24,50 @@ and if the extension $K/\Q$ is unramified at all primes, then an old theorem of
 Minkowski tells us that $K=\Q$. We want to prove a theorem in a similar vein; if
 a 2-dimensional mod $p$ Galois representation is hardly ramified, then it is reducible.
 Below, we give a precise
-definition of what it means for a 2-dimensional representation $\GQ\to\GL_2(R)$
-to be hardly ramified. Before we do that, we need to say precisely which rings~$R$
-we will allow. We recall the following definition, due to Grothendieck:
-
-\begin{definition}
-  \label{pseudocompact}
-  A commutative topological ring~$R$ is \emph{pseudocompact} if it satisfies
-  the following properties:
-  \begin{itemize}
-    \item If $U\subseteq R$ is any open set containing 0, then there's an open ideal $I\subseteq U$.
-    \item If $I\subseteq R$ is an open ideal, then $R/I$ is Artinian.
-    \item The natural map $R\to\lim_{\leftarrow} R/I$ is a topological and algebraic isomorphism, where $I$ runs
-      over the open ideals of $R$. Here $R/I$ has the discrete topology and the projective
-      limit has the projective limit topology.
-  \end{itemize}
-\end{definition}
+definition of what it means for a continuous 2-dimensional representation $\GQ\to\GL_2(R)$
+to be hardly ramified. Before we do that, we need to say precisely which topological rings~$R$
+we will allow.
 
 \begin{definition}
   \label{coefficient-ring}
-  \uses{pseudocompact}
-  A \emph{coefficient ring} is a local pseudocompact topological ring $R$ with
-  finite residue field.
+  We say that a commutative topological ring~$R$ is a \emph{coefficient ring} if it
+  is a local ring with finite residue field, the underlying topological space is
+  profinite, and additive translates of open ideals form a basis for the topology.
 \end{definition}
 
-Equivalently, a coefficient ring is a local profinite topological ring with finite
-residue field. Examples of coefficient rings include finite fields, and integer rings of finite extensions
-of $\Q_p$. There are also non-Noetherian examples, for example the projective limit over $n$ of
+\begin{remark} We make some remarks to orient the reader.
+  \begin{itemize}
+    \item Any complete local Noetherian ring with finite residue field is a coefficient ring,
+      if the ring is equipped with the $\m$-adic topology where $\m$ is the maximal ideal.
+      In this case, all powers of $\m$ are open.
+    \item In particular finite fields, and integer rings of finite extensions
+      of $\Q_p$, are coefficient rings.
+    \item If $R$ is a coefficient ring then $R$ is isomorphic to the projective limit
+      of the finite rings $R/I$ as $I$ runs over the open ideals of~$R$.
+    \item A non-Noetherian example of a coefficient ring is the projective limit over $n$ of
 the rings $\Z/p\Z[\varepsilon_1,\ldots,\varepsilon_n]/(\forall i,j,\varepsilon_i\varepsilon_j=0)$;
-these rings are convenient to include
-for technical reasons. If $R$ is a coefficient ring with maximal ideal $\m$
-and residue field $k$ of characteristic~$\ell>0$, then for any open ideal~$I$ there is
-a ring homomorphism $\Z/\ell^n\Z\to R/I$ for all sufficiently large naturals $n$,
-and thus a continuous ring homomorphism $\Z_{\ell}\to R$. The $\ell$-adic cyclotomic character
-is a continuous
-representation $\GQ\to\Z_{\ell}^\times$ and it thus induces a continuous
-representation $\GQ\to R^\times$ which we also refer to as the cyclotomic character.
+these rings are convenient to include as coefficient rings for technical reasons; they make
+representability theorems easier.
+    \item The category of coefficient rings is equivalent to the pro-category of the
+      category of finite local rings.
+    \item A coefficient ring is pseudocompact in the sense of Grothendieck. A pseudocompact
+      local ring is however a more general concept as such a thing may have an infinite
+      residue field and would thus not be profinite.
+\end{remark}
+
+\begin{theorem} If $R$ is a coefficient ring with residue field of characteristic $\ell$,
+  then there is a unique continuous map $\Z_\ell\to R$.
+\end{theorem}
+\begin{proof}
+  It suffices to prove that there is a unique continuous map $\Z_\ell\to R/I$ for each
+  open ideal~$I$, but $R/I$ is a finite local ring with residue field of characteristic $\ell$.
+  $R/I$ is hence Artinian, so some power of the maximal ideal is zero by Nakayama. This means
+  that $\ell^N=0$ for some sufficiently large $N$, and hence $R/I$ is a $\Z/\ell^N\Z$-algebra
+  and thus admits admits a unique map from $\Z_\ell$.
+\end{proof}
+
+As a consequence, we can talk about the $\ell$-adic cyclotomic character $\GQ\to R^\times$.
+We are now ready to define hardly ramified representations.
 
 \begin{definition}
   \label{hardly_ramified}

@@ -9,7 +9,7 @@ import FLT.Deformations.RepresentationTheory.Basic
 
 # Hardly ramified representations
 
-Say `ℓ ≥ 3` is a prime, `k` is am algebraic extension of `ZMod ℓ` and `R` is a projective
+Say `ℓ ≥ 3` is a prime, `k` is an algebraic extension of `ZMod ℓ` and `R` is a projective
 limit of Artin local rings with residue field `k`, equipped with the projective limit
 topology. Let `V` be an `R`-module, free of rank 2 and with the product topology
 (i.e., the `R`-module topology). A representation `ρ : G_Q → GL_R(V)` is said to be
@@ -74,6 +74,14 @@ namespace GaloisRepresentation
 
 local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
 local notation3 K:max "ᵃˡᵍ" => AlgebraicClosure K
+
+structure IsCoefficientRing (R : Type*)
+    [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] where
+  isLocalRing : IsLocalRing R
+  t2Space : T2Space R
+  compactSpace : CompactSpace R
+  totallyDisconnectedSpace : TotallyDisconnectedSpace R
+
 
 /-- A hardly ramified representation is a 2-dimensional representation of the absolute
 Galois group of `ℚ` over quite a general local base with residue characteristig `ℓ > 2`,
