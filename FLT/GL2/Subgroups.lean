@@ -63,7 +63,11 @@ def UpperTriangular (k : Type*) [CommRing k] : Subring (Matrix (Fin 2) (Fin 2) k
   neg_mem' := sorry
 
 lemma mem_upperTriangular_iff {k : Type*} [CommRing k] (M : Matrix (Fin 2) (Fin 2) k) :
-    M ∈ UpperTriangular k ↔ M 1 0 = 0 := sorry
+    M ∈ UpperTriangular k ↔ M 1 0 = 0 := by
+  simp only [UpperTriangular, Matrix.BlockTriangular, id_eq, Subring.mem_mk, Subsemiring.mem_mk,
+    Submonoid.mem_mk, Subsemigroup.mem_mk, Set.mem_setOf_eq, Fin.isValue]
+  refine ⟨fun h => h Fin.zero_lt_one, fun h ⦃i j⦄ hij => ?_⟩
+  fin_cases i <;> fin_cases j <;> simp_all
 
 def UpperTriangularToProd {k : Type*} [CommRing k] : UpperTriangular k →+* k × k where
   toFun M := (M.1 0 0, M.1 1 1)
