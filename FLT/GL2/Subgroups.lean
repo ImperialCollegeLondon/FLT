@@ -56,11 +56,11 @@ namespace M2
 
 def UpperTriangular (k : Type*) [CommRing k] : Subring (Matrix (Fin 2) (Fin 2) k) where
   carrier := {M | M.BlockTriangular id}
-  mul_mem' := sorry
-  one_mem' := sorry
-  add_mem' := sorry
-  zero_mem' := sorry
-  neg_mem' := sorry
+  mul_mem' {a b} ha hb := by simp_all [Matrix.BlockTriangular.mul]
+  one_mem' := by simp_all [Matrix.blockTriangular_one]
+  add_mem' {a b} ha hb := by simp_all [Matrix.BlockTriangular.add]
+  zero_mem' := by simp_all [Matrix.blockTriangular_zero]
+  neg_mem' {a} ha := by simp_all [Matrix.BlockTriangular.neg]
 
 lemma mem_upperTriangular_iff {k : Type*} [CommRing k] (M : Matrix (Fin 2) (Fin 2) k) :
     M ∈ UpperTriangular k ↔ M 1 0 = 0 := by
