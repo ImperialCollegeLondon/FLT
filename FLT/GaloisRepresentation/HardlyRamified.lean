@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.Deformations.RepresentationTheory.Basic
-
+import FLT.Deformations.Categories
 /-
 
 # Hardly ramified representations
@@ -74,49 +74,37 @@ namespace GaloisRepresentation
 
 local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
 local notation3 K:max "ᵃˡᵍ" => AlgebraicClosure K
+local notation3 "𝔪" => IsLocalRing.maximalIdeal
 
-structure IsCoefficientRing (R : Type*)
-    [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] where
-  isLocalRing : IsLocalRing R
-  t2Space : T2Space R
-  compactSpace : CompactSpace R
-  totallyDisconnectedSpace : TotallyDisconnectedSpace R
-
+universe u
 
 /-- A hardly ramified representation is a 2-dimensional representation of the absolute
-Galois group of `ℚ` over quite a general local base with residue characteristig `ℓ > 2`,
+Galois group of `ℚ` over quite a general "coefficient ring" with residue characteristig `ℓ > 2`,
 which has cyclotomic determinant, is unramified outside `2ℓ`, flat at `ℓ` and upper-triangular
 at 2 with a 1-dimensional quotient which is unramified and whose square is trivial. -/
-structure IsHardlyRamified {ℓ : ℕ} (hℓ : ℓ.Prime) (hp : Odd ℓ)
-    {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsLocalRing R] (hl : (ℓ : R) ∈ IsLocalRing.maximalIdeal R)
+structure IsHardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
+    (𝒪 : Type u) [CommRing 𝒪] [Algebra ℤ_[ℓ] 𝒪] [IsLocalHom (algebraMap ℤ_[ℓ] 𝒪)]
+    (R : Type u) [CommRing R] [TopologicalSpace R]
+    [Algebra 𝒪 R] [Algebra ℤ_[ℓ] R] [IsScalarTower ℤ_[ℓ] 𝒪 R]
+    [Deformation.IsLocalProartinianAlgebra 𝒪 R]
     {V : Type*} [AddCommGroup V] [Module R V]
     [Module.Finite R V] [Module.Free R V] (hdim : Module.rank R V = 2)
     (ρ : GaloisRep ℚ R V) : Prop where
-  -- needs that R is a ℤℓ-alg
-  det : ∀ g, ρ.det g = sorry--((cyclotomicCharacter (ℚ ᵃˡᵍ) ℓ (g.toRingEquiv)) : ℤ_[ℓ])
+  det : ∀ g, ρ.det g = algebraMap ℤ_[ℓ] R (cyclotomicCharacter (ℚ ᵃˡᵍ) ℓ g.toRingEquiv)
   isUnramified : ∀ p (hp : p.Prime), p ≠ 2 ∧ p ≠ ℓ →
     ρ.IsUnramifiedAt hp.toHeightOneSpectrumRingOfIntegersRat
-  isFlat : ρ.IsFlatAt hℓ.toHeightOneSpectrumRingOfIntegersRat
-  isTameAtTwo : (sorry : Prop) -- use ρ.toLocal
+  isFlat : ρ.IsFlatAt (Nat.Prime.toHeightOneSpectrumRingOfIntegersRat (Fact.out : ℓ.Prime))
+  isTameAtTwo : ∃ (π : V →ₗ[R] R) (hπ : Function.Surjective π) (δ : GaloisRep ℚ_[2] R R),
+    -- δ is unramified and
+    (sorry ≤ δ.ker) ∧
+    (∀ g : Γ ℚ_[2], δ g * δ g = 1) ∧
+    ∀ g : Γ ℚ_[2], ∀ v : V, π (ρ.map (algebraMap ℚ ℚ_[2]) g v) = δ g (π v)
 
 end GaloisRepresentation
-
-example {ℓ : ℕ} (hℓ : ℓ.Prime) (hp : Odd ℓ)
-    {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsLocalRing R] (hl : (ℓ : R) ∈ IsLocalRing.maximalIdeal R)
-    {V : Type*} [AddCommGroup V] [Module R V]
-    [Module.Finite R V] [Module.Free R V] (hdim : Module.rank R V = 2)
-    (ρ : GaloisRep ℚ R V) : False := by
-  let ρ₂ := ρ.toLocal Nat.prime_two.toHeightOneSpectrumRingOfIntegersRat
-  -- want to say "ρ₂ is upper-triangular with unram 1d quotient whose square is trivial"
-  sorry
 
   /-
 
   TODO
 
-  1) Change definition of IsFlatAt?
   2) Define tame at 2
-  3) Define coefficient ring and ℤ_l-algebra
   -/
