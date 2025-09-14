@@ -189,8 +189,7 @@ noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A wher
   map_smul' r a := by
     ext
     simp only [HeckeOperator_toFun, FixedPoints.coe_smul, smul_comm,
-      smul_finsum_mem (h.image Quotient.out)]
-    rfl
+      smul_finsum_mem (h.image Quotient.out), RingHom.id_apply]
 
 lemma HeckeOperator_apply (a : fixedPoints V A) :
     (HeckeOperator (R := R) g U V h a : A) =
