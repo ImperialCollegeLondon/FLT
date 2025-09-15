@@ -86,22 +86,22 @@ lemma smul_submodule_one_index :
       Ideal.submodule_span_eq, index_span_p_pow hx]
 
 /-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
-lemma smul_submodule_one_relindex :
-    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex
+lemma smul_submodule_one_relIndex :
+    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relIndex
       (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
 
-  have relindex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ :=
+  have relIndex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ :=
     smul_submodule_one_index
-  rw [← AddSubgroup.relindex_top_right] at relindex_in_z_p
+  rw [← AddSubgroup.relIndex_top_right] at relIndex_in_z_p
 
-  -- Use the coercion from ℤ_[p] to ℚ_[p] and `AddSubgroup.relindex_comap` to convert
+  -- Use the coercion from ℤ_[p] to ℚ_[p] and `AddSubgroup.relIndex_comap` to convert
   -- our result about subgroups of `Z_[p]` to a result about subgroups of `Q_[p]`.
   let z_q_coe: ℤ_[p] →+ ℚ_[p] := PadicInt.Coe.ringHom.toAddMonoidHom
   let K_Q : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
   let H_Q := (x : ℚ_[p]) • K_Q
 
-  have relindex_preserved :=
-    AddSubgroup.relindex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))
+  have relIndex_preserved :=
+    AddSubgroup.relIndex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))
   have map_top: (AddSubgroup.map z_q_coe ⊤) = K_Q := by
     ext a
     simp [z_q_coe, K_Q]
@@ -112,16 +112,16 @@ lemma smul_submodule_one_relindex :
       ← AddSubgroup.comap_smul_one ℤ_[p] ℚ_[p]]
     rfl
 
-  rw [map_top, map_H_Q] at relindex_preserved
-  rwa [relindex_preserved] at relindex_in_z_p
+  rw [map_top, map_H_Q] at relIndex_preserved
+  rwa [relIndex_preserved] at relIndex_in_z_p
 
 /-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
 lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0) :
     (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex
     (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
-  relindex_ne_zero := by
+  relIndex_ne_zero := by
     rw [← Nat.cast_ne_zero (R := ℝ≥0)]
-    simp [smul_submodule_one_relindex, hx]
+    simp [smul_submodule_one_relIndex, hx]
 
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]⁰ ℚ_[p]ˣ where
