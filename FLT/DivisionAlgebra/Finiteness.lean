@@ -249,8 +249,7 @@ open scoped TensorProduct.RightActions
 
 -- Instance to help speed up instance synthesis
 instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
-  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
-  r.toNonUnitalNonAssocRing
+  Algebra.TensorProduct.instRing.toNonUnitalRing.toNonUnitalNonAssocRing
 
 -- Instance to help speed up instance synthesis
 instance : NonAssocSemiring (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
@@ -258,8 +257,7 @@ instance : NonAssocSemiring (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
 
 -- Instance to help speed up instance synthesis
 local instance : NonUnitalNonAssocRing (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
-  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
-  r.toNonUnitalNonAssocRing
+  Algebra.TensorProduct.instRing.toNonUnitalRing.toNonUnitalNonAssocRing
 
 -- Instance to help speed up instance synthesis
 local instance : NonAssocSemiring (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
@@ -307,12 +305,12 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := by
     (iso₁_continuous K D) continuous_subtype_val)
 
 local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
-    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
+  borel (D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K)
 
 local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K ×
-    D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  exact { measurable_eq := rfl }
+    D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
+  {measurable_eq := rfl }
 
 def foo : D ⊗[K] NumberField.AdeleRing (𝓞 K) K ≃ₜ+
     D ⊗[K] NumberField.InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K := by
@@ -329,70 +327,107 @@ lemma ringHaarChar_eq1 (y : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ) :
   unfold iso₁
   apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (foo K D)
   · intro x
-    simp_rw [foo]
 
+
+
+    -- think this should be clear... not sure how to show it in Lean though.
     sorry
 
-local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
-  exact borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
-
-local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
-  exact { measurable_eq := rfl }
-
-local instance : MeasurableSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  exact borel (D ⊗[K] FiniteAdeleRing (𝓞 K) K)
-
-local instance : BorelSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  exact { measurable_eq := rfl }
-
-lemma Step1 (r : ℝ) (hr : r > 0) (d : ℕ) : ∃ m : ℝˣ, ringHaarChar m = r^(1/d) := by
+lemma Step1 (r : ℝ) (hr : 0 < r) (d : ℕ) (hd : d ≠ 0) : ∃ m : ℝˣ,
+    ringHaarChar m = r^(1/(d : ℝ)) := by
   simp_rw [MeasureTheory.ringHaarChar_real]
-  have : IsUnit (r^(1/d)) := by
-    aesop
-  use (Units.mk0 (r^(1/d))) (by simpa)
-  simp only [Units.val_mk0, nnnorm_pow, NNReal.coe_pow, coe_nnnorm, Real.norm_eq_abs]
-  rw [pow_eq_pow_iff_cases]
-  right
-  left
-  exact abs_of_pos hr
+  have : IsUnit (r^(1/(d : ℝ))) := by
+    simp only [one_div, isUnit_iff_ne_zero]
+    exact (Real.rpow_ne_zero (le_of_lt hr) (by simpa)).mpr (Ne.symm (ne_of_lt hr))
+  use (Units.mk0 (r^(1/(d : ℝ))) (by simpa))
+  simp only [one_div, Units.val_mk0, coe_nnnorm, Real.norm_eq_abs, abs_eq_self]
+  exact Real.rpow_nonneg (le_of_lt hr) (↑d)⁻¹
 
-lemma Step2 (r : ℝ) (hr : r > 0) (d : ℕ) : ∃ m : (Fin d → ℝ)ˣ, ringHaarChar m = r := by
-  obtain ⟨m', hm'⟩ := Step1 r hr d
+lemma Step2 (r : ℝ) (hr : r > 0) (d : ℕ) (hd : d ≠ 0): ∃ m : (Fin d → ℝ)ˣ, ringHaarChar m = r := by
+  obtain ⟨m', hm'⟩ := Step1 r hr d hd
   use (MulEquiv.piUnits (ι := Fin d) (M := fun _ => ℝ)).symm (fun (i : Fin d) => m')
   have : ringHaarChar (MulEquiv.piUnits.symm (fun (i : Fin d) ↦ m')) = ∏ (i : Fin d),
       ringHaarChar ((fun i ↦ m') i) := by
     have := MeasureTheory.ringHaarChar_pi (ι := Fin d) (A := fun _ : Fin d => ℝ) (fun (i : Fin d) ↦ m')
-    simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
-    simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin] at this
+    simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin] at this ⊢
     exact this -- why :((
-  -- this seems to work I just need to work out how to solve the problem of measureable spaces not being aligned
-  sorry
+  simp only [this, Finset.prod_const, Finset.card_univ, Fintype.card_fin, NNReal.coe_pow, hm']
+  simp only [one_div]
+  exact Real.rpow_inv_natCast_pow (le_of_lt hr) hd
 
-local instance : Module ℚ D := by
+variable [IsScalarTower ℚ K D]
+-- I am adding this for now to allow us to deduce Module ℚ D... but perhaps this can be proven?
 
-  sorry
+-- Ideally I want this as an instance... but it is complaining and breaking
+def bar : Module ℚ D where
+  one_smul d := by
+    rw [Eq.symm (smul_one_smul K 1 d)]
+    simp only [one_smul]
+  mul_smul a b d := by
+    rw [Eq.symm (smul_one_smul K (a * b) d)]
+    simp_rw [mul_smul, smul_assoc, one_smul]
+  smul_zero a := by
+    rw [Eq.symm (smul_one_smul K a 0)]
+    simp only [smul_zero]
+  smul_add a d1 d2 := by
+    rw [smul_add]
+  add_smul a b d := by
+    rw [Eq.symm (smul_one_smul K _ d)]
+    simp_rw [add_smul, smul_one_smul]
+  zero_smul d := by
+    rw [Eq.symm (smul_one_smul K 0 d)]
+    simp only [zero_smul]
 
-local instance : Ring (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) := by
+def bar' : Algebra ℚ D where
+  algebraMap := RingHom.comp (algebraMap K D) (algebraMap ℚ K)
+  commutes' q d := by
+    simp only [eq_ratCast]
+    exact Rat.cast_comm q d
+  smul_def' q d := by
+    simp only [eq_ratCast]
+    exact Rat.smul_def q d
 
-  sorry
+local instance (h := bar K D) :
+    Module (NumberField.InfiniteAdeleRing ℚ) (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) := by
+  infer_instance
 
-local instance : TopologicalSpace (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) := by
+local instance (h := bar K D) : TopologicalSpace (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) :=
+  moduleTopology (NumberField.InfiniteAdeleRing ℚ) (D ⊗[ℚ] (NumberField.InfiniteAdeleRing ℚ))
 
-  sorry
-
-local instance : IsTopologicalRing (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) := by
-
-  sorry
+-- Instance to help speed up instance synthesis
+local instance (h := bar K D) (h' := bar' K D) : Ring (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) :=
+  Algebra.TensorProduct.instRing (A := D) (R := ℚ) (B := (NumberField.InfiniteAdeleRing ℚ))
 
 
-lemma Step3 (r : ℝ) (hr : r > 0) (d : ℕ) : ∃ m : (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ)ˣ,
+local instance (h := bar K D):
+    IsTopologicalRing (D ⊗[ℚ] (NumberField.InfiniteAdeleRing ℚ)) :=
+  IsModuleTopology.Module.topologicalRing (NumberField.InfiniteAdeleRing ℚ)
+    (D ⊗[ℚ] (NumberField.InfiniteAdeleRing ℚ))
+
+lemma Step3 (r : ℝ) (hr : r > 0) (d : ℕ) (h := bar K D) : ∃ m : (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ)ˣ,
     ringHaarChar (R := (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ)) m = r := by
 
   sorry
 
--- t will be the dimension of D as a ℚ module...
+local instance : MeasurableSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) :=
+  borel (D ⊗[K] NumberField.InfiniteAdeleRing K)
 
-lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
+local instance : BorelSpace (D ⊗[K] NumberField.InfiniteAdeleRing K) := by
+  exact { measurable_eq := rfl }
+
+lemma Step4 (r : ℝ) (hr : r > 0) (d : ℕ) : ∃ m : (D ⊗[K] NumberField.InfiniteAdeleRing K)ˣ,
+    ringHaarChar (R := (D ⊗[K] NumberField.InfiniteAdeleRing K)) m = r := by
+
+  sorry
+
+local instance : MeasurableSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
+  borel (D ⊗[K] FiniteAdeleRing (𝓞 K) K)
+
+local instance : BorelSpace (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
+  { measurable_eq := rfl }
+
+-- t will be the dimension of D as a ℚ module...
+lemma rest₁_surjective (t : ℕ) (ht : t ≠ 0) : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
   refine Eq.symm (Set.ext ?_)
   intro x
@@ -404,9 +439,10 @@ lemma rest₁_surjective (t : ℕ) : (rest₁ K D) '' Set.univ = Set.univ := by
       exact addEquivAddHaarChar_pos _
     exact this ((iso₁ K D).symm (1, x))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((iso₁ K D).symm (y,1)) = r := by
-    obtain ⟨m, hm⟩ := Step2 r hr t
-    -- rw [ringHaarChar_prod] (after using our wanted value)
-
+    obtain ⟨m, hm⟩ := Step2 r hr t ht
+    use 1  -- this will need to be replaced with my final wanted value
+    rw [ringHaarChar_eq1]
+    rw [ringHaarChar_prod]
 
     --MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
     -- the remaining sorry of this file.
@@ -468,7 +504,7 @@ lemma α_continuous : Continuous (α K D) := by
   · exact { isOpen_preimage := fun s a ↦ a }
   · exact rest₁_continuous K D
 
-lemma α_surjective  : Function.Surjective (α K D) := by
+lemma α_surjective : Function.Surjective (α K D) := by
   refine (Quot.surjective_lift (f := fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range)
     (rest₁ K D a)) (α_equivariant K D)).mpr ?_
   refine Set.range_eq_univ.mp ?_
@@ -482,6 +518,7 @@ lemma α_surjective  : Function.Surjective (α K D) := by
     rw [h]
     · exact trivial
     · exact USize.size -- not sure why this goal has appeared.
+    · exact Ne.symm (NeZero.ne' USize.size) -- another new goal just appeared?
   obtain ⟨a, ha⟩ := this
   use a
   simp only [Subtype.coe_eta, SetLike.coe_mem, exists_const, ha]
