@@ -3,14 +3,13 @@ Copyright (c) 2025 Bryan Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bryan Wang
 -/
-import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract -- abstract Hecke ops
-import FLT.AutomorphicForm.QuaternionAlgebra.Defs -- definitions of automorphic forms
 import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
-import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits -- for (π 0; 0 1)
 import Mathlib.Data.Matrix.Reflection
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.NumberTheory.NumberField.FinitePlaces
+import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 
 open NumberField IsQuaternionAlgebra.NumberField IsDedekindDomain
-open TotallyDefiniteQuaternionAlgebra
 open IsDedekindDomain.HeightOneSpectrum
 open scoped TensorProduct
 open scoped Pointwise
