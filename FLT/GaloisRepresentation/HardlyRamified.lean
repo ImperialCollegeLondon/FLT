@@ -3,8 +3,13 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.Deformations.RepresentationTheory.Basic
 import FLT.Deformations.Categories
+import FLT.Deformations.RepresentationTheory.Basic
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.RingTheory.SimpleRing.Principal
+
 /-
 
 # Hardly ramified representations
