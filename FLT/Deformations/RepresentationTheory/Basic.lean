@@ -361,10 +361,10 @@ def GaloisRep.HasFlatProlongationAt (ρ : GaloisRep K A M) : Prop :=
     (f : Additive (Kᵥ ⊗[𝒪ᵥ] G →ₐ[Kᵥ] Kᵥᵃˡᵍ) →+[Γ Kᵥ] (ρ.toLocal v).Space),
     Function.Bijective f
 
-/-- A galois rep `ρ : Γ K → Aut_A(M)` is flat at `v` if `A/mⁿ ⊗ M` has a flat prolongation at `v`
-for all `n`. -/
+/-- A galois rep `ρ : Γ K → Aut_A(M)` is flat at `v` if `A/I ⊗ M` has a flat prolongation at `v`
+for all open ideals `I`. -/
 class GaloisRep.IsFlatAt [IsLocalRing A] (ρ : GaloisRep K A M) : Prop where
-  cond : ∀ n : ℕ, n ≠ 0 →
-    (ρ.baseChange (A ⧸ IsLocalRing.maximalIdeal A ^ n)).HasFlatProlongationAt v
+  cond : ∀ (I : Ideal A), IsOpen (I : Set A) →
+    (ρ.baseChange (A ⧸ I)).HasFlatProlongationAt v
 
 end Flat
