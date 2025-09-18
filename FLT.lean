@@ -87,7 +87,6 @@ import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Mathlib.Topology.Algebra.Group.Basic
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Group.Units
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
