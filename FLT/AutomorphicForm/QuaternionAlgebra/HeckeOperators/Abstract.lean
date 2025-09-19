@@ -123,7 +123,7 @@ open MulAction
 
 -- finiteness hypothesis we need to make Hecke operators work: UgV is
 -- a finite number of left V-cosets.
-variable (h : (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)).Finite)
+variable (h : (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ V)).Finite)
 
 open ConjAct
 
@@ -147,7 +147,7 @@ lemma eq_finsum_quotient_out_of_bijOn' (a : fixedPoints V A)
 
 /-- The Hecke operator T_g = [UgV] : A^V → A^U associated to the double coset UgV. -/
 noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
-  ⟨∑ᶠ gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * g • V) : Set (G ⧸ V)), gᵢ • a.1, by
+  ⟨∑ᶠ gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ V)), gᵢ • a.1, by
   rintro ⟨u, huU⟩
   rw [smul_finsum_mem (h.image Quotient.out), ← eq_finsum_quotient_out_of_bijOn' a]
   · rw [finsum_mem_eq_of_bijOn (fun g ↦ u • g)]
@@ -173,7 +173,9 @@ noncomputable def HeckeOperator_addMonoidHom : fixedPoints V A →+ fixedPoints 
     simp [HeckeOperator_toFun]
   map_add' a b := by
     ext
-    simp [HeckeOperator_toFun, -Set.mem_image, finsum_mem_add_distrib (h.image Quotient.out)]
+    simp only [HeckeOperator_toFun, FixedPoints.coe_add, smul_add,
+      finsum_mem_add_distrib (h.image Quotient.out)]
+
 
 variable {R : Type*} [Ring R] [Module R A] [SMulCommClass G R A]
 
@@ -182,21 +184,23 @@ noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A wher
   toFun := HeckeOperator_toFun h
   map_add' a b := by
     ext
-    simp [HeckeOperator_toFun, -Set.mem_image, finsum_mem_add_distrib (h.image Quotient.out)]
+    simp only [HeckeOperator_toFun, FixedPoints.coe_add, smul_add,
+      finsum_mem_add_distrib (h.image Quotient.out)]
   map_smul' r a := by
     ext
-    simp [-Set.mem_image, HeckeOperator_toFun, smul_comm, smul_finsum_mem (h.image Quotient.out)]
+    simp only [HeckeOperator_toFun, FixedPoints.coe_smul, smul_comm,
+      smul_finsum_mem (h.image Quotient.out), RingHom.id_apply]
 
 lemma HeckeOperator_apply (a : fixedPoints V A) :
     (HeckeOperator (R := R) g U V h a : A) =
-    ∑ᶠ (gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * g • ↑V) : Set (G ⧸ V))), gᵢ • (a : A) :=
+    ∑ᶠ (gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ V))), gᵢ • (a : A) :=
   rfl
 
-theorem comm {g₁ g₂ : G} (h₁ : (QuotientGroup.mk '' (U * g₁ • U) : Set (G ⧸ U)).Finite)
-    (h₂ : (QuotientGroup.mk '' (U * g₂ • U) : Set (G ⧸ U)).Finite)
+theorem comm {g₁ g₂ : G} (h₁ : (QuotientGroup.mk '' (U * {g₁}) : Set (G ⧸ U)).Finite)
+    (h₂ : (QuotientGroup.mk '' (U * {g₂}) : Set (G ⧸ U)).Finite)
     (hcomm : ∃ s₁ s₂ : Set G,
-      Set.BijOn QuotientGroup.mk s₁ (QuotientGroup.mk '' (U * g₁ • U) : Set (G ⧸ U)) ∧
-      Set.BijOn QuotientGroup.mk s₂ (QuotientGroup.mk '' (U * g₂ • U) : Set (G ⧸ U)) ∧
+      Set.BijOn QuotientGroup.mk s₁ (QuotientGroup.mk '' (U * {g₁}) : Set (G ⧸ U)) ∧
+      Set.BijOn QuotientGroup.mk s₂ (QuotientGroup.mk '' (U * {g₂}) : Set (G ⧸ U)) ∧
       ∀ a ∈ s₁, ∀ b ∈ s₂, a * b = b * a) :
     (HeckeOperator g₁ U U h₁ ∘ₗ HeckeOperator g₂ U U h₂ : fixedPoints U A →ₗ[R] fixedPoints U A) =
     HeckeOperator g₂ U U h₂ ∘ₗ HeckeOperator g₁ U U h₁ := by
