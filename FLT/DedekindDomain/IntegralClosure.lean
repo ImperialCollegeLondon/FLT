@@ -246,6 +246,7 @@ noncomputable def linearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A]
 lemma linearEquivTensorProductModule_symm_tmul (b : B) (m : M) :
     (linearEquivTensorProductModule A K L B M).symm (b ⊗ₜ m) = (algebraMap B L b) ⊗ₜ m := by
   simp [linearEquivTensorProductModule, LinearEquivTensorProduct_symm_one_tmul]
+  -- this proof breaks until someone PRs the simp lemmas in the import
 
 lemma linearEquivTensorProductModule_tmul (b : B) (m : M) :
     (linearEquivTensorProductModule A K L B M) ((algebraMap B L b) ⊗ₜ m) = b ⊗ₜ m := by
