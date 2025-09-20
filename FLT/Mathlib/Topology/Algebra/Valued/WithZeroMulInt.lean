@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import Mathlib.Algebra.Order.GroupWithZero.Canonical
 import Mathlib.RingTheory.DiscreteValuationRing.Basic
 import Mathlib.RingTheory.Ideal.IsPrincipalPowQuotient

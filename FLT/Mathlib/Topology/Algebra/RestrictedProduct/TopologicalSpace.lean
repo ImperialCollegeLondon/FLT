@@ -1,6 +1,9 @@
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+import Mathlib.Topology.Instances.Matrix
+import FLT.Mathlib.Topology.Algebra.Constructions
+import FLT.Mathlib.Topology.Algebra.Group.Units
 
 open RestrictedProduct
 

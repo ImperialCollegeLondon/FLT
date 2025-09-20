@@ -2,6 +2,7 @@ import FLT.Patching.Algebra
 import FLT.Patching.Over
 import FLT.Patching.Module
 import FLT.Patching.Utils.Depth
+import FLT.Deformations.Lemmas
 
 variable (Λ : Type*) [CommRing Λ]
 variable {ι : Type*} (R : ι → Type*)

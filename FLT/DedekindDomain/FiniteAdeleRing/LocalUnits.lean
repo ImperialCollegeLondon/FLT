@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic -- needed for RestrictedProduct.mk
-import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 /-
 
 # Constructions of various "local" elements of adelic groups

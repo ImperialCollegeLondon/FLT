@@ -4,9 +4,10 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.OpenSubgroup
 import Mathlib.Topology.Algebra.Ring.Ideal
 import Mathlib.Topology.Separation.Profinite
-import Mathlib.RingTheory.Artinian.Module
 import Mathlib.Data.Set.Card
 import Mathlib.RingTheory.Localization.AtPrime.Basic
+import Mathlib.Data.SetLike.Fintype
+import Mathlib.RingTheory.Spectrum.Prime.Basic
 
 
 lemma IsUnit.pi_iff {ι} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i} :

@@ -14,7 +14,6 @@ import FLT.Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.LinearAlgebra.TensorProduct.Prod
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.RingTheory.Ideal.NatInt
 import FLT.NumberField.FiniteAdeleRing
 
 open scoped TensorProduct

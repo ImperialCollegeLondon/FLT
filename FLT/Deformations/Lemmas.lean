@@ -151,6 +151,9 @@ instance {A B : Type*} [Semiring A] [Semiring B]
   convert isLocalHom_equiv f
   exact ⟨fun ⟨H⟩ ↦ ⟨H⟩, fun ⟨H⟩ ↦ ⟨H⟩⟩
 
+instance {R S} [Semiring R] [Semiring S] (e : R ≃+* S) : IsLocalHom e.toRingHom :=
+  ⟨fun x hx ↦ by convert hx.map e.symm; simp⟩
+
 instance ContinuousAlgHom.isLocalHom_comp {R A B C : Type*}
     [CommSemiring R] [Semiring A] [Semiring B] [Semiring C]
     [Algebra R A] [Algebra R B] [Algebra R C]
