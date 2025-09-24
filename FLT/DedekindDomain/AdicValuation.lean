@@ -484,7 +484,7 @@ theorem maximalIdeal_eq_span_uniformizer {π : v.adicCompletionIntegers K}
     have hn : ¬(IsUnit x) := fun h =>
       (IsLocalRing.maximalIdeal.isMaximal _).ne_top (Ideal.eq_top_of_isUnit_mem _ hx h)
     replace hn : n ≠ 0 := fun h => by {rw [hu, h, pow_zero, one_mul] at hn; exact hn u.isUnit}
-    simpa [Ideal.mem_span_singleton, hu, IsUnit.dvd_mul_right, Units.isUnit] using dvd_pow_self _ hn
+    simpa [Ideal.mem_span_singleton, hu, IsUnit.dvd_mul_right, Units.isUnit] using dvd_pow_self π hn
 
 instance : Ring.DimensionLEOne (v.adicCompletionIntegers K) where
   maximalOfPrime {𝔭} h𝔭_ne_bot h𝔭_prime := by

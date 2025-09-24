@@ -31,6 +31,10 @@ variable {φ} {A} {B} in
 lemma SemialgHom.map_smul (ψ : A →ₛₐ[φ] B) (m : R) (x : A) : ψ (m • x) = φ m • ψ x :=
   LinearMap.map_smul' ψ.toLinearMap m x
 
+@[simp]
+theorem coe_mk (f : A →ₛₗ[φ] B) (h₁ h₂ h₃) : ((⟨f, h₁, h₂, h₃⟩ : A →ₛₐ[φ] B) : A → B) = f :=
+  rfl
+
 end semialghom
 
 section semialghomclass

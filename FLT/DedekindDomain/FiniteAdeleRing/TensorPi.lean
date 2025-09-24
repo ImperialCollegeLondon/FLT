@@ -80,8 +80,8 @@ def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i
     conv_rhs => rw [← DirectSum.sum_univ_of nm]
     rw [DFinsupp.finset_sum_apply, DFinsupp.finset_sum_apply, Finset.sum_apply]
     congr with k
-    by_cases h : k = j
-    · subst h; simp
+    obtain rfl | h := eq_or_ne j k
+    · simp
     · simp [of_eq_of_ne _ _ _ h]
   right_inv nm := by
     simp only
@@ -90,8 +90,8 @@ def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i
     conv_rhs => rw [← DirectSum.sum_univ_of (nm i)]
     rw [DFinsupp.finset_sum_apply, DFinsupp.finset_sum_apply, Finset.sum_apply]
     congr with k
-    by_cases h : k = j
-    · subst h; simp
+    obtain rfl | h := eq_or_ne j k
+    · simp
     · simp [of_eq_of_ne _ _ _ h]
 
 end
