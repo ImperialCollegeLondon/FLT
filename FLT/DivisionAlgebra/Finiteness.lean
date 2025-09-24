@@ -48,6 +48,9 @@ open scoped TensorProduct.RightActions
 
 variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
+local instance : IsTopologicalRing (Fin 2 → ℝ) :=
+  Pi.instIsTopologicalRing
+
 /-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
 noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
@@ -300,6 +303,9 @@ lemma iso₁_continuous : Continuous (iso₁ K D) := by
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (iso₁ K D) a.val |>.2
 
+local instance : IsTopologicalRing (Fin (Module.finrank ℝ R) → ℝ) :=
+  Pi.instIsTopologicalRing
+
 lemma rest₁_continuous : Continuous (rest₁ K D) := by
   exact Continuous.comp continuous_snd (Continuous.comp
     (iso₁_continuous K D) continuous_subtype_val)
@@ -348,9 +354,11 @@ lemma Step2 (r : ℝ) (hr : r > 0) (d : ℕ) (hd : d ≠ 0): ∃ m : (Fin d → 
   use (MulEquiv.piUnits (ι := Fin d) (M := fun _ => ℝ)).symm (fun (i : Fin d) => m')
   have : ringHaarChar (MulEquiv.piUnits.symm (fun (i : Fin d) ↦ m')) = ∏ (i : Fin d),
       ringHaarChar ((fun i ↦ m') i) := by
-    have := MeasureTheory.ringHaarChar_pi (ι := Fin d) (A := fun _ : Fin d => ℝ) (fun (i : Fin d) ↦ m')
+    have := MeasureTheory.ringHaarChar_pi (ι := Fin d) (A := fun _ : Fin d => ℝ)
+      (fun (i : Fin d) ↦ m')
     simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin] at this ⊢
-    exact this -- why :((
+    convert this
+    exact BorelSpace.measurable_eq
   simp only [this, Finset.prod_const, Finset.card_univ, Fintype.card_fin, NNReal.coe_pow, hm']
   simp only [one_div]
   exact Real.rpow_inv_natCast_pow (le_of_lt hr) hd
@@ -383,6 +391,7 @@ local instance : MeasurableSpace (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) 
 local instance : BorelSpace (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) :=
   { measurable_eq := rfl }
 
+-- maybe this needs to be broken up... depends on how we identify ℝ with 𝔸_ℚ^∞
 def Step3_fun (d : ℕ) (hd : d ≠ 0) : (Fin d → ℝ) ≃ₜ+ (D ⊗[ℚ] NumberField.InfiniteAdeleRing ℚ) := by
 
   sorry
@@ -405,7 +414,8 @@ lemma Step3 (r : ℝ) (hr : r > 0) (d : ℕ) (hd : d ≠ 0) :
   have : IsUnit (Step3_fun D d hd m) := by
 
     sorry
-  use (Units.mk0 (Step3_fun D d hd m) (by sorry))
+  use (IsUnit.unit this)
+
 
   sorry
 
@@ -471,6 +481,9 @@ lemma rest₁_surjective (t : ℕ) (ht : t ≠ 0) : (rest₁ K D) '' Set.univ = 
         simp only [this, map_one]
       exact Eq.symm (inv_eq_of_mul_eq_one_left this)
     simpa [this, hx] using (inv_mul_cancel₀ hr.ne')
+
+local instance : IsTopologicalRing (Fin 2 → ℝ) := by
+  exact Pi.instIsTopologicalRing
 
 lemma α_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
     (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker D_𝔸).subtype
@@ -557,3 +570,5 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
   exact ⟨t, DoubleCoset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
 
 end FiniteAdeleRing
+
+#min_imports
