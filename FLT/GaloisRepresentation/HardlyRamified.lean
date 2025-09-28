@@ -109,28 +109,39 @@ instance : MulAction (Γ ℚ_[2]) Z2bar where
   one_smul z := rfl
   mul_smul g h z := rfl
 
-/-- A hardly ramified representation is a 2-dimensional representation of the absolute
-Galois group of `ℚ` over quite a general "coefficient ring" with residue characteristig `ℓ > 2`,
-which has cyclotomic determinant, is unramified outside `2ℓ`, flat at `ℓ` and upper-triangular
-at 2 with a 1-dimensional quotient which is unramified and whose square is trivial. -/
+/-- Let `R` be a "local pro-artinian algebra" (for example any complete Noetherian local ring
+with the maximal ideal-adic topology) having finite residue field of characteristic `ℓ > 2`,
+and let `ρ : Gal(Qbar/Q) → GL_2(R)` be a continuous 2-dimensional representation.
+We say that `ρ` is *hardly ramified* if it has cyclotomic determinant, is unramified outside `2ℓ`,
+flat at `ℓ` and upper-triangular at 2 with a 1-dimensional quotient which is unramified and
+whose square is trivial. -/
 structure IsHardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
+    -- In applications `𝓞` will be the integers of a finite extension of `ℚ_[ℓ]`;
+    -- we assume `𝓞` acts on the coefficient ring `R` as it is technically convenient
+    -- to build in this extra action.
     (𝒪 : Type u) [CommRing 𝒪] [Algebra ℤ_[ℓ] 𝒪] [IsLocalHom (algebraMap ℤ_[ℓ] 𝒪)]
     (R : Type u) [CommRing R] [TopologicalSpace R]
     [Algebra 𝒪 R] [Algebra ℤ_[ℓ] R] [IsScalarTower ℤ_[ℓ] 𝒪 R]
     [Deformation.IsLocalProartinianAlgebra 𝒪 R]
+    -- Rather than GL_2(R) we use the automorphisms of a finite free rank 2 `R`-module.
     {V : Type*} [AddCommGroup V] [Module R V]
     [Module.Finite R V] [Module.Free R V] (hdim : Module.rank R V = 2)
+  -- Let `ρ` be a continuous action of the absolute Galois group of `ℚ` on V.
     (ρ : GaloisRep ℚ R V) : Prop where
+  -- We define *IsHardlyRamified* to mean:
+  -- det(ρ) is the ell-adic cyclotomic character;
   det : ∀ g, ρ.det g = algebraMap ℤ_[ℓ] R (cyclotomicCharacter (ℚ ᵃˡᵍ) ℓ g.toRingEquiv)
+  -- ρ is unramified outside 2 and ℓ;
   isUnramified : ∀ p (hp : p.Prime), p ≠ 2 ∧ p ≠ ℓ →
     ρ.IsUnramifiedAt hp.toHeightOneSpectrumRingOfIntegersRat
+  -- ρ is flat at ℓ;
   isFlat : ρ.IsFlatAt (Nat.Prime.toHeightOneSpectrumRingOfIntegersRat (Fact.out : ℓ.Prime))
+  -- and ρ has a 1-dimensional quotient π : ρ → δ such that
   isTameAtTwo : ∃ (π : V →ₗ[R] R) (_ : Function.Surjective π) (δ : GaloisRep ℚ_[2] R R),
-    -- δ is unramified (this is a bit of a random way to say this) and
+    ∀ g : Γ ℚ_[2], ∀ v : V, π (ρ.map (algebraMap ℚ ℚ_[2]) g v) = δ g (π v) ∧
+    -- δ is unramified and
     (AddSubgroup.inertia ((𝔪 Z2bar).toAddSubgroup : AddSubgroup Z2bar) (Γ ℚ_[2]) ≤ δ.ker) ∧
-    -- δ² = 1 and
-    (∀ g : Γ ℚ_[2], δ g * δ g = 1) ∧
-    -- π is Galois-equivariant
-    ∀ g : Γ ℚ_[2], ∀ v : V, π (ρ.map (algebraMap ℚ ℚ_[2]) g v) = δ g (π v)
+    -- δ² = 1.
+    (∀ g : Γ ℚ_[2], δ g * δ g = 1)
 
 end GaloisRepresentation
