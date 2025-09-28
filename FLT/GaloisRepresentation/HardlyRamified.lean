@@ -96,6 +96,19 @@ local notation3 "𝔪" => IsLocalRing.maximalIdeal
 
 universe u
 
+noncomputable abbrev Z2bar : ValuationSubring (ℚ_[2]ᵃˡᵍ) := Valued.v.valuationSubring
+noncomputable example : Z2bar →+ ℚ_[2]ᵃˡᵍ := by exact Z2bar.subtype.toAddMonoidHom
+
+instance : MulAction (Γ ℚ_[2]) Z2bar where
+  smul g z := ⟨g z, by
+    obtain ⟨z, hz⟩ := z
+    rw [Valuation.mem_valuationSubring_iff] at hz ⊢
+    convert hz using 1
+    apply NNReal.coe_injective
+    exact (spectralNorm_eq_of_equiv g z).symm⟩
+  one_smul z := rfl
+  mul_smul g h z := rfl
+
 /-- A hardly ramified representation is a 2-dimensional representation of the absolute
 Galois group of `ℚ` over quite a general "coefficient ring" with residue characteristig `ℓ > 2`,
 which has cyclotomic determinant, is unramified outside `2ℓ`, flat at `ℓ` and upper-triangular
@@ -112,71 +125,12 @@ structure IsHardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
   isUnramified : ∀ p (hp : p.Prime), p ≠ 2 ∧ p ≠ ℓ →
     ρ.IsUnramifiedAt hp.toHeightOneSpectrumRingOfIntegersRat
   isFlat : ρ.IsFlatAt (Nat.Prime.toHeightOneSpectrumRingOfIntegersRat (Fact.out : ℓ.Prime))
-  isTameAtTwo : ∃ (π : V →ₗ[R] R) (hπ : Function.Surjective π) (δ : GaloisRep ℚ_[2] R R),
-    -- δ is unramified and
-    (sorry ≤ δ.ker) ∧
+  isTameAtTwo : ∃ (π : V →ₗ[R] R) (_ : Function.Surjective π) (δ : GaloisRep ℚ_[2] R R),
+    -- δ is unramified (this is a bit of a random way to say this) and
+    (AddSubgroup.inertia ((𝔪 Z2bar).toAddSubgroup : AddSubgroup Z2bar) (Γ ℚ_[2]) ≤ δ.ker) ∧
+    -- δ² = 1 and
     (∀ g : Γ ℚ_[2], δ g * δ g = 1) ∧
+    -- π is Galois-equivariant
     ∀ g : Γ ℚ_[2], ∀ v : V, π (ρ.map (algebraMap ℚ ℚ_[2]) g v) = δ g (π v)
 
-#print Field.absoluteGaloisGroup --ℚ_[2] Padic.field
-
-example : Γ ℚ_[2] = (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] (AlgebraicClosure ℚ_[2])) := rfl
-
-#check Subgroup (Γ ℚ_[2]) -- the type of the `sorry`
-
-instance (K : Type*) [Field K] : MulSemiringAction (Γ K) (Kᵃˡᵍ) := by
-  sorry
-
-#check AddSubgroup (ℚ_[2]ᵃˡᵍ)
---#check AddSubgroup ℚ_[2]ᵃˡᵍ -- fails
-
-instance (K : Type*) [Field K] : SMul (Γ K) (Kᵃˡᵍ) where
-  smul g m := g.toAlgHom m -- maybe?
-
-instance (K : Type*) [Field K] : MulSemiringAction (Γ K) (Kᵃˡᵍ) where
-  one_smul _ := rfl
-  mul_smul _ _ _ := rfl
-  smul_zero g := map_zero g.toAlgHom
-  smul_add g := map_add g.toAlgHom
-  smul_one g := map_one g.toAlgHom
-  smul_mul g := map_mul g.toAlgHom
-
-/-
-Quote from mathlib docs: "AddAction"??
-
-The MulAction G P typeclass says that the monoid G acts multiplicatively on a type P. More precisely this means that the action satisfies the two axioms 1 • p = p and (g₁ * g₂) • p = g₁ • (g₂ • p). A mathematician might simply say that the monoid G acts on P.
-
-For example, if G is a group and X is a type, if a mathematician says say "let G act on the set X" they will probably mean [AddAction G X].
- -/
-#synth MulSemiringAction (Γ ℚ_[2]) (ℚ_[2]ᵃˡᵍ)
-
--- wtf deleting this causes error?
-instance (M R : Type*) [Monoid M] [Semiring R] [MulSemiringAction M R] :
-    MulAction M R := inferInstance
-
-#synth MulAction (Γ ℚ_[2]) (ℚ_[2]ᵃˡᵍ)
-
-#synth SMul ((AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] (AlgebraicClosure ℚ_[2]))) (AlgebraicClosure ℚ_[2])
-
-#check AddSubgroup.inertia (by exact? : AddSubgroup (ℚ_[2]ᵃˡᵍ)) (Γ ℚ_[2])
-
-def Z2bar : ValuationSubring (ℚ_[2]ᵃˡᵍ) := sorry
-
-/-
-Type mismatch
-  ValuationSubring.inertiaSubgroup ℚ_[2] Z2bar
-has type
-  Subgroup ↥(ValuationSubring.decompositionSubgroup ℚ_[2] Z2bar)
-but is expected to have type
-  Subgroup (Γ ℚ_[2])
--/
---def soz : Subgroup (Γ ℚ_[2]) := Z2bar.inertiaSubgroup ℚ_[2]
-
 end GaloisRepresentation
-#check ValuationSubring.inertiaSubgroup
-  /-
-
-  TODO
-
-  2) Define tame at 2
-  -/

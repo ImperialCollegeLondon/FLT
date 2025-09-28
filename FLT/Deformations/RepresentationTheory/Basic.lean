@@ -334,7 +334,9 @@ set_option linter.unusedVariables false in
 /-- The underlying space of a galois rep. This is a type class synonym that allows `G` to act
 on it via `ρ`. -/
 @[nolint unusedArguments]
-abbrev GaloisRep.Space (ρ : GaloisRep K A M) : Type _ := M
+def GaloisRep.Space (ρ : GaloisRep K A M) : Type _ := M
+
+instance (ρ : GaloisRep K A M) : AddCommGroup ρ.Space := show AddCommGroup M from inferInstance
 
 instance (ρ : GaloisRep K A M) : DistribMulAction (Γ K) ρ.Space where
   smul g v := ρ g v
