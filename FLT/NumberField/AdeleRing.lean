@@ -264,7 +264,7 @@ noncomputable def piQuotientEquiv :
   -- The map `⊕ 𝔸 K ≃L[K] 𝔸 L` reduces to quotients `⊕ 𝔸 K / K ≃ₜ+ 𝔸 L / L`
   (ContinuousAddEquiv.quotientPi _).symm.trans <|
     QuotientAddGroup.continuousAddEquiv _ _ (piEquiv K L).toContinuousAddEquiv
-      (comap_piEquiv_principalSubgroup K L)
+      (piEquiv_map_principalSubgroup K L)
 
 end NumberField.AdeleRing
 

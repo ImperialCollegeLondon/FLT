@@ -63,7 +63,6 @@ import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.Data.Set.Prod
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.GroupTheory.Index
-import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
