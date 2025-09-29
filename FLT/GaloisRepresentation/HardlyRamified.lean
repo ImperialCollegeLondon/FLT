@@ -5,6 +5,7 @@ Authors: Kevin Buzzard
 -/
 import FLT.Deformations.Categories
 import FLT.Deformations.RepresentationTheory.Basic
+import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
 import Mathlib.NumberTheory.Padics.Complex
@@ -55,39 +56,6 @@ rank 1, and where `ρ` acts on `W` via an unramified character whose square is t
 open IsDedekindDomain
 open scoped NumberField
 
-def RingEquiv.heightOneSpectrum_comap {A B : Type*} [CommRing A] [CommRing B] (e : A ≃+* B)
-    (P : HeightOneSpectrum B) : HeightOneSpectrum A :=
-  {
-    asIdeal := .comap e P.asIdeal
-    isPrime := P.asIdeal.comap_isPrime e
-    ne_bot h := P.ne_bot <| Ideal.comap_injective_of_surjective e e.surjective <| by
-      rw [h, Ideal.comap_bot_of_injective e e.injective]
-  }
-
-open IsDedekindDomain in
-def RingEquiv.heightOneSpectrum {A B : Type*} [CommRing A] [CommRing B] (e : A ≃+* B) :
-    HeightOneSpectrum A ≃ HeightOneSpectrum B where
-      toFun := e.symm.heightOneSpectrum_comap
-      invFun := e.heightOneSpectrum_comap
-      left_inv P := by
-        ext1
-        convert Ideal.comap_comap e.toRingHom e.symm.toRingHom
-        simp
-      right_inv Q := by
-        ext1
-        convert Ideal.comap_comap e.symm.toRingHom e.toRingHom
-        simp
-
-def Nat.Prime.toHeightOneSpectrumInt {p : ℕ} (hp : p.Prime) : HeightOneSpectrum ℤ where
-  asIdeal := .span {(p : ℤ)}
-  isPrime := by
-    rwa [Ideal.span_singleton_prime (Int.ofNat_ne_zero.mpr hp.ne_zero), ← prime_iff_prime_int]
-  ne_bot := mt Submodule.span_singleton_eq_bot.mp (Int.ofNat_ne_zero.mpr hp.ne_zero)
-
-noncomputable def Nat.Prime.toHeightOneSpectrumRingOfIntegersRat {p : ℕ} (hp : p.Prime) :
-    IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ) :=
-  Rat.ringOfIntegersEquiv.symm.heightOneSpectrum <| hp.toHeightOneSpectrumInt
-
 namespace GaloisRepresentation
 
 local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
@@ -96,8 +64,8 @@ local notation3 "𝔪" => IsLocalRing.maximalIdeal
 
 universe u
 
+/-- Z2bar is the ring of integers of `ℚ_[2]ᵃˡᵍ`. -/
 noncomputable abbrev Z2bar : ValuationSubring (ℚ_[2]ᵃˡᵍ) := Valued.v.valuationSubring
-noncomputable example : Z2bar →+ ℚ_[2]ᵃˡᵍ := by exact Z2bar.subtype.toAddMonoidHom
 
 instance : MulAction (Γ ℚ_[2]) Z2bar where
   smul g z := ⟨g z, by
