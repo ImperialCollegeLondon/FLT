@@ -269,7 +269,7 @@ lemma _root_.IsIntegralClosure.isLocalizedModule : IsLocalizedModule (nonZeroDiv
       obtain ⟨x, hx⟩ := x
       simpa only [← IsScalarTower.algebraMap_apply, Module.End.isUnit_iff]
           using hlocal.map_units ⟨_, x, hx, rfl⟩
-    surj' y := by
+    surj y := by
       obtain ⟨⟨b, _, s, hs, rfl⟩, hx⟩ := (hlocal.surj) y
       exact ⟨(b, ⟨s, hs⟩), by simpa [Submonoid.smul_def] using hx⟩
     exists_of_eq {x₁ x₂} e := by
