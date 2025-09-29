@@ -13,7 +13,7 @@ import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
-import FLT.Mathlib.RingTheory.Finiteness.Pi
+import Mathlib.RingTheory.Finiteness.Basic
 import Mathlib.Algebra.Algebra.Subalgebra.Pi
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.Group.Int.TypeTags

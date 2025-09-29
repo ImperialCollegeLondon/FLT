@@ -110,7 +110,7 @@ lemma index_mul_haar_subgroup [H.FiniteIndex] (hH : MeasurableSet (H : Set G)) (
 @[to_additive index_mul_addHaar_addSubgroup_eq_addHaar_addSubgroup]
 lemma index_mul_haar_subgroup_eq_haar_subgroup [H.IsFiniteRelIndex K] (hHK : H ≤ K)
     (hH : MeasurableSet (H : Set G)) (hK : MeasurableSet (K : Set G)) (μ : Measure G)
-    [μ.IsMulLeftInvariant] : H.relindex K * μ H = μ K := by
+    [μ.IsMulLeftInvariant] : H.relIndex K * μ H = μ K := by
   have := isMulLeftInvariant_subtypeVal μ hK
   have := index_mul_haar_subgroup (H := H.subgroupOf K) (measurable_subtype_coe hH)
     (μ.comap Subtype.val)

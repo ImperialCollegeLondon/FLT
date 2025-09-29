@@ -1,7 +1,6 @@
 import Mathlib.Topology.Constructions
-import FLT.Mathlib.Data.Set.Function
 import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Data.Set.Function
+import Mathlib.Data.Set.Restrict
 
 theorem TopologicalSpace.prod_mono {α β : Type*} {σ₁ σ₂ : TopologicalSpace α}
     {τ₁ τ₂ : TopologicalSpace β} (hσ : σ₁ ≤ σ₂) (hτ : τ₁ ≤ τ₂) :
