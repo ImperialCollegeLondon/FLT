@@ -214,7 +214,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
       ht₁ ht₂ (l := fun i ↦ ⟨maximalIdeal Λ ^ i, isOpen_maximalIdeal_pow _ _⟩)
       (fun _ _ h ↦ Ideal.pow_le_pow_right h)
       (fun α ↦ have : Finite (Λ ⧸ α.1) := AddSubgroup.quotient_finite_of_isOpen _ α.2
-        exists_maximalIdeal_pow_le_of_finite_quotient _)
+        exists_maximalIdeal_pow_le_of_isArtinianRing_quotient _)
     let y : s₀ →₀ PatchingModule Λ M F := Finsupp.equivFunOnFinite.symm fun a ↦
       ⟨fun i ↦ (v i).1 a, fun α β h ↦ by
         simp only [LinearMap.coe_restrictScalars, ← hv α β h, Finsupp.mapRange.linearMap_apply,

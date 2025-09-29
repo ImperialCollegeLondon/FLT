@@ -412,7 +412,7 @@ lemma PatchingModule.map_surjective
     (l := fun k ↦ ⟨maximalIdeal R ^ k, isOpen_maximalIdeal_pow'' R k⟩)
     (fun i j ↦ Ideal.pow_le_pow_right)
     (fun α ↦ have : Finite (R ⧸ α.1) := AddSubgroup.quotient_finite_of_isOpen _ α.2
-      exists_maximalIdeal_pow_le_of_finite_quotient _)
+      exists_maximalIdeal_pow_le_of_isArtinianRing_quotient _)
   refine ⟨⟨fun i ↦ (v i).1, fun α β h ↦ congr_arg Subtype.val (hv α β h)⟩, ?_⟩
   refine Subtype.ext (funext fun α ↦ ?_)
   have : _ = _ := (v α).2

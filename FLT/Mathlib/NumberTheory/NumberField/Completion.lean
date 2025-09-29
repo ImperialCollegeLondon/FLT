@@ -1,4 +1,4 @@
-import Mathlib.NumberTheory.NumberField.Completion
+import Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
 
 /-!
 # TODO

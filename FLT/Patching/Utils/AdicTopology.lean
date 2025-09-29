@@ -89,7 +89,7 @@ lemma isOpen_iff_finite_quotient' [CompactSpace R] {I : Ideal R} :
   · intro H
     exact AddSubgroup.quotient_finite_of_isOpen _ H
   · intro H
-    obtain ⟨n, hn⟩ := exists_maximalIdeal_pow_le_of_finite_quotient I
+    obtain ⟨n, hn⟩ := exists_maximalIdeal_pow_le_of_isArtinianRing_quotient I
     exact AddSubgroup.isOpen_mono (H₁ := (maximalIdeal R ^ n).toAddSubgroup)
       (H₂ := I.toAddSubgroup) hn (isOpen_maximalIdeal_pow'' R n)
 
@@ -187,7 +187,7 @@ instance (priority := 100) [IsNoetherianRing R]
   intro s hs
   obtain ⟨I, hI, hIs⟩ := exists_ideal_isOpen_and_subset hs
   have : Finite (R ⧸ I) := AddSubgroup.quotient_finite_of_isOpen _ hI
-  obtain ⟨n, hn⟩ := exists_maximalIdeal_pow_le_of_finite_quotient I
+  obtain ⟨n, hn⟩ := exists_maximalIdeal_pow_le_of_isArtinianRing_quotient I
   exact ⟨n, subset_trans hn hIs⟩
 
 lemma Continuous.of_isLocalHom {R S : Type*} [CommRing R] [IsLocalRing R] [TopologicalSpace R]
