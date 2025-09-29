@@ -6,7 +6,7 @@ In chapter~\ref{ch_reductions} we reduced FLT, modulo a hard theorem from the 19
 to Theorem~\ref{FLT.Wiles_Frey}, the assertion that $p$-torsion in the Frey
 curve is reducible. In this chapter we deduce this assertion from three more complex claims
 about ``hardly ramified'' Galois representations. It is relatively straightforward
-to reduce one of these claims to a result of Fontaine proved in the 1980s in his
+to reduce one of these three claims to a result of Fontaine proved in the 1980s in his
 paper on the nonexistence of nontrivial abelian schemes over $\Z$. The other two
 claims lie deeper, and their proofs use techniques initially developed by Wiles in
 the 1990s.
@@ -21,49 +21,57 @@ is to prove that $\rho$ is reducible.
 What we need to leverage is the fact that $\rho$ has very little ramification. To give
 a toy example before we start: if $K$ is a number field (i.e., a finite extension of $\Q$)
 and if the extension $K/\Q$ is unramified at all primes, then an old theorem of
-Minkowski tells us that $K=\Q$. We want to prove a theorem in a similar vein; if
-a 2-dimensional mod $p$ Galois representation is hardly ramified, then it is reducible.
+Minkowski tells us that $K=\Q$. We want to prove a theorem in a similar vein, namely
+that if a 2-dimensional mod $p$ Galois representation is ``hardly ramified'', then it is reducible.
 Below, we give a precise
-definition of what it means for a 2-dimensional representation $\GQ\to\GL_2(R)$
-to be hardly ramified. Before we do that, we need to say precisely which rings~$R$
-we will allow. We recall the following definition, due to Grothendieck:
+definition of what it means for a continuous 2-dimensional representation $\GQ\to\GL_2(R)$
+to be hardly ramified. Before we do that, we need to say precisely which topological rings~$R$
+we will allow. We say that a topological ring is emph{pro-Artinian} if it is a projective
+limit of Artin local rings each equipped with the discrete topology, and if it has the
+projective limit topology. We are only concerned with local pro-Artinian rings with finite
+residue field; such things can be checked to be the same thing as topological
+local rings with finite residue field whose underlying topological space is profinite,
+and such that additive translates of open ideals form a basis for the topology.
+Let us call such rings ``coefficient rings'' for now.
 
-\begin{definition}
-  \label{pseudocompact}
-  A commutative topological ring~$R$ is \emph{pseudocompact} if it satisfies
-  the following properties:
+\begin{remark} We make some remarks to orient the reader.
   \begin{itemize}
-    \item If $U\subseteq R$ is any open set containing 0, then there's an open ideal $I\subseteq U$.
-    \item If $I\subseteq R$ is an open ideal, then $R/I$ is Artinian.
-    \item The natural map $R\to\lim_{\leftarrow} R/I$ is a topological and algebraic isomorphism, where $I$ runs
-      over the open ideals of $R$. Here $R/I$ has the discrete topology and the projective
-      limit has the projective limit topology.
-  \end{itemize}
-\end{definition}
-
-\begin{definition}
-  \label{coefficient-ring}
-  \uses{pseudocompact}
-  A \emph{coefficient ring} is a local pseudocompact topological ring $R$ with
-  finite residue field.
-\end{definition}
-
-Equivalently, a coefficient ring is a local profinite topological ring with finite
-residue field. Examples of coefficient rings include finite fields, and integer rings of finite extensions
-of $\Q_p$. There are also non-Noetherian examples, for example the projective limit over $n$ of
+    \item Any complete local Noetherian ring with finite residue field is a coefficient ring,
+      if the ring is equipped with the $\m$-adic topology where $\m$ is the maximal ideal.
+      In this case, all powers of $\m$ are open.
+    \item In particular finite fields, and integer rings of finite extensions
+      of $\Q_p$, are coefficient rings.
+    \item If $R$ is a coefficient ring then $R$ is isomorphic to the projective limit
+      of the finite rings $R/I$ as $I$ runs over the open ideals of~$R$.
+    \item A non-Noetherian example of a coefficient ring is the projective limit over $n$ of
 the rings $\Z/p\Z[\varepsilon_1,\ldots,\varepsilon_n]/(\forall i,j,\varepsilon_i\varepsilon_j=0)$;
-these rings are convenient to include
-for technical reasons. If $R$ is a coefficient ring with maximal ideal $\m$
-and residue field $k$ of characteristic~$\ell>0$, then for any open ideal~$I$ there is
-a ring homomorphism $\Z/\ell^n\Z\to R/I$ for all sufficiently large naturals $n$,
-and thus a continuous ring homomorphism $\Z_{\ell}\to R$. The $\ell$-adic cyclotomic character
-is a continuous
-representation $\GQ\to\Z_{\ell}^\times$ and it thus induces a continuous
-representation $\GQ\to R^\times$ which we also refer to as the cyclotomic character.
+these rings are convenient to include as coefficient rings for technical reasons; they make
+representability theorems easier.
+    \item The category of coefficient rings is equivalent to the pro-category of the
+      category of finite local rings.
+    \item A coefficient ring is pseudocompact in the sense of Grothendieck. A pseudocompact
+      local ring is however a more general concept as such a thing may have an infinite
+      residue field and would thus not be profinite.
+    \item If $R$ is a coefficient ring with residue field of characteristic $\ell$,
+  then there is a unique continuous map $\Z_\ell\to R$. Indeed, it suffices to prove that there
+  is a unique continuous map $\Z_\ell\to R/I$ for each
+  open ideal~$I$, but $R/I$ is a finite local ring with residue field of characteristic $\ell$.
+  $R/I$ is hence Artinian, so some power of the maximal ideal is zero by Nakayama. This means
+  that $\ell^N=0$ for some sufficiently large $N$, and hence $R/I$ is a $\Z/\ell^N\Z$-algebra
+  and thus admits admits a unique map from $\Z_\ell$.
+    \item It will be more convenient to fix once and for all the integer $\mathcal{O}$ in a
+  finite extension of $\Q_\ell$ and consider ``coefficient $\mathcal{O}$-algebras'', namely
+  coefficient rings~$R$ equipped with a continuous map $\mathcal{O}\to R$ which is a local
+  homomorphism inducing an isomorphism on residue fields.
+  \end{itemize}
+\end{remark}
+
+Because a coefficient ring~$R$ with residue field of characteristic $\ell$ is naturally
+a $\Z_\ell$-algebra, we can talk about the $\ell$-adic cyclotomic character $\GQ\to R^\times$.
+We are now ready to define hardly ramified representations.
 
 \begin{definition}
   \label{hardly_ramified}
-  \uses{coefficient-ring}
   Let $R$ be a coefficient ring with finite residue field of characteristic $\ell\geq3$.
   Let $V$ be a finite free $R$-module of rank~2, equipped with the product topology. A
   continuous representation $\rho: \GQ\to \GL_R(V)$ is said to be \emph{hardly ramified} if it
@@ -105,6 +113,12 @@ A well-known result, which basically goes back to Frey, is the following:
   is Proposition~5 and (4.1.13) of~\cite{serreconj}.
 \end{proof}
 
+
+Note that irreducibility and absolute irreducibility for hardly ramified mod $\ell$ representations
+are the same, because our assumptions that $\ell\geq3$
+and that the determinant is cyclotomic imply that the image of complex conjugation
+has distinct eigenvalues defined over the ground field.
+
 The key theorem about hardly ramified representations is the following.
 
 \begin{theorem}
@@ -112,6 +126,7 @@ The key theorem about hardly ramified representations is the following.
   If $\ell\geq 3$ is a prime and $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ is hardly ramified,
   then $\rho$ is reducible.
 \end{theorem}
+
 
 Note that this (deep) claim is a consequence of Serre's conjecture~\cite{serreconj},
 now a theorem of Khare and Wintenberger~\cite{kwII}, and indeed we shall use
@@ -132,7 +147,7 @@ Serre's conjecture. Given this result, we can deduce Theorem~\ref{FLT.Wiles_Frey
   and thus reducible by theorem~\ref{hardly_ramified_reducible}.
 \end{proof}
 
-Our job, in the first phase of this project, is hence reduced to proving
+Our job of reducing FLT to theorems of the 1980s is hence reduced to proving
 Theorem~\ref{hardly_ramified_reducible}.
 
 \subsection{Hardly ramified mod $p$ representations are reducible}
@@ -154,7 +169,8 @@ an irreducible hardly ramified mod $\ell$ representation lifts to an $\ell$-adic
 \end{theorem}
 
 Next we claim that a hardly ramified $\ell$-adic representation ``spreads out'' to a compatible
-family of hardly ramified $q$-adic representations for all primes $q$.
+family of hardly ramified $q$-adic representations for all odd primes $q$ (note that we have
+not made a definition of a hardly ramified 2-adic representation).
 
 \begin{theorem}
   \label{hardly-ramified-spreads-out}
@@ -169,7 +185,7 @@ family of hardly ramified $q$-adic representations for all primes $q$.
     \item There is some $\lambda\mid\ell$ of $M$ such that $\rho_\lambda\cong\rho$,
       the isomorphism happening over some appropriate local field containing a copy
       of $M_\lambda$ and a copy of~$K$;
-    \item If $\mu_1$ and $\mu_2$ are two finite places of $M$ with odd characteristics $m_1$
+    \item If $\mu_1$ and $\mu_2$ are two finite places of $M$ with odd residue characteristics $m_1$
       and $m_2$, and if $p\nmid 2m_1m_2$ is prime, then $\rho_{\mu_1}$ and $\rho_{\mu_2}$
       are both unramified at~$p$ and the characteristic polynomials $\rho_{\mu_1}(\Frob_p)$
       and $\rho_{\mu_2}(\Frob_p)$ lie in $M[X]$ and are equal.
@@ -184,7 +200,8 @@ However, we can essentially completely classify the hardly ramified 3-adic Galoi
   \label{hardly-ramified-3adic-reducible}
   \uses{hardly-ramified}
   Suppose $L/\Q_3$ is a finite extension, with integer ring $\calO_L$, and suppose
-  $\rho_3:\GQ\to\GL_2(\calO_L)$ is hardly ramified. Then $\rho_3^{ss}=1\oplus\chi_3$
+  $\rho_3:\GQ\to\GL_2(\calO_L)$ is hardly ramified. Then (considered as a representation
+  to $\GL_2(L)$) $\rho_3^{ss}=1\oplus\chi_3$
   where $1$ is the trivial character and $\chi_3$ is the 3-adic cyclotomic character.
 \end{theorem}
 
@@ -203,10 +220,12 @@ as we now show.
   $q$-adic Galois representations. By theorem~\ref{hardly-ramified-3adic-reducible},
   any 3-adic member $\rho_3$ of this family has semisimplification $1\oplus\chi_3$ and in particular
   for $p\nmid 6$ we have that the characteristic polynomial of $\rho_3(\Frob_p)=(X-p)(X-1).$
-  But by compatibility of the family we know that for $p\nmid 6\ell$ the characteristic
+  By compatibility of the family we deduce that for $p\nmid 6\ell$ the characteristic
   polynomial of $\rho(\Frob_p)$ is $(X-p)(X-1)$, and thus the characteristic polynomial
-  of $\overline{\rho}(\Frob_p)$ is $(X-p)(X-1)$. By the Brauer-Nesbitt theorem, $\overline{\rho}$
-  is reducible, the contradiction we seek.
+  of $\overline{\rho}(\Frob_p)$ is $(X-p)(X-1)$. By the Cebotarev density theorem,
+  $\overline{\rho}$ and $1\oplus\chi$ have the same characteristic polynomials everywhere
+  (here $\chi$ is the mod $\ell$ cyclotomic character). Thus by the Brauer-Nesbitt theorem,
+  $\overline{\rho}$ is reducible, the contradiction we seek.
 \end{proof}
 
 What remains then (modulo several results which were known in the 1980s),
@@ -215,9 +234,8 @@ is to prove the three theorems~\ref{hardly-ramified-lifts},
 By far the easiest is theorem~\ref{hardly-ramified-3adic-reducible}; this follows
 from old estimates of Fontaine (ultimately relying on bounds for root discriminants due to
 Odlyzko and Poitou), originally developed to prove that there was no
-nontrivial abelian scheme over $\Z$. The other two theorems are deeper, and both use
+nontrivial abelian scheme over $\Z.$ The other two theorems are deeper, and both use
 modern variants of Wiles' $R=T$ machinery.
 
-The story stops here for now; as we write more LaTeX it will become clear that here
-the proof basically bifurcates, with different techniques used to prove
-these three theorems.
+We have not yet written any more LaTeX on how to proceed further; the rest of
+this blueprint should be considered as more unfocussed thoughts.
