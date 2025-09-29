@@ -5,7 +5,6 @@ Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
 import FLT.Mathlib.RingTheory.Localization.BaseChange -- removing this breaks a simp proof
 import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.Algebra.Module.FinitePresentation
 import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.RingTheory.DedekindDomain.IntegralClosure

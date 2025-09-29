@@ -1,4 +1,5 @@
-import Mathlib.Topology.Algebra.Group.Basic
+import Mathlib.Topology.Algebra.Constructions
+import Mathlib.Topology.Algebra.Monoid.Defs
 
 open MulOpposite Set Units in
 lemma embedProduct_preimageOf (L : Type*) [Monoid L] : (range ⇑(embedProduct L)) =

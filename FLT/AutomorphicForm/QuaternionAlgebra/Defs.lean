@@ -3,7 +3,6 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.FixedPoints.Basic
@@ -197,8 +196,6 @@ lemma _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
 
 open ConjAct
 
-variable [IsQuaternionAlgebra F D]
-
 open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
 quaternion algebra. -/
@@ -224,7 +221,6 @@ def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAu
 instance : SMul (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
 
-omit [IsQuaternionAlgebra F D] in
 @[simp]
 lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
@@ -277,8 +273,6 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
   add_smul r s g := by ext; simp [smul_apply, add_mul]
   zero_smul g := by ext; simp [smul_apply]
 
-variable [IsQuaternionAlgebra F D]
-
 instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R
     (WeightTwoAutomorphicForm F D R) where
   smul_comm r g φ := by
@@ -290,8 +284,6 @@ end comm_ring
 end WeightTwoAutomorphicForm
 
 section finite_level
-
-variable [IsQuaternionAlgebra F D]
 
 /--
 `WeightTwoAutomorphicFormOfLevel U R` is the `R`-valued weight 2 automorphic forms of a fixed

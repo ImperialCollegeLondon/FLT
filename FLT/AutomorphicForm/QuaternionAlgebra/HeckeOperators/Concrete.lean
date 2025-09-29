@@ -10,6 +10,7 @@ import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits -- for (π 0; 0 1)
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 /-
 
 # Concrete Hecke operators
