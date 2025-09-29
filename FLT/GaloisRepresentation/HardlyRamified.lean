@@ -14,21 +14,30 @@ import Mathlib.RingTheory.SimpleRing.Principal
 
 # Hardly ramified representations
 
-Let `R` be a complete local Noetherian ring with residue charactestic `p>2`, satisfying
-and let $\rho:Gal(\overline{\Q}/\Q)\to GL_2(R)$ be a continuous Galois representation.
-We say that `ρ` is *hardly ramified* if it has cyclotomic determinant, is unramified outside
-`2p`, tamely
+Let `R` be a complete local Noetherian ring with residue charactestic `p>2` (or a slightly
+more general class of topological ring) and let
+$\rho:Gal(\overline{\mathbb{Q}}/\mathbb{Q})\to GL_2(R)$ be a continuous Galois
+representation. We say that `ρ` is *hardly ramified* if it has cyclotomic determinant, is
+unramified outside `2p`, is flat at `p` and (possibly after conjugation) is
+upper-triangular at 2 with unramified quotient of order 1 or 2.
 
-commutative local topological ring with finite residue field
-## "Coefficient rings."
+The reason this definition is useful to us is that the `p`-torsion in the Frey
+curve is hardly ramified (this is standard, although the full proof is long and needs the
+theory of the Tate curve, as well as many standard facts about elliptic curves such as the
+Weil pairing). Serre's conjecture says that such a representation cannot be irreducible
+(as it should be modular of weight 2 and level 2).
 
+Furthermore, mod `p` hardly ramified representations can be lifted to characteristic zero,
+and `p`-adic hardly ramified representations can be put into compatible families (these are
+hard theorems). Finally, 3-adic hardly ramified representations can be classified
+(this is also a hard theorem).
 
-
+## More details
 
 Say `ℓ ≥ 3` is a prime, `k` is a finite field of characteristic `ℓ` and `R` is a projective
 limit of Artin local rings with residue field `k` along local ring maps which induce
-, equipped with the projective limit
-topology. To give a continuous surjective ring homomorphism from `R` to a
+the identity on `k`. Give the Artin local rings the discrete topology and `R` the
+projective limit topology, so that `R` is profinite.
 
 Let `V` be an `R`-module, free of rank 2 and with the product topology
 (i.e., the `R`-module topology). A representation `ρ : G_Q → GL_R(V)` is said to be
@@ -36,19 +45,10 @@ Let `V` be an `R`-module, free of rank 2 and with the product topology
 
 1) `det ρ` is the mod `ℓ` cyclotomic character;
 2) `ρ` is unramified outside `2ℓ`;
-3) `ρ|_{G_ℓ}` is flat;
- (this means that for every open ideal `I` of `R`, the representation
-`G_Q → GL_(R/I)(V/I)` come from finite flat group schemes (note
-  that `V/I` is a finite set); and
+3) `ρ|_{G_ℓ}` is flat (this means that for every open ideal `I` of `R`, the representation
+`G_Q → GL_(R/I)(V/I)` come from finite flat group schemes; note that `V/I` is a finite set); and
 4) there is a `G_2`-stable exact sequence `0 → K → V → W → 0` with `K` and `W` `R`-free of
 rank 1, and where `ρ` acts on `W` via an unramified character whose square is trivial.
-
-It is standard (although the full proof is long and needs the theory of the Tate curve, as
-well as many standard facts about elliptic curves such as the Weil pairing) that the `ℓ`-torsion
-in the Frey curve is hardly ramified. It is a deep theorem (originally due to Wiles, but now
-it follows from the proof of Serre's conjecture) that any hardly ramified
-Galois representation to `GL_2(k)` must be reducible, as Serre's predicted weight is 2 and
-the predicted level is 1 or 2.
 
 -/
 
