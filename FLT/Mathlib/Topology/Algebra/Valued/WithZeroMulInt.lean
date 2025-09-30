@@ -5,7 +5,7 @@ Authors: Salvatore Mercuri
 -/
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Algebra.Order.GroupWithZero.Canonical
+import Mathlib.Algebra.Order.GroupWithZero.Canonical
 import Mathlib.RingTheory.DiscreteValuationRing.Basic
 import Mathlib.RingTheory.Ideal.IsPrincipalPowQuotient
 import Mathlib.Analysis.Normed.Ring.Lemmas

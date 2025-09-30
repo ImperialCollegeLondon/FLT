@@ -2,7 +2,7 @@
 
 \section{Overview}
 
-In the last chapter we explained how, given a counterexample to Fermat's Last Theorem, we could construct a Frey package and thus a Frey curve, which is an elliptic curve with some interesting properties. In this chapter we start with an overview of parts of the theory of the arithmetic of elliptic curves. Following
+In Chapter~\ref{ch_reductions} we explained how, given a counterexample to Fermat's Last Theorem, we could construct a Frey package and thus a Frey curve, which is an elliptic curve with some interesting properties. In this chapter we start with an overview of parts of the theory of the arithmetic of elliptic curves. Following
 this we sketch proofs of the two main results of this chapter: firstly that the $p$-torsion $\rho$ in the Frey curve is ``hardly ramified'', and secondly that Mazur's result on the possible torsion of elliptic curves implies that $\rho$ must be irreducible. Everything here follows from standard results about elliptic curves, however almost none of these results are in {\tt mathlib} as I am writing this, so there is plenty to be done here.
 
 \section{The arithmetic of elliptic curves}
@@ -29,12 +29,12 @@ purely group-theoretic result:
   with $a_i\mid a_{i+1}$ (this is possible by the structure theorem for finite abelian groups), and then to apply our hypothesis firstly with $d=a_1$ to deduce $t=r$ and then with $d=a_t$ to deduce $a_1=a_t$.
 \end{proof}
 
-\begin{corollary}\label{Elliptic_curve_n_torsion_2d}\lean{WeierstrassCurve.n_torsion_dimension}
+\begin{corollary}\label{Elliptic_curve_n_torsion_2d}\lean{WeierstrassCurve.n_torsion_dimension}\leanok
   Let $n$ be a positive integer, let $F$ be a separably closed
   field with $n$ nonzero in $F$, and let $E$ be an elliptic curve over $F$. Then the $n$-torsion $E(F)[n]$
   in the $F$-points of $E$ is a finite group isomorphic to $(\Z/n\Z)^2$.
 \end{corollary}
-\begin{proof}\uses{group_theory_lemma,WeierstrassCurve.n_torsion_card}
+\begin{proof}\uses{group_theory_lemma,WeierstrassCurve.n_torsion_card}\leanok
   This follows from the previous group-theoretic lemma~\ref{group_theory_lemma} and
   theorem~\ref{WeierstrassCurve.n_torsion_card}.
 \end{proof}

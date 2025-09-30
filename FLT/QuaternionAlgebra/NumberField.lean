@@ -1,8 +1,12 @@
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Instances.Matrix
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Topology.Homeomorph.Defs
+import Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Hacks.RightActionInstances
+import FLT.NumberField.Completion.Finite
 /-!
 
 # Definitions of various compact open subgrups of Dˣ and GL₂(𝔸_F^∞)
@@ -51,10 +55,23 @@ variable {F}
 
 namespace IsDedekindDomain
 
+/-- `M_2(O_v)` as a subring of `M_2(F_v)`. -/
+noncomputable def M2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
+    Subring (Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) :=
+  (v.adicCompletionIntegers F).matrix
+
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
   MonoidHom.range (Units.map
     (RingHom.mapMatrix (v.adicCompletionIntegers F).subtype).toMonoidHom)
+
+theorem M2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
+    IsOpen (M2.localFullLevel v).carrier :=
+  (NumberField.isOpenAdicCompletionIntegers F v).matrix
+
+theorem M2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
+    IsCompact (M2.localFullLevel v).carrier :=
+  (isCompact_iff_compactSpace.mpr (NumberField.instCompactSpaceAdicCompletionIntegers F v)).matrix
 
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localFullLevel v).carrier :=
@@ -95,6 +112,22 @@ lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
     MonoidHom.mk'_apply, Matrix.GeneralLinearGroup.ext_iff, Matrix.of_apply] at hx
   obtain ⟨x', hx'⟩ := hx
   simp only [← hx', ← HeightOneSpectrum.mem_adicCompletionIntegers, SetLike.coe_mem]
+
+lemma GL2.mem_localFullLevel_iff_v_le_one_and_v_det_eq_one {v : HeightOneSpectrum (𝓞 F)}
+    {x : GL (Fin 2) (v.adicCompletion F)} :
+    x ∈ localFullLevel v ↔ (∀ (i j), Valued.v (x i j) ≤ 1) ∧ Valued.v x.val.det = 1 :=
+  ⟨fun h ↦ ⟨GL2.v_le_one_of_mem_localFullLevel _ h, GL2.v_det_val_mem_localFullLevel_eq_one h⟩, by
+    intro ⟨h₁, h₂⟩
+    let M : Matrix (Fin 2) (Fin 2) (v.adicCompletionIntegers F) :=
+      Matrix.of fun i j => ⟨x i j, h₁ i j⟩
+    have det_eq : M.det = x.val.det := by
+      rw [Matrix.det_fin_two, Matrix.det_fin_two]; simp [M]
+    have isUnit_M :=
+      ((Matrix.isUnit_iff_isUnit_det _).mpr (Valued.isUnit_valuationSubring_iff.mpr (det_eq ▸ h₂)))
+    use isUnit_M.unit
+    ext i j; fin_cases i; all_goals fin_cases j
+    all_goals simp [M]
+  ⟩
 
 open Valued
 
@@ -178,6 +211,14 @@ noncomputable def GL2.toAdicCompletion
     GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) →*
     GL (Fin 2) (v.adicCompletion F) :=
   Units.map (RingHom.mapMatrix (FiniteAdeleRing.toAdicCompletion v)).toMonoidHom
+
+/-- `GL_2(𝔸_F^∞)` is isomorphic and homeomorphic to the
+restricted product of the local components `GL_2(F_v)`. -/
+noncomputable def GL2.restrictedProduct :
+    GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
+    Πʳ (v : HeightOneSpectrum (𝓞 F)),
+      [(GL (Fin 2) (v.adicCompletion F)), (M2.localFullLevel v).units] :=
+  ContinuousMulEquiv.restrictedProductMatrixUnits (NumberField.isOpenAdicCompletionIntegers F)
 
 end IsDedekindDomain.FiniteAdeleRing
 

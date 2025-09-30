@@ -1,0 +1,223 @@
+\chapter{Reducibility of {\it p}-torsion of the Frey curve}\label{ch_freyreduction}
+
+\section{Overview}
+
+In chapter~\ref{ch_reductions} we reduced FLT, modulo a hard theorem from the 1970s,
+to Theorem~\ref{FLT.Wiles_Frey}, the assertion that $p$-torsion in the Frey
+curve is reducible. In this chapter we deduce this assertion from three more complex claims
+about ``hardly ramified'' Galois representations. It is relatively straightforward
+to reduce one of these claims to a result of Fontaine proved in the 1980s in his
+paper on the nonexistence of nontrivial abelian schemes over $\Z$. The other two
+claims lie deeper, and their proofs use techniques initially developed by Wiles in
+the 1990s.
+
+\section{Hardly ramified representations}
+
+Let $(a,b,c,p)$ be a Frey package (so in particular $p\geq5$ is prime and $a^p+b^p=c^p$),
+let $E$ be the corresponding Frey curve over $\Q$, and let $\rho:\GQ\to\Aut(E(\Qbar)[p])$
+be the 2-dimensional Galois representation on the $p$-torsion of~$E$. Recall that our goal
+is to prove that $\rho$ is reducible.
+
+What we need to leverage is the fact that $\rho$ has very little ramification. To give
+a toy example before we start: if $K$ is a number field (i.e., a finite extension of $\Q$)
+and if the extension $K/\Q$ is unramified at all primes, then an old theorem of
+Minkowski tells us that $K=\Q$. We want to prove a theorem in a similar vein; if
+a 2-dimensional mod $p$ Galois representation is hardly ramified, then it is reducible.
+Below, we give a precise
+definition of what it means for a 2-dimensional representation $\GQ\to\GL_2(R)$
+to be hardly ramified. Before we do that, we need to say precisely which rings~$R$
+we will allow. We recall the following definition, due to Grothendieck:
+
+\begin{definition}
+  \label{pseudocompact}
+  A commutative topological ring~$R$ is \emph{pseudocompact} if it satisfies
+  the following properties:
+  \begin{itemize}
+    \item If $U\subseteq R$ is any open set containing 0, then there's an open ideal $I\subseteq U$.
+    \item If $I\subseteq R$ is an open ideal, then $R/I$ is Artinian.
+    \item The natural map $R\to\lim_{\leftarrow} R/I$ is a topological and algebraic isomorphism, where $I$ runs
+      over the open ideals of $R$. Here $R/I$ has the discrete topology and the projective
+      limit has the projective limit topology.
+  \end{itemize}
+\end{definition}
+
+\begin{definition}
+  \label{coefficient-ring}
+  \uses{pseudocompact}
+  A \emph{coefficient ring} is a local pseudocompact topological ring $R$ with
+  finite residue field.
+\end{definition}
+
+Equivalently, a coefficient ring is a local profinite topological ring with finite
+residue field. Examples of coefficient rings include finite fields, and integer rings of finite extensions
+of $\Q_p$. There are also non-Noetherian examples, for example the projective limit over $n$ of
+the rings $\Z/p\Z[\varepsilon_1,\ldots,\varepsilon_n]/(\forall i,j,\varepsilon_i\varepsilon_j=0)$;
+these rings are convenient to include
+for technical reasons. If $R$ is a coefficient ring with maximal ideal $\m$
+and residue field $k$ of characteristic~$\ell>0$, then for any open ideal~$I$ there is
+a ring homomorphism $\Z/\ell^n\Z\to R/I$ for all sufficiently large naturals $n$,
+and thus a continuous ring homomorphism $\Z_{\ell}\to R$. The $\ell$-adic cyclotomic character
+is a continuous
+representation $\GQ\to\Z_{\ell}^\times$ and it thus induces a continuous
+representation $\GQ\to R^\times$ which we also refer to as the cyclotomic character.
+
+\begin{definition}
+  \label{hardly_ramified}
+  \uses{coefficient-ring}
+  Let $R$ be a coefficient ring with finite residue field of characteristic $\ell\geq3$.
+  Let $V$ be a finite free $R$-module of rank~2, equipped with the product topology. A
+  continuous representation $\rho: \GQ\to \GL_R(V)$ is said to be \emph{hardly ramified} if it
+  satisfies the following four conditions:
+  \begin{enumerate}
+  \item $\det(\rho):\GQ\to R^\times$ is the cyclotomic character;
+  \item $\rho$ is unramified outside $2\ell$;
+  \item The restriction of $\rho$ to $\Gal(\Qbar_2/\Q_2)$ is reducible (more precisely,
+  there is a short exact sequence $0\to R\to V\to R\to 0$ which is stable
+  under the action of $\Gal(\Qbar_2/\Q_2)$) and the Galois action on the 1-dimensional
+  quotient is an unramified representation of $\Gal(\Qbar_2/\Q_2)$ whose square is trivial;
+  \item The restriction of $\rho$ to $\GQl$ is flat, by which we mean that for all open
+  ideals $I$ of $R$, the (finite image) representation $\rho$ mod $I:\GQl\to \GL_{R/I}(V/I)$
+  comes from a finite flat group scheme.
+  \end{enumerate}
+\end{definition}
+
+A well-known result, which basically goes back to Frey, is the following:
+
+\begin{theorem}
+  \label{Frey_curve_hardly_ramified}
+  \uses{hardly_ramified}
+  The $\ell$-torsion $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ in the Frey curve associated to a Frey
+  package $(a,b,c,\ell)$ is hardly ramified.
+\end{theorem}
+\begin{proof}
+  This was well-known in the 1980s. A proof sketch is as follows.
+  First note that $\ell\geq5>3$ by definition of a Frey package. Let $\rho$
+  denote the Galois representation on the $\ell$-torsion of the Frey curve.
+  The fact that $\rho$ is 2-dimensional is~Corollary
+  III.6.4(b) of~\cite{silverman1}, and the fact that its determinant is
+  cyclotomic is Proposition~III.8.3 of the same reference. These results hold for elliptic curves
+  in general. The remaining claims are specific to the Frey curve and lie
+  deeper. The fact that $\rho$ is unramified outside $2\ell$ is a consequence
+  of (4.1.12) and (4.1.13) of~\cite{serreconj}. The fact that $\rho$ at 2
+  has an unramified 1-dimensional quotient of order at most 2 follows from
+  the fact that the Frey curve is semistable at~2 (see (4.1.5) of~\cite{serreconj})
+  and the theory of the Tate curve. Finally, the claim that $\rho$ is flat at $\ell$
+  is Proposition~5 and (4.1.13) of~\cite{serreconj}.
+\end{proof}
+
+The key theorem about hardly ramified representations is the following.
+
+\begin{theorem}
+  \label{hardly_ramified_reducible}
+  If $\ell\geq 3$ is a prime and $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ is hardly ramified,
+  then $\rho$ is reducible.
+\end{theorem}
+
+Note that this (deep) claim is a consequence of Serre's conjecture~\cite{serreconj},
+now a theorem of Khare and Wintenberger~\cite{kwII}, and indeed we shall use
+methods introduced by Khare and Wintenberger to prove this special case of
+Serre's conjecture. Given this result, we can deduce Theorem~\ref{FLT.Wiles_Frey}
+(which we restate here) easily:
+
+\begin{theorem}
+  \label{FLT.Wiles_Frey'}
+  \lean{FLT.Wiles_Frey}
+  \leanok
+  If $\overline{\rho}$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
+  $\overline{\rho}$ is reducible.
+\end{theorem}
+\begin{proof}
+  \uses{Frey_curve_hardly_ramified,hardly_ramified_reducible}
+  Indeed, $\rho$ is hardly ramified by theorem~\ref{Frey_curve_hardly_ramified}
+  and thus reducible by theorem~\ref{hardly_ramified_reducible}.
+\end{proof}
+
+Our job, in the first phase of this project, is hence reduced to proving
+Theorem~\ref{hardly_ramified_reducible}.
+
+\subsection{Hardly ramified mod $p$ representations are reducible}
+
+In this section we will state three theorems, from which Theorem~\ref{hardly_ramified_reducible}
+easily follows.
+
+Firstly, we claim that
+an irreducible hardly ramified mod $\ell$ representation lifts to an $\ell$-adic representation.
+
+\begin{theorem}
+  \label{hardly-ramified-lifts}
+  \uses{hardly-ramified}
+  If $\ell\geq3$ is prime and $\overline{\rho}:\GQ\to\GL_2(\Z/\ell\Z)$
+  is hardly ramified and irreducible, then there exists a finite extension~$K$ of $\Q_\ell$
+  with integer ring~$\calO$ and maximal ideal $\mathfrak{m}$
+  and a hardly ramified representation
+  $\rho:\GQ\to\GL_2(\calO)$ whose reduction modulo~$\m$ is isomorphic to $\rho$.
+\end{theorem}
+
+Next we claim that a hardly ramified $\ell$-adic representation ``spreads out'' to a compatible
+family of hardly ramified $q$-adic representations for all primes $q$.
+
+\begin{theorem}
+  \label{hardly-ramified-spreads-out}
+  \uses{hardly-ramified}
+  If $\ell\geq3$ is prime, $K$ is a finite extension of $\Q_\ell$
+  with integers $\calO$ and if $\rho:\GQ\to\GL_2(\calO)$ is a hardly ramified representation
+  whose reduction is irreducible,
+  then there exists a number field $M$ and, for each finite place $\mu$ of $M$
+  of characteristic prime to 2, with completion $M_\mu$ having integer ring $R_\mu$,
+  a hardly representation $\rho_\mu:\GQ\to\GL_2(R_\mu)$, with the following properties:
+  \begin{itemize}
+    \item There is some $\lambda\mid\ell$ of $M$ such that $\rho_\lambda\cong\rho$,
+      the isomorphism happening over some appropriate local field containing a copy
+      of $M_\lambda$ and a copy of~$K$;
+    \item If $\mu_1$ and $\mu_2$ are two finite places of $M$ with odd characteristics $m_1$
+      and $m_2$, and if $p\nmid 2m_1m_2$ is prime, then $\rho_{\mu_1}$ and $\rho_{\mu_2}$
+      are both unramified at~$p$ and the characteristic polynomials $\rho_{\mu_1}(\Frob_p)$
+      and $\rho_{\mu_2}(\Frob_p)$ lie in $M[X]$ and are equal.
+  \end{itemize}
+\end{theorem}
+
+In particular, we can ``move'' from an irreducible hardly ramified mod $\ell$ representation
+to a hardly ramified 3-adic representation.
+However, we can essentially completely classify the hardly ramified 3-adic Galois representations.
+
+\begin{theorem}
+  \label{hardly-ramified-3adic-reducible}
+  \uses{hardly-ramified}
+  Suppose $L/\Q_3$ is a finite extension, with integer ring $\calO_L$, and suppose
+  $\rho_3:\GQ\to\GL_2(\calO_L)$ is hardly ramified. Then $\rho_3^{ss}=1\oplus\chi_3$
+  where $1$ is the trivial character and $\chi_3$ is the 3-adic cyclotomic character.
+\end{theorem}
+
+Theorem~\ref{hardly_ramified_reducible} (if $\ell\geq 3$ is a prime and
+$\overline{\rho}:\GQ\to\GL_2(\Z/\ell\Z)$ is hardly ramified,
+then $\overline{\rho}$ is reducible) is an easy consequence of these theorems,
+as we now show.
+
+\begin{proof}
+  \proves{hardly_ramified_reducible}
+  \uses{hardly-ramified-lifts,
+    hardly-ramified-spreads-out,hardly-ramified-3adic-reducible}
+  Assume for a contradiction that $\overline{\rho}$ is irreducible. By theorem~\ref{hardly-ramified-lifts},
+  $\overline{\rho}$ lifts to a hardly ramified $\ell$-adic reprepresentation $\rho$. By
+  theorem~\ref{hardly-ramified-spreads-out}, $\rho$ is part of a compatible family of
+  $q$-adic Galois representations. By theorem~\ref{hardly-ramified-3adic-reducible},
+  any 3-adic member $\rho_3$ of this family has semisimplification $1\oplus\chi_3$ and in particular
+  for $p\nmid 6$ we have that the characteristic polynomial of $\rho_3(\Frob_p)=(X-p)(X-1).$
+  But by compatibility of the family we know that for $p\nmid 6\ell$ the characteristic
+  polynomial of $\rho(\Frob_p)$ is $(X-p)(X-1)$, and thus the characteristic polynomial
+  of $\overline{\rho}(\Frob_p)$ is $(X-p)(X-1)$. By the Brauer-Nesbitt theorem, $\overline{\rho}$
+  is reducible, the contradiction we seek.
+\end{proof}
+
+What remains then (modulo several results which were known in the 1980s),
+is to prove the three theorems~\ref{hardly-ramified-lifts},
+\ref{hardly-ramified-spreads-out} and~\ref{hardly-ramified-3adic-reducible}.
+By far the easiest is theorem~\ref{hardly-ramified-3adic-reducible}; this follows
+from old estimates of Fontaine (ultimately relying on bounds for root discriminants due to
+Odlyzko and Poitou), originally developed to prove that there was no
+nontrivial abelian scheme over $\Z$. The other two theorems are deeper, and both use
+modern variants of Wiles' $R=T$ machinery.
+
+The story stops here for now; as we write more LaTeX it will become clear that here
+the proof basically bifurcates, with different techniques used to prove
+these three theorems.
