@@ -59,6 +59,12 @@ open RestrictedProduct
 >>>>>>> main:FLT/Mathlib/Topology/Algebra/RestrictedProduct/TopologicalSpace.lean
 =======
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+<<<<<<< HEAD
+>>>>>>> main
+=======
+import Mathlib.Topology.Instances.Matrix
+import FLT.Mathlib.Topology.Algebra.Constructions
+import FLT.Mathlib.Topology.Algebra.Group.Units
 >>>>>>> main
 
 open RestrictedProduct

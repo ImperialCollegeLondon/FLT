@@ -5,7 +5,6 @@ Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
 import FLT.Mathlib.RingTheory.Localization.BaseChange -- removing this breaks a simp proof
 import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.Algebra.Module.FinitePresentation
 import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.RingTheory.DedekindDomain.IntegralClosure
@@ -246,6 +245,7 @@ noncomputable def linearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A]
 lemma linearEquivTensorProductModule_symm_tmul (b : B) (m : M) :
     (linearEquivTensorProductModule A K L B M).symm (b ⊗ₜ m) = (algebraMap B L b) ⊗ₜ m := by
   simp [linearEquivTensorProductModule, LinearEquivTensorProduct_symm_one_tmul]
+  -- this proof breaks until someone PRs the simp lemmas in the import
 
 lemma linearEquivTensorProductModule_tmul (b : B) (m : M) :
     (linearEquivTensorProductModule A K L B M) ((algebraMap B L b) ⊗ₜ m) = b ⊗ₜ m := by
@@ -268,7 +268,7 @@ lemma _root_.IsIntegralClosure.isLocalizedModule : IsLocalizedModule (nonZeroDiv
       obtain ⟨x, hx⟩ := x
       simpa only [← IsScalarTower.algebraMap_apply, Module.End.isUnit_iff]
           using hlocal.map_units ⟨_, x, hx, rfl⟩
-    surj' y := by
+    surj y := by
       obtain ⟨⟨b, _, s, hs, rfl⟩, hx⟩ := (hlocal.surj) y
       exact ⟨(b, ⟨s, hs⟩), by simpa [Submonoid.smul_def] using hx⟩
     exists_of_eq {x₁ x₂} e := by

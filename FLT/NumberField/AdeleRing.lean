@@ -14,7 +14,6 @@ import FLT.Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.LinearAlgebra.TensorProduct.Prod
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.RingTheory.Ideal.NatInt
 import FLT.NumberField.FiniteAdeleRing
 
 open scoped TensorProduct
@@ -265,7 +264,7 @@ noncomputable def piQuotientEquiv :
   -- The map `⊕ 𝔸 K ≃L[K] 𝔸 L` reduces to quotients `⊕ 𝔸 K / K ≃ₜ+ 𝔸 L / L`
   (ContinuousAddEquiv.quotientPi _).symm.trans <|
     QuotientAddGroup.continuousAddEquiv _ _ (piEquiv K L).toContinuousAddEquiv
-      (comap_piEquiv_principalSubgroup K L)
+      (piEquiv_map_principalSubgroup K L)
 
 end NumberField.AdeleRing
 
@@ -439,8 +438,8 @@ theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ)
   let x : ℤ := ⌊σ (a v₀)⌋
   refine ⟨ringOfIntegersEquiv.symm x, fun v ↦ ?_⟩
   rw [Subsingleton.elim v v₀, InfiniteAdeleRing.algebraMap_apply,
-    ← (isometry_extensionEmbedding_of_isReal isReal_infinitePlace).norm_map_of_map_zero
-      (map_zero _), ringOfIntegersEquiv_symm_coe, map_sub, extensionEmbedding_of_isReal_coe,
+    ← (isometry_extensionEmbeddingOfIsReal isReal_infinitePlace).norm_map_of_map_zero
+      (map_zero _), ringOfIntegersEquiv_symm_coe, map_sub, extensionEmbeddingOfIsReal_coe,
     map_intCast, Real.norm_eq_abs, Int.self_sub_floor, Int.abs_fract]
   exact le_of_lt (Int.fract_lt_one _)
 

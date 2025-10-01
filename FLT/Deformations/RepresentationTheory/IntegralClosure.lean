@@ -1,8 +1,7 @@
 import FLT.Deformations.Lemmas
 import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
 import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
-import Mathlib.Algebra.GroupWithZero.Action.Faithful
-import Mathlib.RingTheory.Invariant.Basic
+import Mathlib.RingTheory.Invariant.Defs
 
 section
 

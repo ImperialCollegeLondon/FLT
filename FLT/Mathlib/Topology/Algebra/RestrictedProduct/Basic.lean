@@ -1,8 +1,7 @@
 import Mathlib.Topology.Algebra.RestrictedProduct.Basic
-import Mathlib.Topology.Algebra.ContinuousMonoidHom
-import Mathlib.Topology.Instances.Matrix
-import FLT.Mathlib.Topology.Algebra.Group.Units
-import FLT.Mathlib.Topology.Algebra.Constructions
+import Mathlib.LinearAlgebra.DFinsupp
+import Mathlib.LinearAlgebra.Matrix.Defs
+import Mathlib.Algebra.Group.Submonoid.Units
 
 namespace RestrictedProduct
 

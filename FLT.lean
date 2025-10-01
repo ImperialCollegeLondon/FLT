@@ -60,11 +60,9 @@ import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Set.Card
-import FLT.Mathlib.Data.Set.Function
 import FLT.Mathlib.Data.Set.Prod
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.GroupTheory.Index
-import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
@@ -81,7 +79,7 @@ import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.NumberTheory.RamificationInertia.Basic
 import FLT.Mathlib.RepresentationTheory.Basic
-import FLT.Mathlib.RingTheory.Finiteness.Pi
+import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
@@ -110,6 +108,7 @@ import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.Mathlib.Topology.Constructions
+import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
