@@ -2,7 +2,6 @@ import Mathlib.MeasureTheory.Group.Action
 import Mathlib.MeasureTheory.Group.Pointwise
 import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
 import Mathlib.GroupTheory.Complement
-import FLT.Mathlib.Data.Set.Card -- shake says remove this but it breaks a simp call
 /-!
 # TODO
 
