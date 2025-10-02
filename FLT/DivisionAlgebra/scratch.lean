@@ -155,8 +155,39 @@ lemma induced_smul_cont : @ContinuousSMul R M _ _
       (fun (a : R × M) => (a.1, a.2, (0 : N))))
     (g := (fun (c : (R × S) × (M × N)) => (c.1.1 • c.2.1, c.1.2 • c.2.2))) ?_ ?_
   · exact ContinuousSMul.continuous_smul
-  ·
-    sorry
+  · refine @Continuous.comp (R × M) (R × M × N) ((R × S) × M × N) (@instTopologicalSpaceProd R M _
+      (TopologicalSpace.induced (incl1 M N) (moduleTopology (R × S) (M × N))))
+      (@instTopologicalSpaceProd R (M × N) _ (moduleTopology (R × S) (M × N)))
+      (@instTopologicalSpaceProd (R × S) (M × N) _ (moduleTopology (R × S) (M × N)))
+      (f := (fun (a : R × M) => (a.1, a.2, (0 : N))))
+      (g := (fun (b : R × M × N) => ((b.1, (0 : S)), (b.2.1, b.2.2)))) ?_ ?_
+    · simp only [Prod.mk.eta, continuous_prodMk]
+      · constructor
+        · constructor
+          · exact @continuous_fst R (M × N) _ (moduleTopology (R × S) (M × N))
+          · rw [continuous_def] --is there a better way?
+            intro s hs
+            have : ((fun (x : R × M × N) ↦ 0) ⁻¹' s) = ∅ ∨
+                ((fun (x : R × M × N) ↦ 0) ⁻¹' s = Set.univ) := by
+              rcases (Classical.em (0 ∈ s)) with h | h
+              all_goals aesop
+            aesop
+        · exact @continuous_snd R (M × N) _ (moduleTopology (R × S) (M × N))
+    · simp only [continuous_prodMk]
+      constructor
+      · exact @continuous_fst R M _
+          (TopologicalSpace.induced (incl1 M N) (moduleTopology (R × S) (M × N)))
+      · have : (fun (x : R × M) ↦ (x.2, 0)) = incl1 M N ∘ (fun (x : R × M) => x.2) := by
+          rfl
+        rw [this]
+        refine @Continuous.comp (R × M) M (M × N) (@instTopologicalSpaceProd R M _
+          (TopologicalSpace.induced (incl1 M N) (moduleTopology (R × S) (M × N))))
+          (TopologicalSpace.induced (incl1 M N) (moduleTopology (R × S) (M × N)))
+          (moduleTopology (R × S) (M × N))
+          (f := fun (a : R × M) => a.2) (g := incl1 M N)  ?_ ?_
+        · exact continuous_iff_le_induced.mpr fun U a ↦ a
+        · exact @continuous_snd R M _
+            (TopologicalSpace.induced (incl1 M N) (moduleTopology (R × S) (M × N)))
 
 lemma incl1_cont : @Continuous M (M × N) (moduleTopology R M) (moduleTopology (R × S) (M × N))
     (incl1 M N) := by
@@ -166,10 +197,6 @@ lemma incl1_cont : @Continuous M (M × N) (moduleTopology R M) (moduleTopology (
   -- to prove this statement it suffices to show that the pullback topology makes M into a
   -- topological R-module
   -- i.e. smul and add are continuous
-
-  -- smul: lots of work... will attack last
-
-  -- addition: should be easier...
   sorry
 
 omit [TopologicalSpace M] [TopologicalSpace N] in
