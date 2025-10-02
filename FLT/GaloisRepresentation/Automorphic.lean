@@ -35,38 +35,17 @@ open scoped TensorProduct
 
 open IsDedekindDomain NumberField TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
 
-abbrev primes_dividing_n' (F : Type*) (n : ℕ) [Field F] [NumberField F] :
-  Set (HeightOneSpectrum (𝓞 F)) :=
-  {v : HeightOneSpectrum (𝓞 F)| ↑n ∈ v.1}
-
-instance fin (F : Type*) (n : ℕ) [NeZero n] [Field F] [NumberField F] :
-    Set.Finite (primes_dividing_n' F n) := by
-  simp only [primes_dividing_n']
-  have eq : {v : HeightOneSpectrum (𝓞 F)| ↑n ∈ v.1} =
-    {v : HeightOneSpectrum (𝓞 F) | v.1 ∣ Ideal.span {↑n}} := by simp
-  rw [eq]
-  exact Ideal.finite_factors (by simpa using NeZero.ne n)
-
-noncomputable abbrev primes_dividing_n (F : Type*) (n : ℕ) [NeZero n] [Field F] [NumberField F] :
-  Finset (HeightOneSpectrum (𝓞 F)) := Set.Finite.toFinset <| fin F n
-
 local notation "Frob" => Field.AbsoluteGaloisGroup.adicArithFrob
 
-lemma not_mem (F : Type*) (n p : ℕ) [NeZero n] [NeZero p] [Field F] [NumberField F]
-    (v : HeightOneSpectrum (𝓞 F)) (hv : ↑(n * p) ∉ v.1) :
-    v ∉ primes_dividing_n F n := by
-  simp only [Set.Finite.mem_toFinset, Set.mem_setOf_eq]
-  rw [Nat.mul_comm, Nat.cast_mul, ← smul_eq_mul, Nat.cast_smul_eq_nsmul] at hv
-  intro h
-  have : p • (Nat.cast n) ∈ v.1 := Submodule.smul_of_tower_mem v.asIdeal p h
-  tauto
-
-def GaloisRep.IsModular (F D : Type*) (p : ℕ) [NeZero p] [Field F] [NumberField F]
-    [IsTotallyReal F] (ρ : GaloisRep F A (Fin 2 → A)) [Ring D] [Algebra F D]
-    [IsQuaternionAlgebra F D] : Prop :=
-  ∃ (N : ℕ) (_ : NeZero N) (r : IsQuaternionAlgebra.NumberField.Rigidification F D)
-    (π : HeckeAlgebra F D r (primes_dividing_n F N) A →ₐ[A] A),
-  ∀ (v : HeightOneSpectrum (𝓞 F)) (hv : ↑(N * p) ∉ v.1),
-    ρ.IsUnramifiedAt v ∧ (ρ.toLocal v (Frob v)).det = v.1.absNorm
-    ∧ LinearMap.trace A (Fin 2 → A) (ρ.toLocal v (Frob v)) =
-      π (HeckeAlgebra.T D r A v (not_mem F N p v hv))
+-- /-- TODO docstring -/
+def GaloisRep.IsModular {F : Type*} (D : Type*) (p : ℕ) [NeZero p] [Field F] [NumberField F]
+    [IsTotallyReal F] {V : Type*} [AddCommGroup V] [Module A V] [Module.Finite A V]
+    (𝒪 : Type*) [CommRing 𝒪] [Algebra 𝒪 A]
+    [Module.Free A V] (_hV : Module.finrank A V = 2) (ρ : GaloisRep F A V) [Ring D] [Algebra F D]
+    [IsQuaternionAlgebra F D] (r : IsQuaternionAlgebra.NumberField.Rigidification F D)
+    (S : Finset (HeightOneSpectrum (𝓞 F))) : Prop :=
+  ∃ (π : HeckeAlgebra F D r S 𝒪 →ₐ[𝒪] A),
+    ∀ (v : HeightOneSpectrum (𝓞 F)) (_hvp : ↑p ∉ v.1) (hvS : v ∉ S),
+      ρ.IsUnramifiedAt v ∧ (ρ.toLocal v (Frob v)).det = v.1.absNorm
+      ∧ LinearMap.trace A V (ρ.toLocal v (Frob v)) =
+        π (HeckeAlgebra.T D r 𝒪 v hvS)
