@@ -8,8 +8,8 @@ variable (R : Type*) [Ring R] [Nontrivial R] [Algebra ℝ R] [Module.Finite ℝ 
 
 namespace ringHaarChar.Module
 
-/-- For a basis, there exists a non-zero coefficient of a basis element in the expansion of one. -/
-def ex_ne_zero_coeff_one (B : Module.Basis (Fin (Module.finrank ℝ R)) ℝ R) :
+omit [Module.Finite ℝ R] [Module.Free ℝ R] [TopologicalSpace R] [IsModuleTopology ℝ R] in
+lemma ex_ne_zero_coeff_one (B : Module.Basis (Fin (Module.finrank ℝ R)) ℝ R) :
   ∃ i, B.coord i 1 ≠ 0 := by
   by_contra t
   simp only [Module.Basis.coord_apply, ne_eq, not_exists, Decidable.not_not] at t
