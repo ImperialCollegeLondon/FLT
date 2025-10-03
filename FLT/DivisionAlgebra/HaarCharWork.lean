@@ -155,7 +155,7 @@ abbrev iso : R ≃ₜ+ (Fin (Module.finrank ℝ R) → ℝ) where
 
 variable [IsTopologicalRing R] [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
 
-lemma ringHaarChar_eq1' (y : (Fin (Module.finrank ℝ R) → ℝ)ˣ)
+lemma ringHaarChar_eq (y : (Fin (Module.finrank ℝ R) → ℝ)ˣ)
     (hy : ∃ a : ℝ, y.val = algebraMap ℝ (Fin (Module.finrank ℝ R) → ℝ) a)
     (hy' : IsUnit ((Module.Basis.equivFun
       (Classical.choose (ex_basis_sum_basis_eq_one R))).symm y)) :
