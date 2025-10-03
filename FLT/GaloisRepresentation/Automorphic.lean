@@ -102,6 +102,7 @@ theorem cyclic_base_change_for_quat_algs
     {E : Type*} [Field E] [NumberField E] [IsTotallyReal E]
     [Algebra F E] [IsGalois F E] [IsSolvable (E ≃ₐ[F] E)]
     (𝒪 : Type u) [CommRing 𝒪]
+    -- **TODO** this is wrong; A should be the integers of a finite extension of Q_p
     {A : Type u} [CommRing A] [TopologicalSpace A] [IsLocalRing A] [Algebra 𝒪 A]
       [IsLocalProartinianAlgebra 𝒪 A]
     {p : ℕ} (hp : p.Prime) (hpA : (p : A) ∈ IsLocalRing.maximalIdeal A)
@@ -111,7 +112,7 @@ theorem cyclic_base_change_for_quat_algs
     {D : Type*} [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
     -- assume D has disc 1 for iff statement
     (hD : Nonempty (IsQuaternionAlgebra.NumberField.Rigidification F D)) :
-  -- I think this statement is false as it stands; if by "modular" we mean "modular of
+  -- **TODO** This statement is false as it stands; if by "modular" we mean "modular of
   -- tame level" then ρ can be wild and its restriction to E can be tame
   (∃ S r, ρ.IsAutomorphic 𝒪 hp hpA hV D r S) ↔
   (∃ T r', (ρ.map (algebraMap F E)).IsAutomorphic 𝒪 hp hpA hV (E ⊗[F] D) r' T) := sorry
