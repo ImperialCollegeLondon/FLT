@@ -79,9 +79,11 @@ lemma continuous_smul : ContinuousSMul (Prod R S) (Prod M N) := by
   · apply Continuous.prodMap
     all_goals exact ContinuousSMul.continuous_smul
 
+/-- Inclusion `M → M × N` by `a ↦ (a, 0)`. -/
 abbrev incl1 : M → Prod M N :=
   fun a => (a, 0)
 
+/-- Inclusion `N → M × N` by `a ↦ (0, a)`. -/
 abbrev incl2 : N → Prod M N :=
   fun b => (0 , b)
 
