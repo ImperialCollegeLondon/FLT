@@ -88,3 +88,32 @@ def GaloisRep.IsAutomorphic
       (ρ.toLocal v (Frob v)).det = v.1.absNorm ∧
       -- and the trace of `ρ(Frobᵥ)` is the eigenvalue of the form at `Tᵥ`
       LinearMap.trace A V (ρ.toLocal v (Frob v)) = π (HeckeAlgebra.T D r 𝒪 v hvS)
+
+-- TODO: state cyclic base change for GL_2 in the cases we need
+
+instance {F E D : Type*}
+    [Field F]
+    [Field E] [Algebra F E]
+    [Ring D] [Algebra F D] [IsQuaternionAlgebra F D] :
+    IsQuaternionAlgebra E (E ⊗[F] D) := sorry -- Ask Edison?
+
+theorem cyclic_base_change_for_quat_algs
+    {F : Type*} [Field F] [NumberField F] [IsTotallyReal F]
+    {E : Type*} [Field E] [NumberField E] [IsTotallyReal E]
+    [Algebra F E] [IsGalois F E] [IsSolvable (E ≃ₐ[F] E)]
+    (𝒪 : Type u) [CommRing 𝒪]
+    {A : Type u} [CommRing A] [TopologicalSpace A] [IsLocalRing A] [Algebra 𝒪 A]
+      [IsLocalProartinianAlgebra 𝒪 A]
+    {p : ℕ} (hp : p.Prime) (hpA : (p : A) ∈ IsLocalRing.maximalIdeal A)
+    {V : Type*} [AddCommGroup V] [Module A V] [Module.Finite A V]
+      [Module.Free A V] (hV : Module.finrank A V = 2)
+    (ρ : GaloisRep F A V)
+    {D : Type*} [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
+    -- assume D has disc 1 for iff statement
+    (hD : Nonempty (IsQuaternionAlgebra.NumberField.Rigidification F D)) :
+  -- I think this statement is false as it stands; if by "modular" we mean "modular of
+  -- tame level" then ρ can be wild and its restriction to E can be tame
+  (∃ S r, ρ.IsAutomorphic 𝒪 hp hpA hV D r S) ↔
+  (∃ T r', (ρ.map (algebraMap F E)).IsAutomorphic 𝒪 hp hpA hV (E ⊗[F] D) r' T) := sorry
+
+-- ask RLT about this mess
