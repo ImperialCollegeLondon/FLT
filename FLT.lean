@@ -34,6 +34,7 @@ import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor
 import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
+import FLT.GaloisRepresentation.Automorphic
 import FLT.GaloisRepresentation.Cyclotomic
 import FLT.GaloisRepresentation.HardlyRamified
 import FLT.GlobalLanglandsConjectures.GLnDefs
