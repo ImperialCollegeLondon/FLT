@@ -159,7 +159,8 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal [BorelSpace (ι → F)]
   rfl
 
 /-- A transvection preserves the product of addHaar on `ι → F`. The proof is
-      a transcription of the proof of theorem volume_preserving_transvectionStruct.
+    transcribed from the proof of volume_preserving_transvectionStruct which is the
+    corresponding statement for Lesbesgue measure
 -/
 lemma transvections_preserve_addHaar_pi_product_measure
   [SigmaCompactSpace F] [BorelSpace (ι → F)] (t : Matrix.TransvectionStruct ι F) :
