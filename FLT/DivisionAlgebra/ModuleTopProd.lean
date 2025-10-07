@@ -6,6 +6,7 @@ variable (R S : Type*) [Ring R] [Ring S] [TopologicalSpace R] [TopologicalSpace 
   [AddCommMonoid M] [AddCommMonoid N] [Module R M] [Module S N] [TopologicalSpace M]
   [IsModuleTopology R M] [TopologicalSpace N] [IsModuleTopology S N]
 
+/-- The (R × S)-module structure on (M × N). -/
 local instance : Module (R × S) (M × N) where
   smul rs mn := (rs.1 • mn.1, rs.2 • mn.2)
   one_smul mn := by cases mn; ext; exacts [one_smul R _, one_smul S _]
