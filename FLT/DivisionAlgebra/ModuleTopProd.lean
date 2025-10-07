@@ -6,85 +6,62 @@ variable (R S : Type*) [Ring R] [Ring S] [TopologicalSpace R] [TopologicalSpace 
   [AddCommMonoid M] [AddCommMonoid N] [Module R M] [Module S N] [TopologicalSpace M]
   [IsModuleTopology R M] [TopologicalSpace N] [IsModuleTopology S N]
 
-instance : HSMul (R × S) (M × N) (M × N) where
-  hSMul a b := (a.1 • b.1, a.2 • b.2) -- why is this needed...
-
--- maybe there is an easier way to do this without being explicit?
-instance : Module (Prod R S) (Prod M N) where
-  smul a b := (a.1 • b.1, a.2 • b.2)
-  one_smul a := by
-    have : (1 : (R × S)) • a= ((1 : R × S).1 • a.1, (1 : R × S).2 • a.2) := by
-      rfl
-    aesop
-  mul_smul a b c := by
-    have : (a * b) • c = ((a * b).1 • c.1, (a * b).2 • c.2) := by
-      rfl
-    simp_rw [this, Prod.fst_mul, Prod.snd_mul, mul_smul]
-    rfl
-  smul_zero a := by
-    have : a • (0 : M × N) = (a.1 • 0, a.2 • 0) := by
-      rfl
-    aesop
-  zero_smul a := by
-    have : (0 : R × S) • a = ((0 : R) • a.1, (0 : S) • a.2) := by
-      rfl
-    aesop
-  smul_add a b c:= by
-    have : a • (b + c) = (a.1 • (b + c).1, a.2 • (b + c).2) := by
-      rfl
-    aesop
-  add_smul a b c := by
-    have : (a + b) • c = ((a + b).1 • c.1, (a + b).2 • c.2) := by
-      rfl
-    simp_rw [this, Prod.fst_add, Prod.snd_add, add_smul]
-    rfl
+local instance : Module (R × S) (M × N) where
+  smul rs mn := (rs.1 • mn.1, rs.2 • mn.2)
+  one_smul mn := by cases mn; ext; exacts [one_smul R _, one_smul S _]
+  mul_smul rs rs' mn := by
+    cases rs; cases rs'; cases mn
+    ext <;>
+    exact mul_smul _ _ _
+  smul_zero rs := by cases rs; ext <;> exact smul_zero _
+  smul_add rs mn mn' := by
+    cases rs; cases mn; cases mn'
+    ext <;>
+    exact smul_add _ _ _
+  add_smul rs rs' mn := by
+    cases rs; cases rs'; cases mn
+    ext <;>
+    exact add_smul _ _ _
+  zero_smul mn := by cases mn; ext <;> exact zero_smul _ _
 
 -- not sure why I need to add everything in here...
 lemma continuous_add (R S : Type*) [Ring R] [Ring S] [TopologicalSpace R] [TopologicalSpace S]
     (M N : Type*) [AddCommMonoid M] [AddCommMonoid N] [Module R M] [Module S N] [TopologicalSpace M]
     [IsModuleTopology R M] [TopologicalSpace N] [IsModuleTopology S N] :
-    ContinuousAdd (Prod M N) := by
+    ContinuousAdd (M × N) := by
   have a : ContinuousAdd M := IsModuleTopology.toContinuousAdd R M
   have b : ContinuousAdd N := IsModuleTopology.toContinuousAdd S N
   exact Prod.continuousAdd
 
-/-- Permutation map of `(R × S) × (M × N) → (R × M) × (S × N)`. -/
-def permutation_map : (R × S) × (M × N) → (R × M) × (S × N) :=
-  fun a => ((a.1.1, a.2.1), (a.1.2, a.2.2))
-
 omit [Ring R] [Ring S] [AddCommMonoid M] [AddCommMonoid N] [Module R M] [Module S N]
   [IsModuleTopology R M] [IsModuleTopology S N] in
-lemma continuous_permutation_map : Continuous (permutation_map R S M N) := by
-  unfold permutation_map
-  simp only [continuous_prodMk]
-  constructor
-  <;> constructor
-  <;> refine Continuous.comp ?_ ?_
-  all_goals try exact continuous_fst
-  all_goals try exact continuous_snd
+lemma continuous_prodProdProdComm : Continuous (Equiv.prodProdProdComm R S M N) := by
+  unfold Equiv.prodProdProdComm
+  simp only [Equiv.coe_fn_mk]
+  fun_prop
 
 /-- Product map of the scalar multiplications defined on the product `R × M` and `S × N`. -/
 def prod_smul : (R × M) × (S × N) → (M × N) :=
   Prod.map (fun (r, m) => r • m) (fun (s, n) => s • n)
 
-lemma continuous_smul : ContinuousSMul (Prod R S) (Prod M N) := by
+lemma continuous_smul : ContinuousSMul (R × S) (M × N) := by
   refine { continuous_smul := ?_ }
   have : (fun p ↦ p.1 • p.2 : (R × S) × M × N → M × N) =
-      (prod_smul R S M N) ∘ (permutation_map R S M N) := by
+      (prod_smul R S M N) ∘ (Equiv.prodProdProdComm R S M N) := by
     ext a
-    all_goals simp only [Function.comp_apply, permutation_map, prod_smul]
+    all_goals simp only [Function.comp_apply, prod_smul]
     all_goals rfl
   rw [this]
-  refine Continuous.comp ?_ (continuous_permutation_map R S M N)
+  refine Continuous.comp ?_ (continuous_prodProdProdComm R S M N)
   · apply Continuous.prodMap
     all_goals exact ContinuousSMul.continuous_smul
 
 /-- Inclusion `M → M × N` by `a ↦ (a, 0)`. -/
-abbrev incl1 : M → Prod M N :=
+abbrev incl1 : M → M × N :=
   fun a => (a, 0)
 
 /-- Inclusion `N → M × N` by `a ↦ (0, a)`. -/
-abbrev incl2 : N → Prod M N :=
+abbrev incl2 : N → M × N :=
   fun b => (0 , b)
 
 -- almost certainly can and should be extracting all the maps from the proofs of add and smul
@@ -330,21 +307,21 @@ lemma id_eq : @id (M × N) = ((incl1 M N) ∘ (Prod.fst)) + ((incl2 M N) ∘ (Pr
   ext a
   all_goals simp
 
-lemma Final : IsModuleTopology (Prod R S) (Prod M N) := by
+instance : IsModuleTopology (R × S) (M × N) := by
   have h1 := continuous_add R S M N
   have h2 := continuous_smul R S M N
   refine IsModuleTopology.of_continuous_id ?_
   rw [id_eq]
-  have a : @Continuous (Prod M N) (Prod M N) instTopologicalSpaceProd
+  have a : @Continuous (M × N) (M × N) instTopologicalSpaceProd
       (moduleTopology (R × S) (M × N)) ((incl1 M N) ∘ (Prod.fst)) := by
-    refine @Continuous.comp (Prod M N) M (Prod M N) instTopologicalSpaceProd (moduleTopology R M)
+    refine @Continuous.comp (M × N) M (M × N) instTopologicalSpaceProd (moduleTopology R M)
       (moduleTopology (R × S) (M × N)) (Prod.fst) (incl1 M N) ?_ ?_
     · exact continuous_incl1 R S M N
     · convert @continuous_fst M N (moduleTopology R M) (moduleTopology S N)
       all_goals exact IsModuleTopology.eq_moduleTopology' -- maybe I need to be synthesising better?
-  have b : @Continuous (Prod M N) (Prod M N) instTopologicalSpaceProd
+  have b : @Continuous (M × N) (M × N) instTopologicalSpaceProd
       (moduleTopology (R × S) (M × N)) ((incl2 M N) ∘ (Prod.snd)) := by
-    refine @Continuous.comp (Prod M N) N (Prod M N) instTopologicalSpaceProd (moduleTopology S N)
+    refine @Continuous.comp (M × N) N (M × N) instTopologicalSpaceProd (moduleTopology S N)
       (moduleTopology (R × S) (M × N)) (Prod.snd) (incl2 M N) ?_ ?_
     · exact continuous_incl2 R S M N
     · convert @continuous_snd M N (moduleTopology R M) (moduleTopology S N)
