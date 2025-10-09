@@ -21,8 +21,8 @@ def ContinuousAddEquiv.quotientPi {ι : Type*} {G : ι → Type*} [(i : ι) → 
 /-- A family indexed by a type with a unique element
 is `ContinuousMulEquiv` to the element at the single index. -/
 @[to_additive
-  "A family indexed by a type with a unique element
-  is `ContinuousAddEquiv` to the element at the single index."]
+/-- A family indexed by a type with a unique element
+is `ContinuousAddEquiv` to the element at the single index. -/]
 def ContinuousMulEquiv.piUnique {ι : Type*} (M : ι → Type*) [(j : ι) → Mul (M j)]
     [(j : ι) → TopologicalSpace (M j)] [Unique ι] :
     ((j : ι) → M j) ≃ₜ* M default where
@@ -33,9 +33,18 @@ def ContinuousMulEquiv.piUnique {ι : Type*} (M : ι → Type*) [(j : ι) → Mu
 /-- Splits the indices of `∀ (i : ι), Y i` along the predicate `p`.
 This is `Equiv.piEquivPiSubtypeProd` as a `ContinuousMulEquiv`. -/
 @[to_additive piEquivPiSubtypeProd
-  "Splits the indices of `∀ (i : ι), Y i` along the predicate `p`.
-  This is `Equiv.piEquivPiSubtypeProd` as a `ContinuousAddEquiv`."]
+/-- Splits the indices of `∀ (i : ι), Y i` along the predicate `p`.
+This is `Equiv.piEquivPiSubtypeProd` as a `ContinuousAddEquiv`. -/]
 def ContinuousMulEquiv.piEquivPiSubtypeProd {ι : Type*} (p : ι → Prop) (Y : ι → Type*)
     [(i : ι) → TopologicalSpace (Y i)] [(i : ι) → Mul (Y i)] [DecidablePred p] :
     ((i : ι) → Y i) ≃ₜ* ((i : { x : ι // p x }) → Y i) × ((i : { x : ι // ¬p x }) → Y i) :=
   {Homeomorph.piEquivPiSubtypeProd p Y with map_mul' _ _ := rfl}
+
+/-- Any `ContinuousMulEquiv` induces a `ContinuousMulEquiv` on units. -/
+def ContinuousMulEquiv.units_map {M N : Type*} [TopologicalSpace M] [TopologicalSpace N]
+    [Monoid M] [Monoid N] (f : M ≃ₜ* N) : Mˣ ≃ₜ* Nˣ :=
+  {
+  __ := Units.mapEquiv f
+  continuous_toFun := by apply Continuous.units_map _ f.continuous_toFun
+  continuous_invFun := by apply Continuous.units_map _ f.continuous_invFun
+      }

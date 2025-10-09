@@ -10,10 +10,13 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.GroupTheory.DoubleCoset
 import Mathlib.Algebra.Central.Defs
 import Mathlib.Tactic.LinearCombination'
+import Mathlib.Topology.Algebra.Group.Basic
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
-import FLT.Mathlib.Topology.Algebra.Group.Basic
+import FLT.Mathlib.Topology.HomToDiscrete
+import FLT.Mathlib.GroupTheory.DoubleCoset
+import FLT.Mathlib.Topology.Algebra.Group.Quotient
 
 /-
 
@@ -54,6 +57,7 @@ namespace Aux
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
+  -- MeasureTheory.QuotientMeasureEqMeasurePreimage.haarMeasure_quotient
   sorry
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
@@ -118,19 +122,102 @@ lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
 
--- Need something saying D ⊆ D_𝔸 is discrete
+/-- The K-algebra equivalence of D and K^n. -/
+abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := Module.Finite.equivPi K D
+
+/-- The 𝔸-algebra equivalence of D_𝔸 and 𝔸^d. -/
+abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) :=
+  ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
+    (TensorProduct.AlgebraTensorModule.finiteEquivPi K D (AdeleRing (𝓞 K) K))
+
+local instance : IsModuleTopology (AdeleRing (𝓞 K) K)
+    ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := by
+
+  sorry -- can be solved by typeclass inference if Mathlib#29315 is merged.
+
+/-- The topological equivalence via D𝔸_iso. -/
+abbrev D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)]
+    ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :=
+  IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
+
+/-- The inclusion of K^n into 𝔸^n. -/
+abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
+    (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
+  fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
+
+omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
+    ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
+    IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
+  exact (DiscretePi (algebraMap K (AdeleRing (𝓞 K) K)) (Module.finrank K D))
+    (NumberField.AdeleRing.discrete K)
+
+omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+theorem D_discrete_extracted (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
+    incl_Kn_𝔸Kn K D ⁻¹' U  = (D_iso K D) ''
+    (⇑(D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
+  ext x
+  constructor
+  · intro hx
+    use (D_iso K D).symm x
+    simpa [← Algebra.algebraMap_eq_smul_one] using hx
+  · intro ⟨y, hy1, hy2⟩
+    have : (D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) =
+        (incl_Kn_𝔸Kn K D) ∘ (D_iso K D) := by
+      ext d n
+      simp [← Algebra.algebraMap_eq_smul_one]
+    rw [this] at hy1
+    simpa [← hy2] using hy1
+
+omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
+    IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
+  apply Discrete_of_HomeoDiscrete (Y' := ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)))
+    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) (D𝔸_iso_top K D)
+  apply Discrete_of_HomDiscrete (X' := Fin (Module.finrank K D) → K)
+    ((D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (D_iso K D)
+  simpa [D_discrete_extracted] using Kn_discrete K D
+
+/-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
+local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
+  AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
+
+local instance : DiscreteTopology (includeLeft_subgroup K D).carrier := by
+  rw [includeLeft_subgroup]
+  apply (singletons_open_iff_discrete).mp
+  rintro ⟨a, a', ha⟩
+  obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
+  refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
+  simp only [Subtype.image_preimage_coe, Set.image_singleton]
+  ext d
+  constructor
+  · rintro ⟨⟨c, hc⟩, hd2⟩
+    refine Set.mem_singleton_of_eq ?_
+    rw [← hc] at hd2
+    apply Set.mem_preimage.mpr at hd2
+    simp only [AddMonoidHom.coe_coe, hUeq, Set.mem_singleton_iff] at hd2
+    simp_rw [← hc, hd2, ha]
+  · intro hd
+    constructor
+    · refine Set.mem_range.mpr ⟨a', ?_⟩
+      rwa [hd]
+    · rw [hd, ← ha]
+      exact Set.mem_preimage.mp (by simp [hUeq])
+
+instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
+
+lemma T_finite_extracted1 : IsCompact (Y K D ∩
+    Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
+  refine IsCompact.inter_right (Y_compact K D) ?_
+  have : DiscreteTopology (includeLeft_subgroup K D).carrier := by
+    infer_instance
+  simpa [includeLeft_subgroup] using AddSubgroup.isClosed_of_discrete
+    (H := includeLeft_subgroup K D)
 
 lemma T_finite : Set.Finite (T K D) := by
-  have h : Set.Finite ((Y K D) ∩ (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)))
-      := by
-    apply IsCompact.finite
-    · refine IsCompact.inter_right (Y_compact K D) ?_
-
-      -- Subgroup.isClosed_of_discrete
-      sorry
-    · -- follows form D being discrete
-
-      sorry
+  have h := IsCompact.finite (T_finite_extracted1 K D)
+    (inter_Discrete (includeLeft_subgroup K D).carrier (Y K D))
   have h1 : Units.val '' T K D ⊆ (Y K D) ∩
       (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
     rintro _ ⟨t, ⟨ht1, d, rfl⟩, rfl⟩
@@ -212,20 +299,16 @@ lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
     rw [this]
     rfl
 
-local instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
-
 lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
-  apply Topology.IsClosedEmbedding.comp
-  · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
-      embedProduct_closed D_𝔸}
-  · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
-      (continuous_iff_le_induced.mpr fun U a ↦ a)
-      (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
-    simp only [Subgroup.coe_subtype]
-    refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
-    simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
-    exact IsClosed.preimage (continuous_id')
-      (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
+  apply Units.isClosedEmbedding_embedProduct.comp
+  refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
+    (continuous_iff_le_induced.mpr fun U a ↦ a)
+    (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
+  simp only [Subgroup.coe_subtype]
+  refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
+  simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
+  exact IsClosed.preimage (continuous_id')
+    (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
 
 lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.C K D) :=
   IsCompact.image (Aux.C_compact K D) <| by fun_prop
@@ -241,8 +324,6 @@ lemma compact_quotient : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
 end NumberField.AdeleRing.DivisionAlgebra
 
 section FiniteAdeleRing
-
-variable [FiniteDimensional K D]
 
 -- Instance to help speed up instance synthesis
 instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
@@ -264,7 +345,7 @@ noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
 
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
-    CompactSpace (Dfx K D ⧸ (incl₁ K D).range) := by
+    CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
   sorry
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
@@ -276,7 +357,16 @@ of `(D ⊗ 𝔸_F^infty)ˣ`.
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
-    Finite (Doset.Quotient (Set.range (incl₁ K D)) U) := by
-  sorry
+    Finite (DoubleCoset.Quotient (Set.range (incl₁ K D)) U) := by
+  have ToFinCover := IsCompact.elim_finite_subcover
+    (ι := (DoubleCoset.Quotient (Set.range (incl₁ K D)) U))
+    (U := fun q ↦ Quot.mk ⇑(QuotientGroup.rightRel (incl₁ K D).range) ''
+    DoubleCoset.doubleCoset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) (isCompact_univ_iff.mpr
+    (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D))
+  have ⟨t, FinCover_descended⟩ := ToFinCover (DoubleCoset.isOpen_doubleCoset_rightrel_mk
+    ((incl₁ K D).range) U hU) (DoubleCoset.union_image_mk_rightRel (incl₁ K D).range U
+    ▸ Set.Subset.rfl)
+  apply (DoubleCoset.iUnion_finset_quotTodoubleCoset ((incl₁ K D).range) U).mp
+  exact ⟨t, DoubleCoset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
 
 end FiniteAdeleRing

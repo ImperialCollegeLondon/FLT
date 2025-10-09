@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
 
-import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
-import Mathlib.Data.Complex.ExponentialBounds
-import Mathlib.Data.Real.Pi.Bounds
+import Mathlib.Analysis.SpecialFunctions.Stirling
+import Mathlib.Analysis.Complex.ExponentialBounds
+import Mathlib.Analysis.Real.Pi.Bounds
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Tactic.NormNum.NatFactorial
 
@@ -35,7 +35,7 @@ private lemma constant_approx : 9 / 5 < log (2 * π) := by
 
 private lemma log_approx {x : ℝ} (hx : 0 < x) : (1 + x)⁻¹ ≤ log (1 + x⁻¹) := by calc
   _ ≥ 1 - (1 + x⁻¹)⁻¹ := Real.one_sub_inv_le_log_of_pos (by positivity)
-  _ ≥ _ := by field_simp [add_comm]
+  _ ≥ _ := by field_simp; simp [add_comm]
 
 private lemma rootDiscrBound_strictMono_aux3 {x : ℝ} (hx : 1 ≤ x) :
     -0.5 ≤ log x / 2 - x / (x + 1) := by
@@ -59,6 +59,7 @@ private lemma rootDiscrBound_strictMono_aux3 {x : ℝ} (hx : 1 ≤ x) :
     intro x hx
     refine .congr_deriv ((((hasDerivWithinAt_id _ _).log hx.ne').div_const _).sub
       ((hasDerivWithinAt_id _ _).div ((hasDerivWithinAt_id _ _).add_const _) (by linarith))) ?_
+    simp only [id_eq, one_div, one_mul, mul_one, add_sub_cancel_left]
     field_simp
     ring
 
@@ -66,9 +67,9 @@ private lemma rootDiscrBound_strictMono_aux2 (n : ℕ) (hn : n ≠ 0) :
     0 < n ^ 2 * (log (n + 1) - log n) + log n ! - n * log n := by
   calc
     _ > n ^ 2 * (log (n + 1) - log n) + 0.9 + log n / 2 - n := by
-        linear_combination Stirling.le_log_factorial_stirling n hn + constant_approx / 2
+        linear_combination Stirling.le_log_factorial_stirling hn + constant_approx / 2
     _ ≥ n ^ 2 * log (1 + (n : ℝ)⁻¹) + 0.9 + log n / 2 - n := by
-        rw [← log_div (by positivity) (by positivity)]; field_simp
+        rw [← log_div (by positivity) (by positivity)]; field_simp; rfl
     _ ≥ n ^ 2 * (1 + n : ℝ)⁻¹ + 0.9 + log n / 2 - n := by
         gcongr; exact log_approx (by positivity)
     _ = log n / 2 - n / (n + 1) + 0.9 := by
@@ -81,11 +82,11 @@ private lemma rootDiscrBound_strictMono_aux :
   strictMonoOn_Ioi_nat_of_lt_succ fun n hn ↦ by
     refine lt_of_mul_lt_mul_left (a := n * (n + 1 : ℝ)) ?_ (by positivity)
     calc
-      _ = (n * (n + 1)) * log n - (n + 1) * log n ! := by field_simp; ring
+      _ = (n * (n + 1)) * log n - (n + 1) * log n ! := by field_simp
       _ < n * (n + 1) * log (n + 1) - n * (log (n + 1) + log n !) := by
           linear_combination rootDiscrBound_strictMono_aux2 n hn.ne'
       _ = n * (n + 1) * (log (n + 1) - (n + 1 : ℝ)⁻¹ * (log (n + 1) + log n !)) := by
-          field_simp; ring
+          field_simp
       _ = n * (n + 1) * (log (n + 1 : ℕ) - (↑(n + 1) : ℝ)⁻¹ * log (n + 1)!) := by
           rw [Nat.factorial_succ, Nat.cast_mul, log_mul (by positivity) (by positivity),
             Nat.cast_add_one]
@@ -122,6 +123,7 @@ private lemma rootDiscrBound_four_lt : rootDiscrBound 4 < 2.75 := by
 private lemma rootDiscrBound_five_gt : 2.75 < rootDiscrBound 5 := by
   have h₁ : 2.75 < rootDiscrBound 5 := by calc _ * _
     _ > π / 4 * (5 ^ 2 / 7) := by
+        norm_cast
         gcongr
         rw [div_eq_mul_inv, rpow_mul, rpow_inv_lt_iff_of_pos]
         all_goals norm_num
@@ -132,6 +134,7 @@ private lemma rootDiscrBound_thirteen_lt :
     rootDiscrBound 13 < 2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) := by
   have h₁ : rootDiscrBound 13 < 4.15 := by calc _ * _
     _ < π / 4 * (13 ^ 2 / 32) := by
+        norm_cast
         gcongr
         rw [div_eq_mul_inv, rpow_mul, lt_rpow_inv_iff_of_pos]
         all_goals norm_num
@@ -146,6 +149,7 @@ private lemma rootDiscrBound_fourteen_gt :
     2 ^ (2 / 3 : ℝ) * 3 ^ (7 / 8 : ℝ) < rootDiscrBound 14 := by
   have h₁ : 4.16 < rootDiscrBound 14 := by calc _ * _
     _ > π / 4 * (14 ^ 2 / 37) := by
+        norm_cast
         gcongr
         rw [div_eq_mul_inv, rpow_mul, rpow_inv_lt_iff_of_pos]
         all_goals norm_num

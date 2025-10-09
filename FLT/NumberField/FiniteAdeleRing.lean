@@ -3,8 +3,8 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.NumberField.Completion.Finite
+import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 /-
 
 # The finite adele ring of a number field is locally compact.

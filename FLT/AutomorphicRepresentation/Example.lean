@@ -262,10 +262,10 @@ lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 
         rw [h, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff] at hk
         have hNjk := z.prop (N * j) (N * k) (mul_dvd_mul (dvd_refl _) hjk)
         rw [ZMod.castHom_apply, ZMod.cast_eq_val] at hNjk
-        simp only [PNat.mul_coe, map_natCast, ZMod.eq_iff_modEq_nat]
+        simp only [PNat.mul_coe, map_natCast, ZMod.natCast_eq_natCast_iff]
         apply Nat.ModEq.mul_right_cancel' (c := N) (by simp)
         rw [Nat.div_mul_cancel hj, Nat.div_mul_cancel hk,
-          mul_comm (j : ℕ) (N : ℕ), ← ZMod.eq_iff_modEq_nat, hNjk]
+          mul_comm (j : ℕ) (N : ℕ), ← ZMod.natCast_eq_natCast_iff, hNjk]
         simp
     }
     refine ⟨y, ?_⟩
@@ -518,7 +518,7 @@ noncomputable abbrev zsub : AddSubgroup QHat :=
 
 lemma ZMod.isUnit_natAbs {z : ℤ} {N : ℕ} : IsUnit (z.natAbs : ZMod N) ↔ IsUnit (z : ZMod N) := by
   cases z.natAbs_eq with
-  | inl h | inr h => rw [h]; simp [-Int.natCast_natAbs]
+  | inl h | inr h => rw [h]; simp
 
 @[simp]
 lemma _root_.Algebra.TensorProduct.one_tmul_intCast {R : Type*} {A : Type*} {B : Type*}
@@ -649,8 +649,138 @@ lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
         Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.one_tmul_intCast]
       simp
 
+@[simp]
+lemma _root_.Algebra.TensorProduct.intCast_tmul_one {R : Type*} {A : Type*} {B : Type*}
+    [CommRing R] [Ring A] [Algebra R A] [Ring B] [Algebra R B] {z : ℤ} :
+    (z : A) ⊗ₜ[R] (1 : B) = (z : TensorProduct R A B) := by
+  rw [← map_intCast (F := A →ₐ[R] TensorProduct R A B),
+    Algebra.TensorProduct.includeLeft_apply]
+
+@[simp]
+lemma _root_.Algebra.TensorProduct.one_tmul_natCast {R : Type*} {A : Type*} {B : Type*}
+    [CommRing R] [Ring A] [Algebra R A] [Ring B] [Algebra R B] {n : ℕ} :
+    (1 : A) ⊗ₜ[R] (n : B) = (n : TensorProduct R A B) := by
+  rw [← map_natCast (F := B →ₐ[R] TensorProduct R A B),
+    Algebra.TensorProduct.includeRight_apply]
+
 -- this needs that ℤ is a PID.
-lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := sorry
+lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
+  rw [eq_top_iff]
+  rintro y -
+  rcases canonicalForm y.val with ⟨N, x, hy⟩
+  rcases canonicalForm (y⁻¹.val) with ⟨N2, x2, hy2⟩
+  set xinv := (1 / (N * N2) : ℚ) ⊗ₜ[ℤ] x2 with xinv_def
+  have : (i₂ x) * xinv = 1 := by
+    rw [xinv_def, Algebra.TensorProduct.includeRight_apply, one_div, mul_inv_rev,
+      Algebra.TensorProduct.tmul_mul_tmul,one_mul,mul_comm,← Algebra.TensorProduct.tmul_mul_tmul,
+      ← one_div, ← one_div, ← hy, ← hy2, ← Units.val_mul, mul_inv_cancel, Units.val_one]
+  let xunit : QHatˣ := ⟨i₂ x, xinv, this, by rw [mul_comm]; exact this⟩
+  suffices h : ∀ (u : QHatˣ), (u : QHat) ∈ zHatsub → u ∈ unitsratsub ⊔ unitszHatsub by
+    specialize h xunit
+    simp only [Algebra.TensorProduct.includeRight_apply, AddMonoidHom.mem_range,
+      AddMonoidHom.coe_coe, exists_apply_eq_apply, forall_const, Subgroup.mem_sup, xunit] at h
+    rcases h with ⟨w, ⟨v, rfl⟩, z, ⟨t, rfl⟩, wzx⟩
+    rw [Subgroup.mem_sup]
+    let q : ℚˣ := ⟨v / N, N / v, by field_simp, by field_simp⟩
+    use ((Units.map ↑i₁) q)
+    simp only [MonoidHom.mem_range, exists_exists_eq_and]
+    refine ⟨⟨q, rfl⟩, t, ?_⟩
+    simp only [← Units.val_inj, hy, Units.map_mk, MonoidHom.coe_coe,
+      Algebra.TensorProduct.includeLeft_apply, Units.val_mul, one_div, q]
+    rw [← mul_one (N⁻¹ : ℚ), ← one_mul x, ← Algebra.TensorProduct.tmul_mul_tmul, div_eq_mul_inv,
+      mul_comm (v : ℚ), ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_assoc, mul_one]
+    congr
+    simpa only [← Units.val_inj, Units.val_mul, Units.coe_map, MonoidHom.coe_coe,
+      Algebra.TensorProduct.includeLeft_apply, xunit, q] using wzx
+  clear * -
+  intro x hx
+  rcases canonicalForm (x⁻¹.val) with ⟨M, y, hxinv⟩
+  have : x * (i₂ y) = M := by
+    rw [← one_mul (M : QHat), ← Units.val_one, ← mul_inv_cancel x, Units.val_mul, mul_assoc]
+    congr!
+    have h : (M : QHat) = (M : ℚ) ⊗ₜ[ℤ] 1 := by norm_cast
+    rw [Algebra.TensorProduct.includeRight_apply, hxinv, h, Algebra.TensorProduct.tmul_mul_tmul,
+      mul_one, one_div, inv_mul_cancel₀]
+    simp only [ne_eq, Rat.natCast_eq_zero, PNat.ne_zero, not_false_eq_true]
+  rcases hx with ⟨X, hX⟩
+  let I := Ideal.span {X}
+  let J := I.comap (Int.castRingHom ZHat)
+  have Jnonzero : (M : ℤ) ∈ J := by
+    simp only [J, I, Ideal.mem_comap]
+    rw [Ideal.mem_span_singleton']
+    use y
+    apply injective_zHat
+    simp only [mul_comm, ← hX, AddMonoidHom.coe_coe, Algebra.TensorProduct.includeRight_apply,
+      Algebra.TensorProduct.tmul_mul_tmul, mul_one] at this
+    rw [Algebra.TensorProduct.includeRight_apply, this, map_natCast,
+      Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.one_tmul_natCast]
+  obtain ⟨g, hg⟩ := IsPrincipalIdealRing.principal (R := ℤ) J
+  wlog gpos : 0 < g with H
+  · specialize H x M y hxinv this X hX Jnonzero (-g)
+    apply H (by rw [← Set.neg_singleton, Submodule.span_neg, ← hg])
+    rw [Int.neg_pos, Int.lt_iff_le_and_ne, ← Int.not_gt_eq]
+    refine ⟨gpos, ?_⟩
+    rintro rfl
+    rw [Submodule.span_zero_singleton, Submodule.eq_bot_iff] at hg
+    specialize hg (M : ℤ) Jnonzero
+    simp only [Int.natCast_eq_zero, PNat.ne_zero] at hg
+  clear this hxinv y Jnonzero M
+  let N : ℕ+ := ⟨g.toNat, Int.pos_iff_toNat_pos.1 gpos⟩
+  suffices h : Ideal.span {X} = Ideal.span {(g : ZHat)} by
+    obtain ⟨y, hy⟩ : ∃ y, y * X = g := by
+      rw [← Ideal.mem_span_singleton', h, Ideal.mem_span_singleton]
+    obtain ⟨z, hz⟩ : ∃ z, z * g = X := by
+      rw [← Ideal.mem_span_singleton', ← h, Ideal.mem_span_singleton]
+    have : y * z = 1 := by
+      rw [mul_comm, ← sub_right_inj (a := (1 : ZHat)), sub_self]
+      apply ZHat.eq_zero_of_mul_eq_zero N
+      rw [PNat.mk_coe, ← Int.cast_natCast, Int.natCast_toNat_eq_self.2 (le_of_lt gpos), mul_sub,
+        mul_one, sub_eq_zero, ← mul_assoc, mul_comm _ z, hz, mul_comm, hy]
+    simp only [Subgroup.mem_sup, MonoidHom.mem_range, exists_exists_eq_and]
+    set G : ℚ := 1 / g with G_def
+    have gG : g * G = 1 := by
+      rw [G_def, one_div, mul_inv_cancel₀]
+      simp only [ne_eq, Rat.intCast_eq_zero, Int.ne_of_gt gpos, not_false_eq_true]
+    use ⟨g, G, gG, mul_comm _ G ▸ gG⟩
+    use ⟨z, y, by rw[mul_comm]; exact this, this⟩
+    simp only [← Units.val_inj, ← hX, Units.map_mk, MonoidHom.coe_coe, map_intCast,
+      Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.includeRight_apply,
+      Units.val_mul, AddMonoidHom.coe_coe]
+    rw [← hz, ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_one, mul_comm,
+      Algebra.TensorProduct.one_tmul_intCast]
+  have hgx : Ideal.span {(g : ZHat)} ≤ Ideal.span {X} := by
+    have : g ∈ J := by
+      rw [hg, Ideal.submodule_span_eq]
+      apply Ideal.mem_span_singleton_self
+    simp only [J, I] at this
+    exact (Ideal.span_singleton_le_iff_mem _).2 this
+  refine le_antisymm ?_ hgx
+  suffices h : X N = 0 by
+    rcases (ZHat.multiples N X).2 h with ⟨y, hy⟩
+    rw [Ideal.span_singleton_le_span_singleton, ← hy, PNat.mk_coe]
+    exact ⟨y, by rw [← Int.cast_natCast, Int.natCast_toNat_eq_self.2 (le_of_lt gpos)]⟩
+  let xg := (X N).val
+  have : (xg - X) N = 0 := by
+    simp only [ZHat, ZMod.castHom_apply, ZHat.instDFunLikePNatZModVal,
+      AddSubgroupClass.coe_sub, SubringClass.coe_natCast, Pi.sub_apply, Pi.natCast_apply, xg]
+    simp only [ZMod.natCast_val, ZMod.cast_id', id_eq, sub_self]
+  rcases (ZHat.multiples N _).2 this with ⟨y, hy⟩
+  have : (xg : ZHat) ∈ Ideal.span {X} := by
+    rw [← sub_add_cancel (xg : ZHat) X]
+    apply Ideal.add_mem
+    · apply hgx
+      rw [Ideal.mem_span_singleton', ← hy, mul_comm, PNat.mk_coe]
+      exact ⟨y, by rw [← Int.cast_natCast, Int.natCast_toNat_eq_self.2 (le_of_lt gpos)]⟩
+    apply Ideal.mem_span_singleton_self
+  have hxg : (xg : ℤ) ∈ J := by
+    rw [Ideal.mem_comap]
+    simp only [Int.coe_castRingHom, Int.cast_natCast, I, this]
+  rw [hg, Submodule.mem_span_singleton] at hxg
+  rcases hxg with ⟨a, ha⟩
+  rw [← ZMod.val_eq_zero, ← Int.natCast_eq_zero]
+  apply Int.eq_zero_of_dvd_of_nonneg_of_lt (n := g) (Int.natCast_nonneg _)
+  · exact Int.lt_of_toNat_lt (ZMod.val_lt (X N))
+  exact ⟨a, by rw [mul_comm, ← smul_eq_mul, ha]⟩
 
 end multiplicative_structure_of_QHat
 
@@ -703,6 +833,7 @@ lemma leftInvOn_toQuaternion_fromQuaternion :
   ext <;>
   simp only [h₀, add_sub_add_right_eq_sub, Int.floor_sub_intCast, Int.floor_intCast, Int.cast_sub,
     Int.cast_add, Int.cast_one, Int.floor_add_one, Int.floor_sub_intCast] <;>
+  simp only [Int.floor_add_intCast, Int.floor_intCast, Int.cast_add] <;>
   field_simp <;>
   norm_cast <;>
   ring
@@ -727,7 +858,7 @@ instance : Zero 𝓞 := ⟨zero⟩
 @[simp] lemma zero_im_oi : im_oi (0 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_zero : toQuaternion 0 = 0 := by
-  ext <;> (simp [toQuaternion]; aesop)
+  ext <;> (simp [toQuaternion])
 
 @[simp]
 lemma toQuaternion_eq_zero_iff {z} : toQuaternion z = 0 ↔ z = 0 :=
@@ -749,7 +880,7 @@ instance : One 𝓞 := ⟨one⟩
 @[simp] lemma one_im_oi : im_oi (1 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_one : toQuaternion 1 = 1 := by
-  ext <;> (simp [toQuaternion]; aesop)
+  ext <;> (simp [toQuaternion])
 
 /-! ## Neg (-) -/
 
@@ -1007,7 +1138,7 @@ instance starRing : StarRing 𝓞 where
 lemma toQuaternion_star (z : 𝓞) : toQuaternion (star z) = star (toQuaternion z) := by
   ext <;>
   simp only [star_re, star_im_o, star_im_i, star_im_oi, toQuaternion,
-    Quaternion.star_re, Quaternion.star_imI, Quaternion.star_imJ, Quaternion.star_imK] <;>
+    Quaternion.re_star, Quaternion.imI_star, Quaternion.imJ_star, Quaternion.imK_star] <;>
   field_simp <;>
   norm_cast <;>
   ring
@@ -1071,8 +1202,8 @@ lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := by
     at h1
   have h2 := eq_zero_of_add_nonpos_right (by positivity) (by positivity) h1.le
   simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, pow_eq_zero_iff, mul_eq_zero,
-    or_false] at h2
-  simp only [h2, zero_mul, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero,
+    false_or] at h2
+  simp only [h2, mul_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero,
     pow_eq_zero_iff, mul_eq_zero, or_false] at h1
   ext <;> assumption
 
@@ -1124,7 +1255,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
-    simp_rw [and_assoc, sq_eq_zero_iff, sub_re, sub_imI, sub_imJ, sub_imK, sub_eq_zero,
+    simp_rw [and_assoc, sq_eq_zero_iff, re_sub, imI_sub, imJ_sub, imK_sub, sub_eq_zero,
       ← Quaternion.ext_iff]
     symm
     apply leftInvOn_toQuaternion_fromQuaternion
@@ -1146,7 +1277,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
   rw [NormedRing.dist_eq, ← sq_lt_one_iff₀ (_root_.norm_nonneg _), sq,
     ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
 
-  simp only [sub_re, sub_imI, sub_imJ, sub_imK]
+  simp only [re_sub, imI_sub, imJ_sub, imK_sub]
 
   apply aux2 <;> try apply this
   contrapose! H

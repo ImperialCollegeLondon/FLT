@@ -348,9 +348,6 @@ lemma PatchingAlgebra.map_id :
   refine Subtype.ext (funext fun α ↦ ?_)
   simp [← hy, UltraProduct.mapRingHom_π]
 
-instance {R S} [Semiring R] [Semiring S] (e : R ≃+* S) : IsLocalHom e.toRingHom :=
-  ⟨fun x hx ↦ by convert hx.map e.symm; simp⟩
-
 @[simps! apply symm_apply]
 def PatchingAlgebra.mapEquiv (f : ∀ i, R i ≃+* R' i) :
     PatchingAlgebra R F ≃+* PatchingAlgebra R' F where

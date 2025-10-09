@@ -3,10 +3,9 @@ Copyright (c) 2025 Matthew Jasper. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Matthew Jasper
 -/
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
-import FLT.Mathlib.Algebra.Order.GroupWithZero
+import Mathlib.Algebra.Order.GroupWithZero.Canonical
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.NumberTheory.RamificationInertia.Basic
@@ -484,7 +483,7 @@ theorem maximalIdeal_eq_span_uniformizer {π : v.adicCompletionIntegers K}
     have hn : ¬(IsUnit x) := fun h =>
       (IsLocalRing.maximalIdeal.isMaximal _).ne_top (Ideal.eq_top_of_isUnit_mem _ hx h)
     replace hn : n ≠ 0 := fun h => by {rw [hu, h, pow_zero, one_mul] at hn; exact hn u.isUnit}
-    simpa [Ideal.mem_span_singleton, hu, IsUnit.dvd_mul_right, Units.isUnit] using dvd_pow_self _ hn
+    simpa [Ideal.mem_span_singleton, hu, IsUnit.dvd_mul_right, Units.isUnit] using dvd_pow_self π hn
 
 instance : Ring.DimensionLEOne (v.adicCompletionIntegers K) where
   maximalOfPrime {𝔭} h𝔭_ne_bot h𝔭_prime := by

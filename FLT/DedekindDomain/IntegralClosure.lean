@@ -148,6 +148,43 @@ theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := b
   · intro x hx y hy hxy
     rwa [← @HeightOneSpectrum.ext_iff] at hxy
 
+/-- There are only finitely many nonzero primes of B above a nonzero prime of A. -/
+noncomputable def Extension.fintype : Fintype (Extension B v) :=
+  have := Extension.finite A K L B v
+  Fintype.ofFinite <| Extension B v
+
+omit [IsIntegralClosure B A L] in
+/-- `Ideal.sum_ramification_inertia`, rewritten as a sum over extensions. -/
+lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
+    letI := Extension.fintype A K L B v
+    ∑ (w : Extension B v), Ideal.ramificationIdx (algebraMap A B) (v.asIdeal) (w.val.asIdeal)
+      * (v.asIdeal).inertiaDeg (w.val.asIdeal) = Module.finrank K L := by
+  have := v.isMaximal
+  have := noZeroSMulDivisors A K L B
+  -- Use Ideal.sum_ramification_inertia to make this an equivalence of two sums.
+  rw [← Ideal.sum_ramification_inertia B v.asIdeal K L v.ne_bot]
+  -- Check that the sums are equal via a bijection
+  apply Finset.sum_nbij (fun w ↦ w.val.asIdeal)
+  · rintro ⟨a, rfl⟩ -
+    rw [← Finset.mem_coe, coe_primesOverFinset (comap A a).ne_bot]
+    exact ⟨a.isPrime, ⟨rfl⟩⟩
+  · apply Function.Injective.injOn
+    exact fun _ _ hw ↦ Subtype.ext <| HeightOneSpectrum.ext hw
+  · intro y hy
+    rw [coe_primesOverFinset v.ne_bot B] at hy
+    obtain ⟨hprime, ⟨hyover⟩⟩ := hy
+    have hybot : y ≠ ⊥ := by
+      rw [Ideal.under_def] at hyover
+      intro hbot
+      apply v.ne_bot
+      rw [hyover, hbot]
+      exact Ideal.comap_bot_of_injective _ (FaithfulSMul.algebraMap_injective _ _)
+    let w' : HeightOneSpectrum B := ⟨y, hprime, hybot⟩
+    have wcomap : comap A w' = v := HeightOneSpectrum.ext hyover.symm
+    let w : Extension B v := ⟨w', wcomap⟩
+    exact ⟨w, by simp, rfl⟩
+  · exact fun _ _ ↦ rfl
+
 end BaseChange
 
 end IsDedekindDomain.HeightOneSpectrum
@@ -192,7 +229,7 @@ lemma LinearEquivTensorProduct_symm_tmul (k : K) (b : B) :
 variable (M : Type*) [AddCommGroup M] [Module K M] [Module A M] [IsScalarTower A K M]
 
 /-- The canonical `A`-linear isomorphism `L ⊗ M ≅ B ⊗ M` for any `K`-module `M`. -/
-noncomputable def LinearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A] M :=
+noncomputable def linearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A] M :=
   let f₁ : L ⊗[K] M ≃ₗ[A] L ⊗[A] M := IsLocalization.moduleTensorEquiv (nonZeroDivisors A) K L M
     |>.restrictScalars A
   let f₂ : L ≃ₗ[A] B ⊗[A] K := LinearEquivTensorProduct A K L B
@@ -205,12 +242,37 @@ noncomputable def LinearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A]
     (IsLocalization.moduleLid (nonZeroDivisors A) K M |>.restrictScalars A)
   f₁.trans f₃ |>.trans f₄ |>.trans f₅
 
-lemma LinearEquivTensorProductModule_symm_tmul (b : B) (m : M) :
-    (LinearEquivTensorProductModule A K L B M).symm (b ⊗ₜ m) = (algebraMap B L b) ⊗ₜ m := by
-  simp [LinearEquivTensorProductModule, LinearEquivTensorProduct_symm_one_tmul]
+lemma linearEquivTensorProductModule_symm_tmul (b : B) (m : M) :
+    (linearEquivTensorProductModule A K L B M).symm (b ⊗ₜ m) = (algebraMap B L b) ⊗ₜ m := by
+  simp [linearEquivTensorProductModule, LinearEquivTensorProduct_symm_one_tmul]
+  -- this proof breaks until someone PRs the simp lemmas in the import
 
-lemma LinearEquivTensorProductModule_tmul (b : B) (m : M) :
-    (LinearEquivTensorProductModule A K L B M) ((algebraMap B L b) ⊗ₜ m) = b ⊗ₜ m := by
-  rw [← LinearEquiv.eq_symm_apply, LinearEquivTensorProductModule_symm_tmul]
+lemma linearEquivTensorProductModule_tmul (b : B) (m : M) :
+    (linearEquivTensorProductModule A K L B M) ((algebraMap B L b) ⊗ₜ m) = b ⊗ₜ m := by
+  rw [← LinearEquiv.eq_symm_apply, linearEquivTensorProductModule_symm_tmul]
 
 end IsDedekindDomain
+
+variable (A K L B : Type*) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Field L]
+    [Algebra A K] [IsFractionRing A K] [Algebra B L] [IsDedekindDomain A]
+    [Algebra K L] [Algebra A L] [IsScalarTower A B L] [IsScalarTower A K L]
+    [IsIntegralClosure B A L] [Algebra.IsAlgebraic K L]
+
+include K in
+lemma _root_.IsIntegralClosure.isLocalizedModule : IsLocalizedModule (nonZeroDivisors A)
+    ((Algebra.linearMap B L).restrictScalars A) := by
+  have hlocal := IsIntegralClosure.isLocalization A K L B
+  rw [← isLocalizedModule_iff_isLocalization'] at hlocal
+  exact {
+    map_units x := by
+      obtain ⟨x, hx⟩ := x
+      simpa only [← IsScalarTower.algebraMap_apply, Module.End.isUnit_iff]
+          using hlocal.map_units ⟨_, x, hx, rfl⟩
+    surj y := by
+      obtain ⟨⟨b, _, s, hs, rfl⟩, hx⟩ := (hlocal.surj) y
+      exact ⟨(b, ⟨s, hs⟩), by simpa [Submonoid.smul_def] using hx⟩
+    exists_of_eq {x₁ x₂} e := by
+      obtain ⟨⟨_, c, hc, rfl⟩, he⟩ := hlocal.exists_of_eq e
+      use ⟨c, hc⟩
+      simpa only [Submonoid.smul_def, smul_eq_mul, Algebra.smul_def] using he
+  }

@@ -3,10 +3,9 @@ Copyright (c) 2025 Salvatore Mercuri. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
-import Mathlib.NumberTheory.NumberField.Completion
+import Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
 import FLT.NumberField.InfinitePlace.Extension
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
-import FLT.Mathlib.NumberTheory.NumberField.Embeddings
 
 /-!
 # Dimensions of completions at infinite places
@@ -374,7 +373,7 @@ theorem coe_extensionEmbeddingOfIsReal [hv : Fact v.IsReal] (x : v.Completion) :
     extensionEmbeddingOfIsReal hv.elim x = extensionEmbedding v x := by
   induction x using induction_on
   · exact isClosed_eq (Continuous.comp' (by fun_prop) continuous_extension) continuous_extension
-  · simp only [extensionEmbedding_of_isReal_coe, embedding_of_isReal_apply, extensionEmbedding_coe]
+  · simp only [extensionEmbeddingOfIsReal_coe, embedding_of_isReal_apply, extensionEmbedding_coe]
 
 instance algebraReal [hv : Fact v.IsReal] : Algebra v.Completion ℝ :=
   (extensionEmbeddingOfIsReal hv.elim).toAlgebra

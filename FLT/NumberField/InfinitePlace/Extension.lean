@@ -47,10 +47,6 @@ namespace NumberField.ComplexEmbedding
 variable {K : Type*} {L : Type*} [Field K] [Field L] [Algebra K L]
   (f : K →+* ℂ) (g : L →+* ℂ)
 
-omit [Algebra K L] in
-@[simp]
-theorem conjugate_comp (σ : K →+* L) : (conjugate g).comp σ = conjugate (g.comp σ) := rfl
-
 /--
 If `L/K` and `f : K →+* ℂ`, `g : L →+* ℂ`, then we say `g` is an extension of `f` if
 `g` restricted to `K` is `f`.
