@@ -1,36 +1,14 @@
-import FLT.Mathlib.Algebra.Algebra.Bilinear
-import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
-import FLT.Mathlib.NumberTheory.RamificationInertia.Basic
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.Algebra.UniformRing
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Topology.Algebra.Valued.WithVal
-import FLT.Mathlib.RingTheory.TensorProduct.Basis
-import Mathlib.Algebra.Algebra.Subalgebra.Pi
-import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.Data.Int.WithZero
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.Topology.Algebra.Valued.NormedValued
-import Mathlib.RingTheory.Valuation.RankOne
-import Mathlib.Topology.Algebra.Module.FiniteDimension
-import FLT.DedekindDomain.AdicValuation
-import FLT.DedekindDomain.Completion.BaseChange
+/-
+Copyright (c) 2025 Madison Crim. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Madison Crim
+-/
+
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
-import Mathlib.LinearAlgebra.TensorProduct.Prod
-import Mathlib.RingTheory.Flat.Basic
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
-import Mathlib.Order.DirectedInverseSystem
 import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimit
 
-
-
 section RestrictedProduct
-
 
 open Set Filter
 
@@ -45,11 +23,6 @@ theorem principal_filter_order {S₁ S₂ : 𝓕.complement} (h : S₁ ≤ S₂)
     (𝓟 S₂ᶜ : Filter ι) ≤ 𝓟 S₁ᶜ := by
   simp only [le_principal_iff, mem_principal, compl_subset_compl]; exact h
 
-theorem principal_filter_order' {S₁ S₂ : 𝓕.sets} (h : S₁ ≤ S₂) :
-    (𝓟 S₁ : Filter ι) ≤ 𝓟 S₂:= by
-  simp only [le_principal_iff, mem_principal]; exact h
-
-
 theorem filter_bot :
     ∀ S : 𝓕.complement, 𝓕 ≤ (𝓟 Sᶜ : Filter ι) := by
   intro S
@@ -63,10 +36,7 @@ theorem filter_bot :
 
 open scoped RestrictedProduct
 
-variable {R : ι → Type*}
-variable {A : ι → Type*}
-variable [Π i, SetLike (A i) (R i)]
-variable {C : Π i, A i}
+variable {R : ι → Type*} {A : ι → Type*} [Π i, SetLike (A i) (R i)] {C : Π i, A i}
 
 variable (C) in
 /-- This is (isomorphic to) `(Π i ∈ S, R i) × (Π i ∉ S, A i)` -/
@@ -88,22 +58,12 @@ def inclusion_to_restrictedProduct (S : 𝓕.complement) :
     mem_A_away_from_S C S → Πʳ i, [R i, C i]_[𝓕] :=
   RestrictedProduct.inclusion _ _ (filter_bot S)
 
--- ....
-
-
-def inclusion' (S₁ S₂ : 𝓕.complement) (h : S₁ ≤ S₂) :
-    Πʳ i, [R i, C i]_[𝓟 S₁ᶜ] → Πʳ i, [R i, C i]_[𝓟 S₂ᶜ] :=
-  RestrictedProduct.inclusion _ _ (principal_filter_order h)
-
-
 /-- The maps from the directed system to the actual restricted product. -/
 def inclusion_to_restrictedProduct' (S : 𝓕.complement) :
     Πʳ i, [R i, C i]_[𝓟 Sᶜ] → Πʳ i, [R i, C i]_[𝓕] :=
   RestrictedProduct.inclusion _ _ (filter_bot S)
 
-
 end RestrictedProduct
-
 
 
 variable {ι : Type*} {R : ι → Type*} {ℱ : Filter ι}
@@ -114,40 +74,9 @@ variable {B : Π i, T i}
 
 open scoped RestrictedProduct TensorProduct Module.IsDirectLimit
 
-variable {A : Type*} [CommRing A]
-
--- In open PR #25715
--- restricted product of addcommgroups is an addcommgroup
-instance [Π i, AddCommGroup (R i)] [∀ i, AddSubgroupClass (T i) (R i)] :
-    AddCommGroup (Πʳ i, [R i, B i]_[ℱ]) where
-  __ := inferInstanceAs (AddGroup (Πʳ i, [R i, B i]_[ℱ]))
-  add_comm a b := by ext i; simp [add_comm]
-
--- when #25715 lands we'll be able to change these to AddCommMonoid
--- restricted product of A-modules is an A-module
-instance module [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)]
-    -- next line is how we do "SubmoduleClass"
-    [∀ i, AddSubgroupClass (T i) (R i)] [∀ i, SMulMemClass (T i) A (R i)] :
-    Module A (Πʳ i, [R i, B i]_[ℱ]) where
-      smul a x := ⟨fun i ↦ a • x i, Filter.Eventually.mono x.property (fun _ hi ↦
-     SMulMemClass.smul_mem a hi)⟩
-      one_smul b := by ext; simp
-      mul_smul x y b := by ext; simp [mul_smul]
-      smul_zero b := by ext; simp
-      smul_add x a b := by ext; simp
-      add_smul a b x := by
-        ext
-        simp only [RestrictedProduct.smul_apply, RestrictedProduct.add_apply, add_smul]
-      zero_smul b := by ext; simp
-
-
-
-variable {ι : Type*} {R : ι → Type*} {ℱ : Filter ι}
-
-
-
-variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
-{M : Type*} [AddCommGroup M] [Module A M] [Module.FinitePresentation A M] (S : Filter.complement ℱ)
+variable {A : Type*} [CommRing A] {ι : Type*} {R : ι → Type*} {ℱ : Filter ι}
+  [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)} {M : Type*}
+  [AddCommGroup M] [Module A M] [Module.FinitePresentation A M] (S : Filter.complement ℱ)
 
 open Set Filter RestrictedProduct
 
@@ -159,8 +88,7 @@ instance add (S : ℱ.complement) :
 instance module' (S : ℱ.complement) :
   Module A (mem_A_away_from_S C S) := by
   dsimp [mem_A_away_from_S]
-  exact module
-
+  exact instModuleCoeOfSMulMemClass R
 
 def inclusion_module (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) :
     mem_A_away_from_S C S₁ →ₗ[A]
@@ -171,15 +99,6 @@ def inclusion_module (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) :
 
 lemma inclusion_module_apply (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) (x : mem_A_away_from_S C S₁) :
   inclusion_module S₁ S₂ h x = ⟨x.1, x.2.filter_mono (principal_filter_order h)⟩ := rfl
-
-def inclusion_module' (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) :
-    Πʳ i, [R i, C i]_[𝓟 S₁ᶜ]  →ₗ[A]
-      Πʳ i, [R i, C i]_[𝓟 S₂ᶜ]  where
-  toFun := inclusion' S₁ S₂ h
-  map_add' _ _ := rfl
-  map_smul' _ _ := rfl
-
-
 
 def inclusion_to_restricted_product_module (S : ℱ.complement) :
   mem_A_away_from_S C S →ₗ[A] Πʳ i, [R i, C i]_[ℱ] where
@@ -248,19 +167,13 @@ instance RestrictedProductIsDirectLimit :
     inclusion_module,_root_.inclusion, inclusion_module,RestrictedProduct.inclusion]
     exact Subtype.ext rfl
 
-
-#check TensorProduct.directLimitRight
-
-
-variable {ι : Type*} (R : ι → Type*) (S : Set ι) [∀ i, Decidable (i ∈ S)]
+variable {ι : Type*} (R : ι → Type*) (S : Set ι) [∀ i, Decidable (i ∈ S)] (A : (i : ι) → Set (R i))
 
 open scoped Filter
 
 namespace RestrictedProduct
 
 section type
-
-variable (A : (i : ι) → Set (R i))
 
 def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
     (Π i : {i // i ∈ S}, A i) × (Π i : {i // i ∉ S}, R i) where
@@ -276,29 +189,10 @@ def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
     · rfl
     · simp only [dif_neg i.property]
 
-def principalEquivProd' : Πʳ i, [R i, A i]_[𝓟 Sᶜ] ≃
-    (Π i : {i // i ∉ S}, A i) × (Π i : {i // i ∈ S}, R i) where
-  toFun x := (fun i ↦ ⟨x i, x.property i.property⟩, fun i ↦ x i)
-  invFun y := ⟨fun i ↦ if hi : i ∉ S then y.1 ⟨i, hi⟩ else y.2 ⟨i, by simpa using hi⟩,
-  Filter.eventually_principal.mpr (fun i hi ↦ by
-    simp only [mem_compl_iff] at hi
-    simp only [hi]
-    exact (y.1 ⟨i, hi⟩).2)⟩
-  left_inv x := by
-    simp only [dite_eq_ite, ite_self]
-    rfl
-  right_inv x := by
-    simp only [dite_not, mk_apply, Subtype.coe_prop, ↓reduceDIte]
-    ext i <;> simp only [i.property, ↓reduceDIte]
-
-
-
 end type
 
 
-variable {T : ι → Type*} -- subobject type
-variable [Π i, SetLike (T i) (R i)]
-variable {A : Π i, T i}
+variable {T : ι → Type*} [Π i, SetLike (T i) (R i)] {A : Π i, T i}
 
 section monoid
 
@@ -308,32 +202,16 @@ def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i
   __ := principalEquivProd R S _
   map_mul' _ _ := rfl
 
-@[to_additive]
-def principalMulEquivProd' [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
-    Πʳ i, [R i, A i]_[𝓟 Sᶜ] ≃* (Π i : {i // i ∉ S}, A i) × (Π i : {i // i ∈ S}, R i) where
-  __ := principalEquivProd' R S _
-  map_mul' _ _ := rfl
-
 end monoid
 
 
 end RestrictedProduct
 
-section
-variable {ι : Type*}
-variable (R : ι → Type*)
-variable {ℱ : Filter ι}
-
-
+variable {ι : Type*} (R : ι → Type*) {ℱ : Filter ι} (A : Type*) [CommRing A]
 
 open scoped RestrictedProduct TensorProduct
 
-variable (A : Type*) [CommRing A]
-
-
-
 open Filter
-
 
 noncomputable def RestrictedProduct.principal [Π i, AddCommGroup (R i)]
     [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
@@ -348,23 +226,10 @@ noncomputable def RestrictedProduct.principal [Π i, AddCommGroup (R i)]
       · simp only [Pi.smul_apply, SetLike.coe_sort_coe, SetLike.val_smul]
       · simp only [Pi.smul_apply]
 
-noncomputable def RestrictedProduct.principal' [Π i, AddCommGroup (R i)]
-    [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
-    (S : Set ι) [∀ i, Decidable (i ∈ S)] :
-   (Πʳ i, [R i, C i]_[𝓟 Sᶜ]) ≃ₗ[A] ((Π i : {i // i ∉ S}, C i) ×
-  (Π i : {i // i ∈ S}, R i)) where
-    __ := principalAddEquivSum' R S (A := C)
-    map_smul' m x := by
-      simp only [AddEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe, RingHom.id_apply]
-      dsimp [principalAddEquivSum', principalEquivProd']
-      ext i
-      · simp only [Pi.smul_apply, SetLike.coe_sort_coe, SetLike.val_smul]
-      · simp only [Pi.smul_apply]
-
-
-
 variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] (C : ∀ i, Submodule A (R i))
+
 noncomputable instance : DecidableEq ℱ.complement := Classical.typeDecidableEq ↑ℱ.complement
+
 instance : Nonempty ℱ.complement := by
   use ∅
   dsimp [complement]
@@ -372,5 +237,6 @@ instance : Nonempty ℱ.complement := by
   split_ands
   · exact Filter.univ_mem (f := ℱ)
   · simp only [compl_univ]
-instance : DirectedSystem (mem_A_away_from_S C)
-      fun x1 x2 x3 ↦ ⇑(inclusion_module (ℱ := ℱ) (C:= C) x1 x2 x3) := directed_system
+
+instance : DirectedSystem (mem_A_away_from_S C) fun x1 x2 x3 ↦
+  ⇑(inclusion_module (ℱ := ℱ) (C:= C) x1 x2 x3) := directed_system
