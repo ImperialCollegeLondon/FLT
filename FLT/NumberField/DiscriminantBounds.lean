@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
 
-import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
+import Mathlib.Analysis.SpecialFunctions.Stirling
 import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Analysis.Real.Pi.Bounds
 import Mathlib.Data.Real.StarOrdered
@@ -67,7 +67,7 @@ private lemma rootDiscrBound_strictMono_aux2 (n : ℕ) (hn : n ≠ 0) :
     0 < n ^ 2 * (log (n + 1) - log n) + log n ! - n * log n := by
   calc
     _ > n ^ 2 * (log (n + 1) - log n) + 0.9 + log n / 2 - n := by
-        linear_combination Stirling.le_log_factorial_stirling n hn + constant_approx / 2
+        linear_combination Stirling.le_log_factorial_stirling hn + constant_approx / 2
     _ ≥ n ^ 2 * log (1 + (n : ℝ)⁻¹) + 0.9 + log n / 2 - n := by
         rw [← log_div (by positivity) (by positivity)]; field_simp; rfl
     _ ≥ n ^ 2 * (1 + n : ℝ)⁻¹ + 0.9 + log n / 2 - n := by

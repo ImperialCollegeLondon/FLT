@@ -74,19 +74,6 @@ instance {R} [CommRing R] [TopologicalSpace R] [CompactSpace R] (I : Ideal R) :
 
 open Topology in
 @[to_additive]
-lemma IsTopologicalGroup.isInducing_of_nhds_one {G H : Type*} [Group G] [Group H]
-    [TopologicalSpace G] [TopologicalSpace H]
-    [IsTopologicalGroup G] [IsTopologicalGroup H] (f : G →* H)
-    (hf : 𝓝 (1 : G) = (𝓝 (1 : H)).comap f) : Topology.IsInducing f := by
-  rw [Topology.isInducing_iff_nhds]
-  intro x
-  rw [← nhds_translation_mul_inv, ← nhds_translation_mul_inv (f x), Filter.comap_comap, hf,
-    Filter.comap_comap]
-  congr 1
-  ext; simp
-
-open Topology in
-@[to_additive]
 theorem exists_subgroup_isOpen_and_subset {α : Type*} [TopologicalSpace α]
     [CompactSpace α] [T2Space α] [TotallyDisconnectedSpace α]
     [CommGroup α] [IsTopologicalGroup α] {U : Set α} (hU : U ∈ 𝓝 1) :

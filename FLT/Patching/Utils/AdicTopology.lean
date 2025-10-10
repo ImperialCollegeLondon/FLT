@@ -127,7 +127,7 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
   have hf : Continuous f := by continuity
   have : Topology.IsClosedEmbedding f := by
     refine ⟨⟨?_, ?_⟩, ?_⟩
-    · refine IsTopologicalAddGroup.isInducing_of_nhds_zero f.toAddMonoidHom ?_
+    · rw [IsTopologicalAddGroup.isInducing_iff_nhds_zero]
       refine (f.map_zero ▸ (hf.tendsto 0).le_comap).antisymm ?_
       apply (hasBasis_maximalIdeal_pow R).ge_iff.mpr ?_
       rintro i -
