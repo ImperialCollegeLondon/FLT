@@ -180,7 +180,8 @@ variable {T : ι → Type*} [Π i, SetLike (T i) (R i)] {A : Π i, T i}
 section monoid
 
 /-- Monoid equivalence version of `principalEquivProd`. -/
-@[to_additive] def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
+@[to_additive /-- Additive monoid equivalence of principalEquivProd. -/]
+def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
     Πʳ i, [R i, A i]_[𝓟 S] ≃* (Π i : {i // i ∈ S}, A i) × (Π i : {i // i ∉ S}, R i) where
   __ := principalEquivProd R S _
   map_mul' _ _ := rfl
