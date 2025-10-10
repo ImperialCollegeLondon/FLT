@@ -156,8 +156,13 @@ lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
     rw [← hjx', TensorProduct.directLimitRight_tmul_of]
     unfold mem_A_away_from_S
     rw [Module.DirectLimit.congr_apply_of]
-    simp [lTensorPrincipalEquiv, tensorPi_equiv_piTensor'_apply, tmulEquivRangeLTensor,
-      rangeLTensor, inclusion_to_restricted_product_module, inclusion_to_restrictedProduct]
+    simp only [rangeLTensor, lTensorPrincipalEquiv, Set.mem_compl_iff, tmulEquivRangeLTensor,
+      LinearEquiv.trans_apply, LinearEquiv.ofInjective_apply, LinearEquiv.trans_symm,
+      LinearEquiv.lTensor_tmul, LinearEquiv.coe_mk, LinearMap.coe_mk, AddHom.coe_mk,
+      tensorPi_equiv_piTensor'_apply, LinearMap.lTensor_tmul, Submodule.subtype_apply,
+      LinearEquiv.coe_ofEq_apply, LinearEquiv.ofTop_apply, dite_eq_ite, ite_self,
+      Module.iso_of_isDirectLimit_symm_apply, inclusion_to_restricted_product_module,
+      inclusion_to_restrictedProduct, inclusion_apply, mk_apply]
     apply_fun (Module.iso_of_isDirectLimit (mem_A_away_from_S L)
       inclusion_module Πʳ (i : ι), [N i, L i]_[ℱ]
       (Module.DirectLimit (mem_A_away_from_S L) inclusion_module)
