@@ -26,7 +26,6 @@ import Mathlib.RingTheory.Flat.Basic
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 import Mathlib.Order.DirectedInverseSystem
 import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimit
-import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
 
 
 
@@ -375,62 +374,3 @@ instance : Nonempty ℱ.complement := by
   · simp only [compl_univ]
 instance : DirectedSystem (mem_A_away_from_S C)
       fun x1 x2 x3 ↦ ⇑(inclusion_module (ℱ := ℱ) (C:= C) x1 x2 x3) := directed_system
-
-
-
-noncomputable def RestrictedProduct.tensor_comm'
-    (M : Type*) [AddCommGroup M] [Module A M] [Module.FinitePresentation A M] [Module.Flat A M] :
-    M ⊗[A] (Πʳ i, [R i, C i]_[ℱ]) ≃ₗ[A] Πʳ i, [M ⊗[A] R i, rangeLTensor A M R C i]_[ℱ] :=
-    let comp1 := TensorProduct.directLimitRight (inclusion_module (C:=C) (ℱ := ℱ)) M (R:=A)
-    let comp := Module.iso_of_isDirectLimit (mem_A_away_from_S C)
-       (inclusion_module (ℱ := ℱ)) (Πʳ i, [R i, C i]_[ℱ])
-       (Module.DirectLimit (mem_A_away_from_S C) (inclusion_module (C:=C) (ℱ := ℱ)))
-      (inclusion_to_restricted_product_module) (Module.DirectLimit.of A _
-      (mem_A_away_from_S C) (inclusion_module (ℱ := ℱ)))
-    let comp2 : Πʳ (i : ι), [M ⊗[A] R i, (rangeLTensor A M R C i)]_[ℱ] ≃ₗ[A]
-      Module.DirectLimit (mem_A_away_from_S (fun i ↦ rangeLTensor A M R C i)) inclusion_module :=
-      Module.iso_of_isDirectLimit (mem_A_away_from_S
-      (fun i ↦ rangeLTensor A M R C i))
-       (inclusion_module (ℱ := ℱ)) Πʳ i, [M ⊗[A] R i, rangeLTensor A M R C i]_[ℱ]
-       (Module.DirectLimit (mem_A_away_from_S
-      (fun i ↦ rangeLTensor A M R C i)) (inclusion_module (ℱ := ℱ)))
-      (inclusion_to_restricted_product_module) (Module.DirectLimit.of A _
-    (mem_A_away_from_S
-      (fun i ↦ rangeLTensor A M R C i)) (inclusion_module (ℱ := ℱ)))
-    let comp4 :=  (LinearEquiv.lTensor M comp) ≪≫ₗ comp1
-    let comp5 : Module.DirectLimit (fun (S: ℱ.complement) ↦
-      M ⊗[A] Πʳ (i : ι), [R i, ↑(C i)]_[𝓟 Sᶜ]) (fun i j h ↦
-      LinearMap.lTensor M (inclusion_module i j h)) ≃ₗ[A] Module.DirectLimit (fun (S: ℱ.complement)
-      ↦ Πʳ (i : ι), [M ⊗[A] R i, (rangeLTensor A M R C i)]_[𝓟 (S)ᶜ]) inclusion_module :=
-      Module.DirectLimit.congr (fun (S : ℱ.complement) ↦
-        (RestrictedProduct.lTensorPrincipalEquiv A M R C (Sᶜ : Set ι))) (by
-      intro i j hij
-      refine TensorProduct.ext' (fun x y ↦ ?_)
-      ext k
-      simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply,
-        LinearMap.lTensor_tmul, lTensorPrincipalEquiv_tmul]
-      change x ⊗ₜ[A] y k = ((lTensorPrincipalEquiv A M R C (↑i)ᶜ) (x ⊗ₜ[A] y)) k
-      rw [lTensorPrincipalEquiv_tmul])
-    comp4 ≪≫ₗ comp5 ≪≫ₗ comp2.symm
-
-
-
-theorem equality [Π i, AddCommGroup (R i)]
-    [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
-    {M : Type*} [AddCommGroup M] [Module A M] [Module.FinitePresentation A M] [Module.Flat A M] :
-    RestrictedProduct.lTensor A M R ℱ C  = RestrictedProduct.tensor_comm' R A C M (ℱ := ℱ) := by
-    refine TensorProduct.ext' (fun x y ↦ ?_)
-    simp only [TensorProduct.AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
-      LinearMap.coe_restrictScalars, lTensor_tmul, LinearEquiv.coe_coe, tensor_comm']
-    simp only [LinearEquiv.trans_apply, LinearEquiv.lTensor_tmul]
-    set iso1 := (Module.iso_of_isDirectLimit (mem_A_away_from_S fun i ↦ rangeLTensor A M R C i)
-      inclusion_module
-          Πʳ (i : ι), [M ⊗[A] R i, ↑(rangeLTensor A M R C i)]_[ℱ]
-          (Module.DirectLimit (mem_A_away_from_S fun i ↦ rangeLTensor A M R C i) inclusion_module)
-          inclusion_to_restricted_product_module
-          (Module.DirectLimit.of A (↑ℱ.complement) (mem_A_away_from_S fun i ↦ rangeLTensor A M R C i)
-            inclusion_module))
-
-
-
-    sorry
