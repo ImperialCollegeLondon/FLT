@@ -58,11 +58,6 @@ def inclusion_to_restrictedProduct (S : 𝓕.complement) :
     mem_A_away_from_S C S → Πʳ i, [R i, C i]_[𝓕] :=
   RestrictedProduct.inclusion _ _ (filter_bot S)
 
-/-- The maps from the directed system to the actual restricted product. -/
-def inclusion_to_restrictedProduct' (S : 𝓕.complement) :
-    Πʳ i, [R i, C i]_[𝓟 Sᶜ] → Πʳ i, [R i, C i]_[𝓕] :=
-  RestrictedProduct.inclusion _ _ (filter_bot S)
-
 end RestrictedProduct
 
 
@@ -90,6 +85,7 @@ instance module' (S : ℱ.complement) :
   dsimp [mem_A_away_from_S]
   exact instModuleCoeOfSMulMemClass R
 
+/-- Linear map version of `inclusion`. -/
 def inclusion_module (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) :
     mem_A_away_from_S C S₁ →ₗ[A]
       mem_A_away_from_S C S₂ where
@@ -100,14 +96,9 @@ def inclusion_module (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) :
 lemma inclusion_module_apply (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) (x : mem_A_away_from_S C S₁) :
   inclusion_module S₁ S₂ h x = ⟨x.1, x.2.filter_mono (principal_filter_order h)⟩ := rfl
 
+/-- Linear map version of `inclusion_to_restrictedProduct` -/
 def inclusion_to_restricted_product_module (S : ℱ.complement) :
   mem_A_away_from_S C S →ₗ[A] Πʳ i, [R i, C i]_[ℱ] where
-  toFun := inclusion_to_restrictedProduct S
-  map_add' _ _ := rfl
-  map_smul' _ _ := rfl
-
-def inclusion_to_restricted_product_module' (S : ℱ.complement) :
-  Πʳ i, [R i, C i]_[𝓟 Sᶜ] →ₗ[A] Πʳ i, [R i, C i]_[ℱ] where
   toFun := inclusion_to_restrictedProduct S
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
@@ -175,6 +166,9 @@ namespace RestrictedProduct
 
 section type
 
+/-- This canonical isomorphism between `Πʳ i, [R i, A i]_[𝓟 S]` and
+`(Π i ∈ S, R i) × (Π i ∉ S, A i)`
+-/
 def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
     (Π i : {i // i ∈ S}, A i) × (Π i : {i // i ∉ S}, R i) where
   toFun x := (fun i ↦ ⟨x i, x.property i.property⟩, fun i ↦ x i)
@@ -196,6 +190,7 @@ variable {T : ι → Type*} [Π i, SetLike (T i) (R i)] {A : Π i, T i}
 
 section monoid
 
+/-- Monoid equivalence version of `principalEquivProd`. -/
 @[to_additive]
 def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
     Πʳ i, [R i, A i]_[𝓟 S] ≃* (Π i : {i // i ∈ S}, A i) × (Π i : {i // i ∉ S}, R i) where
@@ -213,6 +208,7 @@ open scoped RestrictedProduct TensorProduct
 
 open Filter
 
+/-- Module equivalence version of `principalEquivProd`. -/
 noncomputable def RestrictedProduct.principal [Π i, AddCommGroup (R i)]
     [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
     (S : Set ι) [∀ i, Decidable (i ∈ S)] :

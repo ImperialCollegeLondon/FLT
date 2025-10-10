@@ -15,6 +15,15 @@ variable {R : Type*} [Semiring R] {ι : Type*} [Preorder ι] (M : ι → Type*) 
  (f : ∀ i j, i ≤ j → M i →ₗ[R] M j) (g : ∀ i, M i →ₗ[R] P) [DecidableEq ι] [IsDirected ι (· ≤ ·)]
  [Nonempty ι] [DirectedSystem M (f · · ·)]
 
+/--
+`IsDirectLimit f g` states that `P` is the direct limit of the system `(M i, f i j hij)`.
+It requires:
+* `surj`: says every element of `P` comes from some `M i` via the canonical map `g i`.
+* `inj`: says that if two elements of (possibly different) modules `M i` and `M j` map
+  to the same element of `P`, then they become equal after being mapped into a common
+  later module `M k`.
+* `compatibility`: ensures that the maps `g i` and `f i j hij` are compatible with one another.
+-/
 @[mk_iff] class IsDirectLimit : Prop where
   surj : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m
   inj :  ∀ i j, ∀ mi : M i, ∀ mj : M j, g i mi = g j mj → ∃ (k : ι) (hik : i ≤ k) (hjk : j ≤ k),
@@ -37,6 +46,11 @@ variable (P₁ P₂ : Type*) [AddCommMonoid P₁] [Module R P₁] [AddCommMonoid
   (g₁ : ∀ i, M i →ₗ[R] P₁) (g₂ : ∀ i, M i →ₗ[R] P₂)
 
 open Classical in
+/--
+The universal property of the direct limit: define a linear map from the direct limit
+by giving a compatible family of linear maps from the components.
+Each element of the limit is sent according to its representative in some component.
+-/
 noncomputable def lift [IsDirectLimit M P₁ f g₁] (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) :
   P₁ →ₗ[R] P₂ where
     toFun p :=
@@ -108,6 +122,7 @@ theorem lift_unique [IsDirectLimit M P₁ f g₁]
     dsimp [lift]
     rw [Classical.choose_spec (Classical.choose_spec (IsDirectLimit.surj f (g:= g₁) x))]
 
+/-- Any two direct limits of the same directed system are isomorphic. -/
 noncomputable def iso_of_isDirectLimit
     [h₁ : IsDirectLimit M P₁ f g₁] [h₂ : IsDirectLimit M P₂ f g₂] :
     P₁ ≃ₗ[R] P₂ where
