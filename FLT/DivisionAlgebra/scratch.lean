@@ -8,7 +8,7 @@ instance prodHSMul : HSMul (R × S) (M × N) (M × N) where
   hSMul a b := (a.1 • b.1, a.2 • b.2) -- why is this needed...
 
 -- maybe there is an easier way to do this without being explicit?
-instance : Module (Prod R S) (Prod M N) where
+local instance nameme : Module (Prod R S) (Prod M N) where
   smul a b := (a.1 • b.1, a.2 • b.2)
   one_smul a := by
     have : (1 : (R × S)) • a= ((1 : R × S).1 • a.1, (1 : R × S).2 • a.2) := by
