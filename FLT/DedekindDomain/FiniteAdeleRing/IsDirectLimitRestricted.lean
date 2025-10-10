@@ -60,13 +60,6 @@ def inclusion_to_restrictedProduct (S : 𝓕.complement) :
 
 end RestrictedProduct
 
-
-variable {ι : Type*} {R : ι → Type*} {ℱ : Filter ι}
-
-variable {T : ι → Type*} -- subobject type
-variable [Π i, SetLike (T i) (R i)]
-variable {B : Π i, T i}
-
 open scoped RestrictedProduct TensorProduct Module.IsDirectLimit
 
 variable {A : Type*} [CommRing A] {ι : Type*} {R : ι → Type*} {ℱ : Filter ι}
@@ -123,7 +116,6 @@ instance directed : IsDirected (ℱ.complement) (· ≤ ·) := by
   constructor <;>
   simp [c]
 
-open Set
 instance RestrictedProductIsDirectLimit :
   Module.IsDirectLimit (mem_A_away_from_S C)
   Πʳ i, [R i, C i]_[ℱ] (inclusion_module (ℱ := ℱ))
@@ -139,9 +131,6 @@ instance RestrictedProductIsDirectLimit :
     injection hmij
   surj r := by
     dsimp [inclusion_to_restricted_product_module, inclusion_to_restrictedProduct]
-    have : ∅ ∈ ℱ.complement := by
-      rw [complement]
-      simp only [mem_image, Filter.mem_sets, compl_empty_iff, exists_eq_right, univ_mem]
     let b:= r.property
     let c:= r.1
     have : { i : ι | r.1 i ∈ (C i : Set (R i)) }ᶜ ∈ ℱ.complement := by
@@ -191,14 +180,12 @@ variable {T : ι → Type*} [Π i, SetLike (T i) (R i)] {A : Π i, T i}
 section monoid
 
 /-- Monoid equivalence version of `principalEquivProd`. -/
-@[to_additive]
-def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
+@[to_additive] def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
     Πʳ i, [R i, A i]_[𝓟 S] ≃* (Π i : {i // i ∈ S}, A i) × (Π i : {i // i ∉ S}, R i) where
   __ := principalEquivProd R S _
   map_mul' _ _ := rfl
 
 end monoid
-
 
 end RestrictedProduct
 
