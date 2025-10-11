@@ -36,7 +36,11 @@ import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
 import FLT.GaloisRepresentation.Automorphic
 import FLT.GaloisRepresentation.Cyclotomic
-import FLT.GaloisRepresentation.HardlyRamified
+import FLT.GaloisRepresentation.HardlyRamified.Defs
+import FLT.GaloisRepresentation.HardlyRamified.Family
+import FLT.GaloisRepresentation.HardlyRamified.Lift
+import FLT.GaloisRepresentation.HardlyRamified.ModThree
+import FLT.GaloisRepresentation.HardlyRamified.Threeadic
 import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat

@@ -71,7 +71,9 @@ a $\Z_\ell$-algebra, we can talk about the $\ell$-adic cyclotomic character $\GQ
 We are now ready to define hardly ramified representations.
 
 \begin{definition}
+  \lean{GaloisRepresentation.IsHardlyRamified}
   \label{hardly_ramified}
+  \leanok
   Let $R$ be a coefficient ring with finite residue field of characteristic $\ell\geq3$.
   Let $V$ be a finite free $R$-module of rank~2, equipped with the product topology. A
   continuous representation $\rho: \GQ\to \GL_R(V)$ is said to be \emph{hardly ramified} if it
@@ -123,10 +125,10 @@ The key theorem about hardly ramified representations is the following.
 
 \begin{theorem}
   \label{hardly_ramified_reducible}
+  \uses{hardly_ramified}
   If $\ell\geq 3$ is a prime and $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ is hardly ramified,
   then $\rho$ is reducible.
 \end{theorem}
-
 
 Note that this (deep) claim is a consequence of Serre's conjecture~\cite{serreconj},
 now a theorem of Khare and Wintenberger~\cite{kwII}, and indeed we shall use
@@ -159,6 +161,7 @@ Firstly, we claim that
 an irreducible hardly ramified mod $\ell$ representation lifts to an $\ell$-adic representation.
 
 \begin{theorem}
+  \lean{GaloisRepresentation.IsHardlyRamified.lifts}
   \label{hardly-ramified-lifts}
   \uses{hardly-ramified}
   If $\ell\geq3$ is prime and $\overline{\rho}:\GQ\to\GL_2(\Z/\ell\Z)$
@@ -180,7 +183,8 @@ not made a definition of a hardly ramified 2-adic representation).
   whose reduction is irreducible,
   then there exists a number field $M$ and, for each finite place $\mu$ of $M$
   of characteristic prime to 2, with completion $M_\mu$ having integer ring $R_\mu$,
-  a hardly representation $\rho_\mu:\GQ\to\GL_2(R_\mu)$, with the following properties:
+  a hardly ramified semisimple representation $\rho_\mu:\GQ\to\GL_2(R_\mu)$ (by which we
+  mean the generic fibre is semisimple), with the following properties:
   \begin{itemize}
     \item There is some $\lambda\mid\ell$ of $M$ such that $\rho_\lambda\cong\rho$,
       the isomorphism happening over some appropriate local field containing a copy
@@ -193,17 +197,32 @@ not made a definition of a hardly ramified 2-adic representation).
 \end{theorem}
 
 In particular, we can ``move'' from an irreducible hardly ramified mod $\ell$ representation
-to a hardly ramified 3-adic representation.
-However, we can essentially completely classify the hardly ramified 3-adic Galois representations.
+to a hardly ramified 3-adic representation, and hence to a hardly ramified mod 3 representation.
+
+However, we can essentially completely classify the hardly ramified mod 3 Galois representations:
+
+\begin{theorem}
+  \label{hardly-ramified-mod3-reducible}
+  \uses{hardly-ramified}
+  Suppose $k$ is a finite field of characteristic 3, and suppose
+  $\overline{rho}:\GQ\to\GL_2(k)$ is hardly ramified. Then $\overline{\rho}$ is an extension
+  of the cyclotomic character by the trivial representation.
+\end{theorem}
+
+And we can use this to essentially completely classify the hardly ramified 3-adic Galois
+representations:
 
 \begin{theorem}
   \label{hardly-ramified-3adic-reducible}
-  \uses{hardly-ramified}
+  \uses{hardly-ramified, hardly-ramified-mod3-reducible}
   Suppose $L/\Q_3$ is a finite extension, with integer ring $\calO_L$, and suppose
   $\rho_3:\GQ\to\GL_2(\calO_L)$ is hardly ramified. Then (considered as a representation
   to $\GL_2(L)$) $\rho_3^{ss}=1\oplus\chi_3$
   where $1$ is the trivial character and $\chi_3$ is the 3-adic cyclotomic character.
 \end{theorem}
+\begin{proof}
+  Omitted for now **TODO**
+\end{proof}
 
 Theorem~\ref{hardly_ramified_reducible} (if $\ell\geq 3$ is a prime and
 $\overline{\rho}:\GQ\to\GL_2(\Z/\ell\Z)$ is hardly ramified,

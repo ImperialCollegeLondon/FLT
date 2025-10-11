@@ -77,29 +77,25 @@ instance : MulAction (Γ ℚ_[2]) Z2bar where
   one_smul z := rfl
   mul_smul g h z := rfl
 
-/-- Let `R` be a "local pro-artinian algebra" (for example any complete Noetherian local ring
-with the maximal ideal-adic topology) having finite residue field of characteristic `ℓ > 2`,
-and let `ρ : Gal(Qbar/Q) → GL_2(R)` be a continuous 2-dimensional representation.
-We say that `ρ` is *hardly ramified* if it has cyclotomic determinant, is unramified outside `2ℓ`,
-flat at `ℓ` and upper-triangular at 2 with a 1-dimensional quotient which is unramified and
-whose square is trivial. -/
+/-- Let `R` be a compact Hausdorff local toppologcal ring (for example any complete Noetherian
+local ring with the maximal ideal-adic topology) having finite residue field of
+characteristic `ℓ > 2`, and let `ρ : Gal(Qbar/Q) → GL_2(R)` be a continuous 2-dimensional
+representation. We say that `ρ` is *hardly ramified* if it has cyclotomic determinant, is
+unramified outside `2ℓ`, flat at `ℓ` and upper-triangular at 2 with a 1-dimensional quotient which
+is unramified and whose square is trivial. -/
 structure IsHardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
-    -- In applications `𝓞` will be the integers of a finite extension of `ℚ_[ℓ]`;
-    -- we assume `𝓞` acts on the coefficient ring `R` as it is technically convenient
-    -- to build in this extra action.
-    (𝒪 : Type u) [CommRing 𝒪] [Algebra ℤ_[ℓ] 𝒪] [IsLocalHom (algebraMap ℤ_[ℓ] 𝒪)]
-    (R : Type u) [CommRing R] [TopologicalSpace R]
-    [Algebra 𝒪 R] [Algebra ℤ_[ℓ] R] [IsScalarTower ℤ_[ℓ] 𝒪 R]
-    [Deformation.IsLocalProartinianAlgebra 𝒪 R]
-    -- Rather than GL_2(R) we use the automorphisms of a finite free rank 2 `R`-module.
+    {R : Type u} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [IsLocalRing R]
+    [Algebra ℤ_[ℓ] R] --[IsLocalHom (algebraMap ℤ_[ℓ] R)] -- a convenient way of saying "residue
+    -- field has char ell"
+    -- Rather than GL_2(R) we use the automorphisms of a finite free rank 2 `R`-module `V`.
     {V : Type*} [AddCommGroup V] [Module R V]
     [Module.Finite R V] [Module.Free R V] (hdim : Module.rank R V = 2)
-  -- Let `ρ` be a continuous action of the absolute Galois group of `ℚ` on V.
+  -- Let `ρ` be a continuous action of the absolute Galois group of `ℚ` on `V`.
     (ρ : GaloisRep ℚ R V) : Prop where
   -- We define *IsHardlyRamified* to mean:
-  -- det(ρ) is the ell-adic cyclotomic character;
+  -- `det(ρ)` is the ell-adic cyclotomic character;
   det : ∀ g, ρ.det g = algebraMap ℤ_[ℓ] R (cyclotomicCharacter (ℚ ᵃˡᵍ) ℓ g.toRingEquiv)
-  -- ρ is unramified outside 2 and ℓ;
+  -- `ρ` is unramified outside `2` and `ℓ`;
   isUnramified : ∀ p (hp : p.Prime), p ≠ 2 ∧ p ≠ ℓ →
     ρ.IsUnramifiedAt hp.toHeightOneSpectrumRingOfIntegersRat
   -- ρ is flat at ℓ;
