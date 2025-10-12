@@ -45,6 +45,24 @@ end Compatible
 -/
 namespace GaloisRepresentation.IsHardlyRamified
 
+open GaloisRepresentation IsDedekindDomain NumberField
+
+universe u v
+
+-- let ρ : G_ℚ → GL_2(R) be hardly ramified, where R is the integers in a finite
+-- extension of ℚ_p
+variable {p : ℕ} (hpodd : Odd p) [Fact p.Prime]
+    {R : Type u} [CommRing R] [Algebra ℤ_[p] R] [IsDomain R]
+    [Module.Finite ℤ_[p] R] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsLocalRing R] [IsModuleTopology ℤ_[p] R]
+    {V : Type v} [AddCommGroup V] [Module R V] [Module.Finite R V]
+    [Module.Free R V] (hv : Module.rank R V = 2) {ρ : GaloisRep ℚ R V}
+    (hρ : IsHardlyRamified hpodd hv ρ)
+
+-- Then `ρ` lives in a compatible family of Galois representations
+theorem mem_compatibleFamily : ∃ (M : Type v) (_ : Field M) (_ : NumberField M)
+    (σ : (P : HeightOneSpectrum (𝓞 M)) → FramedGaloisRep ℚ ), 2+2=4 := sorry
+
 -- A p-adic hardly ramified extension spreads out into a compatible family
 -- of ell-adic ones -- TODO
 

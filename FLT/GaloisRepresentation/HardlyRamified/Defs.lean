@@ -92,7 +92,7 @@ structure IsHardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
     [Module.Finite R V] [Module.Free R V] (hdim : Module.rank R V = 2)
   -- Let `ρ` be a continuous action of the absolute Galois group of `ℚ` on `V`.
     (ρ : GaloisRep ℚ R V) : Prop where
-  -- We define *IsHardlyRamified* to mean:
+  -- We say `ρ` is *hardly ramified* if
   -- `det(ρ)` is the ell-adic cyclotomic character;
   det : ∀ g, ρ.det g = algebraMap ℤ_[ℓ] R (cyclotomicCharacter (ℚ ᵃˡᵍ) ℓ g.toRingEquiv)
   -- `ρ` is unramified outside `2` and `ℓ`;
