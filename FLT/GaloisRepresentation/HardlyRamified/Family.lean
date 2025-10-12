@@ -1,57 +1,17 @@
 import FLT.GaloisRepresentation.HardlyRamified.Defs
+import FLT.Deformations.RepresentationTheory.GaloisRepFamily
 
-/-
-
-# Ideas
-
-The proof that a p-adic rep spreads out into a compatible family of ell-adic reps:
-does it give us a number field M and reps to GL_2(M_lambda)? Or do we need M_lambda-bar?
-I think we might do, esp in the reducible case.
-
-section Compatible
-
-/-In this section, the predicate  `IsCompatible` is defined-/
-
-variable (A K L B : Type ) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Field L]
-    [Algebra A K] [IsFractionRing A K] [Algebra B L]
-    [Algebra K L] [Algebra A L] [IsScalarTower A B L] [IsScalarTower A K L]
-    [IsIntegralClosure B A L]
-
-instance (K : Type) [Field K] [NumberField K] (P : {Q : Ideal (𝓞 K)| Ideal.IsMaximal Q}) :
-    Ideal.IsMaximal (P : Ideal (𝓞 K)) := by
-    cases' P with P hP
-    exact hP
-
-instance [NumberField K] : ∀ (P : Ideal (𝓞 K)) [P.IsMaximal], Fintype ((𝓞 K) ⧸ P) := by
-  intro P _
-  infer_instance
-
-/--A `PadicGaloisFamily` is compatible if, for all but finitely many primes, the characteristic
-polynomials induced by the family are all equal.-/
-def IsCompatible {K : Type} [Field K] [NumberField K]
-    {E : Type} [Field E] [NumberField E] {n : ℕ} (fam : PadicGaloisFamily K E n) : Prop :=
-  ∃ (S : Finset {Q : Ideal (𝓞 K) // Ideal.IsMaximal Q}),
-  ∀ P ∉ S,
-  ∃ (Hₚ : Polynomial E),
-  ∀ (l : Ideal (𝓞 K)) (_ : Ideal.IsMaximal l)
-  (_ : PrimeLyingAbove l ≠ PrimeLyingAbove (P : Ideal (𝓞 K)))
-  (χ : E →+* AlgebraicClosure (ℚ_[PrimeLyingAbove l]))
-  (Fₚ : ((AlgebraicClosure K) ≃ₐ[K] (AlgebraicClosure K))) (_ : IsFrobenius' K _ Fₚ P),
-  ((Polynomial.map χ Hₚ) = Matrix.charpoly ((fam (PrimeLyingAbove l) χ Fₚ) :
-    Matrix (Fin n) (Fin n) (AlgebraicClosure (ℚ_[PrimeLyingAbove l]))))
-
-end Compatible
-
--/
 namespace GaloisRepresentation.IsHardlyRamified
 
-open GaloisRepresentation IsDedekindDomain NumberField
+open GaloisRepresentation IsDedekindDomain
+
+open scoped TensorProduct
 
 universe u v
 
 -- let ρ : G_ℚ → GL_2(R) be hardly ramified, where R is the integers in a finite
 -- extension of ℚ_p
-variable {p : ℕ} (hpodd : Odd p) [Fact p.Prime]
+variable {p : ℕ} (hpodd : Odd p) [hp : Fact p.Prime]
     {R : Type u} [CommRing R] [Algebra ℤ_[p] R] [IsDomain R]
     [Module.Finite ℤ_[p] R] [TopologicalSpace R] [IsTopologicalRing R]
     [IsLocalRing R] [IsModuleTopology ℤ_[p] R]
@@ -60,10 +20,35 @@ variable {p : ℕ} (hpodd : Odd p) [Fact p.Prime]
     (hρ : IsHardlyRamified hpodd hv ρ)
 
 -- Then `ρ` lives in a compatible family of Galois representations
-theorem mem_compatibleFamily : ∃ (M : Type v) (_ : Field M) (_ : NumberField M)
-    (σ : (P : HeightOneSpectrum (𝓞 M)) → FramedGaloisRep ℚ ), 2+2=4 := sorry
-
--- A p-adic hardly ramified extension spreads out into a compatible family
--- of ell-adic ones -- TODO
+theorem mem_compatibleFamily :
+    -- i.e., there's a family σ of 2-dimensional representations of Γ_ℚ
+    -- parametrised by maps from a number field M → ℚ_p-bar
+    ∃ (E : Type v) (_ : Field E) (_ : NumberField E) (σ : GaloisRepFamily ℚ E 2),
+    -- which are compatible, and
+    σ.isCompatible ∧
+    -- are "hardly ramified" for ℓ>2,
+    (∀ {ℓ : ℕ} (hℓ : Fact ℓ.Prime) (hℓodd : Odd ℓ) (φ : E →+* AlgebraicClosure ℚ_[ℓ]),
+      -- by which we mean that for a representation σ_φ in the family,
+      -- there's a hardly-ramified representation `τ` to GL_2(A)
+      -- for A a module-finite free ℤ_ℓ-algebra
+      ∃ (A : Type u) (_ : CommRing A) (_ : TopologicalSpace A) (_ : IsTopologicalRing A)
+        (_ : IsLocalRing A) (_ : Algebra ℤ_[ℓ] A) (_ : Module.Finite ℤ_[ℓ] A)
+        (_ : Module.Free ℤ_[ℓ] A) (_ : IsDomain A) (_ : Algebra A (AlgebraicClosure ℚ_[ℓ]))
+        (_ : ContinuousSMul A (AlgebraicClosure ℚ_[ℓ]))
+        (W : Type v) (_ : AddCommGroup W) (_ : Module A W) (_ : Module.Finite A W)
+        (_ : Module.Free A W) (hW : Module.rank A W = 2)
+        (τ : GaloisRep ℚ A W)
+        (r : AlgebraicClosure ℚ_[ℓ] ⊗[A] W ≃ₗ[AlgebraicClosure ℚ_[ℓ]]
+          Fin 2 → AlgebraicClosure ℚ_[ℓ]),
+        IsHardlyRamified hℓodd hW τ ∧
+        -- whose base extension to GL_2(ℚ_p-bar) is φ_σ
+        (τ.baseChange (AlgebraicClosure ℚ_[ℓ])).conj r = σ hℓ φ) ∧
+    -- and `ρ` is part of the family.
+    (∃ (_ : Algebra R (AlgebraicClosure ℚ_[p])) (_ : ContinuousSMul R (AlgebraicClosure ℚ_[p]))
+      (ψ : E →+* AlgebraicClosure ℚ_[p])
+      (r' : AlgebraicClosure ℚ_[p] ⊗[R] V ≃ₗ[AlgebraicClosure ℚ_[p]]
+        Fin 2 → AlgebraicClosure ℚ_[p]),
+      (ρ.baseChange (AlgebraicClosure ℚ_[p])).conj r' = σ hp ψ) :=
+  sorry
 
 end GaloisRepresentation.IsHardlyRamified

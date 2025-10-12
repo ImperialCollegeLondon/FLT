@@ -6,7 +6,6 @@ import Mathlib.RingTheory.Bialgebra.TensorProduct
 import Mathlib.RingTheory.HopfAlgebra.Basic
 import FLT.Deformations.RepresentationTheory.Irreducible
 
--- **TODO** this file should be called GaloisRep
 open NumberField
 
 universe uK
