@@ -982,8 +982,4 @@ theorem adicCompletionComapIntegerLinearEquiv_bijOn (v : HeightOneSpectrum A) :
   ext w
   simp [← IsScalarTower.algebraMap_apply, tensorAdicCompletionComapAlgHom_tmul_apply]
 
--- Mathlib #26783
-instance [NoZeroSMulDivisors A B] : Module.Flat A B := by
-  sorry
-
 end IsDedekindDomain.HeightOneSpectrum
