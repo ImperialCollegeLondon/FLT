@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.Deformations.Categories
-import FLT.Deformations.RepresentationTheory.Basic
+import FLT.Deformations.RepresentationTheory.GaloisRep
 import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
