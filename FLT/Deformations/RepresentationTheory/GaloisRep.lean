@@ -4,6 +4,7 @@ import Mathlib.LinearAlgebra.Charpoly.Basic
 import Mathlib.LinearAlgebra.Matrix.Unique
 import Mathlib.RingTheory.Bialgebra.TensorProduct
 import Mathlib.RingTheory.HopfAlgebra.Basic
+import FLT.Deformations.RepresentationTheory.Irreducible
 
 open NumberField
 
@@ -122,6 +123,7 @@ def FramedGaloisRep.unframe (ρ : FramedGaloisRep K A n) (b : Module.Basis n A M
     GaloisRep K A M :=
   ρ.conj (b.repr ≪≫ₗ Finsupp.linearEquivFunOnFinite A A n).symm
 
+-- **TODO** this should be frame_unframe maybe?
 omit [DecidableEq n] [NumberField K] in
 @[simp]
 lemma GaloisRep.unframe_frame (ρ : GaloisRep K A M) (b : Module.Basis n A M) :
@@ -365,3 +367,13 @@ class GaloisRep.IsFlatAt [IsLocalRing A] (ρ : GaloisRep K A M) : Prop where
     (ρ.baseChange (A ⧸ I)).HasFlatProlongationAt v
 
 end Flat
+
+/-- A Galois representation is a representation (note that we
+are forgetting topological information here). -/
+def GaloisRep.toRepresentation (ρ : GaloisRep K A M) : Representation A (Γ K) M :=
+  letI := moduleTopology A (Module.End A M) -- ?!
+  ρ.toMonoidHom
+
+/-- Irreducibility of a Galois representation over a field. -/
+def GaloisRep.IsIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
+    (ρ : GaloisRep K k M) : Prop := ρ.toRepresentation.IsIrreducible

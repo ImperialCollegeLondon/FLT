@@ -8,7 +8,14 @@ FLT.Mazur_Frey
 FLT.Wiles_Frey
 FLT.FreyPackage.false
 FLT.Wiles_Taylor_Wiles
+GaloisRepresentation.IsHardlyRamified
+FLT.FreyPackage.FreyCurve.torsion_isHardlyRamified
+FLT.FreyPackage.FreyCurve.torsion_not_isIrreducible
 FLT.Wiles_Frey
+GaloisRepresentation.IsHardlyRamified.lifts
+GaloisRepresentation.IsHardlyRamified.mem_isCompatible
+GaloisRepresentation.IsHardlyRamified.mod_three
+GaloisRepresentation.IsHardlyRamified.three_adic
 ZHat
 ZHat.commRing
 ZHat.nontrivial
