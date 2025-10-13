@@ -20,7 +20,7 @@ variable {p : ℕ} (hpodd : Odd p) [hp : Fact p.Prime]
     (hρ : IsHardlyRamified hpodd hv ρ)
 
 -- Then `ρ` lives in a compatible family of Galois representations
-theorem mem_compatibleFamily :
+theorem mem_isCompatible :
     -- i.e., there's a family σ of 2-dimensional representations of Γ_ℚ
     -- parametrised by maps from a number field M → ℚ_p-bar
     ∃ (E : Type v) (_ : Field E) (_ : NumberField E) (σ : GaloisRepFamily ℚ E 2),
