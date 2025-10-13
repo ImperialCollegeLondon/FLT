@@ -72,11 +72,13 @@ noncomputable def WeierstrassCurve.Points.map {K L : Type u} [Field K] [Field L]
     [Algebra k L] [DecidableEq K] [DecidableEq L]
     (f : K →ₐ[k] L) : E ⟮K⟯ →+ E ⟮L⟯ := WeierstrassCurve.Affine.Point.map f
 
+omit [E.IsElliptic] [DecidableEq k] in
 lemma WeierstrassCurve.Points.map_id (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
     WeierstrassCurve.Points.map E (AlgHom.id k K) = AddMonoidHom.id _ := by
       ext
       exact WeierstrassCurve.Affine.Point.map_id _
 
+omit [E.IsElliptic] [DecidableEq k] in
 lemma WeierstrassCurve.Points.map_comp (K L M : Type u) [Field K] [Field L] [Field M]
     [DecidableEq K] [DecidableEq L] [DecidableEq M] [Algebra k K] [Algebra k L] [Algebra k M]
     (f : K →ₐ[k] L) (g : L →ₐ[k] M) :
