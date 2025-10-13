@@ -17,10 +17,9 @@ variable {p : ℕ} (hpodd : Odd p) [hp : Fact p.Prime]
     [IsLocalRing R] [IsModuleTopology ℤ_[p] R]
     {V : Type v} [AddCommGroup V] [Module R V] [Module.Finite R V]
     [Module.Free R V] (hv : Module.rank R V = 2) {ρ : GaloisRep ℚ R V}
-    (hρ : IsHardlyRamified hpodd hv ρ)
 
--- Then `ρ` lives in a compatible family of Galois representations
-theorem mem_isCompatible :
+theorem mem_isCompatible (hρ : IsHardlyRamified hpodd hv ρ) :
+    -- Then `ρ` lives in a compatible family of Galois representations
     -- i.e., there's a family σ of 2-dimensional representations of Γ_ℚ
     -- parametrised by maps from a number field M → ℚ_p-bar
     ∃ (E : Type v) (_ : Field E) (_ : NumberField E) (σ : GaloisRepFamily ℚ E 2),
@@ -34,6 +33,7 @@ theorem mem_isCompatible :
       ∃ (A : Type u) (_ : CommRing A) (_ : TopologicalSpace A) (_ : IsTopologicalRing A)
         (_ : IsLocalRing A) (_ : Algebra ℤ_[ℓ] A) (_ : Module.Finite ℤ_[ℓ] A)
         (_ : Module.Free ℤ_[ℓ] A) (_ : IsDomain A) (_ : Algebra A (AlgebraicClosure ℚ_[ℓ]))
+        (_ : IsScalarTower ℤ_[ℓ] A (AlgebraicClosure ℚ_[ℓ])) (_ : IsModuleTopology ℤ_[ℓ] A)
         (_ : ContinuousSMul A (AlgebraicClosure ℚ_[ℓ]))
         (W : Type v) (_ : AddCommGroup W) (_ : Module A W) (_ : Module.Finite A W)
         (_ : Module.Free A W) (hW : Module.rank A W = 2)

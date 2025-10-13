@@ -77,7 +77,7 @@ instance : MulAction (Γ ℚ_[2]) Z2bar where
   one_smul z := rfl
   mul_smul g h z := rfl
 
-/-- Let `R` be a compact Hausdorff local toppologcal ring (for example any complete Noetherian
+/-- Let `R` be a compact Hausdorff local topological ring (for example any complete Noetherian
 local ring with the maximal ideal-adic topology) having finite residue field of
 characteristic `ℓ > 2`, and let `ρ : Gal(Qbar/Q) → GL_2(R)` be a continuous 2-dimensional
 representation. We say that `ρ` is *hardly ramified* if it has cyclotomic determinant, is
