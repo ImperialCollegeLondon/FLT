@@ -1,5 +1,9 @@
 import FLT.Deformations.RepresentationTheory.GaloisRep
-import Mathlib -- TODO squeeze
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.NumberTheory.Padics.Complex
+import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.PicardGroup
+
 /-
 
 ## Compatible familes

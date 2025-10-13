@@ -375,5 +375,5 @@ def GaloisRep.toRepresentation (ρ : GaloisRep K A M) : Representation A (Γ K) 
   ρ.toMonoidHom
 
 /-- Irreducibility of a Galois representation over a field. -/
-def GaloisRep.IsIrreducible (k : Type*) [Field k] [TopologicalSpace k] [Module k M]
+def GaloisRep.IsIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
     (ρ : GaloisRep K k M) : Prop := ρ.toRepresentation.IsIrreducible

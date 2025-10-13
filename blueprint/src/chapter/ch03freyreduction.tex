@@ -94,6 +94,7 @@ We are now ready to define hardly ramified representations.
 A well-known result, which basically goes back to Frey, is the following:
 
 \begin{theorem}
+  \lean{FLT.FreyPackage.FreyCurve.torsion_isHardlyRamified}
   \label{Frey_curve_hardly_ramified}
   \uses{hardly_ramified}
   The $\ell$-torsion $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ in the Frey curve associated to a Frey
@@ -124,6 +125,7 @@ has distinct eigenvalues defined over the ground field.
 The key theorem about hardly ramified representations is the following.
 
 \begin{theorem}
+  \lean{FLT.FreyPackage.FreyCurve.torsion_not_isIrreducible}
   \label{hardly_ramified_reducible}
   \uses{hardly_ramified}
   If $\ell\geq 3$ is a prime and $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ is hardly ramified,
@@ -176,6 +178,7 @@ family of hardly ramified $q$-adic representations for all odd primes $q$ (note 
 not made a definition of a hardly ramified 2-adic representation).
 
 \begin{theorem}
+  \lean{GaloisRepresentation.IsHardlyRamified.mem_isCompatible}
   \label{hardly-ramified-spreads-out}
   \uses{hardly-ramified}
   If $\ell\geq3$ is prime, $K$ is a finite extension of $\Q_\ell$
@@ -202,6 +205,7 @@ to a hardly ramified 3-adic representation, and hence to a hardly ramified mod 3
 However, we can essentially completely classify the hardly ramified mod 3 Galois representations:
 
 \begin{theorem}
+  \lean{GaloisRepresentation.IsHardlyRamified.mod_three}
   \label{hardly-ramified-mod3-reducible}
   \uses{hardly-ramified}
   Suppose $k$ is a finite field of characteristic 3, and suppose
@@ -213,6 +217,7 @@ And we can use this to essentially completely classify the hardly ramified 3-adi
 representations:
 
 \begin{theorem}
+  \lean{GaloisRepresentation.IsHardlyRamified.three_adic}
   \label{hardly-ramified-3adic-reducible}
   \uses{hardly-ramified, hardly-ramified-mod3-reducible}
   Suppose $L/\Q_3$ is a finite extension, with integer ring $\calO_L$, and suppose

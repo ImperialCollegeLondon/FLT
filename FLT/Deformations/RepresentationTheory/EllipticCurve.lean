@@ -17,6 +17,7 @@ noncomputable instance foo : AddCommGroup E⟮AlgebraicClosure K⟯ :=
 abbrev WeierstrassCurve.n_torsion' (n : ℕ) : Type u :=
   Submodule.torsionBy ℤ (E ⟮(AlgebraicClosure K)⟯) n
 
-noncomputable instance bar (n : ℕ) : Module (ZMod n) (E.n_torsion' n) := AddCommGroup.zmodModule sorry
+noncomputable instance bar (n : ℕ) : Module (ZMod n) (E.n_torsion' n) :=
+  AddCommGroup.zmodModule sorry
 
 def WeierstrassCurve.galoisRep (n : ℕ) (hn : 0 < n) : GaloisRep K (ZMod n) (E.n_torsion' n) := sorry
