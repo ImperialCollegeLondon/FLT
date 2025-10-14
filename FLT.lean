@@ -34,6 +34,7 @@ import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor
 import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
+import FLT.GaloisRepresentation.Automorphic
 import FLT.GaloisRepresentation.Cyclotomic
 import FLT.GaloisRepresentation.HardlyRamified
 import FLT.GlobalLanglandsConjectures.GLnDefs
@@ -57,9 +58,7 @@ import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
-import FLT.Mathlib.Analysis.SpecialFunctions.Stirling
 import FLT.Mathlib.Data.Fin.Basic
-import FLT.Mathlib.Data.Set.Card
 import FLT.Mathlib.Data.Set.Prod
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.GroupTheory.Index
@@ -71,7 +70,6 @@ import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.Logic.Equiv.Basic
 import FLT.Mathlib.MeasureTheory.Group.Action
 import FLT.Mathlib.MeasureTheory.Group.Measure
-import FLT.Mathlib.MeasureTheory.Measure.OpenPos
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.NumberTheory.NumberField.Basic
@@ -87,10 +85,8 @@ import FLT.Mathlib.RingTheory.Localization.BaseChange
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
-import FLT.Mathlib.Topology.Algebra.Constructions
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Mathlib.Topology.Algebra.Group.Basic
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Group.Units
 import FLT.Mathlib.Topology.Algebra.Module.Equiv

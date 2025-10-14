@@ -56,6 +56,7 @@ of discriminant 1. More precisely, the level at each bad prime v has to be of th
 This is a far more restrictive definition of automorphic than is found in the literature,
 however it will suffice for the purpose of proving FLT.
 -/
+@[nolint unusedArguments]
 def GaloisRep.IsAutomorphic
     -- `F` is a totally real field
     {F : Type*} [Field F] [NumberField F] [IsTotallyReal F]
