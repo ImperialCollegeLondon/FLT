@@ -63,9 +63,10 @@ def GaloisRep.IsAutomorphic
     -- `𝒪` is in practice the integers in a finite extension of `ℚₚ` (for example
     -- the Witt vectors of a finite field) but in this definition we need less
     (𝒪 : Type u) [CommRing 𝒪]
-    -- `A` is a "coefficient `𝒪`-algebra", the ring over which the representation is defined
+    -- `A` is a "coefficient `𝒪`-algebra", the ring over which the representation is defined,
+    -- e.g. a finite field, or the integers of a p-adic field,.
     {A : Type u} [CommRing A] [TopologicalSpace A] [IsLocalRing A] [Algebra 𝒪 A]
-      [IsLocalProartinianAlgebra 𝒪 A]
+      [IsLocalProartinianAlgebra 𝒪 A] -- **TODO** do I need this?
     -- `p` is the residue characteristic of the local ring `A`
     {p : ℕ} (hp : p.Prime) (hpA : (p : A) ∈ IsLocalRing.maximalIdeal A)
     -- `V` is the rank 2 free `A`-module on which the Galois group will act
@@ -79,7 +80,8 @@ def GaloisRep.IsAutomorphic
     (r : IsQuaternionAlgebra.NumberField.Rigidification F D)
     -- `S` is the level of the modular form
     (S : Finset (HeightOneSpectrum (𝓞 F))) : Prop :=
-  -- We say `ρ` is *automorphic* if there's an `A`-valued automorphic eigenform
+  -- We say `ρ` is *automorphic* if there's an `A`-valued automorphic eigenform,
+  -- by which we mean an 𝒪-linear map from the 𝒪-Hecke algebra for (D,S) to `A`,
   ∃ (π : HeckeAlgebra F D r S 𝒪 →ₐ[𝒪] A),
   -- such that for all good primes `v` of `F`
     ∀ (v : HeightOneSpectrum (𝓞 F)) (_hvp : ↑p ∉ v.1) (hvS : v ∉ S),
