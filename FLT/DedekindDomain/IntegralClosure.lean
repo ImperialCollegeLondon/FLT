@@ -162,7 +162,7 @@ lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
   have := v.isMaximal
   have := noZeroSMulDivisors A K L B
   -- Use Ideal.sum_ramification_inertia to make this an equivalence of two sums.
-  rw [← Ideal.sum_ramification_inertia B v.asIdeal K L v.ne_bot]
+  rw [← Ideal.sum_ramification_inertia B K L v.ne_bot]
   -- Check that the sums are equal via a bijection
   apply Finset.sum_nbij (fun w ↦ w.val.asIdeal)
   · rintro ⟨a, rfl⟩ -
