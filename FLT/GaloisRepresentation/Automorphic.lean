@@ -6,7 +6,8 @@ Authors: Edison Xie, Kevin Buzzard
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 import FLT.Deformations.RepresentationTheory.Basic
 import FLT.Deformations.Categories
-
+import Mathlib.NumberTheory.Padics.PadicIntegers
+import Mathlib
 /-!
 # Automorphic Galois representations
 
@@ -40,7 +41,7 @@ open Deformation
 
 local notation "Frob" => Field.AbsoluteGaloisGroup.adicArithFrob
 
-universe u
+universe u v -- u for number field / quaternion algebra, v for target ring
 
 set_option linter.unusedVariables false in -- we don't assume p is prime, p in A,
 -- dim(V) = 2 etc etc in the definition itself, but it would be mathematically ridiculous
@@ -57,42 +58,33 @@ This is a far more restrictive definition of automorphic than is found in the li
 however it will suffice for the purpose of proving FLT.
 -/
 @[nolint unusedArguments]
-def GaloisRep.IsAutomorphic
+def GaloisRep.IsAutomorphicOfLevel
     -- `F` is a totally real field
-    {F : Type*} [Field F] [NumberField F] [IsTotallyReal F]
-    -- `𝒪` is in practice the integers in a finite extension of `ℚₚ` (for example
-    -- the Witt vectors of a finite field) but in this definition we need less
-    (𝒪 : Type u) [CommRing 𝒪]
-    -- `A` is a "coefficient `𝒪`-algebra", the ring over which the representation is defined,
-    -- e.g. a finite field, or the integers of a p-adic field,.
-    {A : Type u} [CommRing A] [TopologicalSpace A] [IsLocalRing A] [Algebra 𝒪 A]
-      [IsLocalProartinianAlgebra 𝒪 A] -- **TODO** do I need this?
-    -- `p` is the residue characteristic of the local ring `A`
-    {p : ℕ} (hp : p.Prime) (hpA : (p : A) ∈ IsLocalRing.maximalIdeal A)
+    {F : Type u} [Field F] [NumberField F] [IsTotallyReal F]
+    (p : ℕ) [Fact p.Prime]
+    {A : Type*} [CommRing A] [TopologicalSpace A] [Algebra ℤ_[p] A]
+    [ContinuousSMul ℤ_[p] A]
     -- `V` is the rank 2 free `A`-module on which the Galois group will act
     {V : Type*} [AddCommGroup V] [Module A V] [Module.Finite A V]
       [Module.Free A V] (_hV : Module.finrank A V = 2)
     -- `ρ` is the Galois representation
     (ρ : GaloisRep F A V)
-    -- `D` is the quaternion algebra where the modular form is coming from
-    (D : Type*) [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
-    -- `D` is assumed to have discriminant 1
-    (r : IsQuaternionAlgebra.NumberField.Rigidification F D)
     -- `S` is the level of the modular form
     (S : Finset (HeightOneSpectrum (𝓞 F))) : Prop :=
-  -- We say `ρ` is *automorphic* if there's an `A`-valued automorphic eigenform,
-  -- by which we mean an 𝒪-linear map from the 𝒪-Hecke algebra for (D,S) to `A`,
-  ∃ (π : HeckeAlgebra F D r S 𝒪 →ₐ[𝒪] A),
+  -- We say `ρ` is *automorphic* if there's a quaternion algebra D over F of discriminant 1
+  ∃ (D : Type u) (_ : Ring D) (_ : Algebra F D) (_ : IsQuaternionAlgebra F D)
+    (r : IsQuaternionAlgebra.NumberField.Rigidification F D)
+  -- and an `A`-valued automorphic eigenform,
+  -- by which we mean a ℤ_p-linear map from the ℤ_p-Hecke algebra for (D,S) to `A`,
+    (π : HeckeAlgebra F D r S ℤ_[p] →ₐ[ℤ_[p]] A),
   -- such that for all good primes `v` of `F`
-    ∀ (v : HeightOneSpectrum (𝓞 F)) (_hvp : ↑p ∉ v.1) (hvS : v ∉ S),
-      -- `ρ` is unramified at `v`,
-      ρ.IsUnramifiedAt v ∧
-      -- the det of `ρ(Frobᵥ)` (arithmetic Frobenius) is `N(v)` (i.e. `det(ρ) = cyclo`)
-      (ρ.toLocal v (Frob v)).det = v.1.absNorm ∧
-      -- and the trace of `ρ(Frobᵥ)` is the eigenvalue of the form at `Tᵥ`
-      LinearMap.trace A V (ρ.toLocal v (Frob v)) = π (HeckeAlgebra.T D r 𝒪 v hvS)
-
--- TODO: state cyclic base change for GL_2 in the cases we need
+  ∀ (v : HeightOneSpectrum (𝓞 F)) (_hvp : ↑p ∉ v.1) (hvS : v ∉ S),
+    -- `ρ` is unramified at `v`,
+    ρ.IsUnramifiedAt v ∧
+    -- the det of `ρ(Frobᵥ)` (arithmetic Frobenius) is `N(v)` (i.e. `det(ρ) = cyclo`)
+    (ρ.toLocal v (Frob v)).det = v.1.absNorm ∧
+    -- and the trace of `ρ(Frobᵥ)` is the eigenvalue of the form at `Tᵥ`
+    LinearMap.trace A V (ρ.toLocal v (Frob v)) = π (HeckeAlgebra.T D r ℤ_[p] v hvS)
 
 instance {F E D : Type*}
     [Field F]
@@ -100,24 +92,51 @@ instance {F E D : Type*}
     [Ring D] [Algebra F D] [IsQuaternionAlgebra F D] :
     IsQuaternionAlgebra E (E ⊗[F] D) := sorry -- Ask Edison?
 
+variable (p : ℕ) [Fact p.Prime] in
+instance : ContinuousSMul ℤ_[p] (AlgebraicClosure ℚ_[p]) where
+  continuous_smul := sorry
+
+variable (p : ℕ) [Fact p.Prime] in
+#synth NormedField (AlgebraicClosure ℚ_[p])
+
+--variable (p : ℕ) [Fact p.Prime] in
+--#synth ContinuousSMul ℚ_[p] (AlgebraicClosure ℚ_[p])
+
+--variable (p : ℕ) [Fact p.Prime] in
+--#synth ContinuousSMul ℤ_[p] ℚ_[p]
+
+variable (p : ℕ) [Fact p.Prime] in
+#synth IsScalarTower ℤ_[p] ℚ_[p] (AlgebraicClosure ℚ_[p])
+/-- Let `E/F` be a finite solvable extension of totally real fields of even degree,
+let `ρ : Gal(F-bar/F) -> GL_2(Q_p-bar)` be a representation, which is irreducible
+when restricted to `Gal(E-bar/E)`.
+-/
 theorem cyclic_base_change_for_quat_algs
+    -- let F be a totally real number field of even degree
     {F : Type*} [Field F] [NumberField F] [IsTotallyReal F]
+    (hF : Module.finrank ℚ F = 2)
+    -- let E/F be a finite solvable extension
     {E : Type*} [Field E] [NumberField E] [IsTotallyReal E]
     [Algebra F E] [IsGalois F E] [IsSolvable (E ≃ₐ[F] E)]
-    (𝒪 : Type u) [CommRing 𝒪]
-    -- **TODO** this is wrong; A should be the integers of a finite extension of Q_p
-    {A : Type u} [CommRing A] [TopologicalSpace A] [IsLocalRing A] [Algebra 𝒪 A]
-      [IsLocalProartinianAlgebra 𝒪 A]
-    {p : ℕ} (hp : p.Prime) (hpA : (p : A) ∈ IsLocalRing.maximalIdeal A)
-    {V : Type*} [AddCommGroup V] [Module A V] [Module.Finite A V]
-      [Module.Free A V] (hV : Module.finrank A V = 2)
-    (ρ : GaloisRep F A V)
-    {D : Type*} [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
-    -- assume D has disc 1 for iff statement
-    (hD : Nonempty (IsQuaternionAlgebra.NumberField.Rigidification F D)) :
-  -- **TODO** This statement is false as it stands; if by "modular" we mean "modular of
-  -- tame level" then ρ can be wild and its restriction to E can be tame
-  (∃ S r, ρ.IsAutomorphic 𝒪 hp hpA hV D r S) ↔
-  (∃ T r', (ρ.map (algebraMap F E)).IsAutomorphic 𝒪 hp hpA hV (E ⊗[F] D) r' T) := sorry
+    -- let p be a prime
+    (p : ℕ) [Fact p.Prime]
+    -- let ρ:Gal(F-bar/F)->GL_2(Q_p-bar) be a continuous representation
+    {V : Type*} [AddCommGroup V] [Module (AlgebraicClosure ℚ_[p]) V]
+      [Module.Finite (AlgebraicClosure ℚ_[p]) V] [Module.Free (AlgebraicClosure ℚ_[p]) V]
+      (hV : Module.finrank (AlgebraicClosure ℚ_[p]) V = 2)
+    (ρ : GaloisRep F (AlgebraicClosure ℚ_[p]) V)
+    --(hρirred : GaloisRep.isIrreducible (ρ.map (algebraMap F E)))
+    -- need: rho | G_E = irred
+    -- need: det(rho)=cyclo
+    -- need: rho flat at p
+    -- Let S be a finite set of finite places of F, not dividing p
+    (S : Finset (HeightOneSpectrum (𝓞 F)))
+    (hS : ∀ v ∈ S, ↑p ∉ v.asIdeal)
+    -- need: rho unram outside pS
+    -- need: if v ∈ S then rho has a tame rank 1 quotient at v
+    -- then
+    :
+  (ρ.IsAutomorphicOfLevel p hV S) ↔ sorry := sorry
+  --(∃ T r', (ρ.map (algebraMap F E)).IsAutomorphic 𝒪 hp hpA hV (E ⊗[F] D) r' T) := sorry
 
 -- ask RLT about this mess
