@@ -35,6 +35,7 @@ import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor
 import FLT.DivisionAlgebra.Finiteness
+import FLT.DivisionAlgebra.HaarCharWork
 import FLT.EllipticCurve.Torsion
 import FLT.GaloisRepresentation.Automorphic
 import FLT.GaloisRepresentation.Cyclotomic
