@@ -34,7 +34,9 @@ abbrev WeierstrassCurve.n_torsion (n : ℕ) : Type u := Submodule.torsionBy ℤ 
 
 -- not sure if this instance will cause more trouble than it's worth
 noncomputable instance (n : ℕ) : Module (ZMod n) (E.n_torsion n) :=
-  AddCommGroup.zmodModule sorry -- shouldn't be too hard
+  AddCommGroup.zmodModule <| by
+  intro ⟨P, hP⟩
+  simpa using hP
 
 -- This theorem needs e.g. a theory of division polynomials. It's ongoing work of David Angdinata.
 -- Please do not work on it without talking to KB and David first.
@@ -66,18 +68,24 @@ theorem WeierstrassCurve.n_torsion_dimension [IsSepClosed k] {n : ℕ} (hn : (n 
 -- This should be a straightforward but perhaps long unravelling of the definition
 /-- The map on points for an elliptic curve over `k` induced by a morphism of `k`-algebras
 is a group homomorphism. -/
-def WeierstrassCurve.Points.map {K L : Type u} [Field K] [Field L] [Algebra k K] [Algebra k L]
-    [DecidableEq K] [DecidableEq L]
-    (f : K →ₐ[k] L) : E ⟮K⟯ →+ E ⟮L⟯ := sorry
+noncomputable def WeierstrassCurve.Points.map {K L : Type u} [Field K] [Field L] [Algebra k K]
+    [Algebra k L] [DecidableEq K] [DecidableEq L]
+    (f : K →ₐ[k] L) : E ⟮K⟯ →+ E ⟮L⟯ := WeierstrassCurve.Affine.Point.map f
 
+omit [E.IsElliptic] [DecidableEq k] in
 lemma WeierstrassCurve.Points.map_id (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
-    WeierstrassCurve.Points.map E (AlgHom.id k K) = AddMonoidHom.id _ := sorry
+    WeierstrassCurve.Points.map E (AlgHom.id k K) = AddMonoidHom.id _ := by
+      ext
+      exact WeierstrassCurve.Affine.Point.map_id _
 
+omit [E.IsElliptic] [DecidableEq k] in
 lemma WeierstrassCurve.Points.map_comp (K L M : Type u) [Field K] [Field L] [Field M]
     [DecidableEq K] [DecidableEq L] [DecidableEq M] [Algebra k K] [Algebra k L] [Algebra k M]
     (f : K →ₐ[k] L) (g : L →ₐ[k] M) :
-    (WeierstrassCurve.Points.map E g).comp (WeierstrassCurve.Points.map E f) =
-    WeierstrassCurve.Points.map E (g.comp f) := sorry
+    (WeierstrassCurve.Affine.Point.map g).comp (WeierstrassCurve.Affine.Point.map f) =
+    WeierstrassCurve.Affine.Point.map (W' := E) (g.comp f) := by
+  ext P
+  exact WeierstrassCurve.Affine.Point.map_map _ _ _
 
 /-- The Galois action on the points of an elliptic curve. -/
 def WeierstrassCurve.galoisRepresentation (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :

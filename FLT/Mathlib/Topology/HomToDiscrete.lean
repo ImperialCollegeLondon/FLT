@@ -82,11 +82,11 @@ theorem HomDiscrete_iff_Discrete {X X' Y : Type*} [TopologicalSpace Y] (f : X �
 
 lemma inter_Discrete {A : Type*} [TopologicalSpace A] (X Y : Set A)
     [DiscreteTopology X] : DiscreteTopology ↑(Y ∩ X) := by
-  refine singletons_open_iff_discrete.mp ?_
+  refine discreteTopology_iff_isOpen_singleton.mpr ?_
   intro ⟨a, InY, InX⟩
   refine isOpen_mk.mpr ?_
   have h : DiscreteTopology ↑X := inferInstance
-  apply (singletons_open_iff_discrete).mpr at h
+  apply (discreteTopology_iff_isOpen_singleton).mp at h
   obtain ⟨U, Uopen, Ueq⟩ := h ⟨a, InX⟩
   refine ⟨U, Uopen, ?_⟩
   rw [Set.eq_singleton_iff_unique_mem] at Ueq
