@@ -10,6 +10,8 @@ import FLT.Basic.Reductions
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimit
+import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
 import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
