@@ -64,7 +64,7 @@ lemma QuotientGroup.mk_image_finite_of_compact_of_open
     (hU : IsCompact (U : Set G)) (hVopen : IsOpen (V : Set G)) :
     (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ V)).Finite := by
   have : DiscreteTopology (G ⧸ V) := by
-    rw [← forall_open_iff_discrete]
+    rw [discreteTopology_iff_forall_isOpen]
     intro s
     rw [← (isQuotientMap_mk V).isOpen_preimage, ← (QuotientGroup.mk_surjective).image_preimage s,
       preimage_image_mk_eq_iUnion_image, iUnion_subtype]
