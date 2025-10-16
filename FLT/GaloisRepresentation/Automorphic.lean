@@ -4,11 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Edison Xie, Kevin Buzzard
 -/
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
-import FLT.Deformations.RepresentationTheory.GaloisRep
-import FLT.Deformations.Categories
 import FLT.DedekindDomain.IntegralClosure
-import Mathlib.NumberTheory.Padics.PadicIntegers
-import Mathlib
+import FLT.Deformations.RepresentationTheory.GaloisRep
+import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
+import Mathlib.NumberTheory.Padics.Complex
+import Mathlib.RingTheory.SimpleRing.Principal
+
 /-!
 # Automorphic Galois representations
 
@@ -168,9 +169,9 @@ theorem cyclic_base_change
       localTameAbelianInertiaGroup w ≤ δ.ker ∧
       -- and π is Gal(F_w-bar/F_w)-equivariant
       ∀ g : Γ (w.adicCompletion F), ∀ v : V, π ((ρ.toLocal w) g v) = δ g (π v)) :
-  -- Then ρ is automorphic of level S iff
-  (ρ.IsAutomorphicOfLevel p hV S) ↔
-  -- ρ | Gal(Ebar/E) is automorphic of level (the pullback of S to E)
-  ((ρ.map (algebraMap F E)).IsAutomorphicOfLevel p hV
-    (HeightOneSpectrum.preimageComapFinset (𝓞 F) F E (𝓞 E) S)) :=
-sorry
+    -- Then ρ is automorphic of level S iff
+    (ρ.IsAutomorphicOfLevel p hV S) ↔
+    -- ρ | Gal(Ebar/E) is automorphic of level (the pullback of S to E)
+    ((ρ.map (algebraMap F E)).IsAutomorphicOfLevel p hV
+      (HeightOneSpectrum.preimageComapFinset (𝓞 F) F E (𝓞 E) S)) :=
+  sorry
