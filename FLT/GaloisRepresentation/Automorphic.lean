@@ -39,8 +39,6 @@ open scoped TensorProduct
 
 open IsDedekindDomain NumberField TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
 
-open Deformation
-
 local notation "Frob" => Field.AbsoluteGaloisGroup.adicArithFrob
 local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
 local notation3 K:max "ᵃˡᵍ" => AlgebraicClosure K
