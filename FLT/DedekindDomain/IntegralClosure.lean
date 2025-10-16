@@ -160,6 +160,9 @@ theorem preimage_comap_finite (S : Set (HeightOneSpectrum A)) (hS : S.Finite) :
   rw [← Set.biUnion_preimage_singleton (comap A) S]
   exact Set.Finite.biUnion' hS <| fun v _ ↦ Extension.finite A K L B v
 
+/-- Given an inclusion of Dedekind domains A → B, making B finite over A,
+this is the preimage of a Finset of finite places of A, as a Finset of
+finite places of B. -/
 noncomputable def preimageComapFinset (S : Finset (HeightOneSpectrum A)) :
     Finset (HeightOneSpectrum B) :=
   Set.Finite.toFinset <| preimage_comap_finite A K L B S S.finite_toSet
