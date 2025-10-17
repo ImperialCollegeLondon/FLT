@@ -102,6 +102,9 @@ lemma hppos (P : FreyPackage) : 0 < P.p := lt_of_lt_of_le (by omega) P.hp5
 
 lemma hp0 (P : FreyPackage) : P.p ≠ 0 := P.hppos.ne'
 
+lemma hp_odd (P : FreyPackage) : Odd P.p := Nat.Prime.odd_of_ne_two P.pp <|
+  have := P.hp5; by linarith
+
 lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c ^ p) :
     gcd a b = gcd a c := by
   have foo : gcd a b ∣ gcd a c := by

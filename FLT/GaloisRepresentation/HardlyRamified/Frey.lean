@@ -5,9 +5,6 @@ variable (P : FreyPackage)
 
 open GaloisRepresentation
 
-lemma FreyPackage.hp_odd : Odd P.p := Nat.Prime.odd_of_ne_two P.pp <|
-  have := P.hp5; by linarith
-
 /-- The natural `ℤ_p`-algebra structure on `ℤ/pℤ`. -/
 noncomputable local instance (p : ℕ) [Fact p.Prime] : Algebra ℤ_[p] (ZMod p) :=
   RingHom.toAlgebra PadicInt.toZMod
