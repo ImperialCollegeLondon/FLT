@@ -386,6 +386,15 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
   · rfl
   · intro; rfl
 
+/-- A version of `mulEquivAddHaarChar_piCongrRight` that works under the ambient
+  `[BorelSpace (Π i, H i)]` instance, avoiding instance mismatch problems. -/
+@[to_additive]
+lemma mulEquivHaarChar_piCongrRight' [Fintype ι] [MeasurableSpace (Π i, H i)]
+    [BorelSpace (Π i, H i)] (ψ : Π i, (H i) ≃ₜ* (H i)) :
+    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
+  borelize (Π i, (H i))
+  exact mulEquivHaarChar_piCongrRight ψ
+
 end pi
 
 section restrictedproduct
