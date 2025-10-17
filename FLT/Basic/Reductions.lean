@@ -26,6 +26,8 @@ must be irreducible.
 
 -/
 
+/-- A classical decidable instance on `AlgebraicClosure ℚ`, given that there is
+no hope of a constructive one with the current definition of algebraic closure. -/
 noncomputable local instance : DecidableEq (AlgebraicClosure ℚ) := Classical.typeDecidableEq _
 
 open WeierstrassCurve
