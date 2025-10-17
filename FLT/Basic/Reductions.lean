@@ -26,8 +26,7 @@ must be irreducible.
 
 -/
 
-abbrev Qbar := AlgebraicClosure ℚ
-noncomputable local instance : DecidableEq Qbar := Classical.typeDecidableEq Qbar
+noncomputable local instance : DecidableEq (AlgebraicClosure ℚ) := Classical.typeDecidableEq _
 
 open WeierstrassCurve
 

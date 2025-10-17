@@ -78,12 +78,16 @@ the all the results in section 4.1 of Serre's paper [serre]
 apply to the curve $Y^2=X(X-a^p)(X+b^p).$
 -/
 structure FreyPackage where
+  /-- The integer `a` in the Frey package. -/
   a : ℤ
+  /-- The integer `b` in the Frey package. -/
   b : ℤ
+  /-- The integer `c` in the Frey package. -/
   c : ℤ
   ha0 : a ≠ 0
   hb0 : b ≠ 0
   hc0 : c ≠ 0
+  /-- The prime number `p` in the Frey package. -/
   p : ℕ
   pp : Nat.Prime p
   hp5 : 5 ≤ p
