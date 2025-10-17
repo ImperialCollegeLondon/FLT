@@ -1,20 +1,25 @@
 import FLT.GaloisRepresentation.HardlyRamified.Defs
-import FLT.Deformations.RepresentationTheory.EllipticCurve
-import FLT.Basic.Reductions
+import FLT.Basic.FreyPackage
 
-variable (P : FLT.FreyPackage)
+variable (P : FreyPackage)
 
 open GaloisRepresentation
 
-theorem FLT.FreyPackage.FreyCurve.torsion_isHardlyRamified :
-    have : Fact (P.p.Prime) := sorry
-    let : Algebra ℤ_[P.p] (ZMod P.p) := sorry
-    have : Module.Finite (ZMod P.p) (P.freyCurve.n_torsion P.p) := sorry
-    IsHardlyRamified (show Odd P.p from sorry) sorry
-      (P.freyCurve.galoisRep P.p (show 0 < P.p from sorry)) :=
+lemma FreyPackage.hp_odd : Odd P.p := Nat.Prime.odd_of_ne_two P.pp <|
+  have := P.hp5; by linarith
+
+noncomputable local instance (p : ℕ) [Fact p.Prime] : Algebra ℤ_[p] (ZMod p) :=
+  RingHom.toAlgebra PadicInt.toZMod
+
+noncomputable local instance : DecidableEq (AlgebraicClosure ℚ) := Classical.typeDecidableEq _
+
+theorem FreyPackage.FreyCurve.torsion_isHardlyRamified :
+    haveI : Fact (P.p.Prime) := ⟨P.pp⟩
+    IsHardlyRamified P.hp_odd sorry
+      (P.freyCurve.galoisRep P.p (show 0 < P.p from P.hppos)) :=
   sorry
 
 theorem FLT.FreyPackage.FreyCurve.torsion_not_isIrreducible :
-    have : Fact (P.p.Prime) := sorry
-    ¬ GaloisRep.IsIrreducible (P.freyCurve.galoisRep P.p (show 0 < P.p from sorry)) :=
+    haveI : Fact (P.p.Prime) := ⟨P.pp⟩
+    ¬ GaloisRep.IsIrreducible (P.freyCurve.galoisRep P.p P.hppos) :=
   sorry -- TODO prove this
