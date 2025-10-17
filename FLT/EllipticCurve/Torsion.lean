@@ -107,10 +107,8 @@ noncomputable def WeierstrassCurve.galoisRepresentation
       smul_zero := sorry
       smul_add := sorry
 
-/-- The Galois action on the n-torsion points of an elliptic curve. -/
-def WeierstrassCurve.torsionGaloisRepresentation (n : ℕ) (K : Type u) [Field K] [Algebra k K]
-    [DecidableEq K] :
-    Representation (ZMod n) (K ≃ₐ[k] K) ((E.map (algebraMap k K)).n_torsion n) := sorry
+-- the next `sorry` is data but the only thing which should be missing is
+-- the continuity argument, which follows from the finiteness asserted above.
 
 /-- The continuous Galois representation associated to an elliptic curve over a field. -/
 def WeierstrassCurve.galoisRep {K : Type u} [Field K] (E : WeierstrassCurve K) [E.IsElliptic]
