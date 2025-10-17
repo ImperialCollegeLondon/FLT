@@ -21,17 +21,22 @@ The main result of this file is that if Fermat's Last Theorem is false,
 then there exists a Frey package.
 
 The motivation behind this definition is that then all the results in Section 4.1
-of Serre's paper [Serre] apply to the elliptic curve $Y^2=X(X-a^p)(X+b^p).$
+of Serre's paper [Serre] apply to the elliptic curve $Y^2=X(X-a^p)(X+b^p)$; this
+is the Frey curve associated to the Frey package.
 
 # Main definition
 
-* `FLT.FreyPackage` : A Frey package is a triple `(a,b,c)` of nonzero, pairwise coprime
+* `FreyPackage` : A Frey package is a triple `(a,b,c)` of nonzero, pairwise coprime
 integers and a prime `p ≥ 5` such that `a` is 3 mod 4, `b` is even, and `a^p+b^p=c^p`.
+* `FreyPackage.freyCurve` : The Frey curve associated to a Frey package.
 
 # Main theorem
 
-* `FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5` : A counterexample
-     to `FermatLastTheorem` with `p ≥ 5` gives a Frey Package.
+* `FreyPackage.of_not_FermatLastTheorem` : A counterexample to `FermatLastTheorem` gives
+  rise to a Frey Package.
+
+The proof is an elementary arithmetic argument, assuming Fermat's result that FLT is true
+for n=4 and Euler's result that it's true for n=3.
 -/
 
 /-!
@@ -53,7 +58,8 @@ theorem PNat.pow_add_pow_ne_pow_of_FermatLastTheorem :
 /-- If Fermat's Last Theorem is true for primes `p ≥ 5`, then FLT is true. -/
 lemma FermatLastTheorem.of_p_ge_5 (H : ∀ p ≥ 5, p.Prime → FermatLastTheoremFor p) :
     FermatLastTheorem := by
-  apply FermatLastTheorem.of_odd_primes
+  apply FermatLastTheorem.of_odd_primes -- this is Fermat's proof for n=4, plus reduction to
+                                        -- the case n prime.
   intro p pp p_odd
   if hp5 : 5 ≤ p then
     exact H _ hp5 pp
@@ -61,14 +67,8 @@ lemma FermatLastTheorem.of_p_ge_5 (H : ∀ p ≥ 5, p.Prime → FermatLastTheore
     have hp2 := pp.two_le
     interval_cases p
     · contradiction
-    · exact fermatLastTheoremThree
+    · exact fermatLastTheoremThree -- this is Euler's proof for n=3
     · contradiction
-
-/-
-
-We continue with the reduction of Fermat's Last Theorem.
-
--/
 
 /--
 A *Frey Package* is a 4-tuple (a,b,c,p) of integers
@@ -95,6 +95,7 @@ structure FreyPackage where
 namespace FreyPackage
 
 lemma hppos (P : FreyPackage) : 0 < P.p := lt_of_lt_of_le (by omega) P.hp5
+
 lemma hp0 (P : FreyPackage) : P.p ≠ 0 := P.hppos.ne'
 
 lemma gcdab_eq_gcdac {a b c : ℤ} {p : ℕ} (hp : 0 < p) (h : a ^ p + b ^ p = c ^ p) :
@@ -199,6 +200,14 @@ lemma of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0
     ha4 := (ZMod.intCast_eq_intCast_iff ..).2 ha3
     hb2 := (ZMod.intCast_zmod_eq_zero_iff_dvd ..).2 (even_iff_two_dvd.1 eb)
   }⟩
+
+/-- If Fermat's Last Theorem is false, then there exists a Frey Package. -/
+lemma of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) : Nonempty (FreyPackage) := by
+  contrapose! h
+  refine FermatLastTheorem.of_p_ge_5
+    fun p hp5 pp a b c ha hb _ h2 ↦ Nonempty.elim ?_ h.false
+  apply FreyPackage.of_not_FermatLastTheorem_p_ge_5 (a := a) (b := b) (c := c)
+    <;> assumption_mod_cast
 
 /-- The Weierstrass curve over `ℤ` associated to a Frey package. The conditions imposed
 upon a Frey package guarantee that the running hypotheses in

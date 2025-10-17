@@ -64,9 +64,11 @@ theorem FreyPackage.false (P : FreyPackage) : False := by
   exact Mazur_Frey P
   -- Contradiction!
 
--- Fermat's Last Theorem is true
+/-- Fermat's Last Theorem is true -/
 theorem Wiles_Taylor_Wiles : FermatLastTheorem := by
-  refine FermatLastTheorem.of_p_ge_5
-    fun p hp5 pp a b c ha hb _ h ↦ Nonempty.elim ?_ FreyPackage.false
-  apply FreyPackage.of_not_FermatLastTheorem_p_ge_5 (a := a) (b := b) (c := c)
-    <;> assumption_mod_cast
+  -- Suppose Fermat's Last Theorem is false
+  by_contra h
+  -- then there exists a Frey package
+  obtain ⟨P : FreyPackage⟩ := FreyPackage.of_not_FermatLastTheorem h
+  -- but there is no Frey package
+  exact P.false
