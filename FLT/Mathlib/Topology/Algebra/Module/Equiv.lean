@@ -58,7 +58,7 @@ def ContinuousLinearEquiv.piScalarPiComm {α β : Type*} (R : α → Type*) (φ 
 
 lemma ContinuousLinearEquiv.toContinuousAddEquiv_trans
     {R : Type*} {E : Type*} [Semiring R] [AddCommMonoid E] [Module R E]
-    [TopologicalSpace E] [AddGroup E] [IsTopologicalAddGroup E] {e f : E ≃L[R] E} :
+    [TopologicalSpace E] [AddGroup E] {e f : E ≃L[R] E} :
     (e.trans f).toContinuousAddEquiv =
       e.toContinuousAddEquiv.trans f.toContinuousAddEquiv := rfl
 
@@ -103,7 +103,6 @@ lemma toContinuousLinearEquiv_toLinearEquiv
   (b : Module.Basis ι F V) (M : Matrix ι ι F) (h : M.det ≠ 0) :
   (M.toContinuousLinearEquiv b h).toLinearEquiv = Matrix.toLinearEquiv b M (Ne.isUnit h) := rfl
 
-@[simp]
 lemma toContinousLinearEquiv_toMatrix
     (b : Module.Basis ι F V) (M : Matrix ι ι F) (h : M.det ≠ 0) :
     (M.toContinuousLinearEquiv b h ).toLinearMap.toMatrix b b = M := by

@@ -48,7 +48,7 @@ variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 /-- A diagonal matrix scales addHaar with its determinant
 -/
-lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal [SecondCountableTopology F]
+lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal
     [BorelSpace (ι → F)]
     (ρ : (ι → F) ≃L[F] (ι → F)) {D : ι → F}
     (h : ρ.toLinearMap.toMatrix' = Matrix.diagonal D) :
