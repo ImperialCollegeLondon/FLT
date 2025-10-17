@@ -55,10 +55,9 @@ def ContinuousLinearEquiv.piScalarPiComm {α β : Type*} (R : α → Type*) (φ 
     ((a : α) → (b : β) → φ a b) ≃L[∀ a, R a] ((b : β) → (a : α) → φ a b) where
   __ := LinearEquiv.piScalarPiComm R φ
 
-
 lemma ContinuousLinearEquiv.toContinuousAddEquiv_trans
     {R : Type*} {E : Type*} [Semiring R] [AddCommMonoid E] [Module R E]
-    [TopologicalSpace E] [AddGroup E] {e f : E ≃L[R] E} :
+    [TopologicalSpace E] {e f : E ≃L[R] E} :
     (e.trans f).toContinuousAddEquiv =
       e.toContinuousAddEquiv.trans f.toContinuousAddEquiv := rfl
 
@@ -69,7 +68,6 @@ lemma ContinuousLinearEquiv.toMatrix_det_ne_zero
       (ρ.toLinearMap.toMatrix b b).det ≠ 0 := by
       simp[LinearEquiv.det_ne_zero]
 
-
 section toContinuousLinearEquiv
 
 variable {F : Type*} [Field F] [TopologicalSpace F]
@@ -79,6 +77,9 @@ variable [IsModuleTopology F V] [ContinuousAdd V]
 
 namespace Matrix
 
+/-- Given `M : Matrix ι ι F`, `b : Module.Basis ι F V` and `h : M.det ≠ 0`,
+  this is the continuous linear equivalence arising from
+  `Matrix.toLinearEquiv b M (Ne.isUnit h)` -/
 noncomputable def toContinuousLinearEquiv
   (M : Matrix ι ι F) (b : Module.Basis ι F V) (h : M.det ≠ 0) : V ≃L[F] V :=
   let e := Matrix.toLinearEquiv b M (Ne.isUnit h)
