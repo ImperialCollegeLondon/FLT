@@ -43,7 +43,6 @@ import FLT.GroupScheme.FiniteFlat
 import FLT.HaarMeasure.HaarChar.AddEquiv
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.HaarMeasure.HaarChar.FiniteDimensional
-import FLT.HaarMeasure.HaarChar.HaarCharScaling
 import FLT.HaarMeasure.HaarChar.Padic
 import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.HaarMeasure.HaarChar.Ring
