@@ -242,7 +242,13 @@ def freyCurve (P : FreyPackage) : WeierstrassCurve ℚ where
   a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this is also an integer
   a₆ := 0
 
-theorem freyCurve_map (P : FreyPackage) : (freyCurveInt P).map (algebraMap ℤ ℚ) = freyCurve P := by
+end FreyPackage
+
+namespace FreyCurve
+
+open FreyPackage
+
+theorem map (P : FreyPackage) : (freyCurveInt P).map (algebraMap ℤ ℚ) = freyCurve P := by
   have two_dvd_b : 2 ∣ P.b := (ZMod.intCast_zmod_eq_zero_iff_dvd P.b 2).1 P.hb2
   ext
   · rfl
@@ -272,7 +278,7 @@ theorem freyCurve_map (P : FreyPackage) : (freyCurveInt P).map (algebraMap ℤ �
         _        ∣ _         := Int.dvd_mul_left _ _
   · rfl
 
-lemma FreyCurve.Δ (P : FreyPackage) : P.freyCurve.Δ = (P.a*P.b*P.c)^(2*P.p) / 2 ^ 8 := by
+lemma Δ (P : FreyPackage) : P.freyCurve.Δ = (P.a*P.b*P.c)^(2*P.p) / 2 ^ 8 := by
   trans (P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8
   · field_simp
     norm_cast
@@ -289,32 +295,32 @@ instance (P : FreyPackage) : WeierstrassCurve.IsElliptic (freyCurve P) where
       exact pow_ne_zero _ <| mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0
     · norm_num
 
-lemma FreyCurve.b₂ (P : FreyPackage) :
+lemma b₂ (P : FreyPackage) :
     P.freyCurve.b₂ = P.b ^ P.p - P.a ^ P.p := by
   simp [freyCurve, WeierstrassCurve.b₂]
   ring
 
-lemma FreyCurve.b₄ (P : FreyPackage) :
+lemma b₄ (P : FreyPackage) :
     P.freyCurve.b₄ = - (P.a * P.b) ^ P.p / 8 := by
   simp [freyCurve, WeierstrassCurve.b₄]
   ring
 
-lemma FreyCurve.c₄ (P : FreyPackage) :
+lemma c₄ (P : FreyPackage) :
     P.freyCurve.c₄ = (P.a ^ P.p) ^ 2 + P.a ^ P.p * P.b ^ P.p + (P.b ^ P.p) ^ 2 := by
   simp [FreyCurve.b₂, FreyCurve.b₄, WeierstrassCurve.c₄]
   ring
 
-lemma FreyCurve.c₄' (P : FreyPackage) :
+lemma c₄' (P : FreyPackage) :
     P.freyCurve.c₄ = P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p := by
   rw [FreyCurve.c₄]
   rw_mod_cast [pow_mul', ← hFLT]
   ring
 
-lemma FreyCurve.Δ'inv (P : FreyPackage) :
+lemma Δ'inv (P : FreyPackage) :
     (↑(P.freyCurve.Δ'⁻¹) : ℚ) = 2 ^ 8 / (P.a*P.b*P.c)^(2*P.p) := by
   simp [FreyCurve.Δ]
 
-lemma FreyCurve.j (P : FreyPackage) :
+lemma j (P : FreyPackage) :
     P.freyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 /(P.a*P.b*P.c)^(2*P.p) := by
   rw [mul_div_right_comm, WeierstrassCurve.j, FreyCurve.Δ'inv, FreyCurve.c₄']
 
@@ -326,7 +332,7 @@ private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := 
 
 /-- The q-adic valuation of the j-invariant of the Frey curve is a multiple of p if 2 < q is
 a prime of bad reduction. -/
-lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : q.Prime)
+lemma j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : q.Prime)
     (hqbad : (q : ℤ) ∣ P.a * P.b * P.c) (hqodd : 2 < q) :
     (P.p : ℤ) ∣ padicValRat q P.freyCurve.j := by
   have := Fact.mk hqPrime
@@ -363,4 +369,4 @@ lemma FreyCurve.j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : 
     Int.cast_pow, padicValRat.pow (mod_cast h₁), dvd_neg, Nat.cast_mul]
   exact dvd_mul_of_dvd_left (dvd_mul_left _ _) _
 
-end FreyPackage
+end FreyCurve

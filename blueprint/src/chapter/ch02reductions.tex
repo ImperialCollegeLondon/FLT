@@ -46,7 +46,7 @@ Euler proved Fermat's Last Theorem for $p=3$;
   (its dependency graph can be visualised \href{https://pitmonticone.github.io/FLT3/blueprint/dep_graph_document.html}{\underline{here}}).
 \end{proof}
 
-\begin{corollary}\label{FLT.of_p_ge_5}\lean{FLT.of_p_ge_5}\leanok If there is a counterexample to
+\begin{corollary}\label{FermatLastTheorem.of_p_ge_5}\lean{FermatLastTheorem.of_p_ge_5}\leanok If there is a counterexample to
   Fermat's Last Theorem, then there is a counterexample $a^p+b^p=c^p$ with $p$ prime and $p\geq 5$.
 \end{corollary}
 \begin{proof}\uses{fermatLastTheoremThree, FermatLastTheorem.of_odd_primes}\leanok Follows from the
@@ -56,13 +56,13 @@ Euler proved Fermat's Last Theorem for $p=3$;
 
 For convenience we make the following definition.
 
-\begin{definition}\label{FLT.FreyPackage}\lean{FLT.FreyPackage}\leanok A \emph{Frey package} $(a,b,c,p)$
+\begin{definition}\label{FreyPackage}\lean{FreyPackage}\leanok A \emph{Frey package} $(a,b,c,p)$
 is three nonzero pairwise-coprime integers $a$, $b$, $c$, with $a\equiv3\pmod4$ and $b\equiv0\pmod2$,
 and a prime $p\geq5$, such that $a^p+b^p=c^p$.\end{definition}
 
 Our next reduction is as follows:
 
-\begin{lemma}\label{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}\lean{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}\leanok\discussion{19}
+\begin{lemma}\label{FreyPackage.of_not_FermatLastTheorem_p_ge_5}\lean{FreyPackage.of_not_FermatLastTheorem_p_ge_5}\leanok\discussion{19}
   If Fermat's Last Theorem is false for $p \ge 5$ and prime, then there exists a Frey package.
 \end{lemma}
 \begin{proof}
@@ -136,8 +136,8 @@ then a Frey package exists.
 
 \begin{definition}[Frey]
   \label{FLT.FreyCurve}
-  \lean{FLT.FreyPackage.freyCurve}
-  \uses{FLT.FreyPackage}\discussion{21}
+  \lean{FreyPackage.freyCurve}
+  \uses{FreyPackage}\discussion{21}
   \leanok
   Given a Frey package $(a,b,c,p)$, the corresponding \emph{Frey curve} (considered by Frey and,
   before him, Hellegouarch) is the elliptic curve over $\Q$ defined by the equation
@@ -166,8 +166,8 @@ and we say that $\rho$ is the mod $p$ representation associated to the Frey pack
 Is it irreducible or not?
 
 \begin{theorem}[Mazur]
-  \label{FLT.Mazur_Frey}
-  \lean{FLT.Mazur_Frey}
+  \label{Mazur_Frey}
+  \lean{Mazur_Frey}
   \uses{FLT.FreyCurve}
   \leanok
   If $\rho$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
@@ -188,8 +188,8 @@ a formalization of this result, as it was known in the 1980s. We will however be
 a lot about the next result, which says the exact opposite.
 
 \begin{theorem}[Wiles,Taylor--Wiles, Ribet,\ldots]
-  \label{FLT.Wiles_Frey}
-  \lean{FLT.Wiles_Frey}
+  \label{Wiles_Frey}
+  \lean{Wiles_Frey}
   \uses{FLT.FreyCurve}
   \leanok
   If $\rho$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
@@ -203,34 +203,34 @@ a lot about the next result, which says the exact opposite.
 \end{proof}
 
 \begin{corollary}
-  \label{FLT.FreyPackage.false}
-  \lean{FLT.FreyPackage.false}
-  \uses{FLT.Mazur_Frey, FLT.Wiles_Frey}
+  \label{FreyPackage.false}
+  \lean{FreyPackage.false}
+  \uses{Mazur_Frey, Wiles_Frey}
   \leanok
   There is no Frey package.
 \end{corollary}
 \begin{proof}\leanok Follows immediately from the previous two
-  theorems~\ref{FLT.Mazur_Frey} and~\ref{FLT.Wiles_Frey}.
+  theorems~\ref{Mazur_Frey} and~\ref{Wiles_Frey}.
 \end{proof}
 
 We deduce
 
 \begin{corollary}
   \label{FLT}
-  \lean{FLT.Wiles_Taylor_Wiles}
+  \lean{Wiles_Taylor_Wiles}
   \leanok
   Fermat's Last Theorem is true. In other words, there are no positive integers $a,b,c$ and
   natural $n\geq3$ such that $a^n+b^n=c^n$.
 \end{corollary}
 \begin{proof}
-  \uses{FLT.of_p_ge_5, FLT.FreyPackage.false, FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}
+  \uses{FLT.of_p_ge_5, FreyPackage.false, FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}
   \leanok
   Assume there is a there is a counterexample $a^n+b^n=c^n$.
-  By Corollary \ref{FLT.of_p_ge_5} we may assume that there is also a counterexample
+  By Corollary \ref{FermatLastTheorem.of_p_ge_5} we may assume that there is also a counterexample
   $a^p+b^p=c^p$ with $p\geq 5$ and prime.
   Then there is a Frey package $(a,b,c,p)$ by~\ref{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5},
-  contradicting Corollary~\ref{FLT.FreyPackage.false}.
+  contradicting Corollary~\ref{FreyPackage.false}.
 \end{proof}
 
 Because we are (for now at least) assuming Mazur's theorem, we now need to turn our attention
-to a proof of theorem~\ref{FLT.Wiles_Frey}. We start on this proof in Chapter~\ref{ch_freyreduction}.
+to a proof of theorem~\ref{Wiles_Frey}. We start on this proof in Chapter~\ref{ch_freyreduction}.

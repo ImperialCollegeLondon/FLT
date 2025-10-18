@@ -3,7 +3,7 @@
 \section{Overview}
 
 In chapter~\ref{ch_reductions} we reduced FLT, modulo a hard theorem from the 1970s,
-to Theorem~\ref{FLT.Wiles_Frey}, the assertion that $p$-torsion in the Frey
+to Theorem~\ref{Wiles_Frey}, the assertion that $p$-torsion in the Frey
 curve is reducible. In this chapter we deduce this assertion from three more complex claims
 about ``hardly ramified'' Galois representations. It is relatively straightforward
 to reduce one of these three claims to a result of Fontaine proved in the 1980s in his
@@ -94,7 +94,7 @@ We are now ready to define hardly ramified representations.
 A well-known result, which basically goes back to Frey, is the following:
 
 \begin{theorem}
-  \lean{FLT.FreyPackage.FreyCurve.torsion_isHardlyRamified}
+  \lean{FreyCurve.torsion_isHardlyRamified}
   \label{Frey_curve_hardly_ramified}
   \uses{hardly_ramified}
   \leanok
@@ -126,7 +126,7 @@ has distinct eigenvalues defined over the ground field.
 The key theorem about hardly ramified representations is the following.
 
 \begin{theorem}
-  \lean{FLT.FreyPackage.FreyCurve.torsion_not_isIrreducible}
+  \lean{FreyCurve.torsion_not_isIrreducible}
   \label{hardly_ramified_reducible}
   \leanok
   If $\ell\geq 3$ is a prime and $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ is hardly ramified,
@@ -136,12 +136,12 @@ The key theorem about hardly ramified representations is the following.
 Note that this (deep) claim is a consequence of Serre's conjecture~\cite{serreconj},
 now a theorem of Khare and Wintenberger~\cite{kwII}, and indeed we shall use
 methods introduced by Khare and Wintenberger to prove this special case of
-Serre's conjecture. Given this result, we can deduce Theorem~\ref{FLT.Wiles_Frey}
+Serre's conjecture. Given this result, we can deduce Theorem~\ref{Wiles_Frey}
 (which we restate here) easily:
 
 \begin{theorem}
-  \label{FLT.Wiles_Frey_again}
-  \lean{FLT.Wiles_Frey}
+  \label{Wiles_Frey_again}
+  \lean{Wiles_Frey}
   \leanok
   If $\overline{\rho}$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
   $\overline{\rho}$ is reducible.

@@ -47,7 +47,7 @@ But it follows from a profound theorem of Ribet, and the even more profound theo
 theorem Wiles_Frey (P : FreyPackage) :
     haveI : Fact P.p.Prime := ⟨P.pp⟩
     ¬ GaloisRep.IsIrreducible (P.freyCurve.galoisRep P.p P.hppos) :=
-  FLT.FreyPackage.FreyCurve.torsion_not_isIrreducible P
+  FreyCurve.torsion_not_isIrreducible P
 
 /-!
 
