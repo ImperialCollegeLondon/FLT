@@ -224,7 +224,8 @@ noncomputable def GL2.toAdicCompletion
   Units.map (RingHom.mapMatrix (FiniteAdeleRing.toAdicCompletion v)).toMonoidHom
 
 /-- `GL_2(𝔸_F^∞)` is isomorphic and homeomorphic to the
-restricted product of the local components `GL_2(F_v)`. -/
+restricted product of the local components `GL_2(F_v)`.
+-/
 noncomputable def GL2.restrictedProduct :
     GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
     Πʳ (v : HeightOneSpectrum (𝓞 F)),

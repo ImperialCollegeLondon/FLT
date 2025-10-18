@@ -6,6 +6,7 @@ import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
 import FLT.AutomorphicRepresentation.Example
+import FLT.Basic.FreyPackage
 import FLT.Basic.Reductions
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
@@ -25,7 +26,6 @@ import FLT.Deformations.LiftFunctor
 import FLT.Deformations.Representable
 import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
 import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
-import FLT.Deformations.RepresentationTheory.EllipticCurve
 import FLT.Deformations.RepresentationTheory.Etale
 import FLT.Deformations.RepresentationTheory.Frobenius
 import FLT.Deformations.RepresentationTheory.GaloisRep
