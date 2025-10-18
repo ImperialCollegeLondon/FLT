@@ -62,11 +62,15 @@ and a prime $p\geq5$, such that $a^p+b^p=c^p$.\end{definition}
 
 Our next reduction is as follows:
 
-\begin{lemma}\label{FreyPackage.of_not_FermatLastTheorem_p_ge_5}\lean{FreyPackage.of_not_FermatLastTheorem_p_ge_5}\leanok\discussion{19}
+\begin{lemma}
+  \label{FreyPackage.of_not_FermatLastTheorem_p_ge_5}
+  \lean{FreyPackage.of_not_FermatLastTheorem_p_ge_5}
+  \leanok
+  \discussion{19}
   If Fermat's Last Theorem is false for $p \ge 5$ and prime, then there exists a Frey package.
 \end{lemma}
 \begin{proof}
-  \uses{FLT.FreyPackage}
+  \uses{FreyPackage}
   \leanok
   Suppose we have a counterexample $a^p+b^p=c^p$ for the given $p$; we now build a Frey package from this data.
 
@@ -135,7 +139,7 @@ $a\equiv3\pmod4$ and $b\equiv0\pmod2$. We have shown above that if Fermat's Last
 then a Frey package exists.
 
 \begin{definition}[Frey]
-  \label{FLT.FreyCurve}
+  \label{FreyCurve}
   \lean{FreyPackage.freyCurve}
   \uses{FreyPackage}\discussion{21}
   \leanok
@@ -168,7 +172,7 @@ Is it irreducible or not?
 \begin{theorem}[Mazur]
   \label{Mazur_Frey}
   \lean{Mazur_Frey}
-  \uses{FLT.FreyCurve}
+  \uses{FreyCurve}
   \leanok
   If $\rho$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
   $\rho$ is irreducible.
@@ -190,7 +194,7 @@ a lot about the next result, which says the exact opposite.
 \begin{theorem}[Wiles,Taylor--Wiles, Ribet,\ldots]
   \label{Wiles_Frey}
   \lean{Wiles_Frey}
-  \uses{FLT.FreyCurve}
+  \uses{FreyCurve}
   \leanok
   If $\rho$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
   $\rho$ is reducible.
@@ -223,12 +227,12 @@ We deduce
   natural $n\geq3$ such that $a^n+b^n=c^n$.
 \end{corollary}
 \begin{proof}
-  \uses{FLT.of_p_ge_5, FreyPackage.false, FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5}
+  \uses{FermatLastTheorem.of_p_ge_5, FreyPackage.false, FreyPackage.of_not_FermatLastTheorem_p_ge_5}
   \leanok
   Assume there is a there is a counterexample $a^n+b^n=c^n$.
   By Corollary \ref{FermatLastTheorem.of_p_ge_5} we may assume that there is also a counterexample
   $a^p+b^p=c^p$ with $p\geq 5$ and prime.
-  Then there is a Frey package $(a,b,c,p)$ by~\ref{FLT.FreyPackage.of_not_FermatLastTheorem_p_ge_5},
+  Then there is a Frey package $(a,b,c,p)$ by~\ref{FreyPackage.of_not_FermatLastTheorem_p_ge_5},
   contradicting Corollary~\ref{FreyPackage.false}.
 \end{proof}
 
