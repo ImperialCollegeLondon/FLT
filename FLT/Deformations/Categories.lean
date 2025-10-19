@@ -124,6 +124,7 @@ def _root_.CategoryTheory.Iso.toContinuousAlgEquiv (i : A ≅ B) : A ≃A[𝓞] 
   invFun := i.inv.hom
   left_inv _ := by simp [← comp_apply]
   right_inv _ := by simp [← comp_apply]
+  continuous_toFun := i.hom.hom.cont
   continuous_invFun := i.inv.hom.2
 
 section self

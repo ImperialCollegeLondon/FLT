@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Edison Xie, Kevin Buzzard
 -/
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
-import FLT.Deformations.RepresentationTheory.Basic
+import FLT.Deformations.RepresentationTheory.GaloisRep
 import FLT.Deformations.Categories
 
 /-!
