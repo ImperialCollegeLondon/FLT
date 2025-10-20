@@ -6,7 +6,7 @@ Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
-import FLT.Mathlib.NumberTheory.RamificationInertia.Basic
+import Mathlib.NumberTheory.RamificationInertia.Basic
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.UniformRing
@@ -861,8 +861,8 @@ theorem ramification_mul_inertia_eq_finrank_completion [Module.Finite A B] (w : 
   have : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v)
       (adicCompletion L w) := by
     apply IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
-  rw [← Ideal.sum_ramification_inertia_of_isLocalRing (adicCompletionIntegers L w)
-    (v.completionIdeal K) (adicCompletion K v) (adicCompletion L w) (v.completionIdeal_ne_bot K),
+  rw [← Ideal.ramificationIdx_mul_inertiaDeg_of_isLocalRing (adicCompletionIntegers L w)
+    (adicCompletion K v) (adicCompletion L w) (v.completionIdeal_ne_bot K),
     adicCompletion.ramificationIdx_eq_ramificationIdx A K L B v w hvw,
     adicCompletion.inertiaDeg_eq_inertiaDeg A K L B v w hvw]
 
