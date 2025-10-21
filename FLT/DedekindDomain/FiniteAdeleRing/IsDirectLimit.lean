@@ -39,7 +39,7 @@ theorem compatibility' {i j hij} (x : M i) : g j (f i j hij x) = g i x :=
   IsDirectLimit.compatibility i j hij x
 
 theorem is_injective {i j} {mi : M i} {mj : M j} (h : g i mi = g j mj) :
-  ∃ (k : ι) (hik : i ≤ k) (hjk : j ≤ k), f i k hik mi = f j k hjk mj :=
+    ∃ (k : ι) (hik : i ≤ k) (hjk : j ≤ k), f i k hik mi = f j k hjk mj :=
   IsDirectLimit.inj i j mi mj h
 
 include f in
@@ -62,13 +62,13 @@ noncomputable def preimage [IsDirectLimit M P f g] (p : P) : M (preimage_index f
 @[simp]
 theorem image_preimage (p : P) :
     g (preimage_index f g p) (preimage f g p) = p :=
-   (is_surjective f g p).choose_spec.choose_spec
+  (is_surjective f g p).choose_spec.choose_spec
 
 variable [IsDirectLimit M P f g] [IsDirected ι (· ≤ ·)]
 
 instance isDirectLimit [DecidableEq ι] [Nonempty ι]
-  [h : DirectedSystem M (f · · ·)] : IsDirectLimit M (Module.DirectLimit M f) f
-  (Module.DirectLimit.of R ι M f) where
+    [h : DirectedSystem M (f · · ·)] : IsDirectLimit M (Module.DirectLimit M f) f
+    (Module.DirectLimit.of R ι M f) where
   surj := Module.DirectLimit.exists_of
   inj i j mi mj h := by
     apply_fun Module.DirectLimit.linearEquiv _ _ at h
@@ -86,43 +86,41 @@ by giving a compatible family of linear maps from the components.
 Each element of the limit is sent according to its representative in some component.
 -/
 noncomputable def lift [IsDirectLimit M P₁ f g₁]
-  (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) : P₁ →ₗ[R] P₂ where
-    toFun p := g₂ (preimage_index f g₁ p) (preimage f g₁ p)
-    map_add' x y := by
-      obtain ⟨k, hxk, hyk⟩ :=
-        IsDirected.directed (r := (· ≤ ·)) (preimage_index f g₁ x) (preimage_index f g₁ y)
-      obtain ⟨k', hxyk', hkk'⟩ := IsDirected.directed (r := (· ≤ ·)) (preimage_index f g₁ (x+y)) k
-      have sum_eq : g₁ k' (f ((preimage_index f g₁ x)) k' (le_trans hxk hkk') (preimage f g₁ x) +
+    (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) : P₁ →ₗ[R] P₂ where
+  toFun p := g₂ (preimage_index f g₁ p) (preimage f g₁ p)
+  map_add' x y := by
+    obtain ⟨k, hxk, hyk⟩ :=
+      IsDirected.directed (r := (· ≤ ·)) (preimage_index f g₁ x) (preimage_index f g₁ y)
+    obtain ⟨k', hxyk', hkk'⟩ := IsDirected.directed (r := (· ≤ ·)) (preimage_index f g₁ (x+y)) k
+    have sum_eq : g₁ k' (f ((preimage_index f g₁ x)) k' (le_trans hxk hkk') (preimage f g₁ x) +
         f (preimage_index f g₁ y) k' (le_trans hyk hkk') (preimage f g₁ y)) =
-                    g₁ (preimage_index f g₁ (x+y)) (preimage f g₁ (x+y)) := by
-        simp only [LinearMap.map_add, compatibility', image_preimage]
-      obtain ⟨k'', hk'k'', hxyk'', h'''⟩ := is_injective (f:= f) g₁ sum_eq
-      simpa [Hg] using congr_arg (g₂ k'') h'''.symm
-    map_smul' r x := by
-      have smul_eq : g₁ (preimage_index f g₁ (r • x))  (preimage f g₁ (r • x)) =
-        g₁ (preimage_index f g₁ x) (r • (preimage f g₁ x)) := by
-          simp only [image_preimage, map_smul]
-      obtain ⟨k, hixk, hirxk, h_smul⟩ := is_injective f g₁ smul_eq
-      simpa [Hg] using congr_arg (g₂ k) h_smul
+        g₁ (preimage_index f g₁ (x+y)) (preimage f g₁ (x+y)) := by
+      simp only [LinearMap.map_add, compatibility', image_preimage]
+    obtain ⟨k'', hk'k'', hxyk'', h'''⟩ := is_injective (f := f) g₁ sum_eq
+    simpa [Hg] using congr_arg (g₂ k'') h'''.symm
+  map_smul' r x := by
+    have smul_eq : g₁ (preimage_index f g₁ (r • x)) (preimage f g₁ (r • x)) =
+        g₁ (preimage_index f g₁ x) (r • preimage f g₁ x) := by
+      simp only [image_preimage, map_smul]
+    obtain ⟨k, hixk, hirxk, h_smul⟩ := is_injective f g₁ smul_eq
+    simpa [Hg] using congr_arg (g₂ k) h_smul
 
 @[simp]
 theorem lift_of [IsDirectLimit M P₁ f g₁] (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) {i} (x) :
-  (lift f P₁ P₂ g₁ g₂ Hg) (g₁ i x) = g₂ i x := by
+    (lift f P₁ P₂ g₁ g₂ Hg) (g₁ i x) = g₂ i x := by
   dsimp [lift]
-  have h_spec := Classical.choose_spec
-    (Classical.choose_spec (IsDirectLimit.surj f (g := g₁) (g₁ i x)))
   have ⟨k, hpk, hik, h_eq⟩ := is_injective f g₁ (image_preimage f g₁ (g₁ i x))
   rw [← Hg i k hik x, ← Hg (preimage_index f g₁ (g₁ i x)) k hpk, h_eq]
 
 theorem lift_unique [IsDirectLimit M P₁ f g₁]
-  (F : P₁ →ₗ[R] P₂) (x) : F x = (lift f P₁ P₂ g₁ (fun i ↦ F.comp <| g₁ i)
-  (fun i j hij x ↦ by
-    simp only [LinearMap.coe_comp, Function.comp_apply]
-    exact LinearMap.congr_arg (IsDirectLimit.compatibility i j hij x))) x := by
-    simp [lift]
+    (F : P₁ →ₗ[R] P₂) (x) : F x = (lift f P₁ P₂ g₁ (fun i ↦ F.comp <| g₁ i)
+    (fun i j hij x ↦ by
+      simp only [LinearMap.coe_comp, Function.comp_apply]
+      exact LinearMap.congr_arg (IsDirectLimit.compatibility i j hij x))) x := by
+  simp [lift]
 
 /-- Any two direct limits of the same directed system are isomorphic. -/
-noncomputable def iso_of_isDirectLimit
+noncomputable def linearEquiv_of_isDirectLimit
     [h₁ : IsDirectLimit M P₁ f g₁] [h₂ : IsDirectLimit M P₂ f g₂] :
     P₁ ≃ₗ[R] P₂ where
   __ := (lift f P₁ P₂ g₁ g₂ h₂.compatibility)
@@ -139,14 +137,14 @@ noncomputable def iso_of_isDirectLimit
     simp only [lift_of]
 
 @[simp]
-lemma iso_of_isDirectLimit_apply [h₁ : IsDirectLimit M P₁ f g₁] [h₂ : IsDirectLimit M P₂ f g₂]
-  (i : ι) (x : M i) : iso_of_isDirectLimit f P₁ P₂ g₁ g₂ (g₁ i x) = g₂ i x := by
-  simp only [iso_of_isDirectLimit, LinearEquiv.coe_mk, lift_of]
+lemma linearEquiv_of_isDirectLimit_apply [IsDirectLimit M P₁ f g₁] [IsDirectLimit M P₂ f g₂]
+    (i : ι) (x : M i) : linearEquiv_of_isDirectLimit f P₁ P₂ g₁ g₂ (g₁ i x) = g₂ i x := by
+  simp only [linearEquiv_of_isDirectLimit, LinearEquiv.coe_mk, lift_of]
 
 @[simp]
-lemma iso_of_isDirectLimit_symm_apply [h₁ : IsDirectLimit M P₁ f g₁] [h₂ : IsDirectLimit M P₂ f g₂]
-  (i : ι) (x : M i) : (iso_of_isDirectLimit f P₁ P₂ g₁ g₂).symm (g₂ i x) = g₁ i x := by
-  simp only [iso_of_isDirectLimit, LinearEquiv.coe_symm_mk', lift_of]
+lemma iso_of_isDirectLimit_symm_apply [IsDirectLimit M P₁ f g₁] [IsDirectLimit M P₂ f g₂]
+    (i : ι) (x : M i) : (linearEquiv_of_isDirectLimit f P₁ P₂ g₁ g₂).symm (g₂ i x) = g₁ i x := by
+  simp only [linearEquiv_of_isDirectLimit, LinearEquiv.coe_symm_mk', lift_of]
 
 end IsDirectLimit
 
