@@ -19,6 +19,16 @@ variable (𝓕) in
 E.g. for the cofinite filter, these are just the finite subsets. -/
 def Filter.complement : Set (Set ι) := (fun S => Sᶜ) '' 𝓕.sets
 
+noncomputable instance : DecidableEq 𝓕.complement := Classical.typeDecidableEq 𝓕.complement
+
+instance : Nonempty 𝓕.complement := by
+  use ∅
+  dsimp [complement]
+  use Set.univ
+  split_ands
+  · exact Filter.univ_mem (f := 𝓕)
+  · simp only [compl_univ]
+
 theorem principal_filter_order {S₁ S₂ : 𝓕.complement} (h : S₁ ≤ S₂) :
     (𝓟 S₂ᶜ : Filter ι) ≤ 𝓟 S₁ᶜ := by
   simp only [le_principal_iff, mem_principal, compl_subset_compl]; exact h
@@ -60,7 +70,7 @@ def inclusion_to_restrictedProduct (S : 𝓕.complement) :
 
 end RestrictedProduct
 
-open scoped RestrictedProduct TensorProduct Module.IsDirectLimit
+open scoped RestrictedProduct TensorProduct IsDirectLimit
 
 variable {A : Type*} [CommRing A] {ι : Type*} {R : ι → Type*} {ℱ : Filter ι}
   [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)} {M : Type*}
@@ -117,7 +127,7 @@ instance directed : IsDirected (ℱ.complement) (· ≤ ·) := by
   simp [c]
 
 instance RestrictedProductIsDirectLimit :
-  Module.IsDirectLimit (mem_A_away_from_S C)
+  IsDirectLimit (mem_A_away_from_S C)
   Πʳ i, [R i, C i]_[ℱ] (inclusion_module (ℱ := ℱ))
   (inclusion_to_restricted_product_module ) where
   inj Sᵢ Sⱼ mi mj hmij := by
@@ -146,6 +156,7 @@ instance RestrictedProductIsDirectLimit :
     dsimp [inclusion_to_restricted_product_module, inclusion_to_restrictedProduct,
     inclusion_module,_root_.inclusion, inclusion_module,RestrictedProduct.inclusion]
     exact Subtype.ext rfl
+  directedsystem := directed_system
 
 variable {ι : Type*} (R : ι → Type*) (S : Set ι) [∀ i, Decidable (i ∈ S)] (A : (i : ι) → Set (R i))
 
@@ -188,16 +199,16 @@ def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i
 
 end monoid
 
-end RestrictedProduct
-
 variable {ι : Type*} (R : ι → Type*) {ℱ : Filter ι} (A : Type*) [CommRing A]
 
 open scoped RestrictedProduct TensorProduct
 
 open Filter
 
+section module
+
 /-- Module equivalence version of `principalEquivProd`. -/
-noncomputable def RestrictedProduct.principal [Π i, AddCommGroup (R i)]
+noncomputable def principal [Π i, AddCommGroup (R i)]
     [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
     (S : Set ι) [∀ i, Decidable (i ∈ S)] :
    (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] ((Π i : {i // i ∈ S}, C i) ×
@@ -210,17 +221,6 @@ noncomputable def RestrictedProduct.principal [Π i, AddCommGroup (R i)]
       · simp only [Pi.smul_apply, SetLike.coe_sort_coe, SetLike.val_smul]
       · simp only [Pi.smul_apply]
 
-variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] (C : ∀ i, Submodule A (R i))
+end module
 
-noncomputable instance : DecidableEq ℱ.complement := Classical.typeDecidableEq ↑ℱ.complement
-
-instance : Nonempty ℱ.complement := by
-  use ∅
-  dsimp [complement]
-  use Set.univ
-  split_ands
-  · exact Filter.univ_mem (f := ℱ)
-  · simp only [compl_univ]
-
-instance : DirectedSystem (mem_A_away_from_S C) fun x1 x2 x3 ↦
-  ⇑(inclusion_module (ℱ := ℱ) (C:= C) x1 x2 x3) := directed_system
+end RestrictedProduct
