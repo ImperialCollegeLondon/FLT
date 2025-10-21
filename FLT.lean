@@ -5,9 +5,11 @@ import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
-import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.FreyPackage
 import FLT.Basic.Reductions
+import FLT.Data.Hurwitz
+import FLT.Data.HurwitzRatHat
+import FLT.Data.QHat
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange

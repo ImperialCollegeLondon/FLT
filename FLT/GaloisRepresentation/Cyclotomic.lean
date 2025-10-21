@@ -1,6 +1,6 @@
 import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
-import FLT.AutomorphicRepresentation.Example
+import FLT.Data.QHat
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
 variable (K : Type) [Field K]
