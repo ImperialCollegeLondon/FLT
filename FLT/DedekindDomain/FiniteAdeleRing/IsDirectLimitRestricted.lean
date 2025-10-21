@@ -96,6 +96,9 @@ def inclusion_module (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) :
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
+instance : DirectedSystem (mem_A_away_from_S C) fun x1 x2 x3 ↦
+  (inclusion_module (ℱ := ℱ) (C:= C) x1 x2 x3) := directed_system
+
 lemma inclusion_module_apply (S₁ S₂ : ℱ.complement) (h : S₁ ≤ S₂) (x : mem_A_away_from_S C S₁) :
   inclusion_module S₁ S₂ h x = ⟨x.1, x.2.filter_mono (principal_filter_order h)⟩ := rfl
 
