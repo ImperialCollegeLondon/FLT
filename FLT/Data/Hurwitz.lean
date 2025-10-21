@@ -1,10 +1,4 @@
-import Mathlib.Data.PNat.Prime
-import Mathlib.Tactic.Peel
 import Mathlib.Analysis.Quaternion
-import Mathlib.RingTheory.Flat.Basic
-import Mathlib.Algebra.Module.Torsion
-import Mathlib.RingTheory.Flat.Basic
-import Mathlib.RingTheory.Flat.TorsionFree
 
 @[ext]
 structure Hurwitz : Type where
