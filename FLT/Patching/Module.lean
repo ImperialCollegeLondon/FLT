@@ -59,8 +59,8 @@ lemma Module.UniformlyBoundedRank.exists_finsupp_surjective (i) :
     · exact (Fin.castLE_injective _).comp (Fintype.equivFin _).injective
   · simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, EquivLike.comp_surjective]
     refine (Finsupp.mapRange_surjective _ (map_zero _) Ideal.Quotient.mk_surjective).comp ?_
-    exact Finsupp.comapDomain_surjective _ ((Fin.castLE_injective _).comp
-      (Fintype.equivFin _).injective)
+    exact Finsupp.comapDomain_surjective
+      ((Fin.castLE_injective _).comp (Fintype.equivFin _).injective)
 
 lemma Module.UniformlyBoundedRank.finite_quotient_smul (i) (I : Ideal R) [Finite (R ⧸ I)] :
     Finite (M i ⧸ (I • ⊤ : Submodule R (M i))) := by
