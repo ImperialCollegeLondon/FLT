@@ -310,16 +310,6 @@ lemma Pi.liftQuotientₗ_bijective {ι R M : Type*} [CommRing R] [AddCommGroup M
     smul_apply, Algebra.linearMap_apply, Ideal.Quotient.algebraMap_eq, zero_apply,
     Ideal.Quotient.eq_zero_iff_mem, smul_eq_mul, I.mul_mem_right _ hr, implies_true]
 
-lemma Finsupp.comapDomain_surjective {α β M} [Zero M] [Finite β]
-    (f : α → β) (hf : Function.Injective f) :
-    Function.Surjective fun l : β →₀ M ↦ Finsupp.comapDomain f l hf.injOn := by
-  classical
-  intro x
-  cases isEmpty_or_nonempty α
-  · refine ⟨0, Finsupp.ext <| fun a ↦ IsEmpty.elim ‹_› a⟩
-  obtain ⟨g, hg⟩ := hf.hasLeftInverse
-  refine ⟨Finsupp.equivFunOnFinite.symm (x ∘ g), Finsupp.ext <| fun a ↦ by simp [hg a]⟩
-
 lemma IsModuleTopology.compactSpace
     (R M : Type*) [CommRing R] [TopologicalSpace R] [AddCommGroup M]
     [Module R M] [TopologicalSpace M] [IsModuleTopology R M]
