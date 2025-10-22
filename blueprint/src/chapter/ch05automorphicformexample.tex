@@ -729,8 +729,8 @@ We define $D:=\Q\otimes\calO=\Q\oplus\Q i\oplus\Q j\oplus\Q\omega=\Q\oplus\Q i\o
 Finally, we define $\widehat{D}:=D\otimes\Zhat$. Just as with $\Qhat$ we have
 
 \begin{lemma}
-    \label{Hurwitz.canonicalForm}
-    \lean{Hurwitz.canonicalForm}
+    \label{HurwitzRatHat.canonicalForm}
+    \lean{HurwitzRatHat.canonicalForm}
     \uses{QHat, ZHat, Hurwitz}
     \leanok
     Every element of $\widehat{D}$ can be written as $z/N$ with $z\in\calOhat$ and $N\in\N^+$.
@@ -753,16 +753,16 @@ kind of non-commutative analogue of a class group. However for our
 particular choice of $D$ and $\calO$ the result is true.
 
 \begin{theorem}
-    \label{Hurwitz.completed_units}
-    \lean{Hurwitz.completed_units}
-    \uses{Hurwitz.canonicalForm}
+    \label{HurwitzRatHat.completed_units}
+    \lean{HurwitzRatHat.completed_units}
+    \uses{HurwitzRatHat.canonicalForm}
     \leanok
     The group of units of $\widehat{D}$ is $D^\times\calOhat^\times$.
     More precisely, every element of $\widehat{D}^\times$ can be written as a product $\delta u$
     with $\delta\in D^\times$ and $u\in\calOhat^\times$.
 \end{theorem}
 \begin{proof}
-    Given an element $x$ of $\widehat{D}^\times$, we can use lemma~\ref{Hurwitz.canonicalForm}
+    Given an element $x$ of $\widehat{D}^\times$, we can use lemma~\ref{HurwitzRatHat.canonicalForm}
     to write it as $z/N$ with $N$ a positive integer
     and $z\in\widehat{\calO}$. Note that $N$ is central and in $D^\times$. Similarly, we can
     write $x^{-1}$ as $y/M$ with $M$ a positive integer and $y\in\widehat{\calO}$. Then
