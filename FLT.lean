@@ -5,8 +5,11 @@ import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
-import FLT.AutomorphicRepresentation.Example
+import FLT.Basic.FreyPackage
 import FLT.Basic.Reductions
+import FLT.Data.Hurwitz
+import FLT.Data.HurwitzRatHat
+import FLT.Data.QHat
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
@@ -24,10 +27,11 @@ import FLT.Deformations.Lemmas
 import FLT.Deformations.LiftFunctor
 import FLT.Deformations.Representable
 import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
-import FLT.Deformations.RepresentationTheory.Basic
 import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
 import FLT.Deformations.RepresentationTheory.Etale
 import FLT.Deformations.RepresentationTheory.Frobenius
+import FLT.Deformations.RepresentationTheory.GaloisRep
+import FLT.Deformations.RepresentationTheory.GaloisRepFamily
 import FLT.Deformations.RepresentationTheory.IntegralClosure
 import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
@@ -36,7 +40,12 @@ import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
 import FLT.GaloisRepresentation.Automorphic
 import FLT.GaloisRepresentation.Cyclotomic
-import FLT.GaloisRepresentation.HardlyRamified
+import FLT.GaloisRepresentation.HardlyRamified.Defs
+import FLT.GaloisRepresentation.HardlyRamified.Family
+import FLT.GaloisRepresentation.HardlyRamified.Frey
+import FLT.GaloisRepresentation.HardlyRamified.Lift
+import FLT.GaloisRepresentation.HardlyRamified.ModThree
+import FLT.GaloisRepresentation.HardlyRamified.Threeadic
 import FLT.GlobalLanglandsConjectures.GLnDefs
 import FLT.GlobalLanglandsConjectures.GLzero
 import FLT.GroupScheme.FiniteFlat
@@ -75,7 +84,6 @@ import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.NumberTheory.RamificationInertia.Basic
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic

@@ -1,6 +1,6 @@
 import FLT.Deformations.Categories
 import FLT.Deformations.Subfunctor
-import FLT.Deformations.RepresentationTheory.Basic
+import FLT.Deformations.RepresentationTheory.GaloisRep
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import Mathlib.RepresentationTheory.Basic
 import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter

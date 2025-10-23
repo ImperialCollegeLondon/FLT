@@ -185,7 +185,7 @@ local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
 
 local instance : DiscreteTopology (includeLeft_subgroup K D).carrier := by
   rw [includeLeft_subgroup]
-  apply (singletons_open_iff_discrete).mp
+  apply discreteTopology_iff_isOpen_singleton.mpr
   rintro ⟨a, a', ha⟩
   obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
   refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩

@@ -14,6 +14,7 @@ def ContinuousLinearEquiv.toContinuousAddEquiv
     (e : M₁ ≃SL[σ₁₂] M₂) :
     M₁ ≃ₜ+ M₂ where
   __ := e.toLinearEquiv.toAddEquiv
+  continuous_toFun := e.continuous_toFun
   continuous_invFun := e.symm.continuous
 
 @[simps!]
