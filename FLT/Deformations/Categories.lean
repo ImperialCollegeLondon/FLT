@@ -17,6 +17,27 @@ class IsLocalProartinianAlgebra
   IsTopologicalRing R, IsLocalRing R, IsProartinian R,
   IsLocalHom (algebraMap 𝓞 R), IsResidueAlgebra 𝓞 R
 
+section 𝓞_is_local
+
+-- if 𝓞 admits a local proartinian algebra then 𝓞 is itself local.
+example (𝓞 : Type u) [CommRing 𝓞]
+    (R : Type u) [CommRing R] [TopologicalSpace R]
+    [Algebra 𝓞 R] [IsLocalProartinianAlgebra 𝓞 R] : IsLocalRing 𝓞 := by
+  let φ : 𝓞 →+* R := algebraMap 𝓞 R
+  have hφ : IsLocalHom φ := IsLocalProartinianAlgebra.toIsLocalHom
+  have hR : Nontrivial R := IsLocalRing.toNontrivial
+  haveI : Nontrivial 𝓞 := RingHom.domain_nontrivial φ
+  apply of_nonunits_add
+  intros a b ha hb
+  rw [mem_nonunits_iff, ← isUnit_map_iff φ, ← mem_nonunits_iff] at ha hb ⊢
+  rw [map_add]
+  -- maximalIdeal R = nonunits R is rfl as sets
+  exact Ideal.add_mem (IsLocalRing.maximalIdeal R) ha hb
+
+-- It's also true that if if 𝓞 is a Noeth local ring complete wrt m-adic topology
+-- then 𝓞 → R is continuous.
+end 𝓞_is_local
+
 /-- The category of local proartinian algebras over `𝓞` with fixed residue field `𝕜`. -/
 structure ProartinianCat where
   /-- Underlying set of a `ProartinianCat` -/
