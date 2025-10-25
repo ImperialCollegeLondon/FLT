@@ -6,7 +6,7 @@ Authors: Kevin Buzzard, Matthew Jasper
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
-import FLT.Mathlib.NumberTheory.RamificationInertia.Basic
+import Mathlib.NumberTheory.RamificationInertia.Basic
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
@@ -24,6 +24,7 @@ import Mathlib.Topology.Algebra.Algebra.Equiv
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Valued.NormedValued
 import Mathlib.RingTheory.Valuation.RankOne
+import Mathlib.RingTheory.Flat.TorsionFree
 import Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange

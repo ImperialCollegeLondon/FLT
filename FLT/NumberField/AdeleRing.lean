@@ -1,7 +1,6 @@
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.Completion.Finite
-import FLT.AutomorphicRepresentation.Example
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
@@ -15,6 +14,7 @@ import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.LinearAlgebra.TensorProduct.Prod
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.NumberField.FiniteAdeleRing
+import FLT.Data.QHat
 
 open scoped TensorProduct
 
