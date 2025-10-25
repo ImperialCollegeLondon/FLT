@@ -94,9 +94,12 @@ instance {F E D : Type*}
     [Ring D] [Algebra F D] [IsQuaternionAlgebra F D] :
     IsQuaternionAlgebra E (E ⊗[F] D) := sorry -- Ask Edison?
 
+variable {p : ℕ} [Fact p.Prime] in
+noncomputable instance : NormedSpace ℚ_[p] (PadicAlgCl p) := spectralNorm.normedSpace ..
+
 variable (p : ℕ) [Fact p.Prime] in
-instance : ContinuousSMul ℤ_[p] (AlgebraicClosure ℚ_[p]) where
-  continuous_smul := sorry -- ask on is there code for X
+instance : ContinuousSMul ℤ_[p] (AlgebraicClosure ℚ_[p]) :=
+  continuousSMul_of_algebraMap _ _ ((continuous_algebraMap ℚ_[p] _).comp continuous_subtype_val)
 
 /--
 Cyclic base change.
