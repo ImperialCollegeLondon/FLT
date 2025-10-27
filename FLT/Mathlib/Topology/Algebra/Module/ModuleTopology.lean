@@ -1,11 +1,8 @@
 import Mathlib.Algebra.Algebra.Bilinear
 import Mathlib.LinearAlgebra.Basis.VectorSpace
 import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
-import Mathlib.RingTheory.Finiteness.Projective
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Algebra.Equiv
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
 
@@ -33,37 +30,6 @@ variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [I
 variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsModuleTopology R B]
 variable {C : Type*} [AddCommMonoid C] [Module R C] [aC : TopologicalSpace C] [IsModuleTopology R C]
 
--- R^n x B -> C bilinear is continuous for module topologies.
--- Didn't someone give a counterexample when not fg on MO?
--- This works for semirings
-theorem Module.continuous_bilinear_of_pi_finite (ι : Type*) [Finite ι]
-    (bil : (ι → R) →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : ((ι → R) × B → C)) := by
-  classical
-  -- far too long proof that a bilinear map bil : R^n x B -> C
-  -- equals the function sending (f,b) to ∑ i, f(i)*bil(eᵢ,b)
-  have foo : (fun fb ↦ bil fb.1 fb.2 : ((ι → R) × B → C)) =
-      (fun fb ↦ ∑ᶠ i, ((fb.1 i) • (bil (Pi.single i 1) fb.2) : C)) := by
-    ext ⟨f, b⟩
-    simp_rw [← LinearMap.smul_apply]
-    rw [← LinearMap.finsum_apply]
-    congr
-    simp_rw [LinearMap.smul_apply, ← LinearMap.map_smul]
-    convert AddMonoidHom.map_finsum bil.toAddMonoidHom _
-    · ext j
-      simp_rw [← Pi.single_smul, smul_eq_mul, mul_one]
-      symm
-      -- Is there a missing delaborator? No ∑ᶠ notation
-      change (∑ᶠ (i : ι), Pi.single i (f i)) j = f j
-      -- last tactic has no effect
-      rw [finsum_apply (Set.toFinite _)]
-      convert finsum_eq_single (fun i ↦ Pi.single i (f i) j) j
-        (by simp (config := {contextual := true})) using 1
-      simp
-    · apply Set.toFinite _--(Function.support fun x ↦ f x • Pi.single x 1)
-  rw [foo]
-  haveI : ContinuousAdd C := toContinuousAdd R C
-  exact continuous_finsum (fun i ↦ by fun_prop) (locallyFinite_of_finite _)
-
 theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Module.Finite R A]
     [Module.Free R A] (bil : A →ₗ[R] B →ₗ[R] C) :
     Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
@@ -72,7 +38,7 @@ theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Mod
   let b : Module.Basis ι R A := Module.Free.chooseBasis R A
   let elinear : A ≃ₗ[R] (ι → R) := b.equivFun
   let bil' : (ι → R) →ₗ[R] B →ₗ[R] C := bil.comp elinear.symm.toLinearMap
-  have := Module.continuous_bilinear_of_pi_finite ι bil'
+  have := continuous_bilinear_of_pi_fintype ι bil'
   have foo : (fun ab ↦ (bil ab.1) ab.2 : A × B → C) = (fun fb ↦ bil' fb.1 fb.2) ∘
     (fun ab ↦ (elinear ab.1, ab.2) : A × B → (ι → R) × B) := by
     ext ⟨a, b⟩
@@ -84,37 +50,6 @@ theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Mod
   · fun_prop
 
 end semiring_bilinear
-
-section ring_bilinear
-
-variable {R : Type*} [τR : TopologicalSpace R] [CommRing R] [IsTopologicalRing R]
-
-variable {A : Type*} [AddCommGroup A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]
-variable {B : Type*} [AddCommGroup B] [Module R B] [aB : TopologicalSpace B] [IsModuleTopology R B]
-variable {C : Type*} [AddCommGroup C] [Module R C] [aC : TopologicalSpace C] [IsModuleTopology R C]
-
--- This needs rings
-theorem Module.continuous_bilinear_of_finite [Module.Finite R A]
-    (bil : A →ₗ[R] B →ₗ[R] C) : Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
-  obtain ⟨m, f, hf⟩ := Module.Finite.exists_fin' R A
-  let bil' : (Fin m → R) →ₗ[R] B →ₗ[R] C := bil.comp f
-  let φ := f.prodMap (LinearMap.id : B →ₗ[R] B)
-  have foo : Function.Surjective (LinearMap.id : B →ₗ[R] B) :=
-    Function.RightInverse.surjective (congrFun rfl)
-  have hφ : Function.Surjective φ := Function.Surjective.prodMap hf foo
-  have := (isQuotientMap_of_surjective hφ).2
-  rw [this, continuous_def]
-  intro U hU
-  rw [isOpen_coinduced, ← Set.preimage_comp]
-  suffices Continuous ((fun ab ↦ (bil ab.1) ab.2) ∘ φ : (Fin m → R) × B → C) by
-    rw [continuous_def] at this
-    convert this _ hU
-  rw [show (fun ab ↦ (bil ab.1) ab.2 : A × B → C) ∘ φ = (fun fb ↦ bil' fb.1 fb.2) by
-    ext ⟨a, b⟩
-    simp [bil', φ]]
-  apply Module.continuous_bilinear_of_finite_free
-
-end ring_bilinear
 
 section semiring_algebra
 
@@ -132,7 +67,7 @@ theorem continuous_mul'
     (R : Type*) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
     (D : Type*) [Ring D] [Algebra R D] [Module.Finite R D] [TopologicalSpace D]
     [IsModuleTopology R D] : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) :=
-  Module.continuous_bilinear_of_finite (LinearMap.mul R D)
+  continuous_bilinear_of_finite_left (LinearMap.mul R D)
 
 include R in
 lemma topologicalSemiring : IsTopologicalSemiring D where
@@ -156,7 +91,7 @@ include R in
 theorem continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
   letI : TopologicalSpace (D ⊗[R] D) := moduleTopology R _
   haveI : IsModuleTopology R (D ⊗[R] D) := { eq_moduleTopology' := rfl }
-  convert Module.continuous_bilinear_of_finite <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
+  convert continuous_bilinear_of_finite_left <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
 include R in
 lemma Module.topologicalRing : IsTopologicalRing D where
@@ -234,7 +169,7 @@ lemma _root_.moduleTopology.trans [IsTopologicalRing R] [Module.Finite R S] [IsM
       ext m
       exact IsScalarTower.smul_assoc r s m
   }
-  exact Module.continuous_bilinear_of_finite bil
+  exact continuous_bilinear_of_finite_left bil
 
 lemma trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTopology R S]
     [τ : TopologicalSpace M] :
@@ -336,23 +271,6 @@ theorem of_inverse (f : N →ₗ[R] M) (g : M → N) (hc : Continuous g) (hi : F
     : IsModuleTopology R M := by
   apply of_isQuotientMap N f
   exact Topology.IsQuotientMap.of_inverse hc (continuous_of_linearMap f) hi
-
-omit [ContinuousAdd M] [ContinuousSMul R M] in
-/-- A linear surjection between modules with the module topology is an open quotient map. -/
-theorem isOpenQuotientMap_of_surjective [IsModuleTopology R M] {φ : M →ₗ[R] N}
-    (hφ : Function.Surjective φ) : IsOpenQuotientMap φ :=
-  have := toContinuousAdd R M
-  AddMonoidHom.isOpenQuotientMap_of_isQuotientMap <| isQuotientMap_of_surjective hφ
-
-/-- A linear surjection to a module with the module topology is open. -/
-theorem isOpenMap_of_surjective {φ : M →ₗ[R] N} (hφ : Function.Surjective φ) :
-    IsOpenMap φ := by
-  have hOpenMap :=
-    letI : TopologicalSpace M := moduleTopology R M
-    have : IsModuleTopology R M := isModuleTopology R M
-    isOpenQuotientMap_of_surjective N hφ |>.isOpenMap
-  intro U hU
-  exact hOpenMap U <| moduleTopology_le R M U hU
 
 end quotientMap
 

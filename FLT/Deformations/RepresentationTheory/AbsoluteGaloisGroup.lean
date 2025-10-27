@@ -75,7 +75,7 @@ def Field.absoluteGaloisGroup.map (f : K →+* L) : Γ L →ₜ* Γ K where
         (hσ ⟨F x, IntermediateField.subset_adjoin _ _ ⟨_, x.2, rfl⟩⟩))
 
 set_option allowUnsafeReducibility true in
-attribute [reducible] Field.absoluteGaloisGroup
+attribute [reducible] Field.absoluteGaloisGroup -- lol WTF is going on here
 
 lemma Field.absoluteGaloisGroup.lift_map (f : K →+* L) (σ : Γ L) (x : Kᵃˡᵍ) :
     AlgebraicClosure.map f (map f σ x) = σ (AlgebraicClosure.map f x) := by
@@ -278,7 +278,7 @@ instance neZero_maximalIdeal_integralClosure :
     NeZero (𝔪 (IntegralClosure 𝒪ᵥ (Kᵥᵃˡᵍ))) := by
   have : 𝒪ᵥ ≠ ⊤ := by
     refine fun h ↦ IsDiscreteValuationRing.not_isField 𝒪ᵥ (h ▸ ?_)
-    exact (Subring.topEquiv (R := Kᵥ)).isField _ (Semifield.toIsField Kᵥ)
+    exact (Subring.topEquiv (R := Kᵥ)).isField (Semifield.toIsField Kᵥ)
   exact ⟨(Ideal.bot_lt_of_maximal (𝔪 _)
     (not_isField_integralClosure (L := Kᵥᵃˡᵍ) _ this)).ne'⟩
 

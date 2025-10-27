@@ -1,6 +1,9 @@
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-open RestrictedProduct
+import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+import Mathlib.Topology.Instances.Matrix
+import Mathlib.Topology.Algebra.Constructions
+import FLT.Mathlib.Topology.Algebra.Group.Units
 
 open RestrictedProduct
 
@@ -30,10 +33,11 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)]
     [Π i, TopologicalSpace (G i)]
     [Π i, TopologicalSpace (H i)] in
-/-- The continuous monoid homomorphism between restricted products built from
+/-- The continuous monoid homomorphism between restricted products, built from
 continuous monoid homomorphisms on the factors. -/
-@[to_additive (attr := simps!) "The continuous additive monoid homomorphism between restricted
-products, built from continuous monoid homomorphisms on the factors."]
+@[to_additive (attr := simps!)
+/-- The continuous additive monoid homomorphism between restricted products, built from
+continuous monoid homomorphisms on the factors. -/]
 def ContinuousMonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
     Πʳ i, [G i, A i]_[ℱ] →ₜ* Πʳ i, [H i, B i]_[ℱ] where
@@ -47,8 +51,9 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, TopologicalSpace (H i)] in
 /-- The `ContinuousMulEquiv` (that is, group isomorphism and homeomorphism) between restricted
 products built from `ContinuousMulEquiv`s on the factors. -/
-@[to_additive "The `ContinuousAddEquiv` (that is, additive group isomorphism and homeomorphism)
-between restricted products built from `ContinuousAddEquiv`s on the factors."]
+@[to_additive
+/-- The `ContinuousAddEquiv` (that is, additive group isomorphism and homeomorphism)
+between restricted products built from `ContinuousAddEquiv`s on the factors. -/]
 def ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
     (Πʳ i, [G i, A i]_[ℱ]) ≃ₜ* (Πʳ i, [H i, B i]_[ℱ]) where
@@ -171,7 +176,7 @@ of restricted products, when the products are with respect to open sets.
 def Homeomorph.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
     {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
     {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i)) :
-    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ₜ Matrix m n (Πʳ i, [A i, C i]) :=
+    Πʳ i, [Matrix m n (A i), (C i).matrix] ≃ₜ Matrix m n (Πʳ i, [A i, C i]) :=
   (Homeomorph.restrictedProductPi (fun _ _ ↦ restrictedProductMatrix_aux _ hCopen)).trans
     (Homeomorph.piCongrRight fun _ ↦ Homeomorph.restrictedProductPi (fun _ ↦ hCopen))
 
@@ -183,7 +188,8 @@ lemma Homeomorph.restrictedProductMatrix_toEquiv {ι : Type*} {m n : Type*} [Fin
   rfl
 
 /-- The structure map for a restricted product of monoids is a `MonoidHom`. -/
-@[to_additive "The structure map for a restricted product of AddMonoids is an `AddMonoidHom`."]
+@[to_additive
+/-- The structure map for a restricted product of AddMonoids is an `AddMonoidHom`. -/]
 def RestrictedProduct.structureMapMonoidHom {ι : Type*} (M : ι → Type*) [(i : ι) → Monoid (M i)]
     {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)] (A : Π i, S i)
     (𝓕 : Filter ι) : ((i : ι) → (A i)) →* Πʳ (i : ι), [M i, Submonoid.ofClass (A i)]_[𝓕] where
@@ -193,8 +199,9 @@ def RestrictedProduct.structureMapMonoidHom {ι : Type*} (M : ι → Type*) [(i 
 
 open MulOpposite MonoidHom Units Equiv Set in
 /-- The equivalence `Submonoid.unitsEquivUnitsType`, for monoids equipped with a topology. -/
-@[to_additive "The equivalence `AddSubmonoid.addUnitsAddEquivUnitsType`, for monoids equipped with
-a topology."]
+@[to_additive
+/-- The equivalence `AddSubmonoid.addUnitsAddEquivUnitsType`, for monoids equipped with
+a topology. -/]
 def Submonoid.unitsContinuousMulEquivUnitsType {M : Type*} [TopologicalSpace M] [Monoid M]
     {S : Submonoid M} (hS : IsOpen (S : Set M)) : S.units ≃ₜ* Sˣ where
   toMulEquiv := S.unitsEquivUnitsType
@@ -262,6 +269,46 @@ def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
     rintro _ ⟨_, ⟨x, hx, rfl⟩, rfl⟩
     exact hx
       }
+
+/-- The monoid homeomorphism between a restricted product of n x n matrices, and n x n matrices
+of restricted products, when the products are with respect to open sets.
+-/
+def ContinuousMulEquiv.restrictedProductMatrix {ι : Type*}
+    {n : Type*} [Fintype n] [DecidableEq n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, Ring (A i)]
+    {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i))) :
+    Matrix n n (Πʳ i, [A i, C i]) ≃ₜ*
+      Πʳ i, [Matrix n n (A i), ((C i).matrix : Subring (Matrix n n (A i)))] :=
+    let restrictedProductMatrix :
+        Matrix n n (Πʳ i, [A i, C i]) ≃ₜ
+          Πʳ i, [Matrix n n (A i), ((C i).matrix : Subring (Matrix n n (A i)))] :=
+      Homeomorph.symm (Homeomorph.restrictedProductMatrix hCopen)
+  {
+  __ := restrictedProductMatrix
+  map_mul' x y := by
+    ext i j k
+    rw [mul_apply, Matrix.mul_apply]
+    have h {x : Matrix n n Πʳ (i : ι), [A i, ↑(C i)]} {i : ι} {j k : n} :
+        (restrictedProductMatrix.toFun x) i j k = (x j k) i := by
+      simp [restrictedProductMatrix, Homeomorph.restrictedProductMatrix,
+        Homeomorph.restrictedProductPi, Equiv.restrictedProductPi, Matrix]
+    simp only [h, Matrix.mul_apply]
+    conv_rhs => arg 2; intro _; rw [← mul_apply]
+    apply map_sum (RestrictedProduct.evalAddMonoidHom _ _) _ _
+      }
+
+/-- The monoid homeomorphism between the matrix units over a restricted product
+and the restricted product of the matrix units over the factors,
+when the products are with respect to open submonoids.
+-/
+def ContinuousMulEquiv.restrictedProductMatrixUnits {ι : Type*}
+    {n : Type*} [Fintype n] [DecidableEq n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, Ring (A i)] [∀ i, IsTopologicalRing (A i)]
+    {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i))) :
+    (Matrix n n (Πʳ i, [A i, C i]))ˣ ≃ₜ*
+      Πʳ i, [(Matrix n n (A i))ˣ, ((C i).matrix.units : Subgroup (Matrix n n (A i))ˣ)] :=
+  (ContinuousMulEquiv.restrictedProductMatrix hCopen).units_map.trans
+    (ContinuousMulEquiv.restrictedProductUnits (fun i => (C i).matrix) (fun i => (hCopen i).matrix))
 
 end pi
 

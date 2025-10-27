@@ -1,8 +1,7 @@
 import Mathlib.Topology.Algebra.RestrictedProduct.Basic
-import Mathlib.Topology.Algebra.ContinuousMonoidHom
-import Mathlib.Topology.Instances.Matrix
-import FLT.Mathlib.Topology.Algebra.Group.Units
-import FLT.Mathlib.Topology.Algebra.Constructions
+import Mathlib.LinearAlgebra.DFinsupp
+import Mathlib.LinearAlgebra.Matrix.Defs
+import Mathlib.Algebra.Group.Submonoid.Units
 
 namespace RestrictedProduct
 
@@ -48,15 +47,51 @@ end RestrictedProduct
 
 open RestrictedProduct
 
+section modules
+
+variable {ι₁ ι₂ : Type*}
+variable (R₁ : ι₁ → Type*) (R₂ : ι₂ → Type*)
+variable {𝓕₁ : Filter ι₁} {𝓕₂ : Filter ι₂}
+variable {A₁ : (i : ι₁) → Set (R₁ i)} {A₂ : (i : ι₂) → Set (R₂ i)}
+variable {S₁ : ι₁ → Type*} {S₂ : ι₂ → Type*}
+variable [Π i, SetLike (S₁ i) (R₁ i)] [Π j, SetLike (S₂ j) (R₂ j)]
+variable {B₁ : Π i, S₁ i} {B₂ : Π j, S₂ j}
+variable (f : ι₂ → ι₁) (hf : Filter.Tendsto f 𝓕₂ 𝓕₁)
+variable {A : Type*} [Semiring A]
+variable [Π i, AddCommMonoid (R₁ i)] [Π i, AddCommMonoid (R₂ i)] [Π i, Module A (R₁ i)]
+    [Π i, Module A (R₂ i)] [∀ i, AddSubmonoidClass (S₁ i) (R₁ i)]
+    [∀ i, AddSubmonoidClass (S₂ i) (R₂ i)] [∀ i, SMulMemClass (S₁ i) A (R₁ i)]
+    [∀ i, SMulMemClass (S₂ i) A (R₂ i)]
+    (φ : ∀ j, R₁ (f j) →ₗ[A] R₂ j)
+    (hφ : ∀ᶠ j in 𝓕₂, Set.MapsTo (φ j) (B₁ (f j)) (B₂ j))
+
+/--
+Given two restricted products `Πʳ (i : ι₁), [R₁ i, B₁ i]_[𝓕₁]` and `Πʳ (j : ι₂), [R₂ j, B₂ j]_[𝓕₂]`
+of `A`-modules, `RestrictedProduct.mapAlongLinearMap` gives an `A`-linear map between them.
+The data needed is a function `f : ι₂ → ι₁` such that `𝓕₂` tends to `𝓕₁` along `f`, and `A`-linear
+maps `φ j : R₁ (f j) → R₂ j` sending `B₁ (f j)` into `B₂ j` for an `𝓕₂`-large set of `j`'s.
+-/
+def RestrictedProduct.mapAlongLinearMap :
+    Πʳ i, [R₁ i, B₁ i]_[𝓕₁] →ₗ[A] Πʳ j, [R₂ j, B₂ j]_[𝓕₂] where
+  __ := mapAlongAddMonoidHom R₁ R₂ f hf (fun j ↦ φ j) hφ
+  map_smul' a f := by
+    ext i
+    apply map_smul (φ i)
+
+@[simp]
+lemma RestrictedProduct.mapAlongLinearMap_apply (x : Πʳ i, [R₁ i, B₁ i]_[𝓕₁]) (j : ι₂) :
+    x.mapAlongLinearMap R₁ R₂ f hf φ hφ j = φ j (x (f j)) :=
+  rfl
+
+end modules
+
 variable {ι : Type*}
 variable {ℱ : Filter ι}
     {G H : ι → Type*}
     {C : (i : ι) → Set (G i)}
     {D : (i : ι) → Set (H i)}
 
--- now let's add groups
-
-section groups
+section equivs
 
 variable {S T : ι → Type*} -- subobject types
 variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
@@ -66,14 +101,30 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
 /-- The monoid homomorphism between restricted products over a fixed index type,
 given monoid homomorphisms on the factors. -/
-@[to_additive "The additive monoid homomorphism between restricted products over a fixed index type,
-given additive monoid homomorphisms on the factors."]
+@[to_additive
+/-- The additive monoid homomorphism between restricted products over a fixed index type,
+given additive monoid homomorphisms on the factors. -/]
 def MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
     Πʳ i, [G i, A i]_[ℱ] →* Πʳ i, [H i, B i]_[ℱ] where
       toFun := congrRight (fun i ↦ φ i) hφ
       map_one' := by ext; simp [congrRight]
       map_mul' x y := by ext; simp [congrRight]
+
+variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
+    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
+/-- The `MulEquiv` between restricted products built from `MulEquiv`s on the factors. -/
+@[to_additive /-- The `AddEquiv` between restricted products built from `AddEquiv`s
+  on the factors. -/]
+def MulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃* H i)
+    (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
+    (Πʳ i, [G i, A i]_[ℱ]) ≃* (Πʳ i, [H i, B i]_[ℱ]) where
+  __ := MonoidHom.restrictedProductCongrRight (fun i ↦ φ i)
+    (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo)
+  invFun := MonoidHom.restrictedProductCongrRight (fun i ↦ (φ i).symm)
+    (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo ∘ Set.BijOn.equiv_symm)
+  left_inv x := by ext; simp [MonoidHom.restrictedProductCongrRight, congrRight]
+  right_inv x := by ext; simp [MonoidHom.restrictedProductCongrRight, congrRight]
 
 /-- The isomorphism between the units of a restricted product of monoids,
 and the restricted product of the units of the monoids. -/
@@ -93,7 +144,21 @@ def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
         right_inv ui := by ext; rfl
         map_mul' u v := by ext; rfl
 
-end groups
+variable {R : Type*} [Semiring R] [Π i, AddCommMonoid (G i)] [Π i, AddSubmonoidClass (S i) (G i)]
+    [Π i, Module R (G i)] [Π i, SMulMemClass (S i) R (G i)]
+    [Π i, AddCommMonoid (H i)] [Π i, AddSubmonoidClass (T i) (H i)]
+    [Π i, Module R (H i)] [Π i, SMulMemClass (T i) R (H i)] in
+/-- The `LinearEquiv` between restricted products built from `LinearEquiv`s on the factors. -/
+def LinearEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₗ[R] H i)
+    (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
+    (Πʳ i, [G i, A i]_[ℱ]) ≃ₗ[R] (Πʳ i, [H i, B i]_[ℱ]) where
+  __ := AddEquiv.restrictedProductCongrRight (fun i ↦ (φ i).toAddEquiv)
+    (by filter_upwards [hφ]; exact fun i ↦ id)
+  map_smul' m x := by
+    ext i
+    apply map_smul
+
+end equivs
 
 section supports
 
@@ -109,8 +174,9 @@ variable [(i : ι) → One (G i)] in
 /-- The support of an element of a restricted product of monoids (or more generally,
 objects with a 1. The support is the components which aren't 1.)
 -/
-@[to_additive "The support of an element of a restricted product of additive monoids
-(or more generally, objects with a 0. The support is the components which aren't 0."]
+@[to_additive
+/-- The support of an element of a restricted product of additive monoids (or more generally,
+objects with a 0. The support is the components which aren't 0. -/]
 def mulSupport (u : Πʳ i, [G i, A i]) : Set ι :=
   {i : ι | u i ≠ 1}
 
@@ -328,7 +394,8 @@ variable (A : (i : ι) → (S i))
 variable [DecidableEq ι]
 
 /-- The function supported at `i`, with value `x` there, and `1` elsewhere. -/
-@[to_additive "The function supported at `i`, with value `x` there, and `0` elsewhere."]
+@[to_additive
+/-- The function supported at `i`, with value `x` there, and `0` elsewhere. -/]
 def mulSingle [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) (x : G i) :
     Πʳ i, [G i, A i] where
   val := Pi.mulSingle i x

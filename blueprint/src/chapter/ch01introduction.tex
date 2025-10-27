@@ -1,8 +1,9 @@
 \chapter{Introduction}
 
 Fermat's Last Theorem is the statement that if $a,b,c,n$ are positive whole numbers with $n\geq 3$,
-then $a^n+b^n\not=c^n$. It is thus a statement about a family of \emph{Diophantine equations}
-($a^3+b^3=c^3, a^4+b^4=c^4,\ldots$). Diophantus was a Greek mathematician who lived around 1800
+then $a^n+b^n\not=c^n$. It is thus the claim that a family of \emph{Diophantine equations}
+($a^3+b^3=c^3, a^4+b^4=c^4,\ldots$) has no positive integer solutions.
+Diophantus was a Greek mathematician who lived around 1800
 years ago, and he would have been able to understand the statement of the theorem (he knew about
 positive integers, addition and multiplication).
 
@@ -10,13 +11,14 @@ Fermat's Last Theorem was explicitly raised by Fermat in 1637, and was proved by
 proof completed in joint work with Taylor) in 1994. There are now several proofs but all of them
 go broadly in the same direction, using elliptic curves and modular forms.
 
+Lean is an interactive theorem prover; it checks mathematical arguments with super-human accuracy.
 Explaining a proof of Fermat's Last Theorem to Lean is in some sense like explaining the proof to
 Diophantus; for example, the proof starts by observing that before we go any further it's convenient
 to first invent/discover zero and negative numbers, and one can point explicitly at places in Lean's
 source code \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Prelude.lean#L1049}{here}
 and \href{https://github.com/leanprover/lean4/blob/260eaebf4e804c9ac1319532970544a4e157c336/src/Init/Data/Int/Basic.lean#L45}{here}
 where these things happen. However we will adopt a more efficient approach: we will assume all of
-the theorems both in Lean and in its mathematics library
+the theorems both in core Lean and in its mathematics library
 \href{https://github.com/leanprover-community/mathlib4}{\tt mathlib}, and proceed from there.
 To give some idea of what this entails: {\tt mathlib} at the time of writing contains most of an
 undergraduate mathematics degree and parts of several relevant Masters level courses (for example,
@@ -24,45 +26,55 @@ the definitions and basic properties of
 \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/AlgebraicGeometry/EllipticCurve/Weierstrass.html}{elliptic curves}
 and \href{https://leanprover-community.github.io/mathlib4_docs/Mathlib/NumberTheory/ModularForms/Basic.html}{modular forms}
 are in {\tt mathlib}). Thus our task can be likened to teaching a graduate level course on
-Fermat's Last Theorem to a computer.
+Fermat's Last Theorem to a computer. The computer is quite a challenging audience member -- it
+will insist on being given all technical details of all arguments, and it will not accept proof by
+intimidation or by appeal to higher authority. Most mathematicians know humans who also behave
+in this manner. However, it is worse than this; in 2025 at least, the computer will only start filling
+in details of arguments by itself once the arguments are mathematically utterly obvious.
+Thus, currently, formalization can be a very time-consuming process.
 
 \section{Which proof is being formalised?}
 
-At the time of writing, these notes do not contain anywhere near a proof of FLT, or even a sketch proof.
-Over the next few years, we will be building parts of the argument, following a strategy
-constructed by Taylor, taking into account Buzzard's comments on what would be easy or hard to do
-in Lean. The proof uses refinements of the original Taylor--Wiles method by Diamond/Fujiwara,
-Khare--Wintenberger, Skinner--Wiles, Kisin, Taylor and others -- one could call it a 21st century
-proof of the theorem. We shall furthermore be assuming many nontrivial theorems without proof,
-at least initially. For example we shall be assuming the existence of Galois representations
-attached to weight~2 Hilbert modular forms, Langlands' cyclic base change theorem for $\GL_2$,
-Mazur's theorem bounding the torsion subgroup of an elliptic curve over the rationals, and
-several other nontrivial results which were known by the end of the 1980s. The first main goal
-of the project is to state, and then prove, a modularity lifting theorem; the proof of such a theorem
-was the key breakthrough introduced in Wiles' 1994 paper which historically completed the proof
-of FLT. We will not be proving the original Wiles--Taylor--Wiles modularity lifting theorem, but
-instead will prove a more general result which works for Hilbert modular forms.
+At the time of writing, these notes do not contain anywhere near a proof of FLT, or even a sketch proof,
+although we are currently actively working on fixing this.
 
-We shall say more about the exact path we're taking in
-Chapter~\ref{ch_overview}.
+From 2024 to 2029 we will be beginning to build a proof of FLT, following a strategy
+constructed by Taylor, taking into account Buzzard's comments on what would be easy or hard to do
+in Lean. Our strategy uses refinements of the original Taylor--Wiles method by Diamond/Fujiwara,
+Khare--Wintenberger, Skinner--Wiles, Kisin, Taylor and others -- one could call it a 21st century
+proof of the theorem. During this initial phase of the project, we shall also be \emph{assuming}
+many nontrivial theorems without proof, as long as they were published by 31st December 1989.
+To get technical for just a second -- we shall for example be assuming the existence of Galois
+representations attached to weight~2 Hilbert modular forms, we will assume Langlands' cyclic base
+change theorem for $\GL_2$, Mazur's theorem bounding the torsion subgroup of an elliptic curve over
+the rationals, and several other nontrivial results which were known by the end of the 1980s.
+
+The upshot of this is that, by 2029 at the end of this first phase, the project should contain a
+complete proof that FLT follows from results that were known to humanity in the 1980s. In
+particular, one naive way of understanding the goal is that it is a ``formalization of the papers
+of Wiles and Taylor--Wiles, assuming the results in the references of those papers''. However,
+as noted above, we will actually be taking a slightly different path.
 
 \section{The structure of this blueprint}
 
-The following chapter of the blueprint, chapter~\ref{ch_reductions}, explains how to reduce FLT
+This blueprint is a \emph{nonlinear} document, comprising many chapters. The chapters
+are not designed to be read in order. Each chapter is self-contained and has a well-defined goal,
+typically stated at the top of the chapter.
+
+After this chapter, you should next read chapter~\ref{ch_reductions}, which explains how to reduce FLT
 to two highly nontrivial statements about the $p$-torsion in a certain elliptic curve (the Frey curve).
-It mostly comprises of some basic reductions and the introduction of the Frey curve.
+One of these statements was proved in the 1970s by Mazur, and we shall not be concentrating on
+it until after the first phase is complete. The other is a theorem of Wiles, and this is what we will
+be concentrating on in the remainder of the blueprint.
 
-The chapter after that, chapter~\ref{ch_frey}, goes into more details about elliptic curves,
-however we need so much material here that somehow the top-down approach felt quite overwhelming
-at this point. For example even the basic claim that the $p$-torsion in the Frey curve curve is
-a 2-dimensional mod $p$ Galois representation feels like quite a battle to formalise,
-and proving that it is semistable and unramified outside $2p$ is even harder.
-Several people are working on the basic theory of elliptic curves, and hopefully
-we will be able to make more progress on this ``top-down'' approach later.
+\section{Remarks}
 
-The next chapter, chapter~\ref{ch_overview}, is an \emph{extremely} sketchy overview of how
-the rest of the proof goes. There is so much to do here that I felt that there was little
-point continuing with this; definition after definition is missing.
+The actual blueprint currently also contains a lot of disorganised ideas. Currently these
+should be disregarded.
+
+Chapter~\ref{ch_overview} is an \emph{extremely} sketchy overview of how
+the rest of the proof goes. This is currently being expanded and should be ignored
+right now.
 
 All of the remaining chapters are experiments, and most of them are what I am currently
 calling ``mini-projects''. A mini-project is a bottom-up project, typically at early graduate
@@ -73,7 +85,8 @@ going into running mini-projects, with the two most active ones currently being 
 mini-project and the quaternion algebra mini-project. These projects do not logically depend
 on each other for the most part, and one can pick and choose how one reads them.
 
-We finish with an appendix, which is again very sketchy, and comprises mostly of a big
+There is also an appendix, which is again very sketchy, and comprises mostly of a big
 list of nontrivial theorems many of which we will be assuming without proof in the FLT
-project, or at least not prioritising until we have proved the modularity lifting
-theorem assuming them.
+project.
+
+The next chapter to read, where the proof begins, is chapter~\ref{ch_reductions}.

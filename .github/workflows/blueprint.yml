@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
@@ -57,7 +57,7 @@ jobs:
     name: Build project
     steps:
       - name: Checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
@@ -79,7 +79,7 @@ jobs:
       - name: Upstreaming dashboard
         run: python3 scripts/upstreaming_dashboard.py
 
-      - uses: leanprover-community/docgen-action@095763bcfa35bef9c6a3eb8ae778c5e6c7727df2 # 2025-07-03
+      - uses: leanprover-community/docgen-action@deed0cdc44dd8e5de07a300773eb751d33e32fc8 # 2025-10-26
         with:
           blueprint: true
           homepage: docs

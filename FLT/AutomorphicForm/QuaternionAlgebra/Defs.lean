@@ -3,7 +3,6 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.FixedPoints.Basic
@@ -74,8 +73,12 @@ noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
   Units.map (algebraMap _ _).toMonoidHom
 
 -- it's actually equal but ⊆ is all we need, and equality is harder
+open scoped TensorProduct.RightActions in
+omit [FiniteDimensional F D] in
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
-  sorry
+  rintro x ⟨y, rfl⟩
+  refine Subgroup.mem_center_iff.mpr fun g ↦ Units.ext ?_
+  exact (Algebra.commutes _ _).symm
 
 open scoped TensorProduct.RightActions in
 /--
@@ -181,15 +184,17 @@ instance addCommGroup : AddCommGroup (WeightTwoAutomorphicForm F D R) where
 
 open scoped Pointwise
 
--- this should be in mathlib
+-- these two should be in mathlib
+instance {G} [TopologicalSpace G] [DivInvMonoid G] [ContinuousMul G] :
+    ContinuousConstSMul (ConjAct G) G where
+  continuous_const_smul _ := IsTopologicalGroup.continuous_conj _
+
 lemma _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] {U : Subgroup G} (hU : IsOpen (U : Set G)) (g : ConjAct G) :
-    IsOpen ((g • U : Subgroup G) : Set G) := by
-  sorry
+    IsOpen ((g • U : Subgroup G) : Set G) :=
+  (Homeomorph.smul g).isOpen_image.mpr hU
 
 open ConjAct
-
-variable [IsQuaternionAlgebra F D]
 
 open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
@@ -216,7 +221,6 @@ def group_smul (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (φ : WeightTwoAu
 instance : SMul (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
 
-omit [IsQuaternionAlgebra F D] in
 @[simp]
 lemma group_smul_apply (g : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
     (φ : WeightTwoAutomorphicForm F D R) (x : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) :
@@ -269,8 +273,6 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
   add_smul r s g := by ext; simp [smul_apply, add_mul]
   zero_smul g := by ext; simp [smul_apply]
 
-variable [IsQuaternionAlgebra F D]
-
 instance : SMulCommClass (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ R
     (WeightTwoAutomorphicForm F D R) where
   smul_comm r g φ := by
@@ -282,8 +284,6 @@ end comm_ring
 end WeightTwoAutomorphicForm
 
 section finite_level
-
-variable [IsQuaternionAlgebra F D]
 
 /--
 `WeightTwoAutomorphicFormOfLevel U R` is the `R`-valued weight 2 automorphic forms of a fixed

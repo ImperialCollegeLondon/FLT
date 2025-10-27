@@ -22,12 +22,9 @@ theorem isNontrivial_iff_exists_abv_gt_one {F S : Type*} [Field F] [Field S] [Li
   · simp only [ne_eq, inv_eq_zero]; exact ne_zero_of_lt_one hx
   · simp only [map_inv₀, ne_eq, inv_eq_one]; linarith
 
-theorem nonpos_iff (x : F) : v x ≤ 0 ↔ v x = 0 := by
-  simp only [le_antisymm_iff, v.nonneg _, and_true]
-
 variable [IsStrictOrderedRing S]
 theorem inv_lt_one_iff {x : F} : v x⁻¹ < 1 ↔ x = 0 ∨ 1 < v x := by
-  simp only [map_inv₀, inv_lt_one_iff₀, nonpos_iff, map_eq_zero]
+  simp only [map_inv₀, inv_lt_one_iff₀, AbsoluteValue.nonpos_iff]
 
 theorem mul_one_div_lt_iff {y : F} (x : F) (h : 0 < v y) :
     v (x * (1 / y)) < 1 ↔ v x < v y := by
