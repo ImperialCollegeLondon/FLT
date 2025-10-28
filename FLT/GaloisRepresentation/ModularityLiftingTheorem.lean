@@ -12,16 +12,32 @@ import FLT.Deformations.Categories
 
 I believe that the below is the modularity lifting theorem which we need.
 
-Suppose `F` is a totally real field of even degree, that `l>3` is a prime
+Suppose `F` is a totally real field of even degree over `ℚ`, that `l>3` is a prime
 unramified in `F`, and that `S` is a finite set of finite places of `F`
 not dividing `l`. Suppose `k` is a finite field (with the discrete
-topology) and `ρ : G_F → GL₂(k)` is an irreducible continuous representation
-unramified outside `l` and `S`, with `det(ρ) = cyclo`, and such that for
-all `v ∈ S` and `g ∈ Iᵥ` (a local inertia subgroup at `v`) we have
-`trace(ρ(g))=2`. Finally suppose that `ρ` is flat at all primes above `v`.
+topology) and `ρbar : G_F → GL₂(k)` is an irreducible continuous representation.
+Suppose furthermore that `ρbar | G_{F(ζₗ)}` is absolutely irreducible, and that
+`ρbar` is modular of level `U₀(S)` in the sense that it comes from a weight 2 mod `l` automorphic
+form on a totally definite quaternion algebra over `F` which is unramified at all finite places.
+Note that this impplies that `ρbar` has cyclotomic determinant, and is unramified outside
+`l` and `S`.
 
-Consider
+Let us furthermore impose the following local conditions at the bad primes:
 
+At S): `ρbar(g)=I` for all `v ∈ S` and `g ∈ Dᵥ`, a local decomposition group at `v`
+At l): `ρbar` is flat at all primes above `l`.
 
+We now consider deformations of `ρbar`.  Suppose `R` is a compact Hausdorff local topological
+ring with residue field `k`. We say that a lift of `ρbar` to a continuous `ρ : G_F → GL₂(R)` is
+an *S-lift* if `det(ρ)=cyclo`, `ρ` is unramified outside `l` and `S`,
+`trace(ρ(g))=2` for all `v ∈ S` and `g ∈ Iᵥ` (a local inertia group at `v`), and `ρ` is flat at
+all primes above `l`. Say that an *S-deformation* is an equivalence class of S-lifts,
+where `ρ₁` and `ρ₂ : G_F → GL₂(R)` are equivalent if `ρ₂=aρ₁a⁻¹`, where `a ∈ ker(GL₂(R)→GL₂(k))`.
+
+Consider the functor sending a compact Hausdorff local topological ring `R`
+with residue field `k` to the set of S-deformations of `ρbar`. It is a theorem
+that this functor is representable by a compact Hausdorff ring `R^{univ}`.
+
+The main theorem in this file is the claim that R^{univ} is a finite ℤₗ-module.
 
 -/
