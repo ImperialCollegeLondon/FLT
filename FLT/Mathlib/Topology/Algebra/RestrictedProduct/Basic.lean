@@ -36,13 +36,6 @@ variable
     {C : (i : ι) → Set (G i)}
     {D : (i : ι) → Set (H i)}
 
-/-- The maps between restricted products over a fixed index type,
-given maps on the factors. -/
-def congrRight (φ : (i : ι) → G i → H i)
-    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
-    (x : Πʳ i, [G i, C i]_[ℱ]) : (Πʳ i, [H i, D i]_[ℱ]) :=
-  map φ hφ x
-
 end RestrictedProduct
 
 open RestrictedProduct
@@ -85,46 +78,37 @@ lemma RestrictedProduct.mapAlongLinearMap_apply (x : Πʳ i, [R₁ i, B₁ i]_[�
 
 end modules
 
-variable {ι : Type*}
-variable {ℱ : Filter ι}
-    {G H : ι → Type*}
-    {C : (i : ι) → Set (G i)}
-    {D : (i : ι) → Set (H i)}
+section pi_congr_right
 
-section equivs
+variable {ι : Type*} (R₁ : ι → Type*) (R₂ : ι → Type*) {S₁ : ι → Type*} {S₂ : ι → Type*}
+  [(i : ι) → SetLike (S₁ i) (R₁ i)] [(i : ι) → SetLike (S₂ i) (R₂ i)]
+  {A₁ : (i : ι) → Set (R₁ i)} {A₂ : (i : ι) → Set (R₂ i)} (𝓕 : Filter ι)
 
-variable {S T : ι → Type*} -- subobject types
-variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
-variable {A : Π i, S i} {B : Π i, T i}
+@[simps]
+def Equiv.restrictedProductCongrRight
+    (φ : (i : ι) → R₁ i ≃ R₂ i)
+    (hφ : ∀ᶠ i in 𝓕, Set.BijOn (φ i) (A₁ i) (A₂ i)) :
+    Πʳ i, [R₁ i, A₁ i]_[𝓕] ≃ Πʳ i, [R₂ i, A₂ i]_[𝓕] where
+  toFun := map (fun i ↦ φ i) (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo)
+  invFun := map (fun i ↦ (φ i).symm)
+    (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo ∘ Set.BijOn.equiv_symm)
+  left_inv x := by ext; simp
+  right_inv x := by ext; simp
 
-variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
-    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
-/-- The monoid homomorphism between restricted products over a fixed index type,
-given monoid homomorphisms on the factors. -/
-@[to_additive
-/-- The additive monoid homomorphism between restricted products over a fixed index type,
-given additive monoid homomorphisms on the factors. -/]
-def MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
-    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
-    Πʳ i, [G i, A i]_[ℱ] →* Πʳ i, [H i, B i]_[ℱ] where
-      toFun := congrRight (fun i ↦ φ i) hφ
-      map_one' := by ext; simp [congrRight]
-      map_mul' x y := by ext; simp [congrRight]
+section add_mul_equiv
 
-variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
-    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
+variable [(i : ι) → Monoid (R₁ i)] [(i : ι) → Monoid (R₂ i)]
+  [(i : ι) → SubmonoidClass (S₁ i) (R₁ i)] [(i : ι) → SubmonoidClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι) → S₁ i} {A₂ : (i : ι) → S₂ i}
+
 /-- The `MulEquiv` between restricted products built from `MulEquiv`s on the factors. -/
 @[to_additive /-- The `AddEquiv` between restricted products built from `AddEquiv`s
   on the factors. -/]
-def MulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃* H i)
-    (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
-    (Πʳ i, [G i, A i]_[ℱ]) ≃* (Πʳ i, [H i, B i]_[ℱ]) where
-  __ := MonoidHom.restrictedProductCongrRight (fun i ↦ φ i)
-    (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo)
-  invFun := MonoidHom.restrictedProductCongrRight (fun i ↦ (φ i).symm)
-    (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo ∘ Set.BijOn.equiv_symm)
-  left_inv x := by ext; simp [MonoidHom.restrictedProductCongrRight, congrRight]
-  right_inv x := by ext; simp [MonoidHom.restrictedProductCongrRight, congrRight]
+def MulEquiv.restrictedProductCongrRight (φ : (i : ι) → R₁ i ≃* R₂ i)
+    (hφ : ∀ᶠ i in 𝓕, Set.BijOn (φ i) (A₁ i) (A₂ i)) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕]) ≃* (Πʳ i, [R₂ i, A₂ i]_[𝓕]) where
+  __ := Equiv.restrictedProductCongrRight R₁ R₂ _ _ hφ
+  map_mul' _ _ := by ext; simp
 
 /-- The isomorphism between the units of a restricted product of monoids,
 and the restricted product of the units of the monoids. -/
@@ -144,21 +128,260 @@ def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
         right_inv ui := by ext; rfl
         map_mul' u v := by ext; rfl
 
-variable {R : Type*} [Semiring R] [Π i, AddCommMonoid (G i)] [Π i, AddSubmonoidClass (S i) (G i)]
-    [Π i, Module R (G i)] [Π i, SMulMemClass (S i) R (G i)]
-    [Π i, AddCommMonoid (H i)] [Π i, AddSubmonoidClass (T i) (H i)]
-    [Π i, Module R (H i)] [Π i, SMulMemClass (T i) R (H i)] in
+end add_mul_equiv
+
+section ring_equiv
+
+variable [(i : ι) → Semiring (R₁ i)] [(i : ι) → Semiring (R₂ i)]
+  [(i : ι) → SubsemiringClass (S₁ i) (R₁ i)] [(i : ι) → SubsemiringClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι) → S₁ i} {A₂ : (i : ι) → S₂ i}
+
+def RingEquiv.restrictedProductCongrRight (φ : (i : ι) → R₁ i ≃+* R₂ i)
+    (hφ : ∀ᶠ i in 𝓕, Set.BijOn (φ i) (A₁ i) (A₂ i)) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕]) ≃+* (Πʳ i, [R₂ i, A₂ i]_[𝓕]) where
+  __ := AddEquiv.restrictedProductCongrRight R₁ R₂ _ (fun _ ↦ (φ _).toAddEquiv) hφ
+  map_mul' _ _ := by ext; simp [AddEquiv.restrictedProductCongrRight]
+
+end ring_equiv
+
+section linear_equiv
+
+variable {T : Type*} [Semiring T] [(i : ι) → AddCommMonoid (R₁ i)] [(i : ι) → Module T (R₁ i)]
+  [(i : ι) → AddCommMonoid (R₂ i)] [(i : ι) → Module T (R₂ i)]
+  [(i : ι) → AddSubmonoidClass (S₁ i) (R₁ i)] [(i : ι) → AddSubmonoidClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι) → S₁ i} {A₂ : (i : ι) → S₂ i}
+  [(i : ι) → SMulMemClass (S₁ i) T (R₁ i)] [(i : ι) → SMulMemClass (S₂ i) T (R₂ i)]
+
 /-- The `LinearEquiv` between restricted products built from `LinearEquiv`s on the factors. -/
-def LinearEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₗ[R] H i)
-    (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
-    (Πʳ i, [G i, A i]_[ℱ]) ≃ₗ[R] (Πʳ i, [H i, B i]_[ℱ]) where
-  __ := AddEquiv.restrictedProductCongrRight (fun i ↦ (φ i).toAddEquiv)
+def LinearEquiv.restrictedProductCongrRight (φ : (i : ι) → R₁ i ≃ₗ[T] R₂ i)
+    (hφ : ∀ᶠ i in 𝓕, Set.BijOn (φ i) (A₁ i) (A₂ i)) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕]) ≃ₗ[T] (Πʳ i, [R₂ i, A₂ i]_[𝓕]) where
+  __ := AddEquiv.restrictedProductCongrRight _ _ _ (fun i ↦ (φ i).toAddEquiv)
     (by filter_upwards [hφ]; exact fun i ↦ id)
   map_smul' m x := by
     ext i
     apply map_smul
 
-end equivs
+end linear_equiv
+
+end pi_congr_right
+
+section pi_congr_left
+
+variable {ι₁ ι₂ : Type*} (R₁ : ι₁ → Type*) {S₁ : ι₁ → Type*} (R₂ : ι₂ → Type*) {S₂ : ι₂ → Type*}
+  [(i : ι₁) → SetLike (S₁ i) (R₁ i)] [(i : ι₂) → SetLike (S₂ i) (R₂ i)]
+  (𝓕₁ : Filter ι₁) (𝓕₂ : Filter ι₂) (A₁ : (i : ι₁) → Set (R₁ i)) (A₂ : (i : ι₂) → Set (R₂ i))
+
+@[simps! apply, simps -isSimp symm_apply]
+def Equiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
+    Πʳ i, [R₁ i, A₁ i]_[𝓕₁] ≃ Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂] where
+  toFun x := ⟨fun i ↦ e.piCongrLeft' _ x i, by
+    have := x.eventually
+    simp only [piCongrLeft'_apply, h, Filter.eventually_map]; grind⟩
+  invFun y := ⟨fun j ↦ (e.piCongrLeft' _).symm y j, by
+    have := y.eventually
+    simp_rw [h] at this
+    have := Filter.eventually_map.1 this
+    simp only [piCongrLeft'_symm_apply]; grind⟩
+  left_inv x := by
+    ext i
+    exact funext_iff.1 ((e.piCongrLeft' _).left_inv x) i
+  right_inv y := by
+    ext j
+    exact funext_iff.1 ((e.piCongrLeft' _).right_inv y) j
+
+@[simp]
+theorem Equiv.restrictedProductCongrLeft'_symm_apply_apply (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e)
+    (x : Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂]) (j : ι₂) :
+    (restrictedProductCongrLeft' R₁ 𝓕₁ 𝓕₂ A₁ e h).symm x (e.symm j) = x j := by
+  simp [restrictedProductCongrLeft'_symm_apply]
+
+def Equiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
+    Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃ Πʳ j, [R₂ j, A₂ j]_[𝓕₂] :=
+  ((e.symm).restrictedProductCongrLeft' _ _ _ _ (𝓕₂.map_equiv_symm _ ▸ h)).symm
+
+@[simp]
+theorem Equiv.restrictedProductCongrLeft_apply_apply (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
+    (x : Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁]) (i : ι₁) :
+    (restrictedProductCongrLeft R₂ 𝓕₁ 𝓕₂ A₂ e h) x (e i) = x i :=
+  restrictedProductCongrLeft'_symm_apply_apply R₂ _ _ A₂ e.symm (𝓕₂.map_equiv_symm _ ▸ h) x _
+
+section add_mul_equiv
+
+variable [(i : ι₁) → Monoid (R₁ i)] [(i : ι₂) → Monoid (R₂ i)]
+  [(i : ι₁) → SubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → SubmonoidClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
+
+@[to_additive (attr := simps! apply)]
+def MulEquiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃* (Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂]) where
+  __ := Equiv.restrictedProductCongrLeft' R₁ _ _ _ e h
+  map_mul' _ _ := by ext; simp [Equiv.restrictedProductCongrLeft']
+
+@[to_additive]
+def MulEquiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
+    Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃* Πʳ j, [R₂ j, A₂ j]_[𝓕₂] where
+  __ := Equiv.restrictedProductCongrLeft _ _ _ _ e h
+  map_mul' _ _ := by
+    ext j
+    obtain ⟨i, rfl⟩ := e.surjective j
+    simp
+
+end add_mul_equiv
+
+section ring_equiv
+
+variable [(i : ι₁) → Semiring (R₁ i)] [(i : ι₂) → Semiring (R₂ i)]
+  [(i : ι₁) → SubsemiringClass (S₁ i) (R₁ i)] [(i : ι₂) → SubsemiringClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
+
+@[simps! apply]
+def RingEquiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃+* (Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂]) where
+  __ := AddEquiv.restrictedProductCongrLeft' R₁ _ _ e h
+  map_mul' _ _ := rfl
+
+def RingEquiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
+    Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃+* Πʳ j, [R₂ j, A₂ j]_[𝓕₂] where
+  __ := AddEquiv.restrictedProductCongrLeft _ _ _ e h
+  map_mul' _ _ := by
+    ext j
+    obtain ⟨i, rfl⟩ := e.surjective j
+    simp [AddEquiv.restrictedProductCongrLeft]
+
+end ring_equiv
+
+section linear_equiv
+
+variable {T : Type*} [Semiring T] [(i : ι₁) → AddCommMonoid (R₁ i)] [(i : ι₁) → Module T (R₁ i)]
+  [(i : ι₂) → AddCommMonoid (R₂ i)] [(i : ι₂) → Module T (R₂ i)]
+  [(i : ι₁) → AddSubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → AddSubmonoidClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
+  [(i : ι₁) → SMulMemClass (S₁ i) T (R₁ i)] [(i : ι₂) → SMulMemClass (S₂ i) T (R₂ i)]
+
+@[simps! apply]
+def LinearEquiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃ₗ[T] (Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂]) where
+  __ := AddEquiv.restrictedProductCongrLeft' R₁ _ _ e h
+  map_smul' _ _ := rfl
+
+def LinearEquiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
+    Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃ₗ[T] Πʳ j, [R₂ j, A₂ j]_[𝓕₂] where
+  __ := AddEquiv.restrictedProductCongrLeft _ _ _ e h
+  map_smul' _ _ := by
+    ext j
+    obtain ⟨i, rfl⟩ := e.surjective j
+    simp [AddEquiv.restrictedProductCongrLeft]
+
+end linear_equiv
+
+end pi_congr_left
+
+section pi_congr
+
+variable {ι₁ ι₂ : Type*} (R₁ : ι₁ → Type*) {S₁ : ι₁ → Type*} (R₂ : ι₂ → Type*) {S₂ : ι₂ → Type*}
+  [(i : ι₁) → SetLike (S₁ i) (R₁ i)] [(i : ι₂) → SetLike (S₂ i) (R₂ i)]
+  (𝓕₁ : Filter ι₁) (𝓕₂ : Filter ι₂) {A₁ : (i : ι₁) → Set (R₁ i)} {A₂ : (i : ι₂) → Set (R₂ i)}
+
+def Equiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
+    (φ : (i : ι₁) → R₁ i ≃ R₂ (e i))
+    (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
+    Πʳ i, [R₁ i, A₁ i]_[𝓕₁] ≃ Πʳ j, [R₂ j, A₂ j]_[𝓕₂] :=
+  (Equiv.restrictedProductCongrRight _ _ _ φ hφ).trans
+    (e.restrictedProductCongrLeft R₂ 𝓕₁ _ A₂ h)
+
+@[simp]
+theorem Equiv.restrictedProductCongr_apply_apply {e : ι₁ ≃ ι₂} {h : 𝓕₁ = 𝓕₂.comap e}
+    {φ : (i : ι₁) → R₁ i ≃ R₂ (e i)}
+    {hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))}
+    {x : Πʳ i, [R₁ i, A₁ i]_[𝓕₁]} {i : ι₁} :
+    e.restrictedProductCongr R₁ R₂ 𝓕₁ 𝓕₂ h φ hφ x (e i) =
+      φ i (x i) := by
+  simp [restrictedProductCongr]
+
+@[simp]
+theorem Equiv.restrictedProductCongr_symm_apply {e : ι₁ ≃ ι₂} {h : 𝓕₁ = 𝓕₂.comap e}
+    {φ : (i : ι₁) → R₁ i ≃ R₂ (e i)}
+    {hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))}
+    {x : Πʳ j, [R₂ j, A₂ j]_[𝓕₂]} :
+    (e.restrictedProductCongr _ _ _ _ h φ hφ).symm x = fun a => (φ a).symm (x (e a)) :=
+  rfl
+
+section add_mul_equiv
+
+variable [(i : ι₁) → Monoid (R₁ i)] [(i : ι₂) → Monoid (R₂ i)]
+  [(i : ι₁) → SubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → SubmonoidClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
+
+@[to_additive (attr := simps! apply)]
+def MulEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
+    (φ : (i : ι₁) → R₁ i ≃* R₂ (e i))
+    (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃* (Πʳ j, [R₂ j, A₂ j]_[𝓕₂]) where
+  __ := Equiv.restrictedProductCongr R₁ R₂ 𝓕₁ 𝓕₂ e h (fun _ ↦ (φ _).toEquiv) hφ
+  map_mul' _ _ := by ext j; obtain ⟨i, rfl⟩ := e.surjective j; simp
+
+end add_mul_equiv
+
+section ring_equiv
+
+variable [(i : ι₁) → Semiring (R₁ i)] [(i : ι₂) → Semiring (R₂ i)]
+  [(i : ι₁) → SubsemiringClass (S₁ i) (R₁ i)] [(i : ι₂) → SubsemiringClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
+
+def RingEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
+    (φ : (i : ι₁) → R₁ i ≃+* R₂ (e i))
+    (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃+* (Πʳ j, [R₂ j, A₂ j]_[𝓕₂]) where
+  __ := AddEquiv.restrictedProductCongr R₁ R₂ 𝓕₁ 𝓕₂ e h (fun _ ↦ (φ _).toAddEquiv) hφ
+  map_mul' _ _ := by ext j; obtain ⟨i, rfl⟩ := e.surjective j; simp
+
+@[simp]
+theorem RingEquiv.restrictedProductCongr_apply_apply {e : ι₁ ≃ ι₂} {h : 𝓕₁ = 𝓕₂.comap e}
+    {φ : (i : ι₁) → R₁ i ≃+* R₂ (e i)}
+    {hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))}
+    {x : Πʳ i, [R₁ i, A₁ i]_[𝓕₁]} {i : ι₁} :
+    RingEquiv.restrictedProductCongr R₁ R₂ 𝓕₁ 𝓕₂ e h φ hφ x (e i) =
+      φ i (x i) := by
+  simp [restrictedProductCongr]
+
+@[simp]
+theorem RingEquiv.restrictedProductCongr_symm_apply {e : ι₁ ≃ ι₂} {h : 𝓕₁ = 𝓕₂.comap e}
+    {φ : (i : ι₁) → R₁ i ≃+* R₂ (e i)}
+    {hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))}
+    {x : Πʳ j, [R₂ j, A₂ j]_[𝓕₂]} :
+    (RingEquiv.restrictedProductCongr _ _ _ _ e h φ hφ).symm x = fun a => (φ a).symm (x (e a)) :=
+  rfl
+
+end ring_equiv
+
+section linear_equiv
+
+variable {T : Type*} [Semiring T] [(i : ι₁) → AddCommMonoid (R₁ i)] [(i : ι₁) → Module T (R₁ i)]
+  [(i : ι₂) → AddCommMonoid (R₂ i)] [(i : ι₂) → Module T (R₂ i)]
+  [(i : ι₁) → AddSubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → AddSubmonoidClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
+  [(i : ι₁) → SMulMemClass (S₁ i) T (R₁ i)] [(i : ι₂) → SMulMemClass (S₂ i) T (R₂ i)]
+
+def LinearEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
+    (φ : (i : ι₁) → R₁ i ≃ₗ[T] R₂ (e i))
+    (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃ₗ[T] (Πʳ j, [R₂ j, A₂ j]_[𝓕₂]) where
+  __ := AddEquiv.restrictedProductCongr R₁ R₂ 𝓕₁ 𝓕₂ e h (fun _ ↦ (φ _).toAddEquiv) hφ
+  map_smul' _ _ := by
+    ext j
+    obtain ⟨i, rfl⟩ := e.surjective j
+    simp
+
+end linear_equiv
+
+end pi_congr
+
+variable {ι : Type*}
+variable {ℱ : Filter ι}
+    {G H : ι → Type*}
+    {C : (i : ι) → Set (G i)}
+    {D : (i : ι) → Set (H i)}
 
 section supports
 
@@ -266,8 +489,8 @@ of the restricted products. -/
 @[simps]
 def Equiv.restrictedProductProd :
     Πʳ i, [A i × B i, C i ×ˢ D i]_[ℱ] ≃ (Πʳ i, [A i, C i]_[ℱ]) × (Πʳ i, [B i, D i]_[ℱ]) where
-  toFun x := (congrRight (fun i (t : A i × B i) ↦ t.1) (by simp +contextual [Set.MapsTo]) x,
-              congrRight (fun i (t : A i × B i) ↦ t.2) (by simp +contextual [Set.MapsTo]) x)
+  toFun x := (map (fun i (t : A i × B i) ↦ t.1) (by simp +contextual [Set.MapsTo]) x,
+              map (fun i (t : A i × B i) ↦ t.2) (by simp +contextual [Set.MapsTo]) x)
   invFun yz :=
     ⟨fun i ↦ (yz.1 i, yz.2 i), by
     filter_upwards [yz.1.2, yz.2.2] with i using Set.mk_mem_prod⟩
@@ -295,7 +518,7 @@ of restricted products.
 -/
 def Equiv.restrictedProductPi :
     Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}]_[ℱ] ≃ Π j, Πʳ i, [A j i, C j i]_[ℱ] where
-  toFun x j := congrRight (fun i t ↦ t _) (by simp +contextual [Set.MapsTo]) x
+  toFun x j := map (fun i t ↦ t _) (by simp +contextual [Set.MapsTo]) x
   invFun y := .mk (fun i j ↦ y j i) (by simp)
   left_inv x := by ext; rfl
   right_inv y := by ext; rfl

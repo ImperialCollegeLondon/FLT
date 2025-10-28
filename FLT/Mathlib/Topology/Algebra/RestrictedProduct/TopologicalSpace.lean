@@ -18,7 +18,7 @@ variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
 theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
-    Continuous (congrRight φ hφ) :=
+    Continuous (map φ hφ) :=
   mapAlong_continuous G H id Filter.tendsto_id φ hφ hφcont
 
 -- now let's add groups
@@ -33,22 +33,6 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)]
     [Π i, TopologicalSpace (G i)]
     [Π i, TopologicalSpace (H i)] in
-/-- The continuous monoid homomorphism between restricted products, built from
-continuous monoid homomorphisms on the factors. -/
-@[to_additive (attr := simps!)
-/-- The continuous additive monoid homomorphism between restricted products, built from
-continuous monoid homomorphisms on the factors. -/]
-def ContinuousMonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →ₜ* H i)
-    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
-    Πʳ i, [G i, A i]_[ℱ] →ₜ* Πʳ i, [H i, B i]_[ℱ] where
-  __ := MonoidHom.restrictedProductCongrRight (fun i ↦ φ i) hφ
-  continuous_toFun := by exact
-    Continuous.restrictedProduct_congrRight (φ := fun i ↦ φ i) hφ (fun i ↦ (φ i).continuous)
-
-variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
-    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)]
-    [Π i, TopologicalSpace (G i)]
-    [Π i, TopologicalSpace (H i)] in
 /-- The `ContinuousMulEquiv` (that is, group isomorphism and homeomorphism) between restricted
 products built from `ContinuousMulEquiv`s on the factors. -/
 @[to_additive
@@ -57,10 +41,11 @@ between restricted products built from `ContinuousAddEquiv`s on the factors. -/]
 def ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
     (Πʳ i, [G i, A i]_[ℱ]) ≃ₜ* (Πʳ i, [H i, B i]_[ℱ]) where
-  __ := ContinuousMonoidHom.restrictedProductCongrRight (fun i ↦ φ i)
+  toFun := map (fun i ↦ φ i)
     (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo)
-  invFun := ContinuousMonoidHom.restrictedProductCongrRight (fun i ↦ (φ i).symm)
+  invFun := map (fun i ↦ (φ i).symm)
     (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo ∘ Set.BijOn.equiv_symm)
+  map_mul' _ _ := by ext; simp
   left_inv x := by
     ext i
     exact ContinuousMulEquiv.symm_apply_apply _ _

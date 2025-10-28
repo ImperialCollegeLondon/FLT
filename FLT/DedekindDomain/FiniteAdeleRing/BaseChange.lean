@@ -199,7 +199,7 @@ def FiniteAdeleRing.restrictedProduct_tensorProduct_equiv_restrictedProduct_prod
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
       Submodule.pi Set.univ fun w : Extension B v ↦ (integerSubmodule B L w.val).restrictScalars A]
     :=
-  LinearEquiv.restrictedProductCongrRight
+  LinearEquiv.restrictedProductCongrRight _ _ _
     (adicCompletionComapIntegerLinearEquiv A K L B)
     (Filter.Eventually.of_forall <| adicCompletionComapIntegerLinearEquiv_bijOn A K L B)
 

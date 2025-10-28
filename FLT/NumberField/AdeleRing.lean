@@ -15,6 +15,8 @@ import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.LinearAlgebra.TensorProduct.Prod
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.NumberField.FiniteAdeleRing
+import Mathlib.NumberTheory.Padics.PadicIntegers
+import Mathlib.NumberTheory.Padics.RingHoms
 
 open scoped TensorProduct
 
@@ -390,12 +392,30 @@ open NumberField IsDedekindDomain
 
 variable (K : Type*) [Field K] [NumberField K]
 
+@[to_additive]
+def RestrictedProduct.structureMonoidHom {ι : Type*} (R : ι → Type*) {S : ι → Type*}
+    (A : (i : ι) → (S i)) (𝓕 : Filter ι) [(i : ι) → SetLike (S i) (R i)] [(i : ι) → Monoid (R i)]
+    [(i : ι) → SubmonoidClass (S i) (R i)] :
+    ((i : ι) → A i) →* RestrictedProduct (fun (i : ι) => R i) (fun (i : ι) => A i) 𝓕 where
+  toFun := RestrictedProduct.structureMap R _ 𝓕
+  map_one' := by
+    simp [RestrictedProduct.structureMap, RestrictedProduct.ext_iff]
+  map_mul' x y := by
+    simp [RestrictedProduct.structureMap, RestrictedProduct.ext_iff]
+
 /-- The integral adeles in the finite adele ring. -/
-def FiniteAdeleRing.finiteIntegralAdeles : Set (FiniteAdeleRing (𝓞 K) K) :=
-  Set.range (RestrictedProduct.structureMap _ _ _)
+def FiniteAdeleRing.finiteIntegralAdeles : AddSubgroup (FiniteAdeleRing (𝓞 K) K) :=
+  (RestrictedProduct.structureAddMonoidHom _ _ _).range
+
+theorem FiniteAdeleRing.mem_finiteIntegralAdeles_iff (x : FiniteAdeleRing (𝓞 K) K) :
+    x ∈ finiteIntegralAdeles K ↔ ∀ v, x v ∈ v.adicCompletionIntegers K := by
+  rw [finiteIntegralAdeles]
+  change x ∈ Set.range (RestrictedProduct.structureMap _ _ _) ↔ _
+  rw [RestrictedProduct.range_structureMap]
+  aesop
 
 theorem FiniteAdeleRing.isCompact_finiteIntegralAdeles :
-    IsCompact (FiniteAdeleRing.finiteIntegralAdeles K) := by
+    IsCompact ((FiniteAdeleRing.finiteIntegralAdeles K) : Set (FiniteAdeleRing (𝓞 K) K)) := by
   letI : CompactSpace ((v : HeightOneSpectrum (𝓞 K)) →
   HeightOneSpectrum.adicCompletionIntegers K v) := Pi.compactSpace
   apply isCompact_range; exact RestrictedProduct.isEmbedding_structureMap.continuous
@@ -404,31 +424,276 @@ theorem FiniteAdeleRing.isCompact_finiteIntegralAdeles :
 noncomputable def FiniteAdeleRing.principalSubgroup : AddSubgroup (FiniteAdeleRing (𝓞 K) K) :=
   (algebraMap K _).range.toAddSubgroup
 
-/-- The equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and `QHat`. -/
-def finiteAdeleRing_equiv_qHat : FiniteAdeleRing (𝓞 ℚ) ℚ ≃+ QHat := sorry
+open scoped PadicInt
 
-lemma principalSubgroup_equiv_ratsub :
-    finiteAdeleRing_equiv_qHat '' (FiniteAdeleRing.principalSubgroup ℚ) = QHat.ratsub := sorry
+noncomputable
+def IsDedekindDomain.HeightOneSpectrum.natGenerator (v : HeightOneSpectrum (𝓞 ℚ)) : ℕ :=
+  Submodule.IsPrincipal.generator (v.asIdeal.map Rat.ringOfIntegersEquiv) |>.natAbs
 
-lemma finiteIntegralAdeles_equiv_zHatsub :
-    finiteAdeleRing_equiv_qHat '' (FiniteAdeleRing.finiteIntegralAdeles ℚ) = QHat.zHatsub := sorry
+instance (v : HeightOneSpectrum (𝓞 ℚ)) : Fact v.natGenerator.Prime :=
+  ⟨Int.prime_iff_natAbs_prime.1 <|
+    Submodule.IsPrincipal.prime_generator_of_isPrime _
+      ((Ideal.map_eq_bot_iff_of_injective Rat.ringOfIntegersEquiv.injective).not.2 v.ne_bot)⟩
+
+-- From mathlib PR
+def IsDedekindDomain.HeightOneSpectrum.padicEquiv (v : HeightOneSpectrum (𝓞 ℚ)) :
+    v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator] := sorry
+
+-- From mathlib PR
+theorem IsDedekindDomain.HeightOneSpectrum.padicEquiv_bijOn (v : HeightOneSpectrum (𝓞 ℚ)) :
+    Set.BijOn (IsDedekindDomain.HeightOneSpectrum.padicEquiv v) (v.adicCompletionIntegers ℚ)
+      (PadicInt.subring v.natGenerator) := by
+  sorry
+
+def Nat.heightOneSpectrum {p : ℕ} (hp : p.Prime) : HeightOneSpectrum (𝓞 ℚ) where
+  asIdeal := Ideal.span {Rat.ringOfIntegersEquiv.symm p}
+  isPrime := by
+    have : (Ideal.span {(p : ℤ)}).IsPrime := by
+      rw [← Ideal.prime_iff_isPrime (by simp [hp.ne_zero])]
+      simpa [← Nat.prime_iff_prime_int]
+    have := Ideal.map_isPrime_of_equiv (I := Ideal.span {(p : ℤ)}) Rat.ringOfIntegersEquiv.symm
+    rw [Ideal.map_span] at this
+    simpa
+  ne_bot := by simp [hp.ne_zero]
+
+noncomputable def IsDedekindDomain.HeightOneSpectrum.ratEquiv :
+    HeightOneSpectrum (𝓞 ℚ) ≃ Nat.Primes where
+  toFun v := ⟨v.natGenerator, Fact.out⟩
+  invFun p := Nat.heightOneSpectrum p.2
+  left_inv v := by
+    ext
+    simp only [Nat.heightOneSpectrum, IsDedekindDomain.HeightOneSpectrum.natGenerator]
+    rw [← Set.image_singleton, ← Ideal.map_span]
+    simp
+  right_inv p := by
+    simp only [Nat.heightOneSpectrum, IsDedekindDomain.HeightOneSpectrum.natGenerator]
+    simp_rw [Ideal.map_span]
+    have := Submodule.IsPrincipal.associated_generator_span_self (p : ℤ)
+    simp only [map_natCast, Set.image_singleton]
+    simp only [Int.associated_iff_natAbs, Int.natAbs_cast] at this
+    simp_rw [this]
+    simp
+
+instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
+
+open scoped RestrictedProduct in
+protected abbrev Padic.FiniteAdeleRing : Type _ := Πʳ (p : Nat.Primes), [ℚ_[p], PadicInt.subring p]
+
+noncomputable
+def Padic.FiniteAdeleRing.primesSupport (x : Padic.FiniteAdeleRing) : Finset Nat.Primes := by
+  have := x.2
+  simp at this
+  exact this.toFinset
+
+theorem Padic.FiniteAdeleRing.mem_primesSupport_iff
+    {x : Padic.FiniteAdeleRing} {p : Nat.Primes} :
+    p ∈ x.primesSupport ↔ x p ∉ PadicInt.subring p := by
+  rw [Padic.FiniteAdeleRing.primesSupport]
+  aesop
+
+theorem Padic.FiniteAdeleRing.exists_sub_mem_padicInt (x : Padic.FiniteAdeleRing) :
+    ∃ q : ℚ, ∀ p : Nat.Primes, q - x p ∈ PadicInt.subring p := by
+  let S := x.primesSupport
+  let N := ∏ p ∈ S, p.1 ^ (x p).valuation.natAbs
+  have hS_val {p : Nat.Primes} (hp : p ∈ S) : (x p).valuation.natAbs = - (x p).valuation := by
+    simp only [Nat.cast_natAbs, Int.cast_abs, Int.cast_eq, abs_eq_neg_self]
+    have h := mem_primesSupport_iff.1 hp
+    simp only [PadicInt.mem_subring_iff, not_le] at h
+    contrapose! h
+    rw [Padic.norm_le_one_iff_val_nonneg]
+    exact h.le
+  have hN_norm_S {p : Nat.Primes} (hp : p ∈ S) : ‖(N : ℚ_[p])‖ =
+      (p.1 : ℝ) ^ (-((x p).valuation.natAbs : ℤ)) := by
+    rw [← Rat.cast_natCast]
+    rw [hS_val hp]
+    simp only [Nat.cast_prod, Nat.cast_pow, Rat.cast_prod, Rat.cast_pow, Rat.cast_natCast,
+      norm_prod, norm_pow, neg_neg, N]
+    rw [Finset.prod_eq_single_of_mem p hp]
+    · rw [← zpow_natCast]
+      rw [hS_val hp]
+      simp
+    · intro q hq hpq
+      rw [(Padic.norm_natCast_eq_one_iff (p := p.1) (n := q.1)).2]
+      · simp
+      · rw [Nat.coprime_primes p.2 q.2]
+        simp only [ne_eq]
+        rw [Subtype.val_inj]
+        rw [← ne_eq]
+        exact hpq.symm
+  have hN_norm {q : Nat.Primes} (hq : q ∉ S) : ‖(N : ℚ_[q])‖ = 1 := by
+    simp only [Nat.cast_prod, Nat.cast_pow, norm_prod, norm_pow, N]
+    apply Finset.prod_eq_one
+    intro p hp
+    rw [Padic.norm_natCast_eq_one_iff.2]
+    · simp
+    · rw [Nat.coprime_primes q.2 p.2]
+      simp only [ne_eq]
+      rw [Subtype.val_inj]
+      rw [← ne_eq]
+      exact ne_of_mem_of_not_mem hp hq |>.symm
+  have {p : Nat.Primes} (hp : p ∈ S) : ‖(N : ℚ) * x p‖ ≤ 1 := by
+    by_cases hx : x p = 0
+    · aesop
+    simp only [Rat.cast_natCast, norm_mul, hN_norm_S hp, hS_val hp, neg_neg]
+    rw [Padic.norm_eq_zpow_neg_valuation (by simpa [p.2.ne_zero]), zpow_neg]
+    rw [mul_inv_cancel₀]
+    apply zpow_ne_zero _ (by simp [p.2.ne_zero])
+  let xcast : (p : S) → ZMod (p.1.1 ^ (x p.1).valuation.natAbs) :=
+    fun p ↦ PadicInt.toZModPow (x p.1).valuation.natAbs ⟨_, this p.2⟩
+  let a : S → ℕ := fun p ↦ p.1.1 ^ (x p.1).valuation.natAbs
+  have ha : Pairwise (Function.onFun Nat.Coprime a) := by
+    rintro ⟨p, hp⟩ ⟨q, hq⟩ hpq
+    rw [Function.onFun_apply]
+    apply Nat.coprime_pow_primes _ _ p.2 q.2 (by simpa [Subtype.val_inj] using hpq)
+  obtain ⟨X, hX⟩ := Ideal.exists_forall_sub_mem_ideal
+    (fun _ _ h ↦ (Ideal.isCoprime_span_singleton_iff _ _).mpr ((ha h).cast (R := ℤ)))
+    (fun p ↦ (xcast p).val)
+  use X / N
+  intro p
+  by_cases hp : p ∈ S
+  · simp only [Rat.cast_div, Rat.cast_natCast, PadicInt.mem_subring_iff]
+    have hN : N ≠ 0 := by
+      rw [Finset.prod_ne_zero_iff]
+      intro p hp
+      simp [p.2.ne_zero]
+    have h : ‖X - N * x p‖ ≤ ‖(N : ℚ_[p])‖ := by
+      rw [hN_norm_S hp]
+      let y : ℤ_[p] := ⟨_, this hp⟩
+      change ‖X - y‖ ≤ _
+      rw [PadicInt.norm_le_pow_iff_mem_span_pow]
+      have : PadicInt.toZModPow (x p).valuation.natAbs ((X : ℤ_[p]) - y) = 0 := by
+        simp only [Rat.cast_natCast, map_sub, map_intCast, y]
+        change X - (xcast ⟨p, hp⟩) = 0
+        have : ((xcast ⟨p, hp⟩).val : ℤ) = xcast ⟨p, hp⟩ := by simp
+        rw [← this, ← Int.cast_sub]
+        rw [ZMod.intCast_zmod_eq_zero_iff_dvd]
+        simp
+        specialize hX ⟨p, hp⟩
+        rw [Ideal.mem_span_singleton] at hX
+        simpa [a] using hX
+      rw [← RingHom.mem_ker, PadicInt.ker_toZModPow] at this
+      exact this
+    have : X / N - x p = (X - N * x p) / N := by
+      field_simp
+      ring_nf
+      rw [mul_inv_cancel₀, one_mul]
+      simpa using hN
+    simp only [Rat.cast_intCast, this, norm_div, ge_iff_le]
+    grw [h]
+    exact div_self (by simp [hN]) |>.le
+  · apply Subring.sub_mem _ _ (by simpa using mem_primesSupport_iff.not.1 hp)
+    simp only [Rat.cast_div, Rat.cast_intCast, Rat.cast_natCast, PadicInt.mem_subring_iff, norm_div,
+      hN_norm hp, div_one]
+    exact Padic.norm_int_le_one _
+
+def Padic.FiniteAdeleRing.integralAdeles : AddSubgroup Padic.FiniteAdeleRing :=
+  (RestrictedProduct.structureAddMonoidHom _ _ _).range
+
+theorem Padic.FiniteAdeleRing.mem_integralAdeles_iff (x : Padic.FiniteAdeleRing) :
+    x ∈ Padic.FiniteAdeleRing.integralAdeles ↔ ∀ p : Nat.Primes, x p ∈ PadicInt.subring p := by
+  rw [Padic.FiniteAdeleRing.integralAdeles]
+  change x ∈ Set.range (RestrictedProduct.structureMap _ _ _) ↔ _
+  rw [RestrictedProduct.range_structureMap]
+  aesop
+
+noncomputable
+def Padic.FiniteAdeleRing.algebraMap : ℚ →+* Padic.FiniteAdeleRing where
+  toFun k := ⟨fun i ↦ k, by
+    simp only [SetLike.mem_coe, PadicInt.mem_subring_iff, Filter.eventually_cofinite]
+    have (p : Nat.Primes) := mt (Padic.norm_rat_le_one (p := p) (q := k))
+    apply Set.Finite.subset _ this
+    simp only [imp_false, Decidable.not_not]
+    apply Set.Finite.of_finite_image _ Nat.Primes.coe_nat_injective.injOn
+    apply Set.Finite.subset (s := k.den.primeFactors.toSet) (by simp)
+    rintro p ⟨p', hp', rfl⟩
+    simp [p'.2]
+    aesop⟩
+  map_one' := rfl
+  map_mul' _ _ := rfl
+  map_zero' := rfl
+  map_add' _ _ := rfl
+
+noncomputable
+instance : Algebra ℚ Padic.FiniteAdeleRing :=
+  Padic.FiniteAdeleRing.algebraMap.toAlgebra
+
+noncomputable
+def IsDedekindDomain.HeightOneSpectrum.FiniteAdeleRing.padicEquiv :
+    FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Padic.FiniteAdeleRing where
+  __ := RingEquiv.restrictedProductCongr _ _ _ _
+      ratEquiv (Function.Injective.comap_cofinite_eq ratEquiv.injective).symm
+      (fun v ↦ v.padicEquiv.toRingEquiv) (Filter.Eventually.of_forall padicEquiv_bijOn)
+  commutes' q := by
+    ext p
+    obtain ⟨v, rfl⟩ := ratEquiv.surjective p
+    simp only [RingEquiv.restrictedProductCongr, AlgEquiv.toRingEquiv_eq_coe,
+      RingEquiv.toAddEquiv_eq_coe, AddEquiv.toEquiv_eq_coe, RingEquiv.toEquiv_eq_coe,
+      RingHom.algebraMap_toAlgebra, FiniteAdeleRing.algebraMap,
+      RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk,
+      Equiv.toFun_as_coe, EquivLike.coe_coe, RingEquiv.coe_mk,
+      AddEquiv.restrictedProductCongr_apply, RingEquiv.coe_toAddEquiv,
+      Equiv.restrictedProductCongrLeft_apply_apply, RestrictedProduct.map_apply,
+      RestrictedProduct.mk_apply, Padic.FiniteAdeleRing.algebraMap]
+    change _ = algebraMap ℚ ℚ_[v.natGenerator] q
+    rw [← v.padicEquiv.commutes]
+    rfl
+
+noncomputable
+def Padic.FiniteAdeleRing.principalSubgroup : AddSubgroup Padic.FiniteAdeleRing :=
+  (Padic.FiniteAdeleRing.algebraMap).range.toAddSubgroup
+
+theorem Padic.FiniteAdeleRing.exists_sub_mem_integralAdeles (a : Padic.FiniteAdeleRing) :
+    ∃ q : principalSubgroup, a - q ∈ integralAdeles := by
+  obtain ⟨r, hr⟩ := Padic.FiniteAdeleRing.exists_sub_mem_padicInt a
+  use ⟨algebraMap r, by simp [principalSubgroup]⟩
+  change _ ∈ Set.range (RestrictedProduct.structureMap _ _ _)
+  rw [RestrictedProduct.range_structureMap]
+  intro p
+  specialize hr p
+  have := Subring.neg_mem _ hr
+  aesop
+
+theorem IsDedekindDomain.HeightOneSpectrum.FiniteAdeleRing.padicEquiv_symm_image :
+    FiniteAdeleRing.finiteIntegralAdeles ℚ =
+      Padic.FiniteAdeleRing.integralAdeles.map padicEquiv.symm := by
+  have hm (v : HeightOneSpectrum (𝓞 ℚ)) := v.padicEquiv_bijOn.mapsTo
+  have hs (v : HeightOneSpectrum (𝓞 ℚ)) := v.padicEquiv_bijOn.symm (g := v.padicEquiv.symm)
+  ext x
+  rw [FiniteAdeleRing.mem_finiteIntegralAdeles_iff]
+  simp only [AddSubgroup.mem_map, AddMonoidHom.coe_coe]
+  constructor
+  · intro h
+    use padicEquiv x
+    refine ⟨?_, by simp⟩
+    rw [Padic.FiniteAdeleRing.mem_integralAdeles_iff]
+    intro p
+    obtain ⟨v, rfl⟩ := ratEquiv.surjective p
+    simp only [padicEquiv, AlgEquiv.toRingEquiv_eq_coe, RingEquiv.toEquiv_eq_coe, AlgEquiv.coe_mk,
+      EquivLike.coe_coe, RingEquiv.restrictedProductCongr_apply_apply, PadicInt.mem_subring_iff]
+    exact hm v (h v)
+  · rintro ⟨y, hy, rfl⟩ v
+    --rw [padicEquiv]
+    erw [RingEquiv.restrictedProductCongr_symm_apply]
+    simp only [AlgEquiv.toRingEquiv_eq_coe]
+    rw [Padic.FiniteAdeleRing.mem_integralAdeles_iff] at hy
+    apply (hs v ?_).mapsTo
+    · have := hy (ratEquiv v)
+      simpa [ratEquiv] using this
+    · exact v.padicEquiv.toEquiv.invOn
+
 
 open FiniteAdeleRing in
-theorem FiniteAdeleRing.sub_mem_finiteIntegralAdeles (a : FiniteAdeleRing (𝓞 ℚ) ℚ) :
+theorem IsDedekindDomain.HeightOneSpectrum.FiniteAdeleRing.sub_mem_finiteIntegralAdeles
+    (a : FiniteAdeleRing (𝓞 ℚ) ℚ) :
     ∃ x : principalSubgroup ℚ, a - x ∈ finiteIntegralAdeles ℚ := by
-  have h := AddSubgroup.mem_sup.mp
-    (QHat.rat_join_zHat ▸ AddSubgroup.mem_top (finiteAdeleRing_equiv_qHat a))
-  choose y hy z hz h' using h
-  have hy' : y ∈ (QHat.ratsub : Set QHat) := hy
-  rw [← principalSubgroup_equiv_ratsub] at hy'
-  choose x hx hxy using (Set.mem_image _ _ _).mp hy'
-  have hz' : z ∈ (QHat.zHatsub : Set QHat) := hz
-  rw [← finiteIntegralAdeles_equiv_zHatsub] at hz'
-  choose w hw hwz using (Set.mem_image _ _ _).mp hz'
-  use ⟨x, hx⟩
-  rw [← hxy, ← hwz, ← map_add] at h'
-  apply finiteAdeleRing_equiv_qHat.injective at h'
-  simpa [← h']
+  let a' := IsDedekindDomain.HeightOneSpectrum.FiniteAdeleRing.padicEquiv a
+  obtain ⟨⟨y, ⟨q, hq₀⟩⟩, hq⟩ := Padic.FiniteAdeleRing.exists_sub_mem_integralAdeles a'
+  use ⟨algebraMap _ _ q, by simp [principalSubgroup]⟩
+  rw [padicEquiv_symm_image]
+  simp only [AddSubgroup.mem_map, AddMonoidHom.coe_coe]
+  refine ⟨_, hq, ?_⟩
+  simp only [← hq₀, map_sub, AlgEquiv.symm_apply_apply, sub_right_inj, a']
+  exact padicEquiv.symm.commutes _
 
 open NumberField.InfinitePlace.Completion in
 theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ) :
@@ -463,8 +728,9 @@ theorem Rat.AdeleRing.cocompact :
     intro x; let a := Quotient.out x
     rw [Set.mem_image]
     choose xf hf using
-      Set.exists_subtype_range_iff.mp (FiniteAdeleRing.sub_mem_finiteIntegralAdeles a.2)
-    rw [FiniteAdeleRing.finiteIntegralAdeles, RestrictedProduct.range_structureMap] at hf
+      Set.exists_subtype_range_iff.mp
+        (HeightOneSpectrum.FiniteAdeleRing.sub_mem_finiteIntegralAdeles a.2)
+    rw [FiniteAdeleRing.mem_finiteIntegralAdeles_iff] at hf
     choose xi hi using InfiniteAdeleRing.exists_sub_norm_le_one (a.1 - algebraMap _ _ xf)
     let c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf
     let b := a - c
