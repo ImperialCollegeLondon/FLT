@@ -24,7 +24,8 @@ Note that this impplies that `ρbar` has cyclotomic determinant, and is unramifi
 
 Let us furthermore impose the following local conditions at the bad primes:
 
-At S): `ρbar(g)=I` for all `v ∈ S` and `g ∈ Dᵥ`, a local decomposition group at `v`
+At S): `ρbar(g)=I` for all `v ∈ S` and `g ∈ Dᵥ`, a local decomposition group at `v`,
+  and furthermore `#k(v)=1 mod l`.
 At l): `ρbar` is flat at all primes above `l`.
 
 We now consider deformations of `ρbar`.  Suppose `R` is a compact Hausdorff local topological
@@ -38,6 +39,9 @@ Consider the functor sending a compact Hausdorff local topological ring `R`
 with residue field `k` to the set of S-deformations of `ρbar`. It is a theorem
 that this functor is representable by a compact Hausdorff ring `R^{univ}`.
 
-The main theorem in this file is the claim that R^{univ} is a finite ℤₗ-module.
+The main results in this file are the following claims:
 
+1) The ℤ_ₗ-algebra R^{univ} is a finite ℤₗ-module. **TODO** do we also want to claim that it's free?
+2) If R is a complete DVR with field of fractions of characteristic 0 and with residue field k,
+and if `ρ` is an `S`-lift of `ρbar`, then `ρ` is modular.
 -/
