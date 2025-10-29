@@ -466,7 +466,7 @@ theorem Rat.AdeleRing.cocompact :
       Set.exists_subtype_range_iff.mp (FiniteAdeleRing.sub_mem_finiteIntegralAdeles a.2)
     rw [FiniteAdeleRing.finiteIntegralAdeles, RestrictedProduct.range_structureMap] at hf
     choose xi hi using InfiniteAdeleRing.exists_sub_norm_le_one (a.1 - algebraMap _ _ xf)
-    let c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf
+    set c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf with hc
     let b := a - c
     have hb : b ∈ W := by
       simp only [W, Set.prod, W_inf, FiniteAdeleRing.finiteIntegralAdeles]
@@ -480,7 +480,7 @@ theorem Rat.AdeleRing.cocompact :
         simpa using HeightOneSpectrum.coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
     refine ⟨b, hb, ?_⟩
     unfold b; unfold a
-    simp [c]
+    simp [-algebraMap.coe_inj, c]
   { isCompact_univ := h_W_image ▸ IsCompact.image h_W_compact continuous_quot_mk }
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
