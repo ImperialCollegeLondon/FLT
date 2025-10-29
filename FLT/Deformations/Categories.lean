@@ -34,8 +34,14 @@ example (𝓞 : Type u) [CommRing 𝓞]
   -- maximalIdeal R = nonunits R is rfl as sets
   exact Ideal.add_mem (IsLocalRing.maximalIdeal R) ha hb
 
--- It's also true that if if 𝓞 is a Noeth local ring complete wrt m-adic topology
+-- If 𝓞 is a local ring complete wrt m-adic topology
 -- then 𝓞 → R is continuous.
+example (𝓞 : Type u) [CommRing 𝓞] [TopologicalSpace 𝓞] [IsTopologicalRing 𝓞]
+    [IsLocalRing 𝓞] [IsAdicTopology 𝓞]
+    (R : Type u) [CommRing R] [TopologicalSpace R]
+    [Algebra 𝓞 R] [IsLocalProartinianAlgebra 𝓞 R] : Continuous (algebraMap 𝓞 R) :=
+  isContinuous_of_isProartinian_of_isLocalHom _
+
 end 𝓞_is_local
 
 /-- The category of local proartinian algebras over `𝓞` with fixed residue field `𝕜`. -/
