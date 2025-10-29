@@ -466,7 +466,7 @@ theorem Rat.AdeleRing.cocompact :
       Set.exists_subtype_range_iff.mp (FiniteAdeleRing.sub_mem_finiteIntegralAdeles a.2)
     rw [FiniteAdeleRing.finiteIntegralAdeles, RestrictedProduct.range_structureMap] at hf
     choose xi hi using InfiniteAdeleRing.exists_sub_norm_le_one (a.1 - algebraMap _ _ xf)
-    set c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf with hc
+    let c := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) <| xi + xf
     let b := a - c
     have hb : b ∈ W := by
       simp only [W, Set.prod, W_inf, FiniteAdeleRing.finiteIntegralAdeles]
