@@ -94,7 +94,7 @@ lemma isOpen_iff_finite_quotient' [CompactSpace R] {I : Ideal R} :
       (H₂ := I.toAddSubgroup) hn (isOpen_maximalIdeal_pow'' R n)
 
 instance (n : ℕ) : DiscreteTopology (R ⧸ maximalIdeal R ^ n) :=
-  AddSubgroup.discreteTopology _ (isOpen_maximalIdeal_pow'' R n)
+  QuotientAddGroup.discreteTopology (isOpen_maximalIdeal_pow'' R n)
 
 instance [IsNoetherianRing R] : IsHausdorff (maximalIdeal R) R where
   haus' x hx := show x ∈ (⊥ : Ideal R) by

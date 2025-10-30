@@ -1,9 +1,17 @@
-import FLT.Mathlib.NumberTheory.NumberField.Basic
-import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+import FLT.NumberField.InfiniteAdeleRing
+import FLT.NumberField.Completion.Finite
+import FLT.Mathlib.Algebra.Algebra.Tower
+import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
+import FLT.Mathlib.RingTheory.TensorProduct.Pi
+import FLT.Mathlib.Algebra.Algebra.Bilinear
+import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.NumberField.FiniteAdeleRing
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.Padics.RestrictedProduct
+import FLT.Data.QHat
 
 open scoped TensorProduct
 

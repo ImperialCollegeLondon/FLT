@@ -96,13 +96,16 @@ variable (S : Finset (HeightOneSpectrum (𝓞 F)))
 variable {P : HeightOneSpectrum (𝓞 F)} (hP : P ∉ S)
 
 open TotallyDefiniteQuaternionAlgebra
--- let's do T_P : S_2^D(U_1(S)) -> S_2^D(U_1(S))
+-- let's define T_P : S_2^D(U_1(S)) -> S_2^D(U_1(S))
 namespace TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
 
 open IsDedekindDomain.HeightOneSpectrum
 
 open scoped TensorProduct
 
+-- Oops! This is also `IsDedekindDomain.HeightOneSpectrum.QuaternionAlgebra.TameLevel`
+-- in `FLT.QuaternionAlgebra.NumberField`, defined differently (using `Subgroup.comap` not `map`).
+-- Don't care which one survives.
 variable {F D} in
 open scoped TensorProduct.RightActions in
 /-- U1(S) -/
@@ -157,7 +160,8 @@ noncomputable abbrev diag :
     (FiniteAdeleRing.GL2.restrictedProduct.symm
     (RestrictedProduct.mulSingle _ _ (Local.GL2.diag α hα)))
 
-/-- The (global) matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`. -/
+/-- The (global) matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`.
+Here `t ∈ 𝒪ᵥ / α` and we lift it arbitrarily to `𝒪ᵥ`. -/
 noncomputable def unipotent_mul_diag (t : ↑(adicCompletionIntegers F v) ⧸ (Ideal.span {α})) :
     (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   Units.mapEquiv r.symm.toMulEquiv
@@ -165,8 +169,10 @@ noncomputable def unipotent_mul_diag (t : ↑(adicCompletionIntegers F v) ⧸ (I
     (RestrictedProduct.mulSingle _ _
       (Local.GL2.unipotent_mul_diag α hα (Quotient.out t : adicCompletionIntegers F v))))
 
-/-- The set of elements `unipotent_mul_diag`,
-which will form the set of coset representatives for `U1 diag U1`. -/
+/-- The set of elements `unipotent_mul_diag`, that is, the elements of `(D ⊗ 𝔸_F^∞)ˣ`
+which are `(α t;0 1)` at `v` and the identity elsewhere, as `t` runs through a set
+of coset reps of `𝓞ᵥ / α`. These will form a set of coset representatives for `U1 diag U1`.
+-/
 noncomputable def unipotent_mul_diag_image :
     Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   (unipotent_mul_diag r α hα) '' ⊤
@@ -182,7 +188,7 @@ lemma unipotent_mul_diag_inj :
   simpa [Local.GL2.unipotent_mul_diag, Matrix.GeneralLinearGroup.GL2.unipotent, Local.GL2.diag,
     Matrix.unitOfDetInvertible, Matrix.GeneralLinearGroup.diagonal] using h''
 
-/-- The double coset space `U1 diag U1` as a set of left cosets. -/
+/-- The double coset space `U₁(S) diag(αᵥ,1) U₁(S)` as a set of left cosets. -/
 noncomputable def U1diagU1 :
     Set ((D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ ⧸ (U1 r S)) :=
   QuotientGroup.mk '' ((U1 r S) * {diag r α hα})
@@ -202,7 +208,7 @@ lemma quot_top_finite (r : Rigidification F D) (α : v.adicCompletionIntegers F)
   apply Set.Finite.of_finite_image _ (unipotent_mul_diag_inj r α hα)
   apply unipotent_mul_diag_image_finite
 
-set_option maxSynthPendingDepth 1 in
+set_option maxSynthPendingDepth 1 in -- shaves a little time off compilation!
 /-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
 considered as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S). Here α is a nonzero element of 𝓞ᵥ.
@@ -326,8 +332,6 @@ noncomputable def T (v : HeightOneSpectrum (𝓞 F)) (hv : v ∉ S) : HeckeAlgeb
     apply Algebra.subset_adjoin
     left
     use v⟩
-
-
 
 variable {F S} in
 /-- The Hecke operator Uᵥ,ₐ as an element of the Hecke algebra. -/
