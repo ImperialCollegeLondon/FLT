@@ -18,6 +18,8 @@ instance (v : HeightOneSpectrum (𝓞 ℚ)) : Fact v.natGenerator.Prime :=
       ((Ideal.map_eq_bot_iff_of_injective Rat.ringOfIntegersEquiv.injective).not.2 v.ne_bot)⟩
 
 -- From pending mathlib PR #30576
+/-- The `ℚ`-algebra equivalence between `v.adicCompletion ℚ` and `ℚ_[v.natGenerator]`, where
+`v : HeightOneSpectrum (𝓞 ℚ)`. -/
 def padicEquiv (v : HeightOneSpectrum (𝓞 ℚ)) :
     v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator] := sorry
 
@@ -70,6 +72,7 @@ theorem padic_valuation_neg_of_mem_indexSupport
   contrapose! hp
   simpa [Padic.norm_le_one_iff_val_nonneg]
 
+/-- The natural `n : ℕ` for which `x * n` is a `p`-adic integer. -/
 noncomputable def padicNatDen
     (x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) : ℕ :=
   ∏ p ∈ x.indexSupport, p.1 ^ (x p).valuation.natAbs

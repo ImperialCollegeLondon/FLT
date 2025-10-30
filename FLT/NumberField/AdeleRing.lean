@@ -381,6 +381,9 @@ variable (K : Type*) [Field K] [NumberField K]
 
 namespace Rat.FiniteAdeleRing
 
+/-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and the restricted
+product `Πʳ (p : Nat.Primes), [ℚ_[p], subring p]` of `Padic`s lifting the equivalence
+`v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator]` at each place. -/
 noncomputable
 def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes), [ℚ_[p], subring p] where
   __ := RingEquiv.restrictedProductCongr
