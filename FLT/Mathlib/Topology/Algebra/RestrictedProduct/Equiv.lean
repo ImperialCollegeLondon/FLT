@@ -13,6 +13,8 @@ variable {R₁ : ι → Type*} {R₂ : ι → Type*} {S₁ : ι → Type*} {S₂
 variable {A₁ : (i : ι) → Set (R₁ i)} {A₂ : (i : ι) → Set (R₂ i)}
 variable {𝓕 : Filter ι}
 
+/-- The equivalence between restricted products on the same index, when
+each factor is equivalent, with compatibility on the restricted subsets. -/
 @[simps]
 def Equiv.restrictedProductCongrRight (φ : (i : ι) → R₁ i ≃ R₂ i)
     (hφ : ∀ᶠ i in 𝓕, Set.BijOn (φ i) (A₁ i) (A₂ i)) :
@@ -64,6 +66,8 @@ variable [(i : ι) → Semiring (R₁ i)] [(i : ι) → Semiring (R₂ i)]
   [(i : ι) → SubsemiringClass (S₁ i) (R₁ i)] [(i : ι) → SubsemiringClass (S₂ i) (R₂ i)]
 variable {A₁ : (i : ι) → S₁ i} {A₂ : (i : ι) → S₂ i}
 
+/-- The ring isomorphism between restricted products on the same index, when
+each factor is equivalent, with compatibility on the restricted subsets. -/
 @[simps! apply]
 def RingEquiv.restrictedProductCongrRight (φ : (i : ι) → R₁ i ≃+* R₂ i)
     (hφ : ∀ᶠ i in 𝓕, Set.BijOn (φ i) (A₁ i) (A₂ i)) :
@@ -104,6 +108,9 @@ variable {R₁ : ι₁ → Type*} {S₁ : ι₁ → Type*} {R₂ : ι₂ → Typ
 variable {𝓕₁ : Filter ι₁} {𝓕₂ : Filter ι₂}
 variable {A₁ : (i : ι₁) → Set (R₁ i)} {A₂ : (i : ι₂) → Set (R₂ i)}
 
+/-- The equivalence between restricted products on the same factors on different
+indices, when the indices are equivalent, with compatibility on the restriction
+filters. Applying the equivalence on the right-hand side. -/
 @[simps! apply, simps -isSimp symm_apply]
 def Equiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
     Πʳ i, [R₁ i, A₁ i]_[𝓕₁] ≃ Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂] where
@@ -128,6 +135,9 @@ theorem Equiv.restrictedProductCongrLeft'_symm_apply_apply (e : ι₁ ≃ ι₂)
     (restrictedProductCongrLeft' e h).symm x (e.symm j) = x j := by
   simp [restrictedProductCongrLeft'_symm_apply]
 
+/-- The equivalence between restricted products on the same factors on different
+indices, when the indices are equivalent, with compatibility on the restriction
+filters. Applying the equivalence on the left-hand side. -/
 def Equiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
     Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃ Πʳ j, [R₂ j, A₂ j]_[𝓕₂] :=
   ((e.symm).restrictedProductCongrLeft' (𝓕₂.map_equiv_symm _ ▸ h)).symm
@@ -144,13 +154,23 @@ variable [(i : ι₁) → Monoid (R₁ i)] [(i : ι₂) → Monoid (R₂ i)]
   [(i : ι₁) → SubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → SubmonoidClass (S₂ i) (R₂ i)]
   {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
 
-@[to_additive (attr := simps! apply)]
+/-- The multiplicative monoid isomorphism between restricted products on the same factors on
+different indices, when the indices are equivalent, with compatibility on the restriction
+filters. Applying the equivalence on the right-hand side. -/
+@[to_additive (attr := simps! apply) /-- The additive monoid isomorphism between restricted
+products on the same factors on different indices, when the indices are equivalent, with
+compatibility on the restriction filters. Applying the equivalence on the right-hand side. -/]
 def MulEquiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
     (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃* (Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂]) where
   __ := Equiv.restrictedProductCongrLeft' e h
   map_mul' _ _ := by ext; simp [Equiv.restrictedProductCongrLeft']
 
-@[to_additive]
+/-- The multiplicative monoid isomorphism between restricted products on the same factors on
+different indices, when the indices are equivalent, with compatibility on the restriction
+filters. Applying the equivalence on the left-hand side. -/
+@[to_additive /-- The additive monoid isomorphism between restricted
+products on the same factors on different indices, when the indices are equivalent, with
+compatibility on the restriction filters. Applying the equivalence on the left-hand side. -/]
 def MulEquiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
     Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃* Πʳ j, [R₂ j, A₂ j]_[𝓕₂] where
   __ := Equiv.restrictedProductCongrLeft e h
@@ -167,12 +187,18 @@ variable [(i : ι₁) → Semiring (R₁ i)] [(i : ι₂) → Semiring (R₂ i)]
   [(i : ι₁) → SubsemiringClass (S₁ i) (R₁ i)] [(i : ι₂) → SubsemiringClass (S₂ i) (R₂ i)]
 variable {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
 
+/-- The ring isomorphism between restricted products on the same factors on
+different indices, when the indices are equivalent, with compatibility on the restriction
+filters. Applying the equivalence on the right-hand side. -/
 @[simps! apply]
 def RingEquiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
     (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃+* (Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂]) where
   __ := AddEquiv.restrictedProductCongrLeft' e h
   map_mul' _ _ := rfl
 
+/-- The ring isomorphism between restricted products on the same factors on
+different indices, when the indices are equivalent, with compatibility on the restriction
+filters. Applying the equivalence on the right-hand side. -/
 def RingEquiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
     Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃+* Πʳ j, [R₂ j, A₂ j]_[𝓕₂] where
   __ := AddEquiv.restrictedProductCongrLeft e h
@@ -192,12 +218,18 @@ variable [(i : ι₁) → AddCommMonoid (R₁ i)] [(i : ι₂) → AddCommMonoid
   [(i : ι₁) → AddSubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → AddSubmonoidClass (S₂ i) (R₂ i)]
   [(i : ι₁) → SMulMemClass (S₁ i) T (R₁ i)] [(i : ι₂) → SMulMemClass (S₂ i) T (R₂ i)]
 
+/-- The linear isomorphism between restricted products on the same factors on
+different indices, when the indices are equivalent, with compatibility on the restriction
+filters. Applying the equivalence on the right-hand side. -/
 @[simps! apply]
 def LinearEquiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
     (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃ₗ[T] (Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂]) where
   __ := AddEquiv.restrictedProductCongrLeft' e h
   map_smul' _ _ := rfl
 
+/-- The linear isomorphism between restricted products on the same factors on
+different indices, when the indices are equivalent, with compatibility on the restriction
+filters. Applying the equivalence on the left-hand side. -/
 def LinearEquiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
     Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃ₗ[T] Πʳ j, [R₂ j, A₂ j]_[𝓕₂] where
   __ := AddEquiv.restrictedProductCongrLeft e h
@@ -218,6 +250,8 @@ variable {R₁ : ι₁ → Type*} {S₁ : ι₁ → Type*} {R₂ : ι₂ → Typ
 variable {𝓕₁ : Filter ι₁} {𝓕₂ : Filter ι₂}
 variable {A₁ : (i : ι₁) → Set (R₁ i)} {A₂ : (i : ι₂) → Set (R₂ i)}
 
+/-- The equivalence between restricted products when the indices and factors are equivalent,
+provided compatibility criteria on the restriction filters and factors. -/
 def Equiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
     (φ : (i : ι₁) → R₁ i ≃ R₂ (e i))
     (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
@@ -248,7 +282,11 @@ variable [(i : ι₁) → Monoid (R₁ i)] [(i : ι₂) → Monoid (R₂ i)]
   [(i : ι₁) → SubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → SubmonoidClass (S₂ i) (R₂ i)]
 variable {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
 
-@[to_additive (attr := simps! apply)]
+/-- The multiplicative monoid isomorphism between restricted products when the indices and factors
+are equivalent, provided compatibility criteria on the restriction filters and factors. -/
+@[to_additive (attr := simps! apply) /-- The additive monoid isomorphism between restricted
+products when the indices and factors are equivalent, provided compatibility criteria on the
+restriction filters and factors. -/]
 def MulEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
     (φ : (i : ι₁) → R₁ i ≃* R₂ (e i))
     (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
@@ -264,6 +302,8 @@ variable [(i : ι₁) → Semiring (R₁ i)] [(i : ι₂) → Semiring (R₂ i)]
   [(i : ι₁) → SubsemiringClass (S₁ i) (R₁ i)] [(i : ι₂) → SubsemiringClass (S₂ i) (R₂ i)]
 variable {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
 
+/-- The ring isomorphism between restricted products when the indices and factors
+are equivalent, provided compatibility criteria on the restriction filters and factors. -/
 def RingEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
     (φ : (i : ι₁) → R₁ i ≃+* R₂ (e i))
     (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
@@ -299,6 +339,8 @@ variable [(i : ι₁) → Module T (R₁ i)] [(i : ι₂) → Module T (R₂ i)]
   [(i : ι₁) → AddSubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → AddSubmonoidClass (S₂ i) (R₂ i)]
   [(i : ι₁) → SMulMemClass (S₁ i) T (R₁ i)] [(i : ι₂) → SMulMemClass (S₂ i) T (R₂ i)]
 
+/-- The linear isomorphism between restricted products when the indices and factors
+are equivalent, provided compatibility criteria on the restriction filters and factors. -/
 def LinearEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
     (φ : (i : ι₁) → R₁ i ≃ₗ[T] R₂ (e i))
     (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
