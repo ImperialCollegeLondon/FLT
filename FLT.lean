@@ -68,6 +68,7 @@ import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
+import FLT.Mathlib.Data.Nat.Prime.Defs
 import FLT.Mathlib.Data.Set.Prod
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.GroupTheory.Index
@@ -85,6 +86,7 @@ import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.RepresentationTheory.Basic
+import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 import FLT.Mathlib.RingTheory.LocalRing.Defs
@@ -105,6 +107,7 @@ import FLT.Mathlib.Topology.Algebra.Monoid
 import FLT.Mathlib.Topology.Algebra.MulAction
 import FLT.Mathlib.Topology.Algebra.Order.Field
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import FLT.Mathlib.Topology.Algebra.UniformRing
@@ -125,6 +128,7 @@ import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.InfinitePlace.Dimension
 import FLT.NumberField.InfinitePlace.Extension
 import FLT.NumberField.InfinitePlace.WeakApproximation
+import FLT.NumberField.Padics.RestrictedProduct
 import FLT.Patching.Algebra
 import FLT.Patching.Module
 import FLT.Patching.Over
