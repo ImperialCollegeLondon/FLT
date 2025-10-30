@@ -460,5 +460,3 @@ theorem NumberField.AdeleRing.cocompact :
   (piQuotientEquiv ℚ K).compactSpace
 
 end Compact
-
-#min_imports

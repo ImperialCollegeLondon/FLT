@@ -378,5 +378,3 @@ noncomputable def FiniteAdeleRing.baseChangeContinuousAlgEquiv :
   __ := FiniteAdeleRing.baseChangeAdeleContinuousAlgEquiv A K L B
 
 end IsDedekindDomain
-
-#min_imports
