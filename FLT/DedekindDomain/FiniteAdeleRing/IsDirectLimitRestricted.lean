@@ -131,8 +131,8 @@ instance directed : IsDirected (ℱ.complement) (· ≤ ·) := by
 
 instance RestrictedProductIsDirectLimit :
   IsDirectLimit (mem_A_away_from_S C)
-  Πʳ i, [R i, C i]_[ℱ] (inclusion_module (ℱ := ℱ))
-  (inclusion_to_restricted_product_module ) where
+  Πʳ i, [R i, C i]_[ℱ] (inclusion_module · · ·)
+  (inclusion_to_restricted_product_module · ·) where
   inj Sᵢ Sⱼ mi mj hmij := by
     obtain ⟨Sₖ, hik, hjk⟩ := @directed_of _ (· ≤ ·) directed Sᵢ Sⱼ
     refine ⟨Sₖ, hik, hjk, ?_⟩
@@ -159,7 +159,6 @@ instance RestrictedProductIsDirectLimit :
     dsimp [inclusion_to_restricted_product_module, inclusion_to_restrictedProduct,
     inclusion_module,_root_.inclusion, inclusion_module,RestrictedProduct.inclusion]
     exact Subtype.ext rfl
-  directedsystem := directed_system
 
 variable {ι : Type*} (R : ι → Type*) (S : Set ι) [∀ i, Decidable (i ∈ S)] (A : (i : ι) → Set (R i))
 

@@ -110,23 +110,24 @@ lemma lTensorPrincipalEquiv_tmul (m : M) (x : Πʳ i, [N i, L i]_[𝓟 S]) (i : 
 
 open scoped Filter in
 lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
-  let comp1 := TensorProduct.directLimitRight (inclusion_module (C:=L) (ℱ := ℱ)) M (R:=R)
-  let comp := IsDirectLimit.linearEquiv_of_isDirectLimit
-    (inclusion_module (ℱ := ℱ)) (Πʳ i, [N i, L i]_[ℱ])
-    (Module.DirectLimit (mem_A_away_from_S L) (inclusion_module (C:=L) (ℱ := ℱ)))
+  let comp1 := TensorProduct.directLimitRight (inclusion_module (C:=L) (ℱ:=ℱ)) M (R:=R)
+  let comp := IsDirectLimit.Module.linearEquiv
+     (Πʳ i, [N i, L i]_[ℱ])
+    (Module.DirectLimit (mem_A_away_from_S L) (inclusion_module (C:=L) (ℱ:=ℱ)))
+    (inclusion_module (ℱ:=ℱ))
     (inclusion_to_restricted_product_module) (Module.DirectLimit.of R _
     (mem_A_away_from_S L) (inclusion_module (ℱ := ℱ)))
   let comp2 : Πʳ (i : ι), [M ⊗[R] N i, (rangeLTensor R M N L  i)]_[ℱ] ≃ₗ[R]
     Module.DirectLimit (mem_A_away_from_S (fun i ↦ rangeLTensor R M N L i)) inclusion_module :=
-    IsDirectLimit.linearEquiv_of_isDirectLimit (inclusion_module (ℱ := ℱ))
-      Πʳ i, [M ⊗[R] N i, rangeLTensor R M N L i]_[ℱ]
-      (Module.DirectLimit (mem_A_away_from_S
-        (fun i ↦ rangeLTensor R M N L i)) (inclusion_module (ℱ := ℱ)))
-      (inclusion_to_restricted_product_module) (Module.DirectLimit.of R _
-        (mem_A_away_from_S
-          (fun i ↦ rangeLTensor R M N L i)) (inclusion_module (ℱ := ℱ)))
+    IsDirectLimit.Module.linearEquiv  Πʳ i,
+    [M ⊗[R] N i, rangeLTensor R M N L i]_[ℱ]
+    (Module.DirectLimit (mem_A_away_from_S
+    (fun i ↦ rangeLTensor R M N L i)) (inclusion_module (ℱ:=ℱ))) (inclusion_module (ℱ:=ℱ))
+    (inclusion_to_restricted_product_module) (Module.DirectLimit.of R _
+    (mem_A_away_from_S
+    (fun i ↦ rangeLTensor R M N L i)) (inclusion_module (ℱ:=ℱ)))
   let comp4 :=  (LinearEquiv.lTensor M comp) ≪≫ₗ comp1
-  let comp5 : Module.DirectLimit (fun (S: ℱ.complement) ↦
+  let comp5 : Module.DirectLimit (fun (S : ℱ.complement) ↦
     M ⊗[R] Πʳ (i : ι), [N i, L i]_[𝓟 Sᶜ]) (fun i j h ↦
     LinearMap.lTensor M (inclusion_module i j h)) ≃ₗ[R] Module.DirectLimit (fun (S : ℱ.complement)
     ↦ Πʳ (i : ι), [M ⊗[R] N i, (rangeLTensor R M N L i)]_[𝓟 (S)ᶜ]) inclusion_module :=
@@ -146,9 +147,9 @@ lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
       LinearMap.coe_restrictScalars, lTensor_tmul, LinearEquiv.coe_coe, tensor_comm', comp2,
       comp4, comp5, comp, comp1, LinearEquiv.trans_apply, LinearEquiv.lTensor_tmul]
     obtain ⟨j, x', hjx'⟩ :=
-      Module.DirectLimit.exists_of (IsDirectLimit.linearEquiv_of_isDirectLimit inclusion_module
+      Module.DirectLimit.exists_of (IsDirectLimit.Module.linearEquiv
         Πʳ (i : ι), [N i, L i]_[ℱ] (Module.DirectLimit (mem_A_away_from_S L) inclusion_module)
-        inclusion_to_restricted_product_module
+         inclusion_module inclusion_to_restricted_product_module
         (Module.DirectLimit.of R (ℱ.complement) (mem_A_away_from_S L) inclusion_module) x)
     rw [← hjx', TensorProduct.directLimitRight_tmul_of]
     unfold mem_A_away_from_S
@@ -158,21 +159,19 @@ lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
       LinearEquiv.lTensor_tmul, LinearEquiv.coe_mk, LinearMap.coe_mk, AddHom.coe_mk,
       tensorPi_equiv_piTensor'_apply, LinearMap.lTensor_tmul, Submodule.subtype_apply,
       LinearEquiv.coe_ofEq_apply, LinearEquiv.ofTop_apply, dite_eq_ite, ite_self,
-      IsDirectLimit.iso_of_isDirectLimit_symm_apply, inclusion_to_restricted_product_module,
-      inclusion_to_restrictedProduct, inclusion_apply, mk_apply]
-    apply_fun (IsDirectLimit.linearEquiv_of_isDirectLimit inclusion_module
-      Πʳ (i : ι), [N i, L i]_[ℱ]
-      (Module.DirectLimit (mem_A_away_from_S L) inclusion_module)
+      IsDirectLimit.Module.linearEquiv_symm_apply,
+      inclusion_to_restricted_product_module, inclusion_to_restrictedProduct]
+    apply_fun (IsDirectLimit.Module.linearEquiv Πʳ (i : ι), [N i, L i]_[ℱ]
+      (Module.DirectLimit (mem_A_away_from_S L) inclusion_module) inclusion_module
       inclusion_to_restricted_product_module
       (Module.DirectLimit.of R (↑ℱ.complement) (mem_A_away_from_S L) inclusion_module)).symm at hjx'
-    simp only [IsDirectLimit.iso_of_isDirectLimit_symm_apply,
-      inclusion_to_restricted_product_module, inclusion_to_restrictedProduct, LinearMap.coe_mk,
-      AddHom.coe_mk, LinearEquiv.symm_apply_apply] at hjx'
+    simp only [IsDirectLimit.Module.linearEquiv_symm_apply, inclusion_to_restricted_product_module,
+      inclusion_to_restrictedProduct, LinearMap.coe_mk, AddHom.coe_mk,
+      LinearEquiv.symm_apply_apply] at hjx'
     rw [← congrFun (congrArg DFunLike.coe hjx') i, inclusion_apply]
+    rfl
   rw [this]
   exact tensor_comm'.bijective
-
-
 
 /-- The `R`-linear isomorphism given by `lTensor` when `M` is a finite flat `R`-module. -/
 noncomputable def lTensorEquiv :
