@@ -515,7 +515,7 @@ def PatchingModule.mapOfIsPatchingSystem :
 lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) := by
   refine continuous_induced_rng.mpr ?_
   refine continuous_pi fun α ↦ ?_
-  have : DiscreteTopology (R ⧸ α.1) := AddSubgroup.discreteTopology _ α.2
+  have : DiscreteTopology (R ⧸ α.1) := QuotientAddGroup.discreteTopology α.2
   change Continuous ((equivComponent R M F α.1 α.2) ∘ _)
   refine continuous_of_discreteTopology.comp ?_
   refine continuous_pi fun i ↦
