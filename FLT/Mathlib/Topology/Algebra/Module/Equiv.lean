@@ -126,7 +126,7 @@ lemma ContinuousLinearEquiv.toMatrix_toContinousLinearEquiv
     (b : Module.Basis ι F V) (ρ : V ≃L[F] V) :
     (ρ.toLinearEquiv.toMatrix b b).toContinuousLinearEquiv b
     (ContinuousLinearEquiv.toMatrix_det_ne_zero b ρ ) = ρ := by
-  apply ContinuousLinearEquiv.ext
-  simp[]
+  ext
+  simp
 
 end toContinuousLinearEquiv

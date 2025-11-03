@@ -85,21 +85,21 @@ lemma IsSimpleRing.mulLeft_det_eq_mulRight_det' (d : Dˣ) :
 -/
 section LinearEquiv
 
-variable {F : Type*} [Field F]
+variable {F : Type*} [CommRing F]
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 variable {V : Type*} [AddCommGroup V] [Module F V]
 
 lemma LinearEquiv.det_ne_zero
-  {F : Type*} [Field F] {V : Type*} [AddCommGroup V] [Module F V]
-  (e : V ≃ₗ[F] V) : e.toLinearMap.det ≠ 0 := isUnit_iff_ne_zero.mp (isUnit_det' e)
+  {F : Type*} [CommRing F] [Nontrivial F] {V : Type*} [AddCommGroup V] [Module F V]
+  (e : V ≃ₗ[F] V) : e.toLinearMap.det ≠ 0 := (isUnit_det' e).ne_zero
 
 lemma Matrix.toLinearEquiv_toLinearMap
     (b : Module.Basis ι F V) (M : Matrix ι ι F) (h : IsUnit M.det) :
     (toLinearEquiv b M h).toLinearMap = Matrix.toLin b b M := rfl
 
-lemma LinearEquiv.det_of_toLinarEquiv
+lemma LinearEquiv.det_toLinearEquiv
     (b : Module.Basis ι F V) {M : Matrix ι ι F} (h : IsUnit M.det) :
-    LinearEquiv.det (M.toLinearEquiv b h) = Units.mk0 M.det (isUnit_iff_ne_zero.mp h) := by
+    LinearEquiv.det (M.toLinearEquiv b h) = h.unit := by
   refine Units.val_inj.mp ?_
   simp [Matrix.toLinearEquiv_toLinearMap]
 

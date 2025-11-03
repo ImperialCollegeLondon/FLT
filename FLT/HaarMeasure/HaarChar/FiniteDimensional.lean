@@ -19,7 +19,7 @@ section HaarMeasureScaling
 
 # Haar character scaling under linear automorphisms
 
-This section proves that a linear isomorphism on a finite-dimensional vector space
+We prove that a linear isomorphism on a finite-dimensional vector space
 `V` over a locally compact field `F` scales Haar measure by its determinant. The
 proof assumes `[SecondCountableTopology F]`.
 
@@ -52,8 +52,8 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal
     [BorelSpace (ι → F)]
     (ρ : (ι → F) ≃L[F] (ι → F)) {D : ι → F}
     (h : ρ.toLinearMap.toMatrix' = Matrix.diagonal D) :
-  addEquivAddHaarChar ρ.toContinuousAddEquiv
-    = ringHaarChar ρ.toLinearEquiv.det := by
+    addEquivAddHaarChar ρ.toContinuousAddEquiv
+      = ringHaarChar ρ.toLinearEquiv.det := by
   -- 1) determinant computations
   let f := ρ.toLinearMap
   have f_eq : f = Matrix.toLin' (Matrix.diagonal D) := by
@@ -216,24 +216,23 @@ open Module
     over a field F assuming [SecondCountableTopology F] (FLT#517) -/
 theorem addEquivAddHaarChar_eq_ringHaarChar_det [SecondCountableTopology F]
     (ρ : V ≃L[F] V) :
-  addEquivAddHaarChar ρ.toContinuousAddEquiv
-    = ringHaarChar ρ.toLinearEquiv.det := by
+    addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det := by
   let b  := finBasis F V
   let ι  := Fin (finrank F V)
   let e  : V ≃ₗ[F] ι → F := Basis.equivFun b
   have he : Continuous e := IsModuleTopology.continuous_of_linearMap e.toLinearMap
   have he_inv : Continuous e.symm := IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
   let ec : V ≃L[F] (ι → F) := ⟨e, he, he_inv⟩
-  let f  := ec.toContinuousAddEquiv
+  let f := ec.toContinuousAddEquiv
   let ρ' : (ι → F) ≃ₜ+ (ι → F) := (f.symm.trans (ρ.toContinuousAddEquiv)).trans f
   have hComm: ∀ x, f (ρ.toContinuousAddEquiv x) = ρ' (f x) := by
     simp [f, ρ', ContinuousAddEquiv.trans_apply, ContinuousAddEquiv.symm_apply_apply]
   let h_eq := addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f
-                ρ.toContinuousAddEquiv ρ' hComm
-  have: (ec.toContinuousAddEquiv.symm.trans
-        ρ.toContinuousAddEquiv).trans ec.toContinuousAddEquiv =
-        ((ec.symm.trans ρ).trans ec).toContinuousAddEquiv := by exact rfl
-  simp[h_eq, ρ', f, this, addEquivAddHaarChar_eq_ringHaarChar_det_pi]
+    ρ.toContinuousAddEquiv ρ' hComm
+  have : (ec.toContinuousAddEquiv.symm.trans
+      ρ.toContinuousAddEquiv).trans ec.toContinuousAddEquiv =
+      ((ec.symm.trans ρ).trans ec).toContinuousAddEquiv := rfl
+  simp [h_eq, ρ', f, this, addEquivAddHaarChar_eq_ringHaarChar_det_pi]
 
 end HaarMeasureScaling
 
