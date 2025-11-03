@@ -690,7 +690,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     have h : (M : QHat) = (M : ℚ) ⊗ₜ[ℤ] 1 := by norm_cast
     rw [Algebra.TensorProduct.includeRight_apply, hxinv, h, Algebra.TensorProduct.tmul_mul_tmul,
       mul_one, one_div, inv_mul_cancel₀]
-    simp only [ne_eq, Rat.natCast_eq_zero, PNat.ne_zero, not_false_eq_true]
+    simp only [ne_eq, Rat.natCast_eq_zero_iff, PNat.ne_zero, not_false_eq_true]
   rcases hx with ⟨X, hX⟩
   let I := Ideal.span {X}
   let J := I.comap (Int.castRingHom ZHat)
@@ -729,7 +729,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     set G : ℚ := 1 / g with G_def
     have gG : g * G = 1 := by
       rw [G_def, one_div, mul_inv_cancel₀]
-      simp only [ne_eq, Rat.intCast_eq_zero, Int.ne_of_gt gpos, not_false_eq_true]
+      simp only [ne_eq, Rat.intCast_eq_zero_iff, Int.ne_of_gt gpos, not_false_eq_true]
     use ⟨g, G, gG, mul_comm _ G ▸ gG⟩
     use ⟨z, y, by rw[mul_comm]; exact this, this⟩
     simp only [← Units.val_inj, ← hX, Units.map_mk, MonoidHom.coe_coe, map_intCast,

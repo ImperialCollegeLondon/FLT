@@ -15,6 +15,11 @@ variable (R) [CommRing R] [IsLocalRing R] [TopologicalSpace R] [IsTopologicalRin
 
 namespace IsLocalRing
 
+/--
+`IsAdicTopology R` says that the topology on the local topological ring `R`
+is the maximal ideal-adic one, that is, that a basis of neighbourhoods of `0` in `R`
+is given by powers of the maximal ideal of `R`.
+-/
 class IsAdicTopology (R) [CommRing R] [IsLocalRing R]
     [TopologicalSpace R] [IsTopologicalRing R] : Prop where
   isAdic : IsAdic (maximalIdeal R)
