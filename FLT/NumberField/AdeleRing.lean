@@ -452,7 +452,7 @@ theorem Rat.AdeleRing.cocompact :
         intro v
         refine sub_mem (mem_structureSubring_iff.1 hf v) ?_
         simpa using coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
-      exact ⟨_, h, by simp⟩
+      exact ⟨_, h, by simp [-algebraMap.coe_inj]⟩
     exact h_W_image ▸ h_W_compact.image continuous_quot_mk
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]

@@ -59,7 +59,7 @@ theorem setOf_norm_one_lt_finite (x : ℚ) :
     {p : Nat.Primes | 1 < ‖(x : ℚ_[p])‖}.Finite := by
   apply Set.Finite.subset _ fun p ↦ mt (Padic.norm_rat_le_one) ∘ not_le.2
   apply Set.Finite.of_finite_image _ Nat.Primes.coe_nat_injective.injOn
-  apply Set.Finite.subset (s := x.den.primeFactors.toSet) (by simp)
+  apply Set.Finite.subset (s := x.den.primeFactors) (by simp)
   exact fun _ ⟨_, _, _⟩ ↦ by aesop
 
 end Padic
@@ -72,7 +72,7 @@ theorem padic_valuation_neg_of_mem_indexSupport
   contrapose! hp
   simpa [Padic.norm_le_one_iff_val_nonneg]
 
-/-- The natural `n : ℕ` for which `x * n` is a `p`-adic integer. -/
+/-- The natural `n : ℕ` for which `x p * n` is a `p`-adic integer for all `p`. -/
 noncomputable def padicNatDen
     (x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) : ℕ :=
   ∏ p ∈ x.indexSupport, p.1 ^ (x p).valuation.natAbs
@@ -115,44 +115,46 @@ theorem padicNatDen_norm_mul_le_one (x : Πʳ (p : Nat.Primes), [ℚ_[p], subrin
       rw [mul_inv_cancel₀ (zpow_ne_zero _ (by simp [p.2.ne_zero]))]
   · simp_all [padicNatDen_norm_of_notMem hp]
 
+/-- The element of `(p : Nat.Primes) → ℤ_[p]` obtained by multiplying by `padicNatDen`. -/
+noncomputable def padicNum (x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) (p : Nat.Primes) : ℤ_[p] :=
+  ⟨x.padicNatDen * x p, x.padicNatDen_norm_mul_le_one p⟩
+
 theorem padic_exists_sub_mem_padicInt
     (x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) :
     ∃ q : ℚ, ∀ p : Nat.Primes, q - x p ∈ subring p := by
-  let N := x.padicNatDen
-  -- Cast `x` to `∏ p ∈ x.indexSupport, ZMod (p ^ (x p).valuation.natAbs)`
-  let xbar : (p : x.indexSupport) → ZMod (p ^ (x p).valuation.natAbs) :=
-    fun p ↦ PadicInt.toZModPow (x p).valuation.natAbs ⟨_, x.padicNatDen_norm_mul_le_one p⟩
+  -- At `p` for which `x p` is non-integral cast `x.padicNum` to `ZMod (p ^ (x p).valuation.natAbs)`
+  let padicNum_bar (p : x.indexSupport) : ZMod (p ^ (x p).valuation.natAbs) :=
+    PadicInt.toZModPow (x p).valuation.natAbs (x.padicNum p)
   let a : x.indexSupport → ℕ := fun p ↦ p ^ (x p).valuation.natAbs
   have ha : Pairwise fun i j ↦ (a i).Coprime (a j) :=
     fun p q h ↦ Nat.coprime_pow_primes _ _ p.1.2 q.1.2 (by simpa [Subtype.val_inj] using h)
-  -- Use Chinese Remainder Theorem to lift `xcast` to an integer `X`
+  -- Use Chinese Remainder Theorem to lift `padicNum_bar` to an integer `X : ℤ`
   obtain ⟨X, hX⟩ := Ideal.exists_forall_sub_mem_ideal
     (fun _ _ h ↦ (Ideal.isCoprime_span_singleton_iff _ _).2 ((ha h).cast (R := ℤ)))
-    (fun p ↦ (xbar p).val)
-  -- `X - N * x p` is divisible by `p ^ (x p).valuation.natAbs` for all `p ∈ x.indexSupport`
-  have h_xbar_sub_mem {p : Nat.Primes} (hp : p ∈ x.indexSupport) :
-      letI Nxₚ : ℤ_[p] := ⟨_, x.padicNatDen_norm_mul_le_one p⟩
-      (X - Nxₚ : ℤ_[p]) ∈ Ideal.span {(p ^ (x p).valuation.natAbs : ℤ_[p])} := by
+    (fun p ↦ (padicNum_bar p).val)
+  -- `X - x.padicNum p` is divisible by `p ^ (x p).valuation.natAbs` for all `p ∈ x.indexSupport`
+  have h_sub_mem (p : x.indexSupport) :
+      (X - x.padicNum p : ℤ_[p]) ∈ Ideal.span {(p ^ (x p).valuation.natAbs : ℤ_[p])} := by
     rw [← PadicInt.ker_toZModPow, RingHom.mem_ker, map_sub, map_intCast, ← id_eq (toZModPow _ _),
       ← ZMod.cast_id', ← ZMod.intCast_cast, ← Int.cast_sub, ZMod.intCast_zmod_eq_zero_iff_dvd,
       ← ZMod.natCast_val, ← Ideal.mem_span_singleton]
-    exact hX ⟨p, hp⟩
-  -- so `X / N` works
-  use X / N
+    exact hX p
+  -- so `X / x.padicNatDen` works
+  use X / x.padicNatDen
   intro p
   by_cases hp : p ∈ x.indexSupport
-  · have : X / N - x p = (X - N * x p) / N := by
+  · have : X / x.padicNatDen - x p = (X - x.padicNatDen * x p) / x.padicNatDen := by
       ring_nf
       rw [mul_inv_cancel₀ (by simpa using x.padicNatDen_ne_zero), one_mul]
     simp only [Rat.cast_div, Rat.cast_natCast, PadicInt.mem_subring_iff, Rat.cast_intCast,
       this, norm_div, ge_iff_le]
-    have h : ‖X - N * x p‖ ≤ ‖(N : ℚ_[p])‖ := by
+    have h : ‖X - x.padicNatDen * x p‖ ≤ ‖(x.padicNatDen : ℚ_[p])‖ := by
       rw [padicNatDen_norm_of_mem hp]
-      simpa using (PadicInt.norm_le_pow_iff_mem_span_pow _ _).2 (h_xbar_sub_mem hp)
+      simpa using (PadicInt.norm_le_pow_iff_mem_span_pow _ _).2 (h_sub_mem ⟨p, hp⟩)
     grw [h]
-    exact div_self (by simp [N, x.padicNatDen_ne_zero]) |>.le
+    exact div_self (by simp [x.padicNatDen_ne_zero]) |>.le
   · apply Subring.sub_mem _ _ (by simpa using hp)
-    simpa [N, padicNatDen_norm_of_notMem hp] using Padic.norm_int_le_one _
+    simpa [padicNatDen_norm_of_notMem hp] using Padic.norm_int_le_one _
 
 noncomputable instance : Algebra ℚ (Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) :=
   let f : RingHom ℚ (Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) := {
