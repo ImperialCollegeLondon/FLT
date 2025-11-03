@@ -3,7 +3,7 @@
 \section{Overview}
 
 In chapter~\ref{ch_reductions} we reduced FLT, modulo a hard theorem from the 1970s,
-to Theorem~\ref{FLT.Wiles_Frey}, the assertion that $p$-torsion in the Frey
+to Theorem~\ref{Wiles_Frey}, the assertion that $p$-torsion in the Frey
 curve is reducible. In this chapter we deduce this assertion from three more complex claims
 about ``hardly ramified'' Galois representations. It is relatively straightforward
 to reduce one of these three claims to a result of Fontaine proved in the 1980s in his
@@ -71,7 +71,9 @@ a $\Z_\ell$-algebra, we can talk about the $\ell$-adic cyclotomic character $\GQ
 We are now ready to define hardly ramified representations.
 
 \begin{definition}
+  \lean{GaloisRepresentation.IsHardlyRamified}
   \label{hardly_ramified}
+  \leanok
   Let $R$ be a coefficient ring with finite residue field of characteristic $\ell\geq3$.
   Let $V$ be a finite free $R$-module of rank~2, equipped with the product topology. A
   continuous representation $\rho: \GQ\to \GL_R(V)$ is said to be \emph{hardly ramified} if it
@@ -92,8 +94,10 @@ We are now ready to define hardly ramified representations.
 A well-known result, which basically goes back to Frey, is the following:
 
 \begin{theorem}
+  \lean{FreyCurve.torsion_isHardlyRamified}
   \label{Frey_curve_hardly_ramified}
   \uses{hardly_ramified}
+  \leanok
   The $\ell$-torsion $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ in the Frey curve associated to a Frey
   package $(a,b,c,\ell)$ is hardly ramified.
 \end{theorem}
@@ -122,21 +126,22 @@ has distinct eigenvalues defined over the ground field.
 The key theorem about hardly ramified representations is the following.
 
 \begin{theorem}
+  \lean{FreyCurve.torsion_not_isIrreducible}
   \label{hardly_ramified_reducible}
+  \leanok
   If $\ell\geq 3$ is a prime and $\rho:\GQ\to\GL_2(\Z/\ell\Z)$ is hardly ramified,
   then $\rho$ is reducible.
 \end{theorem}
 
-
 Note that this (deep) claim is a consequence of Serre's conjecture~\cite{serreconj},
 now a theorem of Khare and Wintenberger~\cite{kwII}, and indeed we shall use
 methods introduced by Khare and Wintenberger to prove this special case of
-Serre's conjecture. Given this result, we can deduce Theorem~\ref{FLT.Wiles_Frey}
+Serre's conjecture. Given this result, we can deduce Theorem~\ref{Wiles_Frey}
 (which we restate here) easily:
 
 \begin{theorem}
-  \label{FLT.Wiles_Frey'}
-  \lean{FLT.Wiles_Frey}
+  \label{Wiles_Frey_again}
+  \lean{Wiles_Frey}
   \leanok
   If $\overline{\rho}$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
   $\overline{\rho}$ is reducible.
@@ -159,28 +164,36 @@ Firstly, we claim that
 an irreducible hardly ramified mod $\ell$ representation lifts to an $\ell$-adic representation.
 
 \begin{theorem}
-  \label{hardly-ramified-lifts}
-  \uses{hardly-ramified}
+  \lean{GaloisRepresentation.IsHardlyRamified.lifts}
+  \label{hardly_ramified_lifts}
+  \uses{hardly_ramified}
+  \leanok
   If $\ell\geq3$ is prime and $\overline{\rho}:\GQ\to\GL_2(\Z/\ell\Z)$
   is hardly ramified and irreducible, then there exists a finite extension~$K$ of $\Q_\ell$
   with integer ring~$\calO$ and maximal ideal $\mathfrak{m}$
   and a hardly ramified representation
   $\rho:\GQ\to\GL_2(\calO)$ whose reduction modulo~$\m$ is isomorphic to $\rho$.
 \end{theorem}
+\begin{proof}
+  Omitted for now {\bf TODO}
+\end{proof}
 
 Next we claim that a hardly ramified $\ell$-adic representation ``spreads out'' to a compatible
 family of hardly ramified $q$-adic representations for all odd primes $q$ (note that we have
 not made a definition of a hardly ramified 2-adic representation).
 
 \begin{theorem}
-  \label{hardly-ramified-spreads-out}
-  \uses{hardly-ramified}
+  \lean{GaloisRepresentation.IsHardlyRamified.mem_isCompatible}
+  \label{hardly_ramified_spreads_out}
+  \uses{hardly_ramified}
+  \leanok
   If $\ell\geq3$ is prime, $K$ is a finite extension of $\Q_\ell$
   with integers $\calO$ and if $\rho:\GQ\to\GL_2(\calO)$ is a hardly ramified representation
   whose reduction is irreducible,
   then there exists a number field $M$ and, for each finite place $\mu$ of $M$
   of characteristic prime to 2, with completion $M_\mu$ having integer ring $R_\mu$,
-  a hardly representation $\rho_\mu:\GQ\to\GL_2(R_\mu)$, with the following properties:
+  a hardly ramified semisimple representation $\rho_\mu:\GQ\to\GL_2(R_\mu)$ (by which we
+  mean the generic fibre is semisimple), with the following properties:
   \begin{itemize}
     \item There is some $\lambda\mid\ell$ of $M$ such that $\rho_\lambda\cong\rho$,
       the isomorphism happening over some appropriate local field containing a copy
@@ -191,19 +204,44 @@ not made a definition of a hardly ramified 2-adic representation).
       and $\rho_{\mu_2}(\Frob_p)$ lie in $M[X]$ and are equal.
   \end{itemize}
 \end{theorem}
+\begin{proof}
+  Omitted for now {\bf TODO}
+\end{proof}
 
 In particular, we can ``move'' from an irreducible hardly ramified mod $\ell$ representation
-to a hardly ramified 3-adic representation.
-However, we can essentially completely classify the hardly ramified 3-adic Galois representations.
+to a hardly ramified 3-adic representation, and hence to a hardly ramified mod 3 representation.
+
+However, we can essentially completely classify the hardly ramified mod 3 Galois representations:
 
 \begin{theorem}
-  \label{hardly-ramified-3adic-reducible}
-  \uses{hardly-ramified}
+  \lean{GaloisRepresentation.IsHardlyRamified.mod_three}
+  \label{hardly_ramified_mod3_reducible}
+  \uses{hardly_ramified}
+  \leanok
+  Suppose $k$ is a finite field of characteristic 3, and suppose
+  $\overline{rho}:\GQ\to\GL_2(k)$ is hardly ramified. Then $\overline{\rho}$ is an extension
+  of the cyclotomic character by the trivial representation.
+\end{theorem}
+\begin{proof}
+  Omitted for now. {\bf TODO}
+\end{proof}
+
+And we can use this to essentially completely classify the hardly ramified 3-adic Galois
+representations:
+
+\begin{theorem}
+  \lean{GaloisRepresentation.IsHardlyRamified.three_adic}
+  \label{hardly_ramified_3adic_reducible}
+  \uses{hardly_ramified, hardly_ramified_mod3_reducible}
+  \leanok
   Suppose $L/\Q_3$ is a finite extension, with integer ring $\calO_L$, and suppose
   $\rho_3:\GQ\to\GL_2(\calO_L)$ is hardly ramified. Then (considered as a representation
   to $\GL_2(L)$) $\rho_3^{ss}=1\oplus\chi_3$
   where $1$ is the trivial character and $\chi_3$ is the 3-adic cyclotomic character.
 \end{theorem}
+\begin{proof}
+  Omitted for now {\bf TODO}
+\end{proof}
 
 Theorem~\ref{hardly_ramified_reducible} (if $\ell\geq 3$ is a prime and
 $\overline{\rho}:\GQ\to\GL_2(\Z/\ell\Z)$ is hardly ramified,
@@ -212,12 +250,12 @@ as we now show.
 
 \begin{proof}
   \proves{hardly_ramified_reducible}
-  \uses{hardly-ramified-lifts,
-    hardly-ramified-spreads-out,hardly-ramified-3adic-reducible}
-  Assume for a contradiction that $\overline{\rho}$ is irreducible. By theorem~\ref{hardly-ramified-lifts},
+  \uses{hardly_ramified_lifts,
+    hardly_ramified_spreads_out,hardly_ramified_3adic_reducible}
+  Assume for a contradiction that $\overline{\rho}$ is irreducible. By theorem~\ref{hardly_ramified_lifts},
   $\overline{\rho}$ lifts to a hardly ramified $\ell$-adic reprepresentation $\rho$. By
-  theorem~\ref{hardly-ramified-spreads-out}, $\rho$ is part of a compatible family of
-  $q$-adic Galois representations. By theorem~\ref{hardly-ramified-3adic-reducible},
+  theorem~\ref{hardly_ramified_spreads_out}, $\rho$ is part of a compatible family of
+  $q$-adic Galois representations. By theorem~\ref{hardly_ramified_3adic_reducible},
   any 3-adic member $\rho_3$ of this family has semisimplification $1\oplus\chi_3$ and in particular
   for $p\nmid 6$ we have that the characteristic polynomial of $\rho_3(\Frob_p)=(X-p)(X-1).$
   By compatibility of the family we deduce that for $p\nmid 6\ell$ the characteristic
@@ -229,9 +267,9 @@ as we now show.
 \end{proof}
 
 What remains then (modulo several results which were known in the 1980s),
-is to prove the three theorems~\ref{hardly-ramified-lifts},
-\ref{hardly-ramified-spreads-out} and~\ref{hardly-ramified-3adic-reducible}.
-By far the easiest is theorem~\ref{hardly-ramified-3adic-reducible}; this follows
+is to prove the three theorems~\ref{hardly_ramified_lifts},
+\ref{hardly_ramified_spreads_out} and~\ref{hardly_ramified_3adic_reducible}.
+By far the easiest is theorem~\ref{hardly_ramified_3adic_reducible}; this follows
 from old estimates of Fontaine (ultimately relying on bounds for root discriminants due to
 Odlyzko and Poitou), originally developed to prove that there was no
 nontrivial abelian scheme over $\Z.$ The other two theorems are deeper, and both use

@@ -15,6 +15,11 @@ variable (R) [CommRing R] [IsLocalRing R] [TopologicalSpace R] [IsTopologicalRin
 
 namespace IsLocalRing
 
+/--
+`IsAdicTopology R` says that the topology on the local topological ring `R`
+is the maximal ideal-adic one, that is, that a basis of neighbourhoods of `0` in `R`
+is given by powers of the maximal ideal of `R`.
+-/
 class IsAdicTopology (R) [CommRing R] [IsLocalRing R]
     [TopologicalSpace R] [IsTopologicalRing R] : Prop where
   isAdic : IsAdic (maximalIdeal R)
@@ -94,7 +99,7 @@ lemma isOpen_iff_finite_quotient' [CompactSpace R] {I : Ideal R} :
       (H₂ := I.toAddSubgroup) hn (isOpen_maximalIdeal_pow'' R n)
 
 instance (n : ℕ) : DiscreteTopology (R ⧸ maximalIdeal R ^ n) :=
-  AddSubgroup.discreteTopology _ (isOpen_maximalIdeal_pow'' R n)
+  QuotientAddGroup.discreteTopology (isOpen_maximalIdeal_pow'' R n)
 
 instance [IsNoetherianRing R] : IsHausdorff (maximalIdeal R) R where
   haus' x hx := show x ∈ (⊥ : Ideal R) by
@@ -127,7 +132,7 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
   have hf : Continuous f := by continuity
   have : Topology.IsClosedEmbedding f := by
     refine ⟨⟨?_, ?_⟩, ?_⟩
-    · refine IsTopologicalAddGroup.isInducing_of_nhds_zero f.toAddMonoidHom ?_
+    · rw [IsTopologicalAddGroup.isInducing_iff_nhds_zero]
       refine (f.map_zero ▸ (hf.tendsto 0).le_comap).antisymm ?_
       apply (hasBasis_maximalIdeal_pow R).ge_iff.mpr ?_
       rintro i -

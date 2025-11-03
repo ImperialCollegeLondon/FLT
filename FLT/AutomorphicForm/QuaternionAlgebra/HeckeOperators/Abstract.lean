@@ -11,36 +11,39 @@ import Mathlib.GroupTheory.GroupAction.Quotient
 
 # Abstract Hecke operators
 
-We give an abstract exposition of the theory of Hecke operators
+We give an abstract exposition of the theory of Hecke operators.
 
-The set-up: a group `G` acts on additive group `A`, we have
+The set-up: a group `G` acts on an additive group `A`, we have
 an element `g : G`, and `U`, `V` are subgroups of `G`. We impose the
 finiteness hypothesis that the double coset `UgV` is a *finite* union
 of single left cosets `gᵢV`. Under this hypothesis we define a Hecke
 operator [UgV] or `T_g`, which is an additive group homorphism
-from `A^V` (the `V`-fixedpoints of `G` on `A`) to `A^U`.
+from `A^V` (the `V`-fixedpoints of `G` on `A`) to `A^U` defined
+by `a ↦ ∑ᵢ(gᵢ•a)`.
 
 ## Main definition
 
-Let G act on A via R-linear maps.
+Let `G` act on `A` via `R`-linear maps, where `R` is an underlying
+ring of coefficient (which can be an arbitrary commutative ring here).
 
-* `AbstractHeckeOperator.HeckeOperator` : the R-linear map from A^V to A^U
+* `AbstractHeckeOperator.HeckeOperator` : the `R`-linear map from `A^V` to `A^U`
   coming from the double coset `UgV`.
 
 ## Mathematical details
 
-The definition of the Hecke operator is as follows. Write UgV as a
-finite disjoint union gᵢV (the finiteness is our running assumption).
-If a ∈ A^V then we define `[UgV]a := ∑ᵢ gᵢ•a`. Note that replacing
-the choice of gᵢ with another element g'ᵢ := gᵢv will not change gᵢ•a
-as a ∈ A^v, so the sum is a well-defined element of A. Finally
-we observe that it's in A^U because if u ∈ U then left multiplication
-by u is a permutation of the cosets gᵢV.
+The definition of the Hecke operator is as follows. Write `UgV` as a
+finite disjoint union `gᵢV` (the finiteness is our running assumption).
+If `a ∈ A^V` then we define `[UgV]a := ∑ᵢ(gᵢ•a)`. Note that replacing
+the choice of `gᵢ` with another element `g'ᵢ := gᵢv` will not change `gᵢ•a`
+as `a ∈ A^V`, so the sum is a well-defined element of `A`. Finally
+we observe that it's in `A^U` because if `u ∈ U` then left multiplication
+by `u` is a permutation of the cosets `gᵢV`.
 
-Note that if G is a topological group and U, V are compact open
-subgroups of G, then our hypothesis is automatically satisfied
-for all g ∈ G, because g⁻¹Ug ∩ V is open in compact V and hence
-has finite index.
+Note that if `G` is a topological group and `U`, `V` are compact open
+subgroups of `G`, then our finiteness hypothesis is automatically satisfied
+for all `g ∈ G`, because `g⁻¹Ug ∩ V` is open in compact `g⁻¹Ug` and hence
+has finite index, and so by the second isomorphism theorem `g⁻¹UgV` is
+a finite union of left cosets of `V`, and thus so is `UgV`.
 
 -/
 
@@ -121,15 +124,15 @@ variable {G : Type*} [Group G] {A : Type*} [AddCommMonoid A]
 
 open MulAction
 
--- finiteness hypothesis we need to make Hecke operators work: UgV is
--- a finite number of left V-cosets.
+-- finiteness hypothesis we need to make Hecke operators work: `UgV` is
+-- a finite number of left `V`-cosets.
 variable (h : (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ V)).Finite)
 
 open ConjAct
 
 namespace AbstractHeckeOperator
 
-/-- If a is fixed by V then `∑ᶠ g ∈ s, g • a` is independent of the choice `s` of
+/-- If `a` is fixed by `V` then `∑ᶠ g ∈ s, g • a` is independent of the choice `s` of
 coset representatives in `G` for a subset of `G ⧸ V` -/
 lemma eq_finsum_quotient_out_of_bijOn' (a : fixedPoints V A)
     {X : Set (G ⧸ V)}
