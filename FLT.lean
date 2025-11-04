@@ -33,7 +33,6 @@ import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor
 import FLT.DivisionAlgebra.Finiteness
-import FLT.DivisionAlgebra.ModuleTopProd
 import FLT.EllipticCurve.Torsion
 import FLT.GaloisRepresentation.Cyclotomic
 import FLT.GaloisRepresentation.HardlyRamified
@@ -55,6 +54,7 @@ import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
+import FLT.Mathlib.Algebra.Module.Prod
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
@@ -109,6 +109,7 @@ import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.Mathlib.Topology.Constructions
+import FLT.Mathlib.Topology.Constructions.SumProd
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
