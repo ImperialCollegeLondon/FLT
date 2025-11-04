@@ -725,6 +725,8 @@ lemma continuous_smul : ContinuousSMul (R × S) (M × N) where
     · apply Continuous.prodMap
       all_goals exact ContinuousSMul.continuous_smul
 
+/-- If `M` has the `A`-module topology and `N` has the `B`-module topology
+  then `M × N` has the `(A × B)`-module topology. -/
 instance instProd'' : IsModuleTopology (R × S) (M × N) := by
   haveI : ContinuousAdd M := IsModuleTopology.toContinuousAdd R M
   haveI : ContinuousAdd N := IsModuleTopology.toContinuousAdd S N
