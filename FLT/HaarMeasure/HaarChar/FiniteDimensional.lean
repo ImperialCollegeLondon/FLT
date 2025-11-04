@@ -86,7 +86,7 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal
       addEquivAddHaarChar ρ.toContinuousAddEquiv
         = ∏ i, ringHaarChar (Units.mk0 (D i) (D_ne i)) := by
     have : ρ.toContinuousAddEquiv = ContinuousAddEquiv.piCongrRight ψ := by
-      ext x i; simp [ψ, hρDi x i]; rfl
+      ext x i; simp only [ψ, hρDi x i]; rfl
     rw [this]
     exact addEquivAddHaarChar_piCongrRight' ψ
   -- 4) RHS: compute `ringHaarChar det ρ` as the same product
