@@ -479,6 +479,7 @@ section ModuleProd
 variable {R S M N : Type*} [Semiring R] [Semiring S] [TopologicalSpace R] [TopologicalSpace S]
   [AddCommMonoid M] [AddCommMonoid N] [Module R M] [Module S N]
 
+/-- The R × S module structure on M × N. -/
 local instance : Module (R × S) (M × N) := ModuleProd.instModuleProd
 
 /-- Inclusion `M → M × N` by `a ↦ (a, 0)`. -/
