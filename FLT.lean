@@ -1,3 +1,4 @@
+import FLT.Assumptions.KnownIn1980s
 import FLT.Assumptions.Mazur
 import FLT.Assumptions.Odlyzko
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
