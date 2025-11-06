@@ -5,9 +5,11 @@ import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
-import FLT.AutomorphicRepresentation.Example
 import FLT.Basic.FreyPackage
 import FLT.Basic.Reductions
+import FLT.Data.Hurwitz
+import FLT.Data.HurwitzRatHat
+import FLT.Data.QHat
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
@@ -82,7 +84,6 @@ import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.NumberTheory.RamificationInertia.Basic
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic

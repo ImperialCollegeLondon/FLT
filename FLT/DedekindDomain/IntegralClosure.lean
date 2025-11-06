@@ -109,7 +109,7 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
   simp only [intValuation, Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk]
   change (ite _ _ _) ^ _ = ite _ _ _
   rw [map_eq_zero_iff _ hAB, if_neg hx, if_neg hx, ← Set.image_singleton, ← Ideal.map_span,
-    mk_count_factors_map _ _ hAB, mul_comm]
+    mk_count_factors_map _ _ hAB, mul_comm, WithZero.exp, WithZero.exp]
   simp
 
 omit [IsIntegralClosure B A L] in
@@ -152,6 +152,20 @@ theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := b
 noncomputable def Extension.fintype : Fintype (Extension B v) :=
   have := Extension.finite A K L B v
   Fintype.ofFinite <| Extension B v
+
+include K L in
+omit [IsIntegralClosure B A L] [IsFractionRing B L] in
+theorem preimage_comap_finite (S : Set (HeightOneSpectrum A)) (hS : S.Finite) :
+    ((comap A : HeightOneSpectrum B → HeightOneSpectrum A) ⁻¹' S).Finite := by
+  rw [← Set.biUnion_preimage_singleton (comap A) S]
+  exact Set.Finite.biUnion' hS <| fun v _ ↦ Extension.finite A K L B v
+
+/-- Given an inclusion of Dedekind domains A → B, making B finite over A,
+this is the preimage of a Finset of finite places of A, as a Finset of
+finite places of B. -/
+noncomputable def preimageComapFinset (S : Finset (HeightOneSpectrum A)) :
+    Finset (HeightOneSpectrum B) :=
+  Set.Finite.toFinset <| preimage_comap_finite A K L B S S.finite_toSet
 
 omit [IsIntegralClosure B A L] in
 /-- `Ideal.sum_ramification_inertia`, rewritten as a sum over extensions. -/
