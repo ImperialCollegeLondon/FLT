@@ -33,7 +33,7 @@ open scoped RestrictedProduct
 variable {R : ι → Type*} {A : ι → Type*} [Π i, SetLike (A i) (R i)] {C : Π i, A i}
 
 variable (C) in
-/-- This is (isomorphic to) `(Π i ∈ S, R i) × (Π i ∉ S, A i)` -/
+/-- This is (isomorphic to) `(Π i ∈ S, C i) × (Π i ∉ S, R i)` -/
 def mem_A_away_from_S (S : 𝓕.setsᵒᵈ) : Type _ :=
   Πʳ i, [R i, C i]_[𝓟 S.1]
 
