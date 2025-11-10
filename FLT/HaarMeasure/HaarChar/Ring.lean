@@ -6,6 +6,7 @@ Authors: Kevin Buzzard
 import FLT.HaarMeasure.HaarChar.AddEquiv
 import Mathlib.Algebra.Group.Pi.Units
 import Mathlib.MeasureTheory.Group.Pointwise
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 
 open scoped NNReal
 
@@ -194,5 +195,45 @@ lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
   · exact fun c hc ↦ ⟨(u i)⁻¹ * c, (C i).mul_mem ((C i).mem_units_iff _ |>.mp hv).1 hc, by simp⟩
 
 end restrictedproduct
+
+section ModuleFinite
+
+variable {T R : Type*} [Field T] [Ring R] [Algebra T R] [Module.Finite T R]
+    [TopologicalSpace T] [TopologicalSpace R] [IsTopologicalRing R] [IsModuleTopology T R]
+    [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
+    [IsTopologicalRing T] [LocallyCompactSpace T]
+    (t : Tˣ)
+
+instance : MeasurableSpace (Fin (Module.finrank T R) → T) := by
+  exact borel (Fin (Module.finrank T R) → T)
+
+instance : BorelSpace (Fin (Module.finrank T R) → T) := by
+  exact { measurable_eq := rfl }
+
+theorem ringHaarChar_ModuleFinite :
+    ringHaarChar (Units.map (algebraMap T R).toMonoidHom t) =
+    ringHaarChar (R := (Fin (Module.finrank T R) → T))
+      (Units.map (algebraMap T (Fin (Module.finrank T R) → T)).toMonoidHom t) := by
+  apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    (IsModuleTopology.Module.Basis.equivFun_homeo)
+  intro x
+  simp only [RingHom.toMonoidHom_eq_coe, ContinuousAddEquiv.mulLeft_apply, Units.coe_map,
+    MonoidHom.coe_coe, ContinuousAddEquiv.coe_mk, AddEquiv.coe_mk, Equiv.coe_fn_mk,
+    Module.Basis.equivFun_apply]
+  ext i
+  simp only [Pi.mul_apply, Pi.algebraMap_apply, Algebra.algebraMap_self, RingHom.id_apply,
+    Module.Basis.repr_smul']
+
+variable [MeasurableSpace T] [BorelSpace T]
+
+theorem ringHaarChar_ModuleFinite_unit :
+    ringHaarChar (Units.map (algebraMap T R).toMonoidHom t) =
+    (ringHaarChar t) ^ (Module.finrank T R) := by
+  rw [ringHaarChar_ModuleFinite]
+  simpa using ringHaarChar_pi (ι := Fin (Module.finrank T R))
+      (A := fun _ : Fin (Module.finrank T R) => T) (fun (i : Fin (Module.finrank T R)) ↦ t)
+
+
+end ModuleFinite
 
 end MeasureTheory
