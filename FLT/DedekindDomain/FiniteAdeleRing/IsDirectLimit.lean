@@ -119,7 +119,7 @@ variable [AddCommMonoid P₁] [Module R P₁] [AddCommMonoid P₂] [Module R P�
 
 omit [IsDirected ι (· ≤ ·)] in
 theorem compatibility_module {i j hij} (x : M i) : g₁ j (f i j hij x) = g₁ i x :=
-  compatibility' (f := (f · · ·)) (g := (g₁ · ·)) x
+  compatibility' (f · · ·) (g₁ · ·) x
 
 /--
 The universal property of the direct limit: define a linear map from the direct limit
@@ -140,7 +140,7 @@ noncomputable def lift
       (le_trans hyk hkk') (preimage (f · · ·) (g₁ · ·) y)) =
         g₁ (preimage_index (f · · ·) (g₁ · ·) (x+y)) (preimage (f · · ·) (g₁ · ·) (x+y)) := by
       simp only [LinearMap.map_add, image_preimage]
-      repeat rw [compatibility' (f := (f · · ·)) (g := (g₁ · ·)),
+      repeat rw [compatibility' (f · · ·) (g₁ · ·),
         image_preimage (f := (f · · ·)) (g := (g₁ · ·))]
     obtain ⟨k'', hk'k'', hxyk'', h'''⟩ := is_injective (f · · ·) (g₁ · ·) sum_eq
     simpa [Hg] using congr_arg (g₂ k'') h'''.symm
