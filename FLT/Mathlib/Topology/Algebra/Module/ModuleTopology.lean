@@ -497,8 +497,9 @@ section ModuleFinite
 
 /-- The homeomorphism of `R` and `Fin (Module.finrank T R) → T` based on `Module.Basis.equivFun`
   when `R` has the `T` module topology. -/
+@[simps!]
 noncomputable
-abbrev Module.Basis.equivFun_homeo {T R : Type*} [Field T] [Ring R] [Module T R]
+def Module.Basis.equivFun_homeo (T R : Type*) [Field T] [Ring R] [Module T R]
     [Module.Finite T R] [TopologicalSpace T] [TopologicalSpace R] [IsTopologicalRing R]
     [IsTopologicalRing T] [IsModuleTopology T R] : R ≃L[T] (Fin (Module.finrank T R) → T) where
   __ := Module.Basis.equivFun (Module.finBasisOfFinrankEq T R (rfl))
@@ -512,4 +513,3 @@ abbrev Module.Basis.equivFun_homeo {T R : Type*} [Field T] [Ring R] [Module T R]
 end ModuleFinite
 
 end IsModuleTopology
-#min_imports
