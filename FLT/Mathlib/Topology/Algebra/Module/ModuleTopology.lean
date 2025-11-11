@@ -7,6 +7,7 @@ import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
 import Mathlib.LinearAlgebra.Dimension.Finrank
 import Mathlib.LinearAlgebra.Dimension.Free
+import Mathlib
 
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
@@ -500,18 +501,14 @@ section ModuleFinite
 noncomputable
 abbrev Module.Basis.equivFun_homeo {T R : Type*} [Field T] [Ring R] [Module T R]
     [Module.Finite T R] [TopologicalSpace T] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsTopologicalRing T] [IsModuleTopology T R] : R ≃ₜ+ (Fin (Module.finrank T R) → T) where
-  toFun := Module.Basis.equivFun (Module.finBasisOfFinrankEq T R (rfl))
-  invFun := (Module.Basis.equivFun (Module.finBasisOfFinrankEq T R (rfl))).symm
-  map_add' _ _ := LinearEquiv.map_add _ _ _
-  left_inv _ := LinearEquiv.symm_apply_apply _ _
-  right_inv _ := LinearEquiv.apply_symm_apply _ _
-  continuous_toFun := by
-    convert IsModuleTopology.continuous_of_linearMap _
-    all_goals infer_instance
-  continuous_invFun := by
-    convert IsModuleTopology.continuous_of_linearMap _
-    all_goals try infer_instance
+    [IsTopologicalRing T] [IsModuleTopology T R] : R ≃L[T] (Fin (Module.finrank T R) → T) where
+  __ := Module.Basis.equivFun (Module.finBasisOfFinrankEq T R (rfl))
+  continuous_toFun :=
+    IsModuleTopology.continuous_of_linearMap
+      (Module.Basis.equivFun (Module.finBasisOfFinrankEq T R (rfl))).toLinearMap
+  continuous_invFun :=
+    IsModuleTopology.continuous_of_linearMap
+      (Module.Basis.equivFun (Module.finBasisOfFinrankEq T R (rfl))).symm.toLinearMap
 
 end ModuleFinite
 
