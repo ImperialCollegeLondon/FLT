@@ -1,13 +1,12 @@
-import Mathlib.Algebra.Algebra.Bilinear
-import Mathlib.LinearAlgebra.Basis.VectorSpace
-import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
-import Mathlib.LinearAlgebra.Dimension.Finrank
-import Mathlib.LinearAlgebra.Dimension.Free
-import Mathlib
+import FLT.Mathlib.Algebra.Algebra.Tower
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.LinearAlgebra.FreeModule.PID
+import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.PicardGroup
+import Mathlib.RingTheory.SimpleRing.Principal
+import Mathlib.Topology.Algebra.Algebra.Equiv
+import Mathlib.Topology.Algebra.Module.ModuleTopology
 
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
@@ -513,3 +512,4 @@ abbrev Module.Basis.equivFun_homeo {T R : Type*} [Field T] [Ring R] [Module T R]
 end ModuleFinite
 
 end IsModuleTopology
+#min_imports
