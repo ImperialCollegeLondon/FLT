@@ -198,40 +198,41 @@ end restrictedproduct
 
 section ModuleFinite
 
-variable {T R : Type*} [Field T] [Ring R] [Algebra T R] [Module.Finite T R]
-    [TopologicalSpace T] [TopologicalSpace R] [IsTopologicalRing R] [IsModuleTopology T R]
+variable {K R : Type*} [Field K] [Ring R] [Algebra K R] [Module.Finite K R]
+    [TopologicalSpace K] [TopologicalSpace R] [IsTopologicalRing R] [IsModuleTopology K R]
     [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
-    [IsTopologicalRing T] [LocallyCompactSpace T]
-    (t : Tˣ)
+    [IsTopologicalRing K] [LocallyCompactSpace K]
+    (t : Kˣ)
 
-instance : MeasurableSpace (Fin (Module.finrank T R) → T) := by
-  exact borel (Fin (Module.finrank T R) → T)
+instance : MeasurableSpace (Fin (Module.finrank K R) → K) := by
+  exact borel (Fin (Module.finrank K R) → K)
 
-instance : BorelSpace (Fin (Module.finrank T R) → T) := by
+instance : BorelSpace (Fin (Module.finrank K R) → K) := by
   exact { measurable_eq := rfl }
 
 theorem ringHaarChar_ModuleFinite :
-    ringHaarChar (Units.map (algebraMap T R).toMonoidHom t) =
-    ringHaarChar (R := (Fin (Module.finrank T R) → T))
-      (Units.map (algebraMap T (Fin (Module.finrank T R) → T)).toMonoidHom t) := by
+    ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
+    ringHaarChar (R := (Fin (Module.finrank K R) → K))
+      (Units.map (algebraMap K (Fin (Module.finrank K R) → K)).toMonoidHom t) := by
   apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
-    (IsModuleTopology.Module.Basis.equivFun_homeo)
+    ((IsModuleTopology.Module.Basis.equivFun_homeo _ _).toContinuousAddEquiv)
   intro x
-  simp only [RingHom.toMonoidHom_eq_coe, ContinuousAddEquiv.mulLeft_apply, Units.coe_map,
-    MonoidHom.coe_coe, ContinuousAddEquiv.coe_mk, AddEquiv.coe_mk, Equiv.coe_fn_mk,
-    Module.Basis.equivFun_apply]
-  ext i
-  simp only [Pi.mul_apply, Pi.algebraMap_apply, Algebra.algebraMap_self, RingHom.id_apply,
-    Module.Basis.repr_smul']
+  -- this would not be needed if `mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv`
+  -- ate a ContinuousMulEquivClass instead of a ContinuousMulEquiv
+  change (IsModuleTopology.Module.Basis.equivFun_homeo K R)
+    _ =
+  (ContinuousAddEquiv.mulLeft ((Units.map ↑(algebraMap K (Fin (Module.finrank K R) → K))) t))
+    ((IsModuleTopology.Module.Basis.equivFun_homeo K R) x)
+  simp [← Algebra.smul_def]
 
-variable [MeasurableSpace T] [BorelSpace T]
+variable [MeasurableSpace K] [BorelSpace K]
 
 theorem ringHaarChar_ModuleFinite_unit :
-    ringHaarChar (Units.map (algebraMap T R).toMonoidHom t) =
-    (ringHaarChar t) ^ (Module.finrank T R) := by
+    ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
+    (ringHaarChar t) ^ (Module.finrank K R) := by
   rw [ringHaarChar_ModuleFinite]
-  simpa using ringHaarChar_pi (ι := Fin (Module.finrank T R))
-      (A := fun _ : Fin (Module.finrank T R) => T) (fun (i : Fin (Module.finrank T R)) ↦ t)
+  simpa using ringHaarChar_pi (ι := Fin (Module.finrank K R))
+      (A := fun _ : Fin (Module.finrank K R) => K) (fun (i : Fin (Module.finrank K R)) ↦ t)
 
 
 end ModuleFinite
