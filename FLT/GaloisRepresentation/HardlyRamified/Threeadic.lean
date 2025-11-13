@@ -2,6 +2,9 @@ import FLT.GaloisRepresentation.HardlyRamified.Defs
 import FLT.GaloisRepresentation.HardlyRamified.ModThree -- will be needed for proof
 import Mathlib.RingTheory.Ideal.Int
 
+/-- `toNatPrime v` returns the underlying rational prime of the height-one prime `v`
+of `ℤ = NumberField.RingOfIntegers ℚ`.
+-/
 noncomputable def toNatPrime
   (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers ℚ)) :
   {p : ℕ // Nat.Prime p} := by
