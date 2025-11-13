@@ -380,6 +380,16 @@ def GaloisRep.toRepresentation (ρ : GaloisRep K A M) : Representation A (Γ K) 
 def GaloisRep.IsIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
     (ρ : GaloisRep K k M) : Prop := ρ.toRepresentation.IsIrreducible
 
+set_option linter.style.docString false in
+/-- Note that we don't use  ρ.toRepresentation.IsAbsolutelyIrreducible because it will use
+the wrong type of base change. --/
+class GaloisRep.IsAbsolutelyIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
+    [Module.Finite k M]
+    (ρ : GaloisRep K k M) : Prop where
+    absolutelyIrreducible : ∀ k', ∀ _ : Field.{u} k', ∀ _ : TopologicalSpace k',
+    ∀ _ : IsTopologicalRing k', ∀ _ : Algebra k k', ∀ _ : ContinuousSMul k k',
+      IsIrreducible (GaloisRep.baseChange k' ρ)
+
 omit [NumberField K] [IsTopologicalRing A]
 lemma charpoly_baseChange [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
  (ρ : GaloisRep K A M) (g : Field.absoluteGaloisGroup K) :

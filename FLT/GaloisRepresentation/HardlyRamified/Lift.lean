@@ -29,4 +29,6 @@ theorem lifts (ρ : GaloisRep ℚ k V) (hρirred : ρ.IsIrreducible)
       (σ : GaloisRep ℚ R W) (r : k ⊗[R] W ≃ₗ[k] V),
     IsHardlyRamified hpodd hW σ ∧ (σ.baseChange k).conj r = ρ := sorry
 
-end GaloisRepresentation.IsHardlyRamified
+end IsHardlyRamified
+
+end GaloisRepresentation
