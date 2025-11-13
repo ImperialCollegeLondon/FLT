@@ -5,6 +5,8 @@ import Mathlib.LinearAlgebra.Matrix.Unique
 import Mathlib.RingTheory.Bialgebra.TensorProduct
 import Mathlib.RingTheory.HopfAlgebra.Basic
 import FLT.Deformations.RepresentationTheory.Irreducible
+import Mathlib.LinearAlgebra.Charpoly.ToMatrix
+import Mathlib.LinearAlgebra.Charpoly.BaseChange
 
 open NumberField
 
@@ -377,3 +379,26 @@ def GaloisRep.toRepresentation (ρ : GaloisRep K A M) : Representation A (Γ K) 
 /-- Irreducibility of a Galois representation over a field. -/
 def GaloisRep.IsIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
     (ρ : GaloisRep K k M) : Prop := ρ.toRepresentation.IsIrreducible
+
+omit [NumberField K] [IsTopologicalRing A]
+lemma charpoly_baseChange [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
+ (ρ : GaloisRep K A M) (g : Field.absoluteGaloisGroup K) :
+  LinearMap.charpoly (GaloisRep.baseChange B ρ g) =
+    Polynomial.map Algebra.algebraMap (LinearMap.charpoly (ρ g)) := by
+  apply LinearMap.charpoly_baseChange
+
+lemma charpoly_conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) (g : Field.absoluteGaloisGroup K) :
+  LinearMap.charpoly ((GaloisRep.conj ρ e) g) = LinearMap.charpoly (ρ g) := by
+  apply LinearEquiv.charpoly_conj
+
+omit [Module.Finite A M] [Module.Free A M] [Module.Finite A N] [Module.Free A N] in
+lemma conj_toLocal [NumberField K]
+   (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)) (ρ : GaloisRep K A M)
+     (e : M ≃ₗ[A] N) : (GaloisRep.conj ρ e).toLocal v = GaloisRep.conj (ρ.toLocal v) e := by
+  rfl
+
+lemma baseChange_toLocal [NumberField K] [IsTopologicalRing B]
+  [Algebra A B] [ContinuousSMul A B]
+   (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)) (ρ : GaloisRep K A M) :
+    (GaloisRep.baseChange B ρ).toLocal v = GaloisRep.baseChange B (ρ.toLocal v) := by
+  rfl
