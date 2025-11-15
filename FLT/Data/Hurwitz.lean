@@ -394,7 +394,7 @@ lemma norm_mul (x y : 𝓞) : norm (x * y) = norm x * norm y := by
   rw [Int.cast_comm, ← mul_assoc, ← norm_eq_mul_conj, Int.cast_mul]
 
 lemma norm_nonneg (x : 𝓞) : 0 ≤ norm x := by
-  rw [← Int.cast_nonneg (R := ℝ), coe_norm]
+  rw [← Int.cast_nonneg_iff (R := ℝ), coe_norm]
   positivity
 
 lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := by

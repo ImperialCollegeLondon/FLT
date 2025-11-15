@@ -11,7 +11,7 @@ and all its discrete quotients are artinian.
 
 This is also called the category of "pseudo-compact" rings in section 0 of Exp VII_B of SGA3. -/
 class IsProartinian : Prop extends IsLinearTopology R R, T0Space R,
-    letI := IsTopologicalAddGroup.toUniformSpace R; CompleteSpace R where
+    letI := IsTopologicalAddGroup.rightUniformSpace R; CompleteSpace R where
   isArtinianRing_quotient (I : Ideal R) : IsOpen (X := R) I → IsArtinianRing (R ⧸ I)
 
 attribute [instance low] IsProartinian.toIsLinearTopology

@@ -311,7 +311,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
           rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
         use Rat.ringOfIntegersEquiv z
         rw [← hz]
-        apply Rat.coe_ringOfIntegersEquiv
+        apply Rat.ringOfIntegersEquiv_apply_coe
       obtain ⟨y, rfl⟩ := intx
       simp only [abs_lt] at h1
       norm_cast at h1 ⊢
