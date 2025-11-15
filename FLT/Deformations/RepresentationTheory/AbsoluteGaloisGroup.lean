@@ -99,7 +99,7 @@ open IntermediateField in
 instance {K L : Type*} [Field K] [Field L] [Algebra K L] [Algebra.IsAlgebraic K L] :
     CompactSpace (L ≃ₐ[K] L) := by
   classical
-  letI := IsTopologicalGroup.toUniformSpace (L ≃ₐ[K] L)
+  letI := IsTopologicalGroup.rightUniformSpace (L ≃ₐ[K] L)
   rw [← isCompact_univ_iff, isCompact_iff_totallyBounded_isComplete]
   refine ⟨IsTopologicalGroup.totallyBounded fun s hs ↦ ?_, ?_⟩
   · obtain ⟨E, hE, H⟩ := (krullTopology_mem_nhds_one_iff _ _ _).mp hs
