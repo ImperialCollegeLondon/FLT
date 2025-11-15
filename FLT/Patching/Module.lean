@@ -1,6 +1,6 @@
 import FLT.Patching.Ultraproduct
 import FLT.Patching.Utils.AdicTopology
-import Mathlib.Algebra.Module.Torsion
+import Mathlib.Algebra.Module.Torsion.Free
 import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
 import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
 import Mathlib.Topology.Compactness.Paracompact
