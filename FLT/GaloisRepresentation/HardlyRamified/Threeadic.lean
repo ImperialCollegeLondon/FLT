@@ -3,6 +3,7 @@ import FLT.GaloisRepresentation.HardlyRamified.ModThree -- will be needed for pr
 import FLT.Assumptions.KnownIn1980s
 import Mathlib.RingTheory.Ideal.Int
 import Mathlib.RingTheory.LocalRing.ResidueField.Defs
+import Mathlib.Topology.Algebra.Localization
 
 universe u
 
@@ -17,8 +18,6 @@ noncomputable def toNatPrime
   refine ⟨Ideal.absNorm (Ideal.under ℤ v.asIdeal), ?_⟩
   have vnezero : NeZero v.asIdeal := ⟨v.ne_bot⟩
   apply Nat.absNorm_under_prime
-
-
 
 local notation "Frob" => Field.AbsoluteGaloisGroup.adicArithFrob
 local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
@@ -88,19 +87,6 @@ instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
 instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
     [IsLocalRing R] : IsTopologicalRing (IsLocalRing.ResidueField R) := sorry
 
-instance fractionRing_topology {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsDomain R] : TopologicalSpace (FractionRing R) := moduleTopology R (FractionRing R)
-
-instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsDomain R] : ContinuousAdd (FractionRing R) := ModuleTopology.continuousAdd R (FractionRing R)
-
-instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsDomain R] : ContinuousSMul R (FractionRing R) :=
-    ModuleTopology.continuousSMul R (FractionRing R)
-
-instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsDomain R] : IsTopologicalRing (FractionRing R) := sorry
-
 lemma compact_of_finite_Zp (p : ℕ) [Fact p.Prime] (R : Type*) [AddCommMonoid R] [Module ℤ_[p] R]
     [Module.Finite ℤ_[p] R] [TopologicalSpace R] [IsModuleTopology ℤ_[p] R] :
     CompactSpace R := sorry
@@ -111,6 +97,29 @@ lemma hausdorff_of_finite_Zp (p : ℕ) [Fact p.Prime] (R : Type*) [AddCommMonoid
 
 lemma noetherian_of_finite_Zp (p : ℕ) [Fact p.Prime] (R : Type*) [CommRing R] [Algebra ℤ_[p] R]
     [Module.Finite ℤ_[p] R] : IsNoetherianRing R := sorry
+
+theorem irreducible_of_irreducible_reduction {K R : Type*} [Field K] [TopologicalSpace R]
+  [CommRing R] [IsTopologicalRing R] [IsLocalRing R] [IsDomain R] {V : Type*} [AddCommGroup V]
+  [Module R V] [Module.Finite R V] [Module.Free R V] (ρ : GaloisRep K R V) : GaloisRep.IsIrreducible
+    (GaloisRep.baseChange (IsLocalRing.ResidueField R) ρ) → GaloisRep.IsIrreducible
+      (GaloisRep.baseChange (FractionRing R) ρ) := sorry
+
+lemma continuousSMul_of_fractionRing (R S : Type*) [CommRing R] [IsDomain R] [TopologicalSpace R]
+  [IsTopologicalRing R] [Field S] [TopologicalSpace S] [alg : Algebra R S] [FaithfulSMul R S]
+  [ContinuousSMul R S] :
+  haveI : Algebra (FractionRing R) S := FractionRing.liftAlgebra R S
+  ContinuousSMul (FractionRing R) S := sorry
+
+lemma Ideal.comap_ne_bot_of_isIntegral (R : Type*) {S : Type*} [CommRing R] [Nontrivial R]
+    [CommRing S] [IsDomain S] [Algebra R S] [Algebra.IsIntegral R S] {I : Ideal S} (hI : I ≠ ⊥) :
+    I.comap (algebraMap R S) ≠ ⊥ := by
+  obtain ⟨i, hiI, hi0⟩ := Submodule.exists_mem_ne_zero_of_ne_bot hI
+  exact Ideal.comap_ne_bot_of_algebraic_mem hi0 hiI <| Algebra.IsAlgebraic.isAlgebraic i
+
+lemma faithfulSMul_of_padic_fractionRing (p : ℕ) [Fact p.Prime] (R S : Type*) [CommRing R]
+  [IsDomain R] [TopologicalSpace R] [IsTopologicalRing R] [Algebra ℤ_[p] R] [Module.Finite ℤ_[p] R]
+  [Module.Free ℤ_[p] R] [Field S] [CharZero S] [TopologicalSpace S] [alg : Algebra R S]
+  : FaithfulSMul R S := sorry
 
 namespace GaloisRepresentation.IsHardlyRamified
 
@@ -130,6 +139,7 @@ theorem ribets_lemma (p : ℕ) [Fact p.Prime] {R : Type u} [CommRing R] [Algebra
     (GaloisRep.baseChange (IsLocalRing.ResidueField R) σ) := by
       knownin1980s
 
+--set_option maxHeartbeats 10000000 in
 theorem three_adic' {R : Type u} [CommRing R] [Algebra ℤ_[3] R] [Module.Finite ℤ_[3] R]
     [Module.Free ℤ_[3] R] [TopologicalSpace R] [IsTopologicalRing R] [IsLocalRing R] [IsDomain R]
     [IsModuleTopology ℤ_[3] R]
@@ -143,7 +153,7 @@ theorem three_adic' {R : Type u} [CommRing R] [Algebra ℤ_[3] R] [Module.Finite
     have _ := noetherian_of_finite_Zp 3 R
     have _ : Module.Free (IsLocalRing.ResidueField R) ((IsLocalRing.ResidueField R) ⊗[R] V) :=
       Module.Free.tensor
-    have _ : Fintype (IsLocalRing.ResidueField R) := by sorry
+    have _ : Fintype (IsLocalRing.ResidueField R) := Fintype.ofFinite (IsLocalRing.ResidueField R)
     have mod_three := IsHardlyRamified.mod_three ((IsLocalRing.ResidueField R) ⊗[R] V)
       (ρ := GaloisRep.baseChange (IsLocalRing.ResidueField R) ρ) (by
         rw[Module.rank_baseChange, Cardinal.lift_id]

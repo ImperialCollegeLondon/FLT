@@ -7,6 +7,7 @@ import Mathlib.RingTheory.HopfAlgebra.Basic
 import FLT.Deformations.RepresentationTheory.Irreducible
 import Mathlib.LinearAlgebra.Charpoly.ToMatrix
 import Mathlib.LinearAlgebra.Charpoly.BaseChange
+import Mathlib.Topology.Algebra.Localization
 
 open NumberField
 
@@ -390,6 +391,8 @@ class GaloisRep.IsAbsolutelyIrreducible {k : Type*} [Field k] [TopologicalSpace 
     ∀ _ : IsTopologicalRing k', ∀ _ : Algebra k k', ∀ _ : ContinuousSMul k k',
       IsIrreducible (GaloisRep.baseChange k' ρ)
 
+namespace GaloisRep
+
 omit [NumberField K] [IsTopologicalRing A]
 lemma charpoly_baseChange [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
  (ρ : GaloisRep K A M) (g : Field.absoluteGaloisGroup K) :
@@ -412,3 +415,37 @@ lemma baseChange_toLocal [NumberField K] [IsTopologicalRing B]
    (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)) (ρ : GaloisRep K A M) :
     (GaloisRep.baseChange B ρ).toLocal v = GaloisRep.baseChange B (ρ.toLocal v) := by
   rfl
+
+def tensor_associator {R : Type*} (S T : Type*) [CommRing R] [CommRing S] [CommRing T] [Algebra R S]
+  [Algebra S T] [Algebra R T] [IsScalarTower R S T] (V : Type*) [AddCommGroup V] [Module R V] :
+  TensorProduct R T V ≃ₗ[T] TensorProduct S T (TensorProduct R S V) := by exact
+    (TensorProduct.AlgebraTensorModule.cancelBaseChange R S T T V).symm
+
+theorem base_change_trans {K R : Type} (S T : Type*) [Field K] [TopologicalSpace R] [CommRing R]
+  [IsTopologicalRing R] [CommRing S] [TopologicalSpace S] [IsTopologicalRing S] [TopologicalSpace T]
+  [CommRing T] [IsTopologicalRing T] [Algebra R S] [ContinuousSMul R S] [Algebra S T] [Algebra R T]
+  [ContinuousSMul S T] [IsScalarTower R S T] [ContinuousSMul R T]
+  {V : Type*} [AddCommGroup V] [Module R V] [Module.Finite R V] [Module.Free R V]
+  (ρ : GaloisRep K R V) : GaloisRep.conj (GaloisRep.baseChange T ρ) (tensor_associator S T V) =
+  (GaloisRep.baseChange T (GaloisRep.baseChange S ρ)) := sorry
+
+lemma det_baseChange {K A B M : Type*} [Field K] [CommRing A] [TopologicalSpace A] [CommRing B]
+  [TopologicalSpace B] [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B] [AddCommGroup M]
+  [Module A M] [IsTopologicalRing A] [Module.Finite A M] [Module.Free A M]
+  (ρ : GaloisRep K A M) (g : Field.absoluteGaloisGroup K) :
+    (GaloisRep.baseChange B ρ).det g = Algebra.algebraMap (ρ.det g) := by
+  apply LinearMap.det_baseChange
+
+theorem irreducible_of_irreducible_base_change {K E F : Type*} [Field K] [Field E] [Field F]
+  [TopologicalSpace E] [IsTopologicalRing E] [TopologicalSpace F] [IsTopologicalRing F]
+  [Algebra E F] {V : Type*} [AddCommGroup V] [Module E V] [Module.Finite E V] [ContinuousSMul E F]
+  (ρ : GaloisRep K E V) : GaloisRep.IsIrreducible (GaloisRep.baseChange F ρ) →
+  GaloisRep.IsIrreducible ρ := sorry
+
+theorem reducible_conj_reducible_iff {K R : Type*} [Field K] [TopologicalSpace R] [Field R]
+  [IsTopologicalRing R] {V W : Type*} [AddCommGroup V] [Module R V] [Module.Finite R V]
+  [AddCommGroup W] [Module R W] [Module.Finite R W] [Module.Free R W]
+  (ρ : GaloisRep K R V) (e : V ≃ₗ[R] W) : GaloisRep.IsIrreducible ρ ↔
+  GaloisRep.IsIrreducible (GaloisRep.conj ρ e) := by sorry
+
+end GaloisRep

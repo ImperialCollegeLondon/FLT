@@ -12,6 +12,7 @@ import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
 import Mathlib.NumberTheory.Padics.Complex
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.SimpleRing.Principal
+import Mathlib.Topology.Algebra.Localization
 /-
 
 # Hardly ramified representations
@@ -129,18 +130,10 @@ theorem conj_hardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
     (e : V ≃ₗ[R] W) (ρ : GaloisRep ℚ R V) : IsHardlyRamified hℓOdd hdimV ρ ↔
     IsHardlyRamified hℓOdd hdimW (GaloisRep.conj ρ e) := sorry
 
-local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsDomain R] : TopologicalSpace (FractionRing R) := moduleTopology R (FractionRing R)
-
-local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsDomain R] : ContinuousAdd (FractionRing R) := ModuleTopology.continuousAdd R (FractionRing R)
-
-local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsDomain R] : ContinuousSMul R (FractionRing R) :=
-    ModuleTopology.continuousSMul R (FractionRing R)
-
-local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsDomain R] : IsTopologicalRing (FractionRing R) := sorry
+instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsDomain R] : ContinuousSMul R (FractionRing R) := by
+      apply continuousSMul_of_algebraMap R (FractionRing R)
+      exact RingTopology.coinduced_continuous ⇑(algebraMap R (FractionRing R))
 
 set_option linter.unusedVariables false in
 theorem hardlyRamified_of_hardlyRamified_isogenous {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
@@ -179,5 +172,10 @@ theorem odd_of_hardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
     (ρ : GaloisRep ℚ R V) (hρ : IsHardlyRamified hℓOdd hdim ρ) : GaloisRep.det ρ complexConjugation
     = -1 :=
       sorry
+
+theorem isAbsolutelyIrreducible_of_irreducible_odd {R : Type*} [TopologicalSpace R] [Field R]
+  [IsTopologicalRing R] {V : Type*} [AddCommGroup V] [Module R V] [Module.Finite R V]
+  (hV : Module.rank R V = 2) (ρ : GaloisRep ℚ R V) (ρodd : GaloisRep.det ρ complexConjugation
+  = -1) (hρ : GaloisRep.IsIrreducible ρ) : GaloisRep.IsAbsolutelyIrreducible ρ := sorry
 
 end GaloisRepresentation
