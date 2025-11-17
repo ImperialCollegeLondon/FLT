@@ -12,9 +12,10 @@ open scoped TensorProduct
 /-- `toNatPrime v` returns the underlying rational prime of the height-one prime `v`
 of `ℤ = NumberField.RingOfIntegers ℚ`.
 -/
+
 noncomputable def toNatPrime
   (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers ℚ)) :
-  {p : ℕ // Nat.Prime p} := by
+  Nat.Primes := by
   refine ⟨Ideal.absNorm (Ideal.under ℤ v.asIdeal), ?_⟩
   have vnezero : NeZero v.asIdeal := ⟨v.ne_bot⟩
   apply Nat.absNorm_under_prime
@@ -55,12 +56,13 @@ instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
     (φ := {
       toFun := (IsLocalRing.residue R).toFun
       map_add' := (IsLocalRing.residue R).map_add'
-      map_smul' := by intro m x
-                      simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe,
-                      MonoidHom.toOneHom_coe, MonoidHom.coe_coe, RingHom.id_apply]
-                      change (IsLocalRing.residue R) (m * x) = (IsLocalRing.residue R) m *
-                      (IsLocalRing.residue R) x
-                      exact rfl
+      map_smul' := by
+        intro m x
+        simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe,
+        MonoidHom.toOneHom_coe, MonoidHom.coe_coe, RingHom.id_apply]
+        change (IsLocalRing.residue R) (m * x) = (IsLocalRing.residue R) m *
+        (IsLocalRing.residue R) x
+        exact rfl
     }) IsLocalRing.residue_surjective).isOpenMap
     specialize this (IsLocalRing.maximalIdeal R) (IsLocalRing.isOpen_maximalIdeal R)
     simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,

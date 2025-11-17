@@ -394,7 +394,7 @@ namespace GaloisRep
 
 omit [NumberField K] [IsTopologicalRing A]
 lemma charpoly_baseChange [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
- (ρ : GaloisRep K A M) (g : Field.absoluteGaloisGroup K) :
+    (ρ : GaloisRep K A M) (g : Field.absoluteGaloisGroup K) :
     LinearMap.charpoly (GaloisRep.baseChange B ρ g) =
     Polynomial.map Algebra.algebraMap (LinearMap.charpoly (ρ g)) := by
   apply LinearMap.charpoly_baseChange
