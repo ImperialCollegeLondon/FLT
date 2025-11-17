@@ -72,7 +72,7 @@ theorem padic_valuation_neg_of_mem_indexSupport
   contrapose! hp
   simpa [Padic.norm_le_one_iff_val_nonneg]
 
-/-- The natural `n : ℕ` for which `x p * n` is a `p`-adic integer for all `p`. -/
+/-- The smallest positive natural `n : ℕ` for which `x p * n` is a `p`-adic integer for all `p`. -/
 noncomputable def padicNatDen
     (x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) : ℕ :=
   ∏ p ∈ x.indexSupport, p.1 ^ (x p).valuation.natAbs
