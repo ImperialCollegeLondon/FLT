@@ -6,7 +6,7 @@ Authors: Kevin Buzzard, Jonas Bayer, Mario Carneiro
 import Mathlib.Algebra.Lie.BaseChange
 import Mathlib.Algebra.Lie.UniversalEnveloping
 import Mathlib.Analysis.Complex.Basic
-import Mathlib.Analysis.Matrix
+import Mathlib.Analysis.Matrix.Normed
 import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.LinearAlgebra.UnitaryGroup

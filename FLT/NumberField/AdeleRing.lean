@@ -1,7 +1,6 @@
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.Completion.Finite
-import FLT.AutomorphicRepresentation.Example
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
@@ -15,6 +14,7 @@ import Mathlib.NumberTheory.NumberField.AdeleRing
 import Mathlib.LinearAlgebra.TensorProduct.Prod
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.NumberField.FiniteAdeleRing
+import FLT.Data.QHat
 
 open scoped TensorProduct
 
@@ -311,7 +311,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
           rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
         use Rat.ringOfIntegersEquiv z
         rw [← hz]
-        apply Rat.coe_ringOfIntegersEquiv
+        apply Rat.ringOfIntegersEquiv_apply_coe
       obtain ⟨y, rfl⟩ := intx
       simp only [abs_lt] at h1
       norm_cast at h1 ⊢
@@ -480,7 +480,7 @@ theorem Rat.AdeleRing.cocompact :
         simpa using HeightOneSpectrum.coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
     refine ⟨b, hb, ?_⟩
     unfold b; unfold a
-    simp [c]
+    simp [-algebraMap.coe_inj, c]
   { isCompact_univ := h_W_image ▸ IsCompact.image h_W_compact continuous_quot_mk }
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]

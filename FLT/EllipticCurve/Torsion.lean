@@ -3,7 +3,7 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import Mathlib.Algebra.Module.Torsion
+import Mathlib.Algebra.Module.Torsion.Free
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Basic
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Formula
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
