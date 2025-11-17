@@ -53,8 +53,7 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal
     [BorelSpace (ι → F)]
     (ρ : (ι → F) ≃L[F] (ι → F)) {D : ι → F}
     (h : ρ.toLinearMap.toMatrix' = Matrix.diagonal D) :
-    addEquivAddHaarChar ρ.toContinuousAddEquiv
-      = ringHaarChar ρ.toLinearEquiv.det := by
+    addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det := by
   -- 1) determinant computations
   let f := ρ.toLinearMap
   have f_eq : f = Matrix.toLin' (Matrix.diagonal D) := by
@@ -213,7 +212,7 @@ variable {V : Type*} [AddCommGroup V] [TopologicalSpace V] [MeasurableSpace V] [
 open Module
 
 /-- Haar measure scaling for invertible linear maps on a finite-dimensional vector space
-    over a field F assuming [SecondCountableTopology F] (FLT#517) -/
+over a field F assuming `[SecondCountableTopology F]`. -/
 theorem addEquivAddHaarChar_eq_ringHaarChar_det [SecondCountableTopology F] (ρ : V ≃L[F] V) :
     addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det := by
   let b := finBasis F V
