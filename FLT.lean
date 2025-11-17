@@ -68,7 +68,6 @@ import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
-import FLT.Mathlib.Data.Nat.Prime.Defs
 import FLT.Mathlib.Data.Set.Prod
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.GroupTheory.Index

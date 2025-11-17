@@ -1,5 +1,4 @@
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
-import FLT.Mathlib.Data.Nat.Prime.Defs
 import Mathlib.NumberTheory.Padics.RingHoms
 
 open IsDedekindDomain NumberField PadicInt RestrictedProduct
@@ -55,6 +54,8 @@ end IsDedekindDomain.HeightOneSpectrum
 
 namespace Padic
 
+local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
+
 theorem setOf_norm_one_lt_finite (x : ℚ) :
     {p : Nat.Primes | 1 < ‖(x : ℚ_[p])‖}.Finite := by
   apply Set.Finite.subset _ fun p ↦ mt (Padic.norm_rat_le_one) ∘ not_le.2
@@ -65,6 +66,8 @@ theorem setOf_norm_one_lt_finite (x : ℚ) :
 end Padic
 
 namespace RestrictedProduct
+
+local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
 
 theorem padic_valuation_neg_of_mem_indexSupport
     {x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]} {p : Nat.Primes} (hp : p ∈ x.indexSupport) :

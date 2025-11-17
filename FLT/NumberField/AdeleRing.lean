@@ -381,6 +381,8 @@ variable (K : Type*) [Field K] [NumberField K]
 
 namespace Rat.FiniteAdeleRing
 
+local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
+
 /-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and the restricted
 product `Πʳ (p : Nat.Primes), [ℚ_[p], subring p]` of `Padic`s lifting the equivalence
 `v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator]` at each place. -/
