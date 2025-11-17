@@ -118,7 +118,7 @@ theorem baseChange_hardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd �
     {V : Type*} [AddCommGroup V] [Module R V]
     [Module.Finite R V] [Module.Free R V] (hdim : Module.rank R V = 2)
     (ρ : GaloisRep ℚ R V) : IsHardlyRamified hℓOdd hdim ρ →
-      IsHardlyRamified hℓOdd (by rw[Module.rank_baseChange, hdim]; exact Cardinal.lift_two)
+      IsHardlyRamified hℓOdd (by rw [Module.rank_baseChange, hdim]; exact Cardinal.lift_two)
       (GaloisRep.baseChange S ρ) := sorry
 
 theorem conj_hardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
@@ -149,7 +149,6 @@ theorem hardlyRamified_of_hardlyRamified_isogenous {ℓ : ℕ} [Fact ℓ.Prime] 
       (GaloisRep.baseChange (FractionRing R) σ)) :
     IsHardlyRamified hℓOdd hdimV ρ ↔ IsHardlyRamified hℓOdd hdimW σ := knownin1980s
 
-noncomputable example : ℚ →+* ℝ := by exact Rat.castHom ℝ
 
 noncomputable def complexConjugationReal : Γ ℝ := sorry
 
@@ -159,10 +158,10 @@ noncomputable def complexConjugation : Γ ℚ := (Field.absoluteGaloisGroup.mapA
   complexConjugationReal
 
 theorem complexConjugation_order_two : orderOf complexConjugation = 2 := by
-  rw[orderOf_eq_prime_iff]
+  rw [orderOf_eq_prime_iff]
   constructor
   · unfold complexConjugation
-    rw[← map_pow, ← complexConjugationReal_order_two, pow_orderOf_eq_one, map_one]
+    rw [← map_pow, ← complexConjugationReal_order_two, pow_orderOf_eq_one, map_one]
   · sorry
 
 theorem odd_of_hardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
@@ -170,12 +169,11 @@ theorem odd_of_hardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
     [Algebra ℤ_[ℓ] R] {V : Type*} [AddCommGroup V] [Module R V]
     [Module.Finite R V] [Module.Free R V] (hdim : Module.rank R V = 2)
     (ρ : GaloisRep ℚ R V) (hρ : IsHardlyRamified hℓOdd hdim ρ) : GaloisRep.det ρ complexConjugation
-    = -1 :=
-      sorry
+    = -1 := sorry
 
 theorem isAbsolutelyIrreducible_of_irreducible_odd {R : Type*} [TopologicalSpace R] [Field R]
-  [IsTopologicalRing R] {V : Type*} [AddCommGroup V] [Module R V] [Module.Finite R V]
-  (hV : Module.rank R V = 2) (ρ : GaloisRep ℚ R V) (ρodd : GaloisRep.det ρ complexConjugation
-  = -1) (hρ : GaloisRep.IsIrreducible ρ) : GaloisRep.IsAbsolutelyIrreducible ρ := sorry
+    [IsTopologicalRing R] {V : Type*} [AddCommGroup V] [Module R V] [Module.Finite R V]
+    (hV : Module.rank R V = 2) (ρ : GaloisRep ℚ R V) (ρodd : GaloisRep.det ρ complexConjugation
+    = -1) (hρ : GaloisRep.IsIrreducible ρ) : GaloisRep.IsAbsolutelyIrreducible ρ := sorry
 
 end GaloisRepresentation

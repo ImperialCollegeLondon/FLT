@@ -381,9 +381,8 @@ def GaloisRep.toRepresentation (ρ : GaloisRep K A M) : Representation A (Γ K) 
 def GaloisRep.IsIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
     (ρ : GaloisRep K k M) : Prop := ρ.toRepresentation.IsIrreducible
 
-set_option linter.style.docString false in
 /-- Note that we don't use  ρ.toRepresentation.IsAbsolutelyIrreducible because it will use
-the wrong type of base change. --/
+the wrong type of base change. -/
 class GaloisRep.IsAbsolutelyIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
     [Module.Finite k M]
     (ρ : GaloisRep K k M) : Prop where
@@ -396,43 +395,45 @@ namespace GaloisRep
 omit [NumberField K] [IsTopologicalRing A]
 lemma charpoly_baseChange [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
  (ρ : GaloisRep K A M) (g : Field.absoluteGaloisGroup K) :
-  LinearMap.charpoly (GaloisRep.baseChange B ρ g) =
+    LinearMap.charpoly (GaloisRep.baseChange B ρ g) =
     Polynomial.map Algebra.algebraMap (LinearMap.charpoly (ρ g)) := by
   apply LinearMap.charpoly_baseChange
 
 lemma charpoly_conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) (g : Field.absoluteGaloisGroup K) :
-  LinearMap.charpoly ((GaloisRep.conj ρ e) g) = LinearMap.charpoly (ρ g) := by
+    LinearMap.charpoly ((GaloisRep.conj ρ e) g) = LinearMap.charpoly (ρ g) := by
   apply LinearEquiv.charpoly_conj
 
 omit [Module.Finite A M] [Module.Free A M] [Module.Finite A N] [Module.Free A N] in
 lemma conj_toLocal [NumberField K]
-   (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)) (ρ : GaloisRep K A M)
-     (e : M ≃ₗ[A] N) : (GaloisRep.conj ρ e).toLocal v = GaloisRep.conj (ρ.toLocal v) e := by
+    (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)) (ρ : GaloisRep K A M)
+    (e : M ≃ₗ[A] N) : (GaloisRep.conj ρ e).toLocal v = GaloisRep.conj (ρ.toLocal v) e := by
   rfl
 
 lemma baseChange_toLocal [NumberField K] [IsTopologicalRing B]
   [Algebra A B] [ContinuousSMul A B]
-   (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)) (ρ : GaloisRep K A M) :
+    (v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)) (ρ : GaloisRep K A M) :
     (GaloisRep.baseChange B ρ).toLocal v = GaloisRep.baseChange B (ρ.toLocal v) := by
   rfl
 
 def tensor_associator {R : Type*} (S T : Type*) [CommRing R] [CommRing S] [CommRing T] [Algebra R S]
-  [Algebra S T] [Algebra R T] [IsScalarTower R S T] (V : Type*) [AddCommGroup V] [Module R V] :
-  TensorProduct R T V ≃ₗ[T] TensorProduct S T (TensorProduct R S V) := by exact
-    (TensorProduct.AlgebraTensorModule.cancelBaseChange R S T T V).symm
+    [Algebra S T] [Algebra R T] [IsScalarTower R S T] (V : Type*) [AddCommGroup V] [Module R V] :
+    TensorProduct R T V ≃ₗ[T] TensorProduct S T (TensorProduct R S V) := by
+  exact (TensorProduct.AlgebraTensorModule.cancelBaseChange R S T T V).symm
 
 theorem base_change_trans {K R : Type} (S T : Type*) [Field K] [TopologicalSpace R] [CommRing R]
-  [IsTopologicalRing R] [CommRing S] [TopologicalSpace S] [IsTopologicalRing S] [TopologicalSpace T]
-  [CommRing T] [IsTopologicalRing T] [Algebra R S] [ContinuousSMul R S] [Algebra S T] [Algebra R T]
-  [ContinuousSMul S T] [IsScalarTower R S T] [ContinuousSMul R T]
-  {V : Type*} [AddCommGroup V] [Module R V] [Module.Finite R V] [Module.Free R V]
-  (ρ : GaloisRep K R V) : GaloisRep.conj (GaloisRep.baseChange T ρ) (tensor_associator S T V) =
-  (GaloisRep.baseChange T (GaloisRep.baseChange S ρ)) := sorry
+    [IsTopologicalRing R] [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
+    [TopologicalSpace T] [CommRing T] [IsTopologicalRing T] [Algebra R S] [ContinuousSMul R S]
+    [Algebra S T] [Algebra R T] [ContinuousSMul S T] [IsScalarTower R S T] [ContinuousSMul R T]
+    {V : Type*} [AddCommGroup V] [Module R V] [Module.Finite R V] [Module.Free R V]
+    (ρ : GaloisRep K R V) : GaloisRep.conj (GaloisRep.baseChange T ρ) (tensor_associator S T V) =
+    (GaloisRep.baseChange T (GaloisRep.baseChange S ρ)) := by
+  ext
+  simp [tensor_associator]
 
 lemma det_baseChange {K A B M : Type*} [Field K] [CommRing A] [TopologicalSpace A] [CommRing B]
-  [TopologicalSpace B] [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B] [AddCommGroup M]
-  [Module A M] [IsTopologicalRing A] [Module.Finite A M] [Module.Free A M]
-  (ρ : GaloisRep K A M) (g : Field.absoluteGaloisGroup K) :
+    [TopologicalSpace B] [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B] [AddCommGroup M]
+    [Module A M] [IsTopologicalRing A] [Module.Finite A M] [Module.Free A M]
+    (ρ : GaloisRep K A M) (g : Field.absoluteGaloisGroup K) :
     (GaloisRep.baseChange B ρ).det g = Algebra.algebraMap (ρ.det g) := by
   apply LinearMap.det_baseChange
 
