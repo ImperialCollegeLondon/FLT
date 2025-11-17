@@ -8,6 +8,7 @@ import Mathlib.Algebra.Central.Defs
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import Mathlib.LinearAlgebra.Charpoly.BaseChange
 import Mathlib.RingTheory.SimpleModule.IsAlgClosed
+import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
 
 variable (k : Type*) [Field k] {D : Type*} [Ring D] [Algebra k D]
 open scoped TensorProduct
@@ -77,3 +78,29 @@ lemma IsSimpleRing.mulLeft_det_eq_mulRight_det' (d : Dˣ) :
     (LinearEquiv.mulLeft k d).det = (LinearEquiv.mulRight k d).det := by
   ext
   simp [mulLeft_det_eq_mulRight_det]
+
+
+/-!
+### Auxiliary lemmas about linear equivalences and matrices
+-/
+section LinearEquiv
+
+variable {F : Type*} [CommRing F]
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+variable {V : Type*} [AddCommGroup V] [Module F V]
+
+lemma LinearEquiv.det_ne_zero
+  {F : Type*} [CommRing F] [Nontrivial F] {V : Type*} [AddCommGroup V] [Module F V]
+  (e : V ≃ₗ[F] V) : e.toLinearMap.det ≠ 0 := (isUnit_det' e).ne_zero
+
+lemma Matrix.toLinearEquiv_toLinearMap
+    (b : Module.Basis ι F V) (M : Matrix ι ι F) (h : IsUnit M.det) :
+    (toLinearEquiv b M h).toLinearMap = Matrix.toLin b b M := rfl
+
+lemma LinearEquiv.det_toLinearEquiv
+    (b : Module.Basis ι F V) {M : Matrix ι ι F} (h : IsUnit M.det) :
+    LinearEquiv.det (M.toLinearEquiv b h) = h.unit := by
+  refine Units.val_inj.mp ?_
+  simp [Matrix.toLinearEquiv_toLinearMap]
+
+end LinearEquiv
