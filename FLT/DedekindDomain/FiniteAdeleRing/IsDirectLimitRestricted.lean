@@ -91,7 +91,6 @@ def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
 
 end type
 
-
 variable {T : ι → Type*} [Π i, SetLike (T i) (R i)] {A : Π i, T i}
 
 section monoid
@@ -178,6 +177,7 @@ instance instIsDirectLimit : IsDirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i,
     exact hij
   · exact eq_iInf_of_mem_iff_exists_mem (fun {s} ↦ ⟨fun h ↦ ⟨⟨s, h⟩, subset_refl s⟩,
       fun ⟨i, hi⟩ ↦ Filter.mem_of_superset i.2 hi⟩)
+
 end module
 
 end RestrictedProduct
