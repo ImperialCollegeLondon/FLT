@@ -138,9 +138,8 @@ def linclusion
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
-instance {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)] (𝓖 : I → Filter ι)
-    (h𝓖 : Antitone 𝓖) : DirectedSystem (fun x ↦ Πʳ (i : ι), [R i, ↑(C i)]_[𝓖 x])
-    (linclusion _ _ <| @h𝓖 · · ·) where
+instance {I : Type*} [Preorder I] (𝓖 : I → Filter ι) (h𝓖 : Antitone 𝓖) :
+    DirectedSystem (fun x ↦ Πʳ (i : ι), [R i, ↑(C i)]_[𝓖 x]) (linclusion _ _ <| @h𝓖 · · ·) where
   map_self _ _ := rfl
   map_map _ _ _ _ _ _ := rfl
 
