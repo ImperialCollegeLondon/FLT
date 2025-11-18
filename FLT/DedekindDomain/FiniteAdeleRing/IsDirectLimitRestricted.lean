@@ -144,8 +144,8 @@ instance {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)] (𝓖 
   map_self _ _ := rfl
   map_map _ _ _ _ _ _ := rfl
 
-lemma isDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)] (𝓖 : I → Filter ι)
-    (h𝓖 : Antitone 𝓖) (hℱ : ℱ = iInf 𝓖) :
+instance instIsDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
+    (𝓖 : I → Filter ι) (h𝓖 : Antitone 𝓖) (hℱ : ℱ = iInf 𝓖) :
     IsDirectLimit (Πʳ i, [R i, C i]_[𝓖 ·]) Πʳ i, [R i, C i]_[ℱ]
     (linclusion _ _ <| @h𝓖 · · ·) (linclusion _ _ <| hℱ.trans_le <| iInf_le 𝓖 ·) where
   inj Sᵢ Sⱼ mi mj hmij := by
@@ -169,9 +169,9 @@ lemma isDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (· ≤ 
     dsimp [coeLinearMap, RestrictedProduct.inclusion, RestrictedProduct.inclusion]
     exact Subtype.ext rfl
 
-instance instIsDirectLimit : IsDirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1])
+instance instIsDirectLimit' : IsDirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1])
     (Πʳ i, [R i, C i]_[ℱ]) (inclusionLinearMap · · ·) (coeLinearMap ·) := by
-  apply isDirectLimit
+  apply instIsDirectLimit
   · intro i j hij
     simp only [le_principal_iff, mem_principal]
     exact hij
