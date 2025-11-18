@@ -119,12 +119,7 @@ noncomputable def principal [Π i, AddCommGroup (R i)]
    (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] ((Π i : {i // i ∈ S}, C i) ×
   (Π i : {i // i ∉ S}, R i)) where
     __ := principalAddEquivSum R S (A := C)
-    map_smul' m x := by
-      simp only [AddEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe, RingHom.id_apply]
-      dsimp [principalAddEquivSum, principalEquivProd]
-      ext i
-      · simp only [Pi.smul_apply, SetLike.coe_sort_coe, SetLike.val_smul]
-      · simp only [Pi.smul_apply]
+    map_smul' _ _ := rfl
 
 variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
 
