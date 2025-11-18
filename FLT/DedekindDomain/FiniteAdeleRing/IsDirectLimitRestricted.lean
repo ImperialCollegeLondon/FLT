@@ -6,7 +6,7 @@ Authors: Madison Crim
 
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
-import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimit
+import FLT.Mathlib.Algebra.IsDirectLimit
 
 namespace RestrictedProduct
 
@@ -63,35 +63,6 @@ instance directed : IsDirected (ℱ.setsᵒᵈ) (· ≤ ·) := by
   obtain ⟨Si, hi⟩ := Si
   obtain ⟨Sj, hj⟩ := Sj
   use ⟨Si ∩ Sj, ℱ.inter_sets hi hj⟩, inter_subset_left, inter_subset_right
-
-instance instIsDirectLimit :
-    IsDirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1])
-    (Πʳ i, [R i, C i]_[ℱ]) (inclusionLinearMap · · ·)
-    (coeLinearMap ·) where
-  inj Sᵢ Sⱼ mi mj hmij := by
-    obtain ⟨Sₖ, hik, hjk⟩ := @directed_of _ (· ≤ ·) directed Sᵢ Sⱼ
-    refine ⟨Sₖ, hik, hjk, ?_⟩
-    dsimp [RestrictedProduct.inclusion, RestrictedProduct.inclusion]
-    dsimp [coeLinearMap,
-      RestrictedProduct.inclusion] at hmij
-    apply Subtype.ext
-    simp only
-    injection hmij
-  surj r := by
-    dsimp [coeLinearMap]
-    let b:= r.property
-    let c:= r.1
-    have : { i : ι | r.1 i ∈ (C i : Set (R i)) } ∈ ℱ.sets := by
-      simp only [Filter.mem_sets]
-      exact b
-    use ⟨{ i : ι | r.1 i ∈ (C i : Set (R i)) }, this⟩
-    apply RestrictedProduct.exists_inclusion_eq_of_eventually
-    simp only [SetLike.mem_coe, eventually_principal, mem_setOf_eq]
-    exact fun x a ↦ a
-  compatibility i j hij x := by
-    dsimp [coeLinearMap,
-      RestrictedProduct.inclusion, RestrictedProduct.inclusion]
-    exact Subtype.ext rfl
 
 end inclusion
 
@@ -156,6 +127,57 @@ noncomputable def principal [Π i, AddCommGroup (R i)]
       · simp only [Pi.smul_apply, SetLike.coe_sort_coe, SetLike.val_smul]
       · simp only [Pi.smul_apply]
 
+variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
+
+/-- If `𝓕 ≤ 𝓖`, the restricted product `Πʳ i, [R i, A i]_[𝓖]` is naturally included in
+`Πʳ i, [R i, A i]_[𝓕]`. This is the corresponding map. -/
+def linclusion
+    {ι : Type*} {R₀ : Type*} (R : ι → Type*) [Semiring R₀] [∀ i, AddCommMonoid (R i)]
+    [∀ i, Module R₀ (R i)] (A : (i : ι) → Submodule R₀ (R i)) {ℱ 𝓖 : Filter ι}
+    (h : ℱ ≤ 𝓖) : Πʳ i, [R i, A i]_[𝓖] →ₗ[R₀] Πʳ i, [R i, A i]_[ℱ] where
+  toFun := inclusion R (A ·) h
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
+instance {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)] (𝓖 : I → Filter ι)
+    (h𝓖 : Antitone 𝓖) : DirectedSystem (fun x ↦ Πʳ (i : ι), [R i, ↑(C i)]_[𝓖 x])
+    (linclusion _ _ <| @h𝓖 · · ·) where
+  map_self _ _ := rfl
+  map_map _ _ _ _ _ _ := rfl
+
+lemma isDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)] (𝓖 : I → Filter ι)
+    (h𝓖 : Antitone 𝓖) (hℱ : ℱ = iInf 𝓖) :
+    IsDirectLimit (Πʳ i, [R i, C i]_[𝓖 ·]) Πʳ i, [R i, C i]_[ℱ]
+    (linclusion _ _ <| @h𝓖 · · ·) (linclusion _ _ <| hℱ.trans_le <| iInf_le 𝓖 ·) where
+  inj Sᵢ Sⱼ mi mj hmij := by
+    obtain ⟨Sₖ, hik, hjk⟩ := @directed_of _ (· ≤ ·) _ Sᵢ Sⱼ
+    refine ⟨Sₖ, hik, hjk, ?_⟩
+    dsimp [RestrictedProduct.inclusion, RestrictedProduct.inclusion]
+    dsimp [coeLinearMap,
+      RestrictedProduct.inclusion] at hmij
+    apply Subtype.ext
+    simp only
+    injection hmij
+  surj r := by
+    dsimp [coeLinearMap]
+    have : { i : ι | r.1 i ∈ (C i : Set (R i)) } ∈ (iInf 𝓖) := hℱ ▸ r.property
+    obtain ⟨j, hj⟩ := (Filter.mem_iInf_of_directed h𝓖.directed_ge _).mp this
+    use j
+    apply RestrictedProduct.exists_inclusion_eq_of_eventually _ _ _ hj
+    rw [hℱ]
+    exact iInf_le_iff.mpr fun b a ↦ a j
+  compatibility i j hij x := by
+    dsimp [coeLinearMap, RestrictedProduct.inclusion, RestrictedProduct.inclusion]
+    exact Subtype.ext rfl
+
+instance instIsDirectLimit : IsDirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1])
+    (Πʳ i, [R i, C i]_[ℱ]) (inclusionLinearMap · · ·) (coeLinearMap ·) := by
+  apply isDirectLimit
+  · intro i j hij
+    simp only [le_principal_iff, mem_principal]
+    exact hij
+  · exact eq_iInf_of_mem_iff_exists_mem (fun {s} ↦ ⟨fun h ↦ ⟨⟨s, h⟩, subset_refl s⟩,
+      fun ⟨i, hi⟩ ↦ Filter.mem_of_superset i.2 hi⟩)
 end module
 
 end RestrictedProduct
