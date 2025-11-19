@@ -39,7 +39,7 @@ variable {A : Type*} [CommRing A] {ι : Type*} {R : ι → Type*} {ℱ : Filter 
 open Set Filter RestrictedProduct
 
 /-- Linear map version of `inclusion`. -/
-def inclusionLinearMap (S₁ S₂ : ℱ.setsᵒᵈ) (h : S₁ ≤ S₂) :
+def inclusionLinearMap {S₁ S₂ : ℱ.setsᵒᵈ} (h : S₁ ≤ S₂) :
     Πʳ i, [R i, C i]_[𝓟 S₁.1] →ₗ[A] Πʳ i, [R i, C i]_[𝓟 S₂.1] :=
   mapAlongLinearMap R R id (tendsto_principal_principal.2 h) (fun _ ↦ .id)
   (Filter.Eventually.of_forall <| fun _ _ ↦ id)
