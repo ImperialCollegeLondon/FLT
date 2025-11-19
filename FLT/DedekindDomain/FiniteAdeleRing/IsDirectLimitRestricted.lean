@@ -145,11 +145,7 @@ instance instIsDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (
   inj Sᵢ Sⱼ mi mj hmij := by
     obtain ⟨Sₖ, hik, hjk⟩ := @directed_of _ (· ≤ ·) _ Sᵢ Sⱼ
     refine ⟨Sₖ, hik, hjk, ?_⟩
-    dsimp [RestrictedProduct.inclusion, RestrictedProduct.inclusion]
-    dsimp [coeLinearMap,
-      RestrictedProduct.inclusion] at hmij
     apply Subtype.ext
-    simp only
     injection hmij
   surj r := by
     dsimp [coeLinearMap]
