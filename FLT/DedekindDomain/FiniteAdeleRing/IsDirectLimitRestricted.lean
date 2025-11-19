@@ -81,8 +81,8 @@ def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
   invFun y := ⟨fun i ↦ if hi : i ∈ S then y.1 ⟨i, hi⟩ else y.2 ⟨i, hi⟩,
   Filter.eventually_principal.mpr (fun i hi ↦ by simp only [hi]; exact (y.1 ⟨i, hi⟩).2)⟩
   left_inv x := by
-    simp only [dite_eq_ite, ite_self]
-    rfl
+    ext
+    simp
   right_inv x := by
     simp only [mk_apply, Subtype.coe_prop, ↓reduceDIte, Subtype.coe_eta]
     ext i
