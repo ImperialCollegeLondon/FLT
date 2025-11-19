@@ -112,8 +112,7 @@ open scoped Filter in
 lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
   classical
   let comp1 := TensorProduct.directLimitRight (inclusionLinearMap (C:=L) (ℱ:=ℱ)) M (R:=R)
-  let comp := IsDirectLimit.Module.linearEquiv
-     (Πʳ i, [N i, L i]_[ℱ])
+  let comp := IsDirectLimit.Module.linearEquiv (Πʳ i, [N i, L i]_[ℱ])
     (Module.DirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [N i, L i]_[𝓟 S.1])
     (inclusionLinearMap (C:=L) (ℱ:=ℱ))) (inclusionLinearMap (ℱ:=ℱ))
     (coeLinearMap) (Module.DirectLimit.of R _
