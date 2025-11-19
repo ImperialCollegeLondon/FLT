@@ -111,10 +111,12 @@ lemma lTensorPrincipalEquiv_tmul (m : M) (x : Πʳ i, [N i, L i]_[𝓟 S]) (i : 
 open scoped Filter in
 lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
   classical
-  let comp1 := TensorProduct.directLimitRight (inclusionLinearMap (C:=L) (ℱ:=ℱ)) M (R:=R)
-  let comp := IsDirectLimit.Module.linearEquiv (Πʳ i, [N i, L i]_[ℱ])
-    (Module.DirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [N i, L i]_[𝓟 S.1])
-    (inclusionLinearMap (C:=L) (ℱ:=ℱ))) (inclusionLinearMap (ℱ:=ℱ))
+  let comp1 := TensorProduct.directLimitRight (fun _ _ x3 ↦ (inclusionLinearMap
+    (ℱ := ℱ) (C := L) x3)) M (R:=R)
+  let comp := IsDirectLimit.Module.linearEquiv (P₁ := Πʳ i, [N i, L i]_[ℱ])
+    (P₂ := Module.DirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [N i, L i]_[𝓟 S.1])
+    (fun _ _ x3 ↦ (inclusionLinearMap
+    (ℱ := ℱ) (C := L) x3))) (inclusionLinearMap (ℱ:=ℱ))
     (coeLinearMap) (Module.DirectLimit.of R _
     (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [N i, L i]_[𝓟 S.1]) (inclusionLinearMap (ℱ := ℱ)))
   let comp2 : Πʳ (i : ι), [M ⊗[R] N i, (rangeLTensor R M N L i)]_[ℱ] ≃ₗ[R]

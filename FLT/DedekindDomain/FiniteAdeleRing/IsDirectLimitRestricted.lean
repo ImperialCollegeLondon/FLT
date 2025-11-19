@@ -45,10 +45,10 @@ def inclusionLinearMap {S₁ S₂ : ℱ.setsᵒᵈ} (h : S₁ ≤ S₂) :
   (Filter.Eventually.of_forall <| fun _ _ ↦ id)
 
 lemma inclusionLinearMap_apply {S₁ S₂ : ℱ.setsᵒᵈ} (h : S₁ ≤ S₂) (x : Πʳ i, [R i, C i]_[𝓟 S₁.1]) :
-  inclusionLinearMap _ _ h x = ⟨x.1, x.2.filter_mono (monotone_principal h)⟩ := rfl
+  inclusionLinearMap h x = ⟨x.1, x.2.filter_mono (monotone_principal h)⟩ := rfl
 
 instance : DirectedSystem (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1]) fun _ _ x3 ↦
-  (inclusionLinearMap (ℱ := ℱ) (C := C) _ _ x3) := RestrictedProduct.instDirectedSystem
+  (inclusionLinearMap (ℱ := ℱ) (C := C) x3) := RestrictedProduct.instDirectedSystem
 
 /-- Linear map version of `inclusion_to_restrictedProduct` -/
 def coeLinearMap (S : ℱ.setsᵒᵈ) :
@@ -140,8 +140,8 @@ instance {I : Type*} [Preorder I] (𝓖 : I → Filter ι) (h𝓖 : Antitone �
 
 instance instIsDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
     (𝓖 : I → Filter ι) (h𝓖 : Antitone 𝓖) (hℱ : ℱ = iInf 𝓖) :
-    IsDirectLimit (Πʳ i, [R i, C i]_[𝓖 ·]) Πʳ i, [R i, C i]_[ℱ]
-    (linclusion _ _ <| @h𝓖 · · ·) (linclusion _ _ <| hℱ.trans_le <| iInf_le 𝓖 ·) where
+    IsDirectLimit (linclusion R C <| @h𝓖 · · ·)
+    (linclusion R C <| hℱ.trans_le <| iInf_le 𝓖 ·) where
   inj Sᵢ Sⱼ mi mj hmij := by
     obtain ⟨Sₖ, hik, hjk⟩ := @directed_of _ (· ≤ ·) _ Sᵢ Sⱼ
     refine ⟨Sₖ, hik, hjk, ?_⟩
@@ -159,8 +159,8 @@ instance instIsDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (
     dsimp [coeLinearMap, RestrictedProduct.inclusion, RestrictedProduct.inclusion]
     exact Subtype.ext rfl
 
-instance instIsDirectLimit' : IsDirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1])
-    (Πʳ i, [R i, C i]_[ℱ]) (inclusionLinearMap · · ·) (coeLinearMap ·) := by
+instance instIsDirectLimit' : IsDirectLimit (M := fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1])
+    (fun _ _ x3 ↦ (inclusionLinearMap (ℱ := ℱ) (C := C) x3)) (coeLinearMap ·) := by
   apply instIsDirectLimit
   · intro i j hij
     simpa only [le_principal_iff, mem_principal]
