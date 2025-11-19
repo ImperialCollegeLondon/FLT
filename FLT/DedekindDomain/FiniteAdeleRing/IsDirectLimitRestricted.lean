@@ -163,8 +163,7 @@ instance instIsDirectLimit' : IsDirectLimit (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i
     (Πʳ i, [R i, C i]_[ℱ]) (inclusionLinearMap · · ·) (coeLinearMap ·) := by
   apply instIsDirectLimit
   · intro i j hij
-    simp only [le_principal_iff, mem_principal]
-    exact hij
+    simpa only [le_principal_iff, mem_principal]
   · exact eq_iInf_of_mem_iff_exists_mem (fun {s} ↦ ⟨fun h ↦ ⟨⟨s, h⟩, subset_refl s⟩,
       fun ⟨i, hi⟩ ↦ Filter.mem_of_superset i.2 hi⟩)
 
