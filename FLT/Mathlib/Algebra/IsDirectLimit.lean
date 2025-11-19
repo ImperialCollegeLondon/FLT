@@ -6,7 +6,7 @@ Authors: Madison Crim
 
 import Mathlib.Algebra.Colimit.Module
 
-variable {ι : Type*} [Preorder ι] (M : ι → Type*) (P : Type*)
+variable {ι : Type*} [Preorder ι] {M : ι → Type*{ {P : Type*}
   (f : (i j : ι) → (h : i ≤ j) → M i → M j) (g : ∀ i, M i → P)
 
 /--
