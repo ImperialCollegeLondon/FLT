@@ -160,7 +160,7 @@ instance instIsDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (
     exact Subtype.ext rfl
 
 instance instIsDirectLimit' : IsDirectLimit (M := fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1])
-    (fun _ _ x3 ↦ (inclusionLinearMap (ℱ := ℱ) (C := C) x3)) (coeLinearMap ·) := by
+    ((fun _ _ x3 ↦ inclusionLinearMap (ℱ := ℱ) (C := C) x3)) (coeLinearMap ·) := by
   apply instIsDirectLimit
   · intro i j hij
     simpa only [le_principal_iff, mem_principal]
