@@ -5,6 +5,8 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
+import FLT.Mathlib.Algebra.Module.Prod
+import FLT.Mathlib.Topology.Constructions.SumProd
 
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
@@ -469,6 +471,288 @@ instance Prod.instRightModule : IsModuleTopology (A × B) N := by
 instance instProd' : IsModuleTopology (A × B) (M × N) := inferInstance
 
 end Prod
+
+section ModuleProd
+
+/- This should probably replace the Prod section above ... reduces CommRing → Ring. -/
+
+variable {R S M N : Type*} [Semiring R] [Semiring S] [TopologicalSpace R] [TopologicalSpace S]
+  [AddCommMonoid M] [AddCommMonoid N] [Module R M] [Module S N]
+
+/-- The R × S module structure on M × N. -/
+local instance : Module (R × S) (M × N) := ModuleProd.instModuleProd
+
+/-- Inclusion `M → M × N` by `a ↦ (a, 0)`. -/
+abbrev incl1 : M → M × N :=
+  fun a => (a, 0)
+
+/-- Inclusion `N → M × N` by `a ↦ (0, a)`. -/
+abbrev incl2 : N → M × N :=
+  fun b => (0 , b)
+
+lemma induced_continuous_add : @ContinuousAdd M
+    (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))) _ := by
+  suffices h : @Continuous (M × M) (M × N) (@instTopologicalSpaceProd M M
+      (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+      (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))))
+      ((moduleTopology (R × S) (M × N))) (fun (a : M × M) => (a.1 + a.2, (0 : N))) by
+    convert (@Topology.IsInducing.continuous_iff (M × M) M (M × N) (fun (a : M × M) ↦ a.1 + a.2)
+        (incl1) (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+        (@instTopologicalSpaceProd M M
+        (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+        (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))))
+        (moduleTopology (R × S) (M × N)) _).mpr h
+    · constructor <;> intro h
+      · exact ContinuousAdd.continuous_add
+      · rw [continuous_def] at h
+        use h
+    · rw [@Topology.isInducing_iff]
+  have h : (fun (a : M × M) => (a.1 + a.2, (0 : N))) =
+      (fun (b : (M × N) × (M × N)) => (b.1.1 + b.2.1, b.1.2 + b.2.2)) ∘
+      (fun (a : M × M ) => (((a.1, 0) : (M × N)) , (((a.2, 0)) : (M × N)))) := by
+    ext a
+    all_goals simp
+  rw [h]
+  refine @Continuous.comp (M × M) ((M × N) × M × N) (M × N) (@instTopologicalSpaceProd M M
+    (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+    (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))))
+    (@instTopologicalSpaceProd (M × N) (M × N) (moduleTopology (R × S) (M × N))
+    (moduleTopology (R × S) (M × N))) (moduleTopology (R × S) (M × N))
+    (f := (fun (a : M × M ) => (((a.1, 0) : (M × N)) , (((a.2, 0)) : (M × N)))))
+    (g := (fun (b : (M × N) × (M × N)) => (b.1.1 + b.2.1, b.1.2 + b.2.2))) ?_ ?_
+  · convert ContinuousAdd.continuous_add
+    exact ModuleTopology.continuousAdd (R × S) (M × N)
+  · refine @Continuous.prodMap (M × N) (M × N) M M (moduleTopology (R × S) (M × N))
+      (moduleTopology (R × S) (M × N))
+      (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+      (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+      (f := incl1) (g := incl1) ?_ ?_
+    all_goals exact continuous_iff_le_induced.mpr fun U a ↦ a
+
+lemma induced_continuous_smul : @ContinuousSMul R M _ _
+    (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))) := by
+  suffices h : @Continuous (R × M) (M × N) (@instTopologicalSpaceProd R M _
+      (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))))
+      ((moduleTopology (R × S) (M × N))) (fun (a : R × M) => (a.1 • a.2, (0 : N))) by
+    convert (@Topology.IsInducing.continuous_iff (R × M) M (M × N) (fun (a : R × M) ↦ a.1 • a.2)
+        (incl1) (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+        (@instTopologicalSpaceProd R M _
+        (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))))
+        (moduleTopology (R × S) (M × N)) _).mpr h
+    · constructor <;> intro h
+      · exact ContinuousSMul.continuous_smul
+      · rw [continuous_def] at h
+        use h
+    · rw [@Topology.isInducing_iff]
+  have : (fun (a : R × M) ↦ (a.1 • a.2, 0)) =
+      (fun (c : (R × S) × (M × N)) => (c.1.1 • c.2.1, c.1.2 • c.2.2)) ∘
+      (fun (b : R × M × N) => ((b.1, (0 : S)), (b.2.1, b.2.2))) ∘
+      (fun (a : R × M) => (a.1, a.2, (0 : N))) := by
+    ext a
+    · rfl
+    · simp only [Prod.mk.eta, Function.comp_apply, smul_zero]
+  rw [this]
+  refine @Continuous.comp (R × M) ((R × S) × M × N) (M × N) (@instTopologicalSpaceProd R M _
+    (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))))
+    (@instTopologicalSpaceProd (R × S) (M × N) _ (moduleTopology (R × S) (M × N)))
+    (moduleTopology (R × S) (M × N))
+    (f := (fun (b : R × M × N) => ((b.1, (0 : S)), (b.2.1, b.2.2))) ∘
+      (fun (a : R × M) => (a.1, a.2, (0 : N))))
+    (g := (fun (c : (R × S) × (M × N)) => (c.1.1 • c.2.1, c.1.2 • c.2.2))) ?_ ?_
+  · exact ContinuousSMul.continuous_smul
+  · refine @Continuous.comp (R × M) (R × M × N) ((R × S) × M × N) (@instTopologicalSpaceProd R M _
+      (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))))
+      (@instTopologicalSpaceProd R (M × N) _ (moduleTopology (R × S) (M × N)))
+      (@instTopologicalSpaceProd (R × S) (M × N) _ (moduleTopology (R × S) (M × N)))
+      (f := (fun (a : R × M) => (a.1, a.2, (0 : N))))
+      (g := (fun (b : R × M × N) => ((b.1, (0 : S)), (b.2.1, b.2.2)))) ?_ ?_
+    · simp only [Prod.mk.eta, continuous_prodMk]
+      · constructor
+        · constructor
+          · exact @continuous_fst R (M × N) _ (moduleTopology (R × S) (M × N))
+          · rw [continuous_def] --is there a better way?
+            intro s hs
+            have : ((fun (x : R × M × N) ↦ 0) ⁻¹' s) = ∅ ∨
+                ((fun (x : R × M × N) ↦ 0) ⁻¹' s = Set.univ) := by
+              rcases (Classical.em (0 ∈ s)) with h | h
+              all_goals aesop
+            aesop
+        · exact @continuous_snd R (M × N) _ (moduleTopology (R × S) (M × N))
+    · simp only [continuous_prodMk]
+      constructor
+      · exact @continuous_fst R M _
+          (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+      · refine @Continuous.comp (R × M) M (M × N) (@instTopologicalSpaceProd R M _
+          (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N))))
+          (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+          (moduleTopology (R × S) (M × N))
+          (f := fun (a : R × M) => a.2) (g := incl1)  ?_ ?_
+        · exact continuous_iff_le_induced.mpr fun U a ↦ a
+        · exact @continuous_snd R M _
+            (TopologicalSpace.induced (incl1) (moduleTopology (R × S) (M × N)))
+
+lemma continuous_incl1 : @Continuous M (M × N) (moduleTopology R M) (moduleTopology (R × S) (M × N))
+    (incl1) := by
+  refine continuous_iff_le_induced.mpr ?_
+  refine sInf_le ?_
+  constructor
+  · exact induced_continuous_smul
+  · exact induced_continuous_add
+
+lemma induced_continuous_add' : @ContinuousAdd N
+    (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))) _ := by
+  suffices h : @Continuous (N × N) (M × N) (@instTopologicalSpaceProd N N
+      (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+      (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))))
+      ((moduleTopology (R × S) (M × N))) (fun (a : N × N) => ((0 : M), a.1 + a.2)) by
+    convert (@Topology.IsInducing.continuous_iff (N × N) N (M × N) (fun (a : N × N) ↦ a.1 + a.2)
+        (incl2) (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+        (@instTopologicalSpaceProd N N
+        (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+        (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))))
+        (moduleTopology (R × S) (M × N)) _).mpr h
+    · constructor <;> intro h
+      · exact ContinuousAdd.continuous_add
+      · rw [continuous_def] at h
+        use h
+    · rw [@Topology.isInducing_iff]
+  have h : (fun (a : N × N) => ((0 : M), a.1 + a.2)) =
+      (fun (b : (M × N) × (M × N)) => (b.1.1 + b.2.1, b.1.2 + b.2.2)) ∘
+      (fun (a : N × N ) => (((0, a.1) : (M × N)) , (((0, a.2)) : (M × N)))) := by
+    ext a
+    all_goals simp
+  rw [h]
+  refine @Continuous.comp (N × N) ((M × N) × M × N) (M × N) (@instTopologicalSpaceProd N N
+    (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+    (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))))
+    (@instTopologicalSpaceProd (M × N) (M × N) (moduleTopology (R × S) (M × N))
+    (moduleTopology (R × S) (M × N))) (moduleTopology (R × S) (M × N))
+    (f := (fun (a : N × N ) => (((0, a.1) : (M × N)) , (((0, a.2)) : (M × N)))))
+    (g := (fun (b : (M × N) × (M × N)) => (b.1.1 + b.2.1, b.1.2 + b.2.2))) ?_ ?_
+  · convert ContinuousAdd.continuous_add
+    exact ModuleTopology.continuousAdd (R × S) (M × N)
+  · refine @Continuous.prodMap (M × N) (M × N) N N (moduleTopology (R × S) (M × N))
+      (moduleTopology (R × S) (M × N))
+      (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+      (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+      (f := incl2) (g := incl2) ?_ ?_
+    all_goals exact continuous_iff_le_induced.mpr fun U a ↦ a
+
+lemma induced_continuous_smul' : @ContinuousSMul S N _ _
+    (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))) := by
+  suffices h : @Continuous (S × N) (M × N) (@instTopologicalSpaceProd S N _
+      (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))))
+      ((moduleTopology (R × S) (M × N))) (fun (a : S × N) => ((0 : M), a.1 • a.2)) by
+    convert (@Topology.IsInducing.continuous_iff (S × N) N (M × N) (fun (a : S × N) ↦ a.1 • a.2)
+        (incl2) (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+        (@instTopologicalSpaceProd S N _
+        (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))))
+        (moduleTopology (R × S) (M × N)) _).mpr h
+    · constructor <;> intro h
+      · exact ContinuousSMul.continuous_smul
+      · rw [continuous_def] at h
+        use h
+    · rw [@Topology.isInducing_iff]
+  have : (fun (a : S × N) ↦ (0, a.1 • a.2)) =
+      (fun (c : (R × S) × (M × N)) => (c.1.1 • c.2.1, c.1.2 • c.2.2)) ∘
+      (fun (b : S × M × N) => (((0 : R), b.1), (b.2.1, b.2.2))) ∘
+      (fun (a : S × N) => (a.1, (0 : M), a.2)) := by
+    ext a
+    · aesop
+    · simp only [Prod.mk.eta, Function.comp_apply, smul_zero]
+  rw [this]
+  refine @Continuous.comp (S × N) ((R × S) × M × N) (M × N) (@instTopologicalSpaceProd S N _
+    (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))))
+    (@instTopologicalSpaceProd (R × S) (M × N) _ (moduleTopology (R × S) (M × N)))
+    (moduleTopology (R × S) (M × N))
+    (f := (fun (b : S × M × N) => (((0 : R), b.1), (b.2.1, b.2.2))) ∘
+      (fun (a : S × N) => (a.1, (0 : M), a.2)))
+    (g := (fun (c : (R × S) × (M × N)) => (c.1.1 • c.2.1, c.1.2 • c.2.2))) ?_ ?_
+  · exact ContinuousSMul.continuous_smul
+  · refine @Continuous.comp (S × N) (S × M × N) ((R × S) × M × N) (@instTopologicalSpaceProd S N _
+      (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))))
+      (@instTopologicalSpaceProd S (M × N) _ (moduleTopology (R × S) (M × N)))
+      (@instTopologicalSpaceProd (R × S) (M × N) _ (moduleTopology (R × S) (M × N)))
+      (f := (fun (a : S × N) => (a.1, (0 : M), a.2)))
+      (g := (fun (b : S × M × N) => (((0 : R), b.1), (b.2.1, b.2.2)))) ?_ ?_
+    · simp only [Prod.mk.eta, continuous_prodMk]
+      · constructor
+        · constructor
+          · rw [continuous_def]
+            intro s hs
+            have : ((fun (x : S × M × N) ↦ 0) ⁻¹' s) = ∅ ∨
+                ((fun (x : S × M × N) ↦ 0) ⁻¹' s = Set.univ) := by
+              rcases (Classical.em (0 ∈ s)) with h | h
+              all_goals aesop
+            aesop
+          · exact @continuous_fst S (M × N) _ (moduleTopology (R × S) (M × N))
+        · exact @continuous_snd S (M × N) _ (moduleTopology (R × S) (M × N))
+    · simp only [continuous_prodMk]
+      constructor
+      · exact @continuous_fst S N _
+          (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+      · refine @Continuous.comp (S × N) N (M × N) (@instTopologicalSpaceProd S N _
+          (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N))))
+          (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+          (moduleTopology (R × S) (M × N))
+          (f := fun (a : S × N) => a.2) (g := incl2)  ?_ ?_
+        · exact continuous_iff_le_induced.mpr fun U a ↦ a
+        · exact @continuous_snd S N _
+            (TopologicalSpace.induced (incl2) (moduleTopology (R × S) (M × N)))
+
+lemma continuous_incl2 : @Continuous N (M × N) (moduleTopology S N) (moduleTopology (R × S) (M × N))
+    (incl2) := by
+  refine continuous_iff_le_induced.mpr ?_
+  refine sInf_le ?_
+  constructor
+  · exact induced_continuous_smul'
+  · exact induced_continuous_add'
+
+lemma id_eq : @id (M × N) = ((incl1) ∘ (Prod.fst)) + ((incl2) ∘ (Prod.snd)) := by
+  ext a
+  all_goals simp
+
+variable [TopologicalSpace M] [TopologicalSpace N] [IsModuleTopology R M] [IsModuleTopology S N]
+
+lemma continuous_smul : ContinuousSMul (R × S) (M × N) where
+  continuous_smul := by
+    have : (fun p ↦ p.1 • p.2 : (R × S) × M × N → M × N) =
+        (ModuleProd.smul) ∘ (Equiv.prodProdProdComm R S M N) := by
+      ext a
+      all_goals simp only [Function.comp_apply, ModuleProd.smul]
+      all_goals rfl
+    rw [this]
+    refine Continuous.comp ?_ (continuous_prodProdProdComm R S M N)
+    · apply Continuous.prodMap
+      all_goals exact ContinuousSMul.continuous_smul
+
+/-- If `M` has the `A`-module topology and `N` has the `B`-module topology
+  then `M × N` has the `(A × B)`-module topology. -/
+instance instProd'' : IsModuleTopology (R × S) (M × N) := by
+  haveI : ContinuousAdd M := IsModuleTopology.toContinuousAdd R M
+  haveI : ContinuousAdd N := IsModuleTopology.toContinuousAdd S N
+  have h2 := continuous_smul (R := R) (S := S) (M := M) (N := N)
+  refine IsModuleTopology.of_continuous_id ?_
+  rw [id_eq]
+  have a : @Continuous (M × N) (M × N) instTopologicalSpaceProd
+      (moduleTopology (R × S) (M × N)) ((incl1) ∘ (Prod.fst)) := by
+    refine @Continuous.comp (M × N) M (M × N) instTopologicalSpaceProd (moduleTopology R M)
+      (moduleTopology (R × S) (M × N)) (Prod.fst) (incl1) ?_ ?_
+    · exact continuous_incl1
+    · convert @continuous_fst M N (moduleTopology R M) (moduleTopology S N)
+      all_goals exact IsModuleTopology.eq_moduleTopology' -- maybe I need to be synthesising better?
+  have b : @Continuous (M × N) (M × N) instTopologicalSpaceProd
+      (moduleTopology (R × S) (M × N)) ((incl2) ∘ (Prod.snd)) := by
+    refine @Continuous.comp (M × N) N (M × N) instTopologicalSpaceProd (moduleTopology S N)
+      (moduleTopology (R × S) (M × N)) (Prod.snd) (incl2) ?_ ?_
+    · exact continuous_incl2
+    · convert @continuous_snd M N (moduleTopology R M) (moduleTopology S N)
+      all_goals exact IsModuleTopology.eq_moduleTopology'
+  exact @Continuous.add _ (moduleTopology (R × S) (M × N)) _
+    (ModuleTopology.continuousAdd (R × S) (M × N)) _ _ _ _  a b
+
+
+end ModuleProd
 
 section locally_compact
 
