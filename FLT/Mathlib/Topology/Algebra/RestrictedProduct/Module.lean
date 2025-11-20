@@ -174,7 +174,7 @@ def piSubringSubmodule (i : ι) : Submodule (B i) (n → R i) :=
 def _root_.LinearEquiv.restrictedProductPi
     : Πʳ i, [n → R i, piSubringSubmodule B n i]_[ℱ] ≃ₗ[Πʳ i, [R i, B i]_[ℱ]]
       n → Πʳ i, [R i, B i]_[ℱ] where
-  toFun x j := congrRight (fun i y ↦ y j)
+  toFun x j := map (fun i y ↦ y j)
     (by
       filter_upwards with i r hr
       rw [piSubringSubmodule, Submodule.coe_pi, Set.mem_univ_pi] at hr
