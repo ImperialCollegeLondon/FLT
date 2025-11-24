@@ -1,10 +1,12 @@
-import Mathlib.Algebra.Algebra.Bilinear
-import Mathlib.LinearAlgebra.Basis.VectorSpace
-import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
+import FLT.Mathlib.Algebra.Algebra.Tower
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.LinearAlgebra.FreeModule.PID
+import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.PicardGroup
+import Mathlib.RingTheory.SimpleRing.Principal
+import Mathlib.Topology.Algebra.Algebra.Equiv
+import Mathlib.Topology.Algebra.Module.ModuleTopology
 
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
@@ -490,5 +492,24 @@ theorem locallyCompactSpaceOfFinite [LocallyCompactSpace R] [Module.Finite R M] 
     h ▸ Fintype.range_linearCombination R φ
 
 end locally_compact
+
+section ModuleFinite
+
+/-- The homeomorphism of `R` and `Fin (Module.finrank T R) → T` based on `Module.Basis.equivFun`
+  when `R` has the `T` module topology. -/
+@[simps!]
+noncomputable
+def Module.Basis.equivFun_homeo (K R : Type*) [Field K] [Ring R] [Module K R]
+    [Module.Finite K R] [TopologicalSpace K] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsTopologicalRing K] [IsModuleTopology K R] : R ≃L[K] (Fin (Module.finrank K R) → K) where
+  __ := Module.Basis.equivFun (Module.finBasisOfFinrankEq K R (rfl))
+  continuous_toFun :=
+    IsModuleTopology.continuous_of_linearMap
+      (Module.Basis.equivFun (Module.finBasisOfFinrankEq K R (rfl))).toLinearMap
+  continuous_invFun :=
+    IsModuleTopology.continuous_of_linearMap
+      (Module.Basis.equivFun (Module.finBasisOfFinrankEq K R (rfl))).symm.toLinearMap
+
+end ModuleFinite
 
 end IsModuleTopology
