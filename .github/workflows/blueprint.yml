@@ -61,20 +61,13 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
-      - name: Install elan
-        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
-
-      - name: Get Mathlib cache
-        run: ~/.elan/bin/lake exe cache get || true
-
-      - name: check that FLT.lean is up to date
-        run: ~/.elan/bin/lake exe mk_all --check
-
-      - name: Build project
-        run: ~/.elan/bin/lake build FLT
-
-      - name: Lint project
-        run: env LEAN_ABORT_ON_PANIC=1 ~/.elan/bin/lake exe runLinter FLT
+      - name: Build and lint project
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          lint: true
+          mk_all-check: true
+          build-args: 'FLT'
 
       - name: Upstreaming dashboard
         run: python3 scripts/upstreaming_dashboard.py
