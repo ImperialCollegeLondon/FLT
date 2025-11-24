@@ -166,4 +166,3 @@ instance instIsDirectLimit' : IsDirectLimit (M := fun (S : ℱ.setsᵒᵈ) ↦ �
 end module
 
 end RestrictedProduct
-#lint
