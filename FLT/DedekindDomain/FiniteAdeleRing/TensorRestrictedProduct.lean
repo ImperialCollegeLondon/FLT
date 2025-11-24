@@ -111,22 +111,27 @@ lemma lTensorPrincipalEquiv_tmul (m : M) (x : Πʳ i, [N i, L i]_[𝓟 S]) (i : 
 open scoped Filter in
 lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
   classical
-  let comp1 := TensorProduct.directLimitRight (fun _ _ x3 ↦ (inclusionLinearMap
-    (ℱ := ℱ) (C := L) x3)) M (R:=R)
+  let comp1 := TensorProduct.directLimitRight (ι := ℱ.setsᵒᵈ) (fun _ _ x3 ↦ (inclusionLinearMap
+    (C := L) <| Filter.monotone_principal x3)) M (R:=R)
   let comp := IsDirectLimit.Module.linearEquiv
-    (fun _ _ x3 ↦ (inclusionLinearMap (ℱ := ℱ) (C := L) x3)) (coeLinearMap)
+    (fun _ _ h ↦ (inclusionLinearMap (C := L) (Filter.monotone_principal h)))
+    (fun S ↦ inclusionLinearMap <| Filter.le_principal_iff.2 S.2)
     (Module.DirectLimit.of R ℱ.setsᵒᵈ (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [N i, L i]_[𝓟 S.1])
-    (fun _ _ x3 ↦ (inclusionLinearMap (ℱ := ℱ) (C := L) x3)) · )
-  let comp2 := IsDirectLimit.Module.linearEquiv (fun _ _ x3 ↦ (inclusionLinearMap (ℱ := ℱ) x3))
-    (coeLinearMap) (Module.DirectLimit.of R _
-    (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [(M ⊗[R] N i), rangeLTensor R M N L i]_[𝓟 S.1])
-    (fun _ _ x3 ↦ (inclusionLinearMap (ℱ := ℱ) x3)) · )
+    (fun _ _ x3 ↦ (inclusionLinearMap (C := L) (Filter.monotone_principal x3))) · )
+  let comp2 := IsDirectLimit.Module.linearEquiv (fun (_ : ℱ.setsᵒᵈ) _ x3 ↦
+      (inclusionLinearMap (Filter.monotone_principal x3)))
+    (fun S ↦ inclusionLinearMap <| Filter.le_principal_iff.2 S.2)
+    (Module.DirectLimit.of R _
+      (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [(M ⊗[R] N i), rangeLTensor R M N L i]_[𝓟 S.1])
+      (fun _ _ x3 ↦ (inclusionLinearMap (Filter.monotone_principal x3))) · )
   let comp4 := (LinearEquiv.lTensor M comp) ≪≫ₗ comp1
-  let comp5 : Module.DirectLimit (fun (S : ℱ.setsᵒᵈ) ↦
-    M ⊗[R] Πʳ (i : ι), [N i, L i]_[𝓟 S.1]) (fun i j h ↦
-    LinearMap.lTensor M (inclusionLinearMap h)) ≃ₗ[R] Module.DirectLimit (fun (S : ℱ.setsᵒᵈ)
-    ↦ Πʳ (i : ι), [M ⊗[R] N i, (rangeLTensor R M N L i)]_[𝓟 (S.1)]) (fun _ _ x3 ↦
-      inclusionLinearMap x3) := Module.DirectLimit.congr (fun (S : ℱ.setsᵒᵈ) ↦
+  let comp5 : Module.DirectLimit
+      (fun (S : ℱ.setsᵒᵈ) ↦ M ⊗[R] Πʳ (i : ι), [N i, L i]_[𝓟 S.1])
+      (fun i j h ↦ LinearMap.lTensor M (inclusionLinearMap (Filter.monotone_principal h))) ≃ₗ[R]
+      Module.DirectLimit
+      (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ (i : ι), [M ⊗[R] N i, (rangeLTensor R M N L i)]_[𝓟 (S.1)])
+      (fun _ _ x3 ↦ inclusionLinearMap (Filter.monotone_principal x3)) :=
+    Module.DirectLimit.congr (fun (S : ℱ.setsᵒᵈ) ↦
       (RestrictedProduct.lTensorPrincipalEquiv R M N L (S.1 : Set ι))) (by
         intro i j hij
         refine TensorProduct.ext' (fun x y ↦ ?_)
@@ -136,7 +141,7 @@ lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
         change x ⊗ₜ[R] y k = ((lTensorPrincipalEquiv R M N L i.1) (x ⊗ₜ[R] y)) k
         rw [lTensorPrincipalEquiv_tmul])
   let tensor_comm' := comp4 ≪≫ₗ comp5 ≪≫ₗ comp2.symm
-  have : RestrictedProduct.lTensor R M N ℱ L  = tensor_comm' := by
+  have : RestrictedProduct.lTensor R M N ℱ L = tensor_comm' := by
     ext m x i
     simp only [TensorProduct.AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,
       LinearMap.coe_restrictScalars, lTensor_tmul, LinearEquiv.coe_coe, tensor_comm', comp2,
@@ -148,12 +153,13 @@ lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
       LinearEquiv.lTensor_tmul, LinearEquiv.coe_mk, LinearMap.coe_mk, AddHom.coe_mk,
       tensorPi_equiv_piTensor'_apply, LinearMap.lTensor_tmul, Submodule.subtype_apply,
       LinearEquiv.coe_ofEq_apply, LinearEquiv.ofTop_apply, dite_eq_ite, ite_self,
-      IsDirectLimit.Module.linearEquiv_symm_apply, coeLinearMap]
-    apply_fun (comp).symm at hjx'
-    simp only [comp, IsDirectLimit.Module.linearEquiv_symm_apply, coeLinearMap,
-      LinearMap.coe_mk, AddHom.coe_mk,
-      LinearEquiv.symm_apply_apply] at hjx'
-    simp only [← congrFun (congrArg DFunLike.coe hjx') i, inclusion_apply, mk_apply]
+      IsDirectLimit.Module.linearEquiv_symm_apply, inclusionLinearMap]
+    apply_fun comp.symm at hjx'
+    simp only [comp, IsDirectLimit.Module.linearEquiv_symm_apply, inclusionLinearMap,
+      LinearEquiv.symm_apply_apply, id_eq] at hjx'
+    simp only [← congrFun (congrArg DFunLike.coe hjx') i, mapAlongLinearMap_apply, id_eq,
+      LinearMap.id_coe]
+    rfl
   rw [this]
   exact tensor_comm'.bijective
 

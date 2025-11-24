@@ -38,31 +38,23 @@ variable {A : Type*} [CommRing A] {ι : Type*} {R : ι → Type*} {ℱ : Filter 
 
 open Set Filter RestrictedProduct
 
-/-- Linear map version of `inclusion`. -/
-def inclusionLinearMap {S₁ S₂ : ℱ.setsᵒᵈ} (h : S₁ ≤ S₂) :
-    Πʳ i, [R i, C i]_[𝓟 S₁.1] →ₗ[A] Πʳ i, [R i, C i]_[𝓟 S₂.1] :=
-  mapAlongLinearMap R R id (tendsto_principal_principal.2 h) (fun _ ↦ .id)
+def inclusionLinearMap {𝓕 𝓖 : Filter ι} (h : 𝓕 ≤ 𝓖) :
+    Πʳ i, [R i, C i]_[𝓖] →ₗ[A] Πʳ i, [R i, C i]_[𝓕] :=
+  mapAlongLinearMap R R id h (fun _ ↦ .id)
   (Filter.Eventually.of_forall <| fun _ _ ↦ id)
 
-lemma inclusionLinearMap_apply {S₁ S₂ : ℱ.setsᵒᵈ} (h : S₁ ≤ S₂) (x : Πʳ i, [R i, C i]_[𝓟 S₁.1]) :
-  inclusionLinearMap h x = ⟨x.1, x.2.filter_mono (monotone_principal h)⟩ := rfl
+lemma inclusionLinearMap_apply {𝓕 𝓖 : Filter ι} (h : 𝓕 ≤ 𝓖) (x : Πʳ i, [R i, C i]_[𝓖]) :
+  inclusionLinearMap h x = ⟨x.1, x.2.filter_mono h⟩ := rfl
 
-instance : DirectedSystem (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1]) fun _ _ x3 ↦
-  (inclusionLinearMap (ℱ := ℱ) (C := C) x3) := RestrictedProduct.instDirectedSystem
+instance : DirectedSystem (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1])
+    fun _ _ h ↦ (inclusionLinearMap <| monotone_principal h) :=
+  RestrictedProduct.instDirectedSystem
 
-/-- Linear map version of `inclusion_to_restrictedProduct` -/
-def coeLinearMap (S : ℱ.setsᵒᵈ) :
-   Πʳ i, [R i, C i]_[𝓟 S.1] →ₗ[A] Πʳ i, [R i, C i]_[ℱ] where
-  toFun := RestrictedProduct.inclusion _ _ (Filter.le_principal_iff.2 S.2)
-  map_add' _ _ := rfl
-  map_smul' _ _ := rfl
-
-instance directed : IsDirected (ℱ.setsᵒᵈ) (· ≤ ·) := by
-  refine { directed := ?_ }
-  intro Si Sj
-  obtain ⟨Si, hi⟩ := Si
-  obtain ⟨Sj, hj⟩ := Sj
-  use ⟨Si ∩ Sj, ℱ.inter_sets hi hj⟩, inter_subset_left, inter_subset_right
+instance directed : IsDirected (ℱ.setsᵒᵈ) (· ≤ ·) where
+    directed Si Sj := by
+      obtain ⟨Si, hi⟩ := Si
+      obtain ⟨Sj, hj⟩ := Sj
+      use ⟨Si ∩ Sj, ℱ.inter_sets hi hj⟩, inter_subset_left, inter_subset_right
 
 end inclusion
 
@@ -72,7 +64,7 @@ open scoped Filter
 
 section type
 
-/-- This canonical isomorphism between `Πʳ i, [R i, A i]_[𝓟 S]` and
+/-- The canonical isomorphism between `Πʳ i, [R i, A i]_[𝓟 S]` and
 `(Π i ∈ S, R i) × (Π i ∉ S, A i)`
 -/
 def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
@@ -83,11 +75,7 @@ def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
   left_inv x := by
     ext
     simp
-  right_inv x := by
-    simp only [mk_apply, Subtype.coe_prop, ↓reduceDIte, Subtype.coe_eta]
-    ext i
-    · rfl
-    · simp only [dif_neg i.property]
+  right_inv x := by aesop
 
 end type
 
@@ -95,6 +83,7 @@ variable {T : ι → Type*} [Π i, SetLike (T i) (R i)] {A : Π i, T i}
 
 section monoid
 
+-- TODO move to FLT/Mathlib
 /-- Monoid equivalence version of `principalEquivProd`. -/
 @[to_additive /-- Additive monoid equivalence of principalEquivProd. -/]
 def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
@@ -112,14 +101,15 @@ open Filter
 
 section module
 
+-- TODO move to FLT/Mathlib
 /-- Module equivalence version of `principalEquivProd`. -/
-noncomputable def principal [Π i, AddCommGroup (R i)]
+noncomputable def principalLinearEquivProd [Π i, AddCommGroup (R i)]
     [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
     (S : Set ι) [∀ i, Decidable (i ∈ S)] :
-   (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] ((Π i : {i // i ∈ S}, C i) ×
-  (Π i : {i // i ∉ S}, R i)) where
-    __ := principalAddEquivSum R S (A := C)
-    map_smul' _ _ := rfl
+    (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] ((Π i : {i // i ∈ S}, C i) ×
+      (Π i : {i // i ∉ S}, R i)) where
+  __ := principalAddEquivSum R S (A := C)
+  map_smul' _ _ := rfl
 
 variable [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
 
@@ -148,7 +138,7 @@ instance instIsDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (
     apply Subtype.ext
     injection hmij
   surj r := by
-    dsimp [coeLinearMap]
+    dsimp [inclusionLinearMap]
     have : { i : ι | r.1 i ∈ (C i : Set (R i)) } ∈ (iInf 𝓖) := hℱ ▸ r.property
     obtain ⟨j, hj⟩ := (Filter.mem_iInf_of_directed h𝓖.directed_ge _).mp this
     use j
@@ -156,11 +146,12 @@ instance instIsDirectLimit {I : Type*} [Preorder I] [Nonempty I] [IsDirected I (
     rw [hℱ]
     exact iInf_le_iff.mpr fun b a ↦ a j
   compatibility i j hij x := by
-    dsimp [coeLinearMap, RestrictedProduct.inclusion, RestrictedProduct.inclusion]
+    dsimp [inclusionLinearMap, RestrictedProduct.inclusion, RestrictedProduct.inclusion]
     exact Subtype.ext rfl
 
 instance instIsDirectLimit' : IsDirectLimit (M := fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [R i, C i]_[𝓟 S.1])
-    ((fun _ _ x3 ↦ inclusionLinearMap (ℱ := ℱ) (C := C) x3)) (coeLinearMap ·) := by
+    ((fun _ _ h ↦ inclusionLinearMap <| monotone_principal h))
+    (fun S ↦ inclusionLinearMap <| Filter.le_principal_iff.2 S.2) := by
   apply instIsDirectLimit
   · intro i j hij
     simpa only [le_principal_iff, mem_principal]
