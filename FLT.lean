@@ -14,6 +14,7 @@ import FLT.Data.QHat
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
 import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
@@ -63,6 +64,7 @@ import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
 import FLT.Mathlib.Algebra.FixedPoints.Basic
+import FLT.Mathlib.Algebra.IsDirectLimit
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
