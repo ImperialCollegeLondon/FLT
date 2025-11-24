@@ -499,16 +499,16 @@ section ModuleFinite
   when `R` has the `T` module topology. -/
 @[simps!]
 noncomputable
-def Module.Basis.equivFun_homeo (T R : Type*) [Field T] [Ring R] [Module T R]
-    [Module.Finite T R] [TopologicalSpace T] [TopologicalSpace R] [IsTopologicalRing R]
-    [IsTopologicalRing T] [IsModuleTopology T R] : R ≃L[T] (Fin (Module.finrank T R) → T) where
-  __ := Module.Basis.equivFun (Module.finBasisOfFinrankEq T R (rfl))
+def Module.Basis.equivFun_homeo (K R : Type*) [Field K] [Ring R] [Module K R]
+    [Module.Finite K R] [TopologicalSpace K] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsTopologicalRing K] [IsModuleTopology K R] : R ≃L[K] (Fin (Module.finrank K R) → K) where
+  __ := Module.Basis.equivFun (Module.finBasisOfFinrankEq K R (rfl))
   continuous_toFun :=
     IsModuleTopology.continuous_of_linearMap
-      (Module.Basis.equivFun (Module.finBasisOfFinrankEq T R (rfl))).toLinearMap
+      (Module.Basis.equivFun (Module.finBasisOfFinrankEq K R (rfl))).toLinearMap
   continuous_invFun :=
     IsModuleTopology.continuous_of_linearMap
-      (Module.Basis.equivFun (Module.finBasisOfFinrankEq T R (rfl))).symm.toLinearMap
+      (Module.Basis.equivFun (Module.finBasisOfFinrankEq K R (rfl))).symm.toLinearMap
 
 end ModuleFinite
 

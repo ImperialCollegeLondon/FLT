@@ -204,11 +204,11 @@ variable {K R : Type*} [Field K] [Ring R] [Algebra K R] [Module.Finite K R]
     [IsTopologicalRing K] [LocallyCompactSpace K]
     (t : Kˣ)
 
-instance : MeasurableSpace (Fin (Module.finrank K R) → K) := by
-  exact borel (Fin (Module.finrank K R) → K)
+local instance : MeasurableSpace (Fin (Module.finrank K R) → K) :=
+  borel (Fin (Module.finrank K R) → K)
 
-instance : BorelSpace (Fin (Module.finrank K R) → K) := by
-  exact { measurable_eq := rfl }
+local instance : BorelSpace (Fin (Module.finrank K R) → K) where
+  measurable_eq := rfl
 
 theorem ringHaarChar_ModuleFinite :
     ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
@@ -218,10 +218,10 @@ theorem ringHaarChar_ModuleFinite :
     ((IsModuleTopology.Module.Basis.equivFun_homeo _ _).toContinuousAddEquiv)
   intro x
   -- this would not be needed if `mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv`
-  -- ate a ContinuousMulEquivClass instead of a ContinuousMulEquiv
-  change (IsModuleTopology.Module.Basis.equivFun_homeo K R)
-    _ =
-  (ContinuousAddEquiv.mulLeft ((Units.map ↑(algebraMap K (Fin (Module.finrank K R) → K))) t))
+  -- ate a ContinuousMulEquivClass instead of a ContinuousMulEquiv.
+  -- Unfortunately there's no such class :-(
+  change (IsModuleTopology.Module.Basis.equivFun_homeo K R) _ =
+    (ContinuousAddEquiv.mulLeft ((Units.map ↑(algebraMap K (Fin (Module.finrank K R) → K))) t))
     ((IsModuleTopology.Module.Basis.equivFun_homeo K R) x)
   simp [← Algebra.smul_def]
 
