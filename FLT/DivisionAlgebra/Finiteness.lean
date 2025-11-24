@@ -10,10 +10,10 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.GroupTheory.DoubleCoset
 import Mathlib.Algebra.Central.Defs
 import Mathlib.Tactic.LinearCombination'
+import Mathlib.Topology.Algebra.Group.Basic
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
-import FLT.Mathlib.Topology.Algebra.Group.Basic
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
@@ -185,7 +185,7 @@ local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
 
 local instance : DiscreteTopology (includeLeft_subgroup K D).carrier := by
   rw [includeLeft_subgroup]
-  apply (singletons_open_iff_discrete).mp
+  apply discreteTopology_iff_isOpen_singleton.mpr
   rintro ⟨a, a', ha⟩
   obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
   refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
@@ -300,17 +300,15 @@ lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
     rfl
 
 lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
-  apply Topology.IsClosedEmbedding.comp
-  · exact { toIsEmbedding := Units.isEmbedding_embedProduct, isClosed_range :=
-      embedProduct_closed D_𝔸}
-  · refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
-      (continuous_iff_le_induced.mpr fun U a ↦ a)
-      (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
-    simp only [Subgroup.coe_subtype]
-    refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
-    simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
-    exact IsClosed.preimage (continuous_id')
-      (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
+  apply Units.isClosedEmbedding_embedProduct.comp
+  refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
+    (continuous_iff_le_induced.mpr fun U a ↦ a)
+    (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
+  simp only [Subgroup.coe_subtype]
+  refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
+  simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
+  exact IsClosed.preimage (continuous_id')
+    (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
 
 lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.C K D) :=
   IsCompact.image (Aux.C_compact K D) <| by fun_prop

@@ -18,6 +18,7 @@ def diagonal (d : n → Rˣ) : GL n R :=
 
 namespace GL2
 
+-- **TODO** This might have just landed in mathlib as an AddChar?
 /-- The unipotent matrix element `!![1, t; 0, 1]`. -/
 noncomputable def unipotent (t : R) : GL (Fin 2) R :=
   letI detInv : Invertible !![1, t; 0, 1].det :=

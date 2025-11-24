@@ -74,19 +74,6 @@ instance {R} [CommRing R] [TopologicalSpace R] [CompactSpace R] (I : Ideal R) :
 
 open Topology in
 @[to_additive]
-lemma IsTopologicalGroup.isInducing_of_nhds_one {G H : Type*} [Group G] [Group H]
-    [TopologicalSpace G] [TopologicalSpace H]
-    [IsTopologicalGroup G] [IsTopologicalGroup H] (f : G →* H)
-    (hf : 𝓝 (1 : G) = (𝓝 (1 : H)).comap f) : Topology.IsInducing f := by
-  rw [Topology.isInducing_iff_nhds]
-  intro x
-  rw [← nhds_translation_mul_inv, ← nhds_translation_mul_inv (f x), Filter.comap_comap, hf,
-    Filter.comap_comap]
-  congr 1
-  ext; simp
-
-open Topology in
-@[to_additive]
 theorem exists_subgroup_isOpen_and_subset {α : Type*} [TopologicalSpace α]
     [CompactSpace α] [T2Space α] [TotallyDisconnectedSpace α]
     [CommGroup α] [IsTopologicalGroup α] {U : Set α} (hU : U ∈ 𝓝 1) :
@@ -322,16 +309,6 @@ lemma Pi.liftQuotientₗ_bijective {ι R M : Type*} [CommRing R] [AddCommGroup M
   simp only [LinearMap.mem_ker, funext_iff, LinearMap.compLeft_apply, Function.comp_apply,
     smul_apply, Algebra.linearMap_apply, Ideal.Quotient.algebraMap_eq, zero_apply,
     Ideal.Quotient.eq_zero_iff_mem, smul_eq_mul, I.mul_mem_right _ hr, implies_true]
-
-lemma Finsupp.comapDomain_surjective {α β M} [Zero M] [Finite β]
-    (f : α → β) (hf : Function.Injective f) :
-    Function.Surjective fun l : β →₀ M ↦ Finsupp.comapDomain f l hf.injOn := by
-  classical
-  intro x
-  cases isEmpty_or_nonempty α
-  · refine ⟨0, Finsupp.ext <| fun a ↦ IsEmpty.elim ‹_› a⟩
-  obtain ⟨g, hg⟩ := hf.hasLeftInverse
-  refine ⟨Finsupp.equivFunOnFinite.symm (x ∘ g), Finsupp.ext <| fun a ↦ by simp [hg a]⟩
 
 lemma IsModuleTopology.compactSpace
     (R M : Type*) [CommRing R] [TopologicalSpace R] [AddCommGroup M]

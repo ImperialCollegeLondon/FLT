@@ -60,7 +60,7 @@ over a number field $N$ and $P$ is a maximal ideal of its integer ring $\calO_N$
 \begin{remark} From this point on, our Frey curves and Frey packages will use notation $(a,b,c,\ell)$, with $\ell\geq 5$ a prime number, rather than $p$. This frees up $p$ for use as another prime.
 \end{remark}
 
-\begin{lemma}\label{Frey_curve_good_reduction}\uses{FLT.FreyCurve, EllipticCurve.GoodReduction} If $E$ is the Frey curve $Y^2=X(X-a^\ell)(X+b^\ell)$ associated to a
+\begin{lemma}\label{Frey_curve_good_reduction}\uses{FreyCurve, EllipticCurve.GoodReduction} If $E$ is the Frey curve $Y^2=X(X-a^\ell)(X+b^\ell)$ associated to a
   Frey package $(a,b,c,\ell)$, and if $p$ is a prime
   not dividing $abc$ (and in particular if $p>2$), then $E$ has good reduction at~$p$.
 \end{lemma}
@@ -215,7 +215,7 @@ Let $(a,b,c,\ell)$ be a Frey package, with associated Frey curve $E$ and mod $\e
 If however $p$ divides $abc$ then $E$ has multiplicative
 reduction at $p$, and we can use the theory of the Tate curve to analyse $\rho$ at $p$.
 
-\begin{theorem}\label{Frey_curve_j}\lean{FLT.FreyPackage.FreyCurve.j}\leanok\uses{FLT.FreyCurve} If $(a,b,c,\ell)$ is a Frey package then the $j$-invariant of the corresponding Frey curve is $2^8(C^2-AB)^3/A^2B^2C^2$, where $A=a^\ell$, $B=b^\ell$ and $C=c^\ell$.
+\begin{theorem}\label{Frey_curve_j}\lean{FreyCurve.j}\leanok\uses{FreyCurve} If $(a,b,c,\ell)$ is a Frey package then the $j$-invariant of the corresponding Frey curve is $2^8(C^2-AB)^3/A^2B^2C^2$, where $A=a^\ell$, $B=b^\ell$ and $C=c^\ell$.
 \end{theorem}
 \begin{proof}
   \leanok
@@ -223,8 +223,8 @@ reduction at $p$, and we can use the theory of the Tate curve to analyse $\rho$ 
 \end{proof}
 
 \begin{corollary}
-  \label{FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime}
-  \lean{FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime}
+  \label{FreyCurve.j_valuation_of_bad_prime}
+  \lean{FreyCurve.j_valuation_of_bad_prime}
   \uses{Frey_curve_j}\leanok
   If $(a,b,c,\ell)$ is a Frey package and the $j$-invariant of the corresponding Frey curve is $j$, and if $2<p\mid abc$, then the $p$-adic valuation $v_p(j)$ of $j$ is a multiple of $\ell$.
 \end{corollary}
@@ -238,13 +238,13 @@ reduction at $p$, and we can use the theory of the Tate curve to analyse $\rho$ 
   at $p$.
 \end{corollary}
 \begin{proof}
-  \uses{multiplicative_reduction_torsion, FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime}
+  \uses{multiplicative_reduction_torsion, FreyCurve.j_valuation_of_bad_prime}
   After an unramified quadratic twist we may assume the curve is split at $p$.
   The theory of the Tate curve tells us that the extension of $\Q_p$ cut out by the $\ell$-torsion
   of the Frey curve is $\Q_p(\mu_\ell,\sqrt[\ell]{q})$, with $\mu_\ell$ the set of $\ell$th roots
   of unity in $\Qpbar$. Because $\ell\not=p$ the extension
   $\Q_p(\mu_\ell)$ is unramified at $p$. And because $p\not=2$ divides $abc$,
-  theorem~\ref{FLT.FreyPackage.FreyCurve.j_valuation_of_bad_prime} shows us that the $j$-invariant
+  theorem~\ref{FreyCurve.j_valuation_of_bad_prime} shows us that the $j$-invariant
   of the Frey curve has $p$-adic valuation a multiple of $\ell$.
   Thus the extension can be written $\Q_p(\mu_\ell,\sqrt[\ell]{u})$,
   where $u\in\Q_p^\times$ is a unit. The extension is hence unramified (because, for example,

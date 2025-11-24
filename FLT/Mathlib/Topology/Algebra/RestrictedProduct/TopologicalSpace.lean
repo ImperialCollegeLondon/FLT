@@ -1,8 +1,8 @@
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
 import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import Mathlib.Topology.Instances.Matrix
-import FLT.Mathlib.Topology.Algebra.Constructions
+import Mathlib.Topology.Algebra.Constructions
 import FLT.Mathlib.Topology.Algebra.Group.Units
 
 open RestrictedProduct
@@ -18,7 +18,7 @@ variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
 theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
     (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
     (hφcont : ∀ i, Continuous (φ i)) :
-    Continuous (congrRight φ hφ) :=
+    Continuous (map φ hφ) :=
   mapAlong_continuous G H id Filter.tendsto_id φ hφ hφcont
 
 -- now let's add groups
@@ -33,22 +33,6 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)]
     [Π i, TopologicalSpace (G i)]
     [Π i, TopologicalSpace (H i)] in
-/-- The continuous monoid homomorphism between restricted products, built from
-continuous monoid homomorphisms on the factors. -/
-@[to_additive (attr := simps!)
-/-- The continuous additive monoid homomorphism between restricted products, built from
-continuous monoid homomorphisms on the factors. -/]
-def ContinuousMonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →ₜ* H i)
-    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
-    Πʳ i, [G i, A i]_[ℱ] →ₜ* Πʳ i, [H i, B i]_[ℱ] where
-  __ := MonoidHom.restrictedProductCongrRight (fun i ↦ φ i) hφ
-  continuous_toFun := by exact
-    Continuous.restrictedProduct_congrRight (φ := fun i ↦ φ i) hφ (fun i ↦ (φ i).continuous)
-
-variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
-    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)]
-    [Π i, TopologicalSpace (G i)]
-    [Π i, TopologicalSpace (H i)] in
 /-- The `ContinuousMulEquiv` (that is, group isomorphism and homeomorphism) between restricted
 products built from `ContinuousMulEquiv`s on the factors. -/
 @[to_additive
@@ -57,10 +41,11 @@ between restricted products built from `ContinuousAddEquiv`s on the factors. -/]
 def ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
     (Πʳ i, [G i, A i]_[ℱ]) ≃ₜ* (Πʳ i, [H i, B i]_[ℱ]) where
-  __ := ContinuousMonoidHom.restrictedProductCongrRight (fun i ↦ φ i)
+  toFun := map (fun i ↦ φ i)
     (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo)
-  invFun := ContinuousMonoidHom.restrictedProductCongrRight (fun i ↦ (φ i).symm)
+  invFun := map (fun i ↦ (φ i).symm)
     (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo ∘ Set.BijOn.equiv_symm)
+  map_mul' _ _ := by ext; simp
   left_inv x := by
     ext i
     exact ContinuousMulEquiv.symm_apply_apply _ _
@@ -186,16 +171,6 @@ lemma Homeomorph.restrictedProductMatrix_toEquiv {ι : Type*} {m n : Type*} [Fin
     (restrictedProductMatrix hCopen).toEquiv =
       Equiv.restrictedProductMatrix (m := m) (n := n) :=
   rfl
-
-/-- The structure map for a restricted product of monoids is a `MonoidHom`. -/
-@[to_additive
-/-- The structure map for a restricted product of AddMonoids is an `AddMonoidHom`. -/]
-def RestrictedProduct.structureMapMonoidHom {ι : Type*} (M : ι → Type*) [(i : ι) → Monoid (M i)]
-    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)] (A : Π i, S i)
-    (𝓕 : Filter ι) : ((i : ι) → (A i)) →* Πʳ (i : ι), [M i, Submonoid.ofClass (A i)]_[𝓕] where
-  toFun := structureMap M (A ·) 𝓕
-  map_one' := rfl
-  map_mul' := by intros; rfl
 
 open MulOpposite MonoidHom Units Equiv Set in
 /-- The equivalence `Submonoid.unitsEquivUnitsType`, for monoids equipped with a topology. -/
@@ -487,3 +462,15 @@ lemma RestrictedProduct.isOpenMap_of_open_components
     rfl
 
 end openmap
+
+section structure_map
+
+instance (R : ι → Type*) {S : ι → Type*}
+    (A : (i : ι) → (S i)) (𝓕 : Filter ι) [(i : ι) → SetLike (S i) (R i)] [(i : ι) → Ring (R i)]
+    [(i : ι) → SubringClass (S i) (R i)] [(i : ι) → TopologicalSpace (R i)]
+    [(i : ι) → CompactSpace (A i)] :
+    CompactSpace (structureSubring R A 𝓕) where
+  isCompact_univ :=
+    isCompact_iff_isCompact_univ.1 <| isCompact_range isEmbedding_structureMap.continuous
+
+end structure_map

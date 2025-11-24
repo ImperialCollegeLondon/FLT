@@ -60,6 +60,7 @@ noncomputable def M2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subring (Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) :=
   (v.adicCompletionIntegers F).matrix
 
+/-- `GL₂(𝒪ᵥ)` as a subgroup of `GL₂(Fᵥ)`. -/
 noncomputable def GL2.localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
   MonoidHom.range (Units.map
@@ -73,10 +74,14 @@ theorem M2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (M2.localFullLevel v).carrier :=
   (isCompact_iff_compactSpace.mpr (NumberField.instCompactSpaceAdicCompletionIntegers F v)).matrix
 
+-- the clever way to prove this is a theorem of the form "if A is an open submonoid of R
+-- then Aˣ is an open subgroup of Rˣ"
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localFullLevel v).carrier :=
   sorry
 
+-- the clever way to prove this is a theorem of the form "if A is a compact submonoid of R
+-- then Aˣ is a compact subgroup of Rˣ"
 theorem GL2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (GL2.localFullLevel v).carrier :=
   sorry
@@ -131,7 +136,8 @@ lemma GL2.mem_localFullLevel_iff_v_le_one_and_v_det_eq_one {v : HeightOneSpectru
 
 open Valued
 
-/-- local U_1(v), defined as matrices congruent to (a *;0 a) mod v. -/
+/-- local U_1(v), defined as a subgroup of GL₂(Fᵥ) given by
+matrices in GL₂(𝒪ᵥ) congruent to (a *;0 a) mod v. -/
 noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) where
   carrier := {x ∈ localFullLevel v |
@@ -183,10 +189,14 @@ noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
     rw [Valuation.map_sub_swap, v_det_val_mem_localFullLevel_eq_one ha.1]
     simp [ha.2]
 
+-- the clever way to prove this is a theorem of the form "if A is an open submonoid of R
+-- then Aˣ is an open subgroup of Rˣ"
 theorem GL2.localTameLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localTameLevel v).carrier :=
   sorry
 
+-- the clever way to prove this is a theorem of the form "if A is a compact submonoid of R
+-- then Aˣ is a compact subgroup of Rˣ"
 theorem GL2.localTameLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (GL2.localTameLevel v).carrier :=
   sorry
@@ -195,7 +205,8 @@ end IsDedekindDomain
 
 open RestrictedProduct
 
-/-- The canonical map from `𝔸_F^∞` to the local component `F_v` for `v` a finite place. -/
+/-- The canonical F-algebra morphism from `𝔸_F^∞` (the finite adeles of a number field F) to
+the local component `F_v` for `v` a finite place of `𝓞 F`. -/
 noncomputable
 def IsDedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (𝓞 F)) :
     FiniteAdeleRing (𝓞 F) F →ₐ[F] HeightOneSpectrum.adicCompletion F v where
@@ -213,7 +224,8 @@ noncomputable def GL2.toAdicCompletion
   Units.map (RingHom.mapMatrix (FiniteAdeleRing.toAdicCompletion v)).toMonoidHom
 
 /-- `GL_2(𝔸_F^∞)` is isomorphic and homeomorphic to the
-restricted product of the local components `GL_2(F_v)`. -/
+restricted product of the local components `GL_2(F_v)`.
+-/
 noncomputable def GL2.restrictedProduct :
     GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) ≃ₜ*
     Πʳ (v : HeightOneSpectrum (𝓞 F)),
@@ -226,6 +238,10 @@ namespace IsDedekindDomain.HeightOneSpectrum
 
 open FiniteAdeleRing
 
+/-- If `F` is a number field and `S` is a finite set of finite places of `𝓞 F` then
+`GL2.TameLevel S` is the subgroup of `GL₂(𝔸_F^∞)` consisting of things in `GL₂(𝓞ᵥ)` for
+all places, and furthermore in the local "`U₁(v)`" subgroup `(a *;0 a) mod v` for all `v ∈ S`.
+-/
 noncomputable def GL2.TameLevel (S : Finset (HeightOneSpectrum (𝓞 F))) :
   Subgroup (GL (Fin 2) (FiniteAdeleRing (𝓞 F) F)) where
     carrier := {x | (∀ v, GL2.toAdicCompletion v x ∈ GL2.localFullLevel v) ∧
@@ -243,6 +259,8 @@ theorem GL2.TameLevel.isCompact : IsCompact (GL2.TameLevel S).carrier :=
   sorry
 
 open scoped TensorProduct.RightActions in
+/-- The subgroup of `(D ⊗ 𝔸_F^∞)ˣ` corresponding to the subgroup `U₁(S)` of `GL₂(𝔸_F^∞)`
+(that is, matrices congruent to `(a *; 0 a) mod v` for all `v ∈ S`) via the rigidification `r`. -/
 noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
     Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)

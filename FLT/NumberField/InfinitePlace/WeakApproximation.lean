@@ -39,21 +39,6 @@ namespace AbsoluteValue
 
 variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ}
 
-open Filter in
-/--
-`v (1 / (1 + a ^ n)) → 1` if `v a < 1`.
--/
-theorem tendsto_div_one_add_pow_nhds_one {a : K} (ha : v a < 1) :
-    Filter.Tendsto (fun (n : ℕ) => v (1 / (1 + a ^ n))) Filter.atTop (𝓝 1) := by
-  simp_rw [v.isAbsoluteValue.abv_div, v.map_one]
-  nth_rw 2 [show (1 : ℝ) = 1 / 1 by norm_num]
-  apply Tendsto.div tendsto_const_nhds _ one_ne_zero
-  have h_add := Tendsto.const_add 1 <| tendsto_pow_atTop_nhds_zero_of_lt_one (v.nonneg _) ha
-  have h_sub := Tendsto.const_sub 1 <| tendsto_pow_atTop_nhds_zero_of_lt_one (v.nonneg _) ha
-  simp only [add_zero, sub_zero] at h_add h_sub
-  exact tendsto_of_tendsto_of_tendsto_of_le_of_le h_sub h_add (v.one_sub_pow_le _)
-    (v.one_add_pow_le _)
-
 /--
 `v (1 / (1 + a ^ n)) → 0` if `1 < v a`.
 -/

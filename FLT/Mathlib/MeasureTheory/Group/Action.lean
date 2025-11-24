@@ -2,7 +2,6 @@ import Mathlib.MeasureTheory.Group.Action
 import Mathlib.MeasureTheory.Group.Pointwise
 import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
 import Mathlib.GroupTheory.Complement
-import FLT.Mathlib.Data.Set.Card -- shake says remove this but it breaks a simp call
 /-!
 # TODO
 
@@ -70,7 +69,8 @@ variable {G α : Type*} [Group G] [MeasurableSpace G] [MeasurableSpace α]
   {H K : Subgroup G}
 
 @[to_additive]
-instance [MeasurableMul₂ G] : MeasurableMul₂ H where measurable_mul := by measurability
+instance [MeasurableMul₂ G] : MeasurableMul₂ H where
+  measurable_mul := Measurable.subtype_mk (by measurability)
 
 @[to_additive]
 instance [MeasurableInv G] : MeasurableInv H where
@@ -80,7 +80,7 @@ variable [MeasurableMul G]
 
 @[to_additive]
 instance : MeasurableMul H where
-  measurable_mul_const c := by measurability
+  measurable_mul_const c := Measurable.subtype_mk (by measurability)
   measurable_const_mul c := Measurable.subtype_mk (by measurability)
 
 @[to_additive]

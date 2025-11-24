@@ -27,18 +27,9 @@ variable (α : v.adicCompletionIntegers F)
 
 variable (hα : α ≠ 0)
 
--- Not sure if this could be somewhere else.
-variable (v) {α hα} in
-lemma valuation_lt_one_iff_mem_maximalIdeal {t : adicCompletionIntegers F v} :
-    Valued.v (t : adicCompletion F v) < 1
-    ↔ t ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) :=
-  (Valuation.isEquiv_iff_val_lt_one.mp
-    (Valuation.isEquiv_valuation_valuationSubring Valued.v)).trans
-  (ValuationSubring.valuation_lt_one_iff (adicCompletionIntegers F v) _).symm
-
 variable (v) {α hα} in
 /-- The subgroup `U1 v = GL2.localTameLevel v`. -/
-noncomputable abbrev U1 : Subgroup (GL (Fin 2) (adicCompletion F v)) := (GL2.localTameLevel v)
+noncomputable abbrev U1 : Subgroup (GL (Fin 2) (adicCompletion F v)) := GL2.localTameLevel v
 
 open Matrix.GeneralLinearGroup.GL2
 
@@ -95,6 +86,7 @@ noncomputable def unipotent_mul_diag (t : v.adicCompletionIntegers F) :
     (GL (Fin 2) (adicCompletion F v)) :=
   (unipotent (t : adicCompletion F v)) * (diag α hα)
 
+/-- `!![α t₁; 0 1]⁻¹ * [α t₂; 0 1] = [1 (t₂ - t₁) / α; 0 1]`. -/
 lemma unipotent_mul_diag_inv_mul_unipotent_mul_diag (t₁ t₂ : v.adicCompletionIntegers F) :
     (unipotent_mul_diag α hα t₁)⁻¹ * unipotent_mul_diag α hα t₂
     = unipotent ((α : v.adicCompletion F)⁻¹ * ((t₂ + -t₁) : adicCompletion F v )) := by
@@ -127,12 +119,12 @@ lemma apply_mem_integer (i j : Fin 2) :
 lemma apply_zero_zero_sub_apply_one_one_mem_maximalIdeal :
     (⟨(x 0 0), apply_mem_integer hx _ _⟩ - ⟨(x 1 1), apply_mem_integer hx _ _⟩)
     ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) :=
-  (valuation_lt_one_iff_mem_maximalIdeal v).mp hx.right.left
+  (mem_completionIdeal_iff _ v _).mpr hx.right.left
 
 lemma apply_one_zero_mem_maximalIdeal :
     ⟨(x 1 0), apply_mem_integer hx _ _⟩
     ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) :=
-  (valuation_lt_one_iff_mem_maximalIdeal v).mp hx.right.right
+  (mem_completionIdeal_iff _ v _).mpr hx.right.right
 
 lemma apply_one_one_notMem_maximalIdeal :
     ⟨(x 1 1), apply_mem_integer hx _ _⟩
@@ -146,7 +138,7 @@ lemma apply_one_one_notMem_maximalIdeal :
       (Ideal.mul_mem_left _ _ mem_maximalIdeal)
       (Ideal.mul_mem_left _ _ (apply_one_zero_mem_maximalIdeal hx))
   have v_det_lt_one :=
-    ((valuation_lt_one_iff_mem_maximalIdeal _).mpr det_mem_maximalIdeal)
+    ((mem_completionIdeal_iff _ v _).mp det_mem_maximalIdeal)
   push_cast at v_det_lt_one; rw[← Matrix.det_fin_two] at v_det_lt_one
   exact (ne_of_lt v_det_lt_one) (GL2.v_det_val_mem_localFullLevel_eq_one hx.left)
 
@@ -192,7 +184,7 @@ lemma conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal :
         apply (mem_adicCompletionIntegers _ _ _).mp
         simp
       · exact_mod_cast le_of_lt
-          ((valuation_lt_one_iff_mem_maximalIdeal v).mpr
+          ((mem_completionIdeal_iff _ v _).mp
           (Ideal.mul_mem_right _ _ (apply_one_zero_mem_maximalIdeal hx)))
       exact apply_mem_integer hx 1 1
     rw[Matrix.det_fin_two_of]; ring_nf
@@ -205,8 +197,8 @@ lemma conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal :
   simp only [Fin.isValue, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
     Matrix.cons_val_fin_one, Matrix.cons_val_one]
   norm_cast
-  exact ⟨hx.right.left ,
-    (valuation_lt_one_iff_mem_maximalIdeal v).mpr
+  exact ⟨hx.right.left,
+    (mem_completionIdeal_iff _ v _).mp
     (Ideal.mul_mem_right _ _ (apply_one_zero_mem_maximalIdeal hx))⟩
 
 end U1
