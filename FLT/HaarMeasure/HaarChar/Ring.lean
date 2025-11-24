@@ -204,6 +204,7 @@ variable {K R : Type*} [Field K] [Ring R] [Algebra K R] [Module.Finite K R]
     [IsTopologicalRing K] [LocallyCompactSpace K]
     (t : Kˣ)
 
+/-- The Borel measurable space instance on Fin n → K. A local instance. -/
 local instance : MeasurableSpace (Fin (Module.finrank K R) → K) :=
   borel (Fin (Module.finrank K R) → K)
 
