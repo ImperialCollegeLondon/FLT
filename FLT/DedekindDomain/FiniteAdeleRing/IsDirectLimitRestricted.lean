@@ -38,6 +38,11 @@ variable {A : Type*} [CommRing A] {ι : Type*} {R : ι → Type*} {ℱ : Filter 
 
 open Set Filter RestrictedProduct
 
+/-- A linear map version of `RestrictedProduct.inclusion` :
+if `𝓕 ≤ 𝓖` then there's a linear map
+`Πʳ i, [R i, C i]_[𝓖] →ₗ[A] Πʳ i, [R i, C i]_[𝓕]` where the `R i`
+are `A`-modules and the `C i` are submodules.
+-/
 def inclusionLinearMap {𝓕 𝓖 : Filter ι} (h : 𝓕 ≤ 𝓖) :
     Πʳ i, [R i, C i]_[𝓖] →ₗ[A] Πʳ i, [R i, C i]_[𝓕] :=
   mapAlongLinearMap R R id h (fun _ ↦ .id)
@@ -161,3 +166,4 @@ instance instIsDirectLimit' : IsDirectLimit (M := fun (S : ℱ.setsᵒᵈ) ↦ �
 end module
 
 end RestrictedProduct
+#lint
