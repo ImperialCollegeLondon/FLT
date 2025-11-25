@@ -294,7 +294,7 @@ namespace WeightTwoAutomorphicFormOfLevel
 variable {U : Subgroup (Dfx F D)} {R : Type*} [CommRing R]
 
 /--
-Enables coercion of an automorphic forms to a function.
+Enables coercion of automorphic forms to functions.
 -/
 @[coe]
 def toFun (f : WeightTwoAutomorphicFormOfLevel U R)
@@ -307,12 +307,12 @@ instance : CoeFun (WeightTwoAutomorphicFormOfLevel U R) (fun _ ↦ Dfx F D → R
 lemma ext ⦃f g : WeightTwoAutomorphicFormOfLevel U R⦄ (h : ∀ x, f x = g x) : f = g :=
   Subtype.ext <| WeightTwoAutomorphicForm.ext _ _ h
 
-lemma left_invt (f : WeightTwoAutomorphicFormOfLevel U R) (δ : Dˣ)
-    (g : Dfx F D) :
-    f ((incl₁ F D) δ * g) = f g := f.1.left_invt δ g
+lemma left_invt (f : WeightTwoAutomorphicFormOfLevel U R) (δ : Dˣ) (g : Dfx F D) :
+    f ((incl₁ F D) δ * g) = f g :=
+  f.1.left_invt δ g
 
-lemma right_invt (f : WeightTwoAutomorphicFormOfLevel U R) (g : Dfx F D)
-    (u : U) : f (g * u) = f g :=
+lemma right_invt (f : WeightTwoAutomorphicFormOfLevel U R) (g : Dfx F D) (u : U) :
+    f (g * u) = f g :=
   congr($(f.2 u) g)
 
 instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
