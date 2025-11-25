@@ -93,15 +93,15 @@ structure WeightTwoAutomorphicForm
   -- defined over R
   (R : Type*) [AddCommMonoid R] where
   /-- The function underlying an automorphic form. -/
-  toFun : (Dfx F D) → R
+  toFun : Dfx F D → R
   left_invt : ∀ (δ : Dˣ) (g : Dfx F D),
     toFun (incl₁ F D δ * g) = (toFun g)
   right_invt : ∃ (U : Subgroup (Dfx F D)),
     IsOpen (U : Set (Dfx F D)) ∧
-    ∀ (g : (Dfx F D)),
+    ∀ (g : Dfx F D),
     ∀ u ∈ U, toFun (g * u) = toFun g
   trivial_central_char (z : (FiniteAdeleRing (𝓞 F) F)ˣ)
-      (g : (Dfx F D)) :
+      (g : Dfx F D) :
       toFun (g * incl₂ F D z) = toFun g
 
 variable {F D}
@@ -275,8 +275,6 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
   add_smul r s g := by ext; simp [smul_apply, add_mul]
   zero_smul g := by ext; simp [smul_apply]
 
-variable [IsQuaternionAlgebra F D]
-
 instance : SMulCommClass (Dfx F D) R (WeightTwoAutomorphicForm F D R) where
   smul_comm r g φ := by
     ext x
@@ -318,8 +316,8 @@ lemma left_invt (f : WeightTwoAutomorphicFormOfLevel U R) (δ : Dˣ)
     f ((incl₁ F D) δ * g) = f g := f.1.left_invt δ g
 
 lemma right_invt (f : WeightTwoAutomorphicFormOfLevel U R) (g : Dfx F D)
-  (u : U) : f (g * u) = f g := by
-    sorry
+    (u : U) : f (g * u) = f g :=
+  congr($(f.2 u) g)
 
 instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
   AddCommGroup (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
