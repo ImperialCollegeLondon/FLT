@@ -1,9 +1,7 @@
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
-import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
-import Mathlib.Data.Set.Finite.Basic
 import FLT.DivisionAlgebra.Finiteness
-import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
+import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 namespace TotallyDefiniteQuaternionAlgebra
 
@@ -17,8 +15,9 @@ variable {F : Type*} [Field F] [NumberField F]
     (hD : IsTotallyDefinite F D)
 -- Let K be a coefficient field
 variable (K : Type*) [Field K]
-    -- and let U, the level, be a (compact, open) subgroup of `(D ⊗ 𝔸_F^∞)ˣ`
-    (U : Subgroup (Dfx F D))
+    -- and let U, the level, be a subgroup of `(D ⊗ 𝔸_F^∞)ˣ`
+    -- (which will be open in the theorem)
+    {U : Subgroup (Dfx F D)}
 
 open TotallyDefiniteQuaternionAlgebra
 
