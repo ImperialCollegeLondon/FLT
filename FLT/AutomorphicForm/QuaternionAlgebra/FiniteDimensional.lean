@@ -30,20 +30,18 @@ theorem WeightTwoAutomorphicForm.finiteDimensional [IsTotallyReal F]
     (hU : IsOpen (U : Set (Dfx F D))) :
     FiniteDimensional K (WeightTwoAutomorphicFormOfLevel U K) := by
   let H' : Subgroup (Dfx F D) := (incl₁ F D).range
-  -- We define a free K-module W with a basis indexed by
+  -- We define a free K-module with a basis indexed by
   -- the elements of a double coset space which (in the totally
   -- definite case) is finite)
   let X := DoubleCoset.Quotient (Set.range (incl₁ F D)) U
+  -- (the finiteness claim below is the nontrivial input to this proof)
   have h : Finite X := NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset F D hU
   letI := Fintype.ofFinite X
-  let m := Fintype.card X
-  let index := (Fintype.equivFin X : X ≃ Fin m)
-  let rep : X → Dfx F D := Quot.out
   -- We then define a linear map φ from V to the finite-dimensional space W.
   -- V is a space of functions, and the map consists of evaluating
   -- a function on representatives given by the rep function above.
-  let φ : (WeightTwoAutomorphicFormOfLevel U K) →ₗ[K] (Fin m → K) := {
-    toFun v i := v (rep (index.symm i)),
+  let φ : (WeightTwoAutomorphicFormOfLevel U K) →ₗ[K] (X → K) := {
+    toFun v x := v (Quot.out x),
     map_add' v₁ v₂ := rfl
     map_smul' c v := rfl
   }
@@ -54,7 +52,7 @@ theorem WeightTwoAutomorphicForm.finiteDimensional [IsTotallyReal F]
   ext d
   -- Show v₁ = v₂ because they agree on reps and the
   -- space is determined by those values
-  let d' := rep (Quot.mk _ d)
+  let d' := Quot.out (Quot.mk _ d : X)
   -- Because d' is a representative for the double coset containing d
   obtain ⟨γ, u, hu, hd⟩ : ∃ γ : Dˣ, ∃ u ∈ U, d = (incl₁ F D γ) * d' * u := by
     have h_rel : (DoubleCoset.setoid H' U) d' d := Quotient.exact (Quotient.out_eq ⟦d⟧)
@@ -65,10 +63,6 @@ theorem WeightTwoAutomorphicForm.finiteDimensional [IsTotallyReal F]
   rw [hd, mul_assoc, v₁.left_invt γ (d' * u), v₂.left_invt γ (d' * u),
     WeightTwoAutomorphicFormOfLevel.right_invt v₁ d' ⟨u, hu⟩,
     WeightTwoAutomorphicFormOfLevel.right_invt v₂ d' ⟨u, hu⟩]
-  obtain ⟨i, d'_rep⟩ : ∃ i, d' = rep (index.symm i) := by
-    use index (Quot.mk _ d)
-    simp only [Equiv.symm_apply_apply, d']
-  rw [d'_rep]
-  exact congr_fun h i
+  exact congr_fun h (Quot.mk _ d)
 
 end TotallyDefiniteQuaternionAlgebra
