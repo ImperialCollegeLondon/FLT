@@ -30,14 +30,13 @@ theorem WeightTwoAutomorphicForm.finiteDimensional [IsTotallyReal F]
     (hU : IsOpen (U : Set (Dfx F D))) :
     FiniteDimensional K (WeightTwoAutomorphicFormOfLevel U K) := by
   let H' : Subgroup (Dfx F D) := (incl₁ F D).range
-  -- We define a free K-module with a basis indexed by
+  -- We will define a free K-module with a basis indexed by
   -- the elements of a double coset space which (in the totally
   -- definite case) is finite)
   let X := DoubleCoset.Quotient (Set.range (incl₁ F D)) U
   -- (the finiteness claim below is the nontrivial input to this proof)
   have h : Finite X := NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset F D hU
-  letI := Fintype.ofFinite X
-  -- We then define a linear map φ from V to the finite-dimensional space W.
+  -- We then define a linear map φ from V to the free K_module spanned by this finite set.
   -- V is a space of functions, and the map consists of evaluating
   -- a function on representatives given by the rep function above.
   let φ : (WeightTwoAutomorphicFormOfLevel U K) →ₗ[K] (X → K) := {
@@ -45,8 +44,8 @@ theorem WeightTwoAutomorphicForm.finiteDimensional [IsTotallyReal F]
     map_add' v₁ v₂ := rfl
     map_smul' c v := rfl
   }
-  -- Since we have a linear map φ from V to W and W is finite-dimensional,
-  -- it's enough to check that φ is injective.
+  -- Since we have a linear map φ from V to a finite-dimensional space,
+  -- it's enough to check that φ is injective. So say φ v₁ = φ v₂.
   apply FiniteDimensional.of_injective φ
   intro v₁ v₂ h
   ext d
@@ -60,6 +59,7 @@ theorem WeightTwoAutomorphicForm.finiteDimensional [IsTotallyReal F]
     rw [DoubleCoset.rel_iff] at h_rel
     obtain ⟨h, ⟨γ, rfl⟩, k, hk, h_eq⟩ := h_rel
     use γ, k, hk
+  -- now it's all easy
   rw [hd, mul_assoc, v₁.left_invt γ (d' * u), v₂.left_invt γ (d' * u),
     WeightTwoAutomorphicFormOfLevel.right_invt v₁ d' ⟨u, hu⟩,
     WeightTwoAutomorphicFormOfLevel.right_invt v₂ d' ⟨u, hu⟩]
