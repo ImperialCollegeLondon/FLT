@@ -3,12 +3,14 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import Mathlib.Algebra.Module.Torsion
+import Mathlib.Algebra.Module.Torsion.Free
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Basic
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Formula
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 import Mathlib.FieldTheory.IsSepClosed
 import Mathlib.RepresentationTheory.Basic
+import Mathlib.Topology.Instances.ZMod
+import FLT.Deformations.RepresentationTheory.GaloisRep
 
 /-!
 
@@ -34,7 +36,9 @@ abbrev WeierstrassCurve.n_torsion (n : ℕ) : Type u := Submodule.torsionBy ℤ 
 
 -- not sure if this instance will cause more trouble than it's worth
 noncomputable instance (n : ℕ) : Module (ZMod n) (E.n_torsion n) :=
-  AddCommGroup.zmodModule sorry -- shouldn't be too hard
+  AddCommGroup.zmodModule <| by
+  intro ⟨P, hP⟩
+  simpa using hP
 
 -- This theorem needs e.g. a theory of division polynomials. It's ongoing work of David Angdinata.
 -- Please do not work on it without talking to KB and David first.
@@ -63,26 +67,50 @@ theorem WeierstrassCurve.n_torsion_dimension [IsSepClosed k] {n : ℕ} (hn : (n 
     simp [hn]
   exact ⟨φ.trans (RingEquiv.piFinTwo _).toAddEquiv⟩
 
+-- follows easily from the above
+noncomputable instance (n : ℕ) : Module.Finite (ZMod n) (E.n_torsion n) := sorry
+
 -- This should be a straightforward but perhaps long unravelling of the definition
 /-- The map on points for an elliptic curve over `k` induced by a morphism of `k`-algebras
 is a group homomorphism. -/
-def WeierstrassCurve.Points.map {K L : Type u} [Field K] [Field L] [Algebra k K] [Algebra k L]
-    [DecidableEq K] [DecidableEq L]
-    (f : K →ₐ[k] L) : E ⟮K⟯ →+ E ⟮L⟯ := sorry
+noncomputable def WeierstrassCurve.Points.map {K L : Type u} [Field K] [Field L] [Algebra k K]
+    [Algebra k L] [DecidableEq K] [DecidableEq L]
+    (f : K →ₐ[k] L) : E ⟮K⟯ →+ E ⟮L⟯ := WeierstrassCurve.Affine.Point.map f
 
+omit [E.IsElliptic] [DecidableEq k] in
 lemma WeierstrassCurve.Points.map_id (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
-    WeierstrassCurve.Points.map E (AlgHom.id k K) = AddMonoidHom.id _ := sorry
+    WeierstrassCurve.Points.map E (AlgHom.id k K) = AddMonoidHom.id _ := by
+      ext
+      exact WeierstrassCurve.Affine.Point.map_id _
 
+omit [E.IsElliptic] [DecidableEq k] in
 lemma WeierstrassCurve.Points.map_comp (K L M : Type u) [Field K] [Field L] [Field M]
     [DecidableEq K] [DecidableEq L] [DecidableEq M] [Algebra k K] [Algebra k L] [Algebra k M]
     (f : K →ₐ[k] L) (g : L →ₐ[k] M) :
-    (WeierstrassCurve.Points.map E g).comp (WeierstrassCurve.Points.map E f) =
-    WeierstrassCurve.Points.map E (g.comp f) := sorry
+    (WeierstrassCurve.Affine.Point.map g).comp (WeierstrassCurve.Affine.Point.map f) =
+    WeierstrassCurve.Affine.Point.map (W' := E) (g.comp f) := by
+  ext P
+  exact WeierstrassCurve.Affine.Point.map_map _ _ _
 
 /-- The Galois action on the points of an elliptic curve. -/
-def WeierstrassCurve.galoisRepresentation (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
-    DistribMulAction (K ≃ₐ[k] K) (E ⟮K⟯) := sorry
+noncomputable instance WeierstrassCurve.galoisRepresentation_smul
+    (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
+    SMul (K ≃ₐ[k] K) (E ⟮K⟯) := ⟨
+  fun g P ↦ WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K) P⟩
 
-/-- The Galois action on the n-torsion points of an elliptic curve. -/
-def WeierstrassCurve.torsionGaloisRepresentation (n : ℕ) (K : Type u) [Field K] [Algebra k K] :
-    Representation (ZMod n) (K ≃ₐ[k] K) (E.n_torsion n) := sorry
+/-- The Galois action on the points of an elliptic curve. -/
+noncomputable def WeierstrassCurve.galoisRepresentation
+    (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
+    DistribMulAction (K ≃ₐ[k] K) (E ⟮K⟯) where
+      one_smul := sorry -- these should all be easy
+      mul_smul := sorry
+      smul_zero := sorry
+      smul_add := sorry
+
+-- the next `sorry` is data but the only thing which should be missing is
+-- the continuity argument, which follows from the finiteness asserted above.
+
+/-- The continuous Galois representation associated to an elliptic curve over a field. -/
+def WeierstrassCurve.galoisRep {K : Type u} [Field K] (E : WeierstrassCurve K) [E.IsElliptic]
+    [DecidableEq K] [DecidableEq (AlgebraicClosure K)] (n : ℕ) (hn : 0 < n) :
+  GaloisRep K (ZMod n) ((E.map (algebraMap K (AlgebraicClosure K))).n_torsion n) := sorry

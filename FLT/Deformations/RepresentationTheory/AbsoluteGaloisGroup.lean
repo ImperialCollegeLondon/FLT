@@ -75,7 +75,7 @@ def Field.absoluteGaloisGroup.map (f : K →+* L) : Γ L →ₜ* Γ K where
         (hσ ⟨F x, IntermediateField.subset_adjoin _ _ ⟨_, x.2, rfl⟩⟩))
 
 set_option allowUnsafeReducibility true in
-attribute [reducible] Field.absoluteGaloisGroup
+attribute [reducible] Field.absoluteGaloisGroup -- lol WTF is going on here
 
 lemma Field.absoluteGaloisGroup.lift_map (f : K →+* L) (σ : Γ L) (x : Kᵃˡᵍ) :
     AlgebraicClosure.map f (map f σ x) = σ (AlgebraicClosure.map f x) := by
@@ -99,7 +99,7 @@ open IntermediateField in
 instance {K L : Type*} [Field K] [Field L] [Algebra K L] [Algebra.IsAlgebraic K L] :
     CompactSpace (L ≃ₐ[K] L) := by
   classical
-  letI := IsTopologicalGroup.toUniformSpace (L ≃ₐ[K] L)
+  letI := IsTopologicalGroup.rightUniformSpace (L ≃ₐ[K] L)
   rw [← isCompact_univ_iff, isCompact_iff_totallyBounded_isComplete]
   refine ⟨IsTopologicalGroup.totallyBounded fun s hs ↦ ?_, ?_⟩
   · obtain ⟨E, hE, H⟩ := (krullTopology_mem_nhds_one_iff _ _ _).mp hs

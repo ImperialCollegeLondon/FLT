@@ -4,6 +4,7 @@ import Mathlib.LinearAlgebra.Charpoly.Basic
 import Mathlib.LinearAlgebra.Matrix.Unique
 import Mathlib.RingTheory.Bialgebra.TensorProduct
 import Mathlib.RingTheory.HopfAlgebra.Basic
+import FLT.Deformations.RepresentationTheory.Irreducible
 
 open NumberField
 
@@ -122,6 +123,7 @@ def FramedGaloisRep.unframe (ρ : FramedGaloisRep K A n) (b : Module.Basis n A M
     GaloisRep K A M :=
   ρ.conj (b.repr ≪≫ₗ Finsupp.linearEquivFunOnFinite A A n).symm
 
+-- **TODO** this should be frame_unframe maybe?
 omit [DecidableEq n] [NumberField K] in
 @[simp]
 lemma GaloisRep.unframe_frame (ρ : GaloisRep K A M) (b : Module.Basis n A M) :
@@ -260,11 +262,6 @@ lemma FramedGaloisRep.baseChange_map [IsTopologicalRing B]
     (ρ : FramedGaloisRep K A n) (f : A →+* B) (hf : Continuous f)
     (g : K →+* L) : (ρ.baseChange f hf).map g = (ρ.map g).baseChange f hf := rfl
 
-lemma Matrix.map_trace {F α β n : Type*} [AddCommMonoid β] [AddCommMonoid α] [Fintype n]
-    (M : Matrix n n α) (f : F) [FunLike F α β] [AddMonoidHomClass F α β] :
-    (M.map f).trace = f M.trace :=
-  (AddMonoidHom.map_trace f M).symm
-
 lemma Matrix.map_det {F α β n : Type*} [CommRing β] [CommRing α] [Fintype n]
     [DecidableEq n]
     (M : Matrix n n α) (f : F) [FunLike F α β] [RingHomClass F α β] :
@@ -334,7 +331,9 @@ set_option linter.unusedVariables false in
 /-- The underlying space of a galois rep. This is a type class synonym that allows `G` to act
 on it via `ρ`. -/
 @[nolint unusedArguments]
-abbrev GaloisRep.Space (ρ : GaloisRep K A M) : Type _ := M
+def GaloisRep.Space (ρ : GaloisRep K A M) : Type _ := M
+
+instance (ρ : GaloisRep K A M) : AddCommGroup ρ.Space := show AddCommGroup M from inferInstance
 
 instance (ρ : GaloisRep K A M) : DistribMulAction (Γ K) ρ.Space where
   smul g v := ρ g v
@@ -361,10 +360,20 @@ def GaloisRep.HasFlatProlongationAt (ρ : GaloisRep K A M) : Prop :=
     (f : Additive (Kᵥ ⊗[𝒪ᵥ] G →ₐ[Kᵥ] Kᵥᵃˡᵍ) →+[Γ Kᵥ] (ρ.toLocal v).Space),
     Function.Bijective f
 
-/-- A galois rep `ρ : Γ K → Aut_A(M)` is flat at `v` if `A/mⁿ ⊗ M` has a flat prolongation at `v`
-for all `n`. -/
+/-- A galois rep `ρ : Γ K → Aut_A(M)` is flat at `v` if `A/I ⊗ M` has a flat prolongation at `v`
+for all open ideals `I`. -/
 class GaloisRep.IsFlatAt [IsLocalRing A] (ρ : GaloisRep K A M) : Prop where
-  cond : ∀ n : ℕ, n ≠ 0 →
-    (ρ.baseChange (A ⧸ IsLocalRing.maximalIdeal A ^ n)).HasFlatProlongationAt v
+  cond : ∀ (I : Ideal A), IsOpen (I : Set A) →
+    (ρ.baseChange (A ⧸ I)).HasFlatProlongationAt v
 
 end Flat
+
+/-- A Galois representation is a representation (note that we
+are forgetting topological information here). -/
+def GaloisRep.toRepresentation (ρ : GaloisRep K A M) : Representation A (Γ K) M :=
+  letI := moduleTopology A (Module.End A M) -- ?!
+  ρ.toMonoidHom
+
+/-- Irreducibility of a Galois representation over a field. -/
+def GaloisRep.IsIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
+    (ρ : GaloisRep K k M) : Prop := ρ.toRepresentation.IsIrreducible

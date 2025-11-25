@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import Mathlib.Algebra.Order.GroupWithZero.Canonical
 import Mathlib.RingTheory.DiscreteValuationRing.Basic
 import Mathlib.RingTheory.Ideal.IsPrincipalPowQuotient
@@ -96,7 +95,7 @@ lemma finite_quotient_maximalIdeal_pow_of_finite_residueField {K Γ₀ : Type*} 
     have : 𝓂[K] ^ (n + 1) ≤ 𝓂[K] ^ n := Ideal.pow_le_pow_right (by simp)
     replace ih := Finite.of_equiv _ (DoubleQuot.quotQuotEquivQuotOfLE this).symm.toEquiv
     suffices Finite (Ideal.map (Ideal.Quotient.mk (𝓂[K] ^ (n + 1))) (𝓂[K] ^ n)) from
-      Finite.of_finite_quot_finite_ideal
+      Finite.of_ideal_quotient
         (I := Ideal.map (Ideal.Quotient.mk _) (𝓂[K] ^ n))
     exact @Finite.of_equiv _ _ h
       ((Ideal.quotEquivPowQuotPowSuccEquiv (IsPrincipalIdealRing.principal 𝓂[K])
@@ -115,11 +114,11 @@ theorem finite_cover_of_uniformity_basis [IsDiscreteValuationRing 𝒪[K]] {γ :
   let ⟨m, hm⟩ := exists_pow_lt_of_le_neg_one (irreducible_valuation_le_ofAdd_neg_one hϖ) γ
   letI := finite_quotient_maximalIdeal_pow_of_finite_residueField h m
   have h := Fintype.ofFinite (𝒪[K] ⧸ 𝓂[K] ^ m)
-  let T := Subtype.val '' (h.elems.image Quotient.out).toSet
+  let T := Subtype.val '' (h.elems.image Quotient.out : Set 𝒪[K])
   refine ⟨T, (Set.Finite.image _ (Finset.finite_toSet _)), fun x hx => ?_⟩
   simp only [Set.mem_iUnion]
   let y := (Ideal.Quotient.mk (𝓂[K] ^ m) ⟨x, hx⟩).out
-  refine ⟨y, Set.mem_image_of_mem _ <| Finset.mem_image_of_mem _ (h.complete _),
+  refine ⟨y, Set.mem_image_of_mem _ <| Finset.mem_image_of_mem Quotient.out (h.complete _),
     lt_of_le_of_lt (mem_maximalIdeal_pow_valuation (Ideal.Quotient.out_sub _ _) hϖ) hm⟩
 
 variable (K)

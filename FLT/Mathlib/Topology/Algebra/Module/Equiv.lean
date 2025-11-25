@@ -1,6 +1,11 @@
 import Mathlib.Topology.Algebra.Module.Equiv
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
+import Mathlib.LinearAlgebra.Basis.Defs
+import Mathlib.Topology.Algebra.Module.ModuleTopology
+import Mathlib.LinearAlgebra.Matrix.Defs
+import Mathlib.LinearAlgebra.Matrix.ToLin
 import FLT.Mathlib.LinearAlgebra.Pi
+import FLT.Mathlib.LinearAlgebra.Determinant
 
 def ContinuousLinearEquiv.toContinuousAddEquiv
     {R₁ R₂ : Type*} [Semiring R₁] [Semiring R₂] {σ₁₂ : R₁ →+* R₂} {σ₂₁ : R₂ →+* R₁}
@@ -9,6 +14,7 @@ def ContinuousLinearEquiv.toContinuousAddEquiv
     (e : M₁ ≃SL[σ₁₂] M₂) :
     M₁ ≃ₜ+ M₂ where
   __ := e.toLinearEquiv.toAddEquiv
+  continuous_toFun := e.continuous_toFun
   continuous_invFun := e.symm.continuous
 
 @[simps!]
@@ -49,3 +55,91 @@ def ContinuousLinearEquiv.piScalarPiComm {α β : Type*} (R : α → Type*) (φ 
     [(a : α) → (b : β) → Module (R a) (φ a b)] [(a : α) → (b : β) → TopologicalSpace (φ a b)] :
     ((a : α) → (b : β) → φ a b) ≃L[∀ a, R a] ((b : β) → (a : α) → φ a b) where
   __ := LinearEquiv.piScalarPiComm R φ
+
+lemma ContinuousLinearEquiv.toContinuousAddEquiv_trans
+    {R : Type*} {E : Type*} [Semiring R] [AddCommMonoid E] [Module R E]
+    [TopologicalSpace E] {e f : E ≃L[R] E} :
+    (e.trans f).toContinuousAddEquiv =
+      e.toContinuousAddEquiv.trans f.toContinuousAddEquiv := rfl
+
+lemma ContinuousLinearEquiv.toMatrix_isUnit_det
+    {F : Type*} [CommRing F] {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {V : Type*} [AddCommGroup V] [Module F V] [TopologicalSpace V]
+    (b : Module.Basis ι F V) (ρ : V ≃L[F] V) :
+    IsUnit ((ρ.toLinearMap.toMatrix b b).det) := LinearEquiv.isUnit_det ρ.toLinearEquiv b b
+
+lemma ContinuousLinearEquiv.toMatrix_isUnit
+    {F : Type*} [CommRing F] {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {V : Type*} [AddCommGroup V] [Module F V] [TopologicalSpace V]
+    (b : Module.Basis ι F V) (ρ : V ≃L[F] V) :
+    IsUnit (ρ.toLinearMap.toMatrix b b) :=
+  (Matrix.isUnit_iff_isUnit_det (ρ.toLinearMap.toMatrix b b)).mpr
+    (toMatrix_isUnit_det b ρ)
+
+lemma ContinuousLinearEquiv.toMatrix_det_ne_zero
+    {F : Type*} [CommRing F] [Nontrivial F] {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {V : Type*} [AddCommGroup V] [Module F V] [TopologicalSpace V]
+    (b : Module.Basis ι F V) (ρ : V ≃L[F] V) :
+    (ρ.toLinearMap.toMatrix b b).det ≠ 0 :=
+  IsUnit.ne_zero (ContinuousLinearEquiv.toMatrix_isUnit_det b ρ)
+
+section toContinuousLinearEquiv
+
+variable {F : Type*} [CommRing F] [TopologicalSpace F]
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+variable {V : Type*} [AddCommGroup V] [Module F V] [TopologicalSpace V]
+variable [IsModuleTopology F V] [ContinuousAdd V]
+
+namespace Matrix
+
+/-- Given `M : Matrix ι ι F`, `b : Module.Basis ι F V` and `h : M.det ≠ 0`,
+  this is the continuous linear equivalence arising from
+  `Matrix.toLinearEquiv b M (Ne.isUnit h)` -/
+noncomputable def toContinuousLinearEquiv
+    (M : Matrix ι ι F) (b : Module.Basis ι F V) (h : IsUnit M.det) : V ≃L[F] V :=
+  let e := Matrix.toLinearEquiv b M h
+  have ce : Continuous e :=
+    IsModuleTopology.continuous_of_linearMap e.toLinearMap
+  have ce_inv : Continuous e.symm :=
+    IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
+  ⟨e, ce, ce_inv⟩
+
+@[simp]
+lemma toContinousLinearEquiv_apply
+    (M : Matrix ι ι F) (b : Module.Basis ι F V) (h : IsUnit M.det) (x : V) :
+    (M.toContinuousLinearEquiv b h) x = toLin b b M x := rfl
+
+@[simp]
+lemma toContinuousLinearEquiv_toLin_coe
+    (M : Matrix ι ι F) (b : Module.Basis ι F V) (h : IsUnit M.det) :
+    ⇑(M.toContinuousLinearEquiv b h) = ⇑(toLin b b M) := rfl
+
+@[simp]
+lemma toContinuousLinearEquiv_toLinearEquiv
+    (b : Module.Basis ι F V) (M : Matrix ι ι F) (h : IsUnit M.det) :
+    (M.toContinuousLinearEquiv b h).toLinearEquiv = Matrix.toLinearEquiv b M h := rfl
+
+lemma toContinousLinearEquiv_toMatrix
+    (b : Module.Basis ι F V) (M : Matrix ι ι F) (h : IsUnit M.det) :
+    (M.toContinuousLinearEquiv b h ).toLinearMap.toMatrix b b = M :=
+  (LinearEquiv.eq_symm_apply (LinearMap.toMatrix b b)).mp rfl
+
+lemma toContinousLinearEquiv_mul
+    (b : Module.Basis ι F V)
+    (A : Matrix ι ι F) (hA : IsUnit A.det) (B : Matrix ι ι F) (hB : IsUnit B.det) :
+    have hAB : IsUnit (A * B).det := by rw[Matrix.det_mul]; exact IsUnit.mul hA hB
+    (A * B).toContinuousLinearEquiv b hAB =
+    (B.toContinuousLinearEquiv b hB).trans (A.toContinuousLinearEquiv b hA) := by
+  ext x
+  simp [ContinuousLinearEquiv.trans_apply, Matrix.toLin_mul b b]
+
+end Matrix
+
+lemma ContinuousLinearEquiv.toMatrix_toContinousLinearEquiv
+    (b : Module.Basis ι F V) (ρ : V ≃L[F] V) :
+    (ρ.toLinearEquiv.toMatrix b b).toContinuousLinearEquiv b
+    (ContinuousLinearEquiv.toMatrix_isUnit_det b ρ ) = ρ := by
+  ext
+  simp
+
+end toContinuousLinearEquiv

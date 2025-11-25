@@ -3,7 +3,6 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Algebra.FixedPoints.Basic
@@ -12,6 +11,7 @@ import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.NumberField.FinitePlaces
 import FLT.Hacks.RightActionInstances
 import Mathlib.GroupTheory.GroupAction.Defs
+import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 
 /-
 
@@ -198,8 +198,6 @@ lemma _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
 
 open ConjAct
 
-variable [IsQuaternionAlgebra F D]
-
 open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
 quaternion algebra. -/
@@ -225,7 +223,6 @@ def group_smul (g : Dfx F D) (φ : WeightTwoAutomorphicForm F D R) :
 instance : SMul (Dfx F D) (WeightTwoAutomorphicForm F D R) where
   smul := group_smul
 
-omit [IsQuaternionAlgebra F D] in
 @[simp]
 lemma group_smul_apply (g : Dfx F D)
     (φ : WeightTwoAutomorphicForm F D R) (x : Dfx F D) :
@@ -280,8 +277,7 @@ instance module : Module R (WeightTwoAutomorphicForm F D R) where
 
 variable [IsQuaternionAlgebra F D]
 
-instance : SMulCommClass (Dfx F D) R
-    (WeightTwoAutomorphicForm F D R) where
+instance : SMulCommClass (Dfx F D) R (WeightTwoAutomorphicForm F D R) where
   smul_comm r g φ := by
     ext x
     simp [smul_apply]
@@ -291,8 +287,6 @@ end comm_ring
 end WeightTwoAutomorphicForm
 
 section finite_level
-
-variable [IsQuaternionAlgebra F D]
 
 /--
 `WeightTwoAutomorphicFormOfLevel U R` is the `R`-valued weight 2 automorphic forms of a fixed
@@ -315,17 +309,14 @@ def toFun (f : WeightTwoAutomorphicFormOfLevel U R)
 instance : CoeFun (WeightTwoAutomorphicFormOfLevel U R) (fun _ ↦ Dfx F D → R) where
   coe := toFun
 
-omit [IsQuaternionAlgebra F D] in
 @[ext]
 lemma ext ⦃f g : WeightTwoAutomorphicFormOfLevel U R⦄ (h : ∀ x, f x = g x) : f = g :=
   Subtype.ext <| WeightTwoAutomorphicForm.ext _ _ h
 
-omit [IsQuaternionAlgebra F D] in
 lemma left_invt (f : WeightTwoAutomorphicFormOfLevel U R) (δ : Dˣ)
     (g : Dfx F D) :
     f ((incl₁ F D) δ * g) = f g := f.1.left_invt δ g
 
-omit [IsQuaternionAlgebra F D] in
 lemma right_invt (f : WeightTwoAutomorphicFormOfLevel U R) (g : Dfx F D)
   (u : U) : f (g * u) = f g := by
     sorry

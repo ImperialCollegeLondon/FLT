@@ -1,6 +1,6 @@
 import FLT.Patching.Ultraproduct
 import FLT.Patching.Utils.AdicTopology
-import Mathlib.Algebra.Module.Torsion
+import Mathlib.Algebra.Module.Torsion.Free
 import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
 import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
 import Mathlib.Topology.Compactness.Paracompact
@@ -59,8 +59,8 @@ lemma Module.UniformlyBoundedRank.exists_finsupp_surjective (i) :
     · exact (Fin.castLE_injective _).comp (Fintype.equivFin _).injective
   · simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, EquivLike.comp_surjective]
     refine (Finsupp.mapRange_surjective _ (map_zero _) Ideal.Quotient.mk_surjective).comp ?_
-    exact Finsupp.comapDomain_surjective _ ((Fin.castLE_injective _).comp
-      (Fintype.equivFin _).injective)
+    exact Finsupp.comapDomain_surjective
+      ((Fin.castLE_injective _).comp (Fintype.equivFin _).injective)
 
 lemma Module.UniformlyBoundedRank.finite_quotient_smul (i) (I : Ideal R) [Finite (R ⧸ I)] :
     Finite (M i ⧸ (I • ⊤ : Submodule R (M i))) := by
@@ -412,7 +412,7 @@ lemma PatchingModule.map_surjective
     (l := fun k ↦ ⟨maximalIdeal R ^ k, isOpen_maximalIdeal_pow'' R k⟩)
     (fun i j ↦ Ideal.pow_le_pow_right)
     (fun α ↦ have : Finite (R ⧸ α.1) := AddSubgroup.quotient_finite_of_isOpen _ α.2
-      exists_maximalIdeal_pow_le_of_finite_quotient _)
+      exists_maximalIdeal_pow_le_of_isArtinianRing_quotient _)
   refine ⟨⟨fun i ↦ (v i).1, fun α β h ↦ congr_arg Subtype.val (hv α β h)⟩, ?_⟩
   refine Subtype.ext (funext fun α ↦ ?_)
   have : _ = _ := (v α).2
@@ -515,7 +515,7 @@ def PatchingModule.mapOfIsPatchingSystem :
 lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) := by
   refine continuous_induced_rng.mpr ?_
   refine continuous_pi fun α ↦ ?_
-  have : DiscreteTopology (R ⧸ α.1) := AddSubgroup.discreteTopology _ α.2
+  have : DiscreteTopology (R ⧸ α.1) := QuotientAddGroup.discreteTopology α.2
   change Continuous ((equivComponent R M F α.1 α.2) ∘ _)
   refine continuous_of_discreteTopology.comp ?_
   refine continuous_pi fun i ↦

@@ -1,14 +1,14 @@
+import Mathlib.GroupTheory.QuotientGroup.Defs
 import Mathlib.Topology.Algebra.Group.Quotient
 import Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Mathlib.GroupTheory.QuotientGroup.Basic
 
 @[to_additive]
 def QuotientGroup.continuousMulEquiv {G H : Type*} [Group G] (N : Subgroup G)
     [N.Normal] [Group H] (M : Subgroup H) [M.Normal] [TopologicalSpace G]
     [TopologicalSpace H] (e : G ≃ₜ* H)
-    (h : N = Subgroup.comap e M) :
+    (h : Subgroup.map e N = M) :
     G ⧸ N ≃ₜ* H ⧸ M where
-  __ := QuotientGroup.mulEquiv N M e h
+  __ := QuotientGroup.congr N M e h
   continuous_toFun := by
     apply continuous_quot_lift
     simp only [MonoidHom.coe_comp, coe_mk', MonoidHom.coe_coe]

@@ -3,7 +3,6 @@ Copyright (c) 2025 Matthew Jasper. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Matthew Jasper
 -/
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 import Mathlib.Algebra.Order.GroupWithZero.Canonical
@@ -90,8 +89,8 @@ lemma emultiplicity_eq_of_valuation_eq_ofAdd {a : A} {k : ℕ}
   have hnz : a ≠ 0 := ne_zero_of_some_le_intValuation _ (le_of_eq hv.symm)
   have hnb : Ideal.span {a} ≠ ⊥ := by
     rwa [ne_eq, Ideal.span_singleton_eq_bot]
-  simp only [intValuation_if_neg _ hnz, ofAdd_neg, WithZero.coe_inv, inv_inj, WithZero.coe_inj,
-    EmbeddingLike.apply_eq_iff_eq, Nat.cast_inj] at hv
+  simp only [intValuation_if_neg _ hnz, WithZero.exp, ofAdd_neg, WithZero.coe_inv, inv_inj,
+    WithZero.coe_inj, EmbeddingLike.apply_eq_iff_eq, Nat.cast_inj] at hv
   rw [← hv, UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb,
     count_associates_factors_eq hnb v.isPrime v.ne_bot, normalize_eq]
 
@@ -118,7 +117,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
       (emultiplicity_eq_of_valuation_eq_ofAdd v <| intValuation_eq_coe_neg_multiplicity v hnz)
       (ENat.coe_le_coe.mpr hle)
   have hb : b ∈ v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) := by
-    rwa [← intValuation_le_pow_iff_mem, ← intValuation_eq_coe_neg_multiplicity _ hnz]
+    rwa [← intValuation_le_pow_iff_mem, WithZero.exp, ← intValuation_eq_coe_neg_multiplicity _ hnz]
   -- Now make use of
   -- `v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) = v.asIdeal ^ n ⊔ Ideal.span {a}`
   -- (this is where we need `IsDedekindDomain A`)
@@ -128,7 +127,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.mp hz
   use y
   -- And again prove the result about valuations by turning into one about ideals.
-  rwa [hy, ← hxz, sub_add_cancel_right, intValuation_le_pow_iff_mem, neg_mem_iff]
+  rwa [hy, ← hxz, sub_add_cancel_right, ← WithZero.exp, intValuation_le_pow_iff_mem, neg_mem_iff]
 
 lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K))}
     (γ : (WithZero (Multiplicative ℤ))ˣ) (hx : Valued.v x ≤ 1) :
@@ -433,7 +432,7 @@ theorem exists_uniformizer (v : HeightOneSpectrum A) :
     ∃ π : v.adicCompletionIntegers K, Valued.v π.1 = Multiplicative.ofAdd (- 1 : ℤ) := by
   obtain ⟨π, hπ⟩ := v.intValuation_exists_uniformizer
   use π
-  rw [← hπ, ← ValuationSubring.algebraMap_apply, ← IsScalarTower.algebraMap_apply,
+  rw [← WithZero.exp, ← hπ, ← ValuationSubring.algebraMap_apply, ← IsScalarTower.algebraMap_apply,
     v.valuedAdicCompletion_eq_valuation, v.valuation_of_algebraMap]
 
 variable {K} in

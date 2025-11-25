@@ -4,9 +4,10 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.Topology.Algebra.OpenSubgroup
 import Mathlib.Topology.Algebra.Ring.Ideal
 import Mathlib.Topology.Separation.Profinite
-import Mathlib.RingTheory.Artinian.Module
 import Mathlib.Data.Set.Card
 import Mathlib.RingTheory.Localization.AtPrime.Basic
+import Mathlib.Data.SetLike.Fintype
+import Mathlib.RingTheory.Spectrum.Prime.Basic
 
 
 lemma IsUnit.pi_iff {ι} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i} :
@@ -70,19 +71,6 @@ lemma pi'_jacobson :
 instance {R} [CommRing R] [TopologicalSpace R] [CompactSpace R] (I : Ideal R) :
     CompactSpace (R ⧸ I) :=
   Quotient.compactSpace
-
-open Topology in
-@[to_additive]
-lemma IsTopologicalGroup.isInducing_of_nhds_one {G H : Type*} [Group G] [Group H]
-    [TopologicalSpace G] [TopologicalSpace H]
-    [IsTopologicalGroup G] [IsTopologicalGroup H] (f : G →* H)
-    (hf : 𝓝 (1 : G) = (𝓝 (1 : H)).comap f) : Topology.IsInducing f := by
-  rw [Topology.isInducing_iff_nhds]
-  intro x
-  rw [← nhds_translation_mul_inv, ← nhds_translation_mul_inv (f x), Filter.comap_comap, hf,
-    Filter.comap_comap]
-  congr 1
-  ext; simp
 
 open Topology in
 @[to_additive]
@@ -321,16 +309,6 @@ lemma Pi.liftQuotientₗ_bijective {ι R M : Type*} [CommRing R] [AddCommGroup M
   simp only [LinearMap.mem_ker, funext_iff, LinearMap.compLeft_apply, Function.comp_apply,
     smul_apply, Algebra.linearMap_apply, Ideal.Quotient.algebraMap_eq, zero_apply,
     Ideal.Quotient.eq_zero_iff_mem, smul_eq_mul, I.mul_mem_right _ hr, implies_true]
-
-lemma Finsupp.comapDomain_surjective {α β M} [Zero M] [Finite β]
-    (f : α → β) (hf : Function.Injective f) :
-    Function.Surjective fun l : β →₀ M ↦ Finsupp.comapDomain f l hf.injOn := by
-  classical
-  intro x
-  cases isEmpty_or_nonempty α
-  · refine ⟨0, Finsupp.ext <| fun a ↦ IsEmpty.elim ‹_› a⟩
-  obtain ⟨g, hg⟩ := hf.hasLeftInverse
-  refine ⟨Finsupp.equivFunOnFinite.symm (x ∘ g), Finsupp.ext <| fun a ↦ by simp [hg a]⟩
 
 lemma IsModuleTopology.compactSpace
     (R M : Type*) [CommRing R] [TopologicalSpace R] [AddCommGroup M]

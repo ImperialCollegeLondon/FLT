@@ -1,4 +1,4 @@
-import Mathlib.Data.Set.Prod
+import Mathlib.Data.Set.Operations
 
 namespace Set
 

@@ -6,6 +6,7 @@ Authors: Kevin Buzzard
 import FLT.HaarMeasure.HaarChar.AddEquiv
 import Mathlib.Algebra.Group.Pi.Units
 import Mathlib.MeasureTheory.Group.Pointwise
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 
 open scoped NNReal
 
@@ -194,5 +195,47 @@ lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
   · exact fun c hc ↦ ⟨(u i)⁻¹ * c, (C i).mul_mem ((C i).mem_units_iff _ |>.mp hv).1 hc, by simp⟩
 
 end restrictedproduct
+
+section ModuleFinite
+
+variable {K R : Type*} [Field K] [Ring R] [Algebra K R] [Module.Finite K R]
+    [TopologicalSpace K] [TopologicalSpace R] [IsTopologicalRing R] [IsModuleTopology K R]
+    [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
+    [IsTopologicalRing K] [LocallyCompactSpace K]
+    (t : Kˣ)
+
+/-- The Borel measurable space instance on Fin n → K. A local instance. -/
+local instance : MeasurableSpace (Fin (Module.finrank K R) → K) :=
+  borel (Fin (Module.finrank K R) → K)
+
+local instance : BorelSpace (Fin (Module.finrank K R) → K) where
+  measurable_eq := rfl
+
+theorem ringHaarChar_ModuleFinite :
+    ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
+    ringHaarChar (R := (Fin (Module.finrank K R) → K))
+      (Units.map (algebraMap K (Fin (Module.finrank K R) → K)).toMonoidHom t) := by
+  apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    ((IsModuleTopology.Module.Basis.equivFun_homeo _ _).toContinuousAddEquiv)
+  intro x
+  -- this would not be needed if `mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv`
+  -- ate a ContinuousMulEquivClass instead of a ContinuousMulEquiv.
+  -- Unfortunately there's no such class :-(
+  change (IsModuleTopology.Module.Basis.equivFun_homeo K R) _ =
+    (ContinuousAddEquiv.mulLeft ((Units.map ↑(algebraMap K (Fin (Module.finrank K R) → K))) t))
+    ((IsModuleTopology.Module.Basis.equivFun_homeo K R) x)
+  simp [← Algebra.smul_def]
+
+variable [MeasurableSpace K] [BorelSpace K]
+
+theorem ringHaarChar_ModuleFinite_unit :
+    ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
+    (ringHaarChar t) ^ (Module.finrank K R) := by
+  rw [ringHaarChar_ModuleFinite]
+  simpa using ringHaarChar_pi (ι := Fin (Module.finrank K R))
+      (A := fun _ : Fin (Module.finrank K R) => K) (fun (i : Fin (Module.finrank K R)) ↦ t)
+
+
+end ModuleFinite
 
 end MeasureTheory

@@ -1,5 +1,6 @@
 name = "FLT"
 defaultTargets = ["FLT"]
+lintDriver = "batteries/runLinter"
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`

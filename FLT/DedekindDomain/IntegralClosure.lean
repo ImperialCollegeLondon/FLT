@@ -5,7 +5,6 @@ Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
 import FLT.Mathlib.RingTheory.Localization.BaseChange -- removing this breaks a simp proof
 import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.Algebra.Module.FinitePresentation
 import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.RingTheory.DedekindDomain.IntegralClosure
@@ -110,7 +109,7 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
   simp only [intValuation, Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk]
   change (ite _ _ _) ^ _ = ite _ _ _
   rw [map_eq_zero_iff _ hAB, if_neg hx, if_neg hx, ← Set.image_singleton, ← Ideal.map_span,
-    mk_count_factors_map _ _ hAB, mul_comm]
+    mk_count_factors_map _ _ hAB, mul_comm, WithZero.exp, WithZero.exp]
   simp
 
 omit [IsIntegralClosure B A L] in
@@ -154,6 +153,20 @@ noncomputable def Extension.fintype : Fintype (Extension B v) :=
   have := Extension.finite A K L B v
   Fintype.ofFinite <| Extension B v
 
+include K L in
+omit [IsIntegralClosure B A L] [IsFractionRing B L] in
+theorem preimage_comap_finite (S : Set (HeightOneSpectrum A)) (hS : S.Finite) :
+    ((comap A : HeightOneSpectrum B → HeightOneSpectrum A) ⁻¹' S).Finite := by
+  rw [← Set.biUnion_preimage_singleton (comap A) S]
+  exact Set.Finite.biUnion' hS <| fun v _ ↦ Extension.finite A K L B v
+
+/-- Given an inclusion of Dedekind domains A → B, making B finite over A,
+this is the preimage of a Finset of finite places of A, as a Finset of
+finite places of B. -/
+noncomputable def preimageComapFinset (S : Finset (HeightOneSpectrum A)) :
+    Finset (HeightOneSpectrum B) :=
+  Set.Finite.toFinset <| preimage_comap_finite A K L B S S.finite_toSet
+
 omit [IsIntegralClosure B A L] in
 /-- `Ideal.sum_ramification_inertia`, rewritten as a sum over extensions. -/
 lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
@@ -163,7 +176,7 @@ lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
   have := v.isMaximal
   have := noZeroSMulDivisors A K L B
   -- Use Ideal.sum_ramification_inertia to make this an equivalence of two sums.
-  rw [← Ideal.sum_ramification_inertia B v.asIdeal K L v.ne_bot]
+  rw [← Ideal.sum_ramification_inertia B K L v.ne_bot]
   -- Check that the sums are equal via a bijection
   apply Finset.sum_nbij (fun w ↦ w.val.asIdeal)
   · rintro ⟨a, rfl⟩ -
@@ -246,6 +259,7 @@ noncomputable def linearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A]
 lemma linearEquivTensorProductModule_symm_tmul (b : B) (m : M) :
     (linearEquivTensorProductModule A K L B M).symm (b ⊗ₜ m) = (algebraMap B L b) ⊗ₜ m := by
   simp [linearEquivTensorProductModule, LinearEquivTensorProduct_symm_one_tmul]
+  -- this proof breaks until someone PRs the simp lemmas in the import
 
 lemma linearEquivTensorProductModule_tmul (b : B) (m : M) :
     (linearEquivTensorProductModule A K L B M) ((algebraMap B L b) ⊗ₜ m) = b ⊗ₜ m := by
@@ -268,7 +282,7 @@ lemma _root_.IsIntegralClosure.isLocalizedModule : IsLocalizedModule (nonZeroDiv
       obtain ⟨x, hx⟩ := x
       simpa only [← IsScalarTower.algebraMap_apply, Module.End.isUnit_iff]
           using hlocal.map_units ⟨_, x, hx, rfl⟩
-    surj' y := by
+    surj y := by
       obtain ⟨⟨b, _, s, hs, rfl⟩, hx⟩ := (hlocal.surj) y
       exact ⟨(b, ⟨s, hs⟩), by simpa [Submonoid.smul_def] using hx⟩
     exists_of_eq {x₁ x₂} e := by

@@ -4,6 +4,7 @@ import Mathlib.Data.Set.Finite.Basic
 import FLT.DivisionAlgebra.Finiteness
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 
 namespace TotallyDefiniteQuaternionAlgebra
 
