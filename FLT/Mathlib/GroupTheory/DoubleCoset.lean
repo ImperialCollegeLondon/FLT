@@ -70,8 +70,7 @@ theorem DoubleCoset.union_finset_rightrel_cover {G : Type*} [Group G] (H K : Sub
   simp only [Set.mem_iUnion, Set.mem_image, exists_prop, not_exists, not_and]
   intro y hy q hq
   contrapose hx
-  simp only [Set.mem_iUnion, exists_prop, not_exists, not_and, not_forall, not_not]
-  simp only [not_not] at hx
+  simp only [Set.mem_iUnion, exists_prop]
   refine ⟨y, hy, ?_⟩
   rw [← doubleCoset_eq_of_mem hq]
   apply mem_doubleCoset.mpr

@@ -89,17 +89,14 @@ lemma smul_submodule_one_index :
 lemma smul_submodule_one_relIndex :
     (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relIndex
       (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
-
   have relIndex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ :=
     smul_submodule_one_index
   rw [← AddSubgroup.relIndex_top_right] at relIndex_in_z_p
-
   -- Use the coercion from ℤ_[p] to ℚ_[p] and `AddSubgroup.relIndex_comap` to convert
   -- our result about subgroups of `Z_[p]` to a result about subgroups of `Q_[p]`.
   let z_q_coe: ℤ_[p] →+ ℚ_[p] := PadicInt.Coe.ringHom.toAddMonoidHom
   let K_Q : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
   let H_Q := (x : ℚ_[p]) • K_Q
-
   have relIndex_preserved :=
     AddSubgroup.relIndex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))
   have map_top: (AddSubgroup.map z_q_coe ⊤) = K_Q := by
@@ -111,7 +108,6 @@ lemma smul_submodule_one_relIndex :
       Submodule.pointwise_smul_toAddSubgroup, z_q_coe, K_Q,
       ← AddSubgroup.comap_smul_one ℤ_[p] ℚ_[p]]
     rfl
-
   rw [map_top, map_H_Q] at relIndex_preserved
   rwa [relIndex_preserved] at relIndex_in_z_p
 

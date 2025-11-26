@@ -35,7 +35,6 @@ variable [CommSemiring A] [Algebra R A] [Fintype ι]
 variable [CommSemiring B] [Algebra R B]
 
 /-- The lift of an `R`-basis of `A` to a `B`-basis of the base change `A ⊗[R] B`. -/
-
 noncomputable
 def Module.Basis.rightBaseChange [DecidableEq ι] (b : Module.Basis ι R A) :
     Module.Basis ι B (A ⊗[R] B) where

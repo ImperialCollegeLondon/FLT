@@ -132,7 +132,6 @@ abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank 
 
 local instance : IsModuleTopology (AdeleRing (𝓞 K) K)
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := by
-
   sorry -- can be solved by typeclass inference if Mathlib#29315 is merged.
 
 /-- The topological equivalence via D𝔸_iso. -/
@@ -217,7 +216,7 @@ lemma T_finite_extracted1 : IsCompact (Y K D ∩
 
 lemma T_finite : Set.Finite (T K D) := by
   have h := IsCompact.finite (T_finite_extracted1 K D)
-    (inter_Discrete (includeLeft_subgroup K D).carrier (Y K D))
+    ⟨(inter_Discrete (includeLeft_subgroup K D).carrier (Y K D))⟩
   have h1 : Units.val '' T K D ⊆ (Y K D) ∩
       (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
     rintro _ ⟨t, ⟨ht1, d, rfl⟩, rfl⟩

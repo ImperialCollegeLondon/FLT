@@ -501,7 +501,6 @@ lemma tensorAdicCompletionIsClopenRange :
   -- open neighbourhood of 0.
   apply AddSubgroup.isOpen_of_zero_mem_interior
   rw [mem_interior, Subring.coe_toAddSubgroup, Subalgebra.coe_toSubring]
-
   -- Take a basis `b` of `L` over `K` with elements in `B` and use it to
   -- get a basis `b'` of `L ⊗[K] K_v` over `K_v`.
   obtain ⟨ι, b, hb⟩ := FiniteDimensional.exists_is_basis_integral A K L
@@ -511,7 +510,6 @@ lemma tensorAdicCompletionIsClopenRange :
   -- Use the basis to get a continuous equivalence from `L ⊗[K] K_v` to `ι → K_v`.
   let equiv : L ⊗[K] (adicCompletion K v) ≃L[K] (ι → adicCompletion K v) :=
     IsModuleTopology.continuousLinearEquiv (b'.equivFun) |>.restrictScalars K
-
   -- Use the preimage of `∏ 𝒪_v` as the open neighbourhood.
   use equiv.symm '' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v)))
   refine ⟨?_, ?_, by simp⟩
@@ -690,7 +688,6 @@ noncomputable def adicCompletionComapIntegerLinearMap (v : HeightOneSpectrum A)
   let alg (w' : Extension B v) : Algebra _ _ :=
     RingHom.toAlgebra <| (algebraMap (adicCompletion K v) (adicCompletion L w'.val)).comp
       (algebraMap (adicCompletionIntegers K v) (adicCompletion K v))
-
   have : LinearMap.CompatibleSMul (L ⊗[K] adicCompletion K v)
       ((w : Extension B v) → adicCompletion L w.val)
       (adicCompletionIntegers K v) (adicCompletion K v) := {
@@ -750,14 +747,12 @@ theorem comap_integer_algebra_finite [Module.Finite A B] (v : HeightOneSpectrum 
     (algebraMap (adicCompletion K v) (adicCompletion L w)).comp
       (algebraMap (adicCompletionIntegers K v) (adicCompletion K v))
   letI := RingHom.toAlgebra hom
-
   let integerSubmodule : Submodule (adicCompletionIntegers K v) (adicCompletion L w) :=
     have : IsScalarTower (adicCompletionIntegers K v) (adicCompletionIntegers L w)
         (adicCompletion L w) := by
       apply IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
     (adicCompletionIntegers L w).toSubring.toSubmodule.restrictScalars
       (adicCompletionIntegers K v)
-
   have heq : (LinearMap.range (adicCompletionComapIntegerLinearMap A K L B v w hvw)) =
       integerSubmodule := by
     ext x
