@@ -38,15 +38,14 @@ instance (k : ℕ) : Finite (PatchingAlgebra.Component R F k) :=
 instance (k : ℕ) [NeZero k] : Nontrivial (PatchingAlgebra.Component R F k) := by
   obtain ⟨i, ⟨e⟩⟩ := (PatchingAlgebra.componentEquiv ℤ R F k).exists
   have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ k) := by
-    refine Ideal.Quotient.nontrivial ?_
+    refine Ideal.Quotient.nontrivial_iff.2 ?_
     exact ((Ideal.pow_le_self (NeZero.ne k)).trans_lt
       (lt_top_iff_ne_top.mpr (maximalIdeal.isMaximal (R i)).ne_top)).ne
   exact e.toRingHom.domain_nontrivial
 
 instance : Subsingleton (PatchingAlgebra.Component R F 0) := by
   obtain ⟨i, ⟨e⟩⟩ := (PatchingAlgebra.componentEquiv ℤ R F 0).exists
-  have : Subsingleton (R i ⧸ maximalIdeal (R i) ^ 0) := by
-    simp [Submodule.subsingleton_quotient_iff_eq_top]
+  have : Subsingleton (R i ⧸ maximalIdeal (R i) ^ 0) := by simp
   exact e.symm.toRingHom.codomain_trivial
 
 instance (k : ℕ) [NeZero k] : IsLocalRing (PatchingAlgebra.Component R F k) :=
@@ -67,10 +66,10 @@ instance (j k : ℕ) (hjk : k ≤ j) [NeZero k] :
       (.id (R i)) (Ideal.pow_le_pow_right hjk)) by
     delta PatchingAlgebra.componentMap; infer_instance
   intro i
-  have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ k) := Ideal.Quotient.nontrivial
+  have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ k) := Ideal.Quotient.nontrivial_iff.2
     ((Ideal.pow_le_self (NeZero.ne k)).trans_lt
       (lt_top_iff_ne_top.mpr (maximalIdeal.isMaximal (R i)).ne_top)).ne
-  have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ j) := Ideal.Quotient.nontrivial
+  have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ j) := Ideal.Quotient.nontrivial_iff.2
     ((Ideal.pow_le_self ((Nat.pos_of_neZero k).trans_le hjk).ne').trans_lt
       (lt_top_iff_ne_top.mpr (maximalIdeal.isMaximal (R i)).ne_top)).ne
   have : IsLocalRing (R i ⧸ maximalIdeal (R i) ^ j) :=

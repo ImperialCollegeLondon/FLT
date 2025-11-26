@@ -107,8 +107,8 @@ instance [DecidableEq ι] [Nonempty ι] :
   surj := Module.DirectLimit.exists_of
   inj i j mi mj h := by
     apply_fun Module.DirectLimit.linearEquiv _ _ at h
-    simp_rw [Module.DirectLimit.linearEquiv_of] at h
-    simpa [Module.DirectLimit.linearEquiv_of] using h
+    simp_rw [Module.DirectLimit.linearEquiv_of, Quotient.eq] at h
+    simpa [DirectLimit.setoid, Module.DirectLimit.linearEquiv_of] using h
   compatibility i j hij x := Module.DirectLimit.of_f
 
 variable [AddCommMonoid P₁] [Module R P₁] [AddCommMonoid P₂] [Module R P₂]

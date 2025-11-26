@@ -95,7 +95,8 @@ lemma _root_.Nat.sum_factorial_lt_factorial_succ {j : ℕ} (hj : 1 < j) :
     ∑ i ∈ range (j + 1), i ! < ∑ _i ∈ range (j + 1), j ! := ?_
     _ = (j + 1) * (j !) := by rw [sum_const, card_range, smul_eq_mul]
     _ = (j + 1)! := Nat.factorial_succ _
-  apply sum_lt_sum (fun i hi => factorial_le <| by simpa only [mem_range, lt_succ] using hi) ?_
+  apply sum_lt_sum (fun i hi => factorial_le <| by
+    simpa only [mem_range, Nat.lt_succ_iff] using hi) ?_
   use 0
   rw [factorial_zero]
   simp [hj]
@@ -216,7 +217,7 @@ instance ZHat_flat : Module.Flat ℤ ZHat := by
   obtain ⟨N, hN⟩ := hx
   cases N
   case ofNat N =>
-    simp only [Int.ofNat_eq_coe, ne_eq, cast_eq_zero, Int.cast_natCast] at hN
+    simp only [Int.ofNat_eq_natCast, ne_eq, cast_eq_zero, Int.cast_natCast] at hN
     lift N to ℕ+ using by omega -- lol
     exact eq_zero_of_mul_eq_zero _ _ hN.2
   case negSucc N =>
@@ -372,10 +373,8 @@ lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗
       have : z D = 0 := by
         rw [← this, ZMod.castHom_apply, ZMod.cast_eq_val, ZMod.natCast_eq_zero_iff]
         exact Nat.gcd_dvd_right N (z N).val
-
       -- By lemma 5.9 (ZHat.multiples) we deduce that z = Dy is a multiple of D,
       obtain ⟨y, hy⟩ : ∃ y, D * y = z := by rwa [ZHat.multiples]
-
       obtain ⟨E, hE⟩ := hDN
       use E, y, ?_, ?_
       swap
@@ -451,7 +450,6 @@ lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗
       apply h.trans
       refine Nat.div_dvd_of_dvd ?_
       exact Nat.gcd_dvd_left n m
-
     -- We deduce that L = M = N and hence z = w by torsionfreeness.
     have {n m : ℕ+} {Z : ZHat} (hcp : IsCoprime m Z) (hZ : ((n.lcm m / n : ℕ) : ZHat) ∣ Z) :
         n.lcm m = n := by
