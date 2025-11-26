@@ -12,7 +12,6 @@ open scoped TensorProduct TensorProduct.RightActions
 variable {F : Type*} [Field F] [NumberField F]
     -- and let D be a totally definite quaternion algebra over F
     {D : Type*} [DivisionRing D] [Algebra F D] [IsQuaternionAlgebra F D]
-    (hD : IsTotallyDefinite F D)
 -- Let K be a coefficient field
 variable (K : Type*) [Field K]
     -- and let U, the level, be a subgroup of `(D ⊗ 𝔸_F^∞)ˣ`
@@ -21,12 +20,22 @@ variable (K : Type*) [Field K]
 
 open TotallyDefiniteQuaternionAlgebra
 
+-- A linter complains that the below theorem (which at the time of writing is not sorry-free)
+-- does not ever assume `[IsTotallyReal F]` or `IsTotallyDefinite F D`.
+-- I've dropped the assumptions for now, but it might need
+-- to be reinstated later. The crucial fact is apparently that D is a division ring.
+-- Perhaps what's going on is that if D is something like the discriminant 6 quat alg
+-- over ℚ (so unramified at infinity) then maybe the space is trivially only the constant
+-- functions, or something.
+
+-- If it's any help, the below argument will also show that the space of forms is
+-- finitely-generated if `K` is an arbitrary Noetherian ring.
 /--
 Let `D/F` be a totally definite quaterion algebra over a totally real
 field. Then the space of `K`-valued weight 2 level `U` quaternionic automorphic forms
 for `Dˣ` is finite-dimensional over `K`.
 -/
-theorem WeightTwoAutomorphicForm.finiteDimensional [IsTotallyReal F]
+theorem WeightTwoAutomorphicForm.finiteDimensional
     (hU : IsOpen (U : Set (Dfx F D))) :
     FiniteDimensional K (WeightTwoAutomorphicFormOfLevel U K) := by
   let H' : Subgroup (Dfx F D) := (incl₁ F D).range
