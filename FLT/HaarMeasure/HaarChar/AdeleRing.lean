@@ -83,7 +83,6 @@ open scoped TensorProduct.RightActions in
 for V an L-module and K ⊆ L number fields. -/
 noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv :
     V ⊗[K] (𝔸 K) ≃ₜ+ (V ⊗[L] (𝔸 L)) :=
-
   {
   __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
   continuous_toFun := sorry

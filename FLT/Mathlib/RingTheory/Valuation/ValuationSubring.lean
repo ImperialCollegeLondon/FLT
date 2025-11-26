@@ -15,7 +15,7 @@ theorem ValuationSubring.valued_eq_one_of_isUnit {K : Type*} [Field K] {Γ₀ : 
   rw [← Valued.v.map_one (R := K), ← Submonoid.coe_one, ← u.mul_inv, hu,
     Submonoid.coe_mul, Valued.v.map_mul]
   nth_rw 2 [← mul_one (Valued.v x.val)]
-  exact mul_le_mul_left' ((hv.v.mem_valuationSubring_iff _).1 (u⁻¹.val.property)) _
+  exact mul_le_mul_right ((hv.v.mem_valuationSubring_iff _).1 (u⁻¹.val.property)) _
 
 theorem ValuationSubring.isUnit_of_valued_eq_one {K : Type*} [Field K] {Γ₀ : Type*}
     [LinearOrderedCommGroupWithZero Γ₀] [hv : Valued K Γ₀] (x : hv.v.valuationSubring)

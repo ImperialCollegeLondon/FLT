@@ -46,8 +46,7 @@ lemma Module.UniformlyBoundedRank.exists_finsupp_surjective (i) :
   cases subsingleton_or_nontrivial (M i)
   · refine ⟨0, fun x ↦ ⟨0, Subsingleton.elim _ _⟩⟩
   have : Nontrivial (R ⧸ Ann R (M i)) := by
-    refine Ideal.Quotient.nontrivial ?_
-    rw [ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
+    rw [Ideal.Quotient.nontrivial_iff, ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
     exact top_ne_bot
   refine ⟨((Module.Free.chooseBasis (R ⧸ Ann R (M i))
     (M i)).repr.symm.restrictScalars R).toLinearMap ∘ₗ ?_, ?_⟩
@@ -93,8 +92,7 @@ lemma Module.UniformlyBoundedRank.exists_rank :
   cases subsingleton_or_nontrivial (M i)
   · exact ⟨⟨0, Nat.zero_lt_succ n⟩, instNonemptyOfInhabited⟩
   have : Nontrivial (R ⧸ Ann R (M i)) := by
-    refine Ideal.Quotient.nontrivial ?_
-    rw [ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
+    rw [Ideal.Quotient.nontrivial_iff, ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
     exact top_ne_bot
   refine ⟨⟨_,(Module.finrank_lt_of_rank_lt (rank_lt_bound R M i)).trans_le n.le_succ⟩, ⟨?_⟩⟩
   refine (Module.Free.chooseBasis (R ⧸ Ann R (M i)) (M i)).repr.restrictScalars R ≪≫ₗ ?_

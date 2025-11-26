@@ -50,7 +50,7 @@ lemma exists_maximalIdeal_pow_le_of_isProartinian [IsProartinian R]
   by_cases hI' : I = ⊤
   · exact ⟨1, by simp [hI']⟩
   have := IsProartinian.isArtinianRing_quotient I hI
-  have : Nontrivial (R ⧸ I) := Ideal.Quotient.nontrivial hI'
+  have : Nontrivial (R ⧸ I) := Ideal.Quotient.nontrivial_iff.2 hI'
   have : IsLocalRing (R ⧸ I) := .of_surjective' _ Ideal.Quotient.mk_surjective
   obtain ⟨n, hn⟩ := IsArtinianRing.isNilpotent_jacobson_bot (R := R ⧸ I)
   rw [jacobson_eq_maximalIdeal _ bot_ne_top,

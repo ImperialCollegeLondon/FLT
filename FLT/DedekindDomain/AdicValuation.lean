@@ -306,7 +306,6 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
   -- Approximate elements of `𝒪_v` with elements of `A` using the previous theorem.
   choose f hf using fun (i : s) =>
     exists_adicValued_sub_lt_of_adicCompletionInteger K (valuation i) (x i) (e i)
-
   -- Convert the hypotheses from being about valuations to being about ideals, so
   -- that we can apply (a suitable corollary of) the Chinese remainder theorem.
   have hexists_e' : ∀ (i : ι), ∃ (e' : ℕ), (Multiplicative.ofAdd (-(e' : ℤ))) < (e i).val := by
@@ -317,7 +316,6 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
       (fun i ↦ (valuation i).asIdeal) i ≠ (fun i ↦ (valuation i).asIdeal) j := by
     intro _ _ _ _
     exact mt <| fun hij ↦ injective (HeightOneSpectrum.ext hij)
-
   -- Use Chinese remainder theorem to get a single approximation for `f i` for all `i ∈ s`.
   obtain ⟨a, ha⟩ := IsDedekindDomain.exists_forall_sub_mem_ideal (s := s)
     (fun i => (valuation i).asIdeal) e' (fun i hi => (valuation i).prime) hinj f
