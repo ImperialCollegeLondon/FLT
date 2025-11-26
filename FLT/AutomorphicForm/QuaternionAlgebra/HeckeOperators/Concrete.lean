@@ -257,7 +257,7 @@ lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
     (U r S R α hα ∘ₗ U r S R β hβ) =
     U r S R (α * β) (hα.mul hβ) := by
-  ext a
+  ext1 a
   apply (Subtype.coe_inj).mp
   simp only [U_apply_eq_finsum_unipotent_mul_diag_image,
     LinearMap.coe_comp, Function.comp_apply,
