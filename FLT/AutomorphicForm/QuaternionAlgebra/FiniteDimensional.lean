@@ -10,8 +10,9 @@ open scoped TensorProduct TensorProduct.RightActions
 
 -- let F be a number field
 variable {F : Type*} [Field F] [NumberField F]
-    -- and let D be a totally definite quaternion algebra over F
-    {D : Type*} [DivisionRing D] [Algebra F D] [IsQuaternionAlgebra F D]
+    -- and let D be a finite-dimensional division ring over F
+    {D : Type*} [DivisionRing D] [Algebra F D] [Module.Finite F D]
+    [Algebra.IsCentral F D]
 -- Let K be a coefficient field
 variable (K : Type*) [Field K]
     -- and let U, the level, be a subgroup of `(D ⊗ 𝔸_F^∞)ˣ`
@@ -21,12 +22,13 @@ variable (K : Type*) [Field K]
 open TotallyDefiniteQuaternionAlgebra
 
 -- A linter complains that the below theorem (which at the time of writing is not sorry-free)
--- does not ever assume `[IsTotallyReal F]` or `IsTotallyDefinite F D`.
--- I've dropped the assumptions for now, but it might need
--- to be reinstated later. The crucial fact is apparently that D is a division ring.
+-- Note that we do not ever assume `[IsTotallyReal F]`, `[IsQuaternionAlgebra F D]`
+-- or `[IsTotallyDefinite F D]`.
+-- The crucial fact is apparently that D is a division ring.
 -- Perhaps what's going on is that if D is something like the discriminant 6 quat alg
 -- over ℚ (so unramified at infinity) then maybe the space is trivially only the constant
--- functions, or something.
+-- functions, or something. Perhaps some of these hypotheses might need to be re-added
+-- later on.
 
 -- If it's any help, the below argument will also show that the space of forms is
 -- finitely-generated if `K` is an arbitrary Noetherian ring.
