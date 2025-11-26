@@ -624,7 +624,7 @@ module homomorphism. However topological facts lie a little deeper.
 
 We now focus on the case that $B_i=A_i$ are locally compact groups, $D_i=C_i$ are compact
 open subgroups, and $\phi_i:A_i\to A_i$ are group isomorphisms and homeomorphisms sending
-$C_i$ to $C_i$ for all but finitely many $i$. Then the restricted product $A:=\prod'A_i$
+$C_i$ onto $C_i$ for all but finitely many $i$. Then the restricted product $A:=\prod'A_i$
 of the $A_i$ with respect to the $C_i$ is also a locally compact topological group, and the
 restricted product $\phi=\prod'\phi_i$ of the $\phi_i$ is a group isomorphism and homeomorphism,
 so we can ask how $d_A(\phi)$ compares to the $d_{A_i}(\phi_i)$.
@@ -646,7 +646,8 @@ The following theorem shows that the value of this product is $d(\phi)$.
 \begin{proof}
   \uses{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding,
   MeasureTheory.mulEquivHaarChar_eq_one_of_compactSpace,
-  MeasureTheory.addEquivAddHaarChar_piCongrRight,Continuous.restrictedProduct_congrRight}
+  MeasureTheory.addEquivAddHaarChar_piCongrRight,Continuous.restrictedProduct_congrRight,
+  MeasureTheory.addEquivAddHaarChar_prodCongr}
   Assume $\phi_i(C_i)=C_i$ for all $i\not\in S$, a finite set, and work in the
   open subgroup $U:=\prod_{i\in S}A_i\times\prod_{i\not\in S}C_i$. Then $\phi$ induces
   an automorphism $\phi_S$ of this open subgroup $U$ of $A$, and in particular
@@ -654,7 +655,9 @@ The following theorem shows that the value of this product is $d(\phi)$.
   that $\delta(\phi)=\delta_U(\phi_S)$.
   Next note that $\phi_S:U\to U$ can be written as a product of the automorphisms
   $\prod_{i\not\in S}\phi_i|_{C_i}$ of $\prod_{i\not\in S}C_i$ and
-  $\prod_{i\in S}\phi_i$ of $\prod_{i\in S}A_i$. Because $\prod_{i\not\in S}C_i$ is a compact
+  $\prod_{i\in S}\phi_i$ of $\prod_{i\in S}A_i$, so by lemma~\ref{MeasureTheory.addEquivAddHaarChar_prodCongr}
+  we have $\delta(\phi)=\delta(\prod_{i\not\in S}\phi_i|_{C_i})\times\delta(\prod_{i\in S}\phi_i).$
+  Because $\prod_{i\not\in S}C_i$ is a compact
   group we must have $\delta(\phi_{i\not\in S}\phi_i|_{C_i})=1$
   by lemma~\ref{MeasureTheory.mulEquivHaarChar_eq_one_of_compactSpace}. Finally
   $\delta(\prod_{i\in S}\phi_i)=\prod_{i\in S}\delta(\phi_i)$ by
