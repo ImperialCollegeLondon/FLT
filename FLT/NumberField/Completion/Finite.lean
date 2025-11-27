@@ -5,7 +5,9 @@ Authors: Kevin Buzzard
 -/
 import FLT.DedekindDomain.AdicValuation
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+import FLT.NumberField.Padics.RestrictedProduct
 import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
+import Mathlib.NumberTheory.Padics.ProperSpace
 
 /-!
 
@@ -42,3 +44,7 @@ instance NumberField.instCompactSpaceAdicCompletionIntegers :
 lemma NumberField.isOpenAdicCompletionIntegers :
     IsOpen (v.adicCompletionIntegers K : Set (v.adicCompletion K)) :=
   Valued.isOpen_valuationSubring _
+
+instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ)) :
+    LocallyCompactSpace (v.adicCompletion ℚ) :=
+  v.padicUniformEquiv.toHomeomorph.isClosedEmbedding.locallyCompactSpace
