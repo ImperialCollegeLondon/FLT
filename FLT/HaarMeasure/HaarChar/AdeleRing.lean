@@ -127,15 +127,14 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ)
 open scoped TensorProduct.RightActions in
 /-- The continuous A-linear map (A a topological ring, tensor products have the module
 topology) A ⊗[R] M ≃ A ⊗[R] N associated to an abstract R-linear isomorphism M ≃ N. -/
-@[nolint unusedArguments] -- they will be used when the sorries are filled
 noncomputable def ContinuousLinearEquiv.baseChange (R : Type*) [CommRing R]
-    (A : Type*) [CommRing A] [Algebra R A] [TopologicalSpace A] [IsTopologicalRing A]
+    (A : Type*) [CommRing A] [Algebra R A] [TopologicalSpace A]
     (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
     [Module.Finite R M] [Module.Finite R N]
     (φ : M ≃ₗ[R] N) : (M ⊗[R] A) ≃L[A] (N ⊗[R] A) where
-      __ := TensorProduct.RightActions.LinearEquiv.baseChange _ _ _ _ φ
-      continuous_toFun := sorry -- linear => continuous
-      continuous_invFun := sorry
+  __ := TensorProduct.RightActions.LinearEquiv.baseChange _ _ _ _ φ
+  continuous_toFun := IsModuleTopology.continuous_of_linearMap _
+  continuous_invFun := IsModuleTopology.continuous_of_linearMap _
 
 open scoped TensorProduct.RightActions
 
