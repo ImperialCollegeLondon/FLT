@@ -258,15 +258,18 @@ theorem GL2.TameLevel.isOpen : IsOpen (GL2.TameLevel S).carrier :=
 theorem GL2.TameLevel.isCompact : IsCompact (GL2.TameLevel S).carrier :=
   sorry
 
+-- introduction of `LocallyCompactSpace (v.adicCompletion ℚ)` instance in
+-- `FLT.NumberField.Completion.Finite`causing timeouts in instance search for
+-- `IsScalarTower F (FiniteAdeleRing (𝓞 F) F) (FiniteAdeleRing (𝓞 F) F)`
+-- and `ContinuousSMul (FiniteAdeleRing (𝓞 F) F) (Matrix _ _ (FiniteAdeleRing (𝓞 F) F)`
+attribute [local instance high] IsScalarTower.right
+attribute [local instance high] IsModuleTopology.toContinuousSMul
+
 open scoped TensorProduct.RightActions in
 /-- The subgroup of `(D ⊗ 𝔸_F^∞)ˣ` corresponding to the subgroup `U₁(S)` of `GL₂(𝔸_F^∞)`
 (that is, matrices congruent to `(a *; 0 a) mod v` for all `v ∈ S`) via the rigidification `r`. -/
 noncomputable def QuaternionAlgebra.TameLevel (r : Rigidification F D) :
     Subgroup (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
-  -- introduction of `LocallyCompactSpace (v.adicCompletion ℚ)` instance in
-  -- `FLT.NumberField.Completion.Finite`causing timeouts in instance search for `IsScalarTower`
-  letI : IsScalarTower F (FiniteAdeleRing (𝓞 F) F) (FiniteAdeleRing (𝓞 F) F) :=
-    IsScalarTower.right
   Subgroup.comap (Units.map r.toMonoidHom) (GL2.TameLevel S)
 
 open scoped TensorProduct.RightActions in
@@ -275,11 +278,6 @@ theorem Rigidification.continuous_toFun (r : Rigidification F D) :
   letI : ∀ (i : HeightOneSpectrum (𝓞 F)),
       Algebra (FiniteAdeleRing (𝓞 F) F) ((i.adicCompletion F)) :=
     fun i ↦ (RestrictedProduct.evalRingHom _ i).toAlgebra
-  -- introduction of `LocallyCompactSpace (v.adicCompletion ℚ)` in
-  -- `FLT.NumberField.Completion.Finite` causing timouts in instance search for `ContinuousSMul`
-  letI : ContinuousSMul _ _ :=
-    IsModuleTopology.toContinuousSMul (FiniteAdeleRing (𝓞 F) F)
-      (Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F))
   IsModuleTopology.continuous_of_linearMap r.toLinearMap
 
 open scoped TensorProduct.RightActions in

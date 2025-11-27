@@ -103,6 +103,9 @@ open IsDedekindDomain.HeightOneSpectrum
 
 open scoped TensorProduct
 
+attribute [local instance high] IsScalarTower.right
+attribute [local instance high] IsModuleTopology.toContinuousSMul
+
 -- Oops! This is also `IsDedekindDomain.HeightOneSpectrum.QuaternionAlgebra.TameLevel`
 -- in `FLT.QuaternionAlgebra.NumberField`, defined differently (using `Subgroup.comap` not `map`).
 -- Don't care which one survives.

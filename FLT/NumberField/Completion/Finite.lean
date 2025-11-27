@@ -45,6 +45,6 @@ lemma NumberField.isOpenAdicCompletionIntegers :
     IsOpen (v.adicCompletionIntegers K : Set (v.adicCompletion K)) :=
   Valued.isOpen_valuationSubring _
 
-instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ)) :
+instance (priority := 1) Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ)) :
     LocallyCompactSpace (v.adicCompletion ℚ) :=
   v.padicUniformEquiv.toHomeomorph.isClosedEmbedding.locallyCompactSpace
