@@ -258,6 +258,13 @@ theorem GL2.TameLevel.isOpen : IsOpen (GL2.TameLevel S).carrier :=
 theorem GL2.TameLevel.isCompact : IsCompact (GL2.TameLevel S).carrier :=
   sorry
 
+-- introduction of `LocallyCompactSpace (v.adicCompletion ℚ)` instance in
+-- `FLT.NumberField.Completion.Finite`causing timeouts in instance search for
+-- `IsScalarTower F (FiniteAdeleRing (𝓞 F) F) (FiniteAdeleRing (𝓞 F) F)`
+-- and `ContinuousSMul (FiniteAdeleRing (𝓞 F) F) (Matrix _ _ (FiniteAdeleRing (𝓞 F) F)`
+attribute [local instance high] IsScalarTower.right
+attribute [local instance high] IsModuleTopology.toContinuousSMul
+
 open scoped TensorProduct.RightActions in
 /-- The subgroup of `(D ⊗ 𝔸_F^∞)ˣ` corresponding to the subgroup `U₁(S)` of `GL₂(𝔸_F^∞)`
 (that is, matrices congruent to `(a *; 0 a) mod v` for all `v ∈ S`) via the rigidification `r`. -/

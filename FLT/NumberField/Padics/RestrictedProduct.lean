@@ -23,6 +23,12 @@ def padicEquiv (v : HeightOneSpectrum (𝓞 ℚ)) :
     v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator] := sorry
 
 -- From pending mathlib PR #30576
+/-- The uniform-space isomorphism between `v.adicCompletion ℚ` and `ℚ_[v.natGenerator]`, where
+`v : HeightOneSpectrum (𝓞 ℚ)`. -/
+def padicUniformEquiv (v : HeightOneSpectrum (𝓞 ℚ)) :
+    v.adicCompletion ℚ ≃ᵤ ℚ_[v.natGenerator] := sorry
+
+-- From pending mathlib PR #30576
 theorem padicEquiv_bijOn (v : HeightOneSpectrum (𝓞 ℚ)) :
     Set.BijOn (IsDedekindDomain.HeightOneSpectrum.padicEquiv v) (v.adicCompletionIntegers ℚ)
       (PadicInt.subring v.natGenerator) := by
