@@ -349,6 +349,7 @@ there is still some discussion about the definition of a nonarchimedean local fi
 \end{lemma}
 \begin{proof}
 \uses{MeasureTheory.addEquivAddHaarChar}
+\leanok
 The proof should be inspired by \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/MeasureTheory/Measure/Lebesgue/Basic.html\#Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi}{\tt Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi},
 which crucially uses the induction principle \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/LinearAlgebra/Matrix/Transvection.html\#Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}{\tt Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}.
 In short, one needs to check it for diagonal matrices and for matrices which are the identity
@@ -553,6 +554,7 @@ Then $d_A(\phi)=1.$
 \end{lemma}
 \begin{proof}
   \uses{MeasureTheory.mulEquivHaarChar_smul_preimage}
+  \leanok
   We have $d_A(\phi)\mu(A)=\mu(A)$
   from lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_preimage}
   and $\mu(A)$ is positive and finite because $A$ is open and compact.

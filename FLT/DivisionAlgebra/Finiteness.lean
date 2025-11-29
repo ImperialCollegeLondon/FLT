@@ -17,6 +17,7 @@ import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
+import Mathlib.MeasureTheory.Measure.Haar.Quotient
 
 /-
 
@@ -33,7 +34,7 @@ suppress_compilation
 
 open IsDedekindDomain MeasureTheory
 
-open scoped NumberField TensorProduct
+open scoped TensorProduct
 
 variable (K : Type*) [Field K] [NumberField K]
 variable (D : Type*) [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
@@ -56,9 +57,11 @@ namespace Aux
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
-    e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
-  -- MeasureTheory.QuotientMeasureEqMeasurePreimage.haarMeasure_quotient
-  sorry
+    e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
+  --have := MeasureTheory.QuotientMeasureEqMeasurePreimage.haarMeasure_quotient
+  sorry -- **TODO** prove that if A is a locally compact ab group and Gamma is a cocompact
+  -- subgroup then there's some positive real M such that if U ⊆ A and μ(U)>M then
+  -- U -> A/Gamma isn't injective.
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
 def E : Set D_𝔸 := (existsE K D).choose
@@ -70,11 +73,13 @@ lemma E_noninjective_left {x : D_𝔸ˣ} (h : x ∈ ringHaarChar_ker D_𝔸) :
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   (existsE K D).choose_spec.2 (ContinuousAddEquiv.mulLeft x) h
 
-lemma E_noninjective_right {x : D_𝔸ˣ} (h : x ∈ ringHaarChar_ker D_𝔸) :
+lemma E_noninjective_right [Algebra.IsCentral K D] {x : D_𝔸ˣ} (h : x ∈ ringHaarChar_ker D_𝔸) :
     ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     e₁ * x⁻¹ - e₂ * x⁻¹  ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
   let φ : D_𝔸 ≃ₜ+ D_𝔸 := ContinuousAddEquiv.mulRight x⁻¹
-  have hφ : addEquivAddHaarChar φ = 1 := sorry
+  have hφ : addEquivAddHaarChar φ = 1 := by
+    rwa [ ← inv_mem_iff, mem_ringHaarChar_ker, ringHaarChar_apply,
+      isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul K D x⁻¹] at h
   exact (existsE K D).choose_spec.2 φ hφ
 
 open scoped Pointwise in
@@ -106,7 +111,7 @@ lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     simp only [← hb, TensorProduct.zero_tmul, ne_eq, not_true_eq_false] at h1
   exact ⟨incl K D b1, ⟨b1, rfl⟩, by simpa [mul_sub] using hb.symm⟩
 
-lemma X_meets_kernel' {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
+lemma X_meets_kernel' [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := by
   obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_right K D hβ
   refine ⟨e1 - e2, by simpa only using (Set.sub_mem_sub he1 he2), ?_⟩
@@ -144,6 +149,7 @@ abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
     (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
   fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
 
+-- these must be in the wrong place?
 omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
   [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
@@ -152,7 +158,9 @@ theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
   exact (DiscretePi (algebraMap K (AdeleRing (𝓞 K) K)) (Module.finrank K D))
     (NumberField.AdeleRing.discrete K)
 
-omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+-- these must be in the wrong place?
+omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+    in
 theorem D_discrete_extracted (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
     incl_Kn_𝔸Kn K D ⁻¹' U  = (D_iso K D) ''
     (⇑(D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
@@ -169,7 +177,8 @@ theorem D_discrete_extracted (U : Set (Fin (Module.finrank K D) → AdeleRing (�
     rw [this] at hy1
     simpa [← hy2] using hy1
 
-omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+    in
 theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
   apply Discrete_of_HomeoDiscrete (Y' := ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)))
@@ -236,7 +245,7 @@ lemma C_compact : IsCompact (C K D) := by
     (Units.continuous_val) (continuousOn_id' (T K D)⁻¹)))
     (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
-lemma antidiag_mem_C {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
+lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ b ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ),
     ∃ ν ∈ ringHaarChar_ker D_𝔸,
     β = b * ν ∧ ((ν : D_𝔸), ((ν⁻¹ : D_𝔸ˣ) : D_𝔸)) ∈ C K D := by
@@ -274,9 +283,10 @@ abbrev toQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.ri
   (Quotient.mk (QuotientGroup.rightRel ((MonoidHom.range (incl K D)).comap
   (ringHaarChar_ker D_𝔸).subtype)) a)
 
-lemma toQuot_cont : Continuous (toQuot K D) := by exact { isOpen_preimage := fun s a ↦ a }
+lemma toQuot_cont : Continuous (toQuot K D) where
+  isOpen_preimage := fun _ a ↦ a
 
-lemma toQuot_surjective : (toQuot K D) '' (M K D) = Set.univ := by
+lemma toQuot_surjective [Algebra.IsCentral K D] : (toQuot K D) '' (M K D) = Set.univ := by
   rw [Set.eq_univ_iff_forall]
   rintro ⟨a, ha⟩
   obtain ⟨c, hc, ν, hν, rfl, h31⟩ := Aux.antidiag_mem_C K D ha
@@ -315,7 +325,8 @@ lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.
 lemma M_compact : IsCompact (M K D) := Topology.IsClosedEmbedding.isCompact_preimage
   (incl₂_isClosedEmbedding K D) (ImAux_isCompact K D)
 
-lemma compact_quotient : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
+lemma compact_quotient [Algebra.IsCentral K D] :
+    CompactSpace (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
   isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
     (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
@@ -323,6 +334,8 @@ lemma compact_quotient : CompactSpace (_root_.Quotient (QuotientGroup.rightRel
 end NumberField.AdeleRing.DivisionAlgebra
 
 section FiniteAdeleRing
+
+open scoped NumberField
 
 -- Instance to help speed up instance synthesis
 instance : NonUnitalNonAssocRing (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) :=
