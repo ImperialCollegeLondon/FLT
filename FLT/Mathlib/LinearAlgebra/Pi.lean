@@ -1,4 +1,3 @@
-import Mathlib.Logic.Equiv.Basic
 import Mathlib.Algebra.Module.Pi
 import Mathlib.Algebra.Module.Equiv.Defs
 
