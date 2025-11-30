@@ -120,11 +120,20 @@ lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHo
   exact linearEquiv.bijective
 
 open scoped TensorProduct.RightActions in
-/-- The canonical `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
-base change map `𝔸_K → 𝔸_L`. -/
-noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :=
-  IsModuleTopology.continuousAlgEquivOfAlgEquiv <|
+/-- The canonical `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
+induced by the base change map `𝔸_K → 𝔸_L`. -/
+noncomputable def baseChangeAlgAdeleEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[𝔸 K] 𝔸 L :=
     AlgEquiv.ofBijective (baseChangeAdeleAlgHom K L) (baseChangeAdeleAlgHom_bijective K L)
+
+open scoped TensorProduct.RightActions in
+/-- The canonical continuous `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
+induced by the base change map `𝔸_K → 𝔸_L`. -/
+noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :=
+  IsModuleTopology.continuousAlgEquivOfAlgEquiv <| baseChangeAlgAdeleEquiv K L
+
+open scoped TensorProduct.RightActions in
+instance : Module.Finite (𝔸 K) (𝔸 L) :=
+  Module.Finite.equiv (baseChangeAlgAdeleEquiv K L).toLinearEquiv
 
 open scoped TensorProduct.RightActions in
 /-- The canonical `L`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
@@ -202,6 +211,83 @@ noncomputable abbrev piEquiv :
   -- `L ⊗[K] 𝔸 K ≃L[K] 𝔸 L` base change  restricted to `K` as a continuous linear equiv
   let BC := baseChangeEquiv K L |>.toContinuousLinearEquiv |>.restrictScalars K
   π.trans BC
+
+section vector_space
+
+variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
+
+/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeAddEquiv :
+    V ⊗[K] (𝔸 K) ≃ₗ[L] (V ⊗[L] (𝔸 L)) :=
+  TensorProduct.AlgebraTensorModule.congr ((TensorProduct.rid L V).symm) (.refl _ _) ≪≫ₗ
+  TensorProduct.AlgebraTensorModule.assoc K L L V L (𝔸 K) ≪≫ₗ
+  (LinearEquiv.lTensor V
+    ((NumberField.AdeleRing.baseChangeAdeleAlgEquiv K L).toLinearEquiv.symm)).symm
+
+@[simp] lemma ModuleBaseChangeAddEquiv_apply
+    (v : V) (a : 𝔸 K) : ModuleBaseChangeAddEquiv K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
+  simp [ModuleBaseChangeAddEquiv]
+
+open scoped TensorProduct.RightActions in
+/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeAddEquiv' [Module (𝔸 K) (V ⊗[L] 𝔸 L)]
+    [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)] :
+    V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L)) where
+  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
+  map_smul' a vb := by
+    induction vb with
+    | zero => simp
+    | tmul x y =>
+        simp [TensorProduct.smul_tmul', -algebraMap_smul,
+          algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
+    | add x y _ _ => simp_all
+
+open scoped TensorProduct.RightActions in
+/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeContinuousSemilinearMap :
+    V ⊗[K] (𝔸 K) →ₛₗ[algebraMap (𝔸 K) (𝔸 L)] V ⊗[L] 𝔸 L where
+  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddMonoidHom
+  map_smul' a bc := by
+    induction bc with
+    | zero => simp
+    | tmul x y => simp [TensorProduct.smul_tmul', Algebra.smul_def]
+    | add x y _ _ => simp_all
+
+lemma ModuleBaseChangeContinuousSemilinearMap_apply
+    (v : V) (a : 𝔸 K) :
+    ModuleBaseChangeContinuousSemilinearMap K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
+  simp [ModuleBaseChangeContinuousSemilinearMap]
+
+open scoped TensorProduct.RightActions in
+/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
+for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeContinuousAddEquiv
+    (V : Type*) [AddCommGroup V] [Module L V] [Module K V]
+    [IsScalarTower K L V] [FiniteDimensional L V] [FiniteDimensional K V] :
+    V ⊗[K] (𝔸 K) ≃ₜ+ (V ⊗[L] (𝔸 L)) := by
+  -- The trick is to make `(V ⊗[L] (𝔸 L))` into an 𝔸 K-module
+  let : Module (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+    Module.compHom _ (algebraMap (𝔸 K) (𝔸 L))
+  -- and ultimately prove that both sides have the 𝔸 K-module topology
+  -- so the result will follow from the fact that linear maps are
+  -- automatically continuous for the module topology.
+  have : IsScalarTower (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+    .of_algebraMap_smul fun r ↦ congrFun rfl
+  have : ContinuousSMul (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+    IsScalarTower.continuousSMul (AdeleRing (𝓞 L) L)
+  have ⟨h2⟩ : IsModuleTopology (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+    inferInstance
+  have : IsModuleTopology (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) := {
+    eq_moduleTopology' := by rwa [moduleTopology.trans (𝔸 K) (𝔸 L) (V ⊗[L] (𝔸 L))] }
+  exact {
+  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
+  continuous_toFun := IsModuleTopology.continuous_of_linearMap
+      (ModuleBaseChangeAddEquiv' K L V : V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L))).toLinearMap
+  continuous_invFun := IsModuleTopology.continuous_of_linearMap
+      (ModuleBaseChangeAddEquiv' K L V : V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L))).symm.toLinearMap
+  }
+
+end vector_space
 
 variable {K L}
 
