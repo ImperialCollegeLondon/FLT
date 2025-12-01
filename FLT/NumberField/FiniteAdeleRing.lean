@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.NumberField.Completion.Finite
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 /-
 
 # The finite adele ring of a number field is locally compact.
@@ -27,6 +27,11 @@ instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K) := by
   haveI : Fact (∀ (i : HeightOneSpectrum (𝓞 K)),
       IsOpen (adicCompletionIntegers K i : Set (adicCompletion K i))) :=
     .mk fun v ↦ isOpenAdicCompletionIntegers K v
+  unfold FiniteAdeleRing
   infer_instance
+
+instance : CompactSpace (IsDedekindDomain.FiniteAdeleRing.integralAdeles (𝓞 K) K) := by
+    unfold IsDedekindDomain.FiniteAdeleRing.integralAdeles
+    sorry
 
 end LocallyCompact

@@ -26,7 +26,7 @@ section T2
 variable (K : Type*) [Field K] [NumberField K]
 
 instance : T2Space (AdeleRing (𝓞 K) K) := by
-  unfold AdeleRing
+  unfold AdeleRing IsDedekindDomain.FiniteAdeleRing
   infer_instance
 
 end T2
@@ -395,7 +395,8 @@ def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes
     ext p
     obtain ⟨v, rfl⟩ := ratEquiv.surjective p
     change _ = algebraMap ℚ ℚ_[v.natGenerator] q
-    simp
+    simp [FiniteAdeleRing]
+    sorry
 
 theorem padicEquiv_bijOn :
     Set.BijOn padicEquiv (integralAdeles (𝓞 ℚ) ℚ)
@@ -431,7 +432,7 @@ theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ)
 instance (v : InfinitePlace K) : ProperSpace v.Completion :=
   ProperSpace.of_locallyCompactSpace v.Completion
 
-open Metric IsDedekindDomain.HeightOneSpectrum.FiniteAdeleRing AdeleRing in
+open Metric IsDedekindDomain.FiniteAdeleRing AdeleRing in
 theorem Rat.AdeleRing.cocompact :
     CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) where
   isCompact_univ := by

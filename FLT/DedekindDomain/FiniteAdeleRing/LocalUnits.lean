@@ -3,7 +3,7 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 /-
 
 # Constructions of various "local" elements of adelic groups
@@ -83,22 +83,15 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
       exact ValuationSubring.one_mem (HeightOneSpectrum.adicCompletionIntegers K w)⟩,
     by
       ext w
-      by_cases hw : w = v
-      · simp only [RestrictedProduct.mul_apply, localUniformiser_eval, hw, ↓reduceIte,
-        RestrictedProduct.mk_apply, RestrictedProduct.one_apply]
-        apply mul_inv_cancel₀
-        exact HeightOneSpectrum.adicCompletionUniformizer_ne_zero K w
+      obtain rfl | hw := eq_or_ne w v
+      · simp [mul_inv_cancel₀ <| HeightOneSpectrum.adicCompletionUniformizer_ne_zero K w]
       · simp [hw],
     by
       ext w
-      by_cases hw : w = v
-      · simp only [RestrictedProduct.mul_apply, localUniformiser_eval, hw, ↓reduceIte,
-        RestrictedProduct.mk_apply, RestrictedProduct.one_apply]
-        apply inv_mul_cancel₀
-        exact HeightOneSpectrum.adicCompletionUniformizer_ne_zero K w
+      obtain rfl | hw := eq_or_ne w v
+      · simp [inv_mul_cancel₀ <| HeightOneSpectrum.adicCompletionUniformizer_ne_zero K w]
       · simp [hw]⟩
 
--- these should not be in a file called Matrix
 /-- `localUnit K α` for `α : (v.adicCompletion K)ˣ`, is the finite idele which is `α` at
 `v` and `1` elsewhere. -/
 noncomputable def localUnit {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)

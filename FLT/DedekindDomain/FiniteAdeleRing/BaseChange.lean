@@ -8,6 +8,7 @@ import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.RingTheory.Flat.TorsionFree
+import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 
 /-!
 
@@ -205,8 +206,7 @@ def FiniteAdeleRing.restrictedProduct_prod_equiv :
       ext w
       change a • (x (comap A w) ⟨w, rfl⟩) = _
       simp only [Submodule.coe_pi, Submodule.coe_restrictScalars, Algebra.smul_def,
-        RingHom.id_apply, Equiv.toFun_as_coe, RestrictedProduct.mul_apply,
-        RestrictedProduct.flatten_equiv'_apply,
+        RingHom.id_apply, Equiv.toFun_as_coe, FiniteAdeleRing.mul_apply,
         IsScalarTower.algebraMap_apply A B (w.adicCompletion L)]
       rfl
   }
@@ -242,11 +242,14 @@ lemma FiniteAdeleRing.baseChangeLinearEquiv_tmul (b : B) (x : FiniteAdeleRing A 
     FiniteAdeleRing.baseChangeLinearEquiv A K L B ((algebraMap B L b) ⊗ₜ x) =
     (algebraMap _ (FiniteAdeleRing B L) b) * (algebraMap _ (FiniteAdeleRing B L) x) := by
   ext w
-  simp [baseChangeLinearEquiv, restrictedProduct_prod_equiv_apply, tensorEquivTensor_tmul,
+  simp only [baseChangeLinearEquiv, LinearEquiv.extendScalarsOfIsLocalization_apply,
+    LinearEquiv.trans_apply, tensorEquivTensor_tmul, LinearEquiv.restrictScalars_apply,
+    restrictedProduct_prod_equiv_apply,
     restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply,
     tensorEquivRestrictedProduct_tmul, adicCompletionComapIntegerLinearEquiv_tmul_apply,
-    BaseChange.algebraMap_apply, IsScalarTower.algebraMap_apply B L (FiniteAdeleRing B L),
-    IsScalarTower.algebraMap_apply B L (w.adicCompletion L), -Submodule.coe_pi]
+    IsScalarTower.algebraMap_apply B L (w.adicCompletion L),
+    IsScalarTower.algebraMap_apply B L (FiniteAdeleRing B L), mul_apply, algebraMap_apply]
+  rfl
 
 open scoped RestrictedProduct in
 theorem FiniteAdeleRing.baseChange_bijective :
@@ -264,8 +267,9 @@ theorem FiniteAdeleRing.baseChange_bijective :
   apply IsLocalization.tensorProduct_ext (nonZeroDivisors A) B
   intro b x
   ext w
-  simp [SemialgHom.baseChange_of_algebraMap_tmul, mapSemialgHom_apply, BaseChange.algebraMap_apply,
-    IsScalarTower.algebraMap_apply B L (FiniteAdeleRing B L)]
+  simp [SemialgHom.baseChange_of_algebraMap_tmul,
+    IsScalarTower.algebraMap_apply B L (FiniteAdeleRing B L), -mul_eq_mul_left_iff]
+  rfl
 
 /-- The `L`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
 def FiniteAdeleRing.baseChangeAlgEquiv :
@@ -321,6 +325,14 @@ private noncomputable local instance (priority := 9999) (v : HeightOneSpectrum A
     Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
   Algebra.toModule
 
+noncomputable instance : Module (FiniteAdeleRing A K)
+    Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
+    ↑(piAdicIntegerSubmodule A K L B v)] :=
+  inferInstanceAs <| Module
+      (Πʳ v : HeightOneSpectrum A, [v.adicCompletion K, v.adicCompletionIntegers K])
+      Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
+    ↑(piAdicIntegerSubmodule A K L B v)]
+
 open scoped RestrictedProduct in
 /-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
 reaindexing the elements. -/
@@ -347,6 +359,7 @@ lemma FiniteAdeleRing.restrictedProduct_pi_isModuleTopology : IsModuleTopology (
       piAdicIntegerSubmodule A K L B v]) := by
   have :=
     Module.Finite.equiv (FiniteAdeleRing.restrictedProduct_pi_equiv A K L B).symm.toLinearEquiv
+  unfold FiniteAdeleRing at this
   have := prodAdicCompletionComap_isModuleTopology A K L B
   apply RestrictedProduct.isModuleTopology
   · exact fun v ↦ Valued.isOpen_integer (adicCompletion K v)
