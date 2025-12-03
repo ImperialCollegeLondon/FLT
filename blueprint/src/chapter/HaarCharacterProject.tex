@@ -74,7 +74,7 @@ the definition of $d_A(\phi)$ is indeed independent of the choice of Haar measur
 \end{proof}
 
 \begin{lemma}
-  \lean{MeasureTheory.addEquivAddHaarChar_map}
+  \lean{MeasureTheory.addEquivAddHaarChar_smul_map}
   \label{MeasureTheory.addEquivAddHaarChar_map}
   \uses{MeasureTheory.addEquivAddHaarChar_eq}
   \leanok
@@ -90,7 +90,7 @@ We can of course also pull a Haar measure $\mu$ back along a homeomorphism $\phi
 giving a measure $\phi^*\mu$ such that $\phi^*\mu(X)=\mu(\phi(X))$.
 
 \begin{corollary}
-  \lean{MeasureTheory.addEquivAddHaarChar_comap}
+  \lean{MeasureTheory.addEquivAddHaarChar_smul_eq_comap}
   \label{MeasureTheory.addEquivAddHaarChar_comap}
   \uses{MeasureTheory.addEquivAddHaarChar_map}
   \leanok
@@ -139,7 +139,7 @@ We also have the following variant:
 
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_smul_integral_comap}
-  \lean{MeasureTheory.addEquivAddHaarChar_smul_integral_comap}
+  \lean{MeasureTheory.integral_comap_eq_addEquivAddHaarChar_smul}
   \uses{MeasureTheory.addEquivAddHaarChar_comap}
   \leanok
   If $f:A\to\R$ is a Borel measurable function then
