@@ -320,6 +320,9 @@ private noncomputable local instance (priority := 9999) (v : HeightOneSpectrum A
     Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
   Algebra.toModule
 
+/-- An auxiliary 𝔸_K-module structure on restricted product over v of (product of w's dividing v
+of L_w wrt 𝓞_w). Only used in this file to compare L ⊗ 𝔸_K and 𝔸_L.
+-/
 noncomputable local instance : Module (FiniteAdeleRing A K)
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
     ↑(piAdicIntegerSubmodule A K L B v)] :=
