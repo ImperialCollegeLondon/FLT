@@ -27,7 +27,7 @@ def Submodule.quotientPiContinuousLinearEquiv {R Î¹ : Type*} [CommRing R] {G : Î
   continuous_invFun := by
     rw [show (quotientPi p).invFun = fun a => (quotientPi p).invFun a from rfl]
     simp only [quotientPi, quotientPi_aux.toFun, quotientPi_aux.invFun, piQuotientLift,
-      LinearMap.lsum_apply, LinearMap.coeFn_sum, LinearMap.coe_comp, LinearMap.coe_proj,
+      LinearMap.lsum_apply, LinearMap.coe_sum, LinearMap.coe_comp, LinearMap.coe_proj,
       LinearEquiv.invFun_eq_symm, LinearEquiv.coe_symm_mk, Finset.sum_apply, Function.comp_apply,
       Function.eval]
     refine continuous_finset_sum _ (fun i _ => ?_)

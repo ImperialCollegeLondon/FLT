@@ -188,10 +188,12 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_matrix_pi [SecondCountableTopology
         MulHomClass.map_mul ringHaarChar hA'.unit hB'.unit ]
     rw [hL, hR, IHA hA', IHB hB', CommMonoid.mul_comm]
 
+omit [DecidableEq ι] in
 /-- Haar measure scaling for linear maps on (ι → F) -/
 lemma addEquivAddHaarChar_eq_ringHaarChar_det_pi [SecondCountableTopology F]
     (ρ : (ι → F) ≃L[F] (ι → F)) :
     addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det := by
+  classical
   let e := ρ.toLinearEquiv
   let b := Pi.basisFun F ι
   let M := e.toMatrix b b
