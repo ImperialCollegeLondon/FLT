@@ -3,22 +3,9 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, William Coram
 -/
-import Mathlib.NumberTheory.NumberField.Basic
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.Algebra.Group.Subgroup.Pointwise
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.GroupTheory.DoubleCoset
-import Mathlib.Algebra.Central.Defs
-import Mathlib.Tactic.LinearCombination'
-import Mathlib.Topology.Algebra.Group.Basic
-import FLT.NumberField.AdeleRing
-import FLT.HaarMeasure.HaarChar.Ring
 import FLT.HaarMeasure.HaarChar.AdeleRing
-import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.GroupTheory.DoubleCoset
-import FLT.Mathlib.Topology.Algebra.Group.Quotient
-import Mathlib.MeasureTheory.Measure.Haar.Quotient
-
+import FLT.Mathlib.Topology.HomToDiscrete
 /-
 
 # Fujisaki's lemma
@@ -69,10 +56,10 @@ variable [FiniteDimensional K D]
 /-- The K-algebra equivalence of D and K^n. -/
 abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := Module.Finite.equivPi K D
 
--- Mathlib#29315.
+-- Mathlib#29315....
 attribute [local instance 1100] IsTopologicalSemiring.toIsModuleTopology
 
--- makes this work
+-- ...makes this work
 example : IsModuleTopology (AdeleRing (𝓞 K) K)
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := inferInstance
 
@@ -86,7 +73,6 @@ abbrev D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)]
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :=
   IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
 
--- these must be in the wrong place?
 theorem D_discrete_extracted (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
     incl_Kn_𝔸Kn K D ⁻¹' U  = (D_iso K D) ''
     (⇑(D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
@@ -252,9 +238,8 @@ lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringH
   obtain ⟨x1, rfl⟩ : IsUnit x1 := ⟨↑β⁻¹ * incl K D b1,
     ((Units.eq_inv_mul_iff_mul_eq β).mpr eq1).symm⟩
   obtain ⟨x2, rfl⟩ : IsUnit x2 := ⟨incl K D b2 * β, ((Units.mul_inv_eq_iff_eq_mul β).mp eq2).symm⟩
-  have h : x2 * x1 ∈ T K D := ⟨by simpa only [Y] using (Set.mul_mem_mul hx2 hx1), b2 * b1,
-    by simpa using Units.val_inj.mp (id (Eq.symm (by simpa [mul_assoc] using
-    (Mathlib.Tactic.LinearCombination'.mul_pf eq2 eq1))))⟩
+  have h : x2 * x1 ∈ T K D := ⟨by simpa only [Y] using Set.mul_mem_mul hx2 hx1,
+    b2 * b1, by norm_cast at eq1 eq2; rw [map_mul, ← eq2, ← eq1]; group⟩
   refine ⟨incl K D b1, by simp only [Set.mem_range, exists_apply_eq_apply],  x1⁻¹, ?_,
     eq_mul_inv_of_mul_eq (Units.val_inj.mp eq1), ?_, hx1⟩
   · rw [(Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq (Units.val_inj.mp eq1))))]

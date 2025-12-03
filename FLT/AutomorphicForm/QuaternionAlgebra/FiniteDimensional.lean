@@ -1,11 +1,9 @@
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.DivisionAlgebra.Finiteness
-import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 namespace TotallyDefiniteQuaternionAlgebra
 
-open IsDedekindDomain NumberField IsQuaternionAlgebra
+open IsDedekindDomain NumberField
 open scoped TensorProduct TensorProduct.RightActions
 
 -- let F be a number field
