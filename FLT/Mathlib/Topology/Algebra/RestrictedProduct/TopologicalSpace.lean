@@ -462,15 +462,3 @@ lemma RestrictedProduct.isOpenMap_of_open_components
     rfl
 
 end openmap
-
-section structure_map
-
-instance (R : ι → Type*) {S : ι → Type*}
-    (A : (i : ι) → (S i)) (𝓕 : Filter ι) [(i : ι) → SetLike (S i) (R i)] [(i : ι) → Ring (R i)]
-    [(i : ι) → SubringClass (S i) (R i)] [(i : ι) → TopologicalSpace (R i)]
-    [(i : ι) → CompactSpace (A i)] :
-    CompactSpace (structureSubring R A 𝓕) where
-  isCompact_univ :=
-    isCompact_iff_isCompact_univ.1 <| isCompact_range isEmbedding_structureMap.continuous
-
-end structure_map

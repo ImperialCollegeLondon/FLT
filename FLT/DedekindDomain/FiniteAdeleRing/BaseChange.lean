@@ -5,8 +5,8 @@ Authors: Kevin Buzzard, Matthew Jasper
 -/
 import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
+import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.RingTheory.Flat.TorsionFree
 
 /-!
@@ -205,8 +205,7 @@ def FiniteAdeleRing.restrictedProduct_prod_equiv :
       ext w
       change a • (x (comap A w) ⟨w, rfl⟩) = _
       simp only [Submodule.coe_pi, Submodule.coe_restrictScalars, Algebra.smul_def,
-        RingHom.id_apply, Equiv.toFun_as_coe, RestrictedProduct.mul_apply,
-        RestrictedProduct.flatten_equiv'_apply,
+        RingHom.id_apply, Equiv.toFun_as_coe,
         IsScalarTower.algebraMap_apply A B (w.adicCompletion L)]
       rfl
   }
@@ -321,6 +320,14 @@ private noncomputable local instance (priority := 9999) (v : HeightOneSpectrum A
     Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
   Algebra.toModule
 
+noncomputable local instance : Module (FiniteAdeleRing A K)
+    Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
+    ↑(piAdicIntegerSubmodule A K L B v)] :=
+  inferInstanceAs <| Module
+      (Πʳ v : HeightOneSpectrum A, [v.adicCompletion K, v.adicCompletionIntegers K])
+      Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
+    ↑(piAdicIntegerSubmodule A K L B v)]
+
 open scoped RestrictedProduct in
 /-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
 reaindexing the elements. -/
@@ -347,6 +354,7 @@ lemma FiniteAdeleRing.restrictedProduct_pi_isModuleTopology : IsModuleTopology (
       piAdicIntegerSubmodule A K L B v]) := by
   have :=
     Module.Finite.equiv (FiniteAdeleRing.restrictedProduct_pi_equiv A K L B).symm.toLinearEquiv
+  unfold FiniteAdeleRing at this
   have := prodAdicCompletionComap_isModuleTopology A K L B
   apply RestrictedProduct.isModuleTopology
   · exact fun v ↦ Valued.isOpen_integer (adicCompletion K v)
