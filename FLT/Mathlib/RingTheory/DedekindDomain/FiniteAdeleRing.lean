@@ -19,6 +19,7 @@ variable {R K}
 @[simp] lemma mul_apply (a b : FiniteAdeleRing R K) (v : HeightOneSpectrum R) :
     (a * b) v = a v * b v := rfl
 
+/-- Constructor for `FiniteAdeleRing R K`. An `abbrev`. -/
 abbrev mk (f : ∀ v, HeightOneSpectrum.adicCompletion K v)
     (h : ∀ᶠ (i : HeightOneSpectrum R) in Filter.cofinite,
     f i ∈ (fun v ↦ ↑(HeightOneSpectrum.adicCompletionIntegers K v)) i) : FiniteAdeleRing R K :=
