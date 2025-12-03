@@ -6,6 +6,7 @@ local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
 
 universe u
 
+/-- Representation ρ has a one-dimensional-quotient on which the Galois group acts trivially. -/
 def has_trivial_quotient (k : Type*) {K : Type*} [Field k] [Field K] {V : Type*}
   [AddCommGroup V] [TopologicalSpace k] [IsTopologicalRing k]
   [Module k V] [Module.Finite k V] [Module.Free k V] (ρ : GaloisRep K k V) : Prop :=

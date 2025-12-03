@@ -381,14 +381,21 @@ def GaloisRep.toRepresentation (ρ : GaloisRep K A M) : Representation A (Γ K) 
 def GaloisRep.IsIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
     (ρ : GaloisRep K k M) : Prop := ρ.toRepresentation.IsIrreducible
 
-/-- Note that we don't use  ρ.toRepresentation.IsAbsolutelyIrreducible because it will use
-the wrong type of base change. -/
+/-- A Galois representation is absolutely irreducible, if it remains irreducible for any
+topological field extension. -/
 class GaloisRep.IsAbsolutelyIrreducible {k : Type*} [Field k] [TopologicalSpace k] [Module k M]
     [Module.Finite k M]
     (ρ : GaloisRep K k M) : Prop where
     absolutelyIrreducible : ∀ k', ∀ _ : Field.{u} k', ∀ _ : TopologicalSpace k',
     ∀ _ : IsTopologicalRing k', ∀ _ : Algebra k k', ∀ _ : ContinuousSMul k k',
       IsIrreducible (GaloisRep.baseChange k' ρ)
+
+/-- This theorem is true, because if a representation is not absolutely irreducible, then there is
+a finite extension over which it is reducible, and we can always put a topology on a finite
+extension. I don't think we have API to formalize this right now. -/
+theorem GaloisRep.is_absolutely_irreducible_iff_to_representation {k : Type*} [Field k]
+    [TopologicalSpace k] [Module k M] [Module.Finite k M] (ρ : GaloisRep K k M) :
+    ρ.IsAbsolutelyIrreducible ↔ ρ.toRepresentation.IsAbsolutelyIrreducible := sorry
 
 namespace GaloisRep
 
