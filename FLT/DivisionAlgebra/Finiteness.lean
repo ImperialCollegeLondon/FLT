@@ -37,7 +37,7 @@ open IsDedekindDomain MeasureTheory
 open scoped TensorProduct
 
 variable (K : Type*) [Field K] [NumberField K]
-variable (D : Type*) [DivisionRing D] [Algebra K D] [FiniteDimensional K D]
+variable (D : Type*) [DivisionRing D] [Algebra K D]
 
 namespace NumberField.AdeleRing.DivisionAlgebra
 
@@ -47,13 +47,71 @@ notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
 
 open scoped TensorProduct.RightActions
 
-variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-
 /-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
 noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 namespace Aux
+
+/-- The inclusion of K^n into 𝔸^n. -/
+abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
+    (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
+  fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
+
+theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
+    ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
+    IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
+  exact (DiscretePi (algebraMap K (AdeleRing (𝓞 K) K)) (Module.finrank K D))
+    (NumberField.AdeleRing.discrete K)
+
+variable [FiniteDimensional K D]
+
+/-- The K-algebra equivalence of D and K^n. -/
+abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := Module.Finite.equivPi K D
+
+-- Mathlib#29315.
+attribute [local instance 1100] IsTopologicalSemiring.toIsModuleTopology
+
+-- makes this work
+example : IsModuleTopology (AdeleRing (𝓞 K) K)
+    ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := inferInstance
+
+/-- The 𝔸-algebra equivalence of D_𝔸 and 𝔸^d. -/
+abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) :=
+  ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
+    (TensorProduct.AlgebraTensorModule.finiteEquivPi K D (AdeleRing (𝓞 K) K))
+
+/-- The topological equivalence via D𝔸_iso. -/
+abbrev D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)]
+    ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :=
+  IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
+
+-- these must be in the wrong place?
+theorem D_discrete_extracted (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
+    incl_Kn_𝔸Kn K D ⁻¹' U  = (D_iso K D) ''
+    (⇑(D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
+  ext x
+  constructor
+  · intro hx
+    use (D_iso K D).symm x
+    simpa [← Algebra.algebraMap_eq_smul_one] using hx
+  · intro ⟨y, hy1, hy2⟩
+    have : (D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) =
+        (incl_Kn_𝔸Kn K D) ∘ (D_iso K D) := by
+      ext d n
+      simp [← Algebra.algebraMap_eq_smul_one]
+    rw [this] at hy1
+    simpa [← hy2] using hy1
+
+theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
+    IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
+  apply Discrete_of_HomeoDiscrete (Y' := ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)))
+    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) (D𝔸_iso_top K D)
+  apply Discrete_of_HomDiscrete (X' := Fin (Module.finrank K D) → K)
+    ((D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (D_iso K D)
+  simpa [D_discrete_extracted] using Kn_discrete K D
+
+variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
@@ -126,66 +184,6 @@ lemma X_meets_kernel' [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ring
 
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
-
-/-- The K-algebra equivalence of D and K^n. -/
-abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := Module.Finite.equivPi K D
-
-/-- The 𝔸-algebra equivalence of D_𝔸 and 𝔸^d. -/
-abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) :=
-  ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
-    (TensorProduct.AlgebraTensorModule.finiteEquivPi K D (AdeleRing (𝓞 K) K))
-
-local instance : IsModuleTopology (AdeleRing (𝓞 K) K)
-    ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := by
-  sorry -- can be solved by typeclass inference if Mathlib#29315 is merged.
-
-/-- The topological equivalence via D𝔸_iso. -/
-abbrev D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)]
-    ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :=
-  IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
-
-/-- The inclusion of K^n into 𝔸^n. -/
-abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
-    (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
-  fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
-
--- these must be in the wrong place?
-omit [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
-theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
-    ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
-    IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
-  exact (DiscretePi (algebraMap K (AdeleRing (𝓞 K) K)) (Module.finrank K D))
-    (NumberField.AdeleRing.discrete K)
-
--- these must be in the wrong place?
-omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-    in
-theorem D_discrete_extracted (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
-    incl_Kn_𝔸Kn K D ⁻¹' U  = (D_iso K D) ''
-    (⇑(D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
-  ext x
-  constructor
-  · intro hx
-    use (D_iso K D).symm x
-    simpa [← Algebra.algebraMap_eq_smul_one] using hx
-  · intro ⟨y, hy1, hy2⟩
-    have : (D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) =
-        (incl_Kn_𝔸Kn K D) ∘ (D_iso K D) := by
-      ext d n
-      simp [← Algebra.algebraMap_eq_smul_one]
-    rw [this] at hy1
-    simpa [← hy2] using hy1
-
-omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-    in
-theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
-    IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
-  apply Discrete_of_HomeoDiscrete (Y' := ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)))
-    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) (D𝔸_iso_top K D)
-  apply Discrete_of_HomDiscrete (X' := Fin (Module.finrank K D) → K)
-    ((D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (D_iso K D)
-  simpa [D_discrete_extracted] using Kn_discrete K D
 
 /-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
 local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
@@ -268,6 +266,9 @@ lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringH
     exact Set.mem_mul.mpr ⟨↑t⁻¹, Set.mem_image_of_mem Units.val ht, x2, hx2, rfl⟩
 
 end Aux
+
+variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+    [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
 /-- The inclusion of `ringHaarChar_ker D_𝔸` into the product space `D_𝔸 × D_𝔸ᵐᵒᵖ`. -/
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
@@ -354,6 +355,13 @@ abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
 /-- The inclusion Dˣ → (D ⊗ 𝔸_K^∞)ˣ as a group homomorphism. -/
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
+
+open NumberField
+
+open scoped TensorProduct.RightActions
+
+variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+    [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
