@@ -1,5 +1,7 @@
-import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 import Mathlib.NumberTheory.Padics.RingHoms
+import Mathlib.RingTheory.DedekindDomain.AdicValuation
+import Mathlib.RingTheory.Int.Basic
 
 open IsDedekindDomain NumberField PadicInt RestrictedProduct
 
