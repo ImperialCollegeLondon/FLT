@@ -45,10 +45,6 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   sorry
 
--- should be elsewhere TODO
-instance (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
-  LocallyCompactSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) := sorry
-
 variable [MeasurableSpace (𝔸 ℚ)] [BorelSpace (𝔸 ℚ)]
   [MeasurableSpace (InfiniteAdeleRing ℚ)] [BorelSpace (InfiniteAdeleRing ℚ)]
   [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
