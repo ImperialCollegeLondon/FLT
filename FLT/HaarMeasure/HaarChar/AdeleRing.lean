@@ -109,23 +109,19 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
 instance (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
   LocallyCompactSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) := sorry
 
-variable -- [MeasurableSpace (𝔸 ℚ)] [BorelSpace (𝔸 ℚ)]
+variable [MeasurableSpace (𝔸 ℚ)] [BorelSpace (𝔸 ℚ)]
   [MeasurableSpace (InfiniteAdeleRing ℚ)] [BorelSpace (InfiniteAdeleRing ℚ)]
   [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
     MeasurableSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)]
   [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
     BorelSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)] in
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
-  letI : MeasurableSpace (𝔸 ℚ) := borel _
-  haveI : BorelSpace (𝔸 ℚ) := ⟨rfl⟩
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
     (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := by
-  letI : MeasurableSpace (IsDedekindDomain.FiniteAdeleRing (𝓞 ℚ) ℚ) := borel _
-  haveI : BorelSpace (IsDedekindDomain.FiniteAdeleRing (𝓞 ℚ) ℚ) := ⟨rfl⟩
-  convert addEquivAddHaarChar_prodCongr
-    (ContinuousAddEquiv.mulLeft (MulEquiv.prodUnits x).1)
-    (ContinuousAddEquiv.mulLeft ((MulEquiv.prodUnits x).2))
-  symm
+  borelize (IsDedekindDomain.FiniteAdeleRing (𝓞 ℚ) ℚ)
+  unfold AdeleRing at *
+  rw [ringHaarChar_prod' x]
+  congr
   have := Fact.mk <| NumberField.isOpenAdicCompletionIntegers ℚ
   have := NumberField.instCompactSpaceAdicCompletionIntegers ℚ
   convert addEquivAddHaarChar_restrictedProductCongrRight

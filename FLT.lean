@@ -80,6 +80,7 @@ import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.Logic.Equiv.Basic
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 import FLT.Mathlib.MeasureTheory.Group.Action
 import FLT.Mathlib.MeasureTheory.Group.Measure
 import FLT.Mathlib.MeasureTheory.Measure.Regular

@@ -142,15 +142,11 @@ variable {S : Type*} [Ring S] [TopologicalSpace S]
 -- this is true in general, but the proof is easier if we assume
 -- `SecondCountableTopologyEither R S` because then if R and S are equipped with the Borel
 -- sigma algebra, the product sigma algebra on R × S is also the Borel sigma algebra.
-lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) :
-    letI : MeasurableSpace (R × S) := borel (R × S)
-    haveI : BorelSpace (R × S) := ⟨rfl⟩
+lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) [MeasurableSpace (R × S)] [BorelSpace (R × S)] :
     ringHaarChar (MulEquiv.prodUnits.symm (u, v)) = ringHaarChar u * ringHaarChar v :=
   addEquivAddHaarChar_prodCongr (ContinuousAddEquiv.mulLeft u) (ContinuousAddEquiv.mulLeft v)
 
-lemma ringHaarChar_prod' (uv : (R × S)ˣ) :
-    letI : MeasurableSpace (R × S) := borel (R × S)
-    haveI : BorelSpace (R × S) := ⟨rfl⟩
+lemma ringHaarChar_prod' (uv : (R × S)ˣ) [MeasurableSpace (R × S)] [BorelSpace (R × S)] :
     ringHaarChar uv =
     ringHaarChar (MulEquiv.prodUnits uv).1 * ringHaarChar (MulEquiv.prodUnits uv).2 :=
   ringHaarChar_prod (MulEquiv.prodUnits uv).1 (MulEquiv.prodUnits uv).2
