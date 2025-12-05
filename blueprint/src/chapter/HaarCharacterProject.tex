@@ -74,7 +74,7 @@ the definition of $d_A(\phi)$ is indeed independent of the choice of Haar measur
 \end{proof}
 
 \begin{lemma}
-  \lean{MeasureTheory.addEquivAddHaarChar_map}
+  \lean{MeasureTheory.addEquivAddHaarChar_smul_map}
   \label{MeasureTheory.addEquivAddHaarChar_map}
   \uses{MeasureTheory.addEquivAddHaarChar_eq}
   \leanok
@@ -90,7 +90,7 @@ We can of course also pull a Haar measure $\mu$ back along a homeomorphism $\phi
 giving a measure $\phi^*\mu$ such that $\phi^*\mu(X)=\mu(\phi(X))$.
 
 \begin{corollary}
-  \lean{MeasureTheory.addEquivAddHaarChar_comap}
+  \lean{MeasureTheory.addEquivAddHaarChar_smul_eq_comap}
   \label{MeasureTheory.addEquivAddHaarChar_comap}
   \uses{MeasureTheory.addEquivAddHaarChar_map}
   \leanok
@@ -139,7 +139,7 @@ We also have the following variant:
 
 \begin{lemma}
   \label{MeasureTheory.addEquivAddHaarChar_smul_integral_comap}
-  \lean{MeasureTheory.addEquivAddHaarChar_smul_integral_comap}
+  \lean{MeasureTheory.integral_comap_eq_addEquivAddHaarChar_smul}
   \uses{MeasureTheory.addEquivAddHaarChar_comap}
   \leanok
   If $f:A\to\R$ is a Borel measurable function then
@@ -349,6 +349,7 @@ there is still some discussion about the definition of a nonarchimedean local fi
 \end{lemma}
 \begin{proof}
 \uses{MeasureTheory.addEquivAddHaarChar}
+\leanok
 The proof should be inspired by \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/MeasureTheory/Measure/Lebesgue/Basic.html\#Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi}{\tt Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi},
 which crucially uses the induction principle \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/LinearAlgebra/Matrix/Transvection.html\#Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}{\tt Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}.
 In short, one needs to check it for diagonal matrices and for matrices which are the identity
@@ -553,6 +554,7 @@ Then $d_A(\phi)=1.$
 \end{lemma}
 \begin{proof}
   \uses{MeasureTheory.mulEquivHaarChar_smul_preimage}
+  \leanok
   We have $d_A(\phi)\mu(A)=\mu(A)$
   from lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_preimage}
   and $\mu(A)$ is positive and finite because $A$ is open and compact.

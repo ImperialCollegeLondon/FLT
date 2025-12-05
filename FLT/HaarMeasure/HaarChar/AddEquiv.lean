@@ -43,38 +43,6 @@ variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 
 -- should be in haarScalarFactor API
 @[to_additive]
-lemma mul_haarScalarFactor_smul (μ' μ : Measure G)
-    [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
-    (hc : 0 < c) :
-    haveI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
-    c * haarScalarFactor μ' (c • μ) = haarScalarFactor μ' μ := by
-  haveI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
-  obtain ⟨⟨g, g_cont⟩, g_comp, g_nonneg, g_one⟩ :
-    ∃ g : C(G, ℝ), HasCompactSupport g ∧ 0 ≤ g ∧ g 1 ≠ 0 := exists_continuous_nonneg_pos 1
-  have int_g_ne_zero : ∫ x, g x ∂μ ≠ 0 :=
-    ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
-  apply NNReal.coe_injective
-  calc
-    c * haarScalarFactor μ' (c • μ) = c * ((∫ x, g x ∂μ') / ∫ x, g x ∂(c • μ)) :=
-      by rw [haarScalarFactor_eq_integral_div _ _ g_cont g_comp (by simp [int_g_ne_zero, hc.ne'])]
-    _ = c * ((∫ x, g x ∂μ') / (c • ∫ x, g x ∂μ)) := by simp
-    _ = (∫ x, g x ∂μ') / (∫ x, g x ∂μ) := by
-      rw [NNReal.smul_def, smul_eq_mul, ← mul_div_assoc]
-      exact mul_div_mul_left (∫ (x : G), g x ∂μ') (∫ (x : G), g x ∂μ) (by simp [hc.ne'])
-    _ = μ'.haarScalarFactor μ :=
-      (haarScalarFactor_eq_integral_div _ _ g_cont g_comp int_g_ne_zero).symm
-
--- should be in haarScalarFactor API
-@[to_additive]
-lemma haarScalarFactor_smul_smul (μ' μ : Measure G)
-    [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
-    (hc : 0 < c) :
-    haveI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
-    haarScalarFactor (c • μ') (c • μ) = haarScalarFactor μ' μ := by
-  rw [haarScalarFactor_smul, smul_eq_mul, mul_haarScalarFactor_smul _ _ hc]
-
--- should be in haarScalarFactor API
-@[to_additive]
 lemma haarScalarFactor_map (μ' μ : Measure G) [IsHaarMeasure μ] [IsHaarMeasure μ'] (φ : G ≃ₜ* G) :
     (map φ μ').haarScalarFactor (map φ μ) = μ'.haarScalarFactor μ := by
   obtain ⟨⟨f, f_cont⟩, f_comp, f_nonneg, f_one⟩ :
@@ -91,14 +59,6 @@ lemma haarScalarFactor_map (μ' μ : Measure G) [IsHaarMeasure μ] [IsHaarMeasur
   · change ∫ x, f (φ x) ∂μ ≠ 0
     rwa [← integral_map hφ f_cont.aestronglyMeasurable]
 
-@[to_additive]
-lemma mulEquivHaarChar_map (μ : Measure G)
-    [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
-    (mulEquivHaarChar φ) • map φ μ = μ := by
-  rw [mulEquivHaarChar_eq μ φ]
-  haveI : Regular (map φ μ) := (Regular.map_iff φ.toHomeomorph).mpr inferInstance
-  exact (isMulLeftInvariant_eq_smul_of_regular μ (map φ μ)).symm
-
 -- Version of `mulEquivHaarChar_map` without the regularity assumption
 -- In this case, the measures need only be equal on open sets
 @[to_additive]
@@ -109,32 +69,6 @@ lemma mulEquivHaarChar_map_open (μ : Measure G)
     mul_smul, ← measure_isHaarMeasure_eq_smul_of_isOpen haar _ hs,
     measure_isHaarMeasure_eq_smul_of_isOpen haar μ hs, ← mul_smul, haarScalarFactor_map,
     ← haarScalarFactor_eq_mul, haarScalarFactor_self, one_smul]
-
-@[to_additive]
-lemma mulEquivHaarChar_comap (μ : Measure G)
-    [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
-    (mulEquivHaarChar φ) • μ = comap φ μ := by
-  let e := φ.toHomeomorph.toMeasurableEquiv
-  rw [show ⇑φ = ⇑e from rfl, ← e.map_symm, show ⇑e.symm = ⇑φ.symm from rfl]
-  have : (map (⇑φ.symm) μ).Regular := φ.symm.toHomeomorph.regular_map μ
-  rw [← mulEquivHaarChar_map (map φ.symm μ) φ, map_map]
-  · simp
-  · exact φ.toHomeomorph.toMeasurableEquiv.measurable
-  · exact e.symm.measurable
-
-@[to_additive addEquivAddHaarChar_smul_integral_comap]
-lemma mulEquivHaarChar_smul_integral_comap (μ : Measure G)
-    [IsHaarMeasure μ] [Regular μ] {f : G → ℝ} (φ : G ≃ₜ* G) :
-    ∫ (a : G), f a ∂(comap φ μ) = (mulEquivHaarChar φ) • ∫ a, f a ∂μ := by
-  let e := φ.toHomeomorph.toMeasurableEquiv
-  change ∫ (a : G), f a ∂(comap e μ) = (mulEquivHaarChar φ) • ∫ a, f a ∂μ
-  haveI : (map (e.symm) μ).IsHaarMeasure := φ.symm.isHaarMeasure_map μ
-  haveI : (map (e.symm) μ).Regular := φ.symm.toHomeomorph.regular_map μ
-  rw [← e.map_symm, ← mulEquivHaarChar_smul_integral_map (map e.symm μ) φ,
-    map_map (by exact φ.toHomeomorph.toMeasurableEquiv.measurable) e.symm.measurable]
-  -- congr -- breaks to_additive -- TODO minimise and report?
-  rw [show ⇑φ ∘ ⇑e.symm = id by ext; simp [e]]
-  simp
 
 open ENNReal TopologicalSpace Set in
 @[to_additive addEquivAddHaarChar_eq_one_of_compactSpace]
@@ -171,7 +105,7 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
     ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
   refine NNReal.coe_injective <| Or.resolve_right (mul_eq_mul_right_iff.mp ?_) int_g_ne_zero
   calc mulEquivHaarChar α • ∫ a, g a ∂μX
-    _ = ∫ a, g a ∂(comap α μX) := (mulEquivHaarChar_smul_integral_comap μX α).symm
+    _ = ∫ a, g a ∂(comap α μX) := (integral_comap_eq_mulEquivHaarChar_smul μX α).symm
     _ = ∫ a, g a ∂(comap (f ∘ α) μY) := by
       rw [comap_comap ?_ hf.injective hf.measurableEmbedding.measurableSet_image']
       exact α.measurableEmbedding.measurableSet_image'
@@ -179,7 +113,7 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
     _ = ∫ a, g a ∂(comap f (comap β μY)) := by
       rw [comap_comap hf.measurableEmbedding.measurableSet_image' β.injective ?_]
       exact β.measurableEmbedding.measurableSet_image'
-    _ = ∫ a, g a ∂(comap f (mulEquivHaarChar β • μY)) := by rw [← mulEquivHaarChar_comap]
+    _ = ∫ a, g a ∂(comap f (mulEquivHaarChar β • μY)) := by rw [← mulEquivHaarChar_smul_eq_comap]
     _ = ∫ a, g a ∂(comap f ((mulEquivHaarChar β : ENNReal) • μY)) := rfl
     _ = mulEquivHaarChar β • ∫ a, g a ∂μX := by rw [comap_smul, integral_smul_measure]; rfl
 

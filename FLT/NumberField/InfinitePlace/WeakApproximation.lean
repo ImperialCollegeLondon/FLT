@@ -39,19 +39,6 @@ namespace AbsoluteValue
 
 variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ}
 
-/--
-`v (1 / (1 + a ^ n)) → 0` if `1 < v a`.
--/
-theorem tendsto_pow_div_one_add_pow_zero {a : K} (ha : 1 < v a) :
-    Filter.Tendsto (fun (n : ℕ) => v (1 / (1 + a ^ n))) Filter.atTop (𝓝 0) := by
-  simp_rw [div_eq_mul_inv, one_mul, map_inv₀, fun n => add_comm 1 (a ^ n)]
-  apply Filter.Tendsto.inv_tendsto_atTop
-  apply Filter.tendsto_atTop_mono (fun n => v.le_add _ _)
-  simp_rw [map_one, map_pow v]
-  apply Filter.tendsto_atTop_add_right_of_le _ _ _ (fun _ => le_rfl)
-  refine tendsto_atTop_of_geom_le (by simp only [pow_zero, zero_lt_one]) ha fun n => ?_
-  rw [← map_pow, ← map_pow, ← map_mul, pow_succ']
-
 open Filter in
 /--
 Let `a, b ∈ K`, and let `v₁, ..., vₖ` be absolute values with some `1 < vᵢ a` while all other
@@ -122,7 +109,7 @@ theorem exists_tendsto_const_tendsto_zero_tendsto_const
   refine ⟨Tendsto.mul_const _ (tendsto_div_one_add_pow_nhds_one hai), fun j hj => ?_,
       Tendsto.mul_const _ (tendsto_div_one_add_pow_nhds_one haw)⟩
   replace haj := map_inv₀ (v j) _ ▸ (one_lt_inv₀ (pos_of_pos (v j) (by linarith))).2 (haj j hj)
-  exact zero_mul (v j b) ▸ Tendsto.mul_const _ (tendsto_pow_div_one_add_pow_zero haj)
+  exact zero_mul (v j b) ▸ Tendsto.mul_const _ (tendsto_div_one_add_pow_nhds_zero haj)
 
 open scoped Classical in
 /--

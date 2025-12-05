@@ -100,6 +100,9 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
     convert addEquivAddHaarChar_trans (G := R); ext; simp [mul_assoc]
   continuous_toFun := ringHaarChar_continuous
 
+lemma ringHaarChar_apply (r : Rˣ) :
+    ringHaarChar r = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r) := rfl
+
 lemma ringHaarChar_mul_integral
     (μ : Measure R) [IsAddHaarMeasure μ] [μ.Regular]
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :
@@ -133,6 +136,9 @@ of a locally compact topological ring such that left multiplication
 by them does not change additive Haar measure.
 -/
 noncomputable def ringHaarChar_ker := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
+
+lemma mem_ringHaarChar_ker (x : Rˣ) : x ∈ ringHaarChar_ker R ↔ ringHaarChar x = 1 :=
+  MonoidHom.mem_ker
 
 section prod
 
