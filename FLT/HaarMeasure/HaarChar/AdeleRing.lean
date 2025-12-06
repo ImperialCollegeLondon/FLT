@@ -2,7 +2,6 @@ import FLT.HaarMeasure.HaarChar.Ring
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.NumberField.AdeleRing
-
 /-!
 
 # Global units are in the determinant of the adelic Haar character
