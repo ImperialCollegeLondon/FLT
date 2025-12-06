@@ -6,8 +6,6 @@ Authors: Kevin Buzzard, William Coram
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Topology.HomToDiscrete
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
 /-
 
 # Fujisaki's lemma
@@ -377,3 +375,4 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
   exact ⟨t, DoubleCoset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
 
 end FiniteAdeleRing
+#min_imports

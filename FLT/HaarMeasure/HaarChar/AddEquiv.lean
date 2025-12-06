@@ -1,9 +1,7 @@
-import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
-import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
+import FLT.Mathlib.MeasureTheory.Measure.Regular
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -183,7 +181,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     conv in fun x ↦ (g, 1) * x => change fun x ↦ ((g * ·) x.1, (1 * ·) x.2)
     simp_rw [one_mul]
     rw [map_apply (by fun_prop), ← Set.prod_preimage_left]
-    exact (hs.prod hψYopen.measurableSet)
+    exact hs.prod hψYopen.measurableSet
   have hν : IsHaarMeasure ν := by
     apply isHaarMeasure_of_isCompact_nonempty_interior ν K' hK'comp
     · exact ⟨1, hXopen.subset_interior_iff.mpr hX one_mem_X⟩

@@ -49,7 +49,6 @@ instance (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
     (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := by
-  borelize (IsDedekindDomain.FiniteAdeleRing (𝓞 ℚ) ℚ)
   unfold AdeleRing at *
   rw [ringHaarChar_prod' x]
   congr
@@ -112,4 +111,3 @@ lemma NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one
         (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ)) = 1 := by
   sorry
-#min_imports
