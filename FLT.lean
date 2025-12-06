@@ -79,6 +79,11 @@ import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.LinearAlgebra.Span.Defs
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.Padic
 import FLT.Mathlib.MeasureTheory.Group.Action
 import FLT.Mathlib.MeasureTheory.Group.Measure
 import FLT.Mathlib.MeasureTheory.Measure.Regular
@@ -119,6 +124,7 @@ import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
+import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 import FLT.NumberField.AdeleRing
 import FLT.NumberField.Completion.Finite

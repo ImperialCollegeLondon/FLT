@@ -49,8 +49,7 @@ variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 /-- A diagonal matrix scales addHaar with its determinant
 -/
-lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal
-    [BorelSpace (ι → F)]
+lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal [SecondCountableTopology F]
     (ρ : (ι → F) ≃L[F] (ι → F)) {D : ι → F}
     (h : ρ.toLinearMap.toMatrix' = Matrix.diagonal D) :
     addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det := by
@@ -87,7 +86,7 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal
     have : ρ.toContinuousAddEquiv = ContinuousAddEquiv.piCongrRight ψ := by
       ext x i; simp only [ψ, hρDi x i]; rfl
     rw [this]
-    exact addEquivAddHaarChar_piCongrRight' ψ
+    exact addEquivAddHaarChar_piCongrRight ψ
   -- 4) RHS: compute `ringHaarChar det ρ` as the same product
   have det_units :
     ρ.toLinearEquiv.det = Units.mk0 (∏ i, D i) prod_ne := Units.val_inj.mp det_equiv

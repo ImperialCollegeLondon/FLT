@@ -1,10 +1,6 @@
 import FLT.HaarMeasure.HaarChar.Ring
-import FLT.NumberField.AdeleRing
-import FLT.Hacks.RightActionInstances
-import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib.Algebra.Central.Defs
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Hacks.RightActionInstances
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.NumberField.AdeleRing
 /-!
 
@@ -45,15 +41,22 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   sorry
 
-variable [MeasurableSpace (𝔸 ℚ)] [BorelSpace (𝔸 ℚ)]
-  [MeasurableSpace (InfiniteAdeleRing ℚ)] [BorelSpace (InfiniteAdeleRing ℚ)]
-  [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
-    MeasurableSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)]
-  [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
-    BorelSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)] in
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
-    (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := sorry
+    (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := by
+  unfold AdeleRing
+  rw [ringHaarChar_prod' x]
+  congr
+  have := Fact.mk <| NumberField.isOpenAdicCompletionIntegers ℚ
+  have := NumberField.instCompactSpaceAdicCompletionIntegers ℚ
+  convert addEquivAddHaarChar_restrictedProductCongrRight
+    (C := fun p ↦ (p.adicCompletionIntegers ℚ).toAddSubgroup)
+    (fun p ↦
+      (ContinuousAddEquiv.mulLeft (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p))) _
+  exact (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2).2.mono
+    (fun p hp ↦ Equiv.bijOn' _
+      (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).1 hx)
+      (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).2 hx))
 
 lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ)
     [MeasurableSpace ((𝔸 ℚ))] [BorelSpace (𝔸 ℚ)] :

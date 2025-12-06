@@ -1,9 +1,7 @@
-import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
-import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
+import FLT.Mathlib.MeasureTheory.Measure.Regular
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -158,12 +156,9 @@ variable {G : Type*} [Group G] [TopologicalSpace G]
 
 @[to_additive MeasureTheory.addEquivAddHaarChar_prodCongr]
 lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
-    [MeasurableSpace H] [BorelSpace H] (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H) :
-    letI : MeasurableSpace (G × H) := borel _
-    haveI : BorelSpace (G × H) := ⟨rfl⟩
+    [MeasurableSpace H] [BorelSpace H] [SecondCountableTopologyEither G H]
+    (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H) :
     mulEquivHaarChar (φ.prodCongr ψ) = mulEquivHaarChar φ * mulEquivHaarChar ψ := by
-  letI : MeasurableSpace (G × H) := borel _
-  have : BorelSpace (G × H) := ⟨rfl⟩
   have ⟨K, hK, _, hKcomp⟩ := local_compact_nhds (x := (1 : H)) Filter.univ_mem
   have ⟨Y, hY, hYopen, one_mem_Y⟩ := mem_nhds_iff.mp hK
   have ⟨K', hK', _, hK'comp⟩ := local_compact_nhds (x := (1 : G)) Filter.univ_mem
@@ -176,8 +171,9 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
   have ν_apply {S : Set G} (hS : MeasurableSet S) : ν S = haar (S ×ˢ (ψ '' Y)) := by
     rw [Measure.map_apply _ hS, ← Set.prod_univ, Measure.restrict_apply]
     · congr 1; ext; simp
-    · exact prod_le_borel_prod _ <| hS.prod MeasurableSet.univ
-    · intro; exact (prod_le_borel_prod _ <| measurable_fst ·)
+    · exact hS.prod MeasurableSet.univ
+    · intro T hT
+      exact measurable_fst hT
   have : IsMulLeftInvariant ν := by
     refine (forall_measure_preimage_mul_iff ν).mp fun g s hs ↦ ?_
     rw [ν_apply hs, ν_apply (hs.preimage (measurable_const_mul g))]
@@ -185,7 +181,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     conv in fun x ↦ (g, 1) * x => change fun x ↦ ((g * ·) x.1, (1 * ·) x.2)
     simp_rw [one_mul]
     rw [map_apply (by fun_prop), ← Set.prod_preimage_left]
-    exact prod_le_borel_prod _ (hs.prod hψYopen.measurableSet)
+    exact hs.prod hψYopen.measurableSet
   have hν : IsHaarMeasure ν := by
     apply isHaarMeasure_of_isCompact_nonempty_interior ν K' hK'comp
     · exact ⟨1, hXopen.subset_interior_iff.mpr hX one_mem_X⟩
@@ -202,8 +198,9 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
   have μ_apply {S : Set H} (hS : MeasurableSet S) : μ S = haar (X ×ˢ S) := by
     rw [Measure.map_apply _ hS, ← Set.univ_prod, Measure.restrict_apply]
     · congr 1; ext; simp [and_comm]
-    · exact prod_le_borel_prod _ <| MeasurableSet.univ.prod hS
-    · intro; exact (prod_le_borel_prod _ <| measurable_snd ·)
+    · exact MeasurableSet.univ.prod hS
+    · intro T hT
+      exact measurable_snd hT
   have : IsMulLeftInvariant μ := by
     refine (forall_measure_preimage_mul_iff μ).mp fun h s hs ↦ ?_
     rw [μ_apply hs, μ_apply (hs.preimage (measurable_const_mul h))]
@@ -211,7 +208,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     conv in fun x ↦ (1, h) * x => change fun x ↦ ((1 * ·) x.1, (h * ·) x.2)
     simp_rw [one_mul]
     rw [map_apply (by fun_prop), ← Set.prod_preimage_right]
-    exact prod_le_borel_prod _ (hXopen.measurableSet.prod hs)
+    exact hXopen.measurableSet.prod hs
   have hμ : IsHaarMeasure μ := by
     apply isHaarMeasure_of_isCompact_nonempty_interior μ K hKcomp
     · exact ⟨1, hYopen.subset_interior_iff.mpr hY one_mem_Y⟩
@@ -283,34 +280,29 @@ section pi
 
 variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)] [∀ i, SecondCountableTopology (H i)]
 
 open Classical ContinuousMulEquiv in
 @[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   let P : (α : Type u_1) → [Fintype α] → Prop := fun ι _ ↦
     ∀ (H : ι → Type u_2) [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)] (ψ : (i : ι) → H i ≃ₜ* H i),
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)] [∀ i, SecondCountableTopology (H i)]
+    (ψ : (i : ι) → H i ≃ₜ* H i),
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i)
   refine Fintype.induction_subsingleton_or_nontrivial (P := P) ι ?_ ?_ H ψ
-  · intro α _ subsingleton_α H _ _ _ _ _ _ ψ
-    borelize (Π i, H i)
+  · intro α _ subsingleton_α H _ _ _ _ _ _ _ ψ
     by_cases hα : Nonempty α; swap
     · rw [not_nonempty_iff] at hα; simp [mulEquivHaarChar_eq_one_of_compactSpace]
     have : Unique α := @Unique.mk' α (Classical.inhabited_of_nonempty hα) subsingleton_α
     rw [Fintype.prod_subsingleton _ default]
     exact mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piUnique H) _ _ (fun _ ↦ rfl)
-  intro α fintype_α nontrivial_α ih H _ _ _ _ _ _ ψ
+  intro α fintype_α nontrivial_α ih H _ _ _ _ _ _ _ ψ
   have ⟨a, b, ne⟩ := nontrivial_α
   let β₁ := {i : α // i = a}
   let β₂ := {i : α // i ≠ a}
-  borelize (Π i, H i) (Π (i : β₁), H i) (Π (i : β₂), H i) ((Π (i : β₁), H i) × (Π (i : β₂), H i))
   let ψ₁ : Π (i : β₁), H i ≃ₜ* H i := fun i ↦ ψ i
   let ψ₂ : Π (i : β₂), H i ≃ₜ* H i := fun i ↦ ψ i
   rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piEquivPiSubtypeProd (· = a) H),
@@ -319,15 +311,6 @@ lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)
     Finset.univ_unique, Finset.prod_singleton]
   · rfl
   · intro; rfl
-
-/-- A version of `mulEquivAddHaarChar_piCongrRight` that works under the ambient
-  `[BorelSpace (Π i, H i)]` instance, avoiding instance mismatch problems. -/
-@[to_additive]
-lemma mulEquivHaarChar_piCongrRight' [Fintype ι] [MeasurableSpace (Π i, H i)]
-    [BorelSpace (Π i, H i)] (ψ : Π i, (H i) ≃ₜ* (H i)) :
-    mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
-  borelize (Π i, (H i))
-  exact mulEquivHaarChar_piCongrRight ψ
 
 end pi
 
