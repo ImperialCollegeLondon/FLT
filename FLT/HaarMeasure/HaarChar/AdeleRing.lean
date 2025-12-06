@@ -49,12 +49,24 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
 instance (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
   LocallyCompactSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) := sorry
 
-variable [MeasurableSpace (𝔸 ℚ)] [BorelSpace (𝔸 ℚ)]
-  [MeasurableSpace (InfiniteAdeleRing ℚ)] [BorelSpace (InfiniteAdeleRing ℚ)]
+instance : SecondCountableTopology (InfiniteAdeleRing ℚ) := sorry
+
+variable [MeasurableSpace (InfiniteAdeleRing ℚ)] [BorelSpace (InfiniteAdeleRing ℚ)]
   [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
     MeasurableSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)]
   [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
-    BorelSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)] in
+    BorelSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)]
+
+instance (K : Type*) [Field K] [NumberField K] :
+  MeasurableSpace (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) := borel _
+
+instance (K : Type*) [Field K] [NumberField K] :
+  BorelSpace (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) := ⟨rfl⟩
+
+instance : MeasurableSpace (𝔸 ℚ) := inferInstanceAs (MeasurableSpace (_ × _))
+
+instance : BorelSpace (𝔸 ℚ) := inferInstanceAs (BorelSpace (_ × _))
+
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
     (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := by

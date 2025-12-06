@@ -148,11 +148,11 @@ variable {S : Type*} [Ring S] [TopologicalSpace S]
 -- this is true in general, but the proof is easier if we assume
 -- `SecondCountableTopologyEither R S` because then if R and S are equipped with the Borel
 -- sigma algebra, the product sigma algebra on R × S is also the Borel sigma algebra.
-lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) [MeasurableSpace (R × S)] [BorelSpace (R × S)] :
+lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) [SecondCountableTopologyEither R S] :
     ringHaarChar (MulEquiv.prodUnits.symm (u, v)) = ringHaarChar u * ringHaarChar v :=
   addEquivAddHaarChar_prodCongr (ContinuousAddEquiv.mulLeft u) (ContinuousAddEquiv.mulLeft v)
 
-lemma ringHaarChar_prod' (uv : (R × S)ˣ) [MeasurableSpace (R × S)] [BorelSpace (R × S)] :
+lemma ringHaarChar_prod' (uv : (R × S)ˣ) [SecondCountableTopologyEither R S] :
     ringHaarChar uv =
     ringHaarChar (MulEquiv.prodUnits uv).1 * ringHaarChar (MulEquiv.prodUnits uv).2 :=
   ringHaarChar_prod (MulEquiv.prodUnits uv).1 (MulEquiv.prodUnits uv).2
@@ -165,9 +165,7 @@ variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSp
     [∀ i, IsTopologicalRing (A i)] [∀ i, LocallyCompactSpace (A i)]
     [∀ i, MeasurableSpace (A i)] [∀ i, BorelSpace (A i)]
 
-lemma ringHaarChar_pi [Fintype ι] (u : Π i, (A i)ˣ) :
-    letI : MeasurableSpace (Π i, A i) := borel _
-    haveI : BorelSpace (Π i, A i) := ⟨rfl⟩
+lemma ringHaarChar_pi [Fintype ι] [∀ i, SecondCountableTopology (A i)] (u : Π i, (A i)ˣ) :
     ringHaarChar (MulEquiv.piUnits.symm u) = ∏ i, ringHaarChar (u i) :=
   addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (u i))
 
@@ -203,15 +201,8 @@ section ModuleFinite
 variable {K R : Type*} [Field K] [Ring R] [Algebra K R] [Module.Finite K R]
     [TopologicalSpace K] [TopologicalSpace R] [IsTopologicalRing R] [IsModuleTopology K R]
     [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
-    [IsTopologicalRing K] [LocallyCompactSpace K]
-    (t : Kˣ)
-
-/-- The Borel measurable space instance on Fin n → K. A local instance. -/
-local instance : MeasurableSpace (Fin (Module.finrank K R) → K) :=
-  borel (Fin (Module.finrank K R) → K)
-
-local instance : BorelSpace (Fin (Module.finrank K R) → K) where
-  measurable_eq := rfl
+    [IsTopologicalRing K] [LocallyCompactSpace K] [MeasurableSpace K] [BorelSpace K]
+    [SecondCountableTopology K] (t : Kˣ)
 
 theorem ringHaarChar_ModuleFinite :
     ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
@@ -227,8 +218,6 @@ theorem ringHaarChar_ModuleFinite :
     (ContinuousAddEquiv.mulLeft ((Units.map ↑(algebraMap K (Fin (Module.finrank K R) → K))) t))
     ((IsModuleTopology.Module.Basis.equivFun_homeo K R) x)
   simp [← Algebra.smul_def]
-
-variable [MeasurableSpace K] [BorelSpace K]
 
 theorem ringHaarChar_ModuleFinite_unit :
     ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =

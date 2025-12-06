@@ -6,6 +6,7 @@ Authors: Kevin Buzzard, William Coram
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Topology.HomToDiscrete
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 /-
 
 # Fujisaki's lemma
@@ -228,6 +229,18 @@ lemma C_compact : IsCompact (C K D) := by
     (IsCompact.inv (Set.Finite.isCompact (T_finite K D))) (Continuous.comp_continuousOn'
     (Units.continuous_val) (continuousOn_id' (T K D)⁻¹)))
     (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
+
+variable (x : InfinitePlace ℚ) in
+instance : MeasurableSpace (x.Completion) := borel _
+
+variable (x : InfinitePlace ℚ) in
+instance : BorelSpace (x.Completion) := ⟨rfl⟩
+
+variable (x : InfinitePlace ℚ) in
+instance : SecondCountableTopology (x.Completion) := sorry
+
+instance : MeasurableSpace (InfiniteAdeleRing ℚ) := inferInstanceAs (MeasurableSpace (∀ _, _))
+instance : BorelSpace (InfiniteAdeleRing ℚ) := inferInstanceAs (BorelSpace (∀ _, _))
 
 lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ b ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ),
