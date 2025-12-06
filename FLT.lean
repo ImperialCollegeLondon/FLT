@@ -124,6 +124,7 @@ import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
+import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 import FLT.NumberField.AdeleRing
 import FLT.NumberField.Completion.Finite

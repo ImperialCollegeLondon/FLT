@@ -41,14 +41,14 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   sorry
 
--- should be elsewhere TODO
+-- should be in something like FLT.Mathlib.Topology.MetricSpace.ProperSpace.AdicCompletion
 instance (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
   LocallyCompactSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) := sorry
 
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
     (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := by
-  unfold AdeleRing at *
+  unfold AdeleRing
   rw [ringHaarChar_prod' x]
   congr
   have := Fact.mk <| NumberField.isOpenAdicCompletionIntegers ℚ
