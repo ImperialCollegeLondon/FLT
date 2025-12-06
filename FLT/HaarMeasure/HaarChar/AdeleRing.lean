@@ -1,11 +1,8 @@
 import FLT.HaarMeasure.HaarChar.Ring
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.NumberField.AdeleRing
-import FLT.Hacks.RightActionInstances
-import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib.Algebra.Central.Defs
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Hacks.RightActionInstances
-import FLT.NumberField.AdeleRing
+
 /-!
 
 # Global units are in the determinant of the adelic Haar character
@@ -48,24 +45,6 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
 -- should be elsewhere TODO
 instance (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
   LocallyCompactSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) := sorry
-
-instance : SecondCountableTopology (InfiniteAdeleRing ℚ) := sorry
-
-variable [MeasurableSpace (InfiniteAdeleRing ℚ)] [BorelSpace (InfiniteAdeleRing ℚ)]
-  [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
-    MeasurableSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)]
-  [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
-    BorelSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)]
-
-instance (K : Type*) [Field K] [NumberField K] :
-  MeasurableSpace (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) := borel _
-
-instance (K : Type*) [Field K] [NumberField K] :
-  BorelSpace (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) := ⟨rfl⟩
-
-instance : MeasurableSpace (𝔸 ℚ) := inferInstanceAs (MeasurableSpace (_ × _))
-
-instance : BorelSpace (𝔸 ℚ) := inferInstanceAs (BorelSpace (_ × _))
 
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
@@ -133,3 +112,4 @@ lemma NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one
         (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ)) = 1 := by
   sorry
+#min_imports

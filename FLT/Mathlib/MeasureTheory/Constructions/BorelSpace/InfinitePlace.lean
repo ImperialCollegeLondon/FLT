@@ -17,3 +17,6 @@ instance : SecondCountableTopology (v.Completion) :=
 instance : MeasurableSpace (InfiniteAdeleRing K) := inferInstanceAs (MeasurableSpace (∀ _, _))
 
 instance : BorelSpace (InfiniteAdeleRing K) := inferInstanceAs (BorelSpace (∀ _, _))
+
+instance : SecondCountableTopology (InfiniteAdeleRing K) :=
+    inferInstanceAs (SecondCountableTopology (∀ _, _))

@@ -286,8 +286,7 @@ variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalS
 
 open Classical ContinuousMulEquiv in
 @[to_additive]
-lemma mulEquivHaarChar_piCongrRight [Fintype ι]
-     (ψ : Π i, (H i) ≃ₜ* (H i)) :
+lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   let P : (α : Type u_1) → [Fintype α] → Prop := fun ι _ ↦
     ∀ (H : ι → Type u_2) [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
