@@ -75,6 +75,14 @@ noncomputable def ContinuousLinearEquiv.baseChange (R : Type*) [CommRing R]
   continuous_toFun := IsModuleTopology.continuous_of_linearMap _
   continuous_invFun := IsModuleTopology.continuous_of_linearMap _
 
+@[simp]
+lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
+    (A : Type*) [CommRing A] [Algebra R A] [TopologicalSpace A]
+    (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+    [Module.Finite R M] [Module.Finite R N]
+    (φ : M ≃ₗ[R] N) (m : M) (a : A) :
+    ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) = (φ m) ⊗ₜ a := rfl
+
 open scoped TensorProduct.RightActions
 
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
@@ -92,7 +100,15 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
     (b : Bˣ) :
     (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈
-    ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := sorry
+    ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := by
+  rw [mem_ringHaarChar_ker, ringHaarChar_apply]
+  convert MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulLeft K b)
+  ext c
+  change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
+  induction c with
+  | zero => simp
+  | tmul x y => simp [LinearEquiv.mulLeft]
+  | add x y hx hy => simp_all [mul_add]
 
 open scoped TensorProduct.RightActions in
 /-- Right multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
