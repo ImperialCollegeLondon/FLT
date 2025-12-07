@@ -352,7 +352,7 @@ Note that the `Algebra.Etale Kᵥ (Kᵥ ⊗[𝒪ᵥ] G)` condition is redundant 
 and all finite flat group schemes over `Kᵥ` are etale.
 But this would be hard to prove in general, while in the applications they would come from
 finite groups so it would be easy to show that they are etale. If this turns out to not be the case,
-we can remove this condition and state the aformentioned result as a sorry.
+we can remove this condition and state the aforementioned result as a sorry.
 -/
 def GaloisRep.HasFlatProlongationAt (ρ : GaloisRep K A M) : Prop :=
   ∃ (G : Type uK) (_ : CommRing G) (_ : HopfAlgebra 𝒪ᵥ G)
