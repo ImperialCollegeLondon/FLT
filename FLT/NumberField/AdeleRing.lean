@@ -106,7 +106,7 @@ noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :
 
 open scoped TensorProduct.RightActions in
 lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHom K L) := by
-  -- There's a linear equivlance `(L ⊗_K 𝔸 K) ≅ 𝔸 L`
+  -- There's a linear equivalence `(L ⊗_K 𝔸 K) ≅ 𝔸 L`
   let linearEquiv : (L ⊗[K] 𝔸 K) ≃ₗ[L] 𝔸 L :=
     let tensor := TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
     let prod := LinearEquiv.prodCongr (InfiniteAdeleRing.baseChangeEquiv K L).toLinearEquiv

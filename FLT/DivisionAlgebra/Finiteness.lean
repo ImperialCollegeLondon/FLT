@@ -259,7 +259,7 @@ variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
   fun u => Units.embedProduct D_𝔸 (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
 
-/-- An auxillary set used in the proof of compact_quotient'. -/
+/-- An auxiliary set used in the proof of compact_quotient'. -/
 def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D)
   (Set.image (fun p => (p.1, MulOpposite.op p.2)) (Aux.C K D))
 
