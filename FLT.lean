@@ -84,6 +84,7 @@ import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.Padic
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
 import FLT.Mathlib.MeasureTheory.Group.Action
 import FLT.Mathlib.MeasureTheory.Group.Measure
 import FLT.Mathlib.MeasureTheory.Measure.Regular
