@@ -29,7 +29,7 @@ variable {R : Type*} [Ring R] [Algebra.FiniteType ℤ R]
 
 instance {α : Type*} [Finite α] [AddCommGroup α] : Finite (Module R α) := by
   obtain ⟨s, hs⟩ := Algebra.FiniteType.out (self := ‹_›)
-  refine .of_injective (fun g ↦ g.1.1.1.1 ∘ ((↑) : s → R)) fun g₁ g₂ e ↦ ?_
+  refine .of_injective (fun g ↦ g.1.1.1.1.1 ∘ ((↑) : s → R)) fun g₁ g₂ e ↦ ?_
   ext r a
   replace hs := SetLike.le_def.mp hs.ge (x := r) trivial
   induction hs using Algebra.adjoin_induction generalizing a with
@@ -74,7 +74,7 @@ variable {R : Type*} [CommRing R] [Algebra.FiniteType ℤ R]
 instance {α : Type*} [Finite α] [Ring α] : Finite (Algebra R α) := by
   refine .of_injective (fun g ↦ g.toModule) fun g₁ g₂ e ↦ ?_
   ext r a
-  exact congr($e.1.1.1.1 r a)
+  exact congr($e.1.1.1.1.1 r a)
 
 variable (R) in
 def AlgebraTypeCardLT (N : ℕ) : Type _ :=
@@ -115,7 +115,7 @@ variable {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
 instance {α : Type*} [Finite α] [AddCommGroup α] [TopologicalSpace α] [T2Space α] :
     Finite (Σ' (_ : Module R α), ContinuousSMul R α) := by
   obtain ⟨s, hs⟩ := Algebra.TopologicallyFG.out (self := ‹_›)
-  refine .of_injective (fun g ↦ g.1.1.1.1.1 ∘ ((↑) : s → R)) fun g₁ g₂ e ↦ ?_
+  refine .of_injective (fun g ↦ g.1.1.1.1.1.1 ∘ ((↑) : s → R)) fun g₁ g₂ e ↦ ?_
   obtain ⟨g₁, hg₁⟩ := g₁
   obtain ⟨g₂, hg₂⟩ := g₂
   congr
