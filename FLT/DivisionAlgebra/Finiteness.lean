@@ -366,6 +366,8 @@ open scoped TensorProduct.RightActions
 variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
     [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
+/-- Notation for (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
+    (FiniteAdeleRing (𝓞 K) K)). -/
 abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
   (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
     (FiniteAdeleRing (𝓞 K) K))
@@ -397,16 +399,16 @@ local instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) := by
   simp_rw [AdeleRing]
   infer_instance
 
-def D𝔸_prodRight' : (D ⊗[K] (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K))
-    →ₗ[NumberField.AdeleRing (𝓞 K) K]
-    (D ⊗[K] InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K) where
+/-- The 𝔸_K linear map coming from D𝔸_prodRight. -/
+abbrev D𝔸_prodRight' : (D ⊗[K] (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K))
+    →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) where
   toFun x := D𝔸_prodRight K D x
   map_add' a b := by
     exact RingHom.map_add (D𝔸_prodRight K D).toRingHom a b
   map_smul' m x := by
     simp only [RingHom.id_apply]
     obtain ⟨s, hx⟩ := TensorProduct.exists_finset x
-    letI := AddEquivClass.instAddMonoidHomClass (D ⊗[K] AdeleRing (𝓞 K) K ≃ₐ[K] Dinf K D × Df K D)
+    letI := AddEquivClass.instAddMonoidHomClass (D_𝔸 ≃ₐ[K] Dinf K D × Df K D)
     simp_rw [hx, Finset.smul_sum, map_sum, TensorProduct.RightActions.smul_def,
       TensorProduct.comm_tmul, TensorProduct.smul_tmul', TensorProduct.comm_symm_tmul,
       Finset.smul_sum]
@@ -433,13 +435,13 @@ omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
   · exact Iff.symm (imp_iff_right (AlgEquiv.surjective _))
   · exact IsModuleTopology.instProd'
 
-abbrev D𝔸_prodRight'' : D ⊗[K] AdeleRing (𝓞 K) K ≃ₜ+
-    D ⊗[K] InfiniteAdeleRing K × D ⊗[K] FiniteAdeleRing (𝓞 K) K where
+/-- The continuous isomorphism coming from D𝔸_prod viewed on additive groups. -/
+abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
   __ := D𝔸_prodRight K D
   continuous_toFun := D𝔸_prodRight_cont K D
   continuous_invFun := D𝔸_prodRight.symm_cont K D
 
-/-- The equivalence of the units of D_𝔸 and the Prod of units of (D ⊗ 𝔸_K^f) (D ⊗ 𝔸_K^∞). -/
+/-- The equivalence of the units of D_𝔸 and the Prod of units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
 abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* Prod (Dinfx K D) (Dfx K D) :=
   (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
 
