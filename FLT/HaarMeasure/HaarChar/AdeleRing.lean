@@ -121,4 +121,10 @@ lemma NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one
       (ContinuousAddEquiv.mulRight
         (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ)) = 1 := by
-  sorry
+  convert addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulRight K b)
+  ext c
+  change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
+  induction c with
+  | zero => simp
+  | tmul x y => simp [LinearEquiv.mulRight]
+  | add x y hx hy => simp_all [add_mul]
