@@ -372,10 +372,6 @@ abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
   (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
     (FiniteAdeleRing (𝓞 K) K))
 
-local instance : Module (AdeleRing (𝓞 K) K)
-    (D ⊗[K] (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K)) :=
-  TensorProduct.RightActions.instModule_fLT K (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K) D
-
 /-- The (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K)-module structure on (Dinf K D × Df K D). -/
 local instance : Module (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
   smul rs mn := (rs.1 • mn.1, rs.2 • mn.2)
@@ -400,8 +396,7 @@ local instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) := by
   infer_instance
 
 /-- The 𝔸_K linear map coming from D𝔸_prodRight. -/
-abbrev D𝔸_prodRight' : (D ⊗[K] (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K))
-    →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) where
+abbrev D𝔸_prodRight' : D_𝔸 →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) where
   toFun x := D𝔸_prodRight K D x
   map_add' a b := by
     exact RingHom.map_add (D𝔸_prodRight K D).toRingHom a b
@@ -490,9 +485,15 @@ local instance : MeasurableSpace (Df K D) := borel (Df K D)
 
 local instance : BorelSpace (Df K D) := { measurable_eq := rfl }
 
-local instance : MeasurableSpace (Dinf K D × Df K D) := borel (Dinf K D × Df K D)
+local instance : MeasurableSpace (Dinf K D × Df K D) := Prod.instMeasurableSpace
 
-local instance : BorelSpace (Dinf K D × Df K D) := {measurable_eq := rfl }
+local instance : BorelSpace (Dinf K D × Df K D) := by
+  convert Prod.borelSpace
+  · exact instBorelSpaceDinf K D
+  · exact instBorelSpaceDf K D
+  · refine { out := ?_ }
+
+    sorry
 
 omit [Algebra.IsCentral K D] in
 lemma ringHaarChar_eq_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
