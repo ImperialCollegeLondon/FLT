@@ -58,8 +58,7 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).1 hx)
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).2 hx))
 
-lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ)
-    [MeasurableSpace ((𝔸 ℚ))] [BorelSpace (𝔸 ℚ)] :
+lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := sorry
 
 -- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange
