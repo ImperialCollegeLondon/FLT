@@ -369,11 +369,10 @@ variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K
 /-- Notation for (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
     (FiniteAdeleRing (𝓞 K) K)). -/
 abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
-  (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
-    (FiniteAdeleRing (𝓞 K) K))
+  (Algebra.TensorProduct.prodRight K K D (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K))
 
 /-- The (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K)-module structure on (Dinf K D × Df K D). -/
-local instance : Module (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
+local instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
   smul rs mn := (rs.1 • mn.1, rs.2 • mn.2)
   one_smul mn := by cases mn; ext; exacts [one_smul _ _, one_smul _ _]
   mul_smul rs rs' mn := by
@@ -391,9 +390,8 @@ local instance : Module (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K) (Din
     exact add_smul _ _ _
   zero_smul mn := by cases mn; ext <;> exact zero_smul _ _
 
-local instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) := by
-  simp_rw [AdeleRing]
-  infer_instance
+local instance : IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) := by
+  exact IsModuleTopology.instProd'
 
 /-- The 𝔸_K linear map coming from D𝔸_prodRight. -/
 abbrev D𝔸_prodRight' : D_𝔸 →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) where
@@ -416,9 +414,7 @@ lemma D𝔸_prodRight_cont : Continuous (D𝔸_prodRight K D) := by
     exact (instNonUnitalNonAssocRingDinf K D).toNonUnitalNonAssocSemiring
   have J : NonUnitalNonAssocSemiring (Df K D) := by
     exact (instNonUnitalNonAssocRingDf K D).toNonUnitalNonAssocSemiring
-  convert IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D)
-  exact IsModuleTopology.toContinuousSMul (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K)
-    (Dinf K D × Df K D)
+  exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D)
 
 omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
   [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
@@ -427,8 +423,7 @@ omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
   have : NonUnitalNonAssocSemiring D_𝔸 := Algebra.TensorProduct.instNonUnitalNonAssocSemiring
   simp_rw [AdeleRing] at this
   convert IsModuleTopology.isOpenMap_of_surjective (φ := D𝔸_prodRight' K D)
-  · exact Iff.symm (imp_iff_right (AlgEquiv.surjective _))
-  · exact IsModuleTopology.instProd'
+  exact Iff.symm (imp_iff_right (AlgEquiv.surjective _))
 
 /-- The continuous isomorphism coming from D𝔸_prod viewed on additive groups. -/
 abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
