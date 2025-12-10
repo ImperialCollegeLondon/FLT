@@ -6,6 +6,7 @@ Authors: Kevin Buzzard, William Coram
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Topology.HomToDiscrete
+import FLT.HaarMeasure.HaarChar.RealComplex
 /-
 
 # Fujisaki's lemma
@@ -456,7 +457,13 @@ omit [Algebra.IsCentral K D] in
 lemma rest₁_continuous : Continuous (rest₁ K D) := Continuous.comp continuous_snd (Continuous.comp
   (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
 
+open scoped TensorProduct.RightActions
 local instance : Algebra ℝ (Dinf K D) := by
+  have h1 : Algebra ℝ (InfiniteAdeleRing K) := by
+    --
+    sorry
+  have h2 : Algebra ℝ (InfiniteAdeleRing K ⊗[K] D) := by
+    exact Algebra.TensorProduct.leftAlgebra (R := K) (S := ℝ) (A := InfiniteAdeleRing K) (B := D)
   --
   sorry
 
@@ -482,16 +489,18 @@ local instance : BorelSpace (Df K D) := { measurable_eq := rfl }
 
 local instance : MeasurableSpace (Dinf K D × Df K D) := Prod.instMeasurableSpace
 
-local instance : BorelSpace (Dinf K D × Df K D) := by
-  convert Prod.borelSpace
-  · exact instBorelSpaceDinf K D
-  · exact instBorelSpaceDf K D
-  · refine { out := ?_ }
+local instance : SecondCountableTopologyEither (D ⊗[K] InfiniteAdeleRing K)
+    (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
+  refine { out := ?_ }
+  --
+  sorry
 
-    sorry
+local instance : Nontrivial (Dinf K D) := by
+  --
+  sorry
 
 omit [Algebra.IsCentral K D] in
-lemma ringHaarChar_eq_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
+lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     ringHaarChar ((D𝔸_prodRight_units K D).symm (a, b)) =
     ringHaarChar (MulEquiv.prodUnits.symm (a, b)) := by
   apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
@@ -504,16 +513,26 @@ lemma ringHaarChar_eq_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
   rw [MulEquivClass.map_mul]
   simp only [MulEquivClass.apply_coe_symm_apply]
 
-lemma helppp (r : ℝ) (h : r > 0) : ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
-  have h : IsUnit (r ^ (1 / Module.finrank ℝ (Dinf K D))) := by
-    aesop
-  have := ringHaarChar_ModuleFinite_unit (K := ℝ) (R := Dinf K D) (h.unit)
-  use (Units.map (algebraMap ℝ (Dinf K D))) h.unit
-  rw [ringHaarChar_eq_D𝔸]
-  --simp_rw [ringHaarChar_prod] -- this should just work (worked previously in my old file)
-  -- then its just this combined with ringHaarChar 1 = 1.
-  sorry
+omit [Algebra.IsCentral K D] in
+lemma rest₁_surj_extracted (r : ℝ) (h : r > 0) :
+    ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
+  have a : IsUnit (r ^ (1 / Module.finrank ℝ (Dinf K D) : ℝ)) := by
+    simp only [one_div, isUnit_iff_ne_zero, ne_eq]
+    refine (Real.rpow_ne_zero (by positivity) ?_).mpr (by positivity)
+    simp only [ne_eq, inv_eq_zero, Nat.cast_eq_zero]
+    exact (Nat.ne_zero_iff_zero_lt.mpr Module.finrank_pos)
+  have := ringHaarChar_ModuleFinite_unit (K := ℝ) (R := Dinf K D) (a.unit)
+  use ((Units.map (algebraMap ℝ (Dinf K D))) a.unit)
+  rw [ringHaarChar_D𝔸, ringHaarChar_prod, map_one, mul_one]
+  simp_all only [gt_iff_lt, RingHom.toMonoidHom_eq_coe, NNReal.coe_pow]
+  have t : (ringHaarChar a.unit) = r ^ ((1 / Module.finrank ℝ (Dinf K D) : ℝ)) := by
+    simp_rw [MeasureTheory.ringHaarChar_real, IsUnit.unit_spec, coe_nnnorm, Real.norm_eq_abs,
+      one_div, abs_eq_self]
+    positivity
+  simp_rw [t, one_div]
+  exact Real.rpow_inv_natCast_pow (by positivity) (Nat.ne_zero_iff_zero_lt.mpr Module.finrank_pos)
 
+omit [Algebra.IsCentral K D] in
 lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   simp only [Set.image_univ]
   refine Eq.symm (Set.ext ?_)
@@ -526,7 +545,7 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
       exact addEquivAddHaarChar_pos _
     exact this ((D𝔸_prodRight_units K D).symm (1, x))
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
-    obtain ⟨y, hy⟩ := helppp K D r hr
+    obtain ⟨y, hy⟩ := rest₁_surj_extracted K D r hr
     use y
     aesop
   use (D𝔸_prodRight_units K D).symm (y⁻¹, x)
@@ -583,6 +602,7 @@ lemma incl_D𝔸quot_continuous : Continuous (incl_D𝔸quot K D) := by
   refine Continuous.quotient_lift ?_ (incl_D𝔸quot_equivariant K D)
   exact Continuous.comp' ({isOpen_preimage := fun s a ↦ a}) (rest₁_continuous K D)
 
+omit [Algebra.IsCentral K D] in
 lemma incl_D𝔸quot_surjective : Function.Surjective (incl_D𝔸quot K D) := by
   refine (Quot.surjective_lift (f := fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range)
     (rest₁ K D a)) (incl_D𝔸quot_equivariant K D)).mpr ?_
