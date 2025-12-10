@@ -508,7 +508,8 @@ end Rat.FiniteAdeleRing
 
 -- definitely shouldn't be here!
 lemma Int.eq_floor {a : ℝ} {b : ℤ} (h1 : 0 ≤ a - b) (h2 : a - b < 1) : b = ⌊a⌋ := by
-  sorry
+  rw [eq_comm, Int.floor_eq_iff]
+  grind
 
 open NumberField.InfinitePlace.Completion in
 theorem Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a : InfiniteAdeleRing ℚ) :
@@ -597,10 +598,12 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
   · rw [Set.mem_range]
     use fun p ↦ ⟨a.2 p + (-q - r), ?_⟩
     · rw [add_comm]
-      ext
+      ext v
       change _ = a.2 _ + _
       push_cast
       simp [structureMap]
+      norm_cast
+      push_cast
       norm_cast
       sorry
     · rw [← add_sub_assoc]
@@ -614,6 +617,9 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       congr
       sorry
 
+  -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
+  -- be a corollary: fundamentalDomain - fundamentalDomain ⊆ the U used in the proof
+  -- This lemma is in fact a "concrete version" of that one
 lemma Rat.AdeleRing.fundamentalDomain_traversal {a b : AdeleRing (𝓞 ℚ) ℚ}
     (ha : a ∈ fundamentalDomain) (hb : b ∈ fundamentalDomain) {q : ℚ}
     (hq : algebraMap _ _ q + a = b) : q = 0 := by
