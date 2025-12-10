@@ -5,6 +5,8 @@ import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.NumberField.FiniteAdeleRing
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.Padics.RestrictedProduct
+import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
 
 open scoped TensorProduct
 
@@ -504,22 +506,49 @@ theorem sub_mem_integralAdeles
 
 end Rat.FiniteAdeleRing
 
+-- definitely shouldn't be here!
+lemma Int.eq_floor {a : ℝ} {b : ℤ} (h1 : 0 ≤ a - b) (h2 : a - b < 1) : b = ⌊a⌋ := by
+  rw [eq_comm, Int.floor_eq_iff]
+  grind
+
 open NumberField.InfinitePlace.Completion in
-theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ) :
-    ∃ (x : 𝓞 ℚ), ∀ v, ‖a v - algebraMap ℚ (InfiniteAdeleRing ℚ) x v‖ ≤ 1 := by
+theorem Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a : InfiniteAdeleRing ℚ) :
+  ∃! (x : 𝓞 ℚ), ∀ v, extensionEmbeddingOfIsReal (Rat.infinitePlace_isReal v)
+    (a v - algebraMap ℚ (InfiniteAdeleRing ℚ) x v) ∈ Set.Ico 0 1 := by
   let v₀ : InfinitePlace ℚ := Rat.infinitePlace
   let σ : v₀.Completion →+* ℝ := extensionEmbeddingOfIsReal Rat.isReal_infinitePlace
   let x : ℤ := ⌊σ (a v₀)⌋
-  refine ⟨ringOfIntegersEquiv.symm x, fun v ↦ ?_⟩
-  rw [Subsingleton.elim v v₀, InfiniteAdeleRing.algebraMap_apply,
-    ← (isometry_extensionEmbeddingOfIsReal isReal_infinitePlace).norm_map_of_map_zero
-      (map_zero _), ringOfIntegersEquiv_symm_coe, map_sub, extensionEmbeddingOfIsReal_coe,
-    map_intCast, Real.norm_eq_abs, Int.self_sub_floor, Int.abs_fract]
-  exact le_of_lt (Int.fract_lt_one _)
+  use ringOfIntegersEquiv.symm x
+  refine ⟨?_, ?_⟩
+  · intro v
+    rw [Subsingleton.elim v v₀, InfiniteAdeleRing.algebraMap_apply,
+      ringOfIntegersEquiv_symm_coe, map_sub, extensionEmbeddingOfIsReal_coe,
+    map_intCast, Int.self_sub_floor]
+    exact ⟨Int.fract_nonneg _, Int.fract_lt_one _⟩
+  · intro y hy
+    set x' := ringOfIntegersEquiv y with hx'
+    rw [RingEquiv.eq_symm_apply, ← hx']
+    let hy2 := (RingEquiv.eq_symm_apply _).2 hx'.symm
+    specialize hy v₀
+    rw [InfiniteAdeleRing.algebraMap_apply, hy2, ringOfIntegersEquiv_symm_coe,
+      map_sub, extensionEmbeddingOfIsReal_coe, map_intCast] at hy
+    exact Int.eq_floor hy.1 hy.2
+
+open NumberField.InfinitePlace.Completion in
+theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ) :
+    ∃ (x : 𝓞 ℚ), ∀ v, ‖a v - algebraMap ℚ (InfiniteAdeleRing ℚ) x v‖ ≤ 1 := by
+  obtain ⟨x, hx1, -⟩ := Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico a
+  use x
+  peel hx1 with v hv
+  rw [Subsingleton.elim v Rat.infinitePlace] at *
+  rw [← (isometry_extensionEmbeddingOfIsReal isReal_infinitePlace).norm_map_of_map_zero
+      (map_zero _), Real.norm_eq_abs]
+  grind
 
 instance (v : InfinitePlace K) : ProperSpace v.Completion :=
   ProperSpace.of_locallyCompactSpace v.Completion
 
+-- we might not need this now we're switching to fundamental domains?
 open Metric IsDedekindDomain.FiniteAdeleRing AdeleRing in
 theorem Rat.AdeleRing.cocompact :
     CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) where
@@ -545,6 +574,105 @@ theorem Rat.AdeleRing.cocompact :
         simpa using coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
       exact ⟨_, h, by simp [-algebraMap.coe_inj]⟩
     exact h_W_image ▸ h_W_compact.image continuous_quot_mk
+
+open InfinitePlace.Completion Set RestrictedProduct in
+def Rat.AdeleRing.fundamentalDomain : Set (AdeleRing (𝓞 ℚ) ℚ) :=
+  (univ.pi fun v => (extensionEmbeddingOfIsReal (infinitePlace_isReal v)).toFun ⁻¹' (Ico 0 1)).prod
+    (range <| structureMap _ _ _)
+
+lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
+    ∃ g, algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) g + a ∈ fundamentalDomain := by
+  obtain ⟨q, f, hf⟩ := FiniteAdeleRing.sub_mem_integralAdeles a.2
+  obtain ⟨r, hr, -⟩ := Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a.1 - algebraMap _ _ q)
+  use (-q-r)
+  refine Set.mem_prod.2 ⟨?_, ?_⟩
+  · simp_rw [Set.mem_pi, Set.mem_preimage]
+    intro v _
+    have foo : (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) (-q - r)).1 v + a.1 v =
+        a.1 v - (algebraMap ℚ (InfiniteAdeleRing ℚ)) q v -
+        (algebraMap ℚ (InfiniteAdeleRing ℚ)) (r) v := by
+      rw [add_comm, sub_eq_add_neg (a.1 v), add_sub_assoc]
+      push_cast
+      rfl
+    convert hr v
+  · rw [Set.mem_range]
+    use fun p ↦ ⟨a.2 p + (-q - r), ?_⟩
+    · rw [add_comm]
+      ext v
+      change _ = a.2 _ + _
+      push_cast
+      simp [structureMap]
+      norm_cast
+      push_cast
+      norm_cast
+      sorry
+    · rw [← add_sub_assoc]
+      refine sub_mem ?_ (coe_algebraMap_mem (𝓞 ℚ) ℚ p r)
+      convert (f p).2
+      rw [RestrictedProduct.ext_iff] at hf
+      specialize hf p
+      convert hf.symm
+      rw [sub_eq_add_neg]
+      change _ = a.2 p + _
+      congr
+      sorry
+
+  -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
+  -- be a corollary: fundamentalDomain - fundamentalDomain ⊆ the U used in the proof
+  -- This lemma is in fact a "concrete version" of that one
+lemma Rat.AdeleRing.fundamentalDomain_traversal {a b : AdeleRing (𝓞 ℚ) ℚ}
+    (ha : a ∈ fundamentalDomain) (hb : b ∈ fundamentalDomain) {q : ℚ}
+    (hq : algebraMap _ _ q + a = b) : q = 0 := by
+  -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
+  -- be a corollary: fundamentalDomain - fundamentalDomain ⊆ the U used in the proof
+  -- This lemma is in fact a "concrete version" of that one
+  sorry
+
+open NumberField Metric MeasureTheory IsDedekindDomain
+
+noncomputable instance : VAdd ℚ (AdeleRing (𝓞 ℚ) ℚ) where
+  vadd q a := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) q + a
+
+open IsDedekindDomain Rat in
+theorem Rat.AdeleRing.isAddFundamentalDomain :
+    IsAddFundamentalDomain ℚ Rat.AdeleRing.fundamentalDomain
+    ((MeasureTheory.Measure.pi (fun _ ↦ Measure.addHaar)).prod Measure.addHaar) where
+  nullMeasurableSet := by
+    apply MeasureTheory.NullMeasurableSet.prod _ _
+    · apply MeasurableSet.nullMeasurableSet
+      apply MeasurableSet.univ_pi
+      intro v
+      apply MeasurableSet.preimage (by measurability)
+      exact Homeomorph.measurable
+        (InfinitePlace.Completion.isometryEquivRealOfIsReal _).toHomeomorph
+    · refine IsOpen.nullMeasurableSet ?_
+      convert isOpen_forall_mem ?_
+      · ext x
+        -- a tactic should do this dumb calculation
+        refine ⟨?_, ?_⟩
+        · rintro ⟨f, rfl⟩ v
+          simp [structureMap]
+        · intro h
+          use fun v ↦ ⟨x v, h v⟩
+          rfl
+      · exact isOpenAdicCompletionIntegers ℚ
+  ae_covers := by
+    filter_upwards
+    apply Rat.AdeleRing.mem_fundamentalDomain
+  aedisjoint := by
+    intro q r hqr
+    apply Disjoint.aedisjoint
+    rw [Set.disjoint_iff_inter_eq_empty]
+    ext _
+    simp only [Set.mem_inter_iff, Set.mem_empty_iff_false, iff_false, not_and]
+    intro ⟨y, hy, (hx : q +ᵥ y = _)⟩ ⟨z, hz, h⟩
+    subst hx
+    change algebraMap _ _ r + z = algebraMap _ _ q + y at h
+    apply hqr
+    rw [← sub_eq_zero]
+    apply Rat.AdeleRing.fundamentalDomain_traversal hy hz
+    rw [map_sub]
+    linear_combination -h
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 

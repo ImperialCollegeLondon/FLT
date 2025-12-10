@@ -99,13 +99,19 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
 
 variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
+open scoped NNReal in
+lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
+   B <  MeasureTheory.Measure.addHaar U →
+    ¬ Function.Injective (
+      (QuotientAddGroup.mk :
+        D_𝔸 → D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) ∘
+      (Subtype.val : U → D_𝔸)) := sorry
+
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
   --have := MeasureTheory.QuotientMeasureEqMeasurePreimage.haarMeasure_quotient
-  sorry -- **TODO** prove that if A is a locally compact ab group and Gamma is a cocompact
-  -- subgroup then there's some positive real M such that if U ⊆ A and μ(U)>M then
-  -- U -> A/Gamma isn't injective.
+  sorry -- hopefully follows from `not_injective_of_large_measure`
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
 def E : Set D_𝔸 := (existsE K D).choose
