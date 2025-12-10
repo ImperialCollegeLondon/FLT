@@ -464,11 +464,13 @@ local instance : Algebra ℝ (Dinf K D) := by
     sorry
   have h2 : Algebra ℝ (InfiniteAdeleRing K ⊗[K] D) := by
     exact Algebra.TensorProduct.leftAlgebra (R := K) (S := ℝ) (A := InfiniteAdeleRing K) (B := D)
-  --
+  -- need something saying I can switch the tensor
+  -- there is nothing in TensorProduct.RightActions
   sorry
 
 local instance : Module.Finite ℝ (Dinf K D) := by
   -- depends on Algebra ℝ (Dinf K D)
+  -- (InfiniteAdeleRing K) is a fininted ℝ module...
   sorry
 
 local instance : Module.Free ℝ (Dinf K D) := by
@@ -495,11 +497,11 @@ local instance : MeasurableSpace (Dinf K D × Df K D) := Prod.instMeasurableSpac
 local instance : SecondCountableTopologyEither (D ⊗[K] InfiniteAdeleRing K)
     (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
   refine { out := ?_ }
-  --
+  -- ?
   sorry
 
 local instance : Nontrivial (Dinf K D) := by
-  --
+  -- obvious? Not sure why its not being inferred
   sorry
 
 omit [Algebra.IsCentral K D] in
