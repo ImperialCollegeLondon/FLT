@@ -468,14 +468,17 @@ local instance : Algebra ℝ (Dinf K D) := by
   sorry
 
 local instance : Module.Finite ℝ (Dinf K D) := by
-  --
+  -- depends on Algebra ℝ (Dinf K D)
   sorry
 
 local instance : Module.Free ℝ (Dinf K D) := by
   exact Module.free_of_finite_type_torsion_free'
 
 local instance : IsModuleTopology ℝ (Dinf K D) := by
-  --
+  /- By Algebra ℝ (InfiniteAdeleRing K); (InfiniteAdeleRing K) has the ℝ-module topology.
+    Now since (Dinf K D) has the (InfiniteAdeleRing K)-module topolology it also has the
+    ℝ-module topology.
+  -/
   sorry
 
 local instance : MeasurableSpace (Dinf K D) :=
