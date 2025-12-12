@@ -5,7 +5,12 @@ Authors: Kevin Buzzard, William Coram
 -/
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
+import FLT.Mathlib.MeasureTheory.Haar.Extension
 import FLT.Mathlib.Topology.HomToDiscrete
+import Mathlib.Topology.Metrizable.Urysohn
+import Mathlib.Topology.MetricSpace.Polish
+import Mathlib.Topology.UniformSpace.Completion
+import Mathlib.Topology.MetricSpace.Completion
 /-
 
 # Fujisaki's lemma
@@ -99,13 +104,113 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
 
 variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
+-- https://leanprover.zulipchat.com/#narrow/channel/416277-FLT/topic/Are.20the.20adeles.20Polish.3F/near/563290956
+section Polish
+
+open TopologicalSpace UniformSpace Set Topology
+
+lemma open_of_locally_compact_dense_metrizable {X Y : Type*} [TopologicalSpace X]
+    [T2Space X] [TopologicalSpace Y] [T2Space Y] [LocallyCompactSpace Y]
+    (f : Y → X) (hf : Continuous f) (indf : IsInducing f) (dn : DenseRange f) :
+    IsOpen (Set.range f) := by
+  rw [isOpen_iff_mem_nhds]
+  intro x hx
+  rw [_root_.mem_nhds_iff]
+  rw [mem_range] at hx
+  obtain ⟨y, hy⟩ := hx
+  obtain ⟨s, s_op, y_in_s, s_cc⟩ := exists_isOpen_mem_isCompact_closure y
+  rw [IsInducing.isOpen_iff indf] at s_op
+  obtain ⟨t, t_op, s_preim_t⟩ := s_op
+  have clt_im_cls : closure t = closure (f '' s) := by
+    rw [Subset.antisymm_iff]
+    constructor
+    · refine closure_minimal ?_ isClosed_closure
+      intro z hz
+      rw [mem_closure_iff]
+      intro o o_op z_in_o
+      unfold DenseRange at dn
+      rw [dense_iff_inter_open] at dn
+      specialize dn (o ∩ t) (o_op.inter t_op) ⟨z, z_in_o, hz⟩
+      have : t ∩ range f = f '' s := by
+        rw [← s_preim_t]
+        exact Eq.symm image_preimage_eq_inter_range
+      rw [inter_assoc, this] at dn
+      exact dn
+    · apply closure_mono
+      intro z hz
+      obtain ⟨w, hw, h⟩ := hz
+      rw [← h]
+      rw [← s_preim_t] at hw
+      exact hw
+  use t
+  refine ⟨?_, t_op, ?_⟩
+  · calc
+      t ⊆ closure t := subset_closure
+      _ = closure (f '' s) := clt_im_cls
+      _ ⊆ range f := by
+        rw [← closure_image_closure hf]
+        have : IsClosed (f '' closure s) := by
+          apply IsCompact.isClosed
+          exact IsCompact.image s_cc hf
+        rw [IsClosed.closure_eq this]
+        exact image_subset_range f (closure s)
+  · rw [← hy]
+    rw [← s_preim_t] at y_in_s
+    exact y_in_s
+
+theorem polish_of_locally_compact_second_countable (X : Type*) [TopologicalSpace X] [SecondCountableTopology X] [T2Space X]
+    [LocallyCompactSpace X] : PolishSpace X := by
+  letI _ : MetrizableSpace X := metrizableSpace_of_t3_secondCountable X
+  letI _ : MetricSpace X := metrizableSpaceMetric X
+  have dn : IsOpen (range (Completion.coe' : X → Completion X)) := by
+    apply open_of_locally_compact_dense_metrizable Completion.coe'
+    exact Completion.continuous_coe X
+    exact IsDenseInducing.isInducing Completion.isDenseInducing_coe
+    exact Completion.denseRange_coe
+  letI _ : PolishSpace (range (Completion.coe' : X → Completion X)) :=
+    IsOpen.polishSpace dn
+  have hHomeo : X ≃ₜ range (Completion.coe' : X → Completion X) :=
+    (Completion.coe_isometry.isEmbedding).toHomeomorph
+  exact hHomeo.isClosedEmbedding.polishSpace
+
+end Polish
+
+open scoped NNReal in
+lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
+   IsOpen U → B < MeasureTheory.Measure.addHaar U →
+    ¬ U.InjOn (QuotientAddGroup.mk : D_𝔸 →
+        D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := by
+  let H := (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup
+  have hH : IsClosed H.carrier := sorry
+  have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) := sorry
+  have : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := sorry
+  have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) :=
+    polish_of_locally_compact_second_countable _
+  have : DiscreteTopology H := sorry
+  have : CompactSpace
+    (D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := sorry
+  exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
+
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
-  --have := MeasureTheory.QuotientMeasureEqMeasurePreimage.haarMeasure_quotient
-  sorry -- **TODO** prove that if A is a locally compact ab group and Gamma is a cocompact
-  -- subgroup then there's some positive real M such that if U ⊆ A and μ(U)>M then
-  -- U -> A/Gamma isn't injective.
+  obtain ⟨B, hB⟩ := not_injective_of_large_measure K D
+  let μ : Measure (D_𝔸) := Measure.addHaar
+  have hμ : μ Set.univ = ⊤ := sorry
+  have h : μ.Regular := Measure.regular_addHaarMeasure
+  obtain ⟨K, -, hK, hμ⟩ := h.innerRegular isOpen_univ B (by simp [hμ])
+  obtain ⟨U, hU, hKU, hU'⟩ := exists_isOpen_superset_and_isCompact_closure hK
+  replace hμ := hμ.trans_le (measure_mono hKU)
+  refine ⟨closure U, hU', fun φ hφ ↦ ?_⟩
+  replace hφ : addEquivAddHaarChar φ.symm = 1 := by
+    simpa [hφ] using (addEquivAddHaarChar_trans (φ := φ) (ψ := φ.symm)).symm
+  specialize hB (φ.symm ⁻¹' U) (hU.preimage φ.symm.continuous)
+    (by rwa [← one_smul NNReal (Measure.addHaar (φ.symm ⁻¹' U)), ← hφ,
+      addEquivAddHaarChar_smul_preimage])
+  simp only [Set.InjOn, not_forall] at hB
+  obtain ⟨x, hx, y, hy, h, hne⟩ := hB
+  rw [QuotientAddGroup.eq_iff_sub_mem] at h
+  exact ⟨φ.symm x, subset_closure hx, φ.symm y, subset_closure hy, by simpa, by simpa⟩
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
 def E : Set D_𝔸 := (existsE K D).choose
