@@ -194,8 +194,23 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
-  --have := MeasureTheory.QuotientMeasureEqMeasurePreimage.haarMeasure_quotient
-  sorry -- hopefully follows from `not_injective_of_large_measure`
+  obtain ⟨B, hB⟩ := not_injective_of_large_measure K D
+  let μ : Measure (D_𝔸) := Measure.addHaar
+  have hμ : μ Set.univ = ⊤ := sorry
+  have h : μ.Regular := Measure.regular_addHaarMeasure
+  obtain ⟨K, -, hK, hμ⟩ := h.innerRegular isOpen_univ B (by simp [hμ])
+  obtain ⟨U, hU, hKU, hU'⟩ := exists_isOpen_superset_and_isCompact_closure hK
+  replace hμ := hμ.trans_le (measure_mono hKU)
+  refine ⟨closure U, hU', fun φ hφ ↦ ?_⟩
+  replace hφ : addEquivAddHaarChar φ.symm = 1 := by
+    simpa [hφ] using (addEquivAddHaarChar_trans (φ := φ) (ψ := φ.symm)).symm
+  specialize hB (φ.symm ⁻¹' U) (hU.preimage φ.symm.continuous)
+    (by rwa [← one_smul NNReal (Measure.addHaar (φ.symm ⁻¹' U)), ← hφ,
+      addEquivAddHaarChar_smul_preimage])
+  simp only [Set.InjOn, not_forall] at hB
+  obtain ⟨x, hx, y, hy, h, hne⟩ := hB
+  rw [QuotientAddGroup.eq_iff_sub_mem] at h
+  exact ⟨φ.symm x, subset_closure hx, φ.symm y, subset_closure hy, by simpa, by simpa⟩
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
 def E : Set D_𝔸 := (existsE K D).choose
