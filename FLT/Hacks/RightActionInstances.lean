@@ -214,4 +214,41 @@ scoped instance [TopologicalSpace A] [IsTopologicalRing A]
 
 end ring -- section
 
+
+section SecondCountableTopology
+
+variable (R S M : Type*) [CommSemiring R]
+    [CommSemiring S] [AddCommMonoid M] [Algebra R S] [Module R M] [TopologicalSpace S]
+    [SecondCountableTopology S] [Module.Finite R M]
+
+local instance : TopologicalSpace (M ⊗[R] S) := moduleTopology S (M ⊗[R] S)
+
+lemma SecondCountableTopology_tensor : SecondCountableTopology (M ⊗[R] S) := by
+  refine { is_open_generated_countable := ?_ }
+  obtain ⟨b, hb1, hb2, hb3⟩ := TopologicalSpace.exists_countable_basis S
+  obtain ⟨n, v, hv1⟩ := Module.Finite.exists_fin (R := R) (M := M)
+  let B_set (i : Fin n) (b_set : b) := {x : M ⊗[R] S | ∃ m ∈ (b_set : Set S), x = (v i) ⊗ₜ[R] m}
+  let B := {y : Set (M ⊗[R] S) | ∃ i : Fin n, ∃ b_set : b, y = B_set i b_set}
+  use B
+  constructor
+  · simp_all only [Subtype.exists, exists_prop, B, B_set]
+    have : Countable (Fin n) := instCountableFin
+    -- this just depends on to countable sets, so surely is countable
+
+    sorry
+  · refine TopologicalSpace.ext_iff.mpr ?_
+    intro s
+    constructor
+    · intro hs
+
+      sorry
+    ·
+      sorry
+
+  -- Am I even doing this correct? Is the basis just mean to be M ⊗ b
+  -- for b a set in the basis of infiniteAdeleRing
+
+
+end SecondCountableTopology
+
 end TensorProduct.RightActions
