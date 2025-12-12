@@ -110,7 +110,7 @@ section Polish
 open TopologicalSpace UniformSpace Set Topology
 
 lemma open_of_locally_compact_dense_metrizable {X Y : Type*} [TopologicalSpace X]
-    [MetrizableSpace X] [TopologicalSpace Y] [MetrizableSpace Y] [LocallyCompactSpace Y]
+    [T2Space X] [TopologicalSpace Y] [T2Space Y] [LocallyCompactSpace Y]
     (f : Y → X) (hf : Continuous f) (indf : IsInducing f) (dn : DenseRange f) :
     IsOpen (Set.range f) := by
   rw [isOpen_iff_mem_nhds]
