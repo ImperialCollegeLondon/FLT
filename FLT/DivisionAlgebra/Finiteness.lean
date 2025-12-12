@@ -489,6 +489,8 @@ local instance : Algebra ℝ (Dinf K D) := by
   -- there is nothing in TensorProduct.RightActions
   sorry
 
+
+
 local instance : Module.Finite ℝ (InfiniteAdeleRing K ⊗[K] D) := by
 
   sorry
@@ -533,7 +535,7 @@ local instance : SecondCountableTopologyEither (D ⊗[K] InfiniteAdeleRing K)
     (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
   refine {out := ?_}
   left
-  apply?
+
   sorry
 
 local instance : Nontrivial (Dinf K D) := by
