@@ -457,18 +457,44 @@ omit [Algebra.IsCentral K D] in
 lemma rest₁_continuous : Continuous (rest₁ K D) := Continuous.comp continuous_snd (Continuous.comp
   (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
 
+local instance : Algebra ℝ (InfiniteAdeleRing K) := by
+  exact RingHom.toAlgebra (RingHom.comp
+    (RingEquiv.toRingHom (NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K).symm)
+    (RingHom.smulOneHom (R := ℝ) (S := (mixedEmbedding.mixedSpace K))))
+
+noncomputable instance : Algebra ℝ (InfiniteAdeleRing K) :=
+  (InfiniteAdeleRing.ringEquiv_mixedSpace K|>.symm.toRingHom.comp (algebraMap ℝ _)).toAlgebra
+
+-- can/should I do this?
+local instance bar : InfiniteAdeleRing K ≃ₗ[ℝ] (mixedEmbedding.mixedSpace K) where
+  __ := NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K
+  map_smul' m x := by
+    simp
+    constructor
+    ·
+      sorry
+    ·
+      sorry
+
+local instance : Module.Finite ℝ (InfiniteAdeleRing K) := by
+  have : Module.Finite ℝ (mixedEmbedding.mixedSpace K) := by
+    exact Module.Finite.prod
+  exact Module.Finite.equiv (bar K).symm
+
 open scoped TensorProduct.RightActions
 local instance : Algebra ℝ (Dinf K D) := by
-  have h1 : Algebra ℝ (InfiniteAdeleRing K) := by
-    --
-    sorry
   have h2 : Algebra ℝ (InfiniteAdeleRing K ⊗[K] D) := by
     exact Algebra.TensorProduct.leftAlgebra (R := K) (S := ℝ) (A := InfiniteAdeleRing K) (B := D)
   -- need something saying I can switch the tensor
   -- there is nothing in TensorProduct.RightActions
   sorry
 
+local instance : Module.Finite ℝ (InfiniteAdeleRing K ⊗[K] D) := by
+
+  sorry
+
 local instance : Module.Finite ℝ (Dinf K D) := by
+
   -- depends on Algebra ℝ (Dinf K D)
   -- (InfiniteAdeleRing K) is a fininted ℝ module...
   sorry
@@ -481,6 +507,12 @@ local instance : IsModuleTopology ℝ (Dinf K D) := by
     Now since (Dinf K D) has the (InfiniteAdeleRing K)-module topolology it also has the
     ℝ-module topology.
   -/
+  have : IsModuleTopology ℝ (InfiniteAdeleRing K) := by
+
+    sorry
+  have : IsModuleTopology (InfiniteAdeleRing K) (Dfx K D) := by
+    -- really...
+    sorry
   sorry
 
 local instance : MeasurableSpace (Dinf K D) :=
@@ -494,10 +526,14 @@ local instance : BorelSpace (Df K D) := { measurable_eq := rfl }
 
 local instance : MeasurableSpace (Dinf K D × Df K D) := Prod.instMeasurableSpace
 
+local instance : SecondCountableTopology (InfiniteAdeleRing K) := by
+  infer_instance
+
 local instance : SecondCountableTopologyEither (D ⊗[K] InfiniteAdeleRing K)
     (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  refine { out := ?_ }
-  -- ?
+  refine {out := ?_}
+  left
+  apply?
   sorry
 
 local instance : Nontrivial (Dinf K D) := by
