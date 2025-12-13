@@ -101,7 +101,7 @@ variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K]
 
 open scoped NNReal in
 lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
-   B <  MeasureTheory.Measure.addHaar U →
+   B < MeasureTheory.Measure.addHaar U →
     ¬ Function.Injective (
       (QuotientAddGroup.mk :
         D_𝔸 → D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) ∘
@@ -110,8 +110,31 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
-  --have := MeasureTheory.QuotientMeasureEqMeasurePreimage.haarMeasure_quotient
-  sorry -- hopefully follows from `not_injective_of_large_measure`
+  let E : ℝ → Set (D_𝔸) := sorry -- random open compact subgroup at finite places,
+  -- closed ball radius r=input at infinite places
+  obtain ⟨B, hB⟩ := not_injective_of_large_measure K D
+  -- measure of E(r) tends to infinity
+  have hE : ∃ r, MeasureTheory.Measure.addHaar (E r) > B := sorry
+  obtain ⟨r, hr⟩ := hE
+  use E r
+  -- E(r) is compact
+  refine ⟨sorry, ?_⟩
+  intro φ hφ
+  specialize hB (φ '' (E r))
+  -- φ is measure-preserving
+  have foo : Measure.addHaar (E r) = Measure.addHaar (⇑φ '' E r) := by
+    have := addEquivAddHaarChar_smul_preimage Measure.addHaar φ.symm (X := φ '' E r)
+    sorry
+  rw [foo] at hr
+  specialize hB hr
+  unfold Function.Injective at hB
+  push_neg at hB
+  obtain ⟨⟨_, e₁, h₁, rfl⟩, ⟨_, e₂, h₂, rfl⟩, ha1, ha2⟩ := hB
+  use e₁, h₁, e₂, h₂
+  refine ⟨by aesop, ?_⟩
+  simp only [Function.comp_apply] at ha1
+  obtain ⟨z, hz1, hz2⟩ := (QuotientAddGroup.mk'_eq_mk' _).1 ha1.symm
+  rwa [eq_sub_of_add_eq' hz2] at hz1
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
 def E : Set D_𝔸 := (existsE K D).choose

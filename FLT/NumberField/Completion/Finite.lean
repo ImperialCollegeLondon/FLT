@@ -48,3 +48,5 @@ lemma NumberField.isOpenAdicCompletionIntegers :
 instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ)) :
     LocallyCompactSpace (v.adicCompletion ℚ) :=
   v.padicUniformEquiv.toHomeomorph.isClosedEmbedding.locallyCompactSpace
+
+instance (v : HeightOneSpectrum (𝓞 K)) : SecondCountableTopology (v.adicCompletion K) := sorry

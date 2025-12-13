@@ -5,6 +5,9 @@ Authors: Kevin Buzzard
 -/
 import FLT.NumberField.Completion.Finite
 import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.NumberField.HeightOneSpectrum
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+
 /-
 
 # The finite adele ring of a number field is locally compact.
@@ -14,24 +17,29 @@ open scoped TensorProduct
 
 universe u
 
-open NumberField IsDedekindDomain
+open NumberField IsDedekindDomain RestrictedProduct
 
-section LocallyCompact
+section Instances
 
 variable (K : Type*) [Field K] [NumberField K]
 
 open HeightOneSpectrum
 
-open IsDedekindDomain HeightOneSpectrum in
-instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K) := by
+open IsDedekindDomain HeightOneSpectrum RestrictedProduct in
+instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K) :=
   haveI : Fact (∀ (i : HeightOneSpectrum (𝓞 K)),
       IsOpen (adicCompletionIntegers K i : Set (adicCompletion K i))) :=
-    .mk fun v ↦ isOpenAdicCompletionIntegers K v
-  unfold FiniteAdeleRing
-  infer_instance
+    ⟨isOpenAdicCompletionIntegers K⟩
+  inferInstanceAs <| LocallyCompactSpace (Πʳ _, [_, _])
 
 instance : CompactSpace (IsDedekindDomain.FiniteAdeleRing.integralAdeles (𝓞 K) K) :=
   isCompact_iff_compactSpace.1 <|
   isCompact_range RestrictedProduct.isEmbedding_structureMap.continuous
 
-end LocallyCompact
+instance : T2Space (FiniteAdeleRing (𝓞 K) K) :=
+  inferInstanceAs <| T2Space (Πʳ _, [_, _])
+
+instance : SecondCountableTopology (FiniteAdeleRing (𝓞 K) K) :=
+  RestrictedProduct.secondCountableTopology (isOpenAdicCompletionIntegers K)
+
+end Instances
