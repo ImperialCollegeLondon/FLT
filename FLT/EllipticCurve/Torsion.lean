@@ -102,8 +102,11 @@ noncomputable instance WeierstrassCurve.galoisRepresentation_smul
 noncomputable def WeierstrassCurve.galoisRepresentation
     (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
     DistribMulAction (K ≃ₐ[k] K) (E ⟮K⟯) where
-      one_smul := sorry -- these should all be easy
-      mul_smul := sorry
+      one_smul := fun P ↦ by
+        change WeierstrassCurve.Points.map E (AlgHom.id k K) P = P
+        rw [WeierstrassCurve.Points.map_id E K]
+        rfl
+      mul_smul := sorry -- these should all be easy
       smul_zero := sorry
       smul_add := sorry
 
