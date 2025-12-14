@@ -80,7 +80,8 @@ noncomputable
 def GaloisRep.conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) : GaloisRep K A N :=
   letI := moduleTopology A (Module.End A M)
   letI := moduleTopology A (Module.End A N)
-  let e' : Module.End A M ≃A[A] Module.End A N := .ofIsModuleTopology <| LinearEquiv.algConj A e
+  let e' : Module.End A M ≃A[A] Module.End A N :=
+    .ofIsModuleTopology <| LinearEquiv.conjAlgEquiv A e
   e'.toContinuousAlgHom.toContinuousMonoidHom.comp ρ
 
 omit [NumberField K] in
