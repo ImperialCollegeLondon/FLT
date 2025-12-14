@@ -91,7 +91,9 @@ import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
+import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
+import FLT.Mathlib.Order.Filter.Cofinite
 import FLT.Mathlib.RepresentationTheory.Basic
 import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
@@ -121,6 +123,7 @@ import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+import FLT.Mathlib.Topology.Bases
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Homeomorph
@@ -132,6 +135,7 @@ import FLT.NumberField.Completion.Finite
 import FLT.NumberField.Completion.Infinite
 import FLT.NumberField.DiscriminantBounds
 import FLT.NumberField.FiniteAdeleRing
+import FLT.NumberField.HeightOneSpectrum
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.InfinitePlace.Dimension
 import FLT.NumberField.InfinitePlace.Extension
