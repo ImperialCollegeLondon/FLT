@@ -6,6 +6,8 @@ Authors: Kevin Buzzard, William Coram
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Topology.HomToDiscrete
+import FLT.Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
+
 /-
 
 # Fujisaki's lemma
@@ -105,27 +107,36 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
     ¬ Function.Injective (
       (QuotientAddGroup.mk :
         D_𝔸 → D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) ∘
-      (Subtype.val : U → D_𝔸)) := sorry
+      (Subtype.val : U → D_𝔸)) := sorry -- FLT#798
+
+def Efamily (r : ℝ) : Set (D_𝔸) := sorry
+-- (1) D_𝔸 ≃ (D ⊗[K] 𝔸_K^f) x (D ⊗[K] K_∞)
+-- (2) Choose random K-basis e_i for D and use ∑ 𝓞_K^.e_i at the finite places
+-- (3) Choose random ℝ-basis for D ⊗[K] K_∞ use closed ball or cube radius r.
+
+lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := sorry
+
+lemma E_family_unbounded (B : ℝ) :
+  ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B.toNNReal := sorry
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
-  let E : ℝ → Set (D_𝔸) := sorry -- random open compact subgroup at finite places,
-  -- closed ball radius r=input at infinite places
   obtain ⟨B, hB⟩ := not_injective_of_large_measure K D
-  -- measure of E(r) tends to infinity
-  have hE : ∃ r, MeasureTheory.Measure.addHaar (E r) > B := sorry
-  obtain ⟨r, hr⟩ := hE
-  use E r
+  obtain ⟨r, hr⟩ := E_family_unbounded K D B
+  let E := Efamily K D r
+  use E
   -- E(r) is compact
-  refine ⟨sorry, ?_⟩
+  refine ⟨E_family_compact K D r, ?_⟩
   intro φ hφ
-  specialize hB (φ '' (E r))
+  specialize hB (φ '' E)
   -- φ is measure-preserving
-  have foo : Measure.addHaar (E r) = Measure.addHaar (⇑φ '' E r) := by
-    have := addEquivAddHaarChar_smul_preimage Measure.addHaar φ.symm (X := φ '' E r)
-    sorry
-  rw [foo] at hr
+  have foo : Measure.addHaar E = Measure.addHaar (⇑φ '' E) := by
+    simp [← addEquivAddHaarChar_smul_preimage Measure.addHaar φ (X := φ '' E),
+      hφ]
+    congr
+    aesop
+  rw [foo, Real.toNNReal_coe] at hr
   specialize hB hr
   unfold Function.Injective at hB
   push_neg at hB

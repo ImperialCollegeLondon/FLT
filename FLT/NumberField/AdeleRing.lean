@@ -584,6 +584,7 @@ theorem Rat.AdeleRing.cocompact :
     exact h_W_image ▸ h_W_compact.image continuous_quot_mk
 
 open InfinitePlace.Completion Set RestrictedProduct in
+/-- The fundamental domain `ℤ^ x [0,1)` for `𝔸_ℚ ⧸ ℚ`. -/
 def Rat.AdeleRing.fundamentalDomain : Set (AdeleRing (𝓞 ℚ) ℚ) :=
   (univ.pi fun v => (extensionEmbeddingOfIsReal (infinitePlace_isReal v)).toFun ⁻¹' (Ico 0 1)).prod
     (range <| structureMap _ _ _)
