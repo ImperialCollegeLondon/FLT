@@ -116,8 +116,9 @@ def Efamily (r : ℝ) : Set (D_𝔸) := sorry
 
 lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := sorry
 
-lemma E_family_unbounded (B : ℝ) :
-  ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B.toNNReal := sorry
+open NNReal in
+lemma E_family_unbounded (B : ℝ≥0) :
+  ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B := sorry
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
@@ -136,7 +137,7 @@ lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
       hφ]
     congr
     aesop
-  rw [foo, Real.toNNReal_coe] at hr
+  rw [foo] at hr
   specialize hB hr
   unfold Function.Injective at hB
   push_neg at hB
