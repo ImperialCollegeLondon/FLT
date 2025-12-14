@@ -7,6 +7,7 @@ import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.Padics.RestrictedProduct
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+import FLT.Mathlib.Data.Real.Archimedean
 
 open scoped TensorProduct
 
@@ -513,11 +514,6 @@ theorem sub_mem_integralAdeles
   simpa using padicEquiv_bijOn.symm (padicEquiv.toEquiv.invOn) |>.mapsTo hq
 
 end Rat.FiniteAdeleRing
-
--- definitely shouldn't be here!
-lemma Int.eq_floor {a : ℝ} {b : ℤ} (h1 : 0 ≤ a - b) (h2 : a - b < 1) : b = ⌊a⌋ := by
-  rw [eq_comm, Int.floor_eq_iff]
-  grind
 
 open NumberField.InfinitePlace.Completion in
 theorem Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a : InfiniteAdeleRing ℚ) :

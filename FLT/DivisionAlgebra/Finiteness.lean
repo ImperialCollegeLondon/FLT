@@ -109,6 +109,10 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
         D_𝔸 → D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) ∘
       (Subtype.val : U → D_𝔸)) := sorry -- FLT#798
 
+/-- An auxiliary definition of an increasing family of compact
+subsets of D_𝔸, defined as the product of a compact open subgroup
+at the finite places and a large closed ball at the infinite places.
+-/
 def Efamily (r : ℝ) : Set (D_𝔸) := sorry
 -- (1) D_𝔸 ≃ (D ⊗[K] 𝔸_K^f) x (D ⊗[K] K_∞)
 -- (2) Choose random K-basis e_i for D and use ∑ 𝓞_K^.e_i at the finite places
