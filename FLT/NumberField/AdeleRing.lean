@@ -633,12 +633,6 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       rw [map_neg, ← sub_eq_add_neg, Eq.comm]
       convert (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
 
-lemma Real.thing1 (x y : ℝ) (hx : x ∈ Set.Ico 0 1) (hy : y ∈ Set.Ico 0 1) : ‖x - y‖ < 1 := by
-  sorry
-
-lemma Real.thing2 (v : InfinitePlace ℚ) (x : v.Completion) :
-‖InfinitePlace.Completion.extensionEmbeddingOfIsReal (Rat.infinitePlace_isReal v) x‖ = ‖x‖ := sorry
-
   -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
   -- be a corollary: fundamentalDomain - fundamentalDomain ⊆ the U used in the proof
   -- This lemma is in fact a "concrete version" of that one
@@ -679,9 +673,12 @@ lemma Rat.AdeleRing.fundamentalDomain_traversal {a b : AdeleRing (𝓞 ℚ) ℚ}
     change InfinitePlace.Completion.extensionEmbeddingOfIsReal _ (b.1 v) ∈ _ at hb
     suffices ‖InfinitePlace.Completion.extensionEmbeddingOfIsReal (infinitePlace_isReal v)
         (b.1 v - a.1 v)‖ < 1 by
-      rwa [← Real.thing2]
-    rw [map_sub]
-    exact Real.thing1 _ _ hb ha
+      convert this
+      simpa only [map_zero, edist_zero_right, enorm_eq_iff_norm_eq] using
+        (InfinitePlace.Completion.isometry_extensionEmbeddingOfIsReal
+          (Rat.infinitePlace_isReal v) (b.1 v - a.1 v) 0).symm
+    rw [map_sub, Real.norm_eq_abs, abs_sub_lt_iff]
+    cases ha; cases hb; constructor <;> linarith
 
 open NumberField Metric MeasureTheory IsDedekindDomain
 
