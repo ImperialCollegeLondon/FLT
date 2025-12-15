@@ -1,5 +1,7 @@
 import Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
 
+-- TODO upstream
+
 -- no better place to put it really, could go in .Basic but it's about completions
 theorem AbsoluteValue.Completion.secondCountableTopology
     {K : Type*} [Field K] {v : AbsoluteValue K ℝ} {L : Type*}

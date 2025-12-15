@@ -1,5 +1,6 @@
 import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 
+-- TODO upstream
 -- add TODO that we could make it a group hom if G ≃ₜ* G were a group
 -- which AFAIK it isn't
 

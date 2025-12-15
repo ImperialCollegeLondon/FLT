@@ -3,10 +3,12 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.NumberField.Completion.Finite
+
+-- if I can get all imports as FLT.Mathlib then I can upstream
 import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.NumberField.HeightOneSpectrum
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import FLT.NumberField.Completion.Finite
+import FLT.NumberField.HeightOneSpectrum
 
 /-
 

@@ -1,11 +1,10 @@
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
-import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import Mathlib.Topology.Instances.Matrix
-import Mathlib.Topology.Algebra.Constructions
-import FLT.Mathlib.Topology.Algebra.Group.Units
-import FLT.Mathlib.Topology.Bases
 import FLT.Mathlib.Order.Filter.Cofinite
+import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+import FLT.Mathlib.Topology.Algebra.Group.Units
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
+import FLT.Mathlib.Topology.Bases
+import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import Mathlib.Topology.Instances.Matrix
 
 open RestrictedProduct
 
@@ -486,3 +485,5 @@ lemma RestrictedProduct.secondCountableTopology {ι : Type*} [Countable ι]
     (fun S ↦ RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen
         (Filter.le_principal_iff.2 S.2))
     (fun f ↦ ⟨⟨_, f.2⟩, ⟨f.1, by aesop⟩, rfl⟩)
+
+#min_imports

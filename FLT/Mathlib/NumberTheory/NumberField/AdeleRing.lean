@@ -1,5 +1,6 @@
-import FLT.NumberField.FiniteAdeleRing
-import FLT.NumberField.InfiniteAdeleRing
+-- can't upstream because this first import imports too much
+import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 
 /-!
 

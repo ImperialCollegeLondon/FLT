@@ -72,6 +72,7 @@ import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Real.Archimedean
+import FLT.Mathlib.Data.Set.Countable
 import FLT.Mathlib.Data.Set.Prod
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.GroupTheory.Index
@@ -95,6 +96,7 @@ import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
+import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
@@ -141,7 +143,6 @@ import FLT.NumberField.AdeleRing
 import FLT.NumberField.Completion.Finite
 import FLT.NumberField.Completion.Infinite
 import FLT.NumberField.DiscriminantBounds
-import FLT.NumberField.FiniteAdeleRing
 import FLT.NumberField.HeightOneSpectrum
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.InfinitePlace.Dimension

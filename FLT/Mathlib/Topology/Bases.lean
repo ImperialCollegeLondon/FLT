@@ -1,6 +1,7 @@
-import Mathlib.Topology.Bases
-import Mathlib.Topology.Homeomorph.Lemmas
+import Mathlib.Topology.Bases -- should morally go here
+import Mathlib.Topology.Homeomorph.Lemmas -- but I need this (which imports it)
 
+-- find home and import
 lemma TopologicalSpace.secondCountableTopology_of_countable_cover' {α : Type*}
     [TopologicalSpace α] {ι : Sort*} [Countable ι] {U : ι → Type*} [∀ i, TopologicalSpace (U i)]
     [∀ (i : ι), SecondCountableTopology (U i)]

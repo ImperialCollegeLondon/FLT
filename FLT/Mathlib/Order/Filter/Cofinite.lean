@@ -1,5 +1,6 @@
 import Mathlib.Order.Filter.Cofinite
 
+-- TODO upstream
 lemma Filter.cofinite.sets.countable (ι : Type*) [Countable ι] :
     (Filter.cofinite : Filter ι).sets.Countable :=
   Set.Countable.mono (fun _ h ↦ h) <|

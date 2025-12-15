@@ -1,6 +1,7 @@
 import Mathlib.NumberTheory.NumberField.AdeleRing -- should be .InfiniteAdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
 
+-- TODO upstream
 variable (K : Type*) [Field K] [NumberField K]
 
 open NumberField InfinitePlace

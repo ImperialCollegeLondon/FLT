@@ -2,7 +2,7 @@ import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
-import FLT.NumberField.FiniteAdeleRing
+import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.Padics.RestrictedProduct
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
@@ -529,7 +529,6 @@ theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ)
 instance (v : InfinitePlace K) : ProperSpace v.Completion :=
   ProperSpace.of_locallyCompactSpace v.Completion
 
--- we might not need this now we're switching to fundamental domains?
 open Metric IsDedekindDomain.FiniteAdeleRing AdeleRing in
 theorem Rat.AdeleRing.cocompact :
     CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) where

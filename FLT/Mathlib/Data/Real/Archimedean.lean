@@ -1,6 +1,7 @@
 import Mathlib.Data.Real.Archimedean
 
--- golf
+-- TODO upstream
+-- this is a golf
 theorem Real.exists_floor' (x : ℝ) : ∃ ub : ℤ, (ub : ℝ) ≤ x ∧ ∀ z : ℤ, (z : ℝ) ≤ x → z ≤ ub :=
   ⟨⌊x⌋, Int.floor_le x, fun _ ↦ Int.le_floor.mpr⟩
 
