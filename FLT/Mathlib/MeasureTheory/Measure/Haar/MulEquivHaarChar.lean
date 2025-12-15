@@ -1,5 +1,8 @@
 import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 
+-- add TODO that we could make it a group hom if G ≃ₜ* G were a group
+-- which AFAIK it isn't
+
 open MeasureTheory Measure in
 @[to_additive]
 lemma MeasureTheory.mulEquivHaarChar_symm {G : Type*} [Group G]
