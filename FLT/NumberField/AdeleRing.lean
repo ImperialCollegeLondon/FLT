@@ -15,34 +15,6 @@ universe u
 
 open NumberField
 
-section LocallyCompact
-
-variable (K : Type*) [Field K] [NumberField K]
-
-open IsDedekindDomain.HeightOneSpectrum in
-instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing (𝓞 K) K) :=
-  inferInstanceAs <| LocallyCompactSpace (_ × _)
-
-end LocallyCompact
-
-section T2
-
-variable (K : Type*) [Field K] [NumberField K]
-
-instance : T2Space (AdeleRing (𝓞 K) K) :=
-  inferInstanceAs <| T2Space (_ × _)
-
-end T2
-
-section SecondCountableTopology
-
-variable (K : Type*) [Field K] [NumberField K]
-
-instance : SecondCountableTopology (AdeleRing (𝓞 K) K) :=
-  inferInstanceAs <| SecondCountableTopology (_ × _)
-
-end SecondCountableTopology
-
 section BaseChange
 
 namespace NumberField.AdeleRing

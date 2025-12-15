@@ -4,32 +4,11 @@ import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import Mathlib.RingTheory.TensorProduct.Pi
+import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
 open NumberField InfinitePlace SemialgHom
-
--- should be in mathlib
-instance : T2Space (InfiniteAdeleRing K) :=
-  inferInstanceAs <| T2Space (Π _, _)
-
--- should be in mathlib
-theorem AbsoluteValue.Completion.secondCountableTopology
-    {K : Type*} [Field K] {v : AbsoluteValue K ℝ} {L : Type*}
-    [NormedField L] [CompleteSpace L] {f : WithAbs v →+* L}
-    [SecondCountableTopology L] (h : Isometry f) :
-    SecondCountableTopology v.Completion :=
-  h.completion_extension.isClosedEmbedding.isInducing.secondCountableTopology
-
--- should be in mathlib
-instance NumberField.InfinitePlace.Completion.secondCountableTopology
-    {K : Type*} [Field K] (v : InfinitePlace K) :
-    SecondCountableTopology (v.Completion) :=
-  AbsoluteValue.Completion.secondCountableTopology v.isometry_embedding
-
--- should be in mathlib
-instance : SecondCountableTopology (InfiniteAdeleRing K) :=
-  inferInstanceAs <| SecondCountableTopology (Π _, _)
 
 open scoped TensorProduct
 
