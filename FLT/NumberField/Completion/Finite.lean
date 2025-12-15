@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.DedekindDomain.AdicValuation
+import FLT.Mathlib.LinearAlgebra.Countable
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.NumberField.Padics.RestrictedProduct
-import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
+import Mathlib.NumberTheory.NumberField.FinitePlaces
 import Mathlib.NumberTheory.Padics.ProperSpace
+import Mathlib.Topology.MetricSpace.Polish
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 /-!
 
@@ -48,3 +51,7 @@ lemma NumberField.isOpenAdicCompletionIntegers :
 instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ)) :
     LocallyCompactSpace (v.adicCompletion ℚ) :=
   v.padicUniformEquiv.toHomeomorph.isClosedEmbedding.locallyCompactSpace
+
+-- does this exist upstream? Should do.
+example (v : HeightOneSpectrum (𝓞 K)) : SecondCountableTopology (v.adicCompletion K) :=
+  inferInstance

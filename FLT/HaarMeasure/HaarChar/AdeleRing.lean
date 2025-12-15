@@ -1,6 +1,6 @@
 import FLT.HaarMeasure.HaarChar.Ring
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
+import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.NumberField.AdeleRing
 /-!
 
