@@ -159,15 +159,16 @@ lemma open_of_locally_compact_dense_metrizable {X Y : Type*} [TopologicalSpace X
     rw [← s_preim_t] at y_in_s
     exact y_in_s
 
-theorem polish_of_locally_compact_second_countable (X : Type*) [TopologicalSpace X] [SecondCountableTopology X] [T2Space X]
+theorem polish_of_locally_compact_second_countable
+    (X : Type*) [TopologicalSpace X] [SecondCountableTopology X] [T2Space X]
     [LocallyCompactSpace X] : PolishSpace X := by
   letI _ : MetrizableSpace X := metrizableSpace_of_t3_secondCountable X
   letI _ : MetricSpace X := metrizableSpaceMetric X
   have dn : IsOpen (range (Completion.coe' : X → Completion X)) := by
     apply open_of_locally_compact_dense_metrizable Completion.coe'
-    exact Completion.continuous_coe X
-    exact IsDenseInducing.isInducing Completion.isDenseInducing_coe
-    exact Completion.denseRange_coe
+    · exact Completion.continuous_coe X
+    · exact IsDenseInducing.isInducing Completion.isDenseInducing_coe
+    · exact Completion.denseRange_coe
   letI _ : PolishSpace (range (Completion.coe' : X → Completion X)) :=
     IsOpen.polishSpace dn
   have hHomeo : X ≃ₜ range (Completion.coe' : X → Completion X) :=
@@ -183,13 +184,19 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
         D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := by
   let H := (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup
   have hH : IsClosed H.carrier := sorry
-  have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) := sorry
-  have : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := sorry
+  have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) := by
+    have : SecondCountableTopology (AdeleRing (𝓞 K) K) := inferInstance
+    sorry
+  have : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
+    have : T2Space (AdeleRing (𝓞 K) K) := inferInstance
+    sorry
   have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) :=
     polish_of_locally_compact_second_countable _
-  have : DiscreteTopology H := sorry
+  have : DiscreteTopology H := by
+    sorry
   have : CompactSpace
-    (D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := sorry
+    (D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) :=
+      sorry
   exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
 
 /-- An auxiliary definition of an increasing family of compact
