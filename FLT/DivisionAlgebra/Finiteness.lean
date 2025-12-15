@@ -215,6 +215,7 @@ lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
   let E := Efamily K D r
   obtain ⟨U, hU, hKU, hU'⟩ := exists_isOpen_superset_and_isCompact_closure (E_family_compact K D r)
   refine ⟨closure U, hU', fun φ hφ ↦ ?_⟩
+  specialize hB (φ.symm ⁻¹' U) (hU.preimage φ.symm.continuous)
   replace hr : B < Measure.addHaar U := hr.trans_le (measure_mono hKU)
   replace hφ : addEquivAddHaarChar φ.symm = 1 := by
     simpa [hφ] using (addEquivAddHaarChar_trans (φ := φ) (ψ := φ.symm)).symm
@@ -222,7 +223,7 @@ lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     rw [← one_smul NNReal (Measure.addHaar (φ.symm ⁻¹' U)), ← hφ,
       addEquivAddHaarChar_smul_preimage]
   rw [foo] at hr
-  specialize hB (φ.symm ⁻¹' U) (hU.preimage φ.symm.continuous) hr
+  specialize hB hr
   simp only [Set.InjOn, not_forall] at hB
   obtain ⟨x, hx, y, hy, h, hne⟩ := hB
   rw [QuotientAddGroup.eq_iff_sub_mem] at h
