@@ -391,6 +391,7 @@ local instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
     exact add_smul _ _ _
   zero_smul mn := by cases mn; ext <;> exact zero_smul _ _
 
+/-- (Dinf K D × Df K D) has the 𝔸_K module topology. -/
 local instance : IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) := by
   exact IsModuleTopology.instProd'
 
@@ -457,46 +458,40 @@ omit [Algebra.IsCentral K D] in
 lemma rest₁_continuous : Continuous (rest₁ K D) := Continuous.comp continuous_snd (Continuous.comp
   (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
 
-local instance : Algebra ℝ (InfiniteAdeleRing K) := by
-  exact RingHom.toAlgebra (RingHom.comp
-    (RingEquiv.toRingHom (NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K).symm)
-    (RingHom.smulOneHom (R := ℝ) (S := (mixedEmbedding.mixedSpace K))))
-
+/-- The ℝ algebra structure on InfiniteAdeleRing K. -/
 noncomputable instance : Algebra ℝ (InfiniteAdeleRing K) :=
   (InfiniteAdeleRing.ringEquiv_mixedSpace K|>.symm.toRingHom.comp (algebraMap ℝ _)).toAlgebra
 
--- can/should I do this?
+/-- The ℝ-linear equivalence between InfinteAdleRing K and mixedEmbedding.mixedSpace K. Note: not
+  sure if this will work. -/
 local instance bar : InfiniteAdeleRing K ≃ₗ[ℝ] (mixedEmbedding.mixedSpace K) where
   __ := NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K
   map_smul' m x := by
     simp
     constructor
-    ·
-      sorry
-    ·
-      sorry
+    · sorry
+    · sorry
 
 local instance : Module.Finite ℝ (InfiniteAdeleRing K) := by
   have : Module.Finite ℝ (mixedEmbedding.mixedSpace K) := by
     exact Module.Finite.prod
   exact Module.Finite.equiv (bar K).symm
 
-open scoped TensorProduct.RightActions
+open scoped TensorProduct.RightActions in
+/-- The ℝ-algebra structure on Dinf K D. -/
 local instance : Algebra ℝ (Dinf K D) := by
   have h2 : Algebra ℝ (InfiniteAdeleRing K ⊗[K] D) := by
     exact Algebra.TensorProduct.leftAlgebra (R := K) (S := ℝ) (A := InfiniteAdeleRing K) (B := D)
   -- need something saying I can switch the tensor
-  -- there is nothing in TensorProduct.RightActions
+  -- working on something in RightActionInstances, but stuck on it
   sorry
 
 
 
 local instance : Module.Finite ℝ (InfiniteAdeleRing K ⊗[K] D) := by
-
   sorry
 
 local instance : Module.Finite ℝ (Dinf K D) := by
-
   -- depends on Algebra ℝ (Dinf K D)
   -- (InfiniteAdeleRing K) is a fininted ℝ module...
   sorry
@@ -504,26 +499,31 @@ local instance : Module.Finite ℝ (Dinf K D) := by
 local instance : Module.Free ℝ (Dinf K D) := by
   exact Module.free_of_finite_type_torsion_free'
 
+-- I need the following in rest₁_surjective to use ringHaarChar_ModuleFinite_unit
+
+/-- Dinf K D has the ℝ-module topology. -/
 local instance : IsModuleTopology ℝ (Dinf K D) := by
   /- By Algebra ℝ (InfiniteAdeleRing K); (InfiniteAdeleRing K) has the ℝ-module topology.
     Now since (Dinf K D) has the (InfiniteAdeleRing K)-module topolology it also has the
     ℝ-module topology.
   -/
   have : IsModuleTopology ℝ (InfiniteAdeleRing K) := by
-
     sorry
-  have : IsModuleTopology (InfiniteAdeleRing K) (Dfx K D) := by
-    -- really...
-    sorry
+  --have : IsModuleTopology (InfiniteAdeleRing K) (Dfx K D) := by
+  -- this is not being found
   sorry
 
+/-- Dinf K D is given the borel measure. -/
 local instance : MeasurableSpace (Dinf K D) :=
   borel (Dinf K D)
 
+-- need to work out how to do Borelize
 local instance : BorelSpace (Dinf K D) := {measurable_eq := rfl }
 
+/-- Df K D is given the borel measure. -/
 local instance : MeasurableSpace (Df K D) := borel (Df K D)
 
+-- borelize again
 local instance : BorelSpace (Df K D) := { measurable_eq := rfl }
 
 local instance : MeasurableSpace (Dinf K D × Df K D) := Prod.instMeasurableSpace
@@ -535,11 +535,10 @@ local instance : SecondCountableTopologyEither (D ⊗[K] InfiniteAdeleRing K)
     (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
   refine {out := ?_}
   left
-
   sorry
 
+-- not immediately being inferred?
 local instance : Nontrivial (Dinf K D) := by
-  -- obvious? Not sure why its not being inferred
   sorry
 
 omit [Algebra.IsCentral K D] in

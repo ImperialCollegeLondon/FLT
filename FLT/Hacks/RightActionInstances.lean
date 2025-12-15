@@ -221,6 +221,7 @@ variable (R S M : Type*) [CommSemiring R]
     [CommSemiring S] [AddCommMonoid M] [Algebra R S] [Module R M] [TopologicalSpace S]
     [SecondCountableTopology S] [Module.Finite R M]
 
+/-- M ⊗[R] S has the S-module topology. -/
 local instance : TopologicalSpace (M ⊗[R] S) := moduleTopology S (M ⊗[R] S)
 
 lemma SecondCountableTopology_tensor : SecondCountableTopology (M ⊗[R] S) := by
@@ -234,19 +235,17 @@ lemma SecondCountableTopology_tensor : SecondCountableTopology (M ⊗[R] S) := b
   · simp_all only [Subtype.exists, exists_prop, B, B_set]
     have : Countable (Fin n) := instCountableFin
     -- this just depends on to countable sets, so surely is countable
-
     sorry
   · refine TopologicalSpace.ext_iff.mpr ?_
     intro s
     constructor
     · intro hs
-
       sorry
-    ·
-      sorry
+    ·sorry
 
   -- Am I even doing this correct? Is the basis just mean to be M ⊗ b
-  -- for b a set in the basis of infiniteAdeleRing
+  -- for b a set in the basis of infiniteAdeleRing... need to understand what the ModuleTopology
+  -- explitely looks like
 
 
 end SecondCountableTopology
