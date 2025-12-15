@@ -3,30 +3,17 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
-import FLT.Mathlib.Algebra.Algebra.Bilinear
-import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
-import Mathlib.NumberTheory.RamificationInertia.Basic
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.Algebra.UniformRing
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Topology.Algebra.Valued.WithVal
-import FLT.Mathlib.RingTheory.TensorProduct.Basis
-import Mathlib.RingTheory.Finiteness.Basic
-import Mathlib.Algebra.Algebra.Subalgebra.Pi
-import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.Data.Int.WithZero
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.Topology.Algebra.Valued.NormedValued
-import Mathlib.RingTheory.Valuation.RankOne
-import Mathlib.RingTheory.Flat.Basic
-import Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.IntegralClosure
-import FLT.Hacks.RightActionInstances
+import FLT.Mathlib.Algebra.Algebra.Pi
+import FLT.Mathlib.Algebra.Module.Submodule.Basic
+import FLT.Mathlib.RingTheory.TensorProduct.Basis
+import FLT.Mathlib.Topology.Algebra.Module.Equiv
+import FLT.Mathlib.Topology.Algebra.UniformRing
+import FLT.Mathlib.Topology.Algebra.Valued.WithVal
+import Mathlib.Algebra.Algebra.Subalgebra.Pi
+import Mathlib.Topology.Algebra.Module.FiniteDimension
+import Mathlib.Topology.Algebra.Valued.NormedValued
 
 /-!
 

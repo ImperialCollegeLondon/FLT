@@ -2,6 +2,7 @@ import FLT.Mathlib.MeasureTheory.Group.Measure
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -334,6 +335,7 @@ open RestrictedProduct
 
 open Pointwise in
 -- TODO this should be elsewhere
+-- note: it can't be an instance because typeclass inference can't find C
 @[to_additive]
 lemma _root_.WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup
     {A : Type*} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
@@ -352,22 +354,21 @@ variable {ι : Type*}
     [∀ i, MeasurableSpace (G i)]
     [∀ i, BorelSpace (G i)]
 
+example : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
+  haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
+  WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
+
+variable [∀ i, WeaklyLocallyCompactSpace (G i)]
+
 open ContinuousMulEquiv in
 @[to_additive]
 lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
     (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
-    -- typeclass stuff
-    letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
-    haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-    haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
-      haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
-      WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
-    -- lemma statement starts here
     mulEquivHaarChar
       (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
-  letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
-  haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
+  -- letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
+  -- haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
   -- -- the below code created a compact open in the restricted product and shows
   -- -- it has Haar measure 0 < μ < ∞ but I've realised I don't know what to do next.
   -- -- The blueprint has a proof which I can make work.
