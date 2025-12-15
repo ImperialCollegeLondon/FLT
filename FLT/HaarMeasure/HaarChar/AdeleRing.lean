@@ -1,6 +1,6 @@
 import FLT.HaarMeasure.HaarChar.Ring
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
+import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.NumberField.AdeleRing
 /-!
 
@@ -58,8 +58,7 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).1 hx)
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).2 hx))
 
-lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ)
-    [MeasurableSpace ((𝔸 ℚ))] [BorelSpace (𝔸 ℚ)] :
+lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := sorry
 
 -- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange
@@ -121,4 +120,10 @@ lemma NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one
       (ContinuousAddEquiv.mulRight
         (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ)) = 1 := by
-  sorry
+  convert addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulRight K b)
+  ext c
+  change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
+  induction c with
+  | zero => simp
+  | tmul x y => simp [LinearEquiv.mulRight]
+  | add x y hx hy => simp_all [add_mul]
