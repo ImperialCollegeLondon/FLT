@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.DedekindDomain.AdicValuation
+import FLT.Mathlib.LinearAlgebra.Countable
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.NumberField.Padics.RestrictedProduct
-import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
+import Mathlib.NumberTheory.NumberField.FinitePlaces
 import Mathlib.NumberTheory.Padics.ProperSpace
+import Mathlib.Topology.MetricSpace.Polish
 
 /-!
 
@@ -49,5 +51,13 @@ instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ
     LocallyCompactSpace (v.adicCompletion ℚ) :=
   v.padicUniformEquiv.toHomeomorph.isClosedEmbedding.locallyCompactSpace
 
--- needs doing
-instance (v : HeightOneSpectrum (𝓞 K)) : SecondCountableTopology (v.adicCompletion K) := sorry
+instance : TopologicalSpace.SeparableSpace (v.adicCompletion K) where
+    exists_countable_dense := ⟨Set.range ((↑) : K → v.adicCompletion K),
+  by
+    have : Countable (WithVal (HeightOneSpectrum.valuation K v)) :=
+      inferInstanceAs <| Countable K
+    exact Set.countable_range _,
+  UniformSpace.Completion.denseRange_coe⟩
+
+example (v : HeightOneSpectrum (𝓞 K)) : SecondCountableTopology (v.adicCompletion K) :=
+  inferInstance
