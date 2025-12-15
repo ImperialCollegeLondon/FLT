@@ -214,12 +214,11 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
   let H := includeLeft_subgroup K D
   have : DiscreteTopology H := discrete_includeLeft_subgroup K D
   have hH : IsClosed H.carrier := AddSubgroup.isClosed_of_discrete
-  have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) := by
-    have : SecondCountableTopology (AdeleRing (𝓞 K) K) := inferInstance
-    sorry
-  have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) :=
-    polish_of_locally_compact_second_countable _
-  have : CompactSpace (D_𝔸 ⧸ H) :=
+  have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) :=
+    Homeomorph.secondCountableTopology (D𝔸_iso_top K D).toHomeomorph
+  have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) := polish_of_locally_compact_second_countable _
+  have : CompactSpace (D_𝔸 ⧸ H) := by
+    -- might require using an explicit large compact subset of D_𝔸
     sorry
   exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
 
