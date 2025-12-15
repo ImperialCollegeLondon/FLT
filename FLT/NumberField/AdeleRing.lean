@@ -590,6 +590,8 @@ def Rat.AdeleRing.fundamentalDomain : Set (AdeleRing (𝓞 ℚ) ℚ) :=
   (univ.pi fun v => (extensionEmbeddingOfIsReal (infinitePlace_isReal v)).toFun ⁻¹' (Ico 0 1)).prod
     (range <| structureMap _ _ _)
 
+/-- The canonical ring homomorphism from the adele ring to
+a nonarchimedean local factor. -/
 def AdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K] (v : HeightOneSpectrum (𝓞 K)) :
     AdeleRing (𝓞 K) K →+* v.adicCompletion K where
   toFun x := x.2 v
@@ -598,6 +600,8 @@ def AdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K] (v : Height
   map_zero' := rfl
   map_add' _ _ := rfl
 
+/-- The canonical ring homomorphism from the finite adele ring to
+a nonarchimedean local factor. -/
 def FiniteAdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K]
     (v : HeightOneSpectrum (𝓞 K)) :
     FiniteAdeleRing (𝓞 K) K →+* v.adicCompletion K where
