@@ -485,5 +485,3 @@ lemma RestrictedProduct.secondCountableTopology {ι : Type*} [Countable ι]
     (fun S ↦ RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen
         (Filter.le_principal_iff.2 S.2))
     (fun f ↦ ⟨⟨_, f.2⟩, ⟨f.1, by aesop⟩, rfl⟩)
-
-#min_imports
