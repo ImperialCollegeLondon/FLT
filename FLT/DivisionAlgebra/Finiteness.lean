@@ -553,8 +553,9 @@ local instance : IsModuleTopology ℝ (Dinf K D) := by
   -/
   have : IsModuleTopology ℝ (InfiniteAdeleRing K) := by
     sorry
-  have : IsModuleTopology (InfiniteAdeleRing K) (Df K D) := by
-    sorry
+  have : IsModuleTopology (InfiniteAdeleRing K) (Dinf K D) := by
+    exact TensorProduct.RightActions.instIsModuleTopology_fLT K (InfiniteAdeleRing K) D
+
   sorry
 
 /-- Dinf K D is given the borel measure. -/
