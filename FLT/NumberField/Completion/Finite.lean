@@ -52,5 +52,6 @@ instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ
     LocallyCompactSpace (v.adicCompletion ℚ) :=
   v.padicUniformEquiv.toHomeomorph.isClosedEmbedding.locallyCompactSpace
 
+-- does this exist upstream? Should do.
 example (v : HeightOneSpectrum (𝓞 K)) : SecondCountableTopology (v.adicCompletion K) :=
   inferInstance
