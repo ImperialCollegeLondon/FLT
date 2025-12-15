@@ -10,6 +10,7 @@ import FLT.NumberField.Padics.RestrictedProduct
 import Mathlib.NumberTheory.NumberField.FinitePlaces
 import Mathlib.NumberTheory.Padics.ProperSpace
 import Mathlib.Topology.MetricSpace.Polish
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 /-!
 
@@ -50,14 +51,6 @@ lemma NumberField.isOpenAdicCompletionIntegers :
 instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ)) :
     LocallyCompactSpace (v.adicCompletion ℚ) :=
   v.padicUniformEquiv.toHomeomorph.isClosedEmbedding.locallyCompactSpace
-
-instance : TopologicalSpace.SeparableSpace (v.adicCompletion K) where
-    exists_countable_dense := ⟨Set.range ((↑) : K → v.adicCompletion K),
-  by
-    have : Countable (WithVal (HeightOneSpectrum.valuation K v)) :=
-      inferInstanceAs <| Countable K
-    exact Set.countable_range _,
-  UniformSpace.Completion.denseRange_coe⟩
 
 example (v : HeightOneSpectrum (𝓞 K)) : SecondCountableTopology (v.adicCompletion K) :=
   inferInstance

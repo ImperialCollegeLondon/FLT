@@ -98,6 +98,7 @@ import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.Order.Filter.Cofinite
 import FLT.Mathlib.RepresentationTheory.Basic
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
