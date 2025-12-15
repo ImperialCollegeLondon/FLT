@@ -361,6 +361,33 @@ section Discrete
 
 open IsDedekindDomain
 
+theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
+    (h2 : ∀ v, ((algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ)) x) v ∈
+      IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v)
+    (h1 : ∀ (v : InfinitePlace ℚ), ‖algebraMap ℚ (InfiniteAdeleRing ℚ) x v‖ < 1) : x = 0 := by
+  simp only [InfiniteAdeleRing.algebraMap_apply, UniformSpace.Completion.norm_coe] at h1
+  specialize h1 Rat.infinitePlace
+  change ‖(x : ℂ)‖ < 1 at h1
+  simp only [Complex.norm_ratCast] at h1
+  have intx: ∃ (y:ℤ), y = x := by
+    obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
+        ℚ x <| fun v ↦ by
+      specialize h2 v
+      letI : UniformSpace ℚ := v.adicValued.toUniformSpace
+      rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
+      rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
+    use Rat.ringOfIntegersEquiv z
+    rw [← hz]
+    apply Rat.ringOfIntegersEquiv_apply_coe
+  obtain ⟨y, rfl⟩ := intx
+  simp only [abs_lt] at h1
+  norm_cast at h1 ⊢
+  -- We need the next line because `norm_cast` is for some reason producing a `negSucc 0`.
+  -- I haven't been able to isolate this behaviour even in a standalone lemma.
+  -- We could also make `omega` more robust against accidental appearances of `negSucc`.
+  rw [Int.negSucc_eq] at h1
+  omega
+
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
     IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
   let integralAdeles := {f : FiniteAdeleRing (𝓞 ℚ) ℚ |
@@ -383,30 +410,8 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       rw [Set.mem_prod] at hx
       obtain ⟨h1, h2⟩ := hx
       dsimp only at h1 h2
-      simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq,
-        InfiniteAdeleRing.algebraMap_apply, UniformSpace.Completion.norm_coe] at h1
-      simp only [integralAdeles, Set.mem_setOf_eq] at h2
-      specialize h1 Rat.infinitePlace
-      change ‖(x : ℂ)‖ < 1 at h1
-      simp only [Complex.norm_ratCast] at h1
-      have intx: ∃ (y:ℤ), y = x := by
-        obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
-            ℚ x <| fun v ↦ by
-          specialize h2 v
-          letI : UniformSpace ℚ := v.adicValued.toUniformSpace
-          rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
-          rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
-        use Rat.ringOfIntegersEquiv z
-        rw [← hz]
-        apply Rat.ringOfIntegersEquiv_apply_coe
-      obtain ⟨y, rfl⟩ := intx
-      simp only [abs_lt] at h1
-      norm_cast at h1 ⊢
-      -- We need the next line because `norm_cast` is for some reason producing a `negSucc 0`.
-      -- I haven't been able to isolate this behaviour even in a standalone lemma.
-      -- We could also make `omega` more robust against accidental appearances of `negSucc`.
-      rw [Int.negSucc_eq] at h1
-      omega
+      simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq] at h1
+      exact Rat.AdeleRing.integral_and_norm_lt_one x h2 h1
     · intro x
       simp only [Set.mem_singleton_iff, Set.mem_preimage]
       rintro rfl
@@ -585,11 +590,29 @@ def Rat.AdeleRing.fundamentalDomain : Set (AdeleRing (𝓞 ℚ) ℚ) :=
   (univ.pi fun v => (extensionEmbeddingOfIsReal (infinitePlace_isReal v)).toFun ⁻¹' (Ico 0 1)).prod
     (range <| structureMap _ _ _)
 
+def AdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K] (v : HeightOneSpectrum (𝓞 K)) :
+    AdeleRing (𝓞 K) K →+* v.adicCompletion K where
+  toFun x := x.2 v
+  map_one' := rfl
+  map_mul' _ _ := rfl
+  map_zero' := rfl
+  map_add' _ _ := rfl
+
+def FiniteAdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K]
+    (v : HeightOneSpectrum (𝓞 K)) :
+    FiniteAdeleRing (𝓞 K) K →+* v.adicCompletion K where
+  toFun x := x v
+  map_one' := rfl
+  map_mul' _ _ := rfl
+  map_zero' := rfl
+  map_add' _ _ := rfl
+
+-- bleurgh
 lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
     ∃ g, algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) g + a ∈ fundamentalDomain := by
   obtain ⟨q, f, hf⟩ := FiniteAdeleRing.sub_mem_integralAdeles a.2
   obtain ⟨r, hr, -⟩ := Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a.1 - algebraMap _ _ q)
-  use (-q-r)
+  use (-q - r)
   refine Set.mem_prod.2 ⟨?_, ?_⟩
   · simp_rw [Set.mem_pi, Set.mem_preimage]
     intro v _
@@ -601,26 +624,26 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       rfl
     convert hr v
   · rw [Set.mem_range]
-    use fun p ↦ ⟨a.2 p + (-q - r), ?_⟩
+    use fun p ↦ ⟨a.2 p + algebraMap ℚ _ (-q - r), ?_⟩
     · rw [add_comm]
       ext v
       change _ = a.2 _ + _
       push_cast
-      simp [structureMap]
-      norm_cast
-      push_cast
-      norm_cast
-      sorry
-    · rw [← add_sub_assoc]
+      simp only [structureMap, FiniteAdeleRing.mk_apply, add_right_inj]
+      rfl
+    · rw [map_sub, ← add_sub_assoc]
       refine sub_mem ?_ (coe_algebraMap_mem (𝓞 ℚ) ℚ p r)
       convert (f p).2
       rw [RestrictedProduct.ext_iff] at hf
-      specialize hf p
-      convert hf.symm
-      rw [sub_eq_add_neg]
-      change _ = a.2 p + _
-      congr
-      sorry
+      convert (hf p).symm
+      rw [map_neg, ← sub_eq_add_neg, Eq.comm]
+      convert (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
+
+lemma Real.thing1 (x y : ℝ) (hx : x ∈ Set.Ico 0 1) (hy : y ∈ Set.Ico 0 1) : ‖x - y‖ < 1 := by
+  sorry
+
+lemma Real.thing2 (v : InfinitePlace ℚ) (x : v.Completion) :
+‖InfinitePlace.Completion.extensionEmbeddingOfIsReal (Rat.infinitePlace_isReal v) x‖ = ‖x‖ := sorry
 
   -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
   -- be a corollary: fundamentalDomain - fundamentalDomain ⊆ the U used in the proof
@@ -628,10 +651,43 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
 lemma Rat.AdeleRing.fundamentalDomain_traversal {a b : AdeleRing (𝓞 ℚ) ℚ}
     (ha : a ∈ fundamentalDomain) (hb : b ∈ fundamentalDomain) {q : ℚ}
     (hq : algebraMap _ _ q + a = b) : q = 0 := by
-  -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
-  -- be a corollary: fundamentalDomain - fundamentalDomain ⊆ the U used in the proof
-  -- This lemma is in fact a "concrete version" of that one
-  sorry
+  apply Rat.AdeleRing.integral_and_norm_lt_one
+  · intro v
+    apply_fun RingHom.snd (InfiniteAdeleRing ℚ) _ at hq
+    rw [map_add, ← eq_sub_iff_add_eq] at hq
+    unfold AdeleRing at hq
+    rw [RingHom.map_rat_algebraMap (RingHom.snd (InfiniteAdeleRing ℚ) (FiniteAdeleRing (𝓞 ℚ) ℚ)) q]
+      at hq
+    rw [hq]
+    apply sub_mem
+    · obtain ⟨x, hx⟩ := (Set.mem_prod.1 hb).2
+      change b.2 v ∈ _
+      rw [← hx]
+      exact (x v).2
+    · obtain ⟨x, hx⟩ := (Set.mem_prod.1 ha).2
+      change a.2 v ∈ _
+      rw [← hx]
+      exact (x v).2
+  · intro v
+    apply_fun RingHom.fst (InfiniteAdeleRing ℚ) _ at hq
+    rw [map_add, ← eq_sub_iff_add_eq] at hq
+    unfold AdeleRing at hq
+    rw [RingHom.map_rat_algebraMap (RingHom.fst (InfiniteAdeleRing ℚ) (FiniteAdeleRing (𝓞 ℚ) ℚ)) q]
+      at hq
+    rw [hq]
+    replace ha := (Set.mem_prod.1 ha).1
+    replace hb := (Set.mem_prod.1 hb).1
+    simp_rw [Set.mem_pi, Set.mem_preimage] at ha hb
+    specialize ha v (Set.mem_univ _)
+    specialize hb v (Set.mem_univ _)
+    change ‖b.1 v - a.1 v‖ < 1
+    change InfinitePlace.Completion.extensionEmbeddingOfIsReal _ (a.1 v) ∈ _ at ha
+    change InfinitePlace.Completion.extensionEmbeddingOfIsReal _ (b.1 v) ∈ _ at hb
+    suffices ‖InfinitePlace.Completion.extensionEmbeddingOfIsReal (infinitePlace_isReal v)
+        (b.1 v - a.1 v)‖ < 1 by
+      rwa [← Real.thing2]
+    rw [map_sub]
+    exact Real.thing1 _ _ hb ha
 
 open NumberField Metric MeasureTheory IsDedekindDomain
 
