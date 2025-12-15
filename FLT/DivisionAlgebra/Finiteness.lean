@@ -214,7 +214,8 @@ lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
   obtain ⟨r, hr⟩ := E_family_unbounded K D B
   let E := Efamily K D r
   obtain ⟨U, hU, hKU, hU'⟩ := exists_isOpen_superset_and_isCompact_closure (E_family_compact K D r)
-  refine ⟨closure U, hU', fun φ hφ ↦ ?_⟩
+  use closure U, hU'
+  intro φ hφ
   specialize hB (φ.symm ⁻¹' U) (hU.preimage φ.symm.continuous)
   replace hr : B < Measure.addHaar U := hr.trans_le (measure_mono hKU)
   replace hφ : addEquivAddHaarChar φ.symm = 1 := by
