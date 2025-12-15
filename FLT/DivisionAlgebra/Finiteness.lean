@@ -7,7 +7,6 @@ import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
-
 /-
 
 # Fujisaki's lemma
