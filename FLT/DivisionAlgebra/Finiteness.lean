@@ -6,6 +6,7 @@ Authors: Kevin Buzzard, William Coram
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.MeasureTheory.Haar.Extension
+import FLT.Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 import FLT.Mathlib.Topology.HomToDiscrete
 import Mathlib.Topology.Metrizable.Urysohn
 import Mathlib.Topology.MetricSpace.Polish
@@ -191,22 +192,37 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
     (D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := sorry
   exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
 
+/-- An auxiliary definition of an increasing family of compact
+subsets of D_𝔸, defined as the product of a compact open subgroup
+at the finite places and a large closed ball at the infinite places.
+-/
+def Efamily (r : ℝ) : Set (D_𝔸) := sorry
+-- (1) D_𝔸 ≃ (D ⊗[K] 𝔸_K^f) x (D ⊗[K] K_∞)
+-- (2) Choose random K-basis e_i for D and use ∑ 𝓞_K^.e_i at the finite places
+-- (3) Choose random ℝ-basis for D ⊗[K] K_∞ use closed ball or cube radius r.
+
+lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := sorry
+
+open NNReal in
+lemma E_family_unbounded (B : ℝ≥0) :
+  ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B := sorry
+
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
   obtain ⟨B, hB⟩ := not_injective_of_large_measure K D
-  let μ : Measure (D_𝔸) := Measure.addHaar
-  have hμ : μ Set.univ = ⊤ := sorry
-  have h : μ.Regular := Measure.regular_addHaarMeasure
-  obtain ⟨K, -, hK, hμ⟩ := h.innerRegular isOpen_univ B (by simp [hμ])
-  obtain ⟨U, hU, hKU, hU'⟩ := exists_isOpen_superset_and_isCompact_closure hK
-  replace hμ := hμ.trans_le (measure_mono hKU)
+  obtain ⟨r, hr⟩ := E_family_unbounded K D B
+  let E := Efamily K D r
+  obtain ⟨U, hU, hKU, hU'⟩ := exists_isOpen_superset_and_isCompact_closure (E_family_compact K D r)
   refine ⟨closure U, hU', fun φ hφ ↦ ?_⟩
+  replace hr : B < Measure.addHaar U := hr.trans_le (measure_mono hKU)
   replace hφ : addEquivAddHaarChar φ.symm = 1 := by
     simpa [hφ] using (addEquivAddHaarChar_trans (φ := φ) (ψ := φ.symm)).symm
-  specialize hB (φ.symm ⁻¹' U) (hU.preimage φ.symm.continuous)
-    (by rwa [← one_smul NNReal (Measure.addHaar (φ.symm ⁻¹' U)), ← hφ,
-      addEquivAddHaarChar_smul_preimage])
+  have foo : Measure.addHaar U = Measure.addHaar (⇑φ.symm ⁻¹' U) := by
+    rw [← one_smul NNReal (Measure.addHaar (φ.symm ⁻¹' U)), ← hφ,
+      addEquivAddHaarChar_smul_preimage]
+  rw [foo] at hr
+  specialize hB (φ.symm ⁻¹' U) (hU.preimage φ.symm.continuous) hr
   simp only [Set.InjOn, not_forall] at hB
   obtain ⟨x, hx, y, hy, h, hne⟩ := hB
   rw [QuotientAddGroup.eq_iff_sub_mem] at h

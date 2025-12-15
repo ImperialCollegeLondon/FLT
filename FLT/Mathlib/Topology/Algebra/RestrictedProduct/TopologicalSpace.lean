@@ -1,9 +1,10 @@
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
-import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import FLT.Mathlib.Order.Filter.Cofinite
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import Mathlib.Topology.Instances.Matrix
-import Mathlib.Topology.Algebra.Constructions
 import FLT.Mathlib.Topology.Algebra.Group.Units
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
+import FLT.Mathlib.Topology.Bases
+import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import Mathlib.Topology.Instances.Matrix
 
 open RestrictedProduct
 
@@ -462,3 +463,25 @@ lemma RestrictedProduct.isOpenMap_of_open_components
     rfl
 
 end openmap
+
+open RestrictedProduct Filter in
+instance RestrictedProduct.SecondCountableTopology_of_principal
+    {ι : Type*} [Countable ι]
+    (X : ι → Type*) [∀ i, TopologicalSpace (X i)]
+    (C : (i : ι) → Set (X i))
+    [∀ i, SecondCountableTopology (X i)]
+    {S : Set ι} :
+    SecondCountableTopology (Πʳ i, [X i, C i]_[𝓟 S]) :=
+  isEmbedding_coe_of_principal.secondCountableTopology
+
+open Filter RestrictedProduct in
+lemma RestrictedProduct.secondCountableTopology {ι : Type*} [Countable ι]
+    {X : ι → Type*} [∀ i, TopologicalSpace (X i)]
+    {C : (i : ι) → Set (X i)} (hCopen : ∀ (i : ι), IsOpen (C i))
+    [∀ i, SecondCountableTopology (X i)] :
+    SecondCountableTopology (Πʳ i, [X i, C i]) :=
+  TopologicalSpace.secondCountableTopology_of_countable_cover'
+    (fun S : (.cofinite : Filter ι).sets ↦ inclusion X C (Filter.le_principal_iff.2 S.2))
+    (fun S ↦ RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen
+        (Filter.le_principal_iff.2 S.2))
+    (fun f ↦ ⟨⟨_, f.2⟩, ⟨f.1, by aesop⟩, rfl⟩)

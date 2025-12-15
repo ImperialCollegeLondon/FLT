@@ -8,6 +8,7 @@ import Mathlib.Analysis.SpecialFunctions.Stirling
 import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Analysis.Real.Pi.Bounds
 import Mathlib.Data.Real.StarOrdered
+import Mathlib.Order.Monotone.Union
 import Mathlib.Tactic.NormNum.NatFactorial
 
 open scoped Nat
