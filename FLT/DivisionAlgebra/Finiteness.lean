@@ -212,14 +212,13 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
     ¬ U.InjOn (QuotientAddGroup.mk : D_𝔸 →
         D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := by
   let H := includeLeft_subgroup K D
-  have hH : IsClosed H.carrier := by
-    sorry
+  have : DiscreteTopology H := discrete_includeLeft_subgroup K D
+  have hH : IsClosed H.carrier := AddSubgroup.isClosed_of_discrete
   have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) := by
     have : SecondCountableTopology (AdeleRing (𝓞 K) K) := inferInstance
     sorry
   have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) :=
     polish_of_locally_compact_second_countable _
-  have : DiscreteTopology H := discrete_includeLeft_subgroup K D
   have : CompactSpace (D_𝔸 ⧸ H) :=
     sorry
   exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
