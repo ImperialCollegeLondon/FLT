@@ -177,26 +177,51 @@ theorem polish_of_locally_compact_second_countable
 
 end Polish
 
+/-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
+local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
+  AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
+
+local instance discrete_includeLeft_subgroup :
+    DiscreteTopology (includeLeft_subgroup K D).carrier := by
+  rw [includeLeft_subgroup]
+  apply discreteTopology_iff_isOpen_singleton.mpr
+  rintro ⟨a, a', ha⟩
+  obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
+  refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
+  simp only [Subtype.image_preimage_coe, Set.image_singleton]
+  ext d
+  constructor
+  · rintro ⟨⟨c, hc⟩, hd2⟩
+    refine Set.mem_singleton_of_eq ?_
+    rw [← hc] at hd2
+    apply Set.mem_preimage.mpr at hd2
+    simp only [AddMonoidHom.coe_coe, hUeq, Set.mem_singleton_iff] at hd2
+    simp_rw [← hc, hd2, ha]
+  · intro hd
+    constructor
+    · refine Set.mem_range.mpr ⟨a', ?_⟩
+      rwa [hd]
+    · rw [hd, ← ha]
+      exact Set.mem_preimage.mp (by simp [hUeq])
+
+instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
+
 open scoped NNReal in
 lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
    IsOpen U → B < MeasureTheory.Measure.addHaar U →
     ¬ U.InjOn (QuotientAddGroup.mk : D_𝔸 →
         D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := by
-  let H := (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup
-  have hH : IsClosed H.carrier := sorry
+  let H := includeLeft_subgroup K D
+  have hH : IsClosed H.carrier := by
+    sorry
   have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) := by
     have : SecondCountableTopology (AdeleRing (𝓞 K) K) := inferInstance
     sorry
-  have : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := by
-    have : T2Space (AdeleRing (𝓞 K) K) := inferInstance
-    sorry
   have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) :=
     polish_of_locally_compact_second_countable _
-  have : DiscreteTopology H := by
+  have : DiscreteTopology H := discrete_includeLeft_subgroup K D
+  have : CompactSpace (D_𝔸 ⧸ H) :=
     sorry
-  have : CompactSpace
-    (D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) :=
-      sorry
   exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
 
 /-- An auxiliary definition of an increasing family of compact
@@ -300,34 +325,6 @@ lemma X_meets_kernel' [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ring
 
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
-
-/-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
-local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
-  AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
-
-local instance : DiscreteTopology (includeLeft_subgroup K D).carrier := by
-  rw [includeLeft_subgroup]
-  apply discreteTopology_iff_isOpen_singleton.mpr
-  rintro ⟨a, a', ha⟩
-  obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
-  refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
-  simp only [Subtype.image_preimage_coe, Set.image_singleton]
-  ext d
-  constructor
-  · rintro ⟨⟨c, hc⟩, hd2⟩
-    refine Set.mem_singleton_of_eq ?_
-    rw [← hc] at hd2
-    apply Set.mem_preimage.mpr at hd2
-    simp only [AddMonoidHom.coe_coe, hUeq, Set.mem_singleton_iff] at hd2
-    simp_rw [← hc, hd2, ha]
-  · intro hd
-    constructor
-    · refine Set.mem_range.mpr ⟨a', ?_⟩
-      rwa [hd]
-    · rw [hd, ← ha]
-      exact Set.mem_preimage.mp (by simp [hUeq])
-
-instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
 
 lemma T_finite_extracted1 : IsCompact (Y K D ∩
     Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
