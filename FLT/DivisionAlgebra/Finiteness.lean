@@ -112,26 +112,18 @@ local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
 
 local instance discrete_includeLeft_subgroup :
     DiscreteTopology (includeLeft_subgroup K D).carrier := by
-  rw [includeLeft_subgroup]
-  apply discreteTopology_iff_isOpen_singleton.mpr
-  rintro ⟨a, a', ha⟩
+  rw [includeLeft_subgroup, discreteTopology_iff_isOpen_singleton]
+  rintro ⟨a, a', rfl⟩
   obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
   refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
   simp only [Subtype.image_preimage_coe, Set.image_singleton]
+  let f : D → D ⊗[K] AdeleRing (𝓞 K) K :=
+    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D ⊗[K] AdeleRing (𝓞 K) K)
+  change Set.range f ∩ U = {f a'}
+  change f ⁻¹' U = {a'} at hUeq
   ext d
-  constructor
-  · rintro ⟨⟨c, hc⟩, hd2⟩
-    refine Set.mem_singleton_of_eq ?_
-    rw [← hc] at hd2
-    apply Set.mem_preimage.mpr at hd2
-    simp only [AddMonoidHom.coe_coe, hUeq, Set.mem_singleton_iff] at hd2
-    simp_rw [← hc, hd2, ha]
-  · intro hd
-    constructor
-    · refine Set.mem_range.mpr ⟨a', ?_⟩
-      rwa [hd]
-    · rw [hd, ← ha]
-      exact Set.mem_preimage.mp (by simp [hUeq])
+  simp [Set.ext_iff] at hUeq
+  grind
 
 instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
 
