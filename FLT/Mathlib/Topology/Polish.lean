@@ -29,11 +29,7 @@ lemma open_of_locally_compact_dense_metrizable {X Y : Type*} [TopologicalSpace X
       unfold DenseRange at dn
       rw [dense_iff_inter_open] at dn
       specialize dn (o ∩ t) (o_op.inter t_op) ⟨z, z_in_o, hz⟩
-      have : t ∩ range f = f '' s := by
-        rw [← s_preim_t]
-        exact Eq.symm image_preimage_eq_inter_range
-      rw [inter_assoc, this] at dn
-      exact dn
+      grind [image_preimage_eq_inter_range]
     · apply closure_mono
       intro z hz
       obtain ⟨w, hw, h⟩ := hz
