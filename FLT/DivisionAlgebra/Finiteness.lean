@@ -206,6 +206,50 @@ local instance discrete_includeLeft_subgroup :
 
 instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
 
+local instance compact_includeLeft_subgroup :
+    CompactSpace (D_𝔸 ⧸ (includeLeft_subgroup K D)) := by
+  let H := includeLeft_subgroup K D
+  change CompactSpace (D_𝔸 ⧸ H)
+  have key := NumberField.AdeleRing.cocompact K
+  let π : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) →+
+      (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) :=
+    AddMonoidHom.compLeft (QuotientAddGroup.mk' _) _
+  have hπ1 : Continuous π := by
+    simp only [π, AddMonoidHom.compLeft]
+    simp only [QuotientAddGroup.coe_mk', AddMonoidHom.coe_mk, ZeroHom.coe_mk]
+    fun_prop
+  have hπ2 : IsOpenQuotientMap π := by
+    have : IsClosed (principalSubgroup (𝓞 K) K : Set (AdeleRing (𝓞 K) K)) := sorry
+    have key := TopologicalAddGroup.IsSES.ofClosedAddSubgroup (principalSubgroup (𝓞 K) K)
+    exact IsOpenQuotientMap.piMap (fun _ ↦ key.isOpenQuotientMap)
+  let φ : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) →+ (D_𝔸 ⧸ H) :=
+    AddMonoidHom.comp (QuotientAddGroup.mk' _) (D𝔸_iso_top K D).symm.toAddMonoidHom
+  have hφ0 : π.ker ≤ φ.ker := by
+    intro x hx
+    replace hx : ∀ i, x i ∈ Set.range (algebraMap K (AdeleRing (𝓞 K) K)) := by
+      simpa [π, funext_iff] using hx
+    choose q hq using hx
+    let d := (D_iso K D).symm q
+    simp only [Algebra.algebraMap_eq_smul_one] at hq
+    simp only [φ, AddMonoidHom.mem_ker, AddMonoidHom.comp_apply,
+      QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_zero_iff]
+    use d
+    simp only [LinearMap.toAddMonoidHom_coe, ContinuousLinearEquiv.toLinearEquiv_symm]
+    simp only [LinearEquiv.coe_coe, LinearEquiv.eq_symm_apply]
+    simp [d, hq]
+  have hφ1 : Continuous φ := by
+    simp only [φ, AddMonoidHom.coe_comp, QuotientAddGroup.coe_mk', LinearMap.toAddMonoidHom_coe]
+    fun_prop
+  have hφ2 : Function.Surjective φ :=
+    (QuotientAddGroup.mk'_surjective _).comp (D𝔸_iso_top K D).symm.surjective
+  let f : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) →+
+    (D_𝔸 ⧸ H) := AddMonoidHom.liftOfSurjective π hπ2.surjective ⟨φ, hφ0⟩
+  have hf0 : f ∘ π = φ := by ext; simp [f]
+  have hf1 : Continuous f := by rwa [← hπ2.continuous_comp_iff, hf0]
+  have hf2 : Function.Surjective f := by rwa [← hπ2.surjective.of_comp_iff, hf0]
+  rw [← isCompact_univ_iff, ← Set.image_univ_of_surjective hf2]
+  exact isCompact_univ.image hf1
+
 open scoped NNReal in
 lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
    IsOpen U → B < MeasureTheory.Measure.addHaar U →
@@ -213,13 +257,9 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
         D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := by
   let H := includeLeft_subgroup K D
   have : DiscreteTopology H := discrete_includeLeft_subgroup K D
-  have hH : IsClosed H.carrier := AddSubgroup.isClosed_of_discrete
   have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) :=
     Homeomorph.secondCountableTopology (D𝔸_iso_top K D).toHomeomorph
   have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) := polish_of_locally_compact_second_countable _
-  have : CompactSpace (D_𝔸 ⧸ H) := by
-    -- might require using an explicit large compact subset of D_𝔸
-    sorry
   exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
 
 /-- An auxiliary definition of an increasing family of compact
