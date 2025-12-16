@@ -516,7 +516,7 @@ local instance : Algebra ℝ (Dinf K D) := by
   have h2 : Algebra ℝ (InfiniteAdeleRing K ⊗[K] D) := by
     exact Algebra.TensorProduct.leftAlgebra (R := K) (S := ℝ) (A := InfiniteAdeleRing K) (B := D)
   -- need something saying I can switch the tensor
-  -- working on something in RightActionInstances, but stuck on it
+  -- needs something in TensorProduct.RightActions which has generalises the work there
   sorry
 
 
@@ -542,8 +542,8 @@ local instance : IsModuleTopology ℝ (Dinf K D) := by
   -/
   have : IsModuleTopology ℝ (InfiniteAdeleRing K) := by
     sorry
-  --have : IsModuleTopology (InfiniteAdeleRing K) (Dfx K D) := by
-  -- this is not being found
+  have : IsModuleTopology (InfiniteAdeleRing K) (Dinf K D) := by
+    exact TensorProduct.RightActions.instIsModuleTopology_fLT K (InfiniteAdeleRing K) D
   sorry
 
 /-- Dinf K D is given the borel measure. -/
@@ -559,11 +559,10 @@ local instance : MeasurableSpace (Df K D) := borel (Df K D)
 -- borelize again
 local instance : BorelSpace (Df K D) := { measurable_eq := rfl }
 
+/-- Dinf K d × Df K D has the product measure. -/
 local instance : MeasurableSpace (Dinf K D × Df K D) := Prod.instMeasurableSpace
 
-local instance : SecondCountableTopology (InfiniteAdeleRing K) := by
-  infer_instance
-
+-- relies on work in TensorProduct.RightActions
 local instance : SecondCountableTopologyEither (D ⊗[K] InfiniteAdeleRing K)
     (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
   refine {out := ?_}
