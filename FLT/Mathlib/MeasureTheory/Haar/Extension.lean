@@ -56,27 +56,33 @@ namespace TopologicalGroup.IsSES
 /-- Construct a short exact sequence of topological groups from a closed normal subgroup. -/
 @[to_additive /-- Construct a short exact sequence of topological groups from a
 closed normal subgroup. -/]
-def ofClosedSubgroup {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+theorem ofClosedSubgroup {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     (H : Subgroup G) [H.Normal] [IsClosed (H : Set G)] :
     TopologicalGroup.IsSES H.subtype (QuotientGroup.mk' H) where
   isClosedEmbedding := ⟨⟨Topology.IsInducing.subtypeVal, H.subtype_injective⟩, by simpa⟩
   isOpenQuotientMap := MulAction.isOpenQuotientMap_quotientMk
   exact := by simp
 
-variable {A B C E : Type*} [Group A] [Group B] [Group C]
+variable {A B C : Type*} [Group A] [Group B] [Group C]
   [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C]
   {φ : A →* B} {ψ : B →* C} (H : TopologicalGroup.IsSES φ ψ)
 
-include H in
 @[to_additive]
-theorem apply_apply (a : A) : ψ (φ a) = 1 :=
+theorem apply_apply {A B C : Type*} [Group A] [Group B] [Group C]
+    [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C]
+    {φ : A →* B} {ψ : B →* C} (H : TopologicalGroup.IsSES φ ψ) (a : A) :
+    ψ (φ a) = 1 :=
    H.exact.le ⟨a, rfl⟩
 
-variable [IsTopologicalGroup A] [IsTopologicalGroup B] [NormedAddCommGroup E]
+variable {A B C E : Type*} [Group A] [Group B] [Group C]
+  [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C]
+  {φ : A →* B} {ψ : B →* C} (H : TopologicalGroup.IsSES φ ψ)
+  [IsTopologicalGroup A] [IsTopologicalGroup B] [NormedAddCommGroup E]
 
-/-- Pullback a continuous compactly supported function `f` on `B` to the continuous
-compactly supported function `a ↦ f (b * φ a)` on `A`. -/
-@[to_additive]
+/-- Pullback a continuous compactly supported function `f` on `B` to the
+continuous compactly supported function `a ↦ f (b * φ a)` on `A`. -/
+@[to_additive /--Pullback a continuous compactly supported function `f` on `B` to the
+continuous compactly supported function `a ↦ f (b * φ a)` on `A`.-/]
 noncomputable def pullback (f : CompactlySupportedContinuousMap B E) (b : B) :
     CompactlySupportedContinuousMap A E where
   toFun a := f (b * φ a)
@@ -108,9 +114,10 @@ theorem integral_pullback_invFun_apply (f : CompactlySupportedContinuousMap B E)
 
 variable [IsTopologicalGroup C] [LocallyCompactSpace B]
 
-/-- Pushforward a continuous comapctly supported function on `B` to a continuous compactly
-supported function on `C` by integrating over `A`. -/
-@[to_additive]
+/-- Pushforward a continuous comapctly supported function on `B` to a
+continuous compactly supported function on `C` by integrating over `A`. -/
+@[to_additive /-- Pushforward a continuous comapctly supported function on `B` to a
+continuous compactly supported function on `C` by integrating over `A`. -/]
 noncomputable def pushforward :
     CompactlySupportedContinuousMap B E →ₗ[ℝ] CompactlySupportedContinuousMap C E where
   toFun f :=
@@ -221,7 +228,8 @@ theorem pushforward_mono (f g : CompactlySupportedContinuousMap B ℝ) (h : f �
 variable [MeasurableSpace C] [BorelSpace C] (μC : Measure C) [hμC : IsHaarMeasure μC]
 
 /-- Integrate a continuous comapctly supported function on `B` by integrating over `A` and `C`. -/
-@[to_additive]
+@[to_additive /-- Integrate a continuous comapctly supported function on `B` by integrating
+over `A` and `C`. -/]
 noncomputable def integrate : CompactlySupportedContinuousMap B E →ₗ[ℝ] E where
   toFun f := ∫ c, pushforward H μA f c ∂μC
   map_add' f g := by
@@ -245,7 +253,7 @@ theorem integrate_mono (f g : CompactlySupportedContinuousMap B ℝ) (h : f ≤ 
 variable [T2Space B] [MeasurableSpace B] [BorelSpace B]
 
 /-- The Haar measure on `B` induced by the Haar measures on `A` and `C`. -/
-@[to_additive]
+@[to_additive /-- The Haar measure on `B` induced by the Haar measures on `A` and `C`. -/]
 noncomputable def inducedMeasure : Measure B :=
   RealRMK.rieszMeasure ⟨integrate H μA μC, integrate_mono H μA μC⟩
 
@@ -302,11 +310,12 @@ instance isHaarMeasure_inducedMeasure : IsHaarMeasure (inducedMeasure H μA μC)
     exact (pullback H ⟨f, hf2⟩ _).continuous.integral_pos_of_hasCompactSupport_nonneg_nonzero
       (pullback H ⟨f, hf2⟩ _).hasCompactSupport (fun x ↦ (hf4 _).1) ha
 
-/-- A sufficiently large open subset of `B` cannot be a fundamental domain. -/
-@[to_additive]
-theorem not_injOn_of_inducedMeasure_gt (U : Set B) (hU : IsOpen U) [DiscreteTopology A]
-    (h : μC Set.univ * μA {1} < inducedMeasure H μA μC U) :
-    ¬ U.InjOn ψ := by
+/-- If `ψ` is injective on an open set `U`, then `U` has bounded measure. -/
+@[to_additive /-- If `ψ` is injective on an open set `U`, then `U` has bounded measure. -/]
+theorem inducedMeasure_lt_of_injOn (U : Set B) (hU : IsOpen U) [DiscreteTopology A]
+    (h : U.InjOn ψ) :
+    inducedMeasure H μA μC U ≤ μC Set.univ * μA {1} := by
+  contrapose! h
   have ho : 0 < μA {1} := (isOpen_discrete {1}).measure_pos _ (Set.singleton_nonempty 1)
   have ht : μA {1} < ⊤ := isCompact_singleton.measure_lt_top
   obtain ⟨K, hKU, hK, h⟩ := Regular.innerRegular hU _ h
@@ -324,9 +333,10 @@ theorem not_injOn_of_inducedMeasure_gt (U : Set B) (hU : IsOpen U) [DiscreteTopo
       exact integral_mono (H.pushforward μA ⟨f, hf2⟩).integrable (integrable_const _) h
   obtain ⟨c, hc⟩ := h
   contrapose! hc
-  simp only [pushforward_def, pullback_def, CompactlySupportedContinuousMap.coe_mk]
+  obtain ⟨b, rfl⟩ := H.isOpenQuotientMap.surjective c
+  simp only [pushforward_apply, pullback_def, CompactlySupportedContinuousMap.coe_mk]
   rw [← MeasureTheory.setIntegral_support]
-  have key : (Function.support (fun a ↦ f (Function.invFun ψ c * φ a))).Subsingleton := by
+  have key : (Function.support fun a ↦ f (b * φ a)).Subsingleton := by
     intro a ha b hb
     simpa [H.isClosedEmbedding.injective.eq_iff] using
       hc (hf3 (subset_tsupport _ ha)) (hf3 (subset_tsupport _ hb)) (by simp [H.apply_apply])
@@ -335,6 +345,14 @@ theorem not_injOn_of_inducedMeasure_gt (U : Set B) (hU : IsOpen U) [DiscreteTopo
   · rw [ha, integral_singleton, real_def, haar_singleton, smul_eq_mul, mul_le_iff_le_one_right]
     · exact (hf4 _).2
     · exact ENNReal.toReal_pos ho.ne' ht.ne
+
+/-- A sufficiently large open subset of `B` cannot be a fundamental domain. -/
+@[to_additive]
+theorem not_injOn_of_inducedMeasure_gt (U : Set B) (hU : IsOpen U) [DiscreteTopology A]
+    (h : μC Set.univ * μA {1} < inducedMeasure H μA μC U) :
+    ¬ U.InjOn ψ := by
+  contrapose! h
+  exact H.inducedMeasure_lt_of_injOn μA μC U hU h
 
 @[to_additive]
 theorem not_injOn_of_measure_gt
