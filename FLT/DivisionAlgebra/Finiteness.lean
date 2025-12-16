@@ -129,32 +129,17 @@ instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (
 
 instance discrete_principalSubgroup :
     DiscreteTopology (principalSubgroup (𝓞 K) K : Set (AdeleRing (𝓞 K) K)) := by
-  have : DiscreteTopology (includeLeft_subgroup K K) := discrete_includeLeft_subgroup K K
-  let φ := (D𝔸_iso_top K K).toHomeomorph
-  have hK : Module.finrank K K = 1 := Module.finrank_self K
-  let : Unique (Fin (Module.finrank K K)) := by
-    rw [hK]
-    exact Fin.instUnique
-  let f₀ := Module.Finite.equivPi K K
-  let g₀ : (Fin (Module.finrank K K) → K) ≃ K := Equiv.funUnique (Fin (Module.finrank K K)) K
-  let f : K ≃ K := Equiv.trans g₀.symm f₀.symm
-  let ψ : (Fin (Module.finrank K K) → AdeleRing (𝓞 K) K) ≃ₜ AdeleRing (𝓞 K) K := by
-    exact Homeomorph.funUnique (Fin (Module.finrank K K)) (AdeleRing (𝓞 K) K)
-  have hψ (z) : ψ.symm z = fun _ ↦ z := rfl
-  have h (z w) : ψ.symm z = w ↔ z = ψ w := ψ.toEquiv.symm_apply_eq
-  let χ : includeLeft_subgroup K K ≃ₜ principalSubgroup (𝓞 K) K := by
-    apply (φ.trans ψ).subtype
-    simp only [includeLeft_subgroup]
-    simp only [principalSubgroup]
-    let α : K →ₐ[K] K ⊗[K] AdeleRing (𝓞 K) K := Algebra.TensorProduct.includeLeft
-    let β : K →+* AdeleRing (𝓞 K) K := algebraMap K (AdeleRing (𝓞 K) K)
-    change ∀ x, x ∈ α.range ↔ ψ (φ x) ∈ β.range
-    suffices ∀ x, φ (α (f x)) = ψ.symm (β x) by
-      simp only [AlgHom.mem_range, RingHom.mem_range, ← h, ← this, EmbeddingLike.apply_eq_iff_eq]
-      intro x
-      exact (Equiv.exists_congr_right f).symm
-    simp [hψ, α, β, φ, Algebra.algebraMap_eq_smul_one, f, f₀, g₀]
-  exact χ.discreteTopology
+  rw [discreteTopology_iff_isOpen_singleton]
+  rintro ⟨-, y, rfl⟩
+  obtain ⟨U, hUopen, hU⟩ := NumberField.AdeleRing.discrete K y
+  refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
+  simp only [Subtype.image_preimage_coe, Set.image_singleton]
+  let f : K → AdeleRing (𝓞 K) K := algebraMap K (AdeleRing (𝓞 K) K)
+  change Set.range f ∩ U = {f y}
+  change f ⁻¹' U = {y} at hU
+  ext d
+  simp [Set.ext_iff] at hU
+  grind
 
 local instance compact_includeLeft_subgroup :
     CompactSpace (D_𝔸 ⧸ (includeLeft_subgroup K D)) := by
