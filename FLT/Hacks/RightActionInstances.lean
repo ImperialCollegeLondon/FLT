@@ -222,7 +222,7 @@ variable (R S M : Type*) [CommSemiring R]
     [SecondCountableTopology S] [Module.Finite R M]
 
 /-- M ⊗[R] S has the S-module topology. -/
-local instance : TopologicalSpace (M ⊗[R] S) := moduleTopology S (M ⊗[R] S)
+local instance : TopologicalSpace (M ⊗[R] S) := inferInstance--moduleTopology S (M ⊗[R] S)
 
 lemma SecondCountableTopology_tensor : SecondCountableTopology (M ⊗[R] S) := by
   refine { is_open_generated_countable := ?_ }

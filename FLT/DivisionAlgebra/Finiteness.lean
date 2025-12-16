@@ -382,29 +382,15 @@ abbrev Dinfx := (D ⊗[K] (NumberField.InfiniteAdeleRing K))ˣ
 /-- Dinf is notation for D ⊗ 𝔸_K^∞ -/
 abbrev Dinf := D ⊗[K] (NumberField.InfiniteAdeleRing K)
 
--- Instance to help speed up instance synthesis
-instance : NonUnitalNonAssocRing (Df K D) :=
-  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
-  r.toNonUnitalNonAssocRing
-
--- Instance to help speed up instance synthesis
-instance : NonAssocSemiring (Dinf K D) :=
-  Algebra.TensorProduct.instRing.toNonAssocSemiring
-
--- Instance to help speed up instance synthesis
-instance : NonUnitalNonAssocRing (Dinf K D) :=
-  let r := Algebra.TensorProduct.instRing.toNonUnitalRing
-  r.toNonUnitalNonAssocRing
-
--- Instance to help speed up instance synthesis
-instance : NonAssocSemiring (Df K D) :=
-  Algebra.TensorProduct.instRing.toNonAssocSemiring
+attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
 
 /-- The inclusion Dˣ → (D ⊗ 𝔸_K^∞)ˣ as a group homomorphism. -/
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 open NumberField
+
+attribute [-instance] InfiniteAdeleRing.instIsScalarTower_fLT_1
 
 open scoped TensorProduct.RightActions
 
@@ -456,18 +442,12 @@ abbrev D𝔸_prodRight' : D_𝔸 →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K 
 omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
   [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 lemma D𝔸_prodRight_cont : Continuous (D𝔸_prodRight K D) := by
-  have I : NonUnitalNonAssocSemiring (Dinf K D) := by
-    exact (instNonUnitalNonAssocRingDinf K D).toNonUnitalNonAssocSemiring
-  have J : NonUnitalNonAssocSemiring (Df K D) := by
-    exact (instNonUnitalNonAssocRingDf K D).toNonUnitalNonAssocSemiring
   exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D)
 
 omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
   [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
  lemma D𝔸_prodRight.symm_cont : Continuous (D𝔸_prodRight K D).symm := by
   apply (Equiv.isOpenMap_symm_iff _).mp
-  have : NonUnitalNonAssocSemiring D_𝔸 := Algebra.TensorProduct.instNonUnitalNonAssocSemiring
-  simp_rw [AdeleRing] at this
   convert IsModuleTopology.isOpenMap_of_surjective (φ := D𝔸_prodRight' K D)
   exact Iff.symm (imp_iff_right (AlgEquiv.surjective _))
 
@@ -506,20 +486,29 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := Continuous.comp continuou
 noncomputable instance : Algebra ℝ (InfiniteAdeleRing K) :=
   (InfiniteAdeleRing.ringEquiv_mixedSpace K|>.symm.toRingHom.comp (algebraMap ℝ _)).toAlgebra
 
-/-- The ℝ-linear equivalence between InfinteAdleRing K and mixedEmbedding.mixedSpace K. Note: not
-  sure if this will work. -/
-local instance bar : InfiniteAdeleRing K ≃ₗ[ℝ] (mixedEmbedding.mixedSpace K) where
-  __ := NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K
-  map_smul' m x := by
-    simp
-    constructor
-    · sorry
-    · sorry
+-- /-- The ℝ-linear equivalence between InfinteAdleRing K and mixedEmbedding.mixedSpace K. Note: not
+--   sure if this will work. -/
+-- local instance bar : InfiniteAdeleRing K ≃ₗ[ℝ] (mixedEmbedding.mixedSpace K) where
+--   __ := NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K
+--   map_smul' m x := by
+--     simp only [RingEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe,
+--       InfiniteAdeleRing.ringEquiv_mixedSpace_apply, RingHom.id_apply]
+--     simp
+--     constructor
+--     · sorry
+--     · sorry
 
-local instance : Module.Finite ℝ (InfiniteAdeleRing K) := by
-  have : Module.Finite ℝ (mixedEmbedding.mixedSpace K) := by
-    exact Module.Finite.prod
-  exact Module.Finite.equiv (bar K).symm
+def NumberField.InfiniteAdeleRing.algEquiv_mixedSpace :
+    (mixedEmbedding.mixedSpace K) ≃ₗ[ℝ] InfiniteAdeleRing K where
+  __ := (NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K).symm
+  map_smul' m x := by
+    rw [Algebra.smul_def]
+    change ((InfiniteAdeleRing.ringEquiv_mixedSpace K).symm (_ * _)) = _
+    rw [map_mul]
+    rfl
+
+local instance : Module.Finite ℝ (InfiniteAdeleRing K) :=
+  Module.Finite.equiv (NumberField.InfiniteAdeleRing.algEquiv_mixedSpace K)
 
 open scoped TensorProduct.RightActions in
 /-- The ℝ-algebra structure on Dinf K D. -/
