@@ -488,8 +488,9 @@ local instance [FiniteDimensional K D] :
   IsModuleTopology.instProd'
 
 /-- The 𝔸_K linear map coming from D𝔸_prodRight. -/
-abbrev D𝔸_prodRight' : D_𝔸 →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) where
-  toFun x := D𝔸_prodRight K D x
+abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) := {
+  toFun := D𝔸_prodRight K D
+  __ := D𝔸_prodRight K D
   map_add' a b := by
     exact RingHom.map_add (D𝔸_prodRight K D).toRingHom a b
   map_smul' m x := by
@@ -500,21 +501,13 @@ abbrev D𝔸_prodRight' : D_𝔸 →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K 
       Finset.smul_sum]
     -- missing lemma probably
     rfl
-
-lemma D𝔸_prodRight_cont [FiniteDimensional K D] : Continuous (D𝔸_prodRight K D) := by
-  exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D)
-
-lemma D𝔸_prodRight.symm_cont [FiniteDimensional K D] : Continuous (D𝔸_prodRight K D).symm := by
-  apply (Equiv.isOpenMap_symm_iff _).mp
-  -- cor a linear equiv which is continuous is automatically a continuous-equiv
-  convert IsModuleTopology.isOpenMap_of_surjective (φ := D𝔸_prodRight' K D)
-  exact Iff.symm (imp_iff_right (AlgEquiv.surjective _))
+}
 
 /-- The continuous isomorphism coming from D𝔸_prod viewed on additive groups. -/
 abbrev D𝔸_prodRight'' [FiniteDimensional K D] : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
   __ := D𝔸_prodRight K D
-  continuous_toFun := D𝔸_prodRight_cont K D
-  continuous_invFun := D𝔸_prodRight.symm_cont K D
+  continuous_toFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
+  continuous_invFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).symm.toLinearMap
 
 /-- The equivalence of the units of D_𝔸 and the Prod of units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
 abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
@@ -530,7 +523,7 @@ lemma D𝔸_prodRight_units_cont [FiniteDimensional K D] : Continuous (D𝔸_pro
     · apply Continuous.units_map
       exact continuous_snd
   · apply Continuous.units_map
-    exact D𝔸_prodRight_cont K D
+    exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
 
 variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
     [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
@@ -542,22 +535,6 @@ abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
 lemma rest₁_continuous :
     Continuous (rest₁ K D) := Continuous.comp continuous_snd (Continuous.comp
   (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
-
-/-- The ℝ algebra structure on InfiniteAdeleRing K. -/
-noncomputable instance : Algebra ℝ (InfiniteAdeleRing K) :=
-  (InfiniteAdeleRing.ringEquiv_mixedSpace K|>.symm.toRingHom.comp (algebraMap ℝ _)).toAlgebra
-
-def NumberField.InfiniteAdeleRing.algEquiv_mixedSpace :
-    (mixedEmbedding.mixedSpace K) ≃ₗ[ℝ] InfiniteAdeleRing K where
-  __ := (NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K).symm
-  map_smul' m x := by
-    rw [Algebra.smul_def]
-    change ((InfiniteAdeleRing.ringEquiv_mixedSpace K).symm (_ * _)) = _
-    rw [map_mul]
-    rfl
-
-local instance : Module.Finite ℝ (InfiniteAdeleRing K) :=
-  Module.Finite.equiv (NumberField.InfiniteAdeleRing.algEquiv_mixedSpace K)
 
 /-- The ℝ-algebra structure on Dinf K D. -/
 local instance : Algebra ℝ (Dinf K D) :=
@@ -574,9 +551,6 @@ local instance : Module.Finite ℝ (Dinf K D) :=
 
 local instance : Module.Free ℝ (Dinf K D) :=
   Module.free_of_finite_type_torsion_free'
-
--- needs doing
-instance : IsModuleTopology ℝ (InfiniteAdeleRing K) := sorry
 
 -- I need the following in rest₁_surjective to use ringHaarChar_ModuleFinite_unit
 
