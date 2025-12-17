@@ -238,7 +238,7 @@ lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
   rw [QuotientAddGroup.eq_iff_sub_mem] at h
   exact ⟨φ.symm x, subset_closure hx, φ.symm y, subset_closure hy, by simpa, by simpa⟩
 
-/-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
+/-- An auxiliary set E used in the proof of Fujisaki's lemma. -/
 def E : Set D_𝔸 := (existsE K D).choose
 
 lemma E_compact : IsCompact (E K D) := (existsE K D).choose_spec.1
@@ -427,20 +427,22 @@ section FiniteAdeleRing
 
 open scoped NumberField
 
-variable [Algebra.IsCentral K D]
-
-/-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
-abbrev Dfx := (D ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ
-
 /-- Df is notation for D ⊗ 𝔸_K^∞ -/
 abbrev Df := D ⊗[K] (FiniteAdeleRing (𝓞 K) K)
 
-/-- Dinfx is notation for (D ⊗ 𝔸_K^∞)ˣ -/
-abbrev Dinfx := (D ⊗[K] (NumberField.InfiniteAdeleRing K))ˣ
+/-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
+abbrev Dfx := (Df K D)ˣ
 
 /-- Dinf is notation for D ⊗ 𝔸_K^∞ -/
 abbrev Dinf := D ⊗[K] (NumberField.InfiniteAdeleRing K)
 
+/-- Dinfx is notation for (D ⊗ 𝔸_K^∞)ˣ -/
+abbrev Dinfx := (Dinf K D)ˣ
+
+-- this instance creates a nasty diamond for
+-- `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L A = B, and
+-- should probably be scoped (or even removed and statements changed so that they
+-- don't need it).
 attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
 
 /-- The inclusion Dˣ → (D ⊗ 𝔸_K^∞)ˣ as a group homomorphism. -/
@@ -449,12 +451,12 @@ noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
 
 open NumberField
 
+-- this instance creates a nasty diamond for `IsScalarTower K K_∞ L_∞ when K = L and
+-- should probably be scoped (or even removed and statements changed so that they
+-- don't need it).
 attribute [-instance] InfiniteAdeleRing.instIsScalarTower_fLT_1
 
 open scoped TensorProduct.RightActions
-
-variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-    [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
 /-- Notation for (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
     (FiniteAdeleRing (𝓞 K) K)). -/
@@ -481,7 +483,8 @@ local instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
   zero_smul mn := by cases mn; ext <;> exact zero_smul _ _
 
 /-- (Dinf K D × Df K D) has the 𝔸_K module topology. -/
-local instance : IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
+local instance [FiniteDimensional K D] :
+    IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
   IsModuleTopology.instProd'
 
 /-- The 𝔸_K linear map coming from D𝔸_prodRight. -/
@@ -498,21 +501,17 @@ abbrev D𝔸_prodRight' : D_𝔸 →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K 
     -- missing lemma probably
     rfl
 
-omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
-lemma D𝔸_prodRight_cont : Continuous (D𝔸_prodRight K D) := by
+lemma D𝔸_prodRight_cont [FiniteDimensional K D] : Continuous (D𝔸_prodRight K D) := by
   exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D)
 
-omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
- lemma D𝔸_prodRight.symm_cont : Continuous (D𝔸_prodRight K D).symm := by
+lemma D𝔸_prodRight.symm_cont [FiniteDimensional K D] : Continuous (D𝔸_prodRight K D).symm := by
   apply (Equiv.isOpenMap_symm_iff _).mp
   -- cor a linear equiv which is continuous is automatically a continuous-equiv
   convert IsModuleTopology.isOpenMap_of_surjective (φ := D𝔸_prodRight' K D)
   exact Iff.symm (imp_iff_right (AlgEquiv.surjective _))
 
 /-- The continuous isomorphism coming from D𝔸_prod viewed on additive groups. -/
-abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
+abbrev D𝔸_prodRight'' [FiniteDimensional K D] : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
   __ := D𝔸_prodRight K D
   continuous_toFun := D𝔸_prodRight_cont K D
   continuous_invFun := D𝔸_prodRight.symm_cont K D
@@ -521,9 +520,7 @@ abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
 abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
   (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
 
-omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-  [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
-lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
+lemma D𝔸_prodRight_units_cont [FiniteDimensional K D] : Continuous (D𝔸_prodRight_units K D) := by
   rw [ MulEquiv.coe_trans]
   -- ask on Zulip about whether fun_prop or continuity can do this
   apply Continuous.comp ?_ ?_
@@ -535,12 +532,15 @@ lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
   · apply Continuous.units_map
     exact D𝔸_prodRight_cont K D
 
+variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+    [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+
 /-- The restriction of ringHaarChar_ker D_𝔸 to (D ⊗ 𝔸_K^∞)ˣ via D𝔸_iso_prod_units. -/
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (D𝔸_prodRight_units K D) a.val |>.2
 
-omit [Algebra.IsCentral K D] in
-lemma rest₁_continuous : Continuous (rest₁ K D) := Continuous.comp continuous_snd (Continuous.comp
+lemma rest₁_continuous :
+    Continuous (rest₁ K D) := Continuous.comp continuous_snd (Continuous.comp
   (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
 
 /-- The ℝ algebra structure on InfiniteAdeleRing K. -/
@@ -616,7 +616,6 @@ local instance : SecondCountableTopologyEither (D ⊗[K] InfiniteAdeleRing K)
 local instance : Nontrivial (Dinf K D) := by
   sorry
 
-omit [Algebra.IsCentral K D] in
 lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     ringHaarChar ((D𝔸_prodRight_units K D).symm (a, b)) =
     ringHaarChar (MulEquiv.prodUnits.symm (a, b)) := by
@@ -624,7 +623,6 @@ lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     (D𝔸_prodRight'' K D)
   simp [MulEquivClass.map_mul]
 
-omit [Algebra.IsCentral K D] in
 lemma ringHaarChar_D𝔸_prodRight_units_aux (r : ℝ) (h : r > 0) :
     ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
   have a : IsUnit (r ^ (1 / Module.finrank ℝ (Dinf K D) : ℝ)) := by
@@ -643,7 +641,6 @@ lemma ringHaarChar_D𝔸_prodRight_units_aux (r : ℝ) (h : r > 0) :
   exact Real.rpow_inv_natCast_pow (by positivity) (Nat.ne_zero_iff_zero_lt.mpr Module.finrank_pos)
 
 open scoped NNReal in
-omit [Algebra.IsCentral K D] in
 lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
   intro x
   simp only [Subtype.exists]
@@ -665,7 +662,6 @@ lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
       ext <;> simp
     simp_rw [this, map_mul, map_inv, hy, ← hr_def, inv_mul_cancel₀ hr.ne']
 
-omit [Algebra.IsCentral K D] in
 lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
     (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker D_𝔸).subtype
     (AdeleRing.DivisionAlgebra.incl K D).range)) a b →
@@ -691,12 +687,10 @@ abbrev incl_D𝔸quot : Quotient (QuotientGroup.rightRel
     (fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a))
     (incl_D𝔸quot_equivariant K D)
 
-omit [Algebra.IsCentral K D] in
 lemma incl_D𝔸quot_continuous : Continuous (incl_D𝔸quot K D) := by
   refine Continuous.quotient_lift ?_ (incl_D𝔸quot_equivariant K D)
   exact Continuous.comp' ({isOpen_preimage := fun s a ↦ a}) (rest₁_continuous K D)
 
-omit [Algebra.IsCentral K D] in
 lemma incl_D𝔸quot_surjective : Function.Surjective (incl_D𝔸quot K D) := by
   refine (Quot.surjective_lift (f := fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range)
     (rest₁ K D a)) (incl_D𝔸quot_equivariant K D)).mpr ?_
@@ -708,6 +702,7 @@ lemma incl_D𝔸quot_surjective : Function.Surjective (incl_D𝔸quot K D) := by
   use a
   simp [ha]
 
+variable [Algebra.IsCentral K D]
 open scoped TensorProduct.RightActions in
 theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
