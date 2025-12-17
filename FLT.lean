@@ -90,6 +90,7 @@ import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.Padic
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
 import FLT.Mathlib.MeasureTheory.Group.Action
 import FLT.Mathlib.MeasureTheory.Group.Measure
+import FLT.Mathlib.MeasureTheory.Haar.Extension
 import FLT.Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
@@ -139,6 +140,7 @@ import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
+import FLT.Mathlib.Topology.Polish
 import FLT.NumberField.AdeleRing
 import FLT.NumberField.Completion.Finite
 import FLT.NumberField.Completion.Infinite
