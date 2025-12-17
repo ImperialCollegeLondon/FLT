@@ -364,6 +364,7 @@ lemma compact_quotient [Algebra.IsCentral K D] :
 
 end NumberField.AdeleRing.DivisionAlgebra
 
+-- all of this is not in a namespace!!
 section FiniteAdeleRing
 
 open scoped NumberField
@@ -422,8 +423,8 @@ local instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
   zero_smul mn := by cases mn; ext <;> exact zero_smul _ _
 
 /-- (Dinf K D × Df K D) has the 𝔸_K module topology. -/
-local instance : IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) := by
-  exact IsModuleTopology.instProd'
+local instance : IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
+  IsModuleTopology.instProd'
 
 /-- The 𝔸_K linear map coming from D𝔸_prodRight. -/
 abbrev D𝔸_prodRight' : D_𝔸 →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) where
@@ -433,10 +434,10 @@ abbrev D𝔸_prodRight' : D_𝔸 →ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K 
   map_smul' m x := by
     simp only [RingHom.id_apply]
     obtain ⟨s, hx⟩ := TensorProduct.exists_finset x
-    letI := AddEquivClass.instAddMonoidHomClass (D_𝔸 ≃ₐ[K] Dinf K D × Df K D)
     simp_rw [hx, Finset.smul_sum, map_sum, TensorProduct.RightActions.smul_def,
       TensorProduct.comm_tmul, TensorProduct.smul_tmul', TensorProduct.comm_symm_tmul,
       Finset.smul_sum]
+    -- missing lemma probably
     rfl
 
 omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
@@ -448,6 +449,7 @@ omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
   [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
  lemma D𝔸_prodRight.symm_cont : Continuous (D𝔸_prodRight K D).symm := by
   apply (Equiv.isOpenMap_symm_iff _).mp
+  -- cor a linear equiv which is continuous is automatically a continuous-equiv
   convert IsModuleTopology.isOpenMap_of_surjective (φ := D𝔸_prodRight' K D)
   exact Iff.symm (imp_iff_right (AlgEquiv.surjective _))
 
@@ -458,13 +460,14 @@ abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
   continuous_invFun := D𝔸_prodRight.symm_cont K D
 
 /-- The equivalence of the units of D_𝔸 and the Prod of units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
-abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* Prod (Dinfx K D) (Dfx K D) :=
+abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
   (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
 
 omit [Algebra.IsCentral K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
   [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
   rw [ MulEquiv.coe_trans]
+  -- ask on Zulip about whether fun_prop or continuity can do this
   apply Continuous.comp ?_ ?_
   · apply Continuous.prodMk
     · apply Continuous.units_map
@@ -486,18 +489,6 @@ lemma rest₁_continuous : Continuous (rest₁ K D) := Continuous.comp continuou
 noncomputable instance : Algebra ℝ (InfiniteAdeleRing K) :=
   (InfiniteAdeleRing.ringEquiv_mixedSpace K|>.symm.toRingHom.comp (algebraMap ℝ _)).toAlgebra
 
--- /-- The ℝ-linear equivalence between InfinteAdleRing K and mixedEmbedding.mixedSpace K. Note: not
---   sure if this will work. -/
--- local instance bar : InfiniteAdeleRing K ≃ₗ[ℝ] (mixedEmbedding.mixedSpace K) where
---   __ := NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K
---   map_smul' m x := by
---     simp only [RingEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe,
---       InfiniteAdeleRing.ringEquiv_mixedSpace_apply, RingHom.id_apply]
---     simp
---     constructor
---     · sorry
---     · sorry
-
 def NumberField.InfiniteAdeleRing.algEquiv_mixedSpace :
     (mixedEmbedding.mixedSpace K) ≃ₗ[ℝ] InfiniteAdeleRing K where
   __ := (NumberField.InfiniteAdeleRing.ringEquiv_mixedSpace K).symm
@@ -510,27 +501,24 @@ def NumberField.InfiniteAdeleRing.algEquiv_mixedSpace :
 local instance : Module.Finite ℝ (InfiniteAdeleRing K) :=
   Module.Finite.equiv (NumberField.InfiniteAdeleRing.algEquiv_mixedSpace K)
 
-open scoped TensorProduct.RightActions in
 /-- The ℝ-algebra structure on Dinf K D. -/
-local instance : Algebra ℝ (Dinf K D) := by
-  have h2 : Algebra ℝ (InfiniteAdeleRing K ⊗[K] D) := by
-    exact Algebra.TensorProduct.leftAlgebra (R := K) (S := ℝ) (A := InfiniteAdeleRing K) (B := D)
-  -- need something saying I can switch the tensor
-  -- needs something in TensorProduct.RightActions which has generalises the work there
-  sorry
+local instance : Algebra ℝ (Dinf K D) :=
+  RingHom.toAlgebra' ((algebraMap (InfiniteAdeleRing K) (Dinf K D)).comp
+     (algebraMap ℝ (InfiniteAdeleRing K))) <| by
+    intro c x
+    rw [RingHom.comp_apply, Algebra.commutes]
 
+local instance : IsScalarTower ℝ (InfiniteAdeleRing K) (Dinf K D) := by
+  exact IsScalarTower.of_algebraMap_eq (congrFun rfl)
 
+local instance : Module.Finite ℝ (Dinf K D) :=
+  Module.Finite.trans (InfiniteAdeleRing K) (Dinf K D)
 
-local instance : Module.Finite ℝ (InfiniteAdeleRing K ⊗[K] D) := by
-  sorry
+local instance : Module.Free ℝ (Dinf K D) :=
+  Module.free_of_finite_type_torsion_free'
 
-local instance : Module.Finite ℝ (Dinf K D) := by
-  -- depends on Algebra ℝ (Dinf K D)
-  -- (InfiniteAdeleRing K) is a fininted ℝ module...
-  sorry
-
-local instance : Module.Free ℝ (Dinf K D) := by
-  exact Module.free_of_finite_type_torsion_free'
+-- needs doing
+instance : IsModuleTopology ℝ (InfiniteAdeleRing K) := sorry
 
 -- I need the following in rest₁_surjective to use ringHaarChar_ModuleFinite_unit
 
@@ -540,11 +528,10 @@ local instance : IsModuleTopology ℝ (Dinf K D) := by
     Now since (Dinf K D) has the (InfiniteAdeleRing K)-module topolology it also has the
     ℝ-module topology.
   -/
-  have : IsModuleTopology ℝ (InfiniteAdeleRing K) := by
-    sorry
   have : IsModuleTopology (InfiniteAdeleRing K) (Dinf K D) := by
     exact TensorProduct.RightActions.instIsModuleTopology_fLT K (InfiniteAdeleRing K) D
-  sorry
+  rw [IsModuleTopology.trans ℝ (InfiniteAdeleRing K)]
+  infer_instance
 
 /-- Dinf K D is given the borel measure. -/
 local instance : MeasurableSpace (Dinf K D) :=
@@ -565,9 +552,7 @@ local instance : MeasurableSpace (Dinf K D × Df K D) := Prod.instMeasurableSpac
 -- relies on work in TensorProduct.RightActions
 local instance : SecondCountableTopologyEither (D ⊗[K] InfiniteAdeleRing K)
     (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  refine {out := ?_}
-  left
-  sorry
+  infer_instance
 
 -- not immediately being inferred?
 local instance : Nontrivial (Dinf K D) := by
@@ -579,22 +564,15 @@ lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     ringHaarChar (MulEquiv.prodUnits.symm (a, b)) := by
   apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
     (D𝔸_prodRight'' K D)
-  intro x
-  dsimp only [MulEquiv.symm_trans_apply, Units.mapEquiv_symm, MulEquiv.symm_mk,
-    AlgEquiv.toEquiv_eq_coe, AlgEquiv.symm_toEquiv_eq_symm, ContinuousAddEquiv.mulLeft_apply,
-    Units.coe_mapEquiv, MulEquiv.coe_mk, EquivLike.coe_coe, ContinuousAddEquiv.coe_mk,
-    Equiv.toFun_as_coe, Equiv.invFun_as_coe, AddEquiv.coe_mk, Equiv.coe_fn_mk]
-  rw [MulEquivClass.map_mul]
-  simp only [MulEquivClass.apply_coe_symm_apply]
+  simp [MulEquivClass.map_mul]
 
 omit [Algebra.IsCentral K D] in
-lemma rest₁_surj_extracted (r : ℝ) (h : r > 0) :
+lemma ringHaarChar_D𝔸_prodRight_units_aux (r : ℝ) (h : r > 0) :
     ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
   have a : IsUnit (r ^ (1 / Module.finrank ℝ (Dinf K D) : ℝ)) := by
     simp only [one_div, isUnit_iff_ne_zero, ne_eq]
     refine (Real.rpow_ne_zero (by positivity) ?_).mpr (by positivity)
-    simp only [ne_eq, inv_eq_zero, Nat.cast_eq_zero]
-    exact (Nat.ne_zero_iff_zero_lt.mpr Module.finrank_pos)
+    simp [Nat.ne_zero_iff_zero_lt, Module.finrank_pos]
   have := ringHaarChar_ModuleFinite_unit (K := ℝ) (R := Dinf K D) (a.unit)
   use ((Units.map (algebraMap ℝ (Dinf K D))) a.unit)
   rw [ringHaarChar_D𝔸, ringHaarChar_prod, map_one, mul_one]
@@ -606,22 +584,17 @@ lemma rest₁_surj_extracted (r : ℝ) (h : r > 0) :
   simp_rw [t, one_div]
   exact Real.rpow_inv_natCast_pow (by positivity) (Nat.ne_zero_iff_zero_lt.mpr Module.finrank_pos)
 
+open scoped NNReal in
 omit [Algebra.IsCentral K D] in
-lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
-  simp only [Set.image_univ]
-  refine Eq.symm (Set.ext ?_)
+lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
   intro x
-  simp only [Set.mem_univ, Set.mem_range, Subtype.exists, true_iff]
-  obtain ⟨r, hx⟩ : ∃ r, ringHaarChar ((D𝔸_prodRight_units K D).symm (1,x)) = r := exists_eq'
-  have hr : r > 0 := by
-    rw [←hx]
-    have (a : (D_𝔸)ˣ): 0 < ringHaarChar a := by
-      exact addEquivAddHaarChar_pos _
-    exact this ((D𝔸_prodRight_units K D).symm (1, x))
+  simp only [Subtype.exists]
+  set r : ℝ≥0 := ringHaarChar ((D𝔸_prodRight_units K D).symm (1,x)) with hr_def
+  have hr : r > 0 := addEquivAddHaarChar_pos _
   obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
-    obtain ⟨y, hy⟩ := rest₁_surj_extracted K D r hr
+    obtain ⟨y, hy⟩ := ringHaarChar_D𝔸_prodRight_units_aux K D r hr
     use y
-    aesop
+    exact_mod_cast hy
   use (D𝔸_prodRight_units K D).symm (y⁻¹, x)
   constructor
   · rw [rest₁]
@@ -630,20 +603,9 @@ lemma rest₁_surjective : (rest₁ K D) '' Set.univ = Set.univ := by
   · ext
     simp only [ContinuousMonoidHom.coe_toMonoidHom, MonoidHom.coe_coe, NNReal.coe_one,
       NNReal.coe_eq_one]
-    have : (y⁻¹, x) = (y⁻¹, 1) * (1, x) := by
-      simp only [Prod.mk_mul_mk, one_mul, mul_one]
-    simp_rw [this, map_mul]
-    have : ringHaarChar ((D𝔸_prodRight_units K D).symm (y⁻¹, 1)) = r⁻¹ := by
-      rw [← hy]
-      have : ringHaarChar ((D𝔸_prodRight_units K D).symm (y⁻¹, 1)) *
-          (ringHaarChar ((D𝔸_prodRight_units K D).symm (y, 1))) = 1 := by
-        simp_rw [← map_mul, Prod.mk_mul_mk, inv_mul_cancel, mul_one]
-        have : (D𝔸_prodRight_units K D).symm (1, 1) = 1 :=
-          (MulEquiv.map_eq_one_iff (D𝔸_prodRight_units K D).symm).mpr rfl
-        simp only [this, map_one]
-      exact Eq.symm (inv_eq_of_mul_eq_one_left this)
-    simp_rw [this, hx]
-    simpa using (inv_mul_cancel₀ hr.ne')
+    have : (y⁻¹, x) = (y, 1)⁻¹ * (1, x) := by
+      ext <;> simp
+    simp_rw [this, map_mul, map_inv, hy, ← hr_def, inv_mul_cancel₀ hr.ne']
 
 omit [Algebra.IsCentral K D] in
 lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
@@ -683,11 +645,8 @@ lemma incl_D𝔸quot_surjective : Function.Surjective (incl_D𝔸quot K D) := by
   refine Set.range_eq_univ.mp ?_
   ext x
   simp only [Set.mem_range, Subtype.exists, Set.mem_univ, iff_true]
-  have h := rest₁_surjective K D
   obtain ⟨a, ha⟩ : ∃ a : (ringHaarChar_ker D_𝔸),
-      (rest₁ K D) a = x.out := by
-    refine Set.mem_range.mp ?_
-    aesop
+      (rest₁ K D) a = x.out := rest₁_surjective K D _
   use a
   simp [ha]
 
