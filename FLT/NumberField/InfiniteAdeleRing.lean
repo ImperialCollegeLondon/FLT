@@ -125,6 +125,9 @@ def baseChangeEquiv :
   IsModuleTopology.continuousAlgEquivOfIsScalarTower K _ (baseChangeEquivAux K L)
     (by simp_rw [baseChangeEquivAux_apply]; exact SemialgHom.baseChange_of_algebraMap_tmul_right _)
 
+-- this instance creates a diamond when K=L. The solution is probably to not even
+-- allow `Algebra K L → Alegbra K (InfiniteAdeleRing L)` and try and rearrange things
+-- so that such instances are only available locally.
 instance : IsScalarTower K (InfiniteAdeleRing K) (InfiniteAdeleRing L) :=
   IsScalarTower.of_algebraMap_eq (fun x ↦ by
     apply funext
