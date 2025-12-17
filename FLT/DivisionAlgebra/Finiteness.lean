@@ -418,6 +418,7 @@ lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.
 lemma M_compact : IsCompact (M K D) := Topology.IsClosedEmbedding.isCompact_preimage
   (incl₂_isClosedEmbedding K D) (ImAux_isCompact K D)
 
+-- Thomas needs this IIRC
 lemma compact_quotient [Algebra.IsCentral K D] :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
@@ -444,7 +445,7 @@ abbrev Dinf := D ⊗[K] (NumberField.InfiniteAdeleRing K)
 abbrev Dinfx := (Dinf K D)ˣ
 
 -- this instance creates a nasty diamond for
--- `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L A = B, and
+-- `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L and A = B, and
 -- should probably be scoped (or even removed and statements changed so that they
 -- don't need it).
 attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
@@ -551,8 +552,8 @@ local instance : Algebra ℝ (Dinf K D) :=
     intro c x
     rw [RingHom.comp_apply, Algebra.commutes]
 
-local instance : IsScalarTower ℝ (InfiniteAdeleRing K) (Dinf K D) := by
-  exact IsScalarTower.of_algebraMap_eq (congrFun rfl)
+local instance : IsScalarTower ℝ (InfiniteAdeleRing K) (Dinf K D) :=
+  IsScalarTower.of_algebraMap_eq (fun _ ↦ rfl)
 
 local instance : Module.Finite ℝ (Dinf K D) :=
   Module.Finite.trans (InfiniteAdeleRing K) (Dinf K D)
@@ -579,6 +580,7 @@ local instance : MeasurableSpace (Df K D) := borel (Df K D)
 
 local instance : BorelSpace (Df K D) := { measurable_eq := rfl }
 
+-- D ⊗ K_∞ is second countable because it's a finite ℝ-module
 instance : SecondCountableTopology (Dinf K D) :=
   Module.Finite.secondCountabletopology ℝ (Dinf K D)
 
@@ -628,6 +630,8 @@ lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
       ext <;> simp
     simp_rw [this, map_mul, map_inv, hy, ← hr_def, inv_mul_cancel₀ hr.ne']
 
+-- the goal that comes up when you define the map `Dˣ \ D_𝔸^(1) to Dˣ \ (Dfx K D)`
+-- below using Quot.lift
 lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
     (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker D_𝔸).subtype
     (AdeleRing.DivisionAlgebra.incl K D).range)) a b →
