@@ -214,15 +214,4 @@ scoped instance [TopologicalSpace A] [IsTopologicalRing A]
 
 end ring -- section
 
-
-section SecondCountableTopology
-
--- **TODO** move this section to the module topology file
-variable (S M : Type*) [CommSemiring S] [AddCommMonoid M] [TopologicalSpace S]
-    [SecondCountableTopology S] [Module S M] [Module.Finite S M] [TopologicalSpace M]
-    [IsModuleTopology S M] in
-instance : SecondCountableTopology M := sorry
-
-end SecondCountableTopology
-
 end TensorProduct.RightActions

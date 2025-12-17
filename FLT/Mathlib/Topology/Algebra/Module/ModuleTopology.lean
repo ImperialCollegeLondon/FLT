@@ -512,4 +512,17 @@ def Module.Basis.equivFun_homeo (K R : Type*) [Field K] [Ring R] [Module K R]
 
 end ModuleFinite
 
+section SecondCountableTopology
+
+lemma _root_.Module.Finite.secondCountabletopology (R M : Type*)
+    [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [SecondCountableTopology R]
+    [AddCommGroup M] [Module R M] [Module.Finite R M] [TopologicalSpace M]
+    [IsModuleTopology R M] : SecondCountableTopology M := by
+  obtain ⟨n, φ, hφ⟩ := Module.Finite.exists_fin' R M
+  have := isQuotientMap_of_surjective hφ
+  apply Topology.IsQuotientMap.secondCountableTopology <| isQuotientMap_of_surjective hφ
+  exact isOpenMap_of_surjective hφ
+
+end SecondCountableTopology
+
 end IsModuleTopology

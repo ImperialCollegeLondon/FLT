@@ -579,6 +579,9 @@ local instance : MeasurableSpace (Df K D) := borel (Df K D)
 
 local instance : BorelSpace (Df K D) := { measurable_eq := rfl }
 
+instance : SecondCountableTopology (Dinf K D) :=
+  Module.Finite.secondCountabletopology ℝ (Dinf K D)
+
 lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     ringHaarChar ((D𝔸_prodRight_units K D).symm (a, b)) =
     ringHaarChar (MulEquiv.prodUnits.symm (a, b)) := by
