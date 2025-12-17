@@ -7,8 +7,10 @@ import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.HaarMeasure.HaarChar.RealComplex
+import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
 import FLT.Mathlib.MeasureTheory.Haar.Extension
 import FLT.Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
+import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Polish
 import Mathlib.Topology.Metrizable.Urysohn
@@ -42,6 +44,11 @@ set_option quotPrecheck false in
 notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
 
 open scoped TensorProduct.RightActions
+
+/-- We put the Borel measurable space structure on D_𝔸 in this file. -/
+local instance [FiniteDimensional K D] : MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K) := borel _
+
+local instance [FiniteDimensional K D] : BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
 
 /-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
 noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
@@ -105,8 +112,6 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
   apply Discrete_of_HomDiscrete (X' := Fin (Module.finrank K D) → K)
     ((D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (D_iso K D)
   simpa [D_discrete_extracted] using Kn_discrete K D
-
-variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
 /-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
 local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
@@ -355,8 +360,7 @@ lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringH
 
 end Aux
 
-variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-    [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+variable [FiniteDimensional K D]
 
 /-- The inclusion of `ringHaarChar_ker D_𝔸` into the product space `D_𝔸 × D_𝔸ᵐᵒᵖ`. -/
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
@@ -458,6 +462,11 @@ attribute [-instance] InfiniteAdeleRing.instIsScalarTower_fLT_1
 
 open scoped TensorProduct.RightActions
 
+/-- We put the Borel measurable space structure on D_𝔸 in this file. -/
+local instance [FiniteDimensional K D] : MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K) := borel _
+
+local instance [FiniteDimensional K D] : BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
+
 /-- Notation for (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
     (FiniteAdeleRing (𝓞 K) K)). -/
 abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
@@ -525,21 +534,20 @@ lemma D𝔸_prodRight_units_cont [FiniteDimensional K D] : Continuous (D𝔸_pro
   · apply Continuous.units_map
     exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
 
-variable [FiniteDimensional K D] [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
-    [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
+variable [FiniteDimensional K D]
 
 /-- The restriction of ringHaarChar_ker D_𝔸 to (D ⊗ 𝔸_K^∞)ˣ via D𝔸_iso_prod_units. -/
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (D𝔸_prodRight_units K D) a.val |>.2
 
-lemma rest₁_continuous :
-    Continuous (rest₁ K D) := Continuous.comp continuous_snd (Continuous.comp
-  (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
+lemma rest₁_continuous : Continuous (rest₁ K D) :=
+  Continuous.comp continuous_snd
+  (Continuous.comp (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
 
 /-- The ℝ-algebra structure on Dinf K D. -/
 local instance : Algebra ℝ (Dinf K D) :=
   RingHom.toAlgebra' ((algebraMap (InfiniteAdeleRing K) (Dinf K D)).comp
-     (algebraMap ℝ (InfiniteAdeleRing K))) <| by
+  (algebraMap ℝ (InfiniteAdeleRing K))) <| by
     intro c x
     rw [RingHom.comp_apply, Algebra.commutes]
 
@@ -552,43 +560,24 @@ local instance : Module.Finite ℝ (Dinf K D) :=
 local instance : Module.Free ℝ (Dinf K D) :=
   Module.free_of_finite_type_torsion_free'
 
--- I need the following in rest₁_surjective to use ringHaarChar_ModuleFinite_unit
-
 /-- Dinf K D has the ℝ-module topology. -/
 local instance : IsModuleTopology ℝ (Dinf K D) := by
-  /- By Algebra ℝ (InfiniteAdeleRing K); (InfiniteAdeleRing K) has the ℝ-module topology.
+  /- (InfiniteAdeleRing K) has the ℝ-module topology.
     Now since (Dinf K D) has the (InfiniteAdeleRing K)-module topolology it also has the
     ℝ-module topology.
   -/
-  have : IsModuleTopology (InfiniteAdeleRing K) (Dinf K D) := by
-    exact TensorProduct.RightActions.instIsModuleTopology_fLT K (InfiniteAdeleRing K) D
   rw [IsModuleTopology.trans ℝ (InfiniteAdeleRing K)]
   infer_instance
 
 /-- Dinf K D is given the borel measure. -/
-local instance : MeasurableSpace (Dinf K D) :=
-  borel (Dinf K D)
+local instance : MeasurableSpace (Dinf K D) := borel (Dinf K D)
 
--- need to work out how to do Borelize
 local instance : BorelSpace (Dinf K D) := {measurable_eq := rfl }
 
 /-- Df K D is given the borel measure. -/
 local instance : MeasurableSpace (Df K D) := borel (Df K D)
 
--- borelize again
 local instance : BorelSpace (Df K D) := { measurable_eq := rfl }
-
-/-- Dinf K d × Df K D has the product measure. -/
-local instance : MeasurableSpace (Dinf K D × Df K D) := Prod.instMeasurableSpace
-
--- relies on work in TensorProduct.RightActions
-local instance : SecondCountableTopologyEither (D ⊗[K] InfiniteAdeleRing K)
-    (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := by
-  infer_instance
-
--- not immediately being inferred?
-local instance : Nontrivial (Dinf K D) := by
-  sorry
 
 lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     ringHaarChar ((D𝔸_prodRight_units K D).symm (a, b)) =
