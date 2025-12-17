@@ -7,6 +7,7 @@ import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.MeasureTheory.Haar.Extension
 import FLT.Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
+import FLT.Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Polish
 import Mathlib.Topology.Metrizable.Urysohn
@@ -202,61 +203,17 @@ section auxiliary_defs
 -- We need a subset of D ⊗[K] 𝔸_K^f with positive finite measure
 -- and a subset of D ⊗[K] K_∞ with positive finite measure. We build them piece by piece.
 
-open InfinitePlace.Completion Set Rat RestrictedProduct
+/-- An auxiliary nonempty compact subset of D_𝔸^f with nonempty interior -/
+def Uf : Set (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) := (exists_compact_mem_nhds 0).choose
 
--- a nonempty compact open subset of 𝔸_ℚ^f
-def Cℚf : Set (FiniteAdeleRing (𝓞 ℚ) ℚ) := (range <| structureMap _ _ _)
+omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+theorem Uf.spec : IsCompact (Uf K D) ∧ (Uf K D) ∈ nhds 0 := (exists_compact_mem_nhds 0).choose_spec
 
--- the type indexing a basis for K/ℚ
-def ι : Type _ := Module.Basis.ofVectorSpaceIndex ℚ K
-instance : Finite (ι K) := by unfold ι; infer_instance
+/-- An auxiliary nonempty compact subset of D_𝔸^f with nonempty interior -/
+def Ui : Set (D ⊗[K] (InfiniteAdeleRing K)) := (exists_compact_mem_nhds 0).choose
 
- -- the isomorphism K = ℚ^ι
-def e : K ≃ₗ[ℚ] (ι K → ℚ) := (Module.Basis.ofVectorSpace ℚ K).equivFun
-
-def φf : K ⊗[ℚ] FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₜ+ FiniteAdeleRing (𝓞 K) K :=
-    { __ := (FiniteAdeleRing.baseChangeContinuousAlgEquiv (𝓞 ℚ) ℚ K (𝓞 K)) }
-
--- 𝔸_ℚ^f-linearity should be in mathlib; continuity then comes from module topology
-def ψf : (ι K → ℚ) ⊗[ℚ] FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₜ+ K ⊗[ℚ] FiniteAdeleRing (𝓞 ℚ) ℚ := sorry
-
--- 𝔸_ℚ^f-linearity should be in mathlib; continuity then comes from module topology
-def ρf : (ι K → FiniteAdeleRing (𝓞 ℚ) ℚ) ≃ₜ+ (ι K → ℚ) ⊗[ℚ] FiniteAdeleRing (𝓞 ℚ) ℚ := sorry
-
--- a nonempty compact open subset of 𝔸_K^f
-def cKf := (ρf K).trans ((ψf K).trans (φf K)) '' (Set.univ.pi <| fun _ ↦ Cℚf)
-
-def κ : Type _ := Module.Basis.ofVectorSpaceIndex K D
-instance : Finite (κ K D) := by unfold κ; infer_instance
-
-def f : D ≃ₗ[K] ((κ K D) → K) := (Module.Basis.ofVectorSpace K D).equivFun
-
-def ψKf : ((κ K D → K) ⊗[K] FiniteAdeleRing (𝓞 K) K) ≃ₜ+ D ⊗[K] FiniteAdeleRing (𝓞 K) K := sorry
-
-def ρKf : (κ K D → FiniteAdeleRing (𝓞 K) K) ≃ₜ+ (κ K D → K) ⊗[K] FiniteAdeleRing (𝓞 K) K := sorry
-
--- a nonempty compact open subset of D_𝔸^f
-def cDf : Set (D ⊗[K] FiniteAdeleRing (𝓞 K) K) :=
-  ((ρKf K D).trans (ψKf K D)) '' (Set.univ.pi <| fun _ ↦ cKf K)
-
--- now we do the same for the infinite places
--- a compact subset of ℚ_∞ with nonempty interior
-def Cℚi : Set (InfiniteAdeleRing ℚ) :=
-  (univ.pi fun v => (extensionEmbeddingOfIsReal (infinitePlace_isReal v)).toFun ⁻¹' (Icc 0 1))
-
-def φi : K ⊗[ℚ] InfiniteAdeleRing ℚ ≃ₜ+ InfiniteAdeleRing K :=
-    { __ := (NumberField.InfiniteAdeleRing.baseChangeEquiv ℚ K) }
-
-def ψi : (ι K → ℚ) ⊗[ℚ] InfiniteAdeleRing ℚ ≃ₜ+ K ⊗[ℚ] InfiniteAdeleRing ℚ := sorry
-def ρi : (ι K → InfiniteAdeleRing ℚ) ≃ₜ+ (ι K → ℚ) ⊗[ℚ] InfiniteAdeleRing ℚ := sorry
-
-def cKi := (ρi K).trans ((ψi K).trans (φi K)) '' (Set.univ.pi <| fun _ ↦ Cℚi)
-
-def ψKi : ((κ K D → K) ⊗[K] InfiniteAdeleRing K) ≃ₜ+ D ⊗[K] InfiniteAdeleRing K := sorry
-def ρKi : (κ K D → InfiniteAdeleRing K) ≃ₜ+ (κ K D → K) ⊗[K] InfiniteAdeleRing K := sorry
--- a compact subset of D_𝔸^infty with nonempty interior
-def cDi : Set (D ⊗[K] InfiniteAdeleRing K) :=
-  ((ρKi K D).trans (ψKi K D)) '' (Set.univ.pi <| fun _ ↦ cKi K)
+omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
+theorem Ui.spec : IsCompact (Ui K D) ∧ (Ui K D) ∈ nhds 0 := (exists_compact_mem_nhds 0).choose_spec
 
 end auxiliary_defs
 
@@ -271,14 +228,14 @@ subsets of D_𝔸, defined as the product of a compact open subgroup
 at the finite places and a large closed ball at the infinite places.
 -/
 def Efamily (r : ℝ) : Set (D_𝔸) :=
--- (1) D_𝔸 ≃ (D ⊗[K] 𝔸_K^f) x (D ⊗[K] K_∞)
--- (2) Choose random K-basis e_i for D and use ∑ 𝓞_K^.e_i at the finite places
--- (3) Choose random ℝ-basis for D ⊗[K] K_∞ use closed ball or cube radius r.
-  let f : D_𝔸 ≃ₜ+ (D ⊗[K] FiniteAdeleRing (𝓞 K) K) × (D ⊗[K] InfiniteAdeleRing K) := sorry
-  f ⁻¹' (cDf K D) ×ˢ (r • cDi K D)
+  -- this might be tricky
+  let f : D_𝔸 ≃ₜ+ (D ⊗[K] InfiniteAdeleRing K) × (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := sorry
+  f ⁻¹' (r • Ui K D) ×ˢ (Uf K D)
 
+-- should be straightforward; cts image of compact is compact, product of compact is compact
 lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := sorry
 
+-- I think William did this too?
 open NNReal in
 lemma E_family_unbounded (B : ℝ≥0) :
   ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B := sorry

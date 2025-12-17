@@ -2,6 +2,7 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import Mathlib.GroupTheory.MonoidLocalization.Basic
 import Mathlib.RingTheory.TensorProduct.Finite
 import Mathlib.RingTheory.TensorProduct.Free
+import Mathlib
 
 /-
 
@@ -213,5 +214,20 @@ scoped instance [TopologicalSpace A] [IsTopologicalRing A]
     LocallyCompactSpace (M ⊗[R] A) := IsModuleTopology.locallyCompactSpaceOfFinite A
 
 end ring -- section
+
+noncomputable section tensor_prod_prod
+
+variable (R A B M : Type*) [CommRing R]
+    [CommRing A] [TopologicalSpace A] [IsTopologicalRing A] [Algebra R A]
+    [CommRing B] [TopologicalSpace B] [IsTopologicalRing B] [Algebra R B]
+    [AddCommGroup M] [Module R M] [Module.Finite R M]
+
+example : M ⊗[R] (A × B) ≃ₜ+ ((M ⊗[R] A) × (M ⊗[R] B)) := {
+    __ := prodRight R R M A B
+    continuous_toFun := sorry
+    continuous_invFun := sorry
+  }
+
+end tensor_prod_prod
 
 end TensorProduct.RightActions
