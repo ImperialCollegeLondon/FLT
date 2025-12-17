@@ -5,8 +5,14 @@ Authors: Kevin Buzzard, William Coram
 -/
 import FLT.HaarMeasure.HaarChar.AdeleRing
 import FLT.Mathlib.GroupTheory.DoubleCoset
-import FLT.Mathlib.Topology.HomToDiscrete
+import FLT.Mathlib.MeasureTheory.Haar.Extension
 import FLT.Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
+import FLT.Mathlib.Topology.HomToDiscrete
+import FLT.Mathlib.Topology.Polish
+import Mathlib.Topology.Metrizable.Urysohn
+import Mathlib.Topology.MetricSpace.Polish
+import Mathlib.Topology.UniformSpace.Completion
+import Mathlib.Topology.MetricSpace.Completion
 /-
 
 # Fujisaki's lemma
@@ -100,13 +106,97 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
 
 variable [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)]
 
+/-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
+local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
+  AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
+
+local instance discrete_includeLeft_subgroup :
+    DiscreteTopology (includeLeft_subgroup K D).carrier := by
+  rw [includeLeft_subgroup, discreteTopology_iff_isOpen_singleton]
+  rintro ⟨a, a', rfl⟩
+  obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
+  refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
+  simp only [Subtype.image_preimage_coe, Set.image_singleton]
+  let f : D → D ⊗[K] AdeleRing (𝓞 K) K :=
+    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D ⊗[K] AdeleRing (𝓞 K) K)
+  change Set.range f ∩ U = {f a'}
+  change f ⁻¹' U = {a'} at hUeq
+  ext d
+  simp [Set.ext_iff] at hUeq
+  grind
+
+instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
+
+instance discrete_principalSubgroup :
+    DiscreteTopology (principalSubgroup (𝓞 K) K : Set (AdeleRing (𝓞 K) K)) := by
+  rw [discreteTopology_iff_isOpen_singleton]
+  rintro ⟨-, y, rfl⟩
+  obtain ⟨U, hUopen, hU⟩ := NumberField.AdeleRing.discrete K y
+  refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
+  simp only [Subtype.image_preimage_coe, Set.image_singleton]
+  let f : K → AdeleRing (𝓞 K) K := algebraMap K (AdeleRing (𝓞 K) K)
+  change Set.range f ∩ U = {f y}
+  change f ⁻¹' U = {y} at hU
+  ext d
+  simp [Set.ext_iff] at hU
+  grind
+
+local instance compact_includeLeft_subgroup :
+    CompactSpace (D_𝔸 ⧸ (includeLeft_subgroup K D)) := by
+  let H := includeLeft_subgroup K D
+  change CompactSpace (D_𝔸 ⧸ H)
+  have key := NumberField.AdeleRing.cocompact K
+  let π : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) →+
+      (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) :=
+    AddMonoidHom.compLeft (QuotientAddGroup.mk' _) _
+  have hπ1 : Continuous π := by
+    simp only [π, AddMonoidHom.compLeft]
+    simp only [QuotientAddGroup.coe_mk', AddMonoidHom.coe_mk, ZeroHom.coe_mk]
+    fun_prop
+  have hπ2 : IsOpenQuotientMap π := by
+    have : DiscreteTopology (principalSubgroup (𝓞 K) K : Set (AdeleRing (𝓞 K) K)) :=
+      discrete_principalSubgroup K
+    have key := TopologicalAddGroup.IsSES.ofClosedAddSubgroup (principalSubgroup (𝓞 K) K)
+    exact IsOpenQuotientMap.piMap (fun _ ↦ key.isOpenQuotientMap)
+  let φ : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) →+ (D_𝔸 ⧸ H) :=
+    AddMonoidHom.comp (QuotientAddGroup.mk' _) (D𝔸_iso_top K D).symm.toAddMonoidHom
+  have hφ0 : π.ker ≤ φ.ker := by
+    intro x hx
+    replace hx : ∀ i, x i ∈ Set.range (algebraMap K (AdeleRing (𝓞 K) K)) := by
+      simpa [π, funext_iff] using hx
+    choose q hq using hx
+    let d := (D_iso K D).symm q
+    simp only [Algebra.algebraMap_eq_smul_one] at hq
+    simp only [φ, AddMonoidHom.mem_ker, AddMonoidHom.comp_apply,
+      QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_zero_iff]
+    use d
+    simp only [LinearMap.toAddMonoidHom_coe, ContinuousLinearEquiv.toLinearEquiv_symm]
+    simp only [LinearEquiv.coe_coe, LinearEquiv.eq_symm_apply]
+    simp [d, hq]
+  have hφ1 : Continuous φ := by
+    simp only [φ, AddMonoidHom.coe_comp, QuotientAddGroup.coe_mk', LinearMap.toAddMonoidHom_coe]
+    fun_prop
+  have hφ2 : Function.Surjective φ :=
+    (QuotientAddGroup.mk'_surjective _).comp (D𝔸_iso_top K D).symm.surjective
+  let f : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) →+
+    (D_𝔸 ⧸ H) := AddMonoidHom.liftOfSurjective π hπ2.surjective ⟨φ, hφ0⟩
+  have hf0 : f ∘ π = φ := by ext; simp [f]
+  have hf1 : Continuous f := by rwa [← hπ2.continuous_comp_iff, hf0]
+  have hf2 : Function.Surjective f := by rwa [← hπ2.surjective.of_comp_iff, hf0]
+  rw [← isCompact_univ_iff, ← Set.image_univ_of_surjective hf2]
+  exact isCompact_univ.image hf1
+
 open scoped NNReal in
 lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
-   B < MeasureTheory.Measure.addHaar U →
-    ¬ Function.Injective (
-      (QuotientAddGroup.mk :
-        D_𝔸 → D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) ∘
-      (Subtype.val : U → D_𝔸)) := sorry -- FLT#798
+   IsOpen U → B < MeasureTheory.Measure.addHaar U →
+    ¬ U.InjOn (QuotientAddGroup.mk : D_𝔸 →
+        D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := by
+  let H := includeLeft_subgroup K D
+  have : DiscreteTopology H := discrete_includeLeft_subgroup K D
+  have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) :=
+    Homeomorph.secondCountableTopology (D𝔸_iso_top K D).toHomeomorph
+  have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) := polish_of_locally_compact_second_countable _
+  exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
 
 /-- An auxiliary definition of an increasing family of compact
 subsets of D_𝔸, defined as the product of a compact open subgroup
@@ -129,27 +219,22 @@ lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
   obtain ⟨B, hB⟩ := not_injective_of_large_measure K D
   obtain ⟨r, hr⟩ := E_family_unbounded K D B
   let E := Efamily K D r
-  use E
-  -- E(r) is compact
-  refine ⟨E_family_compact K D r, ?_⟩
+  obtain ⟨U, hU, hKU, hU'⟩ := exists_isOpen_superset_and_isCompact_closure (E_family_compact K D r)
+  use closure U, hU'
   intro φ hφ
-  specialize hB (φ '' E)
-  -- φ is measure-preserving
-  have foo : Measure.addHaar E = Measure.addHaar (⇑φ '' E) := by
-    simp [← addEquivAddHaarChar_smul_preimage Measure.addHaar φ (X := φ '' E),
-      hφ]
-    congr
-    aesop
+  specialize hB (φ.symm ⁻¹' U) (hU.preimage φ.symm.continuous)
+  replace hr : B < Measure.addHaar U := hr.trans_le (measure_mono hKU)
+  replace hφ : addEquivAddHaarChar φ.symm = 1 := by
+    simpa [hφ] using (addEquivAddHaarChar_trans (φ := φ) (ψ := φ.symm)).symm
+  have foo : Measure.addHaar U = Measure.addHaar (⇑φ.symm ⁻¹' U) := by
+    rw [← one_smul NNReal (Measure.addHaar (φ.symm ⁻¹' U)), ← hφ,
+      addEquivAddHaarChar_smul_preimage]
   rw [foo] at hr
   specialize hB hr
-  unfold Function.Injective at hB
-  push_neg at hB
-  obtain ⟨⟨_, e₁, h₁, rfl⟩, ⟨_, e₂, h₂, rfl⟩, ha1, ha2⟩ := hB
-  use e₁, h₁, e₂, h₂
-  refine ⟨by aesop, ?_⟩
-  simp only [Function.comp_apply] at ha1
-  obtain ⟨z, hz1, hz2⟩ := (QuotientAddGroup.mk'_eq_mk' _).1 ha1.symm
-  rwa [eq_sub_of_add_eq' hz2] at hz1
+  simp only [Set.InjOn, not_forall] at hB
+  obtain ⟨x, hx, y, hy, h, hne⟩ := hB
+  rw [QuotientAddGroup.eq_iff_sub_mem] at h
+  exact ⟨φ.symm x, subset_closure hx, φ.symm y, subset_closure hy, by simpa, by simpa⟩
 
 /-- An auxiliary set E used in the proof of Fukisaki's lemma. -/
 def E : Set D_𝔸 := (existsE K D).choose
@@ -214,34 +299,6 @@ lemma X_meets_kernel' [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ring
 
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
-
-/-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
-local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
-  AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
-
-local instance : DiscreteTopology (includeLeft_subgroup K D).carrier := by
-  rw [includeLeft_subgroup]
-  apply discreteTopology_iff_isOpen_singleton.mpr
-  rintro ⟨a, a', ha⟩
-  obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
-  refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
-  simp only [Subtype.image_preimage_coe, Set.image_singleton]
-  ext d
-  constructor
-  · rintro ⟨⟨c, hc⟩, hd2⟩
-    refine Set.mem_singleton_of_eq ?_
-    rw [← hc] at hd2
-    apply Set.mem_preimage.mpr at hd2
-    simp only [AddMonoidHom.coe_coe, hUeq, Set.mem_singleton_iff] at hd2
-    simp_rw [← hc, hd2, ha]
-  · intro hd
-    constructor
-    · refine Set.mem_range.mpr ⟨a', ?_⟩
-      rwa [hd]
-    · rw [hd, ← ha]
-      exact Set.mem_preimage.mp (by simp [hUeq])
-
-instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
 
 lemma T_finite_extracted1 : IsCompact (Y K D ∩
     Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
