@@ -67,12 +67,12 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   ext; simp only [NNReal.coe_mul, NNReal.coe_one]
   rw [← NumberField.prod_abs_eq_one (K := ℚ) (x := x) (Units.ne_zero x)]; congr
   · -- infinite place
-    unfold InfiniteAdeleRing
-    simp only [ringHaarChar_pi', NNReal.coe_prod, Rat.infinitePlace_apply, Rat.cast_abs]
+    simp only [InfiniteAdeleRing, ringHaarChar_pi', NNReal.coe_prod, Rat.infinitePlace_apply,
+      Rat.cast_abs]
     congr; ext v; rw [Subsingleton.elim v Rat.infinitePlace]
     simp [InfinitePlace.mult, Rat.isReal_infinitePlace,
       ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv
-      Rat.infinitePlace_completion_continuousAddEquiv,
+        Rat.infinitePlace_completion_continuousAddEquiv,
       ringHaarChar_real, ← Rat.infinitePlace_completion_continuousAddEquiv_apply_algebraMap,
       -eq_ratCast]
     rfl
