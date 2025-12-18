@@ -84,5 +84,4 @@ noncomputable def Rat.infinitePlace_completion_continuousAddEquiv :
 
 lemma Rat.infinitePlace_completion_continuousAddEquiv_apply_algebraMap (x : ℚ) :
     infinitePlace_completion_continuousAddEquiv
-      (algebraMap ℚ infinitePlace.Completion x) = (x : ℝ) := by
-  simp
+      (algebraMap ℚ infinitePlace.Completion x) = (x : ℝ) := by simp
