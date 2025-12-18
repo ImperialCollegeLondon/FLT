@@ -378,9 +378,6 @@ instance : IsModuleTopology (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
 
 end moduleTopology
 
-noncomputable instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
-  moduleTopology (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K)
-
 /-- The continuous `𝔸_K^∞`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞` -/
 noncomputable def FiniteAdeleRing.baseChangeAdeleContinuousAlgEquiv :
     L ⊗[K] FiniteAdeleRing A K ≃A[FiniteAdeleRing A K] FiniteAdeleRing B L :=

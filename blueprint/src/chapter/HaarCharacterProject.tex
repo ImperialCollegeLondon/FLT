@@ -75,7 +75,7 @@ the definition of $d_A(\phi)$ is indeed independent of the choice of Haar measur
 
 \begin{lemma}
   \lean{MeasureTheory.addEquivAddHaarChar_smul_map}
-  \label{MeasureTheory.addEquivAddHaarChar_map}
+  \label{MeasureTheory.addEquivAddHaarChar_smul_map}
   \uses{MeasureTheory.addEquivAddHaarChar_eq}
   \leanok
   If $\mu$ is any regular Haar measure on $A$ then
@@ -92,14 +92,14 @@ giving a measure $\phi^*\mu$ such that $\phi^*\mu(X)=\mu(\phi(X))$.
 \begin{corollary}
   \lean{MeasureTheory.addEquivAddHaarChar_smul_eq_comap}
   \label{MeasureTheory.addEquivAddHaarChar_comap}
-  \uses{MeasureTheory.addEquivAddHaarChar_map}
+  \uses{MeasureTheory.addEquivAddHaarChar_smul_map}
   \leanok
   If $\mu$ is any regular Haar measure on $A$ then
   $d_A(\phi)\mu = \phi^*\mu.$
 \end{corollary}
 \begin{proof}
   \leanok
-  This follows from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
+  This follows from lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_map}
   applied to the regular Haar measure $\phi^*\mu$ and the fact that $\phi_*\phi^*\mu=\mu$.
 \end{proof}
 
@@ -115,8 +115,8 @@ Now let $\mu$ be any regular additive Haar measure on $A$.
 \end{lemma}
 \begin{proof}
   \leanok
-  \uses{MeasureTheory.addEquivAddHaarChar_map}
-  This follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
+  \uses{MeasureTheory.addEquivAddHaarChar_smul_map}
+  This follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_map}
   and the definition of the pushforward of a measure.
 \end{proof}
 
@@ -131,8 +131,8 @@ Now let $\mu$ be any regular additive Haar measure on $A$.
 \end{lemma}
 \begin{proof}
   \leanok
-  \uses{MeasureTheory.addEquivAddHaarChar_map}
-  This also follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}.
+  \uses{MeasureTheory.addEquivAddHaarChar_smul_map}
+  This also follows immediately from lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_map}.
 \end{proof}
 
 We also have the following variant:
@@ -189,7 +189,7 @@ The following are also straightforward.
   Here's one way: it suffices to prove that
   $d_A(\phi\circ\psi)(\phi\circ\psi)_*\mu=d_A(\phi)d_A(\psi)(\phi\circ\psi)_*\mu$
   (because there exists a compact set with positive finite measure)
-  and using lemma~\ref{MeasureTheory.addEquivAddHaarChar_map}
+  and using lemma~\ref{MeasureTheory.addEquivAddHaarChar_smul_map}
   and the fact that $(\phi\circ\psi)_*\mu=\phi_*(\psi_*\mu)$
   one can simplify both sides to $\mu$.
 \end{proof}
