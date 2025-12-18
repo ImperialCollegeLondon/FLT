@@ -277,6 +277,102 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
   have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) := polish_of_locally_compact_second_countable _
   exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
 
+section FiniteAdeleRing
+
+/-- Notation for (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
+    (FiniteAdeleRing (𝓞 K) K)). -/
+abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
+  (Algebra.TensorProduct.prodRight K K D (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K))
+
+/-- The (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K)-module structure on (Dinf K D × Df K D). -/
+instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
+  smul rs mn := (rs.1 • mn.1, rs.2 • mn.2)
+  one_smul mn := by cases mn; ext; exacts [one_smul _ _, one_smul _ _]
+  mul_smul rs rs' mn := by
+    cases rs; cases rs'; cases mn
+    ext <;>
+    exact mul_smul _ _ _
+  smul_zero rs := by cases rs; ext <;> exact smul_zero _
+  smul_add rs mn mn' := by
+    cases rs; cases mn; cases mn'
+    ext <;>
+    exact smul_add _ _ _
+  add_smul rs rs' mn := by
+    cases rs; cases rs'; cases mn
+    ext <;>
+    exact add_smul _ _ _
+  zero_smul mn := by cases mn; ext <;> exact zero_smul _ _
+
+/-- (Dinf K D × Df K D) has the 𝔸_K module topology. -/
+instance [FiniteDimensional K D] :
+    IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
+  IsModuleTopology.instProd'
+
+/-- The 𝔸_K linear map coming from D𝔸_prodRight. -/
+abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) := {
+  toFun := D𝔸_prodRight K D
+  __ := D𝔸_prodRight K D
+  map_add' a b := by
+    exact RingHom.map_add (D𝔸_prodRight K D).toRingHom a b
+  map_smul' m x := by
+    simp only [RingHom.id_apply]
+    obtain ⟨s, hx⟩ := TensorProduct.exists_finset x
+    simp_rw [hx, Finset.smul_sum, map_sum, TensorProduct.RightActions.smul_def,
+      TensorProduct.comm_tmul, TensorProduct.smul_tmul', TensorProduct.comm_symm_tmul,
+      Finset.smul_sum]
+    -- missing lemma probably
+    rfl
+}
+
+/-- The continuous isomorphism coming from D𝔸_prod viewed on additive groups. -/
+abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
+  __ := D𝔸_prodRight K D
+  continuous_toFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
+  continuous_invFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).symm.toLinearMap
+
+/-- The equivalence of the units of D_𝔸 and the Prod of units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
+abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
+  (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
+
+lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
+  rw [ MulEquiv.coe_trans]
+  -- ask on Zulip about whether fun_prop or continuity can do this
+  apply Continuous.comp ?_ ?_
+  · apply Continuous.prodMk
+    · apply Continuous.units_map
+      exact continuous_fst
+    · apply Continuous.units_map
+      exact continuous_snd
+  · apply Continuous.units_map
+    exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
+
+lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
+    ringHaarChar ((D𝔸_prodRight_units K D).symm (a, b)) =
+    ringHaarChar (MulEquiv.prodUnits.symm (a, b)) := by
+  apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    (D𝔸_prodRight'' K D)
+  simp [MulEquivClass.map_mul]
+
+lemma ringHaarChar_D𝔸_real_surjective (r : ℝ) (h : r > 0) :
+    ∃ (ρ : ℝˣ), ringHaarChar
+      ((D𝔸_prodRight_units K D).symm (((Units.map (algebraMap ℝ (Dinf K D))) ρ),1)) = r := by
+  have a : IsUnit (r ^ (1 / Module.finrank ℝ (Dinf K D) : ℝ)) := by
+    simp only [one_div, isUnit_iff_ne_zero, ne_eq]
+    refine (Real.rpow_ne_zero (by positivity) ?_).mpr (by positivity)
+    simp [Nat.ne_zero_iff_zero_lt, Module.finrank_pos]
+  have := ringHaarChar_ModuleFinite_unit (K := ℝ) (R := Dinf K D) (a.unit)
+  use a.unit
+  rw [ringHaarChar_D𝔸, ringHaarChar_prod, map_one, mul_one]
+  simp_all only [gt_iff_lt, RingHom.toMonoidHom_eq_coe, NNReal.coe_pow]
+  have t : (ringHaarChar a.unit) = r ^ ((1 / Module.finrank ℝ (Dinf K D) : ℝ)) := by
+    simp_rw [MeasureTheory.ringHaarChar_real, IsUnit.unit_spec, coe_nnnorm, Real.norm_eq_abs,
+      one_div, abs_eq_self]
+    positivity
+  simp_rw [t, one_div]
+  exact Real.rpow_inv_natCast_pow (by positivity) (Nat.ne_zero_iff_zero_lt.mpr Module.finrank_pos)
+
+end FiniteAdeleRing
+
 section auxiliary_defs
 -- We need a subset of D ⊗[K] 𝔸_K^f with positive finite measure
 -- and a subset of D ⊗[K] K_∞ with positive finite measure. We build them piece by piece.
@@ -298,20 +394,62 @@ open scoped Pointwise
 open InfinitePlace.Completion Set Rat RestrictedProduct in
 /-- An auxiliary definition of an increasing family of compact
 subsets of D_𝔸, defined as the product of a compact open subgroup
-at the finite places and a large closed ball at the infinite places.
+at the finite places and a compact set with nonempty interior, scalled by `r`,
+at the infinite places.
 -/
 def Efamily (r : ℝ) : Set (D_𝔸) :=
-  -- this might be tricky
-  let f : D_𝔸 ≃ₜ+ Dinf K D × Df K D := sorry
-  f ⁻¹' (r • Ui K D) ×ˢ (Uf K D)
+  (D𝔸_prodRight'' K D).symm '' (r • Ui K D) ×ˢ (Uf K D)
 
--- should be straightforward; cts image of compact is compact, product of compact is compact
-lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := sorry
+lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := by
+  refine IsCompact.image ?_ (by fun_prop)
+  refine IsCompact.prod ?_ (Uf.spec K D).1
+  exact IsCompact.image (Ui.spec K D).1 (show Continuous (fun x ↦ r • x) by fun_prop)
 
--- I think William did this too?
-open NNReal in
+open NNReal ENNReal in
 lemma E_family_unbounded (B : ℝ≥0) :
-  ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B := sorry
+    ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B := by
+  /- plan
+  r ∈ ℝˣ (or >0 maybe)
+  Set is (r,1) • (Ui x Uf) (proof is rfl, do later when stated)
+  -/
+  let d : ℝˣ → D_𝔸ˣ :=
+    fun r ↦ ((D𝔸_prodRight_units K D).symm (((Units.map ↑(algebraMap ℝ (Dinf K D))) r), 1))
+  have := fun (r : ℝˣ) ↦ ringHaarChar_ModuleFinite_unit r (R := Dinf K D)
+  simp_rw [ringHaarChar_real] at this
+  set n := Module.finrank ℝ (Dinf K D) with hn
+  have hfinrank_pos : n > 0 := Module.finrank_pos
+  have hscale : ∀ (r : ℝˣ),
+      ringHaarChar (d r) = ‖(r : ℝ)‖₊ ^ Module.finrank ℝ (Dinf K D) := by
+    intro r
+    rw [ringHaarChar_D𝔸]
+    rw [ringHaarChar_prod] -- these are all used in a proof below; we are duplicating an argument
+    simp only [map_one, mul_one]
+    exact this r
+  have foo := ringHaarChar_mul_volume
+    (MeasureTheory.Measure.addHaar : Measure (D ⊗[K] AdeleRing (𝓞 K) K))
+    (X := Efamily K D 1)
+  have hfamily : ∀ (r : ℝˣ), Efamily K D r = (d r) • Efamily K D 1 := by
+    sorry -- easy
+  have hpos : Measure.addHaar (Efamily K D 1) > 0 := sorry -- need nonempty interior
+  have hfin : Measure.addHaar (Efamily K D 1) < ∞ := sorry -- compactness
+  -- have := ringHaarChar_D𝔸_real_surjective K D -- would make this easier
+  -- but I need pen and paper
+  have hm : (Measure.addHaar (Efamily K D 1)).toNNReal > 0 := by
+    refine pos_of_ne_zero ?_
+    rw [toNNReal_ne_zero]
+    exact ⟨hpos.ne', hfin.ne_top⟩
+  let ρ : ℝ := ((B + 1) / (Measure.addHaar (Efamily K D 1)).toNNReal) ^ (1 / n : ℝ)
+  have hρ : ρ > 0 := by positivity
+  let r : ℝˣ := Units.mk0 ρ hρ.ne'
+  use r
+  rw [hfamily]
+  rw [foo]
+  rw [hscale]
+  simp only [one_div, Units.val_mk0, ENNReal.coe_pow, gt_iff_lt, r, ρ]
+  convert_to (B : ℝ≥0∞) < B + 1
+  · push_cast
+    sorry
+  · sorry
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
@@ -516,77 +654,6 @@ lemma compact_quotient [Algebra.IsCentral K D] :
   isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
     (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
 
-section FiniteAdeleRing
-
-/-- Notation for (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
-    (FiniteAdeleRing (𝓞 K) K)). -/
-abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
-  (Algebra.TensorProduct.prodRight K K D (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K))
-
-/-- The (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K)-module structure on (Dinf K D × Df K D). -/
-instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
-  smul rs mn := (rs.1 • mn.1, rs.2 • mn.2)
-  one_smul mn := by cases mn; ext; exacts [one_smul _ _, one_smul _ _]
-  mul_smul rs rs' mn := by
-    cases rs; cases rs'; cases mn
-    ext <;>
-    exact mul_smul _ _ _
-  smul_zero rs := by cases rs; ext <;> exact smul_zero _
-  smul_add rs mn mn' := by
-    cases rs; cases mn; cases mn'
-    ext <;>
-    exact smul_add _ _ _
-  add_smul rs rs' mn := by
-    cases rs; cases rs'; cases mn
-    ext <;>
-    exact add_smul _ _ _
-  zero_smul mn := by cases mn; ext <;> exact zero_smul _ _
-
-/-- (Dinf K D × Df K D) has the 𝔸_K module topology. -/
-instance [FiniteDimensional K D] :
-    IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
-  IsModuleTopology.instProd'
-
-/-- The 𝔸_K linear map coming from D𝔸_prodRight. -/
-abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) := {
-  toFun := D𝔸_prodRight K D
-  __ := D𝔸_prodRight K D
-  map_add' a b := by
-    exact RingHom.map_add (D𝔸_prodRight K D).toRingHom a b
-  map_smul' m x := by
-    simp only [RingHom.id_apply]
-    obtain ⟨s, hx⟩ := TensorProduct.exists_finset x
-    simp_rw [hx, Finset.smul_sum, map_sum, TensorProduct.RightActions.smul_def,
-      TensorProduct.comm_tmul, TensorProduct.smul_tmul', TensorProduct.comm_symm_tmul,
-      Finset.smul_sum]
-    -- missing lemma probably
-    rfl
-}
-
-/-- The continuous isomorphism coming from D𝔸_prod viewed on additive groups. -/
-abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
-  __ := D𝔸_prodRight K D
-  continuous_toFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
-  continuous_invFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).symm.toLinearMap
-
-end FiniteAdeleRing
-
-/-- The equivalence of the units of D_𝔸 and the Prod of units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
-abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
-  (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
-
-lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
-  rw [ MulEquiv.coe_trans]
-  -- ask on Zulip about whether fun_prop or continuity can do this
-  apply Continuous.comp ?_ ?_
-  · apply Continuous.prodMk
-    · apply Continuous.units_map
-      exact continuous_fst
-    · apply Continuous.units_map
-      exact continuous_snd
-  · apply Continuous.units_map
-    exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
-
 /-- The restriction of ringHaarChar_ker D_𝔸 to (D ⊗ 𝔸_K^∞)ˣ via D𝔸_iso_prod_units. -/
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (D𝔸_prodRight_units K D) a.val |>.2
@@ -595,29 +662,10 @@ lemma rest₁_continuous : Continuous (rest₁ K D) :=
   Continuous.comp continuous_snd
   (Continuous.comp (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
 
-lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
-    ringHaarChar ((D𝔸_prodRight_units K D).symm (a, b)) =
-    ringHaarChar (MulEquiv.prodUnits.symm (a, b)) := by
-  apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
-    (D𝔸_prodRight'' K D)
-  simp [MulEquivClass.map_mul]
-
 lemma ringHaarChar_D𝔸_prodRight_units_aux (r : ℝ) (h : r > 0) :
     ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
-  have a : IsUnit (r ^ (1 / Module.finrank ℝ (Dinf K D) : ℝ)) := by
-    simp only [one_div, isUnit_iff_ne_zero, ne_eq]
-    refine (Real.rpow_ne_zero (by positivity) ?_).mpr (by positivity)
-    simp [Nat.ne_zero_iff_zero_lt, Module.finrank_pos]
-  have := ringHaarChar_ModuleFinite_unit (K := ℝ) (R := Dinf K D) (a.unit)
-  use ((Units.map (algebraMap ℝ (Dinf K D))) a.unit)
-  rw [ringHaarChar_D𝔸, ringHaarChar_prod, map_one, mul_one]
-  simp_all only [gt_iff_lt, RingHom.toMonoidHom_eq_coe, NNReal.coe_pow]
-  have t : (ringHaarChar a.unit) = r ^ ((1 / Module.finrank ℝ (Dinf K D) : ℝ)) := by
-    simp_rw [MeasureTheory.ringHaarChar_real, IsUnit.unit_spec, coe_nnnorm, Real.norm_eq_abs,
-      one_div, abs_eq_self]
-    positivity
-  simp_rw [t, one_div]
-  exact Real.rpow_inv_natCast_pow (by positivity) (Nat.ne_zero_iff_zero_lt.mpr Module.finrank_pos)
+  obtain ⟨ρ, hρ⟩ := ringHaarChar_D𝔸_real_surjective K D r h
+  use ((Units.map (algebraMap ℝ (Dinf K D))) ρ)
 
 open scoped NNReal in
 lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by

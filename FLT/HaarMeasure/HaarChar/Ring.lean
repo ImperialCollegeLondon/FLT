@@ -183,8 +183,6 @@ variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSp
     [hCcompact : ∀ i, CompactSpace (C i)]
 
 lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
-    letI : MeasurableSpace (Πʳ i, [A i, C i]) := borel _
-    haveI : BorelSpace (Πʳ i, [A i, C i]) := ⟨rfl⟩
     ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits u i) := by
   set u := MulEquiv.restrictedProductUnits u
   apply addEquivAddHaarChar_restrictedProductCongrRight (C := (C · |>.toAddSubgroup))

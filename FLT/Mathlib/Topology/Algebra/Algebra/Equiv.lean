@@ -6,6 +6,7 @@ import Mathlib.Topology.Algebra.Algebra.Equiv
 variable {R A B : Type*} [CommSemiring R] [Semiring A] [TopologicalSpace A]
     [Semiring B] [TopologicalSpace B] [Algebra R A] [Algebra R B] (e : A ≃A[R] B)
 
+/-- The continuous additive equivalence associated to a continuous linear equivalence. -/
 def ContinuousAlgEquiv.toContinuousAddEquiv (e : A ≃A[R] B) : A ≃ₜ+ B := {
   __ := e
 }
