@@ -38,11 +38,51 @@ open scoped TensorProduct
 variable (K : Type*) [Field K] [NumberField K]
 variable (D : Type*) [DivisionRing D] [Algebra K D]
 
-namespace NumberField.AdeleRing.DivisionAlgebra
+-- notation for this file
+
+open NumberField
 
 set_option quotPrecheck false in
 /-- `D_𝔸` is notation for `D ⊗[K] 𝔸_K`. -/
 notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
+
+-- abbrevs for this file
+
+namespace NumberField.AdeleRing.DivisionAlgebra.Aux
+
+
+/-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
+noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
+  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
+
+/-- The inclusion of K^n into 𝔸^n. -/
+abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
+    (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
+  fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
+
+/-- Df is notation for D ⊗ 𝔸_K^∞ -/
+abbrev Df := D ⊗[K] (FiniteAdeleRing (𝓞 K) K)
+
+/-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
+abbrev Dfx := (Df K D)ˣ
+
+/-- Dinf is notation for D ⊗ 𝔸_K^∞ -/
+abbrev Dinf := D ⊗[K] (NumberField.InfiniteAdeleRing K)
+
+/-- Dinfx is notation for (D ⊗ 𝔸_K^∞)ˣ -/
+abbrev Dinfx := (Dinf K D)ˣ
+
+-- this instance creates a nasty diamond for
+-- `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L and A = B, and
+-- should probably be scoped (or even removed and statements changed so that they
+-- don't need it).
+attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
+
+/-- The inclusion Dˣ → (D ⊗ 𝔸_K^∞)ˣ as a group homomorphism. -/
+noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
+  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
+
+-- instances for this file
 
 open scoped TensorProduct.RightActions
 
@@ -51,16 +91,44 @@ local instance [FiniteDimensional K D] : MeasurableSpace (D ⊗[K] AdeleRing (�
 
 local instance [FiniteDimensional K D] : BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
 
-/-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
-noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
-  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
+/-- The ℝ-algebra structure on Dinf K D. -/
+local instance : Algebra ℝ (Dinf K D) :=
+  RingHom.toAlgebra' ((algebraMap (InfiniteAdeleRing K) (Dinf K D)).comp
+  (algebraMap ℝ (InfiniteAdeleRing K))) <| by
+    intro c x
+    rw [RingHom.comp_apply, Algebra.commutes]
 
-namespace Aux
+local instance : IsScalarTower ℝ (InfiniteAdeleRing K) (Dinf K D) :=
+  IsScalarTower.of_algebraMap_eq (fun _ ↦ rfl)
 
-/-- The inclusion of K^n into 𝔸^n. -/
-abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
-    (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
-  fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
+local instance [FiniteDimensional K D] : Module.Finite ℝ (Dinf K D) :=
+  Module.Finite.trans (InfiniteAdeleRing K) (Dinf K D)
+
+local instance [FiniteDimensional K D] : Module.Free ℝ (Dinf K D) :=
+  Module.free_of_finite_type_torsion_free'
+
+/-- Dinf K D has the ℝ-module topology. -/
+local instance [FiniteDimensional K D] : IsModuleTopology ℝ (Dinf K D) := by
+  /- (InfiniteAdeleRing K) has the ℝ-module topology.
+    Now since (Dinf K D) has the (InfiniteAdeleRing K)-module topolology it also has the
+    ℝ-module topology.
+  -/
+  rw [IsModuleTopology.trans ℝ (InfiniteAdeleRing K)]
+  infer_instance
+
+/-- Dinf K D is given the borel measure. -/
+local instance [FiniteDimensional K D] : MeasurableSpace (Dinf K D) := borel (Dinf K D)
+
+local instance [FiniteDimensional K D] : BorelSpace (Dinf K D) := {measurable_eq := rfl }
+
+/-- Df K D is given the borel measure. -/
+local instance [FiniteDimensional K D] : MeasurableSpace (Df K D) := borel (Df K D)
+
+local instance [FiniteDimensional K D] : BorelSpace (Df K D) := { measurable_eq := rfl }
+
+-- D ⊗ K_∞ is second countable because it's a finite ℝ-module
+instance [FiniteDimensional K D] : SecondCountableTopology (Dinf K D) :=
+  Module.Finite.secondCountabletopology ℝ (Dinf K D)
 
 theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
     ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
@@ -213,21 +281,18 @@ section auxiliary_defs
 /-- An auxiliary nonempty compact subset of D_𝔸^f with nonempty interior -/
 def Uf : Set (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) := (exists_compact_mem_nhds 0).choose
 
-omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 theorem Uf.spec : IsCompact (Uf K D) ∧ (Uf K D) ∈ nhds 0 := (exists_compact_mem_nhds 0).choose_spec
 
 /-- An auxiliary nonempty compact subset of D_𝔸^f with nonempty interior -/
 def Ui : Set (D ⊗[K] (InfiniteAdeleRing K)) := (exists_compact_mem_nhds 0).choose
 
-omit [MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K)] [BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K)] in
 theorem Ui.spec : IsCompact (Ui K D) ∧ (Ui K D) ∈ nhds 0 := (exists_compact_mem_nhds 0).choose_spec
 
 end auxiliary_defs
 
 open scoped Pointwise
 
-instance : Module ℝ (InfiniteAdeleRing K) := sorry -- This is in William's PR
-instance : Module ℝ (D ⊗[K] InfiniteAdeleRing K) := sorry -- this should follow
+instance : Module ℝ (D ⊗[K] InfiniteAdeleRing K) := inferInstance -- this should follow
 
 open InfinitePlace.Completion Set Rat RestrictedProduct in
 /-- An auxiliary definition of an increasing family of compact
@@ -385,9 +450,7 @@ lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringH
     simp_rw [(Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq ht1)))]
     exact Set.mem_mul.mpr ⟨↑t⁻¹, Set.mem_image_of_mem Units.val ht, x2, hx2, rfl⟩
 
-end Aux
 
-variable [FiniteDimensional K D]
 
 /-- The inclusion of `ringHaarChar_ker D_𝔸` into the product space `D_𝔸 × D_𝔸ᵐᵒᵖ`. -/
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
@@ -452,34 +515,12 @@ lemma compact_quotient [Algebra.IsCentral K D] :
   isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
     (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
 
-end NumberField.AdeleRing.DivisionAlgebra
-
 -- all of this is not in a namespace!!
 section FiniteAdeleRing
 
 open scoped NumberField
 
-/-- Df is notation for D ⊗ 𝔸_K^∞ -/
-abbrev Df := D ⊗[K] (FiniteAdeleRing (𝓞 K) K)
 
-/-- Dfx is notation for (D ⊗ 𝔸_K^∞)ˣ. -/
-abbrev Dfx := (Df K D)ˣ
-
-/-- Dinf is notation for D ⊗ 𝔸_K^∞ -/
-abbrev Dinf := D ⊗[K] (NumberField.InfiniteAdeleRing K)
-
-/-- Dinfx is notation for (D ⊗ 𝔸_K^∞)ˣ -/
-abbrev Dinfx := (Dinf K D)ˣ
-
--- this instance creates a nasty diamond for
--- `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L and A = B, and
--- should probably be scoped (or even removed and statements changed so that they
--- don't need it).
-attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
-
-/-- The inclusion Dˣ → (D ⊗ 𝔸_K^∞)ˣ as a group homomorphism. -/
-noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
-  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 open NumberField
 
@@ -550,7 +591,7 @@ abbrev D𝔸_prodRight'' [FiniteDimensional K D] : D_𝔸 ≃ₜ+ Dinf K D × Df
 abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
   (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
 
-lemma D𝔸_prodRight_units_cont [FiniteDimensional K D] : Continuous (D𝔸_prodRight_units K D) := by
+lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
   rw [ MulEquiv.coe_trans]
   -- ask on Zulip about whether fun_prop or continuity can do this
   apply Continuous.comp ?_ ?_
@@ -562,8 +603,6 @@ lemma D𝔸_prodRight_units_cont [FiniteDimensional K D] : Continuous (D𝔸_pro
   · apply Continuous.units_map
     exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
 
-variable [FiniteDimensional K D]
-
 /-- The restriction of ringHaarChar_ker D_𝔸 to (D ⊗ 𝔸_K^∞)ˣ via D𝔸_iso_prod_units. -/
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (D𝔸_prodRight_units K D) a.val |>.2
@@ -571,45 +610,6 @@ abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
 lemma rest₁_continuous : Continuous (rest₁ K D) :=
   Continuous.comp continuous_snd
   (Continuous.comp (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
-
-/-- The ℝ-algebra structure on Dinf K D. -/
-local instance : Algebra ℝ (Dinf K D) :=
-  RingHom.toAlgebra' ((algebraMap (InfiniteAdeleRing K) (Dinf K D)).comp
-  (algebraMap ℝ (InfiniteAdeleRing K))) <| by
-    intro c x
-    rw [RingHom.comp_apply, Algebra.commutes]
-
-local instance : IsScalarTower ℝ (InfiniteAdeleRing K) (Dinf K D) :=
-  IsScalarTower.of_algebraMap_eq (fun _ ↦ rfl)
-
-local instance : Module.Finite ℝ (Dinf K D) :=
-  Module.Finite.trans (InfiniteAdeleRing K) (Dinf K D)
-
-local instance : Module.Free ℝ (Dinf K D) :=
-  Module.free_of_finite_type_torsion_free'
-
-/-- Dinf K D has the ℝ-module topology. -/
-local instance : IsModuleTopology ℝ (Dinf K D) := by
-  /- (InfiniteAdeleRing K) has the ℝ-module topology.
-    Now since (Dinf K D) has the (InfiniteAdeleRing K)-module topolology it also has the
-    ℝ-module topology.
-  -/
-  rw [IsModuleTopology.trans ℝ (InfiniteAdeleRing K)]
-  infer_instance
-
-/-- Dinf K D is given the borel measure. -/
-local instance : MeasurableSpace (Dinf K D) := borel (Dinf K D)
-
-local instance : BorelSpace (Dinf K D) := {measurable_eq := rfl }
-
-/-- Df K D is given the borel measure. -/
-local instance : MeasurableSpace (Df K D) := borel (Df K D)
-
-local instance : BorelSpace (Df K D) := { measurable_eq := rfl }
-
--- D ⊗ K_∞ is second countable because it's a finite ℝ-module
-instance : SecondCountableTopology (Dinf K D) :=
-  Module.Finite.secondCountabletopology ℝ (Dinf K D)
 
 lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     ringHaarChar ((D𝔸_prodRight_units K D).symm (a, b)) =
@@ -661,7 +661,7 @@ lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
 -- below using Quot.lift
 lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
     (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker D_𝔸).subtype
-    (AdeleRing.DivisionAlgebra.incl K D).range)) a b →
+    (AdeleRing.DivisionAlgebra.Aux.incl K D).range)) a b →
     (Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a) =
      Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D b)) := by
   refine fun a b hab ↦ Quotient.eq''.mpr ?_
@@ -670,14 +670,15 @@ lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
     Subtype.exists, Subgroup.mk_smul, smul_eq_mul, MonoidHom.mem_range, exists_prop,
     exists_exists_eq_and]
   use t'
-  have : incl₁ K D t' = ((D𝔸_prodRight_units K D) (AdeleRing.DivisionAlgebra.incl K D t')).2 := by
+  have : incl₁ K D t' =
+      ((D𝔸_prodRight_units K D) (AdeleRing.DivisionAlgebra.Aux.incl K D t')).2 := by
     rfl
   simp_rw [this, ht, ← Prod.snd_mul, Subgroup.subtype_apply, Subgroup.comap_subtype, ← map_mul]
   rfl
 
 /-- The obvious map Dˣ \ D_𝔸^(1) to Dˣ \ (Dfx K D). -/
 abbrev incl_D𝔸quot : Quotient (QuotientGroup.rightRel
-    ((MonoidHom.range (NumberField.AdeleRing.DivisionAlgebra.incl K D)).comap
+    ((MonoidHom.range (NumberField.AdeleRing.DivisionAlgebra.Aux.incl K D)).comap
     (ringHaarChar_ker D_𝔸).subtype)) →
     Quotient (QuotientGroup.rightRel (incl₁ K D).range) :=
   Quot.lift
@@ -699,11 +700,12 @@ lemma incl_D𝔸quot_surjective : Function.Surjective (incl_D𝔸quot K D) := by
   use a
   simp [ha]
 
+
 variable [Algebra.IsCentral K D]
 open scoped TensorProduct.RightActions in
-theorem NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
+theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
-  have := isCompact_univ_iff.mpr (NumberField.AdeleRing.DivisionAlgebra.compact_quotient K D)
+  have := isCompact_univ_iff.mpr (NumberField.AdeleRing.DivisionAlgebra.Aux.compact_quotient K D)
   apply isCompact_univ_iff.mp
   have := IsCompact.image (this) (incl_D𝔸quot_continuous K D)
   rw [Set.image_univ_of_surjective (incl_D𝔸quot_surjective K D)] at this
@@ -716,7 +718,7 @@ then the double coset space `Dˣ \ (D ⊗ 𝔸_K^infty)ˣ / U` is finite for any
 of `(D ⊗ 𝔸_F^infty)ˣ`.
 -/
 open scoped TensorProduct.RightActions in
-theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
+theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     {U : Subgroup (Dfx K D)} (hU : IsOpen (U : Set (Dfx K D))) :
     Finite (DoubleCoset.Quotient (Set.range (incl₁ K D)) U) := by
   have ToFinCover := IsCompact.elim_finite_subcover
@@ -731,3 +733,11 @@ theorem NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
   exact ⟨t, DoubleCoset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
 
 end FiniteAdeleRing
+
+end Aux
+
+end DivisionAlgebra
+
+end AdeleRing
+
+end NumberField
