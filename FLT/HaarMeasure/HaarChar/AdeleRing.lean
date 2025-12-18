@@ -61,7 +61,21 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).2 hx))
 
 lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
-  ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := sorry
+  ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := by
+  rw [ringHaarChar_adeles_rat (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ)]
+  ext; simp only [NNReal.coe_mul, NNReal.coe_one]
+  convert NumberField.prod_abs_eq_one (K := ℚ) (x := x) (Units.ne_zero x)
+  · -- infinite places
+    sorry
+  · -- finite places
+    rw [← finprod_comp_equiv FinitePlace.equivHeightOneSpectrum.symm]
+    conv_lhs =>
+      apply NNReal.toRealHom.map_finprod_of_injective (injective_of_le_imp_le _ fun {x y} a ↦ a)
+    apply finprod_congr; intro p
+    simp only [RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, NNReal.coe_toRealHom,
+      FinitePlace.equivHeightOneSpectrum, Equiv.coe_fn_symm_mk, FinitePlace.mk_apply]
+    -- rw [ringHaarChar_padic]
+    sorry
 
 -- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange
 open scoped TensorProduct.RightActions in
