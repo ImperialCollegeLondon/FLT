@@ -10,7 +10,6 @@ import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
 import FLT.Mathlib.MeasureTheory.Haar.Extension
 import FLT.Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
-import FLT.Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Polish
@@ -684,13 +683,6 @@ lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.
 lemma M_compact : IsCompact (M K D) := Topology.IsClosedEmbedding.isCompact_preimage
   (incl₂_isClosedEmbedding K D) (ImAux_isCompact K D)
 
--- Thomas needs this IIRC
-lemma compact_quotient [Algebra.IsCentral K D] :
-    CompactSpace (_root_.Quotient (QuotientGroup.rightRel
-    ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
-  isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
-    (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
-
 /-- The restriction of ringHaarChar_ker D_𝔸 to (D ⊗ 𝔸_K^∞)ˣ via D𝔸_iso_prod_units. -/
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (D𝔸_prodRight_units K D) a.val |>.2
@@ -769,12 +761,26 @@ lemma incl_D𝔸quot_surjective : Function.Surjective (incl_D𝔸quot K D) := by
   use a
   simp [ha]
 
+end Aux
+
+open Aux
+
+variable [FiniteDimensional K D]
+
+open scoped TensorProduct.RightActions
+
+-- Thomas needs this IIRC
+lemma compact_quotient [Algebra.IsCentral K D] :
+    CompactSpace (_root_.Quotient (QuotientGroup.rightRel
+    ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
+  isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
+    (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
 
 variable [Algebra.IsCentral K D]
 open scoped TensorProduct.RightActions in
 theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
-  have := isCompact_univ_iff.mpr (NumberField.AdeleRing.DivisionAlgebra.Aux.compact_quotient K D)
+  have := isCompact_univ_iff.mpr (NumberField.AdeleRing.DivisionAlgebra.compact_quotient K D)
   apply isCompact_univ_iff.mp
   have := IsCompact.image (this) (incl_D𝔸quot_continuous K D)
   rw [Set.image_univ_of_surjective (incl_D𝔸quot_surjective K D)] at this
@@ -800,8 +806,6 @@ theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     ▸ Set.Subset.rfl)
   apply (DoubleCoset.iUnion_finset_quotTodoubleCoset ((incl₁ K D).range) U).mp
   exact ⟨t, DoubleCoset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
-
-end Aux
 
 end DivisionAlgebra
 
