@@ -26,6 +26,16 @@ if `D` is a finite-dimensional division algebra over a number field `K`
 and if `U ⊆ (D ⊗[K] 𝔸_K^infty)ˣ` is a compact open subgroup then the double coset
 space `Dˣ \ (D ⊗[K] 𝔸_K^infty)ˣ / U` is finite.
 
+## Main definitions
+
+Most of the definitions in this file are auxiliary definitions, in an `Aux` namespace.
+
+## Main theorem
+
+Fujisaki's lemma:
+
+* NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
+
 -/
 
 suppress_compilation
@@ -54,7 +64,9 @@ set_option quotPrecheck false in
 /-- `D_𝔸` is notation for `D ⊗[K] 𝔸_K`. -/
 notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
 
--- abbrevs for this file
+-- abbrevs for this file, in an Aux namespace (as is most of this file;
+-- it is local definitions and lemmas which we don't need. All we need
+-- is the big result at the end.)
 
 namespace NumberField.AdeleRing.DivisionAlgebra.Aux
 
@@ -83,7 +95,7 @@ abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
     (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
   fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
 
--- instances for this file
+-- instances for Df, Dinf, D_𝔸
 
 open scoped TensorProduct.RightActions
 
@@ -100,15 +112,12 @@ instance : IsScalarTower ℝ (InfiniteAdeleRing K) (Dinf K D) :=
 variable [FiniteDimensional K D]
 
 /-- We put the Borel measurable space structure on D_𝔸 in this file. -/
-instance : MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K) := borel _
+instance : MeasurableSpace D_𝔸 := borel _
 
-instance : BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
+instance : BorelSpace D_𝔸 := ⟨rfl⟩
 
 instance : Module.Finite ℝ (Dinf K D) :=
   Module.Finite.trans (InfiniteAdeleRing K) (Dinf K D)
-
-instance : Module.Free ℝ (Dinf K D) :=
-  Module.free_of_finite_type_torsion_free'
 
 /-- Dinf K D has the ℝ-module topology. -/
 instance : IsModuleTopology ℝ (Dinf K D) := by
@@ -119,12 +128,12 @@ instance : IsModuleTopology ℝ (Dinf K D) := by
   rw [IsModuleTopology.trans ℝ (InfiniteAdeleRing K)]
   infer_instance
 
-/-- Dinf K D is given the borel measure. -/
+/-- Dinf K D is given the borel sigma algebra (for Haar measure). -/
 instance : MeasurableSpace (Dinf K D) := borel (Dinf K D)
 
 instance : BorelSpace (Dinf K D) := {measurable_eq := rfl }
 
-/-- Df K D is given the borel measure. -/
+/-- Df K D is given the borel sigma algebra (for Haar measure). -/
 instance : MeasurableSpace (Df K D) := borel (Df K D)
 
 instance : BorelSpace (Df K D) := { measurable_eq := rfl }
@@ -133,6 +142,7 @@ instance : BorelSpace (Df K D) := { measurable_eq := rfl }
 instance : SecondCountableTopology (Dinf K D) :=
   Module.Finite.secondCountabletopology ℝ (Dinf K D)
 
+-- discreteness of K^n in 𝔸_K^n (which will be used to show discreteness of D in D_𝔸)
 omit [FiniteDimensional K D] in
 theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
     ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
@@ -150,19 +160,20 @@ attribute [local instance 1100] IsTopologicalSemiring.toIsModuleTopology
 example : IsModuleTopology (AdeleRing (𝓞 K) K)
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := inferInstance
 
-/-- The 𝔸-algebra equivalence of D_𝔸 and 𝔸^d. -/
+/-- The 𝔸_K-algebra equivalence of D_𝔸 and 𝔸_K^d. -/
 abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) :=
   ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
     (TensorProduct.AlgebraTensorModule.finiteEquivPi K D (AdeleRing (𝓞 K) K))
 
-/-- The topological equivalence via D𝔸_iso. -/
+/-- The topological 𝔸_K-linear equivalence D_𝔸 ≃ 𝔸_K^d. -/
 abbrev D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)]
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :=
   IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
 
-theorem D_discrete_extracted (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
-    incl_Kn_𝔸Kn K D ⁻¹' U  = (D_iso K D) ''
-    (⇑(D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
+theorem D_discrete_aux (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
+    incl_Kn_𝔸Kn K D ⁻¹' U  =
+    (D_iso K D) ''
+      (⇑(D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
   ext x
   constructor
   · intro hx
@@ -173,8 +184,7 @@ theorem D_discrete_extracted (U : Set (Fin (Module.finrank K D) → AdeleRing (�
         (incl_Kn_𝔸Kn K D) ∘ (D_iso K D) := by
       ext d n
       simp [← Algebra.algebraMap_eq_smul_one]
-    rw [this] at hy1
-    simpa [← hy2] using hy1
+    simpa [← hy2, this] using hy1
 
 theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
@@ -182,9 +192,9 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) (D𝔸_iso_top K D)
   apply Discrete_of_HomDiscrete (X' := Fin (Module.finrank K D) → K)
     ((D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (D_iso K D)
-  simpa [D_discrete_extracted] using Kn_discrete K D
+  simpa [D_discrete_aux] using Kn_discrete K D
 
-/-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
+/-- The additive subgroup D of D_𝔸. -/
 def includeLeft_subgroup : AddSubgroup D_𝔸 :=
   AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
 
@@ -219,6 +229,7 @@ instance discrete_principalSubgroup :
   simp [Set.ext_iff] at hU
   grind
 
+-- we seem to have this twice?
 instance compact_includeLeft_subgroup :
     CompactSpace (D_𝔸 ⧸ (includeLeft_subgroup K D)) := by
   let H := includeLeft_subgroup K D
@@ -228,8 +239,8 @@ instance compact_includeLeft_subgroup :
       (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) :=
     AddMonoidHom.compLeft (QuotientAddGroup.mk' _) _
   have hπ1 : Continuous π := by
-    simp only [π, AddMonoidHom.compLeft]
-    simp only [QuotientAddGroup.coe_mk', AddMonoidHom.coe_mk, ZeroHom.coe_mk]
+    simp only [π, AddMonoidHom.compLeft, QuotientAddGroup.coe_mk', AddMonoidHom.coe_mk,
+      ZeroHom.coe_mk]
     fun_prop
   have hπ2 : IsOpenQuotientMap π := by
     have : DiscreteTopology (principalSubgroup (𝓞 K) K : Set (AdeleRing (𝓞 K) K)) :=
@@ -248,8 +259,8 @@ instance compact_includeLeft_subgroup :
     simp only [φ, AddMonoidHom.mem_ker, AddMonoidHom.comp_apply,
       QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_zero_iff]
     use d
-    simp only [LinearMap.toAddMonoidHom_coe, ContinuousLinearEquiv.toLinearEquiv_symm]
-    simp only [LinearEquiv.coe_coe, LinearEquiv.eq_symm_apply]
+    simp only [LinearMap.toAddMonoidHom_coe, ContinuousLinearEquiv.toLinearEquiv_symm,
+      LinearEquiv.coe_coe, LinearEquiv.eq_symm_apply]
     simp [d, hq]
   have hφ1 : Continuous φ := by
     simp only [φ, AddMonoidHom.coe_comp, QuotientAddGroup.coe_mk', LinearMap.toAddMonoidHom_coe]
@@ -278,8 +289,8 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
 
 section FiniteAdeleRing
 
-/-- Notation for (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
-    (FiniteAdeleRing (𝓞 K) K)). -/
+/-- The K-algebra isomorphism `D_𝔸 ≃ D_∞ × D_f` -- adelic D is infinite adele D times
+finite adele D. -/
 abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
   (Algebra.TensorProduct.prodRight K K D (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K))
 
@@ -307,7 +318,7 @@ instance [FiniteDimensional K D] :
     IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
   IsModuleTopology.instProd'
 
-/-- The 𝔸_K linear map coming from D𝔸_prodRight. -/
+/-- The 𝔸_K linear map `D_𝔸 ≃ D_∞ × D_f`. -/
 abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) := {
   toFun := D𝔸_prodRight K D
   __ := D𝔸_prodRight K D
@@ -323,13 +334,14 @@ abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K 
     rfl
 }
 
-/-- The continuous isomorphism coming from D𝔸_prod viewed on additive groups. -/
+/-- The continuous additive isomorphism `D_𝔸 ≃ D_∞ × D_f`. -/
 abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
   __ := D𝔸_prodRight K D
   continuous_toFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
   continuous_invFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).symm.toLinearMap
 
-/-- The equivalence of the units of D_𝔸 and the Prod of units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
+/-- The equivalence of the units of D_𝔸 and the product of the
+units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
 abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
   (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
 
@@ -343,7 +355,8 @@ lemma smul_D𝔸_prodRight_symm (a : (Dinf K D)ˣ) (b : (Df K D)ˣ)
 
 lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
   rw [ MulEquiv.coe_trans]
-  -- ask on Zulip about whether fun_prop or continuity can do this
+  -- annoying that fun_prop and continuity can't seem to do this
+  -- it's about monoid and ring homs, it's the usual problem.
   apply Continuous.comp ?_ ?_
   · apply Continuous.prodMk
     · apply Continuous.units_map
@@ -360,6 +373,8 @@ lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     (D𝔸_prodRight'' K D)
   simp [MulEquivClass.map_mul]
 
+/-- For any positive real `r`, there's some `ρ ∈ ℝˣ` such that the haar character of
+`(ρ, 1) ∈ D_f × D_∞` is `r`. -/
 lemma ringHaarChar_D𝔸_real_surjective (r : ℝ) (h : r > 0) :
     ∃ (ρ : ℝˣ), ringHaarChar
       ((D𝔸_prodRight_units K D).symm (((Units.map (algebraMap ℝ (Dinf K D))) ρ),1)) = r := by
@@ -382,14 +397,15 @@ end FiniteAdeleRing
 
 section auxiliary_defs
 -- We need a subset of D ⊗[K] 𝔸_K^f with positive finite measure
--- and a subset of D ⊗[K] K_∞ with positive finite measure. We build them piece by piece.
+-- and a subset of D ⊗[K] K_∞ with positive finite measure. We build them
+-- as compact neighbourhoods of 0.
 
-/-- An auxiliary nonempty compact subset of D_𝔸^f with nonempty interior -/
+/-- An auxiliary compact subset of D_𝔸^f with nonempty interior -/
 def Uf : Set (D ⊗[K] (FiniteAdeleRing (𝓞 K) K)) := (exists_compact_mem_nhds 0).choose
 
 theorem Uf.spec : IsCompact (Uf K D) ∧ (Uf K D) ∈ nhds 0 := (exists_compact_mem_nhds 0).choose_spec
 
-/-- An auxiliary nonempty compact subset of D_𝔸^f with nonempty interior -/
+/-- An auxiliary compact subset of D_∞ with nonempty interior -/
 def Ui : Set (D ⊗[K] (InfiniteAdeleRing K)) := (exists_compact_mem_nhds 0).choose
 
 theorem Ui.spec : IsCompact (Ui K D) ∧ (Ui K D) ∈ nhds 0 := (exists_compact_mem_nhds 0).choose_spec
@@ -400,8 +416,8 @@ open scoped Pointwise
 
 open InfinitePlace.Completion Set Rat RestrictedProduct in
 /-- An auxiliary definition of an increasing family of compact
-subsets of D_𝔸, defined as the product of a compact open subgroup
-at the finite places and a compact set with nonempty interior, scalled by `r`,
+subsets of D_𝔸, defined as the product of a compact neighbourhood of 0
+at the finite places and a compact neighbourhood of 0, scaled by `r`,
 at the infinite places.
 -/
 def Efamily (r : ℝ) : Set (D_𝔸) :=
@@ -416,75 +432,73 @@ lemma E_family_nonempty_interior : (interior (Efamily K D 1)).Nonempty := by
   unfold Efamily
   rw [one_smul]
   change (interior ((D𝔸_prodRight'' K D).toHomeomorph.symm '' Ui K D ×ˢ Uf K D)).Nonempty
-  rw [← Homeomorph.image_interior]
-  rw [Set.image_nonempty]
+  rw [← Homeomorph.image_interior, Set.image_nonempty]
   use 0
-  rw [mem_interior_iff_mem_nhds]
-  change _ ∈ nhds (0, 0)
-  rw [mem_nhds_prod_iff]
-  have hf := (Uf.spec K D).2
-  have hi := (Ui.spec K D).2
-  exact ⟨Ui K D, hi, Uf K D, hf, by rfl⟩
+  rw [mem_interior_iff_mem_nhds, Prod.zero_eq_mk, mem_nhds_prod_iff]
+  exact ⟨Ui K D, (Ui.spec K D).2, Uf K D, (Uf.spec K D).2, subset_rfl⟩
 
 open NNReal ENNReal in
 lemma E_family_unbounded (B : ℝ≥0) :
     ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B := by
+  -- For r a nonzero real, let di(r) be the image of r in D_∞ˣ
+  let di (r : ℝˣ) : (Dinf K D)ˣ := ((Units.map (algebraMap ℝ (Dinf K D))) r)
+  -- For r a nonzero real, let d(r) be the element (r,1)=(di(r),i) in D_𝔸ˣ, so it's
+  -- r at the infinite places.
   let d : ℝˣ → D_𝔸ˣ :=
-    fun r ↦ ((D𝔸_prodRight_units K D).symm (((Units.map ↑(algebraMap ℝ (Dinf K D))) r), 1))
-  have foo := fun (r : ℝˣ) ↦ ringHaarChar_ModuleFinite_unit r (R := Dinf K D)
-  simp_rw [ringHaarChar_real] at foo
-  set n := Module.finrank ℝ (Dinf K D) with hn
-  have hfinrank_pos : n > 0 := Module.finrank_pos
-  have bar := ringHaarChar_mul_volume
+    fun r ↦ (D𝔸_prodRight_units K D).symm (di r, 1)
+  -- By definition, scaling a set by `u` changes its measure by the Haar character of u.
+  have hscale := ringHaarChar_mul_volume
     (MeasureTheory.Measure.addHaar : Measure (D ⊗[K] AdeleRing (𝓞 K) K))
     (X := Efamily K D 1)
-  have hfamily : ∀ (r : ℝˣ), Efamily K D r = (d r) • Efamily K D 1 := by
-    intro r
+  -- We now make the obvious claim that the r'th element of the family
+  -- is what you get by scaling the 1st element by d(r) -- this is
+  -- true by definition.
+  have hfamily (r : ℝˣ) : Efamily K D r = (d r) • Efamily K D 1 := by
     ext x
+    -- this is just unfolding definitions
     unfold Efamily
-    rw [Set.mem_smul_set]
-    rw [Set.mem_image]
+    rw [Set.mem_smul_set, Set.mem_image]
     constructor
-    · rintro ⟨⟨xi, xf⟩, h, rfl⟩
-      obtain ⟨hi, hf⟩ := h
-      rw [Set.mem_smul_set] at hi
-      obtain ⟨a, ha, rfl⟩ := hi
+    · rintro ⟨⟨xi, xf⟩, ⟨⟨a, ha, rfl⟩, hf⟩, rfl⟩
       use (D𝔸_prodRight'' K D).symm (a, xf)
       simp only [one_smul, Set.mem_image, Set.mem_prod, EmbeddingLike.apply_eq_iff_eq,
         exists_eq_right]
       refine ⟨⟨ha, hf⟩, ?_⟩
       simp only [d, Units.smul_def]
+      nth_rw 2 [← one_smul (Df K D) xf]
       convert smul_D𝔸_prodRight_symm K D ((Units.map ↑(algebraMap ℝ (Dinf K D))) r) 1 a xf
-      simp
     · rintro ⟨-, ⟨⟨a, b⟩, ⟨hzi, hzf⟩, rfl⟩, rfl⟩
       use (r • a, b)
       simp only [one_smul] at hzi
       refine ⟨⟨⟨a, hzi, rfl⟩, hzf⟩, ?_⟩
-      unfold d
       convert (smul_D𝔸_prodRight_symm K D ((Units.map ↑(algebraMap ℝ (Dinf K D))) r) 1 a b).symm
       simp
+  -- Now Efamily 1 is a compact neighbourhood of 1 so it has Haar measure which isn't 0 or ∞
   have hpos : Measure.addHaar (Efamily K D 1) ≠ 0 := by
     refine (MeasureTheory.Measure.measure_pos_of_nonempty_interior _ ?_).ne'
     apply E_family_nonempty_interior
   have hfin : Measure.addHaar (Efamily K D 1) ≠ ∞ :=
     IsCompact.measure_ne_top (E_family_compact K D 1)
-  have qux := ringHaarChar_D𝔸_real_surjective K D
   have hm : (Measure.addHaar (Efamily K D 1)).toNNReal ≠ 0 := by
     rw [toNNReal_ne_zero]
     exact ⟨hpos, hfin⟩
-  obtain ⟨ρ, hρ⟩ := qux ((B + 1 : ℝ≥0) / (Measure.addHaar (Efamily K D 1)).toNNReal) (by positivity)
+  -- Choose ρ such that the Haar charaacter of d(ρ) is (B + 1) / μ (Efamily 1)
+  obtain ⟨ρ, hρ⟩ := ringHaarChar_D𝔸_real_surjective K D
+    ((B + 1 : ℝ≥0) / (Measure.addHaar (Efamily K D 1)).toNNReal) (by positivity)
+  -- this ρ works
   use ρ
-  rw [hfamily, bar, ← coe_toNNReal hfin]
+  rw [hfamily, hscale, ← coe_toNNReal hfin]
   norm_cast
   change (ringHaarChar (d ρ) : ℝ) = _ at hρ
+  -- indeed we need to show B < haar_char(d(ρ))*μ(Efamily 1)
   suffices ((B : ℝ) < ringHaarChar (d ρ) * (Measure.addHaar (Efamily K D 1)).toNNReal) by
     exact_mod_cast this
   rw [hρ]
+  -- which simplifies to B < (B + 1)
   convert_to (B : ℝ) < (B + 1)
   · push_cast
     convert div_mul_cancel₀ _ _
-    contrapose! hm
-    exact NNReal.eq hm
+    exact mt (NNReal.eq (m := 0)) hm
   · linarith
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
@@ -769,7 +783,7 @@ variable [FiniteDimensional K D]
 
 open scoped TensorProduct.RightActions
 
--- Thomas needs this IIRC
+/-- Dˣ \ D_𝔸^{(1)} is compact. -/
 lemma compact_quotient [Algebra.IsCentral K D] :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
@@ -777,7 +791,8 @@ lemma compact_quotient [Algebra.IsCentral K D] :
     (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
 
 variable [Algebra.IsCentral K D]
-open scoped TensorProduct.RightActions in
+
+/-- Dˣ \ D_𝔸^fˣ is compact. -/
 theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
   have := isCompact_univ_iff.mpr (NumberField.AdeleRing.DivisionAlgebra.compact_quotient K D)
@@ -788,9 +803,9 @@ theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
 
 -- Voight "Main theorem 27.6.14(b) (Fujisaki's lemma)"
 /-!
-If `D` is a finite-dimensional division algebra over a number field `K`
-then the double coset space `Dˣ \ (D ⊗ 𝔸_K^infty)ˣ / U` is finite for any compact open subgroup `U`
-of `(D ⊗ 𝔸_F^infty)ˣ`.
+If `D` is a finite-dimensional division `K`-algebra with centre a number field `K`
+then the double coset space `Dˣ \ (D ⊗ 𝔸_K^infty)ˣ / U` is finite for any open subgroup `U`
+of `(D ⊗ 𝔸_K^infty)ˣ`.
 -/
 open scoped TensorProduct.RightActions in
 theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
