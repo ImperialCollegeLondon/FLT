@@ -408,48 +408,40 @@ lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := by
 open NNReal ENNReal in
 lemma E_family_unbounded (B : ℝ≥0) :
     ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B := by
-  /- plan
-  r ∈ ℝˣ (or >0 maybe)
-  Set is (r,1) • (Ui x Uf) (proof is rfl, do later when stated)
-  -/
   let d : ℝˣ → D_𝔸ˣ :=
     fun r ↦ ((D𝔸_prodRight_units K D).symm (((Units.map ↑(algebraMap ℝ (Dinf K D))) r), 1))
-  have := fun (r : ℝˣ) ↦ ringHaarChar_ModuleFinite_unit r (R := Dinf K D)
-  simp_rw [ringHaarChar_real] at this
+  have foo := fun (r : ℝˣ) ↦ ringHaarChar_ModuleFinite_unit r (R := Dinf K D)
+  simp_rw [ringHaarChar_real] at foo
   set n := Module.finrank ℝ (Dinf K D) with hn
   have hfinrank_pos : n > 0 := Module.finrank_pos
-  have hscale : ∀ (r : ℝˣ),
-      ringHaarChar (d r) = ‖(r : ℝ)‖₊ ^ Module.finrank ℝ (Dinf K D) := by
-    intro r
-    rw [ringHaarChar_D𝔸]
-    rw [ringHaarChar_prod] -- these are all used in a proof below; we are duplicating an argument
-    simp only [map_one, mul_one]
-    exact this r
-  have foo := ringHaarChar_mul_volume
+  have bar := ringHaarChar_mul_volume
     (MeasureTheory.Measure.addHaar : Measure (D ⊗[K] AdeleRing (𝓞 K) K))
     (X := Efamily K D 1)
   have hfamily : ∀ (r : ℝˣ), Efamily K D r = (d r) • Efamily K D 1 := by
-    sorry -- easy
-  have hpos : Measure.addHaar (Efamily K D 1) > 0 := sorry -- need nonempty interior
-  have hfin : Measure.addHaar (Efamily K D 1) < ∞ := sorry -- compactness
-  -- have := ringHaarChar_D𝔸_real_surjective K D -- would make this easier
+    intro r
+    ext x
+    sorry -- straightforward and boring
+  have hpos : Measure.addHaar (Efamily K D 1) ≠ 0 := sorry -- need nonempty interior
+  have hfin : Measure.addHaar (Efamily K D 1) ≠ ∞ := sorry -- compactness
+  have qux := ringHaarChar_D𝔸_real_surjective K D -- would make this easier
   -- but I need pen and paper
-  have hm : (Measure.addHaar (Efamily K D 1)).toNNReal > 0 := by
-    refine pos_of_ne_zero ?_
+  have hm : (Measure.addHaar (Efamily K D 1)).toNNReal ≠ 0 := by
     rw [toNNReal_ne_zero]
-    exact ⟨hpos.ne', hfin.ne_top⟩
-  let ρ : ℝ := ((B + 1) / (Measure.addHaar (Efamily K D 1)).toNNReal) ^ (1 / n : ℝ)
-  have hρ : ρ > 0 := by positivity
-  let r : ℝˣ := Units.mk0 ρ hρ.ne'
-  use r
-  rw [hfamily]
-  rw [foo]
-  rw [hscale]
-  simp only [one_div, Units.val_mk0, ENNReal.coe_pow, gt_iff_lt, r, ρ]
-  convert_to (B : ℝ≥0∞) < B + 1
+    exact ⟨hpos, hfin⟩
+  obtain ⟨ρ, hρ⟩ := qux ((B + 1 : ℝ≥0) / (Measure.addHaar (Efamily K D 1)).toNNReal) (by positivity)
+  use ρ
+  rw [hfamily, bar, ← coe_toNNReal hfin]
+  norm_cast
+  change (ringHaarChar (d ρ) : ℝ) = _ at hρ
+  suffices ((B : ℝ) < ringHaarChar (d ρ) * (Measure.addHaar (Efamily K D 1)).toNNReal) by
+    exact_mod_cast this
+  rw [hρ]
+  convert_to (B : ℝ) < (B + 1)
   · push_cast
-    sorry
-  · sorry
+    convert div_mul_cancel₀ _ _
+    contrapose! hm
+    exact NNReal.eq hm
+  · linarith
 
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
