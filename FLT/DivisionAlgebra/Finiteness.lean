@@ -524,7 +524,7 @@ abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
   (Algebra.TensorProduct.prodRight K K D (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K))
 
 /-- The (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K)-module structure on (Dinf K D × Df K D). -/
-local instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
+instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
   smul rs mn := (rs.1 • mn.1, rs.2 • mn.2)
   one_smul mn := by cases mn; ext; exacts [one_smul _ _, one_smul _ _]
   mul_smul rs rs' mn := by
@@ -543,7 +543,7 @@ local instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
   zero_smul mn := by cases mn; ext <;> exact zero_smul _ _
 
 /-- (Dinf K D × Df K D) has the 𝔸_K module topology. -/
-local instance [FiniteDimensional K D] :
+instance [FiniteDimensional K D] :
     IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
   IsModuleTopology.instProd'
 
@@ -568,6 +568,8 @@ abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
   __ := D𝔸_prodRight K D
   continuous_toFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
   continuous_invFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).symm.toLinearMap
+
+end FiniteAdeleRing
 
 /-- The equivalence of the units of D_𝔸 and the Prod of units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
 abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
@@ -713,8 +715,6 @@ theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     ▸ Set.Subset.rfl)
   apply (DoubleCoset.iUnion_finset_quotTodoubleCoset ((incl₁ K D).range) U).mp
   exact ⟨t, DoubleCoset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
-
-end FiniteAdeleRing
 
 end Aux
 
