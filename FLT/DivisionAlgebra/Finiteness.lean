@@ -31,7 +31,18 @@ space `Dˣ \ (D ⊗[K] 𝔸_K^infty)ˣ / U` is finite.
 
 suppress_compilation
 
-open IsDedekindDomain MeasureTheory
+open IsDedekindDomain MeasureTheory NumberField
+
+-- this instance creates a nasty diamond for
+-- `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L and A = B, and
+-- should probably be scoped (or even removed and statements changed so that they
+-- don't need it).
+attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
+
+-- this instance creates a nasty diamond for `IsScalarTower K K_∞ L_∞ when K = L and
+-- should probably be scoped (or even removed and statements changed so that they
+-- don't need it).
+attribute [-instance] InfiniteAdeleRing.instIsScalarTower_fLT_1
 
 open scoped TensorProduct
 
@@ -40,8 +51,6 @@ variable (D : Type*) [DivisionRing D] [Algebra K D]
 
 -- notation for this file
 
-open NumberField
-
 set_option quotPrecheck false in
 /-- `D_𝔸` is notation for `D ⊗[K] 𝔸_K`. -/
 notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
@@ -49,16 +58,6 @@ notation "D_𝔸" => (D ⊗[K] AdeleRing (𝓞 K) K)
 -- abbrevs for this file
 
 namespace NumberField.AdeleRing.DivisionAlgebra.Aux
-
-
-/-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
-noncomputable abbrev incl : Dˣ →* D_𝔸ˣ :=
-  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
-
-/-- The inclusion of K^n into 𝔸^n. -/
-abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
-    (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
-  fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
 
 /-- Df is notation for D ⊗ 𝔸_K^∞ -/
 abbrev Df := D ⊗[K] (FiniteAdeleRing (𝓞 K) K)
@@ -72,43 +71,48 @@ abbrev Dinf := D ⊗[K] (NumberField.InfiniteAdeleRing K)
 /-- Dinfx is notation for (D ⊗ 𝔸_K^∞)ˣ -/
 abbrev Dinfx := (Dinf K D)ˣ
 
--- this instance creates a nasty diamond for
--- `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L and A = B, and
--- should probably be scoped (or even removed and statements changed so that they
--- don't need it).
-attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
+/-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
+abbrev incl : Dˣ →* D_𝔸ˣ :=
+  Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 /-- The inclusion Dˣ → (D ⊗ 𝔸_K^∞)ˣ as a group homomorphism. -/
 noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
+/-- The inclusion of K^n into 𝔸^n. -/
+abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
+    (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
+  fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
+
 -- instances for this file
 
 open scoped TensorProduct.RightActions
 
-/-- We put the Borel measurable space structure on D_𝔸 in this file. -/
-local instance [FiniteDimensional K D] : MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K) := borel _
-
-local instance [FiniteDimensional K D] : BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
-
 /-- The ℝ-algebra structure on Dinf K D. -/
-local instance : Algebra ℝ (Dinf K D) :=
+instance : Algebra ℝ (Dinf K D) :=
   RingHom.toAlgebra' ((algebraMap (InfiniteAdeleRing K) (Dinf K D)).comp
   (algebraMap ℝ (InfiniteAdeleRing K))) <| by
     intro c x
     rw [RingHom.comp_apply, Algebra.commutes]
 
-local instance : IsScalarTower ℝ (InfiniteAdeleRing K) (Dinf K D) :=
+instance : IsScalarTower ℝ (InfiniteAdeleRing K) (Dinf K D) :=
   IsScalarTower.of_algebraMap_eq (fun _ ↦ rfl)
 
-local instance [FiniteDimensional K D] : Module.Finite ℝ (Dinf K D) :=
+variable [FiniteDimensional K D]
+
+/-- We put the Borel measurable space structure on D_𝔸 in this file. -/
+instance : MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K) := borel _
+
+instance : BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
+
+instance : Module.Finite ℝ (Dinf K D) :=
   Module.Finite.trans (InfiniteAdeleRing K) (Dinf K D)
 
-local instance [FiniteDimensional K D] : Module.Free ℝ (Dinf K D) :=
+instance : Module.Free ℝ (Dinf K D) :=
   Module.free_of_finite_type_torsion_free'
 
 /-- Dinf K D has the ℝ-module topology. -/
-local instance [FiniteDimensional K D] : IsModuleTopology ℝ (Dinf K D) := by
+instance : IsModuleTopology ℝ (Dinf K D) := by
   /- (InfiniteAdeleRing K) has the ℝ-module topology.
     Now since (Dinf K D) has the (InfiniteAdeleRing K)-module topolology it also has the
     ℝ-module topology.
@@ -117,26 +121,25 @@ local instance [FiniteDimensional K D] : IsModuleTopology ℝ (Dinf K D) := by
   infer_instance
 
 /-- Dinf K D is given the borel measure. -/
-local instance [FiniteDimensional K D] : MeasurableSpace (Dinf K D) := borel (Dinf K D)
+instance : MeasurableSpace (Dinf K D) := borel (Dinf K D)
 
-local instance [FiniteDimensional K D] : BorelSpace (Dinf K D) := {measurable_eq := rfl }
+instance : BorelSpace (Dinf K D) := {measurable_eq := rfl }
 
 /-- Df K D is given the borel measure. -/
-local instance [FiniteDimensional K D] : MeasurableSpace (Df K D) := borel (Df K D)
+instance : MeasurableSpace (Df K D) := borel (Df K D)
 
-local instance [FiniteDimensional K D] : BorelSpace (Df K D) := { measurable_eq := rfl }
+instance : BorelSpace (Df K D) := { measurable_eq := rfl }
 
 -- D ⊗ K_∞ is second countable because it's a finite ℝ-module
-instance [FiniteDimensional K D] : SecondCountableTopology (Dinf K D) :=
+instance : SecondCountableTopology (Dinf K D) :=
   Module.Finite.secondCountabletopology ℝ (Dinf K D)
 
+omit [FiniteDimensional K D] in
 theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
     ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
     IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
   exact (DiscretePi (algebraMap K (AdeleRing (𝓞 K) K)) (Module.finrank K D))
     (NumberField.AdeleRing.discrete K)
-
-variable [FiniteDimensional K D]
 
 /-- The K-algebra equivalence of D and K^n. -/
 abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := Module.Finite.equivPi K D
@@ -183,10 +186,10 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
   simpa [D_discrete_extracted] using Kn_discrete K D
 
 /-- The additive subgroup with carrier defined by Algebra.TensorProduct.includeLeft. -/
-local instance includeLeft_subgroup : AddSubgroup D_𝔸 :=
+def includeLeft_subgroup : AddSubgroup D_𝔸 :=
   AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
 
-local instance discrete_includeLeft_subgroup :
+instance discrete_includeLeft_subgroup :
     DiscreteTopology (includeLeft_subgroup K D).carrier := by
   rw [includeLeft_subgroup, discreteTopology_iff_isOpen_singleton]
   rintro ⟨a, a', rfl⟩
@@ -217,7 +220,7 @@ instance discrete_principalSubgroup :
   simp [Set.ext_iff] at hU
   grind
 
-local instance compact_includeLeft_subgroup :
+instance compact_includeLeft_subgroup :
     CompactSpace (D_𝔸 ⧸ (includeLeft_subgroup K D)) := by
   let H := includeLeft_subgroup K D
   change CompactSpace (D_𝔸 ⧸ H)
@@ -292,8 +295,6 @@ end auxiliary_defs
 
 open scoped Pointwise
 
-instance : Module ℝ (D ⊗[K] InfiniteAdeleRing K) := inferInstance -- this should follow
-
 open InfinitePlace.Completion Set Rat RestrictedProduct in
 /-- An auxiliary definition of an increasing family of compact
 subsets of D_𝔸, defined as the product of a compact open subgroup
@@ -301,7 +302,7 @@ at the finite places and a large closed ball at the infinite places.
 -/
 def Efamily (r : ℝ) : Set (D_𝔸) :=
   -- this might be tricky
-  let f : D_𝔸 ≃ₜ+ (D ⊗[K] InfiniteAdeleRing K) × (D ⊗[K] FiniteAdeleRing (𝓞 K) K) := sorry
+  let f : D_𝔸 ≃ₜ+ Dinf K D × Df K D := sorry
   f ⁻¹' (r • Ui K D) ×ˢ (Uf K D)
 
 -- should be straightforward; cts image of compact is compact, product of compact is compact
@@ -515,26 +516,7 @@ lemma compact_quotient [Algebra.IsCentral K D] :
   isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
     (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
 
--- all of this is not in a namespace!!
 section FiniteAdeleRing
-
-open scoped NumberField
-
-
-
-open NumberField
-
--- this instance creates a nasty diamond for `IsScalarTower K K_∞ L_∞ when K = L and
--- should probably be scoped (or even removed and statements changed so that they
--- don't need it).
-attribute [-instance] InfiniteAdeleRing.instIsScalarTower_fLT_1
-
-open scoped TensorProduct.RightActions
-
-/-- We put the Borel measurable space structure on D_𝔸 in this file. -/
-local instance [FiniteDimensional K D] : MeasurableSpace (D ⊗[K] AdeleRing (𝓞 K) K) := borel _
-
-local instance [FiniteDimensional K D] : BorelSpace (D ⊗[K] AdeleRing (𝓞 K) K) := ⟨rfl⟩
 
 /-- Notation for (Algebra.TensorProduct.prodRight K K D (NumberField.InfiniteAdeleRing K)
     (FiniteAdeleRing (𝓞 K) K)). -/
@@ -582,7 +564,7 @@ abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K 
 }
 
 /-- The continuous isomorphism coming from D𝔸_prod viewed on additive groups. -/
-abbrev D𝔸_prodRight'' [FiniteDimensional K D] : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
+abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
   __ := D𝔸_prodRight K D
   continuous_toFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
   continuous_invFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).symm.toLinearMap
