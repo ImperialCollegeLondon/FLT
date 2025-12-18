@@ -103,6 +103,13 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
 lemma ringHaarChar_apply (r : Rˣ) :
     ringHaarChar r = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r) := rfl
 
+lemma ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {S : Type*} [Ring S] [TopologicalSpace S]
+    [IsTopologicalRing S] [LocallyCompactSpace S] [MeasurableSpace S] [BorelSpace S]
+    (f : R ≃A[ℤ] S) (r : Rˣ) :
+    ringHaarChar r = ringHaarChar (Units.map f.toMonoidHom r) :=
+  addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv {__ := f} _ _
+    (fun _ ↦ by simp [map_mul])
+
 lemma ringHaarChar_mul_integral
     (μ : Measure R) [IsAddHaarMeasure μ] [μ.Regular]
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :

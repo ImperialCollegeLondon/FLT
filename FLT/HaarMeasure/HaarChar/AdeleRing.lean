@@ -73,13 +73,7 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     congr; ext v; rw [Subsingleton.elim v Rat.infinitePlace]
     simp only [InfinitePlace.mult, Rat.isReal_infinitePlace, ↓reduceIte, pow_one]
     #check ringHaarChar_real
-    #check extensionEmbeddingOfIsReal Rat.isReal_infinitePlace
-    have : Topology.IsOpenEmbedding (extensionEmbeddingOfIsReal Rat.isReal_infinitePlace) := by
-      rw [Topology.isOpenEmbedding_iff];
-      constructor
-      · -- exact isometryEquivRealOfIsReal Rat.isReal_infinitePlace|>.toEmbedding;
-        sorry
-      · sorry
+    
     sorry
   · -- finite places
     rw [← finprod_comp_equiv FinitePlace.equivHeightOneSpectrum.symm]
