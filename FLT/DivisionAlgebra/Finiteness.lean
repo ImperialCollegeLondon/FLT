@@ -334,6 +334,14 @@ abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
 abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
   (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
 
+omit [FiniteDimensional K D] in
+lemma smul_D𝔸_prodRight_symm (a : (Dinf K D)ˣ) (b : (Df K D)ˣ)
+    (di : Dinf K D) (df : Df K D) :
+  ((D𝔸_prodRight_units K D).symm (a, b)) • ((D𝔸_prodRight K D).symm (di, df)) =
+    (D𝔸_prodRight K D).symm (a • di, b • df) :=
+  (map_mul _ _ _).symm
+
+
 lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
   rw [ MulEquiv.coe_trans]
   -- ask on Zulip about whether fun_prop or continuity can do this
@@ -405,6 +413,20 @@ lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := by
   refine IsCompact.prod ?_ (Uf.spec K D).1
   exact IsCompact.image (Ui.spec K D).1 (show Continuous (fun x ↦ r • x) by fun_prop)
 
+lemma E_family_nonempty_interior : (interior (Efamily K D 1)).Nonempty := by
+  unfold Efamily
+  rw [one_smul]
+  change (interior ((D𝔸_prodRight'' K D).toHomeomorph.symm '' Ui K D ×ˢ Uf K D)).Nonempty
+  rw [← Homeomorph.image_interior]
+  rw [Set.image_nonempty]
+  use 0
+  rw [mem_interior_iff_mem_nhds]
+  change _ ∈ nhds (0, 0)
+  rw [mem_nhds_prod_iff]
+  have hf := (Uf.spec K D).2
+  have hi := (Ui.spec K D).2
+  exact ⟨Ui K D, hi, Uf K D, hf, by rfl⟩
+
 open NNReal ENNReal in
 lemma E_family_unbounded (B : ℝ≥0) :
     ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B := by
@@ -420,11 +442,34 @@ lemma E_family_unbounded (B : ℝ≥0) :
   have hfamily : ∀ (r : ℝˣ), Efamily K D r = (d r) • Efamily K D 1 := by
     intro r
     ext x
-    sorry -- straightforward and boring
-  have hpos : Measure.addHaar (Efamily K D 1) ≠ 0 := sorry -- need nonempty interior
-  have hfin : Measure.addHaar (Efamily K D 1) ≠ ∞ := sorry -- compactness
-  have qux := ringHaarChar_D𝔸_real_surjective K D -- would make this easier
-  -- but I need pen and paper
+    unfold Efamily
+    rw [Set.mem_smul_set]
+    rw [Set.mem_image]
+    constructor
+    · rintro ⟨⟨xi, xf⟩, h, rfl⟩
+      obtain ⟨hi, hf⟩ := h
+      rw [Set.mem_smul_set] at hi
+      obtain ⟨a, ha, rfl⟩ := hi
+      use (D𝔸_prodRight'' K D).symm (a, xf)
+      simp only [one_smul, Set.mem_image, Set.mem_prod, EmbeddingLike.apply_eq_iff_eq,
+        exists_eq_right]
+      refine ⟨⟨ha, hf⟩, ?_⟩
+      simp only [d, Units.smul_def]
+      convert smul_D𝔸_prodRight_symm K D ((Units.map ↑(algebraMap ℝ (Dinf K D))) r) 1 a xf
+      simp
+    · rintro ⟨-, ⟨⟨a, b⟩, ⟨hzi, hzf⟩, rfl⟩, rfl⟩
+      use (r • a, b)
+      simp only [one_smul] at hzi
+      refine ⟨⟨⟨a, hzi, rfl⟩, hzf⟩, ?_⟩
+      unfold d
+      convert (smul_D𝔸_prodRight_symm K D ((Units.map ↑(algebraMap ℝ (Dinf K D))) r) 1 a b).symm
+      simp
+  have hpos : Measure.addHaar (Efamily K D 1) ≠ 0 := by
+    refine (MeasureTheory.Measure.measure_pos_of_nonempty_interior _ ?_).ne'
+    apply E_family_nonempty_interior
+  have hfin : Measure.addHaar (Efamily K D 1) ≠ ∞ :=
+    IsCompact.measure_ne_top (E_family_compact K D 1)
+  have qux := ringHaarChar_D𝔸_real_surjective K D
   have hm : (Measure.addHaar (Efamily K D 1)).toNNReal ≠ 0 := by
     rw [toNNReal_ne_zero]
     exact ⟨hpos, hfin⟩
