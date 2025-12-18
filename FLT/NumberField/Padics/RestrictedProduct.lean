@@ -2,6 +2,7 @@ import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 import Mathlib.NumberTheory.Padics.RingHoms
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.RingTheory.Int.Basic
+import Mathlib.Topology.Algebra.Algebra.Equiv
 
 open IsDedekindDomain NumberField PadicInt RestrictedProduct
 
@@ -22,7 +23,7 @@ instance (v : HeightOneSpectrum (𝓞 ℚ)) : Fact v.natGenerator.Prime :=
 /-- The `ℚ`-algebra equivalence between `v.adicCompletion ℚ` and `ℚ_[v.natGenerator]`, where
 `v : HeightOneSpectrum (𝓞 ℚ)`. -/
 def padicEquiv (v : HeightOneSpectrum (𝓞 ℚ)) :
-    v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator] := sorry
+    v.adicCompletion ℚ ≃A[ℚ] ℚ_[v.natGenerator] := sorry
 
 -- From pending mathlib PR #30576
 /-- The uniform-space isomorphism between `v.adicCompletion ℚ` and `ℚ_[v.natGenerator]`, where

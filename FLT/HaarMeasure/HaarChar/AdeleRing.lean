@@ -61,6 +61,10 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).1 hx)
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).2 hx))
 
+-- depends on `IsDedekindDomain.HeightOneSpectrum.padicEquiv`, from pending mathlib PR #30576
+lemma padicEquiv_norm_eq (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) (x : v.adicCompletion ℚ) :
+  ‖v.padicEquiv x‖ = ‖x‖ := sorry
+
 lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := by
   rw [ringHaarChar_adeles_rat (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ)]
@@ -81,12 +85,12 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     conv_lhs =>
       apply NNReal.toRealHom.map_finprod_of_injective (injective_of_le_imp_le _ fun {x y} a ↦ a)
     apply finprod_congr; intro p
-    simp only [RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, NNReal.coe_toRealHom,
-      FinitePlace.equivHeightOneSpectrum, Equiv.coe_fn_symm_mk, FinitePlace.mk_apply]
-    -- reduce to one finite place `p`
-    -- ringHaarChar_padic
-    -- mathlib #30576
-    sorry
+    let : Algebra ℤ (p.adicCompletion ℚ) := Ring.toIntAlgebra _
+    simp [FinitePlace.equivHeightOneSpectrum,
+      ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
+      __ := p.padicEquiv
+      commutes' := by simp}, padicEquiv_norm_eq]
+    rfl
 
 -- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange
 open scoped TensorProduct.RightActions in
