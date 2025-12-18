@@ -68,6 +68,8 @@ noncomputable def NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace :
 instance : IsModuleTopology ℝ (InfiniteAdeleRing K) :=
   .iso (NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace K).symm
 
+noncomputable local instance : Algebra ℤ Rat.infinitePlace.Completion := Ring.toIntAlgebra _
+
 noncomputable def Rat.infinitePlace_completion_continuousAddEquiv :
     Rat.infinitePlace.Completion ≃A[ℤ] ℝ :=
   {
