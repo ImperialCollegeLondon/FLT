@@ -7,11 +7,7 @@ are sorry-free and merged into mathlib
 (see \href{https://github.com/leanprover-community/mathlib4/pull/19926}{this PR}).
 As a result there will be no more work
 on this miniproject in the FLT repo. Below is a fairly
-detailed sketch of the argument used. Note
-that various things were renamed during the process
-of merging into mathlib, and as a result the blueprint
-graph of this miniproject is broken; I am not motivated
-to fix it.
+detailed sketch of the argument used.
 
 \section{Introduction and goal}
 
@@ -38,16 +34,16 @@ $\{g\cdot q\, :\, q \in Q\}=Q$, not $\forall q\in Q, g\cdot q=q$).
 Let $L$ be the field of fractions of the integral domain $B/Q$, and let $K$ be the
 field of fractions of the subring $A/P$. Then $L$ is naturally a $K$-algebra.
 In this generality $L/K$ may not even be finite or Galois, but we can still talk about
-$\Aut_K(L)$.
+$\Aut(L/K)$.
 
-In the next definition we write down a group homomorphism $\phi$ from $D_Q$ to $\Aut_K(L)$.
+In the next definition we write down a group homomorphism $\phi$ from $D_Q$ to $\Aut(L/K)$.
 
 \begin{definition}
   \label{Bourbaki52222.stabilizer.toGaloisGroup}
   Choose $g\in D_Q$. Then the action of $g$ on $B$ gives us an induced
   $A/P$-algebra automorphism of $B/Q$ which extends to a $K$-algebra automorphism $\phi(g)$ of $L$.
   This construction $g\mapsto \phi(g)$ defines a group homomorphism from $D_Q$
-  to $\Aut_K(L)$ (all the proofs implicit in the definition here are straightforward).
+  to $\Aut(L/K)$ (all the proofs implicit in the definition here are straightforward).
   \leanok
 \end{definition}
 
@@ -56,25 +52,25 @@ The theorem we want in this mini-project is
   \label{Bourbaki52222.MulAction.stabilizer_surjective_of_action}
   \uses{Bourbaki52222.stabilizer.toGaloisGroup}
   \leanok
-  The map $g\mapsto \phi_g$ from $D_Q$ to $\Aut_K(L)$ defined above is surjective.
+  The map $g\mapsto \phi_g$ from $D_Q$ to $\Aut(L/K)$ defined above is surjective.
 \end{theorem}
 
 The goal of this mini-project is to get this theorem formalised and ideally into mathlib.
 
-In particular, $\Aut_K(L)$ is finite, although we prove this beforehand and not
+In particular, $\Aut(L/K)$ is finite
 as a corollary. What is so striking about this theorem to me is that the only finiteness hypothesis
 is on the group $G$ which acts; there are no finiteness or Noetherian
 hypotheses on the rings at all.
 
 As a trivial consequence we get Frobenius elements for finite Galois extensions in both
-the local and global field setting, as $\Aut_K(L)$ is just a Galois group of finite fields
+the local and global field setting, as $\Aut(L/K)$ is just a Galois group of finite fields
 in these cases, so by surjectivity we can lift a Frobenius element.
 
 Even though $G$ is finite, it is possible in characteristic p for the extension $L/K$ to be
-infinite (and mostly inseparable). The theorem implies that $\Aut_K(L)$ is always finite;
+infinite (and mostly inseparable). The theorem implies that $\Aut(L/K)$ is always finite;
 what is actually happening is that $L/K$ is algebraic and normal, and its maximal separable
-subextension is finite of degree at most $|G|$. We prove these results along the way to the
-proof of the main theorem.
+subextension is finite of degree at most $|G|$. However, we can prove surjectivity directly
+without reference to this maximal separable subextension.
 
 \subsection{Examples}
 
@@ -149,23 +145,22 @@ We start with a construction which is fundamental to everything,
 and which explains why we need $G$ to be finite.
 
 \begin{definition}
-  \label{MulSemiringAction.CharacteristicPolynomial.F}
-  \leanok
+  \label{MulSemiringAction.charpoly}
+  \mathlibok
   If $b\in B$ then define the \emph{characteristic polynomial}
   $F_b(X) \in B[X]$ of $b$ to be $\prod_{g\in G}(X-g\cdot b)$.
 \end{definition}
 
-Clearly $F_b$ is a monic polynomial of degree $|G|$. In fact this isn't clear:
-if $B$ is the zero ring then $F_b=0$ has degree less than $|G|$.
+Clearly $F_b$ is a monic polynomial.
 
 \begin{lemma}
-  \label{MulSemiringAction.CharacteristicPolynomial.F_degree}
-  \uses{MulSemiringAction.CharacteristicPolynomial.F}
-  \leanok
-  If $B$ is nontrivial then $F_b$ is monic.
+  \label{MulSemiringAction.monic_charpoly}
+  \uses{MulSemiringAction.charpoly}
+  \mathlibok
+  $F_b$ is monic.
 \end{lemma}
 \begin{proof}
-  \leanok
+  \mathlibok
   Obvious.
 \end{proof}
 
@@ -177,314 +172,168 @@ also refer to $M_b$ as the characteristic polynomial of $b$, even though
 it's not even well-defined if the map $A\to B$ isn't injective.
 
 \begin{definition}
-  \label{MulSemiringAction.CharacteristicPolynomial.M}
-  \uses{MulSemiringAction.CharacteristicPolynomial.F}
-  \leanok
-  $M_b$ is any monic degree $|G|$ polynomial in $A[X]$ whose
-  image in $B[X]$ is $F_b$.
+  \label{Algebra.IsInvariant.charpoly_mem_lifts}
+  \uses{MulSemiringAction.charpoly}
+  \mathlibok
+  $F_b$ is the lift of some monic polynomial $M_b$ in $A[X]$.
 \end{definition}
-
-\begin{lemma}
-  \label{MulSemiringAction.CharacteristicPolynomial.M_eval_eq_zero}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M}
-  \leanok
-  $M_b$ has $b$ as a root.
-\end{lemma}
 \begin{proof}
-  \leanok
-  Follows from the fact that $F_b$ has $b$ as a root.
-\end{proof}
-\begin{lemma}
-  \label{MulSemiringAction.CharacteristicPolynomial.M_deg}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M}
-  \leanok
-  $M_b$ has degree $n$.
-\end{lemma}
-\begin{proof}
-  \uses{MulSemiringAction.CharacteristicPolynomial.F_degree}
-  \leanok
-  Exercise.
-\end{proof}
-\begin{lemma}
-  \label{MulSemiringAction.CharacteristicPolynomial.M_monic}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M}
-  \leanok
-  $M_b$ is monic.
-\end{lemma}
-\begin{proof}
-  \leanok
-  Exercise.
+  \mathlibok
+  The coefficients of $F_b$ are $G$-invariant, and thus lie in the image of $A$.
 \end{proof}
 
 \begin{theorem}
   \label{MulSemiringAction.CharacteristicPolynomial.isIntegral}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M}
-  \leanok
+  \mathlibok
   $B/A$ is integral.
 \end{theorem}
 \begin{proof}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M_monic}
-  \leanok
+  \uses{MulSemiringAction.monic_charpoly, Algebra.IsInvariant.charpoly_mem_lifts}
+  \mathlibok
   Use $M_b$.
 \end{proof}
 
 \section{The extension \texorpdfstring{$(B/Q)/(A/P)$}{(B/Q)/(A/P)}.}
 
-Note that $Q$ is prime, so $B/Q$ is an integral domain and hence nontrivial.
-Furthermore, all our polynomials are monic and hence nonzero (indeed they
-all have degree $|G|$>0), so both Lean notions of degree coincide.
+Note that $P$ and $Q$ are primes, so the quotients $A/P$ and $B/Q$ are integral domains.
 
-\begin{definition}
-  \label{MulSemiringAction.CharacteristicPolynomial.Mbar}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M}
-  \leanok
-  If $\overline{b}\in B/Q$ then we define $\overline{M}_{\overline{b}}\in A/P[X]$
-  to be the reduction of $M_b$ where $b$ is any lift of $\overline{b}$ to $B$.
-\end{definition}
+The following technical lemma constructs an element of $B$ with nice characteristic polynomial
+modulo $Q$.
 
-Say $\overline{b}\in B/Q$.
-
-\begin{theorem}
-  \label{MulSemiringAction.CharacteristicPolynomial.Mbar_deg}
-  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
-  \leanok
-  $\overline{M}_{\overline{b}}$ has degree $|G|$.
-\end{theorem}
+\begin{lemma}
+  \label{fixed_of_fixed1_aux1}
+  \mathlibok
+  There exist elements $a,b \in B$, with $a$ in the image of $A$, such that for all $g\in G$,
+  \begin{itemize}
+    \item If $g \cdot Q = Q$, then $g \cdot b \equiv a \pmod{Q}$.
+    \item If $g \cdot Q \neq Q$, then $g \cdot b \equiv 0 \pmod{Q}$.
+  \end{itemize}
+\end{lemma}
 \begin{proof}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M_deg,
-    MulSemiringAction.CharacteristicPolynomial.M_monic}
-  \leanok
-  Exercise.
+  \uses{Algebra.IsInvariant.charpoly_mem_lifts}
+  The ideals $g \cdot Q \neq Q$ are not contained in $Q$.
+  Since $Q$ is a prime ideal, this implies that the intersection of all $g \cdot Q \neq Q$ is
+  still not contained in $Q$.
+  Then we can find an element $c \notin Q$ with $c \in g \cdot Q$ for all $g \cdot Q \neq Q$.
+  Let $F_c$ be the characteristic polynomial of $c$, and write $F_c(X) \equiv X^j R(X) \pmod{Q}$.
+  Let $a$ be the coefficient of $X^j$ in $F_c(X)$, and choose $R(X)$ so that $R(0) = a$.
+  Let $b = R(0) - R(c)$.
+  Note that $F_c(c) = 0$ and $c \not\equiv 0 \pmod{Q}$, so $R(c) \equiv 0 \pmod{Q}$.
+  Then $b \equiv a \pmod{Q}$, so $g \cdot b \equiv a \pmod{Q}$ whenever $g \cdot Q = Q$.
+  But if $g \cdot Q \neq Q$, then $c \equiv 0 \pmod {g \cdot Q}$.
+  Then $b \equiv 0 \pmod {g \cdot Q}$, so $g \cdot b \equiv 0 \pmod{Q}$
+  whenever $g \cdot Q \neq Q$.
+  \mathlibok
 \end{proof}
 
-\begin{theorem}
-  \label{MulSemiringAction.CharacteristicPolynomial.Mbar_monic}
-  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
-  \leanok
-  $\overline{M}_{\overline{b}}$ is monic.
-\end{theorem}
-\begin{proof}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M_monic}
-  \leanok
-  Exercise (note that integral domains are nontrivial).
-\end{proof}
+A slight modification allows us to take an element of $B$ fixed by $D_Q$ as input.
 
-\begin{theorem}
-  \label{MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}
-  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
-  \leanok
-  $\overline{M}_{\overline{b}}$ has $\overline{b}$ as a root.
-\end{theorem}
+\begin{lemma}
+  \label{fixed_of_fixed1_aux2}
+  \mathlibok
+  Let $b_0 \in B$.
+  Suppose that the image of $b_0$ in the quotient $B/Q$ is fixed by the stabilizer subgroup
+  $D_Q$.
+  Then there exist elements $a,b \in B$, with $a$ in the image of $A$, such that for all $g\in G$,
+  \begin{itemize}
+    \item If $g \cdot Q = Q$, then $g \cdot b \equiv ab_0 \pmod{Q}$.
+    \item If $g \cdot Q \neq Q$, then $g \cdot b \equiv 0 \pmod{Q}$.
+  \end{itemize}
+\end{lemma}
 \begin{proof}
-  \uses{MulSemiringAction.CharacteristicPolynomial.M_eval_eq_zero}
-  \leanok
-  Exercise.
-\end{proof}
-
-\begin{theorem}
-  \label{MulSemiringAction.reduction_isIntegral}
-  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar}
-  \leanok
-  $(B/Q)/(A/P)$ is an integral extension.
-\end{theorem}
-\begin{proof}
-  \uses{MulSemiringAction.CharacteristicPolynomial.Mbar_monic,
-    MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}
-  \leanok
-  Use $\overline{M}_{\overline{b}}$.
-\end{proof}
-
-Here is a corollary of this result: every nonzero element of $B/Q$ divides
-a nonzero element of $A/P$.
-\begin{corollary}
-  \label{Algebra.exists_dvd_nonzero_if_isIntegral}
-  \leanok
-  If $\beta\in B/Q$ is nonzero then there's some nonzero $\alpha\in A/P$
-  such that $\beta$ divides the image of $\alpha$ in $B/Q$.
-\end{corollary}
-\begin{proof}
-  \uses{MulSemiringAction.reduction_isIntegral}
-  \leanok
-  Note: this proof works for any
-  integral extension if the top ring has no zero divisors.
-
-  Let $\beta$ be nonzero, and
-  consider the monic polynomial $\overline{M}_\beta(X)$, which is monic of
-  degree $|G|$ and has $\beta$ as a root. Write $n=|G|$, so $f$ is monic
-  of degree $n$. We cannot have $f(X)=X^n$ as this would imply that $\beta$ is
-  nilpotent and hence zero, as $B/Q$ is an integral domain. Hence $f(X)=X^n+\cdots +\alpha X^d$
-  for some $d<n$ and nonzero $\alpha\in A$. Again using the fact that $B/Q$ is an integral domain, we
-  deduce that $\beta$ must a be root of $f/X^d=X^{n-d}+\cdots+\alpha=X(\cdots)+\alpha$, and setting
-  $X=\beta$ shows that $\beta$ divides $\alpha$.
+  \uses{fixed_of_fixed1_aux1}
+  Multiply the $b$ from~\ref{fixed_of_fixed1_aux1} by $b_0$.
+  \mathlibok
 \end{proof}
 
 \section{The extension \texorpdfstring{$L/K$}{L/K}.}
 
+Let $L^{D_Q}$ denote the fixed field of the action $D_Q$ on $L$.
+Our strategy for proving surjectivity of $D_Q \to \Aut(L/K)$ will be to write this map as the
+composition $D_Q \to \Aut(L/L^{D_Q}) \to \Aut(L/K)$.
+
+The surjectivity of the first map is a general fact of Galois theory.
+
 \begin{theorem}
-  \label{Bourbaki52222.f_exists}
-  If $\lambda\in L$ then there's a monic polynomial $P_\lambda\in K[X]$ of degree $|G|$
-  with $\lambda$ as a root, and which splits completely in $L[X]$.
-  \leanok
+  \label{FixedPoints.toAlgAut_surjective}
+  Let $H$ be a finite group acting on a field $F$ by field automorphisms.
+  Then the map $H \to \Aut(F/F^H)$ is surjective.
+  \mathlibok
 \end{theorem}
 \begin{proof}
-  \leanok
-  A general $\lambda\in L$ can be written as $\beta_1/\beta_2$ where $\beta_1,\beta_2\in B/Q$.
-  The previous corollary showed that there's some nonzero $\alpha\in A/P$ such that $\beta_2$
-  divides $\alpha$, and hence $\alpha\lambda\in B/Q$ (we just cleared denominators).
-  Thus $\alpha\lambda$ is a root of some monic polynomial $f(x)\in (A/P)[X]$,
-  by~\ref{MulSemiringAction.CharacteristicPolynomial.Mbar_eval_eq_zero}.
-  The polynomial $f(\alpha x)\in (A/P)[X]$ thus
-  has $\lambda$ as a root, but it is not monic; its leading term is $\alpha^n$.
-  Dividing through in $K[X]$ gives us the polynomial we seek.
+  This is a general fact of Galois theory and was already in mathlib.
+  \mathlibok
 \end{proof}
 
-\begin{corollary}
-  \label{Bourbaki52222.algebraic}
-  \leanok
-  The extension $L/K$ is algebraic.
-\end{corollary}
+For surjectivity of the second map, we need to know that every element of $L^{D_Q}$ is fixed by
+$\Aut(L/K)$.
+We first show this for elements of $B/Q$ fixed by $D_Q$.
+
+\begin{proposition}
+  \label{fixed_of_fixed1}
+  \mathlibok
+  Let $b_0 \in B/Q$.
+  Suppose that $b_0$ is fixed by the stabilizer subgroup $D_Q$.
+  Then $b_0$ is fixed by $\Aut(L/K)$.
+\end{proposition}
 \begin{proof}
-  \uses{Bourbaki52222.f_exists}
-  \leanok
-  Exercise using~\ref{Bourbaki52222.f_exists}.
+  \uses{fixed_of_fixed1_aux1, fixed_of_fixed1_aux2}
+  Let $a,b\in B$ be elements from~\ref{fixed_of_fixed1_aux2}.
+  Let $M_b \in A[X]$ be the characteristic polynomial of $b$.
+  We can map $M_b$ to $L[X]$ in two different ways: via $B[X]$ and via $K[X]$.
+  Going via $B[X]$ tells us that the image of $M_b(X)$ in $L[X]$ is exactly
+  $$(X - ab_0)^{\lvert D_Q\rvert}X^{\lvert G\rvert-\lvert D_Q\rvert}.$$
+  But going via $K[X]$ tells us that this image lies in $K[X]$, so we must have $ab_0\in K$.
+  Then $ab_0$ is fixed by $\Aut(L/K)$, so $b_0$ is fixed by $\Aut(L/K)$.
+  \mathlibok
 \end{proof}
 
-\begin{corollary}
-  \leanok
-  The extension $L/K$ is normal.
-\end{corollary}
+Now we upgrade this to elements of $L$ fixed by $D_Q$.
+The following lemma will allow us to lift the denominator from $B/Q$ to $A/P$.
+
+\begin{lemma}
+  \label{IsAlgebraic.exists_smul_eq_mul}
+  \mathlibok
+  If $R/S$ is an algebraic extension of integral domains, then any fraction $a/b$ with $a,b\in R$
+  can be written as $c/d$ with $c\in R$ and $d\in S$.
+\end{lemma}
 \begin{proof}
-  \uses{Bourbaki52222.f_exists}
-  \leanok
-  Exercise using~\ref{Bourbaki52222.f_exists}.
+  If $f\in S[X]$ satisfies $f(b)=0$, then $f(0)\in S$ is a multiple of $b$.
+  If $f(0)=bx\in S$, then $a/b=(ax)/(bx)$ as desired.
 \end{proof}
 
-Note that $L/K$ might not be separable and might have infinite degree. However
-
-\begin{corollary}
-  \label{Bourbaki52222.finite_separable_subextension_finrank_le}
-  Any subextension of $L/K$ which is finite and separable over $K$
-  has degree at most $|G|$.
-  \leanok
-\end{corollary}
+\begin{proposition}
+  \label{fixed_of_fixed2}
+  \mathlibok
+  Let $x \in L$.
+  Suppose that $x$ is fixed by the stabilizer subgroup $D_Q$.
+  Then $x$ is fixed by the automorphism group $\Aut(L/K)$.
+\end{proposition}
 \begin{proof}
-  \leanok
-  Finite and separable implies simple, and we've already seen that any
-  element of $L$ has degree at most $|G|$ over $K$.
+  \uses{fixed_of_fixed1, MulSemiringAction.CharacteristicPolynomial.isIntegral,
+    IsAlgebraic.exists_smul_eq_mul}
+  Since $(B/Q)/(A/Q)$ is algebraic by~\ref{MulSemiringAction.CharacteristicPolynomial.isIntegral},
+  ~\ref{IsAlgebraic.exists_smul_eq_mul} let's us write $x=b/a$ for $b \in B/Q$ and $a \in A/P$.
+  Then $b$ is fixed by the stabilizer subgroup $D_Q$, and it suffices to show that
+  $b$ is fixed by the automorphism group $\Aut(L/K)$.
+  But this is exactly~\ref{fixed_of_fixed1}.
+  \mathlibok
 \end{proof}
 
-\begin{corollary}
-  \label{Bourbaki52222.separableClosure_finrank_le}
-  The maximal separable subextension $M$ of $L/K$ has degree at most $|G|$.
-  \leanok
-\end{corollary}
-\begin{proof}
-  \uses{Bourbaki52222.finite_separable_subextension_finrank_le}
-  \leanok
-  If it has dimension greater than $|G|$ over $K$, then it has a finitely-generated
-  subfield of $K$-dimension greater than $|G|$, and is finite and separable, contradicting
-  the previous result.
-\end{proof}
+Combining this with~\ref{FixedPoints.toAlgAut_surjective} finishes the proof.
 
-\begin{corollary} $\Aut_K(L)$ is finite.
-  \leanok
-\end{corollary}
-\begin{proof}
-  \leanok
-  Any $K$-automorphism of $L$ is determined by where it sends $M$.
-\end{proof}
-
-\begin{corollary} $\Aut_{A/P}(B/Q)$ is finite.
-  \leanok
-\end{corollary}
-\begin{proof}
-  \leanok
-  Two elements of $\Aut_{A/P}(B/Q)$ which agree once extended to automorphisms of $L$
-  must have already been equal, as $B/Q\subseteq L$. Hence the canonical map
-  from $\Aut_{A/P}(B/Q)$ to $\Aut_K(L)$ is injective.
-\end{proof}
-
-\section{Proof of surjectivity.}
-
-\begin{definition} We fix once and for all some nonzero $y\in B/Q$ such that $M=K(y)$,
-  with $M$ the maximal separable subextension of $L/K$.
-  \leanok
-\end{definition}
-
-NB we do use nonzeroness at some point, and $y$ can be zero in the case $L=K$
-(this seems to have been missed by Bourbaki).
-
-Note that the existence of some $\lambda\in L$ with this property just comes from finite
-and separable implies simple; we can use the ``clear denominator'' technique introduced
-earlier to scale this by some nonzero $\alpha\in A$ into $B/Q$, as
-$K(\lambda)=K(\alpha\lambda)$.
-
-Our next goal is the following result:
 \begin{theorem}
-  \leanok
-  There exists some $x\in B$ and $\alpha\in A$ with the following
-  properties.
-  \begin{enumerate}
-  \item $x=\alpha y$ mod $Q$ and $\alpha$ isn't zero mod $P$.
-  \item $x\in Q'$ for all $Q'\not=Q$ in the $G$-orbit of $Q$.
-  \end{enumerate}
+  \label{IsFractionRing.stabilizerHom_surjective}
+  \mathlibok
+  The map $D_Q \to \Aut(L/K)$ is surjective.
 \end{theorem}
-
-Bourbaki only prove this in the case that $P$ is maximal (and implicitly use $\alpha=1$),
-but this generalisation seems to be fine. To prove it, we need to talk a little about localization.
-
-Let $S$ be the complement of $P$, so $S$ is a multiplicative subset of $A$.
-Write $A[1/S]$ for the localisation of $A$ at $S$, and write $B[1/S]$
-for the localisation of $B$ at (the image of) $S$. I suspect that this is the
-same as $B\otimes_AA[1/S]$.
-
-\begin{lemma}
-  \leanok
-  The prime ideals of $B[1/S]$ over $P[1/S] \subseteq A[1/S]$ biject naturally with
-  the prime ideals of $B$ over $P$. More precisely, the $B$-algebra $B[1/S]$
-  gives a canonical map $B\to B[1/S]$ and hence a canonical map from prime ideals
-  of $B[1/S]$ to prime ideals of $B$. The claim is that this map induces
-  a bijection between the primes of $B[1/S]$ above $P[1/S]$ and the primes
-  of $B$ above $P$.
-\end{lemma}
 \begin{proof}
-  \leanok
-  Hopefully this is in mathlib in some form already. In general $\Spec(B[1/S])$ is just the subset of $\Spec(B)$
-  consisting of primes of $B$ which miss $S$ (i.e., whose intersection with $A$ is a subset of $P$).
+  \uses{fixed_of_fixed2, FixedPoints.toAlgAut_surjective}
+  The map $D_Q \to \Aut(L/L^{D_Q})$ is surjective by~\ref{FixedPoints.toAlgAut_surjective}.
+  For surjectivity of $\Aut(L/L^{D_Q}) \to \Aut(L/K)$, let $\sigma$ be a field automorphism of $L$
+  fixing $K$ pointwise.
+  We must show that $\sigma$ automatically fixes $L^{D_Q}$ pointwise.
+  But this is exactly~\ref{fixed_of_fixed2}.
+  Thus, the composition $D_Q \to \Aut(L/L^{D_Q}) \to \Aut(L/K)$ is surjective.
+  \mathlibok
 \end{proof}
-
-\begin{lemma}
-  \leanok
-  The primes of $B[1/S]$ above $P[1/S]$ are all maximal.
-\end{lemma}
-\begin{proof}
-  \leanok
-  This follows from {\tt Algebra.IsIntegral.isField\_iff\_isField} and the fact
-  that an ideal is maximal iff the quotient by it is a field.
-\end{proof}
-
-\begin{proof}(of theorem):
-  \leanok
-Because all these ideals of $B[1/S]$ are maximal, they're pairwise coprime.
-So by the Chinese Remainder Theorem we can find an element of $B[1/S]$ which
-is equal to $y$ modulo $Q[1/S]$ and equal to $0$ modulo all the other primes.
-This element is of the form $x/\alpha$ for some $x\in B$ and $\alpha\in S$,
-and one now checks that everything works.
-\end{proof}
-
-The rest of the surjectivity argument was done
-by Jou Glasheen in the special case of number fields, in her
-final project for my Formalising Mathematics 2024 course.
-
-The argument goes like this: we consider the monic degree $|G|$ polynomial $f_x$ in $K[X]$ or
-$\overline{M}_x$ in $(A/P)[X]$,
-which has $x$ and its G-conjugates as roots. If $\sigma\in\Aut_K(L)$ then $\sigma(\overline{x})$
-is a root of $f$ as $\sigma$ fixes $K$ pointwise. Hence $\sigma(\overline{x})=\overline{g(x)}$
-for some $g\in G$ (because we're over an integral domain), and because $\sigma(\overline{x})\not=0$
-we have $\overline{g(x)}\not=0$
-and hence $g(x)\notin Q[1/S]$. Hence $x\notin g^{-1} Q[1/S]$ and thus $g^{-1}Q=Q$ and $g\in SD_Q$.
-Finally we have $\phi_g=\sigma$ on $K$ and on $y$, so they are equal on $M$ and hence on $L$ as
-$L/M$ is purely inseparable.
-
-This argument is formalised and now merged into mathlib
-by Thomas Browning.
