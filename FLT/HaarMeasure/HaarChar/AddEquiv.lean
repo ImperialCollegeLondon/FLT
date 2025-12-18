@@ -57,7 +57,7 @@ lemma haarScalarFactor_map (μ' μ : Measure G) [IsHaarMeasure μ] [IsHaarMeasur
   · change ∫ x, f (φ x) ∂μ ≠ 0
     rwa [← integral_map hφ f_cont.aestronglyMeasurable]
 
--- Version of `mulEquivHaarChar_map` without the regularity assumption
+-- Version of `mulEquivHaarChar_smul_map` without the regularity assumption
 -- In this case, the measures need only be equal on open sets
 @[to_additive]
 lemma mulEquivHaarChar_map_open (μ : Measure G)

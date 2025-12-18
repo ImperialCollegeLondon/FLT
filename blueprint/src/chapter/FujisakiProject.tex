@@ -106,7 +106,9 @@ We prove the theorem via a series of lemmas.
   the obvious map $xE\to D\backslash D_{\A}$ is not injective.
 \end{lemma}
 
-\begin{proof} We know that if we pick a $\Q$-basis for $D$
+\begin{proof}
+  \leanok
+  We know that if we pick a $\Q$-basis for $D$
   of size $d$ then this identifies $D$ with $\Q^d$,
   $D_{\A}$ with $\A_{\Q}^d$, and $D\backslash D_{\A}$ with
   $(\Q\backslash\A_{\Q})^d$. Now $\Q$ is discrete in $\A_{\Q}$
@@ -232,6 +234,7 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
 \end{lemma}
 \begin{proof}
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.Y_compact}
+  \leanok
   % TODO I used T in both the theorem and proof this time!
   It suffices to prove that $Y\cap D$ is finite.
     But $D\subseteq D_{\A}$ is a discrete additive subgroup, and hence closed.
@@ -321,6 +324,7 @@ We note here some useful consequences.
 \end{theorem}
 \begin{proof}
   \uses{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
+  \leanok
 There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
   $D^\times\backslash (D\otimes_K \A_K^\infty)^\times$. We claim that it's
   surjective. Granted this claim, we are home, because if we put the quotient
