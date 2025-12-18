@@ -61,12 +61,6 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).1 hx)
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).2 hx))
 
-lemma inf_foo (x : ℚˣ) :
-    Rat.infinitePlace_completion_continuousAddEquiv
-    ((MulEquiv.prodUnits (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ)).1.val Rat.infinitePlace) =
-    (x : ℝ) := by
-  sorry
-
 lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := by
   rw [ringHaarChar_adeles_rat (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ)]
@@ -79,7 +73,9 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     simp [InfinitePlace.mult, Rat.isReal_infinitePlace,
       ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv
       Rat.infinitePlace_completion_continuousAddEquiv,
-      ringHaarChar_real, ← inf_foo, InfiniteAdeleRing]
+      ringHaarChar_real, ← Rat.infinitePlace_completion_continuousAddEquiv_apply_algebraMap,
+      -eq_ratCast]
+    rfl
   · -- finite places
     rw [← finprod_comp_equiv FinitePlace.equivHeightOneSpectrum.symm]
     conv_lhs =>
@@ -88,7 +84,8 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     simp only [RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, NNReal.coe_toRealHom,
       FinitePlace.equivHeightOneSpectrum, Equiv.coe_fn_symm_mk, FinitePlace.mk_apply]
     -- reduce to one finite place `p`
-    #check ringHaarChar_padic
+    -- ringHaarChar_padic
+    -- mathlib #30576
     sorry
 
 -- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange

@@ -81,3 +81,8 @@ noncomputable def Rat.infinitePlace_completion_continuousAddEquiv :
     __ := Completion.ringEquivRealOfIsReal isReal_infinitePlace
     commutes' := by simp [Completion.isometryEquivRealOfIsReal]
   }
+
+lemma Rat.infinitePlace_completion_continuousAddEquiv_apply_algebraMap (x : ℚ) :
+    infinitePlace_completion_continuousAddEquiv
+      (algebraMap ℚ (infinitePlace.Completion) x) = x := by
+  simp
