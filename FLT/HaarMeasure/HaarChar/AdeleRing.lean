@@ -77,9 +77,9 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     let : Algebra ℤ Rat.infinitePlace.Completion := Ring.toIntAlgebra _
     simp [InfinitePlace.mult, Rat.isReal_infinitePlace,
       ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
-        __ := Rat.infinitePlace_completion_continuousAddEquiv
+        __ := Rat.infinitePlace_completion_continuousAlgEquiv
         commutes' := by simp},
-      ringHaarChar_real, ← Rat.infinitePlace_completion_continuousAddEquiv_apply_algebraMap,
+      ringHaarChar_real, ← Rat.infinitePlace_completion_continuousAlgEquiv_apply_algebraMap,
       -eq_ratCast]
     rfl
   · -- finite places
