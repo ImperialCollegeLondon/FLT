@@ -74,9 +74,11 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     simp only [InfiniteAdeleRing, ringHaarChar_pi', NNReal.coe_prod, Rat.infinitePlace_apply,
       Rat.cast_abs]
     congr; ext v; rw [Subsingleton.elim v Rat.infinitePlace]
+    let : Algebra ℤ Rat.infinitePlace.Completion := Ring.toIntAlgebra _
     simp [InfinitePlace.mult, Rat.isReal_infinitePlace,
-      ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv
-        Rat.infinitePlace_completion_continuousAddEquiv,
+      ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
+        __ := Rat.infinitePlace_completion_continuousAddEquiv
+        commutes' := by simp},
       ringHaarChar_real, ← Rat.infinitePlace_completion_continuousAddEquiv_apply_algebraMap,
       -eq_ratCast]
     rfl
@@ -88,8 +90,9 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     let : Algebra ℤ (p.adicCompletion ℚ) := Ring.toIntAlgebra _
     simp [FinitePlace.equivHeightOneSpectrum,
       ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
-      __ := p.padicEquiv
-      commutes' := by simp}, padicEquiv_norm_eq]
+        __ := p.padicEquiv
+        commutes' := by simp},
+      padicEquiv_norm_eq]
     rfl
 
 -- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange

@@ -20,8 +20,8 @@ instance (v : HeightOneSpectrum (𝓞 ℚ)) : Fact v.natGenerator.Prime :=
       ((Ideal.map_eq_bot_iff_of_injective Rat.ringOfIntegersEquiv.injective).not.2 v.ne_bot)⟩
 
 -- From pending mathlib PR #30576
-/-- The `ℚ`-algebra equivalence between `v.adicCompletion ℚ` and `ℚ_[v.natGenerator]`, where
-`v : HeightOneSpectrum (𝓞 ℚ)`. -/
+/-- The continuous `ℚ`-algebra equivalence between `v.adicCompletion ℚ` and `ℚ_[v.natGenerator]`,
+where `v : HeightOneSpectrum (𝓞 ℚ)`. -/
 def padicEquiv (v : HeightOneSpectrum (𝓞 ℚ)) :
     v.adicCompletion ℚ ≃A[ℚ] ℚ_[v.natGenerator] := sorry
 
