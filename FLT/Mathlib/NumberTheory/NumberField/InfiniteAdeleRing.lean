@@ -70,6 +70,7 @@ instance : IsModuleTopology ℝ (InfiniteAdeleRing K) :=
 
 noncomputable local instance : Algebra ℤ Rat.infinitePlace.Completion := Ring.toIntAlgebra _
 
+/-- The continuous `ℤ`-algebra isomorphism between `Rat.infinitePlace.Completion` and `ℝ`. -/
 noncomputable def Rat.infinitePlace_completion_continuousAddEquiv :
     Rat.infinitePlace.Completion ≃A[ℤ] ℝ :=
   {
