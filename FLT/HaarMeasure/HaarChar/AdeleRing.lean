@@ -2,6 +2,8 @@ import FLT.HaarMeasure.HaarChar.Ring
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.NumberField.AdeleRing
+import FLT.HaarMeasure.HaarChar.RealComplex
+import FLT.HaarMeasure.HaarChar.Padic
 import Mathlib.NumberTheory.NumberField.ProductFormula
 /-!
 
@@ -40,7 +42,6 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
     [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (𝔸 K))ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
-
   sorry
 
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
@@ -64,8 +65,13 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := by
   rw [ringHaarChar_adeles_rat (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ)]
   ext; simp only [NNReal.coe_mul, NNReal.coe_one]
-  convert NumberField.prod_abs_eq_one (K := ℚ) (x := x) (Units.ne_zero x)
+  rw [← NumberField.prod_abs_eq_one (K := ℚ) (x := x) (Units.ne_zero x)]; congr
   · -- infinite places
+    unfold InfiniteAdeleRing
+    simp only [ringHaarChar_pi', NNReal.coe_prod, Rat.infinitePlace_apply, Rat.cast_abs]
+    congr; ext v
+    -- reduce to one infinite place `v`
+    #check ringHaarChar_real
     sorry
   · -- finite places
     rw [← finprod_comp_equiv FinitePlace.equivHeightOneSpectrum.symm]
@@ -74,7 +80,8 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     apply finprod_congr; intro p
     simp only [RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, NNReal.coe_toRealHom,
       FinitePlace.equivHeightOneSpectrum, Equiv.coe_fn_symm_mk, FinitePlace.mk_apply]
-    -- rw [ringHaarChar_padic]
+    -- reduce to one finite place `p`
+    #check ringHaarChar_padic
     sorry
 
 -- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange

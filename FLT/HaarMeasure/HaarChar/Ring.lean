@@ -169,6 +169,10 @@ lemma ringHaarChar_pi [Fintype ι] [∀ i, SecondCountableTopology (A i)] (u : �
     ringHaarChar (MulEquiv.piUnits.symm u) = ∏ i, ringHaarChar (u i) :=
   addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (u i))
 
+lemma ringHaarChar_pi' [Fintype ι] [∀ i, SecondCountableTopology (A i)] (u : (Π i, (A i))ˣ) :
+    ringHaarChar u = ∏ i, ringHaarChar (MulEquiv.piUnits u i) :=
+  addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (MulEquiv.piUnits u i))
+
 end pi
 
 section restrictedproduct
