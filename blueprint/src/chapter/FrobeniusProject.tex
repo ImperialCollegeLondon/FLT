@@ -175,13 +175,13 @@ to a monic polynomial $M_b(X)$ of degree $|G|$ in $A[X]$. We will
 also refer to $M_b$ as the characteristic polynomial of $b$, even though
 it's not even well-defined if the map $A\to B$ isn't injective.
 
-\begin{definition}
+\begin{lemma}
   \label{Algebra.IsInvariant.charpoly_mem_lifts}
   \lean{Algebra.IsInvariant.charpoly_mem_lifts}
   \uses{MulSemiringAction.charpoly}
   \mathlibok
   $F_b$ is the lift of some monic polynomial $M_b$ in $A[X]$.
-\end{definition}
+\end{lemma}
 \begin{proof}
   \mathlibok
   The coefficients of $F_b$ are $G$-invariant, and thus lie in the image of $A$.
@@ -335,7 +335,7 @@ The following lemma will allow us to lift the denominator from $B/Q$ to $A/P$.
 
 Combining this with~\ref{FixedPoints.toAlgAut_surjective} finishes the proof.
 
-\begin{proof}
+\begin{proof}[Proof of main theorem]
   \proves{IsFractionRing.stabilizerHom_surjective}
   \uses{fixed_of_fixed2, FixedPoints.toAlgAut_surjective}
   The map $D_Q \to \Aut(L/L^{D_Q})$ is surjective by~\ref{FixedPoints.toAlgAut_surjective}.
