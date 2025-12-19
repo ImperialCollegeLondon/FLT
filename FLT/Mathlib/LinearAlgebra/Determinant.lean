@@ -43,8 +43,9 @@ lemma mulRight_conj_ofLinear (K : Type*) [Field K] (n : ℕ) (N : Matrix (Fin n)
 
 variable [Algebra.IsCentral k D] [IsSimpleRing D] [FiniteDimensional k D]
 
-/-- This is instance is in a repo on brauergroup which will soon be PRed into mathlib,
-  the associated issue task is #631. -/
+/-- This is instance is in a repo on brauergroup which has been PRed into mathlib
+at https://github.com/leanprover-community/mathlib4/pull/26377 .
+  The associated FLT issue is #631. -/
 instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
     [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (A ⊗[k] B) := sorry
 
