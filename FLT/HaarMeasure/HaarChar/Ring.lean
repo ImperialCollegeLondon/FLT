@@ -103,6 +103,15 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
 lemma ringHaarChar_apply (r : Rˣ) :
     ringHaarChar r = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r) := rfl
 
+/-- Transport `ringHaarChar` across a continuous `ℤ`-algebra equivalence
+(in place of continuous ring equivalences since we don't have them). -/
+lemma ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {S : Type*} [Ring S] [TopologicalSpace S]
+    [IsTopologicalRing S] [LocallyCompactSpace S] [MeasurableSpace S] [BorelSpace S]
+    (f : R ≃A[ℤ] S) (r : Rˣ) :
+    ringHaarChar r = ringHaarChar (Units.map f.toMonoidHom r) :=
+  addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv {__ := f} _ _
+    (by simp [map_mul])
+
 lemma ringHaarChar_mul_integral
     (μ : Measure R) [IsAddHaarMeasure μ] [μ.Regular]
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :
@@ -168,6 +177,10 @@ variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSp
 lemma ringHaarChar_pi [Fintype ι] [∀ i, SecondCountableTopology (A i)] (u : Π i, (A i)ˣ) :
     ringHaarChar (MulEquiv.piUnits.symm u) = ∏ i, ringHaarChar (u i) :=
   addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (u i))
+
+lemma ringHaarChar_pi' [Fintype ι] [∀ i, SecondCountableTopology (A i)] (u : (Π i, (A i))ˣ) :
+    ringHaarChar u = ∏ i, ringHaarChar (MulEquiv.piUnits u i) :=
+  addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (MulEquiv.piUnits u i))
 
 end pi
 

@@ -1,4 +1,5 @@
 import Mathlib.NumberTheory.NumberField.AdeleRing -- should be .InfiniteAdeleRing
+import Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
 
 -- TODO upstream
@@ -66,3 +67,18 @@ noncomputable def NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace :
 
 instance : IsModuleTopology ℝ (InfiniteAdeleRing K) :=
   .iso (NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace K).symm
+
+/-- The continuous `ℤ`-algebra isomorphism between `Rat.infinitePlace.Completion` and `ℝ`.
+(We use continuous `ℤ`-algebra equivalences in place of continuous ring equivalences
+since we don't have the latter.) -/
+noncomputable def Rat.infinitePlace_completion_continuousAlgEquiv :
+    Rat.infinitePlace.Completion ≃A[ℤ] ℝ :=
+  {
+    __ := (Completion.isometryEquivRealOfIsReal isReal_infinitePlace).toHomeomorph
+    __ := Completion.ringEquivRealOfIsReal isReal_infinitePlace
+    commutes' := by simp [Completion.isometryEquivRealOfIsReal]
+  }
+
+lemma Rat.infinitePlace_completion_continuousAlgEquiv_apply_algebraMap (x : ℚ) :
+    infinitePlace_completion_continuousAlgEquiv
+      (algebraMap ℚ infinitePlace.Completion x) = (x : ℝ) := by simp
