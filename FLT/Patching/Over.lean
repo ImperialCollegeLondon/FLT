@@ -224,7 +224,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
       have : _ = _ := (v α).2
       simp only [PatchingModule, Module.toModuleEnd_apply, Finsupp.coe_lsum,
         DistribMulAction.toLinearMap_apply, smul_zero, implies_true, Finsupp.sum_fintype,
-        Finset.univ_eq_attach, Finsupp.equivFunOnFinite_symm_apply_toFun,
+        Finset.univ_eq_attach, Finsupp.equivFunOnFinite_symm_apply_apply,
         AddSubmonoidClass.coe_finset_sum, SetLike.val_smul_of_tower, Finset.sum_apply,
         Pi.smul_apply, ← this, y, X, s, f]
     rw [← this]

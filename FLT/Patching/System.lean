@@ -416,8 +416,7 @@ lemma support_eq_top
     (PatchingAlgebra.surjective_quotientToOver Λ R F 𝔫 sR).comp Ideal.Quotient.mk_surjective
   let p' := PrimeSpectrum.comap f₀ p
   have hp' : 𝔫.map (algebraMap _ _) ≤ p'.asIdeal := by
-    simp only [PrimeSpectrum.comap_comp, ContinuousMap.comp_apply,
-      PrimeSpectrum.comap_asIdeal, p', f₀]
+    simp only [PrimeSpectrum.comap_comp, p', f₀]
     refine le_trans ?_ (Ideal.comap_mono (f := Ideal.Quotient.mk _) bot_le)
     rw [← RingHom.ker_eq_comap_bot, Ideal.mk_ker]
   let inst := Module.compHom M₀ f₀
@@ -431,6 +430,6 @@ lemma support_eq_top
   rw [← Submodule.map_algebraMap_smul, ← Module.support_eq_zeroLocus,
     Module.support_quotient,  Module.support_eq_zeroLocus,
     Module.annihilator_eq_bot.mpr inferInstance, ← Module.comap_annihilator (R := R₀),
-    ← PrimeSpectrum.image_comap_zeroLocus_eq_zeroLocus_comap _ _ (by exact hf₀)] at this
+    ← image_comap_zeroLocus_eq_zeroLocus_comap _ _ (by exact hf₀)] at this
   simp only [Submodule.bot_coe, PrimeSpectrum.zeroLocus_singleton_zero, Set.univ_inter] at this
   exact (PrimeSpectrum.comap_injective_of_surjective _ hf₀).mem_set_image.mp (this.le hp')

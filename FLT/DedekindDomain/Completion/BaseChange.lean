@@ -659,7 +659,6 @@ noncomputable def tensorAdicCompletionIntegersToLinearMap :
       RingHom.toMonoidHom_eq_coe, AlgHom.toRingHom_toMonoidHom, Algebra.smul_def,
       TensorProduct.RightActions.algebraMap_eval, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe, map_mul, map_one, RingHom.id_apply]
-    rw [Subsemiring.smul_def, Algebra.smul_def]
     rfl
 
 open scoped TensorProduct.RightActions in
