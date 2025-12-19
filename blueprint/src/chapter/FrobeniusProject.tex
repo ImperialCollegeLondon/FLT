@@ -40,6 +40,7 @@ In the next definition we write down a group homomorphism $\phi$ from $D_Q$ to $
 
 \begin{definition}
   \label{IsFractionRing.stabilizerHom}
+  \lean{IsFractionRing.stabilizerHom}
   Choose $g\in D_Q$. Then the action of $g$ on $B$ gives us an induced
   $A/P$-algebra automorphism of $B/Q$ which extends to a $K$-algebra automorphism $\phi(g)$ of $L$.
   This construction $g\mapsto \phi(g)$ defines a group homomorphism from $D_Q$
@@ -50,6 +51,7 @@ In the next definition we write down a group homomorphism $\phi$ from $D_Q$ to $
 The theorem we want in this mini-project is
 \begin{theorem}
   \label{IsFractionRing.stabilizerHom_surjective}
+  \lean{IsFractionRing.stabilizerHom_surjective}
   \uses{IsFractionRing.stabilizerHom}
   \mathlibok
   The map $g\mapsto \phi_g$ from $D_Q$ to $\Aut(L/K)$ defined above is surjective.
@@ -146,6 +148,7 @@ and which explains why we need $G$ to be finite.
 
 \begin{definition}
   \label{MulSemiringAction.charpoly}
+  \lean{MulSemiringAction.charpoly}
   \mathlibok
   If $b\in B$ then define the \emph{characteristic polynomial}
   $F_b(X) \in B[X]$ of $b$ to be $\prod_{g\in G}(X-g\cdot b)$.
@@ -155,6 +158,7 @@ Clearly $F_b$ is a monic polynomial.
 
 \begin{lemma}
   \label{MulSemiringAction.monic_charpoly}
+  \lean{MulSemiringAction.monic_charpoly}
   \uses{MulSemiringAction.charpoly}
   \mathlibok
   $F_b$ is monic.
@@ -173,6 +177,7 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 
 \begin{definition}
   \label{Algebra.IsInvariant.charpoly_mem_lifts}
+  \lean{Algebra.IsInvariant.charpoly_mem_lifts}
   \uses{MulSemiringAction.charpoly}
   \mathlibok
   $F_b$ is the lift of some monic polynomial $M_b$ in $A[X]$.
@@ -184,6 +189,7 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 
 \begin{theorem}
   \label{MulSemiringAction.CharacteristicPolynomial.isIntegral}
+  \lean{MulSemiringAction.CharacteristicPolynomial.isIntegral}
   \mathlibok
   $B/A$ is integral.
 \end{theorem}
@@ -258,6 +264,7 @@ The surjectivity of the first map is a general fact of Galois theory.
 
 \begin{theorem}
   \label{FixedPoints.toAlgAut_surjective}
+  \lean{FixedPoints.toAlgAut_surjective}
   Let $H$ be a finite group acting on a field $F$ by field automorphisms.
   Then the map $H \to \Aut(F/F^H)$ is surjective.
   \mathlibok
@@ -297,6 +304,7 @@ The following lemma will allow us to lift the denominator from $B/Q$ to $A/P$.
 
 \begin{lemma}
   \label{IsAlgebraic.exists_smul_eq_mul}
+  \lean{IsAlgebraic.exists_smul_eq_mul}
   \mathlibok
   If $R/S$ is an algebraic extension of integral domains, then any fraction $a/b$ with $a,b\in R$
   can be written as $c/d$ with $c\in R$ and $d\in S$.
@@ -327,13 +335,8 @@ The following lemma will allow us to lift the denominator from $B/Q$ to $A/P$.
 
 Combining this with~\ref{FixedPoints.toAlgAut_surjective} finishes the proof.
 
-\begin{theorem}
-  \label{IsFractionRing.stabilizerHom_surjective}
-  \uses{IsFractionRing.stabilizerHom}
-  \mathlibok
-  The map $D_Q \to \Aut(L/K)$ is surjective.
-\end{theorem}
 \begin{proof}
+  \proves{IsFractionRing.stabilizerHom_surjective}
   \uses{fixed_of_fixed2, FixedPoints.toAlgAut_surjective}
   The map $D_Q \to \Aut(L/L^{D_Q})$ is surjective by~\ref{FixedPoints.toAlgAut_surjective}.
   For surjectivity of $\Aut(L/L^{D_Q}) \to \Aut(L/K)$, let $\sigma$ be a field automorphism of $L$
