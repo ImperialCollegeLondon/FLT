@@ -103,6 +103,8 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
 lemma ringHaarChar_apply (r : Rˣ) :
     ringHaarChar r = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r) := rfl
 
+/-- Transport `ringHaarChar` across a continuous `ℤ`-algebra equivalence
+(in place of continuous ring equivalences since we don't have them). -/
 lemma ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {S : Type*} [Ring S] [TopologicalSpace S]
     [IsTopologicalRing S] [LocallyCompactSpace S] [MeasurableSpace S] [BorelSpace S]
     (f : R ≃A[ℤ] S) (r : Rˣ) :
