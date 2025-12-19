@@ -39,19 +39,19 @@ $\Aut(L/K)$.
 In the next definition we write down a group homomorphism $\phi$ from $D_Q$ to $\Aut(L/K)$.
 
 \begin{definition}
-  \label{Bourbaki52222.stabilizer.toGaloisGroup}
+  \label{IsFractionRing.stabilizerHom}
   Choose $g\in D_Q$. Then the action of $g$ on $B$ gives us an induced
   $A/P$-algebra automorphism of $B/Q$ which extends to a $K$-algebra automorphism $\phi(g)$ of $L$.
   This construction $g\mapsto \phi(g)$ defines a group homomorphism from $D_Q$
   to $\Aut(L/K)$ (all the proofs implicit in the definition here are straightforward).
-  \leanok
+  \mathlibok
 \end{definition}
 
 The theorem we want in this mini-project is
 \begin{theorem}
-  \label{Bourbaki52222.MulAction.stabilizer_surjective_of_action}
-  \uses{Bourbaki52222.stabilizer.toGaloisGroup}
-  \leanok
+  \label{IsFractionRing.stabilizerHom_surjective}
+  \uses{IsFractionRing.stabilizerHom}
+  \mathlibok
   The map $g\mapsto \phi_g$ from $D_Q$ to $\Aut(L/K)$ defined above is surjective.
 \end{theorem}
 
@@ -203,7 +203,8 @@ modulo $Q$.
 \begin{lemma}
   \label{fixed_of_fixed1_aux1}
   \mathlibok
-  There exist elements $a,b \in B$, with $a$ in the image of $A$, such that for all $g\in G$,
+  There exist elements $a,b \in B$, with $a \notin Q$ and $a$ in the image of $A$ such that
+  for all $g\in G$,
   \begin{itemize}
     \item If $g \cdot Q = Q$, then $g \cdot b \equiv a \pmod{Q}$.
     \item If $g \cdot Q \neq Q$, then $g \cdot b \equiv 0 \pmod{Q}$.
@@ -234,7 +235,8 @@ A slight modification allows us to take an element of $B$ fixed by $D_Q$ as inpu
   Let $b_0 \in B$.
   Suppose that the image of $b_0$ in the quotient $B/Q$ is fixed by the stabilizer subgroup
   $D_Q$.
-  Then there exist elements $a,b \in B$, with $a$ in the image of $A$, such that for all $g\in G$,
+  Then there exist elements $a,b \in B$, with $a\notin Q$ and $a$ in the image of $A$ such that
+  for all $g\in G$,
   \begin{itemize}
     \item If $g \cdot Q = Q$, then $g \cdot b \equiv ab_0 \pmod{Q}$.
     \item If $g \cdot Q \neq Q$, then $g \cdot b \equiv 0 \pmod{Q}$.
@@ -270,7 +272,7 @@ $\Aut(L/K)$.
 We first show this for elements of $B/Q$ fixed by $D_Q$.
 
 \begin{proposition}
-  \label{fixed_of_fixed1}
+  \label{fixed_of_fixed1, IsFractionRing.stabilizerHom}
   \mathlibok
   Let $b_0 \in B/Q$.
   Suppose that $b_0$ is fixed by the stabilizer subgroup $D_Q$.
@@ -284,7 +286,8 @@ We first show this for elements of $B/Q$ fixed by $D_Q$.
   Going via $B[X]$ tells us that the image of $M_b(X)$ in $L[X]$ is exactly
   $$(X - ab_0)^{\lvert D_Q\rvert}X^{\lvert G\rvert-\lvert D_Q\rvert}.$$
   But going via $K[X]$ tells us that this image lies in $K[X]$, so we must have $ab_0\in K$.
-  Then $ab_0$ is fixed by $\Aut(L/K)$, so $b_0$ is fixed by $\Aut(L/K)$.
+  Then $ab_0$ is fixed by $\Aut(L/K)$, and $a$ is nonzero in $L$ (since $a\notin Q$),
+  so $b_0$ is fixed by $\Aut(L/K)$.
   \mathlibok
 \end{proof}
 
@@ -300,6 +303,7 @@ The following lemma will allow us to lift the denominator from $B/Q$ to $A/P$.
 \begin{proof}
   If $f\in S[X]$ satisfies $f(b)=0$, then $f(0)\in S$ is a multiple of $b$.
   If $f(0)=bx\in S$, then $a/b=(ax)/(bx)$ as desired.
+  \mathlibok
 \end{proof}
 
 \begin{proposition}
@@ -324,6 +328,7 @@ Combining this with~\ref{FixedPoints.toAlgAut_surjective} finishes the proof.
 
 \begin{theorem}
   \label{IsFractionRing.stabilizerHom_surjective}
+  \uses{IsFractionRing.stabilizerHom}
   \mathlibok
   The map $D_Q \to \Aut(L/K)$ is surjective.
 \end{theorem}
