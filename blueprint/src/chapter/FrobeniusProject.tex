@@ -188,8 +188,8 @@ it's not even well-defined if the map $A\to B$ isn't injective.
 \end{proof}
 
 \begin{theorem}
-  \label{MulSemiringAction.CharacteristicPolynomial.isIntegral}
-  \lean{MulSemiringAction.CharacteristicPolynomial.isIntegral}
+  \label{Algebra.IsInvariant.isIntegral}
+  \lean{Algebra.IsInvariant.isIntegral}
   \mathlibok
   $B/A$ is integral.
 \end{theorem}
@@ -323,9 +323,9 @@ The following lemma will allow us to lift the denominator from $B/Q$ to $A/P$.
   Then $x$ is fixed by the automorphism group $\Aut(L/K)$.
 \end{proposition}
 \begin{proof}
-  \uses{fixed_of_fixed1, MulSemiringAction.CharacteristicPolynomial.isIntegral,
+  \uses{fixed_of_fixed1, Algebra.IsInvariant.isIntegral,
     IsAlgebraic.exists_smul_eq_mul}
-  Since $(B/Q)/(A/Q)$ is algebraic by~\ref{MulSemiringAction.CharacteristicPolynomial.isIntegral},
+  Since $(B/Q)/(A/Q)$ is algebraic by~\ref{Algebra.IsInvariant.isIntegral},
   ~\ref{IsAlgebraic.exists_smul_eq_mul} let's us write $x=b/a$ for $b \in B/Q$ and $a \in A/P$.
   Then $b$ is fixed by the stabilizer subgroup $D_Q$, and it suffices to show that
   $b$ is fixed by the automorphism group $\Aut(L/K)$.
