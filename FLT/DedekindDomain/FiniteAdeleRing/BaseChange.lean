@@ -321,12 +321,10 @@ noncomputable def piAdicIntegerSubmodule (v : HeightOneSpectrum A) :
     Submodule (adicCompletionIntegers K v) ((w : Extension B v) → adicCompletion L w.val) :=
   letI (w : Extension B v) := comap_algebra A K L B w.prop
   letI (w : Extension B v) := comap_integer_algebra A K L B w.prop
-  letI (w : Extension B v) : Module (adicCompletionIntegers K v) (adicCompletion L w.val) :=
-    Module.compHom (adicCompletion L w.val)
-      (algebraMap (adicCompletionIntegers K v) (adicCompletion K v))
+  let module (w : Extension B v) := Module.compHom (adicCompletion L w.val)
+    (algebraMap (adicCompletionIntegers K v) (adicCompletion K v))
   Submodule.pi Set.univ fun (w : Extension B v) ↦
-    letI : MulAction (adicCompletionIntegers L w.val) (adicCompletion L w.val) :=
-      Algebra.toModule.toMulAction
+    letI := (module w).toDistribMulAction.toDistribSMul.toSMul
     have : IsScalarTower (adicCompletionIntegers K v) (adicCompletionIntegers L w.val)
         (adicCompletion L w.val) :=
       IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
