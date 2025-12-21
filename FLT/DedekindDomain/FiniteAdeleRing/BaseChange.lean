@@ -292,7 +292,19 @@ section moduleTopology
 
 open scoped RestrictedProduct
 
-attribute [local instance 9999] comap_pi_algebra Algebra.toSMul
+-- shortcut instances
+
+variable (v : HeightOneSpectrum A) in
+noncomputable instance : Module (v.adicCompletionIntegers K) (v.adicCompletion K) :=
+  Algebra.toModule
+
+variable (v : HeightOneSpectrum A) in
+noncomputable instance : MulAction (v.adicCompletionIntegers K) (v.adicCompletion K) :=
+  Algebra.toModule.toMulAction
+
+variable (v : HeightOneSpectrum A) in
+noncomputable instance : SMul (v.adicCompletionIntegers K) (v.adicCompletion K) :=
+  Algebra.toModule.toMulAction.toSMul
 
 /-- `𝓞_v`-module structure on `∏ L_w` from restricting the scalars of the `K_v`-module structure. -/
 noncomputable local instance (v : HeightOneSpectrum A) : Module (adicCompletionIntegers K v)
