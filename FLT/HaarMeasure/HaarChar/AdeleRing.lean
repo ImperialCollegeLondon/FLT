@@ -63,7 +63,8 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
 
 -- depends on `IsDedekindDomain.HeightOneSpectrum.padicEquiv`, from pending mathlib PR #30576
 lemma padicEquiv_norm_eq (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) (x : v.adicCompletion ℚ) :
-  ‖v.padicEquiv x‖ = ‖x‖ := sorry
+    ‖(Rat.HeightOneSpectrum.adicCompletion.padicEquiv v) x‖ = ‖x‖ := by
+  sorry
 
 lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := by
@@ -90,7 +91,7 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     let : Algebra ℤ (p.adicCompletion ℚ) := Ring.toIntAlgebra _
     simp [FinitePlace.equivHeightOneSpectrum,
       ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
-        __ := p.padicEquiv
+        __ := (Rat.HeightOneSpectrum.adicCompletion.padicEquiv p)
         commutes' := by simp},
       padicEquiv_norm_eq]
     rfl

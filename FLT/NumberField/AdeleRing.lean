@@ -458,18 +458,24 @@ namespace Rat.FiniteAdeleRing
 
 local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
 
+-- TODO : this declaration `Rat.FiniteAdeleRing.padicEquiv` seems to take a huge amount
+-- of time for the kernel to accept.
 /-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and the restricted
 product `Πʳ (p : Nat.Primes), [ℚ_[p], subring p]` of `Padic`s lifting the equivalence
 `v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator]` at each place. -/
 noncomputable
 def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes), [ℚ_[p], subring p] where
   __ := RingEquiv.restrictedProductCongr
-      ratEquiv (Function.Injective.comap_cofinite_eq ratEquiv.injective).symm
-      (fun v ↦ v.padicEquiv.toRingEquiv) (Filter.Eventually.of_forall padicEquiv_bijOn)
+      Rat.HeightOneSpectrum.primesEquiv
+      (Function.Injective.comap_cofinite_eq Rat.HeightOneSpectrum.primesEquiv.injective).symm
+      (fun v ↦ (Rat.HeightOneSpectrum.adicCompletion.padicEquiv v).toRingEquiv)
+      (Filter.Eventually.of_forall Rat.HeightOneSpectrum.adicCompletion.padicEquiv_bijOn)
   commutes' q := by
     ext p
-    obtain ⟨v, rfl⟩ := ratEquiv.surjective p
-    change _ = algebraMap ℚ ℚ_[v.natGenerator] q
+    obtain ⟨v, rfl⟩ := Rat.HeightOneSpectrum.primesEquiv (R := 𝓞 ℚ).surjective p
+    have : Fact (Nat.Prime (HeightOneSpectrum.natGenerator v)) :=
+      ⟨Rat.HeightOneSpectrum.prime_natGenerator v⟩
+    change _ = algebraMap ℚ ℚ_[Rat.HeightOneSpectrum.natGenerator v] q
     -- was `simp` when `FiniteAdeleRing` was an `abbrev`.
     -- Ask on Zulip?
     simp [IsDedekindDomain.algebraMap_apply (𝓞 ℚ)]
@@ -477,10 +483,12 @@ def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes
 theorem padicEquiv_bijOn :
     Set.BijOn padicEquiv (integralAdeles (𝓞 ℚ) ℚ)
       (structureSubring (fun p : Nat.Primes ↦ ℚ_[p]) (fun p ↦ subring p) Filter.cofinite) := by
-  exact RingEquiv.restrictedProductCongr_bijOn_structureSubring
+  apply RingEquiv.restrictedProductCongr_bijOn_structureSubring
     (A₂ := fun p : Nat.Primes ↦ subring p)
-    ratEquiv (Function.Injective.comap_cofinite_eq ratEquiv.injective).symm
-    (fun v ↦ v.padicEquiv.toRingEquiv) (fun v ↦ v.padicEquiv_bijOn)
+    (Rat.HeightOneSpectrum.primesEquiv (R := 𝓞 ℚ))
+    (Function.Injective.comap_cofinite_eq Rat.HeightOneSpectrum.primesEquiv.injective).symm
+  intro v
+  apply (Rat.HeightOneSpectrum.adicCompletion.padicEquiv_bijOn v)
 
 open FiniteAdeleRing in
 theorem sub_mem_integralAdeles

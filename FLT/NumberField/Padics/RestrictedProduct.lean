@@ -6,61 +6,6 @@ import Mathlib.Topology.Algebra.Algebra.Equiv
 
 open IsDedekindDomain NumberField PadicInt RestrictedProduct
 
-namespace IsDedekindDomain.HeightOneSpectrum
-
--- From pending mathlib PR #30576
-/-- A generator in `ℕ` of a prime ideal of `𝓞 ℚ`. -/
-noncomputable def natGenerator (v : HeightOneSpectrum (𝓞 ℚ)) : ℕ :=
-  Submodule.IsPrincipal.generator (v.asIdeal.map Rat.ringOfIntegersEquiv) |>.natAbs
-
--- From pending mathlib PR #30576
-instance (v : HeightOneSpectrum (𝓞 ℚ)) : Fact v.natGenerator.Prime :=
-  ⟨Int.prime_iff_natAbs_prime.1 <|
-    Submodule.IsPrincipal.prime_generator_of_isPrime _
-      ((Ideal.map_eq_bot_iff_of_injective Rat.ringOfIntegersEquiv.injective).not.2 v.ne_bot)⟩
-
--- From pending mathlib PR #30576
-/-- The continuous `ℚ`-algebra equivalence between `v.adicCompletion ℚ` and `ℚ_[v.natGenerator]`,
-where `v : HeightOneSpectrum (𝓞 ℚ)`. -/
-def padicEquiv (v : HeightOneSpectrum (𝓞 ℚ)) :
-    v.adicCompletion ℚ ≃A[ℚ] ℚ_[v.natGenerator] := sorry
-
--- From pending mathlib PR #30576
-/-- The uniform-space isomorphism between `v.adicCompletion ℚ` and `ℚ_[v.natGenerator]`, where
-`v : HeightOneSpectrum (𝓞 ℚ)`. -/
-def padicUniformEquiv (v : HeightOneSpectrum (𝓞 ℚ)) :
-    v.adicCompletion ℚ ≃ᵤ ℚ_[v.natGenerator] := sorry
-
--- From pending mathlib PR #30576
-theorem padicEquiv_bijOn (v : HeightOneSpectrum (𝓞 ℚ)) :
-    Set.BijOn (IsDedekindDomain.HeightOneSpectrum.padicEquiv v) (v.adicCompletionIntegers ℚ)
-      (PadicInt.subring v.natGenerator) := by
-  sorry
-
-/-- The prime ideal of `𝓞 ℚ` constructed from a prime in `ℕ`. -/
-def ofNatPrime {p : ℕ} (hp : p.Prime) : HeightOneSpectrum (𝓞 ℚ) where
-  asIdeal := Ideal.span {Rat.ringOfIntegersEquiv.symm p}
-  isPrime := by
-    have : (Ideal.span {(p : ℤ)}).IsPrime :=
-      (Ideal.span_singleton_prime (by simp [hp.ne_zero])).2 (Nat.prime_iff_prime_int.1 hp)
-    have := Ideal.map_isPrime_of_equiv (I := Ideal.span {(p : ℤ)}) Rat.ringOfIntegersEquiv.symm
-    simpa [Ideal.map_span] using this
-  ne_bot := by simp [hp.ne_zero]
-
-/-- The equivalence between prime ideals of `𝓞 ℚ` and primes in `ℕ`. -/
-noncomputable def ratEquiv :
-    HeightOneSpectrum (𝓞 ℚ) ≃ Nat.Primes where
-  toFun v := ⟨v.natGenerator, Fact.out⟩
-  invFun p := ofNatPrime p.2
-  left_inv v := by
-    simp only [ofNatPrime, natGenerator, ← Set.image_singleton, ← Ideal.map_span]
-    ext; simp
-  right_inv p := by
-    simp [ofNatPrime, natGenerator, Ideal.map_span, Set.image_singleton, map_natCast,
-      Int.associated_iff_natAbs.1 (Submodule.IsPrincipal.associated_generator_span_self (p : ℤ))]
-
-end IsDedekindDomain.HeightOneSpectrum
-
 namespace Padic
 
 local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩

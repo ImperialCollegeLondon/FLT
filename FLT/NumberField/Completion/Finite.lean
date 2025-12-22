@@ -11,6 +11,7 @@ import Mathlib.NumberTheory.NumberField.FinitePlaces
 import Mathlib.NumberTheory.Padics.ProperSpace
 import Mathlib.Topology.MetricSpace.Polish
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import Mathlib.NumberTheory.Padics.HeightOneSpectrum
 
 /-!
 
@@ -50,7 +51,8 @@ lemma NumberField.isOpenAdicCompletionIntegers :
 
 instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ)) :
     LocallyCompactSpace (v.adicCompletion ℚ) :=
-  v.padicUniformEquiv.toHomeomorph.isClosedEmbedding.locallyCompactSpace
+  (Rat.HeightOneSpectrum.adicCompletion.padicEquiv v).toHomeomorph.isClosedEmbedding
+  |>.locallyCompactSpace
 
 -- does this exist upstream? Should do.
 example (v : HeightOneSpectrum (𝓞 K)) : SecondCountableTopology (v.adicCompletion K) :=
