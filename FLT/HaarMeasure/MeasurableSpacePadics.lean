@@ -81,9 +81,8 @@ instance instIsFiniteMeasure : IsFiniteMeasure (volume : Measure ℤ_[p]) where
     (continuous_iff_le_induced.mpr fun _ h ↦ h)
     (isMeasurableEmbedding_coeRingHom (p := p))
   rw [isAddLeftInvariant_eq_smul (comap Coe.ringHom volume) (volume : Measure ℤ_[p])] at h ⊢
-  simp only [smul_apply, volume_univ, ENNReal.smul_def] at h
   suffices (comap (Coe.ringHom (p := p)) volume).addHaarScalarFactor volume = 1 by
     simp [-coe_coeRingHom, this]
-  simpa [-coe_coeRingHom] using h
+  simpa [-coe_coeRingHom, smul_apply, volume_univ, ENNReal.smul_def] using h
 
 end PadicInt
