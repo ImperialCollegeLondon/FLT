@@ -319,42 +319,7 @@ section restrictedproduct
 
 open ENNReal
 
--- -- some sample code to show how why a nonempty compact open has
--- -- positive finite Haar measure
--- example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
---     [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
---     -- IsHaarMeasure gives "positive on opens" and "finite on compacts"
---     [IsHaarMeasure μ] (C : Set X) [Nonempty C]
---     (hCopen : IsOpen C) (hCcompact : IsCompact C) :
---     0 < μ C ∧ μ C < ∞ := by
---   constructor
---   · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
---   · exact IsCompact.measure_lt_top hCcompact
-
 open RestrictedProduct
-
-section MeasurableSpace
--- Define ad-hoc (scoped) instances for the borel sigma-algebra on restricted products
-
--- Some extra hypotheses to prevent this triggering in surprising situations
--- (but I don't think it would)
-@[nolint unusedArguments]
-def _root_.RestrictedProduct.borelMeasurableSpace {ι : Type*} {𝓕 : Filter ι} {X : ι → Type*}
-    {S : ∀ i, Set (X i)} [∀ i, TopologicalSpace (X i)] [∀ i, MeasurableSpace (X i)]
-    [∀ i, BorelSpace (X i)] : MeasurableSpace (Πʳ i, [X i, S i]_[𝓕]) :=
-  borel _
-
-@[nolint unusedArguments]
-def _root_.RestrictedProduct.borelSpace_borelMeasurableSpace {ι : Type*} {𝓕 : Filter ι}
-    {X : ι → Type*} {S : ∀ i, Set (X i)} [∀ i, TopologicalSpace (X i)] [∀ i, MeasurableSpace (X i)]
-    [∀ i, BorelSpace (X i)] : @BorelSpace (Πʳ i, [X i, S i]_[𝓕]) _ borelMeasurableSpace :=
-  @BorelSpace.mk _ _ borelMeasurableSpace rfl
-
-scoped [RestrictedProduct.Borel] attribute [instance] RestrictedProduct.borelMeasurableSpace
-scoped [RestrictedProduct.Borel] attribute [instance]
-  RestrictedProduct.borelSpace_borelMeasurableSpace
-
-end MeasurableSpace
 
 open Pointwise in
 -- TODO this should be elsewhere
@@ -382,7 +347,6 @@ example : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
   haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
   WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
 
-open scoped RestrictedProduct.Borel in
 open ContinuousMulEquiv Filter in
 @[to_additive]
 lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
@@ -409,14 +373,15 @@ lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
       ≃ₜ* (Π i : (J : Set ι), C i) × (Π i : (Jᶜ : Set ι), G i) :=
     .prodCongr (.piCongrRight φ_C) (.piCongrRight fun i ↦ φ i)
   set I : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* _ := .restrictedProductPrincipal J
-  have : Finite (Jᶜ : Set ι) := sorry
-  have Ψ_I_eq (x) : Ψ (I x) = I (Φ x) := rfl
-  -- rw [← mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding I.isOpenEmbedding Φ Ψ Ψ_I_eq]
+  have : Finite (Jᶜ : Set ι) := Set.finite_coe_iff.mpr (J_cof.out fun _ a_1 ↦ a_1)
+  have Ψ_I_eq (x) : I.toMulEquiv (Φ x) = Ψ (I.toMulEquiv x) := rfl
+  have : BorelSpace (((i : ↑J) → ↥(C ↑i)) × ((i : ↑Jᶜ) → G ↑i)) := sorry
+  rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := I.toMulEquiv)
+    I.isOpenEmbedding Φ Ψ Ψ_I_eq]
   sorry
 
 variable [∀ i, WeaklyLocallyCompactSpace (G i)]
 
-open scoped RestrictedProduct.Borel in
 open ContinuousMulEquiv Filter Topology in
 @[to_additive]
 lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
@@ -431,8 +396,8 @@ lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G 
   set Φ_J : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
     .restrictedProductCongrRight φ (eventually_principal.mpr hφ_J)
   set ι_J : (Πʳ i, [G i, C i]_[𝓟 J]) →* (Πʳ i, [G i, C i]) :=
-    RestrictedProduct.mapAlongMonoidHom (B₁ := C) (B₂ := C) G G id sorry  -- J_cof
-      (fun _ ↦ .id _) sorry
+    RestrictedProduct.mapAlongMonoidHom (B₁ := C) (B₂ := C) G G id (tendsto_id'.mpr J_cof.out)
+      (fun _ ↦ .id _) (Eventually.of_forall fun _ _ a ↦ a)
   have ι_J_emb : IsOpenEmbedding ι_J :=
     RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen.out J_cof.out
   have Φ_ι_J_eq (x) : Φ (ι_J x) = ι_J (Φ_J x) := rfl
