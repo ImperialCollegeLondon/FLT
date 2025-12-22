@@ -66,33 +66,25 @@ instance instIsAddHaarMeasure : IsAddHaarMeasure (volume : Measure ℤ_[p]) :=
 instance instIsFiniteMeasure : IsFiniteMeasure (volume : Measure ℤ_[p]) where
   measure_univ_lt_top := by simp
 
-instance isCompact_subring : IsCompact (subring p).carrier := by
-  simpa [Metric.closedBall] using isCompact_closedBall (0 : ℚ_[p]) 1
-
-instance compactSpace_subring : CompactSpace (subring p) :=
-  isCompact_iff_compactSpace.mp isCompact_subring
+@[simp] lemma volume_coe_univ :
+    volume ((↑) '' (Set.univ : Set ℤ_[p]) : Set ℚ_[p]) = volume (Set.univ : Set ℤ_[p]) := by
+  simp [← Padic.volume_closedBall_one (p := p), Subtype.coe_image_univ _]
+  rfl
 
 -- https://github.com/ImperialCollegeLondon/FLT/issues/278
 @[simp] lemma volume_coe (s : Set ℤ_[p]) : volume ((↑) '' s : Set ℚ_[p]) = volume s := by
-  rw [← (coe_coeRingHom (p := p)), ← isMeasurableEmbedding_coeRingHom.comap_apply]
-  have := IsAddLeftInvariant.comap volume (f := Coe.ringHom.toAddMonoidHom)
-    (by apply isMeasurableEmbedding_coeRingHom (p := p))
-  have := IsFiniteMeasureOnCompacts.comap' volume
-    (by simpa using continuous_iff_le_induced.mpr fun U a ↦ a)
+  have h := volume_coe_univ (p := p)
+  rw [← (coe_coeRingHom (p := p)), ← isMeasurableEmbedding_coeRingHom.comap_apply] at h ⊢
+  have := IsAddLeftInvariant.comap volume
+    (f := Coe.ringHom.toAddMonoidHom)
     (isMeasurableEmbedding_coeRingHom (p := p))
-  rw [isAddLeftInvariant_eq_smul (comap Coe.ringHom volume) (volume : Measure ℤ_[p])]
+  have := IsFiniteMeasureOnCompacts.comap' volume
+    (continuous_iff_le_induced.mpr fun _ h ↦ h)
+    (isMeasurableEmbedding_coeRingHom (p := p))
+  rw [isAddLeftInvariant_eq_smul (comap Coe.ringHom volume) (volume : Measure ℤ_[p])] at h ⊢
+  simp only [smul_apply, volume_univ, ENNReal.smul_def] at h
   suffices (comap (Coe.ringHom (p := p)) volume).addHaarScalarFactor volume = 1 by
     simp [-coe_coeRingHom, this]
-  
-  -- #check AddMonoidHom.measurePreserving
-  /- let fcoe : ℤ_[p] →ₜ+ (subring p)  := {
-    toFun x := ⟨Coe.ringHom x, by simp⟩
-    map_zero' := by simp
-    map_add' _ _ := by norm_cast
-    continuous_toFun := by simpa using continuous_id
-  }
-  #check AddMonoidHom.measurePreserving
-  (μ := volume.restrict _) (ν := volume) fcoe.continuous_toFun -/
-  sorry
+  simpa [-coe_coeRingHom] using h
 
 end PadicInt
