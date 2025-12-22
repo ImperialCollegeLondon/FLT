@@ -6,7 +6,7 @@ Authors: Kevin Buzzard, Jonas Bayer, Mario Carneiro
 import Mathlib.Algebra.Lie.BaseChange
 import Mathlib.Algebra.Lie.UniversalEnveloping
 import Mathlib.Analysis.Complex.Basic
-import Mathlib.Analysis.Matrix
+import Mathlib.Analysis.Matrix.Normed
 import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
 import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
 import Mathlib.LinearAlgebra.UnitaryGroup
@@ -124,7 +124,7 @@ def LieModuleHom.baseChange
     [LieRing L] [LieAlgebra R L]
     [AddCommGroup M] [Module R M] [LieRingModule L M] [LieModule R L M]
     [AddCommGroup N] [Module R N] [LieRingModule L N] [LieModule R L N]
-    (f : M →ₗ⁅R, L⁆ N) : A ⊗[R] M →ₗ⁅A, A ⊗[R] L⁆ A ⊗[R] N where
+    (f : M →ₗ⁅R,L⁆ N) : A ⊗[R] M →ₗ⁅A, A ⊗[R] L⁆ A ⊗[R] N where
       __ := (LinearMap.baseChange A f : A ⊗[R] M →ₗ[A] A ⊗[R] N)
       map_lie' := by
         simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
@@ -227,7 +227,7 @@ noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
     FDRep ℂ (orthogonalGroup (Fin n) ℝ) where
   V := FGModuleCat.of ℂ (Fin w.d → ℂ)
   ρ := {
-    toFun := fun A ↦ ModuleCat.ofHom {
+    toFun := fun A ↦ FGModuleCat.ofHom {
       toFun := fun x ↦ (w.rho A).1 *ᵥ x
       map_add' := fun _ _ ↦ Matrix.mulVec_add ..
       map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul .. }
@@ -258,7 +258,6 @@ def annihilator {R} [CommSemiring R]
     (a : M) : Submodule R (M →ₗ[R] N) :=
   Submodule.compatibleMaps (Submodule.span R {a}) ⊥
 
-set_option synthInstance.maxHeartbeats 40000 in
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ

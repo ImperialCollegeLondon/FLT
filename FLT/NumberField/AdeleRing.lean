@@ -1,34 +1,19 @@
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
-import FLT.NumberField.InfiniteAdeleRing
-import FLT.Mathlib.Algebra.Algebra.Tower
-import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.NumberTheory.NumberField.Basic
-import FLT.Mathlib.RingTheory.TensorProduct.Pi
-import FLT.Mathlib.Algebra.Algebra.Bilinear
-import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
-import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib.LinearAlgebra.TensorProduct.Prod
+import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+import FLT.NumberField.InfiniteAdeleRing
+import FLT.NumberField.Padics.RestrictedProduct
+import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+import FLT.Mathlib.Data.Real.Archimedean
 
 open scoped TensorProduct
 
 universe u
 
 open NumberField
-
-section LocallyCompact
-
--- see https://github.com/smmercuri/adele-ring_locally-compact
--- for a proof of this
-
-variable (K : Type*) [Field K] [NumberField K]
-
-instance NumberField.AdeleRing.locallyCompactSpace : LocallyCompactSpace (AdeleRing (𝓞 K) K) :=
-  sorry -- issue #253
-
-end LocallyCompact
 
 section BaseChange
 
@@ -38,8 +23,10 @@ open IsDedekindDomain
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
-scoped notation:100 "𝔸" K => AdeleRing (𝓞 K) K
+/-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
+scoped notation:101 "𝔸" K => AdeleRing (𝓞 K) K
 
+-- I am not mad keen on this instance. But we don't have continuous semialgebra maps I don't think.
 noncomputable instance : Algebra K (𝔸 L) :=
   inferInstanceAs (Algebra K (InfiniteAdeleRing L × FiniteAdeleRing (𝓞 L) L))
 
@@ -69,32 +56,40 @@ noncomputable def baseChangeSemialgHom :
 
 open scoped TensorProduct
 
-noncomputable instance : Algebra (𝔸 K) (L ⊗[K] 𝔸 K) :=
-  Algebra.TensorProduct.rightAlgebra
-
+-- Note that this creates a diamond if K = L; however `Algebra.id` has a higher-than-default
+-- priority so hopefully most of the time it won't cause problems.
 noncomputable instance : Algebra (𝔸 K) (𝔸 L) :=
   (baseChangeSemialgHom K L).toAlgebra
-
-noncomputable instance : TopologicalSpace (L ⊗[K] 𝔸 K) :=
-  moduleTopology (𝔸 K) (L ⊗[K] 𝔸 K)
-
-instance : IsModuleTopology (𝔸 K) (L ⊗[K] 𝔸 K) := ⟨rfl⟩
 
 instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank K L) → 𝔸 K) :=
   IsModuleTopology.instPi
 
 instance instBaseChangeIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) := by
-  have := BaseChange.isModuleTopology (𝓞 K) K L (𝓞 L)
   exact IsModuleTopology.instProd' (A := InfiniteAdeleRing K)
     (B := FiniteAdeleRing (𝓞 K) K) (M := InfiniteAdeleRing L) (N := FiniteAdeleRing (𝓞 L) L)
 
+open scoped TensorProduct.RightActions in
 /-- The canonical `𝔸 K`-algebra homomorphism `(L ⊗_K 𝔸 K) → 𝔸 L` induced
 by the maps from `L` and `𝔸 K` into `𝔸 L`. -/
-noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] 𝔸 K) →ₐ[𝔸 K] 𝔸 L :=
+noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] (𝔸 K)) →ₐ[𝔸 K] 𝔸 L :=
   (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap
 
+/-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
+noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
+  let tensor :=
+    Algebra.TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
+  let prod := AlgEquiv.prodCongr
+    (NumberField.InfiniteAdeleRing.baseChangeEquivAux K L)
+    (FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L))
+  tensor.trans prod
+
+@[simp] lemma baseChangeAdeleAlgEquiv_apply (l : L) (a : 𝔸 K) :
+    baseChangeAdeleAlgEquiv K L (l ⊗ₜ a) = algebraMap _ _ l * algebraMap _ _ a := by
+  rfl
+
+open scoped TensorProduct.RightActions in
 lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHom K L) := by
-  -- There's a linear equivlance `(L ⊗_K 𝔸 K) ≅ 𝔸 L`
+  -- There's a linear equivalence `(L ⊗_K 𝔸 K) ≅ 𝔸 L`
   let linearEquiv : (L ⊗[K] 𝔸 K) ≃ₗ[L] 𝔸 L :=
     let tensor := TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
     let prod := LinearEquiv.prodCongr (InfiniteAdeleRing.baseChangeEquiv K L).toLinearEquiv
@@ -102,24 +97,69 @@ lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHo
     tensor.trans prod
   -- and it's given by an equal function to the algebra homomorphism we've defined.
   have eqEquiv : ⇑(baseChangeAdeleAlgHom K L) = ⇑(linearEquiv) := by
-    show ⇑((baseChangeAdeleAlgHom K L).toLinearMap.restrictScalars K) =
+    change ⇑((baseChangeAdeleAlgHom K L).toLinearMap.restrictScalars K) =
       ⇑(linearEquiv.toLinearMap.restrictScalars K)
     exact congr_arg DFunLike.coe (TensorProduct.ext' fun x y ↦ rfl)
   rw [eqEquiv]
   exact linearEquiv.bijective
 
-/-- The canonical `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
-base change map `𝔸_K → 𝔸_L`. -/
-noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :=
-  IsModuleTopology.continuousAlgEquivOfAlgEquiv <|
+open scoped TensorProduct.RightActions in
+/-- The canonical `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
+induced by the base change map `𝔸_K → 𝔸_L`. -/
+noncomputable def baseChangeAlgAdeleEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[𝔸 K] 𝔸 L :=
     AlgEquiv.ofBijective (baseChangeAdeleAlgHom K L) (baseChangeAdeleAlgHom_bijective K L)
 
+open scoped TensorProduct.RightActions in
+/-- The canonical continuous `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
+induced by the base change map `𝔸_K → 𝔸_L`. -/
+noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :=
+  IsModuleTopology.continuousAlgEquivOfAlgEquiv <| baseChangeAlgAdeleEquiv K L
+
+open scoped TensorProduct.RightActions in
+instance : Module.Finite (𝔸 K) (𝔸 L) :=
+  Module.Finite.equiv (baseChangeAlgAdeleEquiv K L).toLinearEquiv
+
+open scoped TensorProduct.RightActions in
 /-- The canonical `L`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
 `K`-algebra base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeEquiv :
     (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L where
   __ := (baseChangeSemialgHom K L).baseChange_of_algebraMap
   __ := baseChangeAdeleEquiv K L
+
+-- this isn't rfl. Explanation below
+example (x : L ⊗[K] 𝔸 K) : baseChangeEquiv K L x = baseChangeAdeleAlgEquiv K L x := by
+  induction x with
+  | zero => rfl
+  | tmul x y => rfl
+  | add x y _ _ => simp_all
+
+/-
+
+We have two isomorphisms `(L ⊗[K] 𝔸 K) = 𝔸 L`.
+
+1)
+`baseChangeEquiv` is
+  `(baseChangeSemialgHom K L).baseChange_of_algebraMap` *and
+  `baseChangeAdeleEquiv`. The latter is `baseChangeAdeleAlgHom` which is
+  `(baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap`
+
+Note:
+```
+example (x : L ⊗[K] 𝔸 K) :
+    (baseChangeSemialgHom K L).baseChange_of_algebraMap x =
+    (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap x := by
+  rfl
+```
+
+This map is defined as "there is a commutative square `K → L → 𝔸 L` and `K → 𝔸 K → 𝔸 L`
+so there's an induced map `L ⊗[K] 𝔸 K → 𝔸 L`; this is a bijection"
+
+But `baseChangeAdeleAlgEquiv` is `tensor.trans prod` i.e.
+
+`(L ⊗[K] 𝔸 K) = L ⊗[K] (𝔸^∞ x A_∞) ≅ (L ⊗[K] 𝔸^∞) x (L ⊗[K] 𝔸_∞) ≅ 𝔸_L^∞ x 𝔸_L_∞
+
+-/
 
 variable {L}
 
@@ -131,19 +171,23 @@ theorem baseChangeEquiv_tsum_apply_right (l : L) :
 
 variable (L)
 
+open scoped TensorProduct.RightActions in
 open TensorProduct.AlgebraTensorModule in
+/-- A continuous `K`-linear isomorphism `L ⊗[K] 𝔸_K = (𝔸_K)ⁿ` for `n = [L:K]` -/
 noncomputable abbrev tensorProductEquivPi :
     L ⊗[K] (𝔸 K) ≃L[K] (Fin (Module.finrank K L) → 𝔸 K) :=
   letI := instPiIsModuleTopology K L
   -- `𝔸 K ⊗[K] L ≃ₗ[𝔸 K] L ⊗[K] 𝔸 K`
   -- Note: needs to be this order to avoid instance clash with inferred leftAlgebra
-  let comm := (Algebra.TensorProduct.comm K (𝔸 K) L).extendScalars (𝔸 K) |>.toLinearEquiv
+  let comm := (TensorProduct.RightActions.Algebra.TensorProduct.comm K (𝔸 K) L) |>.toLinearEquiv
   -- `𝔸 K ⊗[K] L ≃ₗ[𝔸 K] ⊕ 𝔸 K`
   let π := finiteEquivPi K L (𝔸 K)
   -- Stitch together to get `L ⊗[K] 𝔸 K ≃ₗ[𝔸 K] ⊕ 𝔸 K`, which is automatically
   -- continuous due to `𝔸 K` module topologies on both sides, then restrict scalars to `K`
   IsModuleTopology.continuousLinearEquiv (comm.symm.trans π) |>.restrictScalars K
 
+open scoped TensorProduct.RightActions in
+/-- A continuous `K`-linear isomorphism `(𝔸_K)ⁿ ≃ 𝔸_L` for `n = [L:K]` -/
 noncomputable abbrev piEquiv :
     (Fin (Module.finrank K L) → 𝔸 K) ≃L[K] 𝔸 L :=
   -- `⊕ 𝔸 K ≃L[K] L ⊗[K] 𝔸 K` from previous def
@@ -151,6 +195,83 @@ noncomputable abbrev piEquiv :
   -- `L ⊗[K] 𝔸 K ≃L[K] 𝔸 L` base change  restricted to `K` as a continuous linear equiv
   let BC := baseChangeEquiv K L |>.toContinuousLinearEquiv |>.restrictScalars K
   π.trans BC
+
+section vector_space
+
+variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
+
+/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeAddEquiv :
+    V ⊗[K] (𝔸 K) ≃ₗ[L] (V ⊗[L] (𝔸 L)) :=
+  TensorProduct.AlgebraTensorModule.congr ((TensorProduct.rid L V).symm) (.refl _ _) ≪≫ₗ
+  TensorProduct.AlgebraTensorModule.assoc K L L V L (𝔸 K) ≪≫ₗ
+  (LinearEquiv.lTensor V
+    ((NumberField.AdeleRing.baseChangeAdeleAlgEquiv K L).toLinearEquiv.symm)).symm
+
+@[simp] lemma ModuleBaseChangeAddEquiv_apply
+    (v : V) (a : 𝔸 K) : ModuleBaseChangeAddEquiv K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
+  simp [ModuleBaseChangeAddEquiv]
+
+open scoped TensorProduct.RightActions in
+/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeAddEquiv' [Module (𝔸 K) (V ⊗[L] 𝔸 L)]
+    [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)] :
+    V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L)) where
+  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
+  map_smul' a vb := by
+    induction vb with
+    | zero => simp
+    | tmul x y =>
+        simp [TensorProduct.smul_tmul', -algebraMap_smul,
+          algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
+    | add x y _ _ => simp_all
+
+open scoped TensorProduct.RightActions in
+/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeContinuousSemilinearMap :
+    V ⊗[K] (𝔸 K) →ₛₗ[algebraMap (𝔸 K) (𝔸 L)] V ⊗[L] 𝔸 L where
+  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddMonoidHom
+  map_smul' a bc := by
+    induction bc with
+    | zero => simp
+    | tmul x y => simp [TensorProduct.smul_tmul', Algebra.smul_def]
+    | add x y _ _ => simp_all
+
+lemma ModuleBaseChangeContinuousSemilinearMap_apply
+    (v : V) (a : 𝔸 K) :
+    ModuleBaseChangeContinuousSemilinearMap K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
+  simp [ModuleBaseChangeContinuousSemilinearMap]
+
+open scoped TensorProduct.RightActions in
+/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
+for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeContinuousAddEquiv
+    (V : Type*) [AddCommGroup V] [Module L V] [Module K V]
+    [IsScalarTower K L V] [FiniteDimensional L V] [FiniteDimensional K V] :
+    V ⊗[K] (𝔸 K) ≃ₜ+ (V ⊗[L] (𝔸 L)) := by
+  -- The trick is to make `(V ⊗[L] (𝔸 L))` into an 𝔸 K-module
+  let : Module (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+    Module.compHom _ (algebraMap (𝔸 K) (𝔸 L))
+  -- and ultimately prove that both sides have the 𝔸 K-module topology
+  -- so the result will follow from the fact that linear maps are
+  -- automatically continuous for the module topology.
+  have : IsScalarTower (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+    .of_algebraMap_smul fun r ↦ congrFun rfl
+  have : ContinuousSMul (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+    IsScalarTower.continuousSMul (AdeleRing (𝓞 L) L)
+  have ⟨h2⟩ : IsModuleTopology (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+    inferInstance
+  have : IsModuleTopology (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) := {
+    eq_moduleTopology' := by rwa [moduleTopology.trans (𝔸 K) (𝔸 L) (V ⊗[L] (𝔸 L))] }
+  exact {
+  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
+  continuous_toFun := IsModuleTopology.continuous_of_linearMap
+      (ModuleBaseChangeAddEquiv' K L V : V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L))).toLinearMap
+  continuous_invFun := IsModuleTopology.continuous_of_linearMap
+      (ModuleBaseChangeAddEquiv' K L V : V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L))).symm.toLinearMap
+  }
+
+end vector_space
 
 variable {K L}
 
@@ -161,12 +282,10 @@ theorem piEquiv_apply_of_algebraMap
     (h : ∀ i, algebraMap K (𝔸 K) (y i) = x i) :
     piEquiv K L x = algebraMap L _ (Module.Finite.equivPi _ _ |>.symm y) := by
   simp only [← funext h, ContinuousLinearEquiv.trans_apply,
-    ContinuousLinearEquiv.restrictScalars_symm_apply, AlgEquiv.toAlgHom_eq_coe,
-    AlgHom.toRingHom_eq_coe, AlgEquiv.toLinearEquiv_symm,
+    ContinuousLinearEquiv.restrictScalars_symm_apply,
     ContinuousLinearEquiv.restrictScalars_apply, IsModuleTopology.continuousLinearEquiv_symm_apply]
   rw [LinearEquiv.trans_symm, LinearEquiv.trans_apply, finiteEquivPi_symm_apply]
-  simp [AlgEquiv.extendScalars, ContinuousAlgEquiv.toContinuousLinearEquiv_apply,
-    baseChangeEquiv_tsum_apply_right]
+  simp [ContinuousAlgEquiv.toContinuousLinearEquiv_apply, baseChangeEquiv_tsum_apply_right]
 
 theorem piEquiv_mem_principalSubgroup
     {x : Fin (Module.finrank K L) → 𝔸 K}
@@ -197,13 +316,14 @@ theorem comap_piEquiv_principalSubgroup :
   rw [← piEquiv_map_principalSubgroup K L,
     AddSubgroup.comap_map_eq_self_of_injective (piEquiv K L).injective]
 
+/-- A continuous additive isomorphism `(𝔸_K / K)ⁿ = 𝔸_L / L` where `n = [L:K]`. -/
 noncomputable def piQuotientEquiv :
     (Fin (Module.finrank K L) → (𝔸 K) ⧸ principalSubgroup (𝓞 K) K) ≃ₜ+
       (𝔸 L) ⧸ principalSubgroup (𝓞 L) L :=
   -- The map `⊕ 𝔸 K ≃L[K] 𝔸 L` reduces to quotients `⊕ 𝔸 K / K ≃ₜ+ 𝔸 L / L`
   (ContinuousAddEquiv.quotientPi _).symm.trans <|
     QuotientAddGroup.continuousAddEquiv _ _ (piEquiv K L).toContinuousAddEquiv
-      (comap_piEquiv_principalSubgroup K L)
+      (piEquiv_map_principalSubgroup K L)
 
 end NumberField.AdeleRing
 
@@ -213,6 +333,33 @@ section Discrete
 
 open IsDedekindDomain
 
+theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
+    (h2 : ∀ v, ((algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ)) x) v ∈
+      IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v)
+    (h1 : ∀ (v : InfinitePlace ℚ), ‖algebraMap ℚ (InfiniteAdeleRing ℚ) x v‖ < 1) : x = 0 := by
+  simp only [InfiniteAdeleRing.algebraMap_apply, UniformSpace.Completion.norm_coe] at h1
+  specialize h1 Rat.infinitePlace
+  change ‖(x : ℂ)‖ < 1 at h1
+  simp only [Complex.norm_ratCast] at h1
+  have intx: ∃ (y:ℤ), y = x := by
+    obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
+        ℚ x <| fun v ↦ by
+      specialize h2 v
+      letI : UniformSpace ℚ := v.adicValued.toUniformSpace
+      rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
+      rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
+    use Rat.ringOfIntegersEquiv z
+    rw [← hz]
+    apply Rat.ringOfIntegersEquiv_apply_coe
+  obtain ⟨y, rfl⟩ := intx
+  simp only [abs_lt] at h1
+  norm_cast at h1 ⊢
+  -- We need the next line because `norm_cast` is for some reason producing a `negSucc 0`.
+  -- I haven't been able to isolate this behaviour even in a standalone lemma.
+  -- We could also make `omega` more robust against accidental appearances of `negSucc`.
+  rw [Int.negSucc_eq] at h1
+  omega
+
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
     IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
   let integralAdeles := {f : FiniteAdeleRing (𝓞 ℚ) ℚ |
@@ -220,11 +367,11 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
   use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ integralAdeles
   refine ⟨?_, ?_⟩
   · apply IsOpen.prod
-    . rw [Set.setOf_forall]
+    · rw [Set.setOf_forall]
       apply isOpen_iInter_of_finite
       intro v
       exact Metric.isOpen_ball.preimage (continuous_apply v)
-    . exact RestrictedProduct.isOpen_forall_mem fun v ↦ Valued.isOpen_integer _
+    · exact RestrictedProduct.isOpen_forall_mem fun v ↦ Valued.isOpen_integer _
   · apply subset_antisymm
     · intro x hx
       rw [Set.mem_preimage] at hx
@@ -235,36 +382,14 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       rw [Set.mem_prod] at hx
       obtain ⟨h1, h2⟩ := hx
       dsimp only at h1 h2
-      simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq,
-        InfiniteAdeleRing.algebraMap_apply, UniformSpace.Completion.norm_coe] at h1
-      simp only [integralAdeles, Set.mem_setOf_eq] at h2
-      specialize h1 Rat.infinitePlace
-      change ‖(x : ℂ)‖ < 1 at h1
-      simp only [Complex.norm_ratCast, integralAdeles] at h1
-      have intx: ∃ (y:ℤ), y = x := by
-        obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
-            ℚ x <| fun v ↦ by
-          specialize h2 v
-          letI : UniformSpace ℚ := v.adicValued.toUniformSpace
-          rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
-          rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
-        use Rat.ringOfIntegersEquiv z
-        rw [← hz]
-        apply Rat.ringOfIntegersEquiv_eq_algebraMap
-      obtain ⟨y, rfl⟩ := intx
-      simp only [abs_lt] at h1
-      norm_cast at h1 ⊢
-      -- We need the next line because `norm_cast` is for some reason producing a `negSucc 0`.
-      -- I haven't been able to isolate this behaviour even in a standalone lemma.
-      -- We could also make `omega` more robust against accidental appearances of `negSucc`.
-      rw [Int.negSucc_eq] at h1
-      omega
+      simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq] at h1
+      exact Rat.AdeleRing.integral_and_norm_lt_one x h2 h1
     · intro x
       simp only [Set.mem_singleton_iff, Set.mem_preimage]
       rintro rfl
       simp only [map_zero]
       change (0, 0) ∈ _
-      simp only [Prod.mk_zero_zero, Set.mem_prod, Prod.fst_zero, Prod.snd_zero]
+      simp only [Prod.mk_zero_zero]
       constructor
       · simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq]
         intro v
@@ -283,15 +408,15 @@ theorem NumberField.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 K) K)
   obtain ⟨V, hV, hV0⟩ := Rat.AdeleRing.zero_discrete
   use (piEquiv ℚ K) '' {f | ∀i, f i ∈ V }
   constructor
-  . rw [← (piEquiv ℚ K).coe_toHomeomorph, Homeomorph.isOpen_image, Set.setOf_forall]
+  · rw [← (piEquiv ℚ K).coe_toHomeomorph, Homeomorph.isOpen_image, Set.setOf_forall]
     apply isOpen_iInter_of_finite
     intro i
     exact hV.preimage (continuous_apply i)
   rw [Set.eq_singleton_iff_unique_mem]
   constructor
-  . rw [Set.eq_singleton_iff_unique_mem, Set.mem_preimage, map_zero] at hV0
+  · rw [Set.eq_singleton_iff_unique_mem, Set.mem_preimage, map_zero] at hV0
     simp only [Set.mem_preimage, map_zero, Set.mem_image,
-      EmbeddingLike.map_eq_zero_iff, exists_eq_right, Pi.zero_apply]
+      EmbeddingLike.map_eq_zero_iff, exists_eq_right]
     exact fun _ => hV0.left
   intro x ⟨y, hy, hyx⟩
   apply (Module.Finite.equivPi ℚ K).injective
@@ -325,11 +450,260 @@ end Discrete
 
 section Compact
 
-open NumberField
+open NumberField IsDedekindDomain RestrictedProduct PadicInt HeightOneSpectrum FiniteAdeleRing
 
+variable (K : Type*) [Field K] [NumberField K]
+
+namespace Rat.FiniteAdeleRing
+
+local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
+
+-- TODO : this declaration `Rat.FiniteAdeleRing.padicEquiv` seems to take a huge amount
+-- of time for the kernel to accept.
+/-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and the restricted
+product `Πʳ (p : Nat.Primes), [ℚ_[p], subring p]` of `Padic`s lifting the equivalence
+`v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator]` at each place. -/
+noncomputable
+def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes), [ℚ_[p], subring p] where
+  __ := RingEquiv.restrictedProductCongr
+      Rat.HeightOneSpectrum.primesEquiv
+      (Function.Injective.comap_cofinite_eq Rat.HeightOneSpectrum.primesEquiv.injective).symm
+      (fun v ↦ (Rat.HeightOneSpectrum.adicCompletion.padicEquiv v).toRingEquiv)
+      (Filter.Eventually.of_forall Rat.HeightOneSpectrum.adicCompletion.padicEquiv_bijOn)
+  commutes' q := by
+    ext p
+    obtain ⟨v, rfl⟩ := Rat.HeightOneSpectrum.primesEquiv (R := 𝓞 ℚ).surjective p
+    have : Fact (Nat.Prime (HeightOneSpectrum.natGenerator v)) :=
+      ⟨Rat.HeightOneSpectrum.prime_natGenerator v⟩
+    change _ = algebraMap ℚ ℚ_[Rat.HeightOneSpectrum.natGenerator v] q
+    -- was `simp` when `FiniteAdeleRing` was an `abbrev`.
+    -- Ask on Zulip?
+    simp [IsDedekindDomain.algebraMap_apply (𝓞 ℚ)]
+
+theorem padicEquiv_bijOn :
+    Set.BijOn padicEquiv (integralAdeles (𝓞 ℚ) ℚ)
+      (structureSubring (fun p : Nat.Primes ↦ ℚ_[p]) (fun p ↦ subring p) Filter.cofinite) := by
+  apply RingEquiv.restrictedProductCongr_bijOn_structureSubring
+    (A₂ := fun p : Nat.Primes ↦ subring p)
+    (Rat.HeightOneSpectrum.primesEquiv (R := 𝓞 ℚ))
+    (Function.Injective.comap_cofinite_eq Rat.HeightOneSpectrum.primesEquiv.injective).symm
+  intro v
+  apply (Rat.HeightOneSpectrum.adicCompletion.padicEquiv_bijOn v)
+
+open FiniteAdeleRing in
+theorem sub_mem_integralAdeles
+    (a : FiniteAdeleRing (𝓞 ℚ) ℚ) :
+    ∃ x : ℚ, a - algebraMap ℚ _ x ∈ integralAdeles (𝓞 ℚ) ℚ := by
+  obtain ⟨q, hq⟩ := RestrictedProduct.padic_exists_sub_mem_structureSubring (padicEquiv a)
+  use q
+  simpa using padicEquiv_bijOn.symm (padicEquiv.toEquiv.invOn) |>.mapsTo hq
+
+end Rat.FiniteAdeleRing
+
+open NumberField.InfinitePlace.Completion in
+theorem Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a : InfiniteAdeleRing ℚ) :
+  ∃! (x : 𝓞 ℚ), ∀ v, extensionEmbeddingOfIsReal (Rat.infinitePlace_isReal v)
+    (a v - algebraMap ℚ (InfiniteAdeleRing ℚ) x v) ∈ Set.Ico 0 1 := by
+  let v₀ : InfinitePlace ℚ := Rat.infinitePlace
+  let σ : v₀.Completion →+* ℝ := extensionEmbeddingOfIsReal Rat.isReal_infinitePlace
+  let x : ℤ := ⌊σ (a v₀)⌋
+  use ringOfIntegersEquiv.symm x
+  refine ⟨?_, ?_⟩
+  · intro v
+    rw [Subsingleton.elim v v₀, InfiniteAdeleRing.algebraMap_apply,
+      ringOfIntegersEquiv_symm_coe, map_sub, extensionEmbeddingOfIsReal_coe,
+    map_intCast, Int.self_sub_floor]
+    exact ⟨Int.fract_nonneg _, Int.fract_lt_one _⟩
+  · intro y hy
+    set x' := ringOfIntegersEquiv y with hx'
+    rw [RingEquiv.eq_symm_apply, ← hx']
+    let hy2 := (RingEquiv.eq_symm_apply _).2 hx'.symm
+    specialize hy v₀
+    rw [InfiniteAdeleRing.algebraMap_apply, hy2, ringOfIntegersEquiv_symm_coe,
+      map_sub, extensionEmbeddingOfIsReal_coe, map_intCast] at hy
+    exact Int.eq_floor hy.1 hy.2
+
+open NumberField.InfinitePlace.Completion in
+theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ) :
+    ∃ (x : 𝓞 ℚ), ∀ v, ‖a v - algebraMap ℚ (InfiniteAdeleRing ℚ) x v‖ ≤ 1 := by
+  obtain ⟨x, hx1, -⟩ := Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico a
+  use x
+  peel hx1 with v hv
+  rw [Subsingleton.elim v Rat.infinitePlace] at *
+  rw [← (isometry_extensionEmbeddingOfIsReal isReal_infinitePlace).norm_map_of_map_zero
+      (map_zero _), Real.norm_eq_abs]
+  grind
+
+instance (v : InfinitePlace K) : ProperSpace v.Completion :=
+  ProperSpace.of_locallyCompactSpace v.Completion
+
+open Metric IsDedekindDomain.FiniteAdeleRing AdeleRing in
 theorem Rat.AdeleRing.cocompact :
-    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) :=
-  sorry -- issue #258
+    CompactSpace (AdeleRing (𝓞 ℚ) ℚ ⧸ AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) where
+  isCompact_univ := by
+    let W : Set (AdeleRing (𝓞 ℚ) ℚ) :=
+      (Set.univ.pi fun _ => closedBall 0 1).prod (integralAdeles (𝓞 ℚ) ℚ)
+    have h_W_compact : IsCompact W := by
+      refine (isCompact_univ_pi fun v => ?_).prod
+        (isCompact_iff_isCompact_univ.2 <| by simpa using CompactSpace.isCompact_univ)
+      exact isCompact_iff_isClosed_bounded.2 ⟨isClosed_closedBall, isBounded_closedBall⟩
+    have h_W_image : QuotientAddGroup.mk' (principalSubgroup (𝓞 ℚ) ℚ) '' W = Set.univ := by
+      refine Set.eq_univ_iff_forall.2 fun x => ?_
+      choose xf hf using FiniteAdeleRing.sub_mem_integralAdeles x.out.2
+      choose xi hi using InfiniteAdeleRing.exists_sub_norm_le_one (x.out.1 - algebraMap _ _ xf)
+      have h : x.out - algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) (xi + xf) ∈ W := by
+        simp only [W, Set.prod]
+        refine ⟨Set.mem_univ_pi.2 fun v => by simpa [add_comm, ← sub_sub] using hi v, ?_⟩
+        apply exists_structureMap_eq_of_forall
+        simp only [map_add, SetLike.mem_coe]
+        rw [Prod.snd_sub, Prod.snd_add, sub_add_eq_sub_sub, sub_right_comm]
+        intro v
+        refine sub_mem (mem_structureSubring_iff.1 hf v) ?_
+        simpa using coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
+      exact ⟨_, h, by simp [-algebraMap.coe_inj]⟩
+    exact h_W_image ▸ h_W_compact.image continuous_quot_mk
+
+open InfinitePlace.Completion Set RestrictedProduct in
+/-- The fundamental domain `ℤ^ x [0,1)` for `𝔸_ℚ ⧸ ℚ`. -/
+def Rat.AdeleRing.fundamentalDomain : Set (AdeleRing (𝓞 ℚ) ℚ) :=
+  (univ.pi fun v => (extensionEmbeddingOfIsReal (infinitePlace_isReal v)).toFun ⁻¹' (Ico 0 1)).prod
+    (range <| structureMap _ _ _)
+
+/-- The canonical ring homomorphism from the finite adele ring to
+a nonarchimedean local factor. -/
+def FiniteAdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K]
+    (v : HeightOneSpectrum (𝓞 K)) :
+    FiniteAdeleRing (𝓞 K) K →+* v.adicCompletion K where
+  toFun x := x v
+  map_one' := rfl
+  map_mul' _ _ := rfl
+  map_zero' := rfl
+  map_add' _ _ := rfl
+
+-- bleurgh
+lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
+    ∃ g, algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) g + a ∈ fundamentalDomain := by
+  obtain ⟨q, f, hf⟩ := FiniteAdeleRing.sub_mem_integralAdeles a.2
+  obtain ⟨r, hr, -⟩ := Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a.1 - algebraMap _ _ q)
+  use (-q - r)
+  refine Set.mem_prod.2 ⟨?_, ?_⟩
+  · simp_rw [Set.mem_pi, Set.mem_preimage]
+    intro v _
+    have foo : (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) (-q - r)).1 v + a.1 v =
+        a.1 v - (algebraMap ℚ (InfiniteAdeleRing ℚ)) q v -
+        (algebraMap ℚ (InfiniteAdeleRing ℚ)) (r) v := by
+      rw [add_comm, sub_eq_add_neg (a.1 v), add_sub_assoc]
+      push_cast
+      rfl
+    convert hr v
+  · rw [Set.mem_range]
+    use fun p ↦ ⟨a.2 p + algebraMap ℚ _ (-q - r), ?_⟩
+    · rw [add_comm]
+      ext v
+      change _ = a.2 _ + _
+      push_cast
+      simp only [structureMap, FiniteAdeleRing.mk_apply, add_right_inj]
+      rfl
+    · rw [map_sub, ← add_sub_assoc]
+      refine sub_mem ?_ (coe_algebraMap_mem (𝓞 ℚ) ℚ p r)
+      convert (f p).2
+      rw [RestrictedProduct.ext_iff] at hf
+      convert (hf p).symm
+      rw [map_neg, ← sub_eq_add_neg, Eq.comm]
+      convert (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
+
+  -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
+  -- be a corollary: fundamentalDomain - fundamentalDomain ⊆ the U used in the proof
+  -- This lemma is in fact a "concrete version" of that one
+lemma Rat.AdeleRing.fundamentalDomain_traversal {a b : AdeleRing (𝓞 ℚ) ℚ}
+    (ha : a ∈ fundamentalDomain) (hb : b ∈ fundamentalDomain) {q : ℚ}
+    (hq : algebraMap _ _ q + a = b) : q = 0 := by
+  apply Rat.AdeleRing.integral_and_norm_lt_one
+  · intro v
+    apply_fun RingHom.snd (InfiniteAdeleRing ℚ) _ at hq
+    rw [map_add, ← eq_sub_iff_add_eq] at hq
+    unfold AdeleRing at hq
+    rw [RingHom.map_rat_algebraMap (RingHom.snd (InfiniteAdeleRing ℚ) (FiniteAdeleRing (𝓞 ℚ) ℚ)) q]
+      at hq
+    rw [hq]
+    apply sub_mem
+    · obtain ⟨x, hx⟩ := (Set.mem_prod.1 hb).2
+      change b.2 v ∈ _
+      rw [← hx]
+      exact (x v).2
+    · obtain ⟨x, hx⟩ := (Set.mem_prod.1 ha).2
+      change a.2 v ∈ _
+      rw [← hx]
+      exact (x v).2
+  · intro v
+    apply_fun RingHom.fst (InfiniteAdeleRing ℚ) _ at hq
+    rw [map_add, ← eq_sub_iff_add_eq] at hq
+    unfold AdeleRing at hq
+    rw [RingHom.map_rat_algebraMap (RingHom.fst (InfiniteAdeleRing ℚ) (FiniteAdeleRing (𝓞 ℚ) ℚ)) q]
+      at hq
+    rw [hq]
+    replace ha := (Set.mem_prod.1 ha).1
+    replace hb := (Set.mem_prod.1 hb).1
+    simp_rw [Set.mem_pi, Set.mem_preimage] at ha hb
+    specialize ha v (Set.mem_univ _)
+    specialize hb v (Set.mem_univ _)
+    change ‖b.1 v - a.1 v‖ < 1
+    change InfinitePlace.Completion.extensionEmbeddingOfIsReal _ (a.1 v) ∈ _ at ha
+    change InfinitePlace.Completion.extensionEmbeddingOfIsReal _ (b.1 v) ∈ _ at hb
+    suffices ‖InfinitePlace.Completion.extensionEmbeddingOfIsReal (infinitePlace_isReal v)
+        (b.1 v - a.1 v)‖ < 1 by
+      convert this
+      simpa only [map_zero, edist_zero_right, enorm_eq_iff_norm_eq] using
+        (InfinitePlace.Completion.isometry_extensionEmbeddingOfIsReal
+          (Rat.infinitePlace_isReal v) (b.1 v - a.1 v) 0).symm
+    rw [map_sub, Real.norm_eq_abs, abs_sub_lt_iff]
+    cases ha; cases hb; constructor <;> linarith
+
+open NumberField Metric MeasureTheory IsDedekindDomain
+
+noncomputable instance : VAdd ℚ (AdeleRing (𝓞 ℚ) ℚ) where
+  vadd q a := algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) q + a
+
+open IsDedekindDomain Rat in
+theorem Rat.AdeleRing.isAddFundamentalDomain :
+    IsAddFundamentalDomain ℚ Rat.AdeleRing.fundamentalDomain
+    ((MeasureTheory.Measure.pi (fun _ ↦ Measure.addHaar)).prod Measure.addHaar) where
+  nullMeasurableSet := by
+    apply MeasureTheory.NullMeasurableSet.prod _ _
+    · apply MeasurableSet.nullMeasurableSet
+      apply MeasurableSet.univ_pi
+      intro v
+      apply MeasurableSet.preimage (by measurability)
+      exact Homeomorph.measurable
+        (InfinitePlace.Completion.isometryEquivRealOfIsReal _).toHomeomorph
+    · refine IsOpen.nullMeasurableSet ?_
+      convert isOpen_forall_mem ?_
+      · ext x
+        -- a tactic should do this dumb calculation
+        refine ⟨?_, ?_⟩
+        · rintro ⟨f, rfl⟩ v
+          simp [structureMap]
+        · intro h
+          use fun v ↦ ⟨x v, h v⟩
+          rfl
+      · exact isOpenAdicCompletionIntegers ℚ
+  ae_covers := by
+    filter_upwards
+    apply Rat.AdeleRing.mem_fundamentalDomain
+  aedisjoint := by
+    intro q r hqr
+    apply Disjoint.aedisjoint
+    rw [Set.disjoint_iff_inter_eq_empty]
+    ext _
+    simp only [Set.mem_inter_iff, Set.mem_empty_iff_false, iff_false, not_and]
+    intro ⟨y, hy, (hx : q +ᵥ y = _)⟩ ⟨z, hz, h⟩
+    subst hx
+    change algebraMap _ _ r + z = algebraMap _ _ q + y at h
+    apply hqr
+    rw [← sub_eq_zero]
+    apply Rat.AdeleRing.fundamentalDomain_traversal hy hz
+    rw [map_sub]
+    linear_combination -h
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 

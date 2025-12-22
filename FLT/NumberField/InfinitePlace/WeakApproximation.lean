@@ -3,11 +3,11 @@ Copyright (c) 2024 Salvatore Mercuri. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
-import Mathlib.NumberTheory.NumberField.AdeleRing
-import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Topology.Algebra.Order.Field
+import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 
 /-!
 # Weak approximation
@@ -29,7 +29,7 @@ This can be equivalently stated by asserting that the appropriate `algebraMap` h
   some infinite place `v` of `K`).
 -/
 
-open scoped Topology Classical
+open scoped Topology
 
 open NumberField
 
@@ -38,34 +38,6 @@ noncomputable section
 namespace AbsoluteValue
 
 variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ}
-
-open Filter in
-/--
-`v (1 / (1 + a ^ n)) → 1` if `v a < 1`.
--/
-theorem tendsto_div_one_add_pow_nhds_one {a : K} (ha : v a < 1) :
-    Filter.Tendsto (fun (n : ℕ) => v (1 / (1 + a ^ n))) Filter.atTop (𝓝 1) := by
-  simp_rw [v.isAbsoluteValue.abv_div, v.map_one]
-  nth_rw 2 [show (1 : ℝ) = 1 / 1 by norm_num]
-  apply Tendsto.div tendsto_const_nhds _ one_ne_zero
-  have h_add := Tendsto.const_add 1 <| tendsto_pow_atTop_nhds_zero_of_lt_one (v.nonneg _) ha
-  have h_sub := Tendsto.const_sub 1 <| tendsto_pow_atTop_nhds_zero_of_lt_one (v.nonneg _) ha
-  simp only [add_zero, sub_zero] at h_add h_sub
-  exact tendsto_of_tendsto_of_tendsto_of_le_of_le h_sub h_add (v.one_sub_pow_le _)
-    (v.one_add_pow_le _)
-
-/--
-`v (1 / (1 + a ^ n)) → 0` if `1 < v a`.
--/
-theorem tendsto_pow_div_one_add_pow_zero {a : K} (ha : 1 < v a) :
-    Filter.Tendsto (fun (n : ℕ) => v (1 / (1 + a ^ n))) Filter.atTop (𝓝 0) := by
-  simp_rw [div_eq_mul_inv, one_mul, map_inv₀, fun n => add_comm 1 (a ^ n)]
-  apply Filter.Tendsto.inv_tendsto_atTop
-  apply Filter.tendsto_atTop_mono (fun n => v.le_add _ _)
-  simp_rw [map_one, map_pow v]
-  apply Filter.tendsto_atTop_add_right_of_le _ _ _ (fun _ => le_rfl)
-  refine tendsto_atTop_of_geom_le (by simp only [pow_zero, inv_one, zero_lt_one]) ha fun n => ?_
-  rw [← map_pow, ← map_pow, ← map_mul, pow_succ']
 
 open Filter in
 /--
@@ -89,6 +61,7 @@ theorem exists_tendsto_zero_tendsto_atTop_tendsto_const
   rw [← zero_mul <| v j b]
   exact Tendsto.mul_const _ <| tendsto_pow_atTop_nhds_zero_of_lt_one ((v j).nonneg _) (haj j hj)
 
+open scoped Classical in
 /--
 Let `a, b ∈ K`, and let `v₁, ..., vₖ` be absolute values with some `1 < vᵢ a` while all other
 `vⱼ a < 1`. Suppose `1 < vᵢ b`. Let `w` be another absolute value on `K` such that `w a = 1`,
@@ -102,6 +75,7 @@ theorem exists_one_lt_lt_one_lt_one_of_eq_one
     {ι : Type*} [Fintype ι] {v : ι → AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ} {a b : K} {i : ι}
     (ha : 1 < v i a) (haj : ∀ j ≠ i, v j a < 1) (haw : w a = 1) (hb : 1 < v i b) (hbw : w b < 1) :
     ∃ k : K, 1 < v i k ∧ (∀ j ≠ i, v j k < 1) ∧ w k < 1 := by
+  classical
   let ⟨c, hc⟩ := exists_tendsto_zero_tendsto_atTop_tendsto_const ha haj haw hb hbw
   simp_rw [Metric.tendsto_nhds, Filter.tendsto_atTop_atTop, Filter.eventually_atTop,
     dist_zero_right, ← WithAbs.norm_eq_abs, norm_norm] at hc
@@ -135,8 +109,9 @@ theorem exists_tendsto_const_tendsto_zero_tendsto_const
   refine ⟨Tendsto.mul_const _ (tendsto_div_one_add_pow_nhds_one hai), fun j hj => ?_,
       Tendsto.mul_const _ (tendsto_div_one_add_pow_nhds_one haw)⟩
   replace haj := map_inv₀ (v j) _ ▸ (one_lt_inv₀ (pos_of_pos (v j) (by linarith))).2 (haj j hj)
-  exact zero_mul (v j b) ▸ Tendsto.mul_const _ (tendsto_pow_div_one_add_pow_zero haj)
+  exact zero_mul (v j b) ▸ Tendsto.mul_const _ (tendsto_div_one_add_pow_nhds_zero haj)
 
+open scoped Classical in
 /--
 Let `a, b ∈ K`, and let `v₁, ..., vₖ` be absolute values with some `1 < vᵢ a` while all other
 `vⱼ a < 1`. Suppose `1 < vᵢ b`. Let `w` be another absolute value on `K` such that `1 < w a`,
@@ -153,6 +128,7 @@ theorem exists_one_lt_lt_one_lt_one_of_one_lt
     {ι : Type*} [Fintype ι] {v : ι → AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ} {a b : K} {i : ι}
     (ha : 1 < v i a) (haj : ∀ j ≠ i, v j a < 1) (haw : 1 < w a) (hb : 1 < v i b) (hbw : w b < 1) :
     ∃ k : K, 1 < v i k ∧ (∀ j ≠ i, v j k < 1) ∧ w k < 1 := by
+  classical
   let ⟨c, hc⟩ := exists_tendsto_const_tendsto_zero_tendsto_const b ha haj haw
   have hₙ := fun j hj => Metric.tendsto_nhds.1 <| hc.2.1 j hj
   simp_rw [Filter.eventually_atTop, dist_zero_right] at hₙ
@@ -189,7 +165,7 @@ theorem exists_one_lt_lt_one {n : ℕ} {v : Fin (n + 2) → AbsoluteValue K ℝ}
     let ⟨b, hb⟩ := ih 0 (by linarith) (fun _ => h _) <| Fin.pairwise_forall_two hv
     simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.isValue, Matrix.cons_val_zero, ne_eq,
       Fin.forall_fin_two, not_true_eq_false, IsEmpty.forall_iff, one_ne_zero, not_false_eq_true,
-      Matrix.cons_val_one, Matrix.head_cons, forall_const, true_and] at hb
+      Matrix.cons_val_one, forall_const, true_and] at hb
     -- If `v last < 1` then `a` works.
     by_cases ha₀ : v (Fin.last _) a < 1
     · refine ⟨a, ha.1, fun j hj => ?_⟩
@@ -254,17 +230,6 @@ theorem eq_of_eq_rpow (h : ∃ (t : ℝ) (_ : 0 < t), ∀ x, v x = (w x) ^ t) : 
   simp only [rpow_eq_one_of_eq_rpow h, Real.rpow_one] at h
   exact Subtype.ext <| AbsoluteValue.ext h
 
-variable (v)
-
-/--
-Infinite places are represented by non-trivial absolute values.
--/
-theorem isNontrivial : v.1.IsNontrivial := by
-  refine isNontrivial_iff_exists_abv_gt_one.2 ⟨2, let ⟨φ, hφ⟩ := v.2; ?_⟩
-  simp only [coe_apply, ← hφ, place_apply, map_ofNat, RCLike.norm_ofNat, Nat.one_lt_ofNat]
-
-variable {v}
-
 open Filter in
 /--
 Let `v` be an infinite place and `c ∈ K` such that `1 < v c`. Suppose that `w c < 1` for any
@@ -324,74 +289,7 @@ theorem exists_one_lt_lt_one [NumberField K] (h : 1 < Fintype.card (InfinitePlac
   have he₀ : e₀ v = 0 := by simp [e₀, e.symm_apply_eq.1 hm]
   exact e₀.symm_apply_apply _ ▸ hx.2 (e₀ w) <| he₀ ▸ e₀.injective.ne hw
 
-variable (K)
-
-open Filter in
-/--
-*Weak approximation for infinite places*: this is the result that `K` is dense in `Π v, K`, where
-`v` ranges over all infinite places of `K` and at the `v`th place we consider `K` to have the
-topology of `v`. In other words, for any collection `(xᵥ)ᵥ`, with `xᵥ ∈ K` there is a `y ∈ K`
-such that each `|y - xᵥ|ᵥ` is arbitrarily small.
--/
-theorem denseRange_algebraMap_pi [NumberField K] :
-    DenseRange <| algebraMap K ((v : InfinitePlace K) → WithAbs v.1) := by
-  by_cases hcard : Fintype.card (InfinitePlace K) = 1
-  · -- If there is only one infinite place this is the identity map
-    letI := Fintype.equivFinOfCardEq hcard |>.unique
-    let f := Homeomorph.funUnique (InfinitePlace K) (WithAbs this.default.1)
-    convert DenseRange.comp f.symm.surjective.denseRange denseRange_id f.continuous_invFun <;>
-    exact this.uniq _
-  -- We have to show that for some `(zᵥ)ᵥ` there is a `y` in `K` that is arbitrarily close to `z`
-  -- under the embedding `y ↦ (y)ᵥ`
-  refine Metric.denseRange_iff.2 fun z r hr => ?_
-  -- For some `v`, by previous results we can select a sequence `xᵥ → 1` in `v`'s topology
-  -- and `→ 0` in any other infinite place topology
-  have (v : InfinitePlace K) : ∃ (x : ℕ → WithAbs v.1),
-      Tendsto (fun n => x n) atTop (𝓝 1) ∧ ∀ w ≠ v,
-        Tendsto (β := WithAbs w.1) (fun n => x n) atTop (𝓝 0) := by
-    haveI : 0 < Fintype.card (InfinitePlace K) := Fintype.card_pos
-    let ⟨_, hx⟩ := v.exists_one_lt_lt_one (by omega)
-    exact exists_tendsto_one_tendsto_zero hx.1 hx.2
-  choose x h using this
-  -- Define the sequence `y = ∑ v, xᵥ * zᵥ` in `K`
-  let y := fun n => ∑ v, x v n * z v
-  -- At each place `w` the limit of `y` with respect to `w`'s topology is `z w`.
-  have : Tendsto (fun n w => ((∑ v, x v n * z v) : WithAbs w.1)) atTop (𝓝 z) := by
-    refine tendsto_pi_nhds.2 fun w => ?_
-    simp_rw [← Finset.sum_ite_eq_of_mem _ _ _ (Finset.mem_univ w)]
-    -- In `w`'s topology we have that `x v n * z v → z v`  if `v = w` else `→ 0`
-    refine tendsto_finset_sum _ fun v _ => ?_
-    by_cases hw : w = v
-    · -- because `x w → 1` in `w`'s topology
-      simp only [hw, if_true, ← congrArg (β := ℕ → K) x hw, ← congrArg z hw]
-      nth_rw 2 [← one_mul (z w)]
-      exact Tendsto.mul_const _ (h w).1
-    · -- while `x v → 0` in `w`'s topology (v ≠ w)
-      simp only [hw, if_false]
-      rw [← zero_mul (z v)]
-      exact Filter.Tendsto.mul_const _ <| (h v).2 w hw
-  simp_rw [Metric.tendsto_atTop] at this
-  let ⟨N, h⟩ := this r hr
-  exact ⟨y N, dist_comm z (algebraMap K _ (y N)) ▸ h N le_rfl⟩
-
 end InfinitePlace
-
-namespace InfiniteAdeleRing
-
-variable (K : Type*) [Field K] {v w : InfinitePlace K}
-
-/--
-*Weak approximation for the infinite adele ring*: this is the result that `K` is dense in `Π v, Kᵥ`,
-where `v` ranges over all infinite places of `K`. In other words, for any collection `(xᵥ)ᵥ`,
-with `xᵥ ∈ Kᵥ` there is a `y ∈ K` such that each `|y - xᵥ|ᵥ` is arbitrarily small.
--/
-theorem denseRange_algebraMap [NumberField K] :
-    DenseRange <| algebraMap K (InfiniteAdeleRing K) := by
-  apply DenseRange.comp (DenseRange.piMap (fun _ => UniformSpace.Completion.denseRange_coe))
-    (InfinitePlace.denseRange_algebraMap_pi K)
-    <| Continuous.piMap (fun _ => UniformSpace.Completion.continuous_coe _)
-
-end InfiniteAdeleRing
 
 namespace InfinitePlace.Completion
 

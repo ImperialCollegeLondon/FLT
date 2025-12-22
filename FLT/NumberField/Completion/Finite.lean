@@ -4,8 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
 import FLT.DedekindDomain.AdicValuation
+import FLT.Mathlib.LinearAlgebra.Countable
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
-import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
+import FLT.NumberField.Padics.RestrictedProduct
+import Mathlib.NumberTheory.NumberField.FinitePlaces
+import Mathlib.NumberTheory.Padics.ProperSpace
+import Mathlib.Topology.MetricSpace.Polish
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import Mathlib.NumberTheory.Padics.HeightOneSpectrum
 
 /-!
 
@@ -13,7 +19,7 @@ import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
 
 -/
 
-variable (K : Type) [Field K] [NumberField K]
+variable (K : Type*) [Field K] [NumberField K]
 
 open NumberField
 
@@ -38,3 +44,16 @@ instance : Finite (𝓀[v.adicCompletion K]) :=
 instance NumberField.instCompactSpaceAdicCompletionIntegers :
     CompactSpace (v.adicCompletionIntegers K) :=
   Valued.WithZeroMulInt.integer_compactSpace (v.adicCompletion K) inferInstance
+
+lemma NumberField.isOpenAdicCompletionIntegers :
+    IsOpen (v.adicCompletionIntegers K : Set (v.adicCompletion K)) :=
+  Valued.isOpen_valuationSubring _
+
+instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ)) :
+    LocallyCompactSpace (v.adicCompletion ℚ) :=
+  (Rat.HeightOneSpectrum.adicCompletion.padicEquiv v).toHomeomorph.isClosedEmbedding
+  |>.locallyCompactSpace
+
+-- does this exist upstream? Should do.
+example (v : HeightOneSpectrum (𝓞 K)) : SecondCountableTopology (v.adicCompletion K) :=
+  inferInstance

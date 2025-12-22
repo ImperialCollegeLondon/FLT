@@ -17,7 +17,7 @@ infixr:25 " →ₛₐ " => SemialgHom _
 notation:25 A " →ₛₐ[" φ:25 "] " B:0 => SemialgHom φ A B
 
 variable {R S : Type*} [CommSemiring R] [CommSemiring S] (φ : R →+* S)
-    (A B : Type*)  [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
+    (A B : Type*) [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
 
 instance instFunLike : FunLike (A →ₛₐ[φ] B) A B where
   coe f := f.toFun
@@ -30,6 +30,10 @@ instance instFunLike : FunLike (A →ₛₐ[φ] B) A B where
 variable {φ} {A} {B} in
 lemma SemialgHom.map_smul (ψ : A →ₛₐ[φ] B) (m : R) (x : A) : ψ (m • x) = φ m • ψ x :=
   LinearMap.map_smul' ψ.toLinearMap m x
+
+@[simp]
+theorem coe_mk (f : A →ₛₗ[φ] B) (h₁ h₂ h₃) : ((⟨f, h₁, h₂, h₃⟩ : A →ₛₐ[φ] B) : A → B) = f :=
+  rfl
 
 end semialghom
 
@@ -57,7 +61,7 @@ end semialghomclass
 section semialghom
 
 variable {R S : Type*} [CommSemiring R] [CommSemiring S] {φ : R →+* S}
-    {A B : Type*}  [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
+    {A B : Type*} [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
 
 lemma SemialgHom.commutes (ψ : A →ₛₐ[φ] B) (r : R) :
     ψ (algebraMap R A r) = algebraMap S B (φ r) := by
@@ -77,8 +81,3 @@ theorem SemialgHom.algebraMap_apply {A B : Type*} [CommSemiring A] [CommSemiring
     algebraMap A B a = f a := rfl
 
 end semialghom
-
-@[simp]
-theorem AlgHom.coe_toLinearMap {R A B : Type*} [CommSemiring R] [Semiring A] [Semiring B]
-    [Algebra R A] [Algebra R B] (f : A →ₐ[R] B) :
-    ⇑(f : A →ₗ[R] B) = ⇑f := rfl

@@ -1,5 +1,6 @@
 import FLT.Patching.Utils.AdicTopology
 import FLT.Patching.Ultraproduct
+import FLT.Deformations.Lemmas
 
 variable (Λ : Type*) {ι : Type*} [CommRing Λ] (R : ι → Type*)
 variable [∀ i, CommRing (R i)] [∀ i, IsLocalRing (R i)] [∀ i, Algebra Λ (R i)]
@@ -37,15 +38,14 @@ instance (k : ℕ) : Finite (PatchingAlgebra.Component R F k) :=
 instance (k : ℕ) [NeZero k] : Nontrivial (PatchingAlgebra.Component R F k) := by
   obtain ⟨i, ⟨e⟩⟩ := (PatchingAlgebra.componentEquiv ℤ R F k).exists
   have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ k) := by
-    refine Ideal.Quotient.nontrivial ?_
+    refine Ideal.Quotient.nontrivial_iff.2 ?_
     exact ((Ideal.pow_le_self (NeZero.ne k)).trans_lt
       (lt_top_iff_ne_top.mpr (maximalIdeal.isMaximal (R i)).ne_top)).ne
   exact e.toRingHom.domain_nontrivial
 
 instance : Subsingleton (PatchingAlgebra.Component R F 0) := by
   obtain ⟨i, ⟨e⟩⟩ := (PatchingAlgebra.componentEquiv ℤ R F 0).exists
-  have : Subsingleton (R i ⧸ maximalIdeal (R i) ^ 0) := by
-    simp [Submodule.subsingleton_quotient_iff_eq_top]
+  have : Subsingleton (R i ⧸ maximalIdeal (R i) ^ 0) := by simp
   exact e.symm.toRingHom.codomain_trivial
 
 instance (k : ℕ) [NeZero k] : IsLocalRing (PatchingAlgebra.Component R F k) :=
@@ -66,10 +66,10 @@ instance (j k : ℕ) (hjk : k ≤ j) [NeZero k] :
       (.id (R i)) (Ideal.pow_le_pow_right hjk)) by
     delta PatchingAlgebra.componentMap; infer_instance
   intro i
-  have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ k) := Ideal.Quotient.nontrivial
+  have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ k) := Ideal.Quotient.nontrivial_iff.2
     ((Ideal.pow_le_self (NeZero.ne k)).trans_lt
       (lt_top_iff_ne_top.mpr (maximalIdeal.isMaximal (R i)).ne_top)).ne
-  have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ j) := Ideal.Quotient.nontrivial
+  have : Nontrivial (R i ⧸ maximalIdeal (R i) ^ j) := Ideal.Quotient.nontrivial_iff.2
     ((Ideal.pow_le_self ((Nat.pos_of_neZero k).trans_le hjk).ne').trans_lt
       (lt_top_iff_ne_top.mpr (maximalIdeal.isMaximal (R i)).ne_top)).ne
   have : IsLocalRing (R i ⧸ maximalIdeal (R i) ^ j) :=
@@ -93,7 +93,8 @@ omit [∀ i, TopologicalSpace (R i)] [∀ i, IsTopologicalRing (R i)]
   [Algebra.UniformlyBoundedRank R] in
 lemma PatchingAlgebra.isClosed_subring :
     IsClosed (X := Π i, Component R F i) (subring R F) := by
-  have (j k h) : IsClosed { v : Π i, Component R F i | componentMap R F j k h (v j) = v k } := by
+  have (j k) (h) :
+      IsClosed { v : Π i, Component R F i | componentMap R F j k h (v j) = v k } := by
     exact isClosed_eq (by continuity) (by continuity)
   convert isClosed_iInter fun j ↦ isClosed_iInter fun k ↦ isClosed_iInter (this j k)
   ext; simp; rfl
@@ -147,7 +148,7 @@ instance : IsLocalRing (PatchingAlgebra R F) := by
       intro j
       by_cases hij : i < j
       · exact hb j hij
-      rw [← b.2 _ _ ((le_of_not_lt hij).trans i.le_succ)]
+      rw [← b.2 _ _ ((le_of_not_gt hij).trans i.le_succ)]
       exact (hb _ i.lt_succ_self).map _
     exact (this ((add_comm b a).trans e) hb).symm
   exact .inl (IsUnit.of_map (PatchingAlgebra.subring R F).subtype _ (IsUnit.pi_iff.mpr H))
@@ -230,7 +231,7 @@ lemma PatchingAlgebra.ofPi_surjective :
   choose z hz using fun k i ↦ Ideal.Quotient.mk_surjective (y k i)
   refine ⟨z, funext fun k ↦ ?_⟩
   rw [← hy]
-  show Ideal.Quotient.mk _ _ = _
+  change Ideal.Quotient.mk _ _ = _
   congr 1
   ext i
   simp only [Pi.evalRingHom_apply, Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, hz]
@@ -346,9 +347,6 @@ lemma PatchingAlgebra.map_id :
   refine Subtype.ext (funext fun α ↦ ?_)
   simp [← hy, UltraProduct.mapRingHom_π]
 
-instance {R S} [Semiring R] [Semiring S] (e : R ≃+* S) : IsLocalHom e.toRingHom :=
-  ⟨fun x hx ↦ by convert hx.map e.symm; simp⟩
-
 @[simps! apply symm_apply]
 def PatchingAlgebra.mapEquiv (f : ∀ i, R i ≃+* R' i) :
     PatchingAlgebra R F ≃+* PatchingAlgebra R' F where
@@ -385,28 +383,25 @@ lemma PatchingAlgebra.map_surjective
       have : _ = _ := a.2
       simp only [Set.mem_preimage, Set.mem_singleton_iff, s, ← x.2 _ _ h, ← this]
       obtain ⟨b, hb⟩ := UltraProduct.π_surjective a.1
-      simp only [Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
-        ← hb, UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff]
+      simp only [← hb, UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff]
       filter_upwards with k
       obtain ⟨c, hc⟩ := Ideal.Quotient.mk_surjective (b k)
       simp only [← hc, Ideal.quotientMap_mk, RingHomCompTriple.comp_apply, RingHom.id_apply]⟩
-  have (k) : Nonempty (s k) := by
+  have (k : ℕ) : Nonempty (s k) := by
     simp only [nonempty_subtype, Set.mem_preimage, Set.mem_singleton_iff, s]
     exact PatchingAlgebra.componentMapRingHom_surjective R F f hf k (x.1 k)
   obtain ⟨v, hv⟩ := nonempty_inverseLimit_of_finite (ι := ℕᵒᵈ) (s ·) fs (by
       intro i
       ext ⟨x, hx⟩
       obtain ⟨x, rfl⟩ := UltraProduct.π_surjective x
-      simp only [Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
-         UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff, id_eq, fs]
+      simp only [UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff, id_eq, fs]
       filter_upwards with k
       obtain ⟨b, hb⟩ := Ideal.Quotient.mk_surjective (x k)
       simp only [← hb, Ideal.quotientMap_mk, RingHom.id_apply]) (by
       intro i j k hij hjk
       ext ⟨x, hx⟩
       obtain ⟨x, rfl⟩ := UltraProduct.π_surjective x
-      simp only [Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
-         UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff, id_eq, fs]
+      simp only [Function.comp_apply, UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff, fs]
       filter_upwards with k
       obtain ⟨b, hb⟩ := Ideal.Quotient.mk_surjective (x k)
       simp only [← hb, Ideal.quotientMap_mk, RingHom.id_apply])

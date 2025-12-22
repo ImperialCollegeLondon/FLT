@@ -5,8 +5,6 @@ Authors: Salvatore Mercuri
 -/
 import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
 
-open scoped Classical
-
 /-!
 # Extensions of complex embeddings and infinite places of a number field
 
@@ -48,10 +46,6 @@ namespace NumberField.ComplexEmbedding
 
 variable {K : Type*} {L : Type*} [Field K] [Field L] [Algebra K L]
   (f : K →+* ℂ) (g : L →+* ℂ)
-
-omit [Algebra K L] in
-@[simp]
-theorem conjugate_comp (σ : K →+* L) : (conjugate g).comp σ = conjugate (g.comp σ) := rfl
 
 /--
 If `L/K` and `f : K →+* ℂ`, `g : L →+* ℂ`, then we say `g` is an extension of `f` if
@@ -118,6 +112,7 @@ theorem IsUnmixedExtension.isReal_of_isReal (h : IsUnmixedExtension f g)
   simp only [IsUnmixedExtension, not_and, not_not] at h
   exact h.2 h.1 hf
 
+open scoped Classical in
 /--
 The extensions `g : L →+* ℂ` of `f : K →+* ℂ` are the direct sum of the mixed and the unmixed
 extensions.

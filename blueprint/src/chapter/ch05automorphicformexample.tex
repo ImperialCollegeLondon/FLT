@@ -381,7 +381,7 @@ $\frac{1}{N}\otimes_t z$ as $z/N$ does tempt us into the following definition.
     is the reduction of $z_N$ and is hence 0. By lemma~\ref{ZHat.multiples} we deduce that $z=Dy$
     is a multiple of~$D$, and hence $z/N=\frac{1}{N}\otimes_tDy=\frac{1}{E}\otimes y$, where
     $E=N/D$. Now if a natural divided both $y_E$ and $E$ then this natural would divide both $z_N/D$
-    and $N/D$, contradicting the fact that $D$ is the greatest common divisors.
+    and $N/D$, contradicting the fact that $D$ is the greatest common divisor.
 
     Uniqueness: if $z/N=w/M$, we deduce $1\otimes_t Mz=1\otimes_t Nw$,
     and by injectivity of $\Zhat\to\Qhat$ we deduce that $Mz=Nw=y$.
@@ -511,7 +511,8 @@ subgroups $\Q^\times$, $\Z^\times$ and $\Zhat^\times$.
 \end{lemma}
 Note that by the previous lemma, this representation will be unique up to sign.
 \begin{proof}
-    \uses{QHat.lowestTerms}
+    \uses{ZHat.multiples,ZHat.eq_zero_of_mul_eq_zero,QHat.canonicalForm}
+    \leanok
   We already know that a general element of $\Qhat^\times$ can be written as $x/N$ with $N$
   positive, so this reduces us to proving that a general element $x\in\Zhat$ which is invertible
   in $\Qhat^\times$ can be written as $qz$ with $q\in\Q^\times$ and $z\in\Zhat^\times$.
@@ -728,8 +729,8 @@ We define $D:=\Q\otimes\calO=\Q\oplus\Q i\oplus\Q j\oplus\Q\omega=\Q\oplus\Q i\o
 Finally, we define $\widehat{D}:=D\otimes\Zhat$. Just as with $\Qhat$ we have
 
 \begin{lemma}
-    \label{Hurwitz.canonicalForm}
-    \lean{Hurwitz.canonicalForm}
+    \label{HurwitzRatHat.canonicalForm}
+    \lean{HurwitzRatHat.canonicalForm}
     \uses{QHat, ZHat, Hurwitz}
     \leanok
     Every element of $\widehat{D}$ can be written as $z/N$ with $z\in\calOhat$ and $N\in\N^+$.
@@ -752,16 +753,16 @@ kind of non-commutative analogue of a class group. However for our
 particular choice of $D$ and $\calO$ the result is true.
 
 \begin{theorem}
-    \label{Hurwitz.completed_units}
-    \lean{Hurwitz.completed_units}
-    \uses{Hurwitz.canonicalForm}
+    \label{HurwitzRatHat.completed_units}
+    \lean{HurwitzRatHat.completed_units}
+    \uses{HurwitzRatHat.canonicalForm}
     \leanok
     The group of units of $\widehat{D}$ is $D^\times\calOhat^\times$.
     More precisely, every element of $\widehat{D}^\times$ can be written as a product $\delta u$
     with $\delta\in D^\times$ and $u\in\calOhat^\times$.
 \end{theorem}
 \begin{proof}
-    Given an element $x$ of $\widehat{D}^\times$, we can use lemma~\ref{Hurwitz.canonicalForm}
+    Given an element $x$ of $\widehat{D}^\times$, we can use lemma~\ref{HurwitzRatHat.canonicalForm}
     to write it as $z/N$ with $N$ a positive integer
     and $z\in\widehat{\calO}$. Note that $N$ is central and in $D^\times$. Similarly, we can
     write $x^{-1}$ as $y/M$ with $M$ a positive integer and $y\in\widehat{\calO}$. Then

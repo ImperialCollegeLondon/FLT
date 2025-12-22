@@ -1,8 +1,9 @@
 import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
-import Mathlib.RingTheory.Regular.RegularSequence
-import Mathlib.RingTheory.TensorProduct.Free
-import Mathlib.RingTheory.Support
 import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
+import Mathlib.RingTheory.Regular.RegularSequence
+import Mathlib.RingTheory.Spectrum.Prime.Topology
+import Mathlib.RingTheory.Support
+import Mathlib.RingTheory.TensorProduct.Free
 
 variable (R S M : Type*) [CommRing R] [CommRing S] [IsLocalRing R] [IsLocalRing S]
 variable [AddCommGroup M] [Module R M] [Module S M] [Algebra R S] [IsScalarTower R S M]
@@ -72,8 +73,8 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     | cons x l =>
     simp only [Sequence.isWeaklyRegular_cons_iff] at hl
     have : Nontrivial (QuotSMulTop x M) := by
-      apply Submodule.Quotient.nontrivial_of_lt_top
-      rw [← Submodule.ideal_span_singleton_smul, lt_top_iff_ne_top, ne_comm]
+      apply Submodule.Quotient.nontrivial_iff.2
+      rw [← Submodule.ideal_span_singleton_smul, ne_comm]
       apply Submodule.top_ne_ideal_smul_of_le_jacobson_annihilator
       refine le_trans ?_ (maximalIdeal_le_jacobson _)
       rw [Ideal.span_le, Set.singleton_subset_iff]
@@ -96,6 +97,7 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
       apply Ideal.Quotient.lift_surjective_of_surjective
       exact Ideal.Quotient.mk_surjective
     have := ringKrullDim_quotient_succ_le_of_nonZeroDivisor (R := R ⧸ annihilator R M) (r := x) (by
+      rw [← nonZeroDivisorsLeft_eq_nonZeroDivisors]
       intro z hz
       obtain ⟨z, rfl⟩ := Ideal.Quotient.mk_surjective z
       simp only [← map_mul, Ideal.Quotient.eq_zero_iff_mem,
@@ -108,8 +110,8 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     cases h : ringKrullDim (R ⧸ annihilator R (QuotSMulTop x M)) with
     | bot =>
       have : Nontrivial (R ⧸ annihilator R (QuotSMulTop x M)) := by
-        apply Ideal.Quotient.nontrivial
-        rw [← Submodule.annihilator_top, ne_eq, Submodule.annihilator_eq_top_iff]
+        rw [Ideal.Quotient.nontrivial_iff, ← Submodule.annihilator_top, ne_eq,
+          Submodule.annihilator_eq_top_iff]
         exact top_ne_bot
       have := ringKrullDim_nonneg_of_nontrivial.trans_eq h
       simp at this
@@ -117,15 +119,15 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     cases m with
     | top =>
       have : (⊤ : ℕ∞) ≤ (n : ℕ) := by apply WithBot.coe_le_coe.mp; simpa only [h] using this
-      cases (ENat.coe_lt_top n).not_le this
+      cases (ENat.coe_lt_top n).not_ge this
     | coe m =>
     rw [h] at this
     replace this : m + 1 ≤ n := WithTop.coe_le_coe.mp (WithBot.coe_le_coe.mp this)
-    replace IH := IH m (Nat.succ_le.mp this) (QuotSMulTop x M)
+    replace IH := IH m (Nat.lt_of_succ_le this) (QuotSMulTop x M)
       (by rwa [Module.support_eq_zeroLocus, ← ringKrullDim_quotient])
     replace IH := WithTop.coe_le_coe.mp
       ((Module.length_le_depth _ _ l hl.2 (by simp_all)).trans IH)
-    · simp only [List.length_cons, Nat.cast_add, Nat.cast_one, ge_iff_le]
+    · simp only [List.length_cons, ge_iff_le]
       linarith
 
 lemma Module.depth_le_dim_annihilator
@@ -142,7 +144,7 @@ lemma isSMulRegular_iff_of_free {R M : Type*} [CommRing R] [AddCommGroup M] [Mod
     [Module.Free R M] [Nontrivial M] {r : R} :
     IsSMulRegular M r ↔ IsSMulRegular R r := by
   let I := Module.Free.ChooseBasisIndex R M
-  let b : Basis I R M := Module.Free.chooseBasis R M
+  let b : Module.Basis I R M := Module.Free.chooseBasis R M
   constructor
   · intro H m n h
     have i := Nonempty.some (inferInstanceAs (Nonempty I))
@@ -204,12 +206,12 @@ lemma Module.depth_le_of_free [Module.Free R M] : Module.depth R R ≤ Module.de
 lemma Module.faithfulSMul_of_depth_eq_ringKrullDim [IsDomain R] [Nontrivial M] [Module.Finite R M]
     (H : ringKrullDim R < ⊤) (H' : .some (Module.depth R M) = ringKrullDim R) :
     FaithfulSMul R M := by
-  have : Nontrivial (R ⧸ annihilator R M) := Ideal.Quotient.nontrivial
+  have : Nontrivial (R ⧸ annihilator R M) := Ideal.Quotient.nontrivial_iff.2
     (by rw [ne_eq, ← Submodule.annihilator_top, Submodule.annihilator_eq_top_iff]
         exact top_ne_bot)
   rw [← Module.annihilator_eq_bot]
   by_contra H''
-  apply (le_refl ((.some (Module.depth R M)) : WithBot ℕ∞)).not_lt
+  apply (le_refl ((.some (Module.depth R M)) : WithBot ℕ∞)).not_gt
   calc
     _ ≤ ringKrullDim (R ⧸ annihilator R M) := Module.depth_le_dim_annihilator _ _
     _ < ringKrullDim R := by
@@ -220,11 +222,11 @@ lemma Module.faithfulSMul_of_depth_eq_ringKrullDim [IsDomain R] [Nontrivial M] [
         let l' : LTSeries (PrimeSpectrum R) := (l.map
           (PrimeSpectrum.comap (Ideal.Quotient.mk _)) ?_).cons ⊥ ?_
         · refine le_trans ?_ (le_iSup _ l')
-          show _ ≤ ((0 + l.length + 1 : ℕ) : ℕ∞)
+          change _ ≤ ((0 + l.length + 1 : ℕ) : ℕ∞)
           simp
         · intros I J
-          show I < J → I.asIdeal.comap _ < J.asIdeal.comap _
-          simp [lt_iff_le_not_le, ← Ideal.map_le_iff_le_comap,
+          change I < J → I.asIdeal.comap _ < J.asIdeal.comap _
+          simp [lt_iff_le_not_ge, ← Ideal.map_le_iff_le_comap,
             Ideal.map_comap_of_surjective _ Ideal.Quotient.mk_surjective]
         · refine (bot_lt_iff_ne_bot.mpr H'').trans_le ?_
           conv_lhs => rw [← Ideal.mk_ker (I := annihilator R M), RingHom.ker]

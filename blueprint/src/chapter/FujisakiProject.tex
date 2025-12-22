@@ -106,7 +106,9 @@ We prove the theorem via a series of lemmas.
   the obvious map $xE\to D\backslash D_{\A}$ is not injective.
 \end{lemma}
 
-\begin{proof} We know that if we pick a $\Q$-basis for $D$
+\begin{proof}
+  \leanok
+  We know that if we pick a $\Q$-basis for $D$
   of size $d$ then this identifies $D$ with $\Q^d$,
   $D_{\A}$ with $\A_{\Q}^d$, and $D\backslash D_{\A}$ with
   $(\Q\backslash\A_{\Q})^d$. Now $\Q$ is discrete in $\A_{\Q}$
@@ -205,7 +207,8 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
 \begin{proof}
   \leanok
   % TODO does this make the lines dottted? I used E in the proof here
-  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E}%, addHaarScalarFactor.left_mul_eq_right_mul}
+  % TODO does \uses a theorem from another project mess up the colouring?
+  \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E, addHaarScalarFactor.left_mul_eq_right_mul}
   Indeed, $\beta^{-1}\in D_{\A}^{(1)}$, and so left multiplication by $\beta^{-1}$
   doesn't change Haar measure on $D_{\A}$, so neither does right multiplication
   (by theorem~\ref{addHaarScalarFactor.left_mul_eq_right_mul}).
@@ -231,6 +234,7 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
 \end{lemma}
 \begin{proof}
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.Y_compact}
+  \leanok
   % TODO I used T in both the theorem and proof this time!
   It suffices to prove that $Y\cap D$ is finite.
     But $D\subseteq D_{\A}$ is a discrete additive subgroup, and hence closed.
@@ -270,6 +274,7 @@ And $e_1-e_2\in X$ so $b=\beta(e_1-e_2)\in \beta X$, so we're done.
   and $\nu\in D_{\A}^{(1)}$ such that $\beta=b\nu$ and $(\nu,\nu^{-1})\in C.$
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{NumberField.AdeleRing.DivisionAlgebra.Aux.E,
     NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel,
     NumberField.AdeleRing.DivisionAlgebra.Aux.X_meets_kernel',
@@ -295,6 +300,7 @@ We can now prove Fujisaki's theorem~\ref{NumberField.AdeleRing.DivisionAlgebra.c
 
 \begin{proof}
   \proves{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
+  \leanok
   \uses{MeasureTheory.ringHaarChar_continuous,
     NumberField.AdeleRing.DivisionAlgebra.Aux.antidiag_mem_C,
     NumberField.AdeleRing.DivisionAlgebra.Aux.C_compact}
@@ -318,6 +324,7 @@ We note here some useful consequences.
 \end{theorem}
 \begin{proof}
   \uses{NumberField.AdeleRing.DivisionAlgebra.compact_quotient}
+  \leanok
 There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
   $D^\times\backslash (D\otimes_K \A_K^\infty)^\times$. We claim that it's
   surjective. Granted this claim, we are home, because if we put the quotient
@@ -348,7 +355,9 @@ There's a natural map $\alpha$ from $D^\times\backslash D_{\A}^{(1)}$ to
   If $U$ is an open subgroup of $(D\otimes_K \A_K^\infty)^\times$
   then the double coset space $D^\times\backslash(D\otimes_K \A_K^\infty)^\times/U$ is finite.
 \end{theorem}
-\begin{proof} The double cosets give a disjoint open cover of $(D\otimes_K \A_K^\infty)$
+\begin{proof}
+  \leanok
+  The double cosets give a disjoint open cover of $(D\otimes_K \A_K^\infty)$
   which descends to a disjoint open cover of the quotient space
   $D^\times\backslash(D\otimes_K \A_K^\infty)^\times$. However this space is compact
   by theorem~\ref{NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact}.

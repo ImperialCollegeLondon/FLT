@@ -3,10 +3,9 @@ Copyright (c) 2025 Matthew Jasper. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Matthew Jasper
 -/
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
-import FLT.Mathlib.Algebra.Order.GroupWithZero
+import Mathlib.Algebra.Order.GroupWithZero.Canonical
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.NumberTheory.RamificationInertia.Basic
@@ -41,8 +40,8 @@ namespace IsDedekindDomain.HeightOneSpectrum
 
 section Multiplicative
 
-open scoped Multiplicative
-lemma exists_ofAdd_natCast_of_le_one {x : ℤₘ₀} (hx : x ≠ 0) (hx' : x ≤ 1):
+open scoped WithZero
+lemma exists_ofAdd_natCast_of_le_one {x : ℤᵐ⁰} (hx : x ≠ 0) (hx' : x ≤ 1) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) = x := by
   lift x to Multiplicative ℤ using hx
   norm_cast at hx'
@@ -51,7 +50,7 @@ lemma exists_ofAdd_natCast_of_le_one {x : ℤₘ₀} (hx : x ≠ 0) (hx' : x ≤
   rw [← hk, Int.neg_neg]
   rfl
 
-lemma exists_ofAdd_natCast_lt {x : ℤₘ₀} (hx : x ≠ 0) :
+lemma exists_ofAdd_natCast_lt {x : ℤᵐ⁰} (hx : x ≠ 0) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) < x := by
   obtain ⟨y, hnz, hyx⟩ := WithZero.exists_ne_zero_and_lt hx
   lift y to Multiplicative ℤ using hnz
@@ -62,7 +61,7 @@ lemma exists_ofAdd_natCast_lt {x : ℤₘ₀} (hx : x ≠ 0) :
 
 end Multiplicative
 
-variable { A : Type* } ( K : Type* ) [CommRing A] [Field K] [Algebra A K] [IsFractionRing A K]
+variable {A : Type*} (K : Type*) [CommRing A] [Field K] [Algebra A K] [IsFractionRing A K]
     [IsDedekindDomain A] (v : HeightOneSpectrum A)
 
 lemma ne_zero_of_some_le_intValuation {a : A} {m : Multiplicative ℤ} (h : m ≤ v.intValuation a)
@@ -76,8 +75,7 @@ lemma intValuation_eq_coe_neg_multiplicity {a : A} (hnz : a ≠ 0) :
   classical
   have hnb : Ideal.span {a} ≠ ⊥ := by
     rwa [ne_eq, Ideal.span_singleton_eq_bot]
-  rw [intValuation_apply, intValuationDef_if_neg _ hnz,
-    count_associates_factors_eq hnb v.isPrime v.ne_bot]
+  rw [intValuation_if_neg _ hnz, count_associates_factors_eq hnb v.isPrime v.ne_bot]
   nth_rw 1 [← normalize_eq v.asIdeal]
   congr
   symm
@@ -91,9 +89,8 @@ lemma emultiplicity_eq_of_valuation_eq_ofAdd {a : A} {k : ℕ}
   have hnz : a ≠ 0 := ne_zero_of_some_le_intValuation _ (le_of_eq hv.symm)
   have hnb : Ideal.span {a} ≠ ⊥ := by
     rwa [ne_eq, Ideal.span_singleton_eq_bot]
-  simp only [intValuation_apply,  intValuationDef_if_neg _ hnz,
-    ofAdd_neg, WithZero.coe_inv, inv_inj, WithZero.coe_inj, EmbeddingLike.apply_eq_iff_eq,
-    Nat.cast_inj] at hv
+  simp only [intValuation_if_neg _ hnz, WithZero.exp, ofAdd_neg, WithZero.coe_inv, inv_inj,
+    WithZero.coe_inj, EmbeddingLike.apply_eq_iff_eq, Nat.cast_inj] at hv
   rw [← hv, UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb,
     count_associates_factors_eq hnb v.isPrime v.ne_bot, normalize_eq]
 
@@ -106,7 +103,6 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   -- Find `n` such that `γ = Multiplicative.ofAdd (-(n : ℤ))`
   have hγ' : γ ≤ 1 := by
     apply hle.trans
-    rw [intValuation_apply]
     apply intValuation_le_one
   obtain ⟨n, hn⟩ := exists_ofAdd_natCast_of_le_one hγ hγ'
   rw [← hn] at hle ⊢
@@ -121,8 +117,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
       (emultiplicity_eq_of_valuation_eq_ofAdd v <| intValuation_eq_coe_neg_multiplicity v hnz)
       (ENat.coe_le_coe.mpr hle)
   have hb : b ∈ v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) := by
-    rwa [← Ideal.dvd_span_singleton, ← intValuation_le_pow_iff_dvd,
-        ← intValuation_eq_coe_neg_multiplicity _ hnz]
+    rwa [← intValuation_le_pow_iff_mem, WithZero.exp, ← intValuation_eq_coe_neg_multiplicity _ hnz]
   -- Now make use of
   -- `v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) = v.asIdeal ^ n ⊔ Ideal.span {a}`
   -- (this is where we need `IsDedekindDomain A`)
@@ -132,8 +127,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.mp hz
   use y
   -- And again prove the result about valuations by turning into one about ideals.
-  rwa [hy, ← hxz, sub_add_cancel_right, intValuation_le_pow_iff_dvd, Ideal.dvd_span_singleton,
-    neg_mem_iff]
+  rwa [hy, ← hxz, sub_add_cancel_right, ← WithZero.exp, intValuation_le_pow_iff_mem, neg_mem_iff]
 
 lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K))}
     (γ : (WithZero (Multiplicative ℤ))ˣ) (hx : Valued.v x ≤ 1) :
@@ -151,9 +145,7 @@ lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K
             (valuation K v) ((algebraMap A (WithVal (v.valuation K))) d) :=
                 mul_le_of_le_one_left' hx
         _ = Valued.v ((algebraMap A (WithVal (v.valuation K))) n) := hnd'
-  simp only [adicValued_apply', ge_iff_le,
-    WithVal, adicValued_apply,
-    valuation_of_algebraMap] at hge
+  simp only [ge_iff_le, WithVal, adicValued_apply, valuation_of_algebraMap] at hge
   have hdz : (algebraMap A (WithVal (v.valuation K)) d) ≠ 0 :=
     IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors _ (fun _ ↦ id) hd
   -- Find a suitable `γ` for the bound in `exists_adicValued_mul_sub_le`
@@ -164,8 +156,7 @@ lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K
     rw [mul_ne_zero_iff]
     exact ⟨hv, γ.ne_zero⟩
   obtain ⟨γ', hγ, hγu, hγv⟩ := WithZero.exists_ne_zero_and_lt_and_lt hu hv
-  simp only [WithVal, adicValued_apply,
-    valuation_of_algebraMap, intValuation_apply] at hγv
+  simp only [WithVal, adicValued_apply, valuation_of_algebraMap] at hγv
   -- Now can apply `exists_adicValued_mul_sub_le` to get the approximation of `x`.
   obtain ⟨a, hval⟩ := exists_adicValued_mul_sub_le v hγ hγv.le hge
   use a
@@ -175,8 +166,7 @@ lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K
       hnd, sub_div' hdz, map_div₀]
   unfold WithVal at hdz ⊢
   rw [← Valuation.pos_iff (valuation K v)] at hdz
-  rw [← map_mul, ← map_sub, div_lt_iff₀' hdz, valuation_of_algebraMap,
-      intValuation_apply]
+  rw [← map_mul, ← map_sub, div_lt_iff₀' hdz, valuation_of_algebraMap]
   exact lt_of_le_of_lt hval hγu
 
 /-- The closure of `A` in `K_v` is `𝒪_v`. -/
@@ -185,11 +175,11 @@ theorem closureAlgebraMapIntegers_eq_integers :
     SetLike.coe (v.adicCompletionIntegers K) := by
   apply subset_antisymm
   -- We know `closure A ⊆ 𝒪_v` because `𝒪_v` is closed and `A ⊆ 𝒪_v`
-  . apply closure_minimal _ Valued.valuationSubring_isClosed
+  · apply closure_minimal _ (Valued.isClosed_valuationSubring _)
     rintro b ⟨a, rfl⟩
     exact coe_mem_adicCompletionIntegers v a
   -- Show `𝒪_v ⊆ closure A` from `𝒪_v ⊆ closure O_[K]` and `closure O_[K] ⊆ closure A`
-  . let f := fun (k : WithVal (v.valuation K)) => (k : v.adicCompletion K)
+  · let f := fun (k : WithVal (v.valuation K)) => (k : v.adicCompletion K)
     suffices h : closure (f '' (f ⁻¹' (adicCompletionIntegers K v))) ⊆
         closure (algebraMap A (adicCompletion K v)).range by
       apply Set.Subset.trans _ h
@@ -208,9 +198,9 @@ theorem closureAlgebraMapIntegers_eq_integers :
     obtain ⟨a, ha⟩ := exists_adicValued_sub_lt_of_adicValued_le_one K v γ hx
     use algebraMap A K a
     constructor
-    . use a
+    · use a
       rfl
-    . apply hγ
+    · apply hγ
       simpa
 
 /-- `A` is dense in `𝒪_v`. -/
@@ -228,8 +218,8 @@ theorem denseRange_of_integerAlgebraMap :
   rfl
 
 /-- An element of `𝒪_v` can be approximated by an element of `A`. -/
-theorem exists_adicValued_sub_lt_of_adicCompletionInteger ( x : v.adicCompletionIntegers K )
-    ( γ : (WithZero (Multiplicative ℤ))ˣ ) :
+theorem exists_adicValued_sub_lt_of_adicCompletionInteger (x : v.adicCompletionIntegers K)
+    (γ : (WithZero (Multiplicative ℤ))ˣ) :
     ∃a, Valued.v ((algebraMap A K a) - (x : v.adicCompletion K)) < γ.val := by
   have h := closureAlgebraMapIntegers_eq_integers K v
   rw [Set.ext_iff] at h
@@ -261,8 +251,7 @@ instance : (v.completionIdeal K).LiesOver v.asIdeal where
     rw [Ideal.under_def]
     ext x
     simp only [Ideal.mem_comap, mem_completionIdeal_iff, algebraMap_completionIntegers,
-      valuedAdicCompletion_eq_valuation, valuation_of_algebraMap, intValuation_lt_one_iff_dvd,
-      Ideal.dvd_span_singleton]
+      valuedAdicCompletion_eq_valuation, valuation_lt_one_iff_mem]
 
 open IsLocalRing in
 /-- The canonical ring homomorphism from A / v to 𝓞ᵥ / v, where 𝓞ᵥ is the integers of the
@@ -310,14 +299,13 @@ theorem inertiaDeg_asIdeal_completionIdeal :
 /-- An element of `∏_{v ∈ s} 𝒪_v`, with `s` finite, can be approximated by an element of `A`.
 -/
 theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
-    (e : ι → (WithZero (Multiplicative ℤ))ˣ ) (valuation : ι → HeightOneSpectrum A)
+    (e : ι → (WithZero (Multiplicative ℤ))ˣ) (valuation : ι → HeightOneSpectrum A)
     (injective : Function.Injective valuation)
     (x : (i : ι) → (valuation i).adicCompletionIntegers K) :
     ∃ a, ∀ i ∈ s, Valued.v ((algebraMap A K a) - (x i).val) < (e i).val := by
   -- Approximate elements of `𝒪_v` with elements of `A` using the previous theorem.
   choose f hf using fun (i : s) =>
     exists_adicValued_sub_lt_of_adicCompletionInteger K (valuation i) (x i) (e i)
-
   -- Convert the hypotheses from being about valuations to being about ideals, so
   -- that we can apply (a suitable corollary of) the Chinese remainder theorem.
   have hexists_e' : ∀ (i : ι), ∃ (e' : ℕ), (Multiplicative.ofAdd (-(e' : ℤ))) < (e i).val := by
@@ -328,7 +316,6 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
       (fun i ↦ (valuation i).asIdeal) i ≠ (fun i ↦ (valuation i).asIdeal) j := by
     intro _ _ _ _
     exact mt <| fun hij ↦ injective (HeightOneSpectrum.ext hij)
-
   -- Use Chinese remainder theorem to get a single approximation for `f i` for all `i ∈ s`.
   obtain ⟨a, ha⟩ := IsDedekindDomain.exists_forall_sub_mem_ideal (s := s)
     (fun i => (valuation i).asIdeal) e' (fun i hi => (valuation i).prime) hinj f
@@ -336,7 +323,7 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
   intro i hi
   specialize ha i hi
   specialize hf ⟨i, hi⟩
-  rw [← Ideal.dvd_span_singleton, ← intValuation_le_pow_iff_dvd, ← valuation_of_algebraMap (K := K),
+  rw [← intValuation_le_pow_iff_mem, ← valuation_of_algebraMap (K := K),
     ← valuedAdicCompletion_eq_valuation, algebraMap.coe_sub] at ha
   refine lt_of_le_of_lt ?_ (Valuation.map_add_lt _ (ha.trans_lt (he' i)) hf)
   apply le_of_eq
@@ -351,15 +338,15 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
     closure (SetLike.coe (algebraMap A ((i : ι) → (valuation i).adicCompletion K)).range) =
     (Set.pi Set.univ (fun (i : ι) ↦ ((valuation i).adicCompletionIntegers K).carrier)) := by
   apply Set.Subset.antisymm
-  . apply closure_minimal
-    . rintro c ⟨a, ha⟩ i -
+  · apply closure_minimal
+    · rintro c ⟨a, ha⟩ i -
       rw [← ha]
-      simp only [Pi.algebraMap_apply, SetLike.mem_coe]
+      simp only [Pi.algebraMap_apply]
       exact coe_mem_adicCompletionIntegers (valuation i) a
-    . apply isClosed_set_pi
+    · apply isClosed_set_pi
       rintro w -
-      exact Valued.valuationSubring_isClosed
-  . intro f hf
+      apply Valued.isClosed_valuationSubring
+  · intro f hf
     rw [mem_closure_iff_nhds_zero]
     intro U hU
     rw [Pi.zero_def, nhds_pi, Filter.mem_pi'] at hU
@@ -369,9 +356,9 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
       exists_forall_adicValued_sub_lt K I g valuation injective (fun w => ⟨f w, hf w ⟨⟩⟩)
     use algebraMap A _ a
     constructor
-    . rw [RingHom.coe_range]
+    · rw [RingHom.coe_range]
       exact Set.mem_range_self a
-    . exact hts fun w hw ↦ hg w <| ha w hw
+    · exact hts fun w hw ↦ hg w <| ha w hw
 
 lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : HeightOneSpectrum A)
     (x : v.adicCompletion K) :
@@ -380,8 +367,8 @@ lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : Heigh
     adicCompletion.mul_nonZeroDivisor_mem_adicCompletionIntegers v x
   use a, hz, (algebraMap A K a) • x
   constructor
-  . rwa [Algebra.smul_def, ← IsScalarTower.algebraMap_apply, mul_comm]
-  . rw [smul_smul, inv_mul_cancel₀, one_smul]
+  · rwa [Algebra.smul_def, ← IsScalarTower.algebraMap_apply, mul_comm]
+  · rw [smul_smul, inv_mul_cancel₀, one_smul]
     exact IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors K (fun _ ↦ id) hz
 
 lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
@@ -395,7 +382,7 @@ lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
   have hz : ∀ (i : ι), (algebraMap A K) (f i) ≠ 0 := fun i =>
     IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors K (fun _ ↦ id) (hf i).left
   constructor
-  . rintro i -
+  · rintro i -
     obtain ⟨b, hb, hx⟩ := (hf i).right
     beta_reduce
     rw [Pi.smul_apply, algebraMap_smul, Subsemiring.coe_carrier_toSubmonoid,
@@ -404,7 +391,7 @@ lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
         ← IsScalarTower.smul_assoc (f i), Algebra.smul_def (f i), mul_inv_cancel₀ (hz i), one_smul,
         Algebra.smul_def]
     apply mul_mem (coe_mem_adicCompletionIntegers _ _) hb
-  . rw [smul_smul, inv_mul_cancel₀, one_smul]
+  · rw [smul_smul, inv_mul_cancel₀, one_smul]
     simp [Finset.prod_ne_zero_iff, hz]
 
 /-- If `s` is finite then `K` in dense in `∏_{v ∈ s} K_v`. -/
@@ -443,7 +430,7 @@ theorem exists_uniformizer (v : HeightOneSpectrum A) :
     ∃ π : v.adicCompletionIntegers K, Valued.v π.1 = Multiplicative.ofAdd (- 1 : ℤ) := by
   obtain ⟨π, hπ⟩ := v.intValuation_exists_uniformizer
   use π
-  rw [← hπ, ← ValuationSubring.algebraMap_apply, ← IsScalarTower.algebraMap_apply,
+  rw [← WithZero.exp, ← hπ, ← ValuationSubring.algebraMap_apply, ← IsScalarTower.algebraMap_apply,
     v.valuedAdicCompletion_eq_valuation, v.valuation_of_algebraMap]
 
 variable {K} in
@@ -489,13 +476,12 @@ theorem maximalIdeal_eq_span_uniformizer {π : v.adicCompletionIntegers K}
   refine (IsLocalRing.maximalIdeal.isMaximal _).eq_of_le
     (Ideal.span_singleton_ne_top (uniformizer_not_isUnit v hπ)) (fun x hx => ?_)
   by_cases hx₀ : x = 0
-  · simp only [ZeroMemClass.coe_eq_zero] at hx₀
-    simp only [hx₀, Ideal.zero_mem]
+  · simp only [hx₀, Ideal.zero_mem]
   · obtain ⟨n, ⟨u, hu⟩⟩ := eq_pow_uniformizer_mul_unit K v hx₀ hπ
     have hn : ¬(IsUnit x) := fun h =>
       (IsLocalRing.maximalIdeal.isMaximal _).ne_top (Ideal.eq_top_of_isUnit_mem _ hx h)
     replace hn : n ≠ 0 := fun h => by {rw [hu, h, pow_zero, one_mul] at hn; exact hn u.isUnit}
-    simpa [Ideal.mem_span_singleton, hu, IsUnit.dvd_mul_right, Units.isUnit] using dvd_pow_self _ hn
+    simpa [Ideal.mem_span_singleton, hu, IsUnit.dvd_mul_right, Units.isUnit] using dvd_pow_self π hn
 
 instance : Ring.DimensionLEOne (v.adicCompletionIntegers K) where
   maximalOfPrime {𝔭} h𝔭_ne_bot h𝔭_prime := by
@@ -503,8 +489,7 @@ instance : Ring.DimensionLEOne (v.adicCompletionIntegers K) where
     let ⟨π, hπ⟩ := exists_uniformizer K v
     obtain ⟨n, ⟨u, rfl⟩⟩ := eq_pow_uniformizer_mul_unit K v hx.2 hπ
     simp only [Units.isUnit, Ideal.mul_unit_mem_iff_mem, ne_eq, mul_eq_zero, pow_eq_zero_iff',
-      FaithfulSMul.algebraMap_eq_zero_iff, Units.ne_zero, or_false, not_and,
-      Decidable.not_not] at hx
+      Units.ne_zero, or_false, not_and, Decidable.not_not] at hx
     by_cases hn : n = 0
     · simp only [hn, pow_zero, ← 𝔭.eq_top_iff_one, implies_true, and_true] at hx
       exact h𝔭_prime.ne_top hx |>.elim
@@ -529,7 +514,7 @@ instance : IsDiscreteValuationRing (v.adicCompletionIntegers K) where
     let ⟨π, hπ⟩ := exists_uniformizer K v
     rw [maximalIdeal_eq_span_uniformizer K v hπ]
     intro h
-    simp only [Ideal.span_singleton_eq_bot, FaithfulSMul.algebraMap_eq_zero_iff] at h
+    simp only [Ideal.span_singleton_eq_bot] at h
     exact uniformizer_ne_zero hπ h
 
 open scoped Valued in
@@ -547,11 +532,11 @@ lemma mem_completionIdeal_pow {n : ℕ} (x : v.adicCompletionIntegers K) :
     norm_cast
     rw [← ofAdd_nsmul, Nat.smul_one_eq_cast]
   constructor
-  . rintro ⟨a, rfl⟩
+  · rintro ⟨a, rfl⟩
     simp only [MulMemClass.coe_mul, SubmonoidClass.coe_pow, map_mul, map_pow, ofAdd_neg,
-      WithZero.coe_inv, ge_iff_le]
+      WithZero.coe_inv]
     apply mul_le_of_le_one_of_le a.prop <| le_of_eq hvalπ_pow
-  . intro hx
+  · intro hx
     set a := x.val / (π ^ n) with ha'
     have ha : Valued.v a ≤ 1 := by
       rwa [ha', Valuation.map_div, Valuation.map_pow, hvalπ_pow,

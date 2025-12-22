@@ -2,6 +2,7 @@ import FLT.Patching.Algebra
 import FLT.Patching.Over
 import FLT.Patching.Module
 import FLT.Patching.Utils.Depth
+import FLT.Deformations.Lemmas
 
 variable (Λ : Type*) [CommRing Λ]
 variable {ι : Type*} (R : ι → Type*)
@@ -28,12 +29,12 @@ instance {R S M : Type*} [CommRing R] [CommRing S] [AddCommGroup M]
     [Module R M] [Module S M] [SMulCommClass S R M] : SMul (Ideal R) (Submodule S M) where
   smul I N := ⟨I.toAddSubmonoid • N.toAddSubmonoid, by
     intro r
-    show I.toAddSubmonoid • N.toAddSubmonoid ≤
+    change I.toAddSubmonoid • N.toAddSubmonoid ≤
       (I.toAddSubmonoid • N.toAddSubmonoid).comap (DistribMulAction.toAddMonoidEnd S M r)
     rw [AddSubmonoid.smul_le]
     intro s hs n hn
     simp only [DistribMulAction.toAddMonoidEnd_apply, AddSubmonoid.mem_comap]
-    show r • (s • n) ∈ _
+    change r • (s • n) ∈ _
     rw [smul_comm]
     exact AddSubmonoid.smul_mem_smul hs (N.smul_mem _ hn)⟩
 
@@ -53,7 +54,7 @@ lemma Submodule.map_algebraMap_smul {R S M : Type*} [CommRing R] [CommRing S] [A
     | zero => exact zero_smul S n ▸ zero_mem _
     | add x y hx hy _ _ => rw [add_smul]; exact add_mem ‹_› ‹_›
     | smul a x hx _ => exact smul_assoc a x n ▸ (I • N).smul_mem _ ‹_›
-  · show I.toAddSubmonoid • N.toAddSubmonoid ≤ _
+  · change I.toAddSubmonoid • N.toAddSubmonoid ≤ _
     rw [AddSubmonoid.smul_le]
     intro r hr n hn
     rw [← algebraMap_smul S (M := M)]
@@ -130,7 +131,7 @@ instance [PatchingAlgebra.smulData Λ R M] : SMul (PatchingAlgebra R F) (Patchin
     generalize m.1 α = m
     generalize x.1 (PatchingAlgebra.smulData.f R M α) = x
     obtain ⟨x, rfl⟩ := UltraProduct.π_surjective x
-    show UltraProduct.map _ _ (x • _) = _
+    change UltraProduct.map _ _ (x • _) = _
     obtain ⟨m, rfl⟩ := UltraProduct.πₗ_surjective
       (fun i ↦ R i ⧸ maximalIdeal (R i) ^ (PatchingAlgebra.smulData.f R M α)) m
     rw [← map_smul]
@@ -140,8 +141,6 @@ instance [PatchingAlgebra.smulData Λ R M] : SMul (PatchingAlgebra R F) (Patchin
     obtain rfl := funext hm
     rfl⟩
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
 noncomputable
 instance [PatchingAlgebra.smulData Λ R M] : Module (PatchingAlgebra R F)
     (PatchingModule Λ M F) where
@@ -158,7 +157,7 @@ instance [PatchingAlgebra.smulData Λ R M] :
   intro r m
   refine Subtype.ext (funext fun α ↦ ?_)
   obtain ⟨x, hx⟩ := UltraProduct.πₗ_surjective (fun _ ↦ Λ) (m.1 α)
-  show (algebraMap Λ (Π i, R i ⧸ maximalIdeal (R i) ^
+  change (algebraMap Λ (Π i, R i ⧸ maximalIdeal (R i) ^
     (PatchingAlgebra.smulData.f R M α)) r) • m.1 α = r • m.1 α
   rw [← hx]
   refine UltraProduct.πₗ_eq_iff.mpr (.of_forall fun i ↦ ?_)
@@ -269,12 +268,6 @@ lemma Ultrafilter.eventually_eventually_eq_of_finite
   filter_upwards [ha] with j hj
   rw [hi, hj]
 
-lemma IsLocalRing.map_maximalIdeal {R S} [CommRing R] [CommRing S]
-    [IsLocalRing R] [IsLocalRing S] (f : R →+* S) (hf : Function.Surjective f) :
-    (maximalIdeal R).map f = maximalIdeal S := by
-  have := (IsLocalRing.local_hom_TFAE f).out 0 4
-  rw [← this.mp (by exact .of_surjective f hf), Ideal.map_comap_of_surjective f hf]
-
 omit
   [∀ (i : ι), TopologicalSpace (R i)]
   [∀ (i : ι), IsTopologicalRing (R i)]
@@ -315,7 +308,7 @@ lemma smul_lemma₀
   let n₀ := PatchingAlgebra.smulData.f (fun _ : ι ↦ R₀) (fun _ ↦ M₀) α
   let n₁ := @PatchingAlgebra.smulData.f Λ _ _ R _ inferInstance _ M _ _ _ inferInstance _
     inferInstance α
-  show UltraProduct.πₗ _ _ _ _ = UltraProduct.πₗ (fun _ ↦ R₀)
+  change UltraProduct.πₗ _ _ _ _ = UltraProduct.πₗ (fun _ ↦ R₀)
     (fun _ ↦ M₀ ⧸ (α.1 • ⊤ : Submodule R₀ M₀)) _ _
   refine UltraProduct.πₗ_eq_iff.mpr ?_
   filter_upwards [hm n₀ (min n₀ n₁) (min_le_left _ _), hm n₁ (min n₀ n₁) (min_le_right _ _)] with
@@ -346,7 +339,7 @@ lemma smul_lemma₀
   refine (Submodule.Quotient.eq _).mpr ?_
   dsimp
   rw [HCompat, ← sub_smul, ← map_sub, ← map_sub]
-  show F (m n₁ i - m n₀ i) • sM i _ ∈ _
+  change F (m n₁ i - m n₀ i) • sM i _ ∈ _
   apply H
   refine Submodule.smul_mem_smul ?_ trivial
   rw [← Ideal.mem_comap]
@@ -381,9 +374,9 @@ lemma smul_lemma
   obtain ⟨x, rfl⟩ := Submodule.Quotient.mk_surjective _ x
   apply (PatchingModule.constEquiv Λ F M₀).injective
   refine ((PatchingModule.constEquiv Λ F M₀).apply_symm_apply _).trans ?_
-  haveI (i) : Nontrivial (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
+  have (i : ι) : Nontrivial (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫) :=
     (sR i).toRingHom.domain_nontrivial
-  have (i) : IsLocalHom (Ideal.Quotient.mk (𝔫.map (algebraMap Λ (R i)))) :=
+  have (i : ι) : IsLocalHom (Ideal.Quotient.mk (𝔫.map (algebraMap Λ (R i)))) :=
     .of_surjective _ (Ideal.Quotient.mk_surjective)
   convert smul_lemma₀ Λ R M F 𝔫 sR sM HCompat x m
   · obtain ⟨x, hx⟩ := x
@@ -423,8 +416,7 @@ lemma support_eq_top
     (PatchingAlgebra.surjective_quotientToOver Λ R F 𝔫 sR).comp Ideal.Quotient.mk_surjective
   let p' := PrimeSpectrum.comap f₀ p
   have hp' : 𝔫.map (algebraMap _ _) ≤ p'.asIdeal := by
-    simp only [PrimeSpectrum.comap_comp, ContinuousMap.comp_apply,
-      PrimeSpectrum.comap_asIdeal, p', f₀]
+    simp only [PrimeSpectrum.comap_comp, p', f₀]
     refine le_trans ?_ (Ideal.comap_mono (f := Ideal.Quotient.mk _) bot_le)
     rw [← RingHom.ker_eq_comap_bot, Ideal.mk_ker]
   let inst := Module.compHom M₀ f₀
@@ -438,6 +430,6 @@ lemma support_eq_top
   rw [← Submodule.map_algebraMap_smul, ← Module.support_eq_zeroLocus,
     Module.support_quotient,  Module.support_eq_zeroLocus,
     Module.annihilator_eq_bot.mpr inferInstance, ← Module.comap_annihilator (R := R₀),
-    ← PrimeSpectrum.image_comap_zeroLocus_eq_zeroLocus_comap _ _ (by exact hf₀)] at this
+    ← image_comap_zeroLocus_eq_zeroLocus_comap _ _ (by exact hf₀)] at this
   simp only [Submodule.bot_coe, PrimeSpectrum.zeroLocus_singleton_zero, Set.univ_inter] at this
   exact (PrimeSpectrum.comap_injective_of_surjective _ hf₀).mem_set_image.mp (this.le hp')

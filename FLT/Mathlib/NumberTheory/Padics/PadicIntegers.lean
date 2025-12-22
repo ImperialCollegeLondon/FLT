@@ -1,6 +1,6 @@
+import Mathlib.Algebra.Algebra.Operations
 import Mathlib.Algebra.CharZero.Infinite
 import Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.RingTheory.Ideal.Operations
 import Mathlib.NumberTheory.Padics.RingHoms
 
 /-!
@@ -58,8 +58,9 @@ lemma _root_.AddSubgroup.comap_smul_one (R A : Type*) [CommRing R] [CommRing A] 
   rw [Algebra.smul_def, ← map_mul, Injective.eq_iff]
   rwa [← faithfulSMul_iff_algebraMap_injective R A]
 
-lemma index_span_p_pow (hx: x ≠ 0):
-    (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation})).index = ‖↑x‖₊⁻¹ := by
+lemma index_span_p_pow (hx : x ≠ 0) :
+    (Submodule.toAddSubgroup (Ideal.span {(p : ℤ_[p]) ^ x.valuation})).index =
+      ‖(x : ℚ_[p])‖₊⁻¹ := by
   have quotient_equiv_zmod := RingHom.quotientKerEquivOfSurjective
     (f := PadicInt.toZModPow (x.valuation) (p := p)) (R := ℤ_[p])
     (ZMod.ringHom_surjective (PadicInt.toZModPow x.valuation))
@@ -77,49 +78,46 @@ lemma index_span_p_pow (hx: x ≠ 0):
 lemma smul_submodule_one_index :
     (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ := by
   by_cases hx: x = 0
-  . simp [hx]
-  . have x_factor := PadicInt.unitCoeff_spec hx
+  · simp [hx]
+  · have x_factor := PadicInt.unitCoeff_spec hx
     nth_rw 1 [x_factor]
-    rw [Submodule.smul_one_eq_span, Ideal.span_singleton_mul_left_unit (Units.isUnit _)]
-    exact index_span_p_pow hx
+    rw [Submodule.smul_one_eq_span, ← smul_eq_mul,
+      Submodule.span_singleton_smul_eq (Units.isUnit _),
+      Ideal.submodule_span_eq, index_span_p_pow hx]
 
-/-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
-lemma smul_submodule_one_relindex:
-    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relindex
+/-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
+lemma smul_submodule_one_relIndex :
+    (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relIndex
       (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup = ‖x.val‖₊⁻¹ := by
-
-  have relindex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ :=
+  have relIndex_in_z_p : (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup.index = ‖(x : ℚ_[p])‖₊⁻¹ :=
     smul_submodule_one_index
-  rw [← AddSubgroup.relindex_top_right] at relindex_in_z_p
-
-  -- Use the coercion from ℤ_[p] to ℚ_[p] and `AddSubgroup.relindex_comap` to convert
+  rw [← AddSubgroup.relIndex_top_right] at relIndex_in_z_p
+  -- Use the coercion from ℤ_[p] to ℚ_[p] and `AddSubgroup.relIndex_comap` to convert
   -- our result about subgroups of `Z_[p]` to a result about subgroups of `Q_[p]`.
   let z_q_coe: ℤ_[p] →+ ℚ_[p] := PadicInt.Coe.ringHom.toAddMonoidHom
   let K_Q : AddSubgroup ℚ_[p] := (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup
   let H_Q := (x : ℚ_[p]) • K_Q
-
-  have relindex_preserved :=
-    AddSubgroup.relindex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))
+  have relIndex_preserved :=
+    AddSubgroup.relIndex_comap (H := H_Q) (f := (z_q_coe)) (K := (⊤ : AddSubgroup ℤ_[p]))
   have map_top: (AddSubgroup.map z_q_coe ⊤) = K_Q := by
     ext a
     simp [z_q_coe, K_Q]
   have map_H_Q : (AddSubgroup.comap z_q_coe H_Q) =
     (x • (1 : Submodule ℤ_[p] ℤ_[p])).toAddSubgroup := by
     simp only [z_q_coe, H_Q, K_Q, RingHom.toAddMonoidHom_eq_coe,
-      Submodule.pointwise_smul_toAddSubgroup, Submodule.top_toAddSubgroup, z_q_coe, K_Q,
+      Submodule.pointwise_smul_toAddSubgroup, z_q_coe, K_Q,
       ← AddSubgroup.comap_smul_one ℤ_[p] ℚ_[p]]
     rfl
+  rw [map_top, map_H_Q] at relIndex_preserved
+  rwa [relIndex_preserved] at relIndex_in_z_p
 
-  rw [map_top, map_H_Q] at relindex_preserved
-  rwa [relindex_preserved] at relindex_in_z_p
-
-/-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` --/
-lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0):
+/-- `x • S` has finite  in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
+lemma smul_submodule_one_isFiniteRelIndex (hx : x ≠ 0) :
     (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).IsFiniteRelIndex
     (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup where
-  relindex_ne_zero := by
+  relIndex_ne_zero := by
     rw [← Nat.cast_ne_zero (R := ℝ≥0)]
-    simp [smul_submodule_one_relindex, hx]
+    simp [smul_submodule_one_relIndex, hx]
 
 -- Yaël: Do we really want this as a coercion?
 noncomputable instance : Coe ℤ_[p]⁰ ℚ_[p]ˣ where

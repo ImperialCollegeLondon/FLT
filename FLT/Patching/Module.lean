@@ -1,6 +1,6 @@
 import FLT.Patching.Ultraproduct
 import FLT.Patching.Utils.AdicTopology
-import Mathlib.Algebra.Module.Torsion
+import Mathlib.Algebra.Module.Torsion.Free
 import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
 import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
 import Mathlib.Topology.Compactness.Paracompact
@@ -46,8 +46,7 @@ lemma Module.UniformlyBoundedRank.exists_finsupp_surjective (i) :
   cases subsingleton_or_nontrivial (M i)
   · refine ⟨0, fun x ↦ ⟨0, Subsingleton.elim _ _⟩⟩
   have : Nontrivial (R ⧸ Ann R (M i)) := by
-    refine Ideal.Quotient.nontrivial ?_
-    rw [ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
+    rw [Ideal.Quotient.nontrivial_iff, ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
     exact top_ne_bot
   refine ⟨((Module.Free.chooseBasis (R ⧸ Ann R (M i))
     (M i)).repr.symm.restrictScalars R).toLinearMap ∘ₗ ?_, ?_⟩
@@ -59,8 +58,8 @@ lemma Module.UniformlyBoundedRank.exists_finsupp_surjective (i) :
     · exact (Fin.castLE_injective _).comp (Fintype.equivFin _).injective
   · simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, EquivLike.comp_surjective]
     refine (Finsupp.mapRange_surjective _ (map_zero _) Ideal.Quotient.mk_surjective).comp ?_
-    exact Finsupp.comapDomain_surjective _ ((Fin.castLE_injective _).comp
-      (Fintype.equivFin _).injective)
+    exact Finsupp.comapDomain_surjective
+      ((Fin.castLE_injective _).comp (Fintype.equivFin _).injective)
 
 lemma Module.UniformlyBoundedRank.finite_quotient_smul (i) (I : Ideal R) [Finite (R ⧸ I)] :
     Finite (M i ⧸ (I • ⊤ : Submodule R (M i))) := by
@@ -91,10 +90,9 @@ lemma Module.UniformlyBoundedRank.exists_rank :
   rw [← Ultrafilter.eventually_exists_iff]
   refine .of_forall fun i ↦ ?_
   cases subsingleton_or_nontrivial (M i)
-  · refine ⟨0, by simpa using ⟨LinearEquiv.ofSubsingleton _ _⟩⟩
+  · exact ⟨⟨0, Nat.zero_lt_succ n⟩, instNonemptyOfInhabited⟩
   have : Nontrivial (R ⧸ Ann R (M i)) := by
-    refine Ideal.Quotient.nontrivial ?_
-    rw [ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
+    rw [Ideal.Quotient.nontrivial_iff, ne_eq, ← annihilator_top, Submodule.annihilator_eq_top_iff]
     exact top_ne_bot
   refine ⟨⟨_,(Module.finrank_lt_of_rank_lt (rank_lt_bound R M i)).trans_le n.le_succ⟩, ⟨?_⟩⟩
   refine (Module.Free.chooseBasis (R ⧸ Ann R (M i)) (M i)).repr.restrictScalars R ≪≫ₗ ?_
@@ -392,7 +390,7 @@ lemma PatchingModule.map_surjective
       filter_upwards with i
       obtain ⟨b, hb⟩ := Submodule.Quotient.mk_surjective _ (a i)
       simp only [← hb, mapQ_apply, LinearMap.id_coe, id_eq]⟩
-  have (α) : Nonempty (s α) := by
+  have (α : OpenIdeals R) : Nonempty (s α) := by
     simp only [nonempty_subtype, Set.mem_preimage, Set.mem_singleton_iff, s]
     exact PatchingModule.componentMapModule_surjective R F f hf α.1 (x.1 α)
   obtain ⟨v, hv⟩ := nonempty_inverseLimit_of_finite (s ·) fs (by
@@ -412,7 +410,7 @@ lemma PatchingModule.map_surjective
     (l := fun k ↦ ⟨maximalIdeal R ^ k, isOpen_maximalIdeal_pow'' R k⟩)
     (fun i j ↦ Ideal.pow_le_pow_right)
     (fun α ↦ have : Finite (R ⧸ α.1) := AddSubgroup.quotient_finite_of_isOpen _ α.2
-      exists_maximalIdeal_pow_le_of_finite_quotient _)
+      exists_maximalIdeal_pow_le_of_isArtinianRing_quotient _)
   refine ⟨⟨fun i ↦ (v i).1, fun α β h ↦ congr_arg Subtype.val (hv α β h)⟩, ?_⟩
   refine Subtype.ext (funext fun α ↦ ?_)
   have : _ = _ := (v α).2
@@ -515,8 +513,8 @@ def PatchingModule.mapOfIsPatchingSystem :
 lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) := by
   refine continuous_induced_rng.mpr ?_
   refine continuous_pi fun α ↦ ?_
-  have : DiscreteTopology (R ⧸ α.1) := AddSubgroup.discreteTopology _ α.2
-  show Continuous ((equivComponent R M F α.1 α.2) ∘ _)
+  have : DiscreteTopology (R ⧸ α.1) := QuotientAddGroup.discreteTopology α.2
+  change Continuous ((equivComponent R M F α.1 α.2) ∘ _)
   refine continuous_of_discreteTopology.comp ?_
   refine continuous_pi fun i ↦
     (continuous_algebraMap R (R ⧸ α.1)).comp (continuous_apply i)

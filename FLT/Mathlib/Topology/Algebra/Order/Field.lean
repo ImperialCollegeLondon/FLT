@@ -73,7 +73,7 @@ theorem log_div_image_eq_singleton_of_le_one_iff {v w : AbsoluteValue F ℝ}
     rwa [← Real.log_pow, ← Real.log_zpow,
       Real.log_lt_log_iff (zpow_pos (by linarith) _) (pow_pos (by linarith) _),
       ← one_lt_div (zpow_pos (by linarith) _), ← map_pow, ← map_zpow₀, ← map_div₀] at this
-  exact not_lt_of_lt ((h _).1 h₀) h₁
+  exact not_lt_of_gt ((h _).1 h₀) h₁
 
 theorem exists_rpow_of_one_lt {v w : AbsoluteValue F ℝ} (hv : v.IsNontrivial)
     (h : ∀ x, v x < 1 ↔ w x < 1) :
@@ -145,3 +145,5 @@ theorem exists_one_lt_lt_one_of_ne_rpow {v w : AbsoluteValue F ℝ}
   simp only [map_div₀]
   exact ⟨one_lt_div (pos_of_pos v (by linarith)) |>.2 (by linarith),
     div_lt_one (by linarith) |>.2 (by linarith)⟩
+
+end AbsoluteValue
