@@ -489,6 +489,9 @@ lemma RestrictedProduct.secondCountableTopology {ι : Type*} [Countable ι]
 section equivs
 
 open Classical Filter in
+/-- The canonical homeomorphism between a restricted product `Πʳ i, [R i, A i]_[𝓟 J]` over
+a principal filter, and the corresponding product `(Π i : J, A i) × (Π i : Jᶜ, R i)`.
+-/
 noncomputable def Homeomorph.restrictedProductPrincipal {ι : Type*}
     (R : ι → Type*) (A : Π i, Set (R i)) [∀ i, TopologicalSpace (R i)] (J : Set ι) :
     Πʳ i, [R i, A i]_[𝓟 J] ≃ₜ (Π i : J, A i) × (Π i : (Jᶜ : Set ι), R i) where
@@ -505,7 +508,12 @@ noncomputable def Homeomorph.restrictedProductPrincipal {ι : Type*}
       fun_prop
 
 open Filter in
-@[to_additive]
+/-- The canonical homeomorphism of group between a restricted product `Πʳ i, [R i, A i]_[𝓟 J]` over
+a principal filter, and the corresponding product `(Π i : J, A i) × (Π i : Jᶜ, R i)`.
+-/
+@[to_additive /-- The canonical homeomorphism of group between a restricted product
+`Πʳ i, [R i, A i]_[𝓟 J]` over a principal filter, and the corresponding product
+`(Π i : J, A i) × (Π i : Jᶜ, R i)`. -/]
 noncomputable def ContinuousMulEquiv.restrictedProductPrincipal {ι : Type*}
     {R : ι → Type*} [∀ i, Monoid (R i)] [∀ i, TopologicalSpace (R i)]
     {S : ι → Type*} [∀ i, SetLike (S i) (R i)] [∀ i, SubmonoidClass (S i) (R i)] {A : Π i, S i}
