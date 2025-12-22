@@ -65,7 +65,7 @@ instance instIsAddHaarMeasure : IsAddHaarMeasure (volume : Measure ℤ_[p]) :=
 instance instIsFiniteMeasure : IsFiniteMeasure (volume : Measure ℤ_[p]) where
   measure_univ_lt_top := by simp
 
-@[simp] lemma volume_coe_univ :
+lemma volume_coe_univ :
     volume ((↑) '' (Set.univ : Set ℤ_[p]) : Set ℚ_[p]) = volume (Set.univ : Set ℤ_[p]) := by
   simp [← Padic.volume_closedBall_one (p := p), Subtype.coe_image_univ _]
   rfl
