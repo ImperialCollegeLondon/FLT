@@ -3,6 +3,7 @@ import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
+import Mathlib
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -342,6 +343,7 @@ variable {ι : Type*}
     [∀ i, MeasurableSpace (G i)]
     [∀ i, BorelSpace (G i)]
     [∀ i, LocallyCompactSpace (G i)] -- follows from the hypotheses, but needed for *statement*
+    [∀ i, SecondCountableTopology (G i)]
 
 example : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
   haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
@@ -350,6 +352,7 @@ example : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
 open ContinuousMulEquiv Filter in
 @[to_additive]
 lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
+    [Countable ι]
     [J_cof : Fact (Filter.cofinite ≤ 𝓟 J)]
     (φ : Π i, (G i) ≃ₜ* (G i))
     (hφ : ∀ i ∈ J, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
@@ -357,34 +360,47 @@ lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
       (.restrictedProductCongrRight φ (eventually_principal.mpr hφ) :
         (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
-  have hφ' : ∀ i, i ∈ J → Set.BijOn (φ i).symm (C i) (C i) := sorry
-  -- This **has** to exist...
+  have : Finite (Jᶜ : Set ι) := Set.finite_coe_iff.mpr (J_cof.out fun _ a_1 ↦ a_1)
+  have : Fintype (Jᶜ : Set ι) := Set.Finite.fintype this
+  have hφ' : ∀ i, i ∈ J → Set.BijOn (φ i).symm (C i) (C i) := fun i hi ↦
+    (hφ i hi).symm <| ⟨fun _ _ ↦ apply_symm_apply _ _, fun _ _ ↦ symm_apply_apply _ _⟩
   set φ_C : ∀ i : J, C i ≃ₜ* C i := fun i ↦
   { toFun := hφ i i.2 |>.mapsTo.restrict
     invFun := hφ' i i.2 |>.mapsTo.restrict
-    left_inv := sorry
+    left_inv x := sorry
     right_inv := sorry
     map_mul' _ _ := by ext; exact map_mul (φ i) _ _
     continuous_toFun := sorry
     continuous_invFun := sorry }
+  have hφJ (i : ι) (hi : i ∈ J) : mulEquivHaarChar (φ_C ⟨i, hi⟩) = mulEquivHaarChar (φ i) :=
+    mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := (C i).subtype)
+    (by
+      change Topology.IsOpenEmbedding (Subtype.val : C i → G i)
+      have := hCopen.out i
+      sorry) (φ_C ⟨i, hi⟩) (φ i) (fun _ ↦ rfl)
   set Φ : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
     .restrictedProductCongrRight φ (eventually_principal.mpr hφ)
   set Ψ : (Π i : (J : Set ι), C i) × (Π i : (Jᶜ : Set ι), G i)
       ≃ₜ* (Π i : (J : Set ι), C i) × (Π i : (Jᶜ : Set ι), G i) :=
     .prodCongr (.piCongrRight φ_C) (.piCongrRight fun i ↦ φ i)
   set I : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* _ := .restrictedProductPrincipal J
-  have : Finite (Jᶜ : Set ι) := Set.finite_coe_iff.mpr (J_cof.out fun _ a_1 ↦ a_1)
   have Ψ_I_eq (x) : I.toMulEquiv (Φ x) = Ψ (I.toMulEquiv x) := rfl
-  have : BorelSpace (((i : ↑J) → ↥(C ↑i)) × ((i : ↑Jᶜ) → G ↑i)) := sorry
+  have : ∀ (i : ↑J), SecondCountableTopology ↥(C ↑i) := fun i ↦
+    TopologicalSpace.secondCountableTopology_induced (C i) (G i) _
   rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := I.toMulEquiv)
     I.isOpenEmbedding Φ Ψ Ψ_I_eq]
+  rw [mulEquivHaarChar_prodCongr]
+  rw [mulEquivHaarChar_eq_one_of_compactSpace]
+  rw [mulEquivHaarChar_piCongrRight]
+  have hφj (i : ι) (hi : i ∈ J) : mulEquivHaarChar (φ i) = 1 := by
+     rw [← hφJ i hi, mulEquivHaarChar_eq_one_of_compactSpace]
   sorry
 
 variable [∀ i, WeaklyLocallyCompactSpace (G i)]
 
 open ContinuousMulEquiv Filter Topology in
 @[to_additive]
-lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
+lemma mulEquivHaarChar_restrictedProductCongrRight [Countable ι] (φ : Π i, (G i) ≃ₜ* (G i))
     (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
     mulEquivHaarChar
       (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
