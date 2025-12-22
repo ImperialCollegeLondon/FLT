@@ -553,7 +553,7 @@ section type
 -/
 def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
     (Π i : S, A i) × (Π i : (Sᶜ : Set ι), R i) where
-  toFun x := (fun i ↦ ⟨x i, x.property i.property⟩, fun i ↦ x i)
+  toFun x := (fun i ↦ ⟨x i, x.2 i.2⟩, fun i ↦ x i)
   invFun y := ⟨fun i ↦ if hi : i ∈ S then y.1 ⟨i, hi⟩ else y.2 ⟨i, hi⟩,
   by aesop⟩
   left_inv x := by ext; simp
