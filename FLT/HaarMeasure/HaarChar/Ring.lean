@@ -194,6 +194,8 @@ variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSp
     {C : (i : ι) → Subring (A i)}
     [hCopen : Fact (∀ (i : ι), IsOpen (C i : Set (A i)))]
     [hCcompact : ∀ i, CompactSpace (C i)]
+    [∀ (i : ι), SecondCountableTopology (A i)]
+    [Countable ι]
 
 lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
     ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits u i) := by

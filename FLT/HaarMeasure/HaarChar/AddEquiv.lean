@@ -3,7 +3,6 @@ import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
-import Mathlib
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -345,10 +344,6 @@ variable {ι : Type*}
     [∀ i, LocallyCompactSpace (G i)] -- follows from the hypotheses, but needed for *statement*
     [∀ i, SecondCountableTopology (G i)]
 
-example : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
-  haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
-  WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
-
 open ContinuousMulEquiv Filter in
 @[to_additive]
 lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
@@ -360,24 +355,22 @@ lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
       (.restrictedProductCongrRight φ (eventually_principal.mpr hφ) :
         (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
-  have : Finite (Jᶜ : Set ι) := Set.finite_coe_iff.mpr (J_cof.out fun _ a_1 ↦ a_1)
-  have : Fintype (Jᶜ : Set ι) := Set.Finite.fintype this
+  have hJcfinite : Finite (Jᶜ : Set ι) := Set.finite_coe_iff.mpr (J_cof.out fun _ a_1 ↦ a_1)
+  have hJcfinite' : Set.Finite (Jᶜ : Set ι) := Filter.mem_cofinite.mp hJcfinite
+  have : Fintype (Jᶜ : Set ι) := Set.Finite.fintype hJcfinite
   have hφ' : ∀ i, i ∈ J → Set.BijOn (φ i).symm (C i) (C i) := fun i hi ↦
     (hφ i hi).symm <| ⟨fun _ _ ↦ apply_symm_apply _ _, fun _ _ ↦ symm_apply_apply _ _⟩
   set φ_C : ∀ i : J, C i ≃ₜ* C i := fun i ↦
   { toFun := hφ i i.2 |>.mapsTo.restrict
     invFun := hφ' i i.2 |>.mapsTo.restrict
-    left_inv x := sorry
-    right_inv := sorry
+    left_inv x := by ext; simp
+    right_inv y := by ext; simp
     map_mul' _ _ := by ext; exact map_mul (φ i) _ _
-    continuous_toFun := sorry
-    continuous_invFun := sorry }
+    continuous_toFun := by fun_prop
+    continuous_invFun := by fun_prop }
   have hφJ (i : ι) (hi : i ∈ J) : mulEquivHaarChar (φ_C ⟨i, hi⟩) = mulEquivHaarChar (φ i) :=
     mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := (C i).subtype)
-    (by
-      change Topology.IsOpenEmbedding (Subtype.val : C i → G i)
-      have := hCopen.out i
-      sorry) (φ_C ⟨i, hi⟩) (φ i) (fun _ ↦ rfl)
+    ((hCopen.out i).isOpenEmbedding_subtypeVal) (φ_C ⟨i, hi⟩) (φ i) (fun _ ↦ rfl)
   set Φ : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
     .restrictedProductCongrRight φ (eventually_principal.mpr hφ)
   set Ψ : (Π i : (J : Set ι), C i) × (Π i : (Jᶜ : Set ι), G i)
@@ -391,10 +384,19 @@ lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
     I.isOpenEmbedding Φ Ψ Ψ_I_eq]
   rw [mulEquivHaarChar_prodCongr]
   rw [mulEquivHaarChar_eq_one_of_compactSpace]
-  rw [mulEquivHaarChar_piCongrRight]
+  rw [mulEquivHaarChar_piCongrRight, one_mul]
   have hφj (i : ι) (hi : i ∈ J) : mulEquivHaarChar (φ i) = 1 := by
      rw [← hφJ i hi, mulEquivHaarChar_eq_one_of_compactSpace]
-  sorry
+  rw [Finset.prod_set_coe (f := fun i ↦ mulEquivHaarChar (φ i))]
+  refine (finprod_eq_prod_of_mulSupport_toFinset_subset _ ?_ ?_).symm
+  · apply hJcfinite'.subset
+    intro i hi hiJ
+    exact hi <| hφj i hiJ
+  · intro i hi
+    rw [Set.mem_toFinset]
+    rw [Set.Finite.mem_toFinset] at hi
+    intro hiJ
+    exact hi <| hφj i hiJ
 
 variable [∀ i, WeaklyLocallyCompactSpace (G i)]
 
