@@ -485,3 +485,39 @@ lemma RestrictedProduct.secondCountableTopology {ι : Type*} [Countable ι]
     (fun S ↦ RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen
         (Filter.le_principal_iff.2 S.2))
     (fun f ↦ ⟨⟨_, f.2⟩, ⟨f.1, by aesop⟩, rfl⟩)
+
+section equivs
+
+open Classical Filter in
+noncomputable def Homeomorph.restrictedProductPrincipal {ι : Type*}
+    (R : ι → Type*) (A : Π i, Set (R i)) [∀ i, TopologicalSpace (R i)] (J : Set ι) :
+    Πʳ i, [R i, A i]_[𝓟 J] ≃ₜ (Π i : J, A i) × (Π i : (Jᶜ : Set ι), R i) where
+  toFun x := ⟨fun i ↦ ⟨x i, eventually_principal.mp x.2 i i.2⟩, fun i ↦ x i⟩
+  invFun x := ⟨fun i ↦ if h : i ∈ J then x.1 ⟨i, h⟩ else x.2 ⟨i, h⟩, by aesop⟩
+  left_inv x := by ext; simp
+  right_inv x := by
+    ext i
+    · simp
+    · simp [dif_neg i.2]
+  continuous_toFun := continuous_prodMk.mpr
+    ⟨continuous_pi fun _ ↦ continuous_induced_rng.mpr <| continuous_eval _,
+      continuous_pi fun _ ↦ continuous_eval _⟩
+  continuous_invFun := by
+    refine continuous_rng_of_principal.mpr <| continuous_pi fun i ↦ ?_
+    by_cases hi : i ∈ J
+    · simp only [Function.comp_apply, mk_apply, hi, ↓reduceDIte]
+      fun_prop
+    · simp only [Function.comp_apply, mk_apply, hi, ↓reduceDIte]
+      fun_prop
+
+open Filter in
+@[to_additive]
+noncomputable def ContinuousMulEquiv.restrictedProductPrincipal {ι : Type*}
+    {R : ι → Type*} [∀ i, Monoid (R i)] [∀ i, TopologicalSpace (R i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (R i)] [∀ i, SubmonoidClass (S i) (R i)] {A : Π i, S i}
+    (J : Set ι) :
+    Πʳ i, [R i, A i]_[𝓟 J] ≃ₜ* (Π i : J, A i) × (Π i : (Jᶜ : Set ι), R i) where
+  toHomeomorph := Homeomorph.restrictedProductPrincipal R (fun i ↦ A i) J
+  map_mul' _ _ := rfl
+
+end equivs
