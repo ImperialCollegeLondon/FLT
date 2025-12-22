@@ -3,7 +3,6 @@ Copyright (c) 2024 Yaël Dillies, David Loeffler. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, David Loeffler
 -/
-import Mathlib.MeasureTheory.Measure.Haar.Basic
 import Mathlib.MeasureTheory.Measure.Haar.Unique
 import Mathlib.NumberTheory.Padics.ProperSpace
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
