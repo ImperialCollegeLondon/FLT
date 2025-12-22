@@ -1,6 +1,7 @@
 import Mathlib.Algebra.Module.LinearMap.Defs
 import Mathlib.Algebra.Ring.Subring.Basic
 import Mathlib.Topology.Algebra.RestrictedProduct.Basic
+import Mathlib.Algebra.Module.Submodule.Defs
 
 namespace RestrictedProduct
 
@@ -74,6 +75,23 @@ def RestrictedProduct.mapAlongLinearMap :
 lemma RestrictedProduct.mapAlongLinearMap_apply (x : Πʳ i, [R₁ i, B₁ i]_[𝓕₁]) (j : ι₂) :
     x.mapAlongLinearMap R₁ R₂ f hf φ hφ j = φ j (x (f j)) :=
   rfl
+
+variable (A : Type*) [CommRing A] {ι : Type*} (R : ι → Type*)
+  [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] (C : ∀ i, Submodule A (R i))
+
+/-- A linear map version of `RestrictedProduct.inclusion` :
+if `𝓕 ≤ 𝓖` then there's a linear map
+`Πʳ i, [R i, C i]_[𝓖] →ₗ[A] Πʳ i, [R i, C i]_[𝓕]` where the `R i`
+are `A`-modules and the `C i` are submodules.
+-/
+def RestrictedProduct.inclusionLinearMap
+     {𝓕 𝓖 : Filter ι} (h : 𝓕 ≤ 𝓖) :
+    Πʳ i, [R i, C i]_[𝓖] →ₗ[A] Πʳ i, [R i, C i]_[𝓕] :=
+  mapAlongLinearMap R R id h (fun _ ↦ .id)
+  (Filter.Eventually.of_forall <| fun _ _ ↦ id)
+
+lemma inclusionLinearMap_apply {𝓕 𝓖 : Filter ι} (h : 𝓕 ≤ 𝓖) (x : Πʳ i, [R i, C i]_[𝓖]) :
+  inclusionLinearMap A R C h x = ⟨x.1, x.2.filter_mono h⟩ := rfl
 
 end modules
 

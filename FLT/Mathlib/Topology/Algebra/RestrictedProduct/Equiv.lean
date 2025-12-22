@@ -1,7 +1,29 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Salvatore Mercuri
+-/
+
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 import Mathlib.Algebra.Group.Submonoid.Units
 import Mathlib.LinearAlgebra.DFinsupp
 import Mathlib.LinearAlgebra.Matrix.Defs
+--import Mathlib.Topology.Algebra.ContinuousMonoidHom
+
+/-!
+
+# Isomorphisms of restricted products
+
+Restricted products of isomorphic things are isomorphic.
+
+Restricted products of matrices/products/units are isomorphic to matrices/products/units
+of the restricted product.
+
+Restricted product over a principal filter is isomorphic to a product.
+
+We don't allow topological isomorphisms; they have to go into TopologicalSpace because of imports.
+
+-/
 
 open RestrictedProduct
 
@@ -510,5 +532,71 @@ lemma flatten_equiv'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
   rfl
 
 end flatten
+
+section principal
+/-!
+
+## Principal filters
+
+A restricted product over a principal filter is isomorphic to a product.
+
+-/
+
+variable {ι : Type*} (R : ι → Type*) (S : Set ι) [∀ i, Decidable (i ∈ S)] (A : (i : ι) → Set (R i))
+
+open scoped Filter
+
+section type
+
+/-- The canonical isomorphism between `Πʳ i, [R i, A i]_[𝓟 S]` and
+`(Π i ∈ S, R i) × (Π i ∉ S, A i)`
+-/
+def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
+    (Π i : S, A i) × (Π i : (Sᶜ : Set ι), R i) where
+  toFun x := (fun i ↦ ⟨x i, x.2 i.2⟩, fun i ↦ x i)
+  invFun y := ⟨fun i ↦ if hi : i ∈ S then y.1 ⟨i, hi⟩ else y.2 ⟨i, hi⟩,
+  by aesop⟩
+  left_inv x := by ext; simp
+  right_inv x := by
+    ext i
+    · simp
+    · simp [dif_neg i.2]
+
+end type
+
+variable {T : ι → Type*} [Π i, SetLike (T i) (R i)] {A : Π i, T i}
+
+section monoid
+
+-- TODO move to FLT/Mathlib
+/-- Monoid equivalence version of `principalEquivProd`. -/
+@[to_additive /-- Additive monoid equivalence of principalEquivProd. -/]
+def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
+    Πʳ i, [R i, A i]_[𝓟 S] ≃* (Π i : S, A i) × (Π i : (Sᶜ : Set ι), R i) where
+  __ := principalEquivProd R S _
+  map_mul' _ _ := rfl
+
+end monoid
+
+variable {ι : Type*} (R : ι → Type*) {ℱ : Filter ι} (A : Type*) [CommRing A]
+
+open scoped RestrictedProduct
+
+open Filter
+
+section module
+
+/-- Module equivalence version of `principalEquivProd`. -/
+noncomputable def principalLinearEquivProd [Π i, AddCommGroup (R i)]
+    [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
+    (S : Set ι) [∀ i, Decidable (i ∈ S)] :
+    (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] ((Π i : S, C i) ×
+      (Π i : (Sᶜ : Set ι), R i)) where
+  __ := principalAddEquivSum R S (A := C)
+  map_smul' _ _ := rfl
+
+end module
+
+end principal
 
 end RestrictedProduct
