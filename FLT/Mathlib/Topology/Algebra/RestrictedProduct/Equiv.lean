@@ -21,7 +21,7 @@ of the restricted product.
 
 Restricted product over a principal filter is isomorphic to a product.
 
-We don't allow topological isomorphisms; they have to go into TopologicalSpace becasue of imports.
+We don't allow topological isomorphisms; they have to go into TopologicalSpace because of imports.
 
 -/
 
