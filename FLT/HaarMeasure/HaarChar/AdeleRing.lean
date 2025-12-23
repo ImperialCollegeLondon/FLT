@@ -41,11 +41,43 @@ instance (k A B : Type*) [Field k] [CommSemiring A] [Ring B]
     [Algebra.IsCentral k B] [IsSimpleRing B] :
     Algebra.IsCentral A (B ⊗[k] A) := sorry
 
-    /- where
-  out x hx := by
-    refine Algebra.mem_bot.mpr ?_;
-    simp [Subalgebra.mem_center_iff] at hx
-    sorry -/
+open IsDedekindDomain RestrictedProduct in
+open scoped TensorProduct.RightActions in
+variable
+  [MeasurableSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))]
+  [BorelSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))] in
+lemma NumberField.AdeleRing.isCentralSimple_finite_addHaarScalarFactor_left_mul_eq_right_mul
+    [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ) :
+    addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
+    addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
+  -- finite places
+  have : Module.FinitePresentation K B := Module.finitePresentation_of_finite ..
+  /- let e :
+      B ⊗[K] (FiniteAdeleRing (𝓞 K) K) ≃ₜ+
+      Πʳ v : HeightOneSpectrum (𝓞 K), [B ⊗[K] (v.adicCompletion K), sorry] := sorry -/
+  let v : HeightOneSpectrum (𝓞 K) := sorry
+  let u' : (B ⊗[K] (v.adicCompletion K))ˣ := sorry
+  let : MeasurableSpace (B ⊗[K] v.adicCompletion K) := borel _
+  have : BorelSpace (B ⊗[K] v.adicCompletion K) := ⟨rfl⟩
+  have hf := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := v.adicCompletion K) u'
+  sorry
+
+open scoped TensorProduct.RightActions in
+variable
+  [MeasurableSpace (B ⊗[K] (InfiniteAdeleRing K))]
+  [BorelSpace (B ⊗[K] (InfiniteAdeleRing K))] in
+lemma NumberField.AdeleRing.isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
+    [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (InfiniteAdeleRing K))ˣ) :
+    addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
+    addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
+  -- infinite places
+  #check InfiniteAdeleRing.ringEquiv_mixedSpace
+  let vi : InfinitePlace K := sorry
+  let u'i : (B ⊗[K] vi.Completion)ˣ := sorry
+  let : MeasurableSpace (B ⊗[K] vi.Completion) := borel _
+  have : BorelSpace (B ⊗[K] vi.Completion) := ⟨rfl⟩
+  have hi := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) u'i
+  sorry
 
 open scoped TensorProduct.RightActions in
 variable
@@ -56,19 +88,6 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   open IsDedekindDomain in
-  -- infinite places
-  #check InfiniteAdeleRing.ringEquiv_mixedSpace
-  let vi : InfinitePlace K := sorry
-  let u'i : (B ⊗[K] vi.Completion)ˣ := sorry
-  let : MeasurableSpace (B ⊗[K] vi.Completion) := borel _
-  have : BorelSpace (B ⊗[K] vi.Completion) := ⟨rfl⟩
-  have hi := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) u'i
-  -- finite places
-  let v : HeightOneSpectrum (𝓞 K) := sorry
-  let u' : (B ⊗[K] (v.adicCompletion K))ˣ := sorry
-  let : MeasurableSpace (B ⊗[K] v.adicCompletion K) := borel _
-  have : BorelSpace (B ⊗[K] v.adicCompletion K) := ⟨rfl⟩
-  have hf := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := v.adicCompletion K) u'
 
   sorry
 
