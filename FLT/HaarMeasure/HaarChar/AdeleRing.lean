@@ -4,6 +4,7 @@ import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.HaarMeasure.HaarChar.Padic
+import FLT.HaarMeasure.HaarChar.FiniteDimensional
 import Mathlib.NumberTheory.NumberField.ProductFormula
 /-!
 
@@ -35,6 +36,18 @@ open scoped TensorProduct
 open NumberField MeasureTheory
 
 open scoped TensorProduct.RightActions in
+instance (k A B : Type*) [Field k] [CommSemiring A] [Ring B]
+    [Algebra k A] [Algebra k B]
+    [Algebra.IsCentral k B] [IsSimpleRing B] :
+    Algebra.IsCentral A (B ⊗[k] A) := sorry
+
+    /- where
+  out x hx := by
+    refine Algebra.mem_bot.mpr ?_;
+    simp [Subalgebra.mem_center_iff] at hx
+    sorry -/
+
+open scoped TensorProduct.RightActions in
 variable
   [MeasurableSpace (B ⊗[K] 𝔸 K)]
   [BorelSpace (B ⊗[K] 𝔸 K)] in
@@ -42,6 +55,22 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
     [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (𝔸 K))ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
+  open IsDedekindDomain in
+  -- infinite places
+  #check InfiniteAdeleRing.ringEquiv_mixedSpace
+  let vi : InfinitePlace K := sorry
+  let u'i : (B ⊗[K] vi.Completion)ˣ := sorry
+  let : MeasurableSpace (B ⊗[K] vi.Completion) := borel _
+  have : BorelSpace (B ⊗[K] vi.Completion) := ⟨rfl⟩
+  have hi := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) u'i
+  -- finite places
+  let v : HeightOneSpectrum (𝓞 K) := sorry
+  let u' : (B ⊗[K] (v.adicCompletion K))ˣ := sorry
+  have : LocallyCompactSpace (v.adicCompletion K) := sorry
+  let : MeasurableSpace (B ⊗[K] v.adicCompletion K) := borel _
+  have : BorelSpace (B ⊗[K] v.adicCompletion K) := ⟨rfl⟩
+  have hf := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := v.adicCompletion K) u'
+
   sorry
 
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
