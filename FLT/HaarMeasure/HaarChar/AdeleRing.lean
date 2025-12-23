@@ -119,13 +119,38 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
 
 open scoped TensorProduct.RightActions
 
+lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
+    [FiniteDimensional ℚ V] (φ : V ≃ₗ[ℚ] V)
+    [MeasurableSpace (V ⊗[ℚ] 𝔸 ℚ)] [BorelSpace (V ⊗[ℚ] 𝔸 ℚ)] :
+    addEquivAddHaarChar
+      (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toContinuousAddEquiv = 1 := by
+  sorry
+
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
     [MeasurableSpace (V ⊗[K] 𝔸 K)] [BorelSpace (V ⊗[K] 𝔸 K)] :
     addEquivAddHaarChar
       (ContinuousLinearEquiv.baseChange K (𝔸 K) V V φ).toContinuousAddEquiv = 1 := by
-  sorry
+  let : Module ℚ V := Module.compHom V (algebraMap ℚ K)
+  have : Module.Finite ℚ V := by exact FiniteDimensional.trans ℚ K V
+  have : IsScalarTower ℚ K V := inferInstance
+  let : Module (AdeleRing (𝓞 ℚ) ℚ) (V ⊗[K] AdeleRing (𝓞 K) K) :=
+    Module.compHom _ (algebraMap (AdeleRing (𝓞 ℚ) ℚ) (AdeleRing (𝓞 K) K))
+  have : IsScalarTower (AdeleRing (𝓞 ℚ) ℚ) (AdeleRing (𝓞 K) K) (V ⊗[K] AdeleRing (𝓞 K) K) :=
+    IsScalarTower.of_algebraMap_smul fun r ↦ congrFun rfl
+  let f := NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv ℚ K V
+  borelize (V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ)
+  have φℚ : V ≃ₗ[ℚ] V := by exact Function.invFun (fun a ↦ φ) φ
+  have := MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f
+    (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V (φ.restrictScalars ℚ)).toContinuousAddEquiv
+    (ContinuousLinearEquiv.baseChange K (𝔸 K) V V φ).toContinuousAddEquiv
+  rw [← this]
+  · apply MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one
+  · intro x
+    induction x with
+    | zero => simp
+    | tmul x y => rfl
+    | add x y hx hy => simp [hx, hy]
 
-open scoped TensorProduct.RightActions in
 /-- Left multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure. In other words, Bˣ is in the kernel of the `ringHaarChar` of `B ⊗ 𝔸_K`.
 -/
@@ -144,7 +169,6 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
   | tmul x y => simp [LinearEquiv.mulLeft]
   | add x y hx hy => simp_all [mul_add]
 
-open scoped TensorProduct.RightActions in
 /-- Right multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure.
 -/
