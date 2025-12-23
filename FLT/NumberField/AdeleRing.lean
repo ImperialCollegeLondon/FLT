@@ -498,7 +498,6 @@ def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes
     -- Ask on Zulip?
     simp [IsDedekindDomain.algebraMap_apply (𝓞 ℚ)]
 
-#check Rat.FiniteAdeleRing.padicEquiv._proof_25
 theorem padicEquiv_bijOn :
     Set.BijOn padicEquiv (integralAdeles (𝓞 ℚ) ℚ)
       (structureSubring (fun p : Nat.Primes ↦ ℚ_[p]) (fun p ↦ subring p) Filter.cofinite) := by
