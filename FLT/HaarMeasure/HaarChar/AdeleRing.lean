@@ -117,8 +117,7 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
     (φ : M ≃ₗ[R] N) (m : M) (a : A) :
     ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) = (φ m) ⊗ₜ a := rfl
 
-open scoped TensorProduct.RightActions
-
+open scoped TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     [FiniteDimensional ℚ V] (φ : V ≃ₗ[ℚ] V)
     [MeasurableSpace (V ⊗[ℚ] 𝔸 ℚ)] [BorelSpace (V ⊗[ℚ] 𝔸 ℚ)] :
@@ -126,6 +125,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
       (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toContinuousAddEquiv = 1 := by
   sorry
 
+open scoped TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
     [MeasurableSpace (V ⊗[K] 𝔸 K)] [BorelSpace (V ⊗[K] 𝔸 K)] :
     addEquivAddHaarChar
@@ -155,6 +155,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
     | tmul x y => rfl
     | add x y hx hy => simp [hx, hy]
 
+open scoped TensorProduct.RightActions in
 /-- Left multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure. In other words, Bˣ is in the kernel of the `ringHaarChar` of `B ⊗ 𝔸_K`.
 -/
@@ -173,6 +174,7 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
   | tmul x y => simp [LinearEquiv.mulLeft]
   | add x y hx hy => simp_all [mul_add]
 
+open scoped TensorProduct.RightActions in
 /-- Right multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure.
 -/
