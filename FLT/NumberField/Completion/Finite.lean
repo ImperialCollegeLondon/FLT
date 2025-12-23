@@ -56,15 +56,11 @@ instance Rat.adicCompletion.locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ
 
 instance (v : HeightOneSpectrum (𝓞 K)) :
     WeaklyLocallyCompactSpace (v.adicCompletion K) where
-  exists_compact_mem_nhds x := by
+  exists_compact_mem_nhds x :=
     open Pointwise in
-    by_cases hx : x = 0
-    · exact ⟨v.adicCompletionIntegers K,
-        isCompact_iff_compactSpace.mpr <| instCompactSpaceAdicCompletionIntegers K v,
-        (isOpenAdicCompletionIntegers K v).mem_nhds (by simp [hx])⟩
-    · exact ⟨x • (v.adicCompletionIntegers K),
-        (isCompact_iff_compactSpace.mpr <| instCompactSpaceAdicCompletionIntegers K v).smul x,
-        ((isOpenAdicCompletionIntegers K v).smul₀ hx).mem_nhds (Set.mem_smul_set.mpr ⟨1, by simp⟩)⟩
+    ⟨x +ᵥ ((v.adicCompletionIntegers K) : Set (v.adicCompletion K)),
+      (isCompact_iff_compactSpace.mpr <| instCompactSpaceAdicCompletionIntegers K v).vadd x,
+      ((isOpenAdicCompletionIntegers K v).vadd x).mem_nhds (Set.mem_vadd_set.mpr ⟨0, by simp⟩)⟩
 
 instance (v : HeightOneSpectrum (𝓞 K)) :
     LocallyCompactSpace (v.adicCompletion K) := inferInstance
