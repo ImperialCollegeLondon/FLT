@@ -388,15 +388,13 @@ lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
   have hφj (i : ι) (hi : i ∈ J) : mulEquivHaarChar (φ i) = 1 := by
      rw [← hφJ i hi, mulEquivHaarChar_eq_one_of_compactSpace]
   rw [Finset.prod_set_coe (f := fun i ↦ mulEquivHaarChar (φ i))]
-  refine (finprod_eq_prod_of_mulSupport_toFinset_subset _ ?_ ?_).symm
-  · apply hJcfinite'.subset
+  have hsupp : Function.mulSupport (fun i : ι ↦ mulEquivHaarChar (φ i)) ⊆ Jᶜ := by
     intro i hi hiJ
     exact hi <| hφj i hiJ
-  · intro i hi
-    rw [Set.mem_toFinset]
-    rw [Set.Finite.mem_toFinset] at hi
-    intro hiJ
-    exact hi <| hφj i hiJ
+  have hfin : (Function.mulSupport fun i : ι ↦ mulEquivHaarChar (φ i)).Finite :=
+    hJcfinite'.subset hsupp
+  rw [finprod_eq_prod_of_mulSupport_toFinset_subset _ hfin]
+  simpa [← Finset.coe_subset, Set.coe_toFinset] using hsupp
 
 variable [∀ i, WeaklyLocallyCompactSpace (G i)]
 
