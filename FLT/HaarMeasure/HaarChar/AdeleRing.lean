@@ -74,9 +74,18 @@ lemma NumberField.AdeleRing.isCentralSimple_infinite_addHaarScalarFactor_left_mu
   #check InfiniteAdeleRing.ringEquiv_mixedSpace
   let vi : InfinitePlace K := sorry
   let u'i : (B ⊗[K] vi.Completion)ˣ := sorry
-  let : MeasurableSpace (B ⊗[K] vi.Completion) := borel _
-  have : BorelSpace (B ⊗[K] vi.Completion) := ⟨rfl⟩
-  have hi := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) u'i
+  let : MeasurableSpace (Π vi : InfinitePlace K, (B ⊗[K] vi.Completion)) := borel _
+  have : BorelSpace (Π vi : InfinitePlace K, (B ⊗[K] vi.Completion)) := ⟨rfl⟩
+  -- have hi := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) u'i
+  /- let e : (B ⊗[K] (InfiniteAdeleRing K)) ≃A[ℤ] Π vi : InfinitePlace K, (B ⊗[K] vi.Completion) := {
+    __ := tensorPi_equiv_piTensor ..
+    map_mul' x y := sorry
+    commutes' z := sorry
+    continuous_toFun := sorry
+    continuous_invFun := sorry
+  }
+  let u' : (Π vi : InfinitePlace K, (B ⊗[K] vi.Completion))ˣ := Units.map e u
+  rw [addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv e] -/
   sorry
 
 open scoped TensorProduct.RightActions in
