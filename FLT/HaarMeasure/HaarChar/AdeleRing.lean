@@ -66,7 +66,6 @@ lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_righ
   -- finite places
   let v : HeightOneSpectrum (𝓞 K) := sorry
   let u' : (B ⊗[K] (v.adicCompletion K))ˣ := sorry
-  have : LocallyCompactSpace (v.adicCompletion K) := sorry
   let : MeasurableSpace (B ⊗[K] v.adicCompletion K) := borel _
   have : BorelSpace (B ⊗[K] v.adicCompletion K) := ⟨rfl⟩
   have hf := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := v.adicCompletion K) u'
