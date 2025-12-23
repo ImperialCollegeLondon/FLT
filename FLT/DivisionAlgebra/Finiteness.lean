@@ -345,7 +345,6 @@ units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
 abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
   (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
 
--- TODO if you `import Mathlib` then this times out
 omit [FiniteDimensional K D] in
 lemma smul_D𝔸_prodRight_symm (a : (Dinf K D)ˣ) (b : (Df K D)ˣ)
     (di : Dinf K D) (df : Df K D) :
