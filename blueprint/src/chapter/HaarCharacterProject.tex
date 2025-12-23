@@ -646,7 +646,8 @@ The following theorem shows that the value of this product is $d(\phi)$.
   $\delta_A(\phi)=\prod_i\delta_{A_i}(\phi_i)$.
 \end{theorem}
 \begin{remark} In the Lean file we make the additional assumption that the index set over
-  which we're taking the product, is countable. This is because in this proof we make use
+  which we're taking the product, is countable, and that the $A_i$ are second countable.
+  This is because in this proof we make use
   of an infinite product $\prod_{i\notin S}C_i$ of topological spaces equipped with Haar measure,
   so each topological space gets equipped with the Borel sigma algebra.
   Mathlib then gives the product a canonical product sigma algebra which, in the case where the
@@ -654,9 +655,8 @@ The following theorem shows that the value of this product is $d(\phi)$.
   measure on the product so we need the ``canonical'' sigma algebra on this product to be the
   Borel sigma algebra. Rather than taking the trouble
   to locally turn off this product sigma algebra construction in FLT, we simply restrict to a
-  countable index set because then the product is a Borel sigma algebra and this is all we
-  need in our applications to adeles. We also put some possibly spurious second countable
-  hypotheses on things, which are again harmless in our application.
+  countable index set and add second countability assumptions, because then the product is a
+  Borel sigma algebra and this is all we need in our applications to adeles.
 \end{remark}
 \begin{proof}
   \leanok
