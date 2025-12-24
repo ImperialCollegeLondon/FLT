@@ -41,7 +41,15 @@ instance (k A B : Type*) [Field k] [CommSemiring A] [Ring B]
     [Algebra.IsCentral k B] [IsSimpleRing B] :
     Algebra.IsCentral A (B ⊗[k] A) := sorry
 
-open IsDedekindDomain RestrictedProduct in
+/- open IsDedekindDomain RestrictedProduct in
+variable
+  [MeasurableSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))]
+  [BorelSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))] in
+def e [IsSimpleRing B] [Algebra.IsCentral K B] :
+    B ⊗[K] (FiniteAdeleRing (𝓞 K) K) ≃ₜ+
+    Πʳ v : HeightOneSpectrum (𝓞 K), [B ⊗[K] (v.adicCompletion K), sorry] := sorry -/
+
+open IsDedekindDomain HeightOneSpectrum RestrictedProduct in
 open scoped TensorProduct.RightActions in
 variable
   [MeasurableSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))]
@@ -52,9 +60,12 @@ lemma NumberField.AdeleRing.isCentralSimple_finite_addHaarScalarFactor_left_mul_
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   -- finite places
   have : Module.FinitePresentation K B := Module.finitePresentation_of_finite ..
-  /- let e :
-      B ⊗[K] (FiniteAdeleRing (𝓞 K) K) ≃ₜ+
-      Πʳ v : HeightOneSpectrum (𝓞 K), [B ⊗[K] (v.adicCompletion K), sorry] := sorry -/
+  let e :
+      B ⊗[𝓞 K] (FiniteAdeleRing (𝓞 K) K) ≃ₗ[𝓞 K]
+      Πʳ v : HeightOneSpectrum (𝓞 K),
+        [B ⊗[𝓞 K] (v.adicCompletion K),
+        rangeLTensor (𝓞 K) B (adicCompletion K) (integerSubmodule (𝓞 K) K) v] := sorry
+    --FiniteAdeleRing.tensorEquivRestrictedProduct ..
   let v : HeightOneSpectrum (𝓞 K) := sorry
   let u' : (B ⊗[K] (v.adicCompletion K))ˣ := sorry
   let : MeasurableSpace (B ⊗[K] v.adicCompletion K) := borel _
