@@ -463,21 +463,6 @@ namespace Rat.FiniteAdeleRing
 
 local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
 
-/- TODO : this declaration `Rat.FiniteAdeleRing.padicEquiv` seems to take a huge amount
-of time for the kernel to accept. This is really annoying. Am I abusing defeq or something?
-
-`set_option trace.profiler true in` gives this (on a fast machine):
-
-[Elab.async] [0.044870] Lean.addDecl ▼
-  [Kernel] [0.044825] ✅️ typechecking declarations [Rat.FiniteAdeleRing.padicEquiv._proof_23]
-[Elab.async] [0.043696] Lean.addDecl ▼
-  [Kernel] [0.043637] ✅️ typechecking declarations [Rat.FiniteAdeleRing.padicEquiv._proof_24]
-[Elab.async] [25.504737] Lean.addDecl ▼
-  [Kernel] [25.504574] ✅️ typechecking declarations [Rat.FiniteAdeleRing.padicEquiv._proof_25]
-[Elab.async] [0.034413] Lean.addDecl ▼
-  [Kernel] [0.034298] ✅️ typechecking declarations [Rat.FiniteAdeleRing.padicEquiv]
-
--/
 /-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and the restricted
 product `Πʳ (p : Nat.Primes), [ℚ_[p], subring p]` of `Padic`s lifting the equivalence
 `v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator]` at each place. -/
@@ -496,7 +481,10 @@ def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes
     change _ = algebraMap ℚ ℚ_[Rat.HeightOneSpectrum.natGenerator v] q
     -- was `simp` when `FiniteAdeleRing` was an `abbrev`.
     -- Ask on Zulip?
-    simp [IsDedekindDomain.algebraMap_apply (𝓞 ℚ)]
+    -- Adding `-implicitDefEqProofs` means that the kernel doesn't spend 30 seconds
+    -- typchecking the declaration for some reason! See
+    -- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/help.20with.20diagnosis.20of.20slow.20declaration/near/565229150
+    simp -implicitDefEqProofs [IsDedekindDomain.algebraMap_apply (𝓞 ℚ)]
 
 theorem padicEquiv_bijOn :
     Set.BijOn padicEquiv (integralAdeles (𝓞 ℚ) ℚ)
