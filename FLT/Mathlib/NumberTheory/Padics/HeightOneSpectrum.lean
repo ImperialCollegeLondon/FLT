@@ -6,9 +6,23 @@ open IsDedekindDomain HeightOneSpectrum adicCompletion NumberField UniformSpace.
 
 local instance (p : Nat.Primes) : Fact p.1.Prime := ⟨p.2⟩
 
-namespace Rat.HeightOneSpectrum
-
 variable {R : Type*} [CommRing R] [Algebra R ℚ] [IsIntegralClosure R ℤ ℚ]
+
+namespace Rat.HeightOneSpectrum.IsIntegralClosure
+
+instance : Module.Free ℤ R := .of_equiv (IsIntegralClosure.intEquiv R).toIntLinearEquiv.symm
+
+instance : Module.Finite ℤ R := .equiv (IsIntegralClosure.intEquiv R).toIntLinearEquiv.symm
+
+instance : IsPrincipalIdealRing R := .of_surjective _ (IsIntegralClosure.intEquiv R).symm.surjective
+
+@[simp]
+theorem intEquiv_apply_coe (z : R) :
+    (IsIntegralClosure.intEquiv R z : R) = z := by
+  obtain ⟨z, rfl⟩ := (IsIntegralClosure.intEquiv R).symm.surjective z
+  simp
+
+end IsIntegralClosure
 
 theorem pow_natGenerator_dvd_iff (v : HeightOneSpectrum R) {n : ℕ} (m : ℕ) :
     natGenerator v ^ m ∣ n ↔ ↑n ∈ (v.asIdeal.map (IsIntegralClosure.intEquiv R)) ^ m := by
@@ -16,6 +30,19 @@ theorem pow_natGenerator_dvd_iff (v : HeightOneSpectrum R) {n : ℕ} (m : ℕ) :
   exact Int.ofNat_dvd.symm
 
 variable [IsDedekindDomain R]
+
+theorem natGenerator_eq_absNorm (v : HeightOneSpectrum R) :
+    natGenerator v = Ideal.absNorm v.asIdeal := by
+  rw [natGenerator]
+  conv_lhs =>
+    enter[1, 1]
+    rw [← Int.ideal_span_absNorm_eq_self (Ideal.map (IsIntegralClosure.intEquiv R) v.asIdeal)]
+  rw [Int.natAbs_eq_iff_associated.2 <| Submodule.IsPrincipal.associated_generator_span_self _]
+  obtain ⟨g, hg⟩ := IsPrincipalIdealRing.principal v.asIdeal
+  simp only [hg, Ideal.submodule_span_eq, Ideal.map_span, Set.image_singleton,
+    Ideal.absNorm_span_singleton, Algebra.norm_self, MonoidHom.id_apply]
+  rw [← Algebra.norm_eq_of_ringEquiv (IsIntegralClosure.intEquiv R) (by ext; simp)]
+  simp [-Nat.cast_natAbs]
 
 theorem intValuation_eq_padicValuation_iff_multiplicity_eq_multiplicity {x : R}
     (v : HeightOneSpectrum R) (hx : x ≠ 0) :
@@ -51,26 +78,13 @@ theorem adicCompletion.padicEquiv_cast
     (padicEquiv v) x = Padic.withValRingEquiv (mapEquiv (withValEquiv v) x) := by
   rfl
 
-theorem natGenerator_eq_absNorm (v : HeightOneSpectrum (𝓞 ℚ)) :
-    natGenerator v = Ideal.absNorm v.asIdeal := by
-  have : IsPrincipalIdealRing (𝓞 ℚ) :=
-    IsPrincipalIdealRing.of_surjective _ ringOfIntegersEquiv.symm.surjective
-  rw [natGenerator]
-  conv_lhs =>
-    enter[1, 1]
-    rw [← Int.ideal_span_absNorm_eq_self (Ideal.map (IsIntegralClosure.intEquiv (𝓞 ℚ)) v.asIdeal)]
-  rw [Int.natAbs_eq_iff_associated.2 <| Submodule.IsPrincipal.associated_generator_span_self _]
-  obtain ⟨g, hg⟩ := IsPrincipalIdealRing.principal v.asIdeal
-  simp only [hg, Ideal.submodule_span_eq, Ideal.map_span, Set.image_singleton,
-    Ideal.absNorm_span_singleton, Algebra.norm_self, MonoidHom.id_apply]
-  rw [← Algebra.norm_eq_of_ringEquiv ringOfIntegersEquiv (C := 𝓞 ℚ) (by ext; simp)]
-  simp [-Nat.cast_natAbs]
+-- Only have `Norm (v.adicCompletion ℚ)` for `R = 𝓞 ℚ` so specialise from here
 
 lemma adicCompletion.padicEquiv_norm_coe_eq
     (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) (x : WithVal (v.valuation ℚ)) :
     ‖(padicEquiv v) x‖ = ‖algebraMap _ (v.adicCompletion ℚ) x‖ := by
-  rw [padicEquiv_cast v x, UniformSpace.Completion.mapEquiv_coe, Padic.coe_withValRingEquiv,
-    UniformSpace.Completion.extension_coe (
+  rw [padicEquiv_cast v x, mapEquiv_coe, Padic.coe_withValRingEquiv,
+    extension_coe (
       by simpa using Padic.isUniformInducing_cast_withVal (p := primesEquiv v) |>.uniformContinuous
     )]
   change _ = ‖FinitePlace.embedding v x‖
@@ -85,7 +99,7 @@ lemma adicCompletion.padicEquiv_norm_coe_eq
 lemma adicCompletion.padicEquiv_norm_eq
     (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) (x : v.adicCompletion ℚ) :
     ‖(padicEquiv v) x‖ = ‖x‖ := by
-  induction x using UniformSpace.Completion.induction_on with
+  induction x using induction_on with
   | hp => apply isClosed_eq <;> fun_prop
   | ih => simp [padicEquiv_norm_coe_eq v, UniformSpace.Completion.algebraMap_def]
 
