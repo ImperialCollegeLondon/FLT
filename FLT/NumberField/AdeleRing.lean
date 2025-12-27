@@ -247,22 +247,17 @@ open scoped TensorProduct.RightActions in
 for V an L-module and K ⊆ L number fields. -/
 noncomputable def ModuleBaseChangeContinuousAddEquiv
     (V : Type*) [AddCommGroup V] [Module L V] [Module K V]
-    [IsScalarTower K L V] [FiniteDimensional L V] [FiniteDimensional K V] :
+    [IsScalarTower K L V] [FiniteDimensional L V] [FiniteDimensional K V]
+    [Module (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L)]
+    [IsScalarTower (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L)] :
     V ⊗[K] (𝔸 K) ≃ₜ+ (V ⊗[L] (𝔸 L)) := by
-  -- The trick is to make `(V ⊗[L] (𝔸 L))` into an 𝔸 K-module
-  let : Module (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
-    Module.compHom _ (algebraMap (𝔸 K) (𝔸 L))
-  -- and ultimately prove that both sides have the 𝔸 K-module topology
-  -- so the result will follow from the fact that linear maps are
-  -- automatically continuous for the module topology.
-  have : IsScalarTower (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
-    .of_algebraMap_smul fun r ↦ congrFun rfl
-  have : ContinuousSMul (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+  haveI : ContinuousSMul (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
     IsScalarTower.continuousSMul (AdeleRing (𝓞 L) L)
-  have ⟨h2⟩ : IsModuleTopology (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
-    inferInstance
-  have : IsModuleTopology (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) := {
-    eq_moduleTopology' := by rwa [moduleTopology.trans (𝔸 K) (𝔸 L) (V ⊗[L] (𝔸 L))] }
+  haveI : IsModuleTopology (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) := {
+    eq_moduleTopology' := by
+      obtain ⟨h2⟩ : IsModuleTopology (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+        inferInstance
+      rwa [moduleTopology.trans (𝔸 K) (𝔸 L) (V ⊗[L] (𝔸 L))] }
   exact {
   __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
   continuous_toFun := IsModuleTopology.continuous_of_linearMap
@@ -270,6 +265,16 @@ noncomputable def ModuleBaseChangeContinuousAddEquiv
   continuous_invFun := IsModuleTopology.continuous_of_linearMap
       (ModuleBaseChangeAddEquiv' K L V : V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L))).symm.toLinearMap
   }
+
+open scoped TensorProduct.RightActions in
+theorem moduleBaseChangeContinuousAddEquiv_apply_eq_moduleBaseChangeAddEquiv'_apply
+    (V : Type*) [AddCommGroup V] [Module L V] [Module K V]
+    [IsScalarTower K L V] [FiniteDimensional L V] [FiniteDimensional K V]
+    [Module (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L)]
+    [IsScalarTower (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L)]
+    (x : V ⊗[K] (𝔸 K)) :
+    ModuleBaseChangeContinuousAddEquiv K L V x = ModuleBaseChangeAddEquiv' K L V x :=
+  rfl
 
 end vector_space
 
@@ -458,8 +463,6 @@ namespace Rat.FiniteAdeleRing
 
 local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
 
--- TODO : this declaration `Rat.FiniteAdeleRing.padicEquiv` seems to take a huge amount
--- of time for the kernel to accept.
 /-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and the restricted
 product `Πʳ (p : Nat.Primes), [ℚ_[p], subring p]` of `Padic`s lifting the equivalence
 `v.adicCompletion ℚ ≃ₐ[ℚ] ℚ_[v.natGenerator]` at each place. -/
@@ -478,7 +481,10 @@ def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes
     change _ = algebraMap ℚ ℚ_[Rat.HeightOneSpectrum.natGenerator v] q
     -- was `simp` when `FiniteAdeleRing` was an `abbrev`.
     -- Ask on Zulip?
-    simp [IsDedekindDomain.algebraMap_apply (𝓞 ℚ)]
+    -- Adding `-implicitDefEqProofs` means that the kernel doesn't spend 30 seconds
+    -- typchecking the declaration for some reason! See
+    -- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/help.20with.20diagnosis.20of.20slow.20declaration/near/565229150
+    simp -implicitDefEqProofs [IsDedekindDomain.algebraMap_apply (𝓞 ℚ)]
 
 theorem padicEquiv_bijOn :
     Set.BijOn padicEquiv (integralAdeles (𝓞 ℚ) ℚ)

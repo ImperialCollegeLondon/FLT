@@ -10,6 +10,9 @@ import FLT.Mathlib.Topology.Algebra.MulAction
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
 
 /-!
+
+# Restricted product of modules as a module over restricted product of rings
+
 If `R : ι → Type*` is a family of rings, `B : (i : ι) → Subring (R i)` is a family of
 subrings, `M : ι → Type*` is a family of types, with `M i` having an `R i`-module structure
 and `C : (i : ι) → Submodule (B i) (M i)`, then `Πʳ i, [M i, C i]_[𝓕]` has a

@@ -319,18 +319,6 @@ section restrictedproduct
 
 open ENNReal
 
--- -- some sample code to show how why a nonempty compact open has
--- -- positive finite Haar measure
--- example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
---     [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
---     -- IsHaarMeasure gives "positive on opens" and "finite on compacts"
---     [IsHaarMeasure μ] (C : Set X) [Nonempty C]
---     (hCopen : IsOpen C) (hCcompact : IsCompact C) :
---     0 < μ C ∧ μ C < ∞ := by
---   constructor
---   · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
---   · exact IsCompact.measure_lt_top hCcompact
-
 open RestrictedProduct
 
 open Pointwise in
@@ -353,40 +341,81 @@ variable {ι : Type*}
     [hCcompact : ∀ i, CompactSpace (C i)]
     [∀ i, MeasurableSpace (G i)]
     [∀ i, BorelSpace (G i)]
+    [∀ i, LocallyCompactSpace (G i)] -- follows from the hypotheses, but needed for *statement*
+    [∀ i, SecondCountableTopology (G i)]
 
-example : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
-  haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
-  WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
+open ContinuousMulEquiv Filter in
+@[to_additive]
+lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
+    [Countable ι]
+    [J_cof : Fact (Filter.cofinite ≤ 𝓟 J)]
+    (φ : Π i, (G i) ≃ₜ* (G i))
+    (hφ : ∀ i ∈ J, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
+    mulEquivHaarChar
+      (.restrictedProductCongrRight φ (eventually_principal.mpr hφ) :
+        (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J])) =
+    ∏ᶠ i, mulEquivHaarChar (φ i) := by
+  have hJcfinite : Finite (Jᶜ : Set ι) := (J_cof.out fun _ a ↦ a)
+  have hJcfinite' : Set.Finite (Jᶜ : Set ι) := hJcfinite
+  have : Fintype (Jᶜ : Set ι) := hJcfinite'.fintype
+  have hφ' : ∀ i, i ∈ J → Set.BijOn (φ i).symm (C i) (C i) := fun i hi ↦
+    (hφ i hi).symm <| ⟨fun _ _ ↦ apply_symm_apply _ _, fun _ _ ↦ symm_apply_apply _ _⟩
+  set φ_C : ∀ i : J, C i ≃ₜ* C i := fun i ↦
+  { toFun := hφ i i.2 |>.mapsTo.restrict
+    invFun := hφ' i i.2 |>.mapsTo.restrict
+    left_inv x := by ext; simp
+    right_inv y := by ext; simp
+    map_mul' _ _ := by ext; exact map_mul (φ i) _ _
+    continuous_toFun := by fun_prop
+    continuous_invFun := by fun_prop }
+  have hφJ (i : ι) (hi : i ∈ J) : mulEquivHaarChar (φ_C ⟨i, hi⟩) = mulEquivHaarChar (φ i) :=
+    mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := (C i).subtype)
+    ((hCopen.out i).isOpenEmbedding_subtypeVal) (φ_C ⟨i, hi⟩) (φ i) (fun _ ↦ rfl)
+  set Φ : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
+    .restrictedProductCongrRight φ (eventually_principal.mpr hφ)
+  set Ψ : (Π i : (J : Set ι), C i) × (Π i : (Jᶜ : Set ι), G i)
+      ≃ₜ* (Π i : (J : Set ι), C i) × (Π i : (Jᶜ : Set ι), G i) :=
+    .prodCongr (.piCongrRight φ_C) (.piCongrRight fun i ↦ φ i)
+  set I : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* _ := .restrictedProductPrincipal J
+  have Ψ_I_eq (x) : I.toMulEquiv (Φ x) = Ψ (I.toMulEquiv x) := rfl
+  have : ∀ (i : ↑J), SecondCountableTopology ↥(C ↑i) := fun i ↦
+    TopologicalSpace.secondCountableTopology_induced (C i) (G i) _
+  have hφj (i : ι) (hi : i ∈ J) : mulEquivHaarChar (φ i) = 1 := by
+    rw [← hφJ i hi, mulEquivHaarChar_eq_one_of_compactSpace]
+  have hsupp : Function.mulSupport (fun i : ι ↦ mulEquivHaarChar (φ i)) ⊆ Jᶜ :=
+    fun i hi hiJ ↦ hi <| hφj i hiJ
+  have hfin : (Function.mulSupport fun i : ι ↦ mulEquivHaarChar (φ i)).Finite :=
+    hJcfinite'.subset hsupp
+  rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := I.toMulEquiv)
+    I.isOpenEmbedding Φ Ψ Ψ_I_eq, mulEquivHaarChar_prodCongr,
+    mulEquivHaarChar_eq_one_of_compactSpace, mulEquivHaarChar_piCongrRight, one_mul,
+    Finset.prod_set_coe (f := fun i ↦ mulEquivHaarChar (φ i)),
+    finprod_eq_prod_of_mulSupport_toFinset_subset _ hfin]
+  simpa [← Finset.coe_subset, Set.coe_toFinset] using hsupp
 
 variable [∀ i, WeaklyLocallyCompactSpace (G i)]
 
-open ContinuousMulEquiv in
+open ContinuousMulEquiv Filter Topology in
 @[to_additive]
-lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
+lemma mulEquivHaarChar_restrictedProductCongrRight [Countable ι] (φ : Π i, (G i) ≃ₜ* (G i))
     (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
     mulEquivHaarChar
       (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
-  -- letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
-  -- haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-  -- -- the below code created a compact open in the restricted product and shows
-  -- -- it has Haar measure 0 < μ < ∞ but I've realised I don't know what to do next.
-  -- -- The blueprint has a proof which I can make work.
-  -- set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
-  -- have := isOpenEmbedding_structureMap (R := G) (A := fun i ↦ (C i : Set (G i))) Fact.out
-  -- have isOpenEmbedding := this
-  -- apply Topology.IsOpenEmbedding.isOpen_range at this
-  -- rw [range_structureMap] at this
-  -- have hXopen : IsOpen X := this
-  -- have hXnonempty : Nonempty X := Nonempty.intro ⟨⟨fun x ↦ 1, Filter.Eventually.of_forall <|
-  --   fun _ ↦ one_mem _⟩, fun _ ↦ one_mem _⟩
-  -- have hXμpos : 0 < haar X := IsOpen.measure_pos haar hXopen Set.Nonempty.of_subtype
-  -- have hXcompact : IsCompact X := by
-  --   have := isCompact_range isOpenEmbedding.continuous
-  --   rw [range_structureMap] at this
-  --   apply this
-  -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
-  sorry -- FLT#552
+  set Φ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) := .restrictedProductCongrRight φ hφ
+  set J := {i : ι | Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)}
+  have J_cof : Fact (Filter.cofinite ≤ 𝓟 J) := ⟨by simpa only [le_principal_iff] using hφ⟩
+  have hφ_J : ∀ i ∈ J, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i) := fun _ ↦ id
+  set Φ_J : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
+    .restrictedProductCongrRight φ (eventually_principal.mpr hφ_J)
+  set ι_J : (Πʳ i, [G i, C i]_[𝓟 J]) →* (Πʳ i, [G i, C i]) :=
+    RestrictedProduct.mapAlongMonoidHom (B₁ := C) (B₂ := C) G G id (tendsto_id'.mpr J_cof.out)
+      (fun _ ↦ .id _) (Eventually.of_forall fun _ _ a ↦ a)
+  have ι_J_emb : IsOpenEmbedding ι_J :=
+    RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen.out J_cof.out
+  have Φ_ι_J_eq (x) : Φ (ι_J x) = ι_J (Φ_J x) := rfl
+  rw [← mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding ι_J_emb Φ_J Φ Φ_ι_J_eq]
+  exact mulEquivHaarChar_restrictedProductCongrRight_of_principal _ hφ_J
 
 end restrictedproduct
 
