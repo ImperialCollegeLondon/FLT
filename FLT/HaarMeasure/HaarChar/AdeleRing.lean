@@ -1,6 +1,7 @@
 import FLT.HaarMeasure.HaarChar.Ring
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
+import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.HaarMeasure.HaarChar.Padic
@@ -61,11 +62,6 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).1 hx)
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).2 hx))
 
--- depends on `IsDedekindDomain.HeightOneSpectrum.padicEquiv`, from pending mathlib PR #30576
-lemma padicEquiv_norm_eq (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) (x : v.adicCompletion ℚ) :
-    ‖(Rat.HeightOneSpectrum.adicCompletion.padicEquiv v) x‖ = ‖x‖ := by
-  sorry
-
 lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := by
   rw [ringHaarChar_adeles_rat (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ)]
@@ -93,7 +89,7 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
       ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
         __ := (Rat.HeightOneSpectrum.adicCompletion.padicEquiv p)
         commutes' := by simp},
-      padicEquiv_norm_eq]
+      Rat.HeightOneSpectrum.adicCompletion.padicEquiv_norm_eq]
     rfl
 
 -- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange

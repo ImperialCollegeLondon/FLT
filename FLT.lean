@@ -102,6 +102,7 @@ import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.Order.Filter.Cofinite
 import FLT.Mathlib.RepresentationTheory.Basic
