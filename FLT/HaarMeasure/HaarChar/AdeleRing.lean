@@ -5,6 +5,7 @@ import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.HaarMeasure.HaarChar.Padic
 import Mathlib.NumberTheory.NumberField.ProductFormula
+import FLT.Mathlib.LinearAlgebra.Lattice
 /-!
 
 # Global units are in the determinant of the adelic Haar character
@@ -123,6 +124,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     [MeasurableSpace (V ⊗[ℚ] 𝔸 ℚ)] [BorelSpace (V ⊗[ℚ] 𝔸 ℚ)] :
     addEquivAddHaarChar
       (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toContinuousAddEquiv = 1 := by
+  --let foo : (IntegralLattice ℤ ℚ V) ⊗[ℤ]
   sorry
 
 open scoped TensorProduct.RightActions in
