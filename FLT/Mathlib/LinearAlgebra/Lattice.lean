@@ -3,10 +3,11 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import Mathlib.Algebra.EuclideanDomain.Field
 import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.GroupTheory.GroupAction.Ring
+import Mathlib.GroupTheory.MonoidLocalization.Basic
 import Mathlib.LinearAlgebra.Basis.VectorSpace
-import Mathlib
+import Mathlib.LinearAlgebra.DirectSum.Finsupp
 
 /-
 
