@@ -212,6 +212,10 @@ scoped instance [TopologicalSpace A] [IsTopologicalRing A]
     [LocallyCompactSpace A] [Module.Finite R M] :
     LocallyCompactSpace (M ⊗[R] A) := IsModuleTopology.locallyCompactSpaceOfFinite A
 
+scoped instance [TopologicalSpace A] [IsTopologicalRing A]
+    [SecondCountableTopology A] [Module.Finite R M] :
+    SecondCountableTopology (M ⊗[R] A) := Module.Finite.secondCountabletopology A _
+
 end ring -- section
 
 end TensorProduct.RightActions

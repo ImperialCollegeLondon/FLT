@@ -114,28 +114,175 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
     (φ : M ≃ₗ[R] N) (m : M) (a : A) :
     ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) = (φ m) ⊗ₜ a := rfl
 
-open TensorProduct.RightActions in
-lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
-    [FiniteDimensional ℚ V] (φ : V ≃ₗ[ℚ] V)
-    [MeasurableSpace (V ⊗[ℚ] 𝔸 ℚ)] [BorelSpace (V ⊗[ℚ] 𝔸 ℚ)] :
-    addEquivAddHaarChar
-      (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toContinuousAddEquiv = 1 := by
+section Rat
+
+variable [Module ℚ V] [FiniteDimensional ℚ V]
+
+open TensorProduct.RightActions RestrictedProduct
+
+-- crazy comment bug! The more comment, the longer it takes to compile.
+/-- The canonical map L ⊗[ℤ] X ≃ V ⊗[ℚ] X where L is a ℤ-lattice in ℚ-vector space V.
+;sdfighsdlkgfhjsdlfkjghsdlkjghsdlfkjghsdlkjfglsdh -/
+noncomputable def IntegralLattice.baseChangeEquiv :
+    (IntegralLattice ℤ ℚ V) ⊗[ℤ] AdeleRing (𝓞 ℚ) ℚ ≃L[AdeleRing (𝓞 ℚ) ℚ]
+    V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ := by
   classical
-  -- shouldn't be in this proof, should be a separate def
-  let bar : AdeleRing (𝓞 ℚ) ℚ ⊗[ℤ] (IntegralLattice ℤ ℚ V) ≃ₗ[AdeleRing (𝓞 ℚ) ℚ]
+  letI bar : AdeleRing (𝓞 ℚ) ℚ ⊗[ℤ] (IntegralLattice ℤ ℚ V) ≃ₗ[AdeleRing (𝓞 ℚ) ℚ]
     AdeleRing (𝓞 ℚ) ℚ ⊗[ℚ] V :=
   (Module.Basis.baseChangeEquiv' (Module.Basis.ofVectorSpaceIndex ℚ V) ℤ ℚ
     (IntegralLattice ℤ ℚ V) V (IntegralLattice.basis ℤ ℚ V) (Module.Basis.ofVectorSpace ℚ V) _)
-  let foo : (IntegralLattice ℤ ℚ V) ⊗[ℤ] AdeleRing (𝓞 ℚ) ℚ ≃ₗ[AdeleRing (𝓞 ℚ) ℚ]
+  letI foo : (IntegralLattice ℤ ℚ V) ⊗[ℤ] AdeleRing (𝓞 ℚ) ℚ ≃ₗ[AdeleRing (𝓞 ℚ) ℚ]
     V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ := (Module.TensorProduct.comm _ _ _).symm ≪≫ₗ bar ≪≫ₗ
       (Module.TensorProduct.comm _ _ _)
-  let baz : (IntegralLattice ℤ ℚ V) ⊗[ℤ] AdeleRing (𝓞 ℚ) ℚ ≃L[AdeleRing (𝓞 ℚ) ℚ]
-    V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ := {
+  exact {
   __ := foo
   continuous_toFun := IsModuleTopology.continuous_of_linearMap foo.toLinearMap
   continuous_invFun := IsModuleTopology.continuous_of_linearMap foo.symm.toLinearMap
     }
+
+/-- Tensoring over the adele ring is the same as the product of tensoring over ℝ and
+the restricted product of tensoring over ℚₚ. -/
+noncomputable def IntegralLattice.tensorAdelesEquivRestrictedProduct :
+    (IntegralLattice ℤ ℚ V) ⊗[ℤ] AdeleRing (𝓞 ℚ) ℚ ≃ₗ[ℤ]
+    ((IntegralLattice ℤ ℚ V) ⊗[ℤ] ℝ) × (Πʳ v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ),
+      [(IntegralLattice ℤ ℚ V) ⊗[ℤ] v.adicCompletion ℚ,
+        (LinearMap.range (LinearMap.lTensor (IntegralLattice ℤ ℚ V)
+          (v.adicCompletionIntegers ℚ).subtype.toIntLinearMap))]) :=
+  -- tensor product commutes with binary products and restricted products
   sorry
+
+/-- Tensoring over the adele ring is the same as the product of tensoring over ℝ and
+the restricted product of tensoring over ℚₚ. -/
+noncomputable def IntegralLattice.tensorAdelesContinuousEquivRestrictedProduct :
+    (IntegralLattice ℤ ℚ V) ⊗[ℤ] AdeleRing (𝓞 ℚ) ℚ ≃L[ℤ]
+    ((IntegralLattice ℤ ℚ V) ⊗[ℤ] ℝ) × (Πʳ v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ),
+      [(IntegralLattice ℤ ℚ V) ⊗[ℤ] v.adicCompletion ℚ,
+        (LinearMap.range (LinearMap.lTensor (IntegralLattice ℤ ℚ V)
+          (v.adicCompletionIntegers ℚ).subtype.toIntLinearMap))]) :=
+  -- linearity is above; continuity follows from AdeleRing^n = prod'_v Q_v^n topologically
+  sorry
+
+-- we need a ton of auxiliary definitions
+
+namespace Aux
+
+/-- An auxiliary canonical map. -/
+def c_infty_alg : IntegralLattice ℤ ℚ V ⊗[ℤ] ℝ ≃ₗ[ℝ] V ⊗[ℚ] ℝ := sorry -- algebra; done modulo symm
+  -- (Module.Basis.baseChangeEquiv' in FLT/Mathlib/LinearAlgebra/Lattice.lean)
+
+/-- An auxiliary canonical map. -/
+def c_infty : IntegralLattice ℤ ℚ V ⊗[ℤ] ℝ ≃L[ℝ] V ⊗[ℚ] ℝ := sorry
+-- continuity follows from module top
+
+/-- An auxiliary canonical map. -/
+def c_v_alg (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
+    IntegralLattice ℤ ℚ V ⊗[ℤ] v.adicCompletion ℚ ≃ₗ[v.adicCompletion ℚ]
+    V ⊗[ℚ] v.adicCompletion ℚ := sorry -- algebra; done (Module.Basis.baseChangeEquiv') modulo symm
+    -- see FLT/Mathlib/LinearAlgebra/Lattice.lean
+
+/-- An auxiliary canonical map. -/
+def c_v (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
+    IntegralLattice ℤ ℚ V ⊗[ℤ] v.adicCompletion ℚ ≃L[v.adicCompletion ℚ]
+    V ⊗[ℚ] v.adicCompletion ℚ := sorry -- continuity follows from module top
+
+/-- An auxiliary canonical map. -/
+def c_adele : ((IntegralLattice ℤ ℚ V) ⊗[ℤ] ℝ) ×
+    (Πʳ v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ),
+      [(IntegralLattice ℤ ℚ V) ⊗[ℤ] v.adicCompletion ℚ,
+        (LinearMap.range (LinearMap.lTensor (IntegralLattice ℤ ℚ V)
+          (v.adicCompletionIntegers ℚ).subtype.toIntLinearMap))]) ≃L[ℤ]
+    (V ⊗[ℚ] ℝ) ×
+    (Πʳ v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ),
+      [V ⊗[ℚ] v.adicCompletion ℚ,
+        (((c_v_alg V v).toAddMonoidHom.comp (LinearMap.lTensor (IntegralLattice ℤ ℚ V)
+          (v.adicCompletionIntegers ℚ).subtype.toIntLinearMap).toAddMonoidHom).range)]) := sorry
+  -- product of homeos is a homeo; restricted product of homeos is a homeo
+
+/-- The product of the local components φᵥ of a linear map φ. -/
+def prodLocalComponents (φ : V ≃ₗ[ℚ] V) : (V ⊗[ℚ] ℝ) ×
+    (Πʳ v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ),
+      [V ⊗[ℚ] v.adicCompletion ℚ,
+        (((c_v_alg V v).toAddMonoidHom.comp (LinearMap.lTensor (IntegralLattice ℤ ℚ V)
+          (v.adicCompletionIntegers ℚ).subtype.toIntLinearMap).toAddMonoidHom).range)]) ≃ₜ+
+    (V ⊗[ℚ] ℝ) ×
+    (Πʳ v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ),
+      [V ⊗[ℚ] v.adicCompletion ℚ,
+        (((c_v_alg V v).toAddMonoidHom.comp (LinearMap.lTensor (IntegralLattice ℤ ℚ V)
+          (v.adicCompletionIntegers ℚ).subtype.toIntLinearMap).toAddMonoidHom).range)]) :=
+  -- this is defined to be ∏'ᵥ φᵥ
+  sorry
+
+end Aux
+
+-- In applications R will be ℝ or v.adicCompletion ℚ but probably don't want this in general
+/-- A local instance of a Borel space structure on a tensor product. -/
+local instance (V : Type*) [AddCommGroup V] [Module ℚ V] [FiniteDimensional ℚ V]
+    (R : Type*) [CommRing R] [Algebra ℚ R] [TopologicalSpace R] :
+    MeasurableSpace (V ⊗[ℚ] R) := borel _
+
+-- In applications R will be ℝ or v.adicCompletion ℚ but probably don't want this in general
+local instance (V : Type*) [AddCommGroup V] [Module ℚ V] [FiniteDimensional ℚ V]
+    (R : Type*) [CommRing R] [Algebra ℚ R] [TopologicalSpace R] :
+    BorelSpace (V ⊗[ℚ] R) := ⟨rfl⟩
+
+-- In applications this will be an adelic thing; probably don't want this in general
+open scoped RestrictedProduct in
+/-- A local instance of a Borel space structure on a restricted product. -/
+local instance {ι : Type*} (R : ι → Type*) (A : (i : ι) → Set (R i)) (𝓕 : Filter ι)
+    [(i : ι) → TopologicalSpace (R i)] : MeasurableSpace Πʳ (i : ι), [R i, A i]_[𝓕] :=
+  borel _
+
+-- In applications this will be an adelic thing; probably don't want this in general
+open scoped RestrictedProduct in
+local instance {ι : Type*} (R : ι → Type*) (A : (i : ι) → Set (R i)) (𝓕 : Filter ι)
+    [(i : ι) → TopologicalSpace (R i)] : BorelSpace Πʳ (i : ι), [R i, A i]_[𝓕] :=
+  ⟨rfl⟩
+
+-- try left before right ;-)
+attribute [instance 101] secondCountableTopologyEither_of_left
+
+-- Don't strictly speaking need this because of above hack
+instance : BorelSpace
+      Πʳ (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
+        [V ⊗[ℚ] IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ v,
+        ↑(((Aux.c_v_alg V v)).toAddMonoidHom.comp
+              (LinearMap.lTensor (IntegralLattice ℤ ℚ V)
+                  (IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ
+                          v).subtype.toAddMonoidHom.toIntLinearMap).toAddMonoidHom).range] := by
+  sorry
+
+instance : Fact (∀ v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ), IsOpen
+  (((Aux.c_v_alg V v)).toAddMonoidHom.comp
+    (LinearMap.lTensor (IntegralLattice ℤ ℚ V)
+      (IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ
+        v).subtype.toAddMonoidHom.toIntLinearMap).toAddMonoidHom).range.carrier) :=
+  sorry
+
+instance : LocallyCompactSpace
+      Πʳ (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
+        [V ⊗[ℚ] IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ v,
+        ↑(((Aux.c_v_alg V v)).toAddMonoidHom.comp
+              (LinearMap.lTensor (IntegralLattice ℤ ℚ V)
+                  (IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ
+                          v).subtype.toAddMonoidHom.toIntLinearMap).toAddMonoidHom).range] :=
+  RestrictedProduct.locallyCompactSpace_of_addGroup _ sorry
+
+lemma MeasureTheory.addHaarScalarFactor_prodLocalComponents_eq_one (φ : V ≃ₗ[ℚ] V) :
+    addEquivAddHaarChar (Aux.prodLocalComponents V φ) = 1 :=
+  sorry
+
+lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one (φ : V ≃ₗ[ℚ] V)
+    [MeasurableSpace (V ⊗[ℚ] 𝔸 ℚ)] [BorelSpace (V ⊗[ℚ] 𝔸 ℚ)] :
+    addEquivAddHaarChar
+      (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toContinuousAddEquiv = 1 := by
+  classical
+  -- show that `(ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ)`
+  -- and `(Aux.prodLocalComponents V φ)` are intertwined by
+  -- `c_adele V ∘ IntegralLattice.baseChangeEquiv
+  -- and then deduce from the previous lemma
+  sorry
+
+end Rat
 
 open scoped TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
