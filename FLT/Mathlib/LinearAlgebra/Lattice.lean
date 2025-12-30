@@ -22,8 +22,11 @@ section defs
 variable (A K : Type*) [CommRing A] [Field K]
     [Algebra A K]
 
+/-- If K is an A-algebra and V is a vector space over K, then this
+is the A-lattice spanned by a basis for V given by the axiom
+of choice. -/
 def IntegralLattice (V : Type*) [AddCommGroup V] [Module K V]
-    [Module A V] [IsScalarTower A K V] : Type _ :=
+    [Module A V] : Type _ :=
   (Submodule.span A (Module.Basis.ofVectorSpaceIndex K V) : Submodule A V)
 
 namespace IntegralLattice
@@ -37,6 +40,8 @@ instance : AddCommGroup (IntegralLattice A K V) :=
 instance : Module A (IntegralLattice A K V) :=
   inferInstanceAs (Module A (Submodule.span _ _))
 
+/-- The obvious linear map from finitely-supported A-valued functions on a K-basis
+for V to the A-span of this basis. -/
 def basis_repr_symm :
   ((Module.Basis.ofVectorSpaceIndex K V) →₀ A) →ₗ[A] (IntegralLattice A K V) where
     toFun f := f.sum (fun i a ↦ a • ⟨i.1, Submodule.mem_span_of_mem i.2⟩)
@@ -70,6 +75,7 @@ lemma basis_repr_symm_single_apply (i : Module.Basis.ofVectorSpaceIndex K V) (a 
     (basis_repr_symm A K V (Finsupp.single i a)).1 = a • i.1 := by
   simp [basis_repr_symm_apply]
 
+omit [Algebra A K] [IsScalarTower A K V] in
 lemma basis_repr_symm_surjective : Function.Surjective (basis_repr_symm A K V) := by
   intro ⟨v, hv⟩
   induction hv using Submodule.span_induction with
@@ -109,11 +115,15 @@ lemma basis_repr_symm_injective :
   have hf' : ((basis_repr_symm A K V) f).1 = 0 := by simp [hf]
   rwa [basis_repr_symm_apply, LinearEquiv.map_eq_zero_iff] at hf'
 
+/-- The equivalence between finitely supported A-valued functions on a K-basis of V
+(chosen by the axiom of choice) and the A-span of this basis. -/
 noncomputable def basis_repr_symm_equiv :
     ((Module.Basis.ofVectorSpaceIndex K V) →₀ A) ≃ₗ[A] (IntegralLattice A K V) :=
   LinearEquiv.ofBijective (basis_repr_symm A K V)
     ⟨basis_repr_symm_injective A K V, basis_repr_symm_surjective A K V⟩
 
+/-- The canonical A-basis of `IntegralLattice A K V`. Equal (mathematically)
+to the K-basis of V given by the axiom of choice. -/
 noncomputable def basis : Module.Basis
   (Module.Basis.ofVectorSpaceIndex K V) A (IntegralLattice A K V) where
     repr := (basis_repr_symm_equiv A K V).symm
@@ -126,6 +136,7 @@ instance [Module.Finite K V] : Module.Finite A (IntegralLattice A K V) :=
   have := Module.Finite.finite_basis (Module.Basis.ofVectorSpace K V)
   Module.Finite.of_basis (basis A K V)
 
+/-- The canonical inclusion from the A-span of a K-basis of V, to V. -/
 def inclusion : IntegralLattice A K V →ₛₗ[algebraMap A K] V where
   toFun v := v.1
   map_add' _ _ := rfl
@@ -152,6 +163,10 @@ end IntegralLattice
 namespace Module.Basis
 
 open TensorProduct in
+/-- If S is an R-algebra, M is an R-module and N is an S-module, both with
+bases indexed by the same indexing set `ι`, then this
+is the canonical S-linear map `S ⊗[R] M ≃ₗ[S] N` sending a basis element to
+the basis element indexed by the same element of `ι`. -/
 noncomputable def baseChangeEquiv (ι : Type*) (R S M N : Type*)
     [CommRing R] [CommRing S] [Algebra R S]
     [AddCommGroup M] [Module R M] [AddCommGroup N] [Module S N]
@@ -216,6 +231,11 @@ lemma foo {ι R M P : Type*} [Ring R] [AddCommGroup M] [Module R M] [AddCommGrou
   exact ext b hb
 
 open TensorProduct in
+/-- If S is an R-algebra, M is an R-module and N is an S-module, both with
+bases indexed by the same indexing set `ι`, and if `P` is an `S`-algebra
+(and hence an `R`-algebra) then this
+is the canonical `P`-linear map `P ⊗[R] M ≃ₗ[P] P ⊗[S] N` sending a basis
+element to the basis element indexed by the same element of `ι`. -/
 noncomputable def baseChangeEquiv' (ι : Type*) (R S M N : Type*)
     [CommRing R] [CommRing S] [Algebra R S]
     [AddCommGroup M] [Module R M] [AddCommGroup N] [Module S N]
