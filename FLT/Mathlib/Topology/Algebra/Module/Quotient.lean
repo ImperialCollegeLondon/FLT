@@ -6,7 +6,7 @@ def Submodule.Quotient.continuousLinearEquiv {R : Type*} [Ring R] (G H : Type*) 
     (G' : Submodule R G) (H' : Submodule R H) (e : G ≃L[R] H)
     (h : Submodule.map e.toLinearMap G' = H') :
     (G ⧸ G') ≃L[R] (H ⧸ H') where
-  toLinearEquiv := Submodule.Quotient.equiv G' H' e.toLinearEquiv (by simpa using h)
+  toLinearEquiv := Submodule.Quotient.equiv G' H' e.toLinearEquiv (by simp [h])
   continuous_toFun := by
     apply continuous_quot_lift
     simp only [LinearMap.toAddMonoidHom_coe, LinearMap.coe_comp]
