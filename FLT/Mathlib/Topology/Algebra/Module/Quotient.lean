@@ -3,9 +3,10 @@ import Mathlib.Topology.Algebra.Module.Equiv
 
 def Submodule.Quotient.continuousLinearEquiv {R : Type*} [Ring R] (G H : Type*) [AddCommGroup G]
     [Module R G] [AddCommGroup H] [Module R H] [TopologicalSpace G] [TopologicalSpace H]
-    (G' : Submodule R G) (H' : Submodule R H) (e : G ≃L[R] H) (h : Submodule.map e G' = H') :
+    (G' : Submodule R G) (H' : Submodule R H) (e : G ≃L[R] H)
+    (h : Submodule.map e.toLinearMap G' = H') :
     (G ⧸ G') ≃L[R] (H ⧸ H') where
-  toLinearEquiv := Submodule.Quotient.equiv G' H' e h
+  toLinearEquiv := Submodule.Quotient.equiv G' H' e.toLinearEquiv (by simpa using h)
   continuous_toFun := by
     apply continuous_quot_lift
     simp only [LinearMap.toAddMonoidHom_coe, LinearMap.coe_comp]
