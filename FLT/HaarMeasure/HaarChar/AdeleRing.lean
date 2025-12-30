@@ -114,13 +114,27 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
     (φ : M ≃ₗ[R] N) (m : M) (a : A) :
     ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) = (φ m) ⊗ₜ a := rfl
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     [FiniteDimensional ℚ V] (φ : V ≃ₗ[ℚ] V)
     [MeasurableSpace (V ⊗[ℚ] 𝔸 ℚ)] [BorelSpace (V ⊗[ℚ] 𝔸 ℚ)] :
     addEquivAddHaarChar
       (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toContinuousAddEquiv = 1 := by
-  --let foo : (IntegralLattice ℤ ℚ V) ⊗[ℤ]
+  classical
+  -- shouldn't be in this proof, should be a separate def
+  let bar : AdeleRing (𝓞 ℚ) ℚ ⊗[ℤ] (IntegralLattice ℤ ℚ V) ≃ₗ[AdeleRing (𝓞 ℚ) ℚ]
+    AdeleRing (𝓞 ℚ) ℚ ⊗[ℚ] V :=
+  (Module.Basis.baseChangeEquiv' (Module.Basis.ofVectorSpaceIndex ℚ V) ℤ ℚ
+    (IntegralLattice ℤ ℚ V) V (IntegralLattice.basis ℤ ℚ V) (Module.Basis.ofVectorSpace ℚ V) _)
+  let foo : (IntegralLattice ℤ ℚ V) ⊗[ℤ] AdeleRing (𝓞 ℚ) ℚ ≃ₗ[AdeleRing (𝓞 ℚ) ℚ]
+    V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ := (Module.TensorProduct.comm _ _ _).symm ≪≫ₗ bar ≪≫ₗ
+      (Module.TensorProduct.comm _ _ _)
+  let baz : (IntegralLattice ℤ ℚ V) ⊗[ℤ] AdeleRing (𝓞 ℚ) ℚ ≃L[AdeleRing (𝓞 ℚ) ℚ]
+    V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ := {
+  __ := foo
+  continuous_toFun := IsModuleTopology.continuous_of_linearMap foo.toLinearMap
+  continuous_invFun := IsModuleTopology.continuous_of_linearMap foo.symm.toLinearMap
+    }
   sorry
 
 open scoped TensorProduct.RightActions in

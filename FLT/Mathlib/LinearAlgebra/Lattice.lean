@@ -66,6 +66,10 @@ lemma basis_repr_symm_apply (f : (Module.Basis.ofVectorSpaceIndex K V) →₀ A)
     simp [basis_repr_symm]
     rfl
 
+lemma basis_repr_symm_single_apply (i : Module.Basis.ofVectorSpaceIndex K V) (a : A) :
+    (basis_repr_symm A K V (Finsupp.single i a)).1 = a • i.1 := by
+  simp [basis_repr_symm_apply]
+
 lemma basis_repr_symm_surjective : Function.Surjective (basis_repr_symm A K V) := by
   intro ⟨v, hv⟩
   induction hv using Submodule.span_induction with
@@ -114,6 +118,22 @@ noncomputable def basis : Module.Basis
   (Module.Basis.ofVectorSpaceIndex K V) A (IntegralLattice A K V) where
     repr := (basis_repr_symm_equiv A K V).symm
 
+lemma basis_index (i : (Module.Basis.ofVectorSpaceIndex K V)) :
+    basis A K V i = (basis_repr_symm A K V) (Finsupp.single i 1) := by
+  rfl
+
+instance [Module.Finite K V] : Module.Finite A (IntegralLattice A K V) :=
+  have := Module.Finite.finite_basis (Module.Basis.ofVectorSpace K V)
+  Module.Finite.of_basis (basis A K V)
+
+def inclusion : IntegralLattice A K V →ₛₗ[algebraMap A K] V where
+  toFun v := v.1
+  map_add' _ _ := rfl
+  map_smul' a v := (algebraMap_smul K a v.1).symm
+
+lemma inclusion_basis (i : Module.Basis.ofVectorSpaceIndex K V) :
+    inclusion A K V (basis A K V i) = Module.Basis.ofVectorSpace K V i := by
+  simp [inclusion, basis_index, basis_repr_symm_single_apply]
 
 -- for IsTensorProduct but not sure I'll need it
 -- def f₁ : ((IntegralLattice A K V) →ₗ[A] K →ₗ[A] V) where
@@ -126,9 +146,13 @@ noncomputable def basis : Module.Basis
 --   map_add' k₁ k₂ := by ext; exact add_smul _ _ _
 --   map_smul' a k := by ext; exact smul_assoc _ _ _
 
+end IntegralLattice
+
 -- should be elsewhere
+namespace Module.Basis
+
 open TensorProduct in
-noncomputable def _root_.Module.Basis.baseChangeEquiv (ι : Type*) (R S M N : Type*)
+noncomputable def baseChangeEquiv (ι : Type*) (R S M N : Type*)
     [CommRing R] [CommRing S] [Algebra R S]
     [AddCommGroup M] [Module R M] [AddCommGroup N] [Module S N]
     [DecidableEq ι]
@@ -136,20 +160,99 @@ noncomputable def _root_.Module.Basis.baseChangeEquiv (ι : Type*) (R S M N : Ty
     S ⊗[R] M ≃ₗ[S] N :=
   (bR.repr.baseChange R S M _) ≪≫ₗ (finsuppScalarRight' R _ ι _) ≪≫ₗ bS.repr.symm
 
--- should be elsewhere
-open TensorProduct in
-noncomputable def _root_.Module.Basis.baseChangeEquiv' (ι : Type*) (R S M N : Type*)
+lemma _root_.TensorProduct.finsuppScalarRight'_symm_apply_single {R : Type*} [CommSemiring R]
+    {M : Type*} [AddCommMonoid M] [Module R M] {ι : Type*} [DecidableEq ι] (S : Type*)
+    [CommSemiring S] [Algebra R S] [Module S M] [IsScalarTower R S M] (i : ι) (m : M) :
+    (TensorProduct.finsuppScalarRight' R M ι S).symm (Finsupp.single i m) =
+    (m ⊗ₜ[R] Finsupp.single i 1) := by
+  convert TensorProduct.finsuppScalarRight_symm_apply_single i m
+
+lemma _root_.TensorProduct.finsuppScalarRight'_apply_single {R : Type*} [CommSemiring R] {M : Type*}
+    [AddCommMonoid M] [Module R M] {ι : Type*} [DecidableEq ι] {S : Type*} [CommSemiring S]
+    [Algebra R S] [Module S M] [IsScalarTower R S M] (i : ι) (m : M) :
+    (TensorProduct.finsuppScalarRight' R M ι S) (m ⊗ₜ[R] Finsupp.single i 1) =
+    (Finsupp.single i m) := by
+  apply (Equiv.apply_eq_iff_eq_symm_apply (TensorProduct.finsuppScalarRight' R M ι S).toEquiv).mpr
+  exact (TensorProduct.finsuppScalarRight'_symm_apply_single S i m).symm
+
+lemma baseChangeEquiv_apply_basis {ι R S M N : Type*}
     [CommRing R] [CommRing S] [Algebra R S]
-    [CommRing M] [Algebra R M] [CommRing N] [Algebra S N]
+    [AddCommGroup M] [Module R M] [AddCommGroup N] [Module S N]
+    [DecidableEq ι]
+    (bR : Module.Basis ι R M) (bS : Module.Basis ι S N) (i : ι) (s : S) :
+    baseChangeEquiv ι R S M N bR bS (s ⊗ₜ bR i) = s • bS i := by
+  simp [baseChangeEquiv, LinearEquiv.baseChange_tmul,
+    TensorProduct.finsuppScalarRight'_apply_single]
+
+open TensorProduct in
+lemma baseChangeEquiv_apply {ι R S M N : Type*}
+    [CommRing R] [CommRing S] [Algebra R S]
+    [AddCommGroup M] [Module R M] [AddCommGroup N] [Module S N]
+    [DecidableEq ι]
+    {bR : Module.Basis ι R M} {bS : Module.Basis ι S N} (α : M →ₛₗ[algebraMap R S] N)
+    (hα : ∀ i, α (bR i) = bS i) (s : S) (m : M) :
+    baseChangeEquiv ι R S M N bR bS (s ⊗ₜ m) = s • α m := by
+  nth_rewrite 1 2 [← bR.linearCombination_repr m]
+  simp only [Finsupp.linearCombination_apply, Finsupp.sum, tmul_sum, map_sum, Finset.smul_sum,
+    map_smulₛₗ, hα, smul_comm s, ← mul_smul]
+  simp only [tmul_smul, smul_tmul', Algebra.smul_def, ← baseChangeEquiv_apply_basis bR bS]
+
+-- -- should be elsewhere; also is not needed
+-- open TensorProduct in
+-- noncomputable def baseChangeEquiv'' (ι : Type*) (R S M N : Type*)
+--     [CommRing R] [CommRing S] [Algebra R S]
+--     [CommRing M] [Algebra R M] [CommRing N] [Algebra S N]
+--     [DecidableEq ι]
+--     (bR : Module.Basis ι R M) (bS : Module.Basis ι S N)
+--     (P : Type*) [AddCommGroup P] [Module R P] [Module S P] [IsScalarTower R S P] :
+--     P ⊗[R] M ≃ₗ[S] P ⊗[S] N :=
+--   AlgebraTensorModule.congr (TensorProduct.rid S P).symm (LinearEquiv.refl R M) ≪≫ₗ
+--   AlgebraTensorModule.assoc _ _ _ _ _ _ ≪≫ₗ
+--   AlgebraTensorModule.congr (LinearEquiv.refl S P)
+--     (baseChangeEquiv ι R S M N bR bS)
+
+lemma foo {ι R M P : Type*} [Ring R] [AddCommGroup M] [Module R M] [AddCommGroup P] [Module R P]
+    (b : Module.Basis ι R M) (f g : M →ₗ[R] P) (hb : ∀ i, f (b i) = g (b i)) : f = g := by
+  exact ext b hb
+
+open TensorProduct in
+noncomputable def baseChangeEquiv' (ι : Type*) (R S M N : Type*)
+    [CommRing R] [CommRing S] [Algebra R S]
+    [AddCommGroup M] [Module R M] [AddCommGroup N] [Module S N]
     [DecidableEq ι]
     (bR : Module.Basis ι R M) (bS : Module.Basis ι S N)
-    (P : Type*) [AddCommGroup P] [Module R P] [Module S P] [IsScalarTower R S P] :
-    P ⊗[R] M ≃ₗ[S] P ⊗[S] N :=
-  AlgebraTensorModule.congr (TensorProduct.rid S P).symm (LinearEquiv.refl R M) ≪≫ₗ
-  AlgebraTensorModule.assoc _ _ _ _ _ _ ≪≫ₗ
-  AlgebraTensorModule.congr (LinearEquiv.refl S P)
-    (Module.Basis.baseChangeEquiv ι R S M N bR bS)
+    (P : Type*) [Ring P] [Algebra R P] [Algebra S P] [IsScalarTower R S P] :
+    P ⊗[R] M ≃ₗ[P] P ⊗[S] N :=
+  (AlgebraTensorModule.cancelBaseChange R S P P M).symm ≪≫ₗ
+    AlgebraTensorModule.congr (.refl P P) (baseChangeEquiv ι R S M N bR bS)
 
-end IntegralLattice
+open TensorProduct in
+lemma baseChangeEquiv'_apply_basis {ι R S M N : Type*}
+    [CommRing R] [CommRing S] [Algebra R S]
+    [AddCommGroup M] [Module R M] [AddCommGroup N] [Module S N]
+    [DecidableEq ι]
+    {P : Type*} [Ring P] [Algebra R P] [Algebra S P] [IsScalarTower R S P]
+    (bR : Module.Basis ι R M) (bS : Module.Basis ι S N) (i : ι) (p : P) :
+    baseChangeEquiv' ι R S M N bR bS P (p ⊗ₜ bR i) = p ⊗ₜ bS i := by
+  simp [baseChangeEquiv', baseChangeEquiv_apply_basis]
+
+open TensorProduct in
+lemma baseChangeEquiv'_apply {ι R S M N : Type*}
+    [CommRing R] [CommRing S] [Algebra R S]
+    [AddCommGroup M] [Module R M] [AddCommGroup N] [Module S N]
+    [DecidableEq ι]
+    {bR : Module.Basis ι R M} {bS : Module.Basis ι S N}
+    (P : Type*) [Ring P] [Algebra R P] [Algebra S P] [IsScalarTower R S P]
+    (α : M →ₛₗ[algebraMap R S] N)
+    (hα : ∀ i, α (bR i) = bS i) (p : P) (m : M) :
+    baseChangeEquiv' ι R S M N bR bS P (p ⊗ₜ m) = p ⊗ₜ α m := by
+  nth_rewrite 1 2 [← bR.linearCombination_repr m]
+  simp only [Finsupp.linearCombination_apply, Finsupp.sum, tmul_sum, map_sum]
+  congr
+  ext i
+  simp [hα, tmul_smul, ← baseChangeEquiv'_apply_basis bR bS,
+    LinearMapClass.map_smul_of_tower (baseChangeEquiv' ι R S M N bR bS P) ((bR.repr m) i)]
+
+end Module.Basis
 
 end defs
