@@ -10,7 +10,6 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
 
-
 namespace MeasureTheory
 
 open Measure
