@@ -222,11 +222,11 @@ open Module
 /-- Haar measure scaling for invertible linear maps on a finite-dimensional vector space
 over a field F assuming `[SecondCountableTopology F]`. -/
 theorem addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc
-    [SecondCountableTopology F] (ρ : V ≃L[F] V) (b : Basis (Fin (finrank F V)) F V)
+    [SecondCountableTopology F] (ρ : V ≃L[F] V) (n : ℕ) (b : Basis (Fin n) F V)
     (hρ : Pivot.ExistsListTransvecMulDiagonalMulListTransvec
       (ρ.toLinearMap.toMatrix b b)) :
     addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det := by
-  let ι := Fin (finrank F V)
+  let ι := Fin n
   let e : V ≃ₗ[F] ι → F := Basis.equivFun b
   have he : Continuous e := IsModuleTopology.continuous_of_linearMap e.toLinearMap
   have he_inv : Continuous e.symm := IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
