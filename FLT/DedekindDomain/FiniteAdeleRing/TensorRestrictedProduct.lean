@@ -19,7 +19,7 @@ variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
 variable (ℱ : Filter ι) (L : ∀ i, Submodule R (N i))
 
 /-- `M ⊗_R (L i)` as a submodule of `M ⊗_R (N i)`. -/
-def rangeLTensor (i : ι) : Submodule R (M ⊗[R] N i) :=
+abbrev rangeLTensor (i : ι) : Submodule R (M ⊗[R] N i) :=
   LinearMap.range (LinearMap.lTensor M ((L i).subtype))
 
 /-- The `R`-linear map `φ : M ⊗_R ∏'_i [N i, L i]_[𝓕] → ∏'_i [M ⊗_R (N i), M ⊗_R (L i)]_[𝓕]`

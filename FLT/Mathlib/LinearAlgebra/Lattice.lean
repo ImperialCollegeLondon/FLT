@@ -132,6 +132,9 @@ lemma basis_index (i : (Module.Basis.ofVectorSpaceIndex K V)) :
     basis A K V i = (basis_repr_symm A K V) (Finsupp.single i 1) := by
   rfl
 
+instance : Module.Free A (IntegralLattice A K V) :=
+  Module.Free.of_basis (basis A K V)
+
 instance [Module.Finite K V] : Module.Finite A (IntegralLattice A K V) :=
   have := Module.Finite.finite_basis (Module.Basis.ofVectorSpace K V)
   Module.Finite.of_basis (basis A K V)
