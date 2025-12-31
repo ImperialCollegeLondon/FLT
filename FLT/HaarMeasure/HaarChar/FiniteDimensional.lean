@@ -210,10 +210,8 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_pi [SecondCountableTopology F]
   rw [hρ]
   exact addEquivAddHaarChar_eq_ringHaarChar_det_matrix_pi M hρM hM
 
-variable [StrongRankCondition F]
-
 variable {V : Type*} [AddCommGroup V] [TopologicalSpace V] [MeasurableSpace V] [BorelSpace V]
-    [Module F V] [Module.Finite F V] [Module.Free F V] [IsModuleTopology F V]
+    [Module F V] [IsModuleTopology F V]
     [IsTopologicalAddGroup V]
     [LocallyCompactSpace V] -- this can be proved from the preceding hypos
                             -- but typeclass inference can't find it because it
@@ -223,12 +221,11 @@ open Module
 
 /-- Haar measure scaling for invertible linear maps on a finite-dimensional vector space
 over a field F assuming `[SecondCountableTopology F]`. -/
-theorem addEquivAddHaarChar_eq_ringHaarChar_det_of_ExistsListTransvec
-    [SecondCountableTopology F] (ρ : V ≃L[F] V)
+theorem addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc
+    [SecondCountableTopology F] (ρ : V ≃L[F] V) (b : Basis (Fin (finrank F V)) F V)
     (hρ : Pivot.ExistsListTransvecMulDiagonalMulListTransvec
-      (ρ.toLinearMap.toMatrix (finBasis F V) (finBasis F V))) :
+      (ρ.toLinearMap.toMatrix b b)) :
     addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det := by
-  let b := finBasis F V
   let ι := Fin (finrank F V)
   let e : V ≃ₗ[F] ι → F := Basis.equivFun b
   have he : Continuous e := IsModuleTopology.continuous_of_linearMap e.toLinearMap
@@ -243,9 +240,9 @@ theorem addEquivAddHaarChar_eq_ringHaarChar_det_of_ExistsListTransvec
   have : (ec.toContinuousAddEquiv.symm.trans
       ρ.toContinuousAddEquiv).trans ec.toContinuousAddEquiv =
       ((ec.symm.trans ρ).trans ec).toContinuousAddEquiv := rfl
-  have foo := addEquivAddHaarChar_eq_ringHaarChar_det_pi (((ec.symm.trans ρ).trans ec))
+  have this₂ := addEquivAddHaarChar_eq_ringHaarChar_det_pi (((ec.symm.trans ρ).trans ec))
     hρ
-  simp [h_eq, ρ', f, this, foo]
+  simp [h_eq, ρ', f, this, this₂]
 
 end commring
 
