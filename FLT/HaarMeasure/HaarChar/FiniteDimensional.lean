@@ -70,10 +70,9 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal [SecondCountableTopology 
   have prod_isUnit : IsUnit (∏ i, D i) := by
     -- det(diagonal D) = ∏ i, D i
     simp [← f_det, det_isUnit]
-  have D_isUnit : ∀ i, IsUnit (D i) := fun i => by
+  have D_isUnit : ∀ i, IsUnit (D i) := by
     -- product of things is a unit => they're all units
-    sorry
-    --fun i => (Finset.prod_ne_zero_iff.mp prod_ne) i (by simp)
+    rwa [← IsUnit.prod_univ_iff]
   have det_equiv : (↑(ρ.toLinearEquiv.det) : F) = ∏ i, D i := by
     have: ↑(ρ.toLinearEquiv.det) = f.det := LinearEquiv.coe_det ρ.toLinearEquiv
     simp [this, f_det]
