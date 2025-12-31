@@ -114,6 +114,27 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
     (φ : M ≃ₗ[R] N) (m : M) (a : A) :
     ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) = (φ m) ⊗ₜ a := rfl
 
+lemma foo {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
+    [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
+    [Module R P] (φ : M ≃ₗ[R] P) (α : P →ₗ[R] N)
+    (b : Module.Basis ι R M) (c : Module.Basis j R N) :
+    LinearMap.toMatrix (b.map φ) c α = LinearMap.toMatrix b c (α ∘ₗ φ) := rfl
+
+lemma bar {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
+    [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
+    [Module R P] (φ : N ≃ₗ[R] P) (α : M →ₗ[R] P)
+    (b : Module.Basis ι R M) (c : Module.Basis j R N) :
+    LinearMap.toMatrix b (c.map φ) α = LinearMap.toMatrix b c (φ.symm ∘ₗ α) := rfl
+
+lemma baz {R : Type*} (A : Type*) {M : Type*} {ι j : Type*} [Fintype ι] [Fintype j]
+    [DecidableEq ι] [CommSemiring R] [CommSemiring A]
+    [Algebra R A] [AddCommMonoid M] [Module R M] (b : Module.Basis ι R M)
+    {N : Type*} [AddCommMonoid N] [Module R N] (c : Module.Basis j R N) (φ : M →ₗ[R] N) :
+    LinearMap.toMatrix (Algebra.TensorProduct.basis A b) (Algebra.TensorProduct.basis A c)
+      (φ.baseChange A) = (LinearMap.toMatrix b c φ).map (algebraMap R A) := by
+  ext
+  simp
+
 open scoped TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     [FiniteDimensional ℚ V] (φ : V ≃ₗ[ℚ] V)
@@ -121,10 +142,35 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     addEquivAddHaarChar
       (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toContinuousAddEquiv = 1 := by
   -- need a basis
-  let b_extend := TensorProduct.RightActions.Algebra.TensorProduct.basis (𝔸 ℚ) (Module.finBasis ℚ V)
+  let b := Module.finBasis ℚ V
+  let b_extend := TensorProduct.RightActions.Algebra.TensorProduct.basis (𝔸 ℚ) b
   rw [MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc _ _ b_extend]
-  · sorry
-  · sorry
+  · -- det of base change is base change of det
+    have det_eq : (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toLinearEquiv.det =
+        (φ.det).map (algebraMap ℚ (𝔸 ℚ)) := by
+      simp only [ContinuousLinearEquiv.baseChange]
+      ext
+      simp only [LinearEquiv.coe_det, LinearMap.det_conj, Units.coe_map, MonoidHom.coe_coe]
+      rw [LinearMap.det_baseChange]
+    rw [det_eq]
+    exact MeasureTheory.ringHaarChar_adeles_units_rat_eq_one φ.det
+  · have := Matrix.Pivot.baseChange_existsListTransvecEtc (LinearMap.toMatrix b b φ)
+      (Matrix.Pivot.exists_list_transvec_mul_diagonal_mul_list_transvec' _) (AdeleRing (𝓞 ℚ) ℚ)
+      (algebraMap _ _)
+    convert this
+    clear this
+    --ext i j
+    simp only [TensorProduct.RightActions.Algebra.TensorProduct.basis,
+      TensorProduct.RightActions.Module.TensorProduct.comm, AddHom.toFun_eq_coe,
+      LinearMap.coe_toAddHom, LinearEquiv.coe_coe, LinearEquiv.invFun_eq_symm,
+      ContinuousLinearEquiv.baseChange, TensorProduct.RightActions.LinearMap.baseChange,
+      RingHom.mapMatrix_apply, b_extend]
+    rw [foo, bar]
+    simp only [← LinearMap.comp_assoc]
+    rw [← baz] -- this is the key thing
+    congr
+    ext
+    simp
 
 open scoped TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)

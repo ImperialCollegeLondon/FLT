@@ -23,6 +23,48 @@ lemma Pivot.exists_list_transvec_mul_diagonal_mul_list_transvec' {n : Type*} {�
     Pivot.ExistsListTransvecMulDiagonalMulListTransvec M :=
   Pivot.exists_list_transvec_mul_diagonal_mul_list_transvec M
 
+section TransvectionStruct_dot_map
+
+variable {n : Type*} {R S : Type*} [CommRing R] [CommRing S]
+    [Fintype n] [DecidableEq n] (f : R →+* S)
+
+def TransvectionStruct.map {n : Type*} {R S : Type*} [CommRing R] [CommRing S]
+    [Fintype n] [DecidableEq n] (f : R →+* S) (t : TransvectionStruct n R) :
+    TransvectionStruct n S where
+  i := t.i
+  j := t.j
+  hij := t.hij
+  c := f t.c
+
+@[simp]
+lemma TransvectionStruct.toMatrix_map (t : TransvectionStruct n R) :
+    (toMatrix ∘ TransvectionStruct.map f) t = f.mapMatrix t.toMatrix := by
+  simp [map, transvection, toMatrix, map_add]
+
+lemma TransvectionStruct.mapMatrix_map_toMatrix_prod (L : List (TransvectionStruct n R)) :
+    f.mapMatrix (List.map toMatrix L).prod =
+    (List.map (toMatrix ∘ TransvectionStruct.map f) L).prod := by
+  rw [map_list_prod]
+  congr 1
+  simp only [List.map_map, List.map_inj_left, Function.comp_apply]
+  intro l _
+  rw [← TransvectionStruct.toMatrix_map]
+  rfl
+
+end TransvectionStruct_dot_map
+
+lemma Pivot.baseChange_existsListTransvecEtc {n : Type*} {R : Type*} [CommRing R]
+    [Fintype n] [DecidableEq n] (M : Matrix n n R)
+    (hM : Pivot.ExistsListTransvecMulDiagonalMulListTransvec M)
+    (S : Type*) [CommRing S] (f : R →+* S) :
+    Pivot.ExistsListTransvecMulDiagonalMulListTransvec (f.mapMatrix M) := by
+  obtain ⟨L, L', D, rfl⟩ := hM
+  use L.map (TransvectionStruct.map f)
+  use L'.map (TransvectionStruct.map f)
+  use (fun i ↦ f (D i))
+  simp only [map_mul, TransvectionStruct.mapMatrix_map_toMatrix_prod]
+  simp
+
 open Pivot
 
 variable {n : Type*} {R : Type*} [CommRing R] [DecidableEq n] [Fintype n]
