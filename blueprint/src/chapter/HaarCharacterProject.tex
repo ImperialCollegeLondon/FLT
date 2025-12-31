@@ -347,6 +347,11 @@ there is still some discussion about the definition of a nonarchimedean local fi
   \discussion{517}
   $d_V(\phi)=\delta_F(\det(\phi))$, where $\det(\phi)\in F$ is the determinant of $\phi$ as an $F$-linear map.
 \end{lemma}
+\begin{remark}
+  TODO: we actually need to prove this for "nice" automorphisms of finite free modules
+  over a commutative ring, which is done in this PR. Here "nice" means "a product
+  of transvections and diagonal matrices".
+\end{remark}
 \begin{proof}
 \uses{MeasureTheory.addEquivAddHaarChar}
 \leanok
@@ -758,6 +763,7 @@ tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies
   topology and the right hand side has the $\A_{\Q}$-module topology.
 \end{corollary}
 \begin{proof}
+  \leanok
   \uses{IsModuleTopology.continuous_bilinear_of_finite_left}
   Lemma~\ref{IsModuleTopology.continuous_bilinear_of_finite_left} tells us that $V\otimes_K\A_K$
   has the $\A_{\Q}$-module topology, and it is easily checked that the isomorphism is
@@ -803,6 +809,7 @@ and restate it in the language of these Haar characters.
   If $x\in\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=\prod_v|x_v|_v.$
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{MeasureTheory.addEquivAddHaarChar_prodCongr,MeasureTheory.ringHaarChar_real,
     MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight,MeasureTheory.ringHaarChar_padic}
   By theorem~\ref{MeasureTheory.addEquivAddHaarChar_prodCongr}
@@ -823,6 +830,7 @@ Here is our reinterpretation of the product formula.
   If $x\in\Q^\times\subseteq\A_{\Q}^\times$ then $\delta_{\A_{\Q}}(x)=1.$
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{MeasureTheory.ringHaarChar_adeles_rat}
   By lemma~\ref{MeasureTheory.ringHaarChar_adeles_rat} we have $\delta_{\A_{\Q}}(x)=\prod_v|x|_v$.
   But the product formula says that this is 1.
@@ -850,31 +858,39 @@ Here is our reinterpretation of the product formula.
     endomorphism of $V_{\A}$ with the $\A_{\Q}$-module topology), we have $d_{V_{\A}}(\phi_{\A})=1.$
   \end{theorem}
   \begin{proof}
+    \leanok
     \uses{
       MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det,
       MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight,
       NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv
     }
-    Fix once and for all a $\Z$-lattice $L\subseteq V$
-    (that is, a spanning $\Z^N$ in the $\Q^N$). Then $V\otimes_{\Q}\A_{\Q}=L\otimes_{\Z}\A_{\Q}$
-    which is $L\otimes_{\Z}(\A_{\Q}^\infty\times\R)$.
-    Because tensoring by a finitely presented module commute with restricted products and binary
-    products this equals $\prod'_p(L\otimes_{\Z}\Q_p)\times(L\otimes_{\Q}\R)$, the restricted
-    product being over $L\otimes_{\Z}\Z_p$, and this is $\prod'_p(V\otimes_{\Q}\Q_p)\times(V\otimes_{\Q}\R)$.
-    If $V_v$ denotes $V\otimes_{\Q}\Q_v$ then the endomorphism $\phi_{\A}$ is the product of
-    $\phi_p$ for all $p$ and $\phi_\infty$,
-    where $\phi_v$ is a $\Q_v$-linear and and hence continuous automorphism of $V_v$.
-
-    Hence by theorem~\ref{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight}
+    The original blueprint proof of this was that $\phi_{\mathbb{A}} : V_{\mathbb{A}}\to V_{\mathbb{A}}$
+    could be written as a restricted product of $\phi_v:V\otimes_{\Q}{\Q_v} \to V\otimes_{\Q}\Q_v$
+    and hence by theorem~\ref{MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight}
     we have $d_{V_{\A}}(\phi_{\A})=\prod_p d_{V_p}(\phi_p)\times d_{V_\infty}(\phi_\infty)$,
-    where we note that all but finitely many of the $d_{V_p}(\phi_p)$ are 1.
+    and then applying Lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det} this
+    is equal to $\prod_v\delta_{\Q_v}(\det(\phi_v))\prod_v\delta_{\Q_v}(\det(\phi))=1$.
 
-    By Lemma~\ref{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det} we have that
-    $d_{V_v}(\phi_v)=\delta_{\Q_v}(\det(\phi_v))$, hence $d_{V_{\A}}(\phi_{\A})=\prod_v\delta_{\Q_v}(\det(\phi_v))$.
-    But $\det(\phi_v)$ is equal to the determinant of $\phi$ on $V$ as $\Q$-vector space (because
-    base change does not change determinant),
-    which is some nonzero rational number $q$. Thus $d_{V_{\A}}(\phi_{\A})=\prod_v\delta_{\Q_v}(q)=1$
-    by the product formula for $\Q$.
+    This turned out to be a nightmare to formalize, because commuting the tensor product
+    and the restricted product cannot be done naively, as the tensor product is over $\Q$
+    and the submodules in the restricted product defining $\A_{\Q}$ are not $\Q$-modules.
+    So one has to choose a $\Z$-lattice in $V$ and
+    use the isomorphisms $V\otimes_{\mathbb{Q}}\mathbb{A}=\Lambda\otimes_{\mathbb{Z}}\mathbb{A}=
+    \Lambda\otimes_{\mathbb{Z}}\mathbb{Q}_\infty\times\prod'_p[\Lambda\otimes_{\mathbb{Z}}\mathbb{Q}_p;\Lambda\otimes_{\mathbb{Z}}\mathbb{Z}_p]=
+    V\otimes_{\mathbb{Q}}\mathbb{Q}_\infty\times\prod'_p[V\otimes_{\mathbb{Q}}\mathbb{Q}_p;im(\Lambda\otimes_{\Z}\mathbb{Z}_p)]$
+    and check that all of these canonical maps are continuous (and one of these claims
+    boils down to yet another claim of the form "if you do something to the factors and then
+    take the restricted product, then this is topologically the same as doing it to the restriced product",
+    with the thing being $\Lambda\otimes_{\Z}$ in this case, something which needs
+    checking).
+
+    So here is the proof which we actually formalized. Say an automorphism of a finite free
+    $R$-module is \emph{nice} if it's a product of transvections and diagonal matrices with unit
+    entries. Mathlib has the fact that if $R$ is a field then all automorphisms are nice,
+    and the base change of a nice morphism is nice. Hence $\phi_{\mathbb{A}}$ is nice,
+    and we can simply prove Lemma~\cite{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
+    for nice endomorphisms over a commutative ring, which gives the result we want immediately
+    by the product formula.
   \end{proof}
 
   \begin{corollary}
@@ -900,6 +916,7 @@ Here is our reinterpretation of the product formula.
     does not change Haar measure on $B_{\A}$.
   \end{corollary}
   \begin{proof}
+    \leanok
     \uses{MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one}
     Follows immediately from the previous theorem.
   \end{proof}
