@@ -80,6 +80,7 @@ import FLT.Mathlib.LinearAlgebra.Countable
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
