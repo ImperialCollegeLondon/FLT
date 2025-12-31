@@ -13,6 +13,8 @@ open Matrix TransvectionStruct
 
 namespace Matrix
 
+/-- The claim that a matrix is a product of transvections, a diagonal matrix, and more
+transvections. Always true if the base ring is a field. -/
 def Pivot.ExistsListTransvecMulDiagonalMulListTransvec {n : Type*} {R : Type*} [CommRing R]
     [Fintype n] [DecidableEq n] (M : Matrix n n R) : Prop :=
   ∃ (L L' : List (TransvectionStruct n R)) (D : n → R),
@@ -28,15 +30,15 @@ section TransvectionStruct_dot_map
 variable {n : Type*} {R S : Type*} [CommRing R] [CommRing S]
     [Fintype n] [DecidableEq n] (f : R →+* S)
 
+/-- Base change of a TransvectionStruct along a ring homomorphism. -/
 def TransvectionStruct.map {n : Type*} {R S : Type*} [CommRing R] [CommRing S]
-    [Fintype n] [DecidableEq n] (f : R →+* S) (t : TransvectionStruct n R) :
+    (f : R →+* S) (t : TransvectionStruct n R) :
     TransvectionStruct n S where
   i := t.i
   j := t.j
   hij := t.hij
   c := f t.c
 
-@[simp]
 lemma TransvectionStruct.toMatrix_map (t : TransvectionStruct n R) :
     (toMatrix ∘ TransvectionStruct.map f) t = f.mapMatrix t.toMatrix := by
   simp [map, transvection, toMatrix, map_add]
