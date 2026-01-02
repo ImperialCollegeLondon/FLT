@@ -6,6 +6,7 @@ import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.HaarMeasure.HaarChar.Padic
 import Mathlib.NumberTheory.NumberField.ProductFormula
+import FLT.HaarMeasure.HaarChar.FiniteDimensional
 /-!
 
 # Global units are in the determinant of the adelic Haar character
@@ -92,11 +93,11 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
       Rat.HeightOneSpectrum.adicCompletion.padicEquiv_norm_eq]
     rfl
 
--- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange
 open scoped TensorProduct.RightActions in
 /-- The continuous A-linear map (A a topological ring, tensor products have the module
 topology) A ⊗[R] M ≃ A ⊗[R] N associated to an abstract R-linear isomorphism M ≃ N. -/
-noncomputable def ContinuousLinearEquiv.baseChange (R : Type*) [CommRing R]
+noncomputable def TensorProduct.RightActions.ContinuousLinearEquiv.baseChange (R : Type*)
+    [CommRing R]
     (A : Type*) [CommRing A] [Algebra R A] [TopologicalSpace A]
     (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
     [Module.Finite R M] [Module.Finite R N]
@@ -111,17 +112,62 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
     (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
     [Module.Finite R M] [Module.Finite R N]
     (φ : M ≃ₗ[R] N) (m : M) (a : A) :
-    ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) = (φ m) ⊗ₜ a := rfl
+    TensorProduct.RightActions.ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) =
+    (φ m) ⊗ₜ a := rfl
 
-open scoped TensorProduct.RightActions in
+-- mathlib?
+lemma LinearMap.toMatrix_map_left {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
+    [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
+    [Module R P] (φ : M ≃ₗ[R] P) (α : P →ₗ[R] N)
+    (b : Module.Basis ι R M) (c : Module.Basis j R N) :
+    LinearMap.toMatrix (b.map φ) c α = LinearMap.toMatrix b c (α ∘ₗ φ) := rfl
+
+-- mathlib?
+lemma LinearMap.toMatrix_map_right {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
+    [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
+    [Module R P] (φ : N ≃ₗ[R] P) (α : M →ₗ[R] P)
+    (b : Module.Basis ι R M) (c : Module.Basis j R N) :
+    LinearMap.toMatrix b (c.map φ) α = LinearMap.toMatrix b c (φ.symm ∘ₗ α) := rfl
+
+-- mathlib?
+lemma LinearMap.toMatrix_basis {R : Type*} (A : Type*) {M : Type*} {ι j : Type*} [Fintype ι]
+    [Fintype j] [DecidableEq ι] [CommSemiring R] [CommSemiring A]
+    [Algebra R A] [AddCommMonoid M] [Module R M] (b : Module.Basis ι R M)
+    {N : Type*} [AddCommMonoid N] [Module R N] (c : Module.Basis j R N) (φ : M →ₗ[R] N) :
+    LinearMap.toMatrix (Algebra.TensorProduct.basis A b) (Algebra.TensorProduct.basis A c)
+      (φ.baseChange A) = (LinearMap.toMatrix b c φ).map (algebraMap R A) := by
+  ext
+  simp
+
+open TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     [FiniteDimensional ℚ V] (φ : V ≃ₗ[ℚ] V)
     [MeasurableSpace (V ⊗[ℚ] 𝔸 ℚ)] [BorelSpace (V ⊗[ℚ] 𝔸 ℚ)] :
     addEquivAddHaarChar
       (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toContinuousAddEquiv = 1 := by
-  sorry
+  -- need a basis
+  let b := Module.finBasis ℚ V
+  let b_extend := TensorProduct.RightActions.Algebra.TensorProduct.basis (𝔸 ℚ) b
+  rw [MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc _ _ b_extend]
+  · -- det of base change is base change of det
+    have det_eq : (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toLinearEquiv.det =
+        (φ.det).map (algebraMap ℚ (𝔸 ℚ)) := by
+      ext
+      simp [ContinuousLinearEquiv.baseChange, LinearMap.det_baseChange]
+    rw [det_eq]
+    exact MeasureTheory.ringHaarChar_adeles_units_rat_eq_one φ.det
+  · have := Matrix.Pivot.baseChange_existsListTransvecEtc (LinearMap.toMatrix b b φ)
+      (Matrix.Pivot.exists_list_transvec_mul_diagonal_mul_list_transvec' _) (AdeleRing (𝓞 ℚ) ℚ)
+      (algebraMap _ _)
+    simp only [TensorProduct.RightActions.Algebra.TensorProduct.basis,
+      TensorProduct.RightActions.Module.TensorProduct.comm, b_extend, RingHom.mapMatrix_apply,
+      ← LinearMap.toMatrix_basis, LinearMap.toMatrix_map_left, LinearMap.toMatrix_map_right]
+        at this ⊢
+    convert this
+    ext
+    simp
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
     [MeasurableSpace (V ⊗[K] 𝔸 K)] [BorelSpace (V ⊗[K] 𝔸 K)] :
     addEquivAddHaarChar
@@ -137,7 +183,6 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
   -- and V ⊗[K] 𝔸_K ≃ V ⊗[ℚ] 𝔸_ℚ
   let f := NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv ℚ K V
   borelize (V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ)
-  have φℚ : V ≃ₗ[ℚ] V := by exact Function.invFun (fun a ↦ φ) φ
   -- and the obvious diagram commutes
   have := MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f
     (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V (φ.restrictScalars ℚ)).toContinuousAddEquiv
@@ -151,7 +196,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
     | tmul x y => rfl
     | add x y hx hy => simp [hx, hy]
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 /-- Left multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure. In other words, Bˣ is in the kernel of the `ringHaarChar` of `B ⊗ 𝔸_K`.
 -/
@@ -170,7 +215,7 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
   | tmul x y => simp [LinearEquiv.mulLeft]
   | add x y hx hy => simp_all [mul_add]
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 /-- Right multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure.
 -/
