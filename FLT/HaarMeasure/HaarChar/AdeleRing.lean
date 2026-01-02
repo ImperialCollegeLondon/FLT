@@ -183,7 +183,6 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
   -- and V ⊗[K] 𝔸_K ≃ V ⊗[ℚ] 𝔸_ℚ
   let f := NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv ℚ K V
   borelize (V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ)
-  have φℚ : V ≃ₗ[ℚ] V := (φ.restrictScalars ℚ)
   -- and the obvious diagram commutes
   have := MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f
     (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V (φ.restrictScalars ℚ)).toContinuousAddEquiv
