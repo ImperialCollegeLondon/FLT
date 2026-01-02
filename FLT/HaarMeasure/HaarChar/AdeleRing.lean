@@ -152,10 +152,8 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
   · -- det of base change is base change of det
     have det_eq : (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toLinearEquiv.det =
         (φ.det).map (algebraMap ℚ (𝔸 ℚ)) := by
-      simp only [ContinuousLinearEquiv.baseChange]
       ext
-      simp only [LinearEquiv.coe_det, LinearMap.det_conj, Units.coe_map, MonoidHom.coe_coe]
-      rw [LinearMap.det_baseChange]
+      simp [ContinuousLinearEquiv.baseChange, LinearMap.det_baseChange]
     rw [det_eq]
     exact MeasureTheory.ringHaarChar_adeles_units_rat_eq_one φ.det
   · have := Matrix.Pivot.baseChange_existsListTransvecEtc (LinearMap.toMatrix b b φ)
@@ -185,7 +183,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
   -- and V ⊗[K] 𝔸_K ≃ V ⊗[ℚ] 𝔸_ℚ
   let f := NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv ℚ K V
   borelize (V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ)
-  have φℚ : V ≃ₗ[ℚ] V := by exact Function.invFun (fun a ↦ φ) φ
+  have φℚ : V ≃ₗ[ℚ] V := (φ.restrictScalars ℚ)
   -- and the obvious diagram commutes
   have := MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f
     (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V (φ.restrictScalars ℚ)).toContinuousAddEquiv
