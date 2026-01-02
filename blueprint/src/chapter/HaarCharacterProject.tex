@@ -367,11 +367,11 @@ which crucially uses the induction principle
 One checks it explicitly for diagonal matrices and for matrices which are the identity
 except that one off-diagonal entry is non-zero.
 
-Note: if it helps we can assume that $F$ is second countable
+Note: we assume that $F$ is second countable
 (but it shouldn't be necessary).
 \end{proof}
 
-Now say $F$ is still a locally compact topological field, and that $R$ is a (possibly
+Now say $F$ is a locally compact topological field, and that $R$ is a (possibly
 non-commutative) $F$-algebra. Recall that this means that ($R=0$ or) $F$ lies in the centre of $R$.
 Assume that $R$ is finite-dimensional as an $F$-vector space. Then if we give $R$ the
 $F$-module topology (which is just the product topology if we pick a basis) then it is known
@@ -671,7 +671,8 @@ The following theorem shows that the value of this product is $d(\phi)$.
 \end{remark}
 \begin{proof}
   \leanok
-  \uses{MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding,
+  \uses{
+  MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_isOpenEmbedding,
   MeasureTheory.mulEquivHaarChar_eq_one_of_compactSpace,
   MeasureTheory.addEquivAddHaarChar_piCongrRight,Continuous.restrictedProduct_congrRight,
   MeasureTheory.addEquivAddHaarChar_prodCongr}
