@@ -115,20 +115,23 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
     TensorProduct.RightActions.ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) =
     (φ m) ⊗ₜ a := rfl
 
-lemma foo {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
+-- mathlib?
+lemma LinearMap.toMatrix_map_left {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
     [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
     [Module R P] (φ : M ≃ₗ[R] P) (α : P →ₗ[R] N)
     (b : Module.Basis ι R M) (c : Module.Basis j R N) :
     LinearMap.toMatrix (b.map φ) c α = LinearMap.toMatrix b c (α ∘ₗ φ) := rfl
 
-lemma bar {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
+-- mathlib?
+lemma LinearMap.toMatrix_map_right {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
     [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
     [Module R P] (φ : N ≃ₗ[R] P) (α : M →ₗ[R] P)
     (b : Module.Basis ι R M) (c : Module.Basis j R N) :
     LinearMap.toMatrix b (c.map φ) α = LinearMap.toMatrix b c (φ.symm ∘ₗ α) := rfl
 
-lemma baz {R : Type*} (A : Type*) {M : Type*} {ι j : Type*} [Fintype ι] [Fintype j]
-    [DecidableEq ι] [CommSemiring R] [CommSemiring A]
+-- mathlib?
+lemma LinearMap.toMatrix_basis {R : Type*} (A : Type*) {M : Type*} {ι j : Type*} [Fintype ι]
+    [Fintype j] [DecidableEq ι] [CommSemiring R] [CommSemiring A]
     [Algebra R A] [AddCommMonoid M] [Module R M] (b : Module.Basis ι R M)
     {N : Type*} [AddCommMonoid N] [Module R N] (c : Module.Basis j R N) (φ : M →ₗ[R] N) :
     LinearMap.toMatrix (Algebra.TensorProduct.basis A b) (Algebra.TensorProduct.basis A c)
@@ -158,18 +161,11 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
   · have := Matrix.Pivot.baseChange_existsListTransvecEtc (LinearMap.toMatrix b b φ)
       (Matrix.Pivot.exists_list_transvec_mul_diagonal_mul_list_transvec' _) (AdeleRing (𝓞 ℚ) ℚ)
       (algebraMap _ _)
-    convert this
-    clear this
-    --ext i j
     simp only [TensorProduct.RightActions.Algebra.TensorProduct.basis,
-      TensorProduct.RightActions.Module.TensorProduct.comm, AddHom.toFun_eq_coe,
-      LinearMap.coe_toAddHom, LinearEquiv.coe_coe, LinearEquiv.invFun_eq_symm,
-      ContinuousLinearEquiv.baseChange, TensorProduct.RightActions.LinearMap.baseChange,
-      RingHom.mapMatrix_apply, b_extend]
-    rw [foo, bar]
-    simp only [← LinearMap.comp_assoc]
-    rw [← baz] -- this is the key thing
-    congr
+      TensorProduct.RightActions.Module.TensorProduct.comm, b_extend, RingHom.mapMatrix_apply,
+      ← LinearMap.toMatrix_basis, LinearMap.toMatrix_map_left, LinearMap.toMatrix_map_right]
+        at this ⊢
+    convert this
     ext
     simp
 
