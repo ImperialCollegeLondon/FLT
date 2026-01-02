@@ -5,7 +5,7 @@ Variant of `Matrix.diagonal_transvection_induction_of_det_ne_zero`
 that works over a commutative ring. Note that we have to *assume*
 that the matrix is a product of transvections and a diagonal matrix;
 this is not true in general (I believe; I think there's some obstruction
-in algebraic K₂?)
+in SK₁(R), the kernel of det:K₁(R) → Rˣ)
 
 -/
 
@@ -43,15 +43,23 @@ lemma TransvectionStruct.toMatrix_map (t : TransvectionStruct n R) :
     (toMatrix ∘ TransvectionStruct.map f) t = f.mapMatrix t.toMatrix := by
   simp [map, transvection, toMatrix, map_add]
 
+@[simp]
+lemma TransvectionStruct.map_toMatrix (t : TransvectionStruct n R) :
+    (TransvectionStruct.map f t).toMatrix = t.toMatrix.map f :=
+  t.toMatrix_map f
+
 lemma TransvectionStruct.mapMatrix_map_toMatrix_prod (L : List (TransvectionStruct n R)) :
     f.mapMatrix (List.map toMatrix L).prod =
     (List.map (toMatrix ∘ TransvectionStruct.map f) L).prod := by
   rw [map_list_prod]
   congr 1
-  simp only [List.map_map, List.map_inj_left, Function.comp_apply]
-  intro l _
-  rw [← TransvectionStruct.toMatrix_map]
-  rfl
+  simp
+
+@[simp]
+lemma TransvectionStruct.mapMatrix_map_toMatrix_prod' (L : List (TransvectionStruct n R)) :
+    (List.map toMatrix L).prod.map ⇑f =
+    (List.map (toMatrix ∘ TransvectionStruct.map f) L).prod :=
+  TransvectionStruct.mapMatrix_map_toMatrix_prod f L
 
 end TransvectionStruct_dot_map
 
@@ -61,11 +69,8 @@ lemma Pivot.baseChange_existsListTransvecEtc {n : Type*} {R : Type*} [CommRing R
     (S : Type*) [CommRing S] (f : R →+* S) :
     Pivot.ExistsListTransvecMulDiagonalMulListTransvec (f.mapMatrix M) := by
   obtain ⟨L, L', D, rfl⟩ := hM
-  use L.map (TransvectionStruct.map f)
-  use L'.map (TransvectionStruct.map f)
-  use (fun i ↦ f (D i))
-  simp only [map_mul, TransvectionStruct.mapMatrix_map_toMatrix_prod]
-  simp
+  exact ⟨L.map (TransvectionStruct.map f), L'.map (TransvectionStruct.map f),
+    fun i ↦ f (D i), by simp⟩
 
 open Pivot
 

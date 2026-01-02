@@ -93,11 +93,11 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
       Rat.HeightOneSpectrum.adicCompletion.padicEquiv_norm_eq]
     rfl
 
--- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange
 open scoped TensorProduct.RightActions in
 /-- The continuous A-linear map (A a topological ring, tensor products have the module
 topology) A ⊗[R] M ≃ A ⊗[R] N associated to an abstract R-linear isomorphism M ≃ N. -/
-noncomputable def ContinuousLinearEquiv.baseChange (R : Type*) [CommRing R]
+noncomputable def TensorProduct.RightActions.ContinuousLinearEquiv.baseChange (R : Type*)
+    [CommRing R]
     (A : Type*) [CommRing A] [Algebra R A] [TopologicalSpace A]
     (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
     [Module.Finite R M] [Module.Finite R N]
@@ -112,7 +112,8 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
     (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
     [Module.Finite R M] [Module.Finite R N]
     (φ : M ≃ₗ[R] N) (m : M) (a : A) :
-    ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) = (φ m) ⊗ₜ a := rfl
+    TensorProduct.RightActions.ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) =
+    (φ m) ⊗ₜ a := rfl
 
 lemma foo {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
     [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
@@ -135,7 +136,7 @@ lemma baz {R : Type*} (A : Type*) {M : Type*} {ι j : Type*} [Fintype ι] [Finty
   ext
   simp
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     [FiniteDimensional ℚ V] (φ : V ≃ₗ[ℚ] V)
     [MeasurableSpace (V ⊗[ℚ] 𝔸 ℚ)] [BorelSpace (V ⊗[ℚ] 𝔸 ℚ)] :
@@ -172,7 +173,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     ext
     simp
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
     [MeasurableSpace (V ⊗[K] 𝔸 K)] [BorelSpace (V ⊗[K] 𝔸 K)] :
     addEquivAddHaarChar
@@ -202,7 +203,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
     | tmul x y => rfl
     | add x y hx hy => simp [hx, hy]
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 /-- Left multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure. In other words, Bˣ is in the kernel of the `ringHaarChar` of `B ⊗ 𝔸_K`.
 -/
@@ -221,7 +222,7 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
   | tmul x y => simp [LinearEquiv.mulLeft]
   | add x y hx hy => simp_all [mul_add]
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 /-- Right multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure.
 -/

@@ -261,25 +261,10 @@ open Module
 /-- Haar measure scaling for invertible linear maps on a finite-dimensional vector space
 over a field F assuming `[SecondCountableTopology F]`. -/
 theorem addEquivAddHaarChar_eq_ringHaarChar_det [SecondCountableTopology F] (ρ : V ≃L[F] V) :
-    addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det := by
-  let b := finBasis F V
-  let ι := Fin (finrank F V)
-  let e : V ≃ₗ[F] ι → F := Basis.equivFun b
-  have he : Continuous e := IsModuleTopology.continuous_of_linearMap e.toLinearMap
-  have he_inv : Continuous e.symm := IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
-  let ec : V ≃L[F] (ι → F) := ⟨e, he, he_inv⟩
-  let f := ec.toContinuousAddEquiv
-  let ρ' : (ι → F) ≃ₜ+ (ι → F) := (f.symm.trans (ρ.toContinuousAddEquiv)).trans f
-  have hComm: ∀ x, f (ρ.toContinuousAddEquiv x) = ρ' (f x) := by
-    simp [f, ρ', ContinuousAddEquiv.trans_apply, ContinuousAddEquiv.symm_apply_apply]
-  let h_eq := addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f
-    ρ.toContinuousAddEquiv ρ' hComm
-  have : (ec.toContinuousAddEquiv.symm.trans
-      ρ.toContinuousAddEquiv).trans ec.toContinuousAddEquiv =
-      ((ec.symm.trans ρ).trans ec).toContinuousAddEquiv := rfl
-  have foo := addEquivAddHaarChar_eq_ringHaarChar_det_pi (((ec.symm.trans ρ).trans ec))
-    (Pivot.exists_list_transvec_mul_diagonal_mul_list_transvec' _)
-  simp [h_eq, ρ', f, this, foo]
+    addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det :=
+  addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc ρ _ (finBasis F V)
+  (Pivot.exists_list_transvec_mul_diagonal_mul_list_transvec'
+    ((LinearMap.toMatrix (finBasis F V) (finBasis F V)) ↑ρ.toLinearEquiv))
 
 end field
 

@@ -331,37 +331,43 @@ there is still some discussion about the definition of a nonarchimedean local fi
 
 \section{Algebras}
 
-  Say $F$ is a locally compact topological field (for example $\R$ or $\bbC$ or $\Q_p$), $V$
-  is a finite-dimensional $F$-vector space, and $\phi:V\to V$ is an invertible $F$-linear map.
+  Say $F$ is a locally compact topological ring (for example $\R$ or $\bbC$ or $\Q_p$,
+  or the adeles of a number field), $V$
+  is a finite free $F$-module, and $\phi:V\to V$ is an invertible $F$-linear map.
   Then $V$ with its module topology (which is the product topology if one picks a basis)
   is a locally compact topological abelian group, and $\phi$ is additive.
-  One can check that linearity implies continuity (this is {\tt IsModuleTopology.continuous\_of\_linearMap} in mathlib),
+  One can check that linearity implies continuity (this is
+  {\tt IsModuleTopology.continuous\_of\_linearMap} in mathlib),
   so in fact $\phi$ is a homeomorphism
   and our theory applies. The following lemma gives a formula for the scale factor $d_V(\phi)$.
 
 \begin{lemma}
-  \label{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
-  \lean{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det}
+  \label{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det,
+    MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc}
+  \lean{MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det,
+    MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc}
   \uses{MeasureTheory.ringHaarChar}
   \leanok
   \discussion{517}
-  $d_V(\phi)=\delta_F(\det(\phi))$, where $\det(\phi)\in F$ is the determinant of $\phi$ as an $F$-linear map.
+  Assume that there's an $F$-basis for $V$ such that $\phi$ is a product of elementary
+  and diagonal matrices (note that this is automatic if $F$ is a field and mathlib
+  has this). Then
+  $d_V(\phi)=\delta_F(\det(\phi))$, where $\det(\phi)\in F$ is the determinant of
+  $\phi$ as an $F$-linear map.
 \end{lemma}
-\begin{remark}
-  TODO: we actually need to prove this for "nice" automorphisms of finite free modules
-  over a commutative ring, which is done in this PR. Here "nice" means "a product
-  of transvections and diagonal matrices".
-\end{remark}
 \begin{proof}
 \uses{MeasureTheory.addEquivAddHaarChar}
 \leanok
-The proof should be inspired by \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/MeasureTheory/Measure/Lebesgue/Basic.html\#Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi}{\tt Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi},
-which crucially uses the induction principle \href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/LinearAlgebra/Matrix/Transvection.html\#Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}{\tt Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}.
-In short, one needs to check it for diagonal matrices and for matrices which are the identity
-except that one off-diagonal entry is non-zero, because these matrices generate $GL_n(F)$
-if $F$ is a field. Note that we only need the result for $F=\R$
-and $F=\mathbb{Q}_p$ (and possibly for finite extensions of these depending on which route
-we go for some intermediate results), so if it helps we can assume that $F$ is second countable
+The proof is a generalization of
+\href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/MeasureTheory/Measure/Lebesgue/Basic.html\#Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi}
+{\tt Real.map\_matrix\_volume\_pi\_eq\_smul\_volume\_pi},
+which crucially uses the induction principle
+\href{https://leanprover-community.github.io/mathlib4\_docs/Mathlib/LinearAlgebra/Matrix/Transvection.html\#Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}
+{\tt Matrix.diagonal\_transvection\_induction\_of\_det\_ne\_zero}.
+One checks it explicitly for diagonal matrices and for matrices which are the identity
+except that one off-diagonal entry is non-zero.
+
+Note: if it helps we can assume that $F$ is second countable
 (but it shouldn't be necessary).
 \end{proof}
 
