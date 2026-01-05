@@ -40,7 +40,7 @@ instance (k A B : Type*) [Field k] [Field A] [Ring B]
     [Algebra k A] [Algebra k B]
     [Algebra.IsCentral k B] [IsSimpleRing B] :
     Algebra.IsCentral A (B ⊗[k] A) :=
-  -- apparently we have this somewhere
+  -- according to Edison we have this somewhere
   sorry
 
 open IsDedekindDomain HeightOneSpectrum RestrictedProduct in
@@ -55,6 +55,7 @@ lemma NumberField.AdeleRing.isCentralSimple_finite_addHaarScalarFactor_left_mul_
   -- finite places
   -- the code here is just testing whether `ringHaarChar_eq_addEquivAddHaarChar_mulRight`
   -- works for each finite place `v`
+  -- feel free to modify this code
   have : Module.FinitePresentation K B := Module.finitePresentation_of_finite ..
   let v : HeightOneSpectrum (𝓞 K) := sorry
   let u' : (B ⊗[K] (v.adicCompletion K))ˣ := sorry

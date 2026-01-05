@@ -399,7 +399,7 @@ section AdeleRing
 
 open scoped TensorProduct.RightActions in
 lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
-    (u : (Dinf K D)ˣ) :
+    [Algebra.IsCentral K D] (u : (Dinf K D)ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   -- infinite places
@@ -422,11 +422,30 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
 
 open scoped TensorProduct.RightActions in
 lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
-    (u : D_𝔸ˣ) :
+    [Algebra.IsCentral K D] (u : D_𝔸ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
-  open IsDedekindDomain in
-  sorry
+  open IsDedekindDomain MeasureTheory in
+  let u' := D𝔸_prodRight_units K D u
+  have hl :
+      addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)
+      = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u'.1)
+      * addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u'.2) := by
+    rw [← addEquivAddHaarChar_prodCongr
+      (ContinuousAddEquiv.mulLeft u'.1) (ContinuousAddEquiv.mulLeft u'.2)]
+    apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (D𝔸_prodRight'' K D)
+    intro x; simp; rfl
+  have hr :
+      addEquivAddHaarChar (ContinuousAddEquiv.mulRight u)
+      = addEquivAddHaarChar (ContinuousAddEquiv.mulRight u'.1)
+      * addEquivAddHaarChar (ContinuousAddEquiv.mulRight u'.2) := by
+    rw [← addEquivAddHaarChar_prodCongr
+      (ContinuousAddEquiv.mulRight u'.1) (ContinuousAddEquiv.mulRight u'.2)]
+    apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (D𝔸_prodRight'' K D)
+    intro x; simp; rfl
+  simp [hl, hr, Dinfx, Dfx, Df,
+    isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul _,
+    isCentralSimple_finite_addHaarScalarFactor_left_mul_eq_right_mul K D _]
 
 end AdeleRing
 
