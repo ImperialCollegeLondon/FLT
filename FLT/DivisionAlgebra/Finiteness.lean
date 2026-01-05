@@ -399,7 +399,7 @@ section AdeleRing
 
 open scoped TensorProduct.RightActions in
 lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
-    (u : (D ⊗[K] (InfiniteAdeleRing K))ˣ) :
+    (u : (Dinf K D)ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   -- infinite places
@@ -422,7 +422,7 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
 
 open scoped TensorProduct.RightActions in
 lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
-    (u : (D ⊗[K] (𝔸 K))ˣ) :
+    (u : D_𝔸ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   open IsDedekindDomain in
