@@ -395,6 +395,41 @@ lemma ringHaarChar_D𝔸_real_surjective (r : ℝ) (h : r > 0) :
 
 end FiniteAdeleRing
 
+section AdeleRing
+
+open scoped TensorProduct.RightActions in
+lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
+    (u : (D ⊗[K] (InfiniteAdeleRing K))ˣ) :
+    addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
+    addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
+  -- infinite places
+   /- #check InfiniteAdeleRing.ringEquiv_mixedSpace
+  let vi : InfinitePlace K := sorry
+  let u'i : (B ⊗[K] vi.Completion)ˣ := sorry
+  let : MeasurableSpace (Π vi : InfinitePlace K, (B ⊗[K] vi.Completion)) := borel _
+  have : BorelSpace (Π vi : InfinitePlace K, (B ⊗[K] vi.Completion)) := ⟨rfl⟩ -/
+  /- have hi := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) u'i
+  let e : (B ⊗[K] (InfiniteAdeleRing K)) ≃A[ℤ] Π vi : InfinitePlace K, (B ⊗[K] vi.Completion) := {
+    __ := tensorPi_equiv_piTensor ..
+    map_mul' x y := sorry
+    commutes' z := sorry
+    continuous_toFun := sorry
+    continuous_invFun := sorry
+  }
+  let u' : (Π vi : InfinitePlace K, (B ⊗[K] vi.Completion))ˣ := Units.map e u
+  rw [addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv e] -/
+  sorry
+
+open scoped TensorProduct.RightActions in
+lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
+    (u : (D ⊗[K] (𝔸 K))ˣ) :
+    addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
+    addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
+  open IsDedekindDomain in
+  sorry
+
+end AdeleRing
+
 section auxiliary_defs
 -- We need a subset of D ⊗[K] 𝔸_K^f with positive finite measure
 -- and a subset of D ⊗[K] K_∞ with positive finite measure. We build them
