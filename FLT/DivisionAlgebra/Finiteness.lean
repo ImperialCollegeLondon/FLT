@@ -434,6 +434,10 @@ def real_to_completion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
     (InfinitePlace.Completion.ringEquivComplexOfIsComplex (by simpa using h)).symm.toRingHom.comp
     Complex.ofRealHom
 
+-- TODO: fix this approach in view of the diamond created with things like
+-- `instAlgebraRealInfiniteAdeleRing_fLT`
+-- (but everything below works, so I'm hesitant to touch it for now)
+
 instance (vi : InfinitePlace K) : Algebra ℝ vi.Completion :=
   (real_to_completion K vi).toAlgebra
 
@@ -489,8 +493,19 @@ open scoped TensorProduct.RightActions in
 instance : IsModuleTopology ℝ (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) :=
   IsModuleTopology.instPi
 
+omit [NumberField K] in
 lemma algebraMap_completion {vi : InfinitePlace K} {x : ℝ} :
-    (algebraMap ℝ (InfiniteAdeleRing K)) x vi = (algebraMap ℝ vi.Completion) x := sorry
+    (algebraMap ℝ (InfiniteAdeleRing K)) x vi = (algebraMap ℝ vi.Completion) x := by
+  change
+    ((InfiniteAdeleRing.ringEquiv_mixedSpace K).symm.toRingHom.comp (algebraMap ℝ _)) x vi
+    = real_to_completion K vi x
+  by_cases h : vi.IsReal
+  · simp_all [real_to_completion, ↓reduceDIte,
+      RingEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd]
+    rfl
+  · simp_all [-InfinitePlace.not_isReal_iff_isComplex, real_to_completion, ↓reduceDIte,
+      RingEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd]
+    rfl
 
 lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
     tensorPi_equiv_piTensor K D InfinitePlace.Completion (x * y)
