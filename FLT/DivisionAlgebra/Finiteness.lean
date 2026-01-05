@@ -441,31 +441,28 @@ def real_to_completion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
 instance (vi : InfinitePlace K) : Algebra ℝ vi.Completion :=
   (real_to_completion K vi).toAlgebra
 
+omit [NumberField K] in
+lemma algebraMap_completion_def (vi : InfinitePlace K) :
+    (algebraMap ℝ vi.Completion) = (real_to_completion K vi) := rfl
+
 instance (vi : InfinitePlace K) : Module.Finite ℝ vi.Completion := by
   by_cases h : vi.IsReal
   · let e : vi.Completion ≃ₗ[ℝ] ℝ := {
       __ := InfinitePlace.Completion.ringEquivRealOfIsReal h
       map_smul' r x := by
-        simp only [RingEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe,
-          RingHom.id_apply, smul_eq_mul]
-        erw [map_mul]
-        simp_all [real_to_completion, ↓reduceDIte]
+        simp_all [Algebra.smul_def, algebraMap_completion_def, real_to_completion, ↓reduceDIte]
     }
     exact Module.Finite.of_injective _ e.injective
   · let e : vi.Completion ≃ₗ[ℝ] ℂ := {
       __ := InfinitePlace.Completion.ringEquivComplexOfIsComplex (by simpa using h)
       map_smul' r x := by
-        simp only [RingEquiv.toEquiv_eq_coe, Equiv.toFun_as_coe, EquivLike.coe_coe,
-          RingHom.id_apply, Complex.real_smul]
-        erw [map_mul]
-        simp_all [real_to_completion, ↓reduceDIte]
+        simp_all [Algebra.smul_def, algebraMap_completion_def, real_to_completion, ↓reduceDIte]
     }
     exact Module.Finite.of_injective _ e.injective
 
 instance (vi : InfinitePlace K) : ContinuousSMul ℝ vi.Completion := by
   refine continuousSMul_of_algebraMap ℝ vi.Completion ?_
-  have : (algebraMap ℝ vi.Completion) = (real_to_completion K vi) := rfl
-  rw [this]
+  rw [algebraMap_completion_def]
   by_cases h : vi.IsReal
   · convert (InfinitePlace.Completion.isometryEquivRealOfIsReal h).symm.isometry_toFun.continuous
     funext x; simp_all [real_to_completion, ↓reduceDIte]; rfl
@@ -524,10 +521,10 @@ def Dinf_tensorPi_equiv_piTensor_aux :
       = x • tensorPi_equiv_piTensor K D InfinitePlace.Completion y
     simp only [Algebra.smul_def, tensorPi_equiv_piTensor_map_mul];
     congr
-    have h₁ : (algebraMap ℝ (Dinf K D)) x = 1 ⊗ₜ[K] (algebraMap ℝ (InfiniteAdeleRing K) x) := by rfl
+    have h₁ : (algebraMap ℝ (Dinf K D)) x = 1 ⊗ₜ[K] (algebraMap ℝ (InfiniteAdeleRing K) x) := rfl
     have h₂ :
         (algebraMap ℝ ((i : InfinitePlace K) → D ⊗[K] i.Completion)) x
-        = fun (i : InfinitePlace K) ↦ 1 ⊗ₜ[K] (algebraMap ℝ i.Completion x) := by rfl
+        = fun (i : InfinitePlace K) ↦ 1 ⊗ₜ[K] (algebraMap ℝ i.Completion x) := rfl
     rw [h₁, h₂, tensorPi_equiv_piTensor_apply]
     funext vi
     congr
@@ -573,13 +570,13 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
       addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)
       = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u') := by
     apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv {__ := e}
-    intro x; have : e (u * x) = u' * e x := (Dinf_tensorPi_equiv_piTensor_monoidHom K D).map_mul' ..
+    intro x; have : e (u * x) = u' * e x := tensorPi_equiv_piTensor_map_mul ..
     simpa
   have hr :
       addEquivAddHaarChar (ContinuousAddEquiv.mulRight u)
       = addEquivAddHaarChar (ContinuousAddEquiv.mulRight u') := by
     apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv {__ := e}
-    intro x; have : e (x * u) = e x * u' := (Dinf_tensorPi_equiv_piTensor_monoidHom K D).map_mul' ..
+    intro x; have : e (x * u) = e x * u' := tensorPi_equiv_piTensor_map_mul ..
     simpa
   rw [hl, hr]
   apply isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
