@@ -398,7 +398,7 @@ end FiniteAdeleRing
 section AdeleRing
 
 instance (vi : InfinitePlace K) : SecondCountableTopology (D ⊗[K] vi.Completion) :=
-    sorry--Module.Finite.secondCountabletopology ℝ _
+  Module.Finite.secondCountabletopology vi.Completion _
 
 open scoped TensorProduct.RightActions in
 variable
@@ -421,11 +421,9 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul'
       = ∏ vi, addEquivAddHaarChar (ContinuousAddEquiv.mulRight (u' vi)) := by
     rw [← addEquivAddHaarChar_piCongrRight (fun vi ↦ ContinuousAddEquiv.mulRight (u' vi))]
     congr
-  
-  /- #check InfiniteAdeleRing.ringEquiv_mixedSpace
-  have hi := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) u'i
-  rw [addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv e] -/
-  sorry
+  rw [hl, hr]; congr; funext vi
+  apply
+    IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) (u' vi)
 
 open scoped TensorProduct.RightActions in
 def Dinf_tensorPi_equiv_piTensor :
