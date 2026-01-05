@@ -404,7 +404,7 @@ open scoped TensorProduct.RightActions in
 variable
   [(vi : InfinitePlace K) → MeasurableSpace (D ⊗[K] vi.Completion)]
   [(vi : InfinitePlace K) → BorelSpace (D ⊗[K] vi.Completion)] in
-lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul'
+lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
     [Algebra.IsCentral K D] (u : (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion))ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
@@ -458,7 +458,7 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
     apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv {__ := e}
     intro x; simp; rfl
   rw [hl, hr]
-  apply isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul'
+  apply isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
 
 open scoped TensorProduct.RightActions in
 lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
