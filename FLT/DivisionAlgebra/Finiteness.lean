@@ -397,23 +397,31 @@ end FiniteAdeleRing
 
 section AdeleRing
 
+instance (vi : InfinitePlace K) : SecondCountableTopology (D ⊗[K] vi.Completion) :=
+    sorry--Module.Finite.secondCountabletopology ℝ _
+
 open scoped TensorProduct.RightActions in
 variable
-  [MeasurableSpace (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion))]
-  [BorelSpace (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion))] in
+  [(vi : InfinitePlace K) → MeasurableSpace (D ⊗[K] vi.Completion)]
+  [(vi : InfinitePlace K) → BorelSpace (D ⊗[K] vi.Completion)] in
 lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul'
     [Algebra.IsCentral K D] (u : (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion))ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   open MeasureTheory in
-  let (vi : InfinitePlace K) : MeasurableSpace (D ⊗[K] vi.Completion) := borel _
-  have (vi : InfinitePlace K) : BorelSpace (D ⊗[K] vi.Completion) := ⟨rfl⟩
-  /-let u'' := MulEquiv.piUnits u'
+  have : BorelSpace (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) := Pi.borelSpace
+  let u' := MulEquiv.piUnits u
   have hl :
-      addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u')
-      = ∏ vi, addEquivAddHaarChar (ContinuousAddEquiv.mulLeft (u'' vi)) := by
-    rw [← addEquivAddHaarChar_piCongrRight (fun vi ↦ ContinuousAddEquiv.mulLeft (u'' vi))]
-    sorry-/
+      addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)
+      = ∏ vi, addEquivAddHaarChar (ContinuousAddEquiv.mulLeft (u' vi)) := by
+    rw [← addEquivAddHaarChar_piCongrRight (fun vi ↦ ContinuousAddEquiv.mulLeft (u' vi))]
+    congr
+  have hr :
+      addEquivAddHaarChar (ContinuousAddEquiv.mulRight u)
+      = ∏ vi, addEquivAddHaarChar (ContinuousAddEquiv.mulRight (u' vi)) := by
+    rw [← addEquivAddHaarChar_piCongrRight (fun vi ↦ ContinuousAddEquiv.mulRight (u' vi))]
+    congr
+  
   /- #check InfiniteAdeleRing.ringEquiv_mixedSpace
   have hi := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) u'i
   rw [addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv e] -/
@@ -436,8 +444,8 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   -- infinite places
   open MeasureTheory in
-  let : MeasurableSpace (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) := borel _
-  have : BorelSpace (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) := ⟨rfl⟩
+  let (vi : InfinitePlace K) : MeasurableSpace (D ⊗[K] vi.Completion) := borel _
+  have (vi : InfinitePlace K) : BorelSpace (D ⊗[K] vi.Completion) := ⟨rfl⟩
   let e := (Dinf_tensorPi_equiv_piTensor K D)
   let u' := Units.map e.toMonoidHom u
   have hl :
