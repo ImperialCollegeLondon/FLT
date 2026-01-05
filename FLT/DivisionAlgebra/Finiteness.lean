@@ -425,15 +425,55 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
   apply
     IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) (u' vi)
 
+def real_to_completion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
+  sorry
+
+instance (vi : InfinitePlace K) : Algebra ℝ vi.Completion :=
+  (real_to_completion K vi).toAlgebra
+
+instance (vi : InfinitePlace K) : Module.Finite ℝ vi.Completion := sorry
+
+instance (vi : InfinitePlace K) : ContinuousSMul ℝ vi.Completion := sorry
+
+instance (vi : InfinitePlace K) : IsModuleTopology ℝ vi.Completion :=
+  isModuleTopologyOfFiniteDimensional
+
+open scoped TensorProduct.RightActions in
+instance (vi : InfinitePlace K) : Algebra ℝ (D ⊗[K] vi.Completion) :=
+  Algebra.compHom _ <| real_to_completion K vi
+
+open scoped TensorProduct.RightActions in
+instance (vi : InfinitePlace K) : IsScalarTower ℝ vi.Completion (D ⊗[K] vi.Completion) :=
+  IsScalarTower.of_compHom ..
+
+open scoped TensorProduct.RightActions in
+instance (vi : InfinitePlace K) : IsModuleTopology ℝ (D ⊗[K] vi.Completion) := by
+  rw [IsModuleTopology.trans ℝ vi.Completion]
+  infer_instance
+
+open scoped TensorProduct.RightActions in
+instance : IsModuleTopology ℝ (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) :=
+  IsModuleTopology.instPi
+
+open scoped TensorProduct.RightActions in
+/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a `ℝ`-linear map. -/
+def Dinf_tensorPi_equiv_piTensor_aux :
+    (Dinf K D) ≃ₗ[ℝ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
+  __ := tensorPi_equiv_piTensor ..
+  map_smul' x y := sorry
+}
+
 open scoped TensorProduct.RightActions in
 /-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a continuous ring equiv. -/
 def Dinf_tensorPi_equiv_piTensor :
     (Dinf K D) ≃A[ℤ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
-  __ := tensorPi_equiv_piTensor ..
+  __ := Dinf_tensorPi_equiv_piTensor_aux ..
   map_mul' x y := sorry
   commutes' z := sorry
-  continuous_toFun := sorry
-  continuous_invFun := sorry
+  continuous_toFun :=
+    IsModuleTopology.continuous_of_linearMap (Dinf_tensorPi_equiv_piTensor_aux K D).toLinearMap
+  continuous_invFun :=
+    IsModuleTopology.continuous_of_linearMap (Dinf_tensorPi_equiv_piTensor_aux K D).symm.toLinearMap
 }
 
 open scoped TensorProduct.RightActions in
