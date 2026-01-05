@@ -486,12 +486,11 @@ instance (vi : InfinitePlace K) : IsModuleTopology ℝ (D ⊗[K] vi.Completion) 
   infer_instance
 
 open scoped TensorProduct.RightActions in
-instance : Algebra ℝ (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) :=
-  Pi.algebra ..
-
-open scoped TensorProduct.RightActions in
 instance : IsModuleTopology ℝ (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) :=
   IsModuleTopology.instPi
+
+lemma algebraMap_completion {vi : InfinitePlace K} {x : ℝ} :
+    (algebraMap ℝ (InfiniteAdeleRing K)) x vi = (algebraMap ℝ vi.Completion) x := sorry
 
 lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
     tensorPi_equiv_piTensor K D InfinitePlace.Completion (x * y)
@@ -517,7 +516,7 @@ def Dinf_tensorPi_equiv_piTensor_aux :
     rw [h₁, h₂, tensorPi_equiv_piTensor_apply]
     funext vi
     congr
-    sorry
+    exact algebraMap_completion _
 }
 
 open scoped TensorProduct.RightActions in
