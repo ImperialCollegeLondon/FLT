@@ -425,6 +425,7 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
   apply
     IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) (u' vi)
 
+/-- The canonical `ℝ`-algebra structure on `InfinitePlace.Completion`. -/
 def real_to_completion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
   sorry
 
