@@ -425,16 +425,21 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
   apply
     IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) (u' vi)
 
+open Classical in
 /-- The canonical `ℝ`-algebra structure on `InfinitePlace.Completion`. -/
 def real_to_completion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
-  sorry
+  if h : vi.IsReal
+  then (InfinitePlace.Completion.ringEquivRealOfIsReal h).symm.toRingHom
+  else
+    (InfinitePlace.Completion.ringEquivComplexOfIsComplex (by simpa using h)).symm.toRingHom.comp
+    Complex.ofRealHom
 
 instance (vi : InfinitePlace K) : Algebra ℝ vi.Completion :=
   (real_to_completion K vi).toAlgebra
 
-instance (vi : InfinitePlace K) : Module.Finite ℝ vi.Completion := sorry
+instance (vi : InfinitePlace K) : Module.Finite ℝ vi.Completion := by sorry
 
-instance (vi : InfinitePlace K) : ContinuousSMul ℝ vi.Completion := sorry
+instance (vi : InfinitePlace K) : ContinuousSMul ℝ vi.Completion := by sorry
 
 instance (vi : InfinitePlace K) : IsModuleTopology ℝ vi.Completion :=
   isModuleTopologyOfFiniteDimensional
@@ -453,15 +458,37 @@ instance (vi : InfinitePlace K) : IsModuleTopology ℝ (D ⊗[K] vi.Completion) 
   infer_instance
 
 open scoped TensorProduct.RightActions in
+instance : Algebra ℝ (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) :=
+  Pi.algebra ..
+
+open scoped TensorProduct.RightActions in
 instance : IsModuleTopology ℝ (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) :=
   IsModuleTopology.instPi
 
+set_option profiler true in
 open scoped TensorProduct.RightActions in
 /-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a `ℝ`-linear map. -/
 def Dinf_tensorPi_equiv_piTensor_aux :
     (Dinf K D) ≃ₗ[ℝ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
-  __ := tensorPi_equiv_piTensor ..
-  map_smul' x y := sorry
+  __ := tensorPi_equiv_piTensor K D InfinitePlace.Completion
+  map_smul' x y := by
+    refine TensorProduct.induction_on y ?_ ?_ ?_
+    · simp only [smul_zero]
+      change tensorPi_equiv_piTensor K D InfinitePlace.Completion 0
+        = x • tensorPi_equiv_piTensor K D InfinitePlace.Completion 0
+      simp only [LinearEquiv.map_zero, smul_zero]
+    · intro d y
+      change tensorPi_equiv_piTensor K D InfinitePlace.Completion (x • d ⊗ₜ[K] y)
+        = x • tensorPi_equiv_piTensor K D InfinitePlace.Completion (d ⊗ₜ[K] y)
+      have : (x • d ⊗ₜ[K] y) = d ⊗ₜ[K] (x • y) := by sorry
+      simp only [this, tensorPi_equiv_piTensor_apply]
+      erw [tensorPi_equiv_piTensor_apply]
+      funext i
+      have : (x • y) i = x • (y i) := sorry
+      simp [this]
+      sorry
+    · intro x y hx hy
+      simp only [smul_add, (tensorPi_equiv_piTensor K D InfinitePlace.Completion).map_add', hx, hy]
 }
 
 open scoped TensorProduct.RightActions in
@@ -469,8 +496,8 @@ open scoped TensorProduct.RightActions in
 def Dinf_tensorPi_equiv_piTensor :
     (Dinf K D) ≃A[ℤ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
   __ := Dinf_tensorPi_equiv_piTensor_aux ..
-  map_mul' x y := sorry
-  commutes' z := sorry
+  map_mul' x y := sorry -- we need that `tensorPi_equiv_piTensor` is a ring hom
+  commutes' z := sorry -- we wouldn't need this if we had actual continuous ring equivs
   continuous_toFun :=
     IsModuleTopology.continuous_of_linearMap (Dinf_tensorPi_equiv_piTensor_aux K D).toLinearMap
   continuous_invFun :=
