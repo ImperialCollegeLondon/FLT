@@ -535,16 +535,27 @@ def Dinf_tensorPi_equiv_piTensor_aux :
 }
 
 open scoped TensorProduct.RightActions in
-/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a continuous ring equiv. -/
+/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a continuous `ℝ`-linear equiv. -/
 def Dinf_tensorPi_equiv_piTensor :
-    (Dinf K D) ≃A[ℤ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
+    (Dinf K D) ≃L[ℝ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
   __ := Dinf_tensorPi_equiv_piTensor_aux ..
-  map_mul' _ _ := tensorPi_equiv_piTensor_map_mul ..
-  commutes' z := sorry -- we wouldn't need this if we had actual continuous ring equivs
   continuous_toFun :=
     IsModuleTopology.continuous_of_linearMap (Dinf_tensorPi_equiv_piTensor_aux K D).toLinearMap
   continuous_invFun :=
     IsModuleTopology.continuous_of_linearMap (Dinf_tensorPi_equiv_piTensor_aux K D).symm.toLinearMap
+}
+
+open scoped TensorProduct.RightActions in
+/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a monoid hom. -/
+def Dinf_tensorPi_equiv_piTensor_monoidHom :
+    (Dinf K D) →* Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
+  __ := Dinf_tensorPi_equiv_piTensor K D
+  map_one' := by
+    rw [Algebra.TensorProduct.one_def]
+    simp [Dinf_tensorPi_equiv_piTensor, Dinf_tensorPi_equiv_piTensor_aux,
+      Dinf, InfiniteAdeleRing, tensorPi_equiv_piTensor_apply]
+    rfl
+  map_mul' _ _ := tensorPi_equiv_piTensor_map_mul ..
 }
 
 open scoped TensorProduct.RightActions in
@@ -556,18 +567,20 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
   open MeasureTheory in
   let (vi : InfinitePlace K) : MeasurableSpace (D ⊗[K] vi.Completion) := borel _
   have (vi : InfinitePlace K) : BorelSpace (D ⊗[K] vi.Completion) := ⟨rfl⟩
-  let e := (Dinf_tensorPi_equiv_piTensor K D)
-  let u' := Units.map e.toMonoidHom u
+  let e := Dinf_tensorPi_equiv_piTensor K D
+  let u' := Units.map (Dinf_tensorPi_equiv_piTensor_monoidHom K D) u
   have hl :
       addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)
       = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u') := by
     apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv {__ := e}
-    intro x; simp; rfl
+    intro x; have : e (u * x) = u' * e x := (Dinf_tensorPi_equiv_piTensor_monoidHom K D).map_mul' ..
+    simpa
   have hr :
       addEquivAddHaarChar (ContinuousAddEquiv.mulRight u)
       = addEquivAddHaarChar (ContinuousAddEquiv.mulRight u') := by
     apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv {__ := e}
-    intro x; simp; rfl
+    intro x; have : e (x * u) = e x * u' := (Dinf_tensorPi_equiv_piTensor_monoidHom K D).map_mul' ..
+    simpa
   rw [hl, hr]
   apply isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
 
