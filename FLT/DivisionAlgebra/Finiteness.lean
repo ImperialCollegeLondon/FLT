@@ -426,6 +426,7 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul'
     IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) (u' vi)
 
 open scoped TensorProduct.RightActions in
+/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a continuous ring equiv. -/
 def Dinf_tensorPi_equiv_piTensor :
     (Dinf K D) ≃A[ℤ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
   __ := tensorPi_equiv_piTensor ..
