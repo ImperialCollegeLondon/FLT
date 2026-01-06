@@ -504,12 +504,23 @@ lemma algebraMap_completion {vi : InfinitePlace K} {x : ℝ} :
       RingEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd]
     rfl
 
+omit [NumberField K] in
 lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
     tensorPi_equiv_piTensor K D InfinitePlace.Completion (x * y)
     = tensorPi_equiv_piTensor K D InfinitePlace.Completion x
-      * tensorPi_equiv_piTensor K D InfinitePlace.Completion y :=
+      * tensorPi_equiv_piTensor K D InfinitePlace.Completion y := by
   -- we need that `tensorPi_equiv_piTensor` is a ring hom
-  sorry
+  -- this is certainly true in more generality and so can go elsewhere later on
+  refine TensorProduct.induction_on x
+    (by simp only [LinearEquiv.map_zero, zero_mul])
+    (fun x₁ x₂ ↦ ?_) (fun x₁ x₂ hx₁ hx₂ ↦ by
+      simp_all only [LinearEquiv.map_add, add_mul])
+  refine TensorProduct.induction_on y
+    (by simp only [LinearEquiv.map_zero, mul_zero])
+    (fun y₁ y₂ ↦ ?_) (fun y₁ y₂ hy₁ hy₂ ↦ by
+      simp_all only [LinearEquiv.map_add, mul_add])
+  funext vi
+  simp [Dinf, InfiniteAdeleRing, tensorPi_equiv_piTensor_apply]
 
 open scoped TensorProduct.RightActions in
 /-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a `ℝ`-linear map. -/
