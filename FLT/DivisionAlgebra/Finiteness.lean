@@ -404,6 +404,8 @@ open scoped TensorProduct.RightActions in
 variable
   [(vi : InfinitePlace K) → MeasurableSpace (D ⊗[K] vi.Completion)]
   [(vi : InfinitePlace K) → BorelSpace (D ⊗[K] vi.Completion)] in
+/-- Left and right Haar characters agree for
+`u : (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion))ˣ`. -/
 lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
     [Algebra.IsCentral K D] (u : (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion))ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
@@ -425,6 +427,14 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
   apply
     IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := vi.Completion) (u' vi)
 
+section RealAlgebra
+
+-- This section on `ℝ`-algebra structures is really only needed
+-- to show continuity of `tensorPi_equiv_piTensor`.
+-- TODO: fix this approach in view of the diamond created with things like
+-- `instAlgebraRealInfiniteAdeleRing_fLT`
+-- (but everything below works, so I'm hesitant to touch it for now)
+
 open Classical in
 /-- The canonical `ℝ`-algebra structure on `InfinitePlace.Completion`. -/
 def real_to_completion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
@@ -433,10 +443,6 @@ def real_to_completion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
   else
     (InfinitePlace.Completion.ringEquivComplexOfIsComplex (by simpa using h)).symm.toRingHom.comp
     Complex.ofRealHom
-
--- TODO: fix this approach in view of the diamond created with things like
--- `instAlgebraRealInfiniteAdeleRing_fLT`
--- (but everything below works, so I'm hesitant to touch it for now)
 
 instance (vi : InfinitePlace K) : Algebra ℝ vi.Completion :=
   (real_to_completion K vi).toAlgebra
@@ -464,11 +470,11 @@ instance (vi : InfinitePlace K) : ContinuousSMul ℝ vi.Completion := by
   refine continuousSMul_of_algebraMap ℝ vi.Completion ?_
   rw [algebraMap_completion_def]
   by_cases h : vi.IsReal
-  · convert (InfinitePlace.Completion.isometryEquivRealOfIsReal h).symm.isometry_toFun.continuous
-    funext x; simp_all [real_to_completion, ↓reduceDIte]; rfl
-  · convert (InfinitePlace.Completion.isometryEquivComplexOfIsComplex
+  · have := (InfinitePlace.Completion.isometryEquivRealOfIsReal h).symm.isometry_toFun.continuous
+    simpa [real_to_completion, h, ↓reduceDIte]
+  · have := (InfinitePlace.Completion.isometryEquivComplexOfIsComplex
       (by simpa using h)).symm.isometry_toFun.continuous.comp Complex.continuous_ofReal
-    funext x; simp_all [real_to_completion, ↓reduceDIte]; rfl
+    simpa only [real_to_completion, h, ↓reduceDIte]
 
 instance (vi : InfinitePlace K) : IsModuleTopology ℝ vi.Completion :=
   isModuleTopologyOfFiniteDimensional
@@ -504,6 +510,8 @@ lemma algebraMap_completion {vi : InfinitePlace K} {x : ℝ} :
       RingEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd]
     rfl
 
+end RealAlgebra
+
 omit [NumberField K] in
 lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
     tensorPi_equiv_piTensor K D InfinitePlace.Completion (x * y)
@@ -523,7 +531,7 @@ lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
   simp [Dinf, InfiniteAdeleRing, tensorPi_equiv_piTensor_apply]
 
 open scoped TensorProduct.RightActions in
-/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a `ℝ`-linear map. -/
+/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a `ℝ`-linear equiv. -/
 def Dinf_tensorPi_equiv_piTensor_aux :
     (Dinf K D) ≃ₗ[ℝ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
   __ := tensorPi_equiv_piTensor K D InfinitePlace.Completion
@@ -554,15 +562,10 @@ def Dinf_tensorPi_equiv_piTensor :
 }
 
 open scoped TensorProduct.RightActions in
-/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a monoid hom. -/
-def Dinf_tensorPi_equiv_piTensor_monoidHom :
-    (Dinf K D) →* Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
+/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a mul equiv. -/
+def Dinf_tensorPi_equiv_piTensor_mulEquiv :
+    (Dinf K D) ≃* Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
   __ := Dinf_tensorPi_equiv_piTensor K D
-  map_one' := by
-    rw [Algebra.TensorProduct.one_def]
-    simp [Dinf_tensorPi_equiv_piTensor, Dinf_tensorPi_equiv_piTensor_aux,
-      Dinf, InfiniteAdeleRing, tensorPi_equiv_piTensor_apply]
-    rfl
   map_mul' _ _ := tensorPi_equiv_piTensor_map_mul ..
 }
 
@@ -572,11 +575,13 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   -- infinite places
+  -- use `Dinf_tensorPi_equiv_piTensor` to reduce to
+  -- `isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux`
   open MeasureTheory in
   let (vi : InfinitePlace K) : MeasurableSpace (D ⊗[K] vi.Completion) := borel _
   have (vi : InfinitePlace K) : BorelSpace (D ⊗[K] vi.Completion) := ⟨rfl⟩
   let e := Dinf_tensorPi_equiv_piTensor K D
-  let u' := Units.map (Dinf_tensorPi_equiv_piTensor_monoidHom K D) u
+  let u' := Units.map (Dinf_tensorPi_equiv_piTensor_mulEquiv K D).toMonoidHom u
   have hl :
       addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)
       = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u') := by
