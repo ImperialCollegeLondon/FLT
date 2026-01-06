@@ -44,6 +44,9 @@ instance (k A B : Type*) [Field k] [Field A] [Ring B]
   -- `IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight` requires it.
   -- In that file, it is mentioned that this assumption of being a central algebra
   -- can be removed by modifying the proof of `IsSimpleRing.mulLeft_det_eq_mulRight_det`.
+  -- Alternatively, the proof of this instance proceeds by first showing that
+  -- the center of the tensor product is the tensor product of the respective centers,
+  -- then one just needs that `A` is commutative. 
   sorry
 
 open IsDedekindDomain HeightOneSpectrum RestrictedProduct in
