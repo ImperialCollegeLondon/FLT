@@ -39,8 +39,11 @@ open scoped TensorProduct.RightActions in
 instance (k A B : Type*) [Field k] [Field A] [Ring B]
     [Algebra k A] [Algebra k B]
     [Algebra.IsCentral k B] [IsSimpleRing B] :
-    Algebra.IsCentral A (B ⊗[k] A) :=
-  -- according to Edison we have this somewhere
+    Algebra.IsCentral A (B ⊗[k] A) := by
+  -- This instance is required only because the local statement
+  -- `IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight` requires it.
+  -- In that file, it is mentioned that this assumption of being a central algebra
+  -- can be removed by modifying the proof of `IsSimpleRing.mulLeft_det_eq_mulRight_det`.
   sorry
 
 open IsDedekindDomain HeightOneSpectrum RestrictedProduct in
