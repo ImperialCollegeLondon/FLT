@@ -51,8 +51,8 @@ instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
 
 instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
     [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (B ⊗[k] A) :=
-  (instIsSimpleRingTensorProductOfIsCentral_fLT k A B).of_ringEquiv
-    (Algebra.TensorProduct.comm k A B).toRingEquiv
+  IsSimpleRing.of_ringEquiv
+    (Algebra.TensorProduct.comm k A B).toRingEquiv inferInstance
 
 lemma IsSimpleRing.mulLeft_det_eq_mulRight_det (d : D) :
     (LinearMap.mulLeft k d).det = (LinearMap.mulRight k d).det := by
