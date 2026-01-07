@@ -81,9 +81,36 @@ lemma TensorProduct.localcomponent_apply
     (AlgHom.rTensor V ((evalContinuousAlgebraMap R K p).toAlgHom)) (localIdempotent R K p • φ x)
   simp [eval_localIdempotent]
 
--- plan; 𝔸_K ⊗ V = (Fin n) → 𝔸_K topologically, which is Πʳ (Fin n -> K_v)
--- topologically, and the claim is that the induced top iso A_K ⊗ V = Πʳ (Fin n -> K_v)
--- sends φ to ∏_v φ_v
+/-
+
+Plan.
+
+Need to use `MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight`
+
+Problem: this is a statement about maps `G i ≃ₜ+ G i` and a map (their "restricted product")
+`Πʳ (i : ι), [G i, ↑(C i)] ≃ₜ+ Πʳ (i : ι), [G i, ↑(C i)]`
+
+and we have a map B ⊗ 𝔸_K^f → B ⊗ 𝔸_K^f
+
+Step 0: symm to reduce to a statement about 𝔸_K^f ⊗ B → 𝔸_K^f ⊗ B
+
+Step 1:
+
+𝔸_K^f ⊗ B = ι → 𝔸_K^f = Πʳ [ι → Kᵥ, ι → 𝓞ᵥ] topologically and algebraically
+
+Step 2:
+
+Given 𝔸_K^f-linear φ : 𝔸_K^f ⊗ B → 𝔸_K^f ⊗ B, we have local components φᵥ : Kᵥ ⊗ B → Kᵥ ⊗ B.
+The step 1 iso gives us ψ : Πʳ [ι → Kᵥ, ι → 𝓞ᵥ] from φ and the first half of it gives
+ψᵥ : (ι → Kᵥ) → (ι → Kᵥ) from the local components φᵥ
+
+Check that the lemma we proved already gives us ψ = Πᶠᵥ ψᵥ
+
+Step 3 : `MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight` to ψ and ψᵥ
+
+Step 4: hope that this is enough
+
+-/
 
 end FiniteAdeleRing
 
