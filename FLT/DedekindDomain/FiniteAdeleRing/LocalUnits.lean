@@ -56,17 +56,15 @@ namespace FiniteAdeleRing
 it is a uniformiser. -/
 noncomputable def localUniformiser (v : HeightOneSpectrum A) [DecidableEq (HeightOneSpectrum A)] :
     FiniteAdeleRing A K :=
-  ⟨fun i ↦ if i = v then i.adicCompletionUniformizer K else 1, by
+  ⟨Pi.mulSingle v (v.adicCompletionUniformizer K), by
     apply Set.Finite.subset (Set.finite_singleton v)
-    simp only [SetLike.mem_coe, Set.subset_singleton_iff, Set.mem_compl_iff, Set.mem_setOf_eq]
-    intro w hw
-    contrapose! hw
-    rw [if_neg hw]
-    exact ValuationSubring.one_mem (HeightOneSpectrum.adicCompletionIntegers K w)⟩
+    rw [Set.compl_subset_comm]
+    intro p hp
+    simp [Pi.mulSingle_eq_of_ne hp]⟩
 
 @[simp] lemma localUniformiser_eval (v : HeightOneSpectrum A)
     [DecidableEq (HeightOneSpectrum A)] (w : HeightOneSpectrum A) :
-    localUniformiser K v w = if w = v then w.adicCompletionUniformizer K else 1 := rfl
+    localUniformiser K v w = Pi.mulSingle v (v.adicCompletionUniformizer K) w := rfl
 
 /-- `localUniformiser v` is an idele which is 1 at all finite places except `v`, where
 it is a uniformiser. -/
@@ -74,13 +72,11 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
     [DecidableEq (HeightOneSpectrum A)] :
     (FiniteAdeleRing A K)ˣ :=
   ⟨localUniformiser K v,
-    ⟨fun i ↦ if i = v then (i.adicCompletionUniformizer K)⁻¹ else 1, by
+    ⟨Pi.mulSingle v (v.adicCompletionUniformizer K)⁻¹, by
       apply Set.Finite.subset (Set.finite_singleton v)
-      simp only [SetLike.mem_coe, Set.subset_singleton_iff, Set.mem_compl_iff, Set.mem_setOf_eq]
+      rw [Set.compl_subset_comm]
       intro w hw
-      contrapose! hw
-      rw [if_neg hw]
-      exact ValuationSubring.one_mem (HeightOneSpectrum.adicCompletionIntegers K w)⟩,
+      simp [Pi.mulSingle_eq_of_ne hw]⟩,
     by
       ext w
       obtain rfl | hw := eq_or_ne w v
@@ -97,31 +93,25 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
 noncomputable def localUnit {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)
     [DecidableEq (HeightOneSpectrum A)] :
     (FiniteAdeleRing A K)ˣ :=
-  ⟨⟨fun i ↦ if h : i = v then h ▸ α else 1, by
+  ⟨⟨Pi.mulSingle v α, by
       apply Set.Finite.subset (Set.finite_singleton v)
-      simp only [SetLike.mem_coe, Set.subset_singleton_iff, Set.mem_compl_iff, Set.mem_setOf_eq]
+      rw [Set.compl_subset_comm]
       intro w hw
-      contrapose! hw
-      rw [dif_neg hw]
-      exact ValuationSubring.one_mem (HeightOneSpectrum.adicCompletionIntegers K w)⟩,
-  ⟨fun i ↦ if h : i = v then h ▸ α⁻¹ else 1, by
+      simp [Pi.mulSingle_eq_of_ne hw]⟩,
+  ⟨Pi.mulSingle v α⁻¹, by
       apply Set.Finite.subset (Set.finite_singleton v)
-      simp only [SetLike.mem_coe, Set.subset_singleton_iff, Set.mem_compl_iff, Set.mem_setOf_eq]
+      rw [Set.compl_subset_comm]
       intro w hw
-      contrapose! hw
-      rw [dif_neg hw]
-      exact ValuationSubring.one_mem (HeightOneSpectrum.adicCompletionIntegers K w)⟩,
+      simp [Pi.mulSingle_eq_of_ne hw]⟩,
     by
       ext w
-      by_cases hw : w = v
-      · subst hw
-        simp
+      obtain rfl | hw := eq_or_ne w v
+      · simp
       · simp [hw],
     by
       ext w
-      by_cases hw : w = v
-      · subst hw
-        simp
+      obtain rfl | hw := eq_or_ne w v
+      · simp
       · simp [hw]⟩
 
 lemma localUnit_eval_of_eq {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)
