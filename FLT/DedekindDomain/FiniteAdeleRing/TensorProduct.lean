@@ -53,8 +53,8 @@ noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
   f1.comp (f2.comp f3)
 
 /--
-If `φ : 𝔸_K^f ⊗ V → 𝔸_K^f ⊗ V` and `φₚ` is its local component at a place `p` then
-for all `x : 𝔸_K^f ⊗ V` we have
+If `φ : 𝔸_K^f ⊗ V → 𝔸_K^f ⊗ V` is `𝔸_K^f`-linear and `φₚ` is its local component at a place `p`
+then for all `x : 𝔸_K^f ⊗ V` we have
 `(evalₚ ⊗ id_V) (φ x) = φₚ ((evalₚ ⊗ id_V) x)`, or, more colloquiually,
 `(φ x)ₚ = φₚ (xₚ)`.
 -/
