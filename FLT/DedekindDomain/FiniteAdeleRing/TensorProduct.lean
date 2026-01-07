@@ -67,26 +67,20 @@ lemma TensorProduct.localcomponent_apply
       (evalContinuousAlgebraMap R K p).toContinuousLinearMap) (φ x) =
     TensorProduct.localcomponent R K V p φ ((ContinuousLinearMap.rTensor V
       (evalContinuousAlgebraMap R K p).toContinuousLinearMap) x) := by
-  unfold localcomponent
-  dsimp
+  dsimp [localcomponent]
   rw [← ContinuousLinearMap.rTensor_comp_apply]
-  change (LinearMap.rTensor V _) (φ x) = (LinearMap.rTensor V _)
-    (φ ((LinearMap.rTensor V _) x))
+  change (LinearMap.rTensor V _) (φ x) = (LinearMap.rTensor V _) (φ ((LinearMap.rTensor V _) x))
   rw [singleContinuousAlgebraMap_comp_evalContinuousLinearMap]
   let f := (LinearMap.lsmul
     (FiniteAdeleRing R K) (FiniteAdeleRing R K) (localIdempotent R K p)).restrictScalars K
   have hf : LinearMap.rTensor V f x = (localIdempotent R K p) • x := by
     induction x with
     | zero => simp
-    | tmul x y =>
-      rw [LinearMap.rTensor_tmul]
-      rfl
+    | tmul x y => exact LinearMap.rTensor_tmul _ _ _ _
     | add x y _ _ => simp_all
   rw [hf, ContinuousLinearMap.map_smul]
   change (AlgHom.rTensor V ((evalContinuousAlgebraMap R K p).toAlgHom)) (φ x) =
     (AlgHom.rTensor V ((evalContinuousAlgebraMap R K p).toAlgHom)) (localIdempotent R K p • φ x)
-  rw [map_smulₛₗ]
-  change _ = (evalContinuousAlgebraMap R K p) (localIdempotent R K p) • _
   simp [eval_localIdempotent]
 
 -- plan; 𝔸_K ⊗ V = (Fin n) → 𝔸_K topologically, which is Πʳ (Fin n -> K_v)

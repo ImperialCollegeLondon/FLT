@@ -38,17 +38,22 @@ def rTensor {R : Type*} {M N : Type*} (V : Type*)
     (M ⊗[R] V) →L[R] (N ⊗[R] V) := {
   __ := LinearMap.rTensor V φ.toLinearMap
   cont := by
+    -- f1 : M ⊗[R] V ≃L[R] (ι → M)
     let f1 := ContinuousLinearEquiv.chooseBasis_piScalarRight R M V
-    let f3 := (ContinuousLinearEquiv.chooseBasis_piScalarRight R N V).symm
+    -- f2 : (ι → M) →L[R] (ι → N)
     let f2 : (Module.Free.ChooseBasisIndex R V → M) →L[R]
       (Module.Free.ChooseBasisIndex R V → N) := {
       __ := φ.toLinearMap.compLeft (Module.Free.ChooseBasisIndex R V)
       }
-    let moo := f3.toContinuousLinearMap.comp (f2.comp f1.toContinuousLinearMap)
-    suffices LinearMap.rTensor V ↑φ = moo.toLinearMap by
+    -- f3 : (ι → N) ≃L[R] (N ⊗[R] V)
+    let f3 := (ContinuousLinearEquiv.chooseBasis_piScalarRight R N V).symm
+    let f := f3.toContinuousLinearMap.comp (f2.comp f1.toContinuousLinearMap)
+    suffices LinearMap.rTensor V ↑φ = f.toLinearMap by
       rw [this]
-      exact moo.cont
-    simp only [moo, f3]
+      exact f.cont
+    -- want to change goal g = α.symm ∘ f2 ∘ f1 to α ∘ g = f2 ∘ f1
+    -- and this is annoyingly painful
+    simp only [f, f3]
     suffices (ContinuousLinearEquiv.chooseBasis_piScalarRight R N V).toLinearMap.comp
         (LinearMap.rTensor V φ.toLinearMap) =
         (f2.comp f1.toContinuousLinearMap) by
@@ -56,6 +61,7 @@ def rTensor {R : Type*} {M N : Type*} (V : Type*)
       rw [← this]
       ext
       simp
+    -- now it's easy
     ext m v j
     exact (map_smul φ _ m).symm
   }
