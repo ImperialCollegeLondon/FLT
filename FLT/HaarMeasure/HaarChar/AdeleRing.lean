@@ -83,7 +83,7 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   · -- finite places
     rw [← finprod_comp_equiv FinitePlace.equivHeightOneSpectrum.symm]
     conv_lhs =>
-      apply NNReal.toRealHom.map_finprod_of_injective (injective_of_le_imp_le _ fun {x y} a ↦ a)
+      apply NNReal.toRealHom.map_finprod_of_injective (.of_eq_imp_le fun {_ _} a ↦ a.le)
     apply finprod_congr; intro p
     let : Algebra ℤ (p.adicCompletion ℚ) := Ring.toIntAlgebra _
     simp [FinitePlace.equivHeightOneSpectrum,
