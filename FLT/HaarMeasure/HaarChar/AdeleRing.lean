@@ -39,7 +39,7 @@ open NumberField MeasureTheory
 open scoped TensorProduct.RightActions in
 instance (k A B : Type*) [Field k] [Field A] [Ring B]
     [Algebra k A] [Algebra k B]
-    [Algebra.IsCentral k B] [IsSimpleRing B] :
+    [Algebra.IsCentral k B] :
     Algebra.IsCentral A (B ⊗[k] A) :=
   Algebra.IsCentral.of_algEquiv _ _ _ {
     __ := (Algebra.TensorProduct.comm k A B)
