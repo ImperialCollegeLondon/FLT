@@ -2,6 +2,10 @@ import Mathlib.LinearAlgebra.TensorProduct.Basic
 import Mathlib.Algebra.Algebra.Hom
 
 open TensorProduct in
+/--
+The base extension of an R-algebra homomorphism `f : N → P` to an  `f`-semilinear
+map `N ⊗[R] M → P ⊗[R] M`.
+-/
 def AlgHom.rTensor {R : Type*} [CommSemiring R] (M : Type*) {N : Type*}
     {P : Type*} [AddCommMonoid M] [Semiring N] [Semiring P] [Module R M]
     [Algebra R N] [Algebra R P] (f : N →ₐ[R] P) :

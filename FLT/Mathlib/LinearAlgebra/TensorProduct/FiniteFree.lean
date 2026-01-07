@@ -3,6 +3,10 @@ import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 
 open TensorProduct
 
+/--
+The M-algebra isomorphism `M ⊗ V ≃ₗ[M] (ι → M)` coming from the canonical
+`ι`-indexed basis of a finite free `R`-module `V`.
+-/
 noncomputable def LinearEquiv.chooseBasis_piScalarRight (R : Type*) (M : Type*) (V : Type*)
     -- Probably OK for Semirings?
     -- commutativity needed in the below construction for `TensorProduct.piScalarRight`

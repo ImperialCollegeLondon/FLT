@@ -30,6 +30,9 @@ lemma mk_apply (f : ∀ v, HeightOneSpectrum.adicCompletion K v)
     mk f h v = f v := rfl
 
 variable (R K)
+/--
+The continuous K-algebra map `𝔸_K^f → Kᵥ` from the finite adele ring of K to a completion.
+-/
 def evalContinuousAlgebraMap (j : HeightOneSpectrum R) :
     FiniteAdeleRing R K →A[K] j.adicCompletion K := {
   __ := RestrictedProduct.evalContinuousAddMonoidHom _ j
@@ -41,6 +44,9 @@ def evalContinuousAlgebraMap (j : HeightOneSpectrum R) :
     }
 
 variable [DecidableEq (HeightOneSpectrum R)] in
+/--
+The continuous K-linear inclusion Kᵥ → 𝔸_K^f from a completion to the finite K-adeles.
+-/
 noncomputable def singleContinuousLinearMap (j : HeightOneSpectrum R) :
     j.adicCompletion K →L[K] FiniteAdeleRing R K := {
   __ := RestrictedProduct.singleContinuousAddMonoidHom _ j

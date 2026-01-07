@@ -4,6 +4,9 @@ import Mathlib.Topology.Algebra.Module.ModuleTopology
 
 open scoped TensorProduct
 
+/-- The canonical continuous R-linear isomorphism `M ⊗[R] V ≃ (ι → M)`
+where V is a finite free R-module with basis indexed by `ι`, `M` is a commutative
+`R`-algebra, and `M ⊗[R] V` has the `M`-module topology. -/
 noncomputable def ContinuousLinearEquiv.chooseBasis_piScalarRight (R M V : Type*)
     [CommRing M] [CommRing R] [Algebra R M]
     [TopologicalSpace M] [IsTopologicalRing M]
@@ -21,7 +24,9 @@ noncomputable def ContinuousLinearEquiv.chooseBasis_piScalarRight (R M V : Type*
 
 namespace ContinuousLinearMap
 
--- must let φ be linear rather than algebra map because single : K_p -> 𝔸_K isn't a ring hom
+/-- The continuous `R`-linear map `M ⊗[R] V → N ⊗[R] V` induced
+by a continuous `R`-linear map `M → N`.
+-/
 def rTensor {R : Type*} {M N : Type*} (V : Type*)
     [CommRing M] [CommRing N] [CommRing R] [Algebra R M] [Algebra R N]
     [TopologicalSpace M] [TopologicalSpace N] [IsTopologicalRing M] [IsTopologicalRing N]

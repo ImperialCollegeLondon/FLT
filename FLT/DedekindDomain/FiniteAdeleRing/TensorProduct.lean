@@ -28,12 +28,10 @@ variable
 
 open IsDedekindDomain NumberField
 
-/-
-
+/--
 If `φ : 𝔸_K^f ⊗[K] V → 𝔸_K^f ⊗[K] V` is `𝔸_K^f`-linear and `p : HeightOneSpectrum (𝓞 K)`
 then `localcomponent R K V p φ : Kₚ ⊗[K] V →[K] Kₚ ⊗[K] V` is the associated
 map `φₚ` satisfying `φ = Πₚ φₚ`.
-
 -/
 noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
     (φ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K]
@@ -52,6 +50,9 @@ noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
   -- bar1 ∘ bar2 ∘ bar3
   refine bar1.comp (bar2.comp bar3)
 
+/--
+`localIdempotent R K p` is the finite adele which is 1 at p and 0 elsewhere.
+-/
 noncomputable def localIdempotent (p : HeightOneSpectrum R) : FiniteAdeleRing R K :=
   ⟨Pi.single p 1, by
     filter_upwards

@@ -413,11 +413,12 @@ section single
 
 -/
 
-variable {ι : Type*} [DecidableEq ι] {R : Type*} [Semiring R] (A : ι → Type*) {𝓕 : Filter ι}
+variable {ι : Type*} [DecidableEq ι] (A : ι → Type*) {𝓕 : Filter ι}
     {S : ι → Type*}
-    [(i : ι) → SetLike (S i) (A i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → AddCommMonoid (A i)]
-    [(i : ι) → Module R (A i)] [∀ (i : ι), AddSubmonoidClass (S i) (A i)]
+    [(i : ι) → SetLike (S i) (A i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → AddMonoid (A i)]
+    [∀ (i : ι), AddSubmonoidClass (S i) (A i)]
 
+/-- The inclusion from a factor into a restricted product of additive groups. -/
 noncomputable def singleAddMonoidHom (j : ι) : A j →+ Πʳ i, [A i, B i] where
   toFun x := ⟨Pi.single j x, by
     simpa using (Set.finite_singleton j).subset fun i _ ↦ by by_cases h : i = j <;> simp_all⟩

@@ -535,6 +535,10 @@ variable {ι : Type*} [DecidableEq ι] {R : Type*} [Semiring R] (A : ι → Type
 
 variable [∀ i, TopologicalSpace (A i)]
 open Filter in
+/--
+The inclusion from a factor into the restricted product of topological additive groups,
+as a continuous group homomorphism.
+-/
 noncomputable def singleContinuousAddMonoidHom (j : ι) : A j →ₜ+ Πʳ i, [A i, B i] where
   __ := singleAddMonoidHom A j
   continuous_toFun := by
@@ -567,6 +571,8 @@ variable {ι : Type*} [DecidableEq ι] {R : Type*} [Semiring R] (A : ι → Type
 
 variable [∀ i, TopologicalSpace (A i)]
 
+/-- The projection from a restricted product of topological additive groups
+to a factor. -/
 def evalContinuousAddMonoidHom (j : ι) : Πʳ i, [A i, B i] →ₜ+ A j := {
   __ := evalAddMonoidHom A j
   continuous_toFun := continuous_eval j
