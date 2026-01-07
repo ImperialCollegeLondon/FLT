@@ -1,4 +1,5 @@
 import FLT.HaarMeasure.HaarChar.Ring
+import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.NumberField.AdeleRing
@@ -39,15 +40,10 @@ open scoped TensorProduct.RightActions in
 instance (k A B : Type*) [Field k] [Field A] [Ring B]
     [Algebra k A] [Algebra k B]
     [Algebra.IsCentral k B] [IsSimpleRing B] :
-    Algebra.IsCentral A (B ⊗[k] A) := by
-  -- This instance is required only because the local statement
-  -- `IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight` requires it.
-  -- In that file, it is mentioned that this assumption of being a central algebra
-  -- can be removed by modifying the proof of `IsSimpleRing.mulLeft_det_eq_mulRight_det`.
-  -- Alternatively, the proof of this instance proceeds by first showing that
-  -- the center of the tensor product is the tensor product of the respective centers,
-  -- then one just needs that `A` is commutative. 
-  sorry
+    Algebra.IsCentral A (B ⊗[k] A) :=
+  Algebra.IsCentral.of_algEquiv _ _ _ {
+    __ := (Algebra.TensorProduct.comm k A B)
+    commutes' := by simp }
 
 open IsDedekindDomain HeightOneSpectrum RestrictedProduct in
 open scoped TensorProduct.RightActions in
