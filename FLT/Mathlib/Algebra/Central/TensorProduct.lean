@@ -79,12 +79,14 @@ instance (k A B : Type*) [Field k] [CommRing A] [Ring B]
     [Algebra k A] [Algebra k B]
     [Algebra.IsCentral k B] :
     Algebra.IsCentral A (A ⊗[k] B) := ⟨fun x hx ↦ by
-  -- simp_all [← Subalgebra.mem_toSubsemiring]
-  have : x ∈ (Algebra.TensorProduct.map (Subalgebra.center k A).val
-      (Subalgebra.center k B).val).range := by
+  have :
+      x ∈ (Algebra.TensorProduct.map
+        (Subalgebra.center k A).val (Subalgebra.center k B).val).range := by
     simpa [← Subalgebra.center_tensorProduct] using hx
   rw [Algebra.IsCentral.center_eq_bot k B] at this
-  obtain ⟨ab, hab⟩ := this
-  -- let ab' := (Subalgebra.center k A).rTensorBot ab
-  refine Algebra.mem_bot.mpr ?_
-  sorry⟩
+  obtain ⟨ab, rfl⟩ := this
+  refine TensorProduct.induction_on ab (by simp)
+    (fun a b ↦ ?_) (fun _ _ ↦ by simpa using AddMemClass.add_mem)
+  obtain ⟨kb, hkb⟩ := Algebra.mem_bot.mp b.property
+  refine Algebra.mem_bot.mpr ⟨kb • a, ?_⟩
+  simp [-TensorProduct.tmul_smul, TensorProduct.smul_tmul, ← hkb, Algebra.smul_def kb (1 : B)]⟩
