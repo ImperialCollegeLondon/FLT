@@ -72,11 +72,11 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
     [DecidableEq (HeightOneSpectrum A)] :
     (FiniteAdeleRing A K)ˣ :=
   ⟨localUniformiser K v,
-    ⟨fun i ↦ if i = v then (i.adicCompletionUniformizer K)⁻¹ else 1, by
+    ⟨Pi.mulSingle v (v.adicCompletionUniformizer K)⁻¹, by
       apply Set.Finite.subset (Set.finite_singleton v)
       rw [Set.compl_subset_comm]
-      intro w (hw : w ≠ v)
-      simp [if_neg hw]⟩,
+      intro w hw
+      simp [Pi.mulSingle_eq_of_ne hw]⟩,
     by
       ext w
       obtain rfl | hw := eq_or_ne w v
@@ -93,16 +93,16 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
 noncomputable def localUnit {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)
     [DecidableEq (HeightOneSpectrum A)] :
     (FiniteAdeleRing A K)ˣ :=
-  ⟨⟨fun i ↦ if h : i = v then h ▸ α else 1, by
+  ⟨⟨Pi.mulSingle v α, by
       apply Set.Finite.subset (Set.finite_singleton v)
       rw [Set.compl_subset_comm]
-      intro w (hw : w ≠ v)
-      simp [dif_neg hw]⟩,
-  ⟨fun i ↦ if h : i = v then h ▸ α⁻¹ else 1, by
+      intro w hw
+      simp [Pi.mulSingle_eq_of_ne hw]⟩,
+  ⟨Pi.mulSingle v α⁻¹, by
       apply Set.Finite.subset (Set.finite_singleton v)
       rw [Set.compl_subset_comm]
-      intro w (hw : w ≠ v)
-      simp [dif_neg hw]⟩,
+      intro w hw
+      simp [Pi.mulSingle_eq_of_ne hw]⟩,
     by
       ext w
       obtain rfl | hw := eq_or_ne w v
