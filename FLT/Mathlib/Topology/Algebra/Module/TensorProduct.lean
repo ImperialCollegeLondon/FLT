@@ -45,19 +45,22 @@ def rTensor {R : Type*} {M N : Type*} (V : Type*)
       (Module.Free.ChooseBasisIndex R V → N) := {
       __ := φ.toLinearMap.compLeft (Module.Free.ChooseBasisIndex R V)
       }
-    -- f3 : (ι → N) ≃L[R] (N ⊗[R] V)
-    let f3 := (ContinuousLinearEquiv.chooseBasis_piScalarRight R N V).symm
-    let f := f3.toContinuousLinearMap.comp (f2.comp f1.toContinuousLinearMap)
+    -- f3 : (N ⊗[R] V) ≃[L]R (ι → N)
+    let f3 := (ContinuousLinearEquiv.chooseBasis_piScalarRight R N V)
+    -- f = f3.symm ∘ f2 ∘ f1
+    let f := f3.symm.toContinuousLinearMap.comp (f2.comp f1.toContinuousLinearMap)
+    -- it suffices to show that the map we want to be continuous is f,
+    -- because f is obviously continuous.
     suffices LinearMap.rTensor V ↑φ = f.toLinearMap by
       rw [this]
       exact f.cont
-    -- want to change goal g = α.symm ∘ f2 ∘ f1 to α ∘ g = f2 ∘ f1
+    -- The question is no longer a topological one, it's just algebraic.
+    -- We now want to change goal from g = f3.symm ∘ f2 ∘ f1 to f3 ∘ g = f2 ∘ f1
     -- and this is annoyingly painful
-    simp only [f, f3]
-    suffices (ContinuousLinearEquiv.chooseBasis_piScalarRight R N V).toLinearMap.comp
-        (LinearMap.rTensor V φ.toLinearMap) =
-        (f2.comp f1.toContinuousLinearMap) by
-      push_cast at this ⊢
+    simp only [f]
+    push_cast
+    suffices f3.toLinearMap ∘ₗ (LinearMap.rTensor V φ) =
+        (f2 ∘ₗ f1.toContinuousLinearMap.toLinearMap) by
       rw [← this]
       ext
       simp

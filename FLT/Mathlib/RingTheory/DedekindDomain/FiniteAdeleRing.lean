@@ -84,4 +84,15 @@ lemma eval_localIdempotent (p : HeightOneSpectrum R) :
     (evalContinuousAlgebraMap R K p) (localIdempotent R K p) = 1 :=
   Pi.single_eq_same _ _
 
+variable [DecidableEq (HeightOneSpectrum R)] in
+lemma singleContinuousAlgebraMap_comp_evalContinuousLinearMap (j : HeightOneSpectrum R) :
+    ((singleContinuousLinearMap R K j).comp
+    (evalContinuousAlgebraMap R K j).toContinuousLinearMap).toLinearMap =
+    LinearMap.lsmul (FiniteAdeleRing R K) (FiniteAdeleRing R K) (localIdempotent R K j) := by
+  ext x q
+  change Pi.single _ (x j) _ = Pi.single j _ q * _
+  obtain rfl | h := eq_or_ne j q
+  · simp [Pi.single_eq_same]
+  · simp [Pi.single_eq_of_ne' h]
+
 end IsDedekindDomain.FiniteAdeleRing

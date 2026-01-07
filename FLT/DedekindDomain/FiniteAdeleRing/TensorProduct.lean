@@ -31,12 +31,14 @@ open IsDedekindDomain NumberField
 /--
 If `φ : 𝔸_K^f ⊗[K] V → 𝔸_K^f ⊗[K] V` is `𝔸_K^f`-linear and `p : HeightOneSpectrum (𝓞 K)`
 then `localcomponent R K V p φ : Kₚ ⊗[K] V →[K] Kₚ ⊗[K] V` is the associated
-map `φₚ` satisfying `φ = Πₚ φₚ`.
+map `φₚ` defined as `Kₚ ⊗[K] V --(single)--> 𝔸_K^f ⊗ V --(φ)--> 𝔸_K^f ⊗ V --(eval)--> Kₚ ⊗ V`.
+This map morally satisfies `φ = Πₚ φₚ` but because source of φ isn't literally a restricted
+product we cannot make this assertion.
 -/
 noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
     (φ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K]
       FiniteAdeleRing R K ⊗[K] V) :
-    p.adicCompletion K ⊗[K] V →L[K] p.adicCompletion K ⊗[K] V := by
+    p.adicCompletion K ⊗[K] V →L[K] p.adicCompletion K ⊗[K] V :=
   -- f1 : `𝔸_K^f ⊗[K] V →L[K] Kₚ ⊗[K] V` is evalₚ ⊗ id_V
   letI f1 := (ContinuousLinearMap.rTensor V
     (evalContinuousAlgebraMap R K p).toContinuousLinearMap)
@@ -48,18 +50,14 @@ noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
   -- f3 : `Kₚ ⊗[K] V →L[K] 𝔸_K^f ⊗[K] V` is singleₚ ⊗ id_V
   letI f3 := (ContinuousLinearMap.rTensor V (singleContinuousLinearMap R K p))
   -- f1 ∘ f2 ∘ f3
-  refine f1.comp (f2.comp f3)
+  f1.comp (f2.comp f3)
 
-lemma singleContinuousAlgebraMap_comp_evalContinuousLinearMap (j : HeightOneSpectrum R) :
-    ((singleContinuousLinearMap R K j).comp
-    (evalContinuousAlgebraMap R K j).toContinuousLinearMap).toLinearMap =
-    LinearMap.lsmul (FiniteAdeleRing R K) (FiniteAdeleRing R K) (localIdempotent R K j) := by
-  ext x q
-  change Pi.single _ (x j) _ = Pi.single j _ q * _
-  obtain rfl | h := eq_or_ne j q
-  · simp [Pi.single_eq_same]
-  · simp [Pi.single_eq_of_ne' h]
-
+/--
+If `φ : 𝔸_K^f ⊗ V → 𝔸_K^f ⊗ V` and `φₚ` is its local component at a place `p` then
+for all `x : 𝔸_K^f ⊗ V` we have
+`(evalₚ ⊗ id_V) (φ x) = φₚ ((evalₚ ⊗ id_V) x)`, or, more colloquiually,
+`(φ x)ₚ = φₚ (xₚ)`.
+-/
 lemma TensorProduct.localcomponent_apply
     (φ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K] FiniteAdeleRing R K ⊗[K] V)
     (x : FiniteAdeleRing R K ⊗[K] V) (p : HeightOneSpectrum R) :
