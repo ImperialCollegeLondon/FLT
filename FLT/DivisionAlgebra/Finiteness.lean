@@ -30,6 +30,11 @@ space `Dˣ \ (D ⊗[K] 𝔸_K^infty)ˣ / U` is finite.
 
 Most of the definitions in this file are auxiliary definitions, in an `Aux` namespace.
 
+-- TODO -- the nature of this file has changed; there are now also a bunch of results
+relating `D ⊗ 𝔸` to `D ⊗ 𝔸ᶠ × D × K∞` which probably should be elsewhere. The
+title of the file "Finiteness.lean" should be referring to the fundamental finiteness
+result of Fujisaki rather than all the intermediate stuff.
+
 ## Main theorem
 
 Fujisaki's lemma:
@@ -48,7 +53,7 @@ open IsDedekindDomain MeasureTheory NumberField
 -- don't need it).
 attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
 
--- this instance creates a nasty diamond for `IsScalarTower K K_∞ L_∞ when K = L and
+-- this instance creates a nasty diamond for `IsScalarTower K K_∞ L_∞` when K = L and
 -- should probably be scoped (or even removed and statements changed so that they
 -- don't need it).
 attribute [-instance] InfiniteAdeleRing.instIsScalarTower_fLT_1
@@ -518,7 +523,7 @@ lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
     = tensorPi_equiv_piTensor K D InfinitePlace.Completion x
       * tensorPi_equiv_piTensor K D InfinitePlace.Completion y := by
   -- we need that `tensorPi_equiv_piTensor` is a ring hom
-  -- this is certainly true in more generality and so can go elsewhere later on
+  -- **TODO** this is certainly true in more generality and so can go elsewhere later on
   refine TensorProduct.induction_on x
     (by simp only [LinearEquiv.map_zero, zero_mul])
     (fun x₁ x₂ ↦ ?_) (fun x₁ x₂ hx₁ hx₂ ↦ by
