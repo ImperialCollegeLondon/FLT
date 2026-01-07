@@ -85,6 +85,10 @@ lemma eval_localIdempotent (p : HeightOneSpectrum R) :
   Pi.single_eq_same _ _
 
 variable [DecidableEq (HeightOneSpectrum R)] in
+/--
+The composite `𝔸_K^f --(eval)--> Kᵥ --(single)--> 𝔸_K^f` is multiplication by
+the local idempotent at v.
+-/
 lemma singleContinuousAlgebraMap_comp_evalContinuousLinearMap (j : HeightOneSpectrum R) :
     ((singleContinuousLinearMap R K j).comp
     (evalContinuousAlgebraMap R K j).toContinuousLinearMap).toLinearMap =

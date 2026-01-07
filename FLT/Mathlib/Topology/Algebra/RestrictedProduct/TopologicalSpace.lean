@@ -571,7 +571,7 @@ variable {ι : Type*} [DecidableEq ι] {R : Type*} [Semiring R] (A : ι → Type
 
 variable [∀ i, TopologicalSpace (A i)]
 
-/-- The projection from a restricted product of topological additive groups
+/-- The continuous additive projection from a restricted product of topological additive groups
 to a factor. -/
 def evalContinuousAddMonoidHom (j : ι) : Πʳ i, [A i, B i] →ₜ+ A j := {
   __ := evalAddMonoidHom A j

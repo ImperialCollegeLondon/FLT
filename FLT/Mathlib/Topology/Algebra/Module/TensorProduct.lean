@@ -64,7 +64,7 @@ def rTensor {R : Type*} {M N : Type*} (V : Type*)
       rw [← this]
       ext
       simp
-    -- now it's easy
+    -- but now that's done, it's easy
     ext m v j
     exact (map_smul φ _ m).symm
   }
