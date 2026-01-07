@@ -52,13 +52,14 @@ noncomputable def singleContinuousLinearMap (j : HeightOneSpectrum R) :
   __ := RestrictedProduct.singleContinuousAddMonoidHom _ j
   map_smul' k x := by
     open RestrictedProduct in
-    ext i; by_cases! h : i = j <;> conv_lhs => change singleContinuousAddMonoidHom _ j (k • x) i
-    · rw [h, singleContinuousAddMonoidHom_apply_same]
-      simp [-mul_eq_mul_right_iff, FiniteAdeleRing, Algebra.smul_def,
+    ext i
+    change Pi.single j (k • x) i = _
+    obtain rfl | h := eq_or_ne i j
+    · simp [Pi.single_eq_same, -mul_eq_mul_right_iff, FiniteAdeleRing, Algebra.smul_def,
         singleContinuousAddMonoidHom_apply_same]
-      rfl -- this can probably be avoided but it works for now..
-    · rw [singleContinuousAddMonoidHom_apply_of_ne _ h _]
-      simp [FiniteAdeleRing, Algebra.smul_def, singleContinuousAddMonoidHom_apply_of_ne _ h _]
+      rfl -- (annoying)
+    · simp [Pi.single_eq_of_ne h, FiniteAdeleRing, Algebra.smul_def,
+        singleContinuousAddMonoidHom_apply_of_ne _ h _]
     }
 
 variable [DecidableEq (HeightOneSpectrum R)] in
@@ -66,4 +67,21 @@ lemma evalContinuousAlgebraMap_singleContinuousLinearMap (j : HeightOneSpectrum 
     (xj : j.adicCompletion K) :
     (evalContinuousAlgebraMap R K j) (singleContinuousLinearMap R K j xj) = xj :=
   Pi.single_eq_same j xj
+
+variable [DecidableEq (HeightOneSpectrum R)] in
+/--
+`localIdempotent R K p` is the finite adele which is 1 at p and 0 elsewhere.
+-/
+noncomputable def localIdempotent (p : HeightOneSpectrum R) : FiniteAdeleRing R K :=
+  ⟨Pi.single p 1, by
+    apply Set.Finite.subset (Set.finite_singleton p)
+    rw [Set.compl_subset_comm]
+    intro q hq
+    simp [Pi.single_eq_of_ne hq]⟩
+
+variable [DecidableEq (HeightOneSpectrum R)] in
+lemma eval_localIdempotent (p : HeightOneSpectrum R) :
+    (evalContinuousAlgebraMap R K p) (localIdempotent R K p) = 1 :=
+  Pi.single_eq_same _ _
+
 end IsDedekindDomain.FiniteAdeleRing

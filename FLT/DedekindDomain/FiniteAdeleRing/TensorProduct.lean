@@ -37,35 +37,18 @@ noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
     (φ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K]
       FiniteAdeleRing R K ⊗[K] V) :
     p.adicCompletion K ⊗[K] V →L[K] p.adicCompletion K ⊗[K] V := by
-  -- bar1 : `𝔸_K^f ⊗[K] V →L[K] Kₚ ⊗[K] V` is evalₚ ⊗ id_V
-  let bar1 := (ContinuousLinearMap.rTensor V
+  -- f1 : `𝔸_K^f ⊗[K] V →L[K] Kₚ ⊗[K] V` is evalₚ ⊗ id_V
+  letI f1 := (ContinuousLinearMap.rTensor V
     (evalContinuousAlgebraMap R K p).toContinuousLinearMap)
-  -- bar2 : `𝔸_K^f ⊗[K] V →L[K] 𝔸_K^f ⊗[K] V` is φ
-  let bar2 : FiniteAdeleRing R K ⊗[K] V →L[K] FiniteAdeleRing R K ⊗[K] V := {
+  -- f2 : `𝔸_K^f ⊗[K] V →L[K] 𝔸_K^f ⊗[K] V` is φ
+  letI f2 : FiniteAdeleRing R K ⊗[K] V →L[K] FiniteAdeleRing R K ⊗[K] V := {
     __ := φ.toLinearMap.restrictScalars K
     cont := φ.cont
   }
-  -- bar3 : `Kₚ ⊗[K] V →L[K] 𝔸_K^f ⊗[K] V` is singleₚ ⊗ id_V
-  let bar3 := (ContinuousLinearMap.rTensor V (singleContinuousLinearMap R K p))
-  -- bar1 ∘ bar2 ∘ bar3
-  refine bar1.comp (bar2.comp bar3)
-
-/--
-`localIdempotent R K p` is the finite adele which is 1 at p and 0 elsewhere.
--/
-noncomputable def localIdempotent (p : HeightOneSpectrum R) : FiniteAdeleRing R K :=
-  ⟨Pi.single p 1, by
-    filter_upwards
-    intro q
-    obtain rfl | h := eq_or_ne p q
-    · rw [Pi.single_eq_same]
-      exact one_mem _
-    · rw [Pi.single_eq_of_ne' h]
-      exact zero_mem _⟩
-
-lemma eval_localIdempotent (p : HeightOneSpectrum R) :
-    (evalContinuousAlgebraMap R K p) (localIdempotent R K p) = 1 :=
-  Pi.single_eq_same _ _
+  -- f3 : `Kₚ ⊗[K] V →L[K] 𝔸_K^f ⊗[K] V` is singleₚ ⊗ id_V
+  letI f3 := (ContinuousLinearMap.rTensor V (singleContinuousLinearMap R K p))
+  -- f1 ∘ f2 ∘ f3
+  refine f1.comp (f2.comp f3)
 
 lemma singleContinuousAlgebraMap_comp_evalContinuousLinearMap (j : HeightOneSpectrum R) :
     ((singleContinuousLinearMap R K j).comp
@@ -90,17 +73,16 @@ lemma TensorProduct.localcomponent_apply
   change (LinearMap.rTensor V _) (φ x) = (LinearMap.rTensor V _)
     (φ ((LinearMap.rTensor V _) x))
   rw [singleContinuousAlgebraMap_comp_evalContinuousLinearMap]
-  let moo := (LinearMap.lsmul
+  let f := (LinearMap.lsmul
     (FiniteAdeleRing R K) (FiniteAdeleRing R K) (localIdempotent R K p)).restrictScalars K
-  have foo : LinearMap.rTensor V moo x = (localIdempotent R K p) • x := by
+  have hf : LinearMap.rTensor V f x = (localIdempotent R K p) • x := by
     induction x with
     | zero => simp
     | tmul x y =>
       rw [LinearMap.rTensor_tmul]
       rfl
     | add x y _ _ => simp_all
-  rw [foo]
-  rw [ContinuousLinearMap.map_smul]
+  rw [hf, ContinuousLinearMap.map_smul]
   change (AlgHom.rTensor V ((evalContinuousAlgebraMap R K p).toAlgHom)) (φ x) =
     (AlgHom.rTensor V ((evalContinuousAlgebraMap R K p).toAlgHom)) (localIdempotent R K p • φ x)
   rw [map_smulₛₗ]
