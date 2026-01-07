@@ -1,5 +1,6 @@
 import Mathlib.Algebra.Central.TensorProduct
 import Mathlib.Algebra.Algebra.Subalgebra.Centralizer
+import Mathlib.LinearAlgebra.TensorProduct.Subalgebra
 
 open scoped TensorProduct
 
@@ -74,8 +75,16 @@ lemma Subalgebra.center_tensorProduct
   have := Subalgebra.centralizer_top_eq_inf (k := k) (A := A) (B := B)
   simp_all [Subalgebra.tensorProduct_inf_eq_map]
 
-instance (k A B : Type*) [Field k] [CommSemiring A] [Ring B]
+instance (k A B : Type*) [Field k] [CommRing A] [Ring B]
     [Algebra k A] [Algebra k B]
     [Algebra.IsCentral k B] :
-    Algebra.IsCentral A (A ⊗[k] B) := by
-  sorry
+    Algebra.IsCentral A (A ⊗[k] B) := ⟨fun x hx ↦ by
+  -- simp_all [← Subalgebra.mem_toSubsemiring]
+  have : x ∈ (Algebra.TensorProduct.map (Subalgebra.center k A).val
+      (Subalgebra.center k B).val).range := by
+    simpa [← Subalgebra.center_tensorProduct] using hx
+  rw [Algebra.IsCentral.center_eq_bot k B] at this
+  obtain ⟨ab, hab⟩ := this
+  -- let ab' := (Subalgebra.center k A).rTensorBot ab
+  refine Algebra.mem_bot.mpr ?_
+  sorry⟩
