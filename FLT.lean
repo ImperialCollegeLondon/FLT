@@ -81,6 +81,7 @@ import FLT.Mathlib.LinearAlgebra.Countable
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
@@ -103,6 +104,7 @@ import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 import FLT.Mathlib.Order.Filter.Cofinite
 import FLT.Mathlib.RepresentationTheory.Basic

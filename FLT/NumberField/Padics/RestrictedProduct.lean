@@ -114,7 +114,7 @@ theorem padic_exists_sub_mem_padicInt
     simpa [padicNatDen_norm_of_notMem hp] using Padic.norm_int_le_one _
 
 noncomputable instance : Algebra ℚ (Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) :=
-  let f : RingHom ℚ (Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) := {
+  letI f : RingHom ℚ (Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) := {
     toFun k := ⟨fun i ↦ k, by simpa using Padic.setOf_norm_one_lt_finite k⟩
     map_one' := rfl
     map_mul' _ _ := rfl
