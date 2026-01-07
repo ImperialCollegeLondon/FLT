@@ -137,8 +137,10 @@ of `L` lying above `v`. -/
 def baseChangeEquiv :
     L ⊗[K] v.Completion ≃A[L] (wv : v.Extension L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
+  have : e.toAlgHom.CompatibleSMulFor v.Completion := by
+    change (baseChange L v).CompatibleSMulFor v.Completion
+    infer_instance
   IsModuleTopology.continuousAlgEquivOfIsScalarTower K v.Completion e
-    (baseChange_of_algebraMap_tmul_right _)
 
 @[simp]
 theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
@@ -151,8 +153,10 @@ of `L` lying above `v`. -/
 def baseChangeEquivRight :
     L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.Extension L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
-  IsModuleTopology.continuousAlgEquivOfAlgEquiv
-    (e.changeScalars K v.Completion (baseChange_of_algebraMap_tmul_right _))
+  have : e.toAlgHom.CompatibleSMulFor v.Completion := by
+    change (baseChange L v).CompatibleSMulFor v.Completion
+    infer_instance
+  IsModuleTopology.continuousAlgEquivOfAlgEquiv (e.changeScalars K v.Completion)
 
 open TensorProduct.AlgebraTensorModule in
 /-- The `Kᵥ`-linear homeomorphism between `Kᵥ^d` and the product of all completions

@@ -167,6 +167,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     ext
     simp
 
+open scoped NumberField.AdeleRing in
 open TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
     [MeasurableSpace (V ⊗[K] 𝔸 K)] [BorelSpace (V ⊗[K] 𝔸 K)] :
@@ -184,7 +185,8 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
   let f := NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv ℚ K V
   borelize (V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ)
   -- and the obvious diagram commutes
-  have := MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f
+  have := MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    f.toContinuousAddEquiv
     (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V (φ.restrictScalars ℚ)).toContinuousAddEquiv
     (ContinuousLinearEquiv.baseChange K (𝔸 K) V V φ).toContinuousAddEquiv
   rw [← this]

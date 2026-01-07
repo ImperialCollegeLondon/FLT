@@ -1,5 +1,6 @@
 import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
 import FLT.Mathlib.Algebra.Algebra.Tower
+import FLT.Mathlib.Algebra.Algebra.Hom
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.RingTheory.Henselian
@@ -310,6 +311,24 @@ def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
 
+def continuousLinearEquivOfIsScalarTower {A B : Type*} (R S₁ : Type*) {S₂ : Type*}
+    [TopologicalSpace A] [Semiring S₁] [Semiring S₂] [TopologicalSpace B] [Semiring R]
+    [AddCommMonoid A] [AddCommMonoid B] [Module S₁ A] [Module S₁ B] [Module S₂ A] [Module S₂ B]
+    [TopologicalSpace S₁] [Module R A] [Module R B]
+    [IsModuleTopology S₁ A] [IsModuleTopology S₁ B] [Module R S₁] [IsScalarTower R S₁ A]
+    [Module R S₂] [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₗ[S₂] B)
+    [e.toLinearMap.CompatibleSMulFor S₁] :
+    A ≃L[S₂] B where
+  toLinearEquiv := e
+  continuous_toFun := by
+    change Continuous (e.changeScalars R S₁)
+    letI := IsModuleTopology.toContinuousAdd
+    exact IsModuleTopology.continuous_of_linearMap _
+  continuous_invFun := by
+    change Continuous (e.changeScalars R S₁).symm
+    letI := IsModuleTopology.toContinuousAdd
+    exact IsModuleTopology.continuous_of_linearMap _
+
 /--
 Given the following
 ```
@@ -346,16 +365,16 @@ def continuousAlgEquivOfIsScalarTower {A B : Type*} (R S₁ : Type*) {S₂ : Typ
     [IsTopologicalSemiring A] [TopologicalSpace S₁] [Algebra R A] [Algebra R B]
     [IsModuleTopology S₁ A] [IsModuleTopology S₁ B] [Algebra R S₁] [IsScalarTower R S₁ A]
     [Algebra R S₂] [IsScalarTower R S₂ A] [IsScalarTower R S₂ B] (e : A ≃ₐ[S₂] B)
-    (he : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) :
+    [e.toAlgHom.CompatibleSMulFor S₁] :
     A ≃A[S₂] B where
   toAlgEquiv := e
   continuous_toFun := by
     -- switch the equivalence scalars of `e` from `S₂` over to `S₁`
-    change Continuous (e.changeScalars R S₁ he).toLinearEquiv
+    change Continuous (e.changeScalars R S₁).toLinearEquiv
     -- then this is an `S₁`-linear map on the `S₁`-module topology, so is continuous
     exact IsModuleTopology.continuous_of_linearMap _
   continuous_invFun := by
-    change Continuous (e.changeScalars R S₁ he).toLinearEquiv.symm
+    change Continuous (e.changeScalars R S₁).toLinearEquiv.symm
     exact IsModuleTopology.continuous_of_linearMap _
 
 @[simp]
@@ -365,8 +384,8 @@ theorem continuousAlgEquivOsIfScalarTower_apply {A B : Type*} (R S₁ : Type*) {
     [IsTopologicalSemiring B] [IsTopologicalSemiring A] [TopologicalSpace S₁] [Algebra R A]
     [Algebra R B] [IsModuleTopology S₁ A] [IsModuleTopology S₁ B] [Algebra R S₁]
     [IsScalarTower R S₁ A] [Algebra R S₂] [IsScalarTower R S₂ A] [IsScalarTower R S₂ B]
-    (e : A ≃ₐ[S₂] B) (he : ∀ s, e (algebraMap S₁ A s) = algebraMap S₁ B s) (a : A) :
-    continuousAlgEquivOfIsScalarTower R S₁ e he a = e a :=
+    (e : A ≃ₐ[S₂] B) [e.toAlgHom.CompatibleSMulFor S₁] (a : A) :
+    continuousAlgEquivOfIsScalarTower R S₁ e a = e a :=
   rfl
 
 /-- An algebra isomorphism between two topological algebras over `R` with the

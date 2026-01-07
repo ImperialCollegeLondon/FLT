@@ -48,11 +48,6 @@ open IsDedekindDomain MeasureTheory NumberField
 -- don't need it).
 attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
 
--- this instance creates a nasty diamond for `IsScalarTower K K_∞ L_∞ when K = L and
--- should probably be scoped (or even removed and statements changed so that they
--- don't need it).
-attribute [-instance] InfiniteAdeleRing.instIsScalarTower_fLT_1
-
 open scoped TensorProduct
 
 variable (K : Type*) [Field K] [NumberField K]
