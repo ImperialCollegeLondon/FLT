@@ -569,6 +569,7 @@ def Dinf_tensorPi_equiv_piTensor_mulEquiv :
   map_mul' _ _ := tensorPi_equiv_piTensor_map_mul ..
 }
 
+open scoped NumberField.AdeleRing in
 lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
     [Algebra.IsCentral K D] (u : (Dinf K D)ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
