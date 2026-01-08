@@ -1,5 +1,6 @@
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.Algebra.Algebra.Hom
+import FLT.Mathlib.Algebra.Algebra.Tower
 
 /-- A `SemialgHom` (i.e., `ψ` such that `ψ (r • a) = φ r • ψ a` for some `φ : R →+* S`) that
 is also continuous. -/

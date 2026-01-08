@@ -58,6 +58,7 @@ instance SemialgHomClass.instSemialgHom : SemialgHomClass (A →ₛₐ[φ] B) φ
   map_zero ψ := ψ.map_zero
 
 variable {F} {φ} {A} {B} in
+/-- Turn an element of `F` which satisfies `SemialgHomClass F φ A B` to a `SemialgHom`. -/
 def SemialgHomClass.toSemialgHom (f : F) : A →ₛₐ[φ] B :=
   { (f : A →ₛₗ[φ] B), (f : A →+* B) with }
 
@@ -92,6 +93,7 @@ theorem SemialgHom.algebraMap_apply {A B : Type*} [CommSemiring A] [CommSemiring
     letI := f.toAlgebra
     algebraMap A B a = f a := rfl
 
+/-- The composition of two semi-algebra maps. -/
 def SemialgHom.comp {T : Type*} [CommSemiring T] {C : Type*} [Semiring C]
     [Algebra T C] {ψ : S →+* T} {ξ : R →+* T} [RingHomCompTriple φ ψ ξ]
     (g : B →ₛₐ[ψ] C) (f : A →ₛₐ[φ] B) :
@@ -99,45 +101,32 @@ def SemialgHom.comp {T : Type*} [CommSemiring T] {C : Type*} [Semiring C]
   __ := LinearMap.comp (SemialgHom.toLinearMap g) (SemialgHom.toLinearMap f)
   __ := RingHom.comp g.toRingHom f.toRingHom
 
+/-- An algebra map defines a semi-algebra map using `RingHom.id` -/
+def AlgHom.toSemialgHom {R : Type*} [CommSemiring R] {A B : Type*} [Semiring A] [Semiring B]
+    [Algebra R A] [Algebra R B] (f : A →ₐ[R] B) :
+    A →ₛₐ[RingHom.id R] B where
+  __ := f
+  map_smul' _ _ := by simp
+
+/-- The composition `(B →ₛₐ[ψ] C) ∘ (A →ₐ[S] B) → `A →ₛₐ[ψ] C` of a semi-algebra map with an
+algebra map to give a semi-algebra map. -/
+def SemialgHom.compAlgHom {T : Type*} [CommSemiring T] {C : Type*} [Semiring C]
+    [Algebra T C] {ψ : S →+* T} [Algebra S A] (g : B →ₛₐ[ψ] C) (f : A →ₐ[S] B) :
+    A →ₛₐ[ψ] C :=
+  g.comp f.toSemialgHom
+
+/-- The product of two semi-algebra maps on the same domain. -/
 def SemialgHom.prod {C : Type*} [Semiring C] [Algebra R C] [Algebra S C] (f : A →ₛₐ[φ] B)
     (g : A →ₛₐ[φ] C) :
     A →ₛₐ[φ] B × C where
   __ := RingHom.prod f.toRingHom g.toRingHom
   map_smul' r x := by simp
 
-variable (A) in
-class AlgHom.CompatibleSMul {R S : Type*} [CommSemiring R] [CommSemiring S]
-    (φ : R →+* S) (B : Type*) [Semiring B] [Algebra S B] [Algebra S A] [Algebra R A] where
-  map_smul (f : A →ₐ[S] B) (r : R) (a : A) : f (r • a) = (φ r) • f a
-
-variable (φ) (A) in
-def SemialgHom.fst (C : Type*) [Semiring C] [Algebra S C] [Algebra S A] [Algebra R C]
-    [AlgHom.CompatibleSMul (C × A) φ C] :
-    C × A →ₛₐ[φ] C where
-  __ := AlgHom.fst S C A
-  map_smul' r x := AlgHom.CompatibleSMul.map_smul (AlgHom.fst S C A) r x
-
-variable (φ) (A) in
-def SemialgHom.snd (C : Type*) [Semiring C] [Algebra S C] [Algebra S A] [Algebra R C]
-    [AlgHom.CompatibleSMul (C × A) φ A] :
-    C × A →ₛₐ[φ] A where
-  __ := AlgHom.snd S C A
-  map_smul' r x := AlgHom.CompatibleSMul.map_smul (AlgHom.snd S C A) r x
-
-instance [Algebra R B] : AlgHom.CompatibleSMul (A × B) (RingHom.id R) A where
-  map_smul f r a := by simp
-
-instance [Algebra R B] : AlgHom.CompatibleSMul (A × B) (RingHom.id R) B where
-  map_smul f r a := by simp
-
+/-- The product of two semi-algebra maps on separate domains. -/
 def SemialgHom.prodMap {C D : Type*} [Semiring C] [Semiring D]
     [Algebra S C] [Algebra S D] [Algebra R D]
     [Algebra R B] (f : A →ₛₐ[φ] C) (g : B →ₛₐ[φ] D) :
-    A × B →ₛₐ[φ] C × D := by
-  let p₁ : A × B →ₛₐ[RingHom.id R] A := SemialgHom.fst (RingHom.id R) B A
-  let p₂ : A × B →ₛₐ[RingHom.id R] B := SemialgHom.snd (RingHom.id R) B A
-  let l := SemialgHom.comp (ψ := φ) (ξ := φ) (φ := RingHom.id R) f p₁
-  let r := SemialgHom.comp (ψ := φ) (ξ := φ) (φ := RingHom.id R) g p₂
-  exact SemialgHom.prod l r
+    A × B →ₛₐ[φ] C × D :=
+  (f.compAlgHom (AlgHom.fst R A B)).prod (g.compAlgHom (AlgHom.snd R A B))
 
 end semialghom

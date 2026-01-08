@@ -137,10 +137,12 @@ of `L` lying above `v`. -/
 def baseChangeEquiv :
     L ⊗[K] v.Completion ≃A[L] (wv : v.Extension L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
-  have : e.toAlgHom.CompatibleSMulFor v.Completion := by
-    change (baseChange L v).CompatibleSMulFor v.Completion
-    infer_instance
-  IsModuleTopology.continuousAlgEquivOfIsScalarTower K v.Completion e
+  have : IsBiscalar L v.Completion e.toAlgHom :=
+    inferInstanceAs (IsBiscalar L v.Completion (baseChange L v))
+  IsModuleTopology.continuousAlgEquivOfIsBiscalar K v.Completion e
+
+instance : IsBiscalar L v.Completion (baseChangeEquiv L v).toAlgHom :=
+  inferInstanceAs (IsBiscalar L v.Completion (baseChange L v))
 
 @[simp]
 theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
@@ -151,12 +153,10 @@ theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
 /-- The `Kᵥ`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
 of `L` lying above `v`. -/
 def baseChangeEquivRight :
-    L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.Extension L) → wv.1.Completion :=
-  let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
-  have : e.toAlgHom.CompatibleSMulFor v.Completion := by
-    change (baseChange L v).CompatibleSMulFor v.Completion
-    infer_instance
-  IsModuleTopology.continuousAlgEquivOfAlgEquiv (e.changeScalars K v.Completion)
+    L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.Extension L) → wv.1.Completion where
+  __ := (baseChangeEquiv L v).changeScalars K v.Completion
+  continuous_toFun := (baseChangeEquiv L v).continuous_toFun
+  continuous_invFun := (baseChangeEquiv L v).continuous_invFun
 
 open TensorProduct.AlgebraTensorModule in
 /-- The `Kᵥ`-linear homeomorphism between `Kᵥ^d` and the product of all completions
