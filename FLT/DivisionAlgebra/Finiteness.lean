@@ -634,7 +634,7 @@ lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     intro x; simp; rfl
   simp [hl, hr, Dinfx, Dfx, Df,
     InfiniteAdeleRing.isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul _,
-    FiniteAdeleRing.isCentralSimple_finite_addHaarScalarFactor_left_mul_eq_right_mul K D _]
+    FiniteAdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul K D _]
 
 end AdeleRing
 
