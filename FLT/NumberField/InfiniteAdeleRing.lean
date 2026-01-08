@@ -49,16 +49,16 @@ exactly this. Hence this also appears as an assumption where needed.
 The desired instances are constructed later as `scoped` instances in `FLT.NumberField.AdeleRing`.
 
 ## Main definitions:
-- `NumberField.InfiniteAdeleRing.baseChange` : the canonical map from `K_∞` to `L_∞`.
-- `NumberField.InfiniteAdeleRing.piEquiv` : the `K_∞`-linear homeomorphism
-  `K_∞^[L:K] ≃[K_∞] L_∞`.
+- `NumberField.InfiniteAdeleRing.baseChange` : the canonical map from `K∞` to `L∞`.
+- `NumberField.InfiniteAdeleRing.piEquiv` : the `K∞`-linear homeomorphism
+  `K∞^[L:K] ≃[K∞] L∞`.
 - `NumberField.InfiniteAdeleRing.baseChangeEquivAux` : the `L`-algebra isomorphism
-  `L ⊗[K] K_∞ ≃ₐ[L] L_∞`. Note that this does not require `Algebra K∞ L∞` or
+  `L ⊗[K] K∞ ≃ₐ[L] L∞`. Note that this does not require `Algebra K∞ L∞` or
   `Pi.FiberwiseSMul ...` assumptions.
 - `NumberField.InfiniteAdeleRing.baseChangeEquiv` : the   `L`-algebra homeomorphism
-  `L ⊗[K] K_∞ ≃A[L] L_∞` induced by `baseChange`. This requires the
+  `L ⊗[K] K∞ ≃A[L] L∞` induced by `baseChange`. This requires the
   `Algebra K∞ L∞` and `Pi.FiberwiseSMul ...` assumptions to ensure the correct `K∞`-module
-  topology on `L_∞`.
+  topology on `L∞`.
 -/
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
