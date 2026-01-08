@@ -65,6 +65,7 @@ import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
+import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import FLT.Mathlib.Algebra.IsDirectLimit
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra

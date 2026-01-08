@@ -1,10 +1,12 @@
 import FLT.HaarMeasure.HaarChar.Ring
+import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
 import FLT.NumberField.AdeleRing
 import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.HaarMeasure.HaarChar.Padic
+import FLT.HaarMeasure.HaarChar.FiniteDimensional
 import Mathlib.NumberTheory.NumberField.ProductFormula
 import FLT.HaarMeasure.HaarChar.FiniteDimensional
 /-!
@@ -37,13 +39,33 @@ open scoped TensorProduct
 open NumberField MeasureTheory
 
 open scoped TensorProduct.RightActions in
+instance (k A B : Type*) [Field k] [Field A] [Ring B]
+    [Algebra k A] [Algebra k B]
+    [Algebra.IsCentral k B] :
+    Algebra.IsCentral A (B ⊗[k] A) :=
+  Algebra.IsCentral.of_algEquiv _ _ _ {
+    __ := (Algebra.TensorProduct.comm k A B)
+    commutes' := by simp }
+
+open IsDedekindDomain HeightOneSpectrum RestrictedProduct in
+open scoped TensorProduct.RightActions in
 variable
-  [MeasurableSpace (B ⊗[K] 𝔸 K)]
-  [BorelSpace (B ⊗[K] 𝔸 K)] in
-lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
-    [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (𝔸 K))ˣ) :
+  [MeasurableSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))]
+  [BorelSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))] in
+lemma NumberField.FiniteAdeleRing.isCentralSimple_finite_addHaarScalarFactor_left_mul_eq_right_mul
+    [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
+  -- finite places
+  -- the code here is just testing whether `ringHaarChar_eq_addEquivAddHaarChar_mulRight`
+  -- works for each finite place `v`
+  -- feel free to modify this code
+  have : Module.FinitePresentation K B := Module.finitePresentation_of_finite ..
+  let v : HeightOneSpectrum (𝓞 K) := sorry
+  let u' : (B ⊗[K] (v.adicCompletion K))ˣ := sorry
+  let : MeasurableSpace (B ⊗[K] v.adicCompletion K) := borel _
+  have : BorelSpace (B ⊗[K] v.adicCompletion K) := ⟨rfl⟩
+  have hf := IsSimpleRing.ringHaarChar_eq_addEquivAddHaarChar_mulRight (F := v.adicCompletion K) u'
   sorry
 
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
