@@ -61,12 +61,11 @@ instance : CoeTC F (A →SA[φ] B) :=
 theorem coe_coe (f : F) : ⇑(f : A →SA[φ] B) = f :=
   rfl
 
-@[simp]
 theorem toSemialgHom_eq_coe (f : A →SA[φ] B) : f.toSemialgHom = f :=
   rfl
 
 @[simp]
-theorem toLinearMap_eq_coe (f : A →SA[φ] B) : f.toLinearMap = f :=
+theorem toLinearMap_eq_coe (f : A →SA[φ] B) : f.toLinearMap = f := by
   rfl
 
 @[simp]

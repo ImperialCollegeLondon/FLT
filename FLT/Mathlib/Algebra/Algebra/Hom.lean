@@ -116,7 +116,7 @@ def SemialgHom.compAlgHom {T : Type*} [CommSemiring T] {C : Type*} [Semiring C]
   g.comp f.toSemialgHom
 
 /-- The product of two semi-algebra maps on the same domain. -/
-def SemialgHom.prod {C : Type*} [Semiring C] [Algebra R C] [Algebra S C] (f : A →ₛₐ[φ] B)
+def SemialgHom.prod {C : Type*} [Semiring C] [Algebra S C] (f : A →ₛₐ[φ] B)
     (g : A →ₛₐ[φ] C) :
     A →ₛₐ[φ] B × C where
   __ := RingHom.prod f.toRingHom g.toRingHom
@@ -124,8 +124,7 @@ def SemialgHom.prod {C : Type*} [Semiring C] [Algebra R C] [Algebra S C] (f : A 
 
 /-- The product of two semi-algebra maps on separate domains. -/
 def SemialgHom.prodMap {C D : Type*} [Semiring C] [Semiring D]
-    [Algebra S C] [Algebra S D] [Algebra R D]
-    [Algebra R B] (f : A →ₛₐ[φ] C) (g : B →ₛₐ[φ] D) :
+    [Algebra S C] [Algebra S D] [Algebra R B] (f : A →ₛₐ[φ] C) (g : B →ₛₐ[φ] D) :
     A × B →ₛₐ[φ] C × D :=
   (f.compAlgHom (AlgHom.fst R A B)).prod (g.compAlgHom (AlgHom.snd R A B))
 
