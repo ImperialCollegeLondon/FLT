@@ -65,7 +65,7 @@ noncomputable def baseChange :
     (𝔸 K) →SA[algebraMap K L] 𝔸 L :=
   let finite : FiniteAdeleRing (𝓞 K) K →SA[algebraMap K L] FiniteAdeleRing (𝓞 L) L := {
     __ := FiniteAdeleRing.mapSemialgHom (𝓞 K) K L (𝓞 L)
-    cont := FiniteAdeleRing.mapSemialgHom_continuous (𝓞 K) K L (𝓞 L)
+    continuous_toFun := FiniteAdeleRing.mapSemialgHom_continuous (𝓞 K) K L (𝓞 L)
   }
   ContinuousSemialgHom.prodMap (InfiniteAdeleRing.baseChange K L) finite
 
@@ -242,7 +242,7 @@ are provided as scoped instances to avoid creating diamonds when `K = L`. -/
 
 open IsDedekindDomain AdeleRing
 
-open scoped InfiniteAdeleRing TensorProduct.RightActions
+open scoped InfiniteAdeleRing TensorProduct.RightActions NumberField.AdeleRing
 
 variable {K L : Type*} [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
@@ -272,8 +272,7 @@ scoped instance : IsBiscalar L K∞ (InfiniteAdeleRing.baseChangeEquivAux K L).t
     | zero => simp
     | tmul v b =>
         simp [TensorProduct.smul_tmul', algebra_compatible_smul L∞ a, RingHom.algebraMap_toAlgebra,
-          SemialgHom.toLinearMap_eq_coe, InfiniteAdeleRing.baseChangeEquivAux_apply,
-          SemialgHom.baseChange_of_algebraMap_tmul _ _ _]
+          InfiniteAdeleRing.baseChangeEquivAux_apply, SemialgHom.baseChange_of_algebraMap_tmul]
         ring
     | add x y _ _ => simp_all
 
@@ -284,9 +283,8 @@ scoped instance : IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom where
     induction x using TensorProduct.induction_on with
     | zero => simp
     | tmul v b =>
-        simp [TensorProduct.smul_tmul', -algebraMap_smul,
-          algebra_compatible_smul (AdeleRing (𝓞 L) L) a, RingHom.algebraMap_toAlgebra,
-          SemialgHom.toLinearMap_eq_coe]
+        simp [TensorProduct.smul_tmul', algebra_compatible_smul (𝔸 L) a,
+          RingHom.algebraMap_toAlgebra]
         ring
     | add x y _ _ => simp_all
 
@@ -300,9 +298,8 @@ scoped instance : IsBiscalar L (𝔸 K) (ModuleBaseChangeAddEquiv K L V) where
     induction x using TensorProduct.induction_on with
     | zero => simp
     | tmul v b =>
-        simp [TensorProduct.smul_tmul', ModuleBaseChangeAddEquiv, -algebraMap_smul,
-          algebra_compatible_smul (AdeleRing (𝓞 L) L) a, RingHom.algebraMap_toAlgebra,
-          SemialgHom.toLinearMap_eq_coe]
+        simp [TensorProduct.smul_tmul', ModuleBaseChangeAddEquiv, algebra_compatible_smul (𝔸 L) a,
+          RingHom.algebraMap_toAlgebra]
     | add x y _ _ => simp_all
 
 scoped instance : Module.Finite (𝔸 K) (𝔸 L) :=

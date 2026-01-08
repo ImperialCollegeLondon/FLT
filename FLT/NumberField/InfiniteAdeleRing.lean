@@ -76,7 +76,7 @@ scoped notation:10000 K "∞" => InfiniteAdeleRing K
 noncomputable def baseChange :
     K∞ →SA[algebraMap K L] L∞ where
   __ := Pi.semialgHomPi _ _ fun _ => Completion.comapHom rfl
-  cont := .piSemialgHomPi Completion Completion _ fun _ => Completion.comapHom_cont rfl
+  continuous_toFun := .piSemialgHomPi Completion Completion _ fun _ => Completion.comapHom_cont rfl
 
 open scoped TensorProduct.RightActions
 
@@ -120,17 +120,11 @@ noncomputable def baseChangeEquivAux :
 -- `SemialgHom.baseChange_of_algebraMap`
 
 theorem baseChangeEquivAux_tmul (l : L) (x : InfiniteAdeleRing K) :
-    baseChangeEquivAux K L (l ⊗ₜ[K] x) = algebraMap _ _ l * baseChange K L x := by
-  classical
-  simp only [baseChangeEquivAux, AlgEquiv.trans_apply]
-  funext
-  erw [Algebra.TensorProduct.piRight_tmul K L L Completion, Equiv.piCongrFiberwise_symm_apply]
-  rfl
+    baseChangeEquivAux K L (l ⊗ₜ[K] x) = algebraMap _ _ l * baseChange K L x := rfl
 
 theorem baseChangeEquivAux_coe_eq_baseChange_of_algebraMap [Algebra K L∞] [IsScalarTower K L L∞] :
-    ↑(baseChangeEquivAux K L) = (baseChange K L).baseChange_of_algebraMap := by
-  refine Algebra.TensorProduct.ext' fun l x => ?_
-  simp [baseChangeEquivAux_tmul, baseChange_of_algebraMap_tmul]
+    ↑(baseChangeEquivAux K L) = (baseChange K L).baseChange_of_algebraMap :=
+  Algebra.TensorProduct.ext' fun _ _ ↦ rfl
 
 theorem baseChangeEquivAux_apply (x : L ⊗[K] InfiniteAdeleRing K)
     [Algebra K L∞] [IsScalarTower K L L∞] :

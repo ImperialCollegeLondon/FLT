@@ -8,7 +8,7 @@ structure ContinuousSemialgHom {R S : Type*} [CommSemiring R] [CommSemiring S]
     (φ : R →+* S) (A B : Type*) [TopologicalSpace A] [TopologicalSpace B]
     [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
     extends SemialgHom φ A B where
-  cont : Continuous toFun
+  continuous_toFun : Continuous toFun
 
 @[inherit_doc SemialgHom]
 infixr:25 " →SA " => ContinuousSemialgHom _
@@ -19,7 +19,7 @@ notation:25 A " →SA[" φ:25 "] " B:0 => ContinuousSemialgHom φ A B
 class ContinuousSemialgHomClass (F : Type*) {R S : outParam Type*}
   [CommSemiring R] [CommSemiring S] (φ : outParam (R →+* S)) (A B : outParam Type*)
   [Semiring A] [Semiring B] [Algebra R A] [Algebra S B] [TopologicalSpace A] [TopologicalSpace B]
-  [FunLike F A B] extends SemialgHomClass F φ A B where cont (f : F) : Continuous f
+  [FunLike F A B] extends SemialgHomClass F φ A B where continuous_toFun (f : F) : Continuous f
 
 namespace ContinuousSemialgHom
 
@@ -48,11 +48,11 @@ instance : ContinuousSemialgHomClass (A →SA[φ] B) φ A B where
   map_mul ψ := ψ.map_mul
   map_one ψ := ψ.map_one
   map_zero ψ := ψ.map_zero
-  cont ψ := ψ.cont
+  continuous_toFun ψ := ψ.continuous_toFun
 
 variable {F} {φ} {A} {B} in
 def _root_.ContinuousSemialgHomClass.toContinuousSemialgHom (f : F) : A →SA[φ] B :=
-  { (f : A →ₛₐ[φ] B) with cont := ContinuousSemialgHomClass.cont f }
+  { (f : A →ₛₐ[φ] B) with continuous_toFun := ContinuousSemialgHomClass.continuous_toFun f }
 
 instance : CoeTC F (A →SA[φ] B) :=
   ⟨ContinuousSemialgHomClass.toContinuousSemialgHom⟩
@@ -81,7 +81,7 @@ def prod {C : Type*} [Semiring C] [Algebra R C] [Algebra S C] [TopologicalSpace 
     (g : A →SA[φ] C) :
     A →SA[φ] B × C where
   __ := f.toSemialgHom.prod g.toSemialgHom
-  cont := f.cont.prodMk g.cont
+  continuous_toFun := f.continuous_toFun.prodMk g.continuous_toFun
 
 variable {φ A B} in
 /-- the product of two continuous semi-algebra isomorphisms on different domains. -/
@@ -91,6 +91,6 @@ def prodMap {C D : Type*} [Semiring C] [Semiring D]
     [Algebra R B] (f : A →SA[φ] C) (g : B →SA[φ] D) :
     A × B →SA[φ] C × D where
   __ := SemialgHom.prodMap f g
-  cont := Continuous.prodMap f.cont g.cont
+  continuous_toFun := Continuous.prodMap f.continuous_toFun g.continuous_toFun
 
 end ContinuousSemialgHom
