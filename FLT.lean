@@ -17,6 +17,7 @@ import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
 import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits
 import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
+import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
 import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
 import FLT.DedekindDomain.IntegralClosure
 import FLT.Deformations.Algebra.InverseLimit.Basic
@@ -63,6 +64,7 @@ import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.Algebra.Algebra.Hom
 import FLT.Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Tower
+import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import FLT.Mathlib.Algebra.IsDirectLimit
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
@@ -83,7 +85,9 @@ import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
 import FLT.Mathlib.LinearAlgebra.Pi
 import FLT.Mathlib.LinearAlgebra.Span.Defs
+import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
+import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
@@ -125,6 +129,7 @@ import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.Algebra.Module.Quotient
+import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
 import FLT.Mathlib.Topology.Algebra.Monoid
 import FLT.Mathlib.Topology.Algebra.MulAction
 import FLT.Mathlib.Topology.Algebra.Order.Field

@@ -68,8 +68,8 @@ instance charZero : CharZero ZHat := ⟨ fun a b h ↦ by
   specialize h ⟨_, (max a b).succ_pos⟩
   apply_fun ZMod.val at h
   rwa [natCast_val, ZMod.val_cast_of_lt, natCast_val, ZMod.val_cast_of_lt] at h
-  · simp [Nat.succ_eq_add_one, Nat.lt_add_one_iff]
-  · simp [Nat.succ_eq_add_one, Nat.lt_add_one_iff]
+  · simp [Nat.succ_eq_add_one]
+  · simp [Nat.succ_eq_add_one]
   ⟩
 
 open BigOperators Nat Finset in

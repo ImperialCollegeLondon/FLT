@@ -523,3 +523,61 @@ noncomputable def ContinuousMulEquiv.restrictedProductPrincipal {ι : Type*}
   map_mul' _ _ := rfl
 
 end equivs
+
+namespace RestrictedProduct
+
+section single
+
+variable {ι : Type*} [DecidableEq ι] {R : Type*} [Semiring R] (A : ι → Type*) {𝓕 : Filter ι}
+    {S : ι → Type*}
+    [(i : ι) → SetLike (S i) (A i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → AddCommMonoid (A i)]
+    [(i : ι) → Module R (A i)] [∀ (i : ι), AddSubmonoidClass (S i) (A i)]
+
+variable [∀ i, TopologicalSpace (A i)]
+open Filter in
+/--
+The inclusion from a factor into the restricted product of topological additive groups,
+as a continuous group homomorphism.
+-/
+noncomputable def singleContinuousAddMonoidHom (j : ι) : A j →ₜ+ Πʳ i, [A i, B i] where
+  __ := singleAddMonoidHom A j
+  continuous_toFun := by
+    let S : Set ι := {j}ᶜ
+    let single' : A j → Πʳ i, [A i, B i]_[𝓟 S] :=
+      fun x ↦ ⟨Pi.single j x,
+        eventually_principal.mpr
+        fun i hi ↦ by simp [Pi.single_eq_of_ne (Set.mem_compl_singleton_iff.mp hi)]⟩
+    have : Continuous single' := by
+      simpa [continuous_rng_of_principal] using continuous_single j
+    apply (isEmbedding_inclusion_principal
+      (le_principal_iff.mpr (Set.finite_singleton j).compl_mem_cofinite)).continuous.comp this
+
+lemma singleContinuousAddMonoidHom_apply_same {j : ι} (x : A j) :
+    (singleContinuousAddMonoidHom A j x : Πʳ i, [A i, B i]) j = x :=
+  Pi.single_eq_same j x
+
+lemma singleContinuousAddMonoidHom_apply_of_ne {j i : ι} (h : i ≠ j) (x : A j) :
+    (singleContinuousAddMonoidHom A j x : Πʳ i, [A i, B i]) i = 0 :=
+  Pi.single_eq_of_ne h x
+
+end single
+
+section eval
+
+variable {ι : Type*} [DecidableEq ι] {R : Type*} [Semiring R] (A : ι → Type*) {𝓕 : Filter ι}
+    {S : ι → Type*}
+    [(i : ι) → SetLike (S i) (A i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → AddCommMonoid (A i)]
+    [(i : ι) → Module R (A i)] [∀ (i : ι), AddSubmonoidClass (S i) (A i)]
+
+variable [∀ i, TopologicalSpace (A i)]
+
+/-- The continuous additive projection from a restricted product of topological additive groups
+to a factor. -/
+def evalContinuousAddMonoidHom (j : ι) : Πʳ i, [A i, B i] →ₜ+ A j := {
+  __ := evalAddMonoidHom A j
+  continuous_toFun := continuous_eval j
+}
+
+end eval
+
+end RestrictedProduct
