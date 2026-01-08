@@ -315,7 +315,7 @@ def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
 Given a bundled linear map `e : A →ₗ[S] B` which also has scalars `S'`,
 with both `S` and `S'` sharing a common base ring `R` as:
 ```
-e : A ––––––––––> B
+e : A <–––––––––> B
      \     /\    /
       \   /  \  /
        \ /    \/
@@ -348,7 +348,7 @@ def continuousLinearEquivOfIsBiscalar (R : Type*) {A B : Type*} (S' : Type*) {S 
 Given a bundled algebra map `e : A →ₐ[S] B` which also has scalars `S'`,
 with both `S` and `S'` sharing a common base ring `R` as:
 ```
-e : A ––––––––––> B
+e : A <–––––––––> B
      \     /\    /
       \   /  \  /
        \ /    \/
