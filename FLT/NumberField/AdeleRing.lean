@@ -309,7 +309,7 @@ scoped instance : IsBiscalar L (𝔸 K) (ModuleBaseChangeAddEquiv K L V) where
 scoped instance : Module.Finite (𝔸 K) (𝔸 L) :=
     Module.Finite.equiv ((baseChangeAlgEquiv K L).changeScalars K (𝔸 K)).toLinearEquiv
 
-scoped instance : IsModuleTopology (𝔸 K) (𝔸 L) :=
+scoped instance instBaseChangeIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) :=
   IsModuleTopology.instProd' (A := InfiniteAdeleRing K)
     (B := FiniteAdeleRing (𝓞 K) K) (M := InfiniteAdeleRing L) (N := FiniteAdeleRing (𝓞 L) L)
 

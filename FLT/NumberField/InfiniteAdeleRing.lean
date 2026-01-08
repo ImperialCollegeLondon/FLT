@@ -98,7 +98,7 @@ def piEquiv [Algebra K∞ L∞]
     (ContinuousLinearEquiv.piScalarPiCongrFiberwise
       (fun v : InfinitePlace K => (Completion.piEquiv L v).symm)).symm
 
-instance [Algebra K∞ L∞]
+instance instIsModuleTopology_fLT [Algebra K∞ L∞]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
     IsModuleTopology K∞ L∞ := .iso (piEquiv K L)
 
