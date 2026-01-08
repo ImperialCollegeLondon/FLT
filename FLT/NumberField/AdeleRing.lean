@@ -246,6 +246,7 @@ open scoped InfiniteAdeleRing TensorProduct.RightActions NumberField.AdeleRing
 
 variable {K L : Type*} [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
+/-- The `K∞`-algebra on `L∞`, induced by `InfiniteAdeleRing.baseChange K L`. -/
 scoped instance : Algebra K∞ L∞ := (InfiniteAdeleRing.baseChange K L).toAlgebra
 
 open InfinitePlace in
@@ -254,12 +255,15 @@ open InfinitePlace in
 instance : Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion where
   map_smul' r x b σ := by obtain ⟨a, rfl⟩ := σ; rfl
 
+/-- The product `K`-algebra on `L∞`. -/
 scoped instance : Algebra K L∞ := Pi.algebra _ _
 
 scoped instance : IsScalarTower K L L∞ := Pi.isScalarTower
 
+/-- The `𝔸 K`-algebra on `𝔸 L`, induced by `AdeleRing.baseChange K L`. -/
 scoped instance : Algebra (𝔸 K) (𝔸 L) := (AdeleRing.baseChange K L).toAlgebra
 
+/-- The product `K`-algebra on `𝔸 L`. -/
 scoped instance : Algebra K (𝔸 L) := Prod.algebra _ _ _
 
 scoped instance : IsScalarTower K L (𝔸 L) := Prod.isScalarTower
@@ -750,6 +754,8 @@ induced by the base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeAlgAdeleEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[𝔸 K] 𝔸 L :=
     AlgEquiv.ofBijective (baseChangeAdeleAlgHom K L) (baseChangeAdeleAlgHom_bijective K L)
 
+/-- The canonical `𝔸_K`-algebra homeomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
+induced by the base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :=
   IsModuleTopology.continuousAlgEquivOfAlgEquiv <| baseChangeAlgAdeleEquiv K L
 

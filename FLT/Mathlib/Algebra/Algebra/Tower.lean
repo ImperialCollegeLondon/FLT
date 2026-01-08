@@ -25,6 +25,11 @@ variable (R : Type*) {A B : Type*} (S' : Type*) {S : Type*}
     [Module S B] [Module S' A] [Module R S] [Module R A] [Module R B] [Module S' B]
     [IsScalarTower R S A] [IsScalarTower R S B]
 
+/--
+Given a linear map `f : A →ₗ[S] B` which also satisfies `f (s' • a) = s' • f a` for `s : S'`,
+with both `S` and `S'` sharing a common base ring `R`, then `f.changeScalars R S'` returns `f`
+viewed as an `S'`-algebra homomorphism.
+-/
 def LinearMap.changeScalars (f : A →ₗ[S] B) [IsBiscalar S S' f] :
     A →ₗ[S'] B where
   __ := f.restrictScalars R
@@ -34,6 +39,11 @@ theorem LinearMap.changeScalars_apply (f : A →ₗ[S] B) [IsBiscalar S S' f] (a
     LinearMap.changeScalars R S' f a = f a := by
   simp [changeScalars]
 
+/--
+Given a linear isomorphism `f : A ≃ₗ[S] B` which also satisfies `f (s' • a) = s' • f a` for `s : S'`,
+with both `S` and `S'` sharing a common base ring `R`, then `f.changeScalars R S'` returns `f`
+viewed as an `S'`-algebra isomorphism.
+-/
 def LinearEquiv.changeScalars (f : A ≃ₗ[S] B) [IsBiscalar S S' f] :
     A ≃ₗ[S'] B where
   __ := LinearMap.changeScalars R S' f.toLinearMap

@@ -10,16 +10,18 @@ structure ContinuousSemialgHom {R S : Type*} [CommSemiring R] [CommSemiring S]
     extends SemialgHom φ A B where
   continuous_toFun : Continuous toFun
 
-@[inherit_doc SemialgHom]
+@[inherit_doc ContinuousSemialgHom]
 infixr:25 " →SA " => ContinuousSemialgHom _
 
 @[inherit_doc]
 notation:25 A " →SA[" φ:25 "] " B:0 => ContinuousSemialgHom φ A B
 
+/-- `ContinuousSemialgHomClass F φ A B` states that `F` is the type of continuous semi-algebra
+maps from `A` to `B` with respect to `φ`. -/
 class ContinuousSemialgHomClass (F : Type*) {R S : outParam Type*}
-  [CommSemiring R] [CommSemiring S] (φ : outParam (R →+* S)) (A B : outParam Type*)
-  [Semiring A] [Semiring B] [Algebra R A] [Algebra S B] [TopologicalSpace A] [TopologicalSpace B]
-  [FunLike F A B] extends SemialgHomClass F φ A B where continuous_toFun (f : F) : Continuous f
+    [CommSemiring R] [CommSemiring S] (φ : outParam (R →+* S)) (A B : outParam Type*)
+    [Semiring A] [Semiring B] [Algebra R A] [Algebra S B] [TopologicalSpace A] [TopologicalSpace B]
+    [FunLike F A B] extends SemialgHomClass F φ A B where continuous_toFun (f : F) : Continuous f
 
 namespace ContinuousSemialgHom
 
@@ -51,6 +53,8 @@ instance : ContinuousSemialgHomClass (A →SA[φ] B) φ A B where
   continuous_toFun ψ := ψ.continuous_toFun
 
 variable {F} {φ} {A} {B} in
+/-- Turn an element of `F` which satisfies `ContinuousSemialgHomClass F φ A B` to a
+`ContinuousSemialgHom`. -/
 def _root_.ContinuousSemialgHomClass.toContinuousSemialgHom (f : F) : A →SA[φ] B :=
   { (f : A →ₛₐ[φ] B) with continuous_toFun := ContinuousSemialgHomClass.continuous_toFun f }
 
