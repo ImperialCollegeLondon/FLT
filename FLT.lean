@@ -121,6 +121,7 @@ import FLT.Mathlib.RingTheory.Localization.BaseChange
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
+import FLT.Mathlib.Topology.Algebra.Algebra.Hom
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
