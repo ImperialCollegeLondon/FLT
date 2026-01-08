@@ -400,12 +400,19 @@ lemma ringHaarChar_D𝔸_real_surjective (r : ℝ) (h : r > 0) :
 
 end FiniteAdeleRing
 
-section AdeleRing
+end AdeleRing.DivisionAlgebra.Aux
+
+namespace InfiniteAdeleRing
+
+open AdeleRing.DivisionAlgebra.Aux
+
+open scoped TensorProduct.RightActions
+
+variable [FiniteDimensional K D]
 
 instance (vi : InfinitePlace K) : SecondCountableTopology (D ⊗[K] vi.Completion) :=
   Module.Finite.secondCountabletopology vi.Completion _
 
-open scoped TensorProduct.RightActions in
 variable
   [(vi : InfinitePlace K) → MeasurableSpace (D ⊗[K] vi.Completion)]
   [(vi : InfinitePlace K) → BorelSpace (D ⊗[K] vi.Completion)] in
@@ -484,20 +491,16 @@ instance (vi : InfinitePlace K) : ContinuousSMul ℝ vi.Completion := by
 instance (vi : InfinitePlace K) : IsModuleTopology ℝ vi.Completion :=
   isModuleTopologyOfFiniteDimensional
 
-open scoped TensorProduct.RightActions in
 instance (vi : InfinitePlace K) : Algebra ℝ (D ⊗[K] vi.Completion) :=
   Algebra.compHom _ <| real_to_completion K vi
 
-open scoped TensorProduct.RightActions in
 instance (vi : InfinitePlace K) : IsScalarTower ℝ vi.Completion (D ⊗[K] vi.Completion) :=
   IsScalarTower.of_compHom ..
 
-open scoped TensorProduct.RightActions in
 instance (vi : InfinitePlace K) : IsModuleTopology ℝ (D ⊗[K] vi.Completion) := by
   rw [IsModuleTopology.trans ℝ vi.Completion]
   infer_instance
 
-open scoped TensorProduct.RightActions in
 instance : IsModuleTopology ℝ (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) :=
   IsModuleTopology.instPi
 
@@ -535,7 +538,6 @@ lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
   funext vi
   simp [Dinf, InfiniteAdeleRing, tensorPi_equiv_piTensor_apply]
 
-open scoped TensorProduct.RightActions in
 /-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a `ℝ`-linear equiv. -/
 def Dinf_tensorPi_equiv_piTensor_aux :
     (Dinf K D) ≃ₗ[ℝ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
@@ -555,7 +557,6 @@ def Dinf_tensorPi_equiv_piTensor_aux :
     exact algebraMap_completion _
 }
 
-open scoped TensorProduct.RightActions in
 /-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a continuous `ℝ`-linear equiv. -/
 def Dinf_tensorPi_equiv_piTensor :
     (Dinf K D) ≃L[ℝ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
@@ -566,7 +567,6 @@ def Dinf_tensorPi_equiv_piTensor :
     IsModuleTopology.continuous_of_linearMap (Dinf_tensorPi_equiv_piTensor_aux K D).symm.toLinearMap
 }
 
-open scoped TensorProduct.RightActions in
 /-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a mul equiv. -/
 def Dinf_tensorPi_equiv_piTensor_mulEquiv :
     (Dinf K D) ≃* Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
@@ -574,7 +574,6 @@ def Dinf_tensorPi_equiv_piTensor_mulEquiv :
   map_mul' _ _ := tensorPi_equiv_piTensor_map_mul ..
 }
 
-open scoped TensorProduct.RightActions in
 lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
     [Algebra.IsCentral K D] (u : (Dinf K D)ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
@@ -602,6 +601,14 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
   rw [hl, hr]
   apply isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
 
+end InfiniteAdeleRing
+
+namespace AdeleRing
+
+open AdeleRing.DivisionAlgebra.Aux
+
+variable [FiniteDimensional K D]
+
 open scoped TensorProduct.RightActions in
 lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     [Algebra.IsCentral K D] (u : D_𝔸ˣ) :
@@ -626,10 +633,16 @@ lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (D𝔸_prodRight'' K D)
     intro x; simp; rfl
   simp [hl, hr, Dinfx, Dfx, Df,
-    isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul _,
-    isCentralSimple_finite_addHaarScalarFactor_left_mul_eq_right_mul K D _]
+    InfiniteAdeleRing.isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul _,
+    FiniteAdeleRing.isCentralSimple_finite_addHaarScalarFactor_left_mul_eq_right_mul K D _]
 
 end AdeleRing
+
+namespace AdeleRing.DivisionAlgebra.Aux
+
+open scoped TensorProduct.RightActions
+
+variable [FiniteDimensional K D]
 
 section auxiliary_defs
 -- We need a subset of D ⊗[K] 𝔸_K^f with positive finite measure

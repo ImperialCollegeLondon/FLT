@@ -52,7 +52,7 @@ open scoped TensorProduct.RightActions in
 variable
   [MeasurableSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))]
   [BorelSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))] in
-lemma NumberField.AdeleRing.isCentralSimple_finite_addHaarScalarFactor_left_mul_eq_right_mul
+lemma NumberField.FiniteAdeleRing.isCentralSimple_finite_addHaarScalarFactor_left_mul_eq_right_mul
     [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
