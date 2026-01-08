@@ -77,7 +77,7 @@ theorem commutes (ψ : A →SA[φ] B) (r : R) :
   simpa using ψ.toSemialgHom.commutes r
 
 /-- The product of two continuous semi-algebra isomorphisms on the same domain. -/
-def prod {C : Type*} [Semiring C] [Algebra R C] [Algebra S C] [TopologicalSpace C] (f : A →SA[φ] B)
+def prod {C : Type*} [Semiring C] [Algebra S C] [TopologicalSpace C] (f : A →SA[φ] B)
     (g : A →SA[φ] C) :
     A →SA[φ] B × C where
   __ := f.toSemialgHom.prod g.toSemialgHom
@@ -85,10 +85,8 @@ def prod {C : Type*} [Semiring C] [Algebra R C] [Algebra S C] [TopologicalSpace 
 
 variable {φ A B} in
 /-- the product of two continuous semi-algebra isomorphisms on different domains. -/
-def prodMap {C D : Type*} [Semiring C] [Semiring D]
-    [Algebra S C] [Algebra S D] [Algebra R D]
-    [TopologicalSpace C] [TopologicalSpace D]
-    [Algebra R B] (f : A →SA[φ] C) (g : B →SA[φ] D) :
+def prodMap {C D : Type*} [Semiring C] [Semiring D] [Algebra S C] [Algebra S D]
+    [TopologicalSpace C] [TopologicalSpace D] [Algebra R B] (f : A →SA[φ] C) (g : B →SA[φ] D) :
     A × B →SA[φ] C × D where
   __ := SemialgHom.prodMap f g
   continuous_toFun := Continuous.prodMap f.continuous_toFun g.continuous_toFun
