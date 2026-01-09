@@ -4,6 +4,8 @@ import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 import Mathlib.Algebra.Central.Basic
 import FLT.Mathlib.Algebra.Central.TensorProduct
+import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
 /-!
 
 # Haar character of the finite adele ring of a number field
@@ -73,11 +75,116 @@ local instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
 
 variable
   [MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)]
-  [BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)] in
+  [BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)]
+
+-- open scoped Matrix in
+-- def Matrix.toContinuousLinearMap (ι j : Type*) [Fintype ι] [Fintype j] (R : Type*) [CommRing R]
+--   [TopologicalSpace R] [IsTopologicalRing R] (M : Matrix ι j R) : (j → R) →L[R] (ι → R) where
+--     toFun v := M *ᵥ v
+--     map_add' := Matrix.mulVec_add M
+--     map_smul' := Matrix.mulVec_smul M
+
+noncomputable example : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
+    (Module.Free.ChooseBasisIndex K B → (FiniteAdeleRing (𝓞 K) K)) :=
+  ContinuousLinearEquiv.chooseBasis_piScalarRight' K (FiniteAdeleRing (𝓞 K) K) B
+
+/-- An auxiliary definition used in a commutative diagram. -/
+noncomputable def FiniteAdeleRing.Aux.f
+    (φ : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
+      (FiniteAdeleRing (𝓞 K) K) ⊗[K] B) :
+    (Module.Free.ChooseBasisIndex K B → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
+    (Module.Free.ChooseBasisIndex K B → (FiniteAdeleRing (𝓞 K) K)) := by
+  let b₀ := Module.Free.chooseBasis K B
+  let b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
+  refine (ContinuousLinearEquiv.chooseBasis_piScalarRight' K
+    (FiniteAdeleRing (𝓞 K) K) B).symm.trans ?_
+  refine φ.trans ?_
+  exact (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (FiniteAdeleRing (𝓞 K) K) B)
+
+instance : MeasurableSpace (FiniteAdeleRing (𝓞 K) K) := borel _
+instance : BorelSpace (FiniteAdeleRing (𝓞 K) K) := ⟨rfl⟩
+
+lemma FiniteAdeleRing.Aux.f_commSq
+    (φ : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
+      (FiniteAdeleRing (𝓞 K) K) ⊗[K] B) :
+    addEquivAddHaarChar (φ.toContinuousAddEquiv) =
+    addEquivAddHaarChar (FiniteAdeleRing.Aux.f K B φ).toContinuousAddEquiv := by
+  refine MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    (ContinuousLinearEquiv.chooseBasis_piScalarRight' K
+      (FiniteAdeleRing (𝓞 K) K) B).toContinuousAddEquiv _ _ ?_
+  intro x
+  let g := (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (FiniteAdeleRing (𝓞 K) K) B)
+  change g (φ x) = g (φ (g.symm (g x)))
+  simp
+
+noncomputable def FiniteAdeleRing.Aux.g {ι : Type*} [Fintype ι]
+    (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
+      (ι → (FiniteAdeleRing (𝓞 K) K))) :
+    Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → v.adicCompletion K,
+      (AddSubgroup.pi (Set.univ : Set ι) (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup))] ≃ₜ+
+    Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → v.adicCompletion K,
+      (AddSubgroup.pi (Set.univ : Set ι) (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup))] :=
+  letI f := ContinuousAddEquiv.restrictedProductPi
+    (C := fun (i : ι) (v : HeightOneSpectrum (𝓞 K)) ↦ (v.adicCompletionIntegers K).toAddSubgroup)
+    sorry
+  f.trans (ψ.toContinuousAddEquiv.trans f.symm)
+
+instance {ι : Type*} [Fintype ι] :
+    Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
+      (↑(AddSubgroup.pi (Set.univ : Set ι)
+        (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup)) :
+        Set (ι → v.adicCompletion K))) := sorry
+
+instance :
+    Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
+      (↑(v.adicCompletionIntegers K).toAddSubgroup :
+        Set (v.adicCompletion K))) := sorry
+
+variable {ι : Type*} [Fintype ι] in
+instance : LocallyCompactSpace
+    Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → adicCompletion K v,
+      (↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K v).toAddSubgroup) :
+      Set ((ι → adicCompletion K v)))] := by
+  exact RestrictedProduct.locallyCompactSpace_of_addGroup _ sorry
+
+variable {ι : Type*} [Fintype ι] in
+instance : BorelSpace
+    ((j : ι) →
+      Πʳ (i : HeightOneSpectrum (𝓞 K)), [adicCompletion K i,
+        ↑((fun i v ↦ (adicCompletionIntegers K v).toAddSubgroup) j i)]) := sorry
+
+instance : LocallyCompactSpace
+    Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
+      ((adicCompletionIntegers K v).toAddSubgroup : Set (adicCompletion K v))] := by
+  exact RestrictedProduct.locallyCompactSpace_of_addGroup _ sorry
+
+lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
+    (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
+      (ι → (FiniteAdeleRing (𝓞 K) K))) :
+    addEquivAddHaarChar (ψ.toContinuousAddEquiv) =
+    addEquivAddHaarChar (FiniteAdeleRing.Aux.g K ψ) := by
+  symm
+  let f := (ContinuousAddEquiv.restrictedProductPi
+    (C := fun (i : ι) (v : HeightOneSpectrum (𝓞 K)) ↦
+      (v.adicCompletionIntegers K).toAddSubgroup) sorry)
+  --simp at f
+  refine MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f _ _ ?_
+  intro x
+  change f (f.symm (ψ (f x))) = ψ (f x)
+  simp at f -- why??
+  simp
+
+-- key missing sorry
 lemma NumberField.FiniteAdeleRing.tensor_isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     [IsSimpleRing B] [Algebra.IsCentral K B] (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
+  change addEquivAddHaarChar
+      (ContinuousLinearEquiv.mulLeft ((FiniteAdeleRing (𝓞 K) K)) u).toContinuousAddEquiv =
+    addEquivAddHaarChar
+      (ContinuousLinearEquiv.mulRight ((FiniteAdeleRing (𝓞 K) K)) u).toContinuousAddEquiv
+  rw [FiniteAdeleRing.Aux.f_commSq, FiniteAdeleRing.Aux.f_commSq]
+  rw [FiniteAdeleRing.Aux.g_commSq, FiniteAdeleRing.Aux.g_commSq]
   sorry
 
 /-

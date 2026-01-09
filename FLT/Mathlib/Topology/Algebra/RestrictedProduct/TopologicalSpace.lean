@@ -148,6 +148,27 @@ def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
     rw [Equiv.invFun_as_coe, Equiv.restrictedProductPi_symm_comp_inclusion]
     fun_prop
 
+/-- The group homeomorphism between a restricted product of finite products of groups,
+and a finite product of restricted products of groups, when the products are with respect
+to open subgroups.
+-/
+@[to_additive /-- The additive group homeomorphism between a restricted product of finite products
+of additive groups, and a finite product of restricted products of additive groups, when the
+products are with respect to additive open subgroups. -/]
+def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
+    {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)] [∀ j i, Group (A j i)]
+    [∀ j i, IsTopologicalGroup (A j i)]
+    {C : (j : n) → (i : ι) → Subgroup (A j i)} (hCopen : ∀ j i, IsOpen (C j i : Set (A j i))) :
+    Πʳ i, [Π j, A j i, Subgroup.pi (Set.univ : Set n) (fun j ↦ C j i)] ≃ₜ*
+      Π j, (Πʳ i, [A j i, C j i]) where
+  toFun x j := map (fun i t ↦ t _) (by sorry) x
+  invFun y := .mk (fun i j ↦ y j i) (by sorry)
+  left_inv x := by ext; rfl
+  right_inv y := by ext; rfl
+  map_mul' := by simp; sorry
+  continuous_toFun := sorry
+  continuous_invFun := sorry
+
 theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Fintype n] {A : ι → Type*}
     [(i : ι) → TopologicalSpace (A i)] {C : (i : ι) → Set (A i)}
     (i : ι) (hCopen : ∀ (i : ι), IsOpen (C i)) :

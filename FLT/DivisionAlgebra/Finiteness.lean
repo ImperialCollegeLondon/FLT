@@ -609,6 +609,13 @@ open AdeleRing.DivisionAlgebra.Aux
 
 variable [FiniteDimensional K D]
 
+local instance : TopologicalSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) :=
+  moduleTopology (FiniteAdeleRing (𝓞 K) K) _
+
+local instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) := borel _
+
+local instance : BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) := ⟨rfl⟩
+
 open scoped TensorProduct.RightActions in
 lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     [Algebra.IsCentral K D] (u : D_𝔸ˣ) :
