@@ -1,12 +1,11 @@
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
 import FLT.HaarMeasure.HaarChar.FiniteDimensional
+import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
-import Mathlib.Algebra.Central.Basic
-import FLT.Mathlib.Algebra.Central.TensorProduct
-import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
-import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
+
 /-!
 
 # A result related to the Haar character of the finite adele ring of a number field
@@ -52,11 +51,6 @@ local instance : IsTopologicalRing (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
 local instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
   IsModuleTopology.locallyCompactSpaceOfFinite (FiniteAdeleRing (𝓞 K) K)
 
-/-- We put the Borel measurable space structure on the finite adele ring of a number field. -/
-local instance : MeasurableSpace (FiniteAdeleRing (𝓞 K) K) := borel _
-
-local instance : BorelSpace (FiniteAdeleRing (𝓞 K) K) := ⟨rfl⟩
-
 /-- We put the Borel measurable space structure on 𝔸_K^f ⊗ B (because it's the only
 sensible one). -/
 local instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := borel _
@@ -98,20 +92,24 @@ end moving_from_tensor_B_to_Pi
 local instance {ι : Type*} [Fintype ι] :
     Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
       (↑(AddSubgroup.pi (Set.univ : Set ι)
-        (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup)) :
-        Set (ι → v.adicCompletion K))) := ⟨by
-  intro _
-  exact isOpen_set_pi Set.finite_univ (fun _ _ ↦ isOpenAdicCompletionIntegers K _)
-  ⟩
+      (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup)) :
+    Set (ι → v.adicCompletion K))) := ⟨fun _ ↦
+  isOpen_set_pi Set.finite_univ (fun _ _ ↦ isOpenAdicCompletionIntegers K _)⟩
 
 local instance :
     Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
       (↑(v.adicCompletionIntegers K).toAddSubgroup :
-        Set (v.adicCompletion K))) := ⟨isOpenAdicCompletionIntegers K⟩
+    Set (v.adicCompletion K))) :=
+  ⟨isOpenAdicCompletionIntegers K⟩
 
-local instance : ∀ (i : HeightOneSpectrum (𝓞 K)),
+local instance (v : HeightOneSpectrum (𝓞 K)) :
     CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
-      fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) := sorry -- "integers are compact"
+      fun x ↦ (adicCompletionIntegers K v).toAddSubgroup) := by
+  change CompactSpace (Set.pi Set.univ fun x ↦ _)
+  rw [← isCompact_iff_compactSpace]
+  refine isCompact_univ_pi (fun i ↦ ?_)
+  change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
+  sorry -- "integers are compact"
 
 variable {ι : Type*} [Fintype ι] in
 local instance : LocallyCompactSpace
@@ -121,7 +119,8 @@ local instance : LocallyCompactSpace
   refine RestrictedProduct.locallyCompactSpace_of_addGroup _ ?_
   filter_upwards
   intro v
-  -- product of compacts is compact and integers are compact
+  refine isCompact_univ_pi (fun i ↦ ?_)
+  change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
   sorry -- "integers are compact"
 
 local instance : LocallyCompactSpace
@@ -131,7 +130,6 @@ local instance : LocallyCompactSpace
   filter_upwards
   intro v
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  -- surely we have this somewhere
   sorry -- "integers are compact"
 
 local instance : SecondCountableTopology Πʳ (v : HeightOneSpectrum (𝓞 K)),
@@ -155,10 +153,6 @@ noncomputable def FiniteAdeleRing.Aux.g {ι : Type*} [Fintype ι]
     (fun _ v ↦ isOpenAdicCompletionIntegers K v)
   f.trans (ψ.toContinuousAddEquiv.trans f.symm)
 
-
-
-
-
 lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
     (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
       (ι → (FiniteAdeleRing (𝓞 K) K))) :
@@ -176,18 +170,18 @@ lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
 
 end moving_from_pi_restrictedproduct_to_restrictedproduct_pi
 
-instance (v : HeightOneSpectrum (𝓞 K)) : TopologicalSpace (adicCompletion K v ⊗[K] B) :=
+local instance (v : HeightOneSpectrum (𝓞 K)) : TopologicalSpace (adicCompletion K v ⊗[K] B) :=
   moduleTopology (adicCompletion K v) _
 
-instance (v : HeightOneSpectrum (𝓞 K)) :
+local instance (v : HeightOneSpectrum (𝓞 K)) :
     IsModuleTopology (adicCompletion K v) (adicCompletion K v ⊗[K] B) :=
   ⟨rfl⟩
 
-instance (v : HeightOneSpectrum (𝓞 K)) :
+local instance (v : HeightOneSpectrum (𝓞 K)) :
     IsTopologicalAddGroup (adicCompletion K v ⊗[K] B) :=
   IsModuleTopology.topologicalAddGroup (adicCompletion K v) _
 
-instance (v : HeightOneSpectrum (𝓞 K)) :
+local instance (v : HeightOneSpectrum (𝓞 K)) :
     IsTopologicalRing (adicCompletion K v ⊗[K] B) :=
   IsModuleTopology.isTopologicalRing (adicCompletion K v) _
 
@@ -206,13 +200,13 @@ noncomputable def FiniteAdeleRing.Aux.e (v : HeightOneSpectrum (𝓞 K))
   refine α.toContinuousAddEquiv.trans ?_
   exact β
 
-instance (v : HeightOneSpectrum (𝓞 K)) :
+local instance (v : HeightOneSpectrum (𝓞 K)) :
   MeasurableSpace (adicCompletion K v ⊗[K] B) := borel _
 
-instance (v : HeightOneSpectrum (𝓞 K)) :
+local instance (v : HeightOneSpectrum (𝓞 K)) :
   BorelSpace (adicCompletion K v ⊗[K] B) := ⟨rfl⟩
 
-instance (v : HeightOneSpectrum (𝓞 K)) :
+local instance (v : HeightOneSpectrum (𝓞 K)) :
     LocallyCompactSpace (adicCompletion K v ⊗[K] B) :=
   IsModuleTopology.locallyCompactSpaceOfFinite (adicCompletion K v)
 
@@ -278,7 +272,11 @@ lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
   -- should hopefully follow from localcomponent_eval
   sorry
 
--- key missing sorry
+/-- left multiplication and right multiplication by a unit have the same Haar character
+on `𝔸_K^f ⊗ B`. See also
+`NumberField.FiniteAdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul`
+which proves it for `B ⊗ 𝔸_K^f`.
+-/
 lemma NumberField.FiniteAdeleRing.tensor_isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     [IsSimpleRing B] [Algebra.IsCentral K B] (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
@@ -340,11 +338,15 @@ open scoped TensorProduct.RightActions in
 variable
   [MeasurableSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))]
   [BorelSpace (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))] in
+/-- left multiplication and right multiplication by a unit have the same Haar character
+on `B ⊗ 𝔸_K^f`. See also
+`NumberField.FiniteAdeleRing.tensor_isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul`
+which proves it for `𝔸_K^f ⊗ B`.
+-/
 lemma NumberField.FiniteAdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (FiniteAdeleRing (𝓞 K) K))ˣ) :
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
-  borelize ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)
   let v : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ:=
     u.map (Algebra.TensorProduct.comm K B (FiniteAdeleRing (𝓞 K) K))
   have := MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
