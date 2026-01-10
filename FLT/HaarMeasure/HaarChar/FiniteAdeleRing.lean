@@ -62,6 +62,7 @@ open MeasureTheory IsDedekindDomain HeightOneSpectrum RestrictedProduct
 -- this horrible instance causes timeouts
 attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
 
+/-- We give 𝔸_K^f ⊗ B the 𝔸_K^f-module topology in this file (it's the only sensible topology). -/
 local instance : TopologicalSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
   moduleTopology (FiniteAdeleRing (𝓞 K) K) _
 
@@ -305,6 +306,7 @@ instance (k A B : Type*) [Field k] [Field A] [Ring B]
     commutes' := by simp }
 
 open scoped TensorProduct.RightActions in
+/-- B ⊗ 𝔸_K^f ≃ 𝔸_K^f ⊗ B as 𝔸_K^f-modules. -/
 noncomputable def FiniteAdeleRing.TensorProduct.commLinearMap :
     (B ⊗[K] (FiniteAdeleRing (𝓞 K) K)) ≃ₗ[FiniteAdeleRing (𝓞 K) K]
     (FiniteAdeleRing (𝓞 K) K) ⊗[K] B := {
@@ -313,6 +315,7 @@ noncomputable def FiniteAdeleRing.TensorProduct.commLinearMap :
   }
 
 open scoped TensorProduct.RightActions in
+/-- B ⊗ 𝔸_K^f ≃ 𝔸_K^f ⊗ B as topological additive groups. -/
 noncomputable def FiniteAdeleRing.TensorProduct.commContinuousAddMonoidHom :
     (B ⊗[K] (FiniteAdeleRing (𝓞 K) K)) ≃ₜ+
     (FiniteAdeleRing (𝓞 K) K) ⊗[K] B := {

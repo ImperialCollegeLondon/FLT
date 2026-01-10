@@ -609,9 +609,11 @@ open AdeleRing.DivisionAlgebra.Aux
 
 variable [FiniteDimensional K D]
 
+/-- We give 𝔸_K^f ⊗ D the 𝔸_K^f-module topology. -/
 local instance : TopologicalSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) :=
   moduleTopology (FiniteAdeleRing (𝓞 K) K) _
 
+/-- We give 𝔸_K^f ⊗ D the Borel measurable space structure. -/
 local instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) := borel _
 
 local instance : BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) := ⟨rfl⟩
