@@ -52,6 +52,19 @@ noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
   -- f1 ∘ f2 ∘ f3
   f1.comp (f2.comp f3)
 
+lemma TensorProduct.localcomponent_id_apply (p : HeightOneSpectrum R)
+    (x : p.adicCompletion K ⊗[K] V) :
+    TensorProduct.localcomponent R K V p (ContinuousLinearMap.id _ _) x = x := by
+  sorry
+
+lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
+    (φ ψ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K]
+      FiniteAdeleRing R K ⊗[K] V) (x : p.adicCompletion K ⊗[K] V) :
+    TensorProduct.localcomponent R K V p (φ.comp ψ) x =
+    (TensorProduct.localcomponent R K V p φ)
+    ((TensorProduct.localcomponent R K V p ψ) x) := by
+  sorry
+
 /--
 If `φ : 𝔸_K^f ⊗ V → 𝔸_K^f ⊗ V` is `𝔸_K^f`-linear and `φₚ` is its local component at a place `p`
 then for all `x : 𝔸_K^f ⊗ V` we have
@@ -94,19 +107,14 @@ noncomputable def TensorProduct.localcomponentEquiv (p : HeightOneSpectrum R)
     p.adicCompletion K ⊗[K] V ≃L[K] p.adicCompletion K ⊗[K] V where
   __ := TensorProduct.localcomponent R K V p φ
   invFun := TensorProduct.localcomponent R K V p φ.symm
-  left_inv := sorry -- these follow formally from
-  -- localcomponent_id and localcomponent_comp and it's probably better to prove
-  -- localcomponent_comp rather thn running at these, because then you'll only have
-  -- to get to the heart of the matter once (in comp). The proof of comp: ocalcomponent φ is
-  -- defined as eval ∘ φ ∘ single, so one needs to check eval ∘ φ ∘ single ∘ eval ∘ ψ ∘ single =
-  -- eval ∘ φ ∘ ψ ∘ single and the proof is: cancel the single on the right, then
-  -- use that the middle single ∘ eval is multiplication by
-  -- the local idempotent e_v at v (this
-  -- is `singleContinuousAlgebraMap_comp_evalContinuousLinearMap`)
-  -- and then that φ is 𝔸_K^f-linear, which
-  -- reduces the question to evalᵥ ∘ (multiply by e_v) = eval which is true
-  -- and easy by ext.
-  right_inv := sorry
+  left_inv x := by
+    change (localcomponent R K V p φ.symm) (localcomponent R K V p φ x) = x
+    rw [← TensorProduct.localcomponent_comp_apply]
+    simp [TensorProduct.localcomponent_id_apply]
+  right_inv x := by
+    change (localcomponent R K V p φ) (localcomponent R K V p φ.symm x) = x
+    rw [← TensorProduct.localcomponent_comp_apply]
+    simp [TensorProduct.localcomponent_id_apply]
 
 end FiniteAdeleRing
 
