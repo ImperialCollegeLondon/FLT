@@ -9,73 +9,73 @@ import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
 import FLT.Mathlib.Data.Real.Archimedean
 
+/-! # The adele ring of a number field
+
+## Defining base change
+
+One of the main results in this file is base change, which is the `L`-algebra homeomorphism
+`L ⊗[K] 𝔸_K ≃A[L] 𝔸_L` for number fields `L / K`. Per the discussion in
+`FLT.NumberField.InfiniteAdeleRing` there are two approaches to defining this map
+(1) Piece together the base changes for the infinite and finite adele rings.
+(2) Follow the same path as that of the infinite and finite adele ring by lifing the map `𝔸 K → 𝔸 L`
+
+Previously both definitions were provided. Both still exist, but the first approach is the only one
+that is now used. The second approach is given at the end of the file and we show that
+both maps agree.
+
+## Bi-scalarity
+
+The fact that `L ⊗[K] 𝔸_K ≃A[L] 𝔸_L` is both an `L` and an `𝔸 K` algebra isomorphism is used
+heavily in this file, mainly because the topologies are `𝔸 K`-module topologies. This property
+has been abstracted to a typeclass `IsBiscalar` defined in `FLT.Mathlib.Algebra.Algebra.Tower`.
+TODO: would it be better do define this as a bundled map `→ₐ[L, 𝔸 K]` rather than use a typeclass?
+
+## Diamonds
+
+Diamonds of the form `Algebra K L → Algebra (𝔸 K) (𝔸 L)` have caused issues in the past, with
+instance search timing out when `K = L`. In `FLT.NumberField.InfiniteAdeleRing` we avoided this
+by adding `[Algebra K∞ L∞]` as assumptions alongside compatibility instances.  A similar
+approach is taken here, with `IsBiscalar` of the resultant base change map being the only extra
+piece of compatibility required.
+
+The desired instances are constructed later as `scoped` instances in `FLT.NumberField.AdeleRing`.
+
+-/
 open scoped TensorProduct
 
 universe u
 
 open NumberField
 
-section BaseChange
-
 namespace NumberField.AdeleRing
 
+section BaseChange
+
 open IsDedekindDomain
+
+open scoped NumberField.InfiniteAdeleRing
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
 scoped notation:101 "𝔸" K => AdeleRing (𝓞 K) K
 
--- I am not mad keen on this instance. But we don't have continuous semialgebra maps I don't think.
-noncomputable instance : Algebra K (𝔸 L) :=
-  inferInstanceAs (Algebra K (InfiniteAdeleRing L × FiniteAdeleRing (𝓞 L) L))
-
-instance : IsScalarTower K L (𝔸 L) :=
-  IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
-
 /-- The canonical map from the adeles of K to the adeles of L -/
 noncomputable def baseChange :
-    (𝔸 K) →A[K] 𝔸 L :=
-  let finite : FiniteAdeleRing (𝓞 K) K →A[K] FiniteAdeleRing (𝓞 L) L := {
-    __ := Algebra.algHom _ _ _
-    cont := FiniteAdeleRing.mapSemialgHom_continuous (𝓞 K) K L (𝓞 L)
+    (𝔸 K) →SA[algebraMap K L] 𝔸 L :=
+  let finite : FiniteAdeleRing (𝓞 K) K →SA[algebraMap K L] FiniteAdeleRing (𝓞 L) L := {
+    __ := FiniteAdeleRing.mapSemialgHom (𝓞 K) K L (𝓞 L)
+    continuous_toFun := FiniteAdeleRing.mapSemialgHom_continuous (𝓞 K) K L (𝓞 L)
   }
-  let infinite : InfiniteAdeleRing K →A[K] InfiniteAdeleRing L := {
-    __ := Algebra.algHom _ _ _
-    cont := NumberField.InfiniteAdeleRing.baseChange_cont K L
-  }
-  ContinuousAlgHom.prod
-    (infinite.comp <| ContinuousAlgHom.fst K (InfiniteAdeleRing K) _)
-    (finite.comp <| ContinuousAlgHom.snd K (InfiniteAdeleRing K) _)
-
-/-- `baseChange` as a `SemialgHom` -/
-noncomputable def baseChangeSemialgHom :
-  (𝔸 K) →ₛₐ[algebraMap K L] 𝔸 L where
-    __ := baseChange K L
-    map_smul' x y := by simp
+  ContinuousSemialgHom.prodMap (InfiniteAdeleRing.baseChange K L) finite
 
 open scoped TensorProduct
-
--- Note that this creates a diamond if K = L; however `Algebra.id` has a higher-than-default
--- priority so hopefully most of the time it won't cause problems.
-noncomputable instance : Algebra (𝔸 K) (𝔸 L) :=
-  (baseChangeSemialgHom K L).toAlgebra
 
 instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank K L) → 𝔸 K) :=
   IsModuleTopology.instPi
 
-instance instBaseChangeIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) := by
-  exact IsModuleTopology.instProd' (A := InfiniteAdeleRing K)
-    (B := FiniteAdeleRing (𝓞 K) K) (M := InfiniteAdeleRing L) (N := FiniteAdeleRing (𝓞 L) L)
-
-open scoped TensorProduct.RightActions in
-/-- The canonical `𝔸 K`-algebra homomorphism `(L ⊗_K 𝔸 K) → 𝔸 L` induced
-by the maps from `L` and `𝔸 K` into `𝔸 L`. -/
-noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] (𝔸 K)) →ₐ[𝔸 K] 𝔸 L :=
-  (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap
-
 /-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
-noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
+noncomputable def baseChangeAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
   let tensor :=
     Algebra.TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
   let prod := AlgEquiv.prodCongr
@@ -84,86 +84,28 @@ noncomputable def baseChangeAdeleAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :
   tensor.trans prod
 
 @[simp] lemma baseChangeAdeleAlgEquiv_apply (l : L) (a : 𝔸 K) :
-    baseChangeAdeleAlgEquiv K L (l ⊗ₜ a) = algebraMap _ _ l * algebraMap _ _ a := by
+    baseChangeAlgEquiv K L (l ⊗ₜ a) = algebraMap _ _ l * baseChange K L a := by
   rfl
 
-open scoped TensorProduct.RightActions in
-lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHom K L) := by
-  -- There's a linear equivalence `(L ⊗_K 𝔸 K) ≅ 𝔸 L`
-  let linearEquiv : (L ⊗[K] 𝔸 K) ≃ₗ[L] 𝔸 L :=
-    let tensor := TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
-    let prod := LinearEquiv.prodCongr (InfiniteAdeleRing.baseChangeEquiv K L).toLinearEquiv
-      (FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L)).toLinearEquiv
-    tensor.trans prod
-  -- and it's given by an equal function to the algebra homomorphism we've defined.
-  have eqEquiv : ⇑(baseChangeAdeleAlgHom K L) = ⇑(linearEquiv) := by
-    change ⇑((baseChangeAdeleAlgHom K L).toLinearMap.restrictScalars K) =
-      ⇑(linearEquiv.toLinearMap.restrictScalars K)
-    exact congr_arg DFunLike.coe (TensorProduct.ext' fun x y ↦ rfl)
-  rw [eqEquiv]
-  exact linearEquiv.bijective
+open TensorProduct.RightActions in
+/-- The `L`-algebra homeomorphism `L ⊗[K] 𝔸 K = 𝔸 L`. -/
+noncomputable def baseChangeEquiv [Algebra (𝔸 K) (𝔸 L)] [Algebra K (𝔸 L)] [IsScalarTower K L (𝔸 L)]
+    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] [IsModuleTopology (𝔸 K) (𝔸 L)] :
+    (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L :=
+  IsModuleTopology.continuousAlgEquivOfIsBiscalar K (𝔸 K) (baseChangeAlgEquiv K L)
+
+open TensorProduct.RightActions in
+example [Algebra (𝔸 K) (𝔸 L)] [Algebra K (𝔸 L)] [IsScalarTower K L (𝔸 L)]
+    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] [IsModuleTopology (𝔸 K) (𝔸 L)]
+    (x : L ⊗[K] 𝔸 K) :
+    baseChangeEquiv K L x = baseChangeAlgEquiv K L x := rfl
+
+variable {L} [Algebra (𝔸 K) (𝔸 L)] [Algebra K (𝔸 L)] [IsScalarTower K L (𝔸 L)]
+  [IsModuleTopology (𝔸 K) (𝔸 L)]
 
 open scoped TensorProduct.RightActions in
-/-- The canonical `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
-induced by the base change map `𝔸_K → 𝔸_L`. -/
-noncomputable def baseChangeAlgAdeleEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[𝔸 K] 𝔸 L :=
-    AlgEquiv.ofBijective (baseChangeAdeleAlgHom K L) (baseChangeAdeleAlgHom_bijective K L)
-
-open scoped TensorProduct.RightActions in
-/-- The canonical continuous `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
-induced by the base change map `𝔸_K → 𝔸_L`. -/
-noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :=
-  IsModuleTopology.continuousAlgEquivOfAlgEquiv <| baseChangeAlgAdeleEquiv K L
-
-open scoped TensorProduct.RightActions in
-instance : Module.Finite (𝔸 K) (𝔸 L) :=
-  Module.Finite.equiv (baseChangeAlgAdeleEquiv K L).toLinearEquiv
-
-open scoped TensorProduct.RightActions in
-/-- The canonical `L`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
-`K`-algebra base change map `𝔸_K → 𝔸_L`. -/
-noncomputable def baseChangeEquiv :
-    (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L where
-  __ := (baseChangeSemialgHom K L).baseChange_of_algebraMap
-  __ := baseChangeAdeleEquiv K L
-
--- this isn't rfl. Explanation below
-example (x : L ⊗[K] 𝔸 K) : baseChangeEquiv K L x = baseChangeAdeleAlgEquiv K L x := by
-  induction x with
-  | zero => rfl
-  | tmul x y => rfl
-  | add x y _ _ => simp_all
-
-/-
-
-We have two isomorphisms `(L ⊗[K] 𝔸 K) = 𝔸 L`.
-
-1)
-`baseChangeEquiv` is
-  `(baseChangeSemialgHom K L).baseChange_of_algebraMap` *and
-  `baseChangeAdeleEquiv`. The latter is `baseChangeAdeleAlgHom` which is
-  `(baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap`
-
-Note:
-```
-example (x : L ⊗[K] 𝔸 K) :
-    (baseChangeSemialgHom K L).baseChange_of_algebraMap x =
-    (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap x := by
-  rfl
-```
-
-This map is defined as "there is a commutative square `K → L → 𝔸 L` and `K → 𝔸 K → 𝔸 L`
-so there's an induced map `L ⊗[K] 𝔸 K → 𝔸 L`; this is a bijection"
-
-But `baseChangeAdeleAlgEquiv` is `tensor.trans prod` i.e.
-
-`(L ⊗[K] 𝔸 K) = L ⊗[K] (𝔸^∞ x A_∞) ≅ (L ⊗[K] 𝔸^∞) x (L ⊗[K] 𝔸_∞) ≅ 𝔸_L^∞ x 𝔸_L_∞
-
--/
-
-variable {L}
-
-theorem baseChangeEquiv_tsum_apply_right (l : L) :
+theorem baseChangeEquiv_tsum_apply_right
+    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] (l : L) :
     baseChangeEquiv K L (l ⊗ₜ[K] 1) = algebraMap L (𝔸 L) l := by
   have h : (l ⊗ₜ[K] (1 : 𝔸 K)) = l • 1 := by
     simp [Algebra.TensorProduct.one_def, TensorProduct.smul_tmul']
@@ -188,7 +130,8 @@ noncomputable abbrev tensorProductEquivPi :
 
 open scoped TensorProduct.RightActions in
 /-- A continuous `K`-linear isomorphism `(𝔸_K)ⁿ ≃ 𝔸_L` for `n = [L:K]` -/
-noncomputable abbrev piEquiv :
+noncomputable abbrev piEquiv
+    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] :
     (Fin (Module.finrank K L) → 𝔸 K) ≃L[K] 𝔸 L :=
   -- `⊕ 𝔸 K ≃L[K] L ⊗[K] 𝔸 K` from previous def
   let π := (tensorProductEquivPi K L).symm
@@ -206,41 +149,7 @@ noncomputable def ModuleBaseChangeAddEquiv :
   TensorProduct.AlgebraTensorModule.congr ((TensorProduct.rid L V).symm) (.refl _ _) ≪≫ₗ
   TensorProduct.AlgebraTensorModule.assoc K L L V L (𝔸 K) ≪≫ₗ
   (LinearEquiv.lTensor V
-    ((NumberField.AdeleRing.baseChangeAdeleAlgEquiv K L).toLinearEquiv.symm)).symm
-
-@[simp] lemma ModuleBaseChangeAddEquiv_apply
-    (v : V) (a : 𝔸 K) : ModuleBaseChangeAddEquiv K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
-  simp [ModuleBaseChangeAddEquiv]
-
-open scoped TensorProduct.RightActions in
-/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
-noncomputable def ModuleBaseChangeAddEquiv' [Module (𝔸 K) (V ⊗[L] 𝔸 L)]
-    [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)] :
-    V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L)) where
-  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
-  map_smul' a vb := by
-    induction vb with
-    | zero => simp
-    | tmul x y =>
-        simp [TensorProduct.smul_tmul', -algebraMap_smul,
-          algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
-    | add x y _ _ => simp_all
-
-open scoped TensorProduct.RightActions in
-/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
-noncomputable def ModuleBaseChangeContinuousSemilinearMap :
-    V ⊗[K] (𝔸 K) →ₛₗ[algebraMap (𝔸 K) (𝔸 L)] V ⊗[L] 𝔸 L where
-  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddMonoidHom
-  map_smul' a bc := by
-    induction bc with
-    | zero => simp
-    | tmul x y => simp [TensorProduct.smul_tmul', Algebra.smul_def]
-    | add x y _ _ => simp_all
-
-lemma ModuleBaseChangeContinuousSemilinearMap_apply
-    (v : V) (a : 𝔸 K) :
-    ModuleBaseChangeContinuousSemilinearMap K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
-  simp [ModuleBaseChangeContinuousSemilinearMap]
+    ((NumberField.AdeleRing.baseChangeAlgEquiv K L).toLinearEquiv.symm)).symm
 
 open scoped TensorProduct.RightActions in
 /-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
@@ -249,8 +158,9 @@ noncomputable def ModuleBaseChangeContinuousAddEquiv
     (V : Type*) [AddCommGroup V] [Module L V] [Module K V]
     [IsScalarTower K L V] [FiniteDimensional L V] [FiniteDimensional K V]
     [Module (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L)]
-    [IsScalarTower (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L)] :
-    V ⊗[K] (𝔸 K) ≃ₜ+ (V ⊗[L] (𝔸 L)) := by
+    [IsScalarTower (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L)]
+    [Module.Finite (𝔸 K) (𝔸 L)] [IsBiscalar L (𝔸 K) (ModuleBaseChangeAddEquiv K L V)] :
+    V ⊗[K] (𝔸 K) ≃L[L] (V ⊗[L] (𝔸 L)) :=
   haveI : ContinuousSMul (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
     IsScalarTower.continuousSMul (AdeleRing (𝓞 L) L)
   haveI : IsModuleTopology (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) := {
@@ -258,30 +168,15 @@ noncomputable def ModuleBaseChangeContinuousAddEquiv
       obtain ⟨h2⟩ : IsModuleTopology (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
         inferInstance
       rwa [moduleTopology.trans (𝔸 K) (𝔸 L) (V ⊗[L] (𝔸 L))] }
-  exact {
-  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
-  continuous_toFun := IsModuleTopology.continuous_of_linearMap
-      (ModuleBaseChangeAddEquiv' K L V : V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L))).toLinearMap
-  continuous_invFun := IsModuleTopology.continuous_of_linearMap
-      (ModuleBaseChangeAddEquiv' K L V : V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L))).symm.toLinearMap
-  }
-
-open scoped TensorProduct.RightActions in
-theorem moduleBaseChangeContinuousAddEquiv_apply_eq_moduleBaseChangeAddEquiv'_apply
-    (V : Type*) [AddCommGroup V] [Module L V] [Module K V]
-    [IsScalarTower K L V] [FiniteDimensional L V] [FiniteDimensional K V]
-    [Module (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L)]
-    [IsScalarTower (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L)]
-    (x : V ⊗[K] (𝔸 K)) :
-    ModuleBaseChangeContinuousAddEquiv K L V x = ModuleBaseChangeAddEquiv' K L V x :=
-  rfl
+  IsModuleTopology.continuousLinearEquivOfIsBiscalar K (𝔸 K) (ModuleBaseChangeAddEquiv K L V)
 
 end vector_space
 
 variable {K L}
 
-open TensorProduct.AlgebraTensorModule in
+open TensorProduct.AlgebraTensorModule TensorProduct.RightActions in
 theorem piEquiv_apply_of_algebraMap
+    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom]
     {x : Fin (Module.finrank K L) → 𝔸 K}
     {y : Fin (Module.finrank K L) → K}
     (h : ∀ i, algebraMap K (𝔸 K) (y i) = x i) :
@@ -292,7 +187,9 @@ theorem piEquiv_apply_of_algebraMap
   rw [LinearEquiv.trans_symm, LinearEquiv.trans_apply, finiteEquivPi_symm_apply]
   simp [ContinuousAlgEquiv.toContinuousLinearEquiv_apply, baseChangeEquiv_tsum_apply_right]
 
+open scoped TensorProduct.RightActions in
 theorem piEquiv_mem_principalSubgroup
+    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom]
     {x : Fin (Module.finrank K L) → 𝔸 K}
     (h : x ∈ AddSubgroup.pi Set.univ (fun _ => principalSubgroup (𝓞 K) K)) :
     piEquiv K L x ∈ principalSubgroup (𝓞 L) L := by
@@ -302,7 +199,9 @@ theorem piEquiv_mem_principalSubgroup
 
 variable (K L)
 
-theorem piEquiv_map_principalSubgroup :
+open scoped TensorProduct.RightActions in
+theorem piEquiv_map_principalSubgroup
+    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] :
     (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K)).map
       (piEquiv K L).toAddMonoidHom
       = principalSubgroup (𝓞 L) L := by
@@ -315,14 +214,18 @@ theorem piEquiv_map_principalSubgroup :
   refine ⟨fun i _ => ⟨Module.Finite.equivPi _ _ a i, rfl⟩, ?_⟩
   rw [piEquiv_apply_of_algebraMap (fun i => rfl), LinearEquiv.symm_apply_apply]
 
-theorem comap_piEquiv_principalSubgroup :
+open scoped TensorProduct.RightActions in
+theorem comap_piEquiv_principalSubgroup
+    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] :
     (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K))
       = (principalSubgroup (𝓞 L) L).comap (piEquiv K L).toAddMonoidHom := by
   rw [← piEquiv_map_principalSubgroup K L,
     AddSubgroup.comap_map_eq_self_of_injective (piEquiv K L).injective]
 
+open scoped TensorProduct.RightActions in
 /-- A continuous additive isomorphism `(𝔸_K / K)ⁿ = 𝔸_L / L` where `n = [L:K]`. -/
-noncomputable def piQuotientEquiv :
+noncomputable def piQuotientEquiv
+    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] :
     (Fin (Module.finrank K L) → (𝔸 K) ⧸ principalSubgroup (𝓞 K) K) ≃ₜ+
       (𝔸 L) ⧸ principalSubgroup (𝓞 L) L :=
   -- The map `⊕ 𝔸 K ≃L[K] 𝔸 L` reduces to quotients `⊕ 𝔸 K / K ≃ₜ+ 𝔸 L / L`
@@ -330,9 +233,89 @@ noncomputable def piQuotientEquiv :
     QuotientAddGroup.continuousAddEquiv _ _ (piEquiv K L).toContinuousAddEquiv
       (piEquiv_map_principalSubgroup K L)
 
-end NumberField.AdeleRing
-
 end BaseChange
+
+noncomputable section AlgebraConstructions
+
+/-! Here we construct explicit algebras and compatibility instances for `𝔸 L` over `𝔸 K`. These
+are provided as scoped instances to avoid creating diamonds when `K = L`. -/
+
+open IsDedekindDomain AdeleRing
+
+open scoped InfiniteAdeleRing TensorProduct.RightActions NumberField.AdeleRing
+
+variable {K L : Type*} [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
+
+/-- The `K∞`-algebra on `L∞`, induced by `InfiniteAdeleRing.baseChange K L`. -/
+scoped instance : Algebra K∞ L∞ := (InfiniteAdeleRing.baseChange K L).toAlgebra
+
+open InfinitePlace in
+/-- Ensures that `Algebra K∞ L∞` is built out of local algebras
+`Algebra v.Completion wv.Completion`. -/
+instance : Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion where
+  map_smul' r x b σ := by obtain ⟨a, rfl⟩ := σ; rfl
+
+/-- The product `K`-algebra on `L∞`. -/
+scoped instance : Algebra K L∞ := Pi.algebra _ _
+
+scoped instance : IsScalarTower K L L∞ := Pi.isScalarTower
+
+/-- The `𝔸 K`-algebra on `𝔸 L`, induced by `AdeleRing.baseChange K L`. -/
+scoped instance : Algebra (𝔸 K) (𝔸 L) := (AdeleRing.baseChange K L).toAlgebra
+
+/-- The product `K`-algebra on `𝔸 L`. -/
+scoped instance : Algebra K (𝔸 L) := Prod.algebra _ _ _
+
+scoped instance : IsScalarTower K L (𝔸 L) := Prod.isScalarTower
+
+/-- `L ⊗ K∞ ≃ L∞` is both an `L`- and `K∞`-algebra isomorphism. -/
+scoped instance : IsBiscalar L K∞ (InfiniteAdeleRing.baseChangeEquivAux K L).toAlgHom where
+  map_smul₁ l x := (InfiniteAdeleRing.baseChangeEquivAux K L).toAlgHom.map_smul_of_tower l x
+  map_smul₂ a x := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul v b =>
+        simp [TensorProduct.smul_tmul', algebra_compatible_smul L∞ a, RingHom.algebraMap_toAlgebra,
+          InfiniteAdeleRing.baseChangeEquivAux_apply, SemialgHom.baseChange_of_algebraMap_tmul]
+        ring
+    | add x y _ _ => simp_all
+
+/-- `L ⊗ 𝔸 K = 𝔸 L` is both an `L`- and `𝔸 K`-algebra isomorphism. -/
+scoped instance : IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom where
+  map_smul₁ l x := (baseChangeAlgEquiv K L).toAlgHom.map_smul_of_tower l x
+  map_smul₂ a x := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul v b =>
+        simp [TensorProduct.smul_tmul', algebra_compatible_smul (𝔸 L) a,
+          RingHom.algebraMap_toAlgebra]
+        ring
+    | add x y _ _ => simp_all
+
+variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
+  [Module (𝔸 K) (V ⊗[L] 𝔸 L)] [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)]
+
+/-- `V ⊗[K] 𝔸 K = V ⊗[L] 𝔸 L` is both an `L`- and `𝔸 K`-linear isomorphism. -/
+scoped instance : IsBiscalar L (𝔸 K) (ModuleBaseChangeAddEquiv K L V) where
+  map_smul₁ _ _ := map_smul ..
+  map_smul₂ a x := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul v b =>
+        simp [TensorProduct.smul_tmul', ModuleBaseChangeAddEquiv, algebra_compatible_smul (𝔸 L) a,
+          RingHom.algebraMap_toAlgebra]
+    | add x y _ _ => simp_all
+
+scoped instance : Module.Finite (𝔸 K) (𝔸 L) :=
+    Module.Finite.equiv ((baseChangeAlgEquiv K L).changeScalars K (𝔸 K)).toLinearEquiv
+
+scoped instance instBaseChangeIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) :=
+  IsModuleTopology.instProd' (A := InfiniteAdeleRing K)
+    (B := FiniteAdeleRing (𝓞 K) K) (M := InfiniteAdeleRing L) (N := FiniteAdeleRing (𝓞 L) L)
+
+end AlgebraConstructions
+
+end NumberField.AdeleRing
 
 section Discrete
 
@@ -719,3 +702,104 @@ theorem NumberField.AdeleRing.cocompact :
   (piQuotientEquiv ℚ K).compactSpace
 
 end Compact
+
+section compare
+
+/-!
+There are two ways we can construct the isomorphism (L ⊗ 𝔸 K) = 𝔸 L.
+
+(1) Construct it from the isomorphisms `(L ⊗ K∞) = L∞` and `(L ⊗ 𝔸f K) = 𝔸f L` on the
+infinite and finite adele rings respectively.
+(2) Induce it from the semi-algebra homomorphism `baseChange K L : 𝔸 K → 𝔸 L`.
+
+These turn out to be the same (although not definitionally) because the definition of the
+semi-algebra homomorphims `baseChange K L : 𝔸 K → 𝔸 L` is via construction from the
+infinite and finite-adele ring counterparts.
+
+The main file above has unified them in favour of (1) but the alternative definition on (2)
+is given here and shown to be equal to (1). -/
+
+namespace NumberField.AdeleRing
+
+open IsDedekindDomain AdeleRing InfiniteAdeleRing
+
+open scoped TensorProduct.RightActions
+
+variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
+
+/-- The canonical `𝔸 K`-algebra homomorphism `(L ⊗_K 𝔸 K) → 𝔸 L` induced
+by the maps from `L` and `𝔸 K` into `𝔸 L`. -/
+noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] (𝔸 K)) →ₐ[𝔸 K] 𝔸 L :=
+  (baseChange K L).baseChangeRightOfAlgebraMap
+
+lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHom K L) := by
+  -- There's a linear equivalence `(L ⊗_K 𝔸 K) ≅ 𝔸 L`
+  let linearEquiv : (L ⊗[K] 𝔸 K) ≃ₗ[L] 𝔸 L :=
+    let tensor := TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
+    let prod := LinearEquiv.prodCongr (InfiniteAdeleRing.baseChangeEquivAux K L).toLinearEquiv
+      (FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L)).toLinearEquiv
+    tensor.trans prod
+  -- and it's given by an equal function to the algebra homomorphism we've defined.
+  have eqEquiv : ⇑(baseChangeAdeleAlgHom K L) = ⇑(linearEquiv) := by
+    ext x
+    induction x with
+    | zero => rfl
+    | tmul x y => rfl
+    | add x y _ _ => simp_all
+  rw [eqEquiv]
+  exact linearEquiv.bijective
+
+/-- The canonical `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
+induced by the base change map `𝔸_K → 𝔸_L`. -/
+noncomputable def baseChangeAlgAdeleEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[𝔸 K] 𝔸 L :=
+    AlgEquiv.ofBijective (baseChangeAdeleAlgHom K L) (baseChangeAdeleAlgHom_bijective K L)
+
+/-- The canonical `𝔸_K`-algebra homeomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
+induced by the base change map `𝔸_K → 𝔸_L`. -/
+noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :=
+  IsModuleTopology.continuousAlgEquivOfAlgEquiv <| baseChangeAlgAdeleEquiv K L
+
+/-- The canonical `L`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
+`K`-algebra base change map `𝔸_K → 𝔸_L`. -/
+noncomputable def baseChangeEquiv' :
+    (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L where
+  __ := (baseChange K L).baseChange_of_algebraMap
+  __ := baseChangeAdeleEquiv K L
+
+-- this isn't rfl. Explanation below
+example (x : L ⊗[K] 𝔸 K) : baseChangeEquiv K L x = baseChangeEquiv' K L x := by
+  induction x with
+  | zero => rfl
+  | tmul x y => rfl
+  | add x y _ _ => simp_all
+
+/-
+
+We have two isomorphisms `(L ⊗[K] 𝔸 K) = 𝔸 L`.
+
+1)
+`baseChangeEquiv` is
+  `(baseChangeSemialgHom K L).baseChange_of_algebraMap` *and
+  `baseChangeAdeleEquiv`. The latter is `baseChangeAdeleAlgHom` which is
+  `(baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap`
+
+Note:
+```
+example (x : L ⊗[K] 𝔸 K) :
+    (baseChangeSemialgHom K L).baseChange_of_algebraMap x =
+    (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap x := by
+  rfl
+```
+
+This map is defined as "there is a commutative square `K → L → 𝔸 L` and `K → 𝔸 K → 𝔸 L`
+so there's an induced map `L ⊗[K] 𝔸 K → 𝔸 L`; this is a bijection"
+
+But `baseChangeAdeleAlgEquiv` is `tensor.trans prod` i.e.
+
+`(L ⊗[K] 𝔸 K) = L ⊗[K] (𝔸^∞ x A_∞) ≅ (L ⊗[K] 𝔸^∞) x (L ⊗[K] 𝔸_∞) ≅ 𝔸_L^∞ x 𝔸_L_∞
+
+-/
+
+end NumberField.AdeleRing
+
+end compare
