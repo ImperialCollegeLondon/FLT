@@ -14,39 +14,15 @@ import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
 We prove the crucial result that left and right multiplication by an element of `D ⊗[K] 𝔸_K^f`
 scale Haar measure by the same factor, if D is a finite-dimensional central simple `K`-alegbra.
 
--/
-
-
-
-/-
-
-Plan.
-
-Need to use `MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight`
-
-Problem: this is a statement about maps `G i ≃ₜ+ G i` and a map (their "restricted product")
-`Πʳ (i : ι), [G i, ↑(C i)] ≃ₜ+ Πʳ (i : ι), [G i, ↑(C i)]`
-
-and we have a map B ⊗ 𝔸_K^f → B ⊗ 𝔸_K^f
-
-Step 0: symm to reduce to a statement about 𝔸_K^f ⊗ B → 𝔸_K^f ⊗ B
-
-Step 1:
-
-𝔸_K^f ⊗ B = ι → 𝔸_K^f = Πʳ [ι → Kᵥ, ι → 𝓞ᵥ] topologically and algebraically
-
-Step 2:
-
-Given 𝔸_K^f-linear φ : 𝔸_K^f ⊗ B → 𝔸_K^f ⊗ B, we have local components φᵥ : Kᵥ ⊗ B → Kᵥ ⊗ B.
-The step 1 iso gives us ψ : Πʳ [ι → Kᵥ, ι → 𝓞ᵥ] from φ and the first half of it gives
-ψᵥ : (ι → Kᵥ) → (ι → Kᵥ) from the local components φᵥ
-
-Check that the lemma we proved already gives us ψ = Πᶠᵥ ψᵥ
-
-Step 3 : `MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight` to ψ and ψᵥ
-
-Step 4: hope that this is enough
-
+The proof looks simple on paper. We know the analogous result for finite-dimensional
+central simple algebras over local fields, but the proof essentially uses fields.
+I had thought that the adelic case would follow easily from this and from the fact
+that the haar character of a restricted product of maps was the product of the haar
+characters, but `D ⊗[K] 𝔸_K^f` is not a restricted product, and furthermore making it
+a restricted product is not completely formal because the compact open subrings 𝓞ᵥ
+used in the restricted product are not `K`-modules. One could either choose a lattice
+in D and work with that, or choose a basis of D and reduce first to to (𝔸_K^f)^n
+and then to `Πʳ[Kᵥ^n,𝓞ᵥ^n]`, which is what we do.
 -/
 
 open NumberField
@@ -59,7 +35,8 @@ variable (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
 
 open MeasureTheory IsDedekindDomain HeightOneSpectrum RestrictedProduct
 
--- this horrible instance causes timeouts
+-- this horrible instance causes timeouts and we don't need it because we're never
+-- changing number field here.
 attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
 
 /-- We give 𝔸_K^f ⊗ B the 𝔸_K^f-module topology in this file (it's the only sensible topology). -/
@@ -75,20 +52,15 @@ local instance : IsTopologicalRing (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
 local instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
   IsModuleTopology.locallyCompactSpaceOfFinite (FiniteAdeleRing (𝓞 K) K)
 
-variable
-  [MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)]
-  [BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)]
+local instance : MeasurableSpace (FiniteAdeleRing (𝓞 K) K) := borel _
 
--- open scoped Matrix in
--- def Matrix.toContinuousLinearMap (ι j : Type*) [Fintype ι] [Fintype j] (R : Type*) [CommRing R]
---   [TopologicalSpace R] [IsTopologicalRing R] (M : Matrix ι j R) : (j → R) →L[R] (ι → R) where
---     toFun v := M *ᵥ v
---     map_add' := Matrix.mulVec_add M
---     map_smul' := Matrix.mulVec_smul M
+local instance : BorelSpace (FiniteAdeleRing (𝓞 K) K) := ⟨rfl⟩
 
-noncomputable example : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
-    (Module.Free.ChooseBasisIndex K B → (FiniteAdeleRing (𝓞 K) K)) :=
-  ContinuousLinearEquiv.chooseBasis_piScalarRight' K (FiniteAdeleRing (𝓞 K) K) B
+instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := borel _
+
+instance : BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := ⟨rfl⟩
+
+section moving_from_tensor_B_to_Pi
 
 /-- If `φ : 𝔸_K^f ⊗[K] B ≃ 𝔸_K^f ⊗[K] B` is continuous and 𝔸_K^f-linear then `f φ` is the
 associated continuous linear isomorphism `(𝔸_K^f)^n ≃ (𝔸_K^f)^n` coming from the "canonical"
@@ -105,9 +77,6 @@ noncomputable def FiniteAdeleRing.Aux.f
   refine φ.trans ?_
   exact (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (FiniteAdeleRing (𝓞 K) K) B)
 
-instance : MeasurableSpace (FiniteAdeleRing (𝓞 K) K) := borel _
-instance : BorelSpace (FiniteAdeleRing (𝓞 K) K) := ⟨rfl⟩
-
 lemma FiniteAdeleRing.Aux.f_commSq
     (φ : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
       (FiniteAdeleRing (𝓞 K) K) ⊗[K] B) :
@@ -121,6 +90,10 @@ lemma FiniteAdeleRing.Aux.f_commSq
   change g (φ x) = g (φ (g.symm (g x)))
   simp
 
+end moving_from_tensor_B_to_Pi
+
+section moving_from_pi_restrictedproduct_to_restrictedproduct_pi
+
 /-- If `ψ : (𝔸_K^f)^n ≃ (𝔸_K^f)^n` is continuous and 𝔸_K^f-linear then `g φ` is the
 associated continuous additive isomorphism `Πʳ[Kᵥ^n, 𝓞ᵥ^n] → Πʳ[Kᵥ^n,𝓞ᵥ^n]`.
 -/
@@ -132,38 +105,52 @@ noncomputable def FiniteAdeleRing.Aux.g {ι : Type*} [Fintype ι]
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → v.adicCompletion K,
       (AddSubgroup.pi (Set.univ : Set ι) (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup))] :=
   letI f := ContinuousAddEquiv.restrictedProductPi
-    (C := fun (i : ι) (v : HeightOneSpectrum (𝓞 K)) ↦ (v.adicCompletionIntegers K).toAddSubgroup)
-    sorry
+    (C := fun (_ : ι) (v : HeightOneSpectrum (𝓞 K)) ↦ (v.adicCompletionIntegers K).toAddSubgroup)
+    (fun _ v ↦ isOpenAdicCompletionIntegers K v)
   f.trans (ψ.toContinuousAddEquiv.trans f.symm)
 
 instance {ι : Type*} [Fintype ι] :
     Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
       (↑(AddSubgroup.pi (Set.univ : Set ι)
         (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup)) :
-        Set (ι → v.adicCompletion K))) := sorry
+        Set (ι → v.adicCompletion K))) := ⟨sorry⟩ -- finite product of opens is open
+  -- use `isOpenAdicCompletionIntegers`
 
 instance :
     Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
       (↑(v.adicCompletionIntegers K).toAddSubgroup :
-        Set (v.adicCompletion K))) := sorry
+        Set (v.adicCompletion K))) := ⟨isOpenAdicCompletionIntegers K⟩
+
+instance : ∀ (i : HeightOneSpectrum (𝓞 K)),
+    CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
+      fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) := sorry -- "integers are compact"
 
 variable {ι : Type*} [Fintype ι] in
 instance : LocallyCompactSpace
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → adicCompletion K v,
       (↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K v).toAddSubgroup) :
       Set ((ι → adicCompletion K v)))] := by
-  exact RestrictedProduct.locallyCompactSpace_of_addGroup _ sorry
+  refine RestrictedProduct.locallyCompactSpace_of_addGroup _ ?_
+  filter_upwards
+  intro v
+  -- product of compacts is compact and integers are compact
+  sorry -- "integers are compact"
+
+instance : LocallyCompactSpace
+    Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
+      ((adicCompletionIntegers K v).toAddSubgroup : Set (adicCompletion K v))] := by
+  refine RestrictedProduct.locallyCompactSpace_of_addGroup _ ?_
+  filter_upwards
+  intro v
+  change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
+  -- surely we have this somewhere
+  sorry -- "integers are compact"
 
 variable {ι : Type*} [Fintype ι] in
 instance : BorelSpace
     ((j : ι) →
       Πʳ (i : HeightOneSpectrum (𝓞 K)), [adicCompletion K i,
         ↑((fun i v ↦ (adicCompletionIntegers K v).toAddSubgroup) j i)]) := sorry
-
-instance : LocallyCompactSpace
-    Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
-      ((adicCompletionIntegers K v).toAddSubgroup : Set (adicCompletion K v))] := by
-  exact RestrictedProduct.locallyCompactSpace_of_addGroup _ sorry
 
 lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
     (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
@@ -173,13 +160,14 @@ lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
   symm
   let f := (ContinuousAddEquiv.restrictedProductPi
     (C := fun (i : ι) (v : HeightOneSpectrum (𝓞 K)) ↦
-      (v.adicCompletionIntegers K).toAddSubgroup) sorry)
-  --simp at f
+      (v.adicCompletionIntegers K).toAddSubgroup) (fun _ ↦ isOpenAdicCompletionIntegers K))
   refine MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f _ _ ?_
   intro x
   change f (f.symm (ψ (f x))) = ψ (f x)
   simp at f -- why??
   simp
+
+end moving_from_pi_restrictedproduct_to_restrictedproduct_pi
 
 instance (v : HeightOneSpectrum (𝓞 K)) : TopologicalSpace (adicCompletion K v ⊗[K] B) :=
   moduleTopology (adicCompletion K v) _
@@ -189,10 +177,12 @@ instance (v : HeightOneSpectrum (𝓞 K)) :
   ⟨rfl⟩
 
 instance (v : HeightOneSpectrum (𝓞 K)) :
-    IsTopologicalAddGroup (adicCompletion K v ⊗[K] B) := sorry
+    IsTopologicalAddGroup (adicCompletion K v ⊗[K] B) :=
+  IsModuleTopology.topologicalAddGroup (adicCompletion K v) _
 
 instance (v : HeightOneSpectrum (𝓞 K)) :
-    IsTopologicalRing (adicCompletion K v ⊗[K] B) := sorry
+    IsTopologicalRing (adicCompletion K v ⊗[K] B) :=
+  IsModuleTopology.isTopologicalRing (adicCompletion K v) _
 
 /-- If `φ : Kᵥ ⊗[K] B ≃ Kᵥ ⊗[K] B` is continuous and additive then `f φ` is the
 associated continuous additive isomorphism `Kᵥ^n ≃ Kᵥ^n` coming from the "canonical"
@@ -216,10 +206,9 @@ instance (v : HeightOneSpectrum (𝓞 K)) :
   BorelSpace (adicCompletion K v ⊗[K] B) := ⟨rfl⟩
 
 instance (v : HeightOneSpectrum (𝓞 K)) :
-  LocallyCompactSpace (adicCompletion K v ⊗[K] B) := sorry
+    LocallyCompactSpace (adicCompletion K v ⊗[K] B) :=
+  IsModuleTopology.locallyCompactSpaceOfFinite (adicCompletion K v)
 
-omit [MeasurableSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B)]
-    [BorelSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B)] in -- ??
 lemma FiniteAdeleRing.Aux.e_commSq (v : HeightOneSpectrum (𝓞 K))
     (α : v.adicCompletion K ⊗[K] B ≃L[K] v.adicCompletion K ⊗[K] B) :
     addEquivAddHaarChar (α.toContinuousAddEquiv) =
@@ -234,14 +223,29 @@ lemma FiniteAdeleRing.Aux.e_commSq (v : HeightOneSpectrum (𝓞 K))
 
 open FiniteAdeleRing.Aux
 
-noncomputable instance : DecidableEq (HeightOneSpectrum (𝓞 K)) := Classical.decEq _
+noncomputable local instance : DecidableEq (HeightOneSpectrum (𝓞 K)) := Classical.decEq _
 
+-- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
+-- finitely many places
+lemma FiniteAdeleRing.Aux.almost_always_integral
+    (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
+    FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
+    let ι := Module.Free.ChooseBasisIndex K B
+    ∀ᶠ (i : HeightOneSpectrum (𝓞 K)) in Filter.cofinite,
+      Set.BijOn ⇑((fun v ↦ e K B v
+        (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)) i)
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup)
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) :=
+  sorry -- this needs some thought
+
+/-- A diagram which obviously commutes, commutes. -/
 lemma FiniteAdeleRing.Aux.f_g_local_global
     (φ : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
       (FiniteAdeleRing (𝓞 K) K) ⊗[K] B) :
     g K (f K B φ) = ContinuousAddEquiv.restrictedProductCongrRight
-    (fun v ↦ e _ _ _ (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)) sorry := by
-  sorry
+    (fun v ↦ e _ _ _ (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ))
+    (FiniteAdeleRing.Aux.almost_always_integral _ _ _) := by
+  sorry -- this is hopefully close to being true by ext but I didn't think about it.
 
 lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
     (v : HeightOneSpectrum (𝓞 K)) :
@@ -251,7 +255,7 @@ lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
       (IsDedekindDomain.FiniteAdeleRing.evalContinuousAlgebraMap
         (𝓞 K) K v).toAlgHom).toMonoidHom)) := by
   ext u
-  -- should follow from localcomponent_eval
+  -- should hopefully follow from localcomponent_eval
   sorry
 
 lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
@@ -262,7 +266,7 @@ lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
       (IsDedekindDomain.FiniteAdeleRing.evalContinuousAlgebraMap
         (𝓞 K) K v).toAlgHom).toMonoidHom)) := by
   ext u
-  -- should follow from localcomponent_eval
+  -- should hopefully follow from localcomponent_eval
   sorry
 
 -- key missing sorry
@@ -277,9 +281,6 @@ lemma NumberField.FiniteAdeleRing.tensor_isCentralSimple_addHaarScalarFactor_lef
   rw [FiniteAdeleRing.Aux.f_commSq, FiniteAdeleRing.Aux.f_commSq]
   rw [FiniteAdeleRing.Aux.g_commSq, FiniteAdeleRing.Aux.g_commSq]
   rw [FiniteAdeleRing.Aux.f_g_local_global, FiniteAdeleRing.Aux.f_g_local_global]
-  have : ∀ (i : HeightOneSpectrum (𝓞 K)),
-    CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
-      fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) := sorry
   rw [addEquivAddHaarChar_restrictedProductCongrRight,
     addEquivAddHaarChar_restrictedProductCongrRight]
   congr

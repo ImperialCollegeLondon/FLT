@@ -94,40 +94,19 @@ noncomputable def TensorProduct.localcomponentEquiv (p : HeightOneSpectrum R)
     p.adicCompletion K ⊗[K] V ≃L[K] p.adicCompletion K ⊗[K] V where
   __ := TensorProduct.localcomponent R K V p φ
   invFun := TensorProduct.localcomponent R K V p φ.symm
-  left_inv := sorry -- these might be annoying. Best way is I think
-  -- to prove localcomponent_id and localcomponent_comp
+  left_inv := sorry -- these follow formally from
+  -- localcomponent_id and localcomponent_comp and it's probably better to prove
+  -- localcomponent_comp rather thn running at these, because then you'll only have
+  -- to get to the heart of the matter once (in comp). The proof of comp: ocalcomponent φ is
+  -- defined as eval ∘ φ ∘ single, so one needs to check eval ∘ φ ∘ single ∘ eval ∘ ψ ∘ single =
+  -- eval ∘ φ ∘ ψ ∘ single and the proof is: cancel the single on the right, then
+  -- use that the middle single ∘ eval is multiplication by
+  -- the local idempotent e_v at v (this
+  -- is `singleContinuousAlgebraMap_comp_evalContinuousLinearMap`)
+  -- and then that φ is 𝔸_K^f-linear, which
+  -- reduces the question to evalᵥ ∘ (multiply by e_v) = eval which is true
+  -- and easy by ext.
   right_inv := sorry
-
-/-
-
-Plan.
-
-Need to use `MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight`
-
-Problem: this is a statement about maps `G i ≃ₜ+ G i` and a map (their "restricted product")
-`Πʳ (i : ι), [G i, ↑(C i)] ≃ₜ+ Πʳ (i : ι), [G i, ↑(C i)]`
-
-and we have a map B ⊗ 𝔸_K^f → B ⊗ 𝔸_K^f
-
-Step 0: symm to reduce to a statement about 𝔸_K^f ⊗ B → 𝔸_K^f ⊗ B
-
-Step 1:
-
-𝔸_K^f ⊗ B = ι → 𝔸_K^f = Πʳ [ι → Kᵥ, ι → 𝓞ᵥ] topologically and algebraically
-
-Step 2:
-
-Given 𝔸_K^f-linear φ : 𝔸_K^f ⊗ B → 𝔸_K^f ⊗ B, we have local components φᵥ : Kᵥ ⊗ B → Kᵥ ⊗ B.
-The step 1 iso gives us ψ : Πʳ [ι → Kᵥ, ι → 𝓞ᵥ] from φ and the first half of it gives
-ψᵥ : (ι → Kᵥ) → (ι → Kᵥ) from the local components φᵥ
-
-Check that the lemma we proved already gives us ψ = Πᶠᵥ ψᵥ
-
-Step 3 : `MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight` to ψ and ψᵥ
-
-Step 4: hope that this is enough
-
--/
 
 end FiniteAdeleRing
 
