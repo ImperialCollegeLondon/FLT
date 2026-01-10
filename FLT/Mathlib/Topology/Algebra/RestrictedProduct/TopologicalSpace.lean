@@ -161,13 +161,26 @@ def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
     {C : (j : n) → (i : ι) → Subgroup (A j i)} (hCopen : ∀ j i, IsOpen (C j i : Set (A j i))) :
     Πʳ i, [Π j, A j i, Subgroup.pi (Set.univ : Set n) (fun j ↦ C j i)] ≃ₜ*
       Π j, (Πʳ i, [A j i, C j i]) where
-  toFun x j := map (fun i t ↦ t _) (by sorry) x
-  invFun y := .mk (fun i j ↦ y j i) (by sorry)
+  toFun x j := map (fun i t ↦ t _)
+    (Filter.Eventually.of_forall (fun _ _ ↦ by simp_all [Subgroup.mem_pi])) x
+  invFun y := .mk (fun i j ↦ y j i)
+    (by simpa [-eventually_cofinite, Subgroup.mem_pi] using fun j ↦ (y j).property)
   left_inv x := by ext; rfl
   right_inv y := by ext; rfl
-  map_mul' := by simp; sorry
-  continuous_toFun := sorry
-  continuous_invFun := sorry
+  map_mul' x y := by ext; simp [RestrictedProduct.map]
+  continuous_toFun := by
+    exact continuous_pi fun j ↦
+      Continuous.restrictedProduct_congrRight _ fun _ ↦ continuous_apply j
+  continuous_invFun := by
+    refine (continuous_dom_pi hCopen).mpr fun S hS ↦ ?_
+    change Continuous
+      (inclusion (fun i ↦ (j : n) → A j i)
+        (fun i ↦ Subgroup.pi Set.univ (fun j ↦ C j i)) hS
+      ∘ (fun (y : (j : n) → Πʳ (i : ι), [A j i, C j i]_[𝓟 S]) ↦ .mk (fun i j ↦ y j i)
+        (by simpa [-eventually_principal, Subgroup.mem_pi] using fun j ↦ (y j).property)))
+    exact Continuous.comp (by fun_prop) <|
+      continuous_rng_of_principal_pi.mpr fun _ ↦ continuous_pi fun _ ↦
+        (RestrictedProduct.continuous_eval _).comp (continuous_apply _)
 
 theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Fintype n] {A : ι → Type*}
     [(i : ι) → TopologicalSpace (A i)] {C : (i : ι) → Set (A i)}

@@ -6,6 +6,7 @@ import Mathlib.Algebra.Central.Basic
 import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
+import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
 /-!
 
 # Haar character of the finite adele ring of a number field
@@ -173,6 +174,29 @@ lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
   change f (f.symm (ψ (f x))) = ψ (f x)
   simp at f -- why??
   simp
+
+local instance {p : HeightOneSpectrum (𝓞 K)} : TopologicalSpace (p.adicCompletion K ⊗[K] B) :=
+  moduleTopology (p.adicCompletion K) _
+
+local instance {p : HeightOneSpectrum (𝓞 K)} : IsTopologicalAddGroup (p.adicCompletion K ⊗[K] B) :=
+  IsModuleTopology.topologicalAddGroup (p.adicCompletion K) _
+
+local instance {p : HeightOneSpectrum (𝓞 K)} : IsTopologicalRing (p.adicCompletion K ⊗[K] B) :=
+  IsModuleTopology.isTopologicalRing (p.adicCompletion K) _
+
+lemma IsDedekindDomain.FiniteAdeleRing.TensorProduct.localcomponent_mulLeft_eq_mulLeft
+    [DecidableEq (HeightOneSpectrum (𝓞 K))]
+    {p : HeightOneSpectrum (𝓞 K)} (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
+    {x : p.adicCompletion K ⊗[K] B} :
+    TensorProduct.localcomponent _ _ B p {
+      __ := (ContinuousAddEquiv.mulLeft u)
+      map_smul' _ _ := sorry
+      cont := (ContinuousAddEquiv.mulLeft u).continuous_toFun} x
+    = ContinuousAddEquiv.mulLeft (Units.map {
+        __ := AlgHom.rTensor B (evalContinuousAlgebraMap _ K p)
+        map_one' := rfl
+        map_mul' := sorry} u) x := by
+  sorry
 
 -- key missing sorry
 lemma NumberField.FiniteAdeleRing.tensor_isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
