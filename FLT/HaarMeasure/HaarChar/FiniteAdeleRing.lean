@@ -170,6 +170,7 @@ lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
 
 end moving_from_pi_restrictedproduct_to_restrictedproduct_pi
 
+/-- The only sensible topological space structure on Kᵥ ⊗ B. -/
 local instance (v : HeightOneSpectrum (𝓞 K)) : TopologicalSpace (adicCompletion K v ⊗[K] B) :=
   moduleTopology (adicCompletion K v) _
 
@@ -200,6 +201,7 @@ noncomputable def FiniteAdeleRing.Aux.e (v : HeightOneSpectrum (𝓞 K))
   refine α.toContinuousAddEquiv.trans ?_
   exact β
 
+/-- The only sensible measurable space structure on Kᵥ ⊗ B. -/
 local instance (v : HeightOneSpectrum (𝓞 K)) :
   MeasurableSpace (adicCompletion K v ⊗[K] B) := borel _
 
