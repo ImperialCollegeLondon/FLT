@@ -9,7 +9,7 @@ import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
 import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
 /-!
 
-# Haar character of the finite adele ring of a number field
+# A result related to the Haar character of the finite adele ring of a number field
 
 We prove the crucial result that left and right multiplication by an element of `D ⊗[K] 𝔸_K^f`
 scale Haar measure by the same factor, if D is a finite-dimensional central simple `K`-alegbra.
@@ -52,13 +52,16 @@ local instance : IsTopologicalRing (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
 local instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
   IsModuleTopology.locallyCompactSpaceOfFinite (FiniteAdeleRing (𝓞 K) K)
 
+/-- We put the Borel measurable space structure on the finite adele ring of a number field. -/
 local instance : MeasurableSpace (FiniteAdeleRing (𝓞 K) K) := borel _
 
 local instance : BorelSpace (FiniteAdeleRing (𝓞 K) K) := ⟨rfl⟩
 
-instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := borel _
+/-- We put the Borel measurable space structure on 𝔸_K^f ⊗ B (because it's the only
+sensible one). -/
+local instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := borel _
 
-instance : BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := ⟨rfl⟩
+local instance : BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := ⟨rfl⟩
 
 section moving_from_tensor_B_to_Pi
 
@@ -92,6 +95,49 @@ lemma FiniteAdeleRing.Aux.f_commSq
 
 end moving_from_tensor_B_to_Pi
 
+local instance {ι : Type*} [Fintype ι] :
+    Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
+      (↑(AddSubgroup.pi (Set.univ : Set ι)
+        (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup)) :
+        Set (ι → v.adicCompletion K))) := ⟨by
+  intro _
+  exact isOpen_set_pi Set.finite_univ (fun _ _ ↦ isOpenAdicCompletionIntegers K _)
+  ⟩
+
+local instance :
+    Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
+      (↑(v.adicCompletionIntegers K).toAddSubgroup :
+        Set (v.adicCompletion K))) := ⟨isOpenAdicCompletionIntegers K⟩
+
+local instance : ∀ (i : HeightOneSpectrum (𝓞 K)),
+    CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
+      fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) := sorry -- "integers are compact"
+
+variable {ι : Type*} [Fintype ι] in
+local instance : LocallyCompactSpace
+    Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → adicCompletion K v,
+      (↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K v).toAddSubgroup) :
+      Set ((ι → adicCompletion K v)))] := by
+  refine RestrictedProduct.locallyCompactSpace_of_addGroup _ ?_
+  filter_upwards
+  intro v
+  -- product of compacts is compact and integers are compact
+  sorry -- "integers are compact"
+
+local instance : LocallyCompactSpace
+    Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
+      ((adicCompletionIntegers K v).toAddSubgroup : Set (adicCompletion K v))] := by
+  refine RestrictedProduct.locallyCompactSpace_of_addGroup _ ?_
+  filter_upwards
+  intro v
+  change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
+  -- surely we have this somewhere
+  sorry -- "integers are compact"
+
+local instance : SecondCountableTopology Πʳ (v : HeightOneSpectrum (𝓞 K)),
+    [v.adicCompletion K, v.adicCompletionIntegers K] := inferInstanceAs <|
+  SecondCountableTopology (FiniteAdeleRing (𝓞 K) K)
+
 section moving_from_pi_restrictedproduct_to_restrictedproduct_pi
 
 /-- If `ψ : (𝔸_K^f)^n ≃ (𝔸_K^f)^n` is continuous and 𝔸_K^f-linear then `g φ` is the
@@ -109,48 +155,9 @@ noncomputable def FiniteAdeleRing.Aux.g {ι : Type*} [Fintype ι]
     (fun _ v ↦ isOpenAdicCompletionIntegers K v)
   f.trans (ψ.toContinuousAddEquiv.trans f.symm)
 
-instance {ι : Type*} [Fintype ι] :
-    Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
-      (↑(AddSubgroup.pi (Set.univ : Set ι)
-        (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup)) :
-        Set (ι → v.adicCompletion K))) := ⟨sorry⟩ -- finite product of opens is open
-  -- use `isOpenAdicCompletionIntegers`
 
-instance :
-    Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
-      (↑(v.adicCompletionIntegers K).toAddSubgroup :
-        Set (v.adicCompletion K))) := ⟨isOpenAdicCompletionIntegers K⟩
 
-instance : ∀ (i : HeightOneSpectrum (𝓞 K)),
-    CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
-      fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) := sorry -- "integers are compact"
 
-variable {ι : Type*} [Fintype ι] in
-instance : LocallyCompactSpace
-    Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → adicCompletion K v,
-      (↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K v).toAddSubgroup) :
-      Set ((ι → adicCompletion K v)))] := by
-  refine RestrictedProduct.locallyCompactSpace_of_addGroup _ ?_
-  filter_upwards
-  intro v
-  -- product of compacts is compact and integers are compact
-  sorry -- "integers are compact"
-
-instance : LocallyCompactSpace
-    Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
-      ((adicCompletionIntegers K v).toAddSubgroup : Set (adicCompletion K v))] := by
-  refine RestrictedProduct.locallyCompactSpace_of_addGroup _ ?_
-  filter_upwards
-  intro v
-  change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  -- surely we have this somewhere
-  sorry -- "integers are compact"
-
-variable {ι : Type*} [Fintype ι] in
-instance : BorelSpace
-    ((j : ι) →
-      Πʳ (i : HeightOneSpectrum (𝓞 K)), [adicCompletion K i,
-        ↑((fun i v ↦ (adicCompletionIntegers K v).toAddSubgroup) j i)]) := sorry
 
 lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
     (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
@@ -223,6 +230,8 @@ lemma FiniteAdeleRing.Aux.e_commSq (v : HeightOneSpectrum (𝓞 K))
 
 open FiniteAdeleRing.Aux
 
+/-- Needed in some argument below; there will never be a constructive one in this
+generality so no harm in making it classical. -/
 noncomputable local instance : DecidableEq (HeightOneSpectrum (𝓞 K)) := Classical.decEq _
 
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
