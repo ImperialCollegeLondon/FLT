@@ -3,7 +3,7 @@ import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 
 variable (K : Type*) [Field K] [NumberField K]
 
-open scoped NumberField
+open NumberField
 
 open IsDedekindDomain
 

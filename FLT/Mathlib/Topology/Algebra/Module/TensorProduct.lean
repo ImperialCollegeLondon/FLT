@@ -21,6 +21,22 @@ noncomputable def ContinuousLinearEquiv.chooseBasis_piScalarRight (R M V : Type*
     (LinearEquiv.chooseBasis_piScalarRight R M V).symm.toLinearMap
   }
 
+/-- The canonical continuous M-linear isomorphism `M ⊗[R] V ≃ (ι → M)`
+where V is a finite free R-module with basis indexed by `ι`, `M` is a commutative
+`R`-algebra, and `M ⊗[R] V` has the `M`-module topology. -/
+noncomputable def ContinuousLinearEquiv.chooseBasis_piScalarRight' (R M V : Type*)
+    [CommRing M] [CommRing R] [Algebra R M]
+    [TopologicalSpace M] [IsTopologicalRing M]
+    [AddCommGroup V] [Module R V] [Module.Finite R V] [Module.Free R V]
+    [TopologicalSpace (M ⊗[R] V)] [IsTopologicalAddGroup (M ⊗[R] V)]
+    [IsModuleTopology M (M ⊗[R] V)] :
+    (M ⊗[R] V) ≃L[M] (Module.Free.ChooseBasisIndex R V → M) := {
+  __ := (LinearEquiv.chooseBasis_piScalarRight R M V)
+  continuous_toFun := IsModuleTopology.continuous_of_linearMap
+    (LinearEquiv.chooseBasis_piScalarRight R M V).toLinearMap
+  continuous_invFun := IsModuleTopology.continuous_of_linearMap
+    (LinearEquiv.chooseBasis_piScalarRight R M V).symm.toLinearMap
+  }
 
 namespace ContinuousLinearMap
 

@@ -100,10 +100,19 @@ noncomputable instance baseChangeAlgebra : Algebra K (FiniteAdeleRing B L) :=
 instance : IsScalarTower K L (FiniteAdeleRing B L) :=
   IsScalarTower.of_algebraMap_eq' rfl
 
--- this instance creates a nasty diamond for
--- `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L A = B, and
--- should probably be scoped (or even removed and statements changed so that they
--- don't need it).
+/- this instance creates a nasty diamond for
+ `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L A = B, and
+should probably be scoped (or even removed and statements changed so that they
+don't need it).
+
+examples of trouble this instance causes:
+
+failure of
+#synth IsScalarTower K (FiniteAdeleRing (𝓞 K) K) (FiniteAdeleRing (𝓞 K) K)
+
+and as a consequence, failure of
+#synth Module (FiniteAdeleRing (𝓞 K) K) ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)
+-/
 attribute [local instance 9999] Algebra.toSMul in
 instance : IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L) := by
   apply IsScalarTower.of_algebraMap_eq
