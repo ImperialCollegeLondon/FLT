@@ -81,6 +81,23 @@ lemma TensorProduct.localcomponent_apply
     (AlgHom.rTensor V ((evalContinuousAlgebraMap R K p).toAlgHom)) (localIdempotent R K p • φ x)
   simp [eval_localIdempotent]
 
+/--
+If `φ : 𝔸_K^f ⊗[K] V → 𝔸_K^f ⊗[K] V` is `𝔸_K^f`-linear and `p : HeightOneSpectrum (𝓞 K)`
+then `localcomponent R K V p φ : Kₚ ⊗[K] V →[K] Kₚ ⊗[K] V` is the associated
+map `φₚ` defined as `Kₚ ⊗[K] V --(single)--> 𝔸_K^f ⊗ V --(φ)--> 𝔸_K^f ⊗ V --(eval)--> Kₚ ⊗ V`.
+This map morally satisfies `φ = Πₚ φₚ` but because source of φ isn't literally a restricted
+product we cannot make this assertion.
+-/
+noncomputable def TensorProduct.localcomponentEquiv (p : HeightOneSpectrum R)
+    (φ : FiniteAdeleRing R K ⊗[K] V ≃L[FiniteAdeleRing R K]
+      FiniteAdeleRing R K ⊗[K] V) :
+    p.adicCompletion K ⊗[K] V ≃L[K] p.adicCompletion K ⊗[K] V where
+  __ := TensorProduct.localcomponent R K V p φ
+  invFun := TensorProduct.localcomponent R K V p φ.symm
+  left_inv := sorry -- these might be annoying. Best way is I think
+  -- to prove localcomponent_id and localcomponent_comp
+  right_inv := sorry
+
 /-
 
 Plan.
