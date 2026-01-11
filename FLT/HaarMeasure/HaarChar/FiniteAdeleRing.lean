@@ -312,6 +312,63 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
     (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j =
     (LinearMap.toMatrix b b φ.toLinearMap i j) v := by
+  letI b₀ := Module.Free.chooseBasis K B
+  letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
+  letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
+  change (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j =
+    (LinearMap.toMatrix b b φ.toLinearMap i j) v
+  change _ = RingHom.mapMatrix
+    (evalRingHom (fun (p : HeightOneSpectrum (𝓞 K)) ↦ p.adicCompletion K) v)
+    (LinearMap.toMatrix b b φ.toLinearMap) i j
+  -- get rid of i,j
+  apply congr_fun
+  apply congr_fun
+  -- move LinearMap.toMatrix onto the other side of the equation
+  rw [RingHom.mapMatrix_apply (evalRingHom (fun p ↦ adicCompletion K p) v)
+      ((LinearMap.toMatrix b b) ↑φ.toLinearEquiv)]
+  apply_fun (Matrix.toLin b_local b_local) using (Matrix.toLin b_local b_local).injective
+  rw [Matrix.toLin_toMatrix]
+  -- This is now an equality of linear maps Kᵥ ⊗[K] B → Kᵥ ⊗[K] B
+  ext r -- r ∈ B
+  -- now get rid of `φ_local_Kv_linear`
+  change AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
+    (φ (LinearMap.rTensor B (FiniteAdeleRing.singleLinearMap (𝓞 K) K v) (1 ⊗ₜ r))) =
+  ((Matrix.toLin b_local b_local)
+    (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).map ⇑(evalRingHom (fun p ↦ adicCompletion K p) v)))
+    (1 ⊗ₜ[K] r)
+  rw [LinearMap.rTensor_tmul]
+  conv =>
+    enter [1, 2, 2, 2]
+    rw [← mul_one ((FiniteAdeleRing.singleLinearMap (𝓞 K) K v) 1)]
+  rw [← smul_eq_mul, ← TensorProduct.smul_tmul', map_smul, AlgHom.rTensor_map_smul]
+  rw [FiniteAdeleRing.evalAlgebraMap_singleLinearMap, one_smul]
+  /-
+
+  localcomponent stuff and `single` (an annoying linear map) now gone.
+
+  goal is
+
+  ⊢ (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)) (φ (1 ⊗ₜ[K] r)) =
+  ((Matrix.toLin b_local b_local)
+      (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).map
+        ⇑(evalRingHom (fun p ↦ adicCompletion K p) v)))
+    (1 ⊗ₜ[K] r)
+
+  Breakdown of goal: we have φ an 𝔸_K^f-linear endomorphism of 𝔸_K^f ⊗ B, and we have r ∈ B.
+
+  LHS is (evalᵥ ⊗ id_B : 𝔸_K^f ⊗ B → Kᵥ ⊗ B) evaluated at φ (1_𝔸 ⊗ₜ r) (a random tensor and
+    not a pure tensor in general)
+
+  RHS is: take φ as a linear map, make its matrix wrt basis b, apply evalᵥ,
+  turn it back into a linear map wrt b_local (which is (evalᵥ ⊗ id_B) b, although we don't have
+  a proof of this) and then evaluate at (1ᵥ ⊗ₜ[K] r) (which is (evalᵥ ⊗ id_B) (1_𝔸 ⊗ₜ r)
+
+  so there should be some general statement here from which this follows?
+
+  I'm not entirely sure of the best way to say that b_local is evalᵥ ⊗ id_B of b
+
+  Could just break everything up into sums? Tried this and got confused.
+  -/
   sorry
 
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but

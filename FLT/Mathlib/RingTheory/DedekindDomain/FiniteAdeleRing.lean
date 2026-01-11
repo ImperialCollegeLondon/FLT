@@ -112,6 +112,12 @@ lemma evalContinuousAlgebraMap_singleContinuousLinearMap (j : HeightOneSpectrum 
   Pi.single_eq_same j xj
 
 variable [DecidableEq (HeightOneSpectrum R)] in
+lemma evalAlgebraMap_singleLinearMap (j : HeightOneSpectrum R)
+    (xj : j.adicCompletion K) :
+    (evalAlgebraMap R K j) (singleLinearMap R K j xj) = xj :=
+  Pi.single_eq_same j xj
+
+variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 `localIdempotent R K p` is the finite adele which is 1 at p and 0 elsewhere.
 -/
