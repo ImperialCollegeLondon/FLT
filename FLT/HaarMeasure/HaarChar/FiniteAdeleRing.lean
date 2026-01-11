@@ -303,6 +303,17 @@ noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
     | add x y _ _ => simp_all only [AlgHom.toRingHom_eq_coe, smul_add, map_add]
 }
 
+lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
+    (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
+      FiniteAdeleRing (𝓞 K) K ⊗[K] B)
+    (i j : Module.Free.ChooseBasisIndex K B) :
+    letI b₀ := Module.Free.chooseBasis K B
+    letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
+    letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
+    (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j =
+    (LinearMap.toMatrix b b φ.toLinearMap i j) v := by
+  sorry
+
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
 -- finitely many places
 lemma FiniteAdeleRing.Aux.almost_always_mapsTo
@@ -312,8 +323,8 @@ lemma FiniteAdeleRing.Aux.almost_always_mapsTo
     ∀ᶠ (i : HeightOneSpectrum (𝓞 K)) in Filter.cofinite,
       Set.MapsTo ⇑((fun v ↦ e K B v
         (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)) i)
-      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup)
-      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) := by
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K i).toAddSubgroup)
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K i).toAddSubgroup) := by
   let b₀ := Module.Free.chooseBasis K B
   let b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
   let m := LinearMap.toMatrix b b φ.toLinearMap
@@ -334,11 +345,7 @@ lemma FiniteAdeleRing.Aux.almost_always_mapsTo
     basis_repr_eq K B v
   have local_repr_eq (i j : Module.Free.ChooseBasisIndex K B) :
       ((b_local.repr (φ_local_Kv_linear K B v φ (b_local j))) i) = (m i j) v := by
-    rw [← LinearMap.toMatrix_apply]
-    -- `⊢ (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j = (m i j) v`
-    -- in other words, the matrix rep of `φ_local_Kv_linear`
-    -- is the local component at `v` of the matrix rep of `φ`
-    sorry
+    rw [← LinearMap.toMatrix_apply, localcomponent_matrix]
   -- simp [e, ← basis_eq K B v]
   simp only [e, ← basis_eq K B v, Subsemiring.coe_carrier_toSubmonoid, Subring.coe_toSubsemiring,
     ContinuousAddEquiv.trans_apply, map_sum, Finset.sum_apply, SetLike.mem_coe,
