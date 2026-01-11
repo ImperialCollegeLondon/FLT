@@ -230,6 +230,61 @@ open FiniteAdeleRing.Aux
 generality so no harm in making it classical. -/
 noncomputable local instance : DecidableEq (HeightOneSpectrum (𝓞 K)) := Classical.decEq _
 
+section auxiliary_basis_lemmas
+
+/- API for relating `ContinuousLinearEquiv.chooseBasis_piScalarRight'` to `Module.Basis`.
+TODO: Could all probably be elsewhere and in greater generality. -/
+
+/-- `b_local` is `v.adicCompletion K`-basis for `v.adicCompletion K ⊗[K] B`. -/
+noncomputable abbrev b_local (v : HeightOneSpectrum (𝓞 K)) :=
+  Module.Basis.baseChange (v.adicCompletion K) (Module.Free.chooseBasis K B)
+
+lemma basis_repr_eq (v : HeightOneSpectrum (𝓞 K)) {x : adicCompletion K v ⊗[K] B} :
+    (b_local K B v).repr x
+    = (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (v.adicCompletion K) B) x := by
+  refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
+  ext; simp; rfl
+
+lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
+    {j : Module.Free.ChooseBasisIndex K B} {x : adicCompletion K v} :
+    x • (b_local K B v) j
+    = (ContinuousLinearEquiv.chooseBasis_piScalarRight'
+      K (v.adicCompletion K) B).symm (Pi.single j x) := by
+  rw [ContinuousLinearEquiv.eq_symm_apply];
+  ext b;
+  conv_lhs =>
+    simp [Algebra.smul_def]
+    change ((Module.Free.chooseBasis K B).repr ((Module.Free.chooseBasis K B) j)) b • x
+  simp [Finsupp.single, Pi.single, Algebra.smul_def, Function.update]
+
+lemma basis_eq (v : HeightOneSpectrum (𝓞 K))
+    {w : Module.Free.ChooseBasisIndex K B → adicCompletion K v} :
+    ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • (b_local K B v) j
+    = (ContinuousLinearEquiv.chooseBasis_piScalarRight'
+      K (v.adicCompletion K) B).toContinuousAddEquiv.symm w := by
+  have hw : w = ∑ x, (Pi.single x (w x)) := by
+    ext; simp
+  conv_rhs => rw [hw]
+  simp only [basis_eq_single K B v, map_sum]; rfl
+
+end auxiliary_basis_lemmas
+
+/-- `TensorProduct.localcomponent φ` as `v.adicCompletion K`-linear map -/
+noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
+    (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
+    FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
+    v.adicCompletion K ⊗[K] B →ₗ[v.adicCompletion K] v.adicCompletion K ⊗[K] B := {
+  __ := (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)
+  map_smul' r x := by
+    -- `localcomponent` is `v.adicCompletion K`-linear?
+    -- life seems to be difficult if we don't have this
+    sorry
+    /- refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
+    simp [FiniteAdeleRing.TensorProduct.localcomponentEquiv,
+      FiniteAdeleRing.TensorProduct.localcomponent,
+      Algebra.smul_def, ContinuousLinearMap.rTensor]; -/
+}
+
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
 -- finitely many places
 lemma FiniteAdeleRing.Aux.almost_always_mapsTo
@@ -253,11 +308,28 @@ lemma FiniteAdeleRing.Aux.almost_always_mapsTo
   -- Idea: φ is represented by a matrix M, and the claim is that for a finite place v
   -- at which the matrix is v-integral, the local component of φ
   -- should preserve integrality.
-  simp [e, FiniteAdeleRing.TensorProduct.localcomponentEquiv,
-    FiniteAdeleRing.TensorProduct.localcomponent,
-    ContinuousLinearMap.rTensor,ContinuousLinearEquiv.chooseBasis_piScalarRight']
-  -- probably need pen and paper to continue
-  sorry
+  let b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
+  -- `b_local` is `v.adicCompletion K`-basis for `v.adicCompletion K ⊗[K] B`
+  have basis_repr_eq' {x : adicCompletion K v ⊗[K] B} :
+      b_local.repr x
+      = (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (v.adicCompletion K) B) x :=
+    basis_repr_eq K B v
+  have local_repr_eq (i j : Module.Free.ChooseBasisIndex K B) :
+      ((b_local.repr (φ_local_Kv_linear K B v φ (b_local j))) i) = (m i j) v := by
+    rw [← LinearMap.toMatrix_apply]
+    -- `⊢ (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j = (m i j) v`
+    -- in other words, the matrix rep of `φ_local_Kv_linear`
+    -- is the local component at `v` of the matrix rep of `φ`
+    sorry
+  -- simp [e, ← basis_eq K B v]
+  simp only [e, ← basis_eq K B v, Subsemiring.coe_carrier_toSubmonoid, Subring.coe_toSubsemiring,
+    ContinuousAddEquiv.trans_apply, map_sum, Finset.sum_apply, SetLike.mem_coe,
+    ValuationSubring.mem_toSubring] --argh!
+  change ∑ c,
+    (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (adicCompletion K v) B)
+    (φ_local_Kv_linear K B v φ (w c • b_local c)) j
+    ∈ adicCompletionIntegers K v
+  simpa [← basis_repr_eq', local_repr_eq] using sum_mem fun i hi ↦ mul_mem (hw i) (hv j i)
 
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
 -- finitely many places
@@ -283,6 +355,8 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
     g K (f K B φ) = ContinuousAddEquiv.restrictedProductCongrRight
     (fun v ↦ e _ _ _ (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ))
     (FiniteAdeleRing.Aux.almost_always_bijOn _ _ _) := by
+  ext r v b;
+  simp [ContinuousAddEquiv.restrictedProductCongrRight]
   sorry -- this is hopefully close to being true by ext but I didn't think about it.
 
 lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
