@@ -104,24 +104,24 @@ local instance :
 
 local instance (v : HeightOneSpectrum (𝓞 K)) :
     CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
-      fun x ↦ (adicCompletionIntegers K v).toAddSubgroup) := by
+      fun _ ↦ (adicCompletionIntegers K v).toAddSubgroup) := by
   change CompactSpace (Set.pi Set.univ fun x ↦ _)
   rw [← isCompact_iff_compactSpace]
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  sorry -- "integers are compact"
+  exact isCompactAdicCompletionIntegers K v
 
 variable {ι : Type*} [Fintype ι] in
 local instance : LocallyCompactSpace
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → adicCompletion K v,
-      (↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K v).toAddSubgroup) :
+      (↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K v).toAddSubgroup) :
       Set ((ι → adicCompletion K v)))] := by
   refine RestrictedProduct.locallyCompactSpace_of_addGroup _ ?_
   filter_upwards
   intro v
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  sorry -- "integers are compact"
+  exact isCompactAdicCompletionIntegers K v
 
 local instance : LocallyCompactSpace
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
@@ -130,7 +130,7 @@ local instance : LocallyCompactSpace
   filter_upwards
   intro v
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  sorry -- "integers are compact"
+  exact isCompactAdicCompletionIntegers K v
 
 local instance : SecondCountableTopology Πʳ (v : HeightOneSpectrum (𝓞 K)),
     [v.adicCompletion K, v.adicCompletionIntegers K] := inferInstanceAs <|
@@ -384,9 +384,23 @@ lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
     (ContinuousAddEquiv.mulLeft (u.map (Algebra.TensorProduct.rTensor B
       (IsDedekindDomain.FiniteAdeleRing.evalContinuousAlgebraMap
         (𝓞 K) K v).toAlgHom).toMonoidHom)) := by
-  ext u
-  -- should hopefully follow from localcomponent_eval
-  sorry
+  ext u'
+  have keyFin := FiniteAdeleRing.TensorProduct.localcomponent_apply (𝓞 K) K B
+      (ContinuousLinearEquiv.mulLeft (FiniteAdeleRing (𝓞 K) K) u)
+        (TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id u') v
+  have : (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.toLinearMap ∘ₗ
+      FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v = .id := by
+    ext
+    simp [FiniteAdeleRing.evalContinuousAlgebraMap_singleContinuousLinearMap]
+  have : u' =
+      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor B
+      ((TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id) u') := by
+    rw [ContinuousLinearMap.rTensor, ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
+      TensorProduct.map_id, LinearMap.id_apply]
+  convert keyFin.symm
+  change _ = Algebra.TensorProduct.rTensor B _ _
+  simp [ContinuousLinearEquiv.mulLeft, LinearEquiv.mulLeft, map_mul]
+  congr
 
 lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
     (v : HeightOneSpectrum (𝓞 K)) :
@@ -395,9 +409,23 @@ lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
     (ContinuousAddEquiv.mulRight (u.map (Algebra.TensorProduct.rTensor B
       (IsDedekindDomain.FiniteAdeleRing.evalContinuousAlgebraMap
         (𝓞 K) K v).toAlgHom).toMonoidHom)) := by
-  ext u
-  -- should hopefully follow from localcomponent_eval
-  sorry
+  ext u'
+  have keyFin := FiniteAdeleRing.TensorProduct.localcomponent_apply (𝓞 K) K B
+      (ContinuousLinearEquiv.mulRight (FiniteAdeleRing (𝓞 K) K) u)
+        (TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id u') v
+  have : (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.toLinearMap ∘ₗ
+      FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v = .id := by
+    ext
+    simp [FiniteAdeleRing.evalContinuousAlgebraMap_singleContinuousLinearMap]
+  have : u' =
+      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor B
+      ((TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id) u') := by
+    rw [ContinuousLinearMap.rTensor, ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
+      TensorProduct.map_id, LinearMap.id_apply]
+  convert keyFin.symm
+  change _ = Algebra.TensorProduct.rTensor B _ _
+  simp [ContinuousLinearEquiv.mulRight, LinearEquiv.mulRight, map_mul]
+  congr
 
 /-- left multiplication and right multiplication by a unit have the same Haar character
 on `𝔸_K^f ⊗ B`. See also
