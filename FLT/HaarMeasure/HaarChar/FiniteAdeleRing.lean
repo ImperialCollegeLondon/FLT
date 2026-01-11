@@ -269,6 +269,7 @@ lemma basis_eq (v : HeightOneSpectrum (𝓞 K))
 
 end auxiliary_basis_lemmas
 
+-- this should really be just after the definition of `localcomponent`
 /-- `TensorProduct.localcomponent φ` as `v.adicCompletion K`-linear map -/
 noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
@@ -282,7 +283,7 @@ noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
       kv • (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
       (φ (LinearMap.rTensor B (FiniteAdeleRing.singleLinearMap (𝓞 K) K v) x)))
     induction x with
-    | zero => simp
+    | zero => simp only [AlgHom.toRingHom_eq_coe, smul_zero, map_zero]
     | tmul x y =>
       -- need to slowly move the `kv •` out on the LHS
       rw [LinearMap.rTensor_tmul, TensorProduct.smul_tmul',
@@ -299,11 +300,7 @@ noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
       congr
       -- but we know this is kv
       exact FiniteAdeleRing.evalContinuousAlgebraMap_singleContinuousLinearMap (𝓞 K) K v kv
-    | add x y _ _ => simp_all
-    /- refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
-    simp [FiniteAdeleRing.TensorProduct.localcomponentEquiv,
-      FiniteAdeleRing.TensorProduct.localcomponent,
-      Algebra.smul_def, ContinuousLinearMap.rTensor]; -/
+    | add x y _ _ => simp_all only [AlgHom.toRingHom_eq_coe, smul_add, map_add]
 }
 
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
