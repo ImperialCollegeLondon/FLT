@@ -55,7 +55,13 @@ noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
 lemma TensorProduct.localcomponent_id_apply (p : HeightOneSpectrum R)
     (x : p.adicCompletion K ⊗[K] V) :
     TensorProduct.localcomponent R K V p (ContinuousLinearMap.id _ _) x = x := by
-  sorry
+  have :
+      (evalContinuousAlgebraMap R K p).toContinuousLinearMap
+        ∘ₗ (singleContinuousLinearMap R K p).toLinearMap
+      = LinearMap.id := by
+    ext;
+    apply evalContinuousAlgebraMap_singleContinuousLinearMap
+  simp [localcomponent, ContinuousLinearMap.rTensor, ← LinearMap.rTensor_comp_apply, this]
 
 lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
     (φ ψ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K]
@@ -63,7 +69,26 @@ lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
     TensorProduct.localcomponent R K V p (φ.comp ψ) x =
     (TensorProduct.localcomponent R K V p φ)
     ((TensorProduct.localcomponent R K V p ψ) x) := by
-  sorry
+  have rTensor_single_comp_eval {x : FiniteAdeleRing R K ⊗[K] V} :
+      LinearMap.rTensor V ((singleContinuousLinearMap R K p).toLinearMap
+        ∘ₗ (evalContinuousAlgebraMap R K p).toContinuousLinearMap) x
+      = (localIdempotent R K p) • x :=
+    have {a : FiniteAdeleRing R K} := congr_arg (fun f ↦ f a)
+      (singleContinuousAlgebraMap_comp_evalContinuousLinearMap R K p)
+    TensorProduct.induction_on x (by simp)
+      (fun _ _ ↦ by simp_all [TensorProduct.smul_tmul'])
+      (fun _ _ ↦ by simp +contextual)
+  have rTensor_eval_localIdempotent (x : FiniteAdeleRing R K ⊗[K] V) :
+      (LinearMap.rTensor V (evalContinuousAlgebraMap R K p).toContinuousLinearMap) x
+      = (LinearMap.rTensor V (evalContinuousAlgebraMap R K p).toContinuousLinearMap.toLinearMap)
+        (localIdempotent R K p • x) :=
+    TensorProduct.induction_on x (by simp)
+      (fun _ _ ↦ by simp_all [TensorProduct.smul_tmul', eval_localIdempotent])
+      (fun _ _ ↦ by simp +contextual)
+  simp [localcomponent, ContinuousLinearMap.rTensor,
+    ← LinearMap.rTensor_comp_apply, rTensor_single_comp_eval,
+    rTensor_eval_localIdempotent
+      (φ (ψ ((LinearMap.rTensor V (singleContinuousLinearMap R K p)) x)))]
 
 /--
 If `φ : 𝔸_K^f ⊗ V → 𝔸_K^f ⊗ V` is `𝔸_K^f`-linear and `φₚ` is its local component at a place `p`
