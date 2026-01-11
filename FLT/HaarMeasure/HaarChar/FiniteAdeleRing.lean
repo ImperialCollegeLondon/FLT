@@ -104,24 +104,24 @@ local instance :
 
 local instance (v : HeightOneSpectrum (𝓞 K)) :
     CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
-      fun x ↦ (adicCompletionIntegers K v).toAddSubgroup) := by
+      fun _ ↦ (adicCompletionIntegers K v).toAddSubgroup) := by
   change CompactSpace (Set.pi Set.univ fun x ↦ _)
   rw [← isCompact_iff_compactSpace]
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  sorry -- "integers are compact"
+  exact isCompactAdicCompletionIntegers K v
 
 variable {ι : Type*} [Fintype ι] in
 local instance : LocallyCompactSpace
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → adicCompletion K v,
-      (↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K v).toAddSubgroup) :
+      (↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K v).toAddSubgroup) :
       Set ((ι → adicCompletion K v)))] := by
   refine RestrictedProduct.locallyCompactSpace_of_addGroup _ ?_
   filter_upwards
   intro v
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  sorry -- "integers are compact"
+  exact isCompactAdicCompletionIntegers K v
 
 local instance : LocallyCompactSpace
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
@@ -130,7 +130,7 @@ local instance : LocallyCompactSpace
   filter_upwards
   intro v
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  sorry -- "integers are compact"
+  exact isCompactAdicCompletionIntegers K v
 
 local instance : SecondCountableTopology Πʳ (v : HeightOneSpectrum (𝓞 K)),
     [v.adicCompletion K, v.adicCompletionIntegers K] := inferInstanceAs <|
