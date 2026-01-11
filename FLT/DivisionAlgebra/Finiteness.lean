@@ -609,6 +609,15 @@ open AdeleRing.DivisionAlgebra.Aux
 
 variable [FiniteDimensional K D]
 
+/-- We give 𝔸_K^f ⊗ D the 𝔸_K^f-module topology. -/
+local instance : TopologicalSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) :=
+  moduleTopology (FiniteAdeleRing (𝓞 K) K) _
+
+/-- We give 𝔸_K^f ⊗ D the Borel measurable space structure. -/
+local instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) := borel _
+
+local instance : BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) := ⟨rfl⟩
+
 open scoped TensorProduct.RightActions in
 lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     [Algebra.IsCentral K D] (u : D_𝔸ˣ) :
@@ -634,7 +643,7 @@ lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     intro x; simp; rfl
   simp [hl, hr, Dinfx, Dfx, Df,
     InfiniteAdeleRing.isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul _,
-    FiniteAdeleRing.isCentralSimple_finite_addHaarScalarFactor_left_mul_eq_right_mul K D _]
+    FiniteAdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul K D _]
 
 end AdeleRing
 

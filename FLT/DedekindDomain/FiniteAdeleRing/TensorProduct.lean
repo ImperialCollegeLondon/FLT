@@ -52,6 +52,44 @@ noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
   -- f1 ∘ f2 ∘ f3
   f1.comp (f2.comp f3)
 
+lemma TensorProduct.localcomponent_id_apply (p : HeightOneSpectrum R)
+    (x : p.adicCompletion K ⊗[K] V) :
+    TensorProduct.localcomponent R K V p (ContinuousLinearMap.id _ _) x = x := by
+  have :
+      (evalContinuousAlgebraMap R K p).toContinuousLinearMap
+        ∘ₗ (singleContinuousLinearMap R K p).toLinearMap
+      = LinearMap.id := by
+    ext;
+    apply evalContinuousAlgebraMap_singleContinuousLinearMap
+  simp [localcomponent, ContinuousLinearMap.rTensor, ← LinearMap.rTensor_comp_apply, this]
+
+lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
+    (φ ψ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K]
+      FiniteAdeleRing R K ⊗[K] V) (x : p.adicCompletion K ⊗[K] V) :
+    TensorProduct.localcomponent R K V p (φ.comp ψ) x =
+    (TensorProduct.localcomponent R K V p φ)
+    ((TensorProduct.localcomponent R K V p ψ) x) := by
+  have rTensor_single_comp_eval {x : FiniteAdeleRing R K ⊗[K] V} :
+      LinearMap.rTensor V ((singleContinuousLinearMap R K p).toLinearMap
+        ∘ₗ (evalContinuousAlgebraMap R K p).toContinuousLinearMap) x
+      = (localIdempotent R K p) • x :=
+    have {a : FiniteAdeleRing R K} := congr_arg (fun f ↦ f a)
+      (singleContinuousAlgebraMap_comp_evalContinuousLinearMap R K p)
+    TensorProduct.induction_on x (by simp)
+      (fun _ _ ↦ by simp_all [TensorProduct.smul_tmul'])
+      (fun _ _ ↦ by simp +contextual)
+  have rTensor_eval_localIdempotent (x : FiniteAdeleRing R K ⊗[K] V) :
+      (LinearMap.rTensor V (evalContinuousAlgebraMap R K p).toContinuousLinearMap) x
+      = (LinearMap.rTensor V (evalContinuousAlgebraMap R K p).toContinuousLinearMap.toLinearMap)
+        (localIdempotent R K p • x) :=
+    TensorProduct.induction_on x (by simp)
+      (fun _ _ ↦ by simp_all [TensorProduct.smul_tmul', eval_localIdempotent])
+      (fun _ _ ↦ by simp +contextual)
+  simp [localcomponent, ContinuousLinearMap.rTensor,
+    ← LinearMap.rTensor_comp_apply, rTensor_single_comp_eval,
+    rTensor_eval_localIdempotent
+      (φ (ψ ((LinearMap.rTensor V (singleContinuousLinearMap R K p)) x)))]
+
 /--
 If `φ : 𝔸_K^f ⊗ V → 𝔸_K^f ⊗ V` is `𝔸_K^f`-linear and `φₚ` is its local component at a place `p`
 then for all `x : 𝔸_K^f ⊗ V` we have
@@ -81,9 +119,27 @@ lemma TensorProduct.localcomponent_apply
     (AlgHom.rTensor V ((evalContinuousAlgebraMap R K p).toAlgHom)) (localIdempotent R K p • φ x)
   simp [eval_localIdempotent]
 
--- plan; 𝔸_K ⊗ V = (Fin n) → 𝔸_K topologically, which is Πʳ (Fin n -> K_v)
--- topologically, and the claim is that the induced top iso A_K ⊗ V = Πʳ (Fin n -> K_v)
--- sends φ to ∏_v φ_v
+/--
+If `φ : 𝔸_K^f ⊗[K] V → 𝔸_K^f ⊗[K] V` is `𝔸_K^f`-linear and `p : HeightOneSpectrum (𝓞 K)`
+then `localcomponent R K V p φ : Kₚ ⊗[K] V →[K] Kₚ ⊗[K] V` is the associated
+map `φₚ` defined as `Kₚ ⊗[K] V --(single)--> 𝔸_K^f ⊗ V --(φ)--> 𝔸_K^f ⊗ V --(eval)--> Kₚ ⊗ V`.
+This map morally satisfies `φ = Πₚ φₚ` but because source of φ isn't literally a restricted
+product we cannot make this assertion.
+-/
+noncomputable def TensorProduct.localcomponentEquiv (p : HeightOneSpectrum R)
+    (φ : FiniteAdeleRing R K ⊗[K] V ≃L[FiniteAdeleRing R K]
+      FiniteAdeleRing R K ⊗[K] V) :
+    p.adicCompletion K ⊗[K] V ≃L[K] p.adicCompletion K ⊗[K] V where
+  __ := TensorProduct.localcomponent R K V p φ
+  invFun := TensorProduct.localcomponent R K V p φ.symm
+  left_inv x := by
+    change (localcomponent R K V p φ.symm) (localcomponent R K V p φ x) = x
+    rw [← TensorProduct.localcomponent_comp_apply]
+    simp [TensorProduct.localcomponent_id_apply]
+  right_inv x := by
+    change (localcomponent R K V p φ) (localcomponent R K V p φ.symm x) = x
+    rw [← TensorProduct.localcomponent_comp_apply]
+    simp [TensorProduct.localcomponent_id_apply]
 
 end FiniteAdeleRing
 

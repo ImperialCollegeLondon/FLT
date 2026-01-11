@@ -148,6 +148,39 @@ def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
     rw [Equiv.invFun_as_coe, Equiv.restrictedProductPi_symm_comp_inclusion]
     fun_prop
 
+/-- The group homeomorphism between a restricted product of finite products of groups,
+and a finite product of restricted products of groups, when the products are with respect
+to open subgroups.
+-/
+@[to_additive /-- The additive group homeomorphism between a restricted product of finite products
+of additive groups, and a finite product of restricted products of additive groups, when the
+products are with respect to additive open subgroups. -/]
+def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
+    {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)] [∀ j i, Group (A j i)]
+    {C : (j : n) → (i : ι) → Subgroup (A j i)} (hCopen : ∀ j i, IsOpen (C j i : Set (A j i))) :
+    Πʳ i, [Π j, A j i, Subgroup.pi (Set.univ : Set n) (fun j ↦ C j i)] ≃ₜ*
+      Π j, (Πʳ i, [A j i, C j i]) where
+  toFun x j := map (fun i t ↦ t _)
+    (Filter.Eventually.of_forall (fun _ _ ↦ by simp_all [Subgroup.mem_pi])) x
+  invFun y := .mk (fun i j ↦ y j i)
+    (by simpa [-eventually_cofinite, Subgroup.mem_pi] using fun j ↦ (y j).property)
+  left_inv x := by ext; rfl
+  right_inv y := by ext; rfl
+  map_mul' x y := by ext; simp [RestrictedProduct.map]
+  continuous_toFun := by
+    exact continuous_pi fun j ↦
+      Continuous.restrictedProduct_congrRight _ fun _ ↦ continuous_apply j
+  continuous_invFun := by
+    refine (continuous_dom_pi hCopen).mpr fun S hS ↦ ?_
+    change Continuous
+      (inclusion (fun i ↦ (j : n) → A j i)
+        (fun i ↦ Subgroup.pi Set.univ (fun j ↦ C j i)) hS
+      ∘ (fun (y : (j : n) → Πʳ (i : ι), [A j i, C j i]_[𝓟 S]) ↦ .mk (fun i j ↦ y j i)
+        (by simpa [-eventually_principal, Subgroup.mem_pi] using fun j ↦ (y j).property)))
+    exact Continuous.comp (by fun_prop) <|
+      continuous_rng_of_principal_pi.mpr fun _ ↦ continuous_pi fun _ ↦
+        (RestrictedProduct.continuous_eval _).comp (continuous_apply _)
+
 theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Fintype n] {A : ι → Type*}
     [(i : ι) → TopologicalSpace (A i)] {C : (i : ι) → Set (A i)}
     (i : ι) (hCopen : ∀ (i : ι), IsOpen (C i)) :
