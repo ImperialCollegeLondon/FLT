@@ -252,8 +252,10 @@ lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
       K (v.adicCompletion K) B).symm (Pi.single j x) := by
   rw [ContinuousLinearEquiv.eq_symm_apply];
   ext b;
-  conv_lhs =>
+  have : (x • (b_local K B v) j) = (x ⊗ₜ[K] (Module.Free.chooseBasis K B) j) := by
     simp [Algebra.smul_def]
+  rw [this]
+  conv_lhs =>
     change ((Module.Free.chooseBasis K B).repr ((Module.Free.chooseBasis K B) j)) b • x
   simp [Finsupp.single, Pi.single, Algebra.smul_def, Function.update]
 
@@ -347,9 +349,8 @@ lemma FiniteAdeleRing.Aux.almost_always_mapsTo
       ((b_local.repr (φ_local_Kv_linear K B v φ (b_local j))) i) = (m i j) v := by
     rw [← LinearMap.toMatrix_apply, localcomponent_matrix]
   -- simp [e, ← basis_eq K B v]
-  simp only [e, ← basis_eq K B v, Subsemiring.coe_carrier_toSubmonoid, Subring.coe_toSubsemiring,
-    ContinuousAddEquiv.trans_apply, map_sum, Finset.sum_apply, SetLike.mem_coe,
-    ValuationSubring.mem_toSubring] --argh!
+  simp only [e, ← basis_eq K B v,
+    ContinuousAddEquiv.trans_apply, map_sum, Finset.sum_apply] --argh!
   change ∑ c,
     (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (adicCompletion K v) B)
     (φ_local_Kv_linear K B v φ (w c • b_local c)) j
