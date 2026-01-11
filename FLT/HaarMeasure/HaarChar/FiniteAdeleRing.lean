@@ -109,8 +109,7 @@ local instance (v : HeightOneSpectrum (𝓞 K)) :
   rw [← isCompact_iff_compactSpace]
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  rw [isCompact_iff_compactSpace]
-  exact instCompactSpaceAdicCompletionIntegers K v
+  exact isCompactAdicCompletionIntegers K v
 
 variable {ι : Type*} [Fintype ι] in
 local instance : LocallyCompactSpace
@@ -122,8 +121,7 @@ local instance : LocallyCompactSpace
   intro v
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  rw [isCompact_iff_compactSpace]
-  exact instCompactSpaceAdicCompletionIntegers K v
+  exact isCompactAdicCompletionIntegers K v
 
 local instance : LocallyCompactSpace
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
@@ -132,8 +130,7 @@ local instance : LocallyCompactSpace
   filter_upwards
   intro v
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  rw [isCompact_iff_compactSpace]
-  exact instCompactSpaceAdicCompletionIntegers K v
+  exact isCompactAdicCompletionIntegers K v
 
 local instance : SecondCountableTopology Πʳ (v : HeightOneSpectrum (𝓞 K)),
     [v.adicCompletion K, v.adicCompletionIntegers K] := inferInstanceAs <|
