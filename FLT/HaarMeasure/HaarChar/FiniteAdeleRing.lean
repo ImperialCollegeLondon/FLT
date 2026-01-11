@@ -275,10 +275,31 @@ noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
     FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
     v.adicCompletion K ⊗[K] B →ₗ[v.adicCompletion K] v.adicCompletion K ⊗[K] B := {
   __ := (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)
-  map_smul' r x := by
-    -- `localcomponent` is `v.adicCompletion K`-linear?
-    -- life seems to be difficult if we don't have this
-    sorry
+  map_smul' kv x := by
+    -- rewrite so topology-free
+    change AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
+      (φ (LinearMap.rTensor B (FiniteAdeleRing.singleLinearMap (𝓞 K) K v) (kv • x))) =
+      kv • (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
+      (φ (LinearMap.rTensor B (FiniteAdeleRing.singleLinearMap (𝓞 K) K v) x)))
+    induction x with
+    | zero => simp
+    | tmul x y =>
+      -- need to slowly move the `kv •` out on the LHS
+      rw [LinearMap.rTensor_tmul, TensorProduct.smul_tmul',
+        LinearMap.rTensor_tmul, smul_eq_mul]
+      -- 1/3 of the way there
+      -- we needed `single` to be linear, but now we need it to be a MulHom
+      conv =>
+        enter [1, 2, 2, 2]
+        change FiniteAdeleRing.singleMulHom _ _ _ _
+        rw [map_mul, ← smul_eq_mul]
+      -- 2/3 of the way there
+      rw [← TensorProduct.smul_tmul', map_smul, AlgHom.rTensor_map_smul]
+      -- out, but now in the form (single (eval kv) •)
+      congr
+      -- but we know this is kv
+      exact FiniteAdeleRing.evalContinuousAlgebraMap_singleContinuousLinearMap (𝓞 K) K v kv
+    | add x y _ _ => simp_all
     /- refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
     simp [FiniteAdeleRing.TensorProduct.localcomponentEquiv,
       FiniteAdeleRing.TensorProduct.localcomponent,
