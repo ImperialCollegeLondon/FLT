@@ -232,16 +232,49 @@ noncomputable local instance : DecidableEq (HeightOneSpectrum (𝓞 K)) := Class
 
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
 -- finitely many places
-lemma FiniteAdeleRing.Aux.almost_always_integral
+lemma FiniteAdeleRing.Aux.almost_always_mapsTo
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
     FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
-    let ι := Module.Free.ChooseBasisIndex K B
+    letI ι := Module.Free.ChooseBasisIndex K B
+    ∀ᶠ (i : HeightOneSpectrum (𝓞 K)) in Filter.cofinite,
+      Set.MapsTo ⇑((fun v ↦ e K B v
+        (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)) i)
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup)
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) := by
+  let b₀ := Module.Free.chooseBasis K B
+  let b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
+  let m := LinearMap.toMatrix b b φ.toLinearMap
+  have := fun i j ↦ (m i j).2
+  simp_rw [← Filter.eventually_all] at this
+  filter_upwards [this]
+  intro v hv w (hw : w ∈ Set.pi _ _) j _
+  rw [Set.mem_univ_pi] at hw
+  -- hopefully true :-)
+  -- Idea: φ is represented by a matrix M, and the claim is that for a finite place v
+  -- at which the matrix is v-integral, the local component of φ
+  -- should preserve integrality.
+  simp [e, FiniteAdeleRing.TensorProduct.localcomponentEquiv,
+    FiniteAdeleRing.TensorProduct.localcomponent,
+    ContinuousLinearMap.rTensor,ContinuousLinearEquiv.chooseBasis_piScalarRight']
+  -- probably need pen and paper to continue
+  sorry
+
+-- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
+-- finitely many places
+lemma FiniteAdeleRing.Aux.almost_always_bijOn
+    (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
+    FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
+    letI ι := Module.Free.ChooseBasisIndex K B
     ∀ᶠ (i : HeightOneSpectrum (𝓞 K)) in Filter.cofinite,
       Set.BijOn ⇑((fun v ↦ e K B v
         (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)) i)
-      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup)
-      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) :=
-  sorry -- this needs some thought
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K i).toAddSubgroup)
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K i).toAddSubgroup) := by
+  have h1 := FiniteAdeleRing.Aux.almost_always_mapsTo K B φ
+  have h2 := FiniteAdeleRing.Aux.almost_always_mapsTo K B φ.symm
+  filter_upwards [h1, h2]
+  intro v h1 h2
+  exact (e K B v (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)).bijOn' h1 h2
 
 /-- A diagram which obviously commutes, commutes. -/
 lemma FiniteAdeleRing.Aux.f_g_local_global
@@ -249,7 +282,7 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
       (FiniteAdeleRing (𝓞 K) K) ⊗[K] B) :
     g K (f K B φ) = ContinuousAddEquiv.restrictedProductCongrRight
     (fun v ↦ e _ _ _ (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ))
-    (FiniteAdeleRing.Aux.almost_always_integral _ _ _) := by
+    (FiniteAdeleRing.Aux.almost_always_bijOn _ _ _) := by
   sorry -- this is hopefully close to being true by ext but I didn't think about it.
 
 lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
