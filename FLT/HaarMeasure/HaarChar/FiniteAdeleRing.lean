@@ -253,7 +253,9 @@ lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
   rw [ContinuousLinearEquiv.eq_symm_apply];
   ext b;
   conv_lhs =>
-    simp [Algebra.smul_def]
+    simp only [Module.Basis.baseChange_apply, Algebra.smul_def,
+      Algebra.TensorProduct.algebraMap_apply, Algebra.algebraMap_self, RingHom.id_apply,
+      Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
     change ((Module.Free.chooseBasis K B).repr ((Module.Free.chooseBasis K B) j)) b • x
   simp [Finsupp.single, Pi.single, Algebra.smul_def, Function.update]
 
@@ -316,10 +318,9 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
   letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
   letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
   change (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j =
-    (LinearMap.toMatrix b b φ.toLinearMap i j) v
-  change _ = RingHom.mapMatrix
-    (evalRingHom (fun (p : HeightOneSpectrum (𝓞 K)) ↦ p.adicCompletion K) v)
-    (LinearMap.toMatrix b b φ.toLinearMap) i j
+    RingHom.mapMatrix
+      (evalRingHom (fun (p : HeightOneSpectrum (𝓞 K)) ↦ p.adicCompletion K) v)
+      (LinearMap.toMatrix b b φ.toLinearMap) i j
   -- get rid of i,j
   apply congr_fun
   apply congr_fun
@@ -437,8 +438,10 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
     g K (f K B φ) = ContinuousAddEquiv.restrictedProductCongrRight
     (fun v ↦ e _ _ _ (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ))
     (FiniteAdeleRing.Aux.almost_always_bijOn _ _ _) := by
-  ext r v b;
+  ext r v i;
   simp [ContinuousAddEquiv.restrictedProductCongrRight]
+  simp [e,f,g, FiniteAdeleRing.TensorProduct.localcomponentEquiv,
+    FiniteAdeleRing.TensorProduct.localcomponent]
   sorry -- this is hopefully close to being true by ext but I didn't think about it.
 
 lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
