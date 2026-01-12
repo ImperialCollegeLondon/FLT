@@ -181,6 +181,24 @@ def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
       continuous_rng_of_principal_pi.mpr fun _ ↦ continuous_pi fun _ ↦
         (RestrictedProduct.continuous_eval _).comp (continuous_apply _)
 
+@[to_additive (attr := simp)]
+lemma ContinuousMulEquiv.restrictedProductPi_apply {ι : Type*} {n : Type*} [Fintype n]
+    {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)] [∀ j i, Group (A j i)]
+    {C : (j : n) → (i : ι) → Subgroup (A j i)} {hCopen : ∀ j i, IsOpen (C j i : Set (A j i))}
+    {x : Πʳ i, [Π j, A j i, Subgroup.pi (Set.univ : Set n) (fun j ↦ C j i)]} {i : ι} {j : n} :
+    ContinuousMulEquiv.restrictedProductPi hCopen x j i
+    = (x i) j :=
+  rfl
+
+@[to_additive (attr := simp)]
+lemma ContinuousMulEquiv.restrictedProductPi_symm_apply {ι : Type*} {n : Type*} [Fintype n]
+    {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)] [∀ j i, Group (A j i)]
+    {C : (j : n) → (i : ι) → Subgroup (A j i)} {hCopen : ∀ j i, IsOpen (C j i : Set (A j i))}
+    {x : Π j, (Πʳ i, [A j i, C j i])} {i : ι} {j : n} :
+    (ContinuousMulEquiv.restrictedProductPi hCopen).symm x i j
+    = (x j) i :=
+  rfl
+
 theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Fintype n] {A : ι → Type*}
     [(i : ι) → TopologicalSpace (A i)] {C : (i : ι) → Set (A i)}
     (i : ι) (hCopen : ∀ (i : ι), IsOpen (C i)) :
