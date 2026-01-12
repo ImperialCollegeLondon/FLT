@@ -344,6 +344,27 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     rw [← mul_one ((FiniteAdeleRing.singleLinearMap (𝓞 K) K v) 1)]
   rw [← smul_eq_mul, ← TensorProduct.smul_tmul', map_smul, AlgHom.rTensor_map_smul]
   rw [FiniteAdeleRing.evalAlgebraMap_singleLinearMap, one_smul]
+  conv_lhs =>
+    change (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v))
+      (φ.toLinearEquiv.toLinearMap (1 ⊗ₜ[K] r))
+    rw [← Matrix.toLin_toMatrix b b φ.toLinearEquiv]
+  have rTensor_basis (j : Module.Free.ChooseBasisIndex K B) :
+      (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)) (b j)
+      = b_local j := by
+    simp [AlgHom.rTensor, b, b_local]
+  have eval_mulVec_eq (j : Module.Free.ChooseBasisIndex K B) :
+      (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
+          (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).mulVec (⇑(b.repr (1 ⊗ₜ[K] r))) j)
+      =
+      (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).map
+        ⇑(evalRingHom (fun p ↦ adicCompletion K p) v)).mulVec
+          (⇑(b_local.repr (1 ⊗ₜ[K] r))) j := by
+    set m := ((LinearMap.toMatrix b b) ↑φ.toLinearEquiv)
+    convert RingHom.map_mulVec (evalRingHom (fun p ↦ adicCompletion K p) v) m _ j
+    ext i
+    simp [b, b_local, evalRingHom, evalMonoidHom, Algebra.smul_def]
+    rfl
+  simp [-Matrix.toLin_toMatrix, Matrix.toLin_apply, rTensor_basis, eval_mulVec_eq]
   /-
 
   localcomponent stuff and `single` (an annoying linear map) now gone.
@@ -371,7 +392,6 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
 
   Could just break everything up into sums? Tried this and got confused.
   -/
-  sorry
 
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
 -- finitely many places
