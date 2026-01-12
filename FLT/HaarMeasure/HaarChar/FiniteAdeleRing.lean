@@ -352,10 +352,9 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
   letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
   letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
   change (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j =
-    (LinearMap.toMatrix b b φ.toLinearMap i j) v
-  change _ = RingHom.mapMatrix
-    (evalRingHom (fun (p : HeightOneSpectrum (𝓞 K)) ↦ p.adicCompletion K) v)
-    (LinearMap.toMatrix b b φ.toLinearMap) i j
+    RingHom.mapMatrix
+      (evalRingHom (fun (p : HeightOneSpectrum (𝓞 K)) ↦ p.adicCompletion K) v)
+      (LinearMap.toMatrix b b φ.toLinearMap) i j
   -- get rid of i,j
   apply congr_fun
   apply congr_fun
