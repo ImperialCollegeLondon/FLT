@@ -230,18 +230,206 @@ open FiniteAdeleRing.Aux
 generality so no harm in making it classical. -/
 noncomputable local instance : DecidableEq (HeightOneSpectrum (𝓞 K)) := Classical.decEq _
 
--- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
--- finitely many places
-lemma FiniteAdeleRing.Aux.almost_always_integral
+section auxiliary_basis_lemmas
+
+/- API for relating `ContinuousLinearEquiv.chooseBasis_piScalarRight'` to `Module.Basis`.
+TODO: Could all probably be elsewhere and in greater generality. -/
+
+/-- `b_local` is `v.adicCompletion K`-basis for `v.adicCompletion K ⊗[K] B`. -/
+noncomputable abbrev b_local (v : HeightOneSpectrum (𝓞 K)) :=
+  Module.Basis.baseChange (v.adicCompletion K) (Module.Free.chooseBasis K B)
+
+lemma basis_repr_eq (v : HeightOneSpectrum (𝓞 K)) {x : adicCompletion K v ⊗[K] B} :
+    (b_local K B v).repr x
+    = (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (v.adicCompletion K) B) x := by
+  refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
+  ext; simp; rfl
+
+lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
+    {j : Module.Free.ChooseBasisIndex K B} {x : adicCompletion K v} :
+    x • (b_local K B v) j
+    = (ContinuousLinearEquiv.chooseBasis_piScalarRight'
+      K (v.adicCompletion K) B).symm (Pi.single j x) := by
+  rw [ContinuousLinearEquiv.eq_symm_apply];
+  ext b;
+  conv_lhs =>
+    simp only [Module.Basis.baseChange_apply, Algebra.smul_def,
+      Algebra.TensorProduct.algebraMap_apply, Algebra.algebraMap_self, RingHom.id_apply,
+      Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
+    change ((Module.Free.chooseBasis K B).repr ((Module.Free.chooseBasis K B) j)) b • x
+  simp [Finsupp.single, Pi.single, Algebra.smul_def, Function.update]
+
+lemma basis_eq (v : HeightOneSpectrum (𝓞 K))
+    {w : Module.Free.ChooseBasisIndex K B → adicCompletion K v} :
+    ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • (b_local K B v) j
+    = (ContinuousLinearEquiv.chooseBasis_piScalarRight'
+      K (v.adicCompletion K) B).toContinuousAddEquiv.symm w := by
+  have hw : w = ∑ x, (Pi.single x (w x)) := by
+    ext; simp
+  conv_rhs => rw [hw]
+  simp only [basis_eq_single K B v, map_sum]; rfl
+
+end auxiliary_basis_lemmas
+
+-- this should really be just after the definition of `localcomponent`
+/-- `TensorProduct.localcomponent φ` as `v.adicCompletion K`-linear map -/
+noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
     FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
-    let ι := Module.Free.ChooseBasisIndex K B
+    v.adicCompletion K ⊗[K] B →ₗ[v.adicCompletion K] v.adicCompletion K ⊗[K] B := {
+  __ := (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)
+  map_smul' kv x := by
+    -- rewrite so topology-free
+    change AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
+      (φ (LinearMap.rTensor B (FiniteAdeleRing.singleLinearMap (𝓞 K) K v) (kv • x))) =
+      kv • (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
+      (φ (LinearMap.rTensor B (FiniteAdeleRing.singleLinearMap (𝓞 K) K v) x)))
+    induction x with
+    | zero => simp only [AlgHom.toRingHom_eq_coe, smul_zero, map_zero]
+    | tmul x y =>
+      -- need to slowly move the `kv •` out on the LHS
+      rw [LinearMap.rTensor_tmul, TensorProduct.smul_tmul',
+        LinearMap.rTensor_tmul, smul_eq_mul]
+      -- 1/3 of the way there
+      -- we needed `single` to be linear, but now we need it to be a MulHom
+      conv =>
+        enter [1, 2, 2, 2]
+        change FiniteAdeleRing.singleMulHom _ _ _ _
+        rw [map_mul, ← smul_eq_mul]
+      -- 2/3 of the way there
+      rw [← TensorProduct.smul_tmul', map_smul, AlgHom.rTensor_map_smul]
+      -- out, but now in the form (single (eval kv) •)
+      congr
+      -- but we know this is kv
+      exact FiniteAdeleRing.evalContinuousAlgebraMap_singleContinuousLinearMap (𝓞 K) K v kv
+    | add x y _ _ => simp_all only [AlgHom.toRingHom_eq_coe, smul_add, map_add]
+}
+
+lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
+    (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
+      FiniteAdeleRing (𝓞 K) K ⊗[K] B)
+    (i j : Module.Free.ChooseBasisIndex K B) :
+    letI b₀ := Module.Free.chooseBasis K B
+    letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
+    letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
+    (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j =
+    (LinearMap.toMatrix b b φ.toLinearMap i j) v := by
+  letI b₀ := Module.Free.chooseBasis K B
+  letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
+  letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
+  change (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j =
+    RingHom.mapMatrix
+      (evalRingHom (fun (p : HeightOneSpectrum (𝓞 K)) ↦ p.adicCompletion K) v)
+      (LinearMap.toMatrix b b φ.toLinearMap) i j
+  -- get rid of i,j
+  apply congr_fun
+  apply congr_fun
+  -- move LinearMap.toMatrix onto the other side of the equation
+  rw [RingHom.mapMatrix_apply (evalRingHom (fun p ↦ adicCompletion K p) v)
+      ((LinearMap.toMatrix b b) ↑φ.toLinearEquiv)]
+  apply_fun (Matrix.toLin b_local b_local) using (Matrix.toLin b_local b_local).injective
+  rw [Matrix.toLin_toMatrix]
+  -- This is now an equality of linear maps Kᵥ ⊗[K] B → Kᵥ ⊗[K] B
+  ext r -- r ∈ B
+  -- now get rid of `φ_local_Kv_linear`
+  change AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
+    (φ (LinearMap.rTensor B (FiniteAdeleRing.singleLinearMap (𝓞 K) K v) (1 ⊗ₜ r))) =
+  ((Matrix.toLin b_local b_local)
+    (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).map ⇑(evalRingHom (fun p ↦ adicCompletion K p) v)))
+    (1 ⊗ₜ[K] r)
+  rw [LinearMap.rTensor_tmul]
+  conv =>
+    enter [1, 2, 2, 2]
+    rw [← mul_one ((FiniteAdeleRing.singleLinearMap (𝓞 K) K v) 1)]
+  rw [← smul_eq_mul, ← TensorProduct.smul_tmul', map_smul, AlgHom.rTensor_map_smul]
+  rw [FiniteAdeleRing.evalAlgebraMap_singleLinearMap, one_smul]
+  /-
+
+  localcomponent stuff and `single` (an annoying linear map) now gone.
+
+  goal is
+
+  ⊢ (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)) (φ (1 ⊗ₜ[K] r)) =
+  ((Matrix.toLin b_local b_local)
+      (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).map
+        ⇑(evalRingHom (fun p ↦ adicCompletion K p) v)))
+    (1 ⊗ₜ[K] r)
+
+  Breakdown of goal: we have φ an 𝔸_K^f-linear endomorphism of 𝔸_K^f ⊗ B, and we have r ∈ B.
+
+  LHS is (evalᵥ ⊗ id_B : 𝔸_K^f ⊗ B → Kᵥ ⊗ B) evaluated at φ (1_𝔸 ⊗ₜ r) (a random tensor and
+    not a pure tensor in general)
+
+  RHS is: take φ as a linear map, make its matrix wrt basis b, apply evalᵥ,
+  turn it back into a linear map wrt b_local (which is (evalᵥ ⊗ id_B) b, although we don't have
+  a proof of this) and then evaluate at (1ᵥ ⊗ₜ[K] r) (which is (evalᵥ ⊗ id_B) (1_𝔸 ⊗ₜ r)
+
+  so there should be some general statement here from which this follows?
+
+  I'm not entirely sure of the best way to say that b_local is evalᵥ ⊗ id_B of b
+
+  Could just break everything up into sums? Tried this and got confused.
+  -/
+  sorry
+
+-- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
+-- finitely many places
+lemma FiniteAdeleRing.Aux.almost_always_mapsTo
+    (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
+    FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
+    letI ι := Module.Free.ChooseBasisIndex K B
+    ∀ᶠ (i : HeightOneSpectrum (𝓞 K)) in Filter.cofinite,
+      Set.MapsTo ⇑((fun v ↦ e K B v
+        (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)) i)
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K i).toAddSubgroup)
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K i).toAddSubgroup) := by
+  let b₀ := Module.Free.chooseBasis K B
+  let b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
+  let m := LinearMap.toMatrix b b φ.toLinearMap
+  have := fun i j ↦ (m i j).2
+  simp_rw [← Filter.eventually_all] at this
+  filter_upwards [this]
+  intro v hv w (hw : w ∈ Set.pi _ _) j _
+  rw [Set.mem_univ_pi] at hw
+  -- hopefully true :-)
+  -- Idea: φ is represented by a matrix M, and the claim is that for a finite place v
+  -- at which the matrix is v-integral, the local component of φ
+  -- should preserve integrality.
+  let b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
+  -- `b_local` is `v.adicCompletion K`-basis for `v.adicCompletion K ⊗[K] B`
+  have basis_repr_eq' {x : adicCompletion K v ⊗[K] B} :
+      b_local.repr x
+      = (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (v.adicCompletion K) B) x :=
+    basis_repr_eq K B v
+  have local_repr_eq (i j : Module.Free.ChooseBasisIndex K B) :
+      ((b_local.repr (φ_local_Kv_linear K B v φ (b_local j))) i) = (m i j) v := by
+    rw [← LinearMap.toMatrix_apply, localcomponent_matrix]
+  -- simp [e, ← basis_eq K B v]
+  simp only [e, ← basis_eq K B v, Subsemiring.coe_carrier_toSubmonoid, Subring.coe_toSubsemiring,
+    ContinuousAddEquiv.trans_apply, map_sum, Finset.sum_apply, SetLike.mem_coe,
+    ValuationSubring.mem_toSubring] --argh!
+  change ∑ c,
+    (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (adicCompletion K v) B)
+    (φ_local_Kv_linear K B v φ (w c • b_local c)) j
+    ∈ adicCompletionIntegers K v
+  simpa [← basis_repr_eq', local_repr_eq] using sum_mem fun i hi ↦ mul_mem (hw i) (hv j i)
+
+-- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
+-- finitely many places
+lemma FiniteAdeleRing.Aux.almost_always_bijOn
+    (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
+    FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
+    letI ι := Module.Free.ChooseBasisIndex K B
     ∀ᶠ (i : HeightOneSpectrum (𝓞 K)) in Filter.cofinite,
       Set.BijOn ⇑((fun v ↦ e K B v
         (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)) i)
-      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup)
-      ↑(AddSubgroup.pi (Set.univ : Set ι) fun x ↦ (adicCompletionIntegers K i).toAddSubgroup) :=
-  sorry -- this needs some thought
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K i).toAddSubgroup)
+      ↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K i).toAddSubgroup) := by
+  have h1 := FiniteAdeleRing.Aux.almost_always_mapsTo K B φ
+  have h2 := FiniteAdeleRing.Aux.almost_always_mapsTo K B φ.symm
+  filter_upwards [h1, h2]
+  intro v h1 h2
+  exact (e K B v (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)).bijOn' h1 h2
 
 /-- A diagram which obviously commutes, commutes. -/
 lemma FiniteAdeleRing.Aux.f_g_local_global
@@ -249,7 +437,11 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
       (FiniteAdeleRing (𝓞 K) K) ⊗[K] B) :
     g K (f K B φ) = ContinuousAddEquiv.restrictedProductCongrRight
     (fun v ↦ e _ _ _ (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ))
-    (FiniteAdeleRing.Aux.almost_always_integral _ _ _) := by
+    (FiniteAdeleRing.Aux.almost_always_bijOn _ _ _) := by
+  ext r v i;
+  simp [ContinuousAddEquiv.restrictedProductCongrRight]
+  simp [e,f,g, FiniteAdeleRing.TensorProduct.localcomponentEquiv,
+    FiniteAdeleRing.TensorProduct.localcomponent]
   sorry -- this is hopefully close to being true by ext but I didn't think about it.
 
 lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
