@@ -119,6 +119,7 @@ import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 import FLT.Mathlib.RingTheory.LocalRing.Defs
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 import FLT.Mathlib.RingTheory.Localization.BaseChange
+import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
