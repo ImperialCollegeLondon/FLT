@@ -9,6 +9,7 @@ import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import Mathlib.LinearAlgebra.Charpoly.BaseChange
 import Mathlib.RingTheory.SimpleModule.IsAlgClosed
 import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
+import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
 
 variable (k : Type*) [Field k] {D : Type*} [Ring D] [Algebra k D]
 open scoped TensorProduct
@@ -45,14 +46,17 @@ variable [Algebra.IsCentral k D] [IsSimpleRing D] [FiniteDimensional k D]
 
 /-- This is instance is in a repo on brauergroup which has been PRed into mathlib
 at https://github.com/leanprover-community/mathlib4/pull/26377 .
-  The associated FLT issue is #631. -/
-instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
-    [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (A ⊗[k] B) := sorry
-
+  The associated FLT issue is #631.
+  For now it's in `import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct`.
+-/
 instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
     [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (B ⊗[k] A) :=
+  inferInstance
+
+instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
+    [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (A ⊗[k] B) :=
   IsSimpleRing.of_ringEquiv
-    (Algebra.TensorProduct.comm k A B).toRingEquiv inferInstance
+    (Algebra.TensorProduct.comm k B A).toRingEquiv inferInstance
 
 lemma IsSimpleRing.mulLeft_det_eq_mulRight_det (d : D) :
     (LinearMap.mulLeft k d).det = (LinearMap.mulRight k d).det := by
