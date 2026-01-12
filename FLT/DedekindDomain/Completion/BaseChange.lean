@@ -3,30 +3,17 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
-import FLT.Mathlib.Algebra.Algebra.Bilinear
-import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
-import Mathlib.NumberTheory.RamificationInertia.Basic
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.Algebra.UniformRing
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Topology.Algebra.Valued.WithVal
-import FLT.Mathlib.RingTheory.TensorProduct.Basis
-import Mathlib.RingTheory.Finiteness.Basic
-import Mathlib.Algebra.Algebra.Subalgebra.Pi
-import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.Data.Int.WithZero
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.Topology.Algebra.Valued.NormedValued
-import Mathlib.RingTheory.Valuation.RankOne
-import Mathlib.RingTheory.Flat.Basic
-import Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.IntegralClosure
-import FLT.Hacks.RightActionInstances
+import FLT.Mathlib.Algebra.Algebra.Pi
+import FLT.Mathlib.Algebra.Module.Submodule.Basic
+import FLT.Mathlib.RingTheory.TensorProduct.Basis
+import FLT.Mathlib.Topology.Algebra.Module.Equiv
+import FLT.Mathlib.Topology.Algebra.UniformRing
+import FLT.Mathlib.Topology.Algebra.Valued.WithVal
+import Mathlib.Algebra.Algebra.Subalgebra.Pi
+import Mathlib.Topology.Algebra.Module.FiniteDimension
+import Mathlib.Topology.Algebra.Valued.NormedValued
 
 /-!
 
@@ -501,7 +488,6 @@ lemma tensorAdicCompletionIsClopenRange :
   -- open neighbourhood of 0.
   apply AddSubgroup.isOpen_of_zero_mem_interior
   rw [mem_interior, Subring.coe_toAddSubgroup, Subalgebra.coe_toSubring]
-
   -- Take a basis `b` of `L` over `K` with elements in `B` and use it to
   -- get a basis `b'` of `L ⊗[K] K_v` over `K_v`.
   obtain ⟨ι, b, hb⟩ := FiniteDimensional.exists_is_basis_integral A K L
@@ -511,7 +497,6 @@ lemma tensorAdicCompletionIsClopenRange :
   -- Use the basis to get a continuous equivalence from `L ⊗[K] K_v` to `ι → K_v`.
   let equiv : L ⊗[K] (adicCompletion K v) ≃L[K] (ι → adicCompletion K v) :=
     IsModuleTopology.continuousLinearEquiv (b'.equivFun) |>.restrictScalars K
-
   -- Use the preimage of `∏ 𝒪_v` as the open neighbourhood.
   use equiv.symm '' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v)))
   refine ⟨?_, ?_, by simp⟩
@@ -674,7 +659,6 @@ noncomputable def tensorAdicCompletionIntegersToLinearMap :
       RingHom.toMonoidHom_eq_coe, AlgHom.toRingHom_toMonoidHom, Algebra.smul_def,
       TensorProduct.RightActions.algebraMap_eval, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
       MonoidHom.coe_coe, map_mul, map_one, RingHom.id_apply]
-    rw [Subsemiring.smul_def, Algebra.smul_def]
     rfl
 
 open scoped TensorProduct.RightActions in
@@ -690,7 +674,6 @@ noncomputable def adicCompletionComapIntegerLinearMap (v : HeightOneSpectrum A)
   let alg (w' : Extension B v) : Algebra _ _ :=
     RingHom.toAlgebra <| (algebraMap (adicCompletion K v) (adicCompletion L w'.val)).comp
       (algebraMap (adicCompletionIntegers K v) (adicCompletion K v))
-
   have : LinearMap.CompatibleSMul (L ⊗[K] adicCompletion K v)
       ((w : Extension B v) → adicCompletion L w.val)
       (adicCompletionIntegers K v) (adicCompletion K v) := {
@@ -750,14 +733,12 @@ theorem comap_integer_algebra_finite [Module.Finite A B] (v : HeightOneSpectrum 
     (algebraMap (adicCompletion K v) (adicCompletion L w)).comp
       (algebraMap (adicCompletionIntegers K v) (adicCompletion K v))
   letI := RingHom.toAlgebra hom
-
   let integerSubmodule : Submodule (adicCompletionIntegers K v) (adicCompletion L w) :=
     have : IsScalarTower (adicCompletionIntegers K v) (adicCompletionIntegers L w)
         (adicCompletion L w) := by
       apply IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
     (adicCompletionIntegers L w).toSubring.toSubmodule.restrictScalars
       (adicCompletionIntegers K v)
-
   have heq : (LinearMap.range (adicCompletionComapIntegerLinearMap A K L B v w hvw)) =
       integerSubmodule := by
     ext x

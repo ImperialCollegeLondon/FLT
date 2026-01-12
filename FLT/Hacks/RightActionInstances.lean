@@ -188,6 +188,14 @@ noncomputable def AlgebraMap.baseChange (R : Type*) [CommRing R]
   __ := Algebra.TensorProduct.map φ (.id R A)
   commutes' a := by simp
 
+/-- Right action version of `Algebra.TensorProduct.basis` -- base extension of a basis
+over a tensor product. -/
+def Algebra.TensorProduct.basis {R : Type*} (A : Type*) {M : Type*} {ι : Type*}
+    [CommSemiring R] [CommSemiring A] [Algebra R A] [AddCommMonoid M] [Module R M]
+    (b : Module.Basis ι R M) :
+    Module.Basis ι A (M ⊗[R] A) :=
+  (_root_.Algebra.TensorProduct.basis A b).map (Module.TensorProduct.comm R A M)
+
 end semiring
 
 noncomputable section ring

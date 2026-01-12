@@ -10,6 +10,9 @@ import FLT.Mathlib.Topology.Algebra.MulAction
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
 
 /-!
+
+# Restricted product of modules as a module over restricted product of rings
+
 If `R : ι → Type*` is a family of rings, `B : (i : ι) → Subring (R i)` is a family of
 subrings, `M : ι → Type*` is a family of types, with `M i` having an `R i`-module structure
 and `C : (i : ι) → Submodule (B i) (M i)`, then `Πʳ i, [M i, C i]_[𝓕]` has a
@@ -174,7 +177,7 @@ def piSubringSubmodule (i : ι) : Submodule (B i) (n → R i) :=
 def _root_.LinearEquiv.restrictedProductPi
     : Πʳ i, [n → R i, piSubringSubmodule B n i]_[ℱ] ≃ₗ[Πʳ i, [R i, B i]_[ℱ]]
       n → Πʳ i, [R i, B i]_[ℱ] where
-  toFun x j := congrRight (fun i y ↦ y j)
+  toFun x j := map (fun i y ↦ y j)
     (by
       filter_upwards with i r hr
       rw [piSubringSubmodule, Submodule.coe_pi, Set.mem_univ_pi] at hr

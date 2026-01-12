@@ -114,8 +114,8 @@ theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
     (Basis.toMatrix_continuous Bw) Bw.toMatrix_self
   -- Therefore `α` is a basis under the image of `piExtension L v`, hence it's surjective
   rw [← isUnit_iff_ne_zero, ← Bw.det_apply, ← Module.Basis.is_basis_iff_det Bw] at h
-  rw [← baseChangeRightOfAlgebraMap_coe, ← LinearMap.range_eq_top, ← top_le_iff, ← h.2,
-    Submodule.span_le]
+  rw [← baseChangeRightOfAlgebraMap_coe, ← AlgHom.coe_toLinearMap, ← LinearMap.range_eq_top,
+    ← top_le_iff, ← h.2, Submodule.span_le]
   rintro x ⟨i, rfl⟩
   exact ⟨α i ⊗ₜ 1, by simp⟩
 

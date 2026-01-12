@@ -11,7 +11,7 @@ and all its discrete quotients are artinian.
 
 This is also called the category of "pseudo-compact" rings in section 0 of Exp VII_B of SGA3. -/
 class IsProartinian : Prop extends IsLinearTopology R R, T0Space R,
-    letI := IsTopologicalAddGroup.toUniformSpace R; CompleteSpace R where
+    letI := IsTopologicalAddGroup.rightUniformSpace R; CompleteSpace R where
   isArtinianRing_quotient (I : Ideal R) : IsOpen (X := R) I → IsArtinianRing (R ⧸ I)
 
 attribute [instance low] IsProartinian.toIsLinearTopology
@@ -50,7 +50,7 @@ lemma exists_maximalIdeal_pow_le_of_isProartinian [IsProartinian R]
   by_cases hI' : I = ⊤
   · exact ⟨1, by simp [hI']⟩
   have := IsProartinian.isArtinianRing_quotient I hI
-  have : Nontrivial (R ⧸ I) := Ideal.Quotient.nontrivial hI'
+  have : Nontrivial (R ⧸ I) := Ideal.Quotient.nontrivial_iff.2 hI'
   have : IsLocalRing (R ⧸ I) := .of_surjective' _ Ideal.Quotient.mk_surjective
   obtain ⟨n, hn⟩ := IsArtinianRing.isNilpotent_jacobson_bot (R := R ⧸ I)
   rw [jacobson_eq_maximalIdeal _ bot_ne_top,

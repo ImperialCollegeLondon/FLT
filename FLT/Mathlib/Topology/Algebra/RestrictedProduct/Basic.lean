@@ -1,7 +1,7 @@
+import Mathlib.Algebra.Module.LinearMap.Defs
+import Mathlib.Algebra.Ring.Subring.Basic
 import Mathlib.Topology.Algebra.RestrictedProduct.Basic
-import Mathlib.LinearAlgebra.DFinsupp
-import Mathlib.LinearAlgebra.Matrix.Defs
-import Mathlib.Algebra.Group.Submonoid.Units
+import Mathlib.Algebra.Module.Submodule.Defs
 
 namespace RestrictedProduct
 
@@ -35,13 +35,6 @@ variable
     {G H : ι → Type*}
     {C : (i : ι) → Set (G i)}
     {D : (i : ι) → Set (H i)}
-
-/-- The maps between restricted products over a fixed index type,
-given maps on the factors. -/
-def congrRight (φ : (i : ι) → G i → H i)
-    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (C i) (D i))
-    (x : Πʳ i, [G i, C i]_[ℱ]) : (Πʳ i, [H i, D i]_[ℱ]) :=
-  map φ hφ x
 
 end RestrictedProduct
 
@@ -83,6 +76,23 @@ lemma RestrictedProduct.mapAlongLinearMap_apply (x : Πʳ i, [R₁ i, B₁ i]_[�
     x.mapAlongLinearMap R₁ R₂ f hf φ hφ j = φ j (x (f j)) :=
   rfl
 
+variable (A : Type*) [CommRing A] {ι : Type*} (R : ι → Type*)
+  [Π i, AddCommGroup (R i)] [∀ i, Module A (R i)] (C : ∀ i, Submodule A (R i))
+
+/-- A linear map version of `RestrictedProduct.inclusion` :
+if `𝓕 ≤ 𝓖` then there's a linear map
+`Πʳ i, [R i, C i]_[𝓖] →ₗ[A] Πʳ i, [R i, C i]_[𝓕]` where the `R i`
+are `A`-modules and the `C i` are submodules.
+-/
+def RestrictedProduct.inclusionLinearMap
+     {𝓕 𝓖 : Filter ι} (h : 𝓕 ≤ 𝓖) :
+    Πʳ i, [R i, C i]_[𝓖] →ₗ[A] Πʳ i, [R i, C i]_[𝓕] :=
+  mapAlongLinearMap R R id h (fun _ ↦ .id)
+  (Filter.Eventually.of_forall <| fun _ _ ↦ id)
+
+lemma inclusionLinearMap_apply {𝓕 𝓖 : Filter ι} (h : 𝓕 ≤ 𝓖) (x : Πʳ i, [R i, C i]_[𝓖]) :
+  inclusionLinearMap A R C h x = ⟨x.1, x.2.filter_mono h⟩ := rfl
+
 end modules
 
 variable {ι : Type*}
@@ -91,78 +101,9 @@ variable {ℱ : Filter ι}
     {C : (i : ι) → Set (G i)}
     {D : (i : ι) → Set (H i)}
 
-section equivs
-
-variable {S T : ι → Type*} -- subobject types
-variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
-variable {A : Π i, S i} {B : Π i, T i}
-
-variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
-    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
-/-- The monoid homomorphism between restricted products over a fixed index type,
-given monoid homomorphisms on the factors. -/
-@[to_additive
-/-- The additive monoid homomorphism between restricted products over a fixed index type,
-given additive monoid homomorphisms on the factors. -/]
-def MonoidHom.restrictedProductCongrRight (φ : (i : ι) → G i →* H i)
-    (hφ : ∀ᶠ i in ℱ, Set.MapsTo (φ i) (A i) (B i)) :
-    Πʳ i, [G i, A i]_[ℱ] →* Πʳ i, [H i, B i]_[ℱ] where
-      toFun := congrRight (fun i ↦ φ i) hφ
-      map_one' := by ext; simp [congrRight]
-      map_mul' x y := by ext; simp [congrRight]
-
-variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
-    [Π i, Monoid (H i)] [Π i, SubmonoidClass (T i) (H i)] in
-/-- The `MulEquiv` between restricted products built from `MulEquiv`s on the factors. -/
-@[to_additive /-- The `AddEquiv` between restricted products built from `AddEquiv`s
-  on the factors. -/]
-def MulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃* H i)
-    (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
-    (Πʳ i, [G i, A i]_[ℱ]) ≃* (Πʳ i, [H i, B i]_[ℱ]) where
-  __ := MonoidHom.restrictedProductCongrRight (fun i ↦ φ i)
-    (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo)
-  invFun := MonoidHom.restrictedProductCongrRight (fun i ↦ (φ i).symm)
-    (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo ∘ Set.BijOn.equiv_symm)
-  left_inv x := by ext; simp [MonoidHom.restrictedProductCongrRight, congrRight]
-  right_inv x := by ext; simp [MonoidHom.restrictedProductCongrRight, congrRight]
-
-/-- The isomorphism between the units of a restricted product of monoids,
-and the restricted product of the units of the monoids. -/
-def MulEquiv.restrictedProductUnits {ι : Type*} {ℱ : Filter ι}
-    {M : ι → Type*} [(i : ι) → Monoid (M i)]
-    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)]
-    {A : Π i, S i} :
-    (Πʳ i, [M i, A i]_[ℱ])ˣ ≃*
-      Πʳ i, [(M i)ˣ, (Submonoid.ofClass (A i)).units]_[ℱ] where
-        toFun u := ⟨fun i ↦ ⟨u.1 i, u⁻¹.1 i, congr($u.mul_inv i), congr($u.inv_mul i)⟩,
-          by filter_upwards [u.val.2, u⁻¹.val.2] using fun i hi hi' ↦ ⟨hi, hi'⟩⟩
-        invFun ui := ⟨⟨fun i ↦ ui i, by filter_upwards [ui.2] using fun i hi ↦ hi.1⟩,
-          ⟨fun i ↦ ui⁻¹ i, by filter_upwards [ui⁻¹.2] using fun i hi ↦ hi.1⟩,
-          by ext i; exact (ui i).mul_inv,
-          by ext i; exact (ui i).inv_mul⟩
-        left_inv u := by ext; rfl
-        right_inv ui := by ext; rfl
-        map_mul' u v := by ext; rfl
-
-variable {R : Type*} [Semiring R] [Π i, AddCommMonoid (G i)] [Π i, AddSubmonoidClass (S i) (G i)]
-    [Π i, Module R (G i)] [Π i, SMulMemClass (S i) R (G i)]
-    [Π i, AddCommMonoid (H i)] [Π i, AddSubmonoidClass (T i) (H i)]
-    [Π i, Module R (H i)] [Π i, SMulMemClass (T i) R (H i)] in
-/-- The `LinearEquiv` between restricted products built from `LinearEquiv`s on the factors. -/
-def LinearEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₗ[R] H i)
-    (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
-    (Πʳ i, [G i, A i]_[ℱ]) ≃ₗ[R] (Πʳ i, [H i, B i]_[ℱ]) where
-  __ := AddEquiv.restrictedProductCongrRight (fun i ↦ (φ i).toAddEquiv)
-    (by filter_upwards [hφ]; exact fun i ↦ id)
-  map_smul' m x := by
-    ext i
-    apply map_smul
-
-end equivs
+namespace RestrictedProduct
 
 section supports
-
-namespace RestrictedProduct
 
 variable {S T : ι → Type*} -- subobject types
 variable [Π i, SetLike (S i) (G i)] [Π i, SetLike (T i) (H i)]
@@ -252,141 +193,20 @@ lemma mem_coset_and_mulSupport_subset_of_isProductAt
     simp only [smul_eq_mul, mul_assoc, mul_inv_cancel_left, hcomm]⟩,
     mulSupport_mul_subset huᵢ hg⟩
 
-end RestrictedProduct
+/-- For a cofinite restricted product `Πʳ i, [G i, A i]`, `indexSupport` is the finite set of
+indices for which `u ∉ A i`. -/
+noncomputable
+def indexSupport (u : Πʳ i, [G i, A i]) : Finset ι := Set.Finite.toFinset (by simpa using u.2)
+
+@[simp]
+theorem mem_indexSupport_iff {u : Πʳ i, [G i, A i]} {i : ι} :
+    i ∈ indexSupport u ↔ u i ∉ A i := by
+  simp [indexSupport]
+  rfl
 
 end supports
 
-section binary
-
-variable {ι : Type*} {ℱ : Filter ι} {A B : ι → Type*}
-  {C : (i : ι) → Set (A i)} {D : (i : ι) → Set (B i)}
-
-/-- The bijection between a restricted product of binary products, and the binary product
-of the restricted products. -/
-@[simps]
-def Equiv.restrictedProductProd :
-    Πʳ i, [A i × B i, C i ×ˢ D i]_[ℱ] ≃ (Πʳ i, [A i, C i]_[ℱ]) × (Πʳ i, [B i, D i]_[ℱ]) where
-  toFun x := (congrRight (fun i (t : A i × B i) ↦ t.1) (by simp +contextual [Set.MapsTo]) x,
-              congrRight (fun i (t : A i × B i) ↦ t.2) (by simp +contextual [Set.MapsTo]) x)
-  invFun yz :=
-    ⟨fun i ↦ (yz.1 i, yz.2 i), by
-    filter_upwards [yz.1.2, yz.2.2] with i using Set.mk_mem_prod⟩
-  left_inv x := by ext <;> rfl
-  right_inv y := by ext <;> rfl
-
-lemma Equiv.restrictedProductProd_symm_comp_inclusion {ℱ₁ ℱ₂ : Filter ι} (hℱ : ℱ₁ ≤ ℱ₂) :
-    Equiv.restrictedProductProd.symm ∘ Prod.map (inclusion _ _ hℱ) (inclusion _ _ hℱ) =
-      inclusion (fun i ↦ A i × B i) (fun i ↦ C i ×ˢ D i) hℱ ∘ Equiv.restrictedProductProd.symm :=
-  rfl
-
-end binary
-
-section pi
-
-variable {ι : Type*} {ℱ : Filter ι} {n : Type*} [Fintype n]
-    {A : n → ι → Type*}
-    {C : (j : n) → (i : ι) → Set (A j i)}
-
--- Q: Is there a mathlibism for `{f | ∀ j, f j ∈ C j i}`?
--- A: Yes, `Set.pi Set.univ`, except that it's defeq to `{f | ∀ j ∈ univ, f j ∈ C j i}`
-
-/-- The bijection between a restricted product of finite products, and a finite product
-of restricted products.
--/
-def Equiv.restrictedProductPi :
-    Πʳ i, [Π j, A j i, {f | ∀ j, f j ∈ C j i}]_[ℱ] ≃ Π j, Πʳ i, [A j i, C j i]_[ℱ] where
-  toFun x j := congrRight (fun i t ↦ t _) (by simp +contextual [Set.MapsTo]) x
-  invFun y := .mk (fun i j ↦ y j i) (by simp)
-  left_inv x := by ext; rfl
-  right_inv y := by ext; rfl
-
-lemma Equiv.restrictedProductPi_symm_comp_inclusion {ℱ₁ ℱ₂ : Filter ι} (hℱ : ℱ₁ ≤ ℱ₂) :
-    Equiv.restrictedProductPi.symm ∘ Pi.map (fun i ↦ inclusion (A i) (C i) hℱ) =
-      inclusion _ _ hℱ ∘ Equiv.restrictedProductPi.symm :=
-  rfl
-
-/-- The bijection between a restricted product of m x n matrices, and m x n matrices
-of restricted products.
--/
-def Equiv.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
-    {A : ι → Type*}
-    {C : (i : ι) → Set (A i)} :
-    Πʳ i, [Matrix m n (A i), {f | ∀ a b, f a b ∈ C i}] ≃ Matrix m n (Πʳ i, [A i, C i]) :=
-  Equiv.restrictedProductPi.trans (Equiv.piCongrRight fun _ ↦ Equiv.restrictedProductPi)
-
-end pi
-
-section flatten
-
-namespace RestrictedProduct
-
-variable {ι₂ : Type*} {𝒢 : Filter ι₂} {f : ι → ι₂} (C)
-
-variable (hf : Filter.Tendsto f ℱ 𝒢) in
-/-- The canonical map from a restricted product of products over fibres of a map on indexing sets
-to the restricted product over the original indexing set. -/
-def flatten : Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[𝒢] →
-    Πʳ i, [G i, C i]_[ℱ] :=
-  mapAlong _ G f hf (fun i x ↦ x ⟨i, rfl⟩) (by filter_upwards with x y hy using hy ⟨x, rfl⟩ trivial)
-
-@[simp]
-lemma flatten_apply (hf : Filter.Tendsto f ℱ 𝒢) (x) (i : ι) :
-    flatten C hf x i = x (f i) ⟨i, rfl⟩ :=
-  rfl
-
-variable (hf : Filter.comap f 𝒢 = ℱ)
-
-/-- The canonical bijection from a restricted product of products over fibres of a map on indexing
-sets to the restricted product over the original indexing set. -/
-def flatten_equiv :
-    Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[𝒢] ≃
-    Πʳ i, [G i, C i]_[ℱ] where
-  toFun := flatten C (by rw [Filter.tendsto_iff_comap]; exact hf.ge)
-  invFun := fun ⟨x, hx⟩ ↦ ⟨fun _ i ↦ x i, by
-    rw [← hf, Filter.eventually_comap] at hx
-    filter_upwards [hx] with j hj ⟨i, hi⟩ _ using hj i hi⟩
-  left_inv := by
-    intro ⟨x, hx⟩
-    ext _ ⟨i, rfl⟩
-    rfl
-  right_inv x := by ext i; rfl
-
-@[simp]
-lemma flatten_equiv_apply (x) (i : ι) :
-    flatten_equiv C hf x i = x (f i) ⟨i, rfl⟩ :=
-  rfl
-
-@[simp]
-lemma flatten_equiv_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
-    (flatten_equiv C hf).symm x i j = x j.1 :=
-  rfl
-
-variable (hf : Filter.Tendsto f Filter.cofinite Filter.cofinite)
-
-/-- The equivalence given by `flatten` when both restricted products are over the cofinite
-filter. -/
-def flatten_equiv' :
-    Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)] ≃
-    Πʳ i, [G i, C i] :=
-  flatten_equiv C <| le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
-
-@[simp]
-lemma flatten_equiv'_apply (x) (i : ι) :
-    flatten_equiv' C hf x i = x (f i) ⟨i, rfl⟩ :=
-  rfl
-
-@[simp]
-lemma flatten_equiv'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
-    (flatten_equiv' C hf).symm x i j = x j.1 :=
-  rfl
-
-end RestrictedProduct
-
-end flatten
-
 section single
-
-namespace RestrictedProduct
 
 variable {S : ι → Type*}
 variable [Π i, SetLike (S i) (G i)]
@@ -476,13 +296,9 @@ lemma single_mul [∀ i, MulZeroClass (G i)] [∀ i, ZeroMemClass (S i) (G i)]
   · simp
   · simp [single_eq_of_ne' A _ hne]
 
-end RestrictedProduct
-
 end single
 
 section components
-
-namespace RestrictedProduct
 
 variable {ι₂ : Type*} {f : ι₂ → ι} {𝒢 : Filter ι₂}
 variable {G₂ : ι₂ → Type*} {C₂ : (i : ι₂) → Set (G₂ i)}
@@ -545,6 +361,70 @@ lemma eventually_surjOn_of_surjective (hφ : Function.Surjective φ) :
   use ⟨x (f j), hx'⟩
   rw [← hcomponent, hx, hy, mk_apply]
 
-end RestrictedProduct
-
 end components
+
+section structure_map
+
+/-- The structure map for a restricted product of monoids is a `MonoidHom`. -/
+@[to_additive
+/-- The structure map for a restricted product of AddMonoids is an `AddMonoidHom`. -/]
+def structureMapMonoidHom {ι : Type*} (M : ι → Type*) [(i : ι) → Monoid (M i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubmonoidClass (S i) (M i)] (A : Π i, S i)
+    (𝓕 : Filter ι) : ((i : ι) → (A i)) →* Πʳ (i : ι), [M i, Submonoid.ofClass (A i)]_[𝓕] where
+  toFun := structureMap M (A ·) 𝓕
+  map_one' := rfl
+  map_mul' := by intros; rfl
+
+/-- The structure map for a restricted product of ring. -/
+def structureMapRingHom {ι : Type*} (M : ι → Type*) [(i : ι) → Ring (M i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubringClass (S i) (M i)] (A : Π i, S i)
+    (𝓕 : Filter ι) : ((i : ι) → (A i)) →+* Πʳ (i : ι), [M i, Subring.ofClass (A i)]_[𝓕] where
+  toFun := structureMap M (A ·) 𝓕
+  map_zero' := rfl
+  map_one' := rfl
+  map_mul' := by intros; rfl
+  map_add' := by intros; rfl
+
+/-- The subring `∏ i, A i` inside `Πʳ i, [R i, A i]_[𝓕]`. -/
+def structureSubring {ι : Type*} (R : ι → Type*) {S : ι → Type*}
+    (A : (i : ι) → (S i)) (𝓕 : Filter ι) [(i : ι) → SetLike (S i) (R i)] [(i : ι) → Ring (R i)]
+    [(i : ι) → SubringClass (S i) (R i)] :
+    Subring (Πʳ i, [R i, A i]_[𝓕]) :=
+  (RestrictedProduct.structureMapRingHom R A 𝓕).range
+
+@[simp]
+theorem mem_structureSubring_iff {ι : Type*} {R : ι → Type*} {S : ι → Type*}
+    {A : (i : ι) → (S i)} {𝓕 : Filter ι} [(i : ι) → SetLike (S i) (R i)] [(i : ι) → Ring (R i)]
+    [(i : ι) → SubringClass (S i) (R i)] {x : Πʳ i, [R i, A i]_[𝓕]} :
+    x ∈ RestrictedProduct.structureSubring R A 𝓕 ↔
+      ∀ i, x i ∈ A i := by
+  rw [RestrictedProduct.structureSubring]
+  change x ∈ Set.range (RestrictedProduct.structureMap _ _ _) ↔ _
+  rw [RestrictedProduct.range_structureMap]
+  aesop
+
+end structure_map
+
+section single
+
+/-
+
+## Maps from a factor into a restricted product
+
+-/
+
+variable {ι : Type*} [DecidableEq ι] (A : ι → Type*) {𝓕 : Filter ι}
+    {S : ι → Type*}
+    [(i : ι) → SetLike (S i) (A i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → AddMonoid (A i)]
+    [∀ (i : ι), AddSubmonoidClass (S i) (A i)]
+
+/-- The inclusion from a factor into a restricted product of additive groups. -/
+noncomputable def singleAddMonoidHom (j : ι) : A j →+ Πʳ i, [A i, B i] where
+  toFun x := ⟨Pi.single j x, by
+    simpa using (Set.finite_singleton j).subset fun i _ ↦ by by_cases h : i = j <;> simp_all⟩
+  map_zero' := by ext; simp
+  map_add' _ _ := by ext; simp [Pi.single_add]
+
+end single
+
+end RestrictedProduct

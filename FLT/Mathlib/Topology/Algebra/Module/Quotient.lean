@@ -3,9 +3,10 @@ import Mathlib.Topology.Algebra.Module.Equiv
 
 def Submodule.Quotient.continuousLinearEquiv {R : Type*} [Ring R] (G H : Type*) [AddCommGroup G]
     [Module R G] [AddCommGroup H] [Module R H] [TopologicalSpace G] [TopologicalSpace H]
-    (G' : Submodule R G) (H' : Submodule R H) (e : G ≃L[R] H) (h : Submodule.map e G' = H') :
+    (G' : Submodule R G) (H' : Submodule R H) (e : G ≃L[R] H)
+    (h : Submodule.map e.toLinearMap G' = H') :
     (G ⧸ G') ≃L[R] (H ⧸ H') where
-  toLinearEquiv := Submodule.Quotient.equiv G' H' e h
+  toLinearEquiv := Submodule.Quotient.equiv G' H' e.toLinearEquiv (by simp [h])
   continuous_toFun := by
     apply continuous_quot_lift
     simp only [LinearMap.toAddMonoidHom_coe, LinearMap.coe_comp]
@@ -27,7 +28,7 @@ def Submodule.quotientPiContinuousLinearEquiv {R ι : Type*} [CommRing R] {G : �
   continuous_invFun := by
     rw [show (quotientPi p).invFun = fun a => (quotientPi p).invFun a from rfl]
     simp only [quotientPi, quotientPi_aux.toFun, quotientPi_aux.invFun, piQuotientLift,
-      LinearMap.lsum_apply, LinearMap.coeFn_sum, LinearMap.coe_comp, LinearMap.coe_proj,
+      LinearMap.lsum_apply, LinearMap.coe_sum, LinearMap.coe_comp, LinearMap.coe_proj,
       LinearEquiv.invFun_eq_symm, LinearEquiv.coe_symm_mk, Finset.sum_apply, Function.comp_apply,
       Function.eval]
     refine continuous_finset_sum _ (fun i _ => ?_)

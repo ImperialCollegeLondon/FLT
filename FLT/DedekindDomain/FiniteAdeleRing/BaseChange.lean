@@ -3,32 +3,11 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Matthew Jasper
 -/
-import FLT.Mathlib.Algebra.Algebra.Bilinear
-import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
-import Mathlib.NumberTheory.RamificationInertia.Basic
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
-import FLT.Mathlib.Topology.Algebra.UniformRing
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Topology.Algebra.Valued.WithVal
-import FLT.Mathlib.RingTheory.TensorProduct.Basis
-import Mathlib.RingTheory.Finiteness.Basic
-import Mathlib.Algebra.Algebra.Subalgebra.Pi
-import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.Data.Int.WithZero
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.Topology.Algebra.Valued.NormedValued
-import Mathlib.RingTheory.Valuation.RankOne
-import Mathlib.RingTheory.Flat.TorsionFree
-import Mathlib.Topology.Algebra.Module.FiniteDimension
-import FLT.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.Completion.BaseChange
 import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
+import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
+import Mathlib.RingTheory.Flat.TorsionFree
 
 /-!
 
@@ -121,6 +100,19 @@ noncomputable instance baseChangeAlgebra : Algebra K (FiniteAdeleRing B L) :=
 instance : IsScalarTower K L (FiniteAdeleRing B L) :=
   IsScalarTower.of_algebraMap_eq' rfl
 
+/- this instance creates a nasty diamond for
+ `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L A = B, and
+should probably be scoped (or even removed and statements changed so that they
+don't need it).
+
+examples of trouble this instance causes:
+
+failure of
+#synth IsScalarTower K (FiniteAdeleRing (𝓞 K) K) (FiniteAdeleRing (𝓞 K) K)
+
+and as a consequence, failure of
+#synth Module (FiniteAdeleRing (𝓞 K) K) ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)
+-/
 attribute [local instance 9999] Algebra.toSMul in
 instance : IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L) := by
   apply IsScalarTower.of_algebraMap_eq
@@ -226,8 +218,7 @@ def FiniteAdeleRing.restrictedProduct_prod_equiv :
       ext w
       change a • (x (comap A w) ⟨w, rfl⟩) = _
       simp only [Submodule.coe_pi, Submodule.coe_restrictScalars, Algebra.smul_def,
-        RingHom.id_apply, Equiv.toFun_as_coe, RestrictedProduct.mul_apply,
-        RestrictedProduct.flatten_equiv'_apply,
+        RingHom.id_apply, Equiv.toFun_as_coe,
         IsScalarTower.algebraMap_apply A B (w.adicCompletion L)]
       rfl
   }
@@ -310,7 +301,19 @@ section moduleTopology
 
 open scoped RestrictedProduct
 
-attribute [local instance 9999] comap_pi_algebra Algebra.toSMul
+-- shortcut instances
+
+variable (v : HeightOneSpectrum A) in
+noncomputable instance : Module (v.adicCompletionIntegers K) (v.adicCompletion K) :=
+  Algebra.toModule
+
+variable (v : HeightOneSpectrum A) in
+noncomputable instance : MulAction (v.adicCompletionIntegers K) (v.adicCompletion K) :=
+  Algebra.toModule.toMulAction
+
+variable (v : HeightOneSpectrum A) in
+noncomputable instance : SMul (v.adicCompletionIntegers K) (v.adicCompletion K) :=
+  Algebra.toModule.toMulAction.toSMul
 
 /-- `𝓞_v`-module structure on `∏ L_w` from restricting the scalars of the `K_v`-module structure. -/
 noncomputable local instance (v : HeightOneSpectrum A) : Module (adicCompletionIntegers K v)
@@ -342,6 +345,17 @@ private noncomputable local instance (priority := 9999) (v : HeightOneSpectrum A
     Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
   Algebra.toModule
 
+/-- An auxiliary 𝔸_K-module structure on restricted product over v of (product of w's dividing v
+of L_w wrt 𝓞_w). Only used in this file to compare L ⊗ 𝔸_K and 𝔸_L.
+-/
+noncomputable local instance : Module (FiniteAdeleRing A K)
+    Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
+    ↑(piAdicIntegerSubmodule A K L B v)] :=
+  inferInstanceAs <| Module
+      (Πʳ v : HeightOneSpectrum A, [v.adicCompletion K, v.adicCompletionIntegers K])
+      Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
+    ↑(piAdicIntegerSubmodule A K L B v)]
+
 open scoped RestrictedProduct in
 /-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
 reaindexing the elements. -/
@@ -368,6 +382,7 @@ lemma FiniteAdeleRing.restrictedProduct_pi_isModuleTopology : IsModuleTopology (
       piAdicIntegerSubmodule A K L B v]) := by
   have :=
     Module.Finite.equiv (FiniteAdeleRing.restrictedProduct_pi_equiv A K L B).symm.toLinearEquiv
+  unfold FiniteAdeleRing at this
   have := prodAdicCompletionComap_isModuleTopology A K L B
   apply RestrictedProduct.isModuleTopology
   · exact fun v ↦ Valued.isOpen_integer (adicCompletion K v)
@@ -383,9 +398,6 @@ instance : IsModuleTopology (FiniteAdeleRing A K) (FiniteAdeleRing B L) :=
   IsModuleTopology.iso (FiniteAdeleRing.restrictedProduct_pi_equiv A K L B)
 
 end moduleTopology
-
-noncomputable instance : TopologicalSpace (L ⊗[K] FiniteAdeleRing A K) :=
-  moduleTopology (FiniteAdeleRing A K) (L ⊗[K] FiniteAdeleRing A K)
 
 /-- The continuous `𝔸_K^∞`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞` -/
 noncomputable def FiniteAdeleRing.baseChangeAdeleContinuousAlgEquiv :

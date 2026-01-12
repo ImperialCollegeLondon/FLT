@@ -1,9 +1,8 @@
-import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
-import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Group.Measure
+import FLT.Mathlib.MeasureTheory.Measure.Regular
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -42,38 +41,6 @@ variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 
 -- should be in haarScalarFactor API
 @[to_additive]
-lemma mul_haarScalarFactor_smul (μ' μ : Measure G)
-    [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
-    (hc : 0 < c) :
-    haveI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
-    c * haarScalarFactor μ' (c • μ) = haarScalarFactor μ' μ := by
-  haveI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
-  obtain ⟨⟨g, g_cont⟩, g_comp, g_nonneg, g_one⟩ :
-    ∃ g : C(G, ℝ), HasCompactSupport g ∧ 0 ≤ g ∧ g 1 ≠ 0 := exists_continuous_nonneg_pos 1
-  have int_g_ne_zero : ∫ x, g x ∂μ ≠ 0 :=
-    ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
-  apply NNReal.coe_injective
-  calc
-    c * haarScalarFactor μ' (c • μ) = c * ((∫ x, g x ∂μ') / ∫ x, g x ∂(c • μ)) :=
-      by rw [haarScalarFactor_eq_integral_div _ _ g_cont g_comp (by simp [int_g_ne_zero, hc.ne'])]
-    _ = c * ((∫ x, g x ∂μ') / (c • ∫ x, g x ∂μ)) := by simp
-    _ = (∫ x, g x ∂μ') / (∫ x, g x ∂μ) := by
-      rw [NNReal.smul_def, smul_eq_mul, ← mul_div_assoc]
-      exact mul_div_mul_left (∫ (x : G), g x ∂μ') (∫ (x : G), g x ∂μ) (by simp [hc.ne'])
-    _ = μ'.haarScalarFactor μ :=
-      (haarScalarFactor_eq_integral_div _ _ g_cont g_comp int_g_ne_zero).symm
-
--- should be in haarScalarFactor API
-@[to_additive]
-lemma haarScalarFactor_smul_smul (μ' μ : Measure G)
-    [IsHaarMeasure μ] [IsFiniteMeasureOnCompacts μ'] [IsMulLeftInvariant μ'] {c : ℝ≥0}
-    (hc : 0 < c) :
-    haveI : IsHaarMeasure (c • μ) := IsHaarMeasure.nnreal_smul hc
-    haarScalarFactor (c • μ') (c • μ) = haarScalarFactor μ' μ := by
-  rw [haarScalarFactor_smul, smul_eq_mul, mul_haarScalarFactor_smul _ _ hc]
-
--- should be in haarScalarFactor API
-@[to_additive]
 lemma haarScalarFactor_map (μ' μ : Measure G) [IsHaarMeasure μ] [IsHaarMeasure μ'] (φ : G ≃ₜ* G) :
     (map φ μ').haarScalarFactor (map φ μ) = μ'.haarScalarFactor μ := by
   obtain ⟨⟨f, f_cont⟩, f_comp, f_nonneg, f_one⟩ :
@@ -90,15 +57,7 @@ lemma haarScalarFactor_map (μ' μ : Measure G) [IsHaarMeasure μ] [IsHaarMeasur
   · change ∫ x, f (φ x) ∂μ ≠ 0
     rwa [← integral_map hφ f_cont.aestronglyMeasurable]
 
-@[to_additive]
-lemma mulEquivHaarChar_map (μ : Measure G)
-    [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
-    (mulEquivHaarChar φ) • map φ μ = μ := by
-  rw [mulEquivHaarChar_eq μ φ]
-  haveI : Regular (map φ μ) := (Regular.map_iff φ.toHomeomorph).mpr inferInstance
-  exact (isMulLeftInvariant_eq_smul_of_regular μ (map φ μ)).symm
-
--- Version of `mulEquivHaarChar_map` without the regularity assumption
+-- Version of `mulEquivHaarChar_smul_map` without the regularity assumption
 -- In this case, the measures need only be equal on open sets
 @[to_additive]
 lemma mulEquivHaarChar_map_open (μ : Measure G)
@@ -108,32 +67,6 @@ lemma mulEquivHaarChar_map_open (μ : Measure G)
     mul_smul, ← measure_isHaarMeasure_eq_smul_of_isOpen haar _ hs,
     measure_isHaarMeasure_eq_smul_of_isOpen haar μ hs, ← mul_smul, haarScalarFactor_map,
     ← haarScalarFactor_eq_mul, haarScalarFactor_self, one_smul]
-
-@[to_additive]
-lemma mulEquivHaarChar_comap (μ : Measure G)
-    [IsHaarMeasure μ] [Regular μ] (φ : G ≃ₜ* G) :
-    (mulEquivHaarChar φ) • μ = comap φ μ := by
-  let e := φ.toHomeomorph.toMeasurableEquiv
-  rw [show ⇑φ = ⇑e from rfl, ← e.map_symm, show ⇑e.symm = ⇑φ.symm from rfl]
-  have : (map (⇑φ.symm) μ).Regular := φ.symm.toHomeomorph.regular_map μ
-  rw [← mulEquivHaarChar_map (map φ.symm μ) φ, map_map]
-  · simp
-  · exact φ.toHomeomorph.toMeasurableEquiv.measurable
-  · exact e.symm.measurable
-
-@[to_additive addEquivAddHaarChar_smul_integral_comap]
-lemma mulEquivHaarChar_smul_integral_comap (μ : Measure G)
-    [IsHaarMeasure μ] [Regular μ] {f : G → ℝ} (φ : G ≃ₜ* G) :
-    ∫ (a : G), f a ∂(comap φ μ) = (mulEquivHaarChar φ) • ∫ a, f a ∂μ := by
-  let e := φ.toHomeomorph.toMeasurableEquiv
-  change ∫ (a : G), f a ∂(comap e μ) = (mulEquivHaarChar φ) • ∫ a, f a ∂μ
-  haveI : (map (e.symm) μ).IsHaarMeasure := φ.symm.isHaarMeasure_map μ
-  haveI : (map (e.symm) μ).Regular := φ.symm.toHomeomorph.regular_map μ
-  rw [← e.map_symm, ← mulEquivHaarChar_smul_integral_map (map e.symm μ) φ,
-    map_map (by exact φ.toHomeomorph.toMeasurableEquiv.measurable) e.symm.measurable]
-  -- congr -- breaks to_additive -- TODO minimise and report?
-  rw [show ⇑φ ∘ ⇑e.symm = id by ext; simp [e]]
-  simp
 
 open ENNReal TopologicalSpace Set in
 @[to_additive addEquivAddHaarChar_eq_one_of_compactSpace]
@@ -170,7 +103,7 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
     ne_of_gt (g_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero g_comp g_nonneg g_one)
   refine NNReal.coe_injective <| Or.resolve_right (mul_eq_mul_right_iff.mp ?_) int_g_ne_zero
   calc mulEquivHaarChar α • ∫ a, g a ∂μX
-    _ = ∫ a, g a ∂(comap α μX) := (mulEquivHaarChar_smul_integral_comap μX α).symm
+    _ = ∫ a, g a ∂(comap α μX) := (integral_comap_eq_mulEquivHaarChar_smul μX α).symm
     _ = ∫ a, g a ∂(comap (f ∘ α) μY) := by
       rw [comap_comap ?_ hf.injective hf.measurableEmbedding.measurableSet_image']
       exact α.measurableEmbedding.measurableSet_image'
@@ -178,7 +111,7 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
     _ = ∫ a, g a ∂(comap f (comap β μY)) := by
       rw [comap_comap hf.measurableEmbedding.measurableSet_image' β.injective ?_]
       exact β.measurableEmbedding.measurableSet_image'
-    _ = ∫ a, g a ∂(comap f (mulEquivHaarChar β • μY)) := by rw [← mulEquivHaarChar_comap]
+    _ = ∫ a, g a ∂(comap f (mulEquivHaarChar β • μY)) := by rw [← mulEquivHaarChar_smul_eq_comap]
     _ = ∫ a, g a ∂(comap f ((mulEquivHaarChar β : ENNReal) • μY)) := rfl
     _ = mulEquivHaarChar β • ∫ a, g a ∂μX := by rw [comap_smul, integral_smul_measure]; rfl
 
@@ -224,12 +157,9 @@ variable {G : Type*} [Group G] [TopologicalSpace G]
 
 @[to_additive MeasureTheory.addEquivAddHaarChar_prodCongr]
 lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
-    [MeasurableSpace H] [BorelSpace H] (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H) :
-    letI : MeasurableSpace (G × H) := borel _
-    haveI : BorelSpace (G × H) := ⟨rfl⟩
+    [MeasurableSpace H] [BorelSpace H] [SecondCountableTopologyEither G H]
+    (φ : G ≃ₜ* G) (ψ : H ≃ₜ* H) :
     mulEquivHaarChar (φ.prodCongr ψ) = mulEquivHaarChar φ * mulEquivHaarChar ψ := by
-  letI : MeasurableSpace (G × H) := borel _
-  have : BorelSpace (G × H) := ⟨rfl⟩
   have ⟨K, hK, _, hKcomp⟩ := local_compact_nhds (x := (1 : H)) Filter.univ_mem
   have ⟨Y, hY, hYopen, one_mem_Y⟩ := mem_nhds_iff.mp hK
   have ⟨K', hK', _, hK'comp⟩ := local_compact_nhds (x := (1 : G)) Filter.univ_mem
@@ -242,8 +172,9 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
   have ν_apply {S : Set G} (hS : MeasurableSet S) : ν S = haar (S ×ˢ (ψ '' Y)) := by
     rw [Measure.map_apply _ hS, ← Set.prod_univ, Measure.restrict_apply]
     · congr 1; ext; simp
-    · exact prod_le_borel_prod _ <| hS.prod MeasurableSet.univ
-    · intro; exact (prod_le_borel_prod _ <| measurable_fst ·)
+    · exact hS.prod MeasurableSet.univ
+    · intro T hT
+      exact measurable_fst hT
   have : IsMulLeftInvariant ν := by
     refine (forall_measure_preimage_mul_iff ν).mp fun g s hs ↦ ?_
     rw [ν_apply hs, ν_apply (hs.preimage (measurable_const_mul g))]
@@ -251,7 +182,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     conv in fun x ↦ (g, 1) * x => change fun x ↦ ((g * ·) x.1, (1 * ·) x.2)
     simp_rw [one_mul]
     rw [map_apply (by fun_prop), ← Set.prod_preimage_left]
-    exact prod_le_borel_prod _ (hs.prod hψYopen.measurableSet)
+    exact hs.prod hψYopen.measurableSet
   have hν : IsHaarMeasure ν := by
     apply isHaarMeasure_of_isCompact_nonempty_interior ν K' hK'comp
     · exact ⟨1, hXopen.subset_interior_iff.mpr hX one_mem_X⟩
@@ -268,8 +199,9 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
   have μ_apply {S : Set H} (hS : MeasurableSet S) : μ S = haar (X ×ˢ S) := by
     rw [Measure.map_apply _ hS, ← Set.univ_prod, Measure.restrict_apply]
     · congr 1; ext; simp [and_comm]
-    · exact prod_le_borel_prod _ <| MeasurableSet.univ.prod hS
-    · intro; exact (prod_le_borel_prod _ <| measurable_snd ·)
+    · exact MeasurableSet.univ.prod hS
+    · intro T hT
+      exact measurable_snd hT
   have : IsMulLeftInvariant μ := by
     refine (forall_measure_preimage_mul_iff μ).mp fun h s hs ↦ ?_
     rw [μ_apply hs, μ_apply (hs.preimage (measurable_const_mul h))]
@@ -277,7 +209,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     conv in fun x ↦ (1, h) * x => change fun x ↦ ((1 * ·) x.1, (h * ·) x.2)
     simp_rw [one_mul]
     rw [map_apply (by fun_prop), ← Set.prod_preimage_right]
-    exact prod_le_borel_prod _ (hXopen.measurableSet.prod hs)
+    exact hXopen.measurableSet.prod hs
   have hμ : IsHaarMeasure μ := by
     apply isHaarMeasure_of_isCompact_nonempty_interior μ K hKcomp
     · exact ⟨1, hYopen.subset_interior_iff.mpr hY one_mem_Y⟩
@@ -349,34 +281,29 @@ section pi
 
 variable {ι : Type*} {H : ι → Type*} [Π i, Group (H i)] [Π i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)]
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)] [∀ i, SecondCountableTopology (H i)]
 
 open Classical ContinuousMulEquiv in
 @[to_additive]
 lemma mulEquivHaarChar_piCongrRight [Fintype ι] (ψ : Π i, (H i) ≃ₜ* (H i)) :
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i) := by
   let P : (α : Type u_1) → [Fintype α] → Prop := fun ι _ ↦
     ∀ (H : ι → Type u_2) [∀ i, Group (H i)] [∀ i, TopologicalSpace (H i)]
     [∀ i, IsTopologicalGroup (H i)] [∀ i, LocallyCompactSpace (H i)]
-    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)] (ψ : (i : ι) → H i ≃ₜ* H i),
-    letI : MeasurableSpace (Π i, H i) := borel _
-    haveI : BorelSpace (Π i, H i) := ⟨rfl⟩
+    [∀ i, MeasurableSpace (H i)] [∀ i, BorelSpace (H i)] [∀ i, SecondCountableTopology (H i)]
+    (ψ : (i : ι) → H i ≃ₜ* H i),
     mulEquivHaarChar (ContinuousMulEquiv.piCongrRight ψ) = ∏ i, mulEquivHaarChar (ψ i)
   refine Fintype.induction_subsingleton_or_nontrivial (P := P) ι ?_ ?_ H ψ
-  · intro α _ subsingleton_α H _ _ _ _ _ _ ψ
-    borelize (Π i, H i)
+  · intro α _ subsingleton_α H _ _ _ _ _ _ _ ψ
     by_cases hα : Nonempty α; swap
     · rw [not_nonempty_iff] at hα; simp [mulEquivHaarChar_eq_one_of_compactSpace]
     have : Unique α := @Unique.mk' α (Classical.inhabited_of_nonempty hα) subsingleton_α
     rw [Fintype.prod_subsingleton _ default]
     exact mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piUnique H) _ _ (fun _ ↦ rfl)
-  intro α fintype_α nontrivial_α ih H _ _ _ _ _ _ ψ
+  intro α fintype_α nontrivial_α ih H _ _ _ _ _ _ _ ψ
   have ⟨a, b, ne⟩ := nontrivial_α
   let β₁ := {i : α // i = a}
   let β₂ := {i : α // i ≠ a}
-  borelize (Π i, H i) (Π (i : β₁), H i) (Π (i : β₂), H i) ((Π (i : β₁), H i) × (Π (i : β₂), H i))
   let ψ₁ : Π (i : β₁), H i ≃ₜ* H i := fun i ↦ ψ i
   let ψ₂ : Π (i : β₂), H i ≃ₜ* H i := fun i ↦ ψ i
   rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv (piEquivPiSubtypeProd (· = a) H),
@@ -392,22 +319,11 @@ section restrictedproduct
 
 open ENNReal
 
--- -- some sample code to show how why a nonempty compact open has
--- -- positive finite Haar measure
--- example (X : Type*) [Group X] [TopologicalSpace X] [IsTopologicalGroup X]
---     [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X] (μ : Measure X)
---     -- IsHaarMeasure gives "positive on opens" and "finite on compacts"
---     [IsHaarMeasure μ] (C : Set X) [Nonempty C]
---     (hCopen : IsOpen C) (hCcompact : IsCompact C) :
---     0 < μ C ∧ μ C < ∞ := by
---   constructor
---   · exact IsOpen.measure_pos μ hCopen Set.Nonempty.of_subtype
---   · exact IsCompact.measure_lt_top hCcompact
-
 open RestrictedProduct
 
 open Pointwise in
 -- TODO this should be elsewhere
+-- note: it can't be an instance because typeclass inference can't find C
 @[to_additive]
 lemma _root_.WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup
     {A : Type*} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
@@ -425,41 +341,81 @@ variable {ι : Type*}
     [hCcompact : ∀ i, CompactSpace (C i)]
     [∀ i, MeasurableSpace (G i)]
     [∀ i, BorelSpace (G i)]
+    [∀ i, LocallyCompactSpace (G i)] -- follows from the hypotheses, but needed for *statement*
+    [∀ i, SecondCountableTopology (G i)]
 
-open ContinuousMulEquiv in
+open ContinuousMulEquiv Filter in
 @[to_additive]
-lemma mulEquivHaarChar_restrictedProductCongrRight (φ : Π i, (G i) ≃ₜ* (G i))
+lemma mulEquivHaarChar_restrictedProductCongrRight_of_principal {J : Set ι}
+    [Countable ι]
+    [J_cof : Fact (Filter.cofinite ≤ 𝓟 J)]
+    (φ : Π i, (G i) ≃ₜ* (G i))
+    (hφ : ∀ i ∈ J, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
+    mulEquivHaarChar
+      (.restrictedProductCongrRight φ (eventually_principal.mpr hφ) :
+        (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J])) =
+    ∏ᶠ i, mulEquivHaarChar (φ i) := by
+  have hJcfinite : Finite (Jᶜ : Set ι) := (J_cof.out fun _ a ↦ a)
+  have hJcfinite' : Set.Finite (Jᶜ : Set ι) := hJcfinite
+  have : Fintype (Jᶜ : Set ι) := hJcfinite'.fintype
+  have hφ' : ∀ i, i ∈ J → Set.BijOn (φ i).symm (C i) (C i) := fun i hi ↦
+    (hφ i hi).symm <| ⟨fun _ _ ↦ apply_symm_apply _ _, fun _ _ ↦ symm_apply_apply _ _⟩
+  set φ_C : ∀ i : J, C i ≃ₜ* C i := fun i ↦
+  { toFun := hφ i i.2 |>.mapsTo.restrict
+    invFun := hφ' i i.2 |>.mapsTo.restrict
+    left_inv x := by ext; simp
+    right_inv y := by ext; simp
+    map_mul' _ _ := by ext; exact map_mul (φ i) _ _
+    continuous_toFun := by fun_prop
+    continuous_invFun := by fun_prop }
+  have hφJ (i : ι) (hi : i ∈ J) : mulEquivHaarChar (φ_C ⟨i, hi⟩) = mulEquivHaarChar (φ i) :=
+    mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := (C i).subtype)
+    ((hCopen.out i).isOpenEmbedding_subtypeVal) (φ_C ⟨i, hi⟩) (φ i) (fun _ ↦ rfl)
+  set Φ : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
+    .restrictedProductCongrRight φ (eventually_principal.mpr hφ)
+  set Ψ : (Π i : (J : Set ι), C i) × (Π i : (Jᶜ : Set ι), G i)
+      ≃ₜ* (Π i : (J : Set ι), C i) × (Π i : (Jᶜ : Set ι), G i) :=
+    .prodCongr (.piCongrRight φ_C) (.piCongrRight fun i ↦ φ i)
+  set I : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* _ := .restrictedProductPrincipal J
+  have Ψ_I_eq (x) : I.toMulEquiv (Φ x) = Ψ (I.toMulEquiv x) := rfl
+  have : ∀ (i : ↑J), SecondCountableTopology ↥(C ↑i) := fun i ↦
+    TopologicalSpace.secondCountableTopology_induced (C i) (G i) _
+  have hφj (i : ι) (hi : i ∈ J) : mulEquivHaarChar (φ i) = 1 := by
+    rw [← hφJ i hi, mulEquivHaarChar_eq_one_of_compactSpace]
+  have hsupp : Function.mulSupport (fun i : ι ↦ mulEquivHaarChar (φ i)) ⊆ Jᶜ :=
+    fun i hi hiJ ↦ hi <| hφj i hiJ
+  have hfin : (Function.mulSupport fun i : ι ↦ mulEquivHaarChar (φ i)).Finite :=
+    hJcfinite'.subset hsupp
+  rw [mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding (f := I.toMulEquiv)
+    I.isOpenEmbedding Φ Ψ Ψ_I_eq, mulEquivHaarChar_prodCongr,
+    mulEquivHaarChar_eq_one_of_compactSpace, mulEquivHaarChar_piCongrRight, one_mul,
+    Finset.prod_set_coe (f := fun i ↦ mulEquivHaarChar (φ i)),
+    finprod_eq_prod_of_mulSupport_toFinset_subset _ hfin]
+  simpa [← Finset.coe_subset, Set.coe_toFinset] using hsupp
+
+variable [∀ i, WeaklyLocallyCompactSpace (G i)]
+
+open ContinuousMulEquiv Filter Topology in
+@[to_additive]
+lemma mulEquivHaarChar_restrictedProductCongrRight [Countable ι] (φ : Π i, (G i) ≃ₜ* (G i))
     (hφ : ∀ᶠ (i : ι) in Filter.cofinite, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)) :
-    -- typeclass stuff
-    letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
-    haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-    haveI : ∀ i, WeaklyLocallyCompactSpace (G i) := fun i ↦
-      haveI : Fact (IsOpen (C i : Set (G i))) := ⟨hCopen.out i⟩
-      WeaklyLocallyCompactSpace.of_isTopologicalGroup_of_isOpen_compactSpace_subgroup (C i)
-    -- lemma statement starts here
     mulEquivHaarChar
       (.restrictedProductCongrRight φ hφ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i])) =
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
-  letI : MeasurableSpace (Πʳ i, [G i, C i]) := borel _
-  haveI : BorelSpace (Πʳ i, [G i, C i]) := ⟨rfl⟩
-  -- -- the below code created a compact open in the restricted product and shows
-  -- -- it has Haar measure 0 < μ < ∞ but I've realised I don't know what to do next.
-  -- -- The blueprint has a proof which I can make work.
-  -- set X : Set (Πʳ i, [G i, C i]) := {x | ∀ i, x i ∈ C i} with hX
-  -- have := isOpenEmbedding_structureMap (R := G) (A := fun i ↦ (C i : Set (G i))) Fact.out
-  -- have isOpenEmbedding := this
-  -- apply Topology.IsOpenEmbedding.isOpen_range at this
-  -- rw [range_structureMap] at this
-  -- have hXopen : IsOpen X := this
-  -- have hXnonempty : Nonempty X := Nonempty.intro ⟨⟨fun x ↦ 1, Filter.Eventually.of_forall <|
-  --   fun _ ↦ one_mem _⟩, fun _ ↦ one_mem _⟩
-  -- have hXμpos : 0 < haar X := IsOpen.measure_pos haar hXopen Set.Nonempty.of_subtype
-  -- have hXcompact : IsCompact X := by
-  --   have := isCompact_range isOpenEmbedding.continuous
-  --   rw [range_structureMap] at this
-  --   apply this
-  -- have hXμfinite : haar X < ∞ := IsCompact.measure_lt_top hXcompact
-  sorry -- FLT#552
+  set Φ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) := .restrictedProductCongrRight φ hφ
+  set J := {i : ι | Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)}
+  have J_cof : Fact (Filter.cofinite ≤ 𝓟 J) := ⟨by simpa only [le_principal_iff] using hφ⟩
+  have hφ_J : ∀ i ∈ J, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i) := fun _ ↦ id
+  set Φ_J : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
+    .restrictedProductCongrRight φ (eventually_principal.mpr hφ_J)
+  set ι_J : (Πʳ i, [G i, C i]_[𝓟 J]) →* (Πʳ i, [G i, C i]) :=
+    RestrictedProduct.mapAlongMonoidHom (B₁ := C) (B₂ := C) G G id (tendsto_id'.mpr J_cof.out)
+      (fun _ ↦ .id _) (Eventually.of_forall fun _ _ a ↦ a)
+  have ι_J_emb : IsOpenEmbedding ι_J :=
+    RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen.out J_cof.out
+  have Φ_ι_J_eq (x) : Φ (ι_J x) = ι_J (Φ_J x) := rfl
+  rw [← mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding ι_J_emb Φ_J Φ Φ_ι_J_eq]
+  exact mulEquivHaarChar_restrictedProductCongrRight_of_principal _ hφ_J
 
 end restrictedproduct
 

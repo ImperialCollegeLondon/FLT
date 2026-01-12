@@ -6,6 +6,7 @@ Authors: Kevin Buzzard
 import FLT.HaarMeasure.HaarChar.AddEquiv
 import Mathlib.Algebra.Group.Pi.Units
 import Mathlib.MeasureTheory.Group.Pointwise
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 
 open scoped NNReal
 
@@ -99,6 +100,18 @@ noncomputable def ringHaarChar : Rˣ →ₜ* ℝ≥0 where
     convert addEquivAddHaarChar_trans (G := R); ext; simp [mul_assoc]
   continuous_toFun := ringHaarChar_continuous
 
+lemma ringHaarChar_apply (r : Rˣ) :
+    ringHaarChar r = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft r) := rfl
+
+/-- Transport `ringHaarChar` across a continuous `ℤ`-algebra equivalence
+(in place of continuous ring equivalences since we don't have them). -/
+lemma ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {S : Type*} [Ring S] [TopologicalSpace S]
+    [IsTopologicalRing S] [LocallyCompactSpace S] [MeasurableSpace S] [BorelSpace S]
+    (f : R ≃A[ℤ] S) (r : Rˣ) :
+    ringHaarChar r = ringHaarChar (Units.map f.toMonoidHom r) :=
+  addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv {__ := f} _ _
+    (by simp [map_mul])
+
 lemma ringHaarChar_mul_integral
     (μ : Measure R) [IsAddHaarMeasure μ] [μ.Regular]
     {f : R → ℝ} (hf : Measurable f) (u : Rˣ) :
@@ -133,6 +146,9 @@ by them does not change additive Haar measure.
 -/
 noncomputable def ringHaarChar_ker := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
 
+lemma mem_ringHaarChar_ker (x : Rˣ) : x ∈ ringHaarChar_ker R ↔ ringHaarChar x = 1 :=
+  MonoidHom.mem_ker
+
 section prod
 
 variable {S : Type*} [Ring S] [TopologicalSpace S]
@@ -141,15 +157,11 @@ variable {S : Type*} [Ring S] [TopologicalSpace S]
 -- this is true in general, but the proof is easier if we assume
 -- `SecondCountableTopologyEither R S` because then if R and S are equipped with the Borel
 -- sigma algebra, the product sigma algebra on R × S is also the Borel sigma algebra.
-lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) :
-    letI : MeasurableSpace (R × S) := borel (R × S)
-    haveI : BorelSpace (R × S) := ⟨rfl⟩
+lemma ringHaarChar_prod (u : Rˣ) (v : Sˣ) [SecondCountableTopologyEither R S] :
     ringHaarChar (MulEquiv.prodUnits.symm (u, v)) = ringHaarChar u * ringHaarChar v :=
   addEquivAddHaarChar_prodCongr (ContinuousAddEquiv.mulLeft u) (ContinuousAddEquiv.mulLeft v)
 
-lemma ringHaarChar_prod' (uv : (R × S)ˣ) :
-    letI : MeasurableSpace (R × S) := borel (R × S)
-    haveI : BorelSpace (R × S) := ⟨rfl⟩
+lemma ringHaarChar_prod' (uv : (R × S)ˣ) [SecondCountableTopologyEither R S] :
     ringHaarChar uv =
     ringHaarChar (MulEquiv.prodUnits uv).1 * ringHaarChar (MulEquiv.prodUnits uv).2 :=
   ringHaarChar_prod (MulEquiv.prodUnits uv).1 (MulEquiv.prodUnits uv).2
@@ -162,11 +174,13 @@ variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSp
     [∀ i, IsTopologicalRing (A i)] [∀ i, LocallyCompactSpace (A i)]
     [∀ i, MeasurableSpace (A i)] [∀ i, BorelSpace (A i)]
 
-lemma ringHaarChar_pi [Fintype ι] (u : Π i, (A i)ˣ) :
-    letI : MeasurableSpace (Π i, A i) := borel _
-    haveI : BorelSpace (Π i, A i) := ⟨rfl⟩
+lemma ringHaarChar_pi [Fintype ι] [∀ i, SecondCountableTopology (A i)] (u : Π i, (A i)ˣ) :
     ringHaarChar (MulEquiv.piUnits.symm u) = ∏ i, ringHaarChar (u i) :=
   addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (u i))
+
+lemma ringHaarChar_pi' [Fintype ι] [∀ i, SecondCountableTopology (A i)] (u : (Π i, (A i))ˣ) :
+    ringHaarChar u = ∏ i, ringHaarChar (MulEquiv.piUnits u i) :=
+  addEquivAddHaarChar_piCongrRight (fun i ↦ ContinuousAddEquiv.mulLeft (MulEquiv.piUnits u i))
 
 end pi
 
@@ -180,10 +194,10 @@ variable {ι : Type*} {A : ι → Type*} [Π i, Ring (A i)] [Π i, TopologicalSp
     {C : (i : ι) → Subring (A i)}
     [hCopen : Fact (∀ (i : ι), IsOpen (C i : Set (A i)))]
     [hCcompact : ∀ i, CompactSpace (C i)]
+    [∀ (i : ι), SecondCountableTopology (A i)]
+    [Countable ι]
 
 lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
-    letI : MeasurableSpace (Πʳ i, [A i, C i]) := borel _
-    haveI : BorelSpace (Πʳ i, [A i, C i]) := ⟨rfl⟩
     ringHaarChar u = ∏ᶠ i, ringHaarChar (MulEquiv.restrictedProductUnits u i) := by
   set u := MulEquiv.restrictedProductUnits u
   apply addEquivAddHaarChar_restrictedProductCongrRight (C := (C · |>.toAddSubgroup))
@@ -194,5 +208,38 @@ lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
   · exact fun c hc ↦ ⟨(u i)⁻¹ * c, (C i).mul_mem ((C i).mem_units_iff _ |>.mp hv).1 hc, by simp⟩
 
 end restrictedproduct
+
+section ModuleFinite
+
+variable {K R : Type*} [Field K] [Ring R] [Algebra K R] [Module.Finite K R]
+    [TopologicalSpace K] [TopologicalSpace R] [IsTopologicalRing R] [IsModuleTopology K R]
+    [LocallyCompactSpace R] [MeasurableSpace R] [BorelSpace R]
+    [IsTopologicalRing K] [LocallyCompactSpace K] [MeasurableSpace K] [BorelSpace K]
+    [SecondCountableTopology K] (t : Kˣ)
+
+theorem ringHaarChar_ModuleFinite :
+    ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
+    ringHaarChar (R := (Fin (Module.finrank K R) → K))
+      (Units.map (algebraMap K (Fin (Module.finrank K R) → K)).toMonoidHom t) := by
+  apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    ((IsModuleTopology.Module.Basis.equivFun_homeo _ _).toContinuousAddEquiv)
+  intro x
+  -- this would not be needed if `mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv`
+  -- ate a ContinuousMulEquivClass instead of a ContinuousMulEquiv.
+  -- Unfortunately there's no such class :-(
+  change (IsModuleTopology.Module.Basis.equivFun_homeo K R) _ =
+    (ContinuousAddEquiv.mulLeft ((Units.map ↑(algebraMap K (Fin (Module.finrank K R) → K))) t))
+    ((IsModuleTopology.Module.Basis.equivFun_homeo K R) x)
+  simp [← Algebra.smul_def]
+
+theorem ringHaarChar_ModuleFinite_unit :
+    ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
+    (ringHaarChar t) ^ (Module.finrank K R) := by
+  rw [ringHaarChar_ModuleFinite]
+  simpa using ringHaarChar_pi (ι := Fin (Module.finrank K R))
+      (A := fun _ : Fin (Module.finrank K R) => K) (fun (i : Fin (Module.finrank K R)) ↦ t)
+
+
+end ModuleFinite
 
 end MeasureTheory

@@ -73,8 +73,8 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     | cons x l =>
     simp only [Sequence.isWeaklyRegular_cons_iff] at hl
     have : Nontrivial (QuotSMulTop x M) := by
-      apply Submodule.Quotient.nontrivial_of_lt_top
-      rw [← Submodule.ideal_span_singleton_smul, lt_top_iff_ne_top, ne_comm]
+      apply Submodule.Quotient.nontrivial_iff.2
+      rw [← Submodule.ideal_span_singleton_smul, ne_comm]
       apply Submodule.top_ne_ideal_smul_of_le_jacobson_annihilator
       refine le_trans ?_ (maximalIdeal_le_jacobson _)
       rw [Ideal.span_le, Set.singleton_subset_iff]
@@ -110,8 +110,8 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     cases h : ringKrullDim (R ⧸ annihilator R (QuotSMulTop x M)) with
     | bot =>
       have : Nontrivial (R ⧸ annihilator R (QuotSMulTop x M)) := by
-        apply Ideal.Quotient.nontrivial
-        rw [← Submodule.annihilator_top, ne_eq, Submodule.annihilator_eq_top_iff]
+        rw [Ideal.Quotient.nontrivial_iff, ← Submodule.annihilator_top, ne_eq,
+          Submodule.annihilator_eq_top_iff]
         exact top_ne_bot
       have := ringKrullDim_nonneg_of_nontrivial.trans_eq h
       simp at this
@@ -123,7 +123,7 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     | coe m =>
     rw [h] at this
     replace this : m + 1 ≤ n := WithTop.coe_le_coe.mp (WithBot.coe_le_coe.mp this)
-    replace IH := IH m (Nat.succ_le.mp this) (QuotSMulTop x M)
+    replace IH := IH m (Nat.lt_of_succ_le this) (QuotSMulTop x M)
       (by rwa [Module.support_eq_zeroLocus, ← ringKrullDim_quotient])
     replace IH := WithTop.coe_le_coe.mp
       ((Module.length_le_depth _ _ l hl.2 (by simp_all)).trans IH)
@@ -206,7 +206,7 @@ lemma Module.depth_le_of_free [Module.Free R M] : Module.depth R R ≤ Module.de
 lemma Module.faithfulSMul_of_depth_eq_ringKrullDim [IsDomain R] [Nontrivial M] [Module.Finite R M]
     (H : ringKrullDim R < ⊤) (H' : .some (Module.depth R M) = ringKrullDim R) :
     FaithfulSMul R M := by
-  have : Nontrivial (R ⧸ annihilator R M) := Ideal.Quotient.nontrivial
+  have : Nontrivial (R ⧸ annihilator R M) := Ideal.Quotient.nontrivial_iff.2
     (by rw [ne_eq, ← Submodule.annihilator_top, Submodule.annihilator_eq_top_iff]
         exact top_ne_bot)
   rw [← Module.annihilator_eq_bot]

@@ -178,7 +178,7 @@ lemma preserves_zsmul {G H : Type*} [Zero G] [Add G] [Neg G] [SMul ℕ G] [SubNe
     f (zsmulRec (· • ·) z g) = z • f g := by
   cases z with
   | ofNat n =>
-    rw [zsmulRec, nsmul, Int.ofNat_eq_coe, natCast_zsmul]
+    rw [zsmulRec, nsmul, Int.ofNat_eq_natCast, natCast_zsmul]
   | negSucc n =>
     rw [zsmulRec, neg, nsmul, negSucc_zsmul]
 
@@ -281,7 +281,7 @@ lemma preserves_castDef
     (f : R → S) (natCast : ∀ n : ℕ, f n = n) (neg : ∀ x, f (-x) = - f x) (n : ℤ) :
     f (Int.castDef n) = n := by
   cases n with
-  | ofNat n => rw [Int.castDef_ofNat, natCast, Int.ofNat_eq_coe, Int.cast_natCast]
+  | ofNat n => rw [Int.castDef_ofNat, natCast, Int.ofNat_eq_natCast, Int.cast_natCast]
   | negSucc _ => rw [Int.castDef_negSucc, neg, natCast, Int.cast_negSucc]
 
 lemma toQuaternion_intCast (n : ℤ) : toQuaternion n = n :=
@@ -394,7 +394,7 @@ lemma norm_mul (x y : 𝓞) : norm (x * y) = norm x * norm y := by
   rw [Int.cast_comm, ← mul_assoc, ← norm_eq_mul_conj, Int.cast_mul]
 
 lemma norm_nonneg (x : 𝓞) : 0 ≤ norm x := by
-  rw [← Int.cast_nonneg (R := ℝ), coe_norm]
+  rw [← Int.cast_nonneg_iff (R := ℝ), coe_norm]
   positivity
 
 lemma norm_eq_zero (x : 𝓞) : norm x = 0 ↔ x = 0 := by
@@ -478,21 +478,17 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
         cases (abs_eq (by positivity)).mp h with (rw [sub_eq_iff_eq_add'] at h)
         | inl h => use z
         | inr h => use z - 1; rw [h, Int.cast_sub, Int.cast_one, add_comm_sub]; norm_num
-
       obtain ⟨x', hx'⟩ := this H.1
       obtain ⟨y', hy'⟩ := this H.2.1
       obtain ⟨z', hz'⟩ := this H.2.2.1
       obtain ⟨w', hw'⟩ := this H.2.2.2
       use x', y', z', w', Or.inr ?_
       ext <;> simp [*]
-
   use fromQuaternion ⟨x,y,z,w⟩
   rw [aux]
   rw [NormedRing.dist_eq, ← sq_lt_one_iff₀ (_root_.norm_nonneg _), sq,
     ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
-
   simp only [re_sub, imI_sub, imJ_sub, imK_sub]
-
   apply aux2 <;> try apply this
   contrapose! H
   suffices ∀ r : ℝ, |r| = 2⁻¹ ↔ r ^ 2 = 4⁻¹ by

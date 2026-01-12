@@ -79,9 +79,9 @@ instance {G : Type*} [Group G] [TopologicalSpace G] [ContinuousMul G] :
 @[to_additive]
 instance IsTopologicalGroup.discreteUniformity
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [DiscreteTopology G] :
-    letI := IsTopologicalGroup.toUniformSpace G
+    letI := IsTopologicalGroup.rightUniformSpace G
     DiscreteUniformity G := by
-  simp only [discreteUniformity_iff_relId_mem_uniformity]
+  simp only [discreteUniformity_iff_setRelId_mem_uniformity]
   exact ⟨{1}, by simp [Set.subset_def, div_eq_one]⟩
 
 lemma IsLocalRing.map_maximalIdeal {R S} [CommRing R] [CommRing S]
@@ -170,7 +170,7 @@ instance {R : Type*} [CommSemiring R] : IsLocalHom (algebraMap R R) :=
 open IsLocalRing in
 instance {R : Type*} [CommRing R] [IsLocalRing R] :
     IsLocalHom (algebraMap R (ResidueField R)) :=
-  isLocalHom_residue
+  IsLocalRing.instIsLocalHomResidueFieldRingHomResidue _
 
 /-- Given a field extension, this is an arbitrarily chosen map between their `AlgebraicClosure`s. -/
 noncomputable
@@ -322,9 +322,9 @@ instance {G : Type*} [Group G] (H : Subgroup G) [H.FiniteIndex] :
 
 lemma IsTopologicalGroup.totallyBounded {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] (H : ∀ s ∈ nhds (1 : G), ∃ H : Subgroup G, H.FiniteIndex ∧ ↑H ⊆ s) :
-    letI := IsTopologicalGroup.toUniformSpace G
+    letI := IsTopologicalGroup.rightUniformSpace G
     TotallyBounded (Set.univ : Set G) := by
-  letI := IsTopologicalGroup.toUniformSpace G
+  letI := IsTopologicalGroup.rightUniformSpace G
   rintro s ⟨t, ht1, hts⟩
   obtain ⟨H, hH, hHs⟩ := H _ ht1
   have : Finite (Gᵐᵒᵖ ⧸ H.op) := Subgroup.finite_quotient_of_finiteIndex

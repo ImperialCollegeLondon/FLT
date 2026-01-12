@@ -8,6 +8,8 @@ import Mathlib.Algebra.Central.Defs
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import Mathlib.LinearAlgebra.Charpoly.BaseChange
 import Mathlib.RingTheory.SimpleModule.IsAlgClosed
+import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
+import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
 
 variable (k : Type*) [Field k] {D : Type*} [Ring D] [Algebra k D]
 open scoped TensorProduct
@@ -42,10 +44,19 @@ lemma mulRight_conj_ofLinear (K : Type*) [Field K] (n : ℕ) (N : Matrix (Fin n)
 
 variable [Algebra.IsCentral k D] [IsSimpleRing D] [FiniteDimensional k D]
 
-/-- This is instance is in a repo on brauergroup which will soon be PRed into mathlib,
-  the associated issue task is #631. -/
+/-- This is instance is in a repo on brauergroup which has been PRed into mathlib
+at https://github.com/leanprover-community/mathlib4/pull/26377 .
+  The associated FLT issue is #631.
+  For now it's in `import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct`.
+-/
 instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
-    [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (A ⊗[k] B) := sorry
+    [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (B ⊗[k] A) :=
+  inferInstance
+
+instance (A B : Type*) [Ring A] [Ring B] [Algebra k A] [Algebra k B]
+    [Algebra.IsCentral k B] [IsSimpleRing A] [IsSimpleRing B] : IsSimpleRing (A ⊗[k] B) :=
+  IsSimpleRing.of_ringEquiv
+    (Algebra.TensorProduct.comm k B A).toRingEquiv inferInstance
 
 lemma IsSimpleRing.mulLeft_det_eq_mulRight_det (d : D) :
     (LinearMap.mulLeft k d).det = (LinearMap.mulRight k d).det := by
@@ -77,3 +88,29 @@ lemma IsSimpleRing.mulLeft_det_eq_mulRight_det' (d : Dˣ) :
     (LinearEquiv.mulLeft k d).det = (LinearEquiv.mulRight k d).det := by
   ext
   simp [mulLeft_det_eq_mulRight_det]
+
+
+/-!
+### Auxiliary lemmas about linear equivalences and matrices
+-/
+section LinearEquiv
+
+variable {F : Type*} [CommRing F]
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+variable {V : Type*} [AddCommGroup V] [Module F V]
+
+lemma LinearEquiv.det_ne_zero
+  {F : Type*} [CommRing F] [Nontrivial F] {V : Type*} [AddCommGroup V] [Module F V]
+  (e : V ≃ₗ[F] V) : e.toLinearMap.det ≠ 0 := (isUnit_det' e).ne_zero
+
+lemma Matrix.toLinearEquiv_toLinearMap
+    (b : Module.Basis ι F V) (M : Matrix ι ι F) (h : IsUnit M.det) :
+    (toLinearEquiv b M h).toLinearMap = Matrix.toLin b b M := rfl
+
+lemma LinearEquiv.det_toLinearEquiv
+    (b : Module.Basis ι F V) {M : Matrix ι ι F} (h : IsUnit M.det) :
+    LinearEquiv.det (M.toLinearEquiv b h) = h.unit := by
+  refine Units.val_inj.mp ?_
+  simp [Matrix.toLinearEquiv_toLinearMap]
+
+end LinearEquiv

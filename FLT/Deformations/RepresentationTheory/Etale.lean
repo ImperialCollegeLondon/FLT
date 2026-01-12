@@ -355,7 +355,7 @@ instance [Module.Finite K A] : ContinuousSMulDiscrete (L ≃ₐ[K] L) (A →ₐ[
   let E := IntermediateField.adjoin K (f.range : Set L)
   have : FiniteDimensional K E := by
     change FiniteDimensional K E.toSubalgebra
-    rwa [IntermediateField.adjoin_algebraic_toSubalgebra, Algebra.adjoin_eq]
+    rwa [IntermediateField.adjoin_toSubalgebra_of_isAlgebraic, Algebra.adjoin_eq]
     simp only [AlgHom.coe_range, Set.mem_range, forall_exists_index, forall_apply_eq_imp_iff]
     exact fun x ↦ ((Algebra.IsIntegral.isIntegral (R := K) x).map f).isAlgebraic
   refine Subgroup.isOpen_mono ?_ E.fixingSubgroup_isOpen

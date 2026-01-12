@@ -14,7 +14,7 @@ variable {k : Type u} [Fintype k] [Field k]
 open TensorProduct
 
 /--
-An irreducible mod p hardly ramified represntation lifts to a p-adic one.
+An irreducible mod p hardly ramified representation lifts to a p-adic one.
 -/
 theorem lifts (ρ : GaloisRep ℚ k V) (hρirred : ρ.IsIrreducible)
     (hρ : IsHardlyRamified hpodd hV ρ) :

@@ -1,6 +1,5 @@
 import Mathlib.Algebra.Algebra.Pi
 import FLT.Mathlib.Algebra.Algebra.Hom
-import FLT.Mathlib.Logic.Equiv.Basic
 
 def Pi.semialgHom {I : Type*} {R S : Type*} (f : I → Type*) [CommSemiring R] [CommSemiring S]
     (φ : R →+* S) [s : (i : I) → Semiring (f i)] [(i : I) → Algebra S (f i)] {A : Type*}
