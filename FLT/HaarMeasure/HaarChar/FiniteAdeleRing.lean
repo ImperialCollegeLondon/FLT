@@ -528,14 +528,12 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
       ((b_local.repr (φ_local_Kv_linear K B v φ (b_local j))) i) = (m i j) v := by
     rw [← LinearMap.toMatrix_apply, localcomponent_matrix]
   have hf : m = LinearMap.toMatrix' (f K B φ) := toMatrix_f K B φ
-  simp only [g, ContinuousAddEquiv.trans_apply, map_smul, ← basis_repr_eq', Finsupp.coe_smul,
-    Pi.smul_apply, local_repr_eq, m, hf]
+  simp only [ ← basis_repr_eq', local_repr_eq, m, hf, g,
+    ContinuousAddEquiv.trans_apply, map_smul, Finsupp.coe_smul, Pi.smul_apply]
   -- Up to here, what we have done is to simplify the RHS `e (localcomponent φ)` in terms of
   -- the matrix rep of `φ`, which is the same as the matrix rep of `f φ` by `toMatrix_f` above.
   -- What remains is to simplify `g`, i.e. to simplify `ContinuousAddEquiv.restrictedProductPi`.
   set ψ := f K B φ
-  erw [ContinuousAddEquiv.restrictedProductPi_symm_apply] -- ??
-  unfold ContinuousAddEquiv.restrictedProductPi
   conv_lhs =>
     change (ψ.toLinearEquiv.toLinearMap (fun j ↦ map (fun i t ↦ t j)
       (Filter.Eventually.of_forall (fun _ _ _ ↦ by simp_all [AddSubgroup.mem_pi])) r) j) v
