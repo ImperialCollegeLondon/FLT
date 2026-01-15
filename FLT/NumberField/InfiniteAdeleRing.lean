@@ -119,25 +119,24 @@ noncomputable def baseChangeEquivAux :
 -- Then we show that this lift is the same as the lift of `baseChange : K_∞ → L_∞` coming from
 -- `SemialgHom.baseChange_of_algebraMap`
 
-theorem baseChangeEquivAux_tmul (l : L) (x : InfiniteAdeleRing K) :
+theorem baseChangeEquivAux_tmul (l : L) (x : K∞) :
     baseChangeEquivAux K L (l ⊗ₜ[K] x) = algebraMap _ _ l * baseChange K L x := rfl
 
 theorem baseChangeEquivAux_coe_eq_baseChange_of_algebraMap [Algebra K L∞] [IsScalarTower K L L∞] :
     ↑(baseChangeEquivAux K L) = (baseChange K L).baseChange_of_algebraMap :=
   Algebra.TensorProduct.ext' fun _ _ ↦ rfl
 
-theorem baseChangeEquivAux_apply (x : L ⊗[K] InfiniteAdeleRing K)
+theorem baseChangeEquivAux_apply (x : L ⊗[K] K∞)
     [Algebra K L∞] [IsScalarTower K L L∞] :
     baseChangeEquivAux K L x = SemialgHom.baseChange_of_algebraMap (baseChange K L) x := by
   simpa using AlgHom.ext_iff.1 (baseChangeEquivAux_coe_eq_baseChange_of_algebraMap K L) x
 
 open TensorProduct.AlgebraTensorModule in
-instance : Module.Free (InfiniteAdeleRing K) (L ⊗[K] InfiniteAdeleRing K) := by
+instance : Module.Free K∞ (L ⊗[K] K∞) := by
   --  L ⊗ K_∞ ≃ₗ[K_∞] K_∞ ⊗ L
-  let e₁ := (TensorProduct.RightActions.Algebra.TensorProduct.comm K (InfiniteAdeleRing K) L)
-    |>.toLinearEquiv.symm
+  let e₁ := (TensorProduct.RightActions.Algebra.TensorProduct.comm K K∞ L).toLinearEquiv.symm
   --  K_∞ ⊗ L ≃ₗ[K_∞] ∏ v, K_v ⊗ L
-  let e₂ := finiteEquivPi K L (InfiniteAdeleRing K)
+  let e₂ := finiteEquivPi K L K∞
   -- Compose to transfer freeness of ∏ v, K_v ⊗ L to L ⊗ K_∞
   exact Module.Free.of_equiv (e₁.trans e₂).symm
 
