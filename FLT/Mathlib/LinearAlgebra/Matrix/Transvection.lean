@@ -76,8 +76,7 @@ open Pivot
 
 variable {n : Type*} {R : Type*} [CommRing R] [DecidableEq n] [Fintype n]
 
--- this is in mathlib under the extra (unnecessary) assumption that k is a field
-@[simp]
+-- this is now in mathlib for CommRing
 lemma TransvectionStruct.det_toMatrix_prod' (L : List (TransvectionStruct n R)) :
     det (L.map toMatrix).prod = 1 := by
   induction L with
