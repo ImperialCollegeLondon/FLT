@@ -167,7 +167,7 @@ def FiniteAdeleRing.tensorEquivRestrictedProduct :
       Πʳ v, [B ⊗[A] (adicCompletion K v), RestrictedProduct.rangeLTensor A
       B (adicCompletion K) (integerSubmodule A K) v]:= by
   have := Module.finitePresentation_of_finite A B
-  have := noZeroSMulDivisors A K L B
+  have := isTorsionFree A K L B
   let map :=
     RestrictedProduct.lTensorEquiv A B (adicCompletion K) Filter.cofinite (integerSubmodule A K)
   apply LinearEquiv.trans (TensorProduct.congr (LinearEquiv.refl A B) _) map

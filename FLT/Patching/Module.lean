@@ -37,7 +37,7 @@ variable [∀ i, Module.Free (R ⧸ Ann R (M i)) (M i)]
 
 instance (i) : Module.Finite (R ⧸ Ann R (M i)) (M i) :=
   Module.finite_of_rank_eq_nat (Cardinal.cast_toNat_of_lt_aleph0
-    ((Module.UniformlyBoundedRank.rank_lt_bound R M i).trans (Cardinal.nat_lt_aleph0 _))).symm
+    ((Module.UniformlyBoundedRank.rank_lt_bound R M i).trans Cardinal.natCast_lt_aleph0)).symm
 
 instance (i) : Module.Finite R (M i) := Module.Finite.trans (R ⧸ Ann R (M i)) (M i)
 

@@ -181,7 +181,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
         simp only [Module.toModuleEnd_apply, LinearMap.coe_comp, Finsupp.coe_lsum,
           Function.comp_apply, Finsupp.lsingle_apply, Finsupp.mapRange.linearMap_apply,
           LinearMap.coe_restrictScalars, Finsupp.mapRange_single,
-          DistribMulAction.toLinearMap_apply, smul_zero, Finsupp.sum_single_index,
+          DistribSMul.toLinearMap_apply, smul_zero, Finsupp.sum_single_index,
           LinearMap.map_smul_of_tower, X, f]⟩
     have ht₁ (α) : t (α := α) le_rfl = id := by
       ext a b
@@ -206,7 +206,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
       | mem x h =>
         refine ⟨Finsupp.single ⟨x, h⟩ m, ?_⟩
         simp only [Module.toModuleEnd_apply, X, f, smul_zero,
-          Finsupp.coe_lsum, DistribMulAction.toLinearMap_apply, Finsupp.sum_single_index]
+          Finsupp.coe_lsum, DistribSMul.toLinearMap_apply, Finsupp.sum_single_index]
       | zero => simp only [zero_smul, Submodule.zero_mem]
       | add x y hx hy hx' hy' => simpa only [add_smul] using add_mem hx' hy'
       | smul a x hx hx' => simpa only [smul_assoc] using Submodule.smul_mem _ a hx'
@@ -223,12 +223,12 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
       refine Subtype.ext (funext fun α ↦ ?_)
       have : _ = _ := (v α).2
       simp only [PatchingModule, Module.toModuleEnd_apply, Finsupp.coe_lsum,
-        DistribMulAction.toLinearMap_apply, smul_zero, implies_true, Finsupp.sum_fintype,
+        DistribSMul.toLinearMap_apply, smul_zero, implies_true, Finsupp.sum_fintype,
         Finset.univ_eq_attach, Finsupp.equivFunOnFinite_symm_apply_apply,
         AddSubmonoidClass.coe_finset_sum, SetLike.val_smul_of_tower, Finset.sum_apply,
         Pi.smul_apply, ← this, y, X, s, f]
     rw [← this]
-    simp only [Module.toModuleEnd_apply, Finsupp.coe_lsum, DistribMulAction.toLinearMap_apply,
+    simp only [Module.toModuleEnd_apply, Finsupp.coe_lsum, DistribSMul.toLinearMap_apply,
       smul_zero, implies_true, Finsupp.sum_fintype, Finset.univ_eq_attach]
     exact sum_mem fun x _ ↦ Submodule.smul_mem_smul
       (by rw [← hs]; exact Submodule.subset_span x.2) trivial
