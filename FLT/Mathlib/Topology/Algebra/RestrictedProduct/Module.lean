@@ -166,7 +166,7 @@ end components
 
 section free_topology
 
-variable (n : Type*) [Fintype n]
+variable (n : Type*)
 
 variable (B) in
 /-- If `B i` is subring of `R i` then `(B i)^n` is a `B i`-submodule of `(R i)^n`. -/
@@ -174,8 +174,8 @@ def piSubringSubmodule (i : ι) : Submodule (B i) (n → R i) :=
   Submodule.pi Set.univ fun (_ : n) ↦ Subring.toSubmodule (Subring.ofClass (B i))
 
 /-- Canonical linear equivalence between `Π' R^n` and `(Π' R)^n` -/
-def _root_.LinearEquiv.restrictedProductPi
-    : Πʳ i, [n → R i, piSubringSubmodule B n i]_[ℱ] ≃ₗ[Πʳ i, [R i, B i]_[ℱ]]
+def _root_.LinearEquiv.restrictedProductPi [Fintype n] :
+    Πʳ i, [n → R i, piSubringSubmodule B n i]_[ℱ] ≃ₗ[Πʳ i, [R i, B i]_[ℱ]]
       n → Πʳ i, [R i, B i]_[ℱ] where
   toFun x j := map (fun i y ↦ y j)
     (by
@@ -187,7 +187,7 @@ def _root_.LinearEquiv.restrictedProductPi
   map_add' x y := rfl
   map_smul' x y := rfl
 
-lemma isOpen_piSubringSubmodule (hOpen : ∀ i, IsOpen (B i : Set (R i))) (i : ι) :
+lemma isOpen_piSubringSubmodule [Finite n] (hOpen : ∀ i, IsOpen (B i : Set (R i))) (i : ι) :
     IsOpen (SetLike.coe <| piSubringSubmodule B n i) := by
   rw [piSubringSubmodule, Submodule.coe_pi]
   apply isOpen_set_pi Set.finite_univ
@@ -197,8 +197,9 @@ lemma isOpen_piSubringSubmodule (hOpen : ∀ i, IsOpen (B i : Set (R i))) (i : �
 variable [∀ i, IsTopologicalRing (R i)]
 
 /-- Canonical continuous linear equivalence between `Π' R^n` and `(Π' R)^n` -/
-def _root_.ContinuousLinearEquiv.restrictedProductPi (hOpen : ∀ i, IsOpen (B i : Set (R i)))
-    : Πʳ i, [n → R i, piSubringSubmodule B n i] ≃L[Πʳ i, [R i, B i]] n → Πʳ i, [R i, B i] where
+def _root_.ContinuousLinearEquiv.restrictedProductPi [Fintype n]
+    (hOpen : ∀ i, IsOpen (B i : Set (R i))) :
+    Πʳ i, [n → R i, piSubringSubmodule B n i] ≃L[Πʳ i, [R i, B i]] n → Πʳ i, [R i, B i] where
   __ := LinearEquiv.restrictedProductPi n
   continuous_toFun := by
     apply continuous_pi
@@ -211,8 +212,9 @@ def _root_.ContinuousLinearEquiv.restrictedProductPi (hOpen : ∀ i, IsOpen (B i
     exact IsModuleTopology.continuous_of_linearMap
       (LinearEquiv.restrictedProductPi n).symm.toLinearMap
 
-lemma moduleToplogy_of_prod (hOpen : ∀ i, IsOpen (B i : Set (R i))) :
+lemma moduleToplogy_of_prod [Finite n] (hOpen : ∀ i, IsOpen (B i : Set (R i))) :
     IsModuleTopology (Πʳ i, [R i, B i]) (Πʳ i, [n → R i, piSubringSubmodule B n i]) :=
+  let := Fintype.ofFinite n
   have := Fact.mk hOpen
   IsModuleTopology.iso (ContinuousLinearEquiv.restrictedProductPi n hOpen).symm
 
