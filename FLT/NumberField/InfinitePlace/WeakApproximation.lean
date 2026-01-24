@@ -72,10 +72,11 @@ This is given by taking large enough values of a witness sequence to
 `exists_tendsto_zero_tendsto_atTop_tendsto_const` (for example `a ^ n * b` works).
 -/
 theorem exists_one_lt_lt_one_lt_one_of_eq_one
-    {ι : Type*} [Fintype ι] {v : ι → AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ} {a b : K} {i : ι}
+    {ι : Type*} [Finite ι] {v : ι → AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ} {a b : K} {i : ι}
     (ha : 1 < v i a) (haj : ∀ j ≠ i, v j a < 1) (haw : w a = 1) (hb : 1 < v i b) (hbw : w b < 1) :
     ∃ k : K, 1 < v i k ∧ (∀ j ≠ i, v j k < 1) ∧ w k < 1 := by
   classical
+  let := Fintype.ofFinite ι
   let ⟨c, hc⟩ := exists_tendsto_zero_tendsto_atTop_tendsto_const ha haj haw hb hbw
   simp_rw [Metric.tendsto_nhds, Filter.tendsto_atTop_atTop, Filter.eventually_atTop,
     dist_zero_right, ← WithAbs.norm_eq_abs, norm_norm] at hc
@@ -125,10 +126,11 @@ Note that this is the result `exists_one_lt_lt_one_lt_one_of_eq_one` replacing t
 that `w a = 1` with `1 < w a`.
 -/
 theorem exists_one_lt_lt_one_lt_one_of_one_lt
-    {ι : Type*} [Fintype ι] {v : ι → AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ} {a b : K} {i : ι}
+    {ι : Type*} [Finite ι] {v : ι → AbsoluteValue K ℝ} {w : AbsoluteValue K ℝ} {a b : K} {i : ι}
     (ha : 1 < v i a) (haj : ∀ j ≠ i, v j a < 1) (haw : 1 < w a) (hb : 1 < v i b) (hbw : w b < 1) :
     ∃ k : K, 1 < v i k ∧ (∀ j ≠ i, v j k < 1) ∧ w k < 1 := by
   classical
+  let := Fintype.ofFinite ι
   let ⟨c, hc⟩ := exists_tendsto_const_tendsto_zero_tendsto_const b ha haj haw
   have hₙ := fun j hj => Metric.tendsto_nhds.1 <| hc.2.1 j hj
   simp_rw [Filter.eventually_atTop, dist_zero_right] at hₙ

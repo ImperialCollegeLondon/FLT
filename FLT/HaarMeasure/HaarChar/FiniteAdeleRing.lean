@@ -89,7 +89,7 @@ lemma FiniteAdeleRing.Aux.f_commSq
 
 end moving_from_tensor_B_to_Pi
 
-local instance {ι : Type*} [Fintype ι] :
+local instance {ι : Type*} [Finite ι] :
     Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen
       (↑(AddSubgroup.pi (Set.univ : Set ι)
       (fun _ ↦ (v.adicCompletionIntegers K).toAddSubgroup)) :
@@ -111,7 +111,7 @@ local instance (v : HeightOneSpectrum (𝓞 K)) :
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
   exact isCompactAdicCompletionIntegers K v
 
-variable {ι : Type*} [Fintype ι] in
+variable {ι : Type*} [Finite ι] in
 local instance : LocallyCompactSpace
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [ι → adicCompletion K v,
       (↑(AddSubgroup.pi (Set.univ : Set ι) fun _ ↦ (adicCompletionIntegers K v).toAddSubgroup) :

@@ -199,7 +199,7 @@ lemma ContinuousMulEquiv.restrictedProductPi_symm_apply {ι : Type*} {n : Type*}
     = (x j) i :=
   rfl
 
-theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Fintype n] {A : ι → Type*}
+theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Finite n] {A : ι → Type*}
     [(i : ι) → TopologicalSpace (A i)] {C : (i : ι) → Set (A i)}
     (i : ι) (hCopen : ∀ (i : ι), IsOpen (C i)) :
     IsOpen {f : n → A i | ∀ (a : n), f a ∈ C i} := by

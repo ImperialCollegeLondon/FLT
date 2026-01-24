@@ -8,7 +8,7 @@ universe u
 
 /-- A mod 3 hardly ramified representation is an extension of trivial by cyclo -/
 -- Probably `Field k` can be replaced with `(3 : k) = 0`
-theorem mod_three {k : Type u} [Fintype k] [Field k] [Algebra ℤ_[3] k] --
+theorem mod_three {k : Type u} [Finite k] [Field k] [Algebra ℤ_[3] k] --
     [TopologicalSpace k] [DiscreteTopology k]
     (V : Type*) [AddCommGroup V] [Module k V] [Module.Finite k V] [Module.Free k V]
     (hV : Module.rank k V = 2) {ρ : GaloisRep ℚ k V}
