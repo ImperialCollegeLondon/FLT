@@ -245,7 +245,7 @@ lemma GaloisRep.frame_baseChange [IsTopologicalRing B] [Algebra A B] [Continuous
       (ρ.frame b).baseChange _ (continuous_algebraMap A B) := by
   apply FramedGaloisRep.GL.injective
   ext σ i j
-  simp [GaloisRep.frame, ← Pi.single_apply, Algebra.smul_def]
+  simp [GaloisRep.frame, Algebra.smul_def]
 
 omit [NumberField K] in
 lemma FramedGaloisRep.baseChange_def [IsTopologicalRing B]
