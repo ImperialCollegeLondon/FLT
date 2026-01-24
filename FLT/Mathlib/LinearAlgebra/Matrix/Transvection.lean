@@ -28,7 +28,7 @@ lemma Pivot.exists_list_transvec_mul_diagonal_mul_list_transvec' {n : Type*} {�
 section TransvectionStruct_dot_map
 
 variable {n : Type*} {R S : Type*} [CommRing R] [CommRing S]
-    [Fintype n] [DecidableEq n] (f : R →+* S)
+    [DecidableEq n] (f : R →+* S)
 
 /-- Base change of a TransvectionStruct along a ring homomorphism. -/
 def TransvectionStruct.map {n : Type*} {R S : Type*} [CommRing R] [CommRing S]
@@ -39,16 +39,18 @@ def TransvectionStruct.map {n : Type*} {R S : Type*} [CommRing R] [CommRing S]
   hij := t.hij
   c := f t.c
 
-lemma TransvectionStruct.toMatrix_map (t : TransvectionStruct n R) :
+lemma TransvectionStruct.toMatrix_map [Fintype n] (t : TransvectionStruct n R) :
     (toMatrix ∘ TransvectionStruct.map f) t = f.mapMatrix t.toMatrix := by
   simp [map, transvection, toMatrix, map_add]
 
 @[simp]
-lemma TransvectionStruct.map_toMatrix (t : TransvectionStruct n R) :
+lemma TransvectionStruct.map_toMatrix [Finite n] (t : TransvectionStruct n R) :
     (TransvectionStruct.map f t).toMatrix = t.toMatrix.map f :=
+  let := Fintype.ofFinite n
   t.toMatrix_map f
 
-lemma TransvectionStruct.mapMatrix_map_toMatrix_prod (L : List (TransvectionStruct n R)) :
+lemma TransvectionStruct.mapMatrix_map_toMatrix_prod [Fintype n]
+    (L : List (TransvectionStruct n R)) :
     f.mapMatrix (List.map toMatrix L).prod =
     (List.map (toMatrix ∘ TransvectionStruct.map f) L).prod := by
   rw [map_list_prod]
@@ -56,7 +58,8 @@ lemma TransvectionStruct.mapMatrix_map_toMatrix_prod (L : List (TransvectionStru
   simp
 
 @[simp]
-lemma TransvectionStruct.mapMatrix_map_toMatrix_prod' (L : List (TransvectionStruct n R)) :
+lemma TransvectionStruct.mapMatrix_map_toMatrix_prod' [Fintype n]
+    (L : List (TransvectionStruct n R)) :
     (List.map toMatrix L).prod.map ⇑f =
     (List.map (toMatrix ∘ TransvectionStruct.map f) L).prod :=
   TransvectionStruct.mapMatrix_map_toMatrix_prod f L
@@ -75,14 +78,6 @@ lemma Pivot.baseChange_existsListTransvecEtc {n : Type*} {R : Type*} [CommRing R
 open Pivot
 
 variable {n : Type*} {R : Type*} [CommRing R] [DecidableEq n] [Fintype n]
-
--- this is in mathlib under the extra (unnecessary) assumption that k is a field
-@[simp]
-lemma TransvectionStruct.det_toMatrix_prod' (L : List (TransvectionStruct n R)) :
-    det (L.map toMatrix).prod = 1 := by
-  induction L with
-  | nil => simp
-  | cons _ _ IH => simp [IH]
 
 -- this proof is literally cut and pasted from mathlib
 /-- Variant of `Matrix.diagonal_transvection_induction` for commutative rings

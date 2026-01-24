@@ -4,7 +4,7 @@ namespace GaloisRepresentation.IsHardlyRamified
 
 universe u v
 
-variable {k : Type u} [Fintype k] [Field k]
+variable {k : Type u} [Finite k] [Field k]
     [TopologicalSpace k] [DiscreteTopology k]
     {p : ℕ} (hpodd : Odd p) [Fact p.Prime]
     [Algebra ℤ_[p] k]

@@ -358,11 +358,12 @@ lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : Heigh
   · rw [smul_smul, inv_mul_cancel₀, one_smul]
     exact IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors K (fun _ ↦ id) hz
 
-lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
+lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Finite ι]
     (valuation : ι → HeightOneSpectrum A) (x : (i : ι) → (valuation i).adicCompletion K) :
       ∃k : K, ∃y ∈ Set.pi Set.univ (fun (i : ι) ↦ ((valuation i).adicCompletionIntegers K).carrier),
       x = k • y := by
   classical
+  let := Fintype.ofFinite ι
   choose f hf using fun (i : ι) =>
     eq_mul_nonZeroDivisor_inv_adicCompletionIntegers K (valuation i) (x i)
   use (algebraMap A K (∏ i : ι, f i))⁻¹, (algebraMap A K (∏ i : ι, f i)) • x
@@ -382,7 +383,7 @@ lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
     simp [Finset.prod_ne_zero_iff, hz]
 
 /-- If `s` is finite then `K` in dense in `∏_{v ∈ s} K_v`. -/
-theorem denseRange_of_prodAlgebraMap {ι : Type*} [Fintype ι]
+theorem denseRange_of_prodAlgebraMap {ι : Type*} [Finite ι]
     {valuation : ι → HeightOneSpectrum A} (injective : Function.Injective valuation) :
     DenseRange (algebraMap K ((i : ι) → (valuation i).adicCompletion K)) := by
   rw [denseRange_iff_closure_range, Set.eq_univ_iff_forall]

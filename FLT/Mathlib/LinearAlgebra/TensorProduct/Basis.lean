@@ -22,4 +22,5 @@ instance (R : Type*) [CommSemiring R] (A B : Type*) [AddCommMonoid A] [AddCommMo
   suffices Nontrivial (A ⊗[R] (Module.Free.ChooseBasisIndex R B →₀ R)) by
     apply (LinearEquiv.lTensor A (Module.Free.chooseBasis R B).repr).toEquiv.nontrivial
   -- ≃ ι →₀ A which is nontrivial
-  apply (TensorProduct.finsuppScalarRight R A (Module.Free.ChooseBasisIndex R B)).toEquiv.nontrivial
+  exact (TensorProduct.finsuppScalarRight R R A
+    (Module.Free.ChooseBasisIndex R B)).toEquiv.nontrivial

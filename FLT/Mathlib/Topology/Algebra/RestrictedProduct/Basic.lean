@@ -2,6 +2,7 @@ import Mathlib.Algebra.Module.LinearMap.Defs
 import Mathlib.Algebra.Ring.Subring.Basic
 import Mathlib.Topology.Algebra.RestrictedProduct.Basic
 import Mathlib.Algebra.Module.Submodule.Defs
+import Mathlib.Algebra.Group.Pointwise.Set.Basic
 
 namespace RestrictedProduct
 
