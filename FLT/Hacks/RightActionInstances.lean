@@ -41,8 +41,8 @@ lemma smul_def (r : S) (m : M ⊗[R] S) :
 /-- The `S`-module structure on `M ⊗ S`, when `S` is a commutative semiring.
 An instance only when the `TensorProduct.RightActions` scope is open. -/
 scoped instance : Module S (M ⊗[R] S) where
-  one_smul _ := by simp
-  mul_smul := by simp [mul_smul]
+  one_smul x := by simp_rw [smul_def, one_smul, (TensorProduct.comm R M S).symm_apply_apply]
+  mul_smul a b x := by simp_rw [smul_def, mul_smul, (TensorProduct.comm R M S).apply_symm_apply]
   smul_zero := by simp
   smul_add := by simp
   add_smul := by simp [add_smul]

@@ -641,7 +641,7 @@ noncomputable def FiniteAdeleRing.TensorProduct.commLinearMap :
     (B ⊗[K] (FiniteAdeleRing (𝓞 K) K)) ≃ₗ[FiniteAdeleRing (𝓞 K) K]
     (FiniteAdeleRing (𝓞 K) K) ⊗[K] B := {
   __ := TensorProduct.comm K B (FiniteAdeleRing (𝓞 K) K)
-  map_smul' m x := by simp
+  map_smul' _ _ := (TensorProduct.comm K B (FiniteAdeleRing (𝓞 K) K)).apply_symm_apply _
   }
 
 open scoped TensorProduct.RightActions in
