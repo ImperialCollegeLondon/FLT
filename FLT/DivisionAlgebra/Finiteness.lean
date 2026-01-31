@@ -9,7 +9,6 @@ import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.HaarMeasure.HaarChar.RealComplex
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
 import FLT.Mathlib.MeasureTheory.Haar.Extension
-import FLT.Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
 import FLT.Mathlib.Topology.HomToDiscrete
 import FLT.Mathlib.Topology.Polish

@@ -135,7 +135,7 @@ omit [DecidableEq n] [NumberField K] in
 @[simp]
 lemma FramedGaloisRep.unframe_frame (ρ : FramedGaloisRep K A n) (b : Module.Basis n A M) :
     (ρ.unframe b).frame b = ρ := by
-  ext; simp [unframe, GaloisRep.frame]; rfl
+  ext; simp [unframe, GaloisRep.frame]
 
 variable [IsTopologicalRing A]
 
