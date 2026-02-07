@@ -1,5 +1,6 @@
 import Mathlib.MeasureTheory.Group.Action
 import Mathlib.MeasureTheory.Group.Pointwise
+import Mathlib.MeasureTheory.Group.Measure
 import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
 import Mathlib.GroupTheory.Complement
 /-!
@@ -95,24 +96,12 @@ lemma isMulRightInvariant_subtypeVal (μ : Measure G) [μ.IsMulRightInvariant]
   have hφ : MeasurableEmbedding H.subtype := MeasurableEmbedding.subtype_coe hH
   hφ.isMulRightInvariant_comap μ
 
-@[to_additive index_mul_addHaar_addSubgroup]
-lemma index_mul_haar_subgroup [H.FiniteIndex] (hH : MeasurableSet (H : Set G)) (μ : Measure G)
-    [μ.IsMulLeftInvariant] : H.index * μ H = μ univ := by
-  obtain ⟨s, hs, -⟩ := H.exists_isComplement_left 1
-  have hs' : Finite s := hs.finite_left_iff.mpr inferInstance
-  calc
-    H.index * μ H = ∑' a : s, μ (a.val • H) := by simp [measure_smul, hs.encard_left]
-    _ = μ univ := by
-      rw [← measure_iUnion _ fun _ ↦ hH.const_smul _]
-      · simp [hs.mul_eq]
-      · exact fun a b hab ↦ hs.pairwiseDisjoint_smul a.2 b.2 (Subtype.val_injective.ne hab)
-
 @[to_additive index_mul_addHaar_addSubgroup_eq_addHaar_addSubgroup]
 lemma index_mul_haar_subgroup_eq_haar_subgroup [H.IsFiniteRelIndex K] (hHK : H ≤ K)
     (hH : MeasurableSet (H : Set G)) (hK : MeasurableSet (K : Set G)) (μ : Measure G)
     [μ.IsMulLeftInvariant] : H.relIndex K * μ H = μ K := by
   have := isMulLeftInvariant_subtypeVal μ hK
-  have := index_mul_haar_subgroup (H := H.subgroupOf K) (measurable_subtype_coe hH)
+  have := Subgroup.index_mul_measure (H.subgroupOf K) (measurable_subtype_coe hH)
     (μ.comap Subtype.val)
   simp only at this
   rw [MeasurableEmbedding.comap_apply, MeasurableEmbedding.comap_apply] at this

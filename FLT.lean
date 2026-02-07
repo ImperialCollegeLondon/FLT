@@ -68,7 +68,6 @@ import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import FLT.Mathlib.Algebra.IsDirectLimit
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
