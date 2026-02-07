@@ -99,7 +99,6 @@ import FLT.Mathlib.MeasureTheory.Haar.Extension
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
-import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing

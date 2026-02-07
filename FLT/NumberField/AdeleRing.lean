@@ -1,5 +1,5 @@
 import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
-import FLT.Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
@@ -517,7 +517,7 @@ theorem Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a : InfiniteAdeleRing �
   refine ⟨?_, ?_⟩
   · intro v
     rw [Subsingleton.elim v v₀, InfiniteAdeleRing.algebraMap_apply,
-      ringOfIntegersEquiv_symm_coe, map_sub, extensionEmbeddingOfIsReal_coe,
+      ringOfIntegersEquiv_symm_apply_coe, map_sub, extensionEmbeddingOfIsReal_coe,
     map_intCast, Int.self_sub_floor]
     exact ⟨Int.fract_nonneg _, Int.fract_lt_one _⟩
   · intro y hy
@@ -525,7 +525,7 @@ theorem Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a : InfiniteAdeleRing �
     rw [RingEquiv.eq_symm_apply, ← hx']
     let hy2 := (RingEquiv.eq_symm_apply _).2 hx'.symm
     specialize hy v₀
-    rw [InfiniteAdeleRing.algebraMap_apply, hy2, ringOfIntegersEquiv_symm_coe,
+    rw [InfiniteAdeleRing.algebraMap_apply, hy2, ringOfIntegersEquiv_symm_apply_coe,
       map_sub, extensionEmbeddingOfIsReal_coe, map_intCast] at hy
     exact Int.eq_floor hy.1 hy.2
 
