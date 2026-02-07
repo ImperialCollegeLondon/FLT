@@ -37,7 +37,6 @@ import FLT.Deformations.RepresentationTheory.GaloisRep
 import FLT.Deformations.RepresentationTheory.GaloisRepFamily
 import FLT.Deformations.RepresentationTheory.IntegralClosure
 import FLT.Deformations.RepresentationTheory.Irreducible
-import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor
 import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
@@ -85,7 +84,6 @@ import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
 import FLT.Mathlib.LinearAlgebra.Pi
-import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
 import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
