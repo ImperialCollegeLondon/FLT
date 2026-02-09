@@ -16,18 +16,6 @@ lemma _root_.ContinuousMulEquiv.isHaarMeasure_comap {G H : Type*}
     (φ : G ≃ₜ* H) (μ : Measure H) [IsHaarMeasure μ] : IsHaarMeasure (comap φ μ) :=
   φ.toHomeomorph.isOpenEmbedding.isHaarMeasure_comap (φ := φ.toMulEquiv.toMonoidHom) μ
 
-lemma _root_.Homeomorph.regular_comap {G H : Type*}
-    [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    (φ : G ≃ₜ H) (μ : Measure H) [Regular μ] : Regular (comap φ μ) :=
-  φ.isOpenEmbedding.regular_comap φ μ
-
-lemma _root_.Homeomorph.regular_map {G H : Type*}
-    [TopologicalSpace G] [MeasurableSpace G] [BorelSpace G]
-    [TopologicalSpace H] [MeasurableSpace H] [BorelSpace H]
-    (φ : G ≃ₜ H) (μ : Measure G) [Regular μ] : Regular (map φ μ) :=
-  (Regular.map_iff φ).mpr inferInstance
-
 section basic
 
 variable {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
@@ -96,7 +84,7 @@ lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}
   let μY : Measure Y := haar
   let μX := comap f μY
   have hμX : IsHaarMeasure μX := hf.isHaarMeasure_comap μY
-  have : μX.Regular := hf.regular_comap _ μY
+  have : μX.Regular := Regular.comap' μY hf
   obtain ⟨⟨g, g_cont⟩, g_comp, g_nonneg, g_one⟩ :
     ∃ g : C(X, ℝ), HasCompactSupport g ∧ 0 ≤ g ∧ g 1 ≠ 0 := exists_continuous_nonneg_pos 1
   have int_g_ne_zero : ∫ x, g x ∂μX ≠ 0 :=
