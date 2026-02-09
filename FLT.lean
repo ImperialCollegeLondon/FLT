@@ -141,7 +141,6 @@ import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.Mathlib.Topology.Bases
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.HomToDiscrete
-import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
