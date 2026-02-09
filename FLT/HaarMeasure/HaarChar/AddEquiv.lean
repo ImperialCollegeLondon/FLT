@@ -20,11 +20,6 @@ section basic
 
 variable {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
 
-@[to_additive]
-lemma IsHaarMeasure.nnreal_smul {μ : Measure G}
-    [h : IsHaarMeasure μ] {c : ℝ≥0} (hc : 0 < c) : IsHaarMeasure (c • μ) :=
-  h.smul _ (by simp [hc.ne']) (Option.some_ne_none _)
-
 variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 
 -- should be in haarScalarFactor API
