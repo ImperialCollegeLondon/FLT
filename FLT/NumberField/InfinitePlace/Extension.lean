@@ -150,7 +150,7 @@ variable (K) in
 /-- Any infinite place `w` of `L` is an extension of its restriction to `K`. -/
 abbrev toExtension : (w.comap (algebraMap K L)).Extension L := ⟨w, rfl⟩
 
-@[simp] theorem coe_toExtension (w : InfinitePlace L) : (toExtension K w).1 = w := rfl
+theorem coe_toExtension (w : InfinitePlace L) : (toExtension K w).1 = w := rfl
 
 namespace Extension
 

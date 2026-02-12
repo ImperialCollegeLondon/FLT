@@ -163,7 +163,7 @@ instance [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
         funext w
         simp [TensorProduct.smul_tmul', baseChangeEquivAux_apply, baseChange_of_algebraMap_tmul,
           Pi.FiberwiseSMul.map_smul _ _ Completion (σ := w.toExtension K), RingHom.smul_toAlgebra,
-          Completion.comapHom, SemialgHom.toLinearMap_eq_coe]
+          Completion.comapHom, SemialgHom.toLinearMap_eq_coe, coe_toExtension]
         ring
     | add x y _ _ => simp_all
 
