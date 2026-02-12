@@ -40,9 +40,9 @@ theorem LinearMap.changeScalars_apply (f : A →ₗ[S] B) [IsBiscalar S S' f] (a
   simp [changeScalars]
 
 /--
-Given a linear isomorphism `f : A ≃ₗ[S] B` which also satisfies `f (s' • a) = s' • f a` for `s : S'`,
-with both `S` and `S'` sharing a common base ring `R`, then `f.changeScalars R S'` returns `f`
-viewed as an `S'`-algebra isomorphism.
+Given a linear isomorphism `f : A ≃ₗ[S] B` which also satisfies `f (s' • a) = s' • f a` for
+`s : S'`, with both `S` and `S'` sharing a common base ring `R`, then `f.changeScalars R S'`
+returns `f` viewed as an `S'`-algebra isomorphism.
 -/
 def LinearEquiv.changeScalars (f : A ≃ₗ[S] B) [IsBiscalar S S' f] :
     A ≃ₗ[S'] B where

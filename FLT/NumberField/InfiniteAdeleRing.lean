@@ -61,7 +61,7 @@ The desired instances are constructed later as `scoped` instances in `FLT.Number
   topology on `L∞`.
 -/
 
-variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
+variable (K L : Type*) [Field K] [Field L] [Algebra K L]
 
 open NumberField InfinitePlace SemialgHom
 
@@ -78,6 +78,10 @@ noncomputable def baseChange :
   __ := Pi.semialgHomPi _ _ fun _ => Completion.comapHom rfl
   continuous_toFun := .piSemialgHomPi Completion Completion _ fun _ => Completion.comapHom_cont rfl
 
+@[simp]
+theorem baseChange_apply (x : K∞) (w : InfinitePlace L) :
+    baseChange K L x w = Completion.comapHom (w := w) rfl (x (w.comap (algebraMap K L))) := rfl
+
 open scoped TensorProduct.RightActions
 
 noncomputable instance [Algebra K∞ L∞] :
@@ -85,6 +89,8 @@ noncomputable instance [Algebra K∞ L∞] :
   inferInstanceAs (Algebra K∞ L∞)
 
 /-! Show that `L_∞` has the `K_∞`-module topology. -/
+
+variable [NumberField K] [NumberField L]
 
 /-- The $K_{\infty}$-linear homeomorphism $K_{\infty}^{[L:K]} \cong L_{\infty}$. -/
 noncomputable
@@ -140,6 +146,27 @@ instance : Module.Free K∞ (L ⊗[K] K∞) := by
   -- Compose to transfer freeness of ∏ v, K_v ⊗ L to L ⊗ K_∞
   exact Module.Free.of_equiv (e₁.trans e₂).symm
 
+/-- Take two arbitrary `Algebra K L∞` and `Algebra K∞ L∞` instances. Assume that
+`Algebra K L∞` factors through (existing) `Algebra K L` and `Algebra L L∞`.
+Assume further that `Algebra K∞ L∞` is determined by the fibers of restriction of infinite places
+of `L` to `K` via (x • y) v = x (v.comap (algebraMap K L)) • y v. Then the `L` algebra base change
+map is also linear in `K∞`.
+-/
+instance [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
+    [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
+    IsBiscalar L K∞ (baseChangeEquivAux K L).toAlgHom where
+  map_smul₁ l x := (InfiniteAdeleRing.baseChangeEquivAux K L).toAlgHom.map_smul_of_tower l x
+  map_smul₂ a x := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul l r =>
+        funext w
+        simp [TensorProduct.smul_tmul', baseChangeEquivAux_apply, baseChange_of_algebraMap_tmul,
+          Pi.FiberwiseSMul.map_smul _ _ Completion (σ := w.toExtension K), RingHom.smul_toAlgebra,
+          Completion.comapHom, SemialgHom.toLinearMap_eq_coe]
+        ring
+    | add x y _ _ => simp_all
+
 -- `IsModuleTopology.continuousAlgEquivOfIsScalarTower` is then applicable in the same
 -- way it was for `baseChangeEquiv` in `InfinitePlace.Completion`
 
@@ -147,8 +174,7 @@ instance : Module.Free K∞ (L ⊗[K] K∞) := by
 `K`-algebra base change map `K_∞ → L_∞`. -/
 noncomputable
 def baseChangeEquiv [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
-    [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
-    [IsBiscalar L K∞ (baseChangeEquivAux K L).toAlgHom] :
+    [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
     L ⊗[K] K∞ ≃A[L] L∞ :=
   IsModuleTopology.continuousAlgEquivOfIsBiscalar K K∞ (baseChangeEquivAux K L)
 

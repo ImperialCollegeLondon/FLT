@@ -87,6 +87,8 @@ noncomputable def baseChangeAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
     baseChangeAlgEquiv K L (l ⊗ₜ a) = algebraMap _ _ l * baseChange K L a := by
   rfl
 
+-- TODO: Can remove `IsBiscalar` assumption and replace with some compatibility assumption
+-- that the `Algebra (𝔸 K) (𝔸 L)` action is built from `Algebra K∞ L∞` and the finite adele action
 open TensorProduct.RightActions in
 /-- The `L`-algebra homeomorphism `L ⊗[K] 𝔸 K = 𝔸 L`. -/
 noncomputable def baseChangeEquiv [Algebra (𝔸 K) (𝔸 L)] [Algebra K (𝔸 L)] [IsScalarTower K L (𝔸 L)]
@@ -267,18 +269,6 @@ scoped instance : Algebra (𝔸 K) (𝔸 L) := (AdeleRing.baseChange K L).toAlge
 scoped instance : Algebra K (𝔸 L) := Prod.algebra _ _ _
 
 scoped instance : IsScalarTower K L (𝔸 L) := Prod.isScalarTower
-
-/-- `L ⊗ K∞ ≃ L∞` is both an `L`- and `K∞`-algebra isomorphism. -/
-scoped instance : IsBiscalar L K∞ (InfiniteAdeleRing.baseChangeEquivAux K L).toAlgHom where
-  map_smul₁ l x := (InfiniteAdeleRing.baseChangeEquivAux K L).toAlgHom.map_smul_of_tower l x
-  map_smul₂ a x := by
-    induction x using TensorProduct.induction_on with
-    | zero => simp
-    | tmul v b =>
-        simp [TensorProduct.smul_tmul', algebra_compatible_smul L∞ a, RingHom.algebraMap_toAlgebra,
-          InfiniteAdeleRing.baseChangeEquivAux_apply, SemialgHom.baseChange_of_algebraMap_tmul]
-        ring
-    | add x y _ _ => simp_all
 
 /-- `L ⊗ 𝔸 K = 𝔸 L` is both an `L`- and `𝔸 K`-algebra isomorphism. -/
 scoped instance : IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom where

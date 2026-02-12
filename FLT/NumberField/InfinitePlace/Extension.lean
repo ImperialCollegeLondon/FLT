@@ -147,6 +147,14 @@ restriction to `K` is an associated complex embedding `K →+* ℂ` of `v`.
 abbrev Extension (v : InfinitePlace K) :=
   { w : InfinitePlace L // w.comap (algebraMap K L) = v }
 
+variable (K) in
+/-- Any infinite place `w` of `L` is an extension of its restriction to `K`. -/
+abbrev toExtension (w : InfinitePlace L) : (w.comap (algebraMap K L)).Extension L :=
+  ⟨w, rfl⟩
+
+@[simp]
+theorem coe_toExtension (w : InfinitePlace L) : (toExtension K w).1 = w := rfl
+
 namespace Extension
 
 variable {v : InfinitePlace K} (w : v.Extension L)
