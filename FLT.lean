@@ -37,7 +37,6 @@ import FLT.Deformations.RepresentationTheory.GaloisRep
 import FLT.Deformations.RepresentationTheory.GaloisRepFamily
 import FLT.Deformations.RepresentationTheory.IntegralClosure
 import FLT.Deformations.RepresentationTheory.Irreducible
-import FLT.Deformations.RepresentationTheory.Subrepresentation
 import FLT.Deformations.Subfunctor
 import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
@@ -69,7 +68,6 @@ import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import FLT.Mathlib.Algebra.IsDirectLimit
 import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.Algebra.Module.LinearMap.Defs
 import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
@@ -85,7 +83,6 @@ import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
 import FLT.Mathlib.LinearAlgebra.Pi
-import FLT.Mathlib.LinearAlgebra.Span.Defs
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
 import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
 import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
@@ -101,7 +98,6 @@ import FLT.Mathlib.MeasureTheory.Haar.Extension
 import FLT.Mathlib.MeasureTheory.Measure.Regular
 import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
-import FLT.Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.NumberTheory.NumberField.Completion
 import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
@@ -145,7 +141,6 @@ import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.Mathlib.Topology.Bases
 import FLT.Mathlib.Topology.Constructions
 import FLT.Mathlib.Topology.HomToDiscrete
-import FLT.Mathlib.Topology.Homeomorph
 import FLT.Mathlib.Topology.Instances.Matrix
 import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix

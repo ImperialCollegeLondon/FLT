@@ -6,10 +6,8 @@ Authors: Kevin Buzzard
 import FLT.DedekindDomain.AdicValuation
 import FLT.Mathlib.LinearAlgebra.Countable
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
-import FLT.NumberField.Padics.RestrictedProduct
 import Mathlib.NumberTheory.NumberField.FinitePlaces
 import Mathlib.NumberTheory.Padics.ProperSpace
-import Mathlib.Topology.MetricSpace.Polish
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.NumberTheory.Padics.HeightOneSpectrum
 
