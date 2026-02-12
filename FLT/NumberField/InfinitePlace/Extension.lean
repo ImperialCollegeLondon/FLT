@@ -144,16 +144,13 @@ If `L / K` are fields and `v` is an infinite place of `K`, then we say an infini
 of `L` _extends_ `v` if `w` can be constructed from a complex embedding `L →+* ℂ` whose
 restriction to `K` is an associated complex embedding `K →+* ℂ` of `v`.
 -/
-abbrev Extension (v : InfinitePlace K) :=
-  { w : InfinitePlace L // w.comap (algebraMap K L) = v }
+abbrev Extension (v : InfinitePlace K) := { w : InfinitePlace L // w.comap (algebraMap K L) = v }
 
 variable (K) in
 /-- Any infinite place `w` of `L` is an extension of its restriction to `K`. -/
-abbrev toExtension (w : InfinitePlace L) : (w.comap (algebraMap K L)).Extension L :=
-  ⟨w, rfl⟩
+abbrev toExtension : (w.comap (algebraMap K L)).Extension L := ⟨w, rfl⟩
 
-@[simp]
-theorem coe_toExtension (w : InfinitePlace L) : (toExtension K w).1 = w := rfl
+@[simp] theorem coe_toExtension (w : InfinitePlace L) : (toExtension K w).1 = w := rfl
 
 namespace Extension
 
