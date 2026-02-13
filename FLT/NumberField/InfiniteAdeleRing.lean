@@ -28,7 +28,7 @@ reprove it. Regardless, we show that they are actually the same map in
 `NumberField.InfiniteAdeleRing.baseChangeAlgEquiv_apply`.
 
 ## Diamonds
-Global instances of the form `Algebra K L → (f K) (f L)` are avoided in this file. For example
+Global instances of the form `Algebra K L → Algebra (f K) (f L)` are avoided in this file. For example
 we do not define
 ```
 instance [Algebra K L] : Algebra K∞ L∞ := ...
