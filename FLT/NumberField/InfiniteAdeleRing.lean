@@ -173,7 +173,7 @@ instance [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
 /-- The canonical `L`-algebra homeomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
 noncomputable
-def baseChangeCAE [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
+def baseChangeEquiv [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
     L ⊗[K] K∞ ≃A[L] L∞ :=
   IsModuleTopology.continuousAlgEquivOfIsBiscalar K K∞ (baseChangeAlgEquiv K L)
