@@ -74,7 +74,7 @@ instance [Algebra R S] [CommSemiring A] [Algebra R A] [CommSemiring B] [Algebra 
     | add x y hx hy => simp_all
 
 open scoped TensorProduct.RightActions in
-/-- If `ψ : A →ₛₐ[algebra R S] B` and if `B` is given the `A`-algebra induced by `ψ`, then
+/-- If `ψ : A →ₛₐ[algebraMap R S] B` and if `B` is given the `A`-algebra induced by `ψ`, then
 the resulting base change map `S ⊗[R] A →ₐ[S] B` is scalar in both `S` and `A`.
 `baseChangeRightOfAlgebraMap ψ` is the induced `A`-algebra map `S ⊗[R] A →ₐ[A] B`. -/
 noncomputable

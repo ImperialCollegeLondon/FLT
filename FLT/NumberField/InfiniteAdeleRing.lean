@@ -11,11 +11,11 @@ import FLT.Mathlib.Topology.Algebra.Algebra.Hom
 
 If `v` is an infinite place of a number field `K`, we have established in
 `FLT.NumberField.Completion.Infinite` a continuous `L`-algebra homomorphism
-`L ⊗[K] K_v ≃ₐ[L] ∏ w ∣ v, L_w` where the product is over all infinite places `w` of `L`
+`NumberField.InfinitePlace.Completion.baseChangeEquiv : L ⊗[K] K_v ≃A[L] ∏ w ∣ v, L_w` where the product is over all infinite places `w` of `L`
 lying above `v`.
 
 In this file we analogously establish the base change for the infinite adele ring
-`L ⊗[K] K_∞ ≃ₐ[L] L_∞` where `K_∞` is the infinite adele ring of `K` and `L_∞` that of `L`.
+`NumberField.InfiniteAdeleRing.baseChangeEquiv : L ⊗[K] K_∞ ≃A[L] L_∞` where `K_∞` is the infinite adele ring of `K` and `L_∞` that of `L`.
 There are two approaches:
 
 (1) Piece together the local results on completions at infinite places to get a global result on
@@ -28,7 +28,7 @@ reprove it. Regardless, we show that they are actually the same map in
 `NumberField.InfiniteAdeleRing.baseChangeAlgEquiv_apply`.
 
 ## Diamonds
-Global instances of the form `Algebra K L → (f K) (f L)` are avoided in this file. For example
+Global instances of the form `Algebra K L → Algebra (f K) (f L)` are avoided in this file. For example
 we do not define
 ```
 instance [Algebra K L] : Algebra K∞ L∞ := ...
