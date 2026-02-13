@@ -77,8 +77,8 @@ theorem toRingHom_eq_coe (f : A →SA[φ] B) : f.toRingHom = f :=
   rfl
 
 theorem commutes (ψ : A →SA[φ] B) (r : R) :
-    ψ (algebraMap R A r) = algebraMap S B (φ r) := by
-  simpa using ψ.toSemialgHom.commutes r
+    ψ (algebraMap R A r) = algebraMap S B (φ r) :=
+  ψ.toSemialgHom.commutes r
 
 /-- The product of two continuous semi-algebra isomorphisms on the same domain. -/
 def prod {C : Type*} [Semiring C] [Algebra S C] [TopologicalSpace C] (f : A →SA[φ] B)
