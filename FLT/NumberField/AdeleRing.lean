@@ -8,6 +8,7 @@ import FLT.NumberField.Padics.RestrictedProduct
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
 import FLT.Mathlib.Data.Real.Archimedean
+import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
 
 /-! # The adele ring of a number field
 
@@ -45,11 +46,9 @@ open scoped TensorProduct
 
 universe u
 
-open NumberField
+open NumberField InfinitePlace
 
 namespace NumberField.AdeleRing
-
-section BaseChange
 
 open IsDedekindDomain
 
@@ -57,8 +56,23 @@ open scoped NumberField.InfiniteAdeleRing
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
+section BaseChange
+
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
 scoped notation:101 "𝔸" K => AdeleRing (𝓞 K) K
+
+instance [SMul (𝔸 K) (𝔸 L)] : SMul (K∞ × FiniteAdeleRing (𝓞 K) K) (L∞ × FiniteAdeleRing (𝓞 L) L) :=
+  inferInstanceAs (SMul (𝔸 K) (𝔸 L))
+
+lemma smul_fst [SMul K∞ L∞] [SMul (𝔸 K) (𝔸 L)]
+    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)] (x : 𝔸 K) (y : 𝔸 L) :
+    (x • y).1 = x.1 • y.1 := by
+  rw [Prod.prodSMul.smul_fst]
+
+lemma smul_snd [SMul K∞ L∞] [SMul (𝔸 K) (𝔸 L)]
+    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)] (x : 𝔸 K) (y : 𝔸 L) :
+    (x • y).2 = x.2 • y.2 := by
+  rw [Prod.prodSMul.smul_snd]
 
 /-- The canonical map from the adeles of K to the adeles of L -/
 noncomputable def baseChange :
@@ -68,6 +82,11 @@ noncomputable def baseChange :
     continuous_toFun := FiniteAdeleRing.mapSemialgHom_continuous (𝓞 K) K L (𝓞 L)
   }
   ContinuousSemialgHom.prodMap (InfiniteAdeleRing.baseChange K L) finite
+
+@[simp] lemma baseChange_fst_apply (a : 𝔸 K) :
+    (baseChange K L a).1 = InfiniteAdeleRing.baseChange K L a.1 := rfl
+@[simp] lemma baseChange_snd_apply (a : 𝔸 K) :
+    (baseChange K L a).2 = FiniteAdeleRing.mapSemialgHom (𝓞 K) K L (𝓞 L) a.2 := rfl
 
 open scoped TensorProduct
 
@@ -79,35 +98,76 @@ noncomputable def baseChangeAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
   let tensor :=
     Algebra.TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
   let prod := AlgEquiv.prodCongr
-    (NumberField.InfiniteAdeleRing.baseChangeEquivAux K L)
+    (NumberField.InfiniteAdeleRing.baseChangeAlgEquiv K L)
     (FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L))
   tensor.trans prod
 
-@[simp] lemma baseChangeAdeleAlgEquiv_apply (l : L) (a : 𝔸 K) :
+@[simp] lemma baseChangeAlgEquiv_apply (l : L) (a : 𝔸 K) :
     baseChangeAlgEquiv K L (l ⊗ₜ a) = algebraMap _ _ l * baseChange K L a := by
   rfl
 
--- TODO: Can remove `IsBiscalar` assumption and replace with some compatibility assumption
--- that the `Algebra (𝔸 K) (𝔸 L)` action is built from `Algebra K∞ L∞` and the finite adele action
+lemma baseChangeAlgEquiv_fst_apply (l : L) (x : 𝔸 K) :
+    (baseChangeAlgEquiv K L (l ⊗ₜ x)).1 = InfiniteAdeleRing.baseChangeAlgEquiv K L (l ⊗ₜ x.1) :=
+  rfl
+
+lemma baseChangeAlgEquiv_snd_apply (l : L) (x : 𝔸 K) :
+    (baseChangeAlgEquiv K L (l ⊗ₜ x)).2 =
+      FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L) (l ⊗ₜ x.2) :=
+  rfl
+
+-- TODO: abstract this to a general result `Biscalar × Biscalar → Biscalar` if `Prod.prodSMul`
+open TensorProduct.RightActions in
+/-- Take arbitrary `Algebra K L∞`, `Algebra K∞ L∞` and `Algebra (𝔸 K) (𝔸 L)` instances.
+Assume that `Algebra K L∞` factors through (existing) `Algebra K L` and `Algebra L L∞`.
+Assume further that `Algebra K∞ L∞` is determined by the fibers of restriction of infinite places
+of `L` to `K` via (x • y) v = x (v.comap (algebraMap K L)) • y v.
+Assume finally that `Algebra (𝔸 K) (𝔸 L)` is constructed as the product algebra
+from `Algebra K∞ L∞` and `Algebra (FiniteAdeleRing (𝓞 K) K) (FiniteAdeleRing (𝓞 L) L).
+Then the `L` algebra base change map is also linear in `𝔸 K`. -/
+instance [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
+    [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
+    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)] :
+    IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom where
+  map_smul₁ l x := (baseChangeAlgEquiv K L).toAlgHom.map_smul_of_tower l x
+  map_smul₂ a x := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul l r =>
+        apply Prod.ext
+        · simp only [AlgEquiv.toAlgHom_eq_coe, smul_def, TensorProduct.comm_tmul,
+            TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul, AlgHom.coe_coe,
+            baseChangeAlgEquiv_fst_apply, smul_fst]
+          have := IsBiscalar.map_smul₂ L (S := K∞)
+            (f := InfiniteAdeleRing.baseChangeAlgEquiv K L |>.toAlgHom)
+          rw [AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe] at this
+          simp [← this, TensorProduct.smul_tmul']
+        · simp only [AlgEquiv.toAlgHom_eq_coe, smul_def, TensorProduct.comm_tmul,
+            TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul, AlgHom.coe_coe,
+            baseChangeAlgEquiv_snd_apply, smul_snd]
+          change _ = _ • FiniteAdeleRing.baseChangeAdeleAlgEquiv (𝓞 K) K L (𝓞 L) _
+          change FiniteAdeleRing.baseChangeAdeleAlgEquiv _ _ _ _ (a.2 • l ⊗ₜ[K] r.2) = _
+          rw [← AlgHom.coe_coe, ← AlgEquiv.toAlgHom_eq_coe,
+            (FiniteAdeleRing.baseChangeAdeleAlgEquiv (𝓞 K) K L (𝓞 L)).toAlgHom.map_smul_of_tower]
+    | add x y _ _ => simp_all
+
+/- Take a compatible `K∞`-algebra on `L∞`. -/
+variable [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
+  [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
+
+/- Take a compatible `𝔸 K`-algebra on `𝔸 L`. -/
+variable [Algebra K (𝔸 L)] [IsScalarTower K L (𝔸 L)] [Algebra (𝔸 K) (𝔸 L)]
+  [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
+
 open TensorProduct.RightActions in
 /-- The `L`-algebra homeomorphism `L ⊗[K] 𝔸 K = 𝔸 L`. -/
-noncomputable def baseChangeEquiv [Algebra (𝔸 K) (𝔸 L)] [Algebra K (𝔸 L)] [IsScalarTower K L (𝔸 L)]
-    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] [IsModuleTopology (𝔸 K) (𝔸 L)] :
+noncomputable def baseChangeEquiv [IsModuleTopology (𝔸 K) (𝔸 L)] :
     (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L :=
   IsModuleTopology.continuousAlgEquivOfIsBiscalar K (𝔸 K) (baseChangeAlgEquiv K L)
 
-open TensorProduct.RightActions in
-example [Algebra (𝔸 K) (𝔸 L)] [Algebra K (𝔸 L)] [IsScalarTower K L (𝔸 L)]
-    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] [IsModuleTopology (𝔸 K) (𝔸 L)]
-    (x : L ⊗[K] 𝔸 K) :
-    baseChangeEquiv K L x = baseChangeAlgEquiv K L x := rfl
-
-variable {L} [Algebra (𝔸 K) (𝔸 L)] [Algebra K (𝔸 L)] [IsScalarTower K L (𝔸 L)]
-  [IsModuleTopology (𝔸 K) (𝔸 L)]
+variable {L} [IsModuleTopology (𝔸 K) (𝔸 L)]
 
 open scoped TensorProduct.RightActions in
-theorem baseChangeEquiv_tsum_apply_right
-    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] (l : L) :
+theorem baseChangeEquiv_tsum_apply_right (l : L) :
     baseChangeEquiv K L (l ⊗ₜ[K] 1) = algebraMap L (𝔸 L) l := by
   have h : (l ⊗ₜ[K] (1 : 𝔸 K)) = l • 1 := by
     simp [Algebra.TensorProduct.one_def, TensorProduct.smul_tmul']
@@ -132,53 +192,17 @@ noncomputable abbrev tensorProductEquivPi :
 
 open scoped TensorProduct.RightActions in
 /-- A continuous `K`-linear isomorphism `(𝔸_K)ⁿ ≃ 𝔸_L` for `n = [L:K]` -/
-noncomputable abbrev piEquiv
-    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] :
-    (Fin (Module.finrank K L) → 𝔸 K) ≃L[K] 𝔸 L :=
+noncomputable abbrev piEquiv : (Fin (Module.finrank K L) → 𝔸 K) ≃L[K] 𝔸 L :=
   -- `⊕ 𝔸 K ≃L[K] L ⊗[K] 𝔸 K` from previous def
   let π := (tensorProductEquivPi K L).symm
   -- `L ⊗[K] 𝔸 K ≃L[K] 𝔸 L` base change  restricted to `K` as a continuous linear equiv
   let BC := baseChangeEquiv K L |>.toContinuousLinearEquiv |>.restrictScalars K
   π.trans BC
 
-section vector_space
-
-variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
-
-/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
-noncomputable def ModuleBaseChangeAddEquiv :
-    V ⊗[K] (𝔸 K) ≃ₗ[L] (V ⊗[L] (𝔸 L)) :=
-  TensorProduct.AlgebraTensorModule.congr ((TensorProduct.rid L V).symm) (.refl _ _) ≪≫ₗ
-  TensorProduct.AlgebraTensorModule.assoc K L L V L (𝔸 K) ≪≫ₗ
-  (LinearEquiv.lTensor V
-    ((NumberField.AdeleRing.baseChangeAlgEquiv K L).toLinearEquiv.symm)).symm
-
-open scoped TensorProduct.RightActions in
-/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
-for V an L-module and K ⊆ L number fields. -/
-noncomputable def ModuleBaseChangeContinuousAddEquiv
-    (V : Type*) [AddCommGroup V] [Module L V] [Module K V]
-    [IsScalarTower K L V] [FiniteDimensional L V] [FiniteDimensional K V]
-    [Module (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L)]
-    [IsScalarTower (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L)]
-    [Module.Finite (𝔸 K) (𝔸 L)] [IsBiscalar L (𝔸 K) (ModuleBaseChangeAddEquiv K L V)] :
-    V ⊗[K] (𝔸 K) ≃L[L] (V ⊗[L] (𝔸 L)) :=
-  haveI : ContinuousSMul (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
-    IsScalarTower.continuousSMul (AdeleRing (𝓞 L) L)
-  haveI : IsModuleTopology (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) := {
-    eq_moduleTopology' := by
-      obtain ⟨h2⟩ : IsModuleTopology (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
-        inferInstance
-      rwa [moduleTopology.trans (𝔸 K) (𝔸 L) (V ⊗[L] (𝔸 L))] }
-  IsModuleTopology.continuousLinearEquivOfIsBiscalar K (𝔸 K) (ModuleBaseChangeAddEquiv K L V)
-
-end vector_space
-
 variable {K L}
 
 open TensorProduct.AlgebraTensorModule TensorProduct.RightActions in
 theorem piEquiv_apply_of_algebraMap
-    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom]
     {x : Fin (Module.finrank K L) → 𝔸 K}
     {y : Fin (Module.finrank K L) → K}
     (h : ∀ i, algebraMap K (𝔸 K) (y i) = x i) :
@@ -191,7 +215,6 @@ theorem piEquiv_apply_of_algebraMap
 
 open scoped TensorProduct.RightActions in
 theorem piEquiv_mem_principalSubgroup
-    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom]
     {x : Fin (Module.finrank K L) → 𝔸 K}
     (h : x ∈ AddSubgroup.pi Set.univ (fun _ => principalSubgroup (𝓞 K) K)) :
     piEquiv K L x ∈ principalSubgroup (𝓞 L) L := by
@@ -202,8 +225,7 @@ theorem piEquiv_mem_principalSubgroup
 variable (K L)
 
 open scoped TensorProduct.RightActions in
-theorem piEquiv_map_principalSubgroup
-    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] :
+theorem piEquiv_map_principalSubgroup :
     (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K)).map
       (piEquiv K L).toAddMonoidHom
       = principalSubgroup (𝓞 L) L := by
@@ -217,8 +239,7 @@ theorem piEquiv_map_principalSubgroup
   rw [piEquiv_apply_of_algebraMap (fun i => rfl), LinearEquiv.symm_apply_apply]
 
 open scoped TensorProduct.RightActions in
-theorem comap_piEquiv_principalSubgroup
-    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] :
+theorem comap_piEquiv_principalSubgroup :
     (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K))
       = (principalSubgroup (𝓞 L) L).comap (piEquiv K L).toAddMonoidHom := by
   rw [← piEquiv_map_principalSubgroup K L,
@@ -226,8 +247,7 @@ theorem comap_piEquiv_principalSubgroup
 
 open scoped TensorProduct.RightActions in
 /-- A continuous additive isomorphism `(𝔸_K / K)ⁿ = 𝔸_L / L` where `n = [L:K]`. -/
-noncomputable def piQuotientEquiv
-    [IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom] :
+noncomputable def piQuotientEquiv :
     (Fin (Module.finrank K L) → (𝔸 K) ⧸ principalSubgroup (𝓞 K) K) ≃ₜ+
       (𝔸 L) ⧸ principalSubgroup (𝓞 L) L :=
   -- The map `⊕ 𝔸 K ≃L[K] 𝔸 L` reduces to quotients `⊕ 𝔸 K / K ≃ₜ+ 𝔸 L / L`
@@ -236,6 +256,64 @@ noncomputable def piQuotientEquiv
       (piEquiv_map_principalSubgroup K L)
 
 end BaseChange
+
+section vector_space
+
+variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
+
+/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeLinearEquiv :
+    V ⊗[K] (𝔸 K) ≃ₗ[L] (V ⊗[L] (𝔸 L)) :=
+  TensorProduct.AlgebraTensorModule.congr ((TensorProduct.rid L V).symm) (.refl _ _) ≪≫ₗ
+  TensorProduct.AlgebraTensorModule.assoc K L L V L (𝔸 K) ≪≫ₗ
+  (LinearEquiv.lTensor V
+    ((NumberField.AdeleRing.baseChangeAlgEquiv K L).toLinearEquiv.symm)).symm
+
+@[simp] theorem ModuleBaseChangeLinearEquiv_tmul_apply (v : V) (x : 𝔸 K) :
+    ModuleBaseChangeLinearEquiv K L V (v ⊗ₜ[K] x) = v ⊗ₜ[L] (baseChangeAlgEquiv K L (1 ⊗ₜ[K] x)) :=
+  rfl
+
+open TensorProduct.RightActions in
+instance [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
+    [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
+    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
+    [Module (𝔸 K) (V ⊗[L] 𝔸 L)] [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)] :
+    IsBiscalar L (𝔸 K) (ModuleBaseChangeLinearEquiv K L V) where
+  map_smul₁ l x := (ModuleBaseChangeLinearEquiv K L V).map_smul l x
+  map_smul₂ a x := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul l r =>
+        have := IsBiscalar.map_smul₂ L (S := 𝔸 K) (f := (baseChangeAlgEquiv K L).toAlgHom) a
+        rw [AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe] at this
+        simp only [smul_def, TensorProduct.comm_tmul, TensorProduct.smul_tmul',
+          TensorProduct.comm_symm_tmul, ModuleBaseChangeLinearEquiv_tmul_apply,
+          algebra_compatible_smul (𝔸 L) a]
+        rw [algebraMap_smul, ← this]
+        simp [TensorProduct.smul_tmul']
+    | add x y _ _ => simp_all
+
+open scoped TensorProduct.RightActions in
+/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
+for V an L-module and K ⊆ L number fields. -/
+noncomputable def ModuleBaseChangeContinuousLinearEquiv
+    [FiniteDimensional L V] [FiniteDimensional K V]
+    [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
+    [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
+    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
+    [Module (𝔸 K) (V ⊗[L] 𝔸 L)] [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)]
+    [IsModuleTopology (𝔸 K) (𝔸 L)] [Module.Finite (𝔸 K) (𝔸 L)] :
+    V ⊗[K] (𝔸 K) ≃L[L] (V ⊗[L] (𝔸 L)) :=
+  haveI : ContinuousSMul (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+    IsScalarTower.continuousSMul (AdeleRing (𝓞 L) L)
+  haveI : IsModuleTopology (AdeleRing (𝓞 K) K) (V ⊗[L] AdeleRing (𝓞 L) L) := {
+    eq_moduleTopology' := by
+      obtain ⟨h2⟩ : IsModuleTopology (AdeleRing (𝓞 L) L) (V ⊗[L] AdeleRing (𝓞 L) L) :=
+        inferInstance
+      rwa [moduleTopology.trans (𝔸 K) (𝔸 L) (V ⊗[L] (𝔸 L))] }
+  IsModuleTopology.continuousLinearEquivOfIsBiscalar K (𝔸 K) (ModuleBaseChangeLinearEquiv K L V)
+
+end vector_space
 
 noncomputable section AlgebraConstructions
 
@@ -251,11 +329,10 @@ variable {K L : Type*} [Field K] [Field L] [NumberField K] [NumberField L] [Alge
 /-- The `K∞`-algebra on `L∞`, induced by `InfiniteAdeleRing.baseChange K L`. -/
 scoped instance : Algebra K∞ L∞ := (InfiniteAdeleRing.baseChange K L).toAlgebra
 
-open InfinitePlace in
 /-- Ensures that `Algebra K∞ L∞` is built out of local algebras
 `Algebra v.Completion wv.Completion`. -/
-instance : Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion where
-  map_smul' r x b σ := by obtain ⟨a, rfl⟩ := σ; rfl
+scoped instance : Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion where
+  map_smul r x b σ := by obtain ⟨a, rfl⟩ := σ; rfl
 
 /-- The product `K`-algebra on `L∞`. -/
 scoped instance : Algebra K L∞ := Pi.algebra _ _
@@ -265,43 +342,21 @@ scoped instance : IsScalarTower K L L∞ := Pi.isScalarTower
 /-- The `𝔸 K`-algebra on `𝔸 L`, induced by `AdeleRing.baseChange K L`. -/
 scoped instance : Algebra (𝔸 K) (𝔸 L) := (AdeleRing.baseChange K L).toAlgebra
 
+/-- Says that `𝔸 K`-algebra on `𝔸 L` is built from the `K∞`-algebra on `L∞` and the
+finite adele algebra. -/
+scoped instance : Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L) where
+  map_smul _ _ := rfl
+
 /-- The product `K`-algebra on `𝔸 L`. -/
 scoped instance : Algebra K (𝔸 L) := Prod.algebra _ _ _
 
 scoped instance : IsScalarTower K L (𝔸 L) := Prod.isScalarTower
 
-/-- `L ⊗ 𝔸 K = 𝔸 L` is both an `L`- and `𝔸 K`-algebra isomorphism. -/
-scoped instance : IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom where
-  map_smul₁ l x := (baseChangeAlgEquiv K L).toAlgHom.map_smul_of_tower l x
-  map_smul₂ a x := by
-    induction x using TensorProduct.induction_on with
-    | zero => simp
-    | tmul v b =>
-        simp [TensorProduct.smul_tmul', algebra_compatible_smul (𝔸 L) a,
-          RingHom.algebraMap_toAlgebra]
-        ring
-    | add x y _ _ => simp_all
-
-variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
-  [Module (𝔸 K) (V ⊗[L] 𝔸 L)] [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)]
-
-/-- `V ⊗[K] 𝔸 K = V ⊗[L] 𝔸 L` is both an `L`- and `𝔸 K`-linear isomorphism. -/
-scoped instance : IsBiscalar L (𝔸 K) (ModuleBaseChangeAddEquiv K L V) where
-  map_smul₁ _ _ := map_smul ..
-  map_smul₂ a x := by
-    induction x using TensorProduct.induction_on with
-    | zero => simp
-    | tmul v b =>
-        simp [TensorProduct.smul_tmul', ModuleBaseChangeAddEquiv, algebra_compatible_smul (𝔸 L) a,
-          RingHom.algebraMap_toAlgebra]
-    | add x y _ _ => simp_all
-
 scoped instance : Module.Finite (𝔸 K) (𝔸 L) :=
     Module.Finite.equiv ((baseChangeAlgEquiv K L).changeScalars K (𝔸 K)).toLinearEquiv
 
 scoped instance instBaseChangeIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) :=
-  IsModuleTopology.instProd' (A := InfiniteAdeleRing K)
-    (B := FiniteAdeleRing (𝓞 K) K) (M := InfiniteAdeleRing L) (N := FiniteAdeleRing (𝓞 L) L)
+  IsModuleTopology.instProd' (A := K∞)
 
 end AlgebraConstructions
 
@@ -726,7 +781,7 @@ lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHo
   -- There's a linear equivalence `(L ⊗_K 𝔸 K) ≅ 𝔸 L`
   let linearEquiv : (L ⊗[K] 𝔸 K) ≃ₗ[L] 𝔸 L :=
     let tensor := TensorProduct.prodRight K L L (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K)
-    let prod := LinearEquiv.prodCongr (InfiniteAdeleRing.baseChangeEquivAux K L).toLinearEquiv
+    let prod := LinearEquiv.prodCongr (InfiniteAdeleRing.baseChangeAlgEquiv K L).toLinearEquiv
       (FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L)).toLinearEquiv
     tensor.trans prod
   -- and it's given by an equal function to the algebra homomorphism we've defined.

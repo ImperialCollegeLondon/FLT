@@ -9,16 +9,8 @@ class Pi.FiberwiseSMul {α β : Type*} (f : α → β) (R : β → Type*) (M : �
     [(b : β) → Semiring (R b)] [(a : α) → AddCommMonoid (M a)]
     [(b : β) → (σ : {a // f a = b}) → Module (R b) (M σ)]
     [Module ((b : β) → R b) ((a : α) → M a)] : Prop where
-  -- TODO : remove this after https://github.com/leanprover/lean4/pull/7742 ?
-  map_smul' (r : (b : β) → R b) (x : (a : α) → M a) (b : β) (σ : {a // f a = b}) :
+  map_smul (f R M) (r : (b : β) → R b) (x : (a : α) → M a) (b : β) (σ : {a // f a = b}) :
     (r • x) σ = r b • x σ
-
-theorem Pi.FiberwiseSMul.map_smul {α β : Type*} (f : α → β) (R : β → Type*) (M : α → Type*)
-    [(b : β) → Semiring (R b)] [(a : α) → AddCommMonoid (M a)]
-    [(b : β) → (σ : {a // f a = b}) → Module (R b) (M σ)]
-    [Module ((b : β) → R b) ((a : α) → M a)] [Pi.FiberwiseSMul f R M]
-    (r : (b : β) → R b) (x : (a : α) → M a) (b : β) (σ : {a // f a = b}) :
-    (r • x) σ = r b • x σ := Pi.FiberwiseSMul.map_smul' r x b σ
 
 /-- Let `f : α → β` be a function on index types. A family of `R b`-linear equivalences, indexed by
 `b : β`, between the product over the fiber of `b` under `f` given as
@@ -44,3 +36,17 @@ def LinearEquiv.piScalarPiComm {α β : Type*} (R : α → Type*) (φ : α → �
   __ := Equiv.piComm φ
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
+
+/-- A class encoding the product scalar multiplication of `R × S` on `M × N` of the format
+`x • y = (x.1 • y.1, x.2 • y.2)`. Use this as an assumption instead of constructing
+the `R × S` action on `M × N`. -/
+class Prod.prodSMul (R S M N : Type*) [SMul R M] [SMul S N] [SMul (R × S) (M × N)] : Prop where
+  map_smul (x : R × S) (y : M × N)  : x • y = (x.1 • y.1, x.2 • y.2)
+
+theorem Prod.prodSMul.smul_fst {R S M N : Type*} [SMul R M] [SMul S N] [SMul (R × S) (M × N)]
+    [Prod.prodSMul R S M N] (x : R × S) (y : M × N) : (x • y).1 = x.1 • y.1 := by
+  rw [Prod.prodSMul.map_smul x y]
+
+theorem Prod.prodSMul.smul_snd {R S M N : Type*} [SMul R M] [SMul S N] [SMul (R × S) (M × N)]
+    [Prod.prodSMul R S M N] (x : R × S) (y : M × N) : (x • y).2 = x.2 • y.2 := by
+  rw [Prod.prodSMul.map_smul x y]

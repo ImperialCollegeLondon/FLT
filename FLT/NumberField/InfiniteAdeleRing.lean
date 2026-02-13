@@ -25,7 +25,7 @@ base change.
 
 In this file we favour approach (1) because it bundles bijectivity and avoids having to
 reprove it. Regardless, we show that they are actually the same map in
-`NumberField.InfiniteAdeleRing.baseChangeEquivAux_apply`.
+`NumberField.InfiniteAdeleRing.baseChangeAlgEquiv_apply`.
 
 ## Diamonds
 Global instances of the form `Algebra K L → (f K) (f L)` are avoided in this file. For example
@@ -52,7 +52,7 @@ The desired instances are constructed later as `scoped` instances in `FLT.Number
 - `NumberField.InfiniteAdeleRing.baseChange` : the canonical map from `K∞` to `L∞`.
 - `NumberField.InfiniteAdeleRing.piEquiv` : the `K∞`-linear homeomorphism
   `K∞^[L:K] ≃[K∞] L∞`.
-- `NumberField.InfiniteAdeleRing.baseChangeEquivAux` : the `L`-algebra isomorphism
+- `NumberField.InfiniteAdeleRing.baseChangeAlgEquiv` : the `L`-algebra isomorphism
   `L ⊗[K] K∞ ≃ₐ[L] L∞`. Note that this does not require `Algebra K∞ L∞` or
   `Pi.FiberwiseSMul ...` assumptions.
 - `NumberField.InfiniteAdeleRing.baseChangeEquiv` : the   `L`-algebra homeomorphism
@@ -114,7 +114,7 @@ instance instIsModuleTopology_fLT [Algebra K∞ L∞]
 -- equivalences for infinite completions of `K` and the product over all `w` lying above `v`
 open scoped Classical in
 /-- The $L$-algebra isomorphism $L\otimes_K K_{\infty} \cong L_{\infty}$. -/
-noncomputable def baseChangeEquivAux :
+noncomputable def baseChangeAlgEquiv :
     L ⊗[K] K∞ ≃ₐ[L] L∞ :=
   -- L ⊗ K_∞ ≃[K_∞] ∏ v, L ⊗ K_v
   Algebra.TensorProduct.piRight K L L Completion |>.trans
@@ -125,17 +125,17 @@ noncomputable def baseChangeEquivAux :
 -- Then we show that this lift is the same as the lift of `baseChange : K_∞ → L_∞` coming from
 -- `SemialgHom.baseChange_of_algebraMap`
 
-theorem baseChangeEquivAux_tmul (l : L) (x : K∞) :
-    baseChangeEquivAux K L (l ⊗ₜ[K] x) = algebraMap _ _ l * baseChange K L x := rfl
+theorem baseChangeAlgEquiv_tmul (l : L) (x : K∞) :
+    baseChangeAlgEquiv K L (l ⊗ₜ[K] x) = algebraMap _ _ l * baseChange K L x := rfl
 
-theorem baseChangeEquivAux_coe_eq_baseChange_of_algebraMap [Algebra K L∞] [IsScalarTower K L L∞] :
-    ↑(baseChangeEquivAux K L) = (baseChange K L).baseChange_of_algebraMap :=
+theorem baseChangeAlgEquiv_coe_eq_baseChange_of_algebraMap [Algebra K L∞] [IsScalarTower K L L∞] :
+    ↑(baseChangeAlgEquiv K L) = (baseChange K L).baseChange_of_algebraMap :=
   Algebra.TensorProduct.ext' fun _ _ ↦ rfl
 
-theorem baseChangeEquivAux_apply (x : L ⊗[K] K∞)
+theorem baseChangeAlgEquiv_apply (x : L ⊗[K] K∞)
     [Algebra K L∞] [IsScalarTower K L L∞] :
-    baseChangeEquivAux K L x = SemialgHom.baseChange_of_algebraMap (baseChange K L) x := by
-  simpa using AlgHom.ext_iff.1 (baseChangeEquivAux_coe_eq_baseChange_of_algebraMap K L) x
+    baseChangeAlgEquiv K L x = SemialgHom.baseChange_of_algebraMap (baseChange K L) x := by
+  simpa using AlgHom.ext_iff.1 (baseChangeAlgEquiv_coe_eq_baseChange_of_algebraMap K L) x
 
 open TensorProduct.AlgebraTensorModule in
 instance : Module.Free K∞ (L ⊗[K] K∞) := by
@@ -154,14 +154,14 @@ map is also linear in `K∞`.
 -/
 instance [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
-    IsBiscalar L K∞ (baseChangeEquivAux K L).toAlgHom where
-  map_smul₁ l x := (InfiniteAdeleRing.baseChangeEquivAux K L).toAlgHom.map_smul_of_tower l x
+    IsBiscalar L K∞ (baseChangeAlgEquiv K L).toAlgHom where
+  map_smul₁ l x := (InfiniteAdeleRing.baseChangeAlgEquiv K L).toAlgHom.map_smul_of_tower l x
   map_smul₂ a x := by
     induction x using TensorProduct.induction_on with
     | zero => simp
     | tmul l r =>
         funext w
-        simp [TensorProduct.smul_tmul', baseChangeEquivAux_apply, baseChange_of_algebraMap_tmul,
+        simp [TensorProduct.smul_tmul', baseChangeAlgEquiv_apply, baseChange_of_algebraMap_tmul,
           Pi.FiberwiseSMul.map_smul _ _ Completion (σ := w.toExtension K), RingHom.smul_toAlgebra,
           Completion.comapHom, SemialgHom.toLinearMap_eq_coe, coe_toExtension]
         ring
@@ -173,9 +173,9 @@ instance [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
 /-- The canonical `L`-algebra homeomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
 noncomputable
-def baseChangeEquiv [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
+def baseChangeCAE [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
     L ⊗[K] K∞ ≃A[L] L∞ :=
-  IsModuleTopology.continuousAlgEquivOfIsBiscalar K K∞ (baseChangeEquivAux K L)
+  IsModuleTopology.continuousAlgEquivOfIsBiscalar K K∞ (baseChangeAlgEquiv K L)
 
 end NumberField.InfiniteAdeleRing

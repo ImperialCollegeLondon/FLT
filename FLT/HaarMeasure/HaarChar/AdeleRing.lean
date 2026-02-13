@@ -204,7 +204,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
   have : IsScalarTower (AdeleRing (𝓞 ℚ) ℚ) (AdeleRing (𝓞 K) K) (V ⊗[K] AdeleRing (𝓞 K) K) :=
     IsScalarTower.of_algebraMap_smul fun r ↦ congrFun rfl
   -- and V ⊗[K] 𝔸_K ≃ V ⊗[ℚ] 𝔸_ℚ
-  let f := NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv ℚ K V
+  let f := NumberField.AdeleRing.ModuleBaseChangeContinuousLinearEquiv ℚ K V
   borelize (V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ)
   -- and the obvious diagram commutes
   have := MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv

@@ -2,6 +2,13 @@ import Mathlib.Algebra.Algebra.Tower
 import Mathlib.RingTheory.AlgebraTower
 import FLT.Mathlib.Algebra.Algebra.Hom
 
+-- TODO: needs work before it can go in mathlib.
+-- Change `IsBiscalar` into a bundled map? Currently this is a pain to use even
+-- when using `f : F` where `Funlike F A B` because some bundled maps do not coerce correctly
+-- e.g. if `f : A ≃ₗ[R] B` and we assume `IsBiscalar R S f` then `IsBiscalar R S f.toLinearMap`
+-- does not automatically get picked up.
+-- Or remove and carry around `map_smul₂` as a hypothesis where needed?
+
 /-- If `f : A → B` where `A` and `B` are both `R`- and `S`-modules, then `IsBiscalar R S f`
 asserts that `f` satisfies the linear scalar property for both `R` and `S`. I.e.,
 - `f (r • a) = r • f a`
