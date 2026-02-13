@@ -761,8 +761,8 @@ tells us that $\A_L$ has the $\A_K$-module topology. Thus the next lemma applies
 \end{proof}
 
 \begin{corollary}
-  \label{NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv}
-  \lean{NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv}
+  \label{NumberField.AdeleRing.ModuleBaseChangeContinuousLinearEquiv}
+  \lean{NumberField.AdeleRing.ModuleBaseChangeContinuousLinearEquiv}
   \leanok
   If $K$ is a number field and $V$ is an $K$-module, then
   the natural isomorphism $V\otimes_K\A_K=V\otimes_{\Q}\A_{\Q}$ induced by the natural
@@ -869,7 +869,7 @@ Here is our reinterpretation of the product formula.
     \uses{
       MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det,
       MeasureTheory.addEquivAddHaarChar_restrictedProductCongrRight,
-      NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv
+      NumberField.AdeleRing.ModuleBaseChangeContinuousLinearEquiv
     }
     The original blueprint proof of this was that $\phi_{\mathbb{A}} : V_{\mathbb{A}}\to V_{\mathbb{A}}$
     could be written as a restricted product of $\phi_v:V\otimes_{\Q}{\Q_v} \to V\otimes_{\Q}\Q_v$

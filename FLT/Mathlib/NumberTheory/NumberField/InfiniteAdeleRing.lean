@@ -3,13 +3,18 @@ import Mathlib.Topology.Algebra.Algebra.Equiv
 import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
 
 -- TODO upstream
-variable (K : Type*) [Field K] [NumberField K]
+variable (K : Type*) [Field K]
 
 open NumberField InfinitePlace
+
+@[simp]
+lemma NumberField.InfiniteAdeleRing.mul_apply (x y : InfiniteAdeleRing K) (v : InfinitePlace K) :
+    (x * y) v = x v * y v := rfl
 
 instance : T2Space (InfiniteAdeleRing K) :=
   inferInstanceAs <| T2Space (Π _, _)
 
+variable [NumberField K] in
 instance : SecondCountableTopology (InfiniteAdeleRing K) :=
   inferInstanceAs <| SecondCountableTopology (Π _, _)
 
@@ -27,6 +32,7 @@ noncomputable def NumberField.InfiniteAdeleRing.algEquiv_mixedSpace :
     exact map_mul (InfiniteAdeleRing.ringEquiv_mixedSpace K).symm _ _
     }
 
+variable [NumberField K] in
 instance : Module.Finite ℝ (InfiniteAdeleRing K) :=
   Module.Finite.equiv (NumberField.InfiniteAdeleRing.algEquiv_mixedSpace K).symm
 
@@ -65,6 +71,7 @@ noncomputable def NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace :
         (Completion.isometryEquivComplexOfIsComplex h).symm (a.2 ⟨v, h⟩)
       fun_prop
 
+variable [NumberField K] in
 instance : IsModuleTopology ℝ (InfiniteAdeleRing K) :=
   .iso (NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace K).symm
 
