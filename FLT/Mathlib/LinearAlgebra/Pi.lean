@@ -40,13 +40,13 @@ def LinearEquiv.piScalarPiComm {α β : Type*} (R : α → Type*) (φ : α → �
 /-- A class encoding the product scalar multiplication of `R × S` on `M × N` of the format
 `x • y = (x.1 • y.1, x.2 • y.2)`. Use this as an assumption instead of constructing
 the `R × S` action on `M × N`. -/
-class Prod.prodSMul (R S M N : Type*) [SMul R M] [SMul S N] [SMul (R × S) (M × N)] : Prop where
+class Prod.IsProdSMul (R S M N : Type*) [SMul R M] [SMul S N] [SMul (R × S) (M × N)] : Prop where
   map_smul (x : R × S) (y : M × N)  : x • y = (x.1 • y.1, x.2 • y.2)
 
-theorem Prod.prodSMul.smul_fst {R S M N : Type*} [SMul R M] [SMul S N] [SMul (R × S) (M × N)]
-    [Prod.prodSMul R S M N] (x : R × S) (y : M × N) : (x • y).1 = x.1 • y.1 := by
-  rw [Prod.prodSMul.map_smul x y]
+theorem Prod.IsProdSMul.smul_fst {R S M N : Type*} [SMul R M] [SMul S N] [SMul (R × S) (M × N)]
+    [Prod.IsProdSMul R S M N] (x : R × S) (y : M × N) : (x • y).1 = x.1 • y.1 := by
+  rw [Prod.IsProdSMul.map_smul x y]
 
-theorem Prod.prodSMul.smul_snd {R S M N : Type*} [SMul R M] [SMul S N] [SMul (R × S) (M × N)]
-    [Prod.prodSMul R S M N] (x : R × S) (y : M × N) : (x • y).2 = x.2 • y.2 := by
-  rw [Prod.prodSMul.map_smul x y]
+theorem Prod.IsProdSMul.smul_snd {R S M N : Type*} [SMul R M] [SMul S N] [SMul (R × S) (M × N)]
+    [Prod.IsProdSMul R S M N] (x : R × S) (y : M × N) : (x • y).2 = x.2 • y.2 := by
+  rw [Prod.IsProdSMul.map_smul x y]

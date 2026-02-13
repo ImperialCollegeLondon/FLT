@@ -36,8 +36,7 @@ TODO: would it be better do define this as a bundled map `→ₐ[L, 𝔸 K]` rat
 Diamonds of the form `Algebra K L → Algebra (𝔸 K) (𝔸 L)` have caused issues in the past, with
 instance search timing out when `K = L`. In `FLT.NumberField.InfiniteAdeleRing` we avoided this
 by adding `[Algebra K∞ L∞]` as assumptions alongside compatibility instances.  A similar
-approach is taken here, with `IsBiscalar` of the resultant base change map being the only extra
-piece of compatibility required.
+approach is taken here, with `Prod.IsProdSMul` being the only extra piece of compatibility required.
 
 The desired instances are constructed later as `scoped` instances in `FLT.NumberField.AdeleRing`.
 
@@ -65,14 +64,16 @@ instance [SMul (𝔸 K) (𝔸 L)] : SMul (K∞ × FiniteAdeleRing (𝓞 K) K) (L
   inferInstanceAs (SMul (𝔸 K) (𝔸 L))
 
 lemma smul_fst [SMul K∞ L∞] [SMul (𝔸 K) (𝔸 L)]
-    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)] (x : 𝔸 K) (y : 𝔸 L) :
+    [Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
+    (x : 𝔸 K) (y : 𝔸 L) :
     (x • y).1 = x.1 • y.1 := by
-  rw [Prod.prodSMul.smul_fst]
+  rw [Prod.IsProdSMul.smul_fst]
 
 lemma smul_snd [SMul K∞ L∞] [SMul (𝔸 K) (𝔸 L)]
-    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)] (x : 𝔸 K) (y : 𝔸 L) :
+    [Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
+    (x : 𝔸 K) (y : 𝔸 L) :
     (x • y).2 = x.2 • y.2 := by
-  rw [Prod.prodSMul.smul_snd]
+  rw [Prod.IsProdSMul.smul_snd]
 
 /-- The canonical map from the adeles of K to the adeles of L -/
 noncomputable def baseChange :
@@ -115,7 +116,7 @@ lemma baseChangeAlgEquiv_snd_apply (l : L) (x : 𝔸 K) :
       FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L) (l ⊗ₜ x.2) :=
   rfl
 
--- TODO: abstract this to a general result `Biscalar × Biscalar → Biscalar` if `Prod.prodSMul`
+-- TODO: abstract this to a general result `Biscalar × Biscalar → Biscalar` if `Prod.IsProdSMul`?
 open TensorProduct.RightActions in
 /-- Take arbitrary `Algebra K L∞`, `Algebra K∞ L∞` and `Algebra (𝔸 K) (𝔸 L)` instances.
 Assume that `Algebra K L∞` factors through (existing) `Algebra K L` and `Algebra L L∞`.
@@ -126,7 +127,7 @@ from `Algebra K∞ L∞` and `Algebra (FiniteAdeleRing (𝓞 K) K) (FiniteAdeleR
 Then the `L` algebra base change map is also linear in `𝔸 K`. -/
 instance [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
-    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)] :
+    [Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)] :
     IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom where
   map_smul₁ l x := (baseChangeAlgEquiv K L).toAlgHom.map_smul_of_tower l x
   map_smul₂ a x := by
@@ -156,7 +157,7 @@ variable [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞]
 
 /- Take a compatible `𝔸 K`-algebra on `𝔸 L`. -/
 variable [Algebra K (𝔸 L)] [IsScalarTower K L (𝔸 L)] [Algebra (𝔸 K) (𝔸 L)]
-  [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
+  [Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
 
 open TensorProduct.RightActions in
 /-- The `L`-algebra homeomorphism `L ⊗[K] 𝔸 K = 𝔸 L`. -/
@@ -276,7 +277,7 @@ noncomputable def ModuleBaseChangeLinearEquiv :
 open TensorProduct.RightActions in
 instance [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
-    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
+    [Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
     [Module (𝔸 K) (V ⊗[L] 𝔸 L)] [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)] :
     IsBiscalar L (𝔸 K) (ModuleBaseChangeLinearEquiv K L V) where
   map_smul₁ l x := (ModuleBaseChangeLinearEquiv K L V).map_smul l x
@@ -300,7 +301,7 @@ noncomputable def ModuleBaseChangeContinuousLinearEquiv
     [FiniteDimensional L V] [FiniteDimensional K V]
     [Algebra K L∞] [IsScalarTower K L L∞] [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
-    [Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
+    [Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
     [Module (𝔸 K) (V ⊗[L] 𝔸 L)] [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)]
     [IsModuleTopology (𝔸 K) (𝔸 L)] [Module.Finite (𝔸 K) (𝔸 L)] :
     V ⊗[K] (𝔸 K) ≃L[L] (V ⊗[L] (𝔸 L)) :=
@@ -344,7 +345,7 @@ scoped instance : Algebra (𝔸 K) (𝔸 L) := (AdeleRing.baseChange K L).toAlge
 
 /-- Says that `𝔸 K`-algebra on `𝔸 L` is built from the `K∞`-algebra on `L∞` and the
 finite adele algebra. -/
-scoped instance : Prod.prodSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L) where
+scoped instance : Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L) where
   map_smul _ _ := rfl
 
 /-- The product `K`-algebra on `𝔸 L`. -/
