@@ -11,7 +11,7 @@ import FLT.Mathlib.Topology.Algebra.Algebra.Hom
 
 If `v` is an infinite place of a number field `K`, we have established in
 `FLT.NumberField.Completion.Infinite` a continuous `L`-algebra homomorphism
-`L ⊗[K] K_v ≃ₐ[L] ∏ w ∣ v, L_w` where the product is over all infinite places `w` of `L`
+`NumberField.InfinitePlace.Completion.baseChangeEquiv : L ⊗[K] K_v ≃A[L] ∏ w ∣ v, L_w` where the product is over all infinite places `w` of `L`
 lying above `v`.
 
 In this file we analogously establish the base change for the infinite adele ring
