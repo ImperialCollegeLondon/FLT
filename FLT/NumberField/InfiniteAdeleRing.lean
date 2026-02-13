@@ -15,7 +15,7 @@ If `v` is an infinite place of a number field `K`, we have established in
 lying above `v`.
 
 In this file we analogously establish the base change for the infinite adele ring
-`L ⊗[K] K_∞ ≃ₐ[L] L_∞` where `K_∞` is the infinite adele ring of `K` and `L_∞` that of `L`.
+`NumberField.InfiniteAdeleRing.baseChangeEquiv : L ⊗[K] K_∞ ≃A[L] L_∞` where `K_∞` is the infinite adele ring of `K` and `L_∞` that of `L`.
 There are two approaches:
 
 (1) Piece together the local results on completions at infinite places to get a global result on
