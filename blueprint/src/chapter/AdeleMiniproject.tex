@@ -885,8 +885,8 @@ We show that $L_{\infty}$ has the $K_{\infty}$-module topology.
 \end{proof}
 
 \begin{theorem}
-  \label{NumberField.InfiniteAdeleRing.baseChangeEquivAux}
-  \lean{NumberField.InfiniteAdeleRing.baseChangeEquivAux}
+  \label{NumberField.InfiniteAdeleRing.baseChangeAlgEquiv}
+  \lean{NumberField.InfiniteAdeleRing.baseChangeAlgEquiv}
   \leanok
   \uses{NumberField.InfinitePlace.Completion.baseChangeEquiv}
   There is a natural $L$-algebra isomorphism
@@ -905,10 +905,10 @@ We show that $L_{\infty}$ has the $K_{\infty}$-module topology.
   Theorem~\ref{NumberField.InfinitePlace.Completion.baseChangeEquiv}.
 \end{proof}
 
-It remains to show that the map in~\ref{NumberField.InfiniteAdeleRing.baseChangeEquivAux} is a
+It remains to show that the map in~\ref{NumberField.InfiniteAdeleRing.baseChangeAlgEquiv} is a
 homeomorphism.
 Since both sides have the $K_{\infty}$-module topology, and since the $L$-algebra isomorphism
-of~\ref{NumberField.InfiniteAdeleRing.baseChangeEquivAux} can equivalently be viewed as a
+of~\ref{NumberField.InfiniteAdeleRing.baseChangeALgEquiv} can equivalently be viewed as a
 $K_{\infty}$-linear isomorphism, it is also a homeomorphism.
 
 \begin{theorem}
@@ -916,13 +916,13 @@ $K_{\infty}$-linear isomorphism, it is also a homeomorphism.
   \lean{NumberField.InfiniteAdeleRing.baseChangeEquiv,
     NumberField.InfiniteAdeleRing.instIsModuleTopology_fLT}
   \leanok
-  \uses{NumberField.InfiniteAdeleRing.baseChangeEquivAux}
+  \uses{NumberField.InfiniteAdeleRing.baseChangeAlgEquiv}
   If $K\to L$ is a ring homomorphism between two number fields then there is a natural isomorphism
   (both topological and algebraic) $L\otimes_KK_\infty\cong L_\infty$.
 \end{theorem}
 \begin{proof}
   Since both sides of the $L$-algebra isomorphism
-  in~\ref{NumberField.InfiniteAdeleRing.baseChangeEquivAux} have the $K_{\infty}$-module topology,
+  in~\ref{NumberField.InfiniteAdeleRing.baseChangeAlgEquiv} have the $K_{\infty}$-module topology,
   and since the isomorphism can equivalently be viewed as a $K_{\infty}$-linear isomorphism,
   it is also a homeomorphism.
 \end{proof}
