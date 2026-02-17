@@ -34,10 +34,6 @@ variable (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
 
 open MeasureTheory IsDedekindDomain HeightOneSpectrum RestrictedProduct
 
--- this horrible instance causes timeouts and we don't need it because we're never
--- changing number field here.
-attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
-
 /-- We give 𝔸_K^f ⊗ B the 𝔸_K^f-module topology in this file (it's the only sensible topology). -/
 local instance : TopologicalSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
   moduleTopology (FiniteAdeleRing (𝓞 K) K) _

@@ -51,29 +51,32 @@ namespace NumberField.AdeleRing
 
 open IsDedekindDomain
 
-open scoped NumberField.InfiniteAdeleRing
+open scoped NumberField.InfiniteAdeleRing IsDedekindDomain.FiniteAdeleRing
 
-variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
+variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L]
 
 section BaseChange
 
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
-scoped notation:101 "𝔸" K => AdeleRing (𝓞 K) K
+scoped notation:max"𝔸" K => AdeleRing (𝓞 K) K
+scoped notation:max "𝔸ᶠ[" K "]" => 𝔸ᶠ[𝓞 K, K]
 
-instance [SMul (𝔸 K) (𝔸 L)] : SMul (K∞ × FiniteAdeleRing (𝓞 K) K) (L∞ × FiniteAdeleRing (𝓞 L) L) :=
+instance [SMul (𝔸 K) (𝔸 L)] : SMul (K∞ × 𝔸ᶠ[K]) (L∞ × 𝔸ᶠ[L]) :=
   inferInstanceAs (SMul (𝔸 K) (𝔸 L))
 
-lemma smul_fst [SMul K∞ L∞] [SMul (𝔸 K) (𝔸 L)]
+lemma smul_fst [SMul K∞ L∞] [SMul 𝔸ᶠ[K] 𝔸ᶠ[L]] [SMul (𝔸 K) (𝔸 L)]
     [Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
     (x : 𝔸 K) (y : 𝔸 L) :
     (x • y).1 = x.1 • y.1 := by
   rw [Prod.IsProdSMul.smul_fst]
 
-lemma smul_snd [SMul K∞ L∞] [SMul (𝔸 K) (𝔸 L)]
+lemma smul_snd [SMul K∞ L∞] [Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]] [SMul (𝔸 K) (𝔸 L)]
     [Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
     (x : 𝔸 K) (y : 𝔸 L) :
     (x • y).2 = x.2 • y.2 := by
   rw [Prod.IsProdSMul.smul_snd]
+
+variable [Algebra K L]
 
 /-- The canonical map from the adeles of K to the adeles of L -/
 noncomputable def baseChange :
@@ -93,6 +96,12 @@ open scoped TensorProduct
 
 instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank K L) → 𝔸 K) :=
   IsModuleTopology.instPi
+
+variable [Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]] [FiniteAdeleRing.ComapFiberwiseSMul (𝓞 K) K L (𝓞 L)]
+-- TODO : can these be removed?
+variable [Algebra K 𝔸ᶠ[L]] [IsScalarTower K 𝔸ᶠ[K] 𝔸ᶠ[L]]
+    [Algebra (𝓞 K) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) (𝓞 L) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) K 𝔸ᶠ[L]]
+    [IsScalarTower K L 𝔸ᶠ[L]]
 
 /-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
 noncomputable def baseChangeAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
@@ -260,7 +269,13 @@ end BaseChange
 
 section vector_space
 
-variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
+variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [Algebra K L] [IsScalarTower K L V]
+
+variable [Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]] [FiniteAdeleRing.ComapFiberwiseSMul (𝓞 K) K L (𝓞 L)]
+-- TODO : can these be removed?
+variable [Algebra K 𝔸ᶠ[L]] [IsScalarTower K 𝔸ᶠ[K] 𝔸ᶠ[L]]
+    [Algebra (𝓞 K) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) (𝓞 L) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) K 𝔸ᶠ[L]]
+    [IsScalarTower K L 𝔸ᶠ[L]]
 
 /-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
 noncomputable def ModuleBaseChangeLinearEquiv :
@@ -340,8 +355,30 @@ scoped instance : Algebra K L∞ := Pi.algebra _ _
 
 scoped instance : IsScalarTower K L L∞ := Pi.isScalarTower
 
+scoped instance : Algebra 𝔸ᶠ[K] 𝔸ᶠ[L] := (FiniteAdeleRing.mapRingHom _ K L _).toAlgebra
+
+scoped instance : Algebra K 𝔸ᶠ[L] := Algebra.compHom 𝔸ᶠ[L] (algebraMap K L)
+
 /-- The `𝔸 K`-algebra on `𝔸 L`, induced by `AdeleRing.baseChange K L`. -/
 scoped instance : Algebra (𝔸 K) (𝔸 L) := (AdeleRing.baseChange K L).toAlgebra
+
+scoped instance : IsScalarTower K L 𝔸ᶠ[L] := IsScalarTower.of_compHom _ _ _
+
+scoped instance : IsScalarTower (𝓞 K) (𝓞 L) 𝔸ᶠ[L] := IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
+
+scoped instance : FiniteAdeleRing.ComapFiberwiseSMul (𝓞 K) K L (𝓞 L) where
+  map_smul r x b σ := by obtain ⟨a, rfl⟩ := σ; rfl
+
+scoped instance : IsScalarTower K 𝔸ᶠ[K] 𝔸ᶠ[L] := by
+  apply IsScalarTower.of_algebraMap_eq
+  intro x
+  rw [Algebra.compHom_algebraMap_apply]
+  ext w
+  simp only [FiniteAdeleRing.algebraMap_apply]
+  rw [RingHom.algebraMap_toAlgebra]
+  erw [RestrictedProduct.mapAlongRingHom_apply]
+  erw [IsDedekindDomain.HeightOneSpectrum.adicCompletionComap_coe]
+  rfl
 
 /-- Says that `𝔸 K`-algebra on `𝔸 L` is built from the `K∞`-algebra on `L∞` and the
 finite adele algebra. -/
@@ -513,7 +550,7 @@ def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes
     -- Adding `-implicitDefEqProofs` means that the kernel doesn't spend 30 seconds
     -- typchecking the declaration for some reason! See
     -- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/help.20with.20diagnosis.20of.20slow.20declaration/near/565229150
-    simp -implicitDefEqProofs [IsDedekindDomain.algebraMap_apply (𝓞 ℚ)]
+    simp -implicitDefEqProofs [IsDedekindDomain.FiniteAdeleRing.algebraMap_apply (𝓞 ℚ)]
 
 theorem padicEquiv_bijOn :
     Set.BijOn padicEquiv (integralAdeles (𝓞 ℚ) ℚ)
