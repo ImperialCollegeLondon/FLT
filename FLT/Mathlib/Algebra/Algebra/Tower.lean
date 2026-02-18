@@ -83,9 +83,8 @@ variable {A B : Type*} (S' : Type*) {S : Type*}
     [Algebra S B] [Algebra S' A] [Algebra S' B]
 
 /--
-Given a bundled algebra map `f : A →ₐ[S] B` which also has scalars `S'`,
-with both `S` and `S'`, then `f.changeScalars R S'` returns `f` viewed as an
-`S'`-algebra homomorphism.
+Produces an `S'`-linear algebra map from an `S`-linear algebra map `f : A →ₐ[S] B` which also
+has scalars `S'`.
 -/
 def AlgHom.changeScalars (f : A →ₐ[S] B) [IsBiscalar S S' f] :
     A →ₐ[S'] B where
@@ -96,6 +95,10 @@ theorem AlgHom.changeScalars_apply (f : A →ₐ[S] B) [IsBiscalar S S' f] (a : 
     changeScalars S' f a = f a := by
   simp [changeScalars]
 
+/--
+Produces an `S'`-linear algebra isomorphism from an `S`-linear algebra isomorphism `f : A ≃ₐ[S] B`
+which also has scalars `S'`.
+-/
 def AlgEquiv.changeScalars (f : A ≃ₐ[S] B) [IsBiscalar S S' f.toAlgHom] :
     A ≃ₐ[S'] B where
   __ := AlgHom.changeScalars S' f.toAlgHom

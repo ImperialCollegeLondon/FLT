@@ -33,6 +33,11 @@ def toContinuousLinearEquiv (e : A ≃A[R] B) : A ≃L[R] B where
 theorem toContinuousLinearEquiv_apply (e : A ≃A[R] B) (a : A) :
   e.toContinuousLinearEquiv a = e a := rfl
 
+
+/--
+Produces an `S'`-linear continuous algebra isomorphism from a continuous algebra
+isomorphism `f : A ≃A[S] B` which also has scalars `S'`.
+-/
 def changeScalars {A B : Type*} (S' : Type*) {S : Type*}
     [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S] [Algebra S A]
     [Algebra S B] [Algebra S' A] [Algebra S' B] [TopologicalSpace A] [TopologicalSpace B]
