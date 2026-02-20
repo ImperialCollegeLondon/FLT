@@ -8,6 +8,7 @@ import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.RingTheory.DedekindDomain.IntegralClosure
+import FLT.Mathlib.Algebra.Algebra.Tower
 
 /-!
 
@@ -256,6 +257,48 @@ noncomputable def linearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A]
   let f₅ : B ⊗[A] (K ⊗[A] M) ≃ₗ[A] B ⊗[A] M := TensorProduct.congr (LinearEquiv.refl A B)
     (IsLocalization.moduleLid (nonZeroDivisors A) K M |>.restrictScalars A)
   f₁.trans f₃ |>.trans f₄ |>.trans f₅
+
+noncomputable def linearEquivTensorProductModule' : L ⊗[K] M ≃ₗ[B] B ⊗[A] M :=
+  let f₁ : L ⊗[K] M ≃ₗ[B] L ⊗[A] M := {
+      __ := IsLocalization.moduleTensorEquiv (nonZeroDivisors A) K L M
+      map_smul' b x := by
+        induction x with
+        | zero => simp
+        | tmul l m =>
+          rw [TensorProduct.smul_tmul']
+          simp [TensorProduct.smul_tmul']
+        | add => simp_all
+  }
+  let f₂ : B ⊗[A] K ≃ₗ[B] L := {
+    __ := LinearEquivTensorProduct A K L B
+        |>.restrictScalars A
+        |>.trans (TensorProduct.comm A K B) |>.symm
+    map_smul' b x := by
+      induction x with
+      | zero => simp
+      | tmul l m =>
+        rw [TensorProduct.smul_tmul']
+        simp [LinearEquivTensorProduct_symm_tmul]
+        simp [Algebra.smul_def]
+        ring
+      | add => simp_all
+    }
+  let f₃ : (B ⊗[A] K) ⊗[A] M ≃ₗ[B] L ⊗[A] M :=
+    TensorProduct.AlgebraTensorModule.congr f₂ (LinearEquiv.refl A M)
+  let f₄ : (B ⊗[A] K) ⊗[A] M ≃ₗ[B] B ⊗[A] (K ⊗[A] M) :=
+    TensorProduct.AlgebraTensorModule.assoc _ A B _ K M
+  let f₅ : B ⊗[A] (K ⊗[A] M) ≃ₗ[B] B ⊗[A] M := {
+    __ := TensorProduct.congr (LinearEquiv.refl A B)
+      (IsLocalization.moduleLid (nonZeroDivisors A) K M |>.restrictScalars A)
+    map_smul' b x := by
+      induction x with
+      | zero => simp
+      | tmul b y =>
+        rw [TensorProduct.smul_tmul']
+        simp [TensorProduct.smul_tmul']
+      | add => simp_all
+  }
+  f₁.trans f₃.symm |>.trans f₄ |>.trans f₅
 
 lemma linearEquivTensorProductModule_symm_tmul (b : B) (m : M) :
     (linearEquivTensorProductModule A K L B M).symm (b ⊗ₜ m) = (algebraMap B L b) ⊗ₜ m := by
