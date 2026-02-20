@@ -79,17 +79,17 @@ the resulting base change map `S ⊗[R] A →ₐ[S] B` is scalar in both `S` and
 `baseChangeRightOfAlgebraMap ψ` is the induced `A`-algebra map `S ⊗[R] A →ₐ[A] B`. -/
 noncomputable
 def SemialgHom.baseChangeRightOfAlgebraMap [Algebra R S] [CommSemiring A] [Algebra R A]
-    [CommSemiring B] [Algebra R B] [Algebra S B] [IsScalarTower R S B]
+    [CommSemiring B] [Algebra S B]
     (ψ : A →ₛₐ[algebraMap R S] B) :
     letI := ψ.toAlgebra
     S ⊗[R] A →ₐ[A] B :=
   letI := ψ.toAlgebra
-  AlgHom.changeScalars R A ψ.baseChange_of_algebraMap
+  AlgHom.changeScalars A ψ.baseChange_of_algebraMap
 
 open scoped TensorProduct.RightActions in
 @[simp]
 theorem SemialgHom.baseChangeRightOfAlgebraMap_apply [Algebra R S] [CommSemiring A] [Algebra R A]
-    [CommSemiring B] [Algebra R B] [Algebra S B] [IsScalarTower R S B]
+    [CommSemiring B] [Algebra S B]
     (ψ : A →ₛₐ[algebraMap R S] B) (x : S ⊗[R] A) :
     baseChangeRightOfAlgebraMap ψ x = baseChange_of_algebraMap ψ x := by
   simp [baseChangeRightOfAlgebraMap, AlgHom.changeScalars_apply]
@@ -97,7 +97,7 @@ theorem SemialgHom.baseChangeRightOfAlgebraMap_apply [Algebra R S] [CommSemiring
 open scoped TensorProduct.RightActions in
 @[simp]
 theorem SemialgHom.baseChangeRightOfAlgebraMap_coe [Algebra R S] [CommSemiring A] [Algebra R A]
-    [CommSemiring B] [Algebra R B] [Algebra S B] [IsScalarTower R S B]
+    [CommSemiring B] [Algebra S B]
     (ψ : A →ₛₐ[algebraMap R S] B) :
     ⇑ψ.baseChangeRightOfAlgebraMap = ⇑ψ.baseChange_of_algebraMap :=
   funext_iff.2 <| ψ.baseChangeRightOfAlgebraMap_apply

@@ -48,3 +48,8 @@ def ContinuousMulEquiv.units_map {M N : Type*} [TopologicalSpace M] [Topological
   continuous_toFun := by apply Continuous.units_map _ f.continuous_toFun
   continuous_invFun := by apply Continuous.units_map _ f.continuous_invFun
       }
+
+@[to_additive]
+theorem ContinuousMulEquiv.coe_toHomeomorph {M N : Type*} [TopologicalSpace M]
+    [TopologicalSpace N] [AddCommMonoid M] [AddCommMonoid N]
+    (f : M ≃ₜ+ N) : f.toHomeomorph = ⇑f := rfl
