@@ -170,7 +170,9 @@ theorem Equiv.restrictedProductCongrLeft_apply_apply (e : ι₁ ≃ ι₂) (h : 
     (restrictedProductCongrLeft e h) x (e i) = x i :=
   restrictedProductCongrLeft'_symm_apply_apply e.symm (𝓕₂.map_equiv_symm _ ▸ h) x _
 
-#adaptation_note /-- to_additive started failing in 4.28.0 -/
+#adaptation_note /-- to_additive started failing in 4.28.0 . This should be fixed
+in current mathlib; these lines to 200 can be deleted. See
+https://github.com/ImperialCollegeLondon/FLT/pull/859/changes -/
 section add_equiv
 
 variable [(i : ι₁) → AddMonoid (R₁ i)] [(i : ι₂) → AddMonoid (R₂ i)]
@@ -204,6 +206,9 @@ variable [(i : ι₁) → Monoid (R₁ i)] [(i : ι₂) → Monoid (R₂ i)]
   [(i : ι₁) → SubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → SubmonoidClass (S₂ i) (R₂ i)]
   {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
 
+-- @[to_additive (attr := simps! apply)  should be re-added when we bump beyond 4.28.0; we want
+-- to revert the changes in this file made in
+-- https://github.com/ImperialCollegeLondon/FLT/pull/859/changes
 /-- The multiplicative monoid isomorphism between restricted products on the same factors on
 different indices, when the indices are equivalent, with compatibility on the restriction
 filters. Applying the equivalence on the right-hand side. -/
@@ -320,7 +325,10 @@ theorem Equiv.restrictedProductCongr_symm_apply {e : ι₁ ≃ ι₂} {h : 𝓕�
     (e.restrictedProductCongr h φ hφ).symm x = fun a => (φ a).symm (x (e a)) :=
   rfl
 
-#adaptation_note /-- to_additive started failing in 4.28.0 -/
+#adaptation_note /-- to_additive started failing in 4.28.0.
+This should be fixed
+in current mathlib; these lines to 200 can be deleted. See
+https://github.com/ImperialCollegeLondon/FLT/pull/859/changes  -/
 section add_equiv
 
 variable [(i : ι₁) → AddMonoid (R₁ i)] [(i : ι₂) → AddMonoid (R₂ i)]
