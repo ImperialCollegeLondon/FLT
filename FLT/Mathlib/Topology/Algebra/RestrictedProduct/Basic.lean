@@ -195,10 +195,10 @@ variable [Π i, SetLike (S i) (G i)]
 variable (A : (i : ι) → (S i))
 variable [DecidableEq ι]
 
-@[to_additive]
+@[to_additive (attr := simp)]
 lemma mulSingle_eq_same [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) (r : G i) :
-    mulSingle A i r i = r := by
-  simp
+    mulSingle A i r i = r :=
+  Pi.mulSingle_eq_same i r
 
 end single
 
