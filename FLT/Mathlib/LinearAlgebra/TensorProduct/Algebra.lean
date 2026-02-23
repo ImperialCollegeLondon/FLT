@@ -1,4 +1,4 @@
-import Mathlib.LinearAlgebra.TensorProduct.Basic
+import Mathlib.LinearAlgebra.TensorProduct.Map
 import Mathlib.Algebra.Algebra.Hom
 
 open TensorProduct
