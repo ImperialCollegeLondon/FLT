@@ -510,14 +510,8 @@ def PatchingModule.mapOfIsPatchingSystem :
       (Algebra.linearMap _ _).compLeft _) fun c α β hαβ ↦ by
     simp [equivComponent, IsPatchingSystem.linearMap_compLeft]
 
-lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) := by
-  refine continuous_induced_rng.mpr ?_
-  refine continuous_pi fun α ↦ ?_
-  have : DiscreteTopology (R ⧸ α.1) := QuotientAddGroup.discreteTopology α.2
-  change Continuous ((equivComponent R M F α.1 α.2) ∘ _)
-  refine continuous_of_discreteTopology.comp ?_
-  refine continuous_pi fun i ↦
-    (continuous_algebraMap R (R ⧸ α.1)).comp (continuous_apply i)
+lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) :=
+  LinearMap.continuous_on_pi (mapOfIsPatchingSystem R M F)
 
 -- Compact + T2 actually implies NonarchimedeanRing.
 variable [NonarchimedeanRing R] [T2Space R]
