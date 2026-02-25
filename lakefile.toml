@@ -1,6 +1,7 @@
 name = "FLT"
 defaultTargets = ["FLT"]
 lintDriver = "batteries/runLinter"
+testDriver = "FLTTest"
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -24,3 +25,7 @@ git = "https://github.com/PatrickMassot/checkdecls.git"
 [[lean_lib]]
 name = "FLT"
 globs = ["FLT", "FermatsLastTheorem"]
+
+[[lean_lib]]
+name = "FLTTest"
+globs = ["FLTTest.+"] # Build all files in the directory `FLTTest`.
