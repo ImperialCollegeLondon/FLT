@@ -168,17 +168,6 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
       simp [hx₂, H] at hx₁
   exact this.compactSpace
 
-omit [IsAdicTopology R] in
-lemma isOpen_maximalIdeal_pow' [IsNoetherianRing R] [CompactSpace R] [T2Space R] (n : ℕ) :
-    IsOpen (X := R) ↑(maximalIdeal R ^ n) := by
-  -- have : IsClosed (X := R) (maximalIdeal R) := (isCompact_of_isNoetherianRing _).isClosed
-  letI : Field (R ⧸ maximalIdeal R) := Ideal.Quotient.field (maximalIdeal R)
-  have : Finite (R ⧸ maximalIdeal R ^ n) := Ideal.finite_quotient_pow (IsNoetherian.noetherian _) _
-  have : (maximalIdeal R ^ n).toAddSubgroup.FiniteIndex :=
-    @AddSubgroup.finiteIndex_of_finite_quotient _ _ _ this
-  exact (maximalIdeal R ^ n).toAddSubgroup.isOpen_of_isClosed_of_finiteIndex
-    (isCompact_of_isNoetherianRing _).isClosed
-
 -- TODO: `TotallyDisconnectedSpace` is unnecessary. See
 -- https://ncatlab.org/nlab/show/compact+Hausdorff+rings+are+profinite
 omit [IsAdicTopology R] in
@@ -188,7 +177,7 @@ Any profinite noetherian ring has the `𝔪`-adic topology.
 instance (priority := 100) [IsNoetherianRing R]
     [CompactSpace R] [T2Space R] [TotallyDisconnectedSpace R] :
     IsAdicTopology R := by
-  refine ⟨isAdic_iff.mpr ⟨isOpen_maximalIdeal_pow' R, ?_⟩⟩
+  refine ⟨isAdic_iff.mpr ⟨isOpen_maximalIdeal_pow R, ?_⟩⟩
   intro s hs
   obtain ⟨I, hI, hIs⟩ := exists_ideal_isOpen_and_subset hs
   have : Finite (R ⧸ I) := AddSubgroup.quotient_finite_of_isOpen _ hI

@@ -459,7 +459,7 @@ def PatchingModule.constEquiv [IsLocalRing R] [T2Space R] [IsNoetherianRing R]
   rw [← Submodule.mem_bot (R := R), ← Ideal.iInf_pow_smul_eq_bot_of_isLocalRing _
     (IsLocalRing.maximalIdeal.isMaximal R).ne_top, Submodule.mem_iInf]
   intro i
-  exact this ⟨_, IsLocalRing.isOpen_maximalIdeal_pow' R i⟩
+  exact this ⟨_, IsLocalRing.isOpen_maximalIdeal_pow R i⟩
 
 variable (M)
 
