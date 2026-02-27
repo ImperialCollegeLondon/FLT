@@ -1,4 +1,5 @@
 import FLT.GaloisRepresentation.HardlyRamified.Frey
+import FLT.GaloisRepresentation.HardlyRamified.Threeadic
 /-!
 
 # Preliminary reductions of FLT
@@ -35,7 +36,7 @@ open WeierstrassCurve
 theorem Mazur_Frey (P : FreyPackage) :
     haveI : Fact P.p.Prime := ⟨P.pp⟩
     GaloisRep.IsIrreducible (P.freyCurve.galoisRep P.p P.hppos) :=
-  sorry
+  knownin1980s
 
 /-!
 
@@ -43,11 +44,166 @@ But it follows from a profound theorem of Ribet, and the even more profound theo
 (proved by Wiles) that the representation cannot be irreducible.
 
 -/
+/-- The natural `ℤ_p`-algebra structure on `ℤ/pℤ`. -/
+noncomputable local instance (p : ℕ) [Fact p.Prime] : Algebra ℤ_[p] (ZMod p) :=
+  RingHom.toAlgebra PadicInt.toZMod
 
+/-By [Serre, "Abelian l-adic Representations and Elliptic Curves, III.3] any 1-dimensional l-adic
+rep of G_Q is cyclo^n times chi for a Dirichlet character chi. Then the informal proof is: one rep
+has trace(Frob_p) = p^n chi(p) + p^m psi(p), hence all of them do, hence all of them are
+cyclo^n times chi + cyclo^m times psi.-/
+set_option linter.unusedVariables false in
+theorem irreducible_of_isCompatible_iff {K : Type*} [Field K] [NumberField K]
+  (E : Type*) [Field E] [NumberField E] (T : GaloisRepFamily K E 2) (comp : T.isCompatible)
+  {p : ℕ} [Fact p.Prime] {q : ℕ} [Fact q.Prime]
+  (φ : E →+* AlgebraicClosure ℚ_[p]) (ψ : E →+* AlgebraicClosure ℚ_[q]) :
+  GaloisRep.IsIrreducible (T _ φ) ↔ GaloisRep.IsIrreducible (T _ ψ) := knownin1980s
+
+local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsLocalRing R] :
+    TopologicalSpace (IsLocalRing.ResidueField R) := moduleTopology R (IsLocalRing.ResidueField R)
+
+local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsLocalRing R] :
+    ContinuousAdd (IsLocalRing.ResidueField R) := ModuleTopology.continuousAdd R
+    (IsLocalRing.ResidueField R)
+
+local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsLocalRing R] :
+    ContinuousSMul R (IsLocalRing.ResidueField R) := ModuleTopology.continuousSMul R
+    (IsLocalRing.ResidueField R)
+
+noncomputable local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsLocalRing R] :
+    Module R (IsLocalRing.ResidueField R) :=
+    RingHom.toModule (IsLocalRing.residue R)
+
+local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsLocalRing R] [CompactSpace R] [T2Space R] [IsNoetherianRing R] :
+    DiscreteTopology (IsLocalRing.ResidueField R) := discrete_residue_field
+
+local instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsLocalRing R] [CompactSpace R] [T2Space R] [IsNoetherianRing R] :
+    IsTopologicalRing (IsLocalRing.ResidueField R) := DiscreteTopology.topologicalRing
+
+open GaloisRepresentation in
 theorem Wiles_Frey (P : FreyPackage) :
     haveI : Fact P.p.Prime := ⟨P.pp⟩
-    ¬ GaloisRep.IsIrreducible (P.freyCurve.galoisRep P.p P.hppos) :=
-  FreyCurve.torsion_not_isIrreducible P
+    -- The p-torsion in the Frey curve is not irreducible.
+    ¬ GaloisRep.IsIrreducible (P.freyCurve.galoisRep P.p P.hppos) := by
+  -- Certainly it's hardly ramified.
+  have hard_ram := FreyCurve.torsion_isHardlyRamified P
+  -- Assume for a contradiction that it's irreducible.
+  intro irrep
+  set ρ := (P.freyCurve.galoisRep P.p P.hppos)
+  have fact : Fact (P.p.Prime) := ⟨P.pp⟩
+  -- Then (by a hard theorem) it lifts to a hardly ramified p-adic representation
+  obtain ⟨R, _, _, _, _, _, _, _, _, _, _, almd, _, _, V, _, _, _, _, rk2, σ, φ, hσ, σ_cong_ρ⟩ :=
+    IsHardlyRamified.lifts P.hp_odd
+    ((P.freyCurve.map (algebraMap ℚ (AlgebraicClosure ℚ))).n_torsion P.p)
+    (EllipticCurve.torsion_has_rank2 P.freyCurve P.p (Nat.cast_ne_zero.mpr (FreyPackage.hp0 P)))
+    ρ irrep hard_ram
+  -- And (by another hard theorem) this p-adic representation is part of a hardly ramified
+  -- compatible family.
+  obtain ⟨E, fld, num, T, comp, hT1, alg'', smul, ψ, r', compσ⟩ :=
+    IsHardlyRamified.mem_isCompatible P.hp_odd rk2 hσ
+  -- Now let's consider the specialization of this family at 3.
+  specialize hT1 Nat.fact_prime_three (show Odd 3 by decide)
+  have i : E →+* AlgebraicClosure ℚ_[3] := by
+    apply Classical.choice
+    apply NumberField.Embeddings.instNonemptyRingHom
+  obtain ⟨R', _, _, _, _, _, _, _, _, _,
+    _, _, _, W, _, _, _, _, rk2', τ, r'', hτ1, hτ2⟩ := hT1 i
+  -- It is a hardly ramified 3-adic representation
+  have reducible_three := IsHardlyRamified.three_adic' W rk2' hτ1
+  letI _ : FaithfulSMul R' (AlgebraicClosure ℚ_[3]) :=
+    faithfulSMul_of_padic_fractionRing 3 R' (AlgebraicClosure ℚ_[3])
+  letI _ : Algebra (FractionRing R') (AlgebraicClosure ℚ_[3]) :=
+    FractionRing.liftAlgebra R' (AlgebraicClosure ℚ_[3])
+  have _ : ContinuousSMul (FractionRing R') (AlgebraicClosure ℚ_[3]) :=
+    continuousSMul_of_fractionRing R' (AlgebraicClosure ℚ_[3])
+  have _ : IsScalarTower R' (FractionRing R') (AlgebraicClosure ℚ_[3]) :=
+    FractionRing.isScalarTower_liftAlgebra R' (AlgebraicClosure ℚ_[3])
+  -- But all hardly ramified 3-adic representations are reducible.
+  have reducible_three' : ¬GaloisRep.IsIrreducible
+    (GaloisRep.baseChange (AlgebraicClosure ℚ_[3]) τ) := by
+    rw [GaloisRep.reducible_conj_reducible_iff _ (GaloisRep.tensor_associator (FractionRing R')
+      (AlgebraicClosure ℚ_[3]) W)]
+    rw [GaloisRep.base_change_trans (FractionRing R') (AlgebraicClosure ℚ_[3]) τ]
+    intro irrep3
+    apply GaloisRep.irreducible_of_irreducible_base_change _ at irrep3
+    exact reducible_three irrep3
+  -- Thus for some reason which kmb doesn't understand, the p-adic representation
+  -- must also be reducible.
+  rw [GaloisRep.reducible_conj_reducible_iff _ r'', hτ2,
+    irreducible_of_isCompatible_iff E T comp i ψ, ← compσ,
+    ← GaloisRep.reducible_conj_reducible_iff _ r'] at reducible_three'
+  -- Because σ is odd, we can deduce that it is irrreducible from geometric irreducibility.
+  have reducible_p : ¬GaloisRep.IsIrreducible (GaloisRep.baseChange (FractionRing R) σ) := by
+    intro irrep_p
+    apply isAbsolutelyIrreducible_of_irreducible_odd at irrep_p
+    · have ⟨irrep_p⟩ := irrep_p
+      letI _ : FaithfulSMul R (AlgebraicClosure ℚ_[P.p]) :=
+        faithfulSMul_of_padic_fractionRing P.p R (AlgebraicClosure ℚ_[P.p])
+      letI _ : Algebra (FractionRing R) (AlgebraicClosure ℚ_[P.p]) := FractionRing.liftAlgebra R
+        (AlgebraicClosure ℚ_[P.p])
+      letI i4 : ContinuousSMul (FractionRing R) (AlgebraicClosure ℚ_[P.p]) :=
+        continuousSMul_of_fractionRing R (AlgebraicClosure ℚ_[P.p])
+      letI _ : IsScalarTower R (FractionRing R) (AlgebraicClosure ℚ_[P.p]) :=
+        FractionRing.isScalarTower_liftAlgebra R (AlgebraicClosure ℚ_[P.p])
+      letI : IsTopologicalRing (AlgebraicClosure ℚ_[P.p]) :=
+      { toIsTopologicalSemiring := Valued.isTopologicalDivisionRing.toIsTopologicalSemiring,
+        toContinuousNeg := Valued.isTopologicalDivisionRing.toContinuousNeg }
+      specialize irrep_p (AlgebraicClosure ℚ_[P.p]) (AlgebraicClosure.instField ℚ_[P.p])
+        (PadicAlgCl.valued P.p).toTopologicalSpace
+        { toIsTopologicalSemiring := Valued.isTopologicalDivisionRing.toIsTopologicalSemiring,
+          toContinuousNeg := Valued.isTopologicalDivisionRing.toContinuousNeg } _ i4
+      rw [← GaloisRep.base_change_trans, ← GaloisRep.reducible_conj_reducible_iff] at irrep_p
+      exact reducible_three' irrep_p
+    · rw [Module.rank_baseChange, Cardinal.lift_id, rk2]
+    · rw [GaloisRep.det_baseChange]
+      suffices (σ.det complexConjugation) = -1 by
+        simp [this]
+      exact odd_of_hardlyRamified (FreyPackage.hp_odd P) rk2 _ hσ
+  apply reducible_p
+  haveI := compact_of_finite_Zp P.p R
+  haveI := hausdorff_of_finite_Zp P.p R
+  haveI := noetherian_of_finite_Zp P.p R
+  apply irreducible_of_irreducible_reduction
+  -- Hence the torsion in the Frey curve is reducible, because it's just σ modulo the maximal ideal.
+  let f : R ⧸ IsLocalRing.maximalIdeal R →+* ZMod P.p := by
+    apply Ideal.Quotient.lift (IsLocalRing.maximalIdeal R) almd.algebraMap
+    intro a ha
+    rw [← RingHom.mem_ker]
+    suffices (RingHom.ker almd.algebraMap) = (IsLocalRing.maximalIdeal R) by
+      rwa [this]
+    rw [← IsLocalRing.isMaximal_iff]
+    apply Ideal.Quotient.maximal_of_isField
+    suffices (R ⧸ RingHom.ker almd.algebraMap) ≃+* (ZMod P.p) from
+      MulEquiv.isField (Semifield.toIsField (ZMod P.p)) this
+    apply RingHom.quotientKerEquivOfSurjective
+    apply ZMod.ringHom_surjective
+  letI _ : Algebra (IsLocalRing.ResidueField R) (ZMod P.p) := RingHom.toAlgebra f
+  have _ : (algebraMap (IsLocalRing.ResidueField R) (ZMod P.p)) = f := rfl
+  have _ : IsScalarTower R (IsLocalRing.ResidueField R) (ZMod P.p) := by
+    refine { smul_assoc := ?_ }
+    intro x y z
+    change f (IsLocalRing.residue R x * y) * z = x • (f y * z)
+    rw [Algebra.smul_def, map_mul, mul_assoc]
+    rfl
+  letI := compact_of_finite_Zp P.p R
+  letI := hausdorff_of_finite_Zp P.p R
+  letI := noetherian_of_finite_Zp P.p R
+  have _ : ContinuousSMul (IsLocalRing.ResidueField R) (ZMod P.p) :=
+    DiscreteTopology.instContinuousSMul (IsLocalRing.ResidueField R) (ZMod P.p)
+  have irrep_σ_p : (GaloisRep.baseChange (ZMod P.p) σ).IsIrreducible := by
+    rw [GaloisRep.reducible_conj_reducible_iff (GaloisRep.baseChange (ZMod P.p) σ) φ, σ_cong_ρ]
+    exact irrep
+  rw [GaloisRep.reducible_conj_reducible_iff (GaloisRep.baseChange (ZMod P.p) σ)
+    (GaloisRep.tensor_associator (IsLocalRing.ResidueField R) (ZMod P.p) V)] at irrep_σ_p
+  rw [GaloisRep.base_change_trans] at irrep_σ_p
+  exact GaloisRep.irreducible_of_irreducible_base_change (GaloisRep.baseChange
+  (IsLocalRing.ResidueField R) σ) irrep_σ_p
 
 /-!
 

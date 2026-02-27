@@ -6,11 +6,13 @@ Authors: Kevin Buzzard
 import FLT.Deformations.Categories
 import FLT.Deformations.RepresentationTheory.GaloisRep
 import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
+import FLT.Assumptions.KnownIn1980s
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
 import Mathlib.NumberTheory.Padics.Complex
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.SimpleRing.Principal
+import Mathlib.Topology.Algebra.Localization
 /-
 
 # Hardly ramified representations
@@ -54,7 +56,7 @@ rank 1, and where `ρ` acts on `W` via an unramified character whose square is t
 -/
 
 open IsDedekindDomain
-open scoped NumberField
+open scoped NumberField TensorProduct
 
 namespace GaloisRepresentation
 
@@ -107,5 +109,71 @@ structure IsHardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
     (AddSubgroup.inertia ((𝔪 Z2bar).toAddSubgroup : AddSubgroup Z2bar) (Γ ℚ_[2]) ≤ δ.ker) ∧
     -- δ² = 1.
     (∀ g : Γ ℚ_[2], δ g * δ g = 1)
+
+theorem baseChange_hardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
+    {R : Type u} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [IsLocalRing R]
+    [Algebra ℤ_[ℓ] R]
+    (S : Type u) [CommRing S] [TopologicalSpace S] [IsTopologicalRing S] [IsLocalRing S]
+    [Algebra R S] [Algebra ℤ_[ℓ] S] [ContinuousSMul R S] [IsScalarTower ℤ_[ℓ] R S]
+    {V : Type*} [AddCommGroup V] [Module R V]
+    [Module.Finite R V] [Module.Free R V] (hdim : Module.rank R V = 2)
+    (ρ : GaloisRep ℚ R V) : IsHardlyRamified hℓOdd hdim ρ →
+      IsHardlyRamified hℓOdd (by rw [Module.rank_baseChange, hdim]; exact Cardinal.lift_two)
+      (GaloisRep.baseChange S ρ) := sorry
+
+theorem conj_hardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
+    {R : Type u} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [IsLocalRing R]
+    [Algebra ℤ_[ℓ] R] {V : Type*} [AddCommGroup V] [Module R V]
+    [Module.Finite R V] [Module.Free R V] (hdimV : Module.rank R V = 2)
+    {W : Type*} [AddCommGroup W] [Module R W]
+    [Module.Finite R W] [Module.Free R W] (hdimW : Module.rank R W = 2)
+    (e : V ≃ₗ[R] W) (ρ : GaloisRep ℚ R V) : IsHardlyRamified hℓOdd hdimV ρ ↔
+    IsHardlyRamified hℓOdd hdimW (GaloisRep.conj ρ e) := sorry
+
+instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
+    [IsDomain R] : ContinuousSMul R (FractionRing R) := by
+      apply continuousSMul_of_algebraMap R (FractionRing R)
+      exact RingTopology.coinduced_continuous ⇑(algebraMap R (FractionRing R))
+
+set_option linter.unusedVariables false in
+theorem hardlyRamified_of_hardlyRamified_isogenous {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
+    {R : Type u} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [IsLocalRing R]
+    [IsDomain R] [Algebra ℤ_[ℓ] R]
+    {V : Type*} [AddCommGroup V] [Module R V]
+    [Module.Finite R V] [Module.Free R V] (hdimV : Module.rank R V = 2)
+    {W : Type*} [AddCommGroup W] [Module R W]
+    [Module.Finite R W] [Module.Free R W] (hdimW : Module.rank R W = 2)
+    (ρ : GaloisRep ℚ R V) (σ : GaloisRep ℚ R W)
+    (e : (FractionRing R) ⊗[R] V ≃ₗ[FractionRing R] (FractionRing R) ⊗[R] W)
+    (he : GaloisRep.conj (GaloisRep.baseChange (FractionRing R) ρ) e =
+      (GaloisRep.baseChange (FractionRing R) σ)) :
+    IsHardlyRamified hℓOdd hdimV ρ ↔ IsHardlyRamified hℓOdd hdimW σ := knownin1980s
+
+
+noncomputable def complexConjugationReal : Γ ℝ := sorry
+
+theorem complexConjugationReal_order_two : orderOf complexConjugationReal = 2 := sorry
+
+noncomputable def complexConjugation : Γ ℚ := (Field.absoluteGaloisGroup.mapAux (Rat.castHom ℝ))
+  complexConjugationReal
+
+theorem complexConjugation_order_two : orderOf complexConjugation = 2 := by
+  rw [orderOf_eq_prime_iff]
+  constructor
+  · unfold complexConjugation
+    rw [← map_pow, ← complexConjugationReal_order_two, pow_orderOf_eq_one, map_one]
+  · sorry
+
+theorem odd_of_hardlyRamified {ℓ : ℕ} [Fact ℓ.Prime] (hℓOdd : Odd ℓ)
+    {R : Type u} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [IsLocalRing R]
+    [Algebra ℤ_[ℓ] R] {V : Type*} [AddCommGroup V] [Module R V]
+    [Module.Finite R V] [Module.Free R V] (hdim : Module.rank R V = 2)
+    (ρ : GaloisRep ℚ R V) (hρ : IsHardlyRamified hℓOdd hdim ρ) : GaloisRep.det ρ complexConjugation
+    = -1 := sorry
+
+theorem isAbsolutelyIrreducible_of_irreducible_odd {R : Type*} [TopologicalSpace R] [Field R]
+    [IsTopologicalRing R] {V : Type*} [AddCommGroup V] [Module R V] [Module.Finite R V]
+    (hV : Module.rank R V = 2) (ρ : GaloisRep ℚ R V) (ρodd : GaloisRep.det ρ complexConjugation
+    = -1) (hρ : GaloisRep.IsIrreducible ρ) : GaloisRep.IsAbsolutelyIrreducible ρ := sorry
 
 end GaloisRepresentation
