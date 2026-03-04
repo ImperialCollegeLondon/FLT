@@ -41,8 +41,8 @@ lemma smul_def (r : S) (m : M ⊗[R] S) :
 /-- The `S`-module structure on `M ⊗ S`, when `S` is a commutative semiring.
 An instance only when the `TensorProduct.RightActions` scope is open. -/
 scoped instance : Module S (M ⊗[R] S) where
-  one_smul _ := by simp
-  mul_smul := by simp [mul_smul]
+  one_smul x := by simp_rw [smul_def, one_smul, (TensorProduct.comm R M S).symm_apply_apply]
+  mul_smul a b x := by simp_rw [smul_def, mul_smul, (TensorProduct.comm R M S).apply_symm_apply]
   smul_zero := by simp
   smul_add := by simp
   add_smul := by simp [add_smul]
@@ -187,6 +187,14 @@ noncomputable def AlgebraMap.baseChange (R : Type*) [CommRing R]
     (φ : B →ₐ[R] C) : B ⊗[R] A →ₐ[A] C ⊗[R] A where
   __ := Algebra.TensorProduct.map φ (.id R A)
   commutes' a := by simp
+
+/-- Right action version of `Algebra.TensorProduct.basis` -- base extension of a basis
+over a tensor product. -/
+def Algebra.TensorProduct.basis {R : Type*} (A : Type*) {M : Type*} {ι : Type*}
+    [CommSemiring R] [CommSemiring A] [Algebra R A] [AddCommMonoid M] [Module R M]
+    (b : Module.Basis ι R M) :
+    Module.Basis ι A (M ⊗[R] A) :=
+  (_root_.Algebra.TensorProduct.basis A b).map (Module.TensorProduct.comm R A M)
 
 end semiring
 

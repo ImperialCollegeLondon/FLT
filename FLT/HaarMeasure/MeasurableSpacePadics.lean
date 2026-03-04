@@ -3,7 +3,7 @@ Copyright (c) 2024 Yaël Dillies, David Loeffler. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, David Loeffler
 -/
-import Mathlib.MeasureTheory.Measure.Haar.Basic
+import Mathlib.MeasureTheory.Measure.Haar.Unique
 import Mathlib.NumberTheory.Padics.ProperSpace
 import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 
@@ -52,6 +52,9 @@ instance instBorelSpace : BorelSpace ℤ_[p] := Subtype.borelSpace _
 lemma isMeasurableEmbedding_coe : MeasurableEmbedding ((↑) : ℤ_[p] → ℚ_[p]) := by
   convert isOpenEmbedding_coe.measurableEmbedding
 
+lemma isMeasurableEmbedding_coeRingHom : MeasurableEmbedding (Coe.ringHom (p := p)) :=
+  (coe_coeRingHom (p := p)) ▸ isMeasurableEmbedding_coe
+
 noncomputable instance instMeasureSpace : MeasureSpace ℤ_[p] := ⟨addHaarMeasure ⊤⟩
 
 instance instIsAddHaarMeasure : IsAddHaarMeasure (volume : Measure ℤ_[p]) :=
@@ -62,7 +65,24 @@ instance instIsAddHaarMeasure : IsAddHaarMeasure (volume : Measure ℤ_[p]) :=
 instance instIsFiniteMeasure : IsFiniteMeasure (volume : Measure ℤ_[p]) where
   measure_univ_lt_top := by simp
 
+lemma volume_coe_univ :
+    volume ((↑) '' (Set.univ : Set ℤ_[p]) : Set ℚ_[p]) = volume (Set.univ : Set ℤ_[p]) := by
+  simp [← Padic.volume_closedBall_one (p := p), Subtype.coe_image_univ _]
+  rfl
+
 -- https://github.com/ImperialCollegeLondon/FLT/issues/278
-@[simp] lemma volume_coe (s : Set ℤ_[p]) : volume ((↑) '' s : Set ℚ_[p]) = volume s := sorry
+@[simp] lemma volume_coe (s : Set ℤ_[p]) : volume ((↑) '' s : Set ℚ_[p]) = volume s := by
+  have h := volume_coe_univ (p := p)
+  rw [← (coe_coeRingHom (p := p)), ← isMeasurableEmbedding_coeRingHom.comap_apply] at h ⊢
+  have := IsAddLeftInvariant.comap volume
+    (f := Coe.ringHom.toAddMonoidHom)
+    (isMeasurableEmbedding_coeRingHom (p := p))
+  have := IsFiniteMeasureOnCompacts.comap' volume
+    (continuous_iff_le_induced.mpr fun _ h ↦ h)
+    (isMeasurableEmbedding_coeRingHom (p := p))
+  rw [isAddLeftInvariant_eq_smul (comap Coe.ringHom volume) (volume : Measure ℤ_[p])] at h ⊢
+  suffices (comap (Coe.ringHom (p := p)) volume).addHaarScalarFactor volume = 1 by
+    simp [-coe_coeRingHom, this]
+  simpa [-coe_coeRingHom, smul_apply, volume_univ, ENNReal.smul_def] using h
 
 end PadicInt

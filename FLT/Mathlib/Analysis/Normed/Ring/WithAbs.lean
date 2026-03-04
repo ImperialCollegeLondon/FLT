@@ -30,7 +30,7 @@ theorem norm_eq_abs (x : WithAbs v) : ‖x‖ = v x := rfl
 theorem uniformContinuous_algebraMap {v : AbsoluteValue K ℝ} {w : AbsoluteValue L ℝ}
     (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x)) :
     UniformContinuous (algebraMap (WithAbs v) (WithAbs w)) :=
-  isUniformInducing_of_comp h |>.uniformContinuous
+  AddMonoidHomClass.isometry_of_norm _ h |>.uniformContinuous
 
 instance : UniformContinuousConstSMul K (WithAbs w) :=
   uniformContinuousConstSMul_of_continuousConstSMul _ _
@@ -51,14 +51,14 @@ noncomputable abbrev semialgHomOfComp
     (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x)) :
     v.Completion →ₛₐ[algebraMap (WithAbs v) (WithAbs w)] w.Completion :=
   UniformSpace.Completion.mapSemialgHom _
-    (WithAbs.isUniformInducing_of_comp h).uniformContinuous.continuous
+    (AddMonoidHomClass.isometry_of_norm _  h).uniformContinuous.continuous
 
 theorem semialgHomOfComp_coe
     (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x))
     (x : WithAbs v) :
     semialgHomOfComp h x = algebraMap (WithAbs v) (WithAbs w) x :=
   UniformSpace.Completion.mapSemialgHom_coe
-    (WithAbs.isUniformInducing_of_comp h).uniformContinuous x
+    (AddMonoidHomClass.isometry_of_norm _  h).uniformContinuous x
 
 theorem semiAlgHomOfComp_dist_eq
     (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x))
@@ -69,7 +69,7 @@ theorem semiAlgHomOfComp_dist_eq
     exact continuous_iff_continuous_dist.1 UniformSpace.Completion.continuous_extension
   · rw [semialgHomOfComp_coe, semialgHomOfComp_coe, UniformSpace.Completion.dist_eq]
     exact UniformSpace.Completion.dist_eq x y ▸
-      (WithAbs.isometry_of_comp (L := WithAbs w) h).dist_eq x y
+      (AddMonoidHomClass.isometry_of_norm _ h).dist_eq x y
 
 theorem isometry_semiAlgHomOfComp
     (h : ∀ x, w (algebraMap (WithAbs v) (WithAbs w) x) = v (WithAbs.equiv v x)) :

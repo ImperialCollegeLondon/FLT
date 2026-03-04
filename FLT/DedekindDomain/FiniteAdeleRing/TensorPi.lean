@@ -160,26 +160,15 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
     simp only [tensorPiEquiv_finitefreeModule, LinearEquiv.piCongrRight_symm]
     ext i
     simp only [LinearEquiv.piCongrRight_apply, LinearEquiv.rTensor_symm_tmul, LinearEquiv.symm_symm,
-      LinearEquiv.apply_symm_apply]
-    rw [finsuppLeft_TensorPi_equiv_piTensor]
-    simp only [LinearEquiv.trans_apply, LinearEquiv.piCongrRight_apply]
-    rw [LinearEquiv.symm_apply_eq]
+      LinearEquiv.apply_symm_apply, finsuppLeft_TensorPi_equiv_piTensor, LinearEquiv.trans_apply]
+    rw [LinearEquiv.symm_apply_eq, finsuppScalarLeft_apply_tmul, Finsupp.sum_single_index (by simp),
+      LinearEquiv.symm_apply_eq, finsuppLEquivDirectSum_single, finsuppScalarLeft_apply_tmul,
+      Finsupp.sum_single_index (by simp), finsuppLEquivDirectSum_single, directSumPi_equiv_piSum,
+      ← LinearEquiv.toFun_eq_coe]
     ext k
-    rw [finsuppScalarLeft_apply, LinearMap.rTensor_tmul, Finsupp.lapply_apply,
-      TensorProduct.lid_tmul, Finsupp.single_apply, ite_smul, zero_smul, ← Finsupp.single_apply]
-    congr
-    rw [LinearEquiv.symm_apply_eq,finsuppLEquivDirectSum_single,
-      finsuppScalarLeft_apply_tmul, Finsupp.sum_single_index (by simp),
-      finsuppLEquivDirectSum_single, DirectSum.lof_eq_of, DirectSum.lof_eq_of,
-      directSumPi_equiv_piSum]
-    simp_rw [← LinearEquiv.toFun_eq_coe]
-    conv_lhs =>
-      enter [2, x]
-      rw [DirectSum.of_apply]
-      simp only [Eq.recOn.eq_def, eq_rec_constant, dite_eq_ite]
-      rw [ite_apply, Pi.zero_apply, Pi.smul_apply, apply_ite (DFunLike.coe _),
-        AddMonoidHom.map_zero]
-    apply Fintype.sum_dite_eq
+    simp only [DFinsupp.finset_sum_apply _ _ k, DirectSum.lof_eq_of R, of_apply, eq_rec_constant,
+      dite_eq_ite, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
+    rw [ite_apply, Pi.zero_apply, Pi.smul_apply]
 
 end
 

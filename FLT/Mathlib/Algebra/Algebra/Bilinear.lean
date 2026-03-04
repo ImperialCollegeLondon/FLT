@@ -55,10 +55,28 @@ theorem SemialgHom.baseChange_of_algebraMap_tmul_left [Semiring A] [Algebra R S]
   simp [baseChange_of_algebraMap, SemialgHom.toLinearMap_eq_coe, Algebra.ofId_apply]
 
 open scoped TensorProduct.RightActions in
-/-- Let `S` be an `R`-algebra and `ψ` a ring homomorphism from an `R`-algebra `A` to an
-`S`-algebra `B` compatible with the algebra map `R → S`. If, in addition, `B` is
-an `R`-algebra and the scalar action of `R` on `B` factors through `S`, then
-`baseChangeRightOfAlgebraMap ψ` is the induced `A`-algebra map `S ⊗[R] A → B`. -/
+/-- If `ψ : A →ₛₐ[algebra R S] B` and if `B` is given the `A`-algebra induced by `ψ`, then
+the resulting base change map `S ⊗[R] A →ₐ[S] B` is scalar in both `S` and `A`. -/
+instance [Algebra R S] [CommSemiring A] [Algebra R A] [CommSemiring B] [Algebra S B]
+    (ψ : A →ₛₐ[algebraMap R S] B) :
+    letI := ψ.toAlgebra
+    IsBiscalar S A ψ.baseChange_of_algebraMap where
+  __ := ψ.toAlgebra
+  map_smul₁ s x := ψ.baseChange_of_algebraMap.map_smul_of_tower ..
+  map_smul₂ a x := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul x y =>
+      simp [TensorProduct.smul_tmul', -algebraMap_smul,
+        algebra_compatible_smul B a, SemialgHom.baseChange_of_algebraMap_tmul,
+        RingHom.algebraMap_toAlgebra, SemialgHom.toLinearMap_eq_coe]
+      ring
+    | add x y hx hy => simp_all
+
+open scoped TensorProduct.RightActions in
+/-- If `ψ : A →ₛₐ[algebraMap R S] B` and if `B` is given the `A`-algebra induced by `ψ`, then
+the resulting base change map `S ⊗[R] A →ₐ[S] B` is scalar in both `S` and `A`.
+`baseChangeRightOfAlgebraMap ψ` is the induced `A`-algebra map `S ⊗[R] A →ₐ[A] B`. -/
 noncomputable
 def SemialgHom.baseChangeRightOfAlgebraMap [Algebra R S] [CommSemiring A] [Algebra R A]
     [CommSemiring B] [Algebra R B] [Algebra S B] [IsScalarTower R S B]
@@ -67,8 +85,8 @@ def SemialgHom.baseChangeRightOfAlgebraMap [Algebra R S] [CommSemiring A] [Algeb
     S ⊗[R] A →ₐ[A] B :=
   letI := ψ.toAlgebra
   AlgHom.changeScalars R A ψ.baseChange_of_algebraMap
-    (by simp [RingHom.algebraMap_toAlgebra, SemialgHom.toLinearMap_eq_coe])
 
+open scoped TensorProduct.RightActions in
 @[simp]
 theorem SemialgHom.baseChangeRightOfAlgebraMap_apply [Algebra R S] [CommSemiring A] [Algebra R A]
     [CommSemiring B] [Algebra R B] [Algebra S B] [IsScalarTower R S B]
@@ -76,6 +94,7 @@ theorem SemialgHom.baseChangeRightOfAlgebraMap_apply [Algebra R S] [CommSemiring
     baseChangeRightOfAlgebraMap ψ x = baseChange_of_algebraMap ψ x := by
   simp [baseChangeRightOfAlgebraMap, AlgHom.changeScalars_apply]
 
+open scoped TensorProduct.RightActions in
 @[simp]
 theorem SemialgHom.baseChangeRightOfAlgebraMap_coe [Algebra R S] [CommSemiring A] [Algebra R A]
     [CommSemiring B] [Algebra R B] [Algebra S B] [IsScalarTower R S B]

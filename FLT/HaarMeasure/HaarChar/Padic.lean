@@ -42,8 +42,7 @@ private lemma MeasureTheory.ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
   change volume (H : Set ℚ_[p]) = ‖(x : ℚ_[p])‖₊ * volume (K : Set ℚ_[p])
   -- This is true because `H` is a `‖x‖₊⁻¹`-index subgroup of `K`.
   have hHK : H ≤ K := by
-    simpa [H, K, -Submodule.smul_le_self_of_tower]
-      using (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
+    simpa only [H, K] using (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
   have x_nonzero: x.val ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.1 x.property
   have : H.IsFiniteRelIndex K :=
     PadicInt.smul_submodule_one_isFiniteRelIndex (p := p) x_nonzero

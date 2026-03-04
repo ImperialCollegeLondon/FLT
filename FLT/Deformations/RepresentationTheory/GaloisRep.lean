@@ -80,7 +80,8 @@ noncomputable
 def GaloisRep.conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) : GaloisRep K A N :=
   letI := moduleTopology A (Module.End A M)
   letI := moduleTopology A (Module.End A N)
-  let e' : Module.End A M ≃A[A] Module.End A N := .ofIsModuleTopology <| LinearEquiv.algConj A e
+  let e' : Module.End A M ≃A[A] Module.End A N :=
+    .ofIsModuleTopology <| LinearEquiv.conjAlgEquiv A e
   e'.toContinuousAlgHom.toContinuousMonoidHom.comp ρ
 
 omit [NumberField K] in
@@ -134,7 +135,7 @@ omit [DecidableEq n] [NumberField K] in
 @[simp]
 lemma FramedGaloisRep.unframe_frame (ρ : FramedGaloisRep K A n) (b : Module.Basis n A M) :
     (ρ.unframe b).frame b = ρ := by
-  ext; simp [unframe, GaloisRep.frame]; rfl
+  ext; simp [unframe, GaloisRep.frame]
 
 variable [IsTopologicalRing A]
 
@@ -244,7 +245,7 @@ lemma GaloisRep.frame_baseChange [IsTopologicalRing B] [Algebra A B] [Continuous
       (ρ.frame b).baseChange _ (continuous_algebraMap A B) := by
   apply FramedGaloisRep.GL.injective
   ext σ i j
-  simp [GaloisRep.frame, ← Pi.single_apply, Algebra.smul_def]
+  simp [GaloisRep.frame, Algebra.smul_def]
 
 omit [NumberField K] in
 lemma FramedGaloisRep.baseChange_def [IsTopologicalRing B]
@@ -352,7 +353,7 @@ Note that the `Algebra.Etale Kᵥ (Kᵥ ⊗[𝒪ᵥ] G)` condition is redundant 
 and all finite flat group schemes over `Kᵥ` are etale.
 But this would be hard to prove in general, while in the applications they would come from
 finite groups so it would be easy to show that they are etale. If this turns out to not be the case,
-we can remove this condition and state the aformentioned result as a sorry.
+we can remove this condition and state the aforementioned result as a sorry.
 -/
 def GaloisRep.HasFlatProlongationAt (ρ : GaloisRep K A M) : Prop :=
   ∃ (G : Type uK) (_ : CommRing G) (_ : HopfAlgebra 𝒪ᵥ G)

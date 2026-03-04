@@ -1,7 +1,29 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Salvatore Mercuri
+-/
+
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 import Mathlib.Algebra.Group.Submonoid.Units
 import Mathlib.LinearAlgebra.DFinsupp
 import Mathlib.LinearAlgebra.Matrix.Defs
+--import Mathlib.Topology.Algebra.ContinuousMonoidHom
+
+/-!
+
+# Isomorphisms of restricted products
+
+Restricted products of isomorphic things are isomorphic.
+
+Restricted products of matrices/products/units are isomorphic to matrices/products/units
+of the restricted product.
+
+Restricted product over a principal filter is isomorphic to a product.
+
+We don't allow topological isomorphisms; they have to go into TopologicalSpace because of imports.
+
+-/
 
 open RestrictedProduct
 
@@ -148,18 +170,48 @@ theorem Equiv.restrictedProductCongrLeft_apply_apply (e : ι₁ ≃ ι₂) (h : 
     (restrictedProductCongrLeft e h) x (e i) = x i :=
   restrictedProductCongrLeft'_symm_apply_apply e.symm (𝓕₂.map_equiv_symm _ ▸ h) x _
 
-section add_mul_equiv
+#adaptation_note /-- to_additive started failing in 4.28.0 . This should be fixed
+in current mathlib; these lines to 200 can be deleted. See
+https://github.com/ImperialCollegeLondon/FLT/pull/859/changes -/
+section add_equiv
+
+variable [(i : ι₁) → AddMonoid (R₁ i)] [(i : ι₂) → AddMonoid (R₂ i)]
+  [(i : ι₁) → AddSubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → AddSubmonoidClass (S₂ i) (R₂ i)]
+  {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
+/-- The additive monoid isomorphism between restricted
+products on the same factors on different indices, when the indices are equivalent, with
+compatibility on the restriction filters. Applying the equivalence on the right-hand side. -/
+@[simps! apply]
+def AddEquiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃+ (Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂]) where
+  __ := Equiv.restrictedProductCongrLeft' e h
+  map_add' _ _ := by ext; simp [Equiv.restrictedProductCongrLeft']
+
+/-- The additive monoid isomorphism between restricted
+products on the same factors on different indices, when the indices are equivalent, with
+compatibility on the restriction filters. Applying the equivalence on the left-hand side. -/
+def AddEquiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
+    Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃+ Πʳ j, [R₂ j, A₂ j]_[𝓕₂] where
+  __ := Equiv.restrictedProductCongrLeft e h
+  map_add' _ _ := by
+    ext j
+    obtain ⟨i, rfl⟩ := e.surjective j
+    simp
+
+end add_equiv
+
+section mul_equiv
 
 variable [(i : ι₁) → Monoid (R₁ i)] [(i : ι₂) → Monoid (R₂ i)]
   [(i : ι₁) → SubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → SubmonoidClass (S₂ i) (R₂ i)]
   {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
 
+-- @[to_additive (attr := simps! apply)  should be re-added when we bump beyond 4.28.0; we want
+-- to revert the changes in this file made in
+-- https://github.com/ImperialCollegeLondon/FLT/pull/859/changes
 /-- The multiplicative monoid isomorphism between restricted products on the same factors on
 different indices, when the indices are equivalent, with compatibility on the restriction
 filters. Applying the equivalence on the right-hand side. -/
-@[to_additive (attr := simps! apply) /-- The additive monoid isomorphism between restricted
-products on the same factors on different indices, when the indices are equivalent, with
-compatibility on the restriction filters. Applying the equivalence on the right-hand side. -/]
 def MulEquiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = 𝓕₁.map e) :
     (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃* (Πʳ j, [R₁ (e.symm j), A₁ (e.symm j)]_[𝓕₂]) where
   __ := Equiv.restrictedProductCongrLeft' e h
@@ -168,9 +220,6 @@ def MulEquiv.restrictedProductCongrLeft' (e : ι₁ ≃ ι₂) (h : 𝓕₂ = �
 /-- The multiplicative monoid isomorphism between restricted products on the same factors on
 different indices, when the indices are equivalent, with compatibility on the restriction
 filters. Applying the equivalence on the left-hand side. -/
-@[to_additive /-- The additive monoid isomorphism between restricted
-products on the same factors on different indices, when the indices are equivalent, with
-compatibility on the restriction filters. Applying the equivalence on the left-hand side. -/]
 def MulEquiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e) :
     Πʳ i, [R₂ (e i), A₂ (e i)]_[𝓕₁] ≃* Πʳ j, [R₂ j, A₂ j]_[𝓕₂] where
   __ := Equiv.restrictedProductCongrLeft e h
@@ -179,7 +228,7 @@ def MulEquiv.restrictedProductCongrLeft (e : ι₁ ≃ ι₂) (h : 𝓕₁ = �
     obtain ⟨i, rfl⟩ := e.surjective j
     simp
 
-end add_mul_equiv
+end mul_equiv
 
 section ring_equiv
 
@@ -276,7 +325,30 @@ theorem Equiv.restrictedProductCongr_symm_apply {e : ι₁ ≃ ι₂} {h : 𝓕�
     (e.restrictedProductCongr h φ hφ).symm x = fun a => (φ a).symm (x (e a)) :=
   rfl
 
-section add_mul_equiv
+#adaptation_note /-- to_additive started failing in 4.28.0.
+This should be fixed
+in current mathlib; these lines to 200 can be deleted. See
+https://github.com/ImperialCollegeLondon/FLT/pull/859/changes  -/
+section add_equiv
+
+variable [(i : ι₁) → AddMonoid (R₁ i)] [(i : ι₂) → AddMonoid (R₂ i)]
+  [(i : ι₁) → AddSubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → AddSubmonoidClass (S₂ i) (R₂ i)]
+variable {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
+
+/-- The additive monoid isomorphism between restricted
+products when the indices and factors are equivalent, provided compatibility criteria on the
+restriction filters and factors. -/
+@[simps! apply]
+def AddEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
+    (φ : (i : ι₁) → R₁ i ≃+ R₂ (e i))
+    (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
+    (Πʳ i, [R₁ i, A₁ i]_[𝓕₁]) ≃+ (Πʳ j, [R₂ j, A₂ j]_[𝓕₂]) where
+  __ := Equiv.restrictedProductCongr e h (fun _ ↦ (φ _).toEquiv) hφ
+  map_add' _ _ := by ext j; obtain ⟨i, rfl⟩ := e.surjective j; simp
+
+end add_equiv
+
+section mul_equiv
 
 variable [(i : ι₁) → Monoid (R₁ i)] [(i : ι₂) → Monoid (R₂ i)]
   [(i : ι₁) → SubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → SubmonoidClass (S₂ i) (R₂ i)]
@@ -284,9 +356,6 @@ variable {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
 
 /-- The multiplicative monoid isomorphism between restricted products when the indices and factors
 are equivalent, provided compatibility criteria on the restriction filters and factors. -/
-@[to_additive (attr := simps! apply) /-- The additive monoid isomorphism between restricted
-products when the indices and factors are equivalent, provided compatibility criteria on the
-restriction filters and factors. -/]
 def MulEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
     (φ : (i : ι₁) → R₁ i ≃* R₂ (e i))
     (hφ : ∀ᶠ i in 𝓕₁, Set.BijOn (φ i) (A₁ i) (A₂ (e i))) :
@@ -294,7 +363,7 @@ def MulEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂
   __ := Equiv.restrictedProductCongr e h (fun _ ↦ (φ _).toEquiv) hφ
   map_mul' _ _ := by ext j; obtain ⟨i, rfl⟩ := e.surjective j; simp
 
-end add_mul_equiv
+end mul_equiv
 
 section ring_equiv
 
@@ -510,5 +579,71 @@ lemma flatten_equiv'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
   rfl
 
 end flatten
+
+section principal
+/-!
+
+## Principal filters
+
+A restricted product over a principal filter is isomorphic to a product.
+
+-/
+
+variable {ι : Type*} (R : ι → Type*) (S : Set ι) [∀ i, Decidable (i ∈ S)] (A : (i : ι) → Set (R i))
+
+open scoped Filter
+
+section type
+
+/-- The canonical isomorphism between `Πʳ i, [R i, A i]_[𝓟 S]` and
+`(Π i ∈ S, R i) × (Π i ∉ S, A i)`
+-/
+def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
+    (Π i : S, A i) × (Π i : (Sᶜ : Set ι), R i) where
+  toFun x := (fun i ↦ ⟨x i, x.2 i.2⟩, fun i ↦ x i)
+  invFun y := ⟨fun i ↦ if hi : i ∈ S then y.1 ⟨i, hi⟩ else y.2 ⟨i, hi⟩,
+  by aesop⟩
+  left_inv x := by ext; simp
+  right_inv x := by
+    ext i
+    · simp
+    · simp [dif_neg i.2]
+
+end type
+
+variable {T : ι → Type*} [Π i, SetLike (T i) (R i)] {A : Π i, T i}
+
+section monoid
+
+-- TODO move to FLT/Mathlib
+/-- Monoid equivalence version of `principalEquivProd`. -/
+@[to_additive /-- Additive monoid equivalence of principalEquivProd. -/]
+def principalMulEquivProd [Π i, Monoid (R i)] [∀ i, SubmonoidClass (T i) (R i)] :
+    Πʳ i, [R i, A i]_[𝓟 S] ≃* (Π i : S, A i) × (Π i : (Sᶜ : Set ι), R i) where
+  __ := principalEquivProd R S _
+  map_mul' _ _ := rfl
+
+end monoid
+
+variable {ι : Type*} (R : ι → Type*) {ℱ : Filter ι} (A : Type*) [CommRing A]
+
+open scoped RestrictedProduct
+
+open Filter
+
+section module
+
+/-- Module equivalence version of `principalEquivProd`. -/
+noncomputable def principalLinearEquivProd [Π i, AddCommGroup (R i)]
+    [∀ i, Module A (R i)] {C : ∀ i, Submodule A (R i)}
+    (S : Set ι) [∀ i, Decidable (i ∈ S)] :
+    (Πʳ i, [R i, C i]_[𝓟 S]) ≃ₗ[A] ((Π i : S, C i) ×
+      (Π i : (Sᶜ : Set ι), R i)) where
+  __ := principalAddEquivSum R S (A := C)
+  map_smul' _ _ := rfl
+
+end module
+
+end principal
 
 end RestrictedProduct

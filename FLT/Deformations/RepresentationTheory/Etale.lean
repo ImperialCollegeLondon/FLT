@@ -478,37 +478,3 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] :
     change r (algebraMap _ _ _) = _
     simp
     rfl
-
-noncomputable
-instance {A : Type*} [CommRing A] [Bialgebra K A] :
-    MulDistribMulAction (L ≃ₐ[K] L) (A →ₐ[K] L) where
-  smul_mul r f g := by
-    ext x
-    change r (Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) =
-      Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)
-    induction Coalgebra.comul (R := K) x with
-    | zero => simp only [map_zero]
-    | add x y _ _ => simp only [map_add, *]
-    | tmul x y => simp; rfl
-  smul_one r := by
-    ext x
-    change r (algebraMap _ _ _) = _
-    simp
-    rfl
-
-noncomputable
-instance {A : Type*} [CommRing A] [Bialgebra K A] :
-    MulDistribMulAction (L ≃ₐ[K] L) (A →ₐ[K] L) where
-  smul_mul r f g := by
-    ext x
-    change r (Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) =
-      Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)
-    induction Coalgebra.comul (R := K) x with
-    | zero => simp only [map_zero]
-    | add x y _ _ => simp only [map_add, *]
-    | tmul x y => simp; rfl
-  smul_one r := by
-    ext x
-    change r (algebraMap _ _ _) = _
-    simp
-    rfl

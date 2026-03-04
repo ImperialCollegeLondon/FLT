@@ -6,7 +6,7 @@ import Mathlib.RingTheory.PicardGroup
 
 /-
 
-## Compatible familes
+## Compatible families
 
 -/
 

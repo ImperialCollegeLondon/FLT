@@ -1,6 +1,5 @@
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
@@ -114,8 +113,8 @@ theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
     (Basis.toMatrix_continuous Bw) Bw.toMatrix_self
   -- Therefore `α` is a basis under the image of `piExtension L v`, hence it's surjective
   rw [← isUnit_iff_ne_zero, ← Bw.det_apply, ← Module.Basis.is_basis_iff_det Bw] at h
-  rw [← baseChangeRightOfAlgebraMap_coe, ← LinearMap.range_eq_top, ← top_le_iff, ← h.2,
-    Submodule.span_le]
+  rw [← baseChangeRightOfAlgebraMap_coe, ← AlgHom.coe_toLinearMap, ← LinearMap.range_eq_top,
+    ← top_le_iff, ← h.2, Submodule.span_le]
   rintro x ⟨i, rfl⟩
   exact ⟨α i ⊗ₜ 1, by simp⟩
 
@@ -137,8 +136,12 @@ of `L` lying above `v`. -/
 def baseChangeEquiv :
     L ⊗[K] v.Completion ≃A[L] (wv : v.Extension L) → wv.1.Completion :=
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
-  IsModuleTopology.continuousAlgEquivOfIsScalarTower K v.Completion e
-    (baseChange_of_algebraMap_tmul_right _)
+  have : IsBiscalar L v.Completion e.toAlgHom :=
+    inferInstanceAs (IsBiscalar L v.Completion (baseChange L v))
+  IsModuleTopology.continuousAlgEquivOfIsBiscalar K v.Completion e
+
+instance : IsBiscalar L v.Completion (baseChangeEquiv L v).toAlgHom :=
+  inferInstanceAs (IsBiscalar L v.Completion (baseChange L v))
 
 @[simp]
 theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
@@ -149,10 +152,10 @@ theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
 /-- The `Kᵥ`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
 of `L` lying above `v`. -/
 def baseChangeEquivRight :
-    L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.Extension L) → wv.1.Completion :=
-  let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
-  IsModuleTopology.continuousAlgEquivOfAlgEquiv
-    (e.changeScalars K v.Completion (baseChange_of_algebraMap_tmul_right _))
+    L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.Extension L) → wv.1.Completion where
+  __ := (baseChangeEquiv L v).changeScalars K v.Completion
+  continuous_toFun := (baseChangeEquiv L v).continuous_toFun
+  continuous_invFun := (baseChangeEquiv L v).continuous_invFun
 
 open TensorProduct.AlgebraTensorModule in
 /-- The `Kᵥ`-linear homeomorphism between `Kᵥ^d` and the product of all completions

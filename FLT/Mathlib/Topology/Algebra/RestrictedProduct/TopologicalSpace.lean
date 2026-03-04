@@ -1,9 +1,10 @@
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
-import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import FLT.Mathlib.Order.Filter.Cofinite
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import Mathlib.Topology.Instances.Matrix
-import Mathlib.Topology.Algebra.Constructions
 import FLT.Mathlib.Topology.Algebra.Group.Units
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
+import FLT.Mathlib.Topology.Bases
+import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import Mathlib.Topology.Instances.Matrix
 
 open RestrictedProduct
 
@@ -147,7 +148,58 @@ def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
     rw [Equiv.invFun_as_coe, Equiv.restrictedProductPi_symm_comp_inclusion]
     fun_prop
 
-theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Fintype n] {A : ι → Type*}
+/-- The group homeomorphism between a restricted product of finite products of groups,
+and a finite product of restricted products of groups, when the products are with respect
+to open subgroups.
+-/
+@[to_additive /-- The additive group homeomorphism between a restricted product of finite products
+of additive groups, and a finite product of restricted products of additive groups, when the
+products are with respect to additive open subgroups. -/]
+def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
+    {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)] [∀ j i, Group (A j i)]
+    {C : (j : n) → (i : ι) → Subgroup (A j i)} (hCopen : ∀ j i, IsOpen (C j i : Set (A j i))) :
+    Πʳ i, [Π j, A j i, Subgroup.pi (Set.univ : Set n) (fun j ↦ C j i)] ≃ₜ*
+      Π j, (Πʳ i, [A j i, C j i]) where
+  toFun x j := map (fun i t ↦ t _)
+    (Filter.Eventually.of_forall (fun _ _ ↦ by simp_all [Subgroup.mem_pi])) x
+  invFun y := .mk (fun i j ↦ y j i)
+    (by simpa [-eventually_cofinite, Subgroup.mem_pi] using fun j ↦ (y j).property)
+  left_inv x := by ext; rfl
+  right_inv y := by ext; rfl
+  map_mul' x y := by ext; simp [RestrictedProduct.map]
+  continuous_toFun := by
+    exact continuous_pi fun j ↦
+      Continuous.restrictedProduct_congrRight _ fun _ ↦ continuous_apply j
+  continuous_invFun := by
+    refine (continuous_dom_pi hCopen).mpr fun S hS ↦ ?_
+    change Continuous
+      (inclusion (fun i ↦ (j : n) → A j i)
+        (fun i ↦ Subgroup.pi Set.univ (fun j ↦ C j i)) hS
+      ∘ (fun (y : (j : n) → Πʳ (i : ι), [A j i, C j i]_[𝓟 S]) ↦ .mk (fun i j ↦ y j i)
+        (by simpa [-eventually_principal, Subgroup.mem_pi] using fun j ↦ (y j).property)))
+    exact Continuous.comp (by fun_prop) <|
+      continuous_rng_of_principal_pi.mpr fun _ ↦ continuous_pi fun _ ↦
+        (RestrictedProduct.continuous_eval _).comp (continuous_apply _)
+
+@[to_additive (attr := simp)]
+lemma ContinuousMulEquiv.restrictedProductPi_apply {ι : Type*} {n : Type*} [Fintype n]
+    {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)] [∀ j i, Group (A j i)]
+    {C : (j : n) → (i : ι) → Subgroup (A j i)} {hCopen : ∀ j i, IsOpen (C j i : Set (A j i))}
+    {x : Πʳ i, [Π j, A j i, Subgroup.pi (Set.univ : Set n) (fun j ↦ C j i)]} {i : ι} {j : n} :
+    ContinuousMulEquiv.restrictedProductPi hCopen x j i
+    = (x i) j :=
+  rfl
+
+@[to_additive (attr := simp)]
+lemma ContinuousMulEquiv.restrictedProductPi_symm_apply {ι : Type*} {n : Type*} [Fintype n]
+    {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)] [∀ j i, Group (A j i)]
+    {C : (j : n) → (i : ι) → Subgroup (A j i)} {hCopen : ∀ j i, IsOpen (C j i : Set (A j i))}
+    {x : Π j, (Πʳ i, [A j i, C j i])} {i : ι} {j : n} :
+    (ContinuousMulEquiv.restrictedProductPi hCopen).symm x i j
+    = (x j) i :=
+  rfl
+
+theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Finite n] {A : ι → Type*}
     [(i : ι) → TopologicalSpace (A i)] {C : (i : ι) → Set (A i)}
     (i : ι) (hCopen : ∀ (i : ι), IsOpen (C i)) :
     IsOpen {f : n → A i | ∀ (a : n), f a ∈ C i} := by
@@ -463,14 +515,120 @@ lemma RestrictedProduct.isOpenMap_of_open_components
 
 end openmap
 
-section structure_map
+open RestrictedProduct Filter in
+instance RestrictedProduct.SecondCountableTopology_of_principal
+    {ι : Type*} [Countable ι]
+    (X : ι → Type*) [∀ i, TopologicalSpace (X i)]
+    (C : (i : ι) → Set (X i))
+    [∀ i, SecondCountableTopology (X i)]
+    {S : Set ι} :
+    SecondCountableTopology (Πʳ i, [X i, C i]_[𝓟 S]) :=
+  isEmbedding_coe_of_principal.secondCountableTopology
 
-instance (R : ι → Type*) {S : ι → Type*}
-    (A : (i : ι) → (S i)) (𝓕 : Filter ι) [(i : ι) → SetLike (S i) (R i)] [(i : ι) → Ring (R i)]
-    [(i : ι) → SubringClass (S i) (R i)] [(i : ι) → TopologicalSpace (R i)]
-    [(i : ι) → CompactSpace (A i)] :
-    CompactSpace (structureSubring R A 𝓕) where
-  isCompact_univ :=
-    isCompact_iff_isCompact_univ.1 <| isCompact_range isEmbedding_structureMap.continuous
+open Filter RestrictedProduct in
+lemma RestrictedProduct.secondCountableTopology {ι : Type*} [Countable ι]
+    {X : ι → Type*} [∀ i, TopologicalSpace (X i)]
+    {C : (i : ι) → Set (X i)} (hCopen : ∀ (i : ι), IsOpen (C i))
+    [∀ i, SecondCountableTopology (X i)] :
+    SecondCountableTopology (Πʳ i, [X i, C i]) :=
+  TopologicalSpace.secondCountableTopology_of_countable_cover'
+    (fun S : (.cofinite : Filter ι).sets ↦ inclusion X C (Filter.le_principal_iff.2 S.2))
+    (fun S ↦ RestrictedProduct.isOpenEmbedding_inclusion_principal hCopen
+        (Filter.le_principal_iff.2 S.2))
+    (fun f ↦ ⟨⟨_, f.2⟩, ⟨f.1, by aesop⟩, rfl⟩)
 
-end structure_map
+section equivs
+
+open Classical Filter in
+/-- The canonical homeomorphism between a restricted product `Πʳ i, [R i, A i]_[𝓟 J]` over
+a principal filter, and the corresponding product `(Π i : J, A i) × (Π i : Jᶜ, R i)`.
+-/
+noncomputable def Homeomorph.restrictedProductPrincipal {ι : Type*}
+    (R : ι → Type*) (A : Π i, Set (R i)) [∀ i, TopologicalSpace (R i)] (J : Set ι) :
+    Πʳ i, [R i, A i]_[𝓟 J] ≃ₜ (Π i : J, A i) × (Π i : (Jᶜ : Set ι), R i) where
+  __ := RestrictedProduct.principalEquivProd R J A
+  continuous_toFun := continuous_prodMk.mpr
+    ⟨continuous_pi fun _ ↦ continuous_induced_rng.mpr <| continuous_eval _,
+      continuous_pi fun _ ↦ continuous_eval _⟩
+  continuous_invFun := by
+    refine continuous_rng_of_principal.mpr <| continuous_pi fun i ↦ ?_
+    by_cases hi : i ∈ J
+    · simp only [principalEquivProd, Function.comp_apply, mk_apply, hi, ↓reduceDIte]
+      fun_prop
+    · simp only [principalEquivProd, Function.comp_apply, mk_apply, hi, ↓reduceDIte]
+      fun_prop
+
+open Filter in
+/-- The canonical homeomorphism of group between a restricted product `Πʳ i, [R i, A i]_[𝓟 J]` over
+a principal filter, and the corresponding product `(Π i : J, A i) × (Π i : Jᶜ, R i)`.
+-/
+@[to_additive /-- The canonical homeomorphism of group between a restricted product
+`Πʳ i, [R i, A i]_[𝓟 J]` over a principal filter, and the corresponding product
+`(Π i : J, A i) × (Π i : Jᶜ, R i)`. -/]
+noncomputable def ContinuousMulEquiv.restrictedProductPrincipal {ι : Type*}
+    {R : ι → Type*} [∀ i, Monoid (R i)] [∀ i, TopologicalSpace (R i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (R i)] [∀ i, SubmonoidClass (S i) (R i)] {A : Π i, S i}
+    (J : Set ι) :
+    Πʳ i, [R i, A i]_[𝓟 J] ≃ₜ* (Π i : J, A i) × (Π i : (Jᶜ : Set ι), R i) where
+  toHomeomorph := Homeomorph.restrictedProductPrincipal R (fun i ↦ A i) J
+  map_mul' _ _ := rfl
+
+end equivs
+
+namespace RestrictedProduct
+
+section single
+
+variable {ι : Type*} [DecidableEq ι] {R : Type*} [Semiring R] (A : ι → Type*) {𝓕 : Filter ι}
+    {S : ι → Type*}
+    [(i : ι) → SetLike (S i) (A i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → AddCommMonoid (A i)]
+    [(i : ι) → Module R (A i)] [∀ (i : ι), AddSubmonoidClass (S i) (A i)]
+
+variable [∀ i, TopologicalSpace (A i)]
+open Filter in
+/--
+The inclusion from a factor into the restricted product of topological additive groups,
+as a continuous group homomorphism.
+-/
+noncomputable def singleContinuousAddMonoidHom (j : ι) : A j →ₜ+ Πʳ i, [A i, B i] where
+  __ := singleAddMonoidHom A j
+  continuous_toFun := by
+    let S : Set ι := {j}ᶜ
+    let single' : A j → Πʳ i, [A i, B i]_[𝓟 S] :=
+      fun x ↦ ⟨Pi.single j x,
+        eventually_principal.mpr
+        fun i hi ↦ by simp [Pi.single_eq_of_ne (Set.mem_compl_singleton_iff.mp hi)]⟩
+    have : Continuous single' := by
+      simpa [continuous_rng_of_principal] using continuous_single j
+    apply (isEmbedding_inclusion_principal
+      (le_principal_iff.mpr (Set.finite_singleton j).compl_mem_cofinite)).continuous.comp this
+
+lemma singleContinuousAddMonoidHom_apply_same {j : ι} (x : A j) :
+    (singleContinuousAddMonoidHom A j x : Πʳ i, [A i, B i]) j = x :=
+  Pi.single_eq_same j x
+
+lemma singleContinuousAddMonoidHom_apply_of_ne {j i : ι} (h : i ≠ j) (x : A j) :
+    (singleContinuousAddMonoidHom A j x : Πʳ i, [A i, B i]) i = 0 :=
+  Pi.single_eq_of_ne h x
+
+end single
+
+section eval
+
+variable {ι : Type*} [DecidableEq ι] {R : Type*} [Semiring R] (A : ι → Type*) {𝓕 : Filter ι}
+    {S : ι → Type*}
+    [(i : ι) → SetLike (S i) (A i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → AddCommMonoid (A i)]
+    [(i : ι) → Module R (A i)] [∀ (i : ι), AddSubmonoidClass (S i) (A i)]
+
+variable [∀ i, TopologicalSpace (A i)]
+
+/-- The continuous additive projection from a restricted product of topological additive groups
+to a factor. -/
+def evalContinuousAddMonoidHom (j : ι) : Πʳ i, [A i, B i] →ₜ+ A j := {
+  __ := evalAddMonoidHom A j
+  continuous_toFun := continuous_eval j
+}
+
+end eval
+
+end RestrictedProduct

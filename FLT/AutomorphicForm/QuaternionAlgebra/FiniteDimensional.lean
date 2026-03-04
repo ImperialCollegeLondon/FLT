@@ -1,11 +1,9 @@
 import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 import FLT.DivisionAlgebra.Finiteness
-import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 namespace TotallyDefiniteQuaternionAlgebra
 
-open IsDedekindDomain NumberField IsQuaternionAlgebra
+open IsDedekindDomain NumberField
 open scoped TensorProduct TensorProduct.RightActions
 
 -- let F be a number field
@@ -45,6 +43,7 @@ theorem WeightTwoAutomorphicForm.finiteDimensional
   -- the elements of a double coset space which (in the totally
   -- definite case) is finite)
   let X := DoubleCoset.Quotient (Set.range (incl₁ F D)) U
+  borelize (D ⊗[F] AdeleRing (𝓞 F) F)
   -- (the finiteness claim below is the nontrivial input to this proof)
   have h : Finite X := NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset F D hU
   -- We then define a linear map φ from V to the free K_module spanned by this finite set.

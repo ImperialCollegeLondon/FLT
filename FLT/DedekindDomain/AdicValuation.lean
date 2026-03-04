@@ -5,8 +5,8 @@ Authors: Matthew Jasper
 -/
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.Algebra.Order.GroupWithZero.Canonical
-import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.RingTheory.PrincipalIdealDomainOfPrime
@@ -69,19 +69,6 @@ lemma ne_zero_of_some_le_intValuation {a : A} {m : Multiplicative ℤ} (h : m �
   rintro rfl
   simp at h
 
-lemma intValuation_eq_coe_neg_multiplicity {a : A} (hnz : a ≠ 0) :
-    v.intValuation a =
-    (Multiplicative.ofAdd (-(multiplicity v.asIdeal (Ideal.span {a}): ℤ))) := by
-  classical
-  have hnb : Ideal.span {a} ≠ ⊥ := by
-    rwa [ne_eq, Ideal.span_singleton_eq_bot]
-  rw [intValuation_if_neg _ hnz, count_associates_factors_eq hnb v.isPrime v.ne_bot]
-  nth_rw 1 [← normalize_eq v.asIdeal]
-  congr
-  symm
-  apply multiplicity_eq_of_emultiplicity_eq_some
-  rw [← UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb]
-
 lemma emultiplicity_eq_of_valuation_eq_ofAdd {a : A} {k : ℕ}
     (hv : v.intValuation a = (Multiplicative.ofAdd (-(k : ℤ)))) :
     emultiplicity v.asIdeal (Ideal.span {a}) = k := by
@@ -105,19 +92,19 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
     apply hle.trans
     apply intValuation_le_one
   obtain ⟨n, hn⟩ := exists_ofAdd_natCast_of_le_one hγ hγ'
-  rw [← hn] at hle ⊢
+  rw [← hn, ← WithZero.exp] at hle ⊢
   have hnz : a ≠ 0 := ne_zero_of_some_le_intValuation _ hle
   have hnb : Ideal.span {a} ≠ ⊥ := by
     rwa [ne_eq, Ideal.span_singleton_eq_bot]
   -- Rewrite the statements to involve multiplicity rather than valuations
-  rw [intValuation_eq_coe_neg_multiplicity _ hnz, WithZero.coe_le_coe, Multiplicative.ofAdd_le,
-    neg_le_neg_iff, Int.ofNat_le] at hle
+  rw [intValuation_eq_coe_neg_multiplicity _ hnz, WithZero.exp_le_exp, neg_le_neg_iff,
+    Int.ofNat_le] at hle
   have hm : emultiplicity v.asIdeal (Ideal.span {a}) ≤ n :=
     le_of_eq_of_le
       (emultiplicity_eq_of_valuation_eq_ofAdd v <| intValuation_eq_coe_neg_multiplicity v hnz)
       (ENat.coe_le_coe.mpr hle)
   have hb : b ∈ v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) := by
-    rwa [← intValuation_le_pow_iff_mem, WithZero.exp, ← intValuation_eq_coe_neg_multiplicity _ hnz]
+    rwa [← intValuation_le_pow_iff_mem, ← intValuation_eq_coe_neg_multiplicity _ hnz]
   -- Now make use of
   -- `v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) = v.asIdeal ^ n ⊔ Ideal.span {a}`
   -- (this is where we need `IsDedekindDomain A`)
@@ -127,7 +114,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.mp hz
   use y
   -- And again prove the result about valuations by turning into one about ideals.
-  rwa [hy, ← hxz, sub_add_cancel_right, ← WithZero.exp, intValuation_le_pow_iff_mem, neg_mem_iff]
+  rwa [hy, ← hxz, sub_add_cancel_right, intValuation_le_pow_iff_mem, neg_mem_iff]
 
 lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K))}
     (γ : (WithZero (Multiplicative ℤ))ˣ) (hx : Valued.v x ≤ 1) :
@@ -371,11 +358,12 @@ lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : Heigh
   · rw [smul_smul, inv_mul_cancel₀, one_smul]
     exact IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors K (fun _ ↦ id) hz
 
-lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
+lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Finite ι]
     (valuation : ι → HeightOneSpectrum A) (x : (i : ι) → (valuation i).adicCompletion K) :
       ∃k : K, ∃y ∈ Set.pi Set.univ (fun (i : ι) ↦ ((valuation i).adicCompletionIntegers K).carrier),
       x = k • y := by
   classical
+  let := Fintype.ofFinite ι
   choose f hf using fun (i : ι) =>
     eq_mul_nonZeroDivisor_inv_adicCompletionIntegers K (valuation i) (x i)
   use (algebraMap A K (∏ i : ι, f i))⁻¹, (algebraMap A K (∏ i : ι, f i)) • x
@@ -395,7 +383,7 @@ lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Fintype ι]
     simp [Finset.prod_ne_zero_iff, hz]
 
 /-- If `s` is finite then `K` in dense in `∏_{v ∈ s} K_v`. -/
-theorem denseRange_of_prodAlgebraMap {ι : Type*} [Fintype ι]
+theorem denseRange_of_prodAlgebraMap {ι : Type*} [Finite ι]
     {valuation : ι → HeightOneSpectrum A} (injective : Function.Injective valuation) :
     DenseRange (algebraMap K ((i : ι) → (valuation i).adicCompletion K)) := by
   rw [denseRange_iff_closure_range, Set.eq_univ_iff_forall]

@@ -35,11 +35,6 @@ instance : Infinite ℤ_[p] := CharZero.infinite _
 lemma exists_unit_mul_p_pow_eq (hx : x ≠ 0) : ∃ (u : ℤ_[p]ˣ) (n : ℕ), (u : ℤ_[p]) * p ^ n = x :=
   ⟨_, _, (unitCoeff_spec hx).symm⟩
 
-lemma isOpenEmbedding_coe : IsOpenEmbedding ((↑) : ℤ_[p] → ℚ_[p]) := by
-  refine (?_ : IsOpen {y : ℚ_[p] | ‖y‖ ≤ 1}).isOpenEmbedding_subtypeVal
-  simpa only [Metric.closedBall, dist_eq_norm_sub, sub_zero] using
-    IsUltrametricDist.isOpen_closedBall (0 : ℚ_[p]) one_ne_zero
-
 @[simp] lemma image_coe_smul_set (x : ℤ_[p]) (s : Set ℤ_[p]) :
     ((↑) '' (x • s) : Set ℚ_[p]) = x • (↑) '' s := Set.image_comm fun _ ↦ rfl
 

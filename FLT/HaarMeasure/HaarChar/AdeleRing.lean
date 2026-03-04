@@ -1,11 +1,16 @@
 import FLT.HaarMeasure.HaarChar.Ring
+import FLT.Mathlib.Algebra.Central.TensorProduct
+import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
+import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
+import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
 import FLT.NumberField.AdeleRing
-import FLT.Hacks.RightActionInstances
-import Mathlib.NumberTheory.NumberField.AdeleRing
-import Mathlib.Algebra.Central.Defs
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Hacks.RightActionInstances
-import FLT.NumberField.AdeleRing
+import FLT.HaarMeasure.HaarChar.RealComplex
+import FLT.HaarMeasure.HaarChar.Padic
+import FLT.HaarMeasure.HaarChar.FiniteDimensional
+import Mathlib.NumberTheory.NumberField.ProductFormula
+import FLT.HaarMeasure.HaarChar.FiniteDimensional
+import FLT.HaarMeasure.HaarChar.FiniteAdeleRing
+
 /-!
 
 # Global units are in the determinant of the adelic Haar character
@@ -29,105 +34,64 @@ variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K
   [FiniteDimensional L V] [FiniteDimensional K V] -- the latter can be proved but
   -- can't be an instance as it uses L
 
-local instance : SMulCommClass L (𝔸 K) (𝔸 L) :=
-  SMulCommClass.of_commMonoid L (AdeleRing (𝓞 K) K) (AdeleRing (𝓞 L) L)
-
-attribute [local instance high] Localization.instSMulCommClassOfIsScalarTower
-
-/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
-noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv :
-    V ⊗[K] (𝔸 K) ≃ₗ[L] (V ⊗[L] (𝔸 L)) :=
-  TensorProduct.AlgebraTensorModule.congr ((TensorProduct.rid L V).symm) (.refl _ _) ≪≫ₗ
-  TensorProduct.AlgebraTensorModule.assoc K L L V L (𝔸 K) ≪≫ₗ
-  (LinearEquiv.lTensor V
-    ((NumberField.AdeleRing.baseChangeAdeleAlgEquiv K L).toLinearEquiv.symm)).symm
-
-omit [FiniteDimensional L V] [FiniteDimensional K V] in
-@[simp] lemma NumberField.AdeleRing.ModuleBaseChangeAddEquiv_apply
-    (v : V) (a : 𝔸 K) : ModuleBaseChangeAddEquiv K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
-  simp [ModuleBaseChangeAddEquiv]
-
-open scoped TensorProduct.RightActions in
-/-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
-noncomputable def NumberField.AdeleRing.ModuleBaseChangeAddEquiv' [Module (𝔸 K) (V ⊗[L] 𝔸 L)]
-    [IsScalarTower (𝔸 K) (𝔸 L) (V ⊗[L] 𝔸 L)] :
-    V ⊗[K] (𝔸 K) ≃ₗ[𝔸 K] (V ⊗[L] (𝔸 L)) where
-  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
-  map_smul' a vb := by
-    induction vb with
-    | zero => simp
-    | tmul x y =>
-        simp [TensorProduct.smul_tmul', -algebraMap_smul,
-          algebra_compatible_smul (AdeleRing (𝓞 L) L) a]
-    | add x y _ _ => simp_all
-
-open scoped TensorProduct.RightActions in
-/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological 𝔸_K-modules for V an L-module and K ⊆ L number fields. -/
-noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousSemilinearMap :
-    V ⊗[K] (𝔸 K) →ₛₗ[algebraMap (𝔸 K) (𝔸 L)] V ⊗[L] 𝔸 L where
-  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddMonoidHom
-  map_smul' a bc := by
-    induction bc with
-    | zero => simp
-    | tmul x y => simp [TensorProduct.smul_tmul', Algebra.smul_def]
-    | add x y _ _ => simp_all
-
-omit [FiniteDimensional L V] [FiniteDimensional K V] in
-lemma NumberField.AdeleRing.ModuleBaseChangeContinuousSemilinearMap_apply
-    (v : V) (a : 𝔸 K) :
-    ModuleBaseChangeContinuousSemilinearMap K L V (v ⊗ₜ a) = v ⊗ₜ algebraMap _ _ a := by
-  simp [ModuleBaseChangeContinuousSemilinearMap]
-
-open scoped TensorProduct.RightActions in
-/-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
-for V an L-module and K ⊆ L number fields. -/
-noncomputable def NumberField.AdeleRing.ModuleBaseChangeContinuousAddEquiv :
-    V ⊗[K] (𝔸 K) ≃ₜ+ (V ⊗[L] (𝔸 L)) :=
-  {
-  __ := (NumberField.AdeleRing.ModuleBaseChangeAddEquiv K L V).toAddEquiv
-  continuous_toFun := sorry
-  continuous_invFun := sorry
-  }
-
 variable (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
 
 open scoped TensorProduct
 
 open NumberField MeasureTheory
 
-open scoped TensorProduct.RightActions in
-variable
-  [MeasurableSpace (B ⊗[K] 𝔸 K)]
-  [BorelSpace (B ⊗[K] 𝔸 K)] in
-lemma NumberField.AdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
-    [IsSimpleRing B] [Algebra.IsCentral K B] (u : (B ⊗[K] (𝔸 K))ˣ) :
-    addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
-    addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
-  sorry
-
--- should be elsewhere TODO
-instance (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) :
-  LocallyCompactSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) := sorry
-
-variable [MeasurableSpace (𝔸 ℚ)] [BorelSpace (𝔸 ℚ)]
-  [MeasurableSpace (InfiniteAdeleRing ℚ)] [BorelSpace (InfiniteAdeleRing ℚ)]
-  [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
-    MeasurableSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)]
-  [∀ (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)),
-    BorelSpace (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p)] in
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
-    (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := sorry
+    (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := by
+  unfold AdeleRing
+  rw [ringHaarChar_prod' x]
+  congr
+  have := Fact.mk <| NumberField.isOpenAdicCompletionIntegers ℚ
+  have := NumberField.instCompactSpaceAdicCompletionIntegers ℚ
+  convert addEquivAddHaarChar_restrictedProductCongrRight
+    (C := fun p ↦ (p.adicCompletionIntegers ℚ).toAddSubgroup)
+    (fun p ↦
+      (ContinuousAddEquiv.mulLeft (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p))) _
+  exact (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2).2.mono
+    (fun p hp ↦ Equiv.bijOn' _
+      (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).1 hx)
+      (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).2 hx))
 
-lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ)
-    [MeasurableSpace ((𝔸 ℚ))] [BorelSpace (𝔸 ℚ)] :
-  ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := sorry
+lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
+  ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := by
+  rw [ringHaarChar_adeles_rat (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ)]
+  ext; simp only [NNReal.coe_mul, NNReal.coe_one]
+  rw [← NumberField.prod_abs_eq_one (K := ℚ) (x := x) (Units.ne_zero x)]; congr
+  · -- infinite place
+    simp only [InfiniteAdeleRing, ringHaarChar_pi', NNReal.coe_prod, Rat.infinitePlace_apply,
+      Rat.cast_abs]
+    congr; ext v; rw [Subsingleton.elim v Rat.infinitePlace]
+    let : Algebra ℤ Rat.infinitePlace.Completion := Ring.toIntAlgebra _
+    simp [InfinitePlace.mult, Rat.isReal_infinitePlace,
+      ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
+        __ := Rat.infinitePlace_completion_continuousAlgEquiv
+        commutes' := by simp},
+      ringHaarChar_real, ← Rat.infinitePlace_completion_continuousAlgEquiv_apply_algebraMap,
+      -eq_ratCast]
+    rfl
+  · -- finite places
+    rw [← finprod_comp_equiv FinitePlace.equivHeightOneSpectrum.symm]
+    conv_lhs =>
+      apply NNReal.toRealHom.map_finprod_of_injective (.of_eq_imp_le fun {_ _} a ↦ a.le)
+    apply finprod_congr; intro p
+    let : Algebra ℤ (p.adicCompletion ℚ) := Ring.toIntAlgebra _
+    simp [FinitePlace.equivHeightOneSpectrum,
+      ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
+        __ := (Rat.HeightOneSpectrum.adicCompletion.padicEquiv p)
+        commutes' := by simp},
+      Rat.HeightOneSpectrum.adicCompletion.padicEquiv_norm_eq]
+    rfl
 
--- TODO: need TensorProduct.RightActions.LinearEquiv.baseChange
 open scoped TensorProduct.RightActions in
 /-- The continuous A-linear map (A a topological ring, tensor products have the module
 topology) A ⊗[R] M ≃ A ⊗[R] N associated to an abstract R-linear isomorphism M ≃ N. -/
-noncomputable def ContinuousLinearEquiv.baseChange (R : Type*) [CommRing R]
+noncomputable def TensorProduct.RightActions.ContinuousLinearEquiv.baseChange (R : Type*)
+    [CommRing R]
     (A : Type*) [CommRing A] [Algebra R A] [TopologicalSpace A]
     (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
     [Module.Finite R M] [Module.Finite R N]
@@ -136,15 +100,99 @@ noncomputable def ContinuousLinearEquiv.baseChange (R : Type*) [CommRing R]
   continuous_toFun := IsModuleTopology.continuous_of_linearMap _
   continuous_invFun := IsModuleTopology.continuous_of_linearMap _
 
-open scoped TensorProduct.RightActions
+@[simp]
+lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
+    (A : Type*) [CommRing A] [Algebra R A] [TopologicalSpace A]
+    (M N : Type*) [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N]
+    [Module.Finite R M] [Module.Finite R N]
+    (φ : M ≃ₗ[R] N) (m : M) (a : A) :
+    TensorProduct.RightActions.ContinuousLinearEquiv.baseChange R A M N φ (m ⊗ₜ a) =
+    (φ m) ⊗ₜ a := rfl
 
+-- mathlib?
+lemma LinearMap.toMatrix_map_left {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
+    [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
+    [Module R P] (φ : M ≃ₗ[R] P) (α : P →ₗ[R] N)
+    (b : Module.Basis ι R M) (c : Module.Basis j R N) :
+    LinearMap.toMatrix (b.map φ) c α = LinearMap.toMatrix b c (α ∘ₗ φ) := rfl
+
+-- mathlib?
+lemma LinearMap.toMatrix_map_right {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
+    [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
+    [Module R P] (φ : N ≃ₗ[R] P) (α : M →ₗ[R] P)
+    (b : Module.Basis ι R M) (c : Module.Basis j R N) :
+    LinearMap.toMatrix b (c.map φ) α = LinearMap.toMatrix b c (φ.symm ∘ₗ α) := rfl
+
+-- mathlib?
+lemma LinearMap.toMatrix_basis {R : Type*} (A : Type*) {M : Type*} {ι j : Type*} [Fintype ι]
+    [Fintype j] [DecidableEq ι] [CommSemiring R] [CommSemiring A]
+    [Algebra R A] [AddCommMonoid M] [Module R M] (b : Module.Basis ι R M)
+    {N : Type*} [AddCommMonoid N] [Module R N] (c : Module.Basis j R N) (φ : M →ₗ[R] N) :
+    LinearMap.toMatrix (Algebra.TensorProduct.basis A b) (Algebra.TensorProduct.basis A c)
+      (φ.baseChange A) = (LinearMap.toMatrix b c φ).map (algebraMap R A) := by
+  ext
+  simp
+
+open TensorProduct.RightActions in
+lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
+    [FiniteDimensional ℚ V] (φ : V ≃ₗ[ℚ] V)
+    [MeasurableSpace (V ⊗[ℚ] 𝔸 ℚ)] [BorelSpace (V ⊗[ℚ] 𝔸 ℚ)] :
+    addEquivAddHaarChar
+      (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toContinuousAddEquiv = 1 := by
+  -- need a basis
+  let b := Module.finBasis ℚ V
+  let b_extend := TensorProduct.RightActions.Algebra.TensorProduct.basis (𝔸 ℚ) b
+  rw [MeasureTheory.addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc _ _ b_extend]
+  · -- det of base change is base change of det
+    have det_eq : (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V φ).toLinearEquiv.det =
+        (φ.det).map (algebraMap ℚ (𝔸 ℚ)) := by
+      ext
+      simp [ContinuousLinearEquiv.baseChange, LinearMap.det_baseChange]
+    rw [det_eq]
+    exact MeasureTheory.ringHaarChar_adeles_units_rat_eq_one φ.det
+  · have := Matrix.Pivot.baseChange_existsListTransvecEtc (LinearMap.toMatrix b b φ)
+      (Matrix.Pivot.exists_list_transvec_mul_diagonal_mul_list_transvec' _) (AdeleRing (𝓞 ℚ) ℚ)
+      (algebraMap _ _)
+    simp only [TensorProduct.RightActions.Algebra.TensorProduct.basis,
+      TensorProduct.RightActions.Module.TensorProduct.comm, b_extend, RingHom.mapMatrix_apply,
+      ← LinearMap.toMatrix_basis, LinearMap.toMatrix_map_left, LinearMap.toMatrix_map_right]
+        at this ⊢
+    convert this
+    ext
+    simp
+
+open scoped NumberField.AdeleRing in
+open TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
     [MeasurableSpace (V ⊗[K] 𝔸 K)] [BorelSpace (V ⊗[K] 𝔸 K)] :
     addEquivAddHaarChar
       (ContinuousLinearEquiv.baseChange K (𝔸 K) V V φ).toContinuousAddEquiv = 1 := by
-  sorry
+  -- we deduce this from the corresponding statement for `K = ℚ`.
+  -- A K-module is a ℚ-module
+  let : Module ℚ V := Module.compHom V (algebraMap ℚ K)
+  have : Module.Finite ℚ V := FiniteDimensional.trans ℚ K V
+  let : Module (AdeleRing (𝓞 ℚ) ℚ) (V ⊗[K] AdeleRing (𝓞 K) K) :=
+    Module.compHom _ (algebraMap (AdeleRing (𝓞 ℚ) ℚ) (AdeleRing (𝓞 K) K))
+  have : IsScalarTower (AdeleRing (𝓞 ℚ) ℚ) (AdeleRing (𝓞 K) K) (V ⊗[K] AdeleRing (𝓞 K) K) :=
+    IsScalarTower.of_algebraMap_smul fun r ↦ congrFun rfl
+  -- and V ⊗[K] 𝔸_K ≃ V ⊗[ℚ] 𝔸_ℚ
+  let f := NumberField.AdeleRing.ModuleBaseChangeContinuousLinearEquiv ℚ K V
+  borelize (V ⊗[ℚ] AdeleRing (𝓞 ℚ) ℚ)
+  -- and the obvious diagram commutes
+  have := MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
+    f.toContinuousAddEquiv
+    (ContinuousLinearEquiv.baseChange ℚ (𝔸 ℚ) V V (φ.restrictScalars ℚ)).toContinuousAddEquiv
+    (ContinuousLinearEquiv.baseChange K (𝔸 K) V V φ).toContinuousAddEquiv
+  rw [← this]
+  -- so the result follows from the case K=ℚ
+  · apply MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one
+  · intro x
+    induction x with
+    | zero => simp
+    | tmul x y => rfl
+    | add x y hx hy => simp [hx, hy]
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 /-- Left multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure. In other words, Bˣ is in the kernel of the `ringHaarChar` of `B ⊗ 𝔸_K`.
 -/
@@ -153,9 +201,17 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
     (b : Bˣ) :
     (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈
-    ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := sorry
+    ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := by
+  rw [mem_ringHaarChar_ker, ringHaarChar_apply]
+  convert MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulLeft K b)
+  ext c
+  change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
+  induction c with
+  | zero => simp
+  | tmul x y => simp [LinearEquiv.mulLeft]
+  | add x y hx hy => simp_all [mul_add]
 
-open scoped TensorProduct.RightActions in
+open TensorProduct.RightActions in
 /-- Right multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure.
 -/
@@ -166,4 +222,10 @@ lemma NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one
       (ContinuousAddEquiv.mulRight
         (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ)) = 1 := by
-  sorry
+  convert addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulRight K b)
+  ext c
+  change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
+  induction c with
+  | zero => simp
+  | tmul x y => simp [LinearEquiv.mulRight]
+  | add x y hx hy => simp_all [add_mul]

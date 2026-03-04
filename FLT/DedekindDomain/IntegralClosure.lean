@@ -125,15 +125,16 @@ lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
 include K L in
 omit [IsDedekindDomain A] [IsIntegralClosure B A L]
     [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L] in
-lemma noZeroSMulDivisors [IsDomain B] : NoZeroSMulDivisors A B := by
-  have := FaithfulSMul.of_field_isFractionRing A B K L
+lemma isTorsionFree [IsDomain B] : Module.IsTorsionFree A B := by
+  have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
+  have : Nontrivial A := (IsFractionRing.nontrivial_iff_nontrivial A K).mpr inferInstance
   infer_instance
 
 include K L in
 omit [IsIntegralClosure B A L] [IsFractionRing B L] in
 /-- There are only finitely many nonzero primes of B above a nonzero prime of A. -/
 theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
-  have := noZeroSMulDivisors A K L B
+  have := isTorsionFree A K L B
   rw [Extension, ← Set.coe_setOf]
   rw [@Set.finite_coe_iff]
   have := primesOver_finite v.asIdeal B
@@ -174,7 +175,7 @@ lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
     ∑ (w : Extension B v), Ideal.ramificationIdx (algebraMap A B) (v.asIdeal) (w.val.asIdeal)
       * (v.asIdeal).inertiaDeg (w.val.asIdeal) = Module.finrank K L := by
   have := v.isMaximal
-  have := noZeroSMulDivisors A K L B
+  have := isTorsionFree A K L B
   -- Use Ideal.sum_ramification_inertia to make this an equivalence of two sums.
   rw [← Ideal.sum_ramification_inertia B K L v.ne_bot]
   -- Check that the sums are equal via a bijection

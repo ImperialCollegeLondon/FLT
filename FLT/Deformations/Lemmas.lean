@@ -81,7 +81,7 @@ instance IsTopologicalGroup.discreteUniformity
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [DiscreteTopology G] :
     letI := IsTopologicalGroup.rightUniformSpace G
     DiscreteUniformity G := by
-  simp only [discreteUniformity_iff_relId_mem_uniformity]
+  simp only [discreteUniformity_iff_setRelId_mem_uniformity]
   exact ⟨{1}, by simp [Set.subset_def, div_eq_one]⟩
 
 lemma IsLocalRing.map_maximalIdeal {R S} [CommRing R] [CommRing S]

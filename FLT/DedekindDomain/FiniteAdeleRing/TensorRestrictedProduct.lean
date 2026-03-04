@@ -112,25 +112,26 @@ open scoped Filter in
 lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
   classical
   let comp1 := TensorProduct.directLimitRight (ι := ℱ.setsᵒᵈ) (fun _ _ x3 ↦ (inclusionLinearMap
-    (C := L) <| Filter.monotone_principal x3)) M (R:=R)
+    _ _ L <| Filter.monotone_principal x3)) M (R:=R)
   let comp := IsDirectLimit.Module.linearEquiv
-    (fun _ _ h ↦ (inclusionLinearMap (C := L) (Filter.monotone_principal h)))
-    (fun S ↦ inclusionLinearMap <| Filter.le_principal_iff.2 S.2)
+    (fun _ _ h ↦ (inclusionLinearMap _ _ L (Filter.monotone_principal h)))
+    (fun S ↦ inclusionLinearMap _ _ L <| Filter.le_principal_iff.2 S.2)
     (Module.DirectLimit.of R ℱ.setsᵒᵈ (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [N i, L i]_[𝓟 S.1])
-    (fun _ _ x3 ↦ (inclusionLinearMap (C := L) (Filter.monotone_principal x3))) · )
+    (fun _ _ x3 ↦ (inclusionLinearMap _ _ L (Filter.monotone_principal x3))) · )
   let comp2 := IsDirectLimit.Module.linearEquiv (fun (_ : ℱ.setsᵒᵈ) _ x3 ↦
-      (inclusionLinearMap (Filter.monotone_principal x3)))
-    (fun S ↦ inclusionLinearMap <| Filter.le_principal_iff.2 S.2)
+      (inclusionLinearMap _ _ _ (Filter.monotone_principal x3)))
+    (fun S ↦ inclusionLinearMap _ _ _ <| Filter.le_principal_iff.2 S.2)
     (Module.DirectLimit.of R _
       (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ i, [(M ⊗[R] N i), rangeLTensor R M N L i]_[𝓟 S.1])
-      (fun _ _ x3 ↦ (inclusionLinearMap (Filter.monotone_principal x3))) · )
+      (fun _ _ x3 ↦ (inclusionLinearMap _ _ _ (Filter.monotone_principal x3))) · )
   let comp4 := (LinearEquiv.lTensor M comp) ≪≫ₗ comp1
   let comp5 : Module.DirectLimit
       (fun (S : ℱ.setsᵒᵈ) ↦ M ⊗[R] Πʳ (i : ι), [N i, L i]_[𝓟 S.1])
-      (fun i j h ↦ LinearMap.lTensor M (inclusionLinearMap (Filter.monotone_principal h))) ≃ₗ[R]
+      (fun i j h ↦
+        LinearMap.lTensor M (inclusionLinearMap _ _ _ (Filter.monotone_principal h))) ≃ₗ[R]
       Module.DirectLimit
       (fun (S : ℱ.setsᵒᵈ) ↦ Πʳ (i : ι), [M ⊗[R] N i, (rangeLTensor R M N L i)]_[𝓟 (S.1)])
-      (fun _ _ x3 ↦ inclusionLinearMap (Filter.monotone_principal x3)) :=
+      (fun _ _ x3 ↦ inclusionLinearMap _ _ _ (Filter.monotone_principal x3)) :=
     Module.DirectLimit.congr (fun (S : ℱ.setsᵒᵈ) ↦
       (RestrictedProduct.lTensorPrincipalEquiv R M N L (S.1 : Set ι))) (by
         intro i j hij

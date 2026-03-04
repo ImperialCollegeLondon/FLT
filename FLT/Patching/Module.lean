@@ -37,7 +37,7 @@ variable [∀ i, Module.Free (R ⧸ Ann R (M i)) (M i)]
 
 instance (i) : Module.Finite (R ⧸ Ann R (M i)) (M i) :=
   Module.finite_of_rank_eq_nat (Cardinal.cast_toNat_of_lt_aleph0
-    ((Module.UniformlyBoundedRank.rank_lt_bound R M i).trans (Cardinal.nat_lt_aleph0 _))).symm
+    ((Module.UniformlyBoundedRank.rank_lt_bound R M i).trans Cardinal.natCast_lt_aleph0)).symm
 
 instance (i) : Module.Finite R (M i) := Module.Finite.trans (R ⧸ Ann R (M i)) (M i)
 
@@ -459,7 +459,7 @@ def PatchingModule.constEquiv [IsLocalRing R] [T2Space R] [IsNoetherianRing R]
   rw [← Submodule.mem_bot (R := R), ← Ideal.iInf_pow_smul_eq_bot_of_isLocalRing _
     (IsLocalRing.maximalIdeal.isMaximal R).ne_top, Submodule.mem_iInf]
   intro i
-  exact this ⟨_, IsLocalRing.isOpen_maximalIdeal_pow' R i⟩
+  exact this ⟨_, IsLocalRing.isOpen_maximalIdeal_pow R i⟩
 
 variable (M)
 
@@ -510,14 +510,8 @@ def PatchingModule.mapOfIsPatchingSystem :
       (Algebra.linearMap _ _).compLeft _) fun c α β hαβ ↦ by
     simp [equivComponent, IsPatchingSystem.linearMap_compLeft]
 
-lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) := by
-  refine continuous_induced_rng.mpr ?_
-  refine continuous_pi fun α ↦ ?_
-  have : DiscreteTopology (R ⧸ α.1) := QuotientAddGroup.discreteTopology α.2
-  change Continuous ((equivComponent R M F α.1 α.2) ∘ _)
-  refine continuous_of_discreteTopology.comp ?_
-  refine continuous_pi fun i ↦
-    (continuous_algebraMap R (R ⧸ α.1)).comp (continuous_apply i)
+lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) :=
+  LinearMap.continuous_on_pi (mapOfIsPatchingSystem R M F)
 
 -- Compact + T2 actually implies NonarchimedeanRing.
 variable [NonarchimedeanRing R] [T2Space R]
