@@ -4,9 +4,11 @@ import FLT.Mathlib.RepresentationTheory.Basic
 
 namespace Representation
 
+universe u
+
 variable {G : Type*} [Group G]
 
-variable {k : Type*} [Field k]
+variable {k : Type u} [Field k]
 
 variable {W : Type*} [AddCommMonoid W] [Module k W]
 
@@ -15,6 +17,6 @@ variable {W : Type*} [AddCommMonoid W] [Module k W]
   is absolutely irreducible, meaning that all the possible base change extensions are irreducible.
 -/
 class IsAbsolutelyIrreducible (ρ : Representation k G W) : Prop where
-  absolutelyIrreducible : ∀ k', ∀ _ : Field k', ∀ _ : Algebra k k', IsIrreducible (k' ⊗ᵣ' ρ)
+  absolutelyIrreducible : ∀ k', ∀ _ : Field.{u} k', ∀ _ : Algebra.{u} k k', IsIrreducible (k' ⊗ᵣ' ρ)
 
 end Representation
