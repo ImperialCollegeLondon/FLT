@@ -40,6 +40,7 @@ import FLT.Deformations.RepresentationTheory.Irreducible
 import FLT.Deformations.Subfunctor
 import FLT.DivisionAlgebra.Finiteness
 import FLT.EllipticCurve.Torsion
+import FLT.GL2.Subgroup
 import FLT.GaloisRepresentation.Automorphic
 import FLT.GaloisRepresentation.Cyclotomic
 import FLT.GaloisRepresentation.HardlyRamified.Defs
