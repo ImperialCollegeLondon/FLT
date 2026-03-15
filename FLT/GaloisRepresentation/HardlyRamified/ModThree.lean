@@ -6,6 +6,13 @@ local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
 
 universe u
 
+/-- Representation ρ has a one-dimensional-quotient on which the Galois group acts trivially. -/
+def has_trivial_quotient (k : Type*) {K : Type*} [Field k] [Field K] {V : Type*}
+  [AddCommGroup V] [TopologicalSpace k] [IsTopologicalRing k]
+  [Module k V] [Module.Finite k V] [Module.Free k V] (ρ : GaloisRep K k V) : Prop :=
+  ∃ (π : V →ₗ[k] k) (_ : Function.Surjective π),
+    ∀ g : Γ K, ∀ v : V, π (ρ g v) = π v
+
 /-- A mod 3 hardly ramified representation is an extension of trivial by cyclo -/
 -- Probably `Field k` can be replaced with `(3 : k) = 0`
 theorem mod_three {k : Type u} [Finite k] [Field k] [Algebra ℤ_[3] k] --
@@ -13,8 +20,7 @@ theorem mod_three {k : Type u} [Finite k] [Field k] [Algebra ℤ_[3] k] --
     (V : Type*) [AddCommGroup V] [Module k V] [Module.Finite k V] [Module.Free k V]
     (hV : Module.rank k V = 2) {ρ : GaloisRep ℚ k V}
     (hρ : IsHardlyRamified (show Odd 3 by decide) hV ρ) :
-    ∃ (π : V →ₗ[k] k) (_ : Function.Surjective π),
-    ∀ g : Γ ℚ, ∀ v : V, π (ρ g v) = π v := by
+    has_trivial_quotient k ρ := by
   sorry
 
 end GaloisRepresentation.IsHardlyRamified
