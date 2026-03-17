@@ -80,6 +80,7 @@ jobs:
         uses: leanprover/lean-action@v1
         with:
           build: true
+          test: true
           lint: true
           mk_all-check: true
 
