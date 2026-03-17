@@ -46,12 +46,6 @@ suppress_compilation
 
 open IsDedekindDomain MeasureTheory NumberField
 
--- this instance creates a nasty diamond for
--- `IsScalarTower K (FiniteAdeleRing A K) (FiniteAdeleRing B L)` when K = L and A = B, and
--- should probably be scoped (or even removed and statements changed so that they
--- don't need it).
-attribute [-instance] instIsScalarTowerFiniteAdeleRing_fLT_1
-
 open scoped TensorProduct
 
 variable (K : Type*) [Field K] [NumberField K]
