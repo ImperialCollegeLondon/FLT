@@ -87,7 +87,7 @@ jobs:
         run: python3 scripts/upstreaming_dashboard.py
 
       - name: Compile blueprint and documentation
-        uses: leanprover-community/docgen-action@3dbd3475a9bc8d22fd786a8f8efe1869457da7cc # 2026-01-15
+        uses: leanprover-community/docgen-action@dac784713171529c96f6d0470f7af30249a02a5d # 2026-02-08
         with:
           blueprint: true
           homepage: docs
