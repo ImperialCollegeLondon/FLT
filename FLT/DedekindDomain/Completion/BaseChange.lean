@@ -30,7 +30,7 @@ map is continuous, `K_v`-linear and restricts to an isomorphism `B ⊗_A 𝓞_v 
 
 ## Main theorems
 
-* `IsDedekindDomain.HeightOneSpectrum.value_comapSemialgHom A K L B v w pf` :
+* `IsDedekindDomain.HeightOneSpectrum.Extensionvalued_adicCompletionSemialgHom A K L B v w pf` :
   If w|v are nonzero primes of B and A, and if x ∈ K_v ⊆ L_w, then w(x)=v(x)^e
   where e is the global ramification index of w/v.
 
@@ -233,7 +233,6 @@ noncomputable def baseChangeRight :
 
 section ModuleTopology
 
--- TODO : let's just assume this?
 open WithZeroMulInt Valued in
 -- Make (v.adicCompletion K) a normed field.
 -- This exists for number fields in Mathlib, but not for general Dedekind Domains.
@@ -371,7 +370,7 @@ lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L
         intro _ ha _ hb
         exact add_mem ha hb
     | tmul b a' =>
-        -- Rewrite `toTensorAdicCompletion (b ⊗ₜ a')` to `b • (1 ⊗ₜ a')`
+        -- Rewrite `tensorAdicCompletionTo (b ⊗ₜ a')` to `b • (1 ⊗ₜ a')`
         simp only [RingHom.coe_range, tensorAdicCompletionIntegersTo,
           AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Algebra.TensorProduct.lift_tmul,
           AlgHom.coe_comp, AlgHom.coe_restrictScalars', IsScalarTower.coe_toAlgHom',
@@ -434,7 +433,7 @@ lemma tensorAdicCompletionIntegersTo_isClopen_range
   refine ⟨?_, ?_, by simp⟩
   · intro t ⟨g, hg, ht⟩
     -- We have `t = equiv g = ∑ i, b i ⊗ g i`, since `g in ∏ 𝒪_v` and
-    -- `b i ∈ (algebraMap B L).range`, this is `toTensorAdicCompletion`
+    -- `b i ∈ (algebraMap B L).range`, this is `tensorAdicCompletionTo`
     -- of some element of `B ⊗[A] 𝒪_v`
     have hf : ∀ (i : ι), ∃ (w : B), (algebraMap B L w) = (b i) := by
       intro i
@@ -510,7 +509,7 @@ instance : MulActionHomClass
 
 open scoped TensorProduct.RightActions in
 /-- The image of `B ⊗[A] 𝓞_v` in `∏_w L_w` is `∏_w 𝓞_w`. -/
-theorem range_baseChange_comp_toTensorAdicCompletion_eq_pi [FiniteDimensional K L] :
+theorem range_baseChange_comp_tensorAdicCompletionTo_eq_pi [FiniteDimensional K L] :
     Set.range (baseChange K L B v ∘ tensorAdicCompletionIntegersTo K L B v) =
     Set.univ.pi (fun w ↦ (w.1.adicCompletionIntegers L).carrier) := by
   have hrange :
@@ -559,7 +558,7 @@ instance : IsBiscalar B (v.adicCompletionIntegers K) (tensorAdicCompletionIntege
     rfl
 
 open scoped TensorProduct.RightActions in
-/-- `toTensorAdicCompletionIntegersTo` as an `𝓞_v`-linear map. -/
+/-- `tensorAdicCompletionToIntegersTo` as an `𝓞_v`-linear map. -/
 noncomputable def tensorAdicCompletionIntegersToRight :
     B ⊗[A] adicCompletionIntegers K v →ₐ[adicCompletionIntegers K v] L ⊗[K] adicCompletion K v :=
   (tensorAdicCompletionIntegersTo K L B v).changeScalars A _
@@ -594,7 +593,7 @@ lemma tensorAdicCompletionIntegersToAdicCompletion_range_eq_integers [FiniteDime
     Set.range (w.tensorAdicCompletionIntegersToAdicCompletion K L B v) =
       adicCompletionIntegers L w.1 := by
   ext x
-  have memrange := (range_baseChange_comp_toTensorAdicCompletion_eq_pi K L B v)
+  have memrange := (range_baseChange_comp_tensorAdicCompletionTo_eq_pi K L B v)
   rw [Set.ext_iff] at memrange
   constructor
   · rintro ⟨y, rfl⟩
@@ -759,7 +758,7 @@ theorem baseChange_bijective : Function.Bijective (baseChange K L B v) := by
   rwa [← AlgHom.coe_toLinearMap, LinearMap.injective_iff_surjective_of_finrank_eq_finrank hrank]
 
 /-- The L-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
-noncomputable abbrev baseChangeAlgEquiv :
+noncomputable def baseChangeAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
   AlgEquiv.ofBijective (baseChange K L B v) <| baseChange_bijective K L B v
 
@@ -823,7 +822,7 @@ theorem integerBaseChangeLinearEquiv_bijOn :
       (LinearMap.range (adicCompletionIntegers.tensorCoe K B v))) =
       Submodule.pi .univ fun (w : Extension B v) ↦ (integerSubmodule L w.val).restrictScalars A from
     h ▸ Equiv.bijOn_image (integerBaseChangeLinearEquiv K L B v).toEquiv
-  apply Eq.trans _ congr($(range_baseChange_comp_toTensorAdicCompletion_eq_pi K L B v))
+  apply Eq.trans _ congr($(range_baseChange_comp_tensorAdicCompletionTo_eq_pi K L B v))
   rw [LinearMap.coe_range, ← Set.range_comp, LinearEquiv.coe_toEquiv,
     ← LinearEquiv.coe_toLinearMap, ← LinearMap.coe_comp]
   simp_rw [← AlgHom.coe_restrictScalars' B (baseChange K L B v), ← AlgHom.coe_comp,
