@@ -61,6 +61,7 @@ lemma cofinite_mapsTo_adicCompletionComapSemialgHom :
 
 namespace FiniteAdeleRing
 
+@[inherit_doc]
 scoped notation:max "𝔸ᶠ[" A ", " K "]" => FiniteAdeleRing A K
 
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields. -/

@@ -59,6 +59,7 @@ section BaseChange
 
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
 scoped notation:max "𝔸" K => AdeleRing (𝓞 K) K
+/-- `𝔸ᶠ[K]` is notation for `FiniteAdeleRing (𝓞 K) K`, where `K` is a number field. -/
 scoped notation:max "𝔸ᶠ[" K "]" => 𝔸ᶠ[𝓞 K, K]
 
 instance [SMul (𝔸 K) (𝔸 L)] : SMul (K∞ × 𝔸ᶠ[K]) (L∞ × 𝔸ᶠ[L]) :=
@@ -355,8 +356,10 @@ scoped instance : Algebra K L∞ := Pi.algebra _ _
 
 scoped instance : IsScalarTower K L L∞ := Pi.isScalarTower
 
+/-- The `𝔸ᶠ[K]`-algebra on `𝔸ᶠ[L]`, induced by `FiniteAdeleRing.mapRingHom (𝓞 K) K L (𝓞 L)`. -/
 scoped instance : Algebra 𝔸ᶠ[K] 𝔸ᶠ[L] := (FiniteAdeleRing.mapRingHom _ K L _).toAlgebra
 
+/-- The product `K`-algebra on `𝔸ᶠ[L]`. -/
 scoped instance : Algebra K 𝔸ᶠ[L] := Algebra.compHom 𝔸ᶠ[L] (algebraMap K L)
 
 /-- The `𝔸 K`-algebra on `𝔸 L`, induced by `AdeleRing.baseChange K L`. -/
