@@ -557,25 +557,17 @@ instance : IsBiscalar B (v.adicCompletionIntegers K) (tensorAdicCompletionIntege
       TensorProduct.RightActions.algebraMap_eval, map_mul, map_one]
     rfl
 
-open scoped TensorProduct.RightActions in
-/-- `tensorAdicCompletionToIntegersTo` as an `𝓞_v`-linear map. -/
-noncomputable def tensorAdicCompletionIntegersToRight :
-    B ⊗[A] adicCompletionIntegers K v →ₐ[adicCompletionIntegers K v] L ⊗[K] adicCompletion K v :=
-  (tensorAdicCompletionIntegersTo K L B v).changeScalars A _
-
-noncomputable def tensorAdicCompletionIntegersToPi :
-    B ⊗[A] v.adicCompletionIntegers K →ₐ[B] Π w : v.Extension B, w.1.adicCompletion L :=
-  ((baseChange K L B v).restrictScalars B).comp (tensorAdicCompletionIntegersTo K L B v)
-
 attribute [local instance 9999] Algebra.toSMul in
 instance {w : v.Extension B} : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v)
     (w.1.adicCompletion L) := Submonoid.instIsScalarTowerSubtypeMem (adicCompletionIntegers K v)
 
 open scoped TensorProduct.RightActions in
+/-- The `O_v`-linear map from `B ⊗[A] 𝓞ᵥ` to `Π v ∣ w, L_w` -/
 noncomputable def tensorAdicCompletionIntegersToPiRight :
     B ⊗[A] v.adicCompletionIntegers K →ₐ[v.adicCompletionIntegers K]
         Π w : v.Extension B, w.1.adicCompletion L :=
-  ((baseChangeRight K L B v).restrictScalars _).comp (tensorAdicCompletionIntegersToRight K L B v)
+  ((baseChangeRight K L B v).restrictScalars _).comp
+    ((tensorAdicCompletionIntegersTo K L B v).changeScalars A _)
 
 namespace Extension
 

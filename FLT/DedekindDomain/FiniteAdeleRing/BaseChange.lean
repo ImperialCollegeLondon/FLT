@@ -97,6 +97,8 @@ instance : Algebra (Πʳ v : HeightOneSpectrum A, [v.adicCompletion K, v.adicCom
     (Πʳ w: HeightOneSpectrum B, [w.adicCompletion L, w.adicCompletionIntegers L]) :=
   inferInstanceAs (Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L])
 
+/-- Utility class which specialises `RestrictedProduct.FiberwiseSMul` to the case of
+finite adele rings. -/
 class ComapFiberwiseSMul extends RestrictedProduct.FiberwiseSMul (α := HeightOneSpectrum B)
     (comap A) (adicCompletion K) (fun v ↦ adicCompletionIntegers K v) Filter.cofinite
     (adicCompletion L) (fun w ↦ adicCompletionIntegers L w) Filter.cofinite
