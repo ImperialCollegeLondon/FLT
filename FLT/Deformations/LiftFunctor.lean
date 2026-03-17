@@ -103,8 +103,8 @@ def unramifiedFunctor (v : Ω K) : Subfunctor (repnFunctor n (Γ K) 𝓞) where
   obj R := { ρ | (toFramedGaloisRep ρ).IsUnramifiedAt v }
   map {R S} f ρ hρ := by
     have : (toFramedGaloisRep ρ).IsUnramifiedAt v := hρ
-    simp only [Set.mem_setOf_eq, toFramedGaloisRep_map, FramedGaloisRep.baseChange_def,
-      GaloisRep.frame] at ⊢
+    simp only [Set.preimage_setOf_eq, toFramedGaloisRep_map, FramedGaloisRep.baseChange_def,
+      GaloisRep.frame, Set.mem_setOf_eq] at ⊢
     infer_instance
 
 /-- The subfunctor of representations whose trace is `2` on `ker(Iᵥ → k(v)ˣ)`. -/
