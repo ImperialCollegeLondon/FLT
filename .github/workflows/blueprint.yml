@@ -86,7 +86,7 @@ jobs:
       - name: Upstreaming dashboard
         uses: leanprover-community/upstreaming-dashboard-action/blob/main/action.yml@main
         with:
-          website-directory: ./docs/_includes
+          website-directory: ./docs
           project-name: FLT
 
       - name: Compile blueprint and documentation
