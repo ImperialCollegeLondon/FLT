@@ -84,7 +84,7 @@ jobs:
           mk_all-check: true
 
       - name: Upstreaming dashboard
-        uses: leanprover-community/upstreaming-dashboard-action/blob/main/action.yml@main
+        uses: leanprover-community/upstreaming-dashboard-action@main
         with:
           website-directory: ./docs
           project-name: FLT
