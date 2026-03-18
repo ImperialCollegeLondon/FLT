@@ -84,7 +84,10 @@ jobs:
           mk_all-check: true
 
       - name: Upstreaming dashboard
-        run: python3 scripts/upstreaming_dashboard.py
+        uses: leanprover-community/upstreaming-dashboard-action/blob/main/action.yml@main
+        with:
+          website-directory: ./docs/_includes
+          project-name: FLT
 
       - name: Compile blueprint and documentation
         uses: leanprover-community/docgen-action@dac784713171529c96f6d0470f7af30249a02a5d # 2026-02-08
