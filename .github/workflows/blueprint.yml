@@ -89,6 +89,7 @@ jobs:
           website-directory: ./docs
           project-name: FLT
           relevant-labels: FLT
+          include-drafts: true
 
       - name: Compile blueprint and documentation
         uses: leanprover-community/docgen-action@dac784713171529c96f6d0470f7af30249a02a5d # 2026-02-08
