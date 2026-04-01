@@ -188,20 +188,6 @@ theorem mem_indexSupport_iff {u : Πʳ i, [G i, A i]} {i : ι} :
 
 end supports
 
-section single
-
-variable {S : ι → Type*}
-variable [Π i, SetLike (S i) (G i)]
-variable (A : (i : ι) → (S i))
-variable [DecidableEq ι]
-
-@[to_additive]
-lemma mulSingle_eq_same [∀ i, One (G i)] [∀ i, OneMemClass (S i) (G i)] (i : ι) (r : G i) :
-    mulSingle A i r i = r :=
-  Pi.mulSingle_eq_same i r
-
-end single
-
 section components
 
 variable {ι₂ : Type*} {f : ι₂ → ι} {𝒢 : Filter ι₂}
