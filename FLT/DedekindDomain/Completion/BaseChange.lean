@@ -567,7 +567,7 @@ noncomputable def tensorAdicCompletionIntegersToPiRight :
     B ⊗[A] v.adicCompletionIntegers K →ₐ[v.adicCompletionIntegers K]
         Π w : v.Extension B, w.1.adicCompletion L :=
   ((baseChangeRight K L B v).restrictScalars _).comp
-    ((tensorAdicCompletionIntegersTo K L B v).changeScalars A _)
+    ((tensorAdicCompletionIntegersTo K L B v).changeScalars _)
 
 namespace Extension
 
@@ -760,7 +760,7 @@ noncomputable def baseChangeContinuousAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃A[L] Π w : v.Extension B, w.1.adicCompletion L :=
   have : IsBiscalar L (v.adicCompletion K) (baseChangeAlgEquiv K L B v).toAlgHom :=
     inferInstanceAs (IsBiscalar L (v.adicCompletion K) (baseChange K L B v))
-  IsModuleTopology.continuousAlgEquivOfIsBiscalar K (v.adicCompletion K)
+  IsModuleTopology.continuousAlgEquivOfIsBiscalar (v.adicCompletion K)
     (baseChangeAlgEquiv K L B v)
 
 /-- The A-module isomorphism `B ⊗[A] K_v ≅ ∏_{w|v} L_w`. -/
