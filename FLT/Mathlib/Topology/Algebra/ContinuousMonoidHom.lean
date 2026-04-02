@@ -51,5 +51,5 @@ def ContinuousMulEquiv.units_map {M N : Type*} [TopologicalSpace M] [Topological
 
 @[to_additive]
 theorem ContinuousMulEquiv.coe_toHomeomorph {M N : Type*} [TopologicalSpace M]
-    [TopologicalSpace N] [AddCommMonoid M] [AddCommMonoid N]
+    [TopologicalSpace N] [CommMonoid M] [CommMonoid N]
     (f : M ≃ₜ* N) : f.toHomeomorph = ⇑f := rfl
