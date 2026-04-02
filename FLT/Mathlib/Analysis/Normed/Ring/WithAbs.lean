@@ -1,29 +1,38 @@
 import Mathlib.Analysis.Normed.Field.WithAbs
 import Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.Topology.Algebra.UniformRing
+import Mathlib
 
 namespace WithAbs
 
 variable {R S : Type*} [Semiring S] [Field R] [PartialOrder S] (v : AbsoluteValue R S)
 
-instance : Field (WithAbs v) := ‹Field R›
+variable {R' : Type*} [Field R']
 
-variable {R' : Type*} [Field R'] [Module R R']
+-- attribute [local instance] moduleLeft in
+-- instance [Module R R'] : Module (WithAbs v) R' := inferInstance
+-- --  Module.compHom R' (equiv v).toRingHom
 
+-- attribute [local instance] algebraLeft in
+-- instance [Algebra R R'] : Algebra (WithAbs v) R' := inferInstance
+
+--set_option backward.isDefEq.respectTransparency false in
+attribute [local instance] moduleLeft in
 instance [Module R R'] [FiniteDimensional R R'] : FiniteDimensional (WithAbs v) R' :=
-  ‹FiniteDimensional R R'›
+  inferInstance
 
 instance [Algebra R R'] [Algebra.IsSeparable R R'] : Algebra.IsSeparable (WithAbs v) R' :=
-  ‹Algebra.IsSeparable R R'›
+  inferInstance
 
 variable {K : Type*} [Field K] {v : AbsoluteValue K ℝ}
   {L : Type*} [Field L] [Algebra K L] {w : AbsoluteValue L ℝ}
 
-instance : Algebra (WithAbs v) (WithAbs w) := ‹Algebra K L›
+instance : Algebra (WithAbs v) (WithAbs w) := inferInstance
 
-instance : Algebra K (WithAbs w) := ‹Algebra K L›
+instance : Algebra K (WithAbs w) := inferInstance
 
-instance [NumberField K] : NumberField (WithAbs v) := ‹NumberField K›
+instance [NumberField K] : NumberField (WithAbs v) :=
+  NumberField.of_ringEquiv K (WithAbs v) (equiv v).symm
 
 theorem norm_eq_abs (x : WithAbs v) : ‖x‖ = v x := rfl
 

@@ -10,7 +10,7 @@ import FLT.Mathlib.Algebra.Module.Submodule.Basic
 import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.Topology.Algebra.Module.Equiv
 import FLT.Mathlib.Topology.Algebra.UniformRing
-import FLT.Mathlib.Topology.Algebra.Valued.WithVal
+import Mathlib.Topology.Algebra.Valued.WithVal
 import Mathlib.Algebra.Algebra.Subalgebra.Pi
 import Mathlib.Topology.Algebra.Module.FiniteDimension
 import Mathlib.Topology.Algebra.Valued.NormedValued
