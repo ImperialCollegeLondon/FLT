@@ -24,16 +24,6 @@ variable {R A B C : Type*}
   [TopologicalSpace B] [Semiring C] [TopologicalSpace C] [Algebra R A] [Algebra R B]
   [Algebra R C]
 
-@[coe]
-def toContinuousLinearEquiv (e : A ≃A[R] B) : A ≃L[R] B where
-  __ := e.toLinearEquiv
-  continuous_toFun := e.continuous_toFun
-  continuous_invFun := e.continuous_invFun
-
-theorem toContinuousLinearEquiv_apply (e : A ≃A[R] B) (a : A) :
-  e.toContinuousLinearEquiv a = e a := rfl
-
-
 /--
 Produces an `S'`-linear continuous algebra isomorphism from a continuous algebra
 isomorphism `f : A ≃A[S] B` which also has scalars `S'`.
