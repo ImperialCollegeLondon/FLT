@@ -109,7 +109,7 @@ noncomputable def linearMap_component
   toFun x :=
     f (single C i x) i
   map_add' x y := by
-    simp [← add_apply, ← map_add f]
+    simp [single_add]
   map_smul' r m := by
     let r' := single B i r
     have hr : r = r' i := by simp [r']

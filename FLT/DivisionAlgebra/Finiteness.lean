@@ -809,7 +809,7 @@ lemma X_compact : IsCompact (X K D) := by
     ((E_compact K D).prod (E_compact K D)) ((continuous_fst.sub continuous_snd).continuousOn))
 
 lemma Y_compact : IsCompact (Y K D) := by
-  simpa only [Set.image_prod, Set.image2_mul] using (IsCompact.image_of_continuousOn
+  simpa only [Pi.mul_def, Set.image_prod, Set.image2_mul, Y] using (IsCompact.image_of_continuousOn
     ((X_compact K D).prod (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
 lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
@@ -865,7 +865,7 @@ def C : Set (D_𝔸 × D_𝔸) := ((((↑) : D_𝔸ˣ → D_𝔸) '' (T K D)⁻�
 
 lemma C_compact : IsCompact (C K D) := by
   refine IsCompact.prod ?_ (X_compact K D)
-  simpa only [Set.image_prod, Set.image2_mul] using
+  simpa only [Pi.mul_def, Set.image_prod, Set.image2_mul] using
     (IsCompact.image_of_continuousOn (IsCompact.prod (IsCompact.image_of_continuousOn
     (IsCompact.inv (Set.Finite.isCompact (T_finite K D))) (Continuous.comp_continuousOn'
     (Units.continuous_val) (continuousOn_id' (T K D)⁻¹)))
