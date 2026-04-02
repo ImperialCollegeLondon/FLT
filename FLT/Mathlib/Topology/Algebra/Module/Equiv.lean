@@ -142,4 +142,9 @@ lemma ContinuousLinearEquiv.toMatrix_toContinousLinearEquiv
   ext
   simp
 
+theorem ContinuousLinearEquiv.toContinuousAddEquiv_apply {R : Type*} {M N : Type*}
+    [Semiring R] [TopologicalSpace M] [TopologicalSpace N] [AddCommMonoid M] [AddCommMonoid N]
+    [Module R M] [Module R N]
+    (f : M ≃L[R] N) (m : M) : f.toContinuousAddEquiv m = f m := rfl
+
 end toContinuousLinearEquiv
