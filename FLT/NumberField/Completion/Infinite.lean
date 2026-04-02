@@ -5,6 +5,7 @@ import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 import FLT.NumberField.InfinitePlace.Dimension
 import FLT.NumberField.InfinitePlace.WeakApproximation
+import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 
 open scoped TensorProduct
 
@@ -138,7 +139,7 @@ def baseChangeEquiv :
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
   have : IsBiscalar L v.Completion e.toAlgHom :=
     inferInstanceAs (IsBiscalar L v.Completion (baseChange L v))
-  IsModuleTopology.continuousAlgEquivOfIsBiscalar K v.Completion e
+  IsModuleTopology.continuousAlgEquivOfIsBiscalar v.Completion e
 
 instance : IsBiscalar L v.Completion (baseChangeEquiv L v).toAlgHom :=
   inferInstanceAs (IsBiscalar L v.Completion (baseChange L v))
@@ -148,14 +149,6 @@ theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
     baseChangeEquiv L v (l ⊗ₜ[K] x) = fun wv : v.Extension L => l * comapHom wv.2 x := by
   simp [baseChangeEquiv, baseChange, SemialgHom.baseChange_of_algebraMap_tmul]
   rfl
-
-/-- The `Kᵥ`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
-of `L` lying above `v`. -/
-def baseChangeEquivRight :
-    L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.Extension L) → wv.1.Completion where
-  __ := (baseChangeEquiv L v).changeScalars K v.Completion
-  continuous_toFun := (baseChangeEquiv L v).continuous_toFun
-  continuous_invFun := (baseChangeEquiv L v).continuous_invFun
 
 open TensorProduct.AlgebraTensorModule in
 /-- The `Kᵥ`-linear homeomorphism between `Kᵥ^d` and the product of all completions
@@ -173,7 +166,7 @@ def piEquiv :
   let e₃ := IsModuleTopology.continuousLinearEquiv (e₁.trans <| e₂) |>.symm
   -- Compose with `Kᵥ`-scalar base change to finish
   -- `Kᵥ^d ≃L[Kᵥ] ∏ w | v, L_w`
-  exact e₃.trans <| baseChangeEquivRight L v |>.toContinuousLinearEquiv
+  exact e₃.trans <| (baseChangeEquiv L v).changeScalars v.Completion |>.toContinuousLinearEquiv
 
 theorem piEquiv_smul (x : v.Completion) (y : Fin (Module.finrank K L) → v.Completion)
     (wv : v.Extension L) :

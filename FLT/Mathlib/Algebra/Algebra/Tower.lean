@@ -27,10 +27,9 @@ class IsBiscalar (R S : Type*) {A B : Type*} [Semiring R] [Semiring S] [AddCommM
 
 section linear
 
-variable (R : Type*) {A B : Type*} (S' : Type*) {S : Type*}
-    [Semiring R] [Semiring S'] [Semiring S] [AddCommMonoid A] [AddCommMonoid B] [Module S A]
-    [Module S B] [Module S' A] [Module R S] [Module R A] [Module R B] [Module S' B]
-    [IsScalarTower R S A] [IsScalarTower R S B]
+variable {A B : Type*} (S' : Type*) {S : Type*}
+    [Semiring S'] [Semiring S] [AddCommMonoid A] [AddCommMonoid B] [Module S A]
+    [Module S B] [Module S' A] [Module S' B]
 
 /--
 Given a linear map `f : A →ₗ[S] B` which also satisfies `f (s' • a) = s' • f a` for `s : S'`,
@@ -39,11 +38,11 @@ viewed as an `S'`-algebra homomorphism.
 -/
 def LinearMap.changeScalars (f : A →ₗ[S] B) [IsBiscalar S S' f] :
     A →ₗ[S'] B where
-  __ := f.restrictScalars R
+  __ := f
   map_smul' s x := by simpa using IsBiscalar.map_smul₂ S s x
 
 theorem LinearMap.changeScalars_apply (f : A →ₗ[S] B) [IsBiscalar S S' f] (a : A) :
-    LinearMap.changeScalars R S' f a = f a := by
+    LinearMap.changeScalars S' f a = f a := by
   simp [changeScalars]
 
 /--
@@ -53,7 +52,7 @@ returns `f` viewed as an `S'`-algebra isomorphism.
 -/
 def LinearEquiv.changeScalars (f : A ≃ₗ[S] B) [IsBiscalar S S' f] :
     A ≃ₗ[S'] B where
-  __ := LinearMap.changeScalars R S' f.toLinearMap
+  __ := LinearMap.changeScalars S' f.toLinearMap
   invFun := f.invFun
   left_inv (a : A) := by simp [LinearMap.changeScalars_apply]
   right_inv (b : B) := by simp [LinearMap.changeScalars_apply]
@@ -79,39 +78,30 @@ theorem IsBiscalar.commutes {S : Type*} (S' : Type*) {A B : Type*} [CommSemiring
     f (algebraMap S' A s) = algebraMap S' B s := by
   simpa [Algebra.algebraMap_eq_smul_one] using IsBiscalar.map_smul₂ (f := f) S s 1
 
-variable (R : Type*) {A B : Type*} (S' : Type*) {S : Type*} [CommSemiring R]
+variable {A B : Type*} (S' : Type*) {S : Type*}
     [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S] [Algebra S A]
-    [Algebra R S'] [Algebra S B] [Algebra S' A] [Algebra R S] [Algebra S' B] [Algebra R A]
-    [Algebra R B] [IsScalarTower R S A] [IsScalarTower R S' A] [IsScalarTower R S B]
+    [Algebra S B] [Algebra S' A] [Algebra S' B]
 
 /--
-Given a bundled algebra map `f : A →ₐ[S] B` which also has scalars `S'`,
-with both `S` and `S'` sharing a common base ring `R` as:
-```
-f : A ––––––––––> B
-     \     /\    /
-      \   /  \  /
-       \ /    \/
-        S    S'
-         \   /
-          \ /
-           R
-```
-Then `f.changeScalars R S'` returns `f` viewed as an `S'`-algebra homomorphism.
+Produces an `S'`-linear algebra map from an `S`-linear algebra map `f : A →ₐ[S] B` which also
+has scalars `S'`.
 -/
 def AlgHom.changeScalars (f : A →ₐ[S] B) [IsBiscalar S S' f] :
     A →ₐ[S'] B where
-  __ := (f.restrictScalars R).extendScalars S'
-  commutes' (r : _) := by
-    simp [RingHom.algebraMap_toAlgebra, ← IsBiscalar.commutes S' f, restrictDomain]
+  __ := f
+  commutes' (r : _) := by simp [IsBiscalar.commutes]
 
 theorem AlgHom.changeScalars_apply (f : A →ₐ[S] B) [IsBiscalar S S' f] (a : A) :
-    changeScalars R S' f a = f a := by
-  simp [changeScalars, extendScalars]
+    changeScalars S' f a = f a := by
+  simp [changeScalars]
 
+/--
+Produces an `S'`-linear algebra isomorphism from an `S`-linear algebra isomorphism `f : A ≃ₐ[S] B`
+which also has scalars `S'`.
+-/
 def AlgEquiv.changeScalars (f : A ≃ₐ[S] B) [IsBiscalar S S' f.toAlgHom] :
     A ≃ₐ[S'] B where
-  __ := AlgHom.changeScalars R S' f.toAlgHom
+  __ := AlgHom.changeScalars S' f.toAlgHom
   invFun := f.invFun
   left_inv (a : A) := by simp [AlgHom.changeScalars_apply]
   right_inv (b : B) := by simp [AlgHom.changeScalars_apply]
@@ -124,21 +114,18 @@ section diamond_checks
 /- If we have `IsBiscalar S S f` then we can change scalars on `f : A →ₐ[S] B` to get a new
 function `f' : A →ₐ[S] B`. We should have `f = f'` definitionally. -/
 
-example {R S A B : Type*} [CommSemiring R] [CommSemiring S] [CommSemiring A] [CommSemiring B]
-    [Algebra R S] [Algebra S A] [Algebra R A] [Algebra S B] [Algebra R B] [IsScalarTower R S A]
-    [IsScalarTower R S B] (f : A →ₐ[S] B) [IsBiscalar S S f] :
-    AlgHom.changeScalars R S f = f := rfl
+example {S A B : Type*} [CommSemiring S] [CommSemiring A] [CommSemiring B]
+    [Algebra S A] [Algebra S B] (f : A →ₐ[S] B) [IsBiscalar S S f] :
+    AlgHom.changeScalars S f = f := rfl
 
 /- If we have `IsBiscalar S S' f` then we can change scalars on
 `f : A →ₐ[S] B` to get `f' : A →ₐ[S'] B`. If we have `IsBiscalar S' S f'` and change scalars again
 to get `f'' : A →ₐ[S] B`. We should have `f = f''` definitionally. -/
 
-example (R : Type*) {A B : Type*} (S' : Type*) {S : Type*} [CommSemiring R]
+example {A B : Type*} (S' : Type*) {S : Type*}
     [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S] [Algebra S A]
-    [Algebra R S'] [Algebra S B] [Algebra S' A] [Algebra R S] [Algebra S' B] [Algebra R A]
-    [Algebra R B] [IsScalarTower R S A] [IsScalarTower R S' A] [IsScalarTower R S B]
-    [IsScalarTower R S' B] (f : A →ₐ[S] B) [IsBiscalar S S' f]
-    [IsBiscalar S' S (AlgHom.changeScalars R S' f)] :
-    (AlgHom.changeScalars R S' f).changeScalars R S = f := rfl
+    [Algebra S B] [Algebra S' A] [Algebra S' B] (f : A →ₐ[S] B) [IsBiscalar S S' f]
+    [IsBiscalar S' S (AlgHom.changeScalars S' f)] :
+    (AlgHom.changeScalars S' f).changeScalars S = f := rfl
 
 end diamond_checks
