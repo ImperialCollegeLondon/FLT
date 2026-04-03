@@ -58,7 +58,6 @@ variable {ι' : Type*} [Fintype ι'] [DecidableEq ι'] {R ι : Type*} [Semiring 
   {M N : ι → ι' → Type*} [∀ i i', AddCommMonoid (M i i')] [∀ i i', AddCommMonoid (N i i')]
   [∀ i i', Module R (M i i')] [∀ i i', Module R (N i i')]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- `⨁ⱼ(∏ᵢ Nᵢⱼ) ≅ ∏ᵢ(⨁ⱼNᵢⱼ)` if `j` ranges over a finite index set and `i` over an arbitrary
 index set. This variant is for `R`-modules and gives an `R`-module isomorphism. -/
 def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i, (⨁ i', N i i')) where
@@ -79,7 +78,7 @@ def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i
     simp only
     convert sum_univ_of (x := nm) with j _ i
     conv_rhs => rw [← DirectSum.sum_univ_of nm]
-    rw [DFinsupp.finset_sum_apply, DFinsupp.finset_sum_apply, Finset.sum_apply]
+    simp only [sum_apply, Finset.sum_apply]
     congr with k
     obtain rfl | h := eq_or_ne j k
     · simp
@@ -89,7 +88,7 @@ def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i
     refine funext (fun i ↦ ?_)
     convert sum_univ_of (x := nm i) with j _ i
     conv_rhs => rw [← DirectSum.sum_univ_of (nm i)]
-    rw [DFinsupp.finset_sum_apply, DFinsupp.finset_sum_apply, Finset.sum_apply]
+    simp only [sum_apply, Finset.sum_apply]
     congr with k
     obtain rfl | h := eq_or_ne j k
     · simp
@@ -144,7 +143,6 @@ noncomputable def tensorPi_equiv_piTensor :
     -- ≃ₗ[R] Π i, (M ⊗ N i)
     (tensorPiEquiv_finitefreeModule R M N)
 
-set_option backward.isDefEq.respectTransparency false in
 lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
     tensorPi_equiv_piTensor R M N (m ⊗ₜ n) = fun i ↦ (m ⊗ₜ n i) := by
   unfold tensorPi_equiv_piTensor
@@ -168,8 +166,8 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
       Finsupp.sum_single_index (by simp), finsuppLEquivDirectSum_single, directSumPi_equiv_piSum,
       ← LinearEquiv.toFun_eq_coe]
     ext k
-    simp only [DFinsupp.finset_sum_apply _ _ k, DirectSum.lof_eq_of R, of_apply, eq_rec_constant,
-      dite_eq_ite, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
+    simp only [DirectSum.lof_eq_of R, of_apply, eq_rec_constant, dite_eq_ite, sum_apply,
+      Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
     rw [ite_apply, Pi.zero_apply, Pi.smul_apply]
 
 end
