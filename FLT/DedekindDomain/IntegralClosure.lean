@@ -31,7 +31,7 @@ variable (v : HeightOneSpectrum A)
 variable {B L} in
 /-- If B/A is an integral extension of Dedekind domains, `comap w` is the pullback
 of the nonzero prime `w` to `A`. -/
-def comap (w : HeightOneSpectrum B) : HeightOneSpectrum A where
+def comapAlgebraMap (w : HeightOneSpectrum B) : HeightOneSpectrum A where
   asIdeal := w.asIdeal.comap (algebraMap A B)
   isPrime := Ideal.comap_isPrime (algebraMap A B) w.asIdeal
   ne_bot := mt Ideal.eq_bot_of_comap_eq_bot w.ne_bot
@@ -40,23 +40,21 @@ variable {A} in
 /-- If `B` is an `A`-algebra and `v : HeightOneSpectrum A` is a nonzero prime,
 then `v.Extension B` is the subtype of `HeightOneSpeectrum B` consisting of valuations of `B`
 which restrict to `v`. -/
-def Extension (v : HeightOneSpectrum A) := {w : HeightOneSpectrum B // w.comap A = v}
+def Extension (v : HeightOneSpectrum A) := {w : HeightOneSpectrum B // w.comapAlgebraMap A = v}
 
 lemma mk_count_factors_map
     (hAB : Function.Injective (algebraMap A B))
-    (w : HeightOneSpectrum B) (I : Ideal A) [DecidableEq (Associates (Ideal A))]
-  [DecidableEq (Associates (Ideal B))] [∀ p : Associates (Ideal A), Decidable (Irreducible p)]
-  [∀ p : Associates (Ideal B), Decidable (Irreducible p)] :
+    (w : HeightOneSpectrum B) (I : Ideal A) :
     (Associates.mk w.asIdeal).count (Associates.mk (Ideal.map (algebraMap A B) I)).factors =
-    Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal *
-      (Associates.mk (comap A w).asIdeal).count (Associates.mk I).factors := by
+    Ideal.ramificationIdx (comapAlgebraMap A w).asIdeal w.asIdeal *
+      (Associates.mk (comapAlgebraMap A w).asIdeal).count (Associates.mk I).factors := by
   classical
   induction I using UniqueFactorizationMonoid.induction_on_prime with
   | h₁ =>
     rw [Associates.mk_zero, Ideal.zero_eq_bot, Ideal.map_bot, ← Ideal.zero_eq_bot,
       Associates.mk_zero]
     simp [Associates.count, Associates.factors_zero, w.associates_irreducible,
-      associates_irreducible (comap A w), Associates.bcount]
+      associates_irreducible (comapAlgebraMap A w), Associates.bcount]
   | h₂ I hI =>
     obtain rfl : I = ⊤ := by simpa using hI
     simp only [Ideal.map_top]
@@ -73,14 +71,14 @@ lemma mk_count_factors_map
       (Associates.mk_ne_zero.mpr hI_bot) (associates_irreducible _)]
     simp only [IH, mul_add]
     congr 1
-    by_cases hw : (w.comap A).asIdeal = p
+    by_cases hw : (w.comapAlgebraMap A).asIdeal = p
     · have : Irreducible (Associates.mk p) := Associates.irreducible_mk.mpr hp.irreducible
       rw [hw, Associates.factors_self this, Associates.count_some this]
       simp only [Multiset.nodup_singleton, Multiset.mem_singleton, Multiset.count_eq_one_of_mem,
         mul_one]
       rw [count_associates_factors_eq hp_bot' w.2 w.3,
         Ideal.IsDedekindDomain.ramificationIdx_eq_normalizedFactors_count hp_bot' w.2 w.3]
-    · have : (Associates.mk (comap A w).asIdeal).count (Associates.mk p).factors = 0 :=
+    · have : (Associates.mk (comapAlgebraMap A w).asIdeal).count (Associates.mk p).factors = 0 :=
         Associates.count_eq_zero_of_ne (associates_irreducible _)
           (Associates.irreducible_mk.mpr hp.irreducible)
           (by rwa [ne_eq, Associates.mk_eq_mk_iff_associated, associated_iff_eq])
@@ -88,19 +86,20 @@ lemma mk_count_factors_map
       by_contra H
       rw [eq_comm, ← ne_eq, Associates.count_ne_zero_iff_dvd hp_bot' (irreducible w),
         Ideal.dvd_iff_le, Ideal.map_le_iff_le_comap] at H
-      apply hw (((Ideal.isPrime_of_prime hp).isMaximal hp_bot).eq_of_le (comap A w).2.ne_top H).symm
+      apply hw (((Ideal.isPrime_of_prime hp).isMaximal hp_bot).eq_of_le
+        (comapAlgebraMap A w).2.ne_top H).symm
 
 lemma ramificationIdx_ne_zero (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) :
-    Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal ≠ 0 :=
+    Ideal.ramificationIdx (comapAlgebraMap A w).asIdeal w.asIdeal ≠ 0 :=
   Ideal.IsDedekindDomain.ramificationIdx_ne_zero
-    ((Ideal.map_eq_bot_iff_of_injective hAB).not.mpr (comap A w).3) w.2 Ideal.map_comap_le
+    ((Ideal.map_eq_bot_iff_of_injective hAB).not.mpr (comapAlgebraMap A w).3) w.2 Ideal.map_comap_le
 
 /-- If w | v then for a ∈ A we have w(a)=v(a)^e where e is the ramification index. -/
 lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) (x : A) :
-    (comap A w).intValuation x ^
-    (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) =
+    (comapAlgebraMap A w).intValuation x ^
+    (Ideal.ramificationIdx (comapAlgebraMap A w).asIdeal w.asIdeal) =
     w.intValuation (algebraMap A B x) := by
   classical
   have h_ne_zero := ramificationIdx_ne_zero A B hAB w
@@ -115,8 +114,8 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
 omit [IsIntegralClosure B A L] in
 /-- If w | v then for x ∈ K we have w(x)=v(x)^e where e is the ramification index. -/
 lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
-    (comap A w).valuation K x ^
-      (Ideal.ramificationIdx (algebraMap A B) (comap A w).asIdeal w.asIdeal) =
+    (comapAlgebraMap A w).valuation K x ^
+      (Ideal.ramificationIdx (comapAlgebraMap A w).asIdeal w.asIdeal) =
     w.valuation L (algebraMap K L x) := by
   obtain ⟨x, y, hy, rfl⟩ := IsFractionRing.div_surjective (A := A) x
   simp [valuation, ← IsScalarTower.algebraMap_apply A K L, IsScalarTower.algebraMap_apply A B L,
@@ -145,11 +144,12 @@ theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := b
     rintro w rfl
     simp only [Ideal.primesOver, Set.mem_setOf_eq, isPrime, true_and]
     constructor
-    simp [Ideal.under_def, comap]
+    simp [Ideal.under_def, comapAlgebraMap]
   · intro x hx y hy hxy
     rwa [← @HeightOneSpectrum.ext_iff] at hxy
 
 /-- There are only finitely many nonzero primes of B above a nonzero prime of A. -/
+@[reducible]
 noncomputable def Extension.fintype : Fintype (Extension B v) :=
   have := Extension.finite A K L B v
   Fintype.ofFinite <| Extension B v
@@ -157,8 +157,8 @@ noncomputable def Extension.fintype : Fintype (Extension B v) :=
 include K L in
 omit [IsIntegralClosure B A L] [IsFractionRing B L] in
 theorem preimage_comap_finite (S : Set (HeightOneSpectrum A)) (hS : S.Finite) :
-    ((comap A : HeightOneSpectrum B → HeightOneSpectrum A) ⁻¹' S).Finite := by
-  rw [← Set.biUnion_preimage_singleton (comap A) S]
+    ((comapAlgebraMap A : HeightOneSpectrum B → HeightOneSpectrum A) ⁻¹' S).Finite := by
+  rw [← Set.biUnion_preimage_singleton (comapAlgebraMap A) S]
   exact Set.Finite.biUnion' hS <| fun v _ ↦ Extension.finite A K L B v
 
 /-- Given an inclusion of Dedekind domains A → B, making B finite over A,
@@ -172,7 +172,7 @@ omit [IsIntegralClosure B A L] in
 /-- `Ideal.sum_ramification_inertia`, rewritten as a sum over extensions. -/
 lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
     letI := Extension.fintype A K L B v
-    ∑ (w : Extension B v), Ideal.ramificationIdx (algebraMap A B) (v.asIdeal) (w.val.asIdeal)
+    ∑ (w : Extension B v), Ideal.ramificationIdx v.asIdeal w.val.asIdeal
       * (v.asIdeal).inertiaDeg (w.val.asIdeal) = Module.finrank K L := by
   have := v.isMaximal
   have := isTorsionFree A K L B
@@ -181,7 +181,7 @@ lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
   -- Check that the sums are equal via a bijection
   apply Finset.sum_nbij (fun w ↦ w.val.asIdeal)
   · rintro ⟨a, rfl⟩ -
-    rw [← Finset.mem_coe, coe_primesOverFinset (comap A a).ne_bot]
+    rw [← Finset.mem_coe, coe_primesOverFinset (comapAlgebraMap A a).ne_bot]
     exact ⟨a.isPrime, ⟨rfl⟩⟩
   · apply Function.Injective.injOn
     exact fun _ _ hw ↦ Subtype.ext <| HeightOneSpectrum.ext hw
@@ -195,7 +195,7 @@ lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
       rw [hyover, hbot]
       exact Ideal.comap_bot_of_injective _ (FaithfulSMul.algebraMap_injective _ _)
     let w' : HeightOneSpectrum B := ⟨y, hprime, hybot⟩
-    have wcomap : comap A w' = v := HeightOneSpectrum.ext hyover.symm
+    have wcomap : comapAlgebraMap A w' = v := HeightOneSpectrum.ext hyover.symm
     let w : Extension B v := ⟨w', wcomap⟩
     exact ⟨w, by simp, rfl⟩
   · exact fun _ _ ↦ rfl
