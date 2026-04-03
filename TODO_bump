@@ -1,0 +1,21 @@
+Some required targets logged failures:
+- FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+- FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
+- FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+- FLT.DedekindDomain.AdicValuation
+- FLT.Mathlib.MeasureTheory.Haar.Extension
+- FLT.Deformations.Lemmas
+- FLT.Patching.Utils.Lemmas
+- FLT.Data.Hurwitz
+- FLT.Data.QHat
+- FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.Padic
+- FLT.Patching.Utils.Depth
+- FLT.GlobalLanglandsConjectures.GLnDefs
+- FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
+- FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
+- FLT.HaarMeasure.MeasurableSpacePadics
+- FLT.Deformations.RepresentationTheory.Irreducible
+- FLT.Patching.Utils.StructureFiniteness
+- FLT.Deformations.RepresentationTheory.Etale
+- FLT.Mathlib.Analysis.Normed.Ring.WithAbs
+- FLT.Mathlib.Topology.Algebra.Module.Equiv
