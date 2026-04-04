@@ -105,16 +105,9 @@ noncomputable def singleContinuousLinearMap (j : HeightOneSpectrum R) :
       rfl -- (annoying)
     · simp [Pi.single_eq_of_ne h, FiniteAdeleRing, Algebra.smul_def,
         singleContinuousAddMonoidHom_apply_of_ne _ h _]
-  cont := by
-    -- this used to be automatic (i.e. `fun_prop` was doing it)
-    unfold RestrictedProduct.singleContinuousAddMonoidHom
-    dsimp only
-    unfold RestrictedProduct.singleAddMonoidHom
-    dsimp only
-    unfold Pi.single
-    -- ⊢ Continuous fun x ↦ ⟨Function.update 0 j x, ⋯⟩
-    fun_prop -- this was working before all the unfolds, before 4.29
-    }
+  -- this would not be necessary if this field were called `continuous_toFun` as it should be
+  cont := (RestrictedProduct.singleContinuousAddMonoidHom _ j).continuous_toFun
+  }
 
 variable [DecidableEq (HeightOneSpectrum R)] in
 lemma evalContinuousAlgebraMap_singleContinuousLinearMap (j : HeightOneSpectrum R)
@@ -144,6 +137,7 @@ lemma eval_localIdempotent (p : HeightOneSpectrum R) :
     (evalContinuousAlgebraMap R K p) (localIdempotent R K p) = 1 :=
   Pi.single_eq_same _ _
 
+set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 The composite `𝔸_K^f --(eval)--> Kᵥ --(single)--> 𝔸_K^f` is multiplication by
