@@ -1,5 +1,6 @@
 import FLT.Data.Hurwitz
 import FLT.Data.QHat
+import Mathlib
 
 open scoped TensorProduct
 
@@ -48,11 +49,18 @@ noncomputable abbrev j₁ : D →ₐ[ℤ] D^ := Algebra.TensorProduct.includeLef
 lemma injective_hRat :
     Function.Injective j₁ := sorry -- flatness
 
+-- this stopped working in 4.29
+noncomputable instance : Ring (ℚ ⊗[ℤ] 𝓞^) := Algebra.TensorProduct.instRing
+
+-- this stopped working in 4.29
+noncomputable instance : Ring (D ⊗[ℤ] ZHat) := Algebra.TensorProduct.instRing
+
+-- in 4.29 I had to change all three ⊗ in the below to ⊗[ℤ]
 /-- The inclusion from the profinite Hurwitz quaternions to to 𝔸+𝔸i+𝔸j+𝔸k,
 with 𝔸 the finite adeles of ℚ. -/
 noncomputable abbrev j₂ : 𝓞^ →ₐ[ℤ] D^ :=
-  ((Algebra.TensorProduct.assoc ℤ ℤ ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗ 𝓞^ ≃ₐ[ℤ] D ⊗ ZHat).toAlgHom.comp
-  (Algebra.TensorProduct.includeRight : 𝓞^ →ₐ[ℤ] ℚ ⊗ 𝓞^)
+  ((Algebra.TensorProduct.assoc ℤ ℤ ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗[ℤ] 𝓞^ ≃ₐ[ℤ] D ⊗[ℤ] ZHat).toAlgHom.comp
+  (Algebra.TensorProduct.includeRight : 𝓞^ →ₐ[ℤ] ℚ ⊗[ℤ] 𝓞^)
 
 lemma injective_zHat :
     Function.Injective j₂ := sorry -- flatness
