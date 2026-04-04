@@ -1,13 +1,5 @@
 error: Lean exited with code 1
 Some required targets logged failures:
-- FLT.Mathlib.Topology.Algebra.Module.Equiv
-- FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
-- FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
-- FLT.Patching.Utils.Lemmas
-- FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
-- FLT.Data.Hurwitz
-- FLT.Deformations.Lemmas
-- FLT.Data.QHat
 - FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
 - FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 - FLT.Mathlib.MeasureTheory.Haar.Extension
@@ -15,4 +7,9 @@ Some required targets logged failures:
 - FLT.DedekindDomain.AdicValuation
 - FLT.Deformations.RepresentationTheory.Etale
 - FLT.GlobalLanglandsConjectures.GLnDefs
+- FLT.Deformations.RepresentationTheory.IntegralClosure
+- FLT.Patching.Utils.AdicTopology
+- FLT.Data.HurwitzRatHat
+- FLT.Patching.Ultraproduct
+- FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 - FLT.Mathlib.Analysis.Normed.Ring.WithAbs
