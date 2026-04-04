@@ -22,6 +22,7 @@ variable (ℱ : Filter ι) (L : ∀ i, Submodule R (N i))
 def rangeLTensor (i : ι) : Submodule R (M ⊗[R] N i) :=
   LinearMap.range (LinearMap.lTensor M ((L i).subtype))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The `R`-linear map `φ : M ⊗_R ∏'_i [N i, L i]_[𝓕] → ∏'_i [M ⊗_R (N i), M ⊗_R (L i)]_[𝓕]`
 given by `φ (m ⊗ n) i = m ⊗ (n i)`. -/
 def lTensor :
@@ -102,12 +103,14 @@ noncomputable def lTensorPrincipalEquiv :
   }
   g1 ≪≫ₗ g2 ≪≫ₗ g3
 
+set_option backward.isDefEq.respectTransparency false in
 open scoped Filter in
 lemma lTensorPrincipalEquiv_tmul (m : M) (x : Πʳ i, [N i, L i]_[𝓟 S]) (i : ι) :
     lTensorPrincipalEquiv R M N L S (m ⊗ₜ x) i = m ⊗ₜ x i := by
   simp [lTensorPrincipalEquiv, tensorPi_equiv_piTensor'_apply, tmulEquivRangeLTensor,
       rangeLTensor]
 
+set_option backward.isDefEq.respectTransparency false in
 open scoped Filter in
 lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
   classical
