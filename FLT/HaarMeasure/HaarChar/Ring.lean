@@ -24,8 +24,8 @@ def mulLeft (r : Rˣ) : R ≃ₜ+ R where
   left_inv x := by simp
   right_inv y := by simp
   map_add' x₁ x₂ := left_distrib ↑r x₁ x₂
-  continuous_toFun := continuous_mul_left _
-  continuous_invFun := continuous_mul_left _
+  continuous_toFun := continuous_const_mul _
+  continuous_invFun := continuous_const_mul _
 
 /-- The additive homeomorphism from a topological ring to itself,
 induced by right multiplication by a unit.
@@ -37,8 +37,8 @@ def mulRight (r : Rˣ) : R ≃ₜ+ R where
   left_inv x := by simp [mul_assoc]
   right_inv y := by simp [mul_assoc]
   map_add' x₁ x₂ := right_distrib x₁ x₂ r
-  continuous_toFun := continuous_mul_right _
-  continuous_invFun := continuous_mul_right _
+  continuous_toFun := continuous_mul_const _
+  continuous_invFun := continuous_mul_const _
 
 open Pointwise in
 @[simp]

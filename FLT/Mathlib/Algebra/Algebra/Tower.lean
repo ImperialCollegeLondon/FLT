@@ -91,6 +91,7 @@ def AlgHom.changeScalars (f : A →ₐ[S] B) [IsBiscalar S S' f] :
   __ := f
   commutes' (r : _) := by simp [IsBiscalar.commutes]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem AlgHom.changeScalars_apply (f : A →ₐ[S] B) [IsBiscalar S S' f] (a : A) :
     changeScalars S' f a = f a := by
   simp [changeScalars]

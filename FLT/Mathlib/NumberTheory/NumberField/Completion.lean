@@ -1,4 +1,6 @@
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+import Mathlib.Analysis.Normed.Field.WithAbs
+import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
 
 /-!
 # TODO

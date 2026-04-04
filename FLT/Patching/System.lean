@@ -16,7 +16,7 @@ variable (F : Ultrafilter ι)
 variable [TopologicalSpace Λ] [IsTopologicalRing Λ]
 variable [IsLocalRing Λ] [IsNoetherianRing Λ] [NonarchimedeanRing Λ] [T2Space Λ]
 
-attribute [local instance] Module.quotientAnnihilator
+attribute [local implicit_reducible, local instance] Module.quotientAnnihilator
 
 variable [Algebra.UniformlyBoundedRank R]
 variable [∀ i, Module.Free (Λ ⧸ Module.annihilator Λ (M i)) (M i)]
@@ -110,6 +110,7 @@ instance IsPatchingSystem.isModuleQuotient' [PatchingAlgebra.smulData Λ R M]
     Module (R i ⧸ (maximalIdeal (R i) ^ (PatchingAlgebra.smulData.f R M α)))
       (M i ⧸ (α.1 • ⊤ : Submodule Λ (M i))) := IsPatchingSystem.isModuleQuotient ..
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 instance [PatchingAlgebra.smulData Λ R M] (α : OpenIdeals Λ) :
     Module (PatchingAlgebra.Component R F (PatchingAlgebra.smulData.f R M α))
@@ -141,6 +142,7 @@ instance [PatchingAlgebra.smulData Λ R M] : SMul (PatchingAlgebra R F) (Patchin
     obtain rfl := funext hm
     rfl⟩
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 instance [PatchingAlgebra.smulData Λ R M] : Module (PatchingAlgebra R F)
     (PatchingModule Λ M F) where
@@ -167,6 +169,7 @@ instance [PatchingAlgebra.smulData Λ R M] : Module.Finite (PatchingAlgebra R F)
     (PatchingModule Λ M F) :=
   Module.Finite.of_restrictScalars_finite Λ _ _
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 instance : PatchingAlgebra.smulData Λ R M where
   f α := α.1.toAddSubgroup.index ^ bound Λ M
@@ -268,6 +271,7 @@ lemma Ultrafilter.eventually_eventually_eq_of_finite
   filter_upwards [ha] with j hj
   rw [hi, hj]
 
+set_option backward.isDefEq.respectTransparency false in
 omit
   [∀ (i : ι), TopologicalSpace (R i)]
   [∀ (i : ι), IsTopologicalRing (R i)]
@@ -395,6 +399,7 @@ lemma smul_lemma
     obtain ⟨x, rfl⟩ := PatchingModule.ofPi_surjective x
     rfl
 
+set_option backward.isDefEq.respectTransparency false in
 include Λ R M F fRₒₒ hfRₒₒ hfRₒₒ' sR sM in
 omit [Module.Finite R₀ M₀] [Module.Finite Λ M₀] [IsNoetherianRing Rₒₒ] in
 lemma support_eq_top
@@ -405,7 +410,7 @@ lemma support_eq_top
   have : Module.Finite Λ M₀ := by
     cases isEmpty_or_nonempty ι
     · cases F.neBot.1 (Subsingleton.elim _ _)
-    have i := Nonempty.some (inferInstanceAs (Nonempty ι))
+    have i := Nonempty.some (inferInstance: Nonempty ι)
     exact Module.Finite.equiv (sM i)
   have : Module.Finite R₀ M₀ := .of_restrictScalars_finite Λ _ _
   have := PatchingAlgebra.faithfulSMul Λ R M F fRₒₒ hfRₒₒ hfRₒₒ' H₀ H

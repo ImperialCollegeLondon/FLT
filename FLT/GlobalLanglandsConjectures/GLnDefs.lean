@@ -149,10 +149,12 @@ def LieHom.baseChange
     · induction m using TensorProduct.induction_on <;> simp_all
     · simp_all only [add_lie, map_add]
 
+set_option backward.isDefEq.respectTransparency false in
 def actionTensorC :
     ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯)) :=
   LieHom.baseChange _ (action _ _)
 
+set_option backward.isDefEq.respectTransparency false in
 def actionTensorCAlg :
   UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
     ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) := by
@@ -165,11 +167,13 @@ def actionTensorCAlg :
     apply diamond_fix
   · change HEq ({..} : LieAlgebra ..) (@LieAlgebra.mk _ _ _ (_) _ _); congr!
 
+set_option backward.isDefEq.respectTransparency false in
 def actionTensorCAlg' :
   UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
     Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) :=
   (LinearMap.tensorProductEnd ..).comp (actionTensorCAlg G E)
 
+set_option backward.isDefEq.respectTransparency false in
 def actionTensorCAlg'2 :
   Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ
     (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)) →ₐ[ℂ]
@@ -179,13 +183,17 @@ def actionTensorCAlg'2 :
 instance : Module ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯ := inferInstance
 instance : Module ℂ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
 
+set_option backward.isDefEq.respectTransparency false in
 def Alg := UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)
-instance : Semiring (Alg G E) := inferInstanceAs (Semiring (UniversalEnvelopingAlgebra ..))
+set_option backward.isDefEq.respectTransparency false in
+instance : Ring (Alg G E) := inferInstanceAs (Ring (UniversalEnvelopingAlgebra ..))
+set_option backward.isDefEq.respectTransparency false in
 instance : Algebra ℂ (Alg G E) := inferInstanceAs (Algebra ℂ (UniversalEnvelopingAlgebra ..))
 
-def Z := Subalgebra.center ℂ (Alg G E)
-instance : CommSemiring (Z G E) := inferInstanceAs (CommSemiring (Subalgebra.center ..))
-instance : AddCommMonoid (Z G E) := inferInstanceAs (AddCommMonoid (Subalgebra.center ..))
+def Z : Type _ := Subalgebra.center ℂ (Alg G E)
+instance : CommRing (Z G E) := (inferInstance : CommRing (Subalgebra.center ℂ (Alg G E)))
+instance : AddCommGroup (Z G E) := inferInstanceAs (AddCommGroup (Subalgebra.center ..))
+instance : Algebra ℂ (Z G E) := inferInstanceAs (Algebra ℂ (Subalgebra.center ..))
 
 def actionTensorCAlg'3 : Z G E →ₐ[ℂ] Module.End ℂ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
 
@@ -259,6 +267,7 @@ def annihilator {R} [CommSemiring R]
   Submodule.compatibleMaps (Submodule.span R {a}) ⊥
 
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
+@[ext]
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ
   is_smooth : IsSmooth toFun
@@ -267,10 +276,17 @@ structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
   has_finite_level : ∃ U, IsConstantOn U toFun
-  is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
-    haveI f : C^∞⟮𝓘(ℝ, _), _; 𝓘(ℝ, ℂ), ℂ⟯ := ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩
-    letI m := (actionTensorCAlg'3 (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ)).toLinearMap
-    FiniteDimensional ℂ (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ) ⧸ (annihilator f).comap m)
+  -- is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
+  --   haveI f : C^∞⟮𝓘(ℝ, _), _; 𝓘(ℝ, ℂ), ℂ⟯ := ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩
+  --   let m := (actionTensorCAlg'3 (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ)).toLinearMap
+  --   let i : HasQuotient ((Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ)))
+  --       (Submodule ℂ (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ))) :=
+  --     inferInstance
+  --   let bar : Submodule ℂ _ := (annihilator f).comap m
+  --   -- fails in 4.29
+  --   --let foo := (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ) ⧸ bar)
+  --   --FiniteDimensional ℂ (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ) ⧸ (annihilator f).comap m)
+  --   sorry
   -- missing: invariance under compact open subgroup
   -- missing: infinite part has a weight
 

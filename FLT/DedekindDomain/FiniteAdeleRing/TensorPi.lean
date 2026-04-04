@@ -78,7 +78,7 @@ def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i
     simp only
     convert sum_univ_of (x := nm) with j _ i
     conv_rhs => rw [← DirectSum.sum_univ_of nm]
-    rw [DFinsupp.finset_sum_apply, DFinsupp.finset_sum_apply, Finset.sum_apply]
+    simp only [sum_apply, Finset.sum_apply]
     congr with k
     obtain rfl | h := eq_or_ne j k
     · simp
@@ -88,7 +88,7 @@ def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i
     refine funext (fun i ↦ ?_)
     convert sum_univ_of (x := nm i) with j _ i
     conv_rhs => rw [← DirectSum.sum_univ_of (nm i)]
-    rw [DFinsupp.finset_sum_apply, DFinsupp.finset_sum_apply, Finset.sum_apply]
+    simp only [sum_apply, Finset.sum_apply]
     congr with k
     obtain rfl | h := eq_or_ne j k
     · simp
@@ -166,8 +166,8 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
       Finsupp.sum_single_index (by simp), finsuppLEquivDirectSum_single, directSumPi_equiv_piSum,
       ← LinearEquiv.toFun_eq_coe]
     ext k
-    simp only [DFinsupp.finset_sum_apply _ _ k, DirectSum.lof_eq_of R, of_apply, eq_rec_constant,
-      dite_eq_ite, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
+    simp only [DirectSum.lof_eq_of R, of_apply, eq_rec_constant, dite_eq_ite, sum_apply,
+      Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
     rw [ite_apply, Pi.zero_apply, Pi.smul_apply]
 
 end

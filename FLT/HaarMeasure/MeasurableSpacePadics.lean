@@ -20,7 +20,7 @@ variable {p : ℕ} [Fact p.Prime]
 
 namespace Padic
 
-instance instMeasurableSpace : MeasurableSpace ℚ_[p] := borel _
+noncomputable instance instMeasurableSpace : MeasurableSpace ℚ_[p] := borel _
 instance instBorelSpace : BorelSpace ℚ_[p] := ⟨rfl⟩
 
 -- Should we more generally make a map from `CompactOpens` to `PositiveCompacts`?
@@ -46,7 +46,7 @@ end Padic
 
 namespace PadicInt
 
-instance instMeasurableSpace : MeasurableSpace ℤ_[p] := Subtype.instMeasurableSpace
+noncomputable instance instMeasurableSpace : MeasurableSpace ℤ_[p] := Subtype.instMeasurableSpace
 instance instBorelSpace : BorelSpace ℤ_[p] := Subtype.borelSpace _
 
 lemma isMeasurableEmbedding_coe : MeasurableEmbedding ((↑) : ℤ_[p] → ℚ_[p]) := by
@@ -67,9 +67,16 @@ instance instIsFiniteMeasure : IsFiniteMeasure (volume : Measure ℤ_[p]) where
 
 lemma volume_coe_univ :
     volume ((↑) '' (Set.univ : Set ℤ_[p]) : Set ℚ_[p]) = volume (Set.univ : Set ℤ_[p]) := by
-  simp [← Padic.volume_closedBall_one (p := p), Subtype.coe_image_univ _]
+  simp only [volume_univ, ← Padic.volume_closedBall_one (p := p)]
+  -- ❌️ at reducible transparency,
+  --   ℤ_[p]
+  -- and
+  --   { x : ℚ_[p] // Membership.mem (γ := Set ℚ_[p]) (fun x ↦ Real.le✝ ‖x‖ 1) x }
+  -- are not defeq, but they are at default transparency.
+  erw [Subtype.coe_image_univ]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 -- https://github.com/ImperialCollegeLondon/FLT/issues/278
 @[simp] lemma volume_coe (s : Set ℤ_[p]) : volume ((↑) '' s : Set ℚ_[p]) = volume s := by
   have h := volume_coe_univ (p := p)
@@ -83,6 +90,7 @@ lemma volume_coe_univ :
   rw [isAddLeftInvariant_eq_smul (comap Coe.ringHom volume) (volume : Measure ℤ_[p])] at h ⊢
   suffices (comap (Coe.ringHom (p := p)) volume).addHaarScalarFactor volume = 1 by
     simp [-coe_coeRingHom, this]
-  simpa [-coe_coeRingHom, smul_apply, volume_univ, ENNReal.smul_def] using h
+  simpa only [smul_apply, volume_univ, ENNReal.smul_def, smul_eq_mul, mul_one, ENNReal.coe_eq_one]
+    using h
 
 end PadicInt

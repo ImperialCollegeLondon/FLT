@@ -90,6 +90,7 @@ lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
     rTensor_eval_localIdempotent
       (φ (ψ ((LinearMap.rTensor V (singleContinuousLinearMap R K p)) x)))]
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 If `φ : 𝔸_K^f ⊗ V → 𝔸_K^f ⊗ V` is `𝔸_K^f`-linear and `φₚ` is its local component at a place `p`
 then for all `x : 𝔸_K^f ⊗ V` we have

@@ -1,7 +1,7 @@
 import FLT.Patching.System
 
 open IsLocalRing Module.UniformlyBoundedRank
-attribute [local instance] Module.quotientAnnihilator
+attribute [local implicit_reducible, local instance] Module.quotientAnnihilator
 
 -- Let `Λ` be a noetherian local ring, compact with respect to the `𝔪_Λ`-adic topology.
 variable (Λ : Type*) [CommRing Λ] [IsLocalRing Λ] [IsNoetherianRing Λ]
@@ -70,7 +70,7 @@ theorem ker_RtoT_le_nilradical : RingHom.ker RtoT ≤ nilradical R₀ := by
   have : Module.Finite Λ M₀ := by
     cases isEmpty_or_nonempty ι
     · cases F.neBot.1 (Subsingleton.elim _ _)
-    have i := Nonempty.some (inferInstanceAs (Nonempty ι))
+    have i := Nonempty.some (inferInstance : Nonempty ι)
     exact Module.Finite.equiv (sM i)
   have : Module.Finite R₀ M₀ := .of_restrictScalars_finite Λ _ _
   rw [nilradical, Ideal.radical_eq_sInf, le_sInf_iff]

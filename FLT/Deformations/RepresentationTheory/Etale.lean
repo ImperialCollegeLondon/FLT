@@ -201,6 +201,7 @@ def Pi.ringHomEquivOfIsDomain {ι S : Type*} {R : ι → Type*} [Finite ι] [Dec
       simpa using DFunLike.congr_fun e (Pi.single i₁ x)
     exact this (by ext; simp)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `Hom(∏ Rᵢ, S) ≃ ∐ Hom(Rᵢ, S)` when `S` is a domain.
 This is the `AlgHom` version of `Pi.ringHomEquivOfIsDomain`. -/
 @[simps! apply_fst symm_apply_apply, simps! -isSimp apply_snd_apply]
