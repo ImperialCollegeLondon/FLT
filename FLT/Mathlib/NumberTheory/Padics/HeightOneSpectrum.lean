@@ -1,5 +1,16 @@
 import Mathlib.NumberTheory.Padics.HeightOneSpectrum
-import Mathlib.NumberTheory.NumberField.FinitePlaces
+import Mathlib.Algebra.Order.Archimedean.Submonoid
+import Mathlib.Algebra.GroupWithZero.Range
+import Mathlib.Data.Int.WithZero
+import Mathlib.NumberTheory.NumberField.InfinitePlace.Embeddings
+import Mathlib.RingTheory.DedekindDomain.AdicValuation
+import Mathlib.RingTheory.DedekindDomain.Factorization
+import Mathlib.RingTheory.Ideal.Norm.AbsNorm
+import Mathlib.RingTheory.Valuation.Archimedean
+import Mathlib.Topology.Algebra.Valued.NormedValued
+import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
+import Mathlib.RingTheory.Valuation.Discrete.RankOne
+import Mathlib.Algebra.FiniteSupport.Basic
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 import Mathlib.NumberTheory.NumberField.Completion.InfinitePlace
@@ -96,8 +107,9 @@ lemma adicCompletion.padicEquiv_norm_coe_eq
     extension_coe (
       by simpa using Padic.isUniformInducing_cast_withVal (p := primesEquiv v) |>.uniformContinuous
     )]
+  obtain ⟨x⟩ := x
   change _ = ‖FinitePlace.embedding v x‖
-  rw [FinitePlace.norm_def']
+  rw [NumberField.FinitePlace.norm_embedding']
   rcases eq_or_ne x 0 with rfl | hx
   · simp [withValEquiv, Valuation.IsEquiv.uniformEquiv]
   · simp [padicValuation, withValEquiv, Valuation.IsEquiv.uniformEquiv,
