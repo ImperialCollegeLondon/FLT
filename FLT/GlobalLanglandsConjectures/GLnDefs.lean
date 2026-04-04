@@ -267,6 +267,7 @@ def annihilator {R} [CommSemiring R]
   Submodule.compatibleMaps (Submodule.span R {a}) ⊥
 
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
+@[ext]
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   toFun : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ
   is_smooth : IsSmooth toFun
@@ -275,17 +276,17 @@ structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
   is_slowly_increasing (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
     IsSlowlyIncreasing (fun y ↦ toFun (x, y))
   has_finite_level : ∃ U, IsConstantOn U toFun
-  is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
-    haveI f : C^∞⟮𝓘(ℝ, _), _; 𝓘(ℝ, ℂ), ℂ⟯ := ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩
-    let m := (actionTensorCAlg'3 (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ)).toLinearMap
-    let i : HasQuotient ((Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ)))
-        (Submodule ℂ (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ))) :=
-      inferInstance
-    let bar : Submodule ℂ _ := (annihilator f).comap m
-    -- fails in 4.29
-    --let foo := (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ) ⧸ bar)
-    --FiniteDimensional ℂ (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ) ⧸ (annihilator f).comap m)
-    sorry
+  -- is_finite_cod (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) :
+  --   haveI f : C^∞⟮𝓘(ℝ, _), _; 𝓘(ℝ, ℂ), ℂ⟯ := ⟨fun y ↦ toFun (x, y), is_smooth.smooth x⟩
+  --   let m := (actionTensorCAlg'3 (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ)).toLinearMap
+  --   let i : HasQuotient ((Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ)))
+  --       (Submodule ℂ (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ))) :=
+  --     inferInstance
+  --   let bar : Submodule ℂ _ := (annihilator f).comap m
+  --   -- fails in 4.29
+  --   --let foo := (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ) ⧸ bar)
+  --   --FiniteDimensional ℂ (Z (GL (Fin n) ℝ) (Matrix (Fin n) (Fin n) ℝ) ⧸ (annihilator f).comap m)
+  --   sorry
   -- missing: invariance under compact open subgroup
   -- missing: infinite part has a weight
 
