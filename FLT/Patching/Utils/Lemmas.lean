@@ -48,6 +48,7 @@ variable {N} in
 @[simp]
 lemma Submodule.mem_pi' {x} : x ∈ Submodule.pi' N ↔ ∀ i, x i ∈ N i := Iff.rfl
 
+-- mathlib now has LinearMap.piMap but it's not dependent enough (it has `R` not `R i`)
 variable {N : ι → Type*} [∀ i, AddCommGroup (N i)] [∀ i, Module (R i) (N i)] in
 @[simps]
 def LinearMap.piMap' (f : ∀ i, M i →ₗ[R i] N i) : (Π i, M i) →ₗ[Π i, R i] Π i, N i where
