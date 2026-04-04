@@ -7,7 +7,7 @@ variable (R K : Type*) [CommRing R] [Field K] [IsDedekindDomain R] [Algebra R K]
   [IsFractionRing R K]
 
 /-- The integral adele subring inside the finite adele ring. -/
-abbrev integralAdeles : Subring (FiniteAdeleRing R K) :=
+noncomputable abbrev integralAdeles : Subring (FiniteAdeleRing R K) :=
   RestrictedProduct.structureSubring _ _ _
 
 variable {R K}
@@ -33,7 +33,7 @@ variable (R K)
 /--
 The K-algebra map `𝔸_K^f → Kᵥ` from the finite adele ring of K to a completion.
 -/
-def evalAlgebraMap (j : HeightOneSpectrum R) :
+noncomputable def evalAlgebraMap (j : HeightOneSpectrum R) :
     FiniteAdeleRing R K →ₐ[K] j.adicCompletion K := {
   __ := RestrictedProduct.evalContinuousAddMonoidHom _ j
   map_one' := rfl
@@ -44,7 +44,7 @@ def evalAlgebraMap (j : HeightOneSpectrum R) :
 /--
 The continuous K-algebra map `𝔸_K^f → Kᵥ` from the finite adele ring of K to a completion.
 -/
-def evalContinuousAlgebraMap (j : HeightOneSpectrum R) :
+noncomputable def evalContinuousAlgebraMap (j : HeightOneSpectrum R) :
     FiniteAdeleRing R K →A[K] j.adicCompletion K := {
   __ := RestrictedProduct.evalContinuousAddMonoidHom _ j
   __ := IsDedekindDomain.FiniteAdeleRing.evalAlgebraMap R K j
@@ -52,6 +52,7 @@ def evalContinuousAlgebraMap (j : HeightOneSpectrum R) :
                                               -- field not called continuous_toFun??
     }
 
+set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 The continuous K-linear inclusion Kᵥ → 𝔸_K^f from a completion to the finite K-adeles.
@@ -86,6 +87,7 @@ noncomputable def singleMulHom (j : HeightOneSpectrum R) :
     · simp [Pi.single_eq_of_ne' h]
     }
 
+set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 The continuous K-linear inclusion Kᵥ → 𝔸_K^f from a completion to the finite K-adeles.
@@ -103,6 +105,15 @@ noncomputable def singleContinuousLinearMap (j : HeightOneSpectrum R) :
       rfl -- (annoying)
     · simp [Pi.single_eq_of_ne h, FiniteAdeleRing, Algebra.smul_def,
         singleContinuousAddMonoidHom_apply_of_ne _ h _]
+  cont := by
+    -- this used to be automatic (i.e. `fun_prop` was doing it)
+    unfold RestrictedProduct.singleContinuousAddMonoidHom
+    dsimp only
+    unfold RestrictedProduct.singleAddMonoidHom
+    dsimp only
+    unfold Pi.single
+    -- ⊢ Continuous fun x ↦ ⟨Function.update 0 j x, ⋯⟩
+    fun_prop -- this was working before all the unfolds, before 4.29
     }
 
 variable [DecidableEq (HeightOneSpectrum R)] in
