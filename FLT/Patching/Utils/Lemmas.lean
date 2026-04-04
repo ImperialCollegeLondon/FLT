@@ -48,6 +48,13 @@ variable {N} in
 @[simp]
 lemma Submodule.mem_pi' {x} : x ∈ Submodule.pi' N ↔ ∀ i, x i ∈ N i := Iff.rfl
 
+variable {N : ι → Type*} [∀ i, AddCommGroup (N i)] [∀ i, Module (R i) (N i)] in
+@[simps]
+def LinearMap.piMap' (f : ∀ i, M i →ₗ[R i] N i) : (Π i, M i) →ₗ[Π i, R i] Π i, N i where
+  toFun g i := f i (g i)
+  map_add' := by aesop
+  map_smul' := by aesop
+
 instance {ι : Type*} {R A : ι → Type*} [∀ i, CommSemiring (R i)]
     [∀ i, Semiring (A i)] [∀ i, Algebra (R i) (A i)] : Algebra (Π i, R i) (Π i, A i) where
   algebraMap := Pi.ringHom fun i ↦ (algebraMap (R i) (A i)).comp (Pi.evalRingHom R i)
