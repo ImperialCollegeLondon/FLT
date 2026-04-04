@@ -354,6 +354,7 @@ theorem not_injOn_of_inducedMeasure_gt (U : Set B) (hU : IsOpen U) [DiscreteTopo
   contrapose! h
   exact H.inducedMeasure_lt_of_injOn μA μC U hU h
 
+set_option backward.isDefEq.respectTransparency false in
 @[to_additive]
 theorem not_injOn_of_measure_gt
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [PolishSpace G]
