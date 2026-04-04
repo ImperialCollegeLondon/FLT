@@ -15,7 +15,7 @@ variable [TopologicalSpace Λ] [IsTopologicalRing Λ] [∀ i, ContinuousSMul Λ 
 variable [IsLocalRing Λ] [IsNoetherianRing Λ] [NonarchimedeanRing Λ] [T2Space Λ]
   [Algebra.TopologicallyFG ℤ Λ]
 
-attribute [local instance] Module.quotientAnnihilator
+attribute [local implicit_reducible, local instance] Module.quotientAnnihilator
 
 variable [Algebra.UniformlyBoundedRank R]
 variable [∀ i, Module.Free (Λ ⧸ Module.annihilator Λ (M i)) (M i)]
@@ -152,6 +152,7 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
       ← Submodule.map_top, ← Submodule.map_smul'', Submodule.map_le_iff_le_comap,
       Submodule.comap_bot, Submodule.ker_mkQ]
 
+set_option backward.isDefEq.respectTransparency false in
 omit [Algebra.TopologicallyFG ℤ Λ]
   [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
 lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
@@ -233,6 +234,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
     exact sum_mem fun x _ ↦ Submodule.smul_mem_smul
       (by rw [← hs]; exact Submodule.subset_span x.2) trivial
 
+set_option backward.isDefEq.respectTransparency false in
 omit [Algebra.TopologicallyFG ℤ Λ]
   [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
 lemma PatchingModule.ker_map_mkQ :
