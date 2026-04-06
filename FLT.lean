@@ -152,7 +152,6 @@ import FLT.NumberField.HeightOneSpectrum
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.InfinitePlace.Dimension
 import FLT.NumberField.InfinitePlace.Extension
-import FLT.NumberField.InfinitePlace.WeakApproximation
 import FLT.NumberField.Padics.RestrictedProduct
 import FLT.Patching.Algebra
 import FLT.Patching.Module
