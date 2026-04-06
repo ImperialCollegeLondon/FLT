@@ -33,21 +33,23 @@ theorem tendsto_zero_pow_of_le_neg_one {K : Type*} [Ring K] [Valued K ℤᵐ⁰]
   have h_lt : ofAdd (-1 : ℤ) < (1 : ℤᵐ⁰) := by
      rw [← coe_one, coe_lt_coe, ← ofAdd_zero, ofAdd_lt]; linarith
   intro γ _
-  by_cases hγ : γ.val ≤ 1
-  · let m := - toAdd (unitsWithZeroEquiv γ) + 1 |>.toNat
+  let γ' := Units.map MonoidWithZeroHom.ValueGroup₀.embedding.toMonoidHom γ
+  suffices ∃ a, ∀ b ≥ a, v x ^ b < γ' by sorry
+  by_cases hγ' : γ'.val ≤ 1
+  · let m := - toAdd (unitsWithZeroEquiv γ') + 1 |>.toNat
     refine ⟨m, fun b hb => lt_of_le_of_lt
       (pow_le_pow_of_le_one zero_le' (le_trans hx <| le_of_lt h_lt) hb) ?_⟩
-    replace hγ : 0 ≤ -toAdd (unitsWithZeroEquiv γ) + 1 := by
-      rw [← coe_unitsWithZeroEquiv_eq_units_val, ← coe_one, coe_le_coe, ← toAdd_le, toAdd_one] at hγ
+    replace hγ' : 0 ≤ -toAdd (unitsWithZeroEquiv γ') + 1 := by
+      rw [← coe_unitsWithZeroEquiv_eq_units_val, ←coe_one, coe_le_coe, ← toAdd_le, toAdd_one] at hγ'
       linarith
     apply lt_of_le_of_lt <| pow_le_pow_left₀ zero_le' hx m
     rw [← coe_unitsWithZeroEquiv_eq_units_val, ← coe_pow, coe_lt_coe, ← ofAdd_nsmul,
-      nsmul_eq_mul, Int.toNat_of_nonneg hγ, mul_neg, mul_one, neg_add_rev, neg_neg, ofAdd_add,
+      nsmul_eq_mul, Int.toNat_of_nonneg hγ', mul_neg, mul_one, neg_add_rev, neg_neg, ofAdd_add,
       ofAdd_neg, ofAdd_toAdd, mul_lt_iff_lt_one_right', Left.inv_lt_one_iff, ← ofAdd_zero, ofAdd_lt]
     exact zero_lt_one
   · refine ⟨1, fun b hb => lt_of_le_of_lt
       (pow_le_pow_of_le_one zero_le' (le_trans hx <| le_of_lt h_lt) hb) ?_⟩
-    apply pow_one (v x) ▸ lt_trans (lt_of_le_of_lt hx h_lt) (lt_of_not_ge hγ)
+    apply pow_one (v x) ▸ lt_trans (lt_of_le_of_lt hx h_lt) (lt_of_not_ge hγ')
 
 open Filter in
 theorem exists_pow_lt_of_le_neg_one {K : Type*} [Ring K] [Valued K ℤᵐ⁰]
@@ -123,6 +125,7 @@ theorem finite_cover_of_uniformity_basis [IsDiscreteValuationRing 𝒪[K]] {γ :
 
 variable (K)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The ring of integers `𝒪[K]` of a complete `ℤᵐ⁰`-valued field `K` with finite residue
 field is compact, whenever `𝒪[K]` is a discrete valuation ring. -/
 theorem integer_compactSpace [CompleteSpace K] [IsDiscreteValuationRing 𝒪[K]] (h : Finite 𝓀[K]) :
