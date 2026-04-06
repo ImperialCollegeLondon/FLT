@@ -33,12 +33,6 @@ instance {v : InfinitePlace K} : NontriviallyNormedField v.Completion where
     let ⟨x, hx⟩ := v.isNontrivial.exists_abv_gt_one
     ⟨x, by rw [UniformSpace.Completion.norm_coe]; exact hx⟩
 
--- set_option backward.isDefEq.respectTransparency false in
--- instance : NormedSpace v.Completion wv.1.Completion where
---   norm_smul_le x y := by
---     rw [Algebra.smul_def, norm_mul, RingHom.algebraMap_toAlgebra,
---       (LiesOver.isometry_algebraMap wv.1).isometry_mapRingHom.norm_map_of_map_zero (map_zero _)]
-
 noncomputable instance : FiniteDimensional v.Completion wv.1.Completion :=
   FiniteDimensional.of_locallyCompactSpace v.Completion
 
@@ -78,11 +72,11 @@ set_option backward.isDefEq.respectTransparency false in
 /-- The map from `v.Completion` to the product of all completions of `L` lying above `v`. -/
 def piExtension :
     v.Completion →ₛₐ[algebraMap K L] (wv : v.Extension L) → wv.1.Completion :=
-  Pi.semialgHom _ _ fun wv : v.Extension L ↦ comapHom wv.2
+  Pi.semialgHom _ _ fun wv ↦ comapHom wv.2
 
 @[simp]
 theorem piExtension_apply (x : v.Completion) :
-    piExtension L v x = fun wv : v.Extension L => comapHom wv.2 x := rfl
+    piExtension L v x = fun wv ↦ comapHom wv.2 x := rfl
 
 open scoped TensorProduct.RightActions
 
@@ -121,7 +115,7 @@ instance : Module.Free v.Completion wv.1.Completion :=
 
 variable (L v)
 
-open scoped Classical NumberField.LiesOver in
+open scoped Classical in
 theorem finrank_prod_eq_finrank [NumberField K] :
     Module.finrank v.Completion ((wv : Extension L v) → wv.1.Completion) =
       Module.finrank K L := by
