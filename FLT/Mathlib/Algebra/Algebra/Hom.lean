@@ -128,4 +128,17 @@ def SemialgHom.prodMap {C D : Type*} [Semiring C] [Semiring D]
     A × B →ₛₐ[φ] C × D :=
   (f.compAlgHom (AlgHom.fst R A B)).prod (g.compAlgHom (AlgHom.snd R A B))
 
+/-- Restrict the scalars of semialgebra map `f : A →ₛₐ[ψ] B` where `ψ : R' →ₛₐ[φ] S'`, to
+`φ : R →+* S`. -/
+@[simps!]
+def SemialgHom.restrictScalars {R S R' S' : Type*} [CommSemiring R] [CommSemiring S]
+    [CommSemiring R'] [CommSemiring S'] [Algebra R R'] [Algebra S S'] {φ : R →+* S}
+    (ψ : R' →ₛₐ[φ] S') {A B : Type*} [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
+    [Algebra R' A] [Algebra S' B] [IsScalarTower R R' A] [IsScalarTower S S' B]
+    (f : A →ₛₐ[ψ.toRingHom] B) : A →ₛₐ[φ] B where
+  __ := f.toRingHom
+  map_smul' r a := by
+    have := f.map_smul (algebraMap R R' r) a
+    simp_all [SemialgHom.toLinearMap_eq_coe, Algebra.algebraMap_eq_smul_one, ψ.map_smul]
+
 end semialghom
