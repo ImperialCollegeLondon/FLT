@@ -390,7 +390,7 @@ scoped instance : Prod.IsProdSMul K∞ 𝔸ᶠ[K] L∞ 𝔸ᶠ[L] where
 scoped instance : Module.Finite (𝔸 K) (𝔸 L) :=
     Module.Finite.equiv ((baseChangeAlgEquiv K L).changeScalars (𝔸 K)).toLinearEquiv
 
-scoped instance : IsModuleTopology (𝔸 K) (𝔸 L) :=
+scoped instance instIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) :=
   IsModuleTopology.instProd' (A := K∞)
 
 end AlgebraConstructions

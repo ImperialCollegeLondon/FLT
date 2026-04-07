@@ -25,16 +25,16 @@ map is continuous, `K_v`-linear and restricts to an isomorphism `B ⊗_A 𝓞_v 
 
 ## Main definitions
 
-* `IsDedekindDomain.HeightOneSpectrum.baseChangeContinuousAlgEquiv` :
+* `IsDedekindDomain.HeightOneSpectrum.adicCompletion.baseChangeContinuousAlgEquiv` :
    `L ⊗[K] K_v ≃A[L] ∏_{w|v} L_w`
 
 ## Main theorems
 
-* `IsDedekindDomain.HeightOneSpectrum.Extensionvalued_adicCompletionSemialgHom A K L B v w pf` :
+* `IsDedekindDomain.HeightOneSpectrum.Extension.valued_adicCompletionSemialgHom A K L B v w pf` :
   If w|v are nonzero primes of B and A, and if x ∈ K_v ⊆ L_w, then w(x)=v(x)^e
   where e is the global ramification index of w/v.
 
-* `IsDedekindDomain.HeightOneSpectrum.baseChange_bijective A K L B v` :
+* `IsDedekindDomain.HeightOneSpectrum.adicCompletion.baseChange_bijective A K L B v` :
   The canonical map L ⊗ Kᵥ → ∏_{w|v} L_w is bijective.
 
 ## TODO
@@ -291,7 +291,7 @@ instance [FiniteDimensional K L] (w : v.Extension B) :
   Module.Finite.of_pi (fun (w : Extension B v) => w.1.adicCompletion L) w
 
 /-- L_w has the K_v-module topology. -/
-instance [FiniteDimensional K L] (w : v.Extension B) :
+instance instIsModuleTopology [FiniteDimensional K L] (w : v.Extension B) :
     IsModuleTopology (v.adicCompletion K) (w.1.adicCompletion L) := by
   let Kv := adicCompletion K v
   let Lw := adicCompletion L w.1
@@ -300,7 +300,7 @@ instance [FiniteDimensional K L] (w : v.Extension B) :
   apply IsModuleTopology.iso iso
 
 /-- ∏_{w|v} L_w has the K_v-module topology. -/
-instance [FiniteDimensional K L] :
+instance instIsModuleTopologyPi [FiniteDimensional K L] :
     -- the claim that L_w has the module topology.
     IsModuleTopology (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) := by
   let := Extension.finite A K L B v
@@ -528,7 +528,7 @@ namespace Extension
 variable {B} (w : v.Extension B)
 
 -- **TODO**: Mathlib#23590 will provide these instances in more generality.
-/-- The restriction of `adicCompletionComapSemialgHom` to a map `𝓞_v → 𝓞_w`. -/
+/-- The restriction of `adicCompletionSemialgHom` to a map `𝓞_v → 𝓞_w`. -/
 noncomputable def adicCompletionIntegersRingHom :
     v.adicCompletionIntegers K →+* w.1.adicCompletionIntegers L :=
   RingHom.restrict (w.adicCompletionSemialgHom K L) _ _

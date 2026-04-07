@@ -51,7 +51,7 @@ lemma tendsTo_comap_cofinite [FaithfulSMul A B] :
   (Filter.Tendsto.cofinite_of_finite_preimage_singleton <|
     Extension.finite A (FractionRing A) (FractionRing B) B)
 
-lemma cofinite_mapsTo_adicCompletionComapSemialgHom :
+lemma cofinite_mapsTo_adicCompletionSemialgHom :
     ∀ᶠ (w : HeightOneSpectrum B) in Filter.cofinite,
     Set.MapsTo (Extension.adicCompletionSemialgHom K L (v := comap A w) ⟨w, rfl⟩)
       (adicCompletionIntegers K (comap A w)) (adicCompletionIntegers L w) := by
@@ -69,7 +69,7 @@ noncomputable def mapRingHom : 𝔸ᶠ[A, K] →+* 𝔸ᶠ[B, L] :=
   have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
   RestrictedProduct.mapAlongRingHom (adicCompletion K) (adicCompletion L) (comap A)
     (tendsTo_comap_cofinite A B) (fun w ↦ adicCompletionSemialgHom K L (v := w.comap A) ⟨w, rfl⟩)
-    (cofinite_mapsTo_adicCompletionComapSemialgHom A K L B)
+    (cofinite_mapsTo_adicCompletionSemialgHom A K L B)
 
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields,
 as a morphism lying over the canonical map `K → L`. -/
@@ -83,7 +83,7 @@ noncomputable def mapSemialgHom :
   continuous_toFun :=
     have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
     RestrictedProduct.mapAlong_continuous _ _ _ (tendsTo_comap_cofinite A B) _
-      (cofinite_mapsTo_adicCompletionComapSemialgHom A K L B)
+      (cofinite_mapsTo_adicCompletionSemialgHom A K L B)
       fun w ↦ adicCompletionSemialgHom_continuous K L ⟨w, rfl⟩
 
 variable {A K B} in
