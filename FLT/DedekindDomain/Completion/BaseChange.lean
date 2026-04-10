@@ -523,7 +523,6 @@ namespace Extension
 
 variable {B} (w : v.Extension B)
 
--- **TODO**: Mathlib#23590 will provide these instances in more generality.
 /-- The restriction of `adicCompletionSemialgHom` to a map `𝓞_v → 𝓞_w`. -/
 noncomputable def adicCompletionIntegersRingHom :
     v.adicCompletionIntegers K →+* w.1.adicCompletionIntegers L :=
