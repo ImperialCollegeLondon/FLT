@@ -117,11 +117,6 @@ lemma BaseChange.algebraMap_apply (w : HeightOneSpectrum B) (x : 𝔸ᶠ[A, K]) 
   simp [Algebra.algebraMap_eq_smul_one, ComapFiberwiseSMul.map_smul' x 1 (w.comap A) ⟨w, rfl⟩,
     RingHom.smul_toAlgebra, SemialgHom.toLinearMap_eq_coe]
 
-attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
--- otherwise
--- #synth SMul 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]
--- spends 2 seconds failing to find `SMul 𝔸ᶠ[A, K] (adicCompletion L w)
-
 noncomputable section bijection
 
 omit [Module.Finite A B] [IsDedekindDomain B] in
