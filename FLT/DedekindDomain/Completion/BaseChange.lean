@@ -37,10 +37,6 @@ map is continuous, `K_v`-linear and restricts to an isomorphism `B ⊗_A 𝓞_v 
 * `IsDedekindDomain.HeightOneSpectrum.adicCompletion.baseChange_bijective A K L B v` :
   The canonical map L ⊗ Kᵥ → ∏_{w|v} L_w is bijective.
 
-## TODO
-
-* Show that `B ⊗_A 𝓞_v → L ⊗_K K_v` is injective to finish the proof of `B ⊗_A 𝓞_v ≅ ∏_{w|v} 𝓞_w`.
-
 -/
 
 open scoped WithZero Valued TensorProduct
