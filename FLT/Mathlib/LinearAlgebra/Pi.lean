@@ -1,5 +1,6 @@
 import Mathlib.Algebra.Module.Pi
 import Mathlib.Algebra.Module.Equiv.Defs
+import Mathlib.Topology.Algebra.RestrictedProduct.Basic
 
 /-- A class encoding the product scalar multiplication of `∀ b : β, R b` on `∀ a : α, M a`
 that is determined by the fibers of a supplied function `f : α → β` on indices.
@@ -50,3 +51,15 @@ theorem Prod.IsProdSMul.smul_fst {R S M N : Type*} [SMul R M] [SMul S N] [SMul (
 theorem Prod.IsProdSMul.smul_snd {R S M N : Type*} [SMul R M] [SMul S N] [SMul (R × S) (M × N)]
     [Prod.IsProdSMul R S M N] (x : R × S) (y : M × N) : (x • y).2 = x.2 • y.2 := by
   rw [Prod.IsProdSMul.map_smul x y]
+
+open scoped RestrictedProduct in
+/-- A class encoding the product scalar multiplication of `Πʳ b, [R b, A b]_[𝓕]` on
+`Πʳ a, [M a, B a]_[𝓖]` that is determined by the fibers of a supplied function `f : α → β` on
+indices. Specifically, if `f a = b`, then `(r • x) a = r b • x a` for any `r : ∀ b, R b` and
+`x : ∀ a, M a`. This is `Pi.FiberwiseSMul` for restricted products. -/
+class RestrictedProduct.FiberwiseSMul {α β : Type*} (f : α → β) (R : (b : β) → Type*)
+    (A : (b : β) → Set (R b)) (𝓕 : Filter β) (M : (a : α) → Type*) (B : (a : α) → Set (M a))
+    (𝓖 : Filter α) [(b : β) → (σ : { a // f a = b }) → SMul (R b) (M ↑σ)]
+    [SMul (Πʳ b, [R b, A b]_[𝓕]) (Πʳ a, [M a, B a]_[𝓖])] : Prop where
+  map_smul (r : Πʳ b, [R b, A b]_[𝓕]) (x : Πʳ a, [M a, B a]_[𝓖]) (b : β)
+    (σ : {a // f a = b}) : (r • x) σ = r b • x σ
