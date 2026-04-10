@@ -101,6 +101,7 @@ lemma GL2.mem_localFullLevel' {v : HeightOneSpectrum (𝓞 F)} {x : GL (Fin 2) (
   rintro y hy
   simp [← hy]
 
+set_option backward.isDefEq.respectTransparency false in
 lemma GL2.v_det_val_mem_localFullLevel_eq_one {v : HeightOneSpectrum (𝓞 F)}
     {x : GL (Fin 2) (v.adicCompletion F)} (hx : x ∈ localFullLevel v) :
     Valued.v x.val.det = 1 := by
