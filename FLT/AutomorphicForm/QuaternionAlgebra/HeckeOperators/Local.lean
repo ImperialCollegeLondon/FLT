@@ -6,7 +6,7 @@ Authors: Bryan Wang
 import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
 import Mathlib.Data.Matrix.Reflection
 import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.NumberTheory.NumberField.FinitePlaces
+import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 
 open NumberField IsQuaternionAlgebra.NumberField IsDedekindDomain
@@ -227,6 +227,7 @@ lemma mapsTo_unipotent_mul_diagU1_U1diagU1 :
   (fun t _ => Set.mem_image_of_mem QuotientGroup.mk
     (Set.mul_mem_mul (unipotent_mem_U1 (Quotient.out t)) rfl))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Distinct t give distinct `unipotent_mul_diagU1`, i.e. we have a disjoint union. -/
 lemma injOn_unipotent_mul_diagU1 :
     Set.InjOn (unipotent_mul_diagU1 v α hα) ⊤ := by
