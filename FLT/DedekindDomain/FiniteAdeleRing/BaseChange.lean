@@ -345,6 +345,9 @@ noncomputable def restrictedProduct_pi_equiv :
       rfl
   }
 
+-- needed for the below lemmas for some reason
+attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
+
 lemma restrictedProduct_pi_isModuleTopology [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B, L]] :
     IsModuleTopology 𝔸ᶠ[A, K]
     (Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
