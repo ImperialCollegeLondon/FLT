@@ -227,7 +227,6 @@ lemma mapsTo_unipotent_mul_diagU1_U1diagU1 :
   (fun t _ => Set.mem_image_of_mem QuotientGroup.mk
     (Set.mul_mem_mul (unipotent_mem_U1 (Quotient.out t)) rfl))
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Distinct t give distinct `unipotent_mul_diagU1`, i.e. we have a disjoint union. -/
 lemma injOn_unipotent_mul_diagU1 :
     Set.InjOn (unipotent_mul_diagU1 v α hα) ⊤ := by
@@ -245,7 +244,7 @@ lemma injOn_unipotent_mul_diagU1 :
   simp only [unipotent, Matrix.unitOfDetInvertible, Fin.isValue, val_unitOfInvertible,
     Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_one, Matrix.cons_val_fin_one,
     Matrix.cons_val_zero] at unipotent_apply_zero_one_mem_integer
-  rw [← (QuotientAddGroup.out_eq' t₁), ← (QuotientAddGroup.out_eq' t₂)]
+  rw [← (Submodule.Quotient.mk_out t₁), ← (Submodule.Quotient.mk_out t₂)]
   apply QuotientAddGroup.eq.mpr; apply Ideal.mem_span_singleton'.mpr
   use ⟨_, unipotent_apply_zero_one_mem_integer⟩
   apply (Subtype.coe_inj).mp; push_cast
