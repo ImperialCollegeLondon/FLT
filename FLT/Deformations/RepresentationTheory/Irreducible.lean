@@ -2,6 +2,8 @@ import Mathlib.RepresentationTheory.Subrepresentation
 import Mathlib.RepresentationTheory.Irreducible
 import FLT.Mathlib.RepresentationTheory.Basic
 
+universe u
+
 namespace Representation
 
 variable {G : Type*} [Group G]
@@ -15,6 +17,7 @@ variable {W : Type*} [AddCommMonoid W] [Module k W]
   is absolutely irreducible, meaning that all the possible base change extensions are irreducible.
 -/
 class IsAbsolutelyIrreducible (ρ : Representation k G W) : Prop where
-  absolutelyIrreducible : ∀ k', ∀ _ : Field k', ∀ _ : Algebra k k', IsIrreducible (k' ⊗ᵣ' ρ)
+  absolutelyIrreducible :
+    ∀ k' : Type u, ∀ _ : Field k', ∀ _ : Algebra k k', IsIrreducible (k' ⊗ᵣ' ρ)
 
 end Representation

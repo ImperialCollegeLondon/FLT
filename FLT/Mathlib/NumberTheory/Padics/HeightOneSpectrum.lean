@@ -1,6 +1,19 @@
 import Mathlib.NumberTheory.Padics.HeightOneSpectrum
-import Mathlib.NumberTheory.NumberField.FinitePlaces
+import Mathlib.Algebra.Order.Archimedean.Submonoid
+import Mathlib.Algebra.GroupWithZero.Range
+import Mathlib.Data.Int.WithZero
+import Mathlib.NumberTheory.NumberField.InfinitePlace.Embeddings
+import Mathlib.RingTheory.DedekindDomain.AdicValuation
+import Mathlib.RingTheory.DedekindDomain.Factorization
+import Mathlib.RingTheory.Ideal.Norm.AbsNorm
+import Mathlib.RingTheory.Valuation.Archimedean
+import Mathlib.Topology.Algebra.Valued.NormedValued
+import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
+import Mathlib.RingTheory.Valuation.Discrete.RankOne
+import Mathlib.Algebra.FiniteSupport.Basic
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+import Mathlib.NumberTheory.NumberField.Completion.InfinitePlace
 
 open IsDedekindDomain HeightOneSpectrum adicCompletion NumberField UniformSpace.Completion
 
@@ -40,7 +53,13 @@ theorem natGenerator_eq_absNorm (v : HeightOneSpectrum R) :
   rw [Int.natAbs_eq_iff_associated.2 <| Submodule.IsPrincipal.associated_generator_span_self _]
   obtain ⟨g, hg⟩ := IsPrincipalIdealRing.principal v.asIdeal
   simp only [hg, Ideal.submodule_span_eq, Ideal.map_span, Set.image_singleton,
-    Ideal.absNorm_span_singleton, Algebra.norm_self, MonoidHom.id_apply]
+    Ideal.absNorm_span_singleton]
+  -- ❌️ at reducible transparency,
+  --   Ring.toIntAlgebra ℤ
+  -- and
+  --   Algebra.id ℤ
+  -- are not defeq, but they are at default transparency.
+  erw [Algebra.norm_self ℤ]
   rw [← Algebra.norm_eq_of_ringEquiv (IsIntegralClosure.intEquiv R) (by ext; simp)]
   simp [-Nat.cast_natAbs]
 
@@ -80,6 +99,7 @@ theorem adicCompletion.padicEquiv_cast
 
 -- Only have `Norm (v.adicCompletion ℚ)` for `R = 𝓞 ℚ` so specialise from here
 
+set_option backward.isDefEq.respectTransparency false in
 lemma adicCompletion.padicEquiv_norm_coe_eq
     (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) (x : WithVal (v.valuation ℚ)) :
     ‖(padicEquiv v) x‖ = ‖algebraMap _ (v.adicCompletion ℚ) x‖ := by
@@ -87,8 +107,9 @@ lemma adicCompletion.padicEquiv_norm_coe_eq
     extension_coe (
       by simpa using Padic.isUniformInducing_cast_withVal (p := primesEquiv v) |>.uniformContinuous
     )]
+  obtain ⟨x⟩ := x
   change _ = ‖FinitePlace.embedding v x‖
-  rw [FinitePlace.norm_def']
+  rw [NumberField.FinitePlace.norm_embedding']
   rcases eq_or_ne x 0 with rfl | hx
   · simp [withValEquiv, Valuation.IsEquiv.uniformEquiv]
   · simp [padicValuation, withValEquiv, Valuation.IsEquiv.uniformEquiv,
@@ -96,6 +117,7 @@ lemma adicCompletion.padicEquiv_norm_coe_eq
     -- TODO: need to fix some defeq abuse upstream in FinitePlace.norm_def' to avoid the next line
     rfl
 
+set_option backward.isDefEq.respectTransparency false in
 lemma adicCompletion.padicEquiv_norm_eq
     (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) (x : v.adicCompletion ℚ) :
     ‖(padicEquiv v) x‖ = ‖x‖ := by

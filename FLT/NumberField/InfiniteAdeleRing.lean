@@ -72,6 +72,7 @@ namespace NumberField.InfiniteAdeleRing
 /-- `K∞` is notation for `InfiniteAdeleRing K`. -/
 scoped notation:10000 K "∞" => InfiniteAdeleRing K
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical map from the infinite adeles of K to the infinite adeles of L -/
 noncomputable def baseChange :
     K∞ →SA[algebraMap K L] L∞ where
@@ -90,20 +91,23 @@ noncomputable instance [Algebra K∞ L∞] :
 
 /-! Show that `L_∞` has the `K_∞`-module topology. -/
 
+open scoped NumberField.LiesOver
+
 variable [NumberField K] [NumberField L]
 
+attribute [local instance 9999] Algebra.toModule
+
 /-- The $K_{\infty}$-linear homeomorphism $K_{\infty}^{[L:K]} \cong L_{\infty}$. -/
-noncomputable
-def piEquiv [Algebra K∞ L∞]
-    [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
-    (Fin (Module.finrank K L) → K∞) ≃L[K∞] L∞ := by
-  -- I think we could remove convert if we make `InfiniteAdeleRing` an `abbrev`
-  -- (K_∞)^d ≃[K_∞] ∏ v, K_v^d
-  convert (ContinuousLinearEquiv.piScalarPiComm _ _).symm.trans
+noncomputable def piEquiv [Algebra K∞ L∞]
+    [Pi.FiberwiseSMul (fun a : InfinitePlace L => a.comap (algebraMap K L)) Completion Completion] :
+    (Fin (Module.finrank K L) → K∞) ≃L[K∞] L∞ :=
+  have := (ContinuousLinearEquiv.piScalarPiComm Completion fun v _ ↦ v.Completion).symm.trans
     -- lift the equivalence K_v^d ≃[v.Completion] ∏ w ∣ v, L_w on fibers of comap
     (ContinuousLinearEquiv.piScalarPiCongrFiberwise
-      (fun v : InfinitePlace K => (Completion.piEquiv L v).symm)).symm
+      fun v : InfinitePlace K ↦ (Completion.piEquiv L v).symm).symm
+  this
 
+set_option backward.isDefEq.respectTransparency false in
 instance instIsModuleTopology_fLT [Algebra K∞ L∞]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
     IsModuleTopology K∞ L∞ := .iso (piEquiv K L)
@@ -134,12 +138,12 @@ instance : Module.Free K∞ (L ⊗[K] K∞) := by
   -- Compose to transfer freeness of ∏ v, K_v ⊗ L to L ⊗ K_∞
   exact Module.Free.of_equiv (e₁.trans e₂).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Take two arbitrary `Algebra K L∞` and `Algebra K∞ L∞` instances. Assume that
 `Algebra K L∞` factors through (existing) `Algebra K L` and `Algebra L L∞`.
 Assume further that `Algebra K∞ L∞` is determined by the fibers of restriction of infinite places
 of `L` to `K` via (x • y) v = x (v.comap (algebraMap K L)) • y v. Then the `L` algebra base change
-map is also linear in `K∞`.
--/
+map is also linear in `K∞`. -/
 instance [Algebra K∞ L∞]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
     IsBiscalar L K∞ (baseChangeAlgEquiv K L).toAlgHom where
@@ -151,13 +155,14 @@ instance [Algebra K∞ L∞]
         funext w
         simp [TensorProduct.smul_tmul', baseChangeAlgEquiv_tmul,
           Pi.FiberwiseSMul.map_smul _ _ Completion (σ := w.toExtension K), RingHom.smul_toAlgebra,
-          Completion.comapHom, SemialgHom.toLinearMap_eq_coe, coe_toExtension]
+          Isometry.mapRingHom, WithAbs.semialgebraMap, UniformSpace.Completion.mapSemialgHom]
         ring
     | add x y _ _ => simp_all
 
 -- `IsModuleTopology.continuousAlgEquivOfIsScalarTower` is then applicable in the same
 -- way it was for `baseChangeEquiv` in `InfinitePlace.Completion`
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical `L`-algebra homeomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
 noncomputable

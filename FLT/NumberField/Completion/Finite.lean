@@ -6,7 +6,7 @@ Authors: Kevin Buzzard
 import FLT.DedekindDomain.AdicValuation
 import FLT.Mathlib.LinearAlgebra.Countable
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
-import Mathlib.NumberTheory.NumberField.FinitePlaces
+import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 import Mathlib.NumberTheory.Padics.ProperSpace
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.NumberTheory.Padics.HeightOneSpectrum
@@ -39,9 +39,11 @@ open scoped Valued in
 instance : Finite (𝓀[v.adicCompletion K]) :=
   inferInstanceAs (Finite (ResidueField (v.adicCompletionIntegers K)))
 
+set_option backward.isDefEq.respectTransparency false in
 instance NumberField.instCompactSpaceAdicCompletionIntegers :
     CompactSpace (v.adicCompletionIntegers K) :=
   Valued.WithZeroMulInt.integer_compactSpace (v.adicCompletion K) inferInstance
+    (v.valuedAdicCompletion_surjective K)
 
 lemma NumberField.isCompactAdicCompletionIntegers :
     IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K)) := by
