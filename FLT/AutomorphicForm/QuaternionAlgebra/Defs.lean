@@ -6,7 +6,6 @@ Authors: Kevin Buzzard
 import FLT.Hacks.RightActionInstances
 import FLT.Mathlib.Algebra.FixedPoints.Basic
 import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
-import Mathlib.NumberTheory.NumberField.Completion.InfinitePlace
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 
