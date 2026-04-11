@@ -4,7 +4,7 @@ import FLT.NumberField.Completion.Finite
 import Mathlib.Analysis.Normed.Unbundled.SpectralNorm
 import Mathlib.FieldTheory.AbsoluteGaloisGroup
 import Mathlib.FieldTheory.Galois.Infinite
-import Mathlib.NumberTheory.NumberField.FinitePlaces
+import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 
 variable {K L : Type*} [Field K] [Field L]
 variable {A B : Type*} [CommRing A] [TopologicalSpace A] [CommRing B] [TopologicalSpace B]
@@ -25,6 +25,7 @@ local notation "Ω" K => IsDedekindDomain.HeightOneSpectrum (𝓞 K)
 local notation "Kᵥ" => IsDedekindDomain.HeightOneSpectrum.adicCompletion K v
 local notation "𝒪ᵥ" => IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers K v
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Given a field extension, this is a map between its absolute galois group.
 Note that this relies on an arbitrarily chosen embedding of the algebraic closures -/
 noncomputable
@@ -77,6 +78,7 @@ def Field.absoluteGaloisGroup.map (f : K →+* L) : Γ L →ₜ* Γ K where
 set_option allowUnsafeReducibility true in
 attribute [reducible] Field.absoluteGaloisGroup -- lol WTF is going on here
 
+set_option backward.isDefEq.respectTransparency false in
 lemma Field.absoluteGaloisGroup.lift_map (f : K →+* L) (σ : Γ L) (x : Kᵃˡᵍ) :
     AlgebraicClosure.map f (map f σ x) = σ (AlgebraicClosure.map f x) := by
   letI := f.toAlgebra
@@ -222,7 +224,7 @@ lemma spectralNorm_inv
   rw [← spectralAlgNorm_def, ← spectralAlgNorm_def, ← spectralAlgNorm_mul (K := K) x x⁻¹,
     mul_inv_cancel₀ H, spectralAlgNorm_one]
 
-noncomputable instance : NontriviallyNormedField Kᵥ := Valued.toNontriviallyNormedField
+noncomputable instance : NontriviallyNormedField Kᵥ := Valued.toNontriviallyNormedField _ _
 
 instance valuationRing_integralClosure
     {L : Type*} [Field L] [Algebra Kᵥ L] [Algebra.IsAlgebraic Kᵥ L] :
