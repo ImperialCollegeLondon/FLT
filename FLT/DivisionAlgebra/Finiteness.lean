@@ -251,7 +251,7 @@ instance compact_includeLeft_subgroup :
     have : DiscreteTopology (principalSubgroup (𝓞 K) K : Set (AdeleRing (𝓞 K) K)) :=
       discrete_principalSubgroup K
     have key := TopologicalAddGroup.IsSES.ofClosedAddSubgroup (principalSubgroup (𝓞 K) K)
-    exact IsOpenQuotientMap.piMap (fun _ ↦ key.isOpenQuotientMap)
+    exact IsOpenQuotientMap.piMap (fun _ ↦ (key AddSubgroup.isClosed_of_discrete).isOpenQuotientMap)
   let φ : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) →+ (D_𝔸 ⧸ H) :=
     AddMonoidHom.comp (QuotientAddGroup.mk' _) (D𝔸_iso_top K D).symm.toAddMonoidHom
   have hφ0 : π.ker ≤ φ.ker := by
