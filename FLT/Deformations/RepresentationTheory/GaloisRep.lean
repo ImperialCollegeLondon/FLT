@@ -33,7 +33,7 @@ def GaloisRep :=
   letI := moduleTopology A (Module.End A M)
   Γ K →ₜ* Module.End A M
 
-instance : FunLike (GaloisRep K A M) (Γ K) (Module.End A M) :=
+noncomputable instance : FunLike (GaloisRep K A M) (Γ K) (Module.End A M) :=
   letI := moduleTopology A (Module.End A M)
   ContinuousMonoidHom.instFunLike
 
@@ -48,7 +48,7 @@ lemma GaloisRep.ext {ρ ρ' : GaloisRep K A M} (H : ∀ σ, ρ σ = ρ' σ) : ρ
   ContinuousMonoidHom.ext H
 
 /-- The kernel of a galois rep. -/
-nonrec
+noncomputable nonrec
 abbrev GaloisRep.ker (ρ : GaloisRep K A M) : Subgroup (Γ K) :=
   letI := moduleTopology A (Module.End A M)
   ρ.ker
@@ -168,7 +168,8 @@ omit [NumberField K] in
 lemma FramedGaloisRep.ofGL_apply (ρ : Γ K →ₜ* GL n A) (σ) : ofGL ρ σ = (ρ σ).toLin := rfl
 
 /-- `1`-dimensional framed galois reps are equivalent to (continuous) characters. -/
-def FramedGaloisRep.equivChar {n : Type*} [Unique n] : FramedGaloisRep K A n ≃ (Γ K →ₜ* A) :=
+noncomputable def FramedGaloisRep.equivChar {n : Type*} [Unique n] :
+    FramedGaloisRep K A n ≃ (Γ K →ₜ* A) :=
   letI := moduleTopology A (Module.End A (n → A))
   letI : ContinuousMul _ := ⟨IsModuleTopology.continuous_mul_of_finite A (Module.End A (n → A))⟩
   letI e : Module.End A (n → A) ≃A[A] A :=
@@ -273,6 +274,7 @@ lemma LinearMap.trace_toLin' {R n : Type*} [CommSemiring R] [DecidableEq n]
     [Fintype n] (M : Matrix n n R) : LinearMap.trace _ _ M.toLin' = M.trace := by
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 omit [NumberField K] in
 lemma FramedGaloisRep.det_baseChange [IsTopologicalRing B]
     (ρ : FramedGaloisRep K A n) (f : A →+* B) (hf : Continuous f) :
@@ -315,6 +317,7 @@ variable [Module.Free A M] [Module.Finite A M] [Module.Free A N] [Module.Finite 
 noncomputable
 def GaloisRep.charFrob (ρ : GaloisRep K A M) : Polynomial A := (ρ.toLocal v Frobᵥ).charpoly
 
+set_option backward.isDefEq.respectTransparency false in
 omit [IsTopologicalRing A] in
 lemma GaloisRep.charFrob_eq (ρ : GaloisRep K A M) [ρ.IsUnramifiedAt v] (σ : Γ Kᵥ)
     (hσ : IsArithFrobAt 𝒪ᵥ σ (𝔪 (IntegralClosure 𝒪ᵥ (Kᵥᵃˡᵍ)))) :
@@ -334,14 +337,16 @@ on it via `ρ`. -/
 @[nolint unusedArguments]
 def GaloisRep.Space (ρ : GaloisRep K A M) : Type _ := M
 
-instance (ρ : GaloisRep K A M) : AddCommGroup ρ.Space := show AddCommGroup M from inferInstance
+instance (ρ : GaloisRep K A M) : AddCommGroup ρ.Space := inferInstanceAs (AddCommGroup M)
 
-instance (ρ : GaloisRep K A M) : DistribMulAction (Γ K) ρ.Space where
+-- dirty hack
+set_option backward.isDefEq.respectTransparency false in
+noncomputable instance (ρ : GaloisRep K A M) : DistribMulAction (Γ K) ρ.Space where
   smul g v := ρ g v
-  one_smul := by simp [instHSMul]
-  mul_smul := by simp [instHSMul]
-  smul_zero := by simp [instHSMul]
-  smul_add := by simp [instHSMul]
+  one_smul b := by unfold HSMul.hSMul; simp [instHSMul]
+  mul_smul := by unfold HSMul.hSMul; simp [instHSMul]
+  smul_zero := by unfold HSMul.hSMul; simp [instHSMul]
+  smul_add := by unfold HSMul.hSMul; simp [instHSMul]
 
 open TensorProduct in
 /-- A galois rep `ρ : Γ K → Aut_A(M)` has a flat prolongation at `v` if `M` (when viewed as a

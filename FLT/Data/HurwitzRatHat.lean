@@ -1,6 +1,5 @@
 import FLT.Data.Hurwitz
 import FLT.Data.QHat
-import Mathlib
 
 open scoped TensorProduct
 
