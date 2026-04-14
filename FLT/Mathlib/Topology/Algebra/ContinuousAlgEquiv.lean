@@ -6,6 +6,7 @@ Authors: Salvatore Mercuri
 import Mathlib.Topology.Algebra.Algebra.Equiv
 import Mathlib.Topology.Algebra.Algebra
 import Mathlib.Topology.Algebra.Module.Equiv
+import FLT.Mathlib.Algebra.Algebra.Tower
 
 /-!
 # Topological (sub)algebras
@@ -23,13 +24,17 @@ variable {R A B C : Type*}
   [TopologicalSpace B] [Semiring C] [TopologicalSpace C] [Algebra R A] [Algebra R B]
   [Algebra R C]
 
-@[coe]
-def toContinuousLinearEquiv (e : A ≃A[R] B) : A ≃L[R] B where
-  __ := e.toLinearEquiv
-  continuous_toFun := e.continuous_toFun
-  continuous_invFun := e.continuous_invFun
-
-theorem toContinuousLinearEquiv_apply (e : A ≃A[R] B) (a : A) :
-  e.toContinuousLinearEquiv a = e a := rfl
+/--
+Produces an `S'`-linear continuous algebra isomorphism from a continuous algebra
+isomorphism `f : A ≃A[S] B` which also has scalars `S'`.
+-/
+def changeScalars {A B : Type*} (S' : Type*) {S : Type*}
+    [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S] [Algebra S A]
+    [Algebra S B] [Algebra S' A] [Algebra S' B] [TopologicalSpace A] [TopologicalSpace B]
+    (f : A ≃A[S] B) [IsBiscalar S S' f.toAlgHom] :
+    A ≃A[S'] B where
+  __ := f.toAlgEquiv.changeScalars S'
+  continuous_toFun := f.continuous
+  continuous_invFun := f.continuous_invFun
 
 end ContinuousAlgEquiv
