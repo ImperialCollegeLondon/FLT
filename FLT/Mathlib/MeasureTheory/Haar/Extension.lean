@@ -36,30 +36,13 @@ open scoped Pointwise
 
 namespace TopologicalGroup.IsSES
 
-variable {A B C : Type*} [Group A] [Group B] [Group C]
-  [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C]
-  {φ : A →* B} {ψ : B →* C} (H : TopologicalGroup.IsSES φ ψ)
-
-@[to_additive]
-theorem apply_apply {A B C : Type*} [Group A] [Group B] [Group C]
-    [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C]
-    {φ : A →* B} {ψ : B →* C} (H : TopologicalGroup.IsSES φ ψ) (a : A) :
-    ψ (φ a) = 1 :=
-  H.mulExact.apply_apply_eq_one _
-
 variable {A B C E : Type*} [Group A] [Group B] [Group C]
   [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace C]
   {φ : A →* B} {ψ : B →* C} (H : TopologicalGroup.IsSES φ ψ)
-  [IsTopologicalGroup A] [IsTopologicalGroup B] [NormedAddCommGroup E]
+  [IsTopologicalGroup B]
 
 variable [MeasurableSpace A] [BorelSpace A] (μA : Measure A) [hμA : IsHaarMeasure μA]
-  [NormedSpace ℝ E]
 variable [IsTopologicalGroup C] [LocallyCompactSpace B]
-
-@[to_additive]
-theorem pushforward_apply (f : CompactlySupportedContinuousMap B E) (b : B) :
-    pushforward H μA f (ψ b) = ∫ a, pullback H f b a ∂μA :=
-  integral_pullback_invFun_apply H μA f b
 
 variable [MeasurableSpace C] [BorelSpace C] (μC : Measure C) [hμC : IsHaarMeasure μC]
 variable [T2Space B] [MeasurableSpace B] [BorelSpace B]
