@@ -1139,10 +1139,10 @@ theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset
     DoubleCoset.doubleCoset (Quotient.out q) (Set.range ⇑(incl₁ K D)) U) (isCompact_univ_iff.mpr
     (NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact K D))
   have ⟨t, FinCover_descended⟩ := ToFinCover (DoubleCoset.isOpen_doubleCoset_rightrel_mk
-    ((incl₁ K D).range) U hU) (DoubleCoset.union_image_mk_rightRel (incl₁ K D).range U
+    ((incl₁ K D).range) U hU) (DoubleCoset.iUnion_image_mk_rightRel (H := (incl₁ K D).range)
     ▸ Set.Subset.rfl)
-  apply (DoubleCoset.iUnion_finset_quotTodoubleCoset ((incl₁ K D).range) U).mp
-  exact ⟨t, DoubleCoset.union_finset_rightrel_cover ((incl₁ K D).range) U t FinCover_descended⟩
+  apply (DoubleCoset.finite_quotient_iff_exists_finset_iUnion_eq_univ ((incl₁ K D).range) U).mpr
+  exact ⟨t, DoubleCoset.iUnion_finset_rightRel_eq_univ_of_rightRel FinCover_descended⟩
 
 end DivisionAlgebra
 
