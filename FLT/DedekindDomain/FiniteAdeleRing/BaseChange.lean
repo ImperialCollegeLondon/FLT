@@ -134,8 +134,9 @@ lemma tensorEquivTensor_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A, K])
     tensorEquivTensor A K L B (algebraMap B L b ⊗ₜ[K] x) = b ⊗ₜ[A] x := by
   simp [tensorEquivTensor, linearEquivTensorProductModule_tmul]
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The `A`-linear isomorphism `φ : B ⊗[K] 𝔸_K^∞ ≅ ∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v]`
 given by `φ (b ⊗ x) v = b ⊗ (x v)`. -/
 def tensorEquivRestrictedProduct :
@@ -159,8 +160,9 @@ lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K])
     (v : HeightOneSpectrum A) :
     tensorEquivRestrictedProduct A K L B (b ⊗ₜ[A] x) v = b ⊗ₜ[A] (x v) := rfl
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The `A`-linear isomorphism `∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v] ≅ ∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w]`
 given by `adicCompletionComapIntegerLinearEquiv`. -/
 def restrictedProduct_tensorProduct_equiv_restrictedProduct_prod [FiniteDimensional K L] :
@@ -178,8 +180,9 @@ lemma restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply [Finite
     FiniteAdeleRing.restrictedProduct_tensorProduct_equiv_restrictedProduct_prod A K L B f v =
     integerBaseChangeLinearEquiv K L B v (f v) := rfl
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The `A`-linear isomorphism `∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w] → 𝔸_L^∞` given by
 `RestrictedProduct.flatten_equiv'`. -/
 def restrictedProduct_prod_equiv [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A B 𝔸ᶠ[B, L]] :
@@ -211,8 +214,9 @@ lemma restrictedProduct_prod_equiv_apply [Algebra A 𝔸ᶠ[B, L]] [IsScalarTowe
 variable [Algebra K 𝔸ᶠ[B, L]] [IsScalarTower K 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [Algebra A 𝔸ᶠ[B, L]]
   [IsScalarTower A B 𝔸ᶠ[B, L]] [IsScalarTower A 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]]
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The `K`-linear isomorphism `L ⊗ A_K^∞ ≅ A_L^∞` given by composing the previous four maps. -/
 def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃ₗ[K] 𝔸ᶠ[B, L] :=
   have : IsScalarTower A K 𝔸ᶠ[B, L] := .to₁₂₄ _ _ 𝔸ᶠ[A, K] _
@@ -226,8 +230,9 @@ def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃�
 lemma algebraMap_apply (x : K) (v : HeightOneSpectrum A) :
     algebraMap K 𝔸ᶠ[A, K] x v = algebraMap K (v.adicCompletion K) x := rfl
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 set_option backward.isDefEq.respectTransparency false in
 @[simp]
 lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A, K]) :
@@ -322,8 +327,9 @@ private noncomputable local instance (priority := 9999) (v : HeightOneSpectrum A
     Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
   Algebra.toModule
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- An auxiliary 𝔸_K-module structure on restricted product over v of (product of w's dividing v
 of L_w wrt 𝓞_w). Only used in this file to compare L ⊗ 𝔸_K and 𝔸_L.
 -/
@@ -333,8 +339,9 @@ noncomputable local instance : Module 𝔸ᶠ[A, K]
   RestrictedProduct.instModuleCoe_fLT
 
 set_option backward.isDefEq.respectTransparency false in
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+set_option synthInstance.maxHeartbeats 80000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
 reaindexing the elements. -/
 noncomputable def restrictedProduct_pi_equiv :
@@ -357,8 +364,9 @@ noncomputable def restrictedProduct_pi_equiv :
 attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
 
 set_option backward.isDefEq.respectTransparency false in
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+set_option synthInstance.maxHeartbeats 160000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 800000 in
 lemma restrictedProduct_pi_isModuleTopology [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B, L]] :
     IsModuleTopology 𝔸ᶠ[A, K]
     (Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
@@ -374,8 +382,9 @@ lemma restrictedProduct_pi_isModuleTopology [FiniteDimensional K L] [IsScalarTow
     rw [Set.finite_univ_iff]
     exact Extension.finite A K L B v
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 instance [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B, L]] :
     IsModuleTopology 𝔸ᶠ[A, K] 𝔸ᶠ[B, L] :=
   have := restrictedProduct_pi_isModuleTopology A K L B
