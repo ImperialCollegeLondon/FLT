@@ -418,7 +418,24 @@ lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L
           Algebra.TensorProduct.algebraMap_apply, RingHom.map_mul, ← Algebra.smul_def]
         simp
 
-set_option maxHeartbeats 0 in
+-- `tensorAdicCompletionIntegersTo_isClopen_range` got much slower after the
+-- bump to v4.29. Here are some instance shortcuts which speed it up.
+
+noncomputable instance : Semiring (B ⊗[A] ↥(adicCompletionIntegers K v)) := inferInstance
+noncomputable instance : Semiring (adicCompletionIntegers K v) := inferInstance
+noncomputable instance : Semiring (adicCompletion K v) := inferInstance
+noncomputable instance : Algebra B (L ⊗[K] adicCompletion K v) := inferInstance
+open scoped TensorProduct.RightActions in
+noncomputable instance [FiniteDimensional K L] : TopologicalSpace (L ⊗[K] adicCompletion K v) :=
+  inferInstance
+noncomputable instance : Semiring (L ⊗[K] adicCompletion K v) := inferInstance
+
+--set_option pp.all true in
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+--set_option trace.Meta.synthInstance true in
+--set_option trace.profiler.threshold 1000 in
+set_option maxHeartbeats 400000 in
 attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
 open scoped TensorProduct.RightActions in
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L]  in
@@ -428,7 +445,8 @@ lemma tensorAdicCompletionIntegersTo_isClopen_range
     IsClopen (SetLike.coe (tensorAdicCompletionIntegersTo K L B v).range) := by
   -- `B ⊗[A] 𝒪_v` is a subgroup of `L ⊗[K] K_v`, so we can show it's closed
   -- by showing that it's open. **TODO** split into IsOpen + IsClosed lemmas?
-  have : SeparatelyContinuousAdd (L ⊗[K] v.adicCompletion K) := instSeparatelyContinuousAddOfContinuousAdd
+  have : SeparatelyContinuousAdd (L ⊗[K] v.adicCompletion K) :=
+    instSeparatelyContinuousAddOfContinuousAdd
   rw [← Subalgebra.coe_toSubring, ← Subring.coe_toAddSubgroup]
   refine OpenAddSubgroup.isClopen ⟨_, ?_⟩
   -- Further, we can show `B ⊗[A] 𝒪_v` is open by showing that it contains an
@@ -471,7 +489,6 @@ lemma tensorAdicCompletionIntegersTo_isClopen_range
     apply isOpen_set_pi Set.finite_univ
     rintro i -
     exact Valued.isOpen_valuationSubring (v.adicCompletion K)
-
 
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L] in
 open scoped TensorProduct.RightActions in
