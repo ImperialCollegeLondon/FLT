@@ -1,7 +1,6 @@
 import Mathlib.Analysis.Normed.Field.WithAbs
 import Mathlib.NumberTheory.NumberField.Basic
 import FLT.Mathlib.Topology.Algebra.UniformRing
-import Mathlib
 
 namespace WithAbs
 
