@@ -47,6 +47,7 @@ theorem denseRange_algebraMap_subtype_pi (p : InfinitePlace K → Prop) [NumberF
 
 attribute [local instance] WithAbs.algebraLeft
 
+/-- The map `(R,v) → (S,w)` as a semialgebra map over `R → S` (which is the same map!). -/
 @[simps!]
 def _root_.WithAbs.semialgebraMap {R R' S : Type*} [CommSemiring R] [CommSemiring R'] [Semiring S]
     [PartialOrder S] [Algebra R R'] (v : AbsoluteValue R S) (w : AbsoluteValue R' S) :

@@ -302,7 +302,7 @@ noncomputable local instance (v : HeightOneSpectrum A) : SMul (adicCompletionInt
     ((w : Extension B v) → adicCompletion L w.val) :=
   Module.toDistribMulAction.toDistribSMul.toSMul
 
--- shortcut
+/-- A shortcut instance for the action of `𝓞ᵥ` on `Kᵥ`. -/
 noncomputable local instance (v : HeightOneSpectrum A) : MulAction (v.adicCompletionIntegers K)
     (v.adicCompletion K) := LieAlgebra.ofAssociativeAlgebra.toMulAction
 

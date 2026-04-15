@@ -152,6 +152,7 @@ namespace Extension
 
 variable {v} (w : v.Extension B)
 
+/-- The map `(R,v) → (S,w)` as a semialgebra map over `R → S` (which is the same map!). -/
 @[simps!]
 def _root_.WithVal.semialgebraMap {R S Γ₀ Γ₀' : Type*} [CommRing R]
     [CommRing S] [LinearOrderedCommGroupWithZero Γ₀] [LinearOrderedCommGroupWithZero Γ₀']
@@ -637,7 +638,7 @@ lemma tensorAdicCompletionIntegersToAdicCompletion_range_eq_integers [FiniteDime
     use y
     simpa [hx'] using congr_fun hy w
 
--- shortcut
+/-- A shortcut instance for the action of `𝓞ᵥ` on `Kᵥ`. -/
 noncomputable local instance : MulAction (v.adicCompletionIntegers K) (v.adicCompletion K) :=
   LieAlgebra.ofAssociativeAlgebra.toMulAction
 
@@ -737,7 +738,7 @@ theorem inertiaDeg_eq_inertiaDeg :
         rw [Ideal.inertiaDeg_algebra_tower v.asIdeal (v.completionIdeal K) (w.1.completionIdeal L),
           inertiaDeg_asIdeal_completionIdeal, one_mul]
 
--- shortcut
+/-- A shortcut instance for the action of `𝓞ᵥ` on `Kᵥ`. -/
 noncomputable local instance : MulAction (v.adicCompletionIntegers K) (v.adicCompletion K) :=
   LieAlgebra.ofAssociativeAlgebra.toMulAction
 
