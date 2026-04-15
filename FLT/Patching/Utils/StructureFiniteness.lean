@@ -92,6 +92,7 @@ def AlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M] [Algebra R M]
     [Finite M] (hM : Nat.card M < N) : AlgebraTypeCardLT R N :=
   ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.ring, (Finite.equivFin M).symm.algebra R⟩
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 def AlgebraTypeCardLT.equivOfAlgebra (N : ℕ) {M : Type*} [Ring M] [Algebra R M]
     [Finite M] (hM : Nat.card M < N) : M ≃ₐ[R] Fin ((AlgebraTypeCardLT.ofAlgebra R N M hM).1) :=
@@ -220,6 +221,7 @@ def TopologicalAlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M]
     (Finite.equivFin M).symm.injective⟩,
     (Finite.equivFin M).symm.algebra _, (TopologicalModuleTypeCardLT.ofModule R N M hM).2.2.2.2.2⟩
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 def TopologicalAlgebraTypeCardLT.equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
     [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]

@@ -24,6 +24,7 @@ abbrev PatchingAlgebra.Component (k : ℕ) := UltraProduct (fun i ↦ R i ⧸ ma
 
 instance (k) : T2Space (PatchingAlgebra.Component R F k) := DiscreteTopology.toT2Space
 
+set_option backward.isDefEq.respectTransparency false
 lemma PatchingAlgebra.componentEquiv (k) : ∀ᶠ j in F,
     Nonempty (PatchingAlgebra.Component R F k ≃ₐ[Λ] R j ⧸ maximalIdeal (R j) ^ k) := by
   obtain ⟨n, hn⟩ := Algebra.UniformlyBoundedRank.cond (R := R) k

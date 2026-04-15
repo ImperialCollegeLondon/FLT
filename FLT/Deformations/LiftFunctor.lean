@@ -55,6 +55,7 @@ lemma toFramedGaloisRep_map {R S : ProartinianCat 𝓞} (f : R ⟶ S)
 
 variable (n)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `repnQuotFunctor n G 𝓞` is the functor taking `R` to continuous reps `G → GLₙ(R)` up to
 conjugation by some `γ` in the kernel of `GLₙ(R) → GLₙ(𝕜)`. -/
 noncomputable

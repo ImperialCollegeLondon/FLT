@@ -9,6 +9,9 @@ import Mathlib.RingTheory.DiscreteValuationRing.Basic
 import Mathlib.RingTheory.Ideal.IsPrincipalPowQuotient
 import Mathlib.Analysis.Normed.Ring.Lemmas
 import Mathlib.Topology.Algebra.Valued.ValuedField
+import Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+import Mathlib.Topology.Algebra.Valued.LocallyCompact
+import Mathlib.RingTheory.Valuation.Discrete.RankOne
 
 /-! # Topological results for integer-valued rings
 
@@ -24,41 +27,7 @@ open scoped Topology
 
 namespace Valued.WithZeroMulInt
 
-open Set Filter in
-/-- In a `ℤᵐ⁰`-valued ring, powers of `x` tend to zero if `v x ≤ ofAdd (-1 : ℤ)`. -/
-theorem tendsto_zero_pow_of_le_neg_one {K : Type*} [Ring K] [Valued K ℤᵐ⁰]
-    {x : K} (hx : v x ≤ ofAdd (-1 : ℤ)) :
-    Tendsto (fun (n : ℕ) => x ^ n) atTop (𝓝 0) := by
-  simp only [(hasBasis_nhds_zero _ _).tendsto_right_iff, mem_setOf_eq, map_pow, eventually_atTop]
-  have h_lt : ofAdd (-1 : ℤ) < (1 : ℤᵐ⁰) := by
-     rw [← coe_one, coe_lt_coe, ← ofAdd_zero, ofAdd_lt]; linarith
-  intro γ _
-  by_cases hγ : γ.val ≤ 1
-  · let m := - toAdd (unitsWithZeroEquiv γ) + 1 |>.toNat
-    refine ⟨m, fun b hb => lt_of_le_of_lt
-      (pow_le_pow_of_le_one zero_le' (le_trans hx <| le_of_lt h_lt) hb) ?_⟩
-    replace hγ : 0 ≤ -toAdd (unitsWithZeroEquiv γ) + 1 := by
-      rw [← coe_unitsWithZeroEquiv_eq_units_val, ← coe_one, coe_le_coe, ← toAdd_le, toAdd_one] at hγ
-      linarith
-    apply lt_of_le_of_lt <| pow_le_pow_left₀ zero_le' hx m
-    rw [← coe_unitsWithZeroEquiv_eq_units_val, ← coe_pow, coe_lt_coe, ← ofAdd_nsmul,
-      nsmul_eq_mul, Int.toNat_of_nonneg hγ, mul_neg, mul_one, neg_add_rev, neg_neg, ofAdd_add,
-      ofAdd_neg, ofAdd_toAdd, mul_lt_iff_lt_one_right', Left.inv_lt_one_iff, ← ofAdd_zero, ofAdd_lt]
-    exact zero_lt_one
-  · refine ⟨1, fun b hb => lt_of_le_of_lt
-      (pow_le_pow_of_le_one zero_le' (le_trans hx <| le_of_lt h_lt) hb) ?_⟩
-    apply pow_one (v x) ▸ lt_trans (lt_of_le_of_lt hx h_lt) (lt_of_not_ge hγ)
-
-open Filter in
-theorem exists_pow_lt_of_le_neg_one {K : Type*} [Ring K] [Valued K ℤᵐ⁰]
-    {x : K} (hx : v x ≤ ofAdd (-1 : ℤ)) (γ : ℤᵐ⁰ˣ) :
-    ∃ n, v x ^ n < γ := by
-  simp_rw [← map_pow]
-  let ⟨n, hn⟩ := eventually_atTop.1 <|
-     ((hasBasis_nhds_zero _ _).tendsto_right_iff ).1 (tendsto_zero_pow_of_le_neg_one hx) γ trivial
-  exact ⟨n, by simpa using hn n le_rfl⟩
-
-variable {K : Type*} [Field K] [Valued K ℤᵐ⁰]
+variable {K : Type*} [Field K] [hv : Valued K ℤᵐ⁰]
 
 theorem irreducible_valuation_lt_one {ϖ : 𝒪[K]} (h : Irreducible ϖ) : v ϖ.1 < 1 := by
   have := mt (Valuation.integer.integers _).isUnit_iff_valuation_eq_one.2 h.not_isUnit
@@ -105,13 +74,13 @@ lemma finite_quotient_maximalIdeal_pow_of_finite_residueField {K Γ₀ : Type*} 
 /-- The ring of integers `𝒪[K]` of a `ℤᵐ⁰`-valued field `K` with finite residue
 field has a finite covering by elements of the basis of uniformity of `K`, whenever
 `𝒪[K]` is a discrete valuation ring. -/
-theorem finite_cover_of_uniformity_basis [IsDiscreteValuationRing 𝒪[K]] {γ : ℤᵐ⁰ˣ}
+theorem finite_cover_of_uniformity_basis [IsDiscreteValuationRing 𝒪[K]] (γ : ℤᵐ⁰ˣ)
     (h : Finite 𝓀[K]) :
     ∃ t : Set K, Set.Finite t ∧
       (𝒪[K]).carrier ⊆ ⋃ y ∈ t, { x | (x, y) ∈ { p | v (p.2 - p.1) < γ.val } } := by
   classical
   let ⟨ϖ, hϖ⟩ := IsDiscreteValuationRing.exists_irreducible 𝒪[K]
-  let ⟨m, hm⟩ := exists_pow_lt_of_le_neg_one (irreducible_valuation_le_ofAdd_neg_one hϖ) γ
+  let ⟨m, hm⟩ := exists_pow_lt_of_le_exp_neg_one (irreducible_valuation_le_ofAdd_neg_one hϖ) γ
   letI := finite_quotient_maximalIdeal_pow_of_finite_residueField h m
   have h := Fintype.ofFinite (𝒪[K] ⧸ 𝓂[K] ^ m)
   let T := Subtype.val '' (h.elems.image Quotient.out : Set 𝒪[K])
@@ -123,14 +92,23 @@ theorem finite_cover_of_uniformity_basis [IsDiscreteValuationRing 𝒪[K]] {γ :
 
 variable (K)
 
+open Valuation.IsRankOneDiscrete in
 /-- The ring of integers `𝒪[K]` of a complete `ℤᵐ⁰`-valued field `K` with finite residue
 field is compact, whenever `𝒪[K]` is a discrete valuation ring. -/
-theorem integer_compactSpace [CompleteSpace K] [IsDiscreteValuationRing 𝒪[K]] (h : Finite 𝓀[K]) :
+theorem integer_compactSpace [CompleteSpace K] [IsDiscreteValuationRing 𝒪[K]]
+    [hv.v.IsRankOneDiscrete] (h : Finite 𝓀[K]) (hsurj : Function.Surjective hv.v) :
     CompactSpace 𝒪[K] where
-  isCompact_univ :=
-    isCompact_iff_isCompact_univ.1 <|
-      isCompact_iff_totallyBounded_isComplete.2
-        ⟨(hasBasis_uniformity _ _).totallyBounded_iff.2 <| fun _ _ =>
-          finite_cover_of_uniformity_basis h, (isClosed_integer K).isComplete⟩
+  isCompact_univ := by
+    refine isCompact_iff_isCompact_univ.1 <| isCompact_iff_totallyBounded_isComplete.2
+      ⟨(hasBasis_uniformity _ _).totallyBounded_iff.2 fun γ _ ↦ ?_, (isClosed_integer K).isComplete⟩
+    obtain ⟨t, htf, ht⟩ := finite_cover_of_uniformity_basis
+      (Units.mapEquiv (valueGroup₀_equiv_withZeroMulInt v) γ) h
+    refine ⟨t, htf, ht.trans fun x hx ↦ ?_⟩
+    simp only [Set.mem_setOf_eq, Set.mem_iUnion] at hx ⊢
+    obtain ⟨i, hit, hi⟩ := hx
+    use i, hit
+    rw [← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
+      valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective hsurj]
+    simpa using hi
 
 end Valued.WithZeroMulInt

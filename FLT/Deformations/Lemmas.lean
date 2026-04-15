@@ -82,7 +82,7 @@ instance IsTopologicalGroup.discreteUniformity
     letI := IsTopologicalGroup.rightUniformSpace G
     DiscreteUniformity G := by
   simp only [discreteUniformity_iff_setRelId_mem_uniformity]
-  exact ⟨{1}, by simp [Set.subset_def, div_eq_one]⟩
+  exact ⟨{1}, by simp [Set.subset_def, ← div_eq_mul_inv, div_eq_one]⟩
 
 lemma IsLocalRing.map_maximalIdeal {R S} [CommRing R] [CommRing S]
     [IsLocalRing R] [IsLocalRing S] (f : R →+* S) (hf : Function.Surjective f) :
@@ -332,7 +332,7 @@ lemma IsTopologicalGroup.totallyBounded {G : Type*} [Group G] [TopologicalSpace 
     Set.finite_range _, fun x _ ↦
       Set.mem_iUnion₂_of_mem ⟨QuotientGroup.mk (.op x), rfl⟩ (hts (hHs ?_))⟩
   dsimp only
-  rw [Function.comp_apply, SetLike.mem_coe, div_eq_mul_inv, ← MulOpposite.unop_op (x⁻¹),
+  rw [Function.comp_apply, SetLike.mem_coe, ← MulOpposite.unop_op (x⁻¹),
     ← MulOpposite.unop_mul, ← Subgroup.mem_op, MulOpposite.op_inv, ← QuotientGroup.eq]
   simp
 

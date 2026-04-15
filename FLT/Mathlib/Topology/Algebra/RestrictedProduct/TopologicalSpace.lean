@@ -297,6 +297,7 @@ def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
     exact hx
       }
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The monoid homeomorphism between a restricted product of n x n matrices, and n x n matrices
 of restricted products, when the products are with respect to open sets.
 -/

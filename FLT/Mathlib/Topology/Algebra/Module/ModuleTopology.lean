@@ -427,10 +427,12 @@ local instance _root_.Prod.leftModule : Module (A × B) M :=
 local instance _root_.Prod.rightModule : Module (A × B) N :=
   Module.compHom N (RingHom.snd A B)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `A` is a finite `(A × B)`-module. -/
 instance _root_.Prod.instFinite_leftAlgebra : Module.Finite (A × B) A :=
   Module.Finite.of_surjective (LinearMap.fst (A × B) A B) LinearMap.fst_surjective
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `B` is a finite `(A × B)`-module. -/
 instance _root_.Prod.instFinite_rightAlgebra : Module.Finite (A × B) B :=
   Module.Finite.of_surjective (LinearMap.snd (A × B) A B) LinearMap.snd_surjective

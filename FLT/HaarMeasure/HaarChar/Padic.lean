@@ -30,6 +30,7 @@ open scoped Pointwise ENNReal NNReal nonZeroDivisors
 
 variable {p : ℕ} [Fact p.Prime]
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma MeasureTheory.ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
     ringHaarChar (x : ℚ_[p]ˣ) = ‖(x : ℚ_[p])‖₊ := by
   -- Let `K` be the copy of `ℤ_[p]` inside `ℚ_[p]` and `H` be `xK`.

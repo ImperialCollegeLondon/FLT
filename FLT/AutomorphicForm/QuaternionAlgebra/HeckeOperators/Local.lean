@@ -6,7 +6,7 @@ Authors: Bryan Wang
 import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
 import Mathlib.Data.Matrix.Reflection
 import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.NumberTheory.NumberField.FinitePlaces
+import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 
 open NumberField IsQuaternionAlgebra.NumberField IsDedekindDomain
@@ -244,7 +244,7 @@ lemma injOn_unipotent_mul_diagU1 :
   simp only [unipotent, Matrix.unitOfDetInvertible, Fin.isValue, val_unitOfInvertible,
     Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_one, Matrix.cons_val_fin_one,
     Matrix.cons_val_zero] at unipotent_apply_zero_one_mem_integer
-  rw [← (QuotientAddGroup.out_eq' t₁), ← (QuotientAddGroup.out_eq' t₂)]
+  rw [← (Submodule.Quotient.mk_out t₁), ← (Submodule.Quotient.mk_out t₂)]
   apply QuotientAddGroup.eq.mpr; apply Ideal.mem_span_singleton'.mpr
   use ⟨_, unipotent_apply_zero_one_mem_integer⟩
   apply (Subtype.coe_inj).mp; push_cast

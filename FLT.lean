@@ -137,7 +137,6 @@ import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.Mathlib.Topology.Bases
 import FLT.Mathlib.Topology.Constructions
@@ -154,7 +153,6 @@ import FLT.NumberField.HeightOneSpectrum
 import FLT.NumberField.InfiniteAdeleRing
 import FLT.NumberField.InfinitePlace.Dimension
 import FLT.NumberField.InfinitePlace.Extension
-import FLT.NumberField.InfinitePlace.WeakApproximation
 import FLT.NumberField.Padics.RestrictedProduct
 import FLT.Patching.Algebra
 import FLT.Patching.Module

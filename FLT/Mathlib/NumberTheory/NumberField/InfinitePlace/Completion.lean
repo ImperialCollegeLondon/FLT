@@ -1,4 +1,4 @@
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+import Mathlib.NumberTheory.NumberField.Completion.InfinitePlace
 
 -- TODO upstream
 

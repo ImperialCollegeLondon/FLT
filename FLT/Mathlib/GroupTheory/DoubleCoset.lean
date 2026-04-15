@@ -28,12 +28,12 @@ theorem DoubleCoset.iUnion_finset_quotTodoubleCoset {G : Type*} [Group G] (H K :
   · intro _
     cases nonempty_fintype (Quotient (H : Set G) K)
     use Finset.univ
-    simpa using DoubleCoset.union_quotToDoubleCoset H K
+    simpa using DoubleCoset.iUnion_quotToDoubleCoset H K
 
 theorem DoubleCoset.union_image_mk_rightRel {G : Type*} [Group G] (H K : Subgroup G) :
     ⋃ (q : DoubleCoset.Quotient H K), Quot.mk (QuotientGroup.rightRel H) ''
     (doubleCoset (Quotient.out q : G) H K) = Set.univ := by
-  have Cover_Dfx := DoubleCoset.union_quotToDoubleCoset H K
+  have Cover_Dfx := DoubleCoset.iUnion_quotToDoubleCoset H K
   refine Eq.symm (Set.Subset.antisymm ?_ fun ⦃a⦄ a ↦ trivial)
   intro x hx
   simp only [Set.mem_iUnion, Set.mem_image]
