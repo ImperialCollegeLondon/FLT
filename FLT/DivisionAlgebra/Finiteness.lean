@@ -421,8 +421,12 @@ variable [FiniteDimensional K D]
 instance (vi : InfinitePlace K) : SecondCountableTopology (D ⊗[K] vi.Completion) :=
   Module.Finite.secondCountabletopology vi.Completion _
 
-set_option synthInstance.maxHeartbeats 0 in
-set_option maxHeartbeats 0 in
+-- shortcut
+instance (vi : InfinitePlace K) : Module K vi.Completion := inferInstance
+
+set_option synthInstance.maxHeartbeats 40000 in
+-- https://github.com/ImperialCollegeLondon/FLT/issues/891
+set_option maxHeartbeats 400000 in
 variable
   [(vi : InfinitePlace K) → MeasurableSpace (D ⊗[K] vi.Completion)]
   [(vi : InfinitePlace K) → BorelSpace (D ⊗[K] vi.Completion)] in
@@ -592,8 +596,12 @@ def Dinf_tensorPi_equiv_piTensor_mulEquiv :
   map_mul' _ _ := tensorPi_equiv_piTensor_map_mul ..
 }
 
-set_option maxHeartbeats 0 in
-set_option synthInstance.maxHeartbeats 0 in
+instance : IsTopologicalRing (Dinf K D) := inferInstance -- instance shortcut
+instance (vi : InfinitePlace K) : TopologicalSpace (D ⊗[K] vi.Completion) := inferInstance
+
+set_option synthInstance.maxHeartbeats 40000 in
+-- https://github.com/ImperialCollegeLondon/FLT/issues/891
+set_option maxHeartbeats 400000 in
 open scoped NumberField.AdeleRing in
 lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
     [Algebra.IsCentral K D] (u : (Dinf K D)ˣ) :

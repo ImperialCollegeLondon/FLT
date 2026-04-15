@@ -153,7 +153,7 @@ noncomputable def FiniteAdeleRing.Aux.g {ι : Type*} [Fintype ι]
 -- [Elab.command] [79702772.000000] ✅️ lemma
 -- [Elab.async] [314652764.000000] ✅️ elaborating proof of FiniteAdeleRing.Aux.g_commSq ▶
 set_option maxHeartbeats 400000 in
--- https://github.com/ImperialCollegeLondon/FLT/issues/890
+-- https://github.com/ImperialCollegeLondon/FLT/issues/889
 set_option synthInstance.maxHeartbeats 40000 in
 lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
     (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
