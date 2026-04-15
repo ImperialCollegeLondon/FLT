@@ -122,7 +122,7 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
 
 -- mathlib?
 lemma LinearMap.toMatrix_basis {R : Type*} (A : Type*) {M : Type*} {ι j : Type*} [Fintype ι]
-    [Fintype j] [DecidableEq ι] [CommSemiring R] [CommSemiring A]
+    [Finite j] [DecidableEq ι] [CommSemiring R] [CommSemiring A]
     [Algebra R A] [AddCommMonoid M] [Module R M] (b : Module.Basis ι R M)
     {N : Type*} [AddCommMonoid N] [Module R N] (c : Module.Basis j R N) (φ : M →ₗ[R] N) :
     LinearMap.toMatrix (Algebra.TensorProduct.basis A b) (Algebra.TensorProduct.basis A c)
