@@ -1,19 +1,6 @@
 import Mathlib.NumberTheory.Padics.HeightOneSpectrum
-import Mathlib.Algebra.Order.Archimedean.Submonoid
-import Mathlib.Algebra.GroupWithZero.Range
-import Mathlib.Data.Int.WithZero
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Embeddings
-import Mathlib.RingTheory.DedekindDomain.AdicValuation
-import Mathlib.RingTheory.DedekindDomain.Factorization
-import Mathlib.RingTheory.Ideal.Norm.AbsNorm
-import Mathlib.RingTheory.Valuation.Archimedean
-import Mathlib.Topology.Algebra.Valued.NormedValued
-import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
-import Mathlib.RingTheory.Valuation.Discrete.RankOne
-import Mathlib.Algebra.FiniteSupport.Basic
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
-import Mathlib.NumberTheory.NumberField.Completion.InfinitePlace
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 open IsDedekindDomain HeightOneSpectrum adicCompletion NumberField UniformSpace.Completion
 
