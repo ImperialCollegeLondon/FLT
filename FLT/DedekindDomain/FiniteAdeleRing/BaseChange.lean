@@ -15,7 +15,7 @@ import Mathlib.RingTheory.Flat.TorsionFree
 
 # Base change of adele rings.
 
-If `A` is a Dedekind domain with field of fractions `K`, if `L/Ktha` is a finite separable
+If `A` is a Dedekind domain with field of fractions `K`, if `L/K` is a finite separable
 extension and if `B` is the integral closure of `A` in `L`, then `B` is also a Dedekind
 domain. Hence the rings of finite adeles `𝔸_K^∞` and `𝔸_L^∞` (defined using `A` and `B`)
 are defined. In this file we define the natural `K`-algebra map `𝔸_K^∞ → 𝔸_L^∞` and
