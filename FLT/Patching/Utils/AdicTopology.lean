@@ -172,6 +172,7 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
 
 -- TODO: `TotallyDisconnectedSpace` is unnecessary. See
 -- https://ncatlab.org/nlab/show/compact+Hausdorff+rings+are+profinite
+-- A partial proof can be found at `FLT/Patching/Utils/CompactHausdorffRings`.
 omit [IsAdicTopology R] in
 /--
 Any profinite noetherian ring has the `𝔪`-adic topology.
