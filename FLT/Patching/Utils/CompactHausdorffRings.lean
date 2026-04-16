@@ -9,7 +9,8 @@ section CompactHausdorff
 
 /-- A connected compact Hausdorff vector space over `𝔽_p` is trivial. This might sound easy, but it
 seems to require the fact that every nontrivial compact hausdorff group has a nontrivial continuous
-character. This fact is a special case of Pontryagin duality, and also follows from Peter-Weyl.
+character. This fact is a special case of Pontryagin duality, and also a consequence of the
+Peter-Weyl theorem. This fact is being worked on at `YaelDillies/mean-fourier`.
 
 Here's a proof of the theorem, using this fact that nontrivial groups have nontrivial characters:
 If `χ : A → circle` is a continuous character, then the image of `χ` is connected but is a
@@ -39,7 +40,8 @@ theorem Group.totallyDisconnected_of_pow_prime_eq_one
   exact ((Set.subsingleton_coe _).mp this).eq_singleton_of_mem mem_connectedComponent
 
 /-- A connected compact Hausdorff abelian topological group is divisible. -/
-@[to_additive, implicit_reducible]
+@[to_additive /-- A connected compact Hausdorff abelian topological group is divisible. -/,
+  implicit_reducible]
 noncomputable def Group.rootable
     (A : Type*) [CommGroup A] [TopologicalSpace A] [IsTopologicalGroup A]
     [ConnectedSpace A] [CompactSpace A] [T2Space A] : RootableBy A ℕ := by
