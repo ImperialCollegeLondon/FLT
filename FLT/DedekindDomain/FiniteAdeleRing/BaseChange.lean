@@ -189,10 +189,10 @@ set_option synthInstance.maxHeartbeats 40000 in
 set_option maxHeartbeats 400000 in
 /-- The `B`-linear isomorphism `∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w] → 𝔸_L^∞` given by
 `RestrictedProduct.flatten_equiv'`. -/
-def restrictedProduct_prod_equiv : -- [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A B 𝔸ᶠ[B, L]] :
+def restrictedProduct_prod_equiv :
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
-    Submodule.pi .univ fun w : Extension B v ↦ (integerSubmodule L w.val)] ≃ₗ[B]
-      𝔸ᶠ[B, L] :=
+      Submodule.pi .univ fun w : Extension B v ↦ (integerSubmodule L w.val)] ≃ₗ[B]
+    𝔸ᶠ[B, L] :=
   have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
   {
     __ := RestrictedProduct.flatten_equiv'
