@@ -67,24 +67,24 @@ lemma lTensor_tmul (m : M) (f : Πʳ i, [N i, L i]_[ℱ]) (i : ι) :
     lTensor R M N ℱ L (m ⊗ₜ f) i = m ⊗ₜ (f i) :=
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp]
 lemma lTensorLeft_tmul (R M : Type*) [CommRing R] [CommRing M] [Algebra R M] {ι : Type*}
     (N : ι → Type*) [∀ i, Ring (N i)] [∀ i, Algebra R (N i)] (L : ∀ i, Submodule R (N i))
     (ℱ : Filter ι) (m : M) (f : Πʳ i, [N i, L i]_[ℱ]) (i : ι) :
     lTensorLeft R M N ℱ L (m ⊗ₜ f) i = m ⊗ₜ (f i) := by
-  simp [lTensorLeft, smul_tmul']
+  rw [lTensorLeft, LinearMap.liftBaseChange_tmul, smul_apply, mapAlongLinearMap_apply]
+  change m • (_ ⊗ₜ[R] _) = _
+  simp [id_eq, smul_tmul' m (1 : M) (f i)]
 
-set_option backward.isDefEq.respectTransparency false in
 lemma coe_lTensorLeft_eq_lTensor (R M : Type*) [CommRing R] [CommRing M] [Algebra R M] {ι : Type*}
     (N : ι → Type*) [∀ i, Ring (N i)] [∀ i, Algebra R (N i)] (L : ∀ i, Submodule R (N i))
     (ℱ : Filter ι) :
     ⇑(lTensorLeft R M N ℱ L) = lTensor R M N ℱ L := by
   ext x i
   induction x using TensorProduct.induction_on with
-  | zero => simp
-  | tmul x y => simp [lTensorLeft_tmul]
-  | add x y hx hy => simp_all
+  | zero => rw [map_zero, map_zero, zero_apply]; rfl -- need rfl after 4.29, unsure how to fix
+  | tmul x y => simp [lTensorLeft_tmul]; rfl
+  | add x y hx hy => simp_all; rfl
 
 variable (S : Set ι) [Module.FinitePresentation R M] [Module.Flat R M]
 
