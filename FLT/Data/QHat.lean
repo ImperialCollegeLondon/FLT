@@ -40,6 +40,16 @@ instance : DFunLike ZHat ℕ+ (fun (N : ℕ+) ↦ ZMod N) where
   coe z := z.1
   coe_injective' M N := by simp_all
 
+/-- The canonical "reduce mod M" map from `ZHat` to `ℤ/Mℤ`. -/
+def toZMod (M : ℕ+) : ZHat →+* ZMod M where
+  toFun x := x M
+  map_one' := rfl
+  map_mul' _ _ := rfl
+  map_zero' := rfl
+  map_add' _ _ := rfl
+
+lemma toZMod_def (M : ℕ+) (X : ZHat) : X.toZMod M = X M := rfl
+
 lemma prop (z : ZHat) (D N : ℕ+) (h : (D : ℕ) ∣ N) : ZMod.castHom h (ZMod D) (z N) = z D := z.2 ..
 
 @[ext]
@@ -112,13 +122,14 @@ lemma _root_.Nat.sum_factorial_lt_two_mul_factorial {j : ℕ} (hj : 3 ≤ j) :
     apply sum_factorial_lt_factorial_succ
     omega
 
+set_option backward.isDefEq.respectTransparency false
 lemma e_factorial_succ (j : ℕ) :
     e ⟨(j + 1)!, by positivity⟩ = ∑ i ∈ range (j + 1), i ! := by
   simp_rw [e_def, PNat.mk_coe, cast_sum]
   obtain ⟨k, hk⟩ := exists_add_of_le <| self_le_factorial (j + 1)
-  rw [hk, sum_range_add, add_eq_left]
+  simp_rw [hk, sum_range_add, add_eq_left]
   refine sum_eq_zero (fun i _ => ?_)
-  rw [ZMod.natCast_eq_zero_iff, ← hk]
+  rw [ZMod.natCast_eq_zero_iff]
   exact factorial_dvd_factorial (Nat.le_add_right _ _)
 
 /-- Nonarchimedean $e$ is not an integer. -/
@@ -350,6 +361,7 @@ lemma injective_rat :
 theorem PNat.lcm_comm (m n : ℕ+) : PNat.lcm m n = PNat.lcm n m := PNat.eq <| by
   simp [Nat.lcm_comm]
 
+set_option backward.isDefEq.respectTransparency false in
 lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗ₜ z) ∧
     (∀ N₁ N₂ z₁ z₂,
     IsCoprime N₁ z₁ ∧ IsCoprime N₂ z₂ ∧ (1 / N₁ : ℚ) ⊗ₜ z₁ = (1 / N₂ : ℚ) ⊗ₜ[ℤ] z₂ →
@@ -574,6 +586,7 @@ noncomputable abbrev unitszHatsub : Subgroup QHatˣ :=
 noncomputable abbrev unitszsub : Subgroup QHatˣ :=
   (Units.map (Int.castRingHom QHat : ℤ →* QHat)).range
 
+set_option backward.isDefEq.respectTransparency false in
 lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
   apply le_antisymm
   · intro x ⟨⟨q, hxq⟩, ⟨zHat, hxzHat⟩⟩
@@ -748,9 +761,8 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     exact ⟨y, by rw [← Int.cast_natCast, Int.natCast_toNat_eq_self.2 (le_of_lt gpos)]⟩
   let xg := (X N).val
   have : (xg - X) N = 0 := by
-    simp only [ZHat, ZMod.castHom_apply, ZHat.instDFunLikePNatZModVal,
-      AddSubgroupClass.coe_sub, SubringClass.coe_natCast, Pi.sub_apply, Pi.natCast_apply, xg]
-    simp only [ZMod.natCast_val, ZMod.cast_id', id_eq, sub_self]
+    change (xg - X).toZMod N = 0
+    simp only [ZMod.natCast_val, map_sub, ZMod.ringHom_map_cast, sub_eq_zero, xg, ZHat.toZMod_def]
   rcases (ZHat.multiples N _).2 this with ⟨y, hy⟩
   have : (xg : ZHat) ∈ Ideal.span {X} := by
     rw [← sub_add_cancel (xg : ZHat) X]

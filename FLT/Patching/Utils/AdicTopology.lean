@@ -121,6 +121,7 @@ instance [CompactSpace R] : IsPrecomplete (maximalIdeal R) R where
         simpa using (H e).symm⟩)
     simpa [funext_iff, eq_comm (b := Ideal.Quotient.mk _ (f _))] using this
 
+set_option backward.isDefEq.respectTransparency false in
 variable {R} in
 lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueField R)]
     [IsAdicComplete (maximalIdeal R) R] :
@@ -150,7 +151,8 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
         simp_rw [funext_iff]
         exact Classical.skolem (p := (x · = Ideal.Quotient.mk _ ·)).mp
           fun i ↦ by simpa only [eq_comm] using Ideal.Quotient.mk_surjective (x i)
-      have := mt (IsPrecomplete.prec (inferInstanceAs (IsPrecomplete (maximalIdeal R) R)) (f := g))
+      have : IsPrecomplete (maximalIdeal R) R := inferInstance
+      have := mt (IsPrecomplete.prec this (f := g))
       simp_rw [← Ideal.one_eq_top, smul_eq_mul, mul_one] at this
       simp only [Set.mem_compl_iff, Set.mem_range, eq_comm, funext_iff, Pi.algebraMap_apply,
         Ideal.Quotient.algebraMap_eq, not_exists, not_forall, SModEq, Ideal.Quotient.mk_eq_mk, f]

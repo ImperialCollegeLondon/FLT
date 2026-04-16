@@ -51,22 +51,6 @@ lemma mulEquivHaarChar_map_open (μ : Measure G)
     measure_isHaarMeasure_eq_smul_of_isOpen haar μ hs, ← mul_smul, haarScalarFactor_map,
     ← haarScalarFactor_eq_mul, haarScalarFactor_self, one_smul]
 
-open ENNReal TopologicalSpace Set in
-@[to_additive addEquivAddHaarChar_eq_one_of_compactSpace]
-lemma mulEquivHaarChar_eq_one_of_compactSpace [CompactSpace G] (φ : G ≃ₜ* G) :
-    mulEquivHaarChar φ = 1 := by
-  set μ := haarMeasure (⟨⟨univ, isCompact_univ⟩, by simp⟩ : PositiveCompacts G)
-  have hμ : μ univ = 1 := haarMeasure_self
-  rw [mulEquivHaarChar_eq μ]
-  suffices (μ.haarScalarFactor (map φ μ) : ℝ≥0∞) = 1 by exact_mod_cast this
-  calc
-    _ = μ.haarScalarFactor (map φ μ) • (1 : ℝ≥0∞) := by rw [ENNReal.smul_def, smul_eq_mul, mul_one]
-    _ = μ.haarScalarFactor (map φ μ) • (map φ μ univ) := by
-          rw [map_apply (map_continuous φ).measurable .univ, Set.preimage_univ, hμ]
-    _ = μ univ := by
-          conv_rhs => rw [isMulInvariant_eq_smul_of_compactSpace μ (map φ μ), Measure.smul_apply]
-    _ = 1 := hμ
-
 open Topology in
 @[to_additive]
 lemma mulEquivHaarChar_eq_mulEquivHaarChar_of_isOpenEmbedding {X Y : Type*}

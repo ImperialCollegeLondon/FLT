@@ -35,7 +35,7 @@ variable (B : Type*) [Ring B] [Algebra K B] [FiniteDimensional K B]
 open MeasureTheory IsDedekindDomain HeightOneSpectrum RestrictedProduct
 
 /-- We give 𝔸_K^f ⊗ B the 𝔸_K^f-module topology in this file (it's the only sensible topology). -/
-local instance : TopologicalSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
+noncomputable local instance : TopologicalSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
   moduleTopology (FiniteAdeleRing (𝓞 K) K) _
 
 local instance : IsModuleTopology (FiniteAdeleRing (𝓞 K) K) (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
@@ -49,7 +49,7 @@ local instance : LocallyCompactSpace (FiniteAdeleRing (𝓞 K) K ⊗[K] B) :=
 
 /-- We put the Borel measurable space structure on 𝔸_K^f ⊗ B (because it's the only
 sensible one). -/
-local instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := borel _
+noncomputable local instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := borel _
 
 local instance : BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) := ⟨rfl⟩
 
@@ -98,6 +98,7 @@ local instance :
     Set (v.adicCompletion K))) :=
   ⟨isOpenAdicCompletionIntegers K⟩
 
+set_option backward.isDefEq.respectTransparency false in
 local instance (v : HeightOneSpectrum (𝓞 K)) :
     CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
       fun _ ↦ (adicCompletionIntegers K v).toAddSubgroup) := by
@@ -149,6 +150,11 @@ noncomputable def FiniteAdeleRing.Aux.g {ι : Type*} [Fintype ι]
     (fun _ v ↦ isOpenAdicCompletionIntegers K v)
   f.trans (ψ.toContinuousAddEquiv.trans f.symm)
 
+-- [Elab.command] [79702772.000000] ✅️ lemma
+-- [Elab.async] [314652764.000000] ✅️ elaborating proof of FiniteAdeleRing.Aux.g_commSq ▶
+set_option maxHeartbeats 400000 in
+-- https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option synthInstance.maxHeartbeats 40000 in
 lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
     (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
       (ι → (FiniteAdeleRing (𝓞 K) K))) :
@@ -167,7 +173,8 @@ lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
 end moving_from_pi_restrictedproduct_to_restrictedproduct_pi
 
 /-- The only sensible topological space structure on Kᵥ ⊗ B. -/
-local instance (v : HeightOneSpectrum (𝓞 K)) : TopologicalSpace (adicCompletion K v ⊗[K] B) :=
+noncomputable local instance (v : HeightOneSpectrum (𝓞 K)) :
+    TopologicalSpace (adicCompletion K v ⊗[K] B) :=
   moduleTopology (adicCompletion K v) _
 
 local instance (v : HeightOneSpectrum (𝓞 K)) :
@@ -198,7 +205,7 @@ noncomputable def FiniteAdeleRing.Aux.e (v : HeightOneSpectrum (𝓞 K))
   exact β
 
 /-- The only sensible measurable space structure on Kᵥ ⊗ B. -/
-local instance (v : HeightOneSpectrum (𝓞 K)) :
+noncomputable local instance (v : HeightOneSpectrum (𝓞 K)) :
   MeasurableSpace (adicCompletion K v ⊗[K] B) := borel _
 
 local instance (v : HeightOneSpectrum (𝓞 K)) :
@@ -265,6 +272,9 @@ lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
     change ((Module.Free.chooseBasis K B).repr ((Module.Free.chooseBasis K B) j)) b • x
   simp [Finsupp.single, Pi.single, Algebra.smul_def, Function.update]
 
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 lemma basis_eq (v : HeightOneSpectrum (𝓞 K))
     {w : Module.Free.ChooseBasisIndex K B → adicCompletion K v} :
     ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • (b_local K B v) j
@@ -275,6 +285,7 @@ lemma basis_eq (v : HeightOneSpectrum (𝓞 K))
   conv_rhs => rw [hw]
   simp only [basis_eq_single K B v, map_sum]; rfl
 
+set_option backward.isDefEq.respectTransparency false in
 lemma basis_eq_single_global
     {j : Module.Free.ChooseBasisIndex K B} {x : FiniteAdeleRing (𝓞 K) K} :
     x • (b_global K B) j
@@ -335,6 +346,11 @@ noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
     | add x y _ _ => simp_all only [AlgHom.toRingHom_eq_coe, smul_add, map_add]
 }
 
+set_option backward.isDefEq.respectTransparency false in
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
+attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
       FiniteAdeleRing (𝓞 K) K ⊗[K] B)
@@ -438,6 +454,9 @@ lemma toMatrix_f
   simp [f, ← basis_repr_eq_global K B,
     ← basis_eq_global', LinearMap.toMatrix_apply]
 
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
 -- finitely many places
 lemma FiniteAdeleRing.Aux.almost_always_mapsTo
@@ -496,6 +515,11 @@ lemma FiniteAdeleRing.Aux.almost_always_bijOn
   intro v h1 h2
   exact (e K B v (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)).bijOn' h1 h2
 
+set_option backward.isDefEq.respectTransparency false in
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
+attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 /-- A diagram which obviously commutes, commutes. -/
 lemma FiniteAdeleRing.Aux.f_g_local_global
     (φ : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
@@ -590,6 +614,8 @@ lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
   simp [ContinuousLinearEquiv.mulRight, LinearEquiv.mulRight, map_mul]
   congr
 
+set_option maxHeartbeats 400000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
 /-- left multiplication and right multiplication by a unit have the same Haar character
 on `𝔸_K^f ⊗ B`. See also
 `NumberField.FiniteAdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul`

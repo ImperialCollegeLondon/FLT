@@ -99,7 +99,7 @@ noncomputable instance WeierstrassCurve.galoisRepresentation_smul
   fun g P ↦ WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K) P⟩
 
 /-- The Galois action on the points of an elliptic curve. -/
-noncomputable def WeierstrassCurve.galoisRepresentation
+noncomputable instance WeierstrassCurve.galoisRepresentation
     (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
     DistribMulAction (K ≃ₐ[k] K) (E ⟮K⟯) where
       one_smul := sorry -- these should all be easy

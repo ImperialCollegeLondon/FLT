@@ -44,7 +44,7 @@ open IsDedekindDomain HeightOneSpectrum adicCompletion Extension
 open scoped TensorProduct -- ⊗ notation for tensor product
 
 lemma tendsTo_comap_cofinite [FaithfulSMul A B] :
-    Filter.Tendsto (comap A (B:=B)) Filter.cofinite Filter.cofinite :=
+    Filter.Tendsto (under A (B:=B)) Filter.cofinite Filter.cofinite :=
   have : FaithfulSMul A (FractionRing B) := FractionRing.instFaithfulSMul A B
   letI : Algebra (FractionRing A) (FractionRing B) :=
     FractionRing.liftAlgebra A (FractionRing B)
@@ -53,8 +53,8 @@ lemma tendsTo_comap_cofinite [FaithfulSMul A B] :
 
 lemma cofinite_mapsTo_adicCompletionSemialgHom :
     ∀ᶠ (w : HeightOneSpectrum B) in Filter.cofinite,
-    Set.MapsTo (Extension.adicCompletionSemialgHom K L (v := comap A w) ⟨w, rfl⟩)
-      (adicCompletionIntegers K (comap A w)) (adicCompletionIntegers L w) := by
+    Set.MapsTo (Extension.adicCompletionSemialgHom K L (v := under A w) ⟨w, rfl⟩)
+      (adicCompletionIntegers K (under A w)) (adicCompletionIntegers L w) := by
   apply Filter.Eventually.of_forall
   intro w
   exact Set.image_subset_iff.1 <| adicCompletionSemialgHom_image_adicCompletionIntegers K L ⟨w, rfl⟩
@@ -67,8 +67,8 @@ scoped notation:max "𝔸ᶠ[" A ", " K "]" => FiniteAdeleRing A K
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields. -/
 noncomputable def mapRingHom : 𝔸ᶠ[A, K] →+* 𝔸ᶠ[B, L] :=
   have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
-  RestrictedProduct.mapAlongRingHom (adicCompletion K) (adicCompletion L) (comap A)
-    (tendsTo_comap_cofinite A B) (fun w ↦ adicCompletionSemialgHom K L (v := w.comap A) ⟨w, rfl⟩)
+  RestrictedProduct.mapAlongRingHom (adicCompletion K) (adicCompletion L) (under A)
+    (tendsTo_comap_cofinite A B) (fun w ↦ adicCompletionSemialgHom K L (v := w.under A) ⟨w, rfl⟩)
     (cofinite_mapsTo_adicCompletionSemialgHom A K L B)
 
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields,
@@ -79,7 +79,7 @@ noncomputable def mapSemialgHom :
   map_smul' k a := by
     ext w
     simpa only [Algebra.smul_def'] using
-      (adicCompletionSemialgHom K L (v := w.comap A) ⟨w, rfl⟩).map_smul' k (a (comap A w))
+      (adicCompletionSemialgHom K L (v := w.under A) ⟨w, rfl⟩).map_smul' k (a (under A w))
   continuous_toFun :=
     have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
     RestrictedProduct.mapAlong_continuous _ _ _ (tendsTo_comap_cofinite A B) _
@@ -88,7 +88,7 @@ noncomputable def mapSemialgHom :
 
 variable {A K B} in
 lemma mapSemialgHom_apply (x : 𝔸ᶠ[A, K]) (w : HeightOneSpectrum B) :
-    mapSemialgHom A K L B x w = adicCompletionSemialgHom K L ⟨w, rfl⟩ (x (comap A w)) := rfl
+    mapSemialgHom A K L B x w = adicCompletionSemialgHom K L ⟨w, rfl⟩ (x (under A w)) := rfl
 
 open scoped TensorProduct.RightActions RestrictedProduct
 
@@ -98,10 +98,11 @@ instance : Algebra (Πʳ v : HeightOneSpectrum A, [v.adicCompletion K, v.adicCom
     (Πʳ w: HeightOneSpectrum B, [w.adicCompletion L, w.adicCompletionIntegers L]) :=
   inferInstanceAs (Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L])
 
+attribute [local instance 9999] Algebra.toSMul in
 /-- Utility class which specialises `RestrictedProduct.FiberwiseSMul` to the case of
 finite adele rings. -/
 class ComapFiberwiseSMul extends RestrictedProduct.FiberwiseSMul (α := HeightOneSpectrum B)
-    (comap A) (adicCompletion K) (fun v ↦ adicCompletionIntegers K v) Filter.cofinite
+    (under A) (adicCompletion K) (fun v ↦ adicCompletionIntegers K v) Filter.cofinite
     (adicCompletion L) (fun w ↦ adicCompletionIntegers L w) Filter.cofinite
 
 variable [ComapFiberwiseSMul A K L B]
@@ -113,8 +114,8 @@ theorem ComapFiberwiseSMul.map_smul' (x : 𝔸ᶠ[A, K]) (y : 𝔸ᶠ[B, L]) (v 
 
 variable {A K B} in
 lemma BaseChange.algebraMap_apply (w : HeightOneSpectrum B) (x : 𝔸ᶠ[A, K]) :
-    algebraMap _ 𝔸ᶠ[B, L] x w = adicCompletionSemialgHom K L ⟨w, rfl⟩ (x (comap A w)) := by
-  simp [Algebra.algebraMap_eq_smul_one, ComapFiberwiseSMul.map_smul' x 1 (w.comap A) ⟨w, rfl⟩,
+    algebraMap _ 𝔸ᶠ[B, L] x w = adicCompletionSemialgHom K L ⟨w, rfl⟩ (x (under A w)) := by
+  simp [Algebra.algebraMap_eq_smul_one, ComapFiberwiseSMul.map_smul' x 1 (w.under A) ⟨w, rfl⟩,
     RingHom.smul_toAlgebra, SemialgHom.toLinearMap_eq_coe]
 
 noncomputable section bijection
@@ -139,6 +140,9 @@ local instance : Module B (Πʳ v, [B ⊗[A] (adicCompletion K v),
   RestrictedProduct.instModuleCoeOfSMulMemClass (R := (B ⊗[A] adicCompletion K ·))
     (S := fun v ↦ Submodule B (B ⊗[A] adicCompletion K v))
 
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The `B`-linear isomorphism `φ : B ⊗[K] 𝔸_K^∞ ≅ ∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v]`
 given by `φ (b ⊗ x) v = b ⊗ (x v)`. -/
 def tensorEquivRestrictedProduct : B ⊗[A] 𝔸ᶠ[A, K] ≃ₗ[B] Πʳ v, [B ⊗[A] (adicCompletion K v),
@@ -159,6 +163,9 @@ lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K]) (v : HeightO
     tensorEquivRestrictedProduct A K L B (b ⊗ₜ[A] x) v = b ⊗ₜ[A] (x v) := by
   simp [tensorEquivRestrictedProduct]
 
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The `B`-linear isomorphism `∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v] ≅ ∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w]`
 given by `adicCompletionComapIntegerLinearEquiv`. -/
 def restrictedProduct_tensorProduct_equiv_restrictedProduct_prod [FiniteDimensional K L] :
@@ -176,6 +183,9 @@ lemma restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply [Finite
     FiniteAdeleRing.restrictedProduct_tensorProduct_equiv_restrictedProduct_prod A K L B f v =
     integerBaseChangeLinearEquiv K L B v (f v) := rfl
 
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The `B`-linear isomorphism `∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w] → 𝔸_L^∞` given by
 `RestrictedProduct.flatten_equiv'`. -/
 def restrictedProduct_prod_equiv : -- [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A B 𝔸ᶠ[B, L]] :
@@ -190,15 +200,19 @@ def restrictedProduct_prod_equiv : -- [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A
     map_add' x y := rfl
     map_smul' a x := by
       ext w
-      change a • (x (comap A w) ⟨w, rfl⟩) = _
+      change a • (x (under A w) ⟨w, rfl⟩) = _
       simp [Submodule.coe_pi,Algebra.smul_def, RingHom.id_apply, Equiv.toFun_as_coe]
       rfl
   }
 
 omit [Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [ComapFiberwiseSMul A K L B] in
-lemma restrictedProduct_prod_equiv'_apply (f) (w : HeightOneSpectrum B) :
-    restrictedProduct_prod_equiv A K L B f w = f (comap A w) ⟨w, rfl⟩ := rfl
+lemma restrictedProduct_prod_equiv_apply [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A B 𝔸ᶠ[B, L]]
+    (f) (w : HeightOneSpectrum B) :
+    restrictedProduct_prod_equiv A K L B f w = f (under A w) ⟨w, rfl⟩ := rfl
 
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The `L`-linear isomorphism `L ⊗ A_K^∞ ≅ A_L^∞` given by composing the previous four maps. -/
 def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃ₗ[L] 𝔸ᶠ[B, L] :=
   let f₁ := tensorEquivTensor A K L B
@@ -212,6 +226,10 @@ def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃�
 lemma algebraMap_apply (x : K) (v : HeightOneSpectrum A) :
     algebraMap K 𝔸ᶠ[A, K] x v = algebraMap K (v.adicCompletion K) x := rfl
 
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A, K]) :
     baseChangeLinearEquiv A K L B (algebraMap B L b ⊗ₜ x) =
@@ -223,6 +241,7 @@ lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A,
     IsScalarTower.algebraMap_apply B L 𝔸ᶠ[B, L],
     IsScalarTower.algebraMap_apply B L (w.adicCompletion L), -Submodule.coe_pi] using .inl rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem baseChange_bijective [FiniteDimensional K L] :
     Function.Bijective (SemialgHom.baseChange_of_algebraMap <|
       (mapSemialgHom A K L B).toSemialgHom) := by
@@ -252,6 +271,7 @@ def baseChangeAlgEquiv [FiniteDimensional K L] :
   .ofBijective (SemialgHom.baseChange_of_algebraMap <| FiniteAdeleRing.mapSemialgHom A K L B)
     (FiniteAdeleRing.baseChange_bijective A K L B)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The `𝔸_K^∞`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
 def baseChangeAdeleAlgEquiv [FiniteDimensional K L] :
     L ⊗[K] 𝔸ᶠ[A, K] ≃ₐ[𝔸ᶠ[A, K]] 𝔸ᶠ[B, L] where
@@ -270,20 +290,7 @@ end bijection
 
 section moduleTopology
 
--- shortcut instances
-
-variable (v : HeightOneSpectrum A) in
-noncomputable instance : Module (v.adicCompletionIntegers K) (v.adicCompletion K) :=
-  Algebra.toModule
-
-variable (v : HeightOneSpectrum A) in
-noncomputable instance : MulAction (v.adicCompletionIntegers K) (v.adicCompletion K) :=
-  Algebra.toModule.toMulAction
-
-variable (v : HeightOneSpectrum A) in
-noncomputable instance : SMul (v.adicCompletionIntegers K) (v.adicCompletion K) :=
-  Algebra.toModule.toMulAction.toSMul
-
+attribute [local instance 9999] Algebra.toModule in
 /-- `𝓞_v`-module structure on `∏ L_w` from restricting the scalars of the `K_v`-module structure. -/
 noncomputable local instance (v : HeightOneSpectrum A) : Module (adicCompletionIntegers K v)
     ((w : Extension B v) → adicCompletion L w.val) :=
@@ -294,6 +301,11 @@ noncomputable local instance (v : HeightOneSpectrum A) : SMul (adicCompletionInt
     ((w : Extension B v) → adicCompletion L w.val) :=
   Module.toDistribMulAction.toDistribSMul.toSMul
 
+/-- A shortcut instance for the action of `𝓞ᵥ` on `Kᵥ`. -/
+noncomputable local instance (v : HeightOneSpectrum A) : MulAction (v.adicCompletionIntegers K)
+    (v.adicCompletion K) := LieAlgebra.ofAssociativeAlgebra.toMulAction
+
+attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
 /-- `∏_{w∣v} 𝓞_w` as an `𝓞_v`-submodule of `∏_{w∣v} L_w` -/
 noncomputable def piAdicIntegerSubmodule (v : HeightOneSpectrum A) :
     Submodule (adicCompletionIntegers K v) ((w : Extension B v) → adicCompletion L w.val) :=
@@ -314,17 +326,21 @@ private noncomputable local instance (priority := 9999) (v : HeightOneSpectrum A
     Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
   Algebra.toModule
 
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- An auxiliary 𝔸_K-module structure on restricted product over v of (product of w's dividing v
 of L_w wrt 𝓞_w). Only used in this file to compare L ⊗ 𝔸_K and 𝔸_L.
 -/
 noncomputable local instance : Module 𝔸ᶠ[A, K]
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
     ↑(piAdicIntegerSubmodule A K L B v)] :=
-  inferInstanceAs <| Module
-      (Πʳ v : HeightOneSpectrum A, [v.adicCompletion K, v.adicCompletionIntegers K])
-      Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
-    ↑(piAdicIntegerSubmodule A K L B v)]
+  RestrictedProduct.instModuleCoe_fLT
 
+set_option backward.isDefEq.respectTransparency false in
+set_option synthInstance.maxHeartbeats 80000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 /-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
 reaindexing the elements. -/
 noncomputable def restrictedProduct_pi_equiv :
@@ -346,6 +362,10 @@ noncomputable def restrictedProduct_pi_equiv :
 -- needed for the below lemmas for some reason
 attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
 
+set_option backward.isDefEq.respectTransparency false in
+set_option synthInstance.maxHeartbeats 160000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 800000 in
 lemma restrictedProduct_pi_isModuleTopology [FiniteDimensional K L] : IsModuleTopology 𝔸ᶠ[A, K]
     (Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
       piAdicIntegerSubmodule A K L B v]) := by
@@ -360,6 +380,9 @@ lemma restrictedProduct_pi_isModuleTopology [FiniteDimensional K L] : IsModuleTo
     rw [Set.finite_univ_iff]
     exact Extension.finite A K L B v
 
+set_option synthInstance.maxHeartbeats 40000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
 instance [FiniteDimensional K L] : IsModuleTopology 𝔸ᶠ[A, K] 𝔸ᶠ[B, L] :=
   have := restrictedProduct_pi_isModuleTopology A K L B
   IsModuleTopology.iso (FiniteAdeleRing.restrictedProduct_pi_equiv A K L B)

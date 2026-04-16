@@ -49,8 +49,10 @@ variable {N} in
 lemma Submodule.mem_pi' {x} : x ∈ Submodule.pi' N ↔ ∀ i, x i ∈ N i := Iff.rfl
 
 variable {N : ι → Type*} [∀ i, AddCommGroup (N i)] [∀ i, Module (R i) (N i)] in
+/-- A more dependent version of `LinearMap.piMap`, making a product of linear maps
+into a linear map over the product of rings. -/
 @[simps]
-def LinearMap.piMap (f : ∀ i, M i →ₗ[R i] N i) : (Π i, M i) →ₗ[Π i, R i] Π i, N i where
+def LinearMap.piMap' (f : ∀ i, M i →ₗ[R i] N i) : (Π i, M i) →ₗ[Π i, R i] Π i, N i where
   toFun g i := f i (g i)
   map_add' := by aesop
   map_smul' := by aesop
