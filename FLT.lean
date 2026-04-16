@@ -151,7 +151,6 @@ import FLT.NumberField.Completion.Infinite
 import FLT.NumberField.DiscriminantBounds
 import FLT.NumberField.HeightOneSpectrum
 import FLT.NumberField.InfiniteAdeleRing
-import FLT.NumberField.InfinitePlace.Dimension
 import FLT.NumberField.InfinitePlace.Extension
 import FLT.NumberField.Padics.RestrictedProduct
 import FLT.Patching.Algebra
