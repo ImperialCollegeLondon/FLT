@@ -84,12 +84,6 @@ instance IsTopologicalGroup.discreteUniformity
   simp only [discreteUniformity_iff_setRelId_mem_uniformity]
   exact ⟨{1}, by simp [Set.subset_def, ← div_eq_mul_inv, div_eq_one]⟩
 
-lemma IsLocalRing.map_maximalIdeal {R S} [CommRing R] [CommRing S]
-    [IsLocalRing R] [IsLocalRing S] (f : R →+* S) (hf : Function.Surjective f) :
-    (maximalIdeal R).map f = maximalIdeal S := by
-  have := (IsLocalRing.local_hom_TFAE f).out 0 4
-  rw [← this.mp (by exact .of_surjective f hf), Ideal.map_comap_of_surjective f hf]
-
 lemma IsLocalRing.ResidueField.map_surjective {R S : Type*} [CommRing R] [CommRing S]
     [IsLocalRing R] [IsLocalRing S] (f : R →+* S) [IsLocalHom f] (H : Function.Surjective f) :
     Function.Surjective (IsLocalRing.ResidueField.map f) :=
