@@ -168,6 +168,7 @@ instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
           rw [← AlgHom.coe_coe, ← AlgEquiv.toAlgHom_eq_coe,
             (FiniteAdeleRing.baseChangeAdeleAlgEquiv (𝓞 K) K L (𝓞 L)).toAlgHom.map_smul_of_tower]
     | add x y _ _ => simp_all
+
 /- Take a compatible `K∞`-algebra on `L∞`. -/
 variable [Algebra K∞ L∞]
   [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
