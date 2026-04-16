@@ -53,6 +53,34 @@ theorem tensorProduct_ext {g h : L ⊗[K] M →ₗ[K] P}
   rw [← IsUnit.smul_left_cancel <| map_units K s]
   simpa [← map_smul, TensorProduct.smul_tmul', IsScalarTower.algebraMap_smul K, hl] using H x m
 
+/-- If `A` is a localization of R, tensoring two A-modules over A is the same as tensoring
+them over R. This is `IsLocalization.moduleTensorEquiv` as an `M₁`-linear equivalence (more
+generally an `M'`-linear equivalence where `M₁` is an `M'`-module). -/
+@[simps!]
+noncomputable def leftModuleTensorEquiv {R : Type*} (M' : Type*)
+    [Semiring M'] [CommSemiring R] (S : Submonoid R) (A : Type*) [CommSemiring A] [Algebra R A]
+    [IsLocalization S A] (M₁ : Type*) (M₂ : Type*) [AddCommMonoid M₁] [AddCommMonoid M₂]
+    [Module M' M₁] [Module R M₁] [Module R M₂] [Module A M₁] [Module A M₂]
+    [SMulCommClass A M' M₁] [SMulCommClass R M' M₁] [IsScalarTower R A M₁]
+    [IsScalarTower R A M₂] :
+    M₁ ⊗[A] M₂ ≃ₗ[M'] M₁ ⊗[R] M₂ where
+  __ := IsLocalization.moduleTensorEquiv S A M₁ M₂
+  map_smul' r x := by
+    induction x with
+    | zero => simp
+    | tmul m₁ m₂ => simp [TensorProduct.smul_tmul']
+    | add => simp_all
+
+lemma leftModuleTensorEquiv_restrictScalars_eq {R M' : Type*} [CommSemiring M']
+    [CommSemiring R] (S : Submonoid R) (A : Type*) [CommSemiring A] [Algebra R A] [Algebra A M']
+    [Algebra M' R] [IsLocalization S A] (M₁ : Type*) (M₂ : Type*) [AddCommMonoid M₁]
+    [AddCommMonoid M₂] [Module M' M₁] [Module R M₁] [Module R M₂] [Module A M₁]
+    [Module A M₂] [IsScalarTower A M' M₁] [IsScalarTower M' R M₁] [IsScalarTower R A M₁]
+    [IsScalarTower R A M₂] :
+    (IsLocalization.leftModuleTensorEquiv M' S A M₁ M₂).restrictScalars A =
+      IsLocalization.moduleTensorEquiv S A M₁ M₂ := by
+  rfl
+
 end
 
 end IsLocalization
