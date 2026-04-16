@@ -18,9 +18,15 @@ variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
 
 variable (ℱ : Filter ι) (L : ∀ i, Submodule R (N i))
 
-/-- `M ⊗_R (L i)` as a submodule of `M ⊗_R (N i)`. -/
+/-- `M ⊗_R (L i)` as an `R`-submodule of `M ⊗_R (N i)`. -/
 def rangeLTensor (i : ι) : Submodule R (M ⊗[R] N i) :=
   LinearMap.range (LinearMap.lTensor M ((L i).subtype))
+
+/-- `M ⊗_R (L i)` as an `M`-submodule of `M ⊗_R (N i)`. -/
+noncomputable def rangeLTensorLeft (R M : Type*) [CommSemiring R] [CommSemiring M] [Algebra R M]
+    {ι : Type*} (N : ι → Type*) [∀ i, Semiring (N i)] [∀ i, Algebra R (N i)]
+    (L : ∀ i, Submodule R (N i)) (i : ι) : Submodule M (M ⊗[R] N i) :=
+  (TensorProduct.AlgebraTensorModule.lTensor _ _ (L i).subtype).range
 
 /-- The `R`-linear map `φ : M ⊗_R ∏'_i [N i, L i]_[𝓕] → ∏'_i [M ⊗_R (N i), M ⊗_R (L i)]_[𝓕]`
 given by `φ (m ⊗ n) i = m ⊗ (n i)`. -/
@@ -31,16 +37,51 @@ def lTensor :
     intro m
     filter_upwards with i n hn using ⟨m ⊗ₜ[R] ⟨n, hn⟩, rfl⟩
   TensorProduct.lift {
-    toFun m := mapAlongLinearMap N _ id Filter.tendsto_id
+    toFun m := mapAlongLinearMap N (M ⊗[R] N ·) id Filter.tendsto_id
         (fun i ↦ TensorProduct.mk R M (N i) m) (hmap m)
     map_add' m n := by ext; simp
     map_smul' a m := by ext; simp
   }
 
+/-- The `M`-linear map `φ : M ⊗_R ∏'_i [N i, L i]_[𝓕] → ∏'_i [M ⊗_R (N i), M ⊗_R (L i)]_[𝓕]`
+given by `φ (m ⊗ n) i = m ⊗ (n i)`. -/
+def lTensorLeft (R M : Type*) [CommRing R] [CommRing M] [Algebra R M] {ι : Type*}
+    (N : ι → Type*) [∀ i, Ring (N i)] [∀ i, Algebra R (N i)] (ℱ : Filter ι)
+    (L : ∀ i, Submodule R (N i)) :
+    M ⊗[R] Πʳ i, [N i, L i]_[ℱ] →ₗ[M] Πʳ i, [M ⊗[R] N i, rangeLTensorLeft R M N L i]_[ℱ] :=
+  have hmap : ∀ (m : M), ∀ᶠ (j : ι) in ℱ, Set.MapsTo
+      (TensorProduct.mk R M (N j) m) (L j) (rangeLTensorLeft R M N L j) := by
+    intro m
+    filter_upwards with i n hn using ⟨m ⊗ₜ[R] ⟨n, hn⟩, rfl⟩
+  let f : (i : ι) → N i →ₗ[R] M ⊗[R] N i := fun i ↦
+    { toFun n := 1 ⊗ₜ n, map_add' _ _ := by simp [tmul_add], map_smul' := by simp }
+  have (i : ι) : SMulMemClass (Submodule M (M ⊗[R] N i)) R ((fun x ↦ M ⊗[R] N x) i) :=
+    .ofIsScalarTower _ _ _ _
+  have : IsScalarTower R M Πʳ (i : ι), [M ⊗[R] N i, ↑(rangeLTensorLeft R M N L i)]_[ℱ] := by
+    apply IsScalarTower.mk fun r m x ↦ by ext; simp
+  (mapAlongLinearMap N (M ⊗[R] N ·) id Filter.tendsto_id f (hmap 1)).liftBaseChange _
+
 @[simp]
 lemma lTensor_tmul (m : M) (f : Πʳ i, [N i, L i]_[ℱ]) (i : ι) :
     lTensor R M N ℱ L (m ⊗ₜ f) i = m ⊗ₜ (f i) :=
   rfl
+
+@[simp]
+lemma lTensorLeft_tmul (R M : Type*) [CommRing R] [CommRing M] [Algebra R M] {ι : Type*}
+    (N : ι → Type*) [∀ i, Ring (N i)] [∀ i, Algebra R (N i)] (L : ∀ i, Submodule R (N i))
+    (ℱ : Filter ι) (m : M) (f : Πʳ i, [N i, L i]_[ℱ]) (i : ι) :
+    lTensorLeft R M N ℱ L (m ⊗ₜ f) i = m ⊗ₜ (f i) := by
+  simp [lTensorLeft, smul_tmul']
+
+lemma coe_lTensorLeft_eq_lTensor (R M : Type*) [CommRing R] [CommRing M] [Algebra R M] {ι : Type*}
+    (N : ι → Type*) [∀ i, Ring (N i)] [∀ i, Algebra R (N i)] (L : ∀ i, Submodule R (N i))
+    (ℱ : Filter ι) :
+    ⇑(lTensorLeft R M N ℱ L) = lTensor R M N ℱ L := by
+  ext x i
+  induction x using TensorProduct.induction_on with
+  | zero => simp
+  | tmul x y => simp [lTensorLeft_tmul]
+  | add x y hx hy => simp_all
 
 variable (S : Set ι) [Module.FinitePresentation R M] [Module.Flat R M]
 
@@ -164,14 +205,36 @@ lemma lTensor_bijective : Function.Bijective (lTensor R M N ℱ L) := by
   rw [this]
   exact tensor_comm'.bijective
 
+lemma lTensorLeft_bijective (R M : Type*) [CommRing R] [CommRing M] [Algebra R M] {ι : Type*}
+    (N : ι → Type*) [∀ i, Ring (N i)] [∀ i, Algebra R (N i)] (L : ∀ i, Submodule R (N i))
+    (ℱ : Filter ι) [Module.Flat R M] [Module.FinitePresentation R M] :
+    Function.Bijective (lTensorLeft R M N ℱ L) := by
+  rw [coe_lTensorLeft_eq_lTensor]
+  exact lTensor_bijective R M N ℱ L
+
 /-- The `R`-linear isomorphism given by `lTensor` when `M` is a finite flat `R`-module. -/
 noncomputable def lTensorEquiv :
     M ⊗[R] Πʳ i, [N i, L i]_[ℱ] ≃ₗ[R] Πʳ i, [M ⊗[R] N i, rangeLTensor R M N L i]_[ℱ] :=
   LinearEquiv.ofBijective (lTensor R M N ℱ L) (lTensor_bijective R M N ℱ L)
 
+/-- The `M`-linear isomorphism given by `lTensor` when `M` is a finite flat `R`-module. -/
+noncomputable def lTensorEquivLeft (R M : Type*) [CommRing R] [CommRing M] [Algebra R M] {ι : Type*}
+    (N : ι → Type*) [∀ i, Ring (N i)] [∀ i, Algebra R (N i)] (L : ∀ i, Submodule R (N i))
+    (ℱ : Filter ι) [Module.Flat R M] [Module.FinitePresentation R M] :
+    M ⊗[R] Πʳ i, [N i, L i]_[ℱ] ≃ₗ[M] Πʳ i, [M ⊗[R] N i, rangeLTensorLeft R M N L i]_[ℱ] :=
+  LinearEquiv.ofBijective (lTensorLeft R M N ℱ L) (lTensorLeft_bijective R M N L ℱ)
+
 @[simp]
 lemma lTensorEquiv_tmul (m : M) (f : Πʳ i, [N i, L i]_[ℱ]) (i : ι) :
     lTensorEquiv R M N ℱ L (m ⊗ₜ f) i = m ⊗ₜ (f i) :=
   rfl
+
+@[simp]
+lemma lTensorEquivLeft_tmul (R M : Type*) [CommRing R] [CommRing M] [Algebra R M] {ι : Type*}
+    (N : ι → Type*) [∀ i, Ring (N i)] [∀ i, Algebra R (N i)] (L : ∀ i, Submodule R (N i))
+    (ℱ : Filter ι) [Module.Flat R M] [Module.FinitePresentation R M] (m : M)
+    (f : Πʳ i, [N i, L i]_[ℱ]) (i : ι) :
+    lTensorEquivLeft R M N L ℱ (m ⊗ₜ f) i = m ⊗ₜ (f i) := by
+  simp [lTensorEquivLeft]
 
 end RestrictedProduct

@@ -64,10 +64,6 @@ namespace FiniteAdeleRing
 @[inherit_doc]
 scoped notation:max "𝔸ᶠ[" A ", " K "]" => FiniteAdeleRing A K
 
-namespace FiniteAdeleRing
-
-scoped notation:max "𝔸ᶠ[" A ", " K "]" => FiniteAdeleRing A K
-
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields. -/
 noncomputable def mapRingHom : 𝔸ᶠ[A, K] →+* 𝔸ᶠ[B, L] :=
   have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
@@ -123,31 +119,34 @@ lemma BaseChange.algebraMap_apply (w : HeightOneSpectrum B) (x : 𝔸ᶠ[A, K]) 
 
 noncomputable section bijection
 
-omit [Module.Finite A B] [IsDedekindDomain B] in
-theorem range_adicCompletionTensorIntegerCoe_eq_lTensorRestriction (v : HeightOneSpectrum A) :
-    LinearMap.range (adicCompletionIntegers.tensorCoe K B v) =
-    RestrictedProduct.rangeLTensor A B (adicCompletion K) (integerSubmodule K) v := rfl
-
 /-- The canonical linear isomorphism `L ⊗[K] 𝔸_K^∞ ≅ B ⊗[A] 𝔸_K^∞`. -/
-def tensorEquivTensor [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃ₗ[A] B ⊗[A] 𝔸ᶠ[A, K] := by
-  exact linearEquivTensorProductModule A K L B 𝔸ᶠ[A, K]
+def tensorEquivTensor [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃ₗ[B] B ⊗[A] 𝔸ᶠ[A, K] := by
+  exact linearEquivTensorProductModuleLeft A K L B 𝔸ᶠ[A, K]
 
 omit [Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [ComapFiberwiseSMul A K L B] in
 lemma tensorEquivTensor_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A, K]) :
     tensorEquivTensor A K L B (algebraMap B L b ⊗ₜ[K] x) = b ⊗ₜ[A] x := by
-  simp [tensorEquivTensor, linearEquivTensorProductModule_tmul]
+  simp [tensorEquivTensor, linearEquivTensorProductModuleLeft_tmul]
 
-/-- The `A`-linear isomorphism `φ : B ⊗[K] 𝔸_K^∞ ≅ ∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v]`
+-- shortcuts
+local instance : AddCommMonoid (Πʳ v, [B ⊗[A] (adicCompletion K v),
+      RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v]) :=
+    RestrictedProduct.instAddCommMonoidCoeOfAddSubmonoidClass
+      (R := (B ⊗[A] adicCompletion K ·)) (S := fun v ↦ Submodule B (B ⊗[A] adicCompletion K v))
+
+local instance : Module B (Πʳ v, [B ⊗[A] (adicCompletion K v),
+    RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v]) :=
+  RestrictedProduct.instModuleCoeOfSMulMemClass (R := (B ⊗[A] adicCompletion K ·))
+    (S := fun v ↦ Submodule B (B ⊗[A] adicCompletion K v))
+
+/-- The `B`-linear isomorphism `φ : B ⊗[K] 𝔸_K^∞ ≅ ∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v]`
 given by `φ (b ⊗ x) v = b ⊗ (x v)`. -/
-def tensorEquivRestrictedProduct :
-    B ⊗[A] 𝔸ᶠ[A, K] ≃ₗ[A]
-      Πʳ v, [B ⊗[A] (adicCompletion K v), RestrictedProduct.rangeLTensor A
-      B (adicCompletion K) (integerSubmodule K) v]:= by
+def tensorEquivRestrictedProduct : B ⊗[A] 𝔸ᶠ[A, K] ≃ₗ[B] Πʳ v, [B ⊗[A] (adicCompletion K v),
+    RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v] := by
   have := Module.finitePresentation_of_finite A B
   have := isTorsionFree A K L B
-  let map :=
-    RestrictedProduct.lTensorEquiv A B (adicCompletion K) Filter.cofinite (integerSubmodule K)
-  apply LinearEquiv.trans (TensorProduct.congr (LinearEquiv.refl A B) _) map
+  let f := RestrictedProduct.lTensorEquivLeft A B (adicCompletion K) (integerSubmodule K) .cofinite
+  apply LinearEquiv.trans (TensorProduct.AlgebraTensorModule.congr (LinearEquiv.refl B B) ?_) f
   exact {
     __ := AddEquiv.refl _
     map_smul' a x := by
@@ -156,20 +155,20 @@ def tensorEquivRestrictedProduct :
   }
 
 omit [IsFractionRing B L] in
-lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K])
-    (v : HeightOneSpectrum A) :
-    tensorEquivRestrictedProduct A K L B (b ⊗ₜ[A] x) v = b ⊗ₜ[A] (x v) := rfl
+lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K]) (v : HeightOneSpectrum A) :
+    tensorEquivRestrictedProduct A K L B (b ⊗ₜ[A] x) v = b ⊗ₜ[A] (x v) := by
+  simp [tensorEquivRestrictedProduct]
 
-/-- The `A`-linear isomorphism `∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v] ≅ ∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w]`
+/-- The `B`-linear isomorphism `∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v] ≅ ∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w]`
 given by `adicCompletionComapIntegerLinearEquiv`. -/
 def restrictedProduct_tensorProduct_equiv_restrictedProduct_prod [FiniteDimensional K L] :
-    Πʳ v, [B ⊗[A] (adicCompletion K v), RestrictedProduct.rangeLTensor A
-      B (adicCompletion K) (integerSubmodule K) v] ≃ₗ[A]
+   Πʳ v, [B ⊗[A] (adicCompletion K v),
+    RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v] ≃ₗ[B]
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
-      Submodule.pi Set.univ fun w : Extension B v ↦ (integerSubmodule L w.val).restrictScalars A] :=
-  LinearEquiv.restrictedProductCongrRight
-    (integerBaseChangeLinearEquiv K L B)
-    (.of_forall <| integerBaseChangeLinearEquiv_bijOn K L)
+      Submodule.pi Set.univ fun w : Extension B v ↦ (integerSubmodule L w.val)] :=
+  LinearEquiv.restrictedProductCongrRight (R₁ := (B ⊗[A] adicCompletion K ·))
+    (S₁ := fun v ↦ Submodule B (B ⊗[A] adicCompletion K v)) (integerBaseChangeLinearEquiv K L B)
+      (.of_forall <| integerBaseChangeLinearEquiv_bijOn K L)
 
 omit [Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [ComapFiberwiseSMul A K L B] in
 lemma restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply [FiniteDimensional K L]
@@ -177,11 +176,11 @@ lemma restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply [Finite
     FiniteAdeleRing.restrictedProduct_tensorProduct_equiv_restrictedProduct_prod A K L B f v =
     integerBaseChangeLinearEquiv K L B v (f v) := rfl
 
-/-- The `A`-linear isomorphism `∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w] → 𝔸_L^∞` given by
+/-- The `B`-linear isomorphism `∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w] → 𝔸_L^∞` given by
 `RestrictedProduct.flatten_equiv'`. -/
-def restrictedProduct_prod_equiv [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A B 𝔸ᶠ[B, L]] :
+def restrictedProduct_prod_equiv : -- [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A B 𝔸ᶠ[B, L]] :
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
-    Submodule.pi .univ fun w : Extension B v ↦ (integerSubmodule L w.val).restrictScalars A] ≃ₗ[A]
+    Submodule.pi .univ fun w : Extension B v ↦ (integerSubmodule L w.val)] ≃ₗ[B]
       𝔸ᶠ[B, L] :=
   have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
   {
@@ -192,30 +191,22 @@ def restrictedProduct_prod_equiv [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A B �
     map_smul' a x := by
       ext w
       change a • (x (comap A w) ⟨w, rfl⟩) = _
-      simp only [Submodule.coe_pi, Submodule.coe_restrictScalars, Algebra.smul_def,
-        RingHom.id_apply, Equiv.toFun_as_coe,
-        IsScalarTower.algebraMap_apply A B (w.adicCompletion L)]
-      rw [IsScalarTower.algebraMap_apply A B 𝔸ᶠ[B, L]]
+      simp [Submodule.coe_pi,Algebra.smul_def, RingHom.id_apply, Equiv.toFun_as_coe]
       rfl
   }
 
 omit [Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [ComapFiberwiseSMul A K L B] in
-lemma restrictedProduct_prod_equiv_apply [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A B 𝔸ᶠ[B, L]]
-    (f) (w : HeightOneSpectrum B) :
+lemma restrictedProduct_prod_equiv'_apply (f) (w : HeightOneSpectrum B) :
     restrictedProduct_prod_equiv A K L B f w = f (comap A w) ⟨w, rfl⟩ := rfl
 
--- TODO : are all these needed?
-variable [Algebra K 𝔸ᶠ[B, L]] [IsScalarTower K 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [Algebra A 𝔸ᶠ[B, L]]
-  [IsScalarTower A B 𝔸ᶠ[B, L]] [IsScalarTower A 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]]
-
-/-- The `K`-linear isomorphism `L ⊗ A_K^∞ ≅ A_L^∞` given by composing the previous four maps. -/
-def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃ₗ[K] 𝔸ᶠ[B, L] :=
-  have : IsScalarTower A K 𝔸ᶠ[B, L] := .to₁₂₄ _ _ 𝔸ᶠ[A, K] _
-  let f := (tensorEquivTensor A K L B) ≪≫ₗ
-    (tensorEquivRestrictedProduct A K L B) ≪≫ₗ
-    (restrictedProduct_tensorProduct_equiv_restrictedProduct_prod A K L B) ≪≫ₗ
-    (restrictedProduct_prod_equiv A K L B).restrictScalars A
-  LinearEquiv.extendScalarsOfIsLocalization (nonZeroDivisors A) K f
+/-- The `L`-linear isomorphism `L ⊗ A_K^∞ ≅ A_L^∞` given by composing the previous four maps. -/
+def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃ₗ[L] 𝔸ᶠ[B, L] :=
+  let f₁ := tensorEquivTensor A K L B
+  let f₂ := tensorEquivRestrictedProduct A K L B
+  let f₃ := restrictedProduct_tensorProduct_equiv_restrictedProduct_prod A K L B
+  let f₄ := restrictedProduct_prod_equiv A K L B
+  let f := f₁ ≪≫ₗ f₂ ≪≫ₗ f₃ ≪≫ₗ f₄
+  LinearEquiv.extendScalarsOfIsLocalization (nonZeroDivisors B) L f
 
 @[simp]
 lemma algebraMap_apply (x : K) (v : HeightOneSpectrum A) :
@@ -226,36 +217,43 @@ lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A,
     baseChangeLinearEquiv A K L B (algebraMap B L b ⊗ₜ x) =
       (algebraMap _ 𝔸ᶠ[B, L] b) * (algebraMap _ 𝔸ᶠ[B, L] x) := by
   ext w
-  simpa [baseChangeLinearEquiv, restrictedProduct_prod_equiv_apply, tensorEquivTensor_tmul,
+  simpa [baseChangeLinearEquiv, restrictedProduct_prod_equiv'_apply, tensorEquivTensor_tmul,
     restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply,
     tensorEquivRestrictedProduct_tmul, BaseChange.algebraMap_apply,
     IsScalarTower.algebraMap_apply B L 𝔸ᶠ[B, L],
     IsScalarTower.algebraMap_apply B L (w.adicCompletion L), -Submodule.coe_pi] using .inl rfl
 
-theorem baseChange_bijective [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B, L]] :
+theorem baseChange_bijective [FiniteDimensional K L] :
     Function.Bijective (SemialgHom.baseChange_of_algebraMap <|
       (mapSemialgHom A K L B).toSemialgHom) := by
   suffices ⇑(SemialgHom.baseChange_of_algebraMap <| FiniteAdeleRing.mapSemialgHom A K L B) =
       ⇑(FiniteAdeleRing.baseChangeLinearEquiv A K L B) by
     rw [ContinuousSemialgHom.toSemialgHom_eq_coe, this]
     exact (FiniteAdeleRing.baseChangeLinearEquiv A K L B).bijective
-  rw [← AlgHom.coe_restrictScalars' (R:=K), ← AlgHom.coe_toLinearMap, ← LinearEquiv.coe_toLinearMap]
-  apply congr_arg
-  have := IsIntegralClosure.isLocalizedModule A K L B
-  apply IsLocalization.tensorProduct_ext (nonZeroDivisors A) B
-  intro b x
-  ext w
-  simp [SemialgHom.baseChange_of_algebraMap_tmul, mapSemialgHom_apply, BaseChange.algebraMap_apply,
-    IsScalarTower.algebraMap_apply B L 𝔸ᶠ[B, L]]
+  rw [← AlgHom.coe_toLinearMap, ← LinearEquiv.coe_toLinearMap]
+  apply congr_arg _ <| LinearMap.ext fun x ↦ ?_
+  induction x using TensorProduct.induction_on with
+  | zero => simp
+  | tmul l x =>
+    ext w
+    obtain ⟨⟨b, s⟩, hl : (s : B) • l = algebraMap B L b⟩ :=
+      IsLocalizedModule.surj (M := B) (M' := L) (nonZeroDivisors B) (Algebra.linearMap B L) l
+    rw [LinearEquiv.coe_coe, ← IsUnit.smul_left_cancel <| IsLocalization.map_units L s]
+    simp only [Algebra.smul_def, ← algebraMap_apply, ← mul_apply]
+    simp only [← Algebra.smul_def, ← map_smul]
+    simp [hl, baseChangeLinearEquiv_tmul, BaseChange.algebraMap_apply, mapSemialgHom_apply,
+      SemialgHom.baseChange_of_algebraMap_tmul, Algebra.compHom_algebraMap_apply,
+      ← IsScalarTower.algebraMap_apply B L (w.adicCompletion L), TensorProduct.smul_tmul']
+  | add => simp_all
 
 /-- The `L`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
-def baseChangeAlgEquiv [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B, L]] :
+def baseChangeAlgEquiv [FiniteDimensional K L] :
     L ⊗[K] 𝔸ᶠ[A, K] ≃ₐ[L] 𝔸ᶠ[B, L] :=
   .ofBijective (SemialgHom.baseChange_of_algebraMap <| FiniteAdeleRing.mapSemialgHom A K L B)
     (FiniteAdeleRing.baseChange_bijective A K L B)
 
 /-- The `𝔸_K^∞`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
-def baseChangeAdeleAlgEquiv [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B, L]] :
+def baseChangeAdeleAlgEquiv [FiniteDimensional K L] :
     L ⊗[K] 𝔸ᶠ[A, K] ≃ₐ[𝔸ᶠ[A, K]] 𝔸ᶠ[B, L] where
   __ := SemialgHom.baseChangeRightOfAlgebraMap <|
     (FiniteAdeleRing.mapSemialgHom A K L B).toSemialgHom
@@ -265,16 +263,12 @@ def baseChangeAdeleAlgEquiv [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B
     simp [BaseChange.algebraMap_apply]
     rfl
 
-instance [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B, L]] : Module.Finite 𝔸ᶠ[A, K] 𝔸ᶠ[B, L] :=
+instance [FiniteDimensional K L] : Module.Finite 𝔸ᶠ[A, K] 𝔸ᶠ[B, L] :=
   Module.Finite.equiv (FiniteAdeleRing.baseChangeAdeleAlgEquiv A K L B).toLinearEquiv
 
 end bijection
 
 section moduleTopology
-
--- TODO : are all these needed?
-variable [Algebra K 𝔸ᶠ[B, L]] [IsScalarTower K 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [Algebra A 𝔸ᶠ[B, L]]
-  [IsScalarTower A B 𝔸ᶠ[B, L]] [IsScalarTower A 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]]
 
 -- shortcut instances
 
@@ -352,8 +346,7 @@ noncomputable def restrictedProduct_pi_equiv :
 -- needed for the below lemmas for some reason
 attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
 
-lemma restrictedProduct_pi_isModuleTopology [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B, L]] :
-    IsModuleTopology 𝔸ᶠ[A, K]
+lemma restrictedProduct_pi_isModuleTopology [FiniteDimensional K L] : IsModuleTopology 𝔸ᶠ[A, K]
     (Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
       piAdicIntegerSubmodule A K L B v]) := by
   have :=
@@ -367,25 +360,20 @@ lemma restrictedProduct_pi_isModuleTopology [FiniteDimensional K L] [IsScalarTow
     rw [Set.finite_univ_iff]
     exact Extension.finite A K L B v
 
-instance [FiniteDimensional K L] [IsScalarTower K L 𝔸ᶠ[B, L]] :
-    IsModuleTopology 𝔸ᶠ[A, K] 𝔸ᶠ[B, L] :=
+instance [FiniteDimensional K L] : IsModuleTopology 𝔸ᶠ[A, K] 𝔸ᶠ[B, L] :=
   have := restrictedProduct_pi_isModuleTopology A K L B
   IsModuleTopology.iso (FiniteAdeleRing.restrictedProduct_pi_equiv A K L B)
 
 end moduleTopology
 
--- TODO : are all these needed?
-variable [Algebra K 𝔸ᶠ[B, L]] [IsScalarTower K 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [Algebra A 𝔸ᶠ[B, L]]
-  [IsScalarTower A B 𝔸ᶠ[B, L]] [IsScalarTower A 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]]
-
 /-- The continuous `𝔸_K^∞`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞` -/
-noncomputable def baseChangeAdeleContinuousAlgEquiv [FiniteDimensional K L]
-    [IsScalarTower K L 𝔸ᶠ[B, L]] : L ⊗[K] 𝔸ᶠ[A, K] ≃A[𝔸ᶠ[A, K]] 𝔸ᶠ[B, L] :=
+noncomputable def baseChangeAdeleContinuousAlgEquiv [FiniteDimensional K L] :
+    L ⊗[K] 𝔸ᶠ[A, K] ≃A[𝔸ᶠ[A, K]] 𝔸ᶠ[B, L] :=
   IsModuleTopology.continuousAlgEquivOfAlgEquiv <| baseChangeAdeleAlgEquiv A K L B
 
 /-- The continuous `L`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞` -/
-noncomputable def baseChangeContinuousAlgEquiv [FiniteDimensional K L]
-    [IsScalarTower K L 𝔸ᶠ[B, L]] : L ⊗[K] 𝔸ᶠ[A, K] ≃A[L] 𝔸ᶠ[B, L] where
+noncomputable def baseChangeContinuousAlgEquiv [FiniteDimensional K L] :
+    L ⊗[K] 𝔸ᶠ[A, K] ≃A[L] 𝔸ᶠ[B, L] where
   __ := FiniteAdeleRing.baseChangeAlgEquiv A K L B
   __ := FiniteAdeleRing.baseChangeAdeleContinuousAlgEquiv A K L B
 
