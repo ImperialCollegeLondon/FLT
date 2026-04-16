@@ -871,8 +871,7 @@ theorem integerBaseChangeLinearEquiv_bijOn (v : HeightOneSpectrum A) :
   rw [← AlgHom.coe_restrictScalars' B (baseChange K L B v), ← AlgHom.coe_comp,
     ← AlgHom.coe_toLinearMap]
   congr
-  apply TensorProduct.AlgebraTensorModule.ext fun x y ↦ ?_
-  ext w
-  simp [← IsScalarTower.algebraMap_apply, baseChange_tmul_apply]
+  ext
+  simp [baseChange_tmul_apply]
 
 end IsDedekindDomain.HeightOneSpectrum.adicCompletion
