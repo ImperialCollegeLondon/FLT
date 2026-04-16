@@ -100,10 +100,6 @@ instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank
   IsModuleTopology.instPi
 
 variable [Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]] [FiniteAdeleRing.ComapFiberwiseSMul (𝓞 K) K L (𝓞 L)]
--- TODO : can these be removed?
-variable [Algebra K 𝔸ᶠ[L]] [IsScalarTower K 𝔸ᶠ[K] 𝔸ᶠ[L]]
-    [Algebra (𝓞 K) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) (𝓞 L) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) 𝔸ᶠ[K] 𝔸ᶠ[L]]
-    [IsScalarTower K L 𝔸ᶠ[L]]
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
@@ -289,10 +285,6 @@ section vector_space
 variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [Algebra K L] [IsScalarTower K L V]
 
 variable [Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]] [FiniteAdeleRing.ComapFiberwiseSMul (𝓞 K) K L (𝓞 L)]
--- TODO : can these be removed?
-variable [Algebra K 𝔸ᶠ[L]] [IsScalarTower K 𝔸ᶠ[K] 𝔸ᶠ[L]]
-    [Algebra (𝓞 K) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) (𝓞 L) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) 𝔸ᶠ[K] 𝔸ᶠ[L]]
-    [IsScalarTower K L 𝔸ᶠ[L]]
 
 set_option backward.isDefEq.respectTransparency false in
 /-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
@@ -376,36 +368,14 @@ attribute [local instance 9999] Algebra.toModule
 scoped instance : Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion where
   map_smul r x b σ := by obtain ⟨a, rfl⟩ := σ; rfl
 
-
 /-- The `𝔸ᶠ[K]`-algebra on `𝔸ᶠ[L]`, induced by `FiniteAdeleRing.mapRingHom (𝓞 K) K L (𝓞 L)`. -/
 scoped instance : Algebra 𝔸ᶠ[K] 𝔸ᶠ[L] := (FiniteAdeleRing.mapRingHom _ K L _).toAlgebra
-
-/-- The product `K`-algebra on `𝔸ᶠ[L]`. -/
-scoped instance : Algebra K 𝔸ᶠ[L] := Algebra.compHom 𝔸ᶠ[L] (algebraMap K L)
 
 /-- The `𝔸 K`-algebra on `𝔸 L`, induced by `AdeleRing.baseChange K L`. -/
 scoped instance : Algebra (𝔸 K) (𝔸 L) := (AdeleRing.baseChange K L).toAlgebra
 
-scoped instance : IsScalarTower K L 𝔸ᶠ[L] := IsScalarTower.of_compHom _ _ _
-
-scoped instance : IsScalarTower (𝓞 K) (𝓞 L) 𝔸ᶠ[L] := IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
-
 scoped instance : FiniteAdeleRing.ComapFiberwiseSMul (𝓞 K) K L (𝓞 L) where
   map_smul r x b σ := by obtain ⟨a, rfl⟩ := σ; rfl
-
-set_option backward.isDefEq.respectTransparency false in
-scoped instance : IsScalarTower K 𝔸ᶠ[K] 𝔸ᶠ[L] := by
-  apply IsScalarTower.of_algebraMap_eq
-  intro x
-  rw [Algebra.compHom_algebraMap_apply]
-  ext w
-  simp only [FiniteAdeleRing.algebraMap_apply]
-  rw [RingHom.algebraMap_toAlgebra]
-  erw [RestrictedProduct.mapAlongRingHom_apply]
-  erw [HeightOneSpectrum.Extension.adicCompletionSemialgHom_coe]
-  rfl
-
-scoped instance : IsScalarTower (𝓞 K) 𝔸ᶠ[K] 𝔸ᶠ[L] := .to₁₃₄ (𝓞 K) K 𝔸ᶠ[K] 𝔸ᶠ[L]
 
 /-- Says that `𝔸 K`-algebra on `𝔸 L` is built from the `K∞`-algebra on `L∞` and the
 finite adele algebra. -/

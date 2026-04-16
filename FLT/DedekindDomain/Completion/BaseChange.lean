@@ -811,17 +811,18 @@ noncomputable def baseChangeContinuousAlgEquiv :
   IsModuleTopology.continuousAlgEquivOfIsBiscalar (v.adicCompletion K)
     (baseChangeAlgEquiv K L B v)
 
-/-- The A-module isomorphism `B ⊗[A] K_v ≅ ∏_{w|v} L_w`. -/
+/-- The `B`-module isomorphism `B ⊗[A] K_v ≅ ∏_{w|v} L_w`. -/
 noncomputable def integerBaseChangeLinearEquiv :
-    B ⊗[A] v.adicCompletion K ≃ₗ[A] ∀ w : v.Extension B, w.1.adicCompletion L :=
-  (linearEquivTensorProductModule A K L B (v.adicCompletion K)).symm.trans
-    ((baseChangeAlgEquiv K L B v).toLinearEquiv.restrictScalars A)
+    B ⊗[A] v.adicCompletion K ≃ₗ[B] ∀ w : v.Extension B, w.1.adicCompletion L :=
+  (linearEquivTensorProductModuleLeft A K L B (v.adicCompletion K)).symm.trans
+    ((baseChangeAlgEquiv K L B v).toLinearEquiv.restrictScalars B)
 
 @[simp]
 lemma integerBaseChangeLinearEquiv_tmul_apply (b x) :
-    integerBaseChangeLinearEquiv K L B v (b ⊗ₜ[A] x) w = algebraMap B _ b * algebraMap _ _ x := by
+    integerBaseChangeLinearEquiv K L B v (b ⊗ₜ[A] x) w =
+      algebraMap B _ b * algebraMap _ _ x := by
   rw [integerBaseChangeLinearEquiv, LinearEquiv.trans_apply,
-    linearEquivTensorProductModule_symm_tmul]
+    linearEquivTensorProductModuleLeft_symm_tmul]
   rfl
 
 /-- `𝓞_v` as an `A`-submodule of `K_v`. -/
@@ -837,9 +838,10 @@ open adicCompletion
 
 variable (B)
 
-/-- The canonical A-linear map `B ⊗[A] 𝓞_v → B ⊗[A] K_v`. -/
-noncomputable def tensorCoe : B ⊗[A] v.adicCompletionIntegers K →ₗ[A] B ⊗[A] v.adicCompletion K :=
-  (Algebra.algHom A (adicCompletionIntegers K v) (adicCompletion K v)).toLinearMap.lTensor B
+/-- The canonical `B`-linear map `B ⊗[A] 𝓞_v → B ⊗[A] K_v`. -/
+noncomputable def tensorCoe : B ⊗[A] v.adicCompletionIntegers K →ₗ[B] B ⊗[A] v.adicCompletion K :=
+  TensorProduct.AlgebraTensorModule.lTensor _ _
+    (Algebra.algHom A (adicCompletionIntegers K v) (adicCompletion K v))
 
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] in
 @[simp]
@@ -867,10 +869,9 @@ theorem integerBaseChangeLinearEquiv_bijOn (v : HeightOneSpectrum A) :
   apply Eq.trans _ (range_baseChange_comp_tensorAdicCompletionTo_eq_pi K L B v)
   rw [LinearMap.coe_range, ← Set.range_comp, ← LinearEquiv.coe_toLinearMap, ← LinearMap.coe_comp]
   rw [← AlgHom.coe_restrictScalars' B (baseChange K L B v), ← AlgHom.coe_comp,
-    ← ((AlgHom.restrictScalars B _).comp _).coe_restrictScalars' A, ← AlgHom.coe_toLinearMap]
+    ← AlgHom.coe_toLinearMap]
   congr
-  apply TensorProduct.ext' (fun x y ↦ ?_)
-  ext w
-  simp [← IsScalarTower.algebraMap_apply, baseChange_tmul_apply]
+  ext
+  simp [baseChange_tmul_apply]
 
 end IsDedekindDomain.HeightOneSpectrum.adicCompletion
