@@ -250,6 +250,10 @@ theorem baseChange_bijective [FiniteDimensional K L] :
     rw [ContinuousSemialgHom.toSemialgHom_eq_coe, this]
     exact (FiniteAdeleRing.baseChangeLinearEquiv A K L B).bijective
   rw [← AlgHom.coe_toLinearMap, ← LinearEquiv.coe_toLinearMap]
+  -- TODO
+  -- we used to use `IsLocalization.tensorProduct_ext` when this was K-linear
+  -- not L-linear; maybe write `IsLocalization.tensorProduct_ext'` which allows
+  -- for L-linear maps out of a K-linear tensor product?
   apply congr_arg _ <| LinearMap.ext fun x ↦ ?_
   induction x using TensorProduct.induction_on with
   | zero => simp
