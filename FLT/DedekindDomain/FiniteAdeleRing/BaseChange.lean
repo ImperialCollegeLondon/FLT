@@ -207,7 +207,7 @@ def restrictedProduct_prod_equiv : -- [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A
   }
 
 omit [Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [ComapFiberwiseSMul A K L B] in
-lemma restrictedProduct_prod_equiv_apply [Algebra A 𝔸ᶠ[B, L]] (f) (w : HeightOneSpectrum B) :
+lemma restrictedProduct_prod_equiv_apply (f) (w : HeightOneSpectrum B) :
     restrictedProduct_prod_equiv A K L B f w = f (under A w) ⟨w, rfl⟩ := rfl
 
 set_option synthInstance.maxHeartbeats 40000 in
