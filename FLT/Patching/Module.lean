@@ -7,7 +7,7 @@ import Mathlib.Topology.Compactness.Paracompact
 
 local notation "Ann" => Module.annihilator
 
-attribute [local instance_reducible, local instance] Module.quotientAnnihilator
+attribute [local instance] Module.quotientAnnihilator
 
 section
 

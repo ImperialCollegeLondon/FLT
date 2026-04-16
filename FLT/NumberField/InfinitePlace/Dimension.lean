@@ -41,12 +41,6 @@ namespace NumberField.InfinitePlace.Completion
 
 variable {K : Type*} [Field K]
 
-@[simp] theorem ringEquivComplexOfIsComplex_apply {v : InfinitePlace K} (hv : IsComplex v)
-    (x : v.Completion) : ringEquivComplexOfIsComplex hv x = extensionEmbedding v x := rfl
-
-@[simp] theorem ringEquivRealOfIsReal_apply {v : InfinitePlace K} (hv : IsReal v)
-    (x : v.Completion) : ringEquivRealOfIsReal hv x = extensionEmbeddingOfIsReal hv x := rfl
-
 end NumberField.InfinitePlace.Completion
 
 namespace NumberField.LiesOver

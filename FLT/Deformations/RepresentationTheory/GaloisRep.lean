@@ -60,9 +60,10 @@ def GaloisRep.map (ρ : GaloisRep K A M) (f : K →+* L) : GaloisRep L A M :=
   letI := moduleTopology A (Module.End A M)
   ρ.comp (Field.absoluteGaloisGroup.map f)
 
+-- remark: `.toMonoidHom` added in bump to v4.30.0-rc1
 @[simp]
 lemma GaloisRep.ker_map (ρ : GaloisRep K A M) (f : K →+* L) :
-    (ρ.map f).ker = ρ.ker.comap (Field.absoluteGaloisGroup.map f) := rfl
+    (ρ.map f).ker = ρ.ker.comap (Field.absoluteGaloisGroup.map f).toMonoidHom := rfl
 
 variable (K A n) in
 /-- A framed galois rep is a galois rep with a distinguished basis.

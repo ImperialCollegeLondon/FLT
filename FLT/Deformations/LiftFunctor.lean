@@ -19,11 +19,12 @@ local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
 local notation3 K:max "ᵃˡᵍ" => AlgebraicClosure K
 local notation "Ω" K => IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)
 
+open scoped TypeCat
 variable (n) in
 /-- `repnFunctor n G 𝓞` is the functor taking `R` to continuous reps `G → GLₙ(R)`. -/
 def repnFunctor : ProartinianCat 𝓞 ⥤ Type u where
   obj R := G →ₜ* GL n R
-  map {R S} f ρ := .comp (Units.mapₜ f.hom.mapMatrix.toContinuousMonoidHom) ρ
+  map {R S} f := ↾ (fun ρ ↦ .comp (Units.mapₜ f.hom.mapMatrix.toContinuousMonoidHom) ρ)
 
 omit [IsLocalRing 𝓞] in
 @[simp]

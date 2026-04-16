@@ -14,32 +14,6 @@ namespace ContinuousAddEquiv
 
 variable {R : Type*} [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
 
-/-- The additive homeomorphism from a topological ring to itself,
-induced by left multiplication by a unit.
--/
-@[simps apply]
-def mulLeft (r : Rˣ) : R ≃ₜ+ R where
-  toFun x := r * x
-  invFun y := r⁻¹ * y
-  left_inv x := by simp
-  right_inv y := by simp
-  map_add' x₁ x₂ := left_distrib ↑r x₁ x₂
-  continuous_toFun := continuous_const_mul _
-  continuous_invFun := continuous_const_mul _
-
-/-- The additive homeomorphism from a topological ring to itself,
-induced by right multiplication by a unit.
--/
-@[simps apply]
-def mulRight (r : Rˣ) : R ≃ₜ+ R where
-  toFun x := x * r
-  invFun y := y * r⁻¹
-  left_inv x := by simp [mul_assoc]
-  right_inv y := by simp [mul_assoc]
-  map_add' x₁ x₂ := right_distrib x₁ x₂ r
-  continuous_toFun := continuous_mul_const _
-  continuous_invFun := continuous_mul_const _
-
 open Pointwise in
 @[simp]
 lemma preimage_mulLeft_smul (r : Rˣ) (s : Set R) :
