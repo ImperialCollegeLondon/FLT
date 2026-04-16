@@ -129,16 +129,16 @@ lemma tensorEquivTensor_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A, K])
     tensorEquivTensor A K L B (algebraMap B L b ⊗ₜ[K] x) = b ⊗ₜ[A] x := by
   simp [tensorEquivTensor, linearEquivTensorProductModuleLeft_tmul]
 
--- shortcuts
-local instance : AddCommMonoid (Πʳ v, [B ⊗[A] (adicCompletion K v),
-      RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v]) :=
-    RestrictedProduct.instAddCommMonoidCoeOfAddSubmonoidClass
-      (R := (B ⊗[A] adicCompletion K ·)) (S := fun v ↦ Submodule B (B ⊗[A] adicCompletion K v))
+-- shortcuts: note these help remove heartbeats in the below, but probably not the "right" fix
+-- local instance : AddCommMonoid (Πʳ v, [B ⊗[A] (adicCompletion K v),
+--       RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v]) :=
+--     RestrictedProduct.instAddCommMonoidCoeOfAddSubmonoidClass
+--       (R := (B ⊗[A] adicCompletion K ·)) (S := fun v ↦ Submodule B (B ⊗[A] adicCompletion K v))
 
-local instance : Module B (Πʳ v, [B ⊗[A] (adicCompletion K v),
-    RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v]) :=
-  RestrictedProduct.instModuleCoeOfSMulMemClass (R := (B ⊗[A] adicCompletion K ·))
-    (S := fun v ↦ Submodule B (B ⊗[A] adicCompletion K v))
+-- local instance : Module B (Πʳ v, [B ⊗[A] (adicCompletion K v),
+--     RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v]) :=
+--   RestrictedProduct.instModuleCoeOfSMulMemClass (R := (B ⊗[A] adicCompletion K ·))
+--     (S := fun v ↦ Submodule B (B ⊗[A] adicCompletion K v))
 
 set_option synthInstance.maxHeartbeats 40000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
@@ -158,6 +158,7 @@ def tensorEquivRestrictedProduct : B ⊗[A] 𝔸ᶠ[A, K] ≃ₗ[B] Πʳ v, [B �
       exact Algebra.smul_def a (x v) |>.symm
   }
 
+set_option backward.isDefEq.respectTransparency false in
 omit [IsFractionRing B L] in
 lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K]) (v : HeightOneSpectrum A) :
     tensorEquivRestrictedProduct A K L B (b ⊗ₜ[A] x) v = b ⊗ₜ[A] (x v) := by
@@ -206,8 +207,7 @@ def restrictedProduct_prod_equiv : -- [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A
   }
 
 omit [Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [ComapFiberwiseSMul A K L B] in
-lemma restrictedProduct_prod_equiv_apply [Algebra A 𝔸ᶠ[B, L]] [IsScalarTower A B 𝔸ᶠ[B, L]]
-    (f) (w : HeightOneSpectrum B) :
+lemma restrictedProduct_prod_equiv_apply [Algebra A 𝔸ᶠ[B, L]] (f) (w : HeightOneSpectrum B) :
     restrictedProduct_prod_equiv A K L B f w = f (under A w) ⟨w, rfl⟩ := rfl
 
 set_option synthInstance.maxHeartbeats 40000 in
@@ -235,7 +235,7 @@ lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A,
     baseChangeLinearEquiv A K L B (algebraMap B L b ⊗ₜ x) =
       (algebraMap _ 𝔸ᶠ[B, L] b) * (algebraMap _ 𝔸ᶠ[B, L] x) := by
   ext w
-  simpa [baseChangeLinearEquiv, restrictedProduct_prod_equiv'_apply, tensorEquivTensor_tmul,
+  simpa [baseChangeLinearEquiv, restrictedProduct_prod_equiv_apply, tensorEquivTensor_tmul,
     restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply,
     tensorEquivRestrictedProduct_tmul, BaseChange.algebraMap_apply,
     IsScalarTower.algebraMap_apply B L 𝔸ᶠ[B, L],

@@ -284,10 +284,6 @@ section vector_space
 variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [Algebra K L] [IsScalarTower K L V]
 
 variable [Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]] [FiniteAdeleRing.ComapFiberwiseSMul (𝓞 K) K L (𝓞 L)]
--- TODO : can these be removed?
--- variable [Algebra K 𝔸ᶠ[L]] [IsScalarTower K 𝔸ᶠ[K] 𝔸ᶠ[L]]
---     [Algebra (𝓞 K) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) (𝓞 L) 𝔸ᶠ[L]] [IsScalarTower (𝓞 K) 𝔸ᶠ[K] 𝔸ᶠ[L]]
---     [IsScalarTower K L 𝔸ᶠ[L]]
 
 set_option backward.isDefEq.respectTransparency false in
 /-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
