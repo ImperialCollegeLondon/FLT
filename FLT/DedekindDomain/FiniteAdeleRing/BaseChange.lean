@@ -170,8 +170,8 @@ set_option maxHeartbeats 400000 in
 /-- The `B`-linear isomorphism `∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v] ≅ ∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w]`
 given by `adicCompletionComapIntegerLinearEquiv`. -/
 def restrictedProduct_tensorProduct_equiv_restrictedProduct_prod [FiniteDimensional K L] :
-   Πʳ v, [B ⊗[A] (adicCompletion K v),
-    RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v] ≃ₗ[B]
+    Πʳ v, [B ⊗[A] (adicCompletion K v),
+      RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v] ≃ₗ[B]
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
       Submodule.pi Set.univ fun w : Extension B v ↦ (integerSubmodule L w.val)] :=
   LinearEquiv.restrictedProductCongrRight (R₁ := (B ⊗[A] adicCompletion K ·))
