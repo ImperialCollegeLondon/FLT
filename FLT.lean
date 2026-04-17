@@ -159,6 +159,7 @@ import FLT.Patching.REqualsT
 import FLT.Patching.System
 import FLT.Patching.Ultraproduct
 import FLT.Patching.Utils.AdicTopology
+import FLT.Patching.Utils.CompactHausdorffRings
 import FLT.Patching.Utils.Depth
 import FLT.Patching.Utils.InverseLimit
 import FLT.Patching.Utils.Lemmas
