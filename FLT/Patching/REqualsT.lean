@@ -1,7 +1,7 @@
 import FLT.Patching.System
 
 open IsLocalRing Module.UniformlyBoundedRank
-attribute [local implicit_reducible, local instance] Module.quotientAnnihilator
+attribute [local instance] Module.quotientAnnihilator
 
 -- Let `Λ` be a noetherian local ring, compact with respect to the `𝔪_Λ`-adic topology.
 variable (Λ : Type*) [CommRing Λ] [IsLocalRing Λ] [IsNoetherianRing Λ]

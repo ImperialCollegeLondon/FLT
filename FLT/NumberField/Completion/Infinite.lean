@@ -1,13 +1,14 @@
+import Mathlib.NumberTheory.NumberField.Completion.Ramification
+import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 import FLT.Mathlib.Algebra.Algebra.Bilinear
 import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
-import FLT.NumberField.InfinitePlace.Dimension
-import FLT.NumberField.InfinitePlace.Extension
 import FLT.Mathlib.Topology.Algebra.UniformRing
-import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+import FLT.NumberField.InfinitePlace.Extension
+
 open scoped TensorProduct
 
 /-!
@@ -28,7 +29,6 @@ instance : wv.1.1.LiesOver v.1 where
   comp_eq := by simp [← wv.2, InfinitePlace.comap]
 
 instance {v : InfinitePlace K} : NontriviallyNormedField v.Completion where
-  toNormedField := InfinitePlace.Completion.instNormedField v
   non_trivial :=
     let ⟨x, hx⟩ := v.isNontrivial.exists_abv_gt_one
     ⟨x, by rw [UniformSpace.Completion.norm_coe]; exact hx⟩

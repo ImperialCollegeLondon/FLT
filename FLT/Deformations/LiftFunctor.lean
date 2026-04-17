@@ -19,11 +19,12 @@ local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
 local notation3 K:max "ᵃˡᵍ" => AlgebraicClosure K
 local notation "Ω" K => IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers K)
 
+open scoped TypeCat
 variable (n) in
 /-- `repnFunctor n G 𝓞` is the functor taking `R` to continuous reps `G → GLₙ(R)`. -/
 def repnFunctor : ProartinianCat 𝓞 ⥤ Type u where
   obj R := G →ₜ* GL n R
-  map {R S} f ρ := .comp (Units.mapₜ f.hom.mapMatrix.toContinuousMonoidHom) ρ
+  map {R S} f := ↾ (fun ρ ↦ .comp (Units.mapₜ f.hom.mapMatrix.toContinuousMonoidHom) ρ)
 
 omit [IsLocalRing 𝓞] in
 @[simp]
@@ -63,7 +64,7 @@ def repnQuotFunctor : ProartinianCat 𝓞 ⥤ Type u where
   obj R := MulAction.orbitRel.Quotient ((Matrix.GeneralLinearGroup.map (n := n)
     (ProartinianCat.toResidueField R).hom.toRingHom).ker.comap (ConjAct.ofConjAct.toMonoidHom))
     (G →ₜ* GL n R)
-  map {R S} f := Quotient.map ((repnFunctor n G 𝓞).map f) (by
+  map {R S} f := ↾Quotient.map ((repnFunctor n G 𝓞).map f) (by
     rintro _ ρ ⟨⟨g, hg⟩, rfl⟩
     refine ⟨⟨.toConjAct (Matrix.GeneralLinearGroup.map f.hom.toRingHom g.ofConjAct), ?_⟩, ?_⟩
     · simpa [← Matrix.GeneralLinearGroup.map_comp_apply, ← Matrix.GeneralLinearGroup.map_comp,
@@ -79,7 +80,7 @@ def repnQuotFunctor : ProartinianCat 𝓞 ⥤ Type u where
 /-- The quotient map taking representations to "representations up to equivalence". -/
 noncomputable
 def toRepnQuot : repnFunctor n G 𝓞 ⟶ repnQuotFunctor n G 𝓞 where
-  app _ := Quotient.mk''
+  app _ := ↾Quotient.mk''
   naturality _ _ _ := rfl
 
 /-- `liftFunctor n G 𝓞` is the functor taking `R` to lifts `G → GLₙ(R)` of `ρ : G → GLₙ(𝕜)`. -/

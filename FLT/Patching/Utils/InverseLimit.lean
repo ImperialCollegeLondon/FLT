@@ -40,6 +40,8 @@ variable (hf₀ : ∀ i, f i i le_rfl = id)
 variable (hf : ∀ i j k (hij : i ≤ j) (hjk : j ≤ k), f j k hjk ∘ f i j hij = f i k (hij.trans hjk))
 variable {l : ℕ → ι} (hl : Antitone l) (hl' : ∀ x, ∃ n, l n ≤ x)
 
+open scoped TypeCat
+
 open CategoryTheory
 omit [Nonempty ι] [IsDirected ι (· ≥ ·)] in
 include hf₀ hf hl hl' in
@@ -47,7 +49,7 @@ theorem nonempty_inverseLimit_of_finite [∀ i, Finite (α i)] [∀ i, Nonempty 
     Nonempty { v : Π i, α i // ∀ i j (h : i ≤ j), f i j h (v i) = v j } := by
   let f' : ιᵒᵈᵒᵖ ⥤ Type _ :=
   { obj i := α i.1,
-    map e := f _ _ e.unop.le,
+    map e := ↾(f _ _ e.unop.le),
     map_id i := by ext; simp [hf₀],
     map_comp f g := by ext; simp [← hf _ _ _ f.unop.le g.unop.le] }
   have : IsDirected ιᵒᵈ (· ≤ ·) := by

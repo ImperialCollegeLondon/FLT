@@ -16,7 +16,7 @@ variable (F : Ultrafilter ι)
 variable [TopologicalSpace Λ] [IsTopologicalRing Λ]
 variable [IsLocalRing Λ] [IsNoetherianRing Λ] [NonarchimedeanRing Λ] [T2Space Λ]
 
-attribute [local implicit_reducible, local instance] Module.quotientAnnihilator
+attribute [local instance] Module.quotientAnnihilator
 
 variable [Algebra.UniformlyBoundedRank R]
 variable [∀ i, Module.Free (Λ ⧸ Module.annihilator Λ (M i)) (M i)]
