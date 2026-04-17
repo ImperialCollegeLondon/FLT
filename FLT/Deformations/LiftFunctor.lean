@@ -64,7 +64,7 @@ def repnQuotFunctor : ProartinianCat 𝓞 ⥤ Type u where
   obj R := MulAction.orbitRel.Quotient ((Matrix.GeneralLinearGroup.map (n := n)
     (ProartinianCat.toResidueField R).hom.toRingHom).ker.comap (ConjAct.ofConjAct.toMonoidHom))
     (G →ₜ* GL n R)
-  map {R S} f := Quotient.map ((repnFunctor n G 𝓞).map f) (by
+  map {R S} f := ↾Quotient.map ((repnFunctor n G 𝓞).map f) (by
     rintro _ ρ ⟨⟨g, hg⟩, rfl⟩
     refine ⟨⟨.toConjAct (Matrix.GeneralLinearGroup.map f.hom.toRingHom g.ofConjAct), ?_⟩, ?_⟩
     · simpa [← Matrix.GeneralLinearGroup.map_comp_apply, ← Matrix.GeneralLinearGroup.map_comp,
@@ -80,7 +80,7 @@ def repnQuotFunctor : ProartinianCat 𝓞 ⥤ Type u where
 /-- The quotient map taking representations to "representations up to equivalence". -/
 noncomputable
 def toRepnQuot : repnFunctor n G 𝓞 ⟶ repnQuotFunctor n G 𝓞 where
-  app _ := Quotient.mk''
+  app _ := ↾Quotient.mk''
   naturality _ _ _ := rfl
 
 /-- `liftFunctor n G 𝓞` is the functor taking `R` to lifts `G → GLₙ(R)` of `ρ : G → GLₙ(𝕜)`. -/
