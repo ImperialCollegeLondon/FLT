@@ -71,19 +71,12 @@ lemma Equiv.continuous_restrictedProductProd
   simp only [Equiv.restrictedProductProd, coe_fn_mk]
   fun_prop
 
-lemma continuous_rng_of_principal_pi
-    [(i : ι) → TopologicalSpace (A i)] {S : Set ι} {X : Type*} [TopologicalSpace X]
-    {f : X → Πʳ (i : ι), [A i, C i]_[Filter.principal S]} :
-    Continuous f ↔ ∀ i : ι, Continuous ((fun x ↦ x i) ∘ f) := by
-  rw [continuous_rng_of_principal, continuous_pi_iff]
-  rfl
-
 @[fun_prop]
 lemma Equiv.continuous_restrictedProductProd_symm {S : Set ι}
     [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)] :
     Continuous (Equiv.restrictedProductProd (C := C) (D := D) (ℱ := .principal S)).symm := by
   simp only [restrictedProductProd, coe_fn_symm_mk]
-  rw [continuous_rng_of_principal_pi]
+  rw [continuous_rng_of_principal_iff_forall]
   intro i
   rw [continuous_prodMk]
   constructor
@@ -127,7 +120,7 @@ lemma Equiv.continuous_restrictedProductPi [∀ j i, TopologicalSpace (A j i)] :
 lemma Equiv.continuous_restrictedProductPi_symm {S : Set ι}
     [∀ j i, TopologicalSpace (A j i)] :
     Continuous (Equiv.restrictedProductPi (C := C) (ℱ := .principal S)).symm := by
-  rw [continuous_rng_of_principal_pi]
+  rw [continuous_rng_of_principal_iff_forall]
   intro i
   rw [continuous_pi_iff]
   intro j
@@ -178,7 +171,7 @@ def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
       ∘ (fun (y : (j : n) → Πʳ (i : ι), [A j i, C j i]_[𝓟 S]) ↦ .mk (fun i j ↦ y j i)
         (by simpa [-eventually_principal, Subgroup.mem_pi] using fun j ↦ (y j).property)))
     exact Continuous.comp (by fun_prop) <|
-      continuous_rng_of_principal_pi.mpr fun _ ↦ continuous_pi fun _ ↦
+      continuous_rng_of_principal_iff_forall.mpr fun _ ↦ continuous_pi fun _ ↦
         (RestrictedProduct.continuous_eval _).comp (continuous_apply _)
 
 @[to_additive (attr := simp)]

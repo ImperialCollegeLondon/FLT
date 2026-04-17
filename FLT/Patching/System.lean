@@ -330,7 +330,7 @@ lemma smul_lemma₀
         { __ := (sM i).toLinearMap.comp (Submodule.mkQ _), map_smul' := fun _ _ ↦ HCompat _ _ _ }
       have hl : LinearMap.range l = ⊤ :=
         LinearMap.range_eq_top.mpr ((sM i).surjective.comp (Submodule.mkQ_surjective _))
-      rw [min_eq_right h, ← IsLocalRing.map_maximalIdeal F hF, ← Ideal.map_pow]
+      rw [min_eq_right h, ← IsLocalRing.map_maximalIdeal_of_surjective F hF, ← Ideal.map_pow]
       have : maximalIdeal (R i) ^ n₁ • ⊤ ≤ _ := PatchingAlgebra.smulData.pow_f_smul_le i α
       replace this := Submodule.map_mono (f := l) this
       rw [Submodule.map_smul'', ← Submodule.map_algebraMap_smul (R := Λ),
@@ -348,7 +348,7 @@ lemma smul_lemma₀
   refine Submodule.smul_mem_smul ?_ trivial
   rw [← Ideal.mem_comap]
   refine SetLike.le_def.mp ?_ ((Ideal.Quotient.mk_eq_mk_iff_sub_mem _ _).mp (hi₂.trans hi₁.symm))
-  rw [← Ideal.map_le_iff_le_comap, Ideal.map_pow, ← IsLocalRing.map_maximalIdeal F hF]
+  rw [← Ideal.map_le_iff_le_comap, Ideal.map_pow, ← IsLocalRing.map_maximalIdeal_of_surjective F hF]
 
 omit [NonarchimedeanRing Λ] [Module.Finite R₀ M₀] in
 lemma smul_lemma₁
