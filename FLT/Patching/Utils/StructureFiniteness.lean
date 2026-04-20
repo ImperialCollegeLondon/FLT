@@ -190,6 +190,7 @@ instance {α : Type*} [Finite α] [Ring α] [TopologicalSpace α] [T2Space α] :
   exact congr(($e).1.smul _ _)
 
 variable (R) in
+-- kmb removed `[IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R]` because Lean was whingeing
 def TopologicalAlgebraTypeCardLT (N : ℕ) :
     Type _ :=
   Σ' (n : Fin N) (_ : Ring (Fin n)) (_ : TopologicalSpace (Fin n)) (_ : T2Space (Fin n))
