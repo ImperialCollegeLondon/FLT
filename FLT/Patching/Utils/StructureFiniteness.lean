@@ -190,7 +190,8 @@ instance {α : Type*} [Finite α] [Ring α] [TopologicalSpace α] [T2Space α] :
   exact congr(($e).1.smul _ _)
 
 variable (R) in
-def TopologicalAlgebraTypeCardLT [IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R] (N : ℕ) :
+-- kmb removed `[IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R]` because Lean was whingeing
+def TopologicalAlgebraTypeCardLT (N : ℕ) :
     Type _ :=
   Σ' (n : Fin N) (_ : Ring (Fin n)) (_ : TopologicalSpace (Fin n)) (_ : T2Space (Fin n))
     (_ : Algebra R (Fin n)), ContinuousSMul R (Fin n)
@@ -230,6 +231,7 @@ def TopologicalAlgebraTypeCardLT.equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
   ((show M ≃ Fin ((AlgebraTypeCardLT.ofAlgebra R N M hM).1)
     from Finite.equivFin M).symm.algEquiv R).symm
 
+omit [IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R] in
 lemma TopologicalAlgebraTypeCardLT.isHomeomorph_equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
     [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) : IsHomeomorph (equivOfAlgebra (R := R) N M hM) :=

@@ -1,5 +1,8 @@
 import Mathlib.Analysis.Quaternion
 
+/-- Hurwitz integers in the quaternions. ℤ-Basis 1, ω=(1+i+j+k)/2, i and
+ωi=(-1+i+j-k)/2.
+-/
 @[ext]
 structure Hurwitz : Type where
   re : ℤ -- 1
