@@ -69,7 +69,7 @@ lemma mk_count_factors_map
       rw [hw, Associates.factors_self this, Associates.count_some this]
       simp only [Multiset.nodup_singleton, Multiset.mem_singleton, Multiset.count_eq_one_of_mem,
         mul_one]
-      rw [count_associates_factors_eq hp_bot' w.2 w.3,
+      rw [Ideal.count_associates_factors_eq hp_bot' w.2 w.3,
         Ideal.IsDedekindDomain.ramificationIdx_eq_normalizedFactors_count hp_bot' w.2 w.3]
     · have : (Associates.mk (under A w).asIdeal).count (Associates.mk p).factors = 0 :=
         Associates.count_eq_zero_of_ne (associates_irreducible _)
