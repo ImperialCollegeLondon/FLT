@@ -3,11 +3,13 @@ Copyright (c) 2024 Yaël Dillies, Javier López-Contreras. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Javier López-Contreras
 -/
-import Mathlib.Analysis.Complex.ReImTopology
-import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
-import Mathlib.RingTheory.Complex
-import Mathlib.RingTheory.Norm.Transitivity
-import FLT.HaarMeasure.HaarChar.Ring
+module
+
+public import Mathlib.Analysis.Complex.ReImTopology
+public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
+public import Mathlib.RingTheory.Complex
+public import Mathlib.RingTheory.Norm.Transitivity
+public import FLT.HaarMeasure.HaarChar.Ring
 
 /-!
 # The distributive Haar characters of `ℝ` and `ℂ`
@@ -25,6 +27,8 @@ nonzero real/complex number and `s` is a set of reals/complex numbers.
 * `Complex.volume_complex_smul`: `volume (z • s) = ‖z‖₊ ^ 2 * volume s` for all `z : ℂ` and
   `s : Set ℂ`.
 -/
+
+@[expose] public section
 
 open Real Complex MeasureTheory Measure Set
 open scoped Pointwise

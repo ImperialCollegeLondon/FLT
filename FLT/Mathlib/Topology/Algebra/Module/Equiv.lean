@@ -1,11 +1,15 @@
-import Mathlib.Topology.Algebra.Module.Equiv
-import Mathlib.Topology.Algebra.ContinuousMonoidHom
-import Mathlib.LinearAlgebra.Basis.Defs
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.LinearAlgebra.Matrix.Defs
-import Mathlib.LinearAlgebra.Matrix.ToLin
-import FLT.Mathlib.LinearAlgebra.Pi
-import FLT.Mathlib.LinearAlgebra.Determinant
+module
+
+public import Mathlib.Topology.Algebra.Module.Equiv
+public import Mathlib.Topology.Algebra.ContinuousMonoidHom
+public import Mathlib.LinearAlgebra.Basis.Defs
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import Mathlib.LinearAlgebra.Matrix.Defs
+public import Mathlib.LinearAlgebra.Matrix.ToLin
+public import FLT.Mathlib.LinearAlgebra.Pi
+public import FLT.Mathlib.LinearAlgebra.Determinant
+
+@[expose] public section
 
 set_option backward.isDefEq.respectTransparency false in
 /-- Let `f : α → β` be a function on index types. A family of `R b`-linear homeomorphisms, indexed

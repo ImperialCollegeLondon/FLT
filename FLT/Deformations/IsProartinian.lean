@@ -1,6 +1,10 @@
-import FLT.Patching.Utils.AdicTopology
-import FLT.Deformations.Lemmas
-import Mathlib.Topology.UniformSpace.DiscreteUniformity
+module
+
+public import FLT.Patching.Utils.AdicTopology
+public import FLT.Deformations.Lemmas
+public import Mathlib.Topology.UniformSpace.DiscreteUniformity
+
+@[expose] public section
 
 variable {R S : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
   [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]

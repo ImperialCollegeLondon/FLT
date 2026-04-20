@@ -1,8 +1,12 @@
-import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
-import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
-import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+module
+
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
+public import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
+public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+
+@[expose] public section
 
 open scoped TensorProduct
 

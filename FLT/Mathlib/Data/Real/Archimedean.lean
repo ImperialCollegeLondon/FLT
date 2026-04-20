@@ -1,4 +1,8 @@
-import Mathlib.Data.Real.Archimedean
+module
+
+public import Mathlib.Data.Real.Archimedean
+
+@[expose] public section
 
 -- TODO upstream
 -- this is a golf

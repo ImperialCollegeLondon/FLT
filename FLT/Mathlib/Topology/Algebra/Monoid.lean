@@ -1,4 +1,8 @@
-import Mathlib.Topology.Algebra.Monoid
+module
+
+public import Mathlib.Topology.Algebra.Monoid
+
+@[expose] public section
 
 variable {G H : Type*} [Group G] [Group H] [TopologicalSpace G] [TopologicalSpace H]
   [ContinuousMul G]

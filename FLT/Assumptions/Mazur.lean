@@ -1,5 +1,7 @@
-import Mathlib.GroupTheory.Torsion
-import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
+module
+
+public import Mathlib.GroupTheory.Torsion
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 
 /-!
 
@@ -81,6 +83,8 @@ https://www.numdam.org/item/?id=PMIHES_1977__47__33_0
 The github tracking issue for this assumption is #477 on the FLT github repository.
 
 -/
+
+@[expose] public section
 
 open scoped WeierstrassCurve.Affine -- E⟮ℚ⟯ notation
 

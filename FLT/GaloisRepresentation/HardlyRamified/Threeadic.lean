@@ -1,5 +1,9 @@
-import FLT.GaloisRepresentation.HardlyRamified.Defs
-import FLT.GaloisRepresentation.HardlyRamified.ModThree -- will be needed for proof
+module
+
+public import FLT.GaloisRepresentation.HardlyRamified.Defs
+public import FLT.GaloisRepresentation.HardlyRamified.ModThree
+
+@[expose] public section -- will be needed for proof
 
 namespace GaloisRepresentation.IsHardlyRamified
 

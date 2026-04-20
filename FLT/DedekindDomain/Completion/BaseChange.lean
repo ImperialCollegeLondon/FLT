@@ -3,17 +3,19 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
-import FLT.DedekindDomain.AdicValuation
-import FLT.DedekindDomain.IntegralClosure
-import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
-import FLT.Mathlib.RingTheory.TensorProduct.Basis
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.Topology.Algebra.UniformRing
-import Mathlib.Topology.Algebra.Valued.WithVal
-import Mathlib.Algebra.Algebra.Subalgebra.Pi
-import Mathlib.Topology.Algebra.Module.FiniteDimension
-import Mathlib.Topology.Algebra.Valued.NormedValued
+module
+
+public import FLT.DedekindDomain.AdicValuation
+public import FLT.DedekindDomain.IntegralClosure
+public import FLT.Mathlib.Algebra.Algebra.Pi
+public import FLT.Mathlib.Algebra.Module.Submodule.Basic
+public import FLT.Mathlib.RingTheory.TensorProduct.Basis
+public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.Topology.Algebra.UniformRing
+public import Mathlib.Topology.Algebra.Valued.WithVal
+public import Mathlib.Algebra.Algebra.Subalgebra.Pi
+public import Mathlib.Topology.Algebra.Module.FiniteDimension
+public import Mathlib.Topology.Algebra.Valued.NormedValued
 
 /-!
 
@@ -38,6 +40,8 @@ map is continuous, `K_v`-linear and restricts to an isomorphism `B ⊗_A 𝓞_v 
   The canonical map L ⊗ Kᵥ → ∏_{w|v} L_w is bijective.
 
 -/
+
+@[expose] public section
 
 open scoped WithZero Valued TensorProduct
 open Valuation.IsRankOneDiscrete WithZero

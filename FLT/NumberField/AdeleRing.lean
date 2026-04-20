@@ -1,16 +1,18 @@
-import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
-import Mathlib.NumberTheory.NumberField.Basic
-import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.Topology.Algebra.Group.Quotient
-import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
-import FLT.NumberField.InfiniteAdeleRing
-import FLT.NumberField.Padics.RestrictedProduct
-import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
-import FLT.Mathlib.Data.Real.Archimedean
-import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
-import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
+module
+
+public import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+public import Mathlib.NumberTheory.NumberField.Basic
+public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import FLT.Mathlib.Topology.Algebra.Group.Quotient
+public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+public import FLT.NumberField.InfiniteAdeleRing
+public import FLT.NumberField.Padics.RestrictedProduct
+public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+public import FLT.Mathlib.Data.Real.Archimedean
+public import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
+public import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+public import FLT.Mathlib.Topology.Algebra.Module.Equiv
 
 /-! # The adele ring of a number field
 
@@ -43,6 +45,8 @@ approach is taken here, with `Prod.IsProdSMul` being the only extra piece of com
 The desired instances are constructed later as `scoped` instances in `FLT.NumberField.AdeleRing`.
 
 -/
+
+@[expose] public section
 open scoped TensorProduct
 
 universe u

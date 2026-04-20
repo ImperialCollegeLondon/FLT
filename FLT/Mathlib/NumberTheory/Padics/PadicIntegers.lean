@@ -1,7 +1,9 @@
-import Mathlib.Algebra.Algebra.Operations
-import Mathlib.Algebra.CharZero.Infinite
-import Mathlib.NumberTheory.Padics.PadicIntegers
-import Mathlib.NumberTheory.Padics.RingHoms
+module
+
+public import Mathlib.Algebra.Algebra.Operations
+public import Mathlib.Algebra.CharZero.Infinite
+public import Mathlib.NumberTheory.Padics.PadicIntegers
+public import Mathlib.NumberTheory.Padics.RingHoms
 
 /-!
 # TODO
@@ -9,6 +11,8 @@ import Mathlib.NumberTheory.Padics.RingHoms
 * Rename `Coe.ringHom` to `coeRingHom`
 * Protect `PadicInt.norm_mul`, `PadicInt.norm_units`, `PadicInt.norm_pow`
 -/
+
+@[expose] public section
 
 open Function Topology Subgroup
 open scoped NNReal nonZeroDivisors Pointwise

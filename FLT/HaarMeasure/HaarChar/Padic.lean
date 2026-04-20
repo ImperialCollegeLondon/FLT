@@ -3,9 +3,11 @@ Copyright (c) 2024 Yaël Dillies, Javier López-Contreras. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Javier López-Contreras
 -/
-import FLT.Mathlib.MeasureTheory.Group.Action
-import FLT.HaarMeasure.MeasurableSpacePadics
-import FLT.HaarMeasure.HaarChar.Ring
+module
+
+public import FLT.Mathlib.MeasureTheory.Group.Action
+public import FLT.HaarMeasure.MeasurableSpacePadics
+public import FLT.HaarMeasure.HaarChar.Ring
 
 /-!
 # The distributive Haar characters of the p-adics
@@ -24,6 +26,8 @@ p-adic/p-adic integer and `s` is a set of p-adics/p-adic integers.
 * `PadicInt.volume_padicInt_smul`: `volume (x • s) = ‖x‖₊ * volume s` for all `x : ℤ_[p]` and
   `s : Set ℤ_[p]`.
 -/
+
+@[expose] public section
 
 open Padic MeasureTheory Measure Metric Set
 open scoped Pointwise ENNReal NNReal nonZeroDivisors

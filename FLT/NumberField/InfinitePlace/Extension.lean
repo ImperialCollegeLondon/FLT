@@ -3,7 +3,9 @@ Copyright (c) 2025 Salvatore Mercuri. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
+module
+
+public import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
 
 /-!
 # Extensions of complex embeddings and infinite places of a number field
@@ -39,6 +41,8 @@ embeddings `w.embedding` and `v.embedding`:
 - `InfinitePlace.Extension.IsConjugateLift L v w` : class encoding the property that
   `conjugate w.embedding` extends `v.embedding`.
 -/
+
+@[expose] public section
 
 noncomputable section
 

@@ -1,6 +1,10 @@
-import Mathlib.Topology.Constructions
-import FLT.Mathlib.Algebra.Algebra.Pi
-import Mathlib.Data.Set.Restrict
+module
+
+public import Mathlib.Topology.Constructions
+public import FLT.Mathlib.Algebra.Algebra.Pi
+public import Mathlib.Data.Set.Restrict
+
+@[expose] public section
 
 theorem DenseRange.codRestrict_comp {Y Z : Type*} [TopologicalSpace Y] [TopologicalSpace Z]
     {α : Type*} {g : Y → Z} {f : α → Y} (hf : DenseRange f) (cg : Continuous g) :

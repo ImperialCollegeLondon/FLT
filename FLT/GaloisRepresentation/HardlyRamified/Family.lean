@@ -1,5 +1,9 @@
-import FLT.GaloisRepresentation.HardlyRamified.Defs
-import FLT.Deformations.RepresentationTheory.GaloisRepFamily
+module
+
+public import FLT.GaloisRepresentation.HardlyRamified.Defs
+public import FLT.Deformations.RepresentationTheory.GaloisRepFamily
+
+@[expose] public section
 
 namespace GaloisRepresentation.IsHardlyRamified
 

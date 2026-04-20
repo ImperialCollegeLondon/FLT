@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-import Mathlib.RingTheory.DedekindDomain.AdicValuation
+module
+
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+public import Mathlib.RingTheory.DedekindDomain.AdicValuation
+
+@[expose] public section
 
 open NumberField
 

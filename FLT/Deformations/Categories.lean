@@ -1,6 +1,10 @@
-import FLT.Deformations.IsProartinian
-import FLT.Deformations.IsResidueAlgebra
-import Mathlib.Topology.Algebra.Algebra.Equiv
+module
+
+public import FLT.Deformations.IsProartinian
+public import FLT.Deformations.IsResidueAlgebra
+public import Mathlib.Topology.Algebra.Algebra.Equiv
+
+@[expose] public section
 
 universe u
 

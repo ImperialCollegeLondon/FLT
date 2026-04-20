@@ -1,8 +1,12 @@
-import FLT.Patching.Algebra
-import FLT.Patching.Over
-import FLT.Patching.Module
-import FLT.Patching.Utils.Depth
-import FLT.Deformations.Lemmas
+module
+
+public import FLT.Patching.Algebra
+public import FLT.Patching.Over
+public import FLT.Patching.Module
+public import FLT.Patching.Utils.Depth
+public import FLT.Deformations.Lemmas
+
+@[expose] public section
 
 variable (Λ : Type*) [CommRing Λ]
 variable {ι : Type*} (R : ι → Type*)

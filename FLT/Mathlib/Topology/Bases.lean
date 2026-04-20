@@ -1,5 +1,9 @@
-import Mathlib.Topology.Bases -- should morally go here
-import Mathlib.Topology.Homeomorph.Lemmas -- but I need this (which imports it)
+module
+
+public import Mathlib.Topology.Bases -- should morally go here
+public import Mathlib.Topology.Homeomorph.Lemmas
+
+@[expose] public section -- but I need this (which imports it)
 
 -- find home and upstream
 lemma TopologicalSpace.secondCountableTopology_of_countable_cover' {α : Type*}

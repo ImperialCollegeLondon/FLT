@@ -1,4 +1,8 @@
-import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
+module
+
+public import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
+
+@[expose] public section
 
 open NumberField
 

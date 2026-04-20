@@ -1,5 +1,9 @@
-import FLT.Data.Hurwitz
-import FLT.Data.QHat
+module
+
+public import FLT.Data.Hurwitz
+public import FLT.Data.QHat
+
+@[expose] public section
 
 open scoped TensorProduct
 

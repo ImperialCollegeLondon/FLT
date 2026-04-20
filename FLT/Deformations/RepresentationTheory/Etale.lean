@@ -1,8 +1,10 @@
-import Mathlib.FieldTheory.Galois.Infinite
-import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
-import Mathlib.RingTheory.Bialgebra.Basic
-import Mathlib.RingTheory.Etale.Field
-import Mathlib.RingTheory.HopkinsLevitzki
+module
+
+public import Mathlib.FieldTheory.Galois.Infinite
+public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+public import Mathlib.RingTheory.Bialgebra.Basic
+public import Mathlib.RingTheory.Etale.Field
+public import Mathlib.RingTheory.HopkinsLevitzki
 
 /-!
 # Equivalence between continuous `G`-finite sets and `k`-etale algebras
@@ -34,6 +36,8 @@ Taking `L = Kˢᵉᵖ`, the adjunction restricts to a (contravariant) equivalenc
 between finite discrete `Gₖ`-sets and finite etale `k`-algebras.
 
 -/
+
+@[expose] public section
 
 universe u
 

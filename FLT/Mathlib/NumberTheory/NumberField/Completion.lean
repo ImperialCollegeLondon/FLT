@@ -1,6 +1,8 @@
-import Mathlib.Analysis.Normed.Field.WithAbs
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
+module
+
+public import Mathlib.Analysis.Normed.Field.WithAbs
+public import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+public import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
 
 /-!
 # TODO
@@ -8,3 +10,5 @@ import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
 Rename `InfinitePlace.Completion.Rat.norm_infinitePlace_completion` to
 `Rat.norm_infinitePlace_completion`
 -/
+
+@[expose] public section

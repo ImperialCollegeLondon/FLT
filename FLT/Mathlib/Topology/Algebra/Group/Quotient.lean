@@ -1,6 +1,10 @@
-import Mathlib.GroupTheory.QuotientGroup.Defs
-import Mathlib.Topology.Algebra.Group.Quotient
-import Mathlib.Topology.Algebra.ContinuousMonoidHom
+module
+
+public import Mathlib.GroupTheory.QuotientGroup.Defs
+public import Mathlib.Topology.Algebra.Group.Quotient
+public import Mathlib.Topology.Algebra.ContinuousMonoidHom
+
+@[expose] public section
 
 @[to_additive]
 def QuotientGroup.continuousMulEquiv {G H : Type*} [Group G] (N : Subgroup G)

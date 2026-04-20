@@ -3,12 +3,14 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Edison Xie, Kevin Buzzard
 -/
-import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
-import FLT.DedekindDomain.IntegralClosure
-import FLT.Deformations.RepresentationTheory.GaloisRep
-import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
-import Mathlib.NumberTheory.Padics.Complex
-import Mathlib.RingTheory.SimpleRing.Principal
+module
+
+public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
+public import FLT.DedekindDomain.IntegralClosure
+public import FLT.Deformations.RepresentationTheory.GaloisRep
+public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
+public import Mathlib.NumberTheory.Padics.Complex
+public import Mathlib.RingTheory.SimpleRing.Principal
 
 /-!
 # Automorphic Galois representations
@@ -33,6 +35,8 @@ and at all finite places are either Steinberg or principal series `π(χ₁, χ�
 and `χ₁χ₂` unramified.
 
 -/
+
+@[expose] public section
 
 
 open scoped TensorProduct

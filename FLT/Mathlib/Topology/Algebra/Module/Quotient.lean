@@ -1,5 +1,9 @@
-import Mathlib.LinearAlgebra.Quotient.Pi
-import Mathlib.Topology.Algebra.Module.Equiv
+module
+
+public import Mathlib.LinearAlgebra.Quotient.Pi
+public import Mathlib.Topology.Algebra.Module.Equiv
+
+@[expose] public section
 
 def Submodule.Quotient.continuousLinearEquiv {R : Type*} [Ring R] (G H : Type*) [AddCommGroup G]
     [Module R G] [AddCommGroup H] [Module R H] [TopologicalSpace G] [TopologicalSpace H]

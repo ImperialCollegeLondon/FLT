@@ -1,9 +1,13 @@
-import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
-import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
-import Mathlib.RingTheory.Regular.RegularSequence
-import Mathlib.RingTheory.Spectrum.Prime.Topology
-import Mathlib.RingTheory.Support
-import Mathlib.RingTheory.TensorProduct.Free
+module
+
+public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
+public import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
+public import Mathlib.RingTheory.Regular.RegularSequence
+public import Mathlib.RingTheory.Spectrum.Prime.Topology
+public import Mathlib.RingTheory.Support
+public import Mathlib.RingTheory.TensorProduct.Free
+
+@[expose] public section
 
 variable (R S M : Type*) [CommRing R] [CommRing S] [IsLocalRing R] [IsLocalRing S]
 variable [AddCommGroup M] [Module R M] [Module S M] [Algebra R S] [IsScalarTower R S M]

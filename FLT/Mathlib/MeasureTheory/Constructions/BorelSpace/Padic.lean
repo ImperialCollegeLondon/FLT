@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-import Mathlib.NumberTheory.Padics.PadicNumbers
+module
+
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+public import Mathlib.NumberTheory.Padics.PadicNumbers
+
+@[expose] public section
 
 variable (p : ℕ) [Fact p.Prime]
 

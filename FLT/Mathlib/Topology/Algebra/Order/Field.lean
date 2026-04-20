@@ -1,7 +1,11 @@
-import Mathlib.Algebra.Order.AbsoluteValue.Basic
-import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
-import Mathlib.Algebra.EuclideanDomain.Field
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
+module
+
+public import Mathlib.Algebra.Order.AbsoluteValue.Basic
+public import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
+public import Mathlib.Algebra.EuclideanDomain.Field
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
+
+@[expose] public section
 
 open scoped Topology
 

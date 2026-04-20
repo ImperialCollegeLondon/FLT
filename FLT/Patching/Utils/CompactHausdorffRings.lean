@@ -1,9 +1,13 @@
-import Mathlib.Data.Nat.Factorization.Induction
-import Mathlib.GroupTheory.Divisible
-import Mathlib.GroupTheory.GroupAction.Ring
-import Mathlib.Topology.Algebra.Group.CompactOpen
-import Mathlib.Topology.Algebra.Group.SubmonoidClosure
-import Mathlib.Topology.Algebra.Ring.Ideal
+module
+
+public import Mathlib.Data.Nat.Factorization.Induction
+public import Mathlib.GroupTheory.Divisible
+public import Mathlib.GroupTheory.GroupAction.Ring
+public import Mathlib.Topology.Algebra.Group.CompactOpen
+public import Mathlib.Topology.Algebra.Group.SubmonoidClosure
+public import Mathlib.Topology.Algebra.Ring.Ideal
+
+@[expose] public section
 
 section CompactHausdorff
 

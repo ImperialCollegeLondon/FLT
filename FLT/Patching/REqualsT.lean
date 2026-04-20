@@ -1,4 +1,8 @@
-import FLT.Patching.System
+module
+
+public import FLT.Patching.System
+
+@[expose] public section
 
 open IsLocalRing Module.UniformlyBoundedRank
 attribute [local instance] Module.quotientAnnihilator

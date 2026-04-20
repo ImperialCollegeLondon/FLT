@@ -3,8 +3,10 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Jonas Bayer
 -/
-import Mathlib.Data.Int.Star
-import FLT.GlobalLanglandsConjectures.GLnDefs
+module
+
+public import Mathlib.Data.Int.Star
+public import FLT.GlobalLanglandsConjectures.GLnDefs
 
 /-!
 # Proof of a case of the global Langlands conjectures.
@@ -42,6 +44,8 @@ our "theorem" is a *definition* of a bijection.
 State them first.
 
 -/
+
+@[expose] public section
 
 namespace AutomorphicForm
 

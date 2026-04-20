@@ -3,19 +3,23 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.DedekindDomain.AdicValuation
-import FLT.Mathlib.LinearAlgebra.Countable
-import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
-import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
-import Mathlib.NumberTheory.Padics.ProperSpace
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
-import Mathlib.NumberTheory.Padics.HeightOneSpectrum
+module
+
+public import FLT.DedekindDomain.AdicValuation
+public import FLT.Mathlib.LinearAlgebra.Countable
+public import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+public import Mathlib.NumberTheory.Padics.ProperSpace
+public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+public import Mathlib.NumberTheory.Padics.HeightOneSpectrum
 
 /-!
 
 # Completion of a number field at a finite place
 
 -/
+
+@[expose] public section
 
 variable (K : Type*) [Field K] [NumberField K]
 

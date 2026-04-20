@@ -1,7 +1,11 @@
-import Mathlib.MeasureTheory.Group.Measure
-import Mathlib.MeasureTheory.Measure.OpenPos
-import FLT.Mathlib.MeasureTheory.Group.Action
-import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
+module
+
+public import Mathlib.MeasureTheory.Group.Measure
+public import Mathlib.MeasureTheory.Measure.OpenPos
+public import FLT.Mathlib.MeasureTheory.Group.Action
+public import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
+
+@[expose] public section
 
 open Topology MeasureTheory Measure
 

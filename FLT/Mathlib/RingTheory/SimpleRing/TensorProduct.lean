@@ -6,13 +6,15 @@ Copyright (c) 2025 Jujian Zhang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jujian Zhang, Yunzhou Xie
 -/
-import Mathlib.Algebra.Central.Basic
-import Mathlib.LinearAlgebra.Basis.VectorSpace
-import Mathlib.LinearAlgebra.Finsupp.LinearCombination
-import Mathlib.RingTheory.TwoSidedIdeal.Operations
-import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
-import Mathlib.RingTheory.Henselian
-import Mathlib.RingTheory.TwoSidedIdeal.Instances
+module
+
+public import Mathlib.Algebra.Central.Basic
+public import Mathlib.LinearAlgebra.Basis.VectorSpace
+public import Mathlib.LinearAlgebra.Finsupp.LinearCombination
+public import Mathlib.RingTheory.TwoSidedIdeal.Operations
+public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
+public import Mathlib.RingTheory.Henselian
+public import Mathlib.RingTheory.TwoSidedIdeal.Instances
 
 /-!
 # Tensor product of simple algebras over a field
@@ -35,6 +37,8 @@ group.
 Noncommutative algebra, tensor product, simple algebra, central simple algebra
 
 -/
+
+@[expose] public section
 
 section some_other_files
 

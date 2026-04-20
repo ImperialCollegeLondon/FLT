@@ -3,22 +3,29 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Jonas Bayer, Mario Carneiro
 -/
-import Mathlib.Algebra.Lie.BaseChange
-import Mathlib.Algebra.Lie.UniversalEnveloping
-import Mathlib.Analysis.Complex.Basic
-import Mathlib.Analysis.Matrix.Normed
-import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
-import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
-import Mathlib.LinearAlgebra.UnitaryGroup
-import Mathlib.RepresentationTheory.FDRep
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.Topology.LocallyConstant.Basic
+module
+
+public import Mathlib.Algebra.Lie.BaseChange
+public import Mathlib.Algebra.Lie.UniversalEnveloping
+public import Mathlib.Analysis.Complex.Basic
+public import Mathlib.Analysis.Matrix.Normed
+public import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
+public import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
+public import Mathlib.LinearAlgebra.UnitaryGroup
+public import Mathlib.RepresentationTheory.FDRep
+public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import Mathlib.Topology.LocallyConstant.Basic
 
 suppress_compilation
 
 /-!
 
 # The Global Langlands Conjectures for GL(n) over the rationals.
+
+This code never fully worked because we didn't get as far as weights
+at infinity. It has then since degraded (two major problems being the
+bump to 4.29 and the introduction of the module system) and is now
+probably worth very little.
 
 ## First sub-goal: definition of an automorphic form.
 
@@ -27,6 +34,8 @@ I've made the design decision of working with the functor
 of the `GL_n` functor. There's notation `GL (Fin n)` for this.
 
 -/
+
+@[expose] public section
 
 open scoped Manifold
 /- Next line is necessary while the manifold smoothness class is not extended to `ω`.
@@ -155,6 +164,7 @@ def actionTensorC :
   LieHom.baseChange _ (action _ _)
 
 set_option backward.isDefEq.respectTransparency false in
+set_option backward.proofsInPublic true in
 def actionTensorCAlg :
   UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
     ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) := by
@@ -162,10 +172,13 @@ def actionTensorCAlg :
   convert ⇑(UniversalEnvelopingAlgebra.lift ℂ
     (L := ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)
     (A := ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯))) using 0
-  congr!
+  congr
   · dsimp [LieAlgebra.ExtendScalars.instLieRing, LieRing.ofAssociativeRing]; congr
     apply diamond_fix
-  · change HEq ({..} : LieAlgebra ..) (@LieAlgebra.mk _ _ _ (_) _ _); congr!
+  · change HEq ({..} : LieAlgebra ..) (@LieAlgebra.mk _ _ _ (_) _ _)
+    congr!
+    -- broke after upgrade to module system
+    sorry
 
 set_option backward.isDefEq.respectTransparency false in
 def actionTensorCAlg' :

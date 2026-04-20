@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+module
+
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+
+@[expose] public section
 
 variable (K : Type*) [Field K] [NumberField K]
 

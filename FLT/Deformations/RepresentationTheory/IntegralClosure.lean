@@ -1,7 +1,11 @@
-import FLT.Deformations.Lemmas
-import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
-import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
-import Mathlib.RingTheory.Invariant.Defs
+module
+
+public import FLT.Deformations.Lemmas
+public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+public import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
+public import Mathlib.RingTheory.Invariant.Defs
+
+@[expose] public section
 
 section
 

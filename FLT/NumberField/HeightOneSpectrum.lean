@@ -1,6 +1,10 @@
-import FLT.DedekindDomain.IntegralClosure
-import FLT.NumberField.Padics.RestrictedProduct
-import Mathlib.NumberTheory.Padics.HeightOneSpectrum
+module
+
+public import FLT.DedekindDomain.IntegralClosure
+public import FLT.NumberField.Padics.RestrictedProduct
+public import Mathlib.NumberTheory.Padics.HeightOneSpectrum
+
+@[expose] public section
 
 -- should be upstreamed but I'll need to extract
 variable (K : Type*) [Field K] [NumberField K]

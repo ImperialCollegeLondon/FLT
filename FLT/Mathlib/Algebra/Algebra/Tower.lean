@@ -1,6 +1,10 @@
-import Mathlib.Algebra.Algebra.Tower
-import Mathlib.RingTheory.AlgebraTower
-import FLT.Mathlib.Algebra.Algebra.Hom
+module
+
+public import Mathlib.Algebra.Algebra.Tower
+public import Mathlib.RingTheory.AlgebraTower
+public import FLT.Mathlib.Algebra.Algebra.Hom
+
+@[expose] public section
 
 -- TODO: needs work before it can go in mathlib.
 -- Change `IsBiscalar` into a bundled map? Currently this is a pain to use even

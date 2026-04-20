@@ -1,4 +1,8 @@
-import Mathlib.Analysis.Quaternion
+module
+
+public import Mathlib.Analysis.Quaternion
+
+@[expose] public section
 
 /-- Hurwitz integers in the quaternions. ℤ-Basis 1, ω=(1+i+j+k)/2, i and
 ωi=(-1+i+j-k)/2.

@@ -1,8 +1,12 @@
-import FLT.Deformations.RepresentationTheory.GaloisRep
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.NumberTheory.Padics.Complex
-import Mathlib.RingTheory.Henselian
-import Mathlib.RingTheory.PicardGroup
+module
+
+public import FLT.Deformations.RepresentationTheory.GaloisRep
+public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.NumberTheory.Padics.Complex
+public import Mathlib.RingTheory.Henselian
+public import Mathlib.RingTheory.PicardGroup
+
+@[expose] public section
 
 /-
 

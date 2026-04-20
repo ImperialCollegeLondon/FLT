@@ -1,5 +1,9 @@
-import Mathlib.LinearAlgebra.TensorProduct.Pi
-import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+module
+
+public import Mathlib.LinearAlgebra.TensorProduct.Pi
+public import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+
+@[expose] public section
 
 open TensorProduct
 

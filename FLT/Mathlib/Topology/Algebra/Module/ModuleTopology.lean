@@ -1,13 +1,17 @@
-import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
-import FLT.Mathlib.Algebra.Algebra.Tower
-import FLT.Mathlib.Algebra.Algebra.Hom
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.LinearAlgebra.FreeModule.PID
-import Mathlib.RingTheory.Henselian
-import Mathlib.RingTheory.PicardGroup
-import Mathlib.RingTheory.SimpleRing.Principal
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import Mathlib.Topology.Algebra.Module.ModuleTopology
+module
+
+public import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
+public import FLT.Mathlib.Algebra.Algebra.Tower
+public import FLT.Mathlib.Algebra.Algebra.Hom
+public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.LinearAlgebra.FreeModule.PID
+public import Mathlib.RingTheory.Henselian
+public import Mathlib.RingTheory.PicardGroup
+public import Mathlib.RingTheory.SimpleRing.Principal
+public import Mathlib.Topology.Algebra.Algebra.Equiv
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+
+@[expose] public section
 
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where

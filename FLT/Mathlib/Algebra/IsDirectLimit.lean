@@ -3,8 +3,11 @@ Copyright (c) 2025 Madison Crim. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Madison Crim
 -/
+module
 
-import Mathlib.Algebra.Colimit.Module
+public import Mathlib.Algebra.Colimit.Module
+
+@[expose] public section
 
 variable {ι : Type*} [Preorder ι] {M : ι → Type*} {P : Type*}
   (f : (i j : ι) → (h : i ≤ j) → M i → M j) (g : ∀ i, M i → P)

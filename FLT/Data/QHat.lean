@@ -1,7 +1,11 @@
-import Mathlib.Algebra.Order.Star.Basic
-import Mathlib.Analysis.Normed.Field.Lemmas
-import Mathlib.Data.PNat.Prime
-import Mathlib.RingTheory.Flat.TorsionFree
+module
+
+public import Mathlib.Algebra.Order.Star.Basic
+public import Mathlib.Analysis.Normed.Field.Lemmas
+public import Mathlib.Data.PNat.Prime
+public import Mathlib.RingTheory.Flat.TorsionFree
+
+@[expose] public section
 /-
 
 # Example of a space of automorphic forms

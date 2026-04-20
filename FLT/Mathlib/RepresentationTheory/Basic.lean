@@ -1,5 +1,9 @@
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
-import Mathlib.RepresentationTheory.Basic
+module
+
+public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+public import Mathlib.RepresentationTheory.Basic
+
+@[expose] public section
 
 open LinearMap
 open scoped TensorProduct

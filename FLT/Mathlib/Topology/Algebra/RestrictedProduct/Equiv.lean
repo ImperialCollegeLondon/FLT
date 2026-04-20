@@ -3,11 +3,12 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Salvatore Mercuri
 -/
+module
 
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
-import Mathlib.Algebra.Group.Submonoid.Units
-import Mathlib.LinearAlgebra.DFinsupp
-import Mathlib.LinearAlgebra.Matrix.Defs
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
+public import Mathlib.Algebra.Group.Submonoid.Units
+public import Mathlib.LinearAlgebra.DFinsupp
+public import Mathlib.LinearAlgebra.Matrix.Defs
 --import Mathlib.Topology.Algebra.ContinuousMonoidHom
 
 /-!
@@ -24,6 +25,8 @@ Restricted product over a principal filter is isomorphic to a product.
 We don't allow topological isomorphisms; they have to go into TopologicalSpace because of imports.
 
 -/
+
+@[expose] public section
 
 open RestrictedProduct
 

@@ -1,8 +1,12 @@
-import FLT.Patching.Utils.TopologicallyFG
-import Mathlib.Algebra.Ring.Ext
-import Mathlib.Topology.Algebra.Module.Equiv
-import Mathlib.Algebra.Ring.TransferInstance
-import Mathlib.Algebra.Algebra.TransferInstance
+module
+
+public import FLT.Patching.Utils.TopologicallyFG
+public import Mathlib.Algebra.Ring.Ext
+public import Mathlib.Topology.Algebra.Module.Equiv
+public import Mathlib.Algebra.Ring.TransferInstance
+public import Mathlib.Algebra.Algebra.TransferInstance
+
+@[expose] public section
 
 
 @[to_additive]

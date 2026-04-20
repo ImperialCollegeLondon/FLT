@@ -3,10 +3,13 @@ Copyright (c) 2025 Matthew Jasper. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Matthew Jasper
 -/
+module
 
-import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
-import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
-import Mathlib.RingTheory.Flat.Basic
+public import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
+public import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
+public import Mathlib.RingTheory.Flat.Basic
+
+@[expose] public section
 
 namespace RestrictedProduct
 

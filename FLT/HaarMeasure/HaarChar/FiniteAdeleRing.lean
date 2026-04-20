@@ -1,10 +1,12 @@
-import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
-import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
-import FLT.HaarMeasure.HaarChar.FiniteDimensional
-import FLT.Mathlib.Algebra.Central.TensorProduct
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
-import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
+module
+
+public import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+public import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
+public import FLT.HaarMeasure.HaarChar.FiniteDimensional
+public import FLT.Mathlib.Algebra.Central.TensorProduct
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
+public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
 
 /-!
 
@@ -23,6 +25,8 @@ used in the restricted product are not `K`-modules. One could either choose a la
 in D and work with that, or choose a basis of D and reduce first to to (𝔸_K^f)^n
 and then to `Πʳ[Kᵥ^n,𝓞ᵥ^n]`, which is what we do.
 -/
+
+@[expose] public section
 
 open NumberField
 

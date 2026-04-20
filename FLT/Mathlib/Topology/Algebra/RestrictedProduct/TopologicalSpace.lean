@@ -1,10 +1,14 @@
-import FLT.Mathlib.Order.Filter.Cofinite
-import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Mathlib.Topology.Algebra.Group.Units
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
-import FLT.Mathlib.Topology.Bases
-import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import Mathlib.Topology.Instances.Matrix
+module
+
+public import FLT.Mathlib.Order.Filter.Cofinite
+public import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+public import FLT.Mathlib.Topology.Algebra.Group.Units
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
+public import FLT.Mathlib.Topology.Bases
+public import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import Mathlib.Topology.Instances.Matrix
+
+@[expose] public section
 
 open RestrictedProduct
 

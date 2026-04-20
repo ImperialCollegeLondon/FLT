@@ -1,4 +1,6 @@
-import FLT.GaloisRepresentation.HardlyRamified.Frey
+module
+
+public import FLT.GaloisRepresentation.HardlyRamified.Frey
 /-!
 
 # Preliminary reductions of FLT
@@ -12,6 +14,8 @@ to Mazur's theorem and the Wiles/Taylor--Wiles theorem.
 * `Wiles_Taylor_Wiles` : Fermat's Last Theorem is true.
 
 -/
+
+@[expose] public section
 
 /-!
 

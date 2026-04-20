@@ -3,12 +3,14 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
-import FLT.Mathlib.RingTheory.Localization.BaseChange -- removing this breaks a simp proof
-import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.NumberTheory.RamificationInertia.Basic
-import Mathlib.RingTheory.DedekindDomain.AdicValuation
-import Mathlib.RingTheory.DedekindDomain.IntegralClosure
-import FLT.Mathlib.Algebra.Algebra.Tower
+module
+
+public import FLT.Mathlib.RingTheory.Localization.BaseChange -- removing this breaks a simp proof
+public import Mathlib.Algebra.Group.Int.TypeTags
+public import Mathlib.NumberTheory.RamificationInertia.Basic
+public import Mathlib.RingTheory.DedekindDomain.AdicValuation
+public import Mathlib.RingTheory.DedekindDomain.IntegralClosure
+public import FLT.Mathlib.Algebra.Algebra.Tower
 
 /-!
 
@@ -16,6 +18,8 @@ The general "AKLB" set-up. `K` is the field of fractions of the Dedekind domain 
 `L/K` is a finite separable extension, and `B` is the integral closure of `A` in `L`.
 
 -/
+
+@[expose] public section
 
 namespace IsDedekindDomain.HeightOneSpectrum
 
