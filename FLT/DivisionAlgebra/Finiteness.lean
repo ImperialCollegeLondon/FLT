@@ -533,10 +533,8 @@ lemma algebraMap_completion {vi : InfinitePlace K} {x : ℝ} :
   by_cases h : vi.IsReal
   · simp_all [real_to_completion, ↓reduceDIte,
       RingEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd]
-    rfl
   · simp_all [-InfinitePlace.not_isReal_iff_isComplex, real_to_completion, ↓reduceDIte,
       RingEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd]
-    rfl
 
 end RealAlgebra
 

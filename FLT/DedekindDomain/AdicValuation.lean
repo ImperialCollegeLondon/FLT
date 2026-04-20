@@ -80,7 +80,7 @@ lemma emultiplicity_eq_of_valuation_eq_ofAdd {a : A} {k : ℕ}
   simp only [intValuation_if_neg _ hnz, WithZero.exp, ofAdd_neg, WithZero.coe_inv, inv_inj,
     WithZero.coe_inj, EmbeddingLike.apply_eq_iff_eq, Nat.cast_inj] at hv
   rw [← hv, UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb,
-    count_associates_factors_eq hnb v.isPrime v.ne_bot, normalize_eq]
+    Ideal.count_associates_factors_eq hnb v.isPrime v.ne_bot, normalize_eq]
 
 /-- Given `a, b ∈ A` and `v b ≤ v a` we can find `y in A` such that `y` is close to `a / b` by
     the valuation v. -/
@@ -109,7 +109,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   -- Now make use of
   -- `v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) = v.asIdeal ^ n ⊔ Ideal.span {a}`
   -- (this is where we need `IsDedekindDomain A`)
-  rw [← irreducible_pow_sup_of_ge hnb (irreducible v) n hm] at hb
+  rw [← Ideal.irreducible_pow_sup_of_ge hnb (irreducible v) n hm] at hb
   -- Extract y by writing b as a general term of the sum of the two ideals.
   obtain ⟨x, hx, z, hz, hxz⟩ := Submodule.mem_sup.mp hb
   obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.mp hz
