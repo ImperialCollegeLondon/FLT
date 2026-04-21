@@ -1,11 +1,13 @@
-import FLT.NumberField.Completion.Infinite
-import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-import FLT.Mathlib.LinearAlgebra.Pi
-import FLT.Mathlib.Topology.Constructions
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import Mathlib.RingTheory.TensorProduct.Pi
-import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
-import FLT.Mathlib.Topology.Algebra.Algebra.Hom
+module
+
+public import FLT.NumberField.Completion.Infinite
+public import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
+public import FLT.Mathlib.LinearAlgebra.Pi
+public import FLT.Mathlib.Topology.Constructions
+public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import Mathlib.RingTheory.TensorProduct.Pi
+public import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
 
 /-! # Base change for the infinite adele ring
 
@@ -60,6 +62,8 @@ The desired instances are constructed later as `scoped` instances in `FLT.Number
   `Algebra K∞ L∞` and `Pi.FiberwiseSMul ...` assumptions to ensure the correct `K∞`-module
   topology on `L∞`.
 -/
+
+@[expose] public section
 
 variable (K L : Type*) [Field K] [Field L] [Algebra K L]
 

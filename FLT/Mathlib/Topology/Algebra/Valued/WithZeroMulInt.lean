@@ -3,15 +3,17 @@ Copyright (c) 2025 Salvatore Mercuri. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Salvatore Mercuri
 -/
-import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
-import Mathlib.Algebra.Order.GroupWithZero.Canonical
-import Mathlib.RingTheory.DiscreteValuationRing.Basic
-import Mathlib.RingTheory.Ideal.IsPrincipalPowQuotient
-import Mathlib.Analysis.Normed.Ring.Lemmas
-import Mathlib.Topology.Algebra.Valued.ValuedField
-import Mathlib.Topology.Algebra.Valued.WithZeroMulInt
-import Mathlib.Topology.Algebra.Valued.LocallyCompact
-import Mathlib.RingTheory.Valuation.Discrete.RankOne
+module
+
+public import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
+public import Mathlib.Algebra.Order.GroupWithZero.Canonical
+public import Mathlib.RingTheory.DiscreteValuationRing.Basic
+public import Mathlib.RingTheory.Ideal.IsPrincipalPowQuotient
+public import Mathlib.Analysis.Normed.Ring.Lemmas
+public import Mathlib.Topology.Algebra.Valued.ValuedField
+public import Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+public import Mathlib.Topology.Algebra.Valued.LocallyCompact
+public import Mathlib.RingTheory.Valuation.Discrete.RankOne
 
 /-! # Topological results for integer-valued rings
 
@@ -20,6 +22,8 @@ multiplicative integers with zero adjoined. These are useful for cases where the
 is a `Valued K ℤᵐ⁰` instance but no canonical base with which to embed this into
 `NNReal`.
 -/
+
+@[expose] public section
 
 open Multiplicative WithZero
 

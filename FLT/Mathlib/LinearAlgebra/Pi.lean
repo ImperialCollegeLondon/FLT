@@ -1,6 +1,10 @@
-import Mathlib.Algebra.Module.Pi
-import Mathlib.Algebra.Module.Equiv.Defs
-import Mathlib.Topology.Algebra.RestrictedProduct.Basic
+module
+
+public import Mathlib.Algebra.Module.Pi
+public import Mathlib.Algebra.Module.Equiv.Defs
+public import Mathlib.Topology.Algebra.RestrictedProduct.Basic
+
+@[expose] public section
 
 /-- A class encoding the product scalar multiplication of `∀ b : β, R b` on `∀ a : α, M a`
 that is determined by the fibers of a supplied function `f : α → β` on indices.

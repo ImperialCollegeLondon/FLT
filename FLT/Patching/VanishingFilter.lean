@@ -1,6 +1,10 @@
-import Mathlib.Order.Filter.Ultrafilter.Basic
-import Mathlib.RingTheory.Ideal.Operations
-import FLT.Patching.Ultraproduct
+module
+
+public import Mathlib.Order.Filter.Ultrafilter.Basic
+public import Mathlib.RingTheory.Ideal.Operations
+public import FLT.Patching.Ultraproduct
+
+@[expose] public section
 
 set_option autoImplicit false
 variable (R₀ : Type*) [CommRing R₀]

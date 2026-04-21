@@ -1,6 +1,10 @@
-import FLT.Deformations.LiftFunctor
-import FLT.Deformations.RepresentationTheory.Irreducible
-import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
+module
+
+public import FLT.Deformations.LiftFunctor
+public import FLT.Deformations.RepresentationTheory.Irreducible
+public import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
+
+@[expose] public section
 
 open CategoryTheory IsLocalRing
 

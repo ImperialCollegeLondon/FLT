@@ -1,5 +1,9 @@
-import Mathlib.Topology.Algebra.Module.FiniteDimension
-import Mathlib.Topology.Instances.Matrix
+module
+
+public import Mathlib.Topology.Algebra.Module.FiniteDimension
+public import Mathlib.Topology.Instances.Matrix
+
+@[expose] public section
 
 theorem Basis.toMatrix_continuous {ι R M : Type*} [AddCommGroup M]
     [Finite ι] [TopologicalSpace M] [NontriviallyNormedField R] [Module R M]

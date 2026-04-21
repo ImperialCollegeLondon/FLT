@@ -1,4 +1,8 @@
-import Mathlib.RingTheory.DedekindDomain.AdicValuation
+module
+
+public import Mathlib.RingTheory.DedekindDomain.AdicValuation
+
+@[expose] public section
 
 namespace IsDedekindDomain.HeightOneSpectrum
 

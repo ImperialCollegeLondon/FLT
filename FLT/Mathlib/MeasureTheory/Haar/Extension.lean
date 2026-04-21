@@ -3,10 +3,11 @@ Copyright (c) 2025 Thomas Browning. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Thomas Browning
 -/
+module
 
-import Mathlib.MeasureTheory.Constructions.Polish.Basic
-import Mathlib.MeasureTheory.Measure.Haar.Extension
-import Mathlib.MeasureTheory.Measure.Haar.Unique
+public import Mathlib.MeasureTheory.Constructions.Polish.Basic
+public import Mathlib.MeasureTheory.Measure.Haar.Extension
+public import Mathlib.MeasureTheory.Measure.Haar.Unique
 
 
 /-!
@@ -29,6 +30,8 @@ we construct a Haar measure on `B` from Haar measures on `A` and `B`.
   `B` cannot be a fundamental domain.
 
 -/
+
+@[expose] public section
 
 open MeasureTheory MeasureTheory.Measure
 

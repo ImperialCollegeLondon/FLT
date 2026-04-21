@@ -1,5 +1,9 @@
-import FLT.AutomorphicForm.QuaternionAlgebra.Defs
-import FLT.DivisionAlgebra.Finiteness
+module
+
+public import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+public import FLT.DivisionAlgebra.Finiteness
+
+@[expose] public section
 
 namespace TotallyDefiniteQuaternionAlgebra
 

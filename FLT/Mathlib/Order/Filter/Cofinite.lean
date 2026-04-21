@@ -1,4 +1,8 @@
-import Mathlib.Order.Filter.Cofinite
+module
+
+public import Mathlib.Order.Filter.Cofinite
+
+@[expose] public section
 
 -- TODO upstream
 lemma Filter.cofinite.sets.countable (ι : Type*) [Countable ι] :

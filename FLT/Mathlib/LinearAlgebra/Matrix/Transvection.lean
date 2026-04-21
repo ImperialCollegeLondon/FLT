@@ -1,4 +1,6 @@
-import Mathlib.LinearAlgebra.Matrix.Transvection
+module
+
+public import Mathlib.LinearAlgebra.Matrix.Transvection
 /-!
 
 Variant of `Matrix.diagonal_transvection_induction_of_det_ne_zero`
@@ -8,6 +10,8 @@ this is not true in general (I believe; I think there's some obstruction
 in SK₁(R), the kernel of det:K₁(R) → Rˣ)
 
 -/
+
+@[expose] public section
 
 open Matrix TransvectionStruct
 

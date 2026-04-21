@@ -3,15 +3,17 @@ Copyright (c) 2025 Matthew Jasper. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Matthew Jasper
 -/
-import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
-import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
-import Mathlib.Algebra.Order.GroupWithZero.Canonical
-import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.NumberTheory.RamificationInertia.Basic
-import Mathlib.RingTheory.PrincipalIdealDomainOfPrime
-import Mathlib.RingTheory.DiscreteValuationRing.Basic
-import Mathlib.RingTheory.Valuation.Discrete.RankOne
+module
+
+public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
+public import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
+public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+public import Mathlib.Algebra.Order.GroupWithZero.Canonical
+public import Mathlib.Algebra.Group.Int.TypeTags
+public import Mathlib.NumberTheory.RamificationInertia.Basic
+public import Mathlib.RingTheory.PrincipalIdealDomainOfPrime
+public import Mathlib.RingTheory.DiscreteValuationRing.Basic
+public import Mathlib.RingTheory.Valuation.Discrete.RankOne
 
 /-!
 
@@ -36,6 +38,8 @@ This file makes some progress towards this.
     of primes of `A`, then `K` is dense in `∏_{v ∈ s} K_v`.
 * We show (as an unnamed instance) `IsDiscreteValuationRing (𝒪[v.adicCompletion K])`
 -/
+
+@[expose] public section
 
 namespace IsDedekindDomain.HeightOneSpectrum
 

@@ -1,6 +1,10 @@
-import Mathlib.NumberTheory.NumberField.AdeleRing -- should be .InfiniteAdeleRing
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+module
+
+public import Mathlib.NumberTheory.NumberField.AdeleRing -- should be .InfiniteAdeleRing
+public import Mathlib.Topology.Algebra.Algebra.Equiv
+public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+
+@[expose] public section
 
 -- TODO upstream
 variable (K : Type*) [Field K]

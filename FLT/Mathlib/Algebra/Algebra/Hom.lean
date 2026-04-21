@@ -1,5 +1,9 @@
-import Mathlib.Algebra.Algebra.Hom
-import Mathlib.Algebra.Algebra.Prod
+module
+
+public import Mathlib.Algebra.Algebra.Hom
+public import Mathlib.Algebra.Algebra.Prod
+
+@[expose] public section
 
 section semialghom
 

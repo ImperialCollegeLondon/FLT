@@ -1,6 +1,10 @@
-import Mathlib.NumberTheory.Padics.HeightOneSpectrum
-import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+module
+
+public import Mathlib.NumberTheory.Padics.HeightOneSpectrum
+public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+
+@[expose] public section
 
 open IsDedekindDomain HeightOneSpectrum adicCompletion NumberField UniformSpace.Completion
 

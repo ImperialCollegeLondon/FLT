@@ -1,10 +1,14 @@
-import Mathlib.Algebra.Module.LinearMap.Defs
-import Mathlib.Data.Rat.Cast.Defs
-import Mathlib.Order.Defs.Unbundled
-import Mathlib.Algebra.Module.Submodule.Defs
-import Mathlib.Algebra.Module.Pi
-import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
-import FLT.Deformations.Algebra.InverseLimit.Basic
+module
+
+public import Mathlib.Algebra.Module.LinearMap.Defs
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Order.Defs.Unbundled
+public import Mathlib.Algebra.Module.Submodule.Defs
+public import Mathlib.Algebra.Module.Pi
+public import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
+public import FLT.Deformations.Algebra.InverseLimit.Basic
+
+@[expose] public section
 
 open TopologicalSpace
 

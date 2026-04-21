@@ -3,11 +3,12 @@ Copyright (c) 2025 Matthew Jasper. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Matthew Jasper
 -/
+module
 
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.Algebra.MulAction
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+public import FLT.Mathlib.Topology.Algebra.MulAction
+public import FLT.Mathlib.Algebra.Module.Submodule.Basic
 
 /-!
 
@@ -39,6 +40,8 @@ and `C : (i : ι) → Submodule (B i) (M i)`, then `Πʳ i, [M i, C i]_[𝓕]` h
 - `RestrictedProduct.isModuleTopology` : `Πʳ i, [M i, C i]` has the `Πʳ i, [R i, B i]`-module
   topology if `(M i)` have the `(R i)`-module topology and `(B i)` and `(C i)` are open.
 -/
+
+@[expose] public section
 
 namespace RestrictedProduct
 

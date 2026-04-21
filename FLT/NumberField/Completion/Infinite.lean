@@ -1,13 +1,17 @@
-import Mathlib.NumberTheory.NumberField.Completion.Ramification
-import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
-import FLT.Mathlib.Algebra.Algebra.Bilinear
-import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
-import FLT.Mathlib.Topology.Algebra.UniformRing
-import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
-import FLT.NumberField.InfinitePlace.Extension
+module
+
+public import Mathlib.NumberTheory.NumberField.Completion.Ramification
+public import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+public import FLT.Mathlib.Algebra.Algebra.Bilinear
+public import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
+public import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
+public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+public import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
+public import FLT.Mathlib.Topology.Algebra.UniformRing
+public import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+public import FLT.NumberField.InfinitePlace.Extension
+
+@[expose] public section
 
 open scoped TensorProduct
 

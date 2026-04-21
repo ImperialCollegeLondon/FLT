@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Measure.Regular
-import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
+module
+
+public import Mathlib.MeasureTheory.Measure.Regular
+public import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
+
+@[expose] public section
 
 section IsOpenEmbeddingComap
 

@@ -1,5 +1,9 @@
-import FLT.GaloisRepresentation.HardlyRamified.Defs
-import FLT.Basic.FreyPackage
+module
+
+public import FLT.GaloisRepresentation.HardlyRamified.Defs
+public import FLT.Basic.FreyPackage
+
+@[expose] public section
 
 variable (P : FreyPackage)
 

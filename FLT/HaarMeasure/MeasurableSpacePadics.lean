@@ -3,9 +3,11 @@ Copyright (c) 2024 Yaël Dillies, David Loeffler. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, David Loeffler
 -/
-import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib.NumberTheory.Padics.ProperSpace
-import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
+module
+
+public import Mathlib.MeasureTheory.Measure.Haar.Unique
+public import Mathlib.NumberTheory.Padics.ProperSpace
+public import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 
 /-!
 # Measurability and measures on the p-adics
@@ -13,6 +15,8 @@ import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 This file endows `ℤ_[p]` and `ℚ_[p]` with their Borel sigma-algebra and their Haar measure that
 makes `ℤ_[p]` (or the copy of `ℤ_[p]` inside `ℚ_[p]`) have norm `1`.
 -/
+
+@[expose] public section
 
 open MeasureTheory Measure TopologicalSpace Topology
 
@@ -24,7 +28,8 @@ noncomputable instance instMeasurableSpace : MeasurableSpace ℚ_[p] := borel _
 instance instBorelSpace : BorelSpace ℚ_[p] := ⟨rfl⟩
 
 -- Should we more generally make a map from `CompactOpens` to `PositiveCompacts`?
-private def unitBall_positiveCompact : PositiveCompacts ℚ_[p] where
+/-- The unit ball as a compact set with nonempty interior. -/
+def unitBall_positiveCompact : PositiveCompacts ℚ_[p] where
   carrier := {y | ‖y‖ ≤ 1}
   isCompact' := by simpa only [Metric.closedBall, dist_zero_right] using
     isCompact_closedBall (0 : ℚ_[p]) 1

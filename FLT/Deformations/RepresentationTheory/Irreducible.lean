@@ -1,6 +1,10 @@
-import Mathlib.RepresentationTheory.Subrepresentation
-import Mathlib.RepresentationTheory.Irreducible
-import FLT.Mathlib.RepresentationTheory.Basic
+module
+
+public import Mathlib.RepresentationTheory.Subrepresentation
+public import Mathlib.RepresentationTheory.Irreducible
+public import FLT.Mathlib.RepresentationTheory.Basic
+
+@[expose] public section
 
 universe u
 

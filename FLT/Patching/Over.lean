@@ -1,5 +1,9 @@
-import FLT.Patching.Algebra
-import FLT.Patching.Module
+module
+
+public import FLT.Patching.Algebra
+public import FLT.Patching.Module
+
+@[expose] public section
 
 variable (Λ : Type*) [CommRing Λ]
 variable {ι : Type*} (R : ι → Type*)

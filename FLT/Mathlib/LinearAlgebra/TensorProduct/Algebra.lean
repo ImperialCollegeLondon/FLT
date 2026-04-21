@@ -1,5 +1,9 @@
-import Mathlib.LinearAlgebra.TensorProduct.Map
-import Mathlib.Algebra.Algebra.Hom
+module
+
+public import Mathlib.LinearAlgebra.TensorProduct.Map
+public import Mathlib.Algebra.Algebra.Hom
+
+@[expose] public section
 
 open TensorProduct
 /--

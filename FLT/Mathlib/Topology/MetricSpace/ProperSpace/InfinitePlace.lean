@@ -1,5 +1,9 @@
-import Mathlib.Analysis.CStarAlgebra.Classes
-import Mathlib.NumberTheory.NumberField.AdeleRing
+module
+
+public import Mathlib.Analysis.CStarAlgebra.Classes
+public import Mathlib.NumberTheory.NumberField.AdeleRing
+
+@[expose] public section
 
 open NumberField
 

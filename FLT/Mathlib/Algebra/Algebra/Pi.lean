@@ -1,5 +1,9 @@
-import Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Algebra.Algebra.Hom
+module
+
+public import Mathlib.Algebra.Algebra.Pi
+public import FLT.Mathlib.Algebra.Algebra.Hom
+
+@[expose] public section
 
 def Pi.semialgHom {I : Type*} {R S : Type*} (f : I → Type*) [CommSemiring R] [CommSemiring S]
     (φ : R →+* S) [s : (i : I) → Semiring (f i)] [(i : I) → Algebra S (f i)] {A : Type*}

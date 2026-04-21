@@ -1,4 +1,8 @@
-import Mathlib.Data.Set.Operations
+module
+
+public import Mathlib.Data.Set.Operations
+
+@[expose] public section
 
 namespace Set
 

@@ -1,10 +1,14 @@
-import FLT.Deformations.RepresentationTheory.Frobenius
-import FLT.Deformations.RepresentationTheory.IntegralClosure
-import FLT.NumberField.Completion.Finite
-import Mathlib.Analysis.Normed.Unbundled.SpectralNorm
-import Mathlib.FieldTheory.AbsoluteGaloisGroup
-import Mathlib.FieldTheory.Galois.Infinite
-import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+module
+
+public import FLT.Deformations.RepresentationTheory.Frobenius
+public import FLT.Deformations.RepresentationTheory.IntegralClosure
+public import FLT.NumberField.Completion.Finite
+public import Mathlib.Analysis.Normed.Unbundled.SpectralNorm
+public import Mathlib.FieldTheory.AbsoluteGaloisGroup
+public import Mathlib.FieldTheory.Galois.Infinite
+public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+
+@[expose] public section
 
 variable {K L : Type*} [Field K] [Field L]
 variable {A B : Type*} [CommRing A] [TopologicalSpace A] [CommRing B] [TopologicalSpace B]

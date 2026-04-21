@@ -1,9 +1,13 @@
-import FLT.Patching.Ultraproduct
-import FLT.Patching.Utils.AdicTopology
-import Mathlib.Algebra.Module.Torsion.Free
-import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
-import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
-import Mathlib.Topology.Compactness.Paracompact
+module
+
+public import FLT.Patching.Ultraproduct
+public import FLT.Patching.Utils.AdicTopology
+public import Mathlib.Algebra.Module.Torsion.Free
+public import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
+public import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
+public import Mathlib.Topology.Compactness.Paracompact
+
+@[expose] public section
 
 local notation "Ann" => Module.annihilator
 

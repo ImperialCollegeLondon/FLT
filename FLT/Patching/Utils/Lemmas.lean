@@ -1,13 +1,17 @@
-import Mathlib.RingTheory.Filtration
-import Mathlib.Topology.Algebra.Module.Compact
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.Topology.Algebra.OpenSubgroup
-import Mathlib.Topology.Algebra.Ring.Ideal
-import Mathlib.Topology.Separation.Profinite
-import Mathlib.Data.Set.Card
-import Mathlib.RingTheory.Localization.AtPrime.Basic
-import Mathlib.Data.SetLike.Fintype
-import Mathlib.RingTheory.Spectrum.Prime.Basic
+module
+
+public import Mathlib.RingTheory.Filtration
+public import Mathlib.Topology.Algebra.Module.Compact
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import Mathlib.Topology.Algebra.OpenSubgroup
+public import Mathlib.Topology.Algebra.Ring.Ideal
+public import Mathlib.Topology.Separation.Profinite
+public import Mathlib.Data.Set.Card
+public import Mathlib.RingTheory.Localization.AtPrime.Basic
+public import Mathlib.Data.SetLike.Fintype
+public import Mathlib.RingTheory.Spectrum.Prime.Basic
+
+@[expose] public section
 
 
 lemma IsUnit.pi_iff {ι} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i} :

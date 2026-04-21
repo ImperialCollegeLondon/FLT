@@ -3,12 +3,14 @@ Copyright (c) 2025 Madison Crim. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Madison Crim
 -/
-import Mathlib.LinearAlgebra.DirectSum.Finsupp
-import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
-import Mathlib.Algebra.Module.FinitePresentation
-import Mathlib.Algebra.FiveLemma
-import Mathlib.LinearAlgebra.TensorProduct.Pi
-import Mathlib.Algebra.Module.PUnit
+module
+
+public import Mathlib.LinearAlgebra.DirectSum.Finsupp
+public import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+public import Mathlib.Algebra.Module.FinitePresentation
+public import Mathlib.Algebra.FiveLemma
+public import Mathlib.LinearAlgebra.TensorProduct.Pi
+public import Mathlib.Algebra.Module.PUnit
 /-!
 
 # Tensor product commutes with direct product when tensoring with a finite free module
@@ -26,6 +28,8 @@ If `M` is a finite free module and `Nᵢ` is an indexed collection of modules of
 Switch the names around because the primed version is more general hence better.
 
 -/
+
+@[expose] public section
 open DirectSum Function
 
 section
@@ -180,6 +184,9 @@ variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)]
 
+-- note that`TensorProduct.piRightHom` is marked `backward.proofsInPublic true` in mathlib
+-- so I don't think there's much I can do about this `set_option` here.
+set_option backward.proofsInPublic true in
 /-- Tensoring with a finitely-presented module commutes with arbitrary products.
 To prove this, we consider the following commutative diagram. The goal is to show
 that `i₃` is an isomorphism, which we do using the five lemma:

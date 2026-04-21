@@ -1,4 +1,6 @@
-import Mathlib.Analysis.Normed.Ring.Lemmas
+module
+
+public import Mathlib.Analysis.Normed.Ring.Lemmas
 
 /-!
 # Fixed points of actions
@@ -25,6 +27,8 @@ reasons, is defined under a spurious extra hypothesis that `M` is a monoid).
 The motivation for this file is that using `↥fixedPoints` can lead
 typeclass inference on a wild goose chase.
 -/
+
+@[expose] public section
 
 /-- If `M` acts on `A` then `FixedPoints M A` is the type of elements
 of `A` which are fixed elementwise by all of `M`. -/

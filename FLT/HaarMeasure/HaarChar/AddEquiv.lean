@@ -1,8 +1,12 @@
-import FLT.Mathlib.MeasureTheory.Group.Measure
-import FLT.Mathlib.MeasureTheory.Measure.Regular
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
+module
+
+public import FLT.Mathlib.MeasureTheory.Group.Measure
+public import FLT.Mathlib.MeasureTheory.Measure.Regular
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
+
+@[expose] public section
 
 open MeasureTheory.Measure
 open scoped NNReal

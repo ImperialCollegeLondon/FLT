@@ -1,8 +1,12 @@
-import Mathlib.Algebra.Module.LinearMap.Defs
-import Mathlib.Algebra.Ring.Subring.Basic
-import Mathlib.Topology.Algebra.RestrictedProduct.Basic
-import Mathlib.Algebra.Module.Submodule.Defs
-import Mathlib.Algebra.Group.Pointwise.Set.Basic
+module
+
+public import Mathlib.Algebra.Module.LinearMap.Defs
+public import Mathlib.Algebra.Ring.Subring.Basic
+public import Mathlib.Topology.Algebra.RestrictedProduct.Basic
+public import Mathlib.Algebra.Module.Submodule.Defs
+public import Mathlib.Algebra.Group.Pointwise.Set.Basic
+
+@[expose] public section
 
 namespace RestrictedProduct
 
@@ -175,6 +179,7 @@ lemma mem_coset_and_mulSupport_subset_of_isProductAt
     simp only [smul_eq_mul, mul_assoc, mul_inv_cancel_left, hcomm]⟩,
     mulSupport_mul_subset huᵢ hg⟩
 
+set_option backward.proofsInPublic true in
 /-- For a cofinite restricted product `Πʳ i, [G i, A i]`, `indexSupport` is the finite set of
 indices for which `u ∉ A i`. -/
 noncomputable

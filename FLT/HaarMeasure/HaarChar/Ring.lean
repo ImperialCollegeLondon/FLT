@@ -3,10 +3,14 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.HaarMeasure.HaarChar.AddEquiv
-import Mathlib.Algebra.Group.Pi.Units
-import Mathlib.MeasureTheory.Group.Pointwise
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+module
+
+public import FLT.HaarMeasure.HaarChar.AddEquiv
+public import Mathlib.Algebra.Group.Pi.Units
+public import Mathlib.MeasureTheory.Group.Pointwise
+public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+
+@[expose] public section
 
 open scoped NNReal
 

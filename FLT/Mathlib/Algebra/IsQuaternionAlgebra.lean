@@ -1,7 +1,11 @@
-import Mathlib.Algebra.Central.Defs
-import Mathlib.Algebra.Quaternion
-import Mathlib.Analysis.Quaternion -- for *notation* ℍ only!
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+module
+
+public import Mathlib.Algebra.Central.Defs
+public import Mathlib.Algebra.Quaternion
+public import Mathlib.Analysis.Quaternion -- for *notation* ℍ only!
+public import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+
+@[expose] public section
 
 class IsQuaternionAlgebra (F : Type*) [Field F] (D : Type*) [Ring D] [Algebra F D] : Prop where
   isSimpleRing : IsSimpleRing D

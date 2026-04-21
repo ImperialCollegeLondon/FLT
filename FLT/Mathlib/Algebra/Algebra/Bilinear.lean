@@ -1,7 +1,9 @@
-import FLT.Mathlib.Algebra.Algebra.Hom
-import FLT.Mathlib.Algebra.Algebra.Tower
-import Mathlib.RingTheory.TensorProduct.Basic
-import FLT.Hacks.RightActionInstances
+module
+
+public import FLT.Mathlib.Algebra.Algebra.Hom
+public import FLT.Mathlib.Algebra.Algebra.Tower
+public import Mathlib.RingTheory.TensorProduct.Basic
+public import FLT.Hacks.RightActionInstances
 
 /-!
 
@@ -17,6 +19,8 @@ import FLT.Hacks.RightActionInstances
   the `R`-linear equivs induced on an `R`-algebra `A` via left and right multiplication
   by a unit.
 -/
+
+@[expose] public section
 open scoped TensorProduct
 variable {R S : Type*} [CommSemiring R] [CommSemiring S] {φ : R →+* S}
     {A B : Type*}

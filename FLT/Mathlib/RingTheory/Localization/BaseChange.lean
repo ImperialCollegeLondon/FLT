@@ -5,7 +5,11 @@ Authors: Matthew Jasper
 -/
 
 -- *TODO* should these simp lemmas be in mathlib?
-import Mathlib.RingTheory.Localization.BaseChange
+module
+
+public import Mathlib.RingTheory.Localization.BaseChange
+
+@[expose] public section
 
 namespace IsLocalization
 

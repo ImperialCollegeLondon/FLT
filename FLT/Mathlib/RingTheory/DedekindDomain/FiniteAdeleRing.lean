@@ -1,5 +1,9 @@
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+module
+
+public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+
+@[expose] public section
 
 namespace IsDedekindDomain.FiniteAdeleRing
 

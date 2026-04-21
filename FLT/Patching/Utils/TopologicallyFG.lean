@@ -1,5 +1,9 @@
-import Mathlib.RingTheory.FiniteType
-import Mathlib.Topology.Algebra.Ring.Basic
+module
+
+public import Mathlib.RingTheory.FiniteType
+public import Mathlib.Topology.Algebra.Ring.Basic
+
+@[expose] public section
 
 variable (R S) [CommRing R] [Ring S] [Algebra R S] [TopologicalSpace S]
 

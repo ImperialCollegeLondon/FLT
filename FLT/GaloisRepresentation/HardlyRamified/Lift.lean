@@ -1,4 +1,8 @@
-import FLT.GaloisRepresentation.HardlyRamified.Defs
+module
+
+public import FLT.GaloisRepresentation.HardlyRamified.Defs
+
+@[expose] public section
 
 namespace GaloisRepresentation.IsHardlyRamified
 

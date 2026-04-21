@@ -1,7 +1,11 @@
-import Mathlib.GroupTheory.DoubleCoset
-import Mathlib.Topology.Algebra.Group.Pointwise
-import Mathlib.Algebra.Group.Subgroup.Actions
-import FLT.Mathlib.Topology.Algebra.Group.Quotient
+module
+
+public import Mathlib.GroupTheory.DoubleCoset
+public import Mathlib.Topology.Algebra.Group.Pointwise
+public import Mathlib.Algebra.Group.Subgroup.Actions
+public import FLT.Mathlib.Topology.Algebra.Group.Quotient
+
+@[expose] public section
 
 theorem DoubleCoset.isOpen_doubleCoset {G : Type*} [Group G] [TopologicalSpace G]
     [ContinuousMul G] (H K : Subgroup G) (hK : IsOpen (K : Set G)) (i : DoubleCoset.Quotient H K) :

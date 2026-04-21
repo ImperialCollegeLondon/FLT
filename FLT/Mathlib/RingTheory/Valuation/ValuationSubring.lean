@@ -1,5 +1,9 @@
-import Mathlib.RingTheory.Valuation.ValuationSubring
-import Mathlib.Topology.Algebra.Valued.ValuationTopology
+module
+
+public import Mathlib.RingTheory.Valuation.ValuationSubring
+public import Mathlib.Topology.Algebra.Valued.ValuationTopology
+
+@[expose] public section
 
 variable {F : Type*} [Field F]
 

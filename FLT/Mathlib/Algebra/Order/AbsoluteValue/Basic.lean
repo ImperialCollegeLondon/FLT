@@ -1,6 +1,10 @@
-import Mathlib.Algebra.Order.AbsoluteValue.Basic
-import Mathlib.Tactic.Linarith
-import Mathlib.Tactic.Ring.Basic
+module
+
+public import Mathlib.Algebra.Order.AbsoluteValue.Basic
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.Ring.Basic
+
+@[expose] public section
 
 namespace AbsoluteValue
 

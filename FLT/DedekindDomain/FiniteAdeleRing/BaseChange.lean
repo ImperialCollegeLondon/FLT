@@ -3,13 +3,15 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Matthew Jasper
 -/
-import FLT.DedekindDomain.Completion.BaseChange
-import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
-import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
-import FLT.Mathlib.Topology.Algebra.Algebra.Hom
-import FLT.Mathlib.LinearAlgebra.Pi
-import Mathlib.RingTheory.Flat.TorsionFree
+module
+
+public import FLT.DedekindDomain.Completion.BaseChange
+public import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
+public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
+public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
+public import FLT.Mathlib.LinearAlgebra.Pi
+public import Mathlib.RingTheory.Flat.TorsionFree
 
 /-!
 
@@ -31,6 +33,8 @@ is an isomorphism.
 * `𝔸ᶠ[B, L]` has the `𝔸ᶠ[A, K]`-module topology, shown as an instance.
 
 -/
+
+@[expose] public section
 
 variable (A K L B : Type*) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Field L]
     [Algebra A K] [IsFractionRing A K] [Algebra B L] [IsDedekindDomain A]
@@ -330,9 +334,10 @@ private noncomputable local instance (priority := 9999) (v : HeightOneSpectrum A
     Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
   Algebra.toModule
 
-set_option synthInstance.maxHeartbeats 40000 in
+-- went up from 40000 when switched to module system
+set_option synthInstance.maxHeartbeats 80000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 400000 in -- caused by bump to v4.29
 /-- An auxiliary 𝔸_K-module structure on restricted product over v of (product of w's dividing v
 of L_w wrt 𝓞_w). Only used in this file to compare L ⊗ 𝔸_K and 𝔸_L.
 -/

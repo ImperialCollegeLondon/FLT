@@ -1,5 +1,9 @@
-import FLT.Patching.Utils.Lemmas
-import FLT.Patching.Utils.StructureFiniteness
+module
+
+public import FLT.Patching.Utils.Lemmas
+public import FLT.Patching.Utils.StructureFiniteness
+
+@[expose] public section
 
 /- TODO: replace this with ultraproduct in mathlib -/
 

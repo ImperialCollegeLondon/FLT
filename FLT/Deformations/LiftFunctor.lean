@@ -1,9 +1,13 @@
-import FLT.Deformations.Categories
-import FLT.Deformations.Subfunctor
-import FLT.Deformations.RepresentationTheory.GaloisRep
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
-import Mathlib.RepresentationTheory.Basic
-import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
+module
+
+public import FLT.Deformations.Categories
+public import FLT.Deformations.Subfunctor
+public import FLT.Deformations.RepresentationTheory.GaloisRep
+public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+public import Mathlib.RepresentationTheory.Basic
+public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
+
+@[expose] public section
 
 open CategoryTheory IsLocalRing
 

@@ -1,4 +1,8 @@
-import Mathlib.Topology.Algebra.MulAction
+module
+
+public import Mathlib.Topology.Algebra.MulAction
+
+@[expose] public section
 
 variable {ι A : Type*}
 variable {R : ι → Type*} [Π i, Ring (R i)]

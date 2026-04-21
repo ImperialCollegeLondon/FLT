@@ -3,11 +3,15 @@ Copyright (c) 2025 Bryan Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bryan Wang
 -/
-import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
-import Mathlib.Data.Matrix.Reflection
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
-import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+module
+
+public import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
+public import Mathlib.Data.Matrix.Reflection
+public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+public import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+
+@[expose] public section
 
 open NumberField IsQuaternionAlgebra.NumberField IsDedekindDomain
 open IsDedekindDomain.HeightOneSpectrum

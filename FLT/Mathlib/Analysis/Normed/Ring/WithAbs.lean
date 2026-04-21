@@ -1,6 +1,10 @@
-import Mathlib.Analysis.Normed.Field.WithAbs
-import Mathlib.NumberTheory.NumberField.Basic
-import FLT.Mathlib.Topology.Algebra.UniformRing
+module
+
+public import Mathlib.Analysis.Normed.Field.WithAbs
+public import Mathlib.NumberTheory.NumberField.Basic
+public import FLT.Mathlib.Topology.Algebra.UniformRing
+
+@[expose] public section
 
 namespace WithAbs
 

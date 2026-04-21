@@ -1,4 +1,6 @@
-import Mathlib.GroupTheory.Index
+module
+
+public import Mathlib.GroupTheory.Index
 
 /-!
 # TODO
@@ -6,6 +8,8 @@ import Mathlib.GroupTheory.Index
 * Rename `relindex` to `relIndex`
 * Rename `FiniteIndex.finiteIndex` to `FiniteIndex.index_ne_zero`
 -/
+
+@[expose] public section
 
 open Function
 open scoped Pointwise

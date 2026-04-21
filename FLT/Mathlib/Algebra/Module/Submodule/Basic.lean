@@ -1,5 +1,9 @@
-import Mathlib.Algebra.Module.Submodule.Basic
-import Mathlib.Algebra.Ring.Subring.Basic
+module
+
+public import Mathlib.Algebra.Module.Submodule.Basic
+public import Mathlib.Algebra.Ring.Subring.Basic
+
+@[expose] public section
 
 variable {R S : Type*} [Ring R]
 

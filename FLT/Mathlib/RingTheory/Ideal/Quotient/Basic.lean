@@ -1,4 +1,8 @@
-import Mathlib.RingTheory.Ideal.Quotient.Defs
+module
+
+public import Mathlib.RingTheory.Ideal.Quotient.Defs
+
+@[expose] public section
 
 variable {R : Type*} [Ring R] (I : Ideal R) [I.IsTwoSided]
 

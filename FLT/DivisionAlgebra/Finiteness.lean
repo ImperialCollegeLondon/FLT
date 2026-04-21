@@ -3,19 +3,23 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, William Coram
 -/
-import FLT.HaarMeasure.HaarChar.AdeleRing
-import FLT.Mathlib.GroupTheory.DoubleCoset
-import FLT.Mathlib.Topology.HomToDiscrete
-import FLT.HaarMeasure.HaarChar.RealComplex
-import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
-import FLT.Mathlib.MeasureTheory.Haar.Extension
-import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
-import FLT.Mathlib.Topology.HomToDiscrete
-import FLT.Mathlib.Topology.Polish
-import Mathlib.Topology.Metrizable.Urysohn
-import Mathlib.Topology.MetricSpace.Polish
-import Mathlib.Topology.UniformSpace.Completion
-import Mathlib.Topology.MetricSpace.Completion
+module
+
+public import FLT.HaarMeasure.HaarChar.AdeleRing
+public import FLT.Mathlib.GroupTheory.DoubleCoset
+public import FLT.Mathlib.Topology.HomToDiscrete
+public import FLT.HaarMeasure.HaarChar.RealComplex
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
+public import FLT.Mathlib.MeasureTheory.Haar.Extension
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
+public import FLT.Mathlib.Topology.HomToDiscrete
+public import FLT.Mathlib.Topology.Polish
+public import Mathlib.Topology.Metrizable.Urysohn
+public import Mathlib.Topology.MetricSpace.Polish
+public import Mathlib.Topology.UniformSpace.Completion
+public import Mathlib.Topology.MetricSpace.Completion
+
+@[expose] public section
 /-
 
 # Fujisaki's lemma

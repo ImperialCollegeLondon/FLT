@@ -1,4 +1,8 @@
-import Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
+module
+
+public import Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
+
+@[expose] public section
 
 theorem IsLocalRing.maximalIdeal_le {R : Type*} [CommSemiring R] [IsLocalRing R] {J : Ideal R}
     (hJ : J ≠ ⊤) (h : IsLocalRing.maximalIdeal R ≤ J) :

@@ -1,10 +1,14 @@
-import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
-import FLT.Deformations.RepresentationTheory.Etale
-import Mathlib.LinearAlgebra.Charpoly.Basic
-import Mathlib.LinearAlgebra.Matrix.Unique
-import Mathlib.RingTheory.Bialgebra.TensorProduct
-import Mathlib.RingTheory.HopfAlgebra.Basic
-import FLT.Deformations.RepresentationTheory.Irreducible
+module
+
+public import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
+public import FLT.Deformations.RepresentationTheory.Etale
+public import Mathlib.LinearAlgebra.Charpoly.Basic
+public import Mathlib.LinearAlgebra.Matrix.Unique
+public import Mathlib.RingTheory.Bialgebra.TensorProduct
+public import Mathlib.RingTheory.HopfAlgebra.Basic
+public import FLT.Deformations.RepresentationTheory.Irreducible
+
+@[expose] public section
 
 open NumberField
 

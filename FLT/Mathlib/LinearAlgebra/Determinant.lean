@@ -3,13 +3,17 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Yunzhou Xie
 -/
-import FLT.Mathlib.Algebra.Algebra.Bilinear
-import Mathlib.Algebra.Central.Defs
-import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
-import Mathlib.LinearAlgebra.Charpoly.BaseChange
-import Mathlib.RingTheory.SimpleModule.IsAlgClosed
-import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
-import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
+module
+
+public import FLT.Mathlib.Algebra.Algebra.Bilinear
+public import Mathlib.Algebra.Central.Defs
+public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+public import Mathlib.LinearAlgebra.Charpoly.BaseChange
+public import Mathlib.RingTheory.SimpleModule.IsAlgClosed
+public import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
+public import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
+
+@[expose] public section
 
 variable (k : Type*) [Field k] {D : Type*} [Ring D] [Algebra k D]
 open scoped TensorProduct

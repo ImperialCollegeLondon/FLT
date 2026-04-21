@@ -3,12 +3,16 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Norbert Voelker
 -/
-import FLT.HaarMeasure.HaarChar.Ring
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.LinearAlgebra.Determinant
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
+module
+
+public import FLT.HaarMeasure.HaarChar.Ring
+public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.LinearAlgebra.Determinant
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
+
+@[expose] public section
 
 namespace MeasureTheory
 

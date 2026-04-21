@@ -1,4 +1,8 @@
-import Mathlib.RingTheory.LocalRing.RingHom.Basic
+module
+
+public import Mathlib.RingTheory.LocalRing.RingHom.Basic
+
+@[expose] public section
 
 variable {R : Type*} [CommRing R] [IsLocalRing R] (I : Ideal R) [Nontrivial (R ⧸ I)]
 

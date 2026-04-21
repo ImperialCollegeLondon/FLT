@@ -1,4 +1,8 @@
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+module
+
+public import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+
+@[expose] public section
 
 -- TODO upstream
 namespace Rat

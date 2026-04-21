@@ -1,5 +1,9 @@
-import Mathlib.CategoryTheory.CofilteredSystem
-import Mathlib.Data.Finset.Order
+module
+
+public import Mathlib.CategoryTheory.CofilteredSystem
+public import Mathlib.Data.Finset.Order
+
+@[expose] public section
 
 variable {ι : Type*} [Preorder ι] [Nonempty ι] [IsDirected ι (· ≥ ·)]
 variable (α : ι → Type*) (f : ∀ i j, i ≤ j → α i → α j)
