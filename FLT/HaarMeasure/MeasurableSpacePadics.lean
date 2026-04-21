@@ -28,6 +28,7 @@ noncomputable instance instMeasurableSpace : MeasurableSpace ℚ_[p] := borel _
 instance instBorelSpace : BorelSpace ℚ_[p] := ⟨rfl⟩
 
 -- Should we more generally make a map from `CompactOpens` to `PositiveCompacts`?
+/-- The unit ball as a compact set with nonempty interior. -/
 def unitBall_positiveCompact : PositiveCompacts ℚ_[p] where
   carrier := {y | ‖y‖ ≤ 1}
   isCompact' := by simpa only [Metric.closedBall, dist_zero_right] using
