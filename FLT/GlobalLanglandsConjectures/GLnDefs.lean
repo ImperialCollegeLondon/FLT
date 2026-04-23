@@ -164,7 +164,6 @@ def actionTensorC :
   LieHom.baseChange _ (action _ _)
 
 set_option backward.isDefEq.respectTransparency false in
-set_option backward.proofsInPublic true in
 def actionTensorCAlg :
   UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
     ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) := by

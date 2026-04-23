@@ -179,17 +179,16 @@ lemma mem_coset_and_mulSupport_subset_of_isProductAt
     simp only [smul_eq_mul, mul_assoc, mul_inv_cancel_left, hcomm]⟩,
     mulSupport_mul_subset huᵢ hg⟩
 
-set_option backward.proofsInPublic true in
 /-- For a cofinite restricted product `Πʳ i, [G i, A i]`, `indexSupport` is the finite set of
 indices for which `u ∉ A i`. -/
 noncomputable
-def indexSupport (u : Πʳ i, [G i, A i]) : Finset ι := Set.Finite.toFinset (by simpa using u.2)
+def indexSupport (u : Πʳ i, [G i, A i]) : Finset ι :=
+  Set.Finite.toFinset (s := {x | u x ∉ A x}) (by simpa using u.2)
 
 @[simp]
 theorem mem_indexSupport_iff {u : Πʳ i, [G i, A i]} {i : ι} :
     i ∈ indexSupport u ↔ u i ∉ A i := by
   simp [indexSupport]
-  rfl
 
 end supports
 
