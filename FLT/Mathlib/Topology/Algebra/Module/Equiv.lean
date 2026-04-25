@@ -1,33 +1,17 @@
-import Mathlib.Topology.Algebra.Module.Equiv
-import Mathlib.Topology.Algebra.ContinuousMonoidHom
-import Mathlib.LinearAlgebra.Basis.Defs
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.LinearAlgebra.Matrix.Defs
-import Mathlib.LinearAlgebra.Matrix.ToLin
-import FLT.Mathlib.LinearAlgebra.Pi
-import FLT.Mathlib.LinearAlgebra.Determinant
+module
 
-def ContinuousLinearEquiv.toContinuousAddEquiv
-    {R₁ R₂ : Type*} [Semiring R₁] [Semiring R₂] {σ₁₂ : R₁ →+* R₂} {σ₂₁ : R₂ →+* R₁}
-    [RingHomInvPair σ₁₂ σ₂₁] [RingHomInvPair σ₂₁ σ₁₂] {M₁ M₂ : Type*} [TopologicalSpace M₁]
-    [AddCommMonoid M₁] [TopologicalSpace M₂] [AddCommMonoid M₂] [Module R₁ M₁] [Module R₂ M₂]
-    (e : M₁ ≃SL[σ₁₂] M₂) :
-    M₁ ≃ₜ+ M₂ where
-  __ := e.toLinearEquiv.toAddEquiv
-  continuous_toFun := e.continuous_toFun
-  continuous_invFun := e.symm.continuous
+public import Mathlib.Topology.Algebra.Module.Equiv
+public import Mathlib.Topology.Algebra.ContinuousMonoidHom
+public import Mathlib.LinearAlgebra.Basis.Defs
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import Mathlib.LinearAlgebra.Matrix.Defs
+public import Mathlib.LinearAlgebra.Matrix.ToLin
+public import FLT.Mathlib.LinearAlgebra.Pi
+public import FLT.Mathlib.LinearAlgebra.Determinant
 
-@[simps!]
-def ContinuousLinearEquiv.restrictScalars (R : Type*) {S M M₂ : Type*}
-    [Semiring R] [Semiring S] [AddCommMonoid M] [AddCommMonoid M₂] [Module R M] [Module R M₂]
-    [Module S M] [Module S M₂] [LinearMap.CompatibleSMul M M₂ R S] [TopologicalSpace M]
-    [TopologicalSpace M₂] (f : M ≃L[S] M₂) :
-    M ≃L[R] M₂ where
-  __ := f.toLinearEquiv.restrictScalars R
-  invFun := f.symm
-  continuous_toFun := f.continuous_toFun
-  continuous_invFun := f.continuous_invFun
+@[expose] public section
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Let `f : α → β` be a function on index types. A family of `R b`-linear homeomorphisms, indexed
 by `b : β`, between the product over the fiber of `b` under `f` given as
 `∀ (σ : { a : α // f a = b }) → γ₁ σ.1) ≃ₗ[R b] γ₂ b` lifts to an equivalence over the products
@@ -44,7 +28,11 @@ def ContinuousLinearEquiv.piScalarPiCongrFiberwise {α : Type*} {β : Type*} {R 
     ((a : α) → γ₁ a) ≃L[∀ b, R b] ((b : β) → γ₂ b) where
   __ := LinearEquiv.piScalarPiCongrFiberwise fun b => (e b).toLinearEquiv
   continuous_invFun := by
-    change Continuous (fun (g : (b : β) → γ₂ b) a => (e (f a)).symm (g (f a)) ⟨a, rfl⟩)
+    change Continuous (fun (g : (b : β) → γ₂ b) a ↦ (e (f a)).symm (g (f a)) ⟨a, rfl⟩)
+    fun_prop
+  continuous_toFun := by
+    change Continuous (fun (x : (a : α) → γ₁ a) ↦
+      Pi.map (fun a ↦ ⇑(e a)) fun _ y ↦ (fun _ ↦ x _) _)
     fun_prop
 
 /-- Given `φ : α → β → Type*` and `R : α → Type*` such that `φ a b` is an `R a` module for all
@@ -55,6 +43,12 @@ def ContinuousLinearEquiv.piScalarPiComm {α β : Type*} (R : α → Type*) (φ 
     [(a : α) → (b : β) → Module (R a) (φ a b)] [(a : α) → (b : β) → TopologicalSpace (φ a b)] :
     ((a : α) → (b : β) → φ a b) ≃L[∀ a, R a] ((b : β) → (a : α) → φ a b) where
   __ := LinearEquiv.piScalarPiComm R φ
+  continuous_toFun := by
+    change Continuous (fun (x : (a : α) → (b : β) → φ a b) ↦ Function.swap x)
+    fun_prop
+  continuous_invFun := by
+    change Continuous (fun x ↦ Function.swap x)
+    fun_prop
 
 lemma ContinuousLinearEquiv.toContinuousAddEquiv_trans
     {R : Type*} {E : Type*} [Semiring R] [AddCommMonoid E] [Module R E]
@@ -141,5 +135,10 @@ lemma ContinuousLinearEquiv.toMatrix_toContinousLinearEquiv
     (ContinuousLinearEquiv.toMatrix_isUnit_det b ρ ) = ρ := by
   ext
   simp
+
+theorem ContinuousLinearEquiv.toContinuousAddEquiv_apply {R : Type*} {M N : Type*}
+    [Semiring R] [TopologicalSpace M] [TopologicalSpace N] [AddCommMonoid M] [AddCommMonoid N]
+    [Module R M] [Module R N]
+    (f : M ≃L[R] N) (m : M) : f.toContinuousAddEquiv m = f m := rfl
 
 end toContinuousLinearEquiv

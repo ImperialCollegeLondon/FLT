@@ -1,8 +1,12 @@
-import Mathlib.Topology.Algebra.Ring.Basic
-import Mathlib.Topology.Algebra.MulAction
-import Mathlib.Topology.Algebra.Monoid
-import Mathlib.Algebra.Module.Submodule.Defs
-import Mathlib.Topology.Algebra.Module.LinearMap
+module
+
+public import Mathlib.Topology.Algebra.Ring.Basic
+public import Mathlib.Topology.Algebra.MulAction
+public import Mathlib.Topology.Algebra.Monoid
+public import Mathlib.Algebra.Module.Submodule.Defs
+public import Mathlib.Topology.Algebra.Module.LinearMap
+
+@[expose] public section
 
 open Topology
 

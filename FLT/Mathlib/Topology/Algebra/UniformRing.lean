@@ -1,9 +1,13 @@
-import Mathlib.Topology.Algebra.UniformRing
-import FLT.Mathlib.Algebra.Algebra.Hom
+module
+
+public import Mathlib.Topology.Algebra.UniformRing
+public import FLT.Mathlib.Algebra.Algebra.Hom
 
 /-!
 # Completion of topological rings
 -/
+
+@[expose] public section
 
 namespace UniformSpace.Completion
 

@@ -1,9 +1,13 @@
-import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
-import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
-import Mathlib.RingTheory.Regular.RegularSequence
-import Mathlib.RingTheory.Spectrum.Prime.Topology
-import Mathlib.RingTheory.Support
-import Mathlib.RingTheory.TensorProduct.Free
+module
+
+public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
+public import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
+public import Mathlib.RingTheory.Regular.RegularSequence
+public import Mathlib.RingTheory.Spectrum.Prime.Topology
+public import Mathlib.RingTheory.Support
+public import Mathlib.RingTheory.TensorProduct.Free
+
+@[expose] public section
 
 variable (R S M : Type*) [CommRing R] [CommRing S] [IsLocalRing R] [IsLocalRing S]
 variable [AddCommGroup M] [Module R M] [Module S M] [Algebra R S] [IsScalarTower R S M]
@@ -35,12 +39,14 @@ lemma Module.length_le_depth (s : List R)
 lemma Module.depth_of_subsingleton [Subsingleton M] :
     Module.depth R M = ⊤ := by
   rw [Module.depth, sSup_eq_top]
-  rintro (_ | b) hb
-  · cases hb.ne rfl
-  · refine ⟨_, ⟨List.replicate b.succ 0,
-      (Sequence.isWeaklyRegular_iff_Fin ..).mpr fun i ↦ ?_, by simp, by simp⟩,
-      WithTop.coe_lt_coe.mpr (b.lt_succ_self)⟩
+  rintro b hb
+  obtain ⟨b, rfl⟩ := ENat.ne_top_iff_exists.mp hb.ne
+  simp only [Set.mem_setOf_eq, exists_prop, ↓existsAndEq, and_true, Nat.cast_lt]
+  refine ⟨List.replicate b.succ 0, ⟨?_, ?_⟩, ?_⟩
+  · refine  (Sequence.isWeaklyRegular_iff_Fin ..).mpr fun i ↦ ?_
     exact fun _ _ _ ↦ Subsingleton.elim _ _
+  · simp
+  · simp
 
 lemma Module.depth_of_isScalarTower :
     Module.depth R M ≤ Module.depth S M := by
@@ -147,7 +153,7 @@ lemma isSMulRegular_iff_of_free {R M : Type*} [CommRing R] [AddCommGroup M] [Mod
   let b : Module.Basis I R M := Module.Free.chooseBasis R M
   constructor
   · intro H m n h
-    have i := Nonempty.some (inferInstanceAs (Nonempty I))
+    have i : I := Nonempty.some inferInstance
     have := @H (m • b i) (n • b i) (by simp_all [← mul_smul])
     simpa using congr(b.repr $this i)
   · intro H m n h

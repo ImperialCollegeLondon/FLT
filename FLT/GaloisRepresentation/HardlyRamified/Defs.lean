@@ -3,14 +3,18 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.Deformations.Categories
-import FLT.Deformations.RepresentationTheory.GaloisRep
-import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
-import Mathlib.NumberTheory.Padics.Complex
-import Mathlib.Order.CompletePartialOrder
-import Mathlib.RingTheory.SimpleRing.Principal
+module
+
+public import FLT.Deformations.Categories
+public import FLT.Deformations.RepresentationTheory.GaloisRep
+public import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
+public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
+public import Mathlib.NumberTheory.Padics.Complex
+public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.RingTheory.SimpleRing.Principal
+
+@[expose] public section
 /-
 
 # Hardly ramified representations

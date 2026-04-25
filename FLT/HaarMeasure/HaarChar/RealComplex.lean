@@ -3,11 +3,13 @@ Copyright (c) 2024 Yaël Dillies, Javier López-Contreras. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Javier López-Contreras
 -/
-import Mathlib.Analysis.Complex.ReImTopology
-import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
-import Mathlib.RingTheory.Complex
-import Mathlib.RingTheory.Norm.Transitivity
-import FLT.HaarMeasure.HaarChar.Ring
+module
+
+public import Mathlib.Analysis.Complex.ReImTopology
+public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
+public import Mathlib.RingTheory.Complex
+public import Mathlib.RingTheory.Norm.Transitivity
+public import FLT.HaarMeasure.HaarChar.Ring
 
 /-!
 # The distributive Haar characters of `ℝ` and `ℂ`
@@ -26,6 +28,8 @@ nonzero real/complex number and `s` is a set of reals/complex numbers.
   `s : Set ℂ`.
 -/
 
+@[expose] public section
+
 open Real Complex MeasureTheory Measure Set
 open scoped Pointwise
 
@@ -42,6 +46,7 @@ lemma MeasureTheory.ringHaarChar_real (x : ℝˣ) : ringHaarChar x = ‖(x : ℝ
     (measure_pos_of_nonempty_interior _ <| by simp).ne' isCompact_Icc.measure_ne_top
       (Real.volume_real_smul ..)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The distributive Haar character of the action of `ℂˣ` on `ℂ` is the usual norm squared.
 
 This means that `volume (z • s) = ‖z‖ ^ 2 * volume s` for all `z : ℂ` and `s : Set ℂ`.
@@ -64,6 +69,7 @@ lemma MeasureTheory.ringHaarChar_complex (z : ℂˣ) : ringHaarChar z = ‖(z : 
   · simp [key, ENNReal.ofReal_pow, zpow_ofNat]; rfl
   · simp [key, zpow_ofNat]
 
+set_option backward.isDefEq.respectTransparency false in
 lemma Complex.volume_complex_smul (z : ℂ) (s : Set ℂ) : volume (z • s) = ‖z‖₊ ^ 2 * volume s := by
   obtain rfl | hz := eq_or_ne z 0
   · simp [(finite_zero.subset s.zero_smul_set_subset).measure_zero]

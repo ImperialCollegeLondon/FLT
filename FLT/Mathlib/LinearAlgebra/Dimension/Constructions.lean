@@ -1,8 +1,12 @@
-import Mathlib.Algebra.BigOperators.Pi
-import Mathlib.LinearAlgebra.Dimension.Constructions
-import Mathlib.LinearAlgebra.TensorProduct.Pi
-import FLT.Mathlib.RingTheory.TensorProduct.Pi
-import Mathlib.GroupTheory.MonoidLocalization.Basic
+module
+
+public import Mathlib.Algebra.BigOperators.Pi
+public import Mathlib.LinearAlgebra.Dimension.Constructions
+public import Mathlib.LinearAlgebra.TensorProduct.Pi
+public import FLT.Mathlib.RingTheory.TensorProduct.Pi
+public import Mathlib.GroupTheory.MonoidLocalization.Basic
+
+@[expose] public section
 
 open scoped TensorProduct
 

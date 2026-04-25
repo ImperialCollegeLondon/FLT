@@ -1,8 +1,12 @@
-import FLT.Patching.Algebra
-import FLT.Patching.Over
-import FLT.Patching.Module
-import FLT.Patching.Utils.Depth
-import FLT.Deformations.Lemmas
+module
+
+public import FLT.Patching.Algebra
+public import FLT.Patching.Over
+public import FLT.Patching.Module
+public import FLT.Patching.Utils.Depth
+public import FLT.Deformations.Lemmas
+
+@[expose] public section
 
 variable (Λ : Type*) [CommRing Λ]
 variable {ι : Type*} (R : ι → Type*)
@@ -110,6 +114,7 @@ instance IsPatchingSystem.isModuleQuotient' [PatchingAlgebra.smulData Λ R M]
     Module (R i ⧸ (maximalIdeal (R i) ^ (PatchingAlgebra.smulData.f R M α)))
       (M i ⧸ (α.1 • ⊤ : Submodule Λ (M i))) := IsPatchingSystem.isModuleQuotient ..
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 instance [PatchingAlgebra.smulData Λ R M] (α : OpenIdeals Λ) :
     Module (PatchingAlgebra.Component R F (PatchingAlgebra.smulData.f R M α))
@@ -141,6 +146,7 @@ instance [PatchingAlgebra.smulData Λ R M] : SMul (PatchingAlgebra R F) (Patchin
     obtain rfl := funext hm
     rfl⟩
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 instance [PatchingAlgebra.smulData Λ R M] : Module (PatchingAlgebra R F)
     (PatchingModule Λ M F) where
@@ -167,6 +173,7 @@ instance [PatchingAlgebra.smulData Λ R M] : Module.Finite (PatchingAlgebra R F)
     (PatchingModule Λ M F) :=
   Module.Finite.of_restrictScalars_finite Λ _ _
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 instance : PatchingAlgebra.smulData Λ R M where
   f α := α.1.toAddSubgroup.index ^ bound Λ M
@@ -268,6 +275,7 @@ lemma Ultrafilter.eventually_eventually_eq_of_finite
   filter_upwards [ha] with j hj
   rw [hi, hj]
 
+set_option backward.isDefEq.respectTransparency false in
 omit
   [∀ (i : ι), TopologicalSpace (R i)]
   [∀ (i : ι), IsTopologicalRing (R i)]
@@ -326,7 +334,7 @@ lemma smul_lemma₀
         { __ := (sM i).toLinearMap.comp (Submodule.mkQ _), map_smul' := fun _ _ ↦ HCompat _ _ _ }
       have hl : LinearMap.range l = ⊤ :=
         LinearMap.range_eq_top.mpr ((sM i).surjective.comp (Submodule.mkQ_surjective _))
-      rw [min_eq_right h, ← IsLocalRing.map_maximalIdeal F hF, ← Ideal.map_pow]
+      rw [min_eq_right h, ← IsLocalRing.map_maximalIdeal_of_surjective F hF, ← Ideal.map_pow]
       have : maximalIdeal (R i) ^ n₁ • ⊤ ≤ _ := PatchingAlgebra.smulData.pow_f_smul_le i α
       replace this := Submodule.map_mono (f := l) this
       rw [Submodule.map_smul'', ← Submodule.map_algebraMap_smul (R := Λ),
@@ -344,7 +352,7 @@ lemma smul_lemma₀
   refine Submodule.smul_mem_smul ?_ trivial
   rw [← Ideal.mem_comap]
   refine SetLike.le_def.mp ?_ ((Ideal.Quotient.mk_eq_mk_iff_sub_mem _ _).mp (hi₂.trans hi₁.symm))
-  rw [← Ideal.map_le_iff_le_comap, Ideal.map_pow, ← IsLocalRing.map_maximalIdeal F hF]
+  rw [← Ideal.map_le_iff_le_comap, Ideal.map_pow, ← IsLocalRing.map_maximalIdeal_of_surjective F hF]
 
 omit [NonarchimedeanRing Λ] [Module.Finite R₀ M₀] in
 lemma smul_lemma₁
@@ -395,6 +403,7 @@ lemma smul_lemma
     obtain ⟨x, rfl⟩ := PatchingModule.ofPi_surjective x
     rfl
 
+set_option backward.isDefEq.respectTransparency false in
 include Λ R M F fRₒₒ hfRₒₒ hfRₒₒ' sR sM in
 omit [Module.Finite R₀ M₀] [Module.Finite Λ M₀] [IsNoetherianRing Rₒₒ] in
 lemma support_eq_top
@@ -405,7 +414,7 @@ lemma support_eq_top
   have : Module.Finite Λ M₀ := by
     cases isEmpty_or_nonempty ι
     · cases F.neBot.1 (Subsingleton.elim _ _)
-    have i := Nonempty.some (inferInstanceAs (Nonempty ι))
+    have i := Nonempty.some (inferInstance: Nonempty ι)
     exact Module.Finite.equiv (sM i)
   have : Module.Finite R₀ M₀ := .of_restrictScalars_finite Λ _ _
   have := PatchingAlgebra.faithfulSMul Λ R M F fRₒₒ hfRₒₒ hfRₒₒ' H₀ H

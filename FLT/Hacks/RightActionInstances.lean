@@ -1,7 +1,11 @@
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.GroupTheory.MonoidLocalization.Basic
-import Mathlib.RingTheory.TensorProduct.Finite
-import Mathlib.RingTheory.TensorProduct.Free
+module
+
+public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+public import Mathlib.GroupTheory.MonoidLocalization.Basic
+public import Mathlib.RingTheory.TensorProduct.Finite
+public import Mathlib.RingTheory.TensorProduct.Free
+
+@[expose] public section
 
 /-
 

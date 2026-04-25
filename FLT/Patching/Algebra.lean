@@ -1,6 +1,10 @@
-import FLT.Patching.Utils.AdicTopology
-import FLT.Patching.Ultraproduct
-import FLT.Deformations.Lemmas
+module
+
+public import FLT.Patching.Utils.AdicTopology
+public import FLT.Patching.Ultraproduct
+public import FLT.Deformations.Lemmas
+
+@[expose] public section
 
 variable (Λ : Type*) {ι : Type*} [CommRing Λ] (R : ι → Type*)
 variable [∀ i, CommRing (R i)] [∀ i, IsLocalRing (R i)] [∀ i, Algebra Λ (R i)]
@@ -24,6 +28,7 @@ abbrev PatchingAlgebra.Component (k : ℕ) := UltraProduct (fun i ↦ R i ⧸ ma
 
 instance (k) : T2Space (PatchingAlgebra.Component R F k) := DiscreteTopology.toT2Space
 
+set_option backward.isDefEq.respectTransparency false
 lemma PatchingAlgebra.componentEquiv (k) : ∀ᶠ j in F,
     Nonempty (PatchingAlgebra.Component R F k ≃ₐ[Λ] R j ⧸ maximalIdeal (R j) ^ k) := by
   obtain ⟨n, hn⟩ := Algebra.UniformlyBoundedRank.cond (R := R) k

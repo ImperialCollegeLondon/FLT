@@ -1,4 +1,8 @@
-import Mathlib.LinearAlgebra.TensorProduct.Pi
+module
+
+public import Mathlib.LinearAlgebra.TensorProduct.Pi
+
+@[expose] public section
 
 theorem Algebra.TensorProduct.piScalarRight_symm_apply_of_algebraMap (R S N ι : Type*)
     [CommSemiring R] [CommSemiring S] [Algebra R S] [Semiring N] [Algebra R N] [Algebra S N]

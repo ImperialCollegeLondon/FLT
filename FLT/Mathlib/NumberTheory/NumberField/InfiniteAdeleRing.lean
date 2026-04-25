@@ -1,6 +1,10 @@
-import Mathlib.NumberTheory.NumberField.AdeleRing -- should be .InfiniteAdeleRing
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+module
+
+public import Mathlib.NumberTheory.NumberField.AdeleRing -- should be .InfiniteAdeleRing
+public import Mathlib.Topology.Algebra.Algebra.Equiv
+public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+
+@[expose] public section
 
 -- TODO upstream
 variable (K : Type*) [Field K]
@@ -22,6 +26,7 @@ instance : SecondCountableTopology (InfiniteAdeleRing K) :=
 noncomputable instance : Algebra ℝ (InfiniteAdeleRing K) :=
   (InfiniteAdeleRing.ringEquiv_mixedSpace K|>.symm.toRingHom.comp (algebraMap ℝ _)).toAlgebra
 
+set_option backward.isDefEq.respectTransparency false in
 /-- If `K` is a number field, this is the ℝ-linear iso between ∏_v|∞ K_v and ℝ^r × ℂ^s,
 with the usual notation. -/
 noncomputable def NumberField.InfiniteAdeleRing.algEquiv_mixedSpace :
@@ -72,9 +77,11 @@ noncomputable def NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace :
       fun_prop
 
 variable [NumberField K] in
+set_option backward.isDefEq.respectTransparency false in
 instance : IsModuleTopology ℝ (InfiniteAdeleRing K) :=
   .iso (NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace K).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The continuous `ℤ`-algebra isomorphism between `Rat.infinitePlace.Completion` and `ℝ`.
 (We use continuous `ℤ`-algebra equivalences in place of continuous ring equivalences
 since we don't have the latter.) -/

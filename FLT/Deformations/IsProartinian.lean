@@ -1,6 +1,10 @@
-import FLT.Patching.Utils.AdicTopology
-import FLT.Deformations.Lemmas
-import Mathlib.Topology.UniformSpace.DiscreteUniformity
+module
+
+public import FLT.Patching.Utils.AdicTopology
+public import FLT.Deformations.Lemmas
+public import Mathlib.Topology.UniformSpace.DiscreteUniformity
+
+@[expose] public section
 
 variable {R S : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
   [CommRing S] [TopologicalSpace S] [IsTopologicalRing S]
@@ -54,7 +58,7 @@ lemma exists_maximalIdeal_pow_le_of_isProartinian [IsProartinian R]
   have : IsLocalRing (R ⧸ I) := .of_surjective' _ Ideal.Quotient.mk_surjective
   obtain ⟨n, hn⟩ := IsArtinianRing.isNilpotent_jacobson_bot (R := R ⧸ I)
   rw [jacobson_eq_maximalIdeal _ bot_ne_top,
-    ← IsLocalRing.map_maximalIdeal _ Ideal.Quotient.mk_surjective,
+    ← IsLocalRing.map_maximalIdeal_of_surjective _ Ideal.Quotient.mk_surjective,
     ← Ideal.map_pow, Ideal.zero_eq_bot, ← le_bot_iff, Ideal.map_le_iff_le_comap,
     ← RingHom.ker, Ideal.mk_ker] at hn
   exact ⟨n, hn⟩

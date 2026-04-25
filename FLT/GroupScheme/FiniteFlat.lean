@@ -1,4 +1,6 @@
-import Mathlib.Init -- run mathlib's syntax linters on this file
+module
+
+public import Mathlib.Init -- run mathlib's syntax linters on this file
 /-
 
 Def of what it means for a Hopf algebra to be finite locally free.

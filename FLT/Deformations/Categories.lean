@@ -1,6 +1,10 @@
-import FLT.Deformations.IsProartinian
-import FLT.Deformations.IsResidueAlgebra
-import Mathlib.Topology.Algebra.Algebra.Equiv
+module
+
+public import FLT.Deformations.IsProartinian
+public import FLT.Deformations.IsResidueAlgebra
+public import Mathlib.Topology.Algebra.Algebra.Equiv
+
+@[expose] public section
 
 universe u
 
@@ -194,6 +198,7 @@ section residueField
 
 variable [IsLocalRing 𝓞]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The residue field `𝕜` as a proartinian local algebra. -/
 def residueField : 𝓒 𝓞 where
   carrier := ResidueField 𝓞
@@ -209,6 +214,7 @@ instance : DiscreteTopology (residueField (𝓞 := 𝓞)) := ⟨rfl⟩
 noncomputable
 instance : Field (residueField (𝓞 := 𝓞)) := inferInstanceAs (Field (ResidueField 𝓞))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The quotient map of a `ProartinianCat` to the residue field. -/
 noncomputable
 def toResidueField (R : ProartinianCat 𝓞) : R ⟶ residueField where
@@ -230,11 +236,12 @@ lemma ker_toResidueField (R : ProartinianCat 𝓞) :
   (RingHom.ker_comp_of_injective _ (f := (IsResidueAlgebra.algEquiv 𝓞 R).symm.toRingHom)
     (IsResidueAlgebra.algEquiv 𝓞 R).symm.injective).trans Ideal.mk_ker
 
+set_option backward.isDefEq.respectTransparency false in
 lemma to_residueField_apply {R : 𝓒 𝓞} (f : R ⟶ residueField) (r : R.carrier) :
     f.hom r = residue _ (IsResidueAlgebra.preimage 𝓞 r)  := by
   trans f.hom (algebraMap _ _ (IsResidueAlgebra.preimage 𝓞 r))
   · rw [← sub_eq_zero, ← map_sub, ← not_ne_iff,
-      ← @isUnit_iff_ne_zero _ (inferInstanceAs (GroupWithZero (ResidueField 𝓞)))]
+      ← @isUnit_iff_ne_zero _ _ (f.hom (r - (algebraMap 𝓞 ↑R) (IsResidueAlgebra.preimage 𝓞 r)))]
     change ¬IsUnit (f.hom.toRingHom _)
     rw [isUnit_map_iff f.hom.toRingHom, ← mem_nonunits_iff, ← mem_maximalIdeal]
     exact IsResidueAlgebra.preimage_spec _ _

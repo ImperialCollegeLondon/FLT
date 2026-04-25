@@ -1,4 +1,8 @@
-import Mathlib.Topology.Constructions
+module
+
+public import Mathlib.Topology.Constructions
+
+@[expose] public section
 
 theorem DiscretePi {X Y : Type*} [TopologicalSpace Y] (f : X → Y) (n : ℕ)
     (h : ∀ (x : X), ∃ U, IsOpen U ∧ f ⁻¹' U = {x}) (x' : Fin n → X) :

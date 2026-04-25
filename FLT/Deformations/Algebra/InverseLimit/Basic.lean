@@ -3,8 +3,10 @@ Copyright (c) 2025 Javier López-Contreras. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Javier López-Contreras
 -/
-import Mathlib.Algebra.Module.LinearMap.Defs
-import Mathlib.Algebra.GroupWithZero.Units.Lemmas
+module
+
+public import Mathlib.Algebra.Module.LinearMap.Defs
+public import Mathlib.Algebra.GroupWithZero.Units.Lemmas
 
 /-!
 # Inverse limit of algebraic structures
@@ -12,6 +14,8 @@ import Mathlib.Algebra.GroupWithZero.Units.Lemmas
 We introduce all kinds of algebraic instances on `InverseLimit`, and specialize to the cases
 of modules and rings, showing that they are indeed limits in the respective categories.
 -/
+
+@[expose] public section
 
 variable {R ι : Type*} [Preorder ι] {G : ι → Type*}
 variable {T : ∀ ⦃i j : ι⦄, i ≤ j → Type*} {f : ∀ _ _ h, T h}

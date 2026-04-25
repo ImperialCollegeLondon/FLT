@@ -1,7 +1,11 @@
-import Mathlib.Topology.Algebra.ContinuousMonoidHom
-import Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.Topology.Algebra.Module.Quotient
+module
+
+public import Mathlib.Topology.Algebra.ContinuousMonoidHom
+public import Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.Topology.Algebra.Module.Quotient
+
+@[expose] public section
 
 def ContinuousAddEquiv.toIntContinuousLinearEquiv {M M₂ : Type*} [AddCommGroup M]
     [TopologicalSpace M] [AddCommGroup M₂] [TopologicalSpace M₂] (e : M ≃ₜ+ M₂) :
@@ -48,3 +52,8 @@ def ContinuousMulEquiv.units_map {M N : Type*} [TopologicalSpace M] [Topological
   continuous_toFun := by apply Continuous.units_map _ f.continuous_toFun
   continuous_invFun := by apply Continuous.units_map _ f.continuous_invFun
       }
+
+@[to_additive]
+theorem ContinuousMulEquiv.coe_toHomeomorph {M N : Type*} [TopologicalSpace M]
+    [TopologicalSpace N] [CommMonoid M] [CommMonoid N]
+    (f : M ≃ₜ* N) : f.toHomeomorph = ⇑f := rfl

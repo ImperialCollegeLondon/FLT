@@ -1,5 +1,9 @@
-import FLT.Patching.Algebra
-import FLT.Patching.Module
+module
+
+public import FLT.Patching.Algebra
+public import FLT.Patching.Module
+
+@[expose] public section
 
 variable (Λ : Type*) [CommRing Λ]
 variable {ι : Type*} (R : ι → Type*)
@@ -152,6 +156,7 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
       ← Submodule.map_top, ← Submodule.map_smul'', Submodule.map_le_iff_le_comap,
       Submodule.comap_bot, Submodule.ker_mkQ]
 
+set_option backward.isDefEq.respectTransparency false in
 omit [Algebra.TopologicallyFG ℤ Λ]
   [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
 lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
@@ -233,6 +238,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
     exact sum_mem fun x _ ↦ Submodule.smul_mem_smul
       (by rw [← hs]; exact Submodule.subset_span x.2) trivial
 
+set_option backward.isDefEq.respectTransparency false in
 omit [Algebra.TopologicallyFG ℤ Λ]
   [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
 lemma PatchingModule.ker_map_mkQ :

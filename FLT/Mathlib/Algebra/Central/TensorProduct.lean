@@ -1,6 +1,10 @@
-import Mathlib.Algebra.Central.TensorProduct
-import Mathlib.Algebra.Algebra.Subalgebra.Centralizer
-import Mathlib.LinearAlgebra.TensorProduct.Subalgebra
+module
+
+public import Mathlib.Algebra.Central.TensorProduct
+public import Mathlib.Algebra.Algebra.Subalgebra.Centralizer
+public import Mathlib.LinearAlgebra.TensorProduct.Subalgebra
+
+@[expose] public section
 
 open scoped TensorProduct
 

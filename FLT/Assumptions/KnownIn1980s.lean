@@ -3,7 +3,9 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Kenny Lau
 -/
-import Mathlib.Init
+module
+
+public import Mathlib.Init
 /-!
 
 # A tactic for theorems known in the 1980s
@@ -53,6 +55,8 @@ and see whether the process can be finished by such tools, or whether
 more manual work will be required.
 
 -/
+
+@[expose] public section
 
 /--
 `knownin1980s` is a term which provides a proof of an

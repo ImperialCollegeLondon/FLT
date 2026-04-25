@@ -1,13 +1,17 @@
-import Mathlib.RingTheory.Filtration
-import Mathlib.Topology.Algebra.Module.Compact
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.Topology.Algebra.OpenSubgroup
-import Mathlib.Topology.Algebra.Ring.Ideal
-import Mathlib.Topology.Separation.Profinite
-import Mathlib.Data.Set.Card
-import Mathlib.RingTheory.Localization.AtPrime.Basic
-import Mathlib.Data.SetLike.Fintype
-import Mathlib.RingTheory.Spectrum.Prime.Basic
+module
+
+public import Mathlib.RingTheory.Filtration
+public import Mathlib.Topology.Algebra.Module.Compact
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import Mathlib.Topology.Algebra.OpenSubgroup
+public import Mathlib.Topology.Algebra.Ring.Ideal
+public import Mathlib.Topology.Separation.Profinite
+public import Mathlib.Data.Set.Card
+public import Mathlib.RingTheory.Localization.AtPrime.Basic
+public import Mathlib.Data.SetLike.Fintype
+public import Mathlib.RingTheory.Spectrum.Prime.Basic
+
+@[expose] public section
 
 
 lemma IsUnit.pi_iff {ι} {M : ι → Type*} [∀ i, Monoid (M i)] {x : Π i, M i} :
@@ -49,8 +53,10 @@ variable {N} in
 lemma Submodule.mem_pi' {x} : x ∈ Submodule.pi' N ↔ ∀ i, x i ∈ N i := Iff.rfl
 
 variable {N : ι → Type*} [∀ i, AddCommGroup (N i)] [∀ i, Module (R i) (N i)] in
+/-- A more dependent version of `LinearMap.piMap`, making a product of linear maps
+into a linear map over the product of rings. -/
 @[simps]
-def LinearMap.piMap (f : ∀ i, M i →ₗ[R i] N i) : (Π i, M i) →ₗ[Π i, R i] Π i, N i where
+def LinearMap.piMap' (f : ∀ i, M i →ₗ[R i] N i) : (Π i, M i) →ₗ[Π i, R i] Π i, N i where
   toFun g i := f i (g i)
   map_add' := by aesop
   map_smul' := by aesop

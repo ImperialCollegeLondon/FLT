@@ -1,4 +1,8 @@
-import Mathlib.LinearAlgebra.TensorProduct.Basis
+module
+
+public import Mathlib.LinearAlgebra.TensorProduct.Basis
+
+@[expose] public section
 
 open scoped TensorProduct
 

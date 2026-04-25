@@ -1,8 +1,12 @@
-import FLT.Patching.Utils.TopologicallyFG
-import Mathlib.Algebra.Ring.Ext
-import Mathlib.Topology.Algebra.Module.Equiv
-import Mathlib.Algebra.Ring.TransferInstance
-import Mathlib.Algebra.Algebra.TransferInstance
+module
+
+public import FLT.Patching.Utils.TopologicallyFG
+public import Mathlib.Algebra.Ring.Ext
+public import Mathlib.Topology.Algebra.Module.Equiv
+public import Mathlib.Algebra.Ring.TransferInstance
+public import Mathlib.Algebra.Algebra.TransferInstance
+
+@[expose] public section
 
 
 @[to_additive]
@@ -92,6 +96,7 @@ def AlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M] [Algebra R M]
     [Finite M] (hM : Nat.card M < N) : AlgebraTypeCardLT R N :=
   ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.ring, (Finite.equivFin M).symm.algebra R⟩
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 def AlgebraTypeCardLT.equivOfAlgebra (N : ℕ) {M : Type*} [Ring M] [Algebra R M]
     [Finite M] (hM : Nat.card M < N) : M ≃ₐ[R] Fin ((AlgebraTypeCardLT.ofAlgebra R N M hM).1) :=
@@ -189,7 +194,8 @@ instance {α : Type*} [Finite α] [Ring α] [TopologicalSpace α] [T2Space α] :
   exact congr(($e).1.smul _ _)
 
 variable (R) in
-def TopologicalAlgebraTypeCardLT [IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R] (N : ℕ) :
+-- kmb removed `[IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R]` because Lean was whingeing
+def TopologicalAlgebraTypeCardLT (N : ℕ) :
     Type _ :=
   Σ' (n : Fin N) (_ : Ring (Fin n)) (_ : TopologicalSpace (Fin n)) (_ : T2Space (Fin n))
     (_ : Algebra R (Fin n)), ContinuousSMul R (Fin n)
@@ -220,6 +226,7 @@ def TopologicalAlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M]
     (Finite.equivFin M).symm.injective⟩,
     (Finite.equivFin M).symm.algebra _, (TopologicalModuleTypeCardLT.ofModule R N M hM).2.2.2.2.2⟩
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable
 def TopologicalAlgebraTypeCardLT.equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
     [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
@@ -228,6 +235,7 @@ def TopologicalAlgebraTypeCardLT.equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
   ((show M ≃ Fin ((AlgebraTypeCardLT.ofAlgebra R N M hM).1)
     from Finite.equivFin M).symm.algEquiv R).symm
 
+omit [IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R] in
 lemma TopologicalAlgebraTypeCardLT.isHomeomorph_equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
     [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
     [Finite M] (hM : Nat.card M < N) : IsHomeomorph (equivOfAlgebra (R := R) N M hM) :=

@@ -1,5 +1,9 @@
-import FLT.Patching.Utils.Lemmas
-import FLT.Patching.Utils.StructureFiniteness
+module
+
+public import FLT.Patching.Utils.Lemmas
+public import FLT.Patching.Utils.StructureFiniteness
+
+@[expose] public section
 
 /- TODO: replace this with ultraproduct in mathlib -/
 
@@ -94,7 +98,7 @@ lemma UltraProduct.πₗ_surjective : Function.Surjective (πₗ R M F) :=
 variable {A : ι → Type*} [∀ i, CommRing (A i)] [∀ i, Algebra (R i) (A i)]
 
 instance : Algebra (Π i, R i) (UltraProduct A F) where
-  __ := inferInstanceAs (Module _ _)
+  __ := (inferInstance : (Module (Π i, R i) (UltraProduct A F)))
   algebraMap := (UltraProduct.π A F).comp (algebraMap _ _)
   commutes' r x := Commute.all _ _
   smul_def' r x := by
@@ -120,6 +124,7 @@ lemma UltraProduct.instIsScalarTower
 instance : Algebra R₀ (UltraProduct R F) :=
   inferInstanceAs (Algebra R₀ ((Π i, R i) ⧸ eventuallyProd (R := R) (M := R) ⊥ F))
 
+set_option backward.isDefEq.respectTransparency false in
 instance : IsScalarTower R₀ (Π i, R i) (UltraProduct M F) := by
   apply IsScalarTower.of_algebraMap_smul
   intro r m
@@ -148,7 +153,6 @@ instance : SMul (UltraProduct R F) (UltraProduct M F) where
   smul := Quotient.lift₂ (UltraProduct.πₗ R M F <| · • ·) fun r₁ m₁ r₂ m₂ e₁ e₂ ↦ by
     rw [← sub_eq_zero]
     simp only [← map_sub, UltraProduct.πₗ_eq_zero]
-    simp only at e₁
     filter_upwards [(Submodule.quotientRel_def _).mp e₁,
       (Submodule.quotientRel_def _).mp e₂] with i h₁ h₂
     simp_all [sub_eq_zero]
@@ -160,6 +164,7 @@ instance : Module (UltraProduct R F) (UltraProduct M F) :=
     Function.Surjective.moduleLeft (Ideal.Quotient.mk (eventuallyProd (R := R) (M := R) ⊥ F))
     UltraProduct.π_surjective fun _ _ ↦ UltraProduct.π_smul
 
+set_option backward.isDefEq.respectTransparency false in
 instance : IsScalarTower (Π i, R i) (UltraProduct R F) (UltraProduct M F) := by
   constructor
   intros r s m
@@ -167,6 +172,7 @@ instance : IsScalarTower (Π i, R i) (UltraProduct R F) (UltraProduct M F) := by
   rw [UltraProduct.π_smul, ← UltraProduct.π_smul, smul_eq_mul, mul_smul,
     UltraProduct.π_smul, UltraProduct.π_smul]
 
+set_option backward.isDefEq.respectTransparency false in
 instance : IsScalarTower R₀ (UltraProduct R F) (UltraProduct M F) := by
   constructor
   intros r s m
@@ -186,7 +192,7 @@ variable (F) in
 def UltraProduct.map (f : ∀ i, M i →ₗ[R i] N i) :
     UltraProduct M F →ₗ[∀ i, R i] UltraProduct N F :=
   Submodule.mapQ (eventuallyProd (R := R) (M := M) ⊥ F)
-    (eventuallyProd (R := R) (M := N) ⊥ F) (LinearMap.piMap f) fun v i ↦ by
+    (eventuallyProd (R := R) (M := N) ⊥ F) (LinearMap.piMap' f) fun v i ↦ by
     filter_upwards [i] with i hi; simpa using congr(f i $hi)
 
 @[simp]

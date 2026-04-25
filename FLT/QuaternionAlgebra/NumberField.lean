@@ -1,12 +1,14 @@
-import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Topology.Instances.Matrix
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.Topology.Homeomorph.Defs
-import Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Hacks.RightActionInstances
-import FLT.NumberField.Completion.Finite
+module
+
+public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
+public import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
+public import FLT.Mathlib.Topology.Instances.Matrix
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import Mathlib.Topology.Homeomorph.Defs
+public import Mathlib.Topology.Algebra.ContinuousMonoidHom
+public import FLT.Hacks.RightActionInstances
+public import FLT.NumberField.Completion.Finite
 /-!
 
 # Definitions of various compact open subgrups of Dˣ and GL₂(𝔸_F^∞)
@@ -17,6 +19,8 @@ of a rigidification `r : (D ⊗[F] 𝔸_F^∞) ≅ M₂(𝔸_F^∞)` in order
 to push U₁(S) over to a subgroup of `(D ⊗[F] 𝔸_F^∞)ˣ`.
 
 -/
+
+@[expose] public section
 variable (F : Type*) [Field F] [NumberField F] --[NumberField.IsTotallyReal F]
 
 variable (D : Type*) [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
@@ -101,6 +105,7 @@ lemma GL2.mem_localFullLevel' {v : HeightOneSpectrum (𝓞 F)} {x : GL (Fin 2) (
   rintro y hy
   simp [← hy]
 
+set_option backward.isDefEq.respectTransparency false in
 lemma GL2.v_det_val_mem_localFullLevel_eq_one {v : HeightOneSpectrum (𝓞 F)}
     {x : GL (Fin 2) (v.adicCompletion F)} (hx : x ∈ localFullLevel v) :
     Valued.v x.val.det = 1 := by

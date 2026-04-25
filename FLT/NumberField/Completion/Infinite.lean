@@ -1,10 +1,17 @@
-import FLT.Mathlib.Algebra.Algebra.Bilinear
-import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
-import FLT.NumberField.InfinitePlace.Dimension
-import FLT.NumberField.InfinitePlace.WeakApproximation
+module
+
+public import Mathlib.NumberTheory.NumberField.Completion.Ramification
+public import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+public import FLT.Mathlib.Algebra.Algebra.Bilinear
+public import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
+public import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
+public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+public import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
+public import FLT.Mathlib.Topology.Algebra.UniformRing
+public import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+public import FLT.NumberField.InfinitePlace.Extension
+
+@[expose] public section
 
 open scoped TensorProduct
 
@@ -17,42 +24,64 @@ noncomputable section
 namespace NumberField.InfinitePlace.Completion
 
 open AbsoluteValue.Completion UniformSpace.Completion SemialgHom
+open scoped NumberField.LiesOver
 
 variable {K L : Type*} [Field K] [Field L] [Algebra K L] {v : InfinitePlace K} {w : InfinitePlace L}
   {wv : v.Extension L}
 
-instance {v : InfinitePlace K} : NontriviallyNormedField (v.Completion) where
-  toNormedField := InfinitePlace.Completion.instNormedField v
+instance : wv.1.1.LiesOver v.1 where
+  comp_eq := by simp [← wv.2, InfinitePlace.comap]
+
+instance {v : InfinitePlace K} : NontriviallyNormedField v.Completion where
   non_trivial :=
     let ⟨x, hx⟩ := v.isNontrivial.exists_abv_gt_one
     ⟨x, by rw [UniformSpace.Completion.norm_coe]; exact hx⟩
 
-instance : NormedSpace v.Completion wv.1.Completion where
-  norm_smul_le x y := by
-    rw [Algebra.smul_def, norm_mul, SemialgHom.algebraMap_apply,
-      ← isometry_semiAlgHomOfComp (comp_of_comap_eq wv.2) |>.norm_map_of_map_zero (map_zero _)]
-
 noncomputable instance : FiniteDimensional v.Completion wv.1.Completion :=
   FiniteDimensional.of_locallyCompactSpace v.Completion
 
+variable (K) in
+theorem denseRange_algebraMap_subtype_pi (p : InfinitePlace K → Prop) [NumberField K] :
+    DenseRange <| algebraMap K ((v : Subtype p) → v.1.Completion) := by
+  apply DenseRange.comp (g := Subtype.restrict p)
+    (f := algebraMap K ((v : InfinitePlace K) → v.1.Completion))
+  · exact Subtype.surjective_restrict (β := fun v => v.1.Completion) p |>.denseRange
+  · exact InfiniteAdeleRing.denseRange_algebraMap K
+  · exact continuous_pi (fun _ => continuous_apply _)
+
+attribute [local instance] WithAbs.algebraLeft
+
+/-- The map `(R,v) → (S,w)` as a semialgebra map over `R → S` (which is the same map!). -/
+@[simps!]
+def _root_.WithAbs.semialgebraMap {R R' S : Type*} [CommSemiring R] [CommSemiring R'] [Semiring S]
+    [PartialOrder S] [Algebra R R'] (v : AbsoluteValue R S) (w : AbsoluteValue R' S) :
+    WithAbs v →ₛₐ[algebraMap R R'] WithAbs w where
+  __ := algebraMap (WithAbs v) (WithAbs w)
+  map_smul' r x := by
+    simp [WithAbs.algebraMap_left_apply, WithAbs.algebraMap_right_apply, Algebra.smul_def]
+
+set_option backward.isDefEq.respectTransparency false in
 /-- The map from `v.Completion` to `w.Completion` whenever the infinite place `w` of `L` lies
 above the infinite place `v` of `K`. -/
 abbrev comapHom (h : w.comap (algebraMap K L) = v) :
-    v.Completion →ₛₐ[algebraMap (WithAbs v.1) (WithAbs w.1)] w.Completion :=
-  semialgHomOfComp (comp_of_comap_eq h)
+    v.Completion →ₛₐ[algebraMap K L] w.Completion :=
+  have h' : w.1.LiesOver v.1 := ⟨by simp [← h, InfinitePlace.comap]⟩
+  .restrictScalars (WithAbs.semialgebraMap v.1 w.1) <| UniformSpace.Completion.mapSemialgHom _
+    (LiesOver.isometry_algebraMap (v := v) w).uniformContinuous.continuous
 
 theorem comapHom_cont (h : w.comap (algebraMap K L) = v) : Continuous (comapHom h) := continuous_map
 
 variable (L v)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The map from `v.Completion` to the product of all completions of `L` lying above `v`. -/
 def piExtension :
     v.Completion →ₛₐ[algebraMap K L] (wv : v.Extension L) → wv.1.Completion :=
-  Pi.semialgHom _ _ fun wv => comapHom wv.2
+  Pi.semialgHom _ _ fun wv ↦ comapHom wv.2
 
 @[simp]
 theorem piExtension_apply (x : v.Completion) :
-    piExtension L v x = fun wv : v.Extension L => comapHom wv.2 x := rfl
+    piExtension L v x = fun wv ↦ comapHom wv.2 x := rfl
 
 open scoped TensorProduct.RightActions
 
@@ -66,6 +95,7 @@ abbrev baseChange :
     L ⊗[K] v.Completion →ₐ[L] (wv : v.Extension L) → wv.1.Completion :=
   baseChange_of_algebraMap (piExtension L v)
 
+set_option backward.isDefEq.respectTransparency false in
 /- The motivation for changing the scalars of `baseChange L v` to `v.Completion` is that
 both sides are _finite-dimensional_ `v.Completion`-modules, which have the same dimension.
 This fact is used to show that `baseChangeRight` (and therefore `baseChange`) is surjective. -/
@@ -74,6 +104,11 @@ lying above `v`, induced by `piExtension`. -/
 abbrev baseChangeRight :
     L ⊗[K] v.Completion →ₐ[v.Completion] ((wv : v.Extension L) → wv.1.Completion) :=
   baseChangeRightOfAlgebraMap (piExtension L v)
+
+theorem mem_placesOver_iff_comap (v : InfinitePlace K) (w : InfinitePlace L) :
+    w ∈ placesOver L v ↔ w.comap (algebraMap K L) = v := by
+  simp only [placesOver, Set.mem_setOf_eq]
+  exact ⟨fun _ ↦ LiesOver.comap_eq _ _, fun h ↦ ⟨by simp [← h, InfinitePlace.comap]⟩⟩
 
 variable [NumberField L]
 
@@ -90,8 +125,9 @@ theorem finrank_prod_eq_finrank [NumberField K] :
     Module.finrank v.Completion ((wv : Extension L v) → wv.1.Completion) =
       Module.finrank K L := by
   classical
-  rw [Module.finrank_pi_fintype v.Completion, ← Extension.sum_ramificationIdx_eq L v]
-  exact Finset.sum_congr rfl (fun w _ => finrank_eq_ramificationIdx w)
+  rw [Module.finrank_pi_fintype v.Completion, ← sum_inertiaDeg_eq_finrank K L v,
+    ← Finset.sum_congr rfl fun (w : v.Extension L) _ ↦ inertiaDeg_eq_finrank (K := K) (L := L) v w,
+    ← Finset.sum_subtype (placesOver L v).toFinset (by simpa using mem_placesOver_iff_comap L v)]
 
 theorem finrank_pi_eq_finrank_tensorProduct [NumberField K] :
     Module.finrank v.Completion ((w : v.Extension L) → w.1.Completion) =
@@ -101,6 +137,7 @@ theorem finrank_pi_eq_finrank_tensorProduct [NumberField K] :
       Module.finrank_tensorProduct, Module.finrank_self, one_mul,
     finrank_prod_eq_finrank]
 
+set_option backward.isDefEq.respectTransparency false in
 open scoped Classical in
 theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
   -- Let `Bw` be a `K_v` basis of `Π v | w, L_w`
@@ -120,6 +157,7 @@ theorem baseChange_surjective : Function.Surjective (baseChange L v) := by
 
 variable [NumberField K]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem baseChange_injective :
     Function.Injective (baseChange L v) := by
   rw [← baseChangeRightOfAlgebraMap_coe, ← AlgHom.coe_toLinearMap,
@@ -131,6 +169,7 @@ instance : IsModuleTopology v.Completion wv.1.Completion :=
   IsModuleTopology.iso (FiniteDimensional.nonempty_continuousLinearEquiv_of_finrank_eq
     (Module.finrank_fin_fun v.Completion)).some
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The `L`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
 of `L` lying above `v`. -/
 def baseChangeEquiv :
@@ -138,8 +177,9 @@ def baseChangeEquiv :
   let e := AlgEquiv.ofBijective _ ⟨baseChange_injective L v, baseChange_surjective L v⟩
   have : IsBiscalar L v.Completion e.toAlgHom :=
     inferInstanceAs (IsBiscalar L v.Completion (baseChange L v))
-  IsModuleTopology.continuousAlgEquivOfIsBiscalar K v.Completion e
+  IsModuleTopology.continuousAlgEquivOfIsBiscalar v.Completion e
 
+set_option backward.isDefEq.respectTransparency false in
 instance : IsBiscalar L v.Completion (baseChangeEquiv L v).toAlgHom :=
   inferInstanceAs (IsBiscalar L v.Completion (baseChange L v))
 
@@ -148,14 +188,6 @@ theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
     baseChangeEquiv L v (l ⊗ₜ[K] x) = fun wv : v.Extension L => l * comapHom wv.2 x := by
   simp [baseChangeEquiv, baseChange, SemialgHom.baseChange_of_algebraMap_tmul]
   rfl
-
-/-- The `Kᵥ`-algebra homeomorphism between `L ⊗[K] v.Completion` and the product of all completions
-of `L` lying above `v`. -/
-def baseChangeEquivRight :
-    L ⊗[K] v.Completion ≃A[v.Completion] (wv : v.Extension L) → wv.1.Completion where
-  __ := (baseChangeEquiv L v).changeScalars K v.Completion
-  continuous_toFun := (baseChangeEquiv L v).continuous_toFun
-  continuous_invFun := (baseChangeEquiv L v).continuous_invFun
 
 open TensorProduct.AlgebraTensorModule in
 /-- The `Kᵥ`-linear homeomorphism between `Kᵥ^d` and the product of all completions
@@ -173,12 +205,12 @@ def piEquiv :
   let e₃ := IsModuleTopology.continuousLinearEquiv (e₁.trans <| e₂) |>.symm
   -- Compose with `Kᵥ`-scalar base change to finish
   -- `Kᵥ^d ≃L[Kᵥ] ∏ w | v, L_w`
-  exact e₃.trans <| baseChangeEquivRight L v |>.toContinuousLinearEquiv
+  exact e₃.trans ((baseChangeEquiv L v).changeScalars v.Completion)
 
 theorem piEquiv_smul (x : v.Completion) (y : Fin (Module.finrank K L) → v.Completion)
     (wv : v.Extension L) :
     piEquiv L v (x • y) wv = comapHom wv.2 x * piEquiv L v y wv := by
-  simp_rw [(piEquiv L v).map_smul x y, Pi.smul_def, RingHom.smul_toAlgebra,
-    SemialgHom.toRingHom_eq_coe, RingHom.coe_coe]
+  simp_rw [(piEquiv L v).map_smul x y, Pi.smul_def, RingHom.smul_toAlgebra]
+  rfl
 
 end NumberField.InfinitePlace.Completion

@@ -1,7 +1,11 @@
-import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
-import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
-import FLT.Data.QHat
-import Mathlib.NumberTheory.Cyclotomic.Basic
+module
+
+public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
+public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+public import FLT.Data.QHat
+public import Mathlib.NumberTheory.Cyclotomic.Basic
+
+@[expose] public section
 
 variable (K : Type) [Field K]
 variable (L : Type) [Field L] [Algebra K L] [CharZero L] [IsAlgClosed L]
@@ -42,5 +46,6 @@ noncomputable def CyclotomicCharacter_aux : (L ≃+* L) →* ZHat where
   map_one' := by ext; simp only [map_one]; rfl
   map_mul' _ _ := by ext; simp only [map_mul]; rfl
 
+/-- The Zhat-adic cyclotomic character. -/
 noncomputable def CyclotomicCharacterZHat : (L ≃+* L) →* ZHatˣ :=
   (CyclotomicCharacter_aux L).toHomUnits

@@ -3,14 +3,16 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import Mathlib.Algebra.Module.Torsion.Free
-import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Basic
-import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Formula
-import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
-import Mathlib.FieldTheory.IsSepClosed
-import Mathlib.RepresentationTheory.Basic
-import Mathlib.Topology.Instances.ZMod
-import FLT.Deformations.RepresentationTheory.GaloisRep
+module
+
+public import Mathlib.Algebra.Module.Torsion.Free
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Basic
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Formula
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
+public import Mathlib.FieldTheory.IsSepClosed
+public import Mathlib.RepresentationTheory.Basic
+public import Mathlib.Topology.Instances.ZMod
+public import FLT.Deformations.RepresentationTheory.GaloisRep
 
 /-!
 
@@ -22,6 +24,8 @@ PhD students. It would be great if anyone who is interested in working on these 
 could talk to David first. Note that he has already made substantial progress.
 
 -/
+
+@[expose] public section
 
 universe u
 
@@ -99,7 +103,7 @@ noncomputable instance WeierstrassCurve.galoisRepresentation_smul
   fun g P ↦ WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K) P⟩
 
 /-- The Galois action on the points of an elliptic curve. -/
-noncomputable def WeierstrassCurve.galoisRepresentation
+noncomputable instance WeierstrassCurve.galoisRepresentation
     (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
     DistribMulAction (K ≃ₐ[k] K) (E ⟮K⟯) where
       one_smul := sorry -- these should all be easy

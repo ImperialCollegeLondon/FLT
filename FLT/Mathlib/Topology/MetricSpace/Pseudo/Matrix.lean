@@ -1,6 +1,10 @@
-import Mathlib.Analysis.Normed.Ring.Basic
-import Mathlib.Topology.Instances.Matrix
-import FLT.Mathlib.Topology.Constructions
+module
+
+public import Mathlib.Analysis.Normed.Ring.Basic
+public import Mathlib.Topology.Instances.Matrix
+public import FLT.Mathlib.Topology.Constructions
+
+@[expose] public section
 
 /-- Let `A : X → Matrix n n R` be a parameterisation of a matrix ring with entries in a
 seminormed commutative ring `R` by a metric space `X` and let `f : Y → X` be dense.

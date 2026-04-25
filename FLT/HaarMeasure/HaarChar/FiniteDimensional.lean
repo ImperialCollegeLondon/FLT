@@ -3,12 +3,16 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Norbert Voelker
 -/
-import FLT.HaarMeasure.HaarChar.Ring
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.LinearAlgebra.Determinant
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
+module
+
+public import FLT.HaarMeasure.HaarChar.Ring
+public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.LinearAlgebra.Determinant
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
+
+@[expose] public section
 
 namespace MeasureTheory
 
@@ -218,6 +222,7 @@ variable {V : Type*} [AddCommGroup V] [TopologicalSpace V] [MeasurableSpace V] [
 
 open Module
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Haar measure scaling for invertible linear maps on a finite-dimensional vector space
 over a field F assuming `[SecondCountableTopology F]`. -/
 theorem addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc
@@ -233,7 +238,7 @@ theorem addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc
   let f := ec.toContinuousAddEquiv
   let ρ' : (ι → F) ≃ₜ+ (ι → F) := (f.symm.trans (ρ.toContinuousAddEquiv)).trans f
   have hComm: ∀ x, f (ρ.toContinuousAddEquiv x) = ρ' (f x) := by
-    simp [f, ρ', ContinuousAddEquiv.trans_apply, ContinuousAddEquiv.symm_apply_apply]
+    simp [f, ρ', ContinuousAddEquiv.trans_apply, ContinuousAddEquiv.eq_symm_apply]
   let h_eq := addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv f
     ρ.toContinuousAddEquiv ρ' hComm
   have : (ec.toContinuousAddEquiv.symm.trans
@@ -288,8 +293,8 @@ ring, is a continuous F-linear homeomorphism.
 -/
 def _root_.ContinuousLinearEquiv.mulLeft (u : Aˣ) : A ≃L[R] A where
   __ := LinearEquiv.mulLeft R u
-  continuous_toFun := continuous_mul_left _
-  continuous_invFun := continuous_mul_left _
+  continuous_toFun := continuous_const_mul _
+  continuous_invFun := continuous_const_mul _
 
 -- needs PRing
 /--
@@ -298,8 +303,8 @@ ring, is a continuous F-linear homeomorphism.
 -/
 def _root_.ContinuousLinearEquiv.mulRight (u : Aˣ) : A ≃L[R] A where
   __ := LinearEquiv.mulRight R u
-  continuous_toFun := continuous_mul_right _
-  continuous_invFun := continuous_mul_right _
+  continuous_toFun := continuous_mul_const _
+  continuous_invFun := continuous_mul_const _
 
 end needs_PRing
 

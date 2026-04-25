@@ -1,5 +1,7 @@
-import Mathlib.NumberTheory.NumberField.Discriminant.Defs
-import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
+module
+
+public import Mathlib.NumberTheory.NumberField.Discriminant.Defs
+public import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 /-!
 
@@ -42,6 +44,8 @@ Currently available at https://www.numdam.org/item/SDPP_1976-1977__18_1_A6_0/
 The github tracking issue for this assumption is #458 on the FLT github repository.
 
 -/
+
+@[expose] public section
 open Polynomial NumberField Module
 
 /-- An "Odlyzko bound" for the root discriminant of a totally complex number field

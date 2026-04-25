@@ -1,8 +1,10 @@
-import Mathlib.FieldTheory.Galois.Infinite
-import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
-import Mathlib.RingTheory.Bialgebra.Basic
-import Mathlib.RingTheory.Etale.Field
-import Mathlib.RingTheory.HopkinsLevitzki
+module
+
+public import Mathlib.FieldTheory.Galois.Infinite
+public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+public import Mathlib.RingTheory.Bialgebra.Basic
+public import Mathlib.RingTheory.Etale.Field
+public import Mathlib.RingTheory.HopkinsLevitzki
 
 /-!
 # Equivalence between continuous `G`-finite sets and `k`-etale algebras
@@ -34,6 +36,8 @@ Taking `L = Kˢᵉᵖ`, the adjunction restricts to a (contravariant) equivalenc
 between finite discrete `Gₖ`-sets and finite etale `k`-algebras.
 
 -/
+
+@[expose] public section
 
 universe u
 
@@ -201,6 +205,7 @@ def Pi.ringHomEquivOfIsDomain {ι S : Type*} {R : ι → Type*} [Finite ι] [Dec
       simpa using DFunLike.congr_fun e (Pi.single i₁ x)
     exact this (by ext; simp)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `Hom(∏ Rᵢ, S) ≃ ∐ Hom(Rᵢ, S)` when `S` is a domain.
 This is the `AlgHom` version of `Pi.ringHomEquivOfIsDomain`. -/
 @[simps! apply_fst symm_apply_apply, simps! -isSimp apply_snd_apply]

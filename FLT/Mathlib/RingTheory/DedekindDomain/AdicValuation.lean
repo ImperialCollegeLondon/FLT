@@ -1,4 +1,8 @@
-import Mathlib.RingTheory.DedekindDomain.AdicValuation
+module
+
+public import Mathlib.RingTheory.DedekindDomain.AdicValuation
+
+@[expose] public section
 
 namespace IsDedekindDomain.HeightOneSpectrum
 
@@ -8,12 +12,11 @@ open IsDedekindDomain
 instance {R : Type*} [CommRing R] [IsDedekindDomain R] (K : Type*) [Field K] [Countable K]
     [Algebra R K] [IsFractionRing R K] (v : HeightOneSpectrum R) :
     TopologicalSpace.SeparableSpace (v.adicCompletion K) where
-    exists_countable_dense := ⟨Set.range ((↑) : K → v.adicCompletion K),
-  by
-    have : Countable (WithVal (HeightOneSpectrum.valuation K v)) :=
-      inferInstanceAs <| Countable K
-    exact Set.countable_range _,
-  UniformSpace.Completion.denseRange_coe⟩
+  exists_countable_dense := by
+    refine ⟨_, ?_, UniformSpace.Completion.denseRange_coe⟩
+    have : Countable (WithVal (valuation K v)) :=
+      Countable.of_equiv _ (WithVal.equiv (HeightOneSpectrum.valuation K v)).symm.toEquiv
+    exact Set.countable_range _
 
 lemma intValuation_eq_coe_neg_multiplicity {A : Type*} [CommRing A] [IsDedekindDomain A]
     (v : HeightOneSpectrum A) {a : A} (hnz : a ≠ 0) :
@@ -21,7 +24,7 @@ lemma intValuation_eq_coe_neg_multiplicity {A : Type*} [CommRing A] [IsDedekindD
   classical
   have hnb : Ideal.span {a} ≠ ⊥ := by
     rwa [ne_eq, Ideal.span_singleton_eq_bot]
-  rw [intValuation_if_neg _ hnz, count_associates_factors_eq hnb v.isPrime v.ne_bot]
+  rw [intValuation_if_neg _ hnz, Ideal.count_associates_factors_eq hnb v.isPrime v.ne_bot]
   nth_rw 1 [← normalize_eq v.asIdeal]
   congr
   symm

@@ -1,6 +1,10 @@
-import Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
-import Mathlib.Topology.Algebra.Module.ModuleTopology
+module
+
+public import Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+
+@[expose] public section
 
 open scoped TensorProduct
 

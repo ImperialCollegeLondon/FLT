@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Measure.Typeclasses.Finite
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+module
+
+public import Mathlib.MeasureTheory.Measure.Typeclasses.Finite
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+
+@[expose] public section
 
 section IsOpenEmbeddingComap
 

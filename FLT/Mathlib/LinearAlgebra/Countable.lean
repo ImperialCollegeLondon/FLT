@@ -1,6 +1,10 @@
-import Mathlib.LinearAlgebra.Countable
-import Mathlib.NumberTheory.NumberField.Basic
-import Mathlib.Data.Rat.Encodable
+module
+
+public import Mathlib.LinearAlgebra.Countable
+public import Mathlib.NumberTheory.NumberField.Basic
+public import Mathlib.Data.Rat.Encodable
+
+@[expose] public section
 
 -- TODO upstream
 lemma Countable.of_module_finite (R M : Type*) [Semiring R] [Countable R]

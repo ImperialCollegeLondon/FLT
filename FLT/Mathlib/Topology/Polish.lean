@@ -1,7 +1,11 @@
-import Mathlib.Topology.Compactness.Paracompact
-import Mathlib.Topology.MetricSpace.Completion
-import Mathlib.Topology.MetricSpace.Polish
-import Mathlib.Topology.Metrizable.Urysohn
+module
+
+public import Mathlib.Topology.Compactness.Paracompact
+public import Mathlib.Topology.MetricSpace.Completion
+public import Mathlib.Topology.MetricSpace.Polish
+public import Mathlib.Topology.Metrizable.Urysohn
+
+@[expose] public section
 
 -- https://leanprover.zulipchat.com/#narrow/channel/416277-FLT/topic/Are.20the.20adeles.20Polish.3F/near/563290956
 

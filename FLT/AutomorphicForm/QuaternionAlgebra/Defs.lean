@@ -3,11 +3,15 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.Hacks.RightActionInstances
-import FLT.Mathlib.Algebra.FixedPoints.Basic
-import Mathlib.NumberTheory.NumberField.FinitePlaces
-import Mathlib.Order.CompletePartialOrder
-import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+module
+
+public import FLT.Hacks.RightActionInstances
+public import FLT.Mathlib.Algebra.FixedPoints.Basic
+public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+
+@[expose] public section
 
 /-
 

@@ -3,8 +3,10 @@ Copyright (c) 2024 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Jonas Bayer
 -/
-import Mathlib.Data.Int.Star
-import FLT.GlobalLanglandsConjectures.GLnDefs
+module
+
+public import Mathlib.Data.Int.Star
+public import FLT.GlobalLanglandsConjectures.GLnDefs
 
 /-!
 # Proof of a case of the global Langlands conjectures.
@@ -43,6 +45,8 @@ State them first.
 
 -/
 
+@[expose] public section
+
 namespace AutomorphicForm
 
 def GLn.Weight.IsTrivial {n : ℕ} (ρ : Weight n) : Prop := sorry -- (ρ = trivial 1d rep)
@@ -66,14 +70,9 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
     }
     is_periodic := by simp
     is_slowly_increasing x := ⟨‖c‖, 0, by simp⟩
-    is_finite_cod := by
-      intros x
-      rw [FiniteDimensional, annihilator]
-      sorry -- weird typeclass timeout
-      -- exact {
-      --   fg_top := by
-      --     sorry
-      -- }
+    -- is_finite_cod := by
+    --   intros x
+    --   sorry
     has_finite_level := by
       let U : Subgroup (GL (Fin 0) (IsDedekindDomain.FiniteAdeleRing ℤ ℚ)) := {
         carrier := {1},
@@ -99,7 +98,8 @@ noncomputable def classification : AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
     intro x
     have h: x.toFun = fun _ => x.toFun 1 := by
       exact funext fun g ↦ congrArg x.toFun <| Subsingleton.eq_one g
-    simp_rw [← h]
+    ext m
+    rw [h]
   right_inv := by
     rw [Function.RightInverse, Function.LeftInverse]
     simp [ofComplex]
@@ -119,7 +119,7 @@ def ofComplex (z : ℂ) {n : ℕ} (ρ : Weight n) (hρ : ρ.IsTrivial) :
       is_smooth := sorry
       is_periodic := sorry
       is_slowly_increasing := sorry
-      is_finite_cod := sorry -- needs a better name
+      -- is_finite_cod := sorry -- needs a better name
       has_finite_level := sorry -- needs a better name
 
 -- no idea why it's not computable

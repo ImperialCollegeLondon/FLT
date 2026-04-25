@@ -1,5 +1,9 @@
-import FLT.AutomorphicForm.QuaternionAlgebra.Defs
-import FLT.DivisionAlgebra.Finiteness
+module
+
+public import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+public import FLT.DivisionAlgebra.Finiteness
+
+@[expose] public section
 
 namespace TotallyDefiniteQuaternionAlgebra
 
@@ -28,6 +32,7 @@ open TotallyDefiniteQuaternionAlgebra
 -- functions, or something. Perhaps some of these hypotheses might need to be re-added
 -- later on.
 
+set_option backward.isDefEq.respectTransparency false in
 -- If it's any help, the below argument will also show that the space of forms is
 -- finitely-generated if `K` is an arbitrary Noetherian ring.
 /--

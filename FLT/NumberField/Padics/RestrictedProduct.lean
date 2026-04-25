@@ -1,8 +1,12 @@
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
-import Mathlib.NumberTheory.Padics.RingHoms
-import Mathlib.RingTheory.DedekindDomain.AdicValuation
-import Mathlib.RingTheory.Int.Basic
-import Mathlib.Topology.Algebra.Algebra.Equiv
+module
+
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
+public import Mathlib.NumberTheory.Padics.RingHoms
+public import Mathlib.RingTheory.DedekindDomain.AdicValuation
+public import Mathlib.RingTheory.Int.Basic
+public import Mathlib.Topology.Algebra.Algebra.Equiv
+
+@[expose] public section
 
 open IsDedekindDomain NumberField PadicInt RestrictedProduct
 

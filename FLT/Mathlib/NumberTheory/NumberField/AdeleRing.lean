@@ -1,6 +1,8 @@
 -- can't upstream because this first import imports too much
-import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
-import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+module
+
+public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+public import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 
 /-!
 
@@ -9,6 +11,8 @@ import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 This should be enough to deduce that they're Polish.
 
 -/
+
+@[expose] public section
 variable {K : Type*} [Field K]
 
 namespace NumberField.AdeleRing

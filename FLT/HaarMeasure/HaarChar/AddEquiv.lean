@@ -1,8 +1,12 @@
-import FLT.Mathlib.MeasureTheory.Group.Measure
-import FLT.Mathlib.MeasureTheory.Measure.Regular
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
+module
+
+public import FLT.Mathlib.MeasureTheory.Group.Measure
+public import FLT.Mathlib.MeasureTheory.Measure.Regular
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
+
+@[expose] public section
 
 open MeasureTheory.Measure
 open scoped NNReal
@@ -22,24 +26,6 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G]
 
 variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 
--- should be in haarScalarFactor API
-@[to_additive]
-lemma haarScalarFactor_map (μ' μ : Measure G) [IsHaarMeasure μ] [IsHaarMeasure μ'] (φ : G ≃ₜ* G) :
-    (map φ μ').haarScalarFactor (map φ μ) = μ'.haarScalarFactor μ := by
-  obtain ⟨⟨f, f_cont⟩, f_comp, f_nonneg, f_one⟩ :
-    ∃ f : C(G, ℝ), HasCompactSupport f ∧ 0 ≤ f ∧ f 1 ≠ 0 := exists_continuous_nonneg_pos 1
-  have int_f_ne_zero : ∫ (x : G), f x ∂(map φ μ) ≠ 0 :=
-    ne_of_gt (f_cont.integral_pos_of_hasCompactSupport_nonneg_nonzero f_comp f_nonneg f_one)
-  have hφ : AEMeasurable φ μ := φ.continuous.aemeasurable
-  rw [← NNReal.coe_inj, haarScalarFactor_eq_integral_div _ _ f_cont f_comp int_f_ne_zero,
-    haarScalarFactor_eq_integral_div μ' μ (f_cont.comp φ.continuous),
-    integral_map hφ f_cont.aestronglyMeasurable, integral_map ?_ f_cont.aestronglyMeasurable]
-  · rfl
-  · exact φ.continuous.aemeasurable
-  · exact f_comp.comp_homeomorph φ.toHomeomorph
-  · change ∫ x, f (φ x) ∂μ ≠ 0
-    rwa [← integral_map hφ f_cont.aestronglyMeasurable]
-
 -- Version of `mulEquivHaarChar_smul_map` without the regularity assumption
 -- In this case, the measures need only be equal on open sets
 @[to_additive]
@@ -50,22 +36,6 @@ lemma mulEquivHaarChar_map_open (μ : Measure G)
     mul_smul, ← measure_isHaarMeasure_eq_smul_of_isOpen haar _ hs,
     measure_isHaarMeasure_eq_smul_of_isOpen haar μ hs, ← mul_smul, haarScalarFactor_map,
     ← haarScalarFactor_eq_mul, haarScalarFactor_self, one_smul]
-
-open ENNReal TopologicalSpace Set in
-@[to_additive addEquivAddHaarChar_eq_one_of_compactSpace]
-lemma mulEquivHaarChar_eq_one_of_compactSpace [CompactSpace G] (φ : G ≃ₜ* G) :
-    mulEquivHaarChar φ = 1 := by
-  set μ := haarMeasure (⟨⟨univ, isCompact_univ⟩, by simp⟩ : PositiveCompacts G)
-  have hμ : μ univ = 1 := haarMeasure_self
-  rw [mulEquivHaarChar_eq μ]
-  suffices (μ.haarScalarFactor (map φ μ) : ℝ≥0∞) = 1 by exact_mod_cast this
-  calc
-    _ = μ.haarScalarFactor (map φ μ) • (1 : ℝ≥0∞) := by rw [ENNReal.smul_def, smul_eq_mul, mul_one]
-    _ = μ.haarScalarFactor (map φ μ) • (map φ μ univ) := by
-          rw [map_apply (map_continuous φ).measurable .univ, Set.preimage_univ, hμ]
-    _ = μ univ := by
-          conv_rhs => rw [isMulInvariant_eq_smul_of_compactSpace μ (map φ μ), Measure.smul_apply]
-    _ = 1 := hμ
 
 open Topology in
 @[to_additive]

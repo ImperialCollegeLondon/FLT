@@ -1,7 +1,11 @@
-import Mathlib.RingTheory.LocalRing.ResidueField.Basic
-import Mathlib.Logic.Function.Defs
-import FLT.Mathlib.RingTheory.LocalRing.Defs
-import FLT.Deformations.Lemmas
+module
+
+public import Mathlib.RingTheory.LocalRing.ResidueField.Basic
+public import Mathlib.Logic.Function.Defs
+public import FLT.Mathlib.RingTheory.LocalRing.Defs
+public import FLT.Deformations.Lemmas
+
+@[expose] public section
 
 open Function IsLocalRing
 

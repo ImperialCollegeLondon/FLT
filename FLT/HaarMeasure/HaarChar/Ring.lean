@@ -3,42 +3,20 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard
 -/
-import FLT.HaarMeasure.HaarChar.AddEquiv
-import Mathlib.Algebra.Group.Pi.Units
-import Mathlib.MeasureTheory.Group.Pointwise
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+module
+
+public import FLT.HaarMeasure.HaarChar.AddEquiv
+public import Mathlib.Algebra.Group.Pi.Units
+public import Mathlib.MeasureTheory.Group.Pointwise
+public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+
+@[expose] public section
 
 open scoped NNReal
 
 namespace ContinuousAddEquiv
 
 variable {R : Type*} [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
-
-/-- The additive homeomorphism from a topological ring to itself,
-induced by left multiplication by a unit.
--/
-@[simps apply]
-def mulLeft (r : Rˣ) : R ≃ₜ+ R where
-  toFun x := r * x
-  invFun y := r⁻¹ * y
-  left_inv x := by simp
-  right_inv y := by simp
-  map_add' x₁ x₂ := left_distrib ↑r x₁ x₂
-  continuous_toFun := continuous_mul_left _
-  continuous_invFun := continuous_mul_left _
-
-/-- The additive homeomorphism from a topological ring to itself,
-induced by right multiplication by a unit.
--/
-@[simps apply]
-def mulRight (r : Rˣ) : R ≃ₜ+ R where
-  toFun x := x * r
-  invFun y := y * r⁻¹
-  left_inv x := by simp [mul_assoc]
-  right_inv y := by simp [mul_assoc]
-  map_add' x₁ x₂ := right_distrib x₁ x₂ r
-  continuous_toFun := continuous_mul_right _
-  continuous_invFun := continuous_mul_right _
 
 open Pointwise in
 @[simp]

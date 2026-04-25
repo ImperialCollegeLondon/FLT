@@ -1,15 +1,17 @@
-import FLT.HaarMeasure.HaarChar.Ring
-import FLT.Mathlib.Algebra.Central.TensorProduct
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
-import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
-import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
-import FLT.NumberField.AdeleRing
-import FLT.HaarMeasure.HaarChar.RealComplex
-import FLT.HaarMeasure.HaarChar.Padic
-import FLT.HaarMeasure.HaarChar.FiniteDimensional
-import Mathlib.NumberTheory.NumberField.ProductFormula
-import FLT.HaarMeasure.HaarChar.FiniteDimensional
-import FLT.HaarMeasure.HaarChar.FiniteAdeleRing
+module
+
+public import FLT.HaarMeasure.HaarChar.Ring
+public import FLT.Mathlib.Algebra.Central.TensorProduct
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
+public import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
+public import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
+public import FLT.NumberField.AdeleRing
+public import FLT.HaarMeasure.HaarChar.RealComplex
+public import FLT.HaarMeasure.HaarChar.Padic
+public import FLT.HaarMeasure.HaarChar.FiniteDimensional
+public import Mathlib.NumberTheory.NumberField.ProductFormula
+public import FLT.HaarMeasure.HaarChar.FiniteDimensional
+public import FLT.HaarMeasure.HaarChar.FiniteAdeleRing
 
 /-!
 
@@ -21,6 +23,8 @@ a Haar character `(B ⊗ 𝔸_K)ˣ → ℝ>0`. In this file we show
 that the global units `Bˣ` are in the kernel of this character.
 
 -/
+
+@[expose] public section
 
 open NumberField
 
@@ -40,6 +44,7 @@ open scoped TensorProduct
 
 open NumberField MeasureTheory
 
+set_option backward.isDefEq.respectTransparency false in
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
     (∏ᶠ p, ringHaarChar (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p)) := by
@@ -57,6 +62,7 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).1 hx)
       (fun x hx ↦ Subring.mul_mem _ ((Submonoid.mem_units_iff _ _).mp hp).2 hx))
 
+set_option backward.isDefEq.respectTransparency false in
 lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
   ringHaarChar (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ) = 1 := by
   rw [ringHaarChar_adeles_rat (Units.map (algebraMap ℚ (𝔸 ℚ)) x : (𝔸 ℚ)ˣ)]
@@ -80,12 +86,21 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
       apply NNReal.toRealHom.map_finprod_of_injective (.of_eq_imp_le fun {_ _} a ↦ a.le)
     apply finprod_congr; intro p
     let : Algebra ℤ (p.adicCompletion ℚ) := Ring.toIntAlgebra _
-    simp [FinitePlace.equivHeightOneSpectrum,
-      ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
-        __ := (Rat.HeightOneSpectrum.adicCompletion.padicEquiv p)
-        commutes' := by simp},
-      Rat.HeightOneSpectrum.adicCompletion.padicEquiv_norm_eq]
-    rfl
+    simp only [RingHom.toMonoidHom_eq_coe,
+      ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv
+          { __ := (Rat.HeightOneSpectrum.adicCompletion.padicEquiv p)
+            commutes' := by simp },
+      AlgEquiv.toEquiv_eq_coe, MulEquiv.toMonoidHom_eq_coe, ringHaarChar_padic, Units.coe_map,
+      MonoidHom.coe_coe, MulEquiv.coe_mk, EquivLike.coe_coe, ContinuousAlgEquiv.coe_toAlgEquiv,
+      NNReal.coe_toRealHom, coe_nnnorm, Rat.HeightOneSpectrum.adicCompletion.padicEquiv_norm_eq,
+      FinitePlace.equivHeightOneSpectrum, Equiv.coe_fn_symm_mk, FinitePlace.mk_apply,
+      MulEquiv.restrictedProductUnits, RestrictedProduct.inv_apply,
+      Units.val_inv_eq_inv_val, MulEquiv.prodUnits, MulEquiv.coe_mk, Equiv.coe_fn_mk,
+      MonoidHom.prod_apply, Units.coe_map, MonoidHom.coe_coe, MonoidHom.coe_snd, Units.coe_map_inv,
+      RestrictedProduct.mk_apply]
+    rw [AdeleRing.algebraMap_snd_apply, WithVal.equiv_symm_apply]
+    rw [NumberField.FinitePlace.norm_embedding']
+    simp  [FinitePlace.norm_def]
 
 open scoped TensorProduct.RightActions in
 /-- The continuous A-linear map (A a topological ring, tensor products have the module
@@ -110,22 +125,8 @@ lemma ContinuousLinearEquiv.baseChange_apply (R : Type*) [CommRing R]
     (φ m) ⊗ₜ a := rfl
 
 -- mathlib?
-lemma LinearMap.toMatrix_map_left {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
-    [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
-    [Module R P] (φ : M ≃ₗ[R] P) (α : P →ₗ[R] N)
-    (b : Module.Basis ι R M) (c : Module.Basis j R N) :
-    LinearMap.toMatrix (b.map φ) c α = LinearMap.toMatrix b c (α ∘ₗ φ) := rfl
-
--- mathlib?
-lemma LinearMap.toMatrix_map_right {R M N P ι j : Type*} [Fintype ι] [DecidableEq ι] [Fintype j]
-    [CommRing R] [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] [AddCommGroup P]
-    [Module R P] (φ : N ≃ₗ[R] P) (α : M →ₗ[R] P)
-    (b : Module.Basis ι R M) (c : Module.Basis j R N) :
-    LinearMap.toMatrix b (c.map φ) α = LinearMap.toMatrix b c (φ.symm ∘ₗ α) := rfl
-
--- mathlib?
 lemma LinearMap.toMatrix_basis {R : Type*} (A : Type*) {M : Type*} {ι j : Type*} [Fintype ι]
-    [Fintype j] [DecidableEq ι] [CommSemiring R] [CommSemiring A]
+    [Finite j] [DecidableEq ι] [CommSemiring R] [CommSemiring A]
     [Algebra R A] [AddCommMonoid M] [Module R M] (b : Module.Basis ι R M)
     {N : Type*} [AddCommMonoid N] [Module R N] (c : Module.Basis j R N) (φ : M →ₗ[R] N) :
     LinearMap.toMatrix (Algebra.TensorProduct.basis A b) (Algebra.TensorProduct.basis A c)
@@ -133,6 +134,7 @@ lemma LinearMap.toMatrix_basis {R : Type*} (A : Type*) {M : Type*} {ι j : Type*
   ext
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 open TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     [FiniteDimensional ℚ V] (φ : V ≃ₗ[ℚ] V)
@@ -161,6 +163,7 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one [Module ℚ V]
     ext
     simp
 
+set_option backward.isDefEq.respectTransparency false in
 open scoped NumberField.AdeleRing in
 open TensorProduct.RightActions in
 lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V)
@@ -190,8 +193,9 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
     induction x with
     | zero => simp
     | tmul x y => rfl
-    | add x y hx hy => simp [hx, hy]
+    | add x y hx hy => simp at hx hy; simp [hx, hy]
 
+set_option backward.isDefEq.respectTransparency false in
 open TensorProduct.RightActions in
 /-- Left multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure. In other words, Bˣ is in the kernel of the `ringHaarChar` of `B ⊗ 𝔸_K`.
@@ -211,6 +215,7 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
   | tmul x y => simp [LinearEquiv.mulLeft]
   | add x y hx hy => simp_all [mul_add]
 
+set_option backward.isDefEq.respectTransparency false in
 open TensorProduct.RightActions in
 /-- Right multiplication by an element of Bˣ on B ⊗ 𝔸_K does not scale additive
 Haar measure.

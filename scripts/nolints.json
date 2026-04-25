@@ -1,6 +1,4 @@
 [["docBlame", "AlgebraTypeCardLT"],
- ["docBlame", "CyclotomicCharacterZHat"],
- ["docBlame", "Hurwitz"],
  ["docBlame", "IsPatchingSystem"],
  ["docBlame", "IsQuaternionAlgebra"],
  ["docBlame", "ModuleTypeCardLT"],
@@ -174,8 +172,4 @@
  ["docBlame", "AutomorphicForm.GLn.preweight.rho"],
  ["docBlame", "IsDedekindDomain.HeightOneSpectrum.GL2.TameLevel"],
  ["docBlame", "IsDedekindDomain.HeightOneSpectrum.QuaternionAlgebra.TameLevel"],
- ["docBlame",
-  "NumberField.InfinitePlace.Completion.instAlgebraTensorProduct_fLT"],
- ["simpNF", "UltraProduct.π_eq_zero_iff"],
- ["unusedArguments", "TopologicalAlgebraTypeCardLT"],
- ["unusedArguments", "AutomorphicForm.GLn.ofComplex"]]
+ ["docBlame", "NumberField.InfinitePlace.Completion.instAlgebraTensorProduct_fLT"]]

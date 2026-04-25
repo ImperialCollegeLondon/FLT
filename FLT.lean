@@ -73,7 +73,6 @@ import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 import FLT.Mathlib.Data.Fin.Basic
 import FLT.Mathlib.Data.Real.Archimedean
-import FLT.Mathlib.Data.Set.Countable
 import FLT.Mathlib.Data.Set.Prod
 import FLT.Mathlib.GroupTheory.DoubleCoset
 import FLT.Mathlib.GroupTheory.Index
@@ -119,6 +118,7 @@ import FLT.Mathlib.RingTheory.TensorProduct.Basis
 import FLT.Mathlib.RingTheory.TensorProduct.Pi
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import FLT.Mathlib.Topology.Algebra.Algebra.Hom
+import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 import FLT.Mathlib.Topology.Algebra.Group.Quotient
 import FLT.Mathlib.Topology.Algebra.Group.Units
@@ -136,7 +136,6 @@ import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
 import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import FLT.Mathlib.Topology.Algebra.UniformRing
 import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Topology.Algebra.Valued.WithVal
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 import FLT.Mathlib.Topology.Bases
 import FLT.Mathlib.Topology.Constructions
@@ -151,9 +150,7 @@ import FLT.NumberField.Completion.Infinite
 import FLT.NumberField.DiscriminantBounds
 import FLT.NumberField.HeightOneSpectrum
 import FLT.NumberField.InfiniteAdeleRing
-import FLT.NumberField.InfinitePlace.Dimension
 import FLT.NumberField.InfinitePlace.Extension
-import FLT.NumberField.InfinitePlace.WeakApproximation
 import FLT.NumberField.Padics.RestrictedProduct
 import FLT.Patching.Algebra
 import FLT.Patching.Module
@@ -162,6 +159,7 @@ import FLT.Patching.REqualsT
 import FLT.Patching.System
 import FLT.Patching.Ultraproduct
 import FLT.Patching.Utils.AdicTopology
+import FLT.Patching.Utils.CompactHausdorffRings
 import FLT.Patching.Utils.Depth
 import FLT.Patching.Utils.InverseLimit
 import FLT.Patching.Utils.Lemmas

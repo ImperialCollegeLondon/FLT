@@ -1,7 +1,9 @@
-import Mathlib.Algebra.Algebra.Operations
-import Mathlib.Algebra.CharZero.Infinite
-import Mathlib.NumberTheory.Padics.PadicIntegers
-import Mathlib.NumberTheory.Padics.RingHoms
+module
+
+public import Mathlib.Algebra.Algebra.Operations
+public import Mathlib.Algebra.CharZero.Infinite
+public import Mathlib.NumberTheory.Padics.PadicIntegers
+public import Mathlib.NumberTheory.Padics.RingHoms
 
 /-!
 # TODO
@@ -9,6 +11,8 @@ import Mathlib.NumberTheory.Padics.RingHoms
 * Rename `Coe.ringHom` to `coeRingHom`
 * Protect `PadicInt.norm_mul`, `PadicInt.norm_units`, `PadicInt.norm_pow`
 -/
+
+@[expose] public section
 
 open Function Topology Subgroup
 open scoped NNReal nonZeroDivisors Pointwise
@@ -30,7 +34,8 @@ instance : Infinite ℤ_[p] := CharZero.infinite _
 
 @[simp] lemma nnnorm_p : ‖(p : ℤ_[p])‖₊ = (p : ℝ≥0)⁻¹ := by simp [nnnorm]; rfl
 
-@[simp] protected lemma nnnorm_units (u : ℤ_[p]ˣ) : ‖(u : ℤ_[p])‖₊ = 1 := by simp [nnnorm, NNReal]
+@[simp] protected lemma nnnorm_units (u : ℤ_[p]ˣ) : ‖(u : ℤ_[p])‖₊ = 1 := by
+  simp [← norm_toNNReal]
 
 lemma exists_unit_mul_p_pow_eq (hx : x ≠ 0) : ∃ (u : ℤ_[p]ˣ) (n : ℕ), (u : ℤ_[p]) * p ^ n = x :=
   ⟨_, _, (unitCoeff_spec hx).symm⟩
@@ -80,6 +85,7 @@ lemma smul_submodule_one_index :
       Submodule.span_singleton_smul_eq (Units.isUnit _),
       Ideal.submodule_span_eq, index_span_p_pow hx]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `x • S` has index `‖x‖⁻¹` in `S`, where `S` is the copy of `ℤ_[p]` inside `ℚ_[p]` -/
 lemma smul_submodule_one_relIndex :
     (x • (1 : Submodule ℤ_[p] ℚ_[p]).toAddSubgroup).relIndex

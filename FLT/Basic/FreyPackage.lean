@@ -1,13 +1,15 @@
-import Mathlib.Algebra.Polynomial.Bivariate
-import Mathlib.AlgebraicGeometry.EllipticCurve.Weierstrass
-import Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
-import Mathlib.Data.PNat.Basic
-import Mathlib.NumberTheory.FLT.Four
-import Mathlib.NumberTheory.FLT.Three
-import Mathlib.RepresentationTheory.Basic
-import Mathlib.RingTheory.SimpleModule.Basic
-import Mathlib.Tactic.ModCases
-import FLT.EllipticCurve.Torsion
+module
+
+public import Mathlib.Algebra.Polynomial.Bivariate
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Weierstrass
+public import Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
+public import Mathlib.Data.PNat.Basic
+public import Mathlib.NumberTheory.FLT.Four
+public import Mathlib.NumberTheory.FLT.Three
+public import Mathlib.RepresentationTheory.Basic
+public import Mathlib.RingTheory.SimpleModule.Basic
+public import Mathlib.Tactic.ModCases
+public import FLT.EllipticCurve.Torsion
 
 /-!
 
@@ -38,6 +40,8 @@ integers and a prime `p ≥ 5` such that `a` is 3 mod 4, `b` is even, and `a^p+b
 The proof is an elementary arithmetic argument, assuming Fermat's result that FLT is true
 for n=4 and Euler's result that it's true for n=3.
 -/
+
+@[expose] public section
 
 /-!
 

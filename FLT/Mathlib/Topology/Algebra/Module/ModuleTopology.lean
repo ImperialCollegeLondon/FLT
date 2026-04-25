@@ -1,13 +1,17 @@
-import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
-import FLT.Mathlib.Algebra.Algebra.Tower
-import FLT.Mathlib.Algebra.Algebra.Hom
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.LinearAlgebra.FreeModule.PID
-import Mathlib.RingTheory.Henselian
-import Mathlib.RingTheory.PicardGroup
-import Mathlib.RingTheory.SimpleRing.Principal
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import Mathlib.Topology.Algebra.Module.ModuleTopology
+module
+
+public import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
+public import FLT.Mathlib.Algebra.Algebra.Tower
+public import FLT.Mathlib.Algebra.Algebra.Hom
+public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.LinearAlgebra.FreeModule.PID
+public import Mathlib.RingTheory.Henselian
+public import Mathlib.RingTheory.PicardGroup
+public import Mathlib.RingTheory.SimpleRing.Principal
+public import Mathlib.Topology.Algebra.Algebra.Equiv
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+
+@[expose] public section
 
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
@@ -312,94 +316,54 @@ def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
 
 /--
-Given a bundled linear map `e : A →ₗ[S] B` which also has scalars `S'`,
-with both `S` and `S'` sharing a common base ring `R` as:
-```
-e : A <–––––––––> B
-     \     /\    /
-      \   /  \  /
-       \ /    \/
-        S    S'
-         \   /
-          \ /
-           R
-```
-If `A` and `B` both have the `S'`-module topology, and the scalar actions form scalar towers,
-then `e` is continuous as an `S`-linear map.
+A linear equivalence `e : A ≃ₗ[S] B` which also has scalars `S'`, with `A` and `B` both having the
+`S'`-module topology, is automatically continuous.
 -/
-def continuousLinearEquivOfIsBiscalar (R : Type*) {A B : Type*} (S' : Type*) {S : Type*}
-    [Semiring R] [Semiring S'] [Semiring S] [AddCommMonoid A] [AddCommMonoid B] [Module S A]
-    [Module S B] [Module S' A] [Module R S] [Module R A] [Module R B] [Module S' B]
-    [IsScalarTower R S A] [IsScalarTower R S B] [TopologicalSpace A] [TopologicalSpace B]
+def continuousLinearEquivOfIsBiscalar {A B : Type*} (S' : Type*) {S : Type*}
+    [Semiring S'] [Semiring S] [AddCommMonoid A] [AddCommMonoid B] [Module S A]
+    [Module S B] [Module S' A] [Module S' B] [TopologicalSpace A] [TopologicalSpace B]
     [TopologicalSpace S'] [IsModuleTopology S' A] [IsModuleTopology S' B] (e : A ≃ₗ[S] B)
     [IsBiscalar S S' e] :
     A ≃L[S] B where
   toLinearEquiv := e
   continuous_toFun := by
-    change Continuous (e.changeScalars R S')
+    change Continuous (e.changeScalars S')
     letI := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
   continuous_invFun := by
-    change Continuous (e.changeScalars R S').symm
+    change Continuous (e.changeScalars S').symm
     letI := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
 
 /--
-Given a bundled algebra map `e : A →ₐ[S] B` which also has scalars `S'`,
-with both `S` and `S'` sharing a common base ring `R` as:
-```
-e : A <–––––––––> B
-     \     /\    /
-      \   /  \  /
-       \ /    \/
-        S    S'
-         \   /
-          \ /
-           R
-```
-If `A` and `B` both have the `S'`-module topology, and the scalar actions form scalar towers,
-then `e` is continuous as an `S`-algebra map.
-
-As an example, this is used for a situation where we have `S' = v.Completion`, `S = L`, `R = K`
-for an infinite place `v` of a number field `K`, with some field extension `L`:
-```
-L    v.Completion
- \    /
-  \  /
-   K
-```
-We have an `L`-algebra equivalence
-`L ⊗[K] v.Completion ≃ₐ[L] Π (w : v.Extension L), wv.1.Completion`
-between `v.Completion`-module topological spaces. And so this allows us to assert that this
-is a _continuous_ `L`-algebra equivalence as well.
+An algebra isomorphism `e : A →ₐ[S] B` which also has scalars `S'`, with `A` and `B` both having the
+`S'`-module topology, is automatically continuous.
 -/
-def continuousAlgEquivOfIsBiscalar (R : Type*) {A B : Type*} (S' : Type*) {S : Type*}
-    [CommSemiring R] [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S]
-    [Algebra S A] [Algebra R S'] [Algebra S B] [Algebra S' A] [Algebra R S] [Algebra S' B]
-    [Algebra R A] [Algebra R B] [IsScalarTower R S A] [IsScalarTower R S' A] [IsScalarTower R S B]
-    [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace S'] [IsModuleTopology S' A]
+def continuousAlgEquivOfIsBiscalar {A B : Type*} (S' : Type*) {S : Type*}
+    [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S]
+    [Algebra S A] [Algebra S B] [Algebra S' A] [Algebra S' B] [TopologicalSpace A]
+    [TopologicalSpace B] [TopologicalSpace S'] [IsModuleTopology S' A]
     [IsModuleTopology S' B] (e : A ≃ₐ[S] B) [IsBiscalar S S' e.toAlgHom] :
     A ≃A[S] B where
   toAlgEquiv := e
   continuous_toFun := by
-    -- switch the equivalence scalars of `e` from `S` over to `S'`
-    change Continuous (e.changeScalars R S').toLinearEquiv
+    -- switch the scalars of `e` from `S` over to `S'`
+    change Continuous (e.changeScalars S').toLinearEquiv
     -- then this is an `S'`-linear map on the `S'`-module topology, so is continuous
     letI := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
   continuous_invFun := by
-    change Continuous (e.changeScalars R S').toLinearEquiv.symm
+    change Continuous (e.changeScalars S').toLinearEquiv.symm
     letI := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
 
 @[simp]
-theorem continuousAlgEquivOsIfScalarTower_apply (R : Type*) {A B : Type*} (S' : Type*) {S : Type*}
-    [CommSemiring R] [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S]
-    [Algebra S A] [Algebra R S'] [Algebra S B] [Algebra S' A] [Algebra R S] [Algebra S' B]
-    [Algebra R A] [Algebra R B] [IsScalarTower R S A] [IsScalarTower R S' A] [IsScalarTower R S B]
+theorem continuousAlgEquivOfIsBiscalar_apply {A B : Type*} (S' : Type*) {S : Type*}
+    [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S]
+    [Algebra S A] [Algebra S B] [Algebra S' A] [Algebra S' B]
     [TopologicalSpace A] [TopologicalSpace B] [TopologicalSpace S'] [IsModuleTopology S' A]
     [IsModuleTopology S' B] (e : A ≃ₐ[S] B) [IsBiscalar S S' e.toAlgHom] (a : A) :
-    continuousAlgEquivOfIsBiscalar R S' e a = e a :=
+    continuousAlgEquivOfIsBiscalar S' e a = e a :=
   rfl
 
 /-- An algebra isomorphism between two topological algebras over `R` with the
@@ -467,10 +431,12 @@ local instance _root_.Prod.leftModule : Module (A × B) M :=
 local instance _root_.Prod.rightModule : Module (A × B) N :=
   Module.compHom N (RingHom.snd A B)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `A` is a finite `(A × B)`-module. -/
 instance _root_.Prod.instFinite_leftAlgebra : Module.Finite (A × B) A :=
   Module.Finite.of_surjective (LinearMap.fst (A × B) A B) LinearMap.fst_surjective
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `B` is a finite `(A × B)`-module. -/
 instance _root_.Prod.instFinite_rightAlgebra : Module.Finite (A × B) B :=
   Module.Finite.of_surjective (LinearMap.snd (A × B) A B) LinearMap.snd_surjective

@@ -1,8 +1,12 @@
-import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
-import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
-import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+module
+
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
+public import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
+public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+
+@[expose] public section
 
 open scoped TensorProduct
 
@@ -90,6 +94,7 @@ lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
     rTensor_eval_localIdempotent
       (φ (ψ ((LinearMap.rTensor V (singleContinuousLinearMap R K p)) x)))]
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 If `φ : 𝔸_K^f ⊗ V → 𝔸_K^f ⊗ V` is `𝔸_K^f`-linear and `φₚ` is its local component at a place `p`
 then for all `x : 𝔸_K^f ⊗ V` we have

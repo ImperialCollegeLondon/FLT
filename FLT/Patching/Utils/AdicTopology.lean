@@ -1,15 +1,19 @@
-import Mathlib.RingTheory.AdicCompletion.Basic
-import Mathlib.RingTheory.Ideal.Quotient.Index
-import Mathlib.Topology.Algebra.Algebra
-import Mathlib.Topology.Algebra.Group.ClosedSubgroup
-import Mathlib.Topology.Algebra.Field
-import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
-import Mathlib.Topology.Connected.Separation
-import FLT.Patching.Utils.InverseLimit
-import FLT.Patching.Utils.Lemmas
-import Mathlib.RingTheory.Artinian.Ring
-import Mathlib.Topology.Algebra.Ring.Compact
-import Mathlib.Topology.Algebra.LinearTopology
+module
+
+public import Mathlib.RingTheory.AdicCompletion.Basic
+public import Mathlib.RingTheory.Ideal.Quotient.Index
+public import Mathlib.Topology.Algebra.Algebra
+public import Mathlib.Topology.Algebra.Group.ClosedSubgroup
+public import Mathlib.Topology.Algebra.Field
+public import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
+public import Mathlib.Topology.Connected.Separation
+public import FLT.Patching.Utils.InverseLimit
+public import FLT.Patching.Utils.Lemmas
+public import Mathlib.RingTheory.Artinian.Ring
+public import Mathlib.Topology.Algebra.Ring.Compact
+public import Mathlib.Topology.Algebra.LinearTopology
+
+@[expose] public section
 
 variable (R) [CommRing R] [IsLocalRing R] [TopologicalSpace R] [IsTopologicalRing R]
 
@@ -121,6 +125,7 @@ instance [CompactSpace R] : IsPrecomplete (maximalIdeal R) R where
         simpa using (H e).symm⟩)
     simpa [funext_iff, eq_comm (b := Ideal.Quotient.mk _ (f _))] using this
 
+set_option backward.isDefEq.respectTransparency false in
 variable {R} in
 lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueField R)]
     [IsAdicComplete (maximalIdeal R) R] :
@@ -150,7 +155,8 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
         simp_rw [funext_iff]
         exact Classical.skolem (p := (x · = Ideal.Quotient.mk _ ·)).mp
           fun i ↦ by simpa only [eq_comm] using Ideal.Quotient.mk_surjective (x i)
-      have := mt (IsPrecomplete.prec (inferInstanceAs (IsPrecomplete (maximalIdeal R) R)) (f := g))
+      have : IsPrecomplete (maximalIdeal R) R := inferInstance
+      have := mt (IsPrecomplete.prec this (f := g))
       simp_rw [← Ideal.one_eq_top, smul_eq_mul, mul_one] at this
       simp only [Set.mem_compl_iff, Set.mem_range, eq_comm, funext_iff, Pi.algebraMap_apply,
         Ideal.Quotient.algebraMap_eq, not_exists, not_forall, SModEq, Ideal.Quotient.mk_eq_mk, f]
@@ -170,6 +176,7 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
 
 -- TODO: `TotallyDisconnectedSpace` is unnecessary. See
 -- https://ncatlab.org/nlab/show/compact+Hausdorff+rings+are+profinite
+-- A partial proof can be found at `FLT/Patching/Utils/CompactHausdorffRings`.
 omit [IsAdicTopology R] in
 /--
 Any profinite noetherian ring has the `𝔪`-adic topology.

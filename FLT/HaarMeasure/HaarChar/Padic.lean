@@ -3,9 +3,11 @@ Copyright (c) 2024 Yaël Dillies, Javier López-Contreras. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Javier López-Contreras
 -/
-import FLT.Mathlib.MeasureTheory.Group.Action
-import FLT.HaarMeasure.MeasurableSpacePadics
-import FLT.HaarMeasure.HaarChar.Ring
+module
+
+public import FLT.Mathlib.MeasureTheory.Group.Action
+public import FLT.HaarMeasure.MeasurableSpacePadics
+public import FLT.HaarMeasure.HaarChar.Ring
 
 /-!
 # The distributive Haar characters of the p-adics
@@ -25,11 +27,14 @@ p-adic/p-adic integer and `s` is a set of p-adics/p-adic integers.
   `s : Set ℤ_[p]`.
 -/
 
+@[expose] public section
+
 open Padic MeasureTheory Measure Metric Set
 open scoped Pointwise ENNReal NNReal nonZeroDivisors
 
 variable {p : ℕ} [Fact p.Prime]
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma MeasureTheory.ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
     ringHaarChar (x : ℚ_[p]ˣ) = ‖(x : ℚ_[p])‖₊ := by
   -- Let `K` be the copy of `ℤ_[p]` inside `ℚ_[p]` and `H` be `xK`.

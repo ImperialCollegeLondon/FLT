@@ -3,15 +3,17 @@ Copyright (c) 2025 Matthew Jasper. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Matthew Jasper
 -/
-import Mathlib.LinearAlgebra.Basis.Basic
-import Mathlib.LinearAlgebra.TensorProduct.Pi
-import FLT.Mathlib.Algebra.Algebra.Tower
-import Mathlib.RingTheory.TensorProduct.Basic
-import Mathlib.RingTheory.Finiteness.Defs
-import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
-import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
-import Mathlib.RingTheory.FiniteType
-import FLT.Hacks.RightActionInstances
+module
+
+public import Mathlib.LinearAlgebra.Basis.Basic
+public import Mathlib.LinearAlgebra.TensorProduct.Pi
+public import FLT.Mathlib.Algebra.Algebra.Tower
+public import Mathlib.RingTheory.TensorProduct.Basic
+public import Mathlib.RingTheory.Finiteness.Defs
+public import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+public import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
+public import Mathlib.RingTheory.FiniteType
+public import FLT.Hacks.RightActionInstances
 /-!
 
 # API for base change of free modules
@@ -23,6 +25,8 @@ This can probably all be moved into `FLT.Hacks.RightActionInstances? The entire
 file has `open scoped TensorProduct.RightActions`.
 
 -/
+
+@[expose] public section
 
 section Basis
 

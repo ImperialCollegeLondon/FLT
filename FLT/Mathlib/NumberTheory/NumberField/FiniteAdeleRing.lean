@@ -5,10 +5,14 @@ Authors: Kevin Buzzard
 -/
 
 -- if I can get all imports as FLT.Mathlib then I can upstream
-import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import FLT.NumberField.Completion.Finite
-import FLT.NumberField.HeightOneSpectrum
+module
+
+public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import FLT.NumberField.Completion.Finite
+public import FLT.NumberField.HeightOneSpectrum
+
+@[expose] public section
 
 /-
 

@@ -1,11 +1,15 @@
-import Mathlib.Algebra.CharP.IntermediateField
-import Mathlib.NumberTheory.NumberField.Basic
-import Mathlib.RingTheory.Valuation.ValuationSubring
-import Mathlib.Topology.Algebra.Algebra.Equiv
-import Mathlib.Topology.Algebra.LinearTopology
-import Mathlib.Topology.Algebra.Module.ModuleTopology
-import Mathlib.Topology.Instances.Matrix
-import Mathlib.Topology.UniformSpace.DiscreteUniformity
+module
+
+public import Mathlib.Algebra.CharP.IntermediateField
+public import Mathlib.NumberTheory.NumberField.Basic
+public import Mathlib.RingTheory.Valuation.ValuationSubring
+public import Mathlib.Topology.Algebra.Algebra.Equiv
+public import Mathlib.Topology.Algebra.LinearTopology
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import Mathlib.Topology.Instances.Matrix
+public import Mathlib.Topology.UniformSpace.DiscreteUniformity
+
+@[expose] public section
 
 lemma IsLinearTopology.exists_ideal_isMaximal_and_isOpen
     (R : Type*) [CommRing R] [TopologicalSpace R] [IsTopologicalRing R]
@@ -82,13 +86,7 @@ instance IsTopologicalGroup.discreteUniformity
     letI := IsTopologicalGroup.rightUniformSpace G
     DiscreteUniformity G := by
   simp only [discreteUniformity_iff_setRelId_mem_uniformity]
-  exact ⟨{1}, by simp [Set.subset_def, div_eq_one]⟩
-
-lemma IsLocalRing.map_maximalIdeal {R S} [CommRing R] [CommRing S]
-    [IsLocalRing R] [IsLocalRing S] (f : R →+* S) (hf : Function.Surjective f) :
-    (maximalIdeal R).map f = maximalIdeal S := by
-  have := (IsLocalRing.local_hom_TFAE f).out 0 4
-  rw [← this.mp (by exact .of_surjective f hf), Ideal.map_comap_of_surjective f hf]
+  exact ⟨{1}, by simp [Set.subset_def, ← div_eq_mul_inv, div_eq_one]⟩
 
 lemma IsLocalRing.ResidueField.map_surjective {R S : Type*} [CommRing R] [CommRing S]
     [IsLocalRing R] [IsLocalRing S] (f : R →+* S) [IsLocalHom f] (H : Function.Surjective f) :
@@ -332,7 +330,7 @@ lemma IsTopologicalGroup.totallyBounded {G : Type*} [Group G] [TopologicalSpace 
     Set.finite_range _, fun x _ ↦
       Set.mem_iUnion₂_of_mem ⟨QuotientGroup.mk (.op x), rfl⟩ (hts (hHs ?_))⟩
   dsimp only
-  rw [Function.comp_apply, SetLike.mem_coe, div_eq_mul_inv, ← MulOpposite.unop_op (x⁻¹),
+  rw [Function.comp_apply, SetLike.mem_coe, ← MulOpposite.unop_op (x⁻¹),
     ← MulOpposite.unop_mul, ← Subgroup.mem_op, MulOpposite.op_inv, ← QuotientGroup.eq]
   simp
 

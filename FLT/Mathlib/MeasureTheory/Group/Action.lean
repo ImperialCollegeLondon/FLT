@@ -1,14 +1,18 @@
-import Mathlib.MeasureTheory.Group.Action
-import Mathlib.MeasureTheory.Group.Pointwise
-import Mathlib.MeasureTheory.Group.Measure
-import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
-import Mathlib.GroupTheory.Complement
+module
+
+public import Mathlib.MeasureTheory.Group.Action
+public import Mathlib.MeasureTheory.Group.Pointwise
+public import Mathlib.MeasureTheory.Group.Measure
+public import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
+public import Mathlib.GroupTheory.Complement
 /-!
 # TODO
 
 * Make `α` implicit in `SMulInvariantMeasure`
 * Rename `SMulInvariantMeasure` to `Measure.IsSMulInvariant`
 -/
+
+@[expose] public section
 
 section MeasurableEmbeddingComap
 

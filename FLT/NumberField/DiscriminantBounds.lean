@@ -3,13 +3,16 @@ Copyright (c) 2025 Bhavik Mehta. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta
 -/
+module
 
-import Mathlib.Analysis.SpecialFunctions.Stirling
-import Mathlib.Analysis.Complex.ExponentialBounds
-import Mathlib.Analysis.Real.Pi.Bounds
-import Mathlib.Data.Real.StarOrdered
-import Mathlib.Order.Monotone.Union
-import Mathlib.Tactic.NormNum.NatFactorial
+public import Mathlib.Analysis.SpecialFunctions.Stirling
+public import Mathlib.Analysis.Complex.ExponentialBounds
+public import Mathlib.Analysis.Real.Pi.Bounds
+public import Mathlib.Data.Real.StarOrdered
+public import Mathlib.Order.Monotone.Union
+public import Mathlib.Tactic.NormNum.NatFactorial
+
+@[expose] public section
 
 open scoped Nat
 open Real

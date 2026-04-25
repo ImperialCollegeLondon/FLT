@@ -3,8 +3,11 @@ Copyright (c) 2025 Bryan Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bryan Wang
 -/
+module
 
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+
+@[expose] public section
 
 namespace Matrix.GeneralLinearGroup
 

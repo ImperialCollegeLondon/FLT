@@ -3,12 +3,14 @@ Copyright (c) 2025 Madison Crim. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Madison Crim
 -/
-import Mathlib.LinearAlgebra.DirectSum.Finsupp
-import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
-import Mathlib.Algebra.Module.FinitePresentation
-import Mathlib.Algebra.FiveLemma
-import Mathlib.LinearAlgebra.TensorProduct.Pi
-import Mathlib.Algebra.Module.PUnit
+module
+
+public import Mathlib.LinearAlgebra.DirectSum.Finsupp
+public import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+public import Mathlib.Algebra.Module.FinitePresentation
+public import Mathlib.Algebra.FiveLemma
+public import Mathlib.LinearAlgebra.TensorProduct.Pi
+public import Mathlib.Algebra.Module.PUnit
 /-!
 
 # Tensor product commutes with direct product when tensoring with a finite free module
@@ -26,6 +28,8 @@ If `M` is a finite free module and `Nᵢ` is an indexed collection of modules of
 Switch the names around because the primed version is more general hence better.
 
 -/
+
+@[expose] public section
 open DirectSum Function
 
 section
@@ -78,7 +82,7 @@ def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i
     simp only
     convert sum_univ_of (x := nm) with j _ i
     conv_rhs => rw [← DirectSum.sum_univ_of nm]
-    rw [DFinsupp.finset_sum_apply, DFinsupp.finset_sum_apply, Finset.sum_apply]
+    simp only [sum_apply, Finset.sum_apply]
     congr with k
     obtain rfl | h := eq_or_ne j k
     · simp
@@ -88,7 +92,7 @@ def directSumPi_equiv_piSum : (⨁ (i' : ι'), (∀ i, N i i')) ≃ₗ[R] (∀ i
     refine funext (fun i ↦ ?_)
     convert sum_univ_of (x := nm i) with j _ i
     conv_rhs => rw [← DirectSum.sum_univ_of (nm i)]
-    rw [DFinsupp.finset_sum_apply, DFinsupp.finset_sum_apply, Finset.sum_apply]
+    simp only [sum_apply, Finset.sum_apply]
     congr with k
     obtain rfl | h := eq_or_ne j k
     · simp
@@ -166,8 +170,8 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
       Finsupp.sum_single_index (by simp), finsuppLEquivDirectSum_single, directSumPi_equiv_piSum,
       ← LinearEquiv.toFun_eq_coe]
     ext k
-    simp only [DFinsupp.finset_sum_apply _ _ k, DirectSum.lof_eq_of R, of_apply, eq_rec_constant,
-      dite_eq_ite, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
+    simp only [DirectSum.lof_eq_of R, of_apply, eq_rec_constant, dite_eq_ite, sum_apply,
+      Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
     rw [ite_apply, Pi.zero_apply, Pi.smul_apply]
 
 end
@@ -180,6 +184,9 @@ variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)]
 
+-- note that`TensorProduct.piRightHom` is marked `backward.proofsInPublic true` in mathlib
+-- so I don't think there's much I can do about this `set_option` here.
+set_option backward.proofsInPublic true in
 /-- Tensoring with a finitely-presented module commutes with arbitrary products.
 To prove this, we consider the following commutative diagram. The goal is to show
 that `i₃` is an isomorphism, which we do using the five lemma:

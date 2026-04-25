@@ -1,5 +1,12 @@
-import Mathlib.Analysis.Quaternion
+module
 
+public import Mathlib.Analysis.Quaternion
+
+@[expose] public section
+
+/-- Hurwitz integers in the quaternions. ℤ-Basis 1, ω=(1+i+j+k)/2, i and
+ωi=(-1+i+j-k)/2.
+-/
 @[ext]
 structure Hurwitz : Type where
   re : ℤ -- 1
@@ -72,7 +79,7 @@ instance : Zero 𝓞 := ⟨zero⟩
 @[simp] lemma zero_im_oi : im_oi (0 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_zero : toQuaternion 0 = 0 := by
-  ext <;> (simp [toQuaternion])
+  ext <;> (simp [toQuaternion]) <;> rfl
 
 @[simp]
 lemma toQuaternion_eq_zero_iff {z} : toQuaternion z = 0 ↔ z = 0 :=
@@ -94,7 +101,7 @@ instance : One 𝓞 := ⟨one⟩
 @[simp] lemma one_im_oi : im_oi (1 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_one : toQuaternion 1 = 1 := by
-  ext <;> (simp [toQuaternion])
+  ext <;> (simp [toQuaternion]) <;> rfl
 
 /-! ## Neg (-) -/
 
@@ -450,6 +457,7 @@ private lemma aux2 (a b c d : ℝ) (ha : a ≤ 4⁻¹) (hb : b ≤ 4⁻¹) (hc :
   rw [this, le_sub_comm, invs] <;>
   gcongr
 
+set_option backward.isDefEq.respectTransparency false in
 open Quaternion in
 lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
   have four_inv : (4⁻¹ : ℝ) = 2⁻¹ ^ 2 := by norm_num
@@ -469,9 +477,8 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
-    simp_rw [and_assoc, sq_eq_zero_iff, re_sub, imI_sub, imJ_sub, imK_sub, sub_eq_zero,
-      ← Quaternion.ext_iff]
-    symm
+    simp_rw [and_assoc, sq_eq_zero_iff, neg_add_eq_sub, re_sub, imI_sub, imJ_sub, imK_sub,
+      sub_eq_zero, ← Quaternion.ext_iff]
     apply leftInvOn_toQuaternion_fromQuaternion
     · simp only [Set.mem_setOf]
       have {r : ℝ} {z : ℤ} (h : |r - z| = 2⁻¹) : ∃ z' : ℤ, r = z' + 2⁻¹  := by
@@ -488,7 +495,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
   rw [aux]
   rw [NormedRing.dist_eq, ← sq_lt_one_iff₀ (_root_.norm_nonneg _), sq,
     ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
-  simp only [re_sub, imI_sub, imJ_sub, imK_sub]
+  simp only [neg_add_eq_sub, re_sub, imI_sub, imJ_sub, imK_sub, sub_sq_comm]
   apply aux2 <;> try apply this
   contrapose! H
   suffices ∀ r : ℝ, |r| = 2⁻¹ ↔ r ^ 2 = 4⁻¹ by
@@ -537,7 +544,7 @@ lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.s
     rintro _ ⟨_, rfl⟩
     exact norm_nonneg _
   obtain ⟨a, ha⟩ : ∃ a : S, norm a = ⨅ i : S, norm i :=
-    exists_eq_ciInf_of_not_isPredPrelimit hbdd (Order.not_isPredPrelimit)
+    exists_eq_ciInf_of_not_isPredPrelimit hbdd Order.not_isPredPrelimit_of_isPredArchimedean
   use a
   apply le_antisymm
   · intro i hi
