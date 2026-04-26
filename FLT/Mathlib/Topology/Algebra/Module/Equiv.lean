@@ -11,7 +11,6 @@ public import FLT.Mathlib.LinearAlgebra.Determinant
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Let `f : α → β` be a function on index types. A family of `R b`-linear homeomorphisms, indexed
 by `b : β`, between the product over the fiber of `b` under `f` given as
 `∀ (σ : { a : α // f a = b }) → γ₁ σ.1) ≃ₗ[R b] γ₂ b` lifts to an equivalence over the products

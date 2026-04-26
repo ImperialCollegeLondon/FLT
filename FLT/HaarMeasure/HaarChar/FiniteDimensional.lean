@@ -222,7 +222,6 @@ variable {V : Type*} [AddCommGroup V] [TopologicalSpace V] [MeasurableSpace V] [
 
 open Module
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Haar measure scaling for invertible linear maps on a finite-dimensional vector space
 over a field F assuming `[SecondCountableTopology F]`. -/
 theorem addEquivAddHaarChar_eq_ringHaarChar_det_of_existsListTransvecEtc

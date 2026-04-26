@@ -43,7 +43,6 @@ open scoped Valued in
 instance : Finite (𝓀[v.adicCompletion K]) :=
   inferInstanceAs (Finite (ResidueField (v.adicCompletionIntegers K)))
 
-set_option backward.isDefEq.respectTransparency false in
 instance NumberField.instCompactSpaceAdicCompletionIntegers :
     CompactSpace (v.adicCompletionIntegers K) :=
   Valued.WithZeroMulInt.integer_compactSpace (v.adicCompletion K) inferInstance

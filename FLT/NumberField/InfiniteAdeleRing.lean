@@ -76,7 +76,6 @@ namespace NumberField.InfiniteAdeleRing
 /-- `K∞` is notation for `InfiniteAdeleRing K`. -/
 scoped notation:10000 K "∞" => InfiniteAdeleRing K
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The canonical map from the infinite adeles of K to the infinite adeles of L -/
 noncomputable def baseChange :
     K∞ →SA[algebraMap K L] L∞ where
@@ -111,7 +110,6 @@ noncomputable def piEquiv [Algebra K∞ L∞]
       fun v : InfinitePlace K ↦ (Completion.piEquiv L v).symm).symm
   this
 
-set_option backward.isDefEq.respectTransparency false in
 instance instIsModuleTopology_fLT [Algebra K∞ L∞]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion] :
     IsModuleTopology K∞ L∞ := .iso (piEquiv K L)
@@ -166,7 +164,6 @@ instance [Algebra K∞ L∞]
 -- `IsModuleTopology.continuousAlgEquivOfIsScalarTower` is then applicable in the same
 -- way it was for `baseChangeEquiv` in `InfinitePlace.Completion`
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The canonical `L`-algebra homeomorphism from `L ⊗_K K_∞` to `L_∞` induced by the
 `K`-algebra base change map `K_∞ → L_∞`. -/
 noncomputable

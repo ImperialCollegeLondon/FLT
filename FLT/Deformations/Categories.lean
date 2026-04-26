@@ -236,7 +236,6 @@ lemma ker_toResidueField (R : ProartinianCat 𝓞) :
   (RingHom.ker_comp_of_injective _ (f := (IsResidueAlgebra.algEquiv 𝓞 R).symm.toRingHom)
     (IsResidueAlgebra.algEquiv 𝓞 R).symm.injective).trans Ideal.mk_ker
 
-set_option backward.isDefEq.respectTransparency false in
 lemma to_residueField_apply {R : 𝓒 𝓞} (f : R ⟶ residueField) (r : R.carrier) :
     f.hom r = residue _ (IsResidueAlgebra.preimage 𝓞 r)  := by
   trans f.hom (algebraMap _ _ (IsResidueAlgebra.preimage 𝓞 r))

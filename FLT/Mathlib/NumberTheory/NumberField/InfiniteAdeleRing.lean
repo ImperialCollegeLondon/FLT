@@ -81,7 +81,6 @@ set_option backward.isDefEq.respectTransparency false in
 instance : IsModuleTopology ℝ (InfiniteAdeleRing K) :=
   .iso (NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace K).symm
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The continuous `ℤ`-algebra isomorphism between `Rat.infinitePlace.Completion` and `ℝ`.
 (We use continuous `ℤ`-algebra equivalences in place of continuous ring equivalences
 since we don't have the latter.) -/

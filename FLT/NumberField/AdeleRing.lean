@@ -99,13 +99,11 @@ noncomputable def baseChange :
 
 open scoped TensorProduct
 
-set_option backward.isDefEq.respectTransparency false in
 instance instPiIsModuleTopology : IsModuleTopology (𝔸 K) (Fin (Module.finrank K L) → 𝔸 K) :=
   IsModuleTopology.instPi
 
 variable [Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]] [FiniteAdeleRing.ComapFiberwiseSMul (𝓞 K) K L (𝓞 L)]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The L-algebra isomorphism `L ⊗[K] 𝔸_K = 𝔸_L`. -/
 noncomputable def baseChangeAlgEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[L] 𝔸 L :=
   let tensor :=
@@ -123,7 +121,6 @@ lemma baseChangeAlgEquiv_fst_apply (l : L) (x : 𝔸 K) :
     (baseChangeAlgEquiv K L (l ⊗ₜ x)).1 = InfiniteAdeleRing.baseChangeAlgEquiv K L (l ⊗ₜ x.1) :=
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 lemma baseChangeAlgEquiv_snd_apply (l : L) (x : 𝔸 K) :
     (baseChangeAlgEquiv K L (l ⊗ₜ x)).2 =
       FiniteAdeleRing.baseChangeAlgEquiv (𝓞 K) K L (𝓞 L) (l ⊗ₜ x.2) :=
@@ -133,7 +130,6 @@ open scoped NumberField.LiesOver
 
 attribute [local instance 9999] Algebra.toModule
 
-set_option backward.isDefEq.respectTransparency false in
 -- TODO: abstract this to a general result `Biscalar × Biscalar → Biscalar` if `Prod.IsProdSMul`?
 open TensorProduct.RightActions in
 /-- Take arbitrary `Algebra K L∞`, `Algebra K∞ L∞`, `Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]`, Algebra K 𝔸ᶠ[L]`,
@@ -181,7 +177,6 @@ variable [Algebra K∞ L∞]
 variable [Algebra (𝔸 K) (𝔸 L)]
   [Prod.IsProdSMul K∞ (FiniteAdeleRing (𝓞 K) K) L∞ (FiniteAdeleRing (𝓞 L) L)]
 
-set_option backward.isDefEq.respectTransparency false in
 open TensorProduct.RightActions in
 /-- The `L`-algebra homeomorphism `L ⊗[K] 𝔸 K = 𝔸 L`. -/
 noncomputable def baseChangeEquiv [IsModuleTopology (𝔸 K) (𝔸 L)] :
@@ -190,7 +185,6 @@ noncomputable def baseChangeEquiv [IsModuleTopology (𝔸 K) (𝔸 L)] :
 
 variable {L} [IsModuleTopology (𝔸 K) (𝔸 L)]
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 theorem baseChangeEquiv_tsum_apply_right (l : L) :
     baseChangeEquiv K L (l ⊗ₜ[K] 1) = algebraMap L (𝔸 L) l := by
@@ -200,7 +194,6 @@ theorem baseChangeEquiv_tsum_apply_right (l : L) :
 
 variable (L)
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 open TensorProduct.AlgebraTensorModule in
 /-- A continuous `K`-linear isomorphism `L ⊗[K] 𝔸_K = (𝔸_K)ⁿ` for `n = [L:K]` -/
@@ -216,7 +209,6 @@ noncomputable abbrev tensorProductEquivPi :
   -- continuous due to `𝔸 K` module topologies on both sides, then restrict scalars to `K`
   IsModuleTopology.continuousLinearEquiv (comm.symm.trans π)
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 /-- A continuous additive isomorphism `(𝔸_K)ⁿ ≃ 𝔸_L` for `n = [L:K]` -/
 noncomputable abbrev piEquiv : (Fin (Module.finrank K L) → 𝔸 K) ≃ₜ+ 𝔸 L :=
@@ -228,7 +220,6 @@ noncomputable abbrev piEquiv : (Fin (Module.finrank K L) → 𝔸 K) ≃ₜ+ �
 
 variable {K L}
 
-set_option backward.isDefEq.respectTransparency false in
 open TensorProduct.AlgebraTensorModule TensorProduct.RightActions in
 theorem piEquiv_apply_of_algebraMap
     {x : Fin (Module.finrank K L) → 𝔸 K}
@@ -252,7 +243,6 @@ theorem piEquiv_mem_principalSubgroup
 
 variable (K L)
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 theorem piEquiv_map_principalSubgroup :
     (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K)).map
@@ -290,7 +280,6 @@ variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [Algebra K L] [I
 
 variable [Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]] [FiniteAdeleRing.ComapFiberwiseSMul (𝓞 K) K L (𝓞 L)]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- V ⊗[K] 𝔸_K = V ⊗[L] 𝔸_L as L-modules for V an L-module and K ⊆ L number fields. -/
 noncomputable def ModuleBaseChangeLinearEquiv :
     V ⊗[K] (𝔸 K) ≃ₗ[L] (V ⊗[L] (𝔸 L)) :=
@@ -307,7 +296,6 @@ open scoped NumberField.LiesOver
 
 attribute [local instance 9999] Algebra.toModule
 
-set_option backward.isDefEq.respectTransparency false in
 open TensorProduct.RightActions in
 instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
@@ -328,7 +316,6 @@ instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
         simp [TensorProduct.smul_tmul']
     | add x y _ _ => simp_all
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 /-- 𝔸_K ⊗[K] V = 𝔸_L ⊗[L] V as topological additive groups
 for V an L-module and K ⊆ L number fields. -/
@@ -386,11 +373,9 @@ finite adele algebra. -/
 scoped instance : Prod.IsProdSMul K∞ 𝔸ᶠ[K] L∞ 𝔸ᶠ[L] where
   map_smul _ _ := rfl
 
-set_option backward.isDefEq.respectTransparency false in
 scoped instance : Module.Finite (𝔸 K) (𝔸 L) :=
     Module.Finite.equiv ((baseChangeAlgEquiv K L).changeScalars (𝔸 K)).toLinearEquiv
 
-set_option backward.isDefEq.respectTransparency false in
 scoped instance instIsModuleTopology : IsModuleTopology (𝔸 K) (𝔸 L) :=
   IsModuleTopology.instProd' (A := K∞)
 
@@ -473,7 +458,6 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
 
 variable (K : Type*) [Field K] [NumberField K]
 
-set_option backward.isDefEq.respectTransparency false in
 theorem NumberField.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 K) K),
     IsOpen U ∧ (algebraMap K (AdeleRing (𝓞 K) K)) ⁻¹' U = {0} := by
   obtain ⟨V, hV, hV0⟩ := Rat.AdeleRing.zero_discrete
@@ -575,7 +559,6 @@ theorem sub_mem_integralAdeles
 
 end Rat.FiniteAdeleRing
 
-set_option backward.isDefEq.respectTransparency false in
 open NumberField.InfinitePlace.Completion in
 theorem Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico (a : InfiniteAdeleRing ℚ) :
   ∃! (x : 𝓞 ℚ), ∀ v, extensionEmbeddingOfIsReal (Rat.infinitePlace_isReal v)
@@ -786,7 +769,6 @@ theorem Rat.AdeleRing.isAddFundamentalDomain :
 
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
-set_option backward.isDefEq.respectTransparency false in
 theorem NumberField.AdeleRing.cocompact :
     CompactSpace (AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) :=
   letI := Rat.AdeleRing.cocompact
@@ -818,13 +800,11 @@ open scoped TensorProduct.RightActions
 
 variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The canonical `𝔸 K`-algebra homomorphism `(L ⊗_K 𝔸 K) → 𝔸 L` induced
 by the maps from `L` and `𝔸 K` into `𝔸 L`. -/
 noncomputable def baseChangeAdeleAlgHom : (L ⊗[K] (𝔸 K)) →ₐ[𝔸 K] 𝔸 L :=
   (baseChange K L).baseChangeRightOfAlgebraMap
 
-set_option backward.isDefEq.respectTransparency false in
 lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHom K L) := by
   -- There's a linear equivalence `(L ⊗_K 𝔸 K) ≅ 𝔸 L`
   let linearEquiv : (L ⊗[K] 𝔸 K) ≃ₗ[L] 𝔸 L :=
@@ -842,19 +822,16 @@ lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHo
   rw [eqEquiv]
   exact linearEquiv.bijective
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The canonical `𝔸_K`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
 induced by the base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeAlgAdeleEquiv : (L ⊗[K] 𝔸 K) ≃ₐ[𝔸 K] 𝔸 L :=
     AlgEquiv.ofBijective (baseChangeAdeleAlgHom K L) (baseChangeAdeleAlgHom_bijective K L)
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The canonical `𝔸_K`-algebra homeomorphism from `L ⊗_K 𝔸_K` to `𝔸_L`
 induced by the base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :=
   IsModuleTopology.continuousAlgEquivOfAlgEquiv <| baseChangeAlgAdeleEquiv K L
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The canonical `L`-algebra isomorphism from `L ⊗_K 𝔸_K` to `𝔸_L` induced by the
 `K`-algebra base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeEquiv' :
@@ -862,7 +839,6 @@ noncomputable def baseChangeEquiv' :
   __ := (baseChange K L).baseChange_of_algebraMap
   __ := baseChangeAdeleEquiv K L
 
-set_option backward.isDefEq.respectTransparency false in
 -- this isn't rfl. Explanation below
 example (x : L ⊗[K] 𝔸 K) : baseChangeEquiv K L x = baseChangeEquiv' K L x := by
   induction x with
