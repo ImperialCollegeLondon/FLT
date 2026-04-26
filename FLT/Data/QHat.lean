@@ -126,7 +126,7 @@ lemma _root_.Nat.sum_factorial_lt_two_mul_factorial {j : ℕ} (hj : 3 ≤ j) :
     apply sum_factorial_lt_factorial_succ
     omega
 
-set_option backward.isDefEq.respectTransparency false
+set_option backward.isDefEq.respectTransparency false in
 lemma e_factorial_succ (j : ℕ) :
     e ⟨(j + 1)!, by positivity⟩ = ∑ i ∈ range (j + 1), i ! := by
   simp_rw [e_def, PNat.mk_coe, cast_sum]
@@ -136,6 +136,7 @@ lemma e_factorial_succ (j : ℕ) :
   rw [ZMod.natCast_eq_zero_iff]
   exact factorial_dvd_factorial (Nat.le_add_right _ _)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Nonarchimedean $e$ is not an integer. -/
 lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := by
   rintro (a|a) ha
@@ -249,6 +250,7 @@ lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
   rw [← hhj']
   rw [ZMod.castHom_apply, ZMod.cast_eq_val]
 
+set_option backward.isDefEq.respectTransparency false in
 -- LaTeX proof in the notes.
 lemma multiples (N : ℕ+) (z : ZHat) : (∃ (y : ZHat), N * y = z) ↔ z N = 0 := by
   constructor
