@@ -89,7 +89,6 @@ jobs:
         if: always()
         run: |
            cd .lake/build/lib/lean/FLTTest | copy "FLTTest*" .lake/build/lib/lean /Y
-        shell : cmd
 
       - name: Upstreaming dashboard
         uses: leanprover-community/upstreaming-dashboard-action@main
