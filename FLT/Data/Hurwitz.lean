@@ -457,7 +457,6 @@ private lemma aux2 (a b c d : ℝ) (ha : a ≤ 4⁻¹) (hb : b ≤ 4⁻¹) (hc :
   rw [this, le_sub_comm, invs] <;>
   gcongr
 
-set_option backward.isDefEq.respectTransparency false in
 open Quaternion in
 lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
   have four_inv : (4⁻¹ : ℝ) = 2⁻¹ ^ 2 := by norm_num

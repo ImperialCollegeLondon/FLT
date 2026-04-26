@@ -125,7 +125,6 @@ instance [CompactSpace R] : IsPrecomplete (maximalIdeal R) R where
         simpa using (H e).symm⟩)
     simpa [funext_iff, eq_comm (b := Ideal.Quotient.mk _ (f _))] using this
 
-set_option backward.isDefEq.respectTransparency false in
 variable {R} in
 lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueField R)]
     [IsAdicComplete (maximalIdeal R) R] :

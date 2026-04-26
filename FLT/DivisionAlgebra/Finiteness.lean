@@ -79,7 +79,6 @@ abbrev Dinf := D ⊗[K] (NumberField.InfiniteAdeleRing K)
 /-- Dinfx is notation for (D ⊗ 𝔸_K^∞)ˣ -/
 abbrev Dinfx := (Dinf K D)ˣ
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The inclusion Dˣ → D_𝔸ˣ as a group homomorphism. -/
 abbrev incl : Dˣ →* D_𝔸ˣ :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
@@ -109,11 +108,9 @@ instance : IsScalarTower ℝ (InfiniteAdeleRing K) (Dinf K D) :=
 
 variable [FiniteDimensional K D]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- We put the Borel measurable space structure on D_𝔸 in this file. -/
 instance : MeasurableSpace D_𝔸 := borel _
 
-set_option backward.isDefEq.respectTransparency false in
 instance : BorelSpace D_𝔸 := ⟨rfl⟩
 
 instance : Module.Finite ℝ (Dinf K D) :=
@@ -156,24 +153,20 @@ abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := Module.Finite
 -- Mathlib#29315....
 attribute [local instance 1100] IsTopologicalSemiring.toIsModuleTopology
 
-set_option backward.isDefEq.respectTransparency false in
 -- ...makes this work
 example : IsModuleTopology (AdeleRing (𝓞 K) K)
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := inferInstance
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The 𝔸_K-algebra equivalence of D_𝔸 and 𝔸_K^d. -/
 abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) :=
   ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
     (TensorProduct.AlgebraTensorModule.finiteEquivPi K D (AdeleRing (𝓞 K) K))
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The topological 𝔸_K-linear equivalence D_𝔸 ≃ 𝔸_K^d. -/
 abbrev D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)]
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :=
   IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
 
-set_option backward.isDefEq.respectTransparency false in
 theorem D_discrete_aux (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
     incl_Kn_𝔸Kn K D ⁻¹' U  =
     (D_iso K D) ''
@@ -190,7 +183,6 @@ theorem D_discrete_aux (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K)
       simp [← Algebra.algebraMap_eq_smul_one]
     simpa [← hy2, this] using hy1
 
-set_option backward.isDefEq.respectTransparency false in
 theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
   apply Discrete_of_HomeoDiscrete (Y' := ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)))
@@ -199,12 +191,10 @@ theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     ((D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (D_iso K D)
   simpa [D_discrete_aux] using Kn_discrete K D
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The additive subgroup D of D_𝔸. -/
 def includeLeft_subgroup : AddSubgroup D_𝔸 :=
   AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
 
-set_option backward.isDefEq.respectTransparency false in
 instance discrete_includeLeft_subgroup :
     DiscreteTopology (includeLeft_subgroup K D).carrier := by
   rw [includeLeft_subgroup, discreteTopology_iff_isOpen_singleton]
@@ -220,7 +210,6 @@ instance discrete_includeLeft_subgroup :
   simp [Set.ext_iff] at hUeq
   grind
 
-set_option backward.isDefEq.respectTransparency false in
 instance : T2Space (D ⊗[K] AdeleRing (𝓞 K) K) := IsModuleTopology.t2Space (AdeleRing (𝓞 K) K)
 
 instance discrete_principalSubgroup :
@@ -237,7 +226,6 @@ instance discrete_principalSubgroup :
   simp [Set.ext_iff] at hU
   grind
 
-set_option backward.isDefEq.respectTransparency false in
 -- we seem to have this twice?
 instance compact_includeLeft_subgroup :
     CompactSpace (D_𝔸 ⧸ (includeLeft_subgroup K D)) := by
@@ -284,7 +272,6 @@ instance compact_includeLeft_subgroup :
   rw [← isCompact_univ_iff, ← Set.image_univ_of_surjective hf2]
   exact isCompact_univ.image hf1
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped NNReal in
 lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
    IsOpen U → B < MeasureTheory.Measure.addHaar U →
@@ -299,7 +286,6 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
 
 section FiniteAdeleRing
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The K-algebra isomorphism `D_𝔸 ≃ D_∞ × D_f` -- adelic D is infinite adele D times
 finite adele D. -/
 abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
@@ -329,7 +315,6 @@ instance [FiniteDimensional K D] :
     IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
   IsModuleTopology.instProd'
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The 𝔸_K linear map `D_𝔸 ≃ D_∞ × D_f`. -/
 abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) := {
   toFun := D𝔸_prodRight K D
@@ -346,20 +331,17 @@ abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K 
     rfl
 }
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The continuous additive isomorphism `D_𝔸 ≃ D_∞ × D_f`. -/
 abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
   __ := D𝔸_prodRight K D
   continuous_toFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
   continuous_invFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).symm.toLinearMap
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The equivalence of the units of D_𝔸 and the product of the
 units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
 abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
   (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
 
-set_option backward.isDefEq.respectTransparency false in
 omit [FiniteDimensional K D] in
 lemma smul_D𝔸_prodRight_symm (a : (Dinf K D)ˣ) (b : (Df K D)ˣ)
     (di : Dinf K D) (df : Df K D) :
@@ -367,7 +349,6 @@ lemma smul_D𝔸_prodRight_symm (a : (Dinf K D)ˣ) (b : (Df K D)ˣ)
     (D𝔸_prodRight K D).symm (a • di, b • df) :=
   (map_mul _ _ _).symm
 
-set_option backward.isDefEq.respectTransparency false in
 lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
   rw [ MulEquiv.coe_trans]
   -- annoying that fun_prop and continuity can't seem to do this
@@ -381,7 +362,6 @@ lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
   · apply Continuous.units_map
     exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
 
-set_option backward.isDefEq.respectTransparency false in
 lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     ringHaarChar ((D𝔸_prodRight_units K D).symm (a, b)) =
     ringHaarChar (MulEquiv.prodUnits.symm (a, b)) := by
@@ -389,7 +369,6 @@ lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     (D𝔸_prodRight'' K D)
   simp [MulEquivClass.map_mul]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- For any positive real `r`, there's some `ρ ∈ ℝˣ` such that the haar character of
 `(ρ, 1) ∈ D_f × D_∞` is `r`. -/
 lemma ringHaarChar_D𝔸_real_surjective (r : ℝ) (h : r > 0) :
@@ -509,7 +488,6 @@ instance (vi : InfinitePlace K) : ContinuousSMul ℝ vi.Completion := by
       (by simpa using h)).symm.isometry_toFun.continuous.comp Complex.continuous_ofReal
     simpa only [real_to_completion, h, ↓reduceDIte]
 
-set_option backward.isDefEq.respectTransparency false in
 instance (vi : InfinitePlace K) : IsModuleTopology ℝ vi.Completion :=
   isModuleTopologyOfFiniteDimensional
 
@@ -519,7 +497,6 @@ instance (vi : InfinitePlace K) : Algebra ℝ (D ⊗[K] vi.Completion) :=
 instance (vi : InfinitePlace K) : IsScalarTower ℝ vi.Completion (D ⊗[K] vi.Completion) :=
   IsScalarTower.of_compHom ..
 
-set_option backward.isDefEq.respectTransparency false in
 instance (vi : InfinitePlace K) : IsModuleTopology ℝ (D ⊗[K] vi.Completion) := by
   rw [IsModuleTopology.trans ℝ vi.Completion]
   infer_instance
@@ -649,7 +626,6 @@ local instance : MeasurableSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) := bore
 
 local instance : BorelSpace ((FiniteAdeleRing (𝓞 K) K) ⊗[K] D) := ⟨rfl⟩
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     [Algebra.IsCentral K D] (u : D_𝔸ˣ) :
@@ -704,7 +680,6 @@ end auxiliary_defs
 
 open scoped Pointwise
 
-set_option backward.isDefEq.respectTransparency false in
 open InfinitePlace.Completion Set Rat RestrictedProduct in
 /-- An auxiliary definition of an increasing family of compact
 subsets of D_𝔸, defined as the product of a compact neighbourhood of 0
@@ -714,13 +689,11 @@ at the infinite places.
 def Efamily (r : ℝ) : Set (D_𝔸) :=
   (D𝔸_prodRight'' K D).symm '' (r • Ui K D) ×ˢ (Uf K D)
 
-set_option backward.isDefEq.respectTransparency false in
 lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := by
   refine IsCompact.image ?_ (by fun_prop)
   refine IsCompact.prod ?_ (Uf.spec K D).1
   exact IsCompact.image (Ui.spec K D).1 (show Continuous (fun x ↦ r • x) by fun_prop)
 
-set_option backward.isDefEq.respectTransparency false in
 lemma E_family_nonempty_interior : (interior (Efamily K D 1)).Nonempty := by
   unfold Efamily
   rw [one_smul]
@@ -730,7 +703,6 @@ lemma E_family_nonempty_interior : (interior (Efamily K D 1)).Nonempty := by
   rw [mem_interior_iff_mem_nhds, Prod.zero_eq_mk, mem_nhds_prod_iff]
   exact ⟨Ui K D, (Ui.spec K D).2, Uf K D, (Uf.spec K D).2, subset_rfl⟩
 
-set_option backward.isDefEq.respectTransparency false in
 open NNReal ENNReal in
 lemma E_family_unbounded (B : ℝ≥0) :
     ∃ r, MeasureTheory.Measure.addHaar (Efamily K D r) > B := by
@@ -795,7 +767,6 @@ lemma E_family_unbounded (B : ℝ≥0) :
     exact mt (NNReal.eq (m := 0)) hm
   · linarith
 
-set_option backward.isDefEq.respectTransparency false in
 lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
     ∀ φ : D_𝔸 ≃ₜ+ D_𝔸, addEquivAddHaarChar φ = 1 → ∃ e₁ ∈ E, ∃ e₂ ∈ E,
     e₁ ≠ e₂ ∧ φ e₁ - φ e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
@@ -822,16 +793,13 @@ lemma existsE : ∃ E : Set (D_𝔸), IsCompact E ∧
 /-- An auxiliary set E used in the proof of Fujisaki's lemma. -/
 def E : Set D_𝔸 := (existsE K D).choose
 
-set_option backward.isDefEq.respectTransparency false in
 lemma E_compact : IsCompact (E K D) := (existsE K D).choose_spec.1
 
-set_option backward.isDefEq.respectTransparency false in
 lemma E_noninjective_left {x : D_𝔸ˣ} (h : x ∈ ringHaarChar_ker D_𝔸) :
     ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   (existsE K D).choose_spec.2 (ContinuousAddEquiv.mulLeft x) h
 
-set_option backward.isDefEq.respectTransparency false in
 lemma E_noninjective_right [Algebra.IsCentral K D] {x : D_𝔸ˣ} (h : x ∈ ringHaarChar_ker D_𝔸) :
     ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     e₁ * x⁻¹ - e₂ * x⁻¹  ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
@@ -849,17 +817,14 @@ open scoped Pointwise in
 /-- An auxiliary set Y used in the proof of Fukisaki's lemma. Defined as X * X. -/
 def Y : Set D_𝔸 := X K D * X K D
 
-set_option backward.isDefEq.respectTransparency false in
 lemma X_compact : IsCompact (X K D) := by
   simpa only [Set.image_prod, Set.image2_sub] using (IsCompact.image_of_continuousOn
     ((E_compact K D).prod (E_compact K D)) ((continuous_fst.sub continuous_snd).continuousOn))
 
-set_option backward.isDefEq.respectTransparency false in
 lemma Y_compact : IsCompact (Y K D) := by
   simpa only [Pi.mul_def, Set.image_prod, Set.image2_mul, Y] using (IsCompact.image_of_continuousOn
     ((X_compact K D).prod (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
-set_option backward.isDefEq.respectTransparency false in
 lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := by
   obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_left K D hβ
@@ -873,7 +838,6 @@ lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     simp only [← hb, TensorProduct.zero_tmul, ne_eq, not_true_eq_false] at h1
   exact ⟨incl K D b1, ⟨b1, rfl⟩, by simpa [mul_sub] using hb.symm⟩
 
-set_option backward.isDefEq.respectTransparency false in
 lemma X_meets_kernel' [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := by
   obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_right K D hβ
@@ -887,11 +851,9 @@ lemma X_meets_kernel' [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ring
     simp only [← hb, TensorProduct.zero_tmul, ne_eq, not_true_eq_false] at h1
   exact ⟨incl K D b1, ⟨b1, rfl⟩, by simpa [sub_mul] using hb.symm⟩
 
-set_option backward.isDefEq.respectTransparency false in
 /-- An auxiliary set T used in the proof of Fukisaki's lemma. Defined as Y ∩ Dˣ. -/
 def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.range ((incl K D : Dˣ → D_𝔸ˣ))
 
-set_option backward.isDefEq.respectTransparency false in
 lemma T_finite_extracted1 : IsCompact (Y K D ∩
     Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
   refine IsCompact.inter_right (Y_compact K D) ?_
@@ -900,7 +862,6 @@ lemma T_finite_extracted1 : IsCompact (Y K D ∩
   simpa [includeLeft_subgroup] using AddSubgroup.isClosed_of_discrete
     (H := includeLeft_subgroup K D)
 
-set_option backward.isDefEq.respectTransparency false in
 lemma T_finite : Set.Finite (T K D) := by
   have h := IsCompact.finite (T_finite_extracted1 K D)
     ⟨(inter_Discrete (includeLeft_subgroup K D).carrier (Y K D))⟩
@@ -911,12 +872,10 @@ lemma T_finite : Set.Finite (T K D) := by
   exact Set.Finite.of_finite_image (Set.Finite.subset h h1)
     (Function.Injective.injOn Units.val_injective)
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped Pointwise in
 /-- An auxiliary set C used in the proof of Fukisaki's lemma. Defined as T⁻¹X × X. -/
 def C : Set (D_𝔸 × D_𝔸) := ((((↑) : D_𝔸ˣ → D_𝔸) '' (T K D)⁻¹) * X K D) ×ˢ X K D
 
-set_option backward.isDefEq.respectTransparency false in
 lemma C_compact : IsCompact (C K D) := by
   refine IsCompact.prod ?_ (X_compact K D)
   simpa only [Pi.mul_def, Set.image_prod, Set.image2_mul] using
@@ -925,7 +884,6 @@ lemma C_compact : IsCompact (C K D) := by
     (Units.continuous_val) (continuousOn_id' (T K D)⁻¹)))
     (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
-set_option backward.isDefEq.respectTransparency false in
 lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ b ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ),
     ∃ ν ∈ ringHaarChar_ker D_𝔸,
@@ -947,24 +905,20 @@ lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringH
     simp_rw [(Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq ht1)))]
     exact Set.mem_mul.mpr ⟨↑t⁻¹, Set.mem_image_of_mem Units.val ht, x2, hx2, rfl⟩
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The inclusion of `ringHaarChar_ker D_𝔸` into the product space `D_𝔸 × D_𝔸ᵐᵒᵖ`. -/
 def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
   fun u => Units.embedProduct D_𝔸 (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
 
-set_option backward.isDefEq.respectTransparency false in
 /-- An auxiliary set used in the proof of compact_quotient'. -/
 def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D)
   (Set.image (fun p => (p.1, MulOpposite.op p.2)) (Aux.C K D))
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The map from `ringHaarChar_ker D_𝔸` to the quotient `Dˣ \ ringHaarChar_ker D_𝔸`. -/
 abbrev toQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
   (Quotient.mk (QuotientGroup.rightRel ((MonoidHom.range (incl K D)).comap
   (ringHaarChar_ker D_𝔸).subtype)) a)
 
-set_option backward.isDefEq.respectTransparency false in
 lemma toQuot_cont : Continuous (toQuot K D) where
   isOpen_preimage := fun _ a ↦ a
 
@@ -991,7 +945,6 @@ lemma toQuot_surjective [Algebra.IsCentral K D] : (toQuot K D) '' (M K D) = Set.
     rw [this]
     rfl
 
-set_option backward.isDefEq.respectTransparency false in
 lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
   apply Units.isClosedEmbedding_embedProduct.comp
   refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
@@ -1003,31 +956,25 @@ lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
   exact IsClosed.preimage (continuous_id')
     (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
 
-set_option backward.isDefEq.respectTransparency false in
 lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.C K D) :=
   IsCompact.image (Aux.C_compact K D) <| by fun_prop
 
-set_option backward.isDefEq.respectTransparency false in
 lemma M_compact : IsCompact (M K D) := Topology.IsClosedEmbedding.isCompact_preimage
   (incl₂_isClosedEmbedding K D) (ImAux_isCompact K D)
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The restriction of ringHaarChar_ker D_𝔸 to (D ⊗ 𝔸_K^∞)ˣ via D𝔸_iso_prod_units. -/
 abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
   fun a => (D𝔸_prodRight_units K D) a.val |>.2
 
-set_option backward.isDefEq.respectTransparency false in
 lemma rest₁_continuous : Continuous (rest₁ K D) :=
   Continuous.comp continuous_snd
   (Continuous.comp (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
 
-set_option backward.isDefEq.respectTransparency false in
 lemma ringHaarChar_D𝔸_prodRight_units_aux (r : ℝ) (h : r > 0) :
     ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
   obtain ⟨ρ, hρ⟩ := ringHaarChar_D𝔸_real_surjective K D r h
   use ((Units.map (algebraMap ℝ (Dinf K D))) ρ)
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped NNReal in
 lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
   intro x
@@ -1050,7 +997,6 @@ lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
       ext <;> simp
     simp_rw [this, map_mul, map_inv, hy, ← hr_def, inv_mul_cancel₀ hr.ne']
 
-set_option backward.isDefEq.respectTransparency false in
 -- the goal that comes up when you define the map `Dˣ \ D_𝔸^(1) to Dˣ \ (Dfx K D)`
 -- below using Quot.lift
 lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
@@ -1070,7 +1016,6 @@ lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
   simp_rw [this, ht, ← Prod.snd_mul, Subgroup.subtype_apply, Subgroup.comap_subtype, ← map_mul]
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The obvious map Dˣ \ D_𝔸^(1) to Dˣ \ (Dfx K D). -/
 abbrev incl_D𝔸quot : Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (NumberField.AdeleRing.DivisionAlgebra.Aux.incl K D)).comap
@@ -1080,12 +1025,10 @@ abbrev incl_D𝔸quot : Quotient (QuotientGroup.rightRel
     (fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a))
     (incl_D𝔸quot_equivariant K D)
 
-set_option backward.isDefEq.respectTransparency false in
 lemma incl_D𝔸quot_continuous : Continuous (incl_D𝔸quot K D) := by
   refine Continuous.quotient_lift ?_ (incl_D𝔸quot_equivariant K D)
   exact Continuous.comp' ({isOpen_preimage := fun s a ↦ a}) (rest₁_continuous K D)
 
-set_option backward.isDefEq.respectTransparency false in
 lemma incl_D𝔸quot_surjective : Function.Surjective (incl_D𝔸quot K D) := by
   refine (Quot.surjective_lift (f := fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range)
     (rest₁ K D a)) (incl_D𝔸quot_equivariant K D)).mpr ?_
@@ -1105,7 +1048,6 @@ variable [FiniteDimensional K D]
 
 open scoped TensorProduct.RightActions
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Dˣ \ D_𝔸^{(1)} is compact. -/
 lemma compact_quotient [Algebra.IsCentral K D] :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel
@@ -1115,7 +1057,6 @@ lemma compact_quotient [Algebra.IsCentral K D] :
 
 variable [Algebra.IsCentral K D]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Dˣ \ D_𝔸^fˣ is compact. -/
 theorem _root_.NumberField.FiniteAdeleRing.DivisionAlgebra.units_cocompact :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel (incl₁ K D).range)) := by
