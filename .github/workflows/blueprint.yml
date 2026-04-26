@@ -76,9 +76,10 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
-      - name: Adjusting for test
+      - name: Adjusting for test copy
         if: always()
-        run:  copy ".lake/build/lib/lean/FLTTest/FLTTest*" ".lake/build/lib/lean/"
+        run: |
+           cd .lake/build/lib/lean/FLTTest | copy "FLTTest*" .lake/build/lib/lean /Y
         shell : cmd
 
       - name: Build and lint project
