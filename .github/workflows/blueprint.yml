@@ -76,6 +76,11 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
+      - name: Adjusting for test
+        if: always()
+        run:  copy ".lake/build/lib/lean/FLTTest/FLTTest*" ".lake/build/lib/lean/"
+        shell : cmd
+
       - name: Build and lint project
         uses: leanprover/lean-action@v1
         with:
