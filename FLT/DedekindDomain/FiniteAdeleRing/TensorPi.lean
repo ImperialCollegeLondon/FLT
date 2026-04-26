@@ -184,9 +184,6 @@ variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M]
   [h : Module.FinitePresentation R M] {ι : Type*} (N : ι → Type*) [∀ i, AddCommGroup (N i)]
   [∀ i, Module R (N i)]
 
--- note that`TensorProduct.piRightHom` is marked `backward.proofsInPublic true` in mathlib
--- so I don't think there's much I can do about this `set_option` here.
-set_option backward.proofsInPublic true in
 /-- Tensoring with a finitely-presented module commutes with arbitrary products.
 To prove this, we consider the following commutative diagram. The goal is to show
 that `i₃` is an isomorphism, which we do using the five lemma:
@@ -201,7 +198,8 @@ Rᵐ ⊗[R] (Π i, N i) --f₁--> Rⁿ ⊗[R] (Π i, N i) --f₂--> M ⊗[R] (Π
 ```
 -/
 noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
-    M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := IsTensorProduct.equiv <| by
+    M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := IsTensorProduct.equiv
+    (f := TensorProduct.piRightHomBil R R M N) <| by
   obtain ⟨n, m, f, g, exact, surj⟩ := Module.FinitePresentation.exists_fin_exact R M
   set i₁ : (Fin m → R) ⊗[R] (Π i, N i) →ₗ[R] Π i, ((Fin m → R) ⊗[R] N i) :=
     (tensorPi_equiv_piTensor R (Fin m → R) N).toLinearMap
