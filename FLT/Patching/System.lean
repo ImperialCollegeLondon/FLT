@@ -114,7 +114,6 @@ instance IsPatchingSystem.isModuleQuotient' [PatchingAlgebra.smulData Λ R M]
     Module (R i ⧸ (maximalIdeal (R i) ^ (PatchingAlgebra.smulData.f R M α)))
       (M i ⧸ (α.1 • ⊤ : Submodule Λ (M i))) := IsPatchingSystem.isModuleQuotient ..
 
-set_option backward.isDefEq.respectTransparency false in
 noncomputable
 instance [PatchingAlgebra.smulData Λ R M] (α : OpenIdeals Λ) :
     Module (PatchingAlgebra.Component R F (PatchingAlgebra.smulData.f R M α))
@@ -146,7 +145,6 @@ instance [PatchingAlgebra.smulData Λ R M] : SMul (PatchingAlgebra R F) (Patchin
     obtain rfl := funext hm
     rfl⟩
 
-set_option backward.isDefEq.respectTransparency false in
 noncomputable
 instance [PatchingAlgebra.smulData Λ R M] : Module (PatchingAlgebra R F)
     (PatchingModule Λ M F) where
@@ -275,7 +273,6 @@ lemma Ultrafilter.eventually_eventually_eq_of_finite
   filter_upwards [ha] with j hj
   rw [hi, hj]
 
-set_option backward.isDefEq.respectTransparency false in
 omit
   [∀ (i : ι), TopologicalSpace (R i)]
   [∀ (i : ι), IsTopologicalRing (R i)]
@@ -403,7 +400,6 @@ lemma smul_lemma
     obtain ⟨x, rfl⟩ := PatchingModule.ofPi_surjective x
     rfl
 
-set_option backward.isDefEq.respectTransparency false in
 include Λ R M F fRₒₒ hfRₒₒ hfRₒₒ' sR sM in
 omit [Module.Finite R₀ M₀] [Module.Finite Λ M₀] [IsNoetherianRing Rₒₒ] in
 lemma support_eq_top

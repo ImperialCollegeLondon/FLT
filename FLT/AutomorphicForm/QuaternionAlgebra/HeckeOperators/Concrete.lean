@@ -131,7 +131,6 @@ variable (R : Type*) [CommRing R]
 namespace HeckeOperator
 
 variable {F D S} in
-set_option maxSynthPendingDepth 1 in
 open scoped TensorProduct.RightActions in
 /-- The Hecke operator T_v as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S).
@@ -212,7 +211,6 @@ lemma quot_top_finite (r : Rigidification F D) (α : v.adicCompletionIntegers F)
   apply Set.Finite.of_finite_image _ (unipotent_mul_diag_inj r α hα)
   apply unipotent_mul_diag_image_finite
 
-set_option maxSynthPendingDepth 1 in -- shaves a little time off compilation!
 /-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
 considered as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S). Here α is a nonzero element of 𝓞ᵥ.

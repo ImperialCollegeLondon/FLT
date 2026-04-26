@@ -33,15 +33,10 @@ In the `TotallyDefiniteQuaternionAlgebra` namespace:
   It is a nontrivial theorem that if `U` is open and `R` is Noetherian then this space
   is a finitely-generated `R`-module; this follows from Fujisaki's lemma.
 
-## Implementation notes
-
-This file is slow, for reasons I don't understand properly.
 -/
 
 suppress_compilation
 
-set_option maxSynthPendingDepth 1 -- otherwise things are even slower, for some reason which
--- I never quite got to the bottom of
 
 variable (F : Type*) [Field F] [NumberField F] -- if F isn't totally real all the definitions
 -- below are garbage mathematically but they typecheck.

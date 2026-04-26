@@ -60,7 +60,6 @@ def _root_.WithAbs.semialgebraMap {R R' S : Type*} [CommSemiring R] [CommSemirin
   map_smul' r x := by
     simp [WithAbs.algebraMap_left_apply, WithAbs.algebraMap_right_apply, Algebra.smul_def]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The map from `v.Completion` to `w.Completion` whenever the infinite place `w` of `L` lies
 above the infinite place `v` of `K`. -/
 abbrev comapHom (h : w.comap (algebraMap K L) = v) :
@@ -73,7 +72,6 @@ theorem comapHom_cont (h : w.comap (algebraMap K L) = v) : Continuous (comapHom 
 
 variable (L v)
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The map from `v.Completion` to the product of all completions of `L` lying above `v`. -/
 def piExtension :
     v.Completion →ₛₐ[algebraMap K L] (wv : v.Extension L) → wv.1.Completion :=
@@ -95,7 +93,6 @@ abbrev baseChange :
     L ⊗[K] v.Completion →ₐ[L] (wv : v.Extension L) → wv.1.Completion :=
   baseChange_of_algebraMap (piExtension L v)
 
-set_option backward.isDefEq.respectTransparency false in
 /- The motivation for changing the scalars of `baseChange L v` to `v.Completion` is that
 both sides are _finite-dimensional_ `v.Completion`-modules, which have the same dimension.
 This fact is used to show that `baseChangeRight` (and therefore `baseChange`) is surjective. -/
