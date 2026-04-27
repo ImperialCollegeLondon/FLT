@@ -80,8 +80,14 @@ jobs:
         uses: leanprover/lean-action@v1
         with:
           build: true
+          test: true
           lint: true
           mk_all-check: true
+
+      - name: Adjusting for test copy
+        if: always()
+        run: |
+           cp -f .lake/build/lib/lean/FLTTest/FLTTest* .lake/build/lib/lean/
 
       - name: Upstreaming dashboard
         uses: leanprover-community/upstreaming-dashboard-action@main
