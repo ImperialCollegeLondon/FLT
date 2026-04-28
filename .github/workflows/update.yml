@@ -1,40 +1,60 @@
+# Keeps FLT's mathlib dependency up to date and tracks compatibility.
+#
+# leanprover-community/downstream-reports publishes a daily snapshot
+# of each downstream's build status against recent mathlib commits, identifying the
+# last-known-good (LKG) and first-known-bad (FKB) mathlib revisions for each project.
+#
+# The provided actions which are used here consume this snapshot, with:
+#
+#   bump       — updates lakefile.lean/lake-manifest to the LKG mathlib commit
+#                and opens (or force-pushes) a PR.
+#   open-issue — opens a persistent issue when an incompatible commit is reported (i.e. FLT
+#                can't yet advance to the mathlib tip), and closes it automatically
+#                once the incompatibility is resolved.
+
 name: Update Dependencies
 on:
   schedule:             # Sets a schedule to trigger the workflow
-  - cron: "0 8 */7 * *" # Every 7 days at 08:00 AM UTC (for more info on the cron syntax see https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule)
+  - cron: "0 17 * * *" # Daily at 17:00 UTC, 2 hours after the downstream-reports regression run (15:00 UTC)
   workflow_dispatch:    # Allows the workflow to be triggered manually via the GitHub interface
 
 jobs:
-  check-for-updates: # Determines which updates to apply.
-    runs-on: ubuntu-latest
-    outputs:
-      is-update-available: ${{ steps.check-for-updates.outputs.is-update-available }}
-      new-tags: ${{ steps.check-for-updates.outputs.new-tags }}
-    steps:
-      - name: Run the action
-        id: check-for-updates
-        uses: leanprover-community/mathlib-update-action@30121004826adb85f006e31ce5d25a33ce79c7a6 # 2025-06-16
-        # START CONFIGURATION BLOCK 1
-        # END CONFIGURATION BLOCK 1
-  do-update: # Runs the upgrade, tests it, and makes a PR/issue/commit.
+  bump:
     runs-on: ubuntu-latest
     permissions:
-      contents: write      # Grants permission to push changes to the repository
-      issues: write        # Grants permission to create or update issues
-      pull-requests: write # Grants permission to create or update pull requests
-    needs: check-for-updates
-    if: ${{ needs.check-for-updates.outputs.is-update-available == 'true' }}
-    strategy: # Runs for each update discovered by the `check-for-updates` job.
-      max-parallel: 1 # Ensures that the PRs/issues are created in order.
-      matrix:
-        tag: ${{ fromJSON(needs.check-for-updates.outputs.new-tags) }}
+      contents: write
+      pull-requests: write
     steps:
-      - name: Run the action
-        id: update-the-repo
-        uses: leanprover-community/mathlib-update-action/do-update@30121004826adb85f006e31ce5d25a33ce79c7a6 # 2025-06-16
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Bump to latest mathlib
+        id: bump
+        uses: leanprover-community/downstream-reports/.github/actions/bump-to-latest@main
         with:
-          tag: ${{ matrix.tag }}
-          # START CONFIGURATION BLOCK 2
-          on_update_succeeds: pr # Create a pull request if the update succeeds
-          on_update_fails: issue # Create an issue if the update fails
-          # END CONFIGURATION BLOCK 2
+          # The bump-to-latest action performs a lake build as a sanity check by default,
+          # but FLT's build is expensive and it will be re-checked when the PR is opened anyways:
+          # let's pass this parameter to skip this check and just open the PR with the verified last-known-good.
+          #
+          # The only situation where this might fail is if there have been new commits in FLT
+          # between the time downstream-reports published the last-known-good and the time this
+          # PR is opened: this should be rare and it will be caught by the PR validation anyway,
+          # so it is an acceptable tradeoff.
+          skip-build: 'true'
+
+      - name: Open or update PR
+        if: steps.bump.outputs.updated == 'true'
+        uses: leanprover-community/downstream-reports/.github/actions/open-bump-pr@main
+        with:
+          title:          "chore: ${{ steps.bump.outputs.pr-title }}"
+          message:        ${{ steps.bump.outputs.bump-description }}
+          commit-message: ${{ steps.bump.outputs.commit-message }}
+
+  open-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v6.0.2
+
+      - name: Open or update incompatibility issue
+        uses: leanprover-community/downstream-reports/.github/actions/open-incompatibility-issue@main
