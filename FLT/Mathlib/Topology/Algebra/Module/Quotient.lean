@@ -35,6 +35,6 @@ def Submodule.quotientPiContinuousLinearEquiv {R Î¹ : Type*} [CommRing R] {G : Î
       LinearMap.lsum_apply, LinearMap.coe_sum, LinearMap.coe_comp, LinearMap.coe_proj,
       LinearEquiv.invFun_eq_symm, LinearEquiv.coe_symm_mk, Finset.sum_apply, Function.comp_apply,
       Function.eval]
-    refine continuous_finset_sum _ (fun i _ => ?_)
+    refine continuous_finsetSum _ (fun i _ => ?_)
     apply Continuous.comp ?_ (continuous_apply _)
     apply Continuous.quotient_lift <| Continuous.comp (continuous_quot_mk) (continuous_single _)

@@ -350,7 +350,7 @@ lemma j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : q.Prime)
     ← padicValRat_of_nat, padicValNat_primes hqodd.ne', Nat.cast_zero, mul_zero, zero_add]
   have : ¬ (q : ℤ) ∣ (P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 := by
     rw [hqPrime'.dvd_pow_iff_dvd three_ne_zero]
-    have hq' : Xor' ((q : ℤ) ∣ P.a * P.b) ((q : ℤ) ∣ P.c) := by
+    have hq' : Xor ((q : ℤ) ∣ P.a * P.b) ((q : ℤ) ∣ P.c) := by
       rw [xor_iff_not_iff, iff_iff_and_or_not_and_not]
       rintro (⟨hab, hc⟩ | ⟨hab, hc⟩)
       · rw [hqPrime'.dvd_mul] at hab
