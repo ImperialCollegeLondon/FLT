@@ -53,8 +53,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v6.0.2
-
       - name: Open or update incompatibility issue
-        uses: leanprover-community/downstream-reports/.github/actions/open-incompatibility-issue@main
+        uses: leanprover-community/downstream-reports/.github/actions/track-incompatibility@main
+        with:
+          # Open a PR bumping to the 'known bad' revision so a maintainer can check out that branch
+          # and work on a fix.
+          # This PR is independent to the bump PR opened in the other job, which should be automatically mergable
+          # without further modifications.
+          open-pr: true
