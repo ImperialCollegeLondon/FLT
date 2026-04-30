@@ -480,7 +480,7 @@ lemma RestrictedProduct.mem_nhds_iff_of_cofinite {x : Πʳ i, [G i, C i]} {U : S
       apply x'.eventually
     · filter_upwards [hIf.compl_mem_cofinite, x.eventually] with i (hI : i ∉ I) hC
       simp [hI, hC, hTval]
-    · grw [← image_coe_preimage_inclusion_subset, ← hU, Set.image_preimage_eq_inter_range,
+    · grw [← image_coe_preimage_inclusion_subset _ _ hT, ← hU, Set.image_preimage_eq_inter_range,
         range_coe_principal]
       simp [Set.subset_def, or_iff_not_imp_right, forall_and]
   · apply mem_nhds_of_exists_nhds_of_cofinite hCopen s hs
