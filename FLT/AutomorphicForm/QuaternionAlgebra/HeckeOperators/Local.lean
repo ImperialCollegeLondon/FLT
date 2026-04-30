@@ -604,7 +604,8 @@ lemma quotient_diff_mul_mem_span {R : Type*} [CommRing R] {π b d t₀ : R} [Inv
     simpa using (inv_mul_cancel₀ (x := d) : (⅟d : R) * d = 1)
   simpa [sub_eq_add_neg, mul_add, add_mul, mul_assoc, mul_comm, mul_left_comm, h_inv] using hqd
 
-set_option maxHeartbeats 5000000 in
+-- `fin_cases` on the 4 matrix entries with `simp` on adelic coercions is inherently expensive
+set_option maxHeartbeats 3500000 in
 lemma surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLevel :
     Set.SurjOn (localFullLevelDiagLocalFullLevelRep (v := v)) Set.univ
       (localFullLevelDiagLocalFullLevel (v := v)) := by
@@ -698,34 +699,6 @@ lemma surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLeve
               ((b : adicCompletion F v) - (t₀ : adicCompletion F v) * d);
             c * (π : adicCompletion F v), d] := by
         simpa [z] using hconj'
-      have h00 : z 0 0 =
-          ((!![((a : adicCompletion F v) - (t₀ : adicCompletion F v) * c),
-            (π : adicCompletion F v)⁻¹ *
-              ((b : adicCompletion F v) - (t₀ : adicCompletion F v) * d);
-            c * (π : adicCompletion F v), d] :
-              Matrix (Fin 2) (Fin 2) (adicCompletion F v)) 0 0) := by
-        simpa using congrArg (fun M : Matrix (Fin 2) (Fin 2) (adicCompletion F v) => M 0 0) hz
-      have h01 : z 0 1 =
-          ((!![((a : adicCompletion F v) - (t₀ : adicCompletion F v) * c),
-            (π : adicCompletion F v)⁻¹ *
-              ((b : adicCompletion F v) - (t₀ : adicCompletion F v) * d);
-            c * (π : adicCompletion F v), d] :
-              Matrix (Fin 2) (Fin 2) (adicCompletion F v)) 0 1) := by
-        simpa using congrArg (fun M : Matrix (Fin 2) (Fin 2) (adicCompletion F v) => M 0 1) hz
-      have h10 : z 1 0 =
-          ((!![((a : adicCompletion F v) - (t₀ : adicCompletion F v) * c),
-            (π : adicCompletion F v)⁻¹ *
-              ((b : adicCompletion F v) - (t₀ : adicCompletion F v) * d);
-            c * (π : adicCompletion F v), d] :
-              Matrix (Fin 2) (Fin 2) (adicCompletion F v)) 1 0) := by
-        simpa using congrArg (fun M : Matrix (Fin 2) (Fin 2) (adicCompletion F v) => M 1 0) hz
-      have h11 : z 1 1 =
-          ((!![((a : adicCompletion F v) - (t₀ : adicCompletion F v) * c),
-            (π : adicCompletion F v)⁻¹ *
-              ((b : adicCompletion F v) - (t₀ : adicCompletion F v) * d);
-            c * (π : adicCompletion F v), d] :
-              Matrix (Fin 2) (Fin 2) (adicCompletion F v)) 1 1) := by
-        simpa using congrArg (fun M : Matrix (Fin 2) (Fin 2) (adicCompletion F v) => M 1 1) hz
       intro i j
       fin_cases i <;> fin_cases j
       · change Valued.v (z 0 0) ≤ 1
