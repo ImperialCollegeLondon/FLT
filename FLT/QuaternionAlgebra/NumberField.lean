@@ -4,6 +4,10 @@ public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 public import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 public import FLT.Mathlib.Topology.Instances.Matrix
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import Mathlib.Topology.Algebra.Group.Matrix
+public import Mathlib.Topology.Algebra.OpenSubgroup
+public import Mathlib.Topology.Algebra.Group.Units
+public import Mathlib.Topology.Algebra.Ring.Compact
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import Mathlib.Topology.Homeomorph.Defs
 public import Mathlib.Topology.Algebra.ContinuousMonoidHom
@@ -80,15 +84,92 @@ theorem M2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
 
 -- the clever way to prove this is a theorem of the form "if A is an open submonoid of R
 -- then Aˣ is an open subgroup of Rˣ"
+theorem GL2.localFullLevel_eq_units (v : HeightOneSpectrum (𝓞 F)) :
+    GL2.localFullLevel v = (M2.localFullLevel v).toSubmonoid.units := by
+  ext x
+  constructor
+  · intro hx
+    rcases hx with ⟨u, rfl⟩
+    rw [Submonoid.mem_units_iff]
+    constructor
+    · let m : Matrix (Fin 2) (Fin 2) (v.adicCompletionIntegers F) := u
+      have hm : m.map (v.adicCompletionIntegers F).subtype ∈
+          (v.adicCompletionIntegers F).matrix := by
+        change m.map Subtype.val ∈ Set.matrix
+          (↑(v.adicCompletionIntegers F) : Set (v.adicCompletion F))
+        rw [Set.mem_matrix]
+        intro i j
+        exact (m i j).2
+      simpa [m, Units.map] using hm
+    · let m : Matrix (Fin 2) (Fin 2) (v.adicCompletionIntegers F) := u⁻¹
+      have hm : m.map (v.adicCompletionIntegers F).subtype ∈
+          (v.adicCompletionIntegers F).matrix := by
+        change m.map Subtype.val ∈ Set.matrix
+          (↑(v.adicCompletionIntegers F) : Set (v.adicCompletion F))
+        rw [Set.mem_matrix]
+        intro i j
+        exact (m i j).2
+      simpa [m, Units.map] using hm
+  · intro hx
+    rw [Submonoid.mem_units_iff] at hx
+    rcases hx with ⟨hx, hxinv⟩
+    have hx_set : (x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) ∈
+        Set.matrix (↑(v.adicCompletionIntegers F) : Set (v.adicCompletion F)) := by
+      simpa [Subring.matrix] using hx
+    have hxinv_set : ((x⁻¹ : Units (Matrix (Fin 2) (Fin 2) (v.adicCompletion F))) :
+        Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) ∈
+        Set.matrix (↑(v.adicCompletionIntegers F) : Set (v.adicCompletion F)) := by
+      simpa [Subring.matrix] using hxinv
+    have hx' : ∀ i j, (x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) i j ∈
+        (v.adicCompletionIntegers F) := by
+      simpa [Set.mem_matrix] using hx_set
+    have hxinv' : ∀ i j, ((x⁻¹ : Units (Matrix (Fin 2) (Fin 2) (v.adicCompletion F))) :
+        Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) i j ∈ (v.adicCompletionIntegers F) := by
+      simpa [Set.mem_matrix] using hxinv_set
+    let a : Matrix (Fin 2) (Fin 2) (v.adicCompletionIntegers F) :=
+      Matrix.of fun i j => ⟨x i j, hx' i j⟩
+    let b : Matrix (Fin 2) (Fin 2) (v.adicCompletionIntegers F) :=
+      Matrix.of fun i j => ⟨(x⁻¹ : Units (Matrix (Fin 2) (Fin 2) (v.adicCompletion F))) i j,
+        hxinv' i j⟩
+    have ha : a.map (v.adicCompletionIntegers F).subtype = x := by
+      ext i j
+      simp [a]
+    have hb : b.map (v.adicCompletionIntegers F).subtype = x⁻¹ := by
+      ext i j
+      simp [b]
+    have hmul : (a * b).map (v.adicCompletionIntegers F).subtype = 1 := by
+      have h0 : (x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) *
+          (x⁻¹ : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) = 1 := by
+        simpa using x.mul_inv
+      rw [Matrix.map_mul, ha, hb]
+      simpa using h0
+    have hmul' : a * b = 1 := by
+      have hmulmap : (a * b).map (v.adicCompletionIntegers F).subtype =
+          (1 : Matrix (Fin 2) (Fin 2) (v.adicCompletionIntegers F)).map
+            (v.adicCompletionIntegers F).subtype := by
+        simpa using hmul
+      exact Matrix.map_injective
+        (show Function.Injective (v.adicCompletionIntegers F).subtype from Subtype.val_injective)
+        hmulmap
+    refine ⟨Units.mkOfMulEqOne a b hmul', ?_⟩
+    ext i j
+    simp [Units.map, a]
+
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localFullLevel v).carrier :=
-  sorry
+  by
+    simpa [GL2.localFullLevel_eq_units] using
+      (Submonoid.isOpen_units (U := (M2.localFullLevel v).toSubmonoid)
+        (M2.localFullLevel.isOpen v))
 
 -- the clever way to prove this is a theorem of the form "if A is a compact submonoid of R
 -- then Aˣ is a compact subgroup of Rˣ"
 theorem GL2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (GL2.localFullLevel v).carrier :=
-  sorry
+  by
+    simpa [GL2.localFullLevel_eq_units] using
+      (Submonoid.units_isCompact (S := (M2.localFullLevel v).toSubmonoid)
+        (M2.localFullLevel.isCompact v))
 
 lemma GL2.mem_localFullLevel {v : HeightOneSpectrum (𝓞 F)} {x : GL (Fin 2) (v.adicCompletion F)}
     (hx : x ∈ localFullLevel v) :
@@ -198,13 +279,91 @@ noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
 -- then Aˣ is an open subgroup of Rˣ"
 theorem GL2.localTameLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (GL2.localTameLevel v).carrier :=
-  sorry
+  by
+    have hL : IsOpen (GL2.localFullLevel v : Set (GL (Fin 2) (v.adicCompletion F))) :=
+      GL2.localFullLevel.isOpen v
+    have hS : IsOpen ({x : v.adicCompletion F | Valued.v x < 1} : Set (v.adicCompletion F)) := by
+      let U : Set (v.adicCompletionIntegers F) := IsLocalRing.maximalIdeal (v.adicCompletionIntegers F)
+      have hU : IsOpen U := IsLocalRing.isOpen_maximalIdeal (R := v.adicCompletionIntegers F)
+      have hsub : IsOpen (v.adicCompletionIntegers F : Set (v.adicCompletion F)) :=
+        NumberField.isOpenAdicCompletionIntegers F v
+      have himg :
+          IsOpen ((Subtype.val : v.adicCompletionIntegers F → v.adicCompletion F) '' U :
+            Set (v.adicCompletion F)) :=
+        hsub.isOpenEmbedding_subtypeVal.isOpenMap _ hU
+      have hEq :
+          ((Subtype.val : v.adicCompletionIntegers F → v.adicCompletion F) '' U :
+              Set (v.adicCompletion F)) =
+            {x : v.adicCompletion F | Valued.v x < 1} := by
+        ext x
+        constructor
+        · rintro ⟨y, hy, rfl⟩
+          exact (Valuation.mem_maximalIdeal_iff (v := Valued.v) (a := y)).mp hy
+        · intro hx
+          have hxsub : x ∈ (v.adicCompletionIntegers F) := by
+            exact (Valuation.mem_integer_iff (v := Valued.v) x).2 (le_of_lt hx)
+          refine ⟨⟨x, hxsub⟩, ?_, rfl⟩
+          exact (Valuation.mem_maximalIdeal_iff (v := Valued.v) (a := ⟨x, hxsub⟩)).2 hx
+      simpa [hEq] using himg
+    have hmat :
+        Continuous fun x : GL (Fin 2) (v.adicCompletion F) =>
+          ((x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F))) :=
+      Units.continuous_val
+    have h00 :
+        Continuous fun x : GL (Fin 2) (v.adicCompletion F) =>
+          (((x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) 0 0)) :=
+      (continuous_apply (i := (0 : Fin 2))).comp
+        ((continuous_apply (i := (0 : Fin 2))).comp hmat)
+    have h11 :
+        Continuous fun x : GL (Fin 2) (v.adicCompletion F) =>
+          (((x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) 1 1)) :=
+      (continuous_apply (i := (1 : Fin 2))).comp
+        ((continuous_apply (i := (1 : Fin 2))).comp hmat)
+    have h10 :
+        Continuous fun x : GL (Fin 2) (v.adicCompletion F) =>
+          (((x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) 1 0)) :=
+      (continuous_apply (i := (0 : Fin 2))).comp
+        ((continuous_apply (i := (1 : Fin 2))).comp hmat)
+    have hcond1 :
+        IsOpen {x : GL (Fin 2) (v.adicCompletion F) |
+          Valued.v (((x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) 0 0) -
+            ((x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) 1 1)) < 1} := by
+      exact hS.preimage (h00.sub h11)
+    have hcond2 :
+        IsOpen {x : GL (Fin 2) (v.adicCompletion F) |
+          Valued.v (((x : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) 1 0)) < 1} := by
+      exact hS.preimage h10
+    simpa [GL2.localTameLevel, Set.mem_setOf_eq, and_left_comm, and_assoc] using
+      hL.inter (hcond1.inter hcond2)
 
 -- the clever way to prove this is a theorem of the form "if A is a compact submonoid of R
 -- then Aˣ is a compact subgroup of Rˣ"
 theorem GL2.localTameLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (GL2.localTameLevel v).carrier :=
-  sorry
+  by
+    let L := GL2.localFullLevel v
+    have hLc : IsCompact (L : Set (GL (Fin 2) (v.adicCompletion F))) :=
+      GL2.localFullLevel.isCompact v
+    haveI : CompactSpace L := isCompact_iff_compactSpace.mp hLc
+    have hopen : IsOpen (GL2.localTameLevel v).carrier := GL2.localTameLevel.isOpen v
+    have hsubopen : IsOpen ((GL2.localTameLevel v).subgroupOf L : Set L) :=
+      Subgroup.subgroupOf_isOpen (U := L) (K := GL2.localTameLevel v) hopen
+    let U : OpenSubgroup L := ⟨(GL2.localTameLevel v).subgroupOf L, hsubopen⟩
+    have hclosed : IsClosed (U : Set L) := OpenSubgroup.isClosed U
+    have hcomp : IsCompact (U : Set L) := hclosed.isCompact
+    have hEq : ((Subtype.val : L → GL (Fin 2) (v.adicCompletion F)) '' (U : Set L)) =
+        (GL2.localTameLevel v).carrier := by
+      ext x
+      constructor
+      · rintro ⟨y, hy, rfl⟩
+        exact Subgroup.mem_subgroupOf.mp hy
+      · intro hx
+        rcases hx with ⟨hxL, hxcond⟩
+        refine ⟨⟨x, hxL⟩, ?_, rfl⟩
+        exact Subgroup.mem_subgroupOf.mpr ⟨hxL, hxcond⟩
+    simpa [hEq] using
+      hcomp.image (continuous_subtype_val : Continuous (Subtype.val : L →
+        GL (Fin 2) (v.adicCompletion F)))
 
 end IsDedekindDomain
 
@@ -237,6 +396,58 @@ noncomputable def GL2.restrictedProduct :
       [(GL (Fin 2) (v.adicCompletion F)), (M2.localFullLevel v).units] :=
   ContinuousMulEquiv.restrictedProductMatrixUnits (NumberField.isOpenAdicCompletionIntegers F)
 
+-- Adapted from `polyproof/FLT`, PR #38, to expose the restricted-product evaluation
+-- lemmas needed by the Hecke operator proofs.
+
+/-- The "value" form of the bridging computation: at every entry `(i,j)` and place `w`,
+the matrix entry of `GL2.toAdicCompletion w (rp.symm x)` equals the corresponding
+entry of `(x w).val`. -/
+lemma GL2.toAdicCompletion_restrictedProduct_symm_val_apply
+    (w : HeightOneSpectrum (𝓞 F))
+    (x : Πʳ (v : HeightOneSpectrum (𝓞 F)),
+      [(GL (Fin 2) (v.adicCompletion F)), (M2.localFullLevel v).units])
+    (i j : Fin 2) :
+    ((GL2.toAdicCompletion w
+      (FiniteAdeleRing.GL2.restrictedProduct.symm x)).val i j) = (x w).val i j := by
+  rfl
+
+/-- The unit-level version of `toAdicCompletion_restrictedProduct_symm_val_apply`:
+applying `GL2.toAdicCompletion w` to the inverse image of `x` under the restricted-
+product equivalence yields `x w` directly. Useful for transporting global statements
+about `GL₂(𝔸_F^∞)` to local statements at each place. -/
+lemma GL2.toAdicCompletion_restrictedProduct_symm_apply
+    (w : HeightOneSpectrum (𝓞 F))
+    (x : Πʳ (v : HeightOneSpectrum (𝓞 F)),
+      [(GL (Fin 2) (v.adicCompletion F)), (M2.localFullLevel v).units]) :
+    GL2.toAdicCompletion w
+      (FiniteAdeleRing.GL2.restrictedProduct.symm x) = x w := by
+  ext i j
+  exact GL2.toAdicCompletion_restrictedProduct_symm_val_apply w x i j
+
+/-- Bridging lemma: applying `GL2.toAdicCompletion w` to the embedding of a single
+local element `g_loc` at place `v` via the restricted product isomorphism gives
+`g_loc` if `w = v` and `1` otherwise. -/
+lemma GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same
+    [DecidableEq (HeightOneSpectrum (𝓞 F))]
+    (v : HeightOneSpectrum (𝓞 F)) (g_loc : GL (Fin 2) (v.adicCompletion F)) :
+    GL2.toAdicCompletion v
+      (FiniteAdeleRing.GL2.restrictedProduct.symm
+        (RestrictedProduct.mulSingle _ v g_loc)) = g_loc := by
+  ext i j
+  rw [GL2.toAdicCompletion_restrictedProduct_symm_val_apply,
+    RestrictedProduct.mulSingle_eq_same]
+
+lemma GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne
+    [DecidableEq (HeightOneSpectrum (𝓞 F))]
+    {w v : HeightOneSpectrum (𝓞 F)} (hwv : w ≠ v)
+    (g_loc : GL (Fin 2) (v.adicCompletion F)) :
+    GL2.toAdicCompletion w
+      (FiniteAdeleRing.GL2.restrictedProduct.symm
+        (RestrictedProduct.mulSingle _ v g_loc)) = 1 := by
+  ext i j
+  rw [GL2.toAdicCompletion_restrictedProduct_symm_val_apply,
+    RestrictedProduct.mulSingle_eq_of_ne _ _ hwv]
+
 end IsDedekindDomain.FiniteAdeleRing
 
 namespace IsDedekindDomain.HeightOneSpectrum
@@ -258,10 +469,184 @@ noncomputable def GL2.TameLevel (S : Finset (HeightOneSpectrum (𝓞 F))) :
 variable (S : Finset (HeightOneSpectrum (𝓞 F)))
 
 theorem GL2.TameLevel.isOpen : IsOpen (GL2.TameLevel S).carrier :=
-  sorry
+  by
+    classical
+    let RP :=
+      Πʳ (v : HeightOneSpectrum (𝓞 F)),
+        [GL (Fin 2) (v.adicCompletion F), ↑(M2.localFullLevel v).units]_[Filter.cofinite]
+    have hK0_open : IsOpen {x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} := by
+      exact
+        RestrictedProduct.isOpen_forall_mem
+          (R := fun v : HeightOneSpectrum (𝓞 F) => GL (Fin 2) (v.adicCompletion F))
+          (A := fun v => (M2.localFullLevel v).units)
+          (fun v =>
+            Submonoid.isOpen_units
+              (U := (M2.localFullLevel v).toSubmonoid)
+              (M2.localFullLevel.isOpen v))
+    have hK0_compact : IsCompact {x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} := by
+      have hf :
+          Continuous
+            (RestrictedProduct.structureMap
+              (fun v : HeightOneSpectrum (𝓞 F) => GL (Fin 2) (v.adicCompletion F))
+              (fun v => ((M2.localFullLevel v).units : Set (GL (Fin 2) (v.adicCompletion F))))
+              Filter.cofinite) :=
+        (RestrictedProduct.isOpenEmbedding_structureMap
+          (fun v =>
+            Submonoid.isOpen_units
+              (U := (M2.localFullLevel v).toSubmonoid)
+              (M2.localFullLevel.isOpen v))).continuous
+      letI : ∀ v : HeightOneSpectrum (𝓞 F), CompactSpace ((M2.localFullLevel v).units) :=
+        fun v =>
+          isCompact_iff_compactSpace.mp <|
+            Submonoid.units_isCompact
+              (S := (M2.localFullLevel v).toSubmonoid)
+              (M2.localFullLevel.isCompact v)
+      letI : Nonempty ((i : HeightOneSpectrum (𝓞 F)) → (M2.localFullLevel i).units) :=
+        ⟨fun v => 1⟩
+      have hRange :
+          ({x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} : Set RP) =
+            Set.range
+              (RestrictedProduct.structureMap
+                (fun v : HeightOneSpectrum (𝓞 F) => GL (Fin 2) (v.adicCompletion F))
+                (fun v => ((M2.localFullLevel v).units : Set (GL (Fin 2) (v.adicCompletion F))))
+                Filter.cofinite) := by
+        ext x
+        constructor
+        · intro hx
+          refine ⟨fun v ↦ ⟨x v, hx v⟩, ?_⟩
+          rfl
+        · rintro ⟨y, rfl⟩
+          intro v
+          exact (y v).2
+      rw [hRange]
+      simpa [Set.range] using (isCompact_univ.image hf)
+    have hKS_open : IsOpen {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v} := by
+      have h :
+          IsOpen (⋂ v ∈ S, {x : RP | x v ∈ GL2.localTameLevel v}) := by
+        exact isOpen_biInter_finset fun v hv =>
+          (GL2.localTameLevel.isOpen v).preimage (RestrictedProduct.continuous_eval v)
+      have hset :
+          {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v} =
+            ⋂ v ∈ S, {x : RP | x v ∈ GL2.localTameLevel v} := by
+        ext x
+        simp
+      rw [hset]
+      exact h
+    have hKS_closed : IsClosed {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v} := by
+      have h :
+          IsClosed (⋂ v ∈ S, {x : RP | x v ∈ GL2.localTameLevel v}) := by
+        exact isClosed_biInter fun v hv =>
+          (GL2.localTameLevel.isCompact v).isClosed.preimage
+            (RestrictedProduct.continuous_eval v)
+      have hset :
+          {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v} =
+            ⋂ v ∈ S, {x : RP | x v ∈ GL2.localTameLevel v} := by
+        ext x
+        simp
+      rw [hset]
+      exact h
+    have hK_open :
+        IsOpen
+          ({x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} ∩
+            {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v}) := by
+      exact hK0_open.inter hKS_open
+    have hK_compact :
+        IsCompact
+          ({x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} ∩
+            {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v}) := by
+      exact hK0_compact.inter_right hKS_closed
+    have hEq :
+        (GL2.TameLevel S).carrier =
+          (GL2.restrictedProduct (F := F)) ⁻¹'
+            ({x : RP | (∀ v, x v ∈ (M2.localFullLevel v).units) ∧
+              ∀ v ∈ S, x v ∈ GL2.localTameLevel v}) := by
+      ext x
+      constructor <;> intro hx <;>
+        simpa [GL2.TameLevel, GL2.localFullLevel_eq_units, and_left_comm, and_assoc] using hx
+    have hpre :
+        IsOpen
+          ((GL2.restrictedProduct (F := F)).toHomeomorph ⁻¹'
+            ({x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} ∩
+              {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v})) :=
+      (GL2.restrictedProduct (F := F)).toHomeomorph.isOpen_preimage.2 hK_open
+    simpa [hEq] using hpre
 
 theorem GL2.TameLevel.isCompact : IsCompact (GL2.TameLevel S).carrier :=
-  sorry
+  by
+    classical
+    let RP :=
+      Πʳ (v : HeightOneSpectrum (𝓞 F)),
+        [GL (Fin 2) (v.adicCompletion F), ↑(M2.localFullLevel v).units]_[Filter.cofinite]
+    have hK0_compact : IsCompact {x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} := by
+      have hf :
+          Continuous
+            (RestrictedProduct.structureMap
+              (fun v : HeightOneSpectrum (𝓞 F) => GL (Fin 2) (v.adicCompletion F))
+              (fun v => ((M2.localFullLevel v).units : Set (GL (Fin 2) (v.adicCompletion F))))
+              Filter.cofinite) :=
+        (RestrictedProduct.isOpenEmbedding_structureMap
+          (fun v =>
+            Submonoid.isOpen_units
+              (U := (M2.localFullLevel v).toSubmonoid)
+              (M2.localFullLevel.isOpen v))).continuous
+      letI : ∀ v : HeightOneSpectrum (𝓞 F), CompactSpace ((M2.localFullLevel v).units) :=
+        fun v =>
+          isCompact_iff_compactSpace.mp <|
+            Submonoid.units_isCompact
+              (S := (M2.localFullLevel v).toSubmonoid)
+              (M2.localFullLevel.isCompact v)
+      letI : Nonempty ((i : HeightOneSpectrum (𝓞 F)) → (M2.localFullLevel i).units) :=
+        ⟨fun v => 1⟩
+      have hRange :
+          ({x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} : Set RP) =
+            Set.range
+              (RestrictedProduct.structureMap
+                (fun v : HeightOneSpectrum (𝓞 F) => GL (Fin 2) (v.adicCompletion F))
+                (fun v => ((M2.localFullLevel v).units : Set (GL (Fin 2) (v.adicCompletion F))))
+                Filter.cofinite) := by
+        ext x
+        constructor
+        · intro hx
+          refine ⟨fun v ↦ ⟨x v, hx v⟩, ?_⟩
+          rfl
+        · rintro ⟨y, rfl⟩
+          intro v
+          exact (y v).2
+      rw [hRange]
+      simpa [Set.range] using (isCompact_univ.image hf)
+    have hKS_closed : IsClosed {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v} := by
+      have h :
+          IsClosed (⋂ v ∈ S, {x : RP | x v ∈ GL2.localTameLevel v}) := by
+        exact isClosed_biInter fun v hv =>
+          (GL2.localTameLevel.isCompact v).isClosed.preimage
+            (RestrictedProduct.continuous_eval v)
+      have hset :
+          {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v} =
+            ⋂ v ∈ S, {x : RP | x v ∈ GL2.localTameLevel v} := by
+        ext x
+        simp
+      rw [hset]
+      exact h
+    have hK_compact :
+        IsCompact
+          ({x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} ∩
+            {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v}) := by
+      exact hK0_compact.inter_right hKS_closed
+    have hEq :
+        (GL2.TameLevel S).carrier =
+          (GL2.restrictedProduct (F := F)) ⁻¹'
+            ({x : RP | (∀ v, x v ∈ (M2.localFullLevel v).units) ∧
+              ∀ v ∈ S, x v ∈ GL2.localTameLevel v}) := by
+      ext x
+      constructor <;> intro hx <;>
+        simpa [GL2.TameLevel, GL2.localFullLevel_eq_units, and_left_comm, and_assoc] using hx
+    have hpre :
+        IsCompact
+          ((GL2.restrictedProduct (F := F)).toHomeomorph ⁻¹'
+            ({x : RP | ∀ v, x v ∈ (M2.localFullLevel v).units} ∩
+              {x : RP | ∀ v ∈ S, x v ∈ GL2.localTameLevel v})) :=
+      (GL2.restrictedProduct (F := F)).toHomeomorph.isCompact_preimage.2 hK_compact
+    simpa [hEq] using hpre
 
 open scoped TensorProduct.RightActions in
 /-- The subgroup of `(D ⊗ 𝔸_F^∞)ˣ` corresponding to the subgroup `U₁(S)` of `GL₂(𝔸_F^∞)`
