@@ -508,6 +508,87 @@ lemma injOn_unipotent_mul_diagLocalFullLevel :
   simp [add_comm]
   exact mul_comm _ _
 
+lemma swap_mul_diagLocalFullLevel_ne_unipotent_mul_diagLocalFullLevel
+    (t : ↑(adicCompletionIntegers F v) ⧸ Ideal.span {uniformizerInt (F := F) v}) :
+    swap_mul_diagLocalFullLevel (v := v) ≠ unipotent_mul_diagLocalFullLevel (v := v) t := by
+  intro h
+  let π : adicCompletionIntegers F v := uniformizerInt (F := F) v
+  let hπ : π ≠ 0 := uniformizerInt_ne_zero (F := F) v
+  have hmem :
+      ((Matrix.GeneralLinearGroup.swap (adicCompletion F v) (0 : Fin 2) 1 *
+          GL2.diag π hπ)⁻¹ *
+        GL2.unipotent_mul_diag π hπ (Quotient.out t : adicCompletionIntegers F v))
+        ∈ GL2.localFullLevel v := by
+    simpa [π, hπ] using QuotientGroup.eq.mp h
+  have hentry :
+      (((Matrix.GeneralLinearGroup.swap (adicCompletion F v) (0 : Fin 2) 1 *
+          GL2.diag π hπ)⁻¹ *
+        GL2.unipotent_mul_diag π hπ (Quotient.out t : adicCompletionIntegers F v) :
+        GL (Fin 2) (adicCompletion F v)) : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
+        0 1 = (π : adicCompletion F v)⁻¹ := by
+    let s : GL (Fin 2) (adicCompletion F v) :=
+      Matrix.GeneralLinearGroup.swap (adicCompletion F v) (0 : Fin 2) 1
+    let u : GL (Fin 2) (adicCompletion F v) :=
+      Matrix.GeneralLinearGroup.GL2.unipotent
+        ((Quotient.out t : adicCompletionIntegers F v) : adicCompletion F v)
+    have hs_inv : s⁻¹ = s := by
+      ext i j <;> fin_cases i <;> fin_cases j
+      all_goals simp [s, Matrix.GeneralLinearGroup.swap, Matrix.swap]
+    have hsu :
+        ((s * u : GL (Fin 2) (adicCompletion F v)) :
+          Matrix (Fin 2) (Fin 2) (adicCompletion F v)) =
+          !![(0 : adicCompletion F v), 1; 1,
+            (Quotient.out t : adicCompletionIntegers F v)] := by
+      ext i j <;> fin_cases i <;> fin_cases j
+      all_goals
+        simp [s, u, Matrix.GeneralLinearGroup.swap, Matrix.swap,
+          Matrix.GeneralLinearGroup.GL2.unipotent_def, Matrix.mul_apply]
+    have hconj := GL2.conjBy_diag (α := π) (hα := hπ)
+      (a := (0 : adicCompletion F v)) (b := (1 : adicCompletion F v))
+      (c := (1 : adicCompletion F v))
+      (d := ((Quotient.out t : adicCompletionIntegers F v) : adicCompletion F v))
+    rw [GL2.unipotent_mul_diag]
+    change (((s * GL2.diag π hπ)⁻¹ * (u * GL2.diag π hπ) :
+        GL (Fin 2) (adicCompletion F v)) : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
+        0 1 = (π : adicCompletion F v)⁻¹
+    rw [mul_inv_rev, hs_inv]
+    rw [← mul_assoc, mul_assoc (GL2.diag π hπ)⁻¹ s u]
+    change (((GL2.diag π hπ)⁻¹ * (s * u) * GL2.diag π hπ :
+        GL (Fin 2) (adicCompletion F v)) : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
+        0 1 = (π : adicCompletion F v)⁻¹
+    rw [show (((GL2.diag π hπ)⁻¹ * (s * u) * GL2.diag π hπ :
+        GL (Fin 2) (adicCompletion F v)) : Matrix (Fin 2) (Fin 2) (adicCompletion F v)) =
+        !![(0 : adicCompletion F v), (π : adicCompletion F v)⁻¹;
+          (1 : adicCompletion F v) * π,
+          ((Quotient.out t : adicCompletionIntegers F v) : adicCompletion F v)] by
+      rw [Units.val_mul, Units.val_mul, hsu]
+      simpa using hconj]
+    simp
+  have hval := GL2.v_le_one_of_mem_localFullLevel _ hmem 0 1
+  rw [hentry] at hval
+  have htop : ((π : adicCompletion F v)⁻¹) ∈ adicCompletionIntegers F v :=
+    (mem_adicCompletionIntegers _ _ _).2 hval
+  exact uniformizerInt_inv_not_mem (F := F) v (by simpa [π] using htop)
+
+lemma injOn_localFullLevelDiagLocalFullLevelRep :
+    Set.InjOn (localFullLevelDiagLocalFullLevelRep (v := v)) Set.univ := by
+  intro t ht t' ht' h
+  cases t with
+  | none =>
+      cases t' with
+      | none => rfl
+      | some t' =>
+          exact False.elim
+            (swap_mul_diagLocalFullLevel_ne_unipotent_mul_diagLocalFullLevel t' h)
+  | some t =>
+      cases t' with
+      | none =>
+          exact False.elim
+            (swap_mul_diagLocalFullLevel_ne_unipotent_mul_diagLocalFullLevel t h.symm)
+      | some t' =>
+          congr
+          exact injOn_unipotent_mul_diagLocalFullLevel (v := v) trivial trivial h
+
 lemma quotient_diff_mul_mem_span {R : Type*} [CommRing R] {π b d t₀ : R} [Invertible d]
     (hq : t₀ - (⅟d : R) * b ∈ Ideal.span {π}) :
     b + -t₀ * d ∈ Ideal.span {π} := by
