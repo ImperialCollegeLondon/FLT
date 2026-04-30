@@ -6,12 +6,16 @@
 #
 # The provided actions which are used here consume this snapshot, with:
 #
-#   bump       — updates lakefile.lean/lake-manifest to the LKG mathlib commit
-#                and opens (or force-pushes) a PR.
-#   open-issue — opens a persistent issue when an incompatible commit is reported (i.e. FLT
-#                can't yet advance to the mathlib tip), and closes it automatically
-#                once the incompatibility is resolved.
-
+#   bump:
+#      updates lakefile.lean/lake-manifest to the LKG mathlib commit
+#      and opens (or force-pushes) a PR that should be instantly mergeable
+#   track-incompatibility:
+#       opens
+#         (1) a persistent issue when an incompatible revision is detected (i.e.: FLT
+#             can't yet advance to the mathlib tip)
+#         (2) a pull request with the dependency pinned to this breaking commit, so it can be worked on
+#              by checking out that branch.
+#       closes these automatically once the incompatibility is resolved.
 name: Update Dependencies
 on:
   schedule:             # Sets a schedule to trigger the workflow
@@ -53,8 +57,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v6.0.2
-
       - name: Open or update incompatibility issue
-        uses: leanprover-community/downstream-reports/.github/actions/open-incompatibility-issue@main
+        uses: leanprover-community/downstream-reports/.github/actions/track-incompatibility@main
+        with:
+          # Open a PR bumping to the 'known bad' revision so a maintainer can check out that branch
+          # and work on a fix.
+          # This PR is independent to the bump PR opened in the other job, which should be automatically mergable
+          # without further modifications.
+          open-pr: true
