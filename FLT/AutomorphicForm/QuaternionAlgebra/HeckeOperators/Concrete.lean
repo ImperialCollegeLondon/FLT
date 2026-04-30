@@ -175,6 +175,8 @@ noncomputable instance : DecidableEq (HeightOneSpectrum (𝓞 F)) :=
 
 namespace GoodPrime
 
+/-- The chosen local uniformizer in the integer ring of the completion. -/
+@[nolint docBlame]
 noncomputable abbrev uniformizerInt (v : HeightOneSpectrum (𝓞 F)) : v.adicCompletionIntegers F :=
   Local.uniformizerInt (F := F) v
 
@@ -182,6 +184,8 @@ lemma uniformizerInt_ne_zero (v : HeightOneSpectrum (𝓞 F)) :
     uniformizerInt (F := F) v ≠ 0 :=
   Local.uniformizerInt_ne_zero (F := F) v
 
+/-- The representative for the `swap * diag` good-prime coset. -/
+@[nolint docBlame]
 noncomputable def swap_mul_diag (v : HeightOneSpectrum (𝓞 F)) :
     (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   Units.mapEquiv r.symm.toMulEquiv
@@ -191,6 +195,8 @@ noncomputable def swap_mul_diag (v : HeightOneSpectrum (𝓞 F)) :
           Local.GL2.diag (uniformizerInt (F := F) v)
             (uniformizerInt_ne_zero (F := F) v))))
 
+/-- The representative for the unipotent good-prime coset. -/
+@[nolint docBlame]
 noncomputable def unipotent_mul_diag (v : HeightOneSpectrum (𝓞 F))
     (α : v.adicCompletionIntegers F) (hα : α ≠ 0)
     (t : ↑(adicCompletionIntegers F v) ⧸ Ideal.span {α}) :
@@ -200,6 +206,8 @@ noncomputable def unipotent_mul_diag (v : HeightOneSpectrum (𝓞 F))
       (RestrictedProduct.mulSingle _ _
         (Local.GL2.unipotent_mul_diag α hα (Quotient.out t : adicCompletionIntegers F v))))
 
+/-- The option-indexed family of good-prime representatives. -/
+@[nolint docBlame]
 noncomputable def goodPrimeRep (v : HeightOneSpectrum (𝓞 F)) :
     Option (↑(adicCompletionIntegers F v) ⧸ Ideal.span {uniformizerInt (F := F) v}) →
       (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
@@ -207,6 +215,8 @@ noncomputable def goodPrimeRep (v : HeightOneSpectrum (𝓞 F)) :
 | some t => unipotent_mul_diag (r := r) v (uniformizerInt (F := F) v)
     (uniformizerInt_ne_zero (F := F) v) t
 
+/-- The image of the good-prime representative family. -/
+@[nolint docBlame]
 noncomputable def goodPrimeRep_image (v : HeightOneSpectrum (𝓞 F)) :
     Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   (goodPrimeRep (r := r) v) '' ⊤

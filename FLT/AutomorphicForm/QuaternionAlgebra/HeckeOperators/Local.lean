@@ -71,6 +71,8 @@ lemma conjBy_diag {a b c d : adicCompletion F v} :
   rw[inv_mul_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul, one_mul]
   ring_nf; rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul]
 
+/-- The chosen uniformizer of the completion at `v`. -/
+@[nolint docBlame]
 noncomputable abbrev uniformizer (v : HeightOneSpectrum (𝓞 F)) : adicCompletion F v :=
   IsDedekindDomain.HeightOneSpectrum.adicCompletionUniformizer (K := F) v
 
