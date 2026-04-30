@@ -603,7 +603,6 @@ lemma quotient_diff_mul_mem_span {R : Type*} [CommRing R] {π b d t₀ : R} [Inv
   simpa [sub_eq_add_neg, mul_add, add_mul, mul_assoc, mul_comm, mul_left_comm, h_inv] using hqd
 
 set_option maxHeartbeats 5000000 in
--- Temporary placeholder while the good-prime surjectivity proof is reworked.
 lemma surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLevel :
     Set.SurjOn (localFullLevelDiagLocalFullLevelRep (v := v)) Set.univ
       (localFullLevelDiagLocalFullLevel (v := v)) := by
