@@ -1,1 +1,7 @@
 web.tex needs pointing to my github project
+
+Local good-prime Hecke decomposition, the tame-level topology bridge, the global
+`T`-side bijection, and the final `HeckeAlgebra.instCommRing` commutativity proof are all
+in place on `tv-good-prime-decomposition`; the build is green again.
+Some of the proof shape was adapted from the merged `polyproof/FLT` PR #38, with
+attribution kept in the source comments.

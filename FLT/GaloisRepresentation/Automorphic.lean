@@ -8,6 +8,8 @@ module
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 public import FLT.DedekindDomain.IntegralClosure
 public import FLT.Deformations.RepresentationTheory.GaloisRep
+public import FLT.Mathlib.Algebra.Central.TensorProduct
+public import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
 public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
 public import Mathlib.NumberTheory.Padics.Complex
 public import Mathlib.RingTheory.SimpleRing.Principal
@@ -96,7 +98,22 @@ instance {F E D : Type*}
     [Field F]
     [Field E] [Algebra F E]
     [Ring D] [Algebra F D] [IsQuaternionAlgebra F D] :
-    IsQuaternionAlgebra E (E ⊗[F] D) := sorry -- Ask Edison?
+    IsQuaternionAlgebra E (E ⊗[F] D) := by
+  haveI : IsSimpleRing (D ⊗[F] E) := by
+    infer_instance
+  have hsimple : IsSimpleRing (E ⊗[F] D) := by
+    refine (IsSimpleRing.iff_injective_ringHom (R := E ⊗[F] D)).2 ?_
+    intro S _ _ f
+    exact Function.Injective.of_comp_right
+      (RingHom.injective (R := D ⊗[F] E)
+        (f.comp (Algebra.TensorProduct.comm F D E).toRingHom))
+      (Algebra.TensorProduct.comm F D E).surjective
+  have hcentral : Algebra.IsCentral E (E ⊗[F] D) := by
+    infer_instance
+  have hrank : Module.rank E (E ⊗[F] D) = 4 := by
+    rw [rank_tensorProduct (R := E) (S := F) (M := E) (M' := D)]
+    simp [IsQuaternionAlgebra.dim_four]
+  exact { isSimpleRing := hsimple, isCentral := hcentral, dim_four := hrank }
 
 variable {p : ℕ} [Fact p.Prime] in
 noncomputable instance : NormedSpace ℚ_[p] (PadicAlgCl p) := spectralNorm.normedSpace ..

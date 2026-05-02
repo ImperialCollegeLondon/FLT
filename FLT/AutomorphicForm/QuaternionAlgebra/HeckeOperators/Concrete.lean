@@ -12,6 +12,7 @@ public import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
 public import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits -- for (π 0; 0 1)
+public import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 
@@ -118,13 +119,27 @@ noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (
 
 variable {F D} in
 open scoped TensorProduct.RightActions in
-lemma U1_compact : IsCompact (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
-  sorry -- #583, long
+lemma U1_compact :
+    IsCompact (U1 r S : Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) := by
+  rw [U1, Subgroup.coe_map]
+  have hc : Continuous r.symm :=
+    IsDedekindDomain.HeightOneSpectrum.Rigidification.continuous_invFun D r
+  exact (GL2.TameLevel.isCompact S).image
+    (Continuous.units_map r.symm.toMonoidHom hc)
 
 variable {F D} in
 open scoped TensorProduct.RightActions in
-lemma U1_open : IsOpen (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
-  sorry -- #583, long
+lemma U1_open :
+    IsOpen (U1 r S : Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) := by
+  rw [U1, Subgroup.coe_map]
+  have hcr : Continuous r :=
+    IsDedekindDomain.HeightOneSpectrum.Rigidification.continuous_toFun D r
+  rw [Set.image_eq_preimage_of_inverse
+    (f := Units.map r.symm.toMonoidHom)
+    (g := Units.map r.toMonoidHom)
+    (fun x => by ext; simp) (fun x => by ext; simp)]
+  exact (GL2.TameLevel.isOpen S).preimage
+    (Continuous.units_map r.toMonoidHom hcr)
 
 variable (R : Type*) [CommRing R]
 
@@ -140,10 +155,163 @@ noncomputable def T (v : HeightOneSpectrum (𝓞 F)) :
     WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
   letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
   let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
-    Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
-    ![FiniteAdeleRing.localUniformiserUnit F v, 1])
+    Units.mapEquiv r.symm.toMulEquiv
+      (FiniteAdeleRing.GL2.restrictedProduct.symm
+        (RestrictedProduct.mulSingle _ v
+          (Local.GL2.diag (Local.uniformizerInt (F := F) v)
+            (Local.uniformizerInt_ne_zero (F := F) v))))
   AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S)
   (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
+
+section T
+
+variable {F D}
+
+open scoped TensorProduct.RightActions
+open scoped Pointwise
+
+noncomputable instance : DecidableEq (HeightOneSpectrum (𝓞 F)) :=
+  Classical.typeDecidableEq _
+
+namespace GoodPrime
+
+/-- The chosen local uniformizer in the integer ring of the completion. -/
+@[nolint docBlame]
+noncomputable abbrev uniformizerInt (v : HeightOneSpectrum (𝓞 F)) : v.adicCompletionIntegers F :=
+  Local.uniformizerInt (F := F) v
+
+lemma uniformizerInt_ne_zero (v : HeightOneSpectrum (𝓞 F)) :
+    uniformizerInt (F := F) v ≠ 0 :=
+  Local.uniformizerInt_ne_zero (F := F) v
+
+/-- The representative for the `swap * diag` good-prime coset. -/
+@[nolint docBlame]
+noncomputable def swap_mul_diag (v : HeightOneSpectrum (𝓞 F)) :
+    (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+  Units.mapEquiv r.symm.toMulEquiv
+    (FiniteAdeleRing.GL2.restrictedProduct.symm
+      (RestrictedProduct.mulSingle _ _
+        ((Matrix.GeneralLinearGroup.swap (adicCompletion F v) (0 : Fin 2) 1) *
+          Local.GL2.diag (uniformizerInt (F := F) v)
+            (uniformizerInt_ne_zero (F := F) v))))
+
+/-- The representative for the unipotent good-prime coset. -/
+@[nolint docBlame]
+noncomputable def unipotent_mul_diag (v : HeightOneSpectrum (𝓞 F))
+    (α : v.adicCompletionIntegers F) (hα : α ≠ 0)
+    (t : ↑(adicCompletionIntegers F v) ⧸ Ideal.span {α}) :
+    (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+  Units.mapEquiv r.symm.toMulEquiv
+    (FiniteAdeleRing.GL2.restrictedProduct.symm
+      (RestrictedProduct.mulSingle _ _
+        (Local.GL2.unipotent_mul_diag α hα (Quotient.out t : adicCompletionIntegers F v))))
+
+/-- The option-indexed family of good-prime representatives. -/
+@[nolint docBlame]
+noncomputable def goodPrimeRep (v : HeightOneSpectrum (𝓞 F)) :
+    Option (↑(adicCompletionIntegers F v) ⧸ Ideal.span {uniformizerInt (F := F) v}) →
+      (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ
+| none => swap_mul_diag (r := r) v
+| some t => unipotent_mul_diag (r := r) v (uniformizerInt (F := F) v)
+    (uniformizerInt_ne_zero (F := F) v) t
+
+/-- The image of the good-prime representative family. -/
+@[nolint docBlame]
+noncomputable def goodPrimeRep_image (v : HeightOneSpectrum (𝓞 F)) :
+    Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+  (goodPrimeRep (r := r) v) '' ⊤
+
+/-- Blueprint-facing name for the good-prime coset family used in the `T_v` decomposition.
+This is the image of the option-indexed representative family above. -/
+noncomputable def T_cosets_image (v : HeightOneSpectrum (𝓞 F)) :
+    Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+  goodPrimeRep_image (r := r) v
+
+lemma unipotent_mul_diag_inj (v : HeightOneSpectrum (𝓞 F)) :
+    Set.InjOn (unipotent_mul_diag (r := r) v (uniformizerInt (F := F) v)
+      (uniformizerInt_ne_zero (F := F) v)) ⊤ := by
+  intro t₁ h₁ t₂ h₂ h
+  simp only [unipotent_mul_diag, EmbeddingLike.apply_eq_iff_eq, RestrictedProduct.ext_iff] at h
+  let h' := h v; simp only [RestrictedProduct.mulSingle_eq_same, Units.ext_iff] at h'
+  rw [← Matrix.ext_iff] at h'
+  let h'' := h' 0 1
+  simpa [Local.GL2.unipotent_mul_diag, Matrix.GeneralLinearGroup.GL2.unipotent, Local.GL2.diag,
+    Matrix.unitOfDetInvertible, Matrix.GeneralLinearGroup.diagonal] using h''
+
+lemma goodPrimeRep_inj (v : HeightOneSpectrum (𝓞 F)) :
+    Set.InjOn (goodPrimeRep (r := r) v) ⊤ := by
+  intro x hx y hy hxy
+  cases x with
+  | none =>
+      cases y with
+      | none => rfl
+      | some t =>
+          exfalso
+          have h :
+              swap_mul_diag (r := r) v =
+                unipotent_mul_diag (r := r) v (uniformizerInt (F := F) v)
+                  (uniformizerInt_ne_zero (F := F) v) t := hxy
+          simp only [swap_mul_diag, unipotent_mul_diag, EmbeddingLike.apply_eq_iff_eq,
+            RestrictedProduct.ext_iff] at h
+          have h0 := h v
+          simp only [RestrictedProduct.mulSingle_eq_same, Units.ext_iff] at h0
+          rw [← Matrix.ext_iff] at h0
+          have h00 := h0 0 0
+          simp [Local.GL2.unipotent_mul_diag, Matrix.GeneralLinearGroup.GL2.unipotent,
+            Local.GL2.diag, Matrix.GeneralLinearGroup.swap, Matrix.swap,
+            Matrix.unitOfDetInvertible, Matrix.GeneralLinearGroup.diagonal] at h00
+          have h00' : uniformizerInt (F := F) v = 0 := by
+            apply Subtype.ext
+            simpa [eq_comm] using h00
+          exact (uniformizerInt_ne_zero (F := F) v) h00'
+  | some t =>
+      cases y with
+      | none =>
+          exfalso
+          have h :
+              unipotent_mul_diag (r := r) v (uniformizerInt (F := F) v)
+                (uniformizerInt_ne_zero (F := F) v) t =
+                swap_mul_diag (r := r) v := by
+            simpa [goodPrimeRep] using hxy
+          simp only [swap_mul_diag, unipotent_mul_diag, EmbeddingLike.apply_eq_iff_eq,
+            RestrictedProduct.ext_iff] at h
+          have h0 := h v
+          simp only [RestrictedProduct.mulSingle_eq_same, Units.ext_iff] at h0
+          rw [← Matrix.ext_iff] at h0
+          have h00 := h0 0 0
+          simp [Local.GL2.unipotent_mul_diag, Matrix.GeneralLinearGroup.GL2.unipotent,
+            Local.GL2.diag, Matrix.GeneralLinearGroup.swap, Matrix.swap,
+            Matrix.unitOfDetInvertible, Matrix.GeneralLinearGroup.diagonal] at h00
+          have h00' : uniformizerInt (F := F) v = 0 := by
+            apply Subtype.ext
+            simpa [eq_comm] using h00
+          exact (uniformizerInt_ne_zero (F := F) v) h00'
+      | some t' =>
+          have h' :
+              unipotent_mul_diag (r := r) v (uniformizerInt (F := F) v)
+                (uniformizerInt_ne_zero (F := F) v) t =
+              unipotent_mul_diag (r := r) v (uniformizerInt (F := F) v)
+                (uniformizerInt_ne_zero (F := F) v) t' := by
+            simpa [goodPrimeRep, unipotent_mul_diag] using hxy
+          exact congrArg some ((unipotent_mul_diag_inj (r := r) v) trivial trivial h')
+
+-- Adapted from the merged `polyproof/FLT` PR #38: disjoint support at distinct places
+-- is enough to force commutation of the good-prime representatives.
+lemma goodPrimeRep_commute_of_ne {v w : HeightOneSpectrum (𝓞 F)} (hvw : v ≠ w)
+    (a : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (ha : a ∈ goodPrimeRep_image (r := r) v)
+    (b : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (hb : b ∈ goodPrimeRep_image (r := r) w) :
+    a * b = b * a := by
+  rcases ha with ⟨x, _, rfl⟩
+  rcases hb with ⟨y, _, rfl⟩
+  cases x <;> cases y <;>
+    exact ((RestrictedProduct.mulSingle_commute
+        (i := v) (j := w) hvw _ _).map
+      (FiniteAdeleRing.GL2.restrictedProduct (F := F)).symm.toMonoidHom |>.map
+      (Units.mapEquiv r.symm.toMulEquiv).toMonoidHom).eq
+
+end GoodPrime
+
+end T
 
 section U
 
@@ -196,20 +364,495 @@ noncomputable def U1diagU1 :
     Set ((D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ ⧸ (U1 r S)) :=
   QuotientGroup.mk '' ((U1 r S) * {diag r α hα})
 
-theorem bijOn_unipotent_mul_diagU1_U1diagU1 :
-    (unipotent_mul_diag_image r α hα).BijOn QuotientGroup.mk (U1diagU1 r S α hα) :=
-  sorry -- global double coset decomposition
+-- Adapted from `polyproof/FLT`, PR #38. The proof is now fully explicit about the
+-- local-to-global rigidification bridge.
+set_option maxHeartbeats 800000 in
+omit [IsTotallyReal F] [IsQuaternionAlgebra F D] in
+theorem bijOn_unipotent_mul_diagU1_U1diagU1 (hv : v ∈ S) :
+    (unipotent_mul_diag_image r α hα).BijOn QuotientGroup.mk (U1diagU1 r S α hα) := by
+  refine ⟨?_, ?_, ?_⟩
+  · -- MapsTo: each `unipotent_mul_diag r α hα i` can be written as `u_glob * diag r α hα`
+    -- for some `u_glob ∈ U1 r S`, where `u_glob` is the image of a v-supported unipotent
+    -- matrix `!![1, (out i); 0, 1]` through the restricted product + rigidification.
+    rintro _ ⟨i, _, rfl⟩
+    -- Define the v-supported global unipotent element.
+    set u_glob : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+      Units.mapEquiv r.symm.toMulEquiv
+        (FiniteAdeleRing.GL2.restrictedProduct.symm
+          (RestrictedProduct.mulSingle _ v
+            (Matrix.GeneralLinearGroup.GL2.unipotent
+              ((Quotient.out i : adicCompletionIntegers F v) :
+                adicCompletion F v)))) with hu_glob_def
+    -- Show `u_glob ∈ U1 r S`.
+    have hu_glob_mem : u_glob ∈ U1 r S := by
+      refine Subgroup.mem_map.mpr ⟨_, ?_, rfl⟩
+      refine ⟨fun w => ?_, fun w _ => ?_⟩
+      · by_cases hwv : w = v
+        · subst hwv
+          rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w _]
+          exact (Local.GL2.unipotent_mem_U1 (v := w) (Quotient.out i)).1
+        · rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+          exact (GL2.localFullLevel w).one_mem
+      · by_cases hwv : w = v
+        · subst hwv
+          rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w _]
+          exact Local.GL2.unipotent_mem_U1 (v := w) (Quotient.out i)
+        · rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+          exact (GL2.localTameLevel w).one_mem
+    -- Show `unipotent_mul_diag r α hα i = u_glob * diag r α hα`.
+    have h_eq : unipotent_mul_diag r α hα i = u_glob * diag r α hα := by
+      rw [hu_glob_def]
+      unfold unipotent_mul_diag diag
+      rw [← map_mul, ← map_mul, ← RestrictedProduct.mulSingle_mul]
+      rfl
+    refine ⟨u_glob * diag r α hα, Set.mul_mem_mul hu_glob_mem rfl, ?_⟩
+    rw [← h_eq]
+  · -- InjOn: if `mk (unipotent_mul_diag i) = mk (unipotent_mul_diag j)`, then the ratio
+    -- is in `U1 r S`, and its projection at `v` is a unipotent `!![1, (j - i)/α; 0, 1]`.
+    -- For this to be in `localFullLevel v` we need `(j - i)/α ∈ O_v`, i.e. `α | (j - i)`,
+    -- i.e. `i = j` in `O_v / α`.
+    rintro _ ⟨i, _, rfl⟩ _ ⟨j, _, rfl⟩ h
+    refine congrArg (unipotent_mul_diag r α hα) ?_
+    have hratio : (unipotent_mul_diag r α hα i)⁻¹ * (unipotent_mul_diag r α hα j) ∈ U1 r S :=
+      QuotientGroup.eq.mp h
+    set t_i : adicCompletionIntegers F v := Quotient.out i
+    set t_j : adicCompletionIntegers F v := Quotient.out j
+    -- Directly build a witness `w' ∈ GL2.TameLevel S`, then derive that its image at `v`
+    -- (which is `(Local.unipotent_mul_diag t_i)⁻¹ * Local.unipotent_mul_diag t_j
+    --  = Local.unipotent (α⁻¹ * (t_j - t_i))`) lies in `localFullLevel v`.
+    set g_loc : GL (Fin 2) (adicCompletion F v) :=
+      (Local.GL2.unipotent_mul_diag α hα t_i)⁻¹ *
+        Local.GL2.unipotent_mul_diag α hα t_j with hg_loc_def
+    set w' : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) :=
+      FiniteAdeleRing.GL2.restrictedProduct.symm
+        (RestrictedProduct.mulSingle _ v g_loc) with hw'_def
+    -- The image of `w'` under `Units.mapEquiv r.symm.toMulEquiv` is the ratio.
+    have h_image : Units.mapEquiv r.symm.toMulEquiv w' =
+        (unipotent_mul_diag r α hα i)⁻¹ * (unipotent_mul_diag r α hα j) := by
+      change Units.mapEquiv r.symm.toMulEquiv
+          (FiniteAdeleRing.GL2.restrictedProduct.symm
+            (RestrictedProduct.mulSingle _ v g_loc)) =
+        (unipotent_mul_diag r α hα i)⁻¹ * (unipotent_mul_diag r α hα j)
+      unfold unipotent_mul_diag
+      rw [← map_inv, ← map_mul, ← map_inv, ← map_mul, ← RestrictedProduct.mulSingle_inv,
+        ← RestrictedProduct.mulSingle_mul]
+    -- Extract the preimage from membership in U1.
+    obtain ⟨w, hw_mem, hw_eq⟩ := Subgroup.mem_map.mp hratio
+    -- Since `Units.mapEquiv r.symm.toMulEquiv` is injective and both `w` and `w'` map to
+    -- the ratio, we have `w = w'`.
+    have hw'_eq : w' = w := by
+      apply (Units.mapEquiv r.symm.toMulEquiv).injective
+      rw [h_image]; exact hw_eq.symm
+    have hw'_mem : w' ∈ GL2.TameLevel S := hw'_eq ▸ hw_mem
+    -- The projection of `w'` at `v` is `g_loc`, hence `g_loc ∈ localFullLevel v`.
+    have hg_loc_mem : g_loc ∈ GL2.localFullLevel v := by
+      have := hw'_mem.1 v
+      rwa [hw'_def,
+        FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same v g_loc] at this
+    -- Entry (0,1) of `g_loc`, which equals `α⁻¹ * (t_j - t_i)`, must be in `O_v`.
+    have h01_int : ((g_loc : GL (Fin 2) (adicCompletion F v)) 0 1) ∈
+        (adicCompletionIntegers F v) := GL2.v_le_one_of_mem_localFullLevel _ hg_loc_mem 0 1
+    have hg_loc_val : g_loc = Matrix.GeneralLinearGroup.GL2.unipotent
+        ((α : v.adicCompletion F)⁻¹ *
+          ((t_j : adicCompletion F v) + -(t_i : adicCompletion F v))) := by
+      exact Local.GL2.unipotent_mul_diag_inv_mul_unipotent_mul_diag α hα t_i t_j
+    have h01_eq : ((g_loc : GL (Fin 2) (adicCompletion F v)) 0 1) =
+        (α : v.adicCompletion F)⁻¹ *
+          ((t_j : adicCompletion F v) + -(t_i : adicCompletion F v)) := by
+      rw [hg_loc_val]
+      simp [Matrix.GeneralLinearGroup.GL2.unipotent, Matrix.unitOfDetInvertible]
+    rw [h01_eq] at h01_int
+    -- Conclude `i = j` in `O_v / α`.
+    change i = j
+    rw [← (QuotientAddGroup.out_eq' i), ← (QuotientAddGroup.out_eq' j)]
+    apply QuotientAddGroup.eq.mpr
+    apply Ideal.mem_span_singleton'.mpr
+    refine ⟨⟨_, h01_int⟩, ?_⟩
+    apply (Subtype.coe_inj).mp
+    push_cast
+    rw [mul_comm ((α : adicCompletion F v)⁻¹) _, mul_assoc,
+      inv_mul_cancel₀ ((Subtype.coe_ne_coe).mpr hα), mul_one]
+    simp [t_i, t_j, sub_eq_add_neg, add_comm, add_left_comm, add_assoc]; rfl
+  · -- SurjOn: given `u ∈ U1 r S`, pull `u` back via `r` to `w ∈ GL2.TameLevel S`. The
+    -- local surjOn at `v` provides `t : O_v/α` such that the local ratio lies in
+    -- `localTameLevel v = U1 v` (using `v ∈ S`). We show that the preimage of the
+    -- global ratio via `r` is in `GL2.TameLevel S` by checking at each place: at `v` it
+    -- equals the local ratio, and at `w_place ≠ v` it equals the projection of `w` at
+    -- `w_place`, which is in the appropriate local level since `w ∈ GL2.TameLevel S`.
+    rintro _ ⟨_, ⟨u, hu, _, rfl, rfl⟩, rfl⟩
+    -- Extract the preimage `w ∈ GL2.TameLevel S`.
+    obtain ⟨w, hw_mem, hw_eq⟩ := Subgroup.mem_map.mp hu
+    -- The projection of `w` at `v`.
+    set g_loc : GL (Fin 2) (adicCompletion F v) :=
+      FiniteAdeleRing.GL2.toAdicCompletion v w with hg_loc_def
+    -- `g_loc ∈ localTameLevel v` because `v ∈ S` and `w ∈ GL2.TameLevel S`.
+    have hg_loc_tame : g_loc ∈ GL2.localTameLevel v := hw_mem.2 v hv
+    -- Apply the local surjOn.
+    have hlocal_target :
+        QuotientGroup.mk (g_loc * Local.GL2.diag α hα) ∈ Local.U1diagU1 v α hα :=
+      ⟨_, Set.mul_mem_mul hg_loc_tame rfl, rfl⟩
+    obtain ⟨t, _, ht⟩ :=
+      Local.surjOn_unipotent_mul_diagU1_U1diagU1 α hα hlocal_target
+    -- The local ratio lies in `Local.U1 v = localTameLevel v`.
+    have hlocal_ratio :
+        (Local.GL2.unipotent_mul_diag α hα
+            (Quotient.out t : adicCompletionIntegers F v))⁻¹ *
+          (g_loc * Local.GL2.diag α hα) ∈ Local.U1 v :=
+      QuotientGroup.eq.mp ht
+    refine ⟨unipotent_mul_diag r α hα t, ⟨t, trivial, rfl⟩, ?_⟩
+    -- It suffices to show that the ratio is in `U1 r S`.
+    apply QuotientGroup.eq.mpr
+    refine Subgroup.mem_map.mpr ?_
+    -- Build the global witness: the unique preimage `W ∈ GL₂(𝔸)` of the ratio under `r`.
+    set W : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) :=
+      (FiniteAdeleRing.GL2.restrictedProduct.symm
+        (RestrictedProduct.mulSingle _ v
+          (Local.GL2.unipotent_mul_diag α hα
+            (Quotient.out t : adicCompletionIntegers F v))))⁻¹ *
+      (w * FiniteAdeleRing.GL2.restrictedProduct.symm
+        (RestrictedProduct.mulSingle _ v (Local.GL2.diag α hα))) with hW_def
+    refine ⟨W, ?_, ?_⟩
+    · -- Show `W ∈ GL2.TameLevel S`.
+      refine ⟨fun w_place => ?_, fun w_place hwS => ?_⟩
+      · by_cases hwv : w_place = v
+        · subst hwv
+          rw [hW_def]
+          simp only [map_mul, map_inv]
+          rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w_place _,
+            FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w_place _]
+          exact hlocal_ratio.1
+        · rw [hW_def]
+          simp only [map_mul, map_inv]
+          rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _,
+            FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+          simp only [inv_one, one_mul, mul_one]
+          exact hw_mem.1 w_place
+      · by_cases hwv : w_place = v
+        · subst hwv
+          rw [hW_def]
+          simp only [map_mul, map_inv]
+          rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w_place _,
+            FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w_place _]
+          exact hlocal_ratio
+        · rw [hW_def]
+          simp only [map_mul, map_inv]
+          rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _,
+            FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+          simp only [inv_one, one_mul, mul_one]
+          exact hw_mem.2 w_place hwS
+    · -- Show `Units.map r.symm.toMonoidHom W = ratio`.
+      rw [← hw_eq]
+      change Units.map r.symm.toMonoidHom W =
+        (unipotent_mul_diag r α hα t)⁻¹ *
+          (Units.map r.symm.toMonoidHom w * diag r α hα)
+      rw [hW_def]
+      simp only [map_mul, map_inv]
+      rfl
 
 lemma unipotent_mul_diag_image_finite :
     (unipotent_mul_diag_image r α hα).Finite := by
-  apply (Set.BijOn.finite_iff_finite (bijOn_unipotent_mul_diagU1_U1diagU1 r {v} α hα)).mpr
+  apply (Set.BijOn.finite_iff_finite
+    (bijOn_unipotent_mul_diagU1_U1diagU1 r {v} α hα (Finset.mem_singleton.mpr rfl))).mpr
   unfold U1diagU1
   exact (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r {v}) (U1_open r {v}))
+
+set_option maxHeartbeats 5000000 in
+theorem bijOn_T_cosets_U1diagU1
+    (hv : v ∉ S) :
+    (HeckeOperator.GoodPrime.T_cosets_image (r := r) v).BijOn
+      QuotientGroup.mk
+        (U1diagU1 r S
+          (HeckeOperator.GoodPrime.uniformizerInt (F := F) v)
+          (HeckeOperator.GoodPrime.uniformizerInt_ne_zero (F := F) v)) := by
+  -- Ported from the merged `polyproof/FLT` proof of the good-prime T-side bijection.
+  let π : v.adicCompletionIntegers F := HeckeOperator.GoodPrime.uniformizerInt (F := F) v
+  let hπ : π ≠ 0 := HeckeOperator.GoodPrime.uniformizerInt_ne_zero (F := F) v
+  change (HeckeOperator.GoodPrime.T_cosets_image (r := r) v).BijOn QuotientGroup.mk
+      (U1diagU1 r S π hπ)
+  refine ⟨?_, ?_, ?_⟩
+  · rintro _ ⟨t, _, rfl⟩
+    cases t with
+    | none =>
+        set u_glob : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+          Units.mapEquiv r.symm.toMulEquiv
+            (FiniteAdeleRing.GL2.restrictedProduct.symm
+              (RestrictedProduct.mulSingle _ _
+                (Matrix.GeneralLinearGroup.swap (adicCompletion F v) (0 : Fin 2) 1)))
+          with hu_glob_def
+        have hu_glob_mem : u_glob ∈ U1 r S := by
+          refine Subgroup.mem_map.mpr ⟨_, ?_, rfl⟩
+          refine ⟨fun w => ?_, fun w hwS => ?_⟩
+          · by_cases hwv : w = v
+            · subst hwv
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w _]
+              exact Local.GL2.swap_mem_localFullLevel (v := w)
+            · rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+              exact (GL2.localFullLevel w).one_mem
+          · by_cases hwv : w = v
+            · subst hwv
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w _]
+              exact absurd hwS hv
+            · rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+              exact (GL2.localTameLevel w).one_mem
+        have h_eq : GoodPrime.swap_mul_diag (r := r) v = u_glob * diag r π hπ := by
+          rw [hu_glob_def]
+          unfold GoodPrime.swap_mul_diag diag
+          rw [← map_mul, ← map_mul, ← RestrictedProduct.mulSingle_mul]
+        refine ⟨u_glob * diag r π hπ, Set.mul_mem_mul hu_glob_mem rfl, ?_⟩
+        rw [← h_eq, GoodPrime.goodPrimeRep]
+    | some i =>
+        set u_glob : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+          Units.mapEquiv r.symm.toMulEquiv
+            (FiniteAdeleRing.GL2.restrictedProduct.symm
+              (RestrictedProduct.mulSingle _ _
+                (Matrix.GeneralLinearGroup.GL2.unipotent
+                  ((Quotient.out i : adicCompletionIntegers F v) :
+                    adicCompletion F v))))
+          with hu_glob_def
+        have hu_glob_mem : u_glob ∈ U1 r S := by
+          refine Subgroup.mem_map.mpr ⟨_, ?_, rfl⟩
+          refine ⟨fun w => ?_, fun w _ => ?_⟩
+          · by_cases hwv : w = v
+            · subst hwv
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w _]
+              exact (Local.GL2.unipotent_mem_U1 (v := w) (Quotient.out i)).1
+            · rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+              exact (GL2.localFullLevel w).one_mem
+          · by_cases hwv : w = v
+            · subst hwv
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w _]
+              exact Local.GL2.unipotent_mem_U1 (v := w) (Quotient.out i)
+            · rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+              exact (GL2.localTameLevel w).one_mem
+        have h_eq : GoodPrime.unipotent_mul_diag (r := r) v π hπ i = u_glob * diag r π hπ := by
+          rw [hu_glob_def]
+          unfold GoodPrime.unipotent_mul_diag diag
+          rw [← map_mul, ← map_mul, ← RestrictedProduct.mulSingle_mul]
+          rfl
+        refine ⟨u_glob * diag r π hπ, Set.mul_mem_mul hu_glob_mem rfl, ?_⟩
+        rw [← h_eq, GoodPrime.goodPrimeRep]
+  · rintro _ ⟨t, _, rfl⟩ _ ⟨t', _, rfl⟩ h
+    have hU : (GoodPrime.goodPrimeRep (r := r) v t)⁻¹ *
+        GoodPrime.goodPrimeRep (r := r) v t' ∈ U1 r S :=
+      QuotientGroup.eq.mp h
+    obtain ⟨W, hWmem, hWeq⟩ := Subgroup.mem_map.mp hU
+    have hWv := hWmem.1 v
+    have hmap_symm (x : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F)) :
+        (Units.map
+          (r.toMulEquiv :
+            (D ⊗[F] FiniteAdeleRing (𝓞 F) F) →*
+              Matrix (Fin 2) (Fin 2) (FiniteAdeleRing (𝓞 F) F)))
+          ((Units.mapEquiv (AlgEquiv.symm r).toMulEquiv) x) = x := by
+      ext
+      simp
+    have hW_eq' : W = Units.map r.toMonoidHom
+        ((GoodPrime.goodPrimeRep (r := r) v t)⁻¹ *
+          GoodPrime.goodPrimeRep (r := r) v t') := by
+      rw [← hWeq]
+      ext
+      simp
+    have hlocal :
+        Local.localFullLevelDiagLocalFullLevelRep (v := v) t =
+          Local.localFullLevelDiagLocalFullLevelRep (v := v) t' := by
+      rw [hW_eq'] at hWv
+      simp only [map_mul, map_inv] at hWv
+      cases t <;> cases t' <;>
+        simp [Local.localFullLevelDiagLocalFullLevelRep, Local.swap_mul_diagLocalFullLevel,
+          Local.unipotent_mul_diagLocalFullLevel, GoodPrime.goodPrimeRep,
+          GoodPrime.swap_mul_diag, GoodPrime.unipotent_mul_diag, hmap_symm,
+          FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same] at hWv ⊢
+      all_goals exact QuotientGroup.eq.mpr hWv
+    have ht :=
+      Local.injOn_localFullLevelDiagLocalFullLevelRep (v := v) trivial trivial hlocal
+    rw [ht]
+  · rintro _ ⟨_, ⟨u, hu, _, rfl, rfl⟩, rfl⟩
+    obtain ⟨w, hw_mem, hw_eq⟩ := Subgroup.mem_map.mp hu
+    set g_loc : GL (Fin 2) (adicCompletion F v) :=
+      FiniteAdeleRing.GL2.toAdicCompletion v w with hg_loc_def
+    have hg_loc_full : g_loc ∈ GL2.localFullLevel v := hw_mem.1 v
+    have hlocal_target :
+        QuotientGroup.mk (g_loc * Local.GL2.diag π hπ) ∈
+          Local.localFullLevelDiagLocalFullLevel (v := v) :=
+      ⟨_, Set.mul_mem_mul hg_loc_full rfl, rfl⟩
+    obtain ⟨idx, _, hidx⟩ :=
+      Local.surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLevel
+        (v := v) hlocal_target
+    cases idx with
+    | none =>
+        have hidx' :
+            QuotientGroup.mk (s := GL2.localFullLevel v)
+              (Matrix.GeneralLinearGroup.swap (adicCompletion F v) (0 : Fin 2) 1 *
+                Local.GL2.diag π hπ) =
+            QuotientGroup.mk (s := GL2.localFullLevel v) (g_loc * Local.GL2.diag π hπ) := by
+          simpa [Local.localFullLevelDiagLocalFullLevelRep] using hidx
+        have hlocal_ratio :
+            (Matrix.GeneralLinearGroup.swap (adicCompletion F v) (0 : Fin 2) 1 *
+              Local.GL2.diag π hπ)⁻¹ *
+              (g_loc * Local.GL2.diag π hπ) ∈ GL2.localFullLevel v :=
+          QuotientGroup.eq.mp hidx'
+        refine ⟨GoodPrime.swap_mul_diag (r := r) v, ⟨none, trivial, rfl⟩, ?_⟩
+        apply QuotientGroup.eq.mpr
+        refine Subgroup.mem_map.mpr ?_
+        set W : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) :=
+          (FiniteAdeleRing.GL2.restrictedProduct.symm
+            (RestrictedProduct.mulSingle _ v
+              (Matrix.GeneralLinearGroup.swap (adicCompletion F v) (0 : Fin 2) 1 *
+                Local.GL2.diag π hπ)))⁻¹ *
+          (w * FiniteAdeleRing.GL2.restrictedProduct.symm
+            (RestrictedProduct.mulSingle _ v (Local.GL2.diag π hπ))) with hW_def
+        refine ⟨W, ?_, ?_⟩
+        · refine ⟨fun w_place => ?_, fun w_place hwS => ?_⟩
+          · by_cases hwv : w_place = v
+            · subst hwv
+              rw [hW_def]
+              simp only [map_mul, map_inv]
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same
+                w_place _,
+                FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same
+                  w_place _]
+              exact hlocal_ratio
+            · rw [hW_def]
+              simp only [map_mul, map_inv]
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _,
+                FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+              simp only [inv_one, one_mul, mul_one]
+              exact hw_mem.1 w_place
+          · by_cases hwv : w_place = v
+            · subst hwv; exact absurd hwS hv
+            · rw [hW_def]
+              simp only [map_mul, map_inv]
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _,
+                FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+              simp only [inv_one, one_mul, mul_one]
+              exact hw_mem.2 w_place hwS
+        · rw [← hw_eq]
+          change Units.map r.symm.toMonoidHom W =
+            (GoodPrime.swap_mul_diag (r := r) v)⁻¹ *
+              (Units.map r.symm.toMonoidHom w * diag r π hπ)
+          rw [hW_def]
+          simp only [map_mul, map_inv]
+          rfl
+    | some t =>
+        have hidx' :
+            QuotientGroup.mk (s := GL2.localFullLevel v)
+              (Local.GL2.unipotent_mul_diag π hπ
+                (Quotient.out t : adicCompletionIntegers F v)) =
+            QuotientGroup.mk (s := GL2.localFullLevel v) (g_loc * Local.GL2.diag π hπ) := by
+          simpa [Local.localFullLevelDiagLocalFullLevelRep] using hidx
+        have hlocal_ratio :
+            (Local.GL2.unipotent_mul_diag π hπ
+                (Quotient.out t : adicCompletionIntegers F v))⁻¹ *
+              (g_loc * Local.GL2.diag π hπ) ∈ GL2.localFullLevel v :=
+          QuotientGroup.eq.mp hidx'
+        refine ⟨GoodPrime.unipotent_mul_diag (r := r) v π hπ t, ⟨some t, trivial, rfl⟩, ?_⟩
+        apply QuotientGroup.eq.mpr
+        refine Subgroup.mem_map.mpr ?_
+        set W : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F) :=
+          (FiniteAdeleRing.GL2.restrictedProduct.symm
+            (RestrictedProduct.mulSingle _ v
+              (Local.GL2.unipotent_mul_diag π hπ
+                (Quotient.out t : adicCompletionIntegers F v))))⁻¹ *
+          (w * FiniteAdeleRing.GL2.restrictedProduct.symm
+            (RestrictedProduct.mulSingle _ v (Local.GL2.diag π hπ))) with hW_def
+        refine ⟨W, ?_, ?_⟩
+        · refine ⟨fun w_place => ?_, fun w_place hwS => ?_⟩
+          · by_cases hwv : w_place = v
+            · subst hwv
+              rw [hW_def]
+              simp only [map_mul, map_inv]
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same
+                w_place _,
+                FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same
+                  w_place _]
+              exact hlocal_ratio
+            · rw [hW_def]
+              simp only [map_mul, map_inv]
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _,
+                FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+              simp only [inv_one, one_mul, mul_one]
+              exact hw_mem.1 w_place
+          · by_cases hwv : w_place = v
+            · subst hwv; exact absurd hwS hv
+            · rw [hW_def]
+              simp only [map_mul, map_inv]
+              rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _,
+                FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+              simp only [inv_one, one_mul, mul_one]
+              exact hw_mem.2 w_place hwS
+        · rw [← hw_eq]
+          change Units.map r.symm.toMonoidHom W =
+            (GoodPrime.unipotent_mul_diag r v π hπ t)⁻¹ *
+              (Units.map r.symm.toMonoidHom w * diag r π hπ)
+          rw [hW_def]
+          simp only [map_mul, map_inv]
+          rfl
+
+set_option maxHeartbeats 5000000 in
+lemma T_comm_of_ne {v w : HeightOneSpectrum (𝓞 F)} (hv : v ∉ S) (hw : w ∉ S)
+    (hvw : v ≠ w) :
+    HeckeOperator.T (F := F) (D := D) (S := S) r R v ∘ₗ
+      HeckeOperator.T (F := F) (D := D) (S := S) r R w =
+    HeckeOperator.T (F := F) (D := D) (S := S) r R w ∘ₗ
+      HeckeOperator.T (F := F) (D := D) (S := S) r R v := by
+  simpa [HeckeOperator.T] using
+    (AbstractHeckeOperator.comm
+      (R := R)
+      (U := U1 r S)
+      (g₁ := Units.mapEquiv r.symm.toMulEquiv
+        (FiniteAdeleRing.GL2.restrictedProduct.symm
+          (RestrictedProduct.mulSingle _ v
+            (Local.GL2.diag (Local.uniformizerInt (F := F) v)
+              (Local.uniformizerInt_ne_zero (F := F) v)))))
+      (g₂ := Units.mapEquiv r.symm.toMulEquiv
+        (FiniteAdeleRing.GL2.restrictedProduct.symm
+          (RestrictedProduct.mulSingle _ w
+            (Local.GL2.diag (Local.uniformizerInt (F := F) w)
+              (Local.uniformizerInt_ne_zero (F := F) w)))))
+      (h₁ := QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
+      (h₂ := QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
+      (hcomm := by
+        refine ⟨HeckeOperator.GoodPrime.T_cosets_image (r := r) v,
+          HeckeOperator.GoodPrime.T_cosets_image (r := r) w, ?_, ?_, ?_⟩
+        · simpa [HeckeOperator.GoodPrime.T_cosets_image, U1diagU1, U1, diag] using
+            (bijOn_T_cosets_U1diagU1 (r := r) (S := S) (v := v) hv)
+        · simpa [HeckeOperator.GoodPrime.T_cosets_image, U1diagU1, U1, diag] using
+            (bijOn_T_cosets_U1diagU1 (r := r) (S := S) (v := w) hw)
+        · intro a ha b hb
+          exact HeckeOperator.GoodPrime.goodPrimeRep_commute_of_ne (r := r) hvw a ha b hb))
 
 lemma quot_top_finite (r : Rigidification F D) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
     (⊤ : Set ((adicCompletionIntegers F v) ⧸ (Ideal.span {α}))).Finite := by
   apply Set.Finite.of_finite_image _ (unipotent_mul_diag_inj r α hα)
   apply unipotent_mul_diag_image_finite
+
+set_option maxHeartbeats 5000000 in
+lemma goodPrimeRep_commute_with_unipotent_of_ne {v w : HeightOneSpectrum (𝓞 F)} (hvw : v ≠ w)
+    (a : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ)
+    (ha : a ∈ HeckeOperator.GoodPrime.goodPrimeRep_image (r := r) v)
+    {β : w.adicCompletionIntegers F} (hβ : β ≠ 0)
+    (b : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (hb : b ∈ unipotent_mul_diag_image r β hβ) :
+    a * b = b * a := by
+  rcases ha with ⟨x, _, rfl⟩
+  rcases hb with ⟨t, _, rfl⟩
+  cases x <;>
+    exact ((RestrictedProduct.mulSingle_commute
+        (i := v) (j := w) hvw _ _).map
+      (FiniteAdeleRing.GL2.restrictedProduct (F := F)).symm.toMonoidHom |>.map
+      (Units.mapEquiv r.symm.toMulEquiv).toMonoidHom).eq
+
+set_option maxHeartbeats 5000000 in
+lemma unipotent_mul_diag_commute_of_ne {v w : HeightOneSpectrum (𝓞 F)} (hvw : v ≠ w)
+    {α : v.adicCompletionIntegers F} (hα : α ≠ 0)
+    {β : w.adicCompletionIntegers F} (hβ : β ≠ 0)
+    (a : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (ha : a ∈ unipotent_mul_diag_image r α hα)
+    (b : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ) (hb : b ∈ unipotent_mul_diag_image r β hβ) :
+    a * b = b * a := by
+  rcases ha with ⟨t, _, rfl⟩
+  rcases hb with ⟨u, _, rfl⟩
+  exact ((RestrictedProduct.mulSingle_commute
+      (i := v) (j := w) hvw _ _).map
+    (FiniteAdeleRing.GL2.restrictedProduct (F := F)).symm.toMonoidHom |>.map
+    (Units.mapEquiv r.symm.toMulEquiv).toMonoidHom).eq
 
 /-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
 considered as an R-linear map from R-valued quaternionic weight 2
@@ -237,12 +880,117 @@ lemma U_apply (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
   rfl
 
 open AbstractHeckeOperator in
-lemma U_apply_eq_finsum_unipotent_mul_diag_image (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
+lemma U_apply_eq_finsum_unipotent_mul_diag_image (hv : v ∈ S)
+    (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
     ((U r S R α hα) a).1 =
     ∑ᶠ (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) (_ : g ∈ unipotent_mul_diag_image r α hα),
       g • a.1 :=
-  (eq_finsum_quotient_out_of_bijOn' a (bijOn_unipotent_mul_diagU1_U1diagU1 r S α hα)) ▸
+  (eq_finsum_quotient_out_of_bijOn' a (bijOn_unipotent_mul_diagU1_U1diagU1 r S α hα hv)) ▸
     U_apply r S R α hα a
+
+/-- A "raw lift" version of `unipotent_mul_diag`: takes an arbitrary `t : 𝓞_v` instead of
+a coset class. This is useful for manipulating products via the local matrix formula. -/
+noncomputable def unipotent_mul_diag_lift (t : adicCompletionIntegers F v) :
+    (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+  Units.mapEquiv r.symm.toMulEquiv
+    (FiniteAdeleRing.GL2.restrictedProduct.symm
+    (RestrictedProduct.mulSingle _ _
+      (Local.GL2.unipotent_mul_diag α hα t)))
+
+omit [IsTotallyReal F] [IsQuaternionAlgebra F D] in
+lemma unipotent_mul_diag_eq_lift (t : ↑(adicCompletionIntegers F v) ⧸ (Ideal.span {α})) :
+    unipotent_mul_diag r α hα t = unipotent_mul_diag_lift r α hα (Quotient.out t) :=
+  rfl
+
+omit [IsTotallyReal F] [IsQuaternionAlgebra F D] in
+/-- The global multiplication formula for `unipotent_mul_diag_lift`: matches the local
+matrix product formula `!![α,s;0,1] * !![β,t;0,1] = !![αβ, α*t+s; 0,1]`, transported
+through the restricted product + rigidification pipeline. -/
+lemma unipotent_mul_diag_lift_mul {β : v.adicCompletionIntegers F} (hβ : β ≠ 0)
+    (s t : adicCompletionIntegers F v) :
+    unipotent_mul_diag_lift r α hα s * unipotent_mul_diag_lift r β hβ t =
+    unipotent_mul_diag_lift r (α * β) (mul_ne_zero hα hβ)
+      ((α : adicCompletionIntegers F v) * t + s) := by
+  simp only [unipotent_mul_diag_lift, ← map_mul, ← RestrictedProduct.mulSingle_mul]
+  congr 3
+  exact Local.GL2.unipotent_mul_diag_mul_unipotent_mul_diag α hα hβ s t
+
+set_option maxHeartbeats 5000000 in
+omit [IsTotallyReal F] in
+/-- `U1`-invariance of `unipotent_mul_diag_lift` action: if `t₁ - t₂ ∈ (γ)`, then
+`unipotent_mul_diag_lift γ t₁ • a = unipotent_mul_diag_lift γ t₂ • a` for any
+`U1 r S`-fixed automorphic form `a`. -/
+lemma unipotent_mul_diag_lift_smul_eq {γ : v.adicCompletionIntegers F} (hγ : γ ≠ 0)
+    {t₁ t₂ : v.adicCompletionIntegers F}
+    (h : t₁ - t₂ ∈ Ideal.span ({γ} : Set (v.adicCompletionIntegers F)))
+    (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
+    unipotent_mul_diag_lift r γ hγ t₁ • a.1 =
+      unipotent_mul_diag_lift r γ hγ t₂ • a.1 := by
+  -- Strategy: write `lift t₁ = lift t₂ * u''` where `u'' = (lift t₂)⁻¹ * lift t₁ ∈ U1 r S`.
+  -- Then `lift t₁ • a = lift t₂ • (u'' • a) = lift t₂ • a` using `a.2` on `u''`.
+  set u'' : (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
+    (unipotent_mul_diag_lift r γ hγ t₂)⁻¹ * unipotent_mul_diag_lift r γ hγ t₁ with hu''_def
+  -- Obtain the ring element `m` with `t₁ - t₂ = m * γ`.
+  obtain ⟨m, hm⟩ := Ideal.mem_span_singleton'.mp h
+  -- Show `u''` is in `U1 r S` by exhibiting a witness in `GL2.TameLevel S`.
+  have hu'' : u'' ∈ U1 r S := by
+    refine Subgroup.mem_map.mpr ⟨?_, ?_, ?_⟩
+    · -- The witness: the unit built from `mulSingle v (unipotent ↑m)`.
+      exact FiniteAdeleRing.GL2.restrictedProduct.symm
+        (RestrictedProduct.mulSingle _ _
+          (Matrix.GeneralLinearGroup.GL2.unipotent (m : adicCompletion F v)))
+    · -- The witness is in `GL2.TameLevel S`.
+      refine ⟨?_, ?_⟩
+      · intro w
+        -- At every place `w`, the element is in `localFullLevel w`.
+        by_cases hwv : w = v
+        · subst hwv
+          rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w _]
+          exact (Local.GL2.unipotent_mem_U1 (v := w) m).1
+        · -- The image at `w ≠ v` is `1`, which is in `localFullLevel`.
+          rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+          exact (GL2.localFullLevel w).one_mem
+      · intro w hwS
+        by_cases hwv : w = v
+        · subst hwv
+          rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_same w _]
+          exact Local.GL2.unipotent_mem_U1 (v := w) m
+        · rw [FiniteAdeleRing.GL2.toAdicCompletion_restrictedProduct_symm_mulSingle_ne hwv _]
+          exact (GL2.localTameLevel w).one_mem
+    · -- Applying `Units.map r.symm.toMonoidHom` to the witness yields `u''`.
+      change Units.map r.symm.toMonoidHom _ = u''
+      rw [hu''_def, unipotent_mul_diag_lift, unipotent_mul_diag_lift]
+      change _ = (Units.mapEquiv r.symm.toMulEquiv _)⁻¹ *
+        (Units.mapEquiv r.symm.toMulEquiv _)
+      rw [← map_inv, ← map_mul]
+      change Units.mapEquiv r.symm.toMulEquiv _ =
+        Units.mapEquiv r.symm.toMulEquiv _
+      congr 1
+      rw [← map_inv, ← map_mul, ← RestrictedProduct.mulSingle_inv,
+        ← RestrictedProduct.mulSingle_mul]
+      congr 1
+      rw [Local.GL2.unipotent_mul_diag_inv_mul_unipotent_mul_diag γ hγ t₂ t₁]
+      congr 1
+      -- Need: `(γ : adicCompletion F v)⁻¹ * (t₁ + -t₂) = m` (in `adicCompletion F v`).
+      have hmval : ((t₁ : adicCompletion F v) + -(t₂ : adicCompletion F v)) =
+          ((γ : adicCompletion F v)) * (m : adicCompletion F v) := by
+        have hh : ((m : adicCompletion F v)) * (γ : adicCompletion F v) =
+            (t₁ : adicCompletion F v) - (t₂ : adicCompletion F v) := by
+          have := congrArg (fun x : v.adicCompletionIntegers F =>
+            (x : adicCompletion F v)) hm
+          push_cast at this
+          exact this
+        linear_combination -hh
+      have hγne : (γ : adicCompletion F v) ≠ 0 := by exact_mod_cast hγ
+      rw [hmval, ← mul_assoc, inv_mul_cancel₀ hγne, one_mul]
+  -- Rewrite `lift t₁ = lift t₂ * u''`.
+  have hlift : unipotent_mul_diag_lift r γ hγ t₁ =
+      unipotent_mul_diag_lift r γ hγ t₂ * u'' := by
+    rw [hu''_def, ← mul_assoc, mul_inv_cancel, one_mul]
+  rw [hlift, mul_smul]
+  -- Use `U1`-invariance of `a`.
+  congr 1
+  exact a.2 ⟨u'', hu''⟩
 
 lemma U_mul_aux {v : HeightOneSpectrum (𝓞 F)}
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0)
@@ -252,29 +1000,136 @@ lemma U_mul_aux {v : HeightOneSpectrum (𝓞 F)}
       unipotent_mul_diag r α hα i • unipotent_mul_diag r β hβ j • a.1 =
     ∑ᶠ (k : (adicCompletionIntegers F v) ⧸ Ideal.span {α * β}),
       unipotent_mul_diag r (α * β) (hα.mul hβ) k • a.1 :=
-  sorry
+by
+  -- All three quotients are finite (deduced from `quot_top_finite`).
+  have hfinα : Finite (v.adicCompletionIntegers F ⧸ Ideal.span ({α} : Set _)) := by
+    have := (quot_top_finite r α hα)
+    rw [Set.top_eq_univ, Set.finite_univ_iff] at this; exact this
+  have hfinβ : Finite (v.adicCompletionIntegers F ⧸ Ideal.span ({β} : Set _)) := by
+    have := (quot_top_finite r β hβ)
+    rw [Set.top_eq_univ, Set.finite_univ_iff] at this; exact this
+  have hfinαβ :
+      Finite (v.adicCompletionIntegers F ⧸ Ideal.span ({α * β} : Set _)) := by
+    have := (quot_top_finite r (α * β) (mul_ne_zero hα hβ))
+    rw [Set.top_eq_univ, Set.finite_univ_iff] at this; exact this
+  -- Combine the double finsum into one over the product, then transport via the bijection
+  -- `prodEquivSpanMul`, and identify summands using the U1-invariance lemma.
+  set Qα := v.adicCompletionIntegers F ⧸ Ideal.span ({α} : Set _) with hQα
+  set Qβ := v.adicCompletionIntegers F ⧸ Ideal.span ({β} : Set _) with hQβ
+  rw [show (∑ᶠ (i : Qα) (j : Qβ),
+      unipotent_mul_diag r α hα i • unipotent_mul_diag r β hβ j • a.1) =
+    ∑ᶠ (p : Qα × Qβ),
+      unipotent_mul_diag r α hα p.1 • unipotent_mul_diag r β hβ p.2 • a.1 from
+    (finsum_curry (α := Qα) (β := Qβ)
+      (fun p => unipotent_mul_diag r α hα p.1 • unipotent_mul_diag r β hβ p.2 • a.1)
+      (Set.toFinite _)).symm]
+  rw [← finsum_comp_equiv (Ideal.Quotient.prodEquivSpanMul (β := β) hα)
+    (f := fun (k : v.adicCompletionIntegers F ⧸ Ideal.span {α * β}) =>
+      unipotent_mul_diag r (α * β) (hα.mul hβ) k • a.1)]
+  refine finsum_congr (fun p => ?_)
+  obtain ⟨i, j⟩ := p
+  rw [unipotent_mul_diag_eq_lift, unipotent_mul_diag_eq_lift, ← mul_smul,
+    unipotent_mul_diag_lift_mul, unipotent_mul_diag_eq_lift]
+  apply unipotent_mul_diag_lift_smul_eq
+  change (α * j.out + i.out) -
+    ((Ideal.Quotient.prodEquivSpanMul (β := β) hα) (i, j)).out ∈
+      Ideal.span ({α * β} : Set _)
+  have hkmk : (Ideal.Quotient.prodEquivSpanMul (β := β) hα) (i, j) =
+      Ideal.Quotient.mk (Ideal.span ({α * β} : Set _)) (i.out + α * j.out) := by
+    unfold Ideal.Quotient.prodEquivSpanMul
+    rfl
+  have h1 :
+      ((Ideal.Quotient.prodEquivSpanMul (β := β) hα) (i, j)).out - (i.out + α * j.out)
+        ∈ Ideal.span ({α * β} : Set _) := by
+    rw [← Ideal.Quotient.eq, Ideal.Quotient.mk_out, hkmk]
+  have heq : (α * j.out + i.out) -
+      ((Ideal.Quotient.prodEquivSpanMul (β := β) hα) (i, j)).out =
+      -(((Ideal.Quotient.prodEquivSpanMul (β := β) hα) (i, j)).out -
+        (i.out + α * j.out)) := by ring
+  rw [heq]; exact neg_mem h1
 
 open AbstractHeckeOperator in
-lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
+lemma U_mul {v : HeightOneSpectrum (𝓞 F)} (hv : v ∈ S)
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
     (U r S R α hα ∘ₗ U r S R β hβ) =
     U r S R (α * β) (hα.mul hβ) := by
   ext1 a
   apply (Subtype.coe_inj).mp
-  simp only [U_apply_eq_finsum_unipotent_mul_diag_image,
+  simp only [U_apply_eq_finsum_unipotent_mul_diag_image _ _ _ _ _ hv,
     LinearMap.coe_comp, Function.comp_apply,
     smul_finsum_mem (unipotent_mul_diag_image_finite r β hβ)]
   unfold unipotent_mul_diag_image
   simp only [finsum_mem_image (unipotent_mul_diag_inj _ _ _)]
   simpa using U_mul_aux r S R hα hβ a
 
-lemma U_comm {v : HeightOneSpectrum (𝓞 F)}
+lemma U_comm {v : HeightOneSpectrum (𝓞 F)} (hv : v ∈ S)
     {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
     U r S R α hα ∘ₗ U r S R β hβ =
     U r S R β hβ ∘ₗ U r S R α hα := by
-  rw [U_mul, U_mul]
+  rw [U_mul _ _ _ hv, U_mul _ _ _ hv]
   congr 1
   rw [mul_comm]
+
+set_option maxHeartbeats 5000000 in
+lemma U_comm_of_ne {v w : HeightOneSpectrum (𝓞 F)} (hv : v ∈ S) (hw : w ∈ S)
+    (hvw : v ≠ w) {α : v.adicCompletionIntegers F} (hα : α ≠ 0)
+    {β : w.adicCompletionIntegers F} (hβ : β ≠ 0) :
+    U r S R α hα ∘ₗ U r S R β hβ =
+    U r S R β hβ ∘ₗ U r S R α hα := by
+  simpa [HeckeOperator.U] using
+    (AbstractHeckeOperator.comm
+      (R := R)
+      (U := U1 r S)
+      (g₁ := Units.mapEquiv r.symm.toMulEquiv
+        (FiniteAdeleRing.GL2.restrictedProduct.symm
+          (RestrictedProduct.mulSingle _ v
+            (Local.GL2.diag α hα))))
+      (g₂ := Units.mapEquiv r.symm.toMulEquiv
+        (FiniteAdeleRing.GL2.restrictedProduct.symm
+          (RestrictedProduct.mulSingle _ w
+            (Local.GL2.diag β hβ))))
+      (h₁ := QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
+      (h₂ := QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
+      (hcomm := by
+        refine ⟨unipotent_mul_diag_image r α hα, unipotent_mul_diag_image r β hβ, ?_, ?_, ?_⟩
+        · simpa [unipotent_mul_diag_image, U1diagU1, U1, diag] using
+            (bijOn_unipotent_mul_diagU1_U1diagU1 (r := r) (S := S) (α := α) (hα := hα) hv)
+        · simpa [unipotent_mul_diag_image, U1diagU1, U1, diag] using
+            (bijOn_unipotent_mul_diagU1_U1diagU1 (r := r) (S := S) (α := β) (hα := hβ) hw)
+        · intro a ha b hb
+          exact unipotent_mul_diag_commute_of_ne (r := r) hvw hα hβ a ha b hb))
+
+set_option maxHeartbeats 5000000 in
+lemma T_comm_U_of_ne {v w : HeightOneSpectrum (𝓞 F)} (hv : v ∉ S) (hw : w ∈ S)
+    (hvw : v ≠ w) {β : w.adicCompletionIntegers F} (hβ : β ≠ 0) :
+    HeckeOperator.T (F := F) (D := D) (S := S) r R v ∘ₗ
+      U r S R β hβ =
+    U r S R β hβ ∘ₗ
+      HeckeOperator.T (F := F) (D := D) (S := S) r R v := by
+  simpa [HeckeOperator.T, HeckeOperator.U] using
+    (AbstractHeckeOperator.comm
+      (R := R)
+      (U := U1 r S)
+      (g₁ := Units.mapEquiv r.symm.toMulEquiv
+        (FiniteAdeleRing.GL2.restrictedProduct.symm
+          (RestrictedProduct.mulSingle _ v
+            (Local.GL2.diag (Local.uniformizerInt (F := F) v)
+              (Local.uniformizerInt_ne_zero (F := F) v)))))
+      (g₂ := Units.mapEquiv r.symm.toMulEquiv
+        (FiniteAdeleRing.GL2.restrictedProduct.symm
+          (RestrictedProduct.mulSingle _ w
+            (Local.GL2.diag β hβ))))
+      (h₁ := QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
+      (h₂ := QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
+      (hcomm := by
+        refine ⟨HeckeOperator.GoodPrime.T_cosets_image (r := r) v,
+          unipotent_mul_diag_image r β hβ, ?_, ?_, ?_⟩
+        · simpa [HeckeOperator.GoodPrime.T_cosets_image, U1diagU1, U1, diag] using
+            (bijOn_T_cosets_U1diagU1 (r := r) (S := S) (v := v) hv)
+        · simpa [unipotent_mul_diag_image, U1diagU1, U1, diag] using
+            (bijOn_unipotent_mul_diagU1_U1diagU1 (r := r) (S := S) (α := β) (hα := hβ) hw)
+        · intro a ha b hb
+          exact goodPrimeRep_commute_with_unipotent_of_ne (r := r) hvw a ha hβ b hb))
 
 end U
 
@@ -322,10 +1177,53 @@ noncomputable instance instAlgebra :
   Algebra R (Algebra.adjoin R _ : Subalgebra R (WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
       WeightTwoAutomorphicFormOfLevel (U1 r S) R))
 
+open scoped IsMulCommutative in
 noncomputable instance instCommRing :
-    CommRing (HeckeAlgebra F D r S R) where
-  __ := instRing F D r S R
-  mul_comm := sorry -- #585 -- check on generators
+    CommRing (HeckeAlgebra F D r S R) := by
+  haveI : IsMulCommutative (HeckeAlgebra F D r S R) := by
+    simpa [HeckeAlgebra] using
+      (Algebra.isMulCommutative_adjoin (R := R)
+        (A := WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
+          WeightTwoAutomorphicFormOfLevel (U1 r S) R)
+        (s := {T r R v | v ∉ S} ∪
+          {φ | ∃ (v : HeightOneSpectrum (𝓞 F)) (_hv : v ∈ S)
+            (α : v.adicCompletionIntegers F) (hα : α ≠ 0), φ = U r S R α hα})
+        (by
+          intro x hx y hy
+          rcases hx with hx | hx
+          · rcases hy with hy | hy
+            · rcases hx with ⟨v, hv, rfl⟩
+              rcases hy with ⟨w, hw, rfl⟩
+              by_cases hvw : v = w
+              · subst hvw
+                rfl
+              · exact T_comm_of_ne (F := F) (D := D) (r := r) (S := S) (R := R)
+                  (v := v) (w := w) hv hw hvw
+            · rcases hx with ⟨v, hv, rfl⟩
+              rcases hy with ⟨w, hw, β, hβ, rfl⟩
+              exact T_comm_U_of_ne (F := F) (D := D) (r := r) (S := S) (R := R)
+                (v := v) (w := w) hv hw
+                (hvw := by
+                  intro h
+                  exact hv (h ▸ hw))
+                (β := β) (hβ := hβ)
+          · rcases hx with ⟨v, hv, α, hα, rfl⟩
+            rcases hy with hy | hy
+            · rcases hy with ⟨w, hw, rfl⟩
+              exact (T_comm_U_of_ne (F := F) (D := D) (r := r) (S := S) (R := R)
+                (v := w) (w := v) hw hv
+                (hvw := by
+                  intro h
+                  exact hw (h ▸ hv))
+                (β := α) (hβ := hα)).symm
+            · rcases hy with ⟨w, hw, β, hβ, rfl⟩
+              by_cases hvw : v = w
+              · subst hvw
+                exact U_comm (F := F) (D := D) (r := r) (S := S) (R := R) (v := v)
+                  (hv := hv) (α := α) (hα := hα) (β := β) (hβ := hβ)
+              · exact U_comm_of_ne (F := F) (D := D) (r := r) (S := S) (R := R)
+                  (v := v) (w := w) hv hw hvw (α := α) (hα := hα) (β := β) (hβ := hβ)))
+  exact inferInstance
 
 variable {F S} in
 /-- The Hecke operator Tᵥ as an element of the Hecke algebra. -/
