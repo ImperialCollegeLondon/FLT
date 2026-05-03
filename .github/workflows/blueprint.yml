@@ -52,6 +52,11 @@ jobs:
         run: |
           ! (find FLT -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
 
+      - name: Don't commit interactive Lean commands
+        if: always()
+        run: |
+          python3 scripts/check_hash_commands.py
+
   build_project:
     runs-on: ubuntu-latest
     name: Build project
