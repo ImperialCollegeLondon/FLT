@@ -6,9 +6,14 @@
 #
 # The provided actions which are used here consume this snapshot, with:
 #
-#   bump:
-#      updates lakefile.lean/lake-manifest to the LKG mathlib commit
-#      and opens (or force-pushes) a PR that should be instantly mergeable
+#   query-latest:
+#      reads the LKG/FKB commits from the snapshot. We use it to detect whether
+#      an incompatibility is currently reported, and gate the bump on that.
+#   bump-to-latest + open-bump-pr:
+#      when no incompatibility is reported, update lakefile.lean/lake-manifest
+#      to the LKG mathlib commit and open (or force-push) a PR that should be
+#      instantly mergeable. Skipped while an incompatibility exists, so reviewer
+#      attention stays on the "fix breaking change" PR.
 #   track-incompatibility:
 #       opens
 #         (1) a persistent issue when an incompatible revision is detected (i.e.: FLT
@@ -16,11 +21,22 @@
 #         (2) a pull request with the dependency pinned to this breaking commit, so it can be worked on
 #              by checking out that branch.
 #       closes these automatically once the incompatibility is resolved.
+#
+# In addition, when track-incompatibility reports an open "fix break" PR,  we close any
+# leftover LKG bump PR. Combined with the gate above, this guarantees there is
+# at most one open mathlib-bump PR at any time: either the routine LKG bump
+# (no regression) or the FKB "fix breaking change" PR  (regression in flight).
 name: Update Dependencies
 on:
   schedule:             # Sets a schedule to trigger the workflow
   - cron: "0 17 * * *" # Daily at 17:00 UTC, 2 hours after the downstream-reports regression run (15:00 UTC)
   workflow_dispatch:    # Allows the workflow to be triggered manually via the GitHub interface
+
+# Branch used by the open-bump-pr action for the daily last-known-good PR.
+# Pinned explicitly here (rather than relying on the action's default) because
+# the close-LKG step below looks the PR up by head branch.
+env:
+  LKG_BRANCH: hopscotch/lkg-bump
 
 jobs:
   bump:
@@ -31,12 +47,27 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      # Skip the LKG bump entirely while an incompatibility is reported
+      # When a regression exists, we want reviewer attention focused entirely
+      # on fixing the breaking change.
+      # In this case, we avoid opening a 'last-known-good' PR:
+      # note that the open-issue job closes these PRs when already existing,
+      # so these two things combined mean that there is only a single open PR
+      # bumping mathlib at any given time.
+      - name: Check whether an incompatibility is reported
+        id: fkb
+        uses: leanprover-community/downstream-reports/.github/actions/query-latest@main
+        with:
+          query-type: first-known-bad
+
       - name: Bump to latest mathlib
         id: bump
+        # Skip when an incompatibility is reported (see the remarks above).
+        if: steps.fkb.outputs.commit == ''
         uses: leanprover-community/downstream-reports/.github/actions/bump-to-latest@main
         with:
           # The bump-to-latest action performs a lake build as a sanity check by default,
-          # but FLT's build is expensive and it will be re-checked when the PR is opened anyways:
+          # but this will be re-checked when the PR is opened anyways:
           # let's pass this parameter to skip this check and just open the PR with the verified last-known-good.
           #
           # The only situation where this might fail is if there have been new commits in FLT
@@ -46,9 +77,11 @@ jobs:
           skip-build: 'true'
 
       - name: Open or update PR
-        if: steps.bump.outputs.updated == 'true'
+        # Skip when an incompatibility is active (see the fkb step above).
+        if: steps.fkb.outputs.commit == '' && steps.bump.outputs.updated == 'true'
         uses: leanprover-community/downstream-reports/.github/actions/open-bump-pr@main
         with:
+          branch:         ${{ env.LKG_BRANCH }}
           title:          "chore: ${{ steps.bump.outputs.pr-title }}"
           message:        ${{ steps.bump.outputs.bump-description }}
           commit-message: ${{ steps.bump.outputs.commit-message }}
@@ -63,6 +96,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v6.0.2
       - name: Open or update incompatibility issue
+        id: track
         uses: leanprover-community/downstream-reports/.github/actions/track-incompatibility@main
         with:
           # Open a PR bumping to the 'known bad' revision so a maintainer can check out that branch
@@ -70,3 +104,26 @@ jobs:
           # This PR is independent to the bump PR opened in the other job, which should be automatically mergable
           # without further modifications.
           open-pr: true
+
+      # When an incompatibility exists, maintainers only want to work on the
+      # first-known-bad ("fix") PR; the daily last-known-good bump PR is just
+      # noise in that situation. Close it so attention stays on the "fix breaking change" PR .
+      # The `pr-action` output of track-incompatibility tells us whether a
+      # "fix breaking change" PR  is currently open: `created` (just opened) or `noop-existing`
+      # (already open from a previous run). The other values (`noop-resolved`,
+      # `noop-no-changes`, `disabled`) mean no "fix breaking change" PR is open, so we leave
+      # the LKG PR alone.
+      - name: Close last-known-good bump PR when a "fix first-known-bad PR" is open
+        if: steps.track.outputs.pr-action == 'created' || steps.track.outputs.pr-action == 'noop-existing'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FKB_PR: ${{ steps.track.outputs.pr-number }}
+        run: |
+          set -euo pipefail
+          # Look up the LKG PR by its head branch (LKG_BRANCH, passed to open-bump-pr above)
+          lkg_pr=$(gh pr list --state open --head "$LKG_BRANCH" --json number --jq '.[0].number // empty')
+          if [ -z "$lkg_pr" ]; then
+            echo "No open LKG bump PR; nothing to close."
+            exit 0
+          fi
+          gh pr close "$lkg_pr" --comment "Closing in favor of #${FKB_PR}: FLT is currently incompatible with the latest mathlib, so maintainer attention should go to the PR pinned at the first-known-bad commit. A new last-known-good bump PR will be opened automatically once the incompatibility is resolved."
