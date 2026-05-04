@@ -55,6 +55,7 @@ jobs:
 
   open-issue:
     runs-on: ubuntu-latest
+    needs: bump # ensures the last-known-good PR is created first, so the first-known-bad PR always gets a higher number
     permissions:
       issues: write
       contents: write
