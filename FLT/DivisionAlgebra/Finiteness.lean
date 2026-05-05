@@ -460,7 +460,6 @@ omit [NumberField K] in
 lemma algebraMap_completion_def (vi : InfinitePlace K) :
     (algebraMap ℝ vi.Completion) = (real_to_completion K vi) := rfl
 
-set_option backward.isDefEq.respectTransparency false in
 instance (vi : InfinitePlace K) : Module.Finite ℝ vi.Completion := by
   by_cases h : vi.IsReal
   · let e : vi.Completion ≃ₗ[ℝ] ℝ := {

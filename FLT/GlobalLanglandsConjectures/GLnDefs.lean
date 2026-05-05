@@ -158,12 +158,10 @@ def LieHom.baseChange
     · induction m using TensorProduct.induction_on <;> simp_all
     · simp_all only [add_lie, map_add]
 
-set_option backward.isDefEq.respectTransparency false in
 def actionTensorC :
     ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯)) :=
   LieHom.baseChange _ (action _ _)
 
-set_option backward.isDefEq.respectTransparency false in
 def actionTensorCAlg :
   UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
     ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) := by
@@ -179,13 +177,11 @@ def actionTensorCAlg :
     -- broke after upgrade to module system
     sorry
 
-set_option backward.isDefEq.respectTransparency false in
 def actionTensorCAlg' :
   UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
     Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) :=
   (LinearMap.tensorProductEnd ..).comp (actionTensorCAlg G E)
 
-set_option backward.isDefEq.respectTransparency false in
 def actionTensorCAlg'2 :
   Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ
     (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)) →ₐ[ℂ]
@@ -195,11 +191,8 @@ def actionTensorCAlg'2 :
 instance : Module ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯ := inferInstance
 instance : Module ℂ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
 
-set_option backward.isDefEq.respectTransparency false in
 def Alg := UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)
-set_option backward.isDefEq.respectTransparency false in
 instance : Ring (Alg G E) := inferInstanceAs (Ring (UniversalEnvelopingAlgebra ..))
-set_option backward.isDefEq.respectTransparency false in
 instance : Algebra ℂ (Alg G E) := inferInstanceAs (Algebra ℂ (UniversalEnvelopingAlgebra ..))
 
 def Z : Type _ := Subalgebra.center ℂ (Alg G E)

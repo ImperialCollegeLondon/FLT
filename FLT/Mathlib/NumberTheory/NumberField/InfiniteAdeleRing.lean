@@ -26,7 +26,6 @@ instance : SecondCountableTopology (InfiniteAdeleRing K) :=
 noncomputable instance : Algebra ℝ (InfiniteAdeleRing K) :=
   (InfiniteAdeleRing.ringEquiv_mixedSpace K|>.symm.toRingHom.comp (algebraMap ℝ _)).toAlgebra
 
-set_option backward.isDefEq.respectTransparency false in
 /-- If `K` is a number field, this is the ℝ-linear iso between ∏_v|∞ K_v and ℝ^r × ℂ^s,
 with the usual notation. -/
 noncomputable def NumberField.InfiniteAdeleRing.algEquiv_mixedSpace :
@@ -77,7 +76,6 @@ noncomputable def NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace :
       fun_prop
 
 variable [NumberField K] in
-set_option backward.isDefEq.respectTransparency false in
 instance : IsModuleTopology ℝ (InfiniteAdeleRing K) :=
   .iso (NumberField.InfiniteAdeleRing.continuousAlgEquiv_mixedSpace K).symm
 

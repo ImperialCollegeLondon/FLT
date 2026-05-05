@@ -70,7 +70,6 @@ noncomputable def localUniformiser (v : HeightOneSpectrum A) [DecidableEq (Heigh
     [DecidableEq (HeightOneSpectrum A)] (w : HeightOneSpectrum A) :
     localUniformiser K v w = Pi.mulSingle v (v.adicCompletionUniformizer K) w := rfl
 
-set_option backward.isDefEq.respectTransparency false in
 /-- `localUniformiser v` is an idele which is 1 at all finite places except `v`, where
 it is a uniformiser. -/
 noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
@@ -93,7 +92,6 @@ noncomputable def localUniformiserUnit (v : HeightOneSpectrum A)
       · simp [inv_mul_cancel₀ <| HeightOneSpectrum.adicCompletionUniformizer_ne_zero K w]
       · simp [hw]⟩
 
-set_option backward.isDefEq.respectTransparency false in
 /-- `localUnit K α` for `α : (v.adicCompletion K)ˣ`, is the finite idele which is `α` at
 `v` and `1` elsewhere. -/
 noncomputable def localUnit {v : HeightOneSpectrum A} (α : (v.adicCompletion K)ˣ)

@@ -51,7 +51,6 @@ instance smulCommClass_integralClosure
     SMulCommClass G R (IntegralClosure R K) where
   smul_comm _ _ _ := Subtype.ext (smul_comm _ _ _)
 
-set_option backward.isDefEq.respectTransparency false in
 lemma not_isField_integralClosure
     {K L : Type*} [Field K] [Field L] [Algebra K L] (R : ValuationSubring K) (hR : R ≠ ⊤) :
     ¬ IsField (IntegralClosure R L) := by
@@ -66,7 +65,6 @@ lemma not_isField_integralClosure
   obtain ⟨x, rfl⟩ := (IsIntegralClosure.isIntegral_iff (A := R)).mp this
   exact x.2
 
-set_option backward.isDefEq.respectTransparency false in
 instance isInvariant_integralClosure
     {G K L : Type*} [Field K] [Field L] [Algebra K L] [Group G] [MulSemiringAction G L]
     [SMulCommClass G K L] [Algebra.IsInvariant K L G] (R : ValuationSubring K) :
