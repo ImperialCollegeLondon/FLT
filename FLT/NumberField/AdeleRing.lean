@@ -154,14 +154,14 @@ instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     | tmul l r =>
         apply Prod.ext
         · simp only [AlgEquiv.coe_algHom, smul_def, TensorProduct.comm_tmul,
-            TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul, AlgHom.coe_coe,
+            TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul,
             baseChangeAlgEquiv_fst_apply, smul_fst]
           have := IsBiscalar.map_smul₂ L (S := K∞)
             (f := InfiniteAdeleRing.baseChangeAlgEquiv K L |>.toAlgHom)
           rw [AlgEquiv.coe_algHom] at this
           simp [← this, TensorProduct.smul_tmul']
         · simp only [AlgEquiv.coe_algHom, smul_def, TensorProduct.comm_tmul,
-            TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul, AlgHom.coe_coe,
+            TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul,
             baseChangeAlgEquiv_snd_apply, smul_snd]
           change _ = _ • FiniteAdeleRing.baseChangeAdeleAlgEquiv (𝓞 K) K L (𝓞 L) _
           change FiniteAdeleRing.baseChangeAdeleAlgEquiv _ _ _ _ (a.2 • l ⊗ₜ[K] r.2) = _
