@@ -239,7 +239,7 @@ def InfiniteGalois.quotientEquivFixedFieldEmb [IsGalois K L] (G : ClosedSubgroup
     simpa using x.2 ⟨_, τ.2⟩)
   invFun f := QuotientGroup.mk (.ofBijective (f.liftNormal L) (AlgHom.normal_bijective K L L _))
   left_inv := Quotient.ind fun σ ↦ show _ = QuotientGroup.mk σ by
-    simp only [AlgEquiv.toAlgHom_eq_coe, Quotient.lift_mk, QuotientGroup.eq]
+    simp only [Quotient.lift_mk, QuotientGroup.eq]
     conv_lhs => rw [← InfiniteGalois.fixingSubgroup_fixedField G]
     intro x
     rw [mul_smul, inv_smul_eq_iff]
