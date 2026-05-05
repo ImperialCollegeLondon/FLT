@@ -289,7 +289,6 @@ lemma basis_eq (v : HeightOneSpectrum (𝓞 K))
   conv_rhs => rw [hw]
   simp only [basis_eq_single K B v, map_sum]; rfl
 
-set_option backward.isDefEq.respectTransparency false in
 lemma basis_eq_single_global
     {j : Module.Free.ChooseBasisIndex K B} {x : FiniteAdeleRing (𝓞 K) K} :
     x • (b_global K B) j

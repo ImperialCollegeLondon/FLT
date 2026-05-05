@@ -233,7 +233,6 @@ lemma algebraMap_apply (x : K) (v : HeightOneSpectrum A) :
 set_option synthInstance.maxHeartbeats 40000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
 set_option maxHeartbeats 400000 in
-set_option backward.isDefEq.respectTransparency false in
 @[simp]
 lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A, K]) :
     baseChangeLinearEquiv A K L B (algebraMap B L b ⊗ₜ x) =
@@ -245,7 +244,6 @@ lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A,
     IsScalarTower.algebraMap_apply B L 𝔸ᶠ[B, L],
     IsScalarTower.algebraMap_apply B L (w.adicCompletion L), -Submodule.coe_pi] using .inl rfl
 
-set_option backward.isDefEq.respectTransparency false in
 theorem baseChange_bijective [FiniteDimensional K L] :
     Function.Bijective (SemialgHom.baseChange_of_algebraMap <|
       (mapSemialgHom A K L B).toSemialgHom) := by
@@ -279,7 +277,6 @@ def baseChangeAlgEquiv [FiniteDimensional K L] :
   .ofBijective (SemialgHom.baseChange_of_algebraMap <| FiniteAdeleRing.mapSemialgHom A K L B)
     (FiniteAdeleRing.baseChange_bijective A K L B)
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The `𝔸_K^∞`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
 def baseChangeAdeleAlgEquiv [FiniteDimensional K L] :
     L ⊗[K] 𝔸ᶠ[A, K] ≃ₐ[𝔸ᶠ[A, K]] 𝔸ᶠ[B, L] where

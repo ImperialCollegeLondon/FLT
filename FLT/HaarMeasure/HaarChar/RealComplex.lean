@@ -46,7 +46,6 @@ lemma MeasureTheory.ringHaarChar_real (x : ℝˣ) : ringHaarChar x = ‖(x : ℝ
     (measure_pos_of_nonempty_interior _ <| by simp).ne' isCompact_Icc.measure_ne_top
       (Real.volume_real_smul ..)
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The distributive Haar character of the action of `ℂˣ` on `ℂ` is the usual norm squared.
 
 This means that `volume (z • s) = ‖z‖ ^ 2 * volume s` for all `z : ℂ` and `s : Set ℂ`.
@@ -69,7 +68,6 @@ lemma MeasureTheory.ringHaarChar_complex (z : ℂˣ) : ringHaarChar z = ‖(z : 
   · simp [key, ENNReal.ofReal_pow, zpow_ofNat]; rfl
   · simp [key, zpow_ofNat]
 
-set_option backward.isDefEq.respectTransparency false in
 lemma Complex.volume_complex_smul (z : ℂ) (s : Set ℂ) : volume (z • s) = ‖z‖₊ ^ 2 * volume s := by
   obtain rfl | hz := eq_or_ne z 0
   · simp [(finite_zero.subset s.zero_smul_set_subset).measure_zero]
