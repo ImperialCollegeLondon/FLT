@@ -33,6 +33,8 @@ variable {k : Type u} [Field k] (E : WeierstrassCurve k) [E.IsElliptic] [Decidab
 
 open WeierstrassCurve WeierstrassCurve.Affine
 
+/-- The `n`-torsion subgroup of an elliptic curve `E`: the kernel of multiplication by `n` on
+the group of points of `E`. -/
 abbrev WeierstrassCurve.n_torsion (n : ℕ) : Type u := Submodule.torsionBy ℤ (E⁄k).Point n
 
 --variable (n : ℕ) in

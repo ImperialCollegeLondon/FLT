@@ -65,6 +65,9 @@ end linear
 
 section algebra
 
+/-- Promote an `A`-algebra equivalence `C ≃ₐ[A] D` to a `B`-algebra equivalence,
+where `B` is an intermediate algebra `A → B → C` and `D` inherits a `B`-algebra
+structure via the restricted map. -/
 @[simps! apply symm_apply]
 def AlgEquiv.extendScalars {A C D : Type*} (B : Type*) [CommSemiring A] [CommSemiring C]
     [CommSemiring D] [Algebra A C] [Algebra A D] [CommSemiring B] [Algebra A B] [Algebra B C]

@@ -17,6 +17,8 @@ variable {α : Type*} [Ring α] [UniformSpace α] [IsTopologicalRing α] [IsUnif
 
 variable {f}
 
+/-- A continuous ring homomorphism `f : α →+* β` extends uniquely to a semialgebra
+homomorphism `Completion α →ₛₐ[f] Completion β` between the uniform completions. -/
 noncomputable def mapSemialgHom {α : Type*} [CommRing α] [UniformSpace α]
     [IsTopologicalRing α] [IsUniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
     [IsUniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f) :

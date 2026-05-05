@@ -6,7 +6,10 @@ public import Mathlib.Topology.Algebra.ContinuousMonoidHom
 
 @[expose] public section
 
-@[to_additive]
+/-- A continuous group isomorphism `e : G ≃ₜ* H` mapping `N ≤ G` onto `M ≤ H` descends
+to a continuous group isomorphism `G ⧸ N ≃ₜ* H ⧸ M`. -/
+@[to_additive "A continuous additive group isomorphism `e : G ≃ₜ+ H` mapping `N ≤ G`
+onto `M ≤ H` descends to a continuous additive group isomorphism `G ⧸ N ≃ₜ+ H ⧸ M`."]
 def QuotientGroup.continuousMulEquiv {G H : Type*} [Group G] (N : Subgroup G)
     [N.Normal] [Group H] (M : Subgroup H) [M.Normal] [TopologicalSpace G]
     [TopologicalSpace H] (e : G ≃ₜ* H)

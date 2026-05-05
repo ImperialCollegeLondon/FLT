@@ -118,6 +118,8 @@ variable (G : Type) [TopologicalSpace G] [Group G]
   [ChartedSpace E G]
   [LieGroup 𝓘(ℝ, E) ⊤ G]
 
+/-- The action of the Lie algebra of left-invariant derivations on a Lie group `G`
+on smooth real-valued functions on `G`, viewed as a Lie algebra homomorphism. -/
 def action :
     LeftInvariantDerivation 𝓘(ℝ, E) G →ₗ⁅ℝ⁆ (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯) where
   toFun l := Derivation.toLinearMap l
@@ -127,6 +129,8 @@ def action :
 
 open scoped TensorProduct
 
+/-- Base change of a Lie module homomorphism `f : M →ₗ⁅R,L⁆ N` along a commutative
+algebra `A` over `R`. -/
 def LieModuleHom.baseChange
     (A : Type*) {R L M N : Type*}
     [CommRing R] [CommRing A] [Algebra R A]
@@ -143,6 +147,8 @@ def LieModuleHom.baseChange
         · induction m using TensorProduct.induction_on <;> simp_all
         · simp_all only [add_lie, map_add]
 
+/-- Base change of a Lie algebra homomorphism `f : L →ₗ⁅R⁆ L'` along a commutative
+algebra `A` over `R`. -/
 def LieHom.baseChange
     (A : Type*) {R L L' : Type*}
     [CommRing R] [CommRing A] [Algebra R A]
@@ -158,10 +164,14 @@ def LieHom.baseChange
     · induction m using TensorProduct.induction_on <;> simp_all
     · simp_all only [add_lie, map_add]
 
+/-- Complexification of `action`: the Lie action of the complexified Lie algebra
+on the complexification of smooth real functions on `G`. -/
 def actionTensorC :
     ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯)) :=
   LieHom.baseChange _ (action _ _)
 
+/-- Extension of `actionTensorC` to the universal enveloping algebra of the
+complexified Lie algebra. -/
 def actionTensorCAlg :
   UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
     ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) := by
@@ -177,11 +187,14 @@ def actionTensorCAlg :
     -- broke after upgrade to module system
     sorry
 
+/-- Variant of `actionTensorCAlg` whose codomain is the `ℂ`-linear endomorphisms
+of the complexified function space. -/
 def actionTensorCAlg' :
   UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
     Module.End ℂ (ℂ ⊗[ℝ] C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯) :=
   (LinearMap.tensorProductEnd ..).comp (actionTensorCAlg G E)
 
+/-- Restriction of `actionTensorCAlg'` to the centre of the universal enveloping algebra. -/
 def actionTensorCAlg'2 :
   Subalgebra.center ℂ (UniversalEnvelopingAlgebra ℂ
     (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)) →ₐ[ℂ]
@@ -191,15 +204,19 @@ def actionTensorCAlg'2 :
 instance : Module ℝ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℝ), ℝ⟯ := inferInstance
 instance : Module ℂ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
 
+/-- The universal enveloping algebra over `ℂ` of the complexified Lie algebra of `G`. -/
 def Alg := UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G)
 instance : Ring (Alg G E) := inferInstanceAs (Ring (UniversalEnvelopingAlgebra ..))
 instance : Algebra ℂ (Alg G E) := inferInstanceAs (Algebra ℂ (UniversalEnvelopingAlgebra ..))
 
+/-- The centre of the universal enveloping algebra `Alg G E`. -/
 def Z : Type _ := Subalgebra.center ℂ (Alg G E)
 instance : CommRing (Z G E) := (inferInstance : CommRing (Subalgebra.center ℂ (Alg G E)))
 instance : AddCommGroup (Z G E) := inferInstanceAs (AddCommGroup (Subalgebra.center ..))
 instance : Algebra ℂ (Z G E) := inferInstanceAs (Algebra ℂ (Subalgebra.center ..))
 
+/-- The `ℂ`-algebra map from the centre of the universal enveloping algebra to
+the endomorphism algebra of complex-valued smooth functions on `G`. -/
 def actionTensorCAlg'3 : Z G E →ₐ[ℂ] Module.End ℂ C^∞⟮𝓘(ℝ, E), G; 𝓘(ℝ, ℂ), ℂ⟯ := sorry
 
 
@@ -209,6 +226,8 @@ def actionTensorCAlg'3 : Z G E →ₐ[ℂ] Module.End ℂ C^∞⟮𝓘(ℝ, E), 
 -- Step 3: induced action of centre
 
 variable {n : ℕ}
+/-- A function on `GL_n(𝔸_f) × GL_n(ℝ)` is smooth if it is continuous, locally constant
+in the finite-adelic variable, and `C^∞` in the archimedean variable. -/
 structure IsSmooth (f : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ) : Prop where
   continuous : Continuous f
   loc_cst (y : GL (Fin n) ℝ) :
@@ -218,9 +237,13 @@ structure IsSmooth (f : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ �
 
 open Matrix
 
+/-- An auxiliary "size" function on invertible real matrices used in the slowly
+increasing condition; namely `tr(MMᵀ) + tr(M⁻¹(M⁻¹)ᵀ)`. -/
 noncomputable abbrev s (M : Matrix (Fin n) (Fin n) ℝ) : ℝ :=
   (M * M.transpose).trace + (M⁻¹ * M⁻¹.transpose).trace
 
+/-- A function `f : GL_n(ℝ) → ℂ` is slowly increasing if there exist `C, N` such
+that `‖f M‖ ≤ C · s(M)^N` for all `M`. -/
 structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop where
   bounded_by : ∃ (C : ℝ) (N : ℕ),
     ∀ (M : GeneralLinearGroup (Fin n) ℝ),
@@ -229,13 +252,18 @@ structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop
 --
 --#check Matrix.orthogonalGroup (Fin n) ℝ
 
+/-- A preweight for `GLₙ` is a continuous representation of the real orthogonal
+group `O(n)` on a finite-dimensional complex vector space. -/
 structure preweight (n : ℕ) where
+  /-- The dimension of the underlying complex vector space. -/
   d : ℕ -- dimension
+  /-- The continuous group homomorphism `O(n) → GLd(ℂ)` defining the representation. -/
   rho : orthogonalGroup (Fin n) ℝ →* GeneralLinearGroup (Fin d) ℂ
   rho_continuous: Continuous rho
 
 open CategoryTheory
 
+/-- The finite-dimensional `ℂ`-representation of `O(n)` associated to a preweight `w`. -/
 noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
     FDRep ℂ (orthogonalGroup (Fin n) ℝ) where
   V := FGModuleCat.of ℂ (Fin w.d → ℂ)
@@ -249,15 +277,21 @@ noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
       simp only [_root_.map_mul, Units.val_mul, ← mulVec_mulVec, End.mul_def]
       rfl }
 
+/-- A weight for `GLₙ`: a preweight whose associated `O(n)`-representation is simple. -/
 structure Weight (n : ℕ) where
+  /-- The underlying preweight, i.e. continuous representation of `O(n)`. -/
   w : preweight n
   isSimple : Simple w.fdRep
 
 -- This will be useful
+/-- Functoriality of `GLₘ`: a ring homomorphism `A →+* B` induces a group homomorphism
+`GLₘ(A) →* GLₘ(B)` by applying it entrywise. -/
 def _root_.RingHom.GL {A B : Type*} [CommRing A] [CommRing B] (φ : A →+* B)
   (m : Type*) [Fintype m] [DecidableEq m] :
   GL m A →* GL m B := Units.map <| (RingHom.mapMatrix φ).toMonoidHom
 
+/-- The function `f : GL_n(𝔸_f) × GL_n(ℝ) → ℂ` is right-`U`-invariant in the
+finite-adelic variable, where `U` is an open compact subgroup. -/
 structure IsConstantOn (U : Subgroup (GL (Fin n) (FiniteAdeleRing ℤ ℚ)))
   (f : (GL (Fin n) (FiniteAdeleRing ℤ ℚ)) × (GL (Fin n) ℝ) → ℂ) : Prop where
   is_open : IsOpen U.carrier
@@ -265,6 +299,8 @@ structure IsConstantOn (U : Subgroup (GL (Fin n) (FiniteAdeleRing ℤ ℚ)))
   finite_level (u : U.carrier) (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) (y : GL (Fin n) ℝ) :
     f (x * u, y) = f (x, y)
 
+/-- The annihilator of an element `a : M` in the module of `R`-linear maps `M →ₗ[R] N`:
+those `f` with `f a = 0`. -/
 def annihilator {R} [CommSemiring R]
     {M} [AddCommMonoid M] [Module R M]
     {N} [AddCommMonoid N] [Module R N]
@@ -274,6 +310,7 @@ def annihilator {R} [CommSemiring R]
 /-- Automorphic forms for GL_n/Q with weight ρ. -/
 @[ext]
 structure AutomorphicFormForGLnOverQ (n : ℕ) (ρ : Weight n) where
+  /-- The underlying function `GL_n(𝔸_f) × GL_n(ℝ) → ℂ`. -/
   toFun : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ
   is_smooth : IsSmooth toFun
   is_periodic : ∀ (g : GL (Fin n) ℚ) (x : GL (Fin n) (FiniteAdeleRing ℤ ℚ)) (y : GL (Fin n) ℝ),

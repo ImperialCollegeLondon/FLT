@@ -10,11 +10,15 @@ public import Mathlib.GroupTheory.MonoidLocalization.Basic
 
 open scoped TensorProduct
 
+/-- A finite free module over a ring with strong rank condition is linearly equivalent
+to `Fin (finrank R M) → R`, via the standard basis. -/
 noncomputable def Module.Finite.equivPi (R M : Type*) [Ring R] [StrongRankCondition R]
     [AddCommGroup M] [Module R M] [Module.Free R M] [Module.Finite R M] :
     M ≃ₗ[R] Fin (Module.finrank R M) → R :=
   LinearEquiv.ofFinrankEq _ _ <| by rw [Module.finrank_pi, Fintype.card_fin]
 
+/-- Base change of `Module.Finite.equivPi` to an `R`-algebra `N`: the equivalence
+`N ⊗[R] M ≃ₗ[N] Fin (finrank R M) → N`. -/
 noncomputable abbrev TensorProduct.AlgebraTensorModule.finiteEquivPi (R M N : Type*) [CommRing R]
     [CommSemiring N] [Ring M] [Algebra R N] [Module R M] [Module.Free R M] [Module.Finite R M]
     [StrongRankCondition R] :

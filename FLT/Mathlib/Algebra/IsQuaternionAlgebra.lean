@@ -7,6 +7,8 @@ public import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 
 @[expose] public section
 
+/-- `IsQuaternionAlgebra F D` says that `D` is a quaternion algebra over the field `F`,
+i.e. a four-dimensional central simple `F`-algebra. -/
 class IsQuaternionAlgebra (F : Type*) [Field F] (D : Type*) [Ring D] [Algebra F D] : Prop where
   isSimpleRing : IsSimpleRing D
   isCentral : Algebra.IsCentral F D

@@ -14,6 +14,8 @@ variable (I : ∀ i, Ideal (R i)) (N : ∀ i, Submodule (R i) (M i)) (F : Filter
 
 open Filter
 
+/-- The vanishing filter of an ideal `p` of the product ring: a set `s ⊆ ι` is in the filter
+iff the indicator-type element `(if · ∈ s then 0 else 1)` lies in `p`. -/
 open scoped Classical in
 def vanishingFilter (p : Ideal (Π i, R i)) : Filter ι where
   sets := { s | (if · ∈ s then 0 else 1) ∈ p }
@@ -35,6 +37,7 @@ lemma mem_vanishingFilter {p : Ideal (Π i, R i)} {s} :
     s ∈ vanishingFilter p ↔ (if · ∈ s then 0 else 1) ∈ p :=
   Iff.rfl
 
+/-- The vanishing ultrafilter of a prime ideal `p` of the product ring. -/
 def vanishingUltrafilter (p : Ideal (Π i, R i)) [p.IsPrime] : Ultrafilter ι :=
   .ofComplNotMemIff (vanishingFilter p) <| by
     classical
@@ -91,6 +94,8 @@ lemma vanishingFilter_gc :
       (toDual ∘ eventuallyProd (⊥ : ∀ i, Ideal (R i))) :=
   fun _ _ ↦ vanishingFilter_le
 
+/-- The Galois insertion between filters on `ι` and ideals of `Π i, R i` (for nontrivial `R i`)
+formed by `vanishingFilter` and `eventuallyProd ⊥`. -/
 open OrderDual in
 def vanishingFilterGI [∀ i, Nontrivial (R i)] :
     GaloisInsertion (vanishingFilter ∘ ofDual)

@@ -15,6 +15,8 @@ variable (I : ∀ i, Ideal (R i)) (N : ∀ i, Submodule (R i) (M i)) (F : Filter
 
 open Filter
 
+/-- Given a filter `F` on the index set and a family of submodules `N i ≤ M i`, the submodule
+of `Π i, M i` consisting of those tuples `v` for which `v i ∈ N i` holds `F`-eventually. -/
 def eventuallyProd (F : Filter ι) : Submodule (Π i, R i) (Π i, M i) where
   carrier := { v | ∀ᶠ i in F, v i ∈ N i }
   add_mem' hv hw := by filter_upwards [hv, hw]; simp_all [add_mem]
@@ -65,6 +67,8 @@ instance eventuallyProd.isPrime (F : Ultrafilter ι) [H : ∀ i, (I i).IsPrime] 
     simp only [mem_eventuallyProd, Pi.mul_apply, (H _).mul_mem_iff_mem_or_mem,
       Ultrafilter.eventually_or, imp_self]
 
+/-- The ultraproduct of a family of additive groups (or modules / rings) `M i` along
+a filter `F`: the quotient of `Π i, M i` by tuples that are zero `F`-eventually. -/
 variable (M) in
 def UltraProduct : Type _ :=
   (Π i, M i) ⧸ eventuallyProd (R := fun _ ↦ ℤ) (M := M) ⊥ F
@@ -77,6 +81,8 @@ instance : AddCommGroup (UltraProduct M F) := inferInstanceAs
 instance : CommRing (UltraProduct R F) := inferInstanceAs
   (CommRing ((Π i, R i) ⧸ eventuallyProd (R := R) (M := R) ⊥ F))
 
+/-- The canonical projection from the product `Π i, R i` to the ultraproduct as a ring
+homomorphism. -/
 variable (R F) in
 def UltraProduct.π : (Π i, R i) →+* UltraProduct R F :=
   Ideal.Quotient.mk (eventuallyProd (R := R) (M := R) ⊥ F)
@@ -84,6 +90,8 @@ def UltraProduct.π : (Π i, R i) →+* UltraProduct R F :=
 instance : Module (Π i, R i) (UltraProduct M F) :=
   inferInstanceAs (Module (Π i, R i) ((Π i, M i) ⧸ eventuallyProd (R := R) (M := M) ⊥ F))
 
+/-- The canonical projection from the product `Π i, M i` to the ultraproduct as a
+`Π i, R i`-linear map. -/
 variable (R M F) in
 def UltraProduct.πₗ : (Π i, M i) →ₗ[Π i, R i] UltraProduct M F :=
   Submodule.mkQ (eventuallyProd (R := R) (M := M) ⊥ F)
@@ -188,6 +196,8 @@ instance : IsTopologicalRing (UltraProduct R F) where
 
 variable {N : ι → Type*} [∀ i, AddCommGroup (N i)] [∀ i, Module (R i) (N i)]
 
+/-- A family of linear maps `f i : M i →ₗ[R i] N i` induces a linear map between the
+corresponding ultraproducts. -/
 variable (F) in
 def UltraProduct.map (f : ∀ i, M i →ₗ[R i] N i) :
     UltraProduct M F →ₗ[∀ i, R i] UltraProduct N F :=
@@ -199,6 +209,8 @@ def UltraProduct.map (f : ∀ i, M i →ₗ[R i] N i) :
 lemma UltraProduct.map_πₗ (f : ∀ i, M i →ₗ[R i] N i) (x) :
     UltraProduct.map F f (πₗ R M F x) = πₗ R N F (fun i ↦ f i (x i)) := rfl
 
+/-- A family of ring homomorphisms `f i : R i →+* S i` induces a ring homomorphism between
+the corresponding ultraproducts. -/
 variable (F) in
 def UltraProduct.mapRingHom {S : ι → Type*} [∀ i, CommRing (S i)] (f : ∀ i, R i →+* S i) :
     UltraProduct R F →+* UltraProduct S F :=
