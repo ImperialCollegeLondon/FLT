@@ -22,17 +22,17 @@ structure Hurwitz : Type where
 notation "𝓞" => Hurwitz -- 𝓞 = \MCO
 namespace Hurwitz
 
-/-- The embedding of the Hurwitz integers into the rational quaternions. -/
 open Quaternion in
+/-- The embedding of the Hurwitz integers into the rational quaternions. -/
 noncomputable def toQuaternion (z : 𝓞) : ℍ where
   re := z.re - 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
   imI := z.im_i + 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
   imJ := 2⁻¹ * z.im_o + 2⁻¹ * z.im_oi
   imK := 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
 
+open Quaternion in
 /-- A retraction of `toQuaternion`: rounds each component of a quaternion to
 the nearest Hurwitz integer; serves as a left inverse to `toQuaternion`. -/
-open Quaternion in
 noncomputable def fromQuaternion (z : ℍ) : 𝓞 where
   re := Int.floor <| z.re + z.imJ
   im_o := Int.floor <| z.imJ + z.imK
