@@ -16,6 +16,7 @@ variable [Algebra.TopologicallyFG ℤ Λ]
 
 open IsLocalRing
 
+-- TODO (Andrew): this 𝓞 should be a Λ right?
 -- This is true when `R i` is topologically fg over `𝒪` by a bounded number of generators, and
 -- for each `k`, the index of `m_Λ ⊔ mᵢᵏ` in `Rᵢ` is uniformly bounded.
 -- The latter is true when all `Rᵢ/m_Λ` are isomorphic.
@@ -86,8 +87,9 @@ instance (j k : ℕ) (hjk : k ≤ j) [NeZero k] :
     .of_surjective' _ Ideal.Quotient.mk_surjective
   exact .of_surjective _ (Ideal.quotientMap_surjective RingHomSurjective.is_surjective)
 
-/-- The patching algebra as a subring of the product of components: those families
-that are compatible under the transition maps. -/
+/-- The patching algebra is an inverse limit of components; here we construct it explicitly as a
+subring of the product of components: those families that are compatible under the
+transition maps. -/
 def PatchingAlgebra.subring : Subring (Π i, Component R F i) where
   carrier := { v | ∀ j k hjk, componentMap R F j k hjk (v j) = v k }
   mul_mem' := by simp +contextual only [Set.mem_setOf, Pi.mul_apply, map_mul, implies_true]
@@ -112,7 +114,7 @@ lemma PatchingAlgebra.isClosed_subring :
   convert isClosed_iInter fun j ↦ isClosed_iInter fun k ↦ isClosed_iInter (this j k)
   ext; simp; rfl
 
-/-- The patching algebra: the inverse limit (taken in `Subring`) of the components
+/-- The patching algebra: the inverse limit of the components
 `R i / m^k` glued along the ultrafilter `F`. -/
 def PatchingAlgebra : Type _ := PatchingAlgebra.subring R F
 

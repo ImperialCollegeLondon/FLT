@@ -15,8 +15,9 @@ variable (I : ∀ i, Ideal (R i)) (N : ∀ i, Submodule (R i) (M i)) (F : Filter
 open Filter
 
 open scoped Classical in
-/-- The vanishing filter of an ideal `p` of the product ring: a set `s ⊆ ι` is in the filter
-iff the indicator-type element `(if · ∈ s then 0 else 1)` lies in `p`. -/
+/-- The vanishing filter of an ideal `p` of the product ring `Πᵢ Rᵢ` over an index
+set `ι`: a set `s ⊆ ι` is in the vanishing filter if the element of `Πᵢ Rᵢ` which
+is `0` on `s` and `1` outside `s` lies in `p`. -/
 def vanishingFilter (p : Ideal (Π i, R i)) : Filter ι where
   sets := { s | (if · ∈ s then 0 else 1) ∈ p }
   univ_sets := by simpa [-zero_mem] using zero_mem p
@@ -37,7 +38,9 @@ lemma mem_vanishingFilter {p : Ideal (Π i, R i)} {s} :
     s ∈ vanishingFilter p ↔ (if · ∈ s then 0 else 1) ∈ p :=
   Iff.rfl
 
-/-- The vanishing ultrafilter of a prime ideal `p` of the product ring. -/
+/-- The vanishing ultrafilter of a prime ideal `p` of the product ring.
+See `vanishingFilter` for definition of a vanishing filter of an ideal of `Πᵢ Rᵢ`;
+if `p` is prime then this is an ultrafilter. -/
 def vanishingUltrafilter (p : Ideal (Π i, R i)) [p.IsPrime] : Ultrafilter ι :=
   .ofComplNotMemIff (vanishingFilter p) <| by
     classical

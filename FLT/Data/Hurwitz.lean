@@ -4,18 +4,18 @@ public import Mathlib.Analysis.Quaternion
 
 @[expose] public section
 
-/-- Hurwitz integers in the quaternions. ℤ-Basis 1, ω=(1+i+j+k)/2, i and
-ωi=(-1+i+j-k)/2.
+/-- Hurwitz integers in the quaternions. ℤ-Basis 1, ω=(-1+i+j+k)/2, i and
+ωi=(-1-i+j-k)/2.
 -/
 @[ext]
 structure Hurwitz : Type where
   /-- The coefficient of `1` in the basis `1, ω, i, ωi`. -/
   re : ℤ -- 1
-  /-- The coefficient of `ω = (1+i+j+k)/2` in the basis `1, ω, i, ωi`. -/
+  /-- The coefficient of `ω = (-1+i+j+k)/2` in the basis `1, ω, i, ωi`. -/
   im_o : ℤ -- ω
   /-- The coefficient of `i` in the basis `1, ω, i, ωi`. -/
   im_i : ℤ -- i
-  /-- The coefficient of `ωi = (-1+i+j-k)/2` in the basis `1, ω, i, ωi`. -/
+  /-- The coefficient of `ωi = (-1-i+j-k)/2` in the basis `1, ω, i, ωi`. -/
   im_oi : ℤ -- ωi -- note iω + ωi + 1 + i = 0
 
 /-- Notation `𝓞` for the Hurwitz integers. -/
@@ -31,8 +31,7 @@ noncomputable def toQuaternion (z : 𝓞) : ℍ where
   imK := 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
 
 open Quaternion in
-/-- A retraction of `toQuaternion`: rounds each component of a quaternion to
-the nearest Hurwitz integer; serves as a left inverse to `toQuaternion`. -/
+/-- Rounds a quaternion to a nearby Hurwitz integer; serves as a left inverse to `toQuaternion`. -/
 noncomputable def fromQuaternion (z : ℍ) : 𝓞 where
   re := Int.floor <| z.re + z.imJ
   im_o := Int.floor <| z.imJ + z.imK

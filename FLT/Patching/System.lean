@@ -95,8 +95,8 @@ lemma maximalIdeal_pow_bound_le_smul_top (i) (α : OpenIdeals Λ) :
   rfl
 
 /-- Compatibility data between the local rings `R i` and modules `M i` and the open
-ideals of `Λ`: a function `f : OpenIdeals Λ → ℕ` such that `m(R i)^(f α) • M i ⊆ α • M i`,
-and `f` antitone. -/
+ideals of `Λ`: consists of an antitone function `f : OpenIdeals Λ → ℕ` such that
+`m(R i)^(f α) • M i ⊆ α • M i` for all `i`. -/
 class PatchingAlgebra.smulData where
   /-- For each open ideal `α` of `Λ`, the exponent `f α` such that
   `m(R i)^(f α) • M i ⊆ α • M i` for every `i`. -/

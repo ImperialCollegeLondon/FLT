@@ -10,8 +10,8 @@ public import Mathlib.GroupTheory.MonoidLocalization.Basic
 
 open scoped TensorProduct
 
-/-- A finite free module over a ring with strong rank condition is linearly equivalent
-to `Fin (finrank R M) → R`, via the standard basis. -/
+/-- Choice of an `R`-linear isomorphism `M ≃ R^(finrank R M)` for a finite free module `M` over a
+ring `R` with the strong rank condition. -/
 noncomputable def Module.Finite.equivPi (R M : Type*) [Ring R] [StrongRankCondition R]
     [AddCommGroup M] [Module R M] [Module.Free R M] [Module.Finite R M] :
     M ≃ₗ[R] Fin (Module.finrank R M) → R :=

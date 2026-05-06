@@ -23,8 +23,8 @@ def Submodule.Quotient.continuousLinearEquiv {R : Type*} [Ring R] (G H : Type*) 
     exact Continuous.comp continuous_quot_mk e.continuous_invFun
 
 /-- For a finite family of topological `R`-modules `G i` and submodules `p i ≤ G i`,
-the canonical map `(∏ i, G i) ⧸ ∏ i, p i ≃L[R] ∏ i, G i ⧸ p i` is a continuous
-`R`-linear equivalence. -/
+the canonical continuous `R`-linear equivalence `(∏ i, G i) ⧸ ∏ i, p i ≃L[R] ∏ i, G i ⧸ p i`.
+-/
 def Submodule.quotientPiContinuousLinearEquiv {R ι : Type*} [CommRing R] {G : ι → Type*}
     [(i : ι) → AddCommGroup (G i)] [(i : ι) → Module R (G i)] [(i : ι) → TopologicalSpace (G i)]
     [(i : ι) → IsTopologicalAddGroup (G i)] [Fintype ι] [DecidableEq ι]

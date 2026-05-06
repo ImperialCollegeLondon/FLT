@@ -281,8 +281,8 @@ theorem Submodule.comap_smul_of_surjective {R M M'} [CommRing R] [AddCommGroup M
     (I • S).comap f = (I • S.comap f) ⊔ LinearMap.ker f :=
   comap_smul_of_le_range f S (le_top.trans_eq (LinearMap.range_eq_top_of_surjective f hS).symm) I
 
-/-- A linear map `f : (ι → R) →ₗ[R] M` from the standard finite free module descends to a
-linear map between the corresponding quotients modulo the ideal `I`. -/
+/-- The canonical descent of a linear map `f : (ι → R) →ₗ[R] M` from the standard finite free
+module to a linear map between the corresponding quotients modulo the ideal `I`. -/
 noncomputable
 def Pi.liftQuotientₗ {ι R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Finite ι]
     (f : (ι → R) →ₗ[R] M) (I : Ideal R) : (ι → R ⧸ I) →ₗ[R] M ⧸ (I • ⊤ : Submodule R M) := by

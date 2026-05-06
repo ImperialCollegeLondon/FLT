@@ -164,13 +164,13 @@ def LieHom.baseChange
     · induction m using TensorProduct.induction_on <;> simp_all
     · simp_all only [add_lie, map_add]
 
-/-- Complexification of `action`: the Lie action of the complexified Lie algebra
+/-- Complexification of `AutomorphicForm.GLn.action`: the Lie action of the complexified Lie algebra
 on the complexification of smooth real functions on `G`. -/
 def actionTensorC :
     ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G →ₗ⁅ℂ⁆ (ℂ ⊗[ℝ] (Module.End ℝ C^∞⟮𝓘(ℝ, E), G; ℝ⟯)) :=
   LieHom.baseChange _ (action _ _)
 
-/-- Extension of `actionTensorC` to the universal enveloping algebra of the
+/-- Extension of `AutomorphicForm.GLn.actionTensorC` to the universal enveloping algebra of the
 complexified Lie algebra. -/
 def actionTensorCAlg :
   UniversalEnvelopingAlgebra ℂ (ℂ ⊗[ℝ] LeftInvariantDerivation 𝓘(ℝ, E) G) →ₐ[ℂ]
@@ -240,17 +240,14 @@ open Matrix
 /-- An auxiliary "size" function on invertible real matrices used in the slowly
 increasing condition; namely `tr(MMᵀ) + tr(M⁻¹(M⁻¹)ᵀ)`. -/
 noncomputable abbrev s (M : Matrix (Fin n) (Fin n) ℝ) : ℝ :=
-  (M * M.transpose).trace + (M⁻¹ * M⁻¹.transpose).trace
+  (M * Mᵀ).trace + (M⁻¹ * M⁻¹ᵀ).trace
 
 /-- A function `f : GL_n(ℝ) → ℂ` is slowly increasing if there exist `C, N` such
-that `‖f M‖ ≤ C · s(M)^N` for all `M`. -/
+that `‖f M‖ ≤ C · s(M)^N` for all `M`, where `s` is an auxiliary "size" function. -/
 structure IsSlowlyIncreasing (f : GeneralLinearGroup (Fin n) ℝ → ℂ) : Prop where
   bounded_by : ∃ (C : ℝ) (N : ℕ),
     ∀ (M : GeneralLinearGroup (Fin n) ℝ),
     ‖f M‖ ≤ C * (s (M : Matrix (Fin n) (Fin n) ℝ)) ^ N
-
---
---#check Matrix.orthogonalGroup (Fin n) ℝ
 
 /-- A preweight for `GLₙ` is a continuous representation of the real orthogonal
 group `O(n)` on a finite-dimensional complex vector space. -/
@@ -259,7 +256,7 @@ structure preweight (n : ℕ) where
   d : ℕ -- dimension
   /-- The continuous group homomorphism `O(n) → GLd(ℂ)` defining the representation. -/
   rho : orthogonalGroup (Fin n) ℝ →* GeneralLinearGroup (Fin d) ℂ
-  rho_continuous: Continuous rho
+  rho_continuous: Continuous rho -- TODO -- should have used `→ₜ*`
 
 open CategoryTheory
 
@@ -283,7 +280,6 @@ structure Weight (n : ℕ) where
   w : preweight n
   isSimple : Simple w.fdRep
 
--- This will be useful
 /-- Functoriality of `GLₘ`: a ring homomorphism `A →+* B` induces a group homomorphism
 `GLₘ(A) →* GLₘ(B)` by applying it entrywise. -/
 def _root_.RingHom.GL {A B : Type*} [CommRing A] [CommRing B] (φ : A →+* B)

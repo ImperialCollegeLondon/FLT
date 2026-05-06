@@ -107,8 +107,9 @@ lemma Module.UniformlyBoundedRank.exists_rank :
   refine LinearEquiv.funCongrLeft R (R ⧸ Ann R (M i)) (Fintype.equivOfCardEq ?_)
   simp [Module.finrank_eq_card_chooseBasisIndex]
 
-/-- An ultrafilter-eventually attained common rank: a natural number `n` such that
-`F`-eventually `M i ≃ₗ[R] Fin n → R / Ann (M i)`. -/
+/-- An ultrafilter-eventually attained common rank, assuming that `M i` is free
+over `R / Ann (M i)` and the `M i` have uniformly bounded rank. This is a natural number `n` such
+that `F`-eventually `M i ≃ₗ[R] Fin n → R / Ann (M i)`. -/
 noncomputable
 def Module.UniformlyBoundedRank.rank : ℕ := (exists_rank R M F).choose
 
@@ -155,8 +156,9 @@ variable (M : ι → Type*) [∀ i, AddCommGroup (M i)] [∀ i, Module R (M i)]
 variable (F : Ultrafilter ι)
 
 
-/-- The `α`-th component of the patching module: the ultraproduct of `M i / α • M i`
-along the ultrafilter `F`, indexed by an ideal `α ⊆ R`. -/
+/-- The `α`-th component of the patching module associated to (i) a family of modules `M i`
+over a commutative ring `R`, (ii) an ultrafilter on the index set for the `M i` and (iii)
+an ideal of `R`. This is the ultraproduct of `M i / α • M i` along the ultrafilter `F`. -/
 abbrev PatchingModule.Component (α : Ideal R) :=
   UltraProduct (fun i ↦ M i ⧸ (α • ⊤ : Submodule R (M i))) F
 
@@ -194,7 +196,9 @@ abbrev PatchingModule.componentMap {α β : Ideal R} (h : α ≤ β) :
 attribute [-instance] instIsScalarTowerUltraProduct in
 -- needs investigation why this instance slows everything
 /-- The patching module as a submodule of the product of components: those families
-compatible with the transition maps as `α ≤ β` ranges over open ideals. -/
+compatible with the transition maps as `α ≤ β` ranges over open ideals.
+This is just an explicit construction of the patching module (a projective limit of components)
+as a subset of a product of components. -/
 def PatchingModule.submodule : Submodule (ι → R) (Π α : OpenIdeals R, Component R M F α.1) where
   carrier := { x | ∀ (α β : OpenIdeals R) (h : α ≤ β), componentMap R M F h (x α) = x β }
   add_mem' {v w} hv hw α β h := by
@@ -215,7 +219,8 @@ lemma PatchingModule.isClosed_submodule :
   convert isClosed_iInter fun j ↦ isClosed_iInter fun k ↦ isClosed_iInter (this j k)
   ext; simp; rfl
 
-/-- The patching module: an inverse limit of `M i / α • M i` glued along the ultrafilter `F`,
+/-- The patching module for a family `M i` of modules over a commutative topological ring `R`. This
+is an inverse limit over `α` of ultraproducts of `M i / α • M i` along the ultrafilter `F`,
 where `α` ranges over open ideals of `R`. -/
 def PatchingModule : Type _ := PatchingModule.submodule R M F
 
@@ -483,7 +488,7 @@ lemma PatchingModule.toConst_surjective (M) [AddCommGroup M] [Module R M] [Modul
 
 set_option backward.isDefEq.respectTransparency false in
 /-- For a finitely generated module `M` over a complete local Noetherian Hausdorff ring,
-the patching module of the constant family `fun _ ↦ M` is canonically isomorphic to `M`. -/
+the canonical isomorphism from `M` to the patching module of the constant family `fun _ ↦ M`. -/
 noncomputable
 def PatchingModule.constEquiv [IsLocalRing R] [T2Space R] [IsNoetherianRing R]
     (M) [AddCommGroup M] [Module R M] [Module.Finite R M] :
@@ -511,7 +516,7 @@ variable [Module.UniformlyBoundedRank R M] [IsPatchingSystem R M F]
 open Module.UniformlyBoundedRank
 
 /-- The induced linear map from `Fin (rank R M F) → R/α` to `M i / α • M i` for a patching
-system, induced by the chosen surjection from the standard module. -/
+system, when the `M i` have uniformly bounded rank. -/
 noncomputable
 def IsPatchingSystem.linearMap (α : Ideal R) (i) :
     (Fin (rank R M F) → R ⧸ α) →ₗ[R] M i ⧸ (α • ⊤ : Submodule R (M i)) :=
@@ -534,7 +539,7 @@ lemma IsPatchingSystem.linearMap_bijective (α : Ideal R) (hα : IsOpen (X := R)
   refine Pi.liftQuotientₗ_bijective _ _ h₁ fun x hx ↦ ?_
   simpa [funext_iff, Ideal.Quotient.eq_zero_iff_mem] using fun i ↦ h₃ ((h₂ _).mp hx i)
 
-/-- For a patching system, each component is isomorphic to a power of `R/α` of size
+/-- For a patching system, each component is isomorphic to a power of `R / α` of size
 `rank R M F`. -/
 noncomputable
 def PatchingModule.equivComponent (α : Ideal R) (hα : IsOpen (X := R) α) :

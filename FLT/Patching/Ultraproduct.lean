@@ -7,7 +7,6 @@ public import FLT.Patching.Utils.StructureFiniteness
 
 /- TODO: replace this with ultraproduct in mathlib -/
 
-set_option autoImplicit false
 variable (R₀ : Type*) [CommRing R₀]
 variable {ι : Type*} {R M : ι → Type*} [∀ i, CommRing (R i)] [∀ i, AddCommGroup (M i)]
 variable [∀ i, Algebra R₀ (R i)] [∀ i, Module (R i) (M i)]
@@ -68,16 +67,18 @@ instance eventuallyProd.isPrime (F : Ultrafilter ι) [H : ∀ i, (I i).IsPrime] 
       Ultrafilter.eventually_or, imp_self]
 
 variable (M) in
-/-- The ultraproduct of a family of additive groups (or modules / rings) `M i` along
+/-- The ultraproduct of a family of additive groups `M i` along
 a filter `F`: the quotient of `Π i, M i` by tuples that are zero `F`-eventually. -/
 def UltraProduct : Type _ :=
   (Π i, M i) ⧸ eventuallyProd (R := fun _ ↦ ℤ) (M := M) ⊥ F
 
 variable {F}
 
+/-- The ultraproduct of AddCommGroups is an AddCommGroup. -/
 instance : AddCommGroup (UltraProduct M F) := inferInstanceAs
   (AddCommGroup ((Π i, M i) ⧸ eventuallyProd (R := fun _ ↦ ℤ) (M := M) ⊥ F))
 
+/-- The ultraproduct of CommRings is a CommRing. -/
 instance : CommRing (UltraProduct R F) := inferInstanceAs
   (CommRing ((Π i, R i) ⧸ eventuallyProd (R := R) (M := R) ⊥ F))
 
@@ -91,7 +92,7 @@ instance : Module (Π i, R i) (UltraProduct M F) :=
   inferInstanceAs (Module (Π i, R i) ((Π i, M i) ⧸ eventuallyProd (R := R) (M := M) ⊥ F))
 
 variable (R M F) in
-/-- The canonical projection from the product `Π i, M i` to the ultraproduct as a
+/-- The canonical projection from the product `Π i, M i` of `R i`-modules to the ultraproduct as a
 `Π i, R i`-linear map. -/
 def UltraProduct.πₗ : (Π i, M i) →ₗ[Π i, R i] UltraProduct M F :=
   Submodule.mkQ (eventuallyProd (R := R) (M := M) ⊥ F)

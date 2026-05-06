@@ -5,7 +5,7 @@ public import FLT.Mathlib.Algebra.Algebra.Hom
 
 @[expose] public section
 
-/-- A family of semialgebra homomorphisms `g i : A →ₛₐ[φ] f i` packages into a single
+/-- A family of semialgebra homomorphisms `g i : A →ₛₐ[φ] f i` defines a single
 semialgebra homomorphism `A →ₛₐ[φ] (i : I) → f i` to the product algebra. -/
 def Pi.semialgHom {I : Type*} {R S : Type*} (f : I → Type*) [CommSemiring R] [CommSemiring S]
     (φ : R →+* S) [s : (i : I) → Semiring (f i)] [(i : I) → Algebra S (f i)] {A : Type*}
@@ -23,8 +23,8 @@ theorem Pi.semialgHom_apply {I : Type*} {R S : Type*} (f : I → Type*) [CommSem
   rfl
 
 /-- Given a reindexing `r : I → J` and a family of semialgebra homs
-`p i : g (r i) →ₛₐ[φ] f i`, build a single semialgebra hom from the product over `J` to
-the product over `I`. -/
+`p i : g (r i) →ₛₐ[φ] f i`, build a semialgebra hom from the product over `J` of the `g j` to
+the product over `I` of the `f i`. -/
 def Pi.semialgHomPi {I J : Type*} {R S : Type*} (f : I → Type*)
     (g : J → Type*) [CommSemiring R] [CommSemiring S] {φ : R →+* S}
     [(i : I) → Semiring (f i)] [(i : I) → Algebra S (f i)] [(j : J) → Semiring (g j)]

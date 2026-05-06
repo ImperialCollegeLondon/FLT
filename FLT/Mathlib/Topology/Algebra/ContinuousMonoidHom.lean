@@ -17,8 +17,8 @@ def ContinuousAddEquiv.toIntContinuousLinearEquiv {M M₂ : Type*} [AddCommGroup
   continuous_invFun := e.continuous_invFun
 
 /-- For a finite family of topological additive groups `G i` and subgroups `p i ≤ G i`,
-the canonical map `(∏ i, G i) ⧸ ∏ i, p i ≃ₜ+ ∏ i, G i ⧸ p i` is a continuous
-additive equivalence. -/
+the canonical continuous additive isomorphism `(∏ i, G i) ⧸ (∏ i, p i) ≃ₜ+ ∏ i, (G i ⧸ p i)`.
+-/
 def ContinuousAddEquiv.quotientPi {ι : Type*} {G : ι → Type*} [(i : ι) → AddCommGroup (G i)]
     [(i : ι) → TopologicalSpace (G i)]
     [(i : ι) → IsTopologicalAddGroup (G i)]
