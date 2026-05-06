@@ -51,7 +51,8 @@ variable (R) in
 def ModuleTypeCardLT (N : ℕ) : Type _ :=
   Σ (n : Fin N) (_ : AddCommGroup (Fin n)), Module R (Fin n)
 
-instance (N : ℕ) : Finite (ModuleTypeCardLT R N) := by delta ModuleTypeCardLT; infer_instance
+instance (N : ℕ) : Finite (ModuleTypeCardLT R N) := inferInstanceAs <|
+  Finite (Σ (n : Fin N) (_ : AddCommGroup (Fin n)), Module R (Fin n))
 
 instance (N : ℕ) (α : ModuleTypeCardLT R N) : AddCommGroup (Fin α.1) := α.2.1
 
@@ -84,7 +85,8 @@ variable (R) in
 def AlgebraTypeCardLT (N : ℕ) : Type _ :=
   Σ (n : Fin N) (_ : Ring (Fin n)), Algebra R (Fin n)
 
-instance (N : ℕ) : Finite (AlgebraTypeCardLT R N) := by delta AlgebraTypeCardLT; infer_instance
+instance (N : ℕ) : Finite (AlgebraTypeCardLT R N) := inferInstanceAs <|
+  Finite (Σ (n : Fin N) (_ : Ring (Fin n)), Algebra R (Fin n))
 
 instance (N : ℕ) (α : AlgebraTypeCardLT R N) : Ring (Fin α.1) := α.2.1
 
@@ -132,12 +134,17 @@ def TopologicalModuleTypeCardLT (N : ℕ) : Type _ :=
   Σ' (n : Fin N) (_ : AddCommGroup (Fin n)) (_ : TopologicalSpace (Fin n)) (_ : T2Space (Fin n))
     (_ : Module R (Fin n)), ContinuousSMul R (Fin n)
 
-instance (N : ℕ) : Finite (TopologicalModuleTypeCardLT R N) := by
+instance (N : ℕ) : Finite (Σ' (n : Fin N) (_ : AddCommGroup (Fin n)) (_ : TopologicalSpace (Fin n))
+    (_ : T2Space (Fin n)) (_ : Module R (Fin n)), ContinuousSMul R (Fin n)) := by
   apply (config := { allowSynthFailures := true }) Finite.instPSigma; intro
   apply (config := { allowSynthFailures := true }) Finite.instPSigma; intro
   apply (config := { allowSynthFailures := true }) Finite.instPSigma; intro
   apply (config := { allowSynthFailures := true }) Finite.instPSigma; intro
   infer_instance
+
+instance (N : ℕ) : Finite (TopologicalModuleTypeCardLT R N) := inferInstanceAs <|
+  Finite (Σ' (n : Fin N) (_ : AddCommGroup (Fin n)) (_ : TopologicalSpace (Fin n))
+    (_ : T2Space (Fin n)) (_ : Module R (Fin n)), ContinuousSMul R (Fin n))
 
 instance (N : ℕ) (α : TopologicalModuleTypeCardLT R N) : AddCommGroup (Fin α.1) := α.2.1
 instance (N : ℕ) (α : TopologicalModuleTypeCardLT R N) : TopologicalSpace (Fin α.1) := α.2.2.1
@@ -194,18 +201,24 @@ instance {α : Type*} [Finite α] [Ring α] [TopologicalSpace α] [T2Space α] :
   exact congr(($e).1.smul _ _)
 
 variable (R) in
--- kmb removed `[IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R]` because Lean was whingeing
+/-- The type of all finite Hausdorff topological `R`-algebras of cardinality less than `N`,
+with continuous scalar multiplication. -/
 def TopologicalAlgebraTypeCardLT (N : ℕ) :
     Type _ :=
   Σ' (n : Fin N) (_ : Ring (Fin n)) (_ : TopologicalSpace (Fin n)) (_ : T2Space (Fin n))
     (_ : Algebra R (Fin n)), ContinuousSMul R (Fin n)
 
-instance (N : ℕ) : Finite (TopologicalAlgebraTypeCardLT R N) := by
+instance (N : ℕ) : Finite (Σ' (n : Fin N) (_ : Ring (Fin n)) (_ : TopologicalSpace (Fin n))
+    (_ : T2Space (Fin n)) (_ : Algebra R (Fin n)), ContinuousSMul R (Fin n)) := by
   apply (config := { allowSynthFailures := true }) Finite.instPSigma; intro
   apply (config := { allowSynthFailures := true }) Finite.instPSigma; intro
   apply (config := { allowSynthFailures := true }) Finite.instPSigma; intro
   apply (config := { allowSynthFailures := true }) Finite.instPSigma; intro
   infer_instance
+
+instance (N : ℕ) : Finite (TopologicalAlgebraTypeCardLT R N) := inferInstanceAs <|
+  Finite (Σ' (n : Fin N) (_ : Ring (Fin n)) (_ : TopologicalSpace (Fin n))
+    (_ : T2Space (Fin n)) (_ : Algebra R (Fin n)), ContinuousSMul R (Fin n))
 
 instance (N : ℕ) (α : TopologicalAlgebraTypeCardLT R N) : Ring (Fin α.1) := α.2.1
 instance (N : ℕ) (α : TopologicalAlgebraTypeCardLT R N) : TopologicalSpace (Fin α.1) := α.2.2.1
