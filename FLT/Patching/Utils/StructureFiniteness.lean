@@ -201,7 +201,6 @@ instance {α : Type*} [Finite α] [Ring α] [TopologicalSpace α] [T2Space α] :
   exact congr(($e).1.smul _ _)
 
 variable (R) in
--- kmb removed `[IsTopologicalRing R] [Algebra.TopologicallyFG ℤ R]` because Lean was whingeing
 /-- The type of all finite Hausdorff topological `R`-algebras of cardinality less than `N`,
 with continuous scalar multiplication. -/
 def TopologicalAlgebraTypeCardLT (N : ℕ) :
