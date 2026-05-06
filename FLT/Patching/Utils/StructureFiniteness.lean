@@ -48,6 +48,8 @@ instance {α : Type*} [Finite α] [AddCommGroup α] : Finite (Module R α) := by
         (((hx' _).trans congr(x • $(hy' a))).trans (g₂.mul_smul _ _ _).symm)
 
 variable (R) in
+/-- The type of all finite `R`-modules of cardinality less than `N`, presented as a sigma
+type over `Fin N`. -/
 def ModuleTypeCardLT (N : ℕ) : Type _ :=
   Σ (n : Fin N) (_ : AddCommGroup (Fin n)), Module R (Fin n)
 
@@ -59,11 +61,14 @@ instance (N : ℕ) (α : ModuleTypeCardLT R N) : AddCommGroup (Fin α.1) := α.2
 instance (N : ℕ) (α : ModuleTypeCardLT R N) : Module R (Fin α.1) := α.2.2
 
 variable (R) in
+/-- Pick a representative in `ModuleTypeCardLT R N` for a given finite `R`-module `M`. -/
 noncomputable
 def ModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M] [Module R M]
     [Finite M] (hM : Nat.card M < N) : ModuleTypeCardLT R N :=
   ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.addCommGroup, (Finite.equivFin M).symm.module R⟩
 
+/-- The canonical linear equivalence between a finite `R`-module `M` and its representative
+in `ModuleTypeCardLT R N`. -/
 noncomputable
 def ModuleTypeCardLT.equivOfModule (N : ℕ) {M : Type*} [AddCommGroup M] [Module R M]
     [Finite M] (hM : Nat.card M < N) : M ≃ₗ[R] Fin ((ModuleTypeCardLT.ofModule R N M hM).1) :=
@@ -82,6 +87,8 @@ instance {α : Type*} [Finite α] [Ring α] : Finite (Algebra R α) := by
   exact congr($e.1.1.1.1.1 r a)
 
 variable (R) in
+/-- The type of all finite `R`-algebras of cardinality less than `N`, presented as a sigma
+type over `Fin N`. -/
 def AlgebraTypeCardLT (N : ℕ) : Type _ :=
   Σ (n : Fin N) (_ : Ring (Fin n)), Algebra R (Fin n)
 
@@ -93,12 +100,15 @@ instance (N : ℕ) (α : AlgebraTypeCardLT R N) : Ring (Fin α.1) := α.2.1
 instance (N : ℕ) (α : AlgebraTypeCardLT R N) : Algebra R (Fin α.1) := α.2.2
 
 variable (R) in
+/-- Pick a representative in `AlgebraTypeCardLT R N` for a given finite `R`-algebra `M`. -/
 noncomputable
 def AlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M] [Algebra R M]
     [Finite M] (hM : Nat.card M < N) : AlgebraTypeCardLT R N :=
   ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.ring, (Finite.equivFin M).symm.algebra R⟩
 
 set_option backward.isDefEq.respectTransparency false in
+/-- The canonical algebra equivalence between a finite `R`-algebra `M` and its
+representative in `AlgebraTypeCardLT R N`. -/
 noncomputable
 def AlgebraTypeCardLT.equivOfAlgebra (N : ℕ) {M : Type*} [Ring M] [Algebra R M]
     [Finite M] (hM : Nat.card M < N) : M ≃ₐ[R] Fin ((AlgebraTypeCardLT.ofAlgebra R N M hM).1) :=
@@ -130,6 +140,8 @@ instance {α : Type*} [Finite α] [AddCommGroup α] [TopologicalSpace α] [T2Spa
     fun x hx ↦ congr_fun (congr_fun e ⟨x, hx⟩)
 
 variable (R) in
+/-- The type of all finite Hausdorff topological `R`-modules of cardinality less than `N`,
+with continuous scalar multiplication. -/
 def TopologicalModuleTypeCardLT (N : ℕ) : Type _ :=
   Σ' (n : Fin N) (_ : AddCommGroup (Fin n)) (_ : TopologicalSpace (Fin n)) (_ : T2Space (Fin n))
     (_ : Module R (Fin n)), ContinuousSMul R (Fin n)
@@ -154,6 +166,8 @@ instance (N : ℕ) (α : TopologicalModuleTypeCardLT R N) : ContinuousSMul R (Fi
 
 open scoped Topology in
 variable (R) in
+/-- Pick a representative in `TopologicalModuleTypeCardLT R N` for a given finite
+topological `R`-module `M`. -/
 noncomputable
 def TopologicalModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M]
     [Module R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
@@ -173,6 +187,8 @@ def TopologicalModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M]
   convert continuous_smul (M := R) (X := M)
   simp [e]⟩
 
+/-- The canonical continuous linear equivalence between a finite topological `R`-module `M`
+and its representative in `TopologicalModuleTypeCardLT R N`. -/
 noncomputable
 def TopologicalModuleTypeCardLT.equivOfModule (N : ℕ) (M : Type*) [AddCommGroup M] [Module R M]
     [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
@@ -228,6 +244,8 @@ instance (N : ℕ) (α : TopologicalAlgebraTypeCardLT R N) : ContinuousSMul R (F
 
 open scoped Topology in
 variable (R) in
+/-- Pick a representative in `TopologicalAlgebraTypeCardLT R N` for a given finite
+topological `R`-algebra `M`. -/
 noncomputable
 def TopologicalAlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M]
     [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]
@@ -240,6 +258,8 @@ def TopologicalAlgebraTypeCardLT.ofAlgebra (N : ℕ) (M : Type*) [Ring M]
     (Finite.equivFin M).symm.algebra _, (TopologicalModuleTypeCardLT.ofModule R N M hM).2.2.2.2.2⟩
 
 set_option backward.isDefEq.respectTransparency false in
+/-- The canonical algebra equivalence between a finite topological `R`-algebra `M` and its
+representative in `TopologicalAlgebraTypeCardLT R N`. -/
 noncomputable
 def TopologicalAlgebraTypeCardLT.equivOfAlgebra (N : ℕ) (M : Type*) [Ring M]
     [Algebra R M] [TopologicalSpace M] [T2Space M] [ContinuousSMul R M]

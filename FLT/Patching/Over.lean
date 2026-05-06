@@ -30,6 +30,8 @@ variable (𝔫 : Ideal Λ)
 variable (sR : ∀ i, (R i ⧸ 𝔫.map (algebraMap Λ (R i))) ≃ₐ[Λ] R₀)
 variable (sM : ∀ i, (M i ⧸ (𝔫 • ⊤ : Submodule Λ (M i))) ≃ₗ[Λ] M₀)
 
+/-- Given a linear map `f : M / I • M → N / I • N`, produce the induced linear map
+between the corresponding quotients of `M / J • M` and `N / J • N` modulo `I`. -/
 def Submodule.liftModIdeal {R M N : Type*} [CommRing R]
     [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] {I : Ideal R}
     (f : M ⧸ (I • ⊤ : Submodule R M) →ₗ[R] N ⧸ (I • ⊤ : Submodule R N)) (J : Ideal R) :
@@ -55,6 +57,8 @@ def Submodule.liftModIdeal {R M N : Type*} [CommRing R]
       ← Submodule.map_top, ← Submodule.map_smul'', Submodule.map_le_iff_le_comap,
       Submodule.comap_bot, Submodule.ker_mkQ]
 
+/-- Promote `Submodule.liftModIdeal` to a linear equivalence: a linear equivalence between
+`R`-modules `M /IM` and `N/IN` lifts to one between `(M/JM)/I` and `(N/JM)/I`. -/
 def Submodule.liftModIdealEquiv {R M N : Type*} [CommRing R]
     [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] {I : Ideal R}
     (f : (M ⧸ (I • ⊤ : Submodule R M)) ≃ₗ[R] N ⧸ (I • ⊤ : Submodule R N)) (J : Ideal R) :
@@ -267,6 +271,7 @@ lemma PatchingModule.ker_map_mkQ :
     filter_upwards with i
     exact Submodule.smul_mem_smul (Ideal.mem_sup_right hr) trivial
 
+/-- The natural linear map `(PatchingModule M) / 𝔫 → PatchingModule (M / 𝔫)`. -/
 noncomputable
 def PatchingModule.quotientTo :
     (PatchingModule Λ M F ⧸ (𝔫 • ⊤ : Submodule Λ (PatchingModule Λ M F))) →ₗ[Λ]
@@ -276,6 +281,7 @@ def PatchingModule.quotientTo :
   -- by exact needed to be added after mathlib#38073
   exact (ker_map_mkQ Λ M F 𝔫).ge
 
+/-- The natural linear equivalence `PatchingModule M / 𝔫 ≃ₗ[Λ] PatchingModule (M / 𝔫)`. -/
 noncomputable
 def PatchingModule.quotientEquiv :
     (PatchingModule Λ M F ⧸ (𝔫 • ⊤ : Submodule Λ (PatchingModule Λ M F))) ≃ₗ[Λ]
@@ -286,6 +292,8 @@ def PatchingModule.quotientEquiv :
   · rw [quotientTo, ← LinearMap.range_eq_top, Submodule.range_liftQ, LinearMap.range_eq_top]
     exact PatchingModule.map_surjective Λ F _ (fun i ↦ Submodule.mkQ_surjective _)
 
+/-- The isomorphism between the patching module modulo `𝔫` and `M₀`, if `M i ⧸ 𝔫 ≃ₗ[Λ] M₀)`
+for all `i`. -/
 noncomputable
 def PatchingModule.quotientEquivOver [Module.Finite Λ M₀] :
     (PatchingModule Λ M F ⧸ (𝔫 • ⊤ : Submodule Λ (PatchingModule Λ M F))) ≃ₗ[Λ] M₀ :=
@@ -295,6 +303,7 @@ def PatchingModule.quotientEquivOver [Module.Finite Λ M₀] :
 variable [IsLocalRing R₀] [IsNoetherianRing R₀]
   [TopologicalSpace R₀] [IsTopologicalRing R₀] [CompactSpace R₀] [IsAdicTopology R₀]
 
+/-- The natural ring homomorphism `(PatchingAlgebra R) / 𝔫 → PatchingAlgebra (R / 𝔫)`. -/
 noncomputable
 def PatchingAlgebra.quotientTo
     [∀ (i : ι), IsLocalRing (R i ⧸ Ideal.map (algebraMap Λ (R i)) 𝔫)] :
@@ -315,6 +324,7 @@ def PatchingAlgebra.quotientTo
     rw [Ideal.Quotient.eq_zero_iff_mem]
     exact Ideal.mem_map_of_mem _ hx
 
+/-- The natural ring isomorphism `(PatchingAlgebra R) / 𝔫 → PatchingAlgebra (R / 𝔫)`. -/
 noncomputable
 def PatchingAlgebra.quotientToOver :
     (PatchingAlgebra R F ⧸ 𝔫.map (algebraMap Λ (PatchingAlgebra R F))) →+* R₀ :=

@@ -16,10 +16,8 @@ variable {k : Type*} [Field k]
 
 variable {W : Type*} [AddCommMonoid W] [Module k W]
 
-/-!
-  `IsAbsolutelyIrreducible ρ` states that a given Representation ρ over a field k
-  is absolutely irreducible, meaning that all the possible base change extensions are irreducible.
--/
+/-- `IsAbsolutelyIrreducible ρ` states that a given Representation `ρ` over a field `k`
+is absolutely irreducible, meaning that all the possible base change extensions are irreducible. -/
 class IsAbsolutelyIrreducible (ρ : Representation k G W) : Prop where
   absolutelyIrreducible :
     ∀ k' : Type u, ∀ _ : Field k', ∀ _ : Algebra k k', IsIrreducible (k' ⊗ᵣ' ρ)

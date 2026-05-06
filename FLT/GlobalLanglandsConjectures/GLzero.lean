@@ -49,6 +49,7 @@ State them first.
 
 namespace AutomorphicForm
 
+/-- A `GLₙ`-weight `ρ` is trivial if it is the one-dimensional trivial representation. -/
 def GLn.Weight.IsTrivial {n : ℕ} (ρ : Weight n) : Prop := sorry -- (ρ = trivial 1d rep)
 
 open GLn
@@ -89,6 +90,7 @@ def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
   }
 
 -- the weakest form of the classification theorem
+/-- The classification of automorphic forms for `GL₀/ℚ`: they are in bijection with `ℂ`. -/
 noncomputable def classification : AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ := {
   toFun := fun f ↦ f 1
   invFun := fun c ↦ ofComplex ρ c
@@ -113,6 +115,8 @@ namespace GLn
 -- For general n, it will only work for ρ the trivial representation, but we didn't
 -- define the trivial representation yet.
 -- Some of the other fields will work for all n.
+/-- Make an automorphic form for `GLₙ/ℚ` of trivial weight `ρ` from a complex number `z`,
+returning the constant function with value `z`. -/
 def ofComplex (z : ℂ) {n : ℕ} (ρ : Weight n) (hρ : ρ.IsTrivial) :
     AutomorphicFormForGLnOverQ n ρ where
       toFun _ := z
@@ -123,6 +127,8 @@ def ofComplex (z : ℂ) {n : ℕ} (ρ : Weight n) (hρ : ρ.IsTrivial) :
       has_finite_level := sorry -- needs a better name
 
 -- no idea why it's not computable
+/-- The classification of automorphic forms for `GL₀/ℚ` of weight `ρ`: they are in
+bijection with `ℂ`. -/
 noncomputable def classification (ρ : Weight 0) : AutomorphicFormForGLnOverQ 0 ρ ≃ ℂ where
   toFun f := f 1
   invFun z := ofComplex z ρ sorry

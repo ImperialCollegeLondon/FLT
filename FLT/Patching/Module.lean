@@ -20,11 +20,14 @@ open Submodule
 variable {ι : Type*} (R : Type*) (M : ι → Type*) [CommRing R]
 variable [∀ i, AddCommGroup (M i)] [∀ i, Module R (M i)] (F : Ultrafilter ι)
 
+/-- A family of `R`-modules `M i` has uniformly bounded rank if there exists a single bound
+`n : ℕ` such that for every `i`, the rank of `M i` over `R / Ann (M i)` is less than `n`. -/
 class Module.UniformlyBoundedRank : Prop where
   cond : ∃ n : ℕ, ∀ i, Module.rank (R ⧸ Ann R (M i)) (M i) < n
 
 variable [Module.UniformlyBoundedRank R M]
 
+/-- A choice of uniform bound on the ranks of the modules `M i`. -/
 noncomputable
 def Module.UniformlyBoundedRank.bound : ℕ :=
   Module.UniformlyBoundedRank.cond (R := R) (M := M).choose
@@ -104,6 +107,9 @@ lemma Module.UniformlyBoundedRank.exists_rank :
   refine LinearEquiv.funCongrLeft R (R ⧸ Ann R (M i)) (Fintype.equivOfCardEq ?_)
   simp [Module.finrank_eq_card_chooseBasisIndex]
 
+/-- An ultrafilter-eventually attained common rank, assuming that `M i` is free
+over `R / Ann (M i)` and the `M i` have uniformly bounded rank. This is a natural number `n` such
+that `F`-eventually `M i ≃ₗ[R] Fin n → R / Ann (M i)`. -/
 noncomputable
 def Module.UniformlyBoundedRank.rank : ℕ := (exists_rank R M F).choose
 
@@ -111,6 +117,8 @@ lemma Module.UniformlyBoundedRank.rank_spec :
     ∀ᶠ i in F, Nonempty (M i ≃ₗ[R] Fin (rank R M F) → R ⧸ Ann R (M i)) :=
   (exists_rank R M F).choose_spec
 
+/-- For each `i`, an `R`-linear map from `Fin (rank R M F) → R` to `M i`, surjective on
+the `F`-eventual set. -/
 noncomputable
 def Module.UniformlyBoundedRank.linearMap (i) :
     (Fin (rank R M F) → R) →ₗ[R] M i :=
@@ -148,12 +156,17 @@ variable (M : ι → Type*) [∀ i, AddCommGroup (M i)] [∀ i, Module R (M i)]
 variable (F : Ultrafilter ι)
 
 
+/-- The `α`-th component of the patching module associated to (i) a family of modules `M i`
+over a commutative ring `R`, (ii) an ultrafilter on the index set for the `M i` and (iii)
+an ideal of `R`. This is the ultraproduct of `M i / α • M i` along the ultrafilter `F`. -/
 abbrev PatchingModule.Component (α : Ideal R) :=
   UltraProduct (fun i ↦ M i ⧸ (α • ⊤ : Submodule R (M i))) F
 
 variable (M₀ : Type*) [AddCommGroup M₀] [Module R M₀]
 
 open Submodule
+/-- A family of linear maps `f i : M₀ →ₗ[R] M i` lifts to a linear map
+`M₀ / α • M₀ → Component α`. -/
 def PatchingModule.liftComponent (α : Ideal R) (f : ∀ i, M₀ →ₗ[R] M i) :
     M₀ ⧸ (α • ⊤ : Submodule R M₀) →ₗ[R] Component R M F α :=
   (UltraProduct.πₗ (fun _ ↦ R) _ _).restrictScalars R ∘ₗ LinearMap.pi fun i ↦
@@ -161,6 +174,7 @@ def PatchingModule.liftComponent (α : Ideal R) (f : ∀ i, M₀ →ₗ[R] M i) 
     rw [← Submodule.map_le_iff_le_comap, map_smul'']
     exact Submodule.smul_mono le_rfl le_top)
 
+/-- The set of open ideals of a topological ring `R`. -/
 def OpenIdeals : Type _ := { α : Ideal R // IsOpen (X := R) α }
 
 instance : SemilatticeInf (OpenIdeals R) :=
@@ -169,6 +183,8 @@ instance : SemilatticeInf (OpenIdeals R) :=
 instance : OrderTop (OpenIdeals R) :=
   Subtype.orderTop isOpen_univ
 
+/-- The transition linear map between components for ideals `α ≤ β`:
+`Component α → Component β`. -/
 abbrev PatchingModule.componentMap {α β : Ideal R} (h : α ≤ β) :
     Component R M F α →ₗ[R] Component R M F β :=
   UltraProduct.map (R := fun _ ↦ R)
@@ -179,6 +195,10 @@ abbrev PatchingModule.componentMap {α β : Ideal R} (h : α ≤ β) :
 
 attribute [-instance] instIsScalarTowerUltraProduct in
 -- needs investigation why this instance slows everything
+/-- The patching module as a submodule of the product of components: those families
+compatible with the transition maps as `α ≤ β` ranges over open ideals.
+This is just an explicit construction of the patching module (a projective limit of components)
+as a subset of a product of components. -/
 def PatchingModule.submodule : Submodule (ι → R) (Π α : OpenIdeals R, Component R M F α.1) where
   carrier := { x | ∀ (α β : OpenIdeals R) (h : α ≤ β), componentMap R M F h (x α) = x β }
   add_mem' {v w} hv hw α β h := by
@@ -199,6 +219,9 @@ lemma PatchingModule.isClosed_submodule :
   convert isClosed_iInter fun j ↦ isClosed_iInter fun k ↦ isClosed_iInter (this j k)
   ext; simp; rfl
 
+/-- The patching module for a family `M i` of modules over a commutative topological ring `R`. This
+is an inverse limit over `α` of ultraproducts of `M i / α • M i` along the ultrafilter `F`,
+where `α` ranges over open ideals of `R`. -/
 def PatchingModule : Type _ := PatchingModule.submodule R M F
 
 instance : AddCommGroup (PatchingModule R M F) :=
@@ -247,10 +270,14 @@ instance : T2Space (PatchingModule R M F) :=
 -- instance : CompactSpace (PatchingModule R M F) :=
 --   (IsClosed.isClosedEmbedding_subtypeVal (PatchingModule.isClosed_submodule R M F)).compactSpace
 
+/-- The projection from the patching module onto its `α`-th component, for an open
+ideal `α` of `R`. -/
 def PatchingModule.π (α : OpenIdeals R) :
     PatchingModule R M F →ₗ[ι → R] PatchingModule.Component R M F α.1 :=
   (LinearMap.proj α) ∘ₗ (PatchingModule.submodule R M F).subtype
 
+/-- Auxiliary linear map from indexed sequences of representatives to the product of
+components, used to construct `PatchingModule.incl`. -/
 def PatchingModule.ofPi :
     (OpenIdeals R → Π i, M i) →ₗ[OpenIdeals R → ι → R]
       Π α : OpenIdeals R, Component R M F α.1 :=
@@ -270,6 +297,7 @@ lemma PatchingModule.ofPi_surjective :
   choose z hz using fun i j ↦ Submodule.Quotient.mk_surjective _ (y i j)
   exact ⟨z, by ext; simp [← hy, ← hz]⟩
 
+/-- The natural `(ι → R)`-linear map `∏ i, M i → PatchingModule R M F`. -/
 def PatchingModule.incl :
     (Π i, M i) →ₗ[ι → R] PatchingModule R M F :=
   LinearMap.codRestrict (PatchingModule.submodule R M F)
@@ -306,6 +334,8 @@ variable {N : ι → Type*} [∀ i, AddCommGroup (N i)] [∀ i, Module R (N i)]
 variable {N' : ι → Type*} [∀ i, AddCommGroup (N' i)] [∀ i, Module R (N' i)]
 variable (f : ∀ i, M i →ₗ[R] N i) (g : ∀ i, N i →ₗ[R] N' i)
 
+/-- Functoriality of `PatchingModule.Component` in the family of modules: a family of linear
+maps `f i : M i →ₗ[R] N i` induces a map between the `α`-th components. -/
 abbrev PatchingModule.componentMapModule (α : Ideal R) :
     Component R M F α →ₗ[ι → R] Component R N F α :=
   UltraProduct.map (R := fun _ ↦ R)
@@ -326,6 +356,7 @@ lemma PatchingModule.componentMapModule_surjective
   rw [← LinearMap.range_eq_top, Submodule.mapQ, Submodule.range_liftQ, LinearMap.range_eq_top]
   exact (Submodule.mkQ_surjective _).comp (hf _)
 
+/-- Functoriality of `PatchingModule` in the family of modules. -/
 def PatchingModule.map :
     PatchingModule R M F →ₗ[ι → R] PatchingModule R N F :=
   LinearMap.restrict (p := submodule R M F) (q := submodule R N F)
@@ -366,6 +397,8 @@ lemma PatchingModule.map_id :
   obtain ⟨y, hy⟩ := UltraProduct.πₗ_surjective (fun _ ↦ R) (x.1 α)
   simp [← hy]
 
+/-- A family of linear equivalences `M i ≃ₗ[R] N i` lifts to a linear equivalence between
+the corresponding patching modules. -/
 @[simps! apply symm_apply]
 def PatchingModule.mapEquiv (f : ∀ i, M i ≃ₗ[R] N i) :
     PatchingModule R M F ≃ₗ[ι → R] PatchingModule R N F where
@@ -422,6 +455,8 @@ lemma PatchingModule.map_surjective
 
 end Functorial
 
+/-- The natural map from a fixed module `M` to the patching module of the constant family
+`fun _ ↦ M`. -/
 def PatchingModule.toConst (M) [AddCommGroup M] [Module R M] :
     M →ₗ[R] PatchingModule R (fun _ ↦ M) F :=
   (incl R (fun _ ↦ M) F).restrictScalars R ∘ₗ .pi fun _ ↦ .id
@@ -452,6 +487,8 @@ lemma PatchingModule.toConst_surjective (M) [AddCommGroup M] [Module R M] [Modul
   exact Submodule.mkQ_surjective _
 
 set_option backward.isDefEq.respectTransparency false in
+/-- For a finitely generated module `M` over a complete local Noetherian Hausdorff ring,
+the canonical isomorphism from `M` to the patching module of the constant family `fun _ ↦ M`. -/
 noncomputable
 def PatchingModule.constEquiv [IsLocalRing R] [T2Space R] [IsNoetherianRing R]
     (M) [AddCommGroup M] [Module R M] [Module.Finite R M] :
@@ -468,6 +505,8 @@ def PatchingModule.constEquiv [IsLocalRing R] [T2Space R] [IsNoetherianRing R]
 
 variable (M)
 
+/-- A family of modules `M i` is a patching system along the filter `F` if for every open
+ideal `α ⊆ R`, the annihilator `Ann (M i)` is `F`-eventually contained in `α`. -/
 class IsPatchingSystem (F : Filter ι) : Prop where
   cond : ∀ α : Ideal R, IsOpen (X := R) α → ∀ᶠ i in F, Ann R (M i) ≤ α
 
@@ -476,6 +515,8 @@ variable [Module.UniformlyBoundedRank R M] [IsPatchingSystem R M F]
 
 open Module.UniformlyBoundedRank
 
+/-- The induced linear map from `Fin (rank R M F) → R/α` to `M i / α • M i` for a patching
+system, when the `M i` have uniformly bounded rank. -/
 noncomputable
 def IsPatchingSystem.linearMap (α : Ideal R) (i) :
     (Fin (rank R M F) → R ⧸ α) →ₗ[R] M i ⧸ (α • ⊤ : Submodule R (M i)) :=
@@ -498,6 +539,8 @@ lemma IsPatchingSystem.linearMap_bijective (α : Ideal R) (hα : IsOpen (X := R)
   refine Pi.liftQuotientₗ_bijective _ _ h₁ fun x hx ↦ ?_
   simpa [funext_iff, Ideal.Quotient.eq_zero_iff_mem] using fun i ↦ h₃ ((h₂ _).mp hx i)
 
+/-- For a patching system, each component is isomorphic to a power of `R / α` of size
+`rank R M F`. -/
 noncomputable
 def PatchingModule.equivComponent (α : Ideal R) (hα : IsOpen (X := R) α) :
     (Fin (rank R M F) → R ⧸ α) ≃ₗ[R] Component R M F α :=
@@ -506,6 +549,8 @@ def PatchingModule.equivComponent (α : Ideal R) (hα : IsOpen (X := R) α) :
     (IsPatchingSystem.linearMap R M F α) F
     (IsPatchingSystem.linearMap_bijective R M F α hα))
 
+/-- The canonical map `R^(rank R M F) → PatchingModule R M F` for a patching system,
+assembled from the component-wise isomorphisms. -/
 noncomputable
 def PatchingModule.mapOfIsPatchingSystem :
     (Fin (rank R M F) → R) →ₗ[R] PatchingModule R M F :=

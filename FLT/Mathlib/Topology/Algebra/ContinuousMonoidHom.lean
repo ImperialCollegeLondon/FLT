@@ -7,6 +7,8 @@ public import FLT.Mathlib.Topology.Algebra.Module.Quotient
 
 @[expose] public section
 
+/-- Reinterpret a continuous additive equivalence between additive groups as a continuous
+`ℤ`-linear equivalence. -/
 def ContinuousAddEquiv.toIntContinuousLinearEquiv {M M₂ : Type*} [AddCommGroup M]
     [TopologicalSpace M] [AddCommGroup M₂] [TopologicalSpace M₂] (e : M ≃ₜ+ M₂) :
     M ≃L[ℤ] M₂ where
@@ -14,6 +16,9 @@ def ContinuousAddEquiv.toIntContinuousLinearEquiv {M M₂ : Type*} [AddCommGroup
   continuous_toFun := e.continuous
   continuous_invFun := e.continuous_invFun
 
+/-- For a finite family of topological additive groups `G i` and subgroups `p i ≤ G i`,
+the canonical continuous additive isomorphism `(∏ i, G i) ⧸ (∏ i, p i) ≃ₜ+ ∏ i, (G i ⧸ p i)`.
+-/
 def ContinuousAddEquiv.quotientPi {ι : Type*} {G : ι → Type*} [(i : ι) → AddCommGroup (G i)]
     [(i : ι) → TopologicalSpace (G i)]
     [(i : ι) → IsTopologicalAddGroup (G i)]

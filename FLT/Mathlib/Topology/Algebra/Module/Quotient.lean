@@ -5,6 +5,8 @@ public import Mathlib.Topology.Algebra.Module.Equiv
 
 @[expose] public section
 
+/-- A continuous `R`-linear equivalence `e : G ≃L[R] H` sending the submodule `G' ≤ G` onto
+`H' ≤ H` descends to a continuous `R`-linear equivalence `G ⧸ G' ≃L[R] H ⧸ H'`. -/
 def Submodule.Quotient.continuousLinearEquiv {R : Type*} [Ring R] (G H : Type*) [AddCommGroup G]
     [Module R G] [AddCommGroup H] [Module R H] [TopologicalSpace G] [TopologicalSpace H]
     (G' : Submodule R G) (H' : Submodule R H) (e : G ≃L[R] H)
@@ -20,6 +22,9 @@ def Submodule.Quotient.continuousLinearEquiv {R : Type*} [Ring R] (G H : Type*) 
     simp only [LinearMap.toAddMonoidHom_coe, LinearMap.coe_comp]
     exact Continuous.comp continuous_quot_mk e.continuous_invFun
 
+/-- For a finite family of topological `R`-modules `G i` and submodules `p i ≤ G i`,
+the canonical continuous `R`-linear equivalence `(∏ i, G i) ⧸ ∏ i, p i ≃L[R] ∏ i, G i ⧸ p i`.
+-/
 def Submodule.quotientPiContinuousLinearEquiv {R ι : Type*} [CommRing R] {G : ι → Type*}
     [(i : ι) → AddCommGroup (G i)] [(i : ι) → Module R (G i)] [(i : ι) → TopologicalSpace (G i)]
     [(i : ι) → IsTopologicalAddGroup (G i)] [Fintype ι] [DecidableEq ι]

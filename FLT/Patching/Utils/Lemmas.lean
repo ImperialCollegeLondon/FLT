@@ -25,6 +25,8 @@ lemma forall_prod_iff {ι} {β : ι → Type*} (P : ∀ i, β i → Prop) [∀ i
   ⟨fun H i y ↦ by simpa using H i (fun j ↦ if h : i = j then h ▸ y else
     Nonempty.some inferInstance), fun H i y ↦ H _ _⟩
 
+/-- Bijection between ideals of `R / I` and ideals of `R` containing `I`, via comap/map
+along the quotient map. -/
 @[simps]
 def Ideal.idealQuotientEquiv {R : Type*} [CommRing R] (I : Ideal R) :
   Ideal (R ⧸ I) ≃ { J // I ≤ J } where
@@ -42,6 +44,8 @@ variable {ι : Type*} {R M : ι → Type*} [∀ i, CommRing (R i)] [∀ i, AddCo
 variable [∀ i, Module (R i) (M i)]
 variable (I : ∀ i, Ideal (R i)) (N : ∀ i, Submodule (R i) (M i))
 
+/-- The product of a family of submodules `N i ≤ M i`, viewed as a submodule of
+`Π i, M i` over the product ring `Π i, R i`. -/
 def Submodule.pi' : Submodule (Π i, R i) (Π i, M i) where
   carrier := { x | ∀ i, x i ∈ N i }
   add_mem' := by aesop
@@ -112,6 +116,8 @@ theorem TwoSidedIdeal.mem_span_singleton {α} [NonUnitalNonAssocRing α] {x : α
     x ∈ span {x} :=
   subset_span rfl
 
+/-- The largest two-sided ideal contained in a given additive subgroup `G ≤ α`:
+those `x ∈ α` whose two-sided span is contained in `G`. -/
 def TwoSidedIdeal.leAddSubgroup {α} [NonUnitalNonAssocRing α] (G : AddSubgroup α) :
     TwoSidedIdeal α :=
   .mk'
@@ -275,6 +281,8 @@ theorem Submodule.comap_smul_of_surjective {R M M'} [CommRing R] [AddCommGroup M
     (I • S).comap f = (I • S.comap f) ⊔ LinearMap.ker f :=
   comap_smul_of_le_range f S (le_top.trans_eq (LinearMap.range_eq_top_of_surjective f hS).symm) I
 
+/-- The canonical descent of a linear map `f : (ι → R) →ₗ[R] M` from the standard finite free
+module to a linear map between the corresponding quotients modulo the ideal `I`. -/
 noncomputable
 def Pi.liftQuotientₗ {ι R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] [Finite ι]
     (f : (ι → R) →ₗ[R] M) (I : Ideal R) : (ι → R ⧸ I) →ₗ[R] M ⧸ (I • ⊤ : Submodule R M) := by

@@ -173,6 +173,7 @@ noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
       exact Function.Injective.injOn Function.injective_id
     ⟩
 
+/-- The Hecke operator `T_g = [UgV] : A^V → A^U` packaged as an additive monoid homomorphism. -/
 noncomputable def HeckeOperator_addMonoidHom : fixedPoints V A →+ fixedPoints U A where
   toFun := HeckeOperator_toFun h
   map_zero' := by
@@ -187,6 +188,8 @@ noncomputable def HeckeOperator_addMonoidHom : fixedPoints V A →+ fixedPoints 
 variable {R : Type*} [Ring R] [Module R A] [SMulCommClass G R A]
 
 variable (g U V) in
+/-- The Hecke operator `T_g = [UgV] : A^V → A^U` as an `R`-linear map, where `R` is any ring
+acting on `A` and commuting with the `G`-action. -/
 noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A where
   toFun := HeckeOperator_toFun h
   map_add' a b := by

@@ -4,20 +4,26 @@ public import Mathlib.Analysis.Quaternion
 
 @[expose] public section
 
-/-- Hurwitz integers in the quaternions. ℤ-Basis 1, ω=(1+i+j+k)/2, i and
-ωi=(-1+i+j-k)/2.
+/-- Hurwitz integers in the quaternions. ℤ-Basis 1, ω=(-1+i+j+k)/2, i and
+ωi=(-1-i+j-k)/2.
 -/
 @[ext]
 structure Hurwitz : Type where
+  /-- The coefficient of `1` in the basis `1, ω, i, ωi`. -/
   re : ℤ -- 1
+  /-- The coefficient of `ω = (-1+i+j+k)/2` in the basis `1, ω, i, ωi`. -/
   im_o : ℤ -- ω
+  /-- The coefficient of `i` in the basis `1, ω, i, ωi`. -/
   im_i : ℤ -- i
+  /-- The coefficient of `ωi = (-1-i+j-k)/2` in the basis `1, ω, i, ωi`. -/
   im_oi : ℤ -- ωi -- note iω + ωi + 1 + i = 0
 
+/-- Notation `𝓞` for the Hurwitz integers. -/
 notation "𝓞" => Hurwitz -- 𝓞 = \MCO
 namespace Hurwitz
 
 open Quaternion in
+/-- The embedding of the Hurwitz integers into the rational quaternions. -/
 noncomputable def toQuaternion (z : 𝓞) : ℍ where
   re := z.re - 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
   imI := z.im_i + 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
@@ -25,6 +31,7 @@ noncomputable def toQuaternion (z : 𝓞) : ℍ where
   imK := 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
 
 open Quaternion in
+/-- Rounds a quaternion to a nearby Hurwitz integer; serves as a left inverse to `toQuaternion`. -/
 noncomputable def fromQuaternion (z : ℍ) : 𝓞 where
   re := Int.floor <| z.re + z.imJ
   im_o := Int.floor <| z.imJ + z.imK
@@ -90,6 +97,7 @@ lemma toQuaternion_ne_zero_iff {z} : toQuaternion z ≠ 0 ↔ z ≠ 0 :=
 
 /-! ## one (1) -/
 
+/-- The Hurwitz number 1. -/
 def one : 𝓞 := ⟨1, 0, 0, 0⟩
 
 /-- Notation `1` for `one` -/
@@ -371,6 +379,8 @@ lemma star_eq (z : 𝓞) : star z = (fromQuaternion ∘ star ∘ toQuaternion) z
 instance : CharZero 𝓞 where
   cast_injective x y hxy := by simpa [Hurwitz.ext_iff] using hxy
 
+/-- The norm of a Hurwitz integer: the integer `z * star z`, equivalently the squared
+absolute value of the corresponding quaternion. -/
 def norm (z : 𝓞) : ℤ :=
   z.re * z.re + z.im_o * z.im_o + z.im_i * z.im_i + z.im_oi * z.im_oi
   - z.re * (z.im_o + z.im_oi) + z.im_i * (z.im_o - z.im_oi)

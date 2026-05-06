@@ -16,14 +16,19 @@ variable [Algebra.TopologicallyFG ℤ Λ]
 
 open IsLocalRing
 
+-- TODO (Andrew): this 𝓞 should be a Λ right?
 -- This is true when `R i` is topologically fg over `𝒪` by a bounded number of generators, and
 -- for each `k`, the index of `m_Λ ⊔ mᵢᵏ` in `Rᵢ` is uniformly bounded.
 -- The latter is true when all `Rᵢ/m_Λ` are isomorphic.
+/-- A family of local rings `R i` has uniformly bounded rank if for every `k` there exists a
+uniform bound on `|R i / m(R i)^k|` over all `i`. -/
 class Algebra.UniformlyBoundedRank : Prop where
   cond : ∀ k, ∃ n : ℕ, ∀ i, Nat.card (R i ⧸ maximalIdeal (R i) ^ k) < n
 
 variable [Algebra.UniformlyBoundedRank R]
 
+/-- The `k`-th component of the patching algebra: the ultraproduct of the rings
+`R i / m(R i)^k` along the ultrafilter `F`. -/
 abbrev PatchingAlgebra.Component (k : ℕ) := UltraProduct (fun i ↦ R i ⧸ maximalIdeal (R i) ^ k) F
 
 instance (k) : T2Space (PatchingAlgebra.Component R F k) := DiscreteTopology.toT2Space
@@ -60,6 +65,8 @@ instance (k : ℕ) [NeZero k] : IsLocalRing (PatchingAlgebra.Component R F k) :=
 instance : Nontrivial (Π k, PatchingAlgebra.Component R F k) :=
   (Pi.evalRingHom _ 1).domain_nontrivial
 
+/-- The transition ring homomorphism between components: `Component j → Component k`
+for `k ≤ j`, induced by `R i / m^j → R i / m^k`. -/
 abbrev PatchingAlgebra.componentMap (j k : ℕ) (hjk : k ≤ j) : Component R F j →+* Component R F k :=
   UltraProduct.mapRingHom (R := fun i ↦ R i ⧸ maximalIdeal (R i) ^ j) F fun _ ↦
     Ideal.quotientMap _ (.id _) (Ideal.pow_le_pow_right hjk)
@@ -80,6 +87,9 @@ instance (j k : ℕ) (hjk : k ≤ j) [NeZero k] :
     .of_surjective' _ Ideal.Quotient.mk_surjective
   exact .of_surjective _ (Ideal.quotientMap_surjective RingHomSurjective.is_surjective)
 
+/-- The patching algebra is an inverse limit of components; here we construct it explicitly as a
+subring of the product of components: those families that are compatible under the
+transition maps. -/
 def PatchingAlgebra.subring : Subring (Π i, Component R F i) where
   carrier := { v | ∀ j k hjk, componentMap R F j k hjk (v j) = v k }
   mul_mem' := by simp +contextual only [Set.mem_setOf, Pi.mul_apply, map_mul, implies_true]
@@ -88,6 +98,7 @@ def PatchingAlgebra.subring : Subring (Π i, Component R F i) where
   zero_mem' := by simp
   neg_mem' := by simp +contextual only [Set.mem_setOf, Pi.neg_apply, RingHom.map_neg, implies_true]
 
+/-- The patching algebra as a `Λ`-subalgebra of the product of components. -/
 def PatchingAlgebra.subalgebra : Subalgebra Λ (Π i, Component R F i) where
   __ := subring R F
   algebraMap_mem' _ _ _ _ := rfl
@@ -103,6 +114,8 @@ lemma PatchingAlgebra.isClosed_subring :
   convert isClosed_iInter fun j ↦ isClosed_iInter fun k ↦ isClosed_iInter (this j k)
   ext; simp; rfl
 
+/-- The patching algebra: the inverse limit of the components
+`R i / m^k` glued along the ultrafilter `F`. -/
 def PatchingAlgebra : Type _ := PatchingAlgebra.subring R F
 
 instance : CommRing (PatchingAlgebra R F) :=
@@ -179,6 +192,8 @@ variable {Rₒₒ} [CommRing Rₒₒ] (f : ∀ i, Rₒₒ →+* R i) [Topologica
 variable [IsTopologicalRing Rₒₒ] [Algebra.TopologicallyFG ℤ Rₒₒ]
 variable (hf : ∀ i, Continuous (f i))
 
+/-- A continuous family of ring homomorphisms `f i : R∞ →+* R i` lifts uniquely to a
+ring homomorphism `R∞ →+* PatchingAlgebra R F`. -/
 def PatchingAlgebra.lift : Rₒₒ →+* PatchingAlgebra R F :=
   (Pi.ringHom fun i ↦ (UltraProduct.π _ _).comp
     (Pi.ringHom fun j ↦ (Ideal.Quotient.mk _).comp (f j))).codRestrict _ <| by
@@ -211,6 +226,8 @@ lemma PatchingAlgebra.lift_surjective (hf' : ∀ i, Function.Surjective (f i)) :
   · exact fun x ↦ (continuous_algebraMap _ _).comp (hf x)
   · exact fun x ↦ Ideal.Quotient.mk_surjective.comp (hf' x)
 
+/-- Auxiliary ring homomorphism from sequences `ℕ → ∀ i, R i` of representatives modulo the
+filter `F` to the product of components, used in the construction of `incl`. -/
 def PatchingAlgebra.ofPi :
     (ℕ → Π i, R i) →+* Π k, Component R F k :=
   Pi.ringHom fun k ↦ (RingHom.comp ((Ideal.Quotient.mk
@@ -251,6 +268,7 @@ lemma PatchingAlgebra.ofPi_apply (x k) :
   ofPi R F x k = UltraProduct.π (fun i ↦ R i ⧸ maximalIdeal (R i) ^ k) F
     (fun i ↦ Ideal.Quotient.mk _ (x k i)) := rfl
 
+/-- The natural ring homomorphism from the product `∏ i, R i` into `PatchingAlgebra R F`. -/
 def PatchingAlgebra.incl :
     (Π i, R i) →+* PatchingAlgebra R F :=
   RingHom.codRestrict ((ofPi R F).comp (Pi.ringHom fun _ ↦ .id _)) (subring R F) <| by
@@ -266,6 +284,8 @@ variable {R'' : ι → Type*} [∀ i, CommRing (R'' i)] [∀ i, IsLocalRing (R''
 variable (f : ∀ i, R i →+* R' i) (g : ∀ i, R' i →+* R'' i)
 variable [∀ i, IsLocalHom (f i)] [∀ i, IsLocalHom (g i)]
 
+/-- Functoriality on components: a family of local ring homomorphisms `f i : R i →+* R' i`
+induces a ring homomorphism between the `k`-th components of the two patching systems. -/
 abbrev PatchingAlgebra.componentMapRingHom (k : ℕ) :
     Component R F k →+* Component R' F k :=
   UltraProduct.mapRingHom F
@@ -291,6 +311,7 @@ lemma PatchingAlgebra.componentMapRingHom_surjective
   refine ⟨Ideal.Quotient.mk _ x, by simp⟩
 
 variable {R} in
+/-- Functoriality of `PatchingAlgebra` in the family of local rings. -/
 def PatchingAlgebra.map :
     PatchingAlgebra R F →+* PatchingAlgebra R' F :=
   RingHom.restrict (Pi.ringHom fun i ↦ (componentMapRingHom R F f i).comp (Pi.evalRingHom _ _))
@@ -351,6 +372,7 @@ lemma PatchingAlgebra.map_id :
   refine Subtype.ext (funext fun α ↦ ?_)
   simp [← hy, UltraProduct.mapRingHom_π]
 
+/-- A family of ring isomorphisms `R i ≃+* R' i` lifts to an isomorphism of patching algebras. -/
 @[simps! apply symm_apply]
 def PatchingAlgebra.mapEquiv (f : ∀ i, R i ≃+* R' i) :
     PatchingAlgebra R F ≃+* PatchingAlgebra R' F where
@@ -447,6 +469,8 @@ lemma PatchingAlgebra.algebraMap_surjective
     (.of_forall fun _ _ ↦ ⟨_, rfl⟩)
   exact this.comp Ideal.Quotient.mk_surjective
 
+/-- For a constant family `fun _ ↦ R` (with `R` a complete local Noetherian compact ring),
+the patching algebra is canonically isomorphic to `R`. -/
 noncomputable
 def PatchingAlgebra.constEquiv
     (R : Type*) [CommRing R] [IsLocalRing R] [TopologicalSpace R] [IsTopologicalRing R]

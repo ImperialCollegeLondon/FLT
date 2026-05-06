@@ -323,6 +323,7 @@ lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) �
     congr
     simp [mul_comm]
 
+/-- An element `z` of `ℤ̂` is coprime to `N` if its image in `ℤ/Nℤ` is a unit. -/
 def IsCoprime (N : ℕ+) (z : ZHat) : Prop := IsUnit (z N)
 
 open ZMod in
@@ -342,6 +343,7 @@ lemma isCoprime_iff_coprime (N : ℕ+) (z : ZHat) : IsCoprime N z ↔ Nat.Coprim
   unfold IsCoprime
   rw [isUnit_iff_coprime, Nat.coprime_comm]
 
+/-- The canonical inclusion `ℤ̂ → ℚ̂ := ℚ ⊗_ℤ ℤ̂` sending `z` to `1 ⊗ z`. -/
 noncomputable abbrev i₂ : ZHat →ₐ[ℤ] QHat := Algebra.TensorProduct.includeRight
 lemma injective_zHat :
     Function.Injective i₂ := by
@@ -360,6 +362,7 @@ lemma injective_zHat :
 instance nontrivial_QHat : Nontrivial QHat where
   exists_pair_ne := ⟨1 ⊗ₜ 0, 1 ⊗ₜ 1, injective_zHat.ne ZHat.zeroNeOne⟩
 
+/-- The canonical inclusion `ℚ → ℚ̂ = ℚ ⊗_ℤ ℤ̂` sending `q` to `q ⊗ 1`. -/
 noncomputable abbrev i₁ : ℚ →ₐ[ℤ] QHat := Algebra.TensorProduct.includeLeft
 lemma injective_rat :
     Function.Injective i₁ := RingHom.injective i₁.toRingHom
@@ -512,12 +515,15 @@ lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗
 
 section additive_structure_of_QHat
 
+/-- The image of `ℚ` inside `ℚ̂` as an additive subgroup. -/
 noncomputable abbrev ratsub : AddSubgroup QHat :=
     (i₁ : ℚ →+ QHat).range
 
+/-- The image of `ℤ̂` inside `ℚ̂` as an additive subgroup. -/
 noncomputable abbrev zHatsub : AddSubgroup QHat :=
     (i₂ : ZHat →+ QHat).range
 
+/-- The image of `ℤ` inside `ℚ̂` as an additive subgroup. -/
 noncomputable abbrev zsub : AddSubgroup QHat :=
   (Int.castRingHom QHat : ℤ →+ QHat).range
 
@@ -583,12 +589,15 @@ end additive_structure_of_QHat
 
 section multiplicative_structure_of_QHat
 
+/-- The image of `ℚˣ` inside `ℚ̂ˣ` as a subgroup. -/
 noncomputable abbrev unitsratsub : Subgroup QHatˣ :=
   (Units.map (i₁ : ℚ →* QHat)).range
 
+/-- The image of `ℤ̂ˣ` inside `ℚ̂ˣ` as a subgroup. -/
 noncomputable abbrev unitszHatsub : Subgroup QHatˣ :=
   (Units.map (i₂ : ZHat →* QHat)).range
 
+/-- The image of `ℤˣ` inside `ℚ̂ˣ` as a subgroup. -/
 noncomputable abbrev unitszsub : Subgroup QHatˣ :=
   (Units.map (Int.castRingHom QHat : ℤ →* QHat)).range
 

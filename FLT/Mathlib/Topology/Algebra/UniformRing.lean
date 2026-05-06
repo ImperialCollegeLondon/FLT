@@ -17,6 +17,9 @@ variable {α : Type*} [Ring α] [UniformSpace α] [IsTopologicalRing α] [IsUnif
 
 variable {f}
 
+/-- The semialgebra homomorphism `Completion α →ₛₐ[f] Completion β` induced from
+a continuous ring homomorphism `f : α →+* β`.
+-/
 noncomputable def mapSemialgHom {α : Type*} [CommRing α] [UniformSpace α]
     [IsTopologicalRing α] [IsUniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
     [IsUniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f) :

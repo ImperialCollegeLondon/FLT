@@ -15,6 +15,9 @@ structure SemialgHom {R S : Type*} [CommSemiring R] [CommSemiring S] (φ : R →
     (A B : Type*)  [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
     extends A →ₛₗ[φ] B, RingHom A B
 
+/-- Reinterpret a `SemialgHom` as a `RingHom`. -/
+add_decl_doc SemialgHom.toRingHom
+
 @[inherit_doc SemialgHom]
 infixr:25 " →ₛₐ " => SemialgHom _
 
@@ -44,6 +47,8 @@ end semialghom
 
 section semialghomclass
 
+/-- `SemialgHomClass F φ A B` states that `F` is a type of `φ`-semialgebra homomorphisms
+from `A` to `B`, where `A` is an `R`-algebra, `B` is an `S`-algebra and `φ : R →+* S`. -/
 class SemialgHomClass (F : Type*) {R S : outParam Type*}
   [CommSemiring R] [CommSemiring S] (φ : outParam (R →+* S)) (A B : outParam Type*)
   [Semiring A] [Semiring B] [Algebra R A] [Algebra S B]
