@@ -128,6 +128,7 @@ lemma mul_comm_of_disjoint_mulSupport {u v : Πʳ i, [G i, A i]}
 
 variable [DecidableEq ι] [(i : ι) → Monoid (G i)] [∀ i, SubmonoidClass (S i) (G i)] in
 -- Adapted from the merged `polyproof/FLT` support lemma used in the Hecke commutativity path.
+omit [(i : ι) → Monoid (G i)] [∀ i, SubmonoidClass (S i) (G i)] in
 @[to_additive
   /-- Additive analog of `RestrictedProduct.mulSingle_commute`. -/]
 lemma mulSingle_commute [∀ i, MulOneClass (G i)] [∀ i, OneMemClass (S i) (G i)]

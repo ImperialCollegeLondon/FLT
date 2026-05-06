@@ -84,6 +84,7 @@ theorem M2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
 
 -- the clever way to prove this is a theorem of the form "if A is an open submonoid of R
 -- then Aˣ is an open subgroup of Rˣ"
+set_option linter.unnecessarySimpa false in
 theorem GL2.localFullLevel_eq_units (v : HeightOneSpectrum (𝓞 F)) :
     GL2.localFullLevel v = (M2.localFullLevel v).toSubmonoid.units := by
   ext x
@@ -283,7 +284,8 @@ theorem GL2.localTameLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     have hL : IsOpen (GL2.localFullLevel v : Set (GL (Fin 2) (v.adicCompletion F))) :=
       GL2.localFullLevel.isOpen v
     have hS : IsOpen ({x : v.adicCompletion F | Valued.v x < 1} : Set (v.adicCompletion F)) := by
-      let U : Set (v.adicCompletionIntegers F) := IsLocalRing.maximalIdeal (v.adicCompletionIntegers F)
+      let U : Set (v.adicCompletionIntegers F) :=
+        IsLocalRing.maximalIdeal (v.adicCompletionIntegers F)
       have hU : IsOpen U := IsLocalRing.isOpen_maximalIdeal (R := v.adicCompletionIntegers F)
       have hsub : IsOpen (v.adicCompletionIntegers F : Set (v.adicCompletion F)) :=
         NumberField.isOpenAdicCompletionIntegers F v

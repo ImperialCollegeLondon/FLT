@@ -93,13 +93,13 @@ lemma swap_mem_localFullLevel :
     fin_cases i <;> fin_cases j <;> simp [Matrix.GeneralLinearGroup.swap, Matrix.swap]
   · simp [Matrix.GeneralLinearGroup.swap, Matrix.swap]
 
+set_option linter.flexible false in
 lemma unipotent_mem_localFullLevel (t : v.adicCompletionIntegers F) :
     Matrix.GeneralLinearGroup.GL2.unipotent (t : adicCompletion F v) ∈ GL2.localFullLevel v := by
   rw [GL2.mem_localFullLevel_iff_v_le_one_and_v_det_eq_one]
   constructor
   · intro i j
-    fin_cases i <;> fin_cases j <;> simp [Matrix.GeneralLinearGroup.GL2.unipotent_def,
-      mem_adicCompletionIntegers]
+    fin_cases i <;> fin_cases j <;> simp [Matrix.GeneralLinearGroup.GL2.unipotent_def]
     exact t.2
   · simp [Matrix.GeneralLinearGroup.GL2.unipotent_def]
 
@@ -427,14 +427,14 @@ lemma mapsTo_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLeve
 lemma upper_unipotent_mul_matrix {K : Type*} [CommRing K] (a b c d t : K) :
     (!![1, -t; 0, 1] : Matrix (Fin 2) (Fin 2) K) * !![a, b; c, d] =
       !![a - t * c, b - t * d; c, d] := by
-  ext i j <;> fin_cases i <;> fin_cases j <;>
-    simp [Matrix.mul_apply, mul_comm, mul_left_comm, mul_assoc] <;>
+  ext i j; fin_cases i <;> fin_cases j <;>
+    simp [Matrix.mul_apply, mul_comm] <;>
     ring_nf
 
 lemma swap_mul_matrix {K : Type*} [CommRing K] (a b c d : K) :
     (!![(0 : K), 1; 1, 0] : Matrix (Fin 2) (Fin 2) K) * !![a, b; c, d] =
       !![c, d; a, b] := by
-  ext i j <;> fin_cases i <;> fin_cases j <;>
+  ext i j; fin_cases i <;> fin_cases j <;>
     simp [Matrix.mul_apply]
 
 lemma unipotent_det_eq_one {K : Type*} [CommRing K] (t : K) :
@@ -478,6 +478,7 @@ lemma uniformizerInt_inv_not_mem (v : HeightOneSpectrum (𝓞 F)) :
           (↑(uniformizerInt (F := F) v) : adicCompletion F v)⁻¹ = 1)
   exact uniformizerInt_not_isUnit (F := F) v hunit
 
+set_option linter.flexible false in
 lemma injOn_unipotent_mul_diagLocalFullLevel :
     Set.InjOn (unipotent_mul_diagLocalFullLevel (v := v)) ⊤ := by
   intro t₁ h₁ t₂ h₂ h
@@ -534,14 +535,14 @@ lemma swap_mul_diagLocalFullLevel_ne_unipotent_mul_diagLocalFullLevel
       Matrix.GeneralLinearGroup.GL2.unipotent
         ((Quotient.out t : adicCompletionIntegers F v) : adicCompletion F v)
     have hs_inv : s⁻¹ = s := by
-      ext i j <;> fin_cases i <;> fin_cases j
+      ext i j; fin_cases i <;> fin_cases j
       all_goals simp [s, Matrix.GeneralLinearGroup.swap, Matrix.swap]
     have hsu :
         ((s * u : GL (Fin 2) (adicCompletion F v)) :
           Matrix (Fin 2) (Fin 2) (adicCompletion F v)) =
           !![(0 : adicCompletion F v), 1; 1,
             (Quotient.out t : adicCompletionIntegers F v)] := by
-      ext i j <;> fin_cases i <;> fin_cases j
+      ext i j; fin_cases i <;> fin_cases j
       all_goals
         simp [s, u, Matrix.GeneralLinearGroup.swap, Matrix.swap,
           Matrix.GeneralLinearGroup.GL2.unipotent_def, Matrix.mul_apply]
@@ -591,6 +592,7 @@ lemma injOn_localFullLevelDiagLocalFullLevelRep :
           congr
           exact injOn_unipotent_mul_diagLocalFullLevel (v := v) trivial trivial h
 
+set_option linter.unnecessarySimpa false in
 lemma quotient_diff_mul_mem_span {R : Type*} [CommRing R] {π b d t₀ : R} [Invertible d]
     (hq : t₀ - (⅟d : R) * b ∈ Ideal.span {π}) :
     b + -t₀ * d ∈ Ideal.span {π} := by
@@ -604,8 +606,9 @@ lemma quotient_diff_mul_mem_span {R : Type*} [CommRing R] {π b d t₀ : R} [Inv
     simpa using (inv_mul_cancel₀ (x := d) : (⅟d : R) * d = 1)
   simpa [sub_eq_add_neg, mul_add, add_mul, mul_assoc, mul_comm, mul_left_comm, h_inv] using hqd
 
--- `fin_cases` on the 4 matrix entries with `simp` on adelic coercions is inherently expensive
-set_option maxHeartbeats 3500000 in
+set_option maxHeartbeats 3200000 in
+-- elevated: matrix decomposition + repeated `simpa` on `localFullLevel` membership.
+set_option linter.unnecessarySimpa false in
 lemma surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLevel :
     Set.SurjOn (localFullLevelDiagLocalFullLevelRep (v := v)) Set.univ
       (localFullLevelDiagLocalFullLevel (v := v)) := by
@@ -710,7 +713,8 @@ lemma surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLeve
           (x := ((a : adicCompletion F v) - (t₀ : adicCompletion F v) * c))).mp h00mem
       · change Valued.v (z 0 1) ≤ 1
         have h01simp : z 0 1 =
-            (π : adicCompletion F v)⁻¹ * ((b : adicCompletion F v) - (t₀ : adicCompletion F v) * d) := by
+            (π : adicCompletion F v)⁻¹ *
+              ((b : adicCompletion F v) - (t₀ : adicCompletion F v) * d) := by
           simpa [z] using congrArg (fun M : Matrix (Fin 2) (Fin 2) (adicCompletion F v) => M 0 1)
             hz
         rw [h01simp]
@@ -729,7 +733,9 @@ lemma surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLeve
             (congrArg (fun x : adicCompletionIntegers F v => (x : adicCompletion F v)) hqmul)
         have hπ' : (π : adicCompletion F v) ≠ 0 := by
           exact_mod_cast hπ
-        have hcancel : (π : adicCompletion F v)⁻¹ * ((q : adicCompletion F v) * (π : adicCompletion F v)) =
+        have hcancel :
+            (π : adicCompletion F v)⁻¹ *
+              ((q : adicCompletion F v) * (π : adicCompletion F v)) =
             (q : adicCompletion F v) := by
           calc
             (π : adicCompletion F v)⁻¹ * ((q : adicCompletion F v) * (π : adicCompletion F v))
@@ -792,8 +798,7 @@ lemma surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLeve
         rw [Matrix.GeneralLinearGroup.det.map_mul, Matrix.GeneralLinearGroup.det.map_mul,
           Matrix.GeneralLinearGroup.det.map_mul]
         rw [hunip]
-        simp [Matrix.GeneralLinearGroup.val_det_apply, Matrix.det_diagonal,
-          Matrix.det_fin_two, hx₁]
+        simp
       change (Valued.v (R := adicCompletion F v)
           ((Matrix.GeneralLinearGroup.det
             ((diag (uniformizerInt (F := F) v) (uniformizerInt_ne_zero (F := F) v))⁻¹ *
@@ -834,7 +839,7 @@ lemma surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLeve
           have hswap :
               Matrix.swap (adicCompletion F v) 0 1 =
                 !![(0 : adicCompletion F v), 1; 1, 0] := by
-            ext i j <;> fin_cases i <;> fin_cases j <;> simp [Matrix.swap]
+            ext i j; fin_cases i <;> fin_cases j <;> simp [Matrix.swap]
           rw [hs, hswap]
         calc
           (s⁻¹ * x : Matrix (Fin 2) (Fin 2) (adicCompletion F v)) =
@@ -910,7 +915,9 @@ lemma surjOn_localFullLevelDiagLocalFullLevelRep_localFullLevelDiagLocalFullLeve
         rw [h01, ← hqcomp]
         have hπ' : (π : adicCompletion F v) ≠ 0 := by
           exact_mod_cast hπ
-        have hcancel : (π : adicCompletion F v)⁻¹ * ((q : adicCompletion F v) * (π : adicCompletion F v)) =
+        have hcancel :
+            (π : adicCompletion F v)⁻¹ *
+              ((q : adicCompletion F v) * (π : adicCompletion F v)) =
             (q : adicCompletion F v) := by
           calc
             (π : adicCompletion F v)⁻¹ * ((q : adicCompletion F v) * (π : adicCompletion F v))
