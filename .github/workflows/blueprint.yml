@@ -98,7 +98,11 @@ jobs:
           include-drafts: true
 
       - name: Compile blueprint and documentation
-        uses: leanprover-community/docgen-action@7b5b9a1822650bd45aaeb4182d94bceba2030f89 # 2026-04-14
+        # Workaround for cache invalidation caused by `plausible` version skew.
+        # Will no longer be needed once https://github.com/leanprover/leansqlite/pull/30
+        # makes it into a doc-gen4 release. See
+        # https://github.com/leanprover-community/docgen-action/issues/28
+        uses: dwrensha/docgen-action@a3f8189646977363717917b605e6de25f9704656
         with:
           blueprint: true
           homepage: docs
