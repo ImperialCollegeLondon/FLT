@@ -45,8 +45,8 @@ lemma Submodule.tensorProduct_inf_eq_range_map
     (le_inf (TensorProduct.range_map_mono le_rfl (by simp))
       (TensorProduct.range_map_mono (by simp) le_rfl))
   rintro x ⟨⟨u, hux⟩, ⟨v, hvx⟩⟩
-  let qS := S.linearProjOfIsCompl S.exists_isCompl.choose S.exists_isCompl.choose_spec
-  let qT := T.linearProjOfIsCompl T.exists_isCompl.choose T.exists_isCompl.choose_spec
+  let qS := S.projectionOnto S.exists_isCompl.choose S.exists_isCompl.choose_spec
+  let qT := T.projectionOnto T.exists_isCompl.choose T.exists_isCompl.choose_spec
   have hxS : TensorProduct.map (S.subtype.comp qS) LinearMap.id x = x := by
     rw [← hux]
     exact TensorProduct.induction_on u (by simp)
