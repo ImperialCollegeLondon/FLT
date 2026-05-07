@@ -1,170 +1,172 @@
-import FLT.Assumptions.KnownIn1980s
-import FLT.Assumptions.Mazur
-import FLT.Assumptions.Odlyzko
-import FLT.AutomorphicForm.QuaternionAlgebra.Defs
-import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
-import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
-import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
-import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
-import FLT.Basic.FreyPackage
-import FLT.Basic.Reductions
-import FLT.Data.Hurwitz
-import FLT.Data.HurwitzRatHat
-import FLT.Data.QHat
-import FLT.DedekindDomain.AdicValuation
-import FLT.DedekindDomain.Completion.BaseChange
-import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
-import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
-import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits
-import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
-import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
-import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
-import FLT.DedekindDomain.IntegralClosure
-import FLT.Deformations.Algebra.InverseLimit.Basic
-import FLT.Deformations.Algebra.InverseLimit.Topology
-import FLT.Deformations.Categories
-import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
-import FLT.Deformations.IsProartinian
-import FLT.Deformations.IsResidueAlgebra
-import FLT.Deformations.Lemmas
-import FLT.Deformations.LiftFunctor
-import FLT.Deformations.Representable
-import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
-import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
-import FLT.Deformations.RepresentationTheory.Etale
-import FLT.Deformations.RepresentationTheory.Frobenius
-import FLT.Deformations.RepresentationTheory.GaloisRep
-import FLT.Deformations.RepresentationTheory.GaloisRepFamily
-import FLT.Deformations.RepresentationTheory.IntegralClosure
-import FLT.Deformations.RepresentationTheory.Irreducible
-import FLT.Deformations.Subfunctor
-import FLT.DivisionAlgebra.Finiteness
-import FLT.EllipticCurve.Torsion
-import FLT.GaloisRepresentation.Automorphic
-import FLT.GaloisRepresentation.Cyclotomic
-import FLT.GaloisRepresentation.HardlyRamified.Defs
-import FLT.GaloisRepresentation.HardlyRamified.Family
-import FLT.GaloisRepresentation.HardlyRamified.Frey
-import FLT.GaloisRepresentation.HardlyRamified.Lift
-import FLT.GaloisRepresentation.HardlyRamified.ModThree
-import FLT.GaloisRepresentation.HardlyRamified.Threeadic
-import FLT.GlobalLanglandsConjectures.GLnDefs
-import FLT.GlobalLanglandsConjectures.GLzero
-import FLT.GroupScheme.FiniteFlat
-import FLT.HaarMeasure.HaarChar.AddEquiv
-import FLT.HaarMeasure.HaarChar.AdeleRing
-import FLT.HaarMeasure.HaarChar.FiniteAdeleRing
-import FLT.HaarMeasure.HaarChar.FiniteDimensional
-import FLT.HaarMeasure.HaarChar.Padic
-import FLT.HaarMeasure.HaarChar.RealComplex
-import FLT.HaarMeasure.HaarChar.Ring
-import FLT.HaarMeasure.MeasurableSpacePadics
-import FLT.Hacks.RightActionInstances
-import FLT.Mathlib.Algebra.Algebra.Bilinear
-import FLT.Mathlib.Algebra.Algebra.Hom
-import FLT.Mathlib.Algebra.Algebra.Pi
-import FLT.Mathlib.Algebra.Algebra.Tower
-import FLT.Mathlib.Algebra.Central.TensorProduct
-import FLT.Mathlib.Algebra.FixedPoints.Basic
-import FLT.Mathlib.Algebra.IsDirectLimit
-import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-import FLT.Mathlib.Algebra.Module.Submodule.Basic
-import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
-import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
-import FLT.Mathlib.Data.Fin.Basic
-import FLT.Mathlib.Data.Real.Archimedean
-import FLT.Mathlib.Data.Set.Prod
-import FLT.Mathlib.GroupTheory.DoubleCoset
-import FLT.Mathlib.GroupTheory.Index
-import FLT.Mathlib.LinearAlgebra.Countable
-import FLT.Mathlib.LinearAlgebra.Determinant
-import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
-import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
-import FLT.Mathlib.LinearAlgebra.Pi
-import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
-import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
-import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.Padic
-import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
-import FLT.Mathlib.MeasureTheory.Group.Action
-import FLT.Mathlib.MeasureTheory.Group.Measure
-import FLT.Mathlib.MeasureTheory.Haar.Extension
-import FLT.Mathlib.MeasureTheory.Measure.Regular
-import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
-import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
-import FLT.Mathlib.NumberTheory.NumberField.Completion
-import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
-import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
-import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
-import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
-import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
-import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
-import FLT.Mathlib.Order.Filter.Cofinite
-import FLT.Mathlib.RepresentationTheory.Basic
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
-import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
-import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
-import FLT.Mathlib.RingTheory.LocalRing.Defs
-import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
-import FLT.Mathlib.RingTheory.Localization.BaseChange
-import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
-import FLT.Mathlib.RingTheory.TensorProduct.Basis
-import FLT.Mathlib.RingTheory.TensorProduct.Pi
-import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
-import FLT.Mathlib.Topology.Algebra.Algebra.Hom
-import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
-import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-import FLT.Mathlib.Topology.Algebra.Group.Quotient
-import FLT.Mathlib.Topology.Algebra.Group.Units
-import FLT.Mathlib.Topology.Algebra.Module.Equiv
-import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
-import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-import FLT.Mathlib.Topology.Algebra.Module.Quotient
-import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
-import FLT.Mathlib.Topology.Algebra.Monoid
-import FLT.Mathlib.Topology.Algebra.MulAction
-import FLT.Mathlib.Topology.Algebra.Order.Field
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
-import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-import FLT.Mathlib.Topology.Algebra.UniformRing
-import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
-import FLT.Mathlib.Topology.Bases
-import FLT.Mathlib.Topology.Constructions
-import FLT.Mathlib.Topology.HomToDiscrete
-import FLT.Mathlib.Topology.Instances.Matrix
-import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
-import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
-import FLT.Mathlib.Topology.Polish
-import FLT.NumberField.AdeleRing
-import FLT.NumberField.Completion.Finite
-import FLT.NumberField.Completion.Infinite
-import FLT.NumberField.DiscriminantBounds
-import FLT.NumberField.HeightOneSpectrum
-import FLT.NumberField.InfiniteAdeleRing
-import FLT.NumberField.InfinitePlace.Extension
-import FLT.NumberField.Padics.RestrictedProduct
-import FLT.Patching.Algebra
-import FLT.Patching.Module
-import FLT.Patching.Over
-import FLT.Patching.REqualsT
-import FLT.Patching.System
-import FLT.Patching.Ultraproduct
-import FLT.Patching.Utils.AdicTopology
-import FLT.Patching.Utils.CompactHausdorffRings
-import FLT.Patching.Utils.Depth
-import FLT.Patching.Utils.InverseLimit
-import FLT.Patching.Utils.Lemmas
-import FLT.Patching.Utils.StructureFiniteness
-import FLT.Patching.Utils.TopologicallyFG
-import FLT.Patching.VanishingFilter
-import FLT.QuaternionAlgebra.NumberField
-import FLT.TateCurve.TateCurve
+module  -- shake: keep-all
+
+public import FLT.Assumptions.KnownIn1980s
+public import FLT.Assumptions.Mazur
+public import FLT.Assumptions.Odlyzko
+public import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+public import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
+public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
+public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
+public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
+public import FLT.Basic.FreyPackage
+public import FLT.Basic.Reductions
+public import FLT.Data.Hurwitz
+public import FLT.Data.HurwitzRatHat
+public import FLT.Data.QHat
+public import FLT.DedekindDomain.AdicValuation
+public import FLT.DedekindDomain.Completion.BaseChange
+public import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+public import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
+public import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits
+public import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
+public import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
+public import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
+public import FLT.DedekindDomain.IntegralClosure
+public import FLT.Deformations.Algebra.InverseLimit.Basic
+public import FLT.Deformations.Algebra.InverseLimit.Topology
+public import FLT.Deformations.Categories
+public import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
+public import FLT.Deformations.IsProartinian
+public import FLT.Deformations.IsResidueAlgebra
+public import FLT.Deformations.Lemmas
+public import FLT.Deformations.LiftFunctor
+public import FLT.Deformations.Representable
+public import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
+public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+public import FLT.Deformations.RepresentationTheory.Etale
+public import FLT.Deformations.RepresentationTheory.Frobenius
+public import FLT.Deformations.RepresentationTheory.GaloisRep
+public import FLT.Deformations.RepresentationTheory.GaloisRepFamily
+public import FLT.Deformations.RepresentationTheory.IntegralClosure
+public import FLT.Deformations.RepresentationTheory.Irreducible
+public import FLT.Deformations.Subfunctor
+public import FLT.DivisionAlgebra.Finiteness
+public import FLT.EllipticCurve.Torsion
+public import FLT.GaloisRepresentation.Automorphic
+public import FLT.GaloisRepresentation.Cyclotomic
+public import FLT.GaloisRepresentation.HardlyRamified.Defs
+public import FLT.GaloisRepresentation.HardlyRamified.Family
+public import FLT.GaloisRepresentation.HardlyRamified.Frey
+public import FLT.GaloisRepresentation.HardlyRamified.Lift
+public import FLT.GaloisRepresentation.HardlyRamified.ModThree
+public import FLT.GaloisRepresentation.HardlyRamified.Threeadic
+public import FLT.GlobalLanglandsConjectures.GLnDefs
+public import FLT.GlobalLanglandsConjectures.GLzero
+public import FLT.GroupScheme.FiniteFlat
+public import FLT.HaarMeasure.HaarChar.AddEquiv
+public import FLT.HaarMeasure.HaarChar.AdeleRing
+public import FLT.HaarMeasure.HaarChar.FiniteAdeleRing
+public import FLT.HaarMeasure.HaarChar.FiniteDimensional
+public import FLT.HaarMeasure.HaarChar.Padic
+public import FLT.HaarMeasure.HaarChar.RealComplex
+public import FLT.HaarMeasure.HaarChar.Ring
+public import FLT.HaarMeasure.MeasurableSpacePadics
+public import FLT.Hacks.RightActionInstances
+public import FLT.Mathlib.Algebra.Algebra.Bilinear
+public import FLT.Mathlib.Algebra.Algebra.Hom
+public import FLT.Mathlib.Algebra.Algebra.Pi
+public import FLT.Mathlib.Algebra.Algebra.Tower
+public import FLT.Mathlib.Algebra.Central.TensorProduct
+public import FLT.Mathlib.Algebra.FixedPoints.Basic
+public import FLT.Mathlib.Algebra.IsDirectLimit
+public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
+public import FLT.Mathlib.Algebra.Module.Submodule.Basic
+public import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
+public import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
+public import FLT.Mathlib.Data.Fin.Basic
+public import FLT.Mathlib.Data.Real.Archimedean
+public import FLT.Mathlib.Data.Set.Prod
+public import FLT.Mathlib.GroupTheory.DoubleCoset
+public import FLT.Mathlib.GroupTheory.Index
+public import FLT.Mathlib.LinearAlgebra.Countable
+public import FLT.Mathlib.LinearAlgebra.Determinant
+public import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
+public import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+public import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
+public import FLT.Mathlib.LinearAlgebra.Pi
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.Padic
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
+public import FLT.Mathlib.MeasureTheory.Group.Action
+public import FLT.Mathlib.MeasureTheory.Group.Measure
+public import FLT.Mathlib.MeasureTheory.Haar.Extension
+public import FLT.Mathlib.MeasureTheory.Measure.Regular
+public import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
+public import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
+public import FLT.Mathlib.NumberTheory.NumberField.Completion
+public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+public import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+public import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
+public import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
+public import FLT.Mathlib.Order.Filter.Cofinite
+public import FLT.Mathlib.RepresentationTheory.Basic
+public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
+public import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
+public import FLT.Mathlib.RingTheory.LocalRing.Defs
+public import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
+public import FLT.Mathlib.RingTheory.Localization.BaseChange
+public import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
+public import FLT.Mathlib.RingTheory.TensorProduct.Basis
+public import FLT.Mathlib.RingTheory.TensorProduct.Pi
+public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
+public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
+public import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+public import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+public import FLT.Mathlib.Topology.Algebra.Group.Quotient
+public import FLT.Mathlib.Topology.Algebra.Group.Units
+public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
+public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+public import FLT.Mathlib.Topology.Algebra.Module.Quotient
+public import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
+public import FLT.Mathlib.Topology.Algebra.Monoid
+public import FLT.Mathlib.Topology.Algebra.MulAction
+public import FLT.Mathlib.Topology.Algebra.Order.Field
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import FLT.Mathlib.Topology.Algebra.UniformRing
+public import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
+public import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+public import FLT.Mathlib.Topology.Bases
+public import FLT.Mathlib.Topology.Constructions
+public import FLT.Mathlib.Topology.HomToDiscrete
+public import FLT.Mathlib.Topology.Instances.Matrix
+public import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
+public import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
+public import FLT.Mathlib.Topology.Polish
+public import FLT.NumberField.AdeleRing
+public import FLT.NumberField.Completion.Finite
+public import FLT.NumberField.Completion.Infinite
+public import FLT.NumberField.DiscriminantBounds
+public import FLT.NumberField.HeightOneSpectrum
+public import FLT.NumberField.InfiniteAdeleRing
+public import FLT.NumberField.InfinitePlace.Extension
+public import FLT.NumberField.Padics.RestrictedProduct
+public import FLT.Patching.Algebra
+public import FLT.Patching.Module
+public import FLT.Patching.Over
+public import FLT.Patching.REqualsT
+public import FLT.Patching.System
+public import FLT.Patching.Ultraproduct
+public import FLT.Patching.Utils.AdicTopology
+public import FLT.Patching.Utils.CompactHausdorffRings
+public import FLT.Patching.Utils.Depth
+public import FLT.Patching.Utils.InverseLimit
+public import FLT.Patching.Utils.Lemmas
+public import FLT.Patching.Utils.StructureFiniteness
+public import FLT.Patching.Utils.TopologicallyFG
+public import FLT.Patching.VanishingFilter
+public import FLT.QuaternionAlgebra.NumberField
+public import FLT.TateCurve.TateCurve
