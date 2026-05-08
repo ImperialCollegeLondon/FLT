@@ -16,8 +16,8 @@ public import Mathlib.RingTheory.Flat.TorsionFree
 
 A self-contained construction of `ZHat`, the profinite completion of `ℤ`,
 defined as the inverse limit of the rings `ℤ/Nℤ` together with the natural
-reduction maps. We also define the finite adele ring `ℚHat` as
-`ẐHat ⊗_ℤ ℚ`.
+reduction maps. We also define the finite adele ring `QHat` as
+`ZHat ⊗_ℤ ℚ`.
 
 ## Main definitions
 
