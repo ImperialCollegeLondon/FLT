@@ -5,7 +5,7 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import Mathlib.Topology.Bases -- should morally go here
+public import Mathlib.Topology.Bases
 import Mathlib.Topology.Homeomorph.Lemmas
 
 /-!
