@@ -11,7 +11,7 @@ public import FLT.Data.QHat
 /-!
 # Adelic Hurwitz quaternions
 
-Base changes of the Hurwitz integers to `ℚ` and to `ẐHat`, providing a
+Base changes of the Hurwitz integers to `ℚ` and to `ZHat`, providing a
 quaternion algebra over the rationals and its profinite completion as
 free rank-4 modules over the corresponding base ring.
 
