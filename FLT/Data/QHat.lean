@@ -14,7 +14,7 @@ public import Mathlib.RingTheory.Flat.TorsionFree
 /-!
 # The profinite completion of `ℤ` and the finite adeles of `ℚ`
 
-A self-contained construction of `ẐHat`, the profinite completion of `ℤ`,
+A self-contained construction of `ZHat`, the profinite completion of `ℤ`,
 defined as the inverse limit of the rings `ℤ/Nℤ` together with the natural
 reduction maps. We also define the finite adele ring `ℚHat` as
 `ẐHat ⊗_ℤ ℚ`.
