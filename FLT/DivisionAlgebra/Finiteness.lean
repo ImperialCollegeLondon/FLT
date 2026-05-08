@@ -22,7 +22,7 @@ public import Mathlib.Topology.MetricSpace.Completion
 
 Let `D` be a finite-dimensional division algebra over a number field `K`.
 Setup and intermediate results towards the classical theorem that the
-adelic double-coset space `D^× \\ (D ⊗ 𝔸_K)^× / U` is finite for any
+adelic double-coset space `D^× \ (D ⊗ 𝔸_K)^× / U` is finite for any
 compact open subgroup `U`.
 -/
 
