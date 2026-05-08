@@ -14,7 +14,7 @@ public import Mathlib.NumberTheory.Cyclotomic.Basic
 # The cyclotomic character
 
 The cyclotomic character of the absolute Galois group of `ℚ`, with values
-in the units of `ẐHat`, together with the auxiliary lemmas needed to
+in the units of `ZHat`, together with the auxiliary lemmas needed to
 construct it.
 -/
 
