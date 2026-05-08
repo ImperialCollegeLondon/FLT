@@ -19,7 +19,7 @@ free rank-4 modules over the corresponding base ring.
 
 * `HurwitzRat`: the rational quaternions `ℚ + ℚi + ℚj + ℚk`.
 * `HurwitzHat`: the profinite Hurwitz quaternions, a free rank-4 module
-  over `ẐHat`.
+  over `ZHat`.
 -/
 
 @[expose] public section
