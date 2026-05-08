@@ -23,7 +23,7 @@ reduction maps. We also define the finite adele ring `ℚHat` as
 
 * `ZHat`: the profinite completion of `ℤ`, defined explicitly as compatible
   systems of elements of `ℤ/Nℤ`.
-* `QHat`: the finite adele ring `ℚHat = ẐHat ⊗_ℤ ℚ`.
+* `QHat`: the finite adele ring `QHat = ZHat ⊗_ℤ ℚ`.
 -/
 
 @[expose] public section
