@@ -1,8 +1,19 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import Mathlib.NumberTheory.NumberField.AdeleRing -- should be .InfiniteAdeleRing
 public import Mathlib.Topology.Algebra.Algebra.Equiv
 public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+
+/-!
+# Infinite Adele Ring
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

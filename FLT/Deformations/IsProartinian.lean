@@ -1,8 +1,23 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
+-/
 module
 
 public import FLT.Patching.Utils.AdicTopology
 public import FLT.Deformations.Lemmas
 public import Mathlib.Topology.UniformSpace.DiscreteUniformity
+
+/-!
+# Proartinian topological rings
+
+A topological ring is *proartinian* if it is linearly topologized, complete
+and Hausdorff, and every open ideal is the open kernel of a continuous
+homomorphism to a finite (Artinian) ring. We provide the basic API and
+show that complete Noetherian local rings with finite residue field are
+proartinian under their adic topology.
+-/
 
 @[expose] public section
 

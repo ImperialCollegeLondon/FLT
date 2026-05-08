@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Pietro Monticone, Ruben Van de Velde
+-/
 module
 
 public import Mathlib.RingTheory.Filtration
@@ -10,6 +15,13 @@ public import Mathlib.Data.Set.Card
 public import Mathlib.RingTheory.Localization.AtPrime.Basic
 public import Mathlib.Data.SetLike.Fintype
 public import Mathlib.RingTheory.Spectrum.Prime.Basic
+
+/-!
+# Miscellaneous lemmas for the patching folder
+
+Generic algebraic lemmas (units of products, ideals of quotient rings,
+products of submodules, etc.) used throughout the patching argument.
+-/
 
 @[expose] public section
 

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard
+-/
 module
 
 public import Mathlib.RingTheory.AdicCompletion.Basic
@@ -12,6 +17,14 @@ public import FLT.Patching.Utils.Lemmas
 public import Mathlib.RingTheory.Artinian.Ring
 public import Mathlib.Topology.Algebra.Ring.Compact
 public import Mathlib.Topology.Algebra.LinearTopology
+
+/-!
+# Local rings with the adic topology
+
+The class `IsLocalRing.IsAdicTopology R` recording that the topology on a
+local ring `R` is the adic topology associated to its maximal ideal,
+together with basic openness lemmas.
+-/
 
 @[expose] public section
 

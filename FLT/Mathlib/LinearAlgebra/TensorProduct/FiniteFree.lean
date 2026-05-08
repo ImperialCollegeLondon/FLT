@@ -1,7 +1,18 @@
+/-
+Copyright (c) 2026 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import Mathlib.LinearAlgebra.TensorProduct.Pi
 public import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+
+/-!
+# Finite Free
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

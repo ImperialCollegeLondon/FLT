@@ -1,8 +1,21 @@
+/-
+Copyright (c) 2024 Javier López-Contreras. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Javier López-Contreras, Kevin Buzzard
+-/
 module
 
 public import Mathlib.RepresentationTheory.Subrepresentation
 public import Mathlib.RepresentationTheory.Irreducible
 public import FLT.Mathlib.RepresentationTheory.Basic
+
+/-!
+# Absolutely irreducible representations
+
+The class `Representation.IsAbsolutelyIrreducible ρ`, expressing that the
+base change of `ρ` to the algebraic closure of the base field remains
+irreducible.
+-/
 
 @[expose] public section
 

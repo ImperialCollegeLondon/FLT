@@ -13,6 +13,12 @@ public import Mathlib.RingTheory.SimpleModule.IsAlgClosed
 public import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
 public import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
 
+/-!
+# Determinant
+
+Material destined for Mathlib.
+-/
+
 @[expose] public section
 
 variable (k : Type*) [Field k] {D : Type*} [Ring D] [Algebra k D]

@@ -1,8 +1,21 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Pietro Monticone
+-/
 module
 
 public import FLT.Deformations.IsProartinian
 public import FLT.Deformations.IsResidueAlgebra
 public import Mathlib.Topology.Algebra.Algebra.Equiv
+
+/-!
+# The category of local proartinian algebras
+
+We define `IsLocalProartinianAlgebra`, the typeclass for topological rings
+which are local and proartinian, and the category `ProartinianCat 𝓞` of
+local proartinian `𝓞`-algebras with a fixed residue field.
+-/
 
 @[expose] public section
 

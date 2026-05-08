@@ -1,6 +1,17 @@
+/-
+Copyright (c) 2025 Ruben Van de Velde. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Ruben Van de Velde, Kevin Buzzard, Matthew Jasper
+-/
 module
 
 public import Mathlib.Topology.Algebra.Valued.ValuationTopology
+
+/-!
+# Valuation Topology
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

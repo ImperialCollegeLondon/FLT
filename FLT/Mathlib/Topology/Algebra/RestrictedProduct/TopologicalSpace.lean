@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2025 Matthew Jasper. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Matthew Jasper, Kevin Buzzard, Bhavik Mehta, Ruben Van de Velde, Bryan Wang Peng Jun,
+Pietro Monticone
+-/
 module
 
 public import FLT.Mathlib.Order.Filter.Cofinite
@@ -7,6 +13,12 @@ public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
 public import FLT.Mathlib.Topology.Bases
 public import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import Mathlib.Topology.Instances.Matrix
+
+/-!
+# Topological Space
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

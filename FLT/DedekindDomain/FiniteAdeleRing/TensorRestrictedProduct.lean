@@ -9,6 +9,14 @@ public import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 public import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
 public import Mathlib.RingTheory.Flat.Basic
 
+/-!
+# Tensor product distributing over a restricted product
+
+For a flat `R`-module `M` and a restricted product of `R`-modules `N i`
+relative to submodules `L i`, we construct the natural `R`-linear (and
+`M`-linear) map `M ⊗_R ∏'ᵢ [N i, L i] → ∏'ᵢ [M ⊗_R N i, M ⊗_R L i]`.
+-/
+
 @[expose] public section
 
 namespace RestrictedProduct

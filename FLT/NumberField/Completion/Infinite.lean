@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Salvatore Mercuri
+-/
 module
 
 public import Mathlib.NumberTheory.NumberField.Completion.Ramification
@@ -11,13 +16,13 @@ public import FLT.Mathlib.Topology.Algebra.UniformRing
 public import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 public import FLT.NumberField.InfinitePlace.Extension
 
-@[expose] public section
-
-open scoped TensorProduct
-
 /-!
 # The completion of a number field at an infinite place
 -/
+
+@[expose] public section
+
+open scoped TensorProduct
 
 noncomputable section
 

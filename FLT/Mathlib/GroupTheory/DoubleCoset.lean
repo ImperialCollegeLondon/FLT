@@ -1,9 +1,20 @@
+/-
+Copyright (c) 2025 William Coram. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: William Coram, Kevin Buzzard
+-/
 module
 
 public import Mathlib.GroupTheory.DoubleCoset
 public import Mathlib.Topology.Algebra.Group.Pointwise
 public import Mathlib.Algebra.Group.Subgroup.Actions
 public import FLT.Mathlib.Topology.Algebra.Group.Quotient
+
+/-!
+# Double Coset
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

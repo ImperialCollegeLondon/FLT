@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
+-/
 module
 
 public import FLT.Patching.Algebra
@@ -5,6 +10,15 @@ public import FLT.Patching.Over
 public import FLT.Patching.Module
 public import FLT.Patching.Utils.Depth
 public import FLT.Deformations.Lemmas
+
+/-!
+# Compatibility data for the patching system
+
+The class `PatchingAlgebra.smulData` packaging the compatibility data
+between the local rings `R i`, the modules `M i`, and a system of open
+ideals: enough to make the limit modules into modules over the patching
+algebra.
+-/
 
 @[expose] public section
 

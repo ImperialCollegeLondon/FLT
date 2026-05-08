@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2024 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Salvatore Mercuri, Ruben Van de Velde, Matthew Jasper, Bryan Wang Peng Jun,
+Yaël Dillies
+-/
 module
 
 public import FLT.DedekindDomain.FiniteAdeleRing.BaseChange

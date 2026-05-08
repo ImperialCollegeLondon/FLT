@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Michael Rothgang
+-/
 module
 
 public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
@@ -6,6 +11,13 @@ public import Mathlib.RingTheory.Regular.RegularSequence
 public import Mathlib.RingTheory.Spectrum.Prime.Topology
 public import Mathlib.RingTheory.Support
 public import Mathlib.RingTheory.TensorProduct.Free
+
+/-!
+# Module depth
+
+The depth of a module: the supremum of the lengths of regular sequences,
+together with basic API.
+-/
 
 @[expose] public section
 

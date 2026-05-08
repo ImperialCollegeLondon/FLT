@@ -7,6 +7,12 @@ module
 
 public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 
+/-!
+# Defs
+
+Material destined for Mathlib.
+-/
+
 @[expose] public section
 
 namespace Matrix.GeneralLinearGroup

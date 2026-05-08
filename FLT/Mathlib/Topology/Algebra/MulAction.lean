@@ -1,6 +1,17 @@
+/-
+Copyright (c) 2025 Matthew Jasper. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Matthew Jasper, Kevin Buzzard
+-/
 module
 
 public import Mathlib.Topology.Algebra.MulAction
+
+/-!
+# Mul Action
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

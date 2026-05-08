@@ -1,6 +1,19 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard
+-/
 module
 
 public import FLT.Patching.System
+
+/-!
+# `R = T` from a successful patching argument
+
+The final step of the patching argument: under the relevant hypotheses,
+the kernel of the surjection `R → T` is contained in the nilradical, so
+the map `R → T` is an isomorphism after passing to reduced quotients.
+-/
 
 @[expose] public section
 

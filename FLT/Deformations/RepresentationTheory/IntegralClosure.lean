@@ -1,9 +1,22 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard
+-/
 module
 
 public import FLT.Deformations.Lemmas
 public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
 public import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
 public import Mathlib.RingTheory.Invariant.Defs
+
+/-!
+# The integral closure as a type
+
+We define `IntegralClosure R A` as a type synonym for the integral closure
+of `R` in `A`, equipped with the obvious commutative-ring and
+algebra structures.
+-/
 
 @[expose] public section
 

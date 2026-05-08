@@ -1,12 +1,12 @@
--- All of this is in
--- https://github.com/leanprover-community/mathlib4/pull/26377/
-
 /-
 Copyright (c) 2025 Jujian Zhang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jujian Zhang, Yunzhou Xie
 -/
 module
+
+-- All of this is in
+-- https://github.com/leanprover-community/mathlib4/pull/26377/
 
 public import Mathlib.Algebra.Central.Basic
 public import Mathlib.LinearAlgebra.Basis.VectorSpace

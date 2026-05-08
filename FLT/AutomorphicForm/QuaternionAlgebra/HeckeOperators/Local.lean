@@ -11,6 +11,14 @@ public import Mathlib.Algebra.Lie.OfAssociative
 public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 public import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 
+/-!
+# Local computations for Hecke operators
+
+Local lemmas at a finite place `v` for the Hecke operator `T_v` acting on
+quaternionic automorphic forms: explicit double-coset decompositions of
+`U₁(v) · diag(πᵥ, 1) · U₁(v)` inside `GL₂(F_v)`.
+-/
+
 @[expose] public section
 
 open NumberField IsQuaternionAlgebra.NumberField IsDedekindDomain

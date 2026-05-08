@@ -1,7 +1,18 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import Mathlib.Topology.Bases -- should morally go here
 public import Mathlib.Topology.Homeomorph.Lemmas -- but I need this (which imports it)
+
+/-!
+# Bases
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

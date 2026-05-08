@@ -1,8 +1,22 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Yaël Dillies
+-/
 module
 
 public import FLT.Patching.Utils.AdicTopology
 public import FLT.Patching.Ultraproduct
 public import FLT.Deformations.Lemmas
+
+/-!
+# The patching algebra
+
+Following the Taylor–Wiles–Kisin patching method, we construct the
+*patching algebra* attached to a family of local rings `R i` of uniformly
+bounded rank: an ultraproduct (along a non-principal ultrafilter `F`) of
+the truncations `R i / m_i^k`.
+-/
 
 @[expose] public section
 

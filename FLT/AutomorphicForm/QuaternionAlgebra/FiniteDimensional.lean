@@ -1,7 +1,25 @@
+/-
+Copyright (c) 2024 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.AutomorphicForm.QuaternionAlgebra.Defs
 public import FLT.DivisionAlgebra.Finiteness
+
+/-!
+# Finite-dimensionality of spaces of weight-2 automorphic forms
+
+We prove that the space of weight-2 automorphic forms on a totally definite
+quaternion algebra over a totally real number field, of fixed level `U`,
+is a finitely generated `R`-module.
+
+## Main results
+
+* `WeightTwoAutomorphicForm.finiteDimensional`: the space of weight-2 forms
+  is module-finite over the coefficient ring.
+-/
 
 @[expose] public section
 

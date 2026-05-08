@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
+-/
 module
 
 public import FLT.Deformations.RepresentationTheory.Frobenius
@@ -7,6 +12,14 @@ public import Mathlib.Analysis.Normed.Unbundled.SpectralNorm
 public import Mathlib.FieldTheory.AbsoluteGaloisGroup
 public import Mathlib.FieldTheory.Galois.Infinite
 public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+
+/-!
+# Functoriality of the absolute Galois group
+
+For a field extension `K → L`, we define the induced map between absolute
+Galois groups `Γ L → Γ K` and prove its continuity, together with finite-index
+results for fixing subgroups.
+-/
 
 @[expose] public section
 

@@ -10,6 +10,14 @@ public import Mathlib.Algebra.Group.Pi.Units
 public import Mathlib.MeasureTheory.Group.Pointwise
 public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 
+/-!
+# The ring Haar character
+
+For a topological ring `R`, the unit Haar character `ringHaarChar : Rˣ →ₜ* ℝ≥0`
+sending a unit `u` to the scaling factor of left multiplication by `u` on a
+fixed Haar measure on the additive group of `R`.
+-/
+
 @[expose] public section
 
 open scoped NNReal

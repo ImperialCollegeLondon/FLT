@@ -1,6 +1,17 @@
+/-
+Copyright (c) 2025 Javier López-Contreras. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Javier López-Contreras, Kevin Buzzard
+-/
 module
 
 public import Mathlib.RingTheory.LocalRing.RingHom.Basic
+
+/-!
+# Defs
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

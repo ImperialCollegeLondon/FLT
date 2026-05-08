@@ -1,8 +1,20 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.DedekindDomain.IntegralClosure
 public import FLT.NumberField.Padics.RestrictedProduct
 public import Mathlib.NumberTheory.Padics.HeightOneSpectrum
+
+/-!
+# The height-one spectrum of a number field
+
+Basic countability instances for the height-one spectrum of `𝓞_K`, the ring
+of integers of a number field `K`.
+-/
 
 @[expose] public section
 

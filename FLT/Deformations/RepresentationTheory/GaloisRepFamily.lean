@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.Deformations.RepresentationTheory.GaloisRep
@@ -5,6 +10,14 @@ public import Mathlib.Algebra.Lie.OfAssociative
 public import Mathlib.NumberTheory.Padics.Complex
 public import Mathlib.RingTheory.Henselian
 public import Mathlib.RingTheory.PicardGroup
+
+/-!
+# Compatible families of Galois representations
+
+We define `GaloisRepFamily K E d`: a collection of `d`-dimensional
+`E_λ`-adic Galois representations indexed by the finite places `λ` of a
+number field `E`, together with the notion of compatibility.
+-/
 
 @[expose] public section
 

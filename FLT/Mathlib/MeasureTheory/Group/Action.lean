@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2024 Yaël Dillies. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Yaël Dillies, Kevin Buzzard, Ruben Van de Velde, David Ledvinka
+-/
 module
 
 public import Mathlib.MeasureTheory.Group.Action

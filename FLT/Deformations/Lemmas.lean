@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
+-/
 module
 
 public import Mathlib.Algebra.CharP.IntermediateField
@@ -8,6 +13,14 @@ public import Mathlib.Topology.Algebra.LinearTopology
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
 public import Mathlib.Topology.Instances.Matrix
 public import Mathlib.Topology.UniformSpace.DiscreteUniformity
+
+/-!
+# Miscellaneous lemmas for the Deformations folder
+
+A collection of small auxiliary lemmas used in the deformation-theory
+files: existence of open maximal ideals in linearly topologized rings,
+continuous group-homomorphism / matrix-coefficient lifts, etc.
+-/
 
 @[expose] public section
 

@@ -1,9 +1,22 @@
+/-
+Copyright (c) 2025 Javier López-Contreras. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Javier López-Contreras, Kevin Buzzard
+-/
 module
 
 public import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 public import Mathlib.Logic.Function.Defs
 public import FLT.Mathlib.RingTheory.LocalRing.Defs
 public import FLT.Deformations.Lemmas
+
+/-!
+# Residue algebras
+
+The typeclass `IsResidueAlgebra 𝓞 A` expressing that an `𝓞`-algebra `A`
+has the same residue field as `𝓞`, that is, the induced map on residue
+fields is bijective.
+-/
 
 @[expose] public section
 

@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, James Sundstrom, Ruben Van de Velde, Anatole Dedecker, Bryan Wang Peng Jun,
+David Renshaw
+-/
 module
 
 public import FLT.Mathlib.MeasureTheory.Group.Measure
@@ -5,6 +11,14 @@ public import FLT.Mathlib.MeasureTheory.Measure.Regular
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
+
+/-!
+# The Haar character under continuous group equivalences
+
+We compute the Haar character `mulEquivHaarChar` of a continuous group
+equivalence and record its naturality under continuous additive/multiplicative
+isomorphisms and open embeddings.
+-/
 
 @[expose] public section
 

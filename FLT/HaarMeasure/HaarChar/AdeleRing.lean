@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Bryan Wang Peng Jun, Salvatore Mercuri, Pietro Monticone, Ruben Van de Velde
+-/
 module
 
 public import FLT.HaarMeasure.HaarChar.Ring
@@ -10,7 +15,6 @@ public import FLT.HaarMeasure.HaarChar.RealComplex
 public import FLT.HaarMeasure.HaarChar.Padic
 public import FLT.HaarMeasure.HaarChar.FiniteDimensional
 public import Mathlib.NumberTheory.NumberField.ProductFormula
-public import FLT.HaarMeasure.HaarChar.FiniteDimensional
 public import FLT.HaarMeasure.HaarChar.FiniteAdeleRing
 
 /-!

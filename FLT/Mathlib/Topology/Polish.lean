@@ -1,9 +1,20 @@
+/-
+Copyright (c) 2025 Thomas Browning. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Thomas Browning, Kevin Buzzard
+-/
 module
 
 public import Mathlib.Topology.Compactness.Paracompact
 public import Mathlib.Topology.MetricSpace.Completion
 public import Mathlib.Topology.MetricSpace.Polish
 public import Mathlib.Topology.Metrizable.Urysohn
+
+/-!
+# Polish
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

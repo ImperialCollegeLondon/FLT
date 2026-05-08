@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard
+-/
 module
 
 public import FLT.Patching.Utils.TopologicallyFG
@@ -5,6 +10,13 @@ public import Mathlib.Algebra.Ring.Ext
 public import Mathlib.Topology.Algebra.Module.Equiv
 public import Mathlib.Algebra.Ring.TransferInstance
 public import Mathlib.Algebra.Algebra.TransferInstance
+
+/-!
+# Finiteness of algebraic structures on finite types
+
+Instances asserting that the type of monoid / group / ring / … structures
+on a fixed finite type is itself finite.
+-/
 
 @[expose] public section
 

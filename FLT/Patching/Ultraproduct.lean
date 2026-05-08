@@ -1,7 +1,20 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard
+-/
 module
 
 public import FLT.Patching.Utils.Lemmas
 public import FLT.Patching.Utils.StructureFiniteness
+
+/-!
+# Ultraproducts of submodules
+
+For a filter `F` on the index set, we define `eventuallyProd F N` as the
+submodule of `Πᵢ M i` consisting of elements eventually in the submodule
+`N i`. Basic monotonicity and lattice properties.
+-/
 
 @[expose] public section
 

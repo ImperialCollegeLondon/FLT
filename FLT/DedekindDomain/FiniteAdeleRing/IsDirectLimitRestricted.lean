@@ -9,6 +9,14 @@ public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
 public import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 public import FLT.Mathlib.Algebra.IsDirectLimit
 
+/-!
+# The finite adele ring as a direct limit
+
+We show that the restricted product defining the finite adele ring of a
+Dedekind domain is the direct limit of its `S`-finite-adele subrings, where
+`S` ranges over finite sets of finite places.
+-/
+
 @[expose] public section
 
 namespace RestrictedProduct

@@ -1,8 +1,21 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang
+-/
 module
 
 public import FLT.Deformations.LiftFunctor
 public import FLT.Deformations.RepresentationTheory.Irreducible
 public import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
+
+/-!
+# Representability of deformation functors
+
+Statements (mostly placeholders) towards the representability of the
+deformation functor of an absolutely irreducible mod-`l` Galois representation,
+following the framework of de Smit and Lenstra.
+-/
 
 @[expose] public section
 

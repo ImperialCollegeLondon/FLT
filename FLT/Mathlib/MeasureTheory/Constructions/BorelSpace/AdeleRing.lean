@@ -1,7 +1,18 @@
+/-
+Copyright (c) 2025 Bryan Wang Peng Jun. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bryan Wang Peng Jun
+-/
 module
 
 public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
 public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
+
+/-!
+# Adele Ring
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2024 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Salvatore Mercuri, Pietro Monticone
+-/
 module
 
 public import Mathlib.Topology.Algebra.Module.Equiv
@@ -8,6 +13,12 @@ public import Mathlib.LinearAlgebra.Matrix.Defs
 public import Mathlib.LinearAlgebra.Matrix.ToLin
 public import FLT.Mathlib.LinearAlgebra.Pi
 public import FLT.Mathlib.LinearAlgebra.Determinant
+
+/-!
+# Equiv
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 
