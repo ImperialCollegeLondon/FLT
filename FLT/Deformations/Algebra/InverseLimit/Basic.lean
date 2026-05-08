@@ -6,7 +6,7 @@ Authors: Javier López-Contreras
 module
 
 public import Mathlib.Algebra.Module.LinearMap.Defs
-public import Mathlib.Algebra.GroupWithZero.Units.Lemmas
+import Mathlib.Algebra.GroupWithZero.Units.Lemmas
 
 /-!
 # Inverse limit of algebraic structures

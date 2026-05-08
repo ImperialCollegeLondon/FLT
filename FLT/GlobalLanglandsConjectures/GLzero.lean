@@ -5,7 +5,6 @@ Authors: Kevin Buzzard, Jonas Bayer
 -/
 module
 
-public import Mathlib.Data.Int.Star
 public import FLT.GlobalLanglandsConjectures.GLnDefs
 
 /-!

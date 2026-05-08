@@ -5,7 +5,9 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import Mathlib.Analysis.Normed.Ring.Lemmas
+public import Mathlib.Algebra.Module.Defs
+public import Mathlib.Algebra.Ring.Action.Basic
+import Mathlib.Analysis.Normed.Ring.Lemmas
 
 /-!
 # Fixed points of actions

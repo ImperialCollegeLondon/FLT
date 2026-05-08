@@ -6,10 +6,19 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 module
 
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
-public import Mathlib.NumberTheory.Padics.RingHoms
-public import Mathlib.RingTheory.DedekindDomain.AdicValuation
-public import Mathlib.RingTheory.Int.Basic
-public import Mathlib.Topology.Algebra.Algebra.Equiv
+public import Mathlib.NumberTheory.Padics.PadicIntegers
+import Mathlib.CategoryTheory.Category.Init
+import Mathlib.Combinatorics.Matroid.Init
+import Mathlib.Data.Nat.Totient
+import Mathlib.Data.Sym.Sym2.Init
+import Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.NumberTheory.Padics.RingHoms
+import Mathlib.Tactic.NormNum.GCD
+import Mathlib.Tactic.Positivity.Finset
+import Mathlib.RingTheory.DedekindDomain.Basic
+
+
+
 
 /-!
 # `ℚ` inside the restricted product of the `ℚ_p`

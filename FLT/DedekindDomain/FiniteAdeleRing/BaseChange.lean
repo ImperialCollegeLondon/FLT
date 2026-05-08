@@ -7,11 +7,16 @@ module
 
 public import FLT.DedekindDomain.Completion.BaseChange
 public import FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
-public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
 public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
 public import FLT.Mathlib.LinearAlgebra.Pi
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import Mathlib.RingTheory.Flat.TorsionFree
+import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.Algebra.Order.Algebra
+import Mathlib.RingTheory.Flat.TorsionFree
+import Mathlib.RingTheory.SimpleRing.Principal
 
 /-!
 

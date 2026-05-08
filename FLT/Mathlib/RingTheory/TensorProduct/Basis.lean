@@ -5,15 +5,16 @@ Authors: Matthew Jasper
 -/
 module
 
-public import Mathlib.LinearAlgebra.Basis.Basic
 public import Mathlib.LinearAlgebra.TensorProduct.Pi
-public import FLT.Mathlib.Algebra.Algebra.Tower
-public import Mathlib.RingTheory.TensorProduct.Basic
-public import Mathlib.RingTheory.Finiteness.Defs
-public import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
-public import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
-public import Mathlib.RingTheory.FiniteType
 public import FLT.Hacks.RightActionInstances
+public import Mathlib.LinearAlgebra.Dimension.Finrank
+import Mathlib.CategoryTheory.Category.Init
+import Mathlib.Data.Nat.Totient
+import Mathlib.Data.Sym.Sym2.Init
+import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
+import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
+import Mathlib.Tactic.NormNum.GCD
+import Mathlib.Tactic.Positivity.Finset
 /-!
 
 # API for base change of free modules

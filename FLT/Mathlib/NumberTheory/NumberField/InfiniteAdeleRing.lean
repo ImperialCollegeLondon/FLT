@@ -5,9 +5,8 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import Mathlib.NumberTheory.NumberField.AdeleRing -- should be .InfiniteAdeleRing
-public import Mathlib.Topology.Algebra.Algebra.Equiv
-public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
+public import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
 
 /-!
 # Infinite Adele Ring

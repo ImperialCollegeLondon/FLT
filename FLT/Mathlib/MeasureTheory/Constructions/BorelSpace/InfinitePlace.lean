@@ -5,7 +5,8 @@ Authors: Bryan Wang Peng Jun, Kevin Buzzard
 -/
 module
 
-public import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
+public import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
 
 /-!
 # Infinite Place

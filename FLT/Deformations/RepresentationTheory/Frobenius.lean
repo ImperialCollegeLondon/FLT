@@ -5,12 +5,9 @@ Authors: Andrew Yang
 -/
 module
 
-public import Mathlib.FieldTheory.Finite.Basic
-public import Mathlib.RingTheory.Invariant.Profinite
 public import Mathlib.RingTheory.Frobenius
-public import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
-public import Mathlib.RingTheory.Unramified.Locus
 public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+import Mathlib.RingTheory.Invariant.Profinite
 
 /-!
 # Frobenius elements

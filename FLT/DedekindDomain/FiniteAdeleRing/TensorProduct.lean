@@ -5,11 +5,11 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
-public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-public import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
 public import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
 public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import Mathlib.RingTheory.SimpleRing.Principal
+import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
+import Mathlib.Logic.Equiv.PartialEquiv
 
 /-!
 # Tensor product compatibilities for the finite adele ring

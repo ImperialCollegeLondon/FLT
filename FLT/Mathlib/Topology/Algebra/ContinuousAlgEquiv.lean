@@ -6,8 +6,6 @@ Authors: Salvatore Mercuri
 module
 
 public import Mathlib.Topology.Algebra.Algebra.Equiv
-public import Mathlib.Topology.Algebra.Algebra
-public import Mathlib.Topology.Algebra.Module.Equiv
 public import FLT.Mathlib.Algebra.Algebra.Tower
 
 /-!

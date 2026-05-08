@@ -8,6 +8,10 @@ module
 public import FLT.Deformations.IsProartinian
 public import FLT.Deformations.IsResidueAlgebra
 public import Mathlib.Topology.Algebra.Algebra.Equiv
+public import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
+public import Mathlib.RingTheory.Valuation.ValuationRing
+public import FLT.Deformations.Lemmas
+import Mathlib.RingTheory.FiniteLength
 
 /-!
 # The category of local proartinian algebras

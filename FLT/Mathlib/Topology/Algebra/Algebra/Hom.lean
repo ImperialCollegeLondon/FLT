@@ -5,9 +5,12 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Topology.Algebra.Algebra.Equiv
 public import FLT.Mathlib.Algebra.Algebra.Hom
-public import FLT.Mathlib.Algebra.Algebra.Tower
+public meta import Mathlib.Tactic.Basic
+public meta import Mathlib.Tactic.ToAdditive
+public import Mathlib.Topology.Constructions.SumProd
+import Mathlib.Algebra.Order.AbsoluteValue.Basic
+import Mathlib.Data.Rat.Floor
 
 /-!
 # Hom

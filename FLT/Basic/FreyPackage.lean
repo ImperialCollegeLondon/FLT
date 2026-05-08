@@ -5,16 +5,16 @@ Authors: Kevin Buzzard, Ruben Van de Velde, Pietro Monticone
 -/
 module
 
-public import Mathlib.Algebra.Polynomial.Bivariate
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Weierstrass
-public import Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
-public import Mathlib.Data.PNat.Basic
-public import Mathlib.NumberTheory.FLT.Four
-public import Mathlib.NumberTheory.FLT.Three
-public import Mathlib.RepresentationTheory.Basic
-public import Mathlib.RingTheory.SimpleModule.Basic
-public import Mathlib.Tactic.ModCases
-public import FLT.EllipticCurve.Torsion
+public import Mathlib.Algebra.Field.ZMod
+public import Mathlib.Analysis.Normed.Field.Lemmas
+public import Mathlib.Data.Matrix.Mul
+public import Mathlib.NumberTheory.FLT.Basic
+public import Mathlib.NumberTheory.Padics.PadicVal.Basic
+import Mathlib.Algebra.Lie.OfAssociative
+import Mathlib.NumberTheory.FLT.Four
+import Mathlib.NumberTheory.FLT.Three
+import Mathlib.Tactic.ModCases
 
 /-!
 

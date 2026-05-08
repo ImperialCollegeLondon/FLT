@@ -5,7 +5,8 @@ Authors: Yaël Dillies, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Topology.Algebra.Monoid
+public import Mathlib.Topology.Algebra.MulAction
+import Mathlib.Topology.Algebra.Monoid
 
 /-!
 # Monoid

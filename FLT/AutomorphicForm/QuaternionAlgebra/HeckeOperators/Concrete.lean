@@ -8,12 +8,8 @@ module
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local -- abstract Hecke ops
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract -- abstract Hecke ops
 public import FLT.AutomorphicForm.QuaternionAlgebra.Defs -- definitions of automorphic forms
-public import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
 public import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
-public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits -- for (π 0; 0 1)
-public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-public import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 
 /-!
 # Concrete Hecke operators on quaternionic automorphic forms

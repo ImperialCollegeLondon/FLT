@@ -5,14 +5,13 @@ Authors: Kevin Buzzard, Salvatore Mercuri, Pietro Monticone
 -/
 module
 
-public import Mathlib.Topology.Algebra.Module.Equiv
-public import Mathlib.Topology.Algebra.ContinuousMonoidHom
-public import Mathlib.LinearAlgebra.Basis.Defs
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
-public import Mathlib.LinearAlgebra.Matrix.Defs
-public import Mathlib.LinearAlgebra.Matrix.ToLin
 public import FLT.Mathlib.LinearAlgebra.Pi
-public import FLT.Mathlib.LinearAlgebra.Determinant
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
+import Mathlib.LinearAlgebra.Determinant
+import Mathlib.Logic.Equiv.PartialEquiv
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # Equiv

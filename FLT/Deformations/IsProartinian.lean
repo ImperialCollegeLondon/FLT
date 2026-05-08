@@ -6,8 +6,10 @@ Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
 module
 
 public import FLT.Patching.Utils.AdicTopology
-public import FLT.Deformations.Lemmas
-public import Mathlib.Topology.UniformSpace.DiscreteUniformity
+import FLT.Deformations.Lemmas
+import Mathlib.CategoryTheory.Category.Init
+import Mathlib.RingTheory.Artinian.Ring
+import Mathlib.Topology.Connected.Separation
 
 /-!
 # Proartinian topological rings

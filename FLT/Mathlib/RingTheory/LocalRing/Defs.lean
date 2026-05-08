@@ -5,7 +5,9 @@ Authors: Javier López-Contreras, Kevin Buzzard
 -/
 module
 
-public import Mathlib.RingTheory.LocalRing.RingHom.Basic
+public import Mathlib.RingTheory.Ideal.Quotient.Operations
+public import Mathlib.RingTheory.LocalRing.Defs
+import Mathlib.RingTheory.LocalRing.RingHom.Basic
 
 /-!
 # Defs

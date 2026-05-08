@@ -5,7 +5,6 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 -/
 module
 
-public import Mathlib.GroupTheory.QuotientGroup.Defs
 public import Mathlib.Topology.Algebra.Group.Quotient
 public import Mathlib.Topology.Algebra.ContinuousMonoidHom
 

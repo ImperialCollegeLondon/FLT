@@ -5,16 +5,19 @@ Authors: Andrew Yang, Kevin Buzzard, Pietro Monticone, Ruben Van de Velde
 -/
 module
 
-public import Mathlib.RingTheory.Filtration
-public import Mathlib.Topology.Algebra.Module.Compact
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
-public import Mathlib.Topology.Algebra.OpenSubgroup
 public import Mathlib.Topology.Algebra.Ring.Ideal
-public import Mathlib.Topology.Separation.Profinite
-public import Mathlib.Data.Set.Card
-public import Mathlib.RingTheory.Localization.AtPrime.Basic
-public import Mathlib.Data.SetLike.Fintype
-public import Mathlib.RingTheory.Spectrum.Prime.Basic
+public import Mathlib.RingTheory.Ideal.MinimalPrime.Basic
+public import Mathlib.RingTheory.Jacobson.Ideal
+public import Mathlib.RingTheory.LocalRing.MaximalIdeal.Defs
+public import Mathlib.RingTheory.Noetherian.Defs
+import Mathlib.Data.Set.Card
+import Mathlib.Data.SetLike.Fintype
+import Mathlib.RingTheory.Filtration
+import Mathlib.RingTheory.Localization.AtPrime.Basic
+import Mathlib.Topology.Algebra.Module.Compact
+import Mathlib.Topology.Algebra.OpenSubgroup
+import Mathlib.Topology.Separation.Profinite
 
 /-!
 # Miscellaneous lemmas for the patching folder

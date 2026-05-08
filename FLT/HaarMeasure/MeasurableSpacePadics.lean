@@ -7,7 +7,7 @@ module
 
 public import Mathlib.MeasureTheory.Measure.Haar.Unique
 public import Mathlib.NumberTheory.Padics.ProperSpace
-public import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
+import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 
 /-!
 # Measurability and measures on the p-adics

@@ -5,7 +5,12 @@ Authors: Kevin Buzzard, Ruben Van de Velde, Pietro Monticone
 -/
 module
 
-public import FLT.GaloisRepresentation.HardlyRamified.Frey
+public import FLT.Basic.FreyPackage
+public import FLT.EllipticCurve.Torsion
+import FLT.GaloisRepresentation.HardlyRamified.Frey
+import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
+import Mathlib.Data.Nat.Factorial.DoubleFactorial
+import Mathlib.NumberTheory.ArithmeticFunction.Misc
 /-!
 
 # Preliminary reductions of FLT

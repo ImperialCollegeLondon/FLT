@@ -5,12 +5,9 @@ Authors: Madison Crim
 -/
 module
 
-public import Mathlib.LinearAlgebra.DirectSum.Finsupp
-public import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
 public import Mathlib.Algebra.Module.FinitePresentation
-public import Mathlib.Algebra.FiveLemma
 public import Mathlib.LinearAlgebra.TensorProduct.Pi
-public import Mathlib.Algebra.Module.PUnit
+import Mathlib.Algebra.FiveLemma
 /-!
 
 # Tensor product commutes with direct product when tensoring with a finite free module

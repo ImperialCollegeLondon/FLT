@@ -5,7 +5,8 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 -/
 module
 
-public import Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
+public import Mathlib.RingTheory.LocalRing.MaximalIdeal.Defs
+import Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 
 /-!
 # Basic

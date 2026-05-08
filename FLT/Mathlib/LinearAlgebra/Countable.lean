@@ -5,9 +5,9 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import Mathlib.LinearAlgebra.Countable
 public import Mathlib.NumberTheory.NumberField.Basic
-public import Mathlib.Data.Rat.Encodable
+import Mathlib.Data.Rat.Encodable
+import Mathlib.LinearAlgebra.Countable
 
 /-!
 # Countable

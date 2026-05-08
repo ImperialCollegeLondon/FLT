@@ -5,9 +5,9 @@ Authors: Yaël Dillies, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Analysis.Normed.Field.WithAbs
-public import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
-public import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
+import Mathlib.Combinatorics.Matroid.Init
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # TODO

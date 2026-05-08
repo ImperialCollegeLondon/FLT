@@ -5,9 +5,16 @@ Authors: Bryan Wang Peng Jun
 -/
 module
 
-public import Mathlib.Algebra.Central.TensorProduct
-public import Mathlib.Algebra.Algebra.Subalgebra.Centralizer
-public import Mathlib.LinearAlgebra.TensorProduct.Subalgebra
+public import Mathlib.Algebra.Central.Defs
+public import Mathlib.RingTheory.TensorProduct.Maps
+import Mathlib.Algebra.Algebra.Subalgebra.Centralizer
+import Mathlib.Algebra.Central.Basic
+import Mathlib.Algebra.EuclideanDomain.Field
+import Mathlib.Data.Rat.Cast.Order
+import Mathlib.LinearAlgebra.Basis.VectorSpace
+import Mathlib.Tactic.NormNum.Abs
+import Mathlib.Tactic.NormNum.DivMod
+import Mathlib.Tactic.NormNum.OfScientific
 
 /-!
 # Tensor Product

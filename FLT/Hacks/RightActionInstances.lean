@@ -5,10 +5,18 @@ Authors: Kevin Buzzard, Pietro Monticone
 -/
 module
 
-public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-public import Mathlib.GroupTheory.MonoidLocalization.Basic
-public import Mathlib.RingTheory.TensorProduct.Finite
 public import Mathlib.RingTheory.TensorProduct.Free
+public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.RingTheory.TensorProduct.Maps
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+import Mathlib.CategoryTheory.Category.Init
+import Mathlib.Data.Nat.Totient
+import Mathlib.Data.Sym.Sym2.Init
+import Mathlib.Logic.Equiv.PartialEquiv
+import Mathlib.RingTheory.TensorProduct.Finite
+import Mathlib.Tactic.NormNum.GCD
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # Right-action instances on tensor products

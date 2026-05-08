@@ -8,8 +8,6 @@ module
 public import FLT.Deformations.Categories
 public import FLT.Deformations.Subfunctor
 public import FLT.Deformations.RepresentationTheory.GaloisRep
-public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
-public import Mathlib.RepresentationTheory.Basic
 public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
 
 /-!

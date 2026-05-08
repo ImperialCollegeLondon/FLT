@@ -5,9 +5,10 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import FLT.DedekindDomain.IntegralClosure
-public import FLT.NumberField.Padics.RestrictedProduct
-public import Mathlib.NumberTheory.Padics.HeightOneSpectrum
+public import Mathlib.NumberTheory.NumberField.Basic
+public import Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
+import FLT.DedekindDomain.IntegralClosure
+import Mathlib.NumberTheory.Padics.HeightOneSpectrum
 
 /-!
 # The height-one spectrum of a number field

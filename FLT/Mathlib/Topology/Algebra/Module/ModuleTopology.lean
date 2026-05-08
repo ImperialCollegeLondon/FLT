@@ -8,15 +8,16 @@ module
 
 public import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
 public import FLT.Mathlib.Algebra.Algebra.Tower
-public import FLT.Mathlib.Algebra.Algebra.Hom
 public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.CategoryTheory.Types.Basic
 public import Mathlib.LinearAlgebra.FreeModule.PID
-public import Mathlib.RingTheory.Henselian
-public import Mathlib.RingTheory.PicardGroup
-public import Mathlib.RingTheory.SimpleRing.Principal
 public import Mathlib.Topology.Algebra.Algebra.Equiv
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
-
+public import Mathlib.LinearAlgebra.Dimension.Free
+import Mathlib.LinearAlgebra.FreeModule.PID
+import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.PicardGroup
+import Mathlib.RingTheory.SimpleRing.Principal
 /-!
 # Module Topology
 

@@ -5,10 +5,16 @@ Authors: Matthew Jasper
 -/
 module
 
-public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-public import FLT.Mathlib.Topology.Algebra.MulAction
 public import FLT.Mathlib.Algebra.Module.Submodule.Basic
+public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+import FLT.Mathlib.Topology.Algebra.MulAction
+import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import Mathlib.CategoryTheory.Category.Init
+import Mathlib.Data.Nat.Totient
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 

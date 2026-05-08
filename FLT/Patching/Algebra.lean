@@ -8,6 +8,11 @@ module
 public import FLT.Patching.Utils.AdicTopology
 public import FLT.Patching.Ultraproduct
 public import FLT.Deformations.Lemmas
+public import Mathlib.CategoryTheory.Types.Basic
+public import Mathlib.RingTheory.Filtration
+import FLT.Patching.Utils.InverseLimit
+import Mathlib.Topology.Algebra.Ring.Compact
+import Mathlib.Topology.Connected.Separation
 
 /-!
 # The patching algebra

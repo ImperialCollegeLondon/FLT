@@ -5,12 +5,7 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import Mathlib.Algebra.Module.Torsion.Free
-public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Basic
-public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Formula
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
-public import Mathlib.FieldTheory.IsSepClosed
-public import Mathlib.RepresentationTheory.Basic
 public import Mathlib.Topology.Instances.ZMod
 public import FLT.Deformations.RepresentationTheory.GaloisRep
 

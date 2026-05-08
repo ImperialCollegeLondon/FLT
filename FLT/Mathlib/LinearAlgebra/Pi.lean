@@ -5,7 +5,6 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Algebra.Module.Pi
 public import Mathlib.Algebra.Module.Equiv.Defs
 public import Mathlib.Topology.Algebra.RestrictedProduct.Basic
 

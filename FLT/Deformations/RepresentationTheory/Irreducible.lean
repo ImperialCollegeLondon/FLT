@@ -5,7 +5,6 @@ Authors: Javier López-Contreras, Kevin Buzzard
 -/
 module
 
-public import Mathlib.RepresentationTheory.Subrepresentation
 public import Mathlib.RepresentationTheory.Irreducible
 public import FLT.Mathlib.RepresentationTheory.Basic
 

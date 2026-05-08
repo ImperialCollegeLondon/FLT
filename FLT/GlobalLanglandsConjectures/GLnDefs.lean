@@ -7,11 +7,9 @@ module
 
 public import Mathlib.Algebra.Lie.BaseChange
 public import Mathlib.Algebra.Lie.UniversalEnveloping
-public import Mathlib.Analysis.Complex.Basic
 public import Mathlib.Analysis.Matrix.Normed
 public import Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation
 public import Mathlib.Geometry.Manifold.Instances.UnitsOfNormedAlgebra
-public import Mathlib.LinearAlgebra.UnitaryGroup
 public import Mathlib.RepresentationTheory.FDRep
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import Mathlib.Topology.LocallyConstant.Basic

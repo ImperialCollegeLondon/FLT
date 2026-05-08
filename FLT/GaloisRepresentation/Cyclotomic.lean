@@ -6,9 +6,8 @@ Authors: Kevin Buzzard
 module
 
 public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
-public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 public import FLT.Data.QHat
-public import Mathlib.NumberTheory.Cyclotomic.Basic
+import Mathlib.NumberTheory.Cyclotomic.Basic
 
 /-!
 # The cyclotomic character

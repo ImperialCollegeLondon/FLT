@@ -5,12 +5,13 @@ Authors: Bhavik Mehta
 -/
 module
 
-public import Mathlib.Analysis.SpecialFunctions.Stirling
-public import Mathlib.Analysis.Complex.ExponentialBounds
-public import Mathlib.Analysis.Real.Pi.Bounds
-public import Mathlib.Data.Real.StarOrdered
-public import Mathlib.Order.Monotone.Union
-public import Mathlib.Tactic.NormNum.NatFactorial
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Analysis.Complex.ExponentialBounds
+import Mathlib.Analysis.Real.Pi.Bounds
+import Mathlib.Analysis.SpecialFunctions.Stirling
+import Mathlib.Data.Real.StarOrdered
+import Mathlib.Order.Monotone.Union
+import Mathlib.Tactic.NormNum.NatFactorial
 
 /-!
 # Discriminant bounds for number fields

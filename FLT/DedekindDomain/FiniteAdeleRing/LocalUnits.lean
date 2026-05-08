@@ -5,7 +5,8 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 
 /-!
 # Uniformisers in adic completions

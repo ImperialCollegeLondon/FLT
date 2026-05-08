@@ -7,18 +7,23 @@ Yaël Dillies
 module
 
 public import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
-public import Mathlib.NumberTheory.NumberField.Basic
-public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-public import FLT.Mathlib.Topology.Algebra.Group.Quotient
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
 public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+public import FLT.Mathlib.Topology.Algebra.Group.Quotient
 public import FLT.NumberField.InfiniteAdeleRing
 public import FLT.NumberField.Padics.RestrictedProduct
-public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
-public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
-public import FLT.Mathlib.Data.Real.Archimedean
-public import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
-public import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
-public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import Mathlib.NumberTheory.NumberField.AdeleRing
+public import Mathlib.NumberTheory.Padics.HeightOneSpectrum
+public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
+public import Mathlib.RingTheory.Flat.TorsionFree
+public import Mathlib.RingTheory.SimpleRing.Principal
+import FLT.Mathlib.Data.Real.Archimedean
+import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
+import FLT.NumberField.Completion.Finite
+import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 
 /-! # The adele ring of a number field
 

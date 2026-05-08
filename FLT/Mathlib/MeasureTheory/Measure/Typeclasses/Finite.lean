@@ -5,7 +5,6 @@ Authors: David Ledvinka
 -/
 module
 
-public import Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 
 /-!

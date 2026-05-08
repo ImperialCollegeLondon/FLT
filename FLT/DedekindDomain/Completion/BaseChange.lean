@@ -7,15 +7,19 @@ module
 
 public import FLT.DedekindDomain.AdicValuation
 public import FLT.DedekindDomain.IntegralClosure
+public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.Algebra.Algebra.Pi
 public import FLT.Mathlib.Algebra.Module.Submodule.Basic
-public import FLT.Mathlib.RingTheory.TensorProduct.Basis
-public import FLT.Mathlib.Topology.Algebra.Module.Equiv
+public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 public import FLT.Mathlib.Topology.Algebra.UniformRing
-public import Mathlib.Topology.Algebra.Valued.WithVal
-public import Mathlib.Algebra.Algebra.Subalgebra.Pi
-public import Mathlib.Topology.Algebra.Module.FiniteDimension
+public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
+public import Mathlib.RingTheory.Valuation.Discrete.RankOne
 public import Mathlib.Topology.Algebra.Valued.NormedValued
+import FLT.Mathlib.RingTheory.TensorProduct.Basis
+import Mathlib.NumberTheory.RamificationInertia.Basic
+import Mathlib.RingTheory.PicardGroup
+import Mathlib.RingTheory.SimpleRing.Principal
+import Mathlib.Topology.Algebra.Module.FiniteDimension
 
 /-!
 

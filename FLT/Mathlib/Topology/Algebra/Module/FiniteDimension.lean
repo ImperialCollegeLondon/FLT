@@ -5,8 +5,10 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Topology.Algebra.Module.FiniteDimension
 public import Mathlib.Topology.Instances.Matrix
+public import Mathlib.Analysis.Normed.Field.Basic
+public import Mathlib.LinearAlgebra.Matrix.Basis
+import Mathlib.Topology.Algebra.Module.FiniteDimension
 
 /-!
 # Finite Dimension

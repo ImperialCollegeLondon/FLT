@@ -6,9 +6,9 @@ Authors: William Coram, Kevin Buzzard
 module
 
 public import Mathlib.GroupTheory.DoubleCoset
-public import Mathlib.Topology.Algebra.Group.Pointwise
-public import Mathlib.Algebra.Group.Subgroup.Actions
-public import FLT.Mathlib.Topology.Algebra.Group.Quotient
+public import Mathlib.Topology.Algebra.Monoid.Defs
+public import Mathlib.Topology.Constructions
+import FLT.Mathlib.Topology.Algebra.Group.Quotient
 
 /-!
 # Double Coset

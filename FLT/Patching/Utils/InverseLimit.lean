@@ -5,8 +5,9 @@ Authors: Andrew Yang, Kevin Buzzard
 -/
 module
 
-public import Mathlib.CategoryTheory.CofilteredSystem
-public import Mathlib.Data.Finset.Order
+public import Mathlib.Topology.Constructions
+import Mathlib.CategoryTheory.CofilteredSystem
+import Mathlib.Data.Finset.Order
 
 /-!
 # Inverse-limit utilities

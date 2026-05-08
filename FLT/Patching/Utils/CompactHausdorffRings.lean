@@ -5,12 +5,12 @@ Authors: Thomas Browning, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Data.Nat.Factorization.Induction
 public import Mathlib.GroupTheory.Divisible
-public import Mathlib.GroupTheory.GroupAction.Ring
 public import Mathlib.Topology.Algebra.Group.CompactOpen
-public import Mathlib.Topology.Algebra.Group.SubmonoidClosure
-public import Mathlib.Topology.Algebra.Ring.Ideal
+public import Mathlib.Data.Nat.Prime.Defs
+import Mathlib.Data.Nat.Factorization.Induction
+import Mathlib.Topology.Algebra.Group.SubmonoidClosure
+import Mathlib.Topology.Algebra.Ring.Ideal
 
 /-!
 # Compact Hausdorff rings

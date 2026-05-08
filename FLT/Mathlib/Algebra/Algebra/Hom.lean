@@ -5,7 +5,6 @@ Authors: Kevin Buzzard, Salvatore Mercuri
 -/
 module
 
-public import Mathlib.Algebra.Algebra.Hom
 public import Mathlib.Algebra.Algebra.Prod
 
 /-!

@@ -7,11 +7,16 @@ module
 
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import Mathlib.Algebra.Central.Defs
-public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
-public import Mathlib.LinearAlgebra.Charpoly.BaseChange
-public import Mathlib.RingTheory.SimpleModule.IsAlgClosed
-public import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
-public import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.LinearAlgebra.Determinant
+import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
+import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+import Mathlib.LinearAlgebra.Charpoly.BaseChange
+import Mathlib.LinearAlgebra.FreeModule.PID
+import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.PicardGroup
+import Mathlib.RingTheory.SimpleModule.IsAlgClosed
+import Mathlib.RingTheory.SimpleRing.Principal
 
 /-!
 # Determinant

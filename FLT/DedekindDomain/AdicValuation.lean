@@ -5,15 +5,15 @@ Authors: Matthew Jasper
 -/
 module
 
-public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
-public import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
-public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
-public import Mathlib.Algebra.Order.GroupWithZero.Canonical
-public import Mathlib.Algebra.Group.Int.TypeTags
-public import Mathlib.NumberTheory.RamificationInertia.Basic
-public import Mathlib.RingTheory.PrincipalIdealDomainOfPrime
-public import Mathlib.RingTheory.DiscreteValuationRing.Basic
-public import Mathlib.RingTheory.Valuation.Discrete.RankOne
+public import Mathlib.Analysis.Normed.Ring.Lemmas
+public import Mathlib.NumberTheory.RamificationInertia.Inertia
+public import Mathlib.RingTheory.Valuation.Discrete.Basic
+public import Mathlib.Topology.Path
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
+import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
+import Mathlib.Algebra.Group.Int.TypeTags
+import Mathlib.RingTheory.Valuation.Discrete.RankOne
 
 /-!
 

@@ -5,16 +5,21 @@ Authors: Kevin Buzzard, Salvatore Mercuri
 -/
 module
 
-public import Mathlib.NumberTheory.NumberField.Completion.Ramification
-public import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-public import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
-public import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 public import FLT.Mathlib.Topology.Algebra.UniformRing
 public import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 public import FLT.NumberField.InfinitePlace.Extension
+public import FLT.Mathlib.Algebra.Algebra.Pi
+public import Mathlib.NumberTheory.NumberField.Completion.LiesOverInstances
+public import Mathlib.RingTheory.Henselian
+import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
+import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
+import Mathlib.NumberTheory.NumberField.Completion.Ramification
+import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+import Mathlib.RingTheory.PicardGroup
+import Mathlib.RingTheory.SimpleRing.Principal
 
 /-!
 # The completion of a number field at an infinite place

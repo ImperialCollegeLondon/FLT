@@ -6,13 +6,13 @@ Authors: Kevin Buzzard, Salvatore Mercuri
 module
 
 public import FLT.NumberField.Completion.Infinite
-public import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
-public import FLT.Mathlib.LinearAlgebra.Pi
-public import FLT.Mathlib.Topology.Constructions
 public import FLT.Mathlib.Topology.Algebra.Module.Equiv
-public import Mathlib.RingTheory.TensorProduct.Pi
-public import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+public import FLT.Mathlib.Topology.Constructions
 public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
+public import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+public import Mathlib.RingTheory.TensorProduct.Pi
+import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+import Mathlib.RingTheory.SimpleRing.Principal
 
 /-! # Base change for the infinite adele ring
 

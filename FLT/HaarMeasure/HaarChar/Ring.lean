@@ -5,10 +5,14 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import FLT.HaarMeasure.HaarChar.AddEquiv
 public import Mathlib.Algebra.Group.Pi.Units
-public import Mathlib.MeasureTheory.Group.Pointwise
 public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
+public import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
+import FLT.HaarMeasure.HaarChar.AddEquiv
+import Mathlib.CategoryTheory.Category.Init
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # The ring Haar character

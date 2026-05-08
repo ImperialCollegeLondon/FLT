@@ -6,9 +6,8 @@ Authors: Javier López-Contreras, Kevin Buzzard
 module
 
 public import Mathlib.RingTheory.LocalRing.ResidueField.Basic
-public import Mathlib.Logic.Function.Defs
 public import FLT.Mathlib.RingTheory.LocalRing.Defs
-public import FLT.Deformations.Lemmas
+import FLT.Deformations.Lemmas
 
 /-!
 # Residue algebras

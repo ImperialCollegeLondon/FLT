@@ -8,13 +8,14 @@ module
 -- All of this is in
 -- https://github.com/leanprover-community/mathlib4/pull/26377/
 
-public import Mathlib.Algebra.Central.Basic
-public import Mathlib.LinearAlgebra.Basis.VectorSpace
-public import Mathlib.LinearAlgebra.Finsupp.LinearCombination
 public import Mathlib.RingTheory.TwoSidedIdeal.Operations
-public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
-public import Mathlib.RingTheory.Henselian
-public import Mathlib.RingTheory.TwoSidedIdeal.Instances
+public import Mathlib.Algebra.Central.Defs
+public import Mathlib.RingTheory.TensorProduct.Basic
+import Mathlib.Algebra.Central.Basic
+import Mathlib.LinearAlgebra.Basis.VectorSpace
+import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
+import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.TwoSidedIdeal.Instances
 
 /-!
 # Tensor product of simple algebras over a field

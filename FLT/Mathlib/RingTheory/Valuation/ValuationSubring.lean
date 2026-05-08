@@ -5,7 +5,6 @@ Authors: Ruben Van de Velde, Kevin Buzzard, Salvatore Mercuri
 -/
 module
 
-public import Mathlib.RingTheory.Valuation.ValuationSubring
 public import Mathlib.Topology.Algebra.Valued.ValuationTopology
 
 /-!

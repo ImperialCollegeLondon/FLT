@@ -5,7 +5,6 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import Mathlib.Topology.Algebra.Module.Equiv
 public import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
 

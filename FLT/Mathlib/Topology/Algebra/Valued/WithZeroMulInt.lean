@@ -5,15 +5,12 @@ Authors: Salvatore Mercuri
 -/
 module
 
-public import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
-public import Mathlib.Algebra.Order.GroupWithZero.Canonical
-public import Mathlib.RingTheory.DiscreteValuationRing.Basic
-public import Mathlib.RingTheory.Ideal.IsPrincipalPowQuotient
 public import Mathlib.Analysis.Normed.Ring.Lemmas
-public import Mathlib.Topology.Algebra.Valued.ValuedField
-public import Mathlib.Topology.Algebra.Valued.WithZeroMulInt
-public import Mathlib.Topology.Algebra.Valued.LocallyCompact
-public import Mathlib.RingTheory.Valuation.Discrete.RankOne
+public import Mathlib.RingTheory.Valuation.Discrete.Basic
+import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
+import Mathlib.RingTheory.Ideal.IsPrincipalPowQuotient
+import Mathlib.RingTheory.Valuation.Discrete.RankOne
+import Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 
 /-! # Topological results for integer-valued rings
 
