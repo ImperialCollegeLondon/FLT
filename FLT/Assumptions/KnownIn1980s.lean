@@ -5,7 +5,6 @@ Authors: Kevin Buzzard, Kenny Lau
 -/
 module
 
-public import Mathlib.Init
 /-!
 
 # A tactic for theorems known in the 1980s

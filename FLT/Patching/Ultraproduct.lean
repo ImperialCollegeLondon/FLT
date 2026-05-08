@@ -6,7 +6,9 @@ Authors: Andrew Yang, Kevin Buzzard
 module
 
 public import FLT.Patching.Utils.Lemmas
-public import FLT.Patching.Utils.StructureFiniteness
+public import FLT.Patching.Utils.TopologicallyFG
+import FLT.Patching.Utils.StructureFiniteness
+import Mathlib.Tactic.ContinuousFunctionalCalculus
 
 /-!
 # Ultraproducts of submodules

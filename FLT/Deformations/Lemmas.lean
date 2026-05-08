@@ -5,14 +5,12 @@ Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
 -/
 module
 
-public import Mathlib.Algebra.CharP.IntermediateField
 public import Mathlib.NumberTheory.NumberField.Basic
 public import Mathlib.RingTheory.Valuation.ValuationSubring
 public import Mathlib.Topology.Algebra.Algebra.Equiv
 public import Mathlib.Topology.Algebra.LinearTopology
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
 public import Mathlib.Topology.Instances.Matrix
-public import Mathlib.Topology.UniformSpace.DiscreteUniformity
 
 /-!
 # Miscellaneous lemmas for the Deformations folder

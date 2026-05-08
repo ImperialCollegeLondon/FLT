@@ -5,9 +5,7 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Algebra.Algebra.Tower
 public import Mathlib.RingTheory.AlgebraTower
-public import FLT.Mathlib.Algebra.Algebra.Hom
 
 /-!
 # Tower

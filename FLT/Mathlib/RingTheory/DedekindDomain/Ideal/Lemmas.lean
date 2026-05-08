@@ -6,12 +6,10 @@ Authors: Kevin Buzzard
 module
 
 public import Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
-public import Mathlib.Algebra.Lie.OfAssociative
-public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
-public import Mathlib.NumberTheory.Padics.Complex
-public import Mathlib.Order.CompletePartialOrder
-public import Mathlib.RingTheory.SimpleRing.Principal
 public import Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.Algebra.Order.Algebra
+import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
+import Mathlib.Data.Nat.Prime.Int
 
 /-!
 # Lemmas

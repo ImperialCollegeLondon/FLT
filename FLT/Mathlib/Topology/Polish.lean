@@ -5,10 +5,10 @@ Authors: Thomas Browning, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Topology.Compactness.Paracompact
-public import Mathlib.Topology.MetricSpace.Completion
 public import Mathlib.Topology.MetricSpace.Polish
-public import Mathlib.Topology.Metrizable.Urysohn
+import Mathlib.Topology.Compactness.Paracompact
+import Mathlib.Topology.MetricSpace.Completion
+import Mathlib.Topology.Metrizable.Urysohn
 
 /-!
 # Polish

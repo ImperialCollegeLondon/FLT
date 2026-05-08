@@ -6,10 +6,8 @@ Authors: Kevin Buzzard
 module
 
 public import FLT.Deformations.RepresentationTheory.GaloisRep
-public import Mathlib.Algebra.Lie.OfAssociative
 public import Mathlib.NumberTheory.Padics.Complex
-public import Mathlib.RingTheory.Henselian
-public import Mathlib.RingTheory.PicardGroup
+import Mathlib.RingTheory.PicardGroup
 
 /-!
 # Compatible families of Galois representations

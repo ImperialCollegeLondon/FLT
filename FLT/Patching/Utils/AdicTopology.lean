@@ -6,17 +6,17 @@ Authors: Andrew Yang, Kevin Buzzard
 module
 
 public import Mathlib.RingTheory.AdicCompletion.Basic
-public import Mathlib.RingTheory.Ideal.Quotient.Index
-public import Mathlib.Topology.Algebra.Algebra
-public import Mathlib.Topology.Algebra.Group.ClosedSubgroup
-public import Mathlib.Topology.Algebra.Field
 public import Mathlib.Topology.Algebra.Nonarchimedean.AdicTopology
-public import Mathlib.Topology.Connected.Separation
-public import FLT.Patching.Utils.InverseLimit
-public import FLT.Patching.Utils.Lemmas
-public import Mathlib.RingTheory.Artinian.Ring
-public import Mathlib.Topology.Algebra.Ring.Compact
-public import Mathlib.Topology.Algebra.LinearTopology
+public import Mathlib.RingTheory.Artinian.Defs
+public import Mathlib.RingTheory.LocalRing.ResidueField.Defs
+public import Mathlib.RingTheory.Noetherian.Defs
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import Mathlib.Topology.Algebra.Ring.Ideal
+import FLT.Patching.Utils.InverseLimit
+import FLT.Patching.Utils.Lemmas
+import Mathlib.Topology.Algebra.Algebra
+import Mathlib.Topology.Algebra.Ring.Compact
+import Mathlib.Topology.Connected.Separation
 
 /-!
 # Local rings with the adic topology

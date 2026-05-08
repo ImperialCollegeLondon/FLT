@@ -6,7 +6,7 @@ Authors: Kevin Buzzard
 module
 
 public import Mathlib.Topology.Bases -- should morally go here
-public import Mathlib.Topology.Homeomorph.Lemmas -- but I need this (which imports it)
+import Mathlib.Topology.Homeomorph.Lemmas
 
 /-!
 # Bases

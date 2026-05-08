@@ -5,11 +5,9 @@ Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
 -/
 module
 
-public import FLT.Patching.Algebra
 public import FLT.Patching.Over
-public import FLT.Patching.Module
 public import FLT.Patching.Utils.Depth
-public import FLT.Deformations.Lemmas
+import Mathlib.RingTheory.Length
 
 /-!
 # Compatibility data for the patching system

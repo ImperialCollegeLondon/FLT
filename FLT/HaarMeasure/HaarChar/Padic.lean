@@ -5,9 +5,12 @@ Authors: Yaël Dillies, Javier López-Contreras
 -/
 module
 
-public import FLT.Mathlib.MeasureTheory.Group.Action
 public import FLT.HaarMeasure.MeasurableSpacePadics
 public import FLT.HaarMeasure.HaarChar.Ring
+import FLT.Mathlib.MeasureTheory.Group.Action
+import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
+import Mathlib.CategoryTheory.Category.Init
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # The distributive Haar characters of the p-adics

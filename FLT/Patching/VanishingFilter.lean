@@ -5,9 +5,8 @@ Authors: Andrew Yang, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Order.Filter.Ultrafilter.Basic
-public import Mathlib.RingTheory.Ideal.Operations
 public import FLT.Patching.Ultraproduct
+import Mathlib.Tactic.ContinuousFunctionalCalculus
 
 /-!
 # Vanishing filters of ideals in product rings

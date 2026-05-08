@@ -5,7 +5,13 @@ Authors: Yaël Dillies, Kevin Buzzard
 -/
 module
 
-public import Mathlib.GroupTheory.Index
+public meta import Mathlib.Tactic.ToDual
+import Mathlib.Data.Finset.Attr
+import Mathlib.GroupTheory.Index
+import Mathlib.Tactic.Bound.Init
+import Mathlib.Tactic.Finiteness.Attr
+import Mathlib.Tactic.ScopedNS
+import Mathlib.Tactic.SetLike
 
 /-!
 # TODO

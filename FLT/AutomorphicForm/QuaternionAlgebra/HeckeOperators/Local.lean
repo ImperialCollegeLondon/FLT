@@ -6,10 +6,8 @@ Authors: Bryan Wang
 module
 
 public import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
-public import Mathlib.Data.Matrix.Reflection
-public import Mathlib.Algebra.Lie.OfAssociative
-public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 public import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+import FLT.DedekindDomain.AdicValuation
 
 /-!
 # Local computations for Hecke operators

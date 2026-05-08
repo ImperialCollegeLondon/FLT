@@ -5,8 +5,10 @@ Authors: Yaël Dillies, Kevin Buzzard, Matthew Jasper
 -/
 module
 
-public import Mathlib.Algebra.Module.Submodule.Basic
-public import Mathlib.Algebra.Ring.Subring.Basic
+public import Mathlib.Algebra.Module.Submodule.Defs
+public import Mathlib.Algebra.Ring.Subring.Defs
+public import Mathlib.Algebra.Ring.Subsemiring.Basic
+import Mathlib.Algebra.Ring.Subring.Basic
 
 /-!
 # Basic

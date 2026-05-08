@@ -5,8 +5,8 @@ Authors: Bryan Wang Peng Jun
 -/
 module
 
-public import Mathlib.Analysis.CStarAlgebra.Classes
-public import Mathlib.NumberTheory.NumberField.AdeleRing
+public import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+import Mathlib.Analysis.CStarAlgebra.Classes
 
 /-!
 # Infinite Place

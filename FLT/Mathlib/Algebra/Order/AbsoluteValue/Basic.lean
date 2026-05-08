@@ -6,8 +6,11 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 module
 
 public import Mathlib.Algebra.Order.AbsoluteValue.Basic
-public import Mathlib.Tactic.Linarith
-public import Mathlib.Tactic.Ring.Basic
+import Mathlib.Data.Rat.Cast.Order
+import Mathlib.Tactic.Linarith.Frontend
+import Mathlib.Tactic.NormNum.Abs
+import Mathlib.Tactic.NormNum.DivMod
+import Mathlib.Tactic.NormNum.OfScientific
 
 /-!
 # Basic

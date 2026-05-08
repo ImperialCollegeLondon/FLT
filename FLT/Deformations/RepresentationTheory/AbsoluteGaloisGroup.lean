@@ -7,11 +7,11 @@ module
 
 public import FLT.Deformations.RepresentationTheory.Frobenius
 public import FLT.Deformations.RepresentationTheory.IntegralClosure
-public import FLT.NumberField.Completion.Finite
 public import Mathlib.Analysis.Normed.Unbundled.SpectralNorm
 public import Mathlib.FieldTheory.AbsoluteGaloisGroup
-public import Mathlib.FieldTheory.Galois.Infinite
 public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+import FLT.NumberField.Completion.Finite
+import Mathlib.FieldTheory.Galois.Infinite
 
 /-!
 # Functoriality of the absolute Galois group

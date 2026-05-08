@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Topology.Constructions
 public import FLT.Mathlib.Algebra.Algebra.Pi
-public import Mathlib.Data.Set.Restrict
 
 /-!
 # Constructions

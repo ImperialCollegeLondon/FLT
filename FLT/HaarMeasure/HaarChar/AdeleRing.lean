@@ -6,16 +6,24 @@ Authors: Kevin Buzzard, Bryan Wang Peng Jun, Salvatore Mercuri, Pietro Monticone
 module
 
 public import FLT.HaarMeasure.HaarChar.Ring
-public import FLT.Mathlib.Algebra.Central.TensorProduct
 public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 public import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
-public import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
 public import FLT.NumberField.AdeleRing
-public import FLT.HaarMeasure.HaarChar.RealComplex
-public import FLT.HaarMeasure.HaarChar.Padic
-public import FLT.HaarMeasure.HaarChar.FiniteDimensional
-public import Mathlib.NumberTheory.NumberField.ProductFormula
-public import FLT.HaarMeasure.HaarChar.FiniteAdeleRing
+public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+public import FLT.NumberField.Completion.Finite
+public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+import FLT.HaarMeasure.HaarChar.AddEquiv
+import FLT.HaarMeasure.HaarChar.FiniteDimensional
+import FLT.HaarMeasure.HaarChar.Padic
+import FLT.HaarMeasure.HaarChar.RealComplex
+import FLT.Mathlib.LinearAlgebra.Countable
+import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
+import FLT.NumberField.HeightOneSpectrum
+import Mathlib.LinearAlgebra.Charpoly.BaseChange
+import Mathlib.NumberTheory.NumberField.ProductFormula
 
 /-!
 

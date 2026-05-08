@@ -7,10 +7,17 @@ module
 
 public import FLT.Patching.Ultraproduct
 public import FLT.Patching.Utils.AdicTopology
-public import Mathlib.Algebra.Module.Torsion.Free
-public import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
-public import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
-public import Mathlib.Topology.Compactness.Paracompact
+public import Mathlib.Algebra.Module.Torsion.Basic
+public import Mathlib.CategoryTheory.Types.Basic
+public import Mathlib.LinearAlgebra.Dimension.Finrank
+public import Mathlib.RingTheory.Filtration
+public import Mathlib.RingTheory.FractionalIdeal.Basic
+public import Mathlib.Topology.Algebra.Ring.Compact
+import FLT.Patching.Utils.InverseLimit
+import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
+import Mathlib.Topology.Algebra.Ring.Compact
+import Mathlib.Topology.Compactness.Paracompact
+import Mathlib.Topology.Connected.Separation
 
 /-!
 # The patching module

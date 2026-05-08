@@ -5,17 +5,29 @@ Authors: Kevin Buzzard, William Coram
 -/
 module
 
-public import FLT.HaarMeasure.HaarChar.AdeleRing
-public import FLT.Mathlib.GroupTheory.DoubleCoset
-public import FLT.Mathlib.Topology.HomToDiscrete
-public import FLT.HaarMeasure.HaarChar.RealComplex
-public import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
-public import FLT.Mathlib.MeasureTheory.Haar.Extension
-public import FLT.Mathlib.Topology.Polish
-public import Mathlib.Topology.Metrizable.Urysohn
-public import Mathlib.Topology.MetricSpace.Polish
-public import Mathlib.Topology.UniformSpace.Completion
-public import Mathlib.Topology.MetricSpace.Completion
+public import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
+public import FLT.HaarMeasure.HaarChar.Ring
+public import FLT.Hacks.RightActionInstances
+public import FLT.Mathlib.LinearAlgebra.Dimension.Constructions
+public import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
+public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+public import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+public import Mathlib.GroupTheory.DoubleCoset
+public import Mathlib.RingTheory.Flat.TorsionFree
+public import Mathlib.RingTheory.SimpleRing.Principal
+public import Mathlib.RingTheory.TensorProduct.Pi
+import FLT.HaarMeasure.HaarChar.AddEquiv
+import FLT.HaarMeasure.HaarChar.AdeleRing
+import FLT.HaarMeasure.HaarChar.FiniteAdeleRing
+import FLT.HaarMeasure.HaarChar.RealComplex
+import FLT.Mathlib.GroupTheory.DoubleCoset
+import FLT.Mathlib.LinearAlgebra.Determinant
+import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
+import FLT.Mathlib.MeasureTheory.Haar.Extension
+import FLT.Mathlib.Topology.HomToDiscrete
+import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
+import FLT.Mathlib.Topology.Polish
+import Mathlib.Analysis.CStarAlgebra.Classes
 
 /-!
 # Finiteness theorem for the adelic quotient of a division algebra

@@ -6,8 +6,9 @@ Authors: Kevin Buzzard
 module
 
 -- can't upstream until we've imported the below!
-public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
-public import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+public import Mathlib.NumberTheory.NumberField.AdeleRing
+import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 
 /-!
 

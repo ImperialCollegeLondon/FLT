@@ -6,13 +6,18 @@ Pietro Monticone
 -/
 module
 
-public import FLT.Mathlib.Order.Filter.Cofinite
 public import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
 public import FLT.Mathlib.Topology.Algebra.Group.Units
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
-public import FLT.Mathlib.Topology.Bases
 public import Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import Mathlib.Topology.Instances.Matrix
+public import Mathlib.Topology.Algebra.Group.Units
+import FLT.Mathlib.Order.Filter.Cofinite
+import FLT.Mathlib.Topology.Bases
+import Mathlib.CategoryTheory.Category.Init
+import Mathlib.Data.Nat.Totient
+import Mathlib.Logic.Equiv.PartialEquiv
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # Topological Space

@@ -6,7 +6,7 @@ Authors: David Ledvinka
 module
 
 public import Mathlib.MeasureTheory.Measure.Regular
-public import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
+import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 
 /-!
 # Regular

@@ -6,10 +6,9 @@ Authors: Andrew Yang, Kevin Buzzard
 module
 
 public import FLT.Patching.Utils.TopologicallyFG
-public import Mathlib.Algebra.Ring.Ext
 public import Mathlib.Topology.Algebra.Module.Equiv
-public import Mathlib.Algebra.Ring.TransferInstance
 public import Mathlib.Algebra.Algebra.TransferInstance
+import Mathlib.Algebra.Ring.Ext
 
 /-!
 # Finiteness of algebraic structures on finite types

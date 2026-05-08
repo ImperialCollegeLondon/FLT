@@ -8,9 +8,11 @@ Authors: Kevin Buzzard
 module
 
 public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
-public import FLT.NumberField.Completion.Finite
-public import FLT.NumberField.HeightOneSpectrum
+import FLT.Mathlib.LinearAlgebra.Countable
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import FLT.NumberField.Completion.Finite
+import FLT.NumberField.HeightOneSpectrum
+import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 
 /-!
 # Finite Adele Ring

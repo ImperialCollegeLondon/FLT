@@ -7,7 +7,7 @@ module
 
 public import Mathlib.NumberTheory.Padics.HeightOneSpectrum
 public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
-public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 /-!
 # Height One Spectrum

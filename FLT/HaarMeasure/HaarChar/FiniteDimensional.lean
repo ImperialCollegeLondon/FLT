@@ -7,9 +7,13 @@ module
 
 public import FLT.HaarMeasure.HaarChar.Ring
 public import FLT.Mathlib.Topology.Algebra.Module.Equiv
-public import FLT.Mathlib.LinearAlgebra.Determinant
-public import Mathlib.Topology.Algebra.Module.ModuleTopology
 public import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
+public import FLT.Mathlib.Algebra.Algebra.Bilinear
+import FLT.HaarMeasure.HaarChar.AddEquiv
+import FLT.Mathlib.LinearAlgebra.Determinant
+import Mathlib.LinearAlgebra.FreeModule.PID
+import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.SimpleRing.Principal
 
 /-!
 # Haar character scaling under linear automorphisms

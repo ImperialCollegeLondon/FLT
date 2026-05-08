@@ -5,9 +5,7 @@ Authors: Andrew Yang
 -/
 module
 
-public import Mathlib.CategoryTheory.Elementwise
 public import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
-public import Mathlib.Data.Set.Lattice.Image
 public import Mathlib.CategoryTheory.Subfunctor.Basic
 
 /-!

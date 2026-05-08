@@ -7,9 +7,8 @@ module
 
 public import FLT.Hacks.RightActionInstances
 public import FLT.Mathlib.Algebra.FixedPoints.Basic
-public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
-public import Mathlib.Order.CompletePartialOrder
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Definitions for automorphic forms on quaternion algebras

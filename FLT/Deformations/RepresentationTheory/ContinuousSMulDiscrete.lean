@@ -5,7 +5,8 @@ Authors: Andrew Yang
 -/
 module
 
-public import Mathlib.Topology.Algebra.Group.Basic
+public import Mathlib.Topology.Algebra.MulAction
+import Mathlib.Topology.Algebra.Group.Basic
 
 /-!
 # Continuous actions on discrete modules

@@ -5,13 +5,22 @@ Authors: Kevin Buzzard, Bryan Wang Peng Jun, Pietro Monticone
 -/
 module
 
-public import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
 public import FLT.DedekindDomain.FiniteAdeleRing.TensorProduct
 public import FLT.HaarMeasure.HaarChar.FiniteDimensional
-public import FLT.Mathlib.Algebra.Central.TensorProduct
 public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdicCompletion
 public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing
+public import FLT.DedekindDomain.Completion.BaseChange
+public import FLT.Mathlib.LinearAlgebra.Countable
+public import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
+public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+public import FLT.NumberField.Completion.Finite
+public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+public import Mathlib.RingTheory.Flat.TorsionFree
+import FLT.HaarMeasure.HaarChar.AddEquiv
+import FLT.Mathlib.Algebra.Central.TensorProduct
+import FLT.Mathlib.LinearAlgebra.Determinant
+import FLT.NumberField.HeightOneSpectrum
 
 /-!
 

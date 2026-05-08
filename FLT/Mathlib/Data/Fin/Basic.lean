@@ -5,9 +5,7 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Data.Fin.Basic
 public import Mathlib.Data.Fin.VecNotation
-public import Mathlib.Logic.Pairwise
 
 /-!
 # Basic

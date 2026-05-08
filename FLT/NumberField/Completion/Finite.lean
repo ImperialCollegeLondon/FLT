@@ -5,13 +5,13 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import FLT.DedekindDomain.AdicValuation
+public import Mathlib.RingTheory.DedekindDomain.AdicValuation
+import FLT.DedekindDomain.AdicValuation
+import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+import Mathlib.NumberTheory.Padics.HeightOneSpectrum
+import Mathlib.NumberTheory.Padics.ProperSpace
 public import FLT.Mathlib.LinearAlgebra.Countable
-public import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
-public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
-public import Mathlib.NumberTheory.Padics.ProperSpace
-public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
-public import Mathlib.NumberTheory.Padics.HeightOneSpectrum
 
 /-!
 

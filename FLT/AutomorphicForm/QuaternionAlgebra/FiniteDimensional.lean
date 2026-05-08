@@ -6,7 +6,9 @@ Authors: Kevin Buzzard
 module
 
 public import FLT.AutomorphicForm.QuaternionAlgebra.Defs
-public import FLT.DivisionAlgebra.Finiteness
+public import Mathlib.Algebra.Central.Defs
+import FLT.DivisionAlgebra.Finiteness
+import Mathlib.RingTheory.PicardGroup
 
 /-!
 # Finite-dimensionality of spaces of weight-2 automorphic forms

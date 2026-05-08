@@ -7,8 +7,8 @@ module
 
 public import FLT.Deformations.Lemmas
 public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
-public import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
 public import Mathlib.RingTheory.Invariant.Defs
+import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
 
 /-!
 # The integral closure as a type

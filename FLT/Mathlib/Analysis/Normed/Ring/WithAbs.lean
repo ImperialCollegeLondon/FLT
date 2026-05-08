@@ -7,7 +7,6 @@ module
 
 public import Mathlib.Analysis.Normed.Field.WithAbs
 public import Mathlib.NumberTheory.NumberField.Basic
-public import FLT.Mathlib.Topology.Algebra.UniformRing
 
 /-!
 # With Abs

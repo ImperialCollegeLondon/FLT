@@ -5,10 +5,9 @@ Authors: Yaël Dillies, Kevin Buzzard, Pietro Monticone, Ruben Van de Velde
 -/
 module
 
-public import Mathlib.Algebra.Algebra.Operations
-public import Mathlib.Algebra.CharZero.Infinite
 public import Mathlib.NumberTheory.Padics.PadicIntegers
-public import Mathlib.NumberTheory.Padics.RingHoms
+import Mathlib.Algebra.CharZero.Infinite
+import Mathlib.NumberTheory.Padics.RingHoms
 
 /-!
 # TODO

@@ -6,14 +6,13 @@ Authors: Kevin Buzzard, Ruben Van de Velde, Bryan Wang Peng Jun
 module
 
 public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
-public import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
-public import FLT.Mathlib.Topology.Instances.Matrix
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-public import Mathlib.Topology.Homeomorph.Defs
-public import Mathlib.Topology.Algebra.ContinuousMonoidHom
 public import FLT.Hacks.RightActionInstances
 public import FLT.NumberField.Completion.Finite
+public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
+import FLT.Mathlib.Topology.Instances.Matrix
 /-!
 
 # Definitions of various compact open subgrups of Dˣ and GL₂(𝔸_F^∞)

@@ -6,9 +6,8 @@ Authors: David Ledvinka
 module
 
 public import Mathlib.MeasureTheory.Group.Measure
-public import Mathlib.MeasureTheory.Measure.OpenPos
-public import FLT.Mathlib.MeasureTheory.Group.Action
-public import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
+import FLT.Mathlib.MeasureTheory.Group.Action
+import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 
 /-!
 # Measure

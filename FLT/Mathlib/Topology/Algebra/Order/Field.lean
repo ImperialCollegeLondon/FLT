@@ -5,10 +5,9 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Algebra.Order.AbsoluteValue.Basic
-public import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 public import Mathlib.Algebra.EuclideanDomain.Field
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 
 /-!
 # Field

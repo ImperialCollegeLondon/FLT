@@ -5,11 +5,10 @@ Authors: Yaël Dillies, Kevin Buzzard, Ruben Van de Velde, David Ledvinka
 -/
 module
 
-public import Mathlib.MeasureTheory.Group.Action
-public import Mathlib.MeasureTheory.Group.Pointwise
-public import Mathlib.MeasureTheory.Group.Measure
-public import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
-public import Mathlib.GroupTheory.Complement
+public import Mathlib.GroupTheory.Index
+public import Mathlib.MeasureTheory.Group.Arithmetic
+public import Mathlib.MeasureTheory.Group.Defs
+import Mathlib.MeasureTheory.Group.Measure
 /-!
 # TODO
 

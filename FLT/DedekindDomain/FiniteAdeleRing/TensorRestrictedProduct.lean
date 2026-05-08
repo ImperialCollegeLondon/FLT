@@ -6,8 +6,10 @@ Authors: Matthew Jasper
 module
 
 public import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
-public import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
 public import Mathlib.RingTheory.Flat.Basic
+public import FLT.Mathlib.Algebra.IsDirectLimit
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
+import FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
 
 /-!
 # Tensor product distributing over a restricted product

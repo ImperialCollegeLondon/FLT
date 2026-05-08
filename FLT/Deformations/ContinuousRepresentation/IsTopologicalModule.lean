@@ -5,11 +5,10 @@ Authors: Javier López-Contreras
 -/
 module
 
-public import Mathlib.Topology.Algebra.Ring.Basic
 public import Mathlib.Topology.Algebra.MulAction
-public import Mathlib.Topology.Algebra.Monoid
 public import Mathlib.Algebra.Module.Submodule.Defs
-public import Mathlib.Topology.Algebra.Module.LinearMap
+public import Mathlib.Algebra.Module.Pi
+import Mathlib.Topology.Algebra.Module.LinearMap
 
 /-!
 # Topological modules

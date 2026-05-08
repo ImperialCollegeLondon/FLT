@@ -7,7 +7,7 @@ module
 
 public import Mathlib.Analysis.Normed.Ring.Basic
 public import Mathlib.Topology.Instances.Matrix
-public import FLT.Mathlib.Topology.Constructions
+import FLT.Mathlib.Topology.Constructions
 
 /-!
 # Matrix

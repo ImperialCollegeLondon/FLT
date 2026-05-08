@@ -5,11 +5,10 @@ Authors: Salvatore Mercuri, Kevin Buzzard
 -/
 module
 
-public import Mathlib.Algebra.BigOperators.Pi
-public import Mathlib.LinearAlgebra.Dimension.Constructions
 public import Mathlib.LinearAlgebra.TensorProduct.Pi
-public import FLT.Mathlib.RingTheory.TensorProduct.Pi
-public import Mathlib.GroupTheory.MonoidLocalization.Basic
+public import Mathlib.LinearAlgebra.Dimension.Free
+import FLT.Mathlib.RingTheory.TensorProduct.Pi
+import Mathlib.LinearAlgebra.Dimension.Constructions
 
 /-!
 # Constructions

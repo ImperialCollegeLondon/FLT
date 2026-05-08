@@ -5,11 +5,16 @@ Authors: Andrew Yang, Kevin Buzzard
 -/
 module
 
-public import Mathlib.FieldTheory.Galois.Infinite
 public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+public import Mathlib.CategoryTheory.Types.Basic
+public import Mathlib.FieldTheory.IsSepClosed
+public import Mathlib.FieldTheory.KrullTopology
 public import Mathlib.RingTheory.Bialgebra.Basic
-public import Mathlib.RingTheory.Etale.Field
-public import Mathlib.RingTheory.HopkinsLevitzki
+public import Mathlib.RingTheory.Etale.Basic
+public import Mathlib.Topology.Algebra.Group.ClosedSubgroup
+import Mathlib.FieldTheory.Galois.Infinite
+import Mathlib.RingTheory.Etale.Field
+import Mathlib.RingTheory.HopkinsLevitzki
 
 /-!
 # Equivalence between continuous `G`-finite sets and `k`-etale algebras

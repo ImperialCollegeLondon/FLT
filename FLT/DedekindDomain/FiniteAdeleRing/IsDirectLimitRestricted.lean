@@ -5,9 +5,15 @@ Authors: Madison Crim
 -/
 module
 
-public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
-public import FLT.DedekindDomain.FiniteAdeleRing.TensorPi
 public import FLT.Mathlib.Algebra.IsDirectLimit
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
+public import Mathlib.Algebra.Module.FinitePresentation
+import Mathlib.Data.Rat.Cast.Order
+import Mathlib.Tactic.NormNum.Abs
+import Mathlib.Tactic.NormNum.DivMod
+import Mathlib.Tactic.NormNum.OfScientific
+import Mathlib.LinearAlgebra.TensorProduct.Defs
+
 
 /-!
 # The finite adele ring as a direct limit

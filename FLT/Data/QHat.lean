@@ -6,10 +6,12 @@ Arend Mellendijk, Django Peeters
 -/
 module
 
-public import Mathlib.Algebra.Order.Star.Basic
 public import Mathlib.Analysis.Normed.Field.Lemmas
 public import Mathlib.Data.PNat.Prime
-public import Mathlib.RingTheory.Flat.TorsionFree
+public import Mathlib.Data.ZMod.Basic
+public import Mathlib.RingTheory.Flat.Basic
+import Mathlib.Algebra.Order.Star.Basic
+import Mathlib.RingTheory.Flat.TorsionFree
 
 /-!
 # The profinite completion of `ℤ` and the finite adeles of `ℚ`

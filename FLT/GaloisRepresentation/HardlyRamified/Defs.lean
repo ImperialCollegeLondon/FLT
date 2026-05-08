@@ -5,13 +5,10 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import FLT.Deformations.Categories
 public import FLT.Deformations.RepresentationTheory.GaloisRep
 public import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
-public import Mathlib.Algebra.Lie.OfAssociative
 public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
 public import Mathlib.NumberTheory.Padics.Complex
-public import Mathlib.Order.CompletePartialOrder
 public import Mathlib.RingTheory.SimpleRing.Principal
 
 /-!

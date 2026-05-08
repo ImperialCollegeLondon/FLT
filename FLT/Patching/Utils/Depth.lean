@@ -5,12 +5,15 @@ Authors: Andrew Yang, Kevin Buzzard, Michael Rothgang
 -/
 module
 
-public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
-public import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
 public import Mathlib.RingTheory.Regular.RegularSequence
-public import Mathlib.RingTheory.Spectrum.Prime.Topology
 public import Mathlib.RingTheory.Support
-public import Mathlib.RingTheory.TensorProduct.Free
+public import Mathlib.RingTheory.KrullDimension.Basic
+import Mathlib.GroupTheory.GroupAction.Ring
+import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
+import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
+import Mathlib.RingTheory.TensorProduct.Free
+import Mathlib.Tactic.Continuity.Init
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # Module depth

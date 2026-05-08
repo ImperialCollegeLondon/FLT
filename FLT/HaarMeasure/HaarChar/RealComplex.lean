@@ -5,11 +5,14 @@ Authors: Yaël Dillies, Javier López-Contreras
 -/
 module
 
-public import Mathlib.Analysis.Complex.ReImTopology
-public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
-public import Mathlib.RingTheory.Complex
-public import Mathlib.RingTheory.Norm.Transitivity
 public import FLT.HaarMeasure.HaarChar.Ring
+import Mathlib.Analysis.Complex.ReImTopology
+import Mathlib.LinearAlgebra.FreeModule.PID
+import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
+import Mathlib.RingTheory.Complex
+import Mathlib.RingTheory.Norm.Transitivity
+import Mathlib.RingTheory.PicardGroup
+import Mathlib.RingTheory.SimpleRing.Principal
 
 /-!
 # The distributive Haar characters of `ℝ` and `ℂ`

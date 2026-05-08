@@ -7,6 +7,8 @@ module
 
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import Mathlib.Algebra.Lie.OfAssociative
+public import Mathlib.Topology.Algebra.Algebra
 
 /-!
 # Finite Adele Ring

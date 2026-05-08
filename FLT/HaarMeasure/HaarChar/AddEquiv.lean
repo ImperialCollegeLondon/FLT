@@ -6,11 +6,12 @@ David Renshaw
 -/
 module
 
-public import FLT.Mathlib.MeasureTheory.Group.Measure
-public import FLT.Mathlib.MeasureTheory.Measure.Regular
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import Mathlib.MeasureTheory.Measure.Haar.MulEquivHaarChar
 public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
+import FLT.Mathlib.MeasureTheory.Group.Measure
+import Mathlib.CategoryTheory.Category.Init
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # The Haar character under continuous group equivalences

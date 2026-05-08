@@ -5,10 +5,13 @@ Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
 module
 
-public import Mathlib.Algebra.BigOperators.GroupWithZero.Action
 public import Mathlib.Algebra.Module.LinearMap.Defs
 public import Mathlib.Algebra.Ring.Action.Submonoid
-public import Mathlib.GroupTheory.GroupAction.Quotient
+public import Mathlib.Algebra.BigOperators.Finprod
+public import Mathlib.Algebra.Group.Subgroup.Actions
+public import Mathlib.GroupTheory.Coset.Defs
+import Mathlib.Algebra.BigOperators.GroupWithZero.Action
+import Mathlib.GroupTheory.GroupAction.Quotient
 
 /-!
 # Abstract Hecke operators

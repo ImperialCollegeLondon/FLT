@@ -5,7 +5,9 @@ Authors: William Coram, Kevin Buzzard
 -/
 module
 
-public import Mathlib.LinearAlgebra.TensorProduct.Basis
+public import Mathlib.LinearAlgebra.FreeModule.Basic
+public import Mathlib.LinearAlgebra.TensorProduct.Defs
+import Mathlib.LinearAlgebra.DirectSum.Finsupp
 
 /-!
 # Basis

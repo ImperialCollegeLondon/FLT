@@ -5,11 +5,9 @@ Authors: Kevin Buzzard, Ruben Van de Velde
 -/
 module
 
-public import Mathlib.Algebra.Group.Pi.Units
 public import Mathlib.Algebra.Group.Submonoid.Units
 public import Mathlib.Topology.Algebra.Constructions
-public import Mathlib.Topology.Algebra.ContinuousMonoidHom
-public import Mathlib.Topology.Algebra.Group.Units
+import Mathlib.Tactic.Bound.Init
 
 /-!
 # Units
