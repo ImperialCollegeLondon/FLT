@@ -1,8 +1,22 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard
+-/
 module
 
 public import Mathlib.Order.Filter.Ultrafilter.Basic
 public import Mathlib.RingTheory.Ideal.Operations
 public import FLT.Patching.Ultraproduct
+
+/-!
+# Vanishing filters of ideals in product rings
+
+For an ideal `p` of `Πᵢ R i`, we define the *vanishing filter*
+`vanishingFilter p` of `p`: the filter of subsets `s` such that the
+characteristic idempotent of `s` lies in `p`. Prime ideals give rise to
+ultrafilters via this construction.
+-/
 
 @[expose] public section
 

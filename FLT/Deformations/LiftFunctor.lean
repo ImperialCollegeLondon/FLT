@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
+-/
 module
 
 public import FLT.Deformations.Categories
@@ -6,6 +11,14 @@ public import FLT.Deformations.RepresentationTheory.GaloisRep
 public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 public import Mathlib.RepresentationTheory.Basic
 public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
+
+/-!
+# The functor of continuous representations
+
+For a profinite group `G` and a proartinian local ring `𝓞`, the functor
+`repnFunctor n G 𝓞` sends a proartinian `𝓞`-algebra `R` to the set of
+continuous representations `G → GLₙ(R)`.
+-/
 
 @[expose] public section
 

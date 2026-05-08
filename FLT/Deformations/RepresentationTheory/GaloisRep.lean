@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Ruben Van de Velde, Pietro Monticone
+-/
 module
 
 public import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
@@ -7,6 +12,14 @@ public import Mathlib.LinearAlgebra.Matrix.Unique
 public import Mathlib.RingTheory.Bialgebra.TensorProduct
 public import Mathlib.RingTheory.HopfAlgebra.Basic
 public import FLT.Deformations.RepresentationTheory.Irreducible
+
+/-!
+# Galois representations
+
+The type `GaloisRep K A M` of `A`-linear continuous representations of the
+absolute Galois group of a field `K` on an `A`-module `M`, together with the
+basic API (kernel, etc.).
+-/
 
 @[expose] public section
 

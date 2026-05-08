@@ -1,8 +1,19 @@
+/-
+Copyright (c) 2026 Bryan Wang Peng Jun. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bryan Wang Peng Jun
+-/
 module
 
 public import Mathlib.Algebra.Central.TensorProduct
 public import Mathlib.Algebra.Algebra.Subalgebra.Centralizer
 public import Mathlib.LinearAlgebra.TensorProduct.Subalgebra
+
+/-!
+# Tensor Product
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

@@ -1,7 +1,18 @@
+/-
+Copyright (c) 2025 Bryan Wang Peng Jun. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bryan Wang Peng Jun
+-/
 module
 
 public import Mathlib.Analysis.CStarAlgebra.Classes
 public import Mathlib.NumberTheory.NumberField.AdeleRing
+
+/-!
+# Infinite Place
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

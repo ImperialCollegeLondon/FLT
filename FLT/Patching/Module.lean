@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Pietro Monticone, David Renshaw
+-/
 module
 
 public import FLT.Patching.Ultraproduct
@@ -6,6 +11,14 @@ public import Mathlib.Algebra.Module.Torsion.Free
 public import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
 public import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
 public import Mathlib.Topology.Compactness.Paracompact
+
+/-!
+# The patching module
+
+The patching module attached to a family of `R i`-modules `M i` of uniformly
+bounded rank: the ultraproduct of the truncations `M i / I^k M i` along a
+non-principal ultrafilter, viewed as a module over the patching algebra.
+-/
 
 @[expose] public section
 

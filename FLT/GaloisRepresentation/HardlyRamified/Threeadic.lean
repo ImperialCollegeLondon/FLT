@@ -1,7 +1,20 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.GaloisRepresentation.HardlyRamified.Defs
 public import FLT.GaloisRepresentation.HardlyRamified.ModThree -- will be needed for proof
+
+/-!
+# 3-adic hardly ramified representations
+
+Three-adic input results for the analysis of hardly ramified families:
+properties of `R`-linear representations on a finite `ℤ_[3]`-module which
+are hardly ramified at 3.
+-/
 
 @[expose] public section
 

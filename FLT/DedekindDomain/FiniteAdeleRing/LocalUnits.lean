@@ -7,6 +7,18 @@ module
 
 public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 
+/-!
+# Uniformisers in adic completions
+
+Choices of uniformisers in the adic completion `K_v` of a Dedekind domain
+at a finite place `v`, together with the basic API.
+
+## Main definitions
+
+* `HeightOneSpectrum.adicCompletionUniformizer`: a chosen uniformiser of
+  the adic completion at `v`.
+-/
+
 @[expose] public section
 /-
 

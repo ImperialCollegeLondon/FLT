@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2024 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Pietro Monticone, Salvatore Mercuri, Matthew Jasper, Ruben Van de Velde,
+William Coram
+-/
 module
 
 public import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
@@ -10,6 +16,12 @@ public import Mathlib.RingTheory.PicardGroup
 public import Mathlib.RingTheory.SimpleRing.Principal
 public import Mathlib.Topology.Algebra.Algebra.Equiv
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
+
+/-!
+# Module Topology
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

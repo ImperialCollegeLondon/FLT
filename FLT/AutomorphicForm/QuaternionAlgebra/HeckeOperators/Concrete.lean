@@ -15,6 +15,15 @@ public import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits -- for (π 0; 0 1)
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 
+/-!
+# Concrete Hecke operators on quaternionic automorphic forms
+
+We define the Hecke operators `T_v` acting on the space of weight-2 automorphic
+forms on a totally definite quaternion algebra. These are the concrete
+Hecke operators associated to a finite place `v` and a level subgroup `U₁(S)`,
+realised via the abstract double-coset construction.
+-/
+
 @[expose] public section
 /-
 

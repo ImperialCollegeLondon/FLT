@@ -9,6 +9,12 @@ module
 
 public import Mathlib.RingTheory.Localization.BaseChange
 
+/-!
+# Base Change
+
+Material destined for Mathlib.
+-/
+
 @[expose] public section
 
 namespace IsLocalization

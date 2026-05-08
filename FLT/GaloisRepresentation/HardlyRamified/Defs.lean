@@ -14,6 +14,15 @@ public import Mathlib.NumberTheory.Padics.Complex
 public import Mathlib.Order.CompletePartialOrder
 public import Mathlib.RingTheory.SimpleRing.Principal
 
+/-!
+# Hardly ramified Galois representations
+
+We define what it means for a continuous mod-`ℓ` (or `ℓ`-adic) representation
+of `Gal(ℚ̄/ℚ)` to be *hardly ramified*: unramified outside `2ℓ`, with
+prescribed flat / finite ramification at `2` and `ℓ`. This is the precise
+hypothesis satisfied by the `ℓ`-torsion of the Frey curve.
+-/
+
 @[expose] public section
 /-
 

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Salvatore Mercuri. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Salvatore Mercuri, Kevin Buzzard
+-/
 module
 
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
@@ -5,6 +10,14 @@ public import Mathlib.NumberTheory.Padics.RingHoms
 public import Mathlib.RingTheory.DedekindDomain.AdicValuation
 public import Mathlib.RingTheory.Int.Basic
 public import Mathlib.Topology.Algebra.Algebra.Equiv
+
+/-!
+# `ℚ` inside the restricted product of the `ℚ_p`
+
+We embed `ℚ` diagonally in the restricted product `Πʳ_p [ℚ_[p], ℤ_[p]]`,
+and identify rationals with their image (the elements with bounded
+`p`-denominator).
+-/
 
 @[expose] public section
 

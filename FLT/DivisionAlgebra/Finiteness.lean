@@ -11,13 +11,20 @@ public import FLT.Mathlib.Topology.HomToDiscrete
 public import FLT.HaarMeasure.HaarChar.RealComplex
 public import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
 public import FLT.Mathlib.MeasureTheory.Haar.Extension
-public import FLT.Mathlib.LinearAlgebra.TensorProduct.Basis
-public import FLT.Mathlib.Topology.HomToDiscrete
 public import FLT.Mathlib.Topology.Polish
 public import Mathlib.Topology.Metrizable.Urysohn
 public import Mathlib.Topology.MetricSpace.Polish
 public import Mathlib.Topology.UniformSpace.Completion
 public import Mathlib.Topology.MetricSpace.Completion
+
+/-!
+# Finiteness theorem for the adelic quotient of a division algebra
+
+Let `D` be a finite-dimensional division algebra over a number field `K`.
+Setup and intermediate results towards the classical theorem that the
+adelic double-coset space `D^× \\ (D ⊗ 𝔸_K)^× / U` is finite for any
+compact open subgroup `U`.
+-/
 
 @[expose] public section
 /-

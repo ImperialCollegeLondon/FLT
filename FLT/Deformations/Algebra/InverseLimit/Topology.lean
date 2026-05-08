@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Javier López-Contreras. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Javier López-Contreras, Kevin Buzzard
+-/
 module
 
 public import Mathlib.Algebra.Module.LinearMap.Defs
@@ -7,6 +12,14 @@ public import Mathlib.Algebra.Module.Submodule.Defs
 public import Mathlib.Algebra.Module.Pi
 public import FLT.Deformations.ContinuousRepresentation.IsTopologicalModule
 public import FLT.Deformations.Algebra.InverseLimit.Basic
+
+/-!
+# Topology on inverse limits
+
+The inverse limit of a system of topological algebraic structures inherits
+a natural topological structure as a subspace of the product. We record
+basic continuity properties of the canonical maps.
+-/
 
 @[expose] public section
 

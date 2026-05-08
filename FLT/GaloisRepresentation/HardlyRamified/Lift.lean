@@ -1,6 +1,19 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.GaloisRepresentation.HardlyRamified.Defs
+
+/-!
+# Lifting hardly ramified residual representations
+
+If `ρ̄ : Gal(ℚ̄/ℚ) → GL₂(k)` is an irreducible hardly ramified mod-`ℓ`
+representation, we construct (as part of the inputs to FLT) a hardly
+ramified `ℓ`-adic lift to characteristic zero.
+-/
 
 @[expose] public section
 

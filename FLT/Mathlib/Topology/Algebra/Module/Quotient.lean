@@ -1,7 +1,18 @@
+/-
+Copyright (c) 2025 Salvatore Mercuri. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Salvatore Mercuri, Kevin Buzzard, Pietro Monticone
+-/
 module
 
 public import Mathlib.LinearAlgebra.Quotient.Pi
 public import Mathlib.Topology.Algebra.Module.Equiv
+
+/-!
+# Quotient
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

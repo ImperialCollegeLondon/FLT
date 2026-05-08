@@ -1,7 +1,20 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.GaloisRepresentation.HardlyRamified.Defs
 public import FLT.Basic.FreyPackage
+
+/-!
+# The Frey curve gives a hardly ramified representation
+
+We prove that the `ℓ`-torsion of the Frey curve attached to a Frey package
+is a hardly ramified Galois representation, and that this representation is
+irreducible.
+-/
 
 @[expose] public section
 

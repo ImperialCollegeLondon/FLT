@@ -10,6 +10,14 @@ public import Mathlib.Algebra.Module.LinearMap.Defs
 public import Mathlib.Algebra.Ring.Action.Submonoid
 public import Mathlib.GroupTheory.GroupAction.Quotient
 
+/-!
+# Abstract Hecke operators
+
+Generalities on Hecke operators acting on the fixed points of a group action.
+We define the abstract Hecke operator attached to a double coset
+`U g U` acting on `R`-valued functions invariant under `U`.
+-/
+
 @[expose] public section
 /-
 

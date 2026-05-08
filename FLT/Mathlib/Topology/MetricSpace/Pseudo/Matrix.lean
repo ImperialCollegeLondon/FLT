@@ -1,8 +1,19 @@
+/-
+Copyright (c) 2025 Salvatore Mercuri. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Salvatore Mercuri, Kevin Buzzard
+-/
 module
 
 public import Mathlib.Analysis.Normed.Ring.Basic
 public import Mathlib.Topology.Instances.Matrix
 public import FLT.Mathlib.Topology.Constructions
+
+/-!
+# Matrix
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

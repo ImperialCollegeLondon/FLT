@@ -12,6 +12,12 @@ public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import FLT.NumberField.Completion.Finite
 public import FLT.NumberField.HeightOneSpectrum
 
+/-!
+# Finite Adele Ring
+
+Material destined for Mathlib.
+-/
+
 @[expose] public section
 
 /-

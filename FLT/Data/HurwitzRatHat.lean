@@ -1,7 +1,26 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.Data.Hurwitz
 public import FLT.Data.QHat
+
+/-!
+# Adelic Hurwitz quaternions
+
+Base changes of the Hurwitz integers to `ℚ` and to `ẐHat`, providing a
+quaternion algebra over the rationals and its profinite completion as
+free rank-4 modules over the corresponding base ring.
+
+## Main definitions
+
+* `HurwitzRat`: the rational quaternions `ℚ + ℚi + ℚj + ℚk`.
+* `HurwitzHat`: the profinite Hurwitz quaternions, a free rank-4 module
+  over `ẐHat`.
+-/
 
 @[expose] public section
 

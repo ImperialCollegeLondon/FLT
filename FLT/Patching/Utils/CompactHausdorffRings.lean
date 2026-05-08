@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Thomas Browning. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Thomas Browning, Kevin Buzzard
+-/
 module
 
 public import Mathlib.Data.Nat.Factorization.Induction
@@ -6,6 +11,14 @@ public import Mathlib.GroupTheory.GroupAction.Ring
 public import Mathlib.Topology.Algebra.Group.CompactOpen
 public import Mathlib.Topology.Algebra.Group.SubmonoidClosure
 public import Mathlib.Topology.Algebra.Ring.Ideal
+
+/-!
+# Compact Hausdorff rings
+
+Structure results for compact Hausdorff topological groups / rings:
+in particular, a compact Hausdorff `𝔽_p`-vector space is totally
+disconnected, and a connected compact Hausdorff abelian group is divisible.
+-/
 
 @[expose] public section
 

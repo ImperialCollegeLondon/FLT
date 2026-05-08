@@ -1,9 +1,22 @@
+/-
+Copyright (c) 2024 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
 public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 public import FLT.Data.QHat
 public import Mathlib.NumberTheory.Cyclotomic.Basic
+
+/-!
+# The cyclotomic character
+
+The cyclotomic character of the absolute Galois group of `ℚ`, with values
+in the units of `ẐHat`, together with the auxiliary lemmas needed to
+construct it.
+-/
 
 @[expose] public section
 

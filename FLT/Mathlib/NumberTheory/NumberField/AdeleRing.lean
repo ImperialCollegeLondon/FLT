@@ -1,6 +1,11 @@
--- can't upstream because this first import imports too much
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
+-- can't upstream because this first import imports too much
 public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 public import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 

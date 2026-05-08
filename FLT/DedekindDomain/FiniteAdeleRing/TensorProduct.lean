@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.Mathlib.LinearAlgebra.TensorProduct.Algebra
@@ -5,6 +10,13 @@ public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import FLT.Mathlib.LinearAlgebra.TensorProduct.FiniteFree
 public import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
 public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+
+/-!
+# Tensor product compatibilities for the finite adele ring
+
+Compatibilities between tensor products and the local components of
+the finite adele ring of a Dedekind domain.
+-/
 
 @[expose] public section
 

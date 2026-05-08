@@ -12,6 +12,13 @@ public import Mathlib.Data.Real.StarOrdered
 public import Mathlib.Order.Monotone.Union
 public import Mathlib.Tactic.NormNum.NatFactorial
 
+/-!
+# Discriminant bounds for number fields
+
+Bounds of Minkowski type for the discriminant of a number field, derived from
+the comparison between root discriminants and small-degree explicit bounds.
+-/
+
 @[expose] public section
 
 open scoped Nat

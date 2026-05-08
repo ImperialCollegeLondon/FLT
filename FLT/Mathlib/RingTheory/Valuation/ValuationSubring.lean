@@ -1,7 +1,18 @@
+/-
+Copyright (c) 2025 Ruben Van de Velde. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Ruben Van de Velde, Kevin Buzzard, Salvatore Mercuri
+-/
 module
 
 public import Mathlib.RingTheory.Valuation.ValuationSubring
 public import Mathlib.Topology.Algebra.Valued.ValuationTopology
+
+/-!
+# Valuation Subring
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

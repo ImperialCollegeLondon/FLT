@@ -9,19 +9,9 @@ public import FLT.HaarMeasure.HaarChar.Ring
 public import FLT.Mathlib.Topology.Algebra.Module.Equiv
 public import FLT.Mathlib.LinearAlgebra.Determinant
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
-public import FLT.Mathlib.Topology.Algebra.Module.Equiv
 public import FLT.Mathlib.LinearAlgebra.Matrix.Transvection
 
-@[expose] public section
-
-namespace MeasureTheory
-
-open Measure
-
-section HaarMeasureScaling
-
 /-!
-
 # Haar character scaling under linear automorphisms
 
 We prove that a linear isomorphism on a finite-dimensional vector space
@@ -35,7 +25,7 @@ We proceed by:
 4. Proving the result for automorphisms on `(ι → F)`
 5. Deducing the general result for `V`
 
-## Main result:
+## Main result
 
 * `addEquivAddHaarChar_eq_ringHaarChar_det`
 
@@ -45,6 +35,14 @@ We proceed by:
 * Consider generalisation to commutative rings
 
 -/
+
+@[expose] public section
+
+namespace MeasureTheory
+
+open Measure
+
+section HaarMeasureScaling
 
 open Matrix Measure
 

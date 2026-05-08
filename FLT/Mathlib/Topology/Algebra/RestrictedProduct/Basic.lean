@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Matthew Jasper. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Matthew Jasper, Kevin Buzzard, Ruben Van de Velde
+-/
 module
 
 public import Mathlib.Algebra.Module.LinearMap.Defs
@@ -5,6 +10,12 @@ public import Mathlib.Algebra.Ring.Subring.Basic
 public import Mathlib.Topology.Algebra.RestrictedProduct.Basic
 public import Mathlib.Algebra.Module.Submodule.Defs
 public import Mathlib.Algebra.Group.Pointwise.Set.Basic
+
+/-!
+# Basic
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

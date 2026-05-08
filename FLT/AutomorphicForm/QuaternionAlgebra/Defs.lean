@@ -11,6 +11,21 @@ public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 public import Mathlib.Order.CompletePartialOrder
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 
+/-!
+# Definitions for automorphic forms on quaternion algebras
+
+Let `D` be a totally definite quaternion algebra over a totally real
+number field `F`. We set up notation and basic definitions for the spaces of
+weight-2 automorphic forms on `D` (functions on the double-coset space
+`D^× \\ (D ⊗ 𝔸_F^∞)^× / U` for an open compact subgroup `U`).
+
+## Main definitions
+
+* `TotallyDefiniteQuaternionAlgebra.Dfx`: the units of `D ⊗_F 𝔸_F^∞`.
+* `TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm`: the space of
+  weight-2 automorphic forms with values in a coefficient ring `R`.
+-/
+
 @[expose] public section
 
 /-

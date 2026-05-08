@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Salvatore Mercuri. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Salvatore Mercuri, Kevin Buzzard
+-/
 module
 
 public import Mathlib.Algebra.BigOperators.Pi
@@ -5,6 +10,12 @@ public import Mathlib.LinearAlgebra.Dimension.Constructions
 public import Mathlib.LinearAlgebra.TensorProduct.Pi
 public import FLT.Mathlib.RingTheory.TensorProduct.Pi
 public import Mathlib.GroupTheory.MonoidLocalization.Basic
+
+/-!
+# Constructions
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

@@ -1,9 +1,20 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import Mathlib.Algebra.Central.Defs
 public import Mathlib.Algebra.Quaternion
 public import Mathlib.Analysis.Quaternion -- for *notation* ℍ only!
 public import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+
+/-!
+# Is Quaternion Algebra
+
+Material destined for Mathlib.
+-/
 
 @[expose] public section
 

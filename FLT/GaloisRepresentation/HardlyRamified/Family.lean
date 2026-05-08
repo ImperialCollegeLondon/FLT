@@ -1,7 +1,19 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.GaloisRepresentation.HardlyRamified.Defs
 public import FLT.Deformations.RepresentationTheory.GaloisRepFamily
+
+/-!
+# Hardly ramified representations in compatible families
+
+We show that the property of being hardly ramified is preserved within
+compatible families of Galois representations.
+-/
 
 @[expose] public section
 

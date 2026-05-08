@@ -1,9 +1,22 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Pietro Monticone
+-/
 module
 
 public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
 public import Mathlib.GroupTheory.MonoidLocalization.Basic
 public import Mathlib.RingTheory.TensorProduct.Finite
 public import Mathlib.RingTheory.TensorProduct.Free
+
+/-!
+# Right-action instances on tensor products
+
+Right-action instances making `M ⊗[R] S` an `S`-module / `S`-algebra when
+`S` is a commutative `R`-algebra. These are scoped instances kept in their
+own namespace to avoid clashing with the standard left-action instances.
+-/
 
 @[expose] public section
 

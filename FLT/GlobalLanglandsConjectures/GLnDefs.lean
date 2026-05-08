@@ -16,10 +16,7 @@ public import Mathlib.RepresentationTheory.FDRep
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import Mathlib.Topology.LocallyConstant.Basic
 
-suppress_compilation
-
 /-!
-
 # The Global Langlands Conjectures for GL(n) over the rationals.
 
 This code never fully worked because we didn't get as far as weights
@@ -34,6 +31,8 @@ I've made the design decision of working with the functor
 of the `GL_n` functor. There's notation `GL (Fin n)` for this.
 
 -/
+
+suppress_compilation
 
 @[expose] public section
 

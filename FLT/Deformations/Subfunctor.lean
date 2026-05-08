@@ -1,9 +1,21 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang
+-/
 module
 
 public import Mathlib.CategoryTheory.Elementwise
 public import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 public import Mathlib.Data.Set.Lattice.Image
 public import Mathlib.CategoryTheory.Subfunctor.Basic
+
+/-!
+# Subfunctors
+
+Basic constructions for subfunctors of functors valued in `Type`, including
+the subfunctor cut out by a subset of the value at a terminal object.
+-/
 
 @[expose] public section
 

@@ -1,7 +1,20 @@
+/-
+Copyright (c) 2025 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang, Kevin Buzzard, Pietro Monticone
+-/
 module
 
 public import FLT.Patching.Algebra
 public import FLT.Patching.Module
+
+/-!
+# The patching module over a coefficient ring
+
+Lifting linear (iso)morphisms modulo a power of an ideal to the level of
+patching modules: produces module-equivalences between patching modules
+out of compatible families of mod-`I^k` equivalences.
+-/
 
 @[expose] public section
 

@@ -1,6 +1,18 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
 module
 
 public import FLT.GaloisRepresentation.HardlyRamified.Defs
+
+/-!
+# Mod-3 hardly ramified representations
+
+A mod-3 hardly ramified representation is shown to be an extension of
+the trivial character by the mod-3 cyclotomic character.
+-/
 
 @[expose] public section
 

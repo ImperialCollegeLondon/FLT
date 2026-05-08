@@ -1,9 +1,30 @@
+/-
+Copyright (c) 2025 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard, Ruben Van de Velde, Pietro Monticone, Dagur Tómas Ásgeirsson,
+Arend Mellendijk, Django Peeters
+-/
 module
 
 public import Mathlib.Algebra.Order.Star.Basic
 public import Mathlib.Analysis.Normed.Field.Lemmas
 public import Mathlib.Data.PNat.Prime
 public import Mathlib.RingTheory.Flat.TorsionFree
+
+/-!
+# The profinite completion of `ℤ` and the finite adeles of `ℚ`
+
+A self-contained construction of `ẐHat`, the profinite completion of `ℤ`,
+defined as the inverse limit of the rings `ℤ/Nℤ` together with the natural
+reduction maps. We also define the finite adele ring `ℚHat` as
+`ẐHat ⊗_ℤ ℚ`.
+
+## Main definitions
+
+* `ZHat`: the profinite completion of `ℤ`, defined explicitly as compatible
+  systems of elements of `ℤ/Nℤ`.
+* `QHat`: the finite adele ring `ℚHat = ẐHat ⊗_ℤ ℚ`.
+-/
 
 @[expose] public section
 /-

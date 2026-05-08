@@ -7,6 +7,12 @@ module
 
 public import Mathlib.Algebra.Colimit.Module
 
+/-!
+# Is Direct Limit
+
+Material destined for Mathlib.
+-/
+
 @[expose] public section
 
 variable {ι : Type*} [Preorder ι] {M : ι → Type*} {P : Type*}
