@@ -5,7 +5,7 @@ Authors: Kevin Buzzard
 -/
 module
 
--- can't upstream because this first import imports too much
+-- can't upstream until we've imported the below!
 public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 public import FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
 
