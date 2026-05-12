@@ -66,15 +66,11 @@ jobs:
         if: steps.fkb.outputs.commit == ''
         uses: leanprover-community/downstream-reports/.github/actions/bump-to-latest@main
         with:
-          # The bump-to-latest action performs a lake build as a sanity check by default,
-          # but this will be re-checked when the PR is opened anyways:
-          # let's pass this parameter to skip this check and just open the PR with the verified last-known-good.
-          #
-          # The only situation where this might fail is if there have been new commits in FLT
-          # between the time downstream-reports published the last-known-good and the time this
-          # PR is opened: this should be rare and it will be caught by the PR validation anyway,
-          # so it is an acceptable tradeoff.
-          skip-build: 'true'
+          # Re-run the lake build as a sanity check against the current FLT HEAD.
+          # downstream-reports verifies the LKG against a (possibly older) FLT commit,
+          # so a build here catches the case where new FLT commits have landed between
+          # the snapshot run and this workflow and broke against the same LKG mathlib
+          skip-build: 'false'
 
       - name: Open or update PR
         # Skip when an incompatibility is active (see the fkb step above).
