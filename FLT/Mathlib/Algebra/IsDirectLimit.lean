@@ -103,7 +103,7 @@ lemma Equiv_apply (i : ι) (x : M i) [IsDirectLimit f g₁] [IsDirectLimit f g�
 @[simp]
 lemma linearEquiv_symm_apply (i : ι) (x : M i) [IsDirectLimit f g₁]
   [IsDirectLimit f g₂] : (Equiv f g₁ g₂).symm (g₂ i x) = g₁ i x := by
-  simp [Equiv, Equiv.coe_fn_symm_mk, compatibility', implies_true, lift_of]
+  simp [Equiv, compatibility', implies_true, lift_of]
 
 namespace Module
 
