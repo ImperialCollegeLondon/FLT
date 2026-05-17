@@ -45,6 +45,7 @@ map is continuous, `K_v`-linear and restricts to an isomorphism `B ⊗_A 𝓞_v 
 
 -/
 
+attribute [-instance] WithVal.instCommRing WithVal.instRing
 @[expose] public section
 
 open scoped WithZero Valued TensorProduct
@@ -160,6 +161,7 @@ namespace Extension
 
 variable {v} (w : v.Extension B)
 
+attribute [instance] WithVal.instCommRing WithVal.instRing
 /-- The map `(R,v) → (S,w)` as a semialgebra map over `R → S` (which is the same map!). -/
 @[simps!]
 def _root_.WithVal.semialgebraMap {R S Γ₀ Γ₀' : Type*} [CommRing R]
@@ -169,6 +171,8 @@ def _root_.WithVal.semialgebraMap {R S Γ₀ Γ₀' : Type*} [CommRing R]
   __ := algebraMap (WithVal v) (WithVal w)
   map_smul' r x := by
     simp [WithVal.algebraMap_left_apply, WithVal.algebraMap_right_apply, Algebra.smul_def]
+
+attribute [-instance] WithVal.instCommRing WithVal.instRing
 
 /-- If w of L divides v of K, `underSemialgHom v w pf` is the canonical map
 `Kᵥ → L_w` lying above `K → L`. Here we actually use the type synonyms `WithVal K` and `WithVal L`.
@@ -355,6 +359,8 @@ section ModuleTopology
 
 open Extension adicCompletion
 
+attribute [local irreducible] WithVal.instRing
+
 variable (B)
 
 /-- The canonical B-algebra map `B ⊗[A] 𝓞_v → L ⊗[K] K_v` -/
@@ -432,21 +438,40 @@ lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L
 -- Here are some instance shortcuts which speed it up, but they don't
 -- solve the main problem.
 
-noncomputable instance : Semiring (B ⊗[A] ↥(adicCompletionIntegers K v)) := inferInstance
 noncomputable instance : Semiring (adicCompletionIntegers K v) := inferInstance
-noncomputable instance : Semiring (adicCompletion K v) := inferInstance
+noncomputable instance : Semiring (B ⊗[A] ↥(adicCompletionIntegers K v)) := inferInstance
 noncomputable instance : AddCommMonoid (adicCompletion K v) := inferInstance
+noncomputable instance : Semiring (adicCompletion K v) := inferInstance
+noncomputable instance : Semiring (L ⊗[K] adicCompletion K v) := inferInstance
 noncomputable instance : Algebra B (L ⊗[K] adicCompletion K v) := inferInstance
 open scoped TensorProduct.RightActions in
 noncomputable instance [FiniteDimensional K L] : TopologicalSpace (L ⊗[K] adicCompletion K v) :=
   inferInstance
-noncomputable instance : Semiring (L ⊗[K] adicCompletion K v) := inferInstance
+open scoped TensorProduct.RightActions in
+noncomputable instance [FiniteDimensional K L] : ContinuousAdd (L ⊗[K] adicCompletion K v) :=
+  inferInstance
+instance : AddMonoidHomClass (B ⊗[A] ↥(adicCompletionIntegers K v) →ₐ[B] L ⊗[K] adicCompletion K v)
+                              (B ⊗[A] ↥(adicCompletionIntegers K v)) (L ⊗[K] adicCompletion K v) :=
+  inferInstance
 
-set_option maxHeartbeats 400000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
 attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
 open scoped TensorProduct.RightActions in
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L]  in
+/-
+Debugging info for 889
+[definition.value] [140090682.000000] ✅️
+    IsDedekindDomain.HeightOneSpectrum.tensorAdicCompletionIntegersTo_isClopen_range ▶
+attribute [-instance] WithVal.instCommRing WithVal.instRing
+[definition.value] [113804408.000000] ✅️
+noncomputable instance [FiniteDimensional K L] : ContinuousAdd (L ⊗[K] adicCompletion K v) :=
+[definition.value] [107049992.000000]
+attribute [local irreducible] WithVal.instRing in
+[definition.value] [70057040.000000]
+AddMonoidHomClass (B ⊗[A] ↥(adicCompletionIntegers K v) →ₐ[B] L ⊗[K] adicCompletion K v)
+                              (B ⊗[A] ↥(adicCompletionIntegers K v)) (L ⊗[K] adicCompletion K v)
+[definition.value] [67886695.000000]
+-/
 /-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is clopen. -/
 lemma tensorAdicCompletionIntegersTo_isClopen_range
     [IsIntegralClosure B A L] [FiniteDimensional K L] :
@@ -497,7 +522,7 @@ lemma tensorAdicCompletionIntegersTo_isClopen_range
     apply isOpen_set_pi Set.finite_univ
     rintro i -
     exact Valued.isOpen_valuationSubring (v.adicCompletion K)
-
+#exit
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L] in
 open scoped TensorProduct.RightActions in
 /-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is the closure of the image of `B`. -/
