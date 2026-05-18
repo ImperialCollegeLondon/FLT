@@ -45,7 +45,6 @@ map is continuous, `K_v`-linear and restricts to an isomorphism `B ⊗_A 𝓞_v 
 
 -/
 
-attribute [-instance] WithVal.instCommRing WithVal.instRing
 @[expose] public section
 
 open scoped WithZero Valued TensorProduct
@@ -161,7 +160,6 @@ namespace Extension
 
 variable {v} (w : v.Extension B)
 
-attribute [instance] WithVal.instCommRing WithVal.instRing
 /-- The map `(R,v) → (S,w)` as a semialgebra map over `R → S` (which is the same map!). -/
 @[simps!]
 def _root_.WithVal.semialgebraMap {R S Γ₀ Γ₀' : Type*} [CommRing R]
@@ -171,8 +169,6 @@ def _root_.WithVal.semialgebraMap {R S Γ₀ Γ₀' : Type*} [CommRing R]
   __ := algebraMap (WithVal v) (WithVal w)
   map_smul' r x := by
     simp [WithVal.algebraMap_left_apply, WithVal.algebraMap_right_apply, Algebra.smul_def]
-
-attribute [-instance] WithVal.instCommRing WithVal.instRing
 
 /-- If w of L divides v of K, `underSemialgHom v w pf` is the canonical map
 `Kᵥ → L_w` lying above `K → L`. Here we actually use the type synonyms `WithVal K` and `WithVal L`.
@@ -329,7 +325,6 @@ instance instIsModuleTopology [FiniteDimensional K L] (w : v.Extension B) :
     ContinuousLinearEquiv.ofFinrankEq (Module.finrank_fin_fun Kv)
   apply IsModuleTopology.iso iso
 
-attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
 /-- ∏_{w|v} L_w has the K_v-module topology. -/
 instance instIsModuleTopologyPi [FiniteDimensional K L] :
     -- the claim that L_w has the module topology.
@@ -337,8 +332,6 @@ instance instIsModuleTopologyPi [FiniteDimensional K L] :
   let := Extension.finite A K L B v
   exact IsModuleTopology.instPi
 
-attribute [local instance 9999] IsSemitopologicalRing.toIsTopologicalAddGroup
-  instT2SpaceOfR1SpaceOfT0Space Algebra.toModule in
 open scoped TensorProduct.RightActions in
 /-- `tensorAdicCompletionComapLinearMap` is continuous, open and surjective.
   We later show that it's a homeomorphism. -/
@@ -359,7 +352,8 @@ section ModuleTopology
 
 open Extension adicCompletion
 
-attribute [local irreducible] WithVal.instRing
+attribute [local irreducible] WithVal.instRing -- speedup which I'm hoping to
+-- get into mathlib: see https://github.com/leanprover-community/mathlib4/pull/39519
 
 variable (B)
 
@@ -743,7 +737,6 @@ noncomputable local instance : MulAction (v.adicCompletionIntegers K) (v.adicCom
 -- - in general e * f <= degree (Prop 3.1.3.2)
 -- - equality holds for L/K if L is K-cartesian (Prop 3.6.2.4)
 -- - so for example if K is complete and discretely-valued (Cor 2.4.3.11).
-attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 theorem ramificationIdx_mul_inertiaDeg_eq_finrank [FiniteDimensional K L] [Module.Finite A B] :
     v.asIdeal.ramificationIdx w.1.asIdeal * v.asIdeal.inertiaDeg w.1.asIdeal =
       Module.finrank (adicCompletion K v) (adicCompletion L w.1) := by
@@ -765,7 +758,6 @@ local instance : Module.Free (v.adicCompletion K) (adicCompletion L w.1) :=
   Module.free_of_finite_type_torsion_free'
 
 open scoped TensorProduct.RightActions in
-attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 /-- `L ⊗[K] K_v` and `∏_{w|v} L_w` have equal dimensions -/
 lemma finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion :
     Module.finrank (adicCompletion K v) (L ⊗[K] adicCompletion K v) =
