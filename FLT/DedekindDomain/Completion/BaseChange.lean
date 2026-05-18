@@ -433,45 +433,8 @@ lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L
           Algebra.TensorProduct.algebraMap_apply, RingHom.map_mul, ← Algebra.smul_def]
         simp
 
--- `tensorAdicCompletionIntegersTo_isClopen_range` got much slower after the
--- bump to v4.29. See `https://github.com/ImperialCollegeLondon/FLT/issues/889`.
--- Here are some instance shortcuts which speed it up, but they don't
--- solve the main problem.
-
-noncomputable instance : Semiring (adicCompletionIntegers K v) := inferInstance
-noncomputable instance : Semiring (B ⊗[A] ↥(adicCompletionIntegers K v)) := inferInstance
-noncomputable instance : AddCommMonoid (adicCompletion K v) := inferInstance
-noncomputable instance : Semiring (adicCompletion K v) := inferInstance
-noncomputable instance : Semiring (L ⊗[K] adicCompletion K v) := inferInstance
-noncomputable instance : Algebra B (L ⊗[K] adicCompletion K v) := inferInstance
-open scoped TensorProduct.RightActions in
-noncomputable instance [FiniteDimensional K L] : TopologicalSpace (L ⊗[K] adicCompletion K v) :=
-  inferInstance
-open scoped TensorProduct.RightActions in
-noncomputable instance [FiniteDimensional K L] : ContinuousAdd (L ⊗[K] adicCompletion K v) :=
-  inferInstance
-instance : AddMonoidHomClass (B ⊗[A] ↥(adicCompletionIntegers K v) →ₐ[B] L ⊗[K] adicCompletion K v)
-                              (B ⊗[A] ↥(adicCompletionIntegers K v)) (L ⊗[K] adicCompletion K v) :=
-  inferInstance
-
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
 open scoped TensorProduct.RightActions in
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L]  in
-/-
-Debugging info for 889
-[definition.value] [140090682.000000] ✅️
-    IsDedekindDomain.HeightOneSpectrum.tensorAdicCompletionIntegersTo_isClopen_range ▶
-attribute [-instance] WithVal.instCommRing WithVal.instRing
-[definition.value] [113804408.000000] ✅️
-noncomputable instance [FiniteDimensional K L] : ContinuousAdd (L ⊗[K] adicCompletion K v) :=
-[definition.value] [107049992.000000]
-attribute [local irreducible] WithVal.instRing in
-[definition.value] [70057040.000000]
-AddMonoidHomClass (B ⊗[A] ↥(adicCompletionIntegers K v) →ₐ[B] L ⊗[K] adicCompletion K v)
-                              (B ⊗[A] ↥(adicCompletionIntegers K v)) (L ⊗[K] adicCompletion K v)
-[definition.value] [67886695.000000]
--/
 /-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is clopen. -/
 lemma tensorAdicCompletionIntegersTo_isClopen_range
     [IsIntegralClosure B A L] [FiniteDimensional K L] :
@@ -497,7 +460,7 @@ lemma tensorAdicCompletionIntegersTo_isClopen_range
     IsModuleTopology.continuousLinearEquiv (b'.equivFun)
   -- Use the preimage of `∏ 𝒪_v` as the open neighbourhood.
   use equiv.symm '' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v)))
-  refine ⟨?_, ?_, by simp [-EmbeddingLike.map_eq_zero_iff, ContinuousLinearEquiv.map_eq_zero_iff]⟩
+  refine ⟨?_, ?_, by simp⟩
   · intro t ⟨g, hg, ht⟩
     -- We have `t = equiv g = ∑ i, b i ⊗ g i`, since `g in ∏ 𝒪_v` and
     -- `b i ∈ (algebraMap B L).range`, this is `tensorAdicCompletionTo`
@@ -522,7 +485,7 @@ lemma tensorAdicCompletionIntegersTo_isClopen_range
     apply isOpen_set_pi Set.finite_univ
     rintro i -
     exact Valued.isOpen_valuationSubring (v.adicCompletion K)
-#exit
+
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L] in
 open scoped TensorProduct.RightActions in
 /-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is the closure of the image of `B`. -/
