@@ -325,7 +325,6 @@ instance instIsModuleTopology [FiniteDimensional K L] (w : v.Extension B) :
     ContinuousLinearEquiv.ofFinrankEq (Module.finrank_fin_fun Kv)
   apply IsModuleTopology.iso iso
 
-attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
 /-- ∏_{w|v} L_w has the K_v-module topology. -/
 instance instIsModuleTopologyPi [FiniteDimensional K L] :
     -- the claim that L_w has the module topology.
@@ -333,8 +332,6 @@ instance instIsModuleTopologyPi [FiniteDimensional K L] :
   let := Extension.finite A K L B v
   exact IsModuleTopology.instPi
 
-attribute [local instance 9999] IsSemitopologicalRing.toIsTopologicalAddGroup
-  instT2SpaceOfR1SpaceOfT0Space Algebra.toModule in
 open scoped TensorProduct.RightActions in
 /-- `tensorAdicCompletionComapLinearMap` is continuous, open and surjective.
   We later show that it's a homeomorphism. -/
@@ -354,6 +351,9 @@ end adicCompletion
 section ModuleTopology
 
 open Extension adicCompletion
+
+attribute [local irreducible] WithVal.instRing -- speedup which I'm hoping to
+-- get into mathlib: see https://github.com/leanprover-community/mathlib4/pull/39519
 
 variable (B)
 
@@ -427,24 +427,6 @@ lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L
           Algebra.TensorProduct.algebraMap_apply, RingHom.map_mul, ← Algebra.smul_def]
         simp
 
--- `tensorAdicCompletionIntegersTo_isClopen_range` got much slower after the
--- bump to v4.29. See `https://github.com/ImperialCollegeLondon/FLT/issues/889`.
--- Here are some instance shortcuts which speed it up, but they don't
--- solve the main problem.
-
-noncomputable instance : Semiring (B ⊗[A] ↥(adicCompletionIntegers K v)) := inferInstance
-noncomputable instance : Semiring (adicCompletionIntegers K v) := inferInstance
-noncomputable instance : Semiring (adicCompletion K v) := inferInstance
-noncomputable instance : AddCommMonoid (adicCompletion K v) := inferInstance
-noncomputable instance : Algebra B (L ⊗[K] adicCompletion K v) := inferInstance
-open scoped TensorProduct.RightActions in
-noncomputable instance [FiniteDimensional K L] : TopologicalSpace (L ⊗[K] adicCompletion K v) :=
-  inferInstance
-noncomputable instance : Semiring (L ⊗[K] adicCompletion K v) := inferInstance
-
-set_option maxHeartbeats 400000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
 open scoped TensorProduct.RightActions in
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L]  in
 /-- The image of `B ⊗[A] 𝓞_v` in `L ⊗[K] K_v` is clopen. -/
@@ -472,7 +454,7 @@ lemma tensorAdicCompletionIntegersTo_isClopen_range
     IsModuleTopology.continuousLinearEquiv (b'.equivFun)
   -- Use the preimage of `∏ 𝒪_v` as the open neighbourhood.
   use equiv.symm '' (Set.pi Set.univ (fun _ => SetLike.coe (adicCompletionIntegers K v)))
-  refine ⟨?_, ?_, by simp [-EmbeddingLike.map_eq_zero_iff, ContinuousLinearEquiv.map_eq_zero_iff]⟩
+  refine ⟨?_, ?_, by simp⟩
   · intro t ⟨g, hg, ht⟩
     -- We have `t = equiv g = ∑ i, b i ⊗ g i`, since `g in ∏ 𝒪_v` and
     -- `b i ∈ (algebraMap B L).range`, this is `tensorAdicCompletionTo`
@@ -755,7 +737,6 @@ noncomputable local instance : MulAction (v.adicCompletionIntegers K) (v.adicCom
 -- - in general e * f <= degree (Prop 3.1.3.2)
 -- - equality holds for L/K if L is K-cartesian (Prop 3.6.2.4)
 -- - so for example if K is complete and discretely-valued (Cor 2.4.3.11).
-attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 theorem ramificationIdx_mul_inertiaDeg_eq_finrank [FiniteDimensional K L] [Module.Finite A B] :
     v.asIdeal.ramificationIdx w.1.asIdeal * v.asIdeal.inertiaDeg w.1.asIdeal =
       Module.finrank (adicCompletion K v) (adicCompletion L w.1) := by
@@ -777,7 +758,6 @@ local instance : Module.Free (v.adicCompletion K) (adicCompletion L w.1) :=
   Module.free_of_finite_type_torsion_free'
 
 open scoped TensorProduct.RightActions in
-attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 /-- `L ⊗[K] K_v` and `∏_{w|v} L_w` have equal dimensions -/
 lemma finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion :
     Module.finrank (adicCompletion K v) (L ⊗[K] adicCompletion K v) =
