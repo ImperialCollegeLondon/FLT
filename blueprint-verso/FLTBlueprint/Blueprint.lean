@@ -11,11 +11,10 @@ open Informal
 
 #doc (Manual) "Fermat's Last Theorem (Verso Blueprint)" =>
 
-This is a placeholder Verso blueprint for the
+This is an early Verso blueprint for the
 [Fermat's Last Theorem project](https://github.com/leanprover-community/FLT).
-It currently contains only dummy material so the rendering pipeline can be
-checked end to end. The real chapters will replace the placeholder content
-below.
+The single chapter below links a Blueprint node to a real declaration in the
+FLT Lean codebase; further chapters will be added as the blueprint grows.
 
 {include 0 FLTBlueprint.Chapters.Basics}
 
