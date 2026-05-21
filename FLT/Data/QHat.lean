@@ -403,7 +403,7 @@ lemma lowestTerms (x : QHat) : (∃ N z, IsCoprime N z ∧ x = (1 / N : ℚ) ⊗
     obtain ⟨N, z, h⟩ := canonicalForm x
     -- let D be the greatest common divisor of N and z_N (lifted to a natural).
     let D : PNat := ⟨Nat.gcd N (z N).val, Nat.gcd_pos_of_pos_left _ N.pos⟩
-    cases D.one_le.eq_or_lt with
+    cases (one_le (a := D)).eq_or_lt with
     | inl hD =>
       -- If D = 1 then the fraction is by definition in lowest terms.
       use N, z, ?_, h
