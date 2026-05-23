@@ -27,10 +27,11 @@ theorem PNat.pow_add_pow_ne_pow
     x^n + y^n ≠ z^n :=
   PNat.pow_add_pow_ne_pow_of_FermatLastTheorem Wiles_Taylor_Wiles x y z n hn
 
-#print axioms PNat.pow_add_pow_ne_pow
-/-
-'PNat.pow_add_pow_ne_pow' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+/--
+info: 'PNat.pow_add_pow_ne_pow' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
 -/
+#guard_msgs in
+#print axioms PNat.pow_add_pow_ne_pow
 
 -- The project will be complete when `sorryAx` is no longer
 -- mentioned in the output of this last command.
