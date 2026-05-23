@@ -231,7 +231,6 @@ def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃�
   let f := f₁ ≪≫ₗ f₂ ≪≫ₗ f₃ ≪≫ₗ f₄
   LinearEquiv.extendScalarsOfIsLocalization (nonZeroDivisors B) L f
 
-@[simp]
 lemma algebraMap_apply_eq_algebraMap (x : K) (v : HeightOneSpectrum A) :
     algebraMap K 𝔸ᶠ[A, K] x v = algebraMap K (v.adicCompletion K) x := rfl
 
