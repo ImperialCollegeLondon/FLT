@@ -180,3 +180,5 @@ theorem cyclic_base_change
     ((ρ.map (algebraMap F E)).IsAutomorphicOfLevel p hV
       (HeightOneSpectrum.preimageComapFinset (𝓞 F) F E (𝓞 E) S)) :=
   sorry
+
+#lint
