@@ -548,7 +548,8 @@ def padicEquiv : FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] Πʳ (p : Nat.Primes
     -- Adding `-implicitDefEqProofs` means that the kernel doesn't spend 30 seconds
     -- typchecking the declaration for some reason! See
     -- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/help.20with.20diagnosis.20of.20slow.20declaration/near/565229150
-    simp -implicitDefEqProofs [IsDedekindDomain.FiniteAdeleRing.algebraMap_apply (𝓞 ℚ)]
+    simp -implicitDefEqProofs
+      [IsDedekindDomain.FiniteAdeleRing.algebraMap_apply_eq_algebraMap (𝓞 ℚ)]
 
 theorem padicEquiv_bijOn :
     Set.BijOn padicEquiv (integralAdeles (𝓞 ℚ) ℚ)

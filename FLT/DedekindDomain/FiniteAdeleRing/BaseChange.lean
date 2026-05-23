@@ -231,8 +231,7 @@ def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃�
   let f := f₁ ≪≫ₗ f₂ ≪≫ₗ f₃ ≪≫ₗ f₄
   LinearEquiv.extendScalarsOfIsLocalization (nonZeroDivisors B) L f
 
-@[simp]
-lemma algebraMap_apply (x : K) (v : HeightOneSpectrum A) :
+lemma algebraMap_apply_eq_algebraMap (x : K) (v : HeightOneSpectrum A) :
     algebraMap K 𝔸ᶠ[A, K] x v = algebraMap K (v.adicCompletion K) x := rfl
 
 set_option synthInstance.maxHeartbeats 40000 in
@@ -243,12 +242,14 @@ lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A,
     baseChangeLinearEquiv A K L B (algebraMap B L b ⊗ₜ x) =
       (algebraMap _ 𝔸ᶠ[B, L] b) * (algebraMap _ 𝔸ᶠ[B, L] x) := by
   ext w
-  simpa [baseChangeLinearEquiv, restrictedProduct_prod_equiv_apply, tensorEquivTensor_tmul,
+  simp [baseChangeLinearEquiv, restrictedProduct_prod_equiv_apply, tensorEquivTensor_tmul,
     restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply,
     tensorEquivRestrictedProduct_tmul, BaseChange.algebraMap_apply,
     IsScalarTower.algebraMap_apply B L 𝔸ᶠ[B, L],
-    IsScalarTower.algebraMap_apply B L (w.adicCompletion L), -Submodule.coe_pi] using .inl rfl
+    IsScalarTower.algebraMap_apply B L (w.adicCompletion L), -Submodule.coe_pi]
+  rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem baseChange_bijective [FiniteDimensional K L] :
     Function.Bijective (SemialgHom.baseChange_of_algebraMap <|
       (mapSemialgHom A K L B).toSemialgHom) := by
@@ -269,11 +270,11 @@ theorem baseChange_bijective [FiniteDimensional K L] :
     obtain ⟨⟨b, s⟩, hl : (s : B) • l = algebraMap B L b⟩ :=
       IsLocalizedModule.surj (M := B) (M' := L) (nonZeroDivisors B) (Algebra.linearMap B L) l
     rw [LinearEquiv.coe_coe, ← IsUnit.smul_left_cancel <| IsLocalization.map_units L s]
-    simp only [Algebra.smul_def, ← algebraMap_apply, ← mul_apply]
+    simp only [Algebra.smul_def, ← algebraMap_apply_eq_algebraMap, ← mul_apply]
     simp only [← Algebra.smul_def, ← map_smul]
     simp [hl, baseChangeLinearEquiv_tmul, BaseChange.algebraMap_apply, mapSemialgHom_apply,
       SemialgHom.baseChange_of_algebraMap_tmul, Algebra.compHom_algebraMap_apply,
-      ← IsScalarTower.algebraMap_apply B L (w.adicCompletion L), TensorProduct.smul_tmul']
+      TensorProduct.smul_tmul']
   | add => simp_all
 
 /-- The `L`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
