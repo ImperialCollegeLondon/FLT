@@ -352,9 +352,10 @@ section ModuleTopology
 
 open Extension adicCompletion
 
-attribute [local irreducible] WithVal.instRing -- speedup which I'm hoping to
+--attribute [local irreducible] WithVal.instRing -- speedup which I'm hoping to
 -- get into mathlib: see https://github.com/leanprover-community/mathlib4/pull/39519
-
+-- update: this didn't get merged but https://github.com/leanprover-community/mathlib4/pull/39562
+-- got merged instead, so we'll see if that helps.
 variable (B)
 
 /-- The canonical B-algebra map `B ⊗[A] 𝓞_v → L ⊗[K] K_v` -/
