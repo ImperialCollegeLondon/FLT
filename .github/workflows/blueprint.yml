@@ -78,7 +78,7 @@ jobs:
 
       - name: Delete `print axioms` before building
         run: |
-          sed -i '/#printaxioms/d' ./FermatsLastTheorem.lean
+          sed -i '/#print axioms/d' ./FermatsLastTheorem.lean
 
       - name: Build and lint project
         uses: leanprover/lean-action@v1
