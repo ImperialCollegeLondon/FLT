@@ -76,9 +76,9 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
-      - name: Delete print-axioms before building
+      - name: Delete `print axioms` before building
         run: |
-          sed -i '/#print axioms/d' ./FermatsLastTheorem.lean
+          sed -i '/#printaxioms/d' ./FermatsLastTheorem.lean
 
       - name: Build and lint project
         uses: leanprover/lean-action@v1
