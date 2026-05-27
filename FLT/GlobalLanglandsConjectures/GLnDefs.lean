@@ -223,6 +223,7 @@ def actionTensorCAlg'3 : Z G E →ₐ[ℂ] Module.End ℂ C^∞⟮𝓘(ℝ, E), 
 -- Step 3: induced action of centre
 
 variable {n : ℕ}
+set_option backward.isDefEq.respectTransparency false in
 /-- A function on `GL_n(𝔸_f) × GL_n(ℝ)` is smooth if it is continuous, locally constant
 in the finite-adelic variable, and `C^∞` in the archimedean variable. -/
 structure IsSmooth (f : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ) : Prop where
