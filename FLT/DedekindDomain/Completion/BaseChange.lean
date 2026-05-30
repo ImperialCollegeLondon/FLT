@@ -109,6 +109,7 @@ namespace IsDedekindDomain.HeightOneSpectrum
 
 variable (v : HeightOneSpectrum A) {A B}
 
+-- attempts to make broken proof compile in bump to mathlib#34045
 instance : IsTopologicalAddGroup (WithVal (valuation K v)) := inferInstance
 variable (w : HeightOneSpectrum B) in
 instance : ContinuousAdd (WithVal (valuation L w)) := inferInstance
@@ -125,6 +126,9 @@ that `σ v w` is continuous.
 local notation "σ" => fun v w => algebraMap (WithVal (HeightOneSpectrum.valuation K v))
     (WithVal (HeightOneSpectrum.valuation L w))
 
+-- add this in an attempt to make broken proof compile after mathlib#34045
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 lemma adicValued.continuous_algebraMap
    (w : HeightOneSpectrum B) (hvw : w.under A = v) :
@@ -796,11 +800,12 @@ noncomputable def baseChangeAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
   AlgEquiv.ofBijective (baseChange K L B v) <| baseChange_bijective K L B v
 
+-- needed to make next proof compile
 open scoped TensorProduct.RightActions in
-instance : IsBiscalar L (adicCompletion K v) ⇑(baseChange K L B v) := sorry
+instance : IsBiscalar L (adicCompletion K v) (baseChange K L B v) := sorry
 
 set_option maxHeartbeats 400000 in
--- needed after mathlib#34045
+-- the above is needed after mathlib#34045
 set_option backward.isDefEq.respectTransparency false
 attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in
