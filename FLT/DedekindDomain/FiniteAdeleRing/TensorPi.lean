@@ -194,7 +194,7 @@ Rᵐ ⊗[R] (Π i, N i) --f₁--> Rⁿ ⊗[R] (Π i, N i) --f₂--> M ⊗[R] (Π
 Π i, (Rᵐ ⊗[R] N i) --g₁--> Π i, (Rⁿ ⊗[R] N i) --g₂--> Π i, (M ⊗[R] N i) --g₃--> 0 --g₄--> 0
 ```
 -/
-noncomputable def tensorPi_equiv_piTensor' [Module.FinitePresentation R M] :
+noncomputable def tensorPi_equiv_piTensor' :
     M ⊗[R] (Π i, N i) ≃ₗ[R] Π i, (M ⊗[R] N i) := IsTensorProduct.equiv
     (f := TensorProduct.piRightHomBil R R M N) <| by
   obtain ⟨n, m, f, g, exact, surj⟩ := Module.FinitePresentation.exists_fin_exact R M

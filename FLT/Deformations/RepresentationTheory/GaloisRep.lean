@@ -199,7 +199,7 @@ noncomputable def FramedGaloisRep.equivChar {n : Type*} [Unique n] :
 
 /-- The determinant of a galois rep. -/
 noncomputable
-def GaloisRep.det [IsTopologicalRing A] (ρ : GaloisRep K A M) : Γ K →ₜ* A :=
+def GaloisRep.det (ρ : GaloisRep K A M) : Γ K →ₜ* A :=
   letI := moduleTopology A (Module.End A M)
   .comp ⟨LinearMap.det, IsModuleTopology.continuous_det⟩ ρ
 
