@@ -330,8 +330,7 @@ instance : Module (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) where
   zero_smul mn := by cases mn; ext <;> exact zero_smul _ _
 
 /-- (Dinf K D × Df K D) has the 𝔸_K module topology. -/
-instance [FiniteDimensional K D] :
-    IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
+instance : IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
   IsModuleTopology.instProd'
 
 /-- The 𝔸_K linear map `D_𝔸 ≃ D_∞ × D_f`. -/

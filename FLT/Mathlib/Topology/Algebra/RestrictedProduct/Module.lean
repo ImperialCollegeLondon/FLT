@@ -148,7 +148,7 @@ instance : ContinuousSMul (Πʳ i, [R i, B i]_[𝓟 T]) (Πʳ i, [M i, C i]_[�
 variable [hBopen : Fact (∀ i, IsOpen (B i : Set (R i)))]
 variable [hCopen : Fact (∀ i, IsOpen (C i : Set (M i)))]
 
-instance [∀ i, ContinuousSMul (R i) (M i)] :
+instance :
     ContinuousSMul (Πʳ i, [R i, B i]) (Πʳ i, [M i, C i]) where
   continuous_smul := by
     rw [continuous_dom_prod hBopen.elim hCopen.elim]
