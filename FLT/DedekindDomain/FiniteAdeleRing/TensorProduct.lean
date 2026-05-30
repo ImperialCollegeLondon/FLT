@@ -34,6 +34,9 @@ open TensorProduct
 
 variable (V : Type*) [AddCommGroup V] [Module K V] [FiniteDimensional K V]
 
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup
+
 variable
     [TopologicalSpace (FiniteAdeleRing R K ⊗[K] V)]
     [IsTopologicalAddGroup (FiniteAdeleRing R K ⊗[K] V)]

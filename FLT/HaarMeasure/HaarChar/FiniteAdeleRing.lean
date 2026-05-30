@@ -116,6 +116,8 @@ local instance :
     Set (v.adicCompletion K))) :=
   ⟨isOpenAdicCompletionIntegers K⟩
 
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after mathlib#36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 local instance (v : HeightOneSpectrum (𝓞 K)) :
     CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
@@ -363,6 +365,8 @@ noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
     | add x y _ _ => simp_all only [AlgHom.toRingHom_eq_coe, smul_add, map_add]
 }
 
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 set_option synthInstance.maxHeartbeats 40000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
@@ -532,6 +536,8 @@ lemma FiniteAdeleRing.Aux.almost_always_bijOn
   intro v h1 h2
   exact (e K B v (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)).bijOn' h1 h2
 
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 set_option synthInstance.maxHeartbeats 40000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889

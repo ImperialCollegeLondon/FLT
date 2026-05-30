@@ -69,6 +69,8 @@ noncomputable def evalContinuousAlgebraMap (j : HeightOneSpectrum R) :
                                               -- field not called continuous_toFun??
     }
 
+-- should be unnecessary after mathlib#36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
@@ -104,6 +106,11 @@ noncomputable def singleMulHom (j : HeightOneSpectrum R) :
     · simp [Pi.single_eq_of_ne' h]
     }
 
+-- shortcut instance for next def needed after mathlib #34045
+variable (j : HeightOneSpectrum R) in
+noncomputable instance : AddMonoid (HeightOneSpectrum.adicCompletion K j) := inferInstance
+
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
@@ -154,6 +161,8 @@ lemma eval_localIdempotent (p : HeightOneSpectrum R) :
     (evalContinuousAlgebraMap R K p) (localIdempotent R K p) = 1 :=
   Pi.single_eq_same _ _
 
+-- should be unnecessary after mathlib#36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--

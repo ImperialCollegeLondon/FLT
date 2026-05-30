@@ -425,6 +425,8 @@ theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
   rw [Int.negSucc_eq] at h1
   omega
 
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
     IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
@@ -526,6 +528,13 @@ namespace Rat.FiniteAdeleRing
 
 local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
 
+-- shortcut for next declaration, needed after mathlib#34045
+variable (i : HeightOneSpectrum (𝓞 ℚ)) in
+instance : SubsemiringClass (ValuationSubring (adicCompletion ℚ i)) (adicCompletion ℚ i) :=
+  inferInstance
+
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 /-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and the restricted
 product `Πʳ (p : Nat.Primes), [ℚ_[p], subring p]` of `Padic`s lifting the equivalence
@@ -608,6 +617,8 @@ theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ)
 instance (v : InfinitePlace K) : ProperSpace v.Completion :=
   ProperSpace.of_locallyCompactSpace v.Completion
 
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 open Metric IsDedekindDomain.FiniteAdeleRing AdeleRing in
 theorem Rat.AdeleRing.cocompact :
@@ -684,6 +695,8 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       rw [map_neg, ← sub_eq_add_neg, Eq.comm]
       convert (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
 
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
   -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
   -- be a corollary: fundamentalDomain - fundamentalDomain ⊆ the U used in the proof

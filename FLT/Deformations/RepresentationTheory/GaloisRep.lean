@@ -3,6 +3,7 @@ Copyright (c) 2025 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Ruben Van de Velde, Pietro Monticone
 -/
+
 module
 
 public import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
@@ -335,6 +336,12 @@ variable [Module.Free A M] [Module.Finite A M] [Module.Free A N] [Module.Finite 
 noncomputable
 def GaloisRep.charFrob (ρ : GaloisRep K A M) : Polynomial A := (ρ.toLocal v Frobᵥ).charpoly
 
+-- shortcut instances for next def: needed after mathlib #34045
+noncomputable instance : CommRing Kᵥ := inferInstance
+noncomputable instance : Field Kᵥ := inferInstance
+
+set_option maxHeartbeats 400000 in
+-- heartbeat bump needed after mathlib #34045
 set_option backward.isDefEq.respectTransparency false in
 omit [IsTopologicalRing A] in
 lemma GaloisRep.charFrob_eq (ρ : GaloisRep K A M) [ρ.IsUnramifiedAt v] (σ : Γ Kᵥ)

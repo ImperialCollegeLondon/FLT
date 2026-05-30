@@ -167,6 +167,10 @@ def tensorEquivRestrictedProduct : B ⊗[A] 𝔸ᶠ[A, K] ≃ₗ[B] Πʳ v, [B �
       exact Algebra.smul_def a (x v) |>.symm
   }
 
+-- needed to stop next lemma timing out after mathlib#34045
+variable (v : HeightOneSpectrum A) in
+instance : AddCommMonoid (adicCompletion K v) := inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 omit [IsFractionRing B L] in
 lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K]) (v : HeightOneSpectrum A) :
@@ -349,6 +353,8 @@ noncomputable local instance : Module 𝔸ᶠ[A, K]
     ↑(piAdicIntegerSubmodule A K L B v)] :=
   RestrictedProduct.instModuleCoe_fLT
 
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 set_option synthInstance.maxHeartbeats 80000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
@@ -374,6 +380,8 @@ noncomputable def restrictedProduct_pi_equiv :
 -- needed for the below lemmas for some reason
 attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
 
+-- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 set_option synthInstance.maxHeartbeats 160000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889

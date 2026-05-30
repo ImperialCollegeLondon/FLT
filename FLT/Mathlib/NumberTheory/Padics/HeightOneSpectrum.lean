@@ -101,6 +101,10 @@ theorem adicCompletion.padicEquiv_cast
 
 -- Only have `Norm (v.adicCompletion ℚ)` for `R = 𝓞 ℚ` so specialise from here
 
+-- shortcut instance needed after mathlib #34045
+variable (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance : Field (adicCompletion ℚ v) := inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 lemma adicCompletion.padicEquiv_norm_coe_eq
     (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) (x : WithVal (v.valuation ℚ)) :
