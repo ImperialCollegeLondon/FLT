@@ -127,8 +127,7 @@ local notation "σ" => fun v w => algebraMap (WithVal (HeightOneSpectrum.valuati
     (WithVal (HeightOneSpectrum.valuation L w))
 
 -- add this in an attempt to make broken proof compile after mathlib#34045
--- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
-attribute [-instance] ValuativeRel.isUniformAddGroup in
+--- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
 set_option backward.isDefEq.respectTransparency false in
 lemma adicValued.continuous_algebraMap
    (w : HeightOneSpectrum B) (hvw : w.under A = v) :
@@ -151,19 +150,24 @@ lemma adicValued.continuous_algebraMap
   simp only [Units.val_mk0, Set.mem_setOf_eq, true_and]
   intro x hx
   rcases eq_or_ne x 0 with rfl | hx₀; · simp
-  sorry
-  -- rw [σK.lt_symm_apply, ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
-  --   WithVal.valueGroupOrderIso₀_restrict,
-  --   valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective (v.valuation_surjective K),
-  --   MulEquiv.apply_symm_apply, ← log_lt_log (by simp_all) (by simp)] at hx
-  -- rw [← σL.strictMono.lt_iff_lt, WithVal.valueGroupOrderIso₀_restrict,
-  --   ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
-  --   valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective (w.valuation_surjective L),
-  --   WithVal.algebraMap_left_apply, WithVal.algebraMap_right_apply, ← valuation_comap A,
-  --   ← log_lt_log (by simp_all) (by simp), log_pow, nsmul_eq_mul, mul_comm]
-  -- subst hvw
-  -- apply Int.mul_lt_of_lt_ediv (mod_cast pos_of_ne_zero (ramificationIdx_ne_zero A B
-  --   (algebraMap_injective_of_field_isFractionRing A B K L) w)) hx
+  rw [σK.lt_symm_apply, ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt] at hx
+  change (valueGroup₀_equiv_withZeroMulInt (valuation K v))
+    (σK ((WithVal.valuation (valuation K v)).restrict x)) <
+    (valueGroup₀_equiv_withZeroMulInt (valuation K v)) (σv.symm (exp (m.log / ↑e))) at hx
+  rw [WithVal.valueGroupOrderIso₀_restrict,
+    valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective (v.valuation_surjective K),
+    OrderMonoidIso.apply_symm_apply, ← log_lt_log (by simp_all) (by simp)] at hx
+  rw [← σL.strictMono.lt_iff_lt]
+  change σL ((WithVal.valuation (w.valuation L)).restrict ((algebraMap (WithVal (valuation K v))
+    (WithVal (valuation L w))) x)) < σL ↑γL
+  rw [WithVal.valueGroupOrderIso₀_restrict,
+    ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
+    valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective (w.valuation_surjective L),
+    WithVal.algebraMap_left_apply, WithVal.algebraMap_right_apply, ← valuation_comap A,
+    ← log_lt_log (by simp_all) (by simp), log_pow, nsmul_eq_mul, mul_comm]
+  subst hvw
+  apply Int.mul_lt_of_lt_ediv (mod_cast pos_of_ne_zero (ramificationIdx_ne_zero A B
+    (algebraMap_injective_of_field_isFractionRing A B K L) w)) hx
 
 namespace Extension
 
