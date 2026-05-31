@@ -109,7 +109,7 @@ namespace IsDedekindDomain.HeightOneSpectrum
 
 variable (v : HeightOneSpectrum A) {A B}
 
--- attempts to make broken proof compile in bump to mathlib#34045
+-- Needed to make next proof compile after bump to mathlib#34045
 instance : IsTopologicalAddGroup (WithVal (valuation K v)) := inferInstance
 variable (w : HeightOneSpectrum B) in
 instance : ContinuousAdd (WithVal (valuation L w)) := inferInstance
@@ -126,8 +126,6 @@ that `σ v w` is continuous.
 local notation "σ" => fun v w => algebraMap (WithVal (HeightOneSpectrum.valuation K v))
     (WithVal (HeightOneSpectrum.valuation L w))
 
--- add this in an attempt to make broken proof compile after mathlib#34045
---- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
 set_option backward.isDefEq.respectTransparency false in
 lemma adicValued.continuous_algebraMap
    (w : HeightOneSpectrum B) (hvw : w.under A = v) :
@@ -151,15 +149,16 @@ lemma adicValued.continuous_algebraMap
   intro x hx
   rcases eq_or_ne x 0 with rfl | hx₀; · simp
   rw [σK.lt_symm_apply, ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt] at hx
+  -- `change` needed after bump to mathlib#34045
   change (valueGroup₀_equiv_withZeroMulInt (valuation K v))
-    (σK ((WithVal.valuation (valuation K v)).restrict x)) <
-    (valueGroup₀_equiv_withZeroMulInt (valuation K v)) (σv.symm (exp (m.log / ↑e))) at hx
+    (σK ((WithVal.valuation (valuation K v)).restrict x)) < _ at hx
   rw [WithVal.valueGroupOrderIso₀_restrict,
     valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective (v.valuation_surjective K),
     OrderMonoidIso.apply_symm_apply, ← log_lt_log (by simp_all) (by simp)] at hx
   rw [← σL.strictMono.lt_iff_lt]
+  -- `change` needed after bump to mathlib#34045
   change σL ((WithVal.valuation (w.valuation L)).restrict ((algebraMap (WithVal (valuation K v))
-    (WithVal (valuation L w))) x)) < σL ↑γL
+    (WithVal (valuation L w))) x)) < _
   rw [WithVal.valueGroupOrderIso₀_restrict,
     ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
     valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective (w.valuation_surjective L),
@@ -292,7 +291,7 @@ noncomputable local instance :
 -- attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
 --   IsScalarTower.right Algebra.toSMul Algebra.toModule
 
--- TODO: Can remove the `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
+-- TODO: Can remove the below `attribute [-instance] ValuativeRel.isUniformAddGroup` after #36769
 attribute [-instance] ValuativeRel.isUniformAddGroup in
 set_option backward.isDefEq.respectTransparency false in
 attribute [local instance 9999] Algebra.toModule in
@@ -804,9 +803,10 @@ noncomputable def baseChangeAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
   AlgEquiv.ofBijective (baseChange K L B v) <| baseChange_bijective K L B v
 
--- instance needed to make
+-- shortcut instance needed to make next shortcut instance work
 noncomputable instance : AddCommMonoid ((w : Extension B v) → adicCompletion L w.1) := inferInstance
 
+-- shortcut instance needed to make next proof work
 set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 attribute [local instance 9999] Algebra.toModule in
