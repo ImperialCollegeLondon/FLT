@@ -804,9 +804,13 @@ noncomputable def baseChangeAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
   AlgEquiv.ofBijective (baseChange K L B v) <| baseChange_bijective K L B v
 
--- needed to make next proof compile
+-- instance needed to make
+noncomputable instance : AddCommMonoid ((w : Extension B v) → adicCompletion L w.1) := inferInstance
+
+set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
-instance : IsBiscalar L (adicCompletion K v) (baseChange K L B v) := sorry
+attribute [local instance 9999] Algebra.toModule in
+instance : IsBiscalar L (adicCompletion K v) (baseChange K L B v) := inferInstance
 
 set_option maxHeartbeats 400000 in
 -- the above is needed after mathlib#34045
