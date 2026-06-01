@@ -335,7 +335,7 @@ variable [Module.Free A M] [Module.Finite A M] [Module.Free A N] [Module.Finite 
 noncomputable
 def GaloisRep.charFrob (ρ : GaloisRep K A M) : Polynomial A := (ρ.toLocal v Frobᵥ).charpoly
 
--- shortcut instances for next def: needed after mathlib #34045
+-- shortcut instance for next theorem: needed after mathlib #34045
 noncomputable instance : CommRing Kᵥ := inferInstance
 
 set_option backward.isDefEq.respectTransparency false in
