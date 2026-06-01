@@ -167,6 +167,10 @@ def tensorEquivRestrictedProduct : B ⊗[A] 𝔸ᶠ[A, K] ≃ₗ[B] Πʳ v, [B �
       exact Algebra.smul_def a (x v) |>.symm
   }
 
+-- shortcut instance to make next lemma work after mathlib#39965
+variable (v : HeightOneSpectrum A) in
+instance : AddCommMonoid (adicCompletion K v) := inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 omit [IsFractionRing B L] in
 lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K]) (v : HeightOneSpectrum A) :

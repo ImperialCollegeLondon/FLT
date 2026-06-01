@@ -109,6 +109,11 @@ namespace IsDedekindDomain.HeightOneSpectrum
 
 variable (v : HeightOneSpectrum A) {A B}
 
+-- Needed to make next proof compile after bump to mathlib#34045
+instance : IsTopologicalAddGroup (WithVal (valuation K v)) := inferInstance
+variable (w : HeightOneSpectrum B) in
+instance : ContinuousAdd (WithVal (valuation L w)) := inferInstance
+
 /--
 If we have an AKLB set-up, and `w` is a valuation on `L` extending `v` on `K`,
 then `σ v w` is the ring homomorphism from (K with valuation v) to (L with valuation w).
@@ -143,11 +148,18 @@ lemma adicValued.continuous_algebraMap
   simp only [Units.val_mk0, Set.mem_setOf_eq, true_and]
   intro x hx
   rcases eq_or_ne x 0 with rfl | hx₀; · simp
-  rw [σK.lt_symm_apply, ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
-    WithVal.valueGroupOrderIso₀_restrict,
+  rw [σK.lt_symm_apply, ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt] at hx
+  -- `change` needed after bump to mathlib#34045
+  change (valueGroup₀_equiv_withZeroMulInt (valuation K v))
+    (σK ((WithVal.valuation (valuation K v)).restrict x)) < _ at hx
+  rw [WithVal.valueGroupOrderIso₀_restrict,
     valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective (v.valuation_surjective K),
-    MulEquiv.apply_symm_apply, ← log_lt_log (by simp_all) (by simp)] at hx
-  rw [← σL.strictMono.lt_iff_lt, WithVal.valueGroupOrderIso₀_restrict,
+    OrderMonoidIso.apply_symm_apply, ← log_lt_log (by simp_all) (by simp)] at hx
+  rw [← σL.strictMono.lt_iff_lt]
+  -- `change` needed after bump to mathlib#34045
+  change σL ((WithVal.valuation (w.valuation L)).restrict ((algebraMap (WithVal (valuation K v))
+    (WithVal (valuation L w))) x)) < _
+  rw [WithVal.valueGroupOrderIso₀_restrict,
     ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
     valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective (w.valuation_surjective L),
     WithVal.algebraMap_left_apply, WithVal.algebraMap_right_apply, ← valuation_comap A,
@@ -789,6 +801,17 @@ noncomputable def baseChangeAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
   AlgEquiv.ofBijective (baseChange K L B v) <| baseChange_bijective K L B v
 
+-- shortcut instance needed to make next shortcut instance work
+noncomputable instance : AddCommMonoid ((w : Extension B v) → adicCompletion L w.1) := inferInstance
+
+-- shortcut instance needed to make next proof work
+set_option backward.isDefEq.respectTransparency false in
+open scoped TensorProduct.RightActions in
+attribute [local instance 9999] Algebra.toModule in
+instance : IsBiscalar L (adicCompletion K v) (baseChange K L B v) := inferInstance
+
+set_option maxHeartbeats 400000 in
+-- the above is needed after mathlib#34045
 set_option backward.isDefEq.respectTransparency false
 attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in

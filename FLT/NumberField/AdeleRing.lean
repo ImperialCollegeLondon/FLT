@@ -526,6 +526,11 @@ namespace Rat.FiniteAdeleRing
 
 local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
 
+-- shortcut for next declaration, needed after mathlib#34045
+variable (i : HeightOneSpectrum (𝓞 ℚ)) in
+instance : SubsemiringClass (ValuationSubring (adicCompletion ℚ i)) (adicCompletion ℚ i) :=
+  inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 /-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and the restricted
 product `Πʳ (p : Nat.Primes), [ℚ_[p], subring p]` of `Padic`s lifting the equivalence
