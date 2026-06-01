@@ -472,7 +472,7 @@ theorem uniformizer_ne_zero {v : HeightOneSpectrum A}
   contrapose! hπ
   simp [hπ]
 
--- shortcut instance for next def: needed after mathlib #34045
+-- shortcut instance for next theorem: needed after mathlib #34045
 noncomputable instance : Ring (adicCompletion K v) := inferInstance
 
 set_option backward.isDefEq.respectTransparency false in
