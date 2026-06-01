@@ -804,7 +804,7 @@ noncomputable def baseChangeAlgEquiv :
 -- shortcut instance needed to make next shortcut instance work
 noncomputable instance : AddCommMonoid ((w : Extension B v) → adicCompletion L w.1) := inferInstance
 
--- shortcut instance needed to make next proof work
+-- shortcut instance needed to make next definition work
 set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 attribute [local instance 9999] Algebra.toModule in
