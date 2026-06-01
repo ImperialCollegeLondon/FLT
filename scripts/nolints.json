@@ -176,6 +176,8 @@
  ["defsWithUnderscore",
   "TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.ring_smul"],
  ["defsWithUnderscore",
+  "IsDedekindDomain.HeightOneSpectrum.adicCompletion.instAddCommMonoidForallValEqUnder_fLT"],
+ ["defsWithUnderscore",
   "IsDedekindDomain.HeightOneSpectrum.adicCompletion.instMulActionSubtypeMemValuationSubringAdicCompletionIntegers_fLT"],
  ["defsWithUnderscore",
   "IsDedekindDomain.HeightOneSpectrum.adicCompletion.instRankOneWithZeroMultiplicativeIntV_fLT"],
