@@ -85,7 +85,7 @@ lemma unipotent_mem_U1 (t : v.adicCompletionIntegers F) :
       fin_cases i; all_goals fin_cases j
       all_goals simp only [Matrix.unitOfDetInvertible, Fin.mk_one, Fin.isValue, Fin.zero_eta,
         val_unitOfInvertible, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
-        Matrix.cons_val_fin_one, Matrix.cons_val_one, map_zero, zero_le', map_one, le_refl]
+        Matrix.cons_val_fin_one, Matrix.cons_val_one, map_zero, zero_le, map_one, le_refl]
       apply (mem_adicCompletionIntegers _ _ _).mp
       simp
     simp [Matrix.unitOfDetInvertible]
