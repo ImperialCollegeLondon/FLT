@@ -131,12 +131,8 @@ def traceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ K) �
   map {R S} f ρ hρ σ hσ := by
     have := hρ σ hσ
     simp only [GaloisRep.toLocal, toFramedGaloisRep_map, FramedGaloisRep.baseChange_map] at this ⊢
-    dsimp [FramedGaloisRep.baseChange, FramedGaloisRep.ofGL, ← Matrix.toLin'_apply']
-    rw [LinearMap.trace_toLin']
-    simp only [Units.val_mapₜ_toFun, FramedGaloisRep.GL_apply, ContinuousMonoidHom.coe_mk,
-      MonoidHom.coe_coe, RingHom.mapMatrix_apply, RingHom.coe_coe, ← AddMonoidHom.map_trace]
-    rw [← LinearMap.toMatrix_eq_toMatrix',
-      ← LinearMap.trace_eq_matrix_trace, this, map_ofNat]
+    simp [FramedGaloisRep.baseChange, ← Matrix.toLin'_apply', ← AddMonoidHom.map_trace,
+      ← LinearMap.toMatrix_eq_toMatrix', ← LinearMap.trace_eq_matrix_trace, this, map_ofNat]
 
 /-- The subfunctor of representations whose trace is `2` on `Iᵥ`. -/
 def narrowTraceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) where
@@ -145,12 +141,8 @@ def narrowTraceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ
   map {R S} f ρ hρ σ hσ := by
     have := hρ σ hσ
     simp only [GaloisRep.toLocal, toFramedGaloisRep_map, FramedGaloisRep.baseChange_map] at this ⊢
-    dsimp [FramedGaloisRep.baseChange, FramedGaloisRep.ofGL, ← Matrix.toLin'_apply']
-    rw [LinearMap.trace_toLin']
-    simp only [Units.val_mapₜ_toFun, FramedGaloisRep.GL_apply, ContinuousMonoidHom.coe_mk,
-      MonoidHom.coe_coe, RingHom.mapMatrix_apply, RingHom.coe_coe, ← AddMonoidHom.map_trace]
-    rw [ ← LinearMap.toMatrix_eq_toMatrix',
-      ← LinearMap.trace_eq_matrix_trace, this, map_ofNat]
+    simp [FramedGaloisRep.baseChange, ← Matrix.toLin'_apply', ← AddMonoidHom.map_trace,
+      ← LinearMap.toMatrix_eq_toMatrix', ← LinearMap.trace_eq_matrix_trace, this, map_ofNat]
 
 /-- The subfunctor of representations with `det = εₗ`. -/
 def detConditionFunctor (l : ℕ) [Fact l.Prime] [Algebra ℤ_[l] 𝓞] :
