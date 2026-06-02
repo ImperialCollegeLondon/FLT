@@ -66,7 +66,7 @@ noncomputable def Group.rootable
   suffices ∀ p : ℕ, p.Prime → Function.Surjective fun a : A ↦ a ^ p by
     apply Nat.prime_composite_induction
     · simp
-    · simpa using Function.surjective_id
+    · simpa using! Function.surjective_id
     · grind
     · intro a _ ha b _ hb _
       simp only [pow_mul]

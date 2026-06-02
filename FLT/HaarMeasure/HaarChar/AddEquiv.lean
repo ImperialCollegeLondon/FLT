@@ -372,7 +372,7 @@ lemma mulEquivHaarChar_restrictedProductCongrRight [Countable ι] (φ : Π i, (G
     ∏ᶠ i, mulEquivHaarChar (φ i) := by
   set Φ : (Πʳ i, [G i, C i]) ≃ₜ* (Πʳ i, [G i, C i]) := .restrictedProductCongrRight φ hφ
   set J := {i : ι | Set.BijOn ⇑(φ i) ↑(C i) ↑(C i)}
-  have J_cof : Fact (Filter.cofinite ≤ 𝓟 J) := ⟨by simpa only [le_principal_iff] using hφ⟩
+  have J_cof : Fact (Filter.cofinite ≤ 𝓟 J) := ⟨by simpa only [le_principal_iff] using! hφ⟩
   have hφ_J : ∀ i ∈ J, Set.BijOn ⇑(φ i) ↑(C i) ↑(C i) := fun _ ↦ id
   set Φ_J : (Πʳ i, [G i, C i]_[𝓟 J]) ≃ₜ* (Πʳ i, [G i, C i]_[𝓟 J]) :=
     .restrictedProductCongrRight φ (eventually_principal.mpr hφ_J)

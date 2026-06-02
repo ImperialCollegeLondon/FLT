@@ -513,7 +513,7 @@ lemma FiniteAdeleRing.Aux.almost_always_mapsTo
     (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (adicCompletion K v) B)
     (φ_local_Kv_linear K B v φ (w c • b_local c)) j
     ∈ adicCompletionIntegers K v
-  simpa [← basis_repr_eq', local_repr_eq] using sum_mem fun i hi ↦ mul_mem (hw i) (hv j i)
+  simpa [← basis_repr_eq', local_repr_eq] using! sum_mem fun i hi ↦ mul_mem (hw i) (hv j i)
 
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
 -- finitely many places

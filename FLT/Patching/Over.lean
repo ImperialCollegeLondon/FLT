@@ -143,7 +143,7 @@ lemma PatchingModule.ker_componentMapModule_mkQ [IsTopologicalRing Λ] (α : Ope
   let g₂ (j) : M₂ i →ₗ[Λ] M₂ j := Submodule.liftModIdeal (g₁ j) 𝔫
   have hg₂ : ∀ᶠ j in F, Function.Bijective (g₂ j) := by
     filter_upwards [H] with j hj
-    have : Function.Bijective (g₁ j) := by simpa only [g₁, dif_pos hj] using hj.some.bijective
+    have : Function.Bijective (g₁ j) := by simpa only [g₁, dif_pos hj] using! hj.some.bijective
     exact (Submodule.liftModIdealEquiv (.ofBijective _ this) 𝔫).bijective
   have hi₂ : Function.Bijective ((UltraProduct.πₗ (fun _ ↦ Λ) M₂ F).restrictScalars Λ ∘ₗ
       LinearMap.pi g₂) :=

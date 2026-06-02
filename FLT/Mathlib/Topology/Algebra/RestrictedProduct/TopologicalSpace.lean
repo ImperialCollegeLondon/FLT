@@ -177,7 +177,7 @@ def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
   toFun x j := map (fun i t ↦ t _)
     (Filter.Eventually.of_forall (fun _ _ ↦ by simp_all [Subgroup.mem_pi])) x
   invFun y := .mk (fun i j ↦ y j i)
-    (by simpa [-eventually_cofinite, Subgroup.mem_pi] using fun j ↦ (y j).property)
+    (by simpa [-eventually_cofinite, Subgroup.mem_pi] using! fun j ↦ (y j).property)
   left_inv x := by ext; rfl
   right_inv y := by ext; rfl
   map_mul' x y := by ext; simp [RestrictedProduct.map]
@@ -190,7 +190,7 @@ def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
       (inclusion (fun i ↦ (j : n) → A j i)
         (fun i ↦ Subgroup.pi Set.univ (fun j ↦ C j i)) hS
       ∘ (fun (y : (j : n) → Πʳ (i : ι), [A j i, C j i]_[𝓟 S]) ↦ .mk (fun i j ↦ y j i)
-        (by simpa [-eventually_principal, Subgroup.mem_pi] using fun j ↦ (y j).property)))
+        (by simpa [-eventually_principal, Subgroup.mem_pi] using! fun j ↦ (y j).property)))
     exact Continuous.comp (by fun_prop) <|
       continuous_rng_of_principal_iff_forall.mpr fun _ ↦ continuous_pi fun _ ↦
         (RestrictedProduct.continuous_eval _).comp (continuous_apply _)
@@ -614,7 +614,7 @@ noncomputable def singleContinuousAddMonoidHom (j : ι) : A j →ₜ+ Πʳ i, [A
         eventually_principal.mpr
         fun i hi ↦ by simp [Pi.single_eq_of_ne (Set.mem_compl_singleton_iff.mp hi)]⟩
     have : Continuous single' := by
-      simpa [continuous_rng_of_principal] using continuous_single j
+      simpa [continuous_rng_of_principal] using! continuous_single j
     apply (isEmbedding_inclusion_principal
       (le_principal_iff.mpr (Set.finite_singleton j).compl_mem_cofinite)).continuous.comp this
 

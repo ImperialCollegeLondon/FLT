@@ -300,8 +300,7 @@ lemma FramedGaloisRep.det_baseChange [IsTopologicalRing B]
   ext σ
   dsimp [baseChange, GaloisRep.det]
   rw [GL_symm_apply]
-  dsimp [← Matrix.toLin'_apply']
-  rw [LinearMap.det_toLin', Matrix.map_det, LinearMap.det_toMatrix']
+  simp [← Matrix.toLin'_apply', Matrix.map_det]
 
 /-- Given a (global) galois rep, this is the local galois rep at a finite prime `v`.
 Note: this fixes an arbitrary embedding `Kᵃˡᵍ → Kᵥᵃˡᵍ`, or equivalently,
