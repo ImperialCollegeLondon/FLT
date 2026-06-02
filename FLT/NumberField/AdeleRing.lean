@@ -630,13 +630,13 @@ theorem Rat.AdeleRing.cocompact :
       choose xi hi using InfiniteAdeleRing.exists_sub_norm_le_one (x.out.1 - algebraMap _ _ xf)
       have h : x.out - algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) (xi + xf) ∈ W := by
         simp only [W, Set.prod]
-        refine ⟨Set.mem_univ_pi.2 fun v => by simpa [add_comm, ← sub_sub] using hi v, ?_⟩
+        refine ⟨Set.mem_univ_pi.2 fun v => by simpa [add_comm, ← sub_sub] using! hi v, ?_⟩
         apply exists_structureMap_eq_of_forall
         simp only [map_add, SetLike.mem_coe]
         rw [Prod.snd_sub, Prod.snd_add, sub_add_eq_sub_sub, sub_right_comm]
         intro v
         refine sub_mem (mem_structureSubring_iff.1 hf v) ?_
-        simpa using coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
+        simpa using! coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
       exact ⟨_, h, by simp [-algebraMap.coe_inj]⟩
     exact h_W_image ▸ h_W_compact.image continuous_quot_mk
 

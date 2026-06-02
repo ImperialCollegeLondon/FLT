@@ -135,8 +135,8 @@ instance [CompactSpace R] : IsPrecomplete (maximalIdeal R) R where
     have := ((isCompact_range (Continuous.subtype_mk (continuous_pi
       fun i ↦ continuous_algebraMap _ _) _)).isClosed.closure_eq.symm.trans
       this.closure_eq).ge (Set.mem_univ <| by exact ⟨fun i ↦ f i, fun i j e ↦ by
-        simpa using (H e).symm⟩)
-    simpa [funext_iff, eq_comm (b := Ideal.Quotient.mk _ (f _))] using this
+        simpa using! (H e).symm⟩)
+    simpa [funext_iff, eq_comm (b := Ideal.Quotient.mk _ (f _))] using! this
 
 variable {R} in
 lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueField R)]

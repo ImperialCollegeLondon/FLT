@@ -192,7 +192,7 @@ def _root_.LinearEquiv.restrictedProductPi [Fintype n] :
       rw [piSubringSubmodule, Submodule.coe_pi, Set.mem_univ_pi] at hr
       exact hr j)
     x
-  invFun x := ⟨fun i j ↦ x j i, by simpa [piSubringSubmodule] using fun j ↦ (x j).eventually⟩
+  invFun x := ⟨fun i j ↦ x j i, by simpa [piSubringSubmodule] using! fun j ↦ (x j).eventually⟩
   map_add' x y := rfl
   map_smul' x y := rfl
 

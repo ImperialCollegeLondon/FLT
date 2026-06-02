@@ -65,7 +65,7 @@ def Field.absoluteGaloisGroup.mapAux (f : K →+* L) : Γ L →* Γ K where
     apply (AlgebraicClosure.map f).injective
     refine (AlgHom.restrictNormal_commutes _ _ _).trans ?_
     refine ((AlgHom.restrictNormal_commutes _ _ _).trans ?_).symm
-    simpa [absoluteGaloisGroup] using AlgHom.restrictNormal_commutes _ _ _
+    simpa [absoluteGaloisGroup] using! AlgHom.restrictNormal_commutes _ _ _
 
 /-- Given a field extension, this is a continuous map between its absolute galois group.
 Note that this relies on an arbitrarily chosen embedding of the algebraic closures -/

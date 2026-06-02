@@ -254,7 +254,7 @@ def InfiniteGalois.quotientEquivFixedFieldEmb [IsGalois K L] (G : ClosedSubgroup
     intro x
     rw [mul_smul, inv_smul_eq_iff]
     exact ((σ.toAlgHom.comp (IntermediateField.val _)).liftNormal_commutes _ _).symm
-  right_inv f := by ext x; simpa using f.liftNormal_commutes _ _
+  right_inv f := by ext x; simpa using! f.liftNormal_commutes _ _
 
 instance {R S T G : Type*} [CommSemiring R] [Semiring S] [Semiring T] [Algebra R S] [Algebra R T]
     [Monoid G] [MulSemiringAction G T] [SMulCommClass G R T] : MulAction G (S →ₐ[R] T) where
@@ -295,7 +295,7 @@ def MulAction.sigmaRangeQuotientStabilizer
       · rw [show fa • ia = fb • ib from e]; exact ⟨fb * σ xb, by rw [← hb, ← mul_smul]⟩
     obtain rfl : ia = ib := (ha.symm.trans (hσ xa xb this)).trans hb
     congr 1
-    simpa [QuotientGroup.eq, mul_smul, inv_smul_eq_iff] using e.symm
+    simpa [QuotientGroup.eq, mul_smul, inv_smul_eq_iff] using! e.symm
   haveI hfg : Function.RightInverse g f := fun x ↦ inv_smul_smul (σ x) x
   ⟨f, g, fun x ↦ hf (hfg (f x)), hfg⟩
 
@@ -393,7 +393,7 @@ lemma InfiniteGalois.evalMulActionHom_bijective [Algebra.Etale K A] [IsGalois K 
     rw [Subgroup.mk_smul, ← map_smul]
     congr 1
     ext x
-    simpa using hσ ⟨_, Ideal.Quotient.mk _ x, rfl⟩
+    simpa using! hσ ⟨_, Ideal.Quotient.mk _ x, rfl⟩
   choose! F' hF' using hemb
   let F : ((A →ₐ[K] L) →[(L ≃ₐ[K] L)] L) → A :=
     fun f ↦ (IsArtinianRing.equivPi A).symm fun 𝔪 ↦ F' 𝔪.1 f

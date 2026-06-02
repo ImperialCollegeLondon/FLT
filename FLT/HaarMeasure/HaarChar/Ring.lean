@@ -226,7 +226,7 @@ theorem ringHaarChar_ModuleFinite_unit :
     ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
     (ringHaarChar t) ^ (Module.finrank K R) := by
   rw [ringHaarChar_ModuleFinite]
-  simpa using ringHaarChar_pi (ι := Fin (Module.finrank K R))
+  simpa using! ringHaarChar_pi (ι := Fin (Module.finrank K R))
       (A := fun _ : Fin (Module.finrank K R) => K) (fun (i : Fin (Module.finrank K R)) ↦ t)
 
 

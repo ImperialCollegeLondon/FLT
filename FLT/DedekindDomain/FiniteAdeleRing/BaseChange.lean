@@ -87,7 +87,7 @@ noncomputable def mapSemialgHom :
   __ := FiniteAdeleRing.mapRingHom A K L B
   map_smul' k a := by
     ext w
-    simpa only [Algebra.smul_def'] using
+    simpa only [Algebra.smul_def'] using!
       (adicCompletionSemialgHom K L (v := w.under A) ⟨w, rfl⟩).map_smul' k (a (under A w))
   continuous_toFun :=
     have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
@@ -215,7 +215,7 @@ def restrictedProduct_prod_equiv :
     map_smul' a x := by
       ext w
       change a • (x (under A w) ⟨w, rfl⟩) = _
-      simp [Submodule.coe_pi,Algebra.smul_def, RingHom.id_apply, Equiv.toFun_as_coe]
+      simp [Algebra.smul_def, RingHom.id_apply, Equiv.toFun_as_coe]
       rfl
   }
 

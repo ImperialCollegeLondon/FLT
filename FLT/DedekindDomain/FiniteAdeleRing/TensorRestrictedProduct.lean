@@ -116,12 +116,12 @@ noncomputable def lTensorPrincipalEquiv :
   let f : Πʳ i, [N i, L i]_[𝓟 S] ≃ₗ[R] (Π i, N' i) := {
     toFun x i := ⟨x i, by
       by_cases h : i ∈ S
-      · simpa [N', h] using x.property h
+      · simpa [N', h] using! x.property h
       · simp [N', h]⟩
     invFun x := ⟨fun i ↦ x i, by
       rw [Filter.eventually_principal]
       intro y hy
-      simpa only [N', hy, ↓reduceIte] using (x y).prop⟩
+      simpa only [N', hy, ↓reduceIte] using! (x y).prop⟩
     map_add' x y := by ext; simp
     map_smul' a x := by ext; simp
   }
@@ -141,7 +141,7 @@ noncomputable def lTensorPrincipalEquiv :
         intro i h
         simp [h]⟩
     invFun x i := if h : i ∈ S then
-        gEquiv i h |>.symm ⟨(x i), by simpa using x.property h⟩
+        gEquiv i h |>.symm ⟨(x i), by simpa using! x.property h⟩
       else
         gEquiv' i h |>.symm (x i)
     left_inv x := by

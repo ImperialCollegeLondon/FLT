@@ -835,7 +835,7 @@ open scoped Pointwise in
 def Y : Set D_𝔸 := X K D * X K D
 
 lemma X_compact : IsCompact (X K D) := by
-  simpa only [Set.image_prod, Set.image2_sub] using (IsCompact.image_of_continuousOn
+  simpa only [Set.image_prod, Set.image2_sub] using! (IsCompact.image_of_continuousOn
     ((E_compact K D).prod (E_compact K D)) ((continuous_fst.sub continuous_snd).continuousOn))
 
 lemma Y_compact : IsCompact (Y K D) := by
@@ -845,7 +845,7 @@ lemma Y_compact : IsCompact (Y K D) := by
 lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := by
   obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_left K D hβ
-  refine ⟨e1 - e2, by simpa only using (Set.sub_mem_sub he1 he2), ?_⟩
+  refine ⟨e1 - e2, by simpa only using! (Set.sub_mem_sub he1 he2), ?_⟩
   obtain ⟨b1, rfl⟩ : IsUnit b := by
     simp_rw [← mul_sub_left_distrib, Algebra.TensorProduct.includeLeft_apply] at hb
     have h1 : ↑β * (e1 - e2) ≠ 0 := by
@@ -858,7 +858,7 @@ lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
 lemma X_meets_kernel' [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := by
   obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_right K D hβ
-  refine ⟨e1 - e2, by simpa only using (Set.sub_mem_sub he1 he2), ?_⟩
+  refine ⟨e1 - e2, by simpa only using! (Set.sub_mem_sub he1 he2), ?_⟩
   obtain ⟨b1, rfl⟩ : IsUnit b := by
     simp_rw [← mul_sub_right_distrib, Algebra.TensorProduct.includeLeft_apply] at hb
     have h1 : (e1 - e2) * ↑β⁻¹ ≠ 0 := by
@@ -910,7 +910,7 @@ lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringH
   obtain ⟨x1, rfl⟩ : IsUnit x1 := ⟨↑β⁻¹ * incl K D b1,
     ((Units.eq_inv_mul_iff_mul_eq β).mpr eq1).symm⟩
   obtain ⟨x2, rfl⟩ : IsUnit x2 := ⟨incl K D b2 * β, ((Units.mul_inv_eq_iff_eq_mul β).mp eq2).symm⟩
-  have h : x2 * x1 ∈ T K D := ⟨by simpa only [Y] using Set.mul_mem_mul hx2 hx1,
+  have h : x2 * x1 ∈ T K D := ⟨by simpa only [Y] using! Set.mul_mem_mul hx2 hx1,
     b2 * b1, by norm_cast at eq1 eq2; rw [map_mul, ← eq2, ← eq1]; group⟩
   refine ⟨incl K D b1, by simp only [Set.mem_range, exists_apply_eq_apply],  x1⁻¹, ?_,
     eq_mul_inv_of_mul_eq (Units.val_inj.mp eq1), ?_, hx1⟩

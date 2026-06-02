@@ -117,7 +117,7 @@ instance [DecidableEq ι] [Nonempty ι] :
   inj i j mi mj h := by
     apply_fun Module.DirectLimit.linearEquiv _ _ at h
     simp_rw [Module.DirectLimit.linearEquiv_of, Quotient.eq] at h
-    simpa [DirectLimit.setoid, Module.DirectLimit.linearEquiv_of] using h
+    simpa [DirectLimit.setoid, Module.DirectLimit.linearEquiv_of] using! h
   compatibility i j hij x := Module.DirectLimit.of_f
 
 variable [AddCommMonoid P₁] [Module R P₁] [AddCommMonoid P₂] [Module R P₂]
@@ -149,13 +149,13 @@ noncomputable def lift
       repeat rw [compatibility' (f · · ·) (g₁ · ·),
         image_preimage (f := (f · · ·)) (g := (g₁ · ·))]
     obtain ⟨k'', hk'k'', hxyk'', h'''⟩ := is_injective (f · · ·) (g₁ · ·) sum_eq
-    simpa [Hg] using congr_arg (g₂ k'') h'''.symm
+    simpa [Hg] using! congr_arg (g₂ k'') h'''.symm
   map_smul' r x := by
     have smul_eq : g₁ (preimage_index (f · · ·) (g₁ · ·) (r • x)) (preimage (f · · ·) (g₁ · ·)
       (r • x)) = g₁ (preimage_index (f · · ·) (g₁ · ·) x) (r • preimage (f · · ·) (g₁ · ·) x) := by
       simp only [image_preimage, map_smul]
     obtain ⟨k, hixk, hirxk, h_smul⟩ := is_injective (f · · ·) (g₁ · ·) smul_eq
-    simpa [Hg] using congr_arg (g₂ k) h_smul
+    simpa [Hg] using! congr_arg (g₂ k) h_smul
 
 @[simp]
 theorem lift_of (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) {i} (x) :

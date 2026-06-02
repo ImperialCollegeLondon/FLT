@@ -252,7 +252,7 @@ lemma IsLocalRing.maximalIdeal_pow_card_smul_top_le {R M}
     obtain ⟨i, hi⟩ := WellFoundedLT.exists_eq_inf ⟨f, hf⟩
     have := Ideal.iInf_pow_smul_eq_bot_of_isLocalRing (R := R) (M := M ⧸ N) _
       (maximalIdeal.isMaximal R).ne_top
-    exact ⟨i, by simpa [f, this] using hi⟩
+    exact ⟨i, by simpa [f, this] using! hi⟩
   have (i : ℕ) : Set.ncard (α := M ⧸ N) (f i) ≤ Nat.card (M ⧸ N) - i + 1 := by
     induction i with
     | zero =>

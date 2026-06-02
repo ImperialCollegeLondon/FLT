@@ -278,7 +278,7 @@ noncomputable local instance :
   hom' := (toNNReal (by norm_num : (2 : NNReal) ≠ 0)).comp
     (valueGroup₀_equiv_withZeroMulInt _).toMonoidWithZeroHom
   strictMono' := toNNReal_strictMono (by norm_num) |>.comp
-    (by simpa using valueGroup₀_equiv_withZeroMulInt_strictMono _)
+    (by simpa using! valueGroup₀_equiv_withZeroMulInt_strictMono _)
   exists_val_nontrivial := by
     obtain ⟨x, hx1, hx2⟩ := Submodule.exists_mem_ne_zero_of_ne_bot v.ne_bot
     use algebraMap A K x
@@ -639,7 +639,7 @@ lemma tensorAdicCompletionIntegersToAdicCompletion_range_eq_integers [FiniteDime
       · rw [hx', Pi.single_eq_of_ne' h]
         exact Subring.zero_mem _
     use y
-    simpa [hx'] using congr_fun hy w
+    simpa [hx'] using! congr_fun hy w
 
 /-- A shortcut instance for the action of `𝓞ᵥ` on `Kᵥ`. -/
 noncomputable local instance : MulAction (v.adicCompletionIntegers K) (v.adicCompletion K) :=

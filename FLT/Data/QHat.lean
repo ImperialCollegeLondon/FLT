@@ -378,7 +378,6 @@ lemma injective_zHat :
       rw [← h₁, ← h₂] at h
       replace h := Module.Flat.rTensor_preserves_injective_linearMap
         (M := ZHat) (Algebra.linearMap ℤ ℚ) (fun _ _ ↦ by simp) h
-      simp only at h
       have := congrArg (TensorProduct.lid ℤ ZHat) h
       simpa using this
 
