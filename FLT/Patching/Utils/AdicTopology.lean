@@ -155,12 +155,12 @@ lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueF
       rintro i -
       exact ⟨Set.pi {i} fun i ↦ {0}, set_pi_mem_nhds (Set.finite_singleton i) (by simp),
         by simp [Set.subset_def, f, Ideal.Quotient.eq_zero_iff_mem]⟩
-    · change Function.Injective (Pi.ringHom _)
+    · change Function.Injective (RingHom.pi _)
       rw [injective_iff_map_eq_zero]
       intro a ha
       change a ∈ (⊥ : Ideal R)
       rw [← Ideal.iInf_pow_eq_bot_of_isLocalRing _ (IsLocalRing.maximalIdeal.isMaximal R).ne_top]
-      simpa [Pi.ringHom, funext_iff, Ideal.Quotient.eq_zero_iff_mem] using ha
+      simpa [RingHom.pi, funext_iff, Ideal.Quotient.eq_zero_iff_mem] using ha
     · rw [← isOpen_compl_iff, isOpen_iff_forall_mem_open]
       intro x hx
       obtain ⟨g, rfl⟩ : ∃ y : ℕ → R, x = fun i ↦ Ideal.Quotient.mk _ (y i) := by

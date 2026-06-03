@@ -335,7 +335,7 @@ def PatchingAlgebra.quotientTo
     intro x hx
     simp only [Ideal.mem_comap, RingHom.mem_ker]
     refine Subtype.ext (funext fun k ↦ UltraProduct.π_eq_zero_iff.mpr ?_)
-    simp only [Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
+    simp only [RingHom.pi_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
       Pi.algebraMap_apply, Ideal.quotientMap_algebraMap, Ideal.Quotient.eq_zero_iff_mem]
     filter_upwards with i
     convert Ideal.zero_mem _ using 1

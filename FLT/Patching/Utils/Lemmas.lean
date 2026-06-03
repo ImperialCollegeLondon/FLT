@@ -82,7 +82,7 @@ def LinearMap.piMap' (f : ∀ i, M i →ₗ[R i] N i) : (Π i, M i) →ₗ[Π i,
 
 instance {ι : Type*} {R A : ι → Type*} [∀ i, CommSemiring (R i)]
     [∀ i, Semiring (A i)] [∀ i, Algebra (R i) (A i)] : Algebra (Π i, R i) (Π i, A i) where
-  algebraMap := Pi.ringHom fun i ↦ (algebraMap (R i) (A i)).comp (Pi.evalRingHom R i)
+  algebraMap := RingHom.pi fun i ↦ (algebraMap (R i) (A i)).comp (Pi.evalRingHom R i)
   commutes' r a := funext fun i ↦ Algebra.commutes _ _
   smul_def' r a := funext fun i ↦ by simp [Algebra.smul_def]
 
