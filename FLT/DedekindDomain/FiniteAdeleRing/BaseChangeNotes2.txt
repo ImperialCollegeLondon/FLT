@@ -1,0 +1,125 @@
+-- Help instance synthesis
+private noncomputable local instance (priority := 9999) (v : HeightOneSpectrum A) :
+    Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
+  Algebra.toModule
+
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+set_option trace.Meta.synthInstance true in
+set_option synthInstance.maxHeartbeats 80000 in
+#synth AddCommMonoid
+    Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1, ↑(piAdicIntegerSubmodule A K L B v)]
+-- went up from 40000 when switched to module system
+set_option synthInstance.maxHeartbeats 80000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in -- caused by bump to v4.29
+/-- An auxiliary 𝔸_K-module structure on restricted product over v of (product of w's dividing v
+of L_w wrt 𝓞_w). Only used in this file to compare L ⊗ 𝔸_K and 𝔸_L.
+-/
+noncomputable local instance : Module 𝔸ᶠ[A, K]
+    Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
+    ↑(piAdicIntegerSubmodule A K L B v)] :=
+  RestrictedProduct.instModuleCoe_fLT
+
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+set_option backward.isDefEq.respectTransparency false in
+set_option synthInstance.maxHeartbeats 80000 in
+#synth AddCommMonoid
+                      Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.1,
+                        ↑(piAdicIntegerSubmodule A K L B v)]
+
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+variable (i : HeightOneSpectrum A) in
+#synth AddSubmonoidClass (Submodule (↥(adicCompletionIntegers K i)) ((w : Extension B i) → adicCompletion L w.1))
+              ((w : Extension B i) → adicCompletion L w.1)
+/-
+[Elab.command] [5761662.000000] ✅️ #synth
+      AddSubmonoidClass (Submodule (↥(adicCompletionIntegers K i)) ((w : Extension B i) → adicCompletion L w.1))
+        ((w : Extension B i) → adicCompletion L w.1) ▶
+-/
+
+-- Experiment: an abstraction ladder, to find at which level the typeclass search becomes slow.
+section AbstractTest
+variable (i : HeightOneSpectrum A)
+
+set_option maxTraceChildren 2000
+
+-- L0: fully abstract scalar ring and module
+section
+variable (R : Type*) [CommRing R] (X : Type*) [AddCommGroup X] [Module R X]
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+#synth AddSubmonoidClass (Submodule R X) X
+end
+
+-- L1: abstract scalar, Pi over abstract family indexed by `Extension B i`
+section
+variable (R : Type*) [CommRing R] (Y : Extension B i → Type*)
+  [∀ w, AddCommGroup (Y w)] [∀ w, Module R (Y w)]
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+#synth AddSubmonoidClass (Submodule R ((w : Extension B i) → Y w)) ((w : Extension B i) → Y w)
+end
+
+-- L2: concrete scalar `adicCompletionIntegers K i`, Pi over abstract family
+section
+variable (Y : Extension B i → Type*)
+  [∀ w, AddCommGroup (Y w)] [∀ w, Module (adicCompletionIntegers K i) (Y w)]
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+#synth AddSubmonoidClass (Submodule (adicCompletionIntegers K i) ((w : Extension B i) → Y w))
+  ((w : Extension B i) → Y w)
+end
+
+-- L3: concrete module `adicCompletion L w.1`, abstract scalar
+section
+variable (R : Type*) [CommRing R] [∀ w : Extension B i, Module R (adicCompletion L w.1)]
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+#synth AddSubmonoidClass (Submodule R ((w : Extension B i) → adicCompletion L w.1))
+  ((w : Extension B i) → adicCompletion L w.1)
+end
+
+-- L4: the original, fully concrete
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+#synth AddSubmonoidClass (Submodule (adicCompletionIntegers K i) ((w : Extension B i) → adicCompletion L w.1))
+  ((w : Extension B i) → adicCompletion L w.1)
+
+end AbstractTest
+
+set_option synthInstance.maxHeartbeats 80000 in
+-- see https://github.com/ImperialCollegeLondon/FLT/issues/889
+set_option maxHeartbeats 400000 in
+/-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
+reaindexing the elements. -/
+noncomputable def restrictedProduct_pi_equiv :
+    Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
+      piAdicIntegerSubmodule A K L B v] ≃L[𝔸ᶠ[A, K]] 𝔸ᶠ[B, L] :=
+  have := FaithfulSMul.of_field_isFractionRing A B K L
+  let f : _ ≃ₜ 𝔸ᶠ[B, L] := RestrictedProduct.flatten_homeomorph'
+    (G := adicCompletion L) (fun w ↦ adicCompletionIntegers L w) (tendsTo_comap_cofinite A B)
+  {
+    __ := f
+    map_add' x y := rfl
+    map_smul' r x := by
+      ext w
+      rw [RingHom.id_apply, Algebra.smul_def, RestrictedProduct.mul_apply,
+        BaseChange.algebraMap_apply]
+      rfl
+  }
+/-
+  [definition.header] [49176924.000000] ✅️ IsDedekindDomain.FiniteAdeleRing.restrictedProduct_pi_equiv ▶
+  [definition.value] [141138719.000000] ✅️ IsDedekindDomain.FiniteAdeleRing.restrictedProduct_pi_equiv ▶
+
+
+Pi.module changes
+
+  [definition.header] [47567984.000000] ✅️ IsDedekindDomain.FiniteAdeleRing.restrictedProduct_pi_equiv ▶
+  [definition.value] [137818280.000000] ✅️ IsDedekindDomain.FiniteAdeleRing.restrictedProduct_pi_equiv ▶
+
+-/
+-- needed for the below lemmas for some reason
+attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
