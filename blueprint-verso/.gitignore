@@ -1,3 +1,4 @@
 .lake/
 .build/
 _out/
+.mathlib_cache/
