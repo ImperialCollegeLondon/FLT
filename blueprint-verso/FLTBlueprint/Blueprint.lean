@@ -4,6 +4,7 @@ import VersoBlueprint
 import VersoBlueprint.Commands.Graph
 import VersoBlueprint.Commands.Summary
 import FLTBlueprint.Chapters.Definitions
+import FLTBlueprint.Chapters.ReductionToPrimeCase
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -13,10 +14,11 @@ open Informal
 
 This is an early Verso blueprint for the
 [Fermat's Last Theorem project](https://github.com/leanprover-community/FLT).
-The single chapter below links a Blueprint node to a real declaration in the
-FLT Lean codebase; further chapters will be added as the blueprint grows.
+The chapters below link Blueprint nodes to real declarations in the FLT Lean
+codebase and in mathlib; further chapters will be added as the blueprint grows.
 
 {include 0 FLTBlueprint.Chapters.Definitions}
+{include 0 FLTBlueprint.Chapters.ReductionToPrimeCase}
 
 {blueprint_graph}
 {blueprint_summary}
