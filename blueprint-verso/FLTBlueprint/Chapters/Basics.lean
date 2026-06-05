@@ -1,7 +1,7 @@
 import Verso
 import VersoManual
 import VersoBlueprint
-import FLT.Basic.Reductions
+import FLT.FreyCurve.Contradiction
 
 open Verso.Genre
 open Verso.Genre.Manual
