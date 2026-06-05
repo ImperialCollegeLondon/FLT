@@ -6,7 +6,7 @@ Authors: Kevin Buzzard
 module
 
 public import FLT.GaloisRepresentation.HardlyRamified.Defs
-public import FLT.Basic.FreyPackage
+public import FLT.FreyCurve.FreyPackage
 public import FLT.EllipticCurve.Torsion
 import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
 import Mathlib.Data.Nat.Factorial.DoubleFactorial
