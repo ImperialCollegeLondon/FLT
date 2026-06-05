@@ -26,6 +26,20 @@ that the reader knows what things like $`5` and "prime" mean, and
 furthermore that they are happy with basic properties of the natural numbers
 such as factoring numbers into primes.
 
+We recall what we're trying to prove.
+
+:::theorem "flt" (parent := "definitions") (owner := "flt_author")
+Fermat's Last Theorem is a simple relationship between {uses "addition"}[addition]
+and {uses "exponentiation"}[exponentiation]. TODO remove these links.
+Let $`a`, $`b` and $`c` be {uses "leq"}[positive] natural numbers
+and let $`n` be a natural number with {uses "small_numbers"}[$`3 \leq n`]. Then
+$`a ^ n + b ^ n \neq c ^ n`.
+:::
+
+We're going to start the proof by making a reduction. That is, we will
+write down another mathematical statement, Theorem B1, and we're going
+to assume theorem B1 and deduce Fermat's Last Theorem.
+
 :::group "reductions"
 The reduction of Fermat's Last Theorem to the case of prime exponent at least
 five.
@@ -94,23 +108,6 @@ is an odd prime other than $`3`, hence $`p \geq 5`. In Lean we lean on the libra
 lemma `Nat.four_dvd_or_exists_odd_prime_and_dvd_of_two_lt`, which packages exactly
 this "power of two versus odd prime factor" dichotomy.
 :::
-
-```lean "divisibility"
-theorem dvd_three_four_or_prime_ge_five
-    {n : ℕ} (hn : 3 ≤ n) :
-    3 ∣ n ∨ 4 ∣ n ∨ ∃ p, p.Prime ∧ 5 ≤ p ∧ p ∣ n := by
-  have key :=
-    Nat.four_dvd_or_exists_odd_prime_and_dvd_of_two_lt hn
-  rcases key with h4 | ⟨p, hp, hdvd, hodd⟩
-  · exact Or.inr (Or.inl h4)
-  · rcases eq_or_ne p 3 with rfl | hp3
-    · exact Or.inl hdvd
-    · have hp5 : 5 ≤ p := by
-        have h2 := hp.two_le
-        obtain ⟨k, rfl⟩ := hodd
-        omega
-      exact Or.inr (Or.inr ⟨p, hp, hp5, hdvd⟩)
-```
 
 :::theorem "flt_of_prime_ge_5" (parent := "reductions")
 *(The boss of the chapter.)* {uses "flt_prime_ge_5"}[Statement $`B_1`] implies
