@@ -27,12 +27,15 @@ The *natural numbers* are defined by these rules:
  * That's it.
 :::
 
-The successor of a number means the one that comes after it. Using successors,
-we can give names to some more numbers.
+
+The successor of a number means the one that comes after it — for example,
+the successor of 2 is 3. But we're getting ahead of ourselves, we didn't
+name any numbers yet other than zero. Using successors,
+let's name some more numbers.
 
 :::definition "small_numbers" (parent := "definitions")
 We name the following {uses "natural_numbers"}[numbers].
-We define $`1` to be $`S(0)`, we let $`2` be $`S(1)` and
+We define $`1` to be $`S(0)` (the successor of zero), we let $`2` be $`S(1)` and
 we define $`3` to be $`S(2)`.
 :::
 
@@ -53,11 +56,11 @@ Let's apply the "that's it" rule to $`y`.
 :::definition "addition" (parent := "definitions") (lean := "Nat.add")
 We define *addition* $`x + y` by the following rules:
 * $`x + 0` is defined to be $`x`;
-* If we have already defined $`x + n`, then let's define $`x + S(n)` to be $`S(x + n)`.
+* If we have already defined $`x + n`, then we define $`x + S(n)` to be $`S(x + n)`.
 :::
 
 The explanation of the second part of the definition is: if we already
-know how to add $`n` to a number, then we can add the number after $`n` to it
+know how to add $`n` to a number, then we can add the number after $`n` to it as well,
 by first adding $`n`, and then taking the number after the result. Combined
 with the fact that adding $`0` to a number is easy, we have just defined addition.
 
