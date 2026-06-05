@@ -7,6 +7,7 @@ defaultTargets = ["FLTBlueprint"]
 
 [leanOptions]
 experimental.module = true
+verso.blueprint.foldCodeBlocks = true
 
 # Dependency resolution note: VersoBlueprint and Mathlib
 # pin different versions of ProofWidgets and plausible.
