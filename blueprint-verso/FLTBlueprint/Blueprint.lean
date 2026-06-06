@@ -3,8 +3,8 @@ import VersoManual
 import VersoBlueprint
 import VersoBlueprint.Commands.Graph
 import VersoBlueprint.Commands.Summary
-import FLTBlueprint.Chapters.Definitions
-import FLTBlueprint.Chapters.ReductionToPrimeCase
+import FLTBlueprint.Chapters.Level00Statement
+import FLTBlueprint.Chapters.Level01ReductionToPrimeCase
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -17,8 +17,8 @@ This is an early Verso blueprint for the
 The chapters below link Blueprint nodes to real declarations in the FLT Lean
 codebase and in mathlib; further chapters will be added as the blueprint grows.
 
-{include 0 FLTBlueprint.Chapters.Definitions}
-{include 0 FLTBlueprint.Chapters.ReductionToPrimeCase}
+{include 0 FLTBlueprint.Chapters.Level00Statement}
+{include 0 FLTBlueprint.Chapters.Level01ReductionToPrimeCase}
 
 {blueprint_graph}
 {blueprint_summary}
