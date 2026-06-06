@@ -30,7 +30,7 @@ such as factoring numbers into primes.
 We recall what we're trying to prove.
 
 -- TODO error: FLTBlueprint/Blueprint.lean:23:0: Duplicate imported blueprint node label 'flt'
-:::theorem "flt2_this_is_flt" (parent := "definitions")
+:::theorem "flt2_this_is_flt" (parent := "definitions") (lean := "Wiles_Taylor_Wiles")
 Fermat's Last Theorem is a simple relationship between {uses "addition"}[addition]
 and {uses "exponentiation"}[exponentiation]. TODO remove these links.
 Let $`a`, $`b` and $`c` be {uses "leq"}[positive] natural numbers
@@ -48,10 +48,10 @@ The reduction of Fermat's Last Theorem to the case of prime exponent at least
 five.
 :::
 
-Consider the following statement.
+Consider the following statement, which we'll call B1.
 
-:::definition "flt_prime_ge_5" (parent := "reductions")
-*Statement $`B_1`.* For every prime number $`p \geq 5`,
+:::theorem "flt_prime_ge_5" (parent := "reductions")
+*(Statement $`B_1`.* )For every prime number $`p \geq 5`,
 Fermat's Last Theorem holds for the exponent $`p`: there are no positive natural
 numbers $`a, b, c` with $`a^p + b^p = c^p`.
 :::
