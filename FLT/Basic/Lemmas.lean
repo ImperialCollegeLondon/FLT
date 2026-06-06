@@ -23,8 +23,10 @@ theorem three_dvd_or_four_dvd_or_prime_dvd {n : ℕ} (hn : 3 ≤ n) :
   · -- if 4 divides n we're done
     grind
   · -- in the odd prime case, if the prime is 3 we're done
-    rcases eq_or_ne p 3 with rfl | hp3; grind
+    rcases eq_or_ne p 3 with rfl | hp3; · grind
     -- and if it isn't 3 then it's at least 5
     refine Or.inr (Or.inr ⟨p, hp, ?_, hdvd⟩)
     -- because it's odd, and 1 isn't prime.
     grind [not_prime_one]
+
+end Nat
