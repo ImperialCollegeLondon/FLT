@@ -6,7 +6,7 @@ open Verso.Genre
 open Verso.Genre.Manual
 open Informal
 
-#doc (Manual) "Stating Fermat's Last Theorem" =>
+#doc (Manual) "Level 0: Stating Fermat's Last Theorem" =>
 
 Let's start at the beginning, by defining the natural numbers
 $`\mathbb{N}`. Our convention will be that they start at zero.
@@ -33,7 +33,7 @@ the successor of 2 is 3. But we're getting ahead of ourselves, we didn't
 name any numbers yet other than zero. Using successors,
 let's name some more numbers.
 
-:::definition "small_numbers" (parent := "definitions")
+:::definition "small_numbers" (parent := "definitions") (lean := "One.one")
 We name the following {uses "natural_numbers"}[numbers].
 We define $`1` to be $`S(0)` (the successor of zero), we let $`2` be $`S(1)` and
 we define $`3` to be $`S(2)`.
@@ -85,8 +85,8 @@ The last thing we need in this section is the concept of an inequality
 between two numbers, which is a way of saying who was born first.
 
 :::definition "leq" (parent := "definitions") (lean := "Nat.le")
-We define $`x \leq y` (using {uses "addition"}[addition])
-to mean that there exists a natural number $`a` such that $`y=x+a`.
+We define $`x \leq y`
+to mean that there exists a natural number $`a` such that {uses "addition"}[$`y = x + a`].
 A natural number $`n` is called *positive* when
 $`1 \leq n`.
 :::
