@@ -5,6 +5,7 @@ import Mathlib.NumberTheory.FLT.Basic
 import Mathlib.NumberTheory.FLT.Three
 import Mathlib.NumberTheory.FLT.Four
 import FLT.Basic.Lemmas
+import FLT.Basic.Reductions
 
 open Verso.Genre
 open Verso.Genre.Manual
