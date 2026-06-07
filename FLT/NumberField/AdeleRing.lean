@@ -672,7 +672,7 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       rw [add_comm, sub_eq_add_neg (a.1 v), add_sub_assoc]
       push_cast
       rfl
-    convert hr v
+    convert! hr v
   · rw [Set.mem_range]
     use fun p ↦ ⟨a.2 p + algebraMap ℚ _ (-q - r), ?_⟩
     · rw [add_comm]
@@ -683,11 +683,11 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       rfl
     · rw [map_sub, ← add_sub_assoc]
       refine sub_mem ?_ (coe_algebraMap_mem (𝓞 ℚ) ℚ p r)
-      convert (f p).2
+      convert! (f p).2
       rw [RestrictedProduct.ext_iff] at hf
-      convert (hf p).symm
+      convert! (hf p).symm
       rw [map_neg, ← sub_eq_add_neg, Eq.comm]
-      convert (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
+      convert! (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
 
 set_option backward.isDefEq.respectTransparency false in
   -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
@@ -756,7 +756,7 @@ theorem Rat.AdeleRing.isAddFundamentalDomain :
       exact Homeomorph.measurable
         (InfinitePlace.Completion.isometryEquivRealOfIsReal _).toHomeomorph
     · refine IsOpen.nullMeasurableSet ?_
-      convert isOpen_forall_mem ?_
+      convert! isOpen_forall_mem ?_
       · ext x
         -- a tactic should do this dumb calculation
         refine ⟨?_, ?_⟩

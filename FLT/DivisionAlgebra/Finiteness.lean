@@ -749,12 +749,12 @@ lemma E_family_unbounded (B : ℝ≥0) :
       refine ⟨⟨ha, hf⟩, ?_⟩
       simp only [d, Units.smul_def]
       nth_rw 2 [← one_smul (Df K D) xf]
-      convert smul_D𝔸_prodRight_symm K D ((Units.map ↑(algebraMap ℝ (Dinf K D))) r) 1 a xf
+      convert! smul_D𝔸_prodRight_symm K D ((Units.map ↑(algebraMap ℝ (Dinf K D))) r) 1 a xf
     · rintro ⟨-, ⟨⟨a, b⟩, ⟨hzi, hzf⟩, rfl⟩, rfl⟩
       use (r • a, b)
       simp only [one_smul] at hzi
       refine ⟨⟨⟨a, hzi, rfl⟩, hzf⟩, ?_⟩
-      convert (smul_D𝔸_prodRight_symm K D ((Units.map ↑(algebraMap ℝ (Dinf K D))) r) 1 a b).symm
+      convert! (smul_D𝔸_prodRight_symm K D ((Units.map ↑(algebraMap ℝ (Dinf K D))) r) 1 a b).symm
       simp
   -- Now Efamily 1 is a compact neighbourhood of 1 so it has Haar measure which isn't 0 or ∞
   have hpos : Measure.addHaar (Efamily K D 1) ≠ 0 := by

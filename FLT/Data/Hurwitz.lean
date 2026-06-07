@@ -174,7 +174,7 @@ instance : Sub 𝓞 := ⟨fun a b => a + -b⟩
 
 lemma toQuaternion_sub (z w : 𝓞) :
     toQuaternion (z - w) = toQuaternion z - toQuaternion w := by
-  convert toQuaternion_add z (-w) using 1
+  convert! toQuaternion_add z (-w) using 1
   rw [sub_eq_add_neg, toQuaternion_neg]
 
 
@@ -499,7 +499,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
   let w := round a.imK
   by_cases H : |a.re - x| = 2⁻¹ ∧ |a.imI - y| = 2⁻¹ ∧ |a.imJ - z| = 2⁻¹ ∧ |a.imK - w| = 2⁻¹
   · use fromQuaternion a
-    convert zero_lt_one' ℝ
+    convert! zero_lt_one' ℝ
     rw [NormedRing.dist_eq, ← sq_eq_zero_iff, sq, ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
     rw [add_eq_zero_iff_of_nonneg (by positivity) (by positivity)]
