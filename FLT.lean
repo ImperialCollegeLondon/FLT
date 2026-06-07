@@ -8,6 +8,7 @@ public import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
+public import FLT.Basic.Lemmas
 public import FLT.Data.Hurwitz
 public import FLT.Data.HurwitzRatHat
 public import FLT.Data.QHat
@@ -42,6 +43,7 @@ public import FLT.DivisionAlgebra.Finiteness
 public import FLT.EllipticCurve.Torsion
 public import FLT.FreyCurve.Contradiction
 public import FLT.FreyCurve.FreyPackage
+public import FLT.FreyCurve.Lemmas
 public import FLT.GaloisRepresentation.Automorphic
 public import FLT.GaloisRepresentation.Cyclotomic
 public import FLT.GaloisRepresentation.HardlyRamified.Defs
