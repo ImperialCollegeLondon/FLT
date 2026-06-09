@@ -9,6 +9,7 @@ public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
 public import FLT.Basic.FreyPackage
+public import FLT.Basic.Lemmas
 public import FLT.Basic.Reductions
 public import FLT.Data.Hurwitz
 public import FLT.Data.HurwitzRatHat
