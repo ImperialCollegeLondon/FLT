@@ -200,7 +200,7 @@ theorem closureAlgebraMapIntegers_eq_integers :
     intro U hU
     rw [Valued.mem_nhds] at hU
     obtain ⟨γ, hγ⟩ := hU
-    let γ' := Units.mapEquiv (valueGroup₀_equiv_withZeroMulInt _) γ
+    let γ' := Units.mapEquiv (valueGroup₀_equiv_withZeroMulInt _).toMulEquiv γ
     obtain ⟨a, ha⟩ := exists_adicValued_sub_lt_of_adicValued_le_one K v γ' hx
     use algebraMap A K a
     constructor
@@ -274,6 +274,10 @@ completion Kᵥ of the field of fractions of A. -/
 noncomputable def ResidueFieldToCompletionResidueField :
     A ⧸ v.asIdeal →+* ResidueField (v.adicCompletionIntegers K) :=
   Ideal.quotientMap _ (algebraMap _ _) <| le_of_eq Ideal.LiesOver.over
+
+-- shortcut instances for next def: needed after mathlib #34045
+noncomputable instance : CommSemiring ↥(adicCompletionIntegers K v) := inferInstance
+noncomputable instance : Field (adicCompletion K v) := inferInstance
 
 set_option backward.isDefEq.respectTransparency false in
 open IsLocalRing in
@@ -372,7 +376,7 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
     rw [Pi.zero_def, nhds_pi, Filter.mem_pi'] at hU
     obtain ⟨I, t, htn, hts⟩ := hU
     choose g' hg' using fun w => (Valued.is_topological_valuation (t w)).mp (htn w)
-    let g := fun w ↦ Units.mapEquiv (valueGroup₀_equiv_withZeroMulInt _) (g' w)
+    let g := fun w ↦ Units.mapEquiv (valueGroup₀_equiv_withZeroMulInt _).toMulEquiv (g' w)
     obtain ⟨a, ha⟩ :=
       exists_forall_adicValued_sub_lt K I g v injective (fun w => ⟨f w, hf w ⟨⟩⟩)
     use algebraMap A _ a
@@ -467,6 +471,9 @@ theorem uniformizer_ne_zero {v : HeightOneSpectrum A}
     π ≠ 0 := by
   contrapose! hπ
   simp [hπ]
+
+-- shortcut instance for next theorem: needed after mathlib #34045
+noncomputable instance : Ring (adicCompletion K v) := inferInstance
 
 set_option backward.isDefEq.respectTransparency false in
 variable {K} in

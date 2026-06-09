@@ -1,4 +1,4 @@
-module  -- shake: keep-all
+module  -- shake: keep-all --deprecated_module: ignore
 
 public import FLT.Assumptions.KnownIn1980s
 public import FLT.Assumptions.Mazur
@@ -43,6 +43,8 @@ public import FLT.Deformations.RepresentationTheory.Irreducible
 public import FLT.Deformations.Subfunctor
 public import FLT.DivisionAlgebra.Finiteness
 public import FLT.EllipticCurve.Torsion
+public import FLT.FreyCurve.Contradiction
+public import FLT.FreyCurve.FreyPackage
 public import FLT.GaloisRepresentation.Automorphic
 public import FLT.GaloisRepresentation.Cyclotomic
 public import FLT.GaloisRepresentation.HardlyRamified.Defs

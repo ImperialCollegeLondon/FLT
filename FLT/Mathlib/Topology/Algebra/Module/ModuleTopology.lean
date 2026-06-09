@@ -111,7 +111,7 @@ include R in
 theorem continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
   letI : TopologicalSpace (D ⊗[R] D) := moduleTopology R _
   haveI : IsModuleTopology R (D ⊗[R] D) := { eq_moduleTopology' := rfl }
-  convert continuous_bilinear_of_finite_left <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
+  convert! continuous_bilinear_of_finite_left <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
 include R in
 lemma Module.topologicalRing : IsTopologicalRing D where

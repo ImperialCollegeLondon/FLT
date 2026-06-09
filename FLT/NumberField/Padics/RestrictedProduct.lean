@@ -75,7 +75,7 @@ theorem padicNatDen_norm_of_mem {x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]
   · intro q hq hpq
     rw [Padic.norm_natCast_eq_one_iff.2]
     · simp
-    · exact (Nat.coprime_primes p.2 q.2).2 (by simpa [Subtype.val_inj] using hpq.symm)
+    · exact (Nat.coprime_primes p.2 q.2).2 (by simpa [Subtype.val_inj] using! hpq.symm)
 
 theorem padicNatDen_norm_of_notMem {x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]} {p : Nat.Primes}
     (hp : p ∉ x.indexSupport) :
@@ -85,7 +85,7 @@ theorem padicNatDen_norm_of_notMem {x : Πʳ (p : Nat.Primes), [ℚ_[p], subring
   rw [(Padic.norm_natCast_eq_one_iff).2]
   · simp
   · exact (Nat.coprime_primes p.2 q.2).2
-      (by simpa [Subtype.val_inj] using ne_of_mem_of_not_mem hq hp |>.symm)
+      (by simpa [Subtype.val_inj] using! ne_of_mem_of_not_mem hq hp |>.symm)
 
 theorem padicNatDen_norm_mul_le_one (x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) (p : Nat.Primes) :
     ‖(x.padicNatDen : ℚ) * x p‖ ≤  1 := by
@@ -110,7 +110,7 @@ theorem padic_exists_sub_mem_padicInt
     PadicInt.toZModPow (x p).valuation.natAbs (x.padicNum p)
   let a : x.indexSupport → ℕ := fun p ↦ p ^ (x p).valuation.natAbs
   have ha : Pairwise fun i j ↦ (a i).Coprime (a j) :=
-    fun p q h ↦ Nat.coprime_pow_primes _ _ p.1.2 q.1.2 (by simpa [Subtype.val_inj] using h)
+    fun p q h ↦ Nat.coprime_pow_primes _ _ p.1.2 q.1.2 (by simpa [Subtype.val_inj] using! h)
   -- Use Chinese Remainder Theorem to lift `padicNum_bar` to an integer `X : ℤ`
   obtain ⟨X, hX⟩ := Ideal.exists_forall_sub_mem_ideal
     (fun _ _ h ↦ (Ideal.isCoprime_span_singleton_iff _ _).2 ((ha h).cast (R := ℤ)))
@@ -133,7 +133,7 @@ theorem padic_exists_sub_mem_padicInt
       this, norm_div, ge_iff_le]
     have h : ‖X - x.padicNatDen * x p‖ ≤ ‖(x.padicNatDen : ℚ_[p])‖ := by
       rw [padicNatDen_norm_of_mem hp]
-      simpa using (PadicInt.norm_le_pow_iff_mem_span_pow _ _).2 (h_sub_mem ⟨p, hp⟩)
+      simpa using! (PadicInt.norm_le_pow_iff_mem_span_pow _ _).2 (h_sub_mem ⟨p, hp⟩)
     grw [h]
     exact div_self (by simp [x.padicNatDen_ne_zero]) |>.le
   · apply Subring.sub_mem _ _ (by simpa using hp)
@@ -153,6 +153,6 @@ theorem padic_exists_sub_mem_structureSubring
     (a : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) :
     ∃ q : ℚ, a - algebraMap ℚ _ q ∈ structureSubring _ _ _ := by
   obtain ⟨r, hr⟩ := padic_exists_sub_mem_padicInt a
-  exact ⟨r, mem_structureSubring_iff.2 fun p ↦ by simpa using Subring.neg_mem _ (hr p)⟩
+  exact ⟨r, mem_structureSubring_iff.2 fun p ↦ by simpa using! Subring.neg_mem _ (hr p)⟩
 
 end RestrictedProduct

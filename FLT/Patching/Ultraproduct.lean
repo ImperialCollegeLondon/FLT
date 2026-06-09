@@ -231,7 +231,7 @@ the corresponding ultraproducts. -/
 def UltraProduct.mapRingHom {S : ι → Type*} [∀ i, CommRing (S i)] (f : ∀ i, R i →+* S i) :
     UltraProduct R F →+* UltraProduct S F :=
   Ideal.quotientMap (I := eventuallyProd (R := R) (M := R) ⊥ F)
-    (eventuallyProd (R := S) (M := S) ⊥ F) (Pi.ringHom fun i ↦ (f i).comp (Pi.evalRingHom _ i))
+    (eventuallyProd (R := S) (M := S) ⊥ F) (RingHom.pi fun i ↦ (f i).comp (Pi.evalRingHom _ i))
     (fun i H ↦ H.mono fun a ha ↦ by simp [show i a = 0 from ha])
 
 @[simp]
@@ -378,7 +378,7 @@ lemma UltraProduct.exists_ringEquiv_of_bddAbove_card
     (N : ℕ) (H : ∀ᶠ i in F, Finite (R i) ∧ Nat.card (R i) < N)
     (f : ∀ i, R₀ →+* R i) (hf : ∀ᶠ i in F, Continuous (f i)) :
     ∀ᶠ i in F, ∃ e : UltraProduct R F ≃+*
-      R i, e.toRingHom.comp ((π R F).comp (Pi.ringHom f)) = f i := by
+      R i, e.toRingHom.comp ((π R F).comp (RingHom.pi f)) = f i := by
   classical
   letI := fun i ↦ (f i).toAlgebra
   have := UltraProduct.exists_algEquiv_of_bddAbove_card (R₀ := R₀) F N H
@@ -404,14 +404,14 @@ lemma UltraProduct.continuous_of_bddAbove_card
     [∀ i, T2Space (R i)] (F : Ultrafilter ι)
     (N : ℕ) (H : ∀ᶠ i in F, Finite (R i) ∧ Nat.card (R i) < N)
     (f : ∀ i, R₀ →+* R i) (hf : ∀ᶠ i in F, Continuous (f i)) :
-    Continuous ((π R F).comp (Pi.ringHom f)) := by
-  suffices IsOpen (X := R₀) (RingHom.ker ((π R F).comp (Pi.ringHom f))) by
+    Continuous ((π R F).comp (RingHom.pi f)) := by
+  suffices IsOpen (X := R₀) (RingHom.ker ((π R F).comp (RingHom.pi f))) by
     apply continuous_of_continuousAt_zero
     rw [ContinuousAt, map_zero, nhds_discrete (UltraProduct R F), pure_zero, tendsto_zero]
     exact this.mem_nhds (x := 0) (map_zero _)
   obtain ⟨i, ⟨e, he⟩, hf, hR, H⟩ :=
     ((UltraProduct.exists_ringEquiv_of_bddAbove_card F N H f hf).and (hf.and H)).exists
-  have : e.symm.toRingHom.comp (f i) = (π R F).comp (Pi.ringHom f) := by
+  have : e.symm.toRingHom.comp (f i) = (π R F).comp (RingHom.pi f) := by
     rw [← he, ← RingHom.comp_assoc]; simp
   rw [← this, ← RingHom.comap_ker,
     (RingHom.injective_iff_ker_eq_bot e.symm.toRingHom).mp e.symm.injective]
@@ -436,10 +436,10 @@ lemma UltraProduct.surjective_of_bddAbove_card
     (N : ℕ) (H : ∀ᶠ i in F, Finite (R i) ∧ Nat.card (R i) < N)
     (f : ∀ i, R₀ →+* R i) (hf : ∀ᶠ i in F, Continuous (f i))
     (hf' : ∀ᶠ i in F, Function.Surjective (f i)) :
-    Function.Surjective ((π R F).comp (Pi.ringHom f)) := by
+    Function.Surjective ((π R F).comp (RingHom.pi f)) := by
   obtain ⟨i, ⟨e, he⟩, hf⟩ :=
     ((UltraProduct.exists_ringEquiv_of_bddAbove_card F N H f hf).and hf').exists
-  have : e.symm.toRingHom.comp (f i) = (π R F).comp (Pi.ringHom f) := by
+  have : e.symm.toRingHom.comp (f i) = (π R F).comp (RingHom.pi f) := by
     rw [← he, ← RingHom.comp_assoc]; simp
   rw [← this]
   exact e.symm.surjective.comp hf

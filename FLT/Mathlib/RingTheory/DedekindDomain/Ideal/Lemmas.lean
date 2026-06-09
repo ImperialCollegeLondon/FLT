@@ -41,11 +41,11 @@ def RingEquiv.heightOneSpectrum {A B : Type*} [CommRing A] [CommRing B] (e : A â
       invFun := e.heightOneSpectrum_comap
       left_inv P := by
         ext1
-        convert Ideal.comap_comap e.toRingHom e.symm.toRingHom
+        convert! Ideal.comap_comap e.toRingHom e.symm.toRingHom
         simp
       right_inv Q := by
         ext1
-        convert Ideal.comap_comap e.symm.toRingHom e.toRingHom
+        convert! Ideal.comap_comap e.symm.toRingHom e.toRingHom
         simp
 
 /-- The element of `HeightOneSpectrum â„¤` associated to a prime number. -/

@@ -526,6 +526,11 @@ namespace Rat.FiniteAdeleRing
 
 local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
 
+-- shortcut for next declaration, needed after mathlib#34045
+variable (i : HeightOneSpectrum (𝓞 ℚ)) in
+instance : SubsemiringClass (ValuationSubring (adicCompletion ℚ i)) (adicCompletion ℚ i) :=
+  inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 /-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and the restricted
 product `Πʳ (p : Nat.Primes), [ℚ_[p], subring p]` of `Padic`s lifting the equivalence
@@ -625,13 +630,13 @@ theorem Rat.AdeleRing.cocompact :
       choose xi hi using InfiniteAdeleRing.exists_sub_norm_le_one (x.out.1 - algebraMap _ _ xf)
       have h : x.out - algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) (xi + xf) ∈ W := by
         simp only [W, Set.prod]
-        refine ⟨Set.mem_univ_pi.2 fun v => by simpa [add_comm, ← sub_sub] using hi v, ?_⟩
+        refine ⟨Set.mem_univ_pi.2 fun v => by simpa [add_comm, ← sub_sub] using! hi v, ?_⟩
         apply exists_structureMap_eq_of_forall
         simp only [map_add, SetLike.mem_coe]
         rw [Prod.snd_sub, Prod.snd_add, sub_add_eq_sub_sub, sub_right_comm]
         intro v
         refine sub_mem (mem_structureSubring_iff.1 hf v) ?_
-        simpa using coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
+        simpa using! coe_algebraMap_mem (𝓞 ℚ) ℚ v xi
       exact ⟨_, h, by simp [-algebraMap.coe_inj]⟩
     exact h_W_image ▸ h_W_compact.image continuous_quot_mk
 
@@ -667,7 +672,7 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       rw [add_comm, sub_eq_add_neg (a.1 v), add_sub_assoc]
       push_cast
       rfl
-    convert hr v
+    convert! hr v
   · rw [Set.mem_range]
     use fun p ↦ ⟨a.2 p + algebraMap ℚ _ (-q - r), ?_⟩
     · rw [add_comm]
@@ -678,11 +683,11 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       rfl
     · rw [map_sub, ← add_sub_assoc]
       refine sub_mem ?_ (coe_algebraMap_mem (𝓞 ℚ) ℚ p r)
-      convert (f p).2
+      convert! (f p).2
       rw [RestrictedProduct.ext_iff] at hf
-      convert (hf p).symm
+      convert! (hf p).symm
       rw [map_neg, ← sub_eq_add_neg, Eq.comm]
-      convert (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
+      convert! (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
 
 set_option backward.isDefEq.respectTransparency false in
   -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
@@ -751,7 +756,7 @@ theorem Rat.AdeleRing.isAddFundamentalDomain :
       exact Homeomorph.measurable
         (InfinitePlace.Completion.isometryEquivRealOfIsReal _).toHomeomorph
     · refine IsOpen.nullMeasurableSet ?_
-      convert isOpen_forall_mem ?_
+      convert! isOpen_forall_mem ?_
       · ext x
         -- a tactic should do this dumb calculation
         refine ⟨?_, ?_⟩

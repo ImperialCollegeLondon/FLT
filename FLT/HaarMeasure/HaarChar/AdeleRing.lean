@@ -65,7 +65,7 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   congr
   have := Fact.mk <| NumberField.isOpenAdicCompletionIntegers ℚ
   have := NumberField.instCompactSpaceAdicCompletionIntegers ℚ
-  convert addEquivAddHaarChar_restrictedProductCongrRight
+  convert! addEquivAddHaarChar_restrictedProductCongrRight
     (C := fun p ↦ (p.adicCompletionIntegers ℚ).toAddSubgroup)
     (fun p ↦
       (ContinuousAddEquiv.mulLeft (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p))) _
@@ -216,7 +216,7 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈
     ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := by
   rw [mem_ringHaarChar_ker, ringHaarChar_apply]
-  convert MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulLeft K b)
+  convert! MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulLeft K b)
   ext c
   change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
   induction c with
@@ -235,7 +235,7 @@ lemma NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one
       (ContinuousAddEquiv.mulRight
         (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ)) = 1 := by
-  convert addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulRight K b)
+  convert! addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulRight K b)
   ext c
   change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
   induction c with

@@ -216,7 +216,7 @@ lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace
       continuous_toFun := continuous_of_linearMap (algEquivMatrix b).toLinearMap,
       continuous_invFun := continuous_of_linearMap (algEquivMatrix b).symm.toLinearMap }
     rw [e.symm.isQuotientMap.continuous_iff]
-    convert continuous_id.matrix_det (R := A) (n := s)
+    convert! continuous_id.matrix_det (R := A) (n := s)
     ext M
     exact LinearMap.det_toLin b M
   rw [LinearMap.det, dif_neg H]
@@ -232,7 +232,7 @@ of units of the monoid. -/
 def ContinuousMonoidHom.toHomUnits {G M : Type*} [Group G] [Monoid M] [TopologicalSpace G]
     [IsTopologicalGroup G] [TopologicalSpace M] (f : G →ₜ* M) : G →ₜ* Mˣ :=
   ⟨MonoidHom.toHomUnits f, continuous_induced_rng.mpr (continuous_prodMk.mpr ⟨f.continuous, by
-    simpa [← map_inv] using MulOpposite.continuous_op.comp (f.continuous.comp continuous_inv)⟩)⟩
+    simpa [← map_inv] using! MulOpposite.continuous_op.comp (f.continuous.comp continuous_inv)⟩)⟩
 
 /-- `Units.val` as a `ContinuousMonoidHom`. -/
 @[simps!]

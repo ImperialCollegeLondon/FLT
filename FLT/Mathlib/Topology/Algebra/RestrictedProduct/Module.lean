@@ -148,7 +148,7 @@ instance : ContinuousSMul (Πʳ i, [R i, B i]_[𝓟 T]) (Πʳ i, [M i, C i]_[�
 variable [hBopen : Fact (∀ i, IsOpen (B i : Set (R i)))]
 variable [hCopen : Fact (∀ i, IsOpen (C i : Set (M i)))]
 
-instance [∀ i, ContinuousSMul (R i) (M i)] :
+instance :
     ContinuousSMul (Πʳ i, [R i, B i]) (Πʳ i, [M i, C i]) where
   continuous_smul := by
     rw [continuous_dom_prod hBopen.elim hCopen.elim]
@@ -192,7 +192,7 @@ def _root_.LinearEquiv.restrictedProductPi [Fintype n] :
       rw [piSubringSubmodule, Submodule.coe_pi, Set.mem_univ_pi] at hr
       exact hr j)
     x
-  invFun x := ⟨fun i j ↦ x j i, by simpa [piSubringSubmodule] using fun j ↦ (x j).eventually⟩
+  invFun x := ⟨fun i j ↦ x j i, by simpa [piSubringSubmodule] using! fun j ↦ (x j).eventually⟩
   map_add' x y := rfl
   map_smul' x y := rfl
 

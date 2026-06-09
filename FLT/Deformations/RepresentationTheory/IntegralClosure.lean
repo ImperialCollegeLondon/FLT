@@ -95,7 +95,7 @@ instance continuousSMulDiscrete_integralClosure
     [SMulCommClass G R L] [TopologicalSpace G] [ContinuousSMulDiscrete G L] :
     ContinuousSMulDiscrete G (IntegralClosure R L) where
   isOpen_smul_eq x y := by
-    simpa only [IntegralClosure, Subtype.ext_iff] using
+    simpa only [IntegralClosure, Subtype.ext_iff] using!
       ContinuousSMulDiscrete.isOpen_smul_eq (G := G) x.1 y.1
 
 instance {R S : Type*} [CommRing R] [CommRing S] {I : Ideal S} [Algebra R S]

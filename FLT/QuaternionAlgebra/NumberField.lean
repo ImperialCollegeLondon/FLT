@@ -109,6 +109,12 @@ lemma GL2.mem_localFullLevel' {v : HeightOneSpectrum (𝓞 F)} {x : GL (Fin 2) (
   rintro y hy
   simp [← hy]
 
+-- shortcut instances for next theorem: needed after mathlib #34045
+variable (v : HeightOneSpectrum (𝓞 F)) in
+noncomputable instance : Ring (HeightOneSpectrum.adicCompletion F v) := inferInstance
+variable (v : HeightOneSpectrum (𝓞 F)) in
+noncomputable instance : CommRing (HeightOneSpectrum.adicCompletion F v) := inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 lemma GL2.v_det_val_mem_localFullLevel_eq_one {v : HeightOneSpectrum (𝓞 F)}
     {x : GL (Fin 2) (v.adicCompletion F)} (hx : x ∈ localFullLevel v) :

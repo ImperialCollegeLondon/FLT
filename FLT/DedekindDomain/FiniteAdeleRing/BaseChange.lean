@@ -87,7 +87,7 @@ noncomputable def mapSemialgHom :
   __ := FiniteAdeleRing.mapRingHom A K L B
   map_smul' k a := by
     ext w
-    simpa only [Algebra.smul_def'] using
+    simpa only [Algebra.smul_def'] using!
       (adicCompletionSemialgHom K L (v := w.under A) ⟨w, rfl⟩).map_smul' k (a (under A w))
   continuous_toFun :=
     have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
@@ -167,6 +167,10 @@ def tensorEquivRestrictedProduct : B ⊗[A] 𝔸ᶠ[A, K] ≃ₗ[B] Πʳ v, [B �
       exact Algebra.smul_def a (x v) |>.symm
   }
 
+-- shortcut instance to make next lemma work after mathlib#39965
+variable (v : HeightOneSpectrum A) in
+instance : AddCommMonoid (adicCompletion K v) := inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 omit [IsFractionRing B L] in
 lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K]) (v : HeightOneSpectrum A) :
@@ -211,7 +215,7 @@ def restrictedProduct_prod_equiv :
     map_smul' a x := by
       ext w
       change a • (x (under A w) ⟨w, rfl⟩) = _
-      simp [Submodule.coe_pi,Algebra.smul_def, RingHom.id_apply, Equiv.toFun_as_coe]
+      simp [Algebra.smul_def, RingHom.id_apply, Equiv.toFun_as_coe]
       rfl
   }
 

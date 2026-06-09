@@ -422,7 +422,7 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
         ⇑(evalRingHom (fun p ↦ adicCompletion K p) v)).mulVec
           (⇑(b_local.repr (1 ⊗ₜ[K] r))) j := by
     set m := ((LinearMap.toMatrix b b) ↑φ.toLinearEquiv)
-    convert RingHom.map_mulVec (evalRingHom (fun p ↦ adicCompletion K p) v) m _ j
+    convert! RingHom.map_mulVec (evalRingHom (fun p ↦ adicCompletion K p) v) m _ j
     ext i
     simp [b, b_local, evalRingHom, evalMonoidHom, Algebra.smul_def]
     rfl
@@ -513,7 +513,7 @@ lemma FiniteAdeleRing.Aux.almost_always_mapsTo
     (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (adicCompletion K v) B)
     (φ_local_Kv_linear K B v φ (w c • b_local c)) j
     ∈ adicCompletionIntegers K v
-  simpa [← basis_repr_eq', local_repr_eq] using sum_mem fun i hi ↦ mul_mem (hw i) (hv j i)
+  simpa [← basis_repr_eq', local_repr_eq] using! sum_mem fun i hi ↦ mul_mem (hw i) (hv j i)
 
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
 -- finitely many places
@@ -601,7 +601,7 @@ lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
       ((TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id) u') := by
     rw [ContinuousLinearMap.rTensor, ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
       TensorProduct.map_id, LinearMap.id_apply]
-  convert keyFin.symm
+  convert! keyFin.symm
   change _ = Algebra.TensorProduct.rTensor B _ _
   simp [ContinuousLinearEquiv.mulLeft, LinearEquiv.mulLeft, map_mul]
   congr
@@ -626,7 +626,7 @@ lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
       ((TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id) u') := by
     rw [ContinuousLinearMap.rTensor, ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
       TensorProduct.map_id, LinearMap.id_apply]
-  convert keyFin.symm
+  convert! keyFin.symm
   change _ = Algebra.TensorProduct.rTensor B _ _
   simp [ContinuousLinearEquiv.mulRight, LinearEquiv.mulRight, map_mul]
   congr
