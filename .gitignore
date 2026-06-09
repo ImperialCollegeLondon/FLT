@@ -25,3 +25,7 @@ blueprint/lean_decls
 docbuild/*
 *.toc
 *.xdv
+# Verso blueprint
+blueprint-verso/.lake
+blueprint-verso/_out
+**/.claude
