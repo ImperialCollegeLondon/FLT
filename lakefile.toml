@@ -29,4 +29,4 @@ globs = ["FLT", "FermatsLastTheorem"]
 
 [[lean_lib]]
 name = "FLTTest"
-globs = ["FLTTest.+"] # Build all files in the directory `FLTTest`.
+globs = ["FLTTest.*"] # Build `FLTTest.lean` and all files in the directory `FLTTest`.
