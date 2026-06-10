@@ -23,7 +23,7 @@ open IsDedekindDomain
 open scoped NumberField
 
 /-- Pulling back elements of `HeightOneSpectrum` along a ring isomorphism. -/
-def RingEquiv.heightOneSpectrum_comap {A B : Type*} [CommRing A] [CommRing B] (e : A ≃+* B)
+def RingEquiv.heightOneSpectrumComap {A B : Type*} [CommRing A] [CommRing B] (e : A ≃+* B)
     (P : HeightOneSpectrum B) : HeightOneSpectrum A :=
   {
     asIdeal := .comap e P.asIdeal
@@ -37,8 +37,8 @@ open IsDedekindDomain in
 between `A` and `B`. -/
 def RingEquiv.heightOneSpectrum {A B : Type*} [CommRing A] [CommRing B] (e : A ≃+* B) :
     HeightOneSpectrum A ≃ HeightOneSpectrum B where
-      toFun := e.symm.heightOneSpectrum_comap
-      invFun := e.heightOneSpectrum_comap
+      toFun := e.symm.heightOneSpectrumComap
+      invFun := e.heightOneSpectrumComap
       left_inv P := by
         ext1
         convert! Ideal.comap_comap e.toRingHom e.symm.toRingHom

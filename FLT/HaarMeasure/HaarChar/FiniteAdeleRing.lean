@@ -83,10 +83,10 @@ noncomputable def FiniteAdeleRing.Aux.f
     (Module.Free.ChooseBasisIndex K B → (FiniteAdeleRing (𝓞 K) K)) := by
   let b₀ := Module.Free.chooseBasis K B
   let b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
-  refine (ContinuousLinearEquiv.chooseBasis_piScalarRight' K
+  refine (ContinuousLinearEquiv.chooseBasisPiScalarRight' K
     (FiniteAdeleRing (𝓞 K) K) B).symm.trans ?_
   refine φ.trans ?_
-  exact (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (FiniteAdeleRing (𝓞 K) K) B)
+  exact (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (FiniteAdeleRing (𝓞 K) K) B)
 
 lemma FiniteAdeleRing.Aux.f_commSq
     (φ : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
@@ -94,10 +94,10 @@ lemma FiniteAdeleRing.Aux.f_commSq
     addEquivAddHaarChar (φ.toContinuousAddEquiv) =
     addEquivAddHaarChar (FiniteAdeleRing.Aux.f K B φ).toContinuousAddEquiv := by
   refine MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
-    (ContinuousLinearEquiv.chooseBasis_piScalarRight' K
+    (ContinuousLinearEquiv.chooseBasisPiScalarRight' K
       (FiniteAdeleRing (𝓞 K) K) B).toContinuousAddEquiv _ _ ?_
   intro x
-  let g := (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (FiniteAdeleRing (𝓞 K) K) B)
+  let g := (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (FiniteAdeleRing (𝓞 K) K) B)
   change g (φ x) = g (φ (g.symm (g x)))
   simp
 
@@ -216,7 +216,7 @@ noncomputable def FiniteAdeleRing.Aux.e (v : HeightOneSpectrum (𝓞 K))
     (Module.Free.ChooseBasisIndex K B → (v.adicCompletion K)) := by
   let b₀ := Module.Free.chooseBasis K B
   let b := Module.Basis.baseChange (v.adicCompletion K) b₀
-  let β := (ContinuousLinearEquiv.chooseBasis_piScalarRight' K
+  let β := (ContinuousLinearEquiv.chooseBasisPiScalarRight' K
     (v.adicCompletion K) B).toContinuousAddEquiv
   refine β.symm.trans ?_
   refine α.toContinuousAddEquiv.trans ?_
@@ -238,10 +238,10 @@ lemma FiniteAdeleRing.Aux.e_commSq (v : HeightOneSpectrum (𝓞 K))
     addEquivAddHaarChar (α.toContinuousAddEquiv) =
     addEquivAddHaarChar (FiniteAdeleRing.Aux.e K B v α) := by
   refine MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
-    (ContinuousLinearEquiv.chooseBasis_piScalarRight' K
+    (ContinuousLinearEquiv.chooseBasisPiScalarRight' K
       (v.adicCompletion K) B).toContinuousAddEquiv _ _ ?_
   intro x
-  let g := (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (v.adicCompletion K) B)
+  let g := (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (v.adicCompletion K) B)
   change g (α x) = g (α (g.symm (g x)))
   simp
 
@@ -253,37 +253,37 @@ noncomputable local instance : DecidableEq (HeightOneSpectrum (𝓞 K)) := Class
 
 section auxiliary_basis_lemmas
 
-/- API for relating `ContinuousLinearEquiv.chooseBasis_piScalarRight'` to `Module.Basis`.
+/- API for relating `ContinuousLinearEquiv.chooseBasisPiScalarRight'` to `Module.Basis`.
 TODO: Could all probably be elsewhere and in greater generality. -/
 
-/-- `b_local` is `v.adicCompletion K`-basis for `v.adicCompletion K ⊗[K] B`. -/
-noncomputable abbrev b_local (v : HeightOneSpectrum (𝓞 K)) :=
+/-- `bLocal` is `v.adicCompletion K`-basis for `v.adicCompletion K ⊗[K] B`. -/
+noncomputable abbrev bLocal (v : HeightOneSpectrum (𝓞 K)) :=
   Module.Basis.baseChange (v.adicCompletion K) (Module.Free.chooseBasis K B)
 
-/-- `b_global` is `FiniteAdeleRing (𝓞 K) K`-basis for `FiniteAdeleRing (𝓞 K) K ⊗[K] B`. -/
-noncomputable abbrev b_global :=
+/-- `bGlobal` is `FiniteAdeleRing (𝓞 K) K`-basis for `FiniteAdeleRing (𝓞 K) K ⊗[K] B`. -/
+noncomputable abbrev bGlobal :=
   Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) (Module.Free.chooseBasis K B)
 
 lemma basis_repr_eq (v : HeightOneSpectrum (𝓞 K)) {x : adicCompletion K v ⊗[K] B} :
-    (b_local K B v).repr x
-    = (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (v.adicCompletion K) B) x := by
+    (bLocal K B v).repr x
+    = (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (v.adicCompletion K) B) x := by
   refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
   ext; simp; rfl
 
 lemma basis_repr_eq_global {x : (FiniteAdeleRing (𝓞 K) K) ⊗[K] B} :
-    (b_global K B).repr x
-    = (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (FiniteAdeleRing (𝓞 K) K) B) x := by
+    (bGlobal K B).repr x
+    = (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (FiniteAdeleRing (𝓞 K) K) B) x := by
   refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
   ext; simp; rfl
 
 lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
     {j : Module.Free.ChooseBasisIndex K B} {x : adicCompletion K v} :
-    x • (b_local K B v) j
-    = (ContinuousLinearEquiv.chooseBasis_piScalarRight'
+    x • (bLocal K B v) j
+    = (ContinuousLinearEquiv.chooseBasisPiScalarRight'
       K (v.adicCompletion K) B).symm (Pi.single j x) := by
   rw [ContinuousLinearEquiv.eq_symm_apply];
   ext b;
-  have : (x • (b_local K B v) j) = (x ⊗ₜ[K] (Module.Free.chooseBasis K B) j) := by
+  have : (x • (bLocal K B v) j) = (x ⊗ₜ[K] (Module.Free.chooseBasis K B) j) := by
     simp [Algebra.smul_def]
   rw [this]
   conv_lhs =>
@@ -295,8 +295,8 @@ set_option synthInstance.maxHeartbeats 40000 in
 set_option maxHeartbeats 400000 in
 lemma basis_eq (v : HeightOneSpectrum (𝓞 K))
     {w : Module.Free.ChooseBasisIndex K B → adicCompletion K v} :
-    ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • (b_local K B v) j
-    = (ContinuousLinearEquiv.chooseBasis_piScalarRight'
+    ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • (bLocal K B v) j
+    = (ContinuousLinearEquiv.chooseBasisPiScalarRight'
       K (v.adicCompletion K) B).toContinuousAddEquiv.symm w := by
   have hw : w = ∑ x, (Pi.single x (w x)) := by
     ext; simp
@@ -305,12 +305,12 @@ lemma basis_eq (v : HeightOneSpectrum (𝓞 K))
 
 lemma basis_eq_single_global
     {j : Module.Free.ChooseBasisIndex K B} {x : FiniteAdeleRing (𝓞 K) K} :
-    x • (b_global K B) j
-    = (ContinuousLinearEquiv.chooseBasis_piScalarRight'
+    x • (bGlobal K B) j
+    = (ContinuousLinearEquiv.chooseBasisPiScalarRight'
       K (FiniteAdeleRing (𝓞 K) K) B).symm (Pi.single j x) := by
   rw [ContinuousLinearEquiv.eq_symm_apply];
   ext b v;
-  have : (x • (b_global K B) j) = (x ⊗ₜ[K] (Module.Free.chooseBasis K B) j) := by
+  have : (x • (bGlobal K B) j) = (x ⊗ₜ[K] (Module.Free.chooseBasis K B) j) := by
     simp [Algebra.smul_def]
   rw [this]
   conv_lhs =>
@@ -319,8 +319,8 @@ lemma basis_eq_single_global
 
 lemma basis_eq_global
     {w : Module.Free.ChooseBasisIndex K B → (FiniteAdeleRing (𝓞 K) K)} :
-    ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • b_global K B j
-    = (ContinuousLinearEquiv.chooseBasis_piScalarRight'
+    ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • bGlobal K B j
+    = (ContinuousLinearEquiv.chooseBasisPiScalarRight'
       K (FiniteAdeleRing (𝓞 K) K) B).toContinuousAddEquiv.symm w := by
   have hw : w = ∑ x, (Pi.single x (w x)) := by
     ext; simp
@@ -331,7 +331,7 @@ end auxiliary_basis_lemmas
 
 -- this should really be just after the definition of `localcomponent`
 /-- `TensorProduct.localcomponent φ` as `v.adicCompletion K`-linear map -/
-noncomputable def φ_local_Kv_linear (v : HeightOneSpectrum (𝓞 K))
+noncomputable def φLocalKvLinear (v : HeightOneSpectrum (𝓞 K))
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
     FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
     v.adicCompletion K ⊗[K] B →ₗ[v.adicCompletion K] v.adicCompletion K ⊗[K] B := {
@@ -374,13 +374,13 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     (i j : Module.Free.ChooseBasisIndex K B) :
     letI b₀ := Module.Free.chooseBasis K B
     letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
-    letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
-    (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j =
+    letI bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
+    (LinearMap.toMatrix bLocal bLocal) (φLocalKvLinear K B v φ) i j =
     (LinearMap.toMatrix b b φ.toLinearMap i j) v := by
   letI b₀ := Module.Free.chooseBasis K B
   letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
-  letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
-  change (LinearMap.toMatrix b_local b_local) (φ_local_Kv_linear K B v φ) i j =
+  letI bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
+  change (LinearMap.toMatrix bLocal bLocal) (φLocalKvLinear K B v φ) i j =
     RingHom.mapMatrix
       (evalRingHom (fun (p : HeightOneSpectrum (𝓞 K)) ↦ p.adicCompletion K) v)
       (LinearMap.toMatrix b b φ.toLinearMap) i j
@@ -390,14 +390,14 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
   -- move LinearMap.toMatrix onto the other side of the equation
   rw [RingHom.mapMatrix_apply (evalRingHom (fun p ↦ adicCompletion K p) v)
       ((LinearMap.toMatrix b b) ↑φ.toLinearEquiv)]
-  apply_fun (Matrix.toLin b_local b_local) using (Matrix.toLin b_local b_local).injective
+  apply_fun (Matrix.toLin bLocal bLocal) using (Matrix.toLin bLocal bLocal).injective
   rw [Matrix.toLin_toMatrix]
   -- This is now an equality of linear maps Kᵥ ⊗[K] B → Kᵥ ⊗[K] B
   ext r -- r ∈ B
-  -- now get rid of `φ_local_Kv_linear`
+  -- now get rid of `φLocalKvLinear`
   change AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
     (φ (LinearMap.rTensor B (FiniteAdeleRing.singleLinearMap (𝓞 K) K v) (1 ⊗ₜ r))) =
-  ((Matrix.toLin b_local b_local)
+  ((Matrix.toLin bLocal bLocal)
     (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).map ⇑(evalRingHom (fun p ↦ adicCompletion K p) v)))
     (1 ⊗ₜ[K] r)
   rw [LinearMap.rTensor_tmul]
@@ -412,19 +412,19 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     rw [← Matrix.toLin_toMatrix b b φ.toLinearEquiv]
   have rTensor_basis (j : Module.Free.ChooseBasisIndex K B) :
       (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)) (b j)
-      = b_local j := by
-    simp [AlgHom.rTensor, b, b_local]
+      = bLocal j := by
+    simp [AlgHom.rTensor, b, bLocal]
   have eval_mulVec_eq (j : Module.Free.ChooseBasisIndex K B) :
       (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
           (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).mulVec (⇑(b.repr (1 ⊗ₜ[K] r))) j)
       =
       (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).map
         ⇑(evalRingHom (fun p ↦ adicCompletion K p) v)).mulVec
-          (⇑(b_local.repr (1 ⊗ₜ[K] r))) j := by
+          (⇑(bLocal.repr (1 ⊗ₜ[K] r))) j := by
     set m := ((LinearMap.toMatrix b b) ↑φ.toLinearEquiv)
     convert! RingHom.map_mulVec (evalRingHom (fun p ↦ adicCompletion K p) v) m _ j
     ext i
-    simp [b, b_local, evalRingHom, evalMonoidHom, Algebra.smul_def]
+    simp [b, bLocal, evalRingHom, evalMonoidHom, Algebra.smul_def]
     rfl
   simp [-Matrix.toLin_toMatrix, Matrix.toLin_apply, rTensor_basis, eval_mulVec_eq]
   /-
@@ -434,7 +434,7 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
   goal is
 
   ⊢ (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)) (φ (1 ⊗ₜ[K] r)) =
-  ((Matrix.toLin b_local b_local)
+  ((Matrix.toLin bLocal bLocal)
       (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).map
         ⇑(evalRingHom (fun p ↦ adicCompletion K p) v)))
     (1 ⊗ₜ[K] r)
@@ -445,12 +445,12 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     not a pure tensor in general)
 
   RHS is: take φ as a linear map, make its matrix wrt basis b, apply evalᵥ,
-  turn it back into a linear map wrt b_local (which is (evalᵥ ⊗ id_B) b, although we don't have
+  turn it back into a linear map wrt bLocal (which is (evalᵥ ⊗ id_B) b, although we don't have
   a proof of this) and then evaluate at (1ᵥ ⊗ₜ[K] r) (which is (evalᵥ ⊗ id_B) (1_𝔸 ⊗ₜ r)
 
   so there should be some general statement here from which this follows?
 
-  I'm not entirely sure of the best way to say that b_local is evalᵥ ⊗ id_B of b
+  I'm not entirely sure of the best way to say that bLocal is evalᵥ ⊗ id_B of b
 
   Could just break everything up into sums? Tried this and got confused.
   -/
@@ -459,12 +459,12 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
 lemma toMatrix_f
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
       FiniteAdeleRing (𝓞 K) K ⊗[K] B) :
-    LinearMap.toMatrix (b_global K B) (b_global K B) φ.toLinearEquiv
+    LinearMap.toMatrix (bGlobal K B) (bGlobal K B) φ.toLinearEquiv
     = LinearMap.toMatrix' (f K B φ) := by
   have basis_eq_global'
       {w : Module.Free.ChooseBasisIndex K B → (FiniteAdeleRing (𝓞 K) K)} :
-      ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • b_global K B j
-      = (ContinuousLinearEquiv.chooseBasis_piScalarRight'
+      ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • bGlobal K B j
+      = (ContinuousLinearEquiv.chooseBasisPiScalarRight'
         K (FiniteAdeleRing (𝓞 K) K) B).symm w :=
     basis_eq_global K B
   ext
@@ -497,21 +497,21 @@ lemma FiniteAdeleRing.Aux.almost_always_mapsTo
   -- Idea: φ is represented by a matrix M, and the claim is that for a finite place v
   -- at which the matrix is v-integral, the local component of φ
   -- should preserve integrality.
-  let b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
-  -- `b_local` is `v.adicCompletion K`-basis for `v.adicCompletion K ⊗[K] B`
+  let bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
+  -- `bLocal` is `v.adicCompletion K`-basis for `v.adicCompletion K ⊗[K] B`
   have basis_repr_eq' {x : adicCompletion K v ⊗[K] B} :
-      b_local.repr x
-      = (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (v.adicCompletion K) B) x :=
+      bLocal.repr x
+      = (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (v.adicCompletion K) B) x :=
     basis_repr_eq K B v
   have local_repr_eq (i j : Module.Free.ChooseBasisIndex K B) :
-      ((b_local.repr (φ_local_Kv_linear K B v φ (b_local j))) i) = (m i j) v := by
+      ((bLocal.repr (φLocalKvLinear K B v φ (bLocal j))) i) = (m i j) v := by
     rw [← LinearMap.toMatrix_apply, localcomponent_matrix]
   -- simp [e, ← basis_eq K B v]
   simp only [e, ← basis_eq K B v,
     ContinuousAddEquiv.trans_apply, map_sum, Finset.sum_apply] --argh!
   change ∑ c,
-    (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (adicCompletion K v) B)
-    (φ_local_Kv_linear K B v φ (w c • b_local c)) j
+    (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (adicCompletion K v) B)
+    (φLocalKvLinear K B v φ (w c • bLocal c)) j
     ∈ adicCompletionIntegers K v
   simpa [← basis_repr_eq', local_repr_eq] using! sum_mem fun i hi ↦ mul_mem (hw i) (hv j i)
 
@@ -547,21 +547,21 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
   ext r v j;
   letI b₀ := Module.Free.chooseBasis K B
   letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
-  letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
+  letI bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
   let m := LinearMap.toMatrix b b φ.toLinearMap
   simp only [ContinuousAddEquiv.restrictedProductCongrRight, e, ← basis_eq K B v,
     ContinuousAddEquiv.coe_trans, ContinuousAddEquiv.coe_mk, AddEquiv.coe_mk, Equiv.coe_fn_mk,
     map_apply, Function.comp_apply, map_sum, Finset.sum_apply]
   conv_rhs =>
     change ∑ c,
-      (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (adicCompletion K v) B)
-      (φ_local_Kv_linear K B v φ (r v c • b_local c)) j
+      (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (adicCompletion K v) B)
+      (φLocalKvLinear K B v φ (r v c • bLocal c)) j
   have basis_repr_eq' {x : adicCompletion K v ⊗[K] B} :
-      b_local.repr x
-      = (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (v.adicCompletion K) B) x :=
+      bLocal.repr x
+      = (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (v.adicCompletion K) B) x :=
     basis_repr_eq K B v
   have local_repr_eq (i j : Module.Free.ChooseBasisIndex K B) :
-      ((b_local.repr (φ_local_Kv_linear K B v φ (b_local j))) i) = (m i j) v := by
+      ((bLocal.repr (φLocalKvLinear K B v φ (bLocal j))) i) = (m i j) v := by
     rw [← LinearMap.toMatrix_apply, localcomponent_matrix]
   have hf : m = LinearMap.toMatrix' (f K B φ) := toMatrix_f K B φ
   simp only [ ← basis_repr_eq', local_repr_eq, m, hf, g,

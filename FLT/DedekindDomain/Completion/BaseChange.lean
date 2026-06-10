@@ -255,7 +255,7 @@ noncomputable def semialgHomPi :
 /-- The canonical ring homomorphism `L ⊗_K K_v → ∏_{w|v} L_w` as an `L`-algebra map. -/
 noncomputable abbrev baseChange :
     L ⊗[K] adicCompletion K v →ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
-  (semialgHomPi K L B v).baseChange_of_algebraMap
+  (semialgHomPi K L B v).baseChangeOfAlgebraMap
 
 lemma baseChange_tmul_apply (x y w) : baseChange K L B v (x ⊗ₜ y) w =
     (algebraMap _ (w.1.adicCompletion L) x) * (algebraMap _ (w.1.adicCompletion L) y) := rfl

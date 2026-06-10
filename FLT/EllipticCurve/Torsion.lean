@@ -30,25 +30,25 @@ open WeierstrassCurve WeierstrassCurve.Affine
 
 /-- The `n`-torsion subgroup of an elliptic curve `E` over `k`: the kernel of multiplication
 by `n` on the group of `k`-points of `E`. -/
-abbrev WeierstrassCurve.n_torsion (n : ℕ) : Type u := Submodule.torsionBy ℤ (E⁄k).Point n
+abbrev WeierstrassCurve.nTorsion (n : ℕ) : Type u := Submodule.torsionBy ℤ (E⁄k).Point n
 
 --variable (n : ℕ) in
---#synth AddCommGroup (E.n_torsion n)
+--#synth AddCommGroup (E.nTorsion n)
 
 -- not sure if this instance will cause more trouble than it's worth
-noncomputable instance (n : ℕ) : Module (ZMod n) (E.n_torsion n) :=
+noncomputable instance (n : ℕ) : Module (ZMod n) (E.nTorsion n) :=
   AddCommGroup.zmodModule <| by
   intro ⟨P, hP⟩
   simpa using hP
 
 -- This theorem needs e.g. a theory of division polynomials. It's ongoing work of David Angdinata.
 -- Please do not work on it without talking to KB and David first.
-theorem WeierstrassCurve.n_torsion_finite {n : ℕ} (hn : 0 < n) : Finite (E.n_torsion n) := sorry
+theorem WeierstrassCurve.n_torsion_finite {n : ℕ} (hn : 0 < n) : Finite (E.nTorsion n) := sorry
 
 -- This theorem needs e.g. a theory of division polynomials. It's ongoing work of David Angdinata.
 -- Please do not work on it without talking to KB and David first.
 theorem WeierstrassCurve.n_torsion_card [IsSepClosed k] {n : ℕ} (hn : (n : k) ≠ 0) :
-    Nat.card (E.n_torsion n) = n^2 := sorry
+    Nat.card (E.nTorsion n) = n^2 := sorry
 
 theorem group_theory_lemma {A : Type*} [AddCommGroup A] {n : ℕ} (hn : 0 < n) (r : ℕ)
     (h : ∀ d : ℕ, d ∣ n → Nat.card (Submodule.torsionBy ℤ A d) = d ^ r) :
@@ -58,8 +58,8 @@ theorem group_theory_lemma {A : Type*} [AddCommGroup A] {n : ℕ} (hn : 0 < n) (
 -- It follows from the previous theorem using pure group theory (possibly including the
 -- structure theorem for finite abelian groups)
 theorem WeierstrassCurve.n_torsion_dimension [IsSepClosed k] {n : ℕ} (hn : (n : k) ≠ 0) :
-    Nonempty (E.n_torsion n ≃+ (ZMod n) × (ZMod n)) := by
-  obtain ⟨φ⟩ : Nonempty (E.n_torsion n ≃+ (Fin 2 → (ZMod n))) := by
+    Nonempty (E.nTorsion n ≃+ (ZMod n) × (ZMod n)) := by
+  obtain ⟨φ⟩ : Nonempty (E.nTorsion n ≃+ (Fin 2 → (ZMod n))) := by
     apply group_theory_lemma (Nat.pos_of_ne_zero fun h ↦ by simp [h] at hn)
     intro d hd
     apply E.n_torsion_card
@@ -69,7 +69,7 @@ theorem WeierstrassCurve.n_torsion_dimension [IsSepClosed k] {n : ℕ} (hn : (n 
   exact ⟨φ.trans (RingEquiv.piFinTwo _).toAddEquiv⟩
 
 -- follows easily from the above
-noncomputable instance (n : ℕ) : Module.Finite (ZMod n) (E.n_torsion n) := sorry
+noncomputable instance (n : ℕ) : Module.Finite (ZMod n) (E.nTorsion n) := sorry
 
 -- This should be a straightforward but perhaps long unravelling of the definition
 /-- The map on points for an elliptic curve over `k` induced by a morphism of `k`-algebras
@@ -94,7 +94,7 @@ lemma WeierstrassCurve.Points.map_comp (K L M : Type u) [Field K] [Field L] [Fie
   exact WeierstrassCurve.Affine.Point.map_map _ _ _
 
 /-- The Galois action on the points of an elliptic curve. -/
-noncomputable instance WeierstrassCurve.galoisRepresentation_smul
+noncomputable instance WeierstrassCurve.galoisRepresentationSmul
     (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
     SMul (K ≃ₐ[k] K) (E⁄K).Point := ⟨
   fun g P ↦ WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K) P⟩
@@ -114,4 +114,4 @@ noncomputable instance WeierstrassCurve.galoisRepresentation
 /-- The continuous Galois representation associated to an elliptic curve over a field. -/
 def WeierstrassCurve.galoisRep {K : Type u} [Field K] (E : WeierstrassCurve K) [E.IsElliptic]
     [DecidableEq K] [DecidableEq (AlgebraicClosure K)] (n : ℕ) (hn : 0 < n) :
-  GaloisRep K (ZMod n) ((E.map (algebraMap K (AlgebraicClosure K))).n_torsion n) := sorry
+  GaloisRep K (ZMod n) ((E.map (algebraMap K (AlgebraicClosure K))).nTorsion n) := sorry

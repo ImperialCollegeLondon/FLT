@@ -862,7 +862,7 @@ noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :
 `K`-algebra base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeEquiv' :
     (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L where
-  __ := (baseChange K L).baseChange_of_algebraMap
+  __ := (baseChange K L).baseChangeOfAlgebraMap
   __ := baseChangeAdeleEquiv K L
 
 -- this isn't rfl. Explanation below
@@ -878,14 +878,14 @@ We have two isomorphisms `(L ⊗[K] 𝔸 K) = 𝔸 L`.
 
 1)
 `baseChangeEquiv` is
-  `(baseChangeSemialgHom K L).baseChange_of_algebraMap` *and
+  `(baseChangeSemialgHom K L).baseChangeOfAlgebraMap` *and
   `baseChangeAdeleEquiv`. The latter is `baseChangeAdeleAlgHom` which is
   `(baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap`
 
 Note:
 ```
 example (x : L ⊗[K] 𝔸 K) :
-    (baseChangeSemialgHom K L).baseChange_of_algebraMap x =
+    (baseChangeSemialgHom K L).baseChangeOfAlgebraMap x =
     (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap x := by
   rfl
 ```

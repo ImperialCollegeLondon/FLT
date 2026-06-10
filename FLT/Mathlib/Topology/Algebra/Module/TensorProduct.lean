@@ -21,35 +21,35 @@ open scoped TensorProduct
 /-- The canonical continuous R-linear isomorphism `M ⊗[R] V ≃ (ι → M)`
 where V is a finite free R-module with basis indexed by `ι`, `M` is a commutative
 `R`-algebra, and `M ⊗[R] V` has the `M`-module topology. -/
-noncomputable def ContinuousLinearEquiv.chooseBasis_piScalarRight (R M V : Type*)
+noncomputable def ContinuousLinearEquiv.chooseBasisPiScalarRight (R M V : Type*)
     [CommRing M] [CommRing R] [Algebra R M]
     [TopologicalSpace M] [IsTopologicalRing M]
     [AddCommGroup V] [Module R V] [Module.Finite R V] [Module.Free R V]
     [TopologicalSpace (M ⊗[R] V)] [IsTopologicalAddGroup (M ⊗[R] V)]
     [IsModuleTopology M (M ⊗[R] V)] :
     (M ⊗[R] V) ≃L[R] (Module.Free.ChooseBasisIndex R V → M) := {
-  __ := (LinearEquiv.chooseBasis_piScalarRight R M V).restrictScalars _
+  __ := (LinearEquiv.chooseBasisPiScalarRight R M V).restrictScalars _
   continuous_toFun := IsModuleTopology.continuous_of_linearMap
-    (LinearEquiv.chooseBasis_piScalarRight R M V).toLinearMap
+    (LinearEquiv.chooseBasisPiScalarRight R M V).toLinearMap
   continuous_invFun := IsModuleTopology.continuous_of_linearMap
-    (LinearEquiv.chooseBasis_piScalarRight R M V).symm.toLinearMap
+    (LinearEquiv.chooseBasisPiScalarRight R M V).symm.toLinearMap
   }
 
 /-- The canonical continuous M-linear isomorphism `M ⊗[R] V ≃ (ι → M)`
 where V is a finite free R-module with basis indexed by `ι`, `M` is a commutative
 `R`-algebra, and `M ⊗[R] V` has the `M`-module topology. -/
-noncomputable def ContinuousLinearEquiv.chooseBasis_piScalarRight' (R M V : Type*)
+noncomputable def ContinuousLinearEquiv.chooseBasisPiScalarRight' (R M V : Type*)
     [CommRing M] [CommRing R] [Algebra R M]
     [TopologicalSpace M] [IsTopologicalRing M]
     [AddCommGroup V] [Module R V] [Module.Finite R V] [Module.Free R V]
     [TopologicalSpace (M ⊗[R] V)] [IsTopologicalAddGroup (M ⊗[R] V)]
     [IsModuleTopology M (M ⊗[R] V)] :
     (M ⊗[R] V) ≃L[M] (Module.Free.ChooseBasisIndex R V → M) := {
-  __ := (LinearEquiv.chooseBasis_piScalarRight R M V)
+  __ := (LinearEquiv.chooseBasisPiScalarRight R M V)
   continuous_toFun := IsModuleTopology.continuous_of_linearMap
-    (LinearEquiv.chooseBasis_piScalarRight R M V).toLinearMap
+    (LinearEquiv.chooseBasisPiScalarRight R M V).toLinearMap
   continuous_invFun := IsModuleTopology.continuous_of_linearMap
-    (LinearEquiv.chooseBasis_piScalarRight R M V).symm.toLinearMap
+    (LinearEquiv.chooseBasisPiScalarRight R M V).symm.toLinearMap
   }
 
 namespace ContinuousLinearMap
@@ -69,14 +69,14 @@ def rTensor {R : Type*} {M N : Type*} (V : Type*)
   __ := LinearMap.rTensor V φ.toLinearMap
   cont := by
     -- f1 : M ⊗[R] V ≃L[R] (ι → M)
-    let f1 := ContinuousLinearEquiv.chooseBasis_piScalarRight R M V
+    let f1 := ContinuousLinearEquiv.chooseBasisPiScalarRight R M V
     -- f2 : (ι → M) →L[R] (ι → N)
     let f2 : (Module.Free.ChooseBasisIndex R V → M) →L[R]
       (Module.Free.ChooseBasisIndex R V → N) := {
       __ := φ.toLinearMap.compLeft (Module.Free.ChooseBasisIndex R V)
       }
     -- f3 : (N ⊗[R] V) ≃[L]R (ι → N)
-    let f3 := (ContinuousLinearEquiv.chooseBasis_piScalarRight R N V)
+    let f3 := (ContinuousLinearEquiv.chooseBasisPiScalarRight R N V)
     -- f = f3.symm ∘ f2 ∘ f1
     let f := f3.symm.toContinuousLinearMap.comp (f2.comp f1.toContinuousLinearMap)
     -- it suffices to show that the map we want to be continuous is f,
