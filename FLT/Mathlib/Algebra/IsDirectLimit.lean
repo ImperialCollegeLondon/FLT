@@ -49,20 +49,20 @@ theorem is_surjective : ∀ m : P, ∃ i, ∃ mi : M i, g i mi = m :=
   IsDirectLimit.surj f
 
 /--
-Given an element `p : P` in the direct limit, `preimage_index f g p` returns an index in `ι` such
-that `p` is in the image of the map `g (preimage_index f g p) : M (preimage_index f g p) →ₗ[R] P`.
+Given an element `p : P` in the direct limit, `preimageIndex f g p` returns an index in `ι` such
+that `p` is in the image of the map `g (preimageIndex f g p) : M (preimageIndex f g p) →ₗ[R] P`.
 -/
-noncomputable def preimage_index (p : P) : ι := (is_surjective f g p).choose
+noncomputable def preimageIndex (p : P) : ι := (is_surjective f g p).choose
 
 /--
 Given an element `p : P` in the direct limit, `preimage f g p` returns an element of
-`M (preimage_index f g p)` that maps to `p` under `g (preimage_index f g p)`.
+`M (preimageIndex f g p)` that maps to `p` under `g (preimageIndex f g p)`.
 -/
-noncomputable def preimage (p : P) : M (preimage_index f g p) :=
+noncomputable def preimage (p : P) : M (preimageIndex f g p) :=
   (is_surjective f g p).choose_spec.choose
 
 theorem image_preimage (p : P) :
-    g (preimage_index f g p) (preimage f g p) = p :=
+    g (preimageIndex f g p) (preimage f g p) = p :=
   (is_surjective f g p).choose_spec.choose_spec
 
 variable {P₁ P₂ : Type*} (g₁ : ∀ i, M i → P₁) (g₂ : ∀ i, M i → P₂)
@@ -72,14 +72,14 @@ Construct a map `P₁ → P₂` from a direct limit by sending each element to i
 in some component `M i` and applying `g₂ i`. Used to define morphisms out of direct limits.
 -/
 noncomputable def lift [IsDirectLimit f g₁] (p : P₁) : P₂ :=
-  g₂ (preimage_index f g₁ p) (preimage f g₁ p)
+  g₂ (preimageIndex f g₁ p) (preimage f g₁ p)
 
 @[simp]
 theorem lift_of [IsDirectLimit f g₁] (Hg : ∀ i j hij x, g₂ j (f i j hij x) = g₂ i x) {i} (x) :
     (lift f g₁ g₂) (g₁ i x) = g₂ i x := by
   dsimp [lift]
   have ⟨k, hpk, hik, h_eq⟩ := is_injective f g₁ (image_preimage f g₁ (g₁ i x))
-  rw [← Hg i k hik x, ← Hg (preimage_index f g₁ (g₁ i x)) k hpk, h_eq]
+  rw [← Hg i k hik x, ← Hg (preimageIndex f g₁ (g₁ i x)) k hpk, h_eq]
 
 /-- Any two direct limits of the same directed system are isomorphic. -/
 noncomputable def Equiv [h₁ : IsDirectLimit f g₁] [h₂ : IsDirectLimit f g₂] :
@@ -137,22 +137,22 @@ noncomputable def lift
   toFun := IsDirectLimit.lift (f · · ·) (g₁ · ·) (g₂ · · )
   map_add' x y := by
     obtain ⟨k, hxk, hyk⟩ :=
-      IsDirected.directed (r := (· ≤ ·)) (preimage_index (f · · ·) (g₁ · ·) x)
-      (preimage_index (f · · ·) (g₁ · ·) y)
+      IsDirected.directed (r := (· ≤ ·)) (preimageIndex (f · · ·) (g₁ · ·) x)
+      (preimageIndex (f · · ·) (g₁ · ·) y)
     obtain ⟨k', hxyk', hkk'⟩ := IsDirected.directed (r := (· ≤ ·))
-      (preimage_index (f · · ·) (g₁ · ·) (x+y)) k
-    have sum_eq : g₁ k' (f (preimage_index (f · · ·) (g₁ · ·) x) k' (le_trans hxk hkk')
-      (preimage (f · · ·) (g₁ · ·) x) + f (preimage_index (f · · ·) (g₁ · ·) y) k'
+      (preimageIndex (f · · ·) (g₁ · ·) (x+y)) k
+    have sum_eq : g₁ k' (f (preimageIndex (f · · ·) (g₁ · ·) x) k' (le_trans hxk hkk')
+      (preimage (f · · ·) (g₁ · ·) x) + f (preimageIndex (f · · ·) (g₁ · ·) y) k'
       (le_trans hyk hkk') (preimage (f · · ·) (g₁ · ·) y)) =
-        g₁ (preimage_index (f · · ·) (g₁ · ·) (x+y)) (preimage (f · · ·) (g₁ · ·) (x+y)) := by
+        g₁ (preimageIndex (f · · ·) (g₁ · ·) (x+y)) (preimage (f · · ·) (g₁ · ·) (x+y)) := by
       simp only [LinearMap.map_add, image_preimage]
       repeat rw [compatibility' (f · · ·) (g₁ · ·),
         image_preimage (f := (f · · ·)) (g := (g₁ · ·))]
     obtain ⟨k'', hk'k'', hxyk'', h'''⟩ := is_injective (f · · ·) (g₁ · ·) sum_eq
     simpa [Hg] using! congr_arg (g₂ k'') h'''.symm
   map_smul' r x := by
-    have smul_eq : g₁ (preimage_index (f · · ·) (g₁ · ·) (r • x)) (preimage (f · · ·) (g₁ · ·)
-      (r • x)) = g₁ (preimage_index (f · · ·) (g₁ · ·) x) (r • preimage (f · · ·) (g₁ · ·) x) := by
+    have smul_eq : g₁ (preimageIndex (f · · ·) (g₁ · ·) (r • x)) (preimage (f · · ·) (g₁ · ·)
+      (r • x)) = g₁ (preimageIndex (f · · ·) (g₁ · ·) x) (r • preimage (f · · ·) (g₁ · ·) x) := by
       simp only [image_preimage, map_smul]
     obtain ⟨k, hixk, hirxk, h_smul⟩ := is_injective (f · · ·) (g₁ · ·) smul_eq
     simpa [Hg] using! congr_arg (g₂ k) h_smul

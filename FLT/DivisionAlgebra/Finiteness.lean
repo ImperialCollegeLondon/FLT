@@ -107,7 +107,7 @@ noncomputable abbrev incl₁ : Dˣ →* Dfx K D :=
   Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom
 
 /-- The inclusion of K^n into 𝔸^n. -/
-abbrev incl_Kn_𝔸Kn : (Fin (Module.finrank K D) → K) →
+abbrev inclKn𝔸Kn : (Fin (Module.finrank K D) → K) →
     (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) :=
   fun x i ↦ algebraMap K (AdeleRing (𝓞 K) K) (x i)
 
@@ -162,12 +162,12 @@ instance : SecondCountableTopology (Dinf K D) :=
 omit [FiniteDimensional K D] in
 theorem Kn_discrete : ∀ x : (Fin (Module.finrank K D) → K),
     ∃ U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K),
-    IsOpen U ∧ (incl_Kn_𝔸Kn K D)⁻¹' U = {x} := by
+    IsOpen U ∧ (inclKn𝔸Kn K D)⁻¹' U = {x} := by
   exact (DiscretePi (algebraMap K (AdeleRing (𝓞 K) K)) (Module.finrank K D))
     (NumberField.AdeleRing.discrete K)
 
 /-- The K-algebra equivalence of D and K^n. -/
-abbrev D_iso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := Module.Finite.equivPi K D
+abbrev DIso : (D ≃ₗ[K] ((Fin (Module.finrank K D) → K))) := Module.Finite.equivPi K D
 
 -- Mathlib#29315....
 attribute [local instance 1100] IsTopologicalSemiring.toIsModuleTopology
@@ -177,27 +177,27 @@ example : IsModuleTopology (AdeleRing (𝓞 K) K)
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) := inferInstance
 
 /-- The 𝔸_K-algebra equivalence of D_𝔸 and 𝔸_K^d. -/
-abbrev D𝔸_iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) :=
+abbrev D𝔸Iso : (D_𝔸 ≃ₗ[(AdeleRing (𝓞 K) K)] ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K))) :=
   ((TensorProduct.RightActions.Module.TensorProduct.comm _ _ _).symm).trans
     (TensorProduct.AlgebraTensorModule.finiteEquivPi K D (AdeleRing (𝓞 K) K))
 
 /-- The topological 𝔸_K-linear equivalence D_𝔸 ≃ 𝔸_K^d. -/
-abbrev D𝔸_iso_top : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)]
+abbrev D𝔸IsoTop : D_𝔸 ≃L[(AdeleRing (𝓞 K) K)]
     ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :=
-  IsModuleTopology.continuousLinearEquiv (D𝔸_iso K D)
+  IsModuleTopology.continuousLinearEquiv (D𝔸Iso K D)
 
 theorem D_discrete_aux (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)) :
-    incl_Kn_𝔸Kn K D ⁻¹' U  =
-    (D_iso K D) ''
-      (⇑(D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
+    inclKn𝔸Kn K D ⁻¹' U  =
+    (DIso K D) ''
+      (⇑(D𝔸IsoTop K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U) := by
   ext x
   constructor
   · intro hx
-    use (D_iso K D).symm x
+    use (DIso K D).symm x
     simpa [← Algebra.algebraMap_eq_smul_one] using hx
   · intro ⟨y, hy1, hy2⟩
-    have : (D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) =
-        (incl_Kn_𝔸Kn K D) ∘ (D_iso K D) := by
+    have : (D𝔸IsoTop K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) =
+        (inclKn𝔸Kn K D) ∘ (DIso K D) := by
       ext d n
       simp [← Algebra.algebraMap_eq_smul_one]
     simpa [← hy2, this] using hy1
@@ -205,18 +205,18 @@ theorem D_discrete_aux (U : Set (Fin (Module.finrank K D) → AdeleRing (𝓞 K)
 theorem D_discrete : ∀ x : D, ∃ U : Set D_𝔸,
     IsOpen U ∧ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) ⁻¹' U = {x} := by
   apply Discrete_of_HomeoDiscrete (Y' := ((Fin (Module.finrank K D) → AdeleRing (𝓞 K) K)))
-    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) (D𝔸_iso_top K D)
+    (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) (D𝔸IsoTop K D)
   apply Discrete_of_HomDiscrete (X' := Fin (Module.finrank K D) → K)
-    ((D𝔸_iso_top K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (D_iso K D)
+    ((D𝔸IsoTop K D) ∘ (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) (DIso K D)
   simpa [D_discrete_aux] using Kn_discrete K D
 
 /-- The additive subgroup D of D_𝔸. -/
-def includeLeft_subgroup : AddSubgroup D_𝔸 :=
+def includeLeftSubgroup : AddSubgroup D_𝔸 :=
   AddMonoidHom.range (G := D) (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)
 
 instance discrete_includeLeft_subgroup :
-    DiscreteTopology (includeLeft_subgroup K D).carrier := by
-  rw [includeLeft_subgroup, discreteTopology_iff_isOpen_singleton]
+    DiscreteTopology (includeLeftSubgroup K D).carrier := by
+  rw [includeLeftSubgroup, discreteTopology_iff_isOpen_singleton]
   rintro ⟨a, a', rfl⟩
   obtain ⟨U, hUopen, hUeq⟩ := (D_discrete K D) a'
   refine isOpen_mk.mpr ⟨U, hUopen, Set.image_val_inj.mp ?_⟩
@@ -247,8 +247,8 @@ instance discrete_principalSubgroup :
 
 -- we seem to have this twice?
 instance compact_includeLeft_subgroup :
-    CompactSpace (D_𝔸 ⧸ (includeLeft_subgroup K D)) := by
-  let H := includeLeft_subgroup K D
+    CompactSpace (D_𝔸 ⧸ (includeLeftSubgroup K D)) := by
+  let H := includeLeftSubgroup K D
   change CompactSpace (D_𝔸 ⧸ H)
   have key := NumberField.AdeleRing.cocompact K
   let π : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) →+
@@ -264,13 +264,13 @@ instance compact_includeLeft_subgroup :
     have key := TopologicalAddGroup.IsSES.ofClosedAddSubgroup (principalSubgroup (𝓞 K) K)
     exact IsOpenQuotientMap.piMap (fun _ ↦ (key AddSubgroup.isClosed_of_discrete).isOpenQuotientMap)
   let φ : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) →+ (D_𝔸 ⧸ H) :=
-    AddMonoidHom.comp (QuotientAddGroup.mk' _) (D𝔸_iso_top K D).symm.toAddMonoidHom
+    AddMonoidHom.comp (QuotientAddGroup.mk' _) (D𝔸IsoTop K D).symm.toAddMonoidHom
   have hφ0 : π.ker ≤ φ.ker := by
     intro x hx
     replace hx : ∀ i, x i ∈ Set.range (algebraMap K (AdeleRing (𝓞 K) K)) := by
       simpa [π, funext_iff] using hx
     choose q hq using hx
-    let d := (D_iso K D).symm q
+    let d := (DIso K D).symm q
     simp only [Algebra.algebraMap_eq_smul_one] at hq
     simp only [φ, AddMonoidHom.mem_ker, AddMonoidHom.comp_apply,
       QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_zero_iff]
@@ -282,7 +282,7 @@ instance compact_includeLeft_subgroup :
     simp only [φ, AddMonoidHom.coe_comp, QuotientAddGroup.coe_mk', LinearMap.toAddMonoidHom_coe]
     fun_prop
   have hφ2 : Function.Surjective φ :=
-    (QuotientAddGroup.mk'_surjective _).comp (D𝔸_iso_top K D).symm.surjective
+    (QuotientAddGroup.mk'_surjective _).comp (D𝔸IsoTop K D).symm.surjective
   let f : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) →+
     (D_𝔸 ⧸ H) := AddMonoidHom.liftOfSurjective π hπ2.surjective ⟨φ, hφ0⟩
   have hf0 : f ∘ π = φ := by ext; simp [f]
@@ -296,10 +296,10 @@ lemma not_injective_of_large_measure : ∃ B : ℝ≥0, ∀ U : Set D_𝔸,
    IsOpen U → B < MeasureTheory.Measure.addHaar U →
     ¬ U.InjOn (QuotientAddGroup.mk : D_𝔸 →
         D_𝔸 ⧸ (Algebra.TensorProduct.includeLeftRingHom : D →+* D_𝔸).range.toAddSubgroup) := by
-  let H := includeLeft_subgroup K D
+  let H := includeLeftSubgroup K D
   have : DiscreteTopology H := discrete_includeLeft_subgroup K D
   have : SecondCountableTopology (D ⊗[K] AdeleRing (𝓞 K) K) :=
-    Homeomorph.secondCountableTopology (D𝔸_iso_top K D).toHomeomorph
+    Homeomorph.secondCountableTopology (D𝔸IsoTop K D).toHomeomorph
   have : PolishSpace (D ⊗[K] AdeleRing (𝓞 K) K) := polish_of_locally_compact_second_countable _
   exact TopologicalAddGroup.IsSES.not_injOn_of_measure_gt H
 
@@ -307,7 +307,7 @@ section FiniteAdeleRing
 
 /-- The K-algebra isomorphism `D_𝔸 ≃ D_∞ × D_f` -- adelic D is infinite adele D times
 finite adele D. -/
-abbrev D𝔸_prodRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
+abbrev D𝔸ProdRight : D_𝔸 ≃ₐ[K] Dinf K D × Df K D :=
   (Algebra.TensorProduct.prodRight K K D (InfiniteAdeleRing K) (FiniteAdeleRing (𝓞 K) K))
 
 /-- The (InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K)-module structure on (Dinf K D × Df K D). -/
@@ -334,11 +334,11 @@ instance : IsModuleTopology (AdeleRing (𝓞 K) K) (Dinf K D × Df K D) :=
   IsModuleTopology.instProd'
 
 /-- The 𝔸_K linear map `D_𝔸 ≃ D_∞ × D_f`. -/
-abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) := {
-  toFun := D𝔸_prodRight K D
-  __ := D𝔸_prodRight K D
+abbrev D𝔸ProdRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K D) := {
+  toFun := D𝔸ProdRight K D
+  __ := D𝔸ProdRight K D
   map_add' a b := by
-    exact RingHom.map_add (D𝔸_prodRight K D).toRingHom a b
+    exact RingHom.map_add (D𝔸ProdRight K D).toRingHom a b
   map_smul' m x := by
     simp only [RingHom.id_apply]
     obtain ⟨s, hx⟩ := TensorProduct.exists_finset x
@@ -350,24 +350,24 @@ abbrev D𝔸_prodRight' : D_𝔸 ≃ₗ[AdeleRing (𝓞 K) K] (Dinf K D × Df K 
 }
 
 /-- The continuous additive isomorphism `D_𝔸 ≃ D_∞ × D_f`. -/
-abbrev D𝔸_prodRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
-  __ := D𝔸_prodRight K D
-  continuous_toFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
-  continuous_invFun := IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).symm.toLinearMap
+abbrev D𝔸ProdRight'' : D_𝔸 ≃ₜ+ Dinf K D × Df K D where
+  __ := D𝔸ProdRight K D
+  continuous_toFun := IsModuleTopology.continuous_of_linearMap (D𝔸ProdRight' K D).toLinearMap
+  continuous_invFun := IsModuleTopology.continuous_of_linearMap (D𝔸ProdRight' K D).symm.toLinearMap
 
 /-- The equivalence of the units of D_𝔸 and the product of the
 units of (D ⊗ 𝔸_K^f) and (D ⊗ 𝔸_K^∞). -/
-abbrev D𝔸_prodRight_units : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
-  (Units.mapEquiv (D𝔸_prodRight K D)).trans (MulEquiv.prodUnits)
+abbrev D𝔸ProdRightUnits : D_𝔸ˣ ≃* (Dinfx K D) × (Dfx K D) :=
+  (Units.mapEquiv (D𝔸ProdRight K D)).trans (MulEquiv.prodUnits)
 
 omit [FiniteDimensional K D] in
 lemma smul_D𝔸_prodRight_symm (a : (Dinf K D)ˣ) (b : (Df K D)ˣ)
     (di : Dinf K D) (df : Df K D) :
-  ((D𝔸_prodRight_units K D).symm (a, b)) • ((D𝔸_prodRight K D).symm (di, df)) =
-    (D𝔸_prodRight K D).symm (a • di, b • df) :=
+  ((D𝔸ProdRightUnits K D).symm (a, b)) • ((D𝔸ProdRight K D).symm (di, df)) =
+    (D𝔸ProdRight K D).symm (a • di, b • df) :=
   (map_mul _ _ _).symm
 
-lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
+lemma D𝔸_prodRight_units_cont : Continuous (D𝔸ProdRightUnits K D) := by
   rw [ MulEquiv.coe_trans]
   -- annoying that fun_prop and continuity can't seem to do this
   -- it's about monoid and ring homs, it's the usual problem.
@@ -378,20 +378,20 @@ lemma D𝔸_prodRight_units_cont : Continuous (D𝔸_prodRight_units K D) := by
     · apply Continuous.units_map
       exact continuous_snd
   · apply Continuous.units_map
-    exact IsModuleTopology.continuous_of_linearMap (D𝔸_prodRight' K D).toLinearMap
+    exact IsModuleTopology.continuous_of_linearMap (D𝔸ProdRight' K D).toLinearMap
 
 lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
-    ringHaarChar ((D𝔸_prodRight_units K D).symm (a, b)) =
+    ringHaarChar ((D𝔸ProdRightUnits K D).symm (a, b)) =
     ringHaarChar (MulEquiv.prodUnits.symm (a, b)) := by
   apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
-    (D𝔸_prodRight'' K D)
+    (D𝔸ProdRight'' K D)
   simp [MulEquivClass.map_mul]
 
 /-- For any positive real `r`, there's some `ρ ∈ ℝˣ` such that the haar character of
 `(ρ, 1) ∈ D_f × D_∞` is `r`. -/
 lemma ringHaarChar_D𝔸_real_surjective (r : ℝ) (h : r > 0) :
     ∃ (ρ : ℝˣ), ringHaarChar
-      ((D𝔸_prodRight_units K D).symm (((Units.map (algebraMap ℝ (Dinf K D))) ρ),1)) = r := by
+      ((D𝔸ProdRightUnits K D).symm (((Units.map (algebraMap ℝ (Dinf K D))) ρ),1)) = r := by
   have a : IsUnit (r ^ (1 / Module.finrank ℝ (Dinf K D) : ℝ)) := by
     simp only [one_div, isUnit_iff_ne_zero, ne_eq]
     refine (Real.rpow_ne_zero (by positivity) ?_).mpr (by positivity)
@@ -457,14 +457,14 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux
 section RealAlgebra
 
 -- This section on `ℝ`-algebra structures is really only needed
--- to show continuity of `tensorPi_equiv_piTensor`.
+-- to show continuity of `tensorPiEquivPiTensor`.
 -- TODO: fix this approach in view of the diamond created with things like
 -- `instAlgebraRealInfiniteAdeleRing_fLT`
 -- (but everything below works, so I'm hesitant to touch it for now)
 
 open Classical in
 /-- The canonical `ℝ`-algebra structure on `InfinitePlace.Completion`. -/
-def real_to_completion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
+def realToCompletion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
   if h : vi.IsReal
   then (InfinitePlace.Completion.ringEquivRealOfIsReal h).symm.toRingHom
   else
@@ -472,25 +472,25 @@ def real_to_completion (vi : InfinitePlace K) : ℝ →+* vi.Completion :=
     Complex.ofRealHom
 
 instance (vi : InfinitePlace K) : Algebra ℝ vi.Completion :=
-  (real_to_completion K vi).toAlgebra
+  (realToCompletion K vi).toAlgebra
 
 omit [NumberField K] in
 lemma algebraMap_completion_def (vi : InfinitePlace K) :
-    (algebraMap ℝ vi.Completion) = (real_to_completion K vi) := rfl
+    (algebraMap ℝ vi.Completion) = (realToCompletion K vi) := rfl
 
 instance (vi : InfinitePlace K) : Module.Finite ℝ vi.Completion := by
   by_cases h : vi.IsReal
   · let e : vi.Completion ≃ₗ[ℝ] ℝ := {
       __ := InfinitePlace.Completion.ringEquivRealOfIsReal h
       map_smul' r x := by
-        simp_all [Algebra.smul_def, algebraMap_completion_def, real_to_completion, ↓reduceDIte,
+        simp_all [Algebra.smul_def, algebraMap_completion_def, realToCompletion, ↓reduceDIte,
           -InfinitePlace.Completion.ringEquivRealOfIsReal_apply]
     }
     exact Module.Finite.of_injective _ e.injective
   · let e : vi.Completion ≃ₗ[ℝ] ℂ := {
       __ := InfinitePlace.Completion.ringEquivComplexOfIsComplex (by simpa using h)
       map_smul' r x := by
-        simp_all [Algebra.smul_def, algebraMap_completion_def, real_to_completion, ↓reduceDIte,
+        simp_all [Algebra.smul_def, algebraMap_completion_def, realToCompletion, ↓reduceDIte,
           -InfinitePlace.Completion.ringEquivComplexOfIsComplex_apply]
     }
     exact Module.Finite.of_injective _ e.injective
@@ -500,16 +500,16 @@ instance (vi : InfinitePlace K) : ContinuousSMul ℝ vi.Completion := by
   rw [algebraMap_completion_def]
   by_cases h : vi.IsReal
   · have := (InfinitePlace.Completion.isometryEquivRealOfIsReal h).symm.isometry_toFun.continuous
-    simpa [real_to_completion, h, ↓reduceDIte]
+    simpa [realToCompletion, h, ↓reduceDIte]
   · have := (InfinitePlace.Completion.isometryEquivComplexOfIsComplex
       (by simpa using h)).symm.isometry_toFun.continuous.comp Complex.continuous_ofReal
-    simpa only [real_to_completion, h, ↓reduceDIte]
+    simpa only [realToCompletion, h, ↓reduceDIte]
 
 instance (vi : InfinitePlace K) : IsModuleTopology ℝ vi.Completion :=
   isModuleTopologyOfFiniteDimensional
 
 instance (vi : InfinitePlace K) : Algebra ℝ (D ⊗[K] vi.Completion) :=
-  Algebra.compHom _ <| real_to_completion K vi
+  Algebra.compHom _ <| realToCompletion K vi
 
 instance (vi : InfinitePlace K) : IsScalarTower ℝ vi.Completion (D ⊗[K] vi.Completion) :=
   IsScalarTower.of_compHom ..
@@ -527,11 +527,11 @@ lemma algebraMap_completion {vi : InfinitePlace K} {x : ℝ} :
     (algebraMap ℝ (InfiniteAdeleRing K)) x vi = (algebraMap ℝ vi.Completion) x := by
   change
     ((InfiniteAdeleRing.ringEquiv_mixedSpace K).symm.toRingHom.comp (algebraMap ℝ _)) x vi
-    = real_to_completion K vi x
+    = realToCompletion K vi x
   by_cases h : vi.IsReal
-  · simp_all [real_to_completion, ↓reduceDIte,
+  · simp_all [realToCompletion, ↓reduceDIte,
       RingEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd]
-  · simp_all [-InfinitePlace.not_isReal_iff_isComplex, real_to_completion, ↓reduceDIte,
+  · simp_all [-InfinitePlace.not_isReal_iff_isComplex, realToCompletion, ↓reduceDIte,
       RingEquiv.piEquivPiSubtypeProd, Equiv.piEquivPiSubtypeProd]
 
 end RealAlgebra
@@ -539,10 +539,10 @@ end RealAlgebra
 set_option backward.isDefEq.respectTransparency false in
 omit [NumberField K] in
 lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
-    tensorPi_equiv_piTensor K D InfinitePlace.Completion (x * y)
-    = tensorPi_equiv_piTensor K D InfinitePlace.Completion x
-      * tensorPi_equiv_piTensor K D InfinitePlace.Completion y := by
-  -- we need that `tensorPi_equiv_piTensor` is a ring hom
+    tensorPiEquivPiTensor K D InfinitePlace.Completion (x * y)
+    = tensorPiEquivPiTensor K D InfinitePlace.Completion x
+      * tensorPiEquivPiTensor K D InfinitePlace.Completion y := by
+  -- we need that `tensorPiEquivPiTensor` is a ring hom
   -- **TODO** this is certainly true in more generality and so can go elsewhere later on
   refine TensorProduct.induction_on x
     (by simp only [LinearEquiv.map_zero, zero_mul])
@@ -556,13 +556,13 @@ lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
   simp [Dinf, InfiniteAdeleRing, tensorPi_equiv_piTensor_apply]
 
 set_option backward.isDefEq.respectTransparency false in
-/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a `ℝ`-linear equiv. -/
-def Dinf_tensorPi_equiv_piTensor_aux :
+/-- `tensorPiEquivPiTensor` applied to `Dinf`, as a `ℝ`-linear equiv. -/
+def DinfTensorPiEquivPiTensorAux :
     (Dinf K D) ≃ₗ[ℝ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
-  __ := tensorPi_equiv_piTensor K D InfinitePlace.Completion
+  __ := tensorPiEquivPiTensor K D InfinitePlace.Completion
   map_smul' x y := by
-    change tensorPi_equiv_piTensor K D InfinitePlace.Completion (x • y)
-      = x • tensorPi_equiv_piTensor K D InfinitePlace.Completion y
+    change tensorPiEquivPiTensor K D InfinitePlace.Completion (x • y)
+      = x • tensorPiEquivPiTensor K D InfinitePlace.Completion y
     simp only [Algebra.smul_def, tensorPi_equiv_piTensor_map_mul];
     congr
     have h₁ : (algebraMap ℝ (Dinf K D)) x = 1 ⊗ₜ[K] (algebraMap ℝ (InfiniteAdeleRing K) x) := rfl
@@ -575,20 +575,20 @@ def Dinf_tensorPi_equiv_piTensor_aux :
     exact algebraMap_completion _
 }
 
-/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a continuous `ℝ`-linear equiv. -/
-def Dinf_tensorPi_equiv_piTensor :
+/-- `tensorPiEquivPiTensor` applied to `Dinf`, as a continuous `ℝ`-linear equiv. -/
+def DinfTensorPiEquivPiTensor :
     (Dinf K D) ≃L[ℝ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
-  __ := Dinf_tensorPi_equiv_piTensor_aux ..
+  __ := DinfTensorPiEquivPiTensorAux ..
   continuous_toFun :=
-    IsModuleTopology.continuous_of_linearMap (Dinf_tensorPi_equiv_piTensor_aux K D).toLinearMap
+    IsModuleTopology.continuous_of_linearMap (DinfTensorPiEquivPiTensorAux K D).toLinearMap
   continuous_invFun :=
-    IsModuleTopology.continuous_of_linearMap (Dinf_tensorPi_equiv_piTensor_aux K D).symm.toLinearMap
+    IsModuleTopology.continuous_of_linearMap (DinfTensorPiEquivPiTensorAux K D).symm.toLinearMap
 }
 
-/-- `tensorPi_equiv_piTensor` applied to `Dinf`, as a mul equiv. -/
-def Dinf_tensorPi_equiv_piTensor_mulEquiv :
+/-- `tensorPiEquivPiTensor` applied to `Dinf`, as a mul equiv. -/
+def DinfTensorPiEquivPiTensorMulEquiv :
     (Dinf K D) ≃* Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
-  __ := Dinf_tensorPi_equiv_piTensor K D
+  __ := DinfTensorPiEquivPiTensor K D
   map_mul' _ _ := tensorPi_equiv_piTensor_map_mul ..
 }
 
@@ -604,13 +604,13 @@ lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   -- infinite places
-  -- use `Dinf_tensorPi_equiv_piTensor` to reduce to
+  -- use `DinfTensorPiEquivPiTensor` to reduce to
   -- `isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul_aux`
   open MeasureTheory in
   let (vi : InfinitePlace K) : MeasurableSpace (D ⊗[K] vi.Completion) := borel _
   have (vi : InfinitePlace K) : BorelSpace (D ⊗[K] vi.Completion) := ⟨rfl⟩
-  let e := Dinf_tensorPi_equiv_piTensor K D
-  let u' := Units.map (Dinf_tensorPi_equiv_piTensor_mulEquiv K D).toMonoidHom u
+  let e := DinfTensorPiEquivPiTensor K D
+  let u' := Units.map (DinfTensorPiEquivPiTensorMulEquiv K D).toMonoidHom u
   have hl :
       addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)
       = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u') := by
@@ -649,14 +649,14 @@ lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
     addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u) =
     addEquivAddHaarChar (ContinuousAddEquiv.mulRight u) := by
   open IsDedekindDomain MeasureTheory in
-  let u' := D𝔸_prodRight_units K D u
+  let u' := D𝔸ProdRightUnits K D u
   have hl :
       addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u)
       = addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u'.1)
       * addEquivAddHaarChar (ContinuousAddEquiv.mulLeft u'.2) := by
     rw [← addEquivAddHaarChar_prodCongr
       (ContinuousAddEquiv.mulLeft u'.1) (ContinuousAddEquiv.mulLeft u'.2)]
-    apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (D𝔸_prodRight'' K D)
+    apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (D𝔸ProdRight'' K D)
     intro x; simp; rfl
   have hr :
       addEquivAddHaarChar (ContinuousAddEquiv.mulRight u)
@@ -664,7 +664,7 @@ lemma isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul
       * addEquivAddHaarChar (ContinuousAddEquiv.mulRight u'.2) := by
     rw [← addEquivAddHaarChar_prodCongr
       (ContinuousAddEquiv.mulRight u'.1) (ContinuousAddEquiv.mulRight u'.2)]
-    apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (D𝔸_prodRight'' K D)
+    apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv (D𝔸ProdRight'' K D)
     intro x; simp; rfl
   simp [hl, hr, Dinfx, Dfx, Df,
     InfiniteAdeleRing.isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul _,
@@ -704,7 +704,7 @@ at the finite places and a compact neighbourhood of 0, scaled by `r`,
 at the infinite places.
 -/
 def Efamily (r : ℝ) : Set (D_𝔸) :=
-  (D𝔸_prodRight'' K D).symm '' (r • Ui K D) ×ˢ (Uf K D)
+  (D𝔸ProdRight'' K D).symm '' (r • Ui K D) ×ˢ (Uf K D)
 
 lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := by
   refine IsCompact.image ?_ (by fun_prop)
@@ -714,7 +714,7 @@ lemma E_family_compact (r : ℝ) : IsCompact (Efamily K D r) := by
 lemma E_family_nonempty_interior : (interior (Efamily K D 1)).Nonempty := by
   unfold Efamily
   rw [one_smul]
-  change (interior ((D𝔸_prodRight'' K D).toHomeomorph.symm '' Ui K D ×ˢ Uf K D)).Nonempty
+  change (interior ((D𝔸ProdRight'' K D).toHomeomorph.symm '' Ui K D ×ˢ Uf K D)).Nonempty
   rw [← Homeomorph.image_interior, Set.image_nonempty]
   use 0
   rw [mem_interior_iff_mem_nhds, Prod.zero_eq_mk, mem_nhds_prod_iff]
@@ -728,7 +728,7 @@ lemma E_family_unbounded (B : ℝ≥0) :
   -- For r a nonzero real, let d(r) be the element (r,1)=(di(r),i) in D_𝔸ˣ, so it's
   -- r at the infinite places.
   let d : ℝˣ → D_𝔸ˣ :=
-    fun r ↦ (D𝔸_prodRight_units K D).symm (di r, 1)
+    fun r ↦ (D𝔸ProdRightUnits K D).symm (di r, 1)
   -- By definition, scaling a set by `u` changes its measure by the Haar character of u.
   have hscale := ringHaarChar_mul_volume
     (MeasureTheory.Measure.addHaar : Measure (D ⊗[K] AdeleRing (𝓞 K) K))
@@ -743,7 +743,7 @@ lemma E_family_unbounded (B : ℝ≥0) :
     rw [Set.mem_smul_set, Set.mem_image]
     constructor
     · rintro ⟨⟨xi, xf⟩, ⟨⟨a, ha, rfl⟩, hf⟩, rfl⟩
-      use (D𝔸_prodRight'' K D).symm (a, xf)
+      use (D𝔸ProdRight'' K D).symm (a, xf)
       simp only [one_smul, Set.mem_image, Set.mem_prod, EmbeddingLike.apply_eq_iff_eq,
         exists_eq_right]
       refine ⟨⟨ha, hf⟩, ?_⟩
@@ -812,12 +812,12 @@ def E : Set D_𝔸 := (existsE K D).choose
 
 lemma E_compact : IsCompact (E K D) := (existsE K D).choose_spec.1
 
-lemma E_noninjective_left {x : D_𝔸ˣ} (h : x ∈ ringHaarChar_ker D_𝔸) :
+lemma E_noninjective_left {x : D_𝔸ˣ} (h : x ∈ ringHaarCharKer D_𝔸) :
     ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     x * e₁ - x * e₂ ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) :=
   (existsE K D).choose_spec.2 (ContinuousAddEquiv.mulLeft x) h
 
-lemma E_noninjective_right [Algebra.IsCentral K D] {x : D_𝔸ˣ} (h : x ∈ ringHaarChar_ker D_𝔸) :
+lemma E_noninjective_right [Algebra.IsCentral K D] {x : D_𝔸ˣ} (h : x ∈ ringHaarCharKer D_𝔸) :
     ∃ e₁ ∈ E K D, ∃ e₂ ∈ E K D, e₁ ≠ e₂ ∧
     e₁ * x⁻¹ - e₂ * x⁻¹  ∈ Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸) := by
   let φ : D_𝔸 ≃ₜ+ D_𝔸 := ContinuousAddEquiv.mulRight x⁻¹
@@ -842,7 +842,7 @@ lemma Y_compact : IsCompact (Y K D) := by
   simpa only [Pi.mul_def, Set.image_prod, Set.image2_mul, Y] using (IsCompact.image_of_continuousOn
     ((X_compact K D).prod (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
-lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
+lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarCharKer D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), β * x = d := by
   obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_left K D hβ
   refine ⟨e1 - e2, by simpa only using! (Set.sub_mem_sub he1 he2), ?_⟩
@@ -855,7 +855,7 @@ lemma X_meets_kernel {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
     simp only [← hb, TensorProduct.zero_tmul, ne_eq, not_true_eq_false] at h1
   exact ⟨incl K D b1, ⟨b1, rfl⟩, by simpa [mul_sub] using hb.symm⟩
 
-lemma X_meets_kernel' [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
+lemma X_meets_kernel' [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarCharKer D_𝔸) :
     ∃ x ∈ X K D, ∃ d ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ), x * β⁻¹ = d := by
   obtain ⟨e1, he1, e2, he2, noteq, b, hb⟩ := E_noninjective_right K D hβ
   refine ⟨e1 - e2, by simpa only using! (Set.sub_mem_sub he1 he2), ?_⟩
@@ -874,14 +874,14 @@ def T : Set D_𝔸ˣ := ((↑) : D_𝔸ˣ → D_𝔸) ⁻¹' (Y K D) ∩ Set.ran
 lemma T_finite_extracted1 : IsCompact (Y K D ∩
     Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
   refine IsCompact.inter_right (Y_compact K D) ?_
-  have : DiscreteTopology (includeLeft_subgroup K D).carrier := by
+  have : DiscreteTopology (includeLeftSubgroup K D).carrier := by
     infer_instance
-  simpa [includeLeft_subgroup] using AddSubgroup.isClosed_of_discrete
-    (H := includeLeft_subgroup K D)
+  simpa [includeLeftSubgroup] using AddSubgroup.isClosed_of_discrete
+    (H := includeLeftSubgroup K D)
 
 lemma T_finite : Set.Finite (T K D) := by
   have h := IsCompact.finite (T_finite_extracted1 K D)
-    ⟨(inter_Discrete (includeLeft_subgroup K D).carrier (Y K D))⟩
+    ⟨(inter_Discrete (includeLeftSubgroup K D).carrier (Y K D))⟩
   have h1 : Units.val '' T K D ⊆ (Y K D) ∩
       (Set.range (Algebra.TensorProduct.includeLeft : D →ₐ[K] D_𝔸)) := by
     rintro _ ⟨t, ⟨ht1, d, rfl⟩, rfl⟩
@@ -901,9 +901,9 @@ lemma C_compact : IsCompact (C K D) := by
     (Units.continuous_val) (continuousOn_id' (T K D)⁻¹)))
     (X_compact K D)) ((continuous_fst.mul continuous_snd).continuousOn))
 
-lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarChar_ker D_𝔸) :
+lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringHaarCharKer D_𝔸) :
     ∃ b ∈ Set.range (incl K D : Dˣ → D_𝔸ˣ),
-    ∃ ν ∈ ringHaarChar_ker D_𝔸,
+    ∃ ν ∈ ringHaarCharKer D_𝔸,
     β = b * ν ∧ ((ν : D_𝔸), ((ν⁻¹ : D_𝔸ˣ) : D_𝔸)) ∈ C K D := by
   obtain ⟨x1, hx1, b1, ⟨b1, rfl⟩, eq1⟩ := X_meets_kernel K D hβ
   obtain ⟨x2, hx2, b2, ⟨b2, rfl⟩, eq2⟩ := X_meets_kernel' K D hβ
@@ -915,26 +915,26 @@ lemma antidiag_mem_C [Algebra.IsCentral K D] {β : D_𝔸ˣ} (hβ : β ∈ ringH
   refine ⟨incl K D b1, by simp only [Set.mem_range, exists_apply_eq_apply],  x1⁻¹, ?_,
     eq_mul_inv_of_mul_eq (Units.val_inj.mp eq1), ?_, hx1⟩
   · rw [(Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq (Units.val_inj.mp eq1))))]
-    exact (Subgroup.mul_mem_cancel_right (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)) hβ).mpr
-      ((Subgroup.inv_mem_iff (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))).mpr
+    exact (Subgroup.mul_mem_cancel_right (ringHaarCharKer (D ⊗[K] AdeleRing (𝓞 K) K)) hβ).mpr
+      ((Subgroup.inv_mem_iff (ringHaarCharKer (D ⊗[K] AdeleRing (𝓞 K) K))).mpr
       (NumberField.AdeleRing.units_mem_ringHaarCharacter_ker K D b1))
   · obtain ⟨t, ht, ht1⟩ := exists_eq_right'.mpr h
     simp_rw [(Eq.symm (inv_mul_eq_of_eq_mul (eq_mul_inv_of_mul_eq ht1)))]
     exact Set.mem_mul.mpr ⟨↑t⁻¹, Set.mem_image_of_mem Units.val ht, x2, hx2, rfl⟩
 
-/-- The inclusion of `ringHaarChar_ker D_𝔸` into the product space `D_𝔸 × D_𝔸ᵐᵒᵖ`. -/
-def incl₂ : ringHaarChar_ker D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
-  fun u => Units.embedProduct D_𝔸 (Subgroup.subtype (ringHaarChar_ker D_𝔸) u)
+/-- The inclusion of `ringHaarCharKer D_𝔸` into the product space `D_𝔸 × D_𝔸ᵐᵒᵖ`. -/
+def incl₂ : ringHaarCharKer D_𝔸 → Prod D_𝔸 D_𝔸ᵐᵒᵖ :=
+  fun u => Units.embedProduct D_𝔸 (Subgroup.subtype (ringHaarCharKer D_𝔸) u)
 
 /-- An auxiliary set used in the proof of compact_quotient'. -/
-def M : Set (ringHaarChar_ker D_𝔸) := Set.preimage (incl₂ K D)
+def M : Set (ringHaarCharKer D_𝔸) := Set.preimage (incl₂ K D)
   (Set.image (fun p => (p.1, MulOpposite.op p.2)) (Aux.C K D))
 
-/-- The map from `ringHaarChar_ker D_𝔸` to the quotient `Dˣ \ ringHaarChar_ker D_𝔸`. -/
-abbrev toQuot (a : ringHaarChar_ker D_𝔸) : (_root_.Quotient (QuotientGroup.rightRel
-    ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
+/-- The map from `ringHaarCharKer D_𝔸` to the quotient `Dˣ \ ringHaarCharKer D_𝔸`. -/
+abbrev toQuot (a : ringHaarCharKer D_𝔸) : (_root_.Quotient (QuotientGroup.rightRel
+    ((MonoidHom.range (incl K D)).comap (ringHaarCharKer D_𝔸).subtype))) :=
   (Quotient.mk (QuotientGroup.rightRel ((MonoidHom.range (incl K D)).comap
-  (ringHaarChar_ker D_𝔸).subtype)) a)
+  (ringHaarCharKer D_𝔸).subtype)) a)
 
 lemma toQuot_cont : Continuous (toQuot K D) where
   isOpen_preimage := fun _ a ↦ a
@@ -949,9 +949,9 @@ lemma toQuot_surjective [Algebra.IsCentral K D] : (toQuot K D) '' (M K D) = Set.
   · simp only [M, Set.mem_preimage, Set.mem_image, Prod.exists]
     exact ⟨ν, Units.val (ν⁻¹), h31, rfl⟩
   · have : Quot.mk ⇑(QuotientGroup.rightRel ((incl K D).range.subgroupOf
-        (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K)))) ⟨c * ν, ha⟩ =
+        (ringHaarCharKer (D ⊗[K] AdeleRing (𝓞 K) K)))) ⟨c * ν, ha⟩ =
         Quot.mk ⇑(QuotientGroup.rightRel ((incl K D).range.subgroupOf
-        (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))))
+        (ringHaarCharKer (D ⊗[K] AdeleRing (𝓞 K) K))))
         ⟨ν, hν⟩ := by
       refine Quot.sound ?_
       rw [@QuotientGroup.rightRel_apply]
@@ -966,7 +966,7 @@ lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
   apply Units.isClosedEmbedding_embedProduct.comp
   refine Topology.IsClosedEmbedding.of_continuous_injective_isClosedMap
     (continuous_iff_le_induced.mpr fun U a ↦ a)
-    (Subgroup.subtype_injective (ringHaarChar_ker (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
+    (Subgroup.subtype_injective (ringHaarCharKer (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
   simp only [Subgroup.coe_subtype]
   refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
   simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
@@ -979,16 +979,16 @@ lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.
 lemma M_compact : IsCompact (M K D) := Topology.IsClosedEmbedding.isCompact_preimage
   (incl₂_isClosedEmbedding K D) (ImAux_isCompact K D)
 
-/-- The restriction of ringHaarChar_ker D_𝔸 to (D ⊗ 𝔸_K^∞)ˣ via D𝔸_iso_prod_units. -/
-abbrev rest₁ : ringHaarChar_ker D_𝔸 → Dfx K D :=
-  fun a => (D𝔸_prodRight_units K D) a.val |>.2
+/-- The restriction of ringHaarCharKer D_𝔸 to (D ⊗ 𝔸_K^∞)ˣ via D𝔸_iso_prod_units. -/
+abbrev rest₁ : ringHaarCharKer D_𝔸 → Dfx K D :=
+  fun a => (D𝔸ProdRightUnits K D) a.val |>.2
 
 lemma rest₁_continuous : Continuous (rest₁ K D) :=
   Continuous.comp continuous_snd
   (Continuous.comp (D𝔸_prodRight_units_cont K D) continuous_subtype_val)
 
 lemma ringHaarChar_D𝔸_prodRight_units_aux (r : ℝ) (h : r > 0) :
-    ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
+    ∃ y, ringHaarChar ((D𝔸ProdRightUnits K D).symm (y,1)) = r := by
   obtain ⟨ρ, hρ⟩ := ringHaarChar_D𝔸_real_surjective K D r h
   use ((Units.map (algebraMap ℝ (Dinf K D))) ρ)
 
@@ -996,13 +996,13 @@ open scoped NNReal in
 lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
   intro x
   simp only [Subtype.exists]
-  set r : ℝ≥0 := ringHaarChar ((D𝔸_prodRight_units K D).symm (1,x)) with hr_def
+  set r : ℝ≥0 := ringHaarChar ((D𝔸ProdRightUnits K D).symm (1,x)) with hr_def
   have hr : r > 0 := addEquivAddHaarChar_pos _
-  obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((D𝔸_prodRight_units K D).symm (y,1)) = r := by
+  obtain ⟨y, hy⟩ : ∃ y, ringHaarChar ((D𝔸ProdRightUnits K D).symm (y,1)) = r := by
     obtain ⟨y, hy⟩ := ringHaarChar_D𝔸_prodRight_units_aux K D r hr
     use y
     exact_mod_cast hy
-  use (D𝔸_prodRight_units K D).symm (y⁻¹, x)
+  use (D𝔸ProdRightUnits K D).symm (y⁻¹, x)
   constructor
   · rw [rest₁]
     refine Units.val_inj.mp ?_
@@ -1016,8 +1016,8 @@ lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
 
 -- the goal that comes up when you define the map `Dˣ \ D_𝔸^(1) to Dˣ \ (Dfx K D)`
 -- below using Quot.lift
-lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
-    (QuotientGroup.rightRel (Subgroup.comap (ringHaarChar_ker D_𝔸).subtype
+lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarCharKer D_𝔸)),
+    (QuotientGroup.rightRel (Subgroup.comap (ringHaarCharKer D_𝔸).subtype
     (AdeleRing.DivisionAlgebra.Aux.incl K D).range)) a b →
     (Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a) =
      Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D b)) := by
@@ -1028,31 +1028,31 @@ lemma incl_D𝔸quot_equivariant : ∀ (a b : ↥(ringHaarChar_ker D_𝔸)),
     exists_prop, exists_exists_eq_and]
   use t'
   have : incl₁ K D t' =
-      ((D𝔸_prodRight_units K D) (AdeleRing.DivisionAlgebra.Aux.incl K D t')).2 := by
+      ((D𝔸ProdRightUnits K D) (AdeleRing.DivisionAlgebra.Aux.incl K D t')).2 := by
     rfl
   simp_rw [this, ht, ← Prod.snd_mul, Subgroup.subtype_apply, Subgroup.comap_subtype, ← map_mul]
   rfl
 
 /-- The obvious map Dˣ \ D_𝔸^(1) to Dˣ \ (Dfx K D). -/
-abbrev incl_D𝔸quot : Quotient (QuotientGroup.rightRel
+abbrev inclD𝔸quot : Quotient (QuotientGroup.rightRel
     ((MonoidHom.range (NumberField.AdeleRing.DivisionAlgebra.Aux.incl K D)).comap
-    (ringHaarChar_ker D_𝔸).subtype)) →
+    (ringHaarCharKer D_𝔸).subtype)) →
     Quotient (QuotientGroup.rightRel (incl₁ K D).range) :=
   Quot.lift
     (fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range) (rest₁ K D a))
     (incl_D𝔸quot_equivariant K D)
 
-lemma incl_D𝔸quot_continuous : Continuous (incl_D𝔸quot K D) := by
+lemma incl_D𝔸quot_continuous : Continuous (inclD𝔸quot K D) := by
   refine Continuous.quotient_lift ?_ (incl_D𝔸quot_equivariant K D)
   exact Continuous.comp' ({isOpen_preimage := fun s a ↦ a}) (rest₁_continuous K D)
 
-lemma incl_D𝔸quot_surjective : Function.Surjective (incl_D𝔸quot K D) := by
+lemma incl_D𝔸quot_surjective : Function.Surjective (inclD𝔸quot K D) := by
   refine (Quot.surjective_lift (f := fun a => Quotient.mk (QuotientGroup.rightRel (incl₁ K D).range)
     (rest₁ K D a)) (incl_D𝔸quot_equivariant K D)).mpr ?_
   refine Set.range_eq_univ.mp ?_
   ext x
   simp only [Set.mem_range, Subtype.exists, Set.mem_univ, iff_true]
-  obtain ⟨a, ha⟩ : ∃ a : (ringHaarChar_ker D_𝔸),
+  obtain ⟨a, ha⟩ : ∃ a : (ringHaarCharKer D_𝔸),
       (rest₁ K D) a = x.out := rest₁_surjective K D _
   use a
   simp [ha]
@@ -1068,7 +1068,7 @@ open scoped TensorProduct.RightActions
 /-- Dˣ \ D_𝔸^{(1)} is compact. -/
 lemma compact_quotient [Algebra.IsCentral K D] :
     CompactSpace (_root_.Quotient (QuotientGroup.rightRel
-    ((MonoidHom.range (incl K D)).comap (ringHaarChar_ker D_𝔸).subtype))) :=
+    ((MonoidHom.range (incl K D)).comap (ringHaarCharKer D_𝔸).subtype))) :=
   isCompact_univ_iff.mp (by simpa only [toQuot_surjective, Set.image_univ] using
     (((IsCompact.image (M_compact K D) (toQuot_cont K D)))))
 

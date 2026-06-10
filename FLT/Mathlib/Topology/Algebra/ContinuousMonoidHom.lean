@@ -64,7 +64,7 @@ def ContinuousMulEquiv.piEquivPiSubtypeProd {ι : Type*} (p : ι → Prop) (Y : 
   {Homeomorph.piEquivPiSubtypeProd p Y with map_mul' _ _ := rfl}
 
 /-- Any `ContinuousMulEquiv` induces a `ContinuousMulEquiv` on units. -/
-def ContinuousMulEquiv.units_map {M N : Type*} [TopologicalSpace M] [TopologicalSpace N]
+def ContinuousMulEquiv.unitsMap {M N : Type*} [TopologicalSpace M] [TopologicalSpace N]
     [Monoid M] [Monoid N] (f : M ≃ₜ* N) : Mˣ ≃ₜ* Nˣ :=
   {
   __ := Units.mapEquiv f

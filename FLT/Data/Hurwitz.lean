@@ -30,11 +30,11 @@ structure Hurwitz : Type where
   /-- The coefficient of `1` in the basis `1, ω, i, ωi`. -/
   re : ℤ -- 1
   /-- The coefficient of `ω = (-1+i+j+k)/2` in the basis `1, ω, i, ωi`. -/
-  im_o : ℤ -- ω
+  imO : ℤ -- ω
   /-- The coefficient of `i` in the basis `1, ω, i, ωi`. -/
-  im_i : ℤ -- i
+  imI : ℤ -- i
   /-- The coefficient of `ωi = (-1-i+j-k)/2` in the basis `1, ω, i, ωi`. -/
-  im_oi : ℤ -- ωi -- note iω + ωi + 1 + i = 0
+  imOi : ℤ -- ωi -- note iω + ωi + 1 + i = 0
 
 /-- Notation `𝓞` for the Hurwitz integers. -/
 notation "𝓞" => Hurwitz -- 𝓞 = \MCO
@@ -43,18 +43,18 @@ namespace Hurwitz
 open Quaternion in
 /-- The embedding of the Hurwitz integers into the rational quaternions. -/
 noncomputable def toQuaternion (z : 𝓞) : ℍ where
-  re := z.re - 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
-  imI := z.im_i + 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
-  imJ := 2⁻¹ * z.im_o + 2⁻¹ * z.im_oi
-  imK := 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi
+  re := z.re - 2⁻¹ * z.imO - 2⁻¹ * z.imOi
+  imI := z.imI + 2⁻¹ * z.imO - 2⁻¹ * z.imOi
+  imJ := 2⁻¹ * z.imO + 2⁻¹ * z.imOi
+  imK := 2⁻¹ * z.imO - 2⁻¹ * z.imOi
 
 open Quaternion in
 /-- Rounds a quaternion to a nearby Hurwitz integer; serves as a left inverse to `toQuaternion`. -/
 noncomputable def fromQuaternion (z : ℍ) : 𝓞 where
   re := Int.floor <| z.re + z.imJ
-  im_o := Int.floor <| z.imJ + z.imK
-  im_i := Int.floor <| z.imI - z.imK
-  im_oi := Int.floor <| z.imJ - z.imK
+  imO := Int.floor <| z.imJ + z.imK
+  imI := Int.floor <| z.imI - z.imK
+  imOi := Int.floor <| z.imJ - z.imK
 
 lemma leftInverse_fromQuaternion_toQuaternion :
     Function.LeftInverse fromQuaternion toQuaternion := by
@@ -99,9 +99,9 @@ def zero : 𝓞 := ⟨0, 0, 0, 0⟩
 instance : Zero 𝓞 := ⟨zero⟩
 
 @[simp] lemma zero_re : re (0 : 𝓞) = 0 := rfl
-@[simp] lemma zero_im_o : im_o (0 : 𝓞) = 0 := rfl
-@[simp] lemma zero_im_i : im_i (0 : 𝓞) = 0 := rfl
-@[simp] lemma zero_im_oi : im_oi (0 : 𝓞) = 0 := rfl
+@[simp] lemma zero_im_o : imO (0 : 𝓞) = 0 := rfl
+@[simp] lemma zero_im_i : imI (0 : 𝓞) = 0 := rfl
+@[simp] lemma zero_im_oi : imOi (0 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_zero : toQuaternion 0 = 0 := by
   ext <;> (simp [toQuaternion]) <;> rfl
@@ -122,9 +122,9 @@ def one : 𝓞 := ⟨1, 0, 0, 0⟩
 instance : One 𝓞 := ⟨one⟩
 
 @[simp] lemma one_re : re (1 : 𝓞) = 1 := rfl
-@[simp] lemma one_im_o : im_o (1 : 𝓞) = 0 := rfl
-@[simp] lemma one_im_i : im_i (1 : 𝓞) = 0 := rfl
-@[simp] lemma one_im_oi : im_oi (1 : 𝓞) = 0 := rfl
+@[simp] lemma one_im_o : imO (1 : 𝓞) = 0 := rfl
+@[simp] lemma one_im_i : imI (1 : 𝓞) = 0 := rfl
+@[simp] lemma one_im_oi : imOi (1 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_one : toQuaternion 1 = 1 := by
   ext <;> (simp [toQuaternion]) <;> rfl
@@ -134,16 +134,16 @@ lemma toQuaternion_one : toQuaternion 1 = 1 := by
 -- negation
 
 /-- The negation `-z` of a Hurwitz number -/
-def neg (z : 𝓞) : 𝓞 := ⟨-re z, -im_o z, -im_i z, -im_oi z⟩
+def neg (z : 𝓞) : 𝓞 := ⟨-re z, -imO z, -imI z, -imOi z⟩
 
 /-- Notation `-` for negation -/
 instance : Neg 𝓞 := ⟨neg⟩
 
 -- how neg interacts with re and im_*
 @[simp] lemma neg_re (z : 𝓞) : re (-z) = -re z  := rfl
-@[simp] lemma neg_im_o (z : 𝓞) : im_o (-z) = -im_o z  := rfl
-@[simp] lemma neg_im_i (z : 𝓞) : im_i (-z) = -im_i z  := rfl
-@[simp] lemma neg_im_oi (z : 𝓞) : im_oi (-z) = -im_oi z  := rfl
+@[simp] lemma neg_im_o (z : 𝓞) : imO (-z) = -imO z  := rfl
+@[simp] lemma neg_im_i (z : 𝓞) : imI (-z) = -imI z  := rfl
+@[simp] lemma neg_im_oi (z : 𝓞) : imOi (-z) = -imOi z  := rfl
 
 lemma toQuaternion_neg (z : 𝓞) :
     toQuaternion (-z) = - toQuaternion z := by
@@ -154,16 +154,16 @@ lemma toQuaternion_neg (z : 𝓞) :
 -- Now let's define addition
 
 /-- addition `z+w` of complex numbers -/
-def add (z w : 𝓞) : 𝓞 := ⟨z.re + w.re, z.im_o + w.im_o, z.im_i + w.im_i, z.im_oi + w.im_oi⟩
+def add (z w : 𝓞) : 𝓞 := ⟨z.re + w.re, z.imO + w.imO, z.imI + w.imI, z.imOi + w.imOi⟩
 
 /-- Notation `+` for addition -/
 instance : Add 𝓞 := ⟨add⟩
 
 -- basic properties
 @[simp] lemma add_re (z w : 𝓞) : re (z + w) = re z  + re w  := rfl
-@[simp] lemma add_im_o (z w : 𝓞) : im_o (z + w) = im_o z  + im_o w  := rfl
-@[simp] lemma add_im_i (z w : 𝓞) : im_i (z + w) = im_i z  + im_i w  := rfl
-@[simp] lemma add_im_oi (z w : 𝓞) : im_oi (z + w) = im_oi z  + im_oi w  := rfl
+@[simp] lemma add_im_o (z w : 𝓞) : imO (z + w) = imO z  + imO w  := rfl
+@[simp] lemma add_im_i (z w : 𝓞) : imI (z + w) = imI z  + imI w  := rfl
+@[simp] lemma add_im_oi (z w : 𝓞) : imOi (z + w) = imOi z  + imOi w  := rfl
 
 lemma toQuaternion_add (z w : 𝓞) :
     toQuaternion (z + w) = toQuaternion z + toQuaternion w := by
@@ -238,42 +238,42 @@ lemma toQuaternion_zsmul (z : 𝓞) (n : ℤ) :
 
 /-- Multiplication `z*w` of two Hurwitz numbers -/
 def mul (z w : 𝓞) : 𝓞 where
-  re := z.re * w.re - z.im_o * w.im_o - z.im_i * w.im_o -
-    z.im_i * w.im_i + z.im_i * w.im_oi - z.im_oi * w.im_oi
-  im_o := z.im_o * w.re + z.re * w.im_o - z.im_o * w.im_o -
-    z.im_oi * w.im_o - z.im_oi * w.im_i + z.im_i * w.im_oi
-  im_i := z.im_i * w.re - z.im_i * w.im_o + z.im_oi * w.im_o +
-    z.re * w.im_i - z.im_o * w.im_oi - z.im_i * w.im_oi
-  im_oi := z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i +
-    z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi
+  re := z.re * w.re - z.imO * w.imO - z.imI * w.imO -
+    z.imI * w.imI + z.imI * w.imOi - z.imOi * w.imOi
+  imO := z.imO * w.re + z.re * w.imO - z.imO * w.imO -
+    z.imOi * w.imO - z.imOi * w.imI + z.imI * w.imOi
+  imI := z.imI * w.re - z.imI * w.imO + z.imOi * w.imO +
+    z.re * w.imI - z.imO * w.imOi - z.imI * w.imOi
+  imOi := z.imOi * w.re - z.imI * w.imO + z.imO * w.imI +
+    z.re * w.imOi - z.imO * w.imOi - z.imOi * w.imOi
 
 /-- Notation `*` for multiplication -/
 instance : Mul 𝓞 := ⟨mul⟩
 
 -- how `mul` reacts with `re` and `im`
 @[simp] lemma mul_re (z w : 𝓞) :
-    re (z * w) = z.re * w.re - z.im_o * w.im_o - z.im_i * w.im_o -
-      z.im_i * w.im_i + z.im_i * w.im_oi - z.im_oi * w.im_oi := rfl
+    re (z * w) = z.re * w.re - z.imO * w.imO - z.imI * w.imO -
+      z.imI * w.imI + z.imI * w.imOi - z.imOi * w.imOi := rfl
 
 @[simp] lemma mul_im_o (z w : 𝓞) :
-    im_o (z * w) = z.im_o * w.re + z.re * w.im_o - z.im_o * w.im_o -
-      z.im_oi * w.im_o - z.im_oi * w.im_i + z.im_i * w.im_oi := rfl
+    imO (z * w) = z.imO * w.re + z.re * w.imO - z.imO * w.imO -
+      z.imOi * w.imO - z.imOi * w.imI + z.imI * w.imOi := rfl
 
 @[simp] lemma mul_im_i (z w : 𝓞) :
-    im_i (z * w) = z.im_i * w.re - z.im_i * w.im_o + z.im_oi * w.im_o +
-      z.re * w.im_i - z.im_o * w.im_oi - z.im_i * w.im_oi := rfl
+    imI (z * w) = z.imI * w.re - z.imI * w.imO + z.imOi * w.imO +
+      z.re * w.imI - z.imO * w.imOi - z.imI * w.imOi := rfl
 
 @[simp] lemma mul_im_oi (z w : 𝓞) :
-    im_oi (z * w) = z.im_oi * w.re - z.im_i * w.im_o + z.im_o * w.im_i +
-      z.re * w.im_oi - z.im_o * w.im_oi - z.im_oi * w.im_oi := rfl
+    imOi (z * w) = z.imOi * w.re - z.imI * w.imO + z.imO * w.imI +
+      z.re * w.imOi - z.imO * w.imOi - z.imOi * w.imOi := rfl
 
 lemma toQuaternion_mul (z w : 𝓞) :
     toQuaternion (z * w) = toQuaternion z * toQuaternion w := by
   ext <;> simp [toQuaternion] <;> ring
 
 lemma o_mul_i :
-    { re := 0, im_o := 1, im_i := 0, im_oi := 0 } * { re := 0, im_o := 0, im_i := 1, im_oi := 0 }
-      = ({ re := 0, im_o := 0, im_i := 0, im_oi := 1 } : 𝓞) := by
+    { re := 0, imO := 1, imI := 0, imOi := 0 } * { re := 0, imO := 0, imI := 1, imOi := 0 }
+      = ({ re := 0, imO := 0, imI := 0, imOi := 1 } : 𝓞) := by
   ext <;> simp
 
 instance : Pow 𝓞 ℕ := ⟨fun z n => npowRec n z⟩
@@ -339,15 +339,15 @@ noncomputable instance ring : Ring 𝓞 :=
   induction n with
   | zero => simp
   | succ n ih => simpa
-@[simp] lemma natCast_im_o (n : ℕ) : (n : 𝓞).im_o = 0 := by
+@[simp] lemma natCast_im_o (n : ℕ) : (n : 𝓞).imO = 0 := by
   induction n with
   | zero => simp
   | succ n ih => simpa
-@[simp] lemma natCast_im_i (n : ℕ) : (n : 𝓞).im_i = 0 := by
+@[simp] lemma natCast_im_i (n : ℕ) : (n : 𝓞).imI = 0 := by
   induction n with
   | zero => simp
   | succ n ih => simpa
-@[simp] lemma natCast_im_oi (n : ℕ) : (n : 𝓞).im_oi = 0 := by
+@[simp] lemma natCast_im_oi (n : ℕ) : (n : 𝓞).imOi = 0 := by
   induction n with
   | zero => simp
   | succ n ih => simpa
@@ -356,15 +356,15 @@ noncomputable instance ring : Ring 𝓞 :=
   cases n with
   | ofNat _ => simp
   | negSucc _ => simp [← Int.neg_ofNat_succ]
-@[simp] lemma intCast_im_o (n : ℤ) : (n : 𝓞).im_o = 0 := by
+@[simp] lemma intCast_im_o (n : ℤ) : (n : 𝓞).imO = 0 := by
   cases n with
   | ofNat _ => simp
   | negSucc _ => simp [← Int.neg_ofNat_succ]
-@[simp] lemma intCast_im_i (n : ℤ) : (n : 𝓞).im_i = 0 := by
+@[simp] lemma intCast_im_i (n : ℤ) : (n : 𝓞).imI = 0 := by
   cases n with
   | ofNat _ => simp
   | negSucc _ => simp [← Int.neg_ofNat_succ]
-@[simp] lemma intCast_im_oi (n : ℤ) : (n : 𝓞).im_oi = 0 := by
+@[simp] lemma intCast_im_oi (n : ℤ) : (n : 𝓞).imOi = 0 := by
   cases n with
   | ofNat _ => simp
   | negSucc _ => simp [← Int.neg_ofNat_succ]
@@ -372,15 +372,15 @@ noncomputable instance ring : Ring 𝓞 :=
 
 /-- Conjugate; sends $a+bi+cj+dk$ to $a-bi-cj-dk$. -/
 instance starRing : StarRing 𝓞 where
-  star z := ⟨z.re - z.im_o - z.im_oi, -z.im_o, -z.im_i, -z.im_oi⟩
+  star z := ⟨z.re - z.imO - z.imOi, -z.imO, -z.imI, -z.imOi⟩
   star_involutive x := by ext <;> simp only <;> ring
   star_mul x y := by ext <;> simp <;> ring
   star_add x y := by ext <;> simp <;> ring
 
-@[simp] lemma star_re (z : 𝓞) : (star z).re = z.re - z.im_o - z.im_oi := rfl
-@[simp] lemma star_im_o (z : 𝓞) : (star z).im_o = -z.im_o := rfl
-@[simp] lemma star_im_i (z : 𝓞) : (star z).im_i = -z.im_i := rfl
-@[simp] lemma star_im_oi (z : 𝓞) : (star z).im_oi = -z.im_oi := rfl
+@[simp] lemma star_re (z : 𝓞) : (star z).re = z.re - z.imO - z.imOi := rfl
+@[simp] lemma star_im_o (z : 𝓞) : (star z).imO = -z.imO := rfl
+@[simp] lemma star_im_i (z : 𝓞) : (star z).imI = -z.imI := rfl
+@[simp] lemma star_im_oi (z : 𝓞) : (star z).imOi = -z.imOi := rfl
 
 lemma toQuaternion_star (z : 𝓞) : toQuaternion (star z) = star (toQuaternion z) := by
   ext <;>
@@ -400,8 +400,8 @@ instance : CharZero 𝓞 where
 /-- The norm of a Hurwitz integer: the integer `z * star z`, equivalently the squared
 absolute value of the corresponding quaternion. -/
 def norm (z : 𝓞) : ℤ :=
-  z.re * z.re + z.im_o * z.im_o + z.im_i * z.im_i + z.im_oi * z.im_oi
-  - z.re * (z.im_o + z.im_oi) + z.im_i * (z.im_o - z.im_oi)
+  z.re * z.re + z.imO * z.imO + z.imI * z.imI + z.imOi * z.imOi
+  - z.re * (z.imO + z.imOi) + z.imI * (z.imO - z.imOi)
 
 lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := by
   ext <;> simp only [norm, intCast_re, intCast_im_o, intCast_im_i, intCast_im_oi,
@@ -409,10 +409,10 @@ lemma norm_eq_mul_conj (z : 𝓞) : (norm z : 𝓞) = z * star z := by
 
 lemma coe_norm (z : 𝓞) :
     (norm z : ℝ) =
-      (z.re - 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi) ^ 2 +
-      (z.im_i + 2⁻¹ * z.im_o - 2⁻¹ * z.im_oi) ^ 2 +
-      (2⁻¹ * z.im_o + 2⁻¹ * z.im_oi) ^ 2 +
-      (2⁻¹ * z.im_o - 2⁻¹ * z.im_oi) ^ 2 := by
+      (z.re - 2⁻¹ * z.imO - 2⁻¹ * z.imOi) ^ 2 +
+      (z.imI + 2⁻¹ * z.imO - 2⁻¹ * z.imOi) ^ 2 +
+      (2⁻¹ * z.imO + 2⁻¹ * z.imOi) ^ 2 +
+      (2⁻¹ * z.imO - 2⁻¹ * z.imOi) ^ 2 := by
   rw [norm]
   field_simp
   norm_cast

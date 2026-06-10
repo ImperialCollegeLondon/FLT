@@ -92,7 +92,7 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     let : Algebra ℤ Rat.infinitePlace.Completion := Ring.toIntAlgebra _
     simp [InfinitePlace.mult, Rat.isReal_infinitePlace,
       ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
-        __ := Rat.infinitePlace_completion_continuousAlgEquiv
+        __ := Rat.infinitePlaceCompletionContinuousAlgEquiv
         commutes' := by simp},
       ringHaarChar_real, ← Rat.infinitePlace_completion_continuousAlgEquiv_apply_algebraMap,
       -eq_ratCast]
@@ -219,7 +219,7 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
     (b : Bˣ) :
     (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈
-    ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := by
+    ringHaarCharKer (B ⊗[K] AdeleRing (𝓞 K) K) := by
   rw [mem_ringHaarChar_ker, ringHaarChar_apply]
   convert! MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulLeft K b)
   ext c
