@@ -42,6 +42,7 @@
  ["defsWithUnderscore", "instMulSemiringActionRingOfIntegers_fLT"],
  ["defsWithUnderscore",
   "instMulSemiringActionSubtypeMemIntermediateFieldOfSMulCommClassOfNormal_fLT"],
+ ["defsWithUnderscore", "instNonAssocRingAdicCompletionRingOfIntegersRat_fLT"],
  ["defsWithUnderscore",
   "instNontriviallyNormedFieldAdicCompletionRingOfIntegers_fLT"],
  ["defsWithUnderscore", "instNormedSpacePadicPadicAlgCl_fLT"],
