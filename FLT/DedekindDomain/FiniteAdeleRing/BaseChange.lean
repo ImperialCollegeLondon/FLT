@@ -354,7 +354,7 @@ noncomputable local instance : Module 𝔸ᶠ[A, K]
   RestrictedProduct.instModuleCoe_fLT
 
 set_option backward.isDefEq.respectTransparency false in
-set_option synthInstance.maxHeartbeats 80000 in
+set_option synthInstance.maxHeartbeats 160000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
 set_option maxHeartbeats 400000 in
 /-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
