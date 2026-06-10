@@ -425,6 +425,11 @@ theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
   rw [Int.negSucc_eq] at h1
   omega
 
+-- shortcut to make next proof work
+variable (v : HeightOneSpectrum (𝓞 ℚ)) in
+instance : ZeroMemClass (ValuationSubring (HeightOneSpectrum.adicCompletion ℚ v))
+  (HeightOneSpectrum.adicCompletion ℚ v) := inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
     IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
@@ -612,6 +617,10 @@ theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ)
 
 instance (v : InfinitePlace K) : ProperSpace v.Completion :=
   ProperSpace.of_locallyCompactSpace v.Completion
+
+-- needed to make next proof not time
+variable (i : HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance : NonAssocRing (adicCompletion ℚ i) := inferInstance
 
 set_option backward.isDefEq.respectTransparency false in
 open Metric IsDedekindDomain.FiniteAdeleRing AdeleRing in

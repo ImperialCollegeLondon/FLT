@@ -56,6 +56,11 @@ open scoped TensorProduct
 
 open NumberField MeasureTheory
 
+-- shortcut to make next lemma work
+variable (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) in
+instance : IsTopologicalRing (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) :=
+  inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
