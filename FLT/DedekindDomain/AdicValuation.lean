@@ -242,7 +242,7 @@ theorem exists_adicValued_sub_lt_of_adicCompletionInteger
     have hsurj := (valuedAdicCompletion_surjective K v)
     obtain ⟨z, hz⟩ := hsurj γ
     simp [← hz, ← valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective hsurj,
-      (valueGroup₀_equiv_withZeroMulInt_strictMono vK).lt_iff_lt,
+      (valueGroup₀_equiv_withZeroMulInt_strictMono (.ofClass vK)).lt_iff_lt,
       -valueGroup₀_equiv_withZeroMulInt_apply]
   obtain ⟨z, ⟨hz, a, ha⟩⟩ := h hn
   use a

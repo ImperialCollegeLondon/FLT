@@ -425,6 +425,11 @@ theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
   rw [Int.negSucc_eq] at h1
   omega
 
+-- shortcut to make next proof work
+variable (v : HeightOneSpectrum (𝓞 ℚ)) in
+instance : ZeroMemClass (ValuationSubring (HeightOneSpectrum.adicCompletion ℚ v))
+  (HeightOneSpectrum.adicCompletion ℚ v) := inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
     IsOpen U ∧ (algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ)) ⁻¹' U = {0} := by
@@ -613,6 +618,10 @@ theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ)
 instance (v : InfinitePlace K) : ProperSpace v.Completion :=
   ProperSpace.of_locallyCompactSpace v.Completion
 
+-- needed to make next proof not time
+variable (i : HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance : NonAssocRing (adicCompletion ℚ i) := inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 open Metric IsDedekindDomain.FiniteAdeleRing AdeleRing in
 theorem Rat.AdeleRing.cocompact :
@@ -672,7 +681,7 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       rw [add_comm, sub_eq_add_neg (a.1 v), add_sub_assoc]
       push_cast
       rfl
-    convert hr v
+    convert! hr v
   · rw [Set.mem_range]
     use fun p ↦ ⟨a.2 p + algebraMap ℚ _ (-q - r), ?_⟩
     · rw [add_comm]
@@ -683,11 +692,11 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       rfl
     · rw [map_sub, ← add_sub_assoc]
       refine sub_mem ?_ (coe_algebraMap_mem (𝓞 ℚ) ℚ p r)
-      convert (f p).2
+      convert! (f p).2
       rw [RestrictedProduct.ext_iff] at hf
-      convert (hf p).symm
+      convert! (hf p).symm
       rw [map_neg, ← sub_eq_add_neg, Eq.comm]
-      convert (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
+      convert! (map_sub (FiniteAdeleRing.toAdicCompletion p) a.2 _)
 
 set_option backward.isDefEq.respectTransparency false in
   -- this uses the same techniques as `Rat.AdeleRing.zero_discrete` which should
@@ -756,7 +765,7 @@ theorem Rat.AdeleRing.isAddFundamentalDomain :
       exact Homeomorph.measurable
         (InfinitePlace.Completion.isometryEquivRealOfIsReal _).toHomeomorph
     · refine IsOpen.nullMeasurableSet ?_
-      convert isOpen_forall_mem ?_
+      convert! isOpen_forall_mem ?_
       · ext x
         -- a tactic should do this dumb calculation
         refine ⟨?_, ?_⟩
@@ -853,7 +862,7 @@ noncomputable def baseChangeAdeleEquiv : (L ⊗[K] 𝔸 K) ≃A[𝔸 K] 𝔸 L :
 `K`-algebra base change map `𝔸_K → 𝔸_L`. -/
 noncomputable def baseChangeEquiv' :
     (L ⊗[K] 𝔸 K) ≃A[L] 𝔸 L where
-  __ := (baseChange K L).baseChange_of_algebraMap
+  __ := (baseChange K L).baseChangeOfAlgebraMap
   __ := baseChangeAdeleEquiv K L
 
 -- this isn't rfl. Explanation below
@@ -869,14 +878,14 @@ We have two isomorphisms `(L ⊗[K] 𝔸 K) = 𝔸 L`.
 
 1)
 `baseChangeEquiv` is
-  `(baseChangeSemialgHom K L).baseChange_of_algebraMap` *and
+  `(baseChangeSemialgHom K L).baseChangeOfAlgebraMap` *and
   `baseChangeAdeleEquiv`. The latter is `baseChangeAdeleAlgHom` which is
   `(baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap`
 
 Note:
 ```
 example (x : L ⊗[K] 𝔸 K) :
-    (baseChangeSemialgHom K L).baseChange_of_algebraMap x =
+    (baseChangeSemialgHom K L).baseChangeOfAlgebraMap x =
     (baseChangeSemialgHom K L).baseChangeRightOfAlgebraMap x := by
   rfl
 ```

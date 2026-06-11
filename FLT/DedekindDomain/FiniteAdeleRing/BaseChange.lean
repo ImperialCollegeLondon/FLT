@@ -174,7 +174,7 @@ set_option synthInstance.maxHeartbeats 40000 in
 set_option maxHeartbeats 400000 in
 /-- The `B`-linear isomorphism `∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v] ≅ ∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w]`
 given by `adicCompletionComapIntegerLinearEquiv`. -/
-def restrictedProduct_tensorProduct_equiv_restrictedProduct_prod [FiniteDimensional K L] :
+def restrictedProductTensorProductEquivRestrictedProductProd [FiniteDimensional K L] :
     Πʳ v, [B ⊗[A] (adicCompletion K v),
       RestrictedProduct.rangeLTensorLeft A B (adicCompletion K) (integerSubmodule K) v] ≃ₗ[B]
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
@@ -186,21 +186,21 @@ def restrictedProduct_tensorProduct_equiv_restrictedProduct_prod [FiniteDimensio
 omit [Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [ComapFiberwiseSMul A K L B] in
 lemma restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply [FiniteDimensional K L]
     (f) (v : HeightOneSpectrum A) :
-    FiniteAdeleRing.restrictedProduct_tensorProduct_equiv_restrictedProduct_prod A K L B f v =
+    FiniteAdeleRing.restrictedProductTensorProductEquivRestrictedProductProd A K L B f v =
     integerBaseChangeLinearEquiv K L B v (f v) := rfl
 
 set_option synthInstance.maxHeartbeats 40000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
 set_option maxHeartbeats 400000 in
 /-- The `B`-linear isomorphism `∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w] → 𝔸_L^∞` given by
-`RestrictedProduct.flatten_equiv'`. -/
-def restrictedProduct_prod_equiv :
+`RestrictedProduct.flattenEquiv'`. -/
+def restrictedProductProdEquiv :
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
       Submodule.pi .univ fun w : Extension B v ↦ (integerSubmodule L w.val)] ≃ₗ[B]
     𝔸ᶠ[B, L] :=
   have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
   {
-    __ := RestrictedProduct.flatten_equiv'
+    __ := RestrictedProduct.flattenEquiv'
       (fun w : HeightOneSpectrum B ↦ SetLike.coe <| w.adicCompletionIntegers L)
       (tendsTo_comap_cofinite A B)
     map_add' x y := rfl
@@ -213,7 +213,7 @@ def restrictedProduct_prod_equiv :
 
 omit [Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [ComapFiberwiseSMul A K L B] in
 lemma restrictedProduct_prod_equiv_apply (f) (w : HeightOneSpectrum B) :
-    restrictedProduct_prod_equiv A K L B f w = f (under A w) ⟨w, rfl⟩ := rfl
+    restrictedProductProdEquiv A K L B f w = f (under A w) ⟨w, rfl⟩ := rfl
 
 set_option synthInstance.maxHeartbeats 40000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
@@ -222,8 +222,8 @@ set_option maxHeartbeats 400000 in
 def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃ₗ[L] 𝔸ᶠ[B, L] :=
   let f₁ := tensorEquivTensor A K L B
   let f₂ := tensorEquivRestrictedProduct A K L B
-  let f₃ := restrictedProduct_tensorProduct_equiv_restrictedProduct_prod A K L B
-  let f₄ := restrictedProduct_prod_equiv A K L B
+  let f₃ := restrictedProductTensorProductEquivRestrictedProductProd A K L B
+  let f₄ := restrictedProductProdEquiv A K L B
   let f := f₁ ≪≫ₗ f₂ ≪≫ₗ f₃ ≪≫ₗ f₄
   LinearEquiv.extendScalarsOfIsLocalization (nonZeroDivisors B) L f
 
@@ -247,9 +247,9 @@ lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A,
 
 set_option backward.isDefEq.respectTransparency false in
 theorem baseChange_bijective [FiniteDimensional K L] :
-    Function.Bijective (SemialgHom.baseChange_of_algebraMap <|
+    Function.Bijective (SemialgHom.baseChangeOfAlgebraMap <|
       (mapSemialgHom A K L B).toSemialgHom) := by
-  suffices ⇑(SemialgHom.baseChange_of_algebraMap <| FiniteAdeleRing.mapSemialgHom A K L B) =
+  suffices ⇑(SemialgHom.baseChangeOfAlgebraMap <| FiniteAdeleRing.mapSemialgHom A K L B) =
       ⇑(FiniteAdeleRing.baseChangeLinearEquiv A K L B) by
     rw [ContinuousSemialgHom.toSemialgHom_eq_coe, this]
     exact (FiniteAdeleRing.baseChangeLinearEquiv A K L B).bijective
@@ -276,7 +276,7 @@ theorem baseChange_bijective [FiniteDimensional K L] :
 /-- The `L`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
 def baseChangeAlgEquiv [FiniteDimensional K L] :
     L ⊗[K] 𝔸ᶠ[A, K] ≃ₐ[L] 𝔸ᶠ[B, L] :=
-  .ofBijective (SemialgHom.baseChange_of_algebraMap <| FiniteAdeleRing.mapSemialgHom A K L B)
+  .ofBijective (SemialgHom.baseChangeOfAlgebraMap <| FiniteAdeleRing.mapSemialgHom A K L B)
     (FiniteAdeleRing.baseChange_bijective A K L B)
 
 /-- The `𝔸_K^∞`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
@@ -346,16 +346,16 @@ noncomputable local instance : Module 𝔸ᶠ[A, K]
   RestrictedProduct.instModuleCoe_fLT
 
 set_option backward.isDefEq.respectTransparency false in
-set_option synthInstance.maxHeartbeats 80000 in
+set_option synthInstance.maxHeartbeats 160000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
 set_option maxHeartbeats 400000 in
 /-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
 reaindexing the elements. -/
-noncomputable def restrictedProduct_pi_equiv :
+noncomputable def restrictedProductPiEquiv :
     Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
       piAdicIntegerSubmodule A K L B v] ≃L[𝔸ᶠ[A, K]] 𝔸ᶠ[B, L] :=
   have := FaithfulSMul.of_field_isFractionRing A B K L
-  let f : _ ≃ₜ 𝔸ᶠ[B, L] := RestrictedProduct.flatten_homeomorph'
+  let f : _ ≃ₜ 𝔸ᶠ[B, L] := RestrictedProduct.flattenHomeomorph'
     (G := adicCompletion L) (fun w ↦ adicCompletionIntegers L w) (tendsTo_comap_cofinite A B)
   {
     __ := f
@@ -378,7 +378,7 @@ lemma restrictedProduct_pi_isModuleTopology [FiniteDimensional K L] : IsModuleTo
     (Πʳ (v : HeightOneSpectrum A), [(w : Extension B v) → adicCompletion L w.val,
       piAdicIntegerSubmodule A K L B v]) := by
   have :=
-    Module.Finite.equiv (FiniteAdeleRing.restrictedProduct_pi_equiv A K L B).symm.toLinearEquiv
+    Module.Finite.equiv (FiniteAdeleRing.restrictedProductPiEquiv A K L B).symm.toLinearEquiv
   unfold FiniteAdeleRing at this
   apply RestrictedProduct.isModuleTopology
   · exact fun v ↦ Valued.isOpen_integer (adicCompletion K v)
@@ -393,7 +393,7 @@ set_option synthInstance.maxHeartbeats 40000 in
 set_option maxHeartbeats 400000 in
 instance [FiniteDimensional K L] : IsModuleTopology 𝔸ᶠ[A, K] 𝔸ᶠ[B, L] :=
   have := restrictedProduct_pi_isModuleTopology A K L B
-  IsModuleTopology.iso (FiniteAdeleRing.restrictedProduct_pi_equiv A K L B)
+  IsModuleTopology.iso (FiniteAdeleRing.restrictedProductPiEquiv A K L B)
 
 end moduleTopology
 

@@ -17,7 +17,7 @@ warn.sorry = false
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "f3c1871faf2d0368482578ad56ccdf6aeb3f72f4"
+rev = "1d7801990b62b5e70a7b3d2d3bb1b52b1c7ba4a8"
 
 [[require]]
 name = "checkdecls"
@@ -29,4 +29,4 @@ globs = ["FLT", "FermatsLastTheorem"]
 
 [[lean_lib]]
 name = "FLTTest"
-globs = ["FLTTest.+"] # Build all files in the directory `FLTTest`.
+globs = ["FLTTest.*"] # Build `FLTTest.lean` and all files in the directory `FLTTest`.

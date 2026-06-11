@@ -127,7 +127,7 @@ noncomputable def lTensorPrincipalEquiv :
   }
   let g1 : M ⊗[R] Πʳ i, [N i, L i]_[𝓟 S] ≃ₗ[R] M ⊗[R] (Π i, N' i) := LinearEquiv.lTensor M f
   let g2 : M ⊗[R] (Π i, N' i) ≃ₗ[R] Π i, M ⊗[R] N' i :=
-    tensorPi_equiv_piTensor' R M fun i ↦ ↥(N' i)
+    tensorPiEquivPiTensor' R M fun i ↦ ↥(N' i)
   let gEquiv (i : ι) (h : i ∈ S) : M ⊗[R] (N' i) ≃ₗ[R] rangeLTensor R M N L i :=
     (LinearEquiv.lTensor M (LinearEquiv.ofEq _ _ (by simp [N', h]))) ≪≫ₗ
       (tmulEquivRangeLTensor R M N L i)

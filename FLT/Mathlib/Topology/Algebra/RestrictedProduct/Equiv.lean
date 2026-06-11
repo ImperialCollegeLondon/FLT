@@ -539,7 +539,7 @@ variable (hf : Filter.comap f 𝒢 = ℱ)
 
 /-- The canonical bijection from a restricted product of products over fibres of a map on indexing
 sets to the restricted product over the original indexing set. -/
-def flatten_equiv :
+def flattenEquiv :
     Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[𝒢] ≃
     Πʳ i, [G i, C i]_[ℱ] where
   toFun := flatten C (by rw [Filter.tendsto_iff_comap]; exact hf.ge)
@@ -554,31 +554,31 @@ def flatten_equiv :
 
 @[simp]
 lemma flatten_equiv_apply (x) (i : ι) :
-    flatten_equiv C hf x i = x (f i) ⟨i, rfl⟩ :=
+    flattenEquiv C hf x i = x (f i) ⟨i, rfl⟩ :=
   rfl
 
 @[simp]
 lemma flatten_equiv_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
-    (flatten_equiv C hf).symm x i j = x j.1 :=
+    (flattenEquiv C hf).symm x i j = x j.1 :=
   rfl
 
 variable (hf : Filter.Tendsto f Filter.cofinite Filter.cofinite)
 
 /-- The equivalence given by `flatten` when both restricted products are over the cofinite
 filter. -/
-def flatten_equiv' :
+def flattenEquiv' :
     Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)] ≃
     Πʳ i, [G i, C i] :=
-  flatten_equiv C <| le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
+  flattenEquiv C <| le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
 
 @[simp]
 lemma flatten_equiv'_apply (x) (i : ι) :
-    flatten_equiv' C hf x i = x (f i) ⟨i, rfl⟩ :=
+    flattenEquiv' C hf x i = x (f i) ⟨i, rfl⟩ :=
   rfl
 
 @[simp]
 lemma flatten_equiv'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
-    (flatten_equiv' C hf).symm x i j = x j.1 :=
+    (flattenEquiv' C hf).symm x i j = x j.1 :=
   rfl
 
 end flatten

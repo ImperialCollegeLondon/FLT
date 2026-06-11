@@ -184,7 +184,7 @@ theorem isExtension_or_isExtension_conjugate :
   | inl hl =>
     convert Or.inl <| hl ▸ congrArg InfinitePlace.embedding w.mk_embedding
   | inr hr =>
-    convert Or.inr <| hr ▸ congrArg InfinitePlace.embedding w.mk_embedding
+    convert! Or.inr <| hr ▸ congrArg InfinitePlace.embedding w.mk_embedding
 
 theorem isExtension_conjugate_of_not_isExtension (h : ¬IsExtension v.embedding w.1.embedding) :
     IsExtension v.embedding (conjugate w.1.embedding) :=

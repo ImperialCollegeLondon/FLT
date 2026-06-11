@@ -210,7 +210,7 @@ open ConjAct
 open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
 quaternion algebra. -/
-def group_smul (g : Dfx F D) (φ : WeightTwoAutomorphicForm F D R) :
+def groupSmul (g : Dfx F D) (φ : WeightTwoAutomorphicForm F D R) :
     WeightTwoAutomorphicForm F D R where
   toFun x := φ (x * g)
   left_invt δ x := by simp [left_invt, mul_assoc]
@@ -230,7 +230,7 @@ def group_smul (g : Dfx F D) (φ : WeightTwoAutomorphicForm F D R) :
     rw [← this, ← mul_assoc, trivial_central_char]
 
 instance : SMul (Dfx F D) (WeightTwoAutomorphicForm F D R) where
-  smul := group_smul
+  smul := groupSmul
 
 @[simp]
 lemma group_smul_apply (g : Dfx F D)
@@ -241,7 +241,7 @@ attribute [instance low] Units.instMulAction
 
 instance mulAction :
     MulAction (Dfx F D) (WeightTwoAutomorphicForm F D R) where
-  smul := group_smul
+  smul := groupSmul
   one_smul φ := by ext; simp only [group_smul_apply, mul_one]
   mul_smul g h φ := by ext; simp only [group_smul_apply, mul_assoc]
 
@@ -259,7 +259,7 @@ variable {R : Type*} [CommRing R]
 
 /-- The scalar action on the space of weight 2 automorphic forms on a totally definite
 quaternion algebra. -/
-def ring_smul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
+def ringSmul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
     WeightTwoAutomorphicForm F D R where
       toFun g := r • φ g
       left_invt := by simp [left_invt]
@@ -270,7 +270,7 @@ def ring_smul (r : R) (φ : WeightTwoAutomorphicForm F D R) :
       trivial_central_char g z := by simp only [trivial_central_char]
 
 instance : SMul R (WeightTwoAutomorphicForm F D R) where
-  smul := ring_smul
+  smul := ringSmul
 
 lemma smul_apply (r : R) (φ : WeightTwoAutomorphicForm F D R)
     (g : Dfx F D) :
