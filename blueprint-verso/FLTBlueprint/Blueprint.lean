@@ -5,6 +5,7 @@ import VersoBlueprint.Commands.Graph
 import VersoBlueprint.Commands.Summary
 import FLTBlueprint.Chapters.Level00Statement
 import FLTBlueprint.Chapters.Level01ReductionToPrimeCase
+import FLTBlueprint.Chapters.Level02FreyPackages
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -19,6 +20,7 @@ codebase and in mathlib; further chapters will be added as the blueprint grows.
 
 {include 0 FLTBlueprint.Chapters.Level00Statement}
 {include 0 FLTBlueprint.Chapters.Level01ReductionToPrimeCase}
+{include 0 FLTBlueprint.Chapters.Level02FreyPackages}
 
 {blueprint_graph}
 {blueprint_summary}
