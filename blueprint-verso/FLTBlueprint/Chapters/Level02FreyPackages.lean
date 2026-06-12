@@ -10,7 +10,7 @@ open Informal
 #doc (Manual) "Level 2: Frey packages" =>
 
 In the previous level we reduced Fermat's Last Theorem to the case of a prime
-exponent $`p \geq 5` (this was {uses "flt_prime_ge_5"}[Statement $`B_1`]).
+exponent $`p \geq 5` (this was Statement $`B_1`).
 The boss of this level repackages a hypothetical counterexample to $`B_1` as a
 single, highly structured object which we call a *Frey package*. The boss theorem
 will then assert that the mere non-existence of Frey packages is enough to recover
