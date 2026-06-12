@@ -9,11 +9,12 @@ public import Mathlib.Analysis.Normed.Ring.Lemmas
 public import Mathlib.NumberTheory.RamificationInertia.Inertia
 public import Mathlib.RingTheory.Valuation.Discrete.Basic
 public import Mathlib.Topology.Path
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+public import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 import Mathlib.Algebra.Group.Int.TypeTags
 import Mathlib.RingTheory.Valuation.Discrete.RankOne
+import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 /-!
 
