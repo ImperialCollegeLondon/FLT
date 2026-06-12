@@ -1,7 +1,48 @@
-import FLT.PGL2.FiniteSubgroups.PGLBasic
-import FLT.PGL2.FiniteSubgroups.PartitionHelpers
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
 
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
+public import FLT.PGL2.FiniteSubgroups.PartitionHelpers
 
+/-!
+# Reconstructing a finite field from a wild subgroup of `PGL₂(𝔽̄_p)`
+
+Let `G` be a finite subgroup of `PGL p = PGL₂(𝔽̄_p)` whose Sylow `p`-subgroup is not
+cyclic of order dividing `p`. This file reconstructs a finite subfield `𝔽_q ⊆ 𝔽̄_p`
+(`q = p^m`) from the translations contained in `G`.
+
+We define:
+* `Dickson.F_q_in_K p m`: the subfield `{x | x ^ p ^ m = x}` of `K p = 𝔽̄_p`,
+  i.e. the image of the Galois field `𝔽_{p^m}`;
+* `Dickson.translationPGL` and `Dickson.dilationPGL`: the upper-triangular translation
+  `x ↦ x + b` and dilation `x ↦ cx` as elements of `PGL p`;
+* `Dickson.translationSet H`: the set of `b` with `x ↦ x + b` in `H`;
+* `Dickson.galoisFieldRingHom`: an embedding `GaloisField p m →+* K p` with image
+  `F_q_in_K p m`.
+
+The main results identify the translation set of (a conjugate of) the subgroup fixing
+`∞` with the additive group of `𝔽_{p^m}`, the first step in recognising `G` as
+`PSL₂(𝔽_q)` or `PGL₂(𝔽_q)`.
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 

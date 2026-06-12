@@ -1,12 +1,54 @@
-import Mathlib.Data.Matrix.Action
-import Mathlib.FieldTheory.Finite.GaloisField
-import Mathlib.GroupTheory.SpecificGroups.Alternating
-import Mathlib.GroupTheory.Sylow
-import Mathlib.LinearAlgebra.Matrix.CharP
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Card
-import Mathlib.LinearAlgebra.Matrix.ProjectiveSpecialLinearGroup
-import Mathlib.LinearAlgebra.Projectivization.Action
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
+
+public import Mathlib.Data.Matrix.Action
+public import Mathlib.FieldTheory.Finite.GaloisField
+public import Mathlib.GroupTheory.SpecificGroups.Alternating
+public import Mathlib.GroupTheory.Sylow
+public import Mathlib.LinearAlgebra.Matrix.CharP
+public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
+public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Card
+public import Mathlib.LinearAlgebra.Matrix.ProjectiveSpecialLinearGroup
+public import Mathlib.LinearAlgebra.Projectivization.Action
+
+/-!
+# Basic theory of `PGL₂` over the algebraic closure of `𝔽_p`
+
+This file sets up the basic objects used in the proof of Dickson's classification
+of the finite subgroups of `PGL₂(𝔽̄_p)` for `p` an odd prime.
+
+We define `K p` to be an algebraic closure of `𝔽_p`, the group `PGL p := PGL₂(K p)`
+(as the quotient of `GL₂(K p)` by its centre), the group `PSL p := PSL₂(K p)`, and the
+projective line `ProjectiveLine p := ℙ¹(K p)` together with its natural `PGL p`-action.
+
+The main results are:
+* `Dickson.pgl_mulEquiv_psl`: over the algebraically closed field `K p`, the natural
+  map `PSL₂(K p) → PGL₂(K p)` is an isomorphism.
+* `Dickson.exists_finite_subfield_conjugate`: every finite subgroup of `PGL p` can be
+  conjugated into the image of `PGL₂(F)` for some finite subfield `F` of `K p`.
+* `Dickson.card_eigenvalues` and `Dickson.fixedPoints_card`: a nontrivial element of
+  `PGL p` fixes either one or two points of the projective line, according to whether
+  its lift to `GL₂` has one or two eigenvalues.
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 

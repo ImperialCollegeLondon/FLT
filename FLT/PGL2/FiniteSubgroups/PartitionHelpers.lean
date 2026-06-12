@@ -1,5 +1,48 @@
-import Mathlib.Tactic.Cases
-import FLT.PGL2.FiniteSubgroups.PGLBasic
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
+
+public import Mathlib.Tactic.Cases
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
+
+/-!
+# Sylow `p`-subgroup lemmas for finite subgroups of `PGL₂(𝔽̄_p)`
+
+This file proves the basic facts about Sylow `p`-subgroups of a finite subgroup `G` of
+`PGL p = PGL₂(𝔽̄_p)` whose order is divisible by `p` (the *wild* case of Dickson's
+classification).
+
+The key geometric input is that an element of order `p` in `PGL p` fixes exactly one
+point of the projective line. From this we deduce:
+* each Sylow `p`-subgroup `P` of `G` fixes a unique point `sylow_fixedPoint`
+  of `ℙ¹(𝔽̄_p)`, and distinct Sylow `p`-subgroups have distinct fixed points
+  (`Dickson.sylow_fixedPoint_injective`);
+* distinct Sylow `p`-subgroups intersect trivially
+  (`Dickson.sylow_pairwise_trivial_intersection`);
+* a count of the elements of order dividing `p` in `G`
+  (`Dickson.count_order_p_elements`);
+* the normalizer of `P` in `G` is the stabilizer of its fixed point, and numerical
+  consequences for `|G|` (`Dickson.normalizer_complement_divides_main`,
+  `Dickson.group_order_gt_normalizer`).
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 

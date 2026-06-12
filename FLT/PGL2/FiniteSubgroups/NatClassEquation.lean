@@ -1,5 +1,39 @@
-import Mathlib.Data.SetLike.Fintype
-import Mathlib.Tactic
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
+
+public import Mathlib.Data.SetLike.Fintype
+public import Mathlib.Tactic
+
+/-!
+# A class-equation-style counting lemma for conjugates of subgroups
+
+This file proves `Dickson.natClassEquation`: if `H₁, …, Hᵣ` are subgroups of a finite
+group `G` which pairwise intersect trivially (along with all their conjugates), then
+counting the nonidentity elements lying in conjugates of the `Hᵢ` gives the inequality
+`∑ i, (|Hᵢ| - 1) * |G : N_G(Hᵢ)| ≤ |G| - 1`.
+
+This is the integer form of the counting argument underlying the partition equation
+used in the tame case of Dickson's classification of finite subgroups of `PGL₂(𝔽̄_p)`.
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 

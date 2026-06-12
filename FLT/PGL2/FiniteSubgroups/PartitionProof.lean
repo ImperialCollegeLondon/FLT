@@ -1,10 +1,46 @@
-import Mathlib.Combinatorics.Enumerative.DoubleCounting
-import FLT.PGL2.FiniteSubgroups.PGLBasic
-import FLT.PGL2.FiniteSubgroups.PartitionHelpers
-import FLT.PGL2.FiniteSubgroups.RecognitionA5
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
 
+public import Mathlib.Combinatorics.Enumerative.DoubleCounting
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
+public import FLT.PGL2.FiniteSubgroups.PartitionHelpers
+public import FLT.PGL2.FiniteSubgroups.RecognitionA5
 
+/-!
+# The partition equation for wild finite subgroups of `PGL₂(𝔽̄_p)`
 
+Let `G` be a finite subgroup of `PGL p = PGL₂(𝔽̄_p)` with `p` dividing `|G|`. This file
+studies the set `Dickson.Phi G ⊆ ℙ¹(𝔽̄_p)` of fixed points of nontrivial elements
+of `G`, via a double-counting (Burnside/orbit-counting) argument on the action of `G`
+on `Phi G`.
+
+The main results are:
+* `Dickson.num_orbits_eq_two`: if `G` is not cyclic of order `p` then... in fact under
+  the standing hypotheses the action of `G` on `Phi G` has exactly two orbits;
+* `Dickson.card_eq_pm_z1_np'`: the resulting numerical relation
+  `|G| = n_p * (z₁ * (n_p - 1) + n_p)`-style partition identity expressing `|G|` in
+  terms of the number `n_p` of Sylow `p`-subgroups and the order `z₁` of the cyclic
+  complement, which drives the case analysis in the wild classification.
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 

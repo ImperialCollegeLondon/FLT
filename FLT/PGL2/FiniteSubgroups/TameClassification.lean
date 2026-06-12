@@ -1,7 +1,46 @@
-import Mathlib.Algebra.Module.ZMod
-import FLT.PGL2.FiniteSubgroups.CyclicPartition
-import FLT.PGL2.FiniteSubgroups.NatClassEquation
-import FLT.PGL2.FiniteSubgroups.PGLBasic
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
+
+public import Mathlib.Algebra.Module.ZMod
+public import FLT.PGL2.FiniteSubgroups.CyclicPartition
+public import FLT.PGL2.FiniteSubgroups.NatClassEquation
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
+
+/-!
+# Dickson's classification: the tame case
+
+This file classifies the finite subgroups `G` of `PGL p = PGL₂(𝔽̄_p)` of order coprime
+to `p` (the *tame* case): the main theorem `Dickson.classification_tame` shows any
+such `G` is cyclic, dihedral, or isomorphic to `A₄`, `S₄` or `A₅`.
+
+The proof is via the class equation. Every nontrivial element of `G` fixes exactly two
+points of `ℙ¹(𝔽̄_p)` (`Dickson.tame_ncard_fixedPoints_eq_two`), and the stabilizers
+`Dickson.pairStabilizer` of the resulting pairs are cyclic with normalizers of index at
+most 2. Counting elements (`Dickson.orbitPartitionData`) yields the classical
+constraint `∑ i, (1 - 1/dᵢ) ≤ 2 (1 - 1/n)` on at most three "partition types", whose
+solutions (`r1Solution`, `r2Solutions`, `r3SolutionsUnsorted`) correspond exactly to
+the cyclic, dihedral, `A₄`, `S₄` and `A₅` cases, recognised via the cyclic-partition
+machinery of `FLT.PGL2.FiniteSubgroups.CyclicPartition`.
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 

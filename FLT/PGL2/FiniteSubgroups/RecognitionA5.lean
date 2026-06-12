@@ -1,6 +1,42 @@
-import Mathlib.GroupTheory.Transfer
-import Mathlib.Tactic.NormNum.NatFactorial
-import FLT.PGL2.FiniteSubgroups.PGLBasic
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
+
+public import Mathlib.GroupTheory.Transfer
+public import Mathlib.Tactic.NormNum.NatFactorial
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
+
+/-!
+# Recognition of `A₅` inside `PGL₂(𝔽̄_p)`
+
+This file proves `Dickson.recognition_A5`-style results: a finite subgroup of
+`PGL p = PGL₂(𝔽̄_p)` of order 60 satisfying the constraints arising in the wild case
+of Dickson's classification is isomorphic to the alternating group `A₅`.
+
+The proof is the classical Sylow-theoretic argument that a group of order 60 with no
+normal Sylow subgroups is simple, hence isomorphic to `A₅` (via the action on the five
+Sylow 2-subgroups / cosets argument), combined with the dichotomy
+`Dickson.element_dichotomy` for elements of a finite subgroup of `PGL p`: every
+element either has order `p` or has order coprime to `p`.
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 

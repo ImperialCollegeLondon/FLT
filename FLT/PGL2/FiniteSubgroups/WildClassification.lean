@@ -1,11 +1,51 @@
-import Mathlib.Algebra.Module.ZMod
-import Mathlib.GroupTheory.SchurZassenhaus
-import Mathlib.GroupTheory.SemidirectProduct
-import Mathlib.Tactic.NormNum.Prime
-import FLT.PGL2.FiniteSubgroups.PSLBasic
-import FLT.PGL2.FiniteSubgroups.PSLRecognition
-import FLT.PGL2.FiniteSubgroups.PartitionProof
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
 
+public import Mathlib.Algebra.Module.ZMod
+public import Mathlib.GroupTheory.SchurZassenhaus
+public import Mathlib.GroupTheory.SemidirectProduct
+public import Mathlib.Tactic.NormNum.Prime
+public import FLT.PGL2.FiniteSubgroups.PSLBasic
+public import FLT.PGL2.FiniteSubgroups.PSLRecognition
+public import FLT.PGL2.FiniteSubgroups.PartitionProof
+
+/-!
+# Dickson's classification: the wild case
+
+This file classifies the finite subgroups `G` of `PGL p = PGL₂(𝔽̄_p)` of order
+divisible by `p` (the *wild* case): the main theorem `Dickson.classification_wild`
+shows any such `G` is
+
+* a semidirect product of an elementary abelian `p`-group by a cyclic group of order
+  prime to `p` (the case where `G` fixes a point of `ℙ¹(𝔽̄_p)`), or
+* isomorphic to `A₄`, `S₄` or `A₅`, or
+* isomorphic to `PSL₂(𝔽_q)` or `PGL₂(𝔽_q)` for some power `q = p^m`.
+
+The proof combines the partition equation from
+`FLT.PGL2.FiniteSubgroups.PartitionProof` with the recognition theorems for `A₅`
+(`FLT.PGL2.FiniteSubgroups.RecognitionA5`) and for `PSL₂(𝔽_q)`/`PGL₂(𝔽_q)`
+(`FLT.PGL2.FiniteSubgroups.PSLRecognition` and the field reconstruction in
+`FLT.PGL2.FiniteSubgroups.FieldReconstruction`).
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 

@@ -1,8 +1,51 @@
-import Mathlib.GroupTheory.SpecificGroups.Alternating
-import Mathlib.GroupTheory.SpecificGroups.Dihedral
-import Mathlib.GroupTheory.Transfer
-import Mathlib.Tactic
-import FLT.PGL2.FiniteSubgroups.PGLBasic
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
+
+public import Mathlib.GroupTheory.SpecificGroups.Alternating
+public import Mathlib.GroupTheory.SpecificGroups.Dihedral
+public import Mathlib.GroupTheory.Transfer
+public import Mathlib.Tactic
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
+
+/-!
+# Recognition theorems for groups with a partition into cyclic subgroups
+
+This file defines `Dickson.HasCyclicPartition G configs`: the finite group `G` is
+covered by a list of cyclic subgroups `Hᵢ` of order `dᵢ` (each appearing with `fᵢ`
+conjugates, intersecting pairwise trivially) matching the list `configs` of
+`Dickson.CyclicPartitionConfig` data.
+
+The main results recognise a finite group from the combinatorics of such a partition:
+* `Dickson.isCyclic_of_hasCyclicPartition`: one part of full order forces `G` cyclic;
+* `Dickson.dihedral_of_hasCyclicPartition_odd` and
+  `Dickson.dihedral_of_hasCyclicPartition_even`: partitions of type `{n, 2, …, 2}`
+  force `G ≃* DihedralGroup n`;
+* `Dickson.iso_A4_of_hasCyclicPartition`, `Dickson.iso_S4_of_hasCyclicPartition` and
+  `Dickson.iso_A5_of_hasCyclicPartition`: the partitions corresponding to the
+  exceptional groups of orders 12, 24 and 60 force `G ≃* A₄`, `S₄`, `A₅` respectively.
+
+These are used in the tame case of Dickson's classification of finite subgroups
+of `PGL₂(𝔽̄_p)`.
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 

@@ -1,6 +1,41 @@
-import FLT.PGL2.FiniteSubgroups.FieldReconstruction
+/-
+Copyright (c) 2026 Duxing Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Duxing Yang
+-/
+module
 
+public import FLT.PGL2.FiniteSubgroups.FieldReconstruction
 
+/-!
+# Recognising `PSL₂(𝔽_q)` inside `PGL₂(𝔽̄_p)`
+
+Let `G` be a finite subgroup of `PGL p = PGL₂(𝔽̄_p)` of order `(q² - 1) * q / 2`
+(`q = p^m`) arising in the wild case of Dickson's classification. This file shows that
+after conjugation `G` lies in the image of `PGL₂(𝔽_q) → PGL₂(𝔽̄_p)`
+(`Dickson.psl_G_le_pgl_range_from_orbit`), the key step in identifying `G` with
+`PSL₂(𝔽_q)`.
+
+The argument runs through:
+* `Dickson.sum_of_two_squares_Fq`: every element of `𝔽_q` is a sum of two squares;
+* an analysis of the dilation parameters of the normalizer of a Sylow `p`-subgroup;
+* `Dickson.orbit_infty_eq_P1Fq_psl`: the `G`-orbit of `∞` is exactly `ℙ¹(𝔽_q)`.
+-/
+
+/- The code in this file was ported from Duxing Yang's `DicksonClassification` project
+and does not yet follow the mathlib style conventions enforced by the linters below. -/
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
+set_option linter.style.whitespace false
+set_option linter.style.show false
+set_option linter.style.openClassical false
+set_option linter.style.cdot false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+set_option linter.style.induction false
+set_option linter.unusedFintypeInType false
+
+@[expose] public section
 
 open scoped Classical
 
