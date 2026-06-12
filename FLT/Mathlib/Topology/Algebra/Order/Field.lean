@@ -44,7 +44,7 @@ theorem lt_one_iff_of_lt_one_imp [Archimedean S] [TopologicalSpace S] [OrderTopo
       have := abs_eq_self.2 (w.nonneg _) ▸ hw
       exact tendsto_pow_atTop_nhds_zero_iff.2 this
     have hwn' : ∀ᶠ n in Filter.atTop, w x₀ ≤ w a ^ n := by
-      simp only [Filter.eventually_atTop, ge_iff_le]
+      simp only [Filter.eventually_atTop]
       exact ⟨1, fun n _ => le_of_lt (this n)⟩
     exact tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds
       hwn (Filter.Eventually.of_forall fun (_ : ℕ) => w.nonneg x₀) hwn'
