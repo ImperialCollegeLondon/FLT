@@ -46,7 +46,7 @@ noncomputable section
 lemma card_conjugates_eq_normalizer_index {G' : Type*} [Group G'] [Fintype G']
     (H : Subgroup G') :
     Fintype.card {K : Subgroup G' | ∃ g : G', K = H.map (MulAut.conj g).toMonoidHom} =
-    H.normalizer.index := by
+    (Subgroup.normalizer (SetLike.coe H)).index := by
   rw [Subgroup.index_eq_card, ← Nat.card_eq_fintype_card, Nat.card_congr]
   symm
   refine Equiv.ofBijective
@@ -81,28 +81,28 @@ lemma card_conjugates_eq_normalizer_index {G' : Type*} [Group G'] [Fintype G']
       exact y_eq ▸ hy
 
   · obtain ⟨g, hg⟩ := a.property
-    have hn := QuotientGroup.out_eq' (QuotientGroup.mk g : G' ⧸ H.normalizer)
+    have hn := QuotientGroup.out_eq' (QuotientGroup.mk g : G' ⧸ (Subgroup.normalizer (SetLike.coe H)))
     rw [QuotientGroup.eq] at hn
 
     have h_conj : H.map (MulAut.conj g).toMonoidHom =
-        H.map (MulAut.conj (g : G' ⧸ H.normalizer).out).toMonoidHom := by
+        H.map (MulAut.conj (g : G' ⧸ (Subgroup.normalizer (SetLike.coe H))).out).toMonoidHom := by
       ext x
       simp only [Subgroup.mem_map, MulAut.conj_apply, MulEquiv.coe_toMonoidHom]
       constructor
 
       · rintro ⟨y, hy, rfl⟩
-        have key : ((g : G' ⧸ H.normalizer).out⁻¹ * g) * y *
-            ((g : G' ⧸ H.normalizer).out⁻¹ * g)⁻¹ =
-            (g : G' ⧸ H.normalizer).out⁻¹ * (g * y * g⁻¹) *
-            (g : G' ⧸ H.normalizer).out := by group
+        have key : ((g : G' ⧸ (Subgroup.normalizer (SetLike.coe H))).out⁻¹ * g) * y *
+            ((g : G' ⧸ (Subgroup.normalizer (SetLike.coe H))).out⁻¹ * g)⁻¹ =
+            (g : G' ⧸ (Subgroup.normalizer (SetLike.coe H))).out⁻¹ * (g * y * g⁻¹) *
+            (g : G' ⧸ (Subgroup.normalizer (SetLike.coe H))).out := by group
         exact ⟨_, key ▸
           (Subgroup.mem_normalizer_iff.mp hn y).mp hy, by group⟩
 
       · rintro ⟨y, hy, rfl⟩
-        have key2 : ((g : G' ⧸ H.normalizer).out⁻¹ * g) *
-            (((g : G' ⧸ H.normalizer).out⁻¹ * g)⁻¹ * y *
-            ((g : G' ⧸ H.normalizer).out⁻¹ * g)) *
-            ((g : G' ⧸ H.normalizer).out⁻¹ * g)⁻¹ = y := by group
+        have key2 : ((g : G' ⧸ (Subgroup.normalizer (SetLike.coe H))).out⁻¹ * g) *
+            (((g : G' ⧸ (Subgroup.normalizer (SetLike.coe H))).out⁻¹ * g)⁻¹ * y *
+            ((g : G' ⧸ (Subgroup.normalizer (SetLike.coe H))).out⁻¹ * g)) *
+            ((g : G' ⧸ (Subgroup.normalizer (SetLike.coe H))).out⁻¹ * g)⁻¹ = y := by group
         exact ⟨_, (Subgroup.mem_normalizer_iff.mp hn _).mpr
           (key2.symm ▸ hy), by group⟩
     exact ⟨g, Subtype.ext (by rw [hg, h_conj])⟩
@@ -187,7 +187,7 @@ lemma card_conjClassElements {G' : Type*} [Group G'] [Fintype G']
       (∃ g : G', K = H.map (MulAut.conj g).toMonoidHom) →
       (∃ h : G', L = H.map (MulAut.conj h).toMonoidHom) →
       K ≠ L → K ⊓ L = ⊥) :
-    (conjClassElements H).card = H.normalizer.index * (Nat.card H - 1) := by
+    (conjClassElements H).card = (Subgroup.normalizer (SetLike.coe H)).index * (Nat.card H - 1) := by
   have h_num := card_conjugates_eq_normalizer_index H
 
   let S := Finset.univ.filter
@@ -236,7 +236,7 @@ lemma natClassEquation {G' : Type*} [Group G'] [Fintype G']
     (hinj : ∀ i j : Fin r, (∃ g : G',
       (H i).map (MulAut.conj g).toMonoidHom = H j) → i = j) :
     Nat.card G' - 1 =
-      ∑ i : Fin r, (H i).normalizer.index * (Nat.card (H i) - 1) := by
+      ∑ i : Fin r, (Subgroup.normalizer (SetLike.coe (H i))).index * (Nat.card (H i) - 1) := by
 
   have h_total_non_identity :
       (Finset.univ.filter (fun x : G' ↦ x ≠ 1)).card =

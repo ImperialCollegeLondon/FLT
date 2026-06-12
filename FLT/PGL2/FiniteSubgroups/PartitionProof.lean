@@ -195,7 +195,7 @@ theorem sylow_distinct_fixedPoints (G : Subgroup (PGL p)) [Finite G]
 theorem fixes_sylowPoint_normalizes (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (g : G) (hg : (g : PGL p) • sylow_fixedPoint p G hG_p P = sylow_fixedPoint p G hG_p P) :
-    g ∈ Subgroup.normalizer (P : Subgroup G) := by
+    g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G) := by
   rw [Subgroup.mem_normalizer_iff]
   have h_map : Subgroup.map (MulAut.conj g) (P : Subgroup G) = (P : Subgroup G) :=
     congrArg Sylow.toSubgroup <| by
@@ -224,7 +224,7 @@ theorem fixes_sylowPoint_normalizes (G : Subgroup (PGL p)) [Finite G]
 theorem stabilizer_sylowFixedPoint_eq_normalizer (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     {g : G | (g : PGL p) • sylow_fixedPoint p G hG_p P = sylow_fixedPoint p G hG_p P} =
-    (Subgroup.normalizer (P : Subgroup G) : Set G) := by
+    (Subgroup.normalizer ((P : Subgroup G) : Set G) : Set G) := by
   have h_norm := normalizer_stabilizes_fixedPoint p G P _
     (sylow_element_fixes p G hG_p P)
     (eq_sylow_fixedPoint p G hG_p P)
@@ -310,9 +310,11 @@ lemma phi_stab_card_ge_two (G : Subgroup (PGL p)) [Finite G]
     (x : PhiType p G) :
     2 ≤ Nat.card (MulAction.stabilizer G x) := by
   obtain ⟨g, hg_ne, hgx⟩ := Set.mem_iUnion₂.mp x.prop
-  exact Set.ncard_pair hg_ne ▸ Nat.card_mono (Set.toFinite _) (by
-    rw [Set.insert_subset_iff, Set.singleton_subset_iff]
-    exact ⟨MulAction.mem_stabilizer_iff.mpr (Subtype.ext hgx), Subgroup.one_mem _⟩)
+  calc 2 = ({g, 1} : Set G).ncard := (Set.ncard_pair hg_ne).symm
+    _ = Nat.card ({g, 1} : Set G) := (Nat.card_coe_set_eq _).symm
+    _ ≤ Nat.card (MulAction.stabilizer G x) := Nat.card_mono (Set.toFinite _) (by
+        rw [Set.insert_subset_iff, Set.singleton_subset_iff]
+        exact ⟨MulAction.mem_stabilizer_iff.mpr (Subtype.ext hgx), Subgroup.one_mem _⟩)
 
 
 
@@ -337,7 +339,7 @@ lemma nonsplit_D_lt_n (G : Subgroup (PGL p)) [Finite G]
   have h_dvd_both : Nat.card P ∣ Nat.card G ∧ Fintype.card (Sylow p G) ∣ Nat.card G := by
     refine ⟨Subgroup.card_subgroup_dvd_card (P : Subgroup G), ?_⟩
     rw [← Nat.card_eq_fintype_card, Nat.card_congr (Sylow.equivQuotientNormalizer P)]
-    exact Subgroup.card_quotient_dvd_card (Subgroup.normalizer (P : Subgroup G))
+    exact Subgroup.card_quotient_dvd_card (Subgroup.normalizer ((P : Subgroup G) : Set G))
   have h_copr : Nat.Coprime (Fintype.card (Sylow p G) - 1) (Fintype.card (Sylow p G)) := by
     apply Nat.coprime_of_dvd
     intro k h1 h2 h3
@@ -387,11 +389,11 @@ lemma sylow_orbit_size (G : Subgroup (PGL p)) [Finite G]
         sylow_fixedPt_mem_Phi p G hG_p P⟩ : PhiType p G)) =
     Fintype.card (Sylow p G) := by
   let x : PhiType p G := ⟨sylow_fixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩
-  have h_stab : MulAction.stabilizer G x = (P : Subgroup G).normalizer :=
+  have h_stab : MulAction.stabilizer G x = (Subgroup.normalizer ((P : Subgroup G) : Set G)) :=
     SetLike.ext fun g ↦ Subtype.ext_iff.trans (Set.ext_iff.mp (stabilizer_sylowFixedPoint_eq_normalizer p G hG_p P) g)
   rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card,
-    Nat.card_congr (MulAction.orbitEquivQuotientStabilizer G x), h_stab,
-    ← Nat.card_congr (Sylow.equivQuotientNormalizer P)]
+    Nat.card_congr (MulAction.orbitEquivQuotientStabilizer G x), h_stab]
+  exact (Nat.card_congr (Sylow.equivQuotientNormalizer P)).symm
 
 lemma sylow_fixedPt_phiStab (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (Q : Sylow p G) :
@@ -419,7 +421,7 @@ lemma stab_sum_lower_bound (G : Subgroup (PGL p)) [Finite G]
   have h_S : ∑ x ∈ S, Nat.card (MulAction.stabilizer G x) = Nat.card G := by
     have h_dvd : Fintype.card (Sylow p G) ∣ Nat.card G := by
       rw [← Nat.card_eq_fintype_card, Nat.card_congr (Sylow.equivQuotientNormalizer P)]
-      exact Subgroup.card_quotient_dvd_card (P : Subgroup G).normalizer
+      exact Subgroup.card_quotient_dvd_card (Subgroup.normalizer ((P : Subgroup G) : Set G))
     rw [Finset.sum_image (fun _ _ _ _ h ↦ h_inj h)]
     rw [Finset.sum_congr rfl (fun Q _ ↦ sylow_fixedPt_phiStab p G hG_p Q)]
     rw [Finset.sum_const, Finset.card_univ]
@@ -492,7 +494,7 @@ theorem card_eq_pm_z1_np' (G : Subgroup (PGL p)) [Finite G]
       Fintype.card (Sylow p G) := by
   rw [normalizerQuotient, Nat.mul_div_cancel' (Subgroup.card_dvd_of_le Subgroup.le_normalizer),
     mul_comm (Nat.card _), ← Nat.card_eq_fintype_card, Nat.card_congr (Sylow.equivQuotientNormalizer P)]
-  exact Subgroup.card_eq_card_quotient_mul_card_subgroup (P : Subgroup G).normalizer
+  exact Subgroup.card_eq_card_quotient_mul_card_subgroup (Subgroup.normalizer ((P : Subgroup G) : Set G))
 
 
 
@@ -560,7 +562,7 @@ theorem branch2_params_of_divisibility
   rcases h_a_cases with rfl | ⟨rfl, rfl⟩
   · obtain ⟨k, hk⟩ := show pm - 1 ∣ 2 * z₁ from (show 1 + 1 * (pm - 2) = pm - 1 by omega) ▸ h_div
     have hk_le : k ≤ 2 := by
-      by_contra h; push_neg at h
+      by_contra h; push Not at h
       have h1 : 3 * (pm - 1) ≤ k * (pm - 1) := Nat.mul_le_mul_right _ h
       have h2 : k * (pm - 1) = 2 * z₁ := by rw [mul_comm, ← hk]
       omega

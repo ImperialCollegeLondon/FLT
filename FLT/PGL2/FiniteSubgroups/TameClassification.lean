@@ -391,7 +391,7 @@ lemma pairStabilizer_isCyclic (G : Subgroup (PGL p)) [Fintype G]
     exact (hf_mk (g₁ * g₂⁻¹)).symm.trans <|
       scalar_eq_one_in_PGL p (f (g₁ * g₂⁻¹)) 1 x y hxy
         (by rw [hc_x, h_div, one_smul]) (by rw [hf_y, one_smul])
-  exact isCyclic_of_subgroup_isDomain hom hom_inj
+  exact isCyclic_of_injective_ringHom hom hom_inj
 
 lemma disjoint_fixedPairs (G : Subgroup (PGL p)) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
@@ -426,7 +426,7 @@ lemma disjoint_fixedPairs (G : Subgroup (PGL p)) [Fintype G]
 lemma normalizer_permutes_pair (G : Subgroup (PGL p)) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (x y : ProjectiveLine p) (hxy : x ≠ y)
-    (n : (pairStabilizer p G x y).normalizer)
+    (n : (Subgroup.normalizer (SetLike.coe (pairStabilizer p G x y))))
     (hne : ∃ g : pairStabilizer p G x y, g ≠ 1) :
     ((n : G).val • x = x ∧ (n : G).val • y = y) ∨
     ((n : G).val • x = y ∧ (n : G).val • y = x) := by
@@ -466,8 +466,8 @@ lemma normalizer_pairStabilizer_index_le_two (G : Subgroup (PGL p)) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (x y : ProjectiveLine p) (hxy : x ≠ y)
     (hne : ∃ g : pairStabilizer p G x y, g ≠ 1) :
-    ((pairStabilizer p G x y).subgroupOf (pairStabilizer p G x y).normalizer).index ≤ 2 := by
-  let N := (pairStabilizer p G x y).normalizer
+    ((pairStabilizer p G x y).subgroupOf (Subgroup.normalizer (SetLike.coe (pairStabilizer p G x y)))).index ≤ 2 := by
+  let N := (Subgroup.normalizer (SetLike.coe (pairStabilizer p G x y)))
   let H_sub := (pairStabilizer p G x y).subgroupOf N
 
   have h_perm (n : N) : ((n : G).val • x = x ∧ (n : G).val • y = y) ∨ ((n : G).val • x = y ∧ (n :
@@ -500,7 +500,7 @@ lemma normalizer_pairStabilizer_index_le_two (G : Subgroup (PGL p)) [Fintype G]
     exact (Finset.card_le_card h_univ).trans ((Finset.card_insert_le 1 _).trans_eq
         (by rw [Finset.card_singleton]))
 
-  · push_neg at hk
+  · push Not at hk
     have H_top : H_sub = ⊤ := by
       apply eq_top_iff.mpr
       intro n _
@@ -626,9 +626,9 @@ lemma classEquation_nat_to_rat (n r : ℕ) (d f : Fin r → ℕ)
 
 lemma normalizer_card_eq_index_mul {G : Type*} [Group G] [Fintype G]
     (H : Subgroup G) :
-    Nat.card H.normalizer = (H.subgroupOf H.normalizer).index * Nat.card H := by
+    Nat.card (Subgroup.normalizer (SetLike.coe H)) = (H.subgroupOf (Subgroup.normalizer (SetLike.coe H))).index * Nat.card H := by
 
-  have h_congr : Nat.card (H.subgroupOf H.normalizer) = Nat.card H := Nat.card_congr
+  have h_congr : Nat.card (H.subgroupOf (Subgroup.normalizer (SetLike.coe H))) = Nat.card H := Nat.card_congr
     { toFun := fun x ↦ ⟨x.val.val, x.property⟩
       invFun := fun x ↦ ⟨⟨x.val, Subgroup.le_normalizer x.property⟩, x.property⟩
       left_inv := fun _ ↦ rfl
@@ -723,7 +723,7 @@ lemma orbitPartitionData (G : Subgroup (PGL p)) [Fintype G]
       (∀ i, d i ≥ 2) ∧
       (∀ i, f i = 1 ∨ f i = 2) ∧
       (∀ i, f i * d i ∣ Nat.card ↥G) ∧
-      (∀ i, Nat.card ((H i).normalizer) = f i * d i) ∧
+      (∀ i, Nat.card ((Subgroup.normalizer (SetLike.coe (H i)))) = f i * d i) ∧
       (∀ K L : Subgroup ↥G,
         (∃ (i : Fin r) (g : ↥G), K = (H i).map (MulAut.conj g).toMonoidHom) →
         (∃ (j : Fin r) (h : ↥G), L = (H j).map (MulAut.conj h).toMonoidHom) →
@@ -738,7 +738,7 @@ lemma orbitPartitionData (G : Subgroup (PGL p)) [Fintype G]
     orbitPartitionConstruction p G hG_tame hG_nontrivial
   let H : Fin r → Subgroup ↥G := fun i ↦ pairStabilizer p G (xrep i) (yrep i)
   let d : Fin r → ℕ := fun i ↦ Nat.card (H i)
-  let f : Fin r → ℕ := fun i ↦ (H i).subgroupOf (H i).normalizer |>.index
+  let f : Fin r → ℕ := fun i ↦ (H i).subgroupOf (Subgroup.normalizer (SetLike.coe (H i))) |>.index
 
   have hd_ge : ∀ i, d i ≥ 2 := by
     intro i
@@ -771,7 +771,7 @@ lemma orbitPartitionData (G : Subgroup (PGL p)) [Fintype G]
 
       have h1 : f i ≤ 2 :=
         normalizer_pairStabilizer_index_le_two p G hG_tame (xrep i) (yrep i) (hxy i) ⟨g, hg⟩
-      have hz : f i ≠ 0 := Subgroup.index_ne_zero_of_finite (H := (H i).subgroupOf (H i).normalizer)
+      have hz : f i ≠ 0 := Subgroup.index_ne_zero_of_finite (H := (H i).subgroupOf (Subgroup.normalizer (SetLike.coe (H i))))
       omega,
     fun i ↦ by
       rw [← normalizer_card_eq_index_mul (H i)]
@@ -784,7 +784,7 @@ lemma orbitPartitionData (G : Subgroup (PGL p)) [Fintype G]
   have hnat' : Nat.card ↥G - 1 = ∑ i : Fin r, (Nat.card ↥G / (f i * d i)) * (d i - 1) := by
     rw [natClassEquation r H hd_ge hdisjoint hcover (fun i j ⟨g, hg⟩ ↦ hinj i j ⟨g, hg⟩)]
     congr 1; ext i; congr 1
-    have h_idx := Subgroup.index_mul_card (H i).normalizer
+    have h_idx := Subgroup.index_mul_card (Subgroup.normalizer (SetLike.coe (H i)))
     rw [normalizer_card_eq_index_mul (H i)] at h_idx
     have hf_pos : f i > 0 := Nat.pos_of_ne_zero Subgroup.index_ne_zero_of_finite
     have hd_pos : d i > 0 := by have := hd_ge i; omega
@@ -983,7 +983,7 @@ lemma r3SolutionsUnsorted (d : Fin 3 → ℕ) (n : ℕ) (hn : n ≥ 2) (hd : ∀
 
   have hd₀ : d (σ 0) = 2 := by
     refine le_antisymm (by_contra (fun (h : ¬(d (σ 0) ≤ 2)) ↦ ?_)) (hd (σ 0))
-    push_neg at h
+    push Not at h
 
     have h_leq : (1 : ℚ) / d (σ 0) + 1 / d (σ 1) + 1 / d (σ 2) ≤ 1 :=
       calc (1 : ℚ) / d (σ 0) + 1 / d (σ 1) + 1 / d (σ 2)
@@ -1066,16 +1066,16 @@ lemma dihedral2_of_hasCyclicPartition (G : Type*) [Group G] [Fintype G]
     have h_inv : ∀ g : G, g⁻¹ = g := fun g ↦ inv_eq_of_mul_eq_one_left (h_sq g)
     rw [← h_inv (a * b), mul_inv_rev, h_inv, h_inv]
   letI : CommGroup G := { ‹Group G› with mul_comm := h_comm }
-  letI : CommGroup (DihedralGroup 2) := { inferInstanceAs (Group (DihedralGroup 2)) with
+  letI : CommGroup (DihedralGroup 2) := { (inferInstance : Group (DihedralGroup 2)) with
     mul_comm :=
       fun a b ↦
           by rcases a with ⟨a⟩ | ⟨a⟩ <;> rcases b with ⟨b⟩ | ⟨b⟩ <;> fin_cases a <;> fin_cases b
-              <;> rfl }
+              <;> decide }
   letI : Module (ZMod 2) (Additive G) := AddCommGroup.zmodModule fun x ↦ by
     rw [two_nsmul]; show x.toMul * x.toMul = 1; exact h_sq x.toMul
   letI : Module (ZMod 2) (Additive (DihedralGroup 2)) := AddCommGroup.zmodModule fun x ↦ by
     rw [two_nsmul]; show x.toMul * x.toMul = 1
-    rcases x.toMul with ⟨a⟩ | ⟨a⟩ <;> fin_cases a <;> rfl
+    rcases x.toMul with ⟨a⟩ | ⟨a⟩ <;> fin_cases a <;> decide
 
   have h_frG : Module.finrank (ZMod 2) (Additive G) = 2 := by
     have h1 := Module.card_eq_pow_finrank (K := ZMod 2) (V := Additive G)
@@ -1102,7 +1102,7 @@ lemma r2CaseOdd (G : Type*) [Group G] [Fintype G]
     (H_a H_b : Subgroup G)
     (hHa_cyc : IsCyclic H_a) (hHa_card : Nat.card H_a = d)
     (hHb_card : Nat.card H_b = 2)
-    (hHb_norm : Nat.card H_b.normalizer = 2)
+    (hHb_norm : Nat.card (Subgroup.normalizer (SetLike.coe H_b)) = 2)
     (h_disj : H_a ⊓ H_b = ⊥) :
     Odd d := by
   by_contra hd_even
@@ -1204,11 +1204,11 @@ lemma r2CaseOdd (G : Type*) [Group G] [Fintype G]
       rw [h, orderOf_one] at hz_ord
       exact absurd hz_ord (by norm_num)
 
-    have hz_norm_b : z ∈ H_b.normalizer := Subgroup.mem_normalizer_iff.mpr fun w ↦ by
+    have hz_norm_b : z ∈ (Subgroup.normalizer (SetLike.coe H_b)) := Subgroup.mem_normalizer_iff.mpr fun w ↦ by
       have hw : w * z = z * w := Subgroup.mem_center_iff.mp hz_center w
       rw [show z * w * z⁻¹ = w by rw [← hw]; group]
 
-    let S : Finset H_b.normalizer := insert ⟨1, Subgroup.one_mem _⟩ (insert ⟨y_sub,
+    let S : Finset (Subgroup.normalizer (SetLike.coe H_b)) := insert ⟨1, Subgroup.one_mem _⟩ (insert ⟨y_sub,
         Subgroup.le_normalizer y_sub.property⟩ {⟨z, hz_norm_b⟩})
 
     have hs_card : S.card = 3 := by
@@ -1225,7 +1225,7 @@ lemma r2CaseOdd (G : Type*) [Group G] [Fintype G]
               have h_eq : (y_sub : G) = z := Subtype.ext_iff.mp h
               rw [← h_eq]; exact y_sub.property),
         Finset.card_singleton]
-    have h_bound : S.card ≤ Fintype.card H_b.normalizer := Finset.card_le_univ S
+    have h_bound : S.card ≤ Fintype.card (Subgroup.normalizer (SetLike.coe H_b)) := Finset.card_le_univ S
     rw [hs_card, ← Nat.card_eq_fintype_card, hHb_norm] at h_bound
     omega
   have hz_bot : z = 1 := Subgroup.mem_bot.mp (h_disj ▸ Subgroup.mem_inf.mpr ⟨hz_mem, hz_in_b⟩)
@@ -1234,7 +1234,7 @@ lemma r2CaseOdd (G : Type*) [Group G] [Fintype G]
 lemma r3D233Contradiction (G : Type*) [Group G] [Fintype G]
     (hn : Nat.card G = 12)
     (H : Subgroup G) (hH_card : Nat.card H = 3)
-    (hH_norm : Nat.card H.normalizer = 6) : False := by
+    (hH_norm : Nat.card (Subgroup.normalizer (SetLike.coe H)) = 6) : False := by
 
   obtain ⟨P, hP_le⟩ := (show IsPGroup 3 H from fun x ↦ ⟨1, by
     change x ^ 3 = 1
@@ -1246,19 +1246,19 @@ lemma r3D233Contradiction (G : Type*) [Group G] [Fintype G]
     rw [hH_card, P.card_eq_multiplicity, hn,
         Nat.factorization_eq_one (m := 4) rfl Nat.prime_three (by norm_num), pow_one]
 
-  have h_idx : H.normalizer.index = 2 := by
-    have h_mul := Subgroup.index_mul_card H.normalizer
+  have h_idx : (Subgroup.normalizer (SetLike.coe H)).index = 2 := by
+    have h_mul := Subgroup.index_mul_card (Subgroup.normalizer (SetLike.coe H))
     rw [hH_norm, hn] at h_mul
     omega
   have h_sylow := card_sylow_modEq_one 3 G
-  rw [P.card_eq_index_normalizer, ← h_eq, h_idx] at h_sylow
+  rw [P.card_eq_index_normalizer, ← Sylow.coe_coe, ← h_eq, h_idx] at h_sylow
   change 2 % 3 = 1 % 3 at h_sylow
   omega
 
 lemma buildPartition_r1 (G : Type*) [Group G] [Fintype G]
     (H : Subgroup G)
     (hcyc : IsCyclic H) (hcard : Nat.card H = Nat.card G)
-    (hnorm : Nat.card H.normalizer = 1 * Nat.card G)
+    (hnorm : Nat.card (Subgroup.normalizer (SetLike.coe H)) = 1 * Nat.card G)
     (hdisj : ∀ K L : Subgroup G,
       (∃ g : G, K = H.map (MulAut.conj g).toMonoidHom) →
       (∃ h : G, L = H.map (MulAut.conj h).toMonoidHom) →
@@ -1282,8 +1282,8 @@ lemma buildPartition_r2_dihedral (G : Type*) [Group G] [Fintype G]
     (Ha Hb : Subgroup G) (da : ℕ)
     (ha_cyc : IsCyclic Ha) (hb_cyc : IsCyclic Hb)
     (ha_card : Nat.card Ha = da) (hb_card : Nat.card Hb = 2)
-    (ha_norm : Nat.card Ha.normalizer = 2 * da)
-    (hb_norm : Nat.card Hb.normalizer = 1 * 2)
+    (ha_norm : Nat.card (Subgroup.normalizer (SetLike.coe Ha)) = 2 * da)
+    (hb_norm : Nat.card (Subgroup.normalizer (SetLike.coe Hb)) = 1 * 2)
     (hdisj : ∀ K L : Subgroup G,
       (∃ (i : Fin 2) (g : G), K = (![Ha, Hb] i).map (MulAut.conj g).toMonoidHom) →
       (∃ (j : Fin 2) (h : G), L = (![Ha, Hb] j).map (MulAut.conj h).toMonoidHom) →
@@ -1311,8 +1311,8 @@ lemma buildPartition_r2_A4 (G : Type*) [Group G] [Fintype G]
     (Ha Hb : Subgroup G)
     (ha_cyc : IsCyclic Ha) (hb_cyc : IsCyclic Hb)
     (ha_card : Nat.card Ha = 2) (hb_card : Nat.card Hb = 3)
-    (ha_norm : Nat.card Ha.normalizer = 4)
-    (hb_norm : Nat.card Hb.normalizer = 3)
+    (ha_norm : Nat.card (Subgroup.normalizer (SetLike.coe Ha)) = 4)
+    (hb_norm : Nat.card (Subgroup.normalizer (SetLike.coe Hb)) = 3)
     (hdisj : ∀ K L : Subgroup G,
       (∃ (i : Fin 2) (g : G), K = (![Ha, Hb] i).map (MulAut.conj g).toMonoidHom) →
       (∃ (j : Fin 2) (h : G), L = (![Ha, Hb] j).map (MulAut.conj h).toMonoidHom) →
@@ -1340,8 +1340,8 @@ lemma buildPartition_r3_evenDihedral (G : Type*) [Group G] [Fintype G]
     (H0 H1 H2 : Subgroup G) (k : ℕ)
     (h0_cyc : IsCyclic H0) (h1_cyc : IsCyclic H1) (h2_cyc : IsCyclic H2)
     (h0_card : Nat.card H0 = 2) (h1_card : Nat.card H1 = 2) (h2_card : Nat.card H2 = k)
-    (h0_norm : Nat.card H0.normalizer = 4) (h1_norm : Nat.card H1.normalizer = 4)
-    (h2_norm : Nat.card H2.normalizer = 2 * k)
+    (h0_norm : Nat.card (Subgroup.normalizer (SetLike.coe H0)) = 4) (h1_norm : Nat.card (Subgroup.normalizer (SetLike.coe H1)) = 4)
+    (h2_norm : Nat.card (Subgroup.normalizer (SetLike.coe H2)) = 2 * k)
     (hdisj : ∀ K L : Subgroup G,
       (∃ (i : Fin 3) (g : G), K = (![H0, H1, H2] i).map (MulAut.conj g).toMonoidHom) →
       (∃ (j : Fin 3) (h : G), L = (![H0, H1, H2] j).map (MulAut.conj h).toMonoidHom) →
@@ -1373,8 +1373,8 @@ lemma buildPartition_r3_exceptional (G : Type*) [Group G] [Fintype G]
     (H0 H1 H2 : Subgroup G) (d0 d1 d2 : ℕ)
     (h0_cyc : IsCyclic H0) (h1_cyc : IsCyclic H1) (h2_cyc : IsCyclic H2)
     (h0_card : Nat.card H0 = d0) (h1_card : Nat.card H1 = d1) (h2_card : Nat.card H2 = d2)
-    (h0_norm : Nat.card H0.normalizer = 2 * d0) (h1_norm : Nat.card H1.normalizer = 2 * d1)
-    (h2_norm : Nat.card H2.normalizer = 2 * d2)
+    (h0_norm : Nat.card (Subgroup.normalizer (SetLike.coe H0)) = 2 * d0) (h1_norm : Nat.card (Subgroup.normalizer (SetLike.coe H1)) = 2 * d1)
+    (h2_norm : Nat.card (Subgroup.normalizer (SetLike.coe H2)) = 2 * d2)
     (hdisj : ∀ K L : Subgroup G,
       (∃ (i : Fin 3) (g : G), K = (![H0, H1, H2] i).map (MulAut.conj g).toMonoidHom) →
       (∃ (j : Fin 3) (h : G), L = (![H0, H1, H2] j).map (MulAut.conj h).toMonoidHom) →

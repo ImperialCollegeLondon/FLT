@@ -496,7 +496,10 @@ theorem index_two_subgroup_iso_PSL (F : Type*) [Field F] [CharP F p] [Fintype F]
     rw [hH, h_idx] at h
     exact (Nat.eq_of_mul_eq_mul_right (by norm_num) h).le
   let iso : ↥(PSLImageInPGL F) ≃* Matrix.ProjectiveSpecialLinearGroup (Fin 2) F :=
-    by convert (QuotientGroup.quotientKerEquivRange (SL2ToPGL F)).symm <;> exact (SL2ToPGL_ker_eq_center F).symm
+    by convert (QuotientGroup.quotientKerEquivRange (SL2ToPGL F)).symm <;>
+      first
+      | rfl
+      | exact (SL2ToPGL_ker_eq_center F).symm
   exact ⟨(MulEquiv.subgroupCongr h_eq.symm).trans iso⟩
 
 end PGLOrder
@@ -533,9 +536,12 @@ abbrev PSL2F3 := ProjectiveSpecialLinearGroup (Fin 2) (ZMod 3)
 def p1Rep : Fin 4 → Fin 2 → ZMod 3
   | 0 => ![1, 0] | 1 => ![0, 1] | 2 => ![1, 1] | 3 => ![1, 2]
 
+/-- In `ZMod 3` every element is its own inverse, so we can use `v 0 * v 1` in place of
+`v 0 * (v 1)⁻¹` (the latter does not reduce definitionally, since `ZMod.inv` is defined
+via `Nat.gcdA`). -/
 def p1Proj (v : Fin 2 → ZMod 3) : Fin 4 :=
   if v 1 = 0 then 0
-  else let r := v 0 * (v 1)⁻¹
+  else let r := v 0 * v 1
     if r = 0 then 1 else if r = 1 then 2 else 3
 
 def p1Act (M : Matrix (Fin 2) (Fin 2) (ZMod 3)) : Fin 4 → Fin 4 :=
@@ -543,10 +549,15 @@ def p1Act (M : Matrix (Fin 2) (Fin 2) (ZMod 3)) : Fin 4 → Fin 4 :=
 
 lemma p1Proj_smul (c : ZMod 3) (hc : c ≠ 0) (v : Fin 2 → ZMod 3) :
     p1Proj (c • v) = p1Proj v := by
+  have hc2 : c * c = 1 := by
+    fin_cases c
+    · exact absurd rfl hc
+    · decide
+    · decide
   simp only [p1Proj, Pi.smul_apply, smul_eq_mul,
     show c * v 1 = 0 ↔ v 1 = 0 by simp only [mul_eq_zero, hc, false_or],
-    show c * v 0 * (c * v 1)⁻¹ = v 0 * (v 1)⁻¹ by
-      rw [mul_inv, ← mul_assoc, mul_comm (c * v 0) c⁻¹, ← mul_assoc, inv_mul_cancel₀ hc, one_mul]
+    show c * v 0 * (c * v 1) = v 0 * v 1 by
+      rw [show c * v 0 * (c * v 1) = c * c * (v 0 * v 1) by ring, hc2, one_mul]
   ]
 
 lemma p1Rep_p1Proj_scalar (a b : ZMod 3) (hab : ¬(a = 0 ∧ b = 0)) :
@@ -554,9 +565,10 @@ lemma p1Rep_p1Proj_scalar (a b : ZMod 3) (hab : ¬(a = 0 ∧ b = 0)) :
   match a, b with
   | 0, 0 => exact absurd ⟨rfl, rfl⟩ hab
   | 0, 1 | 1, 0 | 1, 1 | 1, 2 =>
-    exact ⟨1, one_ne_zero, by ext i; match i with | 0 => rfl | 1 => rfl⟩
+    exact ⟨1, one_ne_zero, by ext i; fin_cases i <;> decide⟩
   | 0, 2 | 2, 0 | 2, 1 | 2, 2 =>
-    exact ⟨2, fun h ↦ one_ne_zero (congrArg (fun x : ZMod 3 ↦ x * 2) h), by ext i; match i with | 0 => rfl | 1 => rfl⟩
+    exact ⟨2, fun h ↦ one_ne_zero (congrArg (fun x : ZMod 3 ↦ x * 2) h),
+      by ext i; fin_cases i <;> decide⟩
 
 lemma sl2_mulVec_ne_zero (M : SL2F3) (v : Fin 2 → ZMod 3) (hv : v ≠ 0) :
     M.1.mulVec v ≠ 0 := by
@@ -579,7 +591,7 @@ lemma p1Proj_mulVec_rep_proj (M : Matrix (Fin 2) (Fin 2) (ZMod 3))
 
 instance sl2F3MulAction : MulAction SL2F3 (Fin 4) where
   smul M x := p1Act M.1 x
-  one_smul x := by fin_cases x <;> rfl
+  one_smul x := by fin_cases x <;> decide
   mul_smul M N x := by
     show p1Act (M.1 * N.1) x = p1Act M.1 (p1Act N.1 x)
     simp only [p1Act, ← mulVec_mulVec]
@@ -640,7 +652,7 @@ lemma kernel_is_scalar (M : SL2F3)
   simp only [hM11, ↓reduceIte] at h1
   have hM01 : M.1 0 1 = 0 := by
     split at h1
-    · rename_i h; exact (mul_eq_zero.mp h).resolve_right (inv_ne_zero hM11)
+    · rename_i h; exact (mul_eq_zero.mp h).resolve_right hM11
     · split at h1 <;> contradiction
   refine ⟨hM10, hM01, ?_⟩
   rw [hM10, zero_add, hM01, add_zero] at h2
@@ -648,7 +660,11 @@ lemma kernel_is_scalar (M : SL2F3)
   split at h2
   · contradiction
   · split at h2
-    · rename_i h; exact (mul_inv_eq_one₀ hM11).mp h
+    · rename_i h
+      have hsq : ∀ b : ZMod 3, b ≠ 0 → b * b = 1 := by decide
+      calc M.1 0 0 = M.1 0 0 * (M.1 1 1 * M.1 1 1) := by rw [hsq _ hM11, mul_one]
+        _ = (M.1 0 0 * M.1 1 1) * M.1 1 1 := by ring
+        _ = M.1 1 1 := by rw [h, one_mul]
     · contradiction
 
 lemma sl2F3_ker_eq_center : sl2F3ToPermHom.ker = Subgroup.center SL2F3 := by
@@ -665,16 +681,13 @@ lemma sl2F3_ker_eq_center : sl2F3ToPermHom.ker = Subgroup.center SL2F3 := by
       have ⟨h10, h01, h_diag⟩ := central_is_scalar M (hM U₁) (hM L₁)
       rcases scalar_det_one_pm_one M h10 h01 h_diag with rfl | rfl
       · exact map_one sl2F3ToPermHom
-      · exact Equiv.ext fun x => match x with
-        | 0 => rfl
-        | 1 => rfl
-        | 2 => rfl
-        | 3 => rfl
+      · exact Equiv.ext fun x => by fin_cases x <;> decide
 
 theorem A4_iso_PSL2_F3 :
     Nonempty (alternatingGroup (Fin 4) ≃* ProjectiveSpecialLinearGroup (Fin 2) (ZMod 3)) := by
   let f : SL2F3 →* alternatingGroup (Fin 4) :=
-    sl2F3ToPermHom.codRestrict _ (fun M ↦ by rw [Equiv.Perm.mem_alternatingGroup]; fin_cases M <;> rfl)
+    sl2F3ToPermHom.codRestrict _
+      (fun M ↦ by rw [Equiv.Perm.mem_alternatingGroup]; fin_cases M <;> decide)
   have h_ker : f.ker = Subgroup.center SL2F3 := by
     rw [MonoidHom.ker_codRestrict, sl2F3_ker_eq_center]
   let F : PSL2F3 →* alternatingGroup (Fin 4) :=

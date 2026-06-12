@@ -5,7 +5,7 @@ Authors: Duxing Yang
 -/
 module
 
-public import Mathlib.Data.Matrix.Action
+public import Mathlib.LinearAlgebra.Matrix.Action
 public import Mathlib.FieldTheory.Finite.GaloisField
 public import Mathlib.GroupTheory.SpecificGroups.Alternating
 public import Mathlib.GroupTheory.Sylow
@@ -60,7 +60,7 @@ scoped instance : Fact (Nat.Prime 5) := ⟨Nat.prime_five⟩
 
 noncomputable section lemmata
 
-scoped instance {G : Type*} [Group G] [Finite G] : Fintype (Sylow p G) := Fintype.ofFinite _
+scoped instance {p : ℕ} {G : Type*} [Group G] [Finite G] : Fintype (Sylow p G) := Fintype.ofFinite _
 scoped instance {p m : ℕ} [Fact p.Prime] : Fintype (GaloisField p m) := Fintype.ofFinite _
 
 lemma Nat.factorization_eq_one {n m p : ℕ}
@@ -90,20 +90,11 @@ lemma Nat.factorization_eq_two {n m p : ℕ}
 
 variable (p : ℕ) [Fact (Nat.Prime p)]
 
-noncomputable def K : Type := AlgebraicClosure (ZMod p)
-
-instance : Field (K p) := AlgebraicClosure.instField (ZMod p)
-instance : IsAlgClosed (K p) := AlgebraicClosure.isAlgClosed (ZMod p)
-instance : CharP (K p) p := AlgebraicClosure.instCharP (ZMod p)
-instance : Algebra (ZMod p) (K p) := AlgebraicClosure.instAlgebra (ZMod p)
+noncomputable abbrev K : Type := AlgebraicClosure (ZMod p)
 
 abbrev PGL : Type := GL (Fin 2) (K p) ⧸ Subgroup.center (GL (Fin 2) (K p))
 
-instance : Group (PGL p) := QuotientGroup.Quotient.group _
-
 abbrev PSL : Type := Matrix.ProjectiveSpecialLinearGroup (Fin 2) (K p)
-
-instance : Group (PSL p) := QuotientGroup.Quotient.group _
 
 theorem pgl_mulEquiv_psl : Nonempty (PGL p ≃* PSL p) := by
   have h_sqrt : ∀ x : K p, ∃ c : K p, c ^ 2 = x := fun x ↦
@@ -175,7 +166,7 @@ theorem pgl_mulEquiv_psl : Nonempty (PGL p ≃* PSL p) := by
 
 abbrev ProjectiveLine : Type := Projectivization (K p) (Fin 2 → K p)
 
-def glActionProjectiveLine : MulAction (GL (Fin 2) (K p)) (ProjectiveLine p) :=
+@[reducible] def glActionProjectiveLine : MulAction (GL (Fin 2) (K p)) (ProjectiveLine p) :=
   Projectivization.instMulAction
 
 instance : SMul (PGL p) (ProjectiveLine p) where
@@ -183,7 +174,7 @@ instance : SMul (PGL p) (ProjectiveLine p) where
     intro g₁ g₂ h
     funext x
     have hz : g₁⁻¹ * g₂ ∈ Subgroup.center (GL (Fin 2) (K p)) := QuotientGroup.leftRel_apply.mp h
-    rw [Matrix.GeneralLinearGroup.center_eq_range_units] at hz
+    rw [Matrix.GeneralLinearGroup.center_eq_range_scalar] at hz
     obtain ⟨u, hu⟩ := hz
     induction x using Projectivization.ind with
     | h v hv =>
@@ -205,7 +196,6 @@ instance : MulAction (PGL p) (ProjectiveLine p) where
 
 abbrev PGLOf (F : Type*) [Field F] := GL (Fin 2) F ⧸ Subgroup.center (GL (Fin 2) F)
 
-instance (F : Type*) [Field F] : Group (PGLOf F) := QuotientGroup.Quotient.group _
 
 def pglMap {F L : Type*} [Field F] [Field L] (f : F →+* L) : PGLOf F →* PGLOf L :=
   QuotientGroup.map (Subgroup.center (GL (Fin 2) F)) (Subgroup.center (GL (Fin 2) L))
@@ -1100,7 +1090,7 @@ theorem isPGroup_exists_common_fixedPoint (P : Subgroup (PGL p)) (hP_fin : Finit
     ∃ x : ProjectiveLine p, ∀ g ∈ P, g • x = x := by
   by_cases h_trivial : ∀ g ∈ P, g = (1 : PGL p)
   · exact ⟨Classical.arbitrary _, fun g hg ↦ by rw [h_trivial g hg, one_smul]⟩
-  · push_neg at h_trivial
+  · push Not at h_trivial
     obtain ⟨g_ne, hg_mem, hg_ne_one⟩ := h_trivial
     haveI : Nontrivial P := ⟨⟨⟨g_ne, hg_mem⟩, 1, Subtype.ext_iff.not.mpr hg_ne_one⟩⟩
     haveI : Nontrivial (Subgroup.center P) := IsPGroup.center_nontrivial hP_p
@@ -1267,7 +1257,7 @@ theorem upper_triangular_ratio_unique
     change a₂ * d₂ - b₂ * 0 ≠ 0
     rw [mul_zero, sub_zero]
     exact h₂)
-  obtain ⟨c, hc⟩ := Matrix.GeneralLinearGroup.mem_center_iff_val_eq_scalar.mp (QuotientGroup.eq.mp heq)
+  obtain ⟨c, hc⟩ := Matrix.GeneralLinearGroup.mem_center_iff_val_mem_range_scalar.mp (QuotientGroup.eq.mp heq)
   have hB : B.val = A.val * Matrix.scalar (Fin 2) c := by rw [hc, ← Units.val_mul, mul_inv_cancel_left]
   have ha2 : a₂ = a₁ * c := by
     refine Eq.trans (congr_fun (congr_fun hB 0) 0) ?_
@@ -1316,7 +1306,7 @@ theorem ratio_one_imp_unipotent
   let Y := Matrix.GeneralLinearGroup.mkOfDetNeZero !![a, b; 0, d] (by rw [Matrix.det_fin_two]; change a * d - b * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h)
   let X := Matrix.GeneralLinearGroup.mkOfDetNeZero !![1, b * a⁻¹; 0, 1] (by rw [Matrix.det_fin_two]; change 1 * 1 - (b * a⁻¹) * 0 ≠ 0; rw [mul_zero, sub_zero, mul_one]; exact one_ne_zero)
   have h_simplified : (QuotientGroup.mk Y : PGL p) = QuotientGroup.mk X := by
-    rw [QuotientGroup.eq, Matrix.GeneralLinearGroup.mem_center_iff_val_eq_scalar]
+    rw [QuotientGroup.eq, Matrix.GeneralLinearGroup.mem_center_iff_val_mem_range_scalar]
     use a⁻¹
     have h_mat : X.val = Y.val * Matrix.scalar (Fin 2) a⁻¹ := by
       ext i j

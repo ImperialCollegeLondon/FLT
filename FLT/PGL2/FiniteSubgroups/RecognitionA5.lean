@@ -500,7 +500,7 @@ lemma card_sup_of_coprime_normal {G : Type*} [Group G]
     have hxy' : hx * kx = hy * ky := Subtype.ext_iff.mp hxy
     have h_eq : hx⁻¹ * hy = kx * ky⁻¹ := inv_mul_eq_iff_eq_mul.mpr (by
       rw [← mul_assoc, hxy', mul_assoc, mul_inv_cancel, mul_one] : hx * (kx * ky⁻¹) = hy).symm
-    have h_one : hx⁻¹ * hy = 1 := Subgroup.mem_bot.mp <| (Subgroup.inf_eq_bot_of_coprime hcop : H ⊓ K = ⊥) ▸
+    have h_one : hx⁻¹ * hy = 1 := Subgroup.mem_bot.mp <| (Subgroup.disjoint_of_coprime_natCard hcop).eq_bot ▸
       (⟨H.mul_mem (H.inv_mem hhx) hhy, h_eq.symm ▸ K.mul_mem hkx (K.inv_mem hky)⟩ : hx⁻¹ * hy ∈ H ⊓ K)
     exact Prod.ext (Subtype.ext (inv_mul_eq_one.mp h_one)) (Subtype.ext (mul_inv_eq_one.mp (h_eq.symm.trans h_one)))
   · rintro ⟨x, hx⟩
@@ -899,20 +899,22 @@ lemma simple_60_n2_ne_15 (G : Type*) [Group G] [Finite G]
   let P : Sylow 2 G := Classical.arbitrary (Sylow 2 G)
   have hP_card : Nat.card (P : Subgroup G) = 4 :=
     P.card_eq_multiplicity.trans (by rw [hn, factorization_60_2]; rfl)
-  have h_cent : (P : Subgroup G).normalizer ≤ Subgroup.centralizer (P : Set G) := by
-    have h_norm_idx : (P : Subgroup G).normalizer.index = 15 := by
+  have h_cent : (Subgroup.normalizer ((P : Subgroup G) : Set G)) ≤ Subgroup.centralizer (P : Set G) := by
+    have h_norm_idx : (Subgroup.normalizer ((P : Subgroup G) : Set G)).index = 15 := by
+      show (Subgroup.normalizer (P : Set G)).index = 15
       rw [← Sylow.card_eq_index_normalizer P, Nat.card_eq_fintype_card, hn2]
-    have h_norm_card : Nat.card (P : Subgroup G).normalizer = 4 :=
+    have h_norm_card : Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) = 4 :=
       Nat.eq_of_mul_eq_mul_right (show 0 < 15 by norm_num) (
-        (congrArg (Nat.card (P : Subgroup G).normalizer * ·) h_norm_idx.symm).trans
+        (congrArg (Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) * ·) h_norm_idx.symm).trans
           ((Subgroup.card_mul_index _).trans (hn.trans (rfl : 60 = 4 * 15))))
-    have h_norm_eq : (P : Subgroup G) = (P : Subgroup G).normalizer :=
+    have h_norm_eq : (P : Subgroup G) = (Subgroup.normalizer ((P : Subgroup G) : Set G)) :=
       SetLike.ext' (Set.eq_of_subset_of_ncard_le Subgroup.le_normalizer
-        ((Nat.card_coe_set_eq ((P : Subgroup G).normalizer : Set G)).symm.trans
+        ((Nat.card_coe_set_eq ((Subgroup.normalizer ((P : Subgroup G) : Set G)) : Set G)).symm.trans
           (h_norm_card.trans (hP_card.symm.trans (Nat.card_coe_set_eq (P : Set G))))).le)
     rw [← h_norm_eq]
     exact fun x hx y hy ↦ Subtype.ext_iff.mp
-      (IsPGroup.commutative_of_card_eq_prime_sq (G := P) (p := 2) (hP_card.trans (rfl : 4 = 2 ^ 2)) ⟨y, hy⟩ ⟨x, hx⟩)
+      ((IsPGroup.isMulCommutative_of_card_eq_prime_sq (G := P) (p := 2)
+        (hP_card.trans (rfl : 4 = 2 ^ 2))).is_comm.comm ⟨y, hy⟩ ⟨x, hx⟩)
   rcases hs.2 _ (MonoidHom.normal_ker (MonoidHom.transferSylow P h_cent)) with h | h
   · exact absurd (MonoidHom.ker_transferSylow_isComplement' P h_cent).card_mul
       (by rw [h, Subgroup.card_bot, hP_card, hn]; norm_num)

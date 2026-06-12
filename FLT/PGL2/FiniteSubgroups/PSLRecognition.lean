@@ -152,7 +152,7 @@ theorem n_p_gt_one_of_psl_order (G : Subgroup (PGL p)) [Finite G]
     Fintype.card (Sylow p G) > 1 := by
   by_contra h_contra
   obtain ⟨P, hP⟩ : ∃ P : Sylow p G, ∀ Q : Sylow p G, Q = P :=
-    Fintype.card_eq_one_iff.mp (by have := Fintype.card_pos_iff.mpr (inferInstanceAs (Nonempty (Sylow p G))); omega)
+    Fintype.card_eq_one_iff.mp (by have := Fintype.card_pos (α := Sylow p G); omega)
   haveI h_normal : (P : Subgroup G).Normal := ⟨fun n hn g ↦ hP (g • P) ▸ Subgroup.mem_map_of_mem _ hn⟩
 
   have h_even : 2 ∣ p ^ (2 * m) - 1 := by
@@ -231,16 +231,17 @@ theorem z1_eq_psl (G : Subgroup (PGL p)) [Finite G]
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2)
     (P : Sylow p G) (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
     normalizerQuotient p G P = (p ^ m - 1) / 2 := by
-  have h_orbit_stabilizer : Nat.card (Subgroup.normalizer (P : Subgroup G)) * Fintype.card (Sylow p G) = Nat.card G := by
-    rw [mul_comm, ← Nat.card_eq_fintype_card, Sylow.card_eq_index_normalizer P, Subgroup.index_mul_card]
-  have h_card_normalizer : Nat.card (Subgroup.normalizer (P : Subgroup G)) = (p ^ m * (p ^ (2 * m) - 1)) / (2 * (p ^ m + 1)) := by
-    have h1 : Nat.card (Subgroup.normalizer (P : Subgroup G)) * (p ^ m + 1) = p ^ m * (p ^ (2 * m) - 1) / 2 := by
+  have h_orbit_stabilizer : Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) * Fintype.card (Sylow p G) = Nat.card G := by
+    rw [mul_comm, ← Nat.card_eq_fintype_card, Sylow.card_eq_index_normalizer P,
+      ← Sylow.coe_coe, Subgroup.index_mul_card]
+  have h_card_normalizer : Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) = (p ^ m * (p ^ (2 * m) - 1)) / (2 * (p ^ m + 1)) := by
+    have h1 : Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) * (p ^ m + 1) = p ^ m * (p ^ (2 * m) - 1) / 2 := by
       rw [← n_p_eq_psl p G m hm hn hn_p_gt1, h_orbit_stabilizer, hn]
     rw [← Nat.div_div_eq_div_mul, ← h1, Nat.mul_div_cancel _ (Nat.zero_lt_succ _)]
   have h_sq : p ^ (2 * m) - 1 = (p ^ m - 1) * (p ^ m + 1) := by
     rw [mul_comm 2 m, pow_mul]
     exact (Nat.sq_sub_sq (p ^ m) 1).trans (mul_comm _ _)
-  change Nat.card (Subgroup.normalizer (P : Subgroup G)) / Nat.card P = (p ^ m - 1) / 2
+  change Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card P = (p ^ m - 1) / 2
   rw [sylow_order_of_psl_order p G m hm hn P, h_card_normalizer]
   rw [Nat.div_div_eq_div_mul, mul_comm (2 * (p ^ m + 1)) (p ^ m), h_sq]
   rw [← mul_assoc, ← mul_assoc, Nat.mul_div_mul_right _ _ (Nat.zero_lt_succ _)]
@@ -256,11 +257,11 @@ theorem normDilationParam_image_card_eq_normalizerQuotient
       g • infinity p = infinity p) :
     Set.ncard (Set.range (normDilationParam p G hG_p P hP_fix)) =
       normalizerQuotient p G P := by
-  let f : ↥(Subgroup.normalizer (P : Subgroup G)) →* (K p)ˣ :=
+  let f : ↥(Subgroup.normalizer ((P : Subgroup G) : Set G)) →* (K p)ˣ :=
     MonoidHom.mk' (fun g ↦ Units.mk0 (normDilationParam p G hG_p P hP_fix g) (dilationParam_ne_zero p _ (normalizer_element_fixes_infinity p G hG_p P hP_fix g g.property)))
       (fun a b ↦ Units.ext (normDilationParam_mul p G hG_p P hP_fix a b))
 
-  have h_ker : f.ker = (P : Subgroup G).comap (Subgroup.subtype (Subgroup.normalizer (P : Subgroup G))) := by
+  have h_ker : f.ker = (P : Subgroup G).comap (Subgroup.subtype (Subgroup.normalizer ((P : Subgroup G) : Set G))) := by
     ext g
     refine ⟨fun hg ↦ ?_, fun hg ↦ Units.ext (normDilationParam_of_P p G hG_p P hP_fix g hg)⟩
     have h_coset := same_normDilationParam_imp_coset p G hG_p P hP_fix g 1 <|
@@ -276,7 +277,7 @@ theorem normDilationParam_image_card_eq_normalizerQuotient
 
   change Nat.card (Set.range (normDilationParam p G hG_p P hP_fix)) = normalizerQuotient p G P
   rw [Nat.card_congr e.symm]
-  change Nat.card (Set.range f) = Nat.card (Subgroup.normalizer (P : Subgroup G)) / Nat.card (P : Subgroup G)
+  change Nat.card (Set.range f) = Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card (P : Subgroup G)
   rw [← Subgroup.index_mul_card f.ker, Subgroup.index_ker f]
   have h_card_ker : Nat.card f.ker = Nat.card (P : Subgroup G) := by
     rw [h_ker]
@@ -293,7 +294,7 @@ theorem normalizer_dilation_params_cover_nq_roots
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p) :
     ∀ c : K p, c ^ (normalizerQuotient p G P) = 1 → c ≠ 0 →
-      ∃ g : G, g ∈ (P : Subgroup G).normalizer ∧
+      ∃ g : G, g ∈ (Subgroup.normalizer ((P : Subgroup G) : Set G)) ∧
         ∀ x ∈ translationSet p (Subgroup.map (Subgroup.subtype G) (P : Subgroup G)),
           c * x ∈ translationSet p (Subgroup.map (Subgroup.subtype G) (P : Subgroup G)) := by
   intro c hc hc_ne_zero

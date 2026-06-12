@@ -88,7 +88,7 @@ theorem normalizer_stabilizes_fixedPoint (G : Subgroup (PGL p)) [Finite G]
     (P : Sylow p G) (x : ProjectiveLine p)
     (hx : ∀ g ∈ (P : Subgroup G), (g : PGL p) • x = x)
     (hx_unique : ∀ y, (∀ g ∈ (P : Subgroup G), (g : PGL p) • y = y) → y = x) :
-    ∀ g ∈ Subgroup.normalizer (P : Subgroup G), (g : PGL p) • x = x := fun g hg ↦
+    ∀ g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G), (g : PGL p) • x = x := fun g hg ↦
   have h_inv : (g⁻¹ : PGL p) • x = x := hx_unique _ fun h hh ↦ by
     rw [← mul_smul, (show (h : PGL p) * (g⁻¹ : PGL p) = (g⁻¹ : PGL p) * (g * h * g⁻¹ : G) by
         simp only [Subgroup.coe_mul, Subgroup.coe_inv, ← mul_assoc, inv_mul_cancel, one_mul]),
@@ -267,7 +267,7 @@ theorem fixes_infinity_commutes_order_p
   obtain ⟨β, hh⟩ := isUnipotent_of_fixesInfinity_orderOf p _ hh_fix hh_order
   have hβ_nonzero : β ≠ 0 := fun h_zero ↦ (Nat.Prime.ne_one Fact.out) <|
     hh_order.symm.trans <| (congr_arg orderOf (by
-      rw [hh, QuotientGroup.eq_one_iff, Matrix.GeneralLinearGroup.center_eq_range_units]
+      rw [hh, QuotientGroup.eq_one_iff, Matrix.GeneralLinearGroup.center_eq_range_scalar]
       refine ⟨1, Units.ext (by
         ext i j
         match i, j with
@@ -283,7 +283,7 @@ theorem fixes_infinity_commutes_order_p
     have h1 := h_comm.symm
     rw [hg, hh] at h1
     have h_center : (B * A)⁻¹ * (A * B) ∈ Subgroup.center (GL (Fin 2) (K p)) := QuotientGroup.eq.mp h1
-    rw [Matrix.GeneralLinearGroup.center_eq_range_units] at h_center
+    rw [Matrix.GeneralLinearGroup.center_eq_range_scalar] at h_center
     exact h_center
   have h_mul : A.val * B.val = (c : K p) • (B.val * A.val) := by
     have h3 := congr_arg Units.val (eq_mul_of_inv_mul_eq hc.symm)
@@ -317,7 +317,7 @@ theorem fixes_infinity_commutes_order_p
     exact mul_right_cancel₀ hβ_nonzero h_eq
   by_cases hb : b = 0
   · left
-    rw [hg, orderOf_eq_one_iff, QuotientGroup.eq_one_iff, Matrix.GeneralLinearGroup.center_eq_range_units]
+    rw [hg, orderOf_eq_one_iff, QuotientGroup.eq_one_iff, Matrix.GeneralLinearGroup.center_eq_range_scalar]
     have hd_ne : d ≠ 0 := fun h_zero ↦ h_ne (by rw [h_zero]; exact mul_zero a)
     refine ⟨Units.mk0 d hd_ne, Units.ext (by
       ext i j
@@ -370,7 +370,7 @@ theorem common_fixedPoint_commutes_order_p
 omit h_odd in
 theorem order_one_or_p_in_sylow (G : Subgroup (PGL p)) [Finite G]
     (_hG_p : p ∣ Nat.card G) (P : Sylow p G)
-    (g : G) (hg_norm : g ∈ Subgroup.normalizer (P : Subgroup G))
+    (g : G) (hg_norm : g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G))
     (h_order : orderOf (g : PGL p) = 1 ∨ orderOf (g : PGL p) = p) :
     g ∈ (P : Subgroup G) := by
   have h_cyclic : IsPGroup p (Subgroup.zpowers g) := by
@@ -383,7 +383,7 @@ theorem order_one_or_p_in_sylow (G : Subgroup (PGL p)) [Finite G]
 
 theorem normalizer_fixes_element_in_sylow (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
-    (g : G) (hg_norm : g ∈ Subgroup.normalizer (P : Subgroup G))
+    (g : G) (hg_norm : g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G))
     (h : G) (hh_in_P : h ∈ (P : Subgroup G)) (hh_ne : h ≠ 1)
     (h_conj_eq : g * h * g⁻¹ = h) :
     g ∈ (P : Subgroup G) := by
@@ -403,7 +403,7 @@ theorem normalizer_fixes_element_in_sylow (G : Subgroup (PGL p)) [Finite G]
 
 
 noncomputable instance conjOnP (G : Subgroup (PGL p)) (P : Sylow p G) :
-    MulAction (↑(Subgroup.normalizer (P : Subgroup G))) (↑(P : Subgroup G)) where
+    MulAction (↑(Subgroup.normalizer ((P : Subgroup G) : Set G))) (↑(P : Subgroup G)) where
   smul g h := ⟨g.val * h.val * g.val⁻¹, (g.prop h.val).1 h.prop⟩
   one_smul h := by
     apply Subtype.ext
@@ -418,8 +418,8 @@ noncomputable instance conjOnP (G : Subgroup (PGL p)) (P : Sylow p G) :
 theorem stabilizer_conj_eq_P (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (h : ↑(P : Subgroup G)) (hh_ne : h ≠ 1) :
-    MulAction.stabilizer (↑(Subgroup.normalizer (P : Subgroup G))) h =
-    (P : Subgroup G).subgroupOf (Subgroup.normalizer (P : Subgroup G)) := by
+    MulAction.stabilizer (↑(Subgroup.normalizer ((P : Subgroup G) : Set G))) h =
+    (P : Subgroup G).subgroupOf (Subgroup.normalizer ((P : Subgroup G) : Set G)) := by
   haveI : Finite ↥(P.map G.subtype) := Set.Finite.to_subtype (Set.Finite.subset (Set.finite_range G.subtype) (by
     rintro x ⟨y, _, rfl⟩
     exact Set.mem_range_self y))
@@ -438,27 +438,27 @@ theorem stabilizer_conj_eq_P (G : Subgroup (PGL p)) [Finite G]
 
 theorem normalizer_complement_divides_main (G : Subgroup (PGL p)) [Finite G]
     (P : Sylow p G) (hG_p : p ∣ Nat.card G) :
-    Nat.card (Subgroup.normalizer (P : Subgroup G)) / Nat.card P ∣
+    Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card P ∣
       Nat.card P - 1 := by
   haveI := Fintype.ofFinite G
-  letI : MulAction (Subgroup.normalizer (P : Subgroup G)) (P : Subgroup G) := conjOnP p G P
-  letI : SMul (Subgroup.normalizer (P : Subgroup G)) (P : Subgroup G) := (conjOnP p G P).toSMul
+  letI : MulAction (Subgroup.normalizer ((P : Subgroup G) : Set G)) (P : Subgroup G) := conjOnP p G P
+  letI : SMul (Subgroup.normalizer ((P : Subgroup G) : Set G)) (P : Subgroup G) := (conjOnP p G P).toSMul
 
-  have h_orbit_card : ∀ h : (P : Subgroup G), h ≠ 1 → Nat.card (MulAction.orbit (Subgroup.normalizer (P : Subgroup G)) h) = Nat.card (Subgroup.normalizer (P : Subgroup G)) / Nat.card P := by
+  have h_orbit_card : ∀ h : (P : Subgroup G), h ≠ 1 → Nat.card (MulAction.orbit (Subgroup.normalizer ((P : Subgroup G) : Set G)) h) = Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card P := by
     intro h hh_ne
-    haveI : Nonempty (MulAction.stabilizer (Subgroup.normalizer (P : Subgroup G)) h) := ⟨1⟩
-    have e : ↥((P : Subgroup G).subgroupOf (Subgroup.normalizer (P : Subgroup G))) ≃ (P : Subgroup G) :=
+    haveI : Nonempty (MulAction.stabilizer (Subgroup.normalizer ((P : Subgroup G) : Set G)) h) := ⟨1⟩
+    have e : ↥((P : Subgroup G).subgroupOf (Subgroup.normalizer ((P : Subgroup G) : Set G))) ≃ (P : Subgroup G) :=
       ⟨fun x ↦ ⟨x.1.1, x.2⟩, fun x ↦ ⟨⟨x.1, Subgroup.le_normalizer x.2⟩, x.2⟩, fun _ ↦ rfl, fun _ ↦ rfl⟩
-    have h_stab : Nat.card (MulAction.stabilizer (Subgroup.normalizer (P : Subgroup G)) h) = Nat.card P := by
+    have h_stab : Nat.card (MulAction.stabilizer (Subgroup.normalizer ((P : Subgroup G) : Set G)) h) = Nat.card P := by
       rw [stabilizer_conj_eq_P p G hG_p P h hh_ne]; exact Nat.card_congr e
     have h_quot := Subgroup.card_eq_card_quotient_mul_card_subgroup
-      (MulAction.stabilizer (Subgroup.normalizer (P : Subgroup G)) h)
+      (MulAction.stabilizer (Subgroup.normalizer ((P : Subgroup G) : Set G)) h)
     rw [h_stab] at h_quot
     rw [Nat.card_congr (MulAction.orbitEquivQuotientStabilizer _ h), h_quot,
         Nat.mul_div_cancel _ Nat.card_pos]
 
-  calc Nat.card (Subgroup.normalizer (P : Subgroup G)) / Nat.card P
-    _ ∣ ∑ ω ∈ Finset.image (fun h : (P : Subgroup G) ↦ MulAction.orbit (Subgroup.normalizer (P : Subgroup G)) h) (Finset.univ.erase 1), Nat.card ω := by
+  calc Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card P
+    _ ∣ ∑ ω ∈ Finset.image (fun h : (P : Subgroup G) ↦ MulAction.orbit (Subgroup.normalizer ((P : Subgroup G) : Set G)) h) (Finset.univ.erase 1), Nat.card ω := by
       apply Finset.dvd_sum
       rintro ω hω
       rcases Finset.mem_image.mp hω with ⟨h, hh, rfl⟩
@@ -467,7 +467,7 @@ theorem normalizer_complement_divides_main (G : Subgroup (PGL p)) [Finite G]
       rw [Finset.card_eq_sum_ones]
       apply Finset.sum_image' (h := fun _ ↦ 1)
       intro i hi
-      have e : ↥(Finset.filter (fun j ↦ MulAction.orbit (Subgroup.normalizer (P : Subgroup G)) j = MulAction.orbit (Subgroup.normalizer (P : Subgroup G)) i) (Finset.univ.erase 1)) ≃ MulAction.orbit (Subgroup.normalizer (P : Subgroup G)) i := by
+      have e : ↥(Finset.filter (fun j ↦ MulAction.orbit (Subgroup.normalizer ((P : Subgroup G) : Set G)) j = MulAction.orbit (Subgroup.normalizer ((P : Subgroup G) : Set G)) i) (Finset.univ.erase 1)) ≃ MulAction.orbit (Subgroup.normalizer ((P : Subgroup G) : Set G)) i := by
         apply Equiv.subtypeEquivProp
         ext x
         simp only [Finset.mem_filter, Finset.mem_erase, Finset.mem_univ, and_true]
@@ -488,7 +488,7 @@ theorem normalizer_complement_divides_main (G : Subgroup (PGL p)) [Finite G]
 
 def normalizerQuotient (G : Subgroup (PGL p)) [Finite G]
     (P : Sylow p G) : ℕ :=
-  Nat.card (Subgroup.normalizer (P : Subgroup G)) / Nat.card P
+  Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card P
 
 
 
@@ -496,10 +496,13 @@ omit h_odd in
 theorem group_order_gt_normalizer (G : Subgroup (PGL p)) [Finite G]
     (P : Sylow p G) (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
     Nat.card G > Nat.card P * normalizerQuotient p G P := by
+  have e : Nat.card (G ⧸ Subgroup.normalizer ((P : Subgroup G) : Set G)) =
+      Fintype.card (Sylow p G) :=
+    (Nat.card_congr (Sylow.equivQuotientNormalizer P)).symm.trans Nat.card_eq_fintype_card
   rw [normalizerQuotient, Nat.mul_div_cancel' (Subgroup.card_dvd_of_le Subgroup.le_normalizer),
-    Subgroup.card_eq_card_quotient_mul_card_subgroup (Subgroup.normalizer (P : Subgroup G)),
-    ← Nat.card_congr (Sylow.equivQuotientNormalizer P), Nat.card_eq_fintype_card (α := Sylow p G)]
-  have h := Nat.mul_lt_mul_of_pos_right hn_p_gt1 (Nat.card_pos (α := Subgroup.normalizer (P : Subgroup G)))
+    Subgroup.card_eq_card_quotient_mul_card_subgroup (Subgroup.normalizer ((P : Subgroup G) : Set G)),
+    e]
+  have h := Nat.mul_lt_mul_of_pos_right hn_p_gt1 (Nat.card_pos (α := Subgroup.normalizer ((P : Subgroup G) : Set G)))
   rw [one_mul] at h
   exact h
 

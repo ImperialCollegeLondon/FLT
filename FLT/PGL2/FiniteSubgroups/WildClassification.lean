@@ -265,7 +265,7 @@ theorem branch1_semidirect (G : Subgroup (PGL p)) [Finite G]
       (Fact.out : Nat.Prime p).factorization_pos_of_dvd Nat.card_pos.ne' hG_p
   have ht_div : Nat.card K ∣ p ^ m - 1 := by
     have hdvd := normalizer_complement_divides_main p G P hG_p
-    have h_card_norm : Nat.card (Subgroup.normalizer P.toSubgroup) = Nat.card G := by
+    have h_card_norm : Nat.card (Subgroup.normalizer (SetLike.coe P.toSubgroup)) = Nat.card G := by
       haveI := hP_normal
       rw [Subgroup.normalizer_eq_top]
       exact Nat.card_congr ⟨fun x ↦ x.1, fun x ↦ ⟨x, trivial⟩, fun _ ↦ rfl, fun _ ↦ rfl⟩
@@ -332,10 +332,12 @@ theorem recognition_A4 (G : Subgroup (PGL p))
   have h_subgroup_eq : ∀ {H K : Subgroup G}, H ≤ K → Nat.card H = Nat.card K → H = K := fun hHK hcard ↦ SetLike.ext' (Set.eq_of_subset_of_ncard_le hHK hcard.ge)
   have h_card_val : ∀ P' : Sylow p G, Nat.card (P' : Subgroup G) = 3 := fun P' ↦
     (Sylow.card_eq_multiplicity P').trans (by rw [hn, hp3, Nat.factorization_eq_one (m := 4) rfl Nat.prime_three (by norm_num), pow_one])
-  have h_norm : ∀ P : Sylow p G, Subgroup.normalizer (P : Subgroup G) = P := fun P ↦ by
+  have h_norm : ∀ P : Sylow p G, Subgroup.normalizer ((P : Subgroup G) : Set G) = P := fun P ↦ by
     refine Eq.symm (h_subgroup_eq Subgroup.le_normalizer ?_)
-    have h_card_G := Subgroup.index_mul_card (Subgroup.normalizer (P : Subgroup G))
-    rw [← Sylow.card_eq_index_normalizer P, Nat.card_eq_fintype_card, hn3, hn] at h_card_G
+    have h_card_G := Subgroup.index_mul_card (Subgroup.normalizer ((P : Subgroup G) : Set G))
+    have e : (Subgroup.normalizer ((P : Subgroup G) : Set G)).index = Fintype.card (Sylow p G) := by
+      rw [← Nat.card_eq_fintype_card]; exact (Sylow.card_eq_index_normalizer P).symm
+    rw [e, hn3, hn] at h_card_G
     have hP := h_card_val P
     omega
   let ϕ := MulAction.toPermHom G (Sylow p G)
@@ -460,7 +462,7 @@ theorem sylow_count_of_order_12 (G : Subgroup (PGL p))
       rw [← h_card_eq, Subgroup.card_eq_card_quotient_mul_card_subgroup P.toSubgroup, Nat.mul_div_cancel _ Nat.card_pos]
     have h_dvd : ∀ P : Sylow p G, Fintype.card (Sylow p G) ∣ Nat.card (G ⧸ P.toSubgroup) := by
       intro P
-      have h_norm : Fintype.card (Sylow p G) = Nat.card (G ⧸ P.normalizer) := by
+      have h_norm : Fintype.card (Sylow p G) = Nat.card (G ⧸ (Subgroup.normalizer (SetLike.coe P))) := by
         rw [← Nat.card_eq_fintype_card]
         exact Nat.card_congr (Sylow.equivQuotientNormalizer P)
       rw [h_norm]

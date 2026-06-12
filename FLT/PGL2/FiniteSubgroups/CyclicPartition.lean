@@ -66,7 +66,7 @@ def HasCyclicPartition (G : Type*) [Group G] [Fintype G]
       let ci := configs.get i
       IsCyclic Hi ∧
       Nat.card Hi = ci.d ∧
-      Nat.card (Hi.normalizer) = ci.f * ci.d) ∧
+      Nat.card ((Subgroup.normalizer (SetLike.coe Hi))) = ci.f * ci.d) ∧
 
     let all_conjugates := { K : Subgroup G |
       ∃ (i : Fin configs.length) (g : G) (Hi : Subgroup G),
@@ -304,7 +304,7 @@ lemma extractDihedralStructure (G : Type*) [Group G] [Fintype G] (n : ℕ)
     (hN : Nat.card G = 2 * n) (hn : n ≥ 2)
     (H₁ : Subgroup G)
     (hH₁_card : Nat.card H₁ = n)
-    (hH₁_norm : Nat.card H₁.normalizer = 2 * n)
+    (hH₁_norm : Nat.card (Subgroup.normalizer (SetLike.coe H₁)) = 2 * n)
     (h_outside_order2 : ∀ g : G, g ∉ H₁ → g ≠ 1 → orderOf g = 2) :
     H₁.Normal ∧ H₁.index = 2 ∧ (∀ g : G, g ∉ H₁ → orderOf g = 2) := by
   refine ⟨Subgroup.normalizer_eq_top_iff.mp (Subgroup.eq_top_of_card_eq _ (hH₁_norm.trans
@@ -449,39 +449,39 @@ theorem sylow3_toPermHom_ker_eq_bot_of_card_12 (G : Type*) [Group G] [Fintype G]
     (hN : Nat.card G = 12) (h_sylow : Nat.card (Sylow 3 G) = 4) :
     (MulAction.toPermHom G (Sylow 3 G)).ker = ⊥ := by
 
-  have h_norm_card : ∀ P : Sylow 3 G, Nat.card (P.normalizer : Subgroup G) = 3 := fun P ↦ by
-    have h_mul := Subgroup.index_mul_card (P.normalizer : Subgroup G)
+  have h_norm_card : ∀ P : Sylow 3 G, Nat.card ((Subgroup.normalizer (SetLike.coe P)) : Subgroup G) = 3 := fun P ↦ by
+    have h_mul := Subgroup.index_mul_card ((Subgroup.normalizer (SetLike.coe P)) : Subgroup G)
     rw [← Sylow.card_eq_index_normalizer, h_sylow, hN] at h_mul
     omega
 
   have h_P_card : ∀ P : Sylow 3 G, Nat.card (P : Subgroup G) = 3 := fun P ↦ by
     have h_dvd :=
-      Subgroup.card_dvd_of_le (show (P : Subgroup G) ≤ P.normalizer from Subgroup.le_normalizer)
+      Subgroup.card_dvd_of_le (show (P : Subgroup G) ≤ (Subgroup.normalizer (SetLike.coe P)) from Subgroup.le_normalizer)
     rw [h_norm_card P] at h_dvd
     cases (Nat.dvd_prime Nat.prime_three).mp h_dvd with
     | inl h_one =>
-      have h_norm_top : (P.normalizer : Subgroup G) = ⊤ := by
+      have h_norm_top : ((Subgroup.normalizer (SetLike.coe P)) : Subgroup G) = ⊤ := by
         ext x
         refine ⟨fun _ ↦ Subgroup.mem_top x, fun _ ↦ by
-          rw [Subgroup.mem_normalizer_iff, Subgroup.card_eq_one.mp h_one]
+          rw [← Sylow.coe_coe, Subgroup.mem_normalizer_iff, Subgroup.card_eq_one.mp h_one]
           exact fun y ↦ ⟨
             fun hy ↦ by rw [Subgroup.mem_bot.mp hy, mul_one, mul_inv_cancel, Subgroup.mem_bot],
             fun hy ↦
                 Subgroup.mem_bot.mpr (mul_left_cancel (mul_right_cancel
                     (by rw [Subgroup.mem_bot.mp hy, mul_one, mul_inv_cancel])))
           ⟩⟩
-      have h_mul := Subgroup.index_mul_card (P.normalizer : Subgroup G)
+      have h_mul := Subgroup.index_mul_card ((Subgroup.normalizer (SetLike.coe P)) : Subgroup G)
       rw [h_norm_card P, h_norm_top, Subgroup.index_top, one_mul, hN] at h_mul
       omega
     | inr h_three =>
       exact h_three
 
-  have h_norm_eq : ∀ P : Sylow 3 G, (P.normalizer : Subgroup G) = P := by
+  have h_norm_eq : ∀ P : Sylow 3 G, ((Subgroup.normalizer (SetLike.coe P)) : Subgroup G) = P := by
     intro P
 
-    have h_set_eq : ((P : Subgroup G) : Set G) = (P.normalizer : Set G) := by
+    have h_set_eq : ((P : Subgroup G) : Set G) = ((Subgroup.normalizer (SetLike.coe P)) : Set G) := by
       refine Set.eq_of_subset_of_ncard_le Subgroup.le_normalizer ?_ (Set.toFinite _)
-      change Nat.card (P.normalizer : Subgroup G) ≤ Nat.card (P : Subgroup G)
+      change Nat.card ((Subgroup.normalizer (SetLike.coe P)) : Subgroup G) ≤ Nat.card (P : Subgroup G)
       rw [h_P_card P, h_norm_card P]
     exact (SetLike.coe_set_eq.mp h_set_eq).symm
 
@@ -595,7 +595,7 @@ lemma card_sylow3_of_hasCyclicPartition_S4 (G : Type*) [Group G] [Fintype G]
   obtain ⟨H_list, _, hH_ex, _⟩ := h
   obtain ⟨H₁, _, _, hH₁_card, hH₁_norm⟩ := hH_ex ⟨1, by norm_num⟩
   change Nat.card H₁ = 3 at hH₁_card
-  change Nat.card H₁.normalizer = 6 at hH₁_norm
+  change Nat.card (Subgroup.normalizer (SetLike.coe H₁)) = 6 at hH₁_norm
 
   have hH₁_isPGroup : IsPGroup 3 H₁ := fun x ↦
     ⟨1, by rw [pow_one, ← orderOf_dvd_iff_pow_eq_one, ← hH₁_card]; exact orderOf_dvd_natCard x⟩
@@ -631,8 +631,10 @@ lemma card_sylow3_of_hasCyclicPartition_S4 (G : Type*) [Group G] [Fintype G]
   have hH₁_eq_Q : H₁ = Q.toSubgroup := SetLike.ext' <|
     Set.eq_of_subset_of_ncard_le hQ_le (by change Nat.card Q.toSubgroup ≤ Nat.card H₁; rw [hQ_card,
         hH₁_card])
-  have h_idx := Subgroup.index_mul_card Q.toSubgroup.normalizer
-  rw [← Sylow.card_eq_index_normalizer Q, ← hH₁_eq_Q, hH₁_norm, hN] at h_idx
+  have h_idx := Subgroup.index_mul_card (Subgroup.normalizer (Q : Set G))
+  rw [← Sylow.card_eq_index_normalizer Q] at h_idx
+  have hsets : (Q : Set G) = SetLike.coe H₁ := by rw [hH₁_eq_Q, Sylow.coe_coe]
+  rw [hsets, hH₁_norm, hN] at h_idx
   omega
 
 lemma center_eq_bot_of_hasCyclicPartition (G : Type*) [Group G] [Fintype G] (N : ℕ)
@@ -684,14 +686,14 @@ lemma center_eq_bot_of_hasCyclicPartition (G : Type*) [Group G] [Fintype G] (N :
     rw [hH_disj _ Hi ⟨i, x, Hi, hHi_eq, rfl⟩ hHi_in h_ne] at h_inter
     exact hg_ne_one (Subgroup.mem_bot.mp h_inter)
 
-  have h_norm_top : Hi.normalizer = ⊤ := by
+  have h_norm_top : (Subgroup.normalizer (SetLike.coe Hi)) = ⊤ := by
     ext x; simp only [Subgroup.mem_top, iff_true, Subgroup.mem_normalizer_iff]
     exact fun n ↦ ⟨
       fun hn ↦ by rw [← hL_eq_Hi x]; exact Subgroup.mem_map.mpr ⟨n, hn, rfl⟩,
       fun hxn ↦ by rw [show n = x⁻¹ * (x * n * x⁻¹) * (x⁻¹)⁻¹ by group,
           ← hL_eq_Hi x⁻¹]; exact Subgroup.mem_map.mpr ⟨x * n * x⁻¹, hxn, rfl⟩⟩
 
-  have h_card_norm : Nat.card Hi.normalizer = N := by
+  have h_card_norm : Nat.card (Subgroup.normalizer (SetLike.coe Hi)) = N := by
     rw [h_norm_top, ← hN]
     exact Nat.card_congr ⟨fun x ↦ x.1, fun x ↦ ⟨x, trivial⟩, fun _ ↦ rfl, fun _ ↦ rfl⟩
   obtain ⟨Hi', hHi'_eq, _, _, hHi'_norm_card⟩ := hH_ex i
@@ -769,7 +771,7 @@ lemma card_sylow_eq_one_of_normal (G : Type*) [Group G] [Fintype G]
   rw [Nat.card_eq_fintype_card, Fintype.card_eq_one_iff]
   exact ⟨P, fun Q ↦ by
     obtain ⟨g, rfl⟩ := MulAction.exists_smul_eq G P Q
-    rw [Sylow.smul_eq_iff_mem_normalizer, ← hP, Subgroup.normalizer_eq_top]
+    rw [Sylow.smul_eq_iff_mem_normalizer, ← Sylow.coe_coe, ← hP, Subgroup.normalizer_eq_top]
     exact Subgroup.mem_top g⟩
 
 lemma not_normal_order6_of_card_sylow3_4 (G : Type*) [Group G] [Fintype G]
@@ -779,8 +781,8 @@ lemma not_normal_order6_of_card_sylow3_4 (G : Type*) [Group G] [Fintype G]
   obtain ⟨Q, hQ⟩ := Fintype.card_eq_one_iff.mp <| show Fintype.card (Sylow 3 K) = 1 by
     have h_dvd : Nat.card (Sylow 3 K) ∣ 6 := by
       rw [Nat.card_congr (Sylow.equivQuotientNormalizer _), ← hK]
-      exact Subgroup.card_quotient_dvd_card (Classical.arbitrary (Sylow 3 K) : Subgroup
-          K).normalizer
+      exact Subgroup.card_quotient_dvd_card (Subgroup.normalizer (SetLike.coe (Classical.arbitrary (Sylow 3 K) : Subgroup
+          K)))
     have h_mod : Nat.card (Sylow 3 K) % 3 = 1 := card_sylow_modEq_one 3 K
     rw [← Nat.card_eq_fintype_card (α := Sylow 3 K)]
     have : Nat.card (Sylow 3 K) ≠ 4 := fun h ↦ by obtain ⟨k, hk⟩ := h_dvd; rw [h] at hk; omega
@@ -813,7 +815,7 @@ lemma not_normal_order6_of_card_sylow3_4 (G : Type*) [Group G] [Fintype G]
     rw [Nat.card_eq_fintype_card, Fintype.card_eq_one_iff]
     exact ⟨P, fun R ↦ by
       obtain ⟨g, rfl⟩ := MulAction.exists_smul_eq G P R
-      rw [Sylow.smul_eq_iff_mem_normalizer, P.normalizer_eq_top]
+      rw [Sylow.smul_eq_iff_mem_normalizer, ← Sylow.coe_coe, P.normalizer_eq_top]
       exact Subgroup.mem_top g⟩
   omega
 
@@ -826,11 +828,11 @@ lemma toPermHom_injective_of_card_24 (G : Type*) [Group G] [Fintype G]
   have P : Sylow 3 G := Classical.arbitrary _
 
   have hK_dvd : Nat.card K ∣ 6 :=
-    (show Nat.card P.normalizer = 6 from
-      (show 4 * Nat.card P.normalizer = 24 → Nat.card P.normalizer = 6 by intros; omega)
-        (show 4 * Nat.card P.normalizer = 24 by
+    (show Nat.card (Subgroup.normalizer (SetLike.coe P)) = 6 from
+      (show 4 * Nat.card (Subgroup.normalizer (SetLike.coe P)) = 24 → Nat.card (Subgroup.normalizer (SetLike.coe P)) = 6 by intros; omega)
+        (show 4 * Nat.card (Subgroup.normalizer (SetLike.coe P)) = 24 by
           rw [← h_sylow, Sylow.card_eq_index_normalizer P, ← hN]
-          exact P.normalizer.index_mul_card)
+          exact (Subgroup.normalizer (SetLike.coe P)).index_mul_card)
     ) ▸ Subgroup.card_dvd_of_le (fun _ hg ↦
         Sylow.smul_eq_iff_mem_normalizer.mp (Equiv.Perm.ext_iff.mp (MonoidHom.mem_ker.mp hg) P))
 
@@ -934,8 +936,8 @@ lemma card_sylow5_of_hasCyclicPartition_A5 (G : Type*) [Group G] [Fintype G]
     rw [hH₂_card, P.card_eq_multiplicity, hN,
         Nat.factorization_eq_one (m := 12) rfl Nat.prime_five (by norm_num)]
     norm_num
-  rw [P.card_eq_index_normalizer, hP_eq]
-  have h_mul := H₂.normalizer.index_mul_card
+  rw [P.card_eq_index_normalizer, ← Sylow.coe_coe, hP_eq]
+  have h_mul := (Subgroup.normalizer (SetLike.coe H₂)).index_mul_card
   rw [hH₂_norm_card, hN] at h_mul
   exact Nat.eq_of_mul_eq_mul_right (by norm_num) h_mul
 
@@ -954,8 +956,8 @@ lemma card_sylow3_of_hasCyclicPartition_A5 (G : Type*) [Group G] [Fintype G]
     rw [hH₁_card, P.card_eq_multiplicity, hN,
         Nat.factorization_eq_one (m := 20) rfl Nat.prime_three (by norm_num)]
     norm_num
-  rw [P.card_eq_index_normalizer, hP_eq]
-  have h_mul := H₁.normalizer.index_mul_card
+  rw [P.card_eq_index_normalizer, ← Sylow.coe_coe, hP_eq]
+  have h_mul := (Subgroup.normalizer (SetLike.coe H₁)).index_mul_card
   rw [hH₁_norm_card, hN] at h_mul
   exact Nat.eq_of_mul_eq_mul_right (by norm_num) h_mul
 
@@ -1342,12 +1344,13 @@ lemma exists_normal_complement_of_sylow2_15 (G : Type*) [Group G] [Fintype G]
     ∃ K : Subgroup G, K.Normal ∧ Nat.card K = 15 := by
   obtain ⟨P⟩ : Nonempty (Sylow 2 G) := Sylow.nonempty
 
-  have h_centralizer : P.normalizer ≤ Subgroup.centralizer (P : Subgroup G) := fun x hx y hy ↦
-    haveI := Fintype.ofFinite P.normalizer
-    (Subtype.ext_iff.mp (IsPGroup.commutative_of_card_eq_prime_sq (show Nat.card P.normalizer = 2 ^ 2 by
-      have := Subgroup.card_eq_card_quotient_mul_card_subgroup P.normalizer
-      rw [← Nat.card_congr (Sylow.equivQuotientNormalizer P), h_n2, hN] at this; omega
-    ) ⟨x, hx⟩ ⟨y, Subgroup.le_normalizer hy⟩)).symm
+  have h_centralizer : (Subgroup.normalizer (SetLike.coe P)) ≤ Subgroup.centralizer (P : Subgroup G) := fun x hx y hy ↦
+    haveI := Fintype.ofFinite (Subgroup.normalizer (SetLike.coe P))
+    (Subtype.ext_iff.mp ((IsPGroup.isMulCommutative_of_card_eq_prime_sq
+      (show Nat.card (Subgroup.normalizer (SetLike.coe P)) = 2 ^ 2 by
+        have := Subgroup.card_eq_card_quotient_mul_card_subgroup (Subgroup.normalizer (SetLike.coe P))
+        rw [← Nat.card_congr (Sylow.equivQuotientNormalizer P), h_n2, hN] at this; omega
+      )).is_comm.comm ⟨x, hx⟩ ⟨y, Subgroup.le_normalizer hy⟩)).symm
   let K := MonoidHom.ker (MonoidHom.transferSylow P h_centralizer)
 
   have hK_comp : K.IsComplement' (P : Subgroup G) :=

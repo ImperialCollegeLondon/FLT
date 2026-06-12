@@ -182,9 +182,9 @@ theorem n_p_gt_one_of_pgl_order (G : Subgroup (PGL p)) [Finite G]
     le_antisymm (not_lt.mp h_contra) Fintype.card_pos
 
   have hd : p ^ (2 * m) - 1 ∣ p ^ m - 1 := by
-    have h_norm : (P : Subgroup G).normalizer = ⊤ := by
+    have h_norm : (Subgroup.normalizer ((P : Subgroup G) : Set G)) = ⊤ := by
       refine (Subgroup.eq_top_iff' _).mpr fun g ↦ ?_
-      rw [← Sylow.smul_eq_iff_mem_normalizer]
+      rw [Sylow.coe_coe, ← Sylow.smul_eq_iff_mem_normalizer]
       exact hP (g • P)
     have h_dvd := normalizer_complement_divides_main p G P (hG ▸ dvd_mul_of_dvd_left (dvd_pow_self p (ne_of_gt hm)) _)
     rw [h_norm, Subgroup.card_top, hG, sylow_order_of_pgl_order p G m hm hG P] at h_dvd
@@ -201,9 +201,9 @@ theorem z1_eq_pm_minus_one (G : Subgroup (PGL p)) [Finite G]
     (hG : Nat.card G = p ^ m * (p ^ (2 * m) - 1))
     (P : Sylow p G) (hn_p : Fintype.card (Sylow p G) > 1) :
     normalizerQuotient p G P = p ^ m - 1 := by
-  have h_norm_card : Nat.card (Subgroup.normalizer (P : Subgroup G)) = p ^ m * (p ^ m - 1) :=
+  have h_norm_card : Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) = p ^ m * (p ^ m - 1) :=
     Nat.eq_of_mul_eq_mul_left (Nat.succ_pos (p ^ m)) <| calc
-      (p ^ m + 1) * Nat.card (Subgroup.normalizer (P : Subgroup G))
+      (p ^ m + 1) * Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G))
         = Nat.card G := by
           rw [← n_p_eq_pgl p G m hm hG hn_p, ← Nat.card_eq_fintype_card, Nat.card_congr (Sylow.equivQuotientNormalizer P)]
           exact (Subgroup.card_eq_card_quotient_mul_card_subgroup _).symm
@@ -894,8 +894,8 @@ theorem fixes_infinity_normalizes_sylow
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G), g • infinity p = infinity p)
     (g : G) (hg_fix : (g : PGL p) • infinity p = infinity p) :
-    g ∈ (P : Subgroup G).normalizer := by
-  rw [← Sylow.smul_eq_iff_mem_normalizer]
+    g ∈ (Subgroup.normalizer ((P : Subgroup G) : Set G)) := by
+  rw [Sylow.coe_coe, ← Sylow.smul_eq_iff_mem_normalizer]
   apply unique_sylow_fixing_infinity p G hG_p (g • P) P
   · intro g_1 hg_1
     obtain ⟨x, hx_mem, rfl⟩ := Subgroup.mem_map.mp hg_1
@@ -1189,7 +1189,7 @@ theorem normalizer_element_fixes_infinity
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p)
-    (g : G) (hg : g ∈ (P : Subgroup G).normalizer) :
+    (g : G) (hg : g ∈ (Subgroup.normalizer ((P : Subgroup G) : Set G))) :
     (g : PGL p) • infinity p = infinity p := by
   have h_inf_eq : infinity p = sylow_fixedPoint p G hG_p P :=
     eq_sylow_fixedPoint p G hG_p P _ (fun g hg ↦ hP_fix _ (Subgroup.mem_map_of_mem _ hg))
@@ -1205,7 +1205,7 @@ theorem dilationParam_scales_translationSet
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p)
-    (g : G) (hg : g ∈ (P : Subgroup G).normalizer) :
+    (g : G) (hg : g ∈ (Subgroup.normalizer ((P : Subgroup G) : Set G))) :
     ∀ x ∈ translationSet p (Subgroup.map (Subgroup.subtype G) (P : Subgroup G)),
       dilationParam p (g : PGL p) (normalizer_element_fixes_infinity p G hG_p P hP_fix g hg) * x ∈
         translationSet p (Subgroup.map (Subgroup.subtype G) (P : Subgroup G)) := by
@@ -1225,7 +1225,7 @@ noncomputable def normDilationParam
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p)
-    (g : (P : Subgroup G).normalizer) : K p :=
+    (g : (Subgroup.normalizer ((P : Subgroup G) : Set G))) : K p :=
   dilationParam p (g : PGL p)
     (normalizer_element_fixes_infinity p G hG_p P hP_fix g g.prop)
 
@@ -1235,7 +1235,7 @@ theorem normDilationParam_of_P
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p)
-    (g : (P : Subgroup G).normalizer)
+    (g : (Subgroup.normalizer ((P : Subgroup G) : Set G)))
     (hg : (g : G) ∈ (P : Subgroup G)) :
     normDilationParam p G hG_p P hP_fix g = 1 := by
   apply (dilationParam_eq_one_iff p (g : PGL p) (normalizer_element_fixes_infinity p G hG_p P hP_fix g g.prop)).mpr
@@ -1256,7 +1256,7 @@ theorem same_normDilationParam_imp_coset
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p)
-    (g₁ g₂ : (P : Subgroup G).normalizer)
+    (g₁ g₂ : (Subgroup.normalizer ((P : Subgroup G) : Set G)))
     (heq : normDilationParam p G hG_p P hP_fix g₁ =
            normDilationParam p G hG_p P hP_fix g₂) :
     (g₁ : G) * (g₂ : G)⁻¹ ∈ (P : Subgroup G) := by
@@ -1285,12 +1285,12 @@ theorem normDilationParam_P_mul
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p)
-    (g : (P : Subgroup G).normalizer)
+    (g : (Subgroup.normalizer ((P : Subgroup G) : Set G)))
     (h : G) (hh : h ∈ (P : Subgroup G)) :
     normDilationParam p G hG_p P hP_fix
-      ⟨h * g, (P : Subgroup G).normalizer.mul_mem (Subgroup.le_normalizer hh) g.prop⟩ =
+      ⟨h * g, (Subgroup.normalizer ((P : Subgroup G) : Set G)).mul_mem (Subgroup.le_normalizer hh) g.prop⟩ =
     normDilationParam p G hG_p P hP_fix g := by
-  have h_norm : h ∈ (P : Subgroup G).normalizer := Subgroup.le_normalizer hh
+  have h_norm : h ∈ (Subgroup.normalizer ((P : Subgroup G) : Set G)) := Subgroup.le_normalizer hh
   have h_P := normDilationParam_of_P p G hG_p P hP_fix ⟨h, h_norm⟩ hh
   rw [normDilationParam, normDilationParam]
   rw [normDilationParam] at h_P
@@ -1306,7 +1306,7 @@ theorem normDilationParam_mul
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p)
-    (g₁ g₂ : (P : Subgroup G).normalizer) :
+    (g₁ g₂ : (Subgroup.normalizer ((P : Subgroup G) : Set G))) :
     normDilationParam p G hG_p P hP_fix (g₁ * g₂) =
     normDilationParam p G hG_p P hP_fix g₁ *
     normDilationParam p G hG_p P hP_fix g₂ := by
@@ -1323,12 +1323,12 @@ theorem normDilationParam_image_card
       g • infinity p = infinity p) :
     Set.ncard (Set.range (normDilationParam p G hG_p P hP_fix)) = p ^ m - 1 := by
   set S := Set.range (normDilationParam p G hG_p P hP_fix)
-  have h_fiber_card : ∀ y ∈ S, Set.ncard {g : (P : Subgroup G).normalizer | normDilationParam p G hG_p P hP_fix g = y} = Nat.card (P : Subgroup G) := by
+  have h_fiber_card : ∀ y ∈ S, Set.ncard {g : (Subgroup.normalizer ((P : Subgroup G) : Set G)) | normDilationParam p G hG_p P hP_fix g = y} = Nat.card (P : Subgroup G) := by
     intro y hy
-    obtain ⟨g, hg⟩ : ∃ g : (P : Subgroup G).normalizer, normDilationParam p G hG_p P hP_fix g = y := hy
+    obtain ⟨g, hg⟩ : ∃ g : (Subgroup.normalizer ((P : Subgroup G) : Set G)), normDilationParam p G hG_p P hP_fix g = y := hy
     calc
-      Set.ncard {x : (P : Subgroup G).normalizer | normDilationParam p G hG_p P hP_fix x = y}
-        = Set.ncard (Set.image (fun h : (P : Subgroup G) ↦ (⟨h.val * g.val, Subgroup.mul_mem _ (Subgroup.le_normalizer h.prop) g.prop⟩ : (P : Subgroup G).normalizer)) Set.univ) := by
+      Set.ncard {x : (Subgroup.normalizer ((P : Subgroup G) : Set G)) | normDilationParam p G hG_p P hP_fix x = y}
+        = Set.ncard (Set.image (fun h : (P : Subgroup G) ↦ (⟨h.val * g.val, Subgroup.mul_mem _ (Subgroup.le_normalizer h.prop) g.prop⟩ : (Subgroup.normalizer ((P : Subgroup G) : Set G)))) Set.univ) := by
           congr 1
           ext x
           simp only [Set.mem_setOf_eq, Set.mem_image, Set.mem_univ, true_and]
@@ -1338,17 +1338,17 @@ theorem normDilationParam_image_card
           · rintro ⟨h, rfl⟩
             exact (normDilationParam_P_mul p G hG_p P hP_fix g h.val h.prop).trans hg
       _ = Set.ncard (Set.univ : Set (P : Subgroup G)) :=
-          Set.ncard_image_of_injective (f := fun h : (P : Subgroup G) ↦ (⟨h.val * g.val, Subgroup.mul_mem _ (Subgroup.le_normalizer h.prop) g.prop⟩ : (P : Subgroup G).normalizer)) Set.univ (fun h₁ h₂ h_eq ↦ Subtype.ext (mul_right_cancel (Subtype.ext_iff.mp h_eq)))
+          Set.ncard_image_of_injective (f := fun h : (P : Subgroup G) ↦ (⟨h.val * g.val, Subgroup.mul_mem _ (Subgroup.le_normalizer h.prop) g.prop⟩ : (Subgroup.normalizer ((P : Subgroup G) : Set G)))) Set.univ (fun h₁ h₂ h_eq ↦ Subtype.ext (mul_right_cancel (Subtype.ext_iff.mp h_eq)))
       _ = Nat.card (P : Subgroup G) := Set.ncard_univ (P : Subgroup G)
-  have h_card_S_mul : Set.ncard S * Nat.card (P : Subgroup G) = Nat.card ((P : Subgroup G).normalizer) := by
-    have h_sum : ∀ s : Finset (K p), (∑ y ∈ s, Set.ncard {g : (P : Subgroup G).normalizer | normDilationParam p G hG_p P hP_fix g = y}) = Set.ncard {g : (P : Subgroup G).normalizer | normDilationParam p G hG_p P hP_fix g ∈ s} := by
+  have h_card_S_mul : Set.ncard S * Nat.card (P : Subgroup G) = Nat.card ((Subgroup.normalizer ((P : Subgroup G) : Set G))) := by
+    have h_sum : ∀ s : Finset (K p), (∑ y ∈ s, Set.ncard {g : (Subgroup.normalizer ((P : Subgroup G) : Set G)) | normDilationParam p G hG_p P hP_fix g = y}) = Set.ncard {g : (Subgroup.normalizer ((P : Subgroup G) : Set G)) | normDilationParam p G hG_p P hP_fix g ∈ s} := by
       intro s
       induction' s using Finset.induction with y s hy ih
       · calc
-          (∑ y ∈ (∅ : Finset (K p)), Set.ncard {g : (P : Subgroup G).normalizer | normDilationParam p G hG_p P hP_fix g = y})
+          (∑ y ∈ (∅ : Finset (K p)), Set.ncard {g : (Subgroup.normalizer ((P : Subgroup G) : Set G)) | normDilationParam p G hG_p P hP_fix g = y})
             = 0 := Finset.sum_empty
-          _ = Set.ncard (∅ : Set ((P : Subgroup G).normalizer)) := Eq.symm (Set.ncard_empty ((P : Subgroup G).normalizer))
-          _ = Set.ncard {g : (P : Subgroup G).normalizer | normDilationParam p G hG_p P hP_fix g ∈ (∅ : Finset (K p))} := by
+          _ = Set.ncard (∅ : Set ((Subgroup.normalizer ((P : Subgroup G) : Set G)))) := Eq.symm (Set.ncard_empty ((Subgroup.normalizer ((P : Subgroup G) : Set G))))
+          _ = Set.ncard {g : (Subgroup.normalizer ((P : Subgroup G) : Set G)) | normDilationParam p G hG_p P hP_fix g ∈ (∅ : Finset (K p))} := by
             congr 1
             ext g
             rw [Set.mem_empty_iff_false, Set.mem_setOf_eq]
@@ -1368,18 +1368,18 @@ theorem normDilationParam_image_card
           exact (congrArg Set.ncard h_coe).trans (Set.ncard_coe_finset (Set.toFinite S).toFinset)
       _ = ∑ y ∈ (Set.toFinite S).toFinset, Nat.card (P : Subgroup G) := by
           simp only [Finset.sum_const, smul_eq_mul]
-      _ = ∑ y ∈ (Set.toFinite S).toFinset, Set.ncard {g : (P : Subgroup G).normalizer | normDilationParam p G hG_p P hP_fix g = y} := by
+      _ = ∑ y ∈ (Set.toFinite S).toFinset, Set.ncard {g : (Subgroup.normalizer ((P : Subgroup G) : Set G)) | normDilationParam p G hG_p P hP_fix g = y} := by
           apply Finset.sum_congr rfl
           intro y hy
           rw [Set.Finite.mem_toFinset] at hy
           exact (h_fiber_card y hy).symm
-      _ = Set.ncard {g : (P : Subgroup G).normalizer | normDilationParam p G hG_p P hP_fix g ∈ (Set.toFinite S).toFinset} := h_sum (Set.toFinite S).toFinset
-      _ = Set.ncard (Set.univ : Set ((P : Subgroup G).normalizer)) := by
+      _ = Set.ncard {g : (Subgroup.normalizer ((P : Subgroup G) : Set G)) | normDilationParam p G hG_p P hP_fix g ∈ (Set.toFinite S).toFinset} := h_sum (Set.toFinite S).toFinset
+      _ = Set.ncard (Set.univ : Set ((Subgroup.normalizer ((P : Subgroup G) : Set G)))) := by
           congr 1
           ext g
           rw [Set.mem_setOf_eq, Set.Finite.mem_toFinset]
           exact iff_of_true ⟨g, rfl⟩ (Set.mem_univ g)
-      _ = Nat.card ((P : Subgroup G).normalizer) := Set.ncard_univ ((P : Subgroup G).normalizer)
+      _ = Nat.card ((Subgroup.normalizer ((P : Subgroup G) : Set G))) := Set.ncard_univ ((Subgroup.normalizer ((P : Subgroup G) : Set G)))
   exact ((Nat.div_eq_of_eq_mul_left Nat.card_pos h_card_S_mul.symm).symm : Set.ncard S = normalizerQuotient p G P).trans (z1_eq_pm_minus_one p G m hm hG P (n_p_gt_one_of_pgl_order p G m hm hG))
 
 theorem dilation_params_cover
@@ -1395,7 +1395,7 @@ theorem dilation_params_cover
       (∀ a ∈ S, ∀ b ∈ S, a * b ∈ S) ∧
       (∀ a ∈ S, a⁻¹ ∈ S) ∧
       (∀ a ∈ S, a ≠ 0) ∧
-      (∀ c ∈ S, ∃ g : G, g ∈ (P : Subgroup G).normalizer ∧
+      (∀ c ∈ S, ∃ g : G, g ∈ (Subgroup.normalizer ((P : Subgroup G) : Set G)) ∧
         ∀ x ∈ translationSet p (Subgroup.map (Subgroup.subtype G) (P : Subgroup G)),
           c * x ∈ translationSet p (Subgroup.map (Subgroup.subtype G) (P : Subgroup G))) := by
   have hG_p : p ∣ Nat.card G := by
@@ -1472,12 +1472,13 @@ theorem orbitInfty_ncard
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p) :
     Set.ncard (orbitInfty p G) = Fintype.card (Sylow p G) := by
-  have h_stab_eq : MulAction.stabilizer G (infinity p) = (P : Subgroup G).normalizer :=
+  have h_stab_eq : MulAction.stabilizer G (infinity p) = (Subgroup.normalizer ((P : Subgroup G) : Set G)) :=
     Subgroup.ext fun g ↦ ⟨fixes_infinity_normalizes_sylow p G hG_p P hP_fix g, normalizer_element_fixes_infinity p G hG_p P hP_fix g⟩
   have h_orbit_eq : orbitInfty p G = MulAction.orbit G (infinity p) :=
     Set.ext fun x ↦ ⟨fun ⟨g, hg, h⟩ ↦ ⟨⟨g, hg⟩, h⟩, fun ⟨g, h⟩ ↦ ⟨g.val, g.prop, h⟩⟩
   rw [h_orbit_eq, ← Nat.card_coe_set_eq, Nat.card_congr (MulAction.orbitEquivQuotientStabilizer G (infinity p))]
   rw [h_stab_eq, ← Nat.card_eq_fintype_card, Nat.card_congr (Sylow.equivQuotientNormalizer P)]
+  rfl
 
 theorem orbit_eq_infty_union_translations
     (G : Subgroup (PGL p)) [Finite G]
@@ -1605,7 +1606,7 @@ theorem orbit_infty_eq_P1Fq_core
 
   obtain ⟨v₀, hv₀_mem, hv₀_ne⟩ : ∃ v₀ : K p, v₀ ∈ translationSet p H ∧ v₀ ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hV_eq : translationSet p H = {0} := Set.eq_singleton_iff_unique_mem.mpr ⟨hV_zero, h⟩
     have h_card_one : Set.ncard (translationSet p H) = 1 := hV_eq.symm ▸ Set.ncard_singleton _
     have h_pow_eq_one : p ^ m = 1 := hV_card.symm.trans h_card_one
