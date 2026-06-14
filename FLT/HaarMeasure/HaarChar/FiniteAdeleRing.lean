@@ -532,6 +532,10 @@ lemma FiniteAdeleRing.Aux.almost_always_bijOn
   intro v h1 h2
   exact (e K B v (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)).bijOn' h1 h2
 
+@[to_additive (attr := simp)]
+lemma MulEquivClass.coe_toMulEquiv {F α β : Type*} [EquivLike F α β] [Mul α] [Mul β]
+  [MulEquivClass F α β] (f : F) : ⇑(MulEquivClass.toMulEquiv f) = f := rfl
+
 set_option backward.isDefEq.respectTransparency false in
 set_option synthInstance.maxHeartbeats 40000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
@@ -549,9 +553,8 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
   letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
   letI b_local := Module.Basis.baseChange (v.adicCompletion K) b₀
   let m := LinearMap.toMatrix b b φ.toLinearMap
-  simp only [ContinuousAddEquiv.restrictedProductCongrRight, e, ← basis_eq K B v,
-    ContinuousAddEquiv.coe_trans, ContinuousAddEquiv.coe_mk, AddEquiv.coe_mk, Equiv.coe_fn_mk,
-    map_apply, Function.comp_apply, map_sum, Finset.sum_apply]
+  dsimp [e]
+  simp only [← basis_eq K B v, map_sum, Finset.sum_apply]
   conv_rhs =>
     change ∑ c,
       (ContinuousLinearEquiv.chooseBasis_piScalarRight' K (adicCompletion K v) B)

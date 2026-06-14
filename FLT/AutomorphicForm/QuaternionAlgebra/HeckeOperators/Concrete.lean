@@ -5,11 +5,12 @@ Authors: Kevin Buzzard, Andrew Yang, Matthew Jasper
 -/
 module
 
-public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local -- abstract Hecke ops
-public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract -- abstract Hecke ops
-public import FLT.AutomorphicForm.QuaternionAlgebra.Defs -- definitions of automorphic forms
-public import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
-public import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits -- for (π 0; 0 1)
+public import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
+public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
+public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
+public import FLT.Mathlib.FieldTheory.SplittingField.IsSplittingField
+public import Mathlib.Algebra.Algebra.ZMod
+public import Mathlib.Topology.Algebra.Ring.Compact
 
 /-!
 # Concrete Hecke operators on quaternionic automorphic forms
@@ -88,133 +89,461 @@ end finiteness
 open NumberField IsQuaternionAlgebra.NumberField IsDedekindDomain
 
 -- let F be a totally real number field
-variable (F : Type*) [Field F] [NumberField F] [IsTotallyReal F]
+variable (F : Type*) [Field F] [NumberField F] --[IsTotallyReal F]
 
 -- Let D/F be a quaternion algebra
-variable (D : Type*) [Ring D] [Algebra F D] [IsQuaternionAlgebra F D]
+variable (D : Type*) [DivisionRing D] [Algebra F D]
+
+variable (R : Type*) [CommRing R]
 
 -- Let r be a rigidification of D, which is a collection of isomorphisms D ⊗ Fᵥ = M₂(Fᵥ)
 -- for all finite places v of F, compatible with the adelic structure (i.e. inducing
 -- an isomorphism D ⊗_F 𝔸_F^f = M₂(𝔸_F^f))
-variable (r : Rigidification F D)
+variable [WithRigidification F D]
 
--- Let S be a finite set of finite plaes of F (the level)
-variable (S : Finset (HeightOneSpectrum (𝓞 F)))
+open scoped FLT
 
--- let P be a good prime
-variable {P : HeightOneSpectrum (𝓞 F)} (hP : P ∉ S)
+open TotallyDefiniteQuaternionAlgebra FiniteAdeleRing
+-- let's define T_P : S_2^D(U_1(S₀)) -> S_2^D(U_1(S₀))
+namespace TotallyDefiniteQuaternionAlgebra
 
-open TotallyDefiniteQuaternionAlgebra
--- let's define T_P : S_2^D(U_1(S)) -> S_2^D(U_1(S))
-namespace TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
+namespace WeightTwoAutomorphicForm
 
-open IsDedekindDomain.HeightOneSpectrum
+variable {F R D} (ℒ : LocalLevelStruct F R)
+
+lemma LocalLevelStruct.exists_mul_eq (x : ℒ.toStruct.U) (v : HeightOneSpectrum (𝓞 F)) :
+    ∃ a : ℒ.toStruct.U, ∃ b : ℒ.US v, GL2.toAdicCompletion v a = 1 ∧ x = a * ℒ.incl v b := by
+  refine ⟨x / ℒ.incl v ⟨GL2.toAdicCompletion v x, x.2 _⟩, ⟨GL2.toAdicCompletion v x, x.2 _⟩, ?_, ?_⟩
+  · rw [Subgroup.coe_div, map_div, div_eq_one]
+    simp [incl]
+  · simp
+
+variable (D) in
+noncomputable
+def LocalLevelStruct.heckeOperator (v : HeightOneSpectrum (𝓞 F)) (hv : ℒ.χ v = 1)
+    (g : GL₂(v.adicCompletion F)) :
+    Module.End R (ℒ.toStruct.form D R) := by
+  let f :=
+    AbstractHeckeOperator.heckeOperator g (ℒ.US v) (ℒ.US v)
+    (R := R) (A := WeightTwoAutomorphicForm F D R)
+    (QuotientGroup.mk_image_finite_of_compact_of_open (ℒ.isCompact_US _) (ℒ.isOpen_US _))
+  refine ((Submodule.subtype _).comp (f.comp (Submodule.inclusion ?_))).codRestrict _ ?_
+  · intro x hx g
+    refine (hx ⟨_, fun w ↦ ?_⟩).trans ?_
+    · obtain rfl | h := eq_or_ne w v
+      · simp
+      · simp [h]
+    · trans ℒ.χ v g • x
+      · congr 1; exact ℒ.χ_incl v g
+      · simp [hv]
+  · rintro c a
+    obtain ⟨a, b, ha, rfl⟩ := ℒ.exists_mul_eq a v
+    simp only [LinearMap.coe_comp, Submodule.coe_subtype, Function.comp_apply, mul_smul, map_mul,
+      LocalLevelStruct.χ_incl, hv, MonoidHom.one_apply, mul_one]
+    refine congr(a • $((f _).2 b)).trans ?_
+    dsimp [f]
+    erw [AbstractHeckeOperator.heckeOperator_apply']
+    rw [Finset.smul_sum, Finset.smul_sum]
+    congr with x y
+    have H : y * a * GL2.finiteAdeleIncl v x.out = y * GL2.finiteAdeleIncl v x.out * a := by
+      simp only [mul_assoc]; rw [GL2.mul_comm_of_toAdicCompletion_eq_one _ _ _ ha]
+    exact congr(c.1 $H).trans congr($(c.2 a) (y * GL2.finiteAdeleIncl v x.out))
+
+set_option backward.isDefEq.respectTransparency false in
+lemma LocalLevelStruct.heckeOperator_mul_comm_of_ne
+    (v w : HeightOneSpectrum (𝓞 F)) (hv : ℒ.χ v = 1) (hw : ℒ.χ w = 1)
+    (gv : GL₂(v.adicCompletion F)) (gw : GL₂(w.adicCompletion F)) (hvw : v ≠ w) :
+    ℒ.heckeOperator D v hv gv * ℒ.heckeOperator D w hw gw =
+      ℒ.heckeOperator D w hw gw * ℒ.heckeOperator D v hv gv := by
+  ext f : 2
+  repeat dsimp [heckeOperator]; rw [AbstractHeckeOperator.heckeOperator_apply']
+  simp only [Finset.smul_sum, adicCompletion_smul_def, ← mul_smul]
+  rw [Finset.sum_comm]
+  congr! 3 with a ha b hb
+  rw [GL2.mul_comm_of_toAdicCompletion_eq_one _ _ _ (by simp [hvw.symm])]
+
+set_option backward.isDefEq.respectTransparency false in
+lemma LocalLevelStruct.heckeOperator_eq_of_mem_normalizer
+    (v : HeightOneSpectrum (𝓞 F)) (hv : ℒ.χ v = 1)
+    (g : GL₂(v.adicCompletion F)) (hg : g ∈ Subgroup.normalizer (ℒ.US v)) (x) :
+    (ℒ.heckeOperator D v hv g x).1 = g • x := by
+  dsimp [heckeOperator]
+  rw [AbstractHeckeOperator.heckeOperator_eq_of_mem_normalizer _ _ hg]
+  dsimp
+
+open scoped Pointwise
+
+set_option backward.isDefEq.respectTransparency false in
+lemma LocalLevelStruct.heckeOperator_map_mul_of_mem_normalizer_left
+    (v : HeightOneSpectrum (𝓞 F)) (hv : ℒ.χ v = 1)
+    (g₁ g₂ : GL₂(v.adicCompletion F)) (hg₁ : g₁ ∈ Subgroup.normalizer (ℒ.US v)) :
+    ℒ.heckeOperator D v hv g₁ * ℒ.heckeOperator D v hv g₂ =
+      ℒ.heckeOperator D v hv (g₁ * g₂) := by
+  ext f : 2
+  dsimp
+  rw [LocalLevelStruct.heckeOperator_eq_of_mem_normalizer (hg := hg₁)]
+  dsimp [heckeOperator]
+  have H : (QuotientGroup.mk '' (↑(ℒ.US v) * {↑g₂}) :
+      Set (GL₂(v.adicCompletion F) ⧸ ℒ.US v)).Finite :=
+    QuotientGroup.mk_image_finite_of_compact_of_open (ℒ.isCompact_US _) (ℒ.isOpen_US _)
+  rw [AbstractHeckeOperator.heckeOperator_eq_finsetSum _ _ (H.image Quotient.out).toFinset,
+    AbstractHeckeOperator.heckeOperator_eq_finsetSum _ _
+      ((H.image Quotient.out).toFinset.map (Equiv.mulLeft g₁))]
+  · simp [mul_smul, Finset.smul_sum]
+  · simp only [Finset.coe_map, Function.Embedding.coeFn_mk, Equiv.coe_mulLeft,
+      Set.Finite.coe_toFinset]
+    rw [Set.image_image]
+    nth_rw 2 [← Set.image_id (QuotientGroup.mk '' _)]
+    refine Set.bijOn_image_image (α := GL₂(v.adicCompletion F) ⧸ ℒ.US v) (f := (g₁ • ·)) ?_ ?_ ?_
+    · refine QuotientGroup.mk_surjective.forall.mpr fun x ↦ QuotientGroup.eq.mpr ?_
+      simp [← QuotientGroup.eq]
+    · convert (MulAction.injective g₁).bijOn_image
+      have H : ((ℒ.US v) * {g₁ * g₂} : Set GL₂(v.adicCompletion F)) =
+          {g₁} * (↑(ℒ.US v) * {g₂}) := by
+        ext; simp [← Subgroup.mem_normalizer_iff'.mp (inv_mem hg₁), mul_assoc]
+      rw [H, Set.singleton_mul, ← Set.image_comp, ← Set.image_comp]
+      rfl
+    · rw [Set.injOn_image_iff
+        (by exact ((mul_right_injective g₁).comp Quotient.out_injective).injOn)]
+      convert (MulAction.injective g₁ (β := GL₂(v.adicCompletion F) ⧸ ℒ.US v)).injOn
+      ext; simp [← smul_eq_mul]
+  · simp only [Set.Finite.coe_toFinset]
+    nth_rw 2 [← Set.image_id (QuotientGroup.mk '' _)]
+    refine Set.bijOn_image_image (f := id) (by simp) (Set.bijOn_id _) ?_
+    rw [Set.injOn_image_iff Quotient.out_injective.injOn]
+    simp
+
+set_option backward.isDefEq.respectTransparency false in
+lemma LocalLevelStruct.heckeOperator_map_mul_of_mem_normalizer_right
+    (v : HeightOneSpectrum (𝓞 F)) (hv : ℒ.χ v = 1)
+    (g₁ g₂ : GL₂(v.adicCompletion F)) (hg₂ : g₂ ∈ Subgroup.normalizer (ℒ.US v)) :
+    ℒ.heckeOperator D v hv g₁ * ℒ.heckeOperator D v hv g₂ =
+      ℒ.heckeOperator D v hv (g₁ * g₂) := by
+  ext f : 2
+  dsimp
+  rw [heckeOperator, eq_comm, heckeOperator]
+  dsimp
+  have H : (QuotientGroup.mk '' (↑(ℒ.US v) * {↑g₁}) :
+      Set (GL₂(v.adicCompletion F) ⧸ ℒ.US v)).Finite :=
+    QuotientGroup.mk_image_finite_of_compact_of_open (ℒ.isCompact_US _) (ℒ.isOpen_US _)
+  rw [AbstractHeckeOperator.heckeOperator_eq_finsetSum _ _
+      ((H.image Quotient.out).toFinset.map (Equiv.mulRight g₂)),
+    AbstractHeckeOperator.heckeOperator_eq_finsetSum _ _ (H.image Quotient.out).toFinset]
+  · dsimp
+    rw [LocalLevelStruct.heckeOperator_eq_of_mem_normalizer (hg := hg₂)]
+    simp [mul_smul]
+  · simp only [Set.Finite.coe_toFinset]
+    nth_rw 2 [← Set.image_id (QuotientGroup.mk '' _)]
+    refine Set.bijOn_image_image (f := id) (by simp) (Set.bijOn_id _) ?_
+    rw [Set.injOn_image_iff Quotient.out_injective.injOn]
+    simp
+  · simp only [Finset.coe_map, Function.Embedding.coeFn_mk, Equiv.coe_mulRight,
+      Set.Finite.coe_toFinset]
+    rw [Set.image_image]
+    nth_rw 2 [← Set.image_id (QuotientGroup.mk '' _)]
+    let g₂' : (Subgroup.normalizer (ℒ.US v : Set GL₂(v.adicCompletion F)))ᵐᵒᵖ := .op ⟨g₂, hg₂⟩
+    refine Set.bijOn_image_image (α := GL₂(v.adicCompletion F) ⧸ ℒ.US v) (f := (g₂' • ·)) ?_ ?_ ?_
+    · refine QuotientGroup.mk_surjective.forall.mpr fun x ↦ QuotientGroup.eq.mpr ?_
+      simp [mul_assoc, ← Subgroup.mem_normalizer_iff'.mp (inv_mem hg₂), g₂']
+      simp [← QuotientGroup.eq]
+    · convert (MulAction.injective g₂').bijOn_image
+      rw [← Set.singleton_mul_singleton, ← mul_assoc, Set.mul_singleton,
+        ← Set.image_comp, ← Set.image_comp]
+      rfl
+    · rw [Set.injOn_image_iff
+        (by exact ((mul_left_injective g₂).comp Quotient.out_injective).injOn)]
+      convert (MulAction.injective g₂' (β := GL₂(v.adicCompletion F) ⧸ ℒ.US v)).injOn
+      ext a
+      change g₂' • QuotientGroup.mk a.out = g₂' • a
+      simp
+
+end WeightTwoAutomorphicForm
+
+open IsDedekindDomain.HeightOneSpectrum IsDedekindDomain.FiniteAdeleRing
+
+open scoped FLT
 
 open scoped TensorProduct
 
--- Oops! This is also `IsDedekindDomain.HeightOneSpectrum.QuaternionAlgebra.TameLevel`
--- in `FLT.QuaternionAlgebra.NumberField`, defined differently (using `Subgroup.comap` not `map`).
--- Don't care which one survives.
-variable {F D} in
-open scoped TensorProduct.RightActions in
-/-- U1(S) -/
-noncomputable abbrev U1 : Subgroup (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
-  Subgroup.map (Units.map r.symm.toMonoidHom) (GL2.TameLevel S)
+variable {p : ℕ}
 
-variable {F D} in
-open scoped TensorProduct.RightActions in
-lemma U1_compact : IsCompact (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
-  sorry -- #583, long
+structure TaylorWilesData (p : ℕ) where
+  prime : p.Prime
+  /-- The set of bad primes -/
+  S : Finset (HeightOneSpectrum (𝓞 F))
+  /-- The set of taylor wiles primes -/
+  Q : Finset (HeightOneSpectrum (𝓞 F))
+  disjoint_s_q : Disjoint S Q
+  -- only relavent when `v ∈ S`.
+  χS (v : HeightOneSpectrum (𝓞 F)) : (IsLocalRing.ResidueField ↥(adicCompletionIntegers F v))ˣ →* R
+  χS_pow_eq_one : ∀ v ∈ S, χS v ^ p = 1
+  two_lt_finrank_cyclotomic_field : 2 < Module.finrank F (CyclotomicField p F)
 
-variable {F D} in
-open scoped TensorProduct.RightActions in
-lemma U1_open : IsOpen (U1 r S : Set (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ) :=
-  sorry -- #583, long
+open scoped Classical in
+/-- `U₁ F D R S₀ S₁` is the open compact of `GL₂(𝔸 F)` given by
+`(* *; 0 *) mod v` for `v ∈ S₀`, `(a *; 0 a) mod v` for `v ∈ S₁`, and `GL₂(𝒪ᵥ)` at the
+rest of the places, with the trivial character. -/
+@[simps -isSimp]
+noncomputable
+def U₁ (𝒮 : TaylorWilesData F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R where
+  S := 𝒮.S ∪ 𝒮.Q
+  US v := if v ∈ 𝒮.Q then GL2.localPTameLevel v p else
+    if v ∈ 𝒮.S then GL2.localBorelLevel v else GL2.localFullLevel v
+  isCompact_US_of_mem v hv := by
+    split_ifs with h₁ h₂
+    · exact GL2.localPTameLevel.isCompact v _
+    · exact GL2.localBorelLevel.isCompact v
+    · simp_all
+  isOpen_US_of_mem v hv := by
+    split_ifs with h₁ h₂
+    · exact GL2.localPTameLevel.isOpen v _
+    · exact GL2.localBorelLevel.isOpen v
+    · simp_all
+  US_eq_of_notMem := by simp +contextual
+  χ v := if h : v ∈ 𝒮.S ∧ v ∉ 𝒮.Q then
+    ((𝒮.χS v).comp (GL2.localBorelLevel.char v)).comp
+      (MulEquiv.subgroupCongr ((if_neg h.2).trans (if_pos h.1))).toMonoidHom else 1
+  χ_eq_of_notMem := by simp +contextual
+  range_unitsMap_le_ker_χ v hv := by
+    by_cases h : v ∈ 𝒮.S ∧ v ∉ 𝒮.Q; swap; · simp [h]
+    simp only [h, RingHom.toMonoidHom_eq_coe, not_false_eq_true, and_self, ↓reduceDIte,
+      MulEquiv.toMonoidHom_eq_coe, MonoidHom.ker_comp_mulEquiv,
+      ← Subgroup.comap_equiv_eq_map_symm]
+    rintro ⟨_, hg⟩ ⟨g, rfl⟩
+    simp only [Subgroup.mem_comap, MonoidHom.coe_coe, MonoidHom.mem_ker, MonoidHom.coe_comp,
+      Function.comp_apply]
+    rw [GL2.localBorelLevel.char_eq_one_iff.mpr, map_one]
+    simp only [MulEquiv.subgroupCongr_apply]
+    simp [Matrix.algebraMap_matrix_apply]
+  isOpen_ker_χ_of_mem v hv := by
+    by_cases h : v ∈ 𝒮.S ∧ v ∉ 𝒮.Q; swap; · simp [h]
+    rw [(IsOpen.isOpenEmbedding_subtypeVal _).isOpen_iff_image_isOpen]
+    · simp only [h, SetLike.coe_sort_coe, not_false_eq_true, and_self, ↓reduceDIte,
+        MulEquiv.toMonoidHom_eq_coe, MonoidHom.ker_comp_mulEquiv, Subgroup.coe_map,
+        MonoidHom.coe_coe, Set.image_image, MulEquiv.subgroupCongr_symm_apply]
+      refine (IsOpen.isOpenEmbedding_subtypeVal
+        (GL2.localBorelLevel.isOpen _)).isOpen_iff_image_isOpen.mp ?_
+      refine Subgroup.isOpen_mono (G := GL2.localBorelLevel v)
+        (MonoidHom.ker_le_ker_comp (GL2.localBorelLevel.char v) _) ?_
+      rw [GL2.localBorelLevel.ker_char]
+      exact (GL2.localTameLevel.isOpen v).preimage continuous_subtype_val
+    · simpa [h] using GL2.localBorelLevel.isOpen v
+
+open Polynomial in
+lemma TaylorWilesData.eq_one_of_pow_eq_one_of_natDegree_le_two
+    (𝒮 : TaylorWilesData F R p)
+    {K : Type*} [CommRing K] [IsDomain K] [Algebra F K] {x : K} (hx : x ^ p = 1)
+    (hx'' : (minpoly F x).natDegree ≤ 2) : x = 1 := by
+  by_contra hx1
+  have hx' : IsIntegral F x := .of_pow 𝒮.prime.pos (by simp [hx, isIntegral_one])
+  have H := (IsPrimitiveRoot.iff_of_prime 𝒮.prime).mpr ⟨hx, hx1⟩
+  have : NeZero p := ⟨𝒮.prime.ne_zero⟩
+  have := (isCyclotomicExtension_singleton_iff_eq_adjoin (A := F) _ _ H).mpr rfl
+  have : Module.Finite F (Algebra.adjoin F {x}) :=
+    Module.Finite.iff_fg.mpr (IsIntegral.fg_adjoin_singleton hx')
+  have : IsField (Algebra.adjoin F {x}) := isField_of_isIntegral_of_isField' (Field.toIsField F)
+  let := this.toField
+  have := 𝒮.two_lt_finrank_cyclotomic_field
+  grw [← (IsCyclotomicExtension.algEquiv {p} F (Algebra.adjoin F {x})
+    (CyclotomicField p F)).toLinearEquiv.finrank_eq,
+    (AlgEquiv.adjoinSingletonEquivAdjoinRootMinpoly F x).toLinearEquiv.finrank_eq,
+    (AdjoinRoot.powerBasis (minpoly.ne_zero hx')).finrank, AdjoinRoot.powerBasis_dim,
+    hx''] at this
+  contradiction
+
+open Polynomial in
+set_option backward.isDefEq.respectTransparency false in
+lemma _root_.Polynomial.cyclotomic_of_charP
+    (R : Type*) [CommRing R] (p : ℕ) (hp : p.Prime) [CharP R p] :
+    cyclotomic p R = (.X - 1) ^ (p - 1) := by
+  suffices cyclotomic p (ZMod p) = (.X - 1) ^ (p - 1) by
+    let inst : Algebra (ZMod p) R := ZMod.algebra _ _
+    rw [← map_cyclotomic _ (algebraMap (ZMod p) R), this]; simp
+  have := Fact.mk hp
+  apply mul_left_injective₀ (b := .X - 1) (by simpa using X_sub_C_ne_zero 1)
+  simp only [← pow_succ, Nat.sub_add_cancel hp.one_le, sub_pow_char, one_pow,
+    cyclotomic_prime_mul_X_sub_one]
+
+open Polynomial in
+set_option backward.isDefEq.respectTransparency false in
+instance {F : Type*} [Field F] (n : ℕ) :
+    IsSplittingField F (CyclotomicField n F) (cyclotomic n F) := by
+  delta CyclotomicField; infer_instance
+
+open Polynomial in
+set_option backward.isDefEq.respectTransparency false in
+lemma TaylorWilesData.five_le
+    (𝒮 : TaylorWilesData F R p) : 5 ≤ p := by
+  by_contra! H
+  obtain rfl | rfl | rfl | rfl | rfl : (p = 0 ∨ p = 1 ∨ p = 2 ∨ p = 3 ∨ p = 4) := by lia
+  · simpa using 𝒮.prime.ne_zero
+  · simpa using 𝒮.prime.ne_one
+  · have := 𝒮.two_lt_finrank_cyclotomic_field.trans_le
+      (Polynomial.IsSplittingField.finrank_le_factorial (cyclotomic 2 F))
+    simp [natDegree_add_C, ← C.map_one, -map_one] at this
+  · have := 𝒮.two_lt_finrank_cyclotomic_field.trans_le
+      (Polynomial.IsSplittingField.finrank_le_factorial (cyclotomic 3 F))
+    simp [show (X (R := F) ^ 2 + X + 1).natDegree = 2 by compute_degree; simp] at this
+  · cases (show ¬ Nat.Prime 4 by decide) 𝒮.prime
+
+open Polynomial in
+set_option backward.isDefEq.respectTransparency false in
+lemma TaylorWilesData.not_charP
+    (𝒮 : TaylorWilesData F R p) : ¬ CharP F p := by
+  intro H
+  let φ : CyclotomicField p F →ₐ[F] F := IsSplittingField.lift (cyclotomic p F).SplittingField
+    (cyclotomic p F) (by
+    rw [Polynomial.cyclotomic_of_charP _ _ 𝒮.prime]
+    simpa using (Polynomial.Splits.X_sub_C (1 : F)).pow (p - 1))
+  have := 𝒮.two_lt_finrank_cyclotomic_field
+  grw [φ.toLinearMap.finrank_le_finrank_of_injective φ.injective] at this
+  simp at this
+
+lemma TaylorWilesData.coe_ne_zero
+    (𝒮 : TaylorWilesData F R p) : (p : F) ≠ 0 := by
+  refine fun H ↦ 𝒮.not_charP _ _ ?_
+  exact (CharP.charP_iff_prime_eq_zero 𝒮.prime).mpr H
+
+omit [WithRigidification F D] in
+open Polynomial in
+set_option backward.isDefEq.respectTransparency false in
+lemma TaylorWilesData.eq_one_of_pow_eq_one (𝒮 : TaylorWilesData F R p)
+    {x : D} (hx : x ^ p = 1) [IsQuaternionAlgebra F D] : x = 1 := by
+  by_contra hx'
+  let x' : Algebra.adjoin F {x} := ⟨x, Algebra.self_mem_adjoin_singleton _ _⟩
+  have : IsPrimitiveRoot x' p := IsPrimitiveRoot.iff_orderOf.mpr
+    ((𝒮.prime.eq_one_or_self_of_dvd _ (orderOf_dvd_of_pow_eq_one
+      (by ext; simp [x', hx]))).resolve_left (by simpa [← OneMemClass.coe_eq_one, x']))
+  have : IsCyclotomicExtension {p} F (Algebra.adjoin F {x}) := ⟨fun {n} e _ ↦ ⟨_, e ▸ this⟩, by
+    suffices Algebra.adjoin F {b : Algebra.adjoin F {x} | b ^ p = 1} = ⊤ by
+      simp [𝒮.prime.ne_zero, this]
+    apply Subalgebra.map_injective (f := Subalgebra.val _) Subtype.val_injective
+    refine (Subalgebra.map_mono le_top).antisymm ?_
+    simp only [Algebra.map_top, Subalgebra.range_val, AlgHom.map_adjoin, Subalgebra.coe_val,
+      Algebra.adjoin_le_iff, Set.singleton_subset_iff, SetLike.mem_coe]
+    exact Algebra.subset_adjoin ⟨x', by ext; simp [x', hx], rfl⟩⟩
+  have h₁ : (minpoly F x).natDegree = 2 := by
+    refine eq_of_le_of_not_lt (IsQuaternionAlgebra.natDegree_minpoly_le_two _ _) fun H ↦ ?_
+    replace H : (minpoly F x).natDegree = 1 := by
+      have : 0 < (minpoly F x).natDegree := minpoly.natDegree_pos (Algebra.IsIntegral.isIntegral _)
+      lia
+    obtain ⟨x, rfl⟩ := minpoly.natDegree_eq_one_iff.mp H
+    obtain rfl := 𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := x) _ _
+      ((algebraMap F D).injective (by simpa))
+      ((minpoly.natDegree_eq_one_iff.mpr (by simp)).trans_le (by simp))
+    simp at hx'
+  have h₂ : IsField (Algebra.adjoin F {x}) := by
+    have : Irreducible (minpoly F x) := by
+      by_contra H
+      obtain ⟨a, b, hab⟩ := ((minpoly.monic (Algebra.IsIntegral.isIntegral
+        _)).not_irreducible_iff_of_natDegree_eq_two h₁).mp H
+      have hdvd := hab.symm.dvd.trans (minpoly.dvd F x (p := .X ^ p - 1) (by simp [hx]))
+      obtain rfl : a = 1 := 𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := a) _ _
+        (by simpa [sub_eq_zero] using map_dvd (aeval a) hdvd)
+        ((minpoly.natDegree_eq_one_iff.mpr (by simp)).trans_le (by simp))
+      obtain rfl : b = 1 := 𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := b) _ _
+        (by simpa [sub_eq_zero] using map_dvd (aeval b) hdvd)
+        ((minpoly.natDegree_eq_one_iff.mpr (by simp)).trans_le (by simp))
+      exact Polynomial.not_isUnit_X_sub_C 1
+        (((Polynomial.X_pow_sub_C_separable_iff (n := p) (x := (1 : F))
+        𝒮.prime.pos one_ne_zero).mpr 𝒮.coe_ne_zero).squarefree _ hdvd)
+    have := Fact.mk this
+    refine (AlgEquiv.adjoinSingletonEquivAdjoinRootMinpoly' F x).isField (Field.toIsField _)
+  let := h₂.toField
+  refine hx' congr($(𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two _ _ (x := x') (by ext; simpa) ?_).1)
+  rw [← minpoly.algHom_eq (Subalgebra.val _) Subtype.val_injective, ← h₁]
+  simp [x']
+
+open scoped Classical in
+instance (𝒮 : TaylorWilesData F R p) [IsQuaternionAlgebra F D] [IsTotallyReal F]
+    [IsQuaternionAlgebra.IsTotallyDefinite F D] :
+    (U₁ F R 𝒮).toStruct.IsSufficientlySmall D where
+  coprime_ΔIndex g := by
+    refine .of_dvd_left (orderOf_dvd_of_pow_eq_one (n := p) ?_) ?_
+    · simp only [WeightTwoAutomorphicForm.LocalLevelStruct.toStruct_χ, U₁_χ]
+      erw [← @Finset.prod_pow]
+      refine @Finset.prod_eq_one (h := fun x hx ↦ ?_)
+      split_ifs with h
+      · simp_all
+      · replace hx : x ∈ 𝒮.S := by simp [h]
+        ext a
+        simpa [h, hx] using congr($(𝒮.χS_pow_eq_one _ hx) _)
+      · exact one_pow _
+      · exact one_pow _
+    · have := (U₁ F R 𝒮).toStruct.isFiniteRelIndex_Δ (D := D) g
+      rw [𝒮.prime.coprime_iff_not_dvd, Subgroup.dvd_relIndex_iff_of_prime (hp := 𝒮.prime)]
+      rintro ⟨x, ⟨hx₁, _, ⟨a, rfl⟩, ha⟩, hx, u, hu⟩
+      dsimp at ha hx₁
+      have h₁ : (a.map (Algebra.norm F)).map (algebraMap _ _).toMonoidHom =
+          x.map (Algebra.norm (FiniteAdeleRing (𝓞 F) F)) := by
+        rw [← ha]
+        simp only [ConjAct.smul_def, ConjAct.ofConjAct_toConjAct,
+          map_mul, map_inv, mul_inv_cancel_comm]
+        ext1
+        dsimp
+        rw [← WithRigidification.det_incl_sq, Algebra.norm_eq_det, Fintype.card_fin]
+      have h₁' : (a.map (Algebra.norm F)).map (algebraMap _ _).toMonoidHom =
+          (x.map (Algebra.norm (FiniteAdeleRing (𝓞 F) F))).map
+            (algebraMap _ M₂(FiniteAdeleRing (𝓞 F) F)).toMonoidHom := by
+        rw [← h₁]; ext1; simp [← IsScalarTower.algebraMap_apply]
+      have h₂ : WithRigidification.unitsIncl F D a ^ p = u.map (algebraMap _ _).toMonoidHom := by
+        apply MulAction.injective (ConjAct.toConjAct g)
+        simp only [smul_pow', ha, ← hu]
+        rw [ConjAct.toConjAct_smul]
+        ext1
+        simp [← Algebra.commutes]
+      have h₃ : (a ^ 4 / (a.map (Algebra.norm F)).map (algebraMap F D).toMonoidHom) ^ p = 1 := by
+        rw [div_eq_mul_inv, Commute.mul_pow, ← pow_mul, pow_mul', inv_pow, mul_inv_eq_one]
+        · apply WithRigidification.unitsIncl_injective (F := F)
+          simp only [map_pow, h₂, WithRigidification.unitsIncl_algebraMap, h₁']
+          simp only [← map_pow, ← hu]
+          ext1
+          simp [← pow_mul, ← IsScalarTower.algebraMap_apply]
+        · rw [Commute.inv_right_iff]
+          refine Commute.pow_left (by ext; simp [Algebra.commutes]) _
+      have h₃' : a ^ 4 = (a.map (Algebra.norm F)).map (algebraMap F D).toMonoidHom := by
+        rw [← div_eq_one]
+        ext1
+        exact 𝒮.eq_one_of_pow_eq_one _ _ _ (by simpa using congr(($h₃).1))
+      have h₃'' : x ^ 4 = (a.map (Algebra.norm F)).map (algebraMap F _).toMonoidHom := by
+        rw [← ha]
+        simp only [← smul_pow', ← map_pow, h₃']
+        ext1
+        simp [ConjAct.toConjAct_smul, ← Algebra.commutes]
+      refine hx (mem_of_pow_mem_of_pow_mem_of_coprime ?_ ⟨u, hu⟩ ⟨_, h₃''.symm⟩)
+      rw [𝒮.prime.coprime_iff_not_dvd]
+      exact mt (Nat.le_of_dvd (by decide)) (not_le_of_gt (.trans_le (by decide) 𝒮.five_le))
+
+open scoped Adele
 
 variable (R : Type*) [CommRing R]
 
 namespace HeckeOperator
 
-variable {F D S} in
-open scoped TensorProduct.RightActions in
+variable {F R} in
+open scoped TensorProduct.RightActions Classical in
+set_option backward.isDefEq.respectTransparency false in
 /-- The Hecke operator T_v as an R-linear map from R-valued quaternionic weight 2
-automorphic forms of level U_1(S).
+automorphic forms of level U_1(S₀).
 -/
-noncomputable def T (v : HeightOneSpectrum (𝓞 F)) :
-    WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
-    WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
-  letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
-  let g : (D ⊗[F] (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F))ˣ :=
-    Units.map r.symm.toMonoidHom (Matrix.GeneralLinearGroup.diagonal
-    ![FiniteAdeleRing.localUniformiserUnit F v, 1])
-  AbstractHeckeOperator.HeckeOperator (R := R) g (U1 r S) (U1 r S)
-  (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
+noncomputable def T (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+    (hvS : v ∉ 𝒮.S) :
+    Module.End R ((U₁ F R 𝒮).toStruct.form D R) :=
+  (U₁ F R 𝒮).heckeOperator _ v (by simp [U₁_χ, hvS])
+    (Matrix.GeneralLinearGroup.diagonal ![v.adicCompletionUniformizerUnit F, 1])
 
 section U
 
-variable {F D}
+variable {F R} (𝒮 : TaylorWilesData F R p)
 
 variable {v : HeightOneSpectrum (𝓞 F)} (α : v.adicCompletionIntegers F) (hα : α ≠ 0)
 
 open scoped TensorProduct.RightActions
 open scoped Pointwise
 
-noncomputable instance : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
+open TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
 
-/-- The (global) matrix element `diag[α, 1]`. -/
-noncomputable abbrev diag :
-    (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
-  Units.mapEquiv r.symm.toMulEquiv
-    (FiniteAdeleRing.GL2.restrictedProduct.symm
-    (RestrictedProduct.mulSingle _ _ (Local.GL2.diag α hα)))
-
-/-- The (global) matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`.
-Here `t ∈ 𝒪ᵥ / α` and we lift it arbitrarily to `𝒪ᵥ`. -/
-noncomputable def unipotent_mul_diag (t : ↑(adicCompletionIntegers F v) ⧸ (Ideal.span {α})) :
-    (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
-  Units.mapEquiv r.symm.toMulEquiv
-    (FiniteAdeleRing.GL2.restrictedProduct.symm
-    (RestrictedProduct.mulSingle _ _
-      (Local.GL2.unipotent_mul_diag α hα (Quotient.out t : adicCompletionIntegers F v))))
-
-/-- The set of elements `unipotent_mul_diag`, that is, the elements of `(D ⊗ 𝔸_F^∞)ˣ`
-which are `(α t;0 1)` at `v` and the identity elsewhere, as `t` runs through a set
-of coset reps of `𝓞ᵥ / α`. These will form a set of coset representatives for `U1 diag U1`.
--/
-noncomputable def unipotent_mul_diag_image :
-    Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
-  (unipotent_mul_diag r α hα) '' ⊤
-
-omit [IsTotallyReal F] [IsQuaternionAlgebra F D] in
-lemma unipotent_mul_diag_inj :
-    Set.InjOn (unipotent_mul_diag r α hα) ⊤ := by
-  intro t₁ h₁ t₂ h₂ h
-  simp only [unipotent_mul_diag, EmbeddingLike.apply_eq_iff_eq, RestrictedProduct.ext_iff] at h
-  let h' := h v; simp only [RestrictedProduct.mulSingle_eq_same, Units.ext_iff] at h'
-  rw [← Matrix.ext_iff] at h'
-  let h'' := h' 0 1
-  simpa [Local.GL2.unipotent_mul_diag, Matrix.GeneralLinearGroup.GL2.unipotent, Local.GL2.diag,
-    Matrix.unitOfDetInvertible, Matrix.GeneralLinearGroup.diagonal] using h''
-
-/-- The double coset space `U₁(S) diag(αᵥ,1) U₁(S)` as a set of left cosets. -/
-noncomputable def U1diagU1 :
-    Set ((D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ ⧸ (U1 r S)) :=
-  QuotientGroup.mk '' ((U1 r S) * {diag r α hα})
-
-theorem bijOn_unipotent_mul_diagU1_U1diagU1 :
-    (unipotent_mul_diag_image r α hα).BijOn QuotientGroup.mk (U1diagU1 r S α hα) :=
-  sorry -- global double coset decomposition
-
-lemma unipotent_mul_diag_image_finite :
-    (unipotent_mul_diag_image r α hα).Finite := by
-  apply (Set.BijOn.finite_iff_finite (bijOn_unipotent_mul_diagU1_U1diagU1 r {v} α hα)).mpr
-  unfold U1diagU1
-  exact (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r {v}) (U1_open r {v}))
-
-lemma quot_top_finite (r : Rigidification F D) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
-    (⊤ : Set ((adicCompletionIntegers F v) ⧸ (Ideal.span {α}))).Finite := by
-  apply Set.Finite.of_finite_image _ (unipotent_mul_diag_inj r α hα)
-  apply unipotent_mul_diag_image_finite
+-- noncomputable instance : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
 
 /-- The Hecke operator U_{v,α} associated to the matrix (α 0;0 1) at v,
 considered as an R-linear map from R-valued quaternionic weight 2
@@ -222,64 +551,115 @@ automorphic forms of level U_1(S). Here α is a nonzero element of 𝓞ᵥ.
 We do not demand the condition v ∈ S, the bad primes, but this operator
 should only be used in this setting. See also `T r v` for the good primes.
 -/
-noncomputable def U :
-    WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
-    WeightTwoAutomorphicFormOfLevel (U1 r S) R :=
-  AbstractHeckeOperator.HeckeOperator (R := R) (diag r α hα) (U1 r S) (U1 r S)
-  (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r S) (U1_open r S))
+noncomputable def U (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+    (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
+  Module.End R ((U₁ F R 𝒮).toStruct.form D R) :=
+  (U₁ F R 𝒮).heckeOperator _ v (by simp [U₁_χ, hvQ]; rfl)
+    (Matrix.GeneralLinearGroup.diagonal ![.mk0 α.1 (by simpa), 1])
 
-lemma _root_.Ne.mul {M₀ : Type*} [Mul M₀] [Zero M₀] [NoZeroDivisors M₀] {a b : M₀}
-  (ha : a ≠ 0) (hb : b ≠ 0) : a * b ≠ 0 := mul_ne_zero ha hb
+lemma U_apply (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+    (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) (x)
+    (s : Finset (v.adicCompletionIntegers F))
+    (hs : Set.BijOn (Ideal.Quotient.mk (Ideal.span {α})) s .univ) :
+    (U D 𝒮 v hvQ α hα x).1 =
+      ∑ i ∈ s, HeckeOperator.Local.GL2.unipotentMulDiag
+        (.mk0 α (by simp [hα])) i.1 • x.1 := by
+  classical
+  dsimp [U, LocalLevelStruct.heckeOperator]
+  refine (AbstractHeckeOperator.heckeOperator_eq_finsetSum _ _
+    (s.image (HeckeOperator.Local.GL2.unipotentMulDiag
+      (.mk0 α (by simp [hα])) ∘ (↑))) ?_).trans ?_
+  · simp only [Finset.coe_image, Function.comp_apply]
+    rw [← Set.bijOn_comp_iff]
+    · generalize hU : (U₁ F R 𝒮).US v = U
+      simp only [U₁, MulEquiv.toMonoidHom_eq_coe, hvQ, ↓reduceIte] at hU
+      subst hU
+      convert (HeckeOperator.Local.bijOn_unipotentMulDiagU1 v p α hα).comp hs using 4
+      ext i j; fin_cases i <;> fin_cases j <;>
+        simp [Matrix.GeneralLinearGroup.diagonal, HeckeOperator.Local.GL2.diag]
+    · exact ((HeckeOperator.Local.GL2.unipotentMulDiag_injective _).comp
+        Subtype.val_injective).injOn
+  · rw [Finset.sum_image]
+    · rfl
+    exact ((HeckeOperator.Local.GL2.unipotentMulDiag_injective _).comp
+      Subtype.val_injective).injOn
 
-noncomputable instance :
-    DistribSMul (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ (WeightTwoAutomorphicForm F D R) :=
-  distribMulAction.toDistribSMul
+lemma U_apply_of_isUnit (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+    (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) (hα' : IsUnit α) (x) :
+    (U D 𝒮 v hvQ α hα x).1 =
+      Matrix.GeneralLinearGroup.diagonal ![Units.mk0 α.1 (by simpa), 1] • ↑x := by
+  dsimp [U, LocalLevelStruct.heckeOperator]
+  refine AbstractHeckeOperator.heckeOperator_eq_of_mem_normalizer _ _ ?_
+  simp only [U₁, MulEquiv.toMonoidHom_eq_coe, hvQ, ↓reduceIte]
+  refine GL2.localBorelLevel_le_normalizer_localPTameLevel _ _ ?_
+  simpa [GL2.mem_localBorelLevel_iff_v, Matrix.GeneralLinearGroup.diagonal,
+    ← adicCompletionIntegers.isUnit_iff_valued_eq_one]
 
-lemma U_apply (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
-    ((U r S R α hα) a).1 =
-    ∑ᶠ (gᵢ : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) (_ : gᵢ ∈ Quotient.out '' (U1diagU1 r S α hα)),
-      gᵢ • a.1 :=
-  rfl
+lemma adicCompletionIntegers.finite_quotient (I : Ideal (v.adicCompletionIntegers F))
+    (hI : I ≠ 0) : Finite (v.adicCompletionIntegers F ⧸ I) := by
+  obtain ⟨_|n, rfl⟩ := (IsDiscreteValuationRing.idealOrderIsoENat _).symm.surjective I
+  · cases hI (by simp; rfl)
+  change Finite (_ ⧸ (IsLocalRing.maximalIdeal _ ^ n))
+  exact Ideal.finite_quotient_pow (IsNoetherian.noetherian _) _
+
+lemma adicCompletionIntegers.exists_bijOn_mk_span
+    (hα : α ≠ 0) : ∃ (s : Finset (v.adicCompletionIntegers F)),
+    Set.BijOn (Ideal.Quotient.mk (Ideal.span {α})) s .univ := by
+  have : Finite (v.adicCompletionIntegers F ⧸ Ideal.span {α}) :=
+    adicCompletionIntegers.finite_quotient _ (by simpa)
+  cases nonempty_fintype (v.adicCompletionIntegers F ⧸ Ideal.span {α})
+  classical
+  refine ⟨(Finset.univ : Finset (v.adicCompletionIntegers F ⧸ Ideal.span {α})).image
+    Quotient.out, ?_⟩
+  rw [Finset.coe_image, ← Set.bijOn_comp_iff Quotient.out_injective.injOn]
+  simp
 
 open AbstractHeckeOperator in
-lemma U_apply_eq_finsum_unipotent_mul_diag_image (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
-    ((U r S R α hα) a).1 =
-    ∑ᶠ (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) (_ : g ∈ unipotent_mul_diag_image r α hα),
-      g • a.1 :=
-  (eq_finsum_quotient_out_of_bijOn' a (bijOn_unipotent_mul_diagU1_U1diagU1 r S α hα)) ▸
-    U_apply r S R α hα a
-
-lemma U_mul_aux {v : HeightOneSpectrum (𝓞 F)}
-    {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0)
-    (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
-    ∑ᶠ (i : (adicCompletionIntegers F v) ⧸ Ideal.span {α})
-      (j : (adicCompletionIntegers F v) ⧸ Ideal.span {β}),
-      unipotent_mul_diag r α hα i • unipotent_mul_diag r β hβ j • a.1 =
-    ∑ᶠ (k : (adicCompletionIntegers F v) ⧸ Ideal.span {α * β}),
-      unipotent_mul_diag r (α * β) (hα.mul hβ) k • a.1 :=
-  sorry
-
-open AbstractHeckeOperator in
-lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
-    {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
-    (U r S R α hα ∘ₗ U r S R β hβ) =
-    U r S R (α * β) (hα.mul hβ) := by
-  ext1 a
-  apply (Subtype.coe_inj).mp
-  simp only [U_apply_eq_finsum_unipotent_mul_diag_image,
-    LinearMap.coe_comp, Function.comp_apply,
-    smul_finsum_mem (unipotent_mul_diag_image_finite r β hβ)]
-  unfold unipotent_mul_diag_image
-  simp only [finsum_mem_image (unipotent_mul_diag_inj _ _ _)]
-  simpa using U_mul_aux r S R hα hβ a
-
-lemma U_comm {v : HeightOneSpectrum (𝓞 F)}
-    {α β : v.adicCompletionIntegers F} (hα : α ≠ 0) (hβ : β ≠ 0) :
-    U r S R α hα ∘ₗ U r S R β hβ =
-    U r S R β hβ ∘ₗ U r S R α hα := by
-  rw [U_mul, U_mul]
-  congr 1
-  rw [mul_comm]
+lemma U_mul_U (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+    (hvQ : v ∈ 𝒮.Q) (α β : v.adicCompletionIntegers F) (hα : α ≠ 0) (hβ : β ≠ 0) :
+    U D 𝒮 v hvQ α hα * U D 𝒮 v hvQ β hβ =
+      U D 𝒮 v hvQ (α * β) (by simp [hα, hβ]) := by
+  classical
+  ext x : 2
+  obtain ⟨s, hs⟩ := adicCompletionIntegers.exists_bijOn_mk_span α hα
+  obtain ⟨t, ht⟩ := adicCompletionIntegers.exists_bijOn_mk_span β hβ
+  simp only [Module.End.mul_apply]
+  rw [U_apply D 𝒮 v hvQ α hα _ s hs, U_apply D 𝒮 v hvQ β hβ _ t ht]
+  have H₀ : Set.BijOn (Ideal.Quotient.mk (Ideal.span {α * β}) ∘
+      fun ab ↦ α * ab.2 + ab.1) (↑s ×ˢ ↑t) Set.univ := by
+    refine ⟨by simp, ?_, ?_⟩
+    · rintro ⟨a₁, b₁⟩ ⟨ha₁, hb₁⟩ ⟨a₂, b₂⟩ ⟨ha₂, hb₂⟩ e
+      simp only [Function.comp_apply, Ideal.mem_span_singleton,
+        Ideal.Quotient.mk_eq_mk_iff_sub_mem] at e
+      rw [add_sub_add_comm, ← mul_sub] at e
+      obtain rfl := hs.2.1 ha₁ ha₂ (by simpa [Ideal.mem_span_singleton,
+        Ideal.Quotient.mk_eq_mk_iff_sub_mem, dvd_add_right] using (dvd_mul_right _ _).trans e)
+      obtain rfl := ht.2.1 hb₁ hb₂ (by simpa [Ideal.mem_span_singleton,
+        Ideal.Quotient.mk_eq_mk_iff_sub_mem, mul_dvd_mul_iff_left, hα] using e)
+      rfl
+    · rintro a -
+      obtain ⟨a, rfl⟩ := Ideal.Quotient.mk_surjective a
+      obtain ⟨saa, hsa, hsaa⟩ := hs.2.2 (Set.mem_univ (Ideal.Quotient.mk _ a))
+      simp only [Ideal.mem_span_singleton, Ideal.Quotient.mk_eq_mk_iff_sub_mem] at hsaa
+      obtain ⟨b, hb⟩ := hsaa
+      obtain ⟨ta, hta, htaa⟩ := ht.2.2 (Set.mem_univ (Ideal.Quotient.mk _ (-b)))
+      simp only [Ideal.Quotient.mk_eq_mk_iff_sub_mem, sub_neg_eq_add,
+        Ideal.mem_span_singleton] at htaa
+      refine ⟨⟨_, _⟩, ⟨hsa, hta⟩, ?_⟩
+      simpa [add_sub_assoc, hb, ← mul_add, mul_dvd_mul_iff_left, hα,
+        Ideal.mem_span_singleton, Ideal.Quotient.mk_eq_mk_iff_sub_mem, -map_add]
+  rw [U_apply D 𝒮 v hvQ (α * β) (by simp [hα, hβ]) _ ((s ×ˢ t).image fun ab ↦ α * ab.2 + ab.1)]
+  · simp only [Finset.smul_sum, ← mul_smul]
+    rw [Finset.sum_image (by simpa using H₀.injOn.of_comp), Finset.sum_product]
+    refine Finset.sum_congr rfl fun a ha ↦ Finset.sum_congr rfl fun b hb ↦ ?_
+    congr 1
+    ext i j
+    fin_cases i <;> fin_cases j <;>
+      simp [HeckeOperator.Local.GL2.unipotentMulDiag, Matrix.mul_apply,
+        Matrix.GeneralLinearGroup.GL2.unipotent_def,
+        HeckeOperator.Local.GL2.diag, Matrix.vecMul_eq_sum]
+  · simp only [Finset.coe_image, Finset.coe_product]
+    rwa [← Set.bijOn_comp_iff H₀.injOn.of_comp]
 
 end U
 
@@ -287,6 +667,7 @@ end HeckeOperator
 
 open HeckeOperator
 
+variable {R F} in
 /-- `HeckeAlgebra F D r S R` is the Hecke algebra associated to the weight 2
 `R`-valued automorphic forms associated to the discriminant 1 totally definite
 quaternion algebra `D` over the totally real field `F`, of level `U₁(S)` where `S` is
@@ -308,47 +689,107 @@ and in particular this Hecke algebra is commutative (Hecke operators supported
 at distinct primes commute because the decomposition of the double cosets
 into single cosets can be done purely locally).
 -/
-def HeckeAlgebra : Type _ :=
-  (Algebra.adjoin R ({T r R v | v ∉ S} ∪
-  {φ | ∃ (v : HeightOneSpectrum (𝓞 F)) (_hv : v ∈ S)
-         (α : v.adicCompletionIntegers F) (hα : α ≠ 0), φ = U r S R α hα}) :
-    Subalgebra R (WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
-      WeightTwoAutomorphicFormOfLevel (U1 r S) R))
+def HeckeAlgebra (𝒮 : TaylorWilesData F R p) : Type _ :=
+  (Algebra.adjoin R ({ T D 𝒮 v hv | (v) (hv : v ∉ 𝒮.S) (_ : v ∉ 𝒮.Q) } ∪
+      { U D 𝒮 v hv α hα | (v) (hv : v ∈ 𝒮.Q) (α) (hα) }) :
+    Subalgebra R (Module.End R ((U₁ F R 𝒮).toStruct.form D R)))
 
 namespace HeckeAlgebra
 
-noncomputable instance instRing :
-    Ring (HeckeAlgebra F D r S R) := inferInstanceAs <|
-  Ring (Algebra.adjoin R _ : Subalgebra R (WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
-      WeightTwoAutomorphicFormOfLevel (U1 r S) R))
+noncomputable instance instRing (𝒮 : TaylorWilesData F R p) :
+    Ring (HeckeAlgebra D 𝒮) := inferInstanceAs <|
+  Ring (Algebra.adjoin R _ : Subalgebra R _)
 
-noncomputable instance instAlgebra :
-    Algebra R (HeckeAlgebra F D r S R) := inferInstanceAs <|
-  Algebra R (Algebra.adjoin R _ : Subalgebra R (WeightTwoAutomorphicFormOfLevel (U1 r S) R →ₗ[R]
-      WeightTwoAutomorphicFormOfLevel (U1 r S) R))
+noncomputable instance instAlgebra (𝒮 : TaylorWilesData F R p) :
+    Algebra R (HeckeAlgebra D 𝒮) := inferInstanceAs <|
+  Algebra R (Algebra.adjoin R _ : Subalgebra R _)
 
-noncomputable instance instCommRing :
-    CommRing (HeckeAlgebra F D r S R) where
-  __ := instRing F D r S R
-  mul_comm := sorry -- #585 -- check on generators
+noncomputable instance (𝒮 : TaylorWilesData F R p) :
+    IsMulCommutative (HeckeAlgebra D 𝒮) := by
+  refine Algebra.isMulCommutative_adjoin R ?_
+  rintro x (⟨v, hvS, hvQ, rfl⟩|⟨v, hv, α, hα, rfl⟩) y (⟨w, hwS, hwQ, rfl⟩|⟨w, hw, β, hβ, rfl⟩)
+  · obtain rfl | hvw := eq_or_ne v w
+    · rfl
+    · exact (U₁ F R 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
+  · obtain rfl | hvw := eq_or_ne v w
+    · contradiction
+    · exact (U₁ F R 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
+  · obtain rfl | hvw := eq_or_ne v w
+    · contradiction
+    · exact (U₁ F R 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
+  · obtain rfl | hvw := eq_or_ne v w
+    · rw [U_mul_U, U_mul_U]; rw! [mul_comm]; rfl
+    · exact (U₁ F R 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
 
-variable {F S} in
+noncomputable instance instCommRing (𝒮 : TaylorWilesData F R p) :
+    CommRing (HeckeAlgebra D 𝒮) :=
+  open scoped IsMulCommutative in inferInstance
+
+noncomputable instance (𝒮 : TaylorWilesData F R p) :
+    Module (HeckeAlgebra D 𝒮) ((U₁ F R 𝒮).toStruct.form D R) :=
+  inferInstanceAs (Module (Algebra.adjoin _ _) _)
+
+variable {F R} in
 /-- The Hecke operator Tᵥ as an element of the Hecke algebra. -/
-noncomputable def T (v : HeightOneSpectrum (𝓞 F)) (hv : v ∉ S) : HeckeAlgebra F D r S R :=
-  ⟨HeckeOperator.T r R v, by
-    apply Algebra.subset_adjoin
-    left
-    use v⟩
+noncomputable def T (𝒮 : TaylorWilesData F R p)
+    (v : HeightOneSpectrum (𝓞 F)) (hvS : v ∉ 𝒮.S) (hvQ : v ∉ 𝒮.Q) : HeckeAlgebra D 𝒮 :=
+  ⟨HeckeOperator.T D 𝒮 v hvS, Algebra.subset_adjoin (.inl ⟨_, hvS, hvQ, rfl⟩)⟩
 
-variable {F S} in
+variable {F R} in
+open scoped Classical in
+set_option backward.isDefEq.respectTransparency false in
 /-- The Hecke operator Uᵥ,ₐ as an element of the Hecke algebra. -/
-noncomputable def U (v : HeightOneSpectrum (𝓞 F)) (hv : v ∈ S) (α : v.adicCompletionIntegers F)
-    (hα : α ≠ 0) : HeckeAlgebra F D r S R :=
-  ⟨HeckeOperator.U r S R α hα, by
-    apply Algebra.subset_adjoin
-    right
-    use v, hv, α, hα⟩
+noncomputable def U (𝒮 : TaylorWilesData F R p)
+    (v : HeightOneSpectrum (𝓞 F)) (hv : v ∈ 𝒮.Q) :
+    v.adicCompletionIntegers F →*₀ HeckeAlgebra D 𝒮 where
+  toFun α := if hα : α = 0 then 0 else
+    ⟨HeckeOperator.U D 𝒮 v hv α hα, Algebra.subset_adjoin (.inr ⟨v, hv, α, hα, rfl⟩)⟩
+  map_one' := by
+    simp only [one_ne_zero, ↓reduceDIte, ne_eq]
+    refine Subtype.ext ?_
+    ext x : 2
+    refine (U_apply_of_isUnit D 𝒮 v hv 1 (by simp) (by simp) _).trans ?_
+    simp
+  map_mul' x y := by
+    by_cases hx : x = 0
+    · simp [hx]
+    by_cases hy : y = 0
+    · simp [hy]
+    simp only [mul_eq_zero, hx, hy, or_self, ↓reduceDIte, ne_eq]
+    exact Subtype.ext (U_mul_U D 𝒮 v hv x y hx hy).symm
+  map_zero' := dif_pos rfl
+
+set_option backward.isDefEq.respectTransparency false in
+lemma adjoin_T_U_eq_top (𝒮 : TaylorWilesData F R p) :
+    Algebra.adjoin R ({ T D 𝒮 v hv hvQ | (v) (hv : v ∉ 𝒮.S) (hvQ : v ∉ 𝒮.Q) } ∪
+      { U D 𝒮 v hv α | (v) (hv : v ∈ 𝒮.Q) (α) (_ : α ≠ 0) }) = ⊤ := by
+  refine Subalgebra.map_injective (f := Subalgebra.val
+    (Algebra.adjoin R (A := (Module.End R ((U₁ F R 𝒮).toStruct.form D R))) _))
+    Subtype.val_injective ?_
+  refine (Subalgebra.map_mono le_top).antisymm ?_
+  rw [Algebra.map_top, AlgHom.map_adjoin, Subalgebra.range_val, Set.image_union]
+  refine Algebra.adjoin_mono (Set.union_subset_union ?_ ?_)
+  · exact fun x ⟨v, hv, hvQ, e⟩ ↦ ⟨T D 𝒮 v hv hvQ, ⟨_, _, _, rfl⟩, e⟩
+  · exact fun x ⟨v, hv, α, hα, e⟩ ↦ ⟨U D 𝒮 v hv α, ⟨_, _, _, hα, rfl⟩,
+      .trans (by simp [U, hα]) e⟩
+
+variable [IsQuaternionAlgebra F D] [IsTotallyReal F]
+    [IsQuaternionAlgebra.IsTotallyDefinite F D]
+
+instance [IsNoetherianRing R] (𝒮 : TaylorWilesData F R p) :
+    IsNoetherian R (Module.End R ((U₁ F R 𝒮).toStruct.form D R)) :=
+  isNoetherian_of_isNoetherianRing_of_finite _ _
+
+set_option backward.isDefEq.respectTransparency false in
+instance [IsNoetherianRing R] (𝒮 : TaylorWilesData F R p) :
+    IsNoetherian R (HeckeAlgebra D 𝒮) := by
+  change (IsNoetherian R (Algebra.adjoin R
+    (A := (Module.End R ((U₁ F R 𝒮).toStruct.form D R))) _).toSubmodule)
+  infer_instance
+
+instance [IsNoetherianRing R] (𝒮 : TaylorWilesData F R p) :
+    IsNoetherianRing (HeckeAlgebra D 𝒮) := .of_finite R _
 
 end HeckeAlgebra
 
-end TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
+end TotallyDefiniteQuaternionAlgebra
