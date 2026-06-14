@@ -14,18 +14,25 @@ public import Mathlib.GroupTheory.DoubleCoset
 public import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 /-!
-# Definitions for automorphic forms on quaternion algebras
 
-Let `D` be a totally definite quaternion algebra over a totally real
-number field `F`. We set up notation and basic definitions for the spaces of
-weight-2 automorphic forms on `D` (functions on the double-coset space
-`D^× \\ (D ⊗ 𝔸_F^∞)^× / U` for an open compact subgroup `U`).
+# Definition of automorphic forms on a totally definite quaternion algebra
 
 ## Main definitions
 
-* `TotallyDefiniteQuaternionAlgebra.Dfx`: the units of `D ⊗_F 𝔸_F^∞`.
-* `TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm`: the space of
-  weight-2 automorphic forms with values in a coefficient ring `R`.
+In the `TotallyDefiniteQuaternionAlgebra` namespace:
+
+* `WeightTwoAutomorphicForm F D R` -- weight 2
+  R-valued automorphic forms for the totally definite quaternion algebra `D` over
+  the totally real field `F`. Defined as locally-constant functions
+  `φ : Dˣ \ (D ⊗ 𝔸_F^∞)ˣ → R` which are right-invariant by some compact open subgroup
+  (i.e. ∃ U_φ such that `φ(gu)=φ(g)` for all `u ∈ U`) and have trivial central character
+  (i.e. `φ(zg)=φ(g)` for all `z ∈ (𝔸_F^∞)ˣ`).
+
+* `LevelStruct F R`: A structure containing a compact open and a character on it.
+* `LevelStruct.form ℒ D`: The submodule `S(U, χ)` of `WeightTwoAutomorphicForm F D R`.
+
+* `LocalLevelStruct F R`: A structure containing a compact open and a character on it.
+
 -/
 
 @[expose] public section
@@ -327,20 +334,26 @@ variable {R} {M : Type*} [AddCommGroup M] [Module R M]
 namespace WeightTwoAutomorphicForm
 
 variable (F R) in
+/-- The structure of an compact open `U`,
+and a continuous character on `U` that is trivial on `𝔸ᶠˣ`. -/
 structure LevelStruct where
+  /-- The open compact subgroup. -/
   U : Subgroup GL₂(𝔸ᶠ[F])
   isCompact_U : IsCompact (X := GL₂(𝔸ᶠ[F])) U
   isOpen_U : IsOpen (X := GL₂(𝔸ᶠ[F])) U
+  /-- The character on the open compact. -/
   χ : U →* R
   range_unitsMap_le_ker_χ : (𝔸ˣ F).subgroupOf U ≤ χ.ker
   isOpen_ker : IsOpen (X := U) χ.ker
 
-/-- `U 𝔸ˣ` -/
-abbrev LevelStruct.UA
-    (ℒ : LevelStruct F R) : Subgroup GL₂(𝔸ᶠ[F]) := ℒ.U ⊔ 𝔸ˣ F
+namespace LevelStruct
 
-def LevelStruct.χA
-    (ℒ : LevelStruct F R) : ℒ.UA →* R :=
+variable (ℒ : LevelStruct F R)
+
+/-- `U 𝔸ᶠˣ` -/
+abbrev UA : Subgroup GL₂(𝔸ᶠ[F]) := ℒ.U ⊔ 𝔸ˣ F
+
+def χA : ℒ.UA →* R :=
   MonoidHom.liftOfSurjective' (Subgroup.prodToSupOfRight _ _
     ((range_unitsMap_finiteAdeleRing_le_center ..).trans (Subgroup.center_le_centralizer _)))
     (Subgroup.prodToSupOfRight_surjective _ _ _)
@@ -353,18 +366,14 @@ def LevelStruct.χA
       simpa [← mul_eq_one_iff_inv_eq']⟩
 
 @[simp]
-lemma LevelStruct.χA_inclusion_left
-    (ℒ : LevelStruct F R) (x) :
-    ℒ.χA (Subgroup.inclusion le_sup_left x) = ℒ.χ x := by
+lemma χA_inclusion_left (x) : ℒ.χA (Subgroup.inclusion le_sup_left x) = ℒ.χ x := by
   trans ℒ.χA ((Subgroup.prodToSupOfRight _ _ ((range_unitsMap_finiteAdeleRing_le_center ..).trans
     (Subgroup.center_le_centralizer _))) (x, 1))
   · congr 1; ext; simp
   · simp [χA]
 
 @[simp]
-lemma LevelStruct.χA_inclusion_right
-    (ℒ : LevelStruct F R) (x) :
-    ℒ.χA (Subgroup.inclusion le_sup_right x) = 1 := by
+lemma χA_inclusion_right (x) : ℒ.χA (Subgroup.inclusion le_sup_right x) = 1 := by
   trans ℒ.χA ((Subgroup.prodToSupOfRight _ _ ((range_unitsMap_finiteAdeleRing_le_center ..).trans
     (Subgroup.center_le_centralizer _))) (1, x))
   · congr 1; ext; simp
@@ -372,14 +381,11 @@ lemma LevelStruct.χA_inclusion_right
 
 variable (D) in
 /-- `Δ_g := U 𝔸ˣ ∩ g Dˣ g⁻¹` -/
-def LevelStruct.Δ
-    (ℒ : LevelStruct F R) (g : GL₂(𝔸ᶠ[F])) : Subgroup GL₂(𝔸ᶠ[F]) :=
+def Δ (g : GL₂(𝔸ᶠ[F])) : Subgroup GL₂(𝔸ᶠ[F]) :=
   ℒ.UA ⊓ toConjAct g • 𝓓ˣ
 
 /-- `Fˣ ≤ Δ_g` -/
-lemma LevelStruct.range_units_le_range
-    (ℒ : LevelStruct F R) (g : GL₂(𝔸ᶠ[F])) :
-    𝓕ˣ ≤ ℒ.Δ D g := by
+lemma range_units_le_range (g : GL₂(𝔸ᶠ[F])) : 𝓕ˣ ≤ ℒ.Δ D g := by
   rintro _ ⟨x, rfl⟩
   refine ⟨Subgroup.mem_sup_right ⟨x.map (algebraMap _ _).toMonoidHom, ?_⟩, _,
     ⟨x.map (algebraMap _ _).toMonoidHom, rfl⟩, ?_⟩
@@ -395,28 +401,24 @@ Then `𝒪` is an order (why?) and `Δ_g/Fˣ ↪ 𝒪¹ := { x ∈ 𝒪 | N(x) =
 where the latter is finite because it is discrete and bounded in `D ⊗_{ℚ} ℝ = ∏ ℍ`
 (See Lemma 17.7.13 in Voight).
 -/
-lemma LevelStruct.isFiniteRelIndex_Δ [NumberField.IsTotallyReal F] [IsQuaternionAlgebra F D]
+lemma isFiniteRelIndex_Δ [NumberField.IsTotallyReal F] [IsQuaternionAlgebra F D]
     [IsQuaternionAlgebra.IsTotallyDefinite F D] (ℒ : LevelStruct F R) (g : GL₂(𝔸ᶠ[F])) :
     Subgroup.IsFiniteRelIndex 𝓕ˣ (ℒ.Δ D g) := by
   knownin1980s
 
 variable (D) in
-abbrev LevelStruct.ΔIndex
-    (ℒ : LevelStruct F R) (g : GL₂(𝔸ᶠ[F])) : ℕ :=
+abbrev ΔIndex (g : GL₂(𝔸ᶠ[F])) : ℕ :=
   𝓕ˣ.relIndex (ℒ.Δ D g)
 
 instance : 𝓕ˣ.Normal := Subgroup.normal_of_le_center _ (by
   rintro _ ⟨x, rfl⟩
   simp [Subgroup.mem_center_iff, Units.ext_iff, Algebra.commutes])
 
-lemma LevelStruct.isOpen_map_ker
-    (ℒ : LevelStruct F R) :
-    IsOpen (X := GL₂(𝔸ᶠ[F])) (ℒ.χ.ker.map ℒ.U.subtype) :=
+lemma isOpen_map_ker : IsOpen (X := GL₂(𝔸ᶠ[F])) (ℒ.χ.ker.map ℒ.U.subtype) :=
   ℒ.isOpen_U.isOpenEmbedding_subtypeVal.isOpenMap _ ℒ.isOpen_ker
 
 variable (D M) in
-def LevelStruct.form (ℒ : LevelStruct F R) :
-    Submodule R (WeightTwoAutomorphicForm F D M) where
+def form : Submodule R (WeightTwoAutomorphicForm F D M) where
   carrier := { f | ∀ x : ℒ.U, x • f = ℒ.χ x • f }
   add_mem' {f g} hf hg x := by simp only [Set.mem_setOf_eq] at hf hg; simp [hf, hg]
   zero_mem' := by simp
@@ -424,9 +426,9 @@ def LevelStruct.form (ℒ : LevelStruct F R) :
     simp only [Set.mem_setOf_eq] at hf
     rw [smul_comm, hf, smul_comm]
 
+/-- A constructor for forms in `S(U, χ)`. -/
 @[simps]
-def LevelStruct.mkForm
-    (ℒ : LevelStruct F R)
+def mkForm
     (f : GL₂(𝔸ᶠ[F]) → M)
     (left_invt : ∀ d g, f (ιD d * g) = f g)
     (right_invt : ∀ g, ∀ u : ℒ.U, f (g * ↑u) = ℒ.χ u • f g)
@@ -441,16 +443,15 @@ def LevelStruct.mkForm
 scoped[FLT] notation D "ˣ＼GL₂(𝔸 " F ")／" U:max =>
   DoubleCoset.Quotient (G := GL₂(𝔸ᶠ[F])) (MonoidHom.range <| WithRigidification.unitsIncl F D) U
 
-lemma LevelStruct.apply_mul_eq_χA_smul
-    (ℒ : LevelStruct F R)
+lemma apply_mul_eq_χA_smul
     (f) (hf : f ∈ ℒ.form D M) (u : ℒ.UA) (g) : f (g * u) = ℒ.χA u • f g := by
   obtain ⟨⟨u, _, ⟨z, rfl⟩⟩, rfl⟩ := Subgroup.prodToSupOfRight_surjective _ _
     ((range_unitsMap_finiteAdeleRing_le_center ..).trans (Subgroup.center_le_centralizer _)) u
   have := fun g ↦ congr($(hf u) g)
   simp_all [LevelStruct.χA, Subgroup.smul_def, ← mul_assoc]
 
-abbrev LevelStruct.mkFormA
-    (ℒ : LevelStruct F R)
+/-- A constructor for forms in `S(U, χ)` which instead asks for behaviour on `U 𝔸ˣ`. -/
+abbrev mkFormA
     (f : GL₂(𝔸ᶠ[F]) → M)
     (left_invt : ∀ d g, f (ιD d * g) = f g)
     (right_invt : ∀ g, ∀ u : ℒ.UA, f (g * ↑u) = ℒ.χA u • f g) :
@@ -464,20 +465,13 @@ abbrev LevelStruct.mkFormA
 
 open scoped Pointwise
 
-variable (p : ℕ)
-
 variable (D) in
-class LevelStruct.IsSufficientlySmall (ℒ : LevelStruct F R) where
+class IsSufficientlySmall (ℒ : LevelStruct F R) where
   coprime_ΔIndex : ∀ g, (orderOf ℒ.χ).Coprime (ℒ.ΔIndex D g)
-
-namespace LevelStruct
 
 export LevelStruct.IsSufficientlySmall (coprime_ΔIndex)
 
-end LevelStruct
-
-lemma LevelStruct.toConjAct_smul_le_ker_χA
-    (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] (g : GL₂(𝔸ᶠ[F])) :
+lemma toConjAct_smul_le_ker_χA [ℒ.IsSufficientlySmall D] (g : GL₂(𝔸ᶠ[F])) :
     (toConjAct g • 𝓓ˣ).subgroupOf ℒ.UA ≤ ℒ.χA.ker := by
   refine Subgroup.le_ker_of_le_ker_of_coprime_relIndex _ (orderOf ℒ.χ)
     (K₁ := 𝓕ˣ.subgroupOf _) ?_ ?_ ?_
@@ -492,8 +486,7 @@ lemma LevelStruct.toConjAct_smul_le_ker_χA
   · rintro ⟨x, hx⟩ ⟨u, rfl⟩
     exact ℒ.χA_inclusion_right ⟨_, u.map (algebraMap _ _).toMonoidHom, rfl⟩
 
-lemma LevelStruct.χA_eq_of_exists_mul_mul_eq
-    (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] (u v : ℒ.UA)
+lemma χA_eq_of_exists_mul_mul_eq [ℒ.IsSufficientlySmall D] (u v : ℒ.UA)
     (huv : ∃ g d d', ιD d * g * u = ιD d' * g * v) : ℒ.χA u = ℒ.χA v := by
   apply ((Group.isUnit v⁻¹).map ℒ.χA).mul_right_cancel
   simp only [← map_mul, mul_inv_cancel, map_one]
@@ -506,8 +499,9 @@ lemma LevelStruct.χA_eq_of_exists_mul_mul_eq
   simp [eq_mul_inv_iff_mul_eq]
   simpa [mul_assoc, inv_mul_eq_iff_eq_mul] using e.symm
 
-def LevelStruct.formEquivOfSection
-    (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D]
+/-- Given a section to the projection `Dˣ＼GL₂(𝔸ᶠ[F])／U → GL₂(𝔸ᶠ[F])`,
+`S(U, χ)` is isomorphic to the finite free module with basis `Dˣ＼GL₂(𝔸ᶠ[F])／U`. -/
+def formEquivOfSection [ℒ.IsSufficientlySmall D]
     (σ : Dˣ＼GL₂(𝔸 F)／ℒ.UA → GL₂(𝔸ᶠ[F])) (δ : GL₂(𝔸ᶠ[F]) → Dˣ)
     (u : GL₂(𝔸ᶠ[F]) → ℒ.UA)
     (H : ∀ g : GL₂(𝔸ᶠ[F]), σ (DoubleCoset.mk 𝓓ˣ ℒ.UA g) = ιD (δ g) * g * u g) :
@@ -555,8 +549,9 @@ def LevelStruct.formEquivOfSection
       exact ℒ.χA_eq_of_exists_mul_mul_eq _ _ ⟨σ x, 1, (δ (σ x)), by simp [← H, this]⟩
     · simp [this]
 
-def LevelStruct.formEquiv
-    (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] :
+/-- If `U` is sufficiently small,
+`S(U, χ)` is isomorphic to the finite free module with basis `Dˣ＼GL₂(𝔸ᶠ[F])／U`. -/
+def formEquiv [ℒ.IsSufficientlySmall D] :
     ℒ.form D M ≃ₗ[R] ((Dˣ＼GL₂(𝔸 F)／ℒ.UA) → M) :=
   formEquivOfSection _ Quotient.out
     (fun g ↦ (DoubleCoset.mk_out_eq_mul 𝓓ˣ ℒ.UA g).choose_spec.choose_spec.1.choose)
@@ -567,13 +562,13 @@ def LevelStruct.formEquiv
 variable (D) in
 /-- Actually true for all totally definite quaternion algebra `D` but the instance
 is provided elsewhere. -/
-abbrev LevelStruct.IsFinite (ℒ : LevelStruct F R) : Prop := Finite (Dˣ＼GL₂(𝔸 F)／ℒ.UA)
+abbrev IsFinite (ℒ : LevelStruct F R) : Prop := Finite (Dˣ＼GL₂(𝔸 F)／ℒ.UA)
 
-instance (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D] [Module.Finite R M] :
+instance [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D] [Module.Finite R M] :
     Module.Finite R (ℒ.form D M) :=
   .of_surjective _ ℒ.formEquiv.symm.surjective
 
-instance (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D] [Module.Free R M] :
+instance [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D] [Module.Free R M] :
     Module.Free R (ℒ.form D M) :=
   .of_equiv ℒ.formEquiv.symm
 
@@ -585,31 +580,25 @@ instance : PartialOrder (LevelStruct F R) where
   | ⟨U, _, _, _, _, _⟩, ⟨U', _, _, _, _, _⟩, ⟨h, e⟩, ⟨h', e'⟩ => by
     obtain rfl : U = U' := le_antisymm h h'; congr
 
-lemma LevelStruct.U_mono :
-    Monotone fun ℒ : LevelStruct F R ↦ ℒ.U :=
+lemma U_mono : Monotone fun ℒ : LevelStruct F R ↦ ℒ.U :=
   fun _ _ h ↦ h.1
 
-lemma LevelStruct.form_anti :
-    Antitone (form (F := F) (D := D) (R := R) M) :=
+lemma form_anti : Antitone (form (F := F) (D := D) (R := R) M) :=
   fun _ _ h _ hf x ↦ h.2 ▸ hf ⟨x.1, h.1 x.2⟩
 
-class LevelStruct.Normal
-    (ℒ ℒ' : LevelStruct F R) : Prop
-    extends (ℒ.U.subgroupOf ℒ'.U).Normal where
+/-- `(U, χ)` is normal in `(U', χ')` if `U ≤ U'` is normal and `χ'|_U = χ`. -/
+class Normal (ℒ ℒ' : LevelStruct F R) : Prop extends (ℒ.U.subgroupOf ℒ'.U).Normal where
   le : ℒ ≤ ℒ'
 
 instance (ℒ : LevelStruct F R) : ℒ.Normal ℒ where
   le := le_rfl
   toNormal := by simp
 
-lemma LevelStruct.le_normalizer
-    (ℒ ℒ' : LevelStruct F R) [ℒ.Normal ℒ'] :
+lemma le_normalizer (ℒ ℒ' : LevelStruct F R) [ℒ.Normal ℒ'] :
     ℒ'.U ≤ Subgroup.normalizer ℒ.U :=
   (Subgroup.normal_subgroupOf_iff_le_normalizer (U_mono Normal.le)).mp inferInstance
 
-open LevelStruct in
-instance {ℒ ℒ' : LevelStruct F R} [ℒ.Normal ℒ'] :
-    DistribMulAction ℒ'.U (ℒ.form D M) where
+instance {ℒ ℒ' : LevelStruct F R} [ℒ.Normal ℒ'] : DistribMulAction ℒ'.U (ℒ.form D M) where
   smul u m := ⟨u • m, by
     intro v
     ext x
@@ -624,36 +613,43 @@ instance {ℒ ℒ' : LevelStruct F R} [ℒ.Normal ℒ'] :
   smul_zero x := Subtype.ext (smul_zero x)
   smul_add x m n := Subtype.ext (smul_add x m.1 n.1)
 
+end LevelStruct
+
 open IsDedekindDomain.FiniteAdeleRing
 
 variable (F R) in
+/-- A way to construct `LevelStruct` via a family of local level structs on finitely many finite
+places. -/
 structure LocalLevelStruct where
+  /-- The set of finite places. -/
   S : Finset ℙ(F)
+  /-- The open compacts at the given finite places. -/
   US : Π v : ℙ(F), Subgroup GL₂(v.adicCompletion F)
   isCompact_US_of_mem : ∀ v ∈ S, IsCompact (X := GL₂(v.adicCompletion F)) (US v)
   isOpen_US_of_mem: ∀ v ∈ S, IsOpen (X := GL₂(v.adicCompletion F)) (US v)
   US_eq_of_notMem : ∀ v ∉ S, US v = GL2.localFullLevel v
+  /-- The characters at the given finite places. -/
   χ : Π v : ℙ(F), US v →* R
   χ_eq_of_notMem : ∀ v ∉ S, χ v = 1
   range_unitsMap_le_ker_χ : ∀ v ∈ S, (Units.map (algebraMap (v.adicCompletion F)
       M₂(v.adicCompletion F)).toMonoidHom).range.subgroupOf (US v) ≤ (χ v).ker
   isOpen_ker_χ_of_mem : ∀ v ∈ S, IsOpen ((χ v).ker : Set (US v))
 
-lemma LocalLevelStruct.isOpen_US
-    (ℒ : LocalLevelStruct F R) (v : ℙ(F)) :
-    IsOpen (X := GL₂(v.adicCompletion F)) (ℒ.US v) := by
+namespace LocalLevelStruct
+
+variable (ℒ : LocalLevelStruct F R) (v : ℙ(F))
+
+lemma isOpen_US : IsOpen (X := GL₂(v.adicCompletion F)) (ℒ.US v) := by
   if h : v ∈ ℒ.S then exact ℒ.isOpen_US_of_mem _ h else
     exact ℒ.US_eq_of_notMem _ h ▸ GL2.localFullLevel.isOpen v
 
-lemma LocalLevelStruct.isCompact_US
-    (ℒ : LocalLevelStruct F R) (v : ℙ(F)) :
-    IsCompact (X := GL₂(v.adicCompletion F)) (ℒ.US v) := by
+lemma isCompact_US : IsCompact (X := GL₂(v.adicCompletion F)) (ℒ.US v) := by
   if h : v ∈ ℒ.S then exact ℒ.isCompact_US_of_mem _ h else
     exact ℒ.US_eq_of_notMem _ h ▸ GL2.localFullLevel.isCompact v
 
+/-- The `LevelStruct` constructed via a `LocalLevelStruct`. -/
 @[simps -isSimp]
-def LocalLevelStruct.toStruct
-    (ℒ : LocalLevelStruct F R) : LevelStruct F R where
+def toStruct : LevelStruct F R where
   U :=
   { carrier := { x | ∀ v, GL2.toAdicCompletion v x ∈ ℒ.US v }
     mul_mem' := by simp +contextual only [Set.mem_setOf_eq, map_mul, mul_mem, implies_true]
@@ -699,21 +695,16 @@ def LocalLevelStruct.toStruct
 
 open scoped Classical in
 noncomputable
-def LocalLevelStruct.incl (ℒ : LocalLevelStruct F R)
-    (v : HeightOneSpectrum (𝓞 F)) :
-    ℒ.US v →* ℒ.toStruct.U :=
-      ((GL2.finiteAdeleIncl v).comp (Subgroup.subtype _)).codRestrict _ <| by
-      rintro ⟨x, hx⟩ w
-      obtain rfl | h := eq_or_ne w v
-      · simpa
-      · simp [h]
+def incl : ℒ.US v →* ℒ.toStruct.U :=
+  ((GL2.finiteAdeleIncl v).comp (Subgroup.subtype _)).codRestrict _ <| by
+  rintro ⟨x, hx⟩ w
+  obtain rfl | h := eq_or_ne w v
+  · simpa
+  · simp [h]
 
-open scoped Classical in
 set_option backward.isDefEq.respectTransparency false in
 @[simp]
-lemma LocalLevelStruct.χ_incl (ℒ : LocalLevelStruct F R)
-    (v : HeightOneSpectrum (𝓞 F)) (x) :
-    ℒ.toStruct.χ (ℒ.incl v x) = ℒ.χ v x := by
+lemma χ_incl (x) : ℒ.toStruct.χ (ℒ.incl v x) = ℒ.χ v x := by
   simp only [toStruct_χ, MonoidHom.finsetProd_apply, MonoidHom.coe_comp, Function.comp_apply,
     MonoidHom.codRestrict_apply]
   refine (Finset.prod_eq_single v ?_ ?_).trans ?_
@@ -725,4 +716,4 @@ lemma LocalLevelStruct.χ_incl (ℒ : LocalLevelStruct F R)
     ext1
     exact GL2.toAdicCompletion_finiteAdeleIncl_same _ _
 
-end TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
+end TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.LocalLevelStruct

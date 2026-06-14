@@ -119,6 +119,7 @@ lemma LocalLevelStruct.exists_mul_eq (x : ℒ.toStruct.U) (v : HeightOneSpectrum
   · simp
 
 variable (D) in
+/-- Hecke operators on `S(U, χ)` given by a local element `GL₂(Fᵥ)`. -/
 noncomputable
 def LocalLevelStruct.heckeOperator (v : HeightOneSpectrum (𝓞 F)) (hv : ℒ.χ v = 1)
     (g : GL₂(v.adicCompletion F)) :
@@ -267,25 +268,28 @@ open scoped TensorProduct
 
 variable {p : ℕ}
 
-structure TaylorWilesData (p : ℕ) where
+/-- The `U₁` we will be considering needs the following input: -/
+structure U₁Data (p : ℕ) where
   prime : p.Prime
   /-- The set of bad primes -/
   S : Finset (HeightOneSpectrum (𝓞 F))
   /-- The set of taylor wiles primes -/
   Q : Finset (HeightOneSpectrum (𝓞 F))
-  disjoint_s_q : Disjoint S Q
-  -- only relavent when `v ∈ S`.
-  χS (v : HeightOneSpectrum (𝓞 F)) : (IsLocalRing.ResidueField ↥(adicCompletionIntegers F v))ˣ →* R
+  /-- Characters (of order `p`) at the bad primes. -/ -- only relavent when `v ∈ S`.
+  χS (v : HeightOneSpectrum (𝓞 F)) : (IsLocalRing.ResidueField (v.adicCompletionIntegers F))ˣ →* R
   χS_pow_eq_one : ∀ v ∈ S, χS v ^ p = 1
+  /-- `[F(ζₚ) : F] > 2` -/
   two_lt_finrank_cyclotomic_field : 2 < Module.finrank F (CyclotomicField p F)
+
+variable {F R}
 
 open scoped Classical in
 /-- `U₁ F D R S₀ S₁` is the open compact of `GL₂(𝔸 F)` given by
-`(* *; 0 *) mod v` for `v ∈ S₀`, `(a *; 0 a) mod v` for `v ∈ S₁`, and `GL₂(𝒪ᵥ)` at the
-rest of the places, with the trivial character. -/
+`(* *; 0 *) mod v` for `v ∈ S`, `(a *; 0 d) mod v` with `p ∤ ord(a/d)` for `v ∈ Q`,
+and `GL₂(𝒪ᵥ)` at the rest of the places, with some order `p` character at `v ∈ S`. -/
 @[simps -isSimp]
 noncomputable
-def U₁ (𝒮 : TaylorWilesData F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R where
+def U₁ (𝒮 : U₁Data F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R where
   S := 𝒮.S ∪ 𝒮.Q
   US v := if v ∈ 𝒮.Q then GL2.localPTameLevel v p else
     if v ∈ 𝒮.S then GL2.localBorelLevel v else GL2.localFullLevel v
@@ -330,8 +334,8 @@ def U₁ (𝒮 : TaylorWilesData F R p) : WeightTwoAutomorphicForm.LocalLevelStr
     · simpa [h] using GL2.localBorelLevel.isOpen v
 
 open Polynomial in
-lemma TaylorWilesData.eq_one_of_pow_eq_one_of_natDegree_le_two
-    (𝒮 : TaylorWilesData F R p)
+lemma U₁Data.eq_one_of_pow_eq_one_of_natDegree_le_two
+    (𝒮 : U₁Data F R p)
     {K : Type*} [CommRing K] [IsDomain K] [Algebra F K] {x : K} (hx : x ^ p = 1)
     (hx'' : (minpoly F x).natDegree ≤ 2) : x = 1 := by
   by_contra hx1
@@ -372,8 +376,8 @@ instance {F : Type*} [Field F] (n : ℕ) :
 
 open Polynomial in
 set_option backward.isDefEq.respectTransparency false in
-lemma TaylorWilesData.five_le
-    (𝒮 : TaylorWilesData F R p) : 5 ≤ p := by
+lemma U₁Data.five_le
+    (𝒮 : U₁Data F R p) : 5 ≤ p := by
   by_contra! H
   obtain rfl | rfl | rfl | rfl | rfl : (p = 0 ∨ p = 1 ∨ p = 2 ∨ p = 3 ∨ p = 4) := by lia
   · simpa using 𝒮.prime.ne_zero
@@ -388,8 +392,8 @@ lemma TaylorWilesData.five_le
 
 open Polynomial in
 set_option backward.isDefEq.respectTransparency false in
-lemma TaylorWilesData.not_charP
-    (𝒮 : TaylorWilesData F R p) : ¬ CharP F p := by
+lemma U₁Data.not_charP
+    (𝒮 : U₁Data F R p) : ¬ CharP F p := by
   intro H
   let φ : CyclotomicField p F →ₐ[F] F := IsSplittingField.lift (cyclotomic p F).SplittingField
     (cyclotomic p F) (by
@@ -399,15 +403,15 @@ lemma TaylorWilesData.not_charP
   grw [φ.toLinearMap.finrank_le_finrank_of_injective φ.injective] at this
   simp at this
 
-lemma TaylorWilesData.coe_ne_zero
-    (𝒮 : TaylorWilesData F R p) : (p : F) ≠ 0 := by
-  refine fun H ↦ 𝒮.not_charP _ _ ?_
+lemma U₁Data.coe_ne_zero
+    (𝒮 : U₁Data F R p) : (p : F) ≠ 0 := by
+  refine fun H ↦ 𝒮.not_charP ?_
   exact (CharP.charP_iff_prime_eq_zero 𝒮.prime).mpr H
 
 omit [WithRigidification F D] in
 open Polynomial in
 set_option backward.isDefEq.respectTransparency false in
-lemma TaylorWilesData.eq_one_of_pow_eq_one (𝒮 : TaylorWilesData F R p)
+lemma U₁Data.eq_one_of_pow_eq_one (𝒮 : U₁Data F R p)
     {x : D} (hx : x ^ p = 1) [IsQuaternionAlgebra F D] : x = 1 := by
   by_contra hx'
   let x' : Algebra.adjoin F {x} := ⟨x, Algebra.self_mem_adjoin_singleton _ _⟩
@@ -428,7 +432,7 @@ lemma TaylorWilesData.eq_one_of_pow_eq_one (𝒮 : TaylorWilesData F R p)
       have : 0 < (minpoly F x).natDegree := minpoly.natDegree_pos (Algebra.IsIntegral.isIntegral _)
       lia
     obtain ⟨x, rfl⟩ := minpoly.natDegree_eq_one_iff.mp H
-    obtain rfl := 𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := x) _ _
+    obtain rfl := 𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := x)
       ((algebraMap F D).injective (by simpa))
       ((minpoly.natDegree_eq_one_iff.mpr (by simp)).trans_le (by simp))
     simp at hx'
@@ -438,10 +442,10 @@ lemma TaylorWilesData.eq_one_of_pow_eq_one (𝒮 : TaylorWilesData F R p)
       obtain ⟨a, b, hab⟩ := ((minpoly.monic (Algebra.IsIntegral.isIntegral
         _)).not_irreducible_iff_of_natDegree_eq_two h₁).mp H
       have hdvd := hab.symm.dvd.trans (minpoly.dvd F x (p := .X ^ p - 1) (by simp [hx]))
-      obtain rfl : a = 1 := 𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := a) _ _
+      obtain rfl : a = 1 := 𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := a)
         (by simpa [sub_eq_zero] using map_dvd (aeval a) hdvd)
         ((minpoly.natDegree_eq_one_iff.mpr (by simp)).trans_le (by simp))
-      obtain rfl : b = 1 := 𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := b) _ _
+      obtain rfl : b = 1 := 𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := b)
         (by simpa [sub_eq_zero] using map_dvd (aeval b) hdvd)
         ((minpoly.natDegree_eq_one_iff.mpr (by simp)).trans_le (by simp))
       exact Polynomial.not_isUnit_X_sub_C 1
@@ -450,14 +454,14 @@ lemma TaylorWilesData.eq_one_of_pow_eq_one (𝒮 : TaylorWilesData F R p)
     have := Fact.mk this
     refine (AlgEquiv.adjoinSingletonEquivAdjoinRootMinpoly' F x).isField (Field.toIsField _)
   let := h₂.toField
-  refine hx' congr($(𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two _ _ (x := x') (by ext; simpa) ?_).1)
+  refine hx' congr($(𝒮.eq_one_of_pow_eq_one_of_natDegree_le_two (x := x') (by ext; simpa) ?_).1)
   rw [← minpoly.algHom_eq (Subalgebra.val _) Subtype.val_injective, ← h₁]
   simp [x']
 
 open scoped Classical in
-instance (𝒮 : TaylorWilesData F R p) [IsQuaternionAlgebra F D] [IsTotallyReal F]
+instance (𝒮 : U₁Data F R p) [IsQuaternionAlgebra F D] [IsTotallyReal F]
     [IsQuaternionAlgebra.IsTotallyDefinite F D] :
-    (U₁ F R 𝒮).toStruct.IsSufficientlySmall D where
+    (U₁ 𝒮).toStruct.IsSufficientlySmall D where
   coprime_ΔIndex g := by
     refine .of_dvd_left (orderOf_dvd_of_pow_eq_one (n := p) ?_) ?_
     · simp only [WeightTwoAutomorphicForm.LocalLevelStruct.toStruct_χ, U₁_χ]
@@ -470,7 +474,7 @@ instance (𝒮 : TaylorWilesData F R p) [IsQuaternionAlgebra F D] [IsTotallyReal
         simpa [h, hx] using congr($(𝒮.χS_pow_eq_one _ hx) _)
       · exact one_pow _
       · exact one_pow _
-    · have := (U₁ F R 𝒮).toStruct.isFiniteRelIndex_Δ (D := D) g
+    · have := (U₁ 𝒮).toStruct.isFiniteRelIndex_Δ (D := D) g
       rw [𝒮.prime.coprime_iff_not_dvd, Subgroup.dvd_relIndex_iff_of_prime (hp := 𝒮.prime)]
       rintro ⟨x, ⟨hx₁, _, ⟨a, rfl⟩, ha⟩, hx, u, hu⟩
       dsimp at ha hx₁
@@ -504,7 +508,7 @@ instance (𝒮 : TaylorWilesData F R p) [IsQuaternionAlgebra F D] [IsTotallyReal
       have h₃' : a ^ 4 = (a.map (Algebra.norm F)).map (algebraMap F D).toMonoidHom := by
         rw [← div_eq_one]
         ext1
-        exact 𝒮.eq_one_of_pow_eq_one _ _ _ (by simpa using congr(($h₃).1))
+        exact 𝒮.eq_one_of_pow_eq_one _ (by simpa using congr(($h₃).1))
       have h₃'' : x ^ 4 = (a.map (Algebra.norm F)).map (algebraMap F _).toMonoidHom := by
         rw [← ha]
         simp only [← smul_pow', ← map_pow, h₃']
@@ -515,26 +519,22 @@ instance (𝒮 : TaylorWilesData F R p) [IsQuaternionAlgebra F D] [IsTotallyReal
       exact mt (Nat.le_of_dvd (by decide)) (not_le_of_gt (.trans_le (by decide) 𝒮.five_le))
 
 open scoped Adele
-
-variable (R : Type*) [CommRing R]
-
 namespace HeckeOperator
 
-variable {F R} in
 open scoped TensorProduct.RightActions Classical in
 set_option backward.isDefEq.respectTransparency false in
 /-- The Hecke operator T_v as an R-linear map from R-valued quaternionic weight 2
 automorphic forms of level U_1(S₀).
 -/
-noncomputable def T (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+noncomputable def T (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     (hvS : v ∉ 𝒮.S) :
-    Module.End R ((U₁ F R 𝒮).toStruct.form D R) :=
-  (U₁ F R 𝒮).heckeOperator _ v (by simp [U₁_χ, hvS])
+    Module.End R ((U₁ 𝒮).toStruct.form D R) :=
+  (U₁ 𝒮).heckeOperator _ v (by simp [U₁_χ, hvS])
     (Matrix.GeneralLinearGroup.diagonal ![v.adicCompletionUniformizerUnit F, 1])
 
 section U
 
-variable {F R} (𝒮 : TaylorWilesData F R p)
+variable (𝒮 : U₁Data F R p)
 
 variable {v : HeightOneSpectrum (𝓞 F)} (α : v.adicCompletionIntegers F) (hα : α ≠ 0)
 
@@ -551,13 +551,13 @@ automorphic forms of level U_1(S). Here α is a nonzero element of 𝓞ᵥ.
 We do not demand the condition v ∈ S, the bad primes, but this operator
 should only be used in this setting. See also `T r v` for the good primes.
 -/
-noncomputable def U (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+noncomputable def U (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
-  Module.End R ((U₁ F R 𝒮).toStruct.form D R) :=
-  (U₁ F R 𝒮).heckeOperator _ v (by simp [U₁_χ, hvQ]; rfl)
+  Module.End R ((U₁ 𝒮).toStruct.form D R) :=
+  (U₁ 𝒮).heckeOperator _ v (by simp [U₁_χ, hvQ]; rfl)
     (Matrix.GeneralLinearGroup.diagonal ![.mk0 α.1 (by simpa), 1])
 
-lemma U_apply (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+lemma U_apply (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) (x)
     (s : Finset (v.adicCompletionIntegers F))
     (hs : Set.BijOn (Ideal.Quotient.mk (Ideal.span {α})) s .univ) :
@@ -571,7 +571,7 @@ lemma U_apply (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
       (.mk0 α (by simp [hα])) ∘ (↑))) ?_).trans ?_
   · simp only [Finset.coe_image, Function.comp_apply]
     rw [← Set.bijOn_comp_iff]
-    · generalize hU : (U₁ F R 𝒮).US v = U
+    · generalize hU : (U₁ 𝒮).US v = U
       simp only [U₁, MulEquiv.toMonoidHom_eq_coe, hvQ, ↓reduceIte] at hU
       subst hU
       convert (HeckeOperator.Local.bijOn_unipotentMulDiagU1 v p α hα).comp hs using 4
@@ -584,7 +584,7 @@ lemma U_apply (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
     exact ((HeckeOperator.Local.GL2.unipotentMulDiag_injective _).comp
       Subtype.val_injective).injOn
 
-lemma U_apply_of_isUnit (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+lemma U_apply_of_isUnit (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) (hα' : IsUnit α) (x) :
     (U D 𝒮 v hvQ α hα x).1 =
       Matrix.GeneralLinearGroup.diagonal ![Units.mk0 α.1 (by simpa), 1] • ↑x := by
@@ -615,7 +615,7 @@ lemma adicCompletionIntegers.exists_bijOn_mk_span
   simp
 
 open AbstractHeckeOperator in
-lemma U_mul_U (𝒮 : TaylorWilesData F R p) (v : HeightOneSpectrum (𝓞 F))
+lemma U_mul_U (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (α β : v.adicCompletionIntegers F) (hα : α ≠ 0) (hβ : β ≠ 0) :
     U D 𝒮 v hvQ α hα * U D 𝒮 v hvQ β hβ =
       U D 𝒮 v hvQ (α * β) (by simp [hα, hβ]) := by
@@ -667,8 +667,8 @@ end HeckeOperator
 
 open HeckeOperator
 
-variable {R F} in
-/-- `HeckeAlgebra F D r S R` is the Hecke algebra associated to the weight 2
+/--
+Given `𝒮 : U₁Data F R p`, `HeckeAlgebra D 𝒮` is the Hecke algebra associated to the weight 2
 `R`-valued automorphic forms associated to the discriminant 1 totally definite
 quaternion algebra `D` over the totally real field `F`, of level `U₁(S)` where `S` is
 a finite set of nonzero primes `v` of `𝓞 F`. To make sense of this definition we choose
@@ -676,70 +676,74 @@ a rigidification `r`, that is, a fixed `𝔸_F^∞`-linear
 isomorphism `D ⊗[F] 𝔸_F^∞ = M₂(𝔸_F^∞)`, enabling us to define level structures and
 Hecke operators `Tᵥ` and `Uᵥ` using 2x2 matrices.
 
-Details: `U₁(S)` is the subgroup of `(D ⊗[F] 𝔸_F^∞)ˣ` associated, via `r`, to the
-matrices which are in `GL₂(𝓞ᵥ)` for all `v ∉ S` and which are of the form
-`(a *; 0 a)` mod `v` for all `v ∈ S`. The Hecke algebra is defined to be the
+Details:
+`𝒮 : U₁Data F R p` consist of a set of bad primes `S` of `F` with order `p` characters `k(v) →* R`,
+and a set of taylor wiles primes `Q`.
+
+`U₁(S)` is the subgroup of `(D ⊗[F] 𝔸_F^∞)ˣ` associated, via `r`, to the
+matrices which are in `GL₂(𝓞ᵥ)` for all `v ∉ S ∪ Q` and which are of the form
+`(* *; 0 *)` mod `v` for all `v ∈ S`, and `(a *; 0 d)` mod `v` with `p ∤ ord(a/d)` for `v ∈ Q`.
+
+The Hecke algebra is defined to be the
 sub-`R`-algebra of the weight 2 forms of level `U₁(S)` generated by the following
 two kinds of Hecke operators: first there are the operators
-`Tᵥ` associated to the matrices `(ϖᵥ 0; 0 1)` for `v ∉ S` (here `ϖᵥ ∈ 𝔸_F^∞` is a local
+`Tᵥ` associated to the matrices `(ϖᵥ 0; 0 1)` for `v ∉ S ∪ Q` (here `ϖᵥ ∈ 𝔸_F^∞` is a local
 uniformiser supported at `v`). Second, there are the Hecke operators `Uᵥ,ₐ`
-for `v ∈ S` and `0 ≠ αᵥ ∈ 𝓞ᵥ`, associated the matries `(αᵥ 0; 0 1)`.
+for `v ∈ Q` and `0 ≠ αᵥ ∈ 𝓞ᵥ`, associated the matries `(αᵥ 0; 0 1)`.
 These slightly nonstandard Hecke operators satisfy `Uᵥ,ₛ * Uᵥ,ₜ = Uᵥ,ₛₜ`
 and in particular this Hecke algebra is commutative (Hecke operators supported
 at distinct primes commute because the decomposition of the double cosets
 into single cosets can be done purely locally).
 -/
-def HeckeAlgebra (𝒮 : TaylorWilesData F R p) : Type _ :=
+def HeckeAlgebra (𝒮 : U₁Data F R p) : Type _ :=
   (Algebra.adjoin R ({ T D 𝒮 v hv | (v) (hv : v ∉ 𝒮.S) (_ : v ∉ 𝒮.Q) } ∪
       { U D 𝒮 v hv α hα | (v) (hv : v ∈ 𝒮.Q) (α) (hα) }) :
-    Subalgebra R (Module.End R ((U₁ F R 𝒮).toStruct.form D R)))
+    Subalgebra R (Module.End R ((U₁ 𝒮).toStruct.form D R)))
 
 namespace HeckeAlgebra
 
-noncomputable instance instRing (𝒮 : TaylorWilesData F R p) :
+noncomputable instance instRing (𝒮 : U₁Data F R p) :
     Ring (HeckeAlgebra D 𝒮) := inferInstanceAs <|
   Ring (Algebra.adjoin R _ : Subalgebra R _)
 
-noncomputable instance instAlgebra (𝒮 : TaylorWilesData F R p) :
+noncomputable instance instAlgebra (𝒮 : U₁Data F R p) :
     Algebra R (HeckeAlgebra D 𝒮) := inferInstanceAs <|
   Algebra R (Algebra.adjoin R _ : Subalgebra R _)
 
-noncomputable instance (𝒮 : TaylorWilesData F R p) :
+noncomputable instance (𝒮 : U₁Data F R p) :
     IsMulCommutative (HeckeAlgebra D 𝒮) := by
   refine Algebra.isMulCommutative_adjoin R ?_
   rintro x (⟨v, hvS, hvQ, rfl⟩|⟨v, hv, α, hα, rfl⟩) y (⟨w, hwS, hwQ, rfl⟩|⟨w, hw, β, hβ, rfl⟩)
   · obtain rfl | hvw := eq_or_ne v w
     · rfl
-    · exact (U₁ F R 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
+    · exact (U₁ 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
   · obtain rfl | hvw := eq_or_ne v w
     · contradiction
-    · exact (U₁ F R 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
+    · exact (U₁ 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
   · obtain rfl | hvw := eq_or_ne v w
     · contradiction
-    · exact (U₁ F R 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
+    · exact (U₁ 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
   · obtain rfl | hvw := eq_or_ne v w
     · rw [U_mul_U, U_mul_U]; rw! [mul_comm]; rfl
-    · exact (U₁ F R 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
+    · exact (U₁ 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
 
-noncomputable instance instCommRing (𝒮 : TaylorWilesData F R p) :
+noncomputable instance instCommRing (𝒮 : U₁Data F R p) :
     CommRing (HeckeAlgebra D 𝒮) :=
   open scoped IsMulCommutative in inferInstance
 
-noncomputable instance (𝒮 : TaylorWilesData F R p) :
-    Module (HeckeAlgebra D 𝒮) ((U₁ F R 𝒮).toStruct.form D R) :=
+noncomputable instance (𝒮 : U₁Data F R p) :
+    Module (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D R) :=
   inferInstanceAs (Module (Algebra.adjoin _ _) _)
 
-variable {F R} in
 /-- The Hecke operator Tᵥ as an element of the Hecke algebra. -/
-noncomputable def T (𝒮 : TaylorWilesData F R p)
+noncomputable def T (𝒮 : U₁Data F R p)
     (v : HeightOneSpectrum (𝓞 F)) (hvS : v ∉ 𝒮.S) (hvQ : v ∉ 𝒮.Q) : HeckeAlgebra D 𝒮 :=
   ⟨HeckeOperator.T D 𝒮 v hvS, Algebra.subset_adjoin (.inl ⟨_, hvS, hvQ, rfl⟩)⟩
 
-variable {F R} in
 open scoped Classical in
 set_option backward.isDefEq.respectTransparency false in
 /-- The Hecke operator Uᵥ,ₐ as an element of the Hecke algebra. -/
-noncomputable def U (𝒮 : TaylorWilesData F R p)
+noncomputable def U (𝒮 : U₁Data F R p)
     (v : HeightOneSpectrum (𝓞 F)) (hv : v ∈ 𝒮.Q) :
     v.adicCompletionIntegers F →*₀ HeckeAlgebra D 𝒮 where
   toFun α := if hα : α = 0 then 0 else
@@ -760,11 +764,11 @@ noncomputable def U (𝒮 : TaylorWilesData F R p)
   map_zero' := dif_pos rfl
 
 set_option backward.isDefEq.respectTransparency false in
-lemma adjoin_T_U_eq_top (𝒮 : TaylorWilesData F R p) :
+lemma adjoin_T_U_eq_top (𝒮 : U₁Data F R p) :
     Algebra.adjoin R ({ T D 𝒮 v hv hvQ | (v) (hv : v ∉ 𝒮.S) (hvQ : v ∉ 𝒮.Q) } ∪
       { U D 𝒮 v hv α | (v) (hv : v ∈ 𝒮.Q) (α) (_ : α ≠ 0) }) = ⊤ := by
   refine Subalgebra.map_injective (f := Subalgebra.val
-    (Algebra.adjoin R (A := (Module.End R ((U₁ F R 𝒮).toStruct.form D R))) _))
+    (Algebra.adjoin R (A := (Module.End R ((U₁ 𝒮).toStruct.form D R))) _))
     Subtype.val_injective ?_
   refine (Subalgebra.map_mono le_top).antisymm ?_
   rw [Algebra.map_top, AlgHom.map_adjoin, Subalgebra.range_val, Set.image_union]
@@ -776,18 +780,18 @@ lemma adjoin_T_U_eq_top (𝒮 : TaylorWilesData F R p) :
 variable [IsQuaternionAlgebra F D] [IsTotallyReal F]
     [IsQuaternionAlgebra.IsTotallyDefinite F D]
 
-instance [IsNoetherianRing R] (𝒮 : TaylorWilesData F R p) :
-    IsNoetherian R (Module.End R ((U₁ F R 𝒮).toStruct.form D R)) :=
+instance [IsNoetherianRing R] (𝒮 : U₁Data F R p) :
+    IsNoetherian R (Module.End R ((U₁ 𝒮).toStruct.form D R)) :=
   isNoetherian_of_isNoetherianRing_of_finite _ _
 
 set_option backward.isDefEq.respectTransparency false in
-instance [IsNoetherianRing R] (𝒮 : TaylorWilesData F R p) :
+instance [IsNoetherianRing R] (𝒮 : U₁Data F R p) :
     IsNoetherian R (HeckeAlgebra D 𝒮) := by
   change (IsNoetherian R (Algebra.adjoin R
-    (A := (Module.End R ((U₁ F R 𝒮).toStruct.form D R))) _).toSubmodule)
+    (A := (Module.End R ((U₁ 𝒮).toStruct.form D R))) _).toSubmodule)
   infer_instance
 
-instance [IsNoetherianRing R] (𝒮 : TaylorWilesData F R p) :
+instance [IsNoetherianRing R] (𝒮 : U₁Data F R p) :
     IsNoetherianRing (HeckeAlgebra D 𝒮) := .of_finite R _
 
 end HeckeAlgebra

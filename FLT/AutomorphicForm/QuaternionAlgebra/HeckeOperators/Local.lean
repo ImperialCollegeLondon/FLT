@@ -45,15 +45,12 @@ namespace GL2
 
 /-- The matrix element `diag[α, 1]`. -/
 noncomputable def diag : (v.adicCompletion F)ˣ →* GL₂(adicCompletion F v) :=
-  Units.map ⟨⟨(Matrix.diagonal ![·, 1]), by simp [← List.ofFn_inj]⟩, fun x y ↦ by simp⟩
+  Units.map ⟨⟨(Matrix.diagonal ![·, 1]), by simp⟩, fun x y ↦ by simp⟩
 
 -- Show that `unipotent t` is in `U1 v` for `t ∈ O_v`.
 lemma unipotent_mem_localTameLevel (t : v.adicCompletion F) (ht : Valued.v t ≤ 1) :
-    unipotent t ∈ GL2.localTameLevel v := by
-  refine ⟨?_, ?_⟩
-  · apply GL2.mem_localBorelLevel_iff_v.mpr
-    simpa [unipotent_def]
-  · simp [unipotent_def]
+    unipotent t ∈ GL2.localTameLevel v :=
+  ⟨GL2.mem_localBorelLevel_iff_v.mpr (by simpa), by simp⟩
 
 /-- The matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`. -/
 noncomputable def unipotentMulDiag (t : v.adicCompletion F) :
