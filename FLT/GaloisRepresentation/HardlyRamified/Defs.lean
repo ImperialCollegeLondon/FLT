@@ -77,7 +77,7 @@ universe u
 /-- Z2bar is the ring of integers of `ℚ_[2]ᵃˡᵍ`. -/
 noncomputable abbrev Z2bar : ValuationSubring (ℚ_[2]ᵃˡᵍ) := Valued.v.valuationSubring
 
-instance : MulAction (Γ ℚ_[2]) Z2bar where
+noncomputable instance : MulAction (Γ ℚ_[2]) Z2bar where
   smul g z := ⟨g z, by
     obtain ⟨z, hz⟩ := z
     rw [Valuation.mem_valuationSubring_iff] at hz ⊢

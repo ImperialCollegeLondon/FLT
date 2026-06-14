@@ -199,7 +199,7 @@ noncomputable def FramedGaloisRep.equivChar {n : Type*} [Unique n] :
 
 /-- The determinant of a galois rep. -/
 noncomputable
-def GaloisRep.det [IsTopologicalRing A] (ρ : GaloisRep K A M) : Γ K →ₜ* A :=
+def GaloisRep.det (ρ : GaloisRep K A M) : Γ K →ₜ* A :=
   letI := moduleTopology A (Module.End A M)
   .comp ⟨LinearMap.det, IsModuleTopology.continuous_det⟩ ρ
 
@@ -300,8 +300,7 @@ lemma FramedGaloisRep.det_baseChange [IsTopologicalRing B]
   ext σ
   dsimp [baseChange, GaloisRep.det]
   rw [GL_symm_apply]
-  dsimp [← Matrix.toLin'_apply']
-  rw [LinearMap.det_toLin', Matrix.map_det, LinearMap.det_toMatrix']
+  simp [← Matrix.toLin'_apply', Matrix.map_det]
 
 /-- Given a (global) galois rep, this is the local galois rep at a finite prime `v`.
 Note: this fixes an arbitrary embedding `Kᵃˡᵍ → Kᵥᵃˡᵍ`, or equivalently,
@@ -334,6 +333,9 @@ variable [Module.Free A M] [Module.Finite A M] [Module.Free A N] [Module.Finite 
 /-- The characteristic polynomial of the frobenious conjugacy class at `v` under `ρ`. -/
 noncomputable
 def GaloisRep.charFrob (ρ : GaloisRep K A M) : Polynomial A := (ρ.toLocal v Frobᵥ).charpoly
+
+-- shortcut instance for next theorem: needed after mathlib #34045
+noncomputable instance : CommRing Kᵥ := inferInstance
 
 set_option backward.isDefEq.respectTransparency false in
 omit [IsTopologicalRing A] in

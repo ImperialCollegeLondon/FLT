@@ -120,7 +120,7 @@ section CosetDecomposition
 variable (p : ℕ) (α : v.adicCompletionIntegers F) (hα : α ≠ 0)
 
 variable (v) in
-/-- For each `t ∈ O_v / αO_v`, the left coset `unipotent_mul_diag U1`
+/-- For each `t ∈ O_v / αO_v`, the left coset `unipotentMulDiag U1`
 for a lift of t to `O_v`. -/
 noncomputable def unipotentMulDiagU1 (t : v.adicCompletionIntegers F ⧸ (Ideal.span {α})) :
     GL₂(adicCompletion F v) ⧸ GL2.localPTameLevel v p :=

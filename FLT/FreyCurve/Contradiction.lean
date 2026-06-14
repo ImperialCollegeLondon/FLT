@@ -5,7 +5,7 @@ Authors: Kevin Buzzard, Ruben Van de Velde, Pietro Monticone
 -/
 module
 
-public import FLT.Basic.FreyPackage
+public import FLT.FreyCurve.FreyPackage
 public import FLT.EllipticCurve.Torsion
 import FLT.GaloisRepresentation.HardlyRamified.Frey
 import Mathlib.Analysis.SpecialFunctions.Gamma.Basic

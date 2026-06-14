@@ -146,7 +146,7 @@ lemma TwoSidedIdeal.eq_bot_of_map_comap_eq_bot [hA : IsSimpleRing A]
           (∑ i, xL i * a j * xR i) * x else 0) <| by
           convert (hT'_mem x)
           rw [hT'3]
-          congr! with i hi
+          congr! 2 with i hi
           simp [hi]
         simp +contextual only [↓reduceIte] at ih
         simpa [sub_eq_zero] using ih j hj

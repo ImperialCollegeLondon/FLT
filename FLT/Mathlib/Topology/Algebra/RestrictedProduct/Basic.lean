@@ -194,7 +194,7 @@ lemma mem_coset_and_mulSupport_subset_of_isProductAt
 indices for which `u ∉ A i`. -/
 noncomputable
 def indexSupport (u : Πʳ i, [G i, A i]) : Finset ι :=
-  Set.Finite.toFinset (s := {x | u x ∉ A x}) (by simpa using u.2)
+  Set.Finite.toFinset (s := {x | u x ∉ A x}) (by simpa using! u.2)
 
 @[simp]
 theorem mem_indexSupport_iff {u : Πʳ i, [G i, A i]} {i : ι} :

@@ -29,7 +29,7 @@ instance instBorelSpace : BorelSpace ℚ_[p] := ⟨rfl⟩
 
 -- Should we more generally make a map from `CompactOpens` to `PositiveCompacts`?
 /-- The unit ball as a compact set with nonempty interior. -/
-def unitBall_positiveCompact : PositiveCompacts ℚ_[p] where
+def unitBallPositiveCompact : PositiveCompacts ℚ_[p] where
   carrier := {y | ‖y‖ ≤ 1}
   isCompact' := by simpa only [Metric.closedBall, dist_zero_right] using
     isCompact_closedBall (0 : ℚ_[p]) 1
@@ -40,7 +40,7 @@ def unitBall_positiveCompact : PositiveCompacts ℚ_[p] where
         IsUltrametricDist.isOpen_closedBall (0 : ℚ_[p]) one_ne_zero
 
 noncomputable instance instMeasureSpace : MeasureSpace ℚ_[p] :=
-  ⟨addHaarMeasure unitBall_positiveCompact⟩
+  ⟨addHaarMeasure unitBallPositiveCompact⟩
 
 instance instIsAddHaarMeasure : IsAddHaarMeasure (volume : Measure ℚ_[p]) :=
   isAddHaarMeasure_addHaarMeasure _

@@ -101,7 +101,7 @@ instance : IsModuleTopology v.Completion (L ⊗[K] v.Completion) := ⟨rfl⟩
 above `v`, induced by `piExtension`. -/
 abbrev baseChange :
     L ⊗[K] v.Completion →ₐ[L] (wv : v.Extension L) → wv.1.Completion :=
-  baseChange_of_algebraMap (piExtension L v)
+  baseChangeOfAlgebraMap (piExtension L v)
 
 /- The motivation for changing the scalars of `baseChange L v` to `v.Completion` is that
 both sides are _finite-dimensional_ `v.Completion`-modules, which have the same dimension.

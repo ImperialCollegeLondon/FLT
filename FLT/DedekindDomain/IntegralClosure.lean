@@ -225,11 +225,7 @@ noncomputable def LinearEquivTensorProduct :
 
 lemma LinearEquivTensorProduct_symm_one_tmul (b : B) :
     (LinearEquivTensorProduct A K L B).symm (1 ⊗ₜ b) =
-    (algebraMap _ _ b) := by
-  have : (SemilinearEquivClass.semilinearEquiv (Localization.algEquiv (nonZeroDivisors A) K)).symm
-      1 = 1 :=
-    map_one (Localization.algEquiv (nonZeroDivisors A) K).symm
-  simp [LinearEquivTensorProduct, this]
+    (algebraMap _ _ b) := by simp [LinearEquivTensorProduct]
 
 lemma LinearEquivTensorProduct_symm_tmul (k : K) (b : B) :
     (LinearEquivTensorProduct A K L B).symm (k ⊗ₜ b) =
@@ -315,7 +311,7 @@ lemma _root_.IsIntegralClosure.isLocalizedModule : IsLocalizedModule (nonZeroDiv
     map_units x := by
       obtain ⟨x, hx⟩ := x
       simpa only [← IsScalarTower.algebraMap_apply, Module.End.isUnit_iff]
-          using hlocal.map_units ⟨_, x, hx, rfl⟩
+          using! hlocal.map_units ⟨_, x, hx, rfl⟩
     surj y := by
       obtain ⟨⟨b, _, s, hs, rfl⟩, hx⟩ := (hlocal.surj) y
       exact ⟨(b, ⟨s, hs⟩), by simpa [Submonoid.smul_def] using hx⟩

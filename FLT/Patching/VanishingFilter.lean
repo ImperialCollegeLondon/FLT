@@ -33,7 +33,7 @@ set `ι`: a set `s ⊆ ι` is in the vanishing filter if the element of `Πᵢ R
 is `0` on `s` and `1` outside `s` lies in `p`. -/
 def vanishingFilter (p : Ideal (Π i, R i)) : Filter ι where
   sets := { s | (if · ∈ s then 0 else 1) ∈ p }
-  univ_sets := by simpa [-zero_mem] using zero_mem p
+  univ_sets := by simpa [-zero_mem] using! zero_mem p
   sets_of_superset {s t} hs hst := by
     change _ ∈ p
     convert p.smul_mem (fun i ↦ if i ∈ t then 0 else 1) hs with i

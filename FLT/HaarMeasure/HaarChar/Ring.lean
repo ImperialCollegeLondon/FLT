@@ -134,9 +134,9 @@ variable (R) in
 of a locally compact topological ring such that left multiplication
 by them does not change additive Haar measure.
 -/
-noncomputable def ringHaarChar_ker := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
+noncomputable def ringHaarCharKer := MonoidHom.ker (ringHaarChar : Rˣ →ₜ* ℝ≥0).toMonoidHom
 
-lemma mem_ringHaarChar_ker (x : Rˣ) : x ∈ ringHaarChar_ker R ↔ ringHaarChar x = 1 :=
+lemma mem_ringHaarChar_ker (x : Rˣ) : x ∈ ringHaarCharKer R ↔ ringHaarChar x = 1 :=
   MonoidHom.mem_ker
 
 section prod
@@ -212,21 +212,21 @@ theorem ringHaarChar_ModuleFinite :
     ringHaarChar (R := (Fin (Module.finrank K R) → K))
       (Units.map (algebraMap K (Fin (Module.finrank K R) → K)).toMonoidHom t) := by
   apply addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
-    ((IsModuleTopology.Module.Basis.equivFun_homeo _ _).toContinuousAddEquiv)
+    ((IsModuleTopology.Module.Basis.equivFunHomeo _ _).toContinuousAddEquiv)
   intro x
   -- this would not be needed if `mulEquivHaarChar_eq_mulEquivHaarChar_of_continuousMulEquiv`
   -- ate a ContinuousMulEquivClass instead of a ContinuousMulEquiv.
   -- Unfortunately there's no such class :-(
-  change (IsModuleTopology.Module.Basis.equivFun_homeo K R) _ =
+  change (IsModuleTopology.Module.Basis.equivFunHomeo K R) _ =
     (ContinuousAddEquiv.mulLeft ((Units.map ↑(algebraMap K (Fin (Module.finrank K R) → K))) t))
-    ((IsModuleTopology.Module.Basis.equivFun_homeo K R) x)
+    ((IsModuleTopology.Module.Basis.equivFunHomeo K R) x)
   simp [← Algebra.smul_def]
 
 theorem ringHaarChar_ModuleFinite_unit :
     ringHaarChar (Units.map (algebraMap K R).toMonoidHom t) =
     (ringHaarChar t) ^ (Module.finrank K R) := by
   rw [ringHaarChar_ModuleFinite]
-  simpa using ringHaarChar_pi (ι := Fin (Module.finrank K R))
+  simpa using! ringHaarChar_pi (ι := Fin (Module.finrank K R))
       (A := fun _ : Fin (Module.finrank K R) => K) (fun (i : Fin (Module.finrank K R)) ↦ t)
 
 

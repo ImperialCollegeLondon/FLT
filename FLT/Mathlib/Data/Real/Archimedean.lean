@@ -5,8 +5,7 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import Mathlib.Data.Real.Archimedean
-
+public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 /-!
 # Archimedean
 
@@ -15,11 +14,8 @@ Material destined for Mathlib.
 
 @[expose] public section
 
--- TODO upstream
--- this is a golf
-theorem Real.exists_floor' (x : ℝ) : ∃ ub : ℤ, (ub : ℝ) ≤ x ∧ ∀ z : ℤ, (z : ℝ) ≤ x → z ≤ ub :=
-  ⟨⌊x⌋, Int.floor_le x, fun _ ↦ Int.le_floor.mpr⟩
-
+-- The file this was destined for (Mathlib.Data.Real.Archimedean) no longer
+-- exists -- it was moved to Mathlib.Algebra.Order.Archimedean.Real.Basic
 lemma Int.eq_floor {a : ℝ} {b : ℤ} (h1 : 0 ≤ a - b) (h2 : a - b < 1) : b = ⌊a⌋ := by
   rw [eq_comm, Int.floor_eq_iff]
   grind

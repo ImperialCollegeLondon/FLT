@@ -73,6 +73,7 @@ noncomputable instance instLieAlgebra'
 variable (R A L M B : Type*)
 variable [CommRing R] [CommRing A] [Ring B] [Algebra R A] [Algebra R B]
 
+-- this broke after the bump to v4.31.0-rc1
 theorem diamond_fix :
     LieAlgebra.ExtendScalars.instBracketTensorProduct R A B B = Ring.instBracket := by
   ext x y
@@ -85,6 +86,11 @@ theorem diamond_fix :
   change @Bracket.bracket _ _ _ (xa ⊗ₜ[R] xb) (ya ⊗ₜ[R] yb) = _
   dsimp [Ring.lie_def]
   rw [TensorProduct.tmul_sub, mul_comm]
+  -- proof used to end here
+  norm_num
+  symm
+  sorry
+
 
 end
 
@@ -223,6 +229,7 @@ def actionTensorCAlg'3 : Z G E →ₐ[ℂ] Module.End ℂ C^∞⟮𝓘(ℝ, E), 
 -- Step 3: induced action of centre
 
 variable {n : ℕ}
+set_option backward.isDefEq.respectTransparency false in
 /-- A function on `GL_n(𝔸_f) × GL_n(ℝ)` is smooth if it is continuous, locally constant
 in the finite-adelic variable, and `C^∞` in the archimedean variable. -/
 structure IsSmooth (f : GL (Fin n) (FiniteAdeleRing ℤ ℚ) × GL (Fin n) ℝ → ℂ) : Prop where

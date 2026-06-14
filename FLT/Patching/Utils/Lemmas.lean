@@ -82,7 +82,7 @@ def LinearMap.piMap' (f : ∀ i, M i →ₗ[R i] N i) : (Π i, M i) →ₗ[Π i,
 
 instance {ι : Type*} {R A : ι → Type*} [∀ i, CommSemiring (R i)]
     [∀ i, Semiring (A i)] [∀ i, Algebra (R i) (A i)] : Algebra (Π i, R i) (Π i, A i) where
-  algebraMap := Pi.ringHom fun i ↦ (algebraMap (R i) (A i)).comp (Pi.evalRingHom R i)
+  algebraMap := RingHom.pi fun i ↦ (algebraMap (R i) (A i)).comp (Pi.evalRingHom R i)
   commutes' r a := funext fun i ↦ Algebra.commutes _ _
   smul_def' r a := funext fun i ↦ by simp [Algebra.smul_def]
 
@@ -252,7 +252,7 @@ lemma IsLocalRing.maximalIdeal_pow_card_smul_top_le {R M}
     obtain ⟨i, hi⟩ := WellFoundedLT.exists_eq_inf ⟨f, hf⟩
     have := Ideal.iInf_pow_smul_eq_bot_of_isLocalRing (R := R) (M := M ⧸ N) _
       (maximalIdeal.isMaximal R).ne_top
-    exact ⟨i, by simpa [f, this] using hi⟩
+    exact ⟨i, by simpa [f, this] using! hi⟩
   have (i : ℕ) : Set.ncard (α := M ⧸ N) (f i) ≤ Nat.card (M ⧸ N) - i + 1 := by
     induction i with
     | zero =>

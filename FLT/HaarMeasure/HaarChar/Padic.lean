@@ -49,7 +49,7 @@ private lemma MeasureTheory.ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
   change volume (H : Set ℚ_[p]) = ‖(x : ℚ_[p])‖₊ * volume (K : Set ℚ_[p])
   -- This is true because `H` is a `‖x‖₊⁻¹`-index subgroup of `K`.
   have hHK : H ≤ K := by
-    simpa only [H, K] using (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
+    simpa only [H, K] using! (1 : Submodule ℤ_[p] ℚ_[p]).smul_le_self_of_tower (x : ℤ_[p])
   have x_nonzero: x.val ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.1 x.property
   have : H.IsFiniteRelIndex K :=
     PadicInt.smul_submodule_one_isFiniteRelIndex (p := p) x_nonzero
@@ -61,7 +61,7 @@ private lemma MeasureTheory.ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
   · simp
   · simp
   · simpa [H, K, Padic.submodule_one_eq_closedBall]
-      using measurableSet_closedBall.const_smul (x : ℚ_[p]ˣ)
+      using! measurableSet_closedBall.const_smul (x : ℚ_[p]ˣ)
   · simpa [K, Padic.submodule_one_eq_closedBall] using measurableSet_closedBall
 
 /-- The distributive Haar character of the action of `ℚ_[p]ˣ` on `ℚ_[p]` is the usual p-adic norm.
@@ -97,7 +97,7 @@ lemma Padic.volume_padic_smul (x : ℚ_[p]) (s : Set ℚ_[p]) : volume (x • s)
     rw [← ringHaarChar_padic, ← Units.smul_def, ringHaarChar_mul_volume]
 
 @[simp] lemma Padic.volume_padicInt_smul (x : ℤ_[p]) (s : Set ℚ_[p]) :
-    volume (x • s) = ‖x‖₊ * volume s := by simpa [-volume_padic_smul] using volume_padic_smul x s
+    volume (x • s) = ‖x‖₊ * volume s := by simpa [-volume_padic_smul] using! volume_padic_smul x s
 
 @[simp] lemma PadicInt.volume_padicInt_smul (x : ℤ_[p]) (s : Set ℤ_[p]) :
     volume (x • s) = ‖x‖₊ * volume s := by

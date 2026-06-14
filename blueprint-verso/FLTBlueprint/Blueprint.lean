@@ -3,7 +3,7 @@ import VersoManual
 import VersoBlueprint
 import VersoBlueprint.Commands.Graph
 import VersoBlueprint.Commands.Summary
-import FLTBlueprint.Chapters.Basics
+import FLTBlueprint.Chapters.Definitions
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -16,7 +16,7 @@ This is an early Verso blueprint for the
 The single chapter below links a Blueprint node to a real declaration in the
 FLT Lean codebase; further chapters will be added as the blueprint grows.
 
-{include 0 FLTBlueprint.Chapters.Basics}
+{include 0 FLTBlueprint.Chapters.Definitions}
 
 {blueprint_graph}
 {blueprint_summary}
