@@ -49,11 +49,11 @@ variable {R S : Type*} [CommSemiring R] [CommSemiring S] (φ : R →+* S)
 
 instance instFunLike : FunLike (A →SA[φ] B) A B where
   coe f := f.toFun
-  coe_injective' f g h := by
+  coe_injective f g h := by
     cases f
     cases g
     congr
-    exact DFunLike.coe_injective' h
+    exact DFunLike.coe_injective h
 
 instance : CoeOut (A →SA[φ] B) (A →ₛₐ[φ] B) :=
   ⟨fun f => f.toSemialgHom⟩
