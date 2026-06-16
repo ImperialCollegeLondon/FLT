@@ -5,8 +5,9 @@ Authors: Duxing Yang
 -/
 module
 
+public import Mathlib.Analysis.Normed.Ring.Lemmas
 public import Mathlib.Data.SetLike.Fintype
-public import Mathlib.Tactic
+public import Mathlib.GroupTheory.Index
 
 /-!
 # A class-equation-style counting lemma for conjugates of subgroups

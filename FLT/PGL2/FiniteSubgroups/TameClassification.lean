@@ -5,6 +5,7 @@ Authors: Duxing Yang
 -/
 module
 
+public import Mathlib.Algebra.BigOperators.Field
 public import Mathlib.Algebra.Module.ZMod
 public import FLT.PGL2.FiniteSubgroups.CyclicPartition
 public import FLT.PGL2.FiniteSubgroups.NatClassEquation

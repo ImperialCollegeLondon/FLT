@@ -5,10 +5,12 @@ Authors: Duxing Yang
 -/
 module
 
-public import Mathlib.GroupTheory.SpecificGroups.Alternating
+public import Mathlib.Analysis.Normed.Ring.Lemmas
 public import Mathlib.GroupTheory.SpecificGroups.Dihedral
 public import Mathlib.GroupTheory.Transfer
-public import Mathlib.Tactic
+public import Mathlib.Tactic.Cases
+public import Mathlib.Tactic.NormNum.NatFactorial
+public import Mathlib.Tactic.NormNum.Prime
 public import FLT.PGL2.FiniteSubgroups.PGLBasic
 
 /-!
