@@ -156,22 +156,12 @@ def tensorEquivRestrictedProduct : B ⊗[A] 𝔸ᶠ[A, K] ≃ₗ[B] Πʳ v, [B �
 variable (v : HeightOneSpectrum A) in
 instance : AddCommMonoid (adicCompletion K v) := inferInstance
 
-/-
-#defeq_abuse: command fails with `backward.isDefEq.respectTransparency true` but succeeds with `false`.
-The following isDefEq checks are the root causes of the failure:
-  ❌️ Πʳ (i : HeightOneSpectrum A), [adicCompletion K i, ↑(integerSubmodule K i)] =?= 𝔸ᶠ[A, K]
--/
-set_option backward.isDefEq.respectTransparency false in
 omit [IsFractionRing B L] in
 lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K]) (v : HeightOneSpectrum A) :
     tensorEquivRestrictedProduct A K L B (b ⊗ₜ[A] x) v = b ⊗ₜ[A] (x v) := by
   simp [tensorEquivRestrictedProduct]
+  rfl
 
-#exit
-
-set_option synthInstance.maxHeartbeats 40000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
 /-- The `B`-linear isomorphism `∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v] ≅ ∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w]`
 given by `adicCompletionComapIntegerLinearEquiv`. -/
 def restrictedProductTensorProductEquivRestrictedProductProd [FiniteDimensional K L] :
@@ -189,9 +179,6 @@ lemma restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply [Finite
     FiniteAdeleRing.restrictedProductTensorProductEquivRestrictedProductProd A K L B f v =
     integerBaseChangeLinearEquiv K L B v (f v) := rfl
 
-set_option synthInstance.maxHeartbeats 40000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
 /-- The `B`-linear isomorphism `∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w] → 𝔸_L^∞` given by
 `RestrictedProduct.flattenEquiv'`. -/
 def restrictedProductProdEquiv :
@@ -215,9 +202,6 @@ omit [Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L]] [ComapFiberwiseSMul A K L B] in
 lemma restrictedProduct_prod_equiv_apply (f) (w : HeightOneSpectrum B) :
     restrictedProductProdEquiv A K L B f w = f (under A w) ⟨w, rfl⟩ := rfl
 
-set_option synthInstance.maxHeartbeats 40000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
 /-- The `L`-linear isomorphism `L ⊗ A_K^∞ ≅ A_L^∞` given by composing the previous four maps. -/
 def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃ₗ[L] 𝔸ᶠ[B, L] :=
   let f₁ := tensorEquivTensor A K L B
@@ -230,9 +214,6 @@ def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃�
 lemma algebraMap_apply_eq_algebraMap (x : K) (v : HeightOneSpectrum A) :
     algebraMap K 𝔸ᶠ[A, K] x v = algebraMap K (v.adicCompletion K) x := rfl
 
-set_option synthInstance.maxHeartbeats 40000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
 @[simp]
 lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A, K]) :
     baseChangeLinearEquiv A K L B (algebraMap B L b ⊗ₜ x) =
@@ -245,7 +226,8 @@ lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A,
     IsScalarTower.algebraMap_apply B L (w.adicCompletion L), -Submodule.coe_pi]
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
+--instance : Semiring 𝔸ᶠ[A, K] := inferInstance
+
 theorem baseChange_bijective [FiniteDimensional K L] :
     Function.Bijective (SemialgHom.baseChangeOfAlgebraMap <|
       (mapSemialgHom A K L B).toSemialgHom) := by
@@ -272,6 +254,123 @@ theorem baseChange_bijective [FiniteDimensional K L] :
       SemialgHom.baseChange_of_algebraMap_tmul, Algebra.compHom_algebraMap_apply,
       TensorProduct.smul_tmul']
   | add => simp_all
+
+/-
+
+set_option pp.all true in
+#print IsDedekindDomain.HeightOneSpectrum.valuation
+-- outputs a term of type
+-- `Valuation K (WithZero (Multiplicative ℤ))`
+-- or more precisely
+@Valuation.{u_2, 0} K (WithZero.{0} (Multiplicative.{0} Int))
+  (@WithZero.instLinearOrderedCommMonoidWithZero.{0} (Multiplicative.{0} Int)
+    (@Multiplicative.commMonoid.{0} Int Int.instAddCommMonoid)
+    (@Multiplicative.linearOrder.{0} Int Int.instLinearOrder)
+    (@Multiplicative.isOrderedCancelMonoid.{0} Int Int.instAddCommMonoid
+      (@PartialOrder.toPreorder.{0} (Multiplicative.{0} Int)
+        (@SemilatticeInf.toPartialOrder.{0} (Multiplicative.{0} Int)
+          (@Lattice.toSemilatticeInf.{0} (Multiplicative.{0} Int)
+            (@DistribLattice.toLattice.{0} (Multiplicative.{0} Int)
+              (@instDistribLatticeOfLinearOrder.{0} (Multiplicative.{0} Int)
+                (@Multiplicative.linearOrder.{0} Int Int.instLinearOrder))))))
+      (@IsStrictOrderedRing.toIsOrderedCancelAddMonoid.{0} Int Int.instSemiring
+        (@SemilatticeInf.toPartialOrder.{0} Int (@Lattice.toSemilatticeInf.{0} Int instLatticeInt))
+        Int.instIsStrictOrderedRing)))
+  (@DivisionRing.toRing.{u_2} K (@Field.toDivisionRing.{u_2} K inst_2))
+-/
+
+
+
+
+
+/-
+
+-- This is a different proof
+#synth IsOrderedMonoid (Multiplicative ℤ)
+
+inst✝¹⁸ : CommRing.{u_1} A
+inst✝¹⁷ : CommRing.{u_4} B
+inst✝¹⁶ : @Algebra.{u_1, u_4} A B (@CommRing.toCommSemiring.{u_1} A inst✝¹⁸)
+  (@CommSemiring.toSemiring.{u_4} B (@CommRing.toCommSemiring.{u_4} B inst✝¹⁷))
+inst✝¹⁵ : Field.{u_2} K
+inst✝¹⁴ : Field.{u_3} L
+inst✝¹³ : @Algebra.{u_1, u_2} A K (@CommRing.toCommSemiring.{u_1} A inst✝¹⁸)
+  (@DivisionSemiring.toSemiring.{u_2} K (@Semifield.toDivisionSemiring.{u_2} K (@Field.toSemifield.{u_2} K inst✝¹⁵)))
+inst✝¹² : @IsFractionRing.{u_1, u_2} A (@CommRing.toCommSemiring.{u_1} A inst✝¹⁸) K
+  (@Semifield.toCommSemiring.{u_2} K (@Field.toSemifield.{u_2} K inst✝¹⁵)) inst✝¹³
+inst✝¹¹ : @Algebra.{u_4, u_3} B L (@CommRing.toCommSemiring.{u_4} B inst✝¹⁷)
+  (@DivisionSemiring.toSemiring.{u_3} L (@Semifield.toDivisionSemiring.{u_3} L (@Field.toSemifield.{u_3} L inst✝¹⁴)))
+inst✝¹⁰ : @IsDedekindDomain.{u_1} A inst✝¹⁸
+
+variable {A K}
+instance i18 : CommRing A := inferInstance
+instance i15 : Field K := inferInstance
+instance i10 : IsDedekindDomain A := inferInstance
+instance i13 : Algebra A K := inferInstance
+instance i12 : IsFractionRing A K := inferInstance
+
+
+example : @Multiplicative.isOrderedMonoid.{0} Int Int.instAddCommMonoid
+    (@PartialOrder.toPreorder.{0} Int
+      (@ConditionallyCompletePartialOrderSup.toPartialOrder.{0} Int
+        (@ConditionallyCompletePartialOrder.toConditionallyCompletePartialOrderSup.{0} Int
+          (@ConditionallyCompleteLattice.toConditionallyCompletePartialOrder.{0} Int
+            (@ConditionallyCompleteLinearOrder.toConditionallyCompleteLattice.{0} Int
+              Int.instConditionallyCompleteLinearOrder)))))
+    Int.instIsOrderedAddMonoid =
+    IsDedekindDomain.HeightOneSpectrum.valuation._proof_1 := rfl
+
+variable (i : HeightOneSpectrum A) in
+example : UniformSpace.{u_2}
+    (@WithVal.{u_2, 0} K (WithZero.{0} (Multiplicative.{0} Int))
+      (@WithZero.instLinearOrderedCommGroupWithZero.{0} (Multiplicative.{0} Int)
+        (@Multiplicative.commGroup.{0} Int Int.instAddCommGroup) (@Multiplicative.linearOrder.{0} Int Int.instLinearOrder)
+        (@Multiplicative.isOrderedMonoid.{0} Int Int.instAddCommMonoid
+          (@PartialOrder.toPreorder.{0} (Multiplicative.{0} Int)
+            (@SemilatticeInf.toPartialOrder.{0} (Multiplicative.{0} Int)
+              (@Lattice.toSemilatticeInf.{0} (Multiplicative.{0} Int)
+                (@DistribLattice.toLattice.{0} (Multiplicative.{0} Int)
+                  (@instDistribLatticeOfLinearOrder.{0} (Multiplicative.{0} Int)
+                    (@Multiplicative.linearOrder.{0} Int Int.instLinearOrder))))))
+          Int.instIsOrderedAddMonoid))
+      (@DivisionRing.toRing.{u_2} K (@Field.toDivisionRing.{u_2} K i15))
+      (@IsDedekindDomain.HeightOneSpectrum.valuation.{u_1, u_2} A i18 i10 K i15 i13 i12 i))
+    =
+    UniformSpace.{u_2}
+    (@WithVal.{u_2, 0} K (WithZero.{0} (Multiplicative.{0} Int))
+      (@WithZero.instLinearOrderedCommGroupWithZero.{0} (Multiplicative.{0} Int)
+        (@Multiplicative.commGroup.{0} Int Int.instAddCommGroup) (@Multiplicative.linearOrder.{0} Int Int.instLinearOrder)
+        IsDedekindDomain.HeightOneSpectrum.valuation._proof_1)
+      (@DivisionRing.toRing.{u_2} K (@Field.toDivisionRing.{u_2} K i15))
+      (@IsDedekindDomain.HeightOneSpectrum.valuation.{u_1, u_2} A i18 i10 K i15 i13 i12 i)) := by
+  with_reducible_and_instances rfl
+
+#exit
+
+-/
+
+/-
+
+set_option maxHeartbeats 800000 in
+set_option synthInstance.maxHeartbeats 160000 in
+set_option trace.profiler.useHeartbeats true in
+set_option trace.profiler true in
+set_option trace.Meta.synthInstance true in
+theorem baseChange_bijective [FiniteDimensional K L] :
+
+[Elab.async] [477266413.000000] ✅️ elaborating proof of
+  IsDedekindDomain.FiniteAdeleRing.baseChange_bijective ▶
+
+Why does this happen:
+  [tryResolve] [628370.000000] ✅️
+  SubNegMonoid (adicCompletion K i) ≟ SubNegMonoid (UniformSpace.Completion (WithVal (valuation K i))) ▼
+
+instance Multiplicative.commMonoid [AddCommMonoid α] : CommMonoid (Multiplicative α) :=
+  fast_instance% { Multiplicative.monoid, Multiplicative.commSemigroup with }
+
+[Elab.async] [477081847.000000] ✅️ elaborating proof of
+  IsDedekindDomain.FiniteAdeleRing.baseChange_bijective ▶
+-/
 
 /-- The `L`-algebra isomorphism `L ⊗_K 𝔸_K^∞ ≅ 𝔸_L^∞`. -/
 def baseChangeAlgEquiv [FiniteDimensional K L] :
@@ -333,10 +432,6 @@ private noncomputable local instance (priority := 9999) (v : HeightOneSpectrum A
     Module (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
   Algebra.toModule
 
--- went up from 40000 when switched to module system
-set_option synthInstance.maxHeartbeats 80000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in -- caused by bump to v4.29
 /-- An auxiliary 𝔸_K-module structure on restricted product over v of (product of w's dividing v
 of L_w wrt 𝓞_w). Only used in this file to compare L ⊗ 𝔸_K and 𝔸_L.
 -/
@@ -345,10 +440,9 @@ noncomputable local instance : Module 𝔸ᶠ[A, K]
     ↑(piAdicIntegerSubmodule A K L B v)] :=
   RestrictedProduct.instModuleCoe_fLT
 
-set_option backward.isDefEq.respectTransparency false in
 set_option synthInstance.maxHeartbeats 160000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 1600000 in
 /-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
 reaindexing the elements. -/
 noncomputable def restrictedProductPiEquiv :
@@ -370,7 +464,6 @@ noncomputable def restrictedProductPiEquiv :
 -- needed for the below lemmas for some reason
 attribute [instance 100] RestrictedProduct.instSMulCoeOfSMulMemClass
 
-set_option backward.isDefEq.respectTransparency false in
 set_option synthInstance.maxHeartbeats 160000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
 set_option maxHeartbeats 800000 in

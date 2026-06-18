@@ -69,7 +69,6 @@ noncomputable def evalContinuousAlgebraMap (j : HeightOneSpectrum R) :
                                               -- field not called continuous_toFun??
     }
 
-set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 The continuous K-linear inclusion Kᵥ → 𝔸_K^f from a completion to the finite K-adeles.
@@ -104,7 +103,6 @@ noncomputable def singleMulHom (j : HeightOneSpectrum R) :
     · simp [Pi.single_eq_of_ne' h]
     }
 
-set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 The continuous K-linear inclusion Kᵥ → 𝔸_K^f from a completion to the finite K-adeles.
@@ -154,7 +152,6 @@ lemma eval_localIdempotent (p : HeightOneSpectrum R) :
     (evalContinuousAlgebraMap R K p) (localIdempotent R K p) = 1 :=
   Pi.single_eq_same _ _
 
-set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 The composite `𝔸_K^f --(eval)--> Kᵥ --(single)--> 𝔸_K^f` is multiplication by
