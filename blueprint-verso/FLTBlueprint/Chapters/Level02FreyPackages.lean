@@ -1,7 +1,7 @@
 import Verso
 import VersoManual
 import VersoBlueprint
-import FLT.Basic.FreyPackage
+import FLT.FreyCurve.FreyPackage
 
 open Verso.Genre
 open Verso.Genre.Manual
