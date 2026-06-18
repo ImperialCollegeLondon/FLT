@@ -105,7 +105,7 @@ instance (k A B : Type*) [Field k] [CommRing A] [Ring B]
   have :
       x ∈ (Algebra.TensorProduct.map
         (Subalgebra.center k A).val (Subalgebra.center k B).val).range := by
-    simpa [← Subalgebra.center_tensorProduct] using hx
+    simpa [← Subalgebra.center_tensorProduct] using! hx
   rw [Algebra.IsCentral.center_eq_bot k B] at this
   obtain ⟨ab, rfl⟩ := this
   refine TensorProduct.induction_on ab (by simp)

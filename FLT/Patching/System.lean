@@ -29,7 +29,7 @@ variable [∀ i, CompactSpace (R i)] [∀ i, IsLocalRing.IsAdicTopology (R i)]
 variable (M : ι → Type*) [∀ i, AddCommGroup (M i)] [∀ i, Module Λ (M i)]
 variable [∀ i, Module (R i) (M i)] [∀ i, IsScalarTower Λ (R i) (M i)]
 variable (F : Ultrafilter ι)
-variable [TopologicalSpace Λ] [IsTopologicalRing Λ]
+variable [TopologicalSpace Λ]
 variable [IsLocalRing Λ] [IsNoetherianRing Λ] [NonarchimedeanRing Λ] [T2Space Λ]
 
 attribute [local instance] Module.quotientAnnihilator
@@ -88,7 +88,7 @@ omit
   [NonarchimedeanRing Λ]
   [T2Space Λ]
   [Algebra.UniformlyBoundedRank R] in
-lemma maximalIdeal_pow_bound_le_smul_top (i) (α : OpenIdeals Λ) :
+lemma maximalIdeal_pow_bound_le_smul_top [IsTopologicalRing Λ] (i) (α : OpenIdeals Λ) :
     (maximalIdeal (R i) ^ (Nat.card (Λ ⧸ α.1) ^ bound Λ M) • ⊤ :
       Submodule (R i) (M i)) ≤ α.1 • ⊤ := by
   rw [← Submodule.map_algebraMap_smul α.1]
@@ -297,7 +297,6 @@ omit
   [∀ (i : ι), IsAdicTopology (R i)]
   [IsLocalRing Λ]
   [IsNoetherianRing Λ]
-  [NonarchimedeanRing Λ]
   [T2Space Λ]
   [Algebra.UniformlyBoundedRank R]
   [IsPatchingSystem Λ M ↑F]
@@ -368,7 +367,7 @@ lemma smul_lemma₀
   refine SetLike.le_def.mp ?_ ((Ideal.Quotient.mk_eq_mk_iff_sub_mem _ _).mp (hi₂.trans hi₁.symm))
   rw [← Ideal.map_le_iff_le_comap, Ideal.map_pow, ← IsLocalRing.map_maximalIdeal_of_surjective F hF]
 
-omit [NonarchimedeanRing Λ] [Module.Finite R₀ M₀] in
+omit [Module.Finite R₀ M₀] in
 lemma smul_lemma₁
     (x : M₀)
     (m : R₀) :

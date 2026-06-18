@@ -177,7 +177,7 @@ def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
   toFun x j := map (fun i t ↦ t _)
     (Filter.Eventually.of_forall (fun _ _ ↦ by simp_all [Subgroup.mem_pi])) x
   invFun y := .mk (fun i j ↦ y j i)
-    (by simpa [-eventually_cofinite, Subgroup.mem_pi] using fun j ↦ (y j).property)
+    (by simpa [-eventually_cofinite, Subgroup.mem_pi] using! fun j ↦ (y j).property)
   left_inv x := by ext; rfl
   right_inv y := by ext; rfl
   map_mul' x y := by ext; simp [RestrictedProduct.map]
@@ -190,7 +190,7 @@ def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
       (inclusion (fun i ↦ (j : n) → A j i)
         (fun i ↦ Subgroup.pi Set.univ (fun j ↦ C j i)) hS
       ∘ (fun (y : (j : n) → Πʳ (i : ι), [A j i, C j i]_[𝓟 S]) ↦ .mk (fun i j ↦ y j i)
-        (by simpa [-eventually_principal, Subgroup.mem_pi] using fun j ↦ (y j).property)))
+        (by simpa [-eventually_principal, Subgroup.mem_pi] using! fun j ↦ (y j).property)))
     exact Continuous.comp (by fun_prop) <|
       continuous_rng_of_principal_iff_forall.mpr fun _ ↦ continuous_pi fun _ ↦
         (RestrictedProduct.continuous_eval _).comp (continuous_apply _)
@@ -349,7 +349,7 @@ def ContinuousMulEquiv.restrictedProductMatrixUnits {ι : Type*}
     {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i))) :
     (Matrix n n (Πʳ i, [A i, C i]))ˣ ≃ₜ*
       Πʳ i, [(Matrix n n (A i))ˣ, ((C i).matrix.units : Subgroup (Matrix n n (A i))ˣ)] :=
-  (ContinuousMulEquiv.restrictedProductMatrix hCopen).units_map.trans
+  (ContinuousMulEquiv.restrictedProductMatrix hCopen).unitsMap.trans
     (ContinuousMulEquiv.restrictedProductUnits (fun i => (C i).matrix) (fun i => (hCopen i).matrix))
 
 end pi
@@ -365,16 +365,16 @@ variable [Π i, TopologicalSpace (G i)]
 
 /-- The canonical homeomorphism from a restricted product of products over fibres of a map on
 indexing sets to the restricted product over the original indexing set. -/
-def flatten_homeomorph :
+def flattenHomeomorph :
     Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)]_[𝒢] ≃ₜ
     Πʳ i, [G i, C i]_[ℱ] where
-  __ := flatten_equiv C hf
+  __ := flattenEquiv C hf
   continuous_toFun := by
-    dsimp only [flatten_equiv]
+    dsimp only [flattenEquiv]
     apply mapAlong_continuous
     fun_prop
   continuous_invFun := by
-    dsimp only [flatten_equiv]
+    dsimp only [flattenEquiv]
     rw [continuous_dom]
     intro S hS
     set T := (f '' Sᶜ)ᶜ with hTval
@@ -401,32 +401,32 @@ def flatten_homeomorph :
 
 @[simp]
 lemma flatten_homeomorph_apply (x) (i : ι) :
-    flatten_homeomorph C hf x i = x (f i) ⟨i, rfl⟩ :=
+    flattenHomeomorph C hf x i = x (f i) ⟨i, rfl⟩ :=
   rfl
 
 @[simp]
 lemma flatten_homeomorph_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
-    (flatten_homeomorph C hf).symm x i j = x j.1 :=
+    (flattenHomeomorph C hf).symm x i j = x j.1 :=
   rfl
 
 variable (hf : Filter.Tendsto f Filter.cofinite Filter.cofinite)
 
 /-- The homeomorphism given by `flatten` when both restricted products are over the cofinite
 filter and there's a topology on the factors. -/
-def flatten_homeomorph' :
+def flattenHomeomorph' :
     Πʳ j, [Π (i : f ⁻¹' {j}), G i, Set.pi Set.univ (fun (i : f ⁻¹' {j}) => C i)] ≃ₜ
     Πʳ i, [G i, C i] :=
-  flatten_homeomorph C <|
+  flattenHomeomorph C <|
     le_antisymm (Filter.comap_cofinite_le f) (Filter.map_le_iff_le_comap.mp hf)
 
 @[simp]
 lemma flatten_homeomorph'_apply (x) (i : ι) :
-    flatten_homeomorph' C hf x i = x (f i) ⟨i, rfl⟩ :=
+    flattenHomeomorph' C hf x i = x (f i) ⟨i, rfl⟩ :=
   rfl
 
 @[simp]
 lemma flatten_homeomorph'_symm_apply (x) (i : ι₂) (j : f ⁻¹' {i}) :
-    (flatten_homeomorph' C hf).symm x i j = x j.1 :=
+    (flattenHomeomorph' C hf).symm x i j = x j.1 :=
   rfl
 
 end RestrictedProduct
@@ -614,7 +614,7 @@ noncomputable def singleContinuousAddMonoidHom (j : ι) : A j →ₜ+ Πʳ i, [A
         eventually_principal.mpr
         fun i hi ↦ by simp [Pi.single_eq_of_ne (Set.mem_compl_singleton_iff.mp hi)]⟩
     have : Continuous single' := by
-      simpa [continuous_rng_of_principal] using continuous_single j
+      simpa [continuous_rng_of_principal] using! continuous_single j
     apply (isEmbedding_inclusion_principal
       (le_principal_iff.mpr (Set.finite_singleton j).compl_mem_cofinite)).continuous.comp this
 

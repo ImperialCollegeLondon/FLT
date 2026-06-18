@@ -33,7 +33,7 @@ lemma comp_def (g h : G) : ρ g ∘ₗ ρ h = ρ g * ρ h := rfl
 /-- A representation `ρ : G → GL(V)` of `G` on a finite free `R`-module `V` together with
 a basis `𝓑` of `V` gives rise to a group homomorphism `G → GL_ι(R)` via the matrix of `ρ g`
 in the basis `𝓑`. -/
-noncomputable def gl_map_of_basis
+noncomputable def glMapOfBasis
   : G →* Matrix.GeneralLinearGroup ι R where
     toFun g := {
       val := LinearMap.toMatrix 𝓑 𝓑 (ρ g)

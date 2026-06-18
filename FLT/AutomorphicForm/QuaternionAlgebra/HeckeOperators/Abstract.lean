@@ -164,7 +164,7 @@ lemma eq_finsum_quotient_out_of_bijOn' (a : fixedPoints V A)
   exact finsum_mem_eq_of_bijOn e he₀ he₁
 
 /-- The Hecke operator T_g = [UgV] : A^V → A^U associated to the double coset UgV. -/
-noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
+noncomputable def HeckeOperatorToFun (a : fixedPoints V A) : fixedPoints U A :=
   ⟨∑ᶠ gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ V)), gᵢ • a.1, by
   rintro ⟨u, huU⟩
   rw [smul_finsum_mem (h.image Quotient.out), ← eq_finsum_quotient_out_of_bijOn' a]
@@ -185,14 +185,14 @@ noncomputable def HeckeOperator_toFun (a : fixedPoints V A) : fixedPoints U A :=
     ⟩
 
 /-- The Hecke operator `T_g = [UgV] : A^V → A^U` packaged as an additive monoid homomorphism. -/
-noncomputable def HeckeOperator_addMonoidHom : fixedPoints V A →+ fixedPoints U A where
-  toFun := HeckeOperator_toFun h
+noncomputable def HeckeOperatorAddMonoidHom : fixedPoints V A →+ fixedPoints U A where
+  toFun := HeckeOperatorToFun h
   map_zero' := by
     ext
-    simp [HeckeOperator_toFun]
+    simp [HeckeOperatorToFun]
   map_add' a b := by
     ext
-    simp only [HeckeOperator_toFun, FixedPoints.coe_add, smul_add,
+    simp only [HeckeOperatorToFun, FixedPoints.coe_add, smul_add,
       finsum_mem_add_distrib (h.image Quotient.out)]
 
 
@@ -202,14 +202,14 @@ variable (g U V) in
 /-- The Hecke operator `T_g = [UgV] : A^V → A^U` as an `R`-linear map, where `R` is any ring
 acting on `A` and commuting with the `G`-action. -/
 noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A where
-  toFun := HeckeOperator_toFun h
+  toFun := HeckeOperatorToFun h
   map_add' a b := by
     ext
-    simp only [HeckeOperator_toFun, FixedPoints.coe_add, smul_add,
+    simp only [HeckeOperatorToFun, FixedPoints.coe_add, smul_add,
       finsum_mem_add_distrib (h.image Quotient.out)]
   map_smul' r a := by
     ext
-    simp only [HeckeOperator_toFun, FixedPoints.coe_smul, smul_comm,
+    simp only [HeckeOperatorToFun, FixedPoints.coe_smul, smul_comm,
       smul_finsum_mem (h.image Quotient.out), RingHom.id_apply]
 
 lemma HeckeOperator_apply (a : fixedPoints V A) :

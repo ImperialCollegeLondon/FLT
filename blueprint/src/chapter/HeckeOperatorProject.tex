@@ -41,8 +41,8 @@ double coset $UgV$ can be written as a \emph{finite} union of single
 cosets $g_iV$.
 
 \begin{definition}
-  \lean{AbstractHeckeOperator.HeckeOperator_toFun}
-  \label{AbstractHeckeOperator.HeckeOperator_toFun}
+  \lean{AbstractHeckeOperator.HeckeOperatorToFun}
+  \label{AbstractHeckeOperator.HeckeOperatorToFun}
   \leanok
   Assuming $UgV$ is a finite union of cosets $g_iV$,
   we define $[UgV]:A^V\to A^U$ to be the map sending $a\in A^V$
@@ -52,7 +52,7 @@ cosets $g_iV$.
 \begin{lemma}
   \lean{AbstractHeckeOperator.HeckeOperator}
   \label{AbstractHeckeOperator.HeckeOperator}
-  \uses{AbstractHeckeOperator.HeckeOperator_toFun}
+  \uses{AbstractHeckeOperator.HeckeOperatorToFun}
   \leanok
   This function is well-defined (that is, independent of the
   choice of $g_i$), has image in $A^U$ and is $R$-linear.

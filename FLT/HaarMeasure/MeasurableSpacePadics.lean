@@ -29,7 +29,7 @@ instance instBorelSpace : BorelSpace ℚ_[p] := ⟨rfl⟩
 
 -- Should we more generally make a map from `CompactOpens` to `PositiveCompacts`?
 /-- The unit ball as a compact set with nonempty interior. -/
-def unitBall_positiveCompact : PositiveCompacts ℚ_[p] where
+def unitBallPositiveCompact : PositiveCompacts ℚ_[p] where
   carrier := {y | ‖y‖ ≤ 1}
   isCompact' := by simpa only [Metric.closedBall, dist_zero_right] using
     isCompact_closedBall (0 : ℚ_[p]) 1
@@ -40,7 +40,7 @@ def unitBall_positiveCompact : PositiveCompacts ℚ_[p] where
         IsUltrametricDist.isOpen_closedBall (0 : ℚ_[p]) one_ne_zero
 
 noncomputable instance instMeasureSpace : MeasureSpace ℚ_[p] :=
-  ⟨addHaarMeasure unitBall_positiveCompact⟩
+  ⟨addHaarMeasure unitBallPositiveCompact⟩
 
 instance instIsAddHaarMeasure : IsAddHaarMeasure (volume : Measure ℚ_[p]) :=
   isAddHaarMeasure_addHaarMeasure _
@@ -95,7 +95,7 @@ set_option backward.isDefEq.respectTransparency false in
   rw [isAddLeftInvariant_eq_smul (comap Coe.ringHom volume) (volume : Measure ℤ_[p])] at h ⊢
   suffices (comap (Coe.ringHom (p := p)) volume).addHaarScalarFactor volume = 1 by
     simp [-coe_coeRingHom, this]
-  simpa only [smul_apply, volume_univ, ENNReal.smul_def, smul_eq_mul, mul_one, ENNReal.coe_eq_one]
-    using h
+  simpa only [Measure.smul_apply, volume_univ, ENNReal.smul_def, smul_eq_mul, mul_one,
+    ENNReal.coe_eq_one] using h
 
 end PadicInt

@@ -214,8 +214,8 @@ variable (hf : ∀ i, Continuous (f i))
 /-- A continuous family of ring homomorphisms `f i : R∞ →+* R i` lifts uniquely to a
 ring homomorphism `R∞ →+* PatchingAlgebra R F`. -/
 def PatchingAlgebra.lift : Rₒₒ →+* PatchingAlgebra R F :=
-  (Pi.ringHom fun i ↦ (UltraProduct.π _ _).comp
-    (Pi.ringHom fun j ↦ (Ideal.Quotient.mk _).comp (f j))).codRestrict _ <| by
+  (RingHom.pi fun i ↦ (UltraProduct.π _ _).comp
+    (RingHom.pi fun j ↦ (Ideal.Quotient.mk _).comp (f j))).codRestrict _ <| by
   intro x i j hij
   simp [componentMap, UltraProduct.mapRingHom_π]
 
@@ -249,10 +249,10 @@ lemma PatchingAlgebra.lift_surjective (hf' : ∀ i, Function.Surjective (f i)) :
 filter `F` to the product of components, used in the construction of `incl`. -/
 def PatchingAlgebra.ofPi :
     (ℕ → Π i, R i) →+* Π k, Component R F k :=
-  Pi.ringHom fun k ↦ (RingHom.comp ((Ideal.Quotient.mk
+  RingHom.pi fun k ↦ (RingHom.comp ((Ideal.Quotient.mk
     (eventuallyProd (R := fun i ↦ R i ⧸ maximalIdeal (R i) ^ k)
     (M := fun i ↦ R i ⧸ maximalIdeal (R i) ^ k) ⊥ F)).comp
-    (Pi.ringHom fun j ↦ (Ideal.Quotient.mk _).comp (Pi.evalRingHom _ j))) (Pi.evalRingHom _ k))
+    (RingHom.pi fun j ↦ (Ideal.Quotient.mk _).comp (Pi.evalRingHom _ j))) (Pi.evalRingHom _ k))
 
 variable {R F} in
 omit
@@ -274,7 +274,7 @@ lemma PatchingAlgebra.ofPi_surjective :
   change Ideal.Quotient.mk _ _ = _
   congr 1
   ext i
-  simp only [Pi.evalRingHom_apply, Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, hz]
+  simp only [Pi.evalRingHom_apply, RingHom.pi_apply, RingHom.coe_comp, Function.comp_apply, hz]
 
 omit
   [∀ (i : ι), TopologicalSpace (R i)]
@@ -290,7 +290,7 @@ lemma PatchingAlgebra.ofPi_apply (x k) :
 /-- The natural ring homomorphism from the product `∏ i, R i` into `PatchingAlgebra R F`. -/
 def PatchingAlgebra.incl :
     (Π i, R i) →+* PatchingAlgebra R F :=
-  RingHom.codRestrict ((ofPi R F).comp (Pi.ringHom fun _ ↦ .id _)) (subring R F) <| by
+  RingHom.codRestrict ((ofPi R F).comp (RingHom.pi fun _ ↦ .id _)) (subring R F) <| by
     intro x j k h
     simp [UltraProduct.mapRingHom_π]
 
@@ -333,11 +333,11 @@ variable {R} in
 /-- Functoriality of `PatchingAlgebra` in the family of local rings. -/
 def PatchingAlgebra.map :
     PatchingAlgebra R F →+* PatchingAlgebra R' F :=
-  RingHom.restrict (Pi.ringHom fun i ↦ (componentMapRingHom R F f i).comp (Pi.evalRingHom _ _))
+  RingHom.restrict (RingHom.pi fun i ↦ (componentMapRingHom R F f i).comp (Pi.evalRingHom _ _))
     _ _ <| by
     intro x hx i j hij
     obtain ⟨a, ha⟩ := UltraProduct.π_surjective (x i)
-    simp only [Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply, ←
+    simp only [RingHom.pi_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply, ←
       hx i j hij, ← ha, UltraProduct.mapRingHom_π, UltraProduct.π_eq_iff]
     filter_upwards with k
     obtain ⟨b, hb⟩ := Ideal.Quotient.mk_surjective (a k)
@@ -465,7 +465,7 @@ lemma PatchingAlgebra.algebraMap_continuous
   refine continuous_induced_rng.mpr ?_
   refine continuous_pi fun k ↦ ?_
   let f : R →+* Component (fun x ↦ R) F k := (UltraProduct.π _ _).comp
-    (Pi.ringHom fun i ↦ Ideal.Quotient.mk _)
+    (RingHom.pi fun i ↦ Ideal.Quotient.mk _)
   have : Algebra.UniformlyBoundedRank fun _ : ι ↦ R :=
     ⟨fun k ↦ ⟨(Nat.card (R ⧸ maximalIdeal R ^ k)).succ, fun _ ↦ Nat.lt_succ_self _⟩⟩
   have : Finite (Component (fun x ↦ R) F k) := instFiniteComponent _ _ k

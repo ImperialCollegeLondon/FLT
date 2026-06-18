@@ -65,7 +65,7 @@ namespace ZHat
 
 instance : DFunLike ZHat ℕ+ (fun (N : ℕ+) ↦ ZMod N) where
   coe z := z.1
-  coe_injective' M N := by simp_all
+  coe_injective M N := by simp_all
 
 /-- The canonical "reduce mod M" map from `ZHat` to `ℤ/Mℤ`. -/
 def toZMod (M : ℕ+) : ZHat →+* ZMod M where
@@ -378,7 +378,6 @@ lemma injective_zHat :
       rw [← h₁, ← h₂] at h
       replace h := Module.Flat.rTensor_preserves_injective_linearMap
         (M := ZHat) (Algebra.linearMap ℤ ℚ) (fun _ _ ↦ by simp) h
-      simp only at h
       have := congrArg (TensorProduct.lid ℤ ZHat) h
       simpa using this
 

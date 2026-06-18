@@ -361,7 +361,7 @@ lemma j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : q.Prime)
     exact pow_ne_zero _ <| ne_of_gt <| j_pos_aux _ _ (pow_ne_zero _ P.hb0)
   have h₁ : P.a * P.b * P.c ≠ 0 := mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0
   rw [FreyCurve.j, padicValRat.div (mul_ne_zero (by norm_num) h₀) (pow_ne_zero _ (mod_cast h₁)),
-    padicValRat.mul (by norm_num) h₀, padicValRat.pow two_ne_zero, ← Nat.cast_two,
+    padicValRat.mul (by norm_num) h₀, padicValRat.pow, ← Nat.cast_two,
     ← padicValRat_of_nat, padicValNat_primes hqodd.ne', Nat.cast_zero, mul_zero, zero_add]
   have : ¬ (q : ℤ) ∣ (P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 := by
     rw [hqPrime'.dvd_pow_iff_dvd three_ne_zero]
@@ -385,7 +385,7 @@ lemma j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : q.Prime)
       exact h.2
   norm_cast
   rw [padicValRat.of_int, padicValInt.eq_zero_of_not_dvd this, Nat.cast_zero, zero_sub,
-    Int.cast_pow, padicValRat.pow (mod_cast h₁), dvd_neg, Nat.cast_mul]
+    Int.cast_pow, padicValRat.pow, dvd_neg, Nat.cast_mul]
   exact dvd_mul_of_dvd_left (dvd_mul_left _ _) _
 
 end FreyCurve

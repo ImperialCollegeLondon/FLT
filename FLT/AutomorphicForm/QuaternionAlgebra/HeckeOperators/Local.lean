@@ -85,23 +85,23 @@ lemma unipotent_mem_U1 (t : v.adicCompletionIntegers F) :
       fin_cases i; all_goals fin_cases j
       all_goals simp only [Matrix.unitOfDetInvertible, Fin.mk_one, Fin.isValue, Fin.zero_eta,
         val_unitOfInvertible, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
-        Matrix.cons_val_fin_one, Matrix.cons_val_one, map_zero, zero_le', map_one, le_refl]
+        Matrix.cons_val_fin_one, Matrix.cons_val_one, map_zero, zero_le, map_one, le_refl]
       apply (mem_adicCompletionIntegers _ _ _).mp
       simp
     simp [Matrix.unitOfDetInvertible]
   simp [Matrix.unitOfDetInvertible]
 
 /-- The matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`. -/
-noncomputable def unipotent_mul_diag (t : v.adicCompletionIntegers F) :
+noncomputable def unipotentMulDiag (t : v.adicCompletionIntegers F) :
     (GL (Fin 2) (adicCompletion F v)) :=
   (unipotent (t : adicCompletion F v)) * (diag α hα)
 
 /-- `!![α t₁; 0 1]⁻¹ * [α t₂; 0 1] = [1 (t₂ - t₁) / α; 0 1]`. -/
 lemma unipotent_mul_diag_inv_mul_unipotent_mul_diag (t₁ t₂ : v.adicCompletionIntegers F) :
-    (unipotent_mul_diag α hα t₁)⁻¹ * unipotent_mul_diag α hα t₂
+    (unipotentMulDiag α hα t₁)⁻¹ * unipotentMulDiag α hα t₂
     = unipotent ((α : v.adicCompletion F)⁻¹ * ((t₂ + -t₁) : adicCompletion F v )) := by
   ext i j
-  push_cast [unipotent_mul_diag, mul_inv_rev, unipotent_inv]
+  push_cast [unipotentMulDiag, mul_inv_rev, unipotent_inv]
   rw [← mul_assoc]; nth_rw 2 [mul_assoc]
   rw_mod_cast [unipotent_mul]; push_cast [unipotent_def]
   rw_mod_cast [conjBy_diag]
@@ -224,31 +224,31 @@ noncomputable def U1diagU1 :
   (QuotientGroup.mk '' ((U1 v) * {diag α hα}))
 
 variable (v) in
-/-- For each `t ∈ O_v / αO_v`, the left coset `unipotent_mul_diag U1`
+/-- For each `t ∈ O_v / αO_v`, the left coset `unipotentMulDiag U1`
 for a lift of t to `O_v`. -/
-noncomputable def unipotent_mul_diagU1
+noncomputable def unipotentMulDiagU1
     (t : ↑(adicCompletionIntegers F v) ⧸ (Ideal.span {α})) :
     ((GL (Fin 2) (adicCompletion F v)) ⧸ ↑(U1 v)) :=
-  QuotientGroup.mk (unipotent_mul_diag α hα (Quotient.out t : adicCompletionIntegers F v))
+  QuotientGroup.mk (unipotentMulDiag α hα (Quotient.out t : adicCompletionIntegers F v))
 
-/-- `unipotent_mul_diagU1` is contained in `U1diagU1` for all t. -/
+/-- `unipotentMulDiagU1` is contained in `U1diagU1` for all t. -/
 lemma mapsTo_unipotent_mul_diagU1_U1diagU1 :
-    Set.MapsTo (unipotent_mul_diagU1 v α hα) ⊤ (U1diagU1 v α hα) :=
+    Set.MapsTo (unipotentMulDiagU1 v α hα) ⊤ (U1diagU1 v α hα) :=
   (fun t _ => Set.mem_image_of_mem QuotientGroup.mk
     (Set.mul_mem_mul (unipotent_mem_U1 (Quotient.out t)) rfl))
 
-/-- Distinct t give distinct `unipotent_mul_diagU1`, i.e. we have a disjoint union. -/
+/-- Distinct t give distinct `unipotentMulDiagU1`, i.e. we have a disjoint union. -/
 lemma injOn_unipotent_mul_diagU1 :
-    Set.InjOn (unipotent_mul_diagU1 v α hα) ⊤ := by
+    Set.InjOn (unipotentMulDiagU1 v α hα) ⊤ := by
   intro t₁ h₁ t₂ h₂ h
-  /- If `unipotent_mul_diagU1 t₁ = unipotent_mul_diagU1 t₂`,
-  then `(unipotent_mul_diag t₁)⁻¹ * (unipotent_mul_diag t₂)` is in `U1 v`.
+  /- If `unipotentMulDiagU1 t₁ = unipotentMulDiagU1 t₂`,
+  then `(unipotentMulDiag t₁)⁻¹ * (unipotentMulDiag t₂)` is in `U1 v`.
   Note `unipotent_mul_diag_inv_mul_unipotent_mul_diag` tells us that
-  `(unipotent_mul_diag t₁)⁻¹ * (unipotent_mul_diag t₂)` is `unipotent`. -/
+  `(unipotentMulDiag t₁)⁻¹ * (unipotentMulDiag t₂)` is `unipotent`. -/
   have unipotent_mem_U1 :=
     (unipotent_mul_diag_inv_mul_unipotent_mul_diag α hα (Quotient.out t₁) (Quotient.out t₂)) ▸
       (QuotientGroup.eq.mp h)
-  /- Then inspecting the top-right entry of `(unipotent_mul_diag t₁)⁻¹ * (unipotent_mul_diag t₂)`
+  /- Then inspecting the top-right entry of `(unipotentMulDiag t₁)⁻¹ * (unipotentMulDiag t₂)`
   gives us `t₁ = t₂`. -/
   have unipotent_apply_zero_one_mem_integer := apply_mem_integer unipotent_mem_U1 0 1
   simp only [unipotent, Matrix.unitOfDetInvertible, Fin.isValue, val_unitOfInvertible,
@@ -260,9 +260,9 @@ lemma injOn_unipotent_mul_diagU1 :
   apply (Subtype.coe_inj).mp; push_cast
   ring_nf; rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul, one_mul]
 
-/-- Each coset in `U1diagU1` is of the form `unipotent_mul_diagU1` for some `t ∈ O_v`. -/
+/-- Each coset in `U1diagU1` is of the form `unipotentMulDiagU1` for some `t ∈ O_v`. -/
 lemma surjOn_unipotent_mul_diagU1_U1diagU1 :
-    Set.SurjOn (unipotent_mul_diagU1 v α hα) ⊤ (U1diagU1 v α hα) := by
+    Set.SurjOn (unipotentMulDiagU1 v α hα) ⊤ (U1diagU1 v α hα) := by
   rintro _ ⟨_, ⟨x, hx, _, rfl, rfl⟩, rfl⟩
   /- Each element of `U1diagU1` can be written as `x * diag`,
   where `x = !![a,b;c,d]` is viewed as a matrix over `O_v`. -/
@@ -285,11 +285,11 @@ lemma surjOn_unipotent_mul_diagU1_U1diagU1 :
     use - d * q
     rw[mul_assoc, hq]; ring_nf; simp
   /- The rest of the proof is devoted to showing that this t works.
-  This means showing that `unipotent_mul_diag⁻¹ * x * diag` is in U. -/
-  simp only [unipotent_mul_diagU1, Set.top_eq_univ, Set.mem_univ, true_and]
+  This means showing that `unipotentMulDiag⁻¹ * x * diag` is in U. -/
+  simp only [unipotentMulDiagU1, Set.top_eq_univ, Set.mem_univ, true_and]
   apply QuotientGroup.eq.mpr
-  unfold unipotent_mul_diag; rw[mul_inv_rev, ← mul_assoc, mul_assoc _ _ x]
-  /- But `unipotent_mul_diag⁻¹ * x * diag = diag⁻¹ * (unipotent⁻¹ * x) * diag`,
+  unfold unipotentMulDiag; rw[mul_inv_rev, ← mul_assoc, mul_assoc _ _ x]
+  /- But `unipotentMulDiag⁻¹ * x * diag = diag⁻¹ * (unipotent⁻¹ * x) * diag`,
   so we can apply `conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal`,
   and it suffices to show `(unipotent⁻¹ * x) 0 1 ∈ (Ideal.span {α})`.
   The choice of t guarantees this. -/
@@ -304,9 +304,9 @@ lemma surjOn_unipotent_mul_diagU1_U1diagU1 :
 
 variable (v) in
 /-- The double coset space `U1diagU1` is the disjoint union of
-`unipotent_mul_diagU1` as t ranges over `O_v / αO_v`. -/
+`unipotentMulDiagU1` as t ranges over `O_v / αO_v`. -/
 theorem bijOn_unipotent_mul_diagU1_U1diagU1 :
-    Set.BijOn (unipotent_mul_diagU1 v α hα) ⊤ (U1diagU1 v α hα) :=
+    Set.BijOn (unipotentMulDiagU1 v α hα) ⊤ (U1diagU1 v α hα) :=
   ⟨mapsTo_unipotent_mul_diagU1_U1diagU1 α hα,
     injOn_unipotent_mul_diagU1 α hα,
     surjOn_unipotent_mul_diagU1_U1diagU1 α hα⟩

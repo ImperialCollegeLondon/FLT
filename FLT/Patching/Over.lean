@@ -33,7 +33,7 @@ variable (F : Ultrafilter ι)
 variable (M : ι → Type*) [∀ i, AddCommGroup (M i)] [∀ i, Module Λ (M i)]
 variable [∀ i, Module (R i) (M i)] [∀ i, IsScalarTower Λ (R i) (M i)]
 variable (F : Ultrafilter ι)
-variable [TopologicalSpace Λ] [IsTopologicalRing Λ] [∀ i, ContinuousSMul Λ (R i)]
+variable [TopologicalSpace Λ] [∀ i, ContinuousSMul Λ (R i)]
 variable [IsLocalRing Λ] [IsNoetherianRing Λ] [NonarchimedeanRing Λ] [T2Space Λ]
   [Algebra.TopologicallyFG ℤ Λ]
 
@@ -111,7 +111,7 @@ omit [IsNoetherianRing Λ]
   [IsPatchingSystem Λ M F]
   [IsLocalRing Λ] in
 -- attribute [local instance] UltraProduct.instIsScalarTower in
-lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
+lemma PatchingModule.ker_componentMapModule_mkQ [IsTopologicalRing Λ] (α : OpenIdeals Λ) :
     LinearMap.ker ((componentMapModule Λ F (fun i ↦
       (𝔫 • ⊤ : Submodule Λ (M i)).mkQ) α.1).restrictScalars Λ) = 𝔫 • ⊤ := by
   obtain ⟨α, hα₁⟩ := α
@@ -143,7 +143,7 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
   let g₂ (j) : M₂ i →ₗ[Λ] M₂ j := Submodule.liftModIdeal (g₁ j) 𝔫
   have hg₂ : ∀ᶠ j in F, Function.Bijective (g₂ j) := by
     filter_upwards [H] with j hj
-    have : Function.Bijective (g₁ j) := by simpa only [g₁, dif_pos hj] using hj.some.bijective
+    have : Function.Bijective (g₁ j) := by simpa only [g₁, dif_pos hj] using! hj.some.bijective
     exact (Submodule.liftModIdealEquiv (.ofBijective _ this) 𝔫).bijective
   have hi₂ : Function.Bijective ((UltraProduct.πₗ (fun _ ↦ Λ) M₂ F).restrictScalars Λ ∘ₗ
       LinearMap.pi g₂) :=
@@ -181,7 +181,7 @@ lemma PatchingModule.ker_componentMapModule_mkQ (α : OpenIdeals Λ) :
 set_option backward.isDefEq.respectTransparency false in
 omit [Algebra.TopologicallyFG ℤ Λ]
   [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
-lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
+lemma PatchingModule.mem_smul_top [IsTopologicalRing Λ] (x : PatchingModule Λ M F) :
     x ∈ (𝔫 • ⊤ : Submodule Λ (PatchingModule Λ M F)) ↔
       ∀ (α : OpenIdeals Λ), x.1 α ∈ (𝔫 • ⊤ : Submodule Λ (Component Λ M F α.1)) := by
   classical
@@ -263,7 +263,7 @@ lemma PatchingModule.mem_smul_top (x : PatchingModule Λ M F) :
 set_option backward.isDefEq.respectTransparency false in
 omit [Algebra.TopologicallyFG ℤ Λ]
   [IsPatchingSystem Λ M F] [NonarchimedeanRing Λ] in
-lemma PatchingModule.ker_map_mkQ :
+lemma PatchingModule.ker_map_mkQ [IsTopologicalRing Λ] :
     LinearMap.ker ((PatchingModule.map Λ F fun i ↦
       (𝔫 • ⊤ : Submodule Λ (M i)).mkQ).restrictScalars Λ) = 𝔫 • ⊤ := by
   apply le_antisymm
@@ -335,7 +335,7 @@ def PatchingAlgebra.quotientTo
     intro x hx
     simp only [Ideal.mem_comap, RingHom.mem_ker]
     refine Subtype.ext (funext fun k ↦ UltraProduct.π_eq_zero_iff.mpr ?_)
-    simp only [Pi.ringHom_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
+    simp only [RingHom.pi_apply, RingHom.coe_comp, Function.comp_apply, Pi.evalRingHom_apply,
       Pi.algebraMap_apply, Ideal.quotientMap_algebraMap, Ideal.Quotient.eq_zero_iff_mem]
     filter_upwards with i
     convert Ideal.zero_mem _ using 1
@@ -355,7 +355,6 @@ def PatchingAlgebra.quotientToOver :
 
 omit
   [TopologicalSpace Λ]
-  [IsTopologicalRing Λ]
   [∀ (i : ι), ContinuousSMul Λ (R i)]
   [IsLocalRing Λ]
   [IsNoetherianRing Λ]

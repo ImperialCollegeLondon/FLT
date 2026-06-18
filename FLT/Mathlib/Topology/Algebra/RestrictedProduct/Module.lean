@@ -29,7 +29,7 @@ and `C : (i : ι) → Submodule (B i) (M i)`, then `Πʳ i, [M i, C i]_[𝓕]` h
 
 - `RestrictedProduct.module'` is the module structure defined above.
 
-- `RestrictedProduct.linearMap_component` is the component `M j →ₗ[R j] M' j` given by a linear
+- `RestrictedProduct.linearMapComponent` is the component `M j →ₗ[R j] M' j` given by a linear
   map `Πʳ i, [M i, C i]_[𝓕] →ₗ[Πʳ i, [R i, B i]_[𝓕]] Πʳ i, [M' i, C' i]_[𝓕]`.
 
 - `ContinuousLinearEquiv.restrictedProductPi` is the continuous linear equivalence between
@@ -113,7 +113,7 @@ section components
 variable [DecidableEq ι]
 
 /-- Components of a linear map. -/
-noncomputable def linearMap_component
+noncomputable def linearMapComponent
     (f : Πʳ i, [M i, C i] →ₗ[Πʳ i, [R i, B i]] Πʳ i, [M₂ i, C₂ i]) (i : ι) : M i →ₗ[R i] M₂ i where
   toFun x :=
     f (single C i x) i
@@ -125,11 +125,11 @@ noncomputable def linearMap_component
     rw [hr, ← smul_single, map_smul, smul_apply', RingHom.id_apply]
 
 lemma linearMap_component_apply (f : Πʳ i, [M i, C i] →ₗ[Πʳ i, [R i, B i]] Πʳ i, [M₂ i, C₂ i])
-    (i : ι) (x : M i) : linearMap_component f i x = f (single C i x) i :=
+    (i : ι) (x : M i) : linearMapComponent f i x = f (single C i x) i :=
   rfl
 
 lemma linearMap_apply_eq_component (f : Πʳ i, [M i, C i] →ₗ[Πʳ i, [R i, B i]] Πʳ i, [M₂ i, C₂ i])
-    (x : Πʳ i, [M i, C i]) (i : ι) : f x i = (linearMap_component f i) (x i):= by
+    (x : Πʳ i, [M i, C i]) (i : ι) : f x i = (linearMapComponent f i) (x i):= by
   rw [linearMap_component_apply, ← single_eq_smul, map_smul, single_smul, single_eq_same, one_smul]
 
 end components
@@ -148,7 +148,7 @@ instance : ContinuousSMul (Πʳ i, [R i, B i]_[𝓟 T]) (Πʳ i, [M i, C i]_[�
 variable [hBopen : Fact (∀ i, IsOpen (B i : Set (R i)))]
 variable [hCopen : Fact (∀ i, IsOpen (C i : Set (M i)))]
 
-instance [∀ i, ContinuousSMul (R i) (M i)] :
+instance :
     ContinuousSMul (Πʳ i, [R i, B i]) (Πʳ i, [M i, C i]) where
   continuous_smul := by
     rw [continuous_dom_prod hBopen.elim hCopen.elim]
@@ -165,11 +165,11 @@ theorem isOpenMap_linearMap_of_surjective [DecidableEq ι]
     (hCopen : ∀ i, IsOpen (C i : Set (M i)))
     (hCopen₂ : ∀ i, IsOpen (C₂ i : Set (M₂ i)))
     (f : Πʳ i, [M i, C i] →ₗ[Πʳ i, [R i, B i]] Πʳ i, [M₂ i, C₂ i])
-    (hf : ∀ i, IsOpenMap (linearMap_component f i))
-    (hsurj : ∀ᶠ i in Filter.cofinite, Set.SurjOn (linearMap_component f i) (C i) (C₂ i)) :
+    (hf : ∀ i, IsOpenMap (linearMapComponent f i))
+    (hsurj : ∀ᶠ i in Filter.cofinite, Set.SurjOn (linearMapComponent f i) (C i) (C₂ i)) :
     IsOpenMap f := by
   apply RestrictedProduct.isOpenMap_of_open_components hCopen hCopen₂ f
-    (fun i ↦ linearMap_component f i) (linearMap_apply_eq_component f) hf hsurj
+    (fun i ↦ linearMapComponent f i) (linearMap_apply_eq_component f) hf hsurj
 
 end components
 
@@ -192,7 +192,7 @@ def _root_.LinearEquiv.restrictedProductPi [Fintype n] :
       rw [piSubringSubmodule, Submodule.coe_pi, Set.mem_univ_pi] at hr
       exact hr j)
     x
-  invFun x := ⟨fun i j ↦ x j i, by simpa [piSubringSubmodule] using fun j ↦ (x j).eventually⟩
+  invFun x := ⟨fun i j ↦ x j i, by simpa [piSubringSubmodule] using! fun j ↦ (x j).eventually⟩
   map_add' x y := rfl
   map_smul' x y := rfl
 

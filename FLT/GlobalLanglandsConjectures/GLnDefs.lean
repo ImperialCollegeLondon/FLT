@@ -73,6 +73,8 @@ noncomputable instance instLieAlgebra'
 variable (R A L M B : Type*)
 variable [CommRing R] [CommRing A] [Ring B] [Algebra R A] [Algebra R B]
 
+-- this broke after the bump to v4.31.0-rc1
+attribute [local instance 100] LieRing.ofAssociativeRing
 theorem diamond_fix :
     LieAlgebra.ExtendScalars.instBracketTensorProduct R A B B = Ring.instBracket := by
   ext x y
@@ -85,6 +87,11 @@ theorem diamond_fix :
   change @Bracket.bracket _ _ _ (xa ⊗ₜ[R] xb) (ya ⊗ₜ[R] yb) = _
   dsimp [Ring.lie_def]
   rw [TensorProduct.tmul_sub, mul_comm]
+  -- proof used to end here
+  norm_num
+  symm
+  sorry
+
 
 end
 
@@ -115,6 +122,7 @@ variable (G : Type) [TopologicalSpace G] [Group G]
   [ChartedSpace E G]
   [LieGroup 𝓘(ℝ, E) ⊤ G]
 
+attribute [local instance 100] LieRing.ofAssociativeRing
 /-- The action of the Lie algebra of left-invariant derivations on a Lie group `G`
 on smooth real-valued functions on `G`, viewed as a Lie algebra homomorphism. -/
 def action :

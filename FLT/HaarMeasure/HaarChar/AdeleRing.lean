@@ -56,6 +56,11 @@ open scoped TensorProduct
 
 open NumberField MeasureTheory
 
+-- shortcut to make next lemma work
+variable (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) in
+instance : IsTopologicalRing (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) :=
+  inferInstance
+
 set_option backward.isDefEq.respectTransparency false in
 lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   ringHaarChar x = ringHaarChar (MulEquiv.prodUnits x).1 *
@@ -65,7 +70,7 @@ lemma MeasureTheory.ringHaarChar_adeles_rat (x : (𝔸 ℚ)ˣ) :
   congr
   have := Fact.mk <| NumberField.isOpenAdicCompletionIntegers ℚ
   have := NumberField.instCompactSpaceAdicCompletionIntegers ℚ
-  convert addEquivAddHaarChar_restrictedProductCongrRight
+  convert! addEquivAddHaarChar_restrictedProductCongrRight
     (C := fun p ↦ (p.adicCompletionIntegers ℚ).toAddSubgroup)
     (fun p ↦
       (ContinuousAddEquiv.mulLeft (MulEquiv.restrictedProductUnits (MulEquiv.prodUnits x).2 p))) _
@@ -87,7 +92,7 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
     let : Algebra ℤ Rat.infinitePlace.Completion := Ring.toIntAlgebra _
     simp [InfinitePlace.mult, Rat.isReal_infinitePlace,
       ringHaarChar_eq_ringHaarChar_of_continuousAlgEquiv {
-        __ := Rat.infinitePlace_completion_continuousAlgEquiv
+        __ := Rat.infinitePlaceCompletionContinuousAlgEquiv
         commutes' := by simp},
       ringHaarChar_real, ← Rat.infinitePlace_completion_continuousAlgEquiv_apply_algebraMap,
       -eq_ratCast]
@@ -214,9 +219,9 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
     (b : Bˣ) :
     (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ) ∈
-    ringHaarChar_ker (B ⊗[K] AdeleRing (𝓞 K) K) := by
+    ringHaarCharKer (B ⊗[K] AdeleRing (𝓞 K) K) := by
   rw [mem_ringHaarChar_ker, ringHaarChar_apply]
-  convert MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulLeft K b)
+  convert! MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulLeft K b)
   ext c
   change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
   induction c with
@@ -235,7 +240,7 @@ lemma NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one
       (ContinuousAddEquiv.mulRight
         (Units.map Algebra.TensorProduct.includeLeftRingHom.toMonoidHom b :
       (B ⊗[K] AdeleRing (𝓞 K) K)ˣ)) = 1 := by
-  convert addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulRight K b)
+  convert! addHaarScalarFactor_tensor_adeles_eq_one K B (LinearEquiv.mulRight K b)
   ext c
   change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
   induction c with

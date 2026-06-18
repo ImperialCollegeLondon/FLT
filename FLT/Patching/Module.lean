@@ -165,6 +165,8 @@ lemma Module.UniformlyBoundedRank.linearMap_eq_zero :
 
 end
 
+section topological_ring
+
 variable (R : Type*) [TopologicalSpace R] [CommRing R] [IsTopologicalRing R]
 variable [CompactSpace R] {ι : Type*}
 
@@ -583,6 +585,25 @@ def PatchingModule.mapOfIsPatchingSystem :
 lemma PatchingModule.continuous_ofPi : Continuous (mapOfIsPatchingSystem R M F) :=
   LinearMap.continuous_on_pi (mapOfIsPatchingSystem R M F)
 
+end topological_ring
+
+section nonarchimedean_ring
+-- overlapping instance linter doesn't like [IsTopologicalRing R] and [NonarchimedeanRing R]
+-- at the same time, for some reason.
+
+variable (R : Type*) [TopologicalSpace R] [CommRing R]
+variable [CompactSpace R] {ι : Type*}
+
+set_option autoImplicit false
+
+open Filter
+
+variable (M : ι → Type*) [∀ i, AddCommGroup (M i)] [∀ i, Module R (M i)]
+variable (F : Ultrafilter ι)
+
+variable [∀ i, Module.Free (R ⧸ Ann R (M i)) (M i)]
+variable [Module.UniformlyBoundedRank R M] [IsPatchingSystem R M F]
+
 -- Compact + T2 actually implies NonarchimedeanRing.
 variable [NonarchimedeanRing R] [T2Space R]
 
@@ -615,7 +636,11 @@ instance : Module.Free R (PatchingModule R M F) :=
 instance : Module.Finite R (PatchingModule R M F) :=
   .of_surjective _ (PatchingModule.mapOfIsPatchingSystem_bijective R M F).surjective
 
+open Module.UniformlyBoundedRank
+
 lemma PatchingModule.rank_patchingModule [Nontrivial R] :
     Module.rank R (PatchingModule R M F) = rank R M F := by
   simpa using LinearEquiv.lift_rank_eq
     (LinearEquiv.ofBijective _ (PatchingModule.mapOfIsPatchingSystem_bijective R M F)).symm
+
+end nonarchimedean_ring

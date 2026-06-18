@@ -170,30 +170,30 @@ noncomputable abbrev diag :
 
 /-- The (global) matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`.
 Here `t ∈ 𝒪ᵥ / α` and we lift it arbitrarily to `𝒪ᵥ`. -/
-noncomputable def unipotent_mul_diag (t : ↑(adicCompletionIntegers F v) ⧸ (Ideal.span {α})) :
+noncomputable def unipotentMulDiag (t : ↑(adicCompletionIntegers F v) ⧸ (Ideal.span {α})) :
     (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
   Units.mapEquiv r.symm.toMulEquiv
     (FiniteAdeleRing.GL2.restrictedProduct.symm
     (RestrictedProduct.mulSingle _ _
-      (Local.GL2.unipotent_mul_diag α hα (Quotient.out t : adicCompletionIntegers F v))))
+      (Local.GL2.unipotentMulDiag α hα (Quotient.out t : adicCompletionIntegers F v))))
 
-/-- The set of elements `unipotent_mul_diag`, that is, the elements of `(D ⊗ 𝔸_F^∞)ˣ`
+/-- The set of elements `unipotentMulDiag`, that is, the elements of `(D ⊗ 𝔸_F^∞)ˣ`
 which are `(α t;0 1)` at `v` and the identity elsewhere, as `t` runs through a set
 of coset reps of `𝓞ᵥ / α`. These will form a set of coset representatives for `U1 diag U1`.
 -/
-noncomputable def unipotent_mul_diag_image :
+noncomputable def unipotentMulDiagImage :
     Set (D ⊗[F] (FiniteAdeleRing (𝓞 F) F))ˣ :=
-  (unipotent_mul_diag r α hα) '' ⊤
+  (unipotentMulDiag r α hα) '' ⊤
 
 omit [IsTotallyReal F] [IsQuaternionAlgebra F D] in
 lemma unipotent_mul_diag_inj :
-    Set.InjOn (unipotent_mul_diag r α hα) ⊤ := by
+    Set.InjOn (unipotentMulDiag r α hα) ⊤ := by
   intro t₁ h₁ t₂ h₂ h
-  simp only [unipotent_mul_diag, EmbeddingLike.apply_eq_iff_eq, RestrictedProduct.ext_iff] at h
+  simp only [unipotentMulDiag, EmbeddingLike.apply_eq_iff_eq, RestrictedProduct.ext_iff] at h
   let h' := h v; simp only [RestrictedProduct.mulSingle_eq_same, Units.ext_iff] at h'
   rw [← Matrix.ext_iff] at h'
   let h'' := h' 0 1
-  simpa [Local.GL2.unipotent_mul_diag, Matrix.GeneralLinearGroup.GL2.unipotent, Local.GL2.diag,
+  simpa [Local.GL2.unipotentMulDiag, Matrix.GeneralLinearGroup.GL2.unipotent, Local.GL2.diag,
     Matrix.unitOfDetInvertible, Matrix.GeneralLinearGroup.diagonal] using h''
 
 /-- The double coset space `U₁(S) diag(αᵥ,1) U₁(S)` as a set of left cosets. -/
@@ -202,11 +202,11 @@ noncomputable def U1diagU1 :
   QuotientGroup.mk '' ((U1 r S) * {diag r α hα})
 
 theorem bijOn_unipotent_mul_diagU1_U1diagU1 :
-    (unipotent_mul_diag_image r α hα).BijOn QuotientGroup.mk (U1diagU1 r S α hα) :=
+    (unipotentMulDiagImage r α hα).BijOn QuotientGroup.mk (U1diagU1 r S α hα) :=
   sorry -- global double coset decomposition
 
 lemma unipotent_mul_diag_image_finite :
-    (unipotent_mul_diag_image r α hα).Finite := by
+    (unipotentMulDiagImage r α hα).Finite := by
   apply (Set.BijOn.finite_iff_finite (bijOn_unipotent_mul_diagU1_U1diagU1 r {v} α hα)).mpr
   unfold U1diagU1
   exact (QuotientGroup.mk_image_finite_of_compact_of_open (U1_compact r {v}) (U1_open r {v}))
@@ -244,7 +244,7 @@ lemma U_apply (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
 open AbstractHeckeOperator in
 lemma U_apply_eq_finsum_unipotent_mul_diag_image (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
     ((U r S R α hα) a).1 =
-    ∑ᶠ (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) (_ : g ∈ unipotent_mul_diag_image r α hα),
+    ∑ᶠ (g : (D ⊗[F] FiniteAdeleRing (𝓞 F) F)ˣ) (_ : g ∈ unipotentMulDiagImage r α hα),
       g • a.1 :=
   (eq_finsum_quotient_out_of_bijOn' a (bijOn_unipotent_mul_diagU1_U1diagU1 r S α hα)) ▸
     U_apply r S R α hα a
@@ -254,9 +254,9 @@ lemma U_mul_aux {v : HeightOneSpectrum (𝓞 F)}
     (a : WeightTwoAutomorphicFormOfLevel (U1 r S) R) :
     ∑ᶠ (i : (adicCompletionIntegers F v) ⧸ Ideal.span {α})
       (j : (adicCompletionIntegers F v) ⧸ Ideal.span {β}),
-      unipotent_mul_diag r α hα i • unipotent_mul_diag r β hβ j • a.1 =
+      unipotentMulDiag r α hα i • unipotentMulDiag r β hβ j • a.1 =
     ∑ᶠ (k : (adicCompletionIntegers F v) ⧸ Ideal.span {α * β}),
-      unipotent_mul_diag r (α * β) (hα.mul hβ) k • a.1 :=
+      unipotentMulDiag r (α * β) (hα.mul hβ) k • a.1 :=
   sorry
 
 open AbstractHeckeOperator in
@@ -269,7 +269,7 @@ lemma U_mul {v : HeightOneSpectrum (𝓞 F)}
   simp only [U_apply_eq_finsum_unipotent_mul_diag_image,
     LinearMap.coe_comp, Function.comp_apply,
     smul_finsum_mem (unipotent_mul_diag_image_finite r β hβ)]
-  unfold unipotent_mul_diag_image
+  unfold unipotentMulDiagImage
   simp only [finsum_mem_image (unipotent_mul_diag_inj _ _ _)]
   simpa using U_mul_aux r S R hα hβ a
 
