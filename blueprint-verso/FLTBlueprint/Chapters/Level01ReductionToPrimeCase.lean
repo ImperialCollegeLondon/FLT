@@ -93,7 +93,7 @@ coprime positive integers $`m>n`, one even and one odd, with $`r=m^2-n^2`, $`s=2
 $`t=m^2+n^2`. Applying this to $`X^4+Y^4=Z^2` we deduce that $`X^2=m^2-n^2` and $`Y^2=2mn`.
 Now $`m`, $`n` are coprime and the second of these equations tells us that their
 product is twice a square, thus one is a square and one is twice a square.
-We cannot have $`m=2a^2` and `n=b^2` (the first equation
+We cannot have $`m=2a^2` and $`n=b^2` (the first equation
 becomes insolvable mod 4) so we must have $`m=a^2` and $`n=2b^2`, meaning
 that $`X^2=a^4-4b^4`.
 
@@ -103,7 +103,7 @@ a smaller solution to $`V^4-4W^4=X^2` (namely $`V=a` and $`W=b`.)
 We now do the same trick again. We have $`(2W^2)^2+X^2=(V^2)^2` and we know $`X` is odd,
 meaning that there are pairwise coprime $`p`, and $`q` (one even and one odd) with
 $`2W^2=2pq` (thus $`p=\alpha^2` and $`q=\beta^2` are both squares) and
-$`V^2=p^2+q^2=\alpha^4+\beta^4`. In particular, if we have a solution to `$V^4-4W^4=X^2`,
+$`V^2=p^2+q^2=\alpha^4+\beta^4`. In particular, if we have a solution to $`V^4-4W^4=X^2`,
 we have a smaller solution to $`X^4+Y^4=Z^2`.
 
 The upshot: if there is a solution in positive integers, then there is an infinitely long
