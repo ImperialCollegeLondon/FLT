@@ -15,6 +15,7 @@ on:
   pull_request:
     branches:
       - main
+      - 'github-actions/**'
     paths:
       - '**/*.lean'
       - '**/blueprint.yml'
