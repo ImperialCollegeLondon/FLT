@@ -3,13 +3,15 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.PartitionProof
-import FLT.PGL2.FiniteSubgroups.PSLBasic
-import FLT.PGL2.FiniteSubgroups.PSLRecognition
-import Mathlib.Algebra.Module.ZMod
-import Mathlib.GroupTheory.SchurZassenhaus
-import Mathlib.GroupTheory.SemidirectProduct
-import Mathlib.Tactic.NormNum.Prime
+module
+
+public import FLT.PGL2.FiniteSubgroups.PartitionProof
+public import FLT.PGL2.FiniteSubgroups.PSLBasic
+public import FLT.PGL2.FiniteSubgroups.PSLRecognition
+public import Mathlib.Algebra.Module.ZMod
+public import Mathlib.GroupTheory.SchurZassenhaus
+public import Mathlib.GroupTheory.SemidirectProduct
+public import Mathlib.Tactic.NormNum.Prime
 
 /-!
 # Wild Classification of Finite Subgroups of PGL₂
@@ -48,6 +50,8 @@ the group as `PSL(2, F_q)` or `PGL(2, F_q)`.
 - `classification_wild`: **Dickson's classification for wild subgroups**, the classification of
                                               finite subgroups whose order is divisible by `p`.
 -/
+
+@[expose] public section
 
 namespace Dickson
 

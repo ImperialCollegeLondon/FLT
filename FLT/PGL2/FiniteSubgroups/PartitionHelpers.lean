@@ -3,7 +3,9 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.PGLBasic
+module
+
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
 
 /-!
 # Sylow p-subgroups and Partition Properties in PGL₂
@@ -30,6 +32,8 @@ congruent to 1 modulo `|P|` (not just modulo `p`).
                          modulo the cardinality of a Sylow subgroup.
 - `n_p_eq_pgl`: constraints on the number of Sylow `p`-subgroups when `G` is large.
 -/
+
+@[expose] public section
 
 namespace Dickson
 

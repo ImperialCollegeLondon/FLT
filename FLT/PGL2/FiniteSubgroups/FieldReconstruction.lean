@@ -3,7 +3,9 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.PartitionHelpers
+module
+
+public import FLT.PGL2.FiniteSubgroups.PartitionHelpers
 
 /-!
 # Field Reconstruction and PGL₂(F_q) Subgroup Conjugacy
@@ -45,6 +47,8 @@ are conjugate. The argument has four main steps:
 - `orbit_infty_eq_P1Fq`: the orbit of infinity under a subgroup of order `|PGL(2, q)|` is `P¹(F_q)`.
 - `pgl_subgroups_conjugate`: any two subgroups of `PGL(2, K)` of order `|PGL(2, q)|` are conjugate.
 -/
+
+@[expose] public section
 
 namespace Dickson
 

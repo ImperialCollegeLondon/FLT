@@ -3,8 +3,10 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.TameClassification
-import FLT.PGL2.FiniteSubgroups.WildClassification
+module
+
+public import FLT.PGL2.FiniteSubgroups.TameClassification
+public import FLT.PGL2.FiniteSubgroups.WildClassification
 
 /-!
 # Dickson's Classification of Finite Subgroups of PGL₂
@@ -25,6 +27,7 @@ Sylow geometry and field reconstruction.
   cyclic group, `PSL(2, F_q)`, or `PGL(2, F_q)`.
 -/
 
+@[expose] public section
 
 namespace Dickson
 

@@ -3,9 +3,11 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.PartitionHelpers
-import FLT.PGL2.FiniteSubgroups.RecognitionA5
-import Mathlib.Combinatorics.Enumerative.DoubleCounting
+module
+
+public import FLT.PGL2.FiniteSubgroups.PartitionHelpers
+public import FLT.PGL2.FiniteSubgroups.RecognitionA5
+public import Mathlib.Combinatorics.Enumerative.DoubleCounting
 
 /-!
 # Geometric Partition Proofs for Finite Subgroups of PGL₂
@@ -41,6 +43,8 @@ which do not fix a point. The argument proceeds in three stages:
 - `nonsplit_torus_divides_geo`: a divisibility condition on the order of the normaliser quotient.
 - `branch2_params`: derives the exact geometric parameters for a non-elementary subgroup.
 -/
+
+@[expose] public section
 
 namespace Dickson
 

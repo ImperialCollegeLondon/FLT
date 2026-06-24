@@ -3,7 +3,9 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.FieldReconstruction
+module
+
+public import FLT.PGL2.FiniteSubgroups.FieldReconstruction
 
 /-!
 # Recognition of PSL_2(F_q) in PGL_2(K)
@@ -31,6 +33,8 @@ of the canonical map `PGL(2, F_q) → PGL(2, K)`.
                              projective line over `F_q`.
 - `psl_G_le_pgl_range_from_orbit`: the subgroup acts correctly as `PSL(2, q)`.
 -/
+
+@[expose] public section
 
 namespace Dickson
 

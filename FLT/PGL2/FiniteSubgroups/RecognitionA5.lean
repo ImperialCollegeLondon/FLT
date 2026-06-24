@@ -3,8 +3,10 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.PGLBasic
-import Mathlib.Tactic.NormNum.NatFactorial
+module
+
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
+public import Mathlib.Tactic.NormNum.NatFactorial
 
 /-!
 # Recognition of A₅ in PGL₂
@@ -26,6 +28,8 @@ faithful conjugation action on the five Sylow 2-subgroups.
 - `simple_60_is_A5`: any simple group of order 60 is isomorphic to `A₅`.
 - `recognition_A5_proof`: the final recognition theorem for `A₅`.
 -/
+
+@[expose] public section
 
 namespace Dickson
 

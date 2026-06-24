@@ -3,12 +3,14 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import Mathlib.FieldTheory.Finite.GaloisField
-import Mathlib.GroupTheory.Transfer
-import Mathlib.LinearAlgebra.Matrix.CharP
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
-import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Card
-import Mathlib.LinearAlgebra.Projectivization.Action
+module
+
+public import Mathlib.FieldTheory.Finite.GaloisField
+public import Mathlib.GroupTheory.Transfer
+public import Mathlib.LinearAlgebra.Matrix.CharP
+public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
+public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Card
+public import Mathlib.LinearAlgebra.Projectivization.Action
 
 /-!
 # PGL₂ over algebraically closed fields
@@ -46,6 +48,8 @@ action on the projective line.
 - `card_PGL2`: the cardinality of `PGL(2, F)` for a finite
   field `F`.
 -/
+
+@[expose] public section
 
 namespace Dickson
 

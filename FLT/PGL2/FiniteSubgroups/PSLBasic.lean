@@ -3,7 +3,9 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.PGLBasic
+module
+
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
 
 /-!
 # PSL₂ and SL₂ structure theory
@@ -33,6 +35,8 @@ index computations, and the isomorphism `A₄ ≃* PSL(2, F₃)`.
 - `A4_iso_PSL2_F3`: the alternating group `A₄` is isomorphic
   to `PSL(2, F₃)`.
 -/
+
+@[expose] public section
 
 namespace Dickson
 

@@ -3,10 +3,12 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.PGLBasic
-import Mathlib.GroupTheory.SpecificGroups.Dihedral
-import Mathlib.Tactic.NormNum.NatFactorial
-import Mathlib.Tactic.NormNum.Prime
+module
+
+public import FLT.PGL2.FiniteSubgroups.PGLBasic
+public import Mathlib.GroupTheory.SpecificGroups.Dihedral
+public import Mathlib.Tactic.NormNum.NatFactorial
+public import Mathlib.Tactic.NormNum.Prime
 
 /-!
 # Cyclic partition recognition
@@ -41,6 +43,8 @@ the group is identified up to isomorphism.
 - `iso_A5_of_hasCyclicPartition`: recognition of `A₅`
   from its cyclic partition with `|G| = 60`.
 -/
+
+@[expose] public section
 
 namespace Dickson
 

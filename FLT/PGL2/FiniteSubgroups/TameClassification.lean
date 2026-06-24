@@ -3,9 +3,11 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-import FLT.PGL2.FiniteSubgroups.CyclicPartition
-import Mathlib.Algebra.BigOperators.Field
-import Mathlib.Algebra.Module.ZMod
+module
+
+public import FLT.PGL2.FiniteSubgroups.CyclicPartition
+public import Mathlib.Algebra.BigOperators.Field
+public import Mathlib.Algebra.Module.ZMod
 
 /-!
 # Tame classification of finite subgroups of PGL₂
@@ -39,6 +41,8 @@ a dihedral group `D_n`, `A₄`, `S₄`, or `A₅`.
   nontrivial tame subgroup of `PGL(2, K)` is isomorphic to a
   cyclic group, a dihedral group, `A₄`, `S₄`, or `A₅`.
 -/
+
+@[expose] public section
 
 namespace Dickson
 
