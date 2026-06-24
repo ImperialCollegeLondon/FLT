@@ -93,16 +93,26 @@ structure FreyPackage where
   b : ℤ
   /-- The integer `c` in the Frey package. -/
   c : ℤ
+  /-- The integer `a` is nonzero. -/
   ha0 : a ≠ 0
+  /-- The integer `b` is nonzero. -/
   hb0 : b ≠ 0
+  /-- The integer `c` is nonzero. -/
   hc0 : c ≠ 0
   /-- The prime number `p` in the Frey package. -/
   p : ℕ
+  /-- The natural number `p` is prime. -/
   pp : Nat.Prime p
+  /-- The prime `p` is at least `5`. -/
   hp5 : 5 ≤ p
+  /-- The Fermat equation `a ^ p + b ^ p = c ^ p` holds. -/
   hFLT : a ^ p + b ^ p = c ^ p
-  hgcdab : gcd a b = 1 -- same as saying a,b,c pairwise coprime
+  /-- The integers `a` and `b` are coprime. Together with `hFLT` this is
+  equivalent to `a`, `b` and `c` being pairwise coprime. -/
+  hgcdab : gcd a b = 1
+  /-- The integer `a` is congruent to `3` modulo `4`. -/
   ha4 : (a : ZMod 4) = 3
+  /-- The integer `b` is even, i.e. congruent to `0` modulo `2`. -/
   hb2 : (b : ZMod 2) = 0
 
 namespace FreyPackage

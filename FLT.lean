@@ -8,6 +8,7 @@ public import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
+public import FLT.Basic.Lemmas
 public import FLT.Data.Hurwitz
 public import FLT.Data.HurwitzRatHat
 public import FLT.Data.QHat
