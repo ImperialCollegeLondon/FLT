@@ -3,11 +3,29 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-module
+import FLT.PGL2.FiniteSubgroups.PGLBasic
+import Mathlib.Tactic.NormNum.NatFactorial
 
-public import FLT.Mathlib.GroupTheory.Dickson.PGL
+/-!
+# Recognition of A₅ in PGL₂
 
-@[expose] public section
+This file proves that a finite subgroup of `PGL(2, K)` of order 60
+(in characteristic 3) is isomorphic to the alternating group `A₅`.
+The argument proceeds in two stages: first, simplicity is
+established by eliminating all possible proper normal subgroups
+via Sylow counting and element-order constraints; then `A₅` is
+recognised by embedding the simple group into `S₅` through its
+faithful conjugation action on the five Sylow 2-subgroups.
+
+## Main results
+
+- `too_many_elements_of_prime_order`: an abstract group cannot have
+  intersecting sets of elements of prime order that exceed its cardinality.
+- `element_dichotomy`: the order of an element in `G` is either `p` or coprime to `p`.
+- `is_simple_60`: a specific configuration of order 60 implies the group is simple.
+- `simple_60_is_A5`: any simple group of order 60 is isomorphic to `A₅`.
+- `recognition_A5_proof`: the final recognition theorem for `A₅`.
+-/
 
 namespace Dickson
 
@@ -75,6 +93,8 @@ lemma swap_contradicts_odd_order (g : PGL p) (x y : ProjectiveLine p)
     (by rw [sq, mul_smul, hswap_x, hswap_y])
     (by rw [sq, mul_smul, hswap_y, hswap_x])
 
+/-- A nontrivial element of order `p` and a nontrivial element of order coprime to `p`
+cannot commute in `PGL(2, K)`. -/
 theorem no_commute_p_coprime (g h : PGL p) (hh_ne : h ≠ 1)
     (hg_order : orderOf g = p) (hh_fin : IsOfFinOrder h)
     (hh_coprime : Nat.Coprime (orderOf h) p)
@@ -94,6 +114,8 @@ theorem no_commute_p_coprime (g h : PGL p) (hh_ne : h ≠ 1)
   | Or.inr hgx, Or.inl hgy => exact swap_contradicts_odd_order p g x y hg_order hxy hgx hgy
   | Or.inr hgx, Or.inr hgy => exact absurd (MulAction.injective g (hgx.trans hgy.symm)) hxy
 
+/-- Every element in a finite subgroup of `PGL(2, K)` has order either `p` or
+coprime to `p`. -/
 theorem element_dichotomy (G : Subgroup (PGL p)) [Finite G]
     (g : G) :
     orderOf (g : PGL p) = p ∨ Nat.Coprime (orderOf (g : PGL p)) p := by
@@ -149,6 +171,8 @@ theorem element_dichotomy (G : Subgroup (PGL p)) [Finite G]
     exact absurd (Nat.le_of_dvd (Nat.Prime.pos Fact.out) hdvd) (not_le_of_gt h_p_lt_pa)
 
 open Classical in
+/-- The non-identity elements of a finite subgroup of `PGL(2, K)` partition into
+those of order `p` and those of order coprime to `p`. -/
 theorem element_partition_count (G : Subgroup (PGL p)) [Finite G] :
     Nat.card G - 1 =
       Nat.card {g : G | g ≠ 1 ∧ orderOf (g : PGL p) = p} +
@@ -169,7 +193,6 @@ theorem element_partition_count (G : Subgroup (PGL p)) [Finite G] :
     simp only [Set.mem_setOf_eq, Set.mem_union, ← and_or_left]
     exact (and_iff_left (element_dichotomy p G g)).symm
   rw [h_sum, h_set, Nat.card_congr (Equiv.Set.union h_disj), Nat.card_sum,Nat.add_sub_cancel_left]
-
 
 lemma order_3_centralizes_order_5 {G : Type*} [Group G] [Finite G]
     (Q : Subgroup G) (g : G)
@@ -277,7 +300,6 @@ lemma sylow_5_options (G : Type*) [Group G] [Finite G]
   have : k ≤ 2 := by have := Nat.le_of_dvd (by norm_num) h_div12; omega
   interval_cases k <;> (revert h_div12; rw [hk]; norm_num)
 
-
 lemma sylow_5_not_one (G : Subgroup (PGL p))
     [Finite G] (hp3 : p = 3)
     (hn : Nat.card G = 60) (hn3 : Fintype.card (Sylow p G) = 10)
@@ -304,10 +326,6 @@ lemma sylow_5_not_one (G : Subgroup (PGL p))
     (by rw [hq_ord_PGL, hp3]; norm_num)
     (congrArg Subtype.val (order_3_centralizes_order_5 Q g hQ_card hg hQ_normal q hq_mem))
 
-
-
-
-
 lemma normal_contains_all_sylow {G : Type*} [Group G] [Finite G]
     {q : ℕ} [hq : Fact (Nat.Prime q)]
     (N : Subgroup G) [N.Normal]
@@ -317,7 +335,6 @@ lemma normal_contains_all_sylow {G : Type*} [Group G] [Finite G]
   obtain ⟨g, rfl⟩ := MulAction.exists_smul_eq G P Q
   obtain ⟨y, hy, rfl⟩ := hx
   exact Subgroup.Normal.conj_mem ‹_› _ (hP hy) _
-
 
 lemma order_15_unique_sylow_5 {G : Type*} [Group G] [Finite G]
     (hn : Nat.card G = 15) :
@@ -338,8 +355,6 @@ lemma order_15_unique_sylow_5 {G : Type*} [Group G] [Finite G]
   have : k ≤ 0 := by have := Nat.le_of_dvd (by norm_num) h_div3; omega
   interval_cases k; revert h_div3; rw [hk]; norm_num
 
-
-
 lemma sylow_normal_of_unique_in_normal {G : Type*} [Group G] [Finite G]
     {p : ℕ} [hp : Fact (Nat.Prime p)]
     (N : Subgroup G) [hN : N.Normal]
@@ -350,7 +365,9 @@ lemma sylow_normal_of_unique_in_normal {G : Type*} [Group G] [Finite G]
   have : (P : Subgroup N).Characteristic := Sylow.characteristic_of_normal P hP_norm
   exact ⟨P, ConjAct.normal_of_characteristic_of_normal⟩
 
-
+/-- If the number of Sylow `p`-subgroups is `q` and the number of Sylow
+`q`-subgroups is `p` (for primes `p, q ≥ 3`), the resulting number of
+elements of order `p` and `q` would exceed `pq`, leading to a contradiction. -/
 lemma too_many_elements_of_prime_order {G : Type*} [Group G] [Finite G]
     {p q : ℕ} [hp : Fact (Nat.Prime p)] [hq : Fact (Nat.Prime q)]
     (hn_p : Fintype.card (Sylow p G) = q)
@@ -366,6 +383,8 @@ lemma too_many_elements_of_prime_order {G : Type*} [Group G] [Finite G]
     omega
 
 open Classical in
+/-- A group of order 30 cannot have both 6 Sylow 5-subgroups and 10 Sylow
+3-subgroups, as this would require too many elements. -/
 lemma order_30_n3_ne_10_of_n5_eq_6 {G : Type*} [Group G] [Finite G]
     (hn : Nat.card G = 30)
     (hn5 : Fintype.card (Sylow 5 G) = 6) :
@@ -514,8 +533,7 @@ lemma card_sup_of_coprime_normal {G : Type*} [Group G]
         group
     exact ⟨⟨⟨h, hh⟩, ⟨k, hk⟩⟩, Subtype.ext rfl⟩
 
-
-
+/-- A group of order 30 has a unique Sylow 5-subgroup. -/
 lemma order_30_unique_sylow_5 {G : Type*} [Group G] [Finite G]
     (hn : Nat.card G = 30) :
     Fintype.card (Sylow 5 G) = 1 := by
@@ -594,7 +612,6 @@ lemma order_30_unique_sylow_5 {G : Type*} [Group G] [Finite G]
     ⟨P₅'', fun P ↦ let ⟨g, hg⟩ := MulAction.exists_smul_eq G P₅'' P
                    hg.symm.trans Sylow.smul_eq_of_normal⟩)
 
-
 lemma order_15_unique_sylow_3 {G : Type*} [Group G] [Finite G]
     (hn : Nat.card G = 15) :
     Fintype.card (Sylow 3 G) = 1 := by
@@ -608,6 +625,7 @@ lemma order_15_unique_sylow_3 {G : Type*} [Group G] [Finite G]
   have : k ≤ 1 := by have := Nat.le_of_dvd (by norm_num) h_div5; omega
   interval_cases k <;> (revert h_div5; rw [hk]; norm_num)
 
+/-- A group of order 30 has a unique Sylow 3-subgroup. -/
 lemma order_30_unique_sylow_3 {G : Type*} [Group G] [Finite G]
     (hn : Nat.card G = 30) :
     Fintype.card (Sylow 3 G) = 1 := by
@@ -711,8 +729,6 @@ lemma no_normal_30_with_all_sylow5 {G : Type*} [Group G] [Finite G]
     Fintype.card_le_one_iff.mpr fun P Q ↦ SetLike.ext'
       (congrArg ((↑) : Subgroup G → Set G) ((h_unique P).trans (h_unique Q).symm))
   omega
-
-
 
 lemma normal_with_element_contains_all_sylow {G : Type*} [Group G] [Finite G]
     {q : ℕ} [Fact (Nat.Prime q)]
@@ -872,6 +888,8 @@ lemma sylow5_in_normal_forces_large {G : Type*} [Group G] [Finite G]
     omega
   interval_cases k <;> omega
 
+/-- A group of order 60 with 10 Sylow 3-subgroups and 6 Sylow 5-subgroups
+must be simple. -/
 lemma is_simple_60_aux {G : Type*} [Group G] [Finite G] [Nontrivial G]
     (hn : Nat.card G = 60)
     (hn3 : Fintype.card (Sylow 3 G) = 10)
@@ -908,6 +926,8 @@ lemma is_simple_60_aux {G : Type*} [Group G] [Finite G] [Nontrivial G]
         exact normal_divides_4_eq_bot hn hn3 N (h_cop.dvd_of_dvd_mul_right
           (show Nat.card N ∣ 4 * 15 from h_dvd)) hN_ne_bot
 
+/-- A finite subgroup of `PGL(2, K)` of order 60 with exactly 10 Sylow 3-subgroups
+in characteristic 3 is a simple group. -/
 theorem is_simple_60 (G : Subgroup (PGL p))
     [Finite G] (hp3 : p = 3)
     (hn : Nat.card G = 60) (hn3 : Fintype.card (Sylow p G) = 10) :
@@ -986,6 +1006,7 @@ lemma simple_60_n2_eq_5 (G : Type*) [Group G] [Finite G]
   · exact absurd h15 (simple_60_n2_ne_15 G hn hs)
 
 open Classical in
+/-- Every simple group of order 60 is isomorphic to the alternating group `A₅`. -/
 theorem simple_60_is_A5 (G : Type*) [Group G] [Finite G]
     (hn : Nat.card G = 60) (hs : IsSimpleGroup G) :
     Nonempty (G ≃* alternatingGroup (Fin 5)) := by
@@ -1008,6 +1029,8 @@ theorem simple_60_is_A5 (G : Type*) [Group G] [Finite G]
     (Fintype.equivOfCardEq ((simple_60_n2_eq_5 G hn hs).trans
       (Fintype.card_fin 5).symm)).altCongrHom⟩
 
+/-- **Recognition of A₅**. A finite subgroup of `PGL(2, K)` of order 60 satisfying
+the requisite Sylow counts is isomorphic to `A₅`. -/
 theorem recognition_A5_proof (G : Subgroup (PGL p))
     [Finite G] (hp3 : p = 3)
     (hn : Nat.card G = 60) (hn3 : Fintype.card (Sylow p G) = 10) :

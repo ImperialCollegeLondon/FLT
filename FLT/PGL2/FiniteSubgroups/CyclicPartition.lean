@@ -3,21 +3,59 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-module
+import FLT.PGL2.FiniteSubgroups.PGLBasic
+import Mathlib.GroupTheory.SpecificGroups.Dihedral
+import Mathlib.Tactic.NormNum.NatFactorial
+import Mathlib.Tactic.NormNum.Prime
 
-public import Mathlib.GroupTheory.SpecificGroups.Dihedral
-public import FLT.Mathlib.GroupTheory.Dickson.PGL
+/-!
+# Cyclic partition recognition
 
-@[expose] public section
+This file formalises the *cyclic partition* approach to
+recognising finite groups: given a group whose non-identity
+elements are partitioned into conjugacy classes of cyclic
+subgroups with prescribed orders and normaliser indices,
+the group is identified up to isomorphism.
+
+## Main definitions
+
+- `CyclicPartitionConfig`: a record of a cyclic subgroup
+  order `d` and normaliser multiplier `f`.
+- `HasCyclicPartition G configs`: the proposition that `G`
+  admits a cyclic partition matching the given list of
+  configurations.
+
+## Main results
+
+- `dihedralRecognition`: a group with a normal cyclic
+  subgroup of index 2 where all outside elements have
+  order 2 is isomorphic to a dihedral group.
+- `dihedral_of_hasCyclicPartition_odd`: recognition of
+  `D_n` (odd `n ≥ 3`) from its cyclic partition.
+- `dihedral_of_hasCyclicPartition_even`: recognition of
+  `D_n` (even `n ≥ 4`) from its cyclic partition.
+- `iso_A4_of_hasCyclicPartition`: recognition of `A₄`
+  from its cyclic partition with `|G| = 12`.
+- `iso_S4_of_hasCyclicPartition`: recognition of `S₄`
+  from its cyclic partition with `|G| = 24`.
+- `iso_A5_of_hasCyclicPartition`: recognition of `A₅`
+  from its cyclic partition with `|G| = 60`.
+-/
 
 namespace Dickson
 
 noncomputable section
 
+/-- Configuration data for one conjugacy class of cyclic
+subgroups: `d` is the subgroup order and `f` is the
+normaliser-to-subgroup ratio. -/
 structure CyclicPartitionConfig where
   d : ℕ
   f : ℕ
 
+/-- A group `G` has a cyclic partition matching `configs` if its
+non-identity elements are partitioned into conjugacy classes of
+cyclic subgroups whose orders and normaliser indices match. -/
 def HasCyclicPartition (G : Type*) [Group G] [Finite G]
     (configs : List CyclicPartitionConfig) : Prop :=
   ∃ (H : List (Subgroup G)),
@@ -47,7 +85,7 @@ theorem isCyclic_of_hasCyclicPartition (G : Type*) [Group G] [Finite G] (N : ℕ
     ⟨n, Subtype.ext_iff.mp hn⟩⟩
 
 theorem dihedralRecognition (G : Type*) [Group G] [Finite G] (n : ℕ) (hn : n ≥ 2)
-    (H : Subgroup G) [H.Normal]
+    (H : Subgroup G) [hH_normal : H.Normal]
     (hH_cyclic : IsCyclic H)
     (hH_card : Nat.card H = n)
     (hH_index : H.index = 2)
@@ -97,7 +135,7 @@ theorem dihedralRecognition (G : Type*) [Group G] [Finite G] (n : ℕ) (hn : n �
       · exact h1
       · exact absurd h1 ha
     exact ⟨a⁻¹ * g,
-        Subgroup.Normal.mem_comm inferInstance (show g * a⁻¹ ∈ H from
+        Subgroup.Normal.mem_comm hH_normal (show g * a⁻¹ ∈ H from
             (show g * x * (a * x)⁻¹ = g * a⁻¹ by group) ▸ H.mul_mem hgx (H.inv_mem hax)), by group⟩
   have hb_pow_n : b ^ n = 1 := by rw [← hb_order, pow_orderOf_eq_one]
   have hb_pow_mod : ∀ (x : ℕ), b ^ (x % n) = b ^ x := by
@@ -366,42 +404,40 @@ theorem sylow3_toPermHom_ker_eq_bot_of_card_12 (G : Type*) [Group G] [Finite G]
     (hN : Nat.card G = 12) (h_sylow : Nat.card (Sylow 3 G) = 4) :
     (MulAction.toPermHom G (Sylow 3 G)).ker = ⊥ := by
   have h_norm_card : ∀ P : Sylow 3 G,
-      Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G) : Subgroup G) = 3 := fun P ↦ by
+      Nat.card (Subgroup.normalizer (P : Set G)) = 3 := fun P ↦ by
     have h_mul := Subgroup.index_mul_card
-      (Subgroup.normalizer ((P : Subgroup G) : Set G) : Subgroup G)
+      (Subgroup.normalizer (P : Set G))
     change (Subgroup.normalizer (P : Set G)).index * _ = _ at h_mul
     rw [← Sylow.card_eq_index_normalizer, h_sylow, hN] at h_mul
     omega
   have h_P_card : ∀ P : Sylow 3 G, Nat.card (P : Subgroup G) = 3 := fun P ↦ by
     have h_dvd :=
-      Subgroup.card_dvd_of_le (show (P : Subgroup G) ≤
-        Subgroup.normalizer ((P : Subgroup G) : Set G) from Subgroup.le_normalizer)
+      Subgroup.card_dvd_of_le (show (P : Set G) ≤
+        Subgroup.normalizer (P : Set G) from Subgroup.le_normalizer)
     rw [h_norm_card P] at h_dvd
     cases (Nat.dvd_prime Nat.prime_three).mp h_dvd with
     | inl h_one =>
-      have h_norm_top : (Subgroup.normalizer ((P : Subgroup G) : Set G) : Subgroup G) = ⊤ := by
+      have h_norm_top : (Subgroup.normalizer (P : Set G)) = ⊤ := by
         ext x
         refine ⟨fun _ ↦ Subgroup.mem_top x, fun _ ↦ by
-          rw [Subgroup.mem_normalizer_iff, Subgroup.card_eq_one.mp h_one]
+          rw [Subgroup.mem_set_normalizer_iff, ← Sylow.coe_coe P, Subgroup.card_eq_one.mp h_one]
           exact fun y ↦ ⟨
-            fun hy ↦ by rw [Subgroup.mem_bot.mp hy, mul_one, mul_inv_cancel, Subgroup.mem_bot],
-            fun hy ↦
-                Subgroup.mem_bot.mpr (mul_left_cancel (mul_right_cancel
-                    (by rw [Subgroup.mem_bot.mp hy, mul_one, mul_inv_cancel])))
+            fun hy ↦ Subgroup.mem_bot.mpr (conj_eq_one_iff.mpr (Subgroup.mem_bot.mp hy)),
+            fun hy ↦ Subgroup.mem_bot.mpr (conj_eq_one_iff.mp (Subgroup.mem_bot.mp hy))
           ⟩⟩
       have h_mul := Subgroup.index_mul_card
-        (Subgroup.normalizer ((P : Subgroup G) : Set G) : Subgroup G)
+        (Subgroup.normalizer (P : Set G) : Subgroup G)
       rw [h_norm_card P, h_norm_top, Subgroup.index_top, one_mul, hN] at h_mul
       omega
     | inr h_three =>
       exact h_three
   have h_norm_eq : ∀ P : Sylow 3 G,
-      (Subgroup.normalizer ((P : Subgroup G) : Set G) : Subgroup G) = P := by
+      (Subgroup.normalizer (P : Set G)) = P := by
     intro P
     have h_set_eq : ((P : Subgroup G) : Set G) =
-        (Subgroup.normalizer ((P : Subgroup G) : Set G) : Set G) := by
+        Subgroup.normalizer (P : Set G) := by
       refine Set.eq_of_subset_of_ncard_le Subgroup.le_normalizer ?_ (Set.toFinite _)
-      change Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G) : Subgroup G) ≤
+      change Nat.card (Subgroup.normalizer (P : Set G)) ≤
         Nat.card (P : Subgroup G)
       rw [h_P_card P, h_norm_card P]
     exact (SetLike.coe_set_eq.mp h_set_eq).symm
@@ -590,7 +626,7 @@ lemma center_eq_bot_of_hasCyclicPartition (G : Type*) [Group G] [Finite G] (N : 
   omega
 
 lemma normal_order2_le_center (G : Type*) [Group G] [Finite G]
-    (K : Subgroup G) [K.Normal] (hK : Nat.card K = 2) :
+    (K : Subgroup G) [hK_normal : K.Normal] (hK : Nat.card K = 2) :
     K ≤ Subgroup.center G := by
   intro x hx
   obtain ⟨k_sub, hk_gen⟩ := (isCyclic_of_prime_card hK).exists_generator
@@ -623,7 +659,7 @@ lemma normal_order2_le_center (G : Type*) [Group G] [Finite G]
     rw [Subgroup.mem_center_iff]
     intro g
     rcases h_cases (g * k * g⁻¹)
-        (Subgroup.Normal.conj_mem inferInstance k k_sub.property g) with h1 | hk_eq
+        (Subgroup.Normal.conj_mem hK_normal k k_sub.property g) with h1 | hk_eq
     · exact absurd (show k = 1 by
         rw [← one_mul k, ← inv_mul_cancel g, mul_assoc, ← mul_one (g * k), ← inv_mul_cancel g]
         rw [← mul_assoc (g * k) g⁻¹ g, h1, one_mul, inv_mul_cancel]) hk_ne_one
@@ -644,7 +680,7 @@ lemma card_sylow_eq_one_of_normal (G : Type*) [Group G] [Finite G]
   exact ⟨P, fun Q ↦ by
     obtain ⟨g, rfl⟩ := MulAction.exists_smul_eq G P Q
     rw [Sylow.smul_eq_iff_mem_normalizer]
-    change g ∈ (Subgroup.normalizer ((P : Subgroup G) : Set G) : Subgroup G)
+    change g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G)
     rw [← hP, Subgroup.normalizer_eq_top]
     exact Subgroup.mem_top g⟩
 
@@ -655,16 +691,16 @@ lemma not_normal_order6_of_card_sylow3_4 (G : Type*) [Group G] [Finite G]
     have h_dvd : Nat.card (Sylow 3 K) ∣ 6 := by
       rw [Nat.card_congr (Sylow.equivQuotientNormalizer _), ← hK]
       exact Subgroup.card_quotient_dvd_card (Subgroup.normalizer
-        ((Classical.arbitrary (Sylow 3 K) : Subgroup K) : Set K))
+        (Classical.arbitrary (Sylow 3 K) : Set K))
     have h_mod : Nat.card (Sylow 3 K) % 3 = 1 := card_sylow_modEq_one 3 K
     rw [← Nat.card_eq_fintype_card (α := Sylow 3 K)]
     have : Nat.card (Sylow 3 K) ≠ 4 := fun h ↦ by obtain ⟨k, hk⟩ := h_dvd; rw [h] at hk; omega
     have : Nat.card (Sylow 3 K) ≤ 6 := Nat.le_of_dvd (by norm_num) h_dvd
     omega
-  haveI : (Q : Subgroup K).Normal := ⟨fun n hn g ↦
+  have hQ_normal : (Q : Subgroup K).Normal := ⟨fun n hn g ↦
     (Sylow.smul_eq_iff_mem_normalizer.mp (show g • Q = Q from hQ (g • Q))) n |>.mp hn⟩
-  haveI : (Q : Subgroup K).Characteristic := Sylow.characteristic_of_normal Q inferInstance
-  haveI : (Subgroup.map K.subtype (Q : Subgroup K)).Normal :=
+  haveI : (Q : Subgroup K).Characteristic := Sylow.characteristic_of_normal Q hQ_normal
+  have hQG_normal : (Subgroup.map K.subtype (Q : Subgroup K)).Normal :=
     ConjAct.normal_of_characteristic_of_normal
   set QG := Subgroup.map K.subtype (Q : Subgroup K)
   have hQG_card : Nat.card QG = 3 := by
@@ -679,7 +715,7 @@ lemma not_normal_order6_of_card_sylow3_4 (G : Type*) [Group G] [Finite G]
         Nat.factorization_eq_one (m := 8) rfl Nat.prime_three (by norm_num),
         pow_one]
   haveI : (P : Subgroup G).Normal :=
-    (SetLike.ext' <| Set.eq_of_subset_of_ncard_le hP h_card_eq.ge : QG = ↑P) ▸ inferInstance
+    (SetLike.ext' <| Set.eq_of_subset_of_ncard_le hP h_card_eq.ge : QG = ↑P) ▸ hQG_normal
   have h_sylow_one : Nat.card (Sylow 3 G) = 1 := by
     rw [Nat.card_eq_fintype_card, Fintype.card_eq_one_iff]
     exact ⟨P, fun R ↦ by
@@ -696,12 +732,12 @@ lemma toPermHom_injective_of_card_24 (G : Type*) [Group G] [Finite G]
   set K := (MulAction.toPermHom G (Sylow 3 G)).ker
   have P : Sylow 3 G := Classical.arbitrary _
   have hK_dvd : Nat.card K ∣ 6 :=
-    (show Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) = 6 from
-      (show 4 * Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) = 24 →
-        Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) = 6 by intros; omega)
-        (show 4 * Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) = 24 by
+    (show Nat.card (Subgroup.normalizer (P : Set G)) = 6 from
+      (show 4 * Nat.card (Subgroup.normalizer (P : Set G)) = 24 →
+        Nat.card (Subgroup.normalizer (P : Set G)) = 6 by intros; omega)
+        (show 4 * Nat.card (Subgroup.normalizer (P : Set G)) = 24 by
           rw [← h_sylow, Sylow.card_eq_index_normalizer P, ← hN]
-          exact (Subgroup.normalizer ((P : Subgroup G) : Set G)).index_mul_card)
+          exact (Subgroup.normalizer (P : Set G)).index_mul_card)
     ) ▸ Subgroup.card_dvd_of_le (fun _ hg ↦
         Sylow.smul_eq_iff_mem_normalizer.mp (Equiv.Perm.ext_iff.mp (MonoidHom.mem_ker.mp hg) P))
   have hK_one : Nat.card K = 1 :=
@@ -827,8 +863,8 @@ lemma sylow_le_normal_of_coprime_index (G : Type*) [Group G] [Finite G]
   obtain ⟨n, hn⟩ := IsPGroup.iff_card.mp (IsPGroup.map P.2 (QuotientGroup.mk' N))
   rcases n with _ | n
   · intro x hx
-    obtain ⟨_⟩ := Nat.card_eq_one_iff_unique.mp (by rw [hn, pow_zero])
-    have h_sub : Subsingleton ↥(P.map (QuotientGroup.mk' N)) := inferInstance
+    have h_sub : Subsingleton ↥(P.map (QuotientGroup.mk' N)) :=
+      (Nat.card_eq_one_iff_unique.mp (by rw [hn, pow_zero])).1
     exact QuotientGroup.ker_mk' N ▸ MonoidHom.mem_ker.mpr (congr_arg Subtype.val <| match h_sub with
       | ⟨h_allEq⟩ => h_allEq (⟨QuotientGroup.mk' N x,
           Subgroup.mem_map_of_mem _ hx⟩ : ↥(P.map (QuotientGroup.mk' N))) 1)
@@ -1149,13 +1185,13 @@ lemma exists_normal_complement_of_sylow2_15 (G : Type*) [Group G] [Finite G]
     ∃ K : Subgroup G, K.Normal ∧ Nat.card K = 15 := by
   obtain ⟨P⟩ : Nonempty (Sylow 2 G) := Sylow.nonempty
   have h_centralizer :
-      Subgroup.normalizer ((P : Subgroup G) : Set G) ≤ Subgroup.centralizer (P : Subgroup G) :=
+      Subgroup.normalizer (P : Set G) ≤ Subgroup.centralizer (P : Set G) :=
     fun x hx y hy ↦
-      haveI := Fintype.ofFinite (Subgroup.normalizer ((P : Subgroup G) : Set G))
+      haveI := Fintype.ofFinite (Subgroup.normalizer (P : Set G))
       (Subtype.ext_iff.mp ((IsPGroup.isMulCommutative_of_card_eq_prime_sq (show Nat.card
-        (Subgroup.normalizer ((P : Subgroup G) : Set G)) = 2 ^ 2 by
+        (Subgroup.normalizer (P : Set G)) = 2 ^ 2 by
           have h_card_eq := Subgroup.card_eq_card_quotient_mul_card_subgroup
-            (Subgroup.normalizer ((P : Subgroup G) : Set G))
+            (Subgroup.normalizer (P : Set G))
           change _ = Nat.card (G ⧸ Subgroup.normalizer (P : Set G)) * _ at h_card_eq
           rw [← Nat.card_congr (Sylow.equivQuotientNormalizer P), h_n2, hN] at h_card_eq; omega
       )).is_comm.comm ⟨x, hx⟩ ⟨y, Subgroup.le_normalizer hy⟩)).symm

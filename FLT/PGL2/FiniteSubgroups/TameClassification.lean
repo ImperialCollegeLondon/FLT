@@ -3,11 +3,42 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-module
+import FLT.PGL2.FiniteSubgroups.CyclicPartition
+import Mathlib.Algebra.BigOperators.Field
+import Mathlib.Algebra.Module.ZMod
 
-public import FLT.Mathlib.GroupTheory.Dickson.CyclicPartition
+/-!
+# Tame classification of finite subgroups of PGL₂
 
-@[expose] public section
+This file classifies the *tame* finite subgroups of `PGL(2, K)`,
+i.e. those whose order is not divisible by the characteristic `p`.
+Using the class equation for conjugacy classes of pair-stabiliser
+subgroups and the resulting Diophantine constraints, each tame
+subgroup is shown to be isomorphic to one of: a cyclic group,
+a dihedral group `D_n`, `A₄`, `S₄`, or `A₅`.
+
+## Main definitions
+
+- `conjClassElements H`: the set of non-identity elements in
+  the union of all conjugates of `H`.
+- `conjNonidentity H g`: the non-identity elements in a single
+  conjugate `H.map (conj g)`.
+- `pairStabilizer G x y`: the stabiliser of an unordered pair
+  `{x, y}` of projective line points in `G`.
+
+## Main results
+
+- `natClassEquation`: the natural-number class equation relating
+  `|G| - 1` to conjugacy class sizes.
+- `tame_ncard_fixedPoints_eq_two`: a non-identity tame element
+  has exactly two fixed points on the projective line.
+- `pairStabilizer_isCyclic`: every pair stabiliser is cyclic.
+- `tame_hasCyclicPartition`: a nontrivial tame subgroup admits
+  one of the six standard cyclic partition types.
+- `classification_tame`: the main classification theorem—every
+  nontrivial tame subgroup of `PGL(2, K)` is isomorphic to a
+  cyclic group, a dihedral group, `A₄`, `S₄`, or `A₅`.
+-/
 
 namespace Dickson
 
@@ -105,13 +136,16 @@ lemma conjClass_unique_index {G' : Type*} [Group G']
       _ = g₂⁻¹ * (g₂ * y * g₂⁻¹) * g₂ := by rw [hw_eq]
       _ = y := by group
 
-
 open Classical in
+/-- The set of non-identity elements lying in some conjugate
+of `H`. -/
 def conjClassElements {G' : Type*} [Group G'] [Finite G']
     (H : Subgroup G') : Finset G' :=
   {x : G' | x ≠ 1 ∧ ∃ g : G', x ∈ H.map (MulAut.conj g).toMonoidHom}
 
 open Classical in
+/-- The non-identity elements of the conjugate
+`H.map (conj g)`. -/
 def conjNonidentity {G' : Type*} [Group G'] [Finite G']
     (H : Subgroup G') (g : G') : Finset G' :=
   {x : G' | x ≠ 1 ∧ x ∈ H.map (MulAut.conj g).toMonoidHom}
@@ -168,6 +202,9 @@ lemma card_conjClassElements {G' : Type*} [Group G'] [Finite G']
       simp only [S, Finset.mem_filter_univ, Set.mem_setOf_eq]) |>.symm
 
 open Classical in
+/-- The **natural-number class equation**: `|G| - 1` equals
+the sum of `index(N(Hᵢ)) * (|Hᵢ| - 1)` over the
+representative subgroups. -/
 lemma natClassEquation {G' : Type*} [Group G'] [Finite G']
     (r : ℕ) (H : Fin r → Subgroup G')
     (hdisjoint : ∀ K L : Subgroup G',
@@ -217,6 +254,8 @@ noncomputable section TameClassification
 
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
+/-- A non-identity element of a tame subgroup fixes exactly
+two points on the projective line. -/
 theorem tame_ncard_fixedPoints_eq_two (G : Subgroup (PGL p)) [Finite G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (g : PGL p) (hg : g ∈ G) (hg_ne : g ≠ 1) :
@@ -231,6 +270,8 @@ theorem tame_ncard_fixedPoints_eq_two (G : Subgroup (PGL p)) [Finite G]
     exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hpos, Subtype.ext_iff.mp hn⟩
   exact (fixedPoints_dichotomy p g hg_ne h_fin).2.mpr h_coprime
 
+/-- The stabiliser of an unordered pair `{x, y}` of
+projective line points inside a subgroup `G` of `PGL`. -/
 def pairStabilizer (G : Subgroup (PGL p)) (x y : ProjectiveLine p) : Subgroup G where
   carrier := {g : G | (g : PGL p) • x = x ∧ (g : PGL p) • y = y}
   mul_mem' {a b} ha hb :=
@@ -308,6 +349,7 @@ lemma commute_of_fixedPair (G_sub : Subgroup (PGL p)) [Finite G_sub]
   change QuotientGroup.mk (G * H) = QuotientGroup.mk (H * G)
   congr 1
   exact Units.ext (Matrix.toLin'.injective (LinearMap.ext h_comm_u))
+
 omit h_odd in
 lemma scalar_eq_one_in_PGL (g : GL (Fin 2) (K p)) (c : K p)
     (x y : ProjectiveLine p) (hxy : x ≠ y)
@@ -343,6 +385,7 @@ lemma scalar_eq_one_in_PGL (g : GL (Fin 2) (K p)) (c : K p)
   intro h
   exact Units.ext (by simp only [Units.val_mul, h_g_eq, Matrix.mul_smul, Matrix.smul_mul,
       Matrix.mul_one, Matrix.one_mul])
+
 omit h_odd in
 lemma exists_unique_normalizedLift (g : PGL p) (y : ProjectiveLine p)
     (hgy : g • y = y) :
@@ -452,7 +495,11 @@ lemma exists_unique_normalizedLift (g : PGL p) (y : ProjectiveLine p)
   calc g''.val = c • g'.val := h_g''_val
   _ = (1 : K p) • g'.val := by rw [hc1]
   _ = g'.val := one_smul _ _
+
 omit h_odd in
+/-- The pair stabiliser of two distinct projective points is
+cyclic: it embeds into the multiplicative group of the field
+via the eigenvalue map. -/
 lemma pairStabilizer_isCyclic (G : Subgroup (PGL p)) [Finite G]
     (x y : ProjectiveLine p) (hxy : x ≠ y) :
     IsCyclic (pairStabilizer p G x y) := by
@@ -627,6 +674,7 @@ lemma mem_pairStabilizer_of_ne_one (G : Subgroup (PGL p)) [Finite G]
   exact ⟨x, y, hxy,
     show x ∈ fixedPoints p ↑g by rw [hfp]; exact Set.mem_insert x _,
     show y ∈ fixedPoints p ↑g by rw [hfp]; exact Set.mem_insert_of_mem x (Set.mem_singleton y)⟩
+
 omit h_odd in
 lemma pairStabilizer_conj (G : Subgroup (PGL p)) [Finite G]
     (x y : ProjectiveLine p) (h : G) :
@@ -1106,7 +1154,7 @@ lemma dihedral2_of_hasCyclicPartition (G : Type*) [Group G] [Finite G]
     have h_inv : ∀ g : G, g⁻¹ = g := fun g ↦ inv_eq_of_mul_eq_one_left (h_sq g)
     rw [← h_inv (a * b), mul_inv_rev, h_inv, h_inv]
   letI : CommGroup G := { ‹Group G› with mul_comm := h_comm }
-  letI base : Group (DihedralGroup 2) := inferInstance
+  letI base : Group (DihedralGroup 2) := DihedralGroup.instGroup
   letI : CommGroup (DihedralGroup 2) := { base with
     mul_comm := (DihedralGroup.commutative_iff.mpr (Or.inr rfl)).is_comm.comm }
   letI : Module (ZMod 2) (Additive G) := AddCommGroup.zmodModule fun x ↦ by
@@ -1455,6 +1503,9 @@ lemma r3_allF_eq_two (d f : Fin 3 → ℕ) (n : ℕ) (hn : n ≥ 2)
         _ < 1 := sub_lt_self 1 (by positivity)
   · exact hfi
 
+/-- A nontrivial tame subgroup of `PGL(2, K)` admits one of
+the six standard cyclic partition types: cyclic, odd dihedral,
+even dihedral, `A₄`, `S₄`, or `A₅`. -/
 lemma tame_hasCyclicPartition (G : Subgroup (PGL p)) [Finite G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (hG_nontrivial : Nontrivial G) :
@@ -1587,6 +1638,10 @@ lemma tame_hasCyclicPartition (G : Subgroup (PGL p)) [Finite G]
           (by rw [hnorm, hf2, hσ₀]) (by rw [hnorm, hf2, hσ₁]) (by rw [hnorm, hf2, hσ₂])
           (h_r3_disj σ) (h_r3_cover σ)
 
+/-- **Classification of tame subgroups.** Every nontrivial
+finite subgroup of `PGL(2, K)` whose order is coprime to `p`
+is isomorphic to a cyclic group, a dihedral group `D_n`
+(`n ≥ 2`), `A₄`, `S₄`, or `A₅`. -/
 theorem classification_tame (G : Subgroup (PGL p)) [Finite G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (hG_nontrivial : Nontrivial G) :

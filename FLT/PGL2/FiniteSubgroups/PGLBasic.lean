@@ -3,21 +3,49 @@ Copyright (c) 2026 Dokying Yang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dokying Yang
 -/
-module
+import Mathlib.FieldTheory.Finite.GaloisField
+import Mathlib.GroupTheory.Transfer
+import Mathlib.LinearAlgebra.Matrix.CharP
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
+import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Card
+import Mathlib.LinearAlgebra.Projectivization.Action
 
-public import Mathlib.LinearAlgebra.Matrix.Action
-public import Mathlib.FieldTheory.Finite.GaloisField
-public import Mathlib.GroupTheory.SpecificGroups.Alternating
-public import Mathlib.GroupTheory.Sylow
-public import Mathlib.GroupTheory.Transfer
-public import Mathlib.LinearAlgebra.Matrix.CharP
-public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
-public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Card
-public import Mathlib.LinearAlgebra.Matrix.ProjectiveSpecialLinearGroup
-public import Mathlib.LinearAlgebra.Projectivization.Action
-public import Mathlib.Tactic
+/-!
+# PGL₂ over algebraically closed fields
 
-@[expose] public section
+This file develops the basic theory of the projective general linear
+group PGL₂ over the algebraic closure of a prime field, and its
+action on the projective line.
+
+## Main definitions
+
+- `K p`: the algebraic closure of `ZMod p`.
+- `PGL p`: the quotient `GL(2, K p) / center`.
+- `PSL p`: the projective special linear group `PSL(2, K p)`.
+- `PGLOf F`: the projective general linear group over an
+  arbitrary field `F`.
+- `pglMap f`: the functorial map `PGLOf F →* PGLOf L` induced by
+  a ring homomorphism `f : F →+* L`.
+- `fixedPoints g`: the set of fixed points of `g : PGL p` acting
+  on the projective line.
+- `infinity p`: the distinguished point `[1 : 0]` on the
+  projective line.
+
+## Main results
+
+- `exists_finite_subfield_conjugate`: every finite subgroup of
+  `PGL p` is conjugate into one defined over a finite subfield.
+- `fixedPoints_dichotomy`: for a non-identity element of finite
+  order, the number of fixed points is 1 iff the order is `p`,
+  and 2 iff the order is coprime to `p`.
+- `isPGroup_exists_common_fixedPoint`: a `p`-subgroup of `PGL p`
+  has a common fixed point on the projective line.
+- `isPGroup_comm_exponent_fixedPoint`: a nontrivial `p`-subgroup
+  of `PGL p` is abelian, has exponent dividing `p`, and has a
+  unique common fixed point on the projective line.
+- `card_PGL2`: the cardinality of `PGL(2, F)` for a finite
+  field `F`.
+-/
 
 namespace Dickson
 
@@ -54,9 +82,9 @@ lemma Nat.factorization_eq_two {n m p : ℕ}
       hp.factorization, Finsupp.single_eq_same,
       Nat.factorization_eq_zero_of_not_dvd h_ndvd]
 
-
 variable (p : ℕ) [Fact (Nat.Prime p)]
 
+/-- The algebraic closure of `ZMod p`. -/
 noncomputable def K : Type := AlgebraicClosure (ZMod p)
 
 instance : Field (K p) := AlgebraicClosure.instField (ZMod p)
@@ -64,109 +92,21 @@ instance : IsAlgClosed (K p) := AlgebraicClosure.isAlgClosed (ZMod p)
 instance : CharP (K p) p := AlgebraicClosure.instCharP (ZMod p)
 instance : Algebra (ZMod p) (K p) := AlgebraicClosure.instAlgebra (ZMod p)
 
-abbrev PGL : Type := GL (Fin 2) (K p) ⧸ Subgroup.center (GL (Fin 2) (K p))
+/-- The projective general linear group `PGL(2, K p)`. -/
+abbrev PGL : Type :=
+  GL (Fin 2) (K p) ⧸ Subgroup.center (GL (Fin 2) (K p))
 
 instance : Group (PGL p) := QuotientGroup.Quotient.group _
 
-abbrev PSL : Type := Matrix.ProjectiveSpecialLinearGroup (Fin 2) (K p)
+/-- The projective special linear group `PSL(2, K p)`. -/
+abbrev PSL : Type :=
+  Matrix.ProjectiveSpecialLinearGroup (Fin 2) (K p)
 
 instance : Group (PSL p) := QuotientGroup.Quotient.group _
 
-theorem pgl_mulEquiv_psl : Nonempty (PGL p ≃* PSL p) := by
-  have h_sqrt : ∀ x : K p, ∃ c : K p, c ^ 2 = x := fun x ↦
-    let ⟨y, hy⟩ := IsAlgClosed.exists_root (Polynomial.X ^ 2 - Polynomial.C x) (fun h ↦ by
-      rw [Polynomial.degree_X_pow_sub_C (by norm_num)] at h; norm_num at h)
-    ⟨y, by
-      rw [Polynomial.IsRoot.def, Polynomial.eval_sub, Polynomial.eval_pow,
-        Polynomial.eval_X, Polynomial.eval_C, sub_eq_zero] at hy
-      exact hy⟩
-  let f : PSL p →* PGL p := QuotientGroup.lift (Subgroup.center _)
-    (MonoidHom.comp (QuotientGroup.mk' _) Matrix.SpecialLinearGroup.toGL) (by
-      intro x hx
-      change QuotientGroup.mk (Matrix.SpecialLinearGroup.toGL x) = 1
-      rw [QuotientGroup.eq_one_iff, Subgroup.mem_center_iff]
-      intro g
-      obtain ⟨c, hc⟩ := h_sqrt g.val.det
-      have hc_ne : c ≠ 0 := fun h ↦ g.det_ne_zero (by rw [← hc, h, zero_pow (by norm_num)])
-      let g' : Matrix.SpecialLinearGroup (Fin 2) (K p) :=
-        ⟨c⁻¹ • g.val, by
-          rw [Matrix.det_smul, Fintype.card_fin, ← hc]
-          rw [← mul_pow, inv_mul_cancel₀ hc_ne, one_pow]⟩
-      apply Units.ext
-      change g.val * (Matrix.SpecialLinearGroup.toGL x).val =
-        (Matrix.SpecialLinearGroup.toGL x).val * g.val
-      rw [show g.val = c • g'.val by
-        change g.val = c • (c⁻¹ • g.val)
-        rw [smul_smul, mul_inv_cancel₀ hc_ne, one_smul]]
-      rw [Matrix.smul_mul, Matrix.mul_smul]
-      exact congr_arg (c • ·) (congr_arg Subtype.val (Subgroup.mem_center_iff.mp hx g')))
-  have h_inj : Function.Injective f := fun x y ↦ by
-    obtain ⟨a, rfl⟩ := QuotientGroup.mk_surjective x
-    obtain ⟨b, rfl⟩ := QuotientGroup.mk_surjective y
-    intro h
-    change QuotientGroup.mk (Matrix.SpecialLinearGroup.toGL a) =
-      QuotientGroup.mk (Matrix.SpecialLinearGroup.toGL b) at h
-    rw [QuotientGroup.eq, Subgroup.mem_center_iff] at h ⊢
-    exact fun g ↦ Subtype.ext <| congr_arg Units.val (h (Matrix.SpecialLinearGroup.toGL g))
-  have h_surj : Function.Surjective f := fun x ↦ by
-    obtain ⟨y, rfl⟩ := QuotientGroup.mk_surjective x
-    obtain ⟨c, hc⟩ := h_sqrt y.val.det
-    have hc_ne : c ≠ 0 := fun h ↦ y.det_ne_zero (by rw [← hc, h, zero_pow (by norm_num)])
-    let z : Matrix.SpecialLinearGroup (Fin 2) (K p) :=
-      ⟨c⁻¹ • y.val, by
-        rw [Matrix.det_smul, Fintype.card_fin, ← hc]
-        rw [← mul_pow, inv_mul_cancel₀ hc_ne, one_pow]⟩
-    use QuotientGroup.mk z
-    change QuotientGroup.mk (Matrix.SpecialLinearGroup.toGL z) = QuotientGroup.mk y
-    rw [QuotientGroup.eq, Subgroup.mem_center_iff]
-    intro g
-    apply Units.ext
-    change g.val * ((Matrix.SpecialLinearGroup.toGL z)⁻¹ * y).val =
-      ((Matrix.SpecialLinearGroup.toGL z)⁻¹ * y).val * g.val
-    have hy_eq : y.val = (Matrix.SpecialLinearGroup.toGL z).val * Matrix.diagonal ![c, c] := by
-      ext i j
-      rw [Matrix.mul_apply, Fin.sum_univ_two]
-      match i, j with
-      | 0, 0 =>
-        change y.val 0 0 = (c⁻¹ * y.val 0 0) * c + (c⁻¹ * y.val 0 1) * 0
-        rw [mul_zero, add_zero, mul_comm c⁻¹, mul_assoc, inv_mul_cancel₀ hc_ne, mul_one]
-      | 0, 1 =>
-        change y.val 0 1 = (c⁻¹ * y.val 0 0) * 0 + (c⁻¹ * y.val 0 1) * c
-        rw [mul_zero, zero_add, mul_comm c⁻¹, mul_assoc, inv_mul_cancel₀ hc_ne, mul_one]
-      | 1, 0 =>
-        change y.val 1 0 = (c⁻¹ * y.val 1 0) * c + (c⁻¹ * y.val 1 1) * 0
-        rw [mul_zero, add_zero, mul_comm c⁻¹, mul_assoc, inv_mul_cancel₀ hc_ne, mul_one]
-      | 1, 1 =>
-        change y.val 1 1 = (c⁻¹ * y.val 1 0) * 0 + (c⁻¹ * y.val 1 1) * c
-        rw [mul_zero, zero_add, mul_comm c⁻¹, mul_assoc, inv_mul_cancel₀ hc_ne, mul_one]
-    rw [show ((Matrix.SpecialLinearGroup.toGL z)⁻¹ * y).val = Matrix.diagonal ![c, c] by
-      rw [Units.val_mul, hy_eq, Units.inv_mul_cancel_left]]
-    ext i j
-    rw [Matrix.mul_apply, Fin.sum_univ_two, Matrix.mul_apply, Fin.sum_univ_two]
-    match i, j with
-    | 0, 0 =>
-      change (g : Matrix (Fin 2) (Fin 2) (K p)) 0 0 * c +
-        (g : Matrix (Fin 2) (Fin 2) (K p)) 0 1 * 0 =
-        c * (g : Matrix (Fin 2) (Fin 2) (K p)) 0 0 + 0 * (g : Matrix (Fin 2) (Fin 2) (K p)) 1 0
-      rw [mul_zero, add_zero, zero_mul, add_zero, mul_comm]
-    | 0, 1 =>
-      change (g : Matrix (Fin 2) (Fin 2) (K p)) 0 0 * 0 +
-        (g : Matrix (Fin 2) (Fin 2) (K p)) 0 1 * c =
-        c * (g : Matrix (Fin 2) (Fin 2) (K p)) 0 1 + 0 * (g : Matrix (Fin 2) (Fin 2) (K p)) 1 1
-      rw [mul_zero, zero_add, zero_mul, add_zero, mul_comm]
-    | 1, 0 =>
-      change (g : Matrix (Fin 2) (Fin 2) (K p)) 1 0 * c +
-        (g : Matrix (Fin 2) (Fin 2) (K p)) 1 1 * 0 =
-        0 * (g : Matrix (Fin 2) (Fin 2) (K p)) 0 0 + c * (g : Matrix (Fin 2) (Fin 2) (K p)) 1 0
-      rw [mul_zero, add_zero, zero_mul, zero_add, mul_comm]
-    | 1, 1 =>
-      change (g : Matrix (Fin 2) (Fin 2) (K p)) 1 0 * 0 +
-        (g : Matrix (Fin 2) (Fin 2) (K p)) 1 1 * c =
-        0 * (g : Matrix (Fin 2) (Fin 2) (K p)) 0 1 + c * (g : Matrix (Fin 2) (Fin 2) (K p)) 1 1
-      rw [mul_zero, zero_add, zero_mul, zero_add, mul_comm]
-  exact ⟨(MulEquiv.ofBijective f ⟨h_inj, h_surj⟩).symm⟩
-
-abbrev ProjectiveLine : Type := Projectivization (K p) (Fin 2 → K p)
+/-- The projective line over `K p`. -/
+abbrev ProjectiveLine : Type :=
+  Projectivization (K p) (Fin 2 → K p)
 
 instance : SMul (PGL p) (ProjectiveLine p) where
   smul := Quotient.lift (fun g x ↦ g • x) (by
@@ -194,12 +134,17 @@ instance : MulAction (PGL p) (ProjectiveLine p) where
     induction g₂ using QuotientGroup.induction_on
     exact Projectivization.instMulAction.mul_smul _ _ x
 
-abbrev PGLOf (F : Type*) [Field F] := GL (Fin 2) F ⧸ Subgroup.center (GL (Fin 2) F)
+/-- The projective general linear group `PGL(2, F)` over an arbitrary field. -/
+abbrev PGLOf (F : Type*) [Field F] :=
+  GL (Fin 2) F ⧸ Subgroup.center (GL (Fin 2) F)
 
 instance (F : Type*) [Field F] : Group (PGLOf F) := QuotientGroup.Quotient.group _
 
-def pglMap {F L : Type*} [Field F] [Field L] (f : F →+* L) : PGLOf F →* PGLOf L :=
-  QuotientGroup.map (Subgroup.center (GL (Fin 2) F)) (Subgroup.center (GL (Fin 2) L))
+/-- The functorial map `PGLOf F →* PGLOf L` induced by a ring homomorphism. -/
+def pglMap {F L : Type*} [Field F] [Field L] (f : F →+* L) :
+    PGLOf F →* PGLOf L :=
+  QuotientGroup.map (Subgroup.center (GL (Fin 2) F))
+    (Subgroup.center (GL (Fin 2) L))
     (Matrix.GeneralLinearGroup.map f) (by
       intro x hx
       apply Subgroup.mem_center_iff.mpr
@@ -301,7 +246,9 @@ theorem exists_finite_subfield_conjugate (G : Subgroup (PGL p)) [Finite G] :
   obtain ⟨y', hy'⟩ := h_range
   exact ⟨QuotientGroup.mk y', (congr_arg QuotientGroup.mk hy').trans (hf x)⟩
 
-def fixedPoints (g : PGL p) : Set (ProjectiveLine p) := Function.fixedPoints (fun x ↦ g • x)
+/-- The set of fixed points of `g` acting on the projective line. -/
+def fixedPoints (g : PGL p) : Set (ProjectiveLine p) :=
+  Function.fixedPoints (fun x ↦ g • x)
 
 theorem fixedPoints_lift (g : GL (Fin 2) (K p)) (x : ProjectiveLine p) :
     x ∈ fixedPoints p (QuotientGroup.mk g) ↔ ∃ c : K p, g.val.mulVec x.rep = c • x.rep := by
@@ -1192,10 +1139,10 @@ theorem isPGroup_exponent_dvd_prime (P : Subgroup (PGL p)) [Finite P] (hP_p : Is
     rw [h_order_p] at h_pow
     exact h_pow
 
-
-
-def infinity : ProjectiveLine p := Projectivization.mk (K p) ![1,
-    0] (fun h ↦ one_ne_zero (congr_fun h 0))
+/-- The point `[1 : 0]` on the projective line. -/
+def infinity : ProjectiveLine p :=
+  Projectivization.mk (K p) ![1, 0]
+    (fun h ↦ one_ne_zero (congr_fun h 0))
 
 omit h_odd in
 theorem fixesInfinity_iff_upperTriangular (g : PGL p) :
@@ -1314,7 +1261,6 @@ theorem upper_triangular_mul_ratio
   | 0, 1 => change a₁ * b₂ + b₁ * d₂ = a₁ * b₂ + b₁ * d₂; rfl
   | 1, 0 => change 0 * a₂ + d₁ * 0 = 0; rw [zero_mul, mul_zero, add_zero]
   | 1, 1 => change 0 * b₂ + d₁ * d₂ = d₁ * d₂; rw [zero_mul, zero_add]
-
 
 theorem ratio_one_imp_unipotent
     (a b d : K p) (h : a * d ≠ 0) (hr : a * d⁻¹ = 1) :
@@ -1665,7 +1611,6 @@ theorem card_center_GL2 :
   }
   rw [Nat.card_congr e, Nat.card_eq_fintype_card, Fintype.card_subtype, Finset.filter_ne',
     Finset.card_erase_of_mem (Finset.mem_univ 0), Finset.card_univ]
-
 
 theorem card_PGL2 :
     Nat.card (GL (Fin 2) F ⧸ Subgroup.center (GL (Fin 2) F)) =
