@@ -351,4 +351,3 @@ lemma DoubleCoset.σ_spec (g : G) :
 @[simp] lemma DoubleCoset.σLeft_of_mem (g : G) (hg : g ∈ K) : σLeft H K g = 1 := by
   lift g to K using hg
   simpa using DoubleCoset.σ_spec H K g
-#min_imports

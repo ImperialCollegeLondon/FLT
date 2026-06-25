@@ -560,4 +560,3 @@ instance {n K : Type*} [Field K] [TopologicalSpace K] [IsTopologicalDivisionRing
 end Matrix
 
 end MeasureTheory
-#min_imports
