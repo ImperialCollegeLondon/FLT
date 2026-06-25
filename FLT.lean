@@ -132,6 +132,7 @@ public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
 public import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 public import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+public import FLT.Mathlib.Topology.Algebra.Group.Basic
 public import FLT.Mathlib.Topology.Algebra.Group.Quotient
 public import FLT.Mathlib.Topology.Algebra.Group.Units
 public import FLT.Mathlib.Topology.Algebra.Module.Equiv
