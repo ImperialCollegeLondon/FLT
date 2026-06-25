@@ -10,8 +10,10 @@ public import FLT.QuaternionAlgebra.NumberField
 public import FLT.AutomorphicForm.GroupTheoryStuff
 public import FLT.AutomorphicForm.Stuff
 public import FLT.Assumptions.KnownIn1980s
+public import FLT.Mathlib.GroupTheory.DoubleCoset
 public import Mathlib.GroupTheory.DoubleCoset
 public import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
+public import Mathlib.LinearAlgebra.TensorProduct.Pi
 
 /-!
 
@@ -197,8 +199,8 @@ instance : Add (WeightTwoAutomorphicForm F D R) where
   add := add
 
 @[simp, norm_cast]
-theorem add_apply (φ ψ : WeightTwoAutomorphicForm F D R) (x : GL₂(𝔸ᶠ[F])) :
-    (φ + ψ) x = (φ x) + (ψ x) := rfl
+theorem add_apply (φ ψ : WeightTwoAutomorphicForm F D R) :
+    ⇑(φ + ψ) = ⇑φ + ⇑ψ := rfl
 
 instance addCommGroup : AddCommGroup (WeightTwoAutomorphicForm F D R) where
   add := (· + ·)
@@ -211,6 +213,12 @@ instance addCommGroup : AddCommGroup (WeightTwoAutomorphicForm F D R) where
   zsmul := zsmulRec
   neg_add_cancel := by intros; ext; simp
   add_comm := by intros; ext; simp [add_comm]
+
+@[simp, norm_cast]
+theorem finsetSum_toFun {ι : Type*} (s : Finset ι)
+    (f : ι → WeightTwoAutomorphicForm F D R) :
+    ⇑(∑ i ∈ s, f i) = ∑ i ∈ s, ⇑(f i) := by
+  classical induction s using Finset.induction <;> simp_all; rfl
 
 open scoped Pointwise
 
@@ -242,6 +250,10 @@ lemma groupSMul_apply (g : GL₂(𝔸ᶠ[F]))
     (φ : WeightTwoAutomorphicForm F D R) (x : GL₂(𝔸ᶠ[F])) :
     (g • φ) x = φ (x * g) := rfl
 
+@[simp]
+lemma unitsMap_smul (φ : WeightTwoAutomorphicForm F D R) (x : 𝔸ᶠ[F]ˣ) :
+    x.map (algebraMap _ M₂(𝔸ᶠ[F])).toMonoidHom • φ = φ := by ext; simp
+
 attribute [instance low] Units.instMulAction
 
 instance mulAction :
@@ -253,8 +265,13 @@ instance mulAction :
 instance distribMulAction : DistribMulAction GL₂(𝔸ᶠ[F])
     (WeightTwoAutomorphicForm F D R) where
   __ := mulAction
-  smul_zero g := by ext; simp only [groupSMul_apply, zero_apply]
-  smul_add g φ ψ := by ext; simp only [groupSMul_apply, add_apply]
+  smul_zero g := by ext; simp
+  smul_add g φ ψ := by ext; simp
+
+lemma isOpen_stabilizer (f : WeightTwoAutomorphicForm F D R) :
+    IsOpen (X := GL₂(𝔸ᶠ[F])) (MulAction.stabilizer GL₂(𝔸ᶠ[F]) f) :=
+  have ⟨_, hU, H⟩ := f.right_invt
+  Subgroup.isOpen_mono (fun _ hx ↦ ext _ _ fun _ ↦ H _ _ hx) hU
 
 open IsDedekindDomain.FiniteAdeleRing
 
@@ -266,15 +283,42 @@ instance (v : HeightOneSpectrum (𝓞 F)) :
 lemma adicCompletion_smul_def (v : HeightOneSpectrum (𝓞 F)) (g : GL₂(v.adicCompletion F))
     (x : WeightTwoAutomorphicForm F D R) : g • x = GL2.finiteAdeleIncl v g • x := rfl
 
+@[simp] lemma _root_.IsDedekindDomain.FiniteAdeleRing.toAdicCompletion_apply
+    (v : HeightOneSpectrum (𝓞 F)) (x) :
+    IsDedekindDomain.FiniteAdeleRing.toAdicCompletion v x = x v := rfl
+
+@[simp] lemma FiniteAdeleRing.coe_zero : ⇑(0 : 𝔸ᶠ[𝓞 F, F]) = 0 := rfl
+
+set_option backward.isDefEq.respectTransparency false in
+@[simp]
+lemma unitsMap_adicCompletion_smul (v : HeightOneSpectrum (𝓞 F))
+    (φ : WeightTwoAutomorphicForm F D R) (x : (v.adicCompletion F)ˣ) :
+    x.map (algebraMap _ M₂(v.adicCompletion F)).toMonoidHom • φ = φ := by
+  classical
+  convert unitsMap_smul φ (x.map (RestrictedProduct.mulSingleHom _ _)) using 1
+  ext
+  simp only [adicCompletion_smul_def, groupSMul_apply]
+  congr 2
+  refine GL2.ext _ _ fun w ↦ ?_
+  obtain rfl | h := eq_or_ne w v
+  · simp only [GL2.toAdicCompletion_finiteAdeleIncl_same]
+    ext1
+    simp [GL2.toAdicCompletion, Matrix.algebraMap_eq_diagonal, RestrictedProduct.mulSingleHom,
+      RestrictedProduct.mulSingle]
+  · simp only [ne_eq, h, not_false_eq_true, GL2.toAdicCompletion_finiteAdeleIncl_of_ne]
+    ext1
+    simp [GL2.toAdicCompletion, Matrix.algebraMap_eq_diagonal, RestrictedProduct.mulSingleHom,
+      RestrictedProduct.mulSingle, h]
+
 end add_comm_group
 
 section comm_ring
 
-variable {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M]
+variable {R S M : Type*} [CommRing R] [Semiring S] [AddCommGroup M] [Module R M] [Module S M]
 
 /-- The scalar action on the space of weight 2 automorphic forms on a totally definite
 quaternion algebra. -/
-def ringSMul (r : R) (φ : WeightTwoAutomorphicForm F D M) :
+def ringSMul (r : S) (φ : WeightTwoAutomorphicForm F D M) :
     WeightTwoAutomorphicForm F D M where
       toFun g := r • φ g
       left_invt := by simp [left_invt]
@@ -284,15 +328,15 @@ def ringSMul (r : R) (φ : WeightTwoAutomorphicForm F D M) :
         simp_all only [implies_true, and_self]
       trivial_central_char g z := by simp only [trivial_central_char]
 
-instance : SMul R (WeightTwoAutomorphicForm F D M) where
+instance : SMul S (WeightTwoAutomorphicForm F D M) where
   smul := ringSMul
 
 @[simp]
-lemma smul_apply (r : R) (φ : WeightTwoAutomorphicForm F D M)
+lemma smul_apply (r : S) (φ : WeightTwoAutomorphicForm F D M)
     (g : GL₂(𝔸ᶠ[F])) :
     (r • φ) g = r • (φ g) := rfl
 
-instance module : Module R (WeightTwoAutomorphicForm F D M) where
+instance module : Module S (WeightTwoAutomorphicForm F D M) where
   one_smul g := by ext; simp [smul_apply]
   mul_smul r s g := by ext; simp [smul_apply, mul_smul]
   smul_zero r := by ext; simp [smul_apply]
@@ -300,17 +344,30 @@ instance module : Module R (WeightTwoAutomorphicForm F D M) where
   add_smul r s g := by ext; simp [smul_apply, add_smul]
   zero_smul g := by ext; simp [smul_apply]
 
-instance : SMulCommClass GL₂(𝔸ᶠ[F]) R (WeightTwoAutomorphicForm F D M) where
+instance : SMulCommClass GL₂(𝔸ᶠ[F]) S (WeightTwoAutomorphicForm F D M) where
   smul_comm r g φ := by ext; simp [smul_apply]
 
-instance : SMulCommClass R GL₂(𝔸ᶠ[F]) (WeightTwoAutomorphicForm F D M) := .symm _ _ _
+instance : SMulCommClass S GL₂(𝔸ᶠ[F]) (WeightTwoAutomorphicForm F D M) := .symm _ _ _
 
 instance (v : HeightOneSpectrum (𝓞 F)) :
-    SMulCommClass GL₂(v.adicCompletion F) R (WeightTwoAutomorphicForm F D R) where
+    SMulCommClass GL₂(v.adicCompletion F) S (WeightTwoAutomorphicForm F D M) where
   smul_comm _ _ _ := by rw [adicCompletion_smul_def, adicCompletion_smul_def, smul_comm]
 
 instance (v : HeightOneSpectrum (𝓞 F)) :
-    SMulCommClass R GL₂(v.adicCompletion F) (WeightTwoAutomorphicForm F D R) := .symm _ _ _
+    SMulCommClass S GL₂(v.adicCompletion F) (WeightTwoAutomorphicForm F D M) := .symm _ _ _
+
+@[simps]
+def mapₗ {N : Type*} [AddCommGroup N] [Module R N] (φ : M →ₗ[R] N) :
+    WeightTwoAutomorphicForm F D M →ₗ[R] WeightTwoAutomorphicForm F D N where
+  toFun f :=
+  { toFun := φ ∘ f
+    left_invt := by simp
+    right_invt := by
+      obtain ⟨U, hU, H⟩ := f.right_invt
+      exact ⟨U, hU, by simp +contextual [H]⟩
+    trivial_central_char := by simp }
+  map_add' _ _ := by ext; simp
+  map_smul' _ _ := by ext; simp
 
 end comm_ring
 
@@ -379,10 +436,12 @@ lemma χA_inclusion_right (x) : ℒ.χA (Subgroup.inclusion le_sup_right x) = 1 
   · congr 1; ext; simp
   · simp [χA]
 
+lemma isOpen_UA : IsOpen (X := GL₂(𝔸ᶠ[F])) ℒ.UA := Subgroup.isOpen_mono le_sup_left ℒ.isOpen_U
+
 variable (D) in
-/-- `Δ_g := U 𝔸ˣ ∩ g Dˣ g⁻¹` -/
+/-- `Δ_g := U 𝔸ˣ ∩ g⁻¹ Dˣ g` -/
 def Δ (g : GL₂(𝔸ᶠ[F])) : Subgroup GL₂(𝔸ᶠ[F]) :=
-  ℒ.UA ⊓ toConjAct g • 𝓓ˣ
+  ℒ.UA ⊓ toConjAct g⁻¹ • 𝓓ˣ
 
 /-- `Fˣ ≤ Δ_g` -/
 lemma range_units_le_range (g : GL₂(𝔸ᶠ[F])) : 𝓕ˣ ≤ ℒ.Δ D g := by
@@ -391,7 +450,7 @@ lemma range_units_le_range (g : GL₂(𝔸ᶠ[F])) : 𝓕ˣ ≤ ℒ.Δ D g := by
     ⟨x.map (algebraMap _ _).toMonoidHom, rfl⟩, ?_⟩
   · simp [Units.ext_iff, ← IsScalarTower.algebraMap_apply, RingHom.toMonoidHom_eq_coe]
   · ext1
-    simp [toConjAct_smul, ← Algebra.commutes, RingHom.toMonoidHom_eq_coe]
+    simp [toConjAct_inv_smul', ← Algebra.commutes, RingHom.toMonoidHom_eq_coe]
 
 /--
 `[Δ_g : Fˣ]` is finite.
@@ -401,18 +460,41 @@ Then `𝒪` is an order (why?) and `Δ_g/Fˣ ↪ 𝒪¹ := { x ∈ 𝒪 | N(x) =
 where the latter is finite because it is discrete and bounded in `D ⊗_{ℚ} ℝ = ∏ ℍ`
 (See Lemma 17.7.13 in Voight).
 -/
-lemma isFiniteRelIndex_Δ [NumberField.IsTotallyReal F] [IsQuaternionAlgebra F D]
+instance isFiniteRelIndex_Δ [NumberField.IsTotallyReal F] [IsQuaternionAlgebra F D]
     [IsQuaternionAlgebra.IsTotallyDefinite F D] (ℒ : LevelStruct F R) (g : GL₂(𝔸ᶠ[F])) :
     Subgroup.IsFiniteRelIndex 𝓕ˣ (ℒ.Δ D g) := by
   knownin1980s
 
-variable (D) in
-abbrev ΔIndex (g : GL₂(𝔸ᶠ[F])) : ℕ :=
-  𝓕ˣ.relIndex (ℒ.Δ D g)
+scoped[FLT] notation D "ˣ＼GL₂(𝔸 " F ")／" U:max =>
+  DoubleCoset.Quotient (G := GL₂(𝔸ᶠ[F])) (MonoidHom.range <| WithRigidification.unitsIncl F D) U
 
 instance : 𝓕ˣ.Normal := Subgroup.normal_of_le_center _ (by
   rintro _ ⟨x, rfl⟩
   simp [Subgroup.mem_center_iff, Units.ext_iff, Algebra.commutes])
+
+variable (D) in
+def ΔIndex (g : Dˣ＼GL₂(𝔸 F)／ℒ.UA) : ℕ :=
+  g.lift (fun g ↦ 𝓕ˣ.relIndex (ℒ.Δ D g)) <| fun g₁ g₂ e ↦ by
+    obtain ⟨_, ⟨d, rfl⟩, u, hu, rfl⟩ := DoubleCoset.rel_iff.mp e
+    have h₁ : (toConjAct (ιD d))⁻¹ • 𝓓ˣ = 𝓓ˣ :=
+      Subgroup.conjAct_pointwise_smul_eq_self (Subgroup.le_normalizer ⟨d⁻¹, rfl⟩)
+    dsimp [Δ]
+    simp only [mul_inv_rev, mul_smul, h₁]
+    conv_rhs => rw [← Subgroup.relIndex_map_map_of_injective (f :=
+      (MulDistribMulAction.toMulEquiv _ (ConjAct.toConjAct u)).toMonoidHom) _ _
+      (MulDistribMulAction.toMulEquiv _ (ConjAct.toConjAct u)).injective,
+      Subgroup.map_inf _ _ _
+        (by exact (MulDistribMulAction.toMulEquiv _ (ConjAct.toConjAct u)).injective)]
+    congr 2
+    · exact (Subgroup.conjAct_pointwise_smul_eq_self
+        ((Subgroup.normalizer_eq_top_iff.mpr inferInstance).ge trivial)).symm
+    · exact (Subgroup.conjAct_pointwise_smul_eq_self (Subgroup.le_normalizer hu)).symm
+    · change _ = toConjAct u • ((toConjAct u)⁻¹ • (toConjAct g₁)⁻¹ • 𝓓ˣ)
+      simp [← mul_smul]
+
+@[simp]
+lemma ΔIndex_mk (g : GL₂(𝔸ᶠ[F])) :
+    ℒ.ΔIndex D (DoubleCoset.mk _ _ g) = 𝓕ˣ.relIndex (ℒ.Δ D g) := rfl
 
 lemma isOpen_map_ker : IsOpen (X := GL₂(𝔸ᶠ[F])) (ℒ.χ.ker.map ℒ.U.subtype) :=
   ℒ.isOpen_U.isOpenEmbedding_subtypeVal.isOpenMap _ ℒ.isOpen_ker
@@ -425,6 +507,23 @@ def form : Submodule R (WeightTwoAutomorphicForm F D M) where
   smul_mem' r f hf x := by
     simp only [Set.mem_setOf_eq] at hf
     rw [smul_comm, hf, smul_comm]
+
+instance {F D R M S : Type*} [Field F] [NumberField F] [Ring D] [Algebra F D]
+    [WithRigidification F D] [CommRing R] [AddCommGroup M] [Module R M] [Semiring S]
+    [Module S M] [SMulCommClass R S M] : SMulCommClass R S (WeightTwoAutomorphicForm F D M) where
+  smul_comm r s f := by ext; simp [smul_comm]
+
+instance {F D R M S : Type*} [Field F] [NumberField F] [Ring D] [Algebra F D]
+    [WithRigidification F D] [CommRing R] [AddCommGroup M] [Module R M] [Semiring S] [SMul R S]
+    [Module S M] [IsScalarTower R S M] : IsScalarTower R S (WeightTwoAutomorphicForm F D M) where
+  smul_assoc r s f := by ext; simp
+
+variable (D M) in
+/-- Should not be used directly. -/
+abbrev formSubmodule (S : Type*) [Semiring S] [Module S M] [SMulCommClass R S M] :
+    Submodule S (WeightTwoAutomorphicForm F D M) where
+  __ := ℒ.form D M
+  smul_mem' c x hx u := by rw [smul_comm, hx u, ← smul_comm]
 
 /-- A constructor for forms in `S(U, χ)`. -/
 @[simps]
@@ -440,15 +539,46 @@ def mkForm
   val.trivial_central_char := trivial_central_char
   property g := by ext; exact right_invt _ _
 
-scoped[FLT] notation D "ˣ＼GL₂(𝔸 " F ")／" U:max =>
-  DoubleCoset.Quotient (G := GL₂(𝔸ᶠ[F])) (MonoidHom.range <| WithRigidification.unitsIncl F D) U
+@[simp]
+lemma form_mul_coe (ℒ : LevelStruct F R) (f : ℒ.form D M) (x : GL₂(𝔸ᶠ[F])) (u : ℒ.U) :
+    f.1 (x * u) = ℒ.χ u • f.1 x := congr($(f.2 u) x)
 
-lemma apply_mul_eq_χA_smul
-    (f) (hf : f ∈ ℒ.form D M) (u : ℒ.UA) (g) : f (g * u) = ℒ.χA u • f g := by
+@[simp]
+lemma form_mul_coe' (ℒ : LevelStruct F R) (f : ℒ.form D M) (x : GL₂(𝔸ᶠ[F])) (u : ℒ.UA) :
+    f.1 (x * u) = ℒ.χA u • f.1 x := by
   obtain ⟨⟨u, _, ⟨z, rfl⟩⟩, rfl⟩ := Subgroup.prodToSupOfRight_surjective _ _
     ((range_unitsMap_finiteAdeleRing_le_center ..).trans (Subgroup.center_le_centralizer _)) u
-  have := fun g ↦ congr($(hf u) g)
-  simp_all [LevelStruct.χA, Subgroup.smul_def, ← mul_assoc]
+  simp [χA, ← mul_assoc]
+
+lemma apply_mul_eq_χA_smul
+    (f) (hf : f ∈ ℒ.form D M) (u : ℒ.UA) (g) : f (g * u) = ℒ.χA u • f g :=
+  ℒ.form_mul_coe' ⟨f, hf⟩ g u
+
+instance {F D R M S : Type*} [Field F] [NumberField F] [Ring D] [Algebra F D]
+    [WithRigidification F D] [CommRing R] [AddCommGroup M] [Module R M] [Semiring S]
+    [Module S M] [SMulCommClass R S M] (ℒ : LevelStruct F R) : Module S (ℒ.form D M) :=
+  inferInstanceAs <| Module S <| ℒ.formSubmodule D M S
+
+@[simp]
+lemma coe_smul
+    {F D R M S : Type*} [Field F] [NumberField F] [Ring D] [Algebra F D]
+    [WithRigidification F D] [CommRing R] [AddCommGroup M] [Module R M] [Semiring S]
+    [Module S M] [SMulCommClass R S M] (ℒ : LevelStruct F R) (s : S) (f : ℒ.form D M) :
+    (s • f).1 = s • f.1 := rfl
+
+instance {F D R M S T : Type*} [Field F] [NumberField F] [Ring D] [Algebra F D]
+    [WithRigidification F D] [CommRing R] [AddCommGroup M] [Module R M] [Semiring S]
+    [Module S M] [SMulCommClass R S M] [Semiring T]
+    [Module T M] [SMulCommClass R T M] [SMulCommClass S T M]
+    (ℒ : LevelStruct F R) : SMulCommClass S T (ℒ.form D M) where
+  smul_comm r s m := by ext; simp [smul_comm]
+
+instance {F D R M S T : Type*} [Field F] [NumberField F] [Ring D] [Algebra F D]
+    [WithRigidification F D] [CommRing R] [AddCommGroup M] [Module R M] [CommRing S]
+    [Module S M] [SMulCommClass R S M] [Semiring T] [Algebra S T]
+    [Module T M] [SMulCommClass R T M] [IsScalarTower S T M] (ℒ : LevelStruct F R) :
+    IsScalarTower S T (ℒ.form D M) :=
+  inferInstanceAs <| IsScalarTower S T <| ℒ.formSubmodule D M T
 
 /-- A constructor for forms in `S(U, χ)` which instead asks for behaviour on `U 𝔸ˣ`. -/
 abbrev mkFormA
@@ -463,14 +593,109 @@ abbrev mkFormA
         simp [Algebra.smul_def, Units.smul_def, Algebra.commutes]
       · simp [-Subgroup.inclusion_mk])
 
+@[simps]
+protected noncomputable abbrev map {R' : Type*} [CommRing R'] (ℒ : LevelStruct F R) (f : R →+* R') :
+    LevelStruct F R' where
+  __ := ℒ
+  χ := f.toMonoidHom.comp ℒ.χ
+  range_unitsMap_le_ker_χ := ℒ.range_unitsMap_le_ker_χ.trans (MonoidHom.ker_le_ker_comp _ _)
+  isOpen_ker := Subgroup.isOpen_mono (MonoidHom.ker_le_ker_comp _ _) ℒ.isOpen_ker
+
+lemma form_map {R' M : Type*} [CommRing R'] [Algebra R R'] [AddCommGroup M] [Module R M]
+    [Module R' M] [IsScalarTower R R' M] (ℒ : LevelStruct F R) :
+    ((ℒ.map (algebraMap R R')).form D M).restrictScalars R = ℒ.form D M := by
+  ext; simp [form]
+
+@[ext (iff := false)]
+protected lemma ext (ℒ ℒ' : LevelStruct F R) (H : ℒ.U = ℒ'.U)
+    (H' : ℒ.χ.comp (Subgroup.inclusion H.ge) = ℒ'.χ) : ℒ = ℒ' := by
+  obtain ⟨U, _, _, χ⟩ := ℒ
+  obtain ⟨U', _, _, χ'⟩ := ℒ'
+  obtain rfl : U = U' := H
+  obtain rfl : χ = χ' := H'
+  rfl
+
+open scoped Pointwise in
+instance : SMul GL₂(𝔸ᶠ[F]) (LevelStruct F R) where
+  smul g ℒ :=
+  { U := ConjAct.toConjAct g • ℒ.U
+    isCompact_U := ℒ.isCompact_U.image (continuous_const_smul _)
+    isOpen_U := ℒ.isOpen_U.smul _
+    χ := ℒ.χ.comp (Subgroup.equivSMul _ _).symm.toMonoidHom
+    range_unitsMap_le_ker_χ := by
+      rintro ⟨_, hu⟩ ⟨u, rfl⟩
+      have : (toConjAct g)⁻¹ • u.map (algebraMap 𝔸ᶠ[F] M₂(𝔸ᶠ[F])).toMonoidHom =
+          u.map (algebraMap 𝔸ᶠ[F] M₂(𝔸ᶠ[F])).toMonoidHom := by
+        ext1; simp [toConjAct_inv_smul', ← Algebra.commutes]
+      have hu' : u.map (algebraMap 𝔸ᶠ[F] M₂(𝔸ᶠ[F])).toMonoidHom ∈ ℒ.U :=
+        this ▸ Subgroup.mem_pointwise_smul_iff_inv_smul_mem.mp hu
+      simpa [Subtype.ext_iff, smul_eq_iff_eq_inv_smul, this, hu'] using
+        ℒ.range_unitsMap_le_ker_χ (x := ⟨_, hu'⟩) ⟨u, rfl⟩
+    isOpen_ker := by
+      rw [← MonoidHom.comap_ker]
+      refine ℒ.isOpen_ker.preimage (continuous_induced_rng.mpr ?_)
+      convert show Continuous fun x : ↑(toConjAct g • ℒ.U) ↦ (toConjAct g)⁻¹ • x.1 by fun_prop
+      simp }
+
+@[simp]
+lemma smul_U (g : GL₂(𝔸ᶠ[F])) (ℒ : LevelStruct F R) : (g • ℒ).U = ConjAct.toConjAct g • ℒ.U := rfl
+
+lemma smul_χ (g : GL₂(𝔸ᶠ[F])) (ℒ : LevelStruct F R) :
+    (g • ℒ).χ = ℒ.χ.comp (Subgroup.equivSMul _ _).symm.toMonoidHom := rfl
+
+@[simp]
+lemma smul_χ_apply (g : GL₂(𝔸ᶠ[F])) (ℒ : LevelStruct F R) (a) :
+    (g • ℒ).χ a = ℒ.χ ⟨ConjAct.toConjAct g⁻¹ • a, ((Subgroup.equivSMul _ _).symm a).2⟩ := rfl
+
+open scoped Pointwise in
+instance : MulAction GL₂(𝔸ᶠ[F]) (LevelStruct F R) where
+  mul_smul g₁ g₂ ℒ := by
+    ext1
+    · simp [mul_smul]
+    ext a
+    simp only [MonoidHom.coe_comp, Function.comp_apply, smul_χ_apply]
+    simp [mul_smul]
+    rfl
+  one_smul ℒ := by
+    ext1
+    · exact one_smul _ _
+    · ext a
+      simp only [MonoidHom.coe_comp, Function.comp_apply, smul_χ_apply]
+      simp
+      rfl
+
 open scoped Pointwise
 
 variable (D) in
 class IsSufficientlySmall (ℒ : LevelStruct F R) where
+  isOfFinOrder_χ : IsOfFinOrder ℒ.χ
   coprime_ΔIndex : ∀ g, (orderOf ℒ.χ).Coprime (ℒ.ΔIndex D g)
 
-export LevelStruct.IsSufficientlySmall (coprime_ΔIndex)
+export LevelStruct.IsSufficientlySmall (isOfFinOrder_χ coprime_ΔIndex)
 
+variable (D) in
+lemma isOfFinOrder_χA [ℒ.IsSufficientlySmall D] :
+    IsOfFinOrder ℒ.χA := by
+  obtain ⟨n, hn, H⟩ := isOfFinOrder_iff_pow_eq_one.mp (ℒ.isOfFinOrder_χ D)
+  refine isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn, ?_⟩
+  ext u
+  obtain ⟨⟨u, _, ⟨z, rfl⟩⟩, rfl⟩ := Subgroup.prodToSupOfRight_surjective _ _
+    ((range_unitsMap_finiteAdeleRing_le_center ..).trans (Subgroup.center_le_centralizer _)) u
+  simpa [χA] using congr($H u)
+
+variable (D) in
+lemma isOfFinOrder_χ_apply [ℒ.IsSufficientlySmall D] (x : ℒ.U) :
+    IsOfFinOrder (ℒ.χ x) := by
+  obtain ⟨n, hn, H⟩ := isOfFinOrder_iff_pow_eq_one.mp (ℒ.isOfFinOrder_χ D)
+  exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn, congr($H x)⟩
+
+variable (D) in
+lemma isOfFinOrder_χA_apply [ℒ.IsSufficientlySmall D] (x : ℒ.UA) :
+    IsOfFinOrder (ℒ.χA x) := by
+  obtain ⟨n, hn, H⟩ := isOfFinOrder_iff_pow_eq_one.mp (ℒ.isOfFinOrder_χA D)
+  exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn, congr($H x)⟩
+
+variable (D) in
 lemma toConjAct_smul_le_ker_χA [ℒ.IsSufficientlySmall D] (g : GL₂(𝔸ᶠ[F])) :
     (toConjAct g • 𝓓ˣ).subgroupOf ℒ.UA ≤ ℒ.χA.ker := by
   refine Subgroup.le_ker_of_le_ker_of_coprime_relIndex _ (orderOf ℒ.χ)
@@ -482,7 +707,7 @@ lemma toConjAct_smul_le_ker_χA [ℒ.IsSufficientlySmall D] (g : GL₂(𝔸ᶠ[F
       congr($(pow_orderOf_eq_one ℒ.χ) u)
   · simp only [Subgroup.subgroupOf, Subgroup.relIndex_comap, Subgroup.map_comap_eq,
       Subgroup.range_subtype]
-    exact ℒ.coprime_ΔIndex g
+    exact ℒ.coprime_ΔIndex (DoubleCoset.mk _ _ g⁻¹)
   · rintro ⟨x, hx⟩ ⟨u, rfl⟩
     exact ℒ.χA_inclusion_right ⟨_, u.map (algebraMap _ _).toMonoidHom, rfl⟩
 
@@ -501,17 +726,18 @@ lemma χA_eq_of_exists_mul_mul_eq [ℒ.IsSufficientlySmall D] (u v : ℒ.UA)
 
 /-- Given a section to the projection `Dˣ＼GL₂(𝔸ᶠ[F])／U → GL₂(𝔸ᶠ[F])`,
 `S(U, χ)` is isomorphic to the finite free module with basis `Dˣ＼GL₂(𝔸ᶠ[F])／U`. -/
-def formEquivOfSection [ℒ.IsSufficientlySmall D]
+@[simps apply, simps -isSimp symm_apply]
+def formEquivOfSection (S : Type*) [Semiring S] [Module S M] [SMulCommClass R S M]
+    [ℒ.IsSufficientlySmall D]
     (σ : Dˣ＼GL₂(𝔸 F)／ℒ.UA → GL₂(𝔸ᶠ[F])) (δ : GL₂(𝔸ᶠ[F]) → Dˣ)
     (u : GL₂(𝔸ᶠ[F]) → ℒ.UA)
     (H : ∀ g : GL₂(𝔸ᶠ[F]), σ (DoubleCoset.mk 𝓓ˣ ℒ.UA g) = ιD (δ g) * g * u g) :
-    ℒ.form D M ≃ₗ[R] ((Dˣ＼GL₂(𝔸 F)／ℒ.UA) → M) where
+    ℒ.form D M ≃ₗ[S] ((Dˣ＼GL₂(𝔸 F)／ℒ.UA) → M) where
   toFun f x := f.1 (σ x)
   map_add' f g := by ext x; simp [-MonoidHom.coe_range]
   map_smul' r f := by ext x; simp [-MonoidHom.coe_range]
   invFun f :=
     ℒ.mkFormA (fun g ↦ ℒ.χA (u g)⁻¹ • f (DoubleCoset.mk _ _ g)) (fun d g ↦ by
-    dsimp
     congr 1
     · refine map_inv_eq_iff.mpr ?_
       refine ℒ.χA_eq_of_exists_mul_mul_eq _ _ ⟨g, δ (ιD d * g) * d, δ g, ?_⟩
@@ -520,7 +746,6 @@ def formEquivOfSection [ℒ.IsSufficientlySmall D]
       exact .symm <| (DoubleCoset.eq ..).mpr ⟨_, ⟨d, rfl⟩, 1, by simp, by simp⟩
     · congr 1; exact .symm <| (DoubleCoset.eq ..).mpr ⟨_, ⟨d, rfl⟩, 1, by simp, by simp⟩) (by
     intro g a
-    dsimp [Subgroup.smul_def]
     rw [← mul_smul, mul_comm (ℒ.χA _) (ℒ.χA _), ← map_mul]
     congr 1
     · rw [map_inv_eq_map_comm, mul_inv_rev, inv_inv]
@@ -544,6 +769,7 @@ def formEquivOfSection [ℒ.IsSufficientlySmall D]
       exact .symm <| (DoubleCoset.eq ..).mpr ⟨_, ⟨_, rfl⟩, _, by simp, H ..⟩
     trans ℒ.χA 1 • f x; swap; · simp
     dsimp
+    rw [LevelStruct.mkForm_coe_toFun]
     congr 1
     · rw [map_inv_eq_map_comm, inv_one]
       exact ℒ.χA_eq_of_exists_mul_mul_eq _ _ ⟨σ x, 1, (δ (σ x)), by simp [← H, this]⟩
@@ -551,26 +777,132 @@ def formEquivOfSection [ℒ.IsSufficientlySmall D]
 
 /-- If `U` is sufficiently small,
 `S(U, χ)` is isomorphic to the finite free module with basis `Dˣ＼GL₂(𝔸ᶠ[F])／U`. -/
-def formEquiv [ℒ.IsSufficientlySmall D] :
-    ℒ.form D M ≃ₗ[R] ((Dˣ＼GL₂(𝔸 F)／ℒ.UA) → M) :=
-  formEquivOfSection _ Quotient.out
-    (fun g ↦ (DoubleCoset.mk_out_eq_mul 𝓓ˣ ℒ.UA g).choose_spec.choose_spec.1.choose)
-    (fun g ↦ ⟨_, (DoubleCoset.mk_out_eq_mul 𝓓ˣ ℒ.UA g).choose_spec.choose_spec.2.1⟩)
-    fun g ↦ (DoubleCoset.mk_out_eq_mul _ _ g).choose_spec.choose_spec.2.2.trans <| by
-      rw [(DoubleCoset.mk_out_eq_mul 𝓓ˣ ℒ.UA g).choose_spec.choose_spec.1.choose_spec]
+def formEquiv (S : Type*) [Semiring S] [Module S M] [SMulCommClass R S M]
+    [ℒ.IsSufficientlySmall D] :
+    ℒ.form D M ≃ₗ[S] ((Dˣ＼GL₂(𝔸 F)／ℒ.UA) → M) :=
+  formEquivOfSection _ _
+    DoubleCoset.σ (fun x ↦ (DoubleCoset.σLeft 𝓓ˣ ℒ.UA x).2.choose⁻¹)
+      (Inv.inv ∘ DoubleCoset.σRight 𝓓ˣ ℒ.UA) fun x ↦ by
+    rw [map_inv, (DoubleCoset.σLeft 𝓓ˣ ℒ.UA x).2.choose_spec]
+    simp_rw [mul_assoc, eq_inv_mul_iff_mul_eq]
+    simp [eq_mul_inv_iff_mul_eq, DoubleCoset.σ_spec]
+
+open IsDedekindDomain.FiniteAdeleRing
+
+variable (R) in
+/-- A somewhat arbitrarily chosen level of an automorphic form. -/
+@[simps]
+def _root_.TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.levelStruct
+    (f : WeightTwoAutomorphicForm F D M) :
+    LevelStruct F R where
+  U := MulAction.stabilizer _ f ⊓ GL2.maximalCompact _
+  isCompact_U :=
+    GL2.maximalCompact.isCompact.inter_left (Subgroup.isClosed_of_isOpen _ f.isOpen_stabilizer)
+  isOpen_U := f.isOpen_stabilizer.inter GL2.maximalCompact.isOpen
+  χ := 1
+  range_unitsMap_le_ker_χ := by simp
+  isOpen_ker := by simp
+
+variable (R) in
+lemma _root_.TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.mem_form
+    (f : WeightTwoAutomorphicForm F D M) : f ∈ (f.levelStruct R).form D M :=
+  fun a ↦ a.2.1.trans (one_smul _ _).symm
+
+instance (f : WeightTwoAutomorphicForm F D M) : (f.levelStruct R).IsSufficientlySmall D where
+  isOfFinOrder_χ := IsOfFinOrder.one
+  coprime_ΔIndex g := by erw [levelStruct_χ, orderOf_one]; simp
 
 variable (D) in
 /-- Actually true for all totally definite quaternion algebra `D` but the instance
 is provided elsewhere. -/
 abbrev IsFinite (ℒ : LevelStruct F R) : Prop := Finite (Dˣ＼GL₂(𝔸 F)／ℒ.UA)
 
-instance [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D] [Module.Finite R M] :
-    Module.Finite R (ℒ.form D M) :=
-  .of_surjective _ ℒ.formEquiv.symm.surjective
+instance (S : Type*) [Semiring S] [Module S M] [SMulCommClass R S M]
+    [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D] [Module.Finite S M] :
+    Module.Finite S (ℒ.form D M) :=
+  .of_surjective _ (ℒ.formEquiv S).symm.surjective
 
-instance [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D] [Module.Free R M] :
-    Module.Free R (ℒ.form D M) :=
-  .of_equiv ℒ.formEquiv.symm
+instance (S : Type*) [Semiring S] [Module S M] [SMulCommClass R S M]
+    [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D] [Module.Free S M] :
+    Module.Free S (ℒ.form D M) :=
+  .of_equiv (ℒ.formEquiv S).symm
+
+instance (ℒ : LevelStruct F R) [ℒ.IsFinite D] :
+    Fintype (Dˣ＼GL₂(𝔸 F)／ℒ.UA) := Fintype.ofFinite _
+
+section TensorProduct
+
+open TensorProduct
+
+variable (D) in
+@[simps]
+def formMap {S N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
+    [AddCommGroup N] [Module R N] [Module S N] [IsScalarTower R S N] (φ : M →ₗ[S] N) :
+    ℒ.form D M →ₗ[S] ℒ.form D N where
+  toFun f := ⟨mapₗ φ f.1, fun u ↦ by ext; simp [Subgroup.smul_def]⟩
+  map_add' _ _ := by ext; simp
+  map_smul' _ _ := by ext; simp
+
+variable (D) in
+@[simps!]
+def formCongr {S N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
+    [AddCommGroup N] [Module R N] [Module S N] [IsScalarTower R S N] (φ : M ≃ₗ[S] N) :
+    ℒ.form D M ≃ₗ[S] ℒ.form D N :=
+  .ofLinear (ℒ.formMap D φ) (ℒ.formMap D φ.symm) (by ext; simp) (by ext; simp)
+
+variable (D) in
+@[simps]
+def formMapₗ {S T N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
+    [AddCommGroup N] [Module R N] [Module S N] [IsScalarTower R S N]
+    [CommRing T] [Module T N] [SMulCommClass R T N] [SMulCommClass S T N] :
+    (M →ₗ[S] N) →ₗ[T] (ℒ.form D M →ₗ[S] ℒ.form D N) where
+  toFun φ := ℒ.formMap D φ
+  map_add' _ _ := by ext; simp
+  map_smul' _ _ := by ext; simp
+
+variable (D M) in
+def formTensor [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D]
+    (S T N : Type*) [CommRing T] [Module T M] [SMulCommClass R T M]
+    [AddCommGroup N] [Module R N] [CommRing S] [Module S M] [Module S N] [Algebra S T]
+    [Algebra R S] [IsScalarTower R S N] [IsScalarTower R S M] [IsScalarTower S T M] :
+    M ⊗[S] ℒ.form D N ≃ₗ[T] ℒ.form D (M ⊗[S] N) :=
+  .ofBijective (AlgebraTensorModule.lift (ℒ.formMapₗ D ∘ₗ AlgebraTensorModule.mk _ _ _ _)) <| by
+    classical
+    let φ : M ⊗[S] ℒ.form D N →ₗ[S] ℒ.form D (M ⊗[S] N) :=
+      AlgebraTensorModule.lift (ℒ.formMapₗ D ∘ₗ AlgebraTensorModule.mk _ _ _ _)
+    suffices φ = (AlgebraTensorModule.congr (.refl _ _) (ℒ.formEquiv _) ≪≫ₗ
+        TensorProduct.piRight _ _ _ _ ≪≫ₗ (ℒ.formEquiv _).symm).toLinearMap by
+      change Function.Bijective φ; rw [this]; exact LinearEquiv.bijective _
+    ext a f : 3
+    refine (ℒ.formEquiv S).eq_symm_apply.mpr ?_
+    rfl
+
+@[simp]
+lemma formTensor_tmul_apply [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D]
+    (S T N : Type*) [CommRing T] [Module T M] [SMulCommClass R T M]
+    [AddCommGroup N] [Module R N] [CommRing S] [Module S M] [Module S N] [Algebra S T]
+    [Algebra R S] [IsScalarTower R S N] [IsScalarTower R S M] [IsScalarTower S T M]
+    (x : M) (f : ℒ.form D N) (g) :
+    (ℒ.formTensor D M S T N (x ⊗ₜ f)).1 g = x ⊗ₜ f.1 g := rfl
+
+variable (D M) in
+def formTensorScalar [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D]
+    (S : Type*) [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M] :
+    M ⊗[R] ℒ.form D R ≃ₗ[S] ℒ.form D M :=
+  ℒ.formTensor D M R S R ≪≫ₗ ℒ.formCongr _ (AlgebraTensorModule.rid R S M)
+
+lemma formTensorScalar_tmul [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D]
+    (S : Type*) [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
+    (x : M) (f : ℒ.form D R) :
+    ℒ.formTensorScalar D M S (x ⊗ₜ f) = ℒ.formMap _ (LinearMap.toSpanSingleton _ _ x) f := rfl
+
+@[simp]
+lemma formTensorScalar_tmul_apply [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D]
+    (S : Type*) [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
+    (x : M) (f : ℒ.form D R) (g) :
+    (ℒ.formTensorScalar D M S (x ⊗ₜ f)).1 g = f.1 g • x := rfl
+
+end TensorProduct
 
 instance : PartialOrder (LevelStruct F R) where
   le ℒ ℒ' := ∃ h : (ℒ.U ≤ ℒ'.U), ℒ.χ = ℒ'.χ.comp (Subgroup.inclusion h)
@@ -580,11 +912,163 @@ instance : PartialOrder (LevelStruct F R) where
   | ⟨U, _, _, _, _, _⟩, ⟨U', _, _, _, _, _⟩, ⟨h, e⟩, ⟨h', e'⟩ => by
     obtain rfl : U = U' := le_antisymm h h'; congr
 
+@[simps]
+def restrict (ℒ : LevelStruct F R) (U : Subgroup GL₂(𝔸ᶠ[F]))
+    (hU : IsOpen (X := GL₂(𝔸ᶠ[F])) U) (hU' : U ≤ ℒ.U) : LevelStruct F R where
+  U := U
+  isCompact_U := .of_isClosed_subset ℒ.isCompact_U (Subgroup.isClosed_of_isOpen _ hU) hU'
+  isOpen_U := hU
+  χ := ℒ.χ.comp (Subgroup.inclusion hU')
+  range_unitsMap_le_ker_χ x hx := ℒ.range_unitsMap_le_ker_χ (x := Subgroup.inclusion hU' x) hx
+  isOpen_ker := Subgroup.isOpen_mono (H₁ := ℒ.χ.ker.comap (Subgroup.inclusion hU'))
+    le_rfl (ℒ.isOpen_ker.preimage (by exact continuous_induced_rng.mpr continuous_subtype_val))
+
+lemma restrict_le (ℒ : LevelStruct F R) (U : Subgroup GL₂(𝔸ᶠ[F]))
+    (hU : IsOpen (X := GL₂(𝔸ᶠ[F])) U) (hU' : U ≤ ℒ.U) : ℒ.restrict U hU hU' ≤ ℒ :=
+  ⟨hU', rfl⟩
+
+instance : SemilatticeInf (LevelStruct F R) where
+  inf ℒ ℒ' :=
+  ℒ.restrict ((MonoidHom.ker (ℒ.χ.toHomUnits.comp (Subgroup.inclusion inf_le_left) /
+      ℒ'.χ.toHomUnits.comp (Subgroup.inclusion inf_le_right))).map ((ℒ.U ⊓ ℒ'.U).subtype)) (by
+    refine Subgroup.isOpen_mono (H₁ := _ ⊓ _) ?_ (ℒ.isOpen_map_ker.inter ℒ'.isOpen_map_ker)
+    rintro _ ⟨⟨⟨u, hu : u ∈ _⟩, hu₀, rfl⟩, ⟨v, hu'⟩, hu₀', rfl : v = u⟩
+    simp_all [div_eq_one, Units.ext_iff (u := ℒ.χ.toHomUnits _)])
+    ((Set.image_subset_range ..).trans (by simp +contextual [Set.subset_def]))
+  inf_le_left ℒ ℒ' := ℒ.restrict_le _ _ _
+  inf_le_right ℒ ℒ' := by
+    refine ⟨(Set.image_subset_range ..).trans (by simp +contextual [Set.subset_def]), ?_⟩
+    ext ⟨x, hx⟩
+    obtain ⟨⟨h, h'⟩, e⟩ : ∃ (H : x ∈ ℒ.U ∧ x ∈ ℒ'.U), ℒ.χ ⟨x, H.1⟩ = ℒ'.χ ⟨x, H.2⟩ := by
+      simpa [div_eq_one, Units.ext_iff (u := ℒ.χ.toHomUnits _)] using hx
+    simpa
+  le_inf ℒ ℒ₁ ℒ₂ h₁ h₂ := by
+    refine ⟨fun x hx ↦ ?_, ?_⟩
+    · suffices ℒ₁.χ ⟨x, h₁.1 hx⟩ = ℒ₂.χ ⟨x, h₂.1 hx⟩ by
+        simpa [h₁.1 hx, h₂.1 hx, div_eq_one, Units.ext_iff (u := ℒ₁.χ.toHomUnits _)]
+      exact congr($(h₁.2) ⟨x, hx⟩).symm.trans congr($(h₂.2) ⟨x, hx⟩)
+    · ext x; simpa using! congr($(h₁.2) x)
+
+@[gcongr]
 lemma U_mono : Monotone fun ℒ : LevelStruct F R ↦ ℒ.U :=
   fun _ _ h ↦ h.1
 
+@[gcongr]
+lemma UA_mono : Monotone fun ℒ : LevelStruct F R ↦ ℒ.UA :=
+  fun _ _ h ↦ sup_le_sup h.1 le_rfl
+
+@[gcongr]
+lemma Δ_mono (g) : Monotone fun ℒ : LevelStruct F R ↦ ℒ.Δ D g :=
+  fun _ _ h ↦ inf_le_inf (UA_mono h) le_rfl
+
+@[gcongr]
+lemma map_mono {S : Type*} [CommRing S] (f : R →+* S) :
+    Monotone fun ℒ : LevelStruct F R ↦ ℒ.map f :=
+  fun ℒ ℒ' h ↦ ⟨h.1, by dsimp; rw [h.2]; rfl⟩
+
+@[gcongr]
 lemma form_anti : Antitone (form (F := F) (D := D) (R := R) M) :=
   fun _ _ h _ hf x ↦ h.2 ▸ hf ⟨x.1, h.1 x.2⟩
+
+lemma inf_U_le (ℒ ℒ' : LevelStruct F R) : (ℒ ⊓ ℒ').U ≤ ℒ.U ⊓ ℒ'.U :=
+  le_inf (U_mono inf_le_left) (U_mono inf_le_right)
+
+lemma inf_U_eq_iff (ℒ ℒ' : LevelStruct F R) :
+    (ℒ ⊓ ℒ').U = ℒ.U ⊓ ℒ'.U ↔
+      ℒ.χ.comp (Subgroup.inclusion inf_le_left) = ℒ'.χ.comp (Subgroup.inclusion inf_le_right) := by
+  refine ⟨fun H ↦ ?_, fun H ↦ (inf_U_le ..).antisymm ?_⟩
+  · have := H.symm
+    convert (inf_le_left : ℒ ⊓ ℒ' ≤ ℒ).2.symm.trans (inf_le_right : ℒ ⊓ ℒ' ≤ ℒ').2
+  · rintro x h
+    refine ⟨⟨x, h⟩, ?_, rfl⟩
+    simpa [div_eq_one, Units.ext_iff] using congr($H ⟨x, h⟩)
+
+lemma ΔIndex_mul_relIndex (ℒ ℒ' : LevelStruct F R) (h : ℒ ≤ ℒ') (g : GL₂(𝔸ᶠ[F])) :
+    ℒ.ΔIndex D (DoubleCoset.mk _ _ g) * (ℒ.Δ D g).relIndex (ℒ'.Δ D g) =
+      ℒ'.ΔIndex D (DoubleCoset.mk _ _ g) := by
+  exact Subgroup.relIndex_mul_relIndex _ _ _ (ℒ.range_units_le_range ..)
+    (inf_le_inf (sup_le_sup h.1 le_rfl) le_rfl)
+
+lemma orderOf_χ_dvd (ℒ ℒ' : LevelStruct F R) (h : ℒ ≤ ℒ') :
+    orderOf ℒ.χ ∣ orderOf ℒ'.χ := by
+  refine orderOf_dvd_iff_pow_eq_one.mpr (MonoidHom.ext fun x ↦ ?_)
+  simpa [h.2, -pow_orderOf_eq_one] using!
+    congr($(pow_orderOf_eq_one ℒ'.χ) ⟨x.1, h.1 x.2⟩)
+
+lemma IsSufficientlySmall.of_le (ℒ ℒ' : LevelStruct F R) (H : ℒ ≤ ℒ')
+    [ℒ'.IsSufficientlySmall D] : ℒ.IsSufficientlySmall D where
+  isOfFinOrder_χ := isOfFinOrder_iff_pow_eq_one.mpr ⟨_, (ℒ'.isOfFinOrder_χ D).orderOf_pos,
+      orderOf_dvd_iff_pow_eq_one.mp (orderOf_χ_dvd _ _ H)⟩
+  coprime_ΔIndex g := by
+    obtain ⟨g, rfl⟩ := DoubleCoset.mk_surjective _ _ g
+    refine .of_dvd (orderOf_χ_dvd _ _ H) ?_ (ℒ'.coprime_ΔIndex (DoubleCoset.mk 𝓓ˣ _ g))
+    rw [← ΔIndex_mul_relIndex _ _ H]
+    simp
+
+instance (ℒ ℒ' : LevelStruct F R) [ℒ.IsSufficientlySmall D] : (ℒ ⊓ ℒ').IsSufficientlySmall D :=
+  .of_le _ _ inf_le_left
+
+instance (ℒ ℒ' : LevelStruct F R) [ℒ'.IsSufficientlySmall D] : (ℒ ⊓ ℒ').IsSufficientlySmall D :=
+  .of_le _ _ inf_le_right
+
+instance (ℒ ℒ' : LevelStruct F R) : ℒ.U.IsFiniteRelIndex ℒ'.U :=
+  .of_isCompact ℒ.isOpen_U ℒ'.isCompact_U
+
+lemma orderOf_map_χ_dvd
+    (ℒ : LevelStruct F R) {S : Type*} [CommRing S] (f : R →+* S) :
+    orderOf (ℒ.map f).χ ∣ orderOf ℒ.χ := by
+  rw [orderOf_dvd_iff_pow_eq_one]
+  ext x
+  simp [- map_pow, ← map_pow f, ← MonoidHom.pow_apply ℒ.χ]
+
+instance : CovariantClass GL₂(𝔸ᶠ[F]) (LevelStruct F R) (· • ·) (· ≤ ·) where
+  elim g ℒ ℒ' e := by
+    refine ⟨smul_mono_right _ e.1, ?_⟩
+    ext a
+    dsimp only [MonoidHom.coe_comp, Function.comp_apply, smul_χ_apply]
+    rw [e.2]
+    simp
+
+lemma _root_.smul_le_smul_iff {G α : Type*} [Group G] [MulAction G α] [Preorder α]
+    [CovariantClass G α (· • ·) (· ≤ ·)] {g : G} {a b : α} : g • a ≤ g • b ↔ a ≤ b :=
+  ⟨fun h ↦ by simpa using smul_mono_right g⁻¹ h, fun h ↦ smul_mono_right g h⟩
+
+lemma _root_.inv_smul_le_iff {G α : Type*} [Group G] [MulAction G α] [Preorder α]
+    [CovariantClass G α (· • ·) (· ≤ ·)] {g : G} {a b : α} : g⁻¹ • a ≤ b ↔ a ≤ g • b := by
+  rw [← smul_le_smul_iff (g := g)]
+  simp
+
+lemma _root_.smul_inf {G α : Type*} [Group G] [MulAction G α] [SemilatticeInf α]
+    [CovariantClass G α (· • ·) (· ≤ ·)] (g : G) (a b : α) : g • (a ⊓ b) = g • a ⊓ g • b := by
+  refine (smul_inf_le ..).antisymm ?_
+  grw [← inv_smul_le_iff, smul_inf_le]
+  simp
+
+instance (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] {S : Type*} [CommRing S] (f : R →+* S) :
+    (ℒ.map f).IsSufficientlySmall D where
+  isOfFinOrder_χ := isOfFinOrder_iff_pow_eq_one.mpr ⟨_, (ℒ.isOfFinOrder_χ D).orderOf_pos,
+      orderOf_dvd_iff_pow_eq_one.mp (ℒ.orderOf_map_χ_dvd f)⟩
+  coprime_ΔIndex g := .of_dvd_left (ℒ.orderOf_map_χ_dvd f) (ℒ.coprime_ΔIndex g)
+
+lemma Subgroup.isFiniteRelIndex_inf_inf
+    {G : Type*} [Group G] (H₁ H₂ K : Subgroup G) [H₁.IsFiniteRelIndex H₂]
+    (hK : K ≤ Subgroup.centralizer H₂) :
+    (H₁ ⊔ K).IsFiniteRelIndex (H₂ ⊔ K) := by
+  let f : H₂ ⧸ H₁.subgroupOf H₂ → ↑(H₂ ⊔ K) ⧸ (H₁ ⊔ K).subgroupOf (H₂ ⊔ K) :=
+    Quotient.map (Subgroup.inclusion le_sup_left) (fun a b e ↦
+      QuotientGroup.leftRel_apply.mpr (le_sup_left (a := H₁) (QuotientGroup.leftRel_apply.mp e:)))
+  have hf : Function.Surjective f := by
+    intro a
+    obtain ⟨a, rfl⟩ := QuotientGroup.mk_surjective a
+    obtain ⟨a, rfl⟩ := Subgroup.prodToSupOfRight_surjective _ _ hK a
+    refine ⟨a.1, ?_⟩
+    simpa [f, QuotientGroup.eq] using le_sup_right (b := K) a.2.2
+  rw [Subgroup.isFiniteRelIndex_iff_finiteIndex, Subgroup.finiteIndex_iff_finite_quotient]
+  exact .of_surjective _ hf
+
+instance (ℒ ℒ' : LevelStruct F R) : ℒ.UA.IsFiniteRelIndex ℒ'.UA :=
+  Subgroup.isFiniteRelIndex_inf_inf _ _ _
+    (range_unitsMap_finiteAdeleRing_le_center.trans (Subgroup.center_le_centralizer _))
 
 /-- `(U, χ)` is normal in `(U', χ')` if `U ≤ U'` is normal and `χ'|_U = χ`. -/
 class Normal (ℒ ℒ' : LevelStruct F R) : Prop extends (ℒ.U.subgroupOf ℒ'.U).Normal where
@@ -658,7 +1142,7 @@ def toStruct : LevelStruct F R where
   isCompact_U := by
     classical
     rw [← GL2.restrictedProduct.toHomeomorph.symm.isCompact_preimage]
-    convert RestrictedProduct.isCompact_forall_mem_of_eventually_subset ?_ ℒ.US
+    convert! RestrictedProduct.isCompact_forall_mem_of_eventually_subset ?_ ℒ.US
       ℒ.isCompact_US ?_
     · exact fun v ↦ M2.units_localFullLevel v ▸ GL2.localFullLevel.isOpen v
     · exact Filter.eventually_of_mem ℒ.S.finite_toSet.compl_mem_cofinite fun v hv ↦
@@ -666,7 +1150,7 @@ def toStruct : LevelStruct F R where
   isOpen_U := by
     classical
     rw [← GL2.restrictedProduct.toHomeomorph.symm.isOpen_preimage]
-    convert RestrictedProduct.isOpen_forall_mem_of_eventually_eq ?_ ℒ.US
+    convert! RestrictedProduct.isOpen_forall_mem_of_eventually_eq ?_ ℒ.US
       ℒ.isOpen_US ?_ using 1
     · exact fun v ↦ M2.units_localFullLevel v ▸ GL2.localFullLevel.isOpen v
     · exact Filter.eventually_of_mem ℒ.S.finite_toSet.compl_mem_cofinite fun v hv ↦

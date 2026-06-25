@@ -21,6 +21,7 @@ import FLT.HaarMeasure.HaarChar.AddEquiv
 import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.NumberField.HeightOneSpectrum
+public import FLT.AutomorphicForm.GroupTheoryStuff
 
 /-!
 
@@ -124,7 +125,7 @@ local instance (v : HeightOneSpectrum (𝓞 K)) :
   rw [← isCompact_iff_compactSpace]
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  exact isCompactAdicCompletionIntegers K v
+  exact isCompact_adicCompletionIntegers K v
 
 variable {ι : Type*} [Finite ι] in
 local instance : LocallyCompactSpace
@@ -136,7 +137,7 @@ local instance : LocallyCompactSpace
   intro v
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  exact isCompactAdicCompletionIntegers K v
+  exact isCompact_adicCompletionIntegers K v
 
 local instance : LocallyCompactSpace
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
@@ -145,7 +146,7 @@ local instance : LocallyCompactSpace
   filter_upwards
   intro v
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  exact isCompactAdicCompletionIntegers K v
+  exact isCompact_adicCompletionIntegers K v
 
 local instance : SecondCountableTopology Πʳ (v : HeightOneSpectrum (𝓞 K)),
     [v.adicCompletion K, v.adicCompletionIntegers K] := inferInstanceAs <|
@@ -532,10 +533,6 @@ lemma FiniteAdeleRing.Aux.almost_always_bijOn
   intro v h1 h2
   exact (e K B v (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)).bijOn' h1 h2
 
-@[to_additive (attr := simp)]
-lemma MulEquivClass.coe_toMulEquiv {F α β : Type*} [EquivLike F α β] [Mul α] [Mul β]
-  [MulEquivClass F α β] (f : F) : ⇑(MulEquivClass.toMulEquiv f) = f := rfl
-
 set_option backward.isDefEq.respectTransparency false in
 set_option synthInstance.maxHeartbeats 40000 in
 -- see https://github.com/ImperialCollegeLondon/FLT/issues/889
@@ -554,6 +551,8 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
   letI bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
   let m := LinearMap.toMatrix b b φ.toLinearMap
   dsimp [e]
+  rw [ContinuousAddEquiv.restrictedProductCongrRight_apply]
+  dsimp
   simp only [← basis_eq K B v, map_sum, Finset.sum_apply]
   conv_rhs =>
     change ∑ c,

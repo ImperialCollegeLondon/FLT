@@ -5,9 +5,13 @@ Authors: Andrew Yang
 -/
 module
 
+public import FLT.AutomorphicForm.GroupTheoryStuff
+public import Mathlib.Data.Int.SuccPred
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 public import Mathlib.RingTheory.Norm.Transitivity
 public import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
-public import Mathlib.Topology.Algebra.Group.Basic
+public import Mathlib.Topology.Algebra.IsOpenUnits
+public import Mathlib.Topology.MetricSpace.Polish
 
 @[expose] public section
 
@@ -157,4 +161,127 @@ lemma WithZero.mul_ofAdd_one_le_one_iff {a : WithZero (Multiplicative ℤ)} :
   induction a with
   | zero => simp
   | coe a => simp [← Multiplicative.toAdd_lt,
-      ← Multiplicative.toAdd_le, ← WithZero.coe_mul, Int.add_one_le_iff]
+      ← Multiplicative.toAdd_le, ← WithZero.coe_mul]
+section
+
+lemma MeasureSpace.comap_symm {α β : Type*} (m : MeasurableSpace α) (e : α ≃ β) :
+    m.comap e.symm = m.map e := by
+  ext
+  simp [MeasurableSpace.map_def, MeasurableSpace.measurableSet_comap,
+    Equiv.preimage_eq_iff_eq_image, Equiv.image_symm_eq_preimage]
+
+instance {M : Type*} [MeasurableSpace M] [TopologicalSpace M] [BorelSpace M] :
+    BorelSpace Mᵐᵒᵖ := by
+  constructor
+  rw [MulOpposite.instMeasurableSpace, BorelSpace.measurable_eq (α := M),
+    ← MulOpposite.opEquiv_apply, ← MeasureSpace.comap_symm, borel_comap,
+    MulOpposite.opEquiv_symm_apply]
+
+instance {M : Type*} [TopologicalSpace M] [SecondCountableTopology M] :
+    SecondCountableTopology Mᵐᵒᵖ := MulOpposite.opHomeomorph.symm.secondCountableTopology
+
+instance {X : Type*} [TopologicalSpace X] [PolishSpace X] : PolishSpace Xᵐᵒᵖ :=
+  MulOpposite.opHomeomorph.symm.isClosedEmbedding.polishSpace
+
+instance {M : Type*} [Monoid M] [TopologicalSpace M] [ContinuousMul M]
+    [PolishSpace M] : PolishSpace Mˣ :=
+  Units.isClosedEmbedding_embedProduct.polishSpace
+
+open MeasureTheory in
+theorem MeasurableEquiv.restrict_preimage {α β : Type*}
+    {m0 : MeasurableSpace α} {m1 : MeasurableSpace β} (e : α ≃ᵐ β) (μ : Measure α) (s : Set β) :
+    μ.restrict (e ⁻¹' s) = ((μ.map e).restrict s).map e.symm := by
+  rw [e.restrict_map, Measure.map_map e.symm.measurable e.measurable]
+  simp
+
+@[simps!]
+def ContinuousAddEquiv.smul {G α : Type*} [Group G] [TopologicalSpace α] [AddMonoid α]
+    [DistribMulAction G α]
+    [ContinuousConstSMul G α] (g : G) : α ≃ₜ+ α where
+  __ := Homeomorph.smul g
+  map_add' := smul_add g
+
+@[simp]
+lemma ContinuousAddEquiv.smul_inv {G α : Type*} [Group G] [TopologicalSpace α] [AddMonoid α]
+    [DistribMulAction G α]
+    [ContinuousConstSMul G α] (g : G) :
+  ContinuousAddEquiv.smul g⁻¹ (α := α) = (ContinuousAddEquiv.smul g).symm := by ext; simp
+
+def MulOpposite.opMeasurableEquiv {M : Type*} [MeasurableSpace M] : M ≃ᵐ Mᵐᵒᵖ where
+  __ := MulOpposite.opEquiv
+  measurable_toFun := measurable_mul_op
+  measurable_invFun := measurable_mul_unop
+
+@[simps!]
+def Units.opContinuousMulEquiv {M : Type*} [Monoid M] [TopologicalSpace M] :
+    Mᵐᵒᵖˣ ≃ₜ* Mˣᵐᵒᵖ where
+  __ := Units.opEquiv
+  continuous_toFun := by
+    refine continuous_induced_rng.mpr (continuous_induced_rng.mpr ?_)
+    exact (MulOpposite.continuous_unop.prodMap MulOpposite.continuous_unop).comp
+      (continuous_induced_dom (f := Units.embedProduct Mᵐᵒᵖ))
+  continuous_invFun :=
+    continuous_induced_rng.mpr (continuous_prodMk.mpr ⟨by fun_prop, by fun_prop⟩)
+
+@[simp]
+lemma Units.coe_opContinuousMulEquiv_symm_apply
+    {M : Type*} [Monoid M] [TopologicalSpace M] (x : Mˣᵐᵒᵖ) :
+    (Units.opContinuousMulEquiv.symm x).1 = .op x.unop := rfl
+
+@[simp]
+lemma Units.coe_opContinuousMulEquiv_symm_apply_inv
+    {M : Type*} [Monoid M] [TopologicalSpace M] (x : Mˣᵐᵒᵖ) :
+    ((Units.opContinuousMulEquiv.symm x)⁻¹).1 = .op ↑(x.unop⁻¹) := rfl
+
+instance {R : Type*} [Ring R] [TopologicalSpace R] [IsOpenUnits R] : IsOpenUnits Rᵐᵒᵖ where
+  isOpenEmbedding_unitsVal := by
+    refine .of_comp _ MulOpposite.opHomeomorph.symm.isOpenEmbedding ?_
+    convert (IsOpenUnits.isOpenEmbedding_unitsVal (M := R)).comp
+      (MulOpposite.opHomeomorph.symm.isOpenEmbedding.comp
+        Units.opContinuousMulEquiv.isOpenEmbedding)
+    ext; simp
+
+@[simps!]
+def MulDistribMulAction.toContinuousMulEquiv
+    {G : Type*} (x : G) (M : Type*) [Group G] [Monoid M] [MulDistribMulAction G M]
+    [TopologicalSpace M] [ContinuousConstSMul G M] : M ≃ₜ* M where
+  __ := MulDistribMulAction.toMulEquiv _ x
+  continuous_toFun := continuous_const_smul _
+  continuous_invFun := continuous_const_smul _
+
+attribute [simp] Subgroup.mem_subgroupOf AddSubgroup.mem_addSubgroupOf
+
+lemma Subgroup.FiniteIndex.of_compactSpace {G : Type*} [Group G]
+    [TopologicalSpace G] [SeparatelyContinuousMul G] [CompactSpace G] (U : Subgroup G)
+    (h : IsOpen (X := G) U) : U.FiniteIndex :=
+  Subgroup.finiteIndex_iff_finite_quotient.mpr (Subgroup.quotient_finite_of_isOpen _ h)
+
+instance {G : Type*} [Group G]
+    [TopologicalSpace G] [SeparatelyContinuousMul G] (K : Subgroup G) :
+    SeparatelyContinuousMul K where
+  continuous_const_mul := by
+    simp only [continuous_def]
+    rintro x _ ⟨t, ht, rfl⟩
+    exact ⟨_, (continuous_const_mul x.1).isOpen_preimage _ ht, rfl⟩
+  continuous_mul_const := by
+    simp only [continuous_def]
+    rintro x _ ⟨t, ht, rfl⟩
+    exact ⟨_, (continuous_mul_const x.1).isOpen_preimage _ ht, rfl⟩
+
+lemma Subgroup.IsFiniteRelIndex.of_isCompact {G : Type*} [Group G]
+    [TopologicalSpace G] [SeparatelyContinuousMul G] {U K : Subgroup G}
+    (hU : IsOpen (X := G) U) (hK : IsCompact (X := G) K) : U.IsFiniteRelIndex K :=
+  have : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  Subgroup.isFiniteRelIndex_iff_finiteIndex.mpr
+    (.of_compactSpace _ (hU.preimage continuous_subtype_val))
+
+instance {G : Type*} [MeasurableSpace G] [Group G] [MeasurableMul G] (H : Subgroup G) :
+    MeasurableMul H where
+  measurable_const_mul := by
+    rintro x _ ⟨t, ht, rfl⟩
+    exact ⟨_, measurable_const_mul x.1 ht, rfl⟩
+  measurable_mul_const := by
+    rintro x _ ⟨t, ht, rfl⟩
+    exact ⟨_, measurable_mul_const x.1 ht, rfl⟩
+
+end

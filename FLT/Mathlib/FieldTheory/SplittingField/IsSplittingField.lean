@@ -24,7 +24,7 @@ lemma Polynomial.IsSplittingField.finrank_le_factorial_aux.{u}
     simp [this]
   | succ n IH =>
     obtain ⟨x, hx⟩ := (IsSplittingField.splits K p).exists_eval_eq_zero
-      (by simpa using degree_ne_of_natDegree_ne (by simp [hp]))
+      (by simpa using! degree_ne_of_natDegree_ne (by simp [hp]))
     rw [eval_map_algebraMap] at hx
     obtain ⟨q, hq⟩ : X - C (AdjoinSimple.gen F x) ∣ p.map (algebraMap F F⟮x⟯) := by
       convert X_sub_C_dvd_sub_C_eval (p := p.map (algebraMap F F⟮x⟯))

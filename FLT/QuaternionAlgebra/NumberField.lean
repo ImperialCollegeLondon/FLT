@@ -141,7 +141,7 @@ lemma WithRigidification.det_incl_sq (F : Type*)
   rw [← Algebra.norm_eq_of_algEquiv (.ofBijective _ (WithRigidification.cond (F := F) (D := D)))]
     at this
   dsimp at this
-  simpa only [map_one, one_mul, Algebra.norm_eq_det] using this
+  simpa only [map_one, one_mul, Algebra.norm_eq_det] using! this
 
 lemma WithRigidification.unitsIncl_algebraMap (F : Type*)
     [Field F] [NumberField F] {D : Type*} [Ring D] [Algebra F D] [WithRigidification F D]
@@ -200,66 +200,6 @@ lemma isOpen_submonoidUnits {M : Type*} [Monoid M] [TopologicalSpace M] [Continu
     (N : Submonoid M) (hN : IsOpen (X := M) N) : IsOpen (X := Mˣ) N.units :=
   ⟨_, hN.prod (hN.preimage MulOpposite.continuous_unop), rfl⟩
 
-lemma IsLinearTopology.uniformContinuous_mul
-    (R : Type*) [Ring R] [UniformSpace R] [IsTopologicalRing R]
-    [IsUniformAddGroup R] [IsLinearTopology R R] [IsLinearTopology Rᵐᵒᵖ R] :
-    UniformContinuous fun p : R × R => p.1 * p.2 := by
-  rw [UniformContinuous, uniformity_prod, (((Filter.HasBasis.uniformity_of_nhds_zero
-      IsLinearTopology.hasBasis_open_twoSidedIdeal).comap _).inf
-      ((Filter.HasBasis.uniformity_of_nhds_zero
-        IsLinearTopology.hasBasis_open_twoSidedIdeal).comap _)).tendsto_iff
-    (Filter.HasBasis.uniformity_of_nhds_zero IsLinearTopology.hasBasis_open_twoSidedIdeal)]
-  intro I hI
-  refine ⟨(I, I), ⟨hI, hI⟩, fun ⟨⟨a, b⟩, ⟨c, d⟩⟩ ⟨hca, hdb⟩ ↦ ?_⟩
-  convert add_mem (I.mul_mem_right _ d hca) (I.mul_mem_left a _ hdb)
-  simp [sub_mul, mul_sub]
-
-/-- If `R` is linearly topologised, then `⁻¹ : Rˣ → R` is uniformly continuous in the subspace
-topology on `Rˣ` (which is a priori different from the usual topology). -/
-lemma IsLinearTopology.uniformContinuous_inv
-    (R : Type*) [Ring R] [UniformSpace R] [IsTopologicalRing R]
-    [IsUniformAddGroup R] [IsLinearTopology R R] [IsLinearTopology Rᵐᵒᵖ R] :
-    UniformContinuous fun p : IsUnit.submonoid R ↦ (↑(p.2.unit⁻¹) : R) := by
-  rw [UniformContinuous, uniformity_subtype,
-    ((Filter.HasBasis.uniformity_of_nhds_zero
-      IsLinearTopology.hasBasis_open_twoSidedIdeal).comap _).tendsto_iff
-    (Filter.HasBasis.uniformity_of_nhds_zero IsLinearTopology.hasBasis_open_twoSidedIdeal)]
-  intro I hI
-  refine ⟨I, hI, ?_⟩
-  simp only [SetLike.mem_coe, Set.preimage_setOf_eq, Set.mem_setOf_eq, Prod.forall, Subtype.forall,
-    IsUnit.mem_submonoid_iff]
-  intro x hx y hy H
-  simpa [sub_mul, mul_sub, mul_assoc] using
-    I.mul_mem_right _ ↑(hy.unit⁻¹) (I.mul_mem_left ↑(hx.unit⁻¹) _ (sub_mem_comm_iff.mp H))
-
-lemma isCompact_submonoidUnits {M : Type*} [Monoid M] [TopologicalSpace M] [ContinuousMul M]
-    [T2Space M] (N : Submonoid M) (hN : IsCompact (X := M) N) : IsCompact (X := Mˣ) N.units := by
-  rw [Units.isEmbedding_embedProduct.isCompact_iff,
-    ← ((Homeomorph.refl M).prodCongr MulOpposite.opHomeomorph).isCompact_preimage]
-  convert (hN.prod hN).inter_left
-    (((isClosed_singleton (x := (1 : M))).preimage continuous_mul).inter
-      (((isClosed_singleton (x := (1 : M))).preimage continuous_mul).preimage
-        (Homeomorph.prodComm _ _).continuous))
-  ext ⟨a, b⟩
-  suffices (∃ x ∈ N.units, ↑x = a ∧ ↑x⁻¹ = b) ↔ (a * b = 1 ∧ b * a = 1) ∧ a ∈ N ∧ b ∈ N by
-    simpa
-  refine ⟨?_, fun h ↦ ⟨⟨_, _, h.1.1, h.1.2⟩, h.2, rfl, rfl⟩⟩
-  rintro ⟨⟨a, b, h₁, h₂⟩, h₃, rfl, rfl⟩; exact ⟨⟨h₁, h₂⟩, h₃⟩
-
-lemma IsLinearTopology.isEmbedding_unitsVal
-    (R : Type*) [Ring R] [TopologicalSpace R] [IsLinearTopology R R] [IsLinearTopology Rᵐᵒᵖ R]
-    [IsTopologicalRing R] :
-    Topology.IsEmbedding ((↑) : Rˣ → R) := by
-  let : UniformSpace R := IsTopologicalAddGroup.rightUniformSpace R
-  have : IsUniformAddGroup R := isUniformAddGroup_of_addCommGroup
-  classical
-  refine Units.isEmbedding_val_mk' (f := fun r ↦ if h : IsUnit r then ↑(h.unit⁻¹) else 0) ?_
-    (by simp)
-  refine continuousOn_iff_continuous_restrict.mpr ?_
-  convert (IsLinearTopology.uniformContinuous_inv R).continuous using 1
-  ext ⟨x, hx : IsUnit x⟩
-  simp [hx]
-
 -- the clever way to prove this is a theorem of the form "if A is an open submonoid of R
 -- then Aˣ is an open subgroup of Rˣ"
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
@@ -270,7 +210,7 @@ theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
 -- then Aˣ is a compact subgroup of Rˣ"
 theorem GL2.localFullLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
     IsCompact (X := GL₂(v.adicCompletion F)) (GL2.localFullLevel v) :=
-  M2.units_localFullLevel v ▸ isCompact_submonoidUnits _ (M2.localFullLevel.isCompact _)
+  M2.units_localFullLevel v ▸ Submonoid.units_isCompact (M2.localFullLevel.isCompact _)
 
 lemma GL2.mem_localFullLevel {v : HeightOneSpectrum (𝓞 F)} {x : GL (Fin 2) (v.adicCompletion F)}
     (hx : x ∈ localFullLevel v) :
@@ -581,52 +521,6 @@ lemma GL2.localBorelLevel_le_normalizer_localPTameLevel
   rw [← Subgroup.normal_subgroupOf_iff_le_normalizer (GL2.localPTameLevel_le_localBorelLevel ..)]
   infer_instance
 
--- lemma foo
---     (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) (a b) :
---     Matrix.GeneralLinearGroup.diagonal ![a, b] ∈
---       Subgroup.normalizer (GL2.localFullLevel v : Set GL₂(v.adicCompletion F)) := by
---   simp [Subgroup.mem_normalizer_iff]
---   intro x
---   suffices Valued.v x.1.det = 1 → Valued.v (x.1 1 1) ≤ 1 →
---     ((Valued.v (x.1 0 0) ≤ 1 ∧ Valued.v (x.1 0 1) ≤ 1) ∧ Valued.v (x.1 1 0) ≤ 1 ↔
---       (Valued.v (x.1 0 0) ≤ 1 ∧ Valued.v (a.1 / b.1) * Valued.v (x.1 0 1) ≤ 1) ∧
---         Valued.v (b.1 / a.1) * Valued.v (x.1 1 0) ≤ 1) by
---     simpa [GL2.mem_localFullLevel_iff_v_le_one_and_v_det_eq_one, div_eq_mul_inv,
---       Matrix.mul_apply, Matrix.GeneralLinearGroup.diagonal,
---       mul_assoc, mul_comm (Valued.v _) (_⁻¹), mul_left_comm, ← and_assoc]
---   simp only [and_assoc, and_congr_right_iff]
---   intro h₁ h₂ h₃
---   have : Valued.v (x.1 0 1 * x.1 1 0) ≤ 1 := by
---     rw [Matrix.det_fin_two] at h₁
---     by_contra! H
---     refine H.ne (h₁.symm.trans (Valuation.map_sub_eq_of_lt_right _ (lt_of_le_of_lt ?_ H)))
---     grw [map_mul, h₂, h₃, one_mul]
-
-
--- lemma foo2
---     (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) (a b) :
---     Matrix.GeneralLinearGroup.diagonal ![a, b] ∈
---       Subgroup.normalizer (GL2.localBorelLevel v : Set GL₂(v.adicCompletion F)) := by
---   simp [Subgroup.mem_normalizer_iff]
---   intro x
---   suffices Valued.v (x.1 0 0) = 1 → (Valued.v (x.1 0 1) ≤ 1 ∧ Valued.v (x.1 1 0) < 1 ∧
---       Valued.v (x.1 1 1) = 1 ↔
---       Valued.v (a / b).1 * Valued.v (x.1 0 1) ≤ 1 ∧ Valued.v (b / a).1 * Valued.v (x.1 1 0) < 1 ∧
---         Valued.v (x.1 1 1) = 1) by
---     simpa [GL2.mem_localBorelLevel_iff_v_eq_one_and_v_det_eq_one,
---         div_eq_mul_inv, Matrix.mul_apply, Matrix.GeneralLinearGroup.diagonal,
---         mul_assoc, mul_comm (Valued.v _) (_⁻¹), mul_left_comm, and_assoc] using this
---   simp only [← and_assoc, and_congr_left_iff]
---   intro h₁ h₂
-
-
--- lemma foo
---     (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) (a b) :
---     Matrix.GeneralLinearGroup.diagonal ![a, b] ∈
---         Subgroup.normalizer (GL2.localPTameLevel v p : Set GL₂(v.adicCompletion F)) := by
---   rw [← Subgroup.normal_subgroupOf_iff_le_normalizer (GL2.localPTameLevel_le_localBorelLevel ..)]
---   infer_instance
-
 end IsDedekindDomain
 
 open RestrictedProduct
@@ -716,6 +610,26 @@ lemma GL2.mul_comm_of_toAdicCompletion_eq_one
   · simp [ha]
   · simp [h]
 
-end IsDedekindDomain.FiniteAdeleRing
+variable (F) in
+/-- A maximal compact of `GL₂(𝔸ᶠ[F])` given by `∏ GL₂(𝒪ᵥ)`. -/
+noncomputable
+def GL2.maximalCompact : Subgroup GL₂(𝔸ᶠ[F]) :=
+  ⨅ v, (GL2.localFullLevel v).comap (GL2.toAdicCompletion v)
 
-#min_imports
+lemma GL2.maximalCompact.isOpen : IsOpen (X := GL₂(𝔸ᶠ[F])) (GL2.maximalCompact F) := by
+  classical
+  rw [← GL2.restrictedProduct.toHomeomorph.symm.isOpen_preimage]
+  convert! RestrictedProduct.isOpen_forall_mem _ using 1
+  · ext; simp [maximalCompact, ← GL2.restrictedProduct_apply]; rfl
+  · exact fun v ↦ M2.units_localFullLevel v ▸ GL2.localFullLevel.isOpen v
+
+lemma GL2.maximalCompact.isCompact : IsCompact (X := GL₂(𝔸ᶠ[F])) (GL2.maximalCompact F) := by
+  classical
+  rw [← GL2.restrictedProduct.toHomeomorph.symm.isCompact_preimage]
+  convert! RestrictedProduct.isCompact_forall_mem_of_eventually_subset _
+    (GL2.localFullLevel (F := F)) GL2.localFullLevel.isCompact _ using 1
+  · ext; simp [maximalCompact, ← GL2.restrictedProduct_apply]
+  · exact fun v ↦ M2.units_localFullLevel v ▸ GL2.localFullLevel.isOpen v
+  · simp [M2.units_localFullLevel]
+
+end IsDedekindDomain.FiniteAdeleRing

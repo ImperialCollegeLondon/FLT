@@ -169,7 +169,7 @@ lemma range_unipotentMulDiagU1 :
     have h' : x 1 1 ≠ 0 := fun h ↦ by simp [h] at H
     simp only [← map_inv]
     simpa [unipotent_inv, Matrix.mul_apply, -map_inv, diag,
-      unipotent_def, h', -dvd_zero] using dvd_zero α
+      unipotent_def, h', -dvd_zero] using! dvd_zero α
 
 variable (v) in
 /-- The double coset space `U1diagU1` is the disjoint union of

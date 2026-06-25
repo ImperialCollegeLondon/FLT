@@ -106,7 +106,7 @@ lemma orderOf_dvd_ncard {G : Type*} [Group G]
     {H : Subgroup G} (hH : Set.Finite (H : Set G)) {x : G} (hx : x ∈ H) :
     orderOf x ∣ Set.ncard (H : Set G) := by
   cases hH.nonempty_fintype
-  simpa [← Nat.card_eq_fintype_card] using orderOf_dvd_card (G := H) (x := ⟨x, hx⟩)
+  simpa [← Nat.card_eq_fintype_card] using! orderOf_dvd_card (G := H) (x := ⟨x, hx⟩)
 
 section
 
@@ -161,11 +161,11 @@ lemma Subgroup.le_ker_of_le_ker_of_coprime_relIndex
       rw [Subgroup.relIndex_bot_left, Subgroup.card_map_eq_relIndex_ker]
       exact .of_dvd_right (Subgroup.relIndex_dvd_of_le_left _ (by simpa)) hCoprime) bot_le
     simpa [(MonoidHom.ker_eq_bot_iff _).mpr, QuotientGroup.kerLift_injective, -le_bot_iff,
-      Subgroup.map_le_iff_le_comap] using this
+      Subgroup.map_le_iff_le_comap] using! this
   by_cases hφ : φ = 1
   · simp_all
   have hK₁K₂ : K₁.IsFiniteRelIndex K₂ := ⟨fun h ↦ by simp_all⟩
-  have hK₂ : Finite K₂ := by simpa [hK₁'] using hK₁K₂
+  have hK₂ : Finite K₂ := by simpa [hK₁'] using! hK₁K₂
   intro x hx
   simp only [hK₁', Subgroup.relIndex_bot_left] at hCoprime
   simpa using (hCoprime.symm.of_dvd_left ((orderOf_map_dvd φ x).trans
@@ -360,3 +360,16 @@ lemma MonoidHom.range_comp_eq_range {M N P : Type*} [Group M] [Group N] [Group P
 lemma MonoidHom.range_comp_mulEquiv {M N P : Type*} [Group M] [Group N] [Group P]
     (f : M ≃* N) (g : N →* P) :
     (g.comp (f : M →* N)).range = g.range := MonoidHom.range_comp_eq_range _ g f.surjective
+
+@[simp]
+lemma IsUnit.unit_val_mul {M : Type*} [Monoid M] (a : Mˣ) (b : M) (H : IsUnit (a * b)) :
+  H.unit = a * (show IsUnit b by simpa using H).unit := by ext; simp
+
+@[to_additive (attr := simp)]
+lemma MulEquivClass.coe_toMulEquiv {F M N : Type*} [Mul M] [Mul N] [EquivLike F M N]
+    [MulEquivClass F M N]
+    (f : F) : ⇑(MulEquivClass.toMulEquiv f) = f := rfl
+
+lemma Units.range_val {M : Type*} [Monoid M] :
+    Set.range Units.val = {x : M | IsUnit x} :=
+  Set.ext fun _ ↦ ⟨fun ⟨u, hu⟩ ↦ hu ▸ u.isUnit, fun h ↦ ⟨h.unit, rfl⟩⟩
