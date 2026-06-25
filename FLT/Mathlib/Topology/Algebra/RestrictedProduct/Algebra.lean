@@ -8,6 +8,8 @@ module
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
 
+/-! # Lemmas about restricted products of algebras -/
+
 @[expose] public section
 
 namespace RestrictedProduct

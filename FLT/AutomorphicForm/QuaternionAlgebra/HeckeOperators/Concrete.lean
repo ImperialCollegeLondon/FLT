@@ -22,7 +22,7 @@ realised via the abstract double-coset construction.
 -/
 
 @[expose] public section
-/-
+/-!
 
 # Concrete Hecke operators
 

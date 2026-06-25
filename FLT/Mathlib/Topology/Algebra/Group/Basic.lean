@@ -7,6 +7,8 @@ module
 
 public import Mathlib.Topology.Algebra.Group.Basic
 
+/-! # Lemmas about topological groups -/
+
 public section
 
 @[to_additive]

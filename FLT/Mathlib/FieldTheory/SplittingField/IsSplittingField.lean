@@ -7,6 +7,8 @@ module
 
 public import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
 
+/-! # Bound of degree of splitting field -/
+
 @[expose] public section
 
 open Polynomial IntermediateField
