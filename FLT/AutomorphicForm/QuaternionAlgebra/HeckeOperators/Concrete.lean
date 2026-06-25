@@ -275,7 +275,7 @@ lemma LocalLevelStruct.heckeOperator_map_mul_of_mem_normalizer_left
       rfl
     · rw [Set.injOn_image_iff
         (by exact ((mul_right_injective g₁).comp Quotient.out_injective).injOn)]
-      convert (MulAction.injective g₁ (β := GL₂(v.adicCompletion F) ⧸ ℒ.US v)).injOn
+      convert! (MulAction.injective g₁ (β := GL₂(v.adicCompletion F) ⧸ ℒ.US v)).injOn
       ext; simp [← smul_eq_mul]
   · simp only [Set.Finite.coe_toFinset]
     nth_rw 2 [← Set.image_id (QuotientGroup.mk '' _)]
