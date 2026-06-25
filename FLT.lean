@@ -3,11 +3,14 @@ module  -- shake: keep-all --deprecated_module: ignore
 public import FLT.Assumptions.KnownIn1980s
 public import FLT.Assumptions.Mazur
 public import FLT.Assumptions.Odlyzko
-public import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+public import FLT.AutomorphicForm.GroupTheoryStuff
+public import FLT.AutomorphicForm.QuaternionAlgebra.Basic
 public import FLT.AutomorphicForm.QuaternionAlgebra.FiniteDimensional
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Abstract
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Concrete
 public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
+public import FLT.AutomorphicForm.QuaternionAlgebra.InnerProduct
+public import FLT.AutomorphicForm.Stuff
 public import FLT.Data.Hurwitz
 public import FLT.Data.HurwitzRatHat
 public import FLT.Data.QHat
@@ -53,6 +56,7 @@ public import FLT.GaloisRepresentation.HardlyRamified.Threeadic
 public import FLT.GlobalLanglandsConjectures.GLnDefs
 public import FLT.GlobalLanglandsConjectures.GLzero
 public import FLT.GroupScheme.FiniteFlat
+public import FLT.HaarMeasure.FiniteAdeleRing
 public import FLT.HaarMeasure.HaarChar.AddEquiv
 public import FLT.HaarMeasure.HaarChar.AdeleRing
 public import FLT.HaarMeasure.HaarChar.FiniteAdeleRing
@@ -61,7 +65,11 @@ public import FLT.HaarMeasure.HaarChar.Padic
 public import FLT.HaarMeasure.HaarChar.RealComplex
 public import FLT.HaarMeasure.HaarChar.Ring
 public import FLT.HaarMeasure.MeasurableSpacePadics
+public import FLT.HaarMeasure.Quotient
 public import FLT.Hacks.RightActionInstances
+public import FLT.HenselianLocalRing.EtaleDecomposition
+public import FLT.HenselianLocalRing.Finite
+public import FLT.HenselianLocalRing.Stuff
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.Algebra.Algebra.Hom
 public import FLT.Mathlib.Algebra.Algebra.Pi
@@ -76,6 +84,7 @@ public import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 public import FLT.Mathlib.Data.Fin.Basic
 public import FLT.Mathlib.Data.Real.Archimedean
 public import FLT.Mathlib.Data.Set.Prod
+public import FLT.Mathlib.FieldTheory.SplittingField.IsSplittingField
 public import FLT.Mathlib.GroupTheory.DoubleCoset
 public import FLT.Mathlib.GroupTheory.Index
 public import FLT.Mathlib.LinearAlgebra.Countable
@@ -95,6 +104,7 @@ public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.Padic
 public import FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.RestrictedProduct
 public import FLT.Mathlib.MeasureTheory.Group.Action
 public import FLT.Mathlib.MeasureTheory.Group.Measure
+public import FLT.Mathlib.MeasureTheory.Group.ModularCharacter
 public import FLT.Mathlib.MeasureTheory.Haar.Extension
 public import FLT.Mathlib.MeasureTheory.Measure.Regular
 public import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
@@ -132,6 +142,7 @@ public import FLT.Mathlib.Topology.Algebra.Module.TensorProduct
 public import FLT.Mathlib.Topology.Algebra.Monoid
 public import FLT.Mathlib.Topology.Algebra.MulAction
 public import FLT.Mathlib.Topology.Algebra.Order.Field
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Algebra
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
