@@ -6,12 +6,15 @@ Authors: Andrew Yang
 module
 
 public import FLT.AutomorphicForm.GroupTheoryStuff
+public import FLT.Mathlib.Topology.Algebra.Group.Basic
 public import Mathlib.Data.Int.SuccPred
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 public import Mathlib.RingTheory.Norm.Transitivity
 public import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 public import Mathlib.Topology.Algebra.IsOpenUnits
 public import Mathlib.Topology.MetricSpace.Polish
+
+/-! # Random assortments of API lemmas missing in mathlib. -/
 
 @[expose] public section
 
@@ -36,27 +39,6 @@ def Subring.matrixEquiv {n α : Type*} [Ring α] [Fintype n] [DecidableEq n] (S 
   map_mul' _ _ := by ext i j; simp [Set.matrixEquiv, Matrix.mul_apply]
   map_add' _ _ := rfl
 
-lemma continuous_iff_continuousAt_one
-    {G : Type*} [TopologicalSpace G] [Group G] [IsTopologicalGroup G]
-    {M : Type*} {hom : Type*} [MulOneClass M]
-    [TopologicalSpace M] [ContinuousMul M] [FunLike hom G M]
-    [MonoidHomClass hom G M] {f : hom} : Continuous ⇑f ↔ ContinuousAt (⇑f) 1 :=
-  ⟨Continuous.continuousAt, continuous_of_continuousAt_one _⟩
-
-lemma MonoidHom.continuous_of_isOpen_ker {G H : Type*} [Group G] [MulOneClass H] {φ : G →* H}
-    [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace H] [ContinuousMul H]
-    (hφ : IsOpen (φ.ker : Set G)) : Continuous φ := by
-  refine continuous_of_continuousAt_one _ ?_
-  intro U hU
-  simp only [Filter.mem_map]
-  exact Filter.mem_of_superset (hφ.mem_nhds (by simp)) (Set.preimage_mono
-    (Set.singleton_subset_iff.mpr (mem_of_mem_nhds (by simpa using hU))))
-
-lemma MonoidHom.continuous_iff_isOpen_ker {G H : Type*} [Group G] [MulOneClass H] {φ : G →* H}
-    [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace H] [DiscreteTopology H] :
-    Continuous φ ↔ IsOpen (φ.ker : Set G) :=
-  ⟨fun h ↦ (isOpen_discrete {1}).preimage h, MonoidHom.continuous_of_isOpen_ker⟩
-
 lemma IsPrincipalIdealRing.exists_isCoprime_and_dvd_pow
     {R : Type*} [CommRing R] [IsPrincipalIdealRing R] [IsDomain R] (a b : R) (ha : a ≠ 0) :
     ∃ x y N, a = x * y ∧ IsCoprime x b ∧ y ∣ b ^ N := by
@@ -69,7 +51,7 @@ lemma IsPrincipalIdealRing.exists_isCoprime_and_dvd_pow
     · exact ⟨x, y * p, N + 1, by ring, hxb, pow_succ b N ▸ mul_dvd_mul hyb hpb⟩
     · exact ⟨x * p, y, N, by ring, hxb.mul_left (hp.coprime_iff_not_dvd.mpr hpb), hyb⟩
 
-instance {G} [TopologicalSpace G] [DivInvMonoid G] [ContinuousMul G] :
+instance ConjAct.continuousConstSMul {G} [TopologicalSpace G] [DivInvMonoid G] [ContinuousMul G] :
     ContinuousConstSMul (ConjAct G) G where
   continuous_const_smul _ := IsTopologicalGroup.continuous_conj _
 

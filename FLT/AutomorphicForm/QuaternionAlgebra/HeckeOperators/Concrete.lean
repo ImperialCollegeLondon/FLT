@@ -1091,6 +1091,8 @@ instance [FaithfulSMul R M] :
   have := H ((U₁ 𝒮).toStruct.formMap (S := R) _ (LinearMap.toSpanSingleton R M m) f)
   simpa [← smul_eq_apply, ← formMap_smul] using congr(($this).1 g)
 
+/-- The anemic Hecke algebra, defined as the subalgebra generated only by
+the `Tₚ`s with `p` not dividing the level. -/
 noncomputable
 def anemic : Subalgebra R (HeckeAlgebra D 𝒮) :=
   Algebra.adjoin R { T D 𝒮 v hvS hvQ | (v) (hvS : v ∉ 𝒮.S) (hvQ : v ∉ 𝒮.Q) }

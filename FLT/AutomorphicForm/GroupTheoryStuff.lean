@@ -9,6 +9,8 @@ public import Mathlib.Algebra.Group.Submonoid.Units
 public import Mathlib.GroupTheory.Torsion
 public import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 
+/-! # Random assortments of results on group theory. -/
+
 @[expose] public section
 
 attribute [simp] Subgroup.mem_subgroupOf

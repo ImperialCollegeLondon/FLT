@@ -8,6 +8,18 @@ module
 public import FLT.Mathlib.MeasureTheory.Group.ModularCharacter
 public import FLT.Mathlib.Topology.Polish
 
+/-!
+
+# Relation between the quotient haar measure and the measure on the whole group.
+
+Let `G` be a second countable locally compact topological group,
+and `N` be a closed normal subgroup of `G`.
+Given haar measures `dn` on `N` and `d𝓍` on `G ⧸ N`, we can define a measure `dg` on `G` via
+`∫ f(x) dx = ∫ (∫ f(xn) dn) d𝓍`. We show that this is a haar measure, and as a conclusion
+we can relate the modular character of `G` to the one of `G / N`.
+
+-/
+
 @[expose] public section
 
 open scoped Pointwise ENNReal Function NNReal
@@ -96,6 +108,7 @@ section
 
 variable [MeasurableMul₂ G] [μN.IsMulLeftInvariant]
 
+/-- The integrand appearing in `Measure.ofQuotient`. -/
 noncomputable
 def Measure.ofQuotientIntegrand (f : G → ℝ≥0∞) (g : G ⧸ N) : ℝ≥0∞ :=
   g.lift (fun g ↦ ∫⁻ x, f (g * x) ∂ μN) <| fun a b e ↦ by
@@ -197,6 +210,14 @@ lemma Measure.measurable_ofQuotientIntegrand (f : G → ℝ≥0∞) (hf : Measur
   refine measurable_from_quotient.mpr (Measurable.lintegral_prod_right ?_)
   exact (hf.comp measurable_mul).comp (.prodMap measurable_id measurable_subtype_coe)
 
+/--
+Let `G` be a second countable locally compact topological group,
+and `N` be a closed normal subgroup of `G`.
+Given haar measures `dn` on `N` and `d𝓍` on `G ⧸ N`, we can define a measure `dg` on `G` via
+`∫ f(x) dx = ∫ (∫ f(xn) dn) d𝓍`.
+
+We later show that this is also a haar measure.
+-/
 noncomputable
 def Measure.ofQuotient : Measure G :=
   .ofMeasurable (fun s _ ↦ ∫⁻ g, ofQuotientIntegrand μN (s.indicator 1) g ∂μ) (by simp)

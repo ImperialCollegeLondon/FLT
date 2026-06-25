@@ -41,7 +41,7 @@ and `χ₁χ₂` unramified.
 
 open scoped TensorProduct
 
-open IsDedekindDomain NumberField TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm
+open IsDedekindDomain NumberField TotallyDefiniteQuaternionAlgebra WeightTwoAutomorphicForm
 
 local notation "Frob" => Field.AbsoluteGaloisGroup.adicArithFrob
 local notation3 "Γ" K:max => Field.absoluteGaloisGroup K
@@ -67,7 +67,7 @@ however it will suffice for the purpose of proving FLT.
 def GaloisRep.IsAutomorphicOfLevel
     -- `F` is a totally real field
     {F : Type u} [Field F] [NumberField F] [IsTotallyReal F]
-    (p : ℕ) [Fact p.Prime]
+    (p : ℕ) [Fact p.Prime] (hp : 2 < Module.finrank F (CyclotomicField p F))
     {A : Type*} [CommRing A] [TopologicalSpace A] [Algebra ℤ_[p] A]
     [ContinuousSMul ℤ_[p] A]
     -- `V` is the rank 2 free `A`-module on which the Galois group will act
@@ -78,11 +78,11 @@ def GaloisRep.IsAutomorphicOfLevel
     -- `S` is the level of the modular form
     (S : Finset (HeightOneSpectrum (𝓞 F))) : Prop :=
   -- We say `ρ` is *automorphic* if there's a quaternion algebra D over F of discriminant 1
-  ∃ (D : Type u) (_ : Ring D) (_ : Algebra F D) (_ : IsQuaternionAlgebra F D)
-    (r : IsQuaternionAlgebra.NumberField.Rigidification F D)
+  ∃ (D : Type u) (_ : DivisionRing D) (_ : Algebra F D) (_ : IsQuaternionAlgebra F D)
+    (_ : IsQuaternionAlgebra.NumberField.WithRigidification F D)
   -- and an `A`-valued automorphic eigenform,
   -- by which we mean a ℤ_p-linear map from the ℤ_p-Hecke algebra for (D,S) to `A`,
-    (π : HeckeAlgebra F D r S ℤ_[p] →ₐ[ℤ_[p]] A),
+    (π : HeckeAlgebra (R := ℤ_[p]) D ⟨Fact.out, S, ∅, 1, by simp, hp⟩ →ₐ[ℤ_[p]] A),
   -- such that for all good primes `v` of `F`
   ∀ (v : HeightOneSpectrum (𝓞 F)) (_hvp : ↑p ∉ v.1) (hvS : v ∉ S),
     -- `ρ` is unramified at `v`,
@@ -90,7 +90,8 @@ def GaloisRep.IsAutomorphicOfLevel
     -- the det of `ρ(Frobᵥ)` (arithmetic Frobenius) is `N(v)` (i.e. `det(ρ) = cyclo`)
     (ρ.toLocal v (Frob v)).det = v.1.absNorm ∧
     -- and the trace of `ρ(Frobᵥ)` is the eigenvalue of the form at `Tᵥ`
-    LinearMap.trace A V (ρ.toLocal v (Frob v)) = π (HeckeAlgebra.T D r ℤ_[p] v hvS)
+    LinearMap.trace A V (ρ.toLocal v (Frob v)) =
+      π (HeckeAlgebra.T (R := ℤ_[p]) D ⟨Fact.out, S, ∅, 1, by simp, hp⟩ v hvS (by simp))
 
 instance {F E D : Type*}
     [Field F]
@@ -131,7 +132,8 @@ theorem cyclic_base_change
     {E : Type*} [Field E] [NumberField E] [IsTotallyReal E]
     [Algebra F E] [IsGalois F E] [IsSolvable (E ≃ₐ[F] E)]
     -- let p be a prime
-    (p : ℕ) [Fact p.Prime]
+    (p : ℕ) [Fact p.Prime] (hp : 2 < Module.finrank F (CyclotomicField p F))
+    (hpE : 2 < Module.finrank E (CyclotomicField p E))
     -- let ρ:Gal(F-bar/F)->GL_2(Q_p-bar) be a continuous representation
     {V : Type} [AddCommGroup V] [Module (ℚ_[p]ᵃˡᵍ) V]
       [Module.Finite (ℚ_[p]ᵃˡᵍ) V] [Module.Free (ℚ_[p]ᵃˡᵍ) V]
@@ -175,8 +177,8 @@ theorem cyclic_base_change
       -- and π is Gal(F_w-bar/F_w)-equivariant
       ∀ g : Γ (w.adicCompletion F), ∀ v : V, π ((ρ.toLocal w) g v) = δ g (π v)) :
     -- Then ρ is automorphic of level S iff
-    (ρ.IsAutomorphicOfLevel p hV S) ↔
+    (ρ.IsAutomorphicOfLevel p hp hV S) ↔
     -- ρ | Gal(Ebar/E) is automorphic of level (the pullback of S to E)
-    ((ρ.map (algebraMap F E)).IsAutomorphicOfLevel p hV
+    ((ρ.map (algebraMap F E)).IsAutomorphicOfLevel p hpE hV
       (HeightOneSpectrum.preimageComapFinset (𝓞 F) F E (𝓞 E) S)) :=
   sorry

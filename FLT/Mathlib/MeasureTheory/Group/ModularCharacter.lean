@@ -256,8 +256,10 @@ lemma isMulLeftInvariant_map_op
 variable {R : Type*} [Ring R] [TopologicalSpace R] [IsTopologicalRing R]
     [LocallyCompactSpace R] [MeasurableSpace R] (μ : Measure R)
 
-noncomputable
-def Units.haarMeasure [BorelSpace R] : Measure Rˣ :=
+/-- Given a locally compact topological ring `R` such that `Rˣ → R` is an open embedding.
+If `dx` is an additive haar measure on `R`, then `dx/δ(x)` is a multiplicative haar measure on `Rˣ`,
+where `δ` is the Haar character. -/
+noncomputable def Units.haarMeasure [BorelSpace R] : Measure Rˣ :=
     (μ.comap (↑)).withDensity fun r ↦ ringHaarChar r⁻¹
 
 open scoped Classical in

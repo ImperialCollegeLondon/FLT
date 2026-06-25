@@ -356,6 +356,7 @@ instance (v : HeightOneSpectrum (𝓞 F)) :
 instance (v : HeightOneSpectrum (𝓞 F)) :
     SMulCommClass S GL₂(v.adicCompletion F) (WeightTwoAutomorphicForm F D M) := .symm _ _ _
 
+/-- Mapping an automorphic form along a linear map. -/
 @[simps]
 def mapₗ {N : Type*} [AddCommGroup N] [Module R N] (φ : M →ₗ[R] N) :
     WeightTwoAutomorphicForm F D M →ₗ[R] WeightTwoAutomorphicForm F D N where
@@ -407,9 +408,10 @@ namespace LevelStruct
 
 variable (ℒ : LevelStruct F R)
 
-/-- `U 𝔸ᶠˣ` -/
+/-- `U 𝔸ᶠˣ` of a `LevelStruct`. -/
 abbrev UA : Subgroup GL₂(𝔸ᶠ[F]) := ℒ.U ⊔ 𝔸ˣ F
 
+/-- The character extended onto `U 𝔸ᶠˣ` -/
 def χA : ℒ.UA →* R :=
   MonoidHom.liftOfSurjective' (Subgroup.prodToSupOfRight _ _
     ((range_unitsMap_finiteAdeleRing_le_center ..).trans (Subgroup.center_le_centralizer _)))
@@ -473,6 +475,7 @@ instance : 𝓕ˣ.Normal := Subgroup.normal_of_le_center _ (by
   simp [Subgroup.mem_center_iff, Units.ext_iff, Algebra.commutes])
 
 variable (D) in
+/-- The index `[U 𝔸ˣ ∩ g⁻¹ Dˣ g : Fˣ]` as a function on `Dˣ\GL₂(𝔸)/U`. -/
 def ΔIndex (g : Dˣ＼GL₂(𝔸 F)／ℒ.UA) : ℕ :=
   g.lift (fun g ↦ 𝓕ˣ.relIndex (ℒ.Δ D g)) <| fun g₁ g₂ e ↦ by
     obtain ⟨_, ⟨d, rfl⟩, u, hu, rfl⟩ := DoubleCoset.rel_iff.mp e
@@ -500,6 +503,7 @@ lemma isOpen_map_ker : IsOpen (X := GL₂(𝔸ᶠ[F])) (ℒ.χ.ker.map ℒ.U.sub
   ℒ.isOpen_U.isOpenEmbedding_subtypeVal.isOpenMap _ ℒ.isOpen_ker
 
 variable (D M) in
+/-- The subspace of modular forms of a given level. -/
 def form : Submodule R (WeightTwoAutomorphicForm F D M) where
   carrier := { f | ∀ x : ℒ.U, x • f = ℒ.χ x • f }
   add_mem' {f g} hf hg x := by simp only [Set.mem_setOf_eq] at hf hg; simp [hf, hg]
@@ -835,6 +839,7 @@ section TensorProduct
 open TensorProduct
 
 variable (D) in
+/-- Mapping automorphic forms of a fixed level along a linear map. -/
 @[simps]
 def formMap {S N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
     [AddCommGroup N] [Module R N] [Module S N] [IsScalarTower R S N] (φ : M →ₗ[S] N) :
@@ -844,6 +849,7 @@ def formMap {S N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower
   map_smul' _ _ := by ext; simp
 
 variable (D) in
+/-- Mapping automorphic forms of a fixed level along a linear equiv. -/
 @[simps!]
 def formCongr {S N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
     [AddCommGroup N] [Module R N] [Module S N] [IsScalarTower R S N] (φ : M ≃ₗ[S] N) :
@@ -851,6 +857,7 @@ def formCongr {S N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTow
   .ofLinear (ℒ.formMap D φ) (ℒ.formMap D φ.symm) (by ext; simp) (by ext; simp)
 
 variable (D) in
+/-- `formMap` as a linear map. -/
 @[simps]
 def formMapₗ {S T N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
     [AddCommGroup N] [Module R N] [Module S N] [IsScalarTower R S N]
@@ -861,6 +868,7 @@ def formMapₗ {S T N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalar
   map_smul' _ _ := by ext; simp
 
 variable (D M) in
+/-- If `U` is sufficiently small, then `M ⊗ S(U, N) = S(U, M ⊗ N)`. -/
 def formTensor [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D]
     (S T N : Type*) [CommRing T] [Module T M] [SMulCommClass R T M]
     [AddCommGroup N] [Module R N] [CommRing S] [Module S M] [Module S N] [Algebra S T]
@@ -886,6 +894,7 @@ lemma formTensor_tmul_apply [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D]
     (ℒ.formTensor D M S T N (x ⊗ₜ f)).1 g = x ⊗ₜ f.1 g := rfl
 
 variable (D M) in
+/-- If `U` is sufficiently small, then `M ⊗ S(U, R) = S(U, M)`. -/
 def formTensorScalar [ℒ.IsSufficientlySmall D] [ℒ.IsFinite D]
     (S : Type*) [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M] :
     M ⊗[R] ℒ.form D R ≃ₗ[S] ℒ.form D M :=
@@ -912,6 +921,7 @@ instance : PartialOrder (LevelStruct F R) where
   | ⟨U, _, _, _, _, _⟩, ⟨U', _, _, _, _, _⟩, ⟨h, e⟩, ⟨h', e'⟩ => by
     obtain rfl : U = U' := le_antisymm h h'; congr
 
+/-- Restriction of `LevelStruct` to an open subset. -/
 @[simps]
 def restrict (ℒ : LevelStruct F R) (U : Subgroup GL₂(𝔸ᶠ[F]))
     (hU : IsOpen (X := GL₂(𝔸ᶠ[F])) U) (hU' : U ≤ ℒ.U) : LevelStruct F R where
@@ -1178,6 +1188,7 @@ def toStruct : LevelStruct F R where
       ((GL2.continuous_toAdicCompletion _).comp continuous_subtype_val)
 
 open scoped Classical in
+/-- The inclusion of the local open subgroup into the global one. -/
 noncomputable
 def incl : ℒ.US v →* ℒ.toStruct.U :=
   ((GL2.finiteAdeleIncl v).comp (Subgroup.subtype _)).codRestrict _ <| by

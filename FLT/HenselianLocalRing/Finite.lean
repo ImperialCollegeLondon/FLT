@@ -1,9 +1,16 @@
+/-
+Copyright (c) 2026 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang
+-/
 module
 
 public import FLT.HenselianLocalRing.EtaleDecomposition
 public import FLT.HenselianLocalRing.Stuff
 public import Mathlib.RingTheory.Henselian
 public import Mathlib.RingTheory.Unramified.LocalStructure
+
+/-! # Finite extensions of henselian local rings are products of henselian local rings -/
 
 @[expose] public section
 
