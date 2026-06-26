@@ -756,7 +756,7 @@ instance [IsNoetherianRing R] (𝒻 : Eigenform D 𝒮) : Module.Finite R 𝒻.i
 variable (D 𝒮) in
 /-- The embedding of the anemic Hecke algebra into a product of domains, indexed by eigenforms. -/
 def toProdEigenform : anemic D 𝒮 →ₐ[R] Π (𝒻 : Eigenform D 𝒮), 𝒻.integers :=
-  AlgHom.pi _ _ fun 𝒻 ↦ 𝒻.toIntegers
+  AlgHom.pi fun 𝒻 ↦ 𝒻.toIntegers
 
 @[simp]
 lemma toProdEigenform_apply (x : anemic D 𝒮) (𝒻 : Eigenform D 𝒮) :
@@ -813,7 +813,7 @@ lemma _root_.AlgHom.map_zero {R S T : Type*} [CommSemiring R] [Semiring S] [Semi
     [Algebra R S] [Algebra R T] (f : S →ₐ[R] T) : f 0 = 0 := _root_.map_zero _
 
 lemma Eigenform.pi_lift_injective :
-    Function.Injective ((AlgHom.pi _ _ fun 𝒻 ↦
+    Function.Injective ((AlgHom.pi fun 𝒻 ↦
     Algebra.TensorProduct.lift (.id _ _) 𝒻.1 fun _ _ ↦ .all _ _) :
       ℂ ⊗[R] anemic D 𝒮 →ₐ[ℂ] (Eigenform D 𝒮 → ℂ)) := by
   refine (injective_iff_map_eq_zero _).mpr fun a e ↦ ?_
@@ -909,7 +909,7 @@ variable (D 𝒮) in
 /-- The complex anemic Hecke algebra is isomorphic to a product of copies of `ℂ`'s,
 one for each eigenform. -/
 def tensorEquivPi : ℂ ⊗[R] anemic D 𝒮 ≃ₐ[ℂ] (Eigenform D 𝒮 → ℂ) := by
-  refine .ofBijective (AlgHom.pi _ _ fun 𝒻 ↦
+  refine .ofBijective (AlgHom.pi fun 𝒻 ↦
     Algebra.TensorProduct.lift (.id _ _) 𝒻.1 fun _ _ ↦ .all _ _) ⟨Eigenform.pi_lift_injective, ?_⟩
   rw [← AlgHom.range_eq_top, ← (Pi.subalgebraEquiv _ _).injective.eq_iff, Pi.subalgebraEquiv_top,
     ← le_bot_iff]
@@ -959,7 +959,7 @@ lemma Eigenform.exists_le_of_isPrime (P : Ideal (anemic D 𝒮)) [P.IsPrime] (hP
   have : P.map (Algebra.TensorProduct.includeRight : _ →ₐ[R] ℂ ⊗[R] anemic D 𝒮) ≠ ⊤ := by
     rwa [← Ideal.Quotient.nontrivial_iff,
       ← (Algebra.TensorProduct.tensorQuotientEquiv R _ _ _).nontrivial_congr]
-  have : P.map (AlgHom.pi _ _ fun 𝒻 ↦ 𝒻.1 : anemic D 𝒮 →ₐ[R] (Eigenform D 𝒮 → ℂ)) ≠ ⊤ := by
+  have : P.map (AlgHom.pi fun 𝒻 ↦ 𝒻.1 : anemic D 𝒮 →ₐ[R] (Eigenform D 𝒮 → ℂ)) ≠ ⊤ := by
     rw [ne_eq, ← (Ideal.comap_injective_of_surjective (tensorEquivPi D 𝒮).toRingEquiv
       (tensorEquivPi D 𝒮).surjective).eq_iff]
     convert! this using 2
