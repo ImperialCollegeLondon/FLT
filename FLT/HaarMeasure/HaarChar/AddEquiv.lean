@@ -47,8 +47,8 @@ variable [BorelSpace G] [IsTopologicalGroup G] [LocallyCompactSpace G]
 lemma mulEquivHaarChar_map_open (μ : Measure G)
     [IsHaarMeasure μ] (φ : G ≃ₜ* G) {s : Set G} (hs : IsOpen s) :
     ((mulEquivHaarChar φ) • map φ μ) s = μ s := by
-  rw [mulEquivHaarChar, smul_apply, haarScalarFactor_eq_mul haar (map φ μ) (map φ haar), mul_comm,
-    mul_smul, ← measure_isHaarMeasure_eq_smul_of_isOpen haar _ hs,
+  rw [mulEquivHaarChar, Measure.smul_apply, haarScalarFactor_eq_mul haar (map φ μ) (map φ haar),
+    mul_comm, mul_smul, ← measure_isHaarMeasure_eq_smul_of_isOpen haar _ hs,
     measure_isHaarMeasure_eq_smul_of_isOpen haar μ hs, ← mul_smul, haarScalarFactor_map,
     ← haarScalarFactor_eq_mul, haarScalarFactor_self, one_smul]
 
@@ -219,7 +219,7 @@ lemma mulEquivHaarChar_prodCongr [MeasurableSpace G] [BorelSpace G]
     _ = (mulEquivHaarChar φ) * (mulEquivHaarChar ψ) * haar (X ×ˢ Y) := by
       nth_rw 1 [← mulEquivHaarChar_map_open μ ψ hψYopen]
       have hψ : Measurable ψ := ψ.measurable
-      rw [smul_apply, nnreal_smul_coe_apply, mul_assoc, map_apply hψ hψYopen.measurableSet,
+      rw [Measure.smul_apply, nnreal_smul_coe_apply, mul_assoc, map_apply hψ hψYopen.measurableSet,
         Set.preimage_image_eq _ ψ.injective, μ_apply hYopen.measurableSet]
 
 end prod

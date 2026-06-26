@@ -95,7 +95,7 @@ set_option backward.isDefEq.respectTransparency false in
   rw [isAddLeftInvariant_eq_smul (comap Coe.ringHom volume) (volume : Measure ℤ_[p])] at h ⊢
   suffices (comap (Coe.ringHom (p := p)) volume).addHaarScalarFactor volume = 1 by
     simp [-coe_coeRingHom, this]
-  simpa only [smul_apply, volume_univ, ENNReal.smul_def, smul_eq_mul, mul_one, ENNReal.coe_eq_one]
-    using h
+  simpa only [Measure.smul_apply, volume_univ, ENNReal.smul_def, smul_eq_mul, mul_one,
+    ENNReal.coe_eq_one] using h
 
 end PadicInt
