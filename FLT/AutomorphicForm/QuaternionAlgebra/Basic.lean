@@ -1219,6 +1219,7 @@ lemma χ_incl (x) : ℒ.toStruct.χ (ℒ.incl v x) = ℒ.χ v x := by
 -- Issues with `RingHom.toMonoidHom_eq_coe` being simp.
 attribute [nolint simpNF]
   trivial_central_char
+  trivial_central_char'
   trivial_central_char_right
   unitsMap_smul
   unitsMap_adicCompletion_smul
