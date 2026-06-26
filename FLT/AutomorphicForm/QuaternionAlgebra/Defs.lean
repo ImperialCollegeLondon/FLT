@@ -5,10 +5,9 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import FLT.Hacks.RightActionInstances
-public import FLT.Mathlib.Algebra.FixedPoints.Basic
+public import Mathlib.Topology.Algebra.Module.ModuleTopology
+public import Mathlib.Algebra.Ring.Action.Submonoid
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
-import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Definitions for automorphic forms on quaternion algebras
@@ -77,21 +76,116 @@ docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₁ : Dˣ →* Dfx F D :=
   Units.map (Algebra.TensorProduct.includeLeftRingHom.toMonoidHom)
 
-open scoped TensorProduct.RightActions in
 /-- `incl₂` is he inclusion `𝔸_F^∞ˣ → (D ⊗ 𝔸_F^∞ˣ)`. Remark: I wrote the `incl₁`
 docstring in LaTeX and the `incl₂` one in unicode. Which is better? -/
 noncomputable abbrev incl₂ : (FiniteAdeleRing (𝓞 F) F)ˣ →* Dfx F D :=
-  Units.map (algebraMap _ _).toMonoidHom
+  Units.map (Algebra.TensorProduct.includeRight.toRingHom.toMonoidHom)
+
+omit [FiniteDimensional F D] in
+lemma includeRight_mul_comm
+    (y : FiniteAdeleRing (𝓞 F) F) (z : D ⊗[F] FiniteAdeleRing (𝓞 F) F) :
+    z * Algebra.TensorProduct.includeRight y =
+      Algebra.TensorProduct.includeRight y * z := by
+  refine TensorProduct.induction_on z ?_ ?_ ?_
+  · simp [Algebra.TensorProduct.includeRight_apply]
+  · intro d a
+    simp [Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.tmul_mul_tmul, mul_comm]
+  · intro z₁ z₂ hz₁ hz₂
+    rw [add_mul, mul_add, hz₁, hz₂]
 
 -- it's actually equal but ⊆ is all we need, and equality is harder
-open scoped TensorProduct.RightActions in
 omit [FiniteDimensional F D] in
 lemma range_incl₂_le_center : MonoidHom.range (incl₂ F D) ≤ Subgroup.center (Dfx F D) := by
   rintro x ⟨y, rfl⟩
   refine Subgroup.mem_center_iff.mpr fun g ↦ Units.ext ?_
-  exact (Algebra.commutes _ _).symm
+  simpa [incl₂] using includeRight_mul_comm (F := F) (D := D) (↑y) (↑g)
 
-open scoped TensorProduct.RightActions in
+noncomputable local instance : SMul (FiniteAdeleRing (𝓞 F) F)
+    (D ⊗[F] FiniteAdeleRing (𝓞 F) F) where
+  smul a x := TensorProduct.comm _ _ _ (a • (TensorProduct.comm _ _ _ x))
+
+omit [FiniteDimensional F D] in
+@[simp]
+private lemma tensor_right_smul_def (a : FiniteAdeleRing (𝓞 F) F)
+    (x : D ⊗[F] FiniteAdeleRing (𝓞 F) F) :
+    a • x = (TensorProduct.comm _ _ _).symm (a • (TensorProduct.comm _ _ _ x)) := rfl
+
+local instance : Module (FiniteAdeleRing (𝓞 F) F)
+    (D ⊗[F] FiniteAdeleRing (𝓞 F) F) where
+  one_smul x := by
+    simp_rw [tensor_right_smul_def, one_smul, (TensorProduct.comm F D _).symm_apply_apply]
+  mul_smul a b x := by
+    simp_rw [tensor_right_smul_def, mul_smul, (TensorProduct.comm F D _).apply_symm_apply]
+  smul_zero := by simp
+  smul_add := by simp
+  add_smul := by simp [add_smul]
+  zero_smul := by simp
+
+noncomputable local instance : Algebra (FiniteAdeleRing (𝓞 F) F)
+    (D ⊗[F] FiniteAdeleRing (𝓞 F) F) where
+  algebraMap := Algebra.TensorProduct.includeRight.toRingHom
+  commutes' a x := by
+    induction x with
+    | zero =>
+        simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+          Algebra.TensorProduct.includeRight_apply, mul_zero, zero_mul]
+    | tmul d b =>
+        simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+          Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.tmul_mul_tmul, one_mul,
+          mul_one, mul_comm]
+    | add x y hx hy =>
+        simp_all only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+          Algebra.TensorProduct.includeRight_apply, mul_add, add_mul]
+  smul_def' a x := by
+    induction x with
+    | zero =>
+        simp only [smul_zero, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+          Algebra.TensorProduct.includeRight_apply, mul_zero]
+    | tmul d b =>
+        simp only [tensor_right_smul_def, TensorProduct.comm_tmul, AlgHom.toRingHom_eq_coe,
+          RingHom.coe_coe, Algebra.TensorProduct.includeRight_apply,
+          Algebra.TensorProduct.tmul_mul_tmul, one_mul]
+        rw [TensorProduct.smul_tmul']
+        simp only [smul_eq_mul, TensorProduct.comm_symm_tmul]
+    | add x y hx hy =>
+        simp_all only [tensor_right_smul_def, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+          Algebra.TensorProduct.includeRight_apply, smul_add, mul_add]
+
+private def tensorCommRightLinearEquiv :
+    (FiniteAdeleRing (𝓞 F) F ⊗[F] D) ≃ₗ[FiniteAdeleRing (𝓞 F) F]
+      (D ⊗[F] FiniteAdeleRing (𝓞 F) F) where
+  __ := (_root_.TensorProduct.comm F (FiniteAdeleRing (𝓞 F) F) D).toAddEquiv
+  map_smul' a x := by
+    induction x with
+    | zero =>
+        simp only [smul_zero, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, map_zero,
+          RingHom.id_apply]
+    | tmul b d =>
+        simp only [TensorProduct.smul_tmul', AddHom.toFun_eq_coe, LinearMap.coe_toAddHom,
+          LinearEquiv.coe_coe, TensorProduct.comm_tmul, RingHom.id_apply,
+          tensor_right_smul_def, TensorProduct.comm_symm_tmul]
+    | add x y hx hy =>
+        simp_all only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom, LinearEquiv.coe_coe,
+          RingHom.id_apply, tensor_right_smul_def, smul_add, map_add]
+
+local instance : Module.Finite (FiniteAdeleRing (𝓞 F) F)
+    (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
+  Module.Finite.equiv
+    (tensorCommRightLinearEquiv (F := F) (D := D))
+
+noncomputable local instance : TopologicalSpace (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
+  moduleTopology (FiniteAdeleRing (𝓞 F) F) _
+
+local instance : IsModuleTopology (FiniteAdeleRing (𝓞 F) F)
+    (D ⊗[F] FiniteAdeleRing (𝓞 F) F) := ⟨rfl⟩
+
+local instance : IsTopologicalRing (D ⊗[F] FiniteAdeleRing (𝓞 F) F) :=
+  IsModuleTopology.isTopologicalRing (FiniteAdeleRing (𝓞 F) F) _
+
+local instance : TopologicalSpace (Dfx F D) := inferInstance
+
+local instance : IsTopologicalGroup (Dfx F D) := inferInstance
+
 /--
 This definition is made in mathlib-generality but is *not* the definition of a
 weight 2 automorphic form unless `Dˣ` is compact mod centre at infinity.
@@ -207,7 +301,6 @@ lemma _root_.ConjAct.isOpen_smul {G : Type*} [Group G] [TopologicalSpace G]
 
 open ConjAct
 
-open scoped TensorProduct.RightActions in
 /-- The adelic group action on the space of automorphic forms over a totally definite
 quaternion algebra. -/
 def groupSmul (g : Dfx F D) (φ : WeightTwoAutomorphicForm F D R) :
@@ -300,7 +393,8 @@ section finite_level
 level `U` for a totally definite quaternion algebra over a totally real field.
 -/
 def WeightTwoAutomorphicFormOfLevel (U : Subgroup (Dfx F D))
-    (R : Type*) [CommRing R] : Type _ := MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R)
+    (R : Type*) [CommRing R] : Type _ :=
+  FixedPoints.addSubgroup U (WeightTwoAutomorphicForm F D R)
 
 namespace WeightTwoAutomorphicFormOfLevel
 
@@ -329,10 +423,28 @@ lemma right_invt (f : WeightTwoAutomorphicFormOfLevel U R) (g : Dfx F D) (u : U)
   congr($(f.2 u) g)
 
 instance : AddCommGroup (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
-  AddCommGroup (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
+  AddCommGroup (FixedPoints.addSubgroup U (WeightTwoAutomorphicForm F D R))
 
-instance : Module R (WeightTwoAutomorphicFormOfLevel U R) := inferInstanceAs <|
-  Module R (MulAction.FixedPoints U (WeightTwoAutomorphicForm F D R))
+instance : Module R (WeightTwoAutomorphicFormOfLevel U R) where
+  smul r f := ⟨r • f.1, fun u ↦ by simp [smul_comm, f.2 u]⟩
+  one_smul f := by
+    ext x
+    exact one_smul R (f x)
+  mul_smul r s f := by
+    ext x
+    exact mul_smul r s (f x)
+  smul_zero r := by
+    ext x
+    exact smul_zero r
+  smul_add r f g := by
+    ext x
+    exact smul_add r (f x) (g x)
+  add_smul r s f := by
+    ext x
+    exact add_smul r s (f x)
+  zero_smul f := by
+    ext x
+    exact zero_smul R (f x)
 
 end WeightTwoAutomorphicFormOfLevel
 
