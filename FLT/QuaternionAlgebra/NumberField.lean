@@ -42,7 +42,7 @@ open scoped NumberField TensorProduct
 
 namespace IsQuaternionAlgebra.NumberField
 
-local notation "𝔸 " F:max => FiniteAdeleRing (𝓞 F) F
+-- local notation "𝔸 " F:max => FiniteAdeleRing (𝓞 F) F
 
 /-- `GL₂(F)` is notation for `GL (Fin 2) F`. -/
 scoped[FLT] notation "GL₂(" F ")" => GL (Fin 2) F
@@ -50,7 +50,7 @@ scoped[FLT] notation "GL₂(" F ")" => GL (Fin 2) F
 /-- `M₂(F)` is notation for `Matrix (Fin 2) (Fin 2) F`. -/
 scoped[FLT] notation "M₂(" F ")" => Matrix (Fin 2) (Fin 2) F
 
-open scoped FLT
+open scoped FLT Adele
 
 /--
 A rigidification of a quaternion algebra D over a number field F
@@ -63,8 +63,8 @@ if and only if F is unramified at all finite places.
 class WithRigidification where
   /-- the inclusion `D ↪ M₂(𝔸ᶠ)` of a rigidification.
   This becomes an iso after lifting to `D ⊗ 𝔸ᶠ`. -/
-  incl : D →ₐ[F] M₂(𝔸 F)
-  cond : Function.Bijective (Algebra.TensorProduct.lift (Algebra.ofId (𝔸 F) _) incl
+  incl : D →ₐ[F] M₂(𝔸ᶠ[F])
+  cond : Function.Bijective (Algebra.TensorProduct.lift (Algebra.ofId 𝔸ᶠ[F] _) incl
     fun _ _ ↦ Algebra.commute_algebraMap_left ..)
 
 section
@@ -74,7 +74,7 @@ variable [WithRigidification F D]
 open scoped TensorProduct.RightActions in
 /-- Given a rigidification of `D`, `D ⊗ 𝔸ᶠ` is isomorphic to `M₂(𝔸ᶠ)`. -/
 noncomputable def WithRigidification.algEquiv :
-    D ⊗[F] 𝔸 F ≃ₐ[𝔸 F] M₂(𝔸 F) :=
+    D ⊗[F] 𝔸ᶠ[F] ≃ₐ[𝔸ᶠ[F]] M₂(𝔸ᶠ[F]) :=
   .trans { __ := Algebra.TensorProduct.comm _ _ _, commutes' _ := rfl } <|
     .ofBijective _ WithRigidification.cond
 
@@ -85,40 +85,29 @@ lemma WithRigidification.algEquiv_tmul (a b) :
   simp [algEquiv, Algebra.smul_def]
 
 /-- Given a rigidification, we get an embedding `Dˣ ↪ GL₂(𝔸_F)`. -/
-noncomputable abbrev WithRigidification.unitsIncl : Dˣ →* GL₂(𝔸 F) :=
+noncomputable abbrev WithRigidification.unitsIncl : Dˣ →* GL₂(𝔸ᶠ[F]) :=
   Units.map (WithRigidification.incl.toMonoidHom)
 
 noncomputable
-instance : Module D M₂(𝔸 F) :=
+instance : Module D M₂(𝔸ᶠ[F]) :=
   .compHom _ (WithRigidification.incl (F := F).toRingHom)
 
 omit [IsQuaternionAlgebra F D] in
-lemma WithRigidification.smul_def (d : D) (x : M₂(𝔸 F)) : d • x = incl d * x := rfl
+lemma WithRigidification.smul_def (d : D) (x : M₂(𝔸ᶠ[F])) : d • x = incl d * x := rfl
 
-instance : IsScalarTower F D M₂(𝔸 F) :=
+instance : IsScalarTower F D M₂(𝔸ᶠ[F]) :=
   .of_algebraMap_smul fun r x ↦ by simp [WithRigidification.smul_def, Algebra.smul_def]
 
-instance : IsScalarTower D D M₂(𝔸 F) where
+instance : IsScalarTower D D M₂(𝔸ᶠ[F]) where
   smul_assoc a b m := by simp [WithRigidification.smul_def, mul_assoc]
 
-instance : IsScalarTower D M₂(𝔸 F) M₂(𝔸 F) where
+instance : IsScalarTower D M₂(𝔸ᶠ[F]) M₂(𝔸ᶠ[F]) where
   smul_assoc a b m := by simp [WithRigidification.smul_def, mul_assoc]
 
 lemma HeightOneSpectrum.nonempty {R : Type*} [CommRing R] (hR : ¬ IsField R) [Nontrivial R] :
     Nonempty (HeightOneSpectrum R) := by
   obtain ⟨I, hI⟩ := Ideal.exists_maximal R
   exact ⟨⟨I, inferInstance, by rintro rfl; exact hR (Ring.isField_iff_maximal_bot.mpr hI)⟩⟩
-
-instance {R : Type*} [CommRing R] [Algebra.IsIntegral ℤ R] [FaithfulSMul ℤ R] :
-    Nonempty (HeightOneSpectrum R) :=
-  have := (FaithfulSMul.algebraMap_injective ℤ R).nontrivial
-  HeightOneSpectrum.nonempty fun h ↦
-    Int.not_isField
-      (isField_of_isIntegral_of_isField (FaithfulSMul.algebraMap_injective ℤ R) h)
-
-instance : Nontrivial (FiniteAdeleRing (𝓞 F) F) :=
-  RingHom.domain_nontrivial (FiniteAdeleRing.evalAlgebraMap _ _
-    (Nonempty.some inferInstance)).toRingHom
 
 open scoped TensorProduct.RightActions in
 lemma WithRigidification.incl_injective (F : Type*)
@@ -201,15 +190,11 @@ lemma M2.units_localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
       (v.adicCompletionIntegers F).toSubring (n := Fin 2)).toMulEquiv)]
   rfl
 
-lemma isOpen_submonoidUnits {M : Type*} [Monoid M] [TopologicalSpace M] [ContinuousMul M]
-    (N : Submonoid M) (hN : IsOpen (X := M) N) : IsOpen (X := Mˣ) N.units :=
-  ⟨_, hN.prod (hN.preimage MulOpposite.continuous_unop), rfl⟩
-
 -- the clever way to prove this is a theorem of the form "if A is an open submonoid of R
 -- then Aˣ is an open subgroup of Rˣ"
 theorem GL2.localFullLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (X := GL₂(v.adicCompletion F)) (GL2.localFullLevel v) :=
-  M2.units_localFullLevel v ▸ isOpen_submonoidUnits _ (M2.localFullLevel.isOpen _)
+  M2.units_localFullLevel v ▸ Submonoid.isOpen_units (M2.localFullLevel.isOpen _)
 
 -- the clever way to prove this is a theorem of the form "if A is a compact submonoid of R
 -- then Aˣ is a compact subgroup of Rˣ"
@@ -275,7 +260,7 @@ open Valued FLT
 
 /-- local `U₀(v)`, defined as a subgroup of `GL₂(Fᵥ)` given by
 matrices in `GL₂(𝒪ᵥ)` congruent to `(* *;0 *) mod v`. -/
-noncomputable def GL2.localBorelLevel (v : HeightOneSpectrum (𝓞 F)) :
+noncomputable def GL2.localIwahoriLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) where
   carrier := { x ∈ localFullLevel v | Valued.v (x.val 1 0) < 1 }
   mul_mem' {a b} ha hb := by
@@ -294,16 +279,16 @@ noncomputable def GL2.localBorelLevel (v : HeightOneSpectrum (𝓞 F)) :
     simp_all [Matrix.inv_def, Ring.inverse_eq_inv', Matrix.adjugate_fin_two,
       v_det_val_mem_localFullLevel_eq_one ha.1]
 
-lemma GL2.mem_localBorelLevel {v : HeightOneSpectrum (𝓞 F)} {g : GL₂(v.adicCompletion F)} :
-    g ∈ localBorelLevel v ↔ g ∈ localFullLevel v ∧ Valued.v (g.val 1 0) < 1 := .rfl
+lemma GL2.mem_localIwahoriLevel {v : HeightOneSpectrum (𝓞 F)} {g : GL₂(v.adicCompletion F)} :
+    g ∈ localIwahoriLevel v ↔ g ∈ localFullLevel v ∧ Valued.v (g.val 1 0) < 1 := .rfl
 
-lemma GL2.mem_localBorelLevel_iff_v {v : HeightOneSpectrum (𝓞 F)}
+lemma GL2.mem_localIwahoriLevel_iff_v {v : HeightOneSpectrum (𝓞 F)}
     {x : GL (Fin 2) (v.adicCompletion F)} :
-    x ∈ localBorelLevel v ↔ Valued.v (x 0 0) = 1 ∧ Valued.v (x 0 1) ≤ 1 ∧ Valued.v (x 1 0) < 1 ∧
+    x ∈ localIwahoriLevel v ↔ Valued.v (x 0 0) = 1 ∧ Valued.v (x 0 1) ≤ 1 ∧ Valued.v (x 1 0) < 1 ∧
       Valued.v (x 1 1) = 1 := by
   trans Valued.v x.val.det = 1 ∧ Valued.v (x 0 0) ≤ 1 ∧
       Valued.v (x 0 1) ≤ 1 ∧ Valued.v (x 1 0) < 1 ∧ Valued.v (x 1 1) ≤ 1
-  · simp [GL2.mem_localBorelLevel, GL2.mem_localFullLevel_iff_v]
+  · simp [GL2.mem_localIwahoriLevel, GL2.mem_localFullLevel_iff_v]
     grind
   trans 1 ≤ Valued.v (x 0 0) ∧ 1 ≤ Valued.v (x 1 1) ∧ Valued.v (x 0 0) ≤ 1 ∧
       Valued.v (x 0 1) ≤ 1 ∧ Valued.v (x 1 0) < 1 ∧ Valued.v (x 1 1) ≤ 1; swap
@@ -328,8 +313,8 @@ lemma GL2.mem_localBorelLevel_iff_v {v : HeightOneSpectrum (𝓞 F)}
 
 -- the clever way to prove this is a theorem of the form "if A is an open submonoid of R
 -- then Aˣ is an open subgroup of Rˣ"
-theorem GL2.localBorelLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
-    IsOpen (X := GL₂(v.adicCompletion F)) (GL2.localBorelLevel v) := by
+theorem GL2.localIwahoriLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
+    IsOpen (X := GL₂(v.adicCompletion F)) (GL2.localIwahoriLevel v) := by
   convert (GL2.localFullLevel.isOpen v).inter
       ((Valued.isOpen_ball _ 1).preimage (Continuous.matrix_elem Units.continuous_val 1 0))
   ext x
@@ -337,8 +322,8 @@ theorem GL2.localBorelLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
 
 -- the clever way to prove this is a theorem of the form "if A is a compact submonoid of R
 -- then Aˣ is a compact subgroup of Rˣ"
-theorem GL2.localBorelLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
-    IsCompact (X := GL₂(v.adicCompletion F)) (GL2.localBorelLevel v) := by
+theorem GL2.localIwahoriLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) :
+    IsCompact (X := GL₂(v.adicCompletion F)) (GL2.localIwahoriLevel v) := by
   convert (GL2.localFullLevel.isCompact v).inter_right
       ((Valued.isClosed_ball _ 1).preimage (Continuous.matrix_elem Units.continuous_val 1 0))
   ext x
@@ -372,22 +357,22 @@ lemma GL2.localFullLevelEquiv_apply (v : HeightOneSpectrum (𝓞 F))
     ext; simp
   simp [this]
 
-lemma GL2.localBorelLevel_le_localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
-    GL2.localBorelLevel v ≤ GL2.localFullLevel v := fun _ hg ↦ hg.1
+lemma GL2.localIwahoriLevel_le_localFullLevel (v : HeightOneSpectrum (𝓞 F)) :
+    GL2.localIwahoriLevel v ≤ GL2.localFullLevel v := fun _ hg ↦ hg.1
 
 open IsDedekindDomain HeightOneSpectrum
 
-/-- The map from the borel subgroup `(*, *; 0, *) mod v`
+/-- The map from the Iwahori subgroup `(*, *; 0, *) mod v`
 sending `(a, b; c, d)` to `a/d mod v` in `k(v)ˣ` as a monoid hom. -/
 noncomputable
-def GL2.localBorelLevel.char (v : HeightOneSpectrum (𝓞 F)) :
-    GL2.localBorelLevel v →* (IsLocalRing.ResidueField (v.adicCompletionIntegers F))ˣ :=
+def GL2.localIwahoriLevel.char (v : HeightOneSpectrum (𝓞 F)) :
+    GL2.localIwahoriLevel v →* (IsLocalRing.ResidueField (v.adicCompletionIntegers F))ˣ :=
   MonoidHom.toHomUnits
   { toFun g :=
       IsLocalRing.residue _ (GL2.localFullLevelEquiv v
-        (Subgroup.inclusion (GL2.localBorelLevel_le_localFullLevel v) g) 0 0) /
+        (Subgroup.inclusion (GL2.localIwahoriLevel_le_localFullLevel v) g) 0 0) /
       IsLocalRing.residue _ (GL2.localFullLevelEquiv v
-        (Subgroup.inclusion (GL2.localBorelLevel_le_localFullLevel v) g) 1 1)
+        (Subgroup.inclusion (GL2.localIwahoriLevel_le_localFullLevel v) g) 1 1)
     map_one' := by simp
     map_mul' x y := by
       rw [div_mul_div_comm]
@@ -395,21 +380,21 @@ def GL2.localBorelLevel.char (v : HeightOneSpectrum (𝓞 F)) :
       · simp [Matrix.mul_apply, adicCompletionIntegers.isUnit_iff_valued_eq_one, y.2.2.ne]
       · simp [Matrix.mul_apply, adicCompletionIntegers.isUnit_iff_valued_eq_one, x.2.2.ne] }
 
-lemma GL2.v_zero_zero_eq_one_of_mem_localBorelLevel
+lemma GL2.v_zero_zero_eq_one_of_mem_localIwahoriLevel
     (v : HeightOneSpectrum (𝓞 F)) {x : GL (Fin 2) (adicCompletion F v)}
-    (hx : x ∈ GL2.localBorelLevel v) : Valued.v (x 0 0) = 1 := by
-  have := (GL2.localBorelLevel.char v ⟨x, hx⟩).ne_zero
-  simp_all [-Units.ne_zero, GL2.localBorelLevel.char,
+    (hx : x ∈ GL2.localIwahoriLevel v) : Valued.v (x 0 0) = 1 := by
+  have := (GL2.localIwahoriLevel.char v ⟨x, hx⟩).ne_zero
+  simp_all [-Units.ne_zero, GL2.localIwahoriLevel.char,
     adicCompletionIntegers.isUnit_iff_valued_eq_one]
 
-lemma GL2.v_one_one_eq_one_of_mem_localBorelLevel
+lemma GL2.v_one_one_eq_one_of_mem_localIwahoriLevel
     (v : HeightOneSpectrum (𝓞 F)) {x : GL (Fin 2) (adicCompletion F v)}
-    (hx : x ∈ GL2.localBorelLevel v) : Valued.v (x 1 1) = 1 := by
-  have := (GL2.localBorelLevel.char v ⟨x, hx⟩).ne_zero
-  simp_all [-Units.ne_zero, GL2.localBorelLevel.char,
+    (hx : x ∈ GL2.localIwahoriLevel v) : Valued.v (x 1 1) = 1 := by
+  have := (GL2.localIwahoriLevel.char v ⟨x, hx⟩).ne_zero
+  simp_all [-Units.ne_zero, GL2.localIwahoriLevel.char,
     adicCompletionIntegers.isUnit_iff_valued_eq_one]
 
-lemma GL2.localBorelLevel.char_eq_one_iff {v : HeightOneSpectrum (𝓞 F)} {g} :
+lemma GL2.localIwahoriLevel.char_eq_one_iff {v : HeightOneSpectrum (𝓞 F)} {g} :
     char v g = 1 ↔ Valued.v (g.val 0 0 - g.val 1 1) < 1 := by
   simp only [char, Fin.isValue, Units.ext_iff, MonoidHom.coe_toHomUnits, MonoidHom.coe_mk,
     OneHom.coe_mk, Units.val_one]
@@ -419,27 +404,27 @@ lemma GL2.localBorelLevel.char_eq_one_iff {v : HeightOneSpectrum (𝓞 F)} {g} :
       (GL2.v_le_one_of_mem_localFullLevel _ g.2.1 _ _)
     simpa [← map_sub, adicCompletionIntegers.isUnit_iff_valued_eq_one]
   · simp [adicCompletionIntegers.isUnit_iff_valued_eq_one,
-      GL2.v_one_one_eq_one_of_mem_localBorelLevel]
+      GL2.v_one_one_eq_one_of_mem_localIwahoriLevel]
 
 /-- local U_1(v), defined as a subgroup of GL₂(Fᵥ) given by
 matrices in GL₂(𝒪ᵥ) congruent to (a *;0 a) mod v. -/
 noncomputable def GL2.localTameLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup GL₂(v.adicCompletion F) :=
-  .copy ((localBorelLevel.char v).ker.map (Subgroup.subtype _))
-    { x ∈ localBorelLevel v | Valued.v (x 0 0 - x 1 1) < 1 } <| by
+  .copy ((localIwahoriLevel.char v).ker.map (Subgroup.subtype _))
+    { x ∈ localIwahoriLevel v | Valued.v (x 0 0 - x 1 1) < 1 } <| by
     ext x
-    by_cases hx : x ∈ localBorelLevel v <;> simp [hx, GL2.localBorelLevel.char_eq_one_iff]
+    by_cases hx : x ∈ localIwahoriLevel v <;> simp [hx, GL2.localIwahoriLevel.char_eq_one_iff]
 
 -- the clever way to prove this is a theorem of the form "if A is an open submonoid of R
 -- then Aˣ is an open subgroup of Rˣ"
 theorem GL2.localTameLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) :
     IsOpen (X := GL₂(v.adicCompletion F)) (GL2.localTameLevel v) := by
-  refine (GL2.localBorelLevel.isOpen v).inter (t := { x | Valued.v (x 0 0 - x 1 1) < 1 }) ?_
+  refine (GL2.localIwahoriLevel.isOpen v).inter (t := { x | Valued.v (x 0 0 - x 1 1) < 1 }) ?_
   simp_rw [← Valued.v.restrict_lt_one_iff]
   exact (Valued.isOpen_ball _ _).preimage
     (.sub (Units.continuous_val.matrix_elem _ _) (Units.continuous_val.matrix_elem _ _))
 
-lemma GL2.localBorelLevel.ker_char {v : HeightOneSpectrum (𝓞 F)} :
+lemma GL2.localIwahoriLevel.ker_char {v : HeightOneSpectrum (𝓞 F)} :
     (char v).ker = (GL2.localTameLevel v).subgroupOf _ := by
   rw [GL2.localTameLevel, Subgroup.copy_eq]
   exact (Subgroup.comap_map_eq_self_of_injective Subtype.val_injective _).symm
@@ -448,7 +433,7 @@ lemma GL2.localBorelLevel.ker_char {v : HeightOneSpectrum (𝓞 F)} :
 matrices in GL₂(𝒪ᵥ) congruent to `(a *;0 b) mod v` with `p ∤ ord_{k(v)}(a/b)`. -/
 noncomputable def GL2.localPTameLevel (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) :=
-  (((MaximalPQuotient.mk _ p).comp (localBorelLevel.char v)).ker.map (Subgroup.subtype _))
+  (((MaximalPQuotient.mk _ p).comp (localIwahoriLevel.char v)).ker.map (Subgroup.subtype _))
 
 lemma GL2.localTameLevel_le_localPTameLevel
     (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
@@ -456,9 +441,9 @@ lemma GL2.localTameLevel_le_localPTameLevel
   rw [GL2.localTameLevel, Subgroup.copy_eq]
   exact Subgroup.map_mono (MonoidHom.ker_le_ker_comp _ _)
 
-lemma GL2.localPTameLevel_le_localBorelLevel
+lemma GL2.localPTameLevel_le_localIwahoriLevel
     (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
-    GL2.localPTameLevel v p ≤ GL2.localBorelLevel v :=
+    GL2.localPTameLevel v p ≤ GL2.localIwahoriLevel v :=
   (Subgroup.map_le_range _ _).trans (by simp)
 
 theorem GL2.localPTameLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
@@ -468,9 +453,9 @@ theorem GL2.localPTameLevel.isOpen (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
 
 theorem GL2.localPTameLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
     IsCompact (X := GL₂(v.adicCompletion F)) (GL2.localPTameLevel v p) :=
-  (GL2.localBorelLevel.isCompact v).of_isClosed_subset
+  (GL2.localIwahoriLevel.isCompact v).of_isClosed_subset
     (Subgroup.isClosed_of_isOpen _ (GL2.localPTameLevel.isOpen v p))
-      (localPTameLevel_le_localBorelLevel _ _)
+      (localPTameLevel_le_localIwahoriLevel _ _)
 
 /-- The subgroup of `Fᵥˣ` consisting of elements in `𝒪ᵥˣ` whose order mod `v` is prime to `p`. -/
 noncomputable
@@ -479,26 +464,26 @@ def GL2.localPTameLevelSubgroup (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
   ((MaximalPQuotient.mk _ p).comp (Units.map (IsLocalRing.residue
     (v.adicCompletionIntegers F)).toMonoidHom)).ker.map (Units.map (algebraMap _ _).toMonoidHom)
 
-lemma GL2.localBorelLevel.ker_char_comp (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
+lemma GL2.localIwahoriLevel.ker_char_comp (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
     ((MaximalPQuotient.mk _ p).comp (char v)).ker = (GL2.localPTameLevel v p).subgroupOf _ :=
   (Subgroup.comap_map_eq_self_of_injective Subtype.val_injective _).symm
 
 instance (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
-    ((GL2.localPTameLevel v p).subgroupOf (GL2.localBorelLevel v)).Normal := by
-  rw [← GL2.localBorelLevel.ker_char_comp]; infer_instance
+    ((GL2.localPTameLevel v p).subgroupOf (GL2.localIwahoriLevel v)).Normal := by
+  rw [← GL2.localIwahoriLevel.ker_char_comp]; infer_instance
 
 lemma GL2.mem_localPTameLevel
     {v : HeightOneSpectrum (𝓞 F)} {p : ℕ} {x : GL₂(v.adicCompletion F)} :
-    x ∈ localPTameLevel v p ↔ x ∈ localBorelLevel v ∧
+    x ∈ localPTameLevel v p ↔ x ∈ localIwahoriLevel v ∧
       ∃ h, Units.mk0 (x 0 0 / x 1 1) h ∈ GL2.localPTameLevelSubgroup v p := by
-  refine ⟨fun h ↦ ⟨GL2.localPTameLevel_le_localBorelLevel _ _ h, ?_⟩, ?_⟩
-  · have H := GL2.mem_localBorelLevel_iff_v.mp (GL2.localPTameLevel_le_localBorelLevel _ _ h)
+  refine ⟨fun h ↦ ⟨GL2.localPTameLevel_le_localIwahoriLevel _ _ h, ?_⟩, ?_⟩
+  · have H := GL2.mem_localIwahoriLevel_iff_v.mp (GL2.localPTameLevel_le_localIwahoriLevel _ _ h)
     refine ⟨?_, ?_⟩
     · simp only [Fin.isValue, ne_eq, div_eq_zero_iff, not_or]
       exact ⟨fun h' ↦ by simp [h'] at H, fun h' ↦ by simp [h'] at H⟩
     · obtain ⟨x, hx, rfl⟩ := h
       dsimp at H
-      have := GL2.localBorelLevel.char v x
+      have := GL2.localIwahoriLevel.char v x
       refine ⟨IsUnit.unit (a := ⟨x.1 0 0 / x.1 1 1, ?_⟩) ?_, ?_, ?_⟩
       · simp [mem_adicCompletionIntegers, H]
       · simp [adicCompletionIntegers.isUnit_iff_valued_eq_one, H]
@@ -506,28 +491,28 @@ lemma GL2.mem_localPTameLevel
           MonoidHom.coe_comp, Function.comp_apply] at hx ⊢
         convert hx
         ext1
-        dsimp [localBorelLevel.char]
+        dsimp [localIwahoriLevel.char]
         rw [eq_div_iff (by simp [adicCompletionIntegers.isUnit_iff_valued_eq_one, H]), ← map_mul]
         congr
         ext; simpa using div_mul_cancel₀ _ (fun h' ↦ by simp [h'] at H)
       · ext1; simp
   · rintro ⟨h₁, h₂, a, ha0, ha⟩
-    have H := GL2.mem_localBorelLevel_iff_v.mp h₁
+    have H := GL2.mem_localIwahoriLevel_iff_v.mp h₁
     refine ⟨⟨_, h₁⟩, ?_, rfl⟩
     simp only [SetLike.mem_coe, MonoidHom.mem_ker, MonoidHom.coe_comp, Function.comp_apply] at ha0 ⊢
     convert ha0
     ext1
-    dsimp [localBorelLevel.char]
+    dsimp [localIwahoriLevel.char]
     rw [div_eq_iff (by simp [adicCompletionIntegers.isUnit_iff_valued_eq_one, H]), ← map_mul]
     congr
     have : x.1 1 1 ≠ 0 := fun h' ↦ by simp [h'] at H
     ext1
     simp [show a.1.1 = _ from congr(($ha).1), this]
 
-lemma GL2.localBorelLevel_le_normalizer_localPTameLevel
+lemma GL2.localIwahoriLevel_le_normalizer_localPTameLevel
     (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
-    GL2.localBorelLevel v ≤ .normalizer (GL2.localPTameLevel v p) := by
-  rw [← Subgroup.normal_subgroupOf_iff_le_normalizer (GL2.localPTameLevel_le_localBorelLevel ..)]
+    GL2.localIwahoriLevel v ≤ .normalizer (GL2.localPTameLevel v p) := by
+  rw [← Subgroup.normal_subgroupOf_iff_le_normalizer (GL2.localPTameLevel_le_localIwahoriLevel ..)]
   infer_instance
 
 end IsDedekindDomain

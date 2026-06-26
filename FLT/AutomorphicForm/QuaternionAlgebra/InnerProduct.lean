@@ -46,7 +46,7 @@ variable (ℒ : LocalLevelStruct F R) (v : ℙ(F)) (hv : ℒ.χ v = 1) (g : GL�
 lemma LevelStruct.star_χA (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] (u) :
     starRingEnd ℂ (algebraMap R ℂ (ℒ.χA u)) = (algebraMap R ℂ (ℒ.χA u))⁻¹ := by
   refine (Complex.inv_eq_conj ?_).symm
-  obtain ⟨n, hn, e⟩ := isOfFinOrder_iff_pow_eq_one.mp (ℒ.isOfFinOrder_χA_apply D u)
+  obtain ⟨n, hn, e⟩ := isOfFinOrder_iff_pow_eq_one.mp (ℒ.isOfFinOrder_χA_apply u)
   refine (Real.rpow_left_inj (z := n) (by simp) (by simp) (by simpa using hn.ne')).mp ?_
   simp [← norm_pow, ← map_pow, e]
 
@@ -91,80 +91,8 @@ instance : BorelSpace 𝔸ᶠ[F] := ⟨rfl⟩
 
 open FiniteAdeleRing
 
-lemma Module.FaithfullyFlat.smul_top_eq_top_iff
-    {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M]
-    [Module.FaithfullyFlat R M] {I : Ideal R} :
-    (I • ⊤ : Submodule R M) = ⊤ ↔ I = ⊤ := by
-  refine ⟨fun H ↦ ?_, (· ▸ Submodule.top_smul _)⟩
-  have := ((TensorProduct.quotTensorEquivQuotSMul M I).trans
-    (Submodule.quotEquivOfEq _ _ H)).subsingleton
-  refine Ideal.Quotient.subsingleton_iff.mp ?_
-  exact Module.FaithfullyFlat.rTensor_reflects_triviality R M _
-
-lemma Ideal.map_eq_top_iff
-    {R S : Type*} [CommRing R] [CommRing S] [Algebra R S] [Module.FaithfullyFlat R S]
-    {I : Ideal R} : I.map (algebraMap R S) = ⊤ ↔ I = ⊤ := by
-  refine ⟨fun H ↦ Module.FaithfullyFlat.smul_top_eq_top_iff (M := S).mp ?_, (· ▸ Ideal.map_top _)⟩
-  rw [Ideal.smul_top_eq_map, H, Submodule.restrictScalars_top]
-
-lemma Finsupp.linearCombination_comm {R I : Type*} [CommSemiring R] (u v : I →₀ R) :
-    Finsupp.linearCombination R u v = Finsupp.linearCombination R v u := by
-  simp only [Finsupp.linearCombination_apply, Finsupp.sum, smul_eq_mul]
-  exact Finset.sum_congr_of_eq_on_inter
-    (by simp +contextual) (by simp +contextual) (by simp [mul_comm])
-
-lemma Module.Free.exists_comp_linearMap_eq_id
-    (R A : Type*) [CommRing R] [CommRing A] [Algebra R A] [Module.Free R A]
-    [Nontrivial A] : ∃ f : A →ₗ[R] R, f ∘ₗ Algebra.linearMap R A = .id := by
-  obtain ⟨I, b⟩ := Module.Free.exists_basis R A
-  let v := b.repr 1
-  have : Ideal.span (Set.range v) = ⊤ := by
-    rw [← Ideal.map_eq_top_iff (S := A), Ideal.map_span, Ideal.eq_top_iff_one,
-      ← b.linearCombination_repr 1, Finsupp.linearCombination_apply]
-    refine sum_mem fun i hi ↦ ?_
-    simp only [Algebra.smul_def, ← Set.range_comp]
-    exact Ideal.mul_mem_right _ _ (Ideal.subset_span ⟨_, rfl⟩)
-  obtain ⟨a, ha⟩ := ((Finsupp.range_linearCombination _).trans this).ge (Set.mem_univ 1)
-  rw [Finsupp.linearCombination_comm] at ha
-  refine ⟨Finsupp.linearCombination R a ∘ₗ b.repr, ?_⟩
-  ext
-  simpa
-
-lemma IsModuleTopology.isClosed_one_of_exists_linearMap
-    (R A : Type*) [CommRing R] [Ring A] [Algebra R A]
-    (H : ∃ f : A →ₗ[R] R, f ∘ₗ Algebra.linearMap R A = .id)
-    [TopologicalSpace R] [IsTopologicalRing R] [TopologicalSpace A]
-    [IsModuleTopology R A] [T1Space A] : IsClosed (X := A) (1 : Submodule R A) := by
-  nontriviality A
-  have := IsModuleTopology.toContinuousAdd R A
-  obtain ⟨f, hf⟩ := H
-  convert ContinuousLinearMap.isClosed_ker ⟨Algebra.linearMap R A ∘ₗ f - .id,
-    IsModuleTopology.continuous_of_linearMap _⟩
-  ext a
-  suffices (∃ y, (algebraMap R A) y = a) ↔ algebraMap R A (f a) = a by simpa [sub_eq_zero]
-  refine ⟨?_, fun h ↦ ⟨_, h⟩⟩
-  rintro ⟨y, rfl⟩
-  simpa using congr(algebraMap R A ($hf y))
-
-lemma Submonoid.isClosed_units {M : Type*} [TopologicalSpace M] [Monoid M]
-  {U : Submonoid M} (hU : IsClosed (U : Set M)) : IsClosed (U.units : Set Mˣ) :=
-  (hU.preimage Units.continuous_val).inter (hU.preimage Units.continuous_coe_inv)
-
-lemma Units.range_map {M N : Type*} [Monoid M] [Monoid N] (f : M →* N) (hf : Function.Injective f) :
-    (Units.map f).range = (MonoidHom.mrange f).units := by
-  ext x
-  constructor
-  · rintro ⟨x, rfl⟩; simp [Submonoid.mem_units_iff]
-  · rintro ⟨⟨a, ha⟩, b, hb⟩; exact ⟨⟨a, b, hf <| by simp [*], hf <| by simp [*]⟩, by ext; simp [ha]⟩
-
-instance : IsClosed (X := GL₂(𝔸ᶠ[F])) (𝔸ˣ F) := by
-  have : IsClosed (X := M₂(𝔸ᶠ[F])) (algebraMap 𝔸ᶠ[F] M₂(𝔸ᶠ[F])).range := by
-    convert IsModuleTopology.isClosed_one_of_exists_linearMap 𝔸ᶠ[F] M₂(𝔸ᶠ[F]) ?_
-    · ext; simp
-    · exact ⟨Matrix.entryLinearMap _ _ 0 0, by ext; simp⟩
-  convert Submonoid.isClosed_units this
-  rw [Units.range_map (hf := by exact FaithfulSMul.algebraMap_injective _ _)]
-  rfl
+instance : IsClosed (X := GL₂(𝔸ᶠ[F])) (𝔸ˣ F) :=
+  RestrictedProduct.isClosed_unitsMap_matrix ..
 
 instance : PolishSpace GL₂(𝔸ᶠ[F]) := polish_of_locally_compact_second_countable _
 

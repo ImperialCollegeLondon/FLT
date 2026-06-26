@@ -218,9 +218,7 @@ abbrev LocalLevelStruct.heckeOperatorL (v : HeightOneSpectrum (𝓞 F)) (hv : �
       (R := S) (A := WeightTwoAutomorphicForm F D M)
       (QuotientGroup.mk_image_finite_of_compact_of_open (ℒ.isCompact_US _) (ℒ.isOpen_US _))
     ext1
-    change (f _).1 = (m • f _).1
-    convert congr($(f.map_smul _ _).1)
-    rfl
+    exact congr($(f.map_smul m ⟨x, _⟩).1)
 
 set_option backward.isDefEq.respectTransparency false in
 lemma LocalLevelStruct.heckeOperator_eq_of_mem_normalizer
@@ -344,12 +342,7 @@ lemma heckeOperatorL_tensor [ℒ.toStruct.IsSufficientlySmall D] [ℒ.toStruct.I
   ext a
   obtain ⟨s, hs⟩ := QuotientGroup.exists_bijOn_mk_image_mul_singleton _
     (ℒ.isOpen_US v) (ℒ.isCompact_US v) g
-  dsimp [LevelStruct.formTensor]
-  simp only [AlgebraTensorModule.mk_apply, LevelStruct.formMapₗ_apply,
-    LevelStruct.formMap_apply_coe, mapₗ_apply_toFun, LinearMap.coe_mk, AddHom.coe_mk,
-    Function.comp_apply]
-  rw [ℒ.heckeOperator_eq_finsetSum _ _ _ s hs, ℒ.heckeOperator_eq_finsetSum _ _ _ s hs]
-  simp [tmul_sum, adicCompletion_smul_def]
+  simp [ℒ.heckeOperator_eq_finsetSum _ _ _ s hs, tmul_sum, adicCompletion_smul_def]
 
 set_option backward.dsimp.useDefEqAttr true in
 /-- Hecke operators are preserved under the identification `𝒮²(U, χ; M) ≃ M ⊗ 𝒮²(U, χ; R)`. -/
@@ -401,20 +394,20 @@ noncomputable
 def U₁ (𝒮 : U₁Data F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R where
   S := 𝒮.S ∪ 𝒮.Q
   US v := if v ∈ 𝒮.Q then GL2.localPTameLevel v p else
-    if v ∈ 𝒮.S then GL2.localBorelLevel v else GL2.localFullLevel v
+    if v ∈ 𝒮.S then GL2.localIwahoriLevel v else GL2.localFullLevel v
   isCompact_US_of_mem v hv := by
     split_ifs with h₁ h₂
     · exact GL2.localPTameLevel.isCompact v _
-    · exact GL2.localBorelLevel.isCompact v
+    · exact GL2.localIwahoriLevel.isCompact v
     · simp_all
   isOpen_US_of_mem v hv := by
     split_ifs with h₁ h₂
     · exact GL2.localPTameLevel.isOpen v _
-    · exact GL2.localBorelLevel.isOpen v
+    · exact GL2.localIwahoriLevel.isOpen v
     · simp_all
   US_eq_of_notMem := by simp +contextual
   χ v := if h : v ∈ 𝒮.S ∧ v ∉ 𝒮.Q then
-    ((𝒮.χS v).comp (GL2.localBorelLevel.char v)).comp
+    ((𝒮.χS v).comp (GL2.localIwahoriLevel.char v)).comp
       (MulEquiv.subgroupCongr ((if_neg h.2).trans (if_pos h.1))).toMonoidHom else 1
   χ_eq_of_notMem := by simp +contextual
   range_unitsMap_le_ker_χ v hv := by
@@ -425,7 +418,7 @@ def U₁ (𝒮 : U₁Data F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R
     rintro ⟨_, hg⟩ ⟨g, rfl⟩
     simp only [Subgroup.mem_comap, MonoidHom.coe_coe, MonoidHom.mem_ker, MonoidHom.coe_comp,
       Function.comp_apply]
-    rw [GL2.localBorelLevel.char_eq_one_iff.mpr, map_one]
+    rw [GL2.localIwahoriLevel.char_eq_one_iff.mpr, map_one]
     simp only [MulEquiv.subgroupCongr_apply]
     simp [Matrix.algebraMap_matrix_apply]
   isOpen_ker_χ_of_mem v hv := by
@@ -435,12 +428,12 @@ def U₁ (𝒮 : U₁Data F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R
         MulEquiv.toMonoidHom_eq_coe, MonoidHom.ker_comp_mulEquiv, Subgroup.coe_map,
         MonoidHom.coe_coe, Set.image_image, MulEquiv.subgroupCongr_symm_apply]
       refine (IsOpen.isOpenEmbedding_subtypeVal
-        (GL2.localBorelLevel.isOpen _)).isOpen_iff_image_isOpen.mp ?_
-      refine Subgroup.isOpen_mono (G := GL2.localBorelLevel v)
-        (MonoidHom.ker_le_ker_comp (GL2.localBorelLevel.char v) _) ?_
-      rw [GL2.localBorelLevel.ker_char]
+        (GL2.localIwahoriLevel.isOpen _)).isOpen_iff_image_isOpen.mp ?_
+      refine Subgroup.isOpen_mono (G := GL2.localIwahoriLevel v)
+        (MonoidHom.ker_le_ker_comp (GL2.localIwahoriLevel.char v) _) ?_
+      rw [GL2.localIwahoriLevel.ker_char]
       exact (GL2.localTameLevel.isOpen v).preimage continuous_subtype_val
-    · simpa [h] using GL2.localBorelLevel.isOpen v
+    · simpa [h] using GL2.localIwahoriLevel.isOpen v
 
 open Polynomial in
 lemma U₁Data.eq_one_of_pow_eq_one_of_natDegree_le_two
@@ -488,7 +481,7 @@ set_option backward.isDefEq.respectTransparency false in
 lemma U₁Data.five_le
     (𝒮 : U₁Data F R p) : 5 ≤ p := by
   by_contra! H
-  obtain rfl | rfl | rfl | rfl | rfl : (p = 0 ∨ p = 1 ∨ p = 2 ∨ p = 3 ∨ p = 4) := by lia
+  interval_cases p
   · simpa using 𝒮.prime.ne_zero
   · simpa using 𝒮.prime.ne_one
   · have := 𝒮.two_lt_finrank_cyclotomic_field.trans_le
@@ -587,7 +580,6 @@ set_option backward.defeqAttrib.useBackward true in
 instance (𝒮 : U₁Data F R p) [IsQuaternionAlgebra F D] [IsTotallyReal F]
     [IsQuaternionAlgebra.IsTotallyDefinite F D] :
     (U₁ 𝒮).toStruct.IsSufficientlySmall D where
-  isOfFinOrder_χ := isOfFinOrder_iff_pow_eq_one.mpr ⟨p, 𝒮.prime.pos, by ext; simp⟩
   coprime_ΔIndex g := by
     refine .of_dvd_left (orderOf_dvd_of_pow_eq_one (n := p) ?_) ?_
     · simp only [WeightTwoAutomorphicForm.LocalLevelStruct.toStruct_χ, U₁_χ]
@@ -773,8 +765,8 @@ lemma U_apply_of_isUnit (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
   dsimp [U, LocalLevelStruct.heckeOperator]
   refine AbstractHeckeOperator.heckeOperator_eq_of_mem_normalizer _ _ ?_
   simp only [U₁, MulEquiv.toMonoidHom_eq_coe, hvQ, ↓reduceIte]
-  refine GL2.localBorelLevel_le_normalizer_localPTameLevel _ _ ?_
-  simpa [GL2.mem_localBorelLevel_iff_v, Matrix.GeneralLinearGroup.diagonal,
+  refine GL2.localIwahoriLevel_le_normalizer_localPTameLevel _ _ ?_
+  simpa [GL2.mem_localIwahoriLevel_iff_v, Matrix.GeneralLinearGroup.diagonal,
     ← adicCompletionIntegers.isUnit_iff_valued_eq_one]
 
 lemma adicCompletionIntegers.finite_quotient (I : Ideal (v.adicCompletionIntegers F))
@@ -978,11 +970,11 @@ private lemma smul_formTensorScalar_aux (𝒮 : U₁Data F R p)
   rfl
 
 /-- Note: This breaks the abstraction boundary that `HeckeAlgebra` is defined as a
-subtype under the hood. This should only be used in the backward direction to remove the abuse. -/
-lemma smul_eq_apply (𝒮 : U₁Data F R p)
+subtype under the hood. This should only be used in the forward direction to remove the abuse. -/
+lemma apply_eq_smul (𝒮 : U₁Data F R p)
     (T : HeckeAlgebra D 𝒮) (f : (U₁ 𝒮).toStruct.form D R) :
-    T • f = T.1 f := by
-  convert smul_formTensorScalar_aux D 𝒮 T (1 : R) f
+    T.1 f = T • f := by
+  convert (smul_formTensorScalar_aux D 𝒮 T (1 : R) f).symm
   · ext
     dsimp [WeightTwoAutomorphicForm.LevelStruct.formTensorScalar,
       WeightTwoAutomorphicForm.LevelStruct.formTensor]
@@ -996,7 +988,7 @@ lemma smul_formTensorScalar (𝒮 : U₁Data F R p)
     (T : HeckeAlgebra D 𝒮) (m : M) (f : (U₁ 𝒮).toStruct.form D R) :
     T • (U₁ 𝒮).toStruct.formTensorScalar D M R (m ⊗ₜ f) =
       (U₁ 𝒮).toStruct.formTensorScalar D M R (m ⊗ₜ (T • f)) := by
-  rw [smul_formTensorScalar_aux, ← smul_eq_apply]
+  rw [smul_formTensorScalar_aux, apply_eq_smul]
 
 lemma T_smul_def (v : HeightOneSpectrum (𝓞 F))
     (hvS : v ∉ 𝒮.S) (hvQ : v ∉ 𝒮.Q) (f : (U₁ 𝒮).toStruct.form D M) :
@@ -1008,7 +1000,7 @@ lemma T_smul_def (v : HeightOneSpectrum (𝓞 F))
   | tmul x y =>
     dsimp [HeckeOperator.T]
     rw [TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.heckeOperator_eq_lTensor]
-    simp [smul_formTensorScalar, smul_eq_apply]
+    simp [smul_formTensorScalar, ← apply_eq_smul]
     rfl
 
 lemma U_smul_def (v : HeightOneSpectrum (𝓞 F))
@@ -1021,7 +1013,7 @@ lemma U_smul_def (v : HeightOneSpectrum (𝓞 F))
   | tmul x y =>
     dsimp [HeckeOperator.U]
     rw [TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.heckeOperator_eq_lTensor]
-    simp [smul_formTensorScalar, smul_eq_apply, U, ha]
+    simp [smul_formTensorScalar, ← apply_eq_smul, U, ha]
     rfl
 
 lemma formMap_smul {N : Type*} [AddCommGroup N] [Module R N] (𝒮 : U₁Data F R p)
@@ -1089,7 +1081,7 @@ instance [FaithfulSMul R M] :
   ext f g
   refine FaithfulSMul.eq_of_smul_eq_smul (α := M) fun m ↦ ?_
   have := H ((U₁ 𝒮).toStruct.formMap (S := R) _ (LinearMap.toSpanSingleton R M m) f)
-  simpa [← smul_eq_apply, ← formMap_smul] using congr(($this).1 g)
+  simpa [apply_eq_smul, ← formMap_smul] using congr(($this).1 g)
 
 /-- The anemic Hecke algebra, defined as the subalgebra generated only by
 the `Tₚ`s with `p` not dividing the level. -/

@@ -440,6 +440,36 @@ lemma χA_inclusion_right (x) : ℒ.χA (Subgroup.inclusion le_sup_right x) = 1 
 
 lemma isOpen_UA : IsOpen (X := GL₂(𝔸ᶠ[F])) ℒ.UA := Subgroup.isOpen_mono le_sup_left ℒ.isOpen_U
 
+lemma isOfFinOrder_χ : IsOfFinOrder ℒ.χ := by
+  have : CompactSpace ℒ.U := isCompact_iff_compactSpace.mp ℒ.isCompact_U
+  have : ℒ.χ.ker.FiniteIndex := .of_compactSpace _ ℒ.isOpen_ker
+  refine isOfFinOrder_iff_pow_eq_one.mpr
+    ⟨ℒ.χ.ker.index, (Subgroup.index_ne_zero_iff_finite.mpr inferInstance).bot_lt, ?_⟩
+  ext x
+  trans QuotientGroup.kerLift' ℒ.χ (QuotientGroup.mk x) ^ ℒ.χ.ker.index
+  · simp
+  rw [← map_pow, Subgroup.index]
+  simp only [pow_card_eq_one', map_one, MonoidHom.one_apply]
+
+lemma isOfFinOrder_χA :
+    IsOfFinOrder ℒ.χA := by
+  obtain ⟨n, hn, H⟩ := isOfFinOrder_iff_pow_eq_one.mp ℒ.isOfFinOrder_χ
+  refine isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn, ?_⟩
+  ext u
+  obtain ⟨⟨u, _, ⟨z, rfl⟩⟩, rfl⟩ := Subgroup.prodToSupOfRight_surjective _ _
+    ((range_unitsMap_finiteAdeleRing_le_center ..).trans (Subgroup.center_le_centralizer _)) u
+  simpa [χA] using congr($H u)
+
+lemma isOfFinOrder_χ_apply (x : ℒ.U) :
+    IsOfFinOrder (ℒ.χ x) := by
+  obtain ⟨n, hn, H⟩ := isOfFinOrder_iff_pow_eq_one.mp ℒ.isOfFinOrder_χ
+  exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn, congr($H x)⟩
+
+lemma isOfFinOrder_χA_apply (x : ℒ.UA) :
+    IsOfFinOrder (ℒ.χA x) := by
+  obtain ⟨n, hn, H⟩ := isOfFinOrder_iff_pow_eq_one.mp ℒ.isOfFinOrder_χA
+  exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn, congr($H x)⟩
+
 variable (D) in
 /-- `Δ_g := U 𝔸ˣ ∩ g⁻¹ Dˣ g` -/
 def Δ (g : GL₂(𝔸ᶠ[F])) : Subgroup GL₂(𝔸ᶠ[F]) :=
@@ -677,32 +707,9 @@ variable (D) in
 /-- A level struct is sufficiently small if the associated character has finite order coprime
 to `[Δ_g : Fˣ]` for all `g`. -/
 class IsSufficientlySmall (ℒ : LevelStruct F R) where
-  isOfFinOrder_χ : IsOfFinOrder ℒ.χ
   coprime_ΔIndex : ∀ g, (orderOf ℒ.χ).Coprime (ℒ.ΔIndex D g)
 
-export LevelStruct.IsSufficientlySmall (isOfFinOrder_χ coprime_ΔIndex)
-
-variable (D) in
-lemma isOfFinOrder_χA [ℒ.IsSufficientlySmall D] :
-    IsOfFinOrder ℒ.χA := by
-  obtain ⟨n, hn, H⟩ := isOfFinOrder_iff_pow_eq_one.mp (ℒ.isOfFinOrder_χ D)
-  refine isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn, ?_⟩
-  ext u
-  obtain ⟨⟨u, _, ⟨z, rfl⟩⟩, rfl⟩ := Subgroup.prodToSupOfRight_surjective _ _
-    ((range_unitsMap_finiteAdeleRing_le_center ..).trans (Subgroup.center_le_centralizer _)) u
-  simpa [χA] using congr($H u)
-
-variable (D) in
-lemma isOfFinOrder_χ_apply [ℒ.IsSufficientlySmall D] (x : ℒ.U) :
-    IsOfFinOrder (ℒ.χ x) := by
-  obtain ⟨n, hn, H⟩ := isOfFinOrder_iff_pow_eq_one.mp (ℒ.isOfFinOrder_χ D)
-  exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn, congr($H x)⟩
-
-variable (D) in
-lemma isOfFinOrder_χA_apply [ℒ.IsSufficientlySmall D] (x : ℒ.UA) :
-    IsOfFinOrder (ℒ.χA x) := by
-  obtain ⟨n, hn, H⟩ := isOfFinOrder_iff_pow_eq_one.mp (ℒ.isOfFinOrder_χA D)
-  exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn, congr($H x)⟩
+export LevelStruct.IsSufficientlySmall (coprime_ΔIndex)
 
 variable (D) in
 lemma toConjAct_smul_le_ker_χA [ℒ.IsSufficientlySmall D] (g : GL₂(𝔸ᶠ[F])) :
@@ -818,7 +825,6 @@ lemma _root_.TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.mem_form
   fun a ↦ a.2.1.trans (one_smul _ _).symm
 
 instance (f : WeightTwoAutomorphicForm F D M) : (f.levelStruct R).IsSufficientlySmall D where
-  isOfFinOrder_χ := IsOfFinOrder.one
   coprime_ΔIndex g := by erw [levelStruct_χ, orderOf_one]; simp
 
 variable (D) in
@@ -1012,8 +1018,6 @@ lemma orderOf_χ_dvd (ℒ ℒ' : LevelStruct F R) (h : ℒ ≤ ℒ') :
 
 lemma IsSufficientlySmall.of_le (ℒ ℒ' : LevelStruct F R) (H : ℒ ≤ ℒ')
     [ℒ'.IsSufficientlySmall D] : ℒ.IsSufficientlySmall D where
-  isOfFinOrder_χ := isOfFinOrder_iff_pow_eq_one.mpr ⟨_, (ℒ'.isOfFinOrder_χ D).orderOf_pos,
-      orderOf_dvd_iff_pow_eq_one.mp (orderOf_χ_dvd _ _ H)⟩
   coprime_ΔIndex g := by
     obtain ⟨g, rfl⟩ := DoubleCoset.mk_surjective _ _ g
     refine .of_dvd (orderOf_χ_dvd _ _ H) ?_ (ℒ'.coprime_ΔIndex (DoubleCoset.mk 𝓓ˣ _ g))
@@ -1061,8 +1065,6 @@ lemma _root_.smul_inf {G α : Type*} [Group G] [MulAction G α] [SemilatticeInf 
 
 instance (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] {S : Type*} [CommRing S] (f : R →+* S) :
     (ℒ.map f).IsSufficientlySmall D where
-  isOfFinOrder_χ := isOfFinOrder_iff_pow_eq_one.mpr ⟨_, (ℒ.isOfFinOrder_χ D).orderOf_pos,
-      orderOf_dvd_iff_pow_eq_one.mp (ℒ.orderOf_map_χ_dvd f)⟩
   coprime_ΔIndex g := .of_dvd_left (ℒ.orderOf_map_χ_dvd f) (ℒ.coprime_ΔIndex g)
 
 lemma Subgroup.isFiniteRelIndex_inf_inf

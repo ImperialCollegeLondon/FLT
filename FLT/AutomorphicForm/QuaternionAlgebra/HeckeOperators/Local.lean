@@ -50,7 +50,7 @@ noncomputable def diag : (v.adicCompletion F)ˣ →* GL₂(adicCompletion F v) :
 -- Show that `unipotent t` is in `U1 v` for `t ∈ O_v`.
 lemma unipotent_mem_localTameLevel (t : v.adicCompletion F) (ht : Valued.v t ≤ 1) :
     unipotent t ∈ GL2.localTameLevel v :=
-  ⟨GL2.mem_localBorelLevel_iff_v.mpr (by simpa), by simp⟩
+  ⟨GL2.mem_localIwahoriLevel_iff_v.mpr (by simpa), by simp⟩
 
 /-- The matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`. -/
 noncomputable def unipotentMulDiag (t : v.adicCompletion F) :
@@ -81,10 +81,10 @@ lemma conjBy_diag_mem_iff' (p : ℕ) (x) (hx : x ∈ GL2.localPTameLevel v p)
     (α : (v.adicCompletion F)ˣ) :
     (diag α)⁻¹ * x * diag α ∈ GL2.localPTameLevel v p ↔
       Valued.v (x 0 1) ≤ Valued.v α.1 ∧ Valued.v (x 1 0) * Valued.v α.1 < 1 := by
-  simp only [mem_localPTameLevel, mem_localBorelLevel_iff_v, ne_eq, div_eq_zero_iff,
+  simp only [mem_localPTameLevel, mem_localIwahoriLevel_iff_v, ne_eq, div_eq_zero_iff,
     not_or] at hx
   trans (Valued.v α.1)⁻¹ * Valued.v (x 0 1) ≤ 1 ∧ Valued.v (x 1 0) * Valued.v α.1 < 1
-  · simp [mem_localPTameLevel, mem_localBorelLevel_iff_v,
+  · simp [mem_localPTameLevel, mem_localIwahoriLevel_iff_v,
       ← map_inv, Matrix.mul_apply, diag, mul_assoc, mul_left_comm (_⁻¹), hx]
   · simp [inv_mul_le_iff₀, Valuation.pos_iff]
 
@@ -102,9 +102,9 @@ lemma conjBy_diag_mem_iff (p : ℕ) (x) (hx : x ∈ GL2.localPTameLevel v p)
     (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
     (diag (.mk0 α (by simpa)))⁻¹ * x * diag (.mk0 α (by simpa)) ∈ GL2.localPTameLevel v p ↔
       α ∣ ⟨(x 0 1), GL2.v_le_one_of_mem_localFullLevel _
-        (GL2.localPTameLevel_le_localBorelLevel _ _ hx).1 _ _⟩ := by
+        (GL2.localPTameLevel_le_localIwahoriLevel _ _ hx).1 _ _⟩ := by
   rw [conjBy_diag_mem_iff' (hx := hx)]
-  simp only [mem_localPTameLevel, mem_localBorelLevel_iff_v, ne_eq, div_eq_zero_iff,
+  simp only [mem_localPTameLevel, mem_localIwahoriLevel_iff_v, ne_eq, div_eq_zero_iff,
     not_or] at hx
   have : Valued.v (x 1 0) * Valued.v α.1 < 1 := by
     rw [← one_mul (1 : WithZero _)]
@@ -143,7 +143,7 @@ lemma unipotentMulDiagU1_injective :
   have := QuotientGroup.eq.mp H
   simpa [unipotentMulDiag_inv_mul_unipotentMulDiag,
     mem_adicCompletionIntegers, unipotent_def] using
-    (GL2.mem_localBorelLevel_iff_v.mp (localPTameLevel_le_localBorelLevel _ _ this)).2.1
+    (GL2.mem_localIwahoriLevel_iff_v.mp (localPTameLevel_le_localIwahoriLevel _ _ this)).2.1
 
 /-- Each coset in `U1diagU1` is of the form `unipotent_mul_diagU1` for some `t ∈ O_v`. -/
 lemma range_unipotentMulDiagU1 :
@@ -159,7 +159,7 @@ lemma range_unipotentMulDiagU1 :
     have H : Valued.v (x.1 0 0) = Valued.v α.1 ∧ Valued.v (x.1 0 1) ≤ 1 ∧
       Valued.v (x.1 1 0) < Valued.v α.1 ∧ Valued.v (x.1 1 1) = 1 := by
       simpa [diag, mul_inv_eq_iff_eq_mul₀, hα, mul_inv_lt_iff₀, Valuation.pos_iff] using
-        GL2.mem_localBorelLevel_iff_v.mp (localPTameLevel_le_localBorelLevel _ _ hx)
+        GL2.mem_localIwahoriLevel_iff_v.mp (localPTameLevel_le_localIwahoriLevel _ _ hx)
     refine ⟨⟨x 0 1 / x 1 1, by simp [mem_adicCompletionIntegers, H]⟩, QuotientGroup.eq.mpr ?_⟩
     dsimp [unipotentMulDiag]
     convert (GL2.localPTameLevel.conjBy_diag_mem_iff _ _ (mul_mem (inv_mem

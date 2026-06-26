@@ -665,7 +665,6 @@ def FiniteAdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K]
   map_add' _ _ := rfl
 
 -- bleurgh
-set_option backward.isDefEq.implicitBump true in
 set_option backward.isDefEq.respectTransparency false in
 lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
     ∃ g, algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) g + a ∈ fundamentalDomain := by
@@ -688,10 +687,7 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       ext v
       change _ = a.2 _ + _
       push_cast
-      simp only [eq_ratCast, structureMap_apply_apply, add_right_inj]
-      congr
-      · exact .symm <| map_ratCast (@UniformSpace.Completion.coeRingHom ..) _
-      · exact .symm <| map_ratCast (@UniformSpace.Completion.coeRingHom ..) _
+      rfl
     · rw [map_sub, ← add_sub_assoc]
       refine sub_mem ?_ (coe_algebraMap_mem (𝓞 ℚ) ℚ p r)
       convert! (f p).2
