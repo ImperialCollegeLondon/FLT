@@ -32,6 +32,7 @@ variable (R K : Type*) [CommRing R] [Field K] [IsDedekindDomain R] [Algebra R K]
 lemma prop (x : FiniteAdeleRing R K) :
     ∀ᶠ v in .cofinite, x v ∈ v.adicCompletionIntegers K := x.2
 
+/-- The structure map `Π 𝒪ᵥ → 𝔸ᶠ` as a ring hom. -/
 noncomputable abbrev structureMap :
     (Π v : HeightOneSpectrum R, v.adicCompletionIntegers K) →+* 𝔸ᶠ[R, K] :=
   RestrictedProduct.structureMapRingHom _ _ _

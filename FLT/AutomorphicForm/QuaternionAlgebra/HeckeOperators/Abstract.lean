@@ -63,6 +63,7 @@ a finite union of left cosets of `V`, and thus so is `UgV`.
 
 -/
 
+/-- `FixedPoints` as a submodule. -/
 def FixedPoints.submodule (G R M : Type*) [Monoid G] [Semiring R] [AddCommMonoid M]
     [Module R M] [DistribMulAction G M] [SMulCommClass G R M] : Submodule R M where
   __ := FixedPoints.addSubmonoid G M

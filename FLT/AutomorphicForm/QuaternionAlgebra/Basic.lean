@@ -467,6 +467,8 @@ instance isFiniteRelIndex_Δ [NumberField.IsTotallyReal F] [IsQuaternionAlgebra 
     Subgroup.IsFiniteRelIndex 𝓕ˣ (ℒ.Δ D g) := by
   knownin1980s
 
+/-- `Dˣ＼GL₂(𝔸 F)／U` is notation for the type of double cosets by the image of `Dˣ` in
+`GL₂(𝔸ᶠ[F])` and by `U`. -/
 scoped[FLT] notation D "ˣ＼GL₂(𝔸 " F ")／" U:max =>
   DoubleCoset.Quotient (G := GL₂(𝔸ᶠ[F])) (MonoidHom.range <| WithRigidification.unitsIncl F D) U
 
@@ -597,6 +599,7 @@ abbrev mkFormA
         simp [Algebra.smul_def, Units.smul_def, Algebra.commutes]
       · simp [-Subgroup.inclusion_mk])
 
+/-- Mapping a `LevelStruct` along a ring hom. -/
 @[simps]
 protected noncomputable abbrev map {R' : Type*} [CommRing R'] (ℒ : LevelStruct F R) (f : R →+* R') :
     LevelStruct F R' where
@@ -671,6 +674,8 @@ instance : MulAction GL₂(𝔸ᶠ[F]) (LevelStruct F R) where
 open scoped Pointwise
 
 variable (D) in
+/-- A level struct is sufficiently small if the associated character has finite order coprime
+to `[Δ_g : Fˣ]` for all `g`. -/
 class IsSufficientlySmall (ℒ : LevelStruct F R) where
   isOfFinOrder_χ : IsOfFinOrder ℒ.χ
   coprime_ΔIndex : ∀ g, (orderOf ℒ.χ).Coprime (ℒ.ΔIndex D g)
@@ -1210,5 +1215,17 @@ lemma χ_incl (x) : ℒ.toStruct.χ (ℒ.incl v x) = ℒ.χ v x := by
   · congr 1
     ext1
     exact GL2.toAdicCompletion_finiteAdeleIncl_same _ _
+
+-- Issues with `RingHom.toMonoidHom_eq_coe` being simp.
+attribute [nolint simpNF]
+  trivial_central_char
+  trivial_central_char_right
+  unitsMap_smul
+  unitsMap_adicCompletion_smul
+  LevelStruct.χA_inclusion_left
+  LevelStruct.χA_inclusion_right
+  LevelStruct.smul_χ_apply
+  LevelStruct.formEquivOfSection_apply
+
 
 end TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.LocalLevelStruct

@@ -20,7 +20,8 @@ open scoped nonZeroDivisors
 
 attribute [ext high] Ideal.Quotient.algHom_ext
 
-instance {R S : Type*} [CommSemiring R] [Semiring S] [Algebra R S]
+instance IsIdempotentElem.Corner.algebra
+    {R S : Type*} [CommSemiring R] [Semiring S] [Algebra R S]
     {e : S} (he : IsIdempotentElem e) : Algebra R he.Corner where
   smul r x := ⟨r • x.1, by
     simp [he, Subsemigroup.mem_corner_iff, (Subsemigroup.mem_corner_iff he).mp x.2]⟩

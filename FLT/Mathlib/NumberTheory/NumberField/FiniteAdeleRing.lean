@@ -39,6 +39,7 @@ variable (K : Type*) [Field K] [NumberField K]
 
 open HeightOneSpectrum
 
+/-- `𝔸ᶠ[K]` is notation for `FiniteAdeleRing (𝓞 K) K`. -/
 scoped[Adele] notation:max "𝔸ᶠ[" K "]" => 𝔸ᶠ[𝓞 K, K]
 namespace IsDedekindDomain.FiniteAdeleRing
 

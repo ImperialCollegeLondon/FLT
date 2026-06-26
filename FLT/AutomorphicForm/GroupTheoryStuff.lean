@@ -15,6 +15,10 @@ public import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 
 attribute [simp] Subgroup.mem_subgroupOf
 
+/-- The maximal `p`-quotient of a group.
+
+Note that the torsion free parts of `G` will not get quotiented out.
+So `G / MaximalPQuotient` is a `p`-group only when `G` is torsion free. -/
 abbrev MaximalPQuotient (G : Type*) [Group G] (p : ℕ) :=
     G ⧸ ⨅ (N : Subgroup G) (_ : N.Normal) (_ : IsPGroup p (G ⧸ N)), N
 
@@ -23,6 +27,7 @@ instance (G : Type*) [Group G] (p : ℕ) :
   Subgroup.normal_iInf_normal fun N ↦ Subgroup.normal_iInf_normal fun _ ↦
     Subgroup.normal_iInf_normal fun _ ↦ ‹_›
 
+/-- Quotient map into the maximal `p`-quotient of a group. -/
 abbrev MaximalPQuotient.mk (G : Type*) [Group G] (p : ℕ) : G →* MaximalPQuotient G p :=
   QuotientGroup.mk' _
 
@@ -93,6 +98,7 @@ lemma Subgroup.finite_map_of_isFiniteRelIndex {G G' : Type*} [Group G] [Group G'
   convert Set.finite_range φ'
   rw [← MonoidHom.coe_range, QuotientGroup.range_lift, MonoidHom.range_comp, Subgroup.range_subtype]
 
+/-- First isomorphism theorem restricted to a subgroup. -/
 noncomputable def Subgroup.quotientKerEquivMap {G G' : Type*} [Group G] [Group G']
     (φ : G →* G') (H : Subgroup G) :
     H ⧸ φ.ker.subgroupOf H ≃* H.map φ :=
@@ -112,6 +118,8 @@ lemma orderOf_dvd_ncard {G : Type*} [Group G]
 
 section
 
+/-- If `K` is contained in the centralizer of `H`, then `H ⊔ K` is given by `HK` and the map
+`H × K → HK` is a group homomorphism. -/
 @[simps]
 def Subgroup.prodToSupOfRight {G : Type*} [Group G] (H K : Subgroup G) (hK : K ≤ .centralizer H) :
     H × K →* ↑(H ⊔ K) where
@@ -337,7 +345,7 @@ lemma Subgroup.dvd_relIndex_iff_of_prime {G : Type*} [Group G] {H K : Subgroup G
     p ∣ K.relIndex H ↔ ∃ x ∈ H, x ∉ K ∧ x ^ p ∈ K := by
   simp [Subgroup.relIndex, Subgroup.dvd_index_iff_of_prime, hp]; grind
 
-instance {G : Type*} [Group G] (H : Subgroup G) :
+instance Subgroup.mulActionMulOppositeNormalizerQuotient {G : Type*} [Group G] (H : Subgroup G) :
     MulAction (Subgroup.normalizer (H : Set G))ᵐᵒᵖ (G ⧸ H) where
   smul g := Quotient.map (· * g.unop) (by
     simp [QuotientGroup.leftRel_apply, mul_assoc,

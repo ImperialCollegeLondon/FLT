@@ -24,6 +24,7 @@ attribute [-simp] RingHom.toMonoidHom_eq_coe
 lemma RingHom.coe_toMonoidHom {α β : Type*} [NonAssocSemiring α] [NonAssocSemiring β]
     (f : α →+* β) : ⇑f.toMonoidHom = f := rfl
 
+/-- `Set.matrix` is equivalent to matrices on the subtype. -/
 @[simps]
 def Set.matrixEquiv {m n α : Type*} (S : Set α) :
     S.matrix (m := m) (n := n) ≃ Matrix m n S where
@@ -32,6 +33,7 @@ def Set.matrixEquiv {m n α : Type*} (S : Set α) :
   left_inv _ := rfl
   right_inv _ := rfl
 
+/-- `Subring.matrix` is equivalent to matrices on the subtype. -/
 @[simps!]
 def Subring.matrixEquiv {n α : Type*} [Ring α] [Fintype n] [DecidableEq n] (S : Subring α) :
     S.matrix (n := n) ≃+* Matrix n n S where
@@ -176,6 +178,7 @@ theorem MeasurableEquiv.restrict_preimage {α β : Type*}
   rw [e.restrict_map, Measure.map_map e.symm.measurable e.measurable]
   simp
 
+/-- smul as a `ContinuousAddEquiv`. -/
 @[simps!]
 def ContinuousAddEquiv.smul {G α : Type*} [Group G] [TopologicalSpace α] [AddMonoid α]
     [DistribMulAction G α]
@@ -189,11 +192,13 @@ lemma ContinuousAddEquiv.smul_inv {G α : Type*} [Group G] [TopologicalSpace α]
     [ContinuousConstSMul G α] (g : G) :
   ContinuousAddEquiv.smul g⁻¹ (α := α) = (ContinuousAddEquiv.smul g).symm := by ext; simp
 
+/-- `MulOpposite.op` as a `MeasurableEquiv`. -/
 def MulOpposite.opMeasurableEquiv {M : Type*} [MeasurableSpace M] : M ≃ᵐ Mᵐᵒᵖ where
   __ := MulOpposite.opEquiv
   measurable_toFun := measurable_mul_op
   measurable_invFun := measurable_mul_unop
 
+/-- `Units.opEquiv` (taking `x` to `x`) as a `ContinuousMulEquiv`. -/
 @[simps!]
 def Units.opContinuousMulEquiv {M : Type*} [Monoid M] [TopologicalSpace M] :
     Mᵐᵒᵖˣ ≃ₜ* Mˣᵐᵒᵖ where
@@ -223,6 +228,7 @@ instance {R : Type*} [Ring R] [TopologicalSpace R] [IsOpenUnits R] : IsOpenUnits
         Units.opContinuousMulEquiv.isOpenEmbedding)
     ext; simp
 
+/-- smul as a `ContinuousMulEquiv`. -/
 @[simps!]
 def MulDistribMulAction.toContinuousMulEquiv
     {G : Type*} (x : G) (M : Type*) [Group G] [Monoid M] [MulDistribMulAction G M]

@@ -124,6 +124,8 @@ end MeasureTheory
 
 open MeasureTheory
 
+/-- A group with topolgoy is a unimodular group if it is a locally compact topological group
+such that the modular character is trivial. (i.e. left haar measure = right haar measure) -/
 class IsUnimodularGroup (G : Type*) [TopologicalSpace G] [Group G] : Prop extends
     IsTopologicalGroup G, LocallyCompactSpace G where
   modularCharacter_eq_one : Measure.modularCharacter (G := G) = 1
@@ -374,7 +376,7 @@ section Matrix
 variable [BorelSpace R] [SecondCountableTopology R] [μ.IsAddHaarMeasure] [IsOpenUnits R]
 variable (n : Type*)
 
-instance : MeasurableSpace (Matrix n n R) :=
+instance Matrix.instMeasurableSpace : MeasurableSpace (Matrix n n R) :=
   inferInstanceAs (MeasurableSpace (n → n → R))
 
 instance [Countable n] : BorelSpace (Matrix n n R) :=

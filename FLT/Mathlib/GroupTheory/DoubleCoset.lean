@@ -32,6 +32,7 @@ theorem DoubleCoset.isOpen_doubleCoset_rightrel_mk {G : Type*} [Group G] [Topolo
   apply (QuotientGroup.isOpenQuotientMap_rightrel_mk H).isOpenMap
   exact DoubleCoset.isOpen_doubleCoset H K hK i
 
+/-- Mapping double cosets across `MonoidHom`s. -/
 def DoubleCoset.map {G₁ G₂ : Type*} [Group G₁] [Group G₂] (H₁ K₁ : Subgroup G₁)
     (H₂ K₂ : Subgroup G₂) (e : G₁ →* G₂) (eH : H₁ ≤ H₂.comap e) (eK : K₁ ≤ K₂.comap e) :
     DoubleCoset.Quotient (G := G₁) H₁ K₁ → DoubleCoset.Quotient (G := G₂) H₂ K₂ :=
@@ -45,6 +46,7 @@ lemma DoubleCoset.map_mk {G₁ G₂ : Type*} [Group G₁] [Group G₂] (H₁ K�
     (H₂ K₂ : Subgroup G₂) (e : G₁ →* G₂) (eH : H₁ ≤ H₂.comap e) (eK : K₁ ≤ K₂.comap e) (x) :
     map H₁ K₁ H₂ K₂ e eH eK (DoubleCoset.mk _ _ x) = DoubleCoset.mk _ _ (e x) := rfl
 
+/-- Mapping double cosets across `MulEquiv`s. -/
 def DoubleCoset.quotientEquiv {G₁ G₂ : Type*} [Group G₁] [Group G₂] (H₁ K₁ : Set G₁)
     (H₂ K₂ : Set G₂) (e : G₁ ≃* G₂) (eH : e ⁻¹' H₂ = H₁) (eK : e ⁻¹' K₂ = K₁) :
     DoubleCoset.Quotient H₁ K₁ ≃ DoubleCoset.Quotient H₂ K₂ :=
@@ -65,6 +67,7 @@ lemma Set.mul_right_singleton_bijective
   ext; simp [Set.mem_smul_set_iff_inv_smul_mem]
 
 open scoped Pointwise in
+/-- The isomorphism `H\G/K ≃ H\G/g⁻¹Kg` sending `HaK` to `H(ag)(g⁻¹Kg)`. -/
 def DoubleCoset.mulRightEquiv {G : Type*} [Group G] (H K gK : Set G) (g : G)
     (hgK : gK = ConjAct.toConjAct g⁻¹ • K) :
     DoubleCoset.Quotient H K ≃ DoubleCoset.Quotient H gK :=
@@ -93,6 +96,7 @@ variable {G : Type*} [Group G] (H K : Subgroup G)
 local notation H "＼" G "／" K:max => DoubleCoset.Quotient (G := G) H K
 local notation H "﹨" G:max => _root_.Quotient (QuotientGroup.rightRel (α := G) H)
 
+/-- The projection `G/K → H\G/K`. -/
 def DoubleCoset.ofLeft : G ⧸ K → H＼G／K :=
   Quotient.map id (by
     simp only [QuotientGroup.leftRel_apply, id_eq, Setoid.ker_def]
@@ -105,6 +109,7 @@ lemma DoubleCoset.ofLeft_mk (x : G) : ofLeft H K (QuotientGroup.mk x) = DoubleCo
 lemma DoubleCoset.ofLeft_surjective : Function.Surjective (ofLeft H K) :=
   Quotient.map_surjective _ Function.surjective_id
 
+/-- The projection `H\G → H\G/K`. -/
 def DoubleCoset.ofRight : H﹨G → H＼G／K :=
   Quotient.map id (by
     simp only [QuotientGroup.rightRel_apply, id_eq, Setoid.ker_def]
@@ -118,6 +123,9 @@ lemma DoubleCoset.ofRight_surjective : Function.Surjective (ofRight H K) :=
   Quotient.map_surjective _ Function.surjective_id
 
 open scoped Pointwise in
+/-- Consider the projection `H\G/K₁ → H\G/K₂` when `K₁ ≤ K₂`.
+This is the surjection from `K₂/K₁` to the fiber of `HgK₂` of the projection,
+sending `k₂K₁` to `Hgk₂K₁`. -/
 noncomputable
 def DoubleCoset.toMapIdPreimage {G : Type*} [Group G] (H K₁ K₂ : Subgroup G) (eK : K₁ ≤ K₂)
   (g : G) : K₂ ⧸ K₁.subgroupOf K₂ →
@@ -308,8 +316,13 @@ lemma DoubleCoset.σ_exists :
   exact ⟨τ ∘ σ, x ∘ (↑), y, by grind, by grind, by grind, by grind, by simp⟩
 
 variable {H K} in
+/-- An arbitrary section of `G → H＼G／K`. -/
 noncomputable def DoubleCoset.σ (g : H＼G／K) : G := (DoubleCoset.σ_exists H K).choose g
+
+/-- An arbitrary choice of `h` such that `h * σ(g) * K = g`. -/
 noncomputable def DoubleCoset.σLeft (g : G) : H := (DoubleCoset.σ_exists H K).choose_spec.choose g
+
+/-- An arbitrary choice of `k` such that `h * σ(g) * K = g`. -/
 noncomputable def DoubleCoset.σRight (g : G) : K :=
   (DoubleCoset.σ_exists H K).choose_spec.choose_spec.choose g
 
@@ -323,7 +336,7 @@ lemma DoubleCoset.σ_spec (g : G) :
 @[simp] lemma DoubleCoset.σRight_σ (g : H＼G／K) : σRight H K (σ g) = 1 :=
   (DoubleCoset.σ_exists H K).choose_spec.choose_spec.choose_spec.2.2.1 g
 
-@[simp] lemma DoubleCoset.σ_one : σ (mk H K 1) = 1 :=
+lemma DoubleCoset.σ_one : σ (mk H K 1) = 1 :=
   (DoubleCoset.σ_exists H K).choose_spec.choose_spec.choose_spec.2.2.2.1
 
 @[simp] lemma DoubleCoset.σLeft_mul (g : G) (k : K) : σLeft H K (g * k) = σLeft H K g :=
@@ -336,7 +349,8 @@ lemma DoubleCoset.σ_spec (g : G) :
   · simp
   · exact (DoubleCoset.eq _ _ _ _).mpr ⟨1, by simp, k, k.2, by simp⟩
 
-@[simp] lemma DoubleCoset.σLeft_one : σLeft H K 1 = 1 := by rw [← σ_one, σLeft_σ]
+lemma DoubleCoset.σLeft_one : σLeft H K 1 = 1 := by rw [← σ_one, σLeft_σ]
+
 @[simp] lemma DoubleCoset.σRight_one : σRight H K 1 = 1 := by rw [← σ_one, σRight_σ]
 
 @[simp] lemma DoubleCoset.σ_of_mem_left (g : G) (hg : g ∈ H) : σ (mk H K g) = 1 := by

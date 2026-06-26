@@ -559,6 +559,7 @@ instance : DecidableEq (Eigenform D 𝒮) := Classical.decEq _
 lemma Eigenform.mem_eigenspace_iff {𝒻 : Eigenform D 𝒮} {g : S(U, ℂ)} :
     g ∈ 𝒻.eigenspace ↔ ∀ T, T • g = 𝒻.1 T • g := by simp [Eigenform.eigenspace]
 
+/-- The `Tₚ`-eigenvalue of an eigenform. -/
 abbrev Eigenform.eigenvalue (𝒻 : Eigenform D 𝒮) (v) (hvS : v ∉ 𝒮.S) (hvQ : v ∉ 𝒮.Q) : ℂ :=
   𝒻.1 ⟨T D 𝒮 v hvS hvQ, Algebra.subset_adjoin ⟨_, _, _, rfl⟩⟩
 

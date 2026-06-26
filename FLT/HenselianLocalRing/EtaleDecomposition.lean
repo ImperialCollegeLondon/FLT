@@ -130,6 +130,7 @@ private theorem exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq_au
 
 set_option backward.isDefEq.respectTransparency false in
 attribute [local ext high] Ideal.Quotient.algHom_ext in
+/-- If `e` is an element of `R' ⊗ S`, then `R'' ⊗ ((R' ⊗ S) / e) = (R'' ⊗ S) / e`. -/
 def tensorQuotientTensorEquiv
     {R R' R'' S : Type*} [CommRing R] [CommRing R'] [CommRing R''] [CommRing S]
     [Algebra R R'] [Algebra R R''] [Algebra R' R''] [IsScalarTower R R' R''] [Algebra R S]
