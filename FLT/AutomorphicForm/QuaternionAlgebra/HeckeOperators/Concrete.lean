@@ -93,8 +93,8 @@ end finiteness
 
 open NumberField IsQuaternionAlgebra.NumberField IsDedekindDomain
 
--- let F be a totally real number field
-variable (F : Type*) [Field F] [NumberField F] --[IsTotallyReal F]
+-- let F be a number field (which we shall assume is totally real later on)
+variable (F : Type*) [Field F] [NumberField F]
 
 -- Let D/F be a quaternion algebra
 variable (D : Type*) [DivisionRing D] [Algebra F D]
