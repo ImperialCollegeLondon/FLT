@@ -58,7 +58,7 @@ The desired instances are constructed later as `scoped` instances in `FLT.Number
 -/
 
 @[expose] public section
-open scoped TensorProduct
+open scoped TensorProduct Adele
 
 universe u
 
@@ -75,9 +75,7 @@ variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L]
 section BaseChange
 
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
-scoped notation:max "𝔸" K => AdeleRing (𝓞 K) K
-/-- `𝔸ᶠ[K]` is notation for `FiniteAdeleRing (𝓞 K) K`, where `K` is a number field. -/
-scoped notation:max "𝔸ᶠ[" K "]" => 𝔸ᶠ[𝓞 K, K]
+scoped[Adele] notation:max "𝔸" K => AdeleRing (𝓞 K) K
 
 instance [SMul (𝔸 K) (𝔸 L)] : SMul (K∞ × 𝔸ᶠ[K]) (L∞ × 𝔸ᶠ[L]) :=
   inferInstanceAs (SMul (𝔸 K) (𝔸 L))
@@ -631,7 +629,7 @@ theorem Rat.AdeleRing.cocompact :
       (Set.univ.pi fun _ => closedBall 0 1).prod (integralAdeles (𝓞 ℚ) ℚ)
     have h_W_compact : IsCompact W := by
       refine (isCompact_univ_pi fun v => ?_).prod
-        (isCompact_iff_isCompact_univ.2 <| by simpa using CompactSpace.isCompact_univ)
+        (FiniteAdeleRing.isCompact_integralAdeles _)
       exact isCompact_iff_isClosed_bounded.2 ⟨isClosed_closedBall, isBounded_closedBall⟩
     have h_W_image : QuotientAddGroup.mk' (principalSubgroup (𝓞 ℚ) ℚ) '' W = Set.univ := by
       refine Set.eq_univ_iff_forall.2 fun x => ?_
@@ -653,7 +651,7 @@ open InfinitePlace.Completion Set RestrictedProduct in
 /-- The fundamental domain `ℤ^ x [0,1)` for `𝔸_ℚ ⧸ ℚ`. -/
 def Rat.AdeleRing.fundamentalDomain : Set (AdeleRing (𝓞 ℚ) ℚ) :=
   (univ.pi fun v => (extensionEmbeddingOfIsReal (infinitePlace_isReal v)).toFun ⁻¹' (Ico 0 1)).prod
-    (range <| structureMap _ _ _)
+    (range <| FiniteAdeleRing.structureMap _ _)
 
 /-- The canonical ring homomorphism from the finite adele ring to
 a nonarchimedean local factor. -/
@@ -667,6 +665,7 @@ def FiniteAdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K]
   map_add' _ _ := rfl
 
 -- bleurgh
+set_option backward.isDefEq.respectTransparency false in
 lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
     ∃ g, algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) g + a ∈ fundamentalDomain := by
   obtain ⟨q, f, hf⟩ := FiniteAdeleRing.sub_mem_integralAdeles a.2
@@ -688,7 +687,6 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       ext v
       change _ = a.2 _ + _
       push_cast
-      simp only [structureMap]
       rfl
     · rw [map_sub, ← add_sub_assoc]
       refine sub_mem ?_ (coe_algebraMap_mem (𝓞 ℚ) ℚ p r)
@@ -770,7 +768,7 @@ theorem Rat.AdeleRing.isAddFundamentalDomain :
         -- a tactic should do this dumb calculation
         refine ⟨?_, ?_⟩
         · rintro ⟨f, rfl⟩ v
-          simp [structureMap]
+          exact (f v).2
         · intro h
           use fun v ↦ ⟨x v, h v⟩
           rfl
