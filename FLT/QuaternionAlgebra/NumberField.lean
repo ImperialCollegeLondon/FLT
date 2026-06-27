@@ -457,7 +457,8 @@ theorem GL2.localPTameLevel.isCompact (v : HeightOneSpectrum (𝓞 F)) (p : ℕ)
     (Subgroup.isClosed_of_isOpen _ (GL2.localPTameLevel.isOpen v p))
       (localPTameLevel_le_localIwahoriLevel _ _)
 
-/-- The subgroup of `Fᵥˣ` consisting of elements in `𝒪ᵥˣ` whose order mod `v` is prime to `p`. In particular it contains `1+v𝒪ᵥ`. -/
+/-- The subgroup of `Fᵥˣ` consisting of elements in `𝒪ᵥˣ` whose order mod `v` is prime to `p`.
+In particular it contains `1+v𝒪ᵥ`. -/
 noncomputable
 def GL2.localPTameLevelSubgroup (v : HeightOneSpectrum (𝓞 F)) (p : ℕ) :
     Subgroup (v.adicCompletion F)ˣ :=
