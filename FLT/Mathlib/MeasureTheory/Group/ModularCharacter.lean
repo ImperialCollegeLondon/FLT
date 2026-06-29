@@ -404,7 +404,7 @@ instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [Is
     [Fintype n] [DecidableEq n] : IsOpenUnits (Matrix n n R) := by
   refine ⟨⟨?_, ?_⟩⟩
   · refine Units.isEmbedding_val_mk' (f := (·⁻¹)) ?_ (by simp)
-    refine .smul ?_ continuous_id.matrix_adjugate.continuousOn
+    refine .fun_smul ?_ continuous_id.matrix_adjugate.continuousOn
     · refine .comp' (t := {x : R | IsUnit x}) ?_ continuous_id.matrix_det.continuousOn ?_
       · rw [← Units.range_val, ← Set.image_univ]
         refine IsOpenUnits.isOpenEmbedding_unitsVal.continuousOn_image_iff.mpr ?_
