@@ -1,12 +1,13 @@
 /-
 Copyright (c) 2025 Bryan Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bryan Wang
+Authors: Bryan Wang, Andrew Yang
 -/
 module
 
 public import FLT.QuaternionAlgebra.NumberField -- rigidifications of quat algs
 public import FLT.Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
+public import FLT.DedekindDomain.FiniteAdeleRing.LocalUnits
 import FLT.DedekindDomain.AdicValuation
 
 /-!
@@ -31,15 +32,11 @@ variable {F : Type*} [Field F] [NumberField F]
 
 namespace Local
 
+open scoped FLT
+
 variable {v : HeightOneSpectrum (𝓞 F)}
 
-variable (α : v.adicCompletionIntegers F)
-
-variable (hα : α ≠ 0)
-
-variable (v) {α hα} in
-/-- The subgroup `U1 v = GL2.localTameLevel v`. -/
-noncomputable abbrev U1 : Subgroup (GL (Fin 2) (adicCompletion F v)) := GL2.localTameLevel v
+variable (α : (v.adicCompletion F)ˣ)
 
 open Matrix.GeneralLinearGroup.GL2
 
@@ -47,65 +44,30 @@ open Matrix.GeneralLinearGroup.GL2
 namespace GL2
 
 /-- The matrix element `diag[α, 1]`. -/
-noncomputable abbrev diag : (GL (Fin 2) (adicCompletion F v)) :=
-  Matrix.GeneralLinearGroup.diagonal (![⟨(α : v.adicCompletion F),
-    (α : v.adicCompletion F)⁻¹, by
-      rw [mul_inv_cancel₀]
-      exact_mod_cast hα, by
-      rw [inv_mul_cancel₀]
-      exact_mod_cast hα⟩, 1])
-
-lemma diag_def :
-    (diag α hα : Matrix (Fin 2) (Fin 2) (adicCompletion F v))
-    = !![↑α, 0; 0, 1] := by
-  rw[diag, Matrix.GeneralLinearGroup.diagonal]
-  ext i j; fin_cases i; all_goals fin_cases j
-  all_goals simp
-
-lemma conjBy_diag {a b c d : adicCompletion F v} :
-    (diag α hα)⁻¹ * !![a, b; c, d] * diag α hα
-    = !![a, (α : v.adicCompletion F)⁻¹ * b; c * α, d] := by
-  simp only [Matrix.coe_units_inv, diag_def, Matrix.inv_def, Matrix.det_fin_two_of, mul_one,
-    mul_zero, sub_zero, Ring.inverse_eq_inv', Matrix.adjugate_fin_two_of, neg_zero, Matrix.smul_of,
-    Matrix.smul_cons, smul_eq_mul, Matrix.smul_empty, Matrix.cons_mul, Nat.succ_eq_add_one,
-    Nat.reduceAdd, Matrix.vecMul_cons, Matrix.head_cons, Matrix.tail_cons, zero_smul,
-    Matrix.empty_vecMul, add_zero, zero_add, Matrix.empty_mul, Equiv.symm_apply_apply,
-    Matrix.add_cons, Matrix.empty_add_empty, EmbeddingLike.apply_eq_iff_eq]
-  rw[inv_mul_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul, one_mul]
-  ring_nf; rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul]
+noncomputable def diag : (v.adicCompletion F)ˣ →* GL₂(adicCompletion F v) :=
+  Units.map ⟨⟨(Matrix.diagonal ![·, 1]), by simp⟩, fun x y ↦ by simp⟩
 
 -- Show that `unipotent t` is in `U1 v` for `t ∈ O_v`.
-lemma unipotent_mem_U1 (t : v.adicCompletionIntegers F) :
-    unipotent ↑t ∈ (U1 v) := by
-  unfold unipotent
-  constructor
-  · apply GL2.mem_localFullLevel_iff_v_le_one_and_v_det_eq_one.mpr
-    constructor
-    · intro i j
-      fin_cases i; all_goals fin_cases j
-      all_goals simp only [Matrix.unitOfDetInvertible, Fin.mk_one, Fin.isValue, Fin.zero_eta,
-        val_unitOfInvertible, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
-        Matrix.cons_val_fin_one, Matrix.cons_val_one, map_zero, zero_le, map_one, le_refl]
-      apply (mem_adicCompletionIntegers _ _ _).mp
-      simp
-    simp [Matrix.unitOfDetInvertible]
-  simp [Matrix.unitOfDetInvertible]
+lemma unipotent_mem_localTameLevel (t : v.adicCompletion F) (ht : Valued.v t ≤ 1) :
+    unipotent t ∈ GL2.localTameLevel v :=
+  ⟨GL2.mem_localIwahoriLevel_iff_v.mpr (by simpa), by simp⟩
 
 /-- The matrix element `(unipotent t) * (diag α hα) = !![α, t; 0, 1]`. -/
-noncomputable def unipotentMulDiag (t : v.adicCompletionIntegers F) :
-    (GL (Fin 2) (adicCompletion F v)) :=
-  (unipotent (t : adicCompletion F v)) * (diag α hα)
+noncomputable def unipotentMulDiag (t : v.adicCompletion F) :
+    GL₂(v.adicCompletion F) := unipotent t * diag α
+
+lemma unipotentMulDiag_injective : Function.Injective (unipotentMulDiag α) := by
+  intro a b h
+  simpa [unipotentMulDiag, Matrix.mul_apply, unipotent_def, diag] using congr($h 0 1)
 
 /-- `!![α t₁; 0 1]⁻¹ * [α t₂; 0 1] = [1 (t₂ - t₁) / α; 0 1]`. -/
-lemma unipotent_mul_diag_inv_mul_unipotent_mul_diag (t₁ t₂ : v.adicCompletionIntegers F) :
-    (unipotentMulDiag α hα t₁)⁻¹ * unipotentMulDiag α hα t₂
-    = unipotent ((α : v.adicCompletion F)⁻¹ * ((t₂ + -t₁) : adicCompletion F v )) := by
-  ext i j
-  push_cast [unipotentMulDiag, mul_inv_rev, unipotent_inv]
-  rw [← mul_assoc]; nth_rw 2 [mul_assoc]
-  rw_mod_cast [unipotent_mul]; push_cast [unipotent_def]
-  rw_mod_cast [conjBy_diag]
-  simp
+lemma unipotentMulDiag_inv_mul_unipotentMulDiag (t₁ t₂ : v.adicCompletion F) :
+    (unipotentMulDiag α t₁)⁻¹ * unipotentMulDiag α t₂ = unipotent (α.1⁻¹ * (t₂ - t₁)) := by
+  trans (diag α)⁻¹ * unipotent (t₂ - t₁ : v.adicCompletion F) * diag α
+  · simp [unipotentMulDiag, unipotent_inv, sub_eq_add_neg, ← unipotent_mul, mul_assoc]
+  · simp only [← map_inv]
+    ext i j
+    fin_cases i <;> fin_cases j <;> simp [unipotent_def, - map_inv, diag, Matrix.mul_apply]
 
 end GL2
 
@@ -113,203 +75,110 @@ open GL2
 
 /- We could use `TameLevel` instead of `U1` in the naming,
 but not sure if we might want to generalise to more general `U_Δ` at some point. -/
-namespace U1
+namespace GL2.localPTameLevel
 
-variable {α hα}
+lemma conjBy_diag_mem_iff' (p : ℕ) (x) (hx : x ∈ GL2.localPTameLevel v p)
+    (α : (v.adicCompletion F)ˣ) :
+    (diag α)⁻¹ * x * diag α ∈ GL2.localPTameLevel v p ↔
+      Valued.v (x 0 1) ≤ Valued.v α.1 ∧ Valued.v (x 1 0) * Valued.v α.1 < 1 := by
+  simp only [mem_localPTameLevel, mem_localIwahoriLevel_iff_v, ne_eq, div_eq_zero_iff,
+    not_or] at hx
+  trans (Valued.v α.1)⁻¹ * Valued.v (x 0 1) ≤ 1 ∧ Valued.v (x 1 0) * Valued.v α.1 < 1
+  · simp [mem_localPTameLevel, mem_localIwahoriLevel_iff_v,
+      ← map_inv, Matrix.mul_apply, diag, mul_assoc, mul_left_comm (_⁻¹), hx]
+  · simp [inv_mul_le_iff₀, Valuation.pos_iff]
 
-variable {x : GL (Fin 2) (adicCompletion F v)}
-
-variable (hx : x ∈ (U1 v))
-include hx
-
-lemma apply_mem_integer (i j : Fin 2) :
-    (x i j) ∈ (adicCompletionIntegers F v) :=
-  GL2.v_le_one_of_mem_localFullLevel _ hx.left _ _
-
-lemma apply_zero_zero_sub_apply_one_one_mem_maximalIdeal :
-    (⟨(x 0 0), apply_mem_integer hx _ _⟩ - ⟨(x 1 1), apply_mem_integer hx _ _⟩)
-    ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) :=
-  (mem_completionIdeal_iff _ v _).mpr hx.right.left
-
-lemma apply_one_zero_mem_maximalIdeal :
-    ⟨(x 1 0), apply_mem_integer hx _ _⟩
-    ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) :=
-  (mem_completionIdeal_iff _ v _).mpr hx.right.right
-
-lemma apply_one_one_notMem_maximalIdeal :
-    ⟨(x 1 1), apply_mem_integer hx _ _⟩
-    ∉ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) := by
-  by_contra mem_maximalIdeal
-  have det_mem_maximalIdeal :
-      ⟨(x 0 0), apply_mem_integer hx _ _⟩ * ⟨(x 1 1), apply_mem_integer hx _ _⟩
-      - ⟨(x 0 1), apply_mem_integer hx _ _⟩ * ⟨(x 1 0), apply_mem_integer hx _ _⟩
-      ∈ IsLocalRing.maximalIdeal (adicCompletionIntegers F v) :=
-    Ideal.sub_mem _
-      (Ideal.mul_mem_left _ _ mem_maximalIdeal)
-      (Ideal.mul_mem_left _ _ (apply_one_zero_mem_maximalIdeal hx))
-  have v_det_lt_one :=
-    ((mem_completionIdeal_iff _ v _).mp det_mem_maximalIdeal)
-  push_cast at v_det_lt_one; rw[← Matrix.det_fin_two] at v_det_lt_one
-  exact (ne_of_lt v_det_lt_one) (GL2.v_det_val_mem_localFullLevel_eq_one hx.left)
-
-lemma isUnit_apply_one_one :
-    IsUnit (⟨(x 1 1), apply_mem_integer hx _ _⟩ : adicCompletionIntegers F v) :=
-  (IsLocalRing.notMem_maximalIdeal.mp (apply_one_one_notMem_maximalIdeal hx))
-
-lemma conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal :
-    (diag α hα)⁻¹ * x * diag α hα ∈ U1 v
-    ↔ ⟨(x 0 1), apply_mem_integer hx _ _⟩ ∈ (Ideal.span {α}) := by
-  let a : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 0 0⟩
-  let b : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 0 1⟩
-  let c : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 1 0 ⟩
-  let d : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 1 1⟩
-  have hx₁ : x = !![(a : adicCompletion F v), b; c, d] :=
-    (Matrix.etaExpand_eq (x : Matrix (Fin 2) (Fin 2) (adicCompletion F v))).symm
+lemma adicCompletionIntegers_dvd_iff
+    {a b : v.adicCompletionIntegers F} : a ∣ b ↔ Valued.v b.1 ≤ Valued.v a.1 := by
   constructor
-  · /- If `(diag α hα)⁻¹ * x * diag α hα ∈ U1 v`,
-    then we have `((diag α hα)⁻¹ * x * diag α hα) 0 1 ∈ adicCompletionIntegers F v`,
-    which after computing `(diag α hα)⁻¹ * x * diag α hα` gives the desired. -/
-    intro h; have h₁ := apply_mem_integer h 0 1
-    push_cast [hx₁] at h₁; rw_mod_cast [conjBy_diag] at h₁
-    simp only [Fin.isValue, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_one,
-      Matrix.cons_val_fin_one, Matrix.cons_val_zero] at h₁
-    apply Ideal.mem_span_singleton'.mpr
-    use ⟨_, h₁⟩
-    apply (Subtype.coe_inj).mp; push_cast
-    ring_nf; rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul]
-  /- Conversely, we show that `(diag α hα)⁻¹ * x * diag α hα ∈ U1 v`. -/
-  intro h; obtain ⟨q, hq⟩ := Ideal.mem_span_singleton'.mp h
-  constructor
-  /- We first show that `(diag α hα)⁻¹ * x * diag α hα` is in `GL_2(O_v)`. -/
-  · apply GL2.mem_localFullLevel_iff_v_le_one_and_v_det_eq_one.mpr
-    push_cast [hx₁]; rw_mod_cast [conjBy_diag]
-    constructor
-    · intro i j; fin_cases i; all_goals fin_cases j
-      all_goals simp only [Fin.zero_eta, Fin.isValue, Matrix.of_apply, Matrix.cons_val',
-        Matrix.cons_val_zero, Matrix.cons_val_fin_one,
-        Fin.mk_one, Fin.isValue, Matrix.cons_val_one, Matrix.cons_val_fin_one]
-      · exact apply_mem_integer hx 0 0
-      · unfold b; rw[← hq]; push_cast; ring_nf
-        rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul]
-        apply (mem_adicCompletionIntegers _ _ _).mp
-        simp
-      · exact_mod_cast le_of_lt
-          ((mem_completionIdeal_iff _ v _).mp
-          (Ideal.mul_mem_right _ _ (apply_one_zero_mem_maximalIdeal hx)))
-      exact apply_mem_integer hx 1 1
-    rw[Matrix.det_fin_two_of]; ring_nf
-    rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul]
-    rw[← Matrix.det_fin_two]
-    exact GL2.v_det_val_mem_localFullLevel_eq_one hx.left
-  /- Finally we show that `(diag α hα)⁻¹ * x * diag α hα`
-  is in `GL2.localTameLevel`. -/
-  push_cast [hx₁]; rw_mod_cast [conjBy_diag]
-  simp only [Fin.isValue, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
-    Matrix.cons_val_fin_one, Matrix.cons_val_one]
-  norm_cast
-  exact ⟨hx.right.left,
-    (mem_completionIdeal_iff _ v _).mp
-    (Ideal.mul_mem_right _ _ (apply_one_zero_mem_maximalIdeal hx))⟩
+  · rintro ⟨b, rfl⟩; simpa using mul_le_of_le_one_right zero_le b.2
+  · intro H
+    by_cases ha : a.1 = 0
+    · simp_all
+    exact ⟨⟨b / a, by simpa [mem_adicCompletionIntegers] using div_le_one_of_le₀ H zero_le⟩,
+      by ext; simp [← mul_div_assoc, ha]⟩
 
-end U1
+lemma conjBy_diag_mem_iff (p : ℕ) (x) (hx : x ∈ GL2.localPTameLevel v p)
+    (α : v.adicCompletionIntegers F) (hα : α ≠ 0) :
+    (diag (.mk0 α (by simpa)))⁻¹ * x * diag (.mk0 α (by simpa)) ∈ GL2.localPTameLevel v p ↔
+      α ∣ ⟨(x 0 1), GL2.v_le_one_of_mem_localFullLevel _
+        (GL2.localPTameLevel_le_localIwahoriLevel _ _ hx).1 _ _⟩ := by
+  rw [conjBy_diag_mem_iff' (hx := hx)]
+  simp only [mem_localPTameLevel, mem_localIwahoriLevel_iff_v, ne_eq, div_eq_zero_iff,
+    not_or] at hx
+  have : Valued.v (x 1 0) * Valued.v α.1 < 1 := by
+    rw [← one_mul (1 : WithZero _)]
+    exact mul_lt_mul_of_lt_of_le_of_nonneg_of_pos (by simp [hx]) α.2 zero_le zero_lt_one
+  simp [this, adicCompletionIntegers_dvd_iff]
 
-open U1
+end GL2.localPTameLevel
+
+open GL2.localPTameLevel FLT
 
 section CosetDecomposition
 
-variable (v) in
-/-- The double coset space `U1 diag U1` as a set of left cosets. -/
-noncomputable def U1diagU1 :
-    Set ((GL (Fin 2) (adicCompletion F v)) ⧸ (U1 v)) :=
-  (QuotientGroup.mk '' ((U1 v) * {diag α hα}))
+variable (p : ℕ) (α : v.adicCompletionIntegers F) (hα : α ≠ 0)
 
 variable (v) in
 /-- For each `t ∈ O_v / αO_v`, the left coset `unipotentMulDiag U1`
 for a lift of t to `O_v`. -/
-noncomputable def unipotentMulDiagU1
-    (t : ↑(adicCompletionIntegers F v) ⧸ (Ideal.span {α})) :
-    ((GL (Fin 2) (adicCompletion F v)) ⧸ ↑(U1 v)) :=
-  QuotientGroup.mk (unipotentMulDiag α hα (Quotient.out t : adicCompletionIntegers F v))
+noncomputable def unipotentMulDiagU1 (t : v.adicCompletionIntegers F ⧸ (Ideal.span {α})) :
+    GL₂(adicCompletion F v) ⧸ GL2.localPTameLevel v p :=
+  t.map (fun x ↦ by exact unipotentMulDiag (Units.mk0 α (by simpa)) x) <| by
+    intro a b
+    simp only [Submodule.quotientRel_def, QuotientGroup.leftRel_apply,
+      unipotentMulDiag_inv_mul_unipotentMulDiag, Units.val_mk0, Ideal.mem_span_singleton]
+    rw [dvd_sub_comm]
+    rintro ⟨c, hc⟩
+    simpa [← AddSubgroupClass.coe_sub, hc, inv_mul_cancel_left₀, hα] using
+      GL2.localTameLevel_le_localPTameLevel _ _ (unipotent_mem_localTameLevel _ c.2)
 
-/-- `unipotentMulDiagU1` is contained in `U1diagU1` for all t. -/
-lemma mapsTo_unipotent_mul_diagU1_U1diagU1 :
-    Set.MapsTo (unipotentMulDiagU1 v α hα) ⊤ (U1diagU1 v α hα) :=
-  (fun t _ => Set.mem_image_of_mem QuotientGroup.mk
-    (Set.mul_mem_mul (unipotent_mem_U1 (Quotient.out t)) rfl))
+/-- Distinct t give distinct `unipotent_mul_diagU1`, i.e. we have a disjoint union. -/
+lemma unipotentMulDiagU1_injective :
+    Function.Injective (unipotentMulDiagU1 v p α hα) := by
+  rintro ⟨a⟩ ⟨b⟩ H
+  refine Ideal.Quotient.eq.mpr ?_
+  rw [Ideal.mem_span_singleton, dvd_sub_comm]
+  refine ⟨⟨α.1⁻¹ * (b - a), ?_⟩, by ext; simp [hα]⟩
+  have := QuotientGroup.eq.mp H
+  simpa [unipotentMulDiag_inv_mul_unipotentMulDiag,
+    mem_adicCompletionIntegers, unipotent_def] using
+    (GL2.mem_localIwahoriLevel_iff_v.mp (localPTameLevel_le_localIwahoriLevel _ _ this)).2.1
 
-/-- Distinct t give distinct `unipotentMulDiagU1`, i.e. we have a disjoint union. -/
-lemma injOn_unipotent_mul_diagU1 :
-    Set.InjOn (unipotentMulDiagU1 v α hα) ⊤ := by
-  intro t₁ h₁ t₂ h₂ h
-  /- If `unipotentMulDiagU1 t₁ = unipotentMulDiagU1 t₂`,
-  then `(unipotentMulDiag t₁)⁻¹ * (unipotentMulDiag t₂)` is in `U1 v`.
-  Note `unipotent_mul_diag_inv_mul_unipotent_mul_diag` tells us that
-  `(unipotentMulDiag t₁)⁻¹ * (unipotentMulDiag t₂)` is `unipotent`. -/
-  have unipotent_mem_U1 :=
-    (unipotent_mul_diag_inv_mul_unipotent_mul_diag α hα (Quotient.out t₁) (Quotient.out t₂)) ▸
-      (QuotientGroup.eq.mp h)
-  /- Then inspecting the top-right entry of `(unipotentMulDiag t₁)⁻¹ * (unipotentMulDiag t₂)`
-  gives us `t₁ = t₂`. -/
-  have unipotent_apply_zero_one_mem_integer := apply_mem_integer unipotent_mem_U1 0 1
-  simp only [unipotent, Matrix.unitOfDetInvertible, Fin.isValue, val_unitOfInvertible,
-    Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_one, Matrix.cons_val_fin_one,
-    Matrix.cons_val_zero] at unipotent_apply_zero_one_mem_integer
-  rw [← (Submodule.Quotient.mk_out t₁), ← (Submodule.Quotient.mk_out t₂)]
-  apply QuotientAddGroup.eq.mpr; apply Ideal.mem_span_singleton'.mpr
-  use ⟨_, unipotent_apply_zero_one_mem_integer⟩
-  apply (Subtype.coe_inj).mp; push_cast
-  ring_nf; rw[mul_inv_cancel₀ ((Subtype.coe_ne_coe).mpr hα), one_mul, one_mul]
-
-/-- Each coset in `U1diagU1` is of the form `unipotentMulDiagU1` for some `t ∈ O_v`. -/
-lemma surjOn_unipotent_mul_diagU1_U1diagU1 :
-    Set.SurjOn (unipotentMulDiagU1 v α hα) ⊤ (U1diagU1 v α hα) := by
-  rintro _ ⟨_, ⟨x, hx, _, rfl, rfl⟩, rfl⟩
-  /- Each element of `U1diagU1` can be written as `x * diag`,
-  where `x = !![a,b;c,d]` is viewed as a matrix over `O_v`. -/
-  let a : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 0 0⟩
-  let b : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 0 1⟩
-  let c : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 1 0⟩
-  let d : (adicCompletionIntegers F v) := ⟨_, apply_mem_integer hx 1 1⟩
-  have hx₁ : x = !![(a : adicCompletion F v), b; c, d] :=
-    (Matrix.etaExpand_eq (x : Matrix (Fin 2) (Fin 2) (adicCompletion F v))).symm
-  -- The desired t is `⅟d * b`.
-  letI invertible_d := (isUnit_apply_one_one hx).invertible
-  let t : ↥(adicCompletionIntegers F v) ⧸ (Ideal.span {α}) := (⅟d * b)
-  use t
-  have ht : (b + -Quotient.out t * d) ∈ Ideal.span {α} := by
-    apply Ideal.mem_span_singleton'.mpr
-    have t_def : (Ideal.Quotient.mk (Ideal.span {α})) (Quotient.out t) = (⅟d * b) := by
-      simp only [Ideal.Quotient.mk_out]; rfl
-    obtain ⟨q, hq⟩ :=
-      Ideal.mem_span_singleton'.mp (Ideal.Quotient.eq.mp t_def)
-    use - d * q
-    rw[mul_assoc, hq]; ring_nf; simp
-  /- The rest of the proof is devoted to showing that this t works.
-  This means showing that `unipotentMulDiag⁻¹ * x * diag` is in U. -/
-  simp only [unipotentMulDiagU1, Set.top_eq_univ, Set.mem_univ, true_and]
-  apply QuotientGroup.eq.mpr
-  unfold unipotentMulDiag; rw[mul_inv_rev, ← mul_assoc, mul_assoc _ _ x]
-  /- But `unipotentMulDiag⁻¹ * x * diag = diag⁻¹ * (unipotent⁻¹ * x) * diag`,
-  so we can apply `conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal`,
-  and it suffices to show `(unipotent⁻¹ * x) 0 1 ∈ (Ideal.span {α})`.
-  The choice of t guarantees this. -/
-  apply (conjBy_diag_mem_U1_iff_apply_zero_one_mem_ideal
-    (Subgroup.mul_mem _ (Subgroup.inv_mem _ (unipotent_mem_U1 _)) hx)).mpr
-  simp only [Fin.isValue, Units.val_mul, Matrix.coe_units_inv, unipotent_def, Matrix.inv_def,
-    Matrix.det_fin_two_of, mul_one, mul_zero, sub_zero, Ring.inverse_one,
-    Matrix.adjugate_fin_two_of, neg_zero, one_smul, hx₁, Matrix.mul_apply, Matrix.of_apply,
-    Matrix.cons_val', Matrix.cons_val_fin_one, Matrix.cons_val_zero, Matrix.cons_val_one,
-    Fin.sum_univ_two, one_mul]
-  exact_mod_cast ht
+/-- Each coset in `U1diagU1` is of the form `unipotent_mul_diagU1` for some `t ∈ O_v`. -/
+lemma range_unipotentMulDiagU1 :
+    Set.range (unipotentMulDiagU1 v p α hα) =
+      QuotientGroup.mk '' (GL2.localPTameLevel v p *
+        {diag (Units.mk0 α (by simpa))} : Set GL₂(v.adicCompletion F)) := by
+  rw [← Set.image_univ, ← Ideal.Quotient.mk_surjective.range_eq, ← Set.range_comp]
+  refine subset_antisymm (Set.range_subset_iff.mpr ?_) (Set.image_subset_iff.mpr ?_)
+  · exact fun a ↦ ⟨_, Set.mul_mem_mul (GL2.localTameLevel_le_localPTameLevel _ _
+      (unipotent_mem_localTameLevel _ a.2)) rfl, rfl⟩
+  · simp only [Set.mul_singleton, Set.image_mul_right, Set.subset_def, Set.mem_preimage]
+    intro x hx
+    have H : Valued.v (x.1 0 0) = Valued.v α.1 ∧ Valued.v (x.1 0 1) ≤ 1 ∧
+      Valued.v (x.1 1 0) < Valued.v α.1 ∧ Valued.v (x.1 1 1) = 1 := by
+      simpa [diag, mul_inv_eq_iff_eq_mul₀, hα, mul_inv_lt_iff₀, Valuation.pos_iff] using
+        GL2.mem_localIwahoriLevel_iff_v.mp (localPTameLevel_le_localIwahoriLevel _ _ hx)
+    refine ⟨⟨x 0 1 / x 1 1, by simp [mem_adicCompletionIntegers, H]⟩, QuotientGroup.eq.mpr ?_⟩
+    dsimp [unipotentMulDiag]
+    convert (GL2.localPTameLevel.conjBy_diag_mem_iff _ _ (mul_mem (inv_mem
+      (GL2.localTameLevel_le_localPTameLevel _ _ <|
+      unipotent_mem_localTameLevel (x 0 1 / x 1 1) (by simp [H]))) hx) α hα).mpr ?_ using 1
+    · group
+    have h' : x 1 1 ≠ 0 := fun h ↦ by simp [h] at H
+    simp only [← map_inv]
+    simpa [unipotent_inv, Matrix.mul_apply, -map_inv, diag,
+      unipotent_def, h', -dvd_zero] using! dvd_zero α
 
 variable (v) in
 /-- The double coset space `U1diagU1` is the disjoint union of
-`unipotentMulDiagU1` as t ranges over `O_v / αO_v`. -/
-theorem bijOn_unipotent_mul_diagU1_U1diagU1 :
-    Set.BijOn (unipotentMulDiagU1 v α hα) ⊤ (U1diagU1 v α hα) :=
-  ⟨mapsTo_unipotent_mul_diagU1_U1diagU1 α hα,
-    injOn_unipotent_mul_diagU1 α hα,
-    surjOn_unipotent_mul_diagU1_U1diagU1 α hα⟩
+`unipotent_mul_diagU1` as t ranges over `O_v / αO_v`. -/
+theorem bijOn_unipotentMulDiagU1 :
+    Set.BijOn (unipotentMulDiagU1 v p α hα) Set.univ
+      (QuotientGroup.mk '' (GL2.localPTameLevel v p * {diag (Units.mk0 α (by simpa))})) := by
+  convert (unipotentMulDiagU1_injective p α hα).bijOn_image
+  rw [Set.image_univ, range_unipotentMulDiagU1]
 
 end CosetDecomposition
 

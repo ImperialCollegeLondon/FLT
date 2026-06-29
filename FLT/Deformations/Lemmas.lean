@@ -5,6 +5,7 @@ Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
 -/
 module
 
+public import FLT.Mathlib.Topology.Algebra.Group.Basic
 public import Mathlib.NumberTheory.NumberField.Basic
 public import Mathlib.RingTheory.Valuation.ValuationSubring
 public import Mathlib.Topology.Algebra.Algebra.Equiv
@@ -104,18 +105,10 @@ lemma IsLocalRing.ResidueField.map_surjective {R S : Type*} [CommRing R] [CommRi
     Function.Surjective (IsLocalRing.ResidueField.map f) :=
   Ideal.Quotient.lift_surjective_of_surjective _ _ (Ideal.Quotient.mk_surjective.comp H)
 
-open Topology in
-@[to_additive]
-lemma MonoidHom.continuous_iff_isOpen_ker {α β : Type*} [TopologicalSpace α] [TopologicalSpace β]
-    [Group α] [MulOneClass β] {f : α →* β} [DiscreteTopology β] [IsTopologicalGroup α] :
-    Continuous f ↔ IsOpen (X := α) f.ker := by
-  refine ⟨fun H ↦ H.1 {1} (isOpen_discrete _), fun H ↦ continuous_of_continuousAt_one _ ?_⟩
-  simpa [ContinuousAt] using Filter.eventually_of_mem (H.mem_nhds (by simp)) (by simp)
-
 lemma RingHom.continuous_iff_isOpen_ker {α β : Type*} [TopologicalSpace α] [TopologicalSpace β]
     [Ring α] [Semiring β] {f : α →+* β} [DiscreteTopology β] [IsTopologicalAddGroup α] :
     Continuous f ↔ IsOpen (X := α) (RingHom.ker f) :=
-  AddMonoidHom.continuous_iff_isOpen_ker (f := f.toAddMonoidHom)
+  AddMonoidHom.continuous_iff_isOpen_ker (φ := f.toAddMonoidHom)
 
 open Topology in
 lemma continuousAt_discrete_rng {α β : Type*} [TopologicalSpace α] [TopologicalSpace β]
