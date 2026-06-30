@@ -190,7 +190,7 @@ lemma Module.finrank_pos_of_free {R M : Type*} [CommRing R] [AddCommGroup M] [Mo
 
 lemma Module.finrank_eq_one_iff_algebraMap_bijective
     {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
-    [Module.Free R S] [Module.Finite R S] [Nontrivial R] :
+    [Module.Free R S] [Nontrivial R] :
     Module.finrank R S = 1 ↔ Function.Bijective (algebraMap R S) := by
   constructor
   · intro H
@@ -394,8 +394,8 @@ lemma HenselianLocalRing.eq_of_toAlgHom_residueField_comp_eq
 
 lemma HenselianLocalRing.eq_of_residueFieldMap_eq {A B : Type*}
     [CommRing A] [IsLocalRing A] [Algebra R A]
-      [Module.Finite R A] [Algebra.Etale R A]
-    [CommRing B] [IsLocalRing B] [Algebra R B] [Module.Finite R B] [Algebra.Etale R B]
+    [Algebra.Etale R A]
+    [CommRing B] [IsLocalRing B] [Algebra R B] [Module.Finite R B]
     (f₁ f₂ : A →ₐ[R] B) [IsLocalHom f₁.toRingHom] [IsLocalHom f₂.toRingHom]
     (H : ResidueField.map f₁.toRingHom = ResidueField.map f₂.toRingHom) : f₁ = f₂ := by
   have : HenselianLocalRing B := .of_finite (R := R)

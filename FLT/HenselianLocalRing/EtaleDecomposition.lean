@@ -152,7 +152,7 @@ def tensorQuotientTensorEquiv
 
 lemma ncard_primesOver_quotient_singleton_lt_of_notMem
     {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
-    (P : Ideal R) [P.IsPrime] (e : S) (P' : Ideal S) [P'.IsPrime] [P'.LiesOver P]
+    (P : Ideal R) (e : S) (P' : Ideal S) [P'.IsPrime] [P'.LiesOver P]
     (heP' : e ∉ P') (H : (P.primesOver S).Finite) :
     (P.primesOver (S ⧸ Ideal.span {e})).ncard < (P.primesOver S).ncard := by
   rw [← Set.ncard_image_of_injective _

@@ -43,7 +43,7 @@ local notation "𝒪_[" K ", " v "]" => HeightOneSpectrum.adicCompletionIntegers
 
 variable (ℒ : LocalLevelStruct F R) (v : ℙ(F)) (hv : ℒ.χ v = 1) (g : GL₂(v.adicCompletion F))
 
-lemma LevelStruct.star_χA (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] (u) :
+lemma LevelStruct.star_χA (ℒ : LevelStruct F R) (u) :
     starRingEnd ℂ (algebraMap R ℂ (ℒ.χA u)) = (algebraMap R ℂ (ℒ.χA u))⁻¹ := by
   refine (Complex.inv_eq_conj ?_).symm
   obtain ⟨n, hn, e⟩ := isOfFinOrder_iff_pow_eq_one.mp (ℒ.isOfFinOrder_χA_apply u)
@@ -51,24 +51,24 @@ lemma LevelStruct.star_χA (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D] (
   simp [← norm_pow, ← map_pow, e]
 
 /-- The summand appearing in the Petersson inner product. -/
-def LevelStruct.innerSummand (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D]
+def LevelStruct.innerSummand (ℒ : LevelStruct F R)
     (f g : ℒ.form D ℂ) (a : Dˣ＼GL₂(𝔸 F)／ℒ.UA) : ℂ :=
   (ℒ.ΔIndex D a : ℂ)⁻¹ *
   Quotient.lift (fun i ↦ starRingEnd ℂ (f.1 i) * g.1 i) (by
     intro x y e
     obtain ⟨_, ⟨d, rfl⟩, u, hu, rfl⟩ := DoubleCoset.rel_iff.mp e
     lift u to ℒ.UA using hu
-    simp [mul_assoc, Algebra.smul_def, LevelStruct.star_χA (D := D)]
+    simp [mul_assoc, Algebra.smul_def, LevelStruct.star_χA]
     field [(((Group.isUnit u).map ℒ.χA).map _).ne_zero]) a
 
-lemma LevelStruct.starRingEnd_innerSummand (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D]
+lemma LevelStruct.starRingEnd_innerSummand (ℒ : LevelStruct F R)
     (f g : ℒ.form D ℂ) (a : Dˣ＼GL₂(𝔸 F)／ℒ.UA) :
     starRingEnd ℂ (ℒ.innerSummand f g a) = ℒ.innerSummand g f a := by
   obtain ⟨a, rfl⟩ := Quotient.mk_surjective a
   simp [innerSummand, mul_comm]
 
 @[simp]
-lemma LevelStruct.innerSummand_add_left (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D]
+lemma LevelStruct.innerSummand_add_left (ℒ : LevelStruct F R)
     (f₁ f₂ g : ℒ.form D ℂ) :
     ℒ.innerSummand (f₁ + f₂) g = ℒ.innerSummand f₁ g + ℒ.innerSummand f₂ g := by
   ext a
@@ -77,7 +77,7 @@ lemma LevelStruct.innerSummand_add_left (ℒ : LevelStruct F R) [ℒ.IsSufficien
   simp [innerSummand, add_mul, mul_add]
 
 @[simp]
-lemma LevelStruct.innerSummand_smul_left (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D]
+lemma LevelStruct.innerSummand_smul_left (ℒ : LevelStruct F R)
     (f g : ℒ.form D ℂ) (z : ℂ) :
     ℒ.innerSummand (z • f) g = starRingEnd ℂ z • ℒ.innerSummand f g := by
   ext a
@@ -129,7 +129,7 @@ variable [IsQuaternionAlgebra F D]
 
 We later show that this is independent of the level. -/
 protected noncomputable
-def LevelStruct.inner (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D]
+def LevelStruct.inner (ℒ : LevelStruct F R)
     (f g : ℒ.form D ℂ) : ℂ :=
     (haarQuot F (ℒ.U.map (QuotientGroup.mk' (𝔸ˣ F)))).toNNReal *
       ∑ a : Dˣ＼GL₂(𝔸 F)／ℒ.UA, ℒ.innerSummand f g a
@@ -139,7 +139,7 @@ variable [NumberField.IsTotallyReal F] [IsQuaternionAlgebra.IsTotallyDefinite F 
 omit [Algebra R ℂ] in
 lemma LevelStruct.sum_filter_map_eq_ΔIndex_div_ΔIndex
     (ℒ ℒ' : LevelStruct F R) (h : ℒ ≤ ℒ') (g : Dˣ＼GL₂(𝔸 F)／ℒ'.UA)
-    [ℒ.IsSufficientlySmall D] [ℒ'.IsSufficientlySmall D] [DecidableEq (Dˣ＼GL₂(𝔸 F)／ℒ'.UA)] :
+    [DecidableEq (Dˣ＼GL₂(𝔸 F)／ℒ'.UA)] :
     ∑ a : Dˣ＼GL₂(𝔸 F)／ℒ.UA with DoubleCoset.map _ _ _ _ (.id _) le_rfl
         (UA_mono h) a = g, LevelStruct.ΔIndex D ℒ' g / LevelStruct.ΔIndex D ℒ a =
     ℒ.UA.relIndex ℒ'.UA := by
@@ -162,7 +162,6 @@ lemma LevelStruct.sum_filter_map_eq_ΔIndex_div_ΔIndex
 lemma LevelStruct.inner_eq_of_map_le_map
     {R' : Type*} [CommRing R'] [Algebra R' ℂ]
     (ℒ : LevelStruct F R) (ℒ' : LevelStruct F R')
-    [ℒ.IsSufficientlySmall D] [ℒ'.IsSufficientlySmall D]
     (hUV : ℒ.map (algebraMap R ℂ) ≤ ℒ'.map (algebraMap R' ℂ))
     (f g : ℒ'.form D ℂ) :
     ℒ'.inner f g = ℒ.inner
@@ -189,7 +188,7 @@ lemma LevelStruct.inner_eq_of_map_le_map
     have Hf := ℒ'.apply_mul_eq_χA_smul _ f.2 ⟨u, hu⟩ y
     have Hg := ℒ'.apply_mul_eq_χA_smul _ g.2 ⟨u, hu⟩ y
     dsimp at Hf Hg
-    simp [mul_assoc, innerSummand, Hf, Hg, ℒ'.star_χA (D := D), Algebra.smul_def,
+    simp [mul_assoc, innerSummand, Hf, Hg, ℒ'.star_χA, Algebra.smul_def,
       -mul_eq_mul_left_iff, mul_left_comm _ (starRingEnd ℂ _),
       (((Group.isUnit ⟨u, hu⟩).map ℒ'.χA).map _).ne_zero]
   · suffices ∑ y with φ y = ⟦x⟧, (ΔIndex D ℒ y : ℂ)⁻¹ =
@@ -213,7 +212,7 @@ lemma LevelStruct.inner_eq_of_map_le_map
     · have := ℒ.isFiniteRelIndex_Δ (D := D); simpa using! Subgroup.relIndex_ne_zero
 
 lemma LevelStruct.inner_eq_of_le
-    (ℒ ℒ' : LevelStruct F R) [ℒ.IsSufficientlySmall D] [ℒ'.IsSufficientlySmall D]
+    (ℒ ℒ' : LevelStruct F R)
     (hUV : ℒ ≤ ℒ')
     (f g : ℒ'.form D ℂ) :
     ℒ'.inner f g = ℒ.inner ⟨f.1, form_anti hUV f.2⟩ ⟨g.1, form_anti hUV g.2⟩ :=
@@ -221,7 +220,6 @@ lemma LevelStruct.inner_eq_of_le
 
 lemma LevelStruct.inner_eq {R' : Type*} [CommRing R'] [Algebra R' ℂ]
     (ℒ : LevelStruct F R) (ℒ' : LevelStruct F R')
-    [ℒ.IsSufficientlySmall D] [ℒ'.IsSufficientlySmall D]
     (f g : WeightTwoAutomorphicForm F D ℂ)
     (hfℒ : f ∈ ℒ.form D ℂ) (hgℒ : g ∈ ℒ.form D ℂ)
     (hfℒ' : f ∈ ℒ'.form D ℂ) (hgℒ' : g ∈ ℒ'.form D ℂ) :
@@ -314,14 +312,14 @@ instance (ℒ : LevelStruct F R) : InnerProductSpace ℂ (ℒ.form D ℂ) :=
 
 local notation "⟪" x ", " y "⟫" => inner ℂ x y
 
-lemma LevelStruct.inner_def_of_mem (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D]
+lemma LevelStruct.inner_def_of_mem (ℒ : LevelStruct F R)
     (f g) (hf : f ∈ ℒ.form D ℂ) (hg : g ∈ ℒ.form D ℂ) : ⟪f, g⟫ = ℒ.inner ⟨f, hf⟩ ⟨g, hg⟩ :=
   inner_eq ..
 
-lemma LevelStruct.inner_coe (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D]
+lemma LevelStruct.inner_coe (ℒ : LevelStruct F R)
     (f g : ℒ.form D ℂ) : ⟪f.1, g.1⟫ = ⟪f, g⟫ := rfl
 
-lemma LevelStruct.inner_def (ℒ : LevelStruct F R) [ℒ.IsSufficientlySmall D]
+lemma LevelStruct.inner_def (ℒ : LevelStruct F R)
     (f g : ℒ.form D ℂ) : ⟪f, g⟫ = ℒ.inner f g :=
   inner_eq ..
 
@@ -423,7 +421,6 @@ lemma inner_adicCompletion_smul (f g : WeightTwoAutomorphicForm F D ℂ)
   (inner_smul_eq_inner_inv_smul f g (GL2.finiteAdeleIncl v a)).trans (by rw [← map_inv]; rfl)
 
 theorem LocalLevelStruct.inner_heckeOperator
-    [ℒ.toStruct.IsFinite D] [ℒ.toStruct.IsSufficientlySmall D]
     (f₁ f₂ : ℒ.toStruct.form D ℂ) :
     ⟪ℒ.heckeOperator D ℂ v hv g f₁, f₂⟫ = ⟪f₁, ℒ.heckeOperator D ℂ v hv g⁻¹ f₂⟫ := by
   classical
@@ -879,7 +876,9 @@ lemma Eigenform.prime_mem_minimalPrimes [IsNoetherianRing R] (𝒻 : Eigenform D
   refine (Algebra.QuasiFiniteAt.eq_of_le_of_under_eq (R := R) hP' ?_).ge
   refine le_antisymm (by exact Ideal.comap_mono hP') (by rw [𝒻.under_prime]; exact bot_le)
 
-lemma Eigenform.exists_le_of_isPrime (P : Ideal (anemic D 𝒮)) [P.IsPrime] (hP : P.under R = ⊥) :
+-- linter complained that [P.IsPrime] wasn't needed, so this lemma is now
+-- poorly-named
+lemma Eigenform.exists_le_of_isPrime (P : Ideal (anemic D 𝒮)) (hP : P.under R = ⊥) :
     ∃ 𝒻 : Eigenform D 𝒮, P ≤ 𝒻.prime.asIdeal := by
   have : Nontrivial (ℂ ⊗[R] (anemic D 𝒮 ⧸ P)) :=
     Algebra.TensorProduct.nontrivial_of_algebraMap_injective_of_flat_left _ _ _ <| by
