@@ -65,49 +65,24 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal [SecondCountableTopology 
     (ρ : (ι → F) ≃L[F] (ι → F)) {D : ι → F}
     (h : ρ.toLinearMap.toMatrix' = Matrix.diagonal D) :
     addEquivAddHaarChar ρ.toContinuousAddEquiv = ringHaarChar ρ.toLinearEquiv.det := by
-  -- 1) determinant computations
-  let f := ρ.toLinearMap
-  have f_eq : f = Matrix.toLin' (Matrix.diagonal D) := by
+  have feq : ρ.toLinearMap = Matrix.toLin' (Matrix.diagonal D) := by
     rw [← h, Matrix.toLin'_toMatrix']
-  have f_det : f.det = (∏ i, D i) := by
-    simp only [f_eq, LinearMap.det_toLin', det_diagonal]
-  -- we know det(ρ) is a unit
-  have det_isUnit : IsUnit (f.det) := LinearEquiv.isUnit_det' ρ.toLinearEquiv
-  have prod_isUnit : IsUnit (∏ i, D i) := by
-    -- det(diagonal D) = ∏ i, D i
-    simp [← f_det, det_isUnit]
-  have D_isUnit : ∀ i, IsUnit (D i) := by
-    -- product of things is a unit => they're all units
-    rwa [← IsUnit.prod_univ_iff]
-  have det_equiv : (↑(ρ.toLinearEquiv.det) : F) = ∏ i, D i := by
-    have: ↑(ρ.toLinearEquiv.det) = f.det := LinearEquiv.coe_det ρ.toLinearEquiv
-    simp [this, f_det]
-  -- 2) identify ρ with coordinatewise scalings x ↦ (i ↦ D i * x i)
-  have hρDi : ∀ (x : ι → F) (i : ι), ρ.toContinuousAddEquiv x i = D i * x i := by
-    intro x i
-    calc
-      ρ.toContinuousAddEquiv x i = f x i := rfl
-      _ = toLin' (diagonal D) x i := by rw [f_eq]
-      _ = D i * x i := by exact mulVec_diagonal D x i
-  -- 3) LHS: compute via `piCongrRight`
-  let ψ : ι → ContinuousAddEquiv F F :=
-    fun i => ContinuousAddEquiv.mulLeft (D_isUnit i).unit
-  have h_pi :
-      addEquivAddHaarChar ρ.toContinuousAddEquiv
-        = ∏ i, ringHaarChar (D_isUnit i).unit := by
-    have : ρ.toContinuousAddEquiv = ContinuousAddEquiv.piCongrRight ψ := by
-      ext x i; simp only [ψ, hρDi x i]; rfl
-    rw [this]
-    exact addEquivAddHaarChar_piCongrRight ψ
-  -- 4) RHS: compute `ringHaarChar det ρ` as the same product
-  have det_units :
-    ρ.toLinearEquiv.det = prod_isUnit.unit := Units.val_inj.mp det_equiv
-  have h_det :
-    ringHaarChar ρ.toLinearEquiv.det = ∏ i, ringHaarChar (D_isUnit i).unit := by
-      have: prod_isUnit.unit = ∏ i, (D_isUnit i).unit := by ext; simp
-      simp only [det_units, this, map_prod]
-  -- 4) Conclude.
-  exact h_pi.trans h_det.symm
+  have fdet : ρ.toLinearMap.det = ∏ i, D i := by rw [feq, LinearMap.det_toLin', det_diagonal]
+  have hu (i : ι) : IsUnit (D i) := by
+    refine IsUnit.prod_univ_iff.1 ?_ i
+    rw [← fdet]
+    exact LinearEquiv.isUnit_det' ρ.toLinearEquiv
+  -- `ρ` acts coordinatewise as left multiplication by the units `D i`, so both sides equal
+  -- `∏ i, ringHaarChar (D i)`: the left via `piCongrRight`, the right since `det ρ = ∏ i, D i`.
+  have hρ : ρ.toContinuousAddEquiv = .piCongrRight fun i ↦ .mulLeft (hu i).unit := by
+    ext x i
+    calc ρ.toContinuousAddEquiv x i = Matrix.toLin' (Matrix.diagonal D) x i := by rw [← feq]; rfl
+      _ = D i * x i := mulVec_diagonal D x i
+  have hdet : ρ.toLinearEquiv.det = ∏ i, (hu i).unit := by
+    apply Units.val_inj.1
+    simpa [LinearEquiv.coe_det] using fdet
+  rw [hρ, addEquivAddHaarChar_piCongrRight, hdet, map_prod]
+  rfl
 
 /-- A transvection preserves addHaar on `ι → F`.
 -/
