@@ -70,18 +70,17 @@ lemma addEquivAddHaarChar_eq_ringHaarChar_det_diagonal [SecondCountableTopology 
   have fdet : ρ.toLinearMap.det = ∏ i, D i := by rw [feq, LinearMap.det_toLin', det_diagonal]
   have hu (i : ι) : IsUnit (D i) := by
     refine IsUnit.prod_univ_iff.1 ?_ i
-    rw [← fdet]; exact LinearEquiv.isUnit_det' ρ.toLinearEquiv
+    rw [← fdet]
+    exact LinearEquiv.isUnit_det' ρ.toLinearEquiv
   -- `ρ` acts coordinatewise as left multiplication by the units `D i`, so both sides equal
   -- `∏ i, ringHaarChar (D i)`: the left via `piCongrRight`, the right since `det ρ = ∏ i, D i`.
   have hρ : ρ.toContinuousAddEquiv = .piCongrRight fun i ↦ .mulLeft (hu i).unit := by
     ext x i
     calc ρ.toContinuousAddEquiv x i = Matrix.toLin' (Matrix.diagonal D) x i := by rw [← feq]; rfl
       _ = D i * x i := mulVec_diagonal D x i
-      _ = _ := rfl
   have hdet : ρ.toLinearEquiv.det = ∏ i, (hu i).unit := by
     apply Units.val_inj.1
-    rw [LinearEquiv.coe_det]
-    simpa using fdet
+    simpa [LinearEquiv.coe_det] using fdet
   rw [hρ, addEquivAddHaarChar_piCongrRight, hdet, map_prod]
   rfl
 
