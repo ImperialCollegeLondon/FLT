@@ -6,7 +6,7 @@ Authors: Kevin Buzzard
 module
 
 public import FLT.GaloisRepresentation.HardlyRamified.Defs
-public import FLT.FreyCurve.FreyPackage
+public import FLT.FreyCurve.Basic
 public import FLT.EllipticCurve.Torsion
 import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
 import Mathlib.Data.Nat.Factorial.DoubleFactorial
@@ -32,7 +32,7 @@ noncomputable local instance (p : ℕ) [Fact p.Prime] : Algebra ℤ_[p] (ZMod p)
 
 /-- We cannot hope to make a constructive decidable equality on `AlgebraicClosure ℚ` because
 it is defined in a completely nonconstructive way, so we add the classical instance. -/
-noncomputable local instance : DecidableEq (AlgebraicClosure ℚ) := Classical.typeDecidableEq _
+noncomputable instance : DecidableEq (AlgebraicClosure ℚ) := Classical.typeDecidableEq _
 
 theorem FreyCurve.torsion_isHardlyRamified :
     haveI : Fact (P.p.Prime) := ⟨P.pp⟩

@@ -25,13 +25,13 @@ theorem PNat.pow_add_pow_ne_pow
     (x y z : ℕ+)
     (n : ℕ) (hn : n > 2) :
     x^n + y^n ≠ z^n :=
-  PNat.pow_add_pow_ne_pow_of_FermatLastTheorem Wiles_Taylor_Wiles x y z n hn
+  PNat.pow_add_pow_ne_pow_of_FermatLastTheorem flt x y z n hn
 
 /--
-info: 'PNat.pow_add_pow_ne_pow' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+info: 'PNat.pow_add_pow_ne_pow' depends on axioms: [knownin1980s, propext, sorryAx, Classical.choice, Quot.sound]
 -/
 #guard_msgs in
 #print axioms PNat.pow_add_pow_ne_pow
 
--- The project will be complete when `sorryAx` is no longer
--- mentioned in the output of this last command.
+-- The EPSRC-funded phase of the FLT project (formalize FLT modulo results known in the 1980s)
+-- will be complete when `sorryAx` is no longer mentioned in the output of this last command.

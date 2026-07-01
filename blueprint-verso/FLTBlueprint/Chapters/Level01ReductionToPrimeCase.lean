@@ -5,7 +5,6 @@ import Mathlib.NumberTheory.FLT.Basic
 import Mathlib.NumberTheory.FLT.Three
 import Mathlib.NumberTheory.FLT.Four
 import FLT.Basic.Lemmas
-import FLT.FreyCurve.Contradiction
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -28,16 +27,9 @@ that the reader knows what things like $`5` and "prime" mean, and
 furthermore that they are happy with basic properties of the natural numbers
 such as factoring numbers into primes.
 
-We recall what we're trying to prove.
-
--- TODO error: FLTBlueprint/Blueprint.lean:23:0: Duplicate imported blueprint node label 'flt'
-:::theorem "flt2_this_is_flt" (parent := "definitions") (lean := "Wiles_Taylor_Wiles")
-Fermat's Last Theorem is a simple relationship between {uses "addition"}[addition]
-and {uses "exponentiation"}[exponentiation]. TODO remove these links.
-Let $`a`, $`b` and $`c` be {uses "leq"}[positive] natural numbers
-and let $`n` be a natural number with {uses "small_numbers"}[$`3 \leq n`]. Then
+We recall what we're trying to prove: Let $`a`, $`b` and $`c` be positive natural numbers
+and let $`n` be a natural number with $`3 \leq n`. Then
 $`a ^ n + b ^ n \neq c ^ n`.
-:::
 
 We're going to start the proof by making a reduction. That is, we will
 write down another mathematical statement, Theorem B1.
@@ -141,7 +133,7 @@ Such a $`p` is at least $`3`; if $`p = 3` then $`3 \mid n`, and if not then $`p`
 is an odd prime other than $`3`, hence $`p \geq 5` divides $`n`.
 :::
 
-:::theorem "flt_of_prime_ge_5" (parent := "reductions")
+:::theorem "flt_of_prime_ge_5" (parent := "reductions") (lean := "FermatLastTheorem.of_p_ge_5")
 *(Level boss.)* {uses "flt_prime_ge_5"}[Statement $`B_1`] implies
 {uses "flt"}[Fermat's Last Theorem].
 :::

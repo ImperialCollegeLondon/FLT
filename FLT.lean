@@ -41,8 +41,9 @@ public import FLT.Deformations.RepresentationTheory.Irreducible
 public import FLT.Deformations.Subfunctor
 public import FLT.DivisionAlgebra.Finiteness
 public import FLT.EllipticCurve.Torsion
-public import FLT.FreyCurve.Contradiction
+public import FLT.FreyCurve.Basic
 public import FLT.FreyCurve.FreyPackage
+public import FLT.FreyCurve.Mazur
 public import FLT.GaloisRepresentation.Automorphic
 public import FLT.GaloisRepresentation.Cyclotomic
 public import FLT.GaloisRepresentation.HardlyRamified.Defs
@@ -169,5 +170,6 @@ public import FLT.Patching.Utils.Lemmas
 public import FLT.Patching.Utils.StructureFiniteness
 public import FLT.Patching.Utils.TopologicallyFG
 public import FLT.Patching.VanishingFilter
+public import FLT.Proof
 public import FLT.QuaternionAlgebra.NumberField
 public import FLT.TateCurve.TateCurve

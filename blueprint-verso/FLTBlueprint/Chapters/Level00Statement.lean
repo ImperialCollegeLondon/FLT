@@ -1,6 +1,7 @@
 import Verso
 import VersoManual
 import VersoBlueprint
+import Mathlib.NumberTheory.FLT.Basic
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -9,7 +10,7 @@ open Informal
 #doc (Manual) "Level 0: Stating Fermat's Last Theorem" =>
 
 Let's start at the beginning, by defining the natural numbers
-$`\mathbb{N}`. Our convention will be that they start at zero.
+$`\mathbb{N}=\{0,1,2,3,\ldots\}`. Our convention will be that they start at zero.
 Indeed, this will be the first of the rules which we use
 to define the natural numbers.
 
@@ -28,8 +29,8 @@ The *natural numbers* are defined by these rules:
 :::
 
 
-The successor of a number means the one that comes after it — for example,
-the successor of 2 is 3. But we're getting ahead of ourselves, we didn't
+The _successor_ of a number means the one that comes after it — for example,
+the successor of 37 is 38. But we're getting ahead of ourselves, we didn't
 name any numbers yet other than zero. Using successors,
 let's name some more numbers.
 
@@ -93,7 +94,7 @@ $`1 \leq n`.
 
 We are now ready to state Fermat's Last Theorem!
 
-:::theorem "flt" (parent := "definitions") (owner := "flt_author")
+:::theorem "flt" (parent := "definitions") (owner := "flt_author") (lean := "FermatLastTheorem")
 Fermat's Last Theorem is a simple relationship between {uses "addition"}[addition]
 and {uses "exponentiation"}[exponentiation]. Let $`a`, $`b` and $`c` be
 {uses "leq"}[positive] natural numbers

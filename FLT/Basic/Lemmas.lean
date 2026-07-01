@@ -6,9 +6,12 @@ Authors: Kevin Buzzard
 module
 
 public import Mathlib.Data.Nat.Factors
+public import Mathlib.NumberTheory.FLT.Four
+public import Mathlib.NumberTheory.FLT.Three
+
 /-!
 
-# A key lemma for reduction of FLT to the p>=5 prime case.
+ # The reduction of FLT to the p>=5 prime case.
 
 -/
 
@@ -30,3 +33,33 @@ theorem three_dvd_or_four_dvd_or_prime_dvd {n : ℕ} (hn : 3 ≤ n) :
     grind [not_prime_one]
 
 end Nat
+
+/-- If Fermat's Last Theorem is true for primes `p ≥ 5`, then FLT is true. -/
+lemma FermatLastTheorem.of_p_ge_5 (H : ∀ p ≥ 5, p.Prime → FermatLastTheoremFor p) :
+    FermatLastTheorem := by
+  -- let n ≥ 3 and let's prove a^n + b^n ≠ c^n for positive
+  -- integers a, b, c.
+  intro n hn
+  -- we split into three cases 3|n, 4|n and p|n with p>=5 prime
+  obtain h3 | h4 | ⟨p, hpp, hp5, hpn⟩ := Nat.three_dvd_or_four_dvd_or_prime_dvd hn
+  · -- if 3|n then FLT for n follows from FLT for n=3
+    apply FermatLastTheoremFor.mono h3
+    -- but FLT for n=3 is a theorem of Euler
+    exact fermatLastTheoremThree
+  · -- if 4|n then FLT for n follows from FLT for n=4
+    apply FermatLastTheoremFor.mono h4
+    -- but FLT for n=4 is a theorem of Fermat.
+    exact fermatLastTheoremFour
+  · -- Finally if p>=5 divides n then FLT for n follows from FLT for p
+    apply FermatLastTheoremFor.mono hpn
+    -- and this is our assumption
+    exact H _ hp5 hpp
+
+/-- Fermat's Last Theorem as stated in mathlib (a statement `FermatLastTheorem` about naturals)
+implies Fermat's Last Theorem stated in terms of positive integers. -/
+theorem PNat.pow_add_pow_ne_pow_of_FermatLastTheorem :
+    FermatLastTheorem → ∀ (a b c : ℕ+) (n : ℕ) (_ : n > 2),
+    a ^ n + b ^ n ≠ c ^ n := by
+  intro h₁ a b c n h₂
+  specialize h₁ n h₂ a b c (by simp) (by simp) (by simp)
+  assumption_mod_cast
