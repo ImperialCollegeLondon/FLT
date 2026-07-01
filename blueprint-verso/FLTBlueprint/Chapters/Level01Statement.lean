@@ -7,7 +7,7 @@ open Verso.Genre
 open Verso.Genre.Manual
 open Informal
 
-#doc (Manual) "Level 0: Stating Fermat's Last Theorem" =>
+#doc (Manual) "Level 1: Stating Fermat's Last Theorem" =>
 
 Let's start at the beginning, by defining the natural numbers
 $`\mathbb{N}=\{0,1,2,3,\ldots\}`. Our convention will be that they start at zero.
@@ -35,7 +35,7 @@ name any numbers yet other than zero. Using successors,
 let's name some more numbers.
 
 :::definition "small_numbers" (parent := "definitions") (lean := "One.one")
-We name the following {uses "natural_numbers"}[numbers].
+We name the following {uses "natural_numbers"}[natural numbers].
 We define $`1` to be $`S(0)` (the successor of zero), we let $`2` be $`S(1)` and
 we define $`3` to be $`S(2)`.
 :::
@@ -54,7 +54,7 @@ For example, let's define addition using this strategy.
 Given a number $`x`, how are we going to add it to another number $`y`?
 Let's apply the "that's it" rule to $`y`.
 
-:::definition "addition" (parent := "definitions") (lean := "Nat.add")
+:::definition "addition" (parent := "definitions") (lean := "Nat.add") (uses := "natural_numbers")
 We define *addition* $`x + y` by the following rules:
 * $`x + 0` is defined to be $`x`;
 * If we have already defined $`x + n`, then we define $`x + S(n)` to be $`S(x + n)`.
@@ -68,22 +68,21 @@ with the fact that adding $`0` to a number is easy, we have just defined additio
 Multiplication $`x \times y` and exponentiation $`x^y` can be dealt with
 in the same way:
 
-:::definition "multiplication" (parent := "definitions") (lean := "Nat.mul")
-*Multiplication* $`x \times y` is defined using {uses "addition"}[addition],
+:::definition "multiplication" (parent := "definitions") (lean := "Nat.mul") (uses := "natural_numbers, addition")
+*Multiplication* $`x \times y` is defined
 by the following rules:
 * $`x \times 0` is defined to be $`0`;
 * If we know $`x \times n`, we define $`x \times S(n)` to be $`(x \times n) + n`.
 :::
 
-:::definition "exponentiation" (parent := "definitions") (lean := "Nat.pow")
-*Exponentiation* $`x^y` is defined using {uses "multiplication"}[multiplication]
-and {uses "small_numbers"}[one] by these rules:
+:::definition "exponentiation" (parent := "definitions") (lean := "Nat.pow") (uses := "small_numbers, multiplication")
+*Exponentiation* $`x^y` is defined by these rules:
 * $`a ^ 0` is defined to be  $`1`;
 * $`a ^ {S(n)}` is defined to be $`a ^ n \times a`.
 :::
 
 The last thing we need in this section is the concept of an inequality
-between two numbers, which is a way of saying who was born first.
+between two natural numbers, which is a way of saying who was born first.
 
 :::definition "leq" (parent := "definitions") (lean := "Nat.le")
 We define $`x \leq y`
@@ -94,12 +93,11 @@ $`1 \leq n`.
 
 We are now ready to state Fermat's Last Theorem!
 
-:::theorem "flt" (parent := "definitions") (owner := "flt_author") (lean := "FermatLastTheorem")
-Fermat's Last Theorem is a simple relationship between {uses "addition"}[addition]
-and {uses "exponentiation"}[exponentiation]. Let $`a`, $`b` and $`c` be
+:::theorem "FLT_statement" (parent := "definitions") (owner := "flt_author") (lean := "FermatLastTheorem")
+Let $`a`, $`b` and $`c` be
 {uses "leq"}[positive] natural numbers
 and let $`n` be a natural number with {uses "small_numbers"}[$`3 \leq n`]. Then
-$`a ^ n + b ^ n \neq c ^ n`.
+{uses "addition"}[$`a ^ n + b ^ n`]$`\;\neq\;`{uses "exponentiation"}[$`c ^ n`].
 :::
 
 The moral of the story so far is that a rigorous statement of Fermat's Last

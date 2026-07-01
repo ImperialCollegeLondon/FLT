@@ -5,15 +5,21 @@ import Mathlib.NumberTheory.FLT.Basic
 import Mathlib.NumberTheory.FLT.Three
 import Mathlib.NumberTheory.FLT.Four
 import FLT.Basic.Lemmas
+import FLT.FreyCurve.FreyPackage
 
 open Verso.Genre
 open Verso.Genre.Manual
 open Informal
 
-#doc (Manual) "Level 1: First reductions" =>
+#doc (Manual) "Level 2: First reductions" =>
 
-Our ultimate goal is to prove that there are no solutions to $`x^n + y^n = z^n` in positive
-integers when $`n \geq 3`. Our first step is to reduce to the case where $`n`
+Recall our goal:
+
+:::theorem "FLT_proof" (parent := "reductions") (uses := "FLT_statement") (lean := "FermatLastTheorem.of_p_ge_5")
+If $`a,b,c,n` are positive integers with $`n\geq3` then $`a^n+b^n\not=c^n.`
+:::
+
+Our first step is to reduce to the case where $`n`
 is prime and at least $`5`. Before we start, we should observe that even this
 relatively straightforward task would be _extremely_ long and tedious assuming
 only the axioms of mathematics. For example, although we have defined addition
@@ -32,44 +38,42 @@ and let $`n` be a natural number with $`3 \leq n`. Then
 $`a ^ n + b ^ n \neq c ^ n`.
 
 We're going to start the proof by making a reduction. That is, we will
-write down another mathematical statement, Theorem B1.
+write down another mathematical statement, Theorem $`B_2` (the 2 indicates
+that we are in level 2 of the proof).
 Then the boss of this level (i.e., the main objective of this chapter)
-will be to prove Fermat's Last Theorem *assuming* theorem B1.
+will be to prove Fermat's Last Theorem *assuming* theorem $`B_2`.
 
 :::group "reductions"
 The reduction of Fermat's Last Theorem to the case of prime exponent at least
 five.
 :::
 
-Consider the following statement.
-
-:::theorem "flt_prime_ge_5" (parent := "reductions")
-*(Statement $`B_1`.* )For every prime number $`p \geq 5`,
+Consider the following statement $`B_2`:
+For every prime number $`p \geq 5`,
 Fermat's Last Theorem holds for the exponent $`p`: there are no positive natural
 numbers $`a, b, c` with $`a^p + b^p = c^p`.
-:::
 
-The theorem we shall prove in this section is that statement $`B_1` implies
+The theorem we shall prove in this section is that statement $`B_2` implies
 Fermat's Last Theorem. We will do this, assuming two old theorems which
 date back centuries.
 
-:::theorem "fermatLastTheoremThree" (parent := "reductions") (lean := "fermatLastTheoremThree")
+:::theorem "flt_three" (parent := "reductions") (lean := "fermatLastTheoremThree")
 *(Euler.)* There are no positive natural numbers $`a, b, c` with
 $`a^3 + b^3 = c^3`.
 :::
 
-:::proof "fermatLastTheoremThree"
+:::proof "flt_three"
 This is an old theorem of Euler. It is already in Lean's mathematics library — it was
 formalized by a team at the 2024 *Lean for the Curious Mathematician* meeting at
 the CIRM in Luminy.
 :::
 
-:::theorem "fermatLastTheoremFour" (parent := "reductions") (lean := "fermatLastTheoremFour")
+:::theorem "flt_four" (parent := "reductions") (lean := "fermatLastTheoremFour")
 *(Fermat.)* There are no positive natural numbers $`a, b, c` with
 $`a^4 + b^4 = c^4`.
 :::
 
-:::proof "fermatLastTheoremFour"
+:::proof "flt_four"
 This one is even older: it is Fermat's own argument by infinite
 descent, and it is also in Lean's mathematics library.
 
@@ -106,12 +110,12 @@ positive integer solutions.
 Modulo these results, the proof of our first reduction
 is completely elementary. We explain the details.
 
-:::lemma_ "descent" (parent := "reductions") (lean := "FermatLastTheoremFor.mono")
+:::lemma_ "FLT_mono" (parent := "reductions") (lean := "FermatLastTheoremFor.mono")
 If $`d` divides $`n` and Fermat's Last Theorem holds for the exponent $`d`, then it
 also holds for the exponent $`n`.
 :::
 
-:::proof "descent"
+:::proof "FLT_mono"
 Write $`n = d m`. Suppose, for contradiction, that there were positive naturals
 with $`a^n + b^n = c^n`. Since $`a^n = a^{d m} = (a^m)^d`, and likewise for $`b`
 and $`c`, the numbers $`a^m, b^m, c^m` would be a positive solution for the
@@ -133,28 +137,25 @@ Such a $`p` is at least $`3`; if $`p = 3` then $`3 \mid n`, and if not then $`p`
 is an odd prime other than $`3`, hence $`p \geq 5` divides $`n`.
 :::
 
-:::theorem "flt_of_prime_ge_5" (parent := "reductions") (lean := "FermatLastTheorem.of_p_ge_5")
-*(Level boss.)* {uses "flt_prime_ge_5"}[Statement $`B_1`] implies
-{uses "flt"}[Fermat's Last Theorem].
-:::
+We can now prove the "boss" of this level: theorem $`B_2` implies Fermat's Last Theorem.
 
-:::proof "flt_of_prime_ge_5"
+:::proof "FLT_proof" (uses := "theorem_B_2_FLT_for_p_geq_5_prime")
 By contradiction. Let's assume Fermat's Last Theorem is false, so we have $`n \geq 3`
 and a solution to $`x^n+y^n=z^n` in positive integers, and let's construct a
-counterexample to statement $`B_1`.
+counterexample to statement $`B_2`.
 
 By {uses "three_dvd_or_four_dvd_or_prime_dvd"}[the previous lemma], $`n` is a multiple
 of $`3`, of $`4`, or of a prime $`p \geq 5`.
 
-By {uses "descent"}[the descent lemma], Fermat's Last Theorem must be false for
+By {uses "FLT_mono"}[the descent lemma], Fermat's Last Theorem must be false for
 $`n=3`, $`n=4` or for some prime $`p \geq 5.`
 
 However, we have just seen that Fermat's Last Theorem is true
-for {uses "fermatLastTheoremThree"}[$`n=3`] and {uses "fermatLastTheoremFour"}[$`n=4`].
+for {uses "flt_three"}[$`n=3`] and {uses "flt_four"}[$`n=4`].
 The only possibility
-left is that it is false for some prime $`p \geq 5`. Hence statement $`B_1` is
+left is that it is false for some prime $`p \geq 5`. Hence statement $`B_2` is
 false, which is what we wanted to prove.
 :::
 
-So all we have to do now is to prove Theorem $`B_1`. In the next level, we will reduce
+So all we have to do now is to prove Statement $`B_2`. In the next level, we will reduce
 our problem even further.

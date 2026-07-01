@@ -42,15 +42,15 @@ lemma FermatLastTheorem.of_p_ge_5 (H : ∀ p ≥ 5, p.Prime → FermatLastTheore
   intro n hn
   -- we split into three cases 3|n, 4|n and p|n with p>=5 prime
   obtain h3 | h4 | ⟨p, hpp, hp5, hpn⟩ := Nat.three_dvd_or_four_dvd_or_prime_dvd hn
-  · -- if 3|n then FLT for n follows from FLT for n=3
+  · -- Case 1: if 3|n then FLT for n follows from FLT for n=3
     apply FermatLastTheoremFor.mono h3
     -- but FLT for n=3 is a theorem of Euler
     exact fermatLastTheoremThree
-  · -- if 4|n then FLT for n follows from FLT for n=4
+  · -- Case 2: if 4|n then FLT for n follows from FLT for n=4
     apply FermatLastTheoremFor.mono h4
     -- but FLT for n=4 is a theorem of Fermat.
     exact fermatLastTheoremFour
-  · -- Finally if p>=5 divides n then FLT for n follows from FLT for p
+  · -- Case 3: Finally if p>=5 divides n then FLT for n follows from FLT for p
     apply FermatLastTheoremFor.mono hpn
     -- and this is our assumption
     exact H _ hp5 hpp

@@ -3,9 +3,9 @@ import VersoManual
 import VersoBlueprint
 import VersoBlueprint.Commands.Graph
 import VersoBlueprint.Commands.Summary
-import FLTBlueprint.Chapters.Level00Statement
-import FLTBlueprint.Chapters.Level01ReductionToPrimeCase
-import FLTBlueprint.Chapters.Level02FreyPackages
+import FLTBlueprint.Chapters.Level01Statement
+import FLTBlueprint.Chapters.Level02ReductionToPrimeCase
+import FLTBlueprint.Chapters.Level03FreyPackages
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -32,9 +32,9 @@ Engineering and Physical Sciences Research Council. The project is hosted at
 [Imperial College London](https://www.imperial.ac.uk/). Kevin would like to extend many many thanks to both of
 these institutions for their ongoing support of this nonstandard research.
 
-{include 0 FLTBlueprint.Chapters.Level00Statement}
-{include 0 FLTBlueprint.Chapters.Level01ReductionToPrimeCase}
-{include 0 FLTBlueprint.Chapters.Level02FreyPackages}
+{include 0 FLTBlueprint.Chapters.Level01Statement}
+{include 0 FLTBlueprint.Chapters.Level02ReductionToPrimeCase}
+{include 0 FLTBlueprint.Chapters.Level03FreyPackages}
 
 {blueprint_graph}
 {blueprint_summary}

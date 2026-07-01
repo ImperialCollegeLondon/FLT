@@ -1,4 +1,4 @@
 import FLTBlueprint.Blueprint
-import FLTBlueprint.Chapters.Level00Statement
-import FLTBlueprint.Chapters.Level01ReductionToPrimeCase
-import FLTBlueprint.Chapters.Level02FreyPackages
+import FLTBlueprint.Chapters.Level01Statement
+import FLTBlueprint.Chapters.Level02ReductionToPrimeCase
+import FLTBlueprint.Chapters.Level03FreyPackages
