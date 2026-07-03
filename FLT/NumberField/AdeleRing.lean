@@ -664,6 +664,13 @@ def FiniteAdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K]
   map_zero' := rfl
   map_add' _ _ := rfl
 
+-- hacks to make the next lemma work with `backward.isDefEq.respectTransparency false `
+-- after mathlib#40144
+variable (p : HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance : NonUnitalNonAssocSemiring  (adicCompletion ℚ p) := inferInstance
+variable (p : HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance : NonUnitalSemiring  (adicCompletion ℚ p) := inferInstance
+
 -- bleurgh
 set_option backward.isDefEq.respectTransparency false in
 lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
