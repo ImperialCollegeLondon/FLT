@@ -32,4 +32,5 @@ theorem FreyPackage.mazur (P : FreyPackage) :
     let p := P.p
     have : Fact p.Prime := ⟨P.pp⟩
     GaloisRep.IsIrreducible (E.galoisRep p P.hppos) := by
+  -- this is in Serre's 1987 Duke paper.
   knownin1980s

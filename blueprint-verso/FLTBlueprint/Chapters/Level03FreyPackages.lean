@@ -2,6 +2,7 @@ import Verso
 import VersoManual
 import VersoBlueprint
 import FLT.FreyCurve.FreyPackage
+import FLT.Proof
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -45,14 +46,16 @@ the concept of a Frey curve in the next level.
 :::
 
 Now we've made the definition, we can state Theorem $`B_3`:
-There is no Frey package.
+:::definition "Statement_B3_no_Frey_Package" (parent := "frey") (lean := "FLT.Bosses.B3")
+There is no {uses "frey_package"}[Frey package].
+:::
 
 Recall that we've reduced Fermat's Last Theorem to theorem $`B_2`:
 Fermat's Last Theorem is true for $`n=p\geq5` prime. We will now
 show that this statement follows from theorem $`B_3`: there is no Frey package.
 
 :::lemma_ "B_3_no_Frey_Package_implies_B_2_FLT_for_p_geq_5" (parent := "frey") (lean := "FreyPackage.fermatLastTheoremFor_p_ge_5")
-Suppose that there is {uses "theorem_B_3_no_frey_package"}[no Frey package]. Then Fermat's Last Theorem is true
+Suppose that there is {uses "Statement_B3_no_Frey_Package"}[no Frey package]. Then Fermat's Last Theorem is true
 for all primes $`p \geq 5`.
 :::
 
@@ -87,4 +90,16 @@ have $`(-a)^p+(-b)^p=(-c)^p`, $`-b` is still even, and $`-a` is now 3 mod 4.
 
 The resulting data $`(a, b, c, p)` is a {uses "frey_package"}[Frey package],
 which was what we were required to construct.
+:::
+
+In the next level, we will begin the proof of $`B_3`. Assuming it for now,
+we can deduce
+
+:::theorem "B2_proof" (parent := "frey") (lean := "FLT.Bosses.B2_proof")
+Statement $`B_2` is true. In other words, FLT is true for $`p\geq5` prime.
+:::
+
+:::proof "B2_proof"
+Follows from {uses "B_3_no_Frey_Package_implies_B_2_FLT_for_p_geq_5"}[the above argument],
+assuming {uses "B3_proof"}[$`B_3.`]
 :::

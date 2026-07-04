@@ -1,13 +1,15 @@
 import Verso
 import VersoManual
 import VersoBlueprint
-import Mathlib.NumberTheory.FLT.Basic
+import FLT.Proof
 
 open Verso.Genre
 open Verso.Genre.Manual
 open Informal
 
-#doc (Manual) "Level 1: Stating Fermat's Last Theorem" =>
+#doc (Manual) "Stating Fermat's Last Theorem" =>
+
+Welcome to the first level of the Fermat's Last Theorem game.
 
 Let's start at the beginning, by defining the natural numbers
 $`\mathbb{N}=\{0,1,2,3,\ldots\}`. Our convention will be that they start at zero.
@@ -91,9 +93,10 @@ A natural number $`n` is called *positive* when
 $`1 \leq n`.
 :::
 
-We are now ready to state Fermat's Last Theorem!
+We are now ready to achieve the goal of this level, which is to state
+Fermat's Last Theorem!
 
-:::theorem "FLT_statement" (parent := "definitions") (owner := "flt_author") (lean := "FermatLastTheorem")
+:::definition "Statement_B1_FLT" (parent := "definitions") (owner := "flt_author") (lean := "FLT.Bosses.B1")
 Let $`a`, $`b` and $`c` be
 {uses "leq"}[positive] natural numbers
 and let $`n` be a natural number with {uses "small_numbers"}[$`3 \leq n`]. Then
@@ -105,5 +108,5 @@ Theorem fits comfortably on one side of a sheet of paper, assuming nothing
 more than the axioms of mathematics and the rules of logic. It is an
 extraordinary fact that every proof of this statement known to humanity runs to
 thousands of pages and involves developing many new definitions and results.
-In the next section, we begin the proof of the theorem by making some
+In the next level, we begin the proof of the theorem by making some
 preliminary reductions.
