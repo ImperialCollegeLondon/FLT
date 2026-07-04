@@ -23,6 +23,7 @@ Material destined for Mathlib.
 
 /-- Reinterpret a continuous additive equivalence between additive groups as a continuous
 `ℤ`-linear equivalence. -/
+@[simps!]
 def ContinuousAddEquiv.toIntContinuousLinearEquiv {M M₂ : Type*} [AddCommGroup M]
     [TopologicalSpace M] [AddCommGroup M₂] [TopologicalSpace M₂] (e : M ≃ₜ+ M₂) :
     M ≃L[ℤ] M₂ where
@@ -64,13 +65,12 @@ def ContinuousMulEquiv.piEquivPiSubtypeProd {ι : Type*} (p : ι → Prop) (Y : 
   {Homeomorph.piEquivPiSubtypeProd p Y with map_mul' _ _ := rfl}
 
 /-- Any `ContinuousMulEquiv` induces a `ContinuousMulEquiv` on units. -/
-def ContinuousMulEquiv.unitsMap {M N : Type*} [TopologicalSpace M] [TopologicalSpace N]
-    [Monoid M] [Monoid N] (f : M ≃ₜ* N) : Mˣ ≃ₜ* Nˣ :=
-  {
+@[simps!]
+def ContinuousMulEquiv.mapUnits {M N : Type*} [TopologicalSpace M] [TopologicalSpace N]
+    [Monoid M] [Monoid N] (f : M ≃ₜ* N) : Mˣ ≃ₜ* Nˣ where
   __ := Units.mapEquiv f
   continuous_toFun := by apply Continuous.units_map _ f.continuous_toFun
   continuous_invFun := by apply Continuous.units_map _ f.continuous_invFun
-      }
 
 @[to_additive]
 theorem ContinuousMulEquiv.coe_toHomeomorph {M N : Type*} [TopologicalSpace M]

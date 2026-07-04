@@ -58,7 +58,7 @@ The desired instances are constructed later as `scoped` instances in `FLT.Number
 -/
 
 @[expose] public section
-open scoped TensorProduct
+open scoped TensorProduct Adele
 
 universe u
 
@@ -75,9 +75,7 @@ variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L]
 section BaseChange
 
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
-scoped notation:max "𝔸" K => AdeleRing (𝓞 K) K
-/-- `𝔸ᶠ[K]` is notation for `FiniteAdeleRing (𝓞 K) K`, where `K` is a number field. -/
-scoped notation:max "𝔸ᶠ[" K "]" => 𝔸ᶠ[𝓞 K, K]
+scoped[Adele] notation:max "𝔸" K => AdeleRing (𝓞 K) K
 
 instance [SMul (𝔸 K) (𝔸 L)] : SMul (K∞ × 𝔸ᶠ[K]) (L∞ × 𝔸ᶠ[L]) :=
   inferInstanceAs (SMul (𝔸 K) (𝔸 L))
@@ -164,19 +162,19 @@ instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     | zero => simp
     | tmul l r =>
         apply Prod.ext
-        · simp only [AlgEquiv.coe_algHom, smul_def, TensorProduct.comm_tmul,
+        · simp only [AlgEquiv.coe_toAlgHom, smul_def, TensorProduct.comm_tmul,
             TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul,
             baseChangeAlgEquiv_fst_apply, smul_fst]
           have := IsBiscalar.map_smul₂ L (S := K∞)
             (f := InfiniteAdeleRing.baseChangeAlgEquiv K L |>.toAlgHom)
-          rw [AlgEquiv.coe_algHom] at this
+          rw [AlgEquiv.coe_toAlgHom] at this
           simp [← this, TensorProduct.smul_tmul']
-        · simp only [AlgEquiv.coe_algHom, smul_def, TensorProduct.comm_tmul,
+        · simp only [AlgEquiv.coe_toAlgHom, smul_def, TensorProduct.comm_tmul,
             TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul,
             baseChangeAlgEquiv_snd_apply, smul_snd]
           change _ = _ • FiniteAdeleRing.baseChangeAdeleAlgEquiv (𝓞 K) K L (𝓞 L) _
           change FiniteAdeleRing.baseChangeAdeleAlgEquiv _ _ _ _ (a.2 • l ⊗ₜ[K] r.2) = _
-          rw [← AlgEquiv.coe_algHom,
+          rw [← AlgEquiv.coe_toAlgHom,
             (FiniteAdeleRing.baseChangeAdeleAlgEquiv (𝓞 K) K L (𝓞 L)).toAlgHom.map_smul_of_tower]
     | add x y _ _ => simp_all
 
@@ -319,7 +317,7 @@ instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     | zero => simp
     | tmul l r =>
         have := IsBiscalar.map_smul₂ L (S := 𝔸 K) (f := (baseChangeAlgEquiv K L).toAlgHom) a
-        rw [AlgEquiv.coe_algHom] at this
+        rw [AlgEquiv.coe_toAlgHom] at this
         simp only [smul_def, TensorProduct.comm_tmul, TensorProduct.smul_tmul',
           TensorProduct.comm_symm_tmul, ModuleBaseChangeLinearEquiv_tmul_apply,
           algebra_compatible_smul (𝔸 L) a]
@@ -631,7 +629,7 @@ theorem Rat.AdeleRing.cocompact :
       (Set.univ.pi fun _ => closedBall 0 1).prod (integralAdeles (𝓞 ℚ) ℚ)
     have h_W_compact : IsCompact W := by
       refine (isCompact_univ_pi fun v => ?_).prod
-        (isCompact_iff_isCompact_univ.2 <| by simpa using CompactSpace.isCompact_univ)
+        (FiniteAdeleRing.isCompact_integralAdeles _)
       exact isCompact_iff_isClosed_bounded.2 ⟨isClosed_closedBall, isBounded_closedBall⟩
     have h_W_image : QuotientAddGroup.mk' (principalSubgroup (𝓞 ℚ) ℚ) '' W = Set.univ := by
       refine Set.eq_univ_iff_forall.2 fun x => ?_
@@ -653,7 +651,7 @@ open InfinitePlace.Completion Set RestrictedProduct in
 /-- The fundamental domain `ℤ^ x [0,1)` for `𝔸_ℚ ⧸ ℚ`. -/
 def Rat.AdeleRing.fundamentalDomain : Set (AdeleRing (𝓞 ℚ) ℚ) :=
   (univ.pi fun v => (extensionEmbeddingOfIsReal (infinitePlace_isReal v)).toFun ⁻¹' (Ico 0 1)).prod
-    (range <| structureMap _ _ _)
+    (range <| FiniteAdeleRing.structureMap _ _)
 
 /-- The canonical ring homomorphism from the finite adele ring to
 a nonarchimedean local factor. -/
@@ -666,7 +664,15 @@ def FiniteAdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K]
   map_zero' := rfl
   map_add' _ _ := rfl
 
+-- hacks to make the next lemma work with `backward.isDefEq.respectTransparency false `
+-- after mathlib#40144
+variable (p : HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance : NonUnitalNonAssocSemiring  (adicCompletion ℚ p) := inferInstance
+variable (p : HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance : NonUnitalSemiring  (adicCompletion ℚ p) := inferInstance
+
 -- bleurgh
+set_option backward.isDefEq.respectTransparency false in
 lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
     ∃ g, algebraMap ℚ (AdeleRing (𝓞 ℚ) ℚ) g + a ∈ fundamentalDomain := by
   obtain ⟨q, f, hf⟩ := FiniteAdeleRing.sub_mem_integralAdeles a.2
@@ -688,7 +694,6 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
       ext v
       change _ = a.2 _ + _
       push_cast
-      simp only [structureMap]
       rfl
     · rw [map_sub, ← add_sub_assoc]
       refine sub_mem ?_ (coe_algebraMap_mem (𝓞 ℚ) ℚ p r)
@@ -770,7 +775,7 @@ theorem Rat.AdeleRing.isAddFundamentalDomain :
         -- a tactic should do this dumb calculation
         refine ⟨?_, ?_⟩
         · rintro ⟨f, rfl⟩ v
-          simp [structureMap]
+          exact (f v).2
         · intro h
           use fun v ↦ ⟨x v, h v⟩
           rfl

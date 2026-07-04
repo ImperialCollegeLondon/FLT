@@ -35,6 +35,36 @@ variable {ℱ : Filter ι}
     {C : (i : ι) → Set (G i)}
     {D : (i : ι) → Set (H i)}
 
+variable {G S : ι → Type*} [Π i, SetLike (S i) (G i)]
+    {C : Π i, S i} [Π i, TopologicalSpace (G i)] in
+theorem RestrictedProduct.isOpen_forall_mem_of_eventually_eq
+    (hC : ∀ i, IsOpen (X := G i) (C i))
+    (U : Π i, S i) (hU : ∀ i, IsOpen (X := G i) (U i))
+    (hU' : ∀ᶠ i in .cofinite, C i = U i) :
+    IsOpen { v : Πʳ i, [G i, C i] | ∀ i, v i ∈ U i } := by
+  convert ((isOpen_set_pi hU' (fun i _ ↦ hU i)).preimage continuous_coe).inter
+    (isOpen_forall_imp_mem hC (p := fun i ↦ C i = U i)) using 1
+  ext v
+  simp only [Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_preimage, Set.mem_pi, Set.mem_compl_iff,
+    ← forall_and]
+  exact forall_congr' fun i ↦ by by_cases C i = U i <;> aesop
+
+variable {G S : ι → Type*} [Π i, SetLike (S i) (G i)]
+    {C : Π i, S i} [Π i, TopologicalSpace (G i)] in
+theorem RestrictedProduct.isCompact_forall_mem_of_eventually_subset
+    (hC : ∀ i, IsOpen (X := G i) (C i))
+    (U : Π i, S i) (hU : ∀ i, IsCompact (X := G i) (U i))
+    (hU' : ∀ᶠ i in .cofinite, (U i : Set (G i)) ⊆ (C i : Set (G i))) :
+    IsCompact { v : Πʳ i, [G i, C i] | ∀ i, v i ∈ U i } := by
+  let s := { i | (U i : Set (G i)) ⊆ (C i : Set (G i)) }
+  convert ((isEmbedding_coe_of_principal (S := s) (A := (C ·))).isCompact_preimage'
+    (isCompact_univ_pi hU) (fun x hx ↦ ⟨⟨x, fun i hi ↦ hi (by simp_all)⟩, rfl⟩)).image
+    (isOpenEmbedding_inclusion_principal hC (Filter.le_principal_iff.mpr hU')).continuous using 1
+  ext v
+  simp only [Set.mem_setOf_eq, Set.mem_image, Set.mem_preimage, Set.mem_pi, Set.mem_univ,
+    SetLike.mem_coe, forall_const]
+  refine ⟨fun h ↦ ⟨⟨_, by aesop⟩, h, rfl⟩, by aesop⟩
+
 variable [Π i, TopologicalSpace (G i)] [Π i, TopologicalSpace (H i)] in
 @[fun_prop]
 theorem Continuous.restrictedProduct_congrRight {φ : (i : ι) → G i → H i}
@@ -57,23 +87,17 @@ variable [Π i, Monoid (G i)] [Π i, SubmonoidClass (S i) (G i)]
     [Π i, TopologicalSpace (H i)] in
 /-- The `ContinuousMulEquiv` (that is, group isomorphism and homeomorphism) between restricted
 products built from `ContinuousMulEquiv`s on the factors. -/
-@[to_additive
+@[to_additive (attr := simps! symm_apply apply)
 /-- The `ContinuousAddEquiv` (that is, additive group isomorphism and homeomorphism)
 between restricted products built from `ContinuousAddEquiv`s on the factors. -/]
 def ContinuousMulEquiv.restrictedProductCongrRight (φ : (i : ι) → G i ≃ₜ* H i)
     (hφ : ∀ᶠ i in ℱ, Set.BijOn (φ i) (A i) (B i)) :
     (Πʳ i, [G i, A i]_[ℱ]) ≃ₜ* (Πʳ i, [H i, B i]_[ℱ]) where
-  toFun := map (fun i ↦ φ i)
-    (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo)
-  invFun := map (fun i ↦ (φ i).symm)
-    (by filter_upwards [hφ]; exact fun i ↦ Set.BijOn.mapsTo ∘ Set.BijOn.equiv_symm)
-  map_mul' _ _ := by ext; simp
-  left_inv x := by
-    ext i
-    exact ContinuousMulEquiv.symm_apply_apply _ _
-  right_inv x := by
-    ext i
-    exact ContinuousMulEquiv.apply_symm_apply _ _
+  __ := MulEquiv.restrictedProductCongrRight (φ ·|>.toMulEquiv) hφ
+  continuous_toFun := Continuous.restrictedProduct_congrRight
+    (hφ.mono fun _ ↦ Set.BijOn.mapsTo) fun i ↦ (φ i).continuous
+  continuous_invFun := Continuous.restrictedProduct_congrRight
+    (hφ.mono fun _ ↦ Set.BijOn.mapsTo ∘ Set.BijOn.equiv_symm) fun i ↦ (φ i).continuous_invFun
 
 end groups
 
@@ -107,6 +131,7 @@ lemma Equiv.continuous_restrictedProductProd_symm {S : Set ι}
 /-- The homeomorphism between restricted product of binary products, and the binary projuct
 of the restricted products, when the products are with respect to open subsets.
 -/
+@[simps! apply_fst apply_snd symm_apply]
 def Homeomorph.restrictedProductProd [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)]
     (hCopen : ∀ (i : ι), IsOpen (C i)) (hDopen : ∀ (i : ι), IsOpen (D i)) :
     Πʳ i, [A i × B i, C i ×ˢ D i] ≃ₜ (Πʳ i, [A i, C i]) × (Πʳ i, [B i, D i]) where
@@ -117,6 +142,20 @@ def Homeomorph.restrictedProductProd [∀ i, TopologicalSpace (A i)] [∀ i, Top
     intro S hS
     rw [Equiv.invFun_as_coe, Equiv.restrictedProductProd_symm_comp_inclusion]
     fun_prop
+
+@[simp]
+lemma Homeomorph.restrictedProductProd_symm_apply_fst
+    [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)]
+    (hCopen : ∀ (i : ι), IsOpen (C i)) (hDopen : ∀ (i : ι), IsOpen (D i))
+    (x : (Πʳ i, [A i, C i]) × (Πʳ i, [B i, D i])) (i) :
+    ((Homeomorph.restrictedProductProd hCopen hDopen).symm x i).1 = x.1 i := rfl
+
+@[simp]
+lemma Homeomorph.restrictedProductProd_symm_apply_snd
+    [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)]
+    (hCopen : ∀ (i : ι), IsOpen (C i)) (hDopen : ∀ (i : ι), IsOpen (D i))
+    (x : (Πʳ i, [A i, C i]) × (Πʳ i, [B i, D i])) (i) :
+    ((Homeomorph.restrictedProductProd hCopen hDopen).symm x i).2 = x.2 i := rfl
 
 end binary
 
@@ -150,6 +189,7 @@ lemma Equiv.continuous_restrictedProductPi_symm {S : Set ι}
 /-- The homeomorphism between a restricted product of finite products, and a finite product
 of restricted products, when the products are with respect to open subsets.
 -/
+@[simps!]
 def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
     {A : n → ι → Type*} [∀ j i, TopologicalSpace (A j i)]
     {C : (j : n) → (i : ι) → Set (A j i)} (hCopen : ∀ j i, IsOpen (C j i)) :
@@ -166,7 +206,8 @@ def Homeomorph.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
 and a finite product of restricted products of groups, when the products are with respect
 to open subgroups.
 -/
-@[to_additive /-- The additive group homeomorphism between a restricted product of finite products
+@[to_additive
+/-- The additive group homeomorphism between a restricted product of finite products
 of additive groups, and a finite product of restricted products of additive groups, when the
 products are with respect to additive open subgroups. -/]
 def ContinuousMulEquiv.restrictedProductPi {ι : Type*} {n : Type*} [Fintype n]
@@ -231,6 +272,21 @@ def Homeomorph.restrictedProductMatrix {ι : Type*} {m n : Type*} [Fintype m] [F
   (Homeomorph.restrictedProductPi (fun _ _ ↦ restrictedProductMatrix_aux _ hCopen)).trans
     (Homeomorph.piCongrRight fun _ ↦ Homeomorph.restrictedProductPi (fun _ ↦ hCopen))
 
+@[simp]
+lemma Homeomorph.restrictedProductMatrix_apply {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
+    {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i))
+    (x : Πʳ i, [Matrix m n (A i), (C i).matrix]) (i j k) :
+    Homeomorph.restrictedProductMatrix hCopen x i j k = x k i j := rfl
+
+@[simp]
+lemma Homeomorph.restrictedProductMatrix_symm_apply
+    {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
+    {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i))
+    (x : Matrix m n (Πʳ i, [A i, C i])) (i j k) :
+    (Homeomorph.restrictedProductMatrix hCopen).symm x k i j = x i j k := rfl
+
 lemma Homeomorph.restrictedProductMatrix_toEquiv {ι : Type*} {m n : Type*} [Fintype m] [Fintype n]
     {A : ι → Type*} [∀ i, TopologicalSpace (A i)]
     {C : (i : ι) → Set (A i)} (hCopen : ∀ i, IsOpen (C i)) :
@@ -270,6 +326,7 @@ def Submonoid.unitsContinuousMulEquivUnitsType {M : Type*} [TopologicalSpace M] 
 and the restricted product of the units of the monoids, when the products are with
 respect to open submonoids.
 -/
+@[simps!]
 def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
     {M : ι → Type*} [(i : ι) → Monoid (M i)] [(i : ι) → TopologicalSpace (M i)]
     [(i : ι) → ContinuousMul (M i)]
@@ -311,6 +368,19 @@ def ContinuousMulEquiv.restrictedProductUnits {ι : Type*}
     exact hx
       }
 
+@[simp]
+lemma RestrictedProduct.coe_sum {ι : Type*} {A S : ι → Type*} [∀ i, SetLike (S i) (A i)]
+    [∀ i, AddCommMonoid (A i)] [∀ i, AddSubmonoidClass (S i) (A i)] {C : ∀ i, S i} {ℱ : Filter ι}
+    {σ : Type*} (s : Finset σ)
+    (f : σ → Πʳ i, [A i, C i]_[ℱ]) : ⇑(∑ i ∈ s, f i) = ∑ i ∈ s, ⇑(f i) :=
+  map_sum (RestrictedProduct.coeAddMonoidHom ..) ..
+
+lemma RestrictedProduct.sum_apply {ι : Type*} {A S : ι → Type*} [∀ i, SetLike (S i) (A i)]
+    [∀ i, AddCommMonoid (A i)] [∀ i, AddSubmonoidClass (S i) (A i)] {C : ∀ i, S i} {ℱ : Filter ι}
+    {σ : Type*} (s : Finset σ)
+    (f : σ → Πʳ i, [A i, C i]_[ℱ]) (j) : (∑ i ∈ s, f i) j = ∑ i ∈ s, f i j := by simp
+
+
 set_option backward.isDefEq.respectTransparency false in
 /-- The monoid homeomorphism between a restricted product of n x n matrices, and n x n matrices
 of restricted products, when the products are with respect to open sets.
@@ -319,25 +389,27 @@ def ContinuousMulEquiv.restrictedProductMatrix {ι : Type*}
     {n : Type*} [Fintype n] [DecidableEq n]
     {A : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, Ring (A i)]
     {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i))) :
-    Matrix n n (Πʳ i, [A i, C i]) ≃ₜ*
-      Πʳ i, [Matrix n n (A i), ((C i).matrix : Subring (Matrix n n (A i)))] :=
-    let restrictedProductMatrix :
-        Matrix n n (Πʳ i, [A i, C i]) ≃ₜ
-          Πʳ i, [Matrix n n (A i), ((C i).matrix : Subring (Matrix n n (A i)))] :=
-      Homeomorph.symm (Homeomorph.restrictedProductMatrix hCopen)
-  {
-  __ := restrictedProductMatrix
-  map_mul' x y := by
-    ext i j k
-    rw [mul_apply, Matrix.mul_apply]
-    have h {x : Matrix n n Πʳ (i : ι), [A i, ↑(C i)]} {i : ι} {j k : n} :
-        (restrictedProductMatrix.toFun x) i j k = (x j k) i := by
-      simp [restrictedProductMatrix, Homeomorph.restrictedProductMatrix,
-        Homeomorph.restrictedProductPi, Equiv.restrictedProductPi, Matrix]
-    simp only [h, Matrix.mul_apply]
-    conv_rhs => arg 2; intro _; rw [← mul_apply]
-    apply map_sum (RestrictedProduct.evalAddMonoidHom _ _) _ _
-      }
+      Πʳ i, [Matrix n n (A i), ((C i).matrix : Subring (Matrix n n (A i)))]
+      ≃ₜ* Matrix n n (Πʳ i, [A i, C i]) where
+  __ := Homeomorph.restrictedProductMatrix hCopen
+  map_mul' x y := by ext; simp [Matrix.mul_apply]
+
+@[simp]
+lemma ContinuousMulEquiv.restrictedProductMatrix_apply
+    {ι : Type*}
+    {n : Type*} [Fintype n] [DecidableEq n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, Ring (A i)]
+    {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i)))
+    (x : Πʳ i, [Matrix n n (A i), ((C i).matrix : Subring (Matrix n n (A i)))]) (i j k) :
+    ContinuousMulEquiv.restrictedProductMatrix hCopen x i j k = x k i j := rfl
+
+@[simp]
+lemma ContinuousMulEquiv.restrictedProductMatrix_symm_apply
+    {ι : Type*} {n : Type*} [Fintype n] [DecidableEq n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, Ring (A i)]
+    {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i)))
+    (x : Matrix n n (Πʳ i, [A i, C i])) (i j k) :
+    (ContinuousMulEquiv.restrictedProductMatrix hCopen).symm x k i j = x i j k := rfl
 
 /-- The monoid homeomorphism between the matrix units over a restricted product
 and the restricted product of the matrix units over the factors,
@@ -349,8 +421,24 @@ def ContinuousMulEquiv.restrictedProductMatrixUnits {ι : Type*}
     {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i))) :
     (Matrix n n (Πʳ i, [A i, C i]))ˣ ≃ₜ*
       Πʳ i, [(Matrix n n (A i))ˣ, ((C i).matrix.units : Subgroup (Matrix n n (A i))ˣ)] :=
-  (ContinuousMulEquiv.restrictedProductMatrix hCopen).unitsMap.trans
+  (ContinuousMulEquiv.restrictedProductMatrix hCopen).mapUnits.symm.trans
     (ContinuousMulEquiv.restrictedProductUnits (fun i => (C i).matrix) (fun i => (hCopen i).matrix))
+
+@[simp]
+lemma ContinuousMulEquiv.restrictedProductMatrixUnits_apply {ι : Type*}
+    {n : Type*} [Fintype n] [DecidableEq n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, Ring (A i)] [∀ i, IsTopologicalRing (A i)]
+    {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i)))
+    (m : (Matrix n n (Πʳ i, [A i, C i]))ˣ) (i j k) :
+    (restrictedProductMatrixUnits hCopen m i).1 j k = m.1 j k i := rfl
+
+@[simp]
+lemma ContinuousMulEquiv.restrictedProductMatrixUnits_symm_apply {ι : Type*}
+    {n : Type*} [Fintype n] [DecidableEq n]
+    {A : ι → Type*} [∀ i, TopologicalSpace (A i)] [∀ i, Ring (A i)] [∀ i, IsTopologicalRing (A i)]
+    {C : (i : ι) → Subring (A i)} (hCopen : ∀ i, IsOpen ((C i) : Set (A i)))
+    (m) (i j k) :
+    ((restrictedProductMatrixUnits (n := n) hCopen).symm m).1 i j k = (m k).1 i j := rfl
 
 end pi
 
