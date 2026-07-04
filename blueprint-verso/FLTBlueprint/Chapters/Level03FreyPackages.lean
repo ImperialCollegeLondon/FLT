@@ -106,3 +106,5 @@ Statement $`B_2` is true. In other words, FLT is true for $`p\geq5` prime.
 Follows from {uses "B_3_no_Frey_Package_implies_B_2_FLT_for_p_geq_5"}[the above argument],
 assuming {uses "B3_proof"}[$`B_3.`]
 :::
+
+It remains to prove statement $`B_3`.
