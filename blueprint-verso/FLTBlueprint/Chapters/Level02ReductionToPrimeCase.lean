@@ -48,7 +48,7 @@ Fermat's Last Theorem holds for the exponent $`p`: there are no positive natural
 numbers $`a, b, c` with $`a^p + b^p = c^p`.
 :::
 
-The theorem we shall prove in this section is that statement $`B_2` implies
+The theorem we shall prove in this level is that statement $`B_2` implies
 statment $`B_1` (which is Fermat's Last Theorem). We will do this, assuming
 two old theorems which date back centuries.
 
@@ -156,7 +156,6 @@ left is that it is false for some prime $`p \geq 5`. Hence statement $`B_2` is
 false, which is what we wanted to prove.
 :::
 
-In the next level, we will deduce statement $`B_2` from a weaker statement $`B_3`.
 Assuming $`B_2` for now, we are of course done.
 
 :::theorem "flt_proof" (parent := "reductions") (lean := "flt") (uses := "Statement_B1_FLT")
@@ -167,4 +166,4 @@ Fermat's Last Theorem is true.
 Follows from {uses "B2_implies_B1"}[the above argument], assuming {uses "B2_proof"}[$`B_2.`]
 :::
 
-So all we have to do now is to prove Statement $`B_2`.
+So all we have to do now is to prove statement $`B_2`. We start on this in level 3.
