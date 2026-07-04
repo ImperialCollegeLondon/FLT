@@ -15,6 +15,7 @@ import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.NumberTheory.FLT.Four
 import Mathlib.NumberTheory.FLT.Three
 import Mathlib.Tactic.ModCases
+public import FLT.Basic.Lemmas
 
 /-!
 
@@ -55,36 +56,21 @@ Lean's version `FermatLastTheorem` of the theorem.
 
 -/
 
-/-- Fermat's Last Theorem as stated in mathlib (a statement `FermatLastTheorem` about naturals)
-implies Fermat's Last Theorem stated in terms of positive integers. -/
-theorem PNat.pow_add_pow_ne_pow_of_FermatLastTheorem :
-    FermatLastTheorem → ∀ (a b c : ℕ+) (n : ℕ) (_ : n > 2),
-    a ^ n + b ^ n ≠ c ^ n := by
-  intro h₁ a b c n h₂
-  specialize h₁ n h₂ a b c (by simp) (by simp) (by simp)
-  assumption_mod_cast
-
-/-- If Fermat's Last Theorem is true for primes `p ≥ 5`, then FLT is true. -/
-lemma FermatLastTheorem.of_p_ge_5 (H : ∀ p ≥ 5, p.Prime → FermatLastTheoremFor p) :
-    FermatLastTheorem := by
-  apply FermatLastTheorem.of_odd_primes -- this is Fermat's proof for n=4, plus reduction to
-                                        -- the case n prime.
-  intro p pp p_odd
-  if hp5 : 5 ≤ p then
-    exact H _ hp5 pp
-  else
-    have hp2 := pp.two_le
-    interval_cases p
-    · contradiction
-    · exact fermatLastTheoremThree -- this is Euler's proof for n=3
-    · contradiction
-
 /--
 A *Frey Package* is a 4-tuple (a,b,c,p) of integers
 satisfying $a^p+b^p=c^p$ and some other inequalities
 and congruences. These facts guarantee that all of
 the all the results in section 4.1 of Serre's paper [serre]
-apply to the curve $Y^2=X(X-a^p)(X+b^p).$
+apply to the corresponding Frey curve, the
+elliptic curve $Y^2=X(X-a^p)(X+b^p).$
+In particular the $p$-torsion of this curve is a highly
+suspicious object. Serre could already prove in 1987
+(using Mazur's theorem) that the $p$-torsion had to be
+an irreducible Galois representation; in 1990 Ribet
+proved that the $p$-torsion could not be irreducible,
+assuming modularity of the Frey curve. In 1993 Wiles
+showed that the Frey curve was modular, completing the
+proof.
 -/
 structure FreyPackage where
   /-- The integer `a` in the Frey package. -/
@@ -93,16 +79,26 @@ structure FreyPackage where
   b : ℤ
   /-- The integer `c` in the Frey package. -/
   c : ℤ
+  /-- The integer `a` is nonzero. -/
   ha0 : a ≠ 0
+  /-- The integer `b` is nonzero. -/
   hb0 : b ≠ 0
+  /-- The integer `c` is nonzero. -/
   hc0 : c ≠ 0
   /-- The prime number `p` in the Frey package. -/
   p : ℕ
+  /-- The natural number `p` is prime. -/
   pp : Nat.Prime p
+  /-- The prime `p` is at least `5`. -/
   hp5 : 5 ≤ p
+  /-- The Fermat equation `a ^ p + b ^ p = c ^ p` holds. -/
   hFLT : a ^ p + b ^ p = c ^ p
-  hgcdab : gcd a b = 1 -- same as saying a,b,c pairwise coprime
+  /-- The integers `a` and `b` are coprime. Together with `hFLT` this is
+  equivalent to `a`, `b` and `c` being pairwise coprime. -/
+  hgcdab : gcd a b = 1
+  /-- The integer `a` is congruent to `3` modulo `4`. -/
   ha4 : (a : ZMod 4) = 3
+  /-- The integer `b` is even, i.e. congruent to `0` modulo `2`. -/
   hb2 : (b : ZMod 2) = 0
 
 namespace FreyPackage
@@ -144,39 +140,37 @@ lemma hgcdbc (P : FreyPackage) : gcd P.b P.c = 1 :=  by
   rw [add_comm]
   exact P.hFLT
 
--- for mathlib? I thought I needed it but I got around it
--- lemma Int.dvd_div_iff {a b c : ℤ} (hbc : c ∣ b) : a ∣ b / c ↔ c * a ∣ b := by
---   constructor
---   · rintro ⟨x, hx⟩
---     use x
---     rcases hbc with ⟨y, rfl⟩
---     by_cases hc : c = 0
---     · simp [hc]
---     · rw [Int.mul_ediv_cancel_left _ hc] at hx
---       rw [hx, mul_assoc]
---   · rintro ⟨x, rfl⟩
---     rw [mul_assoc]
---     by_cases hc : c = 0
---     · simp [hc]
---     · simp [Int.mul_ediv_cancel_left _ hc]
-
-/-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5,
-there exists a Frey package. -/
-lemma of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0)
-    {p : ℕ} (pp : p.Prime) (hp5 : 5 ≤ p) (H : a ^ p + b ^ p = c ^ p) : Nonempty FreyPackage := by
+/-- Given a counterexample a^p+b^p=c^p to Fermat's Last Theorem with p>=5
+    and prime, there exists a Frey package. -/
+lemma of_not_FermatLastTheoremFor_p_ge_5
+    {p : ℕ} (pp : p.Prime) (hp5 : 5 ≤ p) (H : ¬ FermatLastTheoremFor p) :
+    Nonempty FreyPackage := by
   have p_odd := pp.odd_of_ne_two (by omega)
+  -- first get the counterexample
+  unfold FermatLastTheoremFor FermatLastTheoremWith at H
+  push Not at H
+  obtain ⟨a, b, c, ha, hb, hc, hflt⟩ := H
+  -- This is natural numbers. Now turn it into a counterexample for integers.
+  let A : ℤ := a
+  let B : ℤ := b
+  let C : ℤ := c
+  have hA : A ≠ 0 := Int.ofNat_ne_zero.mpr ha
+  have hB : B ≠ 0 := Int.ofNat_ne_zero.mpr hb
+  have hC : C ≠ 0 := Int.ofNat_ne_zero.mpr hc
+  have H : A^p + B^p = C^p := Nat.ToInt.of_eq rfl rfl hflt
   -- First, show that we can make a,b coprime by dividing through by gcd a b
   have ⟨a, b, c, a0, b0, c0, ab, H⟩ :
       ∃ (a b c : ℤ), a ≠ 0 ∧ b ≠ 0 ∧ c ≠ 0 ∧ Int.gcd a b = 1 ∧ a^p + b^p = c^p := by
     obtain ⟨d, a', b', d0, cop, a_eq, b_eq⟩ :=
-      Int.exists_gcd_one' (Int.gcd_pos_of_ne_zero_left b ha)
+      Int.exists_gcd_one' (Int.gcd_pos_of_ne_zero_left B hA)
     simp only [a_eq, mul_pow, b_eq] at H
     rw [← add_mul, mul_comm] at H
-    obtain ⟨c', rfl⟩ := (Int.pow_dvd_pow_iff pp.ne_zero).1 ⟨_, H.symm⟩
+    obtain ⟨c', hCdc⟩ := (Int.pow_dvd_pow_iff pp.ne_zero).1 ⟨_, H.symm⟩
+    rw [hCdc] at H hC
     rw [mul_pow] at H
-    have a0' := left_ne_zero_of_mul (a_eq ▸ ha)
-    have b0' := left_ne_zero_of_mul (b_eq ▸ hb)
-    have c0' := right_ne_zero_of_mul hc
+    have a0' := left_ne_zero_of_mul (a_eq ▸ hA)
+    have b0' := left_ne_zero_of_mul (b_eq ▸ hB)
+    have c0' := right_ne_zero_of_mul hC
     exact ⟨a', b', c', a0', b0', c0', cop, mul_left_cancel₀ (pow_ne_zero _ (mod_cast d0.ne')) H⟩
   -- Then show that WLOG we can take b to be even,
   -- because at least one of a,b,c is even and we can permute if needed
@@ -217,165 +211,18 @@ lemma of_not_FermatLastTheorem_p_ge_5 {a b c : ℤ} (ha : a ≠ 0) (hb : b ≠ 0
     hb2 := (ZMod.intCast_zmod_eq_zero_iff_dvd ..).2 (even_iff_two_dvd.1 eb)
   }⟩
 
-/-- If Fermat's Last Theorem is false, then there exists a Frey Package. -/
-lemma of_not_FermatLastTheorem (h : ¬ FermatLastTheorem) : Nonempty (FreyPackage) := by
-  contrapose! h
-  refine FermatLastTheorem.of_p_ge_5
-    fun p hp5 pp a b c ha hb _ h2 ↦ Nonempty.elim ?_ h.false
-  apply FreyPackage.of_not_FermatLastTheorem_p_ge_5 (a := a) (b := b) (c := c)
-    <;> assumption_mod_cast
-
-/-- The Weierstrass curve over `ℤ` associated to a Frey package. The conditions imposed
-upon a Frey package guarantee that the running hypotheses in
-Section 4.1 of [Serre] all hold. We put the curve into the form where the
-equation is semistable at 2, rather than the usual `Y^2=X(X-a^p)(X+b^p)` form.
-The change of variables is `X=4x` and `Y=8y+4x`, and then divide through by 64. -/
-def freyCurveInt (P : FreyPackage) : WeierstrassCurve ℤ where
-  a₁ := 1
-  -- Note that the numerator of a₂ is a multiple of 4
-  a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
-  a₃ := 0
-  a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- Note: numerator is multiple of 16
-  a₆ := 0
-
-/-- The elliptic curve over `ℚ` associated to a Frey package. The conditions imposed
-upon a Frey package guarantee that the running hypotheses in
-Section 4.1 of [Serre] all hold. We put the curve into the form where the
-equation is semistable at 2, rather than the usual `Y^2=X(X-a^p)(X+b^p)` form.
-The change of variables is `X=4x` and `Y=8y+4x`, and then divide through by 64. -/
-def freyCurve (P : FreyPackage) : WeierstrassCurve ℚ where
-  a₁ := 1
-  -- a₂ is an integer because of the congruences assumed e.g. P.ha4
-  a₂ := (P.b ^ P.p - 1 - P.a ^ P.p) / 4
-  a₃ := 0
-  a₄ := -(P.a ^ P.p) * (P.b ^ P.p) / 16 -- this is also an integer
-  a₆ := 0
+/-- If there is no Frey package, then Fermat's Last Theorem
+is true for all primes p≥5.
+-/
+lemma fermatLastTheoremFor_p_ge_5 (h : IsEmpty FreyPackage) :
+    ∀ p ≥ 5, p.Prime → FermatLastTheoremFor p := by
+  -- assume for a contradiction that we have a counterexample
+  -- a^p+b^p=c^p
+  intro p hp5 hpp
+  by_contra!
+  -- by the previous result, we can make a Frey package `f`
+  obtain ⟨f⟩ := of_not_FermatLastTheoremFor_p_ge_5 hpp hp5 this
+  -- This contradicts our assumption.
+  exact IsEmpty.false f
 
 end FreyPackage
-
-namespace FreyCurve
-
-open FreyPackage
-
-theorem map (P : FreyPackage) : (freyCurveInt P).map (algebraMap ℤ ℚ) = freyCurve P := by
-  have two_dvd_b : 2 ∣ P.b := (ZMod.intCast_zmod_eq_zero_iff_dvd P.b 2).1 P.hb2
-  ext
-  · rfl
-  · change (((P.b ^ P.p - 1 - P.a ^ P.p) / 4 : ℤ) : ℚ) = (P.b ^ P.p - 1 - P.a ^ P.p) / 4
-    rw [Rat.intCast_div]
-    · norm_cast
-    · rw [sub_sub]
-      apply Int.dvd_sub
-      · calc
-          (4 : ℤ) = 2 ^ 2     := by norm_num
-          _       ∣ P.b ^ 2   := pow_dvd_pow_of_dvd two_dvd_b 2
-          _       ∣ P.b ^ P.p := pow_dvd_pow P.b (by linarith [P.hp5])
-      · apply (ZMod.intCast_zmod_eq_zero_iff_dvd _ 4).1
-        push_cast
-        rw [P.ha4, show (3 : ZMod 4) = -1 from rfl, neg_one_pow_eq_ite, if_neg]
-        · norm_num
-        · rw [Nat.Prime.even_iff P.pp]
-          linarith [P.hp5]
-  · rfl
-  · change ((-(P.a ^ P.p) * (P.b ^ P.p) / 16 : ℤ) : ℚ) = -(P.a ^ P.p) * (P.b ^ P.p) / 16
-    rw [Rat.intCast_div]
-    · norm_cast
-    · calc
-        (16 : ℤ) = 2 ^ 4     := by norm_num
-        _        ∣ P.b ^ 4   := pow_dvd_pow_of_dvd two_dvd_b 4
-        _        ∣ P.b ^ P.p := pow_dvd_pow P.b (by linarith [P.hp5])
-        _        ∣ _         := Int.dvd_mul_left _ _
-  · rfl
-
-lemma Δ (P : FreyPackage) : P.freyCurve.Δ = (P.a*P.b*P.c)^(2*P.p) / 2 ^ 8 := by
-  trans (P.a ^ P.p) ^ 2 * (P.b ^ P.p) ^ 2 * (P.c ^ P.p) ^ 2 / 2 ^ 8
-  · field_simp
-    norm_cast
-    simp [← P.hFLT, WeierstrassCurve.Δ, freyCurve, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
-      WeierstrassCurve.b₆, WeierstrassCurve.b₈]
-    ring
-  · simp [← mul_pow, ← pow_mul, mul_comm 2]
-
-instance (P : FreyPackage) : WeierstrassCurve.IsElliptic (freyCurve P) where
-  isUnit := by
-    rw [FreyCurve.Δ, isUnit_iff_ne_zero]
-    apply div_ne_zero
-    · norm_cast
-      exact pow_ne_zero _ <| mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0
-    · norm_num
-
-lemma b₂ (P : FreyPackage) :
-    P.freyCurve.b₂ = P.b ^ P.p - P.a ^ P.p := by
-  simp [freyCurve, WeierstrassCurve.b₂]
-  ring
-
-lemma b₄ (P : FreyPackage) :
-    P.freyCurve.b₄ = - (P.a * P.b) ^ P.p / 8 := by
-  simp [freyCurve, WeierstrassCurve.b₄]
-  ring
-
-lemma c₄ (P : FreyPackage) :
-    P.freyCurve.c₄ = (P.a ^ P.p) ^ 2 + P.a ^ P.p * P.b ^ P.p + (P.b ^ P.p) ^ 2 := by
-  simp [FreyCurve.b₂, FreyCurve.b₄, WeierstrassCurve.c₄]
-  ring
-
-lemma c₄' (P : FreyPackage) :
-    P.freyCurve.c₄ = P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p := by
-  rw [FreyCurve.c₄]
-  rw_mod_cast [pow_mul', ← hFLT]
-  ring
-
-lemma Δ'inv (P : FreyPackage) :
-    (↑(P.freyCurve.Δ'⁻¹) : ℚ) = 2 ^ 8 / (P.a*P.b*P.c)^(2*P.p) := by
-  simp [FreyCurve.Δ]
-
-lemma j (P : FreyPackage) :
-    P.freyCurve.j = 2^8*(P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 /(P.a*P.b*P.c)^(2*P.p) := by
-  rw [mul_div_right_comm, WeierstrassCurve.j, FreyCurve.Δ'inv, FreyCurve.c₄']
-
-private lemma j_pos_aux (a b : ℤ) (hb : b ≠ 0) : 0 < (a + b) ^ 2 - a * b := by
-  rify
-  calc
-    (0 : ℝ) < (a ^ 2 + (a + b) ^ 2 + b ^ 2) / 2 := by positivity
-    _ = (a + b) ^ 2 - a * b := by ring
-
-/-- The q-adic valuation of the j-invariant of the Frey curve is a multiple of p if 2 < q is
-a prime of bad reduction. -/
-lemma j_valuation_of_bad_prime (P : FreyPackage) {q : ℕ} (hqPrime : q.Prime)
-    (hqbad : (q : ℤ) ∣ P.a * P.b * P.c) (hqodd : 2 < q) :
-    (P.p : ℤ) ∣ padicValRat q P.freyCurve.j := by
-  have := Fact.mk hqPrime
-  have hqPrime' := Nat.prime_iff_prime_int.mp hqPrime
-  have h₀ : ((P.c ^ (2 * P.p) - (P.a * P.b) ^ P.p) ^ 3 : ℚ) ≠ 0 := by
-    rw_mod_cast [pow_mul', ← P.hFLT, mul_pow]
-    exact pow_ne_zero _ <| ne_of_gt <| j_pos_aux _ _ (pow_ne_zero _ P.hb0)
-  have h₁ : P.a * P.b * P.c ≠ 0 := mul_ne_zero (mul_ne_zero P.ha0 P.hb0) P.hc0
-  rw [FreyCurve.j, padicValRat.div (mul_ne_zero (by norm_num) h₀) (pow_ne_zero _ (mod_cast h₁)),
-    padicValRat.mul (by norm_num) h₀, padicValRat.pow, ← Nat.cast_two,
-    ← padicValRat_of_nat, padicValNat_primes hqodd.ne', Nat.cast_zero, mul_zero, zero_add]
-  have : ¬ (q : ℤ) ∣ (P.c^(2*P.p)-(P.a*P.b)^P.p) ^ 3 := by
-    rw [hqPrime'.dvd_pow_iff_dvd three_ne_zero]
-    have hq' : Xor ((q : ℤ) ∣ P.a * P.b) ((q : ℤ) ∣ P.c) := by
-      rw [xor_iff_not_iff, iff_iff_and_or_not_and_not]
-      rintro (⟨hab, hc⟩ | ⟨hab, hc⟩)
-      · rw [hqPrime'.dvd_mul] at hab
-        apply hqPrime'.not_dvd_one
-        cases hab with
-        | inl ha => rw [← P.hgcdac]; exact dvd_gcd ha hc
-        | inr hb => rw [← P.hgcdbc]; exact dvd_gcd hb hc
-      · rw [hqPrime'.dvd_mul] at hqbad
-        exact hqbad.rec hab hc
-    have h2p0 := mul_ne_zero two_ne_zero P.hp0
-    cases hq' with
-    | inl h =>
-      rw [dvd_sub_left (dvd_pow h.1 P.hp0), hqPrime'.dvd_pow_iff_dvd h2p0]
-      exact h.2
-    | inr h =>
-      rw [dvd_sub_right (dvd_pow h.1 h2p0), hqPrime'.dvd_pow_iff_dvd P.hp0]
-      exact h.2
-  norm_cast
-  rw [padicValRat.of_int, padicValInt.eq_zero_of_not_dvd this, Nat.cast_zero, zero_sub,
-    Int.cast_pow, padicValRat.pow, dvd_neg, Nat.cast_mul]
-  exact dvd_mul_of_dvd_left (dvd_mul_left _ _) _
-
-end FreyCurve
